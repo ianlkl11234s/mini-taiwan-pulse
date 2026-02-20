@@ -48,11 +48,13 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
         flightScene.forceRebuildStatic();
       }
 
-      // 更新靜態軌跡不透明度 & 光球大小
+      // 先更新靜態軌跡（可能重建 mesh）
+      flightScene.updateStaticTrails(flights, mode);
+
+      // 再套用不透明度 & 光球大小（確保新建的 mesh 也能正確套用）
       flightScene.setStaticOpacity(opts.getStaticOpacity());
       flightScene.setOrbScale(opts.getOrbScale());
 
-      flightScene.updateStaticTrails(flights, mode);
       flightScene.update(flights, time);
       flightScene.render(matrix);
 

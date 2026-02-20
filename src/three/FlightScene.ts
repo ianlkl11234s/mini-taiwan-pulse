@@ -24,6 +24,7 @@ export class FlightScene {
   private visuals = new Map<string, FlightVisual>();
   private colorIndex = 0;
   private currentOrbScale = 0.000005;
+  private currentStaticOpacity = 0.2;
 
   // 靜態軌跡的 3D mesh（暖橘色，全路徑）
   private staticMesh: THREE.LineSegments | null = null;
@@ -130,7 +131,7 @@ export class FlightScene {
     const mat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.2,
+      opacity: this.currentStaticOpacity,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -142,7 +143,7 @@ export class FlightScene {
     const glowMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: 0.06,
+      opacity: this.currentStaticOpacity * 0.3,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
     });
@@ -158,6 +159,7 @@ export class FlightScene {
 
   /** 更新靜態軌跡不透明度 */
   setStaticOpacity(innerOpacity: number) {
+    this.currentStaticOpacity = innerOpacity;
     if (this.staticMesh) {
       (this.staticMesh.material as THREE.LineBasicMaterial).opacity = innerOpacity;
     }
@@ -226,9 +228,27 @@ export class FlightScene {
   }
 
   render(matrix: number[]) {
+    const gl = this.renderer.getContext();
+
+    // 保存 Mapbox 的 WebGL blend 狀態
+    const blendEnabled = gl.isEnabled(gl.BLEND);
+    const blendSrc = gl.getParameter(gl.BLEND_SRC_RGB);
+    const blendDst = gl.getParameter(gl.BLEND_DST_RGB);
+    const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
+    const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
+
     this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
+    this.renderer.resetState();
+
+    // 恢復 Mapbox 的 WebGL blend 狀態
+    if (blendEnabled) {
+      gl.enable(gl.BLEND);
+    } else {
+      gl.disable(gl.BLEND);
+    }
+    gl.blendFuncSeparate(blendSrc, blendDst, blendSrcA, blendDstA);
   }
 
   private createVisual(flightId: string): FlightVisual {
