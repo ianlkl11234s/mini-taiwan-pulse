@@ -4,10 +4,8 @@
 
 ## Screenshots
 
-<!-- 將截圖放入 screenshots/ 資料夾，取消下方註解即可顯示 -->
-<!-- ![3D Altitude View](screenshots/3d-altitude.png) -->
-<!-- ![2D Flat View](screenshots/2d-flat.png) -->
-<!-- ![Capture Mode](screenshots/capture-mode.png) -->
+![RCTP - 桃園國際機場](screenshots/RCTP.png)
+![RCKH - 高雄國際機場](screenshots/RCKH.png)
 
 ## 視覺概念
 
