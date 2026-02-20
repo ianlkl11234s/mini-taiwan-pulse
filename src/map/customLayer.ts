@@ -20,7 +20,6 @@ export function createFlightLayer(
     onAdd(mapInstance: MapboxMap, gl: WebGLRenderingContext) {
       map = mapInstance;
       flightScene.init(gl);
-      flightScene.setFlights(getFlights());
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {

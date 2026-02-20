@@ -15,6 +15,10 @@ interface FlightVisual {
 /**
  * Three.js 場景管理器
  * 管理所有航班的光軌、光球、閃爍燈
+ *
+ * visuals 採用 lazy 建立策略：update() 遇到未見過的航班會自動建立，
+ * 離開範圍的航班只是隱藏（不銷毀），確保跨模式切換和異步資料載入
+ * 都不會導致畫面空白。
  */
 export class FlightScene {
   scene: THREE.Scene;
@@ -22,6 +26,7 @@ export class FlightScene {
   renderer!: THREE.WebGLRenderer;
 
   private visuals = new Map<string, FlightVisual>();
+  private colorIndex = 0;
 
   // 光軌顏色調色盤（additive blending 下的基底色）
   private colors = [
@@ -47,35 +52,21 @@ export class FlightScene {
     this.renderer.autoClear = false;
   }
 
-  /** 更新航班資料（切換機場時呼叫） */
-  setFlights(flights: Flight[]) {
-    this.clearScene();
-
-    for (let i = 0; i < flights.length; i++) {
-      const flight = flights[i]!;
-      const color = this.colors[i % this.colors.length]!;
-
-      const trail = new LightTrail(color);
-      const orb = new LightOrb(color);
-      const blink = new BlinkingLight();
-
-      // 閃爍燈掛在光球 group 下
-      orb.group.add(blink.sprite);
-
-      this.scene.add(trail.mesh);
-      this.scene.add(orb.group);
-
-      this.visuals.set(flight.fr24_id, { trail, orb, blink });
-    }
-  }
-
-  /** 每幀更新（根據當前時間） */
+  /** 每幀更新（根據當前時間），自動管理 visuals 生命週期 */
   update(flights: Flight[], currentTime: number) {
-    const animDt = 0.016; // ~60fps frame delta for visual animation
+    const animDt = 0.016; // ~60fps
+
+    // 收集本幀活躍的 flight IDs
+    const activeIds = new Set<string>();
 
     for (const flight of flights) {
-      const visual = this.visuals.get(flight.fr24_id);
-      if (!visual) continue;
+      activeIds.add(flight.fr24_id);
+
+      // Lazy 建立：遇到新航班自動建立 visual
+      let visual = this.visuals.get(flight.fr24_id);
+      if (!visual) {
+        visual = this.createVisual(flight.fr24_id);
+      }
 
       const active = isFlightActive(flight.path, currentTime);
 
@@ -109,6 +100,15 @@ export class FlightScene {
       visual.blink.setVisible(true);
       visual.blink.update(animDt);
     }
+
+    // 隱藏不在本幀航班列表中的 visuals
+    for (const [id, visual] of this.visuals) {
+      if (!activeIds.has(id)) {
+        visual.trail.setOpacity(0);
+        visual.orb.setVisible(false);
+        visual.blink.setVisible(false);
+      }
+    }
   }
 
   /** 在 Mapbox CustomLayer.render 中呼叫 */
@@ -116,6 +116,23 @@ export class FlightScene {
     this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
+  }
+
+  private createVisual(flightId: string): FlightVisual {
+    const color = this.colors[this.colorIndex % this.colors.length]!;
+    this.colorIndex++;
+
+    const trail = new LightTrail(color);
+    const orb = new LightOrb(color);
+    const blink = new BlinkingLight();
+
+    orb.group.add(blink.sprite);
+    this.scene.add(trail.mesh);
+    this.scene.add(orb.group);
+
+    const visual = { trail, orb, blink };
+    this.visuals.set(flightId, visual);
+    return visual;
   }
 
   private clearScene() {
@@ -127,6 +144,7 @@ export class FlightScene {
       visual.blink.dispose();
     }
     this.visuals.clear();
+    this.colorIndex = 0;
   }
 
   dispose() {

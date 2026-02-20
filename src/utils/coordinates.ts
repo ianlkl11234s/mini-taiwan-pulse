@@ -1,6 +1,13 @@
 import mapboxgl from "mapbox-gl";
 
 /**
+ * 高度放大倍率
+ * Mercator z 在一般 zoom level 下極小，需放大才看得出高度差。
+ * 3 倍讓巡航高度（~10km）在低角度視角下有明顯的立體感。
+ */
+const ALT_EXAGGERATION = 3;
+
+/**
  * 將 [lat, lng, alt_m] 轉換為 Mapbox MercatorCoordinate
  * Three.js 可直接使用 MercatorCoordinate 的 x, y, z
  */
@@ -9,7 +16,10 @@ export function toMercator(
   lng: number,
   altMeters: number,
 ): { x: number; y: number; z: number } {
-  const mc = mapboxgl.MercatorCoordinate.fromLngLat([lng, lat], altMeters);
+  const mc = mapboxgl.MercatorCoordinate.fromLngLat(
+    [lng, lat],
+    altMeters * ALT_EXAGGERATION,
+  );
   return { x: mc.x, y: mc.y, z: mc.z };
 }
 
