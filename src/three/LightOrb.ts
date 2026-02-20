@@ -9,11 +9,15 @@ export class LightOrb {
   private layers: THREE.Sprite[] = [];
   private time = 0;
 
+  private baseScale: number;
+  private layerRatios = [0.5, 1.0, 2.0];
+
   constructor(
     color: THREE.Color = new THREE.Color(0.6, 0.85, 1.0),
     scale: number = 0.00008,
   ) {
     this.group = new THREE.Group();
+    this.baseScale = scale;
 
     // 建立發光紋理
     const glowTexture = this.createGlowTexture();
@@ -39,6 +43,15 @@ export class LightOrb {
       sprite.scale.set(cfg.scale, cfg.scale, 1);
       this.group.add(sprite);
       this.layers.push(sprite);
+    }
+  }
+
+  /** 動態更新光球大小 */
+  setScale(scale: number) {
+    this.baseScale = scale;
+    for (let i = 0; i < this.layers.length; i++) {
+      const s = scale * this.layerRatios[i]!;
+      this.layers[i]!.scale.set(s, s, 1);
     }
   }
 

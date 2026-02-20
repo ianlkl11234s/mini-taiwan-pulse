@@ -12,6 +12,21 @@ import { FlightPicker } from "./components/FlightPicker";
 import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 
+const sliderLabelStyle: React.CSSProperties = {
+  color: "rgba(255,255,255,0.6)",
+  fontSize: 11,
+  fontFamily: "monospace",
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
+};
+const sliderStyle: React.CSSProperties = {
+  width: 60,
+  height: 4,
+  accentColor: "rgba(255,255,255,0.6)",
+  cursor: "pointer",
+};
+
 export default function App() {
   const {
     allFlights,
@@ -27,6 +42,9 @@ export default function App() {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [mapStyleId, setMapStyleId] = useState("dark");
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
+  const [altExaggeration, setAltExaggeration] = useState(3);
+  const [staticOpacity, setStaticOpacity] = useState(0.2);
+  const [orbScale, setOrbScale] = useState(0.00012);
 
   const timeline = useTimeline({
     startTime: timeRange.start,
@@ -71,10 +89,16 @@ export default function App() {
   const flightsRef = useRef(displayedFlights);
   const timeRef = useRef(timeline.currentTime);
   const renderModeRef = useRef(renderMode);
+  const altExagRef = useRef(altExaggeration);
+  const staticOpacityRef = useRef(staticOpacity);
+  const orbScaleRef = useRef(orbScale);
 
   flightsRef.current = displayedFlights;
   timeRef.current = timeline.currentTime;
   renderModeRef.current = renderMode;
+  altExagRef.current = altExaggeration;
+  staticOpacityRef.current = staticOpacity;
+  orbScaleRef.current = orbScale;
 
   const preset = useMemo(
     () => getPresetByIcao(selectedAirport) ?? CAMERA_PRESETS[0]!,
@@ -87,11 +111,14 @@ export default function App() {
     if (map.getLayer("flight-3d")) {
       map.removeLayer("flight-3d");
     }
-    const layer = createFlightLayer(
-      () => timeRef.current,
-      () => flightsRef.current,
-      () => renderModeRef.current,
-    );
+    const layer = createFlightLayer({
+      getCurrentTime: () => timeRef.current,
+      getFlights: () => flightsRef.current,
+      getRenderMode: () => renderModeRef.current,
+      getAltExaggeration: () => altExagRef.current,
+      getStaticOpacity: () => staticOpacityRef.current,
+      getOrbScale: () => orbScaleRef.current,
+    });
     map.addLayer(layer);
   };
 
@@ -192,6 +219,61 @@ export default function App() {
         />
       </div>
 
+      {/* 第三列：視覺參數調整 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 84,
+          left: 16,
+          zIndex: 10,
+          display: "flex",
+          gap: 14,
+          alignItems: "center",
+        }}
+      >
+        {/* 高度倍率 */}
+        <label style={sliderLabelStyle}>
+          Alt ×{altExaggeration.toFixed(1)}
+          <input
+            type="range"
+            min={1}
+            max={5}
+            step={0.5}
+            value={altExaggeration}
+            onChange={(e) => setAltExaggeration(Number(e.target.value))}
+            style={sliderStyle}
+          />
+        </label>
+
+        {/* 軌跡不透明度 */}
+        <label style={sliderLabelStyle}>
+          Opacity {staticOpacity.toFixed(2)}
+          <input
+            type="range"
+            min={0.02}
+            max={0.5}
+            step={0.02}
+            value={staticOpacity}
+            onChange={(e) => setStaticOpacity(Number(e.target.value))}
+            style={sliderStyle}
+          />
+        </label>
+
+        {/* 光球大小 */}
+        <label style={sliderLabelStyle}>
+          Orb {(orbScale * 100000).toFixed(0)}
+          <input
+            type="range"
+            min={0.00002}
+            max={0.0004}
+            step={0.00002}
+            value={orbScale}
+            onChange={(e) => setOrbScale(Number(e.target.value))}
+            style={sliderStyle}
+          />
+        </label>
+      </div>
+
       {/* 時間軸 */}
       <TimelineControls
         playing={timeline.playing}
@@ -232,7 +314,7 @@ export default function App() {
       <div
         style={{
           position: "absolute",
-          top: 84,
+          top: 112,
           left: 16,
           zIndex: 10,
           color: "rgba(255,255,255,0.4)",

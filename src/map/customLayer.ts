@@ -1,17 +1,24 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
 import type { Flight, RenderMode } from "../types";
 import { FlightScene } from "../three/FlightScene";
+import { setAltExaggeration, getAltExaggeration } from "../utils/coordinates";
+
+export interface FlightLayerOptions {
+  getCurrentTime: () => number;
+  getFlights: () => Flight[];
+  getRenderMode: () => RenderMode;
+  getAltExaggeration: () => number;
+  getStaticOpacity: () => number;
+  getOrbScale: () => number;
+}
 
 /**
  * 建立 Mapbox CustomLayer，橋接 Three.js 場景
  */
-export function createFlightLayer(
-  getCurrentTime: () => number,
-  getFlights: () => Flight[],
-  getRenderMode: () => RenderMode,
-): CustomLayerInterface {
+export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterface {
   const flightScene = new FlightScene();
   let map: MapboxMap | null = null;
+  let lastAltExag = getAltExaggeration();
 
   return {
     id: "flight-3d",
@@ -24,9 +31,21 @@ export function createFlightLayer(
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      const flights = getFlights();
-      const time = getCurrentTime();
-      const mode = getRenderMode();
+      const flights = opts.getFlights();
+      const time = opts.getCurrentTime();
+      const mode = opts.getRenderMode();
+      const altExag = opts.getAltExaggeration();
+
+      // 高度倍率變更 → 更新座標模組 + 強制重建靜態軌跡
+      setAltExaggeration(altExag);
+      if (altExag !== lastAltExag) {
+        lastAltExag = altExag;
+        flightScene.forceRebuildStatic();
+      }
+
+      // 更新靜態軌跡不透明度 & 光球大小
+      flightScene.setStaticOpacity(opts.getStaticOpacity());
+      flightScene.setOrbScale(opts.getOrbScale());
 
       flightScene.updateStaticTrails(flights, mode);
       flightScene.update(flights, time);

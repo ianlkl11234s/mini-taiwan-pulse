@@ -150,6 +150,28 @@ export class FlightScene {
     this.scene.add(this.staticGlowMesh);
   }
 
+  /** 強制下次重建靜態軌跡 */
+  forceRebuildStatic() {
+    this.lastStaticKey = "";
+  }
+
+  /** 更新靜態軌跡不透明度 */
+  setStaticOpacity(innerOpacity: number) {
+    if (this.staticMesh) {
+      (this.staticMesh.material as THREE.LineBasicMaterial).opacity = innerOpacity;
+    }
+    if (this.staticGlowMesh) {
+      (this.staticGlowMesh.material as THREE.LineBasicMaterial).opacity = innerOpacity * 0.3;
+    }
+  }
+
+  /** 更新所有光球大小 */
+  setOrbScale(scale: number) {
+    for (const visual of this.visuals.values()) {
+      visual.orb.setScale(scale);
+    }
+  }
+
   /** 每幀更新動態光軌/光球 */
   update(flights: Flight[], currentTime: number) {
     const animDt = 0.016;
