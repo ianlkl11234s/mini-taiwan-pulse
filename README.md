@@ -1,4 +1,4 @@
-# plan-art
+# Taiwan Flight Arc
 
 航班軌跡生成式藝術（Generative Art）視覺化。以台灣機場為中心，將航班起降軌跡轉化為光軌藝術作品。
 
@@ -77,7 +77,7 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
 ### 專案結構
 
 ```
-plan-art/
+Taiwan Flight Arc/
 ├── public/
 │   ├── aviation_data.json        # FR24 航班軌跡（34MB, gitignored）
 │   └── airports.geojson          # OSM 台灣機場邊界（13 座）

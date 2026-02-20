@@ -206,7 +206,7 @@ export default function App() {
                 textShadow: "0 2px 12px rgba(0,0,0,0.6)",
               }}
             >
-              plan-art
+              Taiwan Flight Arc
             </div>
             <div
               style={{
@@ -270,7 +270,7 @@ export default function App() {
                 letterSpacing: 2,
               }}
             >
-              plan-art
+              Taiwan Flight Arc
             </h1>
 
             <AirportSelector
