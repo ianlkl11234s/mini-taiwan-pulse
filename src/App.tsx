@@ -117,6 +117,7 @@ export default function App() {
       <MapView
         preset={preset}
         styleUrl={styleUrl}
+        flights={displayedFlights}
         onMapReady={handleMapReady}
       />
 

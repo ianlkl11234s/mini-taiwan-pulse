@@ -2,10 +2,13 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset } from "../types";
+import type { Flight } from "../types";
+import { updateStaticTrails } from "./staticTrails";
 
 interface MapViewProps {
   preset: CameraPreset;
   styleUrl: string;
+  flights: Flight[];
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -13,15 +16,13 @@ const AIRPORT_MARKER_SOURCE = "airport-marker";
 const AIRPORT_MARKER_LAYER = "airport-marker-fill";
 
 function addAirportMarker(map: mapboxgl.Map, center: [number, number]) {
-  // 移除舊的
   if (map.getLayer(AIRPORT_MARKER_LAYER)) map.removeLayer(AIRPORT_MARKER_LAYER);
   if (map.getSource(AIRPORT_MARKER_SOURCE)) map.removeSource(AIRPORT_MARKER_SOURCE);
 
-  // 在機場中心建立一個約 1.5km x 0.4km 的矩形（模擬跑道區域）
   const lng = center[0];
   const lat = center[1];
-  const dLng = 0.008; // ~800m
-  const dLat = 0.002; // ~220m
+  const dLng = 0.008;
+  const dLat = 0.002;
 
   map.addSource(AIRPORT_MARKER_SOURCE, {
     type: "geojson",
@@ -64,10 +65,34 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-export function MapView({ preset, styleUrl, onMapReady }: MapViewProps) {
+/**
+ * style.load 後需要重建的所有圖層
+ */
+function rebuildAllLayers(
+  map: mapboxgl.Map,
+  center: [number, number],
+  flights: Flight[],
+  onMapReady: ((map: mapboxgl.Map) => void) | undefined,
+) {
+  setupTerrain(map);
+  addAirportMarker(map, center);
+  updateStaticTrails(map, flights);
+  // 重建 Three.js CustomLayer
+  onMapReady?.(map);
+}
+
+export function MapView({ preset, styleUrl, flights, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
+
+  // 用 ref 保持最新的 props，避免 stale closure
+  const onMapReadyRef = useRef(onMapReady);
+  const presetRef = useRef(preset);
+  const flightsRef = useRef(flights);
+  onMapReadyRef.current = onMapReady;
+  presetRef.current = preset;
+  flightsRef.current = flights;
 
   // 初次建立地圖
   useEffect(() => {
@@ -78,22 +103,23 @@ export function MapView({ preset, styleUrl, onMapReady }: MapViewProps) {
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: styleUrl,
-      center: preset.center,
-      zoom: preset.zoom,
-      pitch: preset.pitch,
-      bearing: preset.bearing,
+      center: presetRef.current.center,
+      zoom: presetRef.current.zoom,
+      pitch: presetRef.current.pitch,
+      bearing: presetRef.current.bearing,
       antialias: true,
     });
 
     map.on("style.load", () => {
       setupTerrain(map);
-      addAirportMarker(map, preset.center);
+      addAirportMarker(map, presetRef.current.center);
+      updateStaticTrails(map, flightsRef.current);
     });
 
     map.on("load", () => {
       mapRef.current = map;
       readyRef.current = true;
-      onMapReady?.(map);
+      onMapReadyRef.current?.(map);
     });
 
     return () => {
@@ -109,13 +135,13 @@ export function MapView({ preset, styleUrl, onMapReady }: MapViewProps) {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
 
-    // setStyle 會觸發 style.load，我們在 style.load 中重建 terrain 和 marker
     const onStyleLoad = () => {
-      setupTerrain(map);
-      addAirportMarker(map, preset.center);
-
-      // 需要重新觸發 onMapReady 讓 CustomLayer 重建
-      onMapReady?.(map);
+      rebuildAllLayers(
+        map,
+        presetRef.current.center,
+        flightsRef.current,
+        onMapReadyRef.current,
+      );
       map.off("style.load", onStyleLoad);
     };
 
@@ -137,11 +163,22 @@ export function MapView({ preset, styleUrl, onMapReady }: MapViewProps) {
       duration: 2000,
     });
 
-    // 等 style 確定載入後更新 marker
     if (map.isStyleLoaded()) {
       addAirportMarker(map, preset.center);
     }
   }, [preset]);
+
+  // 航班資料變更時更新靜態軌跡
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+
+    try {
+      updateStaticTrails(map, flights);
+    } catch {
+      // style 可能正在切換中，忽略
+    }
+  }, [flights]);
 
   return (
     <div
