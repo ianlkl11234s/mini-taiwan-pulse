@@ -17,19 +17,28 @@ function hashToUnit(str: string): number {
 }
 
 /**
- * t=0 → 白色 #ffffff，t=1 → 橘色 #ff8833，線性插值回傳 hex string
+ * 暗色主題：t=0 → 白色 #ffffff，t=1 → 橘色 #ff8833
+ * 亮色主題：t=0 → 深藍 #1a3a8a，t=1 → 深紅 #8a1a2a
  */
-function lerpColor(t: number): string {
+function lerpColorDark(t: number): string {
   const r = Math.round(255 + (0xff - 255) * t);
   const g = Math.round(255 + (0x88 - 255) * t);
   const b = Math.round(255 + (0x33 - 255) * t);
   return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
 }
 
+function lerpColorLight(t: number): string {
+  const r = Math.round(26 + (138 - 26) * t);
+  const g = Math.round(58 + (26 - 58) * t);
+  const b = Math.round(138 + (42 - 138) * t);
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
 /**
  * 將航班路徑轉為 GeoJSON FeatureCollection
  */
-function flightsToGeoJSON(flights: Flight[]): GeoJSON.FeatureCollection {
+function flightsToGeoJSON(flights: Flight[], isDark = true): GeoJSON.FeatureCollection {
+  const lerpColor = isDark ? lerpColorDark : lerpColorLight;
   return {
     type: "FeatureCollection",
     features: flights
@@ -54,13 +63,23 @@ function flightsToGeoJSON(flights: Flight[]): GeoJSON.FeatureCollection {
 /**
  * 新增或更新靜態軌跡圖層（暖橘色光軌）
  */
-export function updateStaticTrails(map: MapboxMap, flights: Flight[]) {
-  const geojson = flightsToGeoJSON(flights);
+export function updateStaticTrails(map: MapboxMap, flights: Flight[], isDark = true) {
+  const geojson = flightsToGeoJSON(flights, isDark);
 
   const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
 
+  const lineOpacity = isDark ? 0.25 : 0.5;
+  const glowOpacity = isDark ? 0.08 : 0.15;
+
   if (source) {
     source.setData(geojson);
+    // 更新 opacity（主題可能已切換）
+    if (map.getLayer(LAYER_ID)) {
+      map.setPaintProperty(LAYER_ID, "line-opacity", lineOpacity);
+    }
+    if (map.getLayer(GLOW_LAYER_ID)) {
+      map.setPaintProperty(GLOW_LAYER_ID, "line-opacity", glowOpacity);
+    }
   } else {
     map.addSource(SOURCE_ID, {
       type: "geojson",
@@ -75,7 +94,7 @@ export function updateStaticTrails(map: MapboxMap, flights: Flight[]) {
       paint: {
         "line-color": ["get", "color"],
         "line-width": 3,
-        "line-opacity": 0.08,
+        "line-opacity": glowOpacity,
         "line-blur": 4,
       },
     });
@@ -88,7 +107,7 @@ export function updateStaticTrails(map: MapboxMap, flights: Flight[]) {
       paint: {
         "line-color": ["get", "color"],
         "line-width": 1,
-        "line-opacity": 0.25,
+        "line-opacity": lineOpacity,
         "line-blur": 1,
       },
     });

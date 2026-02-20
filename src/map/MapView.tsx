@@ -11,6 +11,7 @@ interface MapViewProps {
   renderMode: RenderMode;
   airportOpacity: number;
   airportGlow: number;
+  isDarkTheme?: boolean;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -119,7 +120,7 @@ function rebuildLayers(
   onMapReady?.(map);
 }
 
-export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -198,11 +199,11 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
 
     if (renderMode === "2d") {
-      updateStaticTrails(map, flights);
+      updateStaticTrails(map, flights, isDarkTheme);
     } else {
       removeStaticTrails(map);
     }
-  }, [renderMode, flights]);
+  }, [renderMode, flights, isDarkTheme]);
 
   // 機場圖層樣式即時更新
   useEffect(() => {

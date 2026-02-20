@@ -12,6 +12,24 @@ interface FlightVisual {
   blink: BlinkingLight;
 }
 
+// 暗色主題調色盤（Additive Blending 用，淺色系）
+const DARK_COLORS = [
+  new THREE.Color(0.3, 0.6, 1.0),
+  new THREE.Color(0.2, 0.8, 0.9),
+  new THREE.Color(0.5, 0.4, 1.0),
+  new THREE.Color(0.3, 0.9, 0.7),
+  new THREE.Color(0.6, 0.5, 1.0),
+];
+
+// 亮色主題調色盤（Normal Blending 用，深飽和色系）
+const LIGHT_COLORS = [
+  new THREE.Color(0.05, 0.15, 0.6),  // 深藍
+  new THREE.Color(0.6, 0.05, 0.15),  // 深紅
+  new THREE.Color(0.3, 0.05, 0.55),  // 深紫
+  new THREE.Color(0.0, 0.35, 0.35),  // 深青
+  new THREE.Color(0.5, 0.25, 0.0),   // 深琥珀
+];
+
 /**
  * Three.js 場景管理器
  * 管理所有航班的光軌、光球、閃爍燈 + 靜態 3D 軌跡
@@ -25,20 +43,20 @@ export class FlightScene {
   private colorIndex = 0;
   private currentOrbScale = 0.000005;
   private currentStaticOpacity = 0.2;
+  private isDarkTheme = true;
 
-  // 靜態軌跡的 3D mesh（暖橘色，全路徑）
+  // 靜態軌跡的 3D mesh（全路徑）
   private staticMesh: THREE.LineSegments | null = null;
   private staticGlowMesh: THREE.LineSegments | null = null;
   private lastStaticKey = "";
 
-  // 光軌顏色調色盤
-  private colors = [
-    new THREE.Color(0.3, 0.6, 1.0),
-    new THREE.Color(0.2, 0.8, 0.9),
-    new THREE.Color(0.5, 0.4, 1.0),
-    new THREE.Color(0.3, 0.9, 0.7),
-    new THREE.Color(0.6, 0.5, 1.0),
-  ];
+  private get colors() {
+    return this.isDarkTheme ? DARK_COLORS : LIGHT_COLORS;
+  }
+
+  private get blending() {
+    return this.isDarkTheme ? THREE.AdditiveBlending : THREE.NormalBlending;
+  }
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -54,8 +72,27 @@ export class FlightScene {
     this.renderer.autoClear = false;
   }
 
+  /** 切換明暗主題：更新所有視覺元素的顏色與混合模式 */
+  setTheme(isDark: boolean) {
+    if (this.isDarkTheme === isDark) return;
+    this.isDarkTheme = isDark;
+
+    // 重新配色現有的動態軌跡
+    let idx = 0;
+    for (const visual of this.visuals.values()) {
+      const color = this.colors[idx % this.colors.length]!;
+      idx++;
+      visual.trail.setColor(color);
+      visual.trail.setBlending(this.blending);
+      visual.orb.setTheme(color, this.blending);
+    }
+
+    // 強制重建靜態軌跡（顏色 + blending 都不同）
+    this.forceRebuildStatic();
+  }
+
   /**
-   * 更新靜態軌跡 mesh（全路徑暖橘色 3D 線條）
+   * 更新靜態軌跡 mesh（全路徑 3D 線條）
    * 只有航班集合真正變動時才重建 geometry。
    * 在 2D 模式下隱藏 Three.js 靜態軌跡（由 Mapbox 原生圖層接管）。
    */
@@ -92,10 +129,21 @@ export class FlightScene {
     let offset = 0;
     let cOffset = 0;
 
-    // 高度色彩映射：0m → 暖橘 (1.0, 0.65, 0.25) ～ 13000m → 冷藍 (0.3, 0.6, 1.0)
     const MAX_ALT = 13000;
-    const lowR = 1.0, lowG = 0.65, lowB = 0.25;   // 地面暖橘
-    const highR = 0.3, highG = 0.6, highB = 1.0;   // 巡航冷藍
+
+    // 根據主題選擇高度漸變色
+    let lowR: number, lowG: number, lowB: number;
+    let highR: number, highG: number, highB: number;
+
+    if (this.isDarkTheme) {
+      // 暗色主題：暖橘 → 冷藍
+      lowR = 1.0; lowG = 0.65; lowB = 0.25;
+      highR = 0.3; highG = 0.6; highB = 1.0;
+    } else {
+      // 亮色主題：深紅 → 深藍
+      lowR = 0.6; lowG = 0.1; lowB = 0.05;
+      highR = 0.05; highG = 0.15; highB = 0.55;
+    }
 
     const writeVertexColor = (alt: number) => {
       const t = Math.min(Math.max(alt / MAX_ALT, 0), 1);
@@ -127,24 +175,28 @@ export class FlightScene {
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
-    // 內層線條（per-vertex 高度漸變色，較亮）
+    const staticOpacity = this.isDarkTheme
+      ? this.currentStaticOpacity
+      : Math.min(this.currentStaticOpacity * 2.5, 0.7);
+
+    // 內層線條（per-vertex 高度漸變色）
     const mat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: this.currentStaticOpacity,
-      blending: THREE.AdditiveBlending,
+      opacity: staticOpacity,
+      blending: this.blending,
       depthWrite: false,
     });
     this.staticMesh = new THREE.LineSegments(geometry, mat);
     this.staticMesh.frustumCulled = false;
     this.scene.add(this.staticMesh);
 
-    // 外層 glow（per-vertex 高度漸變色，較淡疊加）
+    // 外層 glow
     const glowMat = new THREE.LineBasicMaterial({
       vertexColors: true,
       transparent: true,
-      opacity: this.currentStaticOpacity * 0.3,
-      blending: THREE.AdditiveBlending,
+      opacity: staticOpacity * 0.3,
+      blending: this.blending,
       depthWrite: false,
     });
     this.staticGlowMesh = new THREE.LineSegments(geometry.clone(), glowMat);
@@ -160,11 +212,14 @@ export class FlightScene {
   /** 更新靜態軌跡不透明度 */
   setStaticOpacity(innerOpacity: number) {
     this.currentStaticOpacity = innerOpacity;
+    const effective = this.isDarkTheme
+      ? innerOpacity
+      : Math.min(innerOpacity * 2.5, 0.7);
     if (this.staticMesh) {
-      (this.staticMesh.material as THREE.LineBasicMaterial).opacity = innerOpacity;
+      (this.staticMesh.material as THREE.LineBasicMaterial).opacity = effective;
     }
     if (this.staticGlowMesh) {
-      (this.staticGlowMesh.material as THREE.LineBasicMaterial).opacity = innerOpacity * 0.3;
+      (this.staticGlowMesh.material as THREE.LineBasicMaterial).opacity = effective * 0.3;
     }
   }
 
@@ -206,7 +261,7 @@ export class FlightScene {
       }
 
       visual.trail.updateTrail(trail);
-      visual.trail.setOpacity(0.8);
+      visual.trail.setOpacity(this.isDarkTheme ? 0.8 : 1.0);
 
       const lastPt = trail[trail.length - 1]!;
       const pos = toMercator(lastPt[0], lastPt[1], lastPt[2]);
@@ -255,8 +310,8 @@ export class FlightScene {
     const color = this.colors[this.colorIndex % this.colors.length]!;
     this.colorIndex++;
 
-    const trail = new LightTrail(color);
-    const orb = new LightOrb(color, this.currentOrbScale);
+    const trail = new LightTrail(color, 512, this.blending);
+    const orb = new LightOrb(color, this.currentOrbScale, this.blending);
     const blink = new BlinkingLight();
 
     orb.group.add(blink.mesh);

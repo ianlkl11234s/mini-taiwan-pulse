@@ -1,4 +1,4 @@
-import { getPresetByIcao } from "../map/cameraPresets";
+import { getAirportInfo } from "../map/cameraPresets";
 
 interface Props {
   airports: string[];
@@ -25,10 +25,10 @@ export function AirportSelector({ airports, selected, onChange }: Props) {
       style={style}
     >
       {airports.map((icao) => {
-        const p = getPresetByIcao(icao);
+        const info = getAirportInfo(icao);
         return (
           <option key={icao} value={icao}>
-            {p ? `${p.name} (${icao})` : icao}
+            {info ? `${info.name} (${icao})` : icao}
           </option>
         );
       })}

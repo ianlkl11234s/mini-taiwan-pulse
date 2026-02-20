@@ -5,3 +5,5 @@ dist
 *.local
 *.tsbuildinfo
 public/aviation_data.json
+scripts/flight-list.json
+scripts/track-progress.json

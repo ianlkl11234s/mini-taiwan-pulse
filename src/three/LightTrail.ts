@@ -15,7 +15,11 @@ export class LightTrail {
   private material: THREE.ShaderMaterial;
   private maxPoints: number;
 
-  constructor(color: THREE.Color = new THREE.Color(0.4, 0.7, 1.0), maxPoints = 512) {
+  constructor(
+    color: THREE.Color = new THREE.Color(0.4, 0.7, 1.0),
+    maxPoints = 512,
+    blending: THREE.Blending = THREE.AdditiveBlending,
+  ) {
     this.maxPoints = maxPoints;
 
     this.geometry = new THREE.BufferGeometry();
@@ -34,7 +38,7 @@ export class LightTrail {
         uOpacity: { value: 0.8 },
       },
       transparent: true,
-      blending: THREE.AdditiveBlending,
+      blending,
       depthWrite: false,
     });
 
@@ -72,6 +76,11 @@ export class LightTrail {
 
   setOpacity(opacity: number) {
     this.material.uniforms["uOpacity"]!.value = opacity;
+  }
+
+  setBlending(blending: THREE.Blending) {
+    this.material.blending = blending;
+    this.material.needsUpdate = true;
   }
 
   dispose() {

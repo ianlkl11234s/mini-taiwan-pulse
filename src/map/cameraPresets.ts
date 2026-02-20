@@ -1,5 +1,24 @@
 import type { CameraPreset } from "../types";
 
+/** 全台機場資訊（名稱 + IATA），涵蓋所有資料中可能出現的台灣機場 */
+export const AIRPORT_INFO: Record<string, { name: string; iata: string }> = {
+  RCTP: { name: "桃園國際機場", iata: "TPE" },
+  RCSS: { name: "松山機場", iata: "TSA" },
+  RCKH: { name: "高雄國際機場", iata: "KHH" },
+  RCMQ: { name: "台中清泉崗", iata: "RMQ" },
+  RCYU: { name: "花蓮機場", iata: "HUN" },
+  RCBS: { name: "金門尚義機場", iata: "KNH" },
+  RCFG: { name: "馬祖南竿機場", iata: "LZN" },
+  RCFN: { name: "台南機場", iata: "TNN" },
+  RCKU: { name: "嘉義機場", iata: "CYI" },
+  RCNN: { name: "台東豐年機場", iata: "TTT" },
+  RCQC: { name: "澎湖馬公機場", iata: "MZG" },
+};
+
+export function getAirportInfo(icao: string): { name: string; iata: string } | undefined {
+  return AIRPORT_INFO[icao];
+}
+
 export const CAMERA_PRESETS: CameraPreset[] = [
   {
     name: "桃園國際機場",

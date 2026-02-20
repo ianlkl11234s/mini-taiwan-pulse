@@ -11,6 +11,7 @@ export interface FlightLayerOptions {
   getAltOffset: () => number;
   getStaticOpacity: () => number;
   getOrbScale: () => number;
+  getIsDarkTheme: () => boolean;
 }
 
 /**
@@ -21,6 +22,7 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
   let map: MapboxMap | null = null;
   let lastAltExag = getAltExaggeration();
   let lastAltOffset = getAltOffset();
+  let lastDarkTheme = true;
 
   return {
     id: "flight-3d",
@@ -38,6 +40,13 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
       const mode = opts.getRenderMode();
       const altExag = opts.getAltExaggeration();
       const altOff = opts.getAltOffset();
+      const isDark = opts.getIsDarkTheme();
+
+      // 主題變更 → 更新顏色 + 重建靜態軌跡
+      if (isDark !== lastDarkTheme) {
+        lastDarkTheme = isDark;
+        flightScene.setTheme(isDark);
+      }
 
       // 高度參數變更 → 更新座標模組 + 強制重建靜態軌跡
       setAltExaggeration(altExag);

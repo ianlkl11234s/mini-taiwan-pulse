@@ -84,8 +84,11 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
 ```
 Taiwan Flight Arc/
 ├── public/
-│   ├── aviation_data.json        # FR24 航班軌跡（34MB, gitignored）
+│   ├── aviation_data.json        # FR24 航班軌跡（gitignored，由腳本產生）
 │   └── airports.geojson          # OSM 台灣機場邊界（13 座）
+├── scripts/
+│   ├── fetch-flights.ts          # Step 1: 航班清單擷取
+│   └── fetch-tracks.ts           # Step 2: 飛行軌跡擷取
 ├── screenshots/                   # 截圖展示
 ├── src/
 │   ├── App.tsx                   # 主應用 + 所有狀態管理 + UI
@@ -123,25 +126,70 @@ Taiwan Flight Arc/
 
 ## 航班資料（Flight API）
 
-本專案使用 [FlightRadar24](https://www.flightradar24.com/) 作為航班軌跡資料來源。
+本專案使用 [FlightRadar24 API](https://fr24api.flightradar24.com/) 作為航班軌跡資料來源。
 
-### 取得資料
+### 取得 API Token
 
-1. 至 [FlightRadar24](https://www.flightradar24.com/premium) 取得正式的 API 存取權限
-2. 透過 API 取得航班軌跡資料
-3. 將資料轉換為下方格式後，存為 `public/aviation_data.json`
+1. 至 [FlightRadar24](https://fr24api.flightradar24.com/) 註冊帳號並訂閱方案（Explorer 以上）
+2. 進入 [Key Management](https://fr24api.flightradar24.com/key-management) 建立 API Token
+3. 將 Token 寫入 `.env`：
+
+```bash
+cp .env.example .env
+# 編輯 .env，填入 FR24_API_TOKEN
+```
+
+### 資料擷取腳本
+
+專案提供兩支腳本，自動從 FR24 API 擷取台灣 11 座機場的航班軌跡：
+
+```bash
+# Step 1: 取得航班清單（過去 3 天，11 座台灣機場）
+npm run fetch:flights
+
+# Step 2: 逐一撈取飛行軌跡（可指定日期）
+npm run fetch:tracks -- --date 2026-02-18
+
+# 或撈取全部日期的軌跡
+npm run fetch:tracks
+```
+
+腳本支援**中斷續接**：如果因 rate limit 或網路中斷，重新執行即可自動接續。
+
+> **Explorer 方案限制**：每次回傳 20 筆、10 次/分鐘。Step 1 約需 15 分鐘，Step 2 每 100 筆約需 12 分鐘。
+
+### 涵蓋機場
+
+| ICAO | 機場 |
+|------|------|
+| RCTP | 桃園國際機場 |
+| RCSS | 台北松山機場 |
+| RCKH | 高雄國際機場 |
+| RCMQ | 台中清泉崗機場 |
+| RCYU | 花蓮機場 |
+| RCBS | 金門尚義機場 |
+| RCFG | 馬祖南竿機場 |
+| RCFN | 台南機場 |
+| RCKU | 嘉義機場 |
+| RCNN | 台東豐年機場 |
+| RCQC | 澎湖馬公機場 |
 
 ### 資料格式
 
-每筆航班包含完整路徑點：
+最終產出 `public/aviation_data.json`，每筆航班包含完整路徑點：
 
 ```json
 {
   "fr24_id": "3e617f8a",
-  "callsign": "UAE366",
-  "aircraft_type": "A388",
-  "origin_iata": "DXB",
-  "dest_iata": "TPE",
+  "callsign": "CPA408",
+  "registration": "B-HLM",
+  "aircraft_type": "A333",
+  "origin_icao": "VHHH",
+  "dest_icao": "RCTP",
+  "dep_time": 1771371753,
+  "arr_time": 1771399200,
+  "status": "landed",
+  "trail_points": 150,
   "path": [
     [25.245, 55.371, 0, 1771371753],
     [25.300, 56.100, 10058, 1771373000]
@@ -150,8 +198,6 @@ Taiwan Flight Arc/
 ```
 
 `path` 每個點：`[緯度, 經度, 高度(m), Unix timestamp]`
-
-`aviation_data.json` 為航班陣列，未包含在 git 中（約 34MB）。
 
 ## 開發
 
@@ -174,11 +220,23 @@ cp .env.example .env
 # 編輯 .env，將 your_mapbox_access_token_here 替換為你的 token
 ```
 
-### 3. 準備航班資料
+### 3. 設定 FlightRadar24 Token
 
-將 FlightRadar24 API 取得的軌跡資料存為 `public/aviation_data.json`（格式見上方「航班資料」章節）。
+```bash
+# 在 .env 中加入（與 Mapbox Token 同一檔案）
+FR24_API_TOKEN=your_flightradar24_api_token_here
+```
 
-### 4. 啟動
+### 4. 擷取航班資料
+
+```bash
+npm run fetch:flights          # Step 1: 航班清單
+npm run fetch:tracks -- --date 2026-02-18  # Step 2: 軌跡（指定日期）
+```
+
+詳見上方「航班資料」章節。
+
+### 5. 啟動
 
 ```bash
 npm run dev     # 開發模式

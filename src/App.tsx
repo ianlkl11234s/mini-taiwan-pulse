@@ -4,7 +4,7 @@ import type { ViewMode, RenderMode } from "./types";
 import { MapView } from "./map/MapView";
 import { useFlightData } from "./hooks/useFlightData";
 import { useTimeline } from "./hooks/useTimeline";
-import { CAMERA_PRESETS, getPresetByIcao } from "./map/cameraPresets";
+import { CAMERA_PRESETS, getPresetByIcao, getAirportInfo } from "./map/cameraPresets";
 import { createFlightLayer } from "./map/customLayer";
 import { filterByAirport, filterByTimeWindow } from "./data/flightLoader";
 import { AirportSelector } from "./components/AirportSelector";
@@ -43,7 +43,7 @@ export default function App() {
   const [mapStyleId, setMapStyleId] = useState("dark");
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [altExaggeration, setAltExaggeration] = useState(3);
-  const [altOffset, setAltOffset] = useState(0);
+  const [altOffset, setAltOffset] = useState(50);
   const [staticOpacity, setStaticOpacity] = useState(0.2);
   const [orbScale, setOrbScale] = useState(0.000005);
   const [airportOpacity, setAirportOpacity] = useState(0.12);
@@ -89,6 +89,8 @@ export default function App() {
     [allFlights, selectedAirport],
   );
 
+  const isDarkTheme = !["light", "streets"].includes(mapStyleId);
+
   const mapRef = useRef<MapboxMap | null>(null);
   const flightsRef = useRef(displayedFlights);
   const timeRef = useRef(timeline.currentTime);
@@ -97,6 +99,7 @@ export default function App() {
   const altOffsetRef = useRef(altOffset);
   const staticOpacityRef = useRef(staticOpacity);
   const orbScaleRef = useRef(orbScale);
+  const isDarkThemeRef = useRef(isDarkTheme);
 
   flightsRef.current = displayedFlights;
   timeRef.current = timeline.currentTime;
@@ -105,6 +108,7 @@ export default function App() {
   altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
   orbScaleRef.current = orbScale;
+  isDarkThemeRef.current = isDarkTheme;
 
   const preset = useMemo(
     () => getPresetByIcao(selectedAirport) ?? CAMERA_PRESETS[0]!,
@@ -125,6 +129,7 @@ export default function App() {
       getAltOffset: () => altOffsetRef.current,
       getStaticOpacity: () => staticOpacityRef.current,
       getOrbScale: () => orbScaleRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
     });
     map.addLayer(layer);
   };
@@ -169,6 +174,7 @@ export default function App() {
         renderMode={renderMode}
         airportOpacity={airportOpacity}
         airportGlow={airportGlow}
+        isDarkTheme={isDarkTheme}
         onMapReady={handleMapReady}
       />
 
@@ -210,15 +216,41 @@ export default function App() {
             </div>
             <div
               style={{
-                fontSize: 13,
+                fontSize: 18,
                 fontFamily: "monospace",
-                color: "rgba(255,255,255,0.5)",
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.7)",
                 letterSpacing: 2,
+                marginTop: 6,
+                textShadow: "0 1px 8px rgba(0,0,0,0.5)",
+              }}
+            >
+              {(() => {
+                const info = getAirportInfo(selectedAirport);
+                return info
+                  ? `${info.name} / ${info.iata} / ${selectedAirport}`
+                  : selectedAirport;
+              })()}
+            </div>
+            <div
+              style={{
+                fontSize: 14,
+                fontFamily: "monospace",
+                color: "rgba(255,255,255,0.4)",
+                letterSpacing: 1,
                 marginTop: 4,
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
               }}
             >
-              {preset.name} ({preset.icao})
+              {new Date(timeline.currentTime * 1000).toLocaleString("zh-TW", {
+                timeZone: "Asia/Taipei",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })}
             </div>
           </div>
           {/* 右下退出提示 */}
@@ -332,7 +364,7 @@ export default function App() {
             </label>
             <label style={sliderLabelStyle}>
               Z +{altOffset}m
-              <input type="range" min={0} max={2000} step={100} value={altOffset}
+              <input type="range" min={0} max={200} step={50} value={altOffset}
                 onChange={(e) => setAltOffset(Number(e.target.value))} style={sliderStyle} />
             </label>
             <label style={sliderLabelStyle}>

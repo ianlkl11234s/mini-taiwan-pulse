@@ -16,6 +16,7 @@ export class LightOrb {
   constructor(
     color: THREE.Color = new THREE.Color(0.6, 0.85, 1.0),
     scale: number = 0.000005,
+    blending: THREE.Blending = THREE.AdditiveBlending,
   ) {
     this.group = new THREE.Group();
 
@@ -31,7 +32,7 @@ export class LightOrb {
         color: cfg.color,
         transparent: true,
         opacity: cfg.opacity,
-        blending: THREE.AdditiveBlending,
+        blending,
         depthWrite: false,
         side: THREE.DoubleSide,
       });
@@ -41,6 +42,17 @@ export class LightOrb {
       mesh.frustumCulled = false;
       this.group.add(mesh);
       this.layers.push(mesh);
+    }
+  }
+
+  /** 切換主題：更新顏色與混合模式 */
+  setTheme(color: THREE.Color, blending: THREE.Blending) {
+    for (let i = 0; i < this.layers.length; i++) {
+      const mat = this.layers[i]!.material as THREE.MeshBasicMaterial;
+      mat.blending = blending;
+      // 第一層（核心）保持白色，外層用主題色
+      if (i > 0) mat.color.copy(color);
+      mat.needsUpdate = true;
     }
   }
 
