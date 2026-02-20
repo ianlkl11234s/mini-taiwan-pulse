@@ -195,12 +195,6 @@ npm run build   # 正式建置
 open color-preview.html
 ```
 
-## 靈感參考
-
-- 長曝光航空攝影（airport long exposure photography）
-- Aaron Koblin「Flight Patterns」— 美國航班軌跡視覺化
-- Mapbox 3D terrain + custom layer
-
 ## License
 
 MIT License. 詳見 [LICENSE](LICENSE)。
