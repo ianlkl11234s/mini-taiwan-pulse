@@ -4,14 +4,17 @@ interface Props {
   flights: Flight[];
   viewMode: ViewMode;
   selectedFlightId: string | null;
+  isDarkTheme?: boolean;
   onViewModeChange: (mode: ViewMode) => void;
   onFlightSelect: (id: string | null) => void;
 }
 
-const btnStyle = (active: boolean): React.CSSProperties => ({
-  background: active ? "rgba(100,170,255,0.3)" : "rgba(0,0,0,0.6)",
-  color: "#fff",
-  border: `1px solid ${active ? "rgba(100,170,255,0.6)" : "rgba(255,255,255,0.2)"}`,
+const btnStyle = (active: boolean, dark: boolean): React.CSSProperties => ({
+  background: active
+    ? dark ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)"
+    : dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+  color: dark ? "#fff" : "#333",
+  border: `1px solid ${active ? (dark ? "rgba(100,170,255,0.6)" : "rgba(100,170,255,0.5)") : (dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)")}`,
   borderRadius: 4,
   padding: "4px 10px",
   fontSize: 11,
@@ -21,17 +24,17 @@ const btnStyle = (active: boolean): React.CSSProperties => ({
   whiteSpace: "nowrap",
 });
 
-const selectStyle: React.CSSProperties = {
-  background: "rgba(0,0,0,0.6)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.2)",
+const getSelectStyle = (dark: boolean): React.CSSProperties => ({
+  background: dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+  color: dark ? "#fff" : "#333",
+  border: `1px solid ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
   borderRadius: 4,
   padding: "4px 8px",
   fontSize: 11,
   fontFamily: "monospace",
   maxWidth: 220,
   backdropFilter: "blur(8px)",
-};
+});
 
 const MODE_LABELS: Record<ViewMode, string> = {
   airport: "This Airport",
@@ -44,6 +47,7 @@ export function FlightPicker({
   flights,
   viewMode,
   selectedFlightId,
+  isDarkTheme = true,
   onViewModeChange,
   onFlightSelect,
 }: Props) {
@@ -52,7 +56,7 @@ export function FlightPicker({
       {(Object.keys(MODE_LABELS) as ViewMode[]).map((mode) => (
         <button
           key={mode}
-          style={btnStyle(viewMode === mode)}
+          style={btnStyle(viewMode === mode, isDarkTheme)}
           onClick={() => {
             onViewModeChange(mode);
             if (mode !== "single") onFlightSelect(null);
@@ -66,7 +70,7 @@ export function FlightPicker({
         <select
           value={selectedFlightId ?? ""}
           onChange={(e) => onFlightSelect(e.target.value || null)}
-          style={selectStyle}
+          style={getSelectStyle(isDarkTheme)}
         >
           <option value="">Select flight...</option>
           {flights.map((f) => (

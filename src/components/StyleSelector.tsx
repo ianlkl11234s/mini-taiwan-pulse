@@ -11,26 +11,27 @@ export const MAP_STYLES: MapStyle[] = [
 
 interface Props {
   selected: string;
+  isDarkTheme?: boolean;
   onChange: (styleId: string) => void;
 }
 
-const style: React.CSSProperties = {
-  background: "rgba(0,0,0,0.6)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.2)",
+const getStyle = (dark: boolean): React.CSSProperties => ({
+  background: dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+  color: dark ? "#fff" : "#333",
+  border: `1px solid ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
   borderRadius: 4,
   padding: "4px 8px",
   fontSize: 12,
   fontFamily: "monospace",
   backdropFilter: "blur(8px)",
-};
+});
 
-export function StyleSelector({ selected, onChange }: Props) {
+export function StyleSelector({ selected, isDarkTheme = true, onChange }: Props) {
   return (
     <select
       value={selected}
       onChange={(e) => onChange(e.target.value)}
-      style={style}
+      style={getStyle(isDarkTheme)}
     >
       {MAP_STYLES.map((s) => (
         <option key={s.id} value={s.id}>

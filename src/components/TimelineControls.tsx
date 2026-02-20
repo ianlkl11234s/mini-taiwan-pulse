@@ -5,33 +5,34 @@ interface Props {
   currentTime: number;
   startTime: number;
   endTime: number;
+  isDarkTheme?: boolean;
   onToggle: () => void;
   onSpeedChange: (speed: number) => void;
   onSeekByProgress: (p: number) => void;
 }
 
-const btnStyle: React.CSSProperties = {
-  background: "rgba(0,0,0,0.6)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.2)",
+const getBtnStyle = (dark: boolean): React.CSSProperties => ({
+  background: dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+  color: dark ? "#fff" : "#333",
+  border: `1px solid ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
   borderRadius: 4,
   padding: "4px 10px",
   fontSize: 14,
   cursor: "pointer",
   fontFamily: "monospace",
   backdropFilter: "blur(8px)",
-};
+});
 
-const selectStyle: React.CSSProperties = {
-  background: "rgba(0,0,0,0.6)",
-  color: "#fff",
-  border: "1px solid rgba(255,255,255,0.2)",
+const getSelectStyle = (dark: boolean): React.CSSProperties => ({
+  background: dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
+  color: dark ? "#fff" : "#333",
+  border: `1px solid ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
   borderRadius: 4,
   padding: "4px 8px",
   fontSize: 13,
   fontFamily: "monospace",
   backdropFilter: "blur(8px)",
-};
+});
 
 function formatDateTime(t: number): string {
   if (t <= 0) return "--/-- --:--";
@@ -50,6 +51,7 @@ export function TimelineControls({
   currentTime,
   startTime,
   endTime,
+  isDarkTheme = true,
   onToggle,
   onSpeedChange,
   onSeekByProgress,
@@ -73,14 +75,14 @@ export function TimelineControls({
           marginBottom: 6,
         }}
       >
-        <button onClick={onToggle} style={btnStyle}>
+        <button onClick={onToggle} style={getBtnStyle(isDarkTheme)}>
           {playing ? "\u23F8" : "\u25B6"}
         </button>
 
         <select
           value={speed}
           onChange={(e) => onSpeedChange(Number(e.target.value))}
-          style={selectStyle}
+          style={getSelectStyle(isDarkTheme)}
         >
           <option value={30}>30x</option>
           <option value={60}>60x</option>
@@ -91,7 +93,7 @@ export function TimelineControls({
 
         <span
           style={{
-            color: "rgba(255,255,255,0.6)",
+            color: isDarkTheme ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
             fontSize: 13,
             fontFamily: "monospace",
           }}
@@ -108,13 +110,13 @@ export function TimelineControls({
         step={0.001}
         value={progress}
         onChange={(e) => onSeekByProgress(Number(e.target.value))}
-        style={{ width: "100%", accentColor: "#66aaff" }}
+        style={{ width: "100%", accentColor: isDarkTheme ? "#66aaff" : "#3366cc" }}
       />
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          color: "rgba(255,255,255,0.4)",
+          color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
           fontSize: 10,
           fontFamily: "monospace",
           marginTop: 2,

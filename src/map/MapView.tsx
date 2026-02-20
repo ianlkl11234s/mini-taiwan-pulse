@@ -23,7 +23,10 @@ const AIRPORT_GLOW_2 = "airport-glow-2";
 
 const AIRPORT_LAYERS = [AIRPORT_GLOW_2, AIRPORT_GLOW_1, AIRPORT_FILL, AIRPORT_LINE];
 
-function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number) {
+function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number, isDark: boolean) {
+  const color = isDark ? "#ffffff" : "#c89520";
+  const glowColor = isDark ? "#ffffff" : "#daa520";
+
   if (map.getSource(AIRPORT_SOURCE)) return;
 
   map.addSource(AIRPORT_SOURCE, {
@@ -37,10 +40,10 @@ function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number) {
     type: "line",
     source: AIRPORT_SOURCE,
     paint: {
-      "line-color": "#ffffff",
+      "line-color": glowColor,
       "line-width": 30,
       "line-blur": 15,
-      "line-opacity": glow * 0.06,
+      "line-opacity": glow * (isDark ? 0.06 : 0.15),
     },
   });
 
@@ -50,10 +53,10 @@ function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number) {
     type: "line",
     source: AIRPORT_SOURCE,
     paint: {
-      "line-color": "#ffffff",
+      "line-color": glowColor,
       "line-width": 10,
       "line-blur": 5,
-      "line-opacity": glow * 0.15,
+      "line-opacity": glow * (isDark ? 0.15 : 0.3),
     },
   });
 
@@ -63,8 +66,8 @@ function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number) {
     type: "fill",
     source: AIRPORT_SOURCE,
     paint: {
-      "fill-color": "#ffffff",
-      "fill-opacity": opacity,
+      "fill-color": color,
+      "fill-opacity": isDark ? opacity : opacity * 1.5,
     },
   });
 
@@ -74,26 +77,27 @@ function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number) {
     type: "line",
     source: AIRPORT_SOURCE,
     paint: {
-      "line-color": "#ffffff",
-      "line-width": 1.5,
-      "line-opacity": Math.min(opacity * 3, 0.5),
+      "line-color": color,
+      "line-width": isDark ? 1.5 : 2,
+      "line-opacity": Math.min(opacity * 3, isDark ? 0.5 : 0.7),
     },
   });
 }
 
-function updateAirportStyle(map: mapboxgl.Map, opacity: number, glow: number) {
+function updateAirportStyle(map: mapboxgl.Map, opacity: number, glow: number, isDark: boolean) {
   if (!map.getSource(AIRPORT_SOURCE)) return;
-  map.setPaintProperty(AIRPORT_FILL, "fill-opacity", opacity);
-  map.setPaintProperty(AIRPORT_LINE, "line-opacity", Math.min(opacity * 3, 0.5));
-  map.setPaintProperty(AIRPORT_GLOW_1, "line-opacity", glow * 0.15);
-  map.setPaintProperty(AIRPORT_GLOW_2, "line-opacity", glow * 0.06);
-}
+  const color = isDark ? "#ffffff" : "#c89520";
+  const glowColor = isDark ? "#ffffff" : "#daa520";
 
-function removeAirportOverlay(map: mapboxgl.Map) {
-  for (const id of AIRPORT_LAYERS) {
-    if (map.getLayer(id)) map.removeLayer(id);
-  }
-  if (map.getSource(AIRPORT_SOURCE)) map.removeSource(AIRPORT_SOURCE);
+  map.setPaintProperty(AIRPORT_FILL, "fill-color", color);
+  map.setPaintProperty(AIRPORT_FILL, "fill-opacity", isDark ? opacity : opacity * 1.5);
+  map.setPaintProperty(AIRPORT_LINE, "line-color", color);
+  map.setPaintProperty(AIRPORT_LINE, "line-width", isDark ? 1.5 : 2);
+  map.setPaintProperty(AIRPORT_LINE, "line-opacity", Math.min(opacity * 3, isDark ? 0.5 : 0.7));
+  map.setPaintProperty(AIRPORT_GLOW_1, "line-color", glowColor);
+  map.setPaintProperty(AIRPORT_GLOW_1, "line-opacity", glow * (isDark ? 0.15 : 0.3));
+  map.setPaintProperty(AIRPORT_GLOW_2, "line-color", glowColor);
+  map.setPaintProperty(AIRPORT_GLOW_2, "line-opacity", glow * (isDark ? 0.06 : 0.15));
 }
 
 function setupTerrain(map: mapboxgl.Map) {
@@ -108,27 +112,27 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-function rebuildLayers(
-  map: mapboxgl.Map,
-  opacity: number,
-  glow: number,
-  onMapReady: ((map: mapboxgl.Map) => void) | undefined,
-) {
-  setupTerrain(map);
-  removeAirportOverlay(map);
-  addAirportOverlay(map, opacity, glow);
-  onMapReady?.(map);
-}
-
 export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
 
+  // 用 ref 保存最新 props，讓永久 style.load handler 能讀到最新值
   const onMapReadyRef = useRef(onMapReady);
   const presetRef = useRef(preset);
+  const airportOpacityRef = useRef(airportOpacity);
+  const airportGlowRef = useRef(airportGlow);
+  const renderModeRef = useRef(renderMode);
+  const flightsRef = useRef(flights);
+  const isDarkThemeRef = useRef(isDarkTheme);
+
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
+  airportOpacityRef.current = airportOpacity;
+  airportGlowRef.current = airportGlow;
+  renderModeRef.current = renderMode;
+  flightsRef.current = flights;
+  isDarkThemeRef.current = isDarkTheme;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -145,9 +149,20 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
       antialias: true,
     });
 
+    // 唯一的 style.load handler：每次底圖切換都會觸發，重建所有圖層
     map.on("style.load", () => {
       setupTerrain(map);
-      addAirportOverlay(map, 0.12, 0.8);
+      addAirportOverlay(map, airportOpacityRef.current, airportGlowRef.current, isDarkThemeRef.current);
+
+      // 2D 模式下重建 Mapbox 原生靜態軌跡
+      if (renderModeRef.current === "2d") {
+        updateStaticTrails(map, flightsRef.current, isDarkThemeRef.current);
+      }
+
+      // 初次載入後，每次樣式切換都重建 flight layer
+      if (readyRef.current) {
+        onMapReadyRef.current?.(map);
+      }
     });
 
     map.on("load", () => {
@@ -168,13 +183,6 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
-
-    const onStyleLoad = () => {
-      rebuildLayers(map, airportOpacity, airportGlow, onMapReadyRef.current);
-      map.off("style.load", onStyleLoad);
-    };
-
-    map.on("style.load", onStyleLoad);
     map.setStyle(styleUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [styleUrl]);
@@ -209,8 +217,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    updateAirportStyle(map, airportOpacity, airportGlow);
-  }, [airportOpacity, airportGlow]);
+    updateAirportStyle(map, airportOpacity, airportGlow, isDarkTheme);
+  }, [airportOpacity, airportGlow, isDarkTheme]);
 
   return (
     <div

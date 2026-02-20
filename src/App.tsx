@@ -12,20 +12,20 @@ import { FlightPicker } from "./components/FlightPicker";
 import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 
-const sliderLabelStyle: React.CSSProperties = {
-  color: "rgba(255,255,255,0.6)",
+const getSliderLabelStyle = (dark: boolean): React.CSSProperties => ({
+  color: dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
   fontSize: 11,
   fontFamily: "monospace",
   display: "flex",
   alignItems: "center",
   gap: 4,
-};
-const sliderStyle: React.CSSProperties = {
+});
+const getSliderStyle = (dark: boolean): React.CSSProperties => ({
   width: 60,
   height: 4,
-  accentColor: "rgba(255,255,255,0.6)",
+  accentColor: dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)",
   cursor: "pointer",
-};
+});
 
 export default function App() {
   const {
@@ -297,7 +297,7 @@ export default function App() {
               style={{
                 margin: 0,
                 fontSize: 18,
-                color: "#fff",
+                color: isDarkTheme ? "#fff" : "#333",
                 fontFamily: "monospace",
                 letterSpacing: 2,
               }}
@@ -308,16 +308,18 @@ export default function App() {
             <AirportSelector
               airports={airports}
               selected={selectedAirport}
+              isDarkTheme={isDarkTheme}
               onChange={setSelectedAirport}
             />
 
             <StyleSelector
               selected={mapStyleId}
+              isDarkTheme={isDarkTheme}
               onChange={setMapStyleId}
             />
 
             {loading && (
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 13 }}>
+              <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)", fontSize: 13 }}>
                 Loading...
               </span>
             )}
@@ -340,6 +342,7 @@ export default function App() {
               flights={pickableFlights}
               viewMode={viewMode}
               selectedFlightId={selectedFlightId}
+              isDarkTheme={isDarkTheme}
               onViewModeChange={setViewMode}
               onFlightSelect={setSelectedFlightId}
             />
@@ -357,36 +360,36 @@ export default function App() {
               alignItems: "center",
             }}
           >
-            <label style={sliderLabelStyle}>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
               Alt ×{altExaggeration.toFixed(1)}
               <input type="range" min={1} max={5} step={0.5} value={altExaggeration}
-                onChange={(e) => setAltExaggeration(Number(e.target.value))} style={sliderStyle} />
+                onChange={(e) => setAltExaggeration(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
-            <label style={sliderLabelStyle}>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
               Z +{altOffset}m
               <input type="range" min={0} max={200} step={50} value={altOffset}
-                onChange={(e) => setAltOffset(Number(e.target.value))} style={sliderStyle} />
+                onChange={(e) => setAltOffset(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
-            <label style={sliderLabelStyle}>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
               Opacity {staticOpacity.toFixed(2)}
               <input type="range" min={0.02} max={0.5} step={0.02} value={staticOpacity}
-                onChange={(e) => setStaticOpacity(Number(e.target.value))} style={sliderStyle} />
+                onChange={(e) => setStaticOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
-            <label style={sliderLabelStyle}>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
               Orb {(orbScale * 100000).toFixed(1)}
               <input type="range" min={0.000001} max={0.00001} step={0.000001} value={orbScale}
-                onChange={(e) => setOrbScale(Number(e.target.value))} style={sliderStyle} />
+                onChange={(e) => setOrbScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
-            <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 2px" }}>|</span>
-            <label style={sliderLabelStyle}>
+            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
               APT {airportOpacity.toFixed(2)}
               <input type="range" min={0} max={0.3} step={0.01} value={airportOpacity}
-                onChange={(e) => setAirportOpacity(Number(e.target.value))} style={sliderStyle} />
+                onChange={(e) => setAirportOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
-            <label style={sliderLabelStyle}>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
               Glow {airportGlow.toFixed(1)}
               <input type="range" min={0} max={2} step={0.1} value={airportGlow}
-                onChange={(e) => setAirportGlow(Number(e.target.value))} style={sliderStyle} />
+                onChange={(e) => setAirportGlow(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
           </div>
 
@@ -398,6 +401,7 @@ export default function App() {
             currentTime={timeline.currentTime}
             startTime={timeRange.start}
             endTime={timeRange.end}
+            isDarkTheme={isDarkTheme}
             onToggle={timeline.toggle}
             onSpeedChange={timeline.setSpeed}
             onSeekByProgress={timeline.seekByProgress}
@@ -418,10 +422,10 @@ export default function App() {
               onClick={() => setCaptureMode(true)}
               style={{
                 padding: "6px 14px",
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
+                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
                 borderRadius: 6,
-                color: "#fff",
+                color: isDarkTheme ? "#fff" : "#333",
                 fontSize: 12,
                 fontFamily: "monospace",
                 cursor: "pointer",
@@ -435,10 +439,12 @@ export default function App() {
               onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
               style={{
                 padding: "6px 14px",
-                background: renderMode === "3d" ? "rgba(80,140,255,0.25)" : "rgba(255,170,68,0.25)",
+                background: renderMode === "3d"
+                  ? (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)")
+                  : (isDarkTheme ? "rgba(255,170,68,0.25)" : "rgba(255,170,68,0.15)"),
                 border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
                 borderRadius: 6,
-                color: "#fff",
+                color: isDarkTheme ? "#fff" : "#333",
                 fontSize: 12,
                 fontFamily: "monospace",
                 cursor: "pointer",
@@ -457,7 +463,7 @@ export default function App() {
               top: 112,
               left: 16,
               zIndex: 10,
-              color: "rgba(255,255,255,0.4)",
+              color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
               fontSize: 11,
               fontFamily: "monospace",
             }}
