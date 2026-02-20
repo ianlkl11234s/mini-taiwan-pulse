@@ -2,6 +2,13 @@
 
 航班軌跡生成式藝術（Generative Art）視覺化。以台灣機場為中心，將航班起降軌跡轉化為光軌藝術作品。
 
+## Screenshots
+
+<!-- 將截圖放入 screenshots/ 資料夾，取消下方註解即可顯示 -->
+<!-- ![3D Altitude View](screenshots/3d-altitude.png) -->
+<!-- ![2D Flat View](screenshots/2d-flat.png) -->
+<!-- ![Capture Mode](screenshots/capture-mode.png) -->
+
 ## 視覺概念
 
 - **光軌**：航班軌跡以彗尾狀漸層光軌呈現，additive blending 疊加自然增亮
@@ -81,6 +88,7 @@ Taiwan Flight Arc/
 ├── public/
 │   ├── aviation_data.json        # FR24 航班軌跡（34MB, gitignored）
 │   └── airports.geojson          # OSM 台灣機場邊界（13 座）
+├── screenshots/                   # 截圖展示
 ├── src/
 │   ├── App.tsx                   # 主應用 + 所有狀態管理 + UI
 │   ├── types/index.ts            # 型別定義
@@ -110,13 +118,24 @@ Taiwan Flight Arc/
 │       └── interpolation.ts      # 軌跡時間插值
 ├── color-preview.html            # 調色盤獨立預覽
 ├── .env.example
+├── LICENSE
 ├── package.json
 └── vite.config.ts
 ```
 
-## 資料格式
+## 航班資料（Flight API）
 
-航班軌跡來自 FlightRadar24，每筆航班包含完整路徑點：
+本專案使用 [FlightRadar24](https://www.flightradar24.com/) 作為航班軌跡資料來源。
+
+### 取得資料
+
+1. 至 [FlightRadar24](https://www.flightradar24.com/premium) 取得正式的 API 存取權限
+2. 透過 API 取得航班軌跡資料
+3. 將資料轉換為下方格式後，存為 `public/aviation_data.json`
+
+### 資料格式
+
+每筆航班包含完整路徑點：
 
 ```json
 {
@@ -134,21 +153,56 @@ Taiwan Flight Arc/
 
 `path` 每個點：`[緯度, 經度, 高度(m), Unix timestamp]`
 
+`aviation_data.json` 為航班陣列，未包含在 git 中（約 34MB）。
+
 ## 開發
+
+### 1. 安裝相依套件
 
 ```bash
 npm install
-cp .env.example .env
-# 編輯 .env 填入 Mapbox token
-
-npm run dev     # 開發
-npm run build   # 建置
 ```
 
-需將 `aviation_data.json` 放置於 `public/` 目錄（未包含在 git 中）。
+### 2. 設定 Mapbox Token
+
+本專案使用 [Mapbox GL JS](https://www.mapbox.com/) 作為地圖引擎，需要一組免費的 Access Token：
+
+1. 前往 [Mapbox 官網](https://account.mapbox.com/auth/signup/) 註冊帳號（免費方案即可）
+2. 進入 [Access Tokens 頁面](https://account.mapbox.com/access-tokens/) 複製 Default public token
+3. 設定環境變數：
+
+```bash
+cp .env.example .env
+# 編輯 .env，將 your_mapbox_access_token_here 替換為你的 token
+```
+
+### 3. 準備航班資料
+
+將 FlightRadar24 API 取得的軌跡資料存為 `public/aviation_data.json`（格式見上方「航班資料」章節）。
+
+### 4. 啟動
+
+```bash
+npm run dev     # 開發模式
+npm run build   # 正式建置
+```
+
+## 調色盤預覽
+
+專案包含獨立的色彩方案預覽頁面 `color-preview.html`，提供 8 種光軌配色方案（Arctic Blue / Warm Amber / Neon Cyber / Ocean Deep / Aurora / Monochrome White / Sunset Gradient / Emerald Forest），使用 Additive Blending 模擬實際光軌疊加效果。
+
+直接用瀏覽器開啟即可預覽：
+
+```bash
+open color-preview.html
+```
 
 ## 靈感參考
 
 - 長曝光航空攝影（airport long exposure photography）
 - Aaron Koblin「Flight Patterns」— 美國航班軌跡視覺化
 - Mapbox 3D terrain + custom layer
+
+## License
+
+MIT License. 詳見 [LICENSE](LICENSE)。
