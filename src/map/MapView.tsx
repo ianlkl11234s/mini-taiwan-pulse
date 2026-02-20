@@ -2,13 +2,10 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset } from "../types";
-import type { Flight } from "../types";
-import { updateStaticTrails } from "./staticTrails";
 
 interface MapViewProps {
   preset: CameraPreset;
   styleUrl: string;
-  flights: Flight[];
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -65,36 +62,26 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-/**
- * style.load 後需要重建的所有圖層
- */
-function rebuildAllLayers(
+function rebuildLayers(
   map: mapboxgl.Map,
   center: [number, number],
-  flights: Flight[],
   onMapReady: ((map: mapboxgl.Map) => void) | undefined,
 ) {
   setupTerrain(map);
   addAirportMarker(map, center);
-  updateStaticTrails(map, flights);
-  // 重建 Three.js CustomLayer
   onMapReady?.(map);
 }
 
-export function MapView({ preset, styleUrl, flights, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
 
-  // 用 ref 保持最新的 props，避免 stale closure
   const onMapReadyRef = useRef(onMapReady);
   const presetRef = useRef(preset);
-  const flightsRef = useRef(flights);
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
-  flightsRef.current = flights;
 
-  // 初次建立地圖
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -113,7 +100,6 @@ export function MapView({ preset, styleUrl, flights, onMapReady }: MapViewProps)
     map.on("style.load", () => {
       setupTerrain(map);
       addAirportMarker(map, presetRef.current.center);
-      updateStaticTrails(map, flightsRef.current);
     });
 
     map.on("load", () => {
@@ -136,12 +122,7 @@ export function MapView({ preset, styleUrl, flights, onMapReady }: MapViewProps)
     if (!map || !readyRef.current) return;
 
     const onStyleLoad = () => {
-      rebuildAllLayers(
-        map,
-        presetRef.current.center,
-        flightsRef.current,
-        onMapReadyRef.current,
-      );
+      rebuildLayers(map, presetRef.current.center, onMapReadyRef.current);
       map.off("style.load", onStyleLoad);
     };
 
@@ -167,18 +148,6 @@ export function MapView({ preset, styleUrl, flights, onMapReady }: MapViewProps)
       addAirportMarker(map, preset.center);
     }
   }, [preset]);
-
-  // 航班資料變更時更新靜態軌跡
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-
-    try {
-      updateStaticTrails(map, flights);
-    } catch {
-      // style 可能正在切換中，忽略
-    }
-  }, [flights]);
 
   return (
     <div

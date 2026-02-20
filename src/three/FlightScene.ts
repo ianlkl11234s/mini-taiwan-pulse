@@ -14,11 +14,7 @@ interface FlightVisual {
 
 /**
  * Three.js 場景管理器
- * 管理所有航班的光軌、光球、閃爍燈
- *
- * visuals 採用 lazy 建立策略：update() 遇到未見過的航班會自動建立，
- * 離開範圍的航班只是隱藏（不銷毀），確保跨模式切換和異步資料載入
- * 都不會導致畫面空白。
+ * 管理所有航班的光軌、光球、閃爍燈 + 靜態 3D 軌跡
  */
 export class FlightScene {
   scene: THREE.Scene;
@@ -28,13 +24,18 @@ export class FlightScene {
   private visuals = new Map<string, FlightVisual>();
   private colorIndex = 0;
 
-  // 光軌顏色調色盤（additive blending 下的基底色）
+  // 靜態軌跡的 3D mesh（暖橘色，全路徑）
+  private staticMesh: THREE.LineSegments | null = null;
+  private staticGlowMesh: THREE.LineSegments | null = null;
+  private lastStaticKey = "";
+
+  // 光軌顏色調色盤
   private colors = [
-    new THREE.Color(0.3, 0.6, 1.0),   // 藍
-    new THREE.Color(0.2, 0.8, 0.9),   // 青
-    new THREE.Color(0.5, 0.4, 1.0),   // 紫
-    new THREE.Color(0.3, 0.9, 0.7),   // 翠
-    new THREE.Color(0.6, 0.5, 1.0),   // 淺紫
+    new THREE.Color(0.3, 0.6, 1.0),
+    new THREE.Color(0.2, 0.8, 0.9),
+    new THREE.Color(0.5, 0.4, 1.0),
+    new THREE.Color(0.3, 0.9, 0.7),
+    new THREE.Color(0.6, 0.5, 1.0),
   ];
 
   constructor() {
@@ -42,7 +43,6 @@ export class FlightScene {
     this.camera = new THREE.Camera();
   }
 
-  /** 在 Mapbox CustomLayer.onAdd 中呼叫 */
   init(gl: WebGLRenderingContext) {
     this.renderer = new THREE.WebGLRenderer({
       canvas: gl.canvas as HTMLCanvasElement,
@@ -52,17 +52,85 @@ export class FlightScene {
     this.renderer.autoClear = false;
   }
 
-  /** 每幀更新（根據當前時間），自動管理 visuals 生命週期 */
-  update(flights: Flight[], currentTime: number) {
-    const animDt = 0.016; // ~60fps
+  /**
+   * 更新靜態軌跡 mesh（全路徑暖橘色 3D 線條）
+   * 只有航班集合真正變動時才重建 geometry。
+   */
+  updateStaticTrails(flights: Flight[]) {
+    // 用航班數 + 首末 ID 判斷是否需要重建
+    const key =
+      flights.length === 0
+        ? ""
+        : `${flights.length}|${flights[0]!.fr24_id}|${flights[flights.length - 1]!.fr24_id}`;
+    if (key === this.lastStaticKey) return;
+    this.lastStaticKey = key;
 
-    // 收集本幀活躍的 flight IDs
+    this.removeStaticMeshes();
+
+    if (flights.length === 0) return;
+
+    // 計算總頂點數（LineSegments 需要每段兩個頂點）
+    let totalSegments = 0;
+    for (const f of flights) {
+      if (f.path.length >= 2) totalSegments += f.path.length - 1;
+    }
+    if (totalSegments === 0) return;
+
+    const positions = new Float32Array(totalSegments * 2 * 3);
+    let offset = 0;
+
+    for (const f of flights) {
+      if (f.path.length < 2) continue;
+      for (let i = 0; i < f.path.length - 1; i++) {
+        const a = f.path[i]!;
+        const b = f.path[i + 1]!;
+        const ma = toMercator(a[0], a[1], a[2]);
+        const mb = toMercator(b[0], b[1], b[2]);
+        positions[offset++] = ma.x;
+        positions[offset++] = ma.y;
+        positions[offset++] = ma.z;
+        positions[offset++] = mb.x;
+        positions[offset++] = mb.y;
+        positions[offset++] = mb.z;
+      }
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+
+    // 內層線條（暖橘色，較亮）
+    const mat = new THREE.LineBasicMaterial({
+      color: new THREE.Color(1.0, 0.65, 0.25),
+      transparent: true,
+      opacity: 0.2,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    this.staticMesh = new THREE.LineSegments(geometry, mat);
+    this.staticMesh.frustumCulled = false;
+    this.scene.add(this.staticMesh);
+
+    // 外層 glow（較寬概念用 linewidth 不支援，改用更淡的疊加）
+    const glowMat = new THREE.LineBasicMaterial({
+      color: new THREE.Color(1.0, 0.5, 0.15),
+      transparent: true,
+      opacity: 0.06,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    this.staticGlowMesh = new THREE.LineSegments(geometry.clone(), glowMat);
+    this.staticGlowMesh.frustumCulled = false;
+    this.scene.add(this.staticGlowMesh);
+  }
+
+  /** 每幀更新動態光軌/光球 */
+  update(flights: Flight[], currentTime: number) {
+    const animDt = 0.016;
     const activeIds = new Set<string>();
 
     for (const flight of flights) {
       activeIds.add(flight.fr24_id);
 
-      // Lazy 建立：遇到新航班自動建立 visual
       let visual = this.visuals.get(flight.fr24_id);
       if (!visual) {
         visual = this.createVisual(flight.fr24_id);
@@ -77,7 +145,6 @@ export class FlightScene {
         continue;
       }
 
-      // 取得當前軌跡段（保留最近 600 秒的軌跡）
       const trail = getTrailUpToTime(flight.path, currentTime, 600);
       if (trail.length < 2) {
         visual.orb.setVisible(false);
@@ -85,23 +152,19 @@ export class FlightScene {
         continue;
       }
 
-      // 更新光軌
       visual.trail.updateTrail(trail);
       visual.trail.setOpacity(0.8);
 
-      // 更新光球位置
       const lastPt = trail[trail.length - 1]!;
       const pos = toMercator(lastPt[0], lastPt[1], lastPt[2]);
       visual.orb.setPosition(pos.x, pos.y, pos.z);
       visual.orb.setVisible(true);
       visual.orb.update(animDt);
 
-      // 更新閃爍燈
       visual.blink.setVisible(true);
       visual.blink.update(animDt);
     }
 
-    // 隱藏不在本幀航班列表中的 visuals
     for (const [id, visual] of this.visuals) {
       if (!activeIds.has(id)) {
         visual.trail.setOpacity(0);
@@ -111,7 +174,6 @@ export class FlightScene {
     }
   }
 
-  /** 在 Mapbox CustomLayer.render 中呼叫 */
   render(matrix: number[]) {
     this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
     this.renderer.resetState();
@@ -135,6 +197,21 @@ export class FlightScene {
     return visual;
   }
 
+  private removeStaticMeshes() {
+    if (this.staticMesh) {
+      this.scene.remove(this.staticMesh);
+      this.staticMesh.geometry.dispose();
+      (this.staticMesh.material as THREE.Material).dispose();
+      this.staticMesh = null;
+    }
+    if (this.staticGlowMesh) {
+      this.scene.remove(this.staticGlowMesh);
+      this.staticGlowMesh.geometry.dispose();
+      (this.staticGlowMesh.material as THREE.Material).dispose();
+      this.staticGlowMesh = null;
+    }
+  }
+
   private clearScene() {
     for (const visual of this.visuals.values()) {
       this.scene.remove(visual.trail.mesh);
@@ -145,6 +222,8 @@ export class FlightScene {
     }
     this.visuals.clear();
     this.colorIndex = 0;
+    this.removeStaticMeshes();
+    this.lastStaticKey = "";
   }
 
   dispose() {

@@ -26,6 +26,7 @@ export function createFlightLayer(
       const flights = getFlights();
       const time = getCurrentTime();
 
+      flightScene.updateStaticTrails(flights);
       flightScene.update(flights, time);
       flightScene.render(matrix);
 
