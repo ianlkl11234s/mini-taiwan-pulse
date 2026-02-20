@@ -9,48 +9,90 @@ interface MapViewProps {
   styleUrl: string;
   flights: Flight[];
   renderMode: RenderMode;
+  airportOpacity: number;
+  airportGlow: number;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
-const AIRPORT_MARKER_SOURCE = "airport-marker";
-const AIRPORT_MARKER_LAYER = "airport-marker-fill";
+const AIRPORT_SOURCE = "airport-boundaries";
+const AIRPORT_FILL = "airport-fill";
+const AIRPORT_LINE = "airport-outline";
+const AIRPORT_GLOW_1 = "airport-glow-1";
+const AIRPORT_GLOW_2 = "airport-glow-2";
 
-function addAirportMarker(map: mapboxgl.Map, center: [number, number]) {
-  if (map.getLayer(AIRPORT_MARKER_LAYER)) map.removeLayer(AIRPORT_MARKER_LAYER);
-  if (map.getSource(AIRPORT_MARKER_SOURCE)) map.removeSource(AIRPORT_MARKER_SOURCE);
+const AIRPORT_LAYERS = [AIRPORT_GLOW_2, AIRPORT_GLOW_1, AIRPORT_FILL, AIRPORT_LINE];
 
-  const lng = center[0];
-  const lat = center[1];
-  const dLng = 0.008;
-  const dLat = 0.002;
+function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number) {
+  if (map.getSource(AIRPORT_SOURCE)) return;
 
-  map.addSource(AIRPORT_MARKER_SOURCE, {
+  map.addSource(AIRPORT_SOURCE, {
     type: "geojson",
-    data: {
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "Polygon",
-        coordinates: [[
-          [lng - dLng, lat - dLat],
-          [lng + dLng, lat - dLat],
-          [lng + dLng, lat + dLat],
-          [lng - dLng, lat + dLat],
-          [lng - dLng, lat - dLat],
-        ]],
-      },
+    data: "./airports.geojson",
+  });
+
+  // 外層光暈（寬、模糊）
+  map.addLayer({
+    id: AIRPORT_GLOW_2,
+    type: "line",
+    source: AIRPORT_SOURCE,
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 30,
+      "line-blur": 15,
+      "line-opacity": glow * 0.06,
     },
   });
 
+  // 內層光暈
   map.addLayer({
-    id: AIRPORT_MARKER_LAYER,
+    id: AIRPORT_GLOW_1,
+    type: "line",
+    source: AIRPORT_SOURCE,
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 10,
+      "line-blur": 5,
+      "line-opacity": glow * 0.15,
+    },
+  });
+
+  // 填充
+  map.addLayer({
+    id: AIRPORT_FILL,
     type: "fill",
-    source: AIRPORT_MARKER_SOURCE,
+    source: AIRPORT_SOURCE,
     paint: {
       "fill-color": "#ffffff",
-      "fill-opacity": 0.08,
+      "fill-opacity": opacity,
     },
   });
+
+  // 邊框線
+  map.addLayer({
+    id: AIRPORT_LINE,
+    type: "line",
+    source: AIRPORT_SOURCE,
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 1.5,
+      "line-opacity": Math.min(opacity * 3, 0.5),
+    },
+  });
+}
+
+function updateAirportStyle(map: mapboxgl.Map, opacity: number, glow: number) {
+  if (!map.getSource(AIRPORT_SOURCE)) return;
+  map.setPaintProperty(AIRPORT_FILL, "fill-opacity", opacity);
+  map.setPaintProperty(AIRPORT_LINE, "line-opacity", Math.min(opacity * 3, 0.5));
+  map.setPaintProperty(AIRPORT_GLOW_1, "line-opacity", glow * 0.15);
+  map.setPaintProperty(AIRPORT_GLOW_2, "line-opacity", glow * 0.06);
+}
+
+function removeAirportOverlay(map: mapboxgl.Map) {
+  for (const id of AIRPORT_LAYERS) {
+    if (map.getLayer(id)) map.removeLayer(id);
+  }
+  if (map.getSource(AIRPORT_SOURCE)) map.removeSource(AIRPORT_SOURCE);
 }
 
 function setupTerrain(map: mapboxgl.Map) {
@@ -67,15 +109,17 @@ function setupTerrain(map: mapboxgl.Map) {
 
 function rebuildLayers(
   map: mapboxgl.Map,
-  center: [number, number],
+  opacity: number,
+  glow: number,
   onMapReady: ((map: mapboxgl.Map) => void) | undefined,
 ) {
   setupTerrain(map);
-  addAirportMarker(map, center);
+  removeAirportOverlay(map);
+  addAirportOverlay(map, opacity, glow);
   onMapReady?.(map);
 }
 
-export function MapView({ preset, styleUrl, flights, renderMode, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -102,7 +146,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, onMapReady }: M
 
     map.on("style.load", () => {
       setupTerrain(map);
-      addAirportMarker(map, presetRef.current.center);
+      addAirportOverlay(map, 0.12, 0.8);
     });
 
     map.on("load", () => {
@@ -125,7 +169,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, onMapReady }: M
     if (!map || !readyRef.current) return;
 
     const onStyleLoad = () => {
-      rebuildLayers(map, presetRef.current.center, onMapReadyRef.current);
+      rebuildLayers(map, airportOpacity, airportGlow, onMapReadyRef.current);
       map.off("style.load", onStyleLoad);
     };
 
@@ -146,10 +190,6 @@ export function MapView({ preset, styleUrl, flights, renderMode, onMapReady }: M
       bearing: preset.bearing,
       duration: 2000,
     });
-
-    if (map.isStyleLoaded()) {
-      addAirportMarker(map, preset.center);
-    }
   }, [preset]);
 
   // 2D/3D 渲染模式切換：管理 Mapbox 原生靜態軌跡
@@ -163,6 +203,13 @@ export function MapView({ preset, styleUrl, flights, renderMode, onMapReady }: M
       removeStaticTrails(map);
     }
   }, [renderMode, flights]);
+
+  // 機場圖層樣式即時更新
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    updateAirportStyle(map, airportOpacity, airportGlow);
+  }, [airportOpacity, airportGlow]);
 
   return (
     <div

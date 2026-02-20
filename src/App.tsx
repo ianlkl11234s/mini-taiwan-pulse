@@ -45,6 +45,8 @@ export default function App() {
   const [altExaggeration, setAltExaggeration] = useState(3);
   const [staticOpacity, setStaticOpacity] = useState(0.2);
   const [orbScale, setOrbScale] = useState(0.0005);
+  const [airportOpacity, setAirportOpacity] = useState(0.12);
+  const [airportGlow, setAirportGlow] = useState(0.8);
 
   const timeline = useTimeline({
     startTime: timeRange.start,
@@ -150,6 +152,8 @@ export default function App() {
         styleUrl={styleUrl}
         flights={displayedFlights}
         renderMode={renderMode}
+        airportOpacity={airportOpacity}
+        airportGlow={airportGlow}
         onMapReady={handleMapReady}
       />
 
@@ -269,6 +273,36 @@ export default function App() {
             step={0.0001}
             value={orbScale}
             onChange={(e) => setOrbScale(Number(e.target.value))}
+            style={sliderStyle}
+          />
+        </label>
+
+        <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 2px" }}>|</span>
+
+        {/* 機場填充不透明度 */}
+        <label style={sliderLabelStyle}>
+          APT {airportOpacity.toFixed(2)}
+          <input
+            type="range"
+            min={0}
+            max={0.3}
+            step={0.01}
+            value={airportOpacity}
+            onChange={(e) => setAirportOpacity(Number(e.target.value))}
+            style={sliderStyle}
+          />
+        </label>
+
+        {/* 機場光暈 */}
+        <label style={sliderLabelStyle}>
+          Glow {airportGlow.toFixed(1)}
+          <input
+            type="range"
+            min={0}
+            max={2}
+            step={0.1}
+            value={airportGlow}
+            onChange={(e) => setAirportGlow(Number(e.target.value))}
             style={sliderStyle}
           />
         </label>
