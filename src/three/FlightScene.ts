@@ -84,8 +84,23 @@ export class FlightScene {
     }
     if (totalSegments === 0) return;
 
-    const positions = new Float32Array(totalSegments * 2 * 3);
+    const totalVerts = totalSegments * 2;
+    const positions = new Float32Array(totalVerts * 3);
+    const colors = new Float32Array(totalVerts * 3);
     let offset = 0;
+    let cOffset = 0;
+
+    // 高度色彩映射：0m → 暖橘 (1.0, 0.65, 0.25) ～ 13000m → 冷藍 (0.3, 0.6, 1.0)
+    const MAX_ALT = 13000;
+    const lowR = 1.0, lowG = 0.65, lowB = 0.25;   // 地面暖橘
+    const highR = 0.3, highG = 0.6, highB = 1.0;   // 巡航冷藍
+
+    const writeVertexColor = (alt: number) => {
+      const t = Math.min(Math.max(alt / MAX_ALT, 0), 1);
+      colors[cOffset++] = lowR + (highR - lowR) * t;
+      colors[cOffset++] = lowG + (highG - lowG) * t;
+      colors[cOffset++] = lowB + (highB - lowB) * t;
+    };
 
     for (const f of flights) {
       if (f.path.length < 2) continue;
@@ -100,15 +115,19 @@ export class FlightScene {
         positions[offset++] = mb.x;
         positions[offset++] = mb.y;
         positions[offset++] = mb.z;
+
+        writeVertexColor(a[2]);
+        writeVertexColor(b[2]);
       }
     }
 
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
-    // 內層線條（暖橘色，較亮）
+    // 內層線條（per-vertex 高度漸變色，較亮）
     const mat = new THREE.LineBasicMaterial({
-      color: new THREE.Color(1.0, 0.65, 0.25),
+      vertexColors: true,
       transparent: true,
       opacity: 0.2,
       blending: THREE.AdditiveBlending,
@@ -118,9 +137,9 @@ export class FlightScene {
     this.staticMesh.frustumCulled = false;
     this.scene.add(this.staticMesh);
 
-    // 外層 glow（較寬概念用 linewidth 不支援，改用更淡的疊加）
+    // 外層 glow（per-vertex 高度漸變色，較淡疊加）
     const glowMat = new THREE.LineBasicMaterial({
-      color: new THREE.Color(1.0, 0.5, 0.15),
+      vertexColors: true,
       transparent: true,
       opacity: 0.06,
       blending: THREE.AdditiveBlending,

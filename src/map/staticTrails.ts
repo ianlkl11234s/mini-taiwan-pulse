@@ -6,6 +6,27 @@ const LAYER_ID = "static-trails-line";
 const GLOW_LAYER_ID = "static-trails-glow";
 
 /**
+ * 將 fr24_id hash 成 0~1 的穩定值
+ */
+function hashToUnit(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return (hash % 10000) / 10000;
+}
+
+/**
+ * t=0 → 白色 #ffffff，t=1 → 橘色 #ff8833，線性插值回傳 hex string
+ */
+function lerpColor(t: number): string {
+  const r = Math.round(255 + (0xff - 255) * t);
+  const g = Math.round(255 + (0x88 - 255) * t);
+  const b = Math.round(255 + (0x33 - 255) * t);
+  return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
+}
+
+/**
  * 將航班路徑轉為 GeoJSON FeatureCollection
  */
 function flightsToGeoJSON(flights: Flight[]): GeoJSON.FeatureCollection {
@@ -19,6 +40,7 @@ function flightsToGeoJSON(flights: Flight[]): GeoJSON.FeatureCollection {
           callsign: f.callsign,
           origin: f.origin_iata,
           dest: f.dest_iata,
+          color: lerpColor(hashToUnit(f.fr24_id)),
         },
         geometry: {
           type: "LineString" as const,
@@ -51,7 +73,7 @@ export function updateStaticTrails(map: MapboxMap, flights: Flight[]) {
       type: "line",
       source: SOURCE_ID,
       paint: {
-        "line-color": "#ff8833",
+        "line-color": ["get", "color"],
         "line-width": 3,
         "line-opacity": 0.08,
         "line-blur": 4,
@@ -64,7 +86,7 @@ export function updateStaticTrails(map: MapboxMap, flights: Flight[]) {
       type: "line",
       source: SOURCE_ID,
       paint: {
-        "line-color": "#ffaa44",
+        "line-color": ["get", "color"],
         "line-width": 1,
         "line-opacity": 0.25,
         "line-blur": 1,
