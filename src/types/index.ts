@@ -38,4 +38,11 @@ export interface TimelineState {
 }
 
 /** 顯示模式 */
-export type ViewMode = "single" | "overlay";
+export type ViewMode = "airport" | "all-taiwan" | "time-window" | "single";
+
+/** Mapbox 底圖樣式 */
+export interface MapStyle {
+  id: string;
+  name: string;
+  url: string;
+}

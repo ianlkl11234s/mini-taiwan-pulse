@@ -6,12 +6,15 @@ import { useFlightData } from "./hooks/useFlightData";
 import { useTimeline } from "./hooks/useTimeline";
 import { CAMERA_PRESETS, getPresetByIcao } from "./map/cameraPresets";
 import { createFlightLayer } from "./map/customLayer";
+import { filterByAirport, filterByTimeWindow } from "./data/flightLoader";
 import { AirportSelector } from "./components/AirportSelector";
 import { FlightPicker } from "./components/FlightPicker";
 import { TimelineControls } from "./components/TimelineControls";
+import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 
 export default function App() {
   const {
+    allFlights,
     filteredFlights,
     airports,
     selectedAirport,
@@ -20,8 +23,9 @@ export default function App() {
     loading,
   } = useFlightData();
 
-  const [viewMode, setViewMode] = useState<ViewMode>("overlay");
+  const [viewMode, setViewMode] = useState<ViewMode>("airport");
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [mapStyleId, setMapStyleId] = useState("dark");
 
   const timeline = useTimeline({
     startTime: timeRange.start,
@@ -30,11 +34,37 @@ export default function App() {
 
   // 根據 viewMode 決定要顯示的航班
   const displayedFlights = useMemo(() => {
-    if (viewMode === "single" && selectedFlightId) {
-      return filteredFlights.filter((f) => f.fr24_id === selectedFlightId);
+    switch (viewMode) {
+      case "single":
+        return selectedFlightId
+          ? filteredFlights.filter((f) => f.fr24_id === selectedFlightId)
+          : filteredFlights;
+      case "all-taiwan":
+        return allFlights;
+      case "time-window":
+        return filterByTimeWindow(
+          allFlights,
+          selectedAirport,
+          timeline.currentTime,
+        );
+      case "airport":
+      default:
+        return filteredFlights;
     }
-    return filteredFlights;
-  }, [filteredFlights, viewMode, selectedFlightId]);
+  }, [
+    allFlights,
+    filteredFlights,
+    viewMode,
+    selectedFlightId,
+    selectedAirport,
+    timeline.currentTime,
+  ]);
+
+  // 用於 FlightPicker 的航班列表（always based on airport filter）
+  const pickableFlights = useMemo(
+    () => filterByAirport(allFlights, selectedAirport),
+    [allFlights, selectedAirport],
+  );
 
   const mapRef = useRef<MapboxMap | null>(null);
   const flightsRef = useRef(displayedFlights);
@@ -48,19 +78,9 @@ export default function App() {
     [selectedAirport],
   );
 
-  const handleMapReady = (map: MapboxMap) => {
-    mapRef.current = map;
-    const layer = createFlightLayer(
-      () => timeRef.current,
-      () => flightsRef.current,
-    );
-    map.addLayer(layer);
-  };
+  const styleUrl = useMemo(() => getStyleUrl(mapStyleId), [mapStyleId]);
 
-  // 航班資料變更時重建 layer
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+  const addFlightLayer = (map: MapboxMap) => {
     if (map.getLayer("flight-3d")) {
       map.removeLayer("flight-3d");
     }
@@ -69,6 +89,19 @@ export default function App() {
       () => flightsRef.current,
     );
     map.addLayer(layer);
+  };
+
+  const handleMapReady = (map: MapboxMap) => {
+    mapRef.current = map;
+    addFlightLayer(map);
+  };
+
+  // 航班資料或模式變更時重建 layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    addFlightLayer(map);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode, selectedFlightId]);
 
   // 資料載入完成後自動播放
@@ -81,7 +114,11 @@ export default function App() {
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
-      <MapView preset={preset} onMapReady={handleMapReady} />
+      <MapView
+        preset={preset}
+        styleUrl={styleUrl}
+        onMapReady={handleMapReady}
+      />
 
       {/* 頂部控制列 */}
       <div
@@ -92,7 +129,7 @@ export default function App() {
           right: 16,
           zIndex: 10,
           display: "flex",
-          gap: 12,
+          gap: 10,
           alignItems: "center",
           flexWrap: "wrap",
         }}
@@ -115,12 +152,9 @@ export default function App() {
           onChange={setSelectedAirport}
         />
 
-        <FlightPicker
-          flights={filteredFlights}
-          viewMode={viewMode}
-          selectedFlightId={selectedFlightId}
-          onViewModeChange={setViewMode}
-          onFlightSelect={setSelectedFlightId}
+        <StyleSelector
+          selected={mapStyleId}
+          onChange={setMapStyleId}
         />
 
         {loading && (
@@ -128,6 +162,28 @@ export default function App() {
             Loading...
           </span>
         )}
+      </div>
+
+      {/* 第二列：模式選擇 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 52,
+          left: 16,
+          right: 16,
+          zIndex: 10,
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
+        }}
+      >
+        <FlightPicker
+          flights={pickableFlights}
+          viewMode={viewMode}
+          selectedFlightId={selectedFlightId}
+          onViewModeChange={setViewMode}
+          onFlightSelect={setSelectedFlightId}
+        />
       </div>
 
       {/* 時間軸 */}
@@ -147,7 +203,7 @@ export default function App() {
       <div
         style={{
           position: "absolute",
-          top: 56,
+          top: 84,
           left: 16,
           zIndex: 10,
           color: "rgba(255,255,255,0.4)",
@@ -155,7 +211,9 @@ export default function App() {
           fontFamily: "monospace",
         }}
       >
-        {displayedFlights.length} / {filteredFlights.length} flights
+        {displayedFlights.length} flights
+        {viewMode === "time-window" && " (±12h)"}
+        {viewMode === "all-taiwan" && " (all Taiwan)"}
       </div>
     </div>
   );

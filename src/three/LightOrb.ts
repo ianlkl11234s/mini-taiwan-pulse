@@ -11,7 +11,7 @@ export class LightOrb {
 
   constructor(
     color: THREE.Color = new THREE.Color(0.6, 0.85, 1.0),
-    scale: number = 0.00003,
+    scale: number = 0.00008,
   ) {
     this.group = new THREE.Group();
 

@@ -33,14 +33,14 @@ const selectStyle: React.CSSProperties = {
   backdropFilter: "blur(8px)",
 };
 
-function formatTime(t: number): string {
-  if (t <= 0) return "--:--";
+function formatDateTime(t: number): string {
+  if (t <= 0) return "--/-- --:--";
   const d = new Date(t * 1000);
-  return d.toLocaleTimeString("zh-TW", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mi = String(d.getMinutes()).padStart(2, "0");
+  return `${mm}/${dd} ${hh}:${mi}`;
 }
 
 export function TimelineControls({
@@ -96,7 +96,7 @@ export function TimelineControls({
             fontFamily: "monospace",
           }}
         >
-          {formatTime(currentTime)}
+          {formatDateTime(currentTime)}
         </span>
       </div>
 
@@ -120,8 +120,8 @@ export function TimelineControls({
           marginTop: 2,
         }}
       >
-        <span>{formatTime(startTime)}</span>
-        <span>{formatTime(endTime)}</span>
+        <span>{formatDateTime(startTime)}</span>
+        <span>{formatDateTime(endTime)}</span>
       </div>
     </div>
   );

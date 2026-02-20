@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>plan-art Color Palette Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; color: #fff; font-family: monospace; padding: 24px; }
+  h1 { font-size: 20px; margin-bottom: 24px; letter-spacing: 2px; color: #aaa; }
+  h2 { font-size: 14px; margin: 16px 0 8px; color: #888; }
+  .palette-grid { display: grid; grid-template-columns: repeat(auto-fill, 420px); gap: 24px; }
+  .palette-card {
+    background: #111118; border: 1px solid #222; border-radius: 8px;
+    padding: 16px; cursor: pointer; transition: border-color 0.2s;
+  }
+  .palette-card:hover { border-color: #555; }
+  .palette-card.selected { border-color: #66aaff; }
+  .palette-name { font-size: 13px; margin-bottom: 8px; color: #ccc; }
+  .palette-desc { font-size: 11px; color: #666; margin-bottom: 12px; }
+  canvas { border-radius: 4px; display: block; }
+  .color-swatches { display: flex; gap: 6px; margin-top: 10px; }
+  .swatch {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.15);
+  }
+  .info { font-size: 11px; color: #555; margin-top: 24px; }
+</style>
+</head>
+<body>
+
+<h1>plan-art / Color Palette Preview</h1>
+<p style="font-size:12px; color:#666; margin-bottom:20px;">
+  每個方案都使用 Additive Blending 模擬光軌疊加效果。點擊選取。
+</p>
+
+<div class="palette-grid" id="grid"></div>
+
+<div class="info">
+  <p>Additive blending: 重疊處自然增亮。深色背景下，飽和度較低的色彩疊加後更接近白光。</p>
+</div>
+
+<script>
+const PALETTES = [
+  {
+    name: "Arctic Blue (Default)",
+    desc: "冷色系藍青調，沉穩科技感",
+    colors: [
+      [77, 153, 255],   // 藍
+      [51, 204, 230],   // 青
+      [128, 102, 255],  // 紫
+      [77, 230, 179],   // 翠
+      [153, 128, 255],  // 淺紫
+    ]
+  },
+  {
+    name: "Warm Amber",
+    desc: "暖色系琥珀調，日落感",
+    colors: [
+      [255, 170, 50],   // 琥珀
+      [255, 120, 60],   // 橘紅
+      [255, 200, 80],   // 金黃
+      [230, 100, 80],   // 珊瑚
+      [255, 150, 100],  // 淡橘
+    ]
+  },
+  {
+    name: "Neon Cyber",
+    desc: "霓虹風格，高對比賽博龐克",
+    colors: [
+      [0, 255, 200],    // 霓虹綠
+      [255, 0, 150],    // 洋紅
+      [0, 180, 255],    // 電光藍
+      [200, 0, 255],    // 紫羅蘭
+      [255, 255, 0],    // 霓虹黃
+    ]
+  },
+  {
+    name: "Ocean Deep",
+    desc: "深海色系，神秘沉靜",
+    colors: [
+      [30, 100, 200],   // 深藍
+      [20, 160, 180],   // 深青
+      [60, 80, 180],    // 靛藍
+      [40, 140, 160],   // 海藍
+      [80, 120, 200],   // 鋼藍
+    ]
+  },
+  {
+    name: "Aurora",
+    desc: "極光色系，綠紫漸變",
+    colors: [
+      [50, 255, 130],   // 極光綠
+      [100, 200, 255],  // 冰藍
+      [180, 80, 255],   // 紫
+      [50, 230, 200],   // 翡翠
+      [140, 120, 255],  // 薰衣草
+    ]
+  },
+  {
+    name: "Monochrome White",
+    desc: "純白單色，長曝光攝影風格",
+    colors: [
+      [200, 210, 230],  // 冷白
+      [230, 230, 240],  // 淨白
+      [180, 195, 220],  // 灰藍白
+      [210, 220, 240],  // 淡藍白
+      [220, 215, 230],  // 淡紫白
+    ]
+  },
+  {
+    name: "Sunset Gradient",
+    desc: "日落漸層，橘紅到紫",
+    colors: [
+      [255, 100, 50],   // 日落橘
+      [255, 60, 100],   // 玫瑰紅
+      [200, 50, 180],   // 洋紫
+      [255, 160, 50],   // 金橘
+      [160, 40, 200],   // 深紫
+    ]
+  },
+  {
+    name: "Emerald Forest",
+    desc: "翠綠色系，自然清新",
+    colors: [
+      [40, 200, 120],   // 翠綠
+      [60, 230, 180],   // 薄荷
+      [30, 180, 100],   // 森林綠
+      [80, 210, 160],   // 碧綠
+      [50, 190, 140],   // 玉綠
+    ]
+  },
+];
+
+function drawTrails(canvas, colors) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.fillStyle = "#0a0a12";
+  ctx.fillRect(0, 0, W, H);
+  ctx.globalCompositeOperation = "lighter"; // additive blending
+
+  const trails = 12;
+  for (let t = 0; t < trails; t++) {
+    const color = colors[t % colors.length];
+    const startX = Math.random() * W * 0.3;
+    const startY = Math.random() * H * 0.3 + H * 0.1;
+    const endX = W * 0.5 + Math.random() * W * 0.4;
+    const endY = H * 0.4 + Math.random() * H * 0.4;
+    const cp1x = startX + (endX - startX) * 0.3 + (Math.random() - 0.5) * 80;
+    const cp1y = startY + (endY - startY) * 0.2 + (Math.random() - 0.5) * 60;
+    const cp2x = startX + (endX - startX) * 0.7 + (Math.random() - 0.5) * 60;
+    const cp2y = startY + (endY - startY) * 0.6 + (Math.random() - 0.5) * 40;
+
+    const steps = 80;
+    for (let i = 0; i < steps; i++) {
+      const progress = i / steps;
+      const alpha = Math.pow(progress, 2.5) * 0.7;
+      const width = 1 + progress * 2;
+
+      // Bezier point
+      const t1 = progress;
+      const t0 = 1 - t1;
+      const x = t0*t0*t0*startX + 3*t0*t0*t1*cp1x + 3*t0*t1*t1*cp2x + t1*t1*t1*endX;
+      const y = t0*t0*t0*startY + 3*t0*t0*t1*cp1y + 3*t0*t1*t1*cp2y + t1*t1*t1*endY;
+
+      ctx.beginPath();
+      ctx.arc(x, y, width, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${color[0]},${color[1]},${color[2]},${alpha})`;
+      ctx.fill();
+    }
+
+    // Head orb (glow)
+    const t1 = 1;
+    const t0 = 0;
+    const hx = t0*t0*t0*startX + 3*t0*t0*t1*cp1x + 3*t0*t1*t1*cp2x + t1*t1*t1*endX;
+    const hy = t0*t0*t0*startY + 3*t0*t0*t1*cp1y + 3*t0*t1*t1*cp2y + t1*t1*t1*endY;
+
+    // Outer glow
+    const grd2 = ctx.createRadialGradient(hx, hy, 0, hx, hy, 16);
+    grd2.addColorStop(0, `rgba(${color[0]},${color[1]},${color[2]},0.3)`);
+    grd2.addColorStop(1, `rgba(${color[0]},${color[1]},${color[2]},0)`);
+    ctx.fillStyle = grd2;
+    ctx.fillRect(hx - 16, hy - 16, 32, 32);
+
+    // Core
+    const grd = ctx.createRadialGradient(hx, hy, 0, hx, hy, 6);
+    grd.addColorStop(0, `rgba(255,255,255,0.9)`);
+    grd.addColorStop(0.4, `rgba(${color[0]},${color[1]},${color[2]},0.6)`);
+    grd.addColorStop(1, `rgba(${color[0]},${color[1]},${color[2]},0)`);
+    ctx.fillStyle = grd;
+    ctx.fillRect(hx - 6, hy - 6, 12, 12);
+
+    // Red blink (some trails)
+    if (t % 3 === 0) {
+      const rgrd = ctx.createRadialGradient(hx + 3, hy - 2, 0, hx + 3, hy - 2, 4);
+      rgrd.addColorStop(0, "rgba(255,60,60,0.8)");
+      rgrd.addColorStop(1, "rgba(255,0,0,0)");
+      ctx.fillStyle = rgrd;
+      ctx.fillRect(hx - 1, hy - 6, 8, 8);
+    }
+  }
+
+  ctx.globalCompositeOperation = "source-over";
+}
+
+// Render
+const grid = document.getElementById("grid");
+PALETTES.forEach((palette, idx) => {
+  const card = document.createElement("div");
+  card.className = "palette-card";
+  card.innerHTML = `
+    <div class="palette-name">${palette.name}</div>
+    <div class="palette-desc">${palette.desc}</div>
+  `;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 400;
+  canvas.height = 200;
+  card.appendChild(canvas);
+
+  const swatches = document.createElement("div");
+  swatches.className = "color-swatches";
+  palette.colors.forEach(c => {
+    const s = document.createElement("div");
+    s.className = "swatch";
+    s.style.background = `rgb(${c[0]},${c[1]},${c[2]})`;
+    swatches.appendChild(s);
+  });
+  card.appendChild(swatches);
+
+  card.addEventListener("click", () => {
+    document.querySelectorAll(".palette-card").forEach(c => c.classList.remove("selected"));
+    card.classList.add("selected");
+  });
+
+  grid.appendChild(card);
+  drawTrails(canvas, palette.colors);
+});
+</script>
+</body>
+</html>

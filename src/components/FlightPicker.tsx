@@ -1,5 +1,4 @@
-import type { Flight } from "../types";
-import type { ViewMode } from "../types";
+import type { Flight, ViewMode } from "../types";
 
 interface Props {
   flights: Flight[];
@@ -15,10 +14,11 @@ const btnStyle = (active: boolean): React.CSSProperties => ({
   border: `1px solid ${active ? "rgba(100,170,255,0.6)" : "rgba(255,255,255,0.2)"}`,
   borderRadius: 4,
   padding: "4px 10px",
-  fontSize: 12,
+  fontSize: 11,
   cursor: "pointer",
   fontFamily: "monospace",
   backdropFilter: "blur(8px)",
+  whiteSpace: "nowrap",
 });
 
 const selectStyle: React.CSSProperties = {
@@ -27,10 +27,17 @@ const selectStyle: React.CSSProperties = {
   border: "1px solid rgba(255,255,255,0.2)",
   borderRadius: 4,
   padding: "4px 8px",
-  fontSize: 12,
+  fontSize: 11,
   fontFamily: "monospace",
-  maxWidth: 200,
+  maxWidth: 220,
   backdropFilter: "blur(8px)",
+};
+
+const MODE_LABELS: Record<ViewMode, string> = {
+  airport: "This Airport",
+  "all-taiwan": "All Taiwan",
+  "time-window": "±12h Window",
+  single: "Track Single",
 };
 
 export function FlightPicker({
@@ -41,22 +48,19 @@ export function FlightPicker({
   onFlightSelect,
 }: Props) {
   return (
-    <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-      <button
-        style={btnStyle(viewMode === "overlay")}
-        onClick={() => {
-          onViewModeChange("overlay");
-          onFlightSelect(null);
-        }}
-      >
-        All Flights
-      </button>
-      <button
-        style={btnStyle(viewMode === "single")}
-        onClick={() => onViewModeChange("single")}
-      >
-        Track Single
-      </button>
+    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+      {(Object.keys(MODE_LABELS) as ViewMode[]).map((mode) => (
+        <button
+          key={mode}
+          style={btnStyle(viewMode === mode)}
+          onClick={() => {
+            onViewModeChange(mode);
+            if (mode !== "single") onFlightSelect(null);
+          }}
+        >
+          {MODE_LABELS[mode]}
+        </button>
+      ))}
 
       {viewMode === "single" && (
         <select
