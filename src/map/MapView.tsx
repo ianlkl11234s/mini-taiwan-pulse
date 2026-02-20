@@ -1,11 +1,14 @@
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { CameraPreset } from "../types";
+import type { CameraPreset, Flight, RenderMode } from "../types";
+import { updateStaticTrails, removeStaticTrails } from "./staticTrails";
 
 interface MapViewProps {
   preset: CameraPreset;
   styleUrl: string;
+  flights: Flight[];
+  renderMode: RenderMode;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -72,7 +75,7 @@ function rebuildLayers(
   onMapReady?.(map);
 }
 
-export function MapView({ preset, styleUrl, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, flights, renderMode, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -148,6 +151,18 @@ export function MapView({ preset, styleUrl, onMapReady }: MapViewProps) {
       addAirportMarker(map, preset.center);
     }
   }, [preset]);
+
+  // 2D/3D 渲染模式切換：管理 Mapbox 原生靜態軌跡
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+
+    if (renderMode === "2d") {
+      updateStaticTrails(map, flights);
+    } else {
+      removeStaticTrails(map);
+    }
+  }, [renderMode, flights]);
 
   return (
     <div

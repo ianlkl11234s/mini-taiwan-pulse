@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { Flight } from "../types";
+import type { Flight, RenderMode } from "../types";
 import { toMercator } from "../utils/coordinates";
 import { getTrailUpToTime, isFlightActive } from "../utils/interpolation";
 import { LightTrail } from "./LightTrail";
@@ -55,8 +55,16 @@ export class FlightScene {
   /**
    * 更新靜態軌跡 mesh（全路徑暖橘色 3D 線條）
    * 只有航班集合真正變動時才重建 geometry。
+   * 在 2D 模式下隱藏 Three.js 靜態軌跡（由 Mapbox 原生圖層接管）。
    */
-  updateStaticTrails(flights: Flight[]) {
+  updateStaticTrails(flights: Flight[], mode: RenderMode = "3d") {
+    // 2D 模式：移除 Three.js 靜態軌跡，交給 Mapbox 原生圖層
+    if (mode === "2d") {
+      this.removeStaticMeshes();
+      this.lastStaticKey = "";
+      return;
+    }
+
     // 用航班數 + 首末 ID 判斷是否需要重建
     const key =
       flights.length === 0

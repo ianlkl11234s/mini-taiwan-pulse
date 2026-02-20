@@ -1,5 +1,5 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
-import type { Flight } from "../types";
+import type { Flight, RenderMode } from "../types";
 import { FlightScene } from "../three/FlightScene";
 
 /**
@@ -8,6 +8,7 @@ import { FlightScene } from "../three/FlightScene";
 export function createFlightLayer(
   getCurrentTime: () => number,
   getFlights: () => Flight[],
+  getRenderMode: () => RenderMode,
 ): CustomLayerInterface {
   const flightScene = new FlightScene();
   let map: MapboxMap | null = null;
@@ -25,8 +26,9 @@ export function createFlightLayer(
     render(_gl: WebGLRenderingContext, matrix: number[]) {
       const flights = getFlights();
       const time = getCurrentTime();
+      const mode = getRenderMode();
 
-      flightScene.updateStaticTrails(flights);
+      flightScene.updateStaticTrails(flights, mode);
       flightScene.update(flights, time);
       flightScene.render(matrix);
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode } from "./types";
+import type { ViewMode, RenderMode } from "./types";
 import { MapView } from "./map/MapView";
 import { useFlightData } from "./hooks/useFlightData";
 import { useTimeline } from "./hooks/useTimeline";
@@ -26,6 +26,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("airport");
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [mapStyleId, setMapStyleId] = useState("dark");
+  const [renderMode, setRenderMode] = useState<RenderMode>("3d");
 
   const timeline = useTimeline({
     startTime: timeRange.start,
@@ -69,9 +70,11 @@ export default function App() {
   const mapRef = useRef<MapboxMap | null>(null);
   const flightsRef = useRef(displayedFlights);
   const timeRef = useRef(timeline.currentTime);
+  const renderModeRef = useRef(renderMode);
 
   flightsRef.current = displayedFlights;
   timeRef.current = timeline.currentTime;
+  renderModeRef.current = renderMode;
 
   const preset = useMemo(
     () => getPresetByIcao(selectedAirport) ?? CAMERA_PRESETS[0]!,
@@ -87,6 +90,7 @@ export default function App() {
     const layer = createFlightLayer(
       () => timeRef.current,
       () => flightsRef.current,
+      () => renderModeRef.current,
     );
     map.addLayer(layer);
   };
@@ -117,6 +121,8 @@ export default function App() {
       <MapView
         preset={preset}
         styleUrl={styleUrl}
+        flights={displayedFlights}
+        renderMode={renderMode}
         onMapReady={handleMapReady}
       />
 
@@ -198,6 +204,29 @@ export default function App() {
         onSpeedChange={timeline.setSpeed}
         onSeekByProgress={timeline.seekByProgress}
       />
+
+      {/* 右上角：渲染模式切換 */}
+      <button
+        onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
+        style={{
+          position: "absolute",
+          top: 16,
+          right: 16,
+          zIndex: 10,
+          padding: "6px 14px",
+          background: renderMode === "3d" ? "rgba(80,140,255,0.25)" : "rgba(255,170,68,0.25)",
+          border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
+          borderRadius: 6,
+          color: "#fff",
+          fontSize: 12,
+          fontFamily: "monospace",
+          cursor: "pointer",
+          backdropFilter: "blur(8px)",
+          letterSpacing: 1,
+        }}
+      >
+        {renderMode === "3d" ? "3D Altitude" : "2D Flat"}
+      </button>
 
       {/* 航班數統計 */}
       <div
