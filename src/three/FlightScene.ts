@@ -23,6 +23,7 @@ export class FlightScene {
 
   private visuals = new Map<string, FlightVisual>();
   private colorIndex = 0;
+  private currentOrbScale = 0.0005;
 
   // 靜態軌跡的 3D mesh（暖橘色，全路徑）
   private staticMesh: THREE.LineSegments | null = null;
@@ -167,6 +168,7 @@ export class FlightScene {
 
   /** 更新所有光球大小 */
   setOrbScale(scale: number) {
+    this.currentOrbScale = scale;
     for (const visual of this.visuals.values()) {
       visual.orb.setScale(scale);
     }
@@ -234,10 +236,10 @@ export class FlightScene {
     this.colorIndex++;
 
     const trail = new LightTrail(color);
-    const orb = new LightOrb(color);
+    const orb = new LightOrb(color, this.currentOrbScale);
     const blink = new BlinkingLight();
 
-    orb.group.add(blink.sprite);
+    orb.group.add(blink.mesh);
     this.scene.add(trail.mesh);
     this.scene.add(orb.group);
 

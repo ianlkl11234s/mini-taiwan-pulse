@@ -44,7 +44,7 @@ export default function App() {
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [altExaggeration, setAltExaggeration] = useState(3);
   const [staticOpacity, setStaticOpacity] = useState(0.2);
-  const [orbScale, setOrbScale] = useState(0.00012);
+  const [orbScale, setOrbScale] = useState(0.0005);
 
   const timeline = useTimeline({
     startTime: timeRange.start,
@@ -261,12 +261,12 @@ export default function App() {
 
         {/* 光球大小 */}
         <label style={sliderLabelStyle}>
-          Orb {(orbScale * 100000).toFixed(0)}
+          Orb {(orbScale * 10000).toFixed(1)}
           <input
             type="range"
-            min={0.00002}
-            max={0.0004}
-            step={0.00002}
+            min={0.0001}
+            max={0.003}
+            step={0.0001}
             value={orbScale}
             onChange={(e) => setOrbScale(Number(e.target.value))}
             style={sliderStyle}

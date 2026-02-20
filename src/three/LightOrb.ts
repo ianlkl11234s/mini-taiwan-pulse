@@ -1,57 +1,54 @@
 import * as THREE from "three";
 
+// 共用球體幾何（所有 LightOrb 實例共用，節省記憶體）
+const sharedGeo = new THREE.IcosahedronGeometry(1, 2);
+
 /**
- * 發光球體：多層 Sprite 疊加模擬 bloom 效果
- * 內層小且亮，外層大且淡
+ * 發光球體：多層 Mesh 球體疊加模擬 bloom 效果
+ * 使用 Mesh 而非 Sprite，確保在 Mapbox 自訂投影矩陣下正確渲染。
  */
 export class LightOrb {
   group: THREE.Group;
-  private layers: THREE.Sprite[] = [];
+  private layers: THREE.Mesh[] = [];
   private time = 0;
-
-  private baseScale: number;
   private layerRatios = [0.5, 1.0, 2.0];
 
   constructor(
     color: THREE.Color = new THREE.Color(0.6, 0.85, 1.0),
-    scale: number = 0.00008,
+    scale: number = 0.0005,
   ) {
     this.group = new THREE.Group();
-    this.baseScale = scale;
 
-    // 建立發光紋理
-    const glowTexture = this.createGlowTexture();
-
-    // 三層疊加：內亮外淡
     const layerConfigs = [
-      { scale: scale * 0.5, opacity: 1.0, color: new THREE.Color(1, 1, 1) },
-      { scale: scale * 1.0, opacity: 0.5, color },
-      { scale: scale * 2.0, opacity: 0.15, color },
+      { ratio: 0.5, opacity: 1.0, color: new THREE.Color(1, 1, 1) },
+      { ratio: 1.0, opacity: 0.5, color },
+      { ratio: 2.0, opacity: 0.15, color },
     ];
 
     for (const cfg of layerConfigs) {
-      const material = new THREE.SpriteMaterial({
-        map: glowTexture,
+      const s = scale * cfg.ratio;
+      const material = new THREE.MeshBasicMaterial({
         color: cfg.color,
         transparent: true,
         opacity: cfg.opacity,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
+        side: THREE.DoubleSide,
       });
       material.userData["baseOpacity"] = cfg.opacity;
-      const sprite = new THREE.Sprite(material);
-      sprite.scale.set(cfg.scale, cfg.scale, 1);
-      this.group.add(sprite);
-      this.layers.push(sprite);
+      const mesh = new THREE.Mesh(sharedGeo, material);
+      mesh.scale.set(s, s, s);
+      mesh.frustumCulled = false;
+      this.group.add(mesh);
+      this.layers.push(mesh);
     }
   }
 
   /** 動態更新光球大小 */
   setScale(scale: number) {
-    this.baseScale = scale;
     for (let i = 0; i < this.layers.length; i++) {
       const s = scale * this.layerRatios[i]!;
-      this.layers[i]!.scale.set(s, s, 1);
+      this.layers[i]!.scale.set(s, s, s);
     }
   }
 
@@ -68,43 +65,17 @@ export class LightOrb {
   /** 更新動畫（呼吸效果） */
   update(dt: number) {
     this.time += dt;
-    const pulse = 1.0 + Math.sin(this.time * 2.0) * 0.1;
-    for (const sprite of this.layers) {
-      const mat = sprite.material as THREE.SpriteMaterial;
+    const pulse = 1.0 + Math.sin(this.time * 2.0) * 0.15;
+    for (const mesh of this.layers) {
+      const mat = mesh.material as THREE.MeshBasicMaterial;
       const base = mat.userData["baseOpacity"] as number;
       mat.opacity = base * pulse;
     }
   }
 
-  /** 建立高斯發光紋理 */
-  private createGlowTexture(): THREE.Texture {
-    const size = 64;
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d")!;
-
-    const gradient = ctx.createRadialGradient(
-      size / 2, size / 2, 0,
-      size / 2, size / 2, size / 2,
-    );
-    gradient.addColorStop(0, "rgba(255,255,255,1)");
-    gradient.addColorStop(0.3, "rgba(255,255,255,0.6)");
-    gradient.addColorStop(0.7, "rgba(255,255,255,0.1)");
-    gradient.addColorStop(1, "rgba(255,255,255,0)");
-
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.needsUpdate = true;
-    return texture;
-  }
-
   dispose() {
-    for (const sprite of this.layers) {
-      (sprite.material as THREE.SpriteMaterial).map?.dispose();
-      (sprite.material as THREE.SpriteMaterial).dispose();
+    for (const mesh of this.layers) {
+      (mesh.material as THREE.MeshBasicMaterial).dispose();
     }
   }
 }
