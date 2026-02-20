@@ -23,7 +23,7 @@ export class FlightScene {
 
   private visuals = new Map<string, FlightVisual>();
   private colorIndex = 0;
-  private currentOrbScale = 0.00005;
+  private currentOrbScale = 0.000005;
 
   // 靜態軌跡的 3D mesh（暖橘色，全路徑）
   private staticMesh: THREE.LineSegments | null = null;

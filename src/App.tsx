@@ -43,8 +43,9 @@ export default function App() {
   const [mapStyleId, setMapStyleId] = useState("dark");
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [altExaggeration, setAltExaggeration] = useState(3);
+  const [altOffset, setAltOffset] = useState(0);
   const [staticOpacity, setStaticOpacity] = useState(0.2);
-  const [orbScale, setOrbScale] = useState(0.00005);
+  const [orbScale, setOrbScale] = useState(0.000005);
   const [airportOpacity, setAirportOpacity] = useState(0.12);
   const [airportGlow, setAirportGlow] = useState(0.8);
 
@@ -92,6 +93,7 @@ export default function App() {
   const timeRef = useRef(timeline.currentTime);
   const renderModeRef = useRef(renderMode);
   const altExagRef = useRef(altExaggeration);
+  const altOffsetRef = useRef(altOffset);
   const staticOpacityRef = useRef(staticOpacity);
   const orbScaleRef = useRef(orbScale);
 
@@ -99,6 +101,7 @@ export default function App() {
   timeRef.current = timeline.currentTime;
   renderModeRef.current = renderMode;
   altExagRef.current = altExaggeration;
+  altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
   orbScaleRef.current = orbScale;
 
@@ -118,6 +121,7 @@ export default function App() {
       getFlights: () => flightsRef.current,
       getRenderMode: () => renderModeRef.current,
       getAltExaggeration: () => altExagRef.current,
+      getAltOffset: () => altOffsetRef.current,
       getStaticOpacity: () => staticOpacityRef.current,
       getOrbScale: () => orbScaleRef.current,
     });
@@ -249,6 +253,20 @@ export default function App() {
           />
         </label>
 
+        {/* Z 偏移 */}
+        <label style={sliderLabelStyle}>
+          Z +{altOffset}m
+          <input
+            type="range"
+            min={0}
+            max={2000}
+            step={100}
+            value={altOffset}
+            onChange={(e) => setAltOffset(Number(e.target.value))}
+            style={sliderStyle}
+          />
+        </label>
+
         {/* 軌跡不透明度 */}
         <label style={sliderLabelStyle}>
           Opacity {staticOpacity.toFixed(2)}
@@ -268,9 +286,9 @@ export default function App() {
           Orb {(orbScale * 100000).toFixed(1)}
           <input
             type="range"
-            min={0.000005}
-            max={0.0005}
-            step={0.000005}
+            min={0.000001}
+            max={0.00001}
+            step={0.000001}
             value={orbScale}
             onChange={(e) => setOrbScale(Number(e.target.value))}
             style={sliderStyle}

@@ -5,6 +5,7 @@ import mapboxgl from "mapbox-gl";
  * Mercator z 在一般 zoom level 下極小，需放大才看得出高度差。
  */
 let altExaggeration = 3;
+let altOffset = 0; // 基準高度偏移（公尺）
 
 export function setAltExaggeration(v: number) {
   altExaggeration = v;
@@ -12,6 +13,14 @@ export function setAltExaggeration(v: number) {
 
 export function getAltExaggeration(): number {
   return altExaggeration;
+}
+
+export function setAltOffset(v: number) {
+  altOffset = v;
+}
+
+export function getAltOffset(): number {
+  return altOffset;
 }
 
 /**
@@ -25,7 +34,7 @@ export function toMercator(
 ): { x: number; y: number; z: number } {
   const mc = mapboxgl.MercatorCoordinate.fromLngLat(
     [lng, lat],
-    altMeters * altExaggeration,
+    (altMeters + altOffset) * altExaggeration,
   );
   return { x: mc.x, y: mc.y, z: mc.z };
 }

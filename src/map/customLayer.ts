@@ -1,13 +1,14 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
 import type { Flight, RenderMode } from "../types";
 import { FlightScene } from "../three/FlightScene";
-import { setAltExaggeration, getAltExaggeration } from "../utils/coordinates";
+import { setAltExaggeration, getAltExaggeration, setAltOffset, getAltOffset } from "../utils/coordinates";
 
 export interface FlightLayerOptions {
   getCurrentTime: () => number;
   getFlights: () => Flight[];
   getRenderMode: () => RenderMode;
   getAltExaggeration: () => number;
+  getAltOffset: () => number;
   getStaticOpacity: () => number;
   getOrbScale: () => number;
 }
@@ -19,6 +20,7 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
   const flightScene = new FlightScene();
   let map: MapboxMap | null = null;
   let lastAltExag = getAltExaggeration();
+  let lastAltOffset = getAltOffset();
 
   return {
     id: "flight-3d",
@@ -35,11 +37,14 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
       const time = opts.getCurrentTime();
       const mode = opts.getRenderMode();
       const altExag = opts.getAltExaggeration();
+      const altOff = opts.getAltOffset();
 
-      // 高度倍率變更 → 更新座標模組 + 強制重建靜態軌跡
+      // 高度參數變更 → 更新座標模組 + 強制重建靜態軌跡
       setAltExaggeration(altExag);
-      if (altExag !== lastAltExag) {
+      setAltOffset(altOff);
+      if (altExag !== lastAltExag || altOff !== lastAltOffset) {
         lastAltExag = altExag;
+        lastAltOffset = altOff;
         flightScene.forceRebuildStatic();
       }
 
