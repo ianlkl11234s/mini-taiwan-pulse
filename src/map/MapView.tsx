@@ -21,7 +21,6 @@ const AIRPORT_LINE = "airport-outline";
 const AIRPORT_GLOW_1 = "airport-glow-1";
 const AIRPORT_GLOW_2 = "airport-glow-2";
 
-const AIRPORT_LAYERS = [AIRPORT_GLOW_2, AIRPORT_GLOW_1, AIRPORT_FILL, AIRPORT_LINE];
 
 function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number, isDark: boolean) {
   const color = isDark ? "#ffffff" : "#c89520";
