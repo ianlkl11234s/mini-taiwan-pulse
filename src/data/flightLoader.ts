@@ -162,12 +162,41 @@ export function preprocessFlights(flights: Flight[]): Flight[] {
 
 let cachedFlights: Flight[] | null = null;
 
-/** 載入 aviation_data.json，並補齊 IATA 代碼、時間戳、展開經度 */
+const S3_BASE =
+  "https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com/flight-arc";
+
+/** 從 S3 manifest 載入全部航班（本地檔案不存在時的 fallback） */
+async function loadFromS3(): Promise<Flight[]> {
+  const manifestRes = await fetch(`${S3_BASE}/manifest.json`);
+  if (!manifestRes.ok) throw new Error("S3 manifest not available");
+  const manifest: { dates: { date: string }[] } = await manifestRes.json();
+
+  const fetches = manifest.dates.map(async (d) => {
+    const [y, m, dd] = d.date.split("-");
+    const res = await fetch(`${S3_BASE}/${y}/${m}/${dd}/data.json`);
+    if (!res.ok) return [];
+    return (await res.json()) as Flight[];
+  });
+
+  const results = await Promise.all(fetches);
+  return results.flat();
+}
+
+/** 載入航班資料：優先本地 aviation_data.json，失敗則從 S3 載入 */
 export async function loadFlights(): Promise<Flight[]> {
   if (cachedFlights) return cachedFlights;
 
-  const res = await fetch("/aviation_data.json");
-  const data: Flight[] = await res.json();
+  let data: Flight[];
+  try {
+    const res = await fetch("/aviation_data.json");
+    const text = await res.text();
+    // SPA fallback 會回傳 HTML，檢查是否為合法 JSON
+    if (text.trimStart().startsWith("<")) throw new Error("Got HTML, not JSON");
+    data = JSON.parse(text);
+  } catch {
+    console.log("[Loader] Local file unavailable, loading from S3...");
+    data = await loadFromS3();
+  }
 
   cachedFlights = preprocessFlights(data);
   return cachedFlights;
