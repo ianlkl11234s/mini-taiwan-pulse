@@ -52,6 +52,7 @@ export default function App() {
   const [airportGlow, setAirportGlow] = useState(0.8);
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
   const { isMobile, isLandscape } = useIsMobile();
 
   const timeline = useTimeline({
@@ -141,6 +142,18 @@ export default function App() {
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
     addFlightLayer(map);
+    const updateCamera = () => {
+      const c = map.getCenter();
+      setCameraInfo({
+        lng: +c.lng.toFixed(4),
+        lat: +c.lat.toFixed(4),
+        zoom: +map.getZoom().toFixed(1),
+        pitch: +map.getPitch().toFixed(0),
+        bearing: +map.getBearing().toFixed(0),
+      });
+    };
+    map.on("move", updateCamera);
+    updateCamera();
   };
 
   // 航班資料或模式變更時重建 layer
@@ -255,6 +268,18 @@ export default function App() {
                 minute: "2-digit",
                 hour12: false,
               })}
+            </div>
+            <div
+              style={{
+                fontSize: 14,
+                fontFamily: "monospace",
+                color: "rgba(255,255,255,0.3)",
+                letterSpacing: 1,
+                marginTop: 4,
+                textShadow: "0 1px 6px rgba(0,0,0,0.5)",
+              }}
+            >
+              {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
             </div>
           </div>
           {/* 退出按鈕 */}
@@ -597,6 +622,19 @@ export default function App() {
             {displayedFlights.length} flights
             {viewMode === "time-window" && " (±12h)"}
             {viewMode === "all-taiwan" && " (all Taiwan)"}
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              top: 126,
+              left: 16,
+              zIndex: 10,
+              color: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
+              fontSize: 11,
+              fontFamily: "monospace",
+            }}
+          >
+            {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
           </div>
         </>
       )}
