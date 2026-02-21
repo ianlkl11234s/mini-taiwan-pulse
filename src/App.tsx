@@ -220,6 +220,38 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode, selectedFlightId]);
 
+  // Track Single 模式：相機跟隨飛機
+  useEffect(() => {
+    if (viewMode !== "single" || !selectedFlightId) return;
+    const map = mapRef.current;
+    if (!map) return;
+
+    let lastLng = 0;
+    let lastLat = 0;
+
+    const follow = () => {
+      const flight = flightsRef.current.find((f) => f.fr24_id === selectedFlightId);
+      if (!flight) return;
+      const t = timeRef.current;
+      for (let i = flight.path.length - 1; i >= 0; i--) {
+        if (flight.path[i]![3] <= t) {
+          const lat = flight.path[i]![0];
+          const lng = flight.path[i]![1];
+          if (Math.abs(lng - lastLng) > 0.001 || Math.abs(lat - lastLat) > 0.001) {
+            lastLng = lng;
+            lastLat = lat;
+            map.easeTo({ center: [lng, lat], duration: 2000, easing: (x) => x });
+          }
+          break;
+        }
+      }
+    };
+
+    follow();
+    const id = setInterval(follow, 2000);
+    return () => clearInterval(id);
+  }, [viewMode, selectedFlightId]);
+
   // ESC 退出拍攝模式
   useEffect(() => {
     if (!captureMode) return;
@@ -601,7 +633,7 @@ export default function App() {
           <div
             style={{
               position: "absolute",
-              top: 84,
+              top: 52,
               right: 16,
               zIndex: 10,
               display: "flex",

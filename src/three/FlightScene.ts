@@ -238,21 +238,13 @@ export class FlightScene {
     }
   }
 
-  /** 切換軌跡顯示/隱藏（Live Status 模式） */
+  /** 切換靜態軌跡顯示/隱藏（Live Status 模式只隱藏完整航線，保留動態尾跡） */
   setShowTrails(show: boolean) {
     if (this.showTrails === show) return;
     this.showTrails = show;
 
-    if (!show) {
-      if (this.staticMesh) this.staticMesh.visible = false;
-      if (this.staticGlowMesh) this.staticGlowMesh.visible = false;
-      for (const visual of this.visuals.values()) {
-        visual.trail.setOpacity(0);
-      }
-    } else {
-      if (this.staticMesh) this.staticMesh.visible = true;
-      if (this.staticGlowMesh) this.staticGlowMesh.visible = true;
-    }
+    if (this.staticMesh) this.staticMesh.visible = show;
+    if (this.staticGlowMesh) this.staticGlowMesh.visible = show;
   }
 
   /** 點擊拾取：螢幕座標 → 最近的 flightId */
@@ -311,7 +303,7 @@ export class FlightScene {
       }
 
       visual.trail.updateTrail(trail);
-      visual.trail.setOpacity(this.showTrails ? (this.isDarkTheme ? 0.8 : 1.0) : 0);
+      visual.trail.setOpacity(this.isDarkTheme ? 0.8 : 1.0);
 
       const lastPt = trail[trail.length - 1]!;
       const pos = toMercator(lastPt[0], lastPt[1], lastPt[2]);
