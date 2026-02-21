@@ -905,7 +905,7 @@ export default function App() {
               <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>ABOUT</h3>
               <p style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(255,255,255,0.8)", margin: 0 }}>
                 台灣航班弧線視覺化 — 以 3D 弧線呈現台灣各機場的航班軌跡，
-                資料來源為 Flightradar24 公開航班紀錄，透過 Mapbox GL 繪製於互動地圖上。
+                資料來源為 Flightradar24 API，透過 Mapbox GL 繪製於互動地圖上。
               </p>
             </section>
 

@@ -4,8 +4,9 @@
 
 ## Screenshots
 
-![RCTP - 桃園國際機場](screenshots/RCTP.png)
-![RCKH - 高雄國際機場](screenshots/RCKH.png)
+![RCTP - 桃園國際機場（Capture 模式）](screenshots/RCTP-capture.png)
+![RCQC - 澎湖馬公機場（All Taiwan）](screenshots/RCQC-all-taiwan.png)
+![全台航班廣角全景](screenshots/all-flights-globe.png)
 
 ## 視覺概念
 
