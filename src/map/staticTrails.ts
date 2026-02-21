@@ -125,6 +125,19 @@ export function removeStaticTrails(map: MapboxMap) {
 }
 
 /**
+ * 設定靜態軌跡圖層可見性（用於 Display Mode 切換）
+ */
+export function setStaticTrailsVisible(map: MapboxMap, visible: boolean) {
+  const visibility = visible ? "visible" : "none";
+  if (map.getLayer(LAYER_ID)) {
+    map.setLayoutProperty(LAYER_ID, "visibility", visibility);
+  }
+  if (map.getLayer(GLOW_LAYER_ID)) {
+    map.setLayoutProperty(GLOW_LAYER_ID, "visibility", visibility);
+  }
+}
+
+/**
  * 直接設定靜態軌跡透明度（用於 zoom-based crossfade）
  */
 export function setStaticTrailsOpacity(map: MapboxMap, lineOpacity: number, glowOpacity: number) {

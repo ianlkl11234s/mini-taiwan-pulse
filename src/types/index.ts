@@ -43,6 +43,9 @@ export type ViewMode = "airport" | "all-taiwan" | "time-window" | "single";
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
 
+/** 顯示模式：trails 顯示完整軌跡、status 只顯示飛機位置 */
+export type DisplayMode = "trails" | "status";
+
 /** Mapbox 底圖樣式 */
 export interface MapStyle {
   id: string;

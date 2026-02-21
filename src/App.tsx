@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight } from "./types";
+import type { FlightScene } from "./three/FlightScene";
 import { MapView } from "./map/MapView";
 import { useFlightData } from "./hooks/useFlightData";
 import { useTimeline } from "./hooks/useTimeline";
@@ -50,8 +51,10 @@ export default function App() {
   const [orbScale, setOrbScale] = useState(0.000005);
   const [airportOpacity, setAirportOpacity] = useState(0.12);
   const [airportGlow, setAirportGlow] = useState(0.8);
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("trails");
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [tooltipInfo, setTooltipInfo] = useState<{ flight: Flight; x: number; y: number; altitude: number | null } | null>(null);
   const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
   const { isMobile, isLandscape } = useIsMobile();
 
@@ -105,6 +108,9 @@ export default function App() {
   const staticOpacityRef = useRef(staticOpacity);
   const orbScaleRef = useRef(orbScale);
   const isDarkThemeRef = useRef(isDarkTheme);
+  const showTrailsRef = useRef(displayMode === "trails");
+  const flightSceneRef = useRef<FlightScene | null>(null);
+  const clickBoundRef = useRef(false);
 
   flightsRef.current = displayedFlights;
   timeRef.current = timeline.currentTime;
@@ -114,6 +120,9 @@ export default function App() {
   staticOpacityRef.current = staticOpacity;
   orbScaleRef.current = orbScale;
   isDarkThemeRef.current = isDarkTheme;
+  showTrailsRef.current = displayMode === "trails";
+
+  const showTrails = displayMode === "trails";
 
   const preset = useMemo(
     () => getPresetByIcao(selectedAirport) ?? CAMERA_PRESETS[0]!,
@@ -135,6 +144,8 @@ export default function App() {
       getStaticOpacity: () => staticOpacityRef.current,
       getOrbScale: () => orbScaleRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
+      getShowTrails: () => showTrailsRef.current,
+      onSceneReady: (scene) => { flightSceneRef.current = scene; },
     });
     map.addLayer(layer);
   };
@@ -154,6 +165,51 @@ export default function App() {
     };
     map.on("move", updateCamera);
     updateCamera();
+
+    if (!clickBoundRef.current) {
+      clickBoundRef.current = true;
+
+      map.on("click", (e) => {
+        const scene = flightSceneRef.current;
+        if (!scene) { setTooltipInfo(null); return; }
+        const container = map.getContainer();
+        const flightId = scene.pickFlight(
+          e.point.x, e.point.y,
+          container.clientWidth, container.clientHeight,
+        );
+        if (flightId) {
+          const flight = flightsRef.current.find((f) => f.fr24_id === flightId);
+          if (flight) {
+            let altitude: number | null = null;
+            const t = timeRef.current;
+            for (let i = flight.path.length - 1; i >= 0; i--) {
+              if (flight.path[i]![3] <= t) { altitude = Math.round(flight.path[i]![2]); break; }
+            }
+            setTooltipInfo({ flight, x: e.point.x, y: e.point.y, altitude });
+          }
+        } else {
+          setTooltipInfo(null);
+        }
+      });
+
+      map.on("dblclick", (e) => {
+        const scene = flightSceneRef.current;
+        if (!scene) return;
+        const container = map.getContainer();
+        const flightId = scene.pickFlight(
+          e.point.x, e.point.y,
+          container.clientWidth, container.clientHeight,
+        );
+        if (flightId) {
+          e.preventDefault();
+          setViewMode("single");
+          setSelectedFlightId(flightId);
+          setTooltipInfo(null);
+        }
+      });
+
+      map.on("move", () => setTooltipInfo(null));
+    }
   };
 
   // 航班資料或模式變更時重建 layer
@@ -192,6 +248,7 @@ export default function App() {
         airportOpacity={airportOpacity}
         airportGlow={airportGlow}
         isDarkTheme={isDarkTheme}
+        showTrails={showTrails}
         onMapReady={handleMapReady}
       />
 
@@ -371,11 +428,49 @@ export default function App() {
             )}
           </div>
 
-          {/* 第二列：模式選擇 */}
+          {/* 第二列：Display Mode 切換 */}
           <div
             style={{
               position: "absolute",
               top: 52,
+              left: 16,
+              zIndex: 10,
+              display: "flex",
+              gap: 6,
+              alignItems: "center",
+            }}
+          >
+            {(["trails", "status"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => { setDisplayMode(mode); setTooltipInfo(null); }}
+                style={{
+                  background: displayMode === mode
+                    ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
+                    : (isDarkTheme ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)"),
+                  color: isDarkTheme ? "#fff" : "#333",
+                  border: `1px solid ${displayMode === mode
+                    ? (isDarkTheme ? "rgba(100,170,255,0.6)" : "rgba(100,170,255,0.5)")
+                    : (isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)")}`,
+                  borderRadius: 4,
+                  padding: "4px 10px",
+                  fontSize: 11,
+                  cursor: "pointer",
+                  fontFamily: "monospace",
+                  backdropFilter: "blur(8px)",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {mode === "trails" ? "Flight Trails" : "Live Status"}
+              </button>
+            ))}
+          </div>
+
+          {/* 第三列：模式選擇 */}
+          <div
+            style={{
+              position: "absolute",
+              top: 84,
               left: 16,
               right: 16,
               zIndex: 10,
@@ -394,11 +489,11 @@ export default function App() {
             />
           </div>
 
-          {/* 第三列：視覺參數調整 */}
+          {/* 第四列：視覺參數調整 */}
           <div
             style={{
               position: "absolute",
-              top: 84,
+              top: 116,
               left: 16,
               zIndex: 10,
               display: "flex",
@@ -506,7 +601,7 @@ export default function App() {
           <div
             style={{
               position: "absolute",
-              top: 52,
+              top: 84,
               right: 16,
               zIndex: 10,
               display: "flex",
@@ -611,7 +706,7 @@ export default function App() {
           <div
             style={{
               position: "absolute",
-              top: 112,
+              top: 144,
               left: 16,
               zIndex: 10,
               background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
@@ -776,6 +871,29 @@ export default function App() {
                 {/* half: FlightPicker + Stats */}
                 {(level === "half" || level === "full") && (
                   <div style={{ marginTop: 12 }}>
+                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+                      {(["trails", "status"] as const).map((mode) => (
+                        <button
+                          key={mode}
+                          onClick={() => { setDisplayMode(mode); setTooltipInfo(null); }}
+                          style={{
+                            background: displayMode === mode
+                              ? "rgba(100,170,255,0.3)" : "rgba(0,0,0,0.6)",
+                            color: "#fff",
+                            border: `1px solid ${displayMode === mode
+                              ? "rgba(100,170,255,0.6)" : "rgba(255,255,255,0.2)"}`,
+                            borderRadius: 4,
+                            padding: "8px 12px",
+                            fontSize: 12,
+                            cursor: "pointer",
+                            fontFamily: "monospace",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {mode === "trails" ? "Flight Trails" : "Live Status"}
+                        </button>
+                      ))}
+                    </div>
                     <FlightPicker
                       flights={pickableFlights}
                       viewMode={viewMode}
@@ -841,6 +959,40 @@ export default function App() {
             )}
           </MobileBottomSheet>
         </>
+      )}
+
+      {/* ── 飛機 Tooltip ── */}
+      {tooltipInfo && (
+        <div
+          style={{
+            position: "absolute",
+            left: tooltipInfo.x + 12,
+            top: tooltipInfo.y - 10,
+            zIndex: 30,
+            background: "rgba(10,10,20,0.9)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(100,170,255,0.4)",
+            borderRadius: 8,
+            padding: "10px 14px",
+            pointerEvents: "none",
+            fontFamily: "monospace",
+            minWidth: 160,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 1 }}>
+            {tooltipInfo.flight.callsign}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+            {tooltipInfo.flight.origin_iata} → {tooltipInfo.flight.dest_iata}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+            {tooltipInfo.flight.aircraft_type}
+            {tooltipInfo.altitude != null && ` · ${tooltipInfo.altitude}m`}
+          </div>
+          <div style={{ fontSize: 10, color: "rgba(100,170,255,0.6)", marginTop: 4 }}>
+            double-click to track
+          </div>
+        </div>
       )}
 
       {/* ── Info 面板 ── */}

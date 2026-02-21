@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode } from "../types";
-import { updateStaticTrails, setStaticTrailsOpacity } from "./staticTrails";
+import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -12,6 +12,7 @@ interface MapViewProps {
   airportOpacity: number;
   airportGlow: number;
   isDarkTheme?: boolean;
+  showTrails?: boolean;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -128,7 +129,7 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, showTrails = true, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -141,6 +142,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   const renderModeRef = useRef(renderMode);
   const flightsRef = useRef(flights);
   const isDarkThemeRef = useRef(isDarkTheme);
+  const showTrailsRef = useRef(showTrails);
 
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
@@ -149,6 +151,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   renderModeRef.current = renderMode;
   flightsRef.current = flights;
   isDarkThemeRef.current = isDarkTheme;
+  showTrailsRef.current = showTrails;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -177,6 +180,11 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
       if (is3d) {
         const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
         setStaticTrailsOpacity(map, line, glow);
+      }
+
+      // Live Status 模式：隱藏 2D 軌跡
+      if (!showTrailsRef.current) {
+        setStaticTrailsVisible(map, false);
       }
 
       // 初次載入後，每次樣式切換都重建 flight layer
@@ -249,6 +257,13 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     map.on("zoom", onZoom);
     return () => { map.off("zoom", onZoom); };
   }, [renderMode]);
+
+  // showTrails 切換：控制 2D 軌跡可見性
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    setStaticTrailsVisible(map, showTrails);
+  }, [showTrails]);
 
   // 機場圖層樣式即時更新
   useEffect(() => {

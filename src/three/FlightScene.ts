@@ -44,6 +44,8 @@ export class FlightScene {
   private currentOrbScale = 0.000005;
   private currentStaticOpacity = 0.2;
   private isDarkTheme = true;
+  private showTrails = true;
+  private lastMatrix: THREE.Matrix4 | null = null;
 
   // 靜態軌跡的 3D mesh（全路徑）
   private staticMesh: THREE.LineSegments | null = null;
@@ -202,6 +204,11 @@ export class FlightScene {
     this.staticGlowMesh = new THREE.LineSegments(geometry.clone(), glowMat);
     this.staticGlowMesh.frustumCulled = false;
     this.scene.add(this.staticGlowMesh);
+
+    if (!this.showTrails) {
+      this.staticMesh.visible = false;
+      this.staticGlowMesh.visible = false;
+    }
   }
 
   /** 強制下次重建靜態軌跡 */
@@ -229,6 +236,49 @@ export class FlightScene {
     for (const visual of this.visuals.values()) {
       visual.orb.setScale(scale);
     }
+  }
+
+  /** 切換軌跡顯示/隱藏（Live Status 模式） */
+  setShowTrails(show: boolean) {
+    if (this.showTrails === show) return;
+    this.showTrails = show;
+
+    if (!show) {
+      if (this.staticMesh) this.staticMesh.visible = false;
+      if (this.staticGlowMesh) this.staticGlowMesh.visible = false;
+      for (const visual of this.visuals.values()) {
+        visual.trail.setOpacity(0);
+      }
+    } else {
+      if (this.staticMesh) this.staticMesh.visible = true;
+      if (this.staticGlowMesh) this.staticGlowMesh.visible = true;
+    }
+  }
+
+  /** 點擊拾取：螢幕座標 → 最近的 flightId */
+  pickFlight(screenX: number, screenY: number, viewWidth: number, viewHeight: number): string | null {
+    if (!this.lastMatrix) return null;
+
+    const threshold = 25;
+    let closest: { id: string; dist: number } | null = null;
+
+    for (const [id, visual] of this.visuals) {
+      if (!visual.orb.group.visible) continue;
+      const pos = visual.orb.group.position;
+      const v = new THREE.Vector4(pos.x, pos.y, pos.z, 1.0);
+      v.applyMatrix4(this.lastMatrix);
+      if (v.w <= 0) continue;
+
+      const sx = ((v.x / v.w) * 0.5 + 0.5) * viewWidth;
+      const sy = ((-v.y / v.w) * 0.5 + 0.5) * viewHeight;
+
+      const dist = Math.hypot(sx - screenX, sy - screenY);
+      if (dist < threshold && (!closest || dist < closest.dist)) {
+        closest = { id, dist };
+      }
+    }
+
+    return closest?.id ?? null;
   }
 
   /** 每幀更新動態光軌/光球 */
@@ -261,7 +311,7 @@ export class FlightScene {
       }
 
       visual.trail.updateTrail(trail);
-      visual.trail.setOpacity(this.isDarkTheme ? 0.8 : 1.0);
+      visual.trail.setOpacity(this.showTrails ? (this.isDarkTheme ? 0.8 : 1.0) : 0);
 
       const lastPt = trail[trail.length - 1]!;
       const pos = toMercator(lastPt[0], lastPt[1], lastPt[2]);
@@ -292,7 +342,8 @@ export class FlightScene {
     const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
     const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
 
-    this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+    this.lastMatrix = new THREE.Matrix4().fromArray(matrix);
+    this.camera.projectionMatrix = this.lastMatrix;
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
     this.renderer.resetState();
