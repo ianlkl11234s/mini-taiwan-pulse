@@ -61,19 +61,20 @@ function flightsToGeoJSON(flights: Flight[], isDark = true): GeoJSON.FeatureColl
 }
 
 /**
- * 新增或更新靜態軌跡圖層（暖橘色光軌）
+ * 新增或更新靜態軌跡圖層
+ * @param background - 3D 模式下作為背景路線，降低透明度
  */
-export function updateStaticTrails(map: MapboxMap, flights: Flight[], isDark = true) {
+export function updateStaticTrails(map: MapboxMap, flights: Flight[], isDark = true, background = false) {
   const geojson = flightsToGeoJSON(flights, isDark);
 
   const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
 
-  const lineOpacity = isDark ? 0.25 : 0.5;
-  const glowOpacity = isDark ? 0.08 : 0.15;
+  const scale = background ? 0 : 1.0;
+  const lineOpacity = (isDark ? 0.25 : 0.5) * scale;
+  const glowOpacity = (isDark ? 0.08 : 0.15) * scale;
 
   if (source) {
     source.setData(geojson);
-    // 更新 opacity（主題可能已切換）
     if (map.getLayer(LAYER_ID)) {
       map.setPaintProperty(LAYER_ID, "line-opacity", lineOpacity);
     }
@@ -121,4 +122,16 @@ export function removeStaticTrails(map: MapboxMap) {
   if (map.getLayer(LAYER_ID)) map.removeLayer(LAYER_ID);
   if (map.getLayer(GLOW_LAYER_ID)) map.removeLayer(GLOW_LAYER_ID);
   if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID);
+}
+
+/**
+ * 直接設定靜態軌跡透明度（用於 zoom-based crossfade）
+ */
+export function setStaticTrailsOpacity(map: MapboxMap, lineOpacity: number, glowOpacity: number) {
+  if (map.getLayer(LAYER_ID)) {
+    map.setPaintProperty(LAYER_ID, "line-opacity", lineOpacity);
+  }
+  if (map.getLayer(GLOW_LAYER_ID)) {
+    map.setPaintProperty(GLOW_LAYER_ID, "line-opacity", glowOpacity);
+  }
 }

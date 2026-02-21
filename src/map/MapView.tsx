@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode } from "../types";
-import { updateStaticTrails, removeStaticTrails } from "./staticTrails";
+import { updateStaticTrails, setStaticTrailsOpacity } from "./staticTrails";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -100,6 +100,23 @@ function updateAirportStyle(map: mapboxgl.Map, opacity: number, glow: number, is
   map.setPaintProperty(AIRPORT_GLOW_2, "line-opacity", glow * (isDark ? 0.06 : 0.15));
 }
 
+/**
+ * 3D 模式下，根據 zoom 計算 2D 軌跡應有的透明度
+ * zoom >= FADE_OUT → 完全隱藏（只看 3D）
+ * zoom <= FADE_IN  → 完全顯示（3D 自然不可見）
+ */
+const ZOOM_FADE_IN = 3;
+const ZOOM_FADE_OUT = 5;
+
+function calc2dTrailOpacity(zoom: number, isDark: boolean) {
+  const t = Math.max(0, Math.min(1, (zoom - ZOOM_FADE_IN) / (ZOOM_FADE_OUT - ZOOM_FADE_IN)));
+  const fade = 1 - t;
+  return {
+    line: (isDark ? 0.25 : 0.5) * fade,
+    glow: (isDark ? 0.08 : 0.15) * fade,
+  };
+}
+
 function setupTerrain(map: mapboxgl.Map) {
   if (!map.getSource("mapbox-dem")) {
     map.addSource("mapbox-dem", {
@@ -154,9 +171,13 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
       setupTerrain(map);
       addAirportOverlay(map, airportOpacityRef.current, airportGlowRef.current, isDarkThemeRef.current);
 
-      // 2D 模式下重建 Mapbox 原生靜態軌跡
-      if (renderModeRef.current === "2d") {
-        updateStaticTrails(map, flightsRef.current, isDarkThemeRef.current);
+      // 永遠保留 Mapbox 原生靜態軌跡
+      const is3d = renderModeRef.current === "3d";
+      updateStaticTrails(map, flightsRef.current, isDarkThemeRef.current, is3d);
+      // 3D 模式：根據當前 zoom 設定 2D 軌跡透明度
+      if (is3d) {
+        const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
+        setStaticTrailsOpacity(map, line, glow);
       }
 
       // 初次載入後，每次樣式切換都重建 flight layer
@@ -201,17 +222,34 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     });
   }, [preset]);
 
-  // 2D/3D 渲染模式切換：管理 Mapbox 原生靜態軌跡
+  // 2D/3D 渲染模式切換：更新軌跡資料，3D 模式由 zoom handler 控制透明度
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
 
-    if (renderMode === "2d") {
-      updateStaticTrails(map, flights, isDarkTheme);
-    } else {
-      removeStaticTrails(map);
+    const is3d = renderMode === "3d";
+    updateStaticTrails(map, flights, isDarkTheme, is3d);
+    if (is3d) {
+      const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkTheme);
+      setStaticTrailsOpacity(map, line, glow);
     }
   }, [renderMode, flights, isDarkTheme]);
+
+  // 3D 模式：zoom 驅動 2D 軌跡 crossfade（近看隱藏 2D，拉遠顯示 2D）
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current) return;
+    if (renderMode !== "3d") return;
+
+    const onZoom = () => {
+      if (!map.isStyleLoaded()) return;
+      const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
+      setStaticTrailsOpacity(map, line, glow);
+    };
+
+    map.on("zoom", onZoom);
+    return () => { map.off("zoom", onZoom); };
+  }, [renderMode]);
 
   // 機場圖層樣式即時更新
   useEffect(() => {

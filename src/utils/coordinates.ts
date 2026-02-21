@@ -26,17 +26,24 @@ export function getAltOffset(): number {
 /**
  * 將 [lat, lng, alt_m] 轉換為 Mapbox MercatorCoordinate
  * Three.js 可直接使用 MercatorCoordinate 的 x, y, z
+ *
+ * x 手動計算以支援展開後的經度（>180° 或 <-180°，跨換日線航班），
+ * 因為 MercatorCoordinate.fromLngLat 會將經度正規化到 [-180, 180]。
+ * y, z 由 Mapbox 計算（僅依賴緯度和高度，與經度無關）。
  */
 export function toMercator(
   lat: number,
   lng: number,
   altMeters: number,
 ): { x: number; y: number; z: number } {
+  // x 手動計算，避免 Mapbox 正規化經度
+  const x = (lng + 180) / 360;
+  // y, z 用 Mapbox 計算（經度不影響結果）
   const mc = mapboxgl.MercatorCoordinate.fromLngLat(
-    [lng, lat],
+    [0, lat],
     (altMeters + altOffset) * altExaggeration,
   );
-  return { x: mc.x, y: mc.y, z: mc.z };
+  return { x, y: mc.y, z: mc.z };
 }
 
 /**

@@ -1,4 +1,4 @@
-import type { Flight } from "../types";
+import type { Flight, TrailPoint } from "../types";
 import { AIRPORT_INFO } from "../map/cameraPresets";
 
 /** ICAO → IATA 對照表：台灣機場 + 常見國際航點 */
@@ -59,9 +59,27 @@ function resolveIata(icao: string, existingIata: string): string {
   return ICAO_TO_IATA[icao] ?? icao;
 }
 
+/**
+ * 展開路徑經度，避免跨越 ±180° 換日線時折返
+ * 例：lng 從 170 → -170 會被修正為 170 → 190
+ */
+function unwrapPathLongitudes(path: TrailPoint[]): TrailPoint[] {
+  if (path.length < 2) return path;
+  const result: TrailPoint[] = [path[0]!];
+  for (let i = 1; i < path.length; i++) {
+    const [lat, lng, alt, ts] = path[i]!;
+    const prevLng = result[i - 1]![1];
+    let adjustedLng = lng;
+    while (adjustedLng - prevLng > 180) adjustedLng -= 360;
+    while (adjustedLng - prevLng < -180) adjustedLng += 360;
+    result.push([lat, adjustedLng, alt, ts]);
+  }
+  return result;
+}
+
 let cachedFlights: Flight[] | null = null;
 
-/** 載入 aviation_data.json，並補齊 IATA 代碼與時間戳 */
+/** 載入 aviation_data.json，並補齊 IATA 代碼、時間戳、展開經度 */
 export async function loadFlights(): Promise<Flight[]> {
   if (cachedFlights) return cachedFlights;
 
@@ -72,6 +90,8 @@ export async function loadFlights(): Promise<Flight[]> {
     .filter((f) => f.path.length > 0)
     .map((f) => ({
       ...f,
+      // 展開跨換日線的經度
+      path: unwrapPathLongitudes(f.path),
       // 補齊 IATA 代碼
       origin_iata: resolveIata(f.origin_icao, f.origin_iata),
       dest_iata: resolveIata(f.dest_icao, f.dest_iata),
