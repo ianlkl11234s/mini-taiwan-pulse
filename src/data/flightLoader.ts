@@ -1,16 +1,85 @@
 import type { Flight } from "../types";
+import { AIRPORT_INFO } from "../map/cameraPresets";
+
+/** ICAO → IATA 對照表：台灣機場 + 常見國際航點 */
+const ICAO_TO_IATA: Record<string, string> = {
+  // 台灣機場（從 AIRPORT_INFO 展開）
+  ...Object.fromEntries(
+    Object.entries(AIRPORT_INFO).map(([icao, info]) => [icao, info.iata]),
+  ),
+  // 日本
+  RJTT: "HND", RJAA: "NRT", RJBB: "KIX", RJOO: "ITM",
+  RJFF: "FUK", RJCC: "CTS", RJFK: "KOJ", RJNS: "FSZ",
+  RJNK: "KMQ", RJOT: "OKJ", RJOM: "MYJ", RJSN: "KIJ",
+  RJGG: "NGO", RJBE: "UKB", RJCH: "OBO", RJFO: "OIT",
+  RJFR: "KKJ", RJFT: "KMJ", RJNT: "TOY", RJOA: "HIJ",
+  RJOB: "IWJ", RJOK: "KCZ", RJSS: "SDJ",
+  // 沖繩
+  ROAH: "OKA", ROIG: "ISG", RORS: "MMY",
+  // 韓國
+  RKSI: "ICN", RKSS: "GMP", RKPK: "PUS", RKPC: "CJU",
+  RKTN: "TAE", RKTU: "CJJ",
+  // 港澳中國
+  VHHH: "HKG", VMMC: "MFM", ZGGG: "CAN", ZSPD: "PVG",
+  ZSSS: "SHA", ZBAA: "PEK", ZGSZ: "SZX", ZUUU: "CTU",
+  ZGHA: "CSX", ZUCK: "CKG", ZHCC: "CGO", ZSNJ: "NKG",
+  ZHHH: "WUH", ZSAM: "XMN", ZSFZ: "FOC", ZSHC: "HGH",
+  ZSNB: "NGB", ZUTF: "TFU",
+  // 台灣離島 / 軍用
+  RCCM: "CMJ", RCGI: "GNI", RCMT: "MFK",
+  // 東南亞
+  WSSS: "SIN", WMKK: "KUL", WMKP: "PEN", VTBS: "BKK",
+  VTBD: "DMK", VTSP: "HKT", VTCC: "CNX",
+  RPLL: "MNL", RPVM: "CEB", RPLC: "CRK",
+  VVTS: "SGN", VVNB: "HAN", VVDN: "DAD", VVCR: "CXR",
+  VVDL: "DLI", VVPQ: "PQC",
+  WADD: "DPS", WIII: "CGK", WAMM: "MDC", WBKK: "BKI",
+  VDPP: "PNH", VDTI: "REP", VLVT: "VTE", VYYY: "RGN",
+  VIDP: "DEL",
+  // 大洋洲
+  NZAA: "AKL", YBBN: "BNE", YMML: "MEL",
+  // 中東
+  OMDB: "DXB", OMAA: "AUH", OMDW: "DWC",
+  // 美洲
+  KJFK: "JFK", KLAX: "LAX", KSFO: "SFO", KORD: "ORD",
+  KSEA: "SEA", KDFW: "DFW", KIAH: "IAH", KONT: "ONT",
+  KPHX: "PHX", PANC: "ANC", PHNL: "HNL", PGUM: "GUM",
+  CYVR: "YVR", CYYZ: "YYZ",
+  // 歐洲
+  EGLL: "LHR", EHAM: "AMS", LFPG: "CDG", EDDF: "FRA",
+  EDDM: "MUC", LIMC: "MXP", LKPR: "PRG", LOWW: "VIE",
+  LTFM: "IST",
+  // 其他
+  PTRO: "TRO",
+};
+
+/** 解析 IATA 代碼：優先用既有值，其次查表，最後 fallback 到 ICAO */
+function resolveIata(icao: string, existingIata: string): string {
+  if (existingIata) return existingIata;
+  return ICAO_TO_IATA[icao] ?? icao;
+}
 
 let cachedFlights: Flight[] | null = null;
 
-/** 載入 aviation_data.json */
+/** 載入 aviation_data.json，並補齊 IATA 代碼與時間戳 */
 export async function loadFlights(): Promise<Flight[]> {
   if (cachedFlights) return cachedFlights;
 
   const res = await fetch("/aviation_data.json");
   const data: Flight[] = await res.json();
 
-  // 過濾掉沒有軌跡點的航班
-  cachedFlights = data.filter((f) => f.path.length > 0);
+  cachedFlights = data
+    .filter((f) => f.path.length > 0)
+    .map((f) => ({
+      ...f,
+      // 補齊 IATA 代碼
+      origin_iata: resolveIata(f.origin_icao, f.origin_iata),
+      dest_iata: resolveIata(f.dest_icao, f.dest_iata),
+      // dep_time / arr_time 為 0 時，從 path 首尾推算
+      dep_time: f.dep_time > 0 ? f.dep_time : (f.path[0]?.[3] ?? 0),
+      arr_time: f.arr_time > 0 ? f.arr_time : (f.path[f.path.length - 1]?.[3] ?? 0),
+    }));
+
   return cachedFlights;
 }
 
