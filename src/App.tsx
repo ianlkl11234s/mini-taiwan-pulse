@@ -788,6 +788,23 @@ export default function App() {
             </a>
           </div>
 
+          {/* 操作提示 */}
+          <div
+            style={{
+              position: "absolute",
+              top: 84,
+              right: 16,
+              zIndex: 10,
+              color: isDarkTheme ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.2)",
+              fontSize: 10,
+              fontFamily: "monospace",
+              letterSpacing: 0.5,
+              textAlign: "right",
+            }}
+          >
+            Right-drag to rotate · Scroll to zoom
+          </div>
+
           {/* 航班數統計 + 相機角度 */}
           <div
             style={{
