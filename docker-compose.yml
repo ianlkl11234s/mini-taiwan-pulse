@@ -1,0 +1,12 @@
+services:
+  flight-arc:
+    build:
+      context: .
+      args:
+        VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN}
+    ports:
+      - "3721:80"
+    volumes:
+      # 航班資料是 gitignored 的，從 host 掛載進去
+      - ./public/aviation_data.json:/usr/share/nginx/html/aviation_data.json:ro
+    restart: unless-stopped

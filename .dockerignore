@@ -1,0 +1,9 @@
+node_modules
+dist
+.env
+.env.local
+*.local
+*.tsbuildinfo
+scripts/flight-list.json
+scripts/track-progress.json
+.git

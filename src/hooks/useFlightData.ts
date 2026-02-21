@@ -5,7 +5,9 @@ import {
   getTimeRange,
   getTaiwanAirports,
   loadFlights,
+  updateCachedFlights,
 } from "../data/flightLoader";
+import { mergeS3Updates } from "../data/s3Loader";
 
 interface UseFlightDataReturn {
   allFlights: Flight[];
@@ -28,6 +30,15 @@ export function useFlightData(): UseFlightDataReturn {
       setAllFlights(flights);
       setAirports(getTaiwanAirports(flights));
       setLoading(false);
+
+      // 背景檢查 S3 是否有新資料
+      mergeS3Updates(flights).then((merged) => {
+        if (merged !== flights) {
+          updateCachedFlights(merged);
+          setAllFlights(merged);
+          setAirports(getTaiwanAirports(merged));
+        }
+      });
     });
   }, []);
 

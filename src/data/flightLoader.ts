@@ -143,6 +143,23 @@ function fixAltitudeUnits(path: TrailPoint[]): TrailPoint[] {
   return result;
 }
 
+/** 前處理單筆航班：修正高度、展開經度、補齊 IATA、推算時間 */
+export function preprocessFlight(f: Flight): Flight {
+  return {
+    ...f,
+    path: unwrapPathLongitudes(fixAltitudeUnits(f.path)),
+    origin_iata: resolveIata(f.origin_icao, f.origin_iata),
+    dest_iata: resolveIata(f.dest_icao, f.dest_iata),
+    dep_time: f.dep_time > 0 ? f.dep_time : (f.path[0]?.[3] ?? 0),
+    arr_time: f.arr_time > 0 ? f.arr_time : (f.path[f.path.length - 1]?.[3] ?? 0),
+  };
+}
+
+/** 前處理航班陣列 */
+export function preprocessFlights(flights: Flight[]): Flight[] {
+  return flights.filter((f) => f.path.length > 0).map(preprocessFlight);
+}
+
 let cachedFlights: Flight[] | null = null;
 
 /** 載入 aviation_data.json，並補齊 IATA 代碼、時間戳、展開經度 */
@@ -152,21 +169,13 @@ export async function loadFlights(): Promise<Flight[]> {
   const res = await fetch("/aviation_data.json");
   const data: Flight[] = await res.json();
 
-  cachedFlights = data
-    .filter((f) => f.path.length > 0)
-    .map((f) => ({
-      ...f,
-      // 修正英呎/公尺混用 → 展開跨換日線經度
-      path: unwrapPathLongitudes(fixAltitudeUnits(f.path)),
-      // 補齊 IATA 代碼
-      origin_iata: resolveIata(f.origin_icao, f.origin_iata),
-      dest_iata: resolveIata(f.dest_icao, f.dest_iata),
-      // dep_time / arr_time 為 0 時，從 path 首尾推算
-      dep_time: f.dep_time > 0 ? f.dep_time : (f.path[0]?.[3] ?? 0),
-      arr_time: f.arr_time > 0 ? f.arr_time : (f.path[f.path.length - 1]?.[3] ?? 0),
-    }));
-
+  cachedFlights = preprocessFlights(data);
   return cachedFlights;
+}
+
+/** 更新快取（S3 合併後使用） */
+export function updateCachedFlights(flights: Flight[]): void {
+  cachedFlights = flights;
 }
 
 /** 依目的地機場 ICAO 篩選（降落航班） */
