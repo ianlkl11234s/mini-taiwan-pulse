@@ -13,6 +13,9 @@ export const AIRPORT_INFO: Record<string, { name: string; iata: string }> = {
   RCKU: { name: "嘉義機場", iata: "CYI" },
   RCNN: { name: "台東豐年機場", iata: "TTT" },
   RCQC: { name: "澎湖馬公機場", iata: "MZG" },
+  RCCM: { name: "七美機場", iata: "CMJ" },
+  RCGI: { name: "綠島機場", iata: "GNI" },
+  RCMT: { name: "馬祖北竿機場", iata: "MFK" },
 };
 
 export function getAirportInfo(icao: string): { name: string; iata: string } | undefined {
