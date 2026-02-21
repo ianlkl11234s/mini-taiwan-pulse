@@ -404,6 +404,10 @@ export default function App() {
               display: "flex",
               gap: 14,
               alignItems: "center",
+              background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
+              backdropFilter: "blur(8px)",
+              borderRadius: 8,
+              padding: "4px 12px",
             }}
           >
             <label style={getSliderLabelStyle(isDarkTheme)}>
@@ -607,34 +611,39 @@ export default function App() {
             </a>
           </div>
 
-          {/* 航班數統計 */}
+          {/* 航班數統計 + 相機角度 */}
           <div
             style={{
               position: "absolute",
               top: 112,
               left: 16,
               zIndex: 10,
-              color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
-              fontSize: 11,
-              fontFamily: "monospace",
+              background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
+              backdropFilter: "blur(8px)",
+              borderRadius: 6,
+              padding: "4px 10px",
             }}
           >
-            {displayedFlights.length} flights
-            {viewMode === "time-window" && " (±12h)"}
-            {viewMode === "all-taiwan" && " (all Taiwan)"}
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              top: 126,
-              left: 16,
-              zIndex: 10,
-              color: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
-              fontSize: 11,
-              fontFamily: "monospace",
-            }}
-          >
-            {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
+            <div
+              style={{
+                color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
+                fontSize: 11,
+                fontFamily: "monospace",
+              }}
+            >
+              {displayedFlights.length} flights
+              {viewMode === "time-window" && " (±12h)"}
+              {viewMode === "all-taiwan" && " (all Taiwan)"}
+            </div>
+            <div
+              style={{
+                color: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
+                fontSize: 11,
+                fontFamily: "monospace",
+              }}
+            >
+              {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
+            </div>
           </div>
         </>
       )}
@@ -913,6 +922,12 @@ export default function App() {
                 <li><b>Orb</b> — 飛行光球大小</li>
                 <li><b>APT</b> — 機場區域底色透明度</li>
                 <li><b>Glow</b> — 機場光暈強度</li>
+              </ul>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "12px 0 6px", letterSpacing: 1 }}>CAMERA</h3>
+              <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
+                <li><b>Pitch</b> — 相機俯仰角（0° 正俯視，90° 水平視角）</li>
+                <li><b>Bearing</b> — 相機方位角（0° 朝北，正值順時針旋轉）</li>
+                <li><b>Zoom</b> — 地圖縮放層級</li>
               </ul>
             </section>
 
