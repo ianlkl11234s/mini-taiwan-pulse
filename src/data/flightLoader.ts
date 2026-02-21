@@ -77,6 +77,72 @@ function unwrapPathLongitudes(path: TrailPoint[]): TrailPoint[] {
   return result;
 }
 
+/**
+ * 修正 FR24 資料中的英呎/公尺混用問題
+ *
+ * FR24 在低高度（~1000ft / ~300m）會從公尺切換成英呎回報，
+ * 例如：降落時 ...320m, 312m, [1000ft, 975ft, 875ft...]
+ * 被當作公尺渲染時，312→1000 會造成巨大的高度跳升。
+ *
+ * 策略：雙向掃描 + 黏著模式。初次偵測到英呎切換後，
+ * 連續 3 次轉換即進入黏著模式，持續轉換直到明確回到公尺。
+ */
+function fixAltitudeUnits(path: TrailPoint[]): TrailPoint[] {
+  if (path.length < 2) return path;
+  const result: TrailPoint[] = path.map((pt) => [pt[0], pt[1], pt[2], pt[3]]);
+  const FT_TO_M = 0.3048;
+  const STICKY_THRESHOLD = 3; // 連續轉換幾次後進入黏著模式
+
+  // 正向掃描：修正降落段（公尺→英呎切換）
+  let streak = 0;
+  for (let i = 1; i < result.length; i++) {
+    const prevAlt = result[i - 1]![2];
+    const currAlt = result[i]![2];
+    const converted = Math.round(currAlt * FT_TO_M);
+    const jumpRaw = Math.abs(currAlt - prevAlt);
+    const jumpConv = Math.abs(converted - prevAlt);
+
+    if (streak >= STICKY_THRESHOLD) {
+      // 黏著模式：持續轉換，除非轉換結果明顯更差
+      if (jumpConv <= jumpRaw * 2) {
+        result[i]![2] = converted;
+      } else {
+        streak = 0;
+      }
+    } else if (jumpRaw > 200 && jumpConv < jumpRaw * 0.5) {
+      result[i]![2] = converted;
+      streak++;
+    } else {
+      streak = 0;
+    }
+  }
+
+  // 反向掃描：修正起飛段（英呎→公尺切換）
+  streak = 0;
+  for (let i = result.length - 2; i >= 0; i--) {
+    const nextAlt = result[i + 1]![2];
+    const currAlt = result[i]![2];
+    const converted = Math.round(currAlt * FT_TO_M);
+    const jumpRaw = Math.abs(currAlt - nextAlt);
+    const jumpConv = Math.abs(converted - nextAlt);
+
+    if (streak >= STICKY_THRESHOLD) {
+      if (jumpConv <= jumpRaw * 2) {
+        result[i]![2] = converted;
+      } else {
+        streak = 0;
+      }
+    } else if (jumpRaw > 200 && jumpConv < jumpRaw * 0.5) {
+      result[i]![2] = converted;
+      streak++;
+    } else {
+      streak = 0;
+    }
+  }
+
+  return result;
+}
+
 let cachedFlights: Flight[] | null = null;
 
 /** 載入 aviation_data.json，並補齊 IATA 代碼、時間戳、展開經度 */
@@ -90,8 +156,8 @@ export async function loadFlights(): Promise<Flight[]> {
     .filter((f) => f.path.length > 0)
     .map((f) => ({
       ...f,
-      // 展開跨換日線的經度
-      path: unwrapPathLongitudes(f.path),
+      // 修正英呎/公尺混用 → 展開跨換日線經度
+      path: unwrapPathLongitudes(fixAltitudeUnits(f.path)),
       // 補齊 IATA 代碼
       origin_iata: resolveIata(f.origin_icao, f.origin_iata),
       dest_iata: resolveIata(f.dest_icao, f.dest_iata),
