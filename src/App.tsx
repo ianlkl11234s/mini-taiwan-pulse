@@ -220,36 +220,43 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode, selectedFlightId]);
 
-  // Track Single 模式：相機跟隨飛機
+  // Track Single 模式：相機鎖定飛機，飛機固定在畫面中央
   useEffect(() => {
     if (viewMode !== "single" || !selectedFlightId) return;
     const map = mapRef.current;
     if (!map) return;
 
-    let lastLng = 0;
-    let lastLat = 0;
-
-    const follow = () => {
+    let animId: number;
+    const tick = () => {
       const flight = flightsRef.current.find((f) => f.fr24_id === selectedFlightId);
-      if (!flight) return;
-      const t = timeRef.current;
-      for (let i = flight.path.length - 1; i >= 0; i--) {
-        if (flight.path[i]![3] <= t) {
-          const lat = flight.path[i]![0];
-          const lng = flight.path[i]![1];
-          if (Math.abs(lng - lastLng) > 0.001 || Math.abs(lat - lastLat) > 0.001) {
-            lastLng = lng;
-            lastLat = lat;
-            map.easeTo({ center: [lng, lat], duration: 2000, easing: (x) => x });
+      if (flight && flight.path.length > 0) {
+        const t = timeRef.current;
+        const path = flight.path;
+        // 線性插值取得精確位置
+        let lat: number, lng: number;
+        if (t <= path[0]![3]) {
+          lat = path[0]![0]; lng = path[0]![1];
+        } else if (t >= path[path.length - 1]![3]) {
+          lat = path[path.length - 1]![0]; lng = path[path.length - 1]![1];
+        } else {
+          lat = path[0]![0]; lng = path[0]![1];
+          for (let i = 1; i < path.length; i++) {
+            if (path[i]![3] >= t) {
+              const a = path[i - 1]!;
+              const b = path[i]!;
+              const r = (t - a[3]) / (b[3] - a[3]);
+              lat = a[0] + (b[0] - a[0]) * r;
+              lng = a[1] + (b[1] - a[1]) * r;
+              break;
+            }
           }
-          break;
         }
+        map.setCenter([lng, lat]);
       }
+      animId = requestAnimationFrame(tick);
     };
-
-    follow();
-    const id = setInterval(follow, 2000);
-    return () => clearInterval(id);
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
   }, [viewMode, selectedFlightId]);
 
   // ESC 退出拍攝模式
@@ -269,6 +276,53 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, timeRange.start]);
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#0a0a14",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 16,
+          fontFamily: "monospace",
+          color: "#fff",
+        }}
+      >
+        <div style={{ fontSize: 22, letterSpacing: 4, fontWeight: 700 }}>
+          Taiwan Flight Arc
+        </div>
+        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 1 }}>
+          Loading flight data...
+        </div>
+        <div
+          style={{
+            width: 120,
+            height: 2,
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: 1,
+            overflow: "hidden",
+            marginTop: 8,
+          }}
+        >
+          <div
+            style={{
+              width: "40%",
+              height: "100%",
+              background: "rgba(100,170,255,0.8)",
+              borderRadius: 1,
+              animation: "loadbar 1.2s ease-in-out infinite alternate",
+            }}
+          />
+        </div>
+        <style>{`@keyframes loadbar { from { margin-left: 0 } to { margin-left: 60% } }`}</style>
+      </div>
+    );
+  }
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
@@ -1112,12 +1166,28 @@ export default function App() {
             </section>
 
             <section style={{ marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>DISPLAY MODES</h3>
+              <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
+                <li><b>Flight Trails</b> — 顯示完整航線軌跡 + 動態光球（預設）</li>
+                <li><b>Live Status</b> — 隱藏完整航線，只保留飛機動態尾跡與光球</li>
+              </ul>
+            </section>
+
+            <section style={{ marginBottom: 16 }}>
               <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>VIEW MODES</h3>
               <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
                 <li><b>This Airport</b> — 顯示選定機場的所有航班</li>
                 <li><b>All Taiwan</b> — 顯示全台灣所有航班</li>
                 <li><b>±12h Window</b> — 以當前時間為中心的 24 小時窗口</li>
-                <li><b>Track Single</b> — 追蹤單一航班軌跡</li>
+                <li><b>Track Single</b> — 追蹤單一航班，相機鎖定飛機在畫面中央跟隨移動</li>
+              </ul>
+            </section>
+
+            <section style={{ marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>INTERACTION</h3>
+              <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
+                <li><b>Click</b> — 點擊飛機光球顯示航班資訊（航班號、路線、機型、高度）</li>
+                <li><b>Double-click</b> — 雙擊飛機光球直接進入 Track Single 跟隨模式</li>
               </ul>
             </section>
 
