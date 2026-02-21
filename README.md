@@ -50,8 +50,22 @@
 
 - 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Navigation Night 等），切換底圖自動重建所有圖層
 - 11 座台灣機場預設視角，選單顯示中文名稱與 IATA 代碼
-- 時間軸播放控制（30x~600x 加速）
-- Capture 拍攝模式（暗角 vignette + 機場名稱 + 時間標記，ESC 退出）
+- 時間軸播放控制（30x~600x 加速），配色隨底圖明暗自適應（暗色灰調 / 亮色白調）
+- Capture 拍攝模式（暗角 vignette + 機場名稱 + 時間標記，ESC 或觸控 ✕ 退出）
+- Info 面板：網站使用說明、參數介紹、資料來源、DIY 指引
+- 外部連結：[GitHub](https://github.com/ianlkl11234s/flight-arc-graph) / [Threads](https://www.threads.com/@ianlkl1314) / [Mini Taiwan](https://mini-taiwan-learning-project.zeabur.app/)
+
+### 手機版適配（Responsive）
+
+在 768px 以下自動切換為手機版 layout，最大化地圖可視區域：
+
+- **Compact Header**（44px）：機場選擇 + Info / Capture / 3D 切換
+- **Timeline Bar**：固定在 header 下方，Play 按鈕 44×44 觸控友善，scrubber 加粗至 8px
+- **Bottom Sheet**：三段展開（收合 → 半開含 FlightPicker → 全開含 Sliders + StyleSelector）
+- **Capture 模式**：右上角 48×48 圓形 ✕ 按鈕（取代 ESC 文字），標題縮小適配
+- **FlightPicker**：手機版 2×2 grid layout，按鈕加大觸控區域
+- **Safe Area**：適配 iPhone Home Indicator（`env(safe-area-inset-bottom)`）
+- **Viewport**：`viewport-fit=cover, user-scalable=no`，確保 Mapbox 正確接收手勢
 
 ## 技術棧
 
@@ -109,12 +123,14 @@ Taiwan Flight Arc/
 │   │   └── shaders/              # GLSL vertex/fragment shaders
 │   ├── hooks/
 │   │   ├── useFlightData.ts      # 資料載入 hook
-│   │   └── useTimeline.ts        # 時間軸播放 hook
+│   │   ├── useTimeline.ts        # 時間軸播放 hook
+│   │   └── useIsMobile.ts        # 響應式斷點偵測（768px）+ 橫向模式
 │   ├── components/
 │   │   ├── AirportSelector.tsx
-│   │   ├── FlightPicker.tsx
-│   │   ├── TimelineControls.tsx
-│   │   └── StyleSelector.tsx
+│   │   ├── FlightPicker.tsx       # 支援 isMobile（2×2 grid）
+│   │   ├── TimelineControls.tsx   # 支援 isMobile（加大觸控區）
+│   │   ├── StyleSelector.tsx
+│   │   └── MobileBottomSheet.tsx  # 手機版三段式底部面板
 │   └── utils/
 │       ├── coordinates.ts        # MercatorCoordinate 轉換 + 動態高度參數
 │       └── interpolation.ts      # 軌跡時間插值

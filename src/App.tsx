@@ -4,6 +4,7 @@ import type { ViewMode, RenderMode } from "./types";
 import { MapView } from "./map/MapView";
 import { useFlightData } from "./hooks/useFlightData";
 import { useTimeline } from "./hooks/useTimeline";
+import { useIsMobile } from "./hooks/useIsMobile";
 import { CAMERA_PRESETS, getPresetByIcao, getAirportInfo } from "./map/cameraPresets";
 import { createFlightLayer } from "./map/customLayer";
 import { filterByAirport, filterByTimeWindow } from "./data/flightLoader";
@@ -11,6 +12,7 @@ import { AirportSelector } from "./components/AirportSelector";
 import { FlightPicker } from "./components/FlightPicker";
 import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
+import { MobileBottomSheet } from "./components/MobileBottomSheet";
 
 const getSliderLabelStyle = (dark: boolean): React.CSSProperties => ({
   color: dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
@@ -44,11 +46,13 @@ export default function App() {
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [altExaggeration, setAltExaggeration] = useState(3);
   const [altOffset, setAltOffset] = useState(50);
-  const [staticOpacity, setStaticOpacity] = useState(0.2);
+  const [staticOpacity, setStaticOpacity] = useState(0.1);
   const [orbScale, setOrbScale] = useState(0.000005);
   const [airportOpacity, setAirportOpacity] = useState(0.12);
   const [airportGlow, setAirportGlow] = useState(0.8);
   const [captureMode, setCaptureMode] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
+  const { isMobile, isLandscape } = useIsMobile();
 
   const timeline = useTimeline({
     startTime: timeRange.start,
@@ -196,19 +200,19 @@ export default function App() {
           <div
             style={{
               position: "absolute",
-              top: 32,
-              left: 32,
+              top: isMobile ? 16 : 32,
+              left: isMobile ? 16 : 32,
               zIndex: 21,
               pointerEvents: "none",
             }}
           >
             <div
               style={{
-                fontSize: 28,
+                fontSize: isMobile ? 20 : 28,
                 fontFamily: "monospace",
                 fontWeight: 700,
                 color: "#fff",
-                letterSpacing: 4,
+                letterSpacing: isMobile ? 2 : 4,
                 textShadow: "0 2px 12px rgba(0,0,0,0.6)",
               }}
             >
@@ -253,10 +257,27 @@ export default function App() {
               })}
             </div>
           </div>
-          {/* 右下退出提示 */}
+          {/* 退出按鈕 */}
           <button
             onClick={() => setCaptureMode(false)}
-            style={{
+            style={isMobile ? {
+              position: "absolute",
+              top: 16,
+              right: 16,
+              zIndex: 21,
+              width: 48,
+              height: 48,
+              borderRadius: 24,
+              background: "rgba(0,0,0,0.4)",
+              border: "1px solid rgba(255,255,255,0.2)",
+              color: "#fff",
+              fontSize: 22,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              backdropFilter: "blur(8px)",
+            } : {
               position: "absolute",
               bottom: 32,
               right: 32,
@@ -271,13 +292,13 @@ export default function App() {
               cursor: "pointer",
             }}
           >
-            ESC
+            {isMobile ? "✕" : "ESC"}
           </button>
         </>
       )}
 
       {/* ── 一般模式 UI ── */}
-      {!captureMode && (
+      {!captureMode && !isMobile && (
         <>
           {/* 頂部控制列 */}
           <div
@@ -456,6 +477,111 @@ export default function App() {
             </button>
           </div>
 
+          {/* 右上角第二排：Info / Github / Threads / Mini Taiwan */}
+          <div
+            style={{
+              position: "absolute",
+              top: 52,
+              right: 16,
+              zIndex: 10,
+              display: "flex",
+              gap: 8,
+              alignItems: "center",
+            }}
+          >
+            <button
+              onClick={() => setShowInfo(true)}
+              style={{
+                padding: "6px 14px",
+                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+                borderRadius: 6,
+                color: isDarkTheme ? "#fff" : "#333",
+                fontSize: 12,
+                fontFamily: "monospace",
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+                letterSpacing: 1,
+              }}
+            >
+              Info
+            </button>
+            <a
+              href="https://github.com/ianlkl11234s/flight-arc-graph"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+                color: isDarkTheme ? "#fff" : "#333",
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+              }}
+              title="GitHub"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+              </svg>
+            </a>
+            <a
+              href="https://www.threads.com/@ianlkl1314"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+                color: isDarkTheme ? "#fff" : "#333",
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+              }}
+              title="Threads"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.59 12c.025 3.086.718 5.496 2.057 7.164 1.432 1.784 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.346-.789-.96-1.42-1.744-1.838.164 3.1-1.063 5.453-3.693 5.453-1.602 0-2.97-.767-3.652-2.048-.585-1.098-.63-2.545.013-3.878.926-1.916 3.083-2.878 5.29-2.472.1-.612.133-1.266.08-1.952l2.036-.244c.083.87.06 1.693-.06 2.455 1.038.497 1.892 1.2 2.494 2.1.864 1.29 1.196 2.86.96 4.539-.32 2.28-1.462 4.1-3.298 5.272C15.692 23.347 13.718 24 12.186 24zm.512-7.17c.828 0 1.474-.31 1.858-.892.532-.806.56-2.04-.02-2.834-.328-.21-.702-.382-1.126-.506-.078 1.072-.29 2.089-.648 2.983-.137.343-.5 1.25.064 1.25h-.128z"/>
+              </svg>
+            </a>
+            <a
+              href="https://mini-taiwan-learning-project.zeabur.app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+                color: isDarkTheme ? "#fff" : "#333",
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none",
+                fontSize: 9,
+                fontFamily: "monospace",
+                fontWeight: 700,
+                letterSpacing: -0.5,
+              }}
+              title="Mini Taiwan"
+            >
+              TW
+            </a>
+          </div>
+
           {/* 航班數統計 */}
           <div
             style={{
@@ -473,6 +599,322 @@ export default function App() {
             {viewMode === "all-taiwan" && " (all Taiwan)"}
           </div>
         </>
+      )}
+
+      {/* ── 手機版 UI ── */}
+      {!captureMode && isMobile && (
+        <>
+          {/* Compact Header */}
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 44,
+              zIndex: 10,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "0 12px",
+              paddingTop: "env(safe-area-inset-top, 0px)",
+              background: "rgba(0,0,0,0.5)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+            }}
+          >
+            <AirportSelector
+              airports={airports}
+              selected={selectedAirport}
+              isDarkTheme={true}
+              onChange={setSelectedAirport}
+            />
+
+            <div style={{ flex: 1 }} />
+
+            {loading && (
+              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>
+                Loading...
+              </span>
+            )}
+
+            <button
+              onClick={() => setShowInfo(true)}
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 8,
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                fontSize: 12,
+                fontFamily: "monospace",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              Info
+            </button>
+
+            <button
+              onClick={() => setCaptureMode(true)}
+              style={{
+                height: 36,
+                padding: "0 10px",
+                borderRadius: 8,
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                fontSize: 12,
+                fontFamily: "monospace",
+                cursor: "pointer",
+                letterSpacing: 1,
+              }}
+            >
+              Capture
+            </button>
+
+            <button
+              onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
+              style={{
+                height: 36,
+                padding: "0 10px",
+                borderRadius: 8,
+                background: renderMode === "3d"
+                  ? "rgba(80,140,255,0.25)"
+                  : "rgba(255,170,68,0.25)",
+                border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
+                color: "#fff",
+                fontSize: 12,
+                fontFamily: "monospace",
+                cursor: "pointer",
+                letterSpacing: 1,
+              }}
+            >
+              {renderMode === "3d" ? "3D" : "2D"}
+            </button>
+          </div>
+
+          {/* Timeline 固定在 header 下方 */}
+          <div
+            style={{
+              position: "absolute",
+              top: 44,
+              left: 0,
+              right: 0,
+              zIndex: 10,
+              padding: "8px 12px",
+              background: "rgba(0,0,0,0.4)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+            }}
+          >
+            <TimelineControls
+              playing={timeline.playing}
+              speed={timeline.speed}
+              progress={timeline.progress}
+              currentTime={timeline.currentTime}
+              startTime={timeRange.start}
+              endTime={timeRange.end}
+              isDarkTheme={true}
+              isMobile={true}
+              onToggle={timeline.toggle}
+              onSpeedChange={timeline.setSpeed}
+              onSeekByProgress={timeline.seekByProgress}
+            />
+          </div>
+
+          {/* Bottom Sheet */}
+          <MobileBottomSheet isLandscape={isLandscape}>
+            {(level) => (
+              <>
+                {/* half: FlightPicker + Stats */}
+                {(level === "half" || level === "full") && (
+                  <div style={{ marginTop: 12 }}>
+                    <FlightPicker
+                      flights={pickableFlights}
+                      viewMode={viewMode}
+                      selectedFlightId={selectedFlightId}
+                      isDarkTheme={true}
+                      isMobile={true}
+                      onViewModeChange={setViewMode}
+                      onFlightSelect={setSelectedFlightId}
+                    />
+                    <div
+                      style={{
+                        marginTop: 8,
+                        color: "rgba(255,255,255,0.4)",
+                        fontSize: 11,
+                        fontFamily: "monospace",
+                      }}
+                    >
+                      {displayedFlights.length} flights
+                      {viewMode === "time-window" && " (±12h)"}
+                      {viewMode === "all-taiwan" && " (all Taiwan)"}
+                    </div>
+                  </div>
+                )}
+
+                {/* full: Sliders + StyleSelector */}
+                {level === "full" && (
+                  <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>Style</span>
+                      <StyleSelector
+                        selected={mapStyleId}
+                        isDarkTheme={true}
+                        onChange={setMapStyleId}
+                      />
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {[
+                        { label: `Alt ×${altExaggeration.toFixed(1)}`, min: 1, max: 5, step: 0.5, value: altExaggeration, set: setAltExaggeration },
+                        { label: `Z +${altOffset}m`, min: 0, max: 200, step: 50, value: altOffset, set: setAltOffset },
+                        { label: `Opacity ${staticOpacity.toFixed(2)}`, min: 0.02, max: 0.5, step: 0.02, value: staticOpacity, set: setStaticOpacity },
+                        { label: `Orb ${(orbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00001, step: 0.000001, value: orbScale, set: setOrbScale },
+                        { label: `APT ${airportOpacity.toFixed(2)}`, min: 0, max: 0.3, step: 0.01, value: airportOpacity, set: setAirportOpacity },
+                        { label: `Glow ${airportGlow.toFixed(1)}`, min: 0, max: 2, step: 0.1, value: airportGlow, set: setAirportGlow },
+                      ].map((s) => (
+                        <label key={s.label} style={{
+                          color: "rgba(255,255,255,0.6)",
+                          fontSize: 11,
+                          fontFamily: "monospace",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}>
+                          <span style={{ minWidth: 90 }}>{s.label}</span>
+                          <input type="range" min={s.min} max={s.max} step={s.step} value={s.value}
+                            onChange={(e) => s.set(Number(e.target.value))}
+                            style={{ flex: 1, height: 6, accentColor: "rgba(255,255,255,0.6)" }} />
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </MobileBottomSheet>
+        </>
+      )}
+
+      {/* ── Info 面板 ── */}
+      {showInfo && (
+        <div
+          onClick={() => setShowInfo(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: 520,
+              maxHeight: "80vh",
+              overflowY: "auto",
+              background: "rgba(20,20,30,0.95)",
+              backdropFilter: "blur(20px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+              borderRadius: 16,
+              padding: isMobile ? "24px 20px" : "32px 36px",
+              color: "#fff",
+              fontFamily: "monospace",
+            }}
+          >
+            <button
+              onClick={() => setShowInfo(false)}
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+                width: 32,
+                height: 32,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.1)",
+                border: "none",
+                color: "#fff",
+                fontSize: 18,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              ✕
+            </button>
+
+            <h2 style={{ margin: "0 0 16px", fontSize: 20, letterSpacing: 2 }}>
+              Taiwan Flight Arc
+            </h2>
+
+            <section style={{ marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>ABOUT</h3>
+              <p style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(255,255,255,0.8)", margin: 0 }}>
+                台灣航班弧線視覺化 — 以 3D 弧線呈現台灣各機場的航班軌跡，
+                資料來源為 Flightradar24 公開航班紀錄，透過 Mapbox GL 繪製於互動地圖上。
+              </p>
+            </section>
+
+            <section style={{ marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>PARAMETERS</h3>
+              <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
+                <li><b>Alt ×</b> — 高度誇張倍率，數值越大弧線越高聳</li>
+                <li><b>Z offset</b> — 基礎海拔偏移（公尺），避免弧線貼地</li>
+                <li><b>Opacity</b> — 靜態航線透明度</li>
+                <li><b>Orb</b> — 飛行光球大小</li>
+                <li><b>APT</b> — 機場區域底色透明度</li>
+                <li><b>Glow</b> — 機場光暈強度</li>
+              </ul>
+            </section>
+
+            <section style={{ marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>VIEW MODES</h3>
+              <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
+                <li><b>This Airport</b> — 顯示選定機場的所有航班</li>
+                <li><b>All Taiwan</b> — 顯示全台灣所有航班</li>
+                <li><b>±12h Window</b> — 以當前時間為中心的 24 小時窗口</li>
+                <li><b>Track Single</b> — 追蹤單一航班軌跡</li>
+              </ul>
+            </section>
+
+            <section style={{ marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>DIY</h3>
+              <p style={{ fontSize: 12, lineHeight: 1.7, color: "rgba(255,255,255,0.75)", margin: 0 }}>
+                想自己做？Clone GitHub repo，準備 Mapbox token，
+                放入 FR24 航班 JSON 資料即可。詳見 README。
+              </p>
+            </section>
+
+            <section>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 8px", letterSpacing: 1 }}>LINKS</h3>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <a href="https://github.com/ianlkl11234s/flight-arc-graph" target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: 12, color: "#66aaff", textDecoration: "none" }}>
+                  GitHub
+                </a>
+                <a href="https://www.threads.com/@ianlkl1314" target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: 12, color: "#66aaff", textDecoration: "none" }}>
+                  Threads
+                </a>
+                <a href="https://mini-taiwan-learning-project.zeabur.app/" target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: 12, color: "#66aaff", textDecoration: "none" }}>
+                  Mini Taiwan
+                </a>
+              </div>
+            </section>
+          </div>
+        </div>
       )}
     </div>
   );

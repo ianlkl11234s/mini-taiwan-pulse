@@ -6,15 +6,16 @@ interface Props {
   startTime: number;
   endTime: number;
   isDarkTheme?: boolean;
+  isMobile?: boolean;
   onToggle: () => void;
   onSpeedChange: (speed: number) => void;
   onSeekByProgress: (p: number) => void;
 }
 
 const getBtnStyle = (dark: boolean): React.CSSProperties => ({
-  background: dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
-  color: dark ? "#fff" : "#333",
-  border: `1px solid ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+  background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
+  color: dark ? "rgba(220,220,220,0.9)" : "#555",
+  border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
   borderRadius: 4,
   padding: "4px 10px",
   fontSize: 14,
@@ -24,9 +25,9 @@ const getBtnStyle = (dark: boolean): React.CSSProperties => ({
 });
 
 const getSelectStyle = (dark: boolean): React.CSSProperties => ({
-  background: dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
-  color: dark ? "#fff" : "#333",
-  border: `1px solid ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+  background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
+  color: dark ? "rgba(220,220,220,0.9)" : "#555",
+  border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
   borderRadius: 4,
   padding: "4px 8px",
   fontSize: 13,
@@ -52,13 +53,14 @@ export function TimelineControls({
   startTime,
   endTime,
   isDarkTheme = true,
+  isMobile = false,
   onToggle,
   onSpeedChange,
   onSeekByProgress,
 }: Props) {
   return (
     <div
-      style={{
+      style={isMobile ? {} : {
         position: "absolute",
         bottom: 16,
         left: 16,
@@ -75,7 +77,10 @@ export function TimelineControls({
           marginBottom: 6,
         }}
       >
-        <button onClick={onToggle} style={getBtnStyle(isDarkTheme)}>
+        <button onClick={onToggle} style={{
+          ...getBtnStyle(isDarkTheme),
+          ...(isMobile ? { width: 44, height: 44, fontSize: 18, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" } : {}),
+        }}>
           {playing ? "\u23F8" : "\u25B6"}
         </button>
 
@@ -93,7 +98,7 @@ export function TimelineControls({
 
         <span
           style={{
-            color: isDarkTheme ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
+            color: isDarkTheme ? "rgba(200,200,200,0.6)" : "rgba(0,0,0,0.4)",
             fontSize: 13,
             fontFamily: "monospace",
           }}
@@ -110,13 +115,13 @@ export function TimelineControls({
         step={0.001}
         value={progress}
         onChange={(e) => onSeekByProgress(Number(e.target.value))}
-        style={{ width: "100%", accentColor: isDarkTheme ? "#66aaff" : "#3366cc" }}
+        style={{ width: "100%", height: isMobile ? 8 : undefined, accentColor: isDarkTheme ? "#aaa" : "#bbb" }}
       />
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
+          color: isDarkTheme ? "rgba(180,180,180,0.4)" : "rgba(0,0,0,0.3)",
           fontSize: 10,
           fontFamily: "monospace",
           marginTop: 2,

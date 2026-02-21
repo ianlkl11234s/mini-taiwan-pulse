@@ -5,6 +5,7 @@ interface Props {
   viewMode: ViewMode;
   selectedFlightId: string | null;
   isDarkTheme?: boolean;
+  isMobile?: boolean;
   onViewModeChange: (mode: ViewMode) => void;
   onFlightSelect: (id: string | null) => void;
 }
@@ -48,15 +49,22 @@ export function FlightPicker({
   viewMode,
   selectedFlightId,
   isDarkTheme = true,
+  isMobile = false,
   onViewModeChange,
   onFlightSelect,
 }: Props) {
   return (
-    <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+    <div style={isMobile
+      ? { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }
+      : { display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }
+    }>
       {(Object.keys(MODE_LABELS) as ViewMode[]).map((mode) => (
         <button
           key={mode}
-          style={btnStyle(viewMode === mode, isDarkTheme)}
+          style={{
+            ...btnStyle(viewMode === mode, isDarkTheme),
+            ...(isMobile ? { padding: "10px 12px", fontSize: 12 } : {}),
+          }}
           onClick={() => {
             onViewModeChange(mode);
             if (mode !== "single") onFlightSelect(null);
