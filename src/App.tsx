@@ -404,10 +404,6 @@ export default function App() {
               display: "flex",
               gap: 14,
               alignItems: "center",
-              background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
-              backdropFilter: "blur(8px)",
-              borderRadius: 8,
-              padding: "4px 12px",
             }}
           >
             <label style={getSliderLabelStyle(isDarkTheme)}>
