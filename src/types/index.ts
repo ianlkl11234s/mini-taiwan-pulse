@@ -52,3 +52,68 @@ export interface MapStyle {
   name: string;
   url: string;
 }
+
+// ── 船舶 ──
+
+export interface Ship {
+  mmsi: string;
+  vessel_type: number;
+  path: TrailPoint[]; // 復用 [lat, lng, 0, unix_ts]
+}
+
+export interface ShipData {
+  metadata: { date: string; ship_count: number; time_range: [number, number] };
+  ships: Ship[];
+}
+
+// ── 軌道運輸 ──
+
+export interface RailTrain {
+  trainId: string;
+  trackId: string;
+  position: [number, number]; // [lng, lat]
+  color: string;
+  status: "running" | "stopped";
+}
+
+export interface RailSystem {
+  id: string;
+  tracks: Map<string, GeoJSON.Feature>;
+  schedules: Map<string, RailSchedule>;
+  stationProgress: Record<string, Record<string, number>>;
+}
+
+export interface RailSchedule {
+  track_id: string;
+  route_id: string;
+  name: string;
+  train_color: string;
+  stations: string[];
+  departures: RailDeparture[];
+}
+
+export interface RailDeparture {
+  departure_time: string;
+  train_id: string;
+  total_travel_time: number;
+  stations: RailStationTime[];
+}
+
+export interface RailStationTime {
+  station_id: string;
+  arrival: number;
+  departure: number;
+}
+
+export interface RailData {
+  systems: RailSystem[];
+  allTracks: GeoJSON.FeatureCollection;
+}
+
+// ── 圖層控制 ──
+
+export interface LayerVisibility {
+  flights: boolean;
+  ships: boolean;
+  rail: boolean;
+}

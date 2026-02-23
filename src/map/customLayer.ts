@@ -1,6 +1,8 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
-import type { Flight, RenderMode } from "../types";
+import type { Flight, Ship, RailTrain, RenderMode } from "../types";
 import { FlightScene } from "../three/FlightScene";
+import { ShipScene } from "../three/ShipScene";
+import { RailScene } from "../three/RailScene";
 import { setAltExaggeration, getAltExaggeration, setAltOffset, getAltOffset } from "../utils/coordinates";
 
 export interface FlightLayerOptions {
@@ -84,6 +86,99 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
 
     onRemove() {
       flightScene.dispose();
+    },
+  };
+}
+
+// ── 船舶圖層 ──
+
+export interface ShipLayerOptions {
+  getCurrentTime: () => number;
+  getShips: () => Ship[];
+  getIsDarkTheme: () => boolean;
+  getOrbScale: () => number;
+  getMapBounds: () => { minLng: number; maxLng: number; minLat: number; maxLat: number } | null;
+  onSceneReady?: (scene: ShipScene) => void;
+}
+
+export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
+  const shipScene = new ShipScene();
+  let map: MapboxMap | null = null;
+  let lastDarkTheme = true;
+
+  return {
+    id: "ship-3d",
+    type: "custom" as const,
+    renderingMode: "3d" as const,
+
+    onAdd(mapInstance: MapboxMap, gl: WebGLRenderingContext) {
+      map = mapInstance;
+      shipScene.init(gl);
+      opts.onSceneReady?.(shipScene);
+    },
+
+    render(_gl: WebGLRenderingContext, matrix: number[]) {
+      const isDark = opts.getIsDarkTheme();
+      if (isDark !== lastDarkTheme) {
+        lastDarkTheme = isDark;
+        shipScene.setTheme(isDark);
+      }
+
+      shipScene.setOrbScale(opts.getOrbScale());
+      shipScene.setViewBounds(opts.getMapBounds());
+      shipScene.update(opts.getShips(), opts.getCurrentTime());
+      shipScene.render(matrix);
+
+      map?.triggerRepaint();
+    },
+
+    onRemove() {
+      shipScene.dispose();
+    },
+  };
+}
+
+// ── 軌道列車圖層 ──
+
+export interface RailLayerOptions {
+  getTrains: () => RailTrain[];
+  getIsDarkTheme: () => boolean;
+  getOrbScale: () => number;
+  onSceneReady?: (scene: RailScene) => void;
+}
+
+export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
+  const railScene = new RailScene();
+  let map: MapboxMap | null = null;
+  let lastDarkTheme = true;
+
+  return {
+    id: "rail-3d",
+    type: "custom" as const,
+    renderingMode: "3d" as const,
+
+    onAdd(mapInstance: MapboxMap, gl: WebGLRenderingContext) {
+      map = mapInstance;
+      railScene.init(gl);
+      opts.onSceneReady?.(railScene);
+    },
+
+    render(_gl: WebGLRenderingContext, matrix: number[]) {
+      const isDark = opts.getIsDarkTheme();
+      if (isDark !== lastDarkTheme) {
+        lastDarkTheme = isDark;
+        railScene.setTheme(isDark);
+      }
+
+      railScene.setOrbScale(opts.getOrbScale());
+      railScene.update(opts.getTrains());
+      railScene.render(matrix);
+
+      map?.triggerRepaint();
+    },
+
+    onRemove() {
+      railScene.dispose();
     },
   };
 }

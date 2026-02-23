@@ -1,19 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight, Ship, RailTrain, LayerVisibility } from "./types";
 import type { FlightScene } from "./three/FlightScene";
+import type { ShipScene } from "./three/ShipScene";
+import type { RailScene } from "./three/RailScene";
 import { MapView } from "./map/MapView";
 import { useFlightData } from "./hooks/useFlightData";
+import { useShipData } from "./hooks/useShipData";
+import { useRailData } from "./hooks/useRailData";
 import { useTimeline } from "./hooks/useTimeline";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { CAMERA_PRESETS, getPresetByIcao, getAirportInfo } from "./map/cameraPresets";
-import { createFlightLayer } from "./map/customLayer";
+import { createFlightLayer, createShipLayer, createRailLayer } from "./map/customLayer";
 import { filterByAirport, filterByTimeWindow } from "./data/flightLoader";
+import { RailEngine } from "./engines/RailEngine";
+import { updateRailTracks, removeRailTracks } from "./map/railTracks";
 import { AirportSelector } from "./components/AirportSelector";
 import { FlightPicker } from "./components/FlightPicker";
 import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
+import { LayerToggle } from "./components/LayerToggle";
 
 const getSliderLabelStyle = (dark: boolean): React.CSSProperties => ({
   color: dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
@@ -40,6 +47,29 @@ export default function App() {
     timeRange,
     loading,
   } = useFlightData();
+
+  const { ships } = useShipData();
+  const { railData } = useRailData();
+
+  // 軌道列車引擎
+  const railEngineRef = useRef<RailEngine | null>(null);
+  const [activeTrains, setActiveTrains] = useState<RailTrain[]>([]);
+
+  // 初始化 RailEngine
+  useEffect(() => {
+    if (railData) {
+      railEngineRef.current = new RailEngine(railData.systems);
+    }
+  }, [railData]);
+
+  // 圖層可見性
+  const [layerVisibility, setLayerVisibility] = useState<LayerVisibility>({
+    flights: true,
+    ships: true,
+    rail: true,
+  });
+  const layerVisibilityRef = useRef(layerVisibility);
+  layerVisibilityRef.current = layerVisibility;
 
   const [viewMode, setViewMode] = useState<ViewMode>("airport");
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
@@ -110,9 +140,15 @@ export default function App() {
   const isDarkThemeRef = useRef(isDarkTheme);
   const showTrailsRef = useRef(displayMode === "trails");
   const flightSceneRef = useRef<FlightScene | null>(null);
+  const shipSceneRef = useRef<ShipScene | null>(null);
+  const railSceneRef = useRef<RailScene | null>(null);
+  const shipsRef = useRef<Ship[]>(ships);
+  const activeTrainsRef = useRef<RailTrain[]>(activeTrains);
   const clickBoundRef = useRef(false);
 
   flightsRef.current = displayedFlights;
+  shipsRef.current = ships;
+  activeTrainsRef.current = activeTrains;
   timeRef.current = timeline.currentTime;
   renderModeRef.current = renderMode;
   altExagRef.current = altExaggeration;
@@ -150,9 +186,44 @@ export default function App() {
     map.addLayer(layer);
   };
 
+  const addShipLayer = (map: MapboxMap) => {
+    if (map.getLayer("ship-3d")) map.removeLayer("ship-3d");
+    const layer = createShipLayer({
+      getCurrentTime: () => timeRef.current,
+      getShips: () => shipsRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getOrbScale: () => orbScaleRef.current,
+      getMapBounds: () => {
+        const b = map.getBounds();
+        if (!b) return null;
+        return {
+          minLng: b.getWest(),
+          maxLng: b.getEast(),
+          minLat: b.getSouth(),
+          maxLat: b.getNorth(),
+        };
+      },
+      onSceneReady: (scene) => { shipSceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
+  const addRailLayer = (map: MapboxMap) => {
+    if (map.getLayer("rail-3d")) map.removeLayer("rail-3d");
+    const layer = createRailLayer({
+      getTrains: () => activeTrainsRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getOrbScale: () => orbScaleRef.current,
+      onSceneReady: (scene) => { railSceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
     addFlightLayer(map);
+    addShipLayer(map);
+    addRailLayer(map);
     const updateCamera = () => {
       const c = map.getCenter();
       setCameraInfo({
@@ -219,6 +290,59 @@ export default function App() {
     addFlightLayer(map);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode, selectedFlightId]);
+
+  // 每幀更新軌道列車
+  useEffect(() => {
+    if (!railEngineRef.current) return;
+    let animId: number;
+    const tick = () => {
+      const engine = railEngineRef.current;
+      if (engine) {
+        const trains = engine.update(timeRef.current);
+        activeTrainsRef.current = trains;
+        setActiveTrains(trains);
+      }
+      animId = requestAnimationFrame(tick);
+    };
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [railData]);
+
+  // 軌道靜態線
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    if (railData && layerVisibility.rail) {
+      updateRailTracks(map, railData.allTracks, isDarkTheme);
+    } else {
+      removeRailTracks(map);
+    }
+  }, [railData, isDarkTheme, layerVisibility.rail]);
+
+  // 圖層可見性 → add/remove layers
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+
+    if (layerVisibility.flights && !map.getLayer("flight-3d")) {
+      addFlightLayer(map);
+    } else if (!layerVisibility.flights && map.getLayer("flight-3d")) {
+      map.removeLayer("flight-3d");
+    }
+
+    if (layerVisibility.ships && !map.getLayer("ship-3d")) {
+      addShipLayer(map);
+    } else if (!layerVisibility.ships && map.getLayer("ship-3d")) {
+      map.removeLayer("ship-3d");
+    }
+
+    if (layerVisibility.rail && !map.getLayer("rail-3d")) {
+      addRailLayer(map);
+    } else if (!layerVisibility.rail && map.getLayer("rail-3d")) {
+      map.removeLayer("rail-3d");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layerVisibility]);
 
   // Track Single 模式：相機鎖定飛機，飛機固定在畫面中央
   useEffect(() => {
@@ -297,7 +421,7 @@ export default function App() {
           Taiwan Flight Arc
         </div>
         <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 1 }}>
-          Loading flight data...
+          Loading transport data...
         </div>
         <div
           style={{
@@ -514,7 +638,7 @@ export default function App() {
             )}
           </div>
 
-          {/* 第二列：Display Mode 切換 */}
+          {/* 第二列：Display Mode 切換 + Layer Toggle */}
           <div
             style={{
               position: "absolute",
@@ -550,6 +674,21 @@ export default function App() {
                 {mode === "trails" ? "Flight Trails" : "Live Status"}
               </button>
             ))}
+
+            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)", margin: "0 2px" }}>|</span>
+
+            <LayerToggle
+              visibility={layerVisibility}
+              isDarkTheme={isDarkTheme}
+              counts={{
+                flights: displayedFlights.length,
+                ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
+                trains: activeTrains.length,
+              }}
+              onChange={(layer) =>
+                setLayerVisibility((prev) => ({ ...prev, [layer]: !prev[layer] }))
+              }
+            />
           </div>
 
           {/* 第三列：模式選擇 */}
@@ -805,7 +944,7 @@ export default function App() {
             Right-drag to rotate · Scroll to zoom
           </div>
 
-          {/* 航班數統計 + 相機角度 */}
+          {/* 統計 + 相機角度 */}
           <div
             style={{
               position: "absolute",
@@ -826,6 +965,8 @@ export default function App() {
               }}
             >
               {displayedFlights.length} flights
+              {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
+              {layerVisibility.rail && ` · ${activeTrains.length} trains`}
               {viewMode === "time-window" && " (±12h)"}
               {viewMode === "all-taiwan" && " (all Taiwan)"}
             </div>
@@ -1015,6 +1156,8 @@ export default function App() {
                       }}
                     >
                       {displayedFlights.length} flights
+                      {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
+                      {layerVisibility.rail && ` · ${activeTrains.length} trains`}
                       {viewMode === "time-window" && " (±12h)"}
                       {viewMode === "all-taiwan" && " (all Taiwan)"}
                     </div>
