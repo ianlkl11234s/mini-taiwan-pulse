@@ -4,14 +4,14 @@ const SOURCE_ID = "rail-tracks";
 const LAYER_ID = "rail-tracks-line";
 
 /**
- * 新增或更新軌道靜態線圖層
+ * 新增或更新軌道靜態線圖層（Mapbox 2D）
  */
 export function updateRailTracks(
   map: MapboxMap,
   geojson: GeoJSON.FeatureCollection,
   isDark = true,
 ) {
-  const lineOpacity = isDark ? 0.65 : 0.5;
+  const lineOpacity = isDark ? 0.75 : 0.6;
 
   const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
 
@@ -30,13 +30,18 @@ export function updateRailTracks(
       id: LAYER_ID,
       type: "line",
       source: SOURCE_ID,
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+      },
       paint: {
         "line-color": ["get", "color"],
         "line-width": [
           "interpolate", ["linear"], ["zoom"],
-          8, 1.5,
-          12, 3,
-          16, 5,
+          6, 1,
+          10, 2.5,
+          13, 4,
+          16, 7,
         ],
         "line-opacity": lineOpacity,
       },

@@ -145,6 +145,8 @@ export interface RailLayerOptions {
   getCurrentTime: () => number;
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
+  getRailAltOffset: () => number;
+  getTrackFeatures: () => GeoJSON.FeatureCollection | null;
   onSceneReady?: (scene: RailScene) => void;
 }
 
@@ -152,6 +154,7 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
   const railScene = new RailScene();
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
+  let lastTrackFeatures: GeoJSON.FeatureCollection | null = null;
 
   return {
     id: "rail-3d",
@@ -171,7 +174,15 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
         railScene.setTheme(isDark);
       }
 
+      // 靜態軌道 GeoJSON 更新
+      const features = opts.getTrackFeatures();
+      if (features && features !== lastTrackFeatures) {
+        lastTrackFeatures = features;
+        railScene.setStaticTracks(features);
+      }
+
       railScene.setOrbScale(opts.getOrbScale());
+      railScene.setAltitudeOffset(opts.getRailAltOffset());
       railScene.update(opts.getTrains(), opts.getCurrentTime());
       railScene.render(matrix);
 

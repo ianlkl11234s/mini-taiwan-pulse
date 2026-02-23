@@ -82,6 +82,7 @@ export default function App() {
   const [airportOpacity, setAirportOpacity] = useState(0.12);
   const [airportGlow, setAirportGlow] = useState(0.8);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("trails");
+  const [railAltOffset, setRailAltOffset] = useState(0);
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [tooltipInfo, setTooltipInfo] = useState<{ flight: Flight; x: number; y: number; altitude: number | null } | null>(null);
@@ -144,6 +145,8 @@ export default function App() {
   const railSceneRef = useRef<RailScene | null>(null);
   const shipsRef = useRef<Ship[]>(ships);
   const activeTrainsRef = useRef<RailTrain[]>(activeTrains);
+  const railAltOffsetRef = useRef(railAltOffset);
+  const railDataRef = useRef(railData);
   const clickBoundRef = useRef(false);
 
   flightsRef.current = displayedFlights;
@@ -157,6 +160,8 @@ export default function App() {
   orbScaleRef.current = orbScale;
   isDarkThemeRef.current = isDarkTheme;
   showTrailsRef.current = displayMode === "trails";
+  railAltOffsetRef.current = railAltOffset;
+  railDataRef.current = railData;
 
   const showTrails = displayMode === "trails";
 
@@ -215,6 +220,8 @@ export default function App() {
       getCurrentTime: () => timeRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
       getOrbScale: () => orbScaleRef.current,
+      getRailAltOffset: () => railAltOffsetRef.current,
+      getTrackFeatures: () => railDataRef.current?.allTracks ?? null,
       onSceneReady: (scene) => { railSceneRef.current = scene; },
     });
     map.addLayer(layer);
@@ -758,6 +765,12 @@ export default function App() {
               <input type="range" min={0} max={2} step={0.1} value={airportGlow}
                 onChange={(e) => setAirportGlow(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
+            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
+              Rail Z +{railAltOffset}m
+              <input type="range" min={0} max={500} step={10} value={railAltOffset}
+                onChange={(e) => setRailAltOffset(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
+            </label>
           </div>
 
           {/* 時間軸 */}
@@ -1184,6 +1197,7 @@ export default function App() {
                         { label: `Orb ${(orbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00001, step: 0.000001, value: orbScale, set: setOrbScale },
                         { label: `APT ${airportOpacity.toFixed(2)}`, min: 0, max: 0.3, step: 0.01, value: airportOpacity, set: setAirportOpacity },
                         { label: `Glow ${airportGlow.toFixed(1)}`, min: 0, max: 2, step: 0.1, value: airportGlow, set: setAirportGlow },
+                        { label: `Rail Z +${railAltOffset}m`, min: 0, max: 500, step: 10, value: railAltOffset, set: setRailAltOffset },
                       ].map((s) => (
                         <label key={s.label} style={{
                           color: "rgba(255,255,255,0.6)",
