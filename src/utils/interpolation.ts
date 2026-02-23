@@ -52,6 +52,14 @@ export function getTrailUpToTime(
     }
   }
 
+  // cutoff 端內插（讓尾巴平滑移動，而非跳躍）
+  if (result.length > 0 && result[0]![3] > cutoffTime) {
+    const cutoffPos = interpolatePosition(path, cutoffTime);
+    if (cutoffPos) {
+      result.unshift([cutoffPos[0], cutoffPos[1], cutoffPos[2], cutoffTime]);
+    }
+  }
+
   // 加入插值的當前位置
   const currentPos = interpolatePosition(path, time);
   if (currentPos && result.length > 0) {

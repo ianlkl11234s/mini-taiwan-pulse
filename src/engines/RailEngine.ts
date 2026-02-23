@@ -187,18 +187,38 @@ export class RailEngine {
             return totalStations > 1 ? fallbackIdx / (totalStations - 1) : 0;
           };
 
+          // 環狀線特殊處理：終點站 progress 若回到 0.0（起點），強制設為 1.0
+          const fixLoopProgress = (p: number, stationIdx: number): number => {
+            if (stationIdx === dep.stations.length - 1 && stationIdx > 0 && p < 0.5) {
+              return 1.0;
+            }
+            return p;
+          };
+
           if (displayStatus === "stopped") {
-            const p = curStation
-              ? getProgress(curStation.station_id, seg.stationIndex)
-              : (totalStations > 1 ? seg.stationIndex / (totalStations - 1) : 0);
+            let p: number;
+            if (curStation) {
+              p = getProgress(curStation.station_id, seg.stationIndex);
+              p = fixLoopProgress(p, seg.stationIndex);
+            } else {
+              p = totalStations > 1 ? seg.stationIndex / (totalStations - 1) : 0;
+            }
             position = interpolateOnLineString(coords, p);
           } else {
-            const fromP = curStation
-              ? getProgress(curStation.station_id, seg.stationIndex)
-              : (totalStations > 1 ? seg.stationIndex / (totalStations - 1) : 0);
-            const toP = nextStation
-              ? getProgress(nextStation.station_id, seg.nextStationIndex)
-              : (totalStations > 1 ? seg.nextStationIndex / (totalStations - 1) : 0);
+            let fromP: number;
+            if (curStation) {
+              fromP = getProgress(curStation.station_id, seg.stationIndex);
+              fromP = fixLoopProgress(fromP, seg.stationIndex);
+            } else {
+              fromP = totalStations > 1 ? seg.stationIndex / (totalStations - 1) : 0;
+            }
+            let toP: number;
+            if (nextStation) {
+              toP = getProgress(nextStation.station_id, seg.nextStationIndex);
+              toP = fixLoopProgress(toP, seg.nextStationIndex);
+            } else {
+              toP = totalStations > 1 ? seg.nextStationIndex / (totalStations - 1) : 0;
+            }
             const actualP = fromP + (toP - fromP) * seg.segmentProgress;
             position = interpolateOnLineString(coords, actualP);
           }

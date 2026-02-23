@@ -33,6 +33,7 @@ SYSTEMS = {
     },
     "tra": {
         "tracks": "tra/tracks_od/*.geojson",
+        "tracks_golden": "tra/tracks_golden/*.geojson",
         "master_schedule": "tra/schedules_real/master_schedule.json",
         "station_progress": "tra/tracks_od/od_station_progress.json",
     },
