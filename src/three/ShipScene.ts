@@ -130,7 +130,14 @@ export class ShipScene {
     for (const ship of ships) {
       if (headCount >= this.maxInstances) break;
 
-      const pos = interpolatePosition(ship.path, currentTime);
+      // 只在船舶活動時間範圍內顯示（末端 +10 分鐘寬限）
+      const path = ship.path;
+      if (path.length === 0) continue;
+      const firstTime = path[0]![3];
+      const lastTime = path[path.length - 1]![3];
+      if (currentTime < firstTime || currentTime > lastTime + 600) continue;
+
+      const pos = interpolatePosition(path, currentTime);
       if (!pos) continue;
 
       const [lat, lng] = pos;
