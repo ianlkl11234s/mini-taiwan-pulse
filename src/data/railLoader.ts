@@ -220,12 +220,23 @@ export async function loadAllRail(): Promise<RailData> {
     })
   );
 
-  for (const result of results) {
+  // 建立 systemId → 預設色 對照表
+  const systemColorMap = new Map(RAIL_SYSTEMS.map((s) => [s.id, s.color]));
+
+  for (let i = 0; i < results.length; i++) {
+    const result = results[i]!;
     if (result.status === "fulfilled") {
       systems.push(result.value);
 
+      const defaultColor = systemColorMap.get(result.value.id) ?? "#ffffff";
+
       // 收集所有軌道 Feature 用於 Mapbox 靜態線
       for (const feature of result.value.tracks.values()) {
+        // 確保每個 Feature 都有 color 屬性（TRA/THSR 的 GeoJSON 缺少此欄位）
+        if (!feature.properties) feature.properties = {};
+        if (!feature.properties.color) {
+          feature.properties.color = defaultColor;
+        }
         allFeatures.push(feature);
       }
     }
