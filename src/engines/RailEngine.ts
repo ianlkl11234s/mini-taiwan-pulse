@@ -206,6 +206,7 @@ export class RailEngine {
           trains.push({
             trainId: dep.train_id,
             trackId,
+            systemId: system.id,
             position,
             color,
             status: displayStatus,

@@ -11,8 +11,7 @@ export function updateRailTracks(
   geojson: GeoJSON.FeatureCollection,
   isDark = true,
 ) {
-  const lineOpacity = isDark ? 0.4 : 0.35;
-  const lineWidth = 2;
+  const lineOpacity = isDark ? 0.65 : 0.5;
 
   const source = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
 
@@ -33,7 +32,12 @@ export function updateRailTracks(
       source: SOURCE_ID,
       paint: {
         "line-color": ["get", "color"],
-        "line-width": lineWidth,
+        "line-width": [
+          "interpolate", ["linear"], ["zoom"],
+          8, 1.5,
+          12, 3,
+          16, 5,
+        ],
         "line-opacity": lineOpacity,
       },
     });

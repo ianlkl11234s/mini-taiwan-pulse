@@ -142,6 +142,7 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
 
 export interface RailLayerOptions {
   getTrains: () => RailTrain[];
+  getCurrentTime: () => number;
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
   onSceneReady?: (scene: RailScene) => void;
@@ -171,7 +172,7 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
       }
 
       railScene.setOrbScale(opts.getOrbScale());
-      railScene.update(opts.getTrains());
+      railScene.update(opts.getTrains(), opts.getCurrentTime());
       railScene.render(matrix);
 
       map?.triggerRepaint();

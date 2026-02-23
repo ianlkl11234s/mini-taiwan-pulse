@@ -2,8 +2,13 @@ import * as THREE from "three";
 import type { RailTrain } from "../types";
 import { toMercator } from "../utils/coordinates";
 
+const TRAIL_DURATION = 180; // 3 分鐘 = 180 秒
+const TRAIL_SYSTEMS = new Set(["tra", "thsr"]); // 只有台鐵和高鐵有拖尾
+const MAX_TRAIL_VERTICES = 30000;
+
 /**
  * 軌道列車場景 — InstancedMesh + per-instance color
+ * TRA/THSR 列車有 3 分鐘拖尾線效果
  */
 export class RailScene {
   scene: THREE.Scene;
@@ -17,6 +22,16 @@ export class RailScene {
 
   // 快取顏色物件
   private colorCache = new Map<string, THREE.Color>();
+
+  // 拖尾線
+  private trailGeo: THREE.BufferGeometry | null = null;
+  private trailLine: THREE.LineSegments | null = null;
+  private trailPositions!: Float32Array;
+  private trailColors!: Float32Array;
+
+  // 列車位置歷史（用於拖尾）
+  private positionHistory = new Map<string, Array<{ lng: number; lat: number; time: number; color: string }>>();
+  private lastUpdateTime = 0;
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -32,6 +47,8 @@ export class RailScene {
     this.renderer.autoClear = false;
 
     const geo = new THREE.IcosahedronGeometry(1, 2);
+
+    // 主光球 Mesh
     const mat = new THREE.MeshBasicMaterial({
       transparent: true,
       opacity: 0.9,
@@ -47,15 +64,41 @@ export class RailScene {
       3,
     );
     this.scene.add(this.instancedMesh);
+
+    // 拖尾 LineSegments（per-vertex color）
+    this.trailGeo = new THREE.BufferGeometry();
+    this.trailPositions = new Float32Array(MAX_TRAIL_VERTICES * 3);
+    this.trailColors = new Float32Array(MAX_TRAIL_VERTICES * 3);
+
+    this.trailGeo.setAttribute("position", new THREE.BufferAttribute(this.trailPositions, 3));
+    this.trailGeo.setAttribute("color", new THREE.BufferAttribute(this.trailColors, 3));
+    this.trailGeo.setDrawRange(0, 0);
+
+    const trailMat = new THREE.LineBasicMaterial({
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.7,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    });
+    this.trailLine = new THREE.LineSegments(this.trailGeo, trailMat);
+    this.trailLine.frustumCulled = false;
+    this.scene.add(this.trailLine);
   }
 
   setTheme(isDark: boolean) {
     if (this.isDarkTheme === isDark) return;
     this.isDarkTheme = isDark;
+    this.colorCache.clear();
     if (this.instancedMesh) {
       const mat = this.instancedMesh.material as THREE.MeshBasicMaterial;
       mat.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
       mat.opacity = isDark ? 0.9 : 0.75;
+    }
+    if (this.trailLine) {
+      const mat = this.trailLine.material as THREE.LineBasicMaterial;
+      mat.blending = isDark ? THREE.AdditiveBlending : THREE.NormalBlending;
+      mat.opacity = isDark ? 0.7 : 0.45;
     }
   }
 
@@ -67,7 +110,6 @@ export class RailScene {
     let c = this.colorCache.get(hex);
     if (!c) {
       c = new THREE.Color(hex);
-      // 暗色主題下需要提亮顏色以配合 AdditiveBlending
       if (this.isDarkTheme) {
         c.multiplyScalar(1.5);
       }
@@ -76,18 +118,69 @@ export class RailScene {
     return c;
   }
 
-  update(trains: RailTrain[]) {
-    if (!this.instancedMesh) return;
+  update(trains: RailTrain[], currentTime?: number) {
+    if (!this.instancedMesh || !this.trailGeo) return;
+
+    const now = currentTime ?? Date.now() / 1000;
+
+    // 偵測時間跳轉（超過 5 秒差距 → 清空歷史）
+    if (Math.abs(now - this.lastUpdateTime) > 5 && this.lastUpdateTime > 0) {
+      this.positionHistory.clear();
+    }
+    this.lastUpdateTime = now;
 
     const dummy = new THREE.Matrix4();
     const baseScale = this.orbScale * 0.5;
-    let count = 0;
+    let headCount = 0;
+    let vi = 0; // trail vertex index
 
+    const positions = this.trailPositions;
+    const colors = this.trailColors;
+
+    // 記錄當前 TRA/THSR 列車位置到歷史
     for (const train of trains) {
-      if (count >= this.maxInstances) break;
+      if (!TRAIL_SYSTEMS.has(train.systemId)) continue;
+
+      const key = `${train.systemId}-${train.trainId}`;
+      let history = this.positionHistory.get(key);
+      if (!history) {
+        history = [];
+        this.positionHistory.set(key, history);
+      }
+
+      const lastEntry = history[history.length - 1];
+      if (!lastEntry || now - lastEntry.time > 0.5) {
+        history.push({
+          lng: train.position[0],
+          lat: train.position[1],
+          time: now,
+          color: train.color,
+        });
+      }
+
+      const cutoff = now - TRAIL_DURATION;
+      while (history.length > 0 && history[0]!.time < cutoff) {
+        history.shift();
+      }
+    }
+
+    // 清理不再活躍的列車歷史
+    const activeKeys = new Set(
+      trains
+        .filter((t) => TRAIL_SYSTEMS.has(t.systemId))
+        .map((t) => `${t.systemId}-${t.trainId}`),
+    );
+    for (const key of this.positionHistory.keys()) {
+      if (!activeKeys.has(key)) {
+        this.positionHistory.delete(key);
+      }
+    }
+
+    // 渲染主光球
+    for (const train of trains) {
+      if (headCount >= this.maxInstances) break;
 
       const [lng, lat] = train.position;
-      // 跳過無效位置
       if (lng === 0 && lat === 0) continue;
 
       const mc = toMercator(lat, lng, 0);
@@ -95,20 +188,60 @@ export class RailScene {
 
       dummy.makeScale(s, s, s);
       dummy.setPosition(mc.x, mc.y, mc.z);
-      this.instancedMesh.setMatrixAt(count, dummy);
+      this.instancedMesh.setMatrixAt(headCount, dummy);
 
-      // Per-instance color
       const color = this.getColor(train.color);
-      this.instancedMesh.instanceColor!.setXYZ(count, color.r, color.g, color.b);
+      this.instancedMesh.instanceColor!.setXYZ(headCount, color.r, color.g, color.b);
 
-      count++;
+      headCount++;
     }
 
-    this.instancedMesh.count = count;
+    // 渲染 TRA/THSR 拖尾線段
+    for (const [, history] of this.positionHistory) {
+      if (history.length < 2 || vi >= MAX_TRAIL_VERTICES - history.length * 2) continue;
+
+      for (let i = 0; i < history.length - 1; i++) {
+        const entryA = history[i]!;
+        const entryB = history[i + 1]!;
+        const progressA = i / (history.length - 1);
+        const progressB = (i + 1) / (history.length - 1);
+
+        const mcA = toMercator(entryA.lat, entryA.lng, 0);
+        const mcB = toMercator(entryB.lat, entryB.lng, 0);
+
+        const colorObj = this.getColor(entryA.color);
+
+        // 頂點 A
+        positions[vi * 3] = mcA.x;
+        positions[vi * 3 + 1] = mcA.y;
+        positions[vi * 3 + 2] = mcA.z;
+        const bA = 0.15 + 0.85 * progressA;
+        colors[vi * 3] = colorObj.r * bA;
+        colors[vi * 3 + 1] = colorObj.g * bA;
+        colors[vi * 3 + 2] = colorObj.b * bA;
+        vi++;
+
+        // 頂點 B
+        positions[vi * 3] = mcB.x;
+        positions[vi * 3 + 1] = mcB.y;
+        positions[vi * 3 + 2] = mcB.z;
+        const bB = 0.15 + 0.85 * progressB;
+        colors[vi * 3] = colorObj.r * bB;
+        colors[vi * 3 + 1] = colorObj.g * bB;
+        colors[vi * 3 + 2] = colorObj.b * bB;
+        vi++;
+      }
+    }
+
+    this.instancedMesh.count = headCount;
     this.instancedMesh.instanceMatrix.needsUpdate = true;
     if (this.instancedMesh.instanceColor) {
       (this.instancedMesh.instanceColor as THREE.InstancedBufferAttribute).needsUpdate = true;
     }
+
+    this.trailGeo.setDrawRange(0, vi);
+    (this.trailGeo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
+    (this.trailGeo.attributes.color as THREE.BufferAttribute).needsUpdate = true;
   }
 
   render(matrix: number[]) {
@@ -140,7 +273,15 @@ export class RailScene {
       (this.instancedMesh.material as THREE.Material).dispose();
       this.instancedMesh = null;
     }
+    if (this.trailLine) {
+      this.scene.remove(this.trailLine);
+      this.trailGeo?.dispose();
+      (this.trailLine.material as THREE.Material).dispose();
+      this.trailLine = null;
+      this.trailGeo = null;
+    }
     this.renderer?.dispose();
     this.colorCache.clear();
+    this.positionHistory.clear();
   }
 }

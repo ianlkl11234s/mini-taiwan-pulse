@@ -212,6 +212,7 @@ export default function App() {
     if (map.getLayer("rail-3d")) map.removeLayer("rail-3d");
     const layer = createRailLayer({
       getTrains: () => activeTrainsRef.current,
+      getCurrentTime: () => timeRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
       getOrbScale: () => orbScaleRef.current,
       onSceneReady: (scene) => { railSceneRef.current = scene; },

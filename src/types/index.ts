@@ -71,6 +71,7 @@ export interface ShipData {
 export interface RailTrain {
   trainId: string;
   trackId: string;
+  systemId: string; // "trtc" | "thsr" | "tra" | "krtc" | "klrt" | "tmrt"
   position: [number, number]; // [lng, lat]
   color: string;
   status: "running" | "stopped";

@@ -117,7 +117,11 @@ async function loadTraSchedules(): Promise<Map<string, RailSchedule>> {
 async function loadGenericSchedules(systemId: string, fileName: string): Promise<Map<string, RailSchedule>> {
   const map = new Map<string, RailSchedule>();
 
-  const data = await fetchJSON(`/rail/${systemId}/schedules/${fileName}.json`);
+  // KRTC/KLRT/TMRT 的時刻表直接放在系統根目錄（不在 schedules/ 子目錄）
+  let data = await fetchJSON(`/rail/${systemId}/${fileName}.json`);
+  if (!data) {
+    data = await fetchJSON(`/rail/${systemId}/schedules/${fileName}.json`);
+  }
   if (!data) return map;
 
   // 格式：{ "trackId": { ...schedule } } 或直接 array
