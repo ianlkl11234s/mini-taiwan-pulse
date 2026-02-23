@@ -82,10 +82,10 @@ export default function App() {
   const [airportOpacity, setAirportOpacity] = useState(0.12);
   const [airportGlow, setAirportGlow] = useState(0.8);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("trails");
-  const [railAltOffset, setRailAltOffset] = useState(0);
-  const [railOrbScale, setRailOrbScale] = useState(0.000005);
-  const [railTrackOpacity, setRailTrackOpacity] = useState(0.75);
-  const [shipOrbScale, setShipOrbScale] = useState(0.000005);
+  const [railAltOffset, setRailAltOffset] = useState(110);
+  const [railOrbScale, setRailOrbScale] = useState(0.00001);
+  const [railTrackOpacity, setRailTrackOpacity] = useState(0.35);
+  const [shipOrbScale, setShipOrbScale] = useState(0.000007);
   const [shipTrailOpacity, setShipTrailOpacity] = useState(0.8);
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);

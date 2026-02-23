@@ -27,6 +27,22 @@ OUTPUT_PATH = os.path.join(
 MIN_MOVING_POINTS = 5  # 至少 5 個 sog > 0.5 的位置點
 SOG_THRESHOLD = 0.5
 
+# 台灣周邊海域 bounding box
+BOUNDS_LAT_MIN = 20.0
+BOUNDS_LAT_MAX = 28.0
+BOUNDS_LNG_MIN = 116.0
+BOUNDS_LNG_MAX = 126.0
+
+# 異常速度過濾：隱含速度超過此值的點視為 GPS 異常
+MAX_SPEED_KNOTS = 40  # 40 節 ≈ 74 km/h，一般商船 < 25 節
+KM_PER_DEG_LAT = 111.0
+KM_PER_DEG_LNG = 101.0  # 台灣緯度約 24° → cos(24°) × 111
+
+# 無效 MMSI 清單（測試/異常 AIS 信號）
+INVALID_MMSI = {0, 111111111, 222222222, 333333333, 444444444,
+                555555555, 666666666, 777777777, 888888888, 999999999,
+                123456789}
+
 TW_TZ = timezone(timedelta(hours=8))
 
 
@@ -78,18 +94,19 @@ def main():
 
     date_filter, date_params = build_date_filter(dates)
 
-    # Step 1: 找出有足夠移動資料點的船舶 MMSI
+    # Step 1: 找出有足夠移動資料點的船舶 MMSI（限台灣周邊海域）
     cursor.execute(f"""
         SELECT mmsi, COUNT(*) as moving_count
         FROM ship_positions
         WHERE {date_filter} AND sog > ?
+          AND lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?
         GROUP BY mmsi
         HAVING moving_count >= ?
         ORDER BY moving_count DESC
-    """, date_params + [SOG_THRESHOLD, MIN_MOVING_POINTS])
+    """, date_params + [SOG_THRESHOLD, BOUNDS_LAT_MIN, BOUNDS_LAT_MAX, BOUNDS_LNG_MIN, BOUNDS_LNG_MAX, MIN_MOVING_POINTS])
 
-    qualifying_mmsis = cursor.fetchall()
-    print(f"Found {len(qualifying_mmsis)} qualifying ships")
+    qualifying_mmsis = [row for row in cursor.fetchall() if row[0] not in INVALID_MMSI]
+    print(f"Found {len(qualifying_mmsis)} qualifying ships (after MMSI filter)")
 
     if not qualifying_mmsis:
         print("No ships found!")
@@ -104,16 +121,18 @@ def main():
         SELECT mmsi, vessel_type, timestamp, lat, lon, sog
         FROM ship_positions
         WHERE {date_filter} AND mmsi IN ({placeholders})
+          AND lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?
         ORDER BY mmsi, timestamp
-    """, date_params + mmsi_list)
+    """, date_params + mmsi_list + [BOUNDS_LAT_MIN, BOUNDS_LAT_MAX, BOUNDS_LNG_MIN, BOUNDS_LNG_MAX])
 
     rows = cursor.fetchall()
     print(f"Total data points: {len(rows)}")
 
-    # Step 3: 組裝成 ship 物件
+    # Step 3: 組裝成 ship 物件（含 GPS 跳躍過濾）
     ships_dict: dict = {}
     min_ts = float("inf")
     max_ts = float("-inf")
+    filtered_points = 0
 
     for mmsi, vessel_type, timestamp, lat, lon, sog in rows:
         unix_ts = iso_to_unix(timestamp)
@@ -126,15 +145,32 @@ def main():
                 "vessel_type": vessel_type or 0,
                 "path": [],
             }
+
+        path = ships_dict[mmsi]["path"]
+
+        # GPS 異常過濾：計算隱含速度，超過閾值則跳過
+        if path:
+            last = path[-1]
+            dt_hours = (unix_ts - last[3]) / 3600.0
+            if dt_hours > 0:
+                dist_km = ((lat - last[0]) * KM_PER_DEG_LAT) ** 2 + \
+                          ((lon - last[1]) * KM_PER_DEG_LNG) ** 2
+                dist_km = dist_km ** 0.5
+                speed_knots = (dist_km / dt_hours) / 1.852
+                if speed_knots > MAX_SPEED_KNOTS:
+                    filtered_points += 1
+                    continue
+
         # TrailPoint 格式: [lat, lng, 0, unix_timestamp]
-        ships_dict[mmsi]["path"].append([
+        path.append([
             round(lat, 6),
             round(lon, 6),
             0,
             unix_ts,
         ])
 
-    ships = list(ships_dict.values())
+    # 過濾掉資料點太少的船
+    ships = [s for s in ships_dict.values() if len(s["path"]) >= MIN_MOVING_POINTS]
 
     # 按資料點數排序
     ships.sort(key=lambda s: len(s["path"]), reverse=True)
@@ -153,6 +189,7 @@ def main():
         json.dump(result, f, separators=(",", ":"))
 
     file_size = os.path.getsize(OUTPUT_PATH)
+    print(f"Filtered {filtered_points} anomalous points (speed > {MAX_SPEED_KNOTS} knots)")
     print(f"\nOutput: {OUTPUT_PATH}")
     print(f"Ships: {len(ships)}, Size: {file_size / 1024 / 1024:.1f} MB")
     print(f"Time range: {datetime.fromtimestamp(min_ts, TW_TZ)} ~ {datetime.fromtimestamp(max_ts, TW_TZ)}")
