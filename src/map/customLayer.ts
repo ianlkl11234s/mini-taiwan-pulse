@@ -97,6 +97,7 @@ export interface ShipLayerOptions {
   getShips: () => Ship[];
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
+  getTrailOpacity: () => number;
   getMapBounds: () => { minLng: number; maxLng: number; minLat: number; maxLat: number } | null;
   onSceneReady?: (scene: ShipScene) => void;
 }
@@ -125,6 +126,7 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
       }
 
       shipScene.setOrbScale(opts.getOrbScale());
+      shipScene.setTrailOpacity(opts.getTrailOpacity());
       shipScene.setViewBounds(opts.getMapBounds());
       shipScene.update(opts.getShips(), opts.getCurrentTime());
       shipScene.render(matrix);
@@ -145,6 +147,7 @@ export interface RailLayerOptions {
   getCurrentTime: () => number;
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
+  getTrackOpacity: () => number;
   getRailAltOffset: () => number;
   getTrackFeatures: () => GeoJSON.FeatureCollection | null;
   onSceneReady?: (scene: RailScene) => void;
@@ -182,6 +185,7 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
       }
 
       railScene.setOrbScale(opts.getOrbScale());
+      railScene.setTrackOpacity(opts.getTrackOpacity());
       railScene.setAltitudeOffset(opts.getRailAltOffset());
       railScene.update(opts.getTrains(), opts.getCurrentTime());
       railScene.render(matrix);

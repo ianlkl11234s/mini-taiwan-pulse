@@ -226,6 +226,16 @@ export async function loadAllRail(): Promise<RailData> {
   for (let i = 0; i < results.length; i++) {
     const result = results[i]!;
     if (result.status === "fulfilled") {
+      // 排除貓空纜車 (MK-*)
+      if (result.value.id === "trtc") {
+        for (const key of result.value.schedules.keys()) {
+          if (key.startsWith("MK-")) result.value.schedules.delete(key);
+        }
+        for (const key of result.value.tracks.keys()) {
+          if (key.startsWith("MK-")) result.value.tracks.delete(key);
+        }
+      }
+
       systems.push(result.value);
 
       const defaultColor = systemColorMap.get(result.value.id) ?? "#ffffff";

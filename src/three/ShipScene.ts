@@ -7,7 +7,7 @@ const SHIP_COLOR_DARK = new THREE.Color(0.1, 0.85, 0.9); // 青藍
 const SHIP_COLOR_LIGHT = new THREE.Color(0.0, 0.3, 0.45); // 深青
 
 const TRAIL_DURATION = 1800; // 0.5 小時 = 1800 秒
-const MAX_TRAIL_VERTICES = 60000; // LineSegments 頂點上限
+const MAX_TRAIL_VERTICES = 200000; // LineSegments 頂點上限
 
 /**
  * 船舶場景 — InstancedMesh 光球 + LineSegments 拖尾線
@@ -18,7 +18,7 @@ export class ShipScene {
   renderer!: THREE.WebGLRenderer;
 
   private instancedMesh: THREE.InstancedMesh | null = null;
-  private maxInstances = 2500;
+  private maxInstances = 12000;
   private isDarkTheme = true;
   private orbScale = 0.000005;
   private breathPhase = 0;
@@ -99,6 +99,12 @@ export class ShipScene {
 
   setOrbScale(scale: number) {
     this.orbScale = scale;
+  }
+
+  setTrailOpacity(opacity: number) {
+    if (!this.trailLine) return;
+    const mat = this.trailLine.material as THREE.LineBasicMaterial;
+    mat.opacity = opacity;
   }
 
   setViewBounds(bounds: { minLng: number; maxLng: number; minLat: number; maxLat: number } | null) {

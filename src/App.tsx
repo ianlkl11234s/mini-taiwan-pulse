@@ -83,6 +83,10 @@ export default function App() {
   const [airportGlow, setAirportGlow] = useState(0.8);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("trails");
   const [railAltOffset, setRailAltOffset] = useState(0);
+  const [railOrbScale, setRailOrbScale] = useState(0.000005);
+  const [railTrackOpacity, setRailTrackOpacity] = useState(0.75);
+  const [shipOrbScale, setShipOrbScale] = useState(0.000005);
+  const [shipTrailOpacity, setShipTrailOpacity] = useState(0.8);
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [tooltipInfo, setTooltipInfo] = useState<{ flight: Flight; x: number; y: number; altitude: number | null } | null>(null);
@@ -146,6 +150,10 @@ export default function App() {
   const shipsRef = useRef<Ship[]>(ships);
   const activeTrainsRef = useRef<RailTrain[]>(activeTrains);
   const railAltOffsetRef = useRef(railAltOffset);
+  const railOrbScaleRef = useRef(railOrbScale);
+  const railTrackOpacityRef = useRef(railTrackOpacity);
+  const shipOrbScaleRef = useRef(shipOrbScale);
+  const shipTrailOpacityRef = useRef(shipTrailOpacity);
   const railDataRef = useRef(railData);
   const clickBoundRef = useRef(false);
 
@@ -161,6 +169,10 @@ export default function App() {
   isDarkThemeRef.current = isDarkTheme;
   showTrailsRef.current = displayMode === "trails";
   railAltOffsetRef.current = railAltOffset;
+  railOrbScaleRef.current = railOrbScale;
+  railTrackOpacityRef.current = railTrackOpacity;
+  shipOrbScaleRef.current = shipOrbScale;
+  shipTrailOpacityRef.current = shipTrailOpacity;
   railDataRef.current = railData;
 
   const showTrails = displayMode === "trails";
@@ -197,7 +209,8 @@ export default function App() {
       getCurrentTime: () => timeRef.current,
       getShips: () => shipsRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
-      getOrbScale: () => orbScaleRef.current,
+      getOrbScale: () => shipOrbScaleRef.current,
+      getTrailOpacity: () => shipTrailOpacityRef.current,
       getMapBounds: () => {
         const b = map.getBounds();
         if (!b) return null;
@@ -219,7 +232,8 @@ export default function App() {
       getTrains: () => activeTrainsRef.current,
       getCurrentTime: () => timeRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
-      getOrbScale: () => orbScaleRef.current,
+      getOrbScale: () => railOrbScaleRef.current,
+      getTrackOpacity: () => railTrackOpacityRef.current,
       getRailAltOffset: () => railAltOffsetRef.current,
       getTrackFeatures: () => railDataRef.current?.allTracks ?? null,
       onSceneReady: (scene) => { railSceneRef.current = scene; },
@@ -722,7 +736,7 @@ export default function App() {
             />
           </div>
 
-          {/* 第四列：視覺參數調整 */}
+          {/* 第四列：飛行視覺參數 */}
           <div
             style={{
               position: "absolute",
@@ -765,11 +779,45 @@ export default function App() {
               <input type="range" min={0} max={2} step={0.1} value={airportGlow}
                 onChange={(e) => setAirportGlow(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
-            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
+          </div>
+
+          {/* 第五列：Rail + Ship 參數 */}
+          <div
+            style={{
+              position: "absolute",
+              top: 140,
+              left: 16,
+              zIndex: 10,
+              display: "flex",
+              gap: 14,
+              alignItems: "center",
+            }}
+          >
             <label style={getSliderLabelStyle(isDarkTheme)}>
               Rail Z +{railAltOffset}m
               <input type="range" min={0} max={500} step={10} value={railAltOffset}
                 onChange={(e) => setRailAltOffset(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
+            </label>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
+              Rail Orb {(railOrbScale * 100000).toFixed(1)}
+              <input type="range" min={0.000001} max={0.00002} step={0.000001} value={railOrbScale}
+                onChange={(e) => setRailOrbScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
+            </label>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
+              Rail Trk {railTrackOpacity.toFixed(2)}
+              <input type="range" min={0.05} max={1} step={0.05} value={railTrackOpacity}
+                onChange={(e) => setRailTrackOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
+            </label>
+            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
+              Ship Orb {(shipOrbScale * 100000).toFixed(1)}
+              <input type="range" min={0.000001} max={0.00002} step={0.000001} value={shipOrbScale}
+                onChange={(e) => setShipOrbScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
+            </label>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
+              Ship Trail {shipTrailOpacity.toFixed(2)}
+              <input type="range" min={0.05} max={1} step={0.05} value={shipTrailOpacity}
+                onChange={(e) => setShipTrailOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
           </div>
 
@@ -962,7 +1010,7 @@ export default function App() {
           <div
             style={{
               position: "absolute",
-              top: 144,
+              top: 168,
               left: 16,
               zIndex: 10,
               background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
@@ -1198,6 +1246,10 @@ export default function App() {
                         { label: `APT ${airportOpacity.toFixed(2)}`, min: 0, max: 0.3, step: 0.01, value: airportOpacity, set: setAirportOpacity },
                         { label: `Glow ${airportGlow.toFixed(1)}`, min: 0, max: 2, step: 0.1, value: airportGlow, set: setAirportGlow },
                         { label: `Rail Z +${railAltOffset}m`, min: 0, max: 500, step: 10, value: railAltOffset, set: setRailAltOffset },
+                        { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00002, step: 0.000001, value: railOrbScale, set: setRailOrbScale },
+                        { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, min: 0.05, max: 1, step: 0.05, value: railTrackOpacity, set: setRailTrackOpacity },
+                        { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00002, step: 0.000001, value: shipOrbScale, set: setShipOrbScale },
+                        { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, min: 0.05, max: 1, step: 0.05, value: shipTrailOpacity, set: setShipTrailOpacity },
                       ].map((s) => (
                         <label key={s.label} style={{
                           color: "rgba(255,255,255,0.6)",

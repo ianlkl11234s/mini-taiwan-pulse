@@ -26,7 +26,6 @@ OUTPUT_PATH = os.path.join(
 
 MIN_MOVING_POINTS = 5  # 至少 5 個 sog > 0.5 的位置點
 SOG_THRESHOLD = 0.5
-MAX_SHIPS = 2000
 
 TW_TZ = timezone(timedelta(hours=8))
 
@@ -87,8 +86,7 @@ def main():
         GROUP BY mmsi
         HAVING moving_count >= ?
         ORDER BY moving_count DESC
-        LIMIT ?
-    """, date_params + [SOG_THRESHOLD, MIN_MOVING_POINTS, MAX_SHIPS])
+    """, date_params + [SOG_THRESHOLD, MIN_MOVING_POINTS])
 
     qualifying_mmsis = cursor.fetchall()
     print(f"Found {len(qualifying_mmsis)} qualifying ships")

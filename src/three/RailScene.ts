@@ -220,6 +220,15 @@ export class RailScene {
     this.orbScale = scale;
   }
 
+  setTrackOpacity(opacity: number) {
+    if (this.staticTrackLine) {
+      (this.staticTrackLine.material as THREE.LineBasicMaterial).opacity = opacity;
+    }
+    if (this.trailLine) {
+      (this.trailLine.material as THREE.LineBasicMaterial).opacity = opacity * 0.9;
+    }
+  }
+
   private getColor(hex: string): THREE.Color {
     let c = this.colorCache.get(hex);
     if (!c) {
