@@ -1,6 +1,6 @@
 # Taiwan Flight Arc
 
-航班軌跡生成式藝術（Generative Art）視覺化。以台灣機場為中心，將航班起降軌跡轉化為光軌藝術作品。
+台灣交通動態視覺化 — 以 3D 弧線、光球、拖尾光軌呈現航班、船舶、軌道列車的即時移動。
 
 ## Screenshots
 
@@ -8,15 +8,41 @@
 ![RCQC - 澎湖馬公機場（All Taiwan）](screenshots/RCQC-all-taiwan.png)
 ![全台航班廣角全景](screenshots/all-flights-globe.png)
 
-## 視覺概念
+## 三種交通工具
+
+| 圖層 | 渲染方式 | 資料來源 |
+|------|---------|---------|
+| 航班 | 3D 弧線 + 光球 + 彗尾光軌 + 靜態軌跡 | FlightRadar24 API |
+| 船舶 | InstancedMesh 光球 + LineSegments 拖尾線 | AIS 船舶資料（ship-gis SQLite） |
+| 軌道 | 3D 靜態軌道線 + InstancedMesh 列車光球 + 拖尾線 | mini-taipei-v3 時刻表 + GeoJSON |
+
+### 航班
 
 - **光軌**：航班軌跡以彗尾狀漸層光軌呈現，additive blending 疊加自然增亮
-- **光球**：每架飛機以多層發光球體標示當前位置，搭配呼吸動畫
-- **閃爍燈**：紅色雙閃警示燈，模擬真實防撞燈號
-- **靜態軌跡**：全部航班路徑同時顯示，3D 模式依高度著色（暖橘→冷藍），2D 模式每航班隨機配色
+- **光球**：多層發光球體標示當前位置，搭配呼吸動畫 + 紅色防撞閃爍燈
+- **靜態軌跡**：3D 模式依高度著色（暖橘→冷藍），2D 模式每航班隨機配色
+
+### 船舶
+
+- **光球**：青藍色 InstancedMesh，視口剔除（bounds check），呼吸動畫
+- **拖尾線**：LineSegments per-vertex color gradient（30 分鐘遞延）
+- **時間範圍過濾**：僅顯示路徑時間範圍內的船舶（末端 +10 分鐘寬限）
+- **GPS 異常過濾**：匯出時排除隱含速度 >40 節的異常跳躍點
+
+### 軌道列車
+
+- **6 個系統**：台北捷運（TRTC）、高鐵（THSR）、台鐵（TRA）、高雄捷運（KRTC）、高雄輕軌（KLRT）、台中捷運（TMRT）
+- **靜態軌道**：Three.js 3D LineSegments，支援 Z 軸偏移（Rail Z 滑桿）
+- **列車光球**：per-instance color，各系統不同顏色
+- **拖尾線**：台鐵 + 高鐵專屬（3 分鐘遞延）
+- **排除**：貓空纜車（MK-*）
+
+## 視覺概念
+
 - **機場邊界**：OSM 機場多邊形，暗色主題白色填充 + 光暈，亮色主題金黃色填充 + 光暈
-- **主題適應**：所有 UI 元件與視覺效果自動適應底圖明暗，亮色底圖使用深色 UI、Normal blending 軌跡
+- **主題適應**：所有 UI 元件與視覺效果自動適應底圖明暗
 - **拍攝模式**：一鍵隱藏 UI，暗角 vignette 效果，適合截圖輸出
+- **圖層開關**：Flight / Ship / Rail 各自獨立開關，顯示活躍數量
 
 ## 功能
 
@@ -29,44 +55,40 @@
 | ±12h Window | 當前時間前後 12 小時 |
 | Track Single | 追蹤單一航班 |
 
-### 渲染模式
-
-| 模式 | 靜態軌跡 | 特色 |
-|------|---------|------|
-| 3D Altitude | Three.js LineSegments | 航線有高度，依海拔著色漸變 |
-| 2D Flat | Mapbox 原生 line layer | 平面俯瞰，每航班獨立配色 |
-
 ### 即時參數調整
+
+**第一排 — 航班參數**
 
 | 控制項 | 說明 |
 |--------|------|
 | Alt ×1.0~5.0 | 高度誇張倍率 |
-| Z +0~200m | 基準高度偏移（避免被地形遮擋） |
+| Z +0~200m | 基準高度偏移 |
 | Opacity | 靜態軌跡不透明度 |
-| Orb | 光球大小 |
+| Orb | 航班光球大小 |
 | APT | 機場填充不透明度 |
 | Glow | 機場光暈強度 |
 
+**第二排 — 軌道 + 船舶參數**
+
+| 控制項 | 說明 |
+|--------|------|
+| Rail Z | 軌道 Z 軸偏移（公尺） |
+| Rail Orb | 列車光球大小 |
+| Rail Trk | 軌道線 + 拖尾線透明度 |
+| Ship Orb | 船舶光球大小 |
+| Ship Trail | 船舶拖尾線透明度 |
+
 ### 其他
 
-- 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Navigation Night 等），切換底圖自動重建所有圖層
+- 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Navigation Night 等）
 - 14 座台灣機場預設視角，選單顯示中文名稱與 IATA 代碼
-- 時間軸播放控制（30x~600x 加速），配色隨底圖明暗自適應（暗色灰調 / 亮色白調）
-- Capture 拍攝模式（暗角 vignette + 機場名稱 + 時間標記，ESC 或觸控 ✕ 退出）
-- Info 面板：網站使用說明、參數介紹、資料來源、DIY 指引
-- 外部連結：[GitHub](https://github.com/ianlkl11234s/flight-arc-graph) / [Threads](https://www.threads.com/@ianlkl1314) / [Mini Taiwan](https://mini-taiwan-learning-project.zeabur.app/)
+- 時間軸播放控制（30x~600x 加速）
+- Capture 拍攝模式（暗角 vignette + 機場名稱 + 時間標記）
+- Info 面板 + 外部連結
 
-### 手機版適配（Responsive）
+### 手機版適配
 
-在 768px 以下自動切換為手機版 layout，最大化地圖可視區域：
-
-- **Compact Header**（44px）：機場選擇 + Info / Capture / 3D 切換
-- **Timeline Bar**：固定在 header 下方，Play 按鈕 44×44 觸控友善，scrubber 加粗至 8px
-- **Bottom Sheet**：三段展開（收合 → 半開含 FlightPicker → 全開含 Sliders + StyleSelector）
-- **Capture 模式**：右上角 48×48 圓形 ✕ 按鈕（取代 ESC 文字），標題縮小適配
-- **FlightPicker**：手機版 2×2 grid layout，按鈕加大觸控區域
-- **Safe Area**：適配 iPhone Home Indicator（`env(safe-area-inset-bottom)`）
-- **Viewport**：`viewport-fit=cover, user-scalable=no`，確保 Mapbox 正確接收手勢
+768px 以下自動切換：Compact Header、Timeline Bar、三段式 Bottom Sheet、Safe Area 適配。
 
 ## 技術棧
 
@@ -74,25 +96,36 @@
 |------|------|------|
 | 框架 | React 19 + TypeScript + Vite | 應用骨架 |
 | 地圖 | Mapbox GL JS v3 | 3D terrain、底圖、相機控制 |
-| 3D 渲染 | Three.js r172 | 光軌、光球、閃爍燈、靜態軌跡 |
+| 3D 渲染 | Three.js r172 | 光軌、光球、InstancedMesh、LineSegments |
 | Shader | GLSL | 光軌漸層材質 |
-| 資料 | FlightRadar24 | `[lat, lng, alt_m, timestamp]` 軌跡格式 |
+| 航班資料 | FlightRadar24 API | `[lat, lng, alt_m, timestamp]` 軌跡格式 |
+| 船舶資料 | AIS / ship-gis SQLite | 台灣周邊海域船舶位置 |
+| 軌道資料 | mini-taipei-v3 | 時刻表 + GeoJSON 軌道 |
 | 地理 | OpenStreetMap / Overpass API | 機場邊界多邊形 |
 
 ## 架構
 
 ### Three.js + Mapbox 整合
 
-透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景。Mapbox 負責地圖 + 相機，Three.js 負責光軌渲染，座標透過 `MercatorCoordinate` 同步。
+透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景。三個獨立 CustomLayer 分別管理飛機、船舶、軌道列車。
 
 ```
 Mapbox GL JS（底圖 + 3D terrain + 相機控制）
-  └── CustomLayer（renderingMode: '3d'）
-        └── Three.js Scene
-              ├── Static Trails（LineSegments, per-vertex altitude color）
-              ├── LightTrail（GLSL gradient shader trail）
-              ├── LightOrb（IcosahedronGeometry + AdditiveBlending）
-              └── BlinkingLight（red flash mesh）
+  ├── CustomLayer: flight-3d
+  │     └── FlightScene
+  │           ├── Static Trails（LineSegments, per-vertex altitude color）
+  │           ├── LightTrail（GLSL gradient shader trail）
+  │           ├── LightOrb（IcosahedronGeometry + AdditiveBlending）
+  │           └── BlinkingLight（red flash mesh）
+  ├── CustomLayer: ship-3d
+  │     └── ShipScene
+  │           ├── InstancedMesh（光球 + 呼吸動畫）
+  │           └── LineSegments（拖尾線 per-vertex color gradient）
+  └── CustomLayer: rail-3d
+        └── RailScene
+              ├── InstancedMesh（列車光球 per-instance color）
+              ├── LineSegments（TRA/THSR 拖尾線）
+              └── LineSegments（靜態軌道 3D 線段）
 ```
 
 ### 專案結構
@@ -100,81 +133,124 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
 ```
 Taiwan Flight Arc/
 ├── public/
-│   ├── aviation_data.json        # FR24 航班軌跡（gitignored，由腳本產生）
-│   └── airports.geojson          # OSM 台灣機場邊界（13 座）
+│   ├── aviation_data.json        # FR24 航班軌跡（gitignored）
+│   ├── ship_data.json            # AIS 船舶軌跡（gitignored）
+│   ├── rail/                     # 軌道時刻表 + GeoJSON（gitignored）
+│   └── airports.geojson          # OSM 台灣機場邊界
 ├── scripts/
-│   ├── fetch-flights.ts          # Step 1: 航班清單擷取
-│   └── fetch-tracks.ts           # Step 2: 飛行軌跡擷取
-├── screenshots/                   # 截圖展示
+│   ├── fetch-flights.ts          # 航班清單擷取
+│   ├── fetch-tracks.ts           # 飛行軌跡擷取
+│   ├── export-ship-data.py       # 從 ship-gis SQLite 匯出船舶資料
+│   └── export-rail-data.py       # 從 mini-taipei-v3 複製軌道資料
 ├── src/
-│   ├── App.tsx                   # 主應用 + 所有狀態管理 + UI
+│   ├── App.tsx                   # 主應用 + 狀態管理 + UI
 │   ├── types/index.ts            # 型別定義
 │   ├── data/
-│   │   └── flightLoader.ts       # 資料載入、篩選
+│   │   ├── flightLoader.ts       # 航班資料載入、篩選、前處理
+│   │   ├── shipLoader.ts         # 船舶資料載入
+│   │   └── railLoader.ts         # 軌道資料載入（6 系統）
+│   ├── engines/
+│   │   └── RailEngine.ts         # 軌道列車插值引擎
 │   ├── map/
 │   │   ├── MapView.tsx           # Mapbox 容器 + 機場圖層
-│   │   ├── customLayer.ts        # CustomLayer ↔ Three.js 橋接
+│   │   ├── customLayer.ts        # CustomLayer ↔ Three.js 橋接（3 圖層）
 │   │   ├── staticTrails.ts       # 2D Mapbox 原生軌跡圖層
+│   │   ├── railTracks.ts         # 軌道 Mapbox 2D 線圖層
 │   │   └── cameraPresets.ts      # 台灣機場視角預設
 │   ├── three/
-│   │   ├── FlightScene.ts        # 場景管理器（靜態 + 動態軌跡）
+│   │   ├── FlightScene.ts        # 航班場景（靜態 + 動態軌跡）
+│   │   ├── ShipScene.ts          # 船舶場景（InstancedMesh + LineSegments）
+│   │   ├── RailScene.ts          # 軌道場景（靜態軌道 + 列車 + 拖尾）
 │   │   ├── LightOrb.ts           # 多層球體光球
 │   │   ├── LightTrail.ts         # GLSL 光軌渲染
 │   │   ├── BlinkingLight.ts      # 紅色閃爍燈
 │   │   └── shaders/              # GLSL vertex/fragment shaders
 │   ├── hooks/
-│   │   ├── useFlightData.ts      # 資料載入 hook
+│   │   ├── useFlightData.ts      # 航班資料 hook
+│   │   ├── useShipData.ts        # 船舶資料 hook
+│   │   ├── useRailData.ts        # 軌道資料 hook
 │   │   ├── useTimeline.ts        # 時間軸播放 hook
-│   │   └── useIsMobile.ts        # 響應式斷點偵測（768px）+ 橫向模式
+│   │   └── useIsMobile.ts        # 響應式偵測
 │   ├── components/
 │   │   ├── AirportSelector.tsx
-│   │   ├── FlightPicker.tsx       # 支援 isMobile（2×2 grid）
-│   │   ├── TimelineControls.tsx   # 支援 isMobile（加大觸控區）
+│   │   ├── FlightPicker.tsx
+│   │   ├── TimelineControls.tsx
 │   │   ├── StyleSelector.tsx
-│   │   └── MobileBottomSheet.tsx  # 手機版三段式底部面板
+│   │   ├── LayerToggle.tsx       # Flight / Ship / Rail 圖層開關
+│   │   └── MobileBottomSheet.tsx
 │   └── utils/
-│       ├── coordinates.ts        # MercatorCoordinate 轉換 + 動態高度參數
+│       ├── coordinates.ts        # MercatorCoordinate 轉換
 │       └── interpolation.ts      # 軌跡時間插值
-├── color-preview.html            # 調色盤獨立預覽
 ├── .env.example
 ├── LICENSE
 ├── package.json
 └── vite.config.ts
 ```
 
-## 航班資料（Flight API）
+## 資料準備
+
+### 航班資料
 
 本專案使用 [FlightRadar24 API](https://fr24api.flightradar24.com/) 作為航班軌跡資料來源。
 
-### 取得 API Token
-
-1. 至 [FlightRadar24](https://fr24api.flightradar24.com/) 註冊帳號並訂閱方案（Explorer 以上）
-2. 進入 [Key Management](https://fr24api.flightradar24.com/key-management) 建立 API Token
-3. 將 Token 寫入 `.env`：
-
 ```bash
-cp .env.example .env
-# 編輯 .env，填入 FR24_API_TOKEN
-```
-
-### 資料擷取腳本
-
-專案提供兩支腳本，自動從 FR24 API 擷取台灣 14 座機場的航班軌跡：
-
-```bash
-# Step 1: 取得航班清單（過去 3 天，11 座台灣機場）
+# Step 1: 取得航班清單
 npm run fetch:flights
 
-# Step 2: 逐一撈取飛行軌跡（可指定日期）
+# Step 2: 擷取飛行軌跡
 npm run fetch:tracks -- --date 2026-02-18
-
-# 或撈取全部日期的軌跡
-npm run fetch:tracks
 ```
 
-腳本支援**中斷續接**：如果因 rate limit 或網路中斷，重新執行即可自動接續。
+產出 `public/aviation_data.json`（~44MB，gitignored）。
 
-> **Explorer 方案限制**：每次回傳 20 筆、10 次/分鐘。Step 1 約需 15 分鐘，Step 2 每 100 筆約需 12 分鐘。
+### 船舶資料
+
+從 `ship-gis` 專案的 SQLite 匯出台灣周邊海域的 AIS 船舶軌跡：
+
+```bash
+# 預設 2026-02-18
+python3 scripts/export-ship-data.py
+
+# 指定日期範圍
+python3 scripts/export-ship-data.py 2026-02-18 2026-02-19
+```
+
+產出 `public/ship_data.json`（~23MB，gitignored）。匯出包含：
+- 台灣周邊 bounding box 過濾（lat 20-28, lng 116-126）
+- 至少 5 個 SOG>0.5 的移動資料點
+- GPS 異常過濾（隱含速度 >40 節的點被移除）
+- 無效 MMSI 過濾（0, 111111111, 123456789 等測試信號）
+
+### 軌道資料
+
+從 `mini-taipei-v3` 專案複製時刻表 + 軌道 GeoJSON：
+
+```bash
+python3 scripts/export-rail-data.py
+```
+
+產出 `public/rail/` 目錄，包含 6 個系統的時刻表、軌道 GeoJSON、車站進度對照表。
+
+## 開發
+
+### 安裝與啟動
+
+```bash
+npm install
+
+cp .env.example .env
+# 填入 VITE_MAPBOX_TOKEN 和 FR24_API_TOKEN
+
+npm run dev     # 開發模式
+npm run build   # 正式建置
+```
+
+### 環境需求
+
+- Node.js 22+
+- Python 3（用於資料匯出腳本）
+- Mapbox Access Token（免費方案即可）
+- FlightRadar24 API Token（Explorer 方案以上）
 
 ### 涵蓋機場
 
@@ -194,96 +270,6 @@ npm run fetch:tracks
 | RCCM | 七美機場 |
 | RCGI | 綠島機場 |
 | RCMT | 馬祖北竿機場 |
-
-### 資料格式
-
-最終產出 `public/aviation_data.json`，每筆航班包含完整路徑點：
-
-```json
-{
-  "fr24_id": "3e617f8a",
-  "callsign": "CPA408",
-  "registration": "B-HLM",
-  "aircraft_type": "A333",
-  "origin_icao": "VHHH",
-  "dest_icao": "RCTP",
-  "dep_time": 1771371753,
-  "arr_time": 1771399200,
-  "status": "landed",
-  "trail_points": 150,
-  "path": [
-    [25.245, 55.371, 0, 1771371753],
-    [25.300, 56.100, 10058, 1771373000]
-  ]
-}
-```
-
-`path` 每個點：`[緯度, 經度, 高度(m), Unix timestamp]`
-
-### 資料前處理
-
-載入時 `flightLoader.ts` 會自動執行以下前處理：
-
-| 處理 | 說明 |
-|------|------|
-| ICAO→IATA 對照 | 補齊 FR24 未提供的 IATA 代碼（100+ 機場對照表） |
-| 時間戳修復 | `dep_time` / `arr_time` 為 0 時，從 path 首尾點推算 |
-| 英呎/公尺修正 | FR24 在低高度（~1000ft）會從公尺切換成英呎回報，造成 3D 軌跡高度跳升。雙向掃描 + 黏著模式自動偵測並轉換（涵蓋約 95% 異常） |
-| 換日線經度展開 | 跨越 ±180° 換日線的航班（台灣↔美洲，約 47 班）經度連續化，避免軌跡繞地球另一側 |
-
-## 開發
-
-### 1. 安裝相依套件
-
-```bash
-npm install
-```
-
-### 2. 設定 Mapbox Token
-
-本專案使用 [Mapbox GL JS](https://www.mapbox.com/) 作為地圖引擎，需要一組免費的 Access Token：
-
-1. 前往 [Mapbox 官網](https://account.mapbox.com/auth/signup/) 註冊帳號（免費方案即可）
-2. 進入 [Access Tokens 頁面](https://account.mapbox.com/access-tokens/) 複製 Default public token
-3. 設定環境變數：
-
-```bash
-cp .env.example .env
-# 編輯 .env，將 your_mapbox_access_token_here 替換為你的 token
-```
-
-### 3. 設定 FlightRadar24 Token
-
-```bash
-# 在 .env 中加入（與 Mapbox Token 同一檔案）
-FR24_API_TOKEN=your_flightradar24_api_token_here
-```
-
-### 4. 擷取航班資料
-
-```bash
-npm run fetch:flights          # Step 1: 航班清單
-npm run fetch:tracks -- --date 2026-02-18  # Step 2: 軌跡（指定日期）
-```
-
-詳見上方「航班資料」章節。
-
-### 5. 啟動
-
-```bash
-npm run dev     # 開發模式
-npm run build   # 正式建置
-```
-
-## 調色盤預覽
-
-專案包含獨立的色彩方案預覽頁面 `color-preview.html`，提供 8 種光軌配色方案（Arctic Blue / Warm Amber / Neon Cyber / Ocean Deep / Aurora / Monochrome White / Sunset Gradient / Emerald Forest），使用 Additive Blending 模擬實際光軌疊加效果。
-
-直接用瀏覽器開啟即可預覽：
-
-```bash
-open color-preview.html
-```
 
 ## License
 
