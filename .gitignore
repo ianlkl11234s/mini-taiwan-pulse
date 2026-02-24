@@ -7,5 +7,6 @@ dist
 public/aviation_data.json
 public/ship_data.json
 public/rail/
+public/rail_bundle.json
 scripts/flight-list.json
 scripts/track-progress.json

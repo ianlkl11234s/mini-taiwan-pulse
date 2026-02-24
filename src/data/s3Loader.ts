@@ -1,8 +1,11 @@
 import type { Flight } from "../types";
 import { preprocessFlights } from "./flightLoader";
 
-const S3_BASE =
-  "https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com/flight-arc";
+export const S3_BASE =
+  "https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com";
+export const FLIGHT_PREFIX = "flight-arc";
+export const SHIP_PREFIX = "ship-data";
+export const RAIL_PREFIX = "rail-data";
 
 interface ManifestDate {
   date: string;
@@ -26,7 +29,7 @@ interface Manifest {
 export async function mergeS3Updates(localFlights: Flight[]): Promise<Flight[]> {
   try {
     // 1. 取得 S3 manifest（幾 KB）
-    const manifestRes = await fetch(`${S3_BASE}/manifest.json`);
+    const manifestRes = await fetch(`${S3_BASE}/${FLIGHT_PREFIX}/manifest.json`);
     if (!manifestRes.ok) return localFlights;
     const manifest: Manifest = await manifestRes.json();
 
@@ -65,7 +68,7 @@ export async function mergeS3Updates(localFlights: Flight[]): Promise<Flight[]> 
     const localIds = new Set(localFlights.map((f) => f.fr24_id));
     const fetches = datesToFetch.map(async (d) => {
       const [y, m, dd] = d.date.split("-");
-      const url = `${S3_BASE}/${y}/${m}/${dd}/data.json`;
+      const url = `${S3_BASE}/${FLIGHT_PREFIX}/${y}/${m}/${dd}/data.json`;
       const res = await fetch(url);
       if (!res.ok) return [];
       const flights: Flight[] = await res.json();

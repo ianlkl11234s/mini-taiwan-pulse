@@ -149,4 +149,5 @@ export interface LayerVisibility {
   ships: boolean;
   rail: boolean;
   stations: boolean;
+  ports: boolean;
 }

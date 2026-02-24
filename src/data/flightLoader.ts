@@ -162,18 +162,18 @@ export function preprocessFlights(flights: Flight[]): Flight[] {
 
 let cachedFlights: Flight[] | null = null;
 
-const S3_BASE =
-  "https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com/flight-arc";
+import { S3_BASE, FLIGHT_PREFIX } from "./s3Loader";
 
 /** 從 S3 manifest 載入全部航班（本地檔案不存在時的 fallback） */
 async function loadFromS3(): Promise<Flight[]> {
-  const manifestRes = await fetch(`${S3_BASE}/manifest.json`);
+  const base = `${S3_BASE}/${FLIGHT_PREFIX}`;
+  const manifestRes = await fetch(`${base}/manifest.json`);
   if (!manifestRes.ok) throw new Error("S3 manifest not available");
   const manifest: { dates: { date: string }[] } = await manifestRes.json();
 
   const fetches = manifest.dates.map(async (d) => {
     const [y, m, dd] = d.date.split("-");
-    const res = await fetch(`${S3_BASE}/${y}/${m}/${dd}/data.json`);
+    const res = await fetch(`${base}/${y}/${m}/${dd}/data.json`);
     if (!res.ok) return [];
     return (await res.json()) as Flight[];
   });

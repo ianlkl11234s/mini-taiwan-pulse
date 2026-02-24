@@ -74,6 +74,7 @@ export default function App() {
     ships: true,
     rail: true,
     stations: true,
+    ports: true,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;
@@ -502,6 +503,7 @@ export default function App() {
         showTrails={showTrails}
         stationVisible={layerVisibility.stations}
         stationScale={stationScale}
+        portVisible={layerVisibility.ports}
         onMapReady={handleMapReady}
       />
 
