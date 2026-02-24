@@ -38,7 +38,10 @@ export interface TimelineState {
 }
 
 /** 顯示模式 */
-export type ViewMode = "airport" | "all-taiwan" | "time-window" | "single";
+export type ViewMode = "all-taiwan" | "time-window";
+
+/** 運具類型 */
+export type TransportType = "flights" | "ships" | "rail";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";

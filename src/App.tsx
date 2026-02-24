@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight, Ship, RailTrain, LayerVisibility } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight, Ship, RailTrain, LayerVisibility, TransportType } from "./types";
 import type { FlightScene } from "./three/FlightScene";
 import type { ShipScene } from "./three/ShipScene";
 import type { RailScene } from "./three/RailScene";
@@ -10,39 +10,23 @@ import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
 import { useTimeline } from "./hooks/useTimeline";
 import { useIsMobile } from "./hooks/useIsMobile";
-import { CAMERA_PRESETS, getPresetByIcao, getAirportInfo } from "./map/cameraPresets";
+import { CAMERA_PRESETS, getPresetByIcao } from "./map/cameraPresets";
 import { createFlightLayer, createShipLayer, createRailLayer } from "./map/customLayer";
-import { filterByAirport, filterByTimeWindow } from "./data/flightLoader";
+import { filterByTimeWindow } from "./data/flightLoader";
 import { RailEngine } from "./engines/RailEngine";
 import { TraTrainEngine } from "./engines/TraTrainEngine";
 import { updateRailTracks, removeRailTracks } from "./map/railTracks";
 import { updateStationStyle } from "./map/stationOverlay";
-import { AirportSelector } from "./components/AirportSelector";
-import { FlightPicker } from "./components/FlightPicker";
+import { LocationJump } from "./components/AirportSelector";
+import { TransportBar } from "./components/TransportBar";
+import { TransportParamPanel } from "./components/TransportParamPanel";
 import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
-import { LayerToggle } from "./components/LayerToggle";
-
-const getSliderLabelStyle = (dark: boolean): React.CSSProperties => ({
-  color: dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.55)",
-  fontSize: 11,
-  fontFamily: "monospace",
-  display: "flex",
-  alignItems: "center",
-  gap: 4,
-});
-const getSliderStyle = (dark: boolean): React.CSSProperties => ({
-  width: 60,
-  height: 4,
-  accentColor: dark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.4)",
-  cursor: "pointer",
-});
 
 export default function App() {
   const {
     allFlights,
-    filteredFlights,
     airports,
     selectedAirport,
     setSelectedAirport,
@@ -79,8 +63,9 @@ export default function App() {
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;
 
-  const [viewMode, setViewMode] = useState<ViewMode>("airport");
+  const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
+  const [expandedTransport, setExpandedTransport] = useState<TransportType | null>(null);
   const [mapStyleId, setMapStyleId] = useState("dark");
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [altExaggeration, setAltExaggeration] = useState(3);
@@ -110,36 +95,22 @@ export default function App() {
   // 根據 viewMode 決定要顯示的航班
   const displayedFlights = useMemo(() => {
     switch (viewMode) {
-      case "single":
-        return selectedFlightId
-          ? filteredFlights.filter((f) => f.fr24_id === selectedFlightId)
-          : filteredFlights;
-      case "all-taiwan":
-        return allFlights;
       case "time-window":
         return filterByTimeWindow(
           allFlights,
           selectedAirport,
           timeline.currentTime,
         );
-      case "airport":
+      case "all-taiwan":
       default:
-        return filteredFlights;
+        return allFlights;
     }
   }, [
     allFlights,
-    filteredFlights,
     viewMode,
-    selectedFlightId,
     selectedAirport,
     timeline.currentTime,
   ]);
-
-  // 用於 FlightPicker 的航班列表（always based on airport filter）
-  const pickableFlights = useMemo(
-    () => filterByAirport(allFlights, selectedAirport),
-    [allFlights, selectedAirport],
-  );
 
   const isDarkTheme = !["light", "streets"].includes(mapStyleId);
 
@@ -304,11 +275,13 @@ export default function App() {
         );
         if (flightId) {
           e.preventDefault();
-          setViewMode("single");
           setSelectedFlightId(flightId);
           setTooltipInfo(null);
         }
       });
+
+      // dragstart 退出追蹤
+      map.on("dragstart", () => setSelectedFlightId(null));
 
       map.on("move", () => setTooltipInfo(null));
     }
@@ -320,7 +293,7 @@ export default function App() {
     if (!map || !map.isStyleLoaded()) return;
     addFlightLayer(map);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedAirport, viewMode, selectedFlightId]);
+  }, [selectedAirport, viewMode]);
 
   // 每幀更新軌道列車（5 系統 + TRA 專用引擎）
   useEffect(() => {
@@ -386,9 +359,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layerVisibility]);
 
-  // Track Single 模式：相機鎖定飛機，飛機固定在畫面中央
+  // 雙擊追蹤：相機鎖定飛機（internal，dragstart 自動退出）
   useEffect(() => {
-    if (viewMode !== "single" || !selectedFlightId) return;
+    if (!selectedFlightId) return;
     const map = mapRef.current;
     if (!map) return;
 
@@ -398,7 +371,6 @@ export default function App() {
       if (flight && flight.path.length > 0) {
         const t = timeRef.current;
         const path = flight.path;
-        // 線性插值取得精確位置
         let lat: number, lng: number;
         if (t <= path[0]![3]) {
           lat = path[0]![0]; lng = path[0]![1];
@@ -423,7 +395,7 @@ export default function App() {
     };
     animId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animId);
-  }, [viewMode, selectedFlightId]);
+  }, [selectedFlightId]);
 
   // ESC 退出拍攝模式
   useEffect(() => {
@@ -460,7 +432,7 @@ export default function App() {
         }}
       >
         <div style={{ fontSize: 22, letterSpacing: 4, fontWeight: 700 }}>
-          Taiwan Flight Arc
+          Mini Taiwan Pulse
         </div>
         <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 1 }}>
           Loading transport data...
@@ -541,7 +513,7 @@ export default function App() {
                 textShadow: "0 2px 12px rgba(0,0,0,0.6)",
               }}
             >
-              Taiwan Flight Arc
+              Mini Taiwan Pulse
             </div>
             <div
               style={{
@@ -554,12 +526,7 @@ export default function App() {
                 textShadow: "0 1px 8px rgba(0,0,0,0.5)",
               }}
             >
-              {(() => {
-                const info = getAirportInfo(selectedAirport);
-                return info
-                  ? `${info.name} / ${info.iata} / ${selectedAirport}`
-                  : selectedAirport;
-              })()}
+              Taiwan Transport Visualization
             </div>
             <div
               style={{
@@ -637,18 +604,16 @@ export default function App() {
       {/* ── 一般模式 UI ── */}
       {!captureMode && !isMobile && (
         <>
-          {/* 頂部控制列 */}
+          {/* Row 1: 標題 + 樣式 + 地點跳轉 */}
           <div
             style={{
               position: "absolute",
               top: 16,
               left: 16,
-              right: 16,
               zIndex: 10,
               display: "flex",
               gap: 10,
               alignItems: "center",
-              flexWrap: "wrap",
             }}
           >
             <h1
@@ -660,20 +625,31 @@ export default function App() {
                 letterSpacing: 2,
               }}
             >
-              Taiwan Flight Arc
+              Mini Taiwan Pulse
             </h1>
-
-            <AirportSelector
-              airports={airports}
-              selected={selectedAirport}
-              isDarkTheme={isDarkTheme}
-              onChange={setSelectedAirport}
-            />
 
             <StyleSelector
               selected={mapStyleId}
               isDarkTheme={isDarkTheme}
               onChange={setMapStyleId}
+            />
+
+            <LocationJump
+              airports={airports}
+              isDarkTheme={isDarkTheme}
+              onJump={(icao) => {
+                setSelectedAirport(icao);
+                const p = getPresetByIcao(icao);
+                if (p && mapRef.current) {
+                  mapRef.current.flyTo({
+                    center: p.center,
+                    zoom: p.zoom,
+                    pitch: p.pitch,
+                    bearing: p.bearing,
+                    duration: 2000,
+                  });
+                }
+              }}
             />
 
             {loading && (
@@ -683,172 +659,73 @@ export default function App() {
             )}
           </div>
 
-          {/* 第二列：Display Mode 切換 + Layer Toggle */}
-          <div
-            style={{
-              position: "absolute",
-              top: 52,
-              left: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 6,
-              alignItems: "center",
-            }}
-          >
-            {(["trails", "status"] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => { setDisplayMode(mode); setTooltipInfo(null); }}
-                style={{
-                  background: displayMode === mode
-                    ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
-                    : (isDarkTheme ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)"),
-                  color: isDarkTheme ? "#fff" : "#333",
-                  border: `1px solid ${displayMode === mode
-                    ? (isDarkTheme ? "rgba(100,170,255,0.6)" : "rgba(100,170,255,0.5)")
-                    : (isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)")}`,
-                  borderRadius: 4,
-                  padding: "4px 10px",
-                  fontSize: 11,
-                  cursor: "pointer",
-                  fontFamily: "monospace",
-                  backdropFilter: "blur(8px)",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {mode === "trails" ? "Flight Trails" : "Live Status"}
-              </button>
-            ))}
-
-            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)", margin: "0 2px" }}>|</span>
-
-            <LayerToggle
+          {/* Row 2: TransportBar */}
+          <div style={{ position: "absolute", top: 52, left: 16, zIndex: 10 }}>
+            <TransportBar
               visibility={layerVisibility}
+              expandedTransport={expandedTransport}
+              viewMode={viewMode}
               isDarkTheme={isDarkTheme}
               counts={{
                 flights: displayedFlights.length,
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                 trains: activeTrains.length,
               }}
-              onChange={(layer) =>
+              onTransportClick={(transport) => {
+                const isVisible = layerVisibility[transport];
+                if (!isVisible) {
+                  setLayerVisibility((prev) => ({ ...prev, [transport]: true }));
+                  setExpandedTransport(transport);
+                } else if (expandedTransport === transport) {
+                  setExpandedTransport(null);
+                } else {
+                  setExpandedTransport(transport);
+                }
+              }}
+              onToggleVisibility={(layer) =>
                 setLayerVisibility((prev) => ({ ...prev, [layer]: !prev[layer] }))
               }
-            />
-          </div>
-
-          {/* 第三列：模式選擇 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 84,
-              left: 16,
-              right: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-            }}
-          >
-            <FlightPicker
-              flights={pickableFlights}
-              viewMode={viewMode}
-              selectedFlightId={selectedFlightId}
-              isDarkTheme={isDarkTheme}
               onViewModeChange={setViewMode}
-              onFlightSelect={setSelectedFlightId}
             />
           </div>
 
-          {/* 第四列：飛行視覺參數 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 116,
-              left: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 14,
-              alignItems: "center",
-            }}
-          >
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Alt ×{altExaggeration.toFixed(1)}
-              <input type="range" min={1} max={5} step={0.5} value={altExaggeration}
-                onChange={(e) => setAltExaggeration(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Z +{altOffset}m
-              <input type="range" min={0} max={200} step={50} value={altOffset}
-                onChange={(e) => setAltOffset(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Opacity {staticOpacity.toFixed(2)}
-              <input type="range" min={0.02} max={0.5} step={0.02} value={staticOpacity}
-                onChange={(e) => setStaticOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Orb {(orbScale * 100000).toFixed(1)}
-              <input type="range" min={0.000001} max={0.00001} step={0.000001} value={orbScale}
-                onChange={(e) => setOrbScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              APT {airportOpacity.toFixed(2)}
-              <input type="range" min={0} max={0.3} step={0.01} value={airportOpacity}
-                onChange={(e) => setAirportOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Glow {airportGlow.toFixed(1)}
-              <input type="range" min={0} max={2} step={0.1} value={airportGlow}
-                onChange={(e) => setAirportGlow(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-          </div>
-
-          {/* 第五列：Rail + Ship 參數 */}
-          <div
-            style={{
-              position: "absolute",
-              top: 140,
-              left: 16,
-              zIndex: 10,
-              display: "flex",
-              gap: 14,
-              alignItems: "center",
-            }}
-          >
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Rail Z +{railAltOffset}m
-              <input type="range" min={0} max={500} step={10} value={railAltOffset}
-                onChange={(e) => setRailAltOffset(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Rail Orb {(railOrbScale * 100000).toFixed(1)}
-              <input type="range" min={0.000001} max={0.00002} step={0.000001} value={railOrbScale}
-                onChange={(e) => setRailOrbScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Rail Trk {railTrackOpacity.toFixed(2)}
-              <input type="range" min={0.05} max={1} step={0.05} value={railTrackOpacity}
-                onChange={(e) => setRailTrackOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Ship Orb {(shipOrbScale * 100000).toFixed(1)}
-              <input type="range" min={0.000001} max={0.00002} step={0.000001} value={shipOrbScale}
-                onChange={(e) => setShipOrbScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Ship Trail {shipTrailOpacity.toFixed(2)}
-              <input type="range" min={0.05} max={1} step={0.05} value={shipTrailOpacity}
-                onChange={(e) => setShipTrailOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
-            <label style={getSliderLabelStyle(isDarkTheme)}>
-              Stn {stationScale.toFixed(1)}
-              <input type="range" min={0.3} max={3} step={0.1} value={stationScale}
-                onChange={(e) => setStationScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
-            </label>
-          </div>
+          {/* Row 3: Accordion Panel */}
+          {expandedTransport && (
+            <div style={{ position: "absolute", top: 84, left: 16, zIndex: 10 }}>
+              <TransportParamPanel
+                transport={expandedTransport}
+                isDarkTheme={isDarkTheme}
+                displayMode={displayMode}
+                onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
+                onHide={() => {
+                  setLayerVisibility((prev) => ({ ...prev, [expandedTransport]: false }));
+                  setExpandedTransport(null);
+                }}
+                sliders={(() => {
+                  switch (expandedTransport) {
+                    case "flights": return [
+                      { label: `Alt ×${altExaggeration.toFixed(1)}`, value: altExaggeration, min: 1, max: 5, step: 0.5, onChange: setAltExaggeration },
+                      { label: `Z +${altOffset}m`, value: altOffset, min: 0, max: 200, step: 50, onChange: setAltOffset },
+                      { label: `Opacity ${staticOpacity.toFixed(2)}`, value: staticOpacity, min: 0.02, max: 0.5, step: 0.02, onChange: setStaticOpacity },
+                      { label: `Orb ${(orbScale * 100000).toFixed(1)}`, value: orbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setOrbScale },
+                      { label: `APT ${airportOpacity.toFixed(2)}`, value: airportOpacity, min: 0, max: 0.3, step: 0.01, onChange: setAirportOpacity },
+                      { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
+                    ];
+                    case "ships": return [
+                      { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, value: shipOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setShipOrbScale },
+                      { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, value: shipTrailOpacity, min: 0.05, max: 1, step: 0.05, onChange: setShipTrailOpacity },
+                    ];
+                    case "rail": return [
+                      { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
+                      { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
+                      { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
+                      { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
+                    ];
+                  }
+                })()}
+              />
+            </div>
+          )}
 
           {/* 時間軸 */}
           <TimelineControls
@@ -1035,17 +912,18 @@ export default function App() {
             Right-drag to rotate · Scroll to zoom
           </div>
 
-          {/* 統計 + 相機角度 */}
+          {/* 統計 + 相機角度（動態 top） */}
           <div
             style={{
               position: "absolute",
-              top: 168,
+              top: expandedTransport ? 140 : 84,
               left: 16,
               zIndex: 10,
               background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
               backdropFilter: "blur(8px)",
               borderRadius: 6,
               padding: "4px 10px",
+              transition: "top 0.2s ease",
             }}
           >
             <div
@@ -1059,7 +937,6 @@ export default function App() {
               {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
               {layerVisibility.rail && ` · ${activeTrains.length} trains`}
               {viewMode === "time-window" && " (±12h)"}
-              {viewMode === "all-taiwan" && " (all Taiwan)"}
             </div>
             <div
               style={{
@@ -1096,12 +973,9 @@ export default function App() {
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <AirportSelector
-              airports={airports}
-              selected={selectedAirport}
-              isDarkTheme={true}
-              onChange={setSelectedAirport}
-            />
+            <span style={{ color: "#fff", fontSize: 14, fontFamily: "monospace", fontWeight: 700, letterSpacing: 1 }}>
+              MTP
+            </span>
 
             <div style={{ flex: 1 }} />
 
@@ -1203,40 +1077,35 @@ export default function App() {
           <MobileBottomSheet isLandscape={isLandscape}>
             {(level) => (
               <>
-                {/* half: FlightPicker + Stats */}
+                {/* half: TransportBar + Stats */}
                 {(level === "half" || level === "full") && (
                   <div style={{ marginTop: 12 }}>
-                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      {(["trails", "status"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          onClick={() => { setDisplayMode(mode); setTooltipInfo(null); }}
-                          style={{
-                            background: displayMode === mode
-                              ? "rgba(100,170,255,0.3)" : "rgba(0,0,0,0.6)",
-                            color: "#fff",
-                            border: `1px solid ${displayMode === mode
-                              ? "rgba(100,170,255,0.6)" : "rgba(255,255,255,0.2)"}`,
-                            borderRadius: 4,
-                            padding: "8px 12px",
-                            fontSize: 12,
-                            cursor: "pointer",
-                            fontFamily: "monospace",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {mode === "trails" ? "Flight Trails" : "Live Status"}
-                        </button>
-                      ))}
-                    </div>
-                    <FlightPicker
-                      flights={pickableFlights}
+                    <TransportBar
+                      visibility={layerVisibility}
+                      expandedTransport={expandedTransport}
                       viewMode={viewMode}
-                      selectedFlightId={selectedFlightId}
                       isDarkTheme={true}
                       isMobile={true}
+                      counts={{
+                        flights: displayedFlights.length,
+                        ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
+                        trains: activeTrains.length,
+                      }}
+                      onTransportClick={(transport) => {
+                        const isVisible = layerVisibility[transport];
+                        if (!isVisible) {
+                          setLayerVisibility((prev) => ({ ...prev, [transport]: true }));
+                          setExpandedTransport(transport);
+                        } else if (expandedTransport === transport) {
+                          setExpandedTransport(null);
+                        } else {
+                          setExpandedTransport(transport);
+                        }
+                      }}
+                      onToggleVisibility={(layer) =>
+                        setLayerVisibility((prev) => ({ ...prev, [layer]: !prev[layer] }))
+                      }
                       onViewModeChange={setViewMode}
-                      onFlightSelect={setSelectedFlightId}
                     />
                     <div
                       style={{
@@ -1250,14 +1119,48 @@ export default function App() {
                       {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
                       {layerVisibility.rail && ` · ${activeTrains.length} trains`}
                       {viewMode === "time-window" && " (±12h)"}
-                      {viewMode === "all-taiwan" && " (all Taiwan)"}
                     </div>
                   </div>
                 )}
 
-                {/* full: Sliders + StyleSelector */}
+                {/* full: TransportParamPanel + StyleSelector + LocationJump */}
                 {level === "full" && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
+                    {expandedTransport && (
+                      <TransportParamPanel
+                        transport={expandedTransport}
+                        isDarkTheme={true}
+                        isMobile={true}
+                        displayMode={displayMode}
+                        onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
+                        onHide={() => {
+                          setLayerVisibility((prev) => ({ ...prev, [expandedTransport]: false }));
+                          setExpandedTransport(null);
+                        }}
+                        sliders={(() => {
+                          switch (expandedTransport) {
+                            case "flights": return [
+                              { label: `Alt ×${altExaggeration.toFixed(1)}`, value: altExaggeration, min: 1, max: 5, step: 0.5, onChange: setAltExaggeration },
+                              { label: `Z +${altOffset}m`, value: altOffset, min: 0, max: 200, step: 50, onChange: setAltOffset },
+                              { label: `Opacity ${staticOpacity.toFixed(2)}`, value: staticOpacity, min: 0.02, max: 0.5, step: 0.02, onChange: setStaticOpacity },
+                              { label: `Orb ${(orbScale * 100000).toFixed(1)}`, value: orbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setOrbScale },
+                              { label: `APT ${airportOpacity.toFixed(2)}`, value: airportOpacity, min: 0, max: 0.3, step: 0.01, onChange: setAirportOpacity },
+                              { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
+                            ];
+                            case "ships": return [
+                              { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, value: shipOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setShipOrbScale },
+                              { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, value: shipTrailOpacity, min: 0.05, max: 1, step: 0.05, onChange: setShipTrailOpacity },
+                            ];
+                            case "rail": return [
+                              { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
+                              { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
+                              { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
+                              { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
+                            ];
+                          }
+                        })()}
+                      />
+                    )}
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>Style</span>
                       <StyleSelector
@@ -1266,36 +1169,23 @@ export default function App() {
                         onChange={setMapStyleId}
                       />
                     </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      {[
-                        { label: `Alt ×${altExaggeration.toFixed(1)}`, min: 1, max: 5, step: 0.5, value: altExaggeration, set: setAltExaggeration },
-                        { label: `Z +${altOffset}m`, min: 0, max: 200, step: 50, value: altOffset, set: setAltOffset },
-                        { label: `Opacity ${staticOpacity.toFixed(2)}`, min: 0.02, max: 0.5, step: 0.02, value: staticOpacity, set: setStaticOpacity },
-                        { label: `Orb ${(orbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00001, step: 0.000001, value: orbScale, set: setOrbScale },
-                        { label: `APT ${airportOpacity.toFixed(2)}`, min: 0, max: 0.3, step: 0.01, value: airportOpacity, set: setAirportOpacity },
-                        { label: `Glow ${airportGlow.toFixed(1)}`, min: 0, max: 2, step: 0.1, value: airportGlow, set: setAirportGlow },
-                        { label: `Rail Z +${railAltOffset}m`, min: 0, max: 500, step: 10, value: railAltOffset, set: setRailAltOffset },
-                        { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00002, step: 0.000001, value: railOrbScale, set: setRailOrbScale },
-                        { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, min: 0.05, max: 1, step: 0.05, value: railTrackOpacity, set: setRailTrackOpacity },
-                        { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00002, step: 0.000001, value: shipOrbScale, set: setShipOrbScale },
-                        { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, min: 0.05, max: 1, step: 0.05, value: shipTrailOpacity, set: setShipTrailOpacity },
-                        { label: `Stn ${stationScale.toFixed(1)}`, min: 0.3, max: 3, step: 0.1, value: stationScale, set: setStationScale },
-                      ].map((s) => (
-                        <label key={s.label} style={{
-                          color: "rgba(255,255,255,0.6)",
-                          fontSize: 11,
-                          fontFamily: "monospace",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}>
-                          <span style={{ minWidth: 90 }}>{s.label}</span>
-                          <input type="range" min={s.min} max={s.max} step={s.step} value={s.value}
-                            onChange={(e) => s.set(Number(e.target.value))}
-                            style={{ flex: 1, height: 6, accentColor: "rgba(255,255,255,0.6)" }} />
-                        </label>
-                      ))}
-                    </div>
+                    <LocationJump
+                      airports={airports}
+                      isDarkTheme={true}
+                      onJump={(icao) => {
+                        setSelectedAirport(icao);
+                        const p = getPresetByIcao(icao);
+                        if (p && mapRef.current) {
+                          mapRef.current.flyTo({
+                            center: p.center,
+                            zoom: p.zoom,
+                            pitch: p.pitch,
+                            bearing: p.bearing,
+                            duration: 2000,
+                          });
+                        }
+                      }}
+                    />
                   </div>
                 )}
               </>
@@ -1393,14 +1283,14 @@ export default function App() {
             </button>
 
             <h2 style={{ margin: "0 0 16px", fontSize: 20, letterSpacing: 2 }}>
-              Taiwan Flight Arc
+              Mini Taiwan Pulse
             </h2>
 
             <section style={{ marginBottom: 16 }}>
               <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>ABOUT</h3>
               <p style={{ fontSize: 13, lineHeight: 1.7, color: "rgba(255,255,255,0.8)", margin: 0 }}>
-                台灣航班弧線視覺化 — 以 3D 弧線呈現台灣各機場的航班軌跡，
-                資料來源為 Flightradar24 API，透過 Mapbox GL 繪製於互動地圖上。
+                台灣交通脈動視覺化 — 以 3D 呈現航班、船舶、鐵道的即時動態，
+                資料來源涵蓋 FR24、AIS、各鐵道公司時刻表，透過 Mapbox GL 繪製於互動地圖上。
               </p>
             </section>
 
@@ -1433,10 +1323,17 @@ export default function App() {
             <section style={{ marginBottom: 16 }}>
               <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>VIEW MODES</h3>
               <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
-                <li><b>This Airport</b> — 顯示選定機場的所有航班</li>
-                <li><b>All Taiwan</b> — 顯示全台灣所有航班</li>
+                <li><b>All Taiwan</b> — 顯示全台灣所有交通動態（預設）</li>
                 <li><b>±12h Window</b> — 以當前時間為中心的 24 小時窗口</li>
-                <li><b>Track Single</b> — 追蹤單一航班，相機鎖定飛機在畫面中央跟隨移動</li>
+              </ul>
+            </section>
+
+            <section style={{ marginBottom: 16 }}>
+              <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>TRANSPORT PANEL</h3>
+              <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
+                <li><b>Flight / Ship / Rail</b> — 點擊切換顯示 + 展開參數面板</li>
+                <li><b>Station / Port</b> — 純 toggle 顯示/隱藏</li>
+                <li><b>展開面板</b> — 包含 Live Status / Trails 切換、各運具視覺參數調整、Hide 隱藏圖層</li>
               </ul>
             </section>
 
@@ -1444,7 +1341,8 @@ export default function App() {
               <h3 style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", margin: "0 0 6px", letterSpacing: 1 }}>INTERACTION</h3>
               <ul style={{ fontSize: 12, lineHeight: 1.8, color: "rgba(255,255,255,0.75)", margin: 0, paddingLeft: 18 }}>
                 <li><b>Click</b> — 點擊飛機光球顯示航班資訊（航班號、路線、機型、高度）</li>
-                <li><b>Double-click</b> — 雙擊飛機光球直接進入 Track Single 跟隨模式</li>
+                <li><b>Double-click</b> — 雙擊飛機光球追蹤該航班，拖曳地圖自動退出追蹤</li>
+                <li><b>地點跳轉</b> — 快速跳轉至各機場視角</li>
               </ul>
             </section>
 
