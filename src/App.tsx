@@ -14,6 +14,7 @@ import { CAMERA_PRESETS, getPresetByIcao, getAirportInfo } from "./map/cameraPre
 import { createFlightLayer, createShipLayer, createRailLayer } from "./map/customLayer";
 import { filterByAirport, filterByTimeWindow } from "./data/flightLoader";
 import { RailEngine } from "./engines/RailEngine";
+import { TraTrainEngine } from "./engines/TraTrainEngine";
 import { updateRailTracks, removeRailTracks } from "./map/railTracks";
 import { AirportSelector } from "./components/AirportSelector";
 import { FlightPicker } from "./components/FlightPicker";
@@ -53,12 +54,16 @@ export default function App() {
 
   // 軌道列車引擎
   const railEngineRef = useRef<RailEngine | null>(null);
+  const traEngineRef = useRef<TraTrainEngine | null>(null);
   const [activeTrains, setActiveTrains] = useState<RailTrain[]>([]);
 
-  // 初始化 RailEngine
+  // 初始化 RailEngine + TraTrainEngine
   useEffect(() => {
     if (railData) {
       railEngineRef.current = new RailEngine(railData.systems);
+      traEngineRef.current = railData.traData
+        ? new TraTrainEngine(railData.traData)
+        : null;
     }
   }, [railData]);
 
@@ -313,17 +318,21 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode, selectedFlightId]);
 
-  // 每幀更新軌道列車
+  // 每幀更新軌道列車（5 系統 + TRA 專用引擎）
   useEffect(() => {
-    if (!railEngineRef.current) return;
+    if (!railEngineRef.current && !traEngineRef.current) return;
     let animId: number;
     const tick = () => {
-      const engine = railEngineRef.current;
-      if (engine) {
-        const trains = engine.update(timeRef.current);
-        activeTrainsRef.current = trains;
-        setActiveTrains(trains);
+      const now = timeRef.current;
+      let allTrains: RailTrain[] = [];
+      if (railEngineRef.current) {
+        allTrains = railEngineRef.current.update(now);
       }
+      if (traEngineRef.current) {
+        allTrains = [...allTrains, ...traEngineRef.current.update(now)];
+      }
+      activeTrainsRef.current = allTrains;
+      setActiveTrains(allTrains);
       animId = requestAnimationFrame(tick);
     };
     animId = requestAnimationFrame(tick);

@@ -75,6 +75,7 @@ export interface RailTrain {
   position: [number, number]; // [lng, lat]
   color: string;
   status: "running" | "stopped";
+  trainTypeCode?: string; // TRA 車種代碼 "PP" | "TC" | "CK" | "LC" 等
 }
 
 export interface RailSystem {
@@ -108,7 +109,37 @@ export interface RailStationTime {
 
 export interface RailData {
   systems: RailSystem[];
+  traData: TraData | null;
   allTracks: GeoJSON.FeatureCollection;
+}
+
+// ── TRA 專用 ──
+
+/** TRA 班次（含車種資訊） */
+export interface TraDeparture {
+  departure_time: string;
+  train_id: string;
+  train_no?: string;
+  train_type?: string;
+  train_type_code?: string;
+  total_travel_time: number;
+  origin_station: string;
+  destination_station: string;
+  od_track_id: string;
+  stations: RailStationTime[];
+}
+
+/** TRA 單軌道時刻表 */
+export interface TraSchedule {
+  departures: TraDeparture[];
+}
+
+/** TraTrainEngine 所需的完整資料 */
+export interface TraData {
+  schedules: Map<string, TraSchedule>;
+  odTracks: Map<string, GeoJSON.Feature>;
+  stationProgress: Record<string, Record<string, number>>;
+  goldenTracks: GeoJSON.Feature[];
 }
 
 // ── 圖層控制 ──

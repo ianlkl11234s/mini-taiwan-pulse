@@ -1,11 +1,10 @@
-import type { RailSystem, RailSchedule, RailData, RailDeparture, RailStationTime } from "../types";
+import type { RailSystem, RailSchedule, RailData, RailStationTime, TraData, TraDeparture, TraSchedule } from "../types";
 import { S3_BASE, RAIL_PREFIX } from "./s3Loader";
 
-// 系統定義：ID、顏色、資料路徑
+// 系統定義：5 系統（不含 TRA，TRA 由 TraTrainEngine 獨立處理）
 const RAIL_SYSTEMS = [
   { id: "trtc", label: "台北捷運", tracksGlob: "tracks", schedulesGlob: "schedules", color: "#d90023" },
   { id: "thsr", label: "高鐵", tracksGlob: "tracks", schedulesKey: "thsr_schedules", color: "#ee6c00" },
-  { id: "tra",  label: "台鐵", tracksGlob: "tracks", schedulesKey: "master_schedule", color: "#7B7B7B" },
   { id: "krtc", label: "高雄捷運", tracksGlob: "tracks", schedulesKey: "krtc_schedules", color: "#f8961e" },
   { id: "klrt", label: "高雄輕軌", tracksGlob: "tracks", schedulesKey: "klrt_schedules", color: "#43aa8b" },
   { id: "tmrt", label: "台中捷運", tracksGlob: "tracks", schedulesKey: "tmrt_schedules", color: "#577590" },
@@ -23,8 +22,8 @@ async function fetchJSON(url: string): Promise<any> {
   return res.json();
 }
 
-/** 對 RailSystem[] 做後處理：排除貓空纜車、收集 allTracks（TRA 用 golden tracks 顯示） */
-function postProcess(systems: RailSystem[], traGoldenFeatures?: GeoJSON.Feature[]): RailData {
+/** 對 RailSystem[] + TraData 做後處理：排除貓空纜車、收集 allTracks（TRA 用 golden tracks 顯示） */
+function postProcess(systems: RailSystem[], traData: TraData | null): RailData {
   const allFeatures: GeoJSON.Feature[] = [];
 
   for (const sys of systems) {
@@ -38,16 +37,6 @@ function postProcess(systems: RailSystem[], traGoldenFeatures?: GeoJSON.Feature[
       }
     }
 
-    // TRA: 有 golden tracks 則用 golden tracks 做顯示，跳過 O-D tracks
-    if (sys.id === "tra" && traGoldenFeatures && traGoldenFeatures.length > 0) {
-      for (const feature of traGoldenFeatures) {
-        if (!feature.properties) feature.properties = {};
-        if (!feature.properties.color) feature.properties.color = "#7B7B7B";
-        allFeatures.push(feature);
-      }
-      continue;
-    }
-
     const defaultColor = SYSTEM_COLOR_MAP.get(sys.id) ?? "#ffffff";
     for (const feature of sys.tracks.values()) {
       if (!feature.properties) feature.properties = {};
@@ -58,13 +47,23 @@ function postProcess(systems: RailSystem[], traGoldenFeatures?: GeoJSON.Feature[
     }
   }
 
+  // TRA golden tracks
+  if (traData?.goldenTracks) {
+    for (const feature of traData.goldenTracks) {
+      if (!feature.properties) feature.properties = {};
+      if (!feature.properties.color) feature.properties.color = "#7B7B7B";
+      allFeatures.push(feature);
+    }
+  }
+
   return {
     systems,
+    traData,
     allTracks: { type: "FeatureCollection", features: allFeatures },
   };
 }
 
-// ── 本地散檔載入（現有邏輯） ──
+// ── 本地散檔載入 ──
 
 async function loadTrtcSchedules(): Promise<Map<string, RailSchedule>> {
   const map = new Map<string, RailSchedule>();
@@ -103,39 +102,6 @@ async function loadThsrSchedules(): Promise<Map<string, RailSchedule>> {
   return map;
 }
 
-async function loadTraSchedules(): Promise<Map<string, RailSchedule>> {
-  const map = new Map<string, RailSchedule>();
-  const data = await fetchJSON("/rail/tra/master_schedule.json");
-  if (!data?.schedules) return map;
-
-  const byTrack = new Map<string, RailDeparture[]>();
-  for (const train of data.schedules) {
-    const trackId = train.od_track_id;
-    if (!trackId) continue;
-    if (!byTrack.has(trackId)) byTrack.set(trackId, []);
-    byTrack.get(trackId)!.push({
-      departure_time: train.departure_time,
-      train_id: train.train_id,
-      total_travel_time: train.total_travel_time,
-      stations: train.stations as RailStationTime[],
-    });
-  }
-
-  for (const [trackId, departures] of byTrack) {
-    const firstDep = departures[0];
-    const stationIds = firstDep ? firstDep.stations.map((s: RailStationTime) => s.station_id) : [];
-    map.set(trackId, {
-      track_id: trackId,
-      route_id: "TRA",
-      name: trackId,
-      train_color: "#7B7B7B",
-      stations: stationIds,
-      departures,
-    });
-  }
-  return map;
-}
-
 async function loadGenericSchedules(systemId: string, fileName: string): Promise<Map<string, RailSchedule>> {
   const map = new Map<string, RailSchedule>();
   let data = await fetchJSON(`/rail/${systemId}/${fileName}.json`);
@@ -161,24 +127,14 @@ async function loadTracks(systemId: string): Promise<Map<string, GeoJSON.Feature
     trackIds = Object.keys(progress);
   }
 
-  if (systemId === "tra") {
-    const masterData = await fetchJSON("/rail/tra/master_schedule.json");
-    if (masterData?.schedules) {
-      const ids = new Set<string>();
-      for (const train of masterData.schedules) {
-        if (train.od_track_id) ids.add(train.od_track_id);
-      }
-      trackIds = Array.from(ids);
-    }
-  }
-
   const batchSize = 30;
   for (let i = 0; i < trackIds.length; i += batchSize) {
     const batch = trackIds.slice(i, i + batchSize);
     const results = await Promise.allSettled(
       batch.map(async (trackId) => {
         const data = await fetchJSON(`/rail/${systemId}/tracks/${trackId}.geojson`);
-        if (data?.features?.[0]) return { trackId, feature: data.features[0] as GeoJSON.Feature };
+        const feature = extractFeature(data);
+        if (feature) return { trackId, feature };
         return null;
       })
     );
@@ -214,14 +170,21 @@ const TRA_GOLDEN_IDS = [
   "SA-RF-BD-0", "SA-BD-RF-1",
 ];
 
+/** 從 GeoJSON 資料提取 Feature（支援 FeatureCollection 和 Feature 兩種格式） */
+function extractFeature(data: any): GeoJSON.Feature | null {
+  if (!data) return null;
+  if (data.type === "FeatureCollection" && data.features?.[0]) return data.features[0] as GeoJSON.Feature;
+  if (data.type === "Feature") return data as GeoJSON.Feature;
+  return null;
+}
+
 /** 載入 TRA golden tracks（顯示用，37 條精修路線） */
 async function loadGoldenTracks(): Promise<GeoJSON.Feature[]> {
   const features: GeoJSON.Feature[] = [];
   const results = await Promise.allSettled(
     TRA_GOLDEN_IDS.map(async (id) => {
       const data = await fetchJSON(`/rail/tra/tracks_golden/${id}.geojson`);
-      if (data?.features?.[0]) return data.features[0] as GeoJSON.Feature;
-      return null;
+      return extractFeature(data);
     })
   );
   for (const r of results) {
@@ -230,47 +193,121 @@ async function loadGoldenTracks(): Promise<GeoJSON.Feature[]> {
   return features;
 }
 
-/** 從本地散檔載入所有系統 */
-async function loadFromLocalFiles(): Promise<{ systems: RailSystem[]; traGoldenFeatures: GeoJSON.Feature[] }> {
-  const results = await Promise.allSettled(
-    RAIL_SYSTEMS.map(async (sys) => {
-      let schedules: Map<string, RailSchedule>;
+// ── TRA 專用資料載入 ──
 
-      if (sys.id === "trtc") {
-        schedules = await loadTrtcSchedules();
-      } else if (sys.id === "thsr") {
-        schedules = await loadThsrSchedules();
-      } else if (sys.id === "tra") {
-        schedules = await loadTraSchedules();
-      } else {
-        schedules = await loadGenericSchedules(sys.id, sys.schedulesKey!);
+/** 解析 TRA master_schedule.json 為 TraSchedule Map（保留完整車種欄位） */
+function parseTraSchedules(masterData: any): Map<string, TraSchedule> {
+  const map = new Map<string, TraSchedule>();
+  if (!masterData?.schedules) return map;
+
+  const byTrack = new Map<string, TraDeparture[]>();
+  for (const train of masterData.schedules) {
+    const trackId = train.od_track_id;
+    if (!trackId) continue;
+    if (!byTrack.has(trackId)) byTrack.set(trackId, []);
+    byTrack.get(trackId)!.push({
+      departure_time: train.departure_time,
+      train_id: train.train_id,
+      train_no: train.train_no,
+      train_type: train.train_type,
+      train_type_code: train.train_type_code,
+      total_travel_time: train.total_travel_time,
+      origin_station: train.origin_station || "",
+      destination_station: train.destination_station || "",
+      od_track_id: trackId,
+      stations: train.stations as RailStationTime[],
+    });
+  }
+
+  for (const [trackId, departures] of byTrack) {
+    map.set(trackId, { departures });
+  }
+  return map;
+}
+
+/** 載入 TRA O-D 軌道（從 schedules 提取 track IDs） */
+async function loadOdTracks(schedules: Map<string, TraSchedule>): Promise<Map<string, GeoJSON.Feature>> {
+  const map = new Map<string, GeoJSON.Feature>();
+  const trackIds = Array.from(schedules.keys());
+
+  const batchSize = 30;
+  for (let i = 0; i < trackIds.length; i += batchSize) {
+    const batch = trackIds.slice(i, i + batchSize);
+    const results = await Promise.allSettled(
+      batch.map(async (trackId) => {
+        const data = await fetchJSON(`/rail/tra/tracks/${trackId}.geojson`);
+        const feature = extractFeature(data);
+        if (feature) return { trackId, feature };
+        return null;
+      })
+    );
+
+    for (const result of results) {
+      if (result.status === "fulfilled" && result.value) {
+        map.set(result.value.trackId, result.value.feature);
       }
+    }
+  }
+  return map;
+}
 
-      const [tracks, stationProgress] = await Promise.all([
-        loadTracks(sys.id),
-        fetchJSON(`/rail/${sys.id}/station_progress.json`).then((d) => d || {}),
-      ]);
+/** 從本地散檔載入 TRA 專用資料 */
+async function loadTraData(): Promise<TraData | null> {
+  const [masterData, stationProgress] = await Promise.all([
+    fetchJSON("/rail/tra/master_schedule.json"),
+    fetchJSON("/rail/tra/station_progress.json").then((d) => d || {}),
+  ]);
 
-      return {
-        id: sys.id,
-        tracks,
-        schedules,
-        stationProgress,
-      } as RailSystem;
-    })
-  );
+  if (!masterData?.schedules) return null;
+
+  const schedules = parseTraSchedules(masterData);
+  const [odTracks, goldenTracks] = await Promise.all([
+    loadOdTracks(schedules),
+    loadGoldenTracks(),
+  ]);
+
+  return { schedules, odTracks, stationProgress, goldenTracks };
+}
+
+/** 從本地散檔載入 5 系統（不含 TRA） */
+async function loadFromLocalFiles(): Promise<{ systems: RailSystem[]; traData: TraData | null }> {
+  const [systemResults, traData] = await Promise.all([
+    Promise.allSettled(
+      RAIL_SYSTEMS.map(async (sys) => {
+        let schedules: Map<string, RailSchedule>;
+
+        if (sys.id === "trtc") {
+          schedules = await loadTrtcSchedules();
+        } else if (sys.id === "thsr") {
+          schedules = await loadThsrSchedules();
+        } else {
+          schedules = await loadGenericSchedules(sys.id, sys.schedulesKey!);
+        }
+
+        const [tracks, stationProgress] = await Promise.all([
+          loadTracks(sys.id),
+          fetchJSON(`/rail/${sys.id}/station_progress.json`).then((d) => d || {}),
+        ]);
+
+        return {
+          id: sys.id,
+          tracks,
+          schedules,
+          stationProgress,
+        } as RailSystem;
+      })
+    ),
+    loadTraData(),
+  ]);
 
   const systems: RailSystem[] = [];
-  for (const result of results) {
+  for (const result of systemResults) {
     if (result.status === "fulfilled") {
       systems.push(result.value);
     }
   }
 
-  // 同時載入 TRA golden tracks
-  const traGoldenFeatures = await loadGoldenTracks();
-
-  return { systems, traGoldenFeatures };
+  return { systems, traData };
 }
 
 // ── S3 Bundle Fallback ──
@@ -291,52 +328,9 @@ interface RailManifest {
 }
 
 /**
- * 將 bundle 中 TRA 的 master_schedule 格式轉換為 per-track RailSchedule Map
- */
-function convertTraSchedules(rawSchedules: Record<string, any>): Map<string, RailSchedule> {
-  const map = new Map<string, RailSchedule>();
-
-  // bundle 裡 TRA 存的是 { "master_schedule": { schedules: [...] } }
-  const masterData = rawSchedules["master_schedule"];
-  if (!masterData?.schedules) return map;
-
-  const byTrack = new Map<string, RailDeparture[]>();
-  for (const train of masterData.schedules) {
-    const trackId = train.od_track_id;
-    if (!trackId) continue;
-    if (!byTrack.has(trackId)) byTrack.set(trackId, []);
-    byTrack.get(trackId)!.push({
-      departure_time: train.departure_time,
-      train_id: train.train_id,
-      total_travel_time: train.total_travel_time,
-      stations: train.stations as RailStationTime[],
-    });
-  }
-
-  for (const [trackId, departures] of byTrack) {
-    const firstDep = departures[0];
-    const stationIds = firstDep ? firstDep.stations.map((s: RailStationTime) => s.station_id) : [];
-    map.set(trackId, {
-      track_id: trackId,
-      route_id: "TRA",
-      name: trackId,
-      train_color: "#7B7B7B",
-      stations: stationIds,
-      departures,
-    });
-  }
-  return map;
-}
-
-/**
  * 將 bundle 中的 plain object schedules 轉為 Map<string, RailSchedule>
  */
-function convertSchedules(systemId: string, rawSchedules: Record<string, any>): Map<string, RailSchedule> {
-  if (systemId === "tra") {
-    return convertTraSchedules(rawSchedules);
-  }
-
-  // TRTC / THSR / KRTC / KLRT / TMRT：直接 { trackId: RailSchedule }
+function convertSchedules(rawSchedules: Record<string, any>): Map<string, RailSchedule> {
   const map = new Map<string, RailSchedule>();
   for (const [trackId, schedule] of Object.entries(rawSchedules)) {
     map.set(trackId, schedule as RailSchedule);
@@ -346,24 +340,43 @@ function convertSchedules(systemId: string, rawSchedules: Record<string, any>): 
 
 /**
  * 將 bundle 中的 plain object tracks 轉為 Map<string, GeoJSON.Feature>
- *
- * bundle 格式：{ trackId: GeoJSON.FeatureCollection }
  */
 function convertTracks(rawTracks: Record<string, any>): Map<string, GeoJSON.Feature> {
   const map = new Map<string, GeoJSON.Feature>();
   for (const [trackId, data] of Object.entries(rawTracks)) {
-    if (data?.features?.[0]) {
-      map.set(trackId, data.features[0] as GeoJSON.Feature);
+    const feature = extractFeature(data);
+    if (feature) {
+      map.set(trackId, feature);
     }
   }
   return map;
 }
 
-/** 將 S3 bundle 解包為 RailSystem[] + golden tracks */
-function unbundleRailData(bundle: RailBundle): { systems: RailSystem[]; traGoldenFeatures: GeoJSON.Feature[] } {
-  const systems: RailSystem[] = [];
-  let traGoldenFeatures: GeoJSON.Feature[] = [];
+/** 從 bundle 中提取 TRA 專用資料 */
+function extractTraDataFromBundle(sysData: RailBundle["systems"][string]): TraData | null {
+  // bundle 裡 TRA 存的是 { "master_schedule": { schedules: [...] } }
+  const masterData = sysData.schedules["master_schedule"];
+  if (!masterData?.schedules) return null;
 
+  const schedules = parseTraSchedules(masterData);
+  const odTracks = convertTracks(sysData.tracks);
+  const stationProgress = sysData.station_progress;
+
+  let goldenTracks: GeoJSON.Feature[] = [];
+  if (sysData.tracks_golden) {
+    const goldenMap = convertTracks(sysData.tracks_golden);
+    goldenTracks = Array.from(goldenMap.values());
+  }
+
+  return { schedules, odTracks, stationProgress, goldenTracks };
+}
+
+/** 將 S3 bundle 解包為 RailSystem[] + TraData */
+function unbundleRailData(bundle: RailBundle): { systems: RailSystem[]; traData: TraData | null } {
+  const systems: RailSystem[] = [];
+  let traData: TraData | null = null;
+
+  // 5 個非 TRA 系統
   for (const sys of RAIL_SYSTEMS) {
     const sysData = bundle.systems[sys.id];
     if (!sysData) continue;
@@ -371,28 +384,28 @@ function unbundleRailData(bundle: RailBundle): { systems: RailSystem[]; traGolde
     systems.push({
       id: sys.id,
       tracks: convertTracks(sysData.tracks),
-      schedules: convertSchedules(sys.id, sysData.schedules),
+      schedules: convertSchedules(sysData.schedules),
       stationProgress: sysData.station_progress,
     });
-
-    // TRA: 解包 golden tracks
-    if (sys.id === "tra" && sysData.tracks_golden) {
-      const goldenMap = convertTracks(sysData.tracks_golden);
-      traGoldenFeatures = Array.from(goldenMap.values());
-    }
   }
-  return { systems, traGoldenFeatures };
+
+  // TRA 獨立提取
+  const traSysData = bundle.systems["tra"];
+  if (traSysData) {
+    traData = extractTraDataFromBundle(traSysData);
+  }
+
+  return { systems, traData };
 }
 
 /** 從 S3 bundle 載入軌道資料 */
-async function loadFromS3Bundle(): Promise<{ systems: RailSystem[]; traGoldenFeatures: GeoJSON.Feature[] }> {
+async function loadFromS3Bundle(): Promise<{ systems: RailSystem[]; traData: TraData | null }> {
   const manifestRes = await fetch(`${S3_RAIL}/manifest.json`);
   if (!manifestRes.ok) throw new Error("Rail S3 manifest not available");
   const manifest: RailManifest = await manifestRes.json();
 
   if (manifest.dates.length === 0) throw new Error("Rail S3 manifest has no dates");
 
-  // 下載所有日期的 bundle（通常只有一個）
   const fetches = manifest.dates.map(async (d) => {
     const [y, m, dd] = d.date.split("-");
     const res = await fetch(`${S3_RAIL}/${y}/${m}/${dd}/bundle.json`);
@@ -405,7 +418,6 @@ async function loadFromS3Bundle(): Promise<{ systems: RailSystem[]; traGoldenFea
 
   if (valid.length === 0) throw new Error("No rail bundle from S3");
 
-  // 取第一個有效 bundle（多日期時合併到第一個即可）
   return unbundleRailData(valid[0]!);
 }
 
@@ -416,18 +428,19 @@ async function loadFromS3Bundle(): Promise<{ systems: RailSystem[]; traGoldenFea
  */
 export async function loadAllRail(): Promise<RailData> {
   let systems: RailSystem[];
-  let traGoldenFeatures: GeoJSON.Feature[] = [];
+  let traData: TraData | null = null;
 
   // 1. 嘗試本地散檔
   try {
     const local = await loadFromLocalFiles();
     systems = local.systems;
-    traGoldenFeatures = local.traGoldenFeatures;
-    // 檢查是否有實際資料（至少一個系統有 tracks 或 schedules）
-    const hasData = systems.some((s) => s.tracks.size > 0 || s.schedules.size > 0);
+    traData = local.traData;
+    const hasData = systems.some((s) => s.tracks.size > 0 || s.schedules.size > 0) || traData !== null;
     if (hasData) {
-      console.log(`[Rail] Loaded from local files (${systems.length} systems, ${traGoldenFeatures.length} golden tracks)`);
-      return postProcess(systems, traGoldenFeatures);
+      const goldenCount = traData?.goldenTracks?.length ?? 0;
+      const traScheduleCount = traData?.schedules?.size ?? 0;
+      console.log(`[Rail] Loaded from local files (${systems.length} systems, TRA: ${traScheduleCount} tracks, ${goldenCount} golden tracks)`);
+      return postProcess(systems, traData);
     }
   } catch {
     // fall through to S3
@@ -437,7 +450,8 @@ export async function loadAllRail(): Promise<RailData> {
   console.log("[Rail] Local files unavailable, loading from S3 bundle...");
   const s3Result = await loadFromS3Bundle();
   systems = s3Result.systems;
-  traGoldenFeatures = s3Result.traGoldenFeatures;
-  console.log(`[Rail] Loaded from S3 bundle (${systems.length} systems, ${traGoldenFeatures.length} golden tracks)`);
-  return postProcess(systems, traGoldenFeatures);
+  traData = s3Result.traData;
+  const goldenCount = traData?.goldenTracks?.length ?? 0;
+  console.log(`[Rail] Loaded from S3 bundle (${systems.length} systems, ${goldenCount} golden tracks)`);
+  return postProcess(systems, traData);
 }

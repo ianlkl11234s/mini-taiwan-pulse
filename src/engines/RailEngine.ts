@@ -1,80 +1,5 @@
 import type { RailSystem, RailTrain, RailStationTime } from "../types";
-
-/**
- * 延長日制起始點：05:50（與 mini-taipei-v3 一致，台鐵/捷運營運日分界）
- */
-const DAY_START_SECONDS = 5 * 3600 + 50 * 60; // 05:50 = 21000 秒
-
-/**
- * 時間字串 "HH:MM:SS" 轉為延長日秒數
- * 05:50 前的時間視為前一天延續（+86400）
- */
-function timeToSeconds(timeStr: string): number {
-  const parts = timeStr.split(":");
-  const h = parseInt(parts[0] ?? "0", 10);
-  const m = parseInt(parts[1] ?? "0", 10);
-  const s = parts[2] ? parseInt(parts[2], 10) : 0;
-  const totalSec = h * 3600 + m * 60 + s;
-  return totalSec < DAY_START_SECONDS ? totalSec + 86400 : totalSec;
-}
-
-/**
- * Unix timestamp 轉為延長日秒數（台灣時區 UTC+8）
- */
-function unixToExtendedDaySeconds(unixTs: number): number {
-  const daySeconds = ((unixTs + 8 * 3600) % 86400);
-  return daySeconds < DAY_START_SECONDS ? daySeconds + 86400 : daySeconds;
-}
-
-/**
- * 計算線段總長度
- */
-function calculateTotalLength(coords: [number, number][]): number {
-  let total = 0;
-  for (let i = 0; i < coords.length - 1; i++) {
-    const a = coords[i]!;
-    const b = coords[i + 1]!;
-    const dx = b[0] - a[0];
-    const dy = b[1] - a[1];
-    total += Math.sqrt(dx * dx + dy * dy);
-  }
-  return total;
-}
-
-/**
- * 在 LineString 上進行線性內插
- */
-function interpolateOnLineString(
-  coords: [number, number][],
-  progress: number,
-): [number, number] {
-  if (coords.length === 0) return [0, 0];
-  if (coords.length === 1) return coords[0]!;
-  if (progress <= 0) return coords[0]!;
-  if (progress >= 1) return coords[coords.length - 1]!;
-
-  const totalLength = calculateTotalLength(coords);
-  const targetDistance = totalLength * progress;
-
-  let accumulated = 0;
-  for (let i = 0; i < coords.length - 1; i++) {
-    const a = coords[i]!;
-    const b = coords[i + 1]!;
-    const dx = b[0] - a[0];
-    const dy = b[1] - a[1];
-    const segLen = Math.sqrt(dx * dx + dy * dy);
-    if (accumulated + segLen >= targetDistance) {
-      const t = (targetDistance - accumulated) / segLen;
-      return [
-        a[0] + dx * t,
-        a[1] + dy * t,
-      ];
-    }
-    accumulated += segLen;
-  }
-
-  return coords[coords.length - 1]!;
-}
+import { timeToSeconds, unixToExtendedDaySeconds, interpolateOnLineString } from "./railUtils";
 
 /**
  * 根據已過時間找到當前所在的區段
@@ -225,22 +150,6 @@ export class RailEngine {
             }
             const actualP = fromP + (toP - fromP) * seg.segmentProgress;
             position = interpolateOnLineString(coords, actualP);
-          }
-
-          // DEBUG: 追蹤 THSR 列車進度（用完可移除）
-          if (system.id === "thsr" && displayStatus === "running") {
-            const actualP = (() => {
-              if (!curStation || !nextStation) return -1;
-              const fp = getProgress(curStation.station_id, seg.stationIndex);
-              const tp = getProgress(nextStation.station_id, seg.nextStationIndex);
-              return fp + (tp - fp) * seg.segmentProgress;
-            })();
-            // 每 10 秒 log 一次（避免刷屏）
-            if (Math.floor(elapsed) % 600 === 0) {
-              console.log(
-                `[THSR] ${dep.train_id} | elapsed=${(elapsed / 60).toFixed(0)}min | progress=${(actualP * 100).toFixed(1)}% | stations=${dep.stations.length}/${totalStations} | seg=${seg.stationIndex}→${seg.nextStationIndex} (${seg.segmentProgress.toFixed(2)}) | hasProgressMap=${!!progressMap}`,
-              );
-            }
           }
 
           trains.push({
