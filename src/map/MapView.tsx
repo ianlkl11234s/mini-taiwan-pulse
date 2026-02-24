@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode } from "../types";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
+import { addStationPolygonOverlay, addStationPointOverlay, updateStationStyle, setStationVisible } from "./stationOverlay";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -13,6 +14,8 @@ interface MapViewProps {
   airportGlow: number;
   isDarkTheme?: boolean;
   showTrails?: boolean;
+  stationVisible?: boolean;
+  stationScale?: number;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -129,7 +132,7 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, showTrails = true, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, showTrails = true, stationVisible = true, stationScale = 1, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -143,6 +146,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   const flightsRef = useRef(flights);
   const isDarkThemeRef = useRef(isDarkTheme);
   const showTrailsRef = useRef(showTrails);
+  const stationVisibleRef = useRef(stationVisible);
+  const stationScaleRef = useRef(stationScale);
 
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
@@ -152,6 +157,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   flightsRef.current = flights;
   isDarkThemeRef.current = isDarkTheme;
   showTrailsRef.current = showTrails;
+  stationVisibleRef.current = stationVisible;
+  stationScaleRef.current = stationScale;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -172,6 +179,11 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     map.on("style.load", () => {
       setupTerrain(map);
       addAirportOverlay(map, airportOpacityRef.current, airportGlowRef.current, isDarkThemeRef.current);
+      addStationPolygonOverlay(map, isDarkThemeRef.current);
+      addStationPointOverlay(map, isDarkThemeRef.current, stationScaleRef.current);
+      if (!stationVisibleRef.current) {
+        setStationVisible(map, false);
+      }
 
       // 永遠保留 Mapbox 原生靜態軌跡
       const is3d = renderModeRef.current === "3d";
@@ -271,6 +283,13 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
     updateAirportStyle(map, airportOpacity, airportGlow, isDarkTheme);
   }, [airportOpacity, airportGlow, isDarkTheme]);
+
+  // 車站圖層可見性
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    setStationVisible(map, stationVisible);
+  }, [stationVisible]);
 
   return (
     <div

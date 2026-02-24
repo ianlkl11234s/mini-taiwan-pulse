@@ -16,6 +16,7 @@ import { filterByAirport, filterByTimeWindow } from "./data/flightLoader";
 import { RailEngine } from "./engines/RailEngine";
 import { TraTrainEngine } from "./engines/TraTrainEngine";
 import { updateRailTracks, removeRailTracks } from "./map/railTracks";
+import { updateStationStyle } from "./map/stationOverlay";
 import { AirportSelector } from "./components/AirportSelector";
 import { FlightPicker } from "./components/FlightPicker";
 import { TimelineControls } from "./components/TimelineControls";
@@ -72,6 +73,7 @@ export default function App() {
     flights: true,
     ships: true,
     rail: true,
+    stations: true,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;
@@ -92,6 +94,7 @@ export default function App() {
   const [railTrackOpacity, setRailTrackOpacity] = useState(0.35);
   const [shipOrbScale, setShipOrbScale] = useState(0.000007);
   const [shipTrailOpacity, setShipTrailOpacity] = useState(0.8);
+  const [stationScale, setStationScale] = useState(1);
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [tooltipInfo, setTooltipInfo] = useState<{ flight: Flight; x: number; y: number; altitude: number | null } | null>(null);
@@ -350,6 +353,13 @@ export default function App() {
     }
   }, [railData, isDarkTheme, layerVisibility.rail]);
 
+  // 車站大小即時更新
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    updateStationStyle(map, isDarkTheme, stationScale);
+  }, [stationScale, isDarkTheme]);
+
   // 圖層可見性 → add/remove layers
   useEffect(() => {
     const map = mapRef.current;
@@ -490,6 +500,8 @@ export default function App() {
         airportGlow={airportGlow}
         isDarkTheme={isDarkTheme}
         showTrails={showTrails}
+        stationVisible={layerVisibility.stations}
+        stationScale={stationScale}
         onMapReady={handleMapReady}
       />
 
@@ -827,6 +839,12 @@ export default function App() {
               Ship Trail {shipTrailOpacity.toFixed(2)}
               <input type="range" min={0.05} max={1} step={0.05} value={shipTrailOpacity}
                 onChange={(e) => setShipTrailOpacity(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
+            </label>
+            <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)", margin: "0 2px" }}>|</span>
+            <label style={getSliderLabelStyle(isDarkTheme)}>
+              Stn {stationScale.toFixed(1)}
+              <input type="range" min={0.3} max={3} step={0.1} value={stationScale}
+                onChange={(e) => setStationScale(Number(e.target.value))} style={getSliderStyle(isDarkTheme)} />
             </label>
           </div>
 
@@ -1259,6 +1277,7 @@ export default function App() {
                         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, min: 0.05, max: 1, step: 0.05, value: railTrackOpacity, set: setRailTrackOpacity },
                         { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, min: 0.000001, max: 0.00002, step: 0.000001, value: shipOrbScale, set: setShipOrbScale },
                         { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, min: 0.05, max: 1, step: 0.05, value: shipTrailOpacity, set: setShipTrailOpacity },
+                        { label: `Stn ${stationScale.toFixed(1)}`, min: 0.3, max: 3, step: 0.1, value: stationScale, set: setStationScale },
                       ].map((s) => (
                         <label key={s.label} style={{
                           color: "rgba(255,255,255,0.6)",

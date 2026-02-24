@@ -11,6 +11,7 @@ const LAYERS: { key: keyof LayerVisibility; label: string; color: string }[] = [
   { key: "flights", label: "Flight", color: "#64aaff" },
   { key: "ships", label: "Ship", color: "#1ad9e5" },
   { key: "rail", label: "Rail", color: "#ee6c00" },
+  { key: "stations", label: "Station", color: "#b8a080" },
 ];
 
 export function LayerToggle({ visibility, isDarkTheme, counts, onChange }: LayerToggleProps) {
