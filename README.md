@@ -31,18 +31,30 @@
 
 ### 軌道列車
 
-- **6 個系統**：台北捷運（TRTC）、高鐵（THSR）、台鐵（TRA）、高雄捷運（KRTC）、高雄輕軌（KLRT）、台中捷運（TMRT）
+- **6 個系統**：台鐵（TRA）、高鐵（THSR）、台北捷運（TRTC）、高雄捷運（KRTC）、高雄輕軌（KLRT）、台中捷運（TMRT）
 - **靜態軌道**：Three.js 3D LineSegments，支援 Z 軸偏移（Rail Z 滑桿）
-- **列車光球**：per-instance color，各系統不同顏色
+- **列車光球**：per-instance color，各系統不同顏色（台鐵依車種再細分 6 色）
 - **拖尾線**：台鐵 + 高鐵專屬（3 分鐘遞延）
+- **台鐵專用引擎**：TraTrainEngine 處理 OD 軌道、golden track、彰化三角線等複雜路線
 - **排除**：貓空纜車（MK-*）
+
+## 地圖標記
+
+| 標記類型 | 渲染方式 | 資料來源 |
+|---------|---------|---------|
+| 機場邊界 | Mapbox fill + line + glow | OSM Overpass API |
+| 大站 Polygon（TRA class 0-1 + THSR） | fill + glow（類機場風格） | OSM Overpass API |
+| 小站 + 捷運站 Point（491 站） | circle glow 圓環 | mini-taipei-v3 車站 GeoJSON |
+| 港口邊界 | fill + line + glow | OSM Overpass API |
 
 ## 視覺概念
 
 - **機場邊界**：OSM 機場多邊形，暗色主題白色填充 + 光暈，亮色主題金黃色填充 + 光暈
+- **車站標記**：大站 Polygon + 小站/捷運站 circle glow，各系統依色彩區分
+- **港口邊界**：OSM 碼頭多邊形，青藍色 fill + glow
 - **主題適應**：所有 UI 元件與視覺效果自動適應底圖明暗
 - **拍攝模式**：一鍵隱藏 UI，暗角 vignette 效果，適合截圖輸出
-- **圖層開關**：Flight / Ship / Rail 各自獨立開關，顯示活躍數量
+- **圖層開關**：Flight / Ship / Rail / Station 各自獨立開關，顯示活躍數量
 
 ## 功能
 
@@ -101,7 +113,8 @@
 | 航班資料 | FlightRadar24 API | `[lat, lng, alt_m, timestamp]` 軌跡格式 |
 | 船舶資料 | AIS / ship-gis SQLite | 台灣周邊海域船舶位置 |
 | 軌道資料 | mini-taipei-v3 | 時刻表 + GeoJSON 軌道 |
-| 地理 | OpenStreetMap / Overpass API | 機場邊界多邊形 |
+| 地理 | OpenStreetMap / Overpass API | 機場、車站、港口邊界多邊形 |
+| 雲端 | AWS S3 | 航班 / 船舶 / 軌道資料增量同步 |
 
 ## 架構
 
@@ -121,70 +134,102 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
   │     └── ShipScene
   │           ├── InstancedMesh（光球 + 呼吸動畫）
   │           └── LineSegments（拖尾線 per-vertex color gradient）
-  └── CustomLayer: rail-3d
-        └── RailScene
-              ├── InstancedMesh（列車光球 per-instance color）
-              ├── LineSegments（TRA/THSR 拖尾線）
-              └── LineSegments（靜態軌道 3D 線段）
+  ├── CustomLayer: rail-3d
+  │     └── RailScene
+  │           ├── InstancedMesh（列車光球 per-instance color）
+  │           ├── LineSegments（TRA/THSR 拖尾線）
+  │           └── LineSegments（靜態軌道 3D 線段）
+  └── Mapbox GL Layers
+        ├── airport-poly-*（機場邊界 fill + glow）
+        ├── station-poly-*（大站 Polygon fill + glow）
+        ├── station-point-*（小站 circle glow）
+        └── port-poly-*（港口邊界 fill + glow）
 ```
 
 ### 專案結構
 
 ```
-Taiwan Flight Arc/
+plan-art/
 ├── public/
-│   ├── aviation_data.json        # FR24 航班軌跡（gitignored）
-│   ├── ship_data.json            # AIS 船舶軌跡（gitignored）
-│   ├── rail/                     # 軌道時刻表 + GeoJSON（gitignored）
-│   └── airports.geojson          # OSM 台灣機場邊界
+│   ├── aviation_data.json          # FR24 航班軌跡（gitignored）
+│   ├── ship_data.json              # AIS 船舶軌跡（gitignored）
+│   ├── airports.geojson            # OSM 台灣 14 座機場邊界
+│   ├── station_polygons.geojson    # 大站 Polygon（TRA class 0-1 + THSR）
+│   ├── station_points.geojson      # 小站 + 捷運站 Point（491 站）
+│   ├── port_polygons.geojson       # 港口邊界 Polygon
+│   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
+│       ├── tra/                    # 台鐵（265 OD 軌道 + 39 golden tracks）
+│       ├── thsr/                   # 高鐵
+│       ├── trtc/                   # 台北捷運
+│       ├── krtc/                   # 高雄捷運
+│       ├── klrt/                   # 高雄輕軌
+│       └── tmrt/                   # 台中捷運
 ├── scripts/
-│   ├── fetch-flights.ts          # 航班清單擷取
-│   ├── fetch-tracks.ts           # 飛行軌跡擷取
-│   ├── export-ship-data.py       # 從 ship-gis SQLite 匯出船舶資料
-│   └── export-rail-data.py       # 從 mini-taipei-v3 複製軌道資料
+│   ├── fetch-flights.ts            # 航班清單擷取
+│   ├── fetch-tracks.ts             # 飛行軌跡擷取
+│   ├── upload-to-s3.ts             # 航班資料上傳 S3
+│   ├── upload-ships-to-s3.ts       # 船舶資料上傳 S3
+│   ├── upload-rail-to-s3.ts        # 軌道資料上傳 S3
+│   ├── export-ship-data.py         # 從 ship-gis SQLite 匯出船舶資料
+│   ├── export-rail-data.py         # 從 mini-taipei-v3 複製軌道資料
+│   ├── bundle-rail-data.py         # 打包軌道資料成單一 JSON
+│   ├── fetch-station-polygons.py   # 從 OSM 下載大站 Polygon
+│   ├── build-station-points.py     # 合併小站 Point GeoJSON
+│   ├── fix-changhua-loop.py        # 修復彰化三角線軌道迴圈
+│   └── fix-station-progress.py     # 重算車站 progress 對照表
 ├── src/
-│   ├── App.tsx                   # 主應用 + 狀態管理 + UI
-│   ├── types/index.ts            # 型別定義
+│   ├── App.tsx                     # 主應用 + 狀態管理 + UI
+│   ├── types/index.ts              # 型別定義
+│   ├── constants/
+│   │   └── traTrainTypes.ts        # TRA 列車類型常數（6 色分類）
 │   ├── data/
-│   │   ├── flightLoader.ts       # 航班資料載入、篩選、前處理
-│   │   ├── shipLoader.ts         # 船舶資料載入
-│   │   └── railLoader.ts         # 軌道資料載入（6 系統）
+│   │   ├── flightLoader.ts         # 航班資料載入 + S3 增量更新
+│   │   ├── shipLoader.ts           # 船舶資料載入
+│   │   ├── railLoader.ts           # 軌道資料載入（6 系統）
+│   │   └── s3Loader.ts             # S3 增量同步客戶端
 │   ├── engines/
-│   │   └── RailEngine.ts         # 軌道列車插值引擎
+│   │   ├── TraTrainEngine.ts       # 台鐵專用引擎（OD + golden track）
+│   │   ├── RailEngine.ts           # 通用軌道列車插值引擎
+│   │   └── railUtils.ts            # 軌道工具函式
 │   ├── map/
-│   │   ├── MapView.tsx           # Mapbox 容器 + 機場圖層
-│   │   ├── customLayer.ts        # CustomLayer ↔ Three.js 橋接（3 圖層）
-│   │   ├── staticTrails.ts       # 2D Mapbox 原生軌跡圖層
-│   │   ├── railTracks.ts         # 軌道 Mapbox 2D 線圖層
-│   │   └── cameraPresets.ts      # 台灣機場視角預設
+│   │   ├── MapView.tsx             # Mapbox 容器 + 圖層管理
+│   │   ├── customLayer.ts          # CustomLayer ↔ Three.js 橋接（3 圖層）
+│   │   ├── staticTrails.ts         # 2D Mapbox 原生軌跡圖層
+│   │   ├── railTracks.ts           # 軌道 Mapbox 2D 線圖層
+│   │   ├── stationOverlay.ts       # 車站 Polygon + Point 圖層
+│   │   ├── portOverlay.ts          # 港口 Polygon 圖層
+│   │   └── cameraPresets.ts        # 台灣機場視角預設
 │   ├── three/
-│   │   ├── FlightScene.ts        # 航班場景（靜態 + 動態軌跡）
-│   │   ├── ShipScene.ts          # 船舶場景（InstancedMesh + LineSegments）
-│   │   ├── RailScene.ts          # 軌道場景（靜態軌道 + 列車 + 拖尾）
-│   │   ├── LightOrb.ts           # 多層球體光球
-│   │   ├── LightTrail.ts         # GLSL 光軌渲染
-│   │   ├── BlinkingLight.ts      # 紅色閃爍燈
-│   │   └── shaders/              # GLSL vertex/fragment shaders
+│   │   ├── FlightScene.ts          # 航班場景（靜態 + 動態軌跡）
+│   │   ├── ShipScene.ts            # 船舶場景（InstancedMesh + LineSegments）
+│   │   ├── RailScene.ts            # 軌道場景（靜態軌道 + 列車 + 拖尾）
+│   │   ├── LightOrb.ts             # 多層球體光球
+│   │   ├── LightTrail.ts           # GLSL 光軌渲染
+│   │   ├── BlinkingLight.ts        # 紅色閃爍燈
+│   │   └── shaders/                # GLSL vertex/fragment shaders
 │   ├── hooks/
-│   │   ├── useFlightData.ts      # 航班資料 hook
-│   │   ├── useShipData.ts        # 船舶資料 hook
-│   │   ├── useRailData.ts        # 軌道資料 hook
-│   │   ├── useTimeline.ts        # 時間軸播放 hook
-│   │   └── useIsMobile.ts        # 響應式偵測
+│   │   ├── useFlightData.ts        # 航班資料 hook
+│   │   ├── useShipData.ts          # 船舶資料 hook
+│   │   ├── useRailData.ts          # 軌道資料 hook
+│   │   ├── useTimeline.ts          # 時間軸播放 hook
+│   │   └── useIsMobile.ts          # 響應式偵測
 │   ├── components/
-│   │   ├── AirportSelector.tsx
-│   │   ├── FlightPicker.tsx
-│   │   ├── TimelineControls.tsx
-│   │   ├── StyleSelector.tsx
-│   │   ├── LayerToggle.tsx       # Flight / Ship / Rail 圖層開關
-│   │   └── MobileBottomSheet.tsx
+│   │   ├── AirportSelector.tsx     # 機場選擇器
+│   │   ├── FlightPicker.tsx        # 航班選擇器
+│   │   ├── TimelineControls.tsx    # 時間軸控制
+│   │   ├── StyleSelector.tsx       # 底圖樣式切換
+│   │   ├── LayerToggle.tsx         # Flight / Ship / Rail / Station 開關
+│   │   └── MobileBottomSheet.tsx   # 手機版底部抽屜
 │   └── utils/
-│       ├── coordinates.ts        # MercatorCoordinate 轉換
-│       └── interpolation.ts      # 軌跡時間插值
+│       ├── coordinates.ts          # MercatorCoordinate 轉換
+│       └── interpolation.ts        # 軌跡時間插值
+├── Dockerfile                      # Multi-stage build（node:22-alpine → nginx:alpine）
+├── docker-compose.yml              # Port 3721，volume mount 資料檔
+├── nginx.conf                      # Nginx 反向代理
 ├── .env.example
-├── LICENSE
 ├── package.json
-└── vite.config.ts
+├── vite.config.ts
+└── README.md
 ```
 
 ## 資料準備
@@ -230,6 +275,34 @@ python3 scripts/export-rail-data.py
 ```
 
 產出 `public/rail/` 目錄，包含 6 個系統的時刻表、軌道 GeoJSON、車站進度對照表。
+
+### 車站 + 港口標記
+
+```bash
+# 下載大站 OSM Polygon（TRA class 0-1 + THSR 12 站）
+python3 scripts/fetch-station-polygons.py
+
+# 合併小站 + 捷運站 Point（491 站）
+python3 scripts/build-station-points.py
+```
+
+### 軌道資料修正腳本
+
+```bash
+# 修復彰化三角線迴圈（112 條軌道、333 列火車）
+python3 scripts/fix-changhua-loop.py
+
+# 重算 station_progress（修正列車停站位置偏移）
+python3 scripts/fix-station-progress.py
+```
+
+### S3 上傳
+
+```bash
+npm run s3:upload          # 航班資料
+npm run s3:upload:ships    # 船舶資料
+npm run s3:upload:rail     # 軌道資料
+```
 
 ## 開發
 
