@@ -1,7 +1,13 @@
 import type { RailSystem, RailTrain, RailStationTime } from "../types";
 
 /**
- * 時間字串 "HH:MM:SS" 轉為當天秒數，支援延長日制（00:00-05:59 → 24:00-29:59）
+ * 延長日制起始點：05:50（與 mini-taipei-v3 一致，台鐵/捷運營運日分界）
+ */
+const DAY_START_SECONDS = 5 * 3600 + 50 * 60; // 05:50 = 21000 秒
+
+/**
+ * 時間字串 "HH:MM:SS" 轉為延長日秒數
+ * 05:50 前的時間視為前一天延續（+86400）
  */
 function timeToSeconds(timeStr: string): number {
   const parts = timeStr.split(":");
@@ -9,8 +15,7 @@ function timeToSeconds(timeStr: string): number {
   const m = parseInt(parts[1] ?? "0", 10);
   const s = parts[2] ? parseInt(parts[2], 10) : 0;
   const totalSec = h * 3600 + m * 60 + s;
-  // 延長日制：凌晨 0-5 點視為前一天的 24-29 點
-  return h < 6 ? totalSec + 86400 : totalSec;
+  return totalSec < DAY_START_SECONDS ? totalSec + 86400 : totalSec;
 }
 
 /**
@@ -18,8 +23,7 @@ function timeToSeconds(timeStr: string): number {
  */
 function unixToExtendedDaySeconds(unixTs: number): number {
   const daySeconds = ((unixTs + 8 * 3600) % 86400);
-  // 延長日制
-  return daySeconds < 6 * 3600 ? daySeconds + 86400 : daySeconds;
+  return daySeconds < DAY_START_SECONDS ? daySeconds + 86400 : daySeconds;
 }
 
 /**
@@ -221,6 +225,22 @@ export class RailEngine {
             }
             const actualP = fromP + (toP - fromP) * seg.segmentProgress;
             position = interpolateOnLineString(coords, actualP);
+          }
+
+          // DEBUG: 追蹤 THSR 列車進度（用完可移除）
+          if (system.id === "thsr" && displayStatus === "running") {
+            const actualP = (() => {
+              if (!curStation || !nextStation) return -1;
+              const fp = getProgress(curStation.station_id, seg.stationIndex);
+              const tp = getProgress(nextStation.station_id, seg.nextStationIndex);
+              return fp + (tp - fp) * seg.segmentProgress;
+            })();
+            // 每 10 秒 log 一次（避免刷屏）
+            if (Math.floor(elapsed) % 600 === 0) {
+              console.log(
+                `[THSR] ${dep.train_id} | elapsed=${(elapsed / 60).toFixed(0)}min | progress=${(actualP * 100).toFixed(1)}% | stations=${dep.stations.length}/${totalStations} | seg=${seg.stationIndex}→${seg.nextStationIndex} (${seg.segmentProgress.toFixed(2)}) | hasProgressMap=${!!progressMap}`,
+              );
+            }
           }
 
           trains.push({
