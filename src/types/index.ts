@@ -153,4 +153,7 @@ export interface LayerVisibility {
   rail: boolean;
   stations: boolean;
   ports: boolean;
+  lighthouses: boolean;
+  highways: boolean;
+  provincialRoads: boolean;
 }

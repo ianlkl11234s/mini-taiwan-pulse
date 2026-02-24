@@ -12,6 +12,7 @@ import { useTimeline } from "./hooks/useTimeline";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { CAMERA_PRESETS, getPresetByIcao } from "./map/cameraPresets";
 import { createFlightLayer, createShipLayer, createRailLayer } from "./map/customLayer";
+import { createLighthouseLayer } from "./map/lighthouseCustomLayer";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { RailEngine } from "./engines/RailEngine";
 import { TraTrainEngine } from "./engines/TraTrainEngine";
@@ -35,6 +36,18 @@ export default function App() {
   } = useFlightData();
 
   const { ships } = useShipData();
+
+  // 燈塔座標
+  const [lighthousePositions, setLighthousePositions] = useState<[number, number][]>([]);
+  useEffect(() => {
+    fetch("./lighthouse.geojson")
+      .then((r) => r.json())
+      .then((geojson: GeoJSON.FeatureCollection<GeoJSON.Point>) => {
+        const positions = geojson.features.map((f) => f.geometry.coordinates.slice(0, 2) as [number, number]);
+        setLighthousePositions(positions);
+      })
+      .catch((err) => console.warn("Lighthouse data not available:", err));
+  }, []);
   const { railData } = useRailData();
 
   // 軌道列車引擎
@@ -59,6 +72,9 @@ export default function App() {
     rail: true,
     stations: true,
     ports: true,
+    lighthouses: true,
+    highways: false,
+    provincialRoads: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;
@@ -74,7 +90,7 @@ export default function App() {
   const [orbScale, setOrbScale] = useState(0.000005);
   const [airportOpacity, setAirportOpacity] = useState(0.12);
   const [airportGlow, setAirportGlow] = useState(0.8);
-  const [displayMode, setDisplayMode] = useState<DisplayMode>("trails");
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
   const [railAltOffset, setRailAltOffset] = useState(110);
   const [railOrbScale, setRailOrbScale] = useState(0.00001);
   const [railTrackOpacity, setRailTrackOpacity] = useState(0.35);
@@ -135,6 +151,8 @@ export default function App() {
   const shipOrbScaleRef = useRef(shipOrbScale);
   const shipTrailOpacityRef = useRef(shipTrailOpacity);
   const railDataRef = useRef(railData);
+  const lighthousePositionsRef = useRef(lighthousePositions);
+  const playingRef = useRef(timeline.playing);
   const clickBoundRef = useRef(false);
 
   flightsRef.current = displayedFlights;
@@ -154,6 +172,8 @@ export default function App() {
   shipOrbScaleRef.current = shipOrbScale;
   shipTrailOpacityRef.current = shipTrailOpacity;
   railDataRef.current = railData;
+  lighthousePositionsRef.current = lighthousePositions;
+  playingRef.current = timeline.playing;
 
   const showTrails = displayMode === "trails";
 
@@ -221,11 +241,23 @@ export default function App() {
     map.addLayer(layer);
   };
 
+  const addLighthouseLayer = (map: MapboxMap) => {
+    if (map.getLayer("lighthouse-3d")) map.removeLayer("lighthouse-3d");
+    const layer = createLighthouseLayer({
+      getPositions: () => lighthousePositionsRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getIsPlaying: () => playingRef.current,
+      getIsVisible: () => layerVisibilityRef.current.lighthouses,
+    });
+    map.addLayer(layer);
+  };
+
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
     addFlightLayer(map);
     addShipLayer(map);
     addRailLayer(map);
+    addLighthouseLayer(map);
     const updateCamera = () => {
       const c = map.getCenter();
       setCameraInfo({
@@ -356,6 +388,12 @@ export default function App() {
     } else if (!layerVisibility.rail && map.getLayer("rail-3d")) {
       map.removeLayer("rail-3d");
     }
+
+    if (layerVisibility.lighthouses && !map.getLayer("lighthouse-3d")) {
+      addLighthouseLayer(map);
+    } else if (!layerVisibility.lighthouses && map.getLayer("lighthouse-3d")) {
+      map.removeLayer("lighthouse-3d");
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layerVisibility]);
 
@@ -476,6 +514,9 @@ export default function App() {
         stationVisible={layerVisibility.stations}
         stationScale={stationScale}
         portVisible={layerVisibility.ports}
+        lighthouseVisible={layerVisibility.lighthouses}
+        highwayVisible={layerVisibility.highways}
+        provincialRoadVisible={layerVisibility.provincialRoads}
         onMapReady={handleMapReady}
       />
 

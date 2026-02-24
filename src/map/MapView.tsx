@@ -5,6 +5,8 @@ import type { CameraPreset, Flight, RenderMode } from "../types";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { addStationPolygonOverlay, addStationPointOverlay, updateStationStyle, setStationVisible } from "./stationOverlay";
 import { addPortPolygonOverlay, updatePortStyle, setPortVisible } from "./portOverlay";
+import { addLighthouseOverlay, updateLighthouseStyle, setLighthouseVisible } from "./lighthouseOverlay";
+import { addHighwayOverlay, addProvincialRoadOverlay, updateRoadStyle, setHighwayVisible, setProvincialRoadVisible } from "./roadOverlay";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -18,6 +20,9 @@ interface MapViewProps {
   stationVisible?: boolean;
   stationScale?: number;
   portVisible?: boolean;
+  lighthouseVisible?: boolean;
+  highwayVisible?: boolean;
+  provincialRoadVisible?: boolean;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -134,7 +139,7 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, showTrails = true, stationVisible = true, stationScale = 1, portVisible = true, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, showTrails = true, stationVisible = true, stationScale = 1, portVisible = true, lighthouseVisible = true, highwayVisible = false, provincialRoadVisible = false, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -151,6 +156,9 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   const stationVisibleRef = useRef(stationVisible);
   const stationScaleRef = useRef(stationScale);
   const portVisibleRef = useRef(portVisible);
+  const lighthouseVisibleRef = useRef(lighthouseVisible);
+  const highwayVisibleRef = useRef(highwayVisible);
+  const provincialRoadVisibleRef = useRef(provincialRoadVisible);
 
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
@@ -163,6 +171,9 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
   stationVisibleRef.current = stationVisible;
   stationScaleRef.current = stationScale;
   portVisibleRef.current = portVisible;
+  lighthouseVisibleRef.current = lighthouseVisible;
+  highwayVisibleRef.current = highwayVisible;
+  provincialRoadVisibleRef.current = provincialRoadVisible;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -191,6 +202,18 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
       addPortPolygonOverlay(map, isDarkThemeRef.current);
       if (!portVisibleRef.current) {
         setPortVisible(map, false);
+      }
+      addLighthouseOverlay(map, isDarkThemeRef.current);
+      if (!lighthouseVisibleRef.current) {
+        setLighthouseVisible(map, false);
+      }
+      addHighwayOverlay(map, isDarkThemeRef.current);
+      if (!highwayVisibleRef.current) {
+        setHighwayVisible(map, false);
+      }
+      addProvincialRoadOverlay(map, isDarkThemeRef.current);
+      if (!provincialRoadVisibleRef.current) {
+        setProvincialRoadVisible(map, false);
       }
 
       // 永遠保留 Mapbox 原生靜態軌跡
@@ -291,6 +314,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
     updateAirportStyle(map, airportOpacity, airportGlow, isDarkTheme);
     updatePortStyle(map, isDarkTheme);
+    updateLighthouseStyle(map, isDarkTheme);
+    updateRoadStyle(map, isDarkTheme);
   }, [airportOpacity, airportGlow, isDarkTheme]);
 
   // 車站圖層可見性
@@ -306,6 +331,27 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
     setPortVisible(map, portVisible);
   }, [portVisible]);
+
+  // 燈塔圖層可見性
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    setLighthouseVisible(map, lighthouseVisible);
+  }, [lighthouseVisible]);
+
+  // 國道圖層可見性
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    setHighwayVisible(map, highwayVisible);
+  }, [highwayVisible]);
+
+  // 省道圖層可見性
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    setProvincialRoadVisible(map, provincialRoadVisible);
+  }, [provincialRoadVisible]);
 
   return (
     <div

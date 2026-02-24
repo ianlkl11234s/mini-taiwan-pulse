@@ -24,9 +24,12 @@ const TRANSPORT_LABELS: Record<TransportType, string> = {
   rail: "Rail",
 };
 
-const INFRA_LAYERS: { key: "stations" | "ports"; label: string; color: string }[] = [
+const INFRA_LAYERS: { key: keyof LayerVisibility; label: string; color: string }[] = [
   { key: "stations", label: "Station", color: "#b8a080" },
   { key: "ports", label: "Port", color: "#4a90d9" },
+  { key: "lighthouses", label: "Lighthouse", color: "#ffd700" },
+  { key: "highways", label: "Highway", color: "#ff6b6b" },
+  { key: "provincialRoads", label: "Prov.Rd", color: "#ffa94d" },
 ];
 
 const VIEW_MODES: { mode: ViewMode; label: string }[] = [
