@@ -55,8 +55,11 @@
 | 機場邊界（14 座） | fill + line + glow | OSM Overpass API |
 | 大站 Polygon | fill + glow | OSM Overpass API |
 | 小站 + 捷運站（491 站） | circle glow 圓環 | 車站 GeoJSON |
+| 車站光柱（535 站） | Three.js 3D 光柱（高度 = 停靠次數正規化） | 預計算靜態 JSON |
 | 港口邊界 | fill + line + glow | OSM Overpass API |
 | 燈塔（36 座） | circle dot + 3D 旋轉錐形光束 | 交通部航港局 |
+| 市區公車站 | circle dot | TDX 公共運輸資料 |
+| 公路客運站 | circle dot | TDX 公共運輸資料 |
 | 國道路網 | line（紅色，zoom 自適應寬度） | 交通部公路局 |
 | 省道路網 | line（橘色，zoom 自適應寬度） | 交通部公路局 |
 | 離岸風場範圍 | fill + line + glow | 經濟部能源局 |
@@ -65,16 +68,19 @@
 
 ### 圖層面板（LayerSidebar）
 
-三分類側邊欄，每個圖層可獨立 toggle 開關：
+三分類側邊欄，每個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開）：
 
 | 分類 | 圖層 |
 |------|------|
 | **MOVING** | 航班 Flight、船舶 Ship、鐵道 Rail（可展開參數面板） |
-| **FACILITY** | 軌道車站 Station、碼頭 Port、燈塔 Lighthouse、機場 Airport、國道 Highway、省道 Prov.Road |
+| **FACILITY** | 車站（THSR/TRA/Metro 各自獨立）、碼頭 Port、燈塔 Lighthouse、機場 Airport、市區公車站 City Bus、公路客運站 Intercity、國道 Highway、省道 Prov.Road |
 | **ZONE** | 風場範圍 Wind Farm（可展開參數面板） |
 
 - MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
+- 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
+- 車站面板含 Pillar 光柱開關 + Height 光柱高度調整
 - 運具按鈕顯示活躍數量（航班數、船舶數、列車數）
+- 收合狀態以彩色小點顯示各圖層啟用狀態
 
 ### 檢視模式
 
@@ -91,14 +97,21 @@
 | Z +0~200m | 基準高度偏移 |
 | Opacity | 靜態軌跡不透明度 |
 | Orb / Ship Orb / Rail Orb | 各交通工具光球大小 |
+| Train ON/OFF | 鐵道列車光球顯示開關 |
+| Track 2D/3D | 軌道線模式（2D 平面 Mapbox / 3D 立體 Three.js） |
 | Rail Z | 軌道 Z 軸偏移 |
 | Rail Trk / Ship Trail | 軌道線 / 船舶拖尾線透明度 |
 | APT / Glow | 機場填充不透明度 / 光暈強度 |
 | Stn | 車站圓環縮放 |
+| Pillar ON/OFF | 車站光柱顯示開關（THSR/TRA/Metro 各自獨立） |
+| Height | 車站光柱高度倍率 |
+| Beam ON/OFF | 燈塔光束開關 |
+| Dist / Opa | 燈塔光束距離 / 不透明度 |
 
 ### 其他
 
 - 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Navigation Night 等）
+- 開場全台總覽視角（23.43°N, 121.12°E, z7.9, pitch 48°）
 - 14 座台灣機場預設視角
 - 時間軸播放控制（30x~600x 加速）
 - Capture 拍攝模式（暗角 vignette + 機場名稱 + 時間標記）
@@ -144,11 +157,13 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
   ├── CustomLayer: ship-3d       ← ShipScene（InstancedMesh + 拖尾線）
   ├── CustomLayer: rail-3d       ← RailScene（靜態軌道 + 列車光球 + 拖尾）
   ├── CustomLayer: lighthouse-3d ← LighthouseScene（旋轉錐形光束）
+  ├── CustomLayer: station-pillar-3d ← StationPillarScene（車站 3D 光柱）
   └── Overlay Registry（Mapbox GL Layers）
         ├── 機場邊界（fill + glow）
         ├── 車站標記（polygon + circle glow）
         ├── 港口邊界（fill + glow）
         ├── 燈塔（circle + glow）
+        ├── 市區公車站 / 公路客運站（circle）
         ├── 國道路網（line）
         ├── 省道路網（line）
         └── 離岸風場（fill + line + glow）
@@ -164,6 +179,9 @@ mini-taiwan-pulse/
 │   ├── airports.geojson            # 台灣 14 座機場邊界
 │   ├── station_polygons.geojson    # 大站 Polygon
 │   ├── station_points.geojson      # 小站 + 捷運站 Point（491 站）
+│   ├── station_pillars.json        # 車站光柱預計算資料（535 站）
+│   ├── bus_stations_city.geojson   # 市區公車站
+│   ├── bus_stations_intercity.geojson # 公路客運站
 │   ├── port_polygons.geojson       # 港口邊界
 │   ├── lighthouse.geojson          # 燈塔位置（36 座）
 │   ├── national_highway.geojson    # 國道路網
@@ -192,6 +210,7 @@ mini-taiwan-pulse/
 │   │   ├── overlayManager.ts       # Overlay CRUD 通用函式
 │   │   ├── customLayer.ts          # Three.js CustomLayer 橋接（flight/ship/rail）
 │   │   ├── lighthouseCustomLayer.ts # 燈塔 3D 光束 CustomLayer
+│   │   ├── stationPillarCustomLayer.ts # 車站光柱 CustomLayer
 │   │   ├── staticTrails.ts         # 2D 靜態航線軌跡
 │   │   ├── railTracks.ts           # Mapbox native 軌道線
 │   │   └── cameraPresets.ts        # 機場預設視角
@@ -199,6 +218,7 @@ mini-taiwan-pulse/
 │   │   ├── FlightScene.ts          # 航班光軌 + 光球 + GLSL shader
 │   │   ├── ShipScene.ts            # 船舶 InstancedMesh + 拖尾線
 │   │   ├── RailScene.ts            # 軌道列車光球 + 拖尾 + 靜態軌道
+│   │   ├── StationPillarScene.ts   # 車站 3D 光柱（InstancedMesh）
 │   │   ├── LighthouseScene.ts      # 燈塔旋轉錐形光束
 │   │   ├── LightOrb.ts             # 光球共用元件
 │   │   ├── LightTrail.ts           # 光軌 GLSL 材質
@@ -260,6 +280,7 @@ python3 scripts/export-ship-data.py 2026-02-18 2026-02-19  # 指定日期範圍
 python3 scripts/export-rail-data.py          # 匯出 6 個系統的時刻表 + 軌道
 python3 scripts/build-station-points.py      # 合併 491 站 Point GeoJSON
 python3 scripts/fetch-station-polygons.py    # 下載大站 OSM Polygon
+npm run pillars:generate                     # 預計算車站光柱資料（停靠次數 → 高度）
 ```
 
 ### S3 上傳
@@ -300,6 +321,7 @@ docker-compose up -d       # http://localhost:3721
 | 軌道時刻表 | 台鐵、高鐵、各捷運公開時刻表 |
 | 機場 / 車站 / 港口邊界 | [OpenStreetMap](https://www.openstreetmap.org/) via Overpass API |
 | 燈塔位置 | 交通部航港局 |
+| 公車站位 | [TDX 公共運輸資料](https://tdx.transportdata.tw/) |
 | 國道 / 省道路網 | 交通部公路局 |
 | 離岸風場範圍 | 經濟部能源局 |
 
