@@ -2,9 +2,8 @@ import { getAirportInfo } from "../map/cameraPresets";
 
 interface Props {
   airports: string[];
-  selected: string;
   isDarkTheme?: boolean;
-  onChange: (icao: string) => void;
+  onJump: (icao: string) => void;
 }
 
 const getStyle = (dark: boolean): React.CSSProperties => ({
@@ -18,13 +17,16 @@ const getStyle = (dark: boolean): React.CSSProperties => ({
   backdropFilter: "blur(8px)",
 });
 
-export function AirportSelector({ airports, selected, isDarkTheme = true, onChange }: Props) {
+export function LocationJump({ airports, isDarkTheme = true, onJump }: Props) {
   return (
     <select
-      value={selected}
-      onChange={(e) => onChange(e.target.value)}
+      value=""
+      onChange={(e) => onJump(e.target.value)}
       style={getStyle(isDarkTheme)}
     >
+      <option value="" disabled>
+        地點跳轉
+      </option>
       {airports.map((icao) => {
         const info = getAirportInfo(icao);
         return (
@@ -36,3 +38,5 @@ export function AirportSelector({ airports, selected, isDarkTheme = true, onChan
     </select>
   );
 }
+
+export { LocationJump as AirportSelector };

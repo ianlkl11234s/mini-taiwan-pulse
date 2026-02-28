@@ -76,6 +76,10 @@ function getTrackIdFromOdTrackId(odTrackId: string): string {
     if (odTrackId === 'YL-HL-SL-1') return 'YL-SA-BD-1';
     if (odTrackId === 'YL-SL-SA-0') return 'YL-BD-SA-0';
     if (odTrackId === 'YL-SA-SL-1') return 'YL-SA-BD-1';
+    if (odTrackId === 'YL-SL-SX-0') return 'YL-BD-SA-0';
+    if (odTrackId === 'YL-SX-SL-1') return 'YL-SA-BD-1';
+    if (odTrackId.startsWith('YL-BD-SX')) return 'YL-BD-SA-0';
+    if (odTrackId.startsWith('YL-SX-BD')) return 'YL-SA-BD-1';
     if (odTrackId.startsWith('YL-BD-SA') || odTrackId.startsWith('YL-SA-BD')) return odTrackId;
     const direction = dest === 'TP' ? '1' : '0';
     return `YL-${direction}`;

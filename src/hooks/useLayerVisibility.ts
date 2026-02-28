@@ -1,0 +1,25 @@
+import { useRef, useState } from "react";
+import type { LayerVisibility } from "../types";
+
+export function useLayerVisibility() {
+  const [layerVisibility, setLayerVisibility] = useState<LayerVisibility>({
+    flights: true,
+    ships: true,
+    rail: true,
+    stations: true,
+    ports: true,
+    lighthouses: true,
+    airports: true,
+    highways: false,
+    provincialRoads: false,
+    windPlan: false,
+  });
+  const layerVisibilityRef = useRef(layerVisibility);
+  layerVisibilityRef.current = layerVisibility;
+
+  const toggleVisibility = (layer: keyof LayerVisibility) => {
+    setLayerVisibility((prev) => ({ ...prev, [layer]: !prev[layer] }));
+  };
+
+  return { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility };
+}
