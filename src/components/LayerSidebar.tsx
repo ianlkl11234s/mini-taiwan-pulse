@@ -435,6 +435,7 @@ function ExpandedPanel({
         display: "flex",
         flexDirection: "column",
         gap: 6,
+        overflow: "hidden",
       }}
     >
       {/* Display mode (flights only) + Hide */}

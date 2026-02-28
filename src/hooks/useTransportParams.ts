@@ -37,8 +37,8 @@ export function useTransportParams() {
   const [airportOpacity, setAirportOpacity] = useState(0.12);
   const [airportGlow, setAirportGlow] = useState(0.8);
   // Ship
-  const [shipOrbScale, setShipOrbScale] = useState(0.000007);
-  const [shipTrailOpacity, setShipTrailOpacity] = useState(0.8);
+  const [shipOrbScale, setShipOrbScale] = useState(0.000003);
+  const [shipTrailOpacity, setShipTrailOpacity] = useState(0.15);
   // Rail
   const [railAltOffset, setRailAltOffset] = useState(110);
   const [railOrbScale, setRailOrbScale] = useState(0.00001);
