@@ -22,7 +22,7 @@ interface UseFlightDataReturn {
 export function useFlightData(): UseFlightDataReturn {
   const [allFlights, setAllFlights] = useState<Flight[]>([]);
   const [airports, setAirports] = useState<string[]>([]);
-  const [selectedAirport, setSelectedAirport] = useState("RCTP");
+  const [selectedAirport, setSelectedAirport] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

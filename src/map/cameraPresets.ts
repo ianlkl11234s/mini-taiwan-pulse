@@ -22,6 +22,15 @@ export function getAirportInfo(icao: string): { name: string; iata: string } | u
   return AIRPORT_INFO[icao];
 }
 
+export const DEFAULT_CAMERA: CameraPreset = {
+  name: "全台總覽",
+  icao: "",
+  center: [121.1189, 23.4339],
+  zoom: 7.9,
+  pitch: 48,
+  bearing: -21,
+};
+
 export const CAMERA_PRESETS: CameraPreset[] = [
   {
     name: "桃園國際機場",

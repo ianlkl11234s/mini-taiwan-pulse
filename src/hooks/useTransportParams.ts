@@ -51,13 +51,13 @@ export function useTransportParams() {
   // Lighthouse
   const [lighthouseScale, setLighthouseScale] = useState(1);
   const [beamVisible, setBeamVisible] = useState(true);
-  const [beamDistance, setBeamDistance] = useState(1);
-  const [beamOpacity, setBeamOpacity] = useState(0.3);
+  const [beamDistance, setBeamDistance] = useState(0.9);
+  const [beamOpacity, setBeamOpacity] = useState(0.1);
   // Station pillar — 3 systems
   const [thsrPillarVisible, setThsrPillarVisible] = useState(true);
-  const [thsrPillarHeight, setThsrPillarHeight] = useState(1);
+  const [thsrPillarHeight, setThsrPillarHeight] = useState(0.6);
   const [traPillarVisible, setTraPillarVisible] = useState(true);
-  const [traPillarHeight, setTraPillarHeight] = useState(1);
+  const [traPillarHeight, setTraPillarHeight] = useState(0.5);
   const [metroPillarVisible, setMetroPillarVisible] = useState(true);
   const [metroPillarHeight, setMetroPillarHeight] = useState(1);
 

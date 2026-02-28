@@ -13,7 +13,7 @@ import { useRailEngine } from "./hooks/useRailEngine";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
-import { CAMERA_PRESETS, getPresetByIcao } from "./map/cameraPresets";
+import { DEFAULT_CAMERA, getPresetByIcao } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
 import { LocationJump } from "./components/AirportSelector";
@@ -150,7 +150,7 @@ export default function App() {
   // ── Derived values ──
 
   const preset = useMemo(
-    () => getPresetByIcao(selectedAirport) ?? CAMERA_PRESETS[0]!,
+    () => getPresetByIcao(selectedAirport) ?? DEFAULT_CAMERA,
     [selectedAirport],
   );
 
