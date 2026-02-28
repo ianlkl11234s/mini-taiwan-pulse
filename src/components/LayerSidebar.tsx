@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { LayerVisibility, TransportType, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
 import type { ParamControl } from "../hooks/useTransportParams";
 
@@ -104,6 +105,7 @@ export function LayerSidebar({
   onHideTransport,
   getControls,
 }: LayerSidebarProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const textColor = isDarkTheme ? "#fff" : "#333";
   const dimColor = isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.35)";
   const baseFontSize = isMobile ? 12 : 11;
@@ -118,6 +120,130 @@ export function LayerSidebar({
     }
   };
 
+  // Mobile 不收合
+  if (isMobile) {
+    return (
+      <SidebarContent
+        visibility={visibility} expandedLayer={expandedLayer} viewMode={viewMode}
+        displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
+        textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
+        getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
+        onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
+        onHideTransport={onHideTransport} getControls={getControls}
+      />
+    );
+  }
+
+  // ── 收合狀態：窄條 ──
+  if (collapsed) {
+    const allLayers = SECTIONS.flatMap((s) => s.layers);
+    return (
+      <div
+        onClick={() => setCollapsed(false)}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 6,
+          width: 28,
+          background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          borderRadius: 8,
+          padding: "8px 0",
+          cursor: "pointer",
+          transition: "width 0.2s ease",
+        }}
+      >
+        {/* 展開箭頭 */}
+        <span style={{ fontSize: 9, color: dimColor, userSelect: "none" }}>&#x25B6;</span>
+        {/* 活躍圖層色點 */}
+        {allLayers.map(({ key }) => {
+          const active = visibility[key];
+          const color = LAYER_COLORS[key];
+          return (
+            <div
+              key={key}
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: active ? color : "transparent",
+                border: `1px solid ${active ? color : (isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)")}`,
+                transition: "all 0.15s",
+                flexShrink: 0,
+              }}
+            />
+          );
+        })}
+      </div>
+    );
+  }
+
+  // ── 展開狀態 ──
+  return (
+    <div style={{ position: "relative", transition: "width 0.2s ease" }}>
+      {/* 收合按鈕 */}
+      <button
+        onClick={() => setCollapsed(true)}
+        style={{
+          position: "absolute",
+          top: 6,
+          right: 6,
+          zIndex: 1,
+          width: 18,
+          height: 18,
+          borderRadius: 3,
+          border: "none",
+          background: isDarkTheme ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
+          color: dimColor,
+          fontSize: 8,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 0,
+        }}
+      >
+        &#x25C0;
+      </button>
+      <SidebarContent
+        visibility={visibility} expandedLayer={expandedLayer} viewMode={viewMode}
+        displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
+        textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
+        getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
+        onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
+        onHideTransport={onHideTransport} getControls={getControls}
+      />
+    </div>
+  );
+}
+
+// ── Sidebar Content (extracted for reuse) ──
+
+function SidebarContent({
+  visibility, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
+  textColor, dimColor, baseFontSize,
+  getCount, onLayerClick, onToggleVisibility,
+  onViewModeChange, onDisplayModeChange, onHideTransport, getControls,
+}: {
+  visibility: LayerVisibility;
+  expandedLayer: ExpandableLayerKey | null;
+  viewMode: ViewMode;
+  displayMode: DisplayMode;
+  isDarkTheme: boolean;
+  isMobile?: boolean;
+  textColor: string;
+  dimColor: string;
+  baseFontSize: number;
+  getCount: (key: keyof LayerVisibility) => number | undefined;
+  onLayerClick: (layer: keyof LayerVisibility) => void;
+  onToggleVisibility: (layer: keyof LayerVisibility) => void;
+  onViewModeChange: (mode: ViewMode) => void;
+  onDisplayModeChange: (mode: DisplayMode) => void;
+  onHideTransport: () => void;
+  getControls: (layer: ExpandableLayerKey) => ParamControl[];
+}) {
   return (
     <div
       style={{
@@ -135,7 +261,6 @@ export function LayerSidebar({
     >
       {SECTIONS.map((section, sIdx) => (
         <div key={section.title}>
-          {/* Section divider (skip first) */}
           {sIdx > 0 && (
             <div
               style={{
@@ -146,7 +271,6 @@ export function LayerSidebar({
             />
           )}
 
-          {/* Section title */}
           <div
             style={{
               fontSize: 9,
@@ -160,7 +284,6 @@ export function LayerSidebar({
             {section.title}
           </div>
 
-          {/* Layer rows */}
           {section.layers.map(({ key, label, expandable }) => {
             const active = visibility[key];
             const color = LAYER_COLORS[key];
@@ -170,13 +293,12 @@ export function LayerSidebar({
 
             return (
               <div key={key}>
-                {/* Row */}
                 <div
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    padding: `4px 12px`,
+                    padding: "4px 12px",
                     cursor: "pointer",
                     background: isExpanded
                       ? (isDarkTheme ? `${color}15` : `${color}10`)
@@ -184,7 +306,6 @@ export function LayerSidebar({
                     transition: "background 0.15s",
                   }}
                 >
-                  {/* Toggle dot */}
                   <button
                     onClick={(e) => { e.stopPropagation(); onToggleVisibility(key); }}
                     style={{
@@ -200,7 +321,6 @@ export function LayerSidebar({
                     }}
                   />
 
-                  {/* Label + count */}
                   <div
                     onClick={() => expandable ? onLayerClick(key) : onToggleVisibility(key)}
                     style={{
@@ -219,7 +339,6 @@ export function LayerSidebar({
                     )}
                   </div>
 
-                  {/* Chevron for expandable */}
                   {expandable && (
                     <span
                       onClick={() => onLayerClick(key)}
@@ -232,12 +351,11 @@ export function LayerSidebar({
                         userSelect: "none",
                       }}
                     >
-                      ▶
+                      &#x25B6;
                     </span>
                   )}
                 </div>
 
-                {/* Expanded Panel */}
                 {isExpanded && expandable && (
                   <ExpandedPanel
                     layerKey={key as ExpandableLayerKey}
