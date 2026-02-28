@@ -3,14 +3,62 @@ import type { OverlayConfig } from "../types";
 const BASE_RADIUS = 5;
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
-  // ── Station Polygon (大站: TRA class 0-1 + THSR) ──
+  // ── THSR Station Polygon (高鐵站) ──
   {
-    id: "stations",
+    id: "stationsTHSR",
     sourceUrl: "./station_polygons.geojson",
     sourceId: "station-polygons",
+    filter: ["==", ["get", "system_id"], "thsr"],
     layers: [
       {
-        suffix: "poly-glow-2",
+        suffix: "thsr-poly-glow-2",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "#ff8c00" : "#cc7000",
+          "line-width": 15,
+          "line-blur": 8,
+          "line-opacity": isDark ? 0.08 : 0.14,
+        }),
+      },
+      {
+        suffix: "thsr-poly-glow-1",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "#ff8c00" : "#cc7000",
+          "line-width": 6,
+          "line-blur": 3,
+          "line-opacity": isDark ? 0.15 : 0.28,
+        }),
+      },
+      {
+        suffix: "thsr-poly-fill",
+        type: "fill",
+        paint: (isDark) => ({
+          "fill-color": isDark ? "#ff8c00" : "#e8a040",
+          "fill-opacity": isDark ? 0.08 : 0.12,
+        }),
+      },
+      {
+        suffix: "thsr-poly-line",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "#ff8c00" : "#e8a040",
+          "line-width": isDark ? 1 : 1.5,
+          "line-opacity": isDark ? 0.35 : 0.55,
+        }),
+      },
+    ],
+  },
+
+  // ── TRA Station Polygon (台鐵大站) ──
+  {
+    id: "stationsTRA",
+    sourceUrl: "./station_polygons.geojson",
+    sourceId: "station-polygons",
+    filter: ["==", ["get", "system_id"], "tra"],
+    layers: [
+      {
+        suffix: "tra-poly-glow-2",
         type: "line",
         paint: (isDark) => ({
           "line-color": isDark ? "#ffffff" : "#d4c4a8",
@@ -20,7 +68,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         }),
       },
       {
-        suffix: "poly-glow-1",
+        suffix: "tra-poly-glow-1",
         type: "line",
         paint: (isDark) => ({
           "line-color": isDark ? "#ffffff" : "#d4c4a8",
@@ -30,7 +78,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         }),
       },
       {
-        suffix: "poly-fill",
+        suffix: "tra-poly-fill",
         type: "fill",
         paint: (isDark) => ({
           "fill-color": isDark ? "#ffffff" : "#e8dcc8",
@@ -38,7 +86,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         }),
       },
       {
-        suffix: "poly-line",
+        suffix: "tra-poly-line",
         type: "line",
         paint: (isDark) => ({
           "line-color": isDark ? "#ffffff" : "#e8dcc8",
@@ -49,57 +97,110 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Station Points (小站 + 捷運站) ──
+  // ── TRA Station Points (台鐵小站) ──
   {
-    id: "stations",
+    id: "stationsTRA",
     sourceUrl: "./station_points.geojson",
     sourceId: "station-points",
-    rebuildOnParamChange: ["pt-glow-2", "pt-glow-1", "pt-fill"],
+    filter: ["==", ["get", "system_id"], "tra"],
+    rebuildOnParamChange: ["tra-pt-glow-2", "tra-pt-glow-1", "tra-pt-fill"],
     layers: [
       {
-        suffix: "pt-glow-2",
+        suffix: "tra-pt-glow-2",
         type: "circle",
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
-          const isDark = _isDark;
           return {
             "circle-radius": BASE_RADIUS * scale * 2.5,
             "circle-blur": 1,
-            "circle-color": isDark ? "#ffffff" : "#d4c4a8",
-            "circle-opacity": isDark ? 0.06 : 0.12,
+            "circle-color": _isDark ? "#ffffff" : "#d4c4a8",
+            "circle-opacity": _isDark ? 0.06 : 0.12,
           };
         },
       },
       {
-        suffix: "pt-glow-1",
+        suffix: "tra-pt-glow-1",
         type: "circle",
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
-          const isDark = _isDark;
           return {
             "circle-radius": BASE_RADIUS * scale * 1.5,
             "circle-blur": 0.6,
-            "circle-color": isDark ? "#ffffff" : "#d4c4a8",
-            "circle-opacity": isDark ? 0.12 : 0.25,
+            "circle-color": _isDark ? "#ffffff" : "#d4c4a8",
+            "circle-opacity": _isDark ? 0.12 : 0.25,
           };
         },
       },
       {
-        suffix: "pt-fill",
+        suffix: "tra-pt-fill",
         type: "circle",
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
-          const isDark = _isDark;
           return {
             "circle-radius": BASE_RADIUS * scale,
-            "circle-color": isDark ? "#ffffff" : "#e8dcc8",
-            "circle-opacity": isDark ? 0.08 : 0.12,
-            "circle-stroke-width": isDark ? 1 : 1.5,
-            "circle-stroke-color": isDark ? "#ffffff" : "#e8dcc8",
-            "circle-stroke-opacity": isDark ? 0.3 : 0.5,
+            "circle-color": _isDark ? "#b8a080" : "#a08060",
+            "circle-opacity": _isDark ? 0.08 : 0.12,
+            "circle-stroke-width": _isDark ? 1 : 1.5,
+            "circle-stroke-color": _isDark ? "#b8a080" : "#a08060",
+            "circle-stroke-opacity": _isDark ? 0.3 : 0.5,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Metro Station Points (捷運/輕軌站) ──
+  {
+    id: "stationsMetro",
+    sourceUrl: "./station_points.geojson",
+    sourceId: "station-points",
+    filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
+    rebuildOnParamChange: ["metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
+    layers: [
+      {
+        suffix: "metro-pt-glow-2",
+        type: "circle",
+        minzoom: 10,
+        paint: (_isDark, params) => {
+          const scale = params?.stationScale ?? 1;
+          return {
+            "circle-radius": BASE_RADIUS * scale * 2.5,
+            "circle-blur": 1,
+            "circle-color": _isDark ? "#00bcd4" : "#00838f",
+            "circle-opacity": _isDark ? 0.06 : 0.12,
+          };
+        },
+      },
+      {
+        suffix: "metro-pt-glow-1",
+        type: "circle",
+        minzoom: 10,
+        paint: (_isDark, params) => {
+          const scale = params?.stationScale ?? 1;
+          return {
+            "circle-radius": BASE_RADIUS * scale * 1.5,
+            "circle-blur": 0.6,
+            "circle-color": _isDark ? "#00bcd4" : "#00838f",
+            "circle-opacity": _isDark ? 0.12 : 0.25,
+          };
+        },
+      },
+      {
+        suffix: "metro-pt-fill",
+        type: "circle",
+        minzoom: 10,
+        paint: (_isDark, params) => {
+          const scale = params?.stationScale ?? 1;
+          return {
+            "circle-radius": BASE_RADIUS * scale,
+            "circle-color": ["get", "color"] as unknown as string,
+            "circle-opacity": _isDark ? 0.08 : 0.12,
+            "circle-stroke-width": _isDark ? 1 : 1.5,
+            "circle-stroke-color": ["get", "color"] as unknown as string,
+            "circle-stroke-opacity": _isDark ? 0.3 : 0.5,
           };
         },
       },

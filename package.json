@@ -12,7 +12,8 @@
     "s3:upload": "tsx scripts/upload-to-s3.ts",
     "s3:upload:ships": "tsx scripts/upload-ships-to-s3.ts",
     "s3:upload:rail": "tsx scripts/upload-rail-to-s3.ts",
-    "rail:bundle": "python3 scripts/bundle-rail-data.py"
+    "rail:bundle": "python3 scripts/bundle-rail-data.py",
+    "pillars:generate": "python3 scripts/generate-station-pillars.py"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.995.0",

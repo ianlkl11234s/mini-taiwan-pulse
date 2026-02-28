@@ -15,7 +15,7 @@ import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { CAMERA_PRESETS, getPresetByIcao } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
-import { updateRailTracks, removeRailTracks } from "./map/railTracks";
+import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { TimelineControls } from "./components/TimelineControls";
@@ -46,33 +46,27 @@ export default function App() {
       .catch((err) => console.warn("Lighthouse data not available:", err));
   }, []);
 
-  // 車站光柱資料
-  const [stationPillarData, setStationPillarData] = useState<StationPillarData[]>([]);
-  useEffect(() => {
-    Promise.all([
-      fetch("./station_polygons.geojson").then((r) => r.json()) as Promise<GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>>,
-      fetch("./station_points.geojson").then((r) => r.json()) as Promise<GeoJSON.FeatureCollection<GeoJSON.Point>>,
-    ]).then(([polygons, points]) => {
-      const data: StationPillarData[] = [];
-      // polygons → 大站 centroid, height=1
-      for (const f of polygons.features) {
-        const coords = f.geometry.type === "Polygon"
-          ? f.geometry.coordinates[0]!
-          : f.geometry.coordinates[0]![0]!;
-        const lng = coords.reduce((s, c) => s + c[0]!, 0) / coords.length;
-        const lat = coords.reduce((s, c) => s + c[1]!, 0) / coords.length;
-        data.push({ position: [lng, lat], height: 1 });
-      }
-      // points → 小站 coordinates, height=0.4
-      for (const f of points.features) {
-        const [lng, lat] = f.geometry.coordinates;
-        data.push({ position: [lng!, lat!], height: 0.4 });
-      }
-      setStationPillarData(data);
-    }).catch((err) => console.warn("Station pillar data not available:", err));
-  }, []);
+  // 車站光柱資料 — 三體系各自獨立
+  const [thsrPillarData, setThsrPillarData] = useState<StationPillarData[]>([]);
+  const [traPillarData, setTraPillarData] = useState<StationPillarData[]>([]);
+  const [metroPillarData, setMetroPillarData] = useState<StationPillarData[]>([]);
 
   const { railData } = useRailData();
+
+  // 預計算光柱資料（靜態 JSON，不依賴 railData）
+  useEffect(() => {
+    fetch("./station_pillars.json")
+      .then((r) => r.json())
+      .then((data: Record<string, { lng: number; lat: number; height: number }[]>) => {
+        const toArr = (entries: { lng: number; lat: number; height: number }[]): StationPillarData[] =>
+          entries.map((e) => ({ position: [e.lng, e.lat], height: e.height }));
+        setThsrPillarData(toArr(data.thsr ?? []));
+        setTraPillarData(toArr(data.tra ?? []));
+        setMetroPillarData(toArr(data.metro ?? []));
+      })
+      .catch((err) => console.warn("Station pillar data:", err));
+  }, []);
+
   const { isMobile, isLandscape } = useIsMobile();
 
   const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
@@ -106,7 +100,9 @@ export default function App() {
   const showTrailsRef = useRef(showTrails);
   const railDataRef = useRef(railData);
   const lighthousePositionsRef = useRef(lighthousePositions);
-  const stationPillarDataRef = useRef(stationPillarData);
+  const thsrPillarDataRef = useRef(thsrPillarData);
+  const traPillarDataRef = useRef(traPillarData);
+  const metroPillarDataRef = useRef(metroPillarData);
   const playingRef = useRef(timeline.playing);
 
   // 根據 viewMode 決定要顯示的航班
@@ -128,7 +124,9 @@ export default function App() {
   showTrailsRef.current = showTrails;
   railDataRef.current = railData;
   lighthousePositionsRef.current = lighthousePositions;
-  stationPillarDataRef.current = stationPillarData;
+  thsrPillarDataRef.current = thsrPillarData;
+  traPillarDataRef.current = traPillarData;
+  metroPillarDataRef.current = metroPillarData;
   playingRef.current = timeline.playing;
 
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
@@ -141,7 +139,8 @@ export default function App() {
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
     shipsRef, activeTrainsRef, railDataRef,
-    lighthousePositionsRef, stationPillarDataRef, playingRef, layerVisibilityRef,
+    lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
+    playingRef, layerVisibilityRef,
     paramRefs: transportParams.refs,
   });
 
@@ -189,16 +188,18 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode]);
 
-  // 軌道靜態線
+  // 軌道靜態線（2D Mapbox）
+  const { railTrackMode } = transportParams;
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.isStyleLoaded()) return;
     if (railData && layerVisibility.rail) {
       updateRailTracks(map, railData.allTracks, isDarkTheme);
+      setRailTracksVisible(map, railTrackMode === "2d");
     } else {
       removeRailTracks(map);
     }
-  }, [railData, isDarkTheme, layerVisibility.rail]);
+  }, [railData, isDarkTheme, layerVisibility.rail, railTrackMode]);
 
   // Three.js 圖層可見性由各 custom layer 內部 getIsVisible 控制
   // layers 常駐，不做 remove/re-add（避免 WebGL dispose/reinit 問題）

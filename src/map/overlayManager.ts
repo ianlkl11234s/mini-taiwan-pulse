@@ -29,6 +29,7 @@ export function addOverlay(
       source: config.sourceId,
       ...(spec.layout ? { layout: spec.layout } : {}),
       ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
+      ...(config.filter ? { filter: config.filter } : {}),
       paint: spec.paint(isDark, params) as Record<string, unknown>,
     } as mapboxgl.AnyLayer);
   }
@@ -64,6 +65,7 @@ export function updateOverlayTheme(
         source: config.sourceId,
         ...(spec.layout ? { layout: spec.layout } : {}),
         ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
+        ...(config.filter ? { filter: config.filter } : {}),
         paint: spec.paint(isDark, params) as Record<string, unknown>,
       } as mapboxgl.AnyLayer);
     }

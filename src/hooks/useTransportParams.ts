@@ -18,7 +18,15 @@ export interface ToggleConfig {
   onChange: (v: boolean) => void;
 }
 
-export type ParamControl = SliderConfig | ToggleConfig;
+export interface SelectConfig {
+  type: "select";
+  label: string;
+  value: string;
+  options: { label: string; value: string }[];
+  onChange: (v: string) => void;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig | SelectConfig;
 
 export function useTransportParams() {
   // Flight
@@ -35,6 +43,8 @@ export function useTransportParams() {
   const [railAltOffset, setRailAltOffset] = useState(110);
   const [railOrbScale, setRailOrbScale] = useState(0.00001);
   const [railTrackOpacity, setRailTrackOpacity] = useState(0.35);
+  const [railTrainVisible, setRailTrainVisible] = useState(true);
+  const [railTrackMode, setRailTrackMode] = useState<"2d" | "3d">("3d");
   const [stationScale, setStationScale] = useState(1);
   // Bus
   const [busScale, setBusScale] = useState(1);
@@ -43,9 +53,13 @@ export function useTransportParams() {
   const [beamVisible, setBeamVisible] = useState(true);
   const [beamDistance, setBeamDistance] = useState(1);
   const [beamOpacity, setBeamOpacity] = useState(0.3);
-  // Station pillar
-  const [pillarVisible, setPillarVisible] = useState(true);
-  const [pillarHeight, setPillarHeight] = useState(1);
+  // Station pillar — 3 systems
+  const [thsrPillarVisible, setThsrPillarVisible] = useState(true);
+  const [thsrPillarHeight, setThsrPillarHeight] = useState(1);
+  const [traPillarVisible, setTraPillarVisible] = useState(true);
+  const [traPillarHeight, setTraPillarHeight] = useState(1);
+  const [metroPillarVisible, setMetroPillarVisible] = useState(true);
+  const [metroPillarHeight, setMetroPillarHeight] = useState(1);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -57,11 +71,17 @@ export function useTransportParams() {
   const railAltOffsetRef = useRef(railAltOffset);
   const railOrbScaleRef = useRef(railOrbScale);
   const railTrackOpacityRef = useRef(railTrackOpacity);
+  const railTrainVisibleRef = useRef(railTrainVisible);
+  const railTrackModeRef = useRef(railTrackMode);
   const beamVisibleRef = useRef(beamVisible);
   const beamDistanceRef = useRef(beamDistance);
   const beamOpacityRef = useRef(beamOpacity);
-  const pillarVisibleRef = useRef(pillarVisible);
-  const pillarHeightRef = useRef(pillarHeight);
+  const thsrPillarVisibleRef = useRef(thsrPillarVisible);
+  const thsrPillarHeightRef = useRef(thsrPillarHeight);
+  const traPillarVisibleRef = useRef(traPillarVisible);
+  const traPillarHeightRef = useRef(traPillarHeight);
+  const metroPillarVisibleRef = useRef(metroPillarVisible);
+  const metroPillarHeightRef = useRef(metroPillarHeight);
 
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
@@ -72,11 +92,17 @@ export function useTransportParams() {
   railAltOffsetRef.current = railAltOffset;
   railOrbScaleRef.current = railOrbScale;
   railTrackOpacityRef.current = railTrackOpacity;
+  railTrainVisibleRef.current = railTrainVisible;
+  railTrackModeRef.current = railTrackMode;
   beamVisibleRef.current = beamVisible;
   beamDistanceRef.current = beamDistance;
   beamOpacityRef.current = beamOpacity;
-  pillarVisibleRef.current = pillarVisible;
-  pillarHeightRef.current = pillarHeight;
+  thsrPillarVisibleRef.current = thsrPillarVisible;
+  thsrPillarHeightRef.current = thsrPillarHeight;
+  traPillarVisibleRef.current = traPillarVisible;
+  traPillarHeightRef.current = traPillarHeight;
+  metroPillarVisibleRef.current = metroPillarVisible;
+  metroPillarHeightRef.current = metroPillarHeight;
 
   const overlayParams = useMemo<Record<string, number>>(() => ({
     stationScale,
@@ -101,10 +127,11 @@ export function useTransportParams() {
         { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, value: shipTrailOpacity, min: 0.05, max: 1, step: 0.05, onChange: setShipTrailOpacity },
       ];
       case "rail": return [
+        { type: "toggle" as const, label: "Train", value: railTrainVisible, onChange: setRailTrainVisible },
+        { type: "select" as const, label: "Track", value: railTrackMode, options: [{ label: "2D", value: "2d" }, { label: "3D", value: "3d" }], onChange: (v: string) => setRailTrackMode(v as "2d" | "3d") },
         { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
         { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
-        { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
       ];
       case "busStationsCity":
       case "busStationsIntercity": return [
@@ -116,10 +143,20 @@ export function useTransportParams() {
         { label: `Dist ${beamDistance.toFixed(1)}`, value: beamDistance, min: 0.2, max: 3, step: 0.1, onChange: setBeamDistance },
         { label: `Opa ${beamOpacity.toFixed(2)}`, value: beamOpacity, min: 0.05, max: 0.8, step: 0.05, onChange: setBeamOpacity },
       ];
-      case "stations": return [
+      case "stationsTHSR": return [
         { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
-        { type: "toggle", label: "Pillar", value: pillarVisible, onChange: setPillarVisible },
-        { label: `Height ${pillarHeight.toFixed(1)}`, value: pillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setPillarHeight },
+        { type: "toggle" as const, label: "Pillar", value: thsrPillarVisible, onChange: setThsrPillarVisible },
+        { label: `Height ${thsrPillarHeight.toFixed(1)}`, value: thsrPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setThsrPillarHeight },
+      ];
+      case "stationsTRA": return [
+        { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
+        { type: "toggle" as const, label: "Pillar", value: traPillarVisible, onChange: setTraPillarVisible },
+        { label: `Height ${traPillarHeight.toFixed(1)}`, value: traPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setTraPillarHeight },
+      ];
+      case "stationsMetro": return [
+        { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
+        { type: "toggle" as const, label: "Pillar", value: metroPillarVisible, onChange: setMetroPillarVisible },
+        { label: `Height ${metroPillarHeight.toFixed(1)}`, value: metroPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setMetroPillarHeight },
       ];
       case "windPlan": return [];
     }
@@ -127,6 +164,7 @@ export function useTransportParams() {
 
   return {
     stationScale,
+    railTrackMode,
     refs: {
       altExag: altExagRef,
       altOffset: altOffsetRef,
@@ -137,11 +175,17 @@ export function useTransportParams() {
       railAltOffset: railAltOffsetRef,
       railOrbScale: railOrbScaleRef,
       railTrackOpacity: railTrackOpacityRef,
+      railTrainVisible: railTrainVisibleRef,
+      railTrackMode: railTrackModeRef,
       beamVisible: beamVisibleRef,
       beamDistance: beamDistanceRef,
       beamOpacity: beamOpacityRef,
-      pillarVisible: pillarVisibleRef,
-      pillarHeight: pillarHeightRef,
+      thsrPillarVisible: thsrPillarVisibleRef,
+      thsrPillarHeight: thsrPillarHeightRef,
+      traPillarVisible: traPillarVisibleRef,
+      traPillarHeight: traPillarHeightRef,
+      metroPillarVisible: metroPillarVisibleRef,
+      metroPillarHeight: metroPillarHeightRef,
     },
     overlayParams,
     getControls,

@@ -7,7 +7,9 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   flights: "#64aaff",
   ships: "#1ad9e5",
   rail: "#ee6c00",
-  stations: "#b8a080",
+  stationsTHSR: "#ff8c00",
+  stationsTRA: "#b8a080",
+  stationsMetro: "#00bcd4",
   ports: "#4a90d9",
   lighthouses: "#ffd700",
   airports: "#daa520",
@@ -47,7 +49,9 @@ const SECTIONS: SectionDef[] = [
   {
     title: "FACILITY",
     layers: [
-      { key: "stations", label: "軌道車站 Station", expandable: true },
+      { key: "stationsTHSR", label: "高鐵站 THSR Station", expandable: true },
+      { key: "stationsTRA", label: "台鐵站 TRA Station", expandable: true },
+      { key: "stationsMetro", label: "捷運站 Metro Station", expandable: true },
       { key: "ports", label: "碼頭 Port" },
       { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
       { key: "airports", label: "機場 Airport" },
@@ -347,6 +351,46 @@ function ExpandedPanel({
       {controls.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {controls.map((ctrl) => {
+            if (ctrl.type === "select") {
+              return (
+                <div
+                  key={ctrl.label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
+                    fontSize: 10,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
+                  {ctrl.options.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => ctrl.onChange(opt.value)}
+                      style={{
+                        ...btnBase,
+                        fontSize: 9,
+                        padding: "1px 8px",
+                        background: ctrl.value === opt.value
+                          ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
+                          : (isDarkTheme ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.7)"),
+                        border: ctrl.value === opt.value
+                          ? "1px solid rgba(100,170,255,0.5)"
+                          : `1px solid ${isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"}`,
+                        color: ctrl.value === opt.value
+                          ? (isDarkTheme ? "#fff" : "#000")
+                          : (isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              );
+            }
+
             if (ctrl.type === "toggle") {
               return (
                 <div

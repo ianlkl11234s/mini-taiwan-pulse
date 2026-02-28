@@ -1,19 +1,41 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
+import * as THREE from "three";
 import { StationPillarScene } from "../three/StationPillarScene";
 import type { StationPillarData } from "../three/StationPillarScene";
 
-export interface StationPillarLayerOptions {
+export interface StationPillarGroupOptions {
+  pillarColor: { dark: number; light: number };
   getPositions: () => StationPillarData[];
   getPillarVisible: () => boolean;
   getPillarHeight: () => number;
-  getIsDarkTheme: () => boolean;
   getIsVisible: () => boolean;
 }
 
-export function createStationPillarLayer(opts: StationPillarLayerOptions): CustomLayerInterface {
-  const scene = new StationPillarScene();
+export interface CombinedStationPillarLayerOptions {
+  getIsDarkTheme: () => boolean;
+  groups: {
+    thsr: StationPillarGroupOptions;
+    tra: StationPillarGroupOptions;
+    metro: StationPillarGroupOptions;
+  };
+}
+
+/**
+ * 合併的車站光柱圖層 — 3 個 StationPillarScene 共享 1 個 WebGLRenderer
+ * 避免多個 renderer 共享同一 GL context 造成衝突
+ */
+export function createCombinedStationPillarLayer(
+  opts: CombinedStationPillarLayerOptions,
+): CustomLayerInterface {
+  const entries = Object.entries(opts.groups).map(([key, group]) => ({
+    key,
+    scene: new StationPillarScene(group.pillarColor.dark, group.pillarColor.light),
+    initialized: false,
+    group,
+  }));
+
+  let renderer: THREE.WebGLRenderer | null = null;
   let map: MapboxMap | null = null;
-  let initialized = false;
 
   return {
     id: "station-pillar-3d",
@@ -22,30 +44,50 @@ export function createStationPillarLayer(opts: StationPillarLayerOptions): Custo
 
     onAdd(mapInstance: MapboxMap, gl: WebGLRenderingContext) {
       map = mapInstance;
-      scene.init(gl);
+      renderer = new THREE.WebGLRenderer({
+        canvas: gl.canvas as HTMLCanvasElement,
+        context: gl as unknown as WebGL2RenderingContext,
+        antialias: true,
+      });
+      renderer.autoClear = false;
+
+      for (const entry of entries) {
+        entry.scene.init(renderer);
+      }
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!initialized) {
-        const positions = opts.getPositions();
-        if (positions.length > 0) {
-          scene.setPositions(positions);
-          initialized = true;
+      let anyVisible = false;
+
+      for (const entry of entries) {
+        // 延遲初始化：等 positions 準備好
+        if (!entry.initialized) {
+          const positions = entry.group.getPositions();
+          if (positions.length > 0) {
+            entry.scene.setPositions(positions);
+            entry.initialized = true;
+          }
+        }
+
+        entry.scene.setPillarVisible(entry.group.getPillarVisible());
+        entry.scene.setPillarHeight(entry.group.getPillarHeight());
+        entry.scene.setTheme(opts.getIsDarkTheme());
+
+        if (entry.group.getIsVisible()) {
+          entry.scene.render(matrix);
+          anyVisible = true;
         }
       }
 
-      scene.setPillarVisible(opts.getPillarVisible());
-      scene.setPillarHeight(opts.getPillarHeight());
-      scene.setTheme(opts.getIsDarkTheme());
-
-      if (!opts.getIsVisible()) return;
-
-      scene.render(matrix);
-      map?.triggerRepaint();
+      if (anyVisible) map?.triggerRepaint();
     },
 
     onRemove() {
-      scene.dispose();
+      for (const entry of entries) {
+        entry.scene.dispose();
+      }
+      renderer?.dispose();
+      renderer = null;
     },
   };
 }

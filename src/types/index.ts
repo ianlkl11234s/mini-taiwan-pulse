@@ -45,7 +45,8 @@ export type TransportType = "flights" | "ships" | "rail";
 
 /** 可展開面板的圖層 key */
 export type ExpandableLayerKey =
-  TransportType | "windPlan" | "lighthouses" | "stations"
+  TransportType | "windPlan" | "lighthouses"
+  | "stationsTHSR" | "stationsTRA" | "stationsMetro"
   | "busStationsCity" | "busStationsIntercity";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
@@ -166,6 +167,7 @@ export interface OverlayConfig {
   sourceId: string;
   layers: OverlayLayerSpec[];
   rebuildOnParamChange?: string[];
+  filter?: unknown[];
 }
 
 // ── 圖層控制 ──
@@ -174,7 +176,9 @@ export interface LayerVisibility {
   flights: boolean;
   ships: boolean;
   rail: boolean;
-  stations: boolean;
+  stationsTHSR: boolean;
+  stationsTRA: boolean;
+  stationsMetro: boolean;
   ports: boolean;
   lighthouses: boolean;
   airports: boolean;

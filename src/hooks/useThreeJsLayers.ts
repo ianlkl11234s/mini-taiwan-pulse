@@ -7,7 +7,7 @@ import type { RailScene } from "../three/RailScene";
 import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
 import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
-import { createStationPillarLayer } from "../map/stationPillarCustomLayer";
+import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
 
 interface UseThreeJsLayersArgs {
   timeRef: React.RefObject<number>;
@@ -19,7 +19,9 @@ interface UseThreeJsLayersArgs {
   activeTrainsRef: React.RefObject<RailTrain[]>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
-  stationPillarDataRef: React.RefObject<StationPillarData[]>;
+  thsrPillarDataRef: React.RefObject<StationPillarData[]>;
+  traPillarDataRef: React.RefObject<StationPillarData[]>;
+  metroPillarDataRef: React.RefObject<StationPillarData[]>;
   playingRef: React.RefObject<boolean>;
   layerVisibilityRef: React.RefObject<LayerVisibility>;
   paramRefs: {
@@ -32,18 +34,25 @@ interface UseThreeJsLayersArgs {
     railAltOffset: React.RefObject<number>;
     railOrbScale: React.RefObject<number>;
     railTrackOpacity: React.RefObject<number>;
+    railTrainVisible: React.RefObject<boolean>;
+    railTrackMode: React.RefObject<string>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
-    pillarVisible: React.RefObject<boolean>;
-    pillarHeight: React.RefObject<number>;
+    thsrPillarVisible: React.RefObject<boolean>;
+    thsrPillarHeight: React.RefObject<number>;
+    traPillarVisible: React.RefObject<boolean>;
+    traPillarHeight: React.RefObject<number>;
+    metroPillarVisible: React.RefObject<boolean>;
+    metroPillarHeight: React.RefObject<number>;
   };
 }
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
   shipsRef, activeTrainsRef, railDataRef,
-  lighthousePositionsRef, stationPillarDataRef, playingRef, layerVisibilityRef,
+  lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
+  playingRef, layerVisibilityRef,
   paramRefs,
 }: UseThreeJsLayersArgs) {
   const flightSceneRef = useRef<FlightScene | null>(null);
@@ -103,6 +112,8 @@ export function useThreeJsLayers({
       getRailAltOffset: () => paramRefs.railAltOffset.current,
       getTrackFeatures: () => railDataRef.current?.allTracks ?? null,
       getIsVisible: () => layerVisibilityRef.current.rail,
+      getTrainVisible: () => paramRefs.railTrainVisible.current,
+      getTrackMode: () => paramRefs.railTrackMode.current,
       onSceneReady: (scene) => { railSceneRef.current = scene; },
     });
     map.addLayer(layer);
@@ -123,13 +134,33 @@ export function useThreeJsLayers({
   };
 
   const addStationPillarLayer = (map: MapboxMap) => {
-    if (map.getLayer("station-pillar-3d")) map.removeLayer("station-pillar-3d");
-    const layer = createStationPillarLayer({
-      getPositions: () => stationPillarDataRef.current,
-      getPillarVisible: () => paramRefs.pillarVisible.current,
-      getPillarHeight: () => paramRefs.pillarHeight.current,
+    const id = "station-pillar-3d";
+    if (map.getLayer(id)) map.removeLayer(id);
+    const layer = createCombinedStationPillarLayer({
       getIsDarkTheme: () => isDarkThemeRef.current,
-      getIsVisible: () => layerVisibilityRef.current.stations,
+      groups: {
+        thsr: {
+          pillarColor: { dark: 0xff8c00, light: 0xcc7000 },
+          getPositions: () => thsrPillarDataRef.current,
+          getPillarVisible: () => paramRefs.thsrPillarVisible.current,
+          getPillarHeight: () => paramRefs.thsrPillarHeight.current,
+          getIsVisible: () => layerVisibilityRef.current.stationsTHSR,
+        },
+        tra: {
+          pillarColor: { dark: 0xfff5e0, light: 0xb8a070 },
+          getPositions: () => traPillarDataRef.current,
+          getPillarVisible: () => paramRefs.traPillarVisible.current,
+          getPillarHeight: () => paramRefs.traPillarHeight.current,
+          getIsVisible: () => layerVisibilityRef.current.stationsTRA,
+        },
+        metro: {
+          pillarColor: { dark: 0x00bcd4, light: 0x00838f },
+          getPositions: () => metroPillarDataRef.current,
+          getPillarVisible: () => paramRefs.metroPillarVisible.current,
+          getPillarHeight: () => paramRefs.metroPillarHeight.current,
+          getIsVisible: () => layerVisibilityRef.current.stationsMetro,
+        },
+      },
     });
     map.addLayer(layer);
   };

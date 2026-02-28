@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { toMercator } from "../utils/coordinates";
+import { toMercator, getAltOffset, setAltOffset, getAltExaggeration, setAltExaggeration } from "../utils/coordinates";
 
 export interface StationPillarData {
   position: [number, number]; // [lng, lat]
@@ -23,22 +23,48 @@ export class StationPillarScene {
   private mercatorPositions: { x: number; y: number; z: number }[] = [];
   private heightScale = 1;
   private isDark = true;
+  private colorDark: number;
+  private colorLight: number;
+  private ownsRenderer = false;
 
-  init(gl: WebGLRenderingContext) {
-    this.renderer = new THREE.WebGLRenderer({
-      canvas: gl.canvas as HTMLCanvasElement,
-      context: gl as unknown as WebGL2RenderingContext,
-      antialias: true,
-    });
-    this.renderer.autoClear = false;
+  constructor(colorDark = 0xfff5e0, colorLight = 0xb8a070) {
+    this.colorDark = colorDark;
+    this.colorLight = colorLight;
+  }
+
+  init(glOrRenderer: WebGLRenderingContext | THREE.WebGLRenderer) {
+    if (glOrRenderer instanceof THREE.WebGLRenderer) {
+      this.renderer = glOrRenderer;
+      this.ownsRenderer = false;
+    } else {
+      this.renderer = new THREE.WebGLRenderer({
+        canvas: glOrRenderer.canvas as HTMLCanvasElement,
+        context: glOrRenderer as unknown as WebGL2RenderingContext,
+        antialias: true,
+      });
+      this.renderer.autoClear = false;
+      this.ownsRenderer = true;
+    }
   }
 
   setPositions(data: StationPillarData[]) {
     this.pillarData = data;
+
+    // 暫存並重置全域 altOffset/altExaggeration，避免飛機 render loop 的值影響光柱 z 軸
+    const savedOffset = getAltOffset();
+    const savedExag = getAltExaggeration();
+    setAltOffset(0);
+    setAltExaggeration(1);
+
     this.mercatorPositions = data.map(({ position }) => {
       const [lng, lat] = position;
       return toMercator(lat, lng, 0);
     });
+
+    // 還原全域狀態
+    setAltOffset(savedOffset);
+    setAltExaggeration(savedExag);
+
     this.rebuild();
   }
 
@@ -58,7 +84,7 @@ export class StationPillarScene {
     geo.rotateX(Math.PI / 2);
 
     const mat = new THREE.MeshBasicMaterial({
-      color: this.isDark ? 0xfff5e0 : 0xb8a070,
+      color: this.isDark ? this.colorDark : this.colorLight,
       transparent: true,
       opacity: this.isDark ? 0.35 : 0.45,
       side: THREE.DoubleSide,
@@ -106,7 +132,7 @@ export class StationPillarScene {
     this.isDark = isDark;
     if (this.instancedMesh) {
       const m = this.instancedMesh.material as THREE.MeshBasicMaterial;
-      m.color.setHex(isDark ? 0xfff5e0 : 0xb8a070);
+      m.color.setHex(isDark ? this.colorDark : this.colorLight);
       m.opacity = isDark ? 0.35 : 0.45;
     }
   }
@@ -138,6 +164,6 @@ export class StationPillarScene {
       (this.instancedMesh.material as THREE.Material).dispose();
       this.instancedMesh = null;
     }
-    this.renderer?.dispose();
+    if (this.ownsRenderer) this.renderer?.dispose();
   }
 }

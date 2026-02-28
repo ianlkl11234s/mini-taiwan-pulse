@@ -6,13 +6,17 @@ export function useLayerVisibility() {
     flights: true,
     ships: true,
     rail: true,
-    stations: true,
+    stationsTHSR: true,
+    stationsTRA: true,
+    stationsMetro: true,
     ports: true,
     lighthouses: true,
     airports: true,
     highways: false,
     provincialRoads: false,
     windPlan: false,
+    busStationsCity: false,
+    busStationsIntercity: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

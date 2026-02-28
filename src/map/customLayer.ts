@@ -163,6 +163,8 @@ export interface RailLayerOptions {
   getRailAltOffset: () => number;
   getTrackFeatures: () => GeoJSON.FeatureCollection | null;
   getIsVisible: () => boolean;
+  getTrainVisible: () => boolean;
+  getTrackMode: () => string;
   onSceneReady?: (scene: RailScene) => void;
 }
 
@@ -203,9 +205,10 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
       }
 
       railScene.setOrbScale(opts.getOrbScale());
-      railScene.setTrackOpacity(opts.getTrackOpacity());
+      railScene.setTrackOpacity(opts.getTrackMode() === "3d" ? opts.getTrackOpacity() : 0);
       railScene.setAltitudeOffset(opts.getRailAltOffset());
-      railScene.update(opts.getTrains(), opts.getCurrentTime());
+      const trains = opts.getTrainVisible() ? opts.getTrains() : [];
+      railScene.update(trains, opts.getCurrentTime());
       railScene.render(matrix);
 
       map?.triggerRepaint();
