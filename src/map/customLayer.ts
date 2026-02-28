@@ -15,6 +15,7 @@ export interface FlightLayerOptions {
   getOrbScale: () => number;
   getIsDarkTheme: () => boolean;
   getShowTrails: () => boolean;
+  getIsVisible: () => boolean;
   onSceneReady?: (scene: FlightScene) => void;
 }
 
@@ -41,6 +42,11 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
+      if (!opts.getIsVisible()) {
+        map?.triggerRepaint();
+        return;
+      }
+
       const flights = opts.getFlights();
       const time = opts.getCurrentTime();
       const mode = opts.getRenderMode();
@@ -99,6 +105,7 @@ export interface ShipLayerOptions {
   getOrbScale: () => number;
   getTrailOpacity: () => number;
   getMapBounds: () => { minLng: number; maxLng: number; minLat: number; maxLat: number } | null;
+  getIsVisible: () => boolean;
   onSceneReady?: (scene: ShipScene) => void;
 }
 
@@ -119,6 +126,11 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
+      if (!opts.getIsVisible()) {
+        map?.triggerRepaint();
+        return;
+      }
+
       const isDark = opts.getIsDarkTheme();
       if (isDark !== lastDarkTheme) {
         lastDarkTheme = isDark;
@@ -150,6 +162,7 @@ export interface RailLayerOptions {
   getTrackOpacity: () => number;
   getRailAltOffset: () => number;
   getTrackFeatures: () => GeoJSON.FeatureCollection | null;
+  getIsVisible: () => boolean;
   onSceneReady?: (scene: RailScene) => void;
 }
 
@@ -171,6 +184,11 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
+      if (!opts.getIsVisible()) {
+        map?.triggerRepaint();
+        return;
+      }
+
       const isDark = opts.getIsDarkTheme();
       if (isDark !== lastDarkTheme) {
         lastDarkTheme = isDark;

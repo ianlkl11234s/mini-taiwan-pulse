@@ -43,6 +43,9 @@ export type ViewMode = "all-taiwan" | "time-window";
 /** 運具類型 */
 export type TransportType = "flights" | "ships" | "rail";
 
+/** 可展開面板的圖層 key */
+export type ExpandableLayerKey = TransportType | "windPlan";
+
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
 
@@ -145,6 +148,24 @@ export interface TraData {
   goldenTracks: GeoJSON.Feature[];
 }
 
+// ── Overlay Registry ──
+
+export interface OverlayLayerSpec {
+  suffix: string;
+  type: "line" | "fill" | "circle";
+  layout?: Record<string, unknown>;
+  paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
+  minzoom?: number;
+}
+
+export interface OverlayConfig {
+  id: keyof LayerVisibility;
+  sourceUrl: string;
+  sourceId: string;
+  layers: OverlayLayerSpec[];
+  rebuildOnParamChange?: string[];
+}
+
 // ── 圖層控制 ──
 
 export interface LayerVisibility {
@@ -154,6 +175,8 @@ export interface LayerVisibility {
   stations: boolean;
   ports: boolean;
   lighthouses: boolean;
+  airports: boolean;
   highways: boolean;
   provincialRoads: boolean;
+  windPlan: boolean;
 }

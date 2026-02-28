@@ -1,119 +1,25 @@
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import type { CameraPreset, Flight, RenderMode } from "../types";
+import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
-import { addStationPolygonOverlay, addStationPointOverlay, updateStationStyle, setStationVisible } from "./stationOverlay";
-import { addPortPolygonOverlay, updatePortStyle, setPortVisible } from "./portOverlay";
-import { addLighthouseOverlay, updateLighthouseStyle, setLighthouseVisible } from "./lighthouseOverlay";
-import { addHighwayOverlay, addProvincialRoadOverlay, updateRoadStyle, setHighwayVisible, setProvincialRoadVisible } from "./roadOverlay";
+import { OVERLAY_REGISTRY } from "./overlayRegistry";
+import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
 
 interface MapViewProps {
   preset: CameraPreset;
   styleUrl: string;
   flights: Flight[];
   renderMode: RenderMode;
-  airportOpacity: number;
-  airportGlow: number;
   isDarkTheme?: boolean;
   showTrails?: boolean;
-  stationVisible?: boolean;
-  stationScale?: number;
-  portVisible?: boolean;
-  lighthouseVisible?: boolean;
-  highwayVisible?: boolean;
-  provincialRoadVisible?: boolean;
+  layerVisibility: LayerVisibility;
+  overlayParams: Record<string, number>;
   onMapReady?: (map: mapboxgl.Map) => void;
-}
-
-const AIRPORT_SOURCE = "airport-boundaries";
-const AIRPORT_FILL = "airport-fill";
-const AIRPORT_LINE = "airport-outline";
-const AIRPORT_GLOW_1 = "airport-glow-1";
-const AIRPORT_GLOW_2 = "airport-glow-2";
-
-
-function addAirportOverlay(map: mapboxgl.Map, opacity: number, glow: number, isDark: boolean) {
-  const color = isDark ? "#ffffff" : "#c89520";
-  const glowColor = isDark ? "#ffffff" : "#daa520";
-
-  if (map.getSource(AIRPORT_SOURCE)) return;
-
-  map.addSource(AIRPORT_SOURCE, {
-    type: "geojson",
-    data: "./airports.geojson",
-  });
-
-  // 外層光暈（寬、模糊）
-  map.addLayer({
-    id: AIRPORT_GLOW_2,
-    type: "line",
-    source: AIRPORT_SOURCE,
-    paint: {
-      "line-color": glowColor,
-      "line-width": 30,
-      "line-blur": 15,
-      "line-opacity": glow * (isDark ? 0.06 : 0.15),
-    },
-  });
-
-  // 內層光暈
-  map.addLayer({
-    id: AIRPORT_GLOW_1,
-    type: "line",
-    source: AIRPORT_SOURCE,
-    paint: {
-      "line-color": glowColor,
-      "line-width": 10,
-      "line-blur": 5,
-      "line-opacity": glow * (isDark ? 0.15 : 0.3),
-    },
-  });
-
-  // 填充
-  map.addLayer({
-    id: AIRPORT_FILL,
-    type: "fill",
-    source: AIRPORT_SOURCE,
-    paint: {
-      "fill-color": color,
-      "fill-opacity": isDark ? opacity : opacity * 1.5,
-    },
-  });
-
-  // 邊框線
-  map.addLayer({
-    id: AIRPORT_LINE,
-    type: "line",
-    source: AIRPORT_SOURCE,
-    paint: {
-      "line-color": color,
-      "line-width": isDark ? 1.5 : 2,
-      "line-opacity": Math.min(opacity * 3, isDark ? 0.5 : 0.7),
-    },
-  });
-}
-
-function updateAirportStyle(map: mapboxgl.Map, opacity: number, glow: number, isDark: boolean) {
-  if (!map.getSource(AIRPORT_SOURCE)) return;
-  const color = isDark ? "#ffffff" : "#c89520";
-  const glowColor = isDark ? "#ffffff" : "#daa520";
-
-  map.setPaintProperty(AIRPORT_FILL, "fill-color", color);
-  map.setPaintProperty(AIRPORT_FILL, "fill-opacity", isDark ? opacity : opacity * 1.5);
-  map.setPaintProperty(AIRPORT_LINE, "line-color", color);
-  map.setPaintProperty(AIRPORT_LINE, "line-width", isDark ? 1.5 : 2);
-  map.setPaintProperty(AIRPORT_LINE, "line-opacity", Math.min(opacity * 3, isDark ? 0.5 : 0.7));
-  map.setPaintProperty(AIRPORT_GLOW_1, "line-color", glowColor);
-  map.setPaintProperty(AIRPORT_GLOW_1, "line-opacity", glow * (isDark ? 0.15 : 0.3));
-  map.setPaintProperty(AIRPORT_GLOW_2, "line-color", glowColor);
-  map.setPaintProperty(AIRPORT_GLOW_2, "line-opacity", glow * (isDark ? 0.06 : 0.15));
 }
 
 /**
  * 3D 模式下，根據 zoom 計算 2D 軌跡應有的透明度
- * zoom >= FADE_OUT → 完全隱藏（只看 3D）
- * zoom <= FADE_IN  → 完全顯示（3D 自然不可見）
  */
 const ZOOM_FADE_IN = 3;
 const ZOOM_FADE_OUT = 5;
@@ -139,41 +45,28 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity, airportGlow, isDarkTheme = true, showTrails = true, stationVisible = true, stationScale = 1, portVisible = true, lighthouseVisible = true, highwayVisible = false, provincialRoadVisible = false, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = true, showTrails = true, layerVisibility, overlayParams, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
 
-  // 用 ref 保存最新 props，讓永久 style.load handler 能讀到最新值
   const onMapReadyRef = useRef(onMapReady);
   const presetRef = useRef(preset);
-  const airportOpacityRef = useRef(airportOpacity);
-  const airportGlowRef = useRef(airportGlow);
   const renderModeRef = useRef(renderMode);
   const flightsRef = useRef(flights);
   const isDarkThemeRef = useRef(isDarkTheme);
   const showTrailsRef = useRef(showTrails);
-  const stationVisibleRef = useRef(stationVisible);
-  const stationScaleRef = useRef(stationScale);
-  const portVisibleRef = useRef(portVisible);
-  const lighthouseVisibleRef = useRef(lighthouseVisible);
-  const highwayVisibleRef = useRef(highwayVisible);
-  const provincialRoadVisibleRef = useRef(provincialRoadVisible);
+  const layerVisibilityRef = useRef(layerVisibility);
+  const overlayParamsRef = useRef(overlayParams);
 
   onMapReadyRef.current = onMapReady;
   presetRef.current = preset;
-  airportOpacityRef.current = airportOpacity;
-  airportGlowRef.current = airportGlow;
   renderModeRef.current = renderMode;
   flightsRef.current = flights;
   isDarkThemeRef.current = isDarkTheme;
   showTrailsRef.current = showTrails;
-  stationVisibleRef.current = stationVisible;
-  stationScaleRef.current = stationScale;
-  portVisibleRef.current = portVisible;
-  lighthouseVisibleRef.current = lighthouseVisible;
-  highwayVisibleRef.current = highwayVisible;
-  provincialRoadVisibleRef.current = provincialRoadVisible;
+  layerVisibilityRef.current = layerVisibility;
+  overlayParamsRef.current = overlayParams;
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -193,33 +86,19 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     // 唯一的 style.load handler：每次底圖切換都會觸發，重建所有圖層
     map.on("style.load", () => {
       setupTerrain(map);
-      addAirportOverlay(map, airportOpacityRef.current, airportGlowRef.current, isDarkThemeRef.current);
-      addStationPolygonOverlay(map, isDarkThemeRef.current);
-      addStationPointOverlay(map, isDarkThemeRef.current, stationScaleRef.current);
-      if (!stationVisibleRef.current) {
-        setStationVisible(map, false);
-      }
-      addPortPolygonOverlay(map, isDarkThemeRef.current);
-      if (!portVisibleRef.current) {
-        setPortVisible(map, false);
-      }
-      addLighthouseOverlay(map, isDarkThemeRef.current);
-      if (!lighthouseVisibleRef.current) {
-        setLighthouseVisible(map, false);
-      }
-      addHighwayOverlay(map, isDarkThemeRef.current);
-      if (!highwayVisibleRef.current) {
-        setHighwayVisible(map, false);
-      }
-      addProvincialRoadOverlay(map, isDarkThemeRef.current);
-      if (!provincialRoadVisibleRef.current) {
-        setProvincialRoadVisible(map, false);
-      }
+
+      // 批量新增所有 overlays + 設定初始可見性
+      addAllOverlays(
+        map,
+        OVERLAY_REGISTRY,
+        isDarkThemeRef.current,
+        layerVisibilityRef.current,
+        overlayParamsRef.current,
+      );
 
       // 永遠保留 Mapbox 原生靜態軌跡
       const is3d = renderModeRef.current === "3d";
       updateStaticTrails(map, flightsRef.current, isDarkThemeRef.current, is3d);
-      // 3D 模式：根據當前 zoom 設定 2D 軌跡透明度
       if (is3d) {
         const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
         setStaticTrailsOpacity(map, line, glow);
@@ -258,11 +137,10 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [styleUrl]);
 
-  // 切換機場時平滑飛行 + 更新標記
+  // 切換機場時平滑飛行
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
-
     map.flyTo({
       center: preset.center,
       zoom: preset.zoom,
@@ -272,11 +150,10 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     });
   }, [preset]);
 
-  // 2D/3D 渲染模式切換：更新軌跡資料，3D 模式由 zoom handler 控制透明度
+  // 2D/3D 渲染模式切換
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-
     const is3d = renderMode === "3d";
     updateStaticTrails(map, flights, isDarkTheme, is3d);
     if (is3d) {
@@ -285,73 +162,42 @@ export function MapView({ preset, styleUrl, flights, renderMode, airportOpacity,
     }
   }, [renderMode, flights, isDarkTheme]);
 
-  // 3D 模式：zoom 驅動 2D 軌跡 crossfade（近看隱藏 2D，拉遠顯示 2D）
+  // 3D 模式：zoom 驅動 2D 軌跡 crossfade
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
     if (renderMode !== "3d") return;
-
     const onZoom = () => {
       if (!map.isStyleLoaded()) return;
       const { line, glow } = calc2dTrailOpacity(map.getZoom(), isDarkThemeRef.current);
       setStaticTrailsOpacity(map, line, glow);
     };
-
     map.on("zoom", onZoom);
     return () => { map.off("zoom", onZoom); };
   }, [renderMode]);
 
-  // showTrails 切換：控制 2D 軌跡可見性
+  // showTrails 切換
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
     setStaticTrailsVisible(map, showTrails);
   }, [showTrails]);
 
-  // 機場圖層樣式即時更新
+  // Overlay 主題 + params 即時更新（一個 useEffect 取代原本 5+ 個）
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    updateAirportStyle(map, airportOpacity, airportGlow, isDarkTheme);
-    updatePortStyle(map, isDarkTheme);
-    updateLighthouseStyle(map, isDarkTheme);
-    updateRoadStyle(map, isDarkTheme);
-  }, [airportOpacity, airportGlow, isDarkTheme]);
+    updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams);
+  }, [isDarkTheme, overlayParams]);
 
-  // 車站圖層可見性
+  // Overlay 可見性（一個 useEffect 取代原本 7 個）
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    setStationVisible(map, stationVisible);
-  }, [stationVisible]);
-
-  // 碼頭圖層可見性
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    setPortVisible(map, portVisible);
-  }, [portVisible]);
-
-  // 燈塔圖層可見性
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    setLighthouseVisible(map, lighthouseVisible);
-  }, [lighthouseVisible]);
-
-  // 國道圖層可見性
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    setHighwayVisible(map, highwayVisible);
-  }, [highwayVisible]);
-
-  // 省道圖層可見性
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
-    setProvincialRoadVisible(map, provincialRoadVisible);
-  }, [provincialRoadVisible]);
+    for (const config of OVERLAY_REGISTRY) {
+      setOverlayVisible(map, config, layerVisibility[config.id]);
+    }
+  }, [layerVisibility]);
 
   return (
     <div

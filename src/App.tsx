@@ -1,26 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight, Ship, RailTrain, LayerVisibility, TransportType } from "./types";
-import type { FlightScene } from "./three/FlightScene";
-import type { ShipScene } from "./three/ShipScene";
-import type { RailScene } from "./three/RailScene";
+import type { ViewMode, RenderMode, DisplayMode, Flight, TransportType, ExpandableLayerKey } from "./types";
 import { MapView } from "./map/MapView";
 import { useFlightData } from "./hooks/useFlightData";
 import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
 import { useTimeline } from "./hooks/useTimeline";
 import { useIsMobile } from "./hooks/useIsMobile";
+import { useTransportParams } from "./hooks/useTransportParams";
+import { useRailEngine } from "./hooks/useRailEngine";
+import { useLayerVisibility } from "./hooks/useLayerVisibility";
+import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
+import { useMapInteraction } from "./hooks/useMapInteraction";
 import { CAMERA_PRESETS, getPresetByIcao } from "./map/cameraPresets";
-import { createFlightLayer, createShipLayer, createRailLayer } from "./map/customLayer";
-import { createLighthouseLayer } from "./map/lighthouseCustomLayer";
 import { filterByTimeWindow } from "./data/flightLoader";
-import { RailEngine } from "./engines/RailEngine";
-import { TraTrainEngine } from "./engines/TraTrainEngine";
 import { updateRailTracks, removeRailTracks } from "./map/railTracks";
-import { updateStationStyle } from "./map/stationOverlay";
 import { LocationJump } from "./components/AirportSelector";
-import { TransportBar } from "./components/TransportBar";
-import { TransportParamPanel } from "./components/TransportParamPanel";
+import { LayerSidebar } from "./components/LayerSidebar";
 import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -48,134 +44,82 @@ export default function App() {
       })
       .catch((err) => console.warn("Lighthouse data not available:", err));
   }, []);
+
   const { railData } = useRailData();
-
-  // 軌道列車引擎
-  const railEngineRef = useRef<RailEngine | null>(null);
-  const traEngineRef = useRef<TraTrainEngine | null>(null);
-  const [activeTrains, setActiveTrains] = useState<RailTrain[]>([]);
-
-  // 初始化 RailEngine + TraTrainEngine
-  useEffect(() => {
-    if (railData) {
-      railEngineRef.current = new RailEngine(railData.systems);
-      traEngineRef.current = railData.traData
-        ? new TraTrainEngine(railData.traData)
-        : null;
-    }
-  }, [railData]);
-
-  // 圖層可見性
-  const [layerVisibility, setLayerVisibility] = useState<LayerVisibility>({
-    flights: true,
-    ships: true,
-    rail: true,
-    stations: true,
-    ports: true,
-    lighthouses: true,
-    highways: false,
-    provincialRoads: false,
-  });
-  const layerVisibilityRef = useRef(layerVisibility);
-  layerVisibilityRef.current = layerVisibility;
+  const { isMobile, isLandscape } = useIsMobile();
 
   const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
-  const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
-  const [expandedTransport, setExpandedTransport] = useState<TransportType | null>(null);
+  const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
   const [mapStyleId, setMapStyleId] = useState("dark");
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
-  const [altExaggeration, setAltExaggeration] = useState(3);
-  const [altOffset, setAltOffset] = useState(50);
-  const [staticOpacity, setStaticOpacity] = useState(0.1);
-  const [orbScale, setOrbScale] = useState(0.000005);
-  const [airportOpacity, setAirportOpacity] = useState(0.12);
-  const [airportGlow, setAirportGlow] = useState(0.8);
   const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
-  const [railAltOffset, setRailAltOffset] = useState(110);
-  const [railOrbScale, setRailOrbScale] = useState(0.00001);
-  const [railTrackOpacity, setRailTrackOpacity] = useState(0.35);
-  const [shipOrbScale, setShipOrbScale] = useState(0.000007);
-  const [shipTrailOpacity, setShipTrailOpacity] = useState(0.8);
-  const [stationScale, setStationScale] = useState(1);
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
-  const [tooltipInfo, setTooltipInfo] = useState<{ flight: Flight; x: number; y: number; altitude: number | null } | null>(null);
   const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
-  const { isMobile, isLandscape } = useIsMobile();
 
   const timeline = useTimeline({
     startTime: timeRange.start,
     endTime: timeRange.end,
   });
 
+  // ── Custom Hooks ──
+
+  const transportParams = useTransportParams();
+
+  const isDarkTheme = !["light", "streets"].includes(mapStyleId);
+  const showTrails = displayMode === "trails";
+
+  // Refs for Three.js render loops
+  const mapRef = useRef<MapboxMap | null>(null);
+  const flightsRef = useRef<Flight[]>([]);
+  const shipsRef = useRef(ships);
+  const timeRef = useRef(timeline.currentTime);
+  const renderModeRef = useRef(renderMode);
+  const isDarkThemeRef = useRef(isDarkTheme);
+  const showTrailsRef = useRef(showTrails);
+  const railDataRef = useRef(railData);
+  const lighthousePositionsRef = useRef(lighthousePositions);
+  const playingRef = useRef(timeline.playing);
+
   // 根據 viewMode 決定要顯示的航班
   const displayedFlights = useMemo(() => {
     switch (viewMode) {
       case "time-window":
-        return filterByTimeWindow(
-          allFlights,
-          selectedAirport,
-          timeline.currentTime,
-        );
+        return filterByTimeWindow(allFlights, selectedAirport, timeline.currentTime);
       case "all-taiwan":
       default:
         return allFlights;
     }
-  }, [
-    allFlights,
-    viewMode,
-    selectedAirport,
-    timeline.currentTime,
-  ]);
-
-  const isDarkTheme = !["light", "streets"].includes(mapStyleId);
-
-  const mapRef = useRef<MapboxMap | null>(null);
-  const flightsRef = useRef(displayedFlights);
-  const timeRef = useRef(timeline.currentTime);
-  const renderModeRef = useRef(renderMode);
-  const altExagRef = useRef(altExaggeration);
-  const altOffsetRef = useRef(altOffset);
-  const staticOpacityRef = useRef(staticOpacity);
-  const orbScaleRef = useRef(orbScale);
-  const isDarkThemeRef = useRef(isDarkTheme);
-  const showTrailsRef = useRef(displayMode === "trails");
-  const flightSceneRef = useRef<FlightScene | null>(null);
-  const shipSceneRef = useRef<ShipScene | null>(null);
-  const railSceneRef = useRef<RailScene | null>(null);
-  const shipsRef = useRef<Ship[]>(ships);
-  const activeTrainsRef = useRef<RailTrain[]>(activeTrains);
-  const railAltOffsetRef = useRef(railAltOffset);
-  const railOrbScaleRef = useRef(railOrbScale);
-  const railTrackOpacityRef = useRef(railTrackOpacity);
-  const shipOrbScaleRef = useRef(shipOrbScale);
-  const shipTrailOpacityRef = useRef(shipTrailOpacity);
-  const railDataRef = useRef(railData);
-  const lighthousePositionsRef = useRef(lighthousePositions);
-  const playingRef = useRef(timeline.playing);
-  const clickBoundRef = useRef(false);
+  }, [allFlights, viewMode, selectedAirport, timeline.currentTime]);
 
   flightsRef.current = displayedFlights;
   shipsRef.current = ships;
-  activeTrainsRef.current = activeTrains;
   timeRef.current = timeline.currentTime;
   renderModeRef.current = renderMode;
-  altExagRef.current = altExaggeration;
-  altOffsetRef.current = altOffset;
-  staticOpacityRef.current = staticOpacity;
-  orbScaleRef.current = orbScale;
   isDarkThemeRef.current = isDarkTheme;
-  showTrailsRef.current = displayMode === "trails";
-  railAltOffsetRef.current = railAltOffset;
-  railOrbScaleRef.current = railOrbScale;
-  railTrackOpacityRef.current = railTrackOpacity;
-  shipOrbScaleRef.current = shipOrbScale;
-  shipTrailOpacityRef.current = shipTrailOpacity;
+  showTrailsRef.current = showTrails;
   railDataRef.current = railData;
   lighthousePositionsRef.current = lighthousePositions;
   playingRef.current = timeline.playing;
 
-  const showTrails = displayMode === "trails";
+  const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
+  const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
+
+  const {
+    flightSceneRef, shipSceneRef,
+    addFlightLayer,
+    addAllLayers,
+  } = useThreeJsLayers({
+    timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
+    shipsRef, activeTrainsRef, railDataRef,
+    lighthousePositionsRef, playingRef, layerVisibilityRef,
+    paramRefs: transportParams.refs,
+  });
+
+  const { tooltipInfo, setTooltipInfo, selectedFlightId, setSelectedFlightId, bindEvents } =
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef);
+
+  // ── Derived values ──
 
   const preset = useMemo(
     () => getPresetByIcao(selectedAirport) ?? CAMERA_PRESETS[0]!,
@@ -184,80 +128,12 @@ export default function App() {
 
   const styleUrl = useMemo(() => getStyleUrl(mapStyleId), [mapStyleId]);
 
-  const addFlightLayer = (map: MapboxMap) => {
-    if (map.getLayer("flight-3d")) {
-      map.removeLayer("flight-3d");
-    }
-    const layer = createFlightLayer({
-      getCurrentTime: () => timeRef.current,
-      getFlights: () => flightsRef.current,
-      getRenderMode: () => renderModeRef.current,
-      getAltExaggeration: () => altExagRef.current,
-      getAltOffset: () => altOffsetRef.current,
-      getStaticOpacity: () => staticOpacityRef.current,
-      getOrbScale: () => orbScaleRef.current,
-      getIsDarkTheme: () => isDarkThemeRef.current,
-      getShowTrails: () => showTrailsRef.current,
-      onSceneReady: (scene) => { flightSceneRef.current = scene; },
-    });
-    map.addLayer(layer);
-  };
-
-  const addShipLayer = (map: MapboxMap) => {
-    if (map.getLayer("ship-3d")) map.removeLayer("ship-3d");
-    const layer = createShipLayer({
-      getCurrentTime: () => timeRef.current,
-      getShips: () => shipsRef.current,
-      getIsDarkTheme: () => isDarkThemeRef.current,
-      getOrbScale: () => shipOrbScaleRef.current,
-      getTrailOpacity: () => shipTrailOpacityRef.current,
-      getMapBounds: () => {
-        const b = map.getBounds();
-        if (!b) return null;
-        return {
-          minLng: b.getWest(),
-          maxLng: b.getEast(),
-          minLat: b.getSouth(),
-          maxLat: b.getNorth(),
-        };
-      },
-      onSceneReady: (scene) => { shipSceneRef.current = scene; },
-    });
-    map.addLayer(layer);
-  };
-
-  const addRailLayer = (map: MapboxMap) => {
-    if (map.getLayer("rail-3d")) map.removeLayer("rail-3d");
-    const layer = createRailLayer({
-      getTrains: () => activeTrainsRef.current,
-      getCurrentTime: () => timeRef.current,
-      getIsDarkTheme: () => isDarkThemeRef.current,
-      getOrbScale: () => railOrbScaleRef.current,
-      getTrackOpacity: () => railTrackOpacityRef.current,
-      getRailAltOffset: () => railAltOffsetRef.current,
-      getTrackFeatures: () => railDataRef.current?.allTracks ?? null,
-      onSceneReady: (scene) => { railSceneRef.current = scene; },
-    });
-    map.addLayer(layer);
-  };
-
-  const addLighthouseLayer = (map: MapboxMap) => {
-    if (map.getLayer("lighthouse-3d")) map.removeLayer("lighthouse-3d");
-    const layer = createLighthouseLayer({
-      getPositions: () => lighthousePositionsRef.current,
-      getIsDarkTheme: () => isDarkThemeRef.current,
-      getIsPlaying: () => playingRef.current,
-      getIsVisible: () => layerVisibilityRef.current.lighthouses,
-    });
-    map.addLayer(layer);
-  };
+  // ── Map ready handler ──
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
-    addFlightLayer(map);
-    addShipLayer(map);
-    addRailLayer(map);
-    addLighthouseLayer(map);
+    addAllLayers(map);
+
     const updateCamera = () => {
       const c = map.getCenter();
       setCameraInfo({
@@ -271,53 +147,10 @@ export default function App() {
     map.on("move", updateCamera);
     updateCamera();
 
-    if (!clickBoundRef.current) {
-      clickBoundRef.current = true;
-
-      map.on("click", (e) => {
-        const scene = flightSceneRef.current;
-        if (!scene) { setTooltipInfo(null); return; }
-        const container = map.getContainer();
-        const flightId = scene.pickFlight(
-          e.point.x, e.point.y,
-          container.clientWidth, container.clientHeight,
-        );
-        if (flightId) {
-          const flight = flightsRef.current.find((f) => f.fr24_id === flightId);
-          if (flight) {
-            let altitude: number | null = null;
-            const t = timeRef.current;
-            for (let i = flight.path.length - 1; i >= 0; i--) {
-              if (flight.path[i]![3] <= t) { altitude = Math.round(flight.path[i]![2]); break; }
-            }
-            setTooltipInfo({ flight, x: e.point.x, y: e.point.y, altitude });
-          }
-        } else {
-          setTooltipInfo(null);
-        }
-      });
-
-      map.on("dblclick", (e) => {
-        const scene = flightSceneRef.current;
-        if (!scene) return;
-        const container = map.getContainer();
-        const flightId = scene.pickFlight(
-          e.point.x, e.point.y,
-          container.clientWidth, container.clientHeight,
-        );
-        if (flightId) {
-          e.preventDefault();
-          setSelectedFlightId(flightId);
-          setTooltipInfo(null);
-        }
-      });
-
-      // dragstart 退出追蹤
-      map.on("dragstart", () => setSelectedFlightId(null));
-
-      map.on("move", () => setTooltipInfo(null));
-    }
+    bindEvents(map);
   };
+
+  // ── Effects ──
 
   // 航班資料或模式變更時重建 layer
   useEffect(() => {
@@ -326,27 +159,6 @@ export default function App() {
     addFlightLayer(map);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode]);
-
-  // 每幀更新軌道列車（5 系統 + TRA 專用引擎）
-  useEffect(() => {
-    if (!railEngineRef.current && !traEngineRef.current) return;
-    let animId: number;
-    const tick = () => {
-      const now = timeRef.current;
-      let allTrains: RailTrain[] = [];
-      if (railEngineRef.current) {
-        allTrains = railEngineRef.current.update(now);
-      }
-      if (traEngineRef.current) {
-        allTrains = [...allTrains, ...traEngineRef.current.update(now)];
-      }
-      activeTrainsRef.current = allTrains;
-      setActiveTrains(allTrains);
-      animId = requestAnimationFrame(tick);
-    };
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
-  }, [railData]);
 
   // 軌道靜態線
   useEffect(() => {
@@ -359,81 +171,8 @@ export default function App() {
     }
   }, [railData, isDarkTheme, layerVisibility.rail]);
 
-  // 車站大小即時更新
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
-    updateStationStyle(map, isDarkTheme, stationScale);
-  }, [stationScale, isDarkTheme]);
-
-  // 圖層可見性 → add/remove layers
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
-
-    if (layerVisibility.flights && !map.getLayer("flight-3d")) {
-      addFlightLayer(map);
-    } else if (!layerVisibility.flights && map.getLayer("flight-3d")) {
-      map.removeLayer("flight-3d");
-    }
-
-    if (layerVisibility.ships && !map.getLayer("ship-3d")) {
-      addShipLayer(map);
-    } else if (!layerVisibility.ships && map.getLayer("ship-3d")) {
-      map.removeLayer("ship-3d");
-    }
-
-    if (layerVisibility.rail && !map.getLayer("rail-3d")) {
-      addRailLayer(map);
-    } else if (!layerVisibility.rail && map.getLayer("rail-3d")) {
-      map.removeLayer("rail-3d");
-    }
-
-    if (layerVisibility.lighthouses && !map.getLayer("lighthouse-3d")) {
-      addLighthouseLayer(map);
-    } else if (!layerVisibility.lighthouses && map.getLayer("lighthouse-3d")) {
-      map.removeLayer("lighthouse-3d");
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layerVisibility]);
-
-  // 雙擊追蹤：相機鎖定飛機（internal，dragstart 自動退出）
-  useEffect(() => {
-    if (!selectedFlightId) return;
-    const map = mapRef.current;
-    if (!map) return;
-
-    let animId: number;
-    const tick = () => {
-      const flight = flightsRef.current.find((f) => f.fr24_id === selectedFlightId);
-      if (flight && flight.path.length > 0) {
-        const t = timeRef.current;
-        const path = flight.path;
-        let lat: number, lng: number;
-        if (t <= path[0]![3]) {
-          lat = path[0]![0]; lng = path[0]![1];
-        } else if (t >= path[path.length - 1]![3]) {
-          lat = path[path.length - 1]![0]; lng = path[path.length - 1]![1];
-        } else {
-          lat = path[0]![0]; lng = path[0]![1];
-          for (let i = 1; i < path.length; i++) {
-            if (path[i]![3] >= t) {
-              const a = path[i - 1]!;
-              const b = path[i]!;
-              const r = (t - a[3]) / (b[3] - a[3]);
-              lat = a[0] + (b[0] - a[0]) * r;
-              lng = a[1] + (b[1] - a[1]) * r;
-              break;
-            }
-          }
-        }
-        map.setCenter([lng, lat]);
-      }
-      animId = requestAnimationFrame(tick);
-    };
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
-  }, [selectedFlightId]);
+  // Three.js 圖層可見性由各 custom layer 內部 getIsVisible 控制
+  // layers 常駐，不做 remove/re-add（避免 WebGL dispose/reinit 問題）
 
   // ESC 退出拍攝模式
   useEffect(() => {
@@ -452,6 +191,8 @@ export default function App() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, timeRange.start]);
+
+  // ── Render ──
 
   if (loading) {
     return (
@@ -507,23 +248,16 @@ export default function App() {
         styleUrl={styleUrl}
         flights={displayedFlights}
         renderMode={renderMode}
-        airportOpacity={airportOpacity}
-        airportGlow={airportGlow}
         isDarkTheme={isDarkTheme}
         showTrails={showTrails}
-        stationVisible={layerVisibility.stations}
-        stationScale={stationScale}
-        portVisible={layerVisibility.ports}
-        lighthouseVisible={layerVisibility.lighthouses}
-        highwayVisible={layerVisibility.highways}
-        provincialRoadVisible={layerVisibility.provincialRoads}
+        layerVisibility={layerVisibility}
+        overlayParams={transportParams.overlayParams}
         onMapReady={handleMapReady}
       />
 
       {/* ── 拍攝模式 vignette + 標題 ── */}
       {captureMode && (
         <>
-          {/* 暗角 vignette */}
           <div
             style={{
               position: "absolute",
@@ -534,7 +268,6 @@ export default function App() {
                 "radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.35) 80%, rgba(0,0,0,0.6) 100%)",
             }}
           />
-          {/* 左上標題 */}
           <div
             style={{
               position: "absolute",
@@ -602,7 +335,6 @@ export default function App() {
               {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
             </div>
           </div>
-          {/* 退出按鈕 */}
           <button
             onClick={() => setCaptureMode(false)}
             style={isMobile ? {
@@ -700,73 +432,42 @@ export default function App() {
             )}
           </div>
 
-          {/* Row 2: TransportBar */}
-          <div style={{ position: "absolute", top: 52, left: 16, zIndex: 10 }}>
-            <TransportBar
+          {/* LayerSidebar */}
+          <div style={{ position: "absolute", top: 92, left: 16, zIndex: 10 }}>
+            <LayerSidebar
               visibility={layerVisibility}
-              expandedTransport={expandedTransport}
+              expandedLayer={expandedLayer}
               viewMode={viewMode}
+              displayMode={displayMode}
               isDarkTheme={isDarkTheme}
               counts={{
                 flights: displayedFlights.length,
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                 trains: activeTrains.length,
               }}
-              onTransportClick={(transport) => {
-                const isVisible = layerVisibility[transport];
+              onLayerClick={(layer) => {
+                const isVisible = layerVisibility[layer];
                 if (!isVisible) {
-                  setLayerVisibility((prev) => ({ ...prev, [transport]: true }));
-                  setExpandedTransport(transport);
-                } else if (expandedTransport === transport) {
-                  setExpandedTransport(null);
+                  setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
+                  setExpandedLayer(layer as ExpandableLayerKey);
+                } else if (expandedLayer === layer) {
+                  setExpandedLayer(null);
                 } else {
-                  setExpandedTransport(transport);
+                  setExpandedLayer(layer as ExpandableLayerKey);
                 }
               }}
-              onToggleVisibility={(layer) =>
-                setLayerVisibility((prev) => ({ ...prev, [layer]: !prev[layer] }))
-              }
+              onToggleVisibility={toggleVisibility}
               onViewModeChange={setViewMode}
+              onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
+              onHideTransport={() => {
+                if (expandedLayer) {
+                  setLayerVisibility((prev) => ({ ...prev, [expandedLayer]: false }));
+                  setExpandedLayer(null);
+                }
+              }}
+              getSliders={transportParams.getSliders}
             />
           </div>
-
-          {/* Row 3: Accordion Panel */}
-          {expandedTransport && (
-            <div style={{ position: "absolute", top: 84, left: 16, zIndex: 10 }}>
-              <TransportParamPanel
-                transport={expandedTransport}
-                isDarkTheme={isDarkTheme}
-                displayMode={displayMode}
-                onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
-                onHide={() => {
-                  setLayerVisibility((prev) => ({ ...prev, [expandedTransport]: false }));
-                  setExpandedTransport(null);
-                }}
-                sliders={(() => {
-                  switch (expandedTransport) {
-                    case "flights": return [
-                      { label: `Alt ×${altExaggeration.toFixed(1)}`, value: altExaggeration, min: 1, max: 5, step: 0.5, onChange: setAltExaggeration },
-                      { label: `Z +${altOffset}m`, value: altOffset, min: 0, max: 200, step: 50, onChange: setAltOffset },
-                      { label: `Opacity ${staticOpacity.toFixed(2)}`, value: staticOpacity, min: 0.02, max: 0.5, step: 0.02, onChange: setStaticOpacity },
-                      { label: `Orb ${(orbScale * 100000).toFixed(1)}`, value: orbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setOrbScale },
-                      { label: `APT ${airportOpacity.toFixed(2)}`, value: airportOpacity, min: 0, max: 0.3, step: 0.01, onChange: setAirportOpacity },
-                      { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
-                    ];
-                    case "ships": return [
-                      { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, value: shipOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setShipOrbScale },
-                      { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, value: shipTrailOpacity, min: 0.05, max: 1, step: 0.05, onChange: setShipTrailOpacity },
-                    ];
-                    case "rail": return [
-                      { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
-                      { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
-                      { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
-                      { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
-                    ];
-                  }
-                })()}
-              />
-            </div>
-          )}
 
           {/* 時間軸 */}
           <TimelineControls
@@ -831,7 +532,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* 右上角第二排：Info / Github / Threads / Mini Taiwan */}
+          {/* 右上角第二排 */}
           <div
             style={{
               position: "absolute",
@@ -953,18 +654,17 @@ export default function App() {
             Right-drag to rotate · Scroll to zoom
           </div>
 
-          {/* 統計 + 相機角度（動態 top） */}
+          {/* 統計 + 相機角度 */}
           <div
             style={{
               position: "absolute",
-              top: expandedTransport ? 140 : 84,
+              top: 48,
               left: 16,
               zIndex: 10,
               background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
               backdropFilter: "blur(8px)",
               borderRadius: 6,
               padding: "4px 10px",
-              transition: "top 0.2s ease",
             }}
           >
             <div
@@ -1085,7 +785,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* Timeline 固定在 header 下方 */}
+          {/* Timeline */}
           <div
             style={{
               position: "absolute",
@@ -1118,13 +818,13 @@ export default function App() {
           <MobileBottomSheet isLandscape={isLandscape}>
             {(level) => (
               <>
-                {/* half: TransportBar + Stats */}
                 {(level === "half" || level === "full") && (
                   <div style={{ marginTop: 12 }}>
-                    <TransportBar
+                    <LayerSidebar
                       visibility={layerVisibility}
-                      expandedTransport={expandedTransport}
+                      expandedLayer={expandedLayer}
                       viewMode={viewMode}
+                      displayMode={displayMode}
                       isDarkTheme={true}
                       isMobile={true}
                       counts={{
@@ -1132,76 +832,33 @@ export default function App() {
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                         trains: activeTrains.length,
                       }}
-                      onTransportClick={(transport) => {
-                        const isVisible = layerVisibility[transport];
+                      onLayerClick={(layer) => {
+                        const isVisible = layerVisibility[layer];
                         if (!isVisible) {
-                          setLayerVisibility((prev) => ({ ...prev, [transport]: true }));
-                          setExpandedTransport(transport);
-                        } else if (expandedTransport === transport) {
-                          setExpandedTransport(null);
+                          setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
+                          setExpandedLayer(layer as ExpandableLayerKey);
+                        } else if (expandedLayer === layer) {
+                          setExpandedLayer(null);
                         } else {
-                          setExpandedTransport(transport);
+                          setExpandedLayer(layer as ExpandableLayerKey);
                         }
                       }}
-                      onToggleVisibility={(layer) =>
-                        setLayerVisibility((prev) => ({ ...prev, [layer]: !prev[layer] }))
-                      }
+                      onToggleVisibility={toggleVisibility}
                       onViewModeChange={setViewMode}
-                    />
-                    <div
-                      style={{
-                        marginTop: 8,
-                        color: "rgba(255,255,255,0.4)",
-                        fontSize: 11,
-                        fontFamily: "monospace",
+                      onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
+                      onHideTransport={() => {
+                        if (expandedLayer) {
+                          setLayerVisibility((prev) => ({ ...prev, [expandedLayer]: false }));
+                          setExpandedLayer(null);
+                        }
                       }}
-                    >
-                      {displayedFlights.length} flights
-                      {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
-                      {layerVisibility.rail && ` · ${activeTrains.length} trains`}
-                      {viewMode === "time-window" && " (±12h)"}
-                    </div>
+                      getSliders={transportParams.getSliders}
+                    />
                   </div>
                 )}
 
-                {/* full: TransportParamPanel + StyleSelector + LocationJump */}
                 {level === "full" && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
-                    {expandedTransport && (
-                      <TransportParamPanel
-                        transport={expandedTransport}
-                        isDarkTheme={true}
-                        isMobile={true}
-                        displayMode={displayMode}
-                        onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
-                        onHide={() => {
-                          setLayerVisibility((prev) => ({ ...prev, [expandedTransport]: false }));
-                          setExpandedTransport(null);
-                        }}
-                        sliders={(() => {
-                          switch (expandedTransport) {
-                            case "flights": return [
-                              { label: `Alt ×${altExaggeration.toFixed(1)}`, value: altExaggeration, min: 1, max: 5, step: 0.5, onChange: setAltExaggeration },
-                              { label: `Z +${altOffset}m`, value: altOffset, min: 0, max: 200, step: 50, onChange: setAltOffset },
-                              { label: `Opacity ${staticOpacity.toFixed(2)}`, value: staticOpacity, min: 0.02, max: 0.5, step: 0.02, onChange: setStaticOpacity },
-                              { label: `Orb ${(orbScale * 100000).toFixed(1)}`, value: orbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setOrbScale },
-                              { label: `APT ${airportOpacity.toFixed(2)}`, value: airportOpacity, min: 0, max: 0.3, step: 0.01, onChange: setAirportOpacity },
-                              { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
-                            ];
-                            case "ships": return [
-                              { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, value: shipOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setShipOrbScale },
-                              { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, value: shipTrailOpacity, min: 0.05, max: 1, step: 0.05, onChange: setShipTrailOpacity },
-                            ];
-                            case "rail": return [
-                              { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
-                              { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
-                              { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
-                              { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
-                            ];
-                          }
-                        })()}
-                      />
-                    )}
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                       <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>Style</span>
                       <StyleSelector

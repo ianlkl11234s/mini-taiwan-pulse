@@ -64,8 +64,8 @@ export function TimelineControls({
         position: "absolute",
         bottom: 16,
         left: 16,
-        right: 16,
         zIndex: 10,
+        width: 320,
       }}
     >
       {/* 控制按鈕列 */}
