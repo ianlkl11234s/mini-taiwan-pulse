@@ -157,33 +157,40 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "lighthouses",
     sourceUrl: "./lighthouse.geojson",
     sourceId: "lighthouses",
+    rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
         suffix: "glow",
         type: "circle",
-        paint: (isDark) => ({
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 8, 10, 12, 14, 16,
-          ],
-          "circle-color": "#ffd700",
-          "circle-blur": 1,
-          "circle-opacity": isDark ? 0.3 : 0.2,
-        }),
+        paint: (isDark, params) => {
+          const scale = params?.lighthouseScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 8 * scale, 10, 12 * scale, 14, 16 * scale,
+            ],
+            "circle-color": "#ffd700",
+            "circle-blur": 1,
+            "circle-opacity": isDark ? 0.3 : 0.2,
+          };
+        },
       },
       {
         suffix: "circle",
         type: "circle",
-        paint: (isDark) => ({
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 3, 10, 5, 14, 7,
-          ],
-          "circle-color": "#ffd700",
-          "circle-stroke-color": isDark ? "#fff8dc" : "#b8860b",
-          "circle-stroke-width": 1,
-          "circle-opacity": isDark ? 0.9 : 0.8,
-        }),
+        paint: (isDark, params) => {
+          const scale = params?.lighthouseScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 3 * scale, 10, 5 * scale, 14, 7 * scale,
+            ],
+            "circle-color": "#ffd700",
+            "circle-stroke-color": isDark ? "#fff8dc" : "#b8860b",
+            "circle-stroke-width": 1,
+            "circle-opacity": isDark ? 0.9 : 0.8,
+          };
+        },
       },
     ],
   },
@@ -286,6 +293,98 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "line-width": isDark ? 1 : 1.5,
           "line-opacity": isDark ? 0.35 : 0.50,
         }),
+      },
+    ],
+  },
+
+  // ── Bus Stations (City) ──
+  {
+    id: "busStationsCity",
+    sourceUrl: "./bus_stations_city.geojson",
+    sourceId: "bus-stations-city",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.busScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2 * scale, 10, 5 * scale, 14, 10 * scale, 17, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#66bb6a" : "#388e3c",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.busScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.8 * scale, 10, 1.5 * scale, 14, 3.5 * scale, 17, 6 * scale,
+            ],
+            "circle-color": isDark ? "#66bb6a" : "#388e3c",
+            "circle-stroke-color": isDark ? "#a5d6a7" : "#2e7d32",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": isDark ? 0.7 : 0.6,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Bus Stations (Intercity) ──
+  {
+    id: "busStationsIntercity",
+    sourceUrl: "./bus_stations_intercity.geojson",
+    sourceId: "bus-stations-intercity",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.busScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2.5 * scale, 10, 6 * scale, 14, 12 * scale, 17, 18 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.busScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1 * scale, 10, 2 * scale, 14, 4 * scale, 17, 7 * scale,
+            ],
+            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-stroke-color": isDark ? "#ce93d8" : "#6a1b9a",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": isDark ? 0.7 : 0.6,
+          };
+        },
       },
     ],
   },

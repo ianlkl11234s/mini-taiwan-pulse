@@ -4,8 +4,10 @@ import type { Flight, Ship, RailTrain, RenderMode, RailData, LayerVisibility } f
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
+import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
 import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
+import { createStationPillarLayer } from "../map/stationPillarCustomLayer";
 
 interface UseThreeJsLayersArgs {
   timeRef: React.RefObject<number>;
@@ -17,6 +19,7 @@ interface UseThreeJsLayersArgs {
   activeTrainsRef: React.RefObject<RailTrain[]>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
+  stationPillarDataRef: React.RefObject<StationPillarData[]>;
   playingRef: React.RefObject<boolean>;
   layerVisibilityRef: React.RefObject<LayerVisibility>;
   paramRefs: {
@@ -29,13 +32,18 @@ interface UseThreeJsLayersArgs {
     railAltOffset: React.RefObject<number>;
     railOrbScale: React.RefObject<number>;
     railTrackOpacity: React.RefObject<number>;
+    beamVisible: React.RefObject<boolean>;
+    beamDistance: React.RefObject<number>;
+    beamOpacity: React.RefObject<number>;
+    pillarVisible: React.RefObject<boolean>;
+    pillarHeight: React.RefObject<number>;
   };
 }
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
   shipsRef, activeTrainsRef, railDataRef,
-  lighthousePositionsRef, playingRef, layerVisibilityRef,
+  lighthousePositionsRef, stationPillarDataRef, playingRef, layerVisibilityRef,
   paramRefs,
 }: UseThreeJsLayersArgs) {
   const flightSceneRef = useRef<FlightScene | null>(null);
@@ -107,6 +115,21 @@ export function useThreeJsLayers({
       getIsDarkTheme: () => isDarkThemeRef.current,
       getIsPlaying: () => playingRef.current,
       getIsVisible: () => layerVisibilityRef.current.lighthouses,
+      getBeamVisible: () => paramRefs.beamVisible.current,
+      getBeamDistance: () => paramRefs.beamDistance.current,
+      getBeamOpacity: () => paramRefs.beamOpacity.current,
+    });
+    map.addLayer(layer);
+  };
+
+  const addStationPillarLayer = (map: MapboxMap) => {
+    if (map.getLayer("station-pillar-3d")) map.removeLayer("station-pillar-3d");
+    const layer = createStationPillarLayer({
+      getPositions: () => stationPillarDataRef.current,
+      getPillarVisible: () => paramRefs.pillarVisible.current,
+      getPillarHeight: () => paramRefs.pillarHeight.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getIsVisible: () => layerVisibilityRef.current.stations,
     });
     map.addLayer(layer);
   };
@@ -116,6 +139,7 @@ export function useThreeJsLayers({
     addShipLayer(map);
     addRailLayer(map);
     addLighthouseLayer(map);
+    addStationPillarLayer(map);
   };
 
   return {
@@ -126,6 +150,7 @@ export function useThreeJsLayers({
     addShipLayer,
     addRailLayer,
     addLighthouseLayer,
+    addStationPillarLayer,
     addAllLayers,
   };
 }

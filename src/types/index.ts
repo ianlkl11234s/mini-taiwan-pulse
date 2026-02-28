@@ -44,7 +44,9 @@ export type ViewMode = "all-taiwan" | "time-window";
 export type TransportType = "flights" | "ships" | "rail";
 
 /** 可展開面板的圖層 key */
-export type ExpandableLayerKey = TransportType | "windPlan";
+export type ExpandableLayerKey =
+  TransportType | "windPlan" | "lighthouses" | "stations"
+  | "busStationsCity" | "busStationsIntercity";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -179,4 +181,6 @@ export interface LayerVisibility {
   highways: boolean;
   provincialRoads: boolean;
   windPlan: boolean;
+  busStationsCity: boolean;
+  busStationsIntercity: boolean;
 }

@@ -1,7 +1,8 @@
 import { useMemo, useRef, useState } from "react";
-import type { TransportType } from "../types";
+import type { TransportType, ExpandableLayerKey } from "../types";
 
 export interface SliderConfig {
+  type?: "slider";
   label: string;
   value: number;
   min: number;
@@ -9,6 +10,15 @@ export interface SliderConfig {
   step: number;
   onChange: (v: number) => void;
 }
+
+export interface ToggleConfig {
+  type: "toggle";
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig;
 
 export function useTransportParams() {
   // Flight
@@ -26,6 +36,16 @@ export function useTransportParams() {
   const [railOrbScale, setRailOrbScale] = useState(0.00001);
   const [railTrackOpacity, setRailTrackOpacity] = useState(0.35);
   const [stationScale, setStationScale] = useState(1);
+  // Bus
+  const [busScale, setBusScale] = useState(1);
+  // Lighthouse
+  const [lighthouseScale, setLighthouseScale] = useState(1);
+  const [beamVisible, setBeamVisible] = useState(true);
+  const [beamDistance, setBeamDistance] = useState(1);
+  const [beamOpacity, setBeamOpacity] = useState(0.3);
+  // Station pillar
+  const [pillarVisible, setPillarVisible] = useState(true);
+  const [pillarHeight, setPillarHeight] = useState(1);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -37,6 +57,11 @@ export function useTransportParams() {
   const railAltOffsetRef = useRef(railAltOffset);
   const railOrbScaleRef = useRef(railOrbScale);
   const railTrackOpacityRef = useRef(railTrackOpacity);
+  const beamVisibleRef = useRef(beamVisible);
+  const beamDistanceRef = useRef(beamDistance);
+  const beamOpacityRef = useRef(beamOpacity);
+  const pillarVisibleRef = useRef(pillarVisible);
+  const pillarHeightRef = useRef(pillarHeight);
 
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
@@ -47,15 +72,22 @@ export function useTransportParams() {
   railAltOffsetRef.current = railAltOffset;
   railOrbScaleRef.current = railOrbScale;
   railTrackOpacityRef.current = railTrackOpacity;
+  beamVisibleRef.current = beamVisible;
+  beamDistanceRef.current = beamDistance;
+  beamOpacityRef.current = beamOpacity;
+  pillarVisibleRef.current = pillarVisible;
+  pillarHeightRef.current = pillarHeight;
 
   const overlayParams = useMemo<Record<string, number>>(() => ({
     stationScale,
     airportOpacity,
     airportGlow,
-  }), [stationScale, airportOpacity, airportGlow]);
+    busScale,
+    lighthouseScale,
+  }), [stationScale, airportOpacity, airportGlow, busScale, lighthouseScale]);
 
-  const getSliders = (transport: TransportType): SliderConfig[] => {
-    switch (transport) {
+  const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
+    switch (layer) {
       case "flights": return [
         { label: `Alt ×${altExaggeration.toFixed(1)}`, value: altExaggeration, min: 1, max: 5, step: 0.5, onChange: setAltExaggeration },
         { label: `Z +${altOffset}m`, value: altOffset, min: 0, max: 200, step: 50, onChange: setAltOffset },
@@ -74,6 +106,22 @@ export function useTransportParams() {
         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
         { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
       ];
+      case "busStationsCity":
+      case "busStationsIntercity": return [
+        { label: `Bus ${busScale.toFixed(1)}`, value: busScale, min: 0.3, max: 3, step: 0.1, onChange: setBusScale },
+      ];
+      case "lighthouses": return [
+        { label: `LH ${lighthouseScale.toFixed(1)}`, value: lighthouseScale, min: 0.3, max: 3, step: 0.1, onChange: setLighthouseScale },
+        { type: "toggle", label: "Beam", value: beamVisible, onChange: setBeamVisible },
+        { label: `Dist ${beamDistance.toFixed(1)}`, value: beamDistance, min: 0.2, max: 3, step: 0.1, onChange: setBeamDistance },
+        { label: `Opa ${beamOpacity.toFixed(2)}`, value: beamOpacity, min: 0.05, max: 0.8, step: 0.05, onChange: setBeamOpacity },
+      ];
+      case "stations": return [
+        { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
+        { type: "toggle", label: "Pillar", value: pillarVisible, onChange: setPillarVisible },
+        { label: `Height ${pillarHeight.toFixed(1)}`, value: pillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setPillarHeight },
+      ];
+      case "windPlan": return [];
     }
   };
 
@@ -89,8 +137,13 @@ export function useTransportParams() {
       railAltOffset: railAltOffsetRef,
       railOrbScale: railOrbScaleRef,
       railTrackOpacity: railTrackOpacityRef,
+      beamVisible: beamVisibleRef,
+      beamDistance: beamDistanceRef,
+      beamOpacity: beamOpacityRef,
+      pillarVisible: pillarVisibleRef,
+      pillarHeight: pillarHeightRef,
     },
     overlayParams,
-    getSliders,
+    getControls,
   };
 }

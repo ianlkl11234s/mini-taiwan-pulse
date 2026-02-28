@@ -96,6 +96,30 @@ export class LighthouseScene {
     gl.blendFuncSeparate(blendSrc, blendDst, blendSrcA, blendDstA);
   }
 
+  setBeamVisible(v: boolean) {
+    for (const group of this.beamGroups) {
+      group.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) obj.visible = v;
+      });
+    }
+  }
+
+  setBeamDistance(scale: number) {
+    for (const group of this.beamGroups) {
+      group.scale.x = scale;
+    }
+  }
+
+  setBeamOpacity(opacity: number) {
+    for (const group of this.beamGroups) {
+      group.traverse((obj) => {
+        if (obj instanceof THREE.Mesh) {
+          (obj.material as THREE.MeshBasicMaterial).opacity = opacity;
+        }
+      });
+    }
+  }
+
   dispose() {
     for (const group of this.beamGroups) {
       this.scene.remove(group);

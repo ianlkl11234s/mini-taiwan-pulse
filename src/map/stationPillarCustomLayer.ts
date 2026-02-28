@@ -1,23 +1,22 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
-import { LighthouseScene } from "../three/LighthouseScene";
+import { StationPillarScene } from "../three/StationPillarScene";
+import type { StationPillarData } from "../three/StationPillarScene";
 
-export interface LighthouseLayerOptions {
-  getPositions: () => [number, number][];
+export interface StationPillarLayerOptions {
+  getPositions: () => StationPillarData[];
+  getPillarVisible: () => boolean;
+  getPillarHeight: () => number;
   getIsDarkTheme: () => boolean;
-  getIsPlaying: () => boolean;
   getIsVisible: () => boolean;
-  getBeamVisible: () => boolean;
-  getBeamDistance: () => number;
-  getBeamOpacity: () => number;
 }
 
-export function createLighthouseLayer(opts: LighthouseLayerOptions): CustomLayerInterface {
-  const scene = new LighthouseScene();
+export function createStationPillarLayer(opts: StationPillarLayerOptions): CustomLayerInterface {
+  const scene = new StationPillarScene();
   let map: MapboxMap | null = null;
   let initialized = false;
 
   return {
-    id: "lighthouse-3d",
+    id: "station-pillar-3d",
     type: "custom" as const,
     renderingMode: "3d" as const,
 
@@ -35,10 +34,9 @@ export function createLighthouseLayer(opts: LighthouseLayerOptions): CustomLayer
         }
       }
 
-      scene.playing = opts.getIsPlaying();
-      scene.setBeamVisible(opts.getBeamVisible());
-      scene.setBeamDistance(opts.getBeamDistance());
-      scene.setBeamOpacity(opts.getBeamOpacity());
+      scene.setPillarVisible(opts.getPillarVisible());
+      scene.setPillarHeight(opts.getPillarHeight());
+      scene.setTheme(opts.getIsDarkTheme());
 
       if (!opts.getIsVisible()) return;
 

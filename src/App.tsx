@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight, TransportType, ExpandableLayerKey } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey } from "./types";
+import type { StationPillarData } from "./three/StationPillarScene";
 import { MapView } from "./map/MapView";
 import { useFlightData } from "./hooks/useFlightData";
 import { useShipData } from "./hooks/useShipData";
@@ -45,6 +46,32 @@ export default function App() {
       .catch((err) => console.warn("Lighthouse data not available:", err));
   }, []);
 
+  // 車站光柱資料
+  const [stationPillarData, setStationPillarData] = useState<StationPillarData[]>([]);
+  useEffect(() => {
+    Promise.all([
+      fetch("./station_polygons.geojson").then((r) => r.json()) as Promise<GeoJSON.FeatureCollection<GeoJSON.Polygon | GeoJSON.MultiPolygon>>,
+      fetch("./station_points.geojson").then((r) => r.json()) as Promise<GeoJSON.FeatureCollection<GeoJSON.Point>>,
+    ]).then(([polygons, points]) => {
+      const data: StationPillarData[] = [];
+      // polygons → 大站 centroid, height=1
+      for (const f of polygons.features) {
+        const coords = f.geometry.type === "Polygon"
+          ? f.geometry.coordinates[0]!
+          : f.geometry.coordinates[0]![0]!;
+        const lng = coords.reduce((s, c) => s + c[0]!, 0) / coords.length;
+        const lat = coords.reduce((s, c) => s + c[1]!, 0) / coords.length;
+        data.push({ position: [lng, lat], height: 1 });
+      }
+      // points → 小站 coordinates, height=0.4
+      for (const f of points.features) {
+        const [lng, lat] = f.geometry.coordinates;
+        data.push({ position: [lng!, lat!], height: 0.4 });
+      }
+      setStationPillarData(data);
+    }).catch((err) => console.warn("Station pillar data not available:", err));
+  }, []);
+
   const { railData } = useRailData();
   const { isMobile, isLandscape } = useIsMobile();
 
@@ -79,6 +106,7 @@ export default function App() {
   const showTrailsRef = useRef(showTrails);
   const railDataRef = useRef(railData);
   const lighthousePositionsRef = useRef(lighthousePositions);
+  const stationPillarDataRef = useRef(stationPillarData);
   const playingRef = useRef(timeline.playing);
 
   // 根據 viewMode 決定要顯示的航班
@@ -100,6 +128,7 @@ export default function App() {
   showTrailsRef.current = showTrails;
   railDataRef.current = railData;
   lighthousePositionsRef.current = lighthousePositions;
+  stationPillarDataRef.current = stationPillarData;
   playingRef.current = timeline.playing;
 
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
@@ -112,7 +141,7 @@ export default function App() {
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
     shipsRef, activeTrainsRef, railDataRef,
-    lighthousePositionsRef, playingRef, layerVisibilityRef,
+    lighthousePositionsRef, stationPillarDataRef, playingRef, layerVisibilityRef,
     paramRefs: transportParams.refs,
   });
 
@@ -465,7 +494,7 @@ export default function App() {
                   setExpandedLayer(null);
                 }
               }}
-              getSliders={transportParams.getSliders}
+              getControls={transportParams.getControls}
             />
           </div>
 
@@ -852,7 +881,7 @@ export default function App() {
                           setExpandedLayer(null);
                         }
                       }}
-                      getSliders={transportParams.getSliders}
+                      getControls={transportParams.getControls}
                     />
                   </div>
                 )}

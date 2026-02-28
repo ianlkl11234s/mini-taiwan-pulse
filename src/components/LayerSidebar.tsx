@@ -1,5 +1,5 @@
 import type { LayerVisibility, TransportType, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
-import type { SliderConfig } from "../hooks/useTransportParams";
+import type { ParamControl } from "../hooks/useTransportParams";
 
 // ── Color Config ──
 
@@ -14,6 +14,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   highways: "#ff6b6b",
   provincialRoads: "#ffa94d",
   windPlan: "#7efcb0",
+  busStationsCity: "#66bb6a",
+  busStationsIntercity: "#ab47bc",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -45,10 +47,12 @@ const SECTIONS: SectionDef[] = [
   {
     title: "FACILITY",
     layers: [
-      { key: "stations", label: "軌道車站 Station" },
+      { key: "stations", label: "軌道車站 Station", expandable: true },
       { key: "ports", label: "碼頭 Port" },
-      { key: "lighthouses", label: "燈塔 Lighthouse" },
+      { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
       { key: "airports", label: "機場 Airport" },
+      { key: "busStationsCity", label: "市區公車站 City Bus", expandable: true },
+      { key: "busStationsIntercity", label: "公路客運站 Intercity", expandable: true },
       { key: "highways", label: "國道 Highway" },
       { key: "provincialRoads", label: "省道 Prov.Road" },
     ],
@@ -76,7 +80,7 @@ interface LayerSidebarProps {
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
-  getSliders: (transport: TransportType) => SliderConfig[];
+  getControls: (layer: ExpandableLayerKey) => ParamControl[];
 }
 
 // ── Component ──
@@ -94,7 +98,7 @@ export function LayerSidebar({
   onViewModeChange,
   onDisplayModeChange,
   onHideTransport,
-  getSliders,
+  getControls,
 }: LayerSidebarProps) {
   const textColor = isDarkTheme ? "#fff" : "#333";
   const dimColor = isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.35)";
@@ -158,6 +162,7 @@ export function LayerSidebar({
             const color = LAYER_COLORS[key];
             const count = getCount(key);
             const isExpanded = expandedLayer === key;
+            const isTransport = key in TRANSPORT_LABELS;
 
             return (
               <div key={key}>
@@ -229,9 +234,10 @@ export function LayerSidebar({
                 </div>
 
                 {/* Expanded Panel */}
-                {isExpanded && expandable && key in TRANSPORT_LABELS && (
+                {isExpanded && expandable && (
                   <ExpandedPanel
-                    transport={key as TransportType}
+                    layerKey={key as ExpandableLayerKey}
+                    isTransport={isTransport}
                     isDarkTheme={isDarkTheme}
                     isMobile={isMobile}
                     viewMode={viewMode}
@@ -239,7 +245,7 @@ export function LayerSidebar({
                     onViewModeChange={onViewModeChange}
                     onDisplayModeChange={onDisplayModeChange}
                     onHide={onHideTransport}
-                    sliders={getSliders(key as TransportType)}
+                    controls={getControls(key as ExpandableLayerKey)}
                   />
                 )}
               </div>
@@ -254,7 +260,8 @@ export function LayerSidebar({
 // ── Expanded Panel ──
 
 interface ExpandedPanelProps {
-  transport: TransportType;
+  layerKey: ExpandableLayerKey;
+  isTransport: boolean;
   isDarkTheme: boolean;
   isMobile?: boolean;
   viewMode: ViewMode;
@@ -262,17 +269,18 @@ interface ExpandedPanelProps {
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHide: () => void;
-  sliders: SliderConfig[];
+  controls: ParamControl[];
 }
 
 function ExpandedPanel({
-  transport,
+  layerKey,
+  isTransport,
   isDarkTheme,
   isMobile,
   displayMode,
   onDisplayModeChange,
   onHide,
-  sliders,
+  controls,
 }: ExpandedPanelProps) {
   const btnBase: React.CSSProperties = {
     fontSize: 9,
@@ -296,6 +304,8 @@ function ExpandedPanel({
     color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
   };
 
+  const hasTransportControls = isTransport;
+
   return (
     <div
       style={{
@@ -306,54 +316,108 @@ function ExpandedPanel({
       }}
     >
       {/* Display mode (flights only) + Hide */}
-      <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-        {transport === "flights" && (
-          <>
-            <button style={displayMode === "status" ? activeBtn : inactiveBtn} onClick={() => onDisplayModeChange("status")}>
-              Live Status
-            </button>
-            <button style={displayMode === "trails" ? activeBtn : inactiveBtn} onClick={() => onDisplayModeChange("trails")}>
-              Trails
-            </button>
-          </>
-        )}
-        <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>
-          Hide
-        </button>
-      </div>
+      {hasTransportControls && (
+        <div style={{ display: "flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+          {layerKey === "flights" && (
+            <>
+              <button style={displayMode === "status" ? activeBtn : inactiveBtn} onClick={() => onDisplayModeChange("status")}>
+                Live Status
+              </button>
+              <button style={displayMode === "trails" ? activeBtn : inactiveBtn} onClick={() => onDisplayModeChange("trails")}>
+                Trails
+              </button>
+            </>
+          )}
+          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>
+            Hide
+          </button>
+        </div>
+      )}
 
-      {/* Sliders */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        {sliders.map((s) => (
-          <label
-            key={s.label}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 4,
-              color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-              fontSize: 10,
-              fontFamily: "monospace",
-            }}
-          >
-            <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{s.label}</span>
-            <input
-              type="range"
-              min={s.min}
-              max={s.max}
-              step={s.step}
-              value={s.value}
-              onChange={(e) => s.onChange(Number(e.target.value))}
-              style={{
-                flex: 1,
-                height: 3,
-                accentColor: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)",
-                cursor: "pointer",
-              }}
-            />
-          </label>
-        ))}
-      </div>
+      {/* Non-transport: just a Hide button */}
+      {!hasTransportControls && (
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <button style={{ ...inactiveBtn, marginLeft: "auto" }} onClick={onHide}>
+            Hide
+          </button>
+        </div>
+      )}
+
+      {/* Controls: sliders + toggles */}
+      {controls.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {controls.map((ctrl) => {
+            if (ctrl.type === "toggle") {
+              return (
+                <div
+                  key={ctrl.label}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
+                    fontSize: 10,
+                    fontFamily: "monospace",
+                  }}
+                >
+                  <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
+                  <button
+                    onClick={() => ctrl.onChange(!ctrl.value)}
+                    style={{
+                      ...btnBase,
+                      fontSize: 9,
+                      padding: "1px 8px",
+                      background: ctrl.value
+                        ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
+                        : (isDarkTheme ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.7)"),
+                      border: ctrl.value
+                        ? "1px solid rgba(100,170,255,0.5)"
+                        : `1px solid ${isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"}`,
+                      color: ctrl.value
+                        ? (isDarkTheme ? "#fff" : "#000")
+                        : (isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
+                    }}
+                  >
+                    {ctrl.value ? "ON" : "OFF"}
+                  </button>
+                </div>
+              );
+            }
+
+            // Slider
+            const s = ctrl;
+            return (
+              <label
+                key={s.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
+                  fontSize: 10,
+                  fontFamily: "monospace",
+                }}
+              >
+                <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{s.label}</span>
+                <input
+                  type="range"
+                  min={s.min}
+                  max={s.max}
+                  step={s.step}
+                  value={s.value}
+                  onChange={(e) => s.onChange(Number(e.target.value))}
+                  style={{
+                    flex: 1,
+                    height: 3,
+                    accentColor: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.4)",
+                    cursor: "pointer",
+                  }}
+                />
+              </label>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
