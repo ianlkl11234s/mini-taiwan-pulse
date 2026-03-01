@@ -312,34 +312,62 @@ docker-compose up -d       # http://localhost:3721
 
 ```
 1. Zeabur Dashboard → 建立服務 → 選 GitHub repo
-2. 設定環境變數：VITE_MAPBOX_TOKEN
+2. 設定環境變數：
+   - VITE_MAPBOX_TOKEN（build time，Vite 嵌入靜態檔）
+   - S3_ACCESS_KEY（runtime，pull 腳本用）
+   - S3_SECRET_KEY
+   - S3_REGION=ap-southeast-2
+   - S3_BUCKET=migu-gis-data-collector
 3. 建立 Volume → Mount path: /data
 4. 部署完成後，進 Web Terminal 執行：
-   sh /usr/share/nginx/html/pull-deploy-assets.sh
-5. 資料更新時：本地 → S3 → container shell pull
+   sh /usr/local/bin/pull-deploy-assets.sh
+5. 確認輸出包含所有檔案 + "rail/ extracted to /data/rail/"
 ```
+
+> **注意**：每次重新部署後 Volume 資料仍在，但新 container 啟動時不會自動拉取。
+> 若資料有更新，需手動再跑一次 pull 腳本。
 
 ### 資料管理（S3 deploy-assets）
 
-大檔案（~264MB）不進 git，統一託管到 S3 `deploy-assets/` prefix：
+大檔案（~175MB）不進 git，統一託管到 S3 `deploy-assets/` prefix，**私密存取**（需認證）：
 
-| 檔案 | 大小 | 說明 |
-|------|------|------|
-| `provincial_road.geojson` | 44MB | 省道路網 |
-| `bus_stations_city.geojson` | 19MB | 市區公車站 |
-| `national_highway.geojson` | 7.9MB | 國道路網 |
-| `bus_stations_intercity.geojson` | 5.8MB | 公路客運站 |
-| `aviation_data.json` | 44MB | 航班軌跡 |
-| `ship_data.json` | 54MB | 船舶軌跡 |
-| `rail_bundle.json` | 89MB | 軌道資料 bundle |
+| S3 檔案 | 大小 | 說明 | 對應 /data/ 路徑 |
+|---------|------|------|-----------------|
+| `aviation_data.json` | 44MB | 航班軌跡 | `/data/aviation_data.json` |
+| `ship_data.json` | 54MB | 船舶軌跡 | `/data/ship_data.json` |
+| `rail.tar.gz` | ~8MB | 軌道資料（6 系統個別檔案打包） | `/data/rail/` 解壓 |
+| `provincial_road.geojson` | 44MB | 省道路網 | `/data/provincial_road.geojson` |
+| `national_highway.geojson` | 7.9MB | 國道路網 | `/data/national_highway.geojson` |
+| `bus_stations_city.geojson` | 19MB | 市區公車站 | `/data/bus_stations_city.geojson` |
+| `bus_stations_intercity.geojson` | 5.8MB | 公路客運站 | `/data/bus_stations_intercity.geojson` |
 
 ```bash
-# 上傳到 S3（需要 AWS credentials）
+# 本地 → S3（需 .env 中的 S3 credentials）
 bash scripts/upload-deploy-assets.sh
 
-# Container 內從 S3 拉取（公開讀取，不需 credentials）
-sh scripts/pull-deploy-assets.sh
+# Container 內 S3 → /data/（需環境變數 S3_ACCESS_KEY 等）
+sh /usr/local/bin/pull-deploy-assets.sh
 ```
+
+### 資料更新完整流程
+
+```bash
+# 1. 本地產生/更新資料（視需要）
+python3 scripts/export-rail-data.py       # 軌道
+python3 scripts/bundle-rail-data.py       # ← 不需要了，upload 腳本會自動打包 public/rail/
+
+# 2. 上傳到 S3 deploy-assets/（統一用這個腳本！）
+bash scripts/upload-deploy-assets.sh
+
+# 3. Zeabur Web Terminal 拉取
+sh /usr/local/bin/pull-deploy-assets.sh
+```
+
+> **⚠️ 易錯提醒**：
+> - `npm run s3:upload:rail` 上傳到的是 `rail-data/` 路徑（前端 fallback 用），**不是** deploy-assets
+> - 部署用的上傳一律用 `upload-deploy-assets.sh`，不要混用
+> - pull 腳本路徑是 `/usr/local/bin/`，不是 `/usr/share/nginx/html/`
+> - 前端請求的是 `/rail/krtc/krtc_schedules.json` 等個別檔案，不是 `rail_bundle.json`
 
 ### 環境需求
 
