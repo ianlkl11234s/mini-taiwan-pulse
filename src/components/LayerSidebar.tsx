@@ -19,6 +19,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   windPlan: "#7efcb0",
   busStationsCity: "#66bb6a",
   busStationsIntercity: "#ab47bc",
+  bikeStations: "#ffca28",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -58,6 +59,7 @@ const SECTIONS: SectionDef[] = [
       { key: "airports", label: "機場 Airport" },
       { key: "busStationsCity", label: "市區公車站 City Bus", expandable: true },
       { key: "busStationsIntercity", label: "公路客運站 Intercity", expandable: true },
+      { key: "bikeStations", label: "公共腳踏車 Bike", expandable: true },
       { key: "highways", label: "國道 Highway" },
       { key: "provincialRoads", label: "省道 Prov.Road" },
     ],

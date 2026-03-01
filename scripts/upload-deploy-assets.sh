@@ -17,6 +17,7 @@ FILES=(
   "public/national_highway.geojson"
   "public/bus_stations_city.geojson"
   "public/bus_stations_intercity.geojson"
+  "public/bike_stations.geojson"
 )
 
 for f in "${FILES[@]}"; do

@@ -17,6 +17,7 @@ export function useLayerVisibility() {
     windPlan: false,
     busStationsCity: false,
     busStationsIntercity: false,
+    bikeStations: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

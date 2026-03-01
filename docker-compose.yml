@@ -15,4 +15,5 @@ services:
       - ./public/national_highway.geojson:/data/national_highway.geojson:ro
       - ./public/bus_stations_city.geojson:/data/bus_stations_city.geojson:ro
       - ./public/bus_stations_intercity.geojson:/data/bus_stations_intercity.geojson:ro
+      - ./public/bike_stations.geojson:/data/bike_stations.geojson:ro
     restart: unless-stopped

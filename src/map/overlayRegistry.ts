@@ -490,6 +490,52 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Bike Stations ──
+  {
+    id: "bikeStations",
+    sourceUrl: "./bike_stations.geojson",
+    sourceId: "bike-stations",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.bikeScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#ffca28" : "#f9a825",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.bikeScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#ffca28" : "#f9a825",
+            "circle-stroke-color": isDark ? "#ffe082" : "#f57f17",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": isDark ? 0.7 : 0.6,
+          };
+        },
+      },
+    ],
+  },
+
   // ── Airports ──
   {
     id: "airports",

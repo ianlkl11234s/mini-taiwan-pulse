@@ -48,6 +48,8 @@ export function useTransportParams() {
   const [stationScale, setStationScale] = useState(1);
   // Bus
   const [busScale, setBusScale] = useState(1);
+  // Bike
+  const [bikeScale, setBikeScale] = useState(1);
   // Lighthouse
   const [lighthouseScale, setLighthouseScale] = useState(1);
   const [beamVisible, setBeamVisible] = useState(true);
@@ -109,8 +111,9 @@ export function useTransportParams() {
     airportOpacity,
     airportGlow,
     busScale,
+    bikeScale,
     lighthouseScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, lighthouseScale]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -136,6 +139,9 @@ export function useTransportParams() {
       case "busStationsCity":
       case "busStationsIntercity": return [
         { label: `Bus ${busScale.toFixed(1)}`, value: busScale, min: 0.3, max: 3, step: 0.1, onChange: setBusScale },
+      ];
+      case "bikeStations": return [
+        { label: `Bike ${bikeScale.toFixed(1)}`, value: bikeScale, min: 0.3, max: 3, step: 0.1, onChange: setBikeScale },
       ];
       case "lighthouses": return [
         { label: `LH ${lighthouseScale.toFixed(1)}`, value: lighthouseScale, min: 0.3, max: 3, step: 0.1, onChange: setLighthouseScale },

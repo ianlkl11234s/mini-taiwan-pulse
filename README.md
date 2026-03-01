@@ -329,7 +329,7 @@ docker-compose up -d       # http://localhost:3721
 
 ### 資料管理（S3 deploy-assets）
 
-大檔案（~175MB）不進 git，統一託管到 S3 `deploy-assets/` prefix，**私密存取**（需認證）：
+大檔案（~180MB）不進 git，統一託管到 S3 `deploy-assets/` prefix，**私密存取**（需認證）：
 
 | S3 檔案 | 大小 | 說明 | 對應 /data/ 路徑 |
 |---------|------|------|-----------------|
@@ -340,6 +340,7 @@ docker-compose up -d       # http://localhost:3721
 | `national_highway.geojson` | 7.9MB | 國道路網 | `/data/national_highway.geojson` |
 | `bus_stations_city.geojson` | 19MB | 市區公車站 | `/data/bus_stations_city.geojson` |
 | `bus_stations_intercity.geojson` | 5.8MB | 公路客運站 | `/data/bus_stations_intercity.geojson` |
+| `bike_stations.geojson` | 4.4MB | 公共腳踏車站（YouBike 等） | `/data/bike_stations.geojson` |
 
 ```bash
 # 本地 → S3（需 .env 中的 S3 credentials）

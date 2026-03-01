@@ -11,7 +11,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 mkdir -p "$DATA_DIR"
 
-FILES="aviation_data.json ship_data.json provincial_road.geojson national_highway.geojson bus_stations_city.geojson bus_stations_intercity.geojson"
+FILES="aviation_data.json ship_data.json provincial_road.geojson national_highway.geojson bus_stations_city.geojson bus_stations_intercity.geojson bike_stations.geojson"
 
 for f in $FILES; do
   echo "Pulling $f..."
