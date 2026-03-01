@@ -133,7 +133,7 @@ export default function App() {
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
   const {
-    flightSceneRef, shipSceneRef,
+    flightSceneRef, shipSceneRef, railSceneRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
@@ -144,8 +144,8 @@ export default function App() {
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef);
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, bindEvents } =
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef);
 
   // ── Derived values ──
 
@@ -952,6 +952,40 @@ export default function App() {
           </div>
           <div style={{ fontSize: 10, color: "rgba(100,170,255,0.6)", marginTop: 4 }}>
             double-click to track
+          </div>
+        </div>
+      )}
+
+      {/* ── 列車 Tooltip ── */}
+      {trainTooltipInfo && (
+        <div
+          style={{
+            position: "absolute",
+            left: trainTooltipInfo.x + 12,
+            top: trainTooltipInfo.y - 10,
+            zIndex: 30,
+            background: "rgba(10,10,20,0.9)",
+            backdropFilter: "blur(12px)",
+            border: `1px solid ${trainTooltipInfo.train.color}66`,
+            borderRadius: 8,
+            padding: "10px 14px",
+            pointerEvents: "none",
+            fontFamily: "monospace",
+            minWidth: 180,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 700, color: trainTooltipInfo.train.color, letterSpacing: 1 }}>
+            {trainTooltipInfo.train.trainId}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+            {trainTooltipInfo.train.systemId.toUpperCase()} · {trainTooltipInfo.train.trackId}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+            {trainTooltipInfo.train.status === "running" ? "行駛中" : "停靠中"}
+            {trainTooltipInfo.train.trainTypeCode && ` · ${trainTooltipInfo.train.trainTypeCode}`}
+          </div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+            {trainTooltipInfo.train.position[0].toFixed(4)}, {trainTooltipInfo.train.position[1].toFixed(4)}
           </div>
         </div>
       )}

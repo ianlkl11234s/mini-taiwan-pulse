@@ -117,8 +117,10 @@ export class RailEngine {
           };
 
           // 環狀線特殊處理：終點站 progress 若回到 0.0（起點），強制設為 1.0
+          const isLoop = dep.stations.length > 1 &&
+            dep.stations[0]!.station_id === dep.stations[dep.stations.length - 1]!.station_id;
           const fixLoopProgress = (p: number, stationIdx: number): number => {
-            if (stationIdx === dep.stations.length - 1 && stationIdx > 0 && p < 0.5) {
+            if (isLoop && stationIdx === dep.stations.length - 1 && stationIdx > 0 && p < 0.5) {
               return 1.0;
             }
             return p;

@@ -39,6 +39,10 @@ export class RailScene {
   private positionHistory = new Map<string, Array<{ lng: number; lat: number; time: number; color: string }>>();
   private lastUpdateTime = 0;
 
+  // 點擊拾取用
+  private lastMatrix: THREE.Matrix4 | null = null;
+  private trainPositions = new Map<number, RailTrain>(); // instanceIndex → train
+
   constructor() {
     this.scene = new THREE.Scene();
     this.camera = new THREE.Camera();
@@ -307,6 +311,7 @@ export class RailScene {
     }
 
     // 渲染主光球
+    this.trainPositions.clear();
     for (const train of trains) {
       if (headCount >= this.maxInstances) break;
 
@@ -323,6 +328,7 @@ export class RailScene {
       const color = this.getColor(train.color);
       this.instancedMesh.instanceColor!.setXYZ(headCount, color.r, color.g, color.b);
 
+      this.trainPositions.set(headCount, train);
       headCount++;
     }
 
@@ -380,7 +386,8 @@ export class RailScene {
     const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
     const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
 
-    this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+    this.lastMatrix = new THREE.Matrix4().fromArray(matrix);
+    this.camera.projectionMatrix = this.lastMatrix.clone();
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
     this.renderer.resetState();
@@ -388,6 +395,34 @@ export class RailScene {
     if (blendEnabled) gl.enable(gl.BLEND);
     else gl.disable(gl.BLEND);
     gl.blendFuncSeparate(blendSrc, blendDst, blendSrcA, blendDstA);
+  }
+
+  /** 點擊拾取：螢幕座標 → 最近的 RailTrain */
+  pickTrain(screenX: number, screenY: number, viewWidth: number, viewHeight: number): RailTrain | null {
+    if (!this.lastMatrix || !this.instancedMesh) return null;
+
+    const threshold = 25;
+    let closest: { train: RailTrain; dist: number } | null = null;
+    const mat = new THREE.Matrix4();
+
+    for (const [idx, train] of this.trainPositions) {
+      this.instancedMesh.getMatrixAt(idx, mat);
+      const v = new THREE.Vector4(
+        mat.elements[12], mat.elements[13], mat.elements[14], 1.0,
+      );
+      v.applyMatrix4(this.lastMatrix);
+      if (v.w <= 0) continue;
+
+      const sx = ((v.x / v.w) * 0.5 + 0.5) * viewWidth;
+      const sy = ((-v.y / v.w) * 0.5 + 0.5) * viewHeight;
+      const dist = Math.hypot(sx - screenX, sy - screenY);
+
+      if (dist < threshold && (!closest || dist < closest.dist)) {
+        closest = { train, dist };
+      }
+    }
+
+    return closest?.train ?? null;
   }
 
   getVisibleCount(): number {

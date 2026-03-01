@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { Flight } from "../types";
+import type { Flight, RailTrain } from "../types";
 import type { FlightScene } from "../three/FlightScene";
+import type { RailScene } from "../three/RailScene";
 
 interface TooltipInfo {
   flight: Flight;
@@ -10,14 +11,22 @@ interface TooltipInfo {
   altitude: number | null;
 }
 
+interface TrainTooltipInfo {
+  train: RailTrain;
+  x: number;
+  y: number;
+}
+
 export function useMapInteraction(
   mapRef: React.RefObject<MapboxMap | null>,
   flightSceneRef: React.RefObject<FlightScene | null>,
   flightsRef: React.RefObject<Flight[]>,
   timeRef: React.RefObject<number>,
+  railSceneRef?: React.RefObject<RailScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
+  const [trainTooltipInfo, setTrainTooltipInfo] = useState<TrainTooltipInfo | null>(null);
   const clickBoundRef = useRef(false);
 
   const bindEvents = (map: MapboxMap) => {
@@ -25,13 +34,25 @@ export function useMapInteraction(
     clickBoundRef.current = true;
 
     map.on("click", (e) => {
-      const scene = flightSceneRef.current;
-      if (!scene) { setTooltipInfo(null); return; }
       const container = map.getContainer();
-      const flightId = scene.pickFlight(
-        e.point.x, e.point.y,
-        container.clientWidth, container.clientHeight,
-      );
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+
+      // 先嘗試拾取列車
+      const railScene = railSceneRef?.current;
+      if (railScene) {
+        const train = railScene.pickTrain(e.point.x, e.point.y, w, h);
+        if (train) {
+          setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
+          setTooltipInfo(null);
+          return;
+        }
+      }
+
+      // 再嘗試拾取飛機
+      const scene = flightSceneRef.current;
+      if (!scene) { setTooltipInfo(null); setTrainTooltipInfo(null); return; }
+      const flightId = scene.pickFlight(e.point.x, e.point.y, w, h);
       if (flightId) {
         const flight = flightsRef.current.find((f) => f.fr24_id === flightId);
         if (flight) {
@@ -41,9 +62,11 @@ export function useMapInteraction(
             if (flight.path[i]![3] <= t) { altitude = Math.round(flight.path[i]![2]); break; }
           }
           setTooltipInfo({ flight, x: e.point.x, y: e.point.y, altitude });
+          setTrainTooltipInfo(null);
         }
       } else {
         setTooltipInfo(null);
+        setTrainTooltipInfo(null);
       }
     });
 
@@ -59,11 +82,12 @@ export function useMapInteraction(
         e.preventDefault();
         setSelectedFlightId(flightId);
         setTooltipInfo(null);
+        setTrainTooltipInfo(null);
       }
     });
 
     map.on("dragstart", () => setSelectedFlightId(null));
-    map.on("move", () => setTooltipInfo(null));
+    map.on("move", () => { setTooltipInfo(null); setTrainTooltipInfo(null); });
   };
 
   // 雙擊追蹤：相機鎖定飛機
@@ -104,5 +128,10 @@ export function useMapInteraction(
     return () => cancelAnimationFrame(animId);
   }, [selectedFlightId, mapRef, flightsRef, timeRef]);
 
-  return { tooltipInfo, setTooltipInfo, selectedFlightId, setSelectedFlightId, bindEvents };
+  return {
+    tooltipInfo, setTooltipInfo,
+    trainTooltipInfo, setTrainTooltipInfo,
+    selectedFlightId, setSelectedFlightId,
+    bindEvents,
+  };
 }
