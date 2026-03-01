@@ -142,7 +142,7 @@ overlayManager.ts   — 通用 CRUD（addOverlay / updateTheme / setVisible）
 MapView.tsx         — 一個 useEffect 控制所有 overlay 可見性 + 主題
 ```
 
-**新增一個 overlay 只需改 2 個檔案：**
+**新增一個 overlay 只需改 3 個檔案：**
 1. `src/types/index.ts` — `LayerVisibility` 加一個 key
 2. `src/map/overlayRegistry.ts` — 加一筆 `OverlayConfig`
 3. `src/components/LayerSidebar.tsx` — 在對應 section 加一列
@@ -300,10 +300,45 @@ npm run dev                # 開發模式
 npm run build              # 正式建置
 ```
 
-### Docker 部署
+### Docker 本地部署
 
 ```bash
 docker-compose up -d       # http://localhost:3721
+```
+
+大檔案透過 `docker-compose.yml` volumes 掛載到 `/data/`，nginx 會從該路徑讀取。
+
+### Zeabur 部署
+
+```
+1. Zeabur Dashboard → 建立服務 → 選 GitHub repo
+2. 設定環境變數：VITE_MAPBOX_TOKEN
+3. 建立 Volume → Mount path: /data
+4. 部署完成後，進 Web Terminal 執行：
+   sh /usr/share/nginx/html/pull-deploy-assets.sh
+5. 資料更新時：本地 → S3 → container shell pull
+```
+
+### 資料管理（S3 deploy-assets）
+
+大檔案（~264MB）不進 git，統一託管到 S3 `deploy-assets/` prefix：
+
+| 檔案 | 大小 | 說明 |
+|------|------|------|
+| `provincial_road.geojson` | 44MB | 省道路網 |
+| `bus_stations_city.geojson` | 19MB | 市區公車站 |
+| `national_highway.geojson` | 7.9MB | 國道路網 |
+| `bus_stations_intercity.geojson` | 5.8MB | 公路客運站 |
+| `aviation_data.json` | 44MB | 航班軌跡 |
+| `ship_data.json` | 54MB | 船舶軌跡 |
+| `rail_bundle.json` | 89MB | 軌道資料 bundle |
+
+```bash
+# 上傳到 S3（需要 AWS credentials）
+bash scripts/upload-deploy-assets.sh
+
+# Container 內從 S3 拉取（公開讀取，不需 credentials）
+sh scripts/pull-deploy-assets.sh
 ```
 
 ### 環境需求

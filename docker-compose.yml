@@ -5,10 +5,14 @@ services:
       args:
         VITE_MAPBOX_TOKEN: ${VITE_MAPBOX_TOKEN}
     ports:
-      - "3721:80"
+      - "3721:8080"
     volumes:
-      # 資料檔是 gitignored 的，從 host 掛載進去
-      - ./public/aviation_data.json:/usr/share/nginx/html/aviation_data.json:ro
-      - ./public/ship_data.json:/usr/share/nginx/html/ship_data.json:ro
-      - ./public/rail:/usr/share/nginx/html/rail:ro
+      # 大檔案統一掛載到 /data（與 Zeabur volume 路徑一致）
+      - ./public/aviation_data.json:/data/aviation_data.json:ro
+      - ./public/ship_data.json:/data/ship_data.json:ro
+      - ./public/rail:/data/rail:ro
+      - ./public/provincial_road.geojson:/data/provincial_road.geojson:ro
+      - ./public/national_highway.geojson:/data/national_highway.geojson:ro
+      - ./public/bus_stations_city.geojson:/data/bus_stations_city.geojson:ro
+      - ./public/bus_stations_intercity.geojson:/data/bus_stations_intercity.geojson:ro
     restart: unless-stopped

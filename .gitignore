@@ -10,3 +10,9 @@ public/rail/
 public/rail_bundle.json
 scripts/flight-list.json
 scripts/track-progress.json
+
+# 大型靜態 GeoJSON（由 S3 deploy-assets 管理）
+public/provincial_road.geojson
+public/national_highway.geojson
+public/bus_stations_city.geojson
+public/bus_stations_intercity.geojson
