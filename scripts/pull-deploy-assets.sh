@@ -1,6 +1,13 @@
 #!/bin/sh
-# 從 S3 公開 URL 下載資料到 /data/（container 內執行）
-BASE="https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com/deploy-assets"
+# 從 S3 私密下載資料到 /data/（container 內執行）
+# 需要環境變數：S3_ACCESS_KEY, S3_SECRET_KEY, S3_REGION, S3_BUCKET
+
+export AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY"
+export AWS_SECRET_ACCESS_KEY="$S3_SECRET_KEY"
+export AWS_DEFAULT_REGION="${S3_REGION:-ap-southeast-2}"
+
+BUCKET="${S3_BUCKET:-migu-gis-data-collector}"
+PREFIX="deploy-assets"
 DATA_DIR="/data"
 mkdir -p "$DATA_DIR"
 
@@ -8,11 +15,12 @@ FILES="aviation_data.json ship_data.json provincial_road.geojson national_highwa
 
 for f in $FILES; do
   echo "Pulling $f..."
-  wget -q -O "$DATA_DIR/$f" "$BASE/$f"
+  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/$f"
 done
 
 # Rail 個別檔案（從 tar.gz 解壓）
-if wget -q -O /tmp/rail.tar.gz "$BASE/rail.tar.gz" 2>/dev/null; then
+echo "Pulling rail.tar.gz..."
+if aws s3 cp "s3://$BUCKET/$PREFIX/rail.tar.gz" /tmp/rail.tar.gz; then
   mkdir -p "$DATA_DIR/rail"
   tar -xzf /tmp/rail.tar.gz -C "$DATA_DIR"
   rm /tmp/rail.tar.gz
