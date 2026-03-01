@@ -18,5 +18,6 @@ FROM nginx:alpine
 RUN apk add --no-cache wget
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
+COPY scripts/pull-deploy-assets.sh /usr/local/bin/pull-deploy-assets.sh
 
 EXPOSE 8080
