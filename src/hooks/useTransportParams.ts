@@ -59,7 +59,7 @@ export function useTransportParams() {
   const [traPillarVisible, setTraPillarVisible] = useState(true);
   const [traPillarHeight, setTraPillarHeight] = useState(0.5);
   const [metroPillarVisible, setMetroPillarVisible] = useState(true);
-  const [metroPillarHeight, setMetroPillarHeight] = useState(1);
+  const [metroPillarHeight, setMetroPillarHeight] = useState(0.2);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
