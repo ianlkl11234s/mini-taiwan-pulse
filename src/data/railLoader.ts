@@ -37,7 +37,7 @@ function postProcess(systems: RailSystem[], traData: TraData | null): RailData {
       }
     }
 
-    const defaultColor = SYSTEM_COLOR_MAP.get(sys.id) ?? "#ffffff";
+    const defaultColor = SYSTEM_COLOR_MAP.get(sys.id as typeof RAIL_SYSTEMS[number]["id"]) ?? "#ffffff";
     for (const feature of sys.tracks.values()) {
       if (!feature.properties) feature.properties = {};
       if (!feature.properties.color) {

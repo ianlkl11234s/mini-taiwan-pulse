@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import type { TransportType, ExpandableLayerKey } from "../types";
+import type { ExpandableLayerKey } from "../types";
 
 export interface SliderConfig {
   type?: "slider";

@@ -83,7 +83,7 @@ export function updateOverlayTheme(
       if (!map.getLayer(id)) continue;
       const paint = spec.paint(isDark, params);
       for (const [key, value] of Object.entries(paint)) {
-        map.setPaintProperty(id, key, value);
+        map.setPaintProperty(id, key as any, value);
       }
     }
     return;
@@ -95,7 +95,7 @@ export function updateOverlayTheme(
     if (!map.getLayer(id)) continue;
     const paint = spec.paint(isDark, params);
     for (const [key, value] of Object.entries(paint)) {
-      map.setPaintProperty(id, key, value);
+      map.setPaintProperty(id, key as any, value);
     }
   }
 }

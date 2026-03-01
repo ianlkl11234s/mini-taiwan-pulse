@@ -3,7 +3,7 @@
  * 從 mini-taipei-v3 完整移植，使用 O-D 專屬軌道計算列車位置
  */
 
-import type { RailTrain, RailStationTime, TraData, TraDeparture, TraSchedule } from "../types";
+import type { RailTrain, RailStationTime, TraData, TraSchedule } from "../types";
 import { getTrainColor } from "../constants/traTrainTypes";
 import { timeToSeconds, unixToExtendedDaySeconds, interpolateOnLineString } from "./railUtils";
 

@@ -144,7 +144,7 @@ export default function App() {
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, selectedFlightId, setSelectedFlightId, bindEvents } =
+  const { tooltipInfo, setTooltipInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef);
 
   // ── Derived values ──
