@@ -25,10 +25,13 @@ for f in "${FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
-# Rail bundle（如果存在）
-if [ -f "public/rail_bundle.json" ]; then
-  echo "Uploading rail_bundle.json..."
-  aws s3 cp "public/rail_bundle.json" "s3://$BUCKET/$PREFIX/rail_bundle.json" --region ap-southeast-2
+# Rail 個別檔案（打包成 tar.gz 上傳）
+if [ -d "public/rail" ]; then
+  echo "Packing public/rail/ → rail.tar.gz..."
+  tar -czf /tmp/rail.tar.gz -C public rail
+  echo "Uploading rail.tar.gz..."
+  aws s3 cp /tmp/rail.tar.gz "s3://$BUCKET/$PREFIX/rail.tar.gz" --region ap-southeast-2
+  rm /tmp/rail.tar.gz
 fi
 
 echo "Done!"
