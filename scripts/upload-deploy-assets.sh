@@ -1,6 +1,13 @@
 #!/bin/bash
 # 上傳大型資料檔到 S3 deploy-assets/
-BUCKET="migu-gis-data-collector"
+# 從 .env 讀取 S3 credentials
+if [ -f .env ]; then
+  export AWS_ACCESS_KEY_ID=$(grep '^S3_ACCESS_KEY=' .env | cut -d'=' -f2)
+  export AWS_SECRET_ACCESS_KEY=$(grep '^S3_SECRET_KEY=' .env | cut -d'=' -f2)
+  export AWS_DEFAULT_REGION=$(grep '^S3_REGION=' .env | cut -d'=' -f2)
+fi
+
+BUCKET=$(grep '^S3_BUCKET=' .env | cut -d'=' -f2 || echo "migu-gis-data-collector")
 PREFIX="deploy-assets"
 
 FILES=(
