@@ -6,9 +6,9 @@
 
 ## Screenshots
 
-![RCTP - 桃園國際機場（Capture 模式）](screenshots/RCTP-capture.png)
-![RCQC - 澎湖馬公機場（All Taiwan）](screenshots/RCQC-all-taiwan.png)
-![全台航班廣角全景](screenshots/all-flights-globe.png)
+![全台總覽 — 航班・船舶・軌道・燈塔・風場](screenshots/all-taiwan-overview.png)
+![全圖層展開 — 車站光柱・公車站・國道省道](screenshots/all-layers-facilities.png)
+![北台灣近景 — 3D 軌道・列車光球・車站光柱](screenshots/northern-taiwan-3d-rail.png)
 
 ## 三種脈動
 
