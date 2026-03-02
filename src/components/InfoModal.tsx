@@ -582,28 +582,88 @@ function AboutPage({ lang }: { lang: Lang }) {
   );
 }
 
+function ProjectCard({ name, desc, screenshot, site, github }: {
+  name: string; desc: string; screenshot?: string; site?: string; github: string;
+}) {
+  return (
+    <div style={{
+      background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8,
+      overflow: "hidden",
+    }}>
+      {screenshot && (
+        <div style={{ width: "100%", height: 120, overflow: "hidden" }}>
+          <img src={screenshot} alt={name}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+        </div>
+      )}
+      <div style={{ padding: "10px 14px" }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: S.text, marginBottom: 4 }}>{name}</div>
+        <div style={{ fontSize: 11, color: S.sub, marginBottom: 8, lineHeight: 1.5 }}>{desc}</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {site && (
+            <a href={site} target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 11, color: S.active, textDecoration: "none" }}>
+              Live
+            </a>
+          )}
+          <a href={github} target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: 11, color: S.sub, textDecoration: "none" }}>
+            GitHub
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ProfilePage({ lang }: { lang: Lang }) {
   const L = lang === "zh";
+
+  const projects = [
+    {
+      name: L ? "Mini-Taiwan 軌道運輸模擬" : "Mini-Taiwan Rail Simulation",
+      desc: L ? "台灣軌道運輸即時模擬視覺化" : "Real-time Taiwan rail transit simulation",
+      screenshot: "./screenshots/mini-taiwan.png",
+      site: "https://mini-taiwan-learning-project.zeabur.app/",
+      github: "https://github.com/ianlkl11234s/mini-taiwan-learning-project",
+    },
+    {
+      name: "Taiwan Flight Arc",
+      desc: L ? "台灣航班弧線 3D 視覺化" : "Taiwan flight arc 3D visualization",
+      screenshot: "./screenshots/taiwan-flight-arc.png",
+      site: "https://flight-arc.zeabur.app/",
+      github: "https://github.com/ianlkl11234s/flight-arc-graph",
+    },
+    {
+      name: L ? "Taiwan Weather Timelapse 台灣氣象模擬" : "Taiwan Weather Timelapse",
+      desc: L ? "台灣氣象時序動畫視覺化" : "Taiwan weather time-series animation",
+      screenshot: "./screenshots/weather.png",
+      site: "https://taiwan-weather-timelapse.zeabur.app/",
+      github: "https://github.com/ianlkl11234s/taiwan-weather-timelapse",
+    },
+    {
+      name: L ? "Ship GIS — 台灣海域船舶動態" : "Ship GIS — Taiwan Maritime Viz",
+      desc: L ? "台灣海域船舶動態視覺化平台" : "Taiwan maritime vessel visualization platform",
+      github: "https://github.com/ianlkl11234s/tw-ship-viz",
+    },
+  ];
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Avatar + Name */}
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        <div style={{
-          width: 48, height: 48, borderRadius: "50%",
-          background: "linear-gradient(135deg, #64aaff 0%, #1ad9e5 100%)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 20, fontWeight: 700, color: "#fff",
-        }}>
-          M
-        </div>
+        <img src="./screenshots/頭貼.jpg" alt="Migu"
+          style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }} />
         <div>
           <div style={{ fontSize: 16, fontWeight: 600, color: S.text }}>Migu</div>
-          <div style={{ fontSize: 12, color: S.sub }}>Developer / GIS Enthusiast</div>
+          <div style={{ fontSize: 12, color: S.sub }}>Senior Data Analyst / GIS</div>
         </div>
       </div>
 
+      {/* 社群連結 */}
       <SectionTitle>{L ? "社群連結" : "SOCIAL LINKS"}</SectionTitle>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <a href="https://github.com/ianlkl11234s/flight-arc-graph" target="_blank" rel="noopener noreferrer"
+        <a href="https://github.com/ianlkl11234s" target="_blank" rel="noopener noreferrer"
           style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8, textDecoration: "none", color: S.text, fontSize: 12 }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           GitHub
@@ -615,18 +675,12 @@ function ProfilePage({ lang }: { lang: Lang }) {
         </a>
       </div>
 
+      {/* 其他專案 */}
       <SectionTitle>{L ? "其他專案" : "OTHER PROJECTS"}</SectionTitle>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <a href="https://mini-taiwan-learning-project.zeabur.app/" target="_blank" rel="noopener noreferrer"
-          style={{ display: "block", padding: "12px 14px", background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8, textDecoration: "none" }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: S.text, marginBottom: 4 }}>Mini Taiwan</div>
-          <div style={{ fontSize: 11, color: S.sub }}>{L ? "前一代台灣學習專案視覺化" : "Previous-generation Taiwan learning project visualization"}</div>
-        </a>
-        <a href="https://github.com/ianlkl11234s/flight-arc-graph" target="_blank" rel="noopener noreferrer"
-          style={{ display: "block", padding: "12px 14px", background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8, textDecoration: "none" }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: S.text, marginBottom: 4 }}>GitHub Repository</div>
-          <div style={{ fontSize: 11, color: S.sub }}>{L ? "flight-arc-graph 原始碼" : "flight-arc-graph source code"}</div>
-        </a>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 12 }}>
+        {projects.map((p) => (
+          <ProjectCard key={p.github} {...p} />
+        ))}
       </div>
     </div>
   );
