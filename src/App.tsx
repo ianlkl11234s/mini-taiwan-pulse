@@ -13,6 +13,9 @@ import { useRailEngine } from "./hooks/useRailEngine";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
+import { useH3Data } from "./hooks/useH3Data";
+import { updateDeckLayers } from "./map/deckOverlay";
+import { createH3PopulationLayer, getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
@@ -182,6 +185,7 @@ export default function App() {
 
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
+  const { h3DataMap, loadResolution } = useH3Data();
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef,
@@ -210,6 +214,9 @@ export default function App() {
 
   // ── Map ready handler ──
 
+  // H3 resolution state (driven by zoom)
+  const [h3Resolution, setH3Resolution] = useState(7);
+
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
     addAllLayers(map);
@@ -226,6 +233,15 @@ export default function App() {
     };
     map.on("move", updateCamera);
     updateCamera();
+
+    // H3 zoom-based resolution switching
+    const onZoomH3 = () => {
+      const res = getH3Resolution(map.getZoom());
+      setH3Resolution(res);
+    };
+    map.on("zoomend", onZoomH3);
+    onZoomH3(); // initial
+    loadResolution(7); // preload default resolution
 
     bindEvents(map);
   };
@@ -255,6 +271,28 @@ export default function App() {
 
   // Three.js 圖層可見性由各 custom layer 內部 getIsVisible 控制
   // layers 常駐，不做 remove/re-add（避免 WebGL dispose/reinit 問題）
+
+  // H3: load resolution when it changes
+  useEffect(() => {
+    if (layerVisibility.h3Population) {
+      loadResolution(h3Resolution);
+    }
+  }, [h3Resolution, layerVisibility.h3Population, loadResolution]);
+
+  // H3: update deck.gl layers
+  useEffect(() => {
+    const cells = h3DataMap.get(h3Resolution);
+    if (!cells || cells.length === 0) {
+      updateDeckLayers([]);
+      return;
+    }
+    const layer = createH3PopulationLayer(
+      cells,
+      transportParams.h3Params,
+      layerVisibility.h3Population,
+    );
+    updateDeckLayers([layer]);
+  }, [h3DataMap, h3Resolution, layerVisibility.h3Population, transportParams.h3Params]);
 
   // ESC 退出拍攝模式
   useEffect(() => {

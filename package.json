@@ -17,8 +17,13 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.995.0",
+    "@deck.gl/core": "^9.2.10",
+    "@deck.gl/geo-layers": "^9.2.10",
+    "@deck.gl/layers": "^9.2.10",
+    "@deck.gl/mapbox": "^9.2.10",
     "@flightradar24/fr24sdk": "^0.1.1",
     "dotenv": "^17.3.1",
+    "h3-js": "^4.4.0",
     "mapbox-gl": "^3.9.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

@@ -23,6 +23,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   cyclingRoutes: "#66bb6a",
   freewayCongestion: "#ef5350",
   weatherStations: "#4dd0e1",
+  h3Population: "#ff6b6b",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -76,6 +77,12 @@ const SECTIONS: SectionDef[] = [
       { key: "ports", label: "碼頭 Port", expandable: true },
       { key: "airports", label: "機場 Airport", expandable: true },
       { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
+    ],
+  },
+  {
+    title: "ANALYTICS",
+    layers: [
+      { key: "h3Population", label: "人口密度 H3 Pop", expandable: true },
     ],
   },
   {

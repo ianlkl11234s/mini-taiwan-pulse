@@ -21,6 +21,7 @@ export function useLayerVisibility() {
     cyclingRoutes: false,
     freewayCongestion: false,
     weatherStations: false,
+    h3Population: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

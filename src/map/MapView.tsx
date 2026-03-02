@@ -5,6 +5,7 @@ import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
+import { initDeckOverlay } from "./deckOverlay";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -118,6 +119,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     map.on("load", () => {
       mapRef.current = map;
       readyRef.current = true;
+      initDeckOverlay(map);
       onMapReadyRef.current?.(map);
     });
 
