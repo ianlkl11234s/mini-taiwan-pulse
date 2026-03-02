@@ -18,6 +18,9 @@ FILES=(
   "public/bus_stations_city.geojson"
   "public/bus_stations_intercity.geojson"
   "public/bike_stations.geojson"
+  "public/cycling_routes.geojson"
+  "public/freeway_congestion.geojson"
+  "public/weather_stations.geojson"
 )
 
 for f in "${FILES[@]}"; do
