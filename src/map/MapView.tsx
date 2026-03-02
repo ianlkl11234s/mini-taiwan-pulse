@@ -5,7 +5,7 @@ import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
-import { initDeckOverlay } from "./deckOverlay";
+import { ensureH3Layers } from "./h3LayerFactory";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -110,6 +110,9 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
         setStaticTrailsVisible(map, false);
       }
 
+      // 樣式切換後重建 H3 layers（source + layer 會被清除）
+      ensureH3Layers(map);
+
       // 初次載入後，每次樣式切換都重建 flight layer
       if (readyRef.current) {
         onMapReadyRef.current?.(map);
@@ -119,7 +122,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     map.on("load", () => {
       mapRef.current = map;
       readyRef.current = true;
-      initDeckOverlay(map);
+      ensureH3Layers(map);
       onMapReadyRef.current?.(map);
     });
 

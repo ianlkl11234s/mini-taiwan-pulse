@@ -14,8 +14,7 @@ import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useH3Data } from "./hooks/useH3Data";
-import { updateDeckLayers } from "./map/deckOverlay";
-import { createH3PopulationLayer, getH3Resolution } from "./map/h3LayerFactory";
+import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
@@ -279,19 +278,13 @@ export default function App() {
     }
   }, [h3Resolution, layerVisibility.h3Population, loadResolution]);
 
-  // H3: update deck.gl layers
+  // H3: update native Mapbox layers
   useEffect(() => {
-    const cells = h3DataMap.get(h3Resolution);
-    if (!cells || cells.length === 0) {
-      updateDeckLayers([]);
-      return;
-    }
-    const layer = createH3PopulationLayer(
-      cells,
-      transportParams.h3Params,
-      layerVisibility.h3Population,
-    );
-    updateDeckLayers([layer]);
+    const map = mapRef.current;
+    if (!map || !map.isStyleLoaded()) return;
+    ensureH3Layers(map);
+    const cells = h3DataMap.get(h3Resolution) ?? [];
+    updateH3Layer(map, cells, transportParams.h3Params, layerVisibility.h3Population);
   }, [h3DataMap, h3Resolution, layerVisibility.h3Population, transportParams.h3Params]);
 
   // ESC 退出拍攝模式
