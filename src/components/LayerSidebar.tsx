@@ -20,6 +20,9 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   busStationsCity: "#66bb6a",
   busStationsIntercity: "#ab47bc",
   bikeStations: "#ffca28",
+  cyclingRoutes: "#66bb6a",
+  freewayCongestion: "#ef5350",
+  weatherStations: "#4dd0e1",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -49,24 +52,42 @@ const SECTIONS: SectionDef[] = [
     ],
   },
   {
-    title: "FACILITY",
+    title: "STATION",
     layers: [
       { key: "stationsTHSR", label: "高鐵站 THSR Station", expandable: true },
       { key: "stationsTRA", label: "台鐵站 TRA Station", expandable: true },
       { key: "stationsMetro", label: "捷運站 Metro Station", expandable: true },
-      { key: "ports", label: "碼頭 Port" },
-      { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
-      { key: "airports", label: "機場 Airport" },
       { key: "busStationsCity", label: "市區公車站 City Bus", expandable: true },
       { key: "busStationsIntercity", label: "公路客運站 Intercity", expandable: true },
       { key: "bikeStations", label: "公共腳踏車 Bike", expandable: true },
-      { key: "highways", label: "國道 Highway" },
-      { key: "provincialRoads", label: "省道 Prov.Road" },
     ],
   },
   {
-    title: "ZONE",
+    title: "ROUTE",
     layers: [
+      { key: "highways", label: "國道 Highway" },
+      { key: "provincialRoads", label: "省道 Prov.Road" },
+      { key: "cyclingRoutes", label: "自行車道 Cycling", expandable: true },
+    ],
+  },
+  {
+    title: "INFRA",
+    layers: [
+      { key: "ports", label: "碼頭 Port" },
+      { key: "airports", label: "機場 Airport" },
+      { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
+    ],
+  },
+  {
+    title: "MONITOR",
+    layers: [
+      { key: "freewayCongestion", label: "國道壅塞 Congestion", expandable: true },
+    ],
+  },
+  {
+    title: "ENVIRON",
+    layers: [
+      { key: "weatherStations", label: "氣象站 Weather", expandable: true },
       { key: "windPlan", label: "風場範圍 Wind Farm", expandable: true },
     ],
   },

@@ -18,6 +18,9 @@ export function useLayerVisibility() {
     busStationsCity: false,
     busStationsIntercity: false,
     bikeStations: false,
+    cyclingRoutes: false,
+    freewayCongestion: false,
+    weatherStations: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

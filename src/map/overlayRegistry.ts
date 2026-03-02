@@ -536,6 +536,132 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Cycling Routes (自行車道) ──
+  {
+    id: "cyclingRoutes",
+    sourceUrl: "./cycling_routes.geojson",
+    sourceId: "cycling-routes",
+    rebuildOnParamChange: ["glow", "line"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark, params) => {
+          const w = params?.cyclingWidth ?? 1;
+          return {
+            "line-color": isDark ? "#66bb6a" : "#388e3c",
+            "line-width": 6 * w,
+            "line-blur": 5,
+            "line-opacity": isDark ? 0.06 : 0.10,
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark, params) => {
+          const w = params?.cyclingWidth ?? 1;
+          return {
+            "line-color": isDark ? "#66bb6a" : "#388e3c",
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.3 * w, 10, 1 * w, 13, 2 * w, 16, 3.5 * w,
+            ],
+            "line-opacity": isDark ? 0.5 : 0.45,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Freeway Congestion (國道壅塞) ──
+  {
+    id: "freewayCongestion",
+    sourceUrl: "./freeway_congestion.geojson",
+    sourceId: "freeway-congestion",
+    rebuildOnParamChange: ["glow", "line"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.freewayWidth ?? 1;
+          return {
+            "line-color": ["get", "CongestionColor"] as unknown as string,
+            "line-width": 8 * w,
+            "line-blur": 6,
+            "line-opacity": _isDark ? 0.08 : 0.12,
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.freewayWidth ?? 1;
+          return {
+            "line-color": ["get", "CongestionColor"] as unknown as string,
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.5 * w, 10, 1.5 * w, 13, 3 * w, 16, 5 * w,
+            ],
+            "line-opacity": _isDark ? 0.7 : 0.6,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Weather Stations (氣象站) ──
+  {
+    id: "weatherStations",
+    sourceUrl: "./weather_stations.geojson",
+    sourceId: "weather-stations",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.weatherScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2 * scale, 10, 5 * scale, 14, 10 * scale, 17, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#4dd0e1" : "#00838f",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.weatherScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.8 * scale, 10, 1.5 * scale, 14, 3.5 * scale, 17, 6 * scale,
+            ],
+            "circle-color": isDark ? "#4dd0e1" : "#00838f",
+            "circle-stroke-color": isDark ? "#80deea" : "#006064",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": isDark ? 0.7 : 0.6,
+          };
+        },
+      },
+    ],
+  },
+
   // ── Airports ──
   {
     id: "airports",

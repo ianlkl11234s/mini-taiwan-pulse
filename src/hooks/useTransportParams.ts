@@ -50,6 +50,12 @@ export function useTransportParams() {
   const [busScale, setBusScale] = useState(1);
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
+  // Cycling
+  const [cyclingWidth, setCyclingWidth] = useState(1);
+  // Freeway
+  const [freewayWidth, setFreewayWidth] = useState(1);
+  // Weather
+  const [weatherScale, setWeatherScale] = useState(1);
   // Lighthouse
   const [lighthouseScale, setLighthouseScale] = useState(1);
   const [beamVisible, setBeamVisible] = useState(true);
@@ -113,7 +119,10 @@ export function useTransportParams() {
     busScale,
     bikeScale,
     lighthouseScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale]);
+    cyclingWidth,
+    freewayWidth,
+    weatherScale,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -163,6 +172,15 @@ export function useTransportParams() {
         { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
         { type: "toggle" as const, label: "Pillar", value: metroPillarVisible, onChange: setMetroPillarVisible },
         { label: `Height ${metroPillarHeight.toFixed(1)}`, value: metroPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setMetroPillarHeight },
+      ];
+      case "cyclingRoutes": return [
+        { label: `Cycling ${cyclingWidth.toFixed(1)}`, value: cyclingWidth, min: 0.3, max: 3, step: 0.1, onChange: setCyclingWidth },
+      ];
+      case "freewayCongestion": return [
+        { label: `Freeway ${freewayWidth.toFixed(1)}`, value: freewayWidth, min: 0.3, max: 3, step: 0.1, onChange: setFreewayWidth },
+      ];
+      case "weatherStations": return [
+        { label: `Weather ${weatherScale.toFixed(1)}`, value: weatherScale, min: 0.3, max: 3, step: 0.1, onChange: setWeatherScale },
       ];
       case "windPlan": return [];
     }
