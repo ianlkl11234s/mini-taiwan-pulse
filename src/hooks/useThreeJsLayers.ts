@@ -22,6 +22,8 @@ interface UseThreeJsLayersArgs {
   thsrPillarDataRef: React.RefObject<StationPillarData[]>;
   traPillarDataRef: React.RefObject<StationPillarData[]>;
   metroPillarDataRef: React.RefObject<StationPillarData[]>;
+  airportPillarDataRef: React.RefObject<StationPillarData[]>;
+  portPillarDataRef: React.RefObject<StationPillarData[]>;
   playingRef: React.RefObject<boolean>;
   layerVisibilityRef: React.RefObject<LayerVisibility>;
   paramRefs: {
@@ -45,6 +47,10 @@ interface UseThreeJsLayersArgs {
     traPillarHeight: React.RefObject<number>;
     metroPillarVisible: React.RefObject<boolean>;
     metroPillarHeight: React.RefObject<number>;
+    airportPillarVisible: React.RefObject<boolean>;
+    airportPillarHeight: React.RefObject<number>;
+    portPillarVisible: React.RefObject<boolean>;
+    portPillarHeight: React.RefObject<number>;
   };
 }
 
@@ -52,6 +58,7 @@ export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
   shipsRef, activeTrainsRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
+  airportPillarDataRef, portPillarDataRef,
   playingRef, layerVisibilityRef,
   paramRefs,
 }: UseThreeJsLayersArgs) {
@@ -154,11 +161,25 @@ export function useThreeJsLayers({
           getIsVisible: () => layerVisibilityRef.current.stationsTRA,
         },
         metro: {
-          pillarColor: { dark: 0x00bcd4, light: 0x00838f },
+          pillarColor: { dark: 0xfffde7, light: 0xc8b060 }, // near-white yellow
           getPositions: () => metroPillarDataRef.current,
           getPillarVisible: () => paramRefs.metroPillarVisible.current,
           getPillarHeight: () => paramRefs.metroPillarHeight.current,
           getIsVisible: () => layerVisibilityRef.current.stationsMetro,
+        },
+        airport: {
+          pillarColor: { dark: 0xffd54f, light: 0xc8a030 }, // yellow
+          getPositions: () => airportPillarDataRef.current,
+          getPillarVisible: () => paramRefs.airportPillarVisible.current,
+          getPillarHeight: () => paramRefs.airportPillarHeight.current,
+          getIsVisible: () => layerVisibilityRef.current.airports,
+        },
+        port: {
+          pillarColor: { dark: 0x64b5f6, light: 0x2979b0 }, // blue
+          getPositions: () => portPillarDataRef.current,
+          getPillarVisible: () => paramRefs.portPillarVisible.current,
+          getPillarHeight: () => paramRefs.portPillarHeight.current,
+          getIsVisible: () => layerVisibilityRef.current.ports,
         },
       },
     });

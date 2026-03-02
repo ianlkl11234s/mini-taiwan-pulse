@@ -49,7 +49,8 @@ export type ExpandableLayerKey =
   | "stationsTHSR" | "stationsTRA" | "stationsMetro"
   | "busStationsCity" | "busStationsIntercity"
   | "bikeStations"
-  | "cyclingRoutes" | "freewayCongestion" | "weatherStations";
+  | "cyclingRoutes" | "freewayCongestion" | "weatherStations"
+  | "highways" | "provincialRoads" | "ports" | "airports";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";

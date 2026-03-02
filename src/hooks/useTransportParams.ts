@@ -47,7 +47,7 @@ export function useTransportParams() {
   const [railTrackMode, setRailTrackMode] = useState<"2d" | "3d">("3d");
   const [stationScale, setStationScale] = useState(1);
   // Bus
-  const [busScale, setBusScale] = useState(1);
+  const [busScale, setBusScale] = useState(0.4);
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
   // Cycling
@@ -57,7 +57,7 @@ export function useTransportParams() {
   // Weather
   const [weatherScale, setWeatherScale] = useState(1);
   // Lighthouse
-  const [lighthouseScale, setLighthouseScale] = useState(1);
+  const [lighthouseScale, setLighthouseScale] = useState(0.6);
   const [beamVisible, setBeamVisible] = useState(true);
   const [beamDistance, setBeamDistance] = useState(0.9);
   const [beamOpacity, setBeamOpacity] = useState(0.1);
@@ -66,8 +66,21 @@ export function useTransportParams() {
   const [thsrPillarHeight, setThsrPillarHeight] = useState(0.6);
   const [traPillarVisible, setTraPillarVisible] = useState(true);
   const [traPillarHeight, setTraPillarHeight] = useState(0.5);
-  const [metroPillarVisible, setMetroPillarVisible] = useState(true);
+  const [metroPillarVisible, setMetroPillarVisible] = useState(false);
   const [metroPillarHeight, setMetroPillarHeight] = useState(0.2);
+  // Highway (國道)
+  const [highwayWidth, setHighwayWidth] = useState(0.6);
+  const [highwayGlow, setHighwayGlow] = useState(0.3);
+  // Provincial Road (省道)
+  const [provincialWidth, setProvincialWidth] = useState(0.6);
+  const [provincialGlow, setProvincialGlow] = useState(0.2);
+  // Port pillar (碼頭)
+  const [portGlow, setPortGlow] = useState(1);
+  const [portPillarVisible, setPortPillarVisible] = useState(false);
+  const [portPillarHeight, setPortPillarHeight] = useState(0.3);
+  // Airport pillar (機場)
+  const [airportPillarVisible, setAirportPillarVisible] = useState(false);
+  const [airportPillarHeight, setAirportPillarHeight] = useState(0.6);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -90,6 +103,10 @@ export function useTransportParams() {
   const traPillarHeightRef = useRef(traPillarHeight);
   const metroPillarVisibleRef = useRef(metroPillarVisible);
   const metroPillarHeightRef = useRef(metroPillarHeight);
+  const portPillarVisibleRef = useRef(portPillarVisible);
+  const portPillarHeightRef = useRef(portPillarHeight);
+  const airportPillarVisibleRef = useRef(airportPillarVisible);
+  const airportPillarHeightRef = useRef(airportPillarHeight);
 
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
@@ -111,6 +128,10 @@ export function useTransportParams() {
   traPillarHeightRef.current = traPillarHeight;
   metroPillarVisibleRef.current = metroPillarVisible;
   metroPillarHeightRef.current = metroPillarHeight;
+  portPillarVisibleRef.current = portPillarVisible;
+  portPillarHeightRef.current = portPillarHeight;
+  airportPillarVisibleRef.current = airportPillarVisible;
+  airportPillarHeightRef.current = airportPillarHeight;
 
   const overlayParams = useMemo<Record<string, number>>(() => ({
     stationScale,
@@ -122,7 +143,12 @@ export function useTransportParams() {
     cyclingWidth,
     freewayWidth,
     weatherScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale]);
+    highwayWidth,
+    highwayGlow,
+    provincialWidth,
+    provincialGlow,
+    portGlow,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -131,8 +157,6 @@ export function useTransportParams() {
         { label: `Z +${altOffset}m`, value: altOffset, min: 0, max: 200, step: 50, onChange: setAltOffset },
         { label: `Opacity ${staticOpacity.toFixed(2)}`, value: staticOpacity, min: 0.02, max: 0.5, step: 0.02, onChange: setStaticOpacity },
         { label: `Orb ${(orbScale * 100000).toFixed(1)}`, value: orbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setOrbScale },
-        { label: `APT ${airportOpacity.toFixed(2)}`, value: airportOpacity, min: 0, max: 0.3, step: 0.01, onChange: setAirportOpacity },
-        { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
       ];
       case "ships": return [
         { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, value: shipOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setShipOrbScale },
@@ -173,6 +197,25 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "Pillar", value: metroPillarVisible, onChange: setMetroPillarVisible },
         { label: `Height ${metroPillarHeight.toFixed(1)}`, value: metroPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setMetroPillarHeight },
       ];
+      case "highways": return [
+        { label: `Width ${highwayWidth.toFixed(1)}`, value: highwayWidth, min: 0.3, max: 3, step: 0.1, onChange: setHighwayWidth },
+        { label: `Glow ${highwayGlow.toFixed(1)}`, value: highwayGlow, min: 0, max: 3, step: 0.1, onChange: setHighwayGlow },
+      ];
+      case "provincialRoads": return [
+        { label: `Width ${provincialWidth.toFixed(1)}`, value: provincialWidth, min: 0.3, max: 3, step: 0.1, onChange: setProvincialWidth },
+        { label: `Glow ${provincialGlow.toFixed(1)}`, value: provincialGlow, min: 0, max: 3, step: 0.1, onChange: setProvincialGlow },
+      ];
+      case "ports": return [
+        { label: `Glow ${portGlow.toFixed(1)}`, value: portGlow, min: 0, max: 3, step: 0.1, onChange: setPortGlow },
+        { type: "toggle" as const, label: "Pillar", value: portPillarVisible, onChange: setPortPillarVisible },
+        { label: `Height ${portPillarHeight.toFixed(1)}`, value: portPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setPortPillarHeight },
+      ];
+      case "airports": return [
+        { label: `APT ${airportOpacity.toFixed(2)}`, value: airportOpacity, min: 0, max: 0.3, step: 0.01, onChange: setAirportOpacity },
+        { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
+        { type: "toggle" as const, label: "Pillar", value: airportPillarVisible, onChange: setAirportPillarVisible },
+        { label: `Height ${airportPillarHeight.toFixed(1)}`, value: airportPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setAirportPillarHeight },
+      ];
       case "cyclingRoutes": return [
         { label: `Cycling ${cyclingWidth.toFixed(1)}`, value: cyclingWidth, min: 0.3, max: 3, step: 0.1, onChange: setCyclingWidth },
       ];
@@ -210,6 +253,10 @@ export function useTransportParams() {
       traPillarHeight: traPillarHeightRef,
       metroPillarVisible: metroPillarVisibleRef,
       metroPillarHeight: metroPillarHeightRef,
+      portPillarVisible: portPillarVisibleRef,
+      portPillarHeight: portPillarHeightRef,
+      airportPillarVisible: airportPillarVisibleRef,
+      airportPillarHeight: airportPillarHeightRef,
     },
     overlayParams,
     getControls,

@@ -212,26 +212,33 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "ports",
     sourceUrl: "./port_polygons.geojson",
     sourceId: "port-polygons",
+    rebuildOnParamChange: ["glow-2", "glow-1"],
     layers: [
       {
         suffix: "glow-2",
         type: "line",
-        paint: (isDark) => ({
-          "line-color": isDark ? "#88bbff" : "#3a7bd5",
-          "line-width": 12,
-          "line-blur": 8,
-          "line-opacity": isDark ? 0.04 : 0.10,
-        }),
+        paint: (isDark, params) => {
+          const g = params?.portGlow ?? 1;
+          return {
+            "line-color": isDark ? "#88bbff" : "#3a7bd5",
+            "line-width": 12 * g,
+            "line-blur": 8 * g,
+            "line-opacity": g * (isDark ? 0.04 : 0.10),
+          };
+        },
       },
       {
         suffix: "glow-1",
         type: "line",
-        paint: (isDark) => ({
-          "line-color": isDark ? "#88bbff" : "#3a7bd5",
-          "line-width": 5,
-          "line-blur": 3,
-          "line-opacity": isDark ? 0.10 : 0.20,
-        }),
+        paint: (isDark, params) => {
+          const g = params?.portGlow ?? 1;
+          return {
+            "line-color": isDark ? "#88bbff" : "#3a7bd5",
+            "line-width": 5 * g,
+            "line-blur": 3 * g,
+            "line-opacity": g * (isDark ? 0.10 : 0.20),
+          };
+        },
       },
       {
         suffix: "fill",
@@ -301,30 +308,37 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "highways",
     sourceUrl: "./national_highway.geojson",
     sourceId: "national-highways",
+    rebuildOnParamChange: ["glow", "line"],
     layers: [
       {
         suffix: "glow",
         type: "line",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: (isDark) => ({
-          "line-color": isDark ? "#ff6b6b" : "#cc3333",
-          "line-width": 8,
-          "line-blur": 6,
-          "line-opacity": isDark ? 0.08 : 0.12,
-        }),
+        paint: (isDark, params) => {
+          const g = params?.highwayGlow ?? 1;
+          return {
+            "line-color": isDark ? "#ff6b6b" : "#cc3333",
+            "line-width": 8 * g,
+            "line-blur": 6 * g,
+            "line-opacity": g * (isDark ? 0.08 : 0.12),
+          };
+        },
       },
       {
         suffix: "line",
         type: "line",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: (isDark) => ({
-          "line-color": isDark ? "#ff6b6b" : "#cc3333",
-          "line-width": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 0.5, 10, 1.5, 13, 3, 16, 5,
-          ],
-          "line-opacity": isDark ? 0.6 : 0.5,
-        }),
+        paint: (isDark, params) => {
+          const w = params?.highwayWidth ?? 1;
+          return {
+            "line-color": isDark ? "#ff6b6b" : "#cc3333",
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.5 * w, 10, 1.5 * w, 13, 3 * w, 16, 5 * w,
+            ],
+            "line-opacity": isDark ? 0.6 : 0.5,
+          };
+        },
       },
     ],
   },
@@ -334,30 +348,37 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "provincialRoads",
     sourceUrl: "./provincial_road.geojson",
     sourceId: "provincial-roads",
+    rebuildOnParamChange: ["glow", "line"],
     layers: [
       {
         suffix: "glow",
         type: "line",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: (isDark) => ({
-          "line-color": isDark ? "#ffa94d" : "#cc7722",
-          "line-width": 6,
-          "line-blur": 5,
-          "line-opacity": isDark ? 0.05 : 0.08,
-        }),
+        paint: (isDark, params) => {
+          const g = params?.provincialGlow ?? 1;
+          return {
+            "line-color": isDark ? "#ffa94d" : "#cc7722",
+            "line-width": 6 * g,
+            "line-blur": 5 * g,
+            "line-opacity": g * (isDark ? 0.05 : 0.08),
+          };
+        },
       },
       {
         suffix: "line",
         type: "line",
         layout: { "line-cap": "round", "line-join": "round" },
-        paint: (isDark) => ({
-          "line-color": isDark ? "#ffa94d" : "#cc7722",
-          "line-width": [
-            "interpolate", ["linear"], ["zoom"],
-            6, 0.3, 10, 1, 13, 2, 16, 3.5,
-          ],
-          "line-opacity": isDark ? 0.45 : 0.4,
-        }),
+        paint: (isDark, params) => {
+          const w = params?.provincialWidth ?? 1;
+          return {
+            "line-color": isDark ? "#ffa94d" : "#cc7722",
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.3 * w, 10, 1 * w, 13, 2 * w, 16, 3.5 * w,
+            ],
+            "line-opacity": isDark ? 0.45 : 0.4,
+          };
+        },
       },
     ],
   },

@@ -65,16 +65,16 @@ const SECTIONS: SectionDef[] = [
   {
     title: "ROUTE",
     layers: [
-      { key: "highways", label: "國道 Highway" },
-      { key: "provincialRoads", label: "省道 Prov.Road" },
+      { key: "highways", label: "國道 Highway", expandable: true },
+      { key: "provincialRoads", label: "省道 Prov.Road", expandable: true },
       { key: "cyclingRoutes", label: "自行車道 Cycling", expandable: true },
     ],
   },
   {
     title: "INFRA",
     layers: [
-      { key: "ports", label: "碼頭 Port" },
-      { key: "airports", label: "機場 Airport" },
+      { key: "ports", label: "碼頭 Port", expandable: true },
+      { key: "airports", label: "機場 Airport", expandable: true },
       { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
     ],
   },

@@ -13,15 +13,11 @@ export interface StationPillarGroupOptions {
 
 export interface CombinedStationPillarLayerOptions {
   getIsDarkTheme: () => boolean;
-  groups: {
-    thsr: StationPillarGroupOptions;
-    tra: StationPillarGroupOptions;
-    metro: StationPillarGroupOptions;
-  };
+  groups: Record<string, StationPillarGroupOptions>;
 }
 
 /**
- * 合併的車站光柱圖層 — 3 個 StationPillarScene 共享 1 個 WebGLRenderer
+ * 合併的光柱圖層 — 多個 StationPillarScene 共享 1 個 WebGLRenderer
  * 避免多個 renderer 共享同一 GL context 造成衝突
  */
 export function createCombinedStationPillarLayer(

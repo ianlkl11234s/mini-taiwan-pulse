@@ -51,6 +51,9 @@ export default function App() {
   const [thsrPillarData, setThsrPillarData] = useState<StationPillarData[]>([]);
   const [traPillarData, setTraPillarData] = useState<StationPillarData[]>([]);
   const [metroPillarData, setMetroPillarData] = useState<StationPillarData[]>([]);
+  // 機場 / 碼頭光柱資料（從 polygon GeoJSON 算質心）
+  const [airportPillarData, setAirportPillarData] = useState<StationPillarData[]>([]);
+  const [portPillarData, setPortPillarData] = useState<StationPillarData[]>([]);
 
   const { railData } = useRailData();
 
@@ -66,6 +69,50 @@ export default function App() {
         setMetroPillarData(toArr(data.metro ?? []));
       })
       .catch((err) => console.warn("Station pillar data:", err));
+  }, []);
+
+  // 機場光柱 — 從 airports.geojson 算質心，高度依起降量排序
+  useEffect(() => {
+    const AIRPORT_HEIGHTS: Record<string, number> = {
+      RCTP: 1.0, RCSS: 0.85, RCKH: 0.7, RCMQ: 0.55,
+      RCBS: 0.45, RCNN: 0.35, RCFN: 0.3, RCKU: 0.25,
+      RCLY: 0.2, RCGI: 0.2, RCMT: 0.2, RCFG: 0.2,
+    };
+    fetch("./airports.geojson")
+      .then((r) => r.json())
+      .then((geojson: GeoJSON.FeatureCollection) => {
+        const data: StationPillarData[] = geojson.features.map((f) => {
+          const geom = f.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon;
+          const ring = geom.type === "MultiPolygon"
+            ? geom.coordinates[0]![0]!
+            : geom.coordinates[0]!;
+          const lng = ring.reduce((s, c) => s + c[0]!, 0) / ring.length;
+          const lat = ring.reduce((s, c) => s + c[1]!, 0) / ring.length;
+          const icao = (f.properties?.icao as string) ?? "";
+          return { position: [lng, lat], height: AIRPORT_HEIGHTS[icao] ?? 0.2 };
+        });
+        setAirportPillarData(data);
+      })
+      .catch((err) => console.warn("Airport pillar data:", err));
+  }, []);
+
+  // 碼頭光柱 — 從 port_polygons.geojson 算質心
+  useEffect(() => {
+    fetch("./port_polygons.geojson")
+      .then((r) => r.json())
+      .then((geojson: GeoJSON.FeatureCollection) => {
+        const data: StationPillarData[] = geojson.features.map((f) => {
+          const geom = f.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon;
+          const coords = geom.type === "MultiPolygon"
+            ? geom.coordinates[0]![0]!
+            : geom.coordinates[0]!;
+          const lng = coords.reduce((s, c) => s + c[0]!, 0) / coords.length;
+          const lat = coords.reduce((s, c) => s + c[1]!, 0) / coords.length;
+          return { position: [lng, lat], height: 1 };
+        });
+        setPortPillarData(data);
+      })
+      .catch((err) => console.warn("Port pillar data:", err));
   }, []);
 
   const { isMobile, isLandscape } = useIsMobile();
@@ -104,6 +151,8 @@ export default function App() {
   const thsrPillarDataRef = useRef(thsrPillarData);
   const traPillarDataRef = useRef(traPillarData);
   const metroPillarDataRef = useRef(metroPillarData);
+  const airportPillarDataRef = useRef(airportPillarData);
+  const portPillarDataRef = useRef(portPillarData);
   const playingRef = useRef(timeline.playing);
 
   // 根據 viewMode 決定要顯示的航班
@@ -128,6 +177,8 @@ export default function App() {
   thsrPillarDataRef.current = thsrPillarData;
   traPillarDataRef.current = traPillarData;
   metroPillarDataRef.current = metroPillarData;
+  airportPillarDataRef.current = airportPillarData;
+  portPillarDataRef.current = portPillarData;
   playingRef.current = timeline.playing;
 
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
@@ -141,6 +192,7 @@ export default function App() {
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
     shipsRef, activeTrainsRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
+    airportPillarDataRef, portPillarDataRef,
     playingRef, layerVisibilityRef,
     paramRefs: transportParams.refs,
   });
