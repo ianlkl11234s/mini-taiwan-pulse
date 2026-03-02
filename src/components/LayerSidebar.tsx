@@ -82,7 +82,7 @@ const SECTIONS: SectionDef[] = [
   {
     title: "ANALYTICS",
     layers: [
-      { key: "h3Population", label: "人口密度 H3 Pop", expandable: true },
+      { key: "h3Population", label: "人流模擬 Pop. Flow", expandable: true },
     ],
   },
   {

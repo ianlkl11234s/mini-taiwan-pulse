@@ -56,11 +56,12 @@ export function useTransportParams() {
   const [freewayWidth, setFreewayWidth] = useState(1);
   // Weather
   const [weatherScale, setWeatherScale] = useState(1);
-  // H3 Population
+  // Population Flow (H3)
   const [h3Opacity, setH3Opacity] = useState(0.6);
   const [h3Extruded, setH3Extruded] = useState(false);
   const [h3ElevationScale, setH3ElevationScale] = useState(50);
   const [h3Metric, setH3Metric] = useState<"day" | "night">("day");
+  const [h3Contrast, setH3Contrast] = useState(1.8);
   // Lighthouse
   const [lighthouseScale, setLighthouseScale] = useState(0.6);
   const [beamVisible, setBeamVisible] = useState(true);
@@ -233,6 +234,7 @@ export function useTransportParams() {
       case "windPlan": return [];
       case "h3Population": return [
         { label: `Opacity ${h3Opacity.toFixed(1)}`, value: h3Opacity, min: 0.1, max: 1, step: 0.1, onChange: setH3Opacity },
+        { label: `Contrast ${h3Contrast.toFixed(1)}`, value: h3Contrast, min: 0.5, max: 4, step: 0.1, onChange: setH3Contrast },
         { type: "toggle" as const, label: "3D", value: h3Extruded, onChange: setH3Extruded },
         { label: `Height ${h3ElevationScale}`, value: h3ElevationScale, min: 10, max: 200, step: 10, onChange: setH3ElevationScale },
         { type: "select" as const, label: "Metric", value: h3Metric, options: [{ label: "Day", value: "day" }, { label: "Night", value: "night" }], onChange: (v: string) => setH3Metric(v as "day" | "night") },
@@ -271,6 +273,6 @@ export function useTransportParams() {
     },
     overlayParams,
     getControls,
-    h3Params: { opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric },
+    h3Params: { opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric, contrast: h3Contrast },
   };
 }

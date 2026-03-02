@@ -67,6 +67,7 @@
 | 國道壅塞 | line（色彩編碼壅塞程度） | 交通部公路局 |
 | 氣象觀測站 | circle dot + glow | 中央氣象署 |
 | 離岸風場範圍 | fill + line + glow | 經濟部能源局 |
+| 人流模擬六角格 | Mapbox fill / fill-extrusion（Plasma / Viridis 色階） | 內政部最小統計區人流 |
 
 ## 功能
 
@@ -80,6 +81,7 @@
 | **STATION** | 高鐵站 THSR · 台鐵站 TRA · 捷運站 Metro · 市區公車站 City Bus · 公路客運站 Intercity · 公共腳踏車 Bike（可展開） |
 | **ROUTE** | 國道 Highway · 省道 Prov.Road · 自行車道 Cycling（可展開） |
 | **INFRA** | 碼頭 Port · 機場 Airport · 燈塔 Lighthouse（可展開） |
+| **ANALYTICS** | 人流模擬 Pop. Flow（可展開：日夜切換、3D 高度柱、對比度） |
 | **MONITOR** | 國道壅塞 Congestion（可展開） |
 | **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm |
 
@@ -136,6 +138,21 @@
 | Dist | 0.2~3 | 光束投射距離 |
 | Opa | 0.05~0.8 | 光束透明度 |
 
+#### 人流模擬（Population Flow Simulation）
+
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| Opacity | 0.1~1 | 六角格填充不透明度 |
+| Contrast | 0.5~4 | Gamma 對比度（越大高人流越突出、低人流越暗） |
+| 3D | toggle | 2D 平面填充 / 3D 柱狀高度切換 |
+| Height | 10~200 | 3D 柱狀高度倍率 |
+| Metric | Day / Night | 日間人流 / 夜間人流切換（共用高度基準） |
+
+- 色階：日間 = Plasma（深靛→桃紅→亮黃），夜間 = Viridis（深紫→青綠→亮黃）
+- 正規化：log1p + gamma，感知均勻、色盲友善
+- Zoom 自動切換網格精度
+- 渲染：Mapbox 原生 fill / fill-extrusion layer（正確跟隨相機 pitch/bearing）
+
 #### 其他圖層
 
 | 圖層 | 控制項 | 範圍 | 說明 |
@@ -165,6 +182,7 @@
 |------|------|------|
 | 框架 | React 19 + TypeScript + Vite | 應用骨架 |
 | 地圖 | Mapbox GL JS v3 | 3D terrain、底圖、相機控制 |
+| 空間索引 | H3 (h3-js) | 六角形網格人流模擬視覺化 |
 | 3D 渲染 | Three.js r172 | 光軌、光球、InstancedMesh |
 | Shader | GLSL | 光軌漸層材質 |
 | 雲端 | AWS S3 | 資料增量同步 |
@@ -198,6 +216,7 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
   ├── CustomLayer: rail-3d       ← RailScene（靜態軌道 + 列車光球 + 拖尾）
   ├── CustomLayer: lighthouse-3d ← LighthouseScene（旋轉錐形光束）
   ├── CustomLayer: station-pillar-3d ← StationPillarScene（車站 3D 光柱）
+  ├── Population Flow Layer（Mapbox native fill / fill-extrusion）
   └── Overlay Registry（Mapbox GL Layers）
         ├── 機場邊界（fill + glow）
         ├── 車站標記（polygon + circle glow）
@@ -233,6 +252,8 @@ mini-taiwan-pulse/
 │   ├── national_highway.geojson    # 國道路網（gitignored）
 │   ├── provincial_road.geojson     # 省道路網（gitignored）
 │   ├── wind_plan.geojson           # 離岸風場範圍
+│   ├── h3_population_res7.json    # 人流模擬 res7（~8K cells）
+│   ├── h3_population_res8.json    # 人流模擬 res8（~56K cells）
 │   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
 │       ├── tra/                    # 台鐵
 │       ├── thsr/                   # 高鐵
@@ -260,6 +281,7 @@ mini-taiwan-pulse/
 │   │   ├── stationPillarCustomLayer.ts # 車站光柱 CustomLayer
 │   │   ├── staticTrails.ts         # 2D 靜態航線軌跡
 │   │   ├── railTracks.ts           # Mapbox native 軌道線
+│   │   ├── h3LayerFactory.ts       # 人流六角格 Mapbox fill/fill-extrusion 工廠
 │   │   └── cameraPresets.ts        # 機場預設視角
 │   ├── three/                      # Three.js 3D 場景
 │   │   ├── FlightScene.ts          # 航班光軌 + 光球 + GLSL shader
@@ -283,12 +305,14 @@ mini-taiwan-pulse/
 │   │   ├── useFlightData.ts        # 航班資料載入
 │   │   ├── useShipData.ts          # 船舶資料載入
 │   │   ├── useRailData.ts          # 軌道資料載入
+│   │   ├── useH3Data.ts            # 人流資料載入 + 快取
 │   │   ├── useTimeline.ts          # 時間軸播放邏輯
 │   │   └── useIsMobile.ts          # 響應式斷點偵測
 │   ├── data/                       # 資料載入器
 │   │   ├── flightLoader.ts         # 航班 JSON 解析 + 時間窗過濾
 │   │   ├── shipLoader.ts           # 船舶 JSON 解析
 │   │   ├── railLoader.ts           # 軌道時刻表 + GeoJSON 載入
+│   │   ├── h3Loader.ts             # 人流 JSON 載入（local + S3 fallback）
 │   │   └── s3Loader.ts             # S3 增量同步
 │   ├── constants/                  # 常數定義
 │   └── utils/                      # 座標轉換、軌跡插值
@@ -439,6 +463,7 @@ sh /usr/local/bin/pull-deploy-assets.sh
 | 國道壅塞 | 交通部公路局 |
 | 氣象觀測站 | [中央氣象署](https://www.cwa.gov.tw/) |
 | 離岸風場範圍 | 經濟部能源局 |
+| 日夜間人流 | 內政部最小統計區人流統計（六角形網格化） |
 | 地圖底圖 | [Mapbox](https://www.mapbox.com/) |
 
 ## License

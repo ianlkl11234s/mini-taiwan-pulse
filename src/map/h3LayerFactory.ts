@@ -8,20 +8,22 @@ const EXTRUSION_LAYER_ID = "h3-population-ext";
 
 // ── Color scales ──
 
+// Plasma (warm) — perceptually uniform, dark-background optimized
 const DAY_COLORS: [number, number, number][] = [
-  [255, 255, 178],
-  [254, 204, 92],
-  [253, 141, 60],
-  [240, 59, 32],
-  [189, 0, 38],
+  [13, 8, 135],
+  [126, 3, 168],
+  [204, 71, 120],
+  [248, 149, 64],
+  [240, 249, 33],
 ];
 
+// Viridis (cool) — perceptually uniform, colorblind-safe
 const NIGHT_COLORS: [number, number, number][] = [
-  [178, 226, 226],
-  [102, 194, 164],
-  [44, 162, 95],
-  [0, 109, 148],
-  [1, 70, 99],
+  [68, 1, 84],
+  [59, 82, 139],
+  [33, 145, 140],
+  [94, 201, 98],
+  [253, 231, 37],
 ];
 
 function logNorm(value: number, maxVal: number): number {
@@ -50,6 +52,7 @@ export interface H3LayerParams {
   opacity: number;
   extruded: boolean;
   elevationScale: number;
+  contrast: number;
 }
 
 /**
@@ -59,13 +62,15 @@ function h3CellsToGeoJSON(
   cells: H3CellData[],
   params: H3LayerParams,
 ): GeoJSON.FeatureCollection {
-  const { metric } = params;
+  const { metric, contrast } = params;
+  const gamma = contrast ?? 1;
   const colors = metric === "day" ? DAY_COLORS : NIGHT_COLORS;
   const getValue = (d: H3CellData) => (metric === "day" ? d.d : d.n);
 
+  // Use global max across both day & night so height baseline is consistent
   let maxVal = 0;
   for (const c of cells) {
-    const v = getValue(c);
+    const v = Math.max(c.d, c.n);
     if (v > maxVal) maxVal = v;
   }
   if (maxVal === 0) maxVal = 1;
@@ -77,7 +82,7 @@ function h3CellsToGeoJSON(
     coords.push(coords[0]!); // close ring
 
     const val = getValue(cell);
-    const norm = logNorm(val, maxVal);
+    const norm = Math.pow(logNorm(val, maxVal), gamma);
 
     return {
       type: "Feature" as const,

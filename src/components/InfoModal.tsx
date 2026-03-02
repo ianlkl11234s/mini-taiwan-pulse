@@ -385,6 +385,23 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
         ]} />
       </Card>
 
+      {/* ANALYTICS */}
+      <SectionTitle>ANALYTICS — {L ? "分析" : "Analytics"}</SectionTitle>
+      <Card title={L ? "人流模擬 Pop. Flow" : "Population Flow Simulation"}>
+        <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          {L
+            ? "預設關閉。以六角形網格顯示全台日間/夜間人流分布。色階：日間 Plasma（深靛→亮黃）、夜間 Viridis（深紫→亮黃），感知均勻、色盲友善。Zoom 自動切換網格精度。"
+            : "Off by default. Displays day/night population flow distribution across Taiwan using hexagonal grids. Color scales: day = Plasma (indigo → yellow), night = Viridis (purple → yellow), perceptually uniform and colorblind-safe. Grid resolution auto-switches by zoom level."}
+        </div>
+        <ExpandableParams lang={lang} items={[
+          { label: "Opacity", zh: "六角格填充不透明度（0.1~1）。", en: "Hexagon fill opacity (0.1–1)." },
+          { label: "Contrast", zh: "Gamma 對比度（0.5~4）。越大高人流區域越突出、低人流越暗。", en: "Gamma contrast (0.5–4). Higher values make high-flow areas pop while suppressing low-flow regions." },
+          { label: "3D", zh: "切換 2D 平面填充 / 3D 柱狀高度模式。", en: "Toggle between 2D flat fill and 3D extruded column mode." },
+          { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
+          { label: "Metric", zh: "切換日間人流（Day）/ 夜間人流（Night）。兩者共用高度基準，可直接比對差異。", en: "Switch between day and night flow. Both share the same height baseline for direct comparison." },
+        ]} />
+      </Card>
+
       {/* ENVIRON */}
       <SectionTitle>ENVIRON — {L ? "環境" : "Environment"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -479,6 +496,12 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
       source: L ? "政府開放資料" : "Government Open Data",
       desc: { zh: "燈塔位置（36 座）— 交通部航港局。機場 / 港口邊界 — OSM Overpass API。國道 / 省道路網 — 交通部公路局。離岸風場範圍 — 經濟部能源局。自行車道 — 交通部。公共腳踏車站 — TDX。", en: "Lighthouses (36) — Maritime and Port Bureau. Airport/port boundaries — OSM Overpass API. Highway/provincial road networks — Directorate General of Highways. Offshore wind farms — Bureau of Energy. Cycling routes — MOTC. Public bike stations — TDX." },
       color: "#66bb6a",
+    },
+    {
+      name: { zh: "人流模擬", en: "Pop. Flow" },
+      source: L ? "內政部最小統計區" : "Ministry of the Interior",
+      desc: { zh: "全台最小統計區日夜間人流資料（157,933 區），經六角形網格化後以 Plasma / Viridis 感知均勻色階視覺化。支援多層解析度，Zoom 自動切換。", en: "Day/night population flow data from 157,933 statistical areas, gridded into hexagons and visualized with Plasma/Viridis perceptually uniform color scales. Multi-resolution support with automatic zoom-based switching." },
+      color: "#ff6b6b",
     },
     {
       name: { zh: "地圖底圖", en: "Base Map" },
