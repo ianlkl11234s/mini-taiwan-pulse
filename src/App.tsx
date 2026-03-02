@@ -13,7 +13,7 @@ import { useRailEngine } from "./hooks/useRailEngine";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
-import { DEFAULT_CAMERA, getPresetByIcao } from "./map/cameraPresets";
+import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
 import { LocationJump } from "./components/AirportSelector";
@@ -26,7 +26,6 @@ import { InfoModal } from "./components/InfoModal";
 export default function App() {
   const {
     allFlights,
-    airports,
     selectedAirport,
     setSelectedAirport,
     timeRange,
@@ -203,7 +202,7 @@ export default function App() {
   // ── Derived values ──
 
   const preset = useMemo(
-    () => getPresetByIcao(selectedAirport) ?? DEFAULT_CAMERA,
+    () => getPresetById(selectedAirport) ?? DEFAULT_CAMERA,
     [selectedAirport],
   );
 
@@ -491,12 +490,12 @@ export default function App() {
             />
 
             <LocationJump
-              airports={airports}
               isDarkTheme={isDarkTheme}
-              onJump={(icao) => {
-                setSelectedAirport(icao);
-                const p = getPresetByIcao(icao);
+              currentId={selectedAirport}
+              onJump={(id) => {
+                const p = getPresetById(id);
                 if (p && mapRef.current) {
+                  if (p.category === "airport") setSelectedAirport(p.id);
                   mapRef.current.flyTo({
                     center: p.center,
                     zoom: p.zoom,
@@ -877,12 +876,12 @@ export default function App() {
                       />
                     </div>
                     <LocationJump
-                      airports={airports}
                       isDarkTheme={true}
-                      onJump={(icao) => {
-                        setSelectedAirport(icao);
-                        const p = getPresetByIcao(icao);
+                      currentId={selectedAirport}
+                      onJump={(id) => {
+                        const p = getPresetById(id);
                         if (p && mapRef.current) {
+                          if (p.category === "airport") setSelectedAirport(p.id);
                           mapRef.current.flyTo({
                             center: p.center,
                             zoom: p.zoom,

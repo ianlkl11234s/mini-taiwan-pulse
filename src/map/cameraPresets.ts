@@ -22,19 +22,115 @@ export function getAirportInfo(icao: string): { name: string; iata: string } | u
   return AIRPORT_INFO[icao];
 }
 
-export const DEFAULT_CAMERA: CameraPreset = {
-  name: "全台總覽",
-  icao: "",
-  center: [121.1189, 23.4339],
-  zoom: 7.9,
-  pitch: 48,
-  bearing: -21,
-};
+// ── All Presets ──
 
-export const CAMERA_PRESETS: CameraPreset[] = [
+export const ALL_PRESETS: CameraPreset[] = [
+  // Overview
+  {
+    name: "全台總覽",
+    id: "overview",
+    category: "overview",
+    center: [121.1189, 23.4339],
+    zoom: 7.9,
+    pitch: 48,
+    bearing: -21,
+  },
+  // Cities
+  {
+    name: "台北",
+    id: "taipei",
+    category: "city",
+    center: [121.53, 25.05],
+    zoom: 12,
+    pitch: 50,
+    bearing: 0,
+  },
+  {
+    name: "桃園",
+    id: "taoyuan",
+    category: "city",
+    center: [121.30, 24.99],
+    zoom: 11.5,
+    pitch: 48,
+    bearing: -10,
+  },
+  {
+    name: "台中",
+    id: "taichung",
+    category: "city",
+    center: [120.68, 24.15],
+    zoom: 11.5,
+    pitch: 48,
+    bearing: -15,
+  },
+  {
+    name: "台南",
+    id: "tainan",
+    category: "city",
+    center: [120.21, 23.00],
+    zoom: 11.5,
+    pitch: 48,
+    bearing: -20,
+  },
+  {
+    name: "高雄",
+    id: "kaohsiung",
+    category: "city",
+    center: [120.30, 22.63],
+    zoom: 11.5,
+    pitch: 50,
+    bearing: -30,
+  },
+  {
+    name: "台東",
+    id: "taitung",
+    category: "city",
+    center: [121.15, 22.76],
+    zoom: 11,
+    pitch: 48,
+    bearing: 60,
+  },
+  {
+    name: "花蓮",
+    id: "hualien",
+    category: "city",
+    center: [121.60, 23.98],
+    zoom: 11,
+    pitch: 50,
+    bearing: 70,
+  },
+  {
+    name: "澎湖",
+    id: "penghu",
+    category: "city",
+    center: [119.58, 23.57],
+    zoom: 11,
+    pitch: 45,
+    bearing: 30,
+  },
+  {
+    name: "馬祖",
+    id: "matsu",
+    category: "city",
+    center: [119.95, 26.17],
+    zoom: 12,
+    pitch: 40,
+    bearing: 50,
+  },
+  {
+    name: "金門",
+    id: "kinmen",
+    category: "city",
+    center: [118.38, 24.44],
+    zoom: 12,
+    pitch: 45,
+    bearing: 20,
+  },
+  // Airports
   {
     name: "桃園國際機場",
-    icao: "RCTP",
+    id: "RCTP",
+    category: "airport",
     center: [121.2281, 25.0927],
     zoom: 10.4,
     pitch: 57,
@@ -42,7 +138,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "松山機場",
-    icao: "RCSS",
+    id: "RCSS",
+    category: "airport",
     center: [121.555, 25.0697],
     zoom: 12.8,
     pitch: 57,
@@ -50,7 +147,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "高雄國際機場",
-    icao: "RCKH",
+    id: "RCKH",
+    category: "airport",
     center: [120.3562, 22.5703],
     zoom: 11.6,
     pitch: 54,
@@ -58,7 +156,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "台中清泉崗",
-    icao: "RCMQ",
+    id: "RCMQ",
+    category: "airport",
     center: [120.612, 24.2787],
     zoom: 10.7,
     pitch: 51,
@@ -66,7 +165,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "花蓮機場",
-    icao: "RCYU",
+    id: "RCYU",
+    category: "airport",
     center: [121.6162, 24.0231],
     zoom: 12,
     pitch: 51,
@@ -74,7 +174,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "金門尚義機場",
-    icao: "RCBS",
+    id: "RCBS",
+    category: "airport",
     center: [118.3655, 24.4269],
     zoom: 11,
     pitch: 51,
@@ -82,7 +183,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "馬祖南竿機場",
-    icao: "RCFG",
+    id: "RCFG",
+    category: "airport",
     center: [119.9576, 26.1643],
     zoom: 11.1,
     pitch: 30,
@@ -90,7 +192,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "台東豐年機場",
-    icao: "RCFN",
+    id: "RCFN",
+    category: "airport",
     center: [121.0967, 22.7566],
     zoom: 11.5,
     pitch: 59,
@@ -98,7 +201,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "台南機場",
-    icao: "RCNN",
+    id: "RCNN",
+    category: "airport",
     center: [120.2099, 22.9469],
     zoom: 12,
     pitch: 36,
@@ -106,7 +210,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "澎湖馬公機場",
-    icao: "RCQC",
+    id: "RCQC",
+    category: "airport",
     center: [119.6389, 23.5673],
     zoom: 11.5,
     pitch: 46,
@@ -114,7 +219,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "七美機場",
-    icao: "RCCM",
+    id: "RCCM",
+    category: "airport",
     center: [119.4078, 23.208],
     zoom: 11.9,
     pitch: 39,
@@ -122,7 +228,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "綠島機場",
-    icao: "RCGI",
+    id: "RCGI",
+    category: "airport",
     center: [121.4666, 22.6717],
     zoom: 13,
     pitch: 30,
@@ -130,7 +237,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "嘉義機場",
-    icao: "RCKU",
+    id: "RCKU",
+    category: "airport",
     center: [120.3898, 23.4544],
     zoom: 11.6,
     pitch: 48,
@@ -138,7 +246,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
   {
     name: "馬祖北竿機場",
-    icao: "RCMT",
+    id: "RCMT",
+    category: "airport",
     center: [119.9881, 26.2228],
     zoom: 12.8,
     pitch: 33,
@@ -146,6 +255,8 @@ export const CAMERA_PRESETS: CameraPreset[] = [
   },
 ];
 
-export function getPresetByIcao(icao: string): CameraPreset | undefined {
-  return CAMERA_PRESETS.find((p) => p.icao === icao);
+export const DEFAULT_CAMERA: CameraPreset = ALL_PRESETS[0]!;
+
+export function getPresetById(id: string): CameraPreset | undefined {
+  return ALL_PRESETS.find((p) => p.id === id);
 }

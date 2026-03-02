@@ -18,10 +18,11 @@ export interface Flight {
   path: TrailPoint[];
 }
 
-/** 機場預設視角 */
+/** 地點預設視角 */
 export interface CameraPreset {
   name: string;
-  icao: string;
+  id: string;
+  category: "overview" | "city" | "airport";
   center: [number, number];
   zoom: number;
   pitch: number;
