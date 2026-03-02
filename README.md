@@ -58,23 +58,30 @@
 | 車站光柱（535 站） | Three.js 3D 光柱（高度 = 停靠次數正規化） | 預計算靜態 JSON |
 | 港口邊界 | fill + line + glow | OSM Overpass API |
 | 燈塔（36 座） | circle dot + 3D 旋轉錐形光束 | 交通部航港局 |
-| 市區公車站 | circle dot | TDX 公共運輸資料 |
-| 公路客運站 | circle dot | TDX 公共運輸資料 |
+| 市區公車站 | circle dot + glow | TDX 公共運輸資料 |
+| 公路客運站 | circle dot + glow | TDX 公共運輸資料 |
+| 公共腳踏車站 | circle dot + glow | TDX 公共運輸資料 |
 | 國道路網 | line（紅色，zoom 自適應寬度） | 交通部公路局 |
 | 省道路網 | line（橘色，zoom 自適應寬度） | 交通部公路局 |
+| 自行車道 | line（綠色，zoom 自適應寬度） | 交通部 |
+| 國道壅塞 | line（色彩編碼壅塞程度） | 交通部公路局 |
+| 氣象觀測站 | circle dot + glow | 中央氣象署 |
 | 離岸風場範圍 | fill + line + glow | 經濟部能源局 |
 
 ## 功能
 
 ### 圖層面板（LayerSidebar）
 
-三分類側邊欄，每個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開）：
+六分類側邊欄，共 18 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開）：
 
 | 分類 | 圖層 |
 |------|------|
 | **MOVING** | 航班 Flight、船舶 Ship、鐵道 Rail（可展開參數面板） |
-| **FACILITY** | 車站（THSR/TRA/Metro 各自獨立）、碼頭 Port、燈塔 Lighthouse、機場 Airport、市區公車站 City Bus、公路客運站 Intercity、國道 Highway、省道 Prov.Road |
-| **ZONE** | 風場範圍 Wind Farm（可展開參數面板） |
+| **STATION** | 高鐵站 THSR · 台鐵站 TRA · 捷運站 Metro · 市區公車站 City Bus · 公路客運站 Intercity · 公共腳踏車 Bike（可展開） |
+| **ROUTE** | 國道 Highway · 省道 Prov.Road · 自行車道 Cycling（可展開） |
+| **INFRA** | 碼頭 Port · 機場 Airport · 燈塔 Lighthouse（可展開） |
+| **MONITOR** | 國道壅塞 Congestion（可展開） |
+| **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm |
 
 - MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
 - 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
@@ -82,42 +89,75 @@
 - 運具按鈕顯示活躍數量（航班數、船舶數、列車數）
 - 收合狀態以彩色小點顯示各圖層啟用狀態
 
-### 檢視模式
-
-| 模式 | 說明 |
-|------|------|
-| All Taiwan | 全台所有航班（預設） |
-| ±12h Window | 當前時間前後 12 小時 |
-
 ### 即時參數調整
 
-| 控制項 | 說明 |
-|--------|------|
-| Alt ×1.0~5.0 | 航班高度誇張倍率 |
-| Z +0~200m | 基準高度偏移 |
-| Opacity | 靜態軌跡不透明度 |
-| Orb / Ship Orb / Rail Orb | 各交通工具光球大小 |
-| Train ON/OFF | 鐵道列車光球顯示開關 |
-| Track 2D/3D | 軌道線模式（2D 平面 Mapbox / 3D 立體 Three.js） |
-| Rail Z | 軌道 Z 軸偏移 |
-| Rail Trk / Ship Trail | 軌道線 / 船舶拖尾線透明度 |
-| APT / Glow | 機場填充不透明度 / 光暈強度 |
-| Stn | 車站圓環縮放 |
-| Pillar ON/OFF | 車站光柱顯示開關（THSR/TRA/Metro 各自獨立） |
-| Height | 車站光柱高度倍率 |
-| Beam ON/OFF | 燈塔光束開關 |
-| Dist / Opa | 燈塔光束距離 / 不透明度 |
+#### 航班（Flights）
 
-### 其他
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| Alt × | 1~5 | 高度誇張倍率，數值越大弧線越高聳 |
+| Z offset | 0~200m | 基準高度偏移，避免低空航線貼地 |
+| Opacity | 0.02~0.5 | 靜態軌跡線不透明度 |
+| Orb | — | 飛行光球大小 |
+| APT | 0~0.3 | 機場區域填充不透明度 |
+| Glow | 0~2 | 機場光暈強度 |
 
-- 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Navigation Night 等）
+#### 船舶（Ships）
+
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| Ship Orb | — | 船舶光球大小 |
+| Ship Trail | 0.05~1 | 船舶拖尾線透明度 |
+
+#### 鐵道（Rail）
+
+| 控制項 | 類型 | 說明 |
+|--------|------|------|
+| Train | toggle | 列車光球顯示開關 |
+| Track | select | 軌道渲染模式（2D 平面 / 3D 立體） |
+| Rail Z | 0~500m | 軌道 Z 軸偏移高度 |
+| Rail Orb | — | 列車光球大小 |
+| Rail Trk | 0.05~1 | 軌道線透明度 |
+
+#### 車站（THSR / TRA / Metro 各自獨立）
+
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| Stn | 0.3~3x | 車站圓環大小縮放 |
+| Pillar | toggle | 3D 光柱顯示開關 |
+| Height | 0.2~3x | 光柱高度倍率 |
+
+#### 燈塔（Lighthouses）
+
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| LH | 0.3~3x | 燈塔標記大小 |
+| Beam | toggle | 3D 旋轉光束開關 |
+| Dist | 0.2~3 | 光束投射距離 |
+| Opa | 0.05~0.8 | 光束透明度 |
+
+#### 其他圖層
+
+| 圖層 | 控制項 | 範圍 | 說明 |
+|------|--------|------|------|
+| 公車站（City / Intercity） | Bus | 0.3~3x | 圓點大小 |
+| 公共腳踏車 | Bike | 0.3~3x | 圓點大小 |
+| 自行車道 | Cycling | 0.3~3x | 線條寬度倍率 |
+| 國道壅塞 | Freeway | 0.3~3x | 線條寬度倍率 |
+| 氣象站 | Weather | 0.3~3x | 標記大小 |
+
+### 其他功能
+
+- 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Satellite Streets / Navigation Night / Streets）
 - 開場全台總覽視角（23.43°N, 121.12°E, z7.9, pitch 48°）
-- 14 座台灣機場預設視角
-- 時間軸播放控制（30x~600x 加速）
-- Capture 拍攝模式（暗角 vignette + 機場名稱 + 時間標記）
+- 14 座台灣機場預設視角 + 飛行動畫跳轉（2 秒）
+- 時間軸播放控制（30x / 60x / 120x / 300x / 600x 加速）
+- Capture 拍攝模式（暗角 vignette + 標題 + 時間標記，按 ESC 退出）
 - 顯示模式切換：Live Status（即時位置）/ Trails（軌跡線）
-- 地點跳轉：快速飛行到各機場預設視角
-- 768px 以下自動切換手機版 UI
+- 點擊飛機 / 列車光球顯示浮動資訊卡
+- 768px 以下自動切換手機版 UI（底部拖曳面板）
+- 底部資訊列：即時運具計數 + 相機 pitch / bearing / zoom 參數
+- Info Modal：5 頁多分頁說明面板（操作指南 · 功能圖例 · 資料來源 · 關於 · 個人）
 
 ## 技術棧
 
@@ -134,7 +174,7 @@
 
 ### Overlay Registry 模式
 
-所有 Mapbox GL 靜態圖層（機場、車站、港口、燈塔、道路、風場）透過**配置驅動**的 Overlay Registry 統一管理：
+所有 Mapbox GL 靜態圖層（機場、車站、港口、燈塔、道路、風場等）透過**配置驅動**的 Overlay Registry 統一管理：
 
 ```
 overlayRegistry.ts  — 宣告式 config 陣列（sourceUrl + paint 函式）
@@ -149,7 +189,7 @@ MapView.tsx         — 一個 useEffect 控制所有 overlay 可見性 + 主題
 
 ### Three.js CustomLayer 架構
 
-透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景，四個獨立 CustomLayer 各自管理動態渲染，常駐地圖、由 `getIsVisible` 控制渲染開關：
+透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景，五個獨立 CustomLayer 各自管理動態渲染，常駐地圖、由 `getIsVisible` 控制渲染開關：
 
 ```
 Mapbox GL JS（底圖 + 3D terrain + 相機控制）
@@ -163,9 +203,10 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
         ├── 車站標記（polygon + circle glow）
         ├── 港口邊界（fill + glow）
         ├── 燈塔（circle + glow）
-        ├── 市區公車站 / 公路客運站（circle）
-        ├── 國道路網（line）
-        ├── 省道路網（line）
+        ├── 市區公車站 / 公路客運站 / 腳踏車站（circle + glow）
+        ├── 國道 / 省道 / 自行車道（line）
+        ├── 國道壅塞（line，色彩編碼）
+        ├── 氣象站（circle + glow）
         └── 離岸風場（fill + line + glow）
 ```
 
@@ -180,12 +221,17 @@ mini-taiwan-pulse/
 │   ├── station_polygons.geojson    # 大站 Polygon
 │   ├── station_points.geojson      # 小站 + 捷運站 Point（491 站）
 │   ├── station_pillars.json        # 車站光柱預計算資料（535 站）
+│   ├── station_daily_stops.json    # 站點每日停靠次數
 │   ├── bus_stations_city.geojson   # 市區公車站
 │   ├── bus_stations_intercity.geojson # 公路客運站
+│   ├── bike_stations.geojson       # 公共腳踏車站（gitignored）
+│   ├── cycling_routes.geojson      # 自行車道（gitignored）
+│   ├── freeway_congestion.geojson  # 國道壅塞（gitignored）
+│   ├── weather_stations.geojson    # 氣象站（gitignored）
 │   ├── port_polygons.geojson       # 港口邊界
 │   ├── lighthouse.geojson          # 燈塔位置（36 座）
-│   ├── national_highway.geojson    # 國道路網
-│   ├── provincial_road.geojson     # 省道路網
+│   ├── national_highway.geojson    # 國道路網（gitignored）
+│   ├── provincial_road.geojson     # 省道路網（gitignored）
 │   ├── wind_plan.geojson           # 離岸風場範圍
 │   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
 │       ├── tra/                    # 台鐵
@@ -199,7 +245,8 @@ mini-taiwan-pulse/
 │   ├── App.tsx                     # 主應用 + 狀態協調
 │   ├── types/index.ts              # 型別定義（含 OverlayConfig）
 │   ├── components/
-│   │   ├── LayerSidebar.tsx        # 三分類圖層面板（MOVING / FACILITY / ZONE）
+│   │   ├── InfoModal.tsx           # 多分頁 Info Modal（5 頁）
+│   │   ├── LayerSidebar.tsx        # 六分類圖層面板（MOVING / STATION / ROUTE / INFRA / MONITOR / ENVIRON）
 │   │   ├── TimelineControls.tsx    # 時間軸播放控制
 │   │   ├── AirportSelector.tsx     # 地點跳轉
 │   │   ├── StyleSelector.tsx       # 底圖樣式選擇
@@ -232,7 +279,7 @@ mini-taiwan-pulse/
 │   │   ├── useRailEngine.ts        # 軌道引擎 + rAF tick loop
 │   │   ├── useLayerVisibility.ts   # 圖層可見性 state + toggle
 │   │   ├── useThreeJsLayers.ts     # Three.js CustomLayer 建立與管理
-│   │   ├── useMapInteraction.ts    # 飛機點擊、雙擊追蹤
+│   │   ├── useMapInteraction.ts    # 飛機/列車點擊互動
 │   │   ├── useFlightData.ts        # 航班資料載入
 │   │   ├── useShipData.ts          # 船舶資料載入
 │   │   ├── useRailData.ts          # 軌道資料載入
@@ -329,7 +376,7 @@ docker-compose up -d       # http://localhost:3721
 
 ### 資料管理（S3 deploy-assets）
 
-大檔案（~180MB）不進 git，統一託管到 S3 `deploy-assets/` prefix，**私密存取**（需認證）：
+大檔案（~200MB）不進 git，統一託管到 S3 `deploy-assets/` prefix，**私密存取**（需認證）：
 
 | S3 檔案 | 大小 | 說明 | 對應 /data/ 路徑 |
 |---------|------|------|-----------------|
@@ -340,7 +387,10 @@ docker-compose up -d       # http://localhost:3721
 | `national_highway.geojson` | 7.9MB | 國道路網 | `/data/national_highway.geojson` |
 | `bus_stations_city.geojson` | 19MB | 市區公車站 | `/data/bus_stations_city.geojson` |
 | `bus_stations_intercity.geojson` | 5.8MB | 公路客運站 | `/data/bus_stations_intercity.geojson` |
-| `bike_stations.geojson` | 4.4MB | 公共腳踏車站（YouBike 等） | `/data/bike_stations.geojson` |
+| `bike_stations.geojson` | 4.4MB | 公共腳踏車站 | `/data/bike_stations.geojson` |
+| `cycling_routes.geojson` | — | 自行車道 | `/data/cycling_routes.geojson` |
+| `freeway_congestion.geojson` | — | 國道壅塞 | `/data/freeway_congestion.geojson` |
+| `weather_stations.geojson` | — | 氣象站 | `/data/weather_stations.geojson` |
 
 ```bash
 # 本地 → S3（需 .env 中的 S3 credentials）
@@ -355,7 +405,6 @@ sh /usr/local/bin/pull-deploy-assets.sh
 ```bash
 # 1. 本地產生/更新資料（視需要）
 python3 scripts/export-rail-data.py       # 軌道
-python3 scripts/bundle-rail-data.py       # ← 不需要了，upload 腳本會自動打包 public/rail/
 
 # 2. 上傳到 S3 deploy-assets/（統一用這個腳本！）
 bash scripts/upload-deploy-assets.sh
@@ -382,12 +431,15 @@ sh /usr/local/bin/pull-deploy-assets.sh
 |------|------|
 | 航班軌跡 | [FlightRadar24](https://www.flightradar24.com/) |
 | 船舶位置 | AIS（Automatic Identification System） |
-| 軌道時刻表 | 台鐵、高鐵、各捷運公開時刻表 |
+| 軌道時刻表 | 台鐵、高鐵、各捷運公開時刻表（[TDX](https://tdx.transportdata.tw/)） |
 | 機場 / 車站 / 港口邊界 | [OpenStreetMap](https://www.openstreetmap.org/) via Overpass API |
 | 燈塔位置 | 交通部航港局 |
-| 公車站位 | [TDX 公共運輸資料](https://tdx.transportdata.tw/) |
-| 國道 / 省道路網 | 交通部公路局 |
+| 公車站位 / 腳踏車站 | [TDX 公共運輸資料](https://tdx.transportdata.tw/) |
+| 國道 / 省道 / 自行車道 | 交通部公路局 |
+| 國道壅塞 | 交通部公路局 |
+| 氣象觀測站 | [中央氣象署](https://www.cwa.gov.tw/) |
 | 離岸風場範圍 | 經濟部能源局 |
+| 地圖底圖 | [Mapbox](https://www.mapbox.com/) |
 
 ## License
 
