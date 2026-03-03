@@ -14,7 +14,9 @@ import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useH3Data } from "./hooks/useH3Data";
+import { useDemographicsH3 } from "./hooks/useDemographicsH3";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
+import { updatePopCountLayer, updateIndicatorsLayer } from "./map/demographicsLayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
@@ -185,6 +187,7 @@ export default function App() {
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
   const { h3DataMap, loadResolution } = useH3Data();
+  const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef,
@@ -215,6 +218,8 @@ export default function App() {
 
   // H3 resolution state (driven by zoom)
   const [h3Resolution, setH3Resolution] = useState(7);
+  // Demographics resolution (capped at 8, no res9 for village polygons)
+  const [demoResolution, setDemoResolution] = useState(7);
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
@@ -237,10 +242,12 @@ export default function App() {
     const onZoomH3 = () => {
       const res = getH3Resolution(map.getZoom());
       setH3Resolution(res);
+      setDemoResolution(Math.min(res, 8)); // cap at 8 for demographics
     };
     map.on("zoomend", onZoomH3);
     onZoomH3(); // initial
     loadResolution(7); // preload default resolution
+    loadDemographicsResolution(7); // preload demographics
 
     bindEvents(map);
   };
@@ -286,6 +293,30 @@ export default function App() {
     const cells = h3DataMap.get(h3Resolution) ?? [];
     updateH3Layer(map, cells, transportParams.h3Params, layerVisibility.h3Population);
   }, [h3DataMap, h3Resolution, layerVisibility.h3Population, transportParams.h3Params]);
+
+  // Demographics: load resolution when it changes
+  useEffect(() => {
+    if (layerVisibility.popCount || layerVisibility.indicators) {
+      loadDemographicsResolution(demoResolution);
+    }
+  }, [demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemographicsResolution]);
+
+  // Demographics: update popCount layer
+  // Note: avoid isStyleLoaded() — it returns false during tile loading (timeline playback)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getSource("h3-pop-count-src")) return;
+    const cells = demographicsDataMap.get(demoResolution) ?? [];
+    updatePopCountLayer(map, cells, transportParams.popCountParams, layerVisibility.popCount);
+  }, [demographicsDataMap, demoResolution, layerVisibility.popCount, transportParams.popCountParams]);
+
+  // Demographics: update indicators layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getSource("h3-indicators-src")) return;
+    const cells = demographicsDataMap.get(demoResolution) ?? [];
+    updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
+  }, [demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams]);
 
   // ESC 退出拍攝模式
   useEffect(() => {

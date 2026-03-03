@@ -8,6 +8,11 @@
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       html, body, #root { width: 100%; height: 100%; overflow: hidden; background: #000; }
+      .layer-sidebar-scroll { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent; }
+      .layer-sidebar-scroll::-webkit-scrollbar { width: 4px; }
+      .layer-sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+      .layer-sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+      .layer-sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
     </style>
   </head>
   <body>

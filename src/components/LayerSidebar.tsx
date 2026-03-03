@@ -24,6 +24,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   freewayCongestion: "#ef5350",
   weatherStations: "#4dd0e1",
   h3Population: "#ff6b6b",
+  popCount: "#f9bd31",
+  indicators: "#e25822",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -83,6 +85,8 @@ const SECTIONS: SectionDef[] = [
     title: "ANALYTICS",
     layers: [
       { key: "h3Population", label: "人流模擬 Pop. Flow", expandable: true },
+      { key: "popCount", label: "人口數 Population", expandable: true },
+      { key: "indicators", label: "人口指標 Indicators", expandable: true },
     ],
   },
   {
@@ -276,11 +280,14 @@ function SidebarContent({
 }) {
   return (
     <div
+      className="layer-sidebar-scroll"
       style={{
         display: "flex",
         flexDirection: "column",
         gap: 2,
         width: isMobile ? "100%" : 240,
+        maxHeight: isMobile ? undefined : "calc(100vh - 40px)",
+        overflowY: isMobile ? undefined : "auto",
         background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",

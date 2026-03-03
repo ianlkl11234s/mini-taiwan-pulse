@@ -6,6 +6,7 @@ import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } fr
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
 import { ensureH3Layers } from "./h3LayerFactory";
+import { ensurePopCountLayers, ensureIndicatorsLayers } from "./demographicsLayerFactory";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -112,6 +113,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
 
       // 樣式切換後重建 H3 layers（source + layer 會被清除）
       ensureH3Layers(map);
+      ensurePopCountLayers(map);
+      ensureIndicatorsLayers(map);
 
       // 初次載入後，每次樣式切換都重建 flight layer
       if (readyRef.current) {
@@ -123,6 +126,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       mapRef.current = map;
       readyRef.current = true;
       ensureH3Layers(map);
+      ensurePopCountLayers(map);
+      ensureIndicatorsLayers(map);
       onMapReadyRef.current?.(map);
     });
 

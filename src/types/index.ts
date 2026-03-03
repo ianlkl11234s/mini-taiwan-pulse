@@ -52,7 +52,7 @@ export type ExpandableLayerKey =
   | "bikeStations"
   | "cyclingRoutes" | "freewayCongestion" | "weatherStations"
   | "highways" | "provincialRoads" | "ports" | "airports"
-  | "h3Population";
+  | "h3Population" | "popCount" | "indicators";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -197,4 +197,6 @@ export interface LayerVisibility {
   freewayCongestion: boolean;
   weatherStations: boolean;
   h3Population: boolean;
+  popCount: boolean;
+  indicators: boolean;
 }

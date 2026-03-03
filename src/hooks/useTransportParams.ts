@@ -62,6 +62,18 @@ export function useTransportParams() {
   const [h3ElevationScale, setH3ElevationScale] = useState(50);
   const [h3Metric, setH3Metric] = useState<"day" | "night">("day");
   const [h3Contrast, setH3Contrast] = useState(1.8);
+  // Population Count (SEGIS)
+  const [pcOpacity, setPcOpacity] = useState(0.6);
+  const [pcContrast, setPcContrast] = useState(1.8);
+  const [pcExtruded, setPcExtruded] = useState(false);
+  const [pcElevationScale, setPcElevationScale] = useState(50);
+  // Population Indicators (SEGIS)
+  const [indCategory, setIndCategory] = useState("count");
+  const [indMetric, setIndMetric] = useState("hh");
+  const [indOpacity, setIndOpacity] = useState(0.6);
+  const [indContrast, setIndContrast] = useState(1.8);
+  const [indExtruded, setIndExtruded] = useState(false);
+  const [indElevationScale, setIndElevationScale] = useState(50);
   // Lighthouse
   const [lighthouseScale, setLighthouseScale] = useState(0.6);
   const [beamVisible, setBeamVisible] = useState(true);
@@ -239,6 +251,33 @@ export function useTransportParams() {
         { label: `Height ${h3ElevationScale}`, value: h3ElevationScale, min: 10, max: 200, step: 10, onChange: setH3ElevationScale },
         { type: "select" as const, label: "Metric", value: h3Metric, options: [{ label: "Day", value: "day" }, { label: "Night", value: "night" }], onChange: (v: string) => setH3Metric(v as "day" | "night") },
       ];
+      case "popCount": return [
+        { label: `Opacity ${pcOpacity.toFixed(1)}`, value: pcOpacity, min: 0.1, max: 1, step: 0.1, onChange: setPcOpacity },
+        { label: `Contrast ${pcContrast.toFixed(1)}`, value: pcContrast, min: 0.5, max: 4, step: 0.1, onChange: setPcContrast },
+        { type: "toggle" as const, label: "3D", value: pcExtruded, onChange: setPcExtruded },
+        { label: `Height ${pcElevationScale}`, value: pcElevationScale, min: 10, max: 200, step: 10, onChange: setPcElevationScale },
+      ];
+      case "indicators": {
+        const categoryOptions = [
+          { label: "Count", value: "count" },
+          { label: "Struct", value: "struct" },
+          { label: "Burden", value: "burden" },
+        ];
+        const metricMap: Record<string, { label: string; value: string }[]> = {
+          count: [{ label: "HH", value: "hh" }, { label: "M", value: "m" }, { label: "F", value: "f" }],
+          struct: [{ label: "Sex", value: "sr" }, { label: "PPH", value: "pph" }],
+          burden: [{ label: "Dep", value: "dr" }, { label: "Child", value: "cd" }, { label: "Elder", value: "ed" }, { label: "Aging", value: "ai" }],
+        };
+        const currentMetrics = metricMap[indCategory] ?? metricMap.count!;
+        return [
+          { type: "select" as const, label: "Category", value: indCategory, options: categoryOptions, onChange: (v: string) => { setIndCategory(v); const first = (metricMap[v] ?? metricMap.count!)[0]!; setIndMetric(first.value); } },
+          { type: "select" as const, label: "Metric", value: indMetric, options: currentMetrics, onChange: setIndMetric },
+          { label: `Opacity ${indOpacity.toFixed(1)}`, value: indOpacity, min: 0.1, max: 1, step: 0.1, onChange: setIndOpacity },
+          { label: `Contrast ${indContrast.toFixed(1)}`, value: indContrast, min: 0.5, max: 4, step: 0.1, onChange: setIndContrast },
+          { type: "toggle" as const, label: "3D", value: indExtruded, onChange: setIndExtruded },
+          { label: `Height ${indElevationScale}`, value: indElevationScale, min: 10, max: 200, step: 10, onChange: setIndElevationScale },
+        ];
+      }
     }
   };
 
@@ -273,6 +312,8 @@ export function useTransportParams() {
     },
     overlayParams,
     getControls,
-    h3Params: { opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric, contrast: h3Contrast },
+    h3Params: useMemo(() => ({ opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric, contrast: h3Contrast }), [h3Opacity, h3Extruded, h3ElevationScale, h3Metric, h3Contrast]),
+    popCountParams: useMemo(() => ({ opacity: pcOpacity, contrast: pcContrast, extruded: pcExtruded, elevationScale: pcElevationScale }), [pcOpacity, pcContrast, pcExtruded, pcElevationScale]),
+    indicatorsParams: useMemo(() => ({ category: indCategory, metric: indMetric, opacity: indOpacity, contrast: indContrast, extruded: indExtruded, elevationScale: indElevationScale }), [indCategory, indMetric, indOpacity, indContrast, indExtruded, indElevationScale]),
   };
 }
