@@ -72,12 +72,13 @@
 | 人流模擬六角格 | Mapbox fill / fill-extrusion（Plasma / Viridis 色階） | 內政部最小統計區人流 |
 | 人口數六角格 | Mapbox fill / fill-extrusion（Inferno 色階） | SEGIS 村里人口統計 |
 | 人口指標六角格 | Mapbox fill / fill-extrusion（Inferno 色階，9 項指標） | SEGIS 村里人口統計 |
+| 溫度波浪曲面 | Three.js BufferGeometry（RdBu 發散色盤，vertex lerp 動畫） | 中央氣象署 0.03° 格點 |
 
 ## 功能
 
 ### 圖層面板（LayerSidebar）
 
-七分類側邊欄，共 21 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
+七分類側邊欄，共 22 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
 
 | 分類 | 圖層 |
 |------|------|
@@ -87,7 +88,7 @@
 | **INFRA** | 碼頭 Port · 機場 Airport · 燈塔 Lighthouse（可展開） |
 | **ANALYTICS** | 人流模擬 Pop. Flow · 人口數 Population · 人口指標 Indicators（可展開） |
 | **MONITOR** | 國道壅塞 Congestion（可展開） |
-| **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm |
+| **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm · 溫度波 Temperature（可展開） |
 
 - MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
 - 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
@@ -205,6 +206,21 @@
 | 國道壅塞 | Freeway | 0.3~3x | 線條寬度倍率 |
 | 氣象站 | Weather | 0.3~3x | 標記大小 |
 
+#### 溫度波浪（Temperature Wave）
+
+| 控制項 | 類型 | 範圍 | 說明 |
+|--------|------|------|------|
+| 3D | toggle | — | 3D 波浪曲面 / 2D 平面色圖切換 |
+| Height | slider | 0~400 | 溫度造成的高低起伏振幅 |
+| Z Offset | slider | 0~1000 | 整塊曲面的 Z 軸抬升高度 |
+| Opacity | slider | 0.1~1 | 曲面透明度 |
+| Grid | toggle | — | 網格線覆蓋開關 |
+
+- 資料：中央氣象署小時溫度觀測分析格點（O-A0038-003），0.03° 解析度（~3.3km），120×67 格網
+- 色盤：RdBu 發散（深藍 → 白 → 深紅），正規化使用實際資料 tempMin/tempMax
+- 動畫：binary search 找兩個 bracketing frames，vertex lerp 平滑過渡
+- 時間同步：直接使用 timeline unix timestamp，與航班/船舶/列車完全同步
+
 ### 其他功能
 
 - 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Satellite Streets / Navigation Night / Streets）
@@ -249,7 +265,7 @@ MapView.tsx         — 一個 useEffect 控制所有 overlay 可見性 + 主題
 
 ### Three.js CustomLayer 架構
 
-透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景，五個獨立 CustomLayer 各自管理動態渲染，常駐地圖、由 `getIsVisible` 控制渲染開關：
+透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景，六個獨立 CustomLayer 各自管理動態渲染，常駐地圖、由 `getIsVisible` 控制渲染開關：
 
 ```
 Mapbox GL JS（底圖 + 3D terrain + 相機控制）
@@ -258,6 +274,7 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
   ├── CustomLayer: rail-3d       ← RailScene（靜態軌道 + 列車光球 + 拖尾）
   ├── CustomLayer: lighthouse-3d ← LighthouseScene（旋轉錐形光束）
   ├── CustomLayer: station-pillar-3d ← StationPillarScene（車站 3D 光柱）
+  ├── CustomLayer: temperature-wave-3d ← TemperatureWaveScene（溫度 3D 波浪曲面）
   ├── Population Flow Layer（Mapbox native fill / fill-extrusion）
   ├── Demographics Layers（人口數 + 人口指標，Mapbox native fill / fill-extrusion）
   └── Overlay Registry（Mapbox GL Layers）
@@ -299,6 +316,7 @@ mini-taiwan-pulse/
 │   ├── h3_population_res8.json    # 人流模擬 res8（~56K cells）
 │   ├── h3_demographics_res7.json  # 村里人口指標 res7（~8K cells）
 │   ├── h3_demographics_res8.json  # 村里人口指標 res8（~56K cells）
+│   ├── temperature_grid.json      # 溫度格點時序（S3 逐時快照，~941KB）
 │   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
 │       ├── tra/                    # 台鐵
 │       ├── thsr/                   # 高鐵
@@ -324,6 +342,7 @@ mini-taiwan-pulse/
 │   │   ├── customLayer.ts          # Three.js CustomLayer 橋接（flight/ship/rail）
 │   │   ├── lighthouseCustomLayer.ts # 燈塔 3D 光束 CustomLayer
 │   │   ├── stationPillarCustomLayer.ts # 車站光柱 CustomLayer
+│   │   ├── temperatureWaveCustomLayer.ts # 溫度波浪 CustomLayer
 │   │   ├── staticTrails.ts         # 2D 靜態航線軌跡
 │   │   ├── railTracks.ts           # Mapbox native 軌道線
 │   │   ├── h3LayerFactory.ts       # 人流六角格 Mapbox fill/fill-extrusion 工廠
@@ -335,6 +354,7 @@ mini-taiwan-pulse/
 │   │   ├── RailScene.ts            # 軌道列車光球 + 拖尾 + 靜態軌道
 │   │   ├── StationPillarScene.ts   # 車站 3D 光柱（InstancedMesh）
 │   │   ├── LighthouseScene.ts      # 燈塔旋轉錐形光束
+│   │   ├── TemperatureWaveScene.ts # 溫度 3D 波浪曲面（RdBu 色盤 + vertex lerp）
 │   │   ├── LightOrb.ts             # 光球共用元件
 │   │   ├── LightTrail.ts           # 光軌 GLSL 材質
 │   │   └── BlinkingLight.ts        # 防撞閃爍燈
@@ -351,6 +371,7 @@ mini-taiwan-pulse/
 │   │   ├── useFlightData.ts        # 航班資料載入
 │   │   ├── useShipData.ts          # 船舶資料載入
 │   │   ├── useRailData.ts          # 軌道資料載入
+│   │   ├── useTemperatureData.ts    # 溫度格點資料載入
 │   │   ├── useH3Data.ts            # 人流資料載入 + 快取
 │   │   ├── useDemographicsH3.ts    # 村里人口指標資料載入 + 快取
 │   │   ├── useTimeline.ts          # 時間軸播放邏輯
@@ -359,6 +380,7 @@ mini-taiwan-pulse/
 │   │   ├── flightLoader.ts         # 航班 JSON 解析 + 時間窗過濾
 │   │   ├── shipLoader.ts           # 船舶 JSON 解析
 │   │   ├── railLoader.ts           # 軌道時刻表 + GeoJSON 載入
+│   │   ├── temperatureLoader.ts     # 溫度格點 JSON 載入
 │   │   ├── h3Loader.ts             # 人流 JSON 載入（local + S3 fallback）
 │   │   └── s3Loader.ts             # S3 增量同步
 │   ├── constants/                  # 常數定義
@@ -399,6 +421,18 @@ python3 scripts/export-rail-data.py          # 匯出 6 個系統的時刻表 + 
 python3 scripts/build-station-points.py      # 合併 491 站 Point GeoJSON
 python3 scripts/fetch-station-polygons.py    # 下載大站 OSM Polygon
 npm run pillars:generate                     # 預計算車站光柱資料（停靠次數 → 高度）
+```
+
+### 溫度格點資料
+
+來源：[中央氣象署](https://www.cwa.gov.tw/) 小時溫度觀測分析格點（O-A0038-003），經 data-collectors 每小時收集存入 S3
+
+```bash
+# 從 S3 下載（自動偵測航班時間範圍）
+python3 scripts/fetch-temperature-s3.py
+
+# 指定日期範圍
+python3 scripts/fetch-temperature-s3.py 2026-02-17 2026-02-20
 ```
 
 ### S3 上傳
@@ -462,6 +496,7 @@ docker-compose up -d       # http://localhost:3721
 | `cycling_routes.geojson` | — | 自行車道 | `/data/cycling_routes.geojson` |
 | `freeway_congestion.geojson` | — | 國道壅塞 | `/data/freeway_congestion.geojson` |
 | `weather_stations.geojson` | — | 氣象站 | `/data/weather_stations.geojson` |
+| `temperature_grid.json` | ~941KB | 溫度格點時序 | `/data/temperature_grid.json` |
 
 ```bash
 # 本地 → S3（需 .env 中的 S3 credentials）
@@ -509,6 +544,7 @@ sh /usr/local/bin/pull-deploy-assets.sh
 | 國道 / 省道 / 自行車道 | 交通部公路局 |
 | 國道壅塞 | 交通部公路局 |
 | 氣象觀測站 | [中央氣象署](https://www.cwa.gov.tw/) |
+| 溫度格點（0.03° 網格） | [中央氣象署](https://www.cwa.gov.tw/) O-A0038-003 |
 | 離岸風場範圍 | 經濟部能源局 |
 | 日夜間人流 | 內政部最小統計區人流統計（六角形網格化） |
 | 村里人口指標 | [社會經濟統計地理資訊網 (SEGIS)](https://segis.moi.gov.tw/)，114 年 6 月 |

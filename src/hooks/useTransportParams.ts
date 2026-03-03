@@ -100,7 +100,7 @@ export function useTransportParams() {
   const [airportPillarVisible, setAirportPillarVisible] = useState(false);
   const [airportPillarHeight, setAirportPillarHeight] = useState(0.6);
   // Temperature Wave (溫度波浪)
-  const [tempHeight, setTempHeight] = useState(500);
+  const [tempHeight, setTempHeight] = useState(200);
   const [tempZOffset, setTempZOffset] = useState(300);
   const [tempExtruded, setTempExtruded] = useState(true);
   const [tempOpacity, setTempOpacity] = useState(0.85);
@@ -261,7 +261,7 @@ export function useTransportParams() {
       ];
       case "temperatureWave": return [
         { type: "toggle" as const, label: "3D", value: tempExtruded, onChange: setTempExtruded },
-        { label: `Height ${tempHeight}`, value: tempHeight, min: 100, max: 1000, step: 50, onChange: setTempHeight },
+        { label: `Height ${tempHeight}`, value: tempHeight, min: 0, max: 400, step: 20, onChange: setTempHeight },
         { label: `Z Offset ${tempZOffset}`, value: tempZOffset, min: 0, max: 1000, step: 50, onChange: setTempZOffset },
         { label: `Opacity ${tempOpacity.toFixed(2)}`, value: tempOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempOpacity },
         { type: "toggle" as const, label: "Grid", value: tempWireframe, onChange: setTempWireframe },
