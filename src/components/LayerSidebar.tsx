@@ -26,6 +26,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   h3Population: "#ff6b6b",
   popCount: "#f9bd31",
   indicators: "#e25822",
+  temperatureWave: "#ff6b35",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -98,6 +99,7 @@ const SECTIONS: SectionDef[] = [
   {
     title: "ENVIRON",
     layers: [
+      { key: "temperatureWave", label: "溫度波 Temperature", expandable: true },
       { key: "weatherStations", label: "氣象站 Weather", expandable: true },
       { key: "windPlan", label: "風場範圍 Wind Farm", expandable: true },
     ],

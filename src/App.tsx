@@ -14,6 +14,7 @@ import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useH3Data } from "./hooks/useH3Data";
+import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
 import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer } from "./map/demographicsLayerFactory";
@@ -59,6 +60,7 @@ export default function App() {
   const [portPillarData, setPortPillarData] = useState<StationPillarData[]>([]);
 
   const { railData } = useRailData();
+  const { temperatureData } = useTemperatureData();
 
   // 預計算光柱資料（靜態 JSON，不依賴 railData）
   useEffect(() => {
@@ -156,6 +158,7 @@ export default function App() {
   const metroPillarDataRef = useRef(metroPillarData);
   const airportPillarDataRef = useRef(airportPillarData);
   const portPillarDataRef = useRef(portPillarData);
+  const temperatureDataRef = useRef(temperatureData);
   const playingRef = useRef(timeline.playing);
 
   // 根據 viewMode 決定要顯示的航班
@@ -182,6 +185,7 @@ export default function App() {
   metroPillarDataRef.current = metroPillarData;
   airportPillarDataRef.current = airportPillarData;
   portPillarDataRef.current = portPillarData;
+  temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
 
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
@@ -197,7 +201,7 @@ export default function App() {
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
     shipsRef, activeTrainsRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
-    airportPillarDataRef, portPillarDataRef,
+    airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,
     paramRefs: transportParams.refs,
   });

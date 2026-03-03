@@ -21,6 +21,7 @@ FILES=(
   "public/cycling_routes.geojson"
   "public/freeway_congestion.geojson"
   "public/weather_stations.geojson"
+  "public/temperature_grid.json"
 )
 
 for f in "${FILES[@]}"; do

@@ -8,6 +8,8 @@ import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
 import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
 import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
+import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
+import type { TemperatureGridData } from "../data/temperatureLoader";
 
 interface UseThreeJsLayersArgs {
   timeRef: React.RefObject<number>;
@@ -24,6 +26,7 @@ interface UseThreeJsLayersArgs {
   metroPillarDataRef: React.RefObject<StationPillarData[]>;
   airportPillarDataRef: React.RefObject<StationPillarData[]>;
   portPillarDataRef: React.RefObject<StationPillarData[]>;
+  temperatureDataRef: React.RefObject<TemperatureGridData | null>;
   playingRef: React.RefObject<boolean>;
   layerVisibilityRef: React.RefObject<LayerVisibility>;
   paramRefs: {
@@ -51,6 +54,11 @@ interface UseThreeJsLayersArgs {
     airportPillarHeight: React.RefObject<number>;
     portPillarVisible: React.RefObject<boolean>;
     portPillarHeight: React.RefObject<number>;
+    tempHeight: React.RefObject<number>;
+    tempZOffset: React.RefObject<number>;
+    tempExtruded: React.RefObject<boolean>;
+    tempOpacity: React.RefObject<number>;
+    tempWireframe: React.RefObject<boolean>;
   };
 }
 
@@ -58,7 +66,7 @@ export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
   shipsRef, activeTrainsRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
-  airportPillarDataRef, portPillarDataRef,
+  airportPillarDataRef, portPillarDataRef, temperatureDataRef,
   playingRef, layerVisibilityRef,
   paramRefs,
 }: UseThreeJsLayersArgs) {
@@ -140,6 +148,23 @@ export function useThreeJsLayers({
     map.addLayer(layer);
   };
 
+  const addTemperatureWaveLayer = (map: MapboxMap) => {
+    const id = "temperature-wave-3d";
+    if (map.getLayer(id)) map.removeLayer(id);
+    const layer = createTemperatureWaveLayer({
+      getData: () => temperatureDataRef.current,
+      getIsVisible: () => layerVisibilityRef.current.temperatureWave,
+      getHeightScale: () => paramRefs.tempHeight.current,
+      getZOffset: () => paramRefs.tempZOffset.current,
+      getExtruded: () => paramRefs.tempExtruded.current,
+      getOpacity: () => paramRefs.tempOpacity.current,
+      getCurrentTime: () => timeRef.current,
+      getWireframe: () => paramRefs.tempWireframe.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+    });
+    map.addLayer(layer);
+  };
+
   const addStationPillarLayer = (map: MapboxMap) => {
     const id = "station-pillar-3d";
     if (map.getLayer(id)) map.removeLayer(id);
@@ -192,6 +217,7 @@ export function useThreeJsLayers({
     addRailLayer(map);
     addLighthouseLayer(map);
     addStationPillarLayer(map);
+    addTemperatureWaveLayer(map);
   };
 
   return {
@@ -203,6 +229,7 @@ export function useThreeJsLayers({
     addRailLayer,
     addLighthouseLayer,
     addStationPillarLayer,
+    addTemperatureWaveLayer,
     addAllLayers,
   };
 }

@@ -24,6 +24,7 @@ export function useLayerVisibility() {
     h3Population: false,
     popCount: false,
     indicators: false,
+    temperatureWave: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

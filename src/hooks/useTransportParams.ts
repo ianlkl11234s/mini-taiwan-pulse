@@ -99,6 +99,12 @@ export function useTransportParams() {
   // Airport pillar (機場)
   const [airportPillarVisible, setAirportPillarVisible] = useState(false);
   const [airportPillarHeight, setAirportPillarHeight] = useState(0.6);
+  // Temperature Wave (溫度波浪)
+  const [tempHeight, setTempHeight] = useState(500);
+  const [tempZOffset, setTempZOffset] = useState(300);
+  const [tempExtruded, setTempExtruded] = useState(true);
+  const [tempOpacity, setTempOpacity] = useState(0.85);
+  const [tempWireframe, setTempWireframe] = useState(false);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -125,6 +131,11 @@ export function useTransportParams() {
   const portPillarHeightRef = useRef(portPillarHeight);
   const airportPillarVisibleRef = useRef(airportPillarVisible);
   const airportPillarHeightRef = useRef(airportPillarHeight);
+  const tempHeightRef = useRef(tempHeight);
+  const tempZOffsetRef = useRef(tempZOffset);
+  const tempExtrudedRef = useRef(tempExtruded);
+  const tempOpacityRef = useRef(tempOpacity);
+  const tempWireframeRef = useRef(tempWireframe);
 
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
@@ -150,6 +161,11 @@ export function useTransportParams() {
   portPillarHeightRef.current = portPillarHeight;
   airportPillarVisibleRef.current = airportPillarVisible;
   airportPillarHeightRef.current = airportPillarHeight;
+  tempHeightRef.current = tempHeight;
+  tempZOffsetRef.current = tempZOffset;
+  tempExtrudedRef.current = tempExtruded;
+  tempOpacityRef.current = tempOpacity;
+  tempWireframeRef.current = tempWireframe;
 
   const overlayParams = useMemo<Record<string, number>>(() => ({
     stationScale,
@@ -243,6 +259,13 @@ export function useTransportParams() {
       case "weatherStations": return [
         { label: `Weather ${weatherScale.toFixed(1)}`, value: weatherScale, min: 0.3, max: 3, step: 0.1, onChange: setWeatherScale },
       ];
+      case "temperatureWave": return [
+        { type: "toggle" as const, label: "3D", value: tempExtruded, onChange: setTempExtruded },
+        { label: `Height ${tempHeight}`, value: tempHeight, min: 100, max: 1000, step: 50, onChange: setTempHeight },
+        { label: `Z Offset ${tempZOffset}`, value: tempZOffset, min: 0, max: 1000, step: 50, onChange: setTempZOffset },
+        { label: `Opacity ${tempOpacity.toFixed(2)}`, value: tempOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempOpacity },
+        { type: "toggle" as const, label: "Grid", value: tempWireframe, onChange: setTempWireframe },
+      ];
       case "windPlan": return [];
       case "h3Population": return [
         { label: `Opacity ${h3Opacity.toFixed(1)}`, value: h3Opacity, min: 0.1, max: 1, step: 0.1, onChange: setH3Opacity },
@@ -309,6 +332,11 @@ export function useTransportParams() {
       portPillarHeight: portPillarHeightRef,
       airportPillarVisible: airportPillarVisibleRef,
       airportPillarHeight: airportPillarHeightRef,
+      tempHeight: tempHeightRef,
+      tempZOffset: tempZOffsetRef,
+      tempExtruded: tempExtrudedRef,
+      tempOpacity: tempOpacityRef,
+      tempWireframe: tempWireframeRef,
     },
     overlayParams,
     getControls,
