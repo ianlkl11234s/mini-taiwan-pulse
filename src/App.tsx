@@ -16,7 +16,7 @@ import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useH3Data } from "./hooks/useH3Data";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
-import { updatePopCountLayer, updateIndicatorsLayer } from "./map/demographicsLayerFactory";
+import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer } from "./map/demographicsLayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
@@ -286,9 +286,10 @@ export default function App() {
   }, [h3Resolution, layerVisibility.h3Population, loadResolution]);
 
   // H3: update native Mapbox layers
+  // ensureH3Layers is idempotent — safe to call every time to avoid chicken-and-egg with getSource()
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
+    if (!map) return;
     ensureH3Layers(map);
     const cells = h3DataMap.get(h3Resolution) ?? [];
     updateH3Layer(map, cells, transportParams.h3Params, layerVisibility.h3Population);
@@ -302,10 +303,10 @@ export default function App() {
   }, [demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemographicsResolution]);
 
   // Demographics: update popCount layer
-  // Note: avoid isStyleLoaded() — it returns false during tile loading (timeline playback)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getSource("h3-pop-count-src")) return;
+    if (!map) return;
+    ensurePopCountLayers(map);
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updatePopCountLayer(map, cells, transportParams.popCountParams, layerVisibility.popCount);
   }, [demographicsDataMap, demoResolution, layerVisibility.popCount, transportParams.popCountParams]);
@@ -313,7 +314,8 @@ export default function App() {
   // Demographics: update indicators layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getSource("h3-indicators-src")) return;
+    if (!map) return;
+    ensureIndicatorsLayers(map);
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
   }, [demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams]);
