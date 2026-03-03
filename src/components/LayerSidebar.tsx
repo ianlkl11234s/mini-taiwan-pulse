@@ -23,6 +23,9 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   cyclingRoutes: "#66bb6a",
   freewayCongestion: "#ef5350",
   weatherStations: "#4dd0e1",
+  h3Population: "#ff6b6b",
+  popCount: "#f9bd31",
+  indicators: "#e25822",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -76,6 +79,14 @@ const SECTIONS: SectionDef[] = [
       { key: "ports", label: "碼頭 Port", expandable: true },
       { key: "airports", label: "機場 Airport", expandable: true },
       { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
+    ],
+  },
+  {
+    title: "ANALYTICS",
+    layers: [
+      { key: "h3Population", label: "人流模擬 Pop. Flow", expandable: true },
+      { key: "popCount", label: "人口數 Population", expandable: true },
+      { key: "indicators", label: "人口指標 Indicators", expandable: true },
     ],
   },
   {
@@ -269,11 +280,14 @@ function SidebarContent({
 }) {
   return (
     <div
+      className="layer-sidebar-scroll"
       style={{
         display: "flex",
         flexDirection: "column",
         gap: 2,
         width: isMobile ? "100%" : 240,
+        maxHeight: isMobile ? undefined : "70vh",
+        overflowY: isMobile ? undefined : "auto",
         background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",

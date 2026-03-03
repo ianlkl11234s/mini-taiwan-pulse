@@ -67,12 +67,15 @@
 | 國道壅塞 | line（色彩編碼壅塞程度） | 交通部公路局 |
 | 氣象觀測站 | circle dot + glow | 中央氣象署 |
 | 離岸風場範圍 | fill + line + glow | 經濟部能源局 |
+| 人流模擬六角格 | Mapbox fill / fill-extrusion（Plasma / Viridis 色階） | 內政部最小統計區人流 |
+| 人口數六角格 | Mapbox fill / fill-extrusion（Inferno 色階） | SEGIS 村里人口統計 |
+| 人口指標六角格 | Mapbox fill / fill-extrusion（Inferno 色階，9 項指標） | SEGIS 村里人口統計 |
 
 ## 功能
 
 ### 圖層面板（LayerSidebar）
 
-六分類側邊欄，共 18 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開）：
+七分類側邊欄，共 20 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
 
 | 分類 | 圖層 |
 |------|------|
@@ -80,6 +83,7 @@
 | **STATION** | 高鐵站 THSR · 台鐵站 TRA · 捷運站 Metro · 市區公車站 City Bus · 公路客運站 Intercity · 公共腳踏車 Bike（可展開） |
 | **ROUTE** | 國道 Highway · 省道 Prov.Road · 自行車道 Cycling（可展開） |
 | **INFRA** | 碼頭 Port · 機場 Airport · 燈塔 Lighthouse（可展開） |
+| **ANALYTICS** | 人流模擬 Pop. Flow · 人口數 Population · 人口指標 Indicators（可展開） |
 | **MONITOR** | 國道壅塞 Congestion（可展開） |
 | **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm |
 
@@ -136,6 +140,59 @@
 | Dist | 0.2~3 | 光束投射距離 |
 | Opa | 0.05~0.8 | 光束透明度 |
 
+#### 人流模擬（Population Flow Simulation）
+
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| Opacity | 0.1~1 | 六角格填充不透明度 |
+| Contrast | 0.5~4 | Gamma 對比度（越大高人流越突出、低人流越暗） |
+| 3D | toggle | 2D 平面填充 / 3D 柱狀高度切換 |
+| Height | 10~200 | 3D 柱狀高度倍率 |
+| Metric | Day / Night | 日間人流 / 夜間人流切換（共用高度基準） |
+
+- 色階：日間 = Plasma（深靛→桃紅→亮黃），夜間 = Viridis（深紫→青綠→亮黃）
+- 正規化：log1p + gamma，感知均勻、色盲友善
+- Zoom 自動切換網格精度
+- 渲染：Mapbox 原生 fill / fill-extrusion layer（正確跟隨相機 pitch/bearing）
+
+#### 人口數（Population Count）
+
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| Opacity | 0.1~1 | 六角格填充不透明度 |
+| Contrast | 0.5~4 | Gamma 對比度 |
+| 3D | toggle | 2D 平面 / 3D 柱狀切換 |
+| Height | 10~200 | 3D 柱狀高度倍率 |
+
+- 資料：SEGIS 村里人口統計（114 年 6 月），7,748 村里
+- 色階：Inferno（深黑→紫紅→橘黃→亮黃白）
+- 正規化：log1p + gamma（總人口重尾分布適用）
+- Pipeline：`taipei-gis-analytics/pipelines/demographics/population/08_h3_village_demographics.py`
+- 解析度：res7（~8K cells）+ res8（~56K cells），不產 res9（村里 polygon 較大，res9 無意義）
+
+#### 人口指標（Population Indicators）
+
+| 控制項 | 範圍 | 說明 |
+|--------|------|------|
+| Category | Count / Struct / Burden | 指標分類選擇 |
+| Metric | 動態切換 | 依 Category 顯示對應指標 |
+| Opacity | 0.1~1 | 六角格填充不透明度 |
+| Contrast | 0.5~4 | Gamma 對比度 |
+| 3D | toggle | 2D 平面 / 3D 柱狀切換 |
+| Height | 10~200 | 3D 柱狀高度倍率 |
+
+**Category → Metric 對應**：
+
+| Category | Metric |
+|----------|--------|
+| 數量 Count | 戶數 HH · 男 M · 女 F |
+| 結構 Struct | 性別比 Sex · 每戶 PPH |
+| 負擔 Burden | 扶養 Dep · 扶幼 Child · 扶老 Elder · 老化 Aging |
+
+- 數量指標（hh/m/f）：log1p + gamma 正規化
+- 比率指標（sr/pph/dr/cd/ed/ai）：linear + gamma 正規化
+- 比率欄位 H3 聚合方式：人口加權平均（非簡單平均）
+
 #### 其他圖層
 
 | 圖層 | 控制項 | 範圍 | 說明 |
@@ -165,6 +222,7 @@
 |------|------|------|
 | 框架 | React 19 + TypeScript + Vite | 應用骨架 |
 | 地圖 | Mapbox GL JS v3 | 3D terrain、底圖、相機控制 |
+| 空間索引 | H3 (h3-js) | 六角形網格（人流模擬 + 村里人口指標） |
 | 3D 渲染 | Three.js r172 | 光軌、光球、InstancedMesh |
 | Shader | GLSL | 光軌漸層材質 |
 | 雲端 | AWS S3 | 資料增量同步 |
@@ -198,6 +256,8 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
   ├── CustomLayer: rail-3d       ← RailScene（靜態軌道 + 列車光球 + 拖尾）
   ├── CustomLayer: lighthouse-3d ← LighthouseScene（旋轉錐形光束）
   ├── CustomLayer: station-pillar-3d ← StationPillarScene（車站 3D 光柱）
+  ├── Population Flow Layer（Mapbox native fill / fill-extrusion）
+  ├── Demographics Layers（人口數 + 人口指標，Mapbox native fill / fill-extrusion）
   └── Overlay Registry（Mapbox GL Layers）
         ├── 機場邊界（fill + glow）
         ├── 車站標記（polygon + circle glow）
@@ -233,6 +293,10 @@ mini-taiwan-pulse/
 │   ├── national_highway.geojson    # 國道路網（gitignored）
 │   ├── provincial_road.geojson     # 省道路網（gitignored）
 │   ├── wind_plan.geojson           # 離岸風場範圍
+│   ├── h3_population_res7.json    # 人流模擬 res7（~8K cells）
+│   ├── h3_population_res8.json    # 人流模擬 res8（~56K cells）
+│   ├── h3_demographics_res7.json  # 村里人口指標 res7（~8K cells）
+│   ├── h3_demographics_res8.json  # 村里人口指標 res8（~56K cells）
 │   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
 │       ├── tra/                    # 台鐵
 │       ├── thsr/                   # 高鐵
@@ -260,6 +324,8 @@ mini-taiwan-pulse/
 │   │   ├── stationPillarCustomLayer.ts # 車站光柱 CustomLayer
 │   │   ├── staticTrails.ts         # 2D 靜態航線軌跡
 │   │   ├── railTracks.ts           # Mapbox native 軌道線
+│   │   ├── h3LayerFactory.ts       # 人流六角格 Mapbox fill/fill-extrusion 工廠
+│   │   ├── demographicsLayerFactory.ts # 人口數/指標六角格工廠（Inferno 色階）
 │   │   └── cameraPresets.ts        # 機場預設視角
 │   ├── three/                      # Three.js 3D 場景
 │   │   ├── FlightScene.ts          # 航班光軌 + 光球 + GLSL shader
@@ -283,12 +349,15 @@ mini-taiwan-pulse/
 │   │   ├── useFlightData.ts        # 航班資料載入
 │   │   ├── useShipData.ts          # 船舶資料載入
 │   │   ├── useRailData.ts          # 軌道資料載入
+│   │   ├── useH3Data.ts            # 人流資料載入 + 快取
+│   │   ├── useDemographicsH3.ts    # 村里人口指標資料載入 + 快取
 │   │   ├── useTimeline.ts          # 時間軸播放邏輯
 │   │   └── useIsMobile.ts          # 響應式斷點偵測
 │   ├── data/                       # 資料載入器
 │   │   ├── flightLoader.ts         # 航班 JSON 解析 + 時間窗過濾
 │   │   ├── shipLoader.ts           # 船舶 JSON 解析
 │   │   ├── railLoader.ts           # 軌道時刻表 + GeoJSON 載入
+│   │   ├── h3Loader.ts             # 人流 JSON 載入（local + S3 fallback）
 │   │   └── s3Loader.ts             # S3 增量同步
 │   ├── constants/                  # 常數定義
 │   └── utils/                      # 座標轉換、軌跡插值
@@ -439,7 +508,49 @@ sh /usr/local/bin/pull-deploy-assets.sh
 | 國道壅塞 | 交通部公路局 |
 | 氣象觀測站 | [中央氣象署](https://www.cwa.gov.tw/) |
 | 離岸風場範圍 | 經濟部能源局 |
+| 日夜間人流 | 內政部最小統計區人流統計（六角形網格化） |
+| 村里人口指標 | [社會經濟統計地理資訊網 (SEGIS)](https://segis.moi.gov.tw/)，114 年 6 月 |
 | 地圖底圖 | [Mapbox](https://www.mapbox.com/) |
+
+## H3 統計圖層開發注意事項
+
+新增 H3 六角格統計圖層時，以下是已踩過的 pitfall，務必避免重蹈覆轍：
+
+### 1. `map.isStyleLoaded()` 不可用於 useEffect 條件判斷
+
+**問題**：`isStyleLoaded()` 在 Mapbox 載入 tiles 期間也會回傳 `false`（不只是初始 style parse），導致在時間軸播放、底圖切換等場景下，useEffect 永遠跳過更新。
+
+**解法**：改用 `map.getSource("source-id")` 檢查 source 是否已存在。Source 在 `style.load` / `load` 事件中由 `ensureXxxLayers()` 建立後就持續存在，不受 tile loading 影響。
+
+```typescript
+// BAD — 會在 tile loading 時持續 skip
+if (!map.isStyleLoaded()) return;
+
+// GOOD — source 存在就可以操作
+if (!map.getSource("h3-pop-count-src")) return;
+```
+
+### 2. useEffect deps 中的物件必須 useMemo
+
+**問題**：`{ opacity, contrast, extruded, elevationScale }` 每次 render 都是新物件，導致 useEffect 每幀都觸發，搭配上面的 isStyleLoaded skip 造成無限 console spam。
+
+**解法**：所有傳入 useEffect dependency 的 params 物件用 `useMemo` 包裝。
+
+### 3. Pipeline：GeoDataFrame 含 MultiPolygon 時需 explode
+
+**問題**：`polyfill_and_distribute()` 內部使用 `polygon.exterior.coords`，但 MultiPolygon 沒有 `.exterior` 屬性。
+
+**解法**：在呼叫前先 `gdf.explode(index_parts=False).reset_index(drop=True)`。
+
+### 4. 比率欄位 H3 聚合必須人口加權
+
+**問題**：簡單平均會讓小村里（人口 10）與大村里（人口 10,000）的比率權重相同。
+
+**解法**：`weighted_ratio = population × ratio` → distribute → `ratio = sum(weighted) / sum(population)`。
+
+### 5. 共用資料、分開 Source
+
+兩個圖層（人口數 + 人口指標）共用同一份 JSON 但使用**獨立的 Mapbox source + layer**，才能各自控制 visibility、opacity、metric。不要試圖讓兩個圖層共享同一個 source — 會造成 GeoJSON 互相覆蓋。
 
 ## License
 
