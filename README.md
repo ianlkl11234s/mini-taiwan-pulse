@@ -77,7 +77,7 @@
 
 ### 圖層面板（LayerSidebar）
 
-七分類側邊欄，共 20 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
+七分類側邊欄，共 21 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
 
 | 分類 | 圖層 |
 |------|------|
@@ -312,7 +312,7 @@ mini-taiwan-pulse/
 │   ├── types/index.ts              # 型別定義（含 OverlayConfig）
 │   ├── components/
 │   │   ├── InfoModal.tsx           # 多分頁 Info Modal（5 頁）
-│   │   ├── LayerSidebar.tsx        # 六分類圖層面板（MOVING / STATION / ROUTE / INFRA / MONITOR / ENVIRON）
+│   │   ├── LayerSidebar.tsx        # 七分類圖層面板（MOVING / STATION / ROUTE / INFRA / ANALYTICS / MONITOR / ENVIRON）
 │   │   ├── TimelineControls.tsx    # 時間軸播放控制
 │   │   ├── AirportSelector.tsx     # 地點跳轉
 │   │   ├── StyleSelector.tsx       # 底圖樣式選擇

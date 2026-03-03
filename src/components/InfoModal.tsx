@@ -265,8 +265,8 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <p style={{ fontSize: 13, lineHeight: 1.8, color: S.text, margin: 0 }}>
         {L
-          ? <>左側面板包含 <b>18 個圖層</b>，分為 6 大分類。每個圖層有 <b>圓形開關</b> 控制可見性。帶 <b>▸ 三角形</b> 的圖層可展開參數面板，拖曳 slider 即時調整視覺效果。</>
-          : <>The left panel contains <b>18 layers</b> organized into 6 categories. Each layer has a <b>circle toggle</b> for visibility. Layers with a <b>▸ triangle</b> can expand a parameter panel — drag sliders to adjust visuals in real-time.</>
+          ? <>左側面板包含 <b>21 個圖層</b>，分為 7 大分類。每個圖層有 <b>圓形開關</b> 控制可見性。帶 <b>▸ 三角形</b> 的圖層可展開參數面板，拖曳 slider 即時調整視覺效果。</>
+          : <>The left panel contains <b>21 layers</b> organized into 7 categories. Each layer has a <b>circle toggle</b> for visibility. Layers with a <b>▸ triangle</b> can expand a parameter panel — drag sliders to adjust visuals in real-time.</>
         }
       </p>
 
@@ -528,6 +528,12 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
       color: "#66bb6a",
     },
     {
+      name: { zh: "國道壅塞", en: "Freeway Congestion" },
+      source: L ? "交通部公路局" : "Directorate General of Highways",
+      desc: { zh: "國道各路段即時壅塞程度資料，以色彩編碼顯示車流狀態。資料來自交通部公路局即時路況系統。", en: "Real-time freeway congestion data by road segment, color-coded to display traffic flow status. Data from the Directorate General of Highways real-time traffic system." },
+      color: "#FF6B35",
+    },
+    {
       name: { zh: "人流模擬", en: "Pop. Flow" },
       source: L ? "內政部最小統計區" : "Ministry of the Interior",
       desc: { zh: "全台最小統計區日夜間人流資料（157,933 區），經六角形網格化後以 Plasma / Viridis 感知均勻色階視覺化。支援多層解析度，Zoom 自動切換。", en: "Day/night population flow data from 157,933 statistical areas, gridded into hexagons and visualized with Plasma/Viridis perceptually uniform color scales. Multi-resolution support with automatic zoom-based switching." },
@@ -575,7 +581,7 @@ function AboutPage({ lang }: { lang: Lang }) {
     { num: "14", label: { zh: "機場", en: "Airports" } },
     { num: "535", label: { zh: "車站光柱", en: "Station Pillars" } },
     { num: "36", label: { zh: "燈塔", en: "Lighthouses" } },
-    { num: "18", label: { zh: "地圖圖層", en: "Map Layers" } },
+    { num: "21", label: { zh: "地圖圖層", en: "Map Layers" } },
   ];
 
   return (
