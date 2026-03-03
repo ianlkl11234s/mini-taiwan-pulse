@@ -4,7 +4,7 @@ import {
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
   BarChart3, Users, AlertTriangle, CloudSun, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
-  Lightbulb, CircleDot, RailSymbol,
+  Lightbulb, CircleDot, RailSymbol, Thermometer,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -24,6 +24,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   bikeStations: "#ffca28", cyclingRoutes: "#66bb6a",
   freewayCongestion: "#ef5350", weatherStations: "#4dd0e1",
   h3Population: "#ff6b6b", popCount: "#f9bd31", indicators: "#e25822",
+  temperatureWave: "#ff6b35",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -52,6 +53,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   freewayCongestion: AlertTriangle,
   weatherStations: CloudSun,
   windPlan: Wind,
+  temperatureWave: Thermometer,
 };
 
 // ── Section Config ──
@@ -116,6 +118,7 @@ const SECTIONS: SectionDef[] = [
     layers: [
       { key: "weatherStations", label: "氣象站 Weather", expandable: true },
       { key: "windPlan", label: "風電場 Wind Farm", expandable: true },
+      { key: "temperatureWave", label: "溫度波 Temperature", expandable: true },
     ],
   },
 ];
