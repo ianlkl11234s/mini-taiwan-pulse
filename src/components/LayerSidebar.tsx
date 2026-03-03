@@ -286,7 +286,7 @@ function SidebarContent({
         flexDirection: "column",
         gap: 2,
         width: isMobile ? "100%" : 240,
-        maxHeight: isMobile ? undefined : "calc(100vh - 40px)",
+        maxHeight: isMobile ? undefined : "70vh",
         overflowY: isMobile ? undefined : "auto",
         background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
         backdropFilter: "blur(12px)",
