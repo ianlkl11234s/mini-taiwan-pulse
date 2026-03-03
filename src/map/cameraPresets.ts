@@ -30,10 +30,10 @@ export const ALL_PRESETS: CameraPreset[] = [
     name: "全台總覽",
     id: "overview",
     category: "overview",
-    center: [121.1189, 23.4339],
-    zoom: 7.9,
-    pitch: 48,
-    bearing: -21,
+    center: [120.2668, 23.1336],
+    zoom: 7.6,
+    pitch: 37,
+    bearing: -16,
   },
   // Cities
   {

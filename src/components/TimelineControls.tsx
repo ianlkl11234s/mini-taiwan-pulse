@@ -7,6 +7,7 @@ interface Props {
   endTime: number;
   isDarkTheme?: boolean;
   isMobile?: boolean;
+  leftOffset?: number;
   onToggle: () => void;
   onSpeedChange: (speed: number) => void;
   onSeekByProgress: (p: number) => void;
@@ -54,6 +55,7 @@ export function TimelineControls({
   endTime,
   isDarkTheme = true,
   isMobile = false,
+  leftOffset = 16,
   onToggle,
   onSpeedChange,
   onSeekByProgress,
@@ -63,9 +65,10 @@ export function TimelineControls({
       style={isMobile ? {} : {
         position: "absolute",
         bottom: 16,
-        left: 16,
+        left: leftOffset,
         zIndex: 10,
         width: 320,
+        transition: "left 0.2s ease",
       }}
     >
       {/* 控制按鈕列 */}

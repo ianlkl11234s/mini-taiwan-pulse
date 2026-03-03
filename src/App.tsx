@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -23,6 +23,7 @@ import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
+import { IconRailSidebar } from "./components/IconRailSidebar";
 import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -129,6 +130,8 @@ export default function App() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
+  const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
   const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
 
   const timeline = useTimeline({
@@ -534,11 +537,12 @@ export default function App() {
             style={{
               position: "absolute",
               top: 16,
-              left: 16,
+              left: sidebarWidth + 16,
               zIndex: 10,
               display: "flex",
               gap: 10,
               alignItems: "center",
+              transition: "left 0.2s ease",
             }}
           >
             <h1
@@ -559,24 +563,6 @@ export default function App() {
               onChange={setMapStyleId}
             />
 
-            <LocationJump
-              isDarkTheme={isDarkTheme}
-              currentId={selectedAirport}
-              onJump={(id) => {
-                const p = getPresetById(id);
-                if (p && mapRef.current) {
-                  if (p.category === "airport") setSelectedAirport(p.id);
-                  mapRef.current.flyTo({
-                    center: p.center,
-                    zoom: p.zoom,
-                    pitch: p.pitch,
-                    bearing: p.bearing,
-                    duration: 2000,
-                  });
-                }
-              }}
-            />
-
             {loading && (
               <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)", fontSize: 13 }}>
                 Loading...
@@ -584,14 +570,13 @@ export default function App() {
             )}
           </div>
 
-          {/* LayerSidebar */}
-          <div style={{ position: "absolute", top: 92, left: 16, zIndex: 10 }}>
-            <LayerSidebar
+          {/* Icon Rail + Sliding Panel Sidebar */}
+          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
+            <IconRailSidebar
               visibility={layerVisibility}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
               displayMode={displayMode}
-              isDarkTheme={isDarkTheme}
               counts={{
                 flights: displayedFlights.length,
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
@@ -618,6 +603,21 @@ export default function App() {
                 }
               }}
               getControls={transportParams.getControls}
+              currentLocationId={selectedAirport}
+              onLocationJump={(id) => {
+                const p = getPresetById(id);
+                if (p && mapRef.current) {
+                  if (p.category === "airport") setSelectedAirport(p.id);
+                  mapRef.current.flyTo({
+                    center: p.center,
+                    zoom: p.zoom,
+                    pitch: p.pitch,
+                    bearing: p.bearing,
+                    duration: 2000,
+                  });
+                }
+              }}
+              onWidthChange={handleSidebarWidthChange}
             />
           </div>
 
@@ -630,6 +630,7 @@ export default function App() {
             startTime={timeRange.start}
             endTime={timeRange.end}
             isDarkTheme={isDarkTheme}
+            leftOffset={sidebarWidth + 16}
             onToggle={timeline.toggle}
             onSpeedChange={timeline.setSpeed}
             onSeekByProgress={timeline.seekByProgress}
@@ -737,12 +738,13 @@ export default function App() {
             style={{
               position: "absolute",
               top: 48,
-              left: 16,
+              left: sidebarWidth + 16,
               zIndex: 10,
               background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
               backdropFilter: "blur(8px)",
               borderRadius: 6,
               padding: "4px 10px",
+              transition: "left 0.2s ease",
             }}
           >
             <div
