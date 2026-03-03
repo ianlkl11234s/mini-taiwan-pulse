@@ -387,20 +387,50 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
 
       {/* ANALYTICS */}
       <SectionTitle>ANALYTICS — {L ? "分析" : "Analytics"}</SectionTitle>
-      <Card title={L ? "人流模擬 Pop. Flow" : "Population Flow Simulation"}>
-        <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
-          {L
-            ? "預設關閉。以六角形網格顯示全台日間/夜間人流分布。色階：日間 Plasma（深靛→亮黃）、夜間 Viridis（深紫→亮黃），感知均勻、色盲友善。Zoom 自動切換網格精度。"
-            : "Off by default. Displays day/night population flow distribution across Taiwan using hexagonal grids. Color scales: day = Plasma (indigo → yellow), night = Viridis (purple → yellow), perceptually uniform and colorblind-safe. Grid resolution auto-switches by zoom level."}
-        </div>
-        <ExpandableParams lang={lang} items={[
-          { label: "Opacity", zh: "六角格填充不透明度（0.1~1）。", en: "Hexagon fill opacity (0.1–1)." },
-          { label: "Contrast", zh: "Gamma 對比度（0.5~4）。越大高人流區域越突出、低人流越暗。", en: "Gamma contrast (0.5–4). Higher values make high-flow areas pop while suppressing low-flow regions." },
-          { label: "3D", zh: "切換 2D 平面填充 / 3D 柱狀高度模式。", en: "Toggle between 2D flat fill and 3D extruded column mode." },
-          { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
-          { label: "Metric", zh: "切換日間人流（Day）/ 夜間人流（Night）。兩者共用高度基準，可直接比對差異。", en: "Switch between day and night flow. Both share the same height baseline for direct comparison." },
-        ]} />
-      </Card>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <Card title={L ? "人流模擬 Pop. Flow" : "Population Flow Simulation"}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設關閉。以六角形網格顯示全台日間/夜間人流分布。色階：日間 Plasma（深靛→亮黃）、夜間 Viridis（深紫→亮黃），感知均勻、色盲友善。Zoom 自動切換網格精度。"
+              : "Off by default. Displays day/night population flow distribution across Taiwan using hexagonal grids. Color scales: day = Plasma (indigo → yellow), night = Viridis (purple → yellow), perceptually uniform and colorblind-safe. Grid resolution auto-switches by zoom level."}
+          </div>
+          <ExpandableParams lang={lang} items={[
+            { label: "Opacity", zh: "六角格填充不透明度（0.1~1）。", en: "Hexagon fill opacity (0.1–1)." },
+            { label: "Contrast", zh: "Gamma 對比度（0.5~4）。越大高人流區域越突出、低人流越暗。", en: "Gamma contrast (0.5–4). Higher values make high-flow areas pop while suppressing low-flow regions." },
+            { label: "3D", zh: "切換 2D 平面填充 / 3D 柱狀高度模式。", en: "Toggle between 2D flat fill and 3D extruded column mode." },
+            { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
+            { label: "Metric", zh: "切換日間人流（Day）/ 夜間人流（Night）。兩者共用高度基準，可直接比對差異。", en: "Switch between day and night flow. Both share the same height baseline for direct comparison." },
+          ]} />
+        </Card>
+        <Card title={L ? "人口數 Population" : "Population Count"}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設關閉。以六角形網格顯示全台村里總人口密度。資料來源：SEGIS 社會經濟統計地理資訊網（114 年 6 月，7,748 村里）。色階：Inferno（深黑→紫紅→橘黃→亮黃白），log1p 正規化適合重尾分布。"
+              : "Off by default. Displays village-level total population density using hexagonal grids. Source: SEGIS (2025/06, 7,748 villages). Color scale: Inferno (black → purple-red → orange → bright yellow-white), log1p normalization for heavy-tailed distribution."}
+          </div>
+          <ExpandableParams lang={lang} items={[
+            { label: "Opacity", zh: "六角格填充不透明度（0.1~1）。", en: "Hexagon fill opacity (0.1–1)." },
+            { label: "Contrast", zh: "Gamma 對比度（0.5~4）。越大高密度區域越突出。", en: "Gamma contrast (0.5–4). Higher values make dense areas pop." },
+            { label: "3D", zh: "切換 2D 平面填充 / 3D 柱狀高度模式。", en: "Toggle between 2D flat fill and 3D extruded column mode." },
+            { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
+          ]} />
+        </Card>
+        <Card title={L ? "人口指標 Indicators" : "Population Indicators"}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設關閉。9 項村里人口衍生指標，分三類：數量（戶數/男/女）、結構（性別比/每戶人數）、負擔（扶養比/扶幼比/扶老比/老化指數）。數量指標 log 正規化，比率指標 linear 正規化。比率欄位以人口加權平均聚合至 H3 網格。"
+              : "Off by default. 9 derived demographic indicators in 3 categories: Count (households/male/female), Structure (sex ratio/persons per household), Burden (dependency/child dependency/elderly dependency/aging index). Count metrics use log normalization, ratio metrics use linear normalization. Ratios are population-weighted when aggregated to H3 grids."}
+          </div>
+          <ExpandableParams lang={lang} items={[
+            { label: "Category", zh: "指標分類：數量 Count / 結構 Struct / 負擔 Burden。切換時自動 reset Metric 為該類第一項。", en: "Indicator category: Count / Struct / Burden. Switching auto-resets Metric to the first item in that category." },
+            { label: "Metric", zh: "依 Category 動態顯示可選指標。數量類：戶數 HH · 男 M · 女 F；結構類：性別比 Sex · 每戶 PPH；負擔類：扶養 Dep · 扶幼 Child · 扶老 Elder · 老化 Aging。", en: "Dynamically shows available metrics based on Category. Count: HH · M · F; Struct: Sex · PPH; Burden: Dep · Child · Elder · Aging." },
+            { label: "Opacity", zh: "六角格填充不透明度（0.1~1）。", en: "Hexagon fill opacity (0.1–1)." },
+            { label: "Contrast", zh: "Gamma 對比度（0.5~4）。", en: "Gamma contrast (0.5–4)." },
+            { label: "3D", zh: "切換 2D 平面填充 / 3D 柱狀高度模式。", en: "Toggle between 2D flat fill and 3D extruded column mode." },
+            { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
+          ]} />
+        </Card>
+      </div>
 
       {/* ENVIRON */}
       <SectionTitle>ENVIRON — {L ? "環境" : "Environment"}</SectionTitle>
@@ -502,6 +532,12 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
       source: L ? "內政部最小統計區" : "Ministry of the Interior",
       desc: { zh: "全台最小統計區日夜間人流資料（157,933 區），經六角形網格化後以 Plasma / Viridis 感知均勻色階視覺化。支援多層解析度，Zoom 自動切換。", en: "Day/night population flow data from 157,933 statistical areas, gridded into hexagons and visualized with Plasma/Viridis perceptually uniform color scales. Multi-resolution support with automatic zoom-based switching." },
       color: "#ff6b6b",
+    },
+    {
+      name: { zh: "村里人口指標", en: "Demographics" },
+      source: L ? "SEGIS 社會經濟統計地理資訊網（114 年 6 月）" : "SEGIS (Social Economic GIS, 2025/06)",
+      desc: { zh: "全台 7,748 村里人口統計，含總人口、戶數、男女人數、性別比、每戶人數、扶養比、扶幼比、扶老比、老化指數共 10 項指標。經 H3 六角形網格化（res7/res8），數量欄位直接分配，比率欄位人口加權平均聚合。Inferno 色階視覺化。", en: "Population statistics for 7,748 villages across Taiwan, including total population, households, male/female counts, sex ratio, persons per household, dependency ratios, and aging index (10 indicators). Gridded to H3 hexagons (res7/res8) with direct distribution for counts and population-weighted averaging for ratios. Visualized with Inferno color scale." },
+      color: "#f9bd31",
     },
     {
       name: { zh: "地圖底圖", en: "Base Map" },
