@@ -286,10 +286,12 @@ export default function App() {
   }, [h3Resolution, layerVisibility.h3Population, loadResolution]);
 
   // H3: update native Mapbox layers
-  // ensureH3Layers is idempotent — safe to call every time to avoid chicken-and-egg with getSource()
+  // Guard: getStyle() returns truthy after style parse (unaffected by tile loading),
+  // undefined before style loads. This avoids both isStyleLoaded() false-during-tiles
+  // and addSource-before-style-ready crashes.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !map.getStyle()) return;
     ensureH3Layers(map);
     const cells = h3DataMap.get(h3Resolution) ?? [];
     updateH3Layer(map, cells, transportParams.h3Params, layerVisibility.h3Population);
@@ -305,7 +307,7 @@ export default function App() {
   // Demographics: update popCount layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !map.getStyle()) return;
     ensurePopCountLayers(map);
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updatePopCountLayer(map, cells, transportParams.popCountParams, layerVisibility.popCount);
@@ -314,7 +316,7 @@ export default function App() {
   // Demographics: update indicators layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map || !map.getStyle()) return;
     ensureIndicatorsLayers(map);
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
