@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { Map as MapboxMap } from "mapbox-gl";
-import type { Flight, RailTrain } from "../types";
+import type { Map as MapboxMap, PointLike } from "mapbox-gl";
+import type { Flight, RailTrain, FeatureInfo } from "../types";
 import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
 
@@ -27,6 +27,7 @@ export function useMapInteraction(
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
   const [trainTooltipInfo, setTrainTooltipInfo] = useState<TrainTooltipInfo | null>(null);
+  const [featureInfo, setFeatureInfo] = useState<FeatureInfo | null>(null);
   const clickBoundRef = useRef(false);
 
   const bindEvents = (map: MapboxMap) => {
@@ -67,6 +68,28 @@ export function useMapInteraction(
       } else {
         setTooltipInfo(null);
         setTrainTooltipInfo(null);
+
+        // 查詢 Mapbox GIS 層（海纜 / 登陸站）
+        const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+          { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
+          { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
+        ];
+        const bbox: [PointLike, PointLike] = [
+          [e.point.x - 5, e.point.y - 5],
+          [e.point.x + 5, e.point.y + 5],
+        ];
+        let found = false;
+        for (const { layers: layerIds, type } of GIS_LAYERS) {
+          const existingIds = layerIds.filter((id) => map.getLayer(id));
+          if (existingIds.length === 0) continue;
+          const features = map.queryRenderedFeatures(bbox, { layers: existingIds });
+          if (features.length > 0) {
+            setFeatureInfo({ layerType: type, properties: features[0]!.properties ?? {} });
+            found = true;
+            break;
+          }
+        }
+        if (!found) setFeatureInfo(null);
       }
     });
 
@@ -131,6 +154,7 @@ export function useMapInteraction(
   return {
     tooltipInfo, setTooltipInfo,
     trainTooltipInfo, setTrainTooltipInfo,
+    featureInfo, setFeatureInfo,
     selectedFlightId, setSelectedFlightId,
     bindEvents,
   };

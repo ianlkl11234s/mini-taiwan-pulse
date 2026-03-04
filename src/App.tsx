@@ -28,6 +28,7 @@ import { TimelineControls } from "./components/TimelineControls";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
+import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 
 export default function App() {
   const {
@@ -209,7 +210,7 @@ export default function App() {
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, bindEvents } =
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef);
 
   // ── Derived values ──
@@ -615,6 +616,14 @@ export default function App() {
                     bearing: p.bearing,
                     duration: 2000,
                   });
+                  // 場景時空跳轉
+                  if (p.time != null) timeline.seek(p.time);
+                  if (p.speed != null) timeline.setSpeed(p.speed);
+                  if (p.autoPlay) timeline.play();
+                  // 場景圖層開關
+                  if (p.layers) {
+                    setLayerVisibility((prev) => ({ ...prev, ...p.layers }));
+                  }
                 }
               }}
               onWidthChange={handleSidebarWidthChange}
@@ -1038,6 +1047,11 @@ export default function App() {
             {trainTooltipInfo.train.position[0].toFixed(4)}, {trainTooltipInfo.train.position[1].toFixed(4)}
           </div>
         </div>
+      )}
+
+      {/* ── GIS Feature Info Panel ── */}
+      {featureInfo && (
+        <FeatureInfoPanel feature={featureInfo} onClose={() => setFeatureInfo(null)} />
       )}
 
       {/* ── Info Modal ── */}

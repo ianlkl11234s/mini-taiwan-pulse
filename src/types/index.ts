@@ -22,11 +22,21 @@ export interface Flight {
 export interface CameraPreset {
   name: string;
   id: string;
-  category: "overview" | "city" | "airport";
+  category: "overview" | "city" | "airport" | "scene";
   center: [number, number];
   zoom: number;
   pitch: number;
   bearing: number;
+  /** 場景專用：跳到的 unix timestamp */
+  time?: number;
+  /** 場景專用：播放倍速 */
+  speed?: number;
+  /** 場景專用：是否自動播放 */
+  autoPlay?: boolean;
+  /** 場景描述（顯示於 subtitle） */
+  description?: string;
+  /** 場景專用：切換時設定圖層開關（未指定的保持不變） */
+  layers?: Partial<LayerVisibility>;
 }
 
 /** 時間軸狀態 */
@@ -54,7 +64,8 @@ export type ExpandableLayerKey =
   | "highways" | "provincialRoads" | "ports" | "airports"
   | "h3Population" | "popCount" | "indicators"
   | "temperatureWave"
-  | "schools" | "convenienceStores";
+  | "schools" | "convenienceStores"
+  | "submarineCables" | "landingStations";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -177,6 +188,13 @@ export interface OverlayConfig {
   filter?: unknown[];
 }
 
+// ── 點擊特徵資訊 ──
+
+export interface FeatureInfo {
+  layerType: "submarineCable" | "landingStation";
+  properties: Record<string, unknown>;
+}
+
 // ── 圖層控制 ──
 
 export interface LayerVisibility {
@@ -204,4 +222,6 @@ export interface LayerVisibility {
   temperatureWave: boolean;
   schools: boolean;
   convenienceStores: boolean;
+  submarineCables: boolean;
+  landingStations: boolean;
 }

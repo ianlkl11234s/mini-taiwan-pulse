@@ -5,7 +5,7 @@ import {
   BarChart3, Users, AlertTriangle, CloudSun, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol, Thermometer,
-  GraduationCap, Store,
+  GraduationCap, Store, Play, Cable, Radio,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -28,6 +28,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   temperatureWave: "#ff6b35",
   schools: "#42a5f5",
   convenienceStores: "#26c6da",
+  submarineCables: "#2196F3",
+  landingStations: "#26c6da",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -59,6 +61,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   temperatureWave: Thermometer,
   schools: GraduationCap,
   convenienceStores: Store,
+  submarineCables: Cable,
+  landingStations: Radio,
 };
 
 // ── Section Config ──
@@ -102,6 +106,8 @@ const SECTIONS: SectionDef[] = [
       { key: "ports", label: "港口 Port", expandable: true },
       { key: "airports", label: "機場 Airport", expandable: true },
       { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
+      { key: "submarineCables", label: "通訊海纜 Submarine Cable", expandable: true },
+      { key: "landingStations", label: "海纜登陸站 Landing Stn.", expandable: true },
     ],
   },
   {
@@ -213,6 +219,7 @@ export function IconRailSidebar({
   const overviewPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "overview"), []);
   const cityPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "city"), []);
   const airportPresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "airport"), []);
+  const scenePresets = useMemo(() => ALL_PRESETS.filter((p) => p.category === "scene"), []);
 
   const filteredCities = useMemo(() => {
     if (!locationSearch) return cityPresets;
@@ -235,6 +242,12 @@ export function IconRailSidebar({
     const q = locationSearch.toLowerCase();
     return overviewPresets.filter((p) => p.name.toLowerCase().includes(q) || p.id.toLowerCase().includes(q));
   }, [overviewPresets, locationSearch]);
+
+  const filteredScenes = useMemo(() => {
+    if (!locationSearch) return scenePresets;
+    const q = locationSearch.toLowerCase();
+    return scenePresets.filter((p) => p.name.toLowerCase().includes(q) || (p.description ?? "").toLowerCase().includes(q));
+  }, [scenePresets, locationSearch]);
 
   return (
     <div style={{ display: "flex", height: "100%", pointerEvents: "auto" }}>
@@ -329,6 +342,7 @@ export function IconRailSidebar({
               overviewPresets={filteredOverviews}
               cityPresets={filteredCities}
               airportPresets={filteredAirports}
+              scenePresets={filteredScenes}
               currentLocationId={currentLocationId}
               onLocationJump={onLocationJump}
               onClose={closePanel}
@@ -785,13 +799,49 @@ interface LocationsPanelProps {
   overviewPresets: typeof ALL_PRESETS;
   cityPresets: typeof ALL_PRESETS;
   airportPresets: typeof ALL_PRESETS;
+  scenePresets: typeof ALL_PRESETS;
   currentLocationId?: string;
   onLocationJump: (presetId: string) => void;
   onClose: () => void;
 }
 
+/** 可收合的 section */
+function CollapsibleSection({
+  title, count, defaultOpen = true, children,
+}: {
+  title: string; count: number; defaultOpen?: boolean; children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  if (count === 0) return null;
+  return (
+    <>
+      <div
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: "flex", alignItems: "center", gap: 4,
+          padding: "6px 12px 2px", cursor: "pointer", userSelect: "none",
+        }}
+      >
+        {open
+          ? <ChevronDown size={12} color={DIM} />
+          : <ChevronRight size={12} color={DIM} />}
+        <span style={{
+          fontSize: 10, fontWeight: 700, letterSpacing: 1.5,
+          color: DIM, fontFamily: "Inter, system-ui, sans-serif",
+        }}>
+          {title}
+        </span>
+        <span style={{ fontSize: 9, color: DIM, fontFamily: "monospace", marginLeft: 4 }}>
+          {count}
+        </span>
+      </div>
+      {open && children}
+    </>
+  );
+}
+
 function LocationsPanel({
-  search, onSearchChange, overviewPresets, cityPresets, airportPresets,
+  search, onSearchChange, overviewPresets, cityPresets, airportPresets, scenePresets,
   currentLocationId, onLocationJump, onClose,
 }: LocationsPanelProps) {
   return (
@@ -834,66 +884,70 @@ function LocationsPanel({
         className="layer-sidebar-scroll"
         style={{ flex: 1, overflowY: "auto", padding: "0 0 20vh" }}
       >
-        {/* Overview */}
-        {overviewPresets.length > 0 && (
-          <>
-            <CategoryLabel>OVERVIEW</CategoryLabel>
-            {overviewPresets.map((p) => (
-              <LocationItem
-                key={p.id}
-                name={p.name}
-                subtitle={`${p.center[1].toFixed(2)}, ${p.center[0].toFixed(2)}`}
-                active={currentLocationId === p.id}
-                onClick={() => onLocationJump(p.id)}
-              />
-            ))}
-          </>
+        {/* Scenes */}
+        <CollapsibleSection title="SCENE" count={scenePresets.length} defaultOpen={true}>
+          {scenePresets.map((p) => (
+            <LocationItem
+              key={p.id}
+              name={p.name}
+              subtitle={p.description ?? ""}
+              active={currentLocationId === p.id}
+              onClick={() => onLocationJump(p.id)}
+              icon={Play}
+            />
+          ))}
+        </CollapsibleSection>
+        {scenePresets.length > 0 && overviewPresets.length > 0 && (
+          <div style={{ height: 1, background: BORDER, margin: "6px 12px" }} />
         )}
 
-        {/* Divider */}
+        {/* Overview */}
+        <CollapsibleSection title="OVERVIEW" count={overviewPresets.length} defaultOpen={true}>
+          {overviewPresets.map((p) => (
+            <LocationItem
+              key={p.id}
+              name={p.name}
+              subtitle={`${p.center[1].toFixed(2)}, ${p.center[0].toFixed(2)}`}
+              active={currentLocationId === p.id}
+              onClick={() => onLocationJump(p.id)}
+            />
+          ))}
+        </CollapsibleSection>
         {overviewPresets.length > 0 && cityPresets.length > 0 && (
           <div style={{ height: 1, background: BORDER, margin: "6px 12px" }} />
         )}
 
         {/* Major Cities */}
-        {cityPresets.length > 0 && (
-          <>
-            <CategoryLabel>MAJOR CITIES</CategoryLabel>
-            {cityPresets.map((p) => (
-              <LocationItem
-                key={p.id}
-                name={p.name}
-                subtitle={`${p.center[1].toFixed(2)}, ${p.center[0].toFixed(2)}`}
-                active={currentLocationId === p.id}
-                onClick={() => onLocationJump(p.id)}
-              />
-            ))}
-          </>
-        )}
-
-        {/* Divider */}
+        <CollapsibleSection title="MAJOR CITIES" count={cityPresets.length}>
+          {cityPresets.map((p) => (
+            <LocationItem
+              key={p.id}
+              name={p.name}
+              subtitle={`${p.center[1].toFixed(2)}, ${p.center[0].toFixed(2)}`}
+              active={currentLocationId === p.id}
+              onClick={() => onLocationJump(p.id)}
+            />
+          ))}
+        </CollapsibleSection>
         {cityPresets.length > 0 && airportPresets.length > 0 && (
           <div style={{ height: 1, background: BORDER, margin: "6px 12px" }} />
         )}
 
         {/* Airports */}
-        {airportPresets.length > 0 && (
-          <>
-            <CategoryLabel>AIRPORT</CategoryLabel>
-            {airportPresets.map((p) => {
-              const iata = IATA_MAP[p.id];
-              return (
-                <LocationItem
-                  key={p.id}
-                  name={p.name}
-                  subtitle={iata ? `IATA: ${iata}` : p.id}
-                  active={currentLocationId === p.id}
-                  onClick={() => onLocationJump(p.id)}
-                />
-              );
-            })}
-          </>
-        )}
+        <CollapsibleSection title="AIRPORT" count={airportPresets.length} defaultOpen={false}>
+          {airportPresets.map((p) => {
+            const iata = IATA_MAP[p.id];
+            return (
+              <LocationItem
+                key={p.id}
+                name={p.name}
+                subtitle={iata ? `IATA: ${iata}` : p.id}
+                active={currentLocationId === p.id}
+                onClick={() => onLocationJump(p.id)}
+              />
+            );
+          })}
+        </CollapsibleSection>
       </div>
     </>
   );
@@ -902,9 +956,9 @@ function LocationsPanel({
 // ── Location Item ──
 
 function LocationItem({
-  name, subtitle, active, onClick,
+  name, subtitle, active, onClick, icon: Icon = MapPin,
 }: {
-  name: string; subtitle: string; active: boolean; onClick: () => void;
+  name: string; subtitle: string; active: boolean; onClick: () => void; icon?: LucideIcon;
 }) {
   return (
     <div
@@ -925,7 +979,7 @@ function LocationItem({
         (e.currentTarget as HTMLElement).style.background = active ? "rgba(255,255,255,0.06)" : "transparent";
       }}
     >
-      <MapPin size={14} color={active ? ACCENT : DIM} style={{ flexShrink: 0 }} />
+      <Icon size={14} color={active ? ACCENT : DIM} style={{ flexShrink: 0 }} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{

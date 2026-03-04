@@ -740,6 +740,113 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // ── Submarine Cables (通訊海纜) ──
+  // cable_type 分色：國際幹線 藍、海峽專線 紅、離島連接 綠、中國境內 橘、規劃中 灰
+  {
+    id: "submarineCables",
+    sourceUrl: "./submarine_cables.geojson",
+    sourceId: "submarine-cables",
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark) => ({
+          "line-color": [
+            "match", ["get", "cable_type"],
+            "國際幹線", "#2196F3",
+            "海峽專線", "#F44336",
+            "離島連接", "#4CAF50",
+            "中國境內", "#FF9800",
+            "規劃中", "#9E9E9E",
+            "#9E9E9E",
+          ] as unknown as string,
+          "line-width": 6,
+          "line-blur": 5,
+          "line-opacity": isDark ? 0.15 : 0.20,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark) => ({
+          "line-color": [
+            "match", ["get", "cable_type"],
+            "國際幹線", "#2196F3",
+            "海峽專線", "#F44336",
+            "離島連接", "#4CAF50",
+            "中國境內", "#FF9800",
+            "規劃中", "#9E9E9E",
+            "#9E9E9E",
+          ] as unknown as string,
+          "line-width": [
+            "interpolate", ["linear"], ["zoom"],
+            4, 1, 8, 1.5, 12, 2.5,
+          ],
+          "line-opacity": isDark ? 0.6 : 0.5,
+        }),
+      },
+    ],
+  },
+
+  // ── Landing Stations (海纜登陸站) ──
+  // station_type 分色：國際樞紐 藍、區域節點 青、端點 灰
+  {
+    id: "landingStations",
+    sourceUrl: "./landing_stations.geojson",
+    sourceId: "landing-stations",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.landingScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 3 * scale, 10, 6 * scale, 14, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "station_type"],
+              "國際樞紐", "#2196F3",
+              "區域節點", "#26c6da",
+              "#9E9E9E",
+            ] as unknown as string,
+            "circle-opacity": isDark ? 0.2 : 0.25,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.landingScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 3 * scale, 14, 5 * scale,
+            ],
+            "circle-color": [
+              "match", ["get", "station_type"],
+              "國際樞紐", "#2196F3",
+              "區域節點", "#26c6da",
+              "#9E9E9E",
+            ] as unknown as string,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.5, 14, 1,
+            ],
+            "circle-opacity": isDark ? 0.8 : 0.7,
+          };
+        },
+      },
+    ],
+  },
+
   // ── Schools (學校) ──
   {
     id: "schools",

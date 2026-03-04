@@ -253,6 +253,35 @@ export const ALL_PRESETS: CameraPreset[] = [
     pitch: 33,
     bearing: 91,
   },
+  // ── Scenes（時空場景） ──
+  {
+    name: "桃機起降忙碌時段",
+    id: "scene-taoyuan-rush",
+    category: "scene",
+    description: "桃園國際機場密集起降",
+    center: [121.3564, 25.1915],
+    zoom: 10.1,
+    pitch: 74,
+    bearing: 78,
+    time: 1771458900, // 2026-02-19 07:55 TST
+    speed: 60,
+    autoPlay: true,
+    layers: { flights: true, ships: false, rail: false },
+  },
+  {
+    name: "澎湖夜間捕撈",
+    id: "scene-penghu-fishing",
+    category: "scene",
+    description: "漁船群集澎湖海域作業",
+    center: [119.2899, 23.3291],
+    zoom: 10,
+    pitch: 52,
+    bearing: 16,
+    time: 1771496220, // 2026-02-19 18:17 TST
+    speed: 60,
+    autoPlay: true,
+    layers: { ships: true, flights: false, rail: false },
+  },
 ];
 
 export const DEFAULT_CAMERA: CameraPreset = ALL_PRESETS[0]!;

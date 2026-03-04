@@ -27,6 +27,8 @@ export function useLayerVisibility() {
     temperatureWave: false,
     schools: false,
     convenienceStores: false,
+    submarineCables: false,
+    landingStations: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;
