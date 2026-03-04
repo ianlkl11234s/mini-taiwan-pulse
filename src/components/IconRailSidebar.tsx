@@ -172,7 +172,7 @@ interface IconRailSidebarProps {
 const ACCENT = "#E5E7EB";
 const ACCENT_TOGGLE = "#FFFFFF";
 const BG_RAIL = "#0D0E10";
-const BG_PANEL = "rgba(20, 21, 24, 0.82)";
+const BG_PANEL = "rgba(0, 0, 0, 0.45)";
 const BORDER = "#2A2D32";
 const DIM = "#6B7280";
 const INACTIVE_TEXT = "#9CA3AF";
@@ -182,7 +182,7 @@ type PanelId = "layers" | "locations";
 // ── Main Component ──
 
 const RAIL_WIDTH = 56;
-const PANEL_WIDTH = 260;
+const PANEL_WIDTH = 240;
 
 export function IconRailSidebar({
   visibility, expandedLayer, viewMode, displayMode,
@@ -195,9 +195,10 @@ export function IconRailSidebar({
 
   const panelOpen = activePanel !== null;
 
+  // Floating panel doesn't push content — always report rail width only
   useEffect(() => {
-    onWidthChange?.(RAIL_WIDTH + (panelOpen ? PANEL_WIDTH : 0));
-  }, [panelOpen, onWidthChange]);
+    onWidthChange?.(RAIL_WIDTH);
+  }, [onWidthChange]);
 
   const togglePanel = (panel: PanelId) => {
     setActivePanel((prev) => (prev === panel ? null : panel));
@@ -250,7 +251,7 @@ export function IconRailSidebar({
   }, [scenePresets, locationSearch]);
 
   return (
-    <div style={{ display: "flex", height: "100%", pointerEvents: "auto" }}>
+    <div style={{ position: "relative", height: "100%", pointerEvents: "auto" }}>
       {/* ── Icon Rail ── */}
       <div
         style={{
@@ -295,61 +296,66 @@ export function IconRailSidebar({
         <RailIcon icon={Settings} active={false} onClick={() => {}} tooltip="Settings" />
       </div>
 
-      {/* ── Sliding Panel ── */}
-      <div
-        style={{
-          width: panelOpen ? PANEL_WIDTH : 0,
-          overflow: "hidden",
-          transition: "width 0.2s ease",
-          flexShrink: 0,
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            width: PANEL_WIDTH,
-            height: "100%",
-            background: BG_PANEL,
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            borderRight: `1px solid ${BORDER}`,
-            display: "flex",
-            flexDirection: "column",
-            transform: panelOpen ? "translateX(0)" : `translateX(-${PANEL_WIDTH}px)`,
-            transition: "transform 0.2s ease",
-          }}
-        >
-          {activePanel === "layers" && (
-            <LayersPanel
-              visibility={visibility}
-              expandedLayer={expandedLayer}
-              viewMode={viewMode}
-              displayMode={displayMode}
-              getCount={getCount}
-              onLayerClick={onLayerClick}
-              onToggleVisibility={onToggleVisibility}
-              onViewModeChange={onViewModeChange}
-              onDisplayModeChange={onDisplayModeChange}
-              onHideTransport={onHideTransport}
-              getControls={getControls}
-              onClose={closePanel}
-            />
-          )}
-          {activePanel === "locations" && (
-            <LocationsPanel
-              search={locationSearch}
-              onSearchChange={setLocationSearch}
-              overviewPresets={filteredOverviews}
-              cityPresets={filteredCities}
-              airportPresets={filteredAirports}
-              scenePresets={filteredScenes}
-              currentLocationId={currentLocationId}
-              onLocationJump={onLocationJump}
-              onClose={closePanel}
-            />
-          )}
-        </div>
-      </div>
+      {/* ── Floating Panel ── */}
+      {panelOpen && (
+        <>
+          <style>{`
+            @keyframes panelFadeIn {
+              from { opacity: 0; transform: translateX(-12px); }
+              to { opacity: 1; transform: translateX(0); }
+            }
+          `}</style>
+          <div
+            style={{
+              position: "absolute",
+              left: RAIL_WIDTH + 8,
+              top: 92,
+              width: PANEL_WIDTH,
+              maxHeight: "70vh",
+              background: BG_PANEL,
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              borderRadius: 8,
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              zIndex: 3,
+              pointerEvents: "auto",
+              animation: "panelFadeIn 0.25s ease-out",
+            }}
+          >
+            {activePanel === "layers" && (
+              <LayersPanel
+                visibility={visibility}
+                expandedLayer={expandedLayer}
+                viewMode={viewMode}
+                displayMode={displayMode}
+                getCount={getCount}
+                onLayerClick={onLayerClick}
+                onToggleVisibility={onToggleVisibility}
+                onViewModeChange={onViewModeChange}
+                onDisplayModeChange={onDisplayModeChange}
+                onHideTransport={onHideTransport}
+                getControls={getControls}
+                onClose={closePanel}
+              />
+            )}
+            {activePanel === "locations" && (
+              <LocationsPanel
+                search={locationSearch}
+                onSearchChange={setLocationSearch}
+                overviewPresets={filteredOverviews}
+                cityPresets={filteredCities}
+                airportPresets={filteredAirports}
+                scenePresets={filteredScenes}
+                currentLocationId={currentLocationId}
+                onLocationJump={onLocationJump}
+                onClose={closePanel}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -519,7 +525,7 @@ function LayersPanel({
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "4px 0 20vh",
+          padding: "4px 0 8px",
         }}
       >
         {SECTIONS.map((section, sIdx) => (
@@ -882,7 +888,7 @@ function LocationsPanel({
       {/* Body */}
       <div
         className="layer-sidebar-scroll"
-        style={{ flex: 1, overflowY: "auto", padding: "0 0 20vh" }}
+        style={{ flex: 1, overflowY: "auto", padding: "0 0 8px" }}
       >
         {/* Scenes */}
         <CollapsibleSection title="SCENE" count={scenePresets.length} defaultOpen={true}>
