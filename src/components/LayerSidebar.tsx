@@ -27,6 +27,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   popCount: "#f9bd31",
   indicators: "#e25822",
   temperatureWave: "#ff6b35",
+  schools: "#42a5f5",
+  convenienceStores: "#26c6da",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {

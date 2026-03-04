@@ -25,6 +25,8 @@ export function useLayerVisibility() {
     popCount: false,
     indicators: false,
     temperatureWave: false,
+    schools: false,
+    convenienceStores: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

@@ -740,4 +740,95 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // ── Schools (學校) ──
+  {
+    id: "schools",
+    sourceUrl: "./schools.geojson",
+    sourceId: "schools",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.schoolScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.schoolScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-stroke-color": isDark ? "#90caf9" : "#0d47a1",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": isDark ? 0.7 : 0.6,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Convenience Stores (超商) ──
+  {
+    id: "convenienceStores",
+    sourceUrl: "./convenience_stores.geojson",
+    sourceId: "convenience-stores",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.convenienceScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#26c6da" : "#00838f",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.convenienceScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#26c6da" : "#00838f",
+            "circle-stroke-color": isDark ? "#80deea" : "#006064",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": isDark ? 0.7 : 0.6,
+          };
+        },
+      },
+    ],
+  },
 ];

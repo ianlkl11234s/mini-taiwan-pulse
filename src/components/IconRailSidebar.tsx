@@ -5,6 +5,7 @@ import {
   BarChart3, Users, AlertTriangle, CloudSun, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol, Thermometer,
+  GraduationCap, Store,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -25,6 +26,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   freewayCongestion: "#ef5350", weatherStations: "#4dd0e1",
   h3Population: "#ff6b6b", popCount: "#f9bd31", indicators: "#e25822",
   temperatureWave: "#ff6b35",
+  schools: "#42a5f5",
+  convenienceStores: "#26c6da",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -54,6 +57,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   weatherStations: CloudSun,
   windPlan: Wind,
   temperatureWave: Thermometer,
+  schools: GraduationCap,
+  convenienceStores: Store,
 };
 
 // ── Section Config ──
@@ -121,6 +126,13 @@ const SECTIONS: SectionDef[] = [
       { key: "temperatureWave", label: "溫度波 Temperature", expandable: true },
     ],
   },
+  {
+    title: "FACILITY",
+    layers: [
+      { key: "schools", label: "學校 School", expandable: true },
+      { key: "convenienceStores", label: "超商 Convenience", expandable: true },
+    ],
+  },
 ];
 
 // ── IATA Map for Locations Panel ──
@@ -154,7 +166,7 @@ interface IconRailSidebarProps {
 const ACCENT = "#E5E7EB";
 const ACCENT_TOGGLE = "#FFFFFF";
 const BG_RAIL = "#0D0E10";
-const BG_PANEL = "#141518";
+const BG_PANEL = "rgba(20, 21, 24, 0.82)";
 const BORDER = "#2A2D32";
 const DIM = "#6B7280";
 const INACTIVE_TEXT = "#9CA3AF";
@@ -285,6 +297,8 @@ export function IconRailSidebar({
             width: PANEL_WIDTH,
             height: "100%",
             background: BG_PANEL,
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
             borderRight: `1px solid ${BORDER}`,
             display: "flex",
             flexDirection: "column",
@@ -491,7 +505,7 @@ function LayersPanel({
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "4px 0 8px",
+          padding: "4px 0 20vh",
         }}
       >
         {SECTIONS.map((section, sIdx) => (
@@ -818,7 +832,7 @@ function LocationsPanel({
       {/* Body */}
       <div
         className="layer-sidebar-scroll"
-        style={{ flex: 1, overflowY: "auto", padding: "0 0 8px" }}
+        style={{ flex: 1, overflowY: "auto", padding: "0 0 20vh" }}
       >
         {/* Overview */}
         {overviewPresets.length > 0 && (
