@@ -16,6 +16,31 @@ const STATION_TYPE_COLORS: Record<string, string> = {
   "區域節點": "#26c6da",
 };
 
+/** 學校分級對應色 */
+const SCHOOL_LEVEL_COLORS: Record<string, string> = {
+  "國民小學": "#66bb6a",
+  "附設國民小學": "#66bb6a",
+  "國民中學": "#ffa726",
+  "附設國民中學": "#ffa726",
+  "高級中等學校": "#ef5350",
+  "大專校院": "#ab47bc",
+  "宗教研修學院": "#ab47bc",
+  "空中大學": "#ab47bc",
+  "專科學校": "#ab47bc",
+  "特殊教育學校": "#78909c",
+};
+
+/** 超商品牌對應色 */
+const BRAND_COLORS: Record<string, string> = {
+  "7-ELEVEN": "#00843D",
+  "全家": "#00843D",
+  "FamilyMart": "#00843D",
+  "萊爾富": "#E31937",
+  "Hi-Life": "#E31937",
+  "OK": "#FF8C00",
+  "OKmart": "#FF8C00",
+};
+
 interface Props {
   feature: FeatureInfo;
   onClose: () => void;
@@ -76,7 +101,70 @@ function LandingStationPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function SchoolPanel({ props }: { props: Record<string, unknown> }) {
+  const level = String(props.school_level ?? "");
+  const accentColor = SCHOOL_LEVEL_COLORS[level] ?? "#42a5f5";
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.school_name ?? "Unknown School")}
+        </div>
+      </div>
+      <Row label="分級" value={level} color={accentColor} />
+      <Row label="城市" value={String(props.city ?? "")} />
+      <Row label="區域" value={String(props.district ?? "")} />
+      <Row label="地址" value={String(props.address ?? "")} />
+      <Row label="電話" value={String(props.phone ?? "")} />
+      <Row label="網站" value={String(props.website ?? "")} />
+    </>
+  );
+}
+
+function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {
+  const brand = String(props.brand ?? "");
+  const accentColor = BRAND_COLORS[brand] ?? "#26c6da";
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown Store")}
+        </div>
+      </div>
+      <Row label="品牌" value={brand} color={accentColor} />
+      <Row label="地址" value={String(props.addr ?? props.address ?? "")} />
+    </>
+  );
+}
+
+const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
+  submarineCable: "通訊海纜",
+  landingStation: "海纜登陸站",
+  school: "學校",
+  convenienceStore: "超商",
+};
+
 export function FeatureInfoPanel({ feature, onClose }: Props) {
+  let content: React.ReactNode;
+  switch (feature.layerType) {
+    case "submarineCable":
+      content = <SubmarineCablePanel props={feature.properties} />;
+      break;
+    case "landingStation":
+      content = <LandingStationPanel props={feature.properties} />;
+      break;
+    case "school":
+      content = <SchoolPanel props={feature.properties} />;
+      break;
+    case "convenienceStore":
+      content = <ConvenienceStorePanel props={feature.properties} />;
+      break;
+  }
+
   return (
     <div
       style={{
@@ -116,12 +204,10 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
 
       {/* Header label */}
       <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>
-        {feature.layerType === "submarineCable" ? "通訊海纜" : "海纜登陸站"}
+        {HEADER_LABELS[feature.layerType]}
       </div>
 
-      {feature.layerType === "submarineCable"
-        ? <SubmarineCablePanel props={feature.properties} />
-        : <LandingStationPanel props={feature.properties} />}
+      {content}
     </div>
   );
 }

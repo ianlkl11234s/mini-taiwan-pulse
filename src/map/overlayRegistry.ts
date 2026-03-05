@@ -875,12 +875,25 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, params) => {
           const scale = params?.schoolScale ?? 1;
+          const useLevelColor = (params?.schoolLevelColor ?? 0) > 0;
+          const color = useLevelColor
+            ? [
+                "match", ["get", "school_level"],
+                "國民小學", "#66bb6a", "附設國民小學", "#66bb6a",
+                "國民中學", "#ffa726", "附設國民中學", "#ffa726",
+                "高級中等學校", "#ef5350",
+                "大專校院", "#ab47bc", "宗教研修學院", "#ab47bc",
+                "空中大學", "#ab47bc", "專科學校", "#ab47bc",
+                "特殊教育學校", "#78909c",
+                isDark ? "#42a5f5" : "#1565c0",
+              ] as unknown as string
+            : (isDark ? "#42a5f5" : "#1565c0");
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
               6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
             ],
-            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-color": color,
             "circle-stroke-color": isDark ? "#90caf9" : "#0d47a1",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],

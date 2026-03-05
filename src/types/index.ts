@@ -191,7 +191,7 @@ export interface OverlayConfig {
 // ── 點擊特徵資訊 ──
 
 export interface FeatureInfo {
-  layerType: "submarineCable" | "landingStation";
+  layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore";
   properties: Record<string, unknown>;
 }
 

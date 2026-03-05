@@ -73,6 +73,8 @@ export function useMapInteraction(
         const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
           { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
           { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
+          { layers: ["schools-circle", "schools-glow"], type: "school" },
+          { layers: ["convenience-stores-circle", "convenience-stores-glow"], type: "convenienceStore" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

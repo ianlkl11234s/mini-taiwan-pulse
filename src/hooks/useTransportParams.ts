@@ -105,6 +105,11 @@ export function useTransportParams() {
   const [tempExtruded, setTempExtruded] = useState(true);
   const [tempOpacity, setTempOpacity] = useState(0.85);
   const [tempWireframe, setTempWireframe] = useState(false);
+  // School
+  const [schoolScale, setSchoolScale] = useState(1);
+  const [schoolLevelColor, setSchoolLevelColor] = useState(false);
+  // Convenience Store
+  const [convenienceScale, setConvenienceScale] = useState(1);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -182,7 +187,10 @@ export function useTransportParams() {
     provincialWidth,
     provincialGlow,
     portGlow,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow]);
+    schoolScale,
+    convenienceScale,
+    schoolLevelColor: schoolLevelColor ? 1 : 0,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -267,8 +275,13 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "Grid", value: tempWireframe, onChange: setTempWireframe },
       ];
       case "windPlan": return [];
-      case "schools": return [];
-      case "convenienceStores": return [];
+      case "schools": return [
+        { label: `Scale ${schoolScale.toFixed(1)}`, value: schoolScale, min: 0.3, max: 3, step: 0.1, onChange: setSchoolScale },
+        { type: "toggle" as const, label: "分級配色", value: schoolLevelColor, onChange: setSchoolLevelColor },
+      ];
+      case "convenienceStores": return [
+        { label: `Scale ${convenienceScale.toFixed(1)}`, value: convenienceScale, min: 0.3, max: 3, step: 0.1, onChange: setConvenienceScale },
+      ];
       case "submarineCables": return [];
       case "landingStations": return [];
       case "h3Population": return [

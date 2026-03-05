@@ -395,9 +395,9 @@ function RailIcon({
 // ── Panel Header ──
 
 function PanelHeader({
-  icon: Icon, title, onClose,
+  title, onClose,
 }: {
-  icon: LucideIcon; title: string; onClose: () => void;
+  title: string; onClose: () => void;
 }) {
   return (
     <div
@@ -410,7 +410,6 @@ function PanelHeader({
         flexShrink: 0,
       }}
     >
-      <Icon size={16} color={ACCENT} />
       <span style={{ color: "#fff", fontSize: 13, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>
         {title}
       </span>
@@ -519,7 +518,7 @@ function LayersPanel({
 }: LayersPanelProps) {
   return (
     <>
-      <PanelHeader icon={Layers} title="Layers" onClose={onClose} />
+      <PanelHeader title="Layers" onClose={onClose} />
       <div
         className="layer-sidebar-scroll"
         style={{
@@ -852,7 +851,7 @@ function LocationsPanel({
 }: LocationsPanelProps) {
   return (
     <>
-      <PanelHeader icon={MapPin} title="Locations" onClose={onClose} />
+      <PanelHeader title="Locations" onClose={onClose} />
 
       {/* Search Bar */}
       <div style={{ padding: "8px 12px" }}>
