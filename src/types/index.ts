@@ -192,7 +192,8 @@ export interface OverlayConfig {
 
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
-    | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation";
+    | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
+    | "port" | "airport";
   properties: Record<string, unknown>;
 }
 

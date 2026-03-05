@@ -267,6 +267,51 @@ function RailStationPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+/** 港口分類對應色 */
+const PORT_CLASS_COLORS: Record<string, string> = {
+  "國際商港": "#42a5f5",
+  "國內商港": "#64b5f6",
+  "第一類漁港": "#26c6da",
+  "第二類漁港": "#4dd0e1",
+  "工業專用港": "#ffa726",
+  "軍港": "#78909c",
+};
+
+function PortPanel({ props }: { props: Record<string, unknown> }) {
+  const portClass = String(props.port_class ?? "");
+  const accentColor = PORT_CLASS_COLORS[portClass] ?? "#88bbff";
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown Port")}
+        </div>
+      </div>
+      <Row label="分類" value={portClass} color={accentColor} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="資料源" value={String(props.source ?? "")} />
+    </>
+  );
+}
+
+function AirportPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#daa520", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown Airport")}
+        </div>
+      </div>
+      <Row label="英文" value={String(props.name_en ?? "")} />
+      <Row label="ICAO" value={String(props.icao ?? "")} />
+      <Row label="IATA" value={String(props.iata ?? "")} />
+    </>
+  );
+}
+
 const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -277,6 +322,8 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   busStation: "公車站",
   lighthouse: "燈塔",
   railStation: "車站",
+  port: "港口",
+  airport: "機場",
 };
 
 export function FeatureInfoPanel({ feature, onClose }: Props) {
@@ -308,6 +355,12 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
       break;
     case "railStation":
       content = <RailStationPanel props={feature.properties} />;
+      break;
+    case "port":
+      content = <PortPanel props={feature.properties} />;
+      break;
+    case "airport":
+      content = <AirportPanel props={feature.properties} />;
       break;
   }
 

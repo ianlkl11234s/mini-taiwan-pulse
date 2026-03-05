@@ -80,6 +80,8 @@ export function useMapInteraction(
           { layers: ["bus-stations-city-circle", "bus-stations-city-glow"], type: "busStation" },
           { layers: ["bus-stations-intercity-circle", "bus-stations-intercity-glow"], type: "busStation" },
           { layers: ["lighthouses-circle", "lighthouses-glow"], type: "lighthouse" },
+          { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },
+          { layers: ["airport-boundaries-fill", "airport-boundaries-line", "airport-boundaries-glow-1", "airport-boundaries-glow-2"], type: "airport" },
           { layers: ["station-points-tra-pt-fill", "station-points-tra-pt-glow-1", "station-points-tra-pt-glow-2"], type: "railStation" },
           { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2"], type: "railStation" },
         ];
