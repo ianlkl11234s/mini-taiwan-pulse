@@ -75,6 +75,13 @@ export function useMapInteraction(
           { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
           { layers: ["schools-circle", "schools-glow"], type: "school" },
           { layers: ["convenience-stores-circle", "convenience-stores-glow"], type: "convenienceStore" },
+          { layers: ["weather-stations-circle", "weather-stations-glow"], type: "weatherStation" },
+          { layers: ["bike-stations-circle", "bike-stations-glow"], type: "bikeStation" },
+          { layers: ["bus-stations-city-circle", "bus-stations-city-glow"], type: "busStation" },
+          { layers: ["bus-stations-intercity-circle", "bus-stations-intercity-glow"], type: "busStation" },
+          { layers: ["lighthouses-circle", "lighthouses-glow"], type: "lighthouse" },
+          { layers: ["station-points-tra-pt-fill", "station-points-tra-pt-glow-1", "station-points-tra-pt-glow-2"], type: "railStation" },
+          { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2"], type: "railStation" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],
