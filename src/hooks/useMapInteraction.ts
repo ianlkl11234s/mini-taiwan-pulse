@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike } from "mapbox-gl";
-import type { Flight, RailTrain, FeatureInfo } from "../types";
+import type { Flight, RailTrain, FeatureInfo, LayerVisibility } from "../types";
 import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
 
@@ -23,6 +23,7 @@ export function useMapInteraction(
   flightsRef: React.RefObject<Flight[]>,
   timeRef: React.RefObject<number>,
   railSceneRef?: React.RefObject<RailScene | null>,
+  layerVisibilityRef?: React.RefObject<LayerVisibility>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -39,37 +40,48 @@ export function useMapInteraction(
       const w = container.clientWidth;
       const h = container.clientHeight;
 
-      // 先嘗試拾取列車
-      const railScene = railSceneRef?.current;
-      if (railScene) {
-        const train = railScene.pickTrain(e.point.x, e.point.y, w, h);
-        if (train) {
-          setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
-          setTooltipInfo(null);
-          return;
+      const vis = layerVisibilityRef?.current;
+
+      // 先嘗試拾取列車（僅在 rail 圖層開啟時）
+      if (vis?.rail) {
+        const railScene = railSceneRef?.current;
+        if (railScene) {
+          const train = railScene.pickTrain(e.point.x, e.point.y, w, h);
+          if (train) {
+            setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
+            setTooltipInfo(null);
+            return;
+          }
         }
       }
 
-      // 再嘗試拾取飛機
-      const scene = flightSceneRef.current;
-      if (!scene) { setTooltipInfo(null); setTrainTooltipInfo(null); return; }
-      const flightId = scene.pickFlight(e.point.x, e.point.y, w, h);
-      if (flightId) {
-        const flight = flightsRef.current.find((f) => f.fr24_id === flightId);
-        if (flight) {
-          let altitude: number | null = null;
-          const t = timeRef.current;
-          for (let i = flight.path.length - 1; i >= 0; i--) {
-            if (flight.path[i]![3] <= t) { altitude = Math.round(flight.path[i]![2]); break; }
+      // 再嘗試拾取飛機（僅在 flights 圖層開啟時）
+      if (vis?.flights) {
+        const scene = flightSceneRef.current;
+        if (scene) {
+          const flightId = scene.pickFlight(e.point.x, e.point.y, w, h);
+          if (flightId) {
+            const flight = flightsRef.current.find((f) => f.fr24_id === flightId);
+            if (flight) {
+              let altitude: number | null = null;
+              const t = timeRef.current;
+              for (let i = flight.path.length - 1; i >= 0; i--) {
+                if (flight.path[i]![3] <= t) { altitude = Math.round(flight.path[i]![2]); break; }
+              }
+              setTooltipInfo({ flight, x: e.point.x, y: e.point.y, altitude });
+              setTrainTooltipInfo(null);
+              return;
+            }
           }
-          setTooltipInfo({ flight, x: e.point.x, y: e.point.y, altitude });
-          setTrainTooltipInfo(null);
         }
-      } else {
-        setTooltipInfo(null);
-        setTrainTooltipInfo(null);
+      }
 
-        // 查詢 Mapbox GIS 層（海纜 / 登陸站）
+      // 未命中 Three.js 物件 → 清空 tooltip，查詢 GIS 圖層
+      setTooltipInfo(null);
+      setTrainTooltipInfo(null);
+
+      {
+        // 查詢 Mapbox GIS 層
         const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
           { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
           { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
@@ -105,6 +117,7 @@ export function useMapInteraction(
     });
 
     map.on("dblclick", (e) => {
+      if (!layerVisibilityRef?.current?.flights) return;
       const scene = flightSceneRef.current;
       if (!scene) return;
       const container = map.getContainer();

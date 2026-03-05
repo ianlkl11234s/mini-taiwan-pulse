@@ -211,7 +211,7 @@ export default function App() {
   });
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef);
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, layerVisibilityRef);
 
   // ── Derived values ──
 
