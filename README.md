@@ -221,6 +221,21 @@
 - 動畫：binary search 找兩個 bracketing frames，vertex lerp 平滑過渡
 - 時間同步：直接使用 timeline unix timestamp，與航班/船舶/列車完全同步
 
+### 載入畫面（LoadingScreen）
+
+首頁載入時同步等待 4 項資料完成，並以獨立進度列顯示各項狀態：
+
+| 資料項 | 大小 | 完成顯示 |
+|--------|------|---------|
+| 航班 Flights | ~84MB | 航班數量 |
+| 船舶 Ships | ~54MB | 船舶數量 |
+| 鐵道 Rail | ~53MB | 系統數量 |
+| 溫度場 Temperature | ~941KB | — |
+
+- 各項獨立打勾：✓ 完成（藍色 + 數量）、⟳ 進行中（旋轉動畫）、○ 等待中（灰色）
+- 底部真實進度條（done/total），非假動畫
+- 全部完成後才顯示地圖 UI 並自動播放時間軸，確保「一打開就是可使用狀態」
+
 ### 其他功能
 
 - 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Satellite Streets / Navigation Night / Streets）
@@ -329,6 +344,7 @@ mini-taiwan-pulse/
 │   ├── App.tsx                     # 主應用 + 狀態協調
 │   ├── types/index.ts              # 型別定義（含 OverlayConfig）
 │   ├── components/
+│   │   ├── LoadingScreen.tsx       # 全資料預載進度畫面（4 項獨立打勾 + 真實進度條）
 │   │   ├── InfoModal.tsx           # 多分頁 Info Modal（5 頁）
 │   │   ├── LayerSidebar.tsx        # 七分類圖層面板（MOVING / STATION / ROUTE / INFRA / ANALYTICS / MONITOR / ENVIRON）
 │   │   ├── TimelineControls.tsx    # 時間軸播放控制

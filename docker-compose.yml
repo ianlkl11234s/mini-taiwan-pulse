@@ -19,4 +19,9 @@ services:
       - ./public/cycling_routes.geojson:/data/cycling_routes.geojson:ro
       - ./public/freeway_congestion.geojson:/data/freeway_congestion.geojson:ro
       - ./public/weather_stations.geojson:/data/weather_stations.geojson:ro
+      - ./public/h3_demographics_res8.json:/data/h3_demographics_res8.json:ro
+      - ./public/h3_population_res8.json:/data/h3_population_res8.json:ro
+      - ./public/schools.geojson:/data/schools.geojson:ro
+      - ./public/convenience_stores.geojson:/data/convenience_stores.geojson:ro
+      - ./public/active_faults.geojson:/data/active_faults.geojson:ro
     restart: unless-stopped

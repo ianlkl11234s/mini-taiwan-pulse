@@ -29,6 +29,7 @@ import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
+import { LoadingScreen } from "./components/LoadingScreen";
 
 export default function App() {
   const {
@@ -39,7 +40,7 @@ export default function App() {
     loading,
   } = useFlightData();
 
-  const { ships } = useShipData();
+  const { ships, loading: shipsLoading } = useShipData();
 
   // 燈塔座標
   const [lighthousePositions, setLighthousePositions] = useState<[number, number][]>([]);
@@ -61,8 +62,8 @@ export default function App() {
   const [airportPillarData, setAirportPillarData] = useState<StationPillarData[]>([]);
   const [portPillarData, setPortPillarData] = useState<StationPillarData[]>([]);
 
-  const { railData } = useRailData();
-  const { temperatureData } = useTemperatureData();
+  const { railData, loading: railLoading } = useRailData();
+  const { temperatureData, temperatureLoading } = useTemperatureData();
 
   // 預計算光柱資料（靜態 JSON，不依賴 railData）
   useEffect(() => {
@@ -340,61 +341,27 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [captureMode]);
 
-  // 資料載入完成後自動播放
+  // 全資料預載進度
+  const loadingSteps = [
+    { label: "航班 Flights", done: !loading, count: allFlights.length },
+    { label: "船舶 Ships", done: !shipsLoading, count: ships.length },
+    { label: "鐵道 Rail", done: !railLoading, count: railData ? railData.systems.length : 0 },
+    { label: "溫度場 Temperature", done: !temperatureLoading },
+  ];
+  const allReady = loadingSteps.every((s) => s.done);
+
+  // 全部資料載入完成後自動播放
   useEffect(() => {
-    if (!loading && timeRange.start > 0) {
+    if (allReady && timeRange.start > 0) {
       timeline.play();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, timeRange.start]);
+  }, [allReady, timeRange.start]);
 
   // ── Render ──
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "#0a0a14",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 16,
-          fontFamily: "monospace",
-          color: "#fff",
-        }}
-      >
-        <div style={{ fontSize: 22, letterSpacing: 4, fontWeight: 700 }}>
-          Mini Taiwan Pulse
-        </div>
-        <div style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", letterSpacing: 1 }}>
-          Loading transport data...
-        </div>
-        <div
-          style={{
-            width: 120,
-            height: 2,
-            background: "rgba(255,255,255,0.1)",
-            borderRadius: 1,
-            overflow: "hidden",
-            marginTop: 8,
-          }}
-        >
-          <div
-            style={{
-              width: "40%",
-              height: "100%",
-              background: "rgba(100,170,255,0.8)",
-              borderRadius: 1,
-              animation: "loadbar 1.2s ease-in-out infinite alternate",
-            }}
-          />
-        </div>
-        <style>{`@keyframes loadbar { from { margin-left: 0 } to { margin-left: 60% } }`}</style>
-      </div>
-    );
+  if (!allReady) {
+    return <LoadingScreen steps={loadingSteps} />;
   }
 
   return (

@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { CHANGELOG } from "../data/changelog";
 
 type BottomTab = "guide" | "about" | "profile";
-type GuidePage = "getting-started" | "feature-legend" | "data-sources";
+type GuidePage = "getting-started" | "feature-legend" | "data-sources" | "daily-changelog";
 type Lang = "zh" | "en";
 
 interface InfoModalProps {
@@ -571,6 +572,27 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
   );
 }
 
+function ChangelogPage({ lang }: { lang: Lang }) {
+  const L = lang === "zh";
+  const sorted = [...CHANGELOG].sort((a, b) => b.date.localeCompare(a.date));
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {sorted.map((entry) => (
+        <div key={entry.date}>
+          <SectionTitle>{entry.date}</SectionTitle>
+          <Card title={L ? entry.title.zh : entry.title.en}>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {entry.items.map((item, i) => (
+                <li key={i}>{L ? item.zh : item.en}</li>
+              ))}
+            </ul>
+          </Card>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function AboutPage({ lang }: { lang: Lang }) {
   const L = lang === "zh";
   const stats = [
@@ -756,6 +778,7 @@ const PAGE_TITLES: Record<string, Record<Lang, string>> = {
   "getting-started": { zh: "操作指南", en: "Getting Started" },
   "feature-legend": { zh: "功能圖例", en: "Feature Legend" },
   "data-sources": { zh: "資料來源", en: "Data Sources" },
+  "daily-changelog": { zh: "每日更新", en: "Daily Changelog" },
   about: { zh: "關於專案", en: "About" },
   profile: { zh: "個人介紹", en: "Profile" },
 };
@@ -776,6 +799,7 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
     { key: "getting-started", label: { zh: "操作指南", en: "Getting Started" } },
     { key: "feature-legend", label: { zh: "功能圖例", en: "Feature Legend" } },
     { key: "data-sources", label: { zh: "資料來源", en: "Data Sources" } },
+    { key: "daily-changelog", label: { zh: "每日更新", en: "Changelog" } },
   ];
 
   const bottomTabs: { key: BottomTab; label: Record<Lang, string> }[] = [
@@ -790,6 +814,7 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
         case "getting-started": return <GettingStartedPage lang={lang} />;
         case "feature-legend": return <FeatureLegendPage lang={lang} />;
         case "data-sources": return <DataSourcesPage lang={lang} />;
+        case "daily-changelog": return <ChangelogPage lang={lang} />;
       }
     }
     if (activeTab === "about") return <AboutPage lang={lang} />;
