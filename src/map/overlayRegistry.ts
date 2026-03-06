@@ -951,4 +951,40 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+
+  // ── Active Faults (活動斷層地質敏感區) ──
+  {
+    id: "activeFaults",
+    sourceUrl: "./active_faults.geojson",
+    sourceId: "active-faults",
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "#ef5350" : "#c62828",
+          "line-width": 8,
+          "line-blur": 6,
+          "line-opacity": isDark ? 0.08 : 0.12,
+        }),
+      },
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (isDark) => ({
+          "fill-color": isDark ? "#ef5350" : "#e53935",
+          "fill-opacity": isDark ? 0.12 : 0.15,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "#ef5350" : "#c62828",
+          "line-width": isDark ? 1.5 : 2,
+          "line-opacity": isDark ? 0.5 : 0.6,
+        }),
+      },
+    ],
+  },
 ];

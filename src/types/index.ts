@@ -65,7 +65,8 @@ export type ExpandableLayerKey =
   | "h3Population" | "popCount" | "indicators"
   | "temperatureWave"
   | "schools" | "convenienceStores"
-  | "submarineCables" | "landingStations";
+  | "submarineCables" | "landingStations"
+  | "activeFaults";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -193,7 +194,7 @@ export interface OverlayConfig {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport";
+    | "port" | "airport" | "activeFault";
   properties: Record<string, unknown>;
 }
 
@@ -226,4 +227,5 @@ export interface LayerVisibility {
   convenienceStores: boolean;
   submarineCables: boolean;
   landingStations: boolean;
+  activeFaults: boolean;
 }

@@ -5,7 +5,7 @@ import {
   BarChart3, Users, AlertTriangle, CloudSun, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol, Thermometer,
-  GraduationCap, Store, Play, Cable, Radio,
+  GraduationCap, Store, Play, Cable, Radio, Mountain,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -30,6 +30,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   convenienceStores: "#26c6da",
   submarineCables: "#2196F3",
   landingStations: "#26c6da",
+  activeFaults: "#ef5350",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -63,6 +64,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   convenienceStores: Store,
   submarineCables: Cable,
   landingStations: Radio,
+  activeFaults: Mountain,
 };
 
 // ── Section Config ──
@@ -137,6 +139,12 @@ const SECTIONS: SectionDef[] = [
     layers: [
       { key: "schools", label: "學校 School", expandable: true },
       { key: "convenienceStores", label: "超商 Convenience", expandable: true },
+    ],
+  },
+  {
+    title: "HAZARD",
+    layers: [
+      { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
     ],
   },
 ];

@@ -31,6 +31,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   convenienceStores: "#26c6da",
   submarineCables: "#2196F3",
   landingStations: "#26c6da",
+  activeFaults: "#ef5350",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {

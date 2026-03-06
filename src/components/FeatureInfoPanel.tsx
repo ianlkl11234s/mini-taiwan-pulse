@@ -312,6 +312,21 @@ function AirportPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#ef5350", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.fault_name ?? "Unknown Fault")}
+        </div>
+      </div>
+      <Row label="編號" value={String(props.fault_id ?? "")} />
+      <Row label="全稱" value={String(props.name ?? "")} />
+    </>
+  );
+}
+
 const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -324,6 +339,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   railStation: "車站",
   port: "港口",
   airport: "機場",
+  activeFault: "活動斷層",
 };
 
 export function FeatureInfoPanel({ feature, onClose }: Props) {
@@ -361,6 +377,9 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
       break;
     case "airport":
       content = <AirportPanel props={feature.properties} />;
+      break;
+    case "activeFault":
+      content = <ActiveFaultPanel props={feature.properties} />;
       break;
   }
 
