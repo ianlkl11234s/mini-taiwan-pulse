@@ -350,6 +350,13 @@ export default function App() {
   ];
   const allReady = loadingSteps.every((s) => s.done);
 
+  // 30 秒 timeout：避免任一資料源掛掉導致永遠卡在 loading
+  const [loadingTimedOut, setLoadingTimedOut] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setLoadingTimedOut(true), 30_000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // 全部資料載入完成後自動播放
   useEffect(() => {
     if (allReady && timeRange.start > 0) {
@@ -360,7 +367,7 @@ export default function App() {
 
   // ── Render ──
 
-  if (!allReady) {
+  if (!allReady && !loadingTimedOut) {
     return <LoadingScreen steps={loadingSteps} />;
   }
 

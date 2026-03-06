@@ -39,6 +39,9 @@ export function useFlightData(): UseFlightDataReturn {
           setAirports(getTaiwanAirports(merged));
         }
       });
+    }).catch((err) => {
+      console.warn("Flight data load failed:", err);
+      setLoading(false);
     });
   }, []);
 
