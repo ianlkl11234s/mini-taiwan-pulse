@@ -603,6 +603,14 @@ export default function App() {
                   setExpandedLayer(null);
                 }
               }}
+              onAllOff={() => {
+                setLayerVisibility((prev) => {
+                  const next = { ...prev };
+                  for (const k in next) next[k as keyof typeof next] = false;
+                  return next;
+                });
+                setExpandedLayer(null);
+              }}
               getControls={transportParams.getControls}
               currentLocationId={selectedAirport}
               onLocationJump={(id) => {

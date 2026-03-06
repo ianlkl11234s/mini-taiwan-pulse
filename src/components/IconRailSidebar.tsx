@@ -169,6 +169,7 @@ interface IconRailSidebarProps {
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
+  onAllOff: () => void;
   getControls: (layer: ExpandableLayerKey) => ParamControl[];
   currentLocationId?: string;
   onLocationJump: (presetId: string) => void;
@@ -195,7 +196,7 @@ const PANEL_WIDTH = 240;
 export function IconRailSidebar({
   visibility, expandedLayer, viewMode, displayMode,
   counts, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport,
+  onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   getControls, currentLocationId, onLocationJump, onWidthChange,
 }: IconRailSidebarProps) {
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
@@ -344,6 +345,7 @@ export function IconRailSidebar({
                 onViewModeChange={onViewModeChange}
                 onDisplayModeChange={onDisplayModeChange}
                 onHideTransport={onHideTransport}
+                onAllOff={onAllOff}
                 getControls={getControls}
                 onClose={closePanel}
               />
@@ -514,6 +516,7 @@ interface LayersPanelProps {
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
+  onAllOff: () => void;
   getControls: (layer: ExpandableLayerKey) => ParamControl[];
   onClose: () => void;
 }
@@ -522,11 +525,29 @@ function LayersPanel({
   visibility, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
-  getControls, onClose,
+  onAllOff, getControls, onClose,
 }: LayersPanelProps) {
   return (
     <>
       <PanelHeader title="Layers" onClose={onClose} />
+      <div style={{ padding: "4px 12px 0" }}>
+        <button
+          onClick={onAllOff}
+          style={{
+            width: "100%",
+            padding: "5px 0",
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: 6,
+            color: "rgba(255,255,255,0.5)",
+            fontSize: 11,
+            cursor: "pointer",
+            fontFamily: "Inter, system-ui, sans-serif",
+          }}
+        >
+          All Off
+        </button>
+      </div>
       <div
         className="layer-sidebar-scroll"
         style={{
