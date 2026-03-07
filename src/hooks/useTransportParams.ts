@@ -110,6 +110,10 @@ export function useTransportParams() {
   const [schoolLevelColor, setSchoolLevelColor] = useState(false);
   // Convenience Store
   const [convenienceScale, setConvenienceScale] = useState(1);
+  // News Events
+  const [newsScale, setNewsScale] = useState(1);
+  const [newsTimeBased, setNewsTimeBased] = useState(true);
+  const [newsRipple, setNewsRipple] = useState(true);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -190,7 +194,8 @@ export function useTransportParams() {
     schoolScale,
     convenienceScale,
     schoolLevelColor: schoolLevelColor ? 1 : 0,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor]);
+    newsScale,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -285,7 +290,11 @@ export function useTransportParams() {
       case "submarineCables": return [];
       case "landingStations": return [];
       case "activeFaults": return [];
-      case "newsEvents": return [];
+      case "newsEvents": return [
+        { type: "toggle" as const, label: "Time", value: newsTimeBased, onChange: setNewsTimeBased },
+        { type: "toggle" as const, label: "Ripple", value: newsRipple, onChange: setNewsRipple },
+        { label: `Scale ${newsScale.toFixed(1)}`, value: newsScale, min: 0.3, max: 3, step: 0.1, onChange: setNewsScale },
+      ];
       case "h3Population": return [
         { label: `Opacity ${h3Opacity.toFixed(1)}`, value: h3Opacity, min: 0.1, max: 1, step: 0.1, onChange: setH3Opacity },
         { label: `Contrast ${h3Contrast.toFixed(1)}`, value: h3Contrast, min: 0.5, max: 4, step: 0.1, onChange: setH3Contrast },
@@ -326,6 +335,8 @@ export function useTransportParams() {
   return {
     stationScale,
     railTrackMode,
+    newsTimeBased,
+    newsRipple,
     refs: {
       altExag: altExagRef,
       altOffset: altOffsetRef,
