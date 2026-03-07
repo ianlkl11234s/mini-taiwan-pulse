@@ -31,6 +31,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   submarineCables: "#2196F3",
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
+  newsEvents: "#ff9800",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -65,6 +66,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   submarineCables: Cable,
   landingStations: Radio,
   activeFaults: Mountain,
+  newsEvents: Radio,
 };
 
 // ── Section Config ──
@@ -145,6 +147,12 @@ const SECTIONS: SectionDef[] = [
     title: "HAZARD",
     layers: [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
+    ],
+  },
+  {
+    title: "NEWS",
+    layers: [
+      { key: "newsEvents", label: "新聞 News", expandable: true },
     ],
   },
 ];
