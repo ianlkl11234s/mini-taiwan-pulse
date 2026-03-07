@@ -11,6 +11,7 @@ import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
+import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useH3Data } from "./hooks/useH3Data";
@@ -40,7 +41,10 @@ export default function App() {
     loading,
   } = useFlightData();
 
-  const { ships, loading: shipsLoading } = useShipData();
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading } = useShipData();
+
+  // ── Data Source Registry ──
+  const dataRegistry = useDataRegistry();
 
   // 燈塔座標
   const [lighthousePositions, setLighthousePositions] = useState<[number, number][]>([]);
@@ -62,7 +66,42 @@ export default function App() {
   const [airportPillarData, setAirportPillarData] = useState<StationPillarData[]>([]);
   const [portPillarData, setPortPillarData] = useState<StationPillarData[]>([]);
 
+  // 資料載入後向 Registry 註冊時間資訊
+  useEffect(() => {
+    if (timeRange.start > 0) {
+      dataRegistry.register({
+        id: "flights",
+        timeType: "track",
+        timeRanges: [timeRange],
+        supportsLive: false,
+      });
+    }
+  }, [timeRange, dataRegistry.register]);
+
+  useEffect(() => {
+    if (shipTimeRange.start > 0) {
+      dataRegistry.register({
+        id: "ships",
+        timeType: "track",
+        timeRanges: [shipTimeRange],
+        supportsLive: false,
+      });
+    }
+  }, [shipTimeRange, dataRegistry.register]);
+
   const { railData, loading: railLoading } = useRailData();
+
+  useEffect(() => {
+    if (railData) {
+      dataRegistry.register({
+        id: "rail",
+        timeType: "cyclic",
+        timeRanges: [{ start: -Infinity, end: Infinity }],
+        supportsLive: true,
+      });
+    }
+  }, [railData, dataRegistry.register]);
+
   const { temperatureData, temperatureLoading } = useTemperatureData();
 
   // 預計算光柱資料（靜態 JSON，不依賴 railData）
@@ -124,6 +163,7 @@ export default function App() {
   }, []);
 
   const { isMobile, isLandscape } = useIsMobile();
+  const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
   const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
   const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
@@ -136,9 +176,21 @@ export default function App() {
   const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
   const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
 
+  // 從 Registry 計算時間軸範圍（目前以 enabled 的動態圖層聯集為準）
+  const effectiveTimeRange = useMemo(() => {
+    const enabledIds: string[] = [];
+    if (layerVisibility.flights) enabledIds.push("flights");
+    if (layerVisibility.ships) enabledIds.push("ships");
+    if (layerVisibility.newsEvents) enabledIds.push("newsEvents");
+    const range = dataRegistry.getTimelineRange(enabledIds);
+    // fallback: 如果 registry 還沒資料，用航班的 timeRange
+    if (range.start === 0 && range.end === 0) return timeRange;
+    return range;
+  }, [dataRegistry.sources, layerVisibility.flights, layerVisibility.ships, layerVisibility.newsEvents, timeRange]);
+
   const timeline = useTimeline({
-    startTime: timeRange.start,
-    endTime: timeRange.end,
+    startTime: effectiveTimeRange.start,
+    endTime: effectiveTimeRange.end,
   });
 
   // ── Custom Hooks ──
@@ -194,7 +246,6 @@ export default function App() {
   playingRef.current = timeline.playing;
 
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
-  const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
 
