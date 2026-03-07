@@ -350,6 +350,14 @@ export default function App() {
   ];
   const allReady = loadingSteps.every((s) => s.done);
 
+  // allReady 後延遲 600ms 再 unmount LoadingScreen，讓使用者看到 100%
+  const [dismissedLoading, setDismissedLoading] = useState(false);
+  useEffect(() => {
+    if (!allReady) return;
+    const t = setTimeout(() => setDismissedLoading(true), 600);
+    return () => clearTimeout(t);
+  }, [allReady]);
+
   // 30 秒 timeout：避免任一資料源掛掉導致永遠卡在 loading
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);
   useEffect(() => {
@@ -367,7 +375,7 @@ export default function App() {
 
   // ── Render ──
 
-  if (!allReady && !loadingTimedOut) {
+  if ((!allReady && !loadingTimedOut) || (!dismissedLoading && !loadingTimedOut)) {
     return <LoadingScreen steps={loadingSteps} />;
   }
 
