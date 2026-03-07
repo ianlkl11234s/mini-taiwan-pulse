@@ -221,7 +221,7 @@ export interface OverlayConfig {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport" | "activeFault";
+    | "port" | "airport" | "activeFault" | "newsEvent";
   properties: Record<string, unknown>;
 }
 
