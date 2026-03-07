@@ -176,8 +176,8 @@ export default function App() {
   const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
   const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
 
-  // 從 Registry 計算時間軸範圍（目前以 enabled 的動態圖層聯集為準）
-  const effectiveTimeRange = useMemo(() => {
+  // 從 Registry 計算整體資料範圍（供日期導航參考）
+  const dataTimeRange = useMemo(() => {
     const enabledIds: string[] = [];
     if (layerVisibility.flights) enabledIds.push("flights");
     if (layerVisibility.ships) enabledIds.push("ships");
@@ -189,8 +189,8 @@ export default function App() {
   }, [dataRegistry.sources, layerVisibility.flights, layerVisibility.ships, layerVisibility.newsEvents, timeRange]);
 
   const timeline = useTimeline({
-    startTime: effectiveTimeRange.start,
-    endTime: effectiveTimeRange.end,
+    dataStartTime: dataTimeRange.start,
+    dataEndTime: dataTimeRange.end,
   });
 
   // ── Custom Hooks ──
@@ -669,15 +669,20 @@ export default function App() {
             speed={timeline.speed}
             progress={timeline.progress}
             currentTime={timeline.currentTime}
-            startTime={effectiveTimeRange.start}
-            endTime={effectiveTimeRange.end}
             timeMode={timeline.timeMode}
+            selectedDate={timeline.selectedDate}
+            rangeDays={timeline.rangeDays}
+            windowStart={timeline.windowStart}
+            windowEnd={timeline.windowEnd}
             isDarkTheme={isDarkTheme}
             leftOffset={sidebarWidth + 16}
             onToggle={timeline.toggle}
             onSpeedChange={timeline.setSpeed}
             onSeekByProgress={timeline.seekByProgress}
             onTimeModeChange={timeline.setTimeMode}
+            onDateChange={timeline.setSelectedDate}
+            onShiftDate={timeline.shiftDate}
+            onRangeDaysChange={timeline.setRangeDays}
           />
 
           {/* 右上角按鈕群 */}
@@ -928,15 +933,20 @@ export default function App() {
               speed={timeline.speed}
               progress={timeline.progress}
               currentTime={timeline.currentTime}
-              startTime={effectiveTimeRange.start}
-              endTime={effectiveTimeRange.end}
               timeMode={timeline.timeMode}
+              selectedDate={timeline.selectedDate}
+              rangeDays={timeline.rangeDays}
+              windowStart={timeline.windowStart}
+              windowEnd={timeline.windowEnd}
               isDarkTheme={true}
               isMobile={true}
               onToggle={timeline.toggle}
               onSpeedChange={timeline.setSpeed}
               onSeekByProgress={timeline.seekByProgress}
               onTimeModeChange={timeline.setTimeMode}
+              onDateChange={timeline.setSelectedDate}
+              onShiftDate={timeline.shiftDate}
+              onRangeDaysChange={timeline.setRangeDays}
             />
           </div>
 
