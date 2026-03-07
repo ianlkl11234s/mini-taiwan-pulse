@@ -952,6 +952,51 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── News Events (新聞事件) ──
+  {
+    id: "newsEvents",
+    sourceUrl: "./news_events.geojson",
+    sourceId: "news-events",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            5, 6, 10, 12, 14, 18,
+          ],
+          "circle-blur": 1,
+          "circle-color": isDark ? "#ff9800" : "#e65100",
+          "circle-opacity": isDark ? 0.15 : 0.18,
+        }),
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            5, 3, 10, 5, 14, 8,
+          ],
+          "circle-color": [
+            "case",
+            ["==", ["get", "is_primary"], true],
+            isDark ? "#ff9800" : "#e65100",
+            isDark ? "#ffcc80" : "#ff9800",
+          ] as unknown as string,
+          "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)",
+          "circle-stroke-width": [
+            "interpolate", ["linear"], ["zoom"],
+            5, 0, 10, 0.5, 14, 1,
+          ],
+          "circle-opacity": isDark ? 0.85 : 0.75,
+        }),
+      },
+    ],
+  },
+
   // ── Active Faults (活動斷層地質敏感區) ──
   {
     id: "activeFaults",

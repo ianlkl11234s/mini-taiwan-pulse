@@ -312,6 +312,36 @@ function AirportPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
+  const link = String(props.link ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff9800", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
+          {String(props.title ?? "Unknown Event")}
+        </div>
+      </div>
+      <Row label="摘要" value={String(props.summary ?? "")} />
+      <Row label="地點" value={String(props.location_name ?? "")} />
+      <Row label="分類" value={String(props.category ?? "")} color="#ff9800" />
+      <Row label="時間" value={String(props.published ?? "")} />
+      {link && (
+        <div style={{ marginTop: 6 }}>
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#ff9800", fontSize: 11, fontFamily: "monospace", textDecoration: "underline" }}
+          >
+            CNA 原文
+          </a>
+        </div>
+      )}
+    </>
+  );
+}
+
 function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
@@ -340,6 +370,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   port: "港口",
   airport: "機場",
   activeFault: "活動斷層",
+  newsEvent: "新聞事件",
 };
 
 export function FeatureInfoPanel({ feature, onClose }: Props) {
@@ -380,6 +411,9 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
       break;
     case "activeFault":
       content = <ActiveFaultPanel props={feature.properties} />;
+      break;
+    case "newsEvent":
+      content = <NewsEventPanel props={feature.properties} />;
       break;
   }
 
