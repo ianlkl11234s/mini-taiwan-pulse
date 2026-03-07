@@ -677,13 +677,15 @@ export default function App() {
             speed={timeline.speed}
             progress={timeline.progress}
             currentTime={timeline.currentTime}
-            startTime={timeRange.start}
-            endTime={timeRange.end}
+            startTime={effectiveTimeRange.start}
+            endTime={effectiveTimeRange.end}
+            timeMode={timeline.timeMode}
             isDarkTheme={isDarkTheme}
             leftOffset={sidebarWidth + 16}
             onToggle={timeline.toggle}
             onSpeedChange={timeline.setSpeed}
             onSeekByProgress={timeline.seekByProgress}
+            onTimeModeChange={timeline.setTimeMode}
           />
 
           {/* 右上角按鈕群 */}
@@ -934,13 +936,15 @@ export default function App() {
               speed={timeline.speed}
               progress={timeline.progress}
               currentTime={timeline.currentTime}
-              startTime={timeRange.start}
-              endTime={timeRange.end}
+              startTime={effectiveTimeRange.start}
+              endTime={effectiveTimeRange.end}
+              timeMode={timeline.timeMode}
               isDarkTheme={true}
               isMobile={true}
               onToggle={timeline.toggle}
               onSpeedChange={timeline.setSpeed}
               onSeekByProgress={timeline.seekByProgress}
+              onTimeModeChange={timeline.setTimeMode}
             />
           </div>
 

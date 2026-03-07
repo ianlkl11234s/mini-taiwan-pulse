@@ -1,3 +1,5 @@
+import type { TimeMode } from "../types";
+
 interface Props {
   playing: boolean;
   speed: number;
@@ -5,12 +7,14 @@ interface Props {
   currentTime: number;
   startTime: number;
   endTime: number;
+  timeMode: TimeMode;
   isDarkTheme?: boolean;
   isMobile?: boolean;
   leftOffset?: number;
   onToggle: () => void;
   onSpeedChange: (speed: number) => void;
   onSeekByProgress: (p: number) => void;
+  onTimeModeChange: (mode: TimeMode) => void;
 }
 
 const getBtnStyle = (dark: boolean): React.CSSProperties => ({
@@ -53,13 +57,17 @@ export function TimelineControls({
   currentTime,
   startTime,
   endTime,
+  timeMode,
   isDarkTheme = true,
   isMobile = false,
   leftOffset = 16,
   onToggle,
   onSpeedChange,
   onSeekByProgress,
+  onTimeModeChange,
 }: Props) {
+  const isLive = timeMode === "live";
+
   return (
     <div
       style={isMobile ? {} : {
@@ -80,24 +88,53 @@ export function TimelineControls({
           marginBottom: 6,
         }}
       >
-        <button onClick={onToggle} style={{
-          ...getBtnStyle(isDarkTheme),
-          ...(isMobile ? { width: 44, height: 44, fontSize: 18, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" } : {}),
-        }}>
-          {playing ? "\u23F8" : "\u25B6"}
+        {/* Mode toggle */}
+        <button
+          onClick={() => onTimeModeChange(isLive ? "replay" : "live")}
+          style={{
+            ...getBtnStyle(isDarkTheme),
+            background: isLive
+              ? "rgba(76,175,80,0.35)"
+              : (isDarkTheme ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)"),
+            border: isLive
+              ? "1px solid rgba(76,175,80,0.6)"
+              : `1px solid ${isDarkTheme ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
+            color: isLive
+              ? "#4caf50"
+              : (isDarkTheme ? "rgba(220,220,220,0.9)" : "#555"),
+            fontSize: 11,
+            fontWeight: isLive ? 700 : 400,
+            letterSpacing: isLive ? 1 : 0,
+            ...(isMobile ? { height: 44, padding: "0 12px", display: "flex", alignItems: "center", justifyContent: "center" } : {}),
+          }}
+        >
+          {isLive ? "LIVE" : "Replay"}
         </button>
 
-        <select
-          value={speed}
-          onChange={(e) => onSpeedChange(Number(e.target.value))}
-          style={getSelectStyle(isDarkTheme)}
-        >
-          <option value={30}>30x</option>
-          <option value={60}>60x</option>
-          <option value={120}>120x</option>
-          <option value={300}>300x</option>
-          <option value={600}>600x</option>
-        </select>
+        {/* Play/pause (replay only) */}
+        {!isLive && (
+          <button onClick={onToggle} style={{
+            ...getBtnStyle(isDarkTheme),
+            ...(isMobile ? { width: 44, height: 44, fontSize: 18, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" } : {}),
+          }}>
+            {playing ? "\u23F8" : "\u25B6"}
+          </button>
+        )}
+
+        {/* Speed selector (replay only) */}
+        {!isLive && (
+          <select
+            value={speed}
+            onChange={(e) => onSpeedChange(Number(e.target.value))}
+            style={getSelectStyle(isDarkTheme)}
+          >
+            <option value={30}>30x</option>
+            <option value={60}>60x</option>
+            <option value={120}>120x</option>
+            <option value={300}>300x</option>
+            <option value={600}>600x</option>
+          </select>
+        )}
 
         <span
           style={{
@@ -110,29 +147,33 @@ export function TimelineControls({
         </span>
       </div>
 
-      {/* 時間軸滑桿 */}
-      <input
-        type="range"
-        min={0}
-        max={1}
-        step={0.001}
-        value={progress}
-        onChange={(e) => onSeekByProgress(Number(e.target.value))}
-        style={{ width: "100%", height: isMobile ? 8 : undefined, accentColor: isDarkTheme ? "#aaa" : "#bbb" }}
-      />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          color: isDarkTheme ? "rgba(180,180,180,0.4)" : "rgba(0,0,0,0.3)",
-          fontSize: 10,
-          fontFamily: "monospace",
-          marginTop: 2,
-        }}
-      >
-        <span>{formatDateTime(startTime)}</span>
-        <span>{formatDateTime(endTime)}</span>
-      </div>
+      {/* 時間軸滑桿 (replay only) */}
+      {!isLive && (
+        <>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.001}
+            value={progress}
+            onChange={(e) => onSeekByProgress(Number(e.target.value))}
+            style={{ width: "100%", height: isMobile ? 8 : undefined, accentColor: isDarkTheme ? "#aaa" : "#bbb" }}
+          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              color: isDarkTheme ? "rgba(180,180,180,0.4)" : "rgba(0,0,0,0.3)",
+              fontSize: 10,
+              fontFamily: "monospace",
+              marginTop: 2,
+            }}
+          >
+            <span>{formatDateTime(startTime)}</span>
+            <span>{formatDateTime(endTime)}</span>
+          </div>
+        </>
+      )}
     </div>
   );
 }
