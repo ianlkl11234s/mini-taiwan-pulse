@@ -102,7 +102,19 @@ export default function App() {
     }
   }, [railData, dataRegistry.register]);
 
-  const { temperatureData, temperatureLoading } = useTemperatureData();
+  const { temperatureData, temperatureLoading, temperatureTimeRange } = useTemperatureData();
+
+  useEffect(() => {
+    if (temperatureTimeRange.start > 0) {
+      dataRegistry.register({
+        id: "temperatureWave",
+        timeType: "snapshot",
+        timeRanges: [temperatureTimeRange],
+        supportsLive: false,
+        refreshInterval: 3600,
+      });
+    }
+  }, [temperatureTimeRange, dataRegistry.register]);
 
   // 預計算光柱資料（靜態 JSON，不依賴 railData）
   useEffect(() => {
@@ -182,11 +194,12 @@ export default function App() {
     if (layerVisibility.flights) enabledIds.push("flights");
     if (layerVisibility.ships) enabledIds.push("ships");
     if (layerVisibility.newsEvents) enabledIds.push("newsEvents");
+    if (layerVisibility.temperatureWave) enabledIds.push("temperatureWave");
     const range = dataRegistry.getTimelineRange(enabledIds);
     // fallback: 如果 registry 還沒資料，用航班的 timeRange
     if (range.start === 0 && range.end === 0) return timeRange;
     return range;
-  }, [dataRegistry.sources, layerVisibility.flights, layerVisibility.ships, layerVisibility.newsEvents, timeRange]);
+  }, [dataRegistry.sources, layerVisibility.flights, layerVisibility.ships, layerVisibility.newsEvents, layerVisibility.temperatureWave, timeRange]);
 
   const timeline = useTimeline({
     dataStartTime: dataTimeRange.start,
