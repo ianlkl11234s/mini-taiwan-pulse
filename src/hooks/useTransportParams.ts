@@ -285,6 +285,7 @@ export function useTransportParams() {
       case "submarineCables": return [];
       case "landingStations": return [];
       case "activeFaults": return [];
+      case "newsEvents": return [];
       case "h3Population": return [
         { label: `Opacity ${h3Opacity.toFixed(1)}`, value: h3Opacity, min: 0.1, max: 1, step: 0.1, onChange: setH3Opacity },
         { label: `Contrast ${h3Contrast.toFixed(1)}`, value: h3Contrast, min: 0.5, max: 4, step: 0.1, onChange: setH3Contrast },

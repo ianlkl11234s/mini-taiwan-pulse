@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, type CSSProperties } from "react";
 import {
-  Activity, Layers, MapPin, Settings, X,
+  Activity, Layers, MapPin, CalendarDays, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
   BarChart3, Users, AlertTriangle, CloudSun, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
@@ -12,7 +12,9 @@ import type {
   LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode,
 } from "../types";
 import type { ParamControl } from "../hooks/useTransportParams";
+import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
+import { DataCalendarPanel } from "./DataCalendarPanel";
 
 // ── Color Config ──
 
@@ -31,6 +33,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   submarineCables: "#2196F3",
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
+  newsEvents: "#ff9800",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -65,6 +68,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   submarineCables: Cable,
   landingStations: Radio,
   activeFaults: Mountain,
+  newsEvents: Radio,
 };
 
 // ── Section Config ──
@@ -147,6 +151,12 @@ const SECTIONS: SectionDef[] = [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
     ],
   },
+  {
+    title: "NEWS",
+    layers: [
+      { key: "newsEvents", label: "新聞 News", expandable: true },
+    ],
+  },
 ];
 
 // ── IATA Map for Locations Panel ──
@@ -174,6 +184,9 @@ interface IconRailSidebarProps {
   currentLocationId?: string;
   onLocationJump: (presetId: string) => void;
   onWidthChange?: (width: number) => void;
+  dataRegistry?: DataRegistry;
+  selectedDate?: Date;
+  onDateSelect?: (d: Date) => void;
 }
 
 // ── Shared Styles ──
@@ -186,7 +199,7 @@ const BORDER = "#2A2D32";
 const DIM = "#6B7280";
 const INACTIVE_TEXT = "#9CA3AF";
 
-type PanelId = "layers" | "locations";
+type PanelId = "layers" | "locations" | "calendar";
 
 // ── Main Component ──
 
@@ -198,6 +211,7 @@ export function IconRailSidebar({
   counts, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   getControls, currentLocationId, onLocationJump, onWidthChange,
+  dataRegistry, selectedDate, onDateSelect,
 }: IconRailSidebarProps) {
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
@@ -298,6 +312,14 @@ export function IconRailSidebar({
           tooltip="Locations"
         />
 
+        {/* Calendar */}
+        <RailIcon
+          icon={CalendarDays}
+          active={activePanel === "calendar"}
+          onClick={() => togglePanel("calendar")}
+          tooltip="Data Calendar"
+        />
+
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
@@ -349,6 +371,18 @@ export function IconRailSidebar({
                 getControls={getControls}
                 onClose={closePanel}
               />
+            )}
+            {activePanel === "calendar" && dataRegistry && selectedDate && onDateSelect && (
+              <>
+                <PanelHeader title="Data Availability" onClose={closePanel} />
+                <div className="layer-sidebar-scroll" style={{ flex: 1, overflowY: "auto" }}>
+                  <DataCalendarPanel
+                    registry={dataRegistry}
+                    selectedDate={selectedDate}
+                    onDateSelect={onDateSelect}
+                  />
+                </div>
+              </>
             )}
             {activePanel === "locations" && (
               <LocationsPanel

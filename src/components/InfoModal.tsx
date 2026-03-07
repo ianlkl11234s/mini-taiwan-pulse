@@ -186,10 +186,13 @@ function GettingStartedPage({ lang }: { lang: Lang }) {
 
       <SectionTitle>{L ? "時間軸控制（底部）" : "TIMELINE CONTROLS (BOTTOM)"}</SectionTitle>
       <Card>
-        {L ? "畫面底部的時間軸可控制航班 / 船舶 / 列車的播放時間：" : "The timeline at the bottom controls playback time for flights, ships, and trains:"}
+        {L ? "畫面底部的時間軸以日期為中心，控制航班 / 船舶 / 列車的播放時間：" : "The date-centric timeline at the bottom controls playback time for flights, ships, and trains:"}
         <div style={{ marginTop: 6 }}>
+          <ParamRow label={L ? "日期導航" : "Date Nav"} desc={L ? "◀ ▶ 切換日期，點擊日期可展開日期選擇器" : "◀ ▶ to switch dates, click the date to open a date picker"} />
+          <ParamRow label="Now" desc={L ? "跳至今日（Live 模式）" : "Jump to today (Live mode)"} />
+          <ParamRow label={L ? "範圍" : "Range"} desc={L ? "1d / 3d / 7d 控制瀏覽天數" : "1d / 3d / 7d to control the browsing range"} />
           <ParamRow label="▶ / ⏸" desc={L ? "播放或暫停時間推進" : "Play or pause time progression"} />
-          <ParamRow label={L ? "速度" : "Speed"} desc={L ? "可選 30x · 60x · 120x · 300x · 600x 加速倍率" : "Choose from 30x · 60x · 120x · 300x · 600x acceleration"} />
+          <ParamRow label={L ? "速度" : "Speed"} desc={L ? "可選 30x · 60x · 120x · 300x · 600x · 1800x · 3600x 加速倍率" : "Choose from 30x · 60x · 120x · 300x · 600x · 1800x · 3600x acceleration"} />
           <ParamRow label={L ? "滑桿" : "Slider"} desc={L ? "拖曳跳轉到資料時間範圍內的任意時刻" : "Drag to jump to any moment within the data time range"} />
         </div>
       </Card>
@@ -266,8 +269,8 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <p style={{ fontSize: 13, lineHeight: 1.8, color: S.text, margin: 0 }}>
         {L
-          ? <>左側面板包含 <b>21 個圖層</b>，分為 7 大分類。每個圖層有 <b>圓形開關</b> 控制可見性。帶 <b>▸ 三角形</b> 的圖層可展開參數面板，拖曳 slider 即時調整視覺效果。</>
-          : <>The left panel contains <b>21 layers</b> organized into 7 categories. Each layer has a <b>circle toggle</b> for visibility. Layers with a <b>▸ triangle</b> can expand a parameter panel — drag sliders to adjust visuals in real-time.</>
+          ? <>左側面板包含 <b>23 個圖層</b>，分為 10 大分類。每個圖層有 <b>圓形開關</b> 控制可見性。帶 <b>▸ 三角形</b> 的圖層可展開參數面板，拖曳 slider 即時調整視覺效果。</>
+          : <>The left panel contains <b>23 layers</b> organized into 10 categories. Each layer has a <b>circle toggle</b> for visibility. Layers with a <b>▸ triangle</b> can expand a parameter panel — drag sliders to adjust visuals in real-time.</>
         }
       </p>
 
@@ -298,6 +301,18 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
               : "Real-time train positions across 6 rail systems (TRA · THSR · Taipei/Kaohsiung/Taichung Metro · Kaohsiung LRT)."}
           </div>
           <ExpandableParams lang={lang} items={railParams} />
+        </Card>
+      </div>
+
+      {/* NEWS */}
+      <SectionTitle>NEWS — {L ? "新聞" : "News"}</SectionTitle>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <Card title={L ? "新聞事件 News" : "News Events"} accentColor="#ff9800">
+          <div style={{ color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設關閉。顯示中央通訊社 CNA RSS 新聞事件的地理標記，透過 Gemini API 自動地理編碼。主要新聞以較大橘色圓點顯示，次要新聞以較小灰色圓點顯示。點擊可查看新聞標題、摘要、分類與連結。"
+              : "Off by default. Shows CNA RSS news events as geographic markers, auto-geocoded via Gemini API. Primary news shown as larger orange dots, secondary as smaller gray dots. Click to view title, summary, category, and link."}
+          </div>
         </Card>
       </div>
 
@@ -451,6 +466,20 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
               : "Off by default. Shows Taiwan's offshore wind farm planning zones as translucent fills. Toggle only, no adjustable parameters."}
           </div>
         </Card>
+        <Card title={L ? "溫度波浪 Temperature" : "Temperature Wave"}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設關閉。以 3D 波浪曲面或 2D 色圖顯示台灣溫度場分佈，資料來自中央氣象署 0.03° 格點每小時快照。色盤使用 RdBu 發散色階（深藍→白→深紅），動畫以 vertex lerp 平滑過渡。"
+              : "Off by default. Displays Taiwan's temperature field as a 3D wave surface or 2D color map, using hourly snapshots from CWA's 0.03° grid. Uses RdBu diverging color scale (blue → white → red), with smooth vertex lerp animation."}
+          </div>
+          <ExpandableParams lang={lang} items={[
+            { label: "3D", zh: "切換 3D 波浪曲面 / 2D 平面色圖模式。", en: "Toggle between 3D wave surface and 2D flat color map." },
+            { label: "Height", zh: "溫度造成的高低起伏振幅（0~400）。", en: "Temperature-driven height amplitude (0–400)." },
+            { label: "Z Offset", zh: "整塊曲面的 Z 軸抬升高度（0~1000）。", en: "Z-axis elevation for the entire surface (0–1000)." },
+            { label: "Opacity", zh: "曲面透明度（0.1~1）。", en: "Surface opacity (0.1–1)." },
+            { label: "Grid", zh: "網格線覆蓋開關。", en: "Grid line overlay toggle." },
+          ]} />
+        </Card>
       </div>
 
       {/* 面板操作說明 */}
@@ -517,6 +546,12 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
       color: "#4dd0e1",
     },
     {
+      name: { zh: "溫度格點", en: "Temperature Grid" },
+      source: "CWA (Central Weather Administration)",
+      desc: { zh: "中央氣象署小時溫度觀測分析格點（O-A0038-003），0.03° 解析度（~3.3km），120×67 格網。每小時一個 frame，經 data-collectors 收集存入 S3。", en: "Hourly temperature observation analysis grid (O-A0038-003) from CWA, 0.03° resolution (~3.3km), 120×67 grid. One frame per hour, collected by data-collectors and stored in S3." },
+      color: "#ff6b35",
+    },
+    {
       name: { zh: "車站", en: "Stations" },
       source: "OpenStreetMap + TDX",
       desc: { zh: "大站邊界 Polygon 來自 OSM Overpass API，小站 Point 從各系統 GeoJSON 合併（491 站）。車站光柱高度依每日停靠次數正規化預計算（535 站）。公車站位來自 TDX。", en: "Large station boundary polygons from OSM Overpass API, small station points merged from system GeoJSONs (491 stations). Pillar heights precomputed from daily stop counts (535 stations). Bus stops from TDX." },
@@ -533,6 +568,12 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
       source: L ? "交通部公路局" : "Directorate General of Highways",
       desc: { zh: "國道各路段即時壅塞程度資料，以色彩編碼顯示車流狀態。資料來自交通部公路局即時路況系統。", en: "Real-time freeway congestion data by road segment, color-coded to display traffic flow status. Data from the Directorate General of Highways real-time traffic system." },
       color: "#FF6B35",
+    },
+    {
+      name: { zh: "新聞事件", en: "News Events" },
+      source: "CNA RSS + Google Gemini API",
+      desc: { zh: "中央通訊社 RSS 新聞摘要，透過 Google Gemini API 自動萃取地理座標，標記新聞事件發生地點。區分主要新聞（is_primary）與一般新聞。", en: "CNA RSS news summaries, auto-geocoded via Google Gemini API to mark event locations. Differentiates primary (is_primary) and regular news events." },
+      color: "#ff9800",
     },
     {
       name: { zh: "人流模擬", en: "Pop. Flow" },
@@ -603,7 +644,7 @@ function AboutPage({ lang }: { lang: Lang }) {
     { num: "14", label: { zh: "機場", en: "Airports" } },
     { num: "535", label: { zh: "車站光柱", en: "Station Pillars" } },
     { num: "36", label: { zh: "燈塔", en: "Lighthouses" } },
-    { num: "21", label: { zh: "地圖圖層", en: "Map Layers" } },
+    { num: "23", label: { zh: "地圖圖層", en: "Map Layers" } },
   ];
 
   return (
@@ -656,13 +697,18 @@ function AboutPage({ lang }: { lang: Lang }) {
         </Card>
         <Card title="Three.js CustomLayer">
           {L
-            ? "透過 Mapbox CustomLayer 在同一個 WebGL context 中嵌入 Three.js 場景，5 個獨立 CustomLayer 各自管理航班、船舶、軌道、燈塔、車站光柱的 3D 渲染。"
-            : "Three.js scenes embedded in Mapbox via CustomLayer sharing the same WebGL context. 5 independent CustomLayers handle 3D rendering for flights, ships, rail, lighthouses, and station pillars."}
+            ? "透過 Mapbox CustomLayer 在同一個 WebGL context 中嵌入 Three.js 場景，6 個獨立 CustomLayer 各自管理航班、船舶、軌道、燈塔、車站光柱、溫度波浪的 3D 渲染。"
+            : "Three.js scenes embedded in Mapbox via CustomLayer sharing the same WebGL context. 6 independent CustomLayers handle 3D rendering for flights, ships, rail, lighthouses, station pillars, and temperature waves."}
         </Card>
         <Card title={L ? "台鐵專用引擎" : "TRA Dedicated Engine"}>
           {L
             ? "處理 OD 軌道配對、golden track 選擇、彰化三角線等複雜路線的列車運動插值。"
             : "Handles OD track pairing, golden track selection, and complex routing (e.g., Changhua triangle junction) for train motion interpolation."}
+        </Card>
+        <Card title="Data Source Registry">
+          {L
+            ? "多資料源時間管理中央註冊表。每個資料源宣告時間類型（track/snapshot/cyclic/static），系統自動計算時間軸聯集範圍、日期可用性、資料覆蓋率。搭配 Data Calendar 面板視覺化。"
+            : "Central registry for multi-source timeline management. Each source declares its time type (track/snapshot/cyclic/static), and the system auto-computes timeline union ranges, date availability, and data coverage. Paired with Data Calendar panel for visualization."}
         </Card>
       </div>
     </div>

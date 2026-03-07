@@ -73,22 +73,25 @@
 | 人口數六角格 | Mapbox fill / fill-extrusion（Inferno 色階） | SEGIS 村里人口統計 |
 | 人口指標六角格 | Mapbox fill / fill-extrusion（Inferno 色階，9 項指標） | SEGIS 村里人口統計 |
 | 溫度波浪曲面 | Three.js BufferGeometry（RdBu 發散色盤，vertex lerp 動畫） | 中央氣象署 0.03° 格點 |
+| 新聞事件標記 | Mapbox circle + glow（主要/次要新聞分色） | 中央通訊社 CNA RSS + Gemini API 地理編碼 |
 
 ## 功能
 
 ### 圖層面板（LayerSidebar）
 
-七分類側邊欄，共 22 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
+十分類側邊欄，共 23 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
 
 | 分類 | 圖層 |
 |------|------|
 | **MOVING** | 航班 Flight、船舶 Ship、鐵道 Rail（可展開參數面板） |
+| **NEWS** | 新聞事件 News（可展開） |
 | **STATION** | 高鐵站 THSR · 台鐵站 TRA · 捷運站 Metro · 市區公車站 City Bus · 公路客運站 Intercity · 公共腳踏車 Bike（可展開） |
 | **ROUTE** | 國道 Highway · 省道 Prov.Road · 自行車道 Cycling（可展開） |
 | **INFRA** | 碼頭 Port · 機場 Airport · 燈塔 Lighthouse（可展開） |
 | **ANALYTICS** | 人流模擬 Pop. Flow · 人口數 Population · 人口指標 Indicators（可展開） |
 | **MONITOR** | 國道壅塞 Congestion（可展開） |
 | **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm · 溫度波 Temperature（可展開） |
+| **HAZARD** | 活動斷層 Fault（可展開） |
 
 - MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
 - 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
@@ -241,13 +244,14 @@
 - 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Satellite Streets / Navigation Night / Streets）
 - 開場全台總覽視角（23.43°N, 121.12°E, z7.9, pitch 48°）
 - 14 座台灣機場預設視角 + 飛行動畫跳轉（2 秒）
-- 時間軸播放控制（30x / 60x / 120x / 300x / 600x 加速）
+- 日期導航（◀ 日期 ▶ + 即時模式）+ 時間軸播放控制（30x~3600x 加速）+ 多日範圍瀏覽（1d/3d/7d）
 - Capture 拍攝模式（暗角 vignette + 標題 + 時間標記，按 ESC 退出）
 - 顯示模式切換：Live Status（即時位置）/ Trails（軌跡線）
 - 點擊飛機 / 列車光球顯示浮動資訊卡
 - 768px 以下自動切換手機版 UI（底部拖曳面板）
 - 底部資訊列：即時運具計數 + 相機 pitch / bearing / zoom 參數
 - Info Modal：5 頁多分頁說明面板（操作指南 · 功能圖例 · 資料來源 · 關於 · 個人）
+- Data Calendar 面板：月曆格顯示各資料源涵蓋日期，Dots/Heat 雙模式 + 來源篩選
 
 ## 技術棧
 
@@ -277,6 +281,23 @@ MapView.tsx         — 一個 useEffect 控制所有 overlay 可見性 + 主題
 1. `src/types/index.ts` — `LayerVisibility` 加一個 key
 2. `src/map/overlayRegistry.ts` — 加一筆 `OverlayConfig`
 3. `src/components/LayerSidebar.tsx` — 在對應 section 加一列
+
+### Data Source Registry 模式
+
+多資料源時間管理透過 **Data Source Registry** 統一註冊：
+
+```
+useDataRegistry.ts  — 中央註冊表（sources Map + register/getTimelineRange/hasDataOnDate）
+useTimeline.ts      — 日期導向時間軸（selectedDate + rangeDays + windowStart/windowEnd）
+TimelineControls.tsx — 日期導航 UI（◀ 日期 ▶ + Live/Replay + 1d/3d/7d 範圍）
+DataCalendarPanel.tsx — 月曆格資料可用性視覺化（Dots/Heat 模式 + 來源篩選）
+```
+
+每個資料源宣告自己的時間類型：
+- **track**：航班、船舶（有明確的起訖時間範圍）
+- **snapshot**：溫度場（每小時一個 frame，跨多天）
+- **cyclic**：鐵道（每日循環的時刻表）
+- **static**：機場、車站等不隨時間變化的圖層
 
 ### Three.js CustomLayer 架構
 
@@ -332,6 +353,7 @@ mini-taiwan-pulse/
 │   ├── h3_demographics_res7.json  # 村里人口指標 res7（~8K cells）
 │   ├── h3_demographics_res8.json  # 村里人口指標 res8（~56K cells）
 │   ├── temperature_grid.json      # 溫度格點時序（S3 逐時快照，~941KB）
+│   ├── news_events.geojson          # 新聞事件地標（CNA RSS + Gemini 地理編碼）
 │   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
 │       ├── tra/                    # 台鐵
 │       ├── thsr/                   # 高鐵
@@ -346,8 +368,9 @@ mini-taiwan-pulse/
 │   ├── components/
 │   │   ├── LoadingScreen.tsx       # 全資料預載進度畫面（4 項獨立打勾 + 真實進度條）
 │   │   ├── InfoModal.tsx           # 多分頁 Info Modal（5 頁）
-│   │   ├── LayerSidebar.tsx        # 七分類圖層面板（MOVING / STATION / ROUTE / INFRA / ANALYTICS / MONITOR / ENVIRON）
+│   │   ├── LayerSidebar.tsx        # 十分類圖層面板（MOVING / NEWS / STATION / ROUTE / INFRA / ANALYTICS / MONITOR / ENVIRON / HAZARD）
 │   │   ├── TimelineControls.tsx    # 時間軸播放控制
+│   │   ├── DataCalendarPanel.tsx   # 月曆格資料可用性視覺化
 │   │   ├── AirportSelector.tsx     # 地點跳轉
 │   │   ├── StyleSelector.tsx       # 底圖樣式選擇
 │   │   └── MobileBottomSheet.tsx   # 手機版底部面板
@@ -391,6 +414,7 @@ mini-taiwan-pulse/
 │   │   ├── useH3Data.ts            # 人流資料載入 + 快取
 │   │   ├── useDemographicsH3.ts    # 村里人口指標資料載入 + 快取
 │   │   ├── useTimeline.ts          # 時間軸播放邏輯
+│   │   ├── useDataRegistry.ts      # 資料源中央註冊表
 │   │   └── useIsMobile.ts          # 響應式斷點偵測
 │   ├── data/                       # 資料載入器
 │   │   ├── flightLoader.ts         # 航班 JSON 解析 + 時間窗過濾
@@ -560,7 +584,8 @@ sh /usr/local/bin/pull-deploy-assets.sh
 | 國道 / 省道 / 自行車道 | 交通部公路局 |
 | 國道壅塞 | 交通部公路局 |
 | 氣象觀測站 | [中央氣象署](https://www.cwa.gov.tw/) |
-| 溫度格點（0.03° 網格） | [中央氣象署](https://www.cwa.gov.tw/) O-A0038-003 |
+| 溫度格點（0.03° 網格，每小時快照） | [中央氣象署](https://www.cwa.gov.tw/) O-A0038-003 |
+| 新聞事件地標 | [中央通訊社 CNA](https://www.cna.com.tw/) RSS + Google Gemini API 地理編碼 |
 | 離岸風場範圍 | 經濟部能源局 |
 | 日夜間人流 | 內政部最小統計區人流統計（六角形網格化） |
 | 村里人口指標 | [社會經濟統計地理資訊網 (SEGIS)](https://segis.moi.gov.tw/)，114 年 6 月 |

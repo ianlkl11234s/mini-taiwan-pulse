@@ -11,6 +11,7 @@ import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
+import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useH3Data } from "./hooks/useH3Data";
@@ -40,7 +41,10 @@ export default function App() {
     loading,
   } = useFlightData();
 
-  const { ships, loading: shipsLoading } = useShipData();
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading } = useShipData();
+
+  // ── Data Source Registry ──
+  const dataRegistry = useDataRegistry();
 
   // 燈塔座標
   const [lighthousePositions, setLighthousePositions] = useState<[number, number][]>([]);
@@ -62,8 +66,55 @@ export default function App() {
   const [airportPillarData, setAirportPillarData] = useState<StationPillarData[]>([]);
   const [portPillarData, setPortPillarData] = useState<StationPillarData[]>([]);
 
+  // 資料載入後向 Registry 註冊時間資訊
+  useEffect(() => {
+    if (timeRange.start > 0) {
+      dataRegistry.register({
+        id: "flights",
+        timeType: "track",
+        timeRanges: [timeRange],
+        supportsLive: false,
+      });
+    }
+  }, [timeRange, dataRegistry.register]);
+
+  useEffect(() => {
+    if (shipTimeRange.start > 0) {
+      dataRegistry.register({
+        id: "ships",
+        timeType: "track",
+        timeRanges: [shipTimeRange],
+        supportsLive: false,
+      });
+    }
+  }, [shipTimeRange, dataRegistry.register]);
+
   const { railData, loading: railLoading } = useRailData();
-  const { temperatureData, temperatureLoading } = useTemperatureData();
+
+  useEffect(() => {
+    if (railData) {
+      dataRegistry.register({
+        id: "rail",
+        timeType: "cyclic",
+        timeRanges: [{ start: -Infinity, end: Infinity }],
+        supportsLive: true,
+      });
+    }
+  }, [railData, dataRegistry.register]);
+
+  const { temperatureData, temperatureLoading, temperatureTimeRange } = useTemperatureData();
+
+  useEffect(() => {
+    if (temperatureTimeRange.start > 0) {
+      dataRegistry.register({
+        id: "temperatureWave",
+        timeType: "snapshot",
+        timeRanges: [temperatureTimeRange],
+        supportsLive: false,
+        refreshInterval: 3600,
+      });
+    }
+  }, [temperatureTimeRange, dataRegistry.register]);
 
   // 預計算光柱資料（靜態 JSON，不依賴 railData）
   useEffect(() => {
@@ -124,6 +175,7 @@ export default function App() {
   }, []);
 
   const { isMobile, isLandscape } = useIsMobile();
+  const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
   const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
   const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
@@ -136,9 +188,22 @@ export default function App() {
   const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
   const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
 
+  // 從 Registry 計算整體資料範圍（供日期導航參考）
+  const dataTimeRange = useMemo(() => {
+    const enabledIds: string[] = [];
+    if (layerVisibility.flights) enabledIds.push("flights");
+    if (layerVisibility.ships) enabledIds.push("ships");
+    if (layerVisibility.newsEvents) enabledIds.push("newsEvents");
+    if (layerVisibility.temperatureWave) enabledIds.push("temperatureWave");
+    const range = dataRegistry.getTimelineRange(enabledIds);
+    // fallback: 如果 registry 還沒資料，用航班的 timeRange
+    if (range.start === 0 && range.end === 0) return timeRange;
+    return range;
+  }, [dataRegistry.sources, layerVisibility.flights, layerVisibility.ships, layerVisibility.newsEvents, layerVisibility.temperatureWave, timeRange]);
+
   const timeline = useTimeline({
-    startTime: timeRange.start,
-    endTime: timeRange.end,
+    dataStartTime: dataTimeRange.start,
+    dataEndTime: dataTimeRange.end,
   });
 
   // ── Custom Hooks ──
@@ -194,7 +259,6 @@ export default function App() {
   playingRef.current = timeline.playing;
 
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
-  const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
 
@@ -609,6 +673,9 @@ export default function App() {
                 }
               }}
               onWidthChange={handleSidebarWidthChange}
+              dataRegistry={dataRegistry}
+              selectedDate={timeline.selectedDate}
+              onDateSelect={timeline.setSelectedDate}
             />
           </div>
 
@@ -618,13 +685,20 @@ export default function App() {
             speed={timeline.speed}
             progress={timeline.progress}
             currentTime={timeline.currentTime}
-            startTime={timeRange.start}
-            endTime={timeRange.end}
+            timeMode={timeline.timeMode}
+            selectedDate={timeline.selectedDate}
+            rangeDays={timeline.rangeDays}
+            windowStart={timeline.windowStart}
+            windowEnd={timeline.windowEnd}
             isDarkTheme={isDarkTheme}
             leftOffset={sidebarWidth + 16}
             onToggle={timeline.toggle}
             onSpeedChange={timeline.setSpeed}
             onSeekByProgress={timeline.seekByProgress}
+            onTimeModeChange={timeline.setTimeMode}
+            onDateChange={timeline.setSelectedDate}
+            onShiftDate={timeline.shiftDate}
+            onRangeDaysChange={timeline.setRangeDays}
           />
 
           {/* 右上角按鈕群 */}
@@ -875,13 +949,20 @@ export default function App() {
               speed={timeline.speed}
               progress={timeline.progress}
               currentTime={timeline.currentTime}
-              startTime={timeRange.start}
-              endTime={timeRange.end}
+              timeMode={timeline.timeMode}
+              selectedDate={timeline.selectedDate}
+              rangeDays={timeline.rangeDays}
+              windowStart={timeline.windowStart}
+              windowEnd={timeline.windowEnd}
               isDarkTheme={true}
               isMobile={true}
               onToggle={timeline.toggle}
               onSpeedChange={timeline.setSpeed}
               onSeekByProgress={timeline.seekByProgress}
+              onTimeModeChange={timeline.setTimeMode}
+              onDateChange={timeline.setSelectedDate}
+              onShiftDate={timeline.shiftDate}
+              onRangeDaysChange={timeline.setRangeDays}
             />
           </div>
 

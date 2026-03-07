@@ -48,6 +48,32 @@ export interface TimelineState {
   speed: number;
 }
 
+/** 時間模式：replay = 歷史回放, live = 即時模式 */
+export type TimeMode = "replay" | "live";
+
+/** 資料源的時間行為類型 */
+export type TimeType =
+  | "track"     // 有軌跡的動態資料（航班、船舶）
+  | "snapshot"  // 快照資料（YouBike、國道壅塞）
+  | "cyclic"    // 每日循環（鐵道時刻表）
+  | "event"     // 事件資料（新聞）
+  | "static";   // 靜態資料（車站、道路）
+
+/** 資料源時間範圍 */
+export interface TimeRange {
+  start: number;  // unix timestamp
+  end: number;    // unix timestamp
+}
+
+/** 資料源元資料 */
+export interface DataSourceMeta {
+  id: string;
+  timeType: TimeType;
+  timeRanges: TimeRange[];
+  supportsLive: boolean;
+  refreshInterval?: number; // 秒，Live 模式下的更新頻率
+}
+
 /** 顯示模式 */
 export type ViewMode = "all-taiwan" | "time-window";
 
@@ -66,7 +92,8 @@ export type ExpandableLayerKey =
   | "temperatureWave"
   | "schools" | "convenienceStores"
   | "submarineCables" | "landingStations"
-  | "activeFaults";
+  | "activeFaults"
+  | "newsEvents";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -194,7 +221,7 @@ export interface OverlayConfig {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport" | "activeFault";
+    | "port" | "airport" | "activeFault" | "newsEvent";
   properties: Record<string, unknown>;
 }
 
@@ -228,4 +255,5 @@ export interface LayerVisibility {
   submarineCables: boolean;
   landingStations: boolean;
   activeFaults: boolean;
+  newsEvents: boolean;
 }
