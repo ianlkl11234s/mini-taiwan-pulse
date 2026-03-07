@@ -668,6 +668,9 @@ export default function App() {
                 }
               }}
               onWidthChange={handleSidebarWidthChange}
+              dataRegistry={dataRegistry}
+              selectedDate={timeline.selectedDate}
+              onDateSelect={timeline.setSelectedDate}
             />
           </div>
 

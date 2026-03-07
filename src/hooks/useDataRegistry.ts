@@ -21,6 +21,8 @@ export interface DataRegistry {
   getSource: (id: string) => DataSourceMeta | undefined;
   /** 取得特定資料源的時間範圍摘要文字 */
   getTimeLabel: (id: string) => string;
+  /** 判斷某資料源在指定日期是否有資料 */
+  hasDataOnDate: (id: string, date: Date) => boolean;
 }
 
 function mergeTimeRanges(ranges: TimeRange[]): TimeRange {
@@ -98,11 +100,21 @@ export function useDataRegistry(): DataRegistry {
     return formatTimeLabel(src);
   }, []);
 
+  const hasDataOnDate = useCallback((id: string, date: Date): boolean => {
+    const src = sourcesRef.current.get(id);
+    if (!src) return false;
+    if (src.timeType === "cyclic") return true;
+    if (src.timeType === "static") return true;
+    const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0).getTime() / 1000;
+    const dayEnd = dayStart + 86400;
+    return src.timeRanges.some((r) => r.start < dayEnd && r.end > dayStart);
+  }, []);
+
   // useMemo with version to force consumers to re-render on register
   const sources = useMemo(() => {
     void version;
     return new Map(sourcesRef.current);
   }, [version]);
 
-  return { sources, register, getTimelineRange, getSegments, getSource, getTimeLabel };
+  return { sources, register, getTimelineRange, getSegments, getSource, getTimeLabel, hasDataOnDate };
 }
