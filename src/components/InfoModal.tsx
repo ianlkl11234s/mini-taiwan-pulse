@@ -446,6 +446,46 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
             { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
           ]} />
         </Card>
+        <Card title={L ? "社經面貌 Socio-Econ" : "Socioeconomic Profile"}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設關閉。以六角形網格顯示村里級社會經濟面貌。資料來源：SEGIS 社會經濟統計地理資訊網 + 財政部綜合所得稅統計（114 年，7,748 村里）。色階：Viridis（深紫→青綠→亮黃），感知均勻、色盲友善。分兩大類五項指標："
+              : "Off by default. Displays village-level socioeconomic profiles using hexagonal grids. Source: SEGIS + Ministry of Finance income tax statistics (2025, 7,748 villages). Color scale: Viridis (purple → teal → yellow), perceptually uniform and colorblind-safe. Two categories, five indicators:"}
+          </div>
+          <div style={{ marginBottom: 6, color: S.dim, fontSize: 11 }}>
+            {L
+              ? "【收入 Income】Med — 所得中位數（萬元/年），反映當地一般收入水平；IQR — 四分位距比（Q3/Q1），數值越大代表貧富差距越懸殊；Sal% — 薪資佔比（薪資所得/總所得），越高代表該地區越依賴受薪工作。\n【社會 Social】Vital — 人口活力分數（出生率 40% + 社會增加 50% + 結婚淨率 10%，min-max 正規化後加權），衡量地區人口成長動能；Vuln — 脆弱度指數（低收入比 30% + 老年比 30% + 高風險比 20% + 無住宅比 20%），越高代表該地區越需要社會支持。"
+              : "【Income】Med — Median income (¥10K/yr), reflects general income level; IQR — Interquartile ratio (Q3/Q1), higher = greater income inequality; Sal% — Salary share (salary income / total income), higher = more wage-dependent.\n【Social】Vital — Vitality score (birth rate 40% + social increase 50% + marriage net 10%, min-max normalized), measures population growth momentum; Vuln — Vulnerability index (low-income 30% + elderly 30% + high-risk 20% + no-housing 20%), higher = greater need for social support."}
+          </div>
+          <ExpandableParams lang={lang} items={[
+            { label: "Category", zh: "指標分類：收入 Income / 社會 Social。切換時自動 reset Metric。", en: "Indicator category: Income / Social. Switching auto-resets Metric." },
+            { label: "Metric", zh: "依 Category 動態顯示：收入類 Med · IQR · Sal%；社會類 Vital · Vuln。", en: "Dynamic metrics: Income: Med · IQR · Sal%; Social: Vital · Vuln." },
+            { label: "Opacity", zh: "六角格填充不透明度（0.1~1）。", en: "Hexagon fill opacity (0.1–1)." },
+            { label: "Contrast", zh: "Gamma 對比度（0.5~4）。", en: "Gamma contrast (0.5–4)." },
+            { label: "3D", zh: "切換 2D 平面填充 / 3D 柱狀高度模式。", en: "Toggle between 2D flat fill and 3D extruded column mode." },
+            { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
+          ]} />
+        </Card>
+        <Card title={L ? "空間經濟 Spatial-Econ" : "Spatial Economy"}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設關閉。以六角形網格顯示最小統計區級空間經濟指標。資料來源：SEGIS 最小統計區（157,933 區）+ 實價登錄 + 國土利用調查。色階：Magma（深黑→紫紅→橘→亮黃白）。分兩大類五項指標："
+              : "Off by default. Displays minimal-statistical-area-level spatial economy indicators using hexagonal grids. Source: SEGIS minimal areas (157,933 zones) + actual price registry + national land use survey. Color scale: Magma (black → purple-red → orange → bright yellow-white). Two categories, five indicators:"}
+          </div>
+          <div style={{ marginBottom: 6, color: S.dim, fontSize: 11 }}>
+            {L
+              ? "【房市 Housing】Price — 房價中位數（萬元/坪），取自實價登錄、P99 封頂去極端值；Unit — 每坪單價（萬元），另一維度呈現房市行情；P/I — 房價所得比（房價中位數 ÷ 鄉鎮市區所得中位數），衡量購屋負擔壓力，數值越高代表當地居民越難負擔。\n【土地 Land】Amty — 便利設施密度（便利商店 + 學校等設施數 / 面積），反映生活機能；Mix — 土地混合度（Shannon 熵，9 類國土利用），越高代表土地使用越多元、都市機能越豐富。"
+              : "【Housing】Price — Median housing price (¥10K/ping), from actual price registry with P99 cap; Unit — Unit price per ping (¥10K), another dimension of market conditions; P/I — Price-to-income ratio (median price ÷ town-level median income), measures housing affordability pressure.\n【Land】Amty — Amenity density (convenience stores + schools etc. / area), reflects livability; Mix — Land use mix (Shannon entropy over 9 national land use categories), higher = more diverse urban functions."}
+          </div>
+          <ExpandableParams lang={lang} items={[
+            { label: "Category", zh: "指標分類：房市 Housing / 土地 Land。切換時自動 reset Metric。", en: "Indicator category: Housing / Land. Switching auto-resets Metric." },
+            { label: "Metric", zh: "依 Category 動態顯示：房市類 Price · Unit · P/I；土地類 Amty · Mix。", en: "Dynamic metrics: Housing: Price · Unit · P/I; Land: Amty · Mix." },
+            { label: "Opacity", zh: "六角格填充不透明度（0.1~1）。", en: "Hexagon fill opacity (0.1–1)." },
+            { label: "Contrast", zh: "Gamma 對比度（0.5~4）。", en: "Gamma contrast (0.5–4)." },
+            { label: "3D", zh: "切換 2D 平面填充 / 3D 柱狀高度模式。", en: "Toggle between 2D flat fill and 3D extruded column mode." },
+            { label: "Height", zh: "3D 模式下柱狀高度倍率（10~200）。", en: "Column height multiplier in 3D mode (10–200)." },
+          ]} />
+        </Card>
       </div>
 
       {/* ENVIRON */}
