@@ -26,6 +26,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   h3Population: "#ff6b6b",
   popCount: "#f9bd31",
   indicators: "#e25822",
+  socioeconomic: "#7c4dff",
+  spatialEconomy: "#ff6e40",
   temperatureWave: "#ff6b35",
   schools: "#42a5f5",
   convenienceStores: "#26c6da",
@@ -94,6 +96,8 @@ const SECTIONS: SectionDef[] = [
       { key: "h3Population", label: "人流模擬 Pop. Flow", expandable: true },
       { key: "popCount", label: "人口數 Population", expandable: true },
       { key: "indicators", label: "人口指標 Indicators", expandable: true },
+      { key: "socioeconomic", label: "社經面貌 Socio-Econ", expandable: true },
+      { key: "spatialEconomy", label: "空間經濟 Spatial-Econ", expandable: true },
     ],
   },
   {

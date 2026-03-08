@@ -89,6 +89,7 @@ export type ExpandableLayerKey =
   | "cyclingRoutes" | "freewayCongestion" | "weatherStations"
   | "highways" | "provincialRoads" | "ports" | "airports"
   | "h3Population" | "popCount" | "indicators"
+  | "socioeconomic" | "spatialEconomy"
   | "temperatureWave"
   | "schools" | "convenienceStores"
   | "submarineCables" | "landingStations"
@@ -249,6 +250,8 @@ export interface LayerVisibility {
   h3Population: boolean;
   popCount: boolean;
   indicators: boolean;
+  socioeconomic: boolean;
+  spatialEconomy: boolean;
   temperatureWave: boolean;
   schools: boolean;
   convenienceStores: boolean;

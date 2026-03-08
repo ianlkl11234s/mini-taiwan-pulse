@@ -1,6 +1,6 @@
 import { cellToBoundary } from "h3-js";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { DemographicH3CellData } from "../data/h3Loader";
+import type { DemographicH3CellData, SocioeconomicH3CellData, SpatialEconomyH3CellData } from "../data/h3Loader";
 
 // ── Layer IDs ──
 
@@ -11,6 +11,14 @@ const POP_COUNT_EXT = "h3-pop-count-ext";
 const INDICATORS_SRC = "h3-indicators-src";
 const INDICATORS_FILL = "h3-indicators-fill";
 const INDICATORS_EXT = "h3-indicators-ext";
+
+const SOCIO_SRC = "h3-socio-src";
+const SOCIO_FILL = "h3-socio-fill";
+const SOCIO_EXT = "h3-socio-ext";
+
+const SPATIAL_SRC = "h3-spatial-src";
+const SPATIAL_FILL = "h3-spatial-fill";
+const SPATIAL_EXT = "h3-spatial-ext";
 
 // ── Inferno color scale ──
 
@@ -234,4 +242,148 @@ export function updateIndicatorsLayer(
     cells, params.metric, params.opacity, params.contrast,
     params.extruded, params.elevationScale, visible,
   );
+}
+
+// ── Socioeconomic layers ──
+
+/** Viridis-like color scale for socioeconomic data */
+const VIRIDIS: [number, number, number][] = [
+  [68, 1, 84],
+  [59, 82, 139],
+  [33, 145, 140],
+  [94, 201, 98],
+  [253, 231, 37],
+];
+
+/** Magma color scale for spatial economy (housing) */
+const MAGMA: [number, number, number][] = [
+  [0, 0, 4],
+  [81, 18, 124],
+  [183, 55, 121],
+  [252, 137, 97],
+  [252, 253, 191],
+];
+
+function genericToGeoJSON<T extends { h: string }>(
+  cells: T[],
+  metric: keyof T,
+  contrast: number,
+  useLog: boolean,
+  colorScale: [number, number, number][],
+): GeoJSON.FeatureCollection {
+  const gamma = contrast;
+  let maxVal = 0;
+  for (const c of cells) {
+    const v = c[metric] as number;
+    if (v > maxVal) maxVal = v;
+  }
+  if (maxVal === 0) maxVal = 1;
+
+  const features: GeoJSON.Feature[] = cells.map((cell) => {
+    const boundary = cellToBoundary(cell.h);
+    const coords = boundary.map(([lat, lng]) => [lng, lat]);
+    coords.push(coords[0]!);
+
+    const val = cell[metric] as number;
+    const raw = useLog ? logNorm(val, maxVal) : linearNorm(val, maxVal);
+    const norm = Math.pow(raw, gamma);
+
+    return {
+      type: "Feature" as const,
+      properties: {
+        color: interpolateColor(colorScale, norm),
+        value: val,
+        height: norm,
+      },
+      geometry: { type: "Polygon" as const, coordinates: [coords] },
+    };
+  });
+
+  return { type: "FeatureCollection", features };
+}
+
+export interface SocioeconomicParams {
+  metric: string;
+  opacity: number;
+  contrast: number;
+  extruded: boolean;
+  elevationScale: number;
+}
+
+export function ensureSocioLayers(map: MapboxMap): void {
+  ensureSourceAndLayers(map, SOCIO_SRC, SOCIO_FILL, SOCIO_EXT);
+}
+
+export function updateSocioLayer(
+  map: MapboxMap,
+  cells: SocioeconomicH3CellData[],
+  params: SocioeconomicParams,
+  visible: boolean,
+): void {
+  ensureSourceAndLayers(map, SOCIO_SRC, SOCIO_FILL, SOCIO_EXT);
+  const source = map.getSource(SOCIO_SRC);
+  if (!source || source.type !== "geojson") return;
+
+  const useLog = params.metric === "im";
+  if (cells.length > 0) {
+    const geojson = genericToGeoJSON(cells, params.metric as keyof SocioeconomicH3CellData, params.contrast, useLog, VIRIDIS);
+    source.setData(geojson);
+  } else {
+    source.setData({ type: "FeatureCollection", features: [] });
+  }
+
+  if (!visible || cells.length === 0) {
+    map.setLayoutProperty(SOCIO_FILL, "visibility", "none");
+    map.setLayoutProperty(SOCIO_EXT, "visibility", "none");
+    return;
+  }
+  map.setLayoutProperty(SOCIO_FILL, "visibility", params.extruded ? "none" : "visible");
+  map.setLayoutProperty(SOCIO_EXT, "visibility", params.extruded ? "visible" : "none");
+  map.setPaintProperty(SOCIO_FILL, "fill-opacity", params.opacity);
+  map.setPaintProperty(SOCIO_EXT, "fill-extrusion-opacity", params.opacity);
+  map.setPaintProperty(SOCIO_EXT, "fill-extrusion-height", ["*", ["get", "height"], params.elevationScale * 100]);
+}
+
+// ── Spatial Economy layers ──
+
+export interface SpatialEconomyParams {
+  metric: string;
+  opacity: number;
+  contrast: number;
+  extruded: boolean;
+  elevationScale: number;
+}
+
+export function ensureSpatialLayers(map: MapboxMap): void {
+  ensureSourceAndLayers(map, SPATIAL_SRC, SPATIAL_FILL, SPATIAL_EXT);
+}
+
+export function updateSpatialLayer(
+  map: MapboxMap,
+  cells: SpatialEconomyH3CellData[],
+  params: SpatialEconomyParams,
+  visible: boolean,
+): void {
+  ensureSourceAndLayers(map, SPATIAL_SRC, SPATIAL_FILL, SPATIAL_EXT);
+  const source = map.getSource(SPATIAL_SRC);
+  if (!source || source.type !== "geojson") return;
+
+  const useLog = params.metric === "hp" || params.metric === "hpr";
+  if (cells.length > 0) {
+    const geojson = genericToGeoJSON(cells, params.metric as keyof SpatialEconomyH3CellData, params.contrast, useLog, MAGMA);
+    source.setData(geojson);
+  } else {
+    source.setData({ type: "FeatureCollection", features: [] });
+  }
+
+  if (!visible || cells.length === 0) {
+    map.setLayoutProperty(SPATIAL_FILL, "visibility", "none");
+    map.setLayoutProperty(SPATIAL_EXT, "visibility", "none");
+    return;
+  }
+  map.setLayoutProperty(SPATIAL_FILL, "visibility", params.extruded ? "none" : "visible");
+  map.setLayoutProperty(SPATIAL_EXT, "visibility", params.extruded ? "visible" : "none");
+  map.setPaintProperty(SPATIAL_FILL, "fill-opacity", params.opacity);
+  map.setPaintProperty(SPATIAL_EXT, "fill-extrusion-opacity", params.opacity);
+  map.setPaintProperty(SPATIAL_EXT, "fill-extrusion-height", ["*", ["get", "height"], params.elevationScale * 100]);
 }

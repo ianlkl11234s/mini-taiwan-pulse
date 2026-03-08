@@ -18,8 +18,10 @@ import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
+import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
+import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
-import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer } from "./map/demographicsLayerFactory";
+import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer, ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer } from "./map/demographicsLayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
@@ -262,6 +264,8 @@ export default function App() {
   const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
+  const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
+  const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef,
@@ -325,6 +329,8 @@ export default function App() {
     onZoomH3(); // initial
     loadResolution(7); // preload default resolution
     loadDemographicsResolution(7); // preload demographics
+    loadSocioResolution(7); // preload socioeconomic
+    loadSpatialResolution(7); // preload spatial economy
 
     bindEvents(map);
   };
@@ -381,6 +387,20 @@ export default function App() {
     }
   }, [demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemographicsResolution]);
 
+  // Socioeconomic: load resolution when visible
+  useEffect(() => {
+    if (layerVisibility.socioeconomic) {
+      loadSocioResolution(demoResolution);
+    }
+  }, [demoResolution, layerVisibility.socioeconomic, loadSocioResolution]);
+
+  // Spatial Economy: load resolution when visible
+  useEffect(() => {
+    if (layerVisibility.spatialEconomy) {
+      loadSpatialResolution(demoResolution);
+    }
+  }, [demoResolution, layerVisibility.spatialEconomy, loadSpatialResolution]);
+
   // Demographics: update popCount layer
   useEffect(() => {
     const map = mapRef.current;
@@ -398,6 +418,24 @@ export default function App() {
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
   }, [demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams]);
+
+  // Socioeconomic: update layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    ensureSocioLayers(map);
+    const cells = socioDataMap.get(demoResolution) ?? [];
+    updateSocioLayer(map, cells, transportParams.socioParams, layerVisibility.socioeconomic);
+  }, [socioDataMap, demoResolution, layerVisibility.socioeconomic, transportParams.socioParams]);
+
+  // Spatial Economy: update layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    ensureSpatialLayers(map);
+    const cells = spatialDataMap.get(demoResolution) ?? [];
+    updateSpatialLayer(map, cells, transportParams.spatialParams, layerVisibility.spatialEconomy);
+  }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
 
   // ESC 退出拍攝模式
   useEffect(() => {
