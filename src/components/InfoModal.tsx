@@ -21,6 +21,7 @@ const S = {
   text: "rgba(255,255,255,0.85)",
   sub: "rgba(255,255,255,0.5)",
   active: "#64aaff",
+  dim: "rgba(255,255,255,0.3)",
   font: "monospace",
 } as const;
 
