@@ -261,7 +261,7 @@ export default function App() {
   temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
 
-  const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
+  const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef);
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
@@ -669,7 +669,7 @@ export default function App() {
               counts={{
                 flights: displayedFlights.length,
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                trains: activeTrains.length,
+                trains: trainCount,
               }}
               onLayerClick={(layer) => {
                 const isVisible = layerVisibility[layer];
@@ -871,7 +871,7 @@ export default function App() {
             >
               {displayedFlights.length} flights
               {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
-              {layerVisibility.rail && ` · ${activeTrains.length} trains`}
+              {layerVisibility.rail && ` · ${trainCount} trains`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
             <div
@@ -1032,7 +1032,7 @@ export default function App() {
                       counts={{
                         flights: displayedFlights.length,
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                        trains: activeTrains.length,
+                        trains: trainCount,
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];
