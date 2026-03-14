@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Ship } from "../types";
-import { loadShips } from "../data/shipLoader";
+import { loadShipsFromApi, loadShipsLegacy } from "../data/shipLoader";
 
 interface UseShipDataReturn {
   ships: Ship[];
@@ -14,19 +14,38 @@ export function useShipData(): UseShipDataReturn {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadShips()
-      .then((data) => {
+    let cancelled = false;
+
+    (async () => {
+      try {
+        // 嘗試 Pulse API（取最新一天的資料）
+        const data = await loadShipsFromApi();
+        if (cancelled) return;
         setShips(data.ships);
         setTimeRange({
           start: data.metadata.time_range[0],
           end: data.metadata.time_range[1],
         });
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.warn("Ship data not available:", err);
-        setLoading(false);
-      });
+      } catch {
+        if (cancelled) return;
+        // Fallback: 本地 JSON / S3
+        console.warn("[Ship] Pulse API unavailable, falling back to legacy");
+        try {
+          const data = await loadShipsLegacy();
+          if (cancelled) return;
+          setShips(data.ships);
+          setTimeRange({
+            start: data.metadata.time_range[0],
+            end: data.metadata.time_range[1],
+          });
+        } catch (err) {
+          console.warn("[Ship] Legacy also failed:", err);
+        }
+      }
+      if (!cancelled) setLoading(false);
+    })();
+
+    return () => { cancelled = true; };
   }, []);
 
   return { ships, timeRange, loading };

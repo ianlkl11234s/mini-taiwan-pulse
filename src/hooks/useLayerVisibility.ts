@@ -24,6 +24,8 @@ export function useLayerVisibility() {
     h3Population: false,
     popCount: false,
     indicators: false,
+    socioeconomic: false,
+    spatialEconomy: false,
     temperatureWave: false,
     schools: false,
     convenienceStores: false,

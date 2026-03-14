@@ -110,6 +110,24 @@ export function useTransportParams() {
   const [schoolLevelColor, setSchoolLevelColor] = useState(false);
   // Convenience Store
   const [convenienceScale, setConvenienceScale] = useState(1);
+  // News Events
+  const [newsScale, setNewsScale] = useState(1);
+  const [newsTimeBased, setNewsTimeBased] = useState(true);
+  const [newsRipple, setNewsRipple] = useState(true);
+  // Socioeconomic (村里社經)
+  const [socioCat, setSocioCat] = useState("income");
+  const [socioMetric, setSocioMetric] = useState("im");
+  const [socioOpacity, setSocioOpacity] = useState(0.6);
+  const [socioContrast, setSocioContrast] = useState(1.8);
+  const [socioExtruded, setSocioExtruded] = useState(false);
+  const [socioElevation, setSocioElevation] = useState(50);
+  // Spatial Economy (空間經濟)
+  const [spatialCat, setSpatialCat] = useState("housing");
+  const [spatialMetric, setSpatialMetric] = useState("hp");
+  const [spatialOpacity, setSpatialOpacity] = useState(0.6);
+  const [spatialContrast, setSpatialContrast] = useState(1.8);
+  const [spatialExtruded, setSpatialExtruded] = useState(false);
+  const [spatialElevation, setSpatialElevation] = useState(50);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -190,7 +208,8 @@ export function useTransportParams() {
     schoolScale,
     convenienceScale,
     schoolLevelColor: schoolLevelColor ? 1 : 0,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor]);
+    newsScale,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -285,7 +304,11 @@ export function useTransportParams() {
       case "submarineCables": return [];
       case "landingStations": return [];
       case "activeFaults": return [];
-      case "newsEvents": return [];
+      case "newsEvents": return [
+        { type: "toggle" as const, label: "Time", value: newsTimeBased, onChange: setNewsTimeBased },
+        { type: "toggle" as const, label: "Ripple", value: newsRipple, onChange: setNewsRipple },
+        { label: `Scale ${newsScale.toFixed(1)}`, value: newsScale, min: 0.3, max: 3, step: 0.1, onChange: setNewsScale },
+      ];
       case "h3Population": return [
         { label: `Opacity ${h3Opacity.toFixed(1)}`, value: h3Opacity, min: 0.1, max: 1, step: 0.1, onChange: setH3Opacity },
         { label: `Contrast ${h3Contrast.toFixed(1)}`, value: h3Contrast, min: 0.5, max: 4, step: 0.1, onChange: setH3Contrast },
@@ -320,12 +343,52 @@ export function useTransportParams() {
           { label: `Height ${indElevationScale}`, value: indElevationScale, min: 10, max: 200, step: 10, onChange: setIndElevationScale },
         ];
       }
+      case "socioeconomic": {
+        const socioCatOpts = [
+          { label: "Income", value: "income" },
+          { label: "Social", value: "social" },
+        ];
+        const socioMetricMap: Record<string, { label: string; value: string }[]> = {
+          income: [{ label: "Med", value: "im" }, { label: "IQR", value: "iq" }, { label: "Sal%", value: "sr" }],
+          social: [{ label: "Vital", value: "vs" }, { label: "Vuln", value: "vl" }],
+        };
+        const socioMetrics = socioMetricMap[socioCat] ?? socioMetricMap.income!;
+        return [
+          { type: "select" as const, label: "Category", value: socioCat, options: socioCatOpts, onChange: (v: string) => { setSocioCat(v); const first = (socioMetricMap[v] ?? socioMetricMap.income!)[0]!; setSocioMetric(first.value); } },
+          { type: "select" as const, label: "Metric", value: socioMetric, options: socioMetrics, onChange: setSocioMetric },
+          { label: `Opacity ${socioOpacity.toFixed(1)}`, value: socioOpacity, min: 0.1, max: 1, step: 0.1, onChange: setSocioOpacity },
+          { label: `Contrast ${socioContrast.toFixed(1)}`, value: socioContrast, min: 0.5, max: 4, step: 0.1, onChange: setSocioContrast },
+          { type: "toggle" as const, label: "3D", value: socioExtruded, onChange: setSocioExtruded },
+          { label: `Height ${socioElevation}`, value: socioElevation, min: 10, max: 200, step: 10, onChange: setSocioElevation },
+        ];
+      }
+      case "spatialEconomy": {
+        const spatialCatOpts = [
+          { label: "Housing", value: "housing" },
+          { label: "Land", value: "land" },
+        ];
+        const spatialMetricMap: Record<string, { label: string; value: string }[]> = {
+          housing: [{ label: "Price", value: "hp" }, { label: "Unit", value: "hu" }, { label: "P/I", value: "hpr" }],
+          land: [{ label: "Amty", value: "ad" }, { label: "Mix", value: "lm" }],
+        };
+        const spatialMetrics = spatialMetricMap[spatialCat] ?? spatialMetricMap.housing!;
+        return [
+          { type: "select" as const, label: "Category", value: spatialCat, options: spatialCatOpts, onChange: (v: string) => { setSpatialCat(v); const first = (spatialMetricMap[v] ?? spatialMetricMap.housing!)[0]!; setSpatialMetric(first.value); } },
+          { type: "select" as const, label: "Metric", value: spatialMetric, options: spatialMetrics, onChange: setSpatialMetric },
+          { label: `Opacity ${spatialOpacity.toFixed(1)}`, value: spatialOpacity, min: 0.1, max: 1, step: 0.1, onChange: setSpatialOpacity },
+          { label: `Contrast ${spatialContrast.toFixed(1)}`, value: spatialContrast, min: 0.5, max: 4, step: 0.1, onChange: setSpatialContrast },
+          { type: "toggle" as const, label: "3D", value: spatialExtruded, onChange: setSpatialExtruded },
+          { label: `Height ${spatialElevation}`, value: spatialElevation, min: 10, max: 200, step: 10, onChange: setSpatialElevation },
+        ];
+      }
     }
   };
 
   return {
     stationScale,
     railTrackMode,
+    newsTimeBased,
+    newsRipple,
     refs: {
       altExag: altExagRef,
       altOffset: altOffsetRef,
@@ -362,5 +425,7 @@ export function useTransportParams() {
     h3Params: useMemo(() => ({ opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric, contrast: h3Contrast }), [h3Opacity, h3Extruded, h3ElevationScale, h3Metric, h3Contrast]),
     popCountParams: useMemo(() => ({ opacity: pcOpacity, contrast: pcContrast, extruded: pcExtruded, elevationScale: pcElevationScale }), [pcOpacity, pcContrast, pcExtruded, pcElevationScale]),
     indicatorsParams: useMemo(() => ({ category: indCategory, metric: indMetric, opacity: indOpacity, contrast: indContrast, extruded: indExtruded, elevationScale: indElevationScale }), [indCategory, indMetric, indOpacity, indContrast, indExtruded, indElevationScale]),
+    socioParams: useMemo(() => ({ metric: socioMetric, opacity: socioOpacity, contrast: socioContrast, extruded: socioExtruded, elevationScale: socioElevation }), [socioMetric, socioOpacity, socioContrast, socioExtruded, socioElevation]),
+    spatialParams: useMemo(() => ({ metric: spatialMetric, opacity: spatialOpacity, contrast: spatialContrast, extruded: spatialExtruded, elevationScale: spatialElevation }), [spatialMetric, spatialOpacity, spatialContrast, spatialExtruded, spatialElevation]),
   };
 }

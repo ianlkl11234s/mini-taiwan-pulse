@@ -14,11 +14,14 @@ import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
+import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
+import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
+import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
-import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer } from "./map/demographicsLayerFactory";
+import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer, ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer } from "./map/demographicsLayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 import { filterByTimeWindow } from "./data/flightLoader";
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
@@ -258,9 +261,11 @@ export default function App() {
   temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
 
-  const { activeTrains, activeTrainsRef } = useRailEngine(railData, timeRef);
+  const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef);
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
+  const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
+  const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef,
@@ -277,6 +282,9 @@ export default function App() {
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, layerVisibilityRef);
+
+  // ── News timeline (time-based filter + ripple animation) ──
+  useNewsTimeline(mapRef, timeline.currentTime, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
 
   // ── Derived values ──
 
@@ -321,6 +329,8 @@ export default function App() {
     onZoomH3(); // initial
     loadResolution(7); // preload default resolution
     loadDemographicsResolution(7); // preload demographics
+    loadSocioResolution(7); // preload socioeconomic
+    loadSpatialResolution(7); // preload spatial economy
 
     bindEvents(map);
   };
@@ -377,6 +387,20 @@ export default function App() {
     }
   }, [demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemographicsResolution]);
 
+  // Socioeconomic: load resolution when visible
+  useEffect(() => {
+    if (layerVisibility.socioeconomic) {
+      loadSocioResolution(demoResolution);
+    }
+  }, [demoResolution, layerVisibility.socioeconomic, loadSocioResolution]);
+
+  // Spatial Economy: load resolution when visible
+  useEffect(() => {
+    if (layerVisibility.spatialEconomy) {
+      loadSpatialResolution(demoResolution);
+    }
+  }, [demoResolution, layerVisibility.spatialEconomy, loadSpatialResolution]);
+
   // Demographics: update popCount layer
   useEffect(() => {
     const map = mapRef.current;
@@ -394,6 +418,24 @@ export default function App() {
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
   }, [demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams]);
+
+  // Socioeconomic: update layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    ensureSocioLayers(map);
+    const cells = socioDataMap.get(demoResolution) ?? [];
+    updateSocioLayer(map, cells, transportParams.socioParams, layerVisibility.socioeconomic);
+  }, [socioDataMap, demoResolution, layerVisibility.socioeconomic, transportParams.socioParams]);
+
+  // Spatial Economy: update layer
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    ensureSpatialLayers(map);
+    const cells = spatialDataMap.get(demoResolution) ?? [];
+    updateSpatialLayer(map, cells, transportParams.spatialParams, layerVisibility.spatialEconomy);
+  }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
 
   // ESC 退出拍攝模式
   useEffect(() => {
@@ -414,6 +456,14 @@ export default function App() {
   ];
   const allReady = loadingSteps.every((s) => s.done);
 
+  // allReady 後延遲 600ms 再 unmount LoadingScreen，讓使用者看到 100%
+  const [dismissedLoading, setDismissedLoading] = useState(false);
+  useEffect(() => {
+    if (!allReady) return;
+    const t = setTimeout(() => setDismissedLoading(true), 600);
+    return () => clearTimeout(t);
+  }, [allReady]);
+
   // 30 秒 timeout：避免任一資料源掛掉導致永遠卡在 loading
   const [loadingTimedOut, setLoadingTimedOut] = useState(false);
   useEffect(() => {
@@ -431,7 +481,7 @@ export default function App() {
 
   // ── Render ──
 
-  if (!allReady && !loadingTimedOut) {
+  if ((!allReady && !loadingTimedOut) || (!dismissedLoading && !loadingTimedOut)) {
     return <LoadingScreen steps={loadingSteps} />;
   }
 
@@ -619,7 +669,7 @@ export default function App() {
               counts={{
                 flights: displayedFlights.length,
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                trains: activeTrains.length,
+                trains: trainCount,
               }}
               onLayerClick={(layer) => {
                 const isVisible = layerVisibility[layer];
@@ -821,7 +871,7 @@ export default function App() {
             >
               {displayedFlights.length} flights
               {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
-              {layerVisibility.rail && ` · ${activeTrains.length} trains`}
+              {layerVisibility.rail && ` · ${trainCount} trains`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
             <div
@@ -982,7 +1032,7 @@ export default function App() {
                       counts={{
                         flights: displayedFlights.length,
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                        trains: activeTrains.length,
+                        trains: trainCount,
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];
