@@ -44,7 +44,7 @@ export default function App() {
     loading,
   } = useFlightData();
 
-  const { ships, timeRange: shipTimeRange, loading: shipsLoading } = useShipData();
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay } = useShipData();
 
   // ── Data Source Registry ──
   const dataRegistry = useDataRegistry();
@@ -208,6 +208,11 @@ export default function App() {
     dataStartTime: dataTimeRange.start,
     dataEndTime: dataTimeRange.end,
   });
+
+  // 日期切換時載入該日船舶資料（Arrow IPC）
+  useEffect(() => {
+    loadShipDay(timeline.selectedDate);
+  }, [timeline.selectedDate, loadShipDay]);
 
   // ── Custom Hooks ──
 
@@ -487,6 +492,17 @@ export default function App() {
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
+      {/* Ship day-loading overlay */}
+      {shipsDayLoading && (
+        <div style={{
+          position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
+          zIndex: 1000, background: "rgba(0,0,0,0.75)", color: "#fff",
+          padding: "6px 16px", borderRadius: 20, fontSize: 12, fontFamily: "monospace",
+          backdropFilter: "blur(4px)", pointerEvents: "none",
+        }}>
+          Loading ships…
+        </div>
+      )}
       <MapView
         preset={preset}
         styleUrl={styleUrl}

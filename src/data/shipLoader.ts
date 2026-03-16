@@ -1,3 +1,4 @@
+import { tableFromIPC } from "apache-arrow";
 import type { Ship, ShipData } from "../types";
 import { S3_BASE, SHIP_PREFIX } from "./s3Loader";
 
@@ -5,30 +6,81 @@ import { S3_BASE, SHIP_PREFIX } from "./s3Loader";
 
 const API = "/api/v1";
 
-/** 從 Pulse API 載入船舶資料（取最新一天） */
-export async function loadShipsFromApi(): Promise<ShipData> {
-  // 1. 取得可用日期
-  const datesRes = await fetch(`${API}/ships/dates`);
-  if (!datesRes.ok) throw new Error(`ships/dates: ${datesRes.status}`);
-  const { dates } = await datesRes.json();
-  if (!dates || dates.length === 0) throw new Error("No ship dates from API");
+interface ShipDateInfo {
+  date: string;
+  frames: number;
+  records: number;
+}
 
-  // 取最後（最新）一天
-  const latest = dates[dates.length - 1].date;
+/** 取得所有有船舶資料的日期（輕量） */
+export async function fetchShipDates(): Promise<ShipDateInfo[]> {
+  const res = await fetch(`${API}/ships/dates`);
+  if (!res.ok) throw new Error(`ships/dates: ${res.status}`);
+  const data = await res.json();
+  return data.dates as ShipDateInfo[];
+}
 
-  // 2. 取該天資料
-  const dayRes = await fetch(`${API}/ships/day?date=${latest}`);
-  if (!dayRes.ok) throw new Error(`ships/day ${latest}: ${dayRes.status}`);
-  const data = await dayRes.json();
+/** 從 Arrow IPC 載入單日船舶資料 */
+export async function fetchShipDayArrow(date: string): Promise<ShipData> {
+  const res = await fetch(`${API}/ships/day?date=${date}&format=arrow`);
+  if (!res.ok) throw new Error(`ships/day ${date}: ${res.status}`);
 
+  const buffer = await res.arrayBuffer();
+  const table = tableFromIPC(new Uint8Array(buffer));
+
+  // flat table → grouped by mmsi
+  const shipMap = new Map<number, Ship>();
+  const mmsiCol = table.getChild("mmsi")!;
+  const latCol = table.getChild("lat")!;
+  const lonCol = table.getChild("lon")!;
+  const vtypeCol = table.getChild("vtype")!;
+  const tsCol = table.getChild("ts_unix")!;
+
+  let tsMin = Infinity;
+  let tsMax = -Infinity;
+
+  for (let i = 0; i < table.numRows; i++) {
+    const mmsi = mmsiCol.get(i) as number;
+    const lat = latCol.get(i) as number;
+    const lon = lonCol.get(i) as number;
+    const vtype = vtypeCol.get(i) as number;
+    const ts = Number(tsCol.get(i));
+
+    if (ts < tsMin) tsMin = ts;
+    if (ts > tsMax) tsMax = ts;
+
+    let ship = shipMap.get(mmsi);
+    if (!ship) {
+      ship = {
+        mmsi: String(mmsi),
+        vessel_type: vtype,
+        path: [],
+      };
+      shipMap.set(mmsi, ship);
+    }
+    ship.path.push([lat, lon, 0, ts]);
+  }
+
+  const ships = Array.from(shipMap.values());
   return {
     metadata: {
-      date: data.date,
-      ship_count: data.ship_count,
-      time_range: data.time_range as [number, number],
+      date,
+      ship_count: ships.length,
+      time_range: [
+        tsMin === Infinity ? 0 : tsMin,
+        tsMax === -Infinity ? 0 : tsMax,
+      ] as [number, number],
     },
-    ships: data.ships as Ship[],
+    ships,
   };
+}
+
+/** 從 API 載入最新一天（初始載入用） */
+export async function loadShipsFromApi(): Promise<ShipData> {
+  const dates = await fetchShipDates();
+  if (!dates || dates.length === 0) throw new Error("No ship dates from API");
+  const latest = dates[dates.length - 1]!.date;
+  return fetchShipDayArrow(latest);
 }
 
 // ── Legacy loaders (fallback) ──
@@ -69,7 +121,7 @@ async function loadFromS3(): Promise<ShipData> {
   return merged;
 }
 
-/** Legacy: 從本地檔案或 S3 載入（pulse-api 不可用時的 fallback） */
+/** Legacy: 從本地檔案或 S3 載入 */
 export async function loadShipsLegacy(): Promise<ShipData> {
   if (legacyCached) return legacyCached;
 
