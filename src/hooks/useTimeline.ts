@@ -101,9 +101,11 @@ export function useTimeline({
     });
   }, []);
 
-  // 當 dataEndTime 首次載入（從 0 變成有效值），更新 selectedDate
+  // 當 dataEndTime 首次載入（從 0 變成有效值），初始化 selectedDate（只執行一次）
+  const initializedRef = useRef(false);
   useEffect(() => {
-    if (dataEndTime > 0) {
+    if (dataEndTime > 0 && !initializedRef.current) {
+      initializedRef.current = true;
       const d = new Date(dataEndTime * 1000);
       setSelectedDateRaw(d);
       setCurrentTime(dayStartUnix(d));
