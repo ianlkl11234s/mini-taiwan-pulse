@@ -31,6 +31,7 @@ export function useShipData(): UseShipDataReturn {
   const [loading, setLoading] = useState(true);
   const [dayLoading, setDayLoading] = useState(false);
   const [availableDates, setAvailableDates] = useState<ShipDateInfo[]>([]);
+  const availableDatesRef = useRef<ShipDateInfo[]>([]);
   const loadedDateRef = useRef<string>("");
   const abortRef = useRef<AbortController | null>(null);
   const apiAvailable = useRef(false);
@@ -45,6 +46,7 @@ export function useShipData(): UseShipDataReturn {
         const dates = await fetchShipDates();
         if (cancelled) return;
         setAvailableDates(dates);
+        availableDatesRef.current = dates;
 
         // 取最新一天的船舶資料（Arrow IPC）
         const data = await loadShipsFromApi();
@@ -79,6 +81,12 @@ export function useShipData(): UseShipDataReturn {
 
     const dateStr = formatDate(date);
     if (dateStr === loadedDateRef.current) return;
+
+    // 跳過沒有船舶資料的日期
+    if (availableDatesRef.current.length > 0 &&
+        !availableDatesRef.current.some(d => d.date === dateStr)) {
+      return;
+    }
 
     // 取消前一次
     abortRef.current?.abort();

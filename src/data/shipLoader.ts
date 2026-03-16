@@ -62,6 +62,20 @@ export async function fetchShipDayArrow(date: string): Promise<ShipData> {
   }
 
   const ships = Array.from(shipMap.values());
+
+  // DEBUG: 比較 Arrow 解析結果與預期格式
+  if (ships.length > 0) {
+    const sample = ships[0]!;
+    console.log("[Ship/Arrow] sample ship:", {
+      mmsi: sample.mmsi,
+      vessel_type: sample.vessel_type,
+      pathLen: sample.path.length,
+      firstPoint: sample.path[0],
+      lastPoint: sample.path[sample.path.length - 1],
+    });
+    console.log("[Ship/Arrow] timeRange:", { tsMin, tsMax, date });
+  }
+
   return {
     metadata: {
       date,
