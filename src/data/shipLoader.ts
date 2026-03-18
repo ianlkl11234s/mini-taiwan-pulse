@@ -39,6 +39,12 @@ export async function fetchShipDayArrow(date: string): Promise<ShipData> {
   let tsMin = Infinity;
   let tsMax = -Infinity;
 
+  // GPS 跳躍過濾常數（與 export-ship-data.py 一致）
+  const MAX_SPEED_KNOTS = 40;
+  const KM_PER_DEG_LAT = 111.0;
+  const KM_PER_DEG_LNG = 101.0; // ~25°N 近似值
+  let filteredPoints = 0;
+
   for (let i = 0; i < table.numRows; i++) {
     const mmsi = mmsiCol.get(i) as number;
     const lat = latCol.get(i) as number;
@@ -58,23 +64,32 @@ export async function fetchShipDayArrow(date: string): Promise<ShipData> {
       };
       shipMap.set(mmsi, ship);
     }
-    ship.path.push([lat, lon, 0, ts]);
+
+    // GPS 異常過濾：隱含速度超過 40 knots 的點視為跳躍
+    const path = ship.path;
+    if (path.length > 0) {
+      const last = path[path.length - 1]!;
+      const dtHours = (ts - last[3]) / 3600;
+      if (dtHours > 0) {
+        const dLat = (lat - last[0]) * KM_PER_DEG_LAT;
+        const dLon = (lon - last[1]) * KM_PER_DEG_LNG;
+        const distKm = Math.sqrt(dLat * dLat + dLon * dLon);
+        const speedKnots = (distKm / dtHours) / 1.852;
+        if (speedKnots > MAX_SPEED_KNOTS) {
+          filteredPoints++;
+          continue;
+        }
+      }
+    }
+
+    path.push([lat, lon, 0, ts]);
+  }
+
+  if (filteredPoints > 0) {
+    console.log(`[Ship/Arrow] Filtered ${filteredPoints} anomalous points (speed > ${MAX_SPEED_KNOTS} knots)`);
   }
 
   const ships = Array.from(shipMap.values());
-
-  // DEBUG: 比較 Arrow 解析結果與預期格式
-  if (ships.length > 0) {
-    const sample = ships[0]!;
-    console.log("[Ship/Arrow] sample ship:", {
-      mmsi: sample.mmsi,
-      vessel_type: sample.vessel_type,
-      pathLen: sample.path.length,
-      firstPoint: sample.path[0],
-      lastPoint: sample.path[sample.path.length - 1],
-    });
-    console.log("[Ship/Arrow] timeRange:", { tsMin, tsMax, date });
-  }
 
   return {
     metadata: {
