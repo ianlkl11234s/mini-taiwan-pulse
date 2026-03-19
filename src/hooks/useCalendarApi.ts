@@ -7,6 +7,7 @@ const API = "/api/v1";
 const SOURCE_MAP: Record<string, string> = {
   ship_ais: "ships",
   flight: "flights",
+  opensky: "flights",  // OpenSky 空域快照 → 前端 flights
   temperature: "temperatureWave",
 };
 

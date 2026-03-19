@@ -3,7 +3,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
 import { MapView } from "./map/MapView";
-import { useFlightData } from "./hooks/useFlightData";
+import { useAirspaceData } from "./hooks/useAirspaceData";
 import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
 import { useTimeline } from "./hooks/useTimeline";
@@ -24,7 +24,7 @@ import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
 import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer, ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer } from "./map/demographicsLayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
-import { filterByTimeWindow } from "./data/flightLoader";
+// filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
 import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
@@ -38,14 +38,17 @@ import { LoadingScreen } from "./components/LoadingScreen";
 
 export default function App() {
   const {
-    allFlights,
-    selectedAirport,
-    setSelectedAirport,
+    flights: allFlights,
     timeRange,
     loading,
-  } = useFlightData();
+    dayLoading: flightsDayLoading,
+    loadDay: loadFlightDay,
+  } = useAirspaceData();
 
   const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay } = useShipData();
+
+  // 地點選擇（用於攝影機定位，不影響資料過濾）
+  const [selectedAirport, setSelectedAirport] = useState("");
 
   // ── Data Source Registry ──
   const dataRegistry = useDataRegistry();
@@ -215,10 +218,11 @@ export default function App() {
     dataEndTime: dataTimeRange.end,
   });
 
-  // 日期切換時載入該日船舶資料（Arrow IPC）
+  // 日期切換時載入該日資料（Arrow IPC）
   useEffect(() => {
     loadShipDay(timeline.selectedDate);
-  }, [timeline.selectedDate, loadShipDay]);
+    loadFlightDay(timeline.selectedDate);
+  }, [timeline.selectedDate, loadShipDay, loadFlightDay]);
 
   // ── Custom Hooks ──
 
@@ -245,16 +249,8 @@ export default function App() {
   const temperatureDataRef = useRef(temperatureData);
   const playingRef = useRef(timeline.playing);
 
-  // 根據 viewMode 決定要顯示的航班
-  const displayedFlights = useMemo(() => {
-    switch (viewMode) {
-      case "time-window":
-        return filterByTimeWindow(allFlights, selectedAirport, timeline.currentTime);
-      case "all-taiwan":
-      default:
-        return allFlights;
-    }
-  }, [allFlights, viewMode, selectedAirport, timeline.currentTime]);
+  // 空域快照：直接顯示全部（isFlightActive 負責時間過濾）
+  const displayedFlights = allFlights;
 
   flightsRef.current = displayedFlights;
   shipsRef.current = ships;
@@ -460,7 +456,7 @@ export default function App() {
 
   // 全資料預載進度
   const loadingSteps = [
-    { label: "航班 Flights", done: !loading, count: allFlights.length },
+    { label: "空域 Airspace", done: !loading, count: allFlights.length },
     { label: "船舶 Ships", done: !shipsLoading, count: ships.length },
     { label: "鐵道 Rail", done: !railLoading, count: railData ? railData.systems.length : 0 },
     { label: "溫度場 Temperature", done: !temperatureLoading },
@@ -498,15 +494,15 @@ export default function App() {
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
-      {/* Ship day-loading overlay */}
-      {shipsDayLoading && (
+      {/* Day-loading overlay */}
+      {(shipsDayLoading || flightsDayLoading) && (
         <div style={{
           position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
           zIndex: 1000, background: "rgba(0,0,0,0.75)", color: "#fff",
           padding: "6px 16px", borderRadius: 20, fontSize: 12, fontFamily: "monospace",
           backdropFilter: "blur(4px)", pointerEvents: "none",
         }}>
-          Loading ships…
+          Loading {shipsDayLoading && flightsDayLoading ? "data" : shipsDayLoading ? "ships" : "airspace"}…
         </div>
       )}
       <MapView
