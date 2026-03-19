@@ -74,5 +74,6 @@ export function getTrailUpToTime(
  */
 export function isFlightActive(path: TrailPoint[], time: number): boolean {
   if (path.length === 0) return false;
-  return time >= path[0]![3] && time <= path[path.length - 1]![3];
+  // 允許在首點之前也算 active（interpolatePosition 會 clamp 到首點位置）
+  return time <= path[path.length - 1]![3];
 }
