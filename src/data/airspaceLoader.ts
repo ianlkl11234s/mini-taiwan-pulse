@@ -39,6 +39,8 @@ export async function fetchAirspaceDayArrow(date: string): Promise<AirspaceData>
   const buffer = await res.arrayBuffer();
   const table = tableFromIPC(new Uint8Array(buffer));
 
+  console.log(`[Airspace] Parsing ${date}: ${table.numRows.toLocaleString()} rows`);
+
   // flat table → grouped by icao24
   const acMap = new Map<string, { callsign: string; path: TrailPoint[] }>();
   const icaoCol = table.getChild("icao24")!;
@@ -50,12 +52,20 @@ export async function fetchAirspaceDayArrow(date: string): Promise<AirspaceData>
 
   let tsMin = Infinity;
   let tsMax = -Infinity;
+  let groundSkipped = 0;
 
   for (let i = 0; i < table.numRows; i++) {
+    const alt = altCol ? (altCol.get(i) as number | null) ?? 0 : 0;
+
+    // 過濾地面飛機（高度 < 100m 視為在地面）
+    if (alt < 100) {
+      groundSkipped++;
+      continue;
+    }
+
     const icao24 = icaoCol.get(i) as string;
     const lat = latCol.get(i) as number;
     const lon = lonCol.get(i) as number;
-    const alt = altCol ? (altCol.get(i) as number | null) ?? 0 : 0;
     const ts = Number(tsCol.get(i));
     const callsign = csCol ? (csCol.get(i) as string | null) ?? "" : "";
 
@@ -69,6 +79,10 @@ export async function fetchAirspaceDayArrow(date: string): Promise<AirspaceData>
     }
 
     ac.path.push([lat, lon, alt, ts]);
+  }
+
+  if (groundSkipped > 0) {
+    console.log(`[Airspace] Filtered ${groundSkipped} ground points (alt < 100m)`);
   }
 
   // 轉為 Flight 型別（FlightScene 相容）

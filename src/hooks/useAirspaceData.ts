@@ -56,9 +56,13 @@ export function useAirspaceData(): UseAirspaceDataReturn {
         setFlights(data.flights);
         setTimeRange({ start: data.metadata.time_range[0], end: data.metadata.time_range[1] });
         loadedDateRef.current = data.metadata.date;
-        console.log(`[Airspace] Loaded ${data.flights.length} aircraft via Arrow IPC (${data.metadata.date})`);
+        console.log(
+          `[Airspace] Initial load: ${data.flights.length} aircraft, ` +
+          `date=${data.metadata.date}, ` +
+          `available=${dates.length} days (${dates[0]?.date} ~ ${dates[dates.length - 1]?.date})`
+        );
       } catch (err) {
-        if (!cancelled) console.warn("[Airspace] Load failed:", err);
+        if (!cancelled) console.warn("[Airspace] Pulse API unavailable:", err);
       }
       if (!cancelled) setLoading(false);
     })();
