@@ -7,7 +7,7 @@ import type { Flight } from "../types";
 import {
   fetchAirspaceDates,
   fetchAirspaceDayArrow,
-  loadLatestAirspace,
+  loadAirspaceWithDates,
 } from "../data/airspaceLoader";
 import type { AirspaceDateInfo } from "../data/airspaceLoader";
 
@@ -50,7 +50,7 @@ export function useAirspaceData(): UseAirspaceDataReturn {
         setAvailableDates(dates);
         availableDatesRef.current = dates;
 
-        const data = await loadLatestAirspace();
+        const data = await loadAirspaceWithDates(dates);
         if (cancelled) return;
         apiAvailable.current = true;
         setFlights(data.flights);

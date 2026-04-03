@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Ship } from "../types";
-import { fetchShipDates, fetchShipDayArrow, loadShipsFromApi, loadShipsLegacy } from "../data/shipLoader";
-
-interface ShipDateInfo {
-  date: string;
-  frames: number;
-  records: number;
-}
+import { fetchShipDates, fetchShipDayArrow, loadShipsWithDates, loadShipsLegacy } from "../data/shipLoader";
+import type { ShipDateInfo } from "../data/shipLoader";
 
 interface UseShipDataReturn {
   ships: Ship[];
@@ -42,14 +37,13 @@ export function useShipData(): UseShipDataReturn {
 
     (async () => {
       try {
-        // 先取日期清單
+        // 取日期清單 + 最新一天的船舶資料（共用 dates，不重複查詢）
         const dates = await fetchShipDates();
         if (cancelled) return;
         setAvailableDates(dates);
         availableDatesRef.current = dates;
 
-        // 取最新一天的船舶資料（Arrow IPC）
-        const data = await loadShipsFromApi();
+        const data = await loadShipsWithDates(dates);
         if (cancelled) return;
         apiAvailable.current = true;
         setShips(data.ships);

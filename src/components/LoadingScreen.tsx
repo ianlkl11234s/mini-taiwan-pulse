@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { DATA_SOURCE } from "../lib/supabase";
 
 interface LoadingStep {
   label: string;
@@ -192,8 +193,11 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
       }}
     >
       {/* title */}
-      <div style={{ fontSize: 22, letterSpacing: 4, fontWeight: 700, marginBottom: 4 }}>
+      <div style={{ fontSize: 22, letterSpacing: 4, fontWeight: 700, marginBottom: 2 }}>
         Mini Taiwan Pulse
+      </div>
+      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", letterSpacing: 1, marginBottom: 4 }}>
+        {DATA_SOURCE === "supabase" ? "Supabase Realtime" : "Local / Pulse API"}
       </div>
 
       {/* step indicators */}
