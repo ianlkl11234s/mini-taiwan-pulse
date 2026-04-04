@@ -35,6 +35,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
   newsEvents: "#ff9800",
+  youbikeFullness: "#f57c00",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -72,6 +73,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   landingStations: Radio,
   activeFaults: Mountain,
   newsEvents: Radio,
+  youbikeFullness: Bike,
 };
 
 // ── Section Config ──
@@ -127,6 +129,7 @@ const SECTIONS: SectionDef[] = [
       { key: "indicators", label: "指標 Indicators", expandable: true },
       { key: "socioeconomic", label: "社經 Socio-Econ", expandable: true },
       { key: "spatialEconomy", label: "空間經濟 Spatial", expandable: true },
+      { key: "youbikeFullness", label: "YouBike 有車率", expandable: true },
     ],
   },
   {
