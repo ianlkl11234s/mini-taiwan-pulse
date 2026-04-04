@@ -218,11 +218,20 @@ export default function App() {
     dataEndTime: dataTimeRange.end,
   });
 
-  // 日期切換時載入該日資料（Arrow IPC）
+  // ── 活躍日追蹤：根據 currentTime 自動跨日載入 ──
+  // currentTime 每幀都變，但 activeDayRef 只在跨日時觸發 loadDay
+  const activeDayRef = useRef("");
   useEffect(() => {
-    loadShipDay(timeline.selectedDate);
-    loadFlightDay(timeline.selectedDate);
-  }, [timeline.selectedDate, loadShipDay, loadFlightDay]);
+    if (timeline.currentTime <= 0) return;
+    const dayStr = new Date(timeline.currentTime * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    if (dayStr === activeDayRef.current) return;
+    activeDayRef.current = dayStr;
+    const [y, m, d] = dayStr.split("-").map(Number);
+    const date = new Date(y!, m! - 1, d!);
+    loadShipDay(date);
+    loadFlightDay(date);
+  }, [timeline.currentTime, loadShipDay, loadFlightDay]);
 
   // ── Custom Hooks ──
 
@@ -494,15 +503,29 @@ export default function App() {
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
-      {/* Day-loading overlay */}
+      {/* Day-loading overlay — 半透明遮罩 */}
       {(shipsDayLoading || flightsDayLoading) && (
         <div style={{
-          position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
-          zIndex: 1000, background: "rgba(0,0,0,0.75)", color: "#fff",
-          padding: "6px 16px", borderRadius: 20, fontSize: 12, fontFamily: "monospace",
-          backdropFilter: "blur(4px)", pointerEvents: "none",
+          position: "absolute", inset: 0, zIndex: 1000,
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(2px)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          pointerEvents: "none",
         }}>
-          Loading {shipsDayLoading && flightsDayLoading ? "data" : shipsDayLoading ? "ships" : "airspace"}…
+          <div style={{
+            background: "rgba(0,0,0,0.8)", borderRadius: 12, padding: "20px 32px",
+            color: "#fff", textAlign: "center", fontFamily: "monospace",
+          }}>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+              資料更新中
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.7 }}>
+              {shipsDayLoading && flightsDayLoading
+                ? "正在載入船舶與航班資料…"
+                : shipsDayLoading
+                ? "正在載入船舶資料…"
+                : "正在載入航班資料…"}
+            </div>
+          </div>
         </div>
       )}
       <MapView
