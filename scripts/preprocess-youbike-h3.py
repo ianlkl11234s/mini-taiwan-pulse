@@ -1,20 +1,22 @@
 """
-YouBike H3 滿車率預處理腳本 v2
+YouBike H3 滿車率預處理腳本 v3
 
 從 Supabase 即時資料庫查詢 YouBike 時序資料，
-聚合到 H3 res8 六角格，輸出帶實際時間戳的滿車率。
+聚合到 H3 多解析度六角格，輸出帶實際時間戳的滿車率。
 
 資料來源：
   - realtime.youbike_snapshots（時序資料，按日分區）
   - reference.stations（站點座標，system='youbike'）
 
-輸出：public/h3_youbike_fullness_res8.json
+輸出：
+  - public/h3_youbike_fullness_res7.json（zoom < 9.5 時使用）
+  - public/h3_youbike_fullness_res8.json（zoom >= 9.5 時使用）
 """
 
 import json
 import os
 from collections import defaultdict
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 
 import h3
 import psycopg2
@@ -25,10 +27,9 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 GIS_ROOT = os.path.dirname(PROJECT_ROOT)
 ENV_PATH = os.path.join(GIS_ROOT, "gis-platform", ".env")
-OUTPUT_PATH = os.path.join(PROJECT_ROOT, "public", "h3_youbike_fullness_res8.json")
 
-H3_RESOLUTION = 8
-CITIES = ("Taipei", "NewTaipei")
+H3_RESOLUTIONS = [7, 8]
+CITIES = ("Taipei", "NewTaipei", "Taoyuan")
 
 # ── 讀取 .env ──
 
@@ -66,12 +67,11 @@ with conn.cursor() as cur:
 
 print(f"  → {len(station_coords)} stations with coordinates")
 
-# ── Step 2: 查詢時序資料（按小時聚合，在 DB 端完成） ──
+# ── Step 2: 查詢時序資料（按 15 分鐘聚合，在 DB 端完成） ──
 
-print("[2/4] Querying hourly aggregated snapshots from Supabase...")
+print("[2/4] Querying 15-min aggregated snapshots from Supabase...")
 
 with conn.cursor() as cur:
-    # 先確認資料範圍
     cur.execute("""
         SELECT MIN(collected_at), MAX(collected_at), COUNT(*)
         FROM realtime.youbike_snapshots
@@ -81,7 +81,6 @@ with conn.cursor() as cur:
     print(f"  → Data range: {min_time} ~ {max_time}")
     print(f"  → Total rows: {total_rows:,}")
 
-    # 按站點 + 15 分鐘聚合（對齊收集頻率）
     cur.execute("""
         SELECT
             y.station_uid,
@@ -103,86 +102,88 @@ with conn.cursor() as cur:
 
 conn.close()
 
-# ── Step 3: 轉換為 H3 聚合 ──
+# ── Step 3: 為每個解析度建立 H3 聚合 ──
 
-print("[3/4] Aggregating to H3 cells...")
+# 預計算每個站點在各解析度的 H3 index
+station_h3_map = {}  # { resolution: { station_uid: h3_index } }
+for res in H3_RESOLUTIONS:
+    mapping = {}
+    for uid, (lat, lng) in station_coords.items():
+        mapping[uid] = h3.latlng_to_cell(lat, lng, res)
+    station_h3_map[res] = mapping
 
-# station → h3 index mapping
-station_h3 = {}
-for uid, (lat, lng) in station_coords.items():
-    station_h3[uid] = h3.latlng_to_cell(lat, lng, H3_RESOLUTION)
+for res in H3_RESOLUTIONS:
+    print(f"\n[3/4] Aggregating to H3 res{res}...")
 
-# 按時間戳 → h3_cell 聚合
-# hour_key → { h3_index → { rent_sum, total_sum, count } }
-hourly_h3 = defaultdict(lambda: defaultdict(lambda: {"rent": 0.0, "total": 0.0, "count": 0}))
+    station_h3 = station_h3_map[res]
 
-skipped = 0
-for uid, city, hour_tw, avg_rent, avg_total, sample_count in rows:
-    if uid not in station_h3:
-        skipped += 1
-        continue
-    h3_idx = station_h3[uid]
-    # 轉成 ISO 格式 key（台灣時間，含分鐘）
-    hour_key = hour_tw.strftime("%Y-%m-%dT%H:%M")
+    # 按時間戳 → h3_cell 聚合
+    time_h3 = defaultdict(lambda: defaultdict(lambda: {"rent": 0.0, "total": 0.0, "count": 0}))
 
-    cell = hourly_h3[hour_key][h3_idx]
-    cell["rent"] += float(avg_rent)
-    cell["total"] += float(avg_total)
-    cell["count"] += 1
-
-if skipped > 0:
-    print(f"  → Skipped {skipped} rows (no coordinates)")
-
-# 計算每個時間點的 H3 cells
-snapshots = {}
-all_cells_set = set()
-
-for hour_key in sorted(hourly_h3.keys()):
-    cells_data = hourly_h3[hour_key]
-    hour_cells = []
-
-    for h3_idx, agg in cells_data.items():
-        if agg["total"] == 0:
+    skipped = 0
+    for uid, city, quarter_tw, avg_rent, avg_total, sample_count in rows:
+        if uid not in station_h3:
+            skipped += 1
             continue
-        fullness = agg["rent"] / agg["total"]  # 有車率
-        hour_cells.append({
-            "h": h3_idx,
-            "fr": round(fullness, 4),
-            "sc": round(agg["total"], 1),
-        })
-        all_cells_set.add(h3_idx)
+        h3_idx = station_h3[uid]
+        time_key = quarter_tw.strftime("%Y-%m-%dT%H:%M")
 
-    snapshots[hour_key] = hour_cells
+        cell = time_h3[time_key][h3_idx]
+        cell["rent"] += float(avg_rent)
+        cell["total"] += float(avg_total)
+        cell["count"] += 1
 
-print(f"  → {len(all_cells_set)} unique H3 cells")
-print(f"  → {len(snapshots)} hourly snapshots")
+    if skipped > 0:
+        print(f"  → Skipped {skipped} rows (no coordinates)")
 
-# ── Step 4: 輸出 ──
+    # 計算每個時間點的 H3 cells
+    snapshots = {}
+    all_cells_set = set()
 
-print("[4/4] Writing output...")
+    for time_key in sorted(time_h3.keys()):
+        cells_data = time_h3[time_key]
+        time_cells = []
 
-time_keys = sorted(snapshots.keys())
-output = {
-    "metadata": {
-        "resolution": H3_RESOLUTION,
-        "cell_count": len(all_cells_set),
-        "source": "supabase:realtime.youbike_snapshots",
-        "generated_at": datetime.now().isoformat(),
-        "time_range": [time_keys[0], time_keys[-1]] if time_keys else [],
-        "snapshot_count": len(snapshots),
-        "cities": list(CITIES),
-        "total_db_rows": total_rows,
-        "value_columns": ["fr", "sc"],
-    },
-    "snapshots": snapshots,
-}
+        for h3_idx, agg in cells_data.items():
+            if agg["total"] == 0:
+                continue
+            fullness = agg["rent"] / agg["total"]
+            time_cells.append({
+                "h": h3_idx,
+                "fr": round(fullness, 4),
+                "sc": round(agg["total"], 1),
+            })
+            all_cells_set.add(h3_idx)
 
-os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-with open(OUTPUT_PATH, "w") as f:
-    json.dump(output, f, separators=(",", ":"))
+        snapshots[time_key] = time_cells
 
-file_size = os.path.getsize(OUTPUT_PATH) / 1024
-print(f"\nDone! Output: {OUTPUT_PATH}")
-print(f"  → {len(all_cells_set)} unique H3 cells")
-print(f"  → {len(snapshots)} snapshots ({time_keys[0]} ~ {time_keys[-1]})")
-print(f"  → {file_size:.1f} KB")
+    print(f"  → {len(all_cells_set)} unique H3 cells")
+    print(f"  → {len(snapshots)} snapshots")
+
+    # ── 輸出 ──
+
+    time_keys = sorted(snapshots.keys())
+    output = {
+        "metadata": {
+            "resolution": res,
+            "cell_count": len(all_cells_set),
+            "source": "supabase:realtime.youbike_snapshots",
+            "generated_at": datetime.now().isoformat(),
+            "time_range": [time_keys[0], time_keys[-1]] if time_keys else [],
+            "snapshot_count": len(snapshots),
+            "cities": list(CITIES),
+            "total_db_rows": total_rows,
+            "value_columns": ["fr", "sc"],
+        },
+        "snapshots": snapshots,
+    }
+
+    output_path = os.path.join(PROJECT_ROOT, "public", f"h3_youbike_fullness_res{res}.json")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(output, f, separators=(",", ":"))
+
+    file_size = os.path.getsize(output_path) / 1024
+    print(f"  → Output: {output_path} ({file_size:.1f} KB)")
+
+print("\nDone!")

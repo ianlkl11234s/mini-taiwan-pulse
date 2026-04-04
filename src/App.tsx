@@ -284,7 +284,7 @@ export default function App() {
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
-  const { getCellsForTime: getYoubikeCellsForTime, getTimeLabel: getYoubikeTimeLabel } = useYoubikeH3(layerVisibility.youbikeFullness);
+  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, demoResolution);
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef,

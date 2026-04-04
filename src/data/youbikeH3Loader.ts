@@ -19,26 +19,32 @@ export interface YoubikeH3DataSet {
   snapshots: Record<string, YoubikeH3CellData[]>;  // "2026-03-28T08:00" → cells
 }
 
-let cache: YoubikeH3DataSet | null = null;
+const cache = new Map<number, YoubikeH3DataSet>();
 
-export async function loadYoubikeH3(): Promise<YoubikeH3DataSet> {
-  if (cache) return cache;
+/**
+ * Load YouBike H3 data by resolution (7 or 8).
+ */
+export async function loadYoubikeH3(resolution: number): Promise<YoubikeH3DataSet> {
+  const cached = cache.get(resolution);
+  if (cached) return cached;
 
   const empty: YoubikeH3DataSet = {
-    metadata: { resolution: 8, cell_count: 0, source: "", generated_at: "", time_range: [], snapshot_count: 0, cities: [], total_db_rows: 0, value_columns: [] },
+    metadata: { resolution, cell_count: 0, source: "", generated_at: "", time_range: [], snapshot_count: 0, cities: [], total_db_rows: 0, value_columns: [] },
     snapshots: {},
   };
 
+  const filename = `h3_youbike_fullness_res${resolution}.json`;
+
   try {
-    const res = await fetch("./h3_youbike_fullness_res8.json");
+    const res = await fetch(`./${filename}`);
     if (res.ok) {
       const data: YoubikeH3DataSet = await res.json();
-      cache = data;
-      console.log(`[YouBike-H3] Loaded ${data.metadata.cell_count} cells, ${data.metadata.snapshot_count} snapshots`);
+      cache.set(resolution, data);
+      console.log(`[YouBike-H3] Loaded res${resolution}: ${data.metadata.cell_count} cells, ${data.metadata.snapshot_count} snapshots`);
       return data;
     }
   } catch { /* fallthrough */ }
 
-  console.warn("[YouBike-H3] Failed to load data");
+  console.warn(`[YouBike-H3] Failed to load res${resolution}`);
   return empty;
 }
