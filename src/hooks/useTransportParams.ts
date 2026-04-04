@@ -128,6 +128,11 @@ export function useTransportParams() {
   const [spatialContrast, setSpatialContrast] = useState(1.8);
   const [spatialExtruded, setSpatialExtruded] = useState(false);
   const [spatialElevation, setSpatialElevation] = useState(50);
+  // YouBike Fullness (H3)
+  const [ybOpacity, setYbOpacity] = useState(0.65);
+  const [ybContrast, setYbContrast] = useState(1);
+  const [ybExtruded, setYbExtruded] = useState(true);
+  const [ybElevationScale, setYbElevationScale] = useState(80);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -381,6 +386,12 @@ export function useTransportParams() {
           { label: `Height ${spatialElevation}`, value: spatialElevation, min: 10, max: 200, step: 10, onChange: setSpatialElevation },
         ];
       }
+      case "youbikeFullness": return [
+        { label: `Opacity ${ybOpacity.toFixed(1)}`, value: ybOpacity, min: 0.1, max: 1, step: 0.1, onChange: setYbOpacity },
+        { label: `Contrast ${ybContrast.toFixed(1)}`, value: ybContrast, min: 0.3, max: 3, step: 0.1, onChange: setYbContrast },
+        { type: "toggle" as const, label: "3D", value: ybExtruded, onChange: setYbExtruded },
+        { label: `Height ${ybElevationScale}`, value: ybElevationScale, min: 10, max: 200, step: 10, onChange: setYbElevationScale },
+      ];
     }
   };
 
@@ -427,5 +438,6 @@ export function useTransportParams() {
     indicatorsParams: useMemo(() => ({ category: indCategory, metric: indMetric, opacity: indOpacity, contrast: indContrast, extruded: indExtruded, elevationScale: indElevationScale }), [indCategory, indMetric, indOpacity, indContrast, indExtruded, indElevationScale]),
     socioParams: useMemo(() => ({ metric: socioMetric, opacity: socioOpacity, contrast: socioContrast, extruded: socioExtruded, elevationScale: socioElevation }), [socioMetric, socioOpacity, socioContrast, socioExtruded, socioElevation]),
     spatialParams: useMemo(() => ({ metric: spatialMetric, opacity: spatialOpacity, contrast: spatialContrast, extruded: spatialExtruded, elevationScale: spatialElevation }), [spatialMetric, spatialOpacity, spatialContrast, spatialExtruded, spatialElevation]),
+    youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale]),
   };
 }

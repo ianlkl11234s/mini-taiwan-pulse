@@ -21,7 +21,9 @@ import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
 import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
+import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
+import { ensureYoubikeLayers, updateYoubikeLayer } from "./map/youbikeLayerFactory";
 import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer, ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer } from "./map/demographicsLayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
@@ -282,6 +284,7 @@ export default function App() {
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
+  const { getCellsForTime: getYoubikeCellsForTime, getTimeLabel: getYoubikeTimeLabel } = useYoubikeH3(layerVisibility.youbikeFullness);
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef,
@@ -452,6 +455,20 @@ export default function App() {
     const cells = spatialDataMap.get(demoResolution) ?? [];
     updateSpatialLayer(map, cells, transportParams.spatialParams, layerVisibility.spatialEconomy);
   }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
+
+  // YouBike Fullness: sync with main timeline
+  // Floor to nearest 15-min interval to avoid re-rendering every second
+  const youbikeQuarterKey = useMemo(() => {
+    return Math.floor(timeline.currentTime / 900) * 900;
+  }, [Math.floor(timeline.currentTime / 900)]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    ensureYoubikeLayers(map);
+    const cells = getYoubikeCellsForTime(timeline.currentTime);
+    updateYoubikeLayer(map, cells, transportParams.youbikeParams, layerVisibility.youbikeFullness);
+  }, [getYoubikeCellsForTime, youbikeQuarterKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
 
   // ESC 退出拍攝模式
   useEffect(() => {

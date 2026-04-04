@@ -7,6 +7,7 @@ import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
 import { ensureH3Layers } from "./h3LayerFactory";
 import { ensurePopCountLayers, ensureIndicatorsLayers } from "./demographicsLayerFactory";
+import { ensureYoubikeLayers } from "./youbikeLayerFactory";
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -115,6 +116,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       ensureH3Layers(map);
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
+      ensureYoubikeLayers(map);
 
       // 初次載入後，每次樣式切換都重建 flight layer
       if (readyRef.current) {
@@ -128,6 +130,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       ensureH3Layers(map);
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
+      ensureYoubikeLayers(map);
       onMapReadyRef.current?.(map);
     });
 
