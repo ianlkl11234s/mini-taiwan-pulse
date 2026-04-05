@@ -39,6 +39,28 @@ function parseFlightTrail(trail: string): TrailPoint[] {
   return result;
 }
 
+/**
+ * 把一條軌跡依時間間隙拆分成多段（同一 callsign 可能包含多趟航班）
+ * @param path 原始軌跡點（已按時間排序）
+ * @param maxGap 最大允許間隙秒數（預設 1800 = 30 分鐘）
+ * @returns 拆分後的航段陣列
+ */
+function splitTrailByGap(path: TrailPoint[], maxGap: number = 1800): TrailPoint[][] {
+  if (path.length < 2) return [path];
+  const segments: TrailPoint[][] = [];
+  let current: TrailPoint[] = [path[0]!];
+  for (let i = 1; i < path.length; i++) {
+    const gap = path[i]![3] - path[i - 1]![3];
+    if (gap > maxGap) {
+      if (current.length >= 2) segments.push(current);
+      current = [];
+    }
+    current.push(path[i]!);
+  }
+  if (current.length >= 2) segments.push(current);
+  return segments;
+}
+
 async function fetchAirspaceDatesSupabase(): Promise<AirspaceDateInfo[]> {
   const { data, error } = await supabase.rpc("get_flight_dates");
   if (error) throw new Error(`Supabase get_flight_dates: ${error.message}`);
@@ -61,33 +83,45 @@ async function fetchAirspaceDaySupabase(date: string): Promise<AirspaceData> {
 
   let tsMin = Infinity;
   let tsMax = -Infinity;
+  let splitCount = 0;
 
-  const flights: Flight[] = rows.map((row) => {
-    const path = parseFlightTrail(row.trail);
-    if (path.length > 0) {
+  const flights: Flight[] = [];
+  for (const row of rows) {
+    const fullPath = parseFlightTrail(row.trail);
+    // 偵測時間間隙（> 30 分鐘）並拆分為獨立航段
+    const segments = splitTrailByGap(fullPath, 1800);
+    if (segments.length > 1) splitCount++;
+
+    for (let si = 0; si < segments.length; si++) {
+      const path = segments[si]!;
+      if (path.length < 2) continue;
       const firstTs = path[0]![3];
       const lastTs = path[path.length - 1]![3];
       if (firstTs < tsMin) tsMin = firstTs;
       if (lastTs > tsMax) tsMax = lastTs;
-    }
-    return {
-      fr24_id: row.flight_id,
-      callsign: row.callsign,
-      registration: "",
-      aircraft_type: row.aircraft_type,
-      origin_icao: row.origin,
-      origin_iata: "",
-      dest_icao: row.destination,
-      dest_iata: "",
-      dep_time: path.length > 0 ? path[0]![3] : 0,
-      arr_time: path.length > 0 ? path[path.length - 1]![3] : 0,
-      status: "",
-      trail_points: path.length,
-      path,
-    };
-  });
 
-  console.log(`[Airspace/Supabase] ${date}: ${flights.length} aircraft, ${(performance.now() - t0).toFixed(0)}ms`);
+      flights.push({
+        fr24_id: segments.length > 1 ? `${row.flight_id}_${si}` : row.flight_id,
+        callsign: row.callsign,
+        registration: "",
+        aircraft_type: row.aircraft_type,
+        origin_icao: row.origin,
+        origin_iata: "",
+        dest_icao: row.destination,
+        dest_iata: "",
+        dep_time: firstTs,
+        arr_time: lastTs,
+        status: "",
+        trail_points: path.length,
+        path,
+      });
+    }
+  }
+
+  if (splitCount > 0) {
+    console.log(`[Airspace/Supabase] Split ${splitCount} multi-leg flights (gap > 30min)`);
+  }
+  console.log(`[Airspace/Supabase] ${date}: ${flights.length} flights from ${rows.length} records, ${(performance.now() - t0).toFixed(0)}ms`);
 
   return {
     metadata: {

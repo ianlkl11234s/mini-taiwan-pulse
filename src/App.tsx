@@ -103,7 +103,9 @@ export default function App() {
     }
   }, [shipTimeRange, calendarRanges, dataRegistry.register]);
 
-  const { railData, loading: railLoading } = useRailData();
+  // ── 鐵道：活躍日期驅動時刻表切換（Supabase daily_schedules） ──
+  const [railActiveDate, setRailActiveDate] = useState<string | undefined>();
+  const { railData, loading: railLoading, scheduleLoading: railScheduleLoading, } = useRailData(railActiveDate);
 
   useEffect(() => {
     if (railData) {
@@ -233,6 +235,7 @@ export default function App() {
     const date = new Date(y!, m! - 1, d!);
     loadShipDay(date);
     loadFlightDay(date);
+    setRailActiveDate(dayStr);
   }, [timeline.currentTime, loadShipDay, loadFlightDay]);
 
   // ── 多日模式預載：切換 rangeDays 或 selectedDate 時，背景預載所有天數 ──
@@ -532,7 +535,7 @@ export default function App() {
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {/* Day-loading overlay — 半透明遮罩 */}
-      {(shipsDayLoading || flightsDayLoading) && (
+      {(shipsDayLoading || flightsDayLoading || railScheduleLoading) && (
         <div style={{
           position: "absolute", inset: 0, zIndex: 1000,
           background: "rgba(0,0,0,0.5)", backdropFilter: "blur(2px)",
@@ -555,11 +558,11 @@ export default function App() {
               資料更新中
             </div>
             <div style={{ fontSize: 12, opacity: 0.7 }}>
-              {shipsDayLoading && flightsDayLoading
-                ? "正在載入船舶與航班資料…"
-                : shipsDayLoading
-                ? "正在載入船舶資料…"
-                : "正在載入航班資料…"}
+              {[
+                shipsDayLoading && "船舶",
+                flightsDayLoading && "航班",
+                railScheduleLoading && "鐵道時刻表",
+              ].filter(Boolean).join("、") + "資料載入中…"}
             </div>
           </div>
         </div>
