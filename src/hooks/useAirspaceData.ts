@@ -1,5 +1,5 @@
 /**
- * OpenSky 空域快照 hook — 支援 currentTime 驅動活躍日 + LRU 快取
+ * OpenSky 空域快照 hook — LRU 快取 + 前景/背景載入
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,7 +12,7 @@ import {
 import type { AirspaceDateInfo } from "../data/airspaceLoader";
 
 /** LRU 快取上限（天數） */
-const CACHE_MAX = 5;
+const CACHE_MAX = 7;
 
 interface CachedDay {
   flights: Flight[];
@@ -23,15 +23,13 @@ interface CachedDay {
 interface UseAirspaceDataReturn {
   flights: Flight[];
   timeRange: { start: number; end: number };
-  /** 初始載入中 */
   loading: boolean;
-  /** 日期切換中 */
   dayLoading: boolean;
-  /** 所有可用日期 */
   availableDates: AirspaceDateInfo[];
-  /** 手動切換日期 */
+  /** 前景載入（切換活躍日，顯示 overlay） */
   loadDay: (date: Date) => void;
-  /** 當前活躍日 */
+  /** 背景預載（只寫快取，不影響當前顯示） */
+  prefetch: (date: Date) => void;
   activeDate: string;
 }
 
@@ -51,16 +49,36 @@ export function useAirspaceData(): UseAirspaceDataReturn {
   const abortRef = useRef<AbortController | null>(null);
   const apiAvailable = useRef(false);
   const fetchingRef = useRef<string>("");
+  const prefetchingRef = useRef<Set<string>>(new Set());
 
   // LRU 快取
   const cacheRef = useRef<Map<string, CachedDay>>(new Map());
 
-  /** 從快取取得或遠端載入 */
+  /** 寫入快取 + LRU 清理 */
+  const writeCache = useCallback((dateStr: string, flights: Flight[], tr: { start: number; end: number }) => {
+    const cache = cacheRef.current;
+    cache.set(dateStr, { flights, timeRange: tr, accessedAt: Date.now() });
+    if (cache.size > CACHE_MAX) {
+      let oldestKey = "";
+      let oldestTime = Infinity;
+      for (const [k, v] of cache) {
+        if (v.accessedAt < oldestTime) { oldestTime = v.accessedAt; oldestKey = k; }
+      }
+      if (oldestKey) cache.delete(oldestKey);
+    }
+  }, []);
+
+  /** 檢查日期是否在可用清單中 */
+  const isDateAvailable = useCallback((dateStr: string) => {
+    if (availableDatesRef.current.length === 0) return true;
+    return availableDatesRef.current.some(d => d.date === dateStr);
+  }, []);
+
+  /** 前景載入 */
   const loadDateData = useCallback((dateStr: string) => {
     if (dateStr === activeDateRef.current) return;
     if (dateStr === fetchingRef.current) return;
 
-    // 快取命中
     const cached = cacheRef.current.get(dateStr);
     if (cached) {
       cached.accessedAt = Date.now();
@@ -72,11 +90,7 @@ export function useAirspaceData(): UseAirspaceDataReturn {
       return;
     }
 
-    // 跳過沒有資料的日期
-    if (availableDatesRef.current.length > 0 &&
-        !availableDatesRef.current.some(d => d.date === dateStr)) {
-      return;
-    }
+    if (!isDateAvailable(dateStr)) return;
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -90,21 +104,7 @@ export function useAirspaceData(): UseAirspaceDataReturn {
       .then((data) => {
         if (controller.signal.aborted) return;
         const tr = { start: data.metadata.time_range[0], end: data.metadata.time_range[1] };
-
-        // 寫入快取
-        const cache = cacheRef.current;
-        cache.set(dateStr, { flights: data.flights, timeRange: tr, accessedAt: Date.now() });
-
-        // LRU 清理
-        if (cache.size > CACHE_MAX) {
-          let oldestKey = "";
-          let oldestTime = Infinity;
-          for (const [k, v] of cache) {
-            if (v.accessedAt < oldestTime) { oldestTime = v.accessedAt; oldestKey = k; }
-          }
-          if (oldestKey) cache.delete(oldestKey);
-        }
-
+        writeCache(dateStr, data.flights, tr);
         activeDateRef.current = dateStr;
         setActiveDate(dateStr);
         setFlights(data.flights);
@@ -121,7 +121,31 @@ export function useAirspaceData(): UseAirspaceDataReturn {
           fetchingRef.current = "";
         }
       });
-  }, []);
+  }, [writeCache, isDateAvailable]);
+
+  /** 背景預載：只寫快取 */
+  const prefetchDate = useCallback((dateStr: string) => {
+    if (cacheRef.current.has(dateStr)) return;
+    if (prefetchingRef.current.has(dateStr)) return;
+    if (fetchingRef.current === dateStr) return;
+    if (!isDateAvailable(dateStr)) return;
+
+    prefetchingRef.current.add(dateStr);
+    const t0 = performance.now();
+
+    fetchAirspaceDayArrow(dateStr)
+      .then((data) => {
+        const tr = { start: data.metadata.time_range[0], end: data.metadata.time_range[1] };
+        writeCache(dateStr, data.flights, tr);
+        console.log(`[Airspace] Prefetched ${data.flights.length} flights for ${dateStr} in ${(performance.now() - t0).toFixed(0)}ms`);
+      })
+      .catch((err) => {
+        console.warn(`[Airspace] Prefetch failed ${dateStr}:`, err);
+      })
+      .finally(() => {
+        prefetchingRef.current.delete(dateStr);
+      });
+  }, [writeCache, isDateAvailable]);
 
   // ── 初始載入 ──
   useEffect(() => {
@@ -140,8 +164,6 @@ export function useAirspaceData(): UseAirspaceDataReturn {
 
         const dateStr = data.metadata.date;
         const tr = { start: data.metadata.time_range[0], end: data.metadata.time_range[1] };
-
-        // 初始資料寫入快取
         cacheRef.current.set(dateStr, { flights: data.flights, timeRange: tr, accessedAt: Date.now() });
 
         activeDateRef.current = dateStr;
@@ -161,12 +183,15 @@ export function useAirspaceData(): UseAirspaceDataReturn {
     return () => { cancelled = true; };
   }, []);
 
-  // ── 切換日期（由 App.tsx 的活躍日追蹤 effect 呼叫） ──
   const loadDay = useCallback((date: Date) => {
     if (!apiAvailable.current) return;
-    const dateStr = formatDate(date);
-    loadDateData(dateStr);
+    loadDateData(formatDate(date));
   }, [loadDateData]);
 
-  return { flights, timeRange, loading, dayLoading, availableDates, loadDay, activeDate };
+  const prefetch = useCallback((date: Date) => {
+    if (!apiAvailable.current) return;
+    prefetchDate(formatDate(date));
+  }, [prefetchDate]);
+
+  return { flights, timeRange, loading, dayLoading, availableDates, loadDay, prefetch, activeDate };
 }

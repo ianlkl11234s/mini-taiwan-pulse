@@ -130,11 +130,12 @@ export class ShipScene {
     for (const ship of ships) {
       if (headCount >= this.maxInstances) break;
 
-      // 只在船舶活動時間範圍內顯示（前端 clamp 到首點，末端 +10 分鐘寬限）
       const path = ship.path;
       if (path.length === 0) continue;
+      // trail 已含 ±1h 跨日緩衝，直接用首末點判斷
+      const firstTime = path[0]![3];
       const lastTime = path[path.length - 1]![3];
-      if (currentTime > lastTime + 600) continue;
+      if (currentTime < firstTime || currentTime > lastTime) continue;
 
       const pos = interpolatePosition(path, currentTime);
       if (!pos) continue;

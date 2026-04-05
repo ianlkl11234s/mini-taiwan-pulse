@@ -45,9 +45,10 @@ export default function App() {
     loading,
     dayLoading: flightsDayLoading,
     loadDay: loadFlightDay,
+    prefetch: prefetchFlight,
   } = useAirspaceData();
 
-  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay } = useShipData();
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData();
 
   // 地點選擇（用於攝影機定位，不影響資料過濾）
   const [selectedAirport, setSelectedAirport] = useState("");
@@ -221,7 +222,6 @@ export default function App() {
   });
 
   // ── 活躍日追蹤：根據 currentTime 自動跨日載入 ──
-  // currentTime 每幀都變，但 activeDayRef 只在跨日時觸發 loadDay
   const activeDayRef = useRef("");
   useEffect(() => {
     if (timeline.currentTime <= 0) return;
@@ -234,6 +234,17 @@ export default function App() {
     loadShipDay(date);
     loadFlightDay(date);
   }, [timeline.currentTime, loadShipDay, loadFlightDay]);
+
+  // ── 多日模式預載：切換 rangeDays 或 selectedDate 時，背景預載所有天數 ──
+  useEffect(() => {
+    if (timeline.rangeDays <= 1) return;
+    for (let i = 0; i < timeline.rangeDays; i++) {
+      const d = new Date(timeline.selectedDate);
+      d.setDate(d.getDate() + i);
+      prefetchShip(d);
+      prefetchFlight(d);
+    }
+  }, [timeline.selectedDate, timeline.rangeDays, prefetchShip, prefetchFlight]);
 
   // ── Custom Hooks ──
 
@@ -284,6 +295,11 @@ export default function App() {
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
+
+  // H3 resolution state (driven by zoom) — 必須在 useYoubikeH3 之前宣告
+  const [h3Resolution, setH3Resolution] = useState(7);
+  const [demoResolution, setDemoResolution] = useState(7);
+
   const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, demoResolution);
 
   const {
@@ -315,11 +331,6 @@ export default function App() {
   const styleUrl = useMemo(() => getStyleUrl(mapStyleId), [mapStyleId]);
 
   // ── Map ready handler ──
-
-  // H3 resolution state (driven by zoom)
-  const [h3Resolution, setH3Resolution] = useState(7);
-  // Demographics resolution (capped at 8, no res9 for village polygons)
-  const [demoResolution, setDemoResolution] = useState(7);
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
@@ -529,10 +540,18 @@ export default function App() {
           pointerEvents: "none",
         }}>
           <div style={{
-            background: "rgba(0,0,0,0.8)", borderRadius: 12, padding: "20px 32px",
+            background: "rgba(0,0,0,0.8)", borderRadius: 12, padding: "24px 36px",
             color: "#fff", textAlign: "center", fontFamily: "monospace",
           }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+            <div style={{
+              width: 32, height: 32, margin: "0 auto 12px",
+              border: "3px solid rgba(255,255,255,0.15)",
+              borderTop: "3px solid #64aaff",
+              borderRadius: "50%",
+              animation: "day-loading-spin 0.8s linear infinite",
+            }} />
+            <style>{`@keyframes day-loading-spin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
               資料更新中
             </div>
             <div style={{ fontSize: 12, opacity: 0.7 }}>

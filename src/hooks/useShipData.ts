@@ -4,7 +4,7 @@ import { fetchShipDates, fetchShipDayArrow, loadShipsWithDates, loadShipsLegacy 
 import type { ShipDateInfo } from "../data/shipLoader";
 
 /** LRU 快取上限（天數） */
-const CACHE_MAX = 5;
+const CACHE_MAX = 7;
 
 interface CachedDay {
   ships: Ship[];
@@ -15,15 +15,13 @@ interface CachedDay {
 interface UseShipDataReturn {
   ships: Ship[];
   timeRange: { start: number; end: number };
-  /** 初始載入中（給 LoadingScreen 用） */
   loading: boolean;
-  /** 日期切換中（給 overlay 用） */
   dayLoading: boolean;
-  /** 所有可用日期 */
   availableDates: ShipDateInfo[];
-  /** 手動切換日期（相容舊介面） */
+  /** 前景載入（切換活躍日，顯示 overlay） */
   loadDay: (date: Date) => void;
-  /** 當前活躍日 */
+  /** 背景預載（只寫快取，不影響當前顯示） */
+  prefetch: (date: Date) => void;
   activeDate: string;
 }
 
@@ -43,11 +41,32 @@ export function useShipData(): UseShipDataReturn {
   const abortRef = useRef<AbortController | null>(null);
   const apiAvailable = useRef(false);
   const fetchingRef = useRef<string>("");
+  const prefetchingRef = useRef<Set<string>>(new Set());
 
   // LRU 快取
   const cacheRef = useRef<Map<string, CachedDay>>(new Map());
 
-  /** 從快取取得或遠端載入 */
+  /** 寫入快取 + LRU 清理 */
+  const writeCache = useCallback((dateStr: string, ships: Ship[], tr: { start: number; end: number }) => {
+    const cache = cacheRef.current;
+    cache.set(dateStr, { ships, timeRange: tr, accessedAt: Date.now() });
+    if (cache.size > CACHE_MAX) {
+      let oldestKey = "";
+      let oldestTime = Infinity;
+      for (const [k, v] of cache) {
+        if (v.accessedAt < oldestTime) { oldestTime = v.accessedAt; oldestKey = k; }
+      }
+      if (oldestKey) cache.delete(oldestKey);
+    }
+  }, []);
+
+  /** 檢查日期是否在可用清單中 */
+  const isDateAvailable = useCallback((dateStr: string) => {
+    if (availableDatesRef.current.length === 0) return true;
+    return availableDatesRef.current.some(d => d.date === dateStr);
+  }, []);
+
+  /** 前景載入：切換活躍日，abort 前一次，設定 state + overlay */
   const loadDateData = useCallback((dateStr: string) => {
     if (dateStr === activeDateRef.current) return;
     if (dateStr === fetchingRef.current) return;
@@ -64,13 +83,8 @@ export function useShipData(): UseShipDataReturn {
       return;
     }
 
-    // 跳過沒有資料的日期
-    if (availableDatesRef.current.length > 0 &&
-        !availableDatesRef.current.some(d => d.date === dateStr)) {
-      return;
-    }
+    if (!isDateAvailable(dateStr)) return;
 
-    // 取消前一次 fetch
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -83,21 +97,7 @@ export function useShipData(): UseShipDataReturn {
       .then((data) => {
         if (controller.signal.aborted) return;
         const tr = { start: data.metadata.time_range[0], end: data.metadata.time_range[1] };
-
-        // 寫入快取
-        const cache = cacheRef.current;
-        cache.set(dateStr, { ships: data.ships, timeRange: tr, accessedAt: Date.now() });
-
-        // LRU 清理
-        if (cache.size > CACHE_MAX) {
-          let oldestKey = "";
-          let oldestTime = Infinity;
-          for (const [k, v] of cache) {
-            if (v.accessedAt < oldestTime) { oldestTime = v.accessedAt; oldestKey = k; }
-          }
-          if (oldestKey) cache.delete(oldestKey);
-        }
-
+        writeCache(dateStr, data.ships, tr);
         activeDateRef.current = dateStr;
         setActiveDate(dateStr);
         setShips(data.ships);
@@ -114,7 +114,31 @@ export function useShipData(): UseShipDataReturn {
           fetchingRef.current = "";
         }
       });
-  }, []);
+  }, [writeCache, isDateAvailable]);
+
+  /** 背景預載：只寫快取，不 abort 前景、不設 state */
+  const prefetchDate = useCallback((dateStr: string) => {
+    if (cacheRef.current.has(dateStr)) return;
+    if (prefetchingRef.current.has(dateStr)) return;
+    if (fetchingRef.current === dateStr) return;
+    if (!isDateAvailable(dateStr)) return;
+
+    prefetchingRef.current.add(dateStr);
+    const t0 = performance.now();
+
+    fetchShipDayArrow(dateStr)
+      .then((data) => {
+        const tr = { start: data.metadata.time_range[0], end: data.metadata.time_range[1] };
+        writeCache(dateStr, data.ships, tr);
+        console.log(`[Ship] Prefetched ${data.ships.length} ships for ${dateStr} in ${(performance.now() - t0).toFixed(0)}ms`);
+      })
+      .catch((err) => {
+        console.warn(`[Ship] Prefetch failed ${dateStr}:`, err);
+      })
+      .finally(() => {
+        prefetchingRef.current.delete(dateStr);
+      });
+  }, [writeCache, isDateAvailable]);
 
   // ── 初始載入 ──
   useEffect(() => {
@@ -133,8 +157,6 @@ export function useShipData(): UseShipDataReturn {
 
         const dateStr = data.metadata.date ?? "";
         const tr = { start: data.metadata.time_range[0], end: data.metadata.time_range[1] };
-
-        // 初始資料也寫入快取
         cacheRef.current.set(dateStr, { ships: data.ships, timeRange: tr, accessedAt: Date.now() });
 
         activeDateRef.current = dateStr;
@@ -162,12 +184,15 @@ export function useShipData(): UseShipDataReturn {
     return () => { cancelled = true; };
   }, []);
 
-  // ── 切換日期（由 App.tsx 的活躍日追蹤 effect 呼叫） ──
   const loadDay = useCallback((date: Date) => {
     if (!apiAvailable.current) return;
-    const dateStr = formatDate(date);
-    loadDateData(dateStr);
+    loadDateData(formatDate(date));
   }, [loadDateData]);
 
-  return { ships, timeRange, loading, dayLoading, availableDates, loadDay, activeDate };
+  const prefetch = useCallback((date: Date) => {
+    if (!apiAvailable.current) return;
+    prefetchDate(formatDate(date));
+  }, [prefetchDate]);
+
+  return { ships, timeRange, loading, dayLoading, availableDates, loadDay, prefetch, activeDate };
 }
