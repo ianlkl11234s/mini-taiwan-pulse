@@ -1,0 +1,741 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.7416,
+          25.1288
+        ]
+      },
+      "properties": {
+        "title": "基隆仁愛市場2樓3/16起汰換空調 美食攤位停業2個月",
+        "summary": "基隆仁愛市場2樓汰換空調，3/16起停業2個月。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070119.aspx",
+        "published": "Sat, 07 Mar 2026 15:25:57 +0800",
+        "location_name": "基隆市仁愛區仁愛市場",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.7392,
+          25.1276
+        ]
+      },
+      "properties": {
+        "title": "基隆仁愛市場2樓3/16起汰換空調 美食攤位停業2個月",
+        "summary": "基隆仁愛市場2樓汰換空調，3/16起停業2個月。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070119.aspx",
+        "published": "Sat, 07 Mar 2026 15:25:57 +0800",
+        "location_name": "基隆市",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "基隆市政府所在地",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.2764,
+          22.6179
+        ]
+      },
+      "properties": {
+        "title": "帛琉傳統帆船壯舉感動人心　海委會高雄港盛大迎船",
+        "summary": "海委會於高雄港盛大歡迎帛琉傳統帆船抵台。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070118.aspx",
+        "published": "Sat, 07 Mar 2026 15:20:55 +0800",
+        "location_name": "高雄市鼓山區高雄港",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.3014,
+          22.6273
+        ]
+      },
+      "properties": {
+        "title": "帛琉傳統帆船壯舉感動人心　海委會高雄港盛大迎船",
+        "summary": "海委會於高雄港盛大歡迎帛琉傳統帆船抵台。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070118.aspx",
+        "published": "Sat, 07 Mar 2026 15:20:55 +0800",
+        "location_name": "高雄市",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "高雄市政府所在地",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          119.5794,
+          23.5682
+        ]
+      },
+      "properties": {
+        "title": "澎湖主委盃滑輪溜冰賽登場  逾150人參賽競速",
+        "summary": "澎湖主委盃滑輪溜冰賽登場，逾150人參賽爭取佳績。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070116.aspx",
+        "published": "Sat, 07 Mar 2026 15:15:51 +0800",
+        "location_name": "澎湖縣",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.1706,
+          23.3768
+        ]
+      },
+      "properties": {
+        "title": "冬春之際千羽壯觀　布袋濕地候鳥賞鳥季至4月",
+        "summary": "嘉義布袋濕地候鳥季登場，賞鳥活動至4月止。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/ahel/202603070101.aspx",
+        "published": "Sat, 07 Mar 2026 14:20:18 +0800",
+        "location_name": "布袋濕地生態園區",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.4285,
+          23.4582
+        ]
+      },
+      "properties": {
+        "title": "冬春之際千羽壯觀　布袋濕地候鳥賞鳥季至4月",
+        "summary": "嘉義布袋濕地候鳥季登場，賞鳥活動至4月止。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/ahel/202603070101.aspx",
+        "published": "Sat, 07 Mar 2026 14:20:18 +0800",
+        "location_name": "嘉義縣",
+        "location_type": "city",
+        "confidence": 0.9,
+        "note": "嘉義縣政府所在地",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.3742,
+          24.9376
+        ]
+      },
+      "properties": {
+        "title": "天穿日遇婦女節  新北女力生活節3/8三峽登場",
+        "summary": "新北客家文化園區8日舉辦女力生活節。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070100.aspx",
+        "published": "Sat, 07 Mar 2026 14:19:16 +0800",
+        "location_name": "新北市客家文化園區",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.4639,
+          25.0114
+        ]
+      },
+      "properties": {
+        "title": "天穿日遇婦女節  新北女力生活節3/8三峽登場",
+        "summary": "新北客家文化園區8日舉辦女力生活節。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070100.aspx",
+        "published": "Sat, 07 Mar 2026 14:19:16 +0800",
+        "location_name": "新北市",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "新北市政府所在地中心點",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.3734,
+          24.9317
+        ]
+      },
+      "properties": {
+        "title": "天穿日遇婦女節  新北女力生活節3/8三峽登場",
+        "summary": "新北客家文化園區8日舉辦女力生活節。",
+        "category": "生活",
+        "rss_category": "local",
+        "link": "https://www.cna.com.tw/news/aloc/202603070100.aspx",
+        "published": "Sat, 07 Mar 2026 14:19:16 +0800",
+        "location_name": "新北市三峽區",
+        "location_type": "district",
+        "confidence": 0.8,
+        "note": "三峽區行政中心點",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.6384,
+          24.1506
+        ]
+      },
+      "properties": {
+        "title": "台中男酒後推倒路邊機車　警速查到案送辦",
+        "summary": "台中男酒後推倒多輛機車，警速查緝送辦。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070115.aspx",
+        "published": "Sat, 07 Mar 2026 15:14:48 +0800",
+        "location_name": "臺中市南屯區黎明路二段",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.6736,
+          24.1477
+        ]
+      },
+      "properties": {
+        "title": "台中男酒後推倒路邊機車　警速查到案送辦",
+        "summary": "台中男酒後推倒多輛機車，警速查緝送辦。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070115.aspx",
+        "published": "Sat, 07 Mar 2026 15:14:48 +0800",
+        "location_name": "臺中市",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "臺中市政府中心點",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.6433,
+          24.1444
+        ]
+      },
+      "properties": {
+        "title": "台中男酒後推倒路邊機車　警速查到案送辦",
+        "summary": "台中男酒後推倒多輛機車，警速查緝送辦。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070115.aspx",
+        "published": "Sat, 07 Mar 2026 15:14:48 +0800",
+        "location_name": "臺中市南屯區",
+        "location_type": "district",
+        "confidence": 0.8,
+        "note": "南屯區公所中心點",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.6865,
+          24.1311
+        ]
+      },
+      "properties": {
+        "title": "台中男酒後推倒路邊機車　警速查到案送辦",
+        "summary": "台中男酒後推倒多輛機車，警速查緝送辦。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070115.aspx",
+        "published": "Sat, 07 Mar 2026 15:14:48 +0800",
+        "location_name": "臺灣臺中地方檢察署",
+        "location_type": "landmark",
+        "confidence": 1.0,
+        "note": "位於臺中市西區",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.2323,
+          25.0792
+        ]
+      },
+      "properties": {
+        "title": "港女桃機迷路國道狂奔 航警攔下協助完成報到",
+        "summary": "港籍女子桃機跑錯航廈，航警協助順利登機。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070105.aspx",
+        "published": "Sat, 07 Mar 2026 14:29:26 +0800",
+        "location_name": "臺灣桃園國際機場",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.2335,
+          25.0785
+        ]
+      },
+      "properties": {
+        "title": "港女桃機迷路國道狂奔 航警攔下協助完成報到",
+        "summary": "港籍女子桃機跑錯航廈，航警協助順利登機。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070105.aspx",
+        "published": "Sat, 07 Mar 2026 14:29:26 +0800",
+        "location_name": "臺灣桃園國際機場第二航廈",
+        "location_type": "landmark",
+        "confidence": 0.95,
+        "note": "第二航廈航站北路區域",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.2315,
+          25.0765
+        ]
+      },
+      "properties": {
+        "title": "港女桃機迷路國道狂奔 航警攔下協助完成報到",
+        "summary": "港籍女子桃機跑錯航廈，航警協助順利登機。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070105.aspx",
+        "published": "Sat, 07 Mar 2026 14:29:26 +0800",
+        "location_name": "臺灣桃園國際機場第一航廈",
+        "location_type": "landmark",
+        "confidence": 0.95,
+        "note": "第一航廈區域",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.6033,
+          22.8252
+        ]
+      },
+      "properties": {
+        "title": "男子駕動力滑翔翼墜屏東　頭部外傷送醫暫無礙",
+        "summary": "男子駕駛動力滑翔翼，墜落屏東高樹鄉送醫。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070102.aspx",
+        "published": "Sat, 07 Mar 2026 14:21:20 +0800",
+        "location_name": "屏東縣高樹鄉",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.5925,
+          22.6732
+        ]
+      },
+      "properties": {
+        "title": "男子駕動力滑翔翼墜屏東　頭部外傷送醫暫無礙",
+        "summary": "男子駕駛動力滑翔翼，墜落屏東高樹鄉送醫。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070102.aspx",
+        "published": "Sat, 07 Mar 2026 14:21:20 +0800",
+        "location_name": "屏東縣",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "屏東縣行政中心座標",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5654,
+          25.033
+        ]
+      },
+      "properties": {
+        "title": "網路恐嚇將在台北燈節潑硫酸殺人 苗栗男被揪出法辦",
+        "summary": "苗栗男網路恐嚇台北燈節潑酸，遭警火速逮捕。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070022.aspx",
+        "published": "Sat, 07 Mar 2026 08:57:23 +0800",
+        "location_name": "台北市",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5085,
+          25.0442
+        ]
+      },
+      "properties": {
+        "title": "網路恐嚇將在台北燈節潑硫酸殺人 苗栗男被揪出法辦",
+        "summary": "苗栗男網路恐嚇台北燈節潑酸，遭警火速逮捕。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070022.aspx",
+        "published": "Sat, 07 Mar 2026 08:57:23 +0800",
+        "location_name": "台北燈節活動會場",
+        "location_type": "landmark",
+        "confidence": 0.9,
+        "note": "以2024台北燈節主要展區西門町為中心",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.8213,
+          24.5606
+        ]
+      },
+      "properties": {
+        "title": "網路恐嚇將在台北燈節潑硫酸殺人 苗栗男被揪出法辦",
+        "summary": "苗栗男網路恐嚇台北燈節潑酸，遭警火速逮捕。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070022.aspx",
+        "published": "Sat, 07 Mar 2026 08:57:23 +0800",
+        "location_name": "苗栗縣苗栗市",
+        "location_type": "district",
+        "confidence": 0.9,
+        "note": "苗栗市行政中心",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5136,
+          25.0416
+        ]
+      },
+      "properties": {
+        "title": "人壽公司退休經理吸金逾5千萬涉詐  北檢聲押禁見",
+        "summary": "人壽退休經理涉假保單吸金，北檢聲押禁見。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070016.aspx",
+        "published": "Sat, 07 Mar 2026 08:34:10 +0800",
+        "location_name": "臺灣臺北地方檢察署",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5654,
+          25.033
+        ]
+      },
+      "properties": {
+        "title": "人壽公司退休經理吸金逾5千萬涉詐  北檢聲押禁見",
+        "summary": "人壽退休經理涉假保單吸金，北檢聲押禁見。",
+        "category": "社會",
+        "rss_category": "social",
+        "link": "https://www.cna.com.tw/news/asoc/202603070016.aspx",
+        "published": "Sat, 07 Mar 2026 08:34:10 +0800",
+        "location_name": "臺北市",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "指台北市行政區域",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5398,
+          25.0173
+        ]
+      },
+      "properties": {
+        "title": "航空雙雄前進台大搶才　115年各招募約160名機師",
+        "summary": "華航與長榮航空赴台大徵才，預計各招募160名機師。",
+        "category": "經濟",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/ahel/202603070117.aspx",
+        "published": "Sat, 07 Mar 2026 15:16:53 +0800",
+        "location_name": "國立台灣大學",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5654,
+          25.033
+        ]
+      },
+      "properties": {
+        "title": "航空雙雄前進台大搶才　115年各招募約160名機師",
+        "summary": "華航與長榮航空赴台大徵才，預計各招募160名機師。",
+        "category": "經濟",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/ahel/202603070117.aspx",
+        "published": "Sat, 07 Mar 2026 15:16:53 +0800",
+        "location_name": "台北市",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "台北市政府所在地座標",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5654,
+          25.033
+        ]
+      },
+      "properties": {
+        "title": "食藥署發警訊 2款超音波電刀異常釀1死急回收",
+        "summary": "食藥署召回2款致死風險超音波電刀。",
+        "category": "生活",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/ahel/202603070113.aspx",
+        "published": "Sat, 07 Mar 2026 15:11:44 +0800",
+        "location_name": "台北市",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5654,
+          25.033
+        ]
+      },
+      "properties": {
+        "title": "男中音特菲爾攜指揮家梵志登  透過歌聲展現人性",
+        "summary": "男中音特菲爾抵台，將為台灣國際藝術節獻唱。",
+        "category": "生活",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/acul/202603070112.aspx",
+        "published": "Sat, 07 Mar 2026 14:55:42 +0800",
+        "location_name": "台北市",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.1589,
+          23.3764
+        ]
+      },
+      "properties": {
+        "title": "冬春之際千羽壯觀　布袋濕地候鳥賞鳥季至4月",
+        "summary": "嘉義布袋濕地候鳥季開跑，賞鳥活動持續至4月。",
+        "category": "生活",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/ahel/202603070101.aspx",
+        "published": "Sat, 07 Mar 2026 14:20:18 +0800",
+        "location_name": "布袋濕地生態園區",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.3019,
+          23.4588
+        ]
+      },
+      "properties": {
+        "title": "冬春之際千羽壯觀　布袋濕地候鳥賞鳥季至4月",
+        "summary": "嘉義布袋濕地候鳥季開跑，賞鳥活動持續至4月。",
+        "category": "生活",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/ahel/202603070101.aspx",
+        "published": "Sat, 07 Mar 2026 14:20:18 +0800",
+        "location_name": "嘉義縣",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "嘉義縣政府中心座標",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          120.3014,
+          22.6273
+        ]
+      },
+      "properties": {
+        "title": "冬春之際千羽壯觀　布袋濕地候鳥賞鳥季至4月",
+        "summary": "嘉義布袋濕地候鳥季開跑，賞鳥活動持續至4月。",
+        "category": "生活",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/ahel/202603070101.aspx",
+        "published": "Sat, 07 Mar 2026 14:20:18 +0800",
+        "location_name": "高雄市",
+        "location_type": "city",
+        "confidence": 0.8,
+        "note": "高雄市政府中心座標",
+        "is_primary": false
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          121.5654,
+          25.033
+        ]
+      },
+      "properties": {
+        "title": "逾6成植物人照顧者為女性　民團籲接住受困婦女",
+        "summary": "逾6成植物人照顧者為女性，民團籲給予支持。",
+        "category": "社會",
+        "rss_category": "lifehealth",
+        "link": "https://www.cna.com.tw/news/ahel/202603070097.aspx",
+        "published": "Sat, 07 Mar 2026 14:06:09 +0800",
+        "location_name": "台北市",
+        "location_type": "",
+        "confidence": 0,
+        "note": "",
+        "is_primary": true
+      }
+    }
+  ]
+}

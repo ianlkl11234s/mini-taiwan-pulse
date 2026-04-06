@@ -115,15 +115,19 @@ def main():
 
     # Step 2: 取得這些船的所有軌跡資料（含靜止點，保持軌跡完整）
     mmsi_list = [row[0] for row in qualifying_mmsis]
-    placeholders = ",".join(["?"] * len(mmsi_list))
+
+    # 使用臨時表避免 SQL 變數上限
+    cursor.execute("CREATE TEMP TABLE _mmsi (mmsi TEXT PRIMARY KEY)")
+    cursor.executemany("INSERT OR IGNORE INTO _mmsi VALUES (?)", [(m,) for m in mmsi_list])
 
     cursor.execute(f"""
-        SELECT mmsi, vessel_type, timestamp, lat, lon, sog
-        FROM ship_positions
-        WHERE {date_filter} AND mmsi IN ({placeholders})
-          AND lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?
-        ORDER BY mmsi, timestamp
-    """, date_params + mmsi_list + [BOUNDS_LAT_MIN, BOUNDS_LAT_MAX, BOUNDS_LNG_MIN, BOUNDS_LNG_MAX])
+        SELECT sp.mmsi, sp.vessel_type, sp.timestamp, sp.lat, sp.lon, sp.sog
+        FROM ship_positions sp
+        INNER JOIN _mmsi m ON sp.mmsi = m.mmsi
+        WHERE {date_filter}
+          AND sp.lat BETWEEN ? AND ? AND sp.lon BETWEEN ? AND ?
+        ORDER BY sp.mmsi, sp.timestamp
+    """, date_params + [BOUNDS_LAT_MIN, BOUNDS_LAT_MAX, BOUNDS_LNG_MIN, BOUNDS_LNG_MAX])
 
     rows = cursor.fetchall()
     print(f"Total data points: {len(rows)}")

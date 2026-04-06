@@ -21,7 +21,9 @@ import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
 import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
+import { useYoubikeH3 } from "./hooks/useYoubikeH3";
 import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
+import { ensureYoubikeLayers, updateYoubikeLayer } from "./map/youbikeLayerFactory";
 import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer, ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer } from "./map/demographicsLayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
@@ -43,9 +45,10 @@ export default function App() {
     loading,
     dayLoading: flightsDayLoading,
     loadDay: loadFlightDay,
+    prefetch: prefetchFlight,
   } = useAirspaceData();
 
-  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay } = useShipData();
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData();
 
   // 地點選擇（用於攝影機定位，不影響資料過濾）
   const [selectedAirport, setSelectedAirport] = useState("");
@@ -100,7 +103,9 @@ export default function App() {
     }
   }, [shipTimeRange, calendarRanges, dataRegistry.register]);
 
-  const { railData, loading: railLoading } = useRailData();
+  // ── 鐵道：活躍日期驅動時刻表切換（Supabase daily_schedules） ──
+  const [railActiveDate, setRailActiveDate] = useState<string | undefined>();
+  const { railData, loading: railLoading, scheduleLoading: railScheduleLoading, } = useRailData(railActiveDate);
 
   useEffect(() => {
     if (railData) {
@@ -218,11 +223,31 @@ export default function App() {
     dataEndTime: dataTimeRange.end,
   });
 
-  // 日期切換時載入該日資料（Arrow IPC）
+  // ── 活躍日追蹤：根據 currentTime 自動跨日載入 ──
+  const activeDayRef = useRef("");
   useEffect(() => {
-    loadShipDay(timeline.selectedDate);
-    loadFlightDay(timeline.selectedDate);
-  }, [timeline.selectedDate, loadShipDay, loadFlightDay]);
+    if (timeline.currentTime <= 0) return;
+    const dayStr = new Date(timeline.currentTime * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    if (dayStr === activeDayRef.current) return;
+    activeDayRef.current = dayStr;
+    const [y, m, d] = dayStr.split("-").map(Number);
+    const date = new Date(y!, m! - 1, d!);
+    loadShipDay(date);
+    loadFlightDay(date);
+    setRailActiveDate(dayStr);
+  }, [timeline.currentTime, loadShipDay, loadFlightDay]);
+
+  // ── 多日模式預載：切換 rangeDays 或 selectedDate 時，背景預載所有天數 ──
+  useEffect(() => {
+    if (timeline.rangeDays <= 1) return;
+    for (let i = 0; i < timeline.rangeDays; i++) {
+      const d = new Date(timeline.selectedDate);
+      d.setDate(d.getDate() + i);
+      prefetchShip(d);
+      prefetchFlight(d);
+    }
+  }, [timeline.selectedDate, timeline.rangeDays, prefetchShip, prefetchFlight]);
 
   // ── Custom Hooks ──
 
@@ -274,6 +299,12 @@ export default function App() {
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
 
+  // H3 resolution state (driven by zoom) — 必須在 useYoubikeH3 之前宣告
+  const [h3Resolution, setH3Resolution] = useState(7);
+  const [demoResolution, setDemoResolution] = useState(7);
+
+  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, demoResolution);
+
   const {
     flightSceneRef, shipSceneRef, railSceneRef,
     addFlightLayer,
@@ -303,11 +334,6 @@ export default function App() {
   const styleUrl = useMemo(() => getStyleUrl(mapStyleId), [mapStyleId]);
 
   // ── Map ready handler ──
-
-  // H3 resolution state (driven by zoom)
-  const [h3Resolution, setH3Resolution] = useState(7);
-  // Demographics resolution (capped at 8, no res9 for village polygons)
-  const [demoResolution, setDemoResolution] = useState(7);
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
@@ -444,6 +470,20 @@ export default function App() {
     updateSpatialLayer(map, cells, transportParams.spatialParams, layerVisibility.spatialEconomy);
   }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
 
+  // YouBike Fullness: sync with main timeline
+  // Floor to nearest 15-min interval to avoid re-rendering every second
+  const youbikeQuarterKey = useMemo(() => {
+    return Math.floor(timeline.currentTime / 900) * 900;
+  }, [Math.floor(timeline.currentTime / 900)]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !map.getStyle()) return;
+    ensureYoubikeLayers(map);
+    const cells = getYoubikeCellsForTime(timeline.currentTime);
+    updateYoubikeLayer(map, cells, transportParams.youbikeParams, layerVisibility.youbikeFullness);
+  }, [getYoubikeCellsForTime, youbikeQuarterKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
+
   // ESC 退出拍攝模式
   useEffect(() => {
     if (!captureMode) return;
@@ -494,15 +534,37 @@ export default function App() {
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
-      {/* Day-loading overlay */}
-      {(shipsDayLoading || flightsDayLoading) && (
+      {/* Day-loading overlay — 半透明遮罩 */}
+      {(shipsDayLoading || flightsDayLoading || railScheduleLoading) && (
         <div style={{
-          position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)",
-          zIndex: 1000, background: "rgba(0,0,0,0.75)", color: "#fff",
-          padding: "6px 16px", borderRadius: 20, fontSize: 12, fontFamily: "monospace",
-          backdropFilter: "blur(4px)", pointerEvents: "none",
+          position: "absolute", inset: 0, zIndex: 1000,
+          background: "rgba(0,0,0,0.5)", backdropFilter: "blur(2px)",
+          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+          pointerEvents: "none",
         }}>
-          Loading {shipsDayLoading && flightsDayLoading ? "data" : shipsDayLoading ? "ships" : "airspace"}…
+          <div style={{
+            background: "rgba(0,0,0,0.8)", borderRadius: 12, padding: "24px 36px",
+            color: "#fff", textAlign: "center", fontFamily: "monospace",
+          }}>
+            <div style={{
+              width: 32, height: 32, margin: "0 auto 12px",
+              border: "3px solid rgba(255,255,255,0.15)",
+              borderTop: "3px solid #64aaff",
+              borderRadius: "50%",
+              animation: "day-loading-spin 0.8s linear infinite",
+            }} />
+            <style>{`@keyframes day-loading-spin { to { transform: rotate(360deg); } }`}</style>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+              資料更新中
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.7 }}>
+              {[
+                shipsDayLoading && "船舶",
+                flightsDayLoading && "航班",
+                railScheduleLoading && "鐵道時刻表",
+              ].filter(Boolean).join("、") + "資料載入中…"}
+            </div>
+          </div>
         </div>
       )}
       <MapView

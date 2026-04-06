@@ -35,6 +35,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
   newsEvents: "#ff9800",
+  youbikeFullness: "#f57c00",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -98,6 +99,7 @@ const SECTIONS: SectionDef[] = [
       { key: "indicators", label: "人口指標 Indicators", expandable: true },
       { key: "socioeconomic", label: "社經面貌 Socio-Econ", expandable: true },
       { key: "spatialEconomy", label: "空間經濟 Spatial-Econ", expandable: true },
+      { key: "youbikeFullness", label: "YouBike 有車率", expandable: true },
     ],
   },
   {

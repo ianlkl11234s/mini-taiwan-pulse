@@ -34,36 +34,77 @@ export function interpolatePosition(
 }
 
 /**
- * 取得到指定時間為止的軌跡段
- * 用於繪製「已經過的光軌」
+ * 取得到指定時間為止的軌跡段（等距內插版本）
+ *
+ * 生成等間距的平滑點，避免原始資料稀疏導致 trail 跳動。
+ * 使用 progressive index 遍歷 path，時間複雜度 O(outputPoints)。
+ *
+ * @param path         原始軌跡點
+ * @param time         當前時間
+ * @param duration     保留的最大秒數（預設 300 = 5 分鐘）
+ * @param step         內插間距秒數（預設 10 秒）
  */
 export function getTrailUpToTime(
   path: TrailPoint[],
   time: number,
-  maxTrailDuration: number = 300, // 預設保留最近 300 秒的軌跡
+  duration: number = 300,
+  step: number = 10,
 ): TrailPoint[] {
-  const cutoffTime = time - maxTrailDuration;
+  if (path.length < 2) return [];
+
+  const firstTime = path[0]![3];
+  const lastTime = path[path.length - 1]![3];
+  const startTime = Math.max(firstTime, time - duration);
+  const endTime = Math.min(time, lastTime);
+
+  if (endTime <= startTime) return [];
+
   const result: TrailPoint[] = [];
+  let idx = 0;
 
-  for (const pt of path) {
-    if (pt[3] > time) break;
-    if (pt[3] >= cutoffTime) {
-      result.push(pt);
-    }
+  // 快速跳到 startTime 附近的 segment
+  while (idx < path.length - 2 && path[idx + 1]![3] < startTime) {
+    idx++;
   }
 
-  // cutoff 端內插（讓尾巴平滑移動，而非跳躍）
-  if (result.length > 0 && result[0]![3] > cutoffTime) {
-    const cutoffPos = interpolatePosition(path, cutoffTime);
-    if (cutoffPos) {
-      result.unshift([cutoffPos[0], cutoffPos[1], cutoffPos[2], cutoffTime]);
+  for (let t = startTime; t <= endTime; t += step) {
+    // 推進 idx 到包含 t 的 segment
+    while (idx < path.length - 2 && path[idx + 1]![3] < t) {
+      idx++;
     }
+    const a = path[idx]!;
+    const b = path[idx + 1]!;
+    const dt = b[3] - a[3];
+    if (dt <= 0) continue;
+    const frac = Math.min(Math.max((t - a[3]) / dt, 0), 1);
+    result.push([
+      a[0] + (b[0] - a[0]) * frac,
+      a[1] + (b[1] - a[1]) * frac,
+      a[2] + (b[2] - a[2]) * frac,
+      t,
+    ]);
   }
 
-  // 加入插值的當前位置
-  const currentPos = interpolatePosition(path, time);
-  if (currentPos && result.length > 0) {
-    result.push([currentPos[0], currentPos[1], currentPos[2], time]);
+  // 確保有精確的末端點
+  if (result.length > 0) {
+    const lastResultTime = result[result.length - 1]![3];
+    if (endTime - lastResultTime > 1) {
+      while (idx < path.length - 2 && path[idx + 1]![3] < endTime) {
+        idx++;
+      }
+      const a = path[idx]!;
+      const b = path[idx + 1]!;
+      const dt = b[3] - a[3];
+      if (dt > 0) {
+        const frac = Math.min(Math.max((endTime - a[3]) / dt, 0), 1);
+        result.push([
+          a[0] + (b[0] - a[0]) * frac,
+          a[1] + (b[1] - a[1]) * frac,
+          a[2] + (b[2] - a[2]) * frac,
+          endTime,
+        ]);
+      }
+    }
   }
 
   return result;

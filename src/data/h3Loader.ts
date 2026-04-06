@@ -1,4 +1,5 @@
 import { S3_BASE } from "./s3Loader";
+import { supabase, isSupabase } from "../lib/supabase";
 
 export interface H3CellData {
   h: string; // H3 index
@@ -85,8 +86,22 @@ export interface SpatialEconomyH3DataSet {
   cells: SpatialEconomyH3CellData[];
 }
 
+/** 歷年人口結構 H3（民國 104~113 年） */
+export interface DemographicYearlyH3DataSet {
+  metadata: {
+    resolution: number;
+    years: number[];
+    year_count: number;
+    source: string;
+    generated_at: string;
+    value_columns: string[];
+  };
+  years: Record<string, DemographicH3CellData[]>;
+}
+
 const cache = new Map<number, H3DataSet>();
 const demographicsCache = new Map<number, DemographicH3DataSet>();
+const demographicsYearlyCache = new Map<string, DemographicH3CellData[]>(); // key: "res-year"
 const socioeconomicCache = new Map<number, SocioeconomicH3DataSet>();
 const spatialEconomyCache = new Map<number, SpatialEconomyH3DataSet>();
 
@@ -225,4 +240,77 @@ export async function loadH3SpatialEconomy(resolution: number): Promise<SpatialE
 
   console.warn(`[H3-Spatial] Failed to load res${resolution}`);
   return empty;
+}
+
+// ── H3 Demographics Yearly (Supabase RPC → local fallback) ──
+
+/**
+ * Load H3 demographics for a specific year + resolution.
+ * Priority: Supabase RPC → local yearly JSON fallback.
+ */
+export async function loadH3DemographicsYearly(
+  year: number,
+  resolution: number = 7,
+): Promise<DemographicH3CellData[]> {
+  const cacheKey = `${resolution}-${year}`;
+  const cached = demographicsYearlyCache.get(cacheKey);
+  if (cached) return cached;
+
+  // Try Supabase RPC first
+  if (isSupabase()) {
+    try {
+      const { data, error } = await supabase.rpc("get_h3_demographics_yearly", {
+        target_year: year,
+        target_resolution: resolution,
+      });
+      if (!error && data && data.length > 0) {
+        const cells = data as DemographicH3CellData[];
+        demographicsYearlyCache.set(cacheKey, cells);
+        console.log(`[H3-DemoYearly] Loaded year=${year} res=${resolution} from Supabase (${cells.length} cells)`);
+        return cells;
+      }
+      if (error) console.warn(`[H3-DemoYearly] Supabase RPC error:`, error.message);
+    } catch (e) {
+      console.warn(`[H3-DemoYearly] Supabase RPC failed:`, e);
+    }
+  }
+
+  // Local JSON fallback
+  try {
+    const filename = `h3_demographics_yearly_res${resolution}.json`;
+    const res = await fetch(`./${filename}`);
+    if (res.ok) {
+      const dataset: DemographicYearlyH3DataSet = await res.json();
+      // Cache all years from this file
+      for (const [y, cells] of Object.entries(dataset.years)) {
+        demographicsYearlyCache.set(`${resolution}-${y}`, cells);
+      }
+      const cells = dataset.years[String(year)] ?? [];
+      console.log(`[H3-DemoYearly] Loaded year=${year} res=${resolution} from local (${cells.length} cells)`);
+      return cells;
+    }
+  } catch { /* fallthrough */ }
+
+  console.warn(`[H3-DemoYearly] Failed to load year=${year} res=${resolution}`);
+  return [];
+}
+
+/**
+ * Get available years from Supabase (or hardcoded fallback).
+ */
+export async function loadH3DemographicsYears(): Promise<
+  { year: number; resolution: number; cell_count: number }[]
+> {
+  if (isSupabase()) {
+    try {
+      const { data, error } = await supabase.rpc("get_h3_demographics_years");
+      if (!error && data) return data;
+    } catch { /* fallthrough */ }
+  }
+  // Fallback: hardcoded range
+  return Array.from({ length: 10 }, (_, i) => ({
+    year: 104 + i,
+    resolution: 7,
+    cell_count: 8000,
+  }));
 }

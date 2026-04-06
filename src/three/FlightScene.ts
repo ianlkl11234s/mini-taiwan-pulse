@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import type { Flight, RenderMode } from "../types";
 import { toMercator } from "../utils/coordinates";
-import { getTrailUpToTime, isFlightActive } from "../utils/interpolation";
+import { getTrailUpToTime } from "../utils/interpolation";
 import { LightTrail } from "./LightTrail";
 import { LightOrb } from "./LightOrb";
 import { BlinkingLight } from "./BlinkingLight";
@@ -286,32 +286,51 @@ export class FlightScene {
         visual = this.createVisual(flight.fr24_id);
       }
 
-      const active = isFlightActive(flight.path, currentTime);
+      const path = flight.path;
+      if (path.length < 2) continue;
+      const firstTime = path[0]![3];
+      const lastTime = path[path.length - 1]![3];
 
-      if (!active) {
+      // 還沒起飛 → 隱藏
+      if (currentTime < firstTime) {
         visual.trail.setOpacity(0);
         visual.orb.setVisible(false);
         visual.blink.setVisible(false);
         continue;
       }
 
-      const trail = getTrailUpToTime(flight.path, currentTime, 600);
+      // 已結束：120 秒內漸隱（at 60x ≈ 2 real seconds）
+      const FADEOUT = 120;
+      const overTime = currentTime - lastTime;
+      if (overTime > FADEOUT) {
+        visual.trail.setOpacity(0);
+        visual.orb.setVisible(false);
+        visual.blink.setVisible(false);
+        continue;
+      }
+
+      // 等距內插 trail（300s 窗口，每 10s 一點 → ~30 個平滑點）
+      const trail = getTrailUpToTime(path, Math.min(currentTime, lastTime), 300, 10);
       if (trail.length < 2) {
+        visual.trail.setOpacity(0);
         visual.orb.setVisible(false);
         visual.blink.setVisible(false);
         continue;
       }
 
       visual.trail.updateTrail(trail);
-      visual.trail.setOpacity(this.isDarkTheme ? 0.8 : 1.0);
+      const baseOpacity = this.isDarkTheme ? 0.8 : 1.0;
+      const fade = overTime > 0 ? 1 - overTime / FADEOUT : 1;
+      visual.trail.setOpacity(baseOpacity * fade);
 
-      const lastPt = trail[trail.length - 1]!;
-      const pos = toMercator(lastPt[0], lastPt[1], lastPt[2]);
+      // 光球位置 = 當前內插位置
+      const headPt = trail[trail.length - 1]!;
+      const pos = toMercator(headPt[0], headPt[1], headPt[2]);
       visual.orb.setPosition(pos.x, pos.y, pos.z);
-      visual.orb.setVisible(true);
+      visual.orb.setVisible(fade > 0.2);
       visual.orb.update(animDt);
 
-      visual.blink.setVisible(true);
+      visual.blink.setVisible(fade > 0.2);
       visual.blink.update(animDt);
     }
 
