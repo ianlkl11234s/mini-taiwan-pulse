@@ -10,100 +10,72 @@ interface LoadingScreenProps {
   steps: LoadingStep[];
 }
 
-/* ── fake data entries ── */
-type Cat = "flight" | "ship" | "rail" | "geo" | "weather" | "facility";
+/* ── category colors ── */
+type Cat = "flight" | "ship" | "rail" | "weather" | "system";
 
 const CAT_COLOR: Record<Cat, string> = {
   flight: "#64aaff",
   ship: "#4ecdc4",
   rail: "#f4a261",
-  geo: "#b8a9c9",
   weather: "#7bc47f",
-  facility: "#e8c547",
+  system: "#b8a9c9",
 };
 
-const FAKE_ENTRIES: { cat: Cat; text: string }[] = [
-  { cat: "flight", text: "CI-812 TPE → NRT alt:35,000ft" },
-  { cat: "flight", text: "BR-261 TSA → HUN alt:12,500ft" },
-  { cat: "flight", text: "RCTP 桃園國際機場 (25.077, 121.232)" },
-  { cat: "flight", text: "AE-232 RCSS → RCFN alt:18,000ft" },
-  { cat: "flight", text: "JX-801 KHH → HKG alt:32,000ft" },
-  { cat: "flight", text: "RCKH 高雄國際機場 (22.577, 120.350)" },
-  { cat: "flight", text: "IT-238 TPE → KIX alt:37,000ft" },
-  { cat: "flight", text: "RCMQ 臺中清泉崗機場 (24.264, 120.621)" },
-  { cat: "ship", text: "MMSI:416005432 EVER GOLDEN 高雄港" },
-  { cat: "ship", text: "MMSI:477328900 貨輪 基隆外海 12.3kn" },
-  { cat: "ship", text: "MMSI:416001234 漁船 澎湖水道 6.2kn" },
-  { cat: "ship", text: "MMSI:352844000 OOCL TAIPEI 臺中港" },
-  { cat: "ship", text: "MMSI:416008877 油輪 高雄錨區 0.1kn" },
-  { cat: "ship", text: "MMSI:477995500 散裝船 花蓮外海 11.8kn" },
-  { cat: "ship", text: "MMSI:416003210 拖船 蘇澳港 3.5kn" },
-  { cat: "ship", text: "MMSI:636092783 貨櫃輪 臺北港 8.7kn" },
-  { cat: "rail", text: "TRA 1042次 自強號 臺北→花蓮" },
-  { cat: "rail", text: "THSR 0613 左營→南港 300km/h" },
-  { cat: "rail", text: "KRTC 紅線 R8三多商圈→R24南岡山" },
-  { cat: "rail", text: "TRA 272次 普悠瑪 花蓮→樹林" },
-  { cat: "rail", text: "THSR 0832 南港→左營 285km/h" },
-  { cat: "rail", text: "TRTC 板南線 BL23→BL01 頂埔" },
-  { cat: "rail", text: "TRA 4192次 區間車 基隆→七堵" },
-  { cat: "rail", text: "THSR 1520 臺中→南港 295km/h" },
-  { cat: "rail", text: "KRTC 橘線 O1西子灣→OT1大寮" },
-  { cat: "geo", text: "H3 res8 882d958a7fffff pop:3,847" },
-  { cat: "geo", text: "活動斷層 車籠埔斷層 長度:92km" },
-  { cat: "geo", text: "H3 res8 882d95c1bfffff pop:12,403" },
-  { cat: "geo", text: "活動斷層 梅山斷層 長度:24km" },
-  { cat: "geo", text: "H3 res8 882d9426ffffff pop:8,291" },
-  { cat: "geo", text: "地質敏感區 山腳斷層 北段 38km" },
-  { cat: "geo", text: "H3 res8 882d94b0ffffff pop:1,156" },
-  { cat: "geo", text: "活動斷層 旗山斷層 長度:32km" },
-  { cat: "weather", text: "氣象站 467490 臺北 25.0°C 68%RH" },
-  { cat: "weather", text: "溫度場 grid 120.5°E 24.0°N 22.7°C" },
-  { cat: "weather", text: "氣象站 467410 臺中 27.3°C 55%RH" },
-  { cat: "weather", text: "溫度場 grid 121.0°E 25.0°N 19.8°C" },
-  { cat: "weather", text: "氣象站 467440 高雄 29.1°C 72%RH" },
-  { cat: "weather", text: "氣象站 467660 成功 23.4°C 81%RH" },
-  { cat: "weather", text: "溫度場 grid 120.2°E 23.5°N 24.1°C" },
-  { cat: "weather", text: "氣象站 467080 宜蘭 21.6°C 85%RH" },
-  { cat: "facility", text: "全家 台北信義店 (25.033, 121.565)" },
-  { cat: "facility", text: "臺北市立建國高中 (25.035, 121.528)" },
-  { cat: "facility", text: "7-ELEVEN 中山門市 (25.052, 121.520)" },
-  { cat: "facility", text: "國立臺灣大學 (25.017, 121.540)" },
-  { cat: "facility", text: "高雄巨蛋 (22.669, 120.302)" },
-  { cat: "facility", text: "臺中國家歌劇院 (24.162, 120.640)" },
-  { cat: "facility", text: "全聯 板橋文化店 (25.014, 121.459)" },
-  { cat: "facility", text: "萊爾富 士林天母店 (25.111, 121.524)" },
-  { cat: "facility", text: "台北101 (25.033, 121.564)" },
-  { cat: "facility", text: "中正紀念堂 (25.035, 121.522)" },
-];
-
-/* ── shuffle helper ── */
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const tmp = a[i]!;
-    a[i] = a[j]!;
-    a[j] = tmp;
-  }
-  return a;
+/** Map step label to category */
+function stepToCat(label: string): Cat {
+  if (label.includes("Airspace") || label.includes("Flight")) return "flight";
+  if (label.includes("Ship")) return "ship";
+  if (label.includes("Rail")) return "rail";
+  if (label.includes("Temperature")) return "weather";
+  return "system";
 }
 
-/* ── visible line count in terminal ── */
-const VISIBLE_LINES = 8;
+const VISIBLE_LINES = 10;
 
 export function LoadingScreen({ steps }: LoadingScreenProps) {
   const allDone = steps.every((s) => s.done);
-  const startRef = useRef(Date.now());
-  const [progress, setProgress] = useState(0);
   const [lines, setLines] = useState<{ id: number; cat: Cat; text: string }[]>([]);
   const lineIdRef = useRef(0);
-  const shuffledRef = useRef(shuffle(FAKE_ENTRIES));
-  const idxRef = useRef(0);
   const [doneBounce, setDoneBounce] = useState<Set<string>>(new Set());
   const prevDoneRef = useRef<Set<string>>(new Set());
   const [fading, setFading] = useState(false);
 
-  /* detect newly-done steps for bounce */
+  // 真實進度：完成的 step 比例
+  const doneCount = steps.filter((s) => s.done).length;
+  const progress = allDone ? 1 : doneCount / steps.length;
+
+  // 攔截 console.log，擷取 loader 的實際訊息
+  useEffect(() => {
+    if (allDone) return;
+    const original = console.log;
+    const originalWarn = console.warn;
+    const prefixPattern = /^\[(Ship|Airspace|Rail|Temperature|H3|YouBike|Loader)/;
+
+    const intercept = (level: "log" | "warn") => (...args: unknown[]) => {
+      (level === "log" ? original : originalWarn).apply(console, args);
+      const msg = args.map((a) => (typeof a === "string" ? a : String(a))).join(" ");
+      if (prefixPattern.test(msg)) {
+        let cat: Cat = "system";
+        if (msg.startsWith("[Ship")) cat = "ship";
+        else if (msg.startsWith("[Airspace") || msg.startsWith("[Flight")) cat = "flight";
+        else if (msg.startsWith("[Rail")) cat = "rail";
+        else if (msg.startsWith("[Temperature")) cat = "weather";
+        else if (msg.startsWith("[H3") || msg.startsWith("[YouBike")) cat = "system";
+
+        const id = lineIdRef.current++;
+        setLines((prev) => [...prev.slice(-(VISIBLE_LINES - 1)), { id, cat, text: msg }]);
+      }
+    };
+
+    console.log = intercept("log") as typeof console.log;
+    console.warn = intercept("warn") as typeof console.warn;
+    return () => {
+      console.log = original;
+      console.warn = originalWarn;
+    };
+  }, [allDone]);
+
+  // 偵測新完成的 step → bounce 動畫
   useEffect(() => {
     const nowDone = new Set(steps.filter((s) => s.done).map((s) => s.label));
     const newOnes = [...nowDone].filter((l) => !prevDoneRef.current.has(l));
@@ -113,7 +85,6 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
         newOnes.forEach((l) => next.add(l));
         return next;
       });
-      /* remove bounce class after animation */
       setTimeout(() => {
         setDoneBounce((prev) => {
           const next = new Set(prev);
@@ -125,50 +96,12 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
     prevDoneRef.current = nowDone;
   }, [steps]);
 
-  /* allDone → jump to 100% then fade out */
+  // allDone → fade out
   useEffect(() => {
     if (allDone) {
-      setProgress(1);
-      // 短暫停留後 fade out
       const t = setTimeout(() => setFading(true), 200);
       return () => clearTimeout(t);
     }
-  }, [allDone]);
-
-  /* fake progress bar animation */
-  useEffect(() => {
-    if (allDone) return;
-    const id = setInterval(() => {
-      const elapsed = (Date.now() - startRef.current) / 55000;
-      const fake = Math.min(0.95, 1 - Math.pow(1 - Math.min(elapsed, 1), 3));
-      setProgress(fake);
-    }, 100);
-    return () => clearInterval(id);
-  }, [allDone]);
-
-  /* ticker: add a new line every 80-120ms */
-  useEffect(() => {
-    if (allDone) return;
-    const tick = () => {
-      const entry = shuffledRef.current[idxRef.current % shuffledRef.current.length]!;
-      idxRef.current++;
-      /* reshuffle when we've gone through all */
-      if (idxRef.current % shuffledRef.current.length === 0) {
-        shuffledRef.current = shuffle(FAKE_ENTRIES);
-      }
-      const id = lineIdRef.current++;
-      setLines((prev) => [...prev.slice(-(VISIBLE_LINES - 1)), { id, cat: entry.cat, text: entry.text }]);
-    };
-    const schedule = () => {
-      const delay = 80 + Math.random() * 40;
-      return setTimeout(() => {
-        tick();
-        timerRef = schedule();
-      }, delay);
-    };
-    tick(); // first line immediately
-    let timerRef = schedule();
-    return () => clearTimeout(timerRef);
   }, [allDone]);
 
   const firstPending = steps.findIndex((s) => !s.done);
@@ -214,7 +147,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
                 gap: 10,
                 fontSize: 13,
                 color: isDone
-                  ? CAT_COLOR.flight
+                  ? CAT_COLOR[stepToCat(step.label)]
                   : isActive
                     ? "rgba(255,255,255,0.7)"
                     : "rgba(255,255,255,0.2)",
@@ -250,7 +183,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
       {/* progress bar */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 4 }}>
         <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", letterSpacing: 0.5 }}>
-          {allDone ? "載入完成" : "載入中... 約需 1 分鐘"}
+          {allDone ? "載入完成" : `載入中... ${doneCount}/${steps.length}`}
         </div>
         <div
           style={{
@@ -268,7 +201,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
               height: "100%",
               background: "linear-gradient(90deg, #64aaff, #4ecdc4)",
               borderRadius: 2,
-              transition: allDone ? "width 0.4s ease" : "width 0.15s linear",
+              transition: "width 0.5s ease",
               boxShadow: "0 0 12px rgba(100,170,255,0.5), 0 0 4px rgba(100,170,255,0.8)",
             }}
           />
@@ -278,10 +211,10 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
         </div>
       </div>
 
-      {/* data stream terminal */}
+      {/* real data stream terminal */}
       <div
         style={{
-          width: 380,
+          width: 420,
           height: VISIBLE_LINES * 20 + 16,
           marginTop: 8,
           background: "rgba(255,255,255,0.03)",
@@ -294,6 +227,11 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
           justifyContent: "flex-end",
         }}
       >
+        {lines.length === 0 && !allDone && (
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", lineHeight: "20px" }}>
+            Connecting to Supabase...
+          </div>
+        )}
         {lines.map((line, i) => {
           const isLast = i === lines.length - 1;
           return (
@@ -310,7 +248,6 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
                 transition: "opacity 0.2s",
               }}
             >
-              <span style={{ opacity: 0.5 }}>✓ </span>
               {line.text}
             </div>
           );
