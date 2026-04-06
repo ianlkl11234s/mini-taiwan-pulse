@@ -62,15 +62,10 @@ export function useTimeline({
   timeMode: initialTimeMode = "replay",
 }: UseTimelineOptions): UseTimelineReturn {
   void _dataEndTime; // 保留 interface 相容，實際用 dataStartTime 初始化
-  // 預設選定日期 = 資料起始日（以台灣時區判斷）
+  // 預設選定日期 = 台灣時間的今天（不依賴資料範圍，避免不同資料源日期不一致）
   const [selectedDate, setSelectedDateRaw] = useState<Date>(() => {
-    if (dataStartTime > 0) {
-      // 轉為台灣時間的日期（避免 UTC 跨日偏差）
-      const dateStr = new Date(dataStartTime * 1000)
-        .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-      return new Date(dateStr + "T00:00:00+08:00");
-    }
-    return new Date();
+    const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    return new Date(todayStr + "T00:00:00+08:00");
   });
   const [rangeDays, setRangeDays] = useState(1);
 
@@ -104,19 +99,8 @@ export function useTimeline({
     });
   }, []);
 
-  // 當 dataStartTime 首次載入（從 0 變成有效值），初始化 selectedDate（只執行一次）
-  const initializedRef = useRef(false);
-  useEffect(() => {
-    if (dataStartTime > 0 && !initializedRef.current) {
-      initializedRef.current = true;
-      // 用台灣時區解析日期，避免 UTC 跨日偏差
-      const dateStr = new Date(dataStartTime * 1000)
-        .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-      const d = new Date(dateStr + "T00:00:00+08:00");
-      setSelectedDateRaw(d);
-      setCurrentTime(dayStartUnix(d));
-    }
-  }, [dataStartTime]);
+  // dataStartTime/dataEndTime 保留給未來日期 clamp 用，初始化不依賴它們
+  void dataStartTime;
 
   // Live mode: tick currentTime = Date.now()/1000
   useEffect(() => {
