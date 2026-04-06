@@ -1,5 +1,7 @@
 import type { RailSystem, RailSchedule, RailData, RailStationTime, TraData, TraDeparture, TraSchedule } from "../types";
 import { S3_BASE, RAIL_PREFIX } from "./s3Loader";
+import { fetchSupabaseSchedule } from "./railScheduleLoader";
+import { todayTaiwan } from "../lib/supabase";
 
 // 系統定義：5 系統（不含 TRA，TRA 由 TraTrainEngine 獨立處理）
 const RAIL_SYSTEMS = [
@@ -64,6 +66,41 @@ function postProcess(systems: RailSystem[], traData: TraData | null): RailData {
 }
 
 // ── 本地散檔載入 ──
+
+/**
+ * 從 Supabase 載入時刻表（_daily → _fixed fallback）
+ * TRTC 資料是 array（每項含 track_id），其餘系統是 dict（key = trackId）
+ */
+async function loadSchedulesFromSupabase(systemId: string): Promise<Map<string, RailSchedule> | null> {
+  try {
+    const data = await fetchSupabaseSchedule(systemId, todayTaiwan());
+    if (!data) return null;
+
+    const map = new Map<string, RailSchedule>();
+
+    if (Array.isArray(data)) {
+      // TRTC format: array of schedules, each with track_id
+      for (const item of data) {
+        if (item && typeof item === "object" && item.track_id) {
+          map.set(item.track_id, item as RailSchedule);
+        }
+      }
+    } else if (typeof data === "object") {
+      // KRTC/KLRT/TMRT/THSR format: { trackId: schedule }
+      for (const [trackId, schedule] of Object.entries(data as Record<string, unknown>)) {
+        map.set(trackId, schedule as RailSchedule);
+      }
+    }
+
+    if (map.size > 0) {
+      console.log(`[Rail] ${systemId} schedules from Supabase (${map.size} tracks)`);
+      return map;
+    }
+  } catch {
+    // fall through to local
+  }
+  return null;
+}
 
 async function loadTrtcSchedules(): Promise<Map<string, RailSchedule>> {
   const map = new Map<string, RailSchedule>();
@@ -274,14 +311,17 @@ async function loadFromLocalFiles(): Promise<{ systems: RailSystem[]; traData: T
   const [systemResults, traData] = await Promise.all([
     Promise.allSettled(
       RAIL_SYSTEMS.map(async (sys) => {
-        let schedules: Map<string, RailSchedule>;
+        // Supabase 優先，本地散檔 fallback
+        let schedules: Map<string, RailSchedule> | null = await loadSchedulesFromSupabase(sys.id);
 
-        if (sys.id === "trtc") {
-          schedules = await loadTrtcSchedules();
-        } else if (sys.id === "thsr") {
-          schedules = await loadThsrSchedules();
-        } else {
-          schedules = await loadGenericSchedules(sys.id, sys.schedulesKey!);
+        if (!schedules) {
+          if (sys.id === "trtc") {
+            schedules = await loadTrtcSchedules();
+          } else if (sys.id === "thsr") {
+            schedules = await loadThsrSchedules();
+          } else {
+            schedules = await loadGenericSchedules(sys.id, sys.schedulesKey!);
+          }
         }
 
         const [tracks, stationProgress] = await Promise.all([
