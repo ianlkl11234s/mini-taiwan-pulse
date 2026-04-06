@@ -1,4 +1,4 @@
-import { isSupabase, supabase, todayTaiwan } from "../lib/supabase";
+import { supabase, todayTaiwan } from "../lib/supabase";
 
 export interface YoubikeH3CellData {
   h: string;   // H3 index
@@ -105,27 +105,24 @@ export async function loadYoubikeH3(
     snapshots: {},
   };
 
-  // Supabase 模式：按日載入
-  if (isSupabase()) {
-    const targetDate = date ?? todayTaiwan();
-    const key = cacheKey(resolution, targetDate);
-    const cached = cache.get(key);
-    if (cached) return cached;
+  // Supabase：按日載入
+  const targetDate = date ?? todayTaiwan();
+  const key = cacheKey(resolution, targetDate);
+  const cached = cache.get(key);
+  if (cached) return cached;
 
-    const dataset = await fetchFromSupabase(resolution, targetDate);
-    if (dataset && dataset.metadata.cell_count > 0) {
-      cache.set(key, dataset);
-      console.log(`[YouBike-H3] Supabase res${resolution} ${targetDate}: ${dataset.metadata.cell_count} cells, ${dataset.metadata.snapshot_count} snapshots`);
-      return dataset;
-    }
-    // Supabase 失敗時 fallback 到 local
-    console.warn(`[YouBike-H3] Supabase empty for ${targetDate}, trying local fallback`);
+  const dataset = await fetchFromSupabase(resolution, targetDate);
+  if (dataset && dataset.metadata.cell_count > 0) {
+    cache.set(key, dataset);
+    console.log(`[YouBike-H3] res${resolution} ${targetDate}: ${dataset.metadata.cell_count} cells, ${dataset.metadata.snapshot_count} snapshots`);
+    return dataset;
   }
 
-  // Legacy / fallback: 載入本地完整 JSON
+  // Supabase 失敗時 fallback 到本地 JSON
+  console.warn(`[YouBike-H3] Supabase empty for ${targetDate}, trying local fallback`);
   const localKey = cacheKey(resolution);
-  const cached = cache.get(localKey);
-  if (cached) return cached;
+  const localCached = cache.get(localKey);
+  if (localCached) return localCached;
 
   const localData = await fetchFromLocal(resolution);
   if (localData && localData.metadata.cell_count > 0) {
@@ -143,6 +140,5 @@ export async function loadYoubikeH3(
  * Returns empty array in legacy mode.
  */
 export async function getYoubikeH3Dates(): Promise<string[]> {
-  if (!isSupabase()) return [];
   return fetchAvailableDates();
 }

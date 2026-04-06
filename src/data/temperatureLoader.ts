@@ -6,7 +6,7 @@
  *   2. 本地 temperature_grid.json fallback
  */
 
-import { supabase, isSupabase, todayTaiwan } from "../lib/supabase";
+import { supabase, todayTaiwan } from "../lib/supabase";
 
 export interface TemperatureGridData {
   metadata: {
@@ -135,13 +135,11 @@ async function loadFromJson(): Promise<TemperatureGridData> {
 export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
   if (cached) return cached;
 
-  if (isSupabase()) {
-    try {
-      cached = await loadFromSupabase();
-      return cached;
-    } catch (err) {
-      console.warn("[Temperature] Supabase failed, falling back to local JSON:", err);
-    }
+  try {
+    cached = await loadFromSupabase();
+    return cached;
+  } catch (err) {
+    console.warn("[Temperature] Supabase failed, falling back to local JSON:", err);
   }
 
   cached = await loadFromJson();

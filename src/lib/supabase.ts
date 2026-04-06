@@ -9,13 +9,6 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 export const supabase = createClient(SUPABASE_URL ?? "", SUPABASE_ANON_KEY ?? "");
 
-/** Data source switch: "supabase" | "legacy" */
-export const DATA_SOURCE = (import.meta.env.VITE_DATA_SOURCE as string) ?? "legacy";
-
-export function isSupabase(): boolean {
-  return DATA_SOURCE === "supabase" && !!SUPABASE_URL && !!SUPABASE_ANON_KEY;
-}
-
 /** 取得台灣時間的今天日期 YYYY-MM-DD */
 export function todayTaiwan(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });

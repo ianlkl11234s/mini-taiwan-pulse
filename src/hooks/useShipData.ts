@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Ship } from "../types";
-import { fetchShipDates, fetchShipDayArrow, loadShipsWithDates, loadShipsLegacy } from "../data/shipLoader";
+import { fetchShipDates, fetchShipDayArrow, loadShipsWithDates } from "../data/shipLoader";
 import type { ShipDateInfo } from "../data/shipLoader";
 
 /** LRU 快取上限（天數） */
@@ -164,19 +164,9 @@ export function useShipData(): UseShipDataReturn {
         setShips(data.ships);
         setTimeRange(tr);
         console.log(`[Ship] Initial: ${data.ships.length} ships, date=${dateStr}`);
-      } catch {
+      } catch (err) {
         if (cancelled) return;
-        console.warn("[Ship] Pulse API unavailable, falling back to legacy");
-        try {
-          const data = await loadShipsLegacy();
-          if (cancelled) return;
-          setShips(data.ships);
-          setTimeRange({ start: data.metadata.time_range[0], end: data.metadata.time_range[1] });
-          activeDateRef.current = "legacy";
-          setActiveDate("legacy");
-        } catch (err) {
-          console.warn("[Ship] Legacy also failed:", err);
-        }
+        console.warn("[Ship] Failed to load ship data:", err);
       }
       if (!cancelled) setLoading(false);
     })();

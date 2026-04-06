@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { YoubikeH3CellData, YoubikeH3DataSet } from "../data/youbikeH3Loader";
 import { loadYoubikeH3 } from "../data/youbikeH3Loader";
-import { isSupabase, todayTaiwan } from "../lib/supabase";
+import { todayTaiwan } from "../lib/supabase";
 
 /**
  * Convert unix timestamp to snapshot key like "2026-03-28T08:15"
@@ -27,33 +27,20 @@ function unixToDateStr(unixSec: number): string {
 }
 
 export function useYoubikeH3(visible: boolean, resolution: number) {
-  // key = "res7:2026-04-03" or "res7:local"
   const [dataMap, setDataMap] = useState<Map<string, YoubikeH3DataSet>>(new Map());
   const loadingRef = useRef<Set<string>>(new Set());
+  const [currentDate, setCurrentDate] = useState<string>(todayTaiwan());
 
-  // Supabase 模式下追蹤目前所需日期
-  const [currentDate, setCurrentDate] = useState<string | undefined>(undefined);
+  const dataKey = `res${resolution}:${currentDate}`;
 
-  // 在 Supabase 模式下，初始化為今天
-  useEffect(() => {
-    if (isSupabase() && !currentDate) {
-      setCurrentDate(todayTaiwan());
-    }
-  }, [currentDate]);
-
-  const dataKey = isSupabase()
-    ? `res${resolution}:${currentDate ?? todayTaiwan()}`
-    : `res${resolution}:local`;
-
-  // 載入指定解析度（+ 日期）的資料
+  // 載入指定解析度 + 日期的資料
   useEffect(() => {
     if (!visible) return;
     if (dataMap.has(dataKey) || loadingRef.current.has(dataKey)) return;
 
     loadingRef.current.add(dataKey);
-    const date = isSupabase() ? (currentDate ?? todayTaiwan()) : undefined;
 
-    loadYoubikeH3(resolution, date).then((d) => {
+    loadYoubikeH3(resolution, currentDate).then((d) => {
       loadingRef.current.delete(dataKey);
       if (d.metadata.cell_count > 0) {
         setDataMap((prev) => {
@@ -75,12 +62,10 @@ export function useYoubikeH3(visible: boolean, resolution: number) {
   const getCellsForTime = useCallback((unixSec: number): YoubikeH3CellData[] => {
     if (!data || timeKeys.length === 0) return [];
 
-    // Supabase 模式：如果 timestamp 對應不同日期，觸發載入
-    if (isSupabase()) {
-      const dateStr = unixToDateStr(unixSec);
-      if (dateStr !== currentDate) {
-        setCurrentDate(dateStr);
-      }
+    // 如果 timestamp 對應不同日期，觸發載入該日資料
+    const dateStr = unixToDateStr(unixSec);
+    if (dateStr !== currentDate) {
+      setCurrentDate(dateStr);
     }
 
     const key = unixToSnapshotKey(unixSec);

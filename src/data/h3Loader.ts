@@ -1,4 +1,4 @@
-import { supabase, isSupabase } from "../lib/supabase";
+import { supabase } from "../lib/supabase";
 
 export interface H3CellData {
   h: string; // H3 index
@@ -215,22 +215,20 @@ export async function loadH3DemographicsYearly(
   if (cached) return cached;
 
   // Try Supabase RPC first
-  if (isSupabase()) {
-    try {
-      const { data, error } = await supabase.rpc("get_h3_demographics_yearly", {
-        target_year: year,
-        target_resolution: resolution,
-      });
-      if (!error && data && data.length > 0) {
-        const cells = data as DemographicH3CellData[];
-        demographicsYearlyCache.set(cacheKey, cells);
-        console.log(`[H3-DemoYearly] Loaded year=${year} res=${resolution} from Supabase (${cells.length} cells)`);
-        return cells;
-      }
-      if (error) console.warn(`[H3-DemoYearly] Supabase RPC error:`, error.message);
-    } catch (e) {
-      console.warn(`[H3-DemoYearly] Supabase RPC failed:`, e);
+  try {
+    const { data, error } = await supabase.rpc("get_h3_demographics_yearly", {
+      target_year: year,
+      target_resolution: resolution,
+    });
+    if (!error && data && data.length > 0) {
+      const cells = data as DemographicH3CellData[];
+      demographicsYearlyCache.set(cacheKey, cells);
+      console.log(`[H3-DemoYearly] Loaded year=${year} res=${resolution} from Supabase (${cells.length} cells)`);
+      return cells;
     }
+    if (error) console.warn(`[H3-DemoYearly] Supabase RPC error:`, error.message);
+  } catch (e) {
+    console.warn(`[H3-DemoYearly] Supabase RPC failed:`, e);
   }
 
   // Local JSON fallback
@@ -259,12 +257,10 @@ export async function loadH3DemographicsYearly(
 export async function loadH3DemographicsYears(): Promise<
   { year: number; resolution: number; cell_count: number }[]
 > {
-  if (isSupabase()) {
-    try {
-      const { data, error } = await supabase.rpc("get_h3_demographics_years");
-      if (!error && data) return data;
-    } catch { /* fallthrough */ }
-  }
+  try {
+    const { data, error } = await supabase.rpc("get_h3_demographics_years");
+    if (!error && data) return data;
+  } catch { /* fallthrough */ }
   // Fallback: hardcoded range
   return Array.from({ length: 10 }, (_, i) => ({
     year: 104 + i,

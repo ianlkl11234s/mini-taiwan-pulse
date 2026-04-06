@@ -23,7 +23,6 @@
     "@deck.gl/mapbox": "^9.2.10",
     "@flightradar24/fr24sdk": "^0.1.1",
     "@supabase/supabase-js": "^2.101.1",
-    "apache-arrow": "^21.1.0",
     "dotenv": "^17.3.1",
     "h3-js": "^4.4.0",
     "lucide-react": "^0.576.0",
