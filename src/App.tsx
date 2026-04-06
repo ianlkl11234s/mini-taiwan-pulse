@@ -224,8 +224,7 @@ export default function App() {
       .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
     if (dayStr === activeDayRef.current) return;
     activeDayRef.current = dayStr;
-    const [y, m, d] = dayStr.split("-").map(Number);
-    const date = new Date(y!, m! - 1, d!);
+    const date = new Date(dayStr + "T00:00:00+08:00");
     loadShipDay(date);
     loadFlightDay(date);
     setRailActiveDate(dayStr);

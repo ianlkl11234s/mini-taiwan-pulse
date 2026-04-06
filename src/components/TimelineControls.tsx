@@ -48,39 +48,39 @@ const getSelectStyle = (dark: boolean): React.CSSProperties => ({
   backdropFilter: "blur(8px)",
 });
 
+/** 用台灣時區格式化時間，避免瀏覽器本地時區偏差 */
 function formatTime(t: number): string {
   if (t <= 0) return "--:--";
   const d = new Date(t * 1000);
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mi = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${mi}`;
+  return d.toLocaleTimeString("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
 function formatDateLabel(d: Date): string {
-  const m = d.getMonth() + 1;
-  const day = d.getDate();
-  const wd = WEEKDAYS[d.getDay()]!;
+  const s = d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+  const [, m, day] = s.split("-").map(Number);
+  const wd = WEEKDAYS[new Date(d.toLocaleDateString("en-CA", { timeZone: "Asia/Taipei" })).getDay()] ??
+    d.toLocaleDateString("zh-TW", { timeZone: "Asia/Taipei", weekday: "short" });
   return `${m}/${day} (${wd})`;
 }
 
 function formatRangeLabel(start: Date, days: number): string {
   if (days <= 1) return formatDateLabel(start);
-  const end = new Date(start);
-  end.setDate(end.getDate() + days - 1);
-  return `${start.getMonth() + 1}/${start.getDate()} ~ ${end.getMonth() + 1}/${end.getDate()} (${days}天)`;
+  const end = new Date(start.getTime() + (days - 1) * 86400 * 1000);
+  const ss = start.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+  const es = end.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+  const [, sm, sd] = ss.split("-").map(Number);
+  const [, em, ed] = es.split("-").map(Number);
+  return `${sm}/${sd} ~ ${em}/${ed} (${days}天)`;
 }
 
 function formatSliderLabel(t: number, rangeDays: number): string {
   if (t <= 0) return "--:--";
-  const d = new Date(t * 1000);
   if (rangeDays > 1) {
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
+    const s = new Date(t * 1000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    const [, mm, dd] = s.split("-");
     return `${mm}/${dd} 00:00`;
   }
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mi = String(d.getMinutes()).padStart(2, "0");
-  return `${hh}:${mi}`;
+  return formatTime(t);
 }
 
 export function TimelineControls({

@@ -34,7 +34,7 @@ interface UseAirspaceDataReturn {
 }
 
 function formatDate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
 export function useAirspaceData(): UseAirspaceDataReturn {

@@ -1,23 +1,29 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TimeMode } from "../types";
 
-/** 將 Date 轉為當天 00:00:00 的 unix timestamp（台灣時區） */
+/** 從 Date 提取台灣時區的日期 [year, month(0-based), day] */
+function taiwanDateParts(d: Date): [number, number, number] {
+  const s = d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+  const [y, m, day] = s.split("-").map(Number);
+  return [y!, m! - 1, day!];
+}
+
+/** 將 Date 轉為台灣時區當天 00:00:00 的 unix timestamp */
 function dayStartUnix(d: Date): number {
-  const local = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0);
-  return local.getTime() / 1000;
+  const [y, m, day] = taiwanDateParts(d);
+  // Taiwan midnight = UTC midnight - 8h
+  return Date.UTC(y, m, day, 0, 0, 0) / 1000 - 8 * 3600;
 }
 
-/** 將 Date 轉為當天 23:59:59 的 unix timestamp（台灣時區） */
+/** 將 Date 轉為台灣時區當天 23:59:59 的 unix timestamp */
 function dayEndUnix(d: Date): number {
-  const local = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59);
-  return local.getTime() / 1000;
+  const [y, m, day] = taiwanDateParts(d);
+  return Date.UTC(y, m, day, 23, 59, 59) / 1000 - 8 * 3600;
 }
 
-/** 加減天數 */
+/** 加減天數（台灣無 DST，直接加 86400 秒） */
 function addDays(d: Date, n: number): Date {
-  const r = new Date(d);
-  r.setDate(r.getDate() + n);
-  return r;
+  return new Date(d.getTime() + n * 86400 * 1000);
 }
 
 interface UseTimelineOptions {
