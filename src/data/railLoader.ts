@@ -1,5 +1,4 @@
 import type { RailSystem, RailSchedule, RailData, RailStationTime, TraData, TraDeparture, TraSchedule } from "../types";
-import { S3_BASE, RAIL_PREFIX } from "./s3Loader";
 import { fetchSupabaseSchedule } from "./railScheduleLoader";
 import { todayTaiwan } from "../lib/supabase";
 
@@ -13,8 +12,6 @@ const RAIL_SYSTEMS = [
 ] as const;
 
 const SYSTEM_COLOR_MAP = new Map(RAIL_SYSTEMS.map((s) => [s.id, s.color]));
-
-const S3_RAIL = `${S3_BASE}/${RAIL_PREFIX}`;
 
 // ── 共用工具 ──
 
@@ -350,148 +347,16 @@ async function loadFromLocalFiles(): Promise<{ systems: RailSystem[]; traData: T
   return { systems, traData };
 }
 
-// ── S3 Bundle Fallback ──
-
-interface RailBundle {
-  metadata: { date: string; systems: string[] };
-  systems: Record<string, {
-    station_progress: Record<string, Record<string, number>>;
-    tracks: Record<string, any>;
-    tracks_golden?: Record<string, any>;
-    schedules: Record<string, any>;
-  }>;
-}
-
-interface RailManifest {
-  lastUpdated: string;
-  dates: { date: string; systems: string[] }[];
-}
-
-/**
- * 將 bundle 中的 plain object schedules 轉為 Map<string, RailSchedule>
- */
-function convertSchedules(rawSchedules: Record<string, any>): Map<string, RailSchedule> {
-  const map = new Map<string, RailSchedule>();
-  for (const [trackId, schedule] of Object.entries(rawSchedules)) {
-    map.set(trackId, schedule as RailSchedule);
-  }
-  return map;
-}
-
-/**
- * 將 bundle 中的 plain object tracks 轉為 Map<string, GeoJSON.Feature>
- */
-function convertTracks(rawTracks: Record<string, any>): Map<string, GeoJSON.Feature> {
-  const map = new Map<string, GeoJSON.Feature>();
-  for (const [trackId, data] of Object.entries(rawTracks)) {
-    const feature = extractFeature(data);
-    if (feature) {
-      map.set(trackId, feature);
-    }
-  }
-  return map;
-}
-
-/** 從 bundle 中提取 TRA 專用資料 */
-function extractTraDataFromBundle(sysData: RailBundle["systems"][string]): TraData | null {
-  // bundle 裡 TRA 存的是 { "master_schedule": { schedules: [...] } }
-  const masterData = sysData.schedules["master_schedule"];
-  if (!masterData?.schedules) return null;
-
-  const schedules = parseTraSchedules(masterData);
-  const odTracks = convertTracks(sysData.tracks);
-  const stationProgress = sysData.station_progress;
-
-  let goldenTracks: GeoJSON.Feature[] = [];
-  if (sysData.tracks_golden) {
-    const goldenMap = convertTracks(sysData.tracks_golden);
-    goldenTracks = Array.from(goldenMap.values());
-  }
-
-  return { schedules, odTracks, stationProgress, goldenTracks };
-}
-
-/** 將 S3 bundle 解包為 RailSystem[] + TraData */
-function unbundleRailData(bundle: RailBundle): { systems: RailSystem[]; traData: TraData | null } {
-  const systems: RailSystem[] = [];
-  let traData: TraData | null = null;
-
-  // 5 個非 TRA 系統
-  for (const sys of RAIL_SYSTEMS) {
-    const sysData = bundle.systems[sys.id];
-    if (!sysData) continue;
-
-    systems.push({
-      id: sys.id,
-      tracks: convertTracks(sysData.tracks),
-      schedules: convertSchedules(sysData.schedules),
-      stationProgress: sysData.station_progress,
-    });
-  }
-
-  // TRA 獨立提取
-  const traSysData = bundle.systems["tra"];
-  if (traSysData) {
-    traData = extractTraDataFromBundle(traSysData);
-  }
-
-  return { systems, traData };
-}
-
-/** 從 S3 bundle 載入軌道資料 */
-async function loadFromS3Bundle(): Promise<{ systems: RailSystem[]; traData: TraData | null }> {
-  const manifestRes = await fetch(`${S3_RAIL}/manifest.json`);
-  if (!manifestRes.ok) throw new Error("Rail S3 manifest not available");
-  const manifest: RailManifest = await manifestRes.json();
-
-  if (manifest.dates.length === 0) throw new Error("Rail S3 manifest has no dates");
-
-  const fetches = manifest.dates.map(async (d) => {
-    const [y, m, dd] = d.date.split("-");
-    const res = await fetch(`${S3_RAIL}/${y}/${m}/${dd}/bundle.json`);
-    if (!res.ok) return null;
-    return (await res.json()) as RailBundle;
-  });
-
-  const results = await Promise.all(fetches);
-  const valid = results.filter((r): r is RailBundle => r !== null);
-
-  if (valid.length === 0) throw new Error("No rail bundle from S3");
-
-  return unbundleRailData(valid[0]!);
-}
-
 // ── 公開 API ──
 
 /**
- * 載入所有軌道系統資料：本地散檔優先 → S3 bundle fallback
+ * 載入所有軌道系統資料（本地散檔 + Supabase 時刻表）
  */
 export async function loadAllRail(): Promise<RailData> {
-  let systems: RailSystem[];
-  let traData: TraData | null = null;
-
-  // 1. 嘗試本地散檔
-  try {
-    const local = await loadFromLocalFiles();
-    systems = local.systems;
-    traData = local.traData;
-    const hasData = systems.some((s) => s.tracks.size > 0 || s.schedules.size > 0) || traData !== null;
-    if (hasData) {
-      const goldenCount = traData?.goldenTracks?.length ?? 0;
-      const traScheduleCount = traData?.schedules?.size ?? 0;
-      console.log(`[Rail] Loaded from local files (${systems.length} systems, TRA: ${traScheduleCount} tracks, ${goldenCount} golden tracks)`);
-      return postProcess(systems, traData);
-    }
-  } catch {
-    // fall through to S3
-  }
-
-  // 2. S3 bundle fallback
-  console.log("[Rail] Local files unavailable, loading from S3 bundle...");
-  const s3Result = await loadFromS3Bundle();
-  systems = s3Result.systems;
-  traData = s3Result.traData;
+  const local = await loadFromLocalFiles();
+  const { systems, traData } = local;
   const goldenCount = traData?.goldenTracks?.length ?? 0;
-  console.log(`[Rail] Loaded from S3 bundle (${systems.length} systems, ${goldenCount} golden tracks)`);
+  const traScheduleCount = traData?.schedules?.size ?? 0;
+  console.log(`[Rail] Loaded (${systems.length} systems, TRA: ${traScheduleCount} tracks, ${goldenCount} golden tracks)`);
   return postProcess(systems, traData);
 }

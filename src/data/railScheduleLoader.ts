@@ -1,15 +1,10 @@
 /**
  * Supabase 鐵道時刻表載入器
- * 參考 mini-taipei-v3 的 useTraData.ts 模式
- *
- * 優先順序：Supabase → S3 → 本地
+ * 優先順序：Supabase → 本地
  */
-
-import { S3_BASE, RAIL_PREFIX } from "./s3Loader";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
-const S3_RAIL = `${S3_BASE}/${RAIL_PREFIX}`;
 
 /**
  * 從 Supabase reference.daily_schedules 查詢時刻表
@@ -97,22 +92,7 @@ export async function fetchTraDailySchedule(
     return supaData as { schedules: unknown[] };
   }
 
-  // 2. S3
-  try {
-    const [y, m, d] = date.split("-");
-    const res = await fetch(`${S3_RAIL}/tra/daily/${y}/${m}/${d}.json`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.schedules) {
-        console.log(`[Rail] TRA schedule from S3: ${date}`);
-        return data;
-      }
-    }
-  } catch {
-    // fallthrough
-  }
-
-  // 3. 本地
+  // 2. 本地
   try {
     const res = await fetch(`/rail/tra/schedules_real/daily/${date}.json`);
     if (res.ok) {
@@ -143,20 +123,7 @@ export async function fetchThsrDailySchedule(
     return supaData as Record<string, unknown>;
   }
 
-  // 2. S3
-  try {
-    const [y, m, d] = date.split("-");
-    const res = await fetch(`${S3_RAIL}/thsr/daily/${y}/${m}/${d}.json`);
-    if (res.ok) {
-      const data = await res.json();
-      console.log(`[Rail] THSR schedule from S3: ${date}`);
-      return data;
-    }
-  } catch {
-    // fallthrough
-  }
-
-  // 3. 本地
+  // 2. 本地
   try {
     const res = await fetch(`/rail/thsr/schedules/daily/${date}.json`);
     if (res.ok) {

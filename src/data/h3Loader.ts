@@ -1,4 +1,3 @@
-import { S3_BASE } from "./s3Loader";
 import { supabase, isSupabase } from "../lib/supabase";
 
 export interface H3CellData {
@@ -126,17 +125,6 @@ export async function loadH3Population(resolution: number): Promise<H3DataSet> {
     }
   } catch { /* fallthrough */ }
 
-  // S3 fallback
-  try {
-    const res = await fetch(`${S3_BASE}/h3-data/${filename}`);
-    if (res.ok) {
-      const data: H3DataSet = await res.json();
-      cache.set(resolution, data);
-      console.log(`[H3] Loaded res${resolution} from S3 (${data.cells.length} cells)`);
-      return data;
-    }
-  } catch { /* fallthrough */ }
-
   console.warn(`[H3] Failed to load res${resolution}`);
   return { metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] }, cells: [] };
 }
@@ -156,16 +144,6 @@ export async function loadH3Demographics(resolution: number): Promise<Demographi
       const data: DemographicH3DataSet = await res.json();
       demographicsCache.set(resolution, data);
       console.log(`[H3-Demo] Loaded res${resolution} from local (${data.cells.length} cells)`);
-      return data;
-    }
-  } catch { /* fallthrough */ }
-
-  try {
-    const res = await fetch(`${S3_BASE}/h3-data/${filename}`);
-    if (res.ok) {
-      const data: DemographicH3DataSet = await res.json();
-      demographicsCache.set(resolution, data);
-      console.log(`[H3-Demo] Loaded res${resolution} from S3 (${data.cells.length} cells)`);
       return data;
     }
   } catch { /* fallthrough */ }
@@ -194,16 +172,6 @@ export async function loadH3Socioeconomic(resolution: number): Promise<Socioecon
     }
   } catch { /* fallthrough */ }
 
-  try {
-    const res = await fetch(`${S3_BASE}/h3-data/${filename}`);
-    if (res.ok) {
-      const data: SocioeconomicH3DataSet = await res.json();
-      socioeconomicCache.set(resolution, data);
-      console.log(`[H3-Socio] Loaded res${resolution} from S3 (${data.cells.length} cells)`);
-      return data;
-    }
-  } catch { /* fallthrough */ }
-
   console.warn(`[H3-Socio] Failed to load res${resolution}`);
   return empty;
 }
@@ -224,16 +192,6 @@ export async function loadH3SpatialEconomy(resolution: number): Promise<SpatialE
       const data: SpatialEconomyH3DataSet = await res.json();
       spatialEconomyCache.set(resolution, data);
       console.log(`[H3-Spatial] Loaded res${resolution} from local (${data.cells.length} cells)`);
-      return data;
-    }
-  } catch { /* fallthrough */ }
-
-  try {
-    const res = await fetch(`${S3_BASE}/h3-data/${filename}`);
-    if (res.ok) {
-      const data: SpatialEconomyH3DataSet = await res.json();
-      spatialEconomyCache.set(resolution, data);
-      console.log(`[H3-Spatial] Loaded res${resolution} from S3 (${data.cells.length} cells)`);
       return data;
     }
   } catch { /* fallthrough */ }
