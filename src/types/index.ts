@@ -1,7 +1,7 @@
 /** 單一軌跡點：[緯度, 經度, 高度(公尺), Unix timestamp] */
 export type TrailPoint = [number, number, number, number];
 
-/** 航班資料（來自 aviation_data.json） */
+/** 航班資料（來自 OpenSky 空域快照） */
 export interface Flight {
   fr24_id: string;
   callsign: string;
