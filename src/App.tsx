@@ -12,7 +12,6 @@ import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
-import { useCalendarApi } from "./hooks/useCalendarApi";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
@@ -55,8 +54,6 @@ export default function App() {
 
   // ── Data Source Registry ──
   const dataRegistry = useDataRegistry();
-  const { calendarRanges } = useCalendarApi();
-
   // 燈塔座標
   const [lighthousePositions, setLighthousePositions] = useState<[number, number][]>([]);
   useEffect(() => {
@@ -77,31 +74,28 @@ export default function App() {
   const [airportPillarData, setAirportPillarData] = useState<StationPillarData[]>([]);
   const [portPillarData, setPortPillarData] = useState<StationPillarData[]>([]);
 
-  // 資料載入後向 Registry 註冊時間資訊（calendar API 優先）
+  // 資料載入後向 Registry 註冊時間資訊
   useEffect(() => {
-    const ranges = calendarRanges.flights ?? (timeRange.start > 0 ? [timeRange] : []);
-    if (ranges.length > 0) {
+    if (timeRange.start > 0) {
       dataRegistry.register({
         id: "flights",
         timeType: "track",
-        timeRanges: ranges,
+        timeRanges: [timeRange],
         supportsLive: false,
       });
     }
-  }, [timeRange, calendarRanges, dataRegistry.register]);
+  }, [timeRange, dataRegistry.register]);
 
   useEffect(() => {
-    // 優先用 calendar API（DuckDB 全部日期），fallback 到當前載入的資料範圍
-    const ranges = calendarRanges.ships ?? (shipTimeRange.start > 0 ? [shipTimeRange] : []);
-    if (ranges.length > 0) {
+    if (shipTimeRange.start > 0) {
       dataRegistry.register({
         id: "ships",
         timeType: "track",
-        timeRanges: ranges,
+        timeRanges: [shipTimeRange],
         supportsLive: false,
       });
     }
-  }, [shipTimeRange, calendarRanges, dataRegistry.register]);
+  }, [shipTimeRange, dataRegistry.register]);
 
   // ── 鐵道：活躍日期驅動時刻表切換（Supabase daily_schedules） ──
   const [railActiveDate, setRailActiveDate] = useState<string | undefined>();
@@ -121,17 +115,16 @@ export default function App() {
   const { temperatureData, temperatureLoading, temperatureTimeRange } = useTemperatureData();
 
   useEffect(() => {
-    const ranges = calendarRanges.temperatureWave ?? (temperatureTimeRange.start > 0 ? [temperatureTimeRange] : []);
-    if (ranges.length > 0) {
+    if (temperatureTimeRange.start > 0) {
       dataRegistry.register({
         id: "temperatureWave",
         timeType: "snapshot",
-        timeRanges: ranges,
+        timeRanges: [temperatureTimeRange],
         supportsLive: false,
         refreshInterval: 3600,
       });
     }
-  }, [temperatureTimeRange, calendarRanges, dataRegistry.register]);
+  }, [temperatureTimeRange, dataRegistry.register]);
 
   // 預計算光柱資料（靜態 JSON，不依賴 railData）
   useEffect(() => {
