@@ -15,6 +15,7 @@ import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
+import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
@@ -315,6 +316,9 @@ export default function App() {
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, timeline.currentTime, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
+
+  // ── Earthquake events timeline ──
+  useEarthquakeLayer(mapRef, timeline.currentTime, layerVisibility.earthquakes);
 
   // ── Derived values ──
 

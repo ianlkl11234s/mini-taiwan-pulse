@@ -36,6 +36,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   activeFaults: "#ef5350",
   newsEvents: "#ff9800",
   youbikeFullness: "#f57c00",
+  earthquakes: "#ff3b30",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -74,6 +75,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   activeFaults: Mountain,
   newsEvents: Radio,
   youbikeFullness: Bike,
+  earthquakes: Activity,
 };
 
 // ── Section Config ──
@@ -157,6 +159,7 @@ const SECTIONS: SectionDef[] = [
     title: "HAZARD",
     layers: [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
+      { key: "earthquakes", label: "地震 Earthquake" },
     ],
   },
   {

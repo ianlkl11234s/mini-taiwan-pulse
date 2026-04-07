@@ -34,6 +34,7 @@ export function useLayerVisibility() {
     activeFaults: false,
     newsEvents: false,
     youbikeFullness: false,
+    earthquakes: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

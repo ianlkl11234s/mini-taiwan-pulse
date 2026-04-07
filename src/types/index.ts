@@ -261,4 +261,5 @@ export interface LayerVisibility {
   activeFaults: boolean;
   newsEvents: boolean;
   youbikeFullness: boolean;
+  earthquakes: boolean;
 }
