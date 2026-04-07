@@ -25,6 +25,15 @@ const FRESH_WINDOW = 1200; // 20 分鐘
 const RIPPLE_CYCLE_MS = 2400;
 const FRAME_INTERVAL = 33;
 
+/** 給定 unix 秒，回傳「該時間在台灣時區所屬日」的 [00:00, 隔日 00:00) unix 秒區間 */
+function taipeiDayBounds(ts: number): { dayStart: number; dayEnd: number } {
+  // 台灣 UTC+8，日邊界 = UTC 那天的 16:00 前一天
+  const SEC_PER_DAY = 86400;
+  const tzOffset = 8 * 3600;
+  const dayStart = Math.floor((ts + tzOffset) / SEC_PER_DAY) * SEC_PER_DAY - tzOffset;
+  return { dayStart, dayEnd: dayStart + SEC_PER_DAY };
+}
+
 /** 圓圈半徑：依規模 (M3=4px, M5=10px, M7=22px) */
 const RADIUS_EXPR = [
   "interpolate", ["linear"], ["get", "magnitude"],
@@ -159,14 +168,26 @@ export function useEarthquakeLayer(
     }
     if (!visible) return;
 
-    const postFilter = ["<=", ["get", "occurred_ts"], currentTime];
+    // 限定為 timeline 當天（台灣時區 00:00 ~ 24:00）
+    const { dayStart, dayEnd } = taipeiDayBounds(currentTime);
+
+    const postFilter = [
+      "all",
+      [">=", ["get", "occurred_ts"], dayStart],
+      ["<", ["get", "occurred_ts"], dayEnd],
+      ["<=", ["get", "occurred_ts"], currentTime],
+    ];
     const preFilter = [
       "all",
+      [">=", ["get", "occurred_ts"], dayStart],
+      ["<", ["get", "occurred_ts"], dayEnd],
       [">", ["get", "occurred_ts"], currentTime],
       ["<=", ["get", "occurred_ts"], currentTime + PRE_WINDOW],
     ];
     const rippleFilter = [
       "all",
+      [">=", ["get", "occurred_ts"], dayStart],
+      ["<", ["get", "occurred_ts"], dayEnd],
       ["<=", ["get", "occurred_ts"], currentTime],
       [">", ["get", "occurred_ts"], currentTime - FRESH_WINDOW],
     ];
