@@ -25,3 +25,10 @@ public/h3_population_res8.json
 public/schools.geojson
 public/convenience_stores.geojson
 public/active_faults.geojson
+
+# Claude Code 內部儲存（不 commit）
+.claude/projects/
+.claude/worktrees/
+.claude/todos/
+.claude/settings.local.json
+.claude/.cache/
