@@ -90,7 +90,7 @@ export function useAirspaceData(): UseAirspaceDataReturn {
       return;
     }
 
-    if (!isDateAvailable(dateStr)) return;
+    // 不再阻擋前景載入（materialized view 可能延遲，直接讓 RPC 決定）
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -114,6 +114,11 @@ export function useAirspaceData(): UseAirspaceDataReturn {
       .catch((err) => {
         if (controller.signal.aborted) return;
         console.warn(`[Airspace] Failed to load ${dateStr}:`, err);
+        // 清除舊日期資料，避免顯示錯誤日期的航班
+        activeDateRef.current = dateStr;
+        setActiveDate(dateStr);
+        setFlights([]);
+        setTimeRange({ start: 0, end: 0 });
       })
       .finally(() => {
         if (!controller.signal.aborted) {
@@ -121,7 +126,7 @@ export function useAirspaceData(): UseAirspaceDataReturn {
           fetchingRef.current = "";
         }
       });
-  }, [writeCache, isDateAvailable]);
+  }, [writeCache]);
 
   /** 背景預載：只寫快取 */
   const prefetchDate = useCallback((dateStr: string) => {

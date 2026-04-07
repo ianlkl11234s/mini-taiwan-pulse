@@ -45,6 +45,42 @@ npx tsc -b   # 使用 project references，不要用 tsc --noEmit
 - **Credentials**: `S3_ACCESS_KEY` / `S3_SECRET_KEY`（非 AWS CLI 預設）
 - **Prefixes**: `flight-arc/`, `ship-data/`, `rail-data/`, `h3-data/`
 
+## 資料收集（data-collectors）
+- **部署**: Zeabur，24/7 執行
+- **Ship AIS**: 每 10 分鐘，來源：航港局 API → `realtime.ship_positions`
+- **Flight OpenSky**: 每 5 分鐘，來源：OpenSky Network → `realtime.flight_positions`
+- **正常量**: ship ~800K records/day, flight ~34K records/day
+- **Materialized Views**: `mv_ship_dates` / `mv_flight_dates`（每 30 分鐘更新，用於日期清單）
+- **分區管理**: `realtime.manage_all_partitions()` 每日 00:05 台灣，預建 7 天 + 清理 30 天前
+- **防護**: BEFORE INSERT trigger `auto_create_partition()` 自動建缺失分區
+
+### 已知問題：資料斷層 + 歷史時區 bug（2026-04-07 修復）
+- Zeabur 可能無預警重啟，導致資料斷層（如 2026-04-04 08:00 ~ 04-06 21:00 無資料）
+- 前端在無資料時段會顯示 0 ships/flights（非時區 bug，是真的沒資料）
+- Timeline 已改為「今天從當前時間開始」避免從午夜空等
+
+### ⚠️ 歷史時區 bug 修復記錄（2026-04-07）
+- **Bug**: `data-collectors/collectors/base.py` 用 `datetime.now()` 產生 naive 台灣時間，
+  PostgreSQL UTC session 當 UTC 解讀，所有 `collected_at` 偏移 +8h
+- **修復**: 改用 `datetime.now(TAIPEI_TZ)` (timezone-aware)
+- **資料修復**: 從 S3 archive 全量回填 3/9 ~ 4/6 (29 天)，TRUNCATE 後重建
+- **回填腳本**: `data-collectors/scripts/backfill_ship_flight.py`
+  - ship `_fetch_time` 是台灣時間 → 加 `+08:00`
+  - flight `fetch_time` 是 UTC → 加 `+00:00`
+
+### 診斷指令（Supabase PostgREST）
+```bash
+# 查看船舶可用日期（快速確認斷層）
+curl -s "$SUPABASE_URL/rest/v1/rpc/get_ship_dates" \
+  -H "apikey: $SUPABASE_ANON_KEY" \
+  -H "Authorization: Bearer $SUPABASE_ANON_KEY" | python3 -m json.tool
+
+# 查某日最早紀錄
+curl -s "$SUPABASE_URL/rest/v1/ship_positions?select=collected_at&collected_at=gte.2026-04-06T00:00:00%2B08:00&order=collected_at.asc&limit=1" \
+  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
+```
+
 ## 關聯專案
 | 專案 | 路徑 | 用途 |
 |------|------|------|

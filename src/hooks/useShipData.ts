@@ -83,7 +83,7 @@ export function useShipData(): UseShipDataReturn {
       return;
     }
 
-    if (!isDateAvailable(dateStr)) return;
+    // 不再阻擋前景載入（materialized view 可能延遲，直接讓 RPC 決定）
 
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -107,6 +107,11 @@ export function useShipData(): UseShipDataReturn {
       .catch((err) => {
         if (controller.signal.aborted) return;
         console.warn(`[Ship] Failed to load ${dateStr}:`, err);
+        // 清除舊日期資料，避免顯示錯誤日期的船舶
+        activeDateRef.current = dateStr;
+        setActiveDate(dateStr);
+        setShips([]);
+        setTimeRange({ start: 0, end: 0 });
       })
       .finally(() => {
         if (!controller.signal.aborted) {
@@ -114,7 +119,7 @@ export function useShipData(): UseShipDataReturn {
           fetchingRef.current = "";
         }
       });
-  }, [writeCache, isDateAvailable]);
+  }, [writeCache]);
 
   /** 背景預載：只寫快取，不 abort 前景、不設 state */
   const prefetchDate = useCallback((dateStr: string) => {

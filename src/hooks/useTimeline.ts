@@ -79,7 +79,12 @@ export function useTimeline({
   const windowStart = dayStartUnix(selectedDate);
   const windowEnd = dayEndUnix(addDays(selectedDate, rangeDays - 1));
 
-  const [currentTime, setCurrentTime] = useState(windowStart);
+  // 今天：從現在時間開始（不用從午夜等到有資料）；過去日期：從午夜開始
+  const [currentTime, setCurrentTime] = useState(() => {
+    const nowUnix = Date.now() / 1000;
+    if (nowUnix >= windowStart && nowUnix <= windowEnd) return nowUnix;
+    return windowStart;
+  });
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(60);
   const [timeMode, setTimeMode] = useState<TimeMode>(initialTimeMode);
