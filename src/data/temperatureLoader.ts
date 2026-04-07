@@ -1,9 +1,5 @@
 /**
- * temperatureLoader.ts — 載入溫度網格資料
- *
- * 資料來源優先順序：
- *   1. Supabase RPC（get_temperature_frames + get_temperature_grid_info���
- *   2. 本地 temperature_grid.json fallback
+ * temperatureLoader.ts — 載入溫度網格資料（Supabase RPC）
  */
 
 import { supabase, todayTaiwan } from "../lib/supabase";
@@ -37,13 +33,8 @@ const GRID_RESOLUTION = 0.03;
 
 let cached: TemperatureGridData | null = null;
 
-// ── Supabase loader ──
-
 /**
  * 從 grid_lat/grid_lng 計算在 full grid 中的 flat index
- * index = row * cols + col
- * row = round((lat - bottomLeftLat) / resolution)
- * col = round((lng - bottomLeftLng) / resolution)
  */
 function gridCoordsToIndex(lat: number, lng: number): number {
   const row = Math.round((lat - GRID_BOTTOM_LAT) / GRID_RESOLUTION);
@@ -51,7 +42,8 @@ function gridCoordsToIndex(lat: number, lng: number): number {
   return row * GRID_COLS + col;
 }
 
-async function loadFromSupabase(): Promise<TemperatureGridData> {
+export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
+  if (cached) return cached;
   const t0 = performance.now();
 
   // 找最近有資料的日期
@@ -60,7 +52,6 @@ async function loadFromSupabase(): Promise<TemperatureGridData> {
   if (!dates || dates.length === 0) throw new Error("No temperature data available");
 
   const today = todayTaiwan();
-  // 優先選今天，否則往前找最近的日期
   let targetDate = (dates as { date: string; frames: number; cells: number }[])
     .filter((d) => d.date <= today && d.frames >= 10)
     .pop()?.date;
@@ -68,7 +59,6 @@ async function loadFromSupabase(): Promise<TemperatureGridData> {
     targetDate = (dates as { date: string }[])[dates.length - 1]!.date;
   }
 
-  // 平行請求 grid info 和 frames
   const [gridRes, framesRes] = await Promise.all([
     supabase.rpc("get_temperature_grid_info", { target_date: targetDate }),
     supabase.rpc("get_temperature_frames", { target_date: targetDate }),
@@ -84,10 +74,8 @@ async function loadFromSupabase(): Promise<TemperatureGridData> {
     throw new Error(`Empty temperature data for ${targetDate}`);
   }
 
-  // 計算 landIndices（grid_lat/lng → flat index in full grid）
   const landIndices = gridCells.map((c) => gridCoordsToIndex(c.grid_lat, c.grid_lng));
 
-  // 解析 frames
   let tempMin = Infinity;
   let tempMax = -Infinity;
 
@@ -97,7 +85,7 @@ async function loadFromSupabase(): Promise<TemperatureGridData> {
       const temp = parseFloat(v);
       if (temp < tempMin) tempMin = temp;
       if (temp > tempMax) tempMax = temp;
-      return Math.round(temp * 10); // 整數 × 10，與 JSON 格式一致
+      return Math.round(temp * 10);
     });
     return { time, values };
   });
@@ -107,7 +95,7 @@ async function loadFromSupabase(): Promise<TemperatureGridData> {
     `[Temperature/Supabase] ${targetDate}: ${frames.length} frames, ${landIndices.length} cells, ${elapsed}ms`
   );
 
-  return {
+  cached = {
     metadata: {
       rows: GRID_ROWS,
       cols: GRID_COLS,
@@ -120,28 +108,5 @@ async function loadFromSupabase(): Promise<TemperatureGridData> {
     landIndices,
     frames,
   };
-}
-
-// ── Local JSON loader (legacy fallback) ──
-
-async function loadFromJson(): Promise<TemperatureGridData> {
-  const res = await fetch("./temperature_grid.json");
-  if (!res.ok) throw new Error(`Failed to load temperature_grid.json: ${res.status}`);
-  return await res.json();
-}
-
-// ── Public API ──
-
-export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
-  if (cached) return cached;
-
-  try {
-    cached = await loadFromSupabase();
-    return cached;
-  } catch (err) {
-    console.warn("[Temperature] Supabase failed, falling back to local JSON:", err);
-  }
-
-  cached = await loadFromJson();
-  return cached!;
+  return cached;
 }

@@ -23,9 +23,9 @@ export interface YoubikeH3DataSet {
 
 const cache = new Map<string, YoubikeH3DataSet>();
 
-/** cache key = "res7:2026-04-03" or "res7:local" */
-function cacheKey(resolution: number, date?: string): string {
-  return `res${resolution}:${date ?? "local"}`;
+/** cache key = "res7:2026-04-03" */
+function cacheKey(resolution: number, date: string): string {
+  return `res${resolution}:${date}`;
 }
 
 // ── Supabase RPC ──
@@ -78,23 +78,11 @@ async function fetchFromSupabase(
   };
 }
 
-// ── Local JSON fallback ──
-
-async function fetchFromLocal(resolution: number): Promise<YoubikeH3DataSet | null> {
-  const filename = `h3_youbike_fullness_res${resolution}.json`;
-  try {
-    const res = await fetch(`./${filename}`);
-    if (res.ok) return (await res.json()) as YoubikeH3DataSet;
-  } catch { /* fallthrough */ }
-  return null;
-}
-
 // ── Public API ──
 
 /**
- * Load YouBike H3 data by resolution (7 or 8).
- * Supabase mode: loads target_date (default: today in Asia/Taipei).
- * Legacy mode: loads entire local JSON.
+ * Load YouBike H3 data by resolution (7 or 8) from Supabase.
+ * Loads target_date (default: today in Asia/Taipei).
  */
 export async function loadYoubikeH3(
   resolution: number,
@@ -105,7 +93,6 @@ export async function loadYoubikeH3(
     snapshots: {},
   };
 
-  // Supabase：按日載入
   const targetDate = date ?? todayTaiwan();
   const key = cacheKey(resolution, targetDate);
   const cached = cache.get(key);
@@ -118,20 +105,7 @@ export async function loadYoubikeH3(
     return dataset;
   }
 
-  // Supabase 失敗時 fallback 到本地 JSON
-  console.warn(`[YouBike-H3] Supabase empty for ${targetDate}, trying local fallback`);
-  const localKey = cacheKey(resolution);
-  const localCached = cache.get(localKey);
-  if (localCached) return localCached;
-
-  const localData = await fetchFromLocal(resolution);
-  if (localData && localData.metadata.cell_count > 0) {
-    cache.set(localKey, localData);
-    console.log(`[YouBike-H3] Local res${resolution}: ${localData.metadata.cell_count} cells, ${localData.metadata.snapshot_count} snapshots`);
-    return localData;
-  }
-
-  console.warn(`[YouBike-H3] Failed to load res${resolution}`);
+  console.warn(`[YouBike-H3] Failed to load res${resolution} for ${targetDate}`);
   return empty;
 }
 

@@ -107,6 +107,7 @@ export function TimelineControls({
   const isLive = timeMode === "live";
   const dark = isDarkTheme;
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const isFuture = currentTime > Date.now() / 1000;
 
   const arrowBtn: React.CSSProperties = {
     ...getBtnStyle(dark),
@@ -250,7 +251,7 @@ export function TimelineControls({
 
           <span
             style={{
-              color: dark ? "rgba(200,200,200,0.7)" : "rgba(0,0,0,0.5)",
+              color: isFuture ? "#ff9800" : (dark ? "rgba(200,200,200,0.7)" : "rgba(0,0,0,0.5)"),
               fontSize: 14,
               fontFamily: "monospace",
               fontWeight: 600,
@@ -258,6 +259,22 @@ export function TimelineControls({
           >
             {formatTime(currentTime)}
           </span>
+          {isFuture && (
+            <span
+              title="此時間尚未到達，沒有最新資料"
+              style={{
+                fontSize: 11,
+                color: "#ff9800",
+                background: "rgba(255,152,0,0.12)",
+                border: "1px solid rgba(255,152,0,0.4)",
+                borderRadius: 4,
+                padding: "2px 6px",
+                fontFamily: "monospace",
+              }}
+            >
+              ⚠ 尚無資料
+            </span>
+          )}
         </div>
       )}
 

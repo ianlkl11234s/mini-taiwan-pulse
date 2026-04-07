@@ -23,6 +23,9 @@ npx tsc -b   # 使用 project references，不要用 tsc --noEmit
 | 航班 OpenSky | `get_flight_trails(target_date)` | useAirspaceData |
 | TRA/THSR 時刻表 | `reference.daily_schedules` (PostgREST) | useRailData |
 | 捷運時刻表 | `reference.daily_schedules` (*_fixed) | useRailData |
+| CWA 溫度網格 | `get_temperature_dates/grid_info/frames` | temperatureLoader |
+| YouBike H3 聚合 | `get_youbike_h3_dates/snapshots` | youbikeH3Loader |
+| H3 歷年人口 | `get_h3_demographics_years/yearly` | h3Loader |
 
 ### Supabase 表（前端可直接查詢）
 | Schema | 表 | 用途 | 資料狀態 |
@@ -33,11 +36,9 @@ npx tsc -b   # 使用 project references，不要用 tsc --noEmit
 | spatial | village_demographics_yearly | 村里歷年人口 | 需補 105-113 年 |
 | reference | daily_schedules | 每日/固定時刻表 | TRA/THSR/捷運 |
 
-### 仍使用本地/S3 的資料
-- 鐵道軌道幾何（GeoJSON，靜態不變）
-- H3 人口/社經（本地 JSON + S3 fallback）
-- 溫度場（本地 JSON，待遷移）
-- YouBike H3（本地 JSON，待遷移）
+### 仍使用本地的靜態資料
+- 鐵道軌道幾何（rail_bundle.json，53MB，靜態不變）
+- H3 單期快照（h3_population/demographics/socioeconomic/spatial_economy_*.json，無對應 RPC）
 - 18+ 靜態 GeoJSON 圖層（機場/港口/燈塔/國道等）
 
 ## S3 Bucket
