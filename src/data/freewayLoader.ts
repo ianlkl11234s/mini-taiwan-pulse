@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { withLoading } from "../lib/loadingRegistry";
 
 export interface FreewayDateInfo {
   date: string;
@@ -77,7 +78,11 @@ function parseLineString(geojsonStr: string): [number, number][] {
 /** 載入某一天全部路段 timeline */
 export async function fetchFreewayDay(date: string): Promise<FreewayDayData> {
   const t0 = performance.now();
-  const { data, error } = await supabase.rpc("get_freeway_congestion_day", { target_date: date });
+  const { data, error } = await withLoading(
+    `freeway:${date}`,
+    `國道壅塞 ${date}`,
+    supabase.rpc("get_freeway_congestion_day", { target_date: date }),
+  );
   if (error) throw new Error(`get_freeway_congestion_day(${date}): ${error.message}`);
 
   const rows = (data ?? []) as RawRow[];

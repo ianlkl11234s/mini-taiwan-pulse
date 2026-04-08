@@ -1,0 +1,67 @@
+/**
+ * 全域 loading registry
+ *
+ * 用法：
+ *   const { data } = await withLoading("disaster-alerts:2026-04-08", "災害示警 2026-04-08",
+ *     supabase.rpc("get_disaster_alerts_day", { target_date: date })
+ *   );
+ *
+ * UI 端用 useLoadingTasks() 訂閱當前進行中的任務列表。
+ */
+
+type Listener = () => void;
+
+const active = new Map<string, number>();   // taskId → 同 id 同時併發 count
+const labels = new Map<string, string>();   // taskId → 顯示文字
+const listeners = new Set<Listener>();
+
+let cachedSnapshot: LoadingTask[] = [];
+
+function rebuildSnapshot() {
+  const out: LoadingTask[] = [];
+  for (const [id] of active) {
+    out.push({ id, label: labels.get(id) ?? id });
+  }
+  cachedSnapshot = out;
+}
+
+function emit() {
+  rebuildSnapshot();
+  for (const l of listeners) l();
+}
+
+export interface LoadingTask {
+  id: string;
+  label: string;
+}
+
+export const loadingRegistry = {
+  start(id: string, label: string): void {
+    active.set(id, (active.get(id) ?? 0) + 1);
+    labels.set(id, label);
+    emit();
+  },
+  end(id: string): void {
+    const n = (active.get(id) ?? 0) - 1;
+    if (n <= 0) {
+      active.delete(id);
+      labels.delete(id);
+    } else {
+      active.set(id, n);
+    }
+    emit();
+  },
+  snapshot(): LoadingTask[] {
+    return cachedSnapshot;
+  },
+  subscribe(l: Listener): () => void {
+    listeners.add(l);
+    return () => listeners.delete(l);
+  },
+};
+
+/** 包裝 Promise / thenable（含 Supabase query builder）：自動 start / end */
+export function withLoading<T>(id: string, label: string, p: PromiseLike<T>): Promise<T> {
+  loadingRegistry.start(id, label);
+  return Promise.resolve(p).finally(() => loadingRegistry.end(id));
+}

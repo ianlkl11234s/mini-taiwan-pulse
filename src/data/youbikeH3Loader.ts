@@ -1,4 +1,5 @@
 import { supabase, todayTaiwan } from "../lib/supabase";
+import { withLoading } from "../lib/loadingRegistry";
 
 export interface YoubikeH3CellData {
   h: string;   // H3 index
@@ -42,10 +43,14 @@ async function fetchFromSupabase(
   resolution: number,
   date: string,
 ): Promise<YoubikeH3DataSet | null> {
-  const { data, error } = await supabase.rpc("get_youbike_h3_snapshots", {
-    target_date: date,
-    h3_resolution: resolution,
-  });
+  const { data, error } = await withLoading(
+    `youbike-h3:${date}:r${resolution}`,
+    `YouBike ${date}`,
+    supabase.rpc("get_youbike_h3_snapshots", {
+      target_date: date,
+      h3_resolution: resolution,
+    }),
+  );
 
   if (error || !data || data.length === 0) {
     console.warn(`[YouBike-H3] Supabase RPC failed for ${date} res${resolution}:`, error?.message);

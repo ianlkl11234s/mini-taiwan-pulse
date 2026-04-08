@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { withLoading } from "../lib/loadingRegistry";
 
 export interface EarthquakeEvent {
   event_id: string;
@@ -25,11 +26,15 @@ interface RawRow {
 /** 一次撈取所有地震事件（資料量小，~數百筆） */
 export async function fetchEarthquakes(): Promise<EarthquakeEvent[]> {
   const t0 = performance.now();
-  const { data, error } = await supabase
-    .from("earthquake_events")
-    .select("event_id,magnitude,depth_km,epicenter_lat,epicenter_lng,location_desc,occurred_at,report_type")
-    .order("occurred_at", { ascending: true })
-    .limit(5000);
+  const { data, error } = await withLoading(
+    "earthquakes",
+    "地震事件",
+    supabase
+      .from("earthquake_events")
+      .select("event_id,magnitude,depth_km,epicenter_lat,epicenter_lng,location_desc,occurred_at,report_type")
+      .order("occurred_at", { ascending: true })
+      .limit(5000),
+  );
 
   if (error) throw new Error(`Supabase earthquake_events: ${error.message}`);
 

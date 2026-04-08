@@ -223,7 +223,7 @@ export interface OverlayConfig {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport" | "activeFault" | "newsEvent";
+    | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert";
   properties: Record<string, unknown>;
 }
 
@@ -262,4 +262,5 @@ export interface LayerVisibility {
   newsEvents: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
+  disasterAlerts: boolean;
 }

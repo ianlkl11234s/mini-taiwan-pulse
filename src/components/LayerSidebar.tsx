@@ -37,6 +37,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   newsEvents: "#ff9800",
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
+  disasterAlerts: "#dc2626",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {

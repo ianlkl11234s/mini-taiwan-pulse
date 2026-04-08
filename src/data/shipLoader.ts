@@ -1,5 +1,6 @@
 import type { Ship, ShipData, TrailPoint } from "../types";
 import { supabase, todayTaiwan } from "../lib/supabase";
+import { withLoading } from "../lib/loadingRegistry";
 
 export interface ShipDateInfo {
   date: string;
@@ -74,7 +75,11 @@ export async function fetchShipDates(): Promise<ShipDateInfo[]> {
 /** 載入單日船舶資料 */
 export async function fetchShipDayArrow(date: string): Promise<ShipData> {
   const t0 = performance.now();
-  const { data, error } = await supabase.rpc("get_ship_trails", { target_date: date });
+  const { data, error } = await withLoading(
+    `ship:${date}`,
+    `船舶軌跡 ${date}`,
+    supabase.rpc("get_ship_trails", { target_date: date }),
+  );
   if (error) throw new Error(`Supabase get_ship_trails: ${error.message}`);
 
   const rows = data as { mmsi: string; ship_type: string | null; trail: string }[];

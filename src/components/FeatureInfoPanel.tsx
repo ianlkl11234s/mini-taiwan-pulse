@@ -342,6 +342,45 @@ function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function DisasterAlertPanel({ props }: { props: Record<string, unknown> }) {
+  const severity = String(props.severity ?? "Unknown");
+  const color = String(props.color ?? "#dc2626");
+  const event = String(props.event ?? props.event_term ?? "災害示警");
+  const headline = String(props.headline ?? "");
+  const areaDesc = String(props.area_desc ?? "");
+  const sender = String(props.sender_name ?? "");
+  const startTs = Number(props.start_ts ?? 0);
+  const endTs = Number(props.end_ts ?? 0);
+  const fmt = (ts: number) =>
+    ts > 0 && ts < Number.MAX_SAFE_INTEGER
+      ? new Date(ts * 1000).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false })
+      : "—";
+  const sevLabel: Record<string, string> = {
+    Extreme: "極端", Severe: "嚴重", Moderate: "中度", Minor: "輕度", Unknown: "未分類",
+  };
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {event}
+        </div>
+        <div style={{
+          marginLeft: "auto", fontSize: 10, padding: "1px 6px", borderRadius: 3,
+          background: color, color: "#fff", fontWeight: 600,
+        }}>
+          {sevLabel[severity] ?? severity}
+        </div>
+      </div>
+      {headline && <Row label="標題" value={headline} />}
+      {areaDesc && <Row label="影響區域" value={areaDesc} />}
+      <Row label="生效" value={fmt(startTs)} />
+      <Row label="失效" value={fmt(endTs)} />
+      {sender && <Row label="發布單位" value={sender} />}
+    </>
+  );
+}
+
 function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
@@ -371,6 +410,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   airport: "機場",
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
+  disasterAlert: "災害示警",
 };
 
 export function FeatureInfoPanel({ feature, onClose }: Props) {
@@ -414,6 +454,9 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
       break;
     case "newsEvent":
       content = <NewsEventPanel props={feature.properties} />;
+      break;
+    case "disasterAlert":
+      content = <DisasterAlertPanel props={feature.properties} />;
       break;
   }
 
