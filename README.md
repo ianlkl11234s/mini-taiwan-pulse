@@ -66,7 +66,7 @@
 | 國道路網 | line（紅色，zoom 自適應寬度） | 交通部公路局 |
 | 省道路網 | line（橘色，zoom 自適應寬度） | 交通部公路局 |
 | 自行車道 | line（綠色，zoom 自適應寬度） | 交通部 |
-| 國道壅塞 | line（色彩編碼壅塞程度） | 交通部公路局 |
+| 國道壅塞 | line（色彩編碼壅塞等級，依 timeline 動態回放） | 交通部公路局 TDX → Supabase `realtime.freeway_sections` |
 | 氣象觀測站 | circle dot + glow | 中央氣象署 |
 | 離岸風場範圍 | fill + line + glow | 經濟部能源局 |
 | 人流模擬六角格 | Mapbox fill / fill-extrusion（Plasma / Viridis 色階） | 內政部最小統計區人流 |

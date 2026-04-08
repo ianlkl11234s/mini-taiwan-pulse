@@ -16,6 +16,7 @@ import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
+import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
@@ -319,6 +320,15 @@ export default function App() {
 
   // ── Earthquake events timeline ──
   useEarthquakeLayer(mapRef, timeline.currentTime, layerVisibility.earthquakes);
+
+  // ── Freeway congestion (動態 timeline 回放) ──
+  useFreewayLayer(
+    mapRef,
+    timeline.currentTime,
+    layerVisibility.freewayCongestion,
+    transportParams.overlayParams.freewayWidth ?? 1,
+    isDarkTheme,
+  );
 
   // ── Derived values ──
 
