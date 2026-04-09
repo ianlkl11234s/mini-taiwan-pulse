@@ -310,6 +310,25 @@ DataCalendarPanel.tsx — 月曆格資料可用性視覺化（Dots/Heat 模式 +
 - **cyclic**：鐵道（每日循環的時刻表）
 - **static**：機場、車站等不隨時間變化的圖層
 
+### Supabase RPC pre-aggregate pattern
+
+所有高頻時序 RPC 都走「普通 table + per-day refresh function + pg_cron + 薄 SELECT RPC」pattern，避開 Supabase pooler 強制的 2 分鐘 statement_timeout，並讓前端讀取穩定落在百毫秒級：
+
+| RPC | 預聚合 table | Cron | Before → After |
+|---|---|---|---|
+| `get_ship_trails` | `realtime.ship_trails_daily` | `*/10` | timeout → 123ms |
+| `get_flight_trails` | `realtime.flight_trails_daily` | `*/10` | timeout → 126ms |
+| `get_freeway_congestion_day` | `realtime.freeway_congestion_daily` | `*/10` | 60s 邊緣 → 302ms |
+| `get_youbike_h3_snapshots` | `realtime.youbike_h3_daily` | `*/10` | 6.4s → 82ms |
+| `get_temperature_frames` | `realtime.temperature_frames_daily` | `*/30` | 551ms → 107ms |
+| `get_temperature_dates` | `realtime.temperature_dates_cache` | `*/15` | 1.9s → 72ms |
+| `get_temperature_grid_info` | `reference.temperature_grid_cells`（靜態） | — | 1.08s → 269ms |
+| `get_disaster_alerts_day` | `realtime.disaster_alerts_daily`（含已解析 geom） | `*/10` | **13.2s → 110ms** |
+| `get_cwa_imagery_frames_batch` | 批次 RPC 取代 N 次並發 fetch | — | `TypeError: Failed to fetch` → 57MB/1.7s |
+| `get_ship/flight_dates` | `*_trails_days_summary` | — | 4s → 47ms |
+
+SQL 檔位於 `data-collectors/docs/sql/matview_*.sql`。盤點報告見 [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md)。
+
 ### Three.js CustomLayer 架構
 
 透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景，六個獨立 CustomLayer 各自管理動態渲染，常駐地圖、由 `getIsVisible` 控制渲染開關：
