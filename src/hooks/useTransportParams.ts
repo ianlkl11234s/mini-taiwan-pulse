@@ -128,6 +128,9 @@ export function useTransportParams() {
   const [spatialContrast, setSpatialContrast] = useState(1.8);
   const [spatialExtruded, setSpatialExtruded] = useState(false);
   const [spatialElevation, setSpatialElevation] = useState(50);
+  // CWA Imagery (衛星雲圖 / 雷達)
+  const [cwaCloudOpacity, setCwaCloudOpacity] = useState(1.0);
+  const [cwaRadarOpacity, setCwaRadarOpacity] = useState(0.85);
   // YouBike Fullness (H3)
   const [ybOpacity, setYbOpacity] = useState(0.65);
   const [ybContrast, setYbContrast] = useState(1);
@@ -386,6 +389,12 @@ export function useTransportParams() {
           { label: `Height ${spatialElevation}`, value: spatialElevation, min: 10, max: 200, step: 10, onChange: setSpatialElevation },
         ];
       }
+      case "cwaCloudImagery": return [
+        { label: `Opacity ${cwaCloudOpacity.toFixed(2)}`, value: cwaCloudOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaCloudOpacity },
+      ];
+      case "cwaRadarImagery": return [
+        { label: `Opacity ${cwaRadarOpacity.toFixed(2)}`, value: cwaRadarOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaRadarOpacity },
+      ];
       case "youbikeFullness": return [
         { label: `Opacity ${ybOpacity.toFixed(1)}`, value: ybOpacity, min: 0.1, max: 1, step: 0.1, onChange: setYbOpacity },
         { label: `Contrast ${ybContrast.toFixed(1)}`, value: ybContrast, min: 0.3, max: 3, step: 0.1, onChange: setYbContrast },
@@ -439,5 +448,7 @@ export function useTransportParams() {
     socioParams: useMemo(() => ({ metric: socioMetric, opacity: socioOpacity, contrast: socioContrast, extruded: socioExtruded, elevationScale: socioElevation }), [socioMetric, socioOpacity, socioContrast, socioExtruded, socioElevation]),
     spatialParams: useMemo(() => ({ metric: spatialMetric, opacity: spatialOpacity, contrast: spatialContrast, extruded: spatialExtruded, elevationScale: spatialElevation }), [spatialMetric, spatialOpacity, spatialContrast, spatialExtruded, spatialElevation]),
     youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale]),
+    cwaCloudOpacity,
+    cwaRadarOpacity,
   };
 }

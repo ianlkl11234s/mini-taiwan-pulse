@@ -18,6 +18,7 @@ import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
+import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
@@ -325,6 +326,16 @@ export default function App() {
 
   // ── NCDR Disaster Alerts timeline ──
   useDisasterAlertLayer(mapRef, timeline.currentTime, layerVisibility.disasterAlerts);
+
+  // ── CWA 衛星雲圖 / 雷達回波 ──
+  useCwaImageryLayer({
+    mapRef,
+    currentTime: timeline.currentTime,
+    cloudVisible: layerVisibility.cwaCloudImagery,
+    radarVisible: layerVisibility.cwaRadarImagery,
+    cloudOpacity: transportParams.cwaCloudOpacity,
+    radarOpacity: transportParams.cwaRadarOpacity,
+  });
 
   // ── Freeway congestion (動態 timeline 回放) ──
   useFreewayLayer(
