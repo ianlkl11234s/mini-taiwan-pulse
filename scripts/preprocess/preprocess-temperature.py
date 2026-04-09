@@ -12,7 +12,7 @@ import os
 import sys
 from datetime import datetime, timezone, timedelta
 
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 INPUT = os.path.join(BASE, "..", "weather_change", "public", "temperature_timelapse_data.json")
 OUTPUT = os.path.join(BASE, "public", "temperature_grid.json")
 

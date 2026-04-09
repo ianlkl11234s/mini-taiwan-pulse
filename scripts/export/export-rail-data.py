@@ -11,11 +11,11 @@ import glob as globmod
 
 SOURCE_BASE = os.path.join(
     os.path.dirname(__file__),
-    "../../mini-taipei-v3/public/data"
+    "../../../mini-taipei-v3/public/data"
 )
 OUTPUT_BASE = os.path.join(
     os.path.dirname(__file__),
-    "../public/rail"
+    "../../public/rail"
 )
 
 # 定義要複製的系統及其資料結構

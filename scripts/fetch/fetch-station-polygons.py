@@ -12,7 +12,7 @@ import math
 import os
 import ssl
 
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
 

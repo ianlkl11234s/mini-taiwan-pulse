@@ -8,7 +8,7 @@ import json
 import glob
 import os
 
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 SYSTEM_COLORS = {
     "tra": "#7B7B7B",

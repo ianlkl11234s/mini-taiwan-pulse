@@ -1,92 +1,87 @@
-# Mini Taiwan Pulse — 專案指引
+# Mini Taiwan Pulse — 開發規則
 
-## 技術棧
-- React 19 + TypeScript + Vite (port 3721)
-- Mapbox GL JS + Three.js (3D 視覺化)
-- Supabase (gis-platform) 作為主要資料庫
+> React 19 + TypeScript + Vite (port 3721) · Mapbox GL + Three.js · Supabase (gis-platform)
+>
+> 詳細版規則見 [`docs/development-rules.md`](./docs/development-rules.md)
 
-## TypeScript 驗證
+## 必守規則
+
+### 1. TypeScript 驗證
 ```bash
-npx tsc -b   # 使用 project references，不要用 tsc --noEmit
+npx tsc -b   # project references，禁用 --noEmit
 ```
+Commit 前必跑。
 
-## Supabase 連線
-- **專案**: gis-platform (`utcmcikhvxnohbxchbrs`)
-- **Schema**: `realtime`（高頻時序）、`reference`（低頻參考）、`spatial`（空間分析）、`metadata`（系統管理）
-- **環境變數**: `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`（前端用），`SUPABASE_SERVICE_ROLE_KEY`（腳本用）
-- **Data source 開關**: `VITE_DATA_SOURCE=supabase`（啟用 Supabase，否則用 Pulse API）
+### 2. 資料來源管理
+- **動態資料**（時序 / 即時）→ Supabase RPC（`public.*`）
+- **靜態資料** → `public/*.geojson`（由 S3 deploy-assets 管理，**扁平檔名契約**不要改路徑）
+- 前端禁止直接打 `realtime.*` schema，一律透過 `public` RPC wrapper
+- Schema 分工：`realtime`（時序）/ `reference`（參考）/ `spatial`（空間）/ `public`（對外 RPC）
+- 詳見 [`docs/development-rules.md#1-資料來源管理`](./docs/development-rules.md#1-資料來源管理)
 
-### 已遷移的資料流（Supabase 為主）
-| 資料 | RPC / 表 | 前端 Hook |
-|------|---------|-----------|
-| 船舶 AIS | `get_ship_trails(target_date)` | useShipData |
-| 航班 OpenSky | `get_flight_trails(target_date)` | useAirspaceData |
-| TRA/THSR 時刻表 | `reference.daily_schedules` (PostgREST) | useRailData |
-| 捷運時刻表 | `reference.daily_schedules` (*_fixed) | useRailData |
-| CWA 溫度網格 | `get_temperature_dates/grid_info/frames` | temperatureLoader |
-| YouBike H3 聚合 | `get_youbike_h3_dates/snapshots` | youbikeH3Loader |
-| H3 歷年人口 | `get_h3_demographics_years/yearly` | h3Loader |
-| 國道壅塞 | `get_freeway_dates` / `get_freeway_congestion_day(target_date)` | useFreewayLayer |
+### 3. 資料載入必須有 Loading UI ⚠️
+**所有** Supabase 非同步載入都必須註冊 loading task：
+- 初次載入 / 切換 timeline 日期 / Toggle 圖層
+- Loader 使用 `src/lib/loadingRegistry.ts`，包 `start()` / `complete()`
+- 範例看 `src/data/freewayLoader.ts` + `src/hooks/useFreewayLayer.ts`
+- 禁止靜默 `supabase.rpc().then()`
 
-### Supabase 表（前端可直接查詢）
-| Schema | 表 | 用途 | 資料狀態 |
-|--------|-----|------|---------|
-| realtime | temperature_grids | CWA 0.03° 溫度網格 | ~61 萬筆 (1 個月) |
-| realtime | youbike_snapshots | YouBike 車位快照 | ~219 萬筆 (6 天) |
-| spatial | h3_demographics | H3 人口/社經指標 | ~6.5 萬筆 (2025) |
-| spatial | village_demographics_yearly | 村里歷年人口 | 需補 105-113 年 |
-| reference | daily_schedules | 每日/固定時刻表 | TRA/THSR/捷運 |
+### 4. 資料庫優化（Pre-aggregate Pattern）
+RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
+- 普通 table + per-day refresh function + pg_cron + 薄 SELECT RPC
+- 先跑 `EXPLAIN (ANALYZE, BUFFERS)` 確認是 plan 問題還是資料量
+- SQL 範本：`../data-collectors/docs/sql/matview_*.sql`
+- Supabase pooler 強制 2min timeout **不能繞**，只有 pg_cron 例外
+- 完整 pattern + 坑點：[`docs/supabase-optimization.md`](./docs/supabase-optimization.md)
+- 可用 slash command `/check-rpc <name>` 自動 EXPLAIN 判斷
 
-### 仍使用本地的靜態資料
-- 鐵道軌道幾何（rail_bundle.json，53MB，靜態不變）
-- H3 單期快照（h3_population/demographics/socioeconomic/spatial_economy_*.json，無對應 RPC）
-- 18+ 靜態 GeoJSON 圖層（機場/港口/燈塔/國道等）
+### 5. 新增 Layer 強制順序
+1. `src/types/index.ts` → `LayerVisibility` 加 key
+2. `src/data/xxxLoader.ts` → loader + loadingRegistry
+3. `src/hooks/useXxxLayer.ts` → React hook
+4. `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts`
+5. `src/components/LayerSidebar.tsx` → UI toggle + **`LAYER_COLORS` 補 key**（漏了會 tsc error）
+6. `src/App.tsx` → 接線
+7. `src/hooks/useLayerVisibility.ts` → 預設可見性
 
-## S3 Bucket
-- **Base**: `https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com`
-- **Credentials**: `S3_ACCESS_KEY` / `S3_SECRET_KEY`（非 AWS CLI 預設）
-- **Prefixes**: `flight-arc/`, `ship-data/`, `rail-data/`, `h3-data/`
+可用 slash command `/new-layer <name>` 自動產生骨架。
 
-## 資料收集（data-collectors）
-- **部署**: Zeabur，24/7 執行
-- **Ship AIS**: 每 10 分鐘，來源：航港局 API → `realtime.ship_positions`
-- **Flight OpenSky**: 每 5 分鐘，來源：OpenSky Network → `realtime.flight_positions`
-- **正常量**: ship ~800K records/day, flight ~34K records/day
-- **Materialized Views**: `mv_ship_dates` / `mv_flight_dates`（每 30 分鐘更新，用於日期清單）
-- **分區管理**: `realtime.manage_all_partitions()` 每日 00:05 台灣，預建 7 天 + 清理 30 天前
-- **防護**: BEFORE INSERT trigger `auto_create_partition()` 自動建缺失分區
+## 目錄規則
 
-### 已知問題：資料斷層 + 歷史時區 bug（2026-04-07 修復）
-- Zeabur 可能無預警重啟，導致資料斷層（如 2026-04-04 08:00 ~ 04-06 21:00 無資料）
-- 前端在無資料時段會顯示 0 ships/flights（非時區 bug，是真的沒資料）
-- Timeline 已改為「今天從當前時間開始」避免從午夜空等
+| 用途 | 位置 |
+|---|---|
+| Supabase fetcher | `src/data/*Loader.ts` |
+| Layer hook | `src/hooks/use*Layer.ts` |
+| Three.js scene | `src/three/*Scene.ts` |
+| Custom WebGL layer | `src/map/*CustomLayer.ts` |
+| 靜態 GeoJSON | `public/` (扁平) |
+| 預處理腳本 | `scripts/preprocess/` |
+| S3 部署腳本 | `scripts/deploy/` |
+| 外部 API fetch | `scripts/fetch/` |
+| DB 匯出 | `scripts/export/` |
 
-### ⚠️ 歷史時區 bug 修復記錄（2026-04-07）
-- **Bug**: `data-collectors/collectors/base.py` 用 `datetime.now()` 產生 naive 台灣時間，
-  PostgreSQL UTC session 當 UTC 解讀，所有 `collected_at` 偏移 +8h
-- **修復**: 改用 `datetime.now(TAIPEI_TZ)` (timezone-aware)
-- **資料修復**: 從 S3 archive 全量回填 3/9 ~ 4/6 (29 天)，TRUNCATE 後重建
-- **回填腳本**: `data-collectors/scripts/backfill_ship_flight.py`
-  - ship `_fetch_time` 是台灣時間 → 加 `+08:00`
-  - flight `fetch_time` 是 UTC → 加 `+00:00`
+## 環境變數
 
-### 診斷指令（Supabase PostgREST）
-```bash
-# 查看船舶可用日期（快速確認斷層）
-curl -s "$SUPABASE_URL/rest/v1/rpc/get_ship_dates" \
-  -H "apikey: $SUPABASE_ANON_KEY" \
-  -H "Authorization: Bearer $SUPABASE_ANON_KEY" | python3 -m json.tool
+| 變數 | 用途 |
+|---|---|
+| `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | 前端 |
+| `SUPABASE_SERVICE_ROLE_KEY` | 腳本（禁止進 bundle） |
+| `SUPABASE_DB_URL` | psql 直連 |
+| `VITE_DATA_SOURCE=supabase` | 啟用 Supabase（否則用 Pulse API） |
 
-# 查某日最早紀錄
-curl -s "$SUPABASE_URL/rest/v1/ship_positions?select=collected_at&collected_at=gte.2026-04-06T00:00:00%2B08:00&order=collected_at.asc&limit=1" \
-  -H "apikey: $SUPABASE_SERVICE_ROLE_KEY" \
-  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY"
-```
+## 參考文件
+
+- [`docs/development-rules.md`](./docs/development-rules.md) — 規則詳細版 + 範例
+- [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) — Pre-aggregate pattern 完整指南
+- [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md) — RPC 效能盤點
+- [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) — 時間軸架構
+- [`docs/known-issues.md`](./docs/known-issues.md) — 歷史 bug + 診斷指令
 
 ## 關聯專案
+
 | 專案 | 路徑 | 用途 |
-|------|------|------|
-| gis-platform | `../gis-platform` | Supabase 時空資料庫（migrations/） |
-| pulse-api | `../pulse-api` | FastAPI+DuckDB（備援 API） |
-| data-collectors | `../data-collectors` | 多源資料收集腳本 |
-| mini-taipei-v3 | `../mini-taipei-v3` | 鐵道 Supabase 模式參考 |
+|---|---|---|
+| gis-platform | `../gis-platform` | Supabase migrations |
+| data-collectors | `../data-collectors` | 資料收集 + SQL 範本 |
+| pulse-api | `../pulse-api` | FastAPI 備援 |
+| mini-taipei-v3 | `../mini-taipei-v3` | 鐵道資料來源 |

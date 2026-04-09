@@ -17,11 +17,11 @@ from datetime import datetime, timezone, timedelta, date
 
 DB_PATH = os.path.join(
     os.path.dirname(__file__),
-    "../../ship-gis/data/ship_data.db"
+    "../../../ship-gis/data/ship_data.db"
 )
 OUTPUT_PATH = os.path.join(
     os.path.dirname(__file__),
-    "../public/ship_data.json"
+    "../../public/ship_data.json"
 )
 
 MIN_MOVING_POINTS = 5  # 至少 5 個 sog > 0.5 的位置點

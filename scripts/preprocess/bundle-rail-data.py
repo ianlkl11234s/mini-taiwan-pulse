@@ -14,8 +14,8 @@ import os
 import glob
 from pathlib import Path
 
-RAIL_DIR = Path(__file__).parent.parent / "public" / "rail"
-OUTPUT = Path(__file__).parent.parent / "public" / "rail_bundle.json"
+RAIL_DIR = Path(__file__).parent.parent.parent / "public" / "rail"
+OUTPUT = Path(__file__).parent.parent.parent / "public" / "rail_bundle.json"
 
 SYSTEMS = ["trtc", "thsr", "tra", "krtc", "klrt", "tmrt"]
 

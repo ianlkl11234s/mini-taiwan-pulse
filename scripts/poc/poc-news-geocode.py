@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 # 從專案根目錄 .env 載入環境變數
-env_path = Path(__file__).resolve().parent.parent / ".env"
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
 if env_path.exists():
     for line in env_path.read_text().splitlines():
         line = line.strip()

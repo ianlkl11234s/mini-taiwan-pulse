@@ -32,3 +32,4 @@ public/active_faults.geojson
 .claude/todos/
 .claude/settings.local.json
 .claude/.cache/
+__pycache__/

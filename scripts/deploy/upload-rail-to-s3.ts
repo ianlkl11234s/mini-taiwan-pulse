@@ -1,12 +1,15 @@
 /**
- * 上傳 ship_data.json 到 S3 ship-data/ 資料夾
+ * 上傳 rail_bundle.json 到 S3 rail-data/ 資料夾
  *
  * 用法：
- *   npm run s3:upload:ships
+ *   npm run s3:upload:rail
+ *
+ * 前置：
+ *   python3 scripts/bundle-rail-data.py  → 產出 public/rail_bundle.json
  *
  * 功能：
- *   1. 讀取本地 public/ship_data.json
- *   2. 上傳整包到 ship-data/YYYY/MM/DD/data.json（以 metadata.date 為路徑）
+ *   1. 讀取本地 public/rail_bundle.json
+ *   2. 上傳到 rail-data/YYYY/MM/DD/bundle.json
  *   3. 產生並上傳 manifest.json
  */
 
@@ -20,7 +23,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const BUCKET = process.env.S3_BUCKET ?? "migu-gis-data-collector";
 const REGION = process.env.S3_REGION ?? "ap-southeast-2";
-const PREFIX = "ship-data";
+const PREFIX = "rail-data";
 
 const s3 = new S3Client({
   region: REGION,
@@ -30,14 +33,17 @@ const s3 = new S3Client({
   },
 });
 
-interface ShipData {
-  metadata: { date: string; ship_count: number; time_range: [number, number] };
-  ships: unknown[];
+interface RailBundle {
+  metadata: {
+    date: string;
+    systems: string[];
+  };
+  systems: Record<string, unknown>;
 }
 
 interface ManifestDate {
   date: string;
-  shipCount: number;
+  systems: string[];
 }
 
 interface Manifest {
@@ -69,33 +75,25 @@ async function getExistingManifest(): Promise<Manifest | null> {
   }
 }
 
-/**
- * 從 metadata.date 解析日期。
- * 格式可能為 "2026-02-18" 或 "2026-02-18 ~ 2026-02-19"，取首日。
- */
-function parseDate(dateStr: string): string {
-  return dateStr.split("~")[0]!.trim();
-}
-
 async function main() {
-  const dataPath = resolve(__dirname, "../public/ship_data.json");
+  const dataPath = resolve(__dirname, "../../public/rail_bundle.json");
   console.log(`Reading ${dataPath}...`);
   const raw = readFileSync(dataPath, "utf-8");
-  const data: ShipData = JSON.parse(raw);
-  console.log(`Total ships: ${data.ships.length}`);
+  const bundle: RailBundle = JSON.parse(raw);
 
-  const date = parseDate(data.metadata.date);
+  const date = bundle.metadata.date;
+  const systems = bundle.metadata.systems;
   const [y, m, d] = date.split("-");
-  const key = `${PREFIX}/${y}/${m}/${d}/data.json`;
+  const key = `${PREFIX}/${y}/${m}/${d}/bundle.json`;
 
-  console.log(`\n[${date}] ${data.ships.length} ships`);
+  console.log(`\n[${date}] systems: ${systems.join(", ")}`);
   await upload(key, raw);
 
   // 合併既有 manifest
   const existing = await getExistingManifest();
   const existingDates = existing?.dates ?? [];
   const dateSet = new Map(existingDates.map((d) => [d.date, d]));
-  dateSet.set(date, { date, shipCount: data.ships.length });
+  dateSet.set(date, { date, systems });
 
   const manifest: Manifest = {
     lastUpdated: new Date().toISOString(),

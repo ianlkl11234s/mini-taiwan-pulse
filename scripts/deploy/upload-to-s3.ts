@@ -84,7 +84,7 @@ async function upload(key: string, body: string): Promise<void> {
 }
 
 async function main() {
-  const dataPath = resolve(__dirname, "../public/aviation_data.json");
+  const dataPath = resolve(__dirname, "../../public/aviation_data.json");
   console.log(`Reading ${dataPath}...`);
   const raw = readFileSync(dataPath, "utf-8");
   const flights: Flight[] = JSON.parse(raw);

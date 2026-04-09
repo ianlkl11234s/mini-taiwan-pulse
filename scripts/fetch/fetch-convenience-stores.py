@@ -54,7 +54,7 @@ BRAND_ALIASES = {
     "OK·mart": "OK Mart",
 }
 
-OUT_PATH = Path(__file__).resolve().parent.parent / "public" / "convenience_stores.geojson"
+OUT_PATH = Path(__file__).resolve().parent.parent.parent / "public" / "convenience_stores.geojson"
 
 
 def fetch_overpass(query: str) -> dict:

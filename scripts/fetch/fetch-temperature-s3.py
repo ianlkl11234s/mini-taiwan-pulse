@@ -17,7 +17,7 @@ from datetime import datetime, timezone, timedelta, date
 
 import boto3
 
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUTPUT = os.path.join(BASE, "public", "temperature_grid.json")
 ENV_FILE = os.path.join(BASE, ".env")
 
