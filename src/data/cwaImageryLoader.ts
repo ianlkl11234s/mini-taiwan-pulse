@@ -29,6 +29,70 @@ export interface CwaImageryBundle {
   frames: CwaImageryFrame[]; // 依 observedAtMs 升序
 }
 
+interface RawBatchRow {
+  dataset_id: string;
+  observed_at: string;
+  mime_type: string;
+  lon_min: number;
+  lon_max: number;
+  lat_min: number;
+  lat_max: number;
+  image_b64: string;
+}
+
+/**
+ * 批次載入 metadata + bytes（一次 RPC 回傳多張），避開「N 個並發 fetch 撐爆網路層」。
+ * 回傳 `{ bundle, urls }` per dataset；呼叫端負責 revokeObjectURL。
+ */
+export async function loadCwaImageryBatch(
+  datasetIds: string[],
+  sinceHours: number,
+): Promise<Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>> {
+  const since = new Date(Date.now() - sinceHours * 3600 * 1000).toISOString();
+  const key = `cwa-imagery-batch:${datasetIds.join(",")}`;
+  const label = `CWA 影像批次載入 ${datasetIds.join("/")}`;
+
+  const { data, error } = await withLoading(
+    key,
+    label,
+    supabase.rpc("get_cwa_imagery_frames_batch", {
+      p_dataset_ids: datasetIds,
+      p_since: since,
+    }),
+  );
+
+  if (error) throw new Error(`get_cwa_imagery_frames_batch: ${error.message}`);
+
+  const rows = (data ?? []) as RawBatchRow[];
+  const result = new Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>();
+  for (const id of datasetIds) {
+    result.set(id, { bundle: { datasetId: id, frames: [] }, urls: new Map() });
+  }
+
+  for (const r of rows) {
+    const slot = result.get(r.dataset_id);
+    if (!slot) continue;
+    slot.bundle.frames.push({
+      datasetId: r.dataset_id,
+      observedAtIso: r.observed_at,
+      observedAtMs: new Date(r.observed_at).getTime(),
+      mimeType: r.mime_type,
+      lonMin: r.lon_min,
+      lonMax: r.lon_max,
+      latMin: r.lat_min,
+      latMax: r.lat_max,
+      imageSize: r.image_b64.length,
+    });
+    slot.urls.set(r.observed_at, base64ToObjectUrl(r.image_b64, r.mime_type));
+  }
+
+  for (const slot of result.values()) {
+    slot.bundle.frames.sort((a, b) => a.observedAtMs - b.observedAtMs);
+  }
+
+  return result;
+}
+
 interface RawListRow {
   dataset_id: string;
   observed_at: string;

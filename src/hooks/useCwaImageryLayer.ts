@@ -14,8 +14,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
-  loadCwaImageryFrames,
-  preloadCwaImageryUrls,
+  loadCwaImageryBatch,
   type CwaImageryBundle,
   type CwaImageryFrame,
 } from "../data/cwaImageryLoader";
@@ -26,8 +25,9 @@ import {
 
 const CLOUD_DATASET = "O-C0042-004";
 const RADAR_DATASET = "O-A0058-005";
-// timeline 會回放整天，只抓過去 24h 會讓早於 24h 前的時段找不到 frame 變成空白。
-// 擴到 48h 確保昨天整天都有覆蓋，配合 cwa_imagery 只保留近 7 天的清理邏輯也還安全。
+// 改用 get_cwa_imagery_frames_batch 單次 RPC 一起回 metadata + bytes，
+// 避開舊版「list + N 個並發 fetch_frame」撐爆瀏覽器網路層的問題。
+// 48h 約 ~448 frames ~57MB base64 payload，1 個 HTTP，2 秒內完成。
 const SINCE_HOURS = 48;
 
 interface LayerState {
@@ -103,30 +103,28 @@ export function useCwaImageryLayer({
 
     (async () => {
       try {
-        const bundles = await loadCwaImageryFrames(datasetsToLoad, SINCE_HOURS);
-        if (cancelled) return;
-
-        // 各自平行預載 bytes
-        await Promise.all(
-          datasetsToLoad.map(async (dsId) => {
-            const bundle = bundles.get(dsId);
-            if (!bundle || bundle.frames.length === 0) {
-              console.warn(`[CWA Imagery] no frames for ${dsId}`);
-              return;
-            }
-            const state = dsId === CLOUD_DATASET ? cloudRef.current : radarRef.current;
-            state.bundle = bundle;
-            const urls = await preloadCwaImageryUrls(bundle);
-            if (cancelled) {
-              // 取消：清理已建立的 object URL
-              for (const u of urls.values()) URL.revokeObjectURL(u);
-              return;
-            }
-            state.urls = urls;
-            state.loaded = true;
+        const batch = await loadCwaImageryBatch(datasetsToLoad, SINCE_HOURS);
+        if (cancelled) {
+          // 取消：清理所有已建立的 object URL
+          for (const slot of batch.values()) {
+            for (const u of slot.urls.values()) URL.revokeObjectURL(u);
+          }
+          return;
+        }
+        for (const dsId of datasetsToLoad) {
+          const slot = batch.get(dsId);
+          const state = dsId === CLOUD_DATASET ? cloudRef.current : radarRef.current;
+          if (!slot || slot.bundle.frames.length === 0) {
+            console.warn(`[CWA Imagery] no frames for ${dsId}`);
             state.loading = false;
-          }),
-        );
+            continue;
+          }
+          state.bundle = slot.bundle;
+          state.urls = slot.urls;
+          state.loaded = true;
+          state.loading = false;
+          console.log(`[CWA Imagery] ${dsId} loaded ${slot.bundle.frames.length} frames`);
+        }
       } catch (err) {
         console.warn("[CWA Imagery] load failed", err);
         if (datasetsToLoad.includes(CLOUD_DATASET)) cloudRef.current.loading = false;
