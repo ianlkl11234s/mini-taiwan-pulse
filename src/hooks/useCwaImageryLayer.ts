@@ -26,7 +26,9 @@ import {
 
 const CLOUD_DATASET = "O-C0042-004";
 const RADAR_DATASET = "O-A0058-005";
-const SINCE_HOURS = 24;
+// timeline 會回放整天，只抓過去 24h 會讓早於 24h 前的時段找不到 frame 變成空白。
+// 擴到 48h 確保昨天整天都有覆蓋，配合 cwa_imagery 只保留近 7 天的清理邏輯也還安全。
+const SINCE_HOURS = 48;
 
 interface LayerState {
   bundle: CwaImageryBundle | null;
