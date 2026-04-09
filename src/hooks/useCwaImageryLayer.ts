@@ -28,7 +28,8 @@ const RADAR_DATASET = "O-A0058-005";
 // 改用 get_cwa_imagery_frames_batch 單次 RPC 一起回 metadata + bytes，
 // 避開舊版「list + N 個並發 fetch_frame」撐爆瀏覽器網路層的問題。
 // 48h 約 ~448 frames ~57MB base64 payload，1 個 HTTP，2 秒內完成。
-const SINCE_HOURS = 48;
+// 降到 24h 減少 egress + DB IO 壓力
+const SINCE_HOURS = 24;
 
 interface LayerState {
   bundle: CwaImageryBundle | null;
