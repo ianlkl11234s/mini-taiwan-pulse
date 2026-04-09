@@ -62,7 +62,7 @@ export default function App() {
   // 燈塔座標
   const [lighthousePositions, setLighthousePositions] = useState<[number, number][]>([]);
   useEffect(() => {
-    fetch("./lighthouse.geojson")
+    fetch("./geo/lighthouse.geojson")
       .then((r) => r.json())
       .then((geojson: GeoJSON.FeatureCollection<GeoJSON.Point>) => {
         const positions = geojson.features.map((f) => f.geometry.coordinates.slice(0, 2) as [number, number]);
@@ -152,7 +152,7 @@ export default function App() {
       RCBS: 0.45, RCNN: 0.35, RCFN: 0.3, RCKU: 0.25,
       RCLY: 0.2, RCGI: 0.2, RCMT: 0.2, RCFG: 0.2,
     };
-    fetch("./airports.geojson")
+    fetch("./geo/airports.geojson")
       .then((r) => r.json())
       .then((geojson: GeoJSON.FeatureCollection) => {
         const data: StationPillarData[] = geojson.features.map((f) => {
@@ -172,7 +172,7 @@ export default function App() {
 
   // 碼頭光柱 — 從 port_polygons.geojson 算質心
   useEffect(() => {
-    fetch("./port_polygons.geojson")
+    fetch("./geo/port_polygons.geojson")
       .then((r) => r.json())
       .then((geojson: GeoJSON.FeatureCollection) => {
         const data: StationPillarData[] = geojson.features.map((f) => {

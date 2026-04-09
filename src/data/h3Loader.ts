@@ -104,7 +104,7 @@ export async function loadH3Population(resolution: number): Promise<H3DataSet> {
 
   // Try local first
   try {
-    const res = await fetch(`./${filename}`);
+    const res = await fetch(`./h3/${filename}`);
     if (res.ok) {
       const data: H3DataSet = await res.json();
       cache.set(resolution, data);
@@ -127,7 +127,7 @@ export async function loadH3Demographics(resolution: number): Promise<Demographi
   const filename = `h3_demographics_res${resolution}.json`;
 
   try {
-    const res = await fetch(`./${filename}`);
+    const res = await fetch(`./h3/${filename}`);
     if (res.ok) {
       const data: DemographicH3DataSet = await res.json();
       demographicsCache.set(resolution, data);
@@ -151,7 +151,7 @@ export async function loadH3Socioeconomic(resolution: number): Promise<Socioecon
   const empty: SocioeconomicH3DataSet = { metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] }, cells: [] };
 
   try {
-    const res = await fetch(`./${filename}`);
+    const res = await fetch(`./h3/${filename}`);
     if (res.ok) {
       const data: SocioeconomicH3DataSet = await res.json();
       socioeconomicCache.set(resolution, data);
@@ -175,7 +175,7 @@ export async function loadH3SpatialEconomy(resolution: number): Promise<SpatialE
   const empty: SpatialEconomyH3DataSet = { metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] }, cells: [] };
 
   try {
-    const res = await fetch(`./${filename}`);
+    const res = await fetch(`./h3/${filename}`);
     if (res.ok) {
       const data: SpatialEconomyH3DataSet = await res.json();
       spatialEconomyCache.set(resolution, data);

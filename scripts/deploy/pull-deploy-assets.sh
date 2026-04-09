@@ -9,13 +9,33 @@ export AWS_DEFAULT_REGION="${S3_REGION:-ap-southeast-2}"
 BUCKET="${S3_BUCKET:-migu-gis-data-collector}"
 PREFIX="deploy-assets"
 DATA_DIR="/data"
-mkdir -p "$DATA_DIR"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3"
 
-FILES="aviation_data.json ship_data.json provincial_road.geojson national_highway.geojson bus_stations_city.geojson bus_stations_intercity.geojson bike_stations.geojson cycling_routes.geojson freeway_congestion.geojson weather_stations.geojson h3_demographics_res8.json h3_population_res8.json schools.geojson convenience_stores.geojson active_faults.geojson"
+# 採扁平 S3 + 本地分目錄方案：S3 路徑維持 deploy-assets/xxx.ext，
+# 下載時依檔案類型落到對應子目錄對應前端 public/{geo,h3}/ 結構
 
-for f in $FILES; do
-  echo "Pulling $f..."
+# Root 層：動態資料檔
+ROOT_FILES="aviation_data.json ship_data.json"
+
+# geo/ 層：靜態 GeoJSON
+GEO_FILES="provincial_road.geojson national_highway.geojson bus_stations_city.geojson bus_stations_intercity.geojson bike_stations.geojson cycling_routes.geojson freeway_congestion.geojson weather_stations.geojson schools.geojson convenience_stores.geojson active_faults.geojson"
+
+# h3/ 層：H3 預聚合
+H3_FILES="h3_demographics_res8.json h3_population_res8.json"
+
+for f in $ROOT_FILES; do
+  echo "Pulling $f → $DATA_DIR/$f"
   aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/$f"
+done
+
+for f in $GEO_FILES; do
+  echo "Pulling $f → $DATA_DIR/geo/$f"
+  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
+done
+
+for f in $H3_FILES; do
+  echo "Pulling $f → $DATA_DIR/h3/$f"
+  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/h3/$f"
 done
 
 # Rail 個別檔案（從 tar.gz 解壓）
