@@ -6,7 +6,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
   {
     id: "stationsTHSR",
-    sourceUrl: "./station_polygons.geojson",
+    sourceUrl: "./geo/station_polygons.geojson",
     sourceId: "station-polygons",
     filter: ["==", ["get", "system_id"], "thsr"],
     layers: [
@@ -53,7 +53,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── TRA Station Polygon (台鐵大站) ──
   {
     id: "stationsTRA",
-    sourceUrl: "./station_polygons.geojson",
+    sourceUrl: "./geo/station_polygons.geojson",
     sourceId: "station-polygons",
     filter: ["==", ["get", "system_id"], "tra"],
     layers: [
@@ -100,7 +100,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── TRA Station Points (台鐵小站) ──
   {
     id: "stationsTRA",
-    sourceUrl: "./station_points.geojson",
+    sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["==", ["get", "system_id"], "tra"],
     rebuildOnParamChange: ["tra-pt-glow-2", "tra-pt-glow-1", "tra-pt-fill"],
@@ -155,7 +155,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Metro Station Points (捷運/輕軌站) ──
   {
     id: "stationsMetro",
-    sourceUrl: "./station_points.geojson",
+    sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
     rebuildOnParamChange: ["metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
@@ -210,7 +210,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Ports ──
   {
     id: "ports",
-    sourceUrl: "./port_polygons.geojson",
+    sourceUrl: "./geo/port_polygons.geojson",
     sourceId: "port-polygons",
     rebuildOnParamChange: ["glow-2", "glow-1"],
     layers: [
@@ -263,7 +263,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Lighthouses ──
   {
     id: "lighthouses",
-    sourceUrl: "./lighthouse.geojson",
+    sourceUrl: "./geo/lighthouse.geojson",
     sourceId: "lighthouses",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -306,7 +306,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── National Highway (國道) ──
   {
     id: "highways",
-    sourceUrl: "./national_highway.geojson",
+    sourceUrl: "./geo/national_highway.geojson",
     sourceId: "national-highways",
     rebuildOnParamChange: ["glow", "line"],
     layers: [
@@ -346,7 +346,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Provincial Road (省道) ──
   {
     id: "provincialRoads",
-    sourceUrl: "./provincial_road.geojson",
+    sourceUrl: "./geo/provincial_road.geojson",
     sourceId: "provincial-roads",
     rebuildOnParamChange: ["glow", "line"],
     layers: [
@@ -386,7 +386,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Wind Plan (離岸風電) ──
   {
     id: "windPlan",
-    sourceUrl: "./wind_plan.geojson",
+    sourceUrl: "./geo/wind_plan.geojson",
     sourceId: "wind-plan",
     layers: [
       {
@@ -422,7 +422,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bus Stations (City) ──
   {
     id: "busStationsCity",
-    sourceUrl: "./bus_stations_city.geojson",
+    sourceUrl: "./geo/bus_stations_city.geojson",
     sourceId: "bus-stations-city",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -468,7 +468,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bus Stations (Intercity) ──
   {
     id: "busStationsIntercity",
-    sourceUrl: "./bus_stations_intercity.geojson",
+    sourceUrl: "./geo/bus_stations_intercity.geojson",
     sourceId: "bus-stations-intercity",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -514,7 +514,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bike Stations ──
   {
     id: "bikeStations",
-    sourceUrl: "./bike_stations.geojson",
+    sourceUrl: "./geo/bike_stations.geojson",
     sourceId: "bike-stations",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -560,7 +560,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Cycling Routes (自行車道) ──
   {
     id: "cyclingRoutes",
-    sourceUrl: "./cycling_routes.geojson",
+    sourceUrl: "./geo/cycling_routes.geojson",
     sourceId: "cycling-routes",
     rebuildOnParamChange: ["glow", "line"],
     layers: [
@@ -604,7 +604,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Weather Stations (氣象站) ──
   {
     id: "weatherStations",
-    sourceUrl: "./weather_stations.geojson",
+    sourceUrl: "./geo/weather_stations.geojson",
     sourceId: "weather-stations",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -650,7 +650,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Airports ──
   {
     id: "airports",
-    sourceUrl: "./airports.geojson",
+    sourceUrl: "./geo/airports.geojson",
     sourceId: "airport-boundaries",
     layers: [
       {
@@ -708,7 +708,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // cable_type 分色：國際幹線 藍、海峽專線 紅、離島連接 綠、中國境內 橘、規劃中 灰
   {
     id: "submarineCables",
-    sourceUrl: "./submarine_cables.geojson",
+    sourceUrl: "./geo/submarine_cables.geojson",
     sourceId: "submarine-cables",
     layers: [
       {
@@ -758,7 +758,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // station_type 分色：國際樞紐 藍、區域節點 青、端點 灰
   {
     id: "landingStations",
-    sourceUrl: "./landing_stations.geojson",
+    sourceUrl: "./geo/landing_stations.geojson",
     sourceId: "landing-stations",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -814,7 +814,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Schools (學校) ──
   {
     id: "schools",
-    sourceUrl: "./schools.geojson",
+    sourceUrl: "./geo/schools.geojson",
     sourceId: "schools",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -873,7 +873,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Convenience Stores (超商) ──
   {
     id: "convenienceStores",
-    sourceUrl: "./convenience_stores.geojson",
+    sourceUrl: "./geo/convenience_stores.geojson",
     sourceId: "convenience-stores",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -919,7 +919,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── News Events (新聞事件) ──
   {
     id: "newsEvents",
-    sourceUrl: "./news_events.geojson",
+    sourceUrl: "./geo/news_events.geojson",
     sourceId: "news-events",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
@@ -970,7 +970,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Active Faults (活動斷層地質敏感區) ──
   {
     id: "activeFaults",
-    sourceUrl: "./active_faults.geojson",
+    sourceUrl: "./geo/active_faults.geojson",
     sourceId: "active-faults",
     layers: [
       {
