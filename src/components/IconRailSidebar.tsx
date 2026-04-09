@@ -6,6 +6,7 @@ import {
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol, Thermometer,
   GraduationCap, Store, Play, Cable, Radio, Mountain,
+  Cloud, CloudRain,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -36,6 +37,10 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   activeFaults: "#ef5350",
   newsEvents: "#ff9800",
   youbikeFullness: "#f57c00",
+  earthquakes: "#ff3b30",
+  disasterAlerts: "#dc2626",
+  cwaCloudImagery: "#b0c4de",
+  cwaRadarImagery: "#4fc3f7",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -74,6 +79,10 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   activeFaults: Mountain,
   newsEvents: Radio,
   youbikeFullness: Bike,
+  earthquakes: Activity,
+  disasterAlerts: AlertTriangle,
+  cwaCloudImagery: Cloud,
+  cwaRadarImagery: CloudRain,
 };
 
 // ── Section Config ──
@@ -144,6 +153,8 @@ const SECTIONS: SectionDef[] = [
       { key: "weatherStations", label: "氣象站 Weather", expandable: true },
       { key: "windPlan", label: "風電場 Wind Farm", expandable: true },
       { key: "temperatureWave", label: "溫度波 Temperature", expandable: true },
+      { key: "cwaCloudImagery", label: "衛星雲圖 Cloud", expandable: true },
+      { key: "cwaRadarImagery", label: "雷達回波 Radar", expandable: true },
     ],
   },
   {
@@ -157,6 +168,8 @@ const SECTIONS: SectionDef[] = [
     title: "HAZARD",
     layers: [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
+      { key: "earthquakes", label: "地震 Earthquake" },
+      { key: "disasterAlerts", label: "災害示警 Disaster Alerts" },
     ],
   },
   {

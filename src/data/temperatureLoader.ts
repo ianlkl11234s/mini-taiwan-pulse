@@ -3,6 +3,7 @@
  */
 
 import { supabase, todayTaiwan } from "../lib/supabase";
+import { withLoading } from "../lib/loadingRegistry";
 
 export interface TemperatureGridData {
   metadata: {
@@ -59,10 +60,14 @@ export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
     targetDate = (dates as { date: string }[])[dates.length - 1]!.date;
   }
 
-  const [gridRes, framesRes] = await Promise.all([
-    supabase.rpc("get_temperature_grid_info", { target_date: targetDate }),
-    supabase.rpc("get_temperature_frames", { target_date: targetDate }),
-  ]);
+  const [gridRes, framesRes] = await withLoading(
+    `temperature:${targetDate}`,
+    `溫度網格 ${targetDate}`,
+    Promise.all([
+      supabase.rpc("get_temperature_grid_info", { target_date: targetDate }),
+      supabase.rpc("get_temperature_frames", { target_date: targetDate }),
+    ]),
+  );
 
   if (gridRes.error) throw new Error(`get_temperature_grid_info: ${gridRes.error.message}`);
   if (framesRes.error) throw new Error(`get_temperature_frames: ${framesRes.error.message}`);

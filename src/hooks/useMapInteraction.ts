@@ -98,6 +98,7 @@ export function useMapInteraction(
           { layers: ["station-points-metro-pt-fill", "station-points-metro-pt-glow-1", "station-points-metro-pt-glow-2"], type: "railStation" },
           { layers: ["active-faults-fill", "active-faults-line", "active-faults-glow"], type: "activeFault" },
           { layers: ["news-events-circle", "news-events-glow"], type: "newsEvent" },
+          { layers: ["disasterAlerts-fill", "disasterAlerts-line", "disasterAlerts-point"], type: "disasterAlert" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],
@@ -129,15 +130,30 @@ export function useMapInteraction(
       );
       if (flightId) {
         e.preventDefault();
-        setSelectedFlightId(flightId);
+        // 再次雙擊同一架 → 取消跟隨
+        setSelectedFlightId((prev) => (prev === flightId ? null : flightId));
         setTooltipInfo(null);
         setTrainTooltipInfo(null);
       }
     });
 
+    // 使用者主動拖曳 / 滾輪縮放 / 旋轉 → 解除跟隨
     map.on("dragstart", () => setSelectedFlightId(null));
+    map.on("wheel", () => setSelectedFlightId(null));
+    map.on("rotatestart", () => setSelectedFlightId(null));
+    map.on("pitchstart", () => setSelectedFlightId(null));
     map.on("move", () => { setTooltipInfo(null); setTrainTooltipInfo(null); });
   };
+
+  // ESC 鍵取消跟隨
+  useEffect(() => {
+    if (!selectedFlightId) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedFlightId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [selectedFlightId]);
 
   // 雙擊追蹤：相機鎖定飛機
   useEffect(() => {

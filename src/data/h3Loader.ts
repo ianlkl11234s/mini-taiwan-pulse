@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { withLoading } from "../lib/loadingRegistry";
 
 export interface H3CellData {
   h: string; // H3 index
@@ -200,10 +201,14 @@ export async function loadH3DemographicsYearly(
   const cached = demographicsYearlyCache.get(cacheKey);
   if (cached) return cached;
 
-  const { data, error } = await supabase.rpc("get_h3_demographics_yearly", {
-    target_year: year,
-    target_resolution: resolution,
-  });
+  const { data, error } = await withLoading(
+    `h3-demo:${year}:r${resolution}`,
+    `H3 人口 ${year}`,
+    supabase.rpc("get_h3_demographics_yearly", {
+      target_year: year,
+      target_resolution: resolution,
+    }),
+  );
   if (error) {
     console.warn(`[H3-DemoYearly] Supabase RPC error:`, error.message);
     return [];

@@ -95,7 +95,9 @@ export type ExpandableLayerKey =
   | "submarineCables" | "landingStations"
   | "activeFaults"
   | "newsEvents"
-  | "youbikeFullness";
+  | "youbikeFullness"
+  | "cwaCloudImagery"
+  | "cwaRadarImagery";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -223,7 +225,7 @@ export interface OverlayConfig {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport" | "activeFault" | "newsEvent";
+    | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert";
   properties: Record<string, unknown>;
 }
 
@@ -261,4 +263,8 @@ export interface LayerVisibility {
   activeFaults: boolean;
   newsEvents: boolean;
   youbikeFullness: boolean;
+  earthquakes: boolean;
+  disasterAlerts: boolean;
+  cwaCloudImagery: boolean;
+  cwaRadarImagery: boolean;
 }

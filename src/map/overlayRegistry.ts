@@ -598,44 +598,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── Freeway Congestion (國道壅塞) ──
-  {
-    id: "freewayCongestion",
-    sourceUrl: "./freeway_congestion.geojson",
-    sourceId: "freeway-congestion",
-    rebuildOnParamChange: ["glow", "line"],
-    layers: [
-      {
-        suffix: "glow",
-        type: "line",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: (_isDark, params) => {
-          const w = params?.freewayWidth ?? 1;
-          return {
-            "line-color": ["get", "CongestionColor"] as unknown as string,
-            "line-width": 8 * w,
-            "line-blur": 6,
-            "line-opacity": _isDark ? 0.08 : 0.12,
-          };
-        },
-      },
-      {
-        suffix: "line",
-        type: "line",
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: (_isDark, params) => {
-          const w = params?.freewayWidth ?? 1;
-          return {
-            "line-color": ["get", "CongestionColor"] as unknown as string,
-            "line-width": [
-              "interpolate", ["linear"], ["zoom"],
-              6, 0.5 * w, 10, 1.5 * w, 13, 3 * w, 16, 5 * w,
-            ],
-            "line-opacity": _isDark ? 0.7 : 0.6,
-          };
-        },
-      },
-    ],
-  },
+  // 已改由 useFreewayLayer (src/hooks/useFreewayLayer.ts) 動態管理：
+  // 從 Supabase realtime.freeway_sections 依 timeline 回放，不再使用靜態 GeoJSON
 
   // ── Weather Stations (氣象站) ──
   {

@@ -15,6 +15,10 @@ import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
+import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
+import { useFreewayLayer } from "./hooks/useFreewayLayer";
+import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
+import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
@@ -35,6 +39,7 @@ import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
+import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
 
 export default function App() {
@@ -315,6 +320,31 @@ export default function App() {
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, timeline.currentTime, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
+
+  // ── Earthquake events timeline ──
+  useEarthquakeLayer(mapRef, timeline.currentTime, layerVisibility.earthquakes);
+
+  // ── NCDR Disaster Alerts timeline ──
+  useDisasterAlertLayer(mapRef, timeline.currentTime, layerVisibility.disasterAlerts);
+
+  // ── CWA 衛星雲圖 / 雷達回波 ──
+  useCwaImageryLayer({
+    mapRef,
+    currentTime: timeline.currentTime,
+    cloudVisible: layerVisibility.cwaCloudImagery,
+    radarVisible: layerVisibility.cwaRadarImagery,
+    cloudOpacity: transportParams.cwaCloudOpacity,
+    radarOpacity: transportParams.cwaRadarOpacity,
+  });
+
+  // ── Freeway congestion (動態 timeline 回放) ──
+  useFreewayLayer(
+    mapRef,
+    timeline.currentTime,
+    layerVisibility.freewayCongestion,
+    transportParams.overlayParams.freewayWidth ?? 1,
+    isDarkTheme,
+  );
 
   // ── Derived values ──
 
@@ -1238,6 +1268,9 @@ export default function App() {
       {featureInfo && (
         <FeatureInfoPanel feature={featureInfo} onClose={() => setFeatureInfo(null)} />
       )}
+
+      {/* ── 全域 loading 指示器 ── */}
+      <LoadingIndicator />
 
       {/* ── Info Modal ── */}
       <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} />

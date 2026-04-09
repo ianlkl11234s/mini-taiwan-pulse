@@ -5,6 +5,7 @@
 
 import type { Flight, TrailPoint } from "../types";
 import { supabase, todayTaiwan } from "../lib/supabase";
+import { withLoading } from "../lib/loadingRegistry";
 
 export interface AirspaceDateInfo {
   date: string;
@@ -68,7 +69,11 @@ export async function fetchAirspaceDates(): Promise<AirspaceDateInfo[]> {
 /** 載入單日空域快照 */
 export async function fetchAirspaceDayArrow(date: string): Promise<AirspaceData> {
   const t0 = performance.now();
-  const { data, error } = await supabase.rpc("get_flight_trails", { target_date: date });
+  const { data, error } = await withLoading(
+    `airspace:${date}`,
+    `航班軌跡 ${date}`,
+    supabase.rpc("get_flight_trails", { target_date: date }),
+  );
   if (error) throw new Error(`Supabase get_flight_trails: ${error.message}`);
 
   const rows = data as {

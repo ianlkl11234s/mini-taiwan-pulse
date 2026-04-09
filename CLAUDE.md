@@ -26,6 +26,7 @@ npx tsc -b   # 使用 project references，不要用 tsc --noEmit
 | CWA 溫度網格 | `get_temperature_dates/grid_info/frames` | temperatureLoader |
 | YouBike H3 聚合 | `get_youbike_h3_dates/snapshots` | youbikeH3Loader |
 | H3 歷年人口 | `get_h3_demographics_years/yearly` | h3Loader |
+| 國道壅塞 | `get_freeway_dates` / `get_freeway_congestion_day(target_date)` | useFreewayLayer |
 
 ### Supabase 表（前端可直接查詢）
 | Schema | 表 | 用途 | 資料狀態 |

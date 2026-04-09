@@ -66,7 +66,7 @@
 | 國道路網 | line（紅色，zoom 自適應寬度） | 交通部公路局 |
 | 省道路網 | line（橘色，zoom 自適應寬度） | 交通部公路局 |
 | 自行車道 | line（綠色，zoom 自適應寬度） | 交通部 |
-| 國道壅塞 | line（色彩編碼壅塞程度） | 交通部公路局 |
+| 國道壅塞 | line（色彩編碼壅塞等級，依 timeline 動態回放） | 交通部公路局 TDX → Supabase `realtime.freeway_sections` |
 | 氣象觀測站 | circle dot + glow | 中央氣象署 |
 | 離岸風場範圍 | fill + line + glow | 經濟部能源局 |
 | 人流模擬六角格 | Mapbox fill / fill-extrusion（Plasma / Viridis 色階） | 內政部最小統計區人流 |
@@ -74,6 +74,8 @@
 | 人口指標六角格 | Mapbox fill / fill-extrusion（Inferno 色階，9 項指標） | SEGIS 村里人口統計 |
 | 溫度波浪曲面 | Three.js BufferGeometry（RdBu 發散色盤，vertex lerp 動畫） | 中央氣象署 0.03° 格點 |
 | 新聞事件標記 | Mapbox circle + glow（主要/次要新聞分色） | 中央通訊社 CNA RSS + Gemini API 地理編碼 |
+| 地震事件 | circle（規模/深度色階 + ripple 動畫，依 timeline 累積） | CWA 地震目錄 → Supabase `realtime.earthquake_events` |
+| 災害示警 | fill + line + circle（severity 色階，依 timeline 動態 active 過濾） | NCDR CAP feed → Supabase `realtime.disaster_alerts`（geom 用 `spatial.boundaries` 鄉鎮/縣市 fallback） |
 
 ## 功能
 
@@ -91,7 +93,7 @@
 | **ANALYTICS** | 人流模擬 Pop. Flow · 人口數 Population · 人口指標 Indicators（可展開） |
 | **MONITOR** | 國道壅塞 Congestion（可展開） |
 | **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm · 溫度波 Temperature（可展開） |
-| **HAZARD** | 活動斷層 Fault（可展開） |
+| **HAZARD** | 活動斷層 Fault（可展開）· 地震 Earthquake · 災害示警 Disaster Alerts |
 
 - MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
 - 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
@@ -238,6 +240,15 @@
 - 各項獨立打勾：✓ 完成（藍色 + 數量）、⟳ 進行中（旋轉動畫）、○ 等待中（灰色）
 - 底部真實進度條（done/total），非假動畫
 - 全部完成後才顯示地圖 UI 並自動播放時間軸，確保「一打開就是可使用狀態」
+
+### 全域 Loading 指示器（LoadingIndicator）
+
+所有透過 Supabase 的非同步資料載入（船舶 / 航班 / 國道壅塞 / 災害示警 / 地震 / 溫度 / YouBike / H3 人口）會自動在右上角顯示進度浮層，告知使用者目前正在撈取哪些資料：
+
+- `src/lib/loadingRegistry.ts` — 全域 task store + `withLoading()` 包裝函式
+- `src/hooks/useLoadingTasks.ts` — `useSyncExternalStore` 訂閱
+- `src/components/LoadingIndicator.tsx` — 半透明 HUD 浮層（spinner + 任務列表）
+- 各 loader 透過 `withLoading(id, label, supabase.rpc(...))` 自動 start/end，cache hit 不會觸發
 
 ### 其他功能
 
