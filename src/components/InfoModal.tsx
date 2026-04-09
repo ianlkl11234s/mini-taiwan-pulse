@@ -394,13 +394,32 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <Card title={L ? "國道壅塞 Congestion" : "Freeway Congestion"}>
         <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
           {L
-            ? "預設關閉。以色彩編碼顯示國道各路段壅塞程度（顏色從資料欄位取得）。"
-            : "Off by default. Color-coded display of freeway congestion levels (colors derived from data fields)."}
+            ? "預設關閉。依 timeline 動態回放國道各路段壅塞程度，以色彩編碼顯示（順暢 / 壅塞 / 嚴重壅塞）。資料源：交通部 TDX → Supabase `realtime.freeway_congestion_daily`（pre-aggregate 每 20 分鐘 refresh）。"
+            : "Off by default. Dynamically plays back freeway segment congestion levels along the timeline with color coding (free / congested / heavy). Source: MOTC TDX → Supabase `realtime.freeway_congestion_daily` (pre-aggregated, refreshed every 20 minutes)."}
         </div>
         <ExpandableParams lang={lang} items={[
           { label: "Freeway", zh: "線條寬度倍率（0.3~3x）。放大讓壅塞路段更醒目。", en: "Line width multiplier (0.3–3×). Increase to make congested segments more visible." },
         ]} />
       </Card>
+
+      {/* HAZARD */}
+      <SectionTitle>HAZARD — {L ? "災害" : "Hazards"}</SectionTitle>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <Card title={L ? "地震事件 Earthquake" : "Earthquake Events"}>
+          <div style={{ color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設開啟。依 timeline 當天累積顯示地震事件，圓圈大小對應規模、顏色對應深度，附 ripple 動畫。資料源：CWA 地震目錄 → Supabase `realtime.earthquake_events`。"
+              : "Enabled by default. Accumulates earthquake events for the selected timeline date. Circle size scales with magnitude, color reflects depth, with ripple animation. Source: CWA earthquake catalog → Supabase `realtime.earthquake_events`."}
+          </div>
+        </Card>
+        <Card title={L ? "災害示警 Disaster Alerts" : "Disaster Alerts"}>
+          <div style={{ color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設開啟。NCDR CAP feed 彙整颱風、豪雨、強風、枯旱、水庫放流等示警，依 timeline 動態顯示生效中範圍。幾何用鄉鎮/縣市 boundaries fallback 解析。資料源：NCDR CAP → Supabase `realtime.disaster_alerts`。"
+              : "Enabled by default. Aggregates NCDR CAP alerts (typhoon, heavy rain, strong wind, drought, reservoir release, etc.), dynamically filtering active alerts by timeline. Geometry resolved via township/county boundaries fallback. Source: NCDR CAP → Supabase `realtime.disaster_alerts`."}
+          </div>
+        </Card>
+      </div>
 
       {/* ANALYTICS */}
       <SectionTitle>ANALYTICS — {L ? "分析" : "Analytics"}</SectionTitle>
@@ -521,6 +540,20 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
             { label: "Grid", zh: "網格線覆蓋開關。", en: "Grid line overlay toggle." },
           ]} />
         </Card>
+        <Card title={L ? "衛星雲圖 Cloud Imagery" : "Cloud Imagery"}>
+          <div style={{ color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設開啟。CWA 衛星雲圖 PNG frame 序列，依 timeline 回放最近 24 小時。資料源：CWA File API `O-C0042-*` → Supabase `realtime.cwa_imagery_frames`（透過 `get_cwa_imagery_frames_batch` 批次 RPC 一次載入所有 frame bytes）。"
+              : "Enabled by default. CWA satellite cloud imagery PNG frame sequence, played back along the timeline over the last 24 hours. Source: CWA File API `O-C0042-*` → Supabase `realtime.cwa_imagery_frames` (loaded via `get_cwa_imagery_frames_batch` batch RPC)."}
+          </div>
+        </Card>
+        <Card title={L ? "雷達回波 Radar Imagery" : "Radar Imagery"}>
+          <div style={{ color: S.text, fontSize: 12 }}>
+            {L
+              ? "預設開啟。CWA 雷達回波合成圖 PNG frame，依 timeline 回放最近 24 小時。資料源：CWA File API `O-A0058-*` → Supabase `realtime.cwa_imagery_frames`。"
+              : "Enabled by default. CWA composite radar echo PNG frames, played back along the timeline over the last 24 hours. Source: CWA File API `O-A0058-*` → Supabase `realtime.cwa_imagery_frames`."}
+          </div>
+        </Card>
       </div>
 
       {/* 面板操作說明 */}
@@ -607,8 +640,32 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
     {
       name: { zh: "國道壅塞", en: "Freeway Congestion" },
       source: L ? "交通部公路局" : "Directorate General of Highways",
-      desc: { zh: "國道各路段即時壅塞程度資料，以色彩編碼顯示車流狀態。資料來自交通部公路局即時路況系統。", en: "Real-time freeway congestion data by road segment, color-coded to display traffic flow status. Data from the Directorate General of Highways real-time traffic system." },
+      desc: { zh: "國道各路段壅塞程度依 timeline 動態回放。資料來自交通部 TDX，存入 Supabase `realtime.freeway_congestion_daily` 預聚合表，每 20 分鐘 refresh。", en: "Freeway segment congestion levels played back dynamically along the timeline. Data from MOTC TDX, stored in Supabase `realtime.freeway_congestion_daily` pre-aggregate (refreshed every 20 minutes)." },
       color: "#FF6B35",
+    },
+    {
+      name: { zh: "地震事件", en: "Earthquakes" },
+      source: "CWA Earthquake Catalog",
+      desc: { zh: "中央氣象署地震目錄，每筆事件含規模、深度、震央座標與發生時間。存入 Supabase `realtime.earthquake_events`，前端依 timeline 當天累積顯示。", en: "CWA earthquake catalog; each event includes magnitude, depth, epicenter, and origin time. Stored in Supabase `realtime.earthquake_events`, accumulated for the selected timeline date." },
+      color: "#e53935",
+    },
+    {
+      name: { zh: "災害示警", en: "Disaster Alerts" },
+      source: "NCDR CAP Feed",
+      desc: { zh: "國家災害防救科技中心 CAP 示警彙整，包含颱風、豪雨、強風、枯旱、水庫放流等。幾何用鄉鎮/縣市 boundaries fallback 解析，存入 Supabase `realtime.disaster_alerts`。", en: "NCDR Common Alerting Protocol feed covering typhoon, heavy rain, strong wind, drought, reservoir release, etc. Geometry resolved via township/county boundaries fallback, stored in Supabase `realtime.disaster_alerts`." },
+      color: "#ffb300",
+    },
+    {
+      name: { zh: "衛星雲圖", en: "Cloud Imagery" },
+      source: "CWA File API (O-C0042)",
+      desc: { zh: "中央氣象署衛星雲圖 PNG frame 序列，每 10 分鐘一張，存入 Supabase `realtime.cwa_imagery_frames`，前端依 timeline 回放最近 24 小時。", en: "CWA satellite cloud imagery PNG frames (~10 min cadence), stored in Supabase `realtime.cwa_imagery_frames`, played back along the timeline over the last 24 hours." },
+      color: "#90caf9",
+    },
+    {
+      name: { zh: "雷達回波", en: "Radar Imagery" },
+      source: "CWA File API (O-A0058)",
+      desc: { zh: "中央氣象署雷達回波合成圖 PNG frame，存入 Supabase `realtime.cwa_imagery_frames`，依 timeline 回放最近 24 小時。", en: "CWA composite radar echo PNG frames, stored in Supabase `realtime.cwa_imagery_frames`, played back along the timeline over the last 24 hours." },
+      color: "#26c6da",
     },
     {
       name: { zh: "新聞事件", en: "News Events" },
