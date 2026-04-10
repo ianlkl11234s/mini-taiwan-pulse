@@ -293,7 +293,17 @@ export default function App() {
   playingRef.current = timeline.playing;
 
   const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef);
-  const { busCount, activeBusesRef } = useBusLayer(layerVisibility.busLive);
+  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode);
+
+  // 公車 replay: 跨日載入歷史軌跡
+  useEffect(() => {
+    if (!layerVisibility.busLive || timeline.timeMode !== "replay") return;
+    if (timeline.currentTime <= 0) return;
+    const dayStr = new Date(timeline.currentTime * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    loadBusTrailDay(dayStr);
+  }, [timeline.currentTime, timeline.timeMode, layerVisibility.busLive, loadBusTrailDay]);
+
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();

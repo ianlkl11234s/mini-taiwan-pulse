@@ -1,26 +1,48 @@
 /**
- * 公車即時圖層 hook — 管理路線載入、GPS polling、per-frame 插值
+ * 公車圖層 hook — Live (GPS polling) + Replay (歷史軌跡)
+ *
+ * 單一 toggle，依 timeMode 自動切換：
+ *   live   → 30s poll bus_current，用 Date.now()
+ *   replay → 載入 bus_trails_daily，用 timeRef.current
  */
 
-import { useEffect, useRef, useState } from "react";
-import type { BusVehicle, BusRouteData } from "../types";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { BusVehicle, BusRouteData, BusTrail, TimeMode } from "../types";
 import { BusEngine } from "../engines/BusEngine";
-import { loadBusRoutes, fetchBusCurrent } from "../data/busLoader";
+import { loadBusRoutes, fetchBusCurrent, fetchBusTrails } from "../data/busLoader";
 
 /** Supabase polling 間隔 (ms) */
 const POLL_INTERVAL = 30_000;
+/** LRU cache 最大天數 */
+const MAX_CACHED_DAYS = 3;
 
-export function useBusLayer(enabled: boolean) {
+interface CachedDay {
+  date: string;
+  trails: BusTrail[];
+}
+
+export function useBusLayer(
+  enabled: boolean,
+  timeRef: React.RefObject<number>,
+  timeMode: TimeMode,
+) {
   const routeDataRef = useRef<BusRouteData | null>(null);
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
   const [busCount, setBusCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // Replay LRU cache
+  const cacheRef = useRef<CachedDay[]>([]);
+  const loadedDayRef = useRef<string>("");
+  const fetchingDayRef = useRef<string>("");
+
+  const isLive = timeMode === "live";
+
   // 載入靜態路線（lazy，首次啟用時）
   useEffect(() => {
     if (!enabled) return;
-    if (routeDataRef.current) return; // 已載入
+    if (routeDataRef.current) return;
 
     let cancelled = false;
     setLoading(true);
@@ -41,9 +63,12 @@ export function useBusLayer(enabled: boolean) {
     return () => { cancelled = true; };
   }, [enabled]);
 
-  // Polling bus_current
+  // ── Live: Polling bus_current ──
   useEffect(() => {
-    if (!enabled || !engineRef.current) return;
+    if (!enabled || !isLive || !engineRef.current) return;
+
+    // 切到 live 時清空 replay 資料
+    engineRef.current.clearReplay();
 
     let isFetching = false;
     let cancelled = false;
@@ -64,7 +89,6 @@ export function useBusLayer(enabled: boolean) {
       }
     };
 
-    // 首次立即 poll
     poll();
     const interval = setInterval(poll, POLL_INTERVAL);
 
@@ -72,10 +96,55 @@ export function useBusLayer(enabled: boolean) {
       cancelled = true;
       clearInterval(interval);
     };
-  }, [enabled, engineRef.current !== null]);
+  }, [enabled, isLive, engineRef.current !== null]);
 
-  // Per-frame animation loop
-  // 公車即時模式永遠用真實時間（不受 timeline replay 影響）
+  // ── Replay: loadDay callback ──
+  const loadDay = useCallback(async (dateStr: string) => {
+    if (!engineRef.current || !enabled || isLive) return;
+    if (loadedDayRef.current === dateStr) return;
+    if (fetchingDayRef.current === dateStr) return; // 防重複 fetch
+
+    // 檢查 cache
+    const cached = cacheRef.current.find((c) => c.date === dateStr);
+    if (cached) {
+      loadedDayRef.current = dateStr;
+      engineRef.current.ingestTrails(cached.trails);
+      return;
+    }
+
+    // Fetch from Supabase
+    fetchingDayRef.current = dateStr;
+    try {
+      const trails = await fetchBusTrails(dateStr);
+      if (trails.length === 0) {
+        console.log(`[Bus] No trail data for ${dateStr}`);
+        engineRef.current.clearReplay();
+        loadedDayRef.current = dateStr;
+        return;
+      }
+
+      // LRU cache
+      cacheRef.current = [
+        { date: dateStr, trails },
+        ...cacheRef.current.filter((c) => c.date !== dateStr),
+      ].slice(0, MAX_CACHED_DAYS);
+
+      loadedDayRef.current = dateStr;
+      engineRef.current.ingestTrails(trails);
+    } catch (err) {
+      console.warn("[Bus] loadDay error:", err);
+    } finally {
+      fetchingDayRef.current = "";
+    }
+  }, [enabled, isLive]);
+
+  // 切到 replay 時清空 live 資料，讓 loadDay 可以接手
+  useEffect(() => {
+    if (!enabled || isLive || !engineRef.current) return;
+    loadedDayRef.current = ""; // 強制下次 loadDay 觸發
+  }, [enabled, isLive]);
+
+  // ── Per-frame animation loop ──
   useEffect(() => {
     if (!enabled || !engineRef.current) return;
 
@@ -83,12 +152,11 @@ export function useBusLayer(enabled: boolean) {
     let lastCountUpdate = 0;
 
     const tick = () => {
-      const now = Date.now() / 1000; // 永遠用真實時間
+      const now = isLive ? Date.now() / 1000 : timeRef.current;
       if (engineRef.current) {
         activeBusesRef.current = engineRef.current.update(now);
       }
 
-      // 每 500ms 更新 UI 計數
       const ts = performance.now();
       if (ts - lastCountUpdate > 500) {
         lastCountUpdate = ts;
@@ -100,7 +168,7 @@ export function useBusLayer(enabled: boolean) {
 
     animId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animId);
-  }, [enabled, engineRef.current !== null]);
+  }, [enabled, isLive, engineRef.current !== null, timeRef]);
 
   // 停用時清空
   useEffect(() => {
@@ -110,5 +178,5 @@ export function useBusLayer(enabled: boolean) {
     }
   }, [enabled]);
 
-  return { busCount, activeBusesRef, loading };
+  return { busCount, activeBusesRef, loading, loadDay };
 }

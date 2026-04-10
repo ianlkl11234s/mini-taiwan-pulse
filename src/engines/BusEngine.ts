@@ -5,7 +5,7 @@
  * 兩次 poll 之間依速度沿路線推進。
  */
 
-import type { BusRouteData, BusRouteGeometry, BusPosition, BusVehicle } from "../types";
+import type { BusRouteData, BusRouteGeometry, BusPosition, BusVehicle, BusTrail, TrailPoint } from "../types";
 import { interpolateOnLineString } from "./railUtils";
 
 /** 速度低於此值 (km/h) 視為停靠 */
@@ -84,11 +84,22 @@ interface SnappedBus {
   color: string;
 }
 
+/** Replay mode 內部狀態 */
+interface ReplayBus {
+  path: TrailPoint[];
+  routeKey: string | null;
+  routeUid: string;
+  routeName: string;
+  color: string;
+}
+
 export class BusEngine {
   private routeData: BusRouteData;
   private snapped = new Map<string, SnappedBus>();
   /** 快取 plateNumb → routeKey 配對結果 */
   private routeMatch = new Map<string, string | null>();
+  /** Replay mode 歷史軌跡 */
+  private replayTrails = new Map<string, ReplayBus>();
 
   constructor(routeData: BusRouteData) {
     this.routeData = routeData;
@@ -182,17 +193,16 @@ export class BusEngine {
     }
   }
 
-  private _debugOnce = false;
-
-  /** 每 frame 呼叫，回傳插值後的公車位置 */
+  /** 每 frame 呼叫，自動判斷 live/replay */
   update(unixTimestamp: number): BusVehicle[] {
-    const buses: BusVehicle[] = [];
+    if (this.replayTrails.size > 0) return this.updateReplay(unixTimestamp);
+    return this.updateLive(unixTimestamp);
+  }
 
-    if (!this._debugOnce && this.snapped.size > 0) {
-      this._debugOnce = true;
-      const first = this.snapped.values().next().value!;
-      console.log(`[Bus] update debug: snapped=${this.snapped.size}, ts=${unixTimestamp.toFixed(0)}, snapTime=${first.snapTime.toFixed(0)}, elapsed=${(unixTimestamp - first.snapTime).toFixed(0)}s`);
-    }
+  // ── Live mode ──
+
+  private updateLive(unixTimestamp: number): BusVehicle[] {
+    const buses: BusVehicle[] = [];
 
     for (const bus of this.snapped.values()) {
       const elapsed = unixTimestamp - bus.snapTime;
@@ -227,12 +237,110 @@ export class BusEngine {
     return buses;
   }
 
+  // ── Replay mode ──
+
+  /** 載入歷史軌跡資料（切換日期時呼叫） */
+  ingestTrails(trails: BusTrail[]): void {
+    this.replayTrails.clear();
+    for (const trail of trails) {
+      if (trail.path.length < 2) continue;
+      // 路線配對：嘗試 direction 0 和 1，取 snap 距離較小的
+      let routeKey: string | null = null;
+      if (trail.routeUid) {
+        const key0 = this.resolveRouteKey(trail.routeUid, 0);
+        const key1 = this.resolveRouteKey(trail.routeUid, 1);
+        if (key0 && key1) {
+          const firstPt = trail.path[0]!;
+          const route0 = this.routeData.routes.get(key0)!;
+          const route1 = this.routeData.routes.get(key1)!;
+          const d0 = snapToRoute(firstPt[0], firstPt[1], route0).dist;
+          const d1 = snapToRoute(firstPt[0], firstPt[1], route1).dist;
+          routeKey = d0 <= d1 ? key0 : key1;
+        } else {
+          routeKey = key0 ?? key1;
+        }
+      }
+      this.replayTrails.set(trail.plateNumb, {
+        path: trail.path,
+        routeKey,
+        routeUid: trail.routeUid ?? "",
+        routeName: trail.routeName ?? "",
+        color: hashColor(trail.routeUid ?? trail.plateNumb),
+      });
+    }
+    console.log(`[Bus] ingestTrails: ${trails.length} → ${this.replayTrails.size} with routes`);
+  }
+
+  /** Binary search 找 trail 中 ts 的位置並插值 */
+  private interpolateTrail(path: TrailPoint[], ts: number): [number, number] | null {
+    if (ts < path[0]![3] || ts > path[path.length - 1]![3]) return null;
+
+    let lo = 0, hi = path.length - 1;
+    while (lo < hi - 1) {
+      const mid = (lo + hi) >> 1;
+      if (path[mid]![3] <= ts) lo = mid; else hi = mid;
+    }
+
+    const a = path[lo]!, b = path[hi]!;
+    const dt = b[3] - a[3];
+    const t = dt > 0 ? (ts - a[3]) / dt : 0;
+    // TrailPoint = [lat, lng, alt, ts]
+    return [
+      a[0] + (b[0] - a[0]) * t,  // lat (index 0)
+      a[1] + (b[1] - a[1]) * t,  // lng (index 1)
+    ];
+  }
+
+  private updateReplay(ts: number): BusVehicle[] {
+    const buses: BusVehicle[] = [];
+
+    for (const [plateNumb, bus] of this.replayTrails) {
+      const interp = this.interpolateTrail(bus.path, ts);
+      if (!interp) continue;
+
+      const [lat, lng] = interp;
+      let position: [number, number];
+
+      // 如果有配對路線，snap 到路線上讓移動更平滑
+      if (bus.routeKey) {
+        const route = this.routeData.routes.get(bus.routeKey);
+        if (route) {
+          const { progress } = snapToRoute(lat, lng, route);
+          position = interpolateOnLineString(route.coords, progress);
+        } else {
+          position = [lng, lat];
+        }
+      } else {
+        position = [lng, lat];
+      }
+
+      buses.push({
+        plateNumb,
+        routeUid: bus.routeUid,
+        routeName: bus.routeName,
+        position,
+        color: bus.color,
+        status: "running",
+        speed: 0,
+        progress: 0,
+        direction: 0,
+      });
+    }
+
+    return buses;
+  }
+
+  clearReplay(): void {
+    this.replayTrails.clear();
+  }
+
   getCount(): number {
-    return this.snapped.size;
+    return this.replayTrails.size > 0 ? this.replayTrails.size : this.snapped.size;
   }
 
   dispose(): void {
     this.snapped.clear();
     this.routeMatch.clear();
+    this.replayTrails.clear();
   }
 }

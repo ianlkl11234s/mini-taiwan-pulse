@@ -246,6 +246,21 @@ export interface BusRouteData {
   routeIndex: Map<string, string[]>; // routeUid → [routeUid_0, routeUid_1]
 }
 
+export interface BusDateInfo {
+  day: string;       // "YYYY-MM-DD"
+  records: number;
+  buses: number;
+}
+
+/** 公車歷史軌跡（來自 bus_trails_daily pre-aggregate） */
+export interface BusTrail {
+  plateNumb: string;
+  routeUid: string | null;
+  routeName: string | null;
+  city: string | null;
+  path: TrailPoint[];   // [lat, lng, 0, unix_ts]
+}
+
 // ── Overlay Registry ──
 
 export interface OverlayLayerSpec {
