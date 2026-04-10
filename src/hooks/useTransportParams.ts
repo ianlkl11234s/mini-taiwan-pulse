@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import type { ExpandableLayerKey } from "../types";
+import type { ExpandableLayerKey, BusCity } from "../types";
 
 export interface SliderConfig {
   type?: "slider";
@@ -49,6 +49,13 @@ export function useTransportParams() {
   // Bus
   const [busScale, setBusScale] = useState(0.4);
   const [busOrbScale, setBusOrbScale] = useState(0.000004);
+  const [busCities, setBusCities] = useState<Record<BusCity, boolean>>({
+    Taipei: true, NewTaipei: false, Taoyuan: false,
+  });
+  const enabledBusCities = useMemo<BusCity[]>(
+    () => (Object.entries(busCities) as [BusCity, boolean][]).filter(([, v]) => v).map(([k]) => k),
+    [busCities],
+  );
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
   // Cycling
@@ -247,6 +254,9 @@ export function useTransportParams() {
         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
       ];
       case "busLive": return [
+        { type: "toggle" as const, label: "台北", value: busCities.Taipei, onChange: (v: boolean) => setBusCities((p) => ({ ...p, Taipei: v })) },
+        { type: "toggle" as const, label: "新北", value: busCities.NewTaipei, onChange: (v: boolean) => setBusCities((p) => ({ ...p, NewTaipei: v })) },
+        { type: "toggle" as const, label: "桃園", value: busCities.Taoyuan, onChange: (v: boolean) => setBusCities((p) => ({ ...p, Taoyuan: v })) },
         { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
       ];
       case "busStationsCity":
@@ -427,6 +437,7 @@ export function useTransportParams() {
     railTrackMode,
     newsTimeBased,
     newsRipple,
+    enabledBusCities,
     refs: {
       altExag: altExagRef,
       altOffset: altOffsetRef,

@@ -3,46 +3,70 @@
  */
 
 import type { BusRouteData, BusRouteGeometry, BusPosition, BusDateInfo, BusTrail, TrailPoint } from "../types";
+import { BusCity, BUS_CITY_CONFIG } from "../types";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { dedupRpc } from "../lib/rpcDebounce";
 
-let cachedRoutes: BusRouteData | null = null;
+// Per-city route cache
+const cityRouteCache = new Map<BusCity, BusRouteData>();
+const cityRouteFetching = new Map<BusCity, Promise<BusRouteData>>();
 
-/** 載入靜態路線幾何（lazy，有快取） */
-export async function loadBusRoutes(): Promise<BusRouteData> {
-  if (cachedRoutes) return cachedRoutes;
+/** 載入指定城市的靜態路線幾何（lazy，有 per-city 快取） */
+export async function loadBusRoutesForCity(city: BusCity): Promise<BusRouteData> {
+  if (cityRouteCache.has(city)) return cityRouteCache.get(city)!;
 
-  const raw: Record<string, BusRouteGeometry> = await withLoading(
-    "bus-routes",
-    "公車路線",
-    fetch("./bus/taipei_bus_routes.json").then((r) => {
-      if (!r.ok) throw new Error(`Bus routes: ${r.status}`);
-      return r.json();
+  // 正在 fetching 中，複用同一個 promise
+  if (cityRouteFetching.has(city)) return cityRouteFetching.get(city)!;
+
+  const promise = withLoading(
+    `bus-routes-${city}`,
+    `公車路線 ${city}`,
+    fetch(BUS_CITY_CONFIG[city].jsonFile).then((r) => {
+      if (!r.ok) throw new Error(`Bus routes ${city}: ${r.status}`);
+      return r.json() as Promise<Record<string, BusRouteGeometry>>;
     }),
-  );
+  ).then((raw) => {
+    const routes = new Map<string, BusRouteGeometry>();
+    const routeIndex = new Map<string, string[]>();
 
-  const routes = new Map<string, BusRouteGeometry>();
-  const routeIndex = new Map<string, string[]>();
+    for (const [key, val] of Object.entries(raw)) {
+      routes.set(key, val);
+      const uid = val.routeUid;
+      if (!routeIndex.has(uid)) routeIndex.set(uid, []);
+      routeIndex.get(uid)!.push(key);
+    }
 
-  for (const [key, val] of Object.entries(raw)) {
-    routes.set(key, val);
-    const uid = val.routeUid;
-    if (!routeIndex.has(uid)) routeIndex.set(uid, []);
-    routeIndex.get(uid)!.push(key);
-  }
+    console.log(`[Bus] Loaded ${routes.size} route shapes for ${city}`);
+    const result: BusRouteData = { routes, routeIndex };
+    cityRouteCache.set(city, result);
+    cityRouteFetching.delete(city);
+    return result;
+  }).catch((err) => {
+    console.warn(`[Bus] Failed to load routes for ${city}:`, err);
+    cityRouteFetching.delete(city);
+    const empty: BusRouteData = { routes: new Map(), routeIndex: new Map() };
+    return empty;
+  });
 
-  console.log(`[Bus] Loaded ${routes.size} route shapes`);
-  cachedRoutes = { routes, routeIndex };
-  return cachedRoutes;
+  cityRouteFetching.set(city, promise);
+  return promise;
+}
+
+/** 向後兼容 wrapper（呼叫 loadBusRoutesForCity("Taipei")） */
+export async function loadBusRoutes(): Promise<BusRouteData> {
+  return loadBusRoutesForCity("Taipei");
 }
 
 /** 從 Supabase 拉取即時公車位置（25s 內重複呼叫直接複用） */
-export async function fetchBusCurrent(): Promise<BusPosition[]> {
+export async function fetchBusCurrent(cities: BusCity[]): Promise<BusPosition[]> {
   if (!supabaseConfigured) return [];
+  if (cities.length === 0) return [];
 
-  return dedupRpc("get_bus_current_taipei", async () => {
-    const { data, error } = await supabase.rpc("get_bus_current_taipei");
+  const dedupKey = `get_bus_current:${[...cities].sort().join(",")}`;
+
+  return dedupRpc(dedupKey, async () => {
+    const { data, error } = await supabase.rpc("get_bus_current", { cities });
     if (error) {
       console.warn("[Bus] RPC error:", error.message);
       return [];
@@ -54,6 +78,7 @@ export async function fetchBusCurrent(): Promise<BusPosition[]> {
       routeUid: row.route_uid,
       routeName: row.route_name,
       direction: row.direction,
+      city: row.city as BusCity,
       lat: row.bus_lat,
       lng: row.bus_lng,
       speed: row.speed ?? 0,
@@ -92,13 +117,13 @@ export async function fetchBusDates(): Promise<BusDateInfo[]> {
 }
 
 /** 載入指定日期的公車歷史軌跡 */
-export async function fetchBusTrails(date: string): Promise<BusTrail[]> {
+export async function fetchBusTrails(date: string, cities: BusCity[]): Promise<BusTrail[]> {
   if (!supabaseConfigured) return [];
 
   const { data, error } = await withLoading(
     `bus-trails:${date}`,
     `公車軌跡 ${date}`,
-    supabase.rpc("get_bus_trails", { target_date: date }),
+    supabase.rpc("get_bus_trails", { target_date: date, cities }),
   );
   if (error) {
     console.warn("[Bus] get_bus_trails error:", error.message);

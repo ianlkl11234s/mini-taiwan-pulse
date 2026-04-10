@@ -298,7 +298,7 @@ export default function App() {
   playingRef.current = timeline.playing;
 
   const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef, layerVisibility.rail);
-  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode);
+  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode, transportParams.enabledBusCities);
 
   // 公車 replay: 跨日載入歷史軌跡
   useEffect(() => {

@@ -12,7 +12,7 @@ export class BusScene {
   renderer!: THREE.WebGLRenderer;
 
   private instancedMesh: THREE.InstancedMesh | null = null;
-  private maxInstances = 3000;
+  private maxInstances: number;
   private isDarkTheme = true;
   private orbScale = 0.000004;
 
@@ -22,7 +22,8 @@ export class BusScene {
   private lastMatrix: THREE.Matrix4 | null = null;
   private _dummy = new THREE.Matrix4();
 
-  constructor() {
+  constructor(maxInstances = 5000) {
+    this.maxInstances = maxInstances;
     this.scene = new THREE.Scene();
     this.camera = new THREE.Camera();
   }

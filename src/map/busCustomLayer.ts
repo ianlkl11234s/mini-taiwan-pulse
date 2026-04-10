@@ -8,10 +8,11 @@ export interface BusLayerOptions {
   getOrbScale: () => number;
   getIsVisible: () => boolean;
   onSceneReady?: (scene: BusScene) => void;
+  maxInstances?: number;
 }
 
 export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
-  const busScene = new BusScene();
+  const busScene = new BusScene(opts.maxInstances ?? 5000);
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
 

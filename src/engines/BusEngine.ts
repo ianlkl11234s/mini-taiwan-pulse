@@ -5,7 +5,7 @@
  * 兩次 poll 之間依速度沿路線推進。
  */
 
-import type { BusRouteData, BusRouteGeometry, BusPosition, BusVehicle, BusTrail, TrailPoint } from "../types";
+import type { BusCity, BusRouteData, BusRouteGeometry, BusPosition, BusVehicle, BusTrail, TrailPoint } from "../types";
 import { interpolateOnLineString } from "./railUtils";
 
 /** 速度低於此值 (km/h) 視為停靠 */
@@ -82,6 +82,7 @@ interface SnappedBus {
   routeUid: string;
   direction: number;
   color: string;
+  city: BusCity;
 }
 
 /** Replay mode 內部狀態 */
@@ -91,27 +92,67 @@ interface ReplayBus {
   routeUid: string;
   routeName: string;
   color: string;
+  city: BusCity;
 }
 
 export class BusEngine {
-  private routeData: BusRouteData;
+  private cityRoutes = new Map<BusCity, BusRouteData>();
+  private mergedRoutes = new Map<string, BusRouteGeometry>();
+  private mergedIndex = new Map<string, string[]>();
   private snapped = new Map<string, SnappedBus>();
   /** 快取 plateNumb → routeKey 配對結果 */
   private routeMatch = new Map<string, string | null>();
   /** Replay mode 歷史軌跡 */
   private replayTrails = new Map<string, ReplayBus>();
 
-  constructor(routeData: BusRouteData) {
-    this.routeData = routeData;
+  constructor() {}
+
+  /** 新增或更新某城市的路線資料 */
+  addCityRoutes(city: BusCity, data: BusRouteData): void {
+    this.cityRoutes.set(city, data);
+    for (const [key, geom] of data.routes) {
+      this.mergedRoutes.set(key, geom);
+    }
+    for (const [routeUid, keys] of data.routeIndex) {
+      const existing = this.mergedIndex.get(routeUid) ?? [];
+      const merged = Array.from(new Set([...existing, ...keys]));
+      this.mergedIndex.set(routeUid, merged);
+    }
+    this.routeMatch.clear();
+  }
+
+  /** 移除某城市的路線資料 */
+  removeCityRoutes(city: BusCity): void {
+    const data = this.cityRoutes.get(city);
+    if (!data) return;
+    this.cityRoutes.delete(city);
+    // 從 mergedRoutes 刪除該城市的 route keys
+    for (const key of data.routes.keys()) {
+      this.mergedRoutes.delete(key);
+    }
+    // 重建 mergedIndex
+    this.mergedIndex.clear();
+    for (const cityData of this.cityRoutes.values()) {
+      for (const [routeUid, keys] of cityData.routeIndex) {
+        const existing = this.mergedIndex.get(routeUid) ?? [];
+        const merged = Array.from(new Set([...existing, ...keys]));
+        this.mergedIndex.set(routeUid, merged);
+      }
+    }
+    this.routeMatch.clear();
+  }
+
+  hasCityRoutes(city: BusCity): boolean {
+    return this.cityRoutes.has(city);
   }
 
   /** 找到 bus_current row 對應的路線 key */
   private resolveRouteKey(routeUid: string, direction: number): string | null {
     const key1 = `${routeUid}_${direction}`;
-    if (this.routeData.routes.has(key1)) return key1;
+    if (this.mergedRoutes.has(key1)) return key1;
 
     // fallback: routeIndex 查表
-    const keys = this.routeData.routeIndex.get(routeUid);
+    const keys = this.mergedIndex.get(routeUid);
     if (keys) {
       for (const k of keys) {
         if (k.endsWith(`_${direction}`)) return k;
@@ -146,7 +187,7 @@ export class BusEngine {
         if (!routeKey) continue;
       }
 
-      const route = this.routeData.routes.get(routeKey);
+      const route = this.mergedRoutes.get(routeKey);
       if (!route) continue;
 
       // Snap GPS → 路線
@@ -169,6 +210,7 @@ export class BusEngine {
         routeUid: pos.routeUid,
         direction: pos.direction,
         color: hashColor(pos.routeUid),
+        city: pos.city,
       });
     }
 
@@ -187,7 +229,7 @@ export class BusEngine {
     if (unmatched > 0 && matched === 0) {
       // 印出前 3 筆 routeUid 供 debug
       const samples = positions.slice(0, 3).map(p => `${p.routeUid}_${p.direction}`);
-      const routeKeys = Array.from(this.routeData.routes.keys()).slice(0, 3);
+      const routeKeys = Array.from(this.mergedRoutes.keys()).slice(0, 3);
       console.log("[Bus] Sample bus routeKeys:", samples);
       console.log("[Bus] Sample map routeKeys:", routeKeys);
     }
@@ -210,7 +252,7 @@ export class BusEngine {
       // 過期資料跳過
       if (elapsed > STALE_THRESHOLD || elapsed < -60) continue;
 
-      const route = this.routeData.routes.get(bus.routeKey);
+      const route = this.mergedRoutes.get(bus.routeKey);
       if (!route) continue;
 
       // 沿路線推進
@@ -231,6 +273,7 @@ export class BusEngine {
         speed: bus.speed,
         progress,
         direction: bus.direction,
+        city: bus.city,
       });
     }
 
@@ -251,8 +294,8 @@ export class BusEngine {
         const key1 = this.resolveRouteKey(trail.routeUid, 1);
         if (key0 && key1) {
           const firstPt = trail.path[0]!;
-          const route0 = this.routeData.routes.get(key0)!;
-          const route1 = this.routeData.routes.get(key1)!;
+          const route0 = this.mergedRoutes.get(key0)!;
+          const route1 = this.mergedRoutes.get(key1)!;
           const d0 = snapToRoute(firstPt[0], firstPt[1], route0).dist;
           const d1 = snapToRoute(firstPt[0], firstPt[1], route1).dist;
           routeKey = d0 <= d1 ? key0 : key1;
@@ -266,6 +309,7 @@ export class BusEngine {
         routeUid: trail.routeUid ?? "",
         routeName: trail.routeName ?? "",
         color: hashColor(trail.routeUid ?? trail.plateNumb),
+        city: (trail.city ?? "Taipei") as BusCity,
       });
     }
     console.log(`[Bus] ingestTrails: ${trails.length} → ${this.replayTrails.size} with routes`);
@@ -303,7 +347,7 @@ export class BusEngine {
 
       // 如果有配對路線，snap 到路線上讓移動更平滑
       if (bus.routeKey) {
-        const route = this.routeData.routes.get(bus.routeKey);
+        const route = this.mergedRoutes.get(bus.routeKey);
         if (route) {
           const { progress } = snapToRoute(lat, lng, route);
           position = interpolateOnLineString(route.coords, progress);
@@ -324,6 +368,7 @@ export class BusEngine {
         speed: 0,
         progress: 0,
         direction: 0,
+        city: bus.city,
       });
     }
 

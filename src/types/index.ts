@@ -206,6 +206,14 @@ export interface TraData {
 
 // ── 公車即時 (GPS-based) ──
 
+export type BusCity = "Taipei" | "NewTaipei" | "Taoyuan";
+
+export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
+  Taipei:    { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
+  NewTaipei: { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },
+  Taoyuan:   { label: "桃園", jsonFile: "./bus/taoyuan_bus_routes.json" },
+};
+
 export interface BusRouteGeometry {
   routeUid: string;
   routeName: string;
@@ -227,6 +235,7 @@ export interface BusPosition {
   lng: number;
   speed: number;
   collectedAt: number;
+  city: BusCity;
 }
 
 export interface BusVehicle {
@@ -239,6 +248,7 @@ export interface BusVehicle {
   speed: number;
   progress: number;
   direction: number;
+  city: BusCity;
 }
 
 export interface BusRouteData {

@@ -7,9 +7,9 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { BusVehicle, BusRouteData, BusTrail, TimeMode } from "../types";
+import type { BusVehicle, BusTrail, TimeMode, BusCity } from "../types";
 import { BusEngine } from "../engines/BusEngine";
-import { loadBusRoutes, fetchBusCurrent, fetchBusTrails } from "../data/busLoader";
+import { loadBusRoutesForCity, fetchBusCurrent, fetchBusTrails } from "../data/busLoader";
 
 /** Supabase polling 間隔 (ms) */
 const POLL_INTERVAL = 30_000;
@@ -25,8 +25,8 @@ export function useBusLayer(
   enabled: boolean,
   timeRef: React.RefObject<number>,
   timeMode: TimeMode,
+  cities: BusCity[] = ["Taipei"],
 ) {
-  const routeDataRef = useRef<BusRouteData | null>(null);
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
   const [busCount, setBusCount] = useState(0);
@@ -39,29 +39,34 @@ export function useBusLayer(
 
   const isLive = timeMode === "live";
 
-  // 載入靜態路線（lazy，首次啟用時）
+  // 載入靜態路線（lazy，cities 變化時重新載入）
   useEffect(() => {
     if (!enabled) return;
-    if (routeDataRef.current) return;
 
     let cancelled = false;
     setLoading(true);
 
-    loadBusRoutes()
-      .then((data) => {
-        if (cancelled) return;
-        routeDataRef.current = data;
-        engineRef.current = new BusEngine(data);
-        setLoading(false);
-      })
+    const engine = engineRef.current ?? new BusEngine();
+    engineRef.current = engine;
+
+    Promise.all(
+      cities.map((city) =>
+        loadBusRoutesForCity(city).then((data) => {
+          if (!cancelled) engine.addCityRoutes(city, data);
+        }),
+      ),
+    )
       .catch((err) => {
         if (cancelled) return;
         console.error("[Bus] Failed to load routes:", err);
-        setLoading(false);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
 
     return () => { cancelled = true; };
-  }, [enabled]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, cities.join(",")]);
 
   // ── Live: Polling bus_current ──
   useEffect(() => {
@@ -77,7 +82,7 @@ export function useBusLayer(
       if (isFetching || cancelled) return;
       isFetching = true;
       try {
-        const positions = await fetchBusCurrent();
+        const positions = await fetchBusCurrent(cities);
         if (!cancelled && engineRef.current) {
           engineRef.current.ingestPoll(positions, Date.now() / 1000);
           console.log(`[Bus] Poll: ${positions.length} vehicles`);
@@ -127,7 +132,7 @@ export function useBusLayer(
     // Fetch from Supabase
     fetchingDayRef.current = dateStr;
     try {
-      const trails = await fetchBusTrails(dateStr);
+      const trails = await fetchBusTrails(dateStr, cities);
       if (trails.length === 0) {
         console.log(`[Bus] No trail data for ${dateStr}`);
         engineRef.current.clearReplay();
