@@ -48,6 +48,7 @@ export function useTransportParams() {
   const [stationScale, setStationScale] = useState(1);
   // Bus
   const [busScale, setBusScale] = useState(0.4);
+  const [busOrbScale, setBusOrbScale] = useState(0.000004);
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
   // Cycling
@@ -167,12 +168,14 @@ export function useTransportParams() {
   const portPillarHeightRef = useRef(portPillarHeight);
   const airportPillarVisibleRef = useRef(airportPillarVisible);
   const airportPillarHeightRef = useRef(airportPillarHeight);
+  const busOrbScaleRef = useRef(busOrbScale);
   const tempHeightRef = useRef(tempHeight);
   const tempZOffsetRef = useRef(tempZOffset);
   const tempExtrudedRef = useRef(tempExtruded);
   const tempOpacityRef = useRef(tempOpacity);
   const tempWireframeRef = useRef(tempWireframe);
 
+  busOrbScaleRef.current = busOrbScale;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
@@ -242,6 +245,9 @@ export function useTransportParams() {
         { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
         { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
+      ];
+      case "busLive": return [
+        { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
       ];
       case "busStationsCity":
       case "busStationsIntercity": return [
@@ -433,6 +439,7 @@ export function useTransportParams() {
       railTrackOpacity: railTrackOpacityRef,
       railTrainVisible: railTrainVisibleRef,
       railTrackMode: railTrackModeRef,
+      busOrbScale: busOrbScaleRef,
       beamVisible: beamVisibleRef,
       beamDistance: beamDistanceRef,
       beamOpacity: beamOpacityRef,

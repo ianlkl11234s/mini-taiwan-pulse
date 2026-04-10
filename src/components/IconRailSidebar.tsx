@@ -41,10 +41,11 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   disasterAlerts: "#dc2626",
   cwaCloudImagery: "#b0c4de",
   cwaRadarImagery: "#4fc3f7",
+  busLive: "#4fc3f7",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
-  flights: "Flight", ships: "Ship", rail: "Rail",
+  flights: "Flight", ships: "Ship", rail: "Rail", busLive: "Bus",
 };
 
 const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
@@ -83,6 +84,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   disasterAlerts: AlertTriangle,
   cwaCloudImagery: Cloud,
   cwaRadarImagery: CloudRain,
+  busLive: Bus,
 };
 
 // ── Section Config ──
@@ -99,6 +101,7 @@ const SECTIONS: SectionDef[] = [
       { key: "flights", label: "航班 Flight", expandable: true },
       { key: "ships", label: "船舶 Ship", expandable: true },
       { key: "rail", label: "鐵道 Rail", expandable: true },
+      { key: "busLive", label: "公車即時 Bus Live", expandable: true },
     ],
   },
   {

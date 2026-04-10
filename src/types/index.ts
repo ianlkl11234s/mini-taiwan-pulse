@@ -78,7 +78,7 @@ export interface DataSourceMeta {
 export type ViewMode = "all-taiwan" | "time-window";
 
 /** 運具類型 */
-export type TransportType = "flights" | "ships" | "rail";
+export type TransportType = "flights" | "ships" | "rail" | "busLive";
 
 /** 可展開面板的圖層 key */
 export type ExpandableLayerKey =
@@ -99,7 +99,8 @@ export type ExpandableLayerKey =
   | "cwaCloudImagery"
   | "cwaRadarImagery"
   | "earthquakes"
-  | "disasterAlerts";
+  | "disasterAlerts"
+  | "busLive";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -203,6 +204,48 @@ export interface TraData {
   goldenTracks: GeoJSON.Feature[];
 }
 
+// ── 公車即時 (GPS-based) ──
+
+export interface BusRouteGeometry {
+  routeUid: string;
+  routeName: string;
+  direction: number;
+  coords: [number, number][];
+  cumDist: number[];
+  totalDist: number;
+  stopProgress: number[];
+  stopNames: string[];
+  subRouteName: string;
+}
+
+export interface BusPosition {
+  plateNumb: string;
+  routeUid: string;
+  routeName: string;
+  direction: number;
+  lat: number;
+  lng: number;
+  speed: number;
+  collectedAt: number;
+}
+
+export interface BusVehicle {
+  plateNumb: string;
+  routeUid: string;
+  routeName: string;
+  position: [number, number]; // [lng, lat]
+  color: string;
+  status: "running" | "stopped";
+  speed: number;
+  progress: number;
+  direction: number;
+}
+
+export interface BusRouteData {
+  routes: Map<string, BusRouteGeometry>;
+  routeIndex: Map<string, string[]>; // routeUid → [routeUid_0, routeUid_1]
+}
+
 // ── Overlay Registry ──
 
 export interface OverlayLayerSpec {
@@ -269,4 +312,5 @@ export interface LayerVisibility {
   disasterAlerts: boolean;
   cwaCloudImagery: boolean;
   cwaRadarImagery: boolean;
+  busLive: boolean;
 }

@@ -10,6 +10,7 @@ import { useTimeline } from "./hooks/useTimeline";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
+import { useBusLayer } from "./hooks/useBusLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
@@ -292,6 +293,7 @@ export default function App() {
   playingRef.current = timeline.playing;
 
   const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef);
+  const { busCount, activeBusesRef } = useBusLayer(layerVisibility.busLive);
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
@@ -309,7 +311,7 @@ export default function App() {
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, railDataRef,
+    shipsRef, activeTrainsRef, activeBusesRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,
@@ -986,6 +988,7 @@ export default function App() {
               {displayedFlights.length} flights
               {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
               {layerVisibility.rail && ` · ${trainCount} trains`}
+              {layerVisibility.busLive && ` · ${busCount} buses`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
             <div

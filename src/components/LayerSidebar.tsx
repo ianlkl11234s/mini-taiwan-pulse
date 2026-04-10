@@ -40,12 +40,14 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   disasterAlerts: "#dc2626",
   cwaCloudImagery: "#90caf9",
   cwaRadarImagery: "#66bb6a",
+  busLive: "#4fc3f7",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
   flights: "航班 Flight",
   ships: "船舶 Ship",
   rail: "鐵道 Rail",
+  busLive: "公車即時 Bus Live",
 };
 
 // ── Section Config ──
@@ -66,6 +68,7 @@ const SECTIONS: SectionDef[] = [
       { key: "flights", label: "航班 Flight", expandable: true },
       { key: "ships", label: "船舶 Ship", expandable: true },
       { key: "rail", label: "鐵道 Rail", expandable: true },
+      { key: "busLive", label: "公車即時 Bus Live", expandable: true },
     ],
   },
   {
