@@ -103,6 +103,7 @@ export function useDisasterAlertLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   currentTime: number,
   visible: boolean,
+  opacity: number = 1,
 ) {
   const cacheRef = useRef<Map<string, CachedDay>>(new Map());
   const activeDayRef = useRef<DisasterAlert[] | null>(null);
@@ -224,4 +225,34 @@ export function useDisasterAlertLayer(
       refreshSource(map, currentTime);
     }
   }, [visible, currentTime, ensureLayers, refreshSource, mapRef]);
+
+  // 套用 opacity（乘以各 layer 的 base opacity）
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (!layersReadyRef.current) return;
+    const o = Math.max(0, Math.min(1, opacity));
+    if (map.getLayer(LAYER_FILL)) {
+      map.setPaintProperty(LAYER_FILL, "fill-opacity", [
+        "*",
+        o,
+        [
+          "match",
+          ["get", "severity"],
+          "Extreme", 0.35,
+          "Severe", 0.28,
+          "Moderate", 0.22,
+          "Minor", 0.15,
+          0.18,
+        ],
+      ] as unknown as ExpressionSpecification);
+    }
+    if (map.getLayer(LAYER_LINE)) {
+      map.setPaintProperty(LAYER_LINE, "line-opacity", 0.9 * o);
+    }
+    if (map.getLayer(LAYER_POINT)) {
+      map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.85 * o);
+      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", o);
+    }
+  }, [opacity, visible, currentTime, mapRef]);
 }

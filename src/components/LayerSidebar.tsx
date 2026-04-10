@@ -120,6 +120,14 @@ const SECTIONS: SectionDef[] = [
       { key: "windPlan", label: "風場範圍 Wind Farm", expandable: true },
     ],
   },
+  {
+    title: "HAZARD",
+    layers: [
+      { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
+      { key: "earthquakes", label: "地震 Earthquake", expandable: true },
+      { key: "disasterAlerts", label: "災害示警 Disaster Alerts", expandable: true },
+    ],
+  },
 ];
 
 // ── Props ──

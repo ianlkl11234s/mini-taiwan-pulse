@@ -463,10 +463,6 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
   return (
     <div
       style={{
-        position: "absolute",
-        bottom: 64,
-        right: 16,
-        zIndex: 30,
         width: 280,
         background: "rgba(10, 10, 20, 0.88)",
         backdropFilter: "blur(14px)",

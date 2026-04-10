@@ -131,6 +131,11 @@ export function useTransportParams() {
   // CWA Imagery (衛星雲圖 / 雷達)
   const [cwaCloudOpacity, setCwaCloudOpacity] = useState(1.0);
   const [cwaRadarOpacity, setCwaRadarOpacity] = useState(0.85);
+  // Earthquake
+  const [eqOpacity, setEqOpacity] = useState(1.0);
+  const [eqShowHistory, setEqShowHistory] = useState(false);
+  // Disaster Alerts
+  const [daOpacity, setDaOpacity] = useState(1.0);
   // YouBike Fullness (H3)
   const [ybOpacity, setYbOpacity] = useState(0.65);
   const [ybContrast, setYbContrast] = useState(1);
@@ -389,6 +394,13 @@ export function useTransportParams() {
           { label: `Height ${spatialElevation}`, value: spatialElevation, min: 10, max: 200, step: 10, onChange: setSpatialElevation },
         ];
       }
+      case "earthquakes": return [
+        { label: `Opacity ${eqOpacity.toFixed(2)}`, value: eqOpacity, min: 0, max: 1, step: 0.05, onChange: setEqOpacity },
+        { type: "select" as const, label: "Mode", value: eqShowHistory ? "history" : "timeline", options: [{ label: "Timeline", value: "timeline" }, { label: "History", value: "history" }], onChange: (v: string) => setEqShowHistory(v === "history") },
+      ];
+      case "disasterAlerts": return [
+        { label: `Opacity ${daOpacity.toFixed(2)}`, value: daOpacity, min: 0, max: 1, step: 0.05, onChange: setDaOpacity },
+      ];
       case "cwaCloudImagery": return [
         { label: `Opacity ${cwaCloudOpacity.toFixed(2)}`, value: cwaCloudOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaCloudOpacity },
       ];
@@ -450,5 +462,8 @@ export function useTransportParams() {
     youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale]),
     cwaCloudOpacity,
     cwaRadarOpacity,
+    eqOpacity,
+    eqShowHistory,
+    daOpacity,
   };
 }

@@ -168,8 +168,8 @@ const SECTIONS: SectionDef[] = [
     title: "HAZARD",
     layers: [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
-      { key: "earthquakes", label: "地震 Earthquake" },
-      { key: "disasterAlerts", label: "災害示警 Disaster Alerts" },
+      { key: "earthquakes", label: "地震 Earthquake", expandable: true },
+      { key: "disasterAlerts", label: "災害示警 Disaster Alerts", expandable: true },
     ],
   },
   {

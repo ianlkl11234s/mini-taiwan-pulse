@@ -39,6 +39,7 @@ import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
+import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
 
@@ -322,10 +323,21 @@ export default function App() {
   useNewsTimeline(mapRef, timeline.currentTime, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
 
   // ── Earthquake events timeline ──
-  useEarthquakeLayer(mapRef, timeline.currentTime, layerVisibility.earthquakes);
+  useEarthquakeLayer(
+    mapRef,
+    timeline.currentTime,
+    layerVisibility.earthquakes,
+    transportParams.eqOpacity,
+    transportParams.eqShowHistory,
+  );
 
   // ── NCDR Disaster Alerts timeline ──
-  useDisasterAlertLayer(mapRef, timeline.currentTime, layerVisibility.disasterAlerts);
+  useDisasterAlertLayer(
+    mapRef,
+    timeline.currentTime,
+    layerVisibility.disasterAlerts,
+    transportParams.daOpacity,
+  );
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({
@@ -1264,10 +1276,29 @@ export default function App() {
         </div>
       )}
 
-      {/* ── GIS Feature Info Panel ── */}
-      {featureInfo && (
-        <FeatureInfoPanel feature={featureInfo} onClose={() => setFeatureInfo(null)} />
-      )}
+      {/* ── Bottom-right stack: Legend + Feature Info ── */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 64,
+          right: 16,
+          zIndex: 30,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-end",
+          gap: 8,
+          pointerEvents: "none",
+        }}
+      >
+        {featureInfo && (
+          <div style={{ pointerEvents: "auto" }}>
+            <FeatureInfoPanel feature={featureInfo} onClose={() => setFeatureInfo(null)} />
+          </div>
+        )}
+        <div style={{ pointerEvents: "auto" }}>
+          <LegendPanel visibility={layerVisibility} />
+        </div>
+      </div>
 
       {/* ── 全域 loading 指示器 ── */}
       <LoadingIndicator />
