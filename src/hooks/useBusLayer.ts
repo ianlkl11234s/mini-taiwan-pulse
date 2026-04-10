@@ -90,11 +90,23 @@ export function useBusLayer(
     };
 
     poll();
-    const interval = setInterval(poll, POLL_INTERVAL);
+    let interval = setInterval(poll, POLL_INTERVAL);
+
+    // 背景分頁時暫停 polling，回到前景時恢復
+    const handleVisibility = () => {
+      if (document.hidden) {
+        clearInterval(interval);
+      } else {
+        poll();
+        interval = setInterval(poll, POLL_INTERVAL);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
 
     return () => {
       cancelled = true;
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [enabled, isLive, engineRef.current !== null]);
 

@@ -35,12 +35,14 @@ export class RailScene {
   private trackFeatures: GeoJSON.FeatureCollection | null = null;
   private needsStaticRebuild = false;
 
-  // 列車位置歷史（用於拖尾）
+  // 列車位置歷史（用於拖尾）— startIdx 避免 O(n) shift
   private positionHistory = new Map<string, Array<{ lng: number; lat: number; time: number; color: string }>>();
+  private positionHistoryStart = new Map<string, number>();
   private lastUpdateTime = 0;
 
   // 點擊拾取用
   private lastMatrix: THREE.Matrix4 | null = null;
+  private _dummy = new THREE.Matrix4();
   private trainPositions = new Map<number, RailTrain>(); // instanceIndex → train
 
   constructor() {
@@ -260,10 +262,11 @@ export class RailScene {
     // 偵測時間跳轉
     if (Math.abs(now - this.lastUpdateTime) > 5 && this.lastUpdateTime > 0) {
       this.positionHistory.clear();
+      this.positionHistoryStart.clear();
     }
     this.lastUpdateTime = now;
 
-    const dummy = new THREE.Matrix4();
+    const dummy = this._dummy;
     const baseScale = this.orbScale * 0.5;
     let headCount = 0;
     let vi = 0;
@@ -293,8 +296,15 @@ export class RailScene {
       }
 
       const cutoff = now - TRAIL_DURATION;
-      while (history.length > 0 && history[0]!.time < cutoff) {
-        history.shift();
+      let startIdx = this.positionHistoryStart.get(key) ?? 0;
+      while (startIdx < history.length && history[startIdx]!.time < cutoff) {
+        startIdx++;
+      }
+      this.positionHistoryStart.set(key, startIdx);
+      // 當 startIdx 超過一半時 compact，避免記憶體持續增長
+      if (startIdx > history.length / 2 && startIdx > 50) {
+        history.splice(0, startIdx);
+        this.positionHistoryStart.set(key, 0);
       }
     }
 
@@ -307,6 +317,7 @@ export class RailScene {
     for (const key of this.positionHistory.keys()) {
       if (!activeKeys.has(key)) {
         this.positionHistory.delete(key);
+        this.positionHistoryStart.delete(key);
       }
     }
 
@@ -333,14 +344,16 @@ export class RailScene {
     }
 
     // 渲染 TRA/THSR 拖尾線段
-    for (const [, history] of this.positionHistory) {
-      if (history.length < 2 || vi >= MAX_TRAIL_VERTICES - history.length * 2) continue;
+    for (const [key, history] of this.positionHistory) {
+      const si = this.positionHistoryStart.get(key) ?? 0;
+      const len = history.length - si;
+      if (len < 2 || vi >= MAX_TRAIL_VERTICES - len * 2) continue;
 
-      for (let i = 0; i < history.length - 1; i++) {
+      for (let i = si; i < history.length - 1; i++) {
         const entryA = history[i]!;
         const entryB = history[i + 1]!;
-        const progressA = i / (history.length - 1);
-        const progressB = (i + 1) / (history.length - 1);
+        const progressA = (i - si) / (len - 1);
+        const progressB = (i - si + 1) / (len - 1);
 
         const mcA = toMercator(entryA.lat, entryA.lng, alt);
         const mcB = toMercator(entryB.lat, entryB.lng, alt);
@@ -386,8 +399,9 @@ export class RailScene {
     const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
     const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
 
-    this.lastMatrix = new THREE.Matrix4().fromArray(matrix);
-    this.camera.projectionMatrix = this.lastMatrix.clone();
+    if (!this.lastMatrix) this.lastMatrix = new THREE.Matrix4();
+    this.lastMatrix.fromArray(matrix);
+    this.camera.projectionMatrix.copy(this.lastMatrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
     this.renderer.resetState();
@@ -453,5 +467,6 @@ export class RailScene {
     this.renderer?.dispose();
     this.colorCache.clear();
     this.positionHistory.clear();
+    this.positionHistoryStart.clear();
   }
 }

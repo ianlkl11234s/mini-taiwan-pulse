@@ -292,7 +292,7 @@ export default function App() {
   temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
 
-  const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef);
+  const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef, layerVisibility.rail);
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode);
 
   // 公車 replay: 跨日載入歷史軌跡
@@ -796,6 +796,7 @@ export default function App() {
                 flights: displayedFlights.length,
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                 trains: trainCount,
+                buses: busCount,
               }}
               onLayerClick={(layer) => {
                 const isVisible = layerVisibility[layer];
@@ -1160,6 +1161,7 @@ export default function App() {
                         flights: displayedFlights.length,
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                         trains: trainCount,
+                        buses: busCount,
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];

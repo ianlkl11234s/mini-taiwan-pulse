@@ -101,7 +101,7 @@ const SECTIONS: SectionDef[] = [
       { key: "flights", label: "航班 Flight", expandable: true },
       { key: "ships", label: "船舶 Ship", expandable: true },
       { key: "rail", label: "鐵道 Rail", expandable: true },
-      { key: "busLive", label: "公車即時 Bus Live", expandable: true },
+      { key: "busLive", label: "公車 Bus", expandable: true },
     ],
   },
   {
@@ -197,7 +197,7 @@ interface IconRailSidebarProps {
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
-  counts: { flights: number; ships: number; trains: number; windPlan?: number };
+  counts: { flights: number; ships: number; trains: number; buses: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
@@ -258,6 +258,7 @@ export function IconRailSidebar({
       case "flights": return counts.flights;
       case "ships": return counts.ships;
       case "rail": return counts.trains;
+      case "busLive": return counts.buses;
       case "windPlan": return counts.windPlan;
       default: return undefined;
     }

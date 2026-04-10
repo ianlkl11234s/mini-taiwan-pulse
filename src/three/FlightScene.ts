@@ -46,6 +46,7 @@ export class FlightScene {
   private isDarkTheme = true;
   private showTrails = true;
   private lastMatrix: THREE.Matrix4 | null = null;
+  private _lastAnimTime = 0;
 
   // 靜態軌跡的 3D mesh（全路徑）
   private staticMesh: THREE.LineSegments | null = null;
@@ -275,7 +276,11 @@ export class FlightScene {
 
   /** 每幀更新動態光軌/光球 */
   update(flights: Flight[], currentTime: number) {
-    const animDt = 0.016;
+    const now = performance.now();
+    const animDt = this._lastAnimTime > 0
+      ? Math.min((now - this._lastAnimTime) / 1000, 0.1)
+      : 0.016;
+    this._lastAnimTime = now;
     const activeIds = new Set<string>();
 
     for (const flight of flights) {
@@ -353,7 +358,8 @@ export class FlightScene {
     const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
     const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
 
-    this.lastMatrix = new THREE.Matrix4().fromArray(matrix);
+    if (!this.lastMatrix) this.lastMatrix = new THREE.Matrix4();
+    this.lastMatrix.fromArray(matrix);
     this.camera.projectionMatrix = this.lastMatrix;
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);

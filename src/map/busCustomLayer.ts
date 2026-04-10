@@ -27,10 +27,7 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!opts.getIsVisible()) {
-        map?.triggerRepaint();
-        return;
-      }
+      if (!opts.getIsVisible()) return;
 
       const isDark = opts.getIsDarkTheme();
       if (isDark !== lastDarkTheme) {

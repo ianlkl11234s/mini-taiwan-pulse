@@ -5,6 +5,7 @@
 import type { BusRouteData, BusRouteGeometry, BusPosition, BusDateInfo, BusTrail, TrailPoint } from "../types";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { dedupRpc } from "../lib/rpcDebounce";
 
 let cachedRoutes: BusRouteData | null = null;
 
@@ -36,27 +37,29 @@ export async function loadBusRoutes(): Promise<BusRouteData> {
   return cachedRoutes;
 }
 
-/** 從 Supabase 拉取即時公車位置 */
+/** 從 Supabase 拉取即時公車位置（25s 內重複呼叫直接複用） */
 export async function fetchBusCurrent(): Promise<BusPosition[]> {
   if (!supabaseConfigured) return [];
 
-  const { data, error } = await supabase.rpc("get_bus_current_taipei");
-  if (error) {
-    console.warn("[Bus] RPC error:", error.message);
-    return [];
-  }
-  if (!data) return [];
+  return dedupRpc("get_bus_current_taipei", async () => {
+    const { data, error } = await supabase.rpc("get_bus_current_taipei");
+    if (error) {
+      console.warn("[Bus] RPC error:", error.message);
+      return [];
+    }
+    if (!data) return [];
 
-  return (data as any[]).map((row) => ({
-    plateNumb: row.plate_numb,
-    routeUid: row.route_uid,
-    routeName: row.route_name,
-    direction: row.direction,
-    lat: row.bus_lat,
-    lng: row.bus_lng,
-    speed: row.speed ?? 0,
-    collectedAt: new Date(row.collected_at).getTime() / 1000,
-  }));
+    return (data as any[]).map((row) => ({
+      plateNumb: row.plate_numb,
+      routeUid: row.route_uid,
+      routeName: row.route_name,
+      direction: row.direction,
+      lat: row.bus_lat,
+      lng: row.bus_lng,
+      speed: row.speed ?? 0,
+      collectedAt: new Date(row.collected_at).getTime() / 1000,
+    }));
+  }, 25_000);
 }
 
 // ── Replay (歷史回放) ──

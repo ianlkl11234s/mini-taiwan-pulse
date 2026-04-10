@@ -20,6 +20,7 @@ export class BusScene {
   private busPositions = new Map<number, BusVehicle>(); // instanceIndex → bus
 
   private lastMatrix: THREE.Matrix4 | null = null;
+  private _dummy = new THREE.Matrix4();
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -81,7 +82,7 @@ export class BusScene {
   update(buses: BusVehicle[]) {
     if (!this.instancedMesh) return;
 
-    const dummy = new THREE.Matrix4();
+    const dummy = this._dummy;
     const baseScale = this.orbScale * 0.5;
     let count = 0;
 
@@ -120,8 +121,9 @@ export class BusScene {
     const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
     const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
 
-    this.lastMatrix = new THREE.Matrix4().fromArray(matrix);
-    this.camera.projectionMatrix = this.lastMatrix.clone();
+    if (!this.lastMatrix) this.lastMatrix = new THREE.Matrix4();
+    this.lastMatrix.fromArray(matrix);
+    this.camera.projectionMatrix.copy(this.lastMatrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
     this.renderer.resetState();
