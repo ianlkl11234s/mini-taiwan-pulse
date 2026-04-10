@@ -34,9 +34,26 @@ INPUT_STOPS = os.path.join(
     "data/processed/transportation/bus/bus_stop_of_route_all.csv",
 )
 OUTPUT_DIR = os.path.join(BASE, "public", "bus")
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "taipei_bus_routes.json")
 
-TARGET_CITIES = {"臺北市", "新北市"}
+# 城市設定：命令列傳 --city taoyuan 等，預設台北+新北
+CITY_PRESETS: dict[str, dict] = {
+    "taipei":    {"cities": {"臺北市", "新北市"}, "output": "taipei_bus_routes.json"},
+    "newtaipei": {"cities": {"新北市"},           "output": "newtaipei_bus_routes.json"},
+    "taoyuan":   {"cities": {"桃園市"},           "output": "taoyuan_bus_routes.json"},
+}
+
+# 解析命令列參數
+_preset_key = "taipei"
+if len(sys.argv) > 1 and sys.argv[1] == "--city" and len(sys.argv) > 2:
+    _preset_key = sys.argv[2]
+
+if _preset_key not in CITY_PRESETS:
+    print(f"Unknown city preset: {_preset_key}")
+    print(f"Available: {', '.join(CITY_PRESETS.keys())}")
+    sys.exit(1)
+
+TARGET_CITIES = CITY_PRESETS[_preset_key]["cities"]
+OUTPUT_FILE = os.path.join(OUTPUT_DIR, CITY_PRESETS[_preset_key]["output"])
 
 # ── 幾何工具函式 ───────────────────────────────────────────────────────────────
 
