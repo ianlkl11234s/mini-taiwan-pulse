@@ -194,6 +194,11 @@ export default function App() {
   const { isMobile, isLandscape } = useIsMobile();
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
+  // 圖層可見性變化時踢 Mapbox 一次，確保從 idle 喚醒渲染循環
+  useEffect(() => {
+    mapRef.current?.triggerRepaint();
+  }, [layerVisibility]);
+
   const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
   const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
   const [mapStyleId, setMapStyleId] = useState("dark");
