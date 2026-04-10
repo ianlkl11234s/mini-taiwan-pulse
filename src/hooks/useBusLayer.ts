@@ -113,7 +113,8 @@ export function useBusLayer(
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
-  }, [enabled, isLive, engineRef.current !== null]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, isLive, engineRef.current !== null, cities.join(",")]);
 
   // ── Replay: loadDay callback ──
   const loadDay = useCallback(async (dateStr: string) => {
