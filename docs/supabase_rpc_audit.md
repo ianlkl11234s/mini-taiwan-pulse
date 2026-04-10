@@ -6,10 +6,10 @@
 
 ## 摘要
 
-- 總共盤點 **17 個 RPC**
+- 總共盤點 **20 個 RPC**（含 2026-04-10 新增公車 3 個）
 - 🔴 高風險 **2 個**（需要比照 ship/flight 做 pre-aggregate table）
 - 🟡 中風險 **3 個**（可觀察、先加 statement_timeout 或 index）
-- 🟢 低風險 **12 個**（matview/單次查表/小資料，現況 OK）
+- 🟢 低風險 **15 個**（matview/pre-agg/單次查表/小資料，現況 OK）
 
 最該動手的 top 3：
 1. `get_youbike_h3_snapshots` — 每日 ~36 萬筆即時 JOIN + 2 層 GROUP BY
@@ -39,6 +39,9 @@
 | 15 | `get_temperature_dates` | temperatureLoader.ts:51 | `realtime.temperature_grids` | — | `COUNT(DISTINCT) + GROUP BY to_char(...)` **全表掃描** | 無 | ✅ 30s | 小 | ② 現況 OK，但 | 🟡 | **不是 matview**！隨 temperature_grids 成長會越來越慢，建議改 `mv_temperature_dates` 比照 ship/flight |
 | 16 | `get_h3_demographics_yearly` | h3Loader.ts:207 | `spatial.h3_demographics_yearly` | `target_year, target_resolution` | 無 | 無 | ❌ 無 | 中（~6.5 萬 rows/year 之內） | ④ 小查表 | 🟢 | 確認 `(year, resolution)` index 存在 |
 | 17 | `get_h3_demographics_years` | h3Loader.ts:228 | `spatial.h3_demographics_yearly` | — | `COUNT(*) GROUP BY year,resolution` | 無 | ❌ 無 | <1KB | ④ 小查表 | 🟢 | 資料小，OK |
+| 18 | `get_bus_current_taipei` | busLoader.ts:42 | `realtime.bus_current` | — | 無（直讀 upsert 表） | 無 | ❌ 無 | ~100KB（~5700 rows） | ② 現況 OK | 🟢 | Live polling 每 30s，直讀小表 |
+| 19 | `get_bus_trails` | busLoader.ts:97 | `realtime.bus_trails_daily` | `target_date` | 無（已 pre-agg） | 無 | ✅ 60s | ~8-15MB（~5200 buses） | ② 現況 OK | 🟢 | 5 分鐘降采樣 pre-aggregate，32s refresh |
+| 20 | `get_bus_dates` | busLoader.ts:84 | `realtime.bus_trails_days_summary` | — | 無（summary 表） | 無 | ✅ 60s | <1KB | ② 現況 OK | 🟢 | — |
 
 ---
 
