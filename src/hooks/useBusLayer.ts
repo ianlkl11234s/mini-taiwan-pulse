@@ -17,6 +17,7 @@ const POLL_INTERVAL = 30_000;
 const MAX_CACHED_DAYS = 3;
 
 interface CachedDay {
+  key: string;  // `${date}:${cities sorted}`
   date: string;
   trails: BusTrail[];
 }
@@ -117,50 +118,53 @@ export function useBusLayer(
   }, [enabled, isLive, engineRef.current !== null, cities.join(",")]);
 
   // ── Replay: loadDay callback ──
+  const citiesKey = [...cities].sort().join(",");
   const loadDay = useCallback(async (dateStr: string) => {
     if (!engineRef.current || !enabled || isLive) return;
-    if (loadedDayRef.current === dateStr) return;
-    if (fetchingDayRef.current === dateStr) return; // 防重複 fetch
+    const fetchKey = `${dateStr}:${citiesKey}`;
+    if (loadedDayRef.current === fetchKey) return;
+    if (fetchingDayRef.current === fetchKey) return; // 防重複 fetch
 
     // 檢查 cache
-    const cached = cacheRef.current.find((c) => c.date === dateStr);
+    const cached = cacheRef.current.find((c) => c.key === fetchKey);
     if (cached) {
-      loadedDayRef.current = dateStr;
+      loadedDayRef.current = fetchKey;
       engineRef.current.ingestTrails(cached.trails);
       return;
     }
 
     // Fetch from Supabase
-    fetchingDayRef.current = dateStr;
+    fetchingDayRef.current = fetchKey;
     try {
       const trails = await fetchBusTrails(dateStr, cities);
       if (trails.length === 0) {
-        console.log(`[Bus] No trail data for ${dateStr}`);
+        console.log(`[Bus] No trail data for ${dateStr} (${citiesKey})`);
         engineRef.current.clearReplay();
-        loadedDayRef.current = dateStr;
+        loadedDayRef.current = fetchKey;
         return;
       }
 
       // LRU cache
       cacheRef.current = [
-        { date: dateStr, trails },
-        ...cacheRef.current.filter((c) => c.date !== dateStr),
+        { key: fetchKey, date: dateStr, trails },
+        ...cacheRef.current.filter((c) => c.key !== fetchKey),
       ].slice(0, MAX_CACHED_DAYS);
 
-      loadedDayRef.current = dateStr;
+      loadedDayRef.current = fetchKey;
       engineRef.current.ingestTrails(trails);
     } catch (err) {
       console.warn("[Bus] loadDay error:", err);
     } finally {
       fetchingDayRef.current = "";
     }
-  }, [enabled, isLive]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, isLive, citiesKey]);
 
-  // 切到 replay 時清空 live 資料，讓 loadDay 可以接手
+  // 切到 replay 或 cities 變化時清空 live 資料，讓 loadDay 可以接手
   useEffect(() => {
     if (!enabled || isLive || !engineRef.current) return;
     loadedDayRef.current = ""; // 強制下次 loadDay 觸發
-  }, [enabled, isLive]);
+  }, [enabled, isLive, citiesKey]);
 
   // ── Per-frame animation loop ──
   useEffect(() => {
