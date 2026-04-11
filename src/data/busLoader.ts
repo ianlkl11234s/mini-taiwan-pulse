@@ -116,28 +116,42 @@ export async function fetchBusDates(): Promise<BusDateInfo[]> {
   }));
 }
 
-/** 載入指定日期的公車歷史軌跡 */
-export async function fetchBusTrails(date: string, cities: BusCity[]): Promise<BusTrail[]> {
-  if (!supabaseConfigured) return [];
-
-  const { data, error } = await withLoading(
-    `bus-trails:${date}`,
-    `公車軌跡 ${date}`,
-    supabase.rpc("get_bus_trails", { target_date: date, cities }),
-  );
+/** 單一城市 fetch，內部使用 */
+async function fetchBusTrailsForCity(date: string, city: BusCity): Promise<BusTrail[]> {
+  const { data, error } = await supabase.rpc("get_bus_trails", {
+    target_date: date,
+    cities: [city],
+  });
   if (error) {
-    console.warn("[Bus] get_bus_trails error:", error.message);
+    console.warn(`[Bus] get_bus_trails error (${city}):`, error.message);
     return [];
   }
   if (!data) return [];
 
-  const rows = data as any[];
-  console.log(`[Bus] Trails for ${date}: ${rows.length} buses`);
-  return rows.map((row) => ({
+  return (data as any[]).map((row) => ({
     plateNumb: row.plate_numb,
     routeUid: row.route_uid ?? null,
     routeName: row.route_name ?? null,
     city: row.city ?? null,
     path: parseTrail(row.trail),
   }));
+}
+
+/**
+ * 載入指定日期的公車歷史軌跡
+ * 分 city 平行 fetch 後合併，避免單次 response 超過 Supabase ~4MB 限制
+ */
+export async function fetchBusTrails(date: string, cities: BusCity[]): Promise<BusTrail[]> {
+  if (!supabaseConfigured) return [];
+  if (cities.length === 0) return [];
+
+  const results = await withLoading(
+    `bus-trails:${date}`,
+    `公車軌跡 ${date}`,
+    Promise.all(cities.map((city) => fetchBusTrailsForCity(date, city))),
+  );
+
+  const merged = results.flat();
+  console.log(`[Bus] Trails for ${date}: ${merged.length} buses (${cities.join("+")})`);
+  return merged;
 }
