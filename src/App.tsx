@@ -321,7 +321,7 @@ export default function App() {
   const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, demoResolution);
 
   const {
-    flightSceneRef, shipSceneRef, railSceneRef,
+    flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
@@ -333,8 +333,8 @@ export default function App() {
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, layerVisibilityRef);
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, timeline.currentTime, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
@@ -1292,6 +1292,40 @@ export default function App() {
           </div>
           <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
             {trainTooltipInfo.train.position[0].toFixed(4)}, {trainTooltipInfo.train.position[1].toFixed(4)}
+          </div>
+        </div>
+      )}
+
+      {/* ── 公車 Tooltip ── */}
+      {busTooltipInfo && (
+        <div
+          style={{
+            position: "absolute",
+            left: busTooltipInfo.x + 12,
+            top: busTooltipInfo.y - 10,
+            zIndex: 30,
+            background: "rgba(10,10,20,0.9)",
+            backdropFilter: "blur(12px)",
+            border: `1px solid ${busTooltipInfo.bus.color}66`,
+            borderRadius: 8,
+            padding: "10px 14px",
+            pointerEvents: "none",
+            fontFamily: "monospace",
+            minWidth: 180,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 700, color: busTooltipInfo.bus.color, letterSpacing: 1 }}>
+            {busTooltipInfo.bus.routeName}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+            {busTooltipInfo.bus.plateNumb} · {busTooltipInfo.bus.city}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+            {busTooltipInfo.bus.status === "running" ? "行駛中" : "停靠中"}
+            {busTooltipInfo.bus.speed > 0 && ` · ${busTooltipInfo.bus.speed.toFixed(0)} km/h`}
+          </div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+            {busTooltipInfo.bus.position[1].toFixed(4)}, {busTooltipInfo.bus.position[0].toFixed(4)}
           </div>
         </div>
       )}

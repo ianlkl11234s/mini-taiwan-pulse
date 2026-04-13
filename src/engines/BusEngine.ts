@@ -8,6 +8,30 @@
 import type { BusCity, BusRouteData, BusRouteGeometry, BusPosition, BusVehicle, BusTrail, TrailPoint } from "../types";
 import { interpolateOnLineString } from "./railUtils";
 
+/** 公車最大合理速度 (km/h)，超過視為 GPS 異常 */
+const MAX_BUS_SPEED_KMH = 90;
+const KM_PER_DEG = 111.0;
+
+/** 過濾 trail 中的 GPS 異常點（逐點速度閾值，同 shipLoader 模式） */
+function filterTrailAnomalies(path: TrailPoint[]): TrailPoint[] {
+  if (path.length < 2) return path;
+  const filtered: TrailPoint[] = [path[0]!];
+  for (let i = 1; i < path.length; i++) {
+    const prev = filtered[filtered.length - 1]!;
+    const cur = path[i]!;
+    const dtHours = (cur[3] - prev[3]) / 3600;
+    if (dtHours > 0) {
+      const dLat = (cur[0] - prev[0]) * KM_PER_DEG;
+      const dLng = (cur[1] - prev[1]) * KM_PER_DEG * 0.91; // cos(25°) ≈ 0.91
+      const distKm = Math.sqrt(dLat * dLat + dLng * dLng);
+      const speedKmh = distKm / dtHours;
+      if (speedKmh > MAX_BUS_SPEED_KMH) continue; // GPS 跳躍，丟棄
+    }
+    filtered.push(cur);
+  }
+  return filtered;
+}
+
 /** 速度低於此值 (km/h) 視為停靠 */
 const STOPPED_SPEED_THRESHOLD = 3;
 
@@ -306,8 +330,14 @@ export class BusEngine {
   /** 載入歷史軌跡資料（切換日期時呼叫） */
   ingestTrails(trails: BusTrail[]): void {
     this.replayTrails.clear();
+    let totalFiltered = 0;
     for (const trail of trails) {
       if (trail.path.length < 2) continue;
+      // GPS 異常過濾（同 shipLoader 模式）
+      const cleanPath = filterTrailAnomalies(trail.path);
+      totalFiltered += trail.path.length - cleanPath.length;
+      if (cleanPath.length < 2) continue;
+      trail.path = cleanPath;
       // 路線配對：嘗試 direction 0 和 1，取 snap 距離較小的
       let routeKey: string | null = null;
       if (trail.routeUid) {
@@ -333,7 +363,7 @@ export class BusEngine {
         city: (trail.city ?? "Taipei") as BusCity,
       });
     }
-    console.log(`[Bus] ingestTrails: ${trails.length} → ${this.replayTrails.size} with routes`);
+    console.log(`[Bus] ingestTrails: ${trails.length} → ${this.replayTrails.size} with routes, filtered ${totalFiltered} anomalous points`);
   }
 
   /**
