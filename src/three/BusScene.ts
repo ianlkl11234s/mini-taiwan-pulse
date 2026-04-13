@@ -50,6 +50,9 @@ export class BusScene {
 
   private colorCache = new Map<string, THREE.Color>();
   private busPositions = new Map<number, BusVehicle>(); // instanceIndex → bus
+  /** 視覺平滑：記住每輛車的上一幀 Mercator 座標 */
+  private prevMercator = new Map<string, { x: number; y: number; z: number }>();
+  private smoothFactor = 0.15; // 0=不動, 1=無平滑
 
   private lastMatrix: THREE.Matrix4 | null = null;
   private _dummy = new THREE.Matrix4();
@@ -142,9 +145,23 @@ export class BusScene {
       const [lng, lat] = bus.position;
       if (lng === 0 && lat === 0) continue;
 
-      const mc = toMercator(lat, lng, this.altOffset);
+      const target = toMercator(lat, lng, this.altOffset);
+
+      // 視覺平滑：lerp 到目標位置，避免跳躍
+      const prev = this.prevMercator.get(bus.plateNumb);
+      let fx: number, fy: number, fz: number;
+      if (prev) {
+        const s = this.smoothFactor;
+        fx = prev.x + (target.x - prev.x) * s;
+        fy = prev.y + (target.y - prev.y) * s;
+        fz = prev.z + (target.z - prev.z) * s;
+      } else {
+        fx = target.x; fy = target.y; fz = target.z;
+      }
+      this.prevMercator.set(bus.plateNumb, { x: fx, y: fy, z: fz });
+
       dummy.makeScale(baseScale, baseScale, baseScale);
-      dummy.setPosition(mc.x, mc.y, mc.z);
+      dummy.setPosition(fx, fy, fz);
       this.instancedMesh.setMatrixAt(count, dummy);
 
       let color: THREE.Color;
@@ -168,6 +185,14 @@ export class BusScene {
     this.instancedMesh.instanceMatrix.needsUpdate = true;
     if (this.instancedMesh.instanceColor) {
       (this.instancedMesh.instanceColor as THREE.InstancedBufferAttribute).needsUpdate = true;
+    }
+
+    // 清理不再活躍的平滑快取（每 60 幀一次）
+    if (this.prevMercator.size > count * 2) {
+      const activeKeys = new Set(buses.map((b) => b.plateNumb));
+      for (const key of this.prevMercator.keys()) {
+        if (!activeKeys.has(key)) this.prevMercator.delete(key);
+      }
     }
   }
 

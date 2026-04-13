@@ -77,6 +77,8 @@ interface SnappedBus {
   progress: number;
   progressRate: number; // progress per second
   snapTime: number;
+  snapLat: number;
+  snapLng: number;
   speed: number;
   routeName: string;
   routeUid: string;
@@ -190,6 +192,23 @@ export class BusEngine {
       const route = this.mergedRoutes.get(routeKey);
       if (!route) continue;
 
+      // ── 異常過濾：GPS 跳躍偵測 ──
+      const prev = this.snapped.get(pos.plateNumb);
+      if (prev && prev.routeKey === routeKey) {
+        const elapsed = now - prev.snapTime;
+        if (elapsed > 0 && elapsed < 120) {
+          // 預期最大移動距離（km）= speed * elapsed * 1.5 安全係數
+          const maxDistKm = Math.max(pos.speed, prev.speed, 30) / 3600 * elapsed * 1.5;
+          const dlat = pos.lat - prev.snapLat;
+          const dlng = pos.lng - prev.snapLng;
+          const actualDistKm = Math.sqrt(dlat * dlat + dlng * dlng) * 111;
+          if (actualDistKm > maxDistKm && actualDistKm > 0.5) {
+            // GPS 跳躍：沿用上次位置，跳過此次更新
+            continue;
+          }
+        }
+      }
+
       // Snap GPS → 路線
       const { progress } = snapToRoute(pos.lat, pos.lng, route);
 
@@ -205,6 +224,8 @@ export class BusEngine {
         progress,
         progressRate,
         snapTime: now,
+        snapLat: pos.lat,
+        snapLng: pos.lng,
         speed: pos.speed,
         routeName: pos.routeName,
         routeUid: pos.routeUid,
@@ -315,24 +336,48 @@ export class BusEngine {
     console.log(`[Bus] ingestTrails: ${trails.length} → ${this.replayTrails.size} with routes`);
   }
 
-  /** Binary search 找 trail 中 ts 的位置並插值 */
+  /**
+   * Binary search 找 trail 中 ts 的位置，用 Catmull-Rom spline 插值
+   * 4 個控制點（p0, p1, p2, p3）產生平滑曲線，比線性插值更自然
+   */
   private interpolateTrail(path: TrailPoint[], ts: number): [number, number] | null {
+    if (path.length < 2) return null;
     if (ts < path[0]![3] || ts > path[path.length - 1]![3]) return null;
 
+    // Binary search 找到 path[lo].ts <= ts < path[hi].ts
     let lo = 0, hi = path.length - 1;
     while (lo < hi - 1) {
       const mid = (lo + hi) >> 1;
       if (path[mid]![3] <= ts) lo = mid; else hi = mid;
     }
 
-    const a = path[lo]!, b = path[hi]!;
-    const dt = b[3] - a[3];
-    const t = dt > 0 ? (ts - a[3]) / dt : 0;
-    // TrailPoint = [lat, lng, alt, ts]
-    return [
-      a[0] + (b[0] - a[0]) * t,  // lat (index 0)
-      a[1] + (b[1] - a[1]) * t,  // lng (index 1)
-    ];
+    const dt = path[hi]![3] - path[lo]![3];
+    const t = dt > 0 ? (ts - path[lo]![3]) / dt : 0;
+
+    // Catmull-Rom 需要 4 個控制點: p0, p1(=lo), p2(=hi), p3
+    // 邊界使用鄰近點的鏡像
+    const p0 = path[Math.max(lo - 1, 0)]!;
+    const p1 = path[lo]!;
+    const p2 = path[hi]!;
+    const p3 = path[Math.min(hi + 1, path.length - 1)]!;
+
+    // Catmull-Rom spline: q(t) = 0.5 * ((2*P1) + (-P0+P2)*t + (2*P0-5*P1+4*P2-P3)*t² + (-P0+3*P1-3*P2+P3)*t³)
+    const t2 = t * t;
+    const t3 = t2 * t;
+    const lat = 0.5 * (
+      2 * p1[0]
+      + (-p0[0] + p2[0]) * t
+      + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2
+      + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3
+    );
+    const lng = 0.5 * (
+      2 * p1[1]
+      + (-p0[1] + p2[1]) * t
+      + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2
+      + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3
+    );
+
+    return [lat, lng];
   }
 
   private updateReplay(ts: number): BusVehicle[] {
