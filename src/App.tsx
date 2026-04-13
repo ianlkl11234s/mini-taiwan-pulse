@@ -522,10 +522,10 @@ export default function App() {
   }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
 
   // YouBike Fullness: sync with main timeline
-  // 每 30 秒模擬時間更新一次（lerp 插值平滑）
+  // 每 60 秒模擬時間更新一次（lerp 插值平滑）
   const youbikeTimeKey = useMemo(() => {
-    return Math.floor(timeline.currentTime / 30) * 30;
-  }, [Math.floor(timeline.currentTime / 30)]);
+    return Math.floor(timeline.currentTime / 60) * 60;
+  }, [Math.floor(timeline.currentTime / 60)]);
 
   useEffect(() => {
     const map = mapRef.current;
