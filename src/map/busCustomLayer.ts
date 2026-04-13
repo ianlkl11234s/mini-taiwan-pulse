@@ -8,6 +8,7 @@ export interface BusLayerOptions {
   getOrbScale: () => number;
   getIsVisible: () => boolean;
   getColorMode: () => BusColorMode;
+  getAltOffset: () => number;
   onSceneReady?: (scene: BusScene) => void;
   maxInstances?: number;
 }
@@ -38,6 +39,7 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
       }
 
       busScene.setOrbScale(opts.getOrbScale());
+      busScene.setAltitudeOffset(opts.getAltOffset());
       busScene.update(opts.getBuses(), opts.getColorMode());
       busScene.render(matrix);
 

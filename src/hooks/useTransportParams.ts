@@ -57,6 +57,7 @@ export function useTransportParams() {
     [busCities],
   );
   const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
+  const [busAltOffset, setBusAltOffset] = useState(0);
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
   // Cycling
@@ -183,8 +184,10 @@ export function useTransportParams() {
   const tempOpacityRef = useRef(tempOpacity);
   const tempWireframeRef = useRef(tempWireframe);
   const busColorModeRef = useRef(busColorMode);
+  const busAltOffsetRef = useRef(busAltOffset);
 
   busColorModeRef.current = busColorMode;
+  busAltOffsetRef.current = busAltOffset;
   busOrbScaleRef.current = busOrbScale;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
@@ -261,6 +264,7 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "新北", value: busCities.NewTaipei, onChange: (v: boolean) => setBusCities((p) => ({ ...p, NewTaipei: v })) },
         { type: "toggle" as const, label: "桃園", value: busCities.Taoyuan, onChange: (v: boolean) => setBusCities((p) => ({ ...p, Taoyuan: v })) },
         { type: "select" as const, label: "Color", value: busColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusColorMode(v as BusColorMode) },
+        { label: `Bus Z +${busAltOffset}m`, value: busAltOffset, min: 0, max: 500, step: 10, onChange: setBusAltOffset },
         { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
       ];
       case "busStationsCity":
@@ -456,6 +460,7 @@ export function useTransportParams() {
       railTrackMode: railTrackModeRef,
       busOrbScale: busOrbScaleRef,
       busColorMode: busColorModeRef,
+      busAltOffset: busAltOffsetRef,
       beamVisible: beamVisibleRef,
       beamDistance: beamDistanceRef,
       beamOpacity: beamOpacityRef,

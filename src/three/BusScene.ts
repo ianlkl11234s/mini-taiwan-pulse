@@ -46,6 +46,7 @@ export class BusScene {
   private maxInstances: number;
   private isDarkTheme = true;
   private orbScale = 0.000004;
+  private altOffset = 0;
 
   private colorCache = new Map<string, THREE.Color>();
   private busPositions = new Map<number, BusVehicle>(); // instanceIndex → bus
@@ -74,6 +75,7 @@ export class BusScene {
       opacity: 0.85,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
+      depthTest: false,  // 不被地形遮擋
     });
 
     this.instancedMesh = new THREE.InstancedMesh(geo, mat, this.maxInstances);
@@ -99,6 +101,10 @@ export class BusScene {
 
   setOrbScale(scale: number) {
     this.orbScale = scale;
+  }
+
+  setAltitudeOffset(offset: number) {
+    this.altOffset = offset;
   }
 
   private getColor(hex: string): THREE.Color {
@@ -136,7 +142,7 @@ export class BusScene {
       const [lng, lat] = bus.position;
       if (lng === 0 && lat === 0) continue;
 
-      const mc = toMercator(lat, lng, 0);
+      const mc = toMercator(lat, lng, this.altOffset);
       dummy.makeScale(baseScale, baseScale, baseScale);
       dummy.setPosition(mc.x, mc.y, mc.z);
       this.instancedMesh.setMatrixAt(count, dummy);
