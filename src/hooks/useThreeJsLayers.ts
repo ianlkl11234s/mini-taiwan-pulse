@@ -207,7 +207,7 @@ export function useThreeJsLayers({
           getIsVisible: () => layerVisibilityRef.current.stationsTRA,
         },
         metro: {
-          pillarColor: { dark: 0xfffde7, light: 0xc8b060 }, // near-white yellow
+          pillarColor: { dark: 0xffffff, light: 0xe0e0e0 }, // 白色
           getPositions: () => metroPillarDataRef.current,
           getPillarVisible: () => paramRefs.metroPillarVisible.current,
           getPillarHeight: () => paramRefs.metroPillarHeight.current,

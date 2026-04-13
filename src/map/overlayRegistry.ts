@@ -158,8 +158,22 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
-    rebuildOnParamChange: ["metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
+    rebuildOnParamChange: ["metro-pt-range", "metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
     layers: [
+      {
+        suffix: "metro-pt-range",
+        type: "circle",
+        minzoom: 11,
+        paint: (_isDark, params) => {
+          const scale = params?.stationScale ?? 1;
+          return {
+            "circle-radius": BASE_RADIUS * scale * 8,
+            "circle-blur": 0.8,
+            "circle-color": _isDark ? "#ffffff" : "#00838f",
+            "circle-opacity": _isDark ? 0.03 : 0.06,
+          };
+        },
+      },
       {
         suffix: "metro-pt-glow-2",
         type: "circle",
