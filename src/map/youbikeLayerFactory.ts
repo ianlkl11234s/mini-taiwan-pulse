@@ -102,7 +102,9 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       layout: { visibility: "none" },
       paint: {
         "fill-color": ["get", "color"],
+        "fill-color-transition": { duration: 800, delay: 0 },
         "fill-opacity": 0.6,
+        "fill-opacity-transition": { duration: 500, delay: 0 },
       },
     });
   }
@@ -114,8 +116,11 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       layout: { visibility: "none" },
       paint: {
         "fill-extrusion-color": ["get", "color"],
+        "fill-extrusion-color-transition": { duration: 800, delay: 0 },
         "fill-extrusion-height": ["*", ["get", "height"], 5000],
+        "fill-extrusion-height-transition": { duration: 800, delay: 0 },
         "fill-extrusion-opacity": 0.6,
+        "fill-extrusion-opacity-transition": { duration: 500, delay: 0 },
       },
     });
   }
