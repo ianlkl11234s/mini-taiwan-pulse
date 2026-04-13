@@ -318,7 +318,7 @@ export default function App() {
   const [h3Resolution, setH3Resolution] = useState(7);
   const [demoResolution, setDemoResolution] = useState(7);
 
-  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, demoResolution);
+  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, transportParams.ybResolution);
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
