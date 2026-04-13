@@ -17,6 +17,17 @@ function unixToSnapshotKey(unixSec: number): string {
   return `${y}-${m}-${day}T${h}:${min}`;
 }
 
+/** Snapshot key "2026-04-13T08:15" → unix seconds (Asia/Taipei → UTC) */
+function snapshotKeyToUnix(key: string): number {
+  // key = "YYYY-MM-DDTHH:MM" in Asia/Taipei
+  const [datePart, timePart] = key.split("T");
+  const [y, m, d] = datePart!.split("-").map(Number);
+  const [h, min] = timePart!.split(":").map(Number);
+  // 建 UTC Date 再減 8 小時（Asia/Taipei = UTC+8）
+  const utcMs = Date.UTC(y!, m! - 1, d!, h!, min!) - 8 * 3600 * 1000;
+  return utcMs / 1000;
+}
+
 /** Extract date part "YYYY-MM-DD" from unix timestamp (Asia/Taipei) */
 function unixToDateStr(unixSec: number): string {
   const d = new Date((unixSec + 8 * 3600) * 1000);
@@ -68,14 +79,43 @@ export function useYoubikeH3(visible: boolean, resolution: number) {
       setCurrentDate(dateStr);
     }
 
+    // 找到前後兩個快照做插值
     const key = unixToSnapshotKey(unixSec);
-    if (data.snapshots[key]) return data.snapshots[key];
-    let closest = timeKeys[0]!;
-    for (const k of timeKeys) {
-      if (k <= key) closest = k;
+    let loIdx = 0;
+    for (let i = 0; i < timeKeys.length; i++) {
+      if (timeKeys[i]! <= key) loIdx = i;
       else break;
     }
-    return data.snapshots[closest] ?? [];
+    const hiIdx = Math.min(loIdx + 1, timeKeys.length - 1);
+    const loCells = data.snapshots[timeKeys[loIdx]!];
+    const hiCells = data.snapshots[timeKeys[hiIdx]!];
+
+    if (!loCells) return [];
+    if (loIdx === hiIdx || !hiCells) return loCells;
+
+    // 計算 lo/hi 的 unix 時間，算 t ∈ [0,1]
+    const loUnix = snapshotKeyToUnix(timeKeys[loIdx]!);
+    const hiUnix = snapshotKeyToUnix(timeKeys[hiIdx]!);
+    const span = hiUnix - loUnix;
+    const t = span > 0 ? Math.max(0, Math.min(1, (unixSec - loUnix) / span)) : 0;
+
+    if (t < 0.01) return loCells;
+    if (t > 0.99) return hiCells;
+
+    // 建 hi cell lookup
+    const hiMap = new Map<string, YoubikeH3CellData>();
+    for (const c of hiCells) hiMap.set(c.h, c);
+
+    // lerp 每個 cell 的 fr 和 sc
+    return loCells.map((lo) => {
+      const hi = hiMap.get(lo.h);
+      if (!hi) return lo;
+      return {
+        h: lo.h,
+        fr: lo.fr + (hi.fr - lo.fr) * t,
+        sc: lo.sc + (hi.sc - lo.sc) * t,
+      };
+    });
   }, [data, timeKeys, currentDate]);
 
   return { data, getCellsForTime, timeKeys };

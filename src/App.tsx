@@ -522,10 +522,10 @@ export default function App() {
   }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
 
   // YouBike Fullness: sync with main timeline
-  // Floor to nearest 15-min interval to avoid re-rendering every second
-  const youbikeQuarterKey = useMemo(() => {
-    return Math.floor(timeline.currentTime / 900) * 900;
-  }, [Math.floor(timeline.currentTime / 900)]);
+  // 每 30 秒模擬時間更新一次（插值平滑），高速播放時更頻繁
+  const youbikeTimeKey = useMemo(() => {
+    return Math.floor(timeline.currentTime / 30) * 30;
+  }, [Math.floor(timeline.currentTime / 30)]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -533,7 +533,7 @@ export default function App() {
     ensureYoubikeLayers(map);
     const cells = getYoubikeCellsForTime(timeline.currentTime);
     updateYoubikeLayer(map, cells, transportParams.youbikeParams, layerVisibility.youbikeFullness);
-  }, [getYoubikeCellsForTime, youbikeQuarterKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
+  }, [getYoubikeCellsForTime, youbikeTimeKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
 
   // ESC 退出拍攝模式
   useEffect(() => {
