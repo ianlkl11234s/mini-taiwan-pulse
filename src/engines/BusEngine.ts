@@ -376,6 +376,10 @@ export class BusEngine {
     const p1 = path[lo]!;
     const p2 = path[hi]!;
     const dt = p2[3] - p1[3];
+
+    // Gap guard：兩點間隔 > 15 分鐘視為不同趟次，不插值
+    if (dt > 900) return null;
+
     const t = dt > 0 ? (ts - p1[3]) / dt : 0;
 
     // p1-p2 間距（度）
