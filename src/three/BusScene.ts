@@ -1,6 +1,37 @@
 import * as THREE from "three";
-import type { BusVehicle } from "../types";
+import type { BusVehicle, BusColorMode } from "../types";
 import { toMercator } from "../utils/coordinates";
+
+// ── 速度漸層：紅(停)→橙(慢)→黃(正常)→綠(快) ──
+const SPEED_STOPS = [
+  { speed: 0,  color: new THREE.Color("#b71c1c") },  // 暗紅 — 停靠
+  { speed: 3,  color: new THREE.Color("#e53935") },  // 紅
+  { speed: 15, color: new THREE.Color("#ff9800") },  // 橙
+  { speed: 30, color: new THREE.Color("#fdd835") },  // 黃
+  { speed: 50, color: new THREE.Color("#66bb6a") },  // 綠
+];
+
+// ── 密度漸層：暗藍(冷門)→青→黃→紅(幹線) ──
+const DENSITY_STOPS = [
+  { count: 1,  color: new THREE.Color("#1a237e") },  // 暗藍
+  { count: 3,  color: new THREE.Color("#0097a7") },  // 青
+  { count: 8,  color: new THREE.Color("#fdd835") },  // 黃
+  { count: 15, color: new THREE.Color("#ff5722") },  // 紅橙
+];
+
+function lerpStops(stops: { speed?: number; count?: number; color: THREE.Color }[], value: number, key: "speed" | "count"): THREE.Color {
+  const result = new THREE.Color();
+  if (value <= (stops[0] as any)[key]) return result.copy(stops[0]!.color);
+  for (let i = 1; i < stops.length; i++) {
+    const lo = (stops[i - 1] as any)[key] as number;
+    const hi = (stops[i] as any)[key] as number;
+    if (value <= hi) {
+      const t = (value - lo) / (hi - lo);
+      return result.copy(stops[i - 1]!.color).lerp(stops[i]!.color, t);
+    }
+  }
+  return result.copy(stops[stops.length - 1]!.color);
+}
 
 /**
  * 公車場景 — InstancedMesh 光球（無 trail、無靜態路線）
@@ -80,11 +111,21 @@ export class BusScene {
     return c;
   }
 
-  update(buses: BusVehicle[]) {
+  update(buses: BusVehicle[], colorMode: BusColorMode = "route") {
     if (!this.instancedMesh) return;
+
+    // density 模式需要先統計每條路線的車輛數
+    let routeCount: Map<string, number> | null = null;
+    if (colorMode === "density") {
+      routeCount = new Map();
+      for (const bus of buses) {
+        routeCount.set(bus.routeUid, (routeCount.get(bus.routeUid) ?? 0) + 1);
+      }
+    }
 
     const dummy = this._dummy;
     const baseScale = this.orbScale * 0.5;
+    const darkBoost = this.isDarkTheme ? 1.4 : 1.0;
     let count = 0;
 
     this.busPositions.clear();
@@ -100,7 +141,17 @@ export class BusScene {
       dummy.setPosition(mc.x, mc.y, mc.z);
       this.instancedMesh.setMatrixAt(count, dummy);
 
-      const color = this.getColor(bus.color);
+      let color: THREE.Color;
+      if (colorMode === "speed") {
+        color = lerpStops(SPEED_STOPS, bus.speed, "speed");
+        if (this.isDarkTheme) color.multiplyScalar(darkBoost);
+      } else if (colorMode === "density" && routeCount) {
+        const cnt = routeCount.get(bus.routeUid) ?? 1;
+        color = lerpStops(DENSITY_STOPS, cnt, "count");
+        if (this.isDarkTheme) color.multiplyScalar(darkBoost);
+      } else {
+        color = this.getColor(bus.color);
+      }
       this.instancedMesh.instanceColor!.setXYZ(count, color.r, color.g, color.b);
 
       this.busPositions.set(count, bus);

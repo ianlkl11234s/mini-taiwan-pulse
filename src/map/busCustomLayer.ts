@@ -1,5 +1,5 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
-import type { BusVehicle } from "../types";
+import type { BusVehicle, BusColorMode } from "../types";
 import { BusScene } from "../three/BusScene";
 
 export interface BusLayerOptions {
@@ -7,6 +7,7 @@ export interface BusLayerOptions {
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
   getIsVisible: () => boolean;
+  getColorMode: () => BusColorMode;
   onSceneReady?: (scene: BusScene) => void;
   maxInstances?: number;
 }
@@ -37,7 +38,7 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
       }
 
       busScene.setOrbScale(opts.getOrbScale());
-      busScene.update(opts.getBuses());
+      busScene.update(opts.getBuses(), opts.getColorMode());
       busScene.render(matrix);
 
       map?.triggerRepaint();

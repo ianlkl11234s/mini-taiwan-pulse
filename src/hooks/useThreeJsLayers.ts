@@ -45,6 +45,7 @@ interface UseThreeJsLayersArgs {
     railTrainVisible: React.RefObject<boolean>;
     railTrackMode: React.RefObject<string>;
     busOrbScale: React.RefObject<number>;
+    busColorMode: React.RefObject<string>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
@@ -160,6 +161,7 @@ export function useThreeJsLayers({
       getIsDarkTheme: () => isDarkThemeRef.current,
       getOrbScale: () => paramRefs.busOrbScale.current,
       getIsVisible: () => layerVisibilityRef.current.busLive,
+      getColorMode: () => paramRefs.busColorMode.current as import("../types").BusColorMode,
       onSceneReady: (scene) => { busSceneRef.current = scene; },
     });
     map.addLayer(layer);

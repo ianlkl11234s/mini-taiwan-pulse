@@ -207,6 +207,7 @@ export interface TraData {
 // ── 公車即時 (GPS-based) ──
 
 export type BusCity = "Taipei" | "NewTaipei" | "Taoyuan";
+export type BusColorMode = "route" | "speed" | "density";
 
 export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
   Taipei:    { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },

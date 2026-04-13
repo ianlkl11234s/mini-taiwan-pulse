@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from "react";
-import type { ExpandableLayerKey, BusCity } from "../types";
+import type { ExpandableLayerKey, BusCity, BusColorMode } from "../types";
 
 export interface SliderConfig {
   type?: "slider";
@@ -56,6 +56,7 @@ export function useTransportParams() {
     () => (Object.entries(busCities) as [BusCity, boolean][]).filter(([, v]) => v).map(([k]) => k),
     [busCities],
   );
+  const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
   // Cycling
@@ -181,7 +182,9 @@ export function useTransportParams() {
   const tempExtrudedRef = useRef(tempExtruded);
   const tempOpacityRef = useRef(tempOpacity);
   const tempWireframeRef = useRef(tempWireframe);
+  const busColorModeRef = useRef(busColorMode);
 
+  busColorModeRef.current = busColorMode;
   busOrbScaleRef.current = busOrbScale;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
@@ -257,6 +260,7 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "台北", value: busCities.Taipei, onChange: (v: boolean) => setBusCities((p) => ({ ...p, Taipei: v })) },
         { type: "toggle" as const, label: "新北", value: busCities.NewTaipei, onChange: (v: boolean) => setBusCities((p) => ({ ...p, NewTaipei: v })) },
         { type: "toggle" as const, label: "桃園", value: busCities.Taoyuan, onChange: (v: boolean) => setBusCities((p) => ({ ...p, Taoyuan: v })) },
+        { type: "select" as const, label: "Color", value: busColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusColorMode(v as BusColorMode) },
         { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
       ];
       case "busStationsCity":
@@ -451,6 +455,7 @@ export function useTransportParams() {
       railTrainVisible: railTrainVisibleRef,
       railTrackMode: railTrackModeRef,
       busOrbScale: busOrbScaleRef,
+      busColorMode: busColorModeRef,
       beamVisible: beamVisibleRef,
       beamDistance: beamDistanceRef,
       beamOpacity: beamOpacityRef,
