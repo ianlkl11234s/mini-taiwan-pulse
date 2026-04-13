@@ -338,23 +338,15 @@ export class BusEngine {
       totalFiltered += trail.path.length - cleanPath.length;
       if (cleanPath.length < 2) continue;
       trail.path = cleanPath;
-      // 路線配對：嘗試 direction 0 和 1，取 snap 距離較小的
-      let routeKey: string | null = null;
-      if (trail.routeUid) {
-        const key0 = this.resolveRouteKey(trail.routeUid, 0);
-        const key1 = this.resolveRouteKey(trail.routeUid, 1);
-        if (key0 && key1) {
-          const firstPt = trail.path[0]!;
-          const route0 = this.mergedRoutes.get(key0)!;
-          const route1 = this.mergedRoutes.get(key1)!;
-          const d0 = snapToRoute(firstPt[0], firstPt[1], route0).dist;
-          const d1 = snapToRoute(firstPt[0], firstPt[1], route1).dist;
-          routeKey = d0 <= d1 ? key0 : key1;
-        } else {
-          routeKey = key0 ?? key1;
-        }
-      }
-      this.replayTrails.set(trail.plateNumb, {
+
+      // 路線配對：直接用 trail 的 direction（DB 端已按 direction 分 trail）
+      const routeKey = trail.routeUid
+        ? this.resolveRouteKey(trail.routeUid, trail.direction)
+        : null;
+
+      // key = plateNumb_direction（同車不同方向是獨立 trail）
+      const trailKey = `${trail.plateNumb}_${trail.direction}`;
+      this.replayTrails.set(trailKey, {
         path: trail.path,
         routeKey,
         routeUid: trail.routeUid ?? "",
@@ -447,9 +439,20 @@ export class BusEngine {
       if (!interp) continue;
 
       const [lat, lng] = interp;
-      // Replay 不走 snap-to-route：trail 包含去回程，單方向 snap 會在折返時跳躍
-      // 直接用 Catmull-Rom 插值的 GPS 座標，搭配視覺 lerp 已足夠平滑
-      const position: [number, number] = [lng, lat];
+      let position: [number, number];
+
+      // DB 端已按 direction 分 trail，可以正確 snap 到對應方向的路線
+      if (bus.routeKey) {
+        const route = this.mergedRoutes.get(bus.routeKey);
+        if (route) {
+          const { progress } = snapToRoute(lat, lng, route);
+          position = interpolateOnLineString(route.coords, progress);
+        } else {
+          position = [lng, lat];
+        }
+      } else {
+        position = [lng, lat];
+      }
 
       buses.push({
         plateNumb,

@@ -132,6 +132,7 @@ async function fetchBusTrailsForCity(date: string, city: BusCity): Promise<BusTr
     plateNumb: row.plate_numb,
     routeUid: row.route_uid ?? null,
     routeName: row.route_name ?? null,
+    direction: row.direction ?? 0,
     city: row.city ?? null,
     path: parseTrail(row.trail),
   }));

@@ -268,6 +268,7 @@ export interface BusTrail {
   plateNumb: string;
   routeUid: string | null;
   routeName: string | null;
+  direction: number;
   city: string | null;
   path: TrailPoint[];   // [lat, lng, 0, unix_ts]
 }
