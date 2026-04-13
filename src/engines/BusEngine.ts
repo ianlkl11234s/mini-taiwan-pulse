@@ -338,7 +338,7 @@ export class BusEngine {
 
   /**
    * Binary search 找 trail 中 ts 的位置，用 Catmull-Rom spline 插值
-   * 4 個控制點（p0, p1, p2, p3）產生平滑曲線，比線性插值更自然
+   * 當相鄰點間距差異過大時退回線性插值，避免 spline 抄捷徑
    */
   private interpolateTrail(path: TrailPoint[], ts: number): [number, number] | null {
     if (path.length < 2) return null;
@@ -351,31 +351,60 @@ export class BusEngine {
       if (path[mid]![3] <= ts) lo = mid; else hi = mid;
     }
 
-    const dt = path[hi]![3] - path[lo]![3];
-    const t = dt > 0 ? (ts - path[lo]![3]) / dt : 0;
-
-    // Catmull-Rom 需要 4 個控制點: p0, p1(=lo), p2(=hi), p3
-    // 邊界使用鄰近點的鏡像
-    const p0 = path[Math.max(lo - 1, 0)]!;
     const p1 = path[lo]!;
     const p2 = path[hi]!;
+    const dt = p2[3] - p1[3];
+    const t = dt > 0 ? (ts - p1[3]) / dt : 0;
+
+    // p1-p2 間距（度）
+    const segDist = Math.sqrt((p2[0] - p1[0]) ** 2 + (p2[1] - p1[1]) ** 2);
+
+    // 距離太小（靜止）或路徑只有 2-3 個點 → 線性插值
+    if (path.length <= 3 || segDist < 0.0001) {
+      return [
+        p1[0] + (p2[0] - p1[0]) * t,
+        p1[1] + (p2[1] - p1[1]) * t,
+      ];
+    }
+
+    // 4 控制點
+    const p0 = path[Math.max(lo - 1, 0)]!;
     const p3 = path[Math.min(hi + 1, path.length - 1)]!;
 
-    // Catmull-Rom spline: q(t) = 0.5 * ((2*P1) + (-P0+P2)*t + (2*P0-5*P1+4*P2-P3)*t² + (-P0+3*P1-3*P2+P3)*t³)
+    // Overshoot guard：如果前段或後段間距比本段大 3 倍以上 → 退回線性
+    const d01 = Math.sqrt((p1[0] - p0[0]) ** 2 + (p1[1] - p0[1]) ** 2);
+    const d23 = Math.sqrt((p3[0] - p2[0]) ** 2 + (p3[1] - p2[1]) ** 2);
+    if (d01 > segDist * 3 || d23 > segDist * 3) {
+      return [
+        p1[0] + (p2[0] - p1[0]) * t,
+        p1[1] + (p2[1] - p1[1]) * t,
+      ];
+    }
+
+    // Catmull-Rom spline
     const t2 = t * t;
     const t3 = t2 * t;
-    const lat = 0.5 * (
+    let lat = 0.5 * (
       2 * p1[0]
       + (-p0[0] + p2[0]) * t
       + (2 * p0[0] - 5 * p1[0] + 4 * p2[0] - p3[0]) * t2
       + (-p0[0] + 3 * p1[0] - 3 * p2[0] + p3[0]) * t3
     );
-    const lng = 0.5 * (
+    let lng = 0.5 * (
       2 * p1[1]
       + (-p0[1] + p2[1]) * t
       + (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * t2
       + (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * t3
     );
+
+    // 最終 clamp：結果不能離 p1-p2 線段太遠（超過 segDist → 退回線性）
+    const midLat = p1[0] + (p2[0] - p1[0]) * t;
+    const midLng = p1[1] + (p2[1] - p1[1]) * t;
+    const deviation = Math.sqrt((lat - midLat) ** 2 + (lng - midLng) ** 2);
+    if (deviation > segDist * 0.5) {
+      lat = midLat;
+      lng = midLng;
+    }
 
     return [lat, lng];
   }
