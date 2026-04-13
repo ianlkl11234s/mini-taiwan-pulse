@@ -70,6 +70,9 @@ export function useYoubikeH3(visible: boolean, resolution: number) {
     return Object.keys(data.snapshots).sort();
   }, [data]);
 
+  // 快取 hiMap，避免每次 lerp 都重建
+  const hiMapCache = useRef<{ loIdx: number; hiIdx: number; map: Map<string, YoubikeH3CellData> }>({ loIdx: -1, hiIdx: -1, map: new Map() });
+
   const getCellsForTime = useCallback((unixSec: number): YoubikeH3CellData[] => {
     if (!data || timeKeys.length === 0) return [];
 
@@ -93,7 +96,7 @@ export function useYoubikeH3(visible: boolean, resolution: number) {
     if (!loCells) return [];
     if (loIdx === hiIdx || !hiCells) return loCells;
 
-    // 計算 lo/hi 的 unix 時間，算 t ∈ [0,1]
+    // 計算 t ∈ [0,1]
     const loUnix = snapshotKeyToUnix(timeKeys[loIdx]!);
     const hiUnix = snapshotKeyToUnix(timeKeys[hiIdx]!);
     const span = hiUnix - loUnix;
@@ -102,13 +105,18 @@ export function useYoubikeH3(visible: boolean, resolution: number) {
     if (t < 0.01) return loCells;
     if (t > 0.99) return hiCells;
 
-    // 建 hi cell lookup
-    const hiMap = new Map<string, YoubikeH3CellData>();
-    for (const c of hiCells) hiMap.set(c.h, c);
+    // 快取 hiMap（只在 loIdx/hiIdx 改變時重建）
+    const cache = hiMapCache.current;
+    if (cache.loIdx !== loIdx || cache.hiIdx !== hiIdx) {
+      cache.map.clear();
+      for (const c of hiCells) cache.map.set(c.h, c);
+      cache.loIdx = loIdx;
+      cache.hiIdx = hiIdx;
+    }
 
     // lerp 每個 cell 的 fr 和 sc
     return loCells.map((lo) => {
-      const hi = hiMap.get(lo.h);
+      const hi = cache.map.get(lo.h);
       if (!hi) return lo;
       return {
         h: lo.h,
