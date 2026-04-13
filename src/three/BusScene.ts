@@ -147,16 +147,23 @@ export class BusScene {
 
       const target = toMercator(lat, lng, this.altOffset);
 
-      // 視覺平滑：lerp 到目標位置，避免跳躍
-      const prev = this.prevMercator.get(bus.plateNumb);
+      // 視覺平滑：route-snapped 的車不 lerp（位置已沿路線，lerp 會切角）
+      // 無路線配對的車用 lerp 避免 GPS 跳躍
       let fx: number, fy: number, fz: number;
-      if (prev) {
-        const s = this.smoothFactor;
-        fx = prev.x + (target.x - prev.x) * s;
-        fy = prev.y + (target.y - prev.y) * s;
-        fz = prev.z + (target.z - prev.z) * s;
-      } else {
+      if (bus.progress > 0) {
+        // route-snapped：直接到位
         fx = target.x; fy = target.y; fz = target.z;
+      } else {
+        // 無路線：lerp 平滑
+        const prev = this.prevMercator.get(bus.plateNumb);
+        if (prev) {
+          const s = this.smoothFactor;
+          fx = prev.x + (target.x - prev.x) * s;
+          fy = prev.y + (target.y - prev.y) * s;
+          fz = prev.z + (target.z - prev.z) * s;
+        } else {
+          fx = target.x; fy = target.y; fz = target.z;
+        }
       }
       this.prevMercator.set(bus.plateNumb, { x: fx, y: fy, z: fz });
 

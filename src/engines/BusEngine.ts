@@ -446,10 +446,12 @@ export class BusEngine {
       let position: [number, number];
 
       // DB 端已按 direction 分 trail，可以正確 snap 到對應方向的路線
+      let progress = 0;
       if (bus.routeKey) {
         const route = this.mergedRoutes.get(bus.routeKey);
         if (route) {
-          const { progress } = snapToRoute(lat, lng, route);
+          const snap = snapToRoute(lat, lng, route);
+          progress = snap.progress;
           position = interpolateOnLineString(route.coords, progress);
         } else {
           position = [lng, lat];
@@ -466,7 +468,7 @@ export class BusEngine {
         color: bus.color,
         status: "running",
         speed: 0,
-        progress: 0,
+        progress,
         direction: 0,
         city: bus.city,
       });
