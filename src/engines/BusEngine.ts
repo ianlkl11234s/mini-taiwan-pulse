@@ -447,20 +447,9 @@ export class BusEngine {
       if (!interp) continue;
 
       const [lat, lng] = interp;
-      let position: [number, number];
-
-      // 如果有配對路線，snap 到路線上讓移動更平滑
-      if (bus.routeKey) {
-        const route = this.mergedRoutes.get(bus.routeKey);
-        if (route) {
-          const { progress } = snapToRoute(lat, lng, route);
-          position = interpolateOnLineString(route.coords, progress);
-        } else {
-          position = [lng, lat];
-        }
-      } else {
-        position = [lng, lat];
-      }
+      // Replay 不走 snap-to-route：trail 包含去回程，單方向 snap 會在折返時跳躍
+      // 直接用 Catmull-Rom 插值的 GPS 座標，搭配視覺 lerp 已足夠平滑
+      const position: [number, number] = [lng, lat];
 
       buses.push({
         plateNumb,
