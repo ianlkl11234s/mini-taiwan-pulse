@@ -52,6 +52,17 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 
 可用 slash command `/new-layer <name>` 自動產生骨架。
 
+### 6. 動態圖層時間訂閱（⚠️ 強制）
+動態 / 時序圖層**禁止**把 `currentTime` 放進 React `useEffect` / `useMemo` deps；
+**必須**透過 `src/state/timeStore.ts` 訂閱：
+
+- RAF / per-frame：`timeStore.getTime()` 同步讀
+- filter / lookup：`timeStore.subscribeThrottled(ms, cb)`（ms 依粒度設定）
+- 跨日載入：`timeStore.subscribeDate(cb)`
+- UI 顯示：`useSyncExternalStore` + `subscribeThrottled(250)`
+
+Hook 參數表**不收** `currentTime`。理由與節流表見 [`docs/development-rules.md#8-動態圖層時間訂閱`](./docs/development-rules.md#8-動態圖層時間訂閱external-time-store)。
+
 ## 目錄規則
 
 | 用途 | 位置 |

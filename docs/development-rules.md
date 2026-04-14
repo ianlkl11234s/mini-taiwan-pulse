@@ -121,6 +121,7 @@ useEffect(() => {
 - [ ] Loader 有 loadingRegistry
 - [ ] Toggle 開關有 loading 提示
 - [ ] 無 DB 查詢時間 > 1s（否則套 pre-aggregate）
+- [ ] **若為動態時序圖層：遵守 §8 動態圖層時間訂閱規則**
 
 ## 5. 命名慣例
 
@@ -145,3 +146,94 @@ Commit 前必跑。
 
 ## 7. 部署 Checklist
 見 CLAUDE.md 或 deploy-checklist memory。改 `public/*` 檔案要注意 S3 deploy-assets 契約（扁平檔名）。
+
+## 8. 動態圖層時間訂閱（External Time Store）
+
+> 2026-04-14 後所有隨時間變化的圖層**強制**遵守此規則。背景見 `docs/perf-external-time-store.md`。
+
+### 原則
+Timeline 的 `currentTime` 存在 **`src/state/timeStore.ts`**（不是 React state）。
+所有動態圖層的時間依賴，**一律透過 store 訂閱**，禁止把 `currentTime` 放進 React `useEffect` / `useMemo` deps。
+
+### 為什麼
+- Replay 模式下 `currentTime` 每秒變動 60 次。
+- 若放進 React deps → 每幀整個 App.tsx re-render → N 個圖層的 hook 全部重 evaluate → 調度成本 O(N × 60Hz) 爆炸。
+- 單獨開一層感覺不出，多層同開就卡。
+
+### API
+```ts
+import { timeStore } from "../state/timeStore";
+
+timeStore.getTime()               // 當前 unix 秒（純讀）
+timeStore.getDateKey()            // "YYYY-MM-DD"（Asia/Taipei）
+timeStore.subscribe(cb)           // 每次變動（60Hz，動畫用）
+timeStore.subscribeThrottled(ms, cb)  // 節流
+timeStore.subscribeDate(cb)       // 只在日期變化時觸發
+```
+
+### 使用決策表
+
+| 使用情境 | 用什麼 | 範例 |
+|---|---|---|
+| RAF / per-frame 內讀時間 | `timeStore.getTime()` 同步讀 | customLayer、scene.update() |
+| 每次時間變動都要 react（如 timeRef 同步） | `subscribe(cb)` | App.tsx timeRef 同步 |
+| filter / lookup 類，每 200ms~1s 更新足夠 | `subscribeThrottled(ms, cb)` | news filter (200ms)、freeway snapshot (1000ms) |
+| 只在日期切換時才觸發（跨日載入） | `subscribeDate(cb)` | bus replay、ship/flight 跨日載入 |
+| UI 顯示（HH:MM:SS 文字） | 元件內 `useSyncExternalStore` + `subscribeThrottled` | TimelineControls (250ms) |
+
+### 節流建議
+
+| 圖層/用途 | 節流 ms | 理由 |
+|---|---|---|
+| UI 時間數字 | 250 | 肉眼感受不出 |
+| News 時間過濾 | 200 | 反應需近即時 |
+| Earthquake filter | 500 | ripple 自帶 RAF |
+| Disaster Alert | 500 | active set 變化慢 |
+| Freeway snapshot | 1000 | 資料 10min 粒度 |
+| CWA imagery frame | 1000 | frame 粒度 10min |
+| YouBike 分鐘 key | minute-boundary 內判 | 1 分鐘粒度 |
+
+### 正例
+
+```tsx
+// ✅ 時間過濾訂閱節流
+useEffect(() => {
+  const apply = (currentTime: number) => {
+    map.setFilter(layerId, ["<=", ["get", "ts"], currentTime]);
+  };
+  apply(timeStore.getTime()); // 初始化
+  return timeStore.subscribeThrottled(500, apply);
+}, [/* 不含 currentTime */ visible, layerId]);
+
+// ✅ 跨日載入訂閱日期
+useEffect(() => {
+  const handler = (dateStr: string) => { if (dateStr) loadDay(dateStr); };
+  handler(timeStore.getDateKey());
+  return timeStore.subscribeDate(handler);
+}, [loadDay]);
+
+// ✅ 動畫迴圈同步讀
+render() {
+  const t = timeStore.getTime();
+  scene.update(t);
+}
+```
+
+### 反例（禁止）
+
+```tsx
+// ❌ currentTime 進 useEffect deps（每幀觸發 re-run）
+useEffect(() => {
+  map.setFilter(layerId, ["<=", ["get", "ts"], currentTime]);
+}, [currentTime, visible]);
+
+// ❌ hook 參數收 currentTime
+export function useMyLayer(mapRef, currentTime, visible) { ... }
+// 改為：useMyLayer(mapRef, visible) + 內部訂閱 timeStore
+```
+
+### 檢查清單（動態圖層）
+- [ ] Hook 參數表不含 `currentTime`
+- [ ] 所有時間依賴 effect 透過 `timeStore.subscribe*`，不在 deps
+- [ ] RAF 內部讀 `timeStore.getTime()`，不走 props
+- [ ] 節流時間依資料粒度設定（見上表）

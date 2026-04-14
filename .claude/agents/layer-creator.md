@@ -48,9 +48,38 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 4. ⚠️ 是否 `LAYER_COLORS` 有補上
 5. 是否有需要人工確認的地方（例如色碼、預設可見性、RPC 名稱）
 
+## 動態圖層特別規則（⚠️ 2026-04-14 起強制）
+
+若使用者要新增的是**動態 / 時序圖層**（會隨 timeline 變化），產生的 hook 必須遵守：
+
+- **Hook 參數表禁收 `currentTime`**。只收 `mapRef` / `visible` / 靜態參數。
+- **時間依賴不能放進 useEffect deps**。改用 `src/state/timeStore.ts`：
+  ```tsx
+  import { timeStore } from "../state/timeStore";
+
+  // Filter / lookup 類（中粒度）
+  useEffect(() => {
+    const apply = (t: number) => { /* 用 t 更新 filter */ };
+    apply(timeStore.getTime());
+    return timeStore.subscribeThrottled(500, apply); // ms 依資料粒度
+  }, [visible /* 不含 currentTime */]);
+
+  // 跨日載入
+  useEffect(() => {
+    const handler = (dateStr: string) => { if (dateStr) loadDay(dateStr); };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [loadDay]);
+  ```
+- **節流 ms 建議**：news filter 200ms / earthquake 500ms / freeway 1000ms / cwa imagery 1000ms
+- **範本**：dynamic hook 參考 `useFreewayLayer.ts`（已套用此原則）
+
+完整規則見 `docs/development-rules.md#8-動態圖層時間訂閱external-time-store`。
+
 ## 禁止
 
 - ❌ 靜默 `supabase.rpc()` 不接 loadingRegistry
 - ❌ 跳過 `LAYER_COLORS` 補 key（會 tsc 失敗）
 - ❌ 自創新目錄，必須遵守 `CLAUDE.md` 定義的目錄規則
 - ❌ 不跑 `tsc -b` 就回報完成
+- ❌ **動態圖層 hook 收 `currentTime` 參數 / 放進 useEffect deps**（違反 §8）
