@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
 import { MapView } from "./map/MapView";
 import { useAirspaceData } from "./hooks/useAirspaceData";
@@ -600,6 +600,72 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allReady, timeRange.start]);
 
+  // ── Sidebar props 穩定化（讓 IconRailSidebar / LayersPanel 能用 React.memo） ──
+
+  const sidebarCounts = useMemo(() => ({
+    flights: displayedFlights.length,
+    ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
+    trains: trainCount,
+    buses: busCount,
+    busesIntercity: busIntercityCount,
+  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount]);
+
+  const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
+    const isVisible = layerVisibilityRef.current[layer];
+    if (!isVisible) {
+      setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
+      setExpandedLayer(layer as ExpandableLayerKey);
+    } else {
+      setExpandedLayer((prevExpanded) =>
+        prevExpanded === layer ? null : (layer as ExpandableLayerKey),
+      );
+    }
+  }, [layerVisibilityRef, setLayerVisibility]);
+
+  const handleDisplayModeChange = useCallback((mode: DisplayMode) => {
+    setDisplayMode(mode);
+    setTooltipInfo(null);
+  }, [setTooltipInfo]);
+
+  const handleHideTransport = useCallback(() => {
+    setExpandedLayer((prevExpanded) => {
+      if (prevExpanded) {
+        setLayerVisibility((prev) => ({ ...prev, [prevExpanded]: false }));
+      }
+      return null;
+    });
+  }, [setLayerVisibility]);
+
+  const handleAllOff = useCallback(() => {
+    setLayerVisibility((prev) => {
+      const next = { ...prev };
+      for (const k in next) next[k as keyof typeof next] = false;
+      return next;
+    });
+    setExpandedLayer(null);
+  }, [setLayerVisibility]);
+
+  const { seek: timelineSeek, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
+  const handleLocationJump = useCallback((id: string) => {
+    const p = getPresetById(id);
+    if (p && mapRef.current) {
+      if (p.category === "airport") setSelectedAirport(p.id);
+      mapRef.current.flyTo({
+        center: p.center,
+        zoom: p.zoom,
+        pitch: p.pitch,
+        bearing: p.bearing,
+        duration: 2000,
+      });
+      if (p.time != null) timelineSeek(p.time);
+      if (p.speed != null) timelineSetSpeed(p.speed);
+      if (p.autoPlay) timelinePlay();
+      if (p.layers) {
+        setLayerVisibility((prev) => ({ ...prev, ...p.layers }));
+      }
+    }
+  }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
+
   // ── Render ──
 
   if ((!allReady && !loadingTimedOut) || (!dismissedLoading && !loadingTimedOut)) {
@@ -820,64 +886,16 @@ export default function App() {
               expandedLayer={expandedLayer}
               viewMode={viewMode}
               displayMode={displayMode}
-              counts={{
-                flights: displayedFlights.length,
-                ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
-                trains: trainCount,
-                buses: busCount,
-                busesIntercity: busIntercityCount,
-              }}
-              onLayerClick={(layer) => {
-                const isVisible = layerVisibility[layer];
-                if (!isVisible) {
-                  setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
-                  setExpandedLayer(layer as ExpandableLayerKey);
-                } else if (expandedLayer === layer) {
-                  setExpandedLayer(null);
-                } else {
-                  setExpandedLayer(layer as ExpandableLayerKey);
-                }
-              }}
+              counts={sidebarCounts}
+              onLayerClick={handleLayerClick}
               onToggleVisibility={toggleVisibility}
               onViewModeChange={setViewMode}
-              onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
-              onHideTransport={() => {
-                if (expandedLayer) {
-                  setLayerVisibility((prev) => ({ ...prev, [expandedLayer]: false }));
-                  setExpandedLayer(null);
-                }
-              }}
-              onAllOff={() => {
-                setLayerVisibility((prev) => {
-                  const next = { ...prev };
-                  for (const k in next) next[k as keyof typeof next] = false;
-                  return next;
-                });
-                setExpandedLayer(null);
-              }}
+              onDisplayModeChange={handleDisplayModeChange}
+              onHideTransport={handleHideTransport}
+              onAllOff={handleAllOff}
               getControls={transportParams.getControls}
               currentLocationId={selectedAirport}
-              onLocationJump={(id) => {
-                const p = getPresetById(id);
-                if (p && mapRef.current) {
-                  if (p.category === "airport") setSelectedAirport(p.id);
-                  mapRef.current.flyTo({
-                    center: p.center,
-                    zoom: p.zoom,
-                    pitch: p.pitch,
-                    bearing: p.bearing,
-                    duration: 2000,
-                  });
-                  // 場景時空跳轉
-                  if (p.time != null) timeline.seek(p.time);
-                  if (p.speed != null) timeline.setSpeed(p.speed);
-                  if (p.autoPlay) timeline.play();
-                  // 場景圖層開關
-                  if (p.layers) {
-                    setLayerVisibility((prev) => ({ ...prev, ...p.layers }));
-                  }
-                }
-              }}
+              onLocationJump={handleLocationJump}
               onWidthChange={handleSidebarWidthChange}
               dataRegistry={dataRegistry}
               selectedDate={timeline.selectedDate}
