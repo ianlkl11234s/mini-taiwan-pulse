@@ -264,21 +264,25 @@ export const BUS_GROUP_CITIES: Record<BusGroup, BusCity[]> = {
 - `enabledBusCities` 是 computed 展開值，丟給 RPC
 - 雙北只會一起開/關，減少使用者點擊負擔
 
-### 6.3 渲染共用：同一個 BusScene
+### 6.3 渲染分離：兩個獨立 BusScene 實例
 
-`useBusIntercityLayer` 獨立 hook，但共用 `BusEngine` 類別 + 同一個 Three.js `BusScene`：
+`useBusIntercityLayer` 獨立 hook + 獨立 `BusScene` 實例 + 獨立參數 state：
 
 ```typescript
 // useThreeJsLayers.ts
-createBusLayer({
-  getBuses: () => cityBuses.concat(intercityBuses),   // 串接兩組 activeBuses
-  getIsVisible: () => busLive || busIntercityLive,    // 任一開啟即渲染
-  getOrbScale: () => paramRefs.busOrbScale.current,   // 完全共用 color/scale/Z
-  ...
-});
+createBusLayer({ id: "bus-3d", ..., getOrbScale: () => paramRefs.busOrbScale.current });
+createBusLayer({ id: "bus-intercity-3d", ..., getOrbScale: () => paramRefs.busIntercityOrbScale.current });
 ```
 
-所有顯示參數（`busOrbScale` / `busColorMode` / `busAltOffset`）兩者共享，無需重複 UI。
+參數各自獨立（各 3 組）：
+
+| 項目 | 市區公車 | 公路客運 |
+|------|---------|---------|
+| Color mode | `busColorMode` | `busIntercityColorMode` |
+| Z offset | `busAltOffset` | `busIntercityAltOffset` |
+| Orb scale | `busOrbScale` | `busIntercityOrbScale` |
+
+共用的是 `BusEngine` 類別本身（code reuse）以及 `DENSITY_STOPS` / `SPEED_STOPS` 色階常數。
 
 ### 6.4 Supabase 後端（migration `037_bus_intercity_trails_daily.sql`）
 
@@ -298,7 +302,38 @@ SELECT cron.schedule('cleanup-bus-intercity-trails', '7 3 * * *', ...);  -- 03:0
 
 dry-run 實測：今日 1,836 台 / 35,241 rows / 1.4 MB / 耗時 <1s（遠低於 bus 的 30-60s）。
 
-### 6.5 效能與費用守則
+### 6.5 密度色階：固定 frequency 查表（非動態）
+
+密度 colorMode 不是即時車輛計數，而是 **preprocess 階段算好的「班次/小時」**，同班車顏色永遠相同。
+
+**資料來源**：`taipei-gis-analytics/.../bus_schedule_all.csv`
+
+```
+RouteUID,Direction,ScheduleType,StartTime,EndTime,MinHeadwayMins,MaxHeadwayMins,...
+```
+
+**計算邏輯**（`preprocess-bus-routes.py:calc_frequency`）：
+
+| ScheduleType | 公式 |
+|--------------|------|
+| `frequency`（班距型） | `60 / avg(MinHeadwayMins, MaxHeadwayMins)` |
+| `schedule`（定點發車） | `count(rows) / operating_hours`（預設 14 hr） |
+| 無班表資料 | `0.5`（預設低密度） |
+
+結果寫入 `BusRouteGeometry.frequency`，engine 在組 `BusVehicle` 時查表塞入 `bus.density`。`BusScene` 拿到後直接 `lerpStops(DENSITY_STOPS, freq)`，**不再每 frame 統計**。
+
+**色階對應**（`BusScene.ts:DENSITY_STOPS`）：
+
+| 班次/hr | 顏色 | 意義 |
+|--------|------|------|
+| 1 | 暗藍 `#1a237e` | 偏遠/低頻 |
+| 3 | 青 `#0097a7` | 郊區 |
+| 8 | 黃 `#fdd835` | 市區 |
+| 15+ | 紅橙 `#ff5722` | 幹線高頻 |
+
+**運算負擔**：O(N) 統計 → O(1) 查表，CPU 負擔顯著下降。
+
+### 6.6 效能與費用守則
 
 | 風險 | 防線 |
 |------|------|
@@ -311,7 +346,7 @@ dry-run 實測：今日 1,836 台 / 35,241 rows / 1.4 MB / 耗時 <1s（遠低�
 | Response 4MB 上限 | intercity 1.8k 台，單趟 response <1MB，無需分片 |
 | 大路線 JSON | `intercity_bus_routes.json` 87 MB 走 S3 deploy-assets（不進 git）|
 
-### 6.6 部署：大檔走 S3
+### 6.7 部署：大檔走 S3
 
 路線 JSON 部署模式（大小閾值約 10 MB）：
 
@@ -351,3 +386,5 @@ dry-run 實測：今日 1,836 台 / 35,241 rows / 1.4 MB / 耗時 <1s（遠低�
 | `b3bef73` | `feat(bus): 改為 progress-based 時間軸，抑制 GPS 跳躍與切角` |
 | `bc4b3e9` | `feat(bus): 淡入淡出 + 修復路線載入 race` |
 | `c19c9bf` | `feat(bus): 市區公車擴展六都（雙北合併）+ 新增公路客運 live/replay` |
+| `c77d499` | `fix(bus): IconRailSidebar 補上公路客運 toggle` |
+| `2ba4a9a` | `feat(bus): 密度改為固定 frequency + 拆分公路客運參數` |
