@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { LayerVisibility } from "../types";
 
 export function useLayerVisibility() {
@@ -44,9 +44,9 @@ export function useLayerVisibility() {
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;
 
-  const toggleVisibility = (layer: keyof LayerVisibility) => {
+  const toggleVisibility = useCallback((layer: keyof LayerVisibility) => {
     setLayerVisibility((prev) => ({ ...prev, [layer]: !prev[layer] }));
-  };
+  }, []);
 
   return { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility };
 }
