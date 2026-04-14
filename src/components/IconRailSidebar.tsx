@@ -104,6 +104,7 @@ const SECTIONS: SectionDef[] = [
       { key: "ships", label: "船舶 Ship", expandable: true },
       { key: "rail", label: "鐵道 Rail", expandable: true },
       { key: "busLive", label: "公車 Bus", expandable: true },
+      { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
     ],
   },
   {
@@ -261,6 +262,7 @@ export function IconRailSidebar({
       case "ships": return counts.ships;
       case "rail": return counts.trains;
       case "busLive": return counts.buses;
+      case "busIntercityLive": return counts.busesIntercity;
       case "windPlan": return counts.windPlan;
       default: return undefined;
     }
