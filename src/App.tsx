@@ -7,6 +7,7 @@ import { useAirspaceData } from "./hooks/useAirspaceData";
 import { useShipData } from "./hooks/useShipData";
 import { useRailData } from "./hooks/useRailData";
 import { useTimeline } from "./hooks/useTimeline";
+import { timeStore } from "./state/timeStore";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
@@ -284,7 +285,7 @@ export default function App() {
 
   flightsRef.current = displayedFlights;
   shipsRef.current = ships;
-  timeRef.current = timeline.currentTime;
+  // timeRef 不走 React 4Hz 節流；直接訂閱 timeStore 維持 60Hz（見下方 useEffect）
   renderModeRef.current = renderMode;
   isDarkThemeRef.current = isDarkTheme;
   showTrailsRef.current = showTrails;
@@ -297,6 +298,9 @@ export default function App() {
   portPillarDataRef.current = portPillarData;
   temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
+
+  // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
+  useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
 
   const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef, layerVisibility.rail);
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode, transportParams.enabledBusCities);

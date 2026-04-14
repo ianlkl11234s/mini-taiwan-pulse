@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { TimeMode } from "../types";
+import { timeStore } from "../state/timeStore";
 
 /** 從 Date 提取台灣時區的日期 [year, month(0-based), day] */
 function taiwanDateParts(d: Date): [number, number, number] {
@@ -62,6 +63,14 @@ interface UseTimelineReturn {
   setRangeDays: (n: number) => void;
 }
 
+// UI 用的時間訂閱節流：4Hz，肉眼幾乎無感。
+// 動態圖層不該透過這個值，應直接讀 timeStore.getTime()。
+const UI_TIME_THROTTLE_MS = 250;
+
+const subscribeUiTime = (cb: () => void) =>
+  timeStore.subscribeThrottled(UI_TIME_THROTTLE_MS, cb);
+const getTimeSnapshot = () => timeStore.getTime();
+
 export function useTimeline({
   dataStartTime,
   dataEndTime: _dataEndTime,
@@ -79,17 +88,25 @@ export function useTimeline({
   const windowStart = dayStartUnix(selectedDate);
   const windowEnd = dayEndUnix(addDays(selectedDate, rangeDays - 1));
 
-  // 今天：從「現在 - 1 小時」開始（讓時間軸有上下文，不是停在最尖端）；過去日期：從午夜開始
-  const [currentTime, setCurrentTime] = useState(() => {
+  // 首次渲染寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）
+  const initRef = useRef(false);
+  if (!initRef.current) {
     const startUnix = Date.now() / 1000 - 3600;
-    if (startUnix >= windowStart && startUnix <= windowEnd) return startUnix;
-    return windowStart;
-  });
+    const initial =
+      startUnix >= windowStart && startUnix <= windowEnd ? startUnix : windowStart;
+    timeStore.setTime(initial);
+    initRef.current = true;
+  }
+
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(60);
   const [timeMode, setTimeMode] = useState<TimeMode>(initialTimeMode);
   const rafRef = useRef<number>(0);
   const lastFrameRef = useRef<number>(0);
+
+  // UI 取用的 currentTime：節流訂閱，不隨每幀 re-render。
+  // 動畫迴圈請直接 timeStore.getTime()，不要經過這個值。
+  const currentTime = useSyncExternalStore(subscribeUiTime, getTimeSnapshot);
 
   const duration = windowEnd - windowStart;
   const progress = duration > 0 ? (currentTime - windowStart) / duration : 0;
@@ -97,14 +114,14 @@ export function useTimeline({
   // 日期切換時重置 currentTime
   const setSelectedDate = useCallback((d: Date) => {
     setSelectedDateRaw(d);
-    setCurrentTime(dayStartUnix(d));
+    timeStore.setTime(dayStartUnix(d));
     setPlaying(false);
   }, []);
 
   const shiftDate = useCallback((days: number) => {
     setSelectedDateRaw((prev) => {
       const next = addDays(prev, days);
-      setCurrentTime(dayStartUnix(next));
+      timeStore.setTime(dayStartUnix(next));
       setPlaying(false);
       return next;
     });
@@ -113,7 +130,7 @@ export function useTimeline({
   // dataStartTime/dataEndTime 保留給未來日期 clamp 用，初始化不依賴它們
   void dataStartTime;
 
-  // Live mode: tick currentTime = Date.now()/1000
+  // Live mode: 每秒同步到 Date.now()
   useEffect(() => {
     if (timeMode !== "live") return;
     setPlaying(false);
@@ -122,14 +139,14 @@ export function useTimeline({
     setSelectedDateRaw(new Date());
 
     const tick = () => {
-      setCurrentTime(Date.now() / 1000);
+      timeStore.setTime(Date.now() / 1000);
     };
     tick();
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [timeMode]);
 
-  // Replay mode: animation loop
+  // Replay mode: RAF 迴圈直接寫 store，不走 React state
   useEffect(() => {
     if (timeMode !== "replay" || !playing) return;
 
@@ -138,14 +155,14 @@ export function useTimeline({
       const dt = (now - lastFrameRef.current) / 1000;
       lastFrameRef.current = now;
 
-      setCurrentTime((prev) => {
-        const next = prev + dt * speed;
-        if (next >= windowEnd) {
-          setPlaying(false);
-          return windowStart; // loop back
-        }
-        return next;
-      });
+      const prev = timeStore.getTime();
+      const next = prev + dt * speed;
+      if (next >= windowEnd) {
+        setPlaying(false);
+        timeStore.setTime(windowStart); // loop back
+      } else {
+        timeStore.setTime(next);
+      }
 
       rafRef.current = requestAnimationFrame(animate);
     };
@@ -167,7 +184,7 @@ export function useTimeline({
   const seek = useCallback(
     (time: number) => {
       if (timeMode === "replay") {
-        setCurrentTime(Math.max(windowStart, Math.min(windowEnd, time)));
+        timeStore.setTime(Math.max(windowStart, Math.min(windowEnd, time)));
       }
     },
     [timeMode, windowStart, windowEnd],
