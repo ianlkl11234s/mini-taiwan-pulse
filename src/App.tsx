@@ -10,6 +10,8 @@ import { useTimeline } from "./hooks/useTimeline";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
+import { useBusLayer } from "./hooks/useBusLayer";
+import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
@@ -193,6 +195,11 @@ export default function App() {
   const { isMobile, isLandscape } = useIsMobile();
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
+  // 圖層可見性變化時踢 Mapbox 一次，確保從 idle 喚醒渲染循環
+  useEffect(() => {
+    mapRef.current?.triggerRepaint();
+  }, [layerVisibility]);
+
   const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
   const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
   const [mapStyleId, setMapStyleId] = useState("dark");
@@ -291,7 +298,29 @@ export default function App() {
   temperatureDataRef.current = temperatureData;
   playingRef.current = timeline.playing;
 
-  const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef);
+  const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef, layerVisibility.rail);
+  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode, transportParams.enabledBusCities);
+  const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
+    useBusIntercityLayer(layerVisibility.busIntercityLive, timeRef, timeline.timeMode);
+
+  // 公車 replay: 跨日載入歷史軌跡
+  useEffect(() => {
+    if (!layerVisibility.busLive || timeline.timeMode !== "replay") return;
+    if (timeline.currentTime <= 0) return;
+    const dayStr = new Date(timeline.currentTime * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    loadBusTrailDay(dayStr);
+  }, [timeline.currentTime, timeline.timeMode, layerVisibility.busLive, loadBusTrailDay]);
+
+  // 公路客運 replay: 同步
+  useEffect(() => {
+    if (!layerVisibility.busIntercityLive || timeline.timeMode !== "replay") return;
+    if (timeline.currentTime <= 0) return;
+    const dayStr = new Date(timeline.currentTime * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    loadBusIntercityTrailDay(dayStr);
+  }, [timeline.currentTime, timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
+
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
@@ -301,23 +330,23 @@ export default function App() {
   const [h3Resolution, setH3Resolution] = useState(7);
   const [demoResolution, setDemoResolution] = useState(7);
 
-  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, demoResolution);
+  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, transportParams.ybResolution);
 
   const {
-    flightSceneRef, shipSceneRef, railSceneRef,
+    flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, railDataRef,
+    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, layerVisibilityRef);
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, timeline.currentTime, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
@@ -505,10 +534,10 @@ export default function App() {
   }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
 
   // YouBike Fullness: sync with main timeline
-  // Floor to nearest 15-min interval to avoid re-rendering every second
-  const youbikeQuarterKey = useMemo(() => {
-    return Math.floor(timeline.currentTime / 900) * 900;
-  }, [Math.floor(timeline.currentTime / 900)]);
+  // 每 60 秒模擬時間更新一次（lerp 插值平滑）
+  const youbikeTimeKey = useMemo(() => {
+    return Math.floor(timeline.currentTime / 60) * 60;
+  }, [Math.floor(timeline.currentTime / 60)]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -516,7 +545,7 @@ export default function App() {
     ensureYoubikeLayers(map);
     const cells = getYoubikeCellsForTime(timeline.currentTime);
     updateYoubikeLayer(map, cells, transportParams.youbikeParams, layerVisibility.youbikeFullness);
-  }, [getYoubikeCellsForTime, youbikeQuarterKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
+  }, [getYoubikeCellsForTime, youbikeTimeKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
 
   // ESC 退出拍攝模式
   useEffect(() => {
@@ -784,6 +813,8 @@ export default function App() {
                 flights: displayedFlights.length,
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                 trains: trainCount,
+                buses: busCount,
+                busesIntercity: busIntercityCount,
               }}
               onLayerClick={(layer) => {
                 const isVisible = layerVisibility[layer];
@@ -986,6 +1017,8 @@ export default function App() {
               {displayedFlights.length} flights
               {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
               {layerVisibility.rail && ` · ${trainCount} trains`}
+              {layerVisibility.busLive && ` · ${busCount} buses`}
+              {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
             <div
@@ -1147,6 +1180,8 @@ export default function App() {
                         flights: displayedFlights.length,
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                         trains: trainCount,
+                        buses: busCount,
+                        busesIntercity: busIntercityCount,
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];
@@ -1272,6 +1307,40 @@ export default function App() {
           </div>
           <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
             {trainTooltipInfo.train.position[0].toFixed(4)}, {trainTooltipInfo.train.position[1].toFixed(4)}
+          </div>
+        </div>
+      )}
+
+      {/* ── 公車 Tooltip ── */}
+      {busTooltipInfo && (
+        <div
+          style={{
+            position: "absolute",
+            left: busTooltipInfo.x + 12,
+            top: busTooltipInfo.y - 10,
+            zIndex: 30,
+            background: "rgba(10,10,20,0.9)",
+            backdropFilter: "blur(12px)",
+            border: `1px solid ${busTooltipInfo.bus.color}66`,
+            borderRadius: 8,
+            padding: "10px 14px",
+            pointerEvents: "none",
+            fontFamily: "monospace",
+            minWidth: 180,
+          }}
+        >
+          <div style={{ fontSize: 13, fontWeight: 700, color: busTooltipInfo.bus.color, letterSpacing: 1 }}>
+            {busTooltipInfo.bus.routeName}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+            {busTooltipInfo.bus.plateNumb} · {busTooltipInfo.bus.city}
+          </div>
+          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+            {busTooltipInfo.bus.status === "running" ? "行駛中" : "停靠中"}
+            {busTooltipInfo.bus.speed > 0 && ` · ${busTooltipInfo.bus.speed.toFixed(0)} km/h`}
+          </div>
+          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+            {busTooltipInfo.bus.position[1].toFixed(4)}, {busTooltipInfo.bus.position[0].toFixed(4)}
           </div>
         </div>
       )}

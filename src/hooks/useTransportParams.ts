@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
-import type { ExpandableLayerKey } from "../types";
+import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
+import { BUS_GROUP_CITIES, BUS_GROUP_LABELS } from "../types";
 
 export interface SliderConfig {
   type?: "slider";
@@ -48,6 +49,30 @@ export function useTransportParams() {
   const [stationScale, setStationScale] = useState(1);
   // Bus
   const [busScale, setBusScale] = useState(0.4);
+  const [busOrbScale, setBusOrbScale] = useState(0.000004);
+  // Bus groups（UI 層的合併概念）：雙北為一組，其餘各城市為一組
+  const [busGroups, setBusGroups] = useState<Record<BusGroup, boolean>>({
+    TaipeiMetro: true,
+    Taoyuan: false,
+    Taichung: false,
+    Tainan: false,
+    Kaohsiung: false,
+  });
+  // busCities 實際傳給 RPC 的展開值（BusGroup → BusCity[]）
+  const enabledBusCities = useMemo<BusCity[]>(
+    () => (Object.entries(busGroups) as [BusGroup, boolean][])
+      .filter(([, v]) => v)
+      .flatMap(([g]) => BUS_GROUP_CITIES[g]),
+    [busGroups],
+  );
+  const setBusGroup = (group: BusGroup, v: boolean) =>
+    setBusGroups((p) => ({ ...p, [group]: v }));
+  const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
+  const [busAltOffset, setBusAltOffset] = useState(0);
+  // Bus InterCity（獨立參數，預設沿用市區公車初值）
+  const [busIntercityOrbScale, setBusIntercityOrbScale] = useState(0.000004);
+  const [busIntercityColorMode, setBusIntercityColorMode] = useState<BusColorMode>("route");
+  const [busIntercityAltOffset, setBusIntercityAltOffset] = useState(0);
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
   // Cycling
@@ -141,6 +166,8 @@ export function useTransportParams() {
   const [ybContrast, setYbContrast] = useState(1);
   const [ybExtruded, setYbExtruded] = useState(true);
   const [ybElevationScale, setYbElevationScale] = useState(80);
+  const [ybHeightMode, setYbHeightMode] = useState<"mixed" | "fullness" | "capacity">("mixed");
+  const [ybResolution, setYbResolution] = useState(7);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -167,12 +194,24 @@ export function useTransportParams() {
   const portPillarHeightRef = useRef(portPillarHeight);
   const airportPillarVisibleRef = useRef(airportPillarVisible);
   const airportPillarHeightRef = useRef(airportPillarHeight);
+  const busOrbScaleRef = useRef(busOrbScale);
   const tempHeightRef = useRef(tempHeight);
   const tempZOffsetRef = useRef(tempZOffset);
   const tempExtrudedRef = useRef(tempExtruded);
   const tempOpacityRef = useRef(tempOpacity);
   const tempWireframeRef = useRef(tempWireframe);
+  const busColorModeRef = useRef(busColorMode);
+  const busAltOffsetRef = useRef(busAltOffset);
+  const busIntercityOrbScaleRef = useRef(busIntercityOrbScale);
+  const busIntercityColorModeRef = useRef(busIntercityColorMode);
+  const busIntercityAltOffsetRef = useRef(busIntercityAltOffset);
 
+  busColorModeRef.current = busColorMode;
+  busAltOffsetRef.current = busAltOffset;
+  busOrbScaleRef.current = busOrbScale;
+  busIntercityOrbScaleRef.current = busIntercityOrbScale;
+  busIntercityColorModeRef.current = busIntercityColorMode;
+  busIntercityAltOffsetRef.current = busIntercityAltOffset;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
@@ -222,7 +261,8 @@ export function useTransportParams() {
     convenienceScale,
     schoolLevelColor: schoolLevelColor ? 1 : 0,
     newsScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale]);
+    metroPillar3d: metroPillarVisible ? 1 : 0,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -242,6 +282,22 @@ export function useTransportParams() {
         { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
         { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
+      ];
+      case "busLive": return [
+        ...(["TaipeiMetro", "Taoyuan", "Taichung", "Tainan", "Kaohsiung"] as BusGroup[]).map((g) => ({
+          type: "toggle" as const,
+          label: BUS_GROUP_LABELS[g],
+          value: busGroups[g],
+          onChange: (v: boolean) => setBusGroup(g, v),
+        })),
+        { type: "select" as const, label: "Color", value: busColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusColorMode(v as BusColorMode) },
+        { label: `Bus Z +${busAltOffset}m`, value: busAltOffset, min: 0, max: 500, step: 10, onChange: setBusAltOffset },
+        { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
+      ];
+      case "busIntercityLive": return [
+        { type: "select" as const, label: "Color", value: busIntercityColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusIntercityColorMode(v as BusColorMode) },
+        { label: `InterCity Z +${busIntercityAltOffset}m`, value: busIntercityAltOffset, min: 0, max: 500, step: 10, onChange: setBusIntercityAltOffset },
+        { label: `InterCity Orb ${(busIntercityOrbScale * 1000000).toFixed(0)}`, value: busIntercityOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusIntercityOrbScale },
       ];
       case "busStationsCity":
       case "busStationsIntercity": return [
@@ -408,6 +464,8 @@ export function useTransportParams() {
         { label: `Opacity ${cwaRadarOpacity.toFixed(2)}`, value: cwaRadarOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaRadarOpacity },
       ];
       case "youbikeFullness": return [
+        { type: "select" as const, label: "Grid", value: String(ybResolution), options: [{ label: "大", value: "7" }, { label: "中", value: "8" }, { label: "小", value: "9" }], onChange: (v: string) => setYbResolution(Number(v)) },
+        { type: "select" as const, label: "Height", value: ybHeightMode, options: [{ label: "有車×容量", value: "mixed" }, { label: "有車率", value: "fullness" }, { label: "容量", value: "capacity" }], onChange: (v: string) => setYbHeightMode(v as "mixed" | "fullness" | "capacity") },
         { label: `Opacity ${ybOpacity.toFixed(1)}`, value: ybOpacity, min: 0.1, max: 1, step: 0.1, onChange: setYbOpacity },
         { label: `Contrast ${ybContrast.toFixed(1)}`, value: ybContrast, min: 0.3, max: 3, step: 0.1, onChange: setYbContrast },
         { type: "toggle" as const, label: "3D", value: ybExtruded, onChange: setYbExtruded },
@@ -421,6 +479,7 @@ export function useTransportParams() {
     railTrackMode,
     newsTimeBased,
     newsRipple,
+    enabledBusCities,
     refs: {
       altExag: altExagRef,
       altOffset: altOffsetRef,
@@ -433,6 +492,12 @@ export function useTransportParams() {
       railTrackOpacity: railTrackOpacityRef,
       railTrainVisible: railTrainVisibleRef,
       railTrackMode: railTrackModeRef,
+      busOrbScale: busOrbScaleRef,
+      busColorMode: busColorModeRef,
+      busAltOffset: busAltOffsetRef,
+      busIntercityOrbScale: busIntercityOrbScaleRef,
+      busIntercityColorMode: busIntercityColorModeRef,
+      busIntercityAltOffset: busIntercityAltOffsetRef,
       beamVisible: beamVisibleRef,
       beamDistance: beamDistanceRef,
       beamOpacity: beamOpacityRef,
@@ -459,7 +524,8 @@ export function useTransportParams() {
     indicatorsParams: useMemo(() => ({ category: indCategory, metric: indMetric, opacity: indOpacity, contrast: indContrast, extruded: indExtruded, elevationScale: indElevationScale }), [indCategory, indMetric, indOpacity, indContrast, indExtruded, indElevationScale]),
     socioParams: useMemo(() => ({ metric: socioMetric, opacity: socioOpacity, contrast: socioContrast, extruded: socioExtruded, elevationScale: socioElevation }), [socioMetric, socioOpacity, socioContrast, socioExtruded, socioElevation]),
     spatialParams: useMemo(() => ({ metric: spatialMetric, opacity: spatialOpacity, contrast: spatialContrast, extruded: spatialExtruded, elevationScale: spatialElevation }), [spatialMetric, spatialOpacity, spatialContrast, spatialExtruded, spatialElevation]),
-    youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale]),
+    ybResolution,
+    youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale, heightMode: ybHeightMode }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale, ybHeightMode]),
     cwaCloudOpacity,
     cwaRadarOpacity,
     eqOpacity,

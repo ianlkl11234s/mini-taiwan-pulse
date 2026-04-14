@@ -50,4 +50,22 @@ if [ -d "public/rail" ]; then
   rm /tmp/rail.tar.gz
 fi
 
+# 公車大檔路線 JSON（gitignore 的兩份：taipei 18MB、intercity 87MB）
+# 小檔（newtaipei / taoyuan / taichung / tainan / kaohsiung）仍進 git，不透過 S3
+BUS_BIG_FILES=(
+  "public/bus/taipei_bus_routes.json"
+  "public/bus/intercity_bus_routes.json"
+)
+for f in "${BUS_BIG_FILES[@]}"; do
+  name=$(basename "$f")
+  if [ ! -f "$f" ]; then
+    echo "Skipping $name (file not found: $f)"
+    continue
+  fi
+  echo "Uploading $name (gzip)..."
+  gzip -c "$f" > "/tmp/$name.gz"
+  aws s3 cp "/tmp/$name.gz" "s3://$BUCKET/$PREFIX/$name.gz" --region ap-southeast-2
+  rm "/tmp/$name.gz"
+done
+
 echo "Done!"

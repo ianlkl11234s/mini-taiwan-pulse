@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike } from "mapbox-gl";
-import type { Flight, RailTrain, FeatureInfo, LayerVisibility } from "../types";
+import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility } from "../types";
 import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
+import type { BusScene } from "../three/BusScene";
 
 interface TooltipInfo {
   flight: Flight;
@@ -17,17 +18,25 @@ interface TrainTooltipInfo {
   y: number;
 }
 
+interface BusTooltipInfo {
+  bus: BusVehicle;
+  x: number;
+  y: number;
+}
+
 export function useMapInteraction(
   mapRef: React.RefObject<MapboxMap | null>,
   flightSceneRef: React.RefObject<FlightScene | null>,
   flightsRef: React.RefObject<Flight[]>,
   timeRef: React.RefObject<number>,
   railSceneRef?: React.RefObject<RailScene | null>,
+  busSceneRef?: React.RefObject<BusScene | null>,
   layerVisibilityRef?: React.RefObject<LayerVisibility>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
   const [trainTooltipInfo, setTrainTooltipInfo] = useState<TrainTooltipInfo | null>(null);
+  const [busTooltipInfo, setBusTooltipInfo] = useState<BusTooltipInfo | null>(null);
   const [featureInfo, setFeatureInfo] = useState<FeatureInfo | null>(null);
   const clickBoundRef = useRef(false);
 
@@ -50,6 +59,20 @@ export function useMapInteraction(
           if (train) {
             setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+      // 嘗試拾取公車（僅在 busLive 圖層開啟時）
+      if (vis?.busLive) {
+        const busScene = busSceneRef?.current;
+        if (busScene) {
+          const bus = busScene.pickBus(e.point.x, e.point.y, w, h);
+          if (bus) {
+            setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
             return;
           }
         }
@@ -79,6 +102,7 @@ export function useMapInteraction(
       // 未命中 Three.js 物件 → 清空 tooltip，查詢 GIS 圖層
       setTooltipInfo(null);
       setTrainTooltipInfo(null);
+      setBusTooltipInfo(null);
 
       {
         // 查詢 Mapbox GIS 層
@@ -134,6 +158,7 @@ export function useMapInteraction(
         setSelectedFlightId((prev) => (prev === flightId ? null : flightId));
         setTooltipInfo(null);
         setTrainTooltipInfo(null);
+        setBusTooltipInfo(null);
       }
     });
 
@@ -142,7 +167,7 @@ export function useMapInteraction(
     map.on("wheel", () => setSelectedFlightId(null));
     map.on("rotatestart", () => setSelectedFlightId(null));
     map.on("pitchstart", () => setSelectedFlightId(null));
-    map.on("move", () => { setTooltipInfo(null); setTrainTooltipInfo(null); });
+    map.on("move", () => { setTooltipInfo(null); setTrainTooltipInfo(null); setBusTooltipInfo(null); });
   };
 
   // ESC 鍵取消跟隨
@@ -196,6 +221,7 @@ export function useMapInteraction(
   return {
     tooltipInfo, setTooltipInfo,
     trainTooltipInfo, setTrainTooltipInfo,
+    busTooltipInfo, setBusTooltipInfo,
     featureInfo, setFeatureInfo,
     selectedFlightId, setSelectedFlightId,
     bindEvents,

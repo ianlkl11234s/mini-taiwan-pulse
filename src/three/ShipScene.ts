@@ -31,6 +31,7 @@ export class ShipScene {
 
   // 視口剔除用
   private viewBounds: { minLng: number; maxLng: number; minLat: number; maxLat: number } | null = null;
+  private _dummy = new THREE.Matrix4();
 
   constructor() {
     this.scene = new THREE.Scene();
@@ -117,7 +118,7 @@ export class ShipScene {
     this.breathPhase += 0.02;
     const breathFactor = 1.0 + 0.15 * Math.sin(this.breathPhase);
 
-    const dummy = new THREE.Matrix4();
+    const dummy = this._dummy;
     let headCount = 0;
     let vi = 0; // trail vertex index
     const bounds = this.viewBounds;
@@ -210,7 +211,7 @@ export class ShipScene {
     const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
     const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
 
-    this.camera.projectionMatrix = new THREE.Matrix4().fromArray(matrix);
+    this.camera.projectionMatrix.fromArray(matrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
     this.renderer.resetState();

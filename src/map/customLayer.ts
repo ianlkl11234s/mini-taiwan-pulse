@@ -42,10 +42,7 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!opts.getIsVisible()) {
-        map?.triggerRepaint();
-        return;
-      }
+      if (!opts.getIsVisible()) return;
 
       const flights = opts.getFlights();
       const time = opts.getCurrentTime();
@@ -126,10 +123,7 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!opts.getIsVisible()) {
-        map?.triggerRepaint();
-        return;
-      }
+      if (!opts.getIsVisible()) return;
 
       const isDark = opts.getIsDarkTheme();
       if (isDark !== lastDarkTheme) {
@@ -186,10 +180,7 @@ export function createRailLayer(opts: RailLayerOptions): CustomLayerInterface {
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!opts.getIsVisible()) {
-        map?.triggerRepaint();
-        return;
-      }
+      if (!opts.getIsVisible()) return;
 
       const isDark = opts.getIsDarkTheme();
       if (isDark !== lastDarkTheme) {

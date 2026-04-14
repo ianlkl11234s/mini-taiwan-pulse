@@ -19,7 +19,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 GIS_ROOT = os.path.dirname(PROJECT_ROOT)
 ENV_PATH = os.path.join(GIS_ROOT, "gis-platform", ".env")
 
-H3_RESOLUTIONS = [7, 8]
+H3_RESOLUTIONS = [7, 8, 9]
 
 
 def load_env(path):

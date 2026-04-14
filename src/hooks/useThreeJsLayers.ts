@@ -1,11 +1,13 @@
 import { useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { Flight, Ship, RailTrain, RenderMode, RailData, LayerVisibility } from "../types";
+import type { Flight, Ship, RailTrain, BusVehicle, RenderMode, RailData, LayerVisibility } from "../types";
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
+import type { BusScene } from "../three/BusScene";
 import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
+import { createBusLayer } from "../map/busCustomLayer";
 import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
 import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
 import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
@@ -19,6 +21,8 @@ interface UseThreeJsLayersArgs {
   showTrailsRef: React.RefObject<boolean>;
   shipsRef: React.RefObject<Ship[]>;
   activeTrainsRef: React.RefObject<RailTrain[]>;
+  activeBusesRef: React.RefObject<BusVehicle[]>;
+  activeBusesIntercityRef: React.RefObject<BusVehicle[]>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
   thsrPillarDataRef: React.RefObject<StationPillarData[]>;
@@ -41,6 +45,12 @@ interface UseThreeJsLayersArgs {
     railTrackOpacity: React.RefObject<number>;
     railTrainVisible: React.RefObject<boolean>;
     railTrackMode: React.RefObject<string>;
+    busOrbScale: React.RefObject<number>;
+    busColorMode: React.RefObject<string>;
+    busAltOffset: React.RefObject<number>;
+    busIntercityOrbScale: React.RefObject<number>;
+    busIntercityColorMode: React.RefObject<string>;
+    busIntercityAltOffset: React.RefObject<number>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
@@ -64,7 +74,7 @@ interface UseThreeJsLayersArgs {
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-  shipsRef, activeTrainsRef, railDataRef,
+  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
   airportPillarDataRef, portPillarDataRef, temperatureDataRef,
   playingRef, layerVisibilityRef,
@@ -73,6 +83,8 @@ export function useThreeJsLayers({
   const flightSceneRef = useRef<FlightScene | null>(null);
   const shipSceneRef = useRef<ShipScene | null>(null);
   const railSceneRef = useRef<RailScene | null>(null);
+  const busSceneRef = useRef<BusScene | null>(null);
+  const busIntercitySceneRef = useRef<BusScene | null>(null);
 
   const addFlightLayer = (map: MapboxMap) => {
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
@@ -148,6 +160,36 @@ export function useThreeJsLayers({
     map.addLayer(layer);
   };
 
+  const addBusLayer = (map: MapboxMap) => {
+    if (map.getLayer("bus-3d")) map.removeLayer("bus-3d");
+    const layer = createBusLayer({
+      id: "bus-3d",
+      getBuses: () => activeBusesRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getOrbScale: () => paramRefs.busOrbScale.current,
+      getIsVisible: () => layerVisibilityRef.current.busLive,
+      getColorMode: () => paramRefs.busColorMode.current as import("../types").BusColorMode,
+      getAltOffset: () => paramRefs.busAltOffset.current,
+      onSceneReady: (scene) => { busSceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
+  const addBusIntercityLayer = (map: MapboxMap) => {
+    if (map.getLayer("bus-intercity-3d")) map.removeLayer("bus-intercity-3d");
+    const layer = createBusLayer({
+      id: "bus-intercity-3d",
+      getBuses: () => activeBusesIntercityRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getOrbScale: () => paramRefs.busIntercityOrbScale.current,
+      getIsVisible: () => layerVisibilityRef.current.busIntercityLive,
+      getColorMode: () => paramRefs.busIntercityColorMode.current as import("../types").BusColorMode,
+      getAltOffset: () => paramRefs.busIntercityAltOffset.current,
+      onSceneReady: (scene) => { busIntercitySceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
   const addTemperatureWaveLayer = (map: MapboxMap) => {
     const id = "temperature-wave-3d";
     if (map.getLayer(id)) map.removeLayer(id);
@@ -186,7 +228,7 @@ export function useThreeJsLayers({
           getIsVisible: () => layerVisibilityRef.current.stationsTRA,
         },
         metro: {
-          pillarColor: { dark: 0xfffde7, light: 0xc8b060 }, // near-white yellow
+          pillarColor: { dark: 0xffffff, light: 0xe0e0e0 }, // 白色
           getPositions: () => metroPillarDataRef.current,
           getPillarVisible: () => paramRefs.metroPillarVisible.current,
           getPillarHeight: () => paramRefs.metroPillarHeight.current,
@@ -215,6 +257,8 @@ export function useThreeJsLayers({
     addFlightLayer(map);
     addShipLayer(map);
     addRailLayer(map);
+    addBusLayer(map);
+    addBusIntercityLayer(map);
     addLighthouseLayer(map);
     addStationPillarLayer(map);
     addTemperatureWaveLayer(map);
@@ -224,9 +268,13 @@ export function useThreeJsLayers({
     flightSceneRef,
     shipSceneRef,
     railSceneRef,
+    busSceneRef,
+    busIntercitySceneRef,
     addFlightLayer,
     addShipLayer,
     addRailLayer,
+    addBusLayer,
+    addBusIntercityLayer,
     addLighthouseLayer,
     addStationPillarLayer,
     addTemperatureWaveLayer,

@@ -38,6 +38,8 @@ export function useLayerVisibility() {
     disasterAlerts: false,
     cwaCloudImagery: false,
     cwaRadarImagery: false,
+    busLive: false,
+    busIntercityLive: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

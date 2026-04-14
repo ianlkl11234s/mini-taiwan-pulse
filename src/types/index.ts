@@ -78,7 +78,7 @@ export interface DataSourceMeta {
 export type ViewMode = "all-taiwan" | "time-window";
 
 /** 運具類型 */
-export type TransportType = "flights" | "ships" | "rail";
+export type TransportType = "flights" | "ships" | "rail" | "busLive" | "busIntercityLive";
 
 /** 可展開面板的圖層 key */
 export type ExpandableLayerKey =
@@ -99,7 +99,8 @@ export type ExpandableLayerKey =
   | "cwaCloudImagery"
   | "cwaRadarImagery"
   | "earthquakes"
-  | "disasterAlerts";
+  | "disasterAlerts"
+  | "busLive";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -203,6 +204,114 @@ export interface TraData {
   goldenTracks: GeoJSON.Feature[];
 }
 
+// ── 公車即時 (GPS-based) ──
+
+export type BusCity =
+  | "Taipei" | "NewTaipei" | "Taoyuan"
+  | "Taichung" | "Tainan" | "Kaohsiung";
+export type BusColorMode = "route" | "speed" | "density";
+
+/**
+ * 公車 UI group：把雙北合併為單一開關，其餘城市一個 group 對一個 city。
+ * RPC 仍接收 BusCity[] 展開值。
+ */
+export type BusGroup =
+  | "TaipeiMetro"  // 台北 + 新北
+  | "Taoyuan" | "Taichung" | "Tainan" | "Kaohsiung";
+
+export const BUS_GROUP_CITIES: Record<BusGroup, BusCity[]> = {
+  TaipeiMetro: ["Taipei", "NewTaipei"],
+  Taoyuan:     ["Taoyuan"],
+  Taichung:    ["Taichung"],
+  Tainan:      ["Tainan"],
+  Kaohsiung:   ["Kaohsiung"],
+};
+
+export const BUS_GROUP_LABELS: Record<BusGroup, string> = {
+  TaipeiMetro: "雙北",
+  Taoyuan:     "桃園",
+  Taichung:    "台中",
+  Tainan:      "台南",
+  Kaohsiung:   "高雄",
+};
+
+export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
+  Taipei:    { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
+  NewTaipei: { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },
+  Taoyuan:   { label: "桃園", jsonFile: "./bus/taoyuan_bus_routes.json" },
+  Taichung:  { label: "台中", jsonFile: "./bus/taichung_bus_routes.json" },
+  Tainan:    { label: "台南", jsonFile: "./bus/tainan_bus_routes.json" },
+  Kaohsiung: { label: "高雄", jsonFile: "./bus/kaohsiung_bus_routes.json" },
+};
+
+/** 公路客運（InterCity）路線靜態檔路徑（全國單一檔案，無 city 切換） */
+export const BUS_INTERCITY_ROUTES_JSON = "./bus/intercity_bus_routes.json";
+
+export interface BusRouteGeometry {
+  routeUid: string;
+  routeName: string;
+  direction: number;
+  coords: [number, number][];
+  cumDist: number[];
+  totalDist: number;
+  stopProgress: number[];
+  stopNames: string[];
+  subRouteName: string;
+  /** 固定班次/小時（由 preprocess 從 schedule CSV 算出），density 色階用 */
+  frequency?: number;
+}
+
+export interface BusPosition {
+  plateNumb: string;
+  routeUid: string;
+  routeName: string;
+  direction: number;
+  lat: number;
+  lng: number;
+  speed: number;
+  collectedAt: number;
+  /** 市區公車：BusCity 代號；公路客運：SubAuthorityID 業者代號 */
+  city: string;
+}
+
+export interface BusVehicle {
+  plateNumb: string;
+  routeUid: string;
+  routeName: string;
+  position: [number, number]; // [lng, lat]
+  color: string;
+  status: "running" | "stopped";
+  speed: number;
+  progress: number;
+  direction: number;
+  city: string;
+  /** 視覺透明度 0~1；未提供視為 1（不淡入淡出） */
+  fadeAlpha?: number;
+  /** 路線的班次/小時（從 route.frequency 帶入，density colorMode 固定查值） */
+  density?: number;
+}
+
+export interface BusRouteData {
+  routes: Map<string, BusRouteGeometry>;
+  routeIndex: Map<string, string[]>; // routeUid → [routeUid_0, routeUid_1]
+}
+
+export interface BusDateInfo {
+  day: string;       // "YYYY-MM-DD"
+  records: number;
+  buses: number;
+}
+
+/** 公車歷史軌跡（來自 bus_trails_daily pre-aggregate） */
+export interface BusTrail {
+  plateNumb: string;
+  routeUid: string | null;
+  routeName: string | null;
+  direction: number;
+  city: string | null;
+  path: TrailPoint[];   // [lat, lng, 0, unix_ts]
+}
+
 // ── Overlay Registry ──
 
 export interface OverlayLayerSpec {
@@ -269,4 +378,6 @@ export interface LayerVisibility {
   disasterAlerts: boolean;
   cwaCloudImagery: boolean;
   cwaRadarImagery: boolean;
+  busLive: boolean;
+  busIntercityLive: boolean;
 }

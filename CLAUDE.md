@@ -34,6 +34,12 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 - Supabase pooler 強制 2min timeout **不能繞**，只有 pg_cron 例外
 - 完整 pattern + 坑點：[`docs/supabase-optimization.md`](./docs/supabase-optimization.md)
 - 可用 slash command `/check-rpc <name>` 自動 EXPLAIN 判斷
+- **效能守則**（2026-04-10 bus trails OOM 教訓）：
+  - refresh function 的 WHERE + ORDER BY **必須有對應索引**（缺索引 = 全表 sort = OOM）
+  - today + yesterday 放**同一個 cron job 循序跑**（禁止拆成兩個獨立 job）
+  - 聚合用 `MAX()` 而非 `mode()`（後者需額外 sort）
+  - 加 `SET work_mem TO '64MB'` 減少 disk spill
+  - cron 排程必須錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
 
 ### 5. 新增 Layer 強制順序
 1. `src/types/index.ts` → `LayerVisibility` 加 key
@@ -75,6 +81,7 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 - [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) — Pre-aggregate pattern 完整指南
 - [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md) — RPC 效能盤點
 - [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) — 時間軸架構
+- [`docs/bus-layer-design.md`](./docs/bus-layer-design.md) — 公車 progress-based 架構 + 全台擴展指南
 - [`docs/known-issues.md`](./docs/known-issues.md) — 歷史 bug + 診斷指令
 
 ## 關聯專案

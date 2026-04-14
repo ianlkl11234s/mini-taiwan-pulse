@@ -30,11 +30,14 @@ function interpolateColor(colors: [number, number, number][], t: number): string
   return `rgb(${r},${g},${b})`;
 }
 
+export type YoubikeHeightMode = "mixed" | "fullness" | "capacity";
+
 export interface YoubikeLayerParams {
   opacity: number;
   extruded: boolean;
   elevationScale: number;
   contrast: number;
+  heightMode?: YoubikeHeightMode;
 }
 
 function youbikeCellsToGeoJSON(
@@ -58,9 +61,13 @@ function youbikeCellsToGeoJSON(
     // 顏色：有車率直接映射（已經是 0~1），加 gamma 調整對比
     const colorNorm = Math.pow(Math.max(0, Math.min(1, cell.fr)), gamma);
 
-    // 高度：有車率 × capacity 權重（兩者都影響高度，隨時間動態變化）
+    // 高度：依 heightMode 切換
+    const mode = params.heightMode ?? "mixed";
     const capacityWeight = cell.sc / maxCapacity;
-    const heightNorm = cell.fr * capacityWeight;
+    const heightNorm =
+      mode === "fullness" ? cell.fr :
+      mode === "capacity" ? capacityWeight :
+      cell.fr * capacityWeight; // mixed（預設）
 
     return {
       type: "Feature" as const,
@@ -95,7 +102,9 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       layout: { visibility: "none" },
       paint: {
         "fill-color": ["get", "color"],
+        "fill-color-transition": { duration: 800, delay: 0 },
         "fill-opacity": 0.6,
+        "fill-opacity-transition": { duration: 500, delay: 0 },
       },
     });
   }
@@ -107,8 +116,11 @@ export function ensureYoubikeLayers(map: MapboxMap): void {
       layout: { visibility: "none" },
       paint: {
         "fill-extrusion-color": ["get", "color"],
+        "fill-extrusion-color-transition": { duration: 800, delay: 0 },
         "fill-extrusion-height": ["*", ["get", "height"], 5000],
+        "fill-extrusion-height-transition": { duration: 800, delay: 0 },
         "fill-extrusion-opacity": 0.6,
+        "fill-extrusion-opacity-transition": { duration: 500, delay: 0 },
       },
     });
   }

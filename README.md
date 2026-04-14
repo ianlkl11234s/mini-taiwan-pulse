@@ -19,6 +19,7 @@
 | 天空 — 航班 | 3D 弧線 + 光球 + 彗尾光軌 | FlightRadar24 API |
 | 海洋 — 船舶 | InstancedMesh 光球 + 拖尾線 | AIS 船舶位置資料 |
 | 大地 — 軌道列車 | 3D 軌道線 + 列車光球 + 拖尾線 | 公開時刻表 + OSM 軌道 |
+| 街道 — 公車 | GPS snap 路線光球 + 歷史回放 | TDX 公車即時定位 API |
 
 ### 天空的脈動 — 航班
 
@@ -49,6 +50,16 @@
 - **列車光球**：per-instance color，各系統不同顏色
 - **拖尾線**：台鐵 + 高鐵專屬（3 分鐘遞延）
 - **台鐵專用引擎**：處理 OD 軌道、golden track、彰化三角線等複雜路線
+
+### 街道的脈動 — 公車
+
+台北 + 新北 ~5,700 輛公車即時追蹤：
+
+- **GPS → Route Snap**：即時 GPS 座標投影到路線幾何上，沿道路平滑移動
+- **光球**：InstancedMesh 3000 instances，12 色 palette 依路線 hash 配色
+- **雙模式**：Live 模式 30 秒 polling GPS / Replay 模式載入歷史軌跡（5 分鐘降采樣）
+- **路線配對率**：99.9%（5746/5751），2293 條路線幾何預處理
+- **資料管線**：TDX A1 RealTimeByFrequency → data-collectors → Supabase `bus_current` / `bus_trails_daily`
 
 ## 地標與基礎設施
 
@@ -85,7 +96,7 @@
 
 | 分類 | 圖層 |
 |------|------|
-| **MOVING** | 航班 Flight、船舶 Ship、鐵道 Rail（可展開參數面板） |
+| **MOVING** | 航班 Flight、船舶 Ship、鐵道 Rail、公車即時 Bus Live（可展開參數面板） |
 | **NEWS** | 新聞事件 News（可展開） |
 | **STATION** | 高鐵站 THSR · 台鐵站 TRA · 捷運站 Metro · 市區公車站 City Bus · 公路客運站 Intercity · 公共腳踏車 Bike（可展開） |
 | **ROUTE** | 國道 Highway · 省道 Prov.Road · 自行車道 Cycling（可展開） |
@@ -98,7 +109,7 @@
 - MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
 - 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
 - 車站面板含 Pillar 光柱開關 + Height 光柱高度調整
-- 運具按鈕顯示活躍數量（航班數、船舶數、列車數）
+- 運具按鈕顯示活躍數量（航班數、船舶數、列車數、公車數）
 - 收合狀態以彩色小點顯示各圖層啟用狀態
 
 ### 即時參數調整
@@ -205,6 +216,7 @@
 
 | 圖層 | 控制項 | 範圍 | 說明 |
 |------|--------|------|------|
+| 公車即時（Bus Live） | Bus Orb | — | 公車光球大小 |
 | 公車站（City / Intercity） | Bus | 0.3~3x | 圓點大小 |
 | 公共腳踏車 | Bike | 0.3~3x | 圓點大小 |
 | 自行車道 | Cycling | 0.3~3x | 線條寬度倍率 |
@@ -305,7 +317,7 @@ DataCalendarPanel.tsx — 月曆格資料可用性視覺化（Dots/Heat 模式 +
 ```
 
 每個資料源宣告自己的時間類型：
-- **track**：航班、船舶（有明確的起訖時間範圍）
+- **track**：航班、船舶、公車歷史軌跡（有明確的起訖時間範圍）
 - **snapshot**：溫度場（每小時一個 frame，跨多天）
 - **cyclic**：鐵道（每日循環的時刻表）
 - **static**：機場、車站等不隨時間變化的圖層
@@ -325,7 +337,9 @@ DataCalendarPanel.tsx — 月曆格資料可用性視覺化（Dots/Heat 模式 +
 | `get_temperature_grid_info` | `reference.temperature_grid_cells`（靜態） | — | 1.08s → 269ms |
 | `get_disaster_alerts_day` | `realtime.disaster_alerts_daily`（含已解析 geom） | `*/10` | **13.2s → 110ms** |
 | `get_cwa_imagery_frames_batch` | 批次 RPC 取代 N 次並發 fetch | — | `TypeError: Failed to fetch` → 57MB/1.7s |
-| `get_ship/flight_dates` | `*_trails_days_summary` | — | 4s → 47ms |
+| `get_bus_current_taipei` | `realtime.bus_current`（upsert 表） | — | 即時 ~100ms |
+| `get_bus_trails` | `realtime.bus_trails_daily`（5 分鐘降采樣） | `*/15` | pre-agg → ~200ms |
+| `get_ship/flight/bus_dates` | `*_trails_days_summary` | — | 4s → 47ms |
 
 SQL 檔位於 `data-collectors/docs/sql/matview_*.sql`。盤點報告見 [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md)。
 
@@ -338,6 +352,7 @@ Mapbox GL JS（底圖 + 3D terrain + 相機控制）
   ├── CustomLayer: flight-3d     ← FlightScene（GLSL 光軌 + 光球 + 閃爍燈）
   ├── CustomLayer: ship-3d       ← ShipScene（InstancedMesh + 拖尾線）
   ├── CustomLayer: rail-3d       ← RailScene（靜態軌道 + 列車光球 + 拖尾）
+  ├── CustomLayer: bus-3d        ← BusScene（GPS snap 公車光球，3000 instances）
   ├── CustomLayer: lighthouse-3d ← LighthouseScene（旋轉錐形光束）
   ├── CustomLayer: station-pillar-3d ← StationPillarScene（車站 3D 光柱）
   ├── CustomLayer: temperature-wave-3d ← TemperatureWaveScene（溫度 3D 波浪曲面）
@@ -384,6 +399,8 @@ mini-taiwan-pulse/
 │   ├── h3_demographics_res8.json  # 村里人口指標 res8（~56K cells）
 │   ├── temperature_grid.json      # 溫度格點時序（S3 逐時快照，~941KB）
 │   ├── news_events.geojson          # 新聞事件地標（CNA RSS + Gemini 地理編碼）
+│   ├── bus/                        # 公車路線幾何（預處理產出，gitignored）
+│   │   └── taipei_bus_routes.json  # 台北+新北 2293 條路線（~17MB）
 │   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
 │       ├── tra/                    # 台鐵
 │       ├── thsr/                   # 高鐵
@@ -409,6 +426,7 @@ mini-taiwan-pulse/
 │   │   ├── overlayRegistry.ts      # Overlay 配置陣列（宣告式）
 │   │   ├── overlayManager.ts       # Overlay CRUD 通用函式
 │   │   ├── customLayer.ts          # Three.js CustomLayer 橋接（flight/ship/rail）
+│   │   ├── busCustomLayer.ts       # 公車 CustomLayer（GPS snap 光球）
 │   │   ├── lighthouseCustomLayer.ts # 燈塔 3D 光束 CustomLayer
 │   │   ├── stationPillarCustomLayer.ts # 車站光柱 CustomLayer
 │   │   ├── temperatureWaveCustomLayer.ts # 溫度波浪 CustomLayer
@@ -421,6 +439,7 @@ mini-taiwan-pulse/
 │   │   ├── FlightScene.ts          # 航班光軌 + 光球 + GLSL shader
 │   │   ├── ShipScene.ts            # 船舶 InstancedMesh + 拖尾線
 │   │   ├── RailScene.ts            # 軌道列車光球 + 拖尾 + 靜態軌道
+│   │   ├── BusScene.ts             # 公車 GPS snap 光球（InstancedMesh 3000）
 │   │   ├── StationPillarScene.ts   # 車站 3D 光柱（InstancedMesh）
 │   │   ├── LighthouseScene.ts      # 燈塔旋轉錐形光束
 │   │   ├── TemperatureWaveScene.ts # 溫度 3D 波浪曲面（RdBu 色盤 + vertex lerp）

@@ -158,19 +158,35 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/station_points.geojson",
     sourceId: "station-points",
     filter: ["in", ["get", "system_id"], ["literal", ["trtc", "krtc", "klrt", "tmrt"]]],
-    rebuildOnParamChange: ["metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
+    rebuildOnParamChange: ["metro-pt-range", "metro-pt-glow-2", "metro-pt-glow-1", "metro-pt-fill"],
     layers: [
+      {
+        suffix: "metro-pt-range",
+        type: "circle",
+        minzoom: 11,
+        paint: (_isDark, params) => {
+          const scale = params?.stationScale ?? 1;
+          const is3d = (params?.metroPillar3d ?? 0) > 0;
+          return {
+            "circle-radius": BASE_RADIUS * scale * 8,
+            "circle-blur": 0.8,
+            "circle-color": _isDark ? "#ffffff" : "#00838f",
+            "circle-opacity": is3d ? (_isDark ? 0.04 : 0.08) : (_isDark ? 0.03 : 0.06),
+          };
+        },
+      },
       {
         suffix: "metro-pt-glow-2",
         type: "circle",
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
+          const is3d = (params?.metroPillar3d ?? 0) > 0;
           return {
             "circle-radius": BASE_RADIUS * scale * 2.5,
             "circle-blur": 1,
             "circle-color": _isDark ? "#00bcd4" : "#00838f",
-            "circle-opacity": _isDark ? 0.06 : 0.12,
+            "circle-opacity": is3d ? 0 : (_isDark ? 0.06 : 0.12),
           };
         },
       },
@@ -180,11 +196,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
+          const is3d = (params?.metroPillar3d ?? 0) > 0;
           return {
             "circle-radius": BASE_RADIUS * scale * 1.5,
             "circle-blur": 0.6,
             "circle-color": _isDark ? "#00bcd4" : "#00838f",
-            "circle-opacity": _isDark ? 0.12 : 0.25,
+            "circle-opacity": is3d ? 0 : (_isDark ? 0.12 : 0.25),
           };
         },
       },
@@ -194,13 +211,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         minzoom: 10,
         paint: (_isDark, params) => {
           const scale = params?.stationScale ?? 1;
+          const is3d = (params?.metroPillar3d ?? 0) > 0;
           return {
             "circle-radius": BASE_RADIUS * scale,
             "circle-color": ["get", "color"] as unknown as string,
-            "circle-opacity": _isDark ? 0.08 : 0.12,
+            "circle-opacity": is3d ? 0 : (_isDark ? 0.08 : 0.12),
             "circle-stroke-width": _isDark ? 1 : 1.5,
             "circle-stroke-color": ["get", "color"] as unknown as string,
-            "circle-stroke-opacity": _isDark ? 0.3 : 0.5,
+            "circle-stroke-opacity": is3d ? 0 : (_isDark ? 0.3 : 0.5),
           };
         },
       },
