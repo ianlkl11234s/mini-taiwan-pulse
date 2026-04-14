@@ -301,7 +301,7 @@ export default function App() {
   // 60Hz 同步 timeRef 給各 RAF 動畫迴圈使用（不經 React re-render）
   useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
 
-  const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef, layerVisibility.rail);
+  const { trainCount, activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode, transportParams.enabledBusCities);
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeRef, timeline.timeMode);

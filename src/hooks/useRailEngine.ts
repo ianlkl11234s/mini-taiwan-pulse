@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import type { RailData, RailTrain } from "../types";
 import { RailEngine } from "../engines/RailEngine";
 import { TraTrainEngine } from "../engines/TraTrainEngine";
+import { timeStore } from "../state/timeStore";
 
 export function useRailEngine(
   railData: RailData | null,
-  timeRef: React.RefObject<number>,
   enabled = true,
 ) {
   const railEngineRef = useRef<RailEngine | null>(null);
@@ -24,14 +24,13 @@ export function useRailEngine(
     }
   }, [railData]);
 
-  // 每幀更新軌道列車（只寫 ref，不觸發 re-render）
+  // 訂閱 timeStore 計算列車位置（不開獨立 RAF）
+  // 暫停時 timeStore 不通知 → engine 不計算 → 省 CPU
   useEffect(() => {
     if (!enabled || (!railEngineRef.current && !traEngineRef.current)) return;
-    let animId: number;
     let lastCountUpdate = 0;
 
-    const tick = () => {
-      const now = timeRef.current;
+    const update = (now: number) => {
       const allTrains: RailTrain[] = [];
       if (railEngineRef.current) {
         const r = railEngineRef.current.update(now);
@@ -49,12 +48,11 @@ export function useRailEngine(
         lastCountUpdate = ts;
         setTrainCount(allTrains.length);
       }
-
-      animId = requestAnimationFrame(tick);
     };
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
-  }, [railData, timeRef, enabled]);
+
+    update(timeStore.getTime()); // 初始化
+    return timeStore.subscribe(update);
+  }, [railData, enabled]);
 
   // 停用時清空計數
   useEffect(() => {
