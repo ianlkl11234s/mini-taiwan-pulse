@@ -12,6 +12,7 @@ import {
   alertsToGeoJSON,
   type DisasterAlert,
 } from "../data/disasterAlertLoader";
+import { timeStore } from "../state/timeStore";
 
 /**
  * NCDR 災害示警 timeline 圖層
@@ -32,10 +33,6 @@ const CACHE_MAX = 7;
 interface CachedDay {
   data: DisasterAlert[];
   accessedAt: number;
-}
-
-function formatDate(ts: number): string {
-  return new Date(ts * 1000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
 function buildLayers(map: MapboxMap): boolean {
@@ -101,7 +98,6 @@ function buildLayers(map: MapboxMap): boolean {
 
 export function useDisasterAlertLayer(
   mapRef: React.RefObject<MapboxMap | null>,
-  currentTime: number,
   visible: boolean,
   opacity: number = 1,
 ) {
@@ -160,7 +156,7 @@ export function useDisasterAlertLayer(
         activeDateRef.current = dateStr;
         lastActiveSetRef.current = "";
         const map = mapRef.current;
-        if (map && ensureLayers(map)) refreshSource(map, currentTime);
+        if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
         return;
       }
 
@@ -173,7 +169,7 @@ export function useDisasterAlertLayer(
           activeDateRef.current = dateStr;
           lastActiveSetRef.current = "";
           const map = mapRef.current;
-          if (map && ensureLayers(map)) refreshSource(map, currentTime);
+          if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
         })
         .catch((err) => {
           console.warn(`[DisasterAlerts] load ${dateStr} failed:`, err);
@@ -182,19 +178,20 @@ export function useDisasterAlertLayer(
           if (fetchingRef.current === dateStr) fetchingRef.current = "";
         });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ensureLayers, refreshSource, writeCache],
+    [ensureLayers, refreshSource, writeCache, mapRef],
   );
 
-  // ── 依 timeline 當前日切換載入 ──
+  // ── 訂閱 timeStore 日期變化載入當日資料 ──
   useEffect(() => {
     if (!visible) return;
-    if (currentTime <= 0) return;
-    const dateStr = formatDate(currentTime);
-    loadDay(dateStr);
-  }, [visible, currentTime, loadDay]);
+    const handler = (dateStr: string) => {
+      if (dateStr) loadDay(dateStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [visible, loadDay]);
 
-  // ── 依 currentTime 更新 active filter ──
+  // ── 訂閱 timeStore 節流更新 active filter ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -210,21 +207,28 @@ export function useDisasterAlertLayer(
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
     }
 
-    const day = activeDayRef.current;
-    if (!day) return;
+    const tick = (currentTime: number) => {
+      const m = mapRef.current;
+      if (!m) return;
+      const day = activeDayRef.current;
+      if (!day) return;
 
-    // 計算當前 active 集合的 hash，沒變動就不重 setData
-    let key = "";
-    for (const a of day) {
-      if (currentTime >= a.start_ts && currentTime < a.end_ts) {
-        key += a.identifier + "|";
+      // 計算當前 active 集合的 hash，沒變動就不重 setData
+      let key = "";
+      for (const a of day) {
+        if (currentTime >= a.start_ts && currentTime < a.end_ts) {
+          key += a.identifier + "|";
+        }
       }
-    }
-    if (key !== lastActiveSetRef.current) {
-      lastActiveSetRef.current = key;
-      refreshSource(map, currentTime);
-    }
-  }, [visible, currentTime, ensureLayers, refreshSource, mapRef]);
+      if (key !== lastActiveSetRef.current) {
+        lastActiveSetRef.current = key;
+        refreshSource(m, currentTime);
+      }
+    };
+
+    tick(timeStore.getTime()); // 初始化
+    return timeStore.subscribeThrottled(500, tick);
+  }, [visible, ensureLayers, refreshSource, mapRef]);
 
   // 套用 opacity（乘以各 layer 的 base opacity）
   useEffect(() => {
@@ -254,5 +258,5 @@ export function useDisasterAlertLayer(
       map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.85 * o);
       map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", o);
     }
-  }, [opacity, visible, currentTime, mapRef]);
+  }, [opacity, visible, mapRef]);
 }

@@ -5,6 +5,7 @@ import {
   buildFreewayGeoJSON,
   type FreewayDayData,
 } from "../data/freewayLoader";
+import { timeStore } from "../state/timeStore";
 
 /**
  * 國道壅塞動態圖層
@@ -24,10 +25,6 @@ const CACHE_MAX = 7;
 interface CachedDay {
   data: FreewayDayData;
   accessedAt: number;
-}
-
-function formatDate(ts: number): string {
-  return new Date(ts * 1000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
 function buildLayers(map: MapboxMap, width: number, isDark: boolean) {
@@ -75,7 +72,6 @@ function buildLayers(map: MapboxMap, width: number, isDark: boolean) {
 
 export function useFreewayLayer(
   mapRef: React.RefObject<MapboxMap | null>,
-  currentTime: number,
   visible: boolean,
   width: number,
   isDark: boolean,
@@ -142,7 +138,7 @@ export function useFreewayLayer(
         activeDateRef.current = dateStr;
         lastSnapshotTsRef.current = -1; // 強制下一次 refresh
         const map = mapRef.current;
-        if (map && ensureLayers(map)) refreshSource(map, currentTime);
+        if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
         return;
       }
 
@@ -156,7 +152,7 @@ export function useFreewayLayer(
           activeDateRef.current = dateStr;
           lastSnapshotTsRef.current = -1;
           const map = mapRef.current;
-          if (map && ensureLayers(map)) refreshSource(map, currentTime);
+          if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
         })
         .catch((err) => {
           console.warn(`[Freeway] load ${dateStr} failed:`, err);
@@ -165,25 +161,24 @@ export function useFreewayLayer(
           if (fetchingRef.current === dateStr) fetchingRef.current = "";
         });
     },
-    // currentTime 只作為初始 refresh 引數；後續由 currentTime effect 負責
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [ensureLayers, refreshSource, writeCache],
+    [ensureLayers, refreshSource, writeCache, mapRef],
   );
 
-  // ── 依 timeline 當前日切換載入 ──
+  // ── 訂閱 timeStore 日期變化載入當日資料 ──
   useEffect(() => {
     if (!visible) return;
-    if (currentTime <= 0) return;
-    const dateStr = formatDate(currentTime);
-    loadDay(dateStr);
-  }, [visible, currentTime, loadDay]);
+    const handler = (dateStr: string) => {
+      if (dateStr) loadDay(dateStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [visible, loadDay]);
 
-  // ── 依 currentTime 更新 source data（只在 snapshot 改變時） ──
+  // ── 訂閱 timeStore 節流更新 source data（只在 snapshot 改變時） ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (!visible) {
-      // 關閉時隱藏 layers
       for (const id of [LAYER_GLOW, LAYER_LINE]) {
         if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
       }
@@ -194,31 +189,37 @@ export function useFreewayLayer(
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
     }
 
-    const day = activeDayRef.current;
-    if (!day) return;
+    const tick = (currentTime: number) => {
+      const m = mapRef.current;
+      if (!m) return;
+      const day = activeDayRef.current;
+      if (!day) return;
 
-    // 找當前時間對應的 snapshot 時間，避免每幀都 setData
-    // 直接用第一條路段的 timeline 當代表
-    let snapTs = -1;
-    const firstTimeline = day.sections[0]?.timeline;
-    if (firstTimeline && firstTimeline.length > 0) {
-      // 找 <= currentTime 的最後一筆
-      let lo = 0;
-      let hi = firstTimeline.length - 1;
-      if (currentTime >= firstTimeline[0]!.ts) {
-        while (lo < hi) {
-          const mid = (lo + hi + 1) >> 1;
-          if (firstTimeline[mid]!.ts <= currentTime) lo = mid;
-          else hi = mid - 1;
+      // 找當前時間對應的 snapshot 時間，避免每幀都 setData
+      let snapTs = -1;
+      const firstTimeline = day.sections[0]?.timeline;
+      if (firstTimeline && firstTimeline.length > 0) {
+        let lo = 0;
+        let hi = firstTimeline.length - 1;
+        if (currentTime >= firstTimeline[0]!.ts) {
+          while (lo < hi) {
+            const mid = (lo + hi + 1) >> 1;
+            if (firstTimeline[mid]!.ts <= currentTime) lo = mid;
+            else hi = mid - 1;
+          }
+          snapTs = firstTimeline[lo]!.ts;
         }
-        snapTs = firstTimeline[lo]!.ts;
       }
-    }
-    if (snapTs !== lastSnapshotTsRef.current) {
-      lastSnapshotTsRef.current = snapTs;
-      refreshSource(map, currentTime);
-    }
-  }, [visible, currentTime, ensureLayers, refreshSource, mapRef]);
+      if (snapTs !== lastSnapshotTsRef.current) {
+        lastSnapshotTsRef.current = snapTs;
+        refreshSource(m, currentTime);
+      }
+    };
+
+    tick(timeStore.getTime()); // 初始化
+    // 1s 節流足夠（資料本身 10min 粒度）
+    return timeStore.subscribeThrottled(1000, tick);
+  }, [visible, ensureLayers, refreshSource, mapRef]);
 
   // ── 寬度 / 主題變更時重建 paint ──
   useEffect(() => {

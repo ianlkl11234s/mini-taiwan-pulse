@@ -354,12 +354,11 @@ export default function App() {
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef);
 
   // ── News timeline (time-based filter + ripple animation) ──
-  useNewsTimeline(mapRef, timeline.currentTime, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
+  useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
 
   // ── Earthquake events timeline ──
   useEarthquakeLayer(
     mapRef,
-    timeline.currentTime,
     layerVisibility.earthquakes,
     transportParams.eqOpacity,
     transportParams.eqShowHistory,
@@ -368,7 +367,6 @@ export default function App() {
   // ── NCDR Disaster Alerts timeline ──
   useDisasterAlertLayer(
     mapRef,
-    timeline.currentTime,
     layerVisibility.disasterAlerts,
     transportParams.daOpacity,
   );
@@ -376,7 +374,6 @@ export default function App() {
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({
     mapRef,
-    currentTime: timeline.currentTime,
     cloudVisible: layerVisibility.cwaCloudImagery,
     radarVisible: layerVisibility.cwaRadarImagery,
     cloudOpacity: transportParams.cwaCloudOpacity,
@@ -386,7 +383,6 @@ export default function App() {
   // ── Freeway congestion (動態 timeline 回放) ──
   useFreewayLayer(
     mapRef,
-    timeline.currentTime,
     layerVisibility.freewayCongestion,
     transportParams.overlayParams.freewayWidth ?? 1,
     isDarkTheme,

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, ExpressionSpecification, FilterSpecification, CircleLayer } from "mapbox-gl";
 import { fetchEarthquakes, earthquakesToGeoJSON, type EarthquakeEvent } from "../data/earthquakeLoader";
+import { timeStore } from "../state/timeStore";
 
 /**
  * 地震事件 timeline 動態顯示
@@ -115,7 +116,6 @@ function buildLayers(map: MapboxMap) {
 
 export function useEarthquakeLayer(
   mapRef: React.RefObject<MapboxMap | null>,
-  currentTime: number,
   visible: boolean,
   opacity: number = 1,
   showHistory: boolean = false,
@@ -157,7 +157,7 @@ export function useEarthquakeLayer(
     return layersReadyRef.current;
   }, []);
 
-  // 更新 filter（隨 currentTime / visible 變動）
+  // 更新 filter（訂閱 timeStore 節流 500ms，不走 React re-render）
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -170,48 +170,52 @@ export function useEarthquakeLayer(
     }
     if (!visible) return;
 
-    // History 模式：顯示所有歷史地震（直到 currentTime），不限當日
-    // Timeline 模式：只限 timeline 當天（台灣時區 00:00 ~ 24:00）
-    const dayBound: unknown[] = showHistory
-      ? []
-      : (() => {
-          const { dayStart, dayEnd } = taipeiDayBounds(currentTime);
-          return [
-            [">=", ["get", "occurred_ts"], dayStart],
-            ["<", ["get", "occurred_ts"], dayEnd],
+    const applyFilter = (currentTime: number) => {
+      // History 模式：顯示所有歷史地震（直到 currentTime），不限當日
+      // Timeline 模式：只限 timeline 當天（台灣時區 00:00 ~ 24:00）
+      const dayBound: unknown[] = showHistory
+        ? []
+        : (() => {
+            const { dayStart, dayEnd } = taipeiDayBounds(currentTime);
+            return [
+              [">=", ["get", "occurred_ts"], dayStart],
+              ["<", ["get", "occurred_ts"], dayEnd],
+            ];
+          })();
+
+      const postFilter = [
+        "all",
+        ...dayBound,
+        ["<=", ["get", "occurred_ts"], currentTime],
+      ];
+      const preFilter = showHistory
+        ? (["literal", false] as unknown)
+        : [
+            "all",
+            ...dayBound,
+            [">", ["get", "occurred_ts"], currentTime],
+            ["<=", ["get", "occurred_ts"], currentTime + PRE_WINDOW],
           ];
-        })();
+      const rippleFilter = [
+        "all",
+        ...dayBound,
+        ["<=", ["get", "occurred_ts"], currentTime],
+        [">", ["get", "occurred_ts"], currentTime - FRESH_WINDOW],
+      ];
 
-    const postFilter = [
-      "all",
-      ...dayBound,
-      ["<=", ["get", "occurred_ts"], currentTime],
-    ];
-    // History 模式下不顯示 pre（預示），因為資料太多沒意義
-    const preFilter = showHistory
-      ? (["literal", false] as unknown)
-      : [
-          "all",
-          ...dayBound,
-          [">", ["get", "occurred_ts"], currentTime],
-          ["<=", ["get", "occurred_ts"], currentTime + PRE_WINDOW],
-        ];
-    const rippleFilter = [
-      "all",
-      ...dayBound,
-      ["<=", ["get", "occurred_ts"], currentTime],
-      [">", ["get", "occurred_ts"], currentTime - FRESH_WINDOW],
-    ];
+      if (map.getLayer(LAYER_POST))
+        map.setFilter(LAYER_POST, postFilter as unknown as FilterSpecification);
+      if (map.getLayer(LAYER_PRE))
+        map.setFilter(LAYER_PRE, preFilter as unknown as FilterSpecification);
+      for (const id of RIPPLE_IDS) {
+        if (map.getLayer(id))
+          map.setFilter(id, rippleFilter as unknown as FilterSpecification);
+      }
+    };
 
-    if (map.getLayer(LAYER_POST))
-      map.setFilter(LAYER_POST, postFilter as unknown as FilterSpecification);
-    if (map.getLayer(LAYER_PRE))
-      map.setFilter(LAYER_PRE, preFilter as unknown as FilterSpecification);
-    for (const id of RIPPLE_IDS) {
-      if (map.getLayer(id))
-        map.setFilter(id, rippleFilter as unknown as FilterSpecification);
-    }
-  }, [currentTime, visible, showHistory, ensureSource, mapRef]);
+    applyFilter(timeStore.getTime()); // 初始化
+    return timeStore.subscribeThrottled(500, applyFilter);
+  }, [visible, showHistory, ensureSource, mapRef]);
 
   // 套用 opacity（乘以各 layer 的 base opacity）
   useEffect(() => {
@@ -226,7 +230,7 @@ export function useEarthquakeLayer(
     if (map.getLayer(LAYER_PRE)) {
       map.setPaintProperty(LAYER_PRE, "circle-stroke-opacity", 0.25 * o);
     }
-  }, [opacity, visible, currentTime, mapRef]);
+  }, [opacity, visible, mapRef]);
 
   // ripple 動畫
   useEffect(() => {

@@ -22,6 +22,7 @@ import {
   createCwaImageryLayer,
   type CwaImageryLayerHandle,
 } from "../map/cwaImageryLayer";
+import { timeStore } from "../state/timeStore";
 
 const CLOUD_DATASET = "O-C0042-004";
 const RADAR_DATASET = "O-A0058-005";
@@ -65,7 +66,6 @@ function pickFrameForTime(frames: CwaImageryFrame[], currentMs: number): CwaImag
 
 interface UseCwaImageryLayerOptions {
   mapRef: React.RefObject<MapboxMap | null>;
-  currentTime: number; // unix seconds
   cloudVisible: boolean;
   radarVisible: boolean;
   cloudOpacity: number;
@@ -74,7 +74,6 @@ interface UseCwaImageryLayerOptions {
 
 export function useCwaImageryLayer({
   mapRef,
-  currentTime,
   cloudVisible,
   radarVisible,
   cloudOpacity,
@@ -82,10 +81,6 @@ export function useCwaImageryLayer({
 }: UseCwaImageryLayerOptions) {
   const cloudRef = useRef<LayerState>(createEmptyState());
   const radarRef = useRef<LayerState>(createEmptyState());
-
-  // 最新的 currentTime（ref，讓非同步載入完成後可以直接取得最新時間）
-  const currentTimeRef = useRef(currentTime);
-  currentTimeRef.current = currentTime;
 
   // ── Loader（第一次變成可見時觸發） ──
   useEffect(() => {
@@ -139,7 +134,7 @@ export function useCwaImageryLayer({
   }, [cloudVisible, radarVisible]);
 
   // ── Layer 生命週期 + frame 切換 ──
-  // 每次 currentTime / visibility / opacity 變動 → reconcile
+  // visibility / opacity 變動 → reconcile；時間變動由 timeStore 訂閱觸發 reconcile
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -150,6 +145,7 @@ export function useCwaImageryLayer({
       opacity: number,
       sourceId: string,
       layerId: string,
+      currentTimeSec: number,
     ) => {
       if (!visible) {
         // 關閉：移除 layer + source，釋放 object URLs
@@ -167,7 +163,7 @@ export function useCwaImageryLayer({
       }
       if (!state.bundle || !state.loaded || state.urls.size === 0) return;
 
-      const frame = pickFrameForTime(state.bundle.frames, currentTimeRef.current * 1000);
+      const frame = pickFrameForTime(state.bundle.frames, currentTimeSec * 1000);
       if (!frame) return;
       const url = state.urls.get(frame.observedAtIso);
       if (!url) return;
@@ -195,22 +191,32 @@ export function useCwaImageryLayer({
       }
     };
 
-    const run = () => {
-      reconcile(cloudRef.current, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer");
-      reconcile(radarRef.current, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer");
+    const run = (currentTimeSec: number) => {
+      reconcile(cloudRef.current, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
+      reconcile(radarRef.current, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
+    };
+
+    let unsubTime: (() => void) | null = null;
+    const startSubscription = () => {
+      run(timeStore.getTime()); // 初始化
+      // frame 粒度約 10min，1s 節流足夠
+      unsubTime = timeStore.subscribeThrottled(1000, run);
     };
 
     if (!map.isStyleLoaded()) {
-      const onLoad = () => run();
+      const onLoad = () => startSubscription();
       map.once("load", onLoad);
       return () => {
         map.off("load", onLoad);
+        if (unsubTime) unsubTime();
       };
     }
 
-    run();
-    return undefined;
-  }, [mapRef, currentTime, cloudVisible, radarVisible, cloudOpacity, radarOpacity]);
+    startSubscription();
+    return () => {
+      if (unsubTime) unsubTime();
+    };
+  }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity]);
 
   // ── Unmount 清理 ──
   useEffect(() => {

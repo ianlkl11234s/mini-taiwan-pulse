@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { timeStore } from "../state/timeStore";
 
 /**
  * 新聞事件時間軸動態顯示 + ripple 脈衝動畫
@@ -23,7 +24,6 @@ const RIPPLE_IDS = Array.from({ length: RIPPLE_COUNT }, (_, i) => `news-events-r
 
 export function useNewsTimeline(
   mapRef: React.RefObject<MapboxMap | null>,
-  currentTime: number,
   visible: boolean,
   timeBased: boolean,
   rippleEnabled: boolean,
@@ -63,49 +63,50 @@ export function useNewsTimeline(
     return !!map.getLayer(RIPPLE_IDS[0]!);
   }, []);
 
-  // ── 時間過濾：currentTime 變化時更新 filter ──
+  // ── 時間過濾：訂閱 timeStore 節流 200ms（不走 React re-render） ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible) return;
 
-    if (timeBased) {
-      // 累積顯示：只顯示 published_ts <= currentTime 的新聞
-      const showFilter = ["<=", ["get", "published_ts"], currentTime];
-      for (const layerId of NEWS_LAYER_IDS) {
-        if (map.getLayer(layerId)) {
-          map.setFilter(layerId, showFilter as unknown as mapboxgl.FilterSpecification);
+    const applyFilter = (currentTime: number) => {
+      if (timeBased) {
+        const showFilter = ["<=", ["get", "published_ts"], currentTime];
+        for (const layerId of NEWS_LAYER_IDS) {
+          if (map.getLayer(layerId)) {
+            map.setFilter(layerId, showFilter as unknown as mapboxgl.FilterSpecification);
+          }
+        }
+      } else {
+        for (const layerId of NEWS_LAYER_IDS) {
+          if (map.getLayer(layerId)) {
+            map.setFilter(layerId, null);
+          }
         }
       }
-    } else {
-      // 全部顯示：清除 filter
-      for (const layerId of NEWS_LAYER_IDS) {
-        if (map.getLayer(layerId)) {
-          map.setFilter(layerId, null);
-        }
-      }
-    }
 
-    // Ripple filter：只在 timeBased + rippleEnabled 時有意義
-    if (timeBased && rippleEnabled) {
-      const rippleFilter = [
-        "all",
-        ["<=", ["get", "published_ts"], currentTime],
-        [">", ["get", "published_ts"], currentTime - FRESH_WINDOW],
-      ];
-      for (const id of RIPPLE_IDS) {
-        if (map.getLayer(id)) {
-          map.setFilter(id, rippleFilter as unknown as mapboxgl.FilterSpecification);
+      if (timeBased && rippleEnabled) {
+        const rippleFilter = [
+          "all",
+          ["<=", ["get", "published_ts"], currentTime],
+          [">", ["get", "published_ts"], currentTime - FRESH_WINDOW],
+        ];
+        for (const id of RIPPLE_IDS) {
+          if (map.getLayer(id)) {
+            map.setFilter(id, rippleFilter as unknown as mapboxgl.FilterSpecification);
+          }
+        }
+      } else {
+        for (const id of RIPPLE_IDS) {
+          if (map.getLayer(id)) {
+            map.setFilter(id, ["literal", false] as unknown as mapboxgl.FilterSpecification);
+          }
         }
       }
-    } else {
-      // 非時間模式或 ripple 關閉：隱藏 ripple
-      for (const id of RIPPLE_IDS) {
-        if (map.getLayer(id)) {
-          map.setFilter(id, ["literal", false] as unknown as mapboxgl.FilterSpecification);
-        }
-      }
-    }
-  }, [currentTime, visible, timeBased, rippleEnabled, mapRef]);
+    };
+
+    applyFilter(timeStore.getTime()); // 初始化
+    return timeStore.subscribeThrottled(200, applyFilter);
+  }, [visible, timeBased, rippleEnabled, mapRef]);
 
   // ── Ripple 動畫 rAF loop ──
   useEffect(() => {
