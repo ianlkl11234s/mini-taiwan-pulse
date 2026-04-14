@@ -230,19 +230,18 @@ export default function App() {
     dataEndTime: dataTimeRange.end,
   });
 
-  // ── 活躍日追蹤：根據 currentTime 自動跨日載入 ──
-  const activeDayRef = useRef("");
+  // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
   useEffect(() => {
-    if (timeline.currentTime <= 0) return;
-    const dayStr = new Date(timeline.currentTime * 1000)
-      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-    if (dayStr === activeDayRef.current) return;
-    activeDayRef.current = dayStr;
-    const date = new Date(dayStr + "T00:00:00+08:00");
-    loadShipDay(date);
-    loadFlightDay(date);
-    setRailActiveDate(dayStr);
-  }, [timeline.currentTime, loadShipDay, loadFlightDay]);
+    const handler = (dayStr: string) => {
+      if (!dayStr) return;
+      const date = new Date(dayStr + "T00:00:00+08:00");
+      loadShipDay(date);
+      loadFlightDay(date);
+      setRailActiveDate(dayStr);
+    };
+    handler(timeStore.getDateKey()); // 初始化
+    return timeStore.subscribeDate(handler);
+  }, [loadShipDay, loadFlightDay, setRailActiveDate]);
 
   // ── 多日模式預載：切換 rangeDays 或 selectedDate 時，背景預載所有天數 ──
   useEffect(() => {
@@ -307,23 +306,25 @@ export default function App() {
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeRef, timeline.timeMode);
 
-  // 公車 replay: 跨日載入歷史軌跡
+  // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {
     if (!layerVisibility.busLive || timeline.timeMode !== "replay") return;
-    if (timeline.currentTime <= 0) return;
-    const dayStr = new Date(timeline.currentTime * 1000)
-      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-    loadBusTrailDay(dayStr);
-  }, [timeline.currentTime, timeline.timeMode, layerVisibility.busLive, loadBusTrailDay]);
+    const handler = (dayStr: string) => {
+      if (dayStr) loadBusTrailDay(dayStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [timeline.timeMode, layerVisibility.busLive, loadBusTrailDay]);
 
   // 公路客運 replay: 同步
   useEffect(() => {
     if (!layerVisibility.busIntercityLive || timeline.timeMode !== "replay") return;
-    if (timeline.currentTime <= 0) return;
-    const dayStr = new Date(timeline.currentTime * 1000)
-      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-    loadBusIntercityTrailDay(dayStr);
-  }, [timeline.currentTime, timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
+    const handler = (dayStr: string) => {
+      if (dayStr) loadBusIntercityTrailDay(dayStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
 
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
@@ -538,16 +539,26 @@ export default function App() {
   }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
 
   // YouBike Fullness: sync with main timeline
-  // 每 60 秒模擬時間更新一次（lerp 插值平滑）
-  const youbikeTimeKey = useMemo(() => {
-    return Math.floor(timeline.currentTime / 60) * 60;
-  }, [Math.floor(timeline.currentTime / 60)]);
+  // 訂閱 timeStore 分鐘粒度（不走 React 4Hz re-render），每 60 秒模擬時間更新一次
+  const [youbikeTimeKey, setYoubikeTimeKey] = useState(
+    () => Math.floor(timeStore.getTime() / 60) * 60,
+  );
+  useEffect(() => {
+    let lastMinute = Math.floor(timeStore.getTime() / 60);
+    return timeStore.subscribe((t) => {
+      const minute = Math.floor(t / 60);
+      if (minute !== lastMinute) {
+        lastMinute = minute;
+        setYoubikeTimeKey(minute * 60);
+      }
+    });
+  }, []);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !map.getStyle()) return;
     ensureYoubikeLayers(map);
-    const cells = getYoubikeCellsForTime(timeline.currentTime);
+    const cells = getYoubikeCellsForTime(timeStore.getTime());
     updateYoubikeLayer(map, cells, transportParams.youbikeParams, layerVisibility.youbikeFullness);
   }, [getYoubikeCellsForTime, youbikeTimeKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
 
