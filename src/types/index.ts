@@ -250,6 +250,8 @@ export interface BusVehicle {
   progress: number;
   direction: number;
   city: BusCity;
+  /** 視覺透明度 0~1；未提供視為 1（不淡入淡出） */
+  fadeAlpha?: number;
 }
 
 export interface BusRouteData {

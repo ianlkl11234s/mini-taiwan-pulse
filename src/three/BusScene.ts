@@ -43,6 +43,7 @@ export class BusScene {
   renderer!: THREE.WebGLRenderer;
 
   private instancedMesh: THREE.InstancedMesh | null = null;
+  private alphaAttribute: THREE.InstancedBufferAttribute | null = null;
   private maxInstances: number;
   private isDarkTheme = true;
   private orbScale = 0.000004;
@@ -80,6 +81,29 @@ export class BusScene {
       depthWrite: false,
       depthTest: false,  // 不被地形遮擋
     });
+
+    // Per-instance alpha attribute (for fade in/out) — 注入 shader
+    this.alphaAttribute = new THREE.InstancedBufferAttribute(
+      new Float32Array(this.maxInstances).fill(1),
+      1,
+    );
+    this.alphaAttribute.setUsage(THREE.DynamicDrawUsage);
+    geo.setAttribute("aAlpha", this.alphaAttribute);
+
+    mat.onBeforeCompile = (shader) => {
+      shader.vertexShader =
+        "attribute float aAlpha;\nvarying float vAlpha;\n" +
+        shader.vertexShader.replace(
+          /void\s+main\s*\(\s*\)\s*\{/,
+          "void main() {\n  vAlpha = aAlpha;",
+        );
+      shader.fragmentShader =
+        "varying float vAlpha;\n" +
+        shader.fragmentShader.replace(
+          /\}\s*$/,
+          "  gl_FragColor.a *= vAlpha;\n}",
+        );
+    };
 
     this.instancedMesh = new THREE.InstancedMesh(geo, mat, this.maxInstances);
     this.instancedMesh.frustumCulled = false;
@@ -184,6 +208,12 @@ export class BusScene {
       }
       this.instancedMesh.instanceColor!.setXYZ(count, color.r, color.g, color.b);
 
+      // Per-instance alpha（淡入淡出）
+      if (this.alphaAttribute) {
+        const a = bus.fadeAlpha ?? 1;
+        this.alphaAttribute.setX(count, a);
+      }
+
       this.busPositions.set(count, bus);
       count++;
     }
@@ -192,6 +222,9 @@ export class BusScene {
     this.instancedMesh.instanceMatrix.needsUpdate = true;
     if (this.instancedMesh.instanceColor) {
       (this.instancedMesh.instanceColor as THREE.InstancedBufferAttribute).needsUpdate = true;
+    }
+    if (this.alphaAttribute) {
+      this.alphaAttribute.needsUpdate = true;
     }
 
     // 清理不再活躍的平滑快取（每 60 幀一次）

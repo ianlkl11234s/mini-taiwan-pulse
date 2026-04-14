@@ -109,6 +109,7 @@ const TRIP_BACKWARD_THRESHOLD = 0.3; // progress 倒退 >30% 視為新趟次（�
 const MIN_BACKWARD_TOLERANCE = 0.02; // GPS 誤差容忍：2% 以內的倒退視為正常
 const MAX_ANOMALY_SPEED_KMH = 80;    // 路線上推進最高速度（計算最大合理 Δprogress）
 const MAX_CONSECUTIVE_REJECTS = 3;   // 連續異常到此次數就接受新 GPS（避免卡住）
+const FADE_SECONDS = 60;             // 淡入/淡出時長（秒）— 用於 trail 首尾與 trip 交界
 
 /**
  * 把 GPS 軌跡投影到路線，產生 (ts, progress, tripId) 序列
@@ -195,6 +196,8 @@ interface SnappedBus {
   city: BusCity;
   /** 連續被判 progress 跳躍的次數，達上限就接受新 GPS */
   rejectStreak: number;
+  /** 此車首次進入系統的時間（unix 秒），用於 Live 淡入效果 */
+  appearTs: number;
 }
 
 /** Replay mode 內部狀態 */
@@ -204,6 +207,8 @@ interface ReplayBus {
   progressPath?: ProgressPoint[];
   routeKey: string | null;
   routeUid: string;
+  /** 用於 routeKey 為 null 時後續重試 resolve（路線晚到的 race） */
+  direction: number;
   routeName: string;
   color: string;
   city: BusCity;
@@ -233,6 +238,41 @@ export class BusEngine {
       this.mergedIndex.set(routeUid, merged);
     }
     this.routeMatch.clear();
+    // 路線載入晚於 trail ingest 的 race：補建缺失的 progressPath
+    this.ensureProgressPaths();
+  }
+
+  /**
+   * 確保所有 replay trail 都有 progressPath（路線載入後補救）
+   * - routeKey 為 null 的 trail 重跑 resolveRouteKey
+   * - 有 routeKey 但沒 progressPath 的，build
+   */
+  private ensureProgressPaths(): void {
+    if (this.replayTrails.size === 0) return;
+    let resolved = 0;
+    let built = 0;
+    for (const bus of this.replayTrails.values()) {
+      if (!bus.routeKey && bus.routeUid) {
+        const key = this.resolveRouteKey(bus.routeUid, bus.direction);
+        if (key) {
+          bus.routeKey = key;
+          resolved++;
+        }
+      }
+      if (bus.routeKey && !bus.progressPath) {
+        const route = this.mergedRoutes.get(bus.routeKey);
+        if (route) {
+          const progressPath = buildProgressPath(bus.path, route);
+          if (progressPath.length >= 2) {
+            bus.progressPath = progressPath;
+            built++;
+          }
+        }
+      }
+    }
+    if (resolved > 0 || built > 0) {
+      console.log(`[Bus] ensureProgressPaths: resolved ${resolved} routeKey, built ${built} progressPath (after route load)`);
+    }
   }
 
   /** 移除某城市的路線資料 */
@@ -357,6 +397,7 @@ export class BusEngine {
         color: hashColor(pos.routeUid),
         city: pos.city,
         rejectStreak: 0,
+        appearTs: prev?.appearTs ?? now, // 新車記今天的首次時間，舊車沿用
       });
     }
 
@@ -409,6 +450,12 @@ export class BusEngine {
       const position = interpolateOnLineString(route.coords, progress);
       const stopped = bus.speed < STOPPED_SPEED_THRESHOLD;
 
+      // 新車淡入：首次出現後 FADE 秒內漸顯
+      const ageSinceAppear = unixTimestamp - bus.appearTs;
+      const fadeAlpha = ageSinceAppear < FADE_SECONDS
+        ? Math.max(0, ageSinceAppear / FADE_SECONDS)
+        : 1;
+
       buses.push({
         plateNumb: bus.plateNumb,
         routeUid: bus.routeUid,
@@ -420,6 +467,7 @@ export class BusEngine {
         progress,
         direction: bus.direction,
         city: bus.city,
+        fadeAlpha,
       });
     }
 
@@ -462,6 +510,7 @@ export class BusEngine {
         progressPath,
         routeKey,
         routeUid: trail.routeUid ?? "",
+        direction: trail.direction,
         routeName: trail.routeName ?? "",
         color: hashColor(trail.routeUid ?? trail.plateNumb),
         city: (trail.city ?? "Taipei") as BusCity,
@@ -549,16 +598,37 @@ export class BusEngine {
   }
 
   /**
-   * 在預計算的 progress 時間軸上插值。同一 tripId 內 lerp progress；
-   * 不同 trip 之間不插值（回傳 null，代表該時刻公車在趟次切換中 → 隱藏）
+   * 在預計算的 progress 時間軸上插值，同時計算 fade alpha：
+   *   - trail 頭部（ts 在 start 前 FADE 秒內）→ 淡入，位置固定在 start
+   *   - trail 尾部（ts 在 end 後 FADE 秒內）→ 淡出，位置固定在 end
+   *   - 跨 trip 交界：前半 fade-out 停在舊 trip 終點；後半 fade-in 停在新 trip 起點
+   *   - 同 trip 內正常 lerp，alpha=1
+   * 回傳 null 表示該時刻公車完全不可見
    */
   private interpolateProgressPath(
     progressPath: ProgressPoint[],
     ts: number,
-  ): number | null {
+  ): { progress: number; alpha: number } | null {
     if (progressPath.length < 2) return null;
-    if (ts < progressPath[0]!.ts || ts > progressPath[progressPath.length - 1]!.ts) return null;
 
+    const startTs = progressPath[0]!.ts;
+    const endTs = progressPath[progressPath.length - 1]!.ts;
+
+    // ── Trail 頭部 fade-in（ts 在第一筆點之前 FADE 秒內）──
+    if (ts < startTs) {
+      const gap = startTs - ts;
+      if (gap > FADE_SECONDS) return null;
+      return { progress: progressPath[0]!.progress, alpha: 1 - gap / FADE_SECONDS };
+    }
+
+    // ── Trail 尾部 fade-out（ts 在最後一筆點之後 FADE 秒內）──
+    if (ts > endTs) {
+      const gap = ts - endTs;
+      if (gap > FADE_SECONDS) return null;
+      return { progress: progressPath[progressPath.length - 1]!.progress, alpha: 1 - gap / FADE_SECONDS };
+    }
+
+    // Binary search
     let lo = 0, hi = progressPath.length - 1;
     while (lo < hi - 1) {
       const mid = (lo + hi) >> 1;
@@ -567,17 +637,29 @@ export class BusEngine {
 
     const p1 = progressPath[lo]!;
     const p2 = progressPath[hi]!;
-
-    // 跨 trip → 該時刻處於趟次切換間隙，不顯示（避免瞬移到新起點）
-    if (p1.tripId !== p2.tripId) return null;
-
-    // gap guard（理論上 buildProgressPath 已用 tripId 處理，保險起見再防一次）
     const dt = p2.ts - p1.ts;
-    if (dt > TRIP_GAP_SECONDS) return null;
-    if (dt <= 0) return p1.progress;
 
+    // ── 跨 trip 交界：前半 fade-out 停在 p1，後半 fade-in 停在 p2 ──
+    if (p1.tripId !== p2.tripId) {
+      const elapsed = ts - p1.ts;       // 距離 p1 的時間
+      const remaining = p2.ts - ts;     // 距離 p2 的時間
+      // fade-out：從 p1 離開後 FADE 秒內，alpha 從 1 降到 0
+      // fade-in：抵達 p2 前 FADE 秒內，alpha 從 0 升到 1
+      const outAlpha = Math.max(0, 1 - elapsed / FADE_SECONDS);
+      const inAlpha = Math.max(0, 1 - remaining / FADE_SECONDS);
+      if (outAlpha === 0 && inAlpha === 0) return null; // 中間完全隱藏
+      // 取較強者：決定這一刻顯示的是哪一端
+      if (outAlpha >= inAlpha) {
+        return { progress: p1.progress, alpha: outAlpha };
+      }
+      return { progress: p2.progress, alpha: inAlpha };
+    }
+
+    // ── 同 trip 內正常 lerp ──
+    if (dt > TRIP_GAP_SECONDS) return null; // 保險
+    if (dt <= 0) return { progress: p1.progress, alpha: 1 };
     const t = (ts - p1.ts) / dt;
-    return p1.progress + (p2.progress - p1.progress) * t;
+    return { progress: p1.progress + (p2.progress - p1.progress) * t, alpha: 1 };
   }
 
   private updateReplay(ts: number): BusVehicle[] {
@@ -586,13 +668,13 @@ export class BusEngine {
     for (const [plateNumb, bus] of this.replayTrails) {
       // ── Path A：有 progressPath → progress lerp → LineString 插值（主路徑，絕對沿路線）──
       if (bus.progressPath && bus.routeKey) {
-        const progress = this.interpolateProgressPath(bus.progressPath, ts);
-        if (progress === null) continue; // trip 交界 or 時間範圍外 → 隱藏
+        const result = this.interpolateProgressPath(bus.progressPath, ts);
+        if (!result) continue; // 完全在時間範圍外 or fade 已到 0 → 隱藏
 
         const route = this.mergedRoutes.get(bus.routeKey);
         if (!route) continue;
 
-        const position = interpolateOnLineString(route.coords, progress);
+        const position = interpolateOnLineString(route.coords, result.progress);
         buses.push({
           plateNumb,
           routeUid: bus.routeUid,
@@ -601,9 +683,10 @@ export class BusEngine {
           color: bus.color,
           status: "running",
           speed: 0,
-          progress,
+          progress: result.progress,
           direction: 0,
           city: bus.city,
+          fadeAlpha: result.alpha,
         });
         continue;
       }
