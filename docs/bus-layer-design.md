@@ -350,4 +350,4 @@ dry-run 實測：今日 1,836 台 / 35,241 rows / 1.4 MB / 耗時 <1s（遠低�
 |--------|------|
 | `b3bef73` | `feat(bus): 改為 progress-based 時間軸，抑制 GPS 跳躍與切角` |
 | `bc4b3e9` | `feat(bus): 淡入淡出 + 修復路線載入 race` |
-| _TBD_ | `feat(bus): 市區公車擴展六都（雙北合併）+ 新增公路客運 live/replay` |
+| `c19c9bf` | `feat(bus): 市區公車擴展六都（雙北合併）+ 新增公路客運 live/replay` |
