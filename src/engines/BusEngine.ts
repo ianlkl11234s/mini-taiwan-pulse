@@ -95,6 +95,90 @@ function snapToRoute(
   return { progress: bestProgress, dist: Math.sqrt(bestDist) };
 }
 
+/** Replay 模式預計算的路線 progress 時間軸點 */
+interface ProgressPoint {
+  ts: number;
+  progress: number;
+  /** 趟次 id：progress 倒退 >30% 或時間 gap >15min 時遞增 */
+  tripId: number;
+}
+
+/** Trip segmentation / progress 異常偵測參數 */
+const TRIP_GAP_SECONDS = 900;        // > 15 分鐘視為新趟次
+const TRIP_BACKWARD_THRESHOLD = 0.3; // progress 倒退 >30% 視為新趟次（折返/回程）
+const MIN_BACKWARD_TOLERANCE = 0.02; // GPS 誤差容忍：2% 以內的倒退視為正常
+const MAX_ANOMALY_SPEED_KMH = 80;    // 路線上推進最高速度（計算最大合理 Δprogress）
+const MAX_CONSECUTIVE_REJECTS = 3;   // 連續異常到此次數就接受新 GPS（避免卡住）
+
+/**
+ * 把 GPS 軌跡投影到路線，產生 (ts, progress, tripId) 序列
+ * - 倒退 >30% 或時間 gap >15min → 新 trip
+ * - 單次異常 GPS（進退幅度不合理）→ 丟棄，但連續 3 次異常就接受（開新 trip）
+ */
+function buildProgressPath(path: TrailPoint[], route: BusRouteGeometry): ProgressPoint[] {
+  const result: ProgressPoint[] = [];
+  if (path.length === 0) return result;
+  const totalKm = Math.max(route.totalDist * 111, 0.5);
+  let tripId = 0;
+  let consecutiveRejects = 0;
+
+  for (let i = 0; i < path.length; i++) {
+    const pt = path[i]!;
+    const lat = pt[0];
+    const lng = pt[1];
+    const ts = pt[3];
+    const { progress } = snapToRoute(lat, lng, route);
+
+    if (result.length === 0) {
+      result.push({ ts, progress, tripId });
+      continue;
+    }
+
+    const last = result[result.length - 1]!;
+    const dt = ts - last.ts;
+    const dp = progress - last.progress;
+
+    // ── Trip 邊界 ──
+    if (dt > TRIP_GAP_SECONDS) {
+      tripId++;
+      consecutiveRejects = 0;
+      result.push({ ts, progress, tripId });
+      continue;
+    }
+    if (dp <= -TRIP_BACKWARD_THRESHOLD) {
+      tripId++;
+      consecutiveRejects = 0;
+      result.push({ ts, progress, tripId });
+      continue;
+    }
+
+    // ── 異常偵測 ──
+    // 最大合理前進量：MAX_ANOMALY_SPEED_KMH × dt / totalKm，1.5 倍安全係數，最少 10%
+    const maxForward = Math.max((MAX_ANOMALY_SPEED_KMH * dt / 3600) / totalKm * 1.5, 0.1);
+    const isAnomaly =
+      dp > maxForward ||
+      (dp < -MIN_BACKWARD_TOLERANCE && dp > -TRIP_BACKWARD_THRESHOLD);
+
+    if (isAnomaly && consecutiveRejects < MAX_CONSECUTIVE_REJECTS) {
+      consecutiveRejects++;
+      continue;
+    }
+
+    // 連續異常達上限 → 接受此點，視為新 trip（GPS 真的偏了或換線）
+    if (isAnomaly) {
+      tripId++;
+      consecutiveRejects = 0;
+      result.push({ ts, progress, tripId });
+      continue;
+    }
+
+    consecutiveRejects = 0;
+    result.push({ ts, progress, tripId });
+  }
+
+  return result;
+}
+
 interface SnappedBus {
   plateNumb: string;
   routeKey: string;
@@ -109,11 +193,15 @@ interface SnappedBus {
   direction: number;
   color: string;
   city: BusCity;
+  /** 連續被判 progress 跳躍的次數，達上限就接受新 GPS */
+  rejectStreak: number;
 }
 
 /** Replay mode 內部狀態 */
 interface ReplayBus {
   path: TrailPoint[];
+  /** 預計算的 progress 時間軸（有 routeKey 時才有） */
+  progressPath?: ProgressPoint[];
   routeKey: string | null;
   routeUid: string;
   routeName: string;
@@ -216,31 +304,43 @@ export class BusEngine {
       const route = this.mergedRoutes.get(routeKey);
       if (!route) continue;
 
-      // ── 異常過濾：GPS 跳躍偵測 ──
-      const prev = this.snapped.get(pos.plateNumb);
-      if (prev && prev.routeKey === routeKey) {
-        const elapsed = now - prev.snapTime;
-        if (elapsed > 0 && elapsed < 120) {
-          // 預期最大移動距離（km）= speed * elapsed * 1.5 安全係數
-          const maxDistKm = Math.max(pos.speed, prev.speed, 30) / 3600 * elapsed * 1.5;
-          const dlat = pos.lat - prev.snapLat;
-          const dlng = pos.lng - prev.snapLng;
-          const actualDistKm = Math.sqrt(dlat * dlat + dlng * dlng) * 111;
-          if (actualDistKm > maxDistKm && actualDistKm > 0.5) {
-            // GPS 跳躍：沿用上次位置，跳過此次更新
-            continue;
-          }
-        }
-      }
-
       // Snap GPS → 路線
       const { progress } = snapToRoute(pos.lat, pos.lng, route);
 
-      // 計算 progressRate: speed (km/h) → progress/s
-      // totalDist 是度，1度 ≈ 111km
+      // 計算 progressRate: speed (km/h) → progress/s（totalDist 是度，1度 ≈ 111km）
       const totalDistKm = route.totalDist * 111;
       const speedKmPerSec = pos.speed / 3600;
       const progressRate = totalDistKm > 0 ? speedKmPerSec / totalDistKm : 0;
+
+      // ── Progress 跳躍偵測 ──
+      // 比較新 progress 與「基於上次位置、速度推進得到的 expected progress」，
+      // 若偏離過大視為 GPS 漂移，沿用 prev（等下一次 poll 再看）。
+      // 連續 rejectStreak 次異常就接受（避免卡住）。
+      const prev = this.snapped.get(pos.plateNumb);
+      if (prev && prev.routeKey === routeKey) {
+        const elapsed = now - prev.snapTime;
+        if (elapsed > 0 && elapsed < 600) {
+          const totalKm = Math.max(totalDistKm, 0.5);
+          // 使用當下/前次速度平均推進；若兩者都低，給 30km/h 下限（避免停車時判太嚴）
+          const avgSpeed = Math.max((pos.speed + prev.speed) / 2, 30);
+          const expectedForward = (avgSpeed * elapsed / 3600) / totalKm;
+          // 容忍係數：前進 ×3、至少 10%；倒退容忍 3%（真折返會透過 direction 切換重置）
+          const maxForward = Math.max(expectedForward * 3, 0.1);
+          const maxBackward = 0.03;
+          const dp = progress - prev.progress;
+
+          const isAnomaly = dp > maxForward || dp < -maxBackward;
+          if (isAnomaly && prev.rejectStreak < MAX_CONSECUTIVE_REJECTS) {
+            // 保留 prev 位置，但把 rejectStreak 加 1 + 刷新 snapTime 讓時間持續推進
+            this.snapped.set(pos.plateNumb, {
+              ...prev,
+              rejectStreak: prev.rejectStreak + 1,
+            });
+            continue;
+          }
+          // 連續異常達上限 → 接受新 GPS（可能是司機繞路/GPS 長期偏移）
+        }
+      }
 
       this.snapped.set(pos.plateNumb, {
         plateNumb: pos.plateNumb,
@@ -256,6 +356,7 @@ export class BusEngine {
         direction: pos.direction,
         color: hashColor(pos.routeUid),
         city: pos.city,
+        rejectStreak: 0,
       });
     }
 
@@ -344,10 +445,21 @@ export class BusEngine {
         ? this.resolveRouteKey(trail.routeUid, trail.direction)
         : null;
 
+      // 有路線 → 預計算 progress 時間軸（含 trip segmentation + 異常過濾）
+      let progressPath: ProgressPoint[] | undefined;
+      if (routeKey) {
+        const route = this.mergedRoutes.get(routeKey);
+        if (route) {
+          progressPath = buildProgressPath(cleanPath, route);
+          if (progressPath.length < 2) progressPath = undefined;
+        }
+      }
+
       // key = plateNumb_direction（同車不同方向是獨立 trail）
       const trailKey = `${trail.plateNumb}_${trail.direction}`;
       this.replayTrails.set(trailKey, {
         path: trail.path,
+        progressPath,
         routeKey,
         routeUid: trail.routeUid ?? "",
         routeName: trail.routeName ?? "",
@@ -355,7 +467,8 @@ export class BusEngine {
         city: (trail.city ?? "Taipei") as BusCity,
       });
     }
-    console.log(`[Bus] ingestTrails: ${trails.length} → ${this.replayTrails.size} with routes, filtered ${totalFiltered} anomalous points`);
+    const withProgress = Array.from(this.replayTrails.values()).filter(b => b.progressPath).length;
+    console.log(`[Bus] ingestTrails: ${trails.length} → ${this.replayTrails.size} (${withProgress} with progressPath), filtered ${totalFiltered} anomalous points`);
   }
 
   /**
@@ -435,40 +548,79 @@ export class BusEngine {
     return [lat, lng];
   }
 
+  /**
+   * 在預計算的 progress 時間軸上插值。同一 tripId 內 lerp progress；
+   * 不同 trip 之間不插值（回傳 null，代表該時刻公車在趟次切換中 → 隱藏）
+   */
+  private interpolateProgressPath(
+    progressPath: ProgressPoint[],
+    ts: number,
+  ): number | null {
+    if (progressPath.length < 2) return null;
+    if (ts < progressPath[0]!.ts || ts > progressPath[progressPath.length - 1]!.ts) return null;
+
+    let lo = 0, hi = progressPath.length - 1;
+    while (lo < hi - 1) {
+      const mid = (lo + hi) >> 1;
+      if (progressPath[mid]!.ts <= ts) lo = mid; else hi = mid;
+    }
+
+    const p1 = progressPath[lo]!;
+    const p2 = progressPath[hi]!;
+
+    // 跨 trip → 該時刻處於趟次切換間隙，不顯示（避免瞬移到新起點）
+    if (p1.tripId !== p2.tripId) return null;
+
+    // gap guard（理論上 buildProgressPath 已用 tripId 處理，保險起見再防一次）
+    const dt = p2.ts - p1.ts;
+    if (dt > TRIP_GAP_SECONDS) return null;
+    if (dt <= 0) return p1.progress;
+
+    const t = (ts - p1.ts) / dt;
+    return p1.progress + (p2.progress - p1.progress) * t;
+  }
+
   private updateReplay(ts: number): BusVehicle[] {
     const buses: BusVehicle[] = [];
 
     for (const [plateNumb, bus] of this.replayTrails) {
-      const interp = this.interpolateTrail(bus.path, ts);
-      if (!interp) continue;
+      // ── Path A：有 progressPath → progress lerp → LineString 插值（主路徑，絕對沿路線）──
+      if (bus.progressPath && bus.routeKey) {
+        const progress = this.interpolateProgressPath(bus.progressPath, ts);
+        if (progress === null) continue; // trip 交界 or 時間範圍外 → 隱藏
 
-      const [lat, lng] = interp;
-      let position: [number, number];
-
-      // DB 端已按 direction 分 trail，可以正確 snap 到對應方向的路線
-      let progress = 0;
-      if (bus.routeKey) {
         const route = this.mergedRoutes.get(bus.routeKey);
-        if (route) {
-          const snap = snapToRoute(lat, lng, route);
-          progress = snap.progress;
-          position = interpolateOnLineString(route.coords, progress);
-        } else {
-          position = [lng, lat];
-        }
-      } else {
-        position = [lng, lat];
+        if (!route) continue;
+
+        const position = interpolateOnLineString(route.coords, progress);
+        buses.push({
+          plateNumb,
+          routeUid: bus.routeUid,
+          routeName: bus.routeName,
+          position,
+          color: bus.color,
+          status: "running",
+          speed: 0,
+          progress,
+          direction: 0,
+          city: bus.city,
+        });
+        continue;
       }
 
+      // ── Path B：無路線配對 → 用原始 GPS 軌跡（舊路徑保留，最少見的 fallback）──
+      const interp = this.interpolateTrail(bus.path, ts);
+      if (!interp) continue;
+      const [lat, lng] = interp;
       buses.push({
         plateNumb,
         routeUid: bus.routeUid,
         routeName: bus.routeName,
-        position,
+        position: [lng, lat],
         color: bus.color,
         status: "running",
         speed: 0,
-        progress,
+        progress: 0,
         direction: 0,
         city: bus.city,
       });
