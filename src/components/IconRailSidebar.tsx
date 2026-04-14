@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type CSSProperties } from "react";
+import { useState, useEffect, useMemo, memo, type CSSProperties } from "react";
 import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
@@ -584,6 +584,84 @@ interface LayersPanelProps {
   onClose: () => void;
 }
 
+// 單一 layer row — memo 後只在該 row 的 props 真變動時才 re-render。
+// 這讓 LayersPanel 每次被動 re-render（例如 count 變動）時，
+// 大多數 row 跳過、只有 count 變化的少數 row 重繪。
+interface LayerRowProps {
+  layerKey: keyof LayerVisibility;
+  label: string;
+  expandable: boolean;
+  active: boolean;
+  color: string;
+  count: number | undefined;
+  isExpanded: boolean;
+  Icon: LucideIcon;
+  onLayerClick: (layer: keyof LayerVisibility) => void;
+  onToggleVisibility: (layer: keyof LayerVisibility) => void;
+}
+
+const LayerRow = memo(function LayerRow({
+  layerKey, label, expandable, active, color, count, isExpanded, Icon,
+  onLayerClick, onToggleVisibility,
+}: LayerRowProps) {
+  const handleClick = () =>
+    expandable ? onLayerClick(layerKey) : onToggleVisibility(layerKey);
+  const handleToggle = () => onToggleVisibility(layerKey);
+
+  return (
+    <div
+      onClick={handleClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "5px 12px 5px 0",
+        cursor: "pointer",
+        borderLeft: active ? `2px solid ${color}` : "2px solid transparent",
+        paddingLeft: 10,
+        transition: "background 0.1s",
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.background = "transparent";
+      }}
+    >
+      <Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />
+      <span
+        style={{
+          flex: 1,
+          fontSize: 12,
+          fontFamily: "Inter, system-ui, sans-serif",
+          color: active ? "#fff" : INACTIVE_TEXT,
+          transition: "color 0.15s",
+        }}
+      >
+        {label}
+      </span>
+      {count != null && count > 0 && (
+        <span
+          style={{
+            fontFamily: "monospace",
+            fontSize: 11,
+            color: active ? color : INACTIVE_TEXT,
+            marginRight: 4,
+          }}
+        >
+          {count.toLocaleString()}
+        </span>
+      )}
+      {expandable && (
+        <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
+          {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+        </span>
+      )}
+      <ToggleSwitch on={active} onChange={handleToggle} />
+    </div>
+  );
+});
+
 function LayersPanel({
   visibility, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
@@ -627,78 +705,24 @@ function LayersPanel({
             <CategoryLabel>{section.title}</CategoryLabel>
             {section.layers.map(({ key, label, expandable }) => {
               const active = visibility[key];
-              const color = LAYER_COLORS[key];
-              const count = getCount(key);
               const isExpanded = expandedLayer === key;
               const isTransport = key in TRANSPORT_LABELS;
-              const Icon = LAYER_ICONS[key];
 
               return (
                 <div key={key}>
-                  {/* Layer Row */}
-                  <div
-                    onClick={() => expandable ? onLayerClick(key) : onToggleVisibility(key)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "5px 12px 5px 0",
-                      cursor: "pointer",
-                      borderLeft: active ? `2px solid ${color}` : "2px solid transparent",
-                      paddingLeft: 10,
-                      transition: "background 0.1s",
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.background = "transparent";
-                    }}
-                  >
-                    {/* Icon */}
-                    <Icon size={14} color={active ? color : DIM} style={{ flexShrink: 0 }} />
-
-                    {/* Label */}
-                    <span
-                      style={{
-                        flex: 1,
-                        fontSize: 12,
-                        fontFamily: "Inter, system-ui, sans-serif",
-                        color: active ? "#fff" : INACTIVE_TEXT,
-                        transition: "color 0.15s",
-                      }}
-                    >
-                      {label}
-                    </span>
-
-                    {/* Count */}
-                    {count != null && count > 0 && (
-                      <span
-                        style={{
-                          fontFamily: "monospace",
-                          fontSize: 11,
-                          color: active ? color : INACTIVE_TEXT,
-                          marginRight: 4,
-                        }}
-                      >
-                        {count.toLocaleString()}
-                      </span>
-                    )}
-
-                    {/* Expand chevron */}
-                    {expandable && (
-                      <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
-                        {isExpanded
-                          ? <ChevronDown size={12} />
-                          : <ChevronRight size={12} />}
-                      </span>
-                    )}
-
-                    {/* Toggle switch */}
-                    <ToggleSwitch on={active} onChange={() => onToggleVisibility(key)} />
-                  </div>
-
-                  {/* Expanded Controls */}
+                  <LayerRow
+                    layerKey={key}
+                    label={label}
+                    expandable={!!expandable}
+                    active={active}
+                    color={LAYER_COLORS[key]}
+                    count={getCount(key)}
+                    isExpanded={isExpanded}
+                    Icon={LAYER_ICONS[key]}
+                    onLayerClick={onLayerClick}
+                    onToggleVisibility={onToggleVisibility}
+                  />
+                  {/* Expanded Controls — 不 memo（狀態變動要即時反映到 slider） */}
                   {isExpanded && expandable && (
                     <ExpandedControls
                       layerKey={key as ExpandableLayerKey}
