@@ -302,9 +302,9 @@ export default function App() {
   useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
 
   const { trainCount, activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
-  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode, transportParams.enabledBusCities);
+  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode, transportParams.enabledBusCities);
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
-    useBusIntercityLayer(layerVisibility.busIntercityLive, timeRef, timeline.timeMode);
+    useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
 
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {

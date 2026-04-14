@@ -15,6 +15,7 @@ import {
   fetchBusIntercityCurrent,
   fetchBusIntercityTrails,
 } from "../data/busLoader";
+import { timeStore } from "../state/timeStore";
 
 const POLL_INTERVAL = 30_000;
 const MAX_CACHED_DAYS = 3;
@@ -27,7 +28,6 @@ interface CachedDay {
 
 export function useBusIntercityLayer(
   enabled: boolean,
-  timeRef: React.RefObject<number>,
   timeMode: TimeMode,
 ) {
   const engineRef = useRef<BusEngine | null>(null);
@@ -153,15 +153,13 @@ export function useBusIntercityLayer(
     loadedDayRef.current = "";
   }, [enabled, isLive]);
 
-  // Animation loop
+  // 訂閱 timeStore 計算公車位置（不開獨立 RAF）
   useEffect(() => {
     if (!enabled || !engineRef.current) return;
 
-    let animId: number;
     let lastCountUpdate = 0;
 
-    const tick = () => {
-      const now = isLive ? Date.now() / 1000 : timeRef.current;
+    const update = (now: number) => {
       if (engineRef.current) {
         activeBusesRef.current = engineRef.current.update(now);
       }
@@ -171,13 +169,11 @@ export function useBusIntercityLayer(
         lastCountUpdate = ts;
         setBusCount(activeBusesRef.current.length);
       }
-
-      animId = requestAnimationFrame(tick);
     };
 
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
-  }, [enabled, isLive, engineRef.current !== null, timeRef]);
+    update(timeStore.getTime()); // 初始化
+    return timeStore.subscribe(update);
+  }, [enabled, engineRef.current !== null]);
 
   useEffect(() => {
     if (!enabled) {

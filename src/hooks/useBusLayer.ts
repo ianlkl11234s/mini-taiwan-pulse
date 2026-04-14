@@ -10,6 +10,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { BusVehicle, BusTrail, TimeMode, BusCity } from "../types";
 import { BusEngine } from "../engines/BusEngine";
 import { loadBusRoutesForCity, fetchBusCurrent, fetchBusTrails } from "../data/busLoader";
+import { timeStore } from "../state/timeStore";
 
 /** Supabase polling 間隔 (ms) */
 const POLL_INTERVAL = 30_000;
@@ -24,7 +25,6 @@ interface CachedDay {
 
 export function useBusLayer(
   enabled: boolean,
-  timeRef: React.RefObject<number>,
   timeMode: TimeMode,
   cities: BusCity[] = ["Taipei"],
 ) {
@@ -166,15 +166,14 @@ export function useBusLayer(
     loadedDayRef.current = ""; // 強制下次 loadDay 觸發
   }, [enabled, isLive, citiesKey]);
 
-  // ── Per-frame animation loop ──
+  // ── 訂閱 timeStore 計算公車位置（不開獨立 RAF） ──
+  // Live / Replay 都由 timeStore 推動；暫停時自動停止計算
   useEffect(() => {
     if (!enabled || !engineRef.current) return;
 
-    let animId: number;
     let lastCountUpdate = 0;
 
-    const tick = () => {
-      const now = isLive ? Date.now() / 1000 : timeRef.current;
+    const update = (now: number) => {
       if (engineRef.current) {
         activeBusesRef.current = engineRef.current.update(now);
       }
@@ -184,13 +183,11 @@ export function useBusLayer(
         lastCountUpdate = ts;
         setBusCount(activeBusesRef.current.length);
       }
-
-      animId = requestAnimationFrame(tick);
     };
 
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
-  }, [enabled, isLive, engineRef.current !== null, timeRef]);
+    update(timeStore.getTime()); // 初始化
+    return timeStore.subscribe(update);
+  }, [enabled, engineRef.current !== null]);
 
   // 停用時清空
   useEffect(() => {
