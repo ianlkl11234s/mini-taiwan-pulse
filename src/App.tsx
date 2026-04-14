@@ -11,6 +11,7 @@ import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
+import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
@@ -299,6 +300,8 @@ export default function App() {
 
   const { trainCount, activeTrainsRef } = useRailEngine(railData, timeRef, layerVisibility.rail);
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeRef, timeline.timeMode, transportParams.enabledBusCities);
+  const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
+    useBusIntercityLayer(layerVisibility.busIntercityLive, timeRef, timeline.timeMode);
 
   // 公車 replay: 跨日載入歷史軌跡
   useEffect(() => {
@@ -308,6 +311,15 @@ export default function App() {
       .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
     loadBusTrailDay(dayStr);
   }, [timeline.currentTime, timeline.timeMode, layerVisibility.busLive, loadBusTrailDay]);
+
+  // 公路客運 replay: 同步
+  useEffect(() => {
+    if (!layerVisibility.busIntercityLive || timeline.timeMode !== "replay") return;
+    if (timeline.currentTime <= 0) return;
+    const dayStr = new Date(timeline.currentTime * 1000)
+      .toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+    loadBusIntercityTrailDay(dayStr);
+  }, [timeline.currentTime, timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
 
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
@@ -326,7 +338,7 @@ export default function App() {
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, activeBusesRef, railDataRef,
+    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,
@@ -802,6 +814,7 @@ export default function App() {
                 ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                 trains: trainCount,
                 buses: busCount,
+                busesIntercity: busIntercityCount,
               }}
               onLayerClick={(layer) => {
                 const isVisible = layerVisibility[layer];
@@ -1005,6 +1018,7 @@ export default function App() {
               {layerVisibility.ships && ` · ${shipSceneRef.current?.getVisibleCount() ?? 0} ships`}
               {layerVisibility.rail && ` · ${trainCount} trains`}
               {layerVisibility.busLive && ` · ${busCount} buses`}
+              {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
             <div
@@ -1167,6 +1181,7 @@ export default function App() {
                         ships: shipSceneRef.current?.getVisibleCount() ?? ships.length,
                         trains: trainCount,
                         buses: busCount,
+                        busesIntercity: busIntercityCount,
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];

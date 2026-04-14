@@ -36,10 +36,15 @@ INPUT_STOPS = os.path.join(
 OUTPUT_DIR = os.path.join(BASE, "public", "bus")
 
 # 城市設定：命令列傳 --city taoyuan 等，預設台北+新北
+# 注意：taipei preset 內含「臺北市 + 新北市」（對應前端雙北 group）
 CITY_PRESETS: dict[str, dict] = {
     "taipei":    {"cities": {"臺北市", "新北市"}, "output": "taipei_bus_routes.json"},
     "newtaipei": {"cities": {"新北市"},           "output": "newtaipei_bus_routes.json"},
     "taoyuan":   {"cities": {"桃園市"},           "output": "taoyuan_bus_routes.json"},
+    "taichung":  {"cities": {"臺中市"},           "output": "taichung_bus_routes.json"},
+    "tainan":    {"cities": {"臺南市"},           "output": "tainan_bus_routes.json"},
+    "kaohsiung": {"cities": {"高雄市"},           "output": "kaohsiung_bus_routes.json"},
+    "intercity": {"cities": {"公路客運"},         "output": "intercity_bus_routes.json"},
 }
 
 # 解析命令列參數

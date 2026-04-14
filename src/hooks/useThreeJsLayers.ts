@@ -22,6 +22,7 @@ interface UseThreeJsLayersArgs {
   shipsRef: React.RefObject<Ship[]>;
   activeTrainsRef: React.RefObject<RailTrain[]>;
   activeBusesRef: React.RefObject<BusVehicle[]>;
+  activeBusesIntercityRef: React.RefObject<BusVehicle[]>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
   thsrPillarDataRef: React.RefObject<StationPillarData[]>;
@@ -70,7 +71,7 @@ interface UseThreeJsLayersArgs {
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-  shipsRef, activeTrainsRef, activeBusesRef, railDataRef,
+  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
   airportPillarDataRef, portPillarDataRef, temperatureDataRef,
   playingRef, layerVisibilityRef,
@@ -158,10 +159,19 @@ export function useThreeJsLayers({
   const addBusLayer = (map: MapboxMap) => {
     if (map.getLayer("bus-3d")) map.removeLayer("bus-3d");
     const layer = createBusLayer({
-      getBuses: () => activeBusesRef.current,
+      getBuses: () => {
+        // 共用 scene：串接 city bus + intercity 兩組 active buses
+        const city = activeBusesRef.current ?? [];
+        const intercity = activeBusesIntercityRef.current ?? [];
+        if (city.length === 0) return intercity;
+        if (intercity.length === 0) return city;
+        return city.concat(intercity);
+      },
       getIsDarkTheme: () => isDarkThemeRef.current,
       getOrbScale: () => paramRefs.busOrbScale.current,
-      getIsVisible: () => layerVisibilityRef.current.busLive,
+      getIsVisible: () =>
+        layerVisibilityRef.current.busLive ||
+        layerVisibilityRef.current.busIntercityLive,
       getColorMode: () => paramRefs.busColorMode.current as import("../types").BusColorMode,
       getAltOffset: () => paramRefs.busAltOffset.current,
       onSceneReady: (scene) => { busSceneRef.current = scene; },

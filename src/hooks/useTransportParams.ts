@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
-import type { ExpandableLayerKey, BusCity, BusColorMode } from "../types";
+import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
+import { BUS_GROUP_CITIES, BUS_GROUP_LABELS } from "../types";
 
 export interface SliderConfig {
   type?: "slider";
@@ -49,13 +50,23 @@ export function useTransportParams() {
   // Bus
   const [busScale, setBusScale] = useState(0.4);
   const [busOrbScale, setBusOrbScale] = useState(0.000004);
-  const [busCities, setBusCities] = useState<Record<BusCity, boolean>>({
-    Taipei: true, NewTaipei: false, Taoyuan: false,
+  // Bus groups（UI 層的合併概念）：雙北為一組，其餘各城市為一組
+  const [busGroups, setBusGroups] = useState<Record<BusGroup, boolean>>({
+    TaipeiMetro: true,
+    Taoyuan: false,
+    Taichung: false,
+    Tainan: false,
+    Kaohsiung: false,
   });
+  // busCities 實際傳給 RPC 的展開值（BusGroup → BusCity[]）
   const enabledBusCities = useMemo<BusCity[]>(
-    () => (Object.entries(busCities) as [BusCity, boolean][]).filter(([, v]) => v).map(([k]) => k),
-    [busCities],
+    () => (Object.entries(busGroups) as [BusGroup, boolean][])
+      .filter(([, v]) => v)
+      .flatMap(([g]) => BUS_GROUP_CITIES[g]),
+    [busGroups],
   );
+  const setBusGroup = (group: BusGroup, v: boolean) =>
+    setBusGroups((p) => ({ ...p, [group]: v }));
   const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
   const [busAltOffset, setBusAltOffset] = useState(0);
   // Bike
@@ -263,9 +274,17 @@ export function useTransportParams() {
         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
       ];
       case "busLive": return [
-        { type: "toggle" as const, label: "台北", value: busCities.Taipei, onChange: (v: boolean) => setBusCities((p) => ({ ...p, Taipei: v })) },
-        { type: "toggle" as const, label: "新北", value: busCities.NewTaipei, onChange: (v: boolean) => setBusCities((p) => ({ ...p, NewTaipei: v })) },
-        { type: "toggle" as const, label: "桃園", value: busCities.Taoyuan, onChange: (v: boolean) => setBusCities((p) => ({ ...p, Taoyuan: v })) },
+        ...(["TaipeiMetro", "Taoyuan", "Taichung", "Tainan", "Kaohsiung"] as BusGroup[]).map((g) => ({
+          type: "toggle" as const,
+          label: BUS_GROUP_LABELS[g],
+          value: busGroups[g],
+          onChange: (v: boolean) => setBusGroup(g, v),
+        })),
+        { type: "select" as const, label: "Color", value: busColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusColorMode(v as BusColorMode) },
+        { label: `Bus Z +${busAltOffset}m`, value: busAltOffset, min: 0, max: 500, step: 10, onChange: setBusAltOffset },
+        { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
+      ];
+      case "busIntercityLive": return [
         { type: "select" as const, label: "Color", value: busColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusColorMode(v as BusColorMode) },
         { label: `Bus Z +${busAltOffset}m`, value: busAltOffset, min: 0, max: 500, step: 10, onChange: setBusAltOffset },
         { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },

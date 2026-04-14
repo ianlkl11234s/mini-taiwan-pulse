@@ -41,6 +41,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   cwaCloudImagery: "#90caf9",
   cwaRadarImagery: "#66bb6a",
   busLive: "#4fc3f7",
+  busIntercityLive: "#ba68c8",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -48,6 +49,7 @@ const TRANSPORT_LABELS: Record<TransportType, string> = {
   ships: "船舶 Ship",
   rail: "鐵道 Rail",
   busLive: "公車 Bus",
+  busIntercityLive: "公路客運 InterCity",
 };
 
 // ── Section Config ──
@@ -69,6 +71,7 @@ const SECTIONS: SectionDef[] = [
       { key: "ships", label: "船舶 Ship", expandable: true },
       { key: "rail", label: "鐵道 Rail", expandable: true },
       { key: "busLive", label: "公車 Bus", expandable: true },
+      { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
     ],
   },
   {
@@ -142,7 +145,7 @@ interface LayerSidebarProps {
   displayMode: DisplayMode;
   isDarkTheme: boolean;
   isMobile?: boolean;
-  counts: { flights: number; ships: number; trains: number; buses: number; windPlan?: number };
+  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
@@ -179,6 +182,7 @@ export function LayerSidebar({
       case "ships": return counts.ships;
       case "rail": return counts.trains;
       case "busLive": return counts.buses;
+      case "busIntercityLive": return counts.busesIntercity;
       case "windPlan": return counts.windPlan;
       default: return undefined;
     }

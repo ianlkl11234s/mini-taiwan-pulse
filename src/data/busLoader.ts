@@ -3,7 +3,7 @@
  */
 
 import type { BusRouteData, BusRouteGeometry, BusPosition, BusDateInfo, BusTrail, TrailPoint } from "../types";
-import { BusCity, BUS_CITY_CONFIG } from "../types";
+import { BusCity, BUS_CITY_CONFIG, BUS_INTERCITY_ROUTES_JSON } from "../types";
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { dedupRpc } from "../lib/rpcDebounce";
@@ -78,7 +78,7 @@ export async function fetchBusCurrent(cities: BusCity[]): Promise<BusPosition[]>
       routeUid: row.route_uid,
       routeName: row.route_name,
       direction: row.direction,
-      city: row.city as BusCity,
+      city: row.city,
       lat: row.bus_lat,
       lng: row.bus_lng,
       speed: row.speed ?? 0,
@@ -155,4 +155,126 @@ export async function fetchBusTrails(date: string, cities: BusCity[]): Promise<B
   const merged = results.flat();
   console.log(`[Bus] Trails for ${date}: ${merged.length} buses (${cities.join("+")})`);
   return merged;
+}
+
+// ============================================================
+// 公路客運 (InterCity) ─ 全國單一資料源，無 city 切換
+// ============================================================
+
+let intercityRouteCache: BusRouteData | null = null;
+let intercityRouteFetching: Promise<BusRouteData> | null = null;
+
+/** 載入公路客運靜態路線幾何（全國單一檔，lazy） */
+export async function loadBusIntercityRoutes(): Promise<BusRouteData> {
+  if (intercityRouteCache) return intercityRouteCache;
+  if (intercityRouteFetching) return intercityRouteFetching;
+
+  intercityRouteFetching = withLoading(
+    "bus-routes-intercity",
+    "公路客運路線",
+    fetch(BUS_INTERCITY_ROUTES_JSON).then((r) => {
+      if (!r.ok) throw new Error(`Bus intercity routes: ${r.status}`);
+      return r.json() as Promise<Record<string, BusRouteGeometry>>;
+    }),
+  ).then((raw) => {
+    const routes = new Map<string, BusRouteGeometry>();
+    const routeIndex = new Map<string, string[]>();
+
+    for (const [key, val] of Object.entries(raw)) {
+      routes.set(key, val);
+      const uid = val.routeUid;
+      if (!routeIndex.has(uid)) routeIndex.set(uid, []);
+      routeIndex.get(uid)!.push(key);
+    }
+
+    console.log(`[BusIntercity] Loaded ${routes.size} route shapes`);
+    const result: BusRouteData = { routes, routeIndex };
+    intercityRouteCache = result;
+    intercityRouteFetching = null;
+    return result;
+  }).catch((err) => {
+    console.warn("[BusIntercity] Failed to load routes:", err);
+    intercityRouteFetching = null;
+    const empty: BusRouteData = { routes: new Map(), routeIndex: new Map() };
+    return empty;
+  });
+
+  return intercityRouteFetching;
+}
+
+/** 拉取公路客運即時位置（25s 內重複呼叫直接複用） */
+export async function fetchBusIntercityCurrent(): Promise<BusPosition[]> {
+  if (!supabaseConfigured) return [];
+
+  return dedupRpc("get_bus_intercity_current", async () => {
+    // 無 city 過濾：sub_authorities=NULL 取全部
+    const { data, error } = await supabase.rpc("get_bus_intercity_current", {
+      sub_authorities: null,
+    });
+    if (error) {
+      console.warn("[BusIntercity] RPC error:", error.message);
+      return [];
+    }
+    if (!data) return [];
+
+    return (data as any[]).map((row) => ({
+      plateNumb: row.plate_numb,
+      routeUid: row.route_uid,
+      routeName: row.route_name,
+      direction: row.direction,
+      city: row.city,
+      lat: row.bus_lat,
+      lng: row.bus_lng,
+      speed: row.speed ?? 0,
+      collectedAt: new Date(row.collected_at).getTime() / 1000,
+    }));
+  }, 25_000);
+}
+
+/** 取得公路客運可用日期清單 */
+export async function fetchBusIntercityDates(): Promise<BusDateInfo[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await supabase.rpc("get_bus_intercity_dates");
+  if (error) {
+    console.warn("[BusIntercity] get_bus_intercity_dates error:", error.message);
+    return [];
+  }
+  if (!data) return [];
+  return (data as any[]).map((d) => ({
+    day: d.day,
+    records: Number(d.records),
+    buses: Number(d.buses),
+  }));
+}
+
+/** 載入公路客運指定日期歷史軌跡（全國單一 RPC 呼叫） */
+export async function fetchBusIntercityTrails(date: string): Promise<BusTrail[]> {
+  if (!supabaseConfigured) return [];
+
+  const result = await withLoading(
+    `bus-intercity-trails:${date}`,
+    `公路客運軌跡 ${date}`,
+    supabase.rpc("get_bus_intercity_trails", {
+      target_date: date,
+      sub_authorities: null,
+    }),
+  );
+
+  if (result.error) {
+    console.warn("[BusIntercity] get_bus_intercity_trails error:", result.error.message);
+    return [];
+  }
+  if (!result.data) return [];
+
+  const trails: BusTrail[] = (result.data as any[]).map((row) => ({
+    plateNumb: row.plate_numb,
+    routeUid: row.route_uid ?? null,
+    routeName: row.route_name ?? null,
+    direction: row.direction ?? 0,
+    city: row.city ?? null,
+    path: parseTrail(row.trail),
+  }));
+
+  console.log(`[BusIntercity] Trails for ${date}: ${trails.length} buses`);
+  return trails;
 }

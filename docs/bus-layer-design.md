@@ -221,82 +221,120 @@ Replay 每幀重新 snap（舊版），和 pre-computed progress lerp（新版�
 
 Live 模式若 progress 偵測太嚴，車會永遠不更新。必須有 `MAX_CONSECUTIVE_REJECTS` 機制：連續 3 次異常就接受新 GPS（可能真的換線/繞路）。
 
-## 6. 擴展到全台灣
+## 6. 全台六都 + 公路客運（2026-04-14 擴展）
 
-### 6.1 資料面
+### 6.1 支援範圍
 
-目前 `public/bus/` 三個城市：
+**市區公車**（6 城市、5 個 UI group）：
 
-| 城市 | 檔案 | 大小 | 路線數 |
-|------|------|------|--------|
-| Taipei | taipei_bus_routes.json | 18 MB | 2293 |
-| New Taipei | newtaipei_bus_routes.json | 10 MB | - |
-| Taoyuan | taoyuan_bus_routes.json | 5 MB | - |
+| 城市 | BusCity | UI Group | 檔案 | 大小 | 路線數 |
+|------|---------|----------|------|------|--------|
+| 台北 | `Taipei` | `TaipeiMetro`（雙北合併） | `taipei_bus_routes.json` | 18 MB | 2293 |
+| 新北 | `NewTaipei` | `TaipeiMetro` | `newtaipei_bus_routes.json` | 10 MB | - |
+| 桃園 | `Taoyuan` | `Taoyuan` | `taoyuan_bus_routes.json` | 5 MB | - |
+| 台中 | `Taichung` | `Taichung` | `taichung_bus_routes.json` | 5.9 MB | 392 |
+| 台南 | `Tainan` | `Tainan` | `tainan_bus_routes.json` | 3.6 MB | 157 |
+| 高雄 | `Kaohsiung` | `Kaohsiung` | `kaohsiung_bus_routes.json` | 7.2 MB | 318 |
 
-預估全台灣（加上台中、台南、高雄、基隆、新竹、宜蘭、花蓮等）總量可能達 **60~100 MB**。
+**公路客運**（全國單一資料源，無 city 切換）：
 
-### 6.2 必要的工作項目
+| 項目 | 值 |
+|------|-----|
+| 路線檔 | `intercity_bus_routes.json` (~87 MB / 1780 shapes / 492 routes) |
+| Layer key | `busIntercityLive` |
+| Supabase 表 | `realtime.bus_intercity_positions` / `realtime.bus_intercity_trails_daily` |
+| Live RPC | `get_bus_intercity_current(sub_authorities text[])` |
+| Replay RPC | `get_bus_intercity_trails(date, sub_authorities text[])` / `get_bus_intercity_dates()` |
+| city 欄位 | 存 SubAuthorityID（業者代號，數字字串如 "45"） |
 
-**路線預處理（`scripts/preprocess/`）**
-- 為每個縣市產生 `{city}_bus_routes.json`
-- 欄位契約：`{routeUid}_{direction}: { routeUid, routeName, direction, coords, cumDist, totalDist, stopProgress, stopNames }`
-- 扁平檔名（不要路徑分層，符合 S3 deploy-assets 契約）
+### 6.2 UI 設計：雙北合併 group
 
-**前端 cities 參數**
-- `useBusLayer(enabled, timeRef, timeMode, cities)` 的 `cities: BusCity[]` 需擴充
-- 新增 `BusCity` enum 在 `types/index.ts`
-- LayerSidebar 提供城市多選 UI（目前預設只有 Taipei）
+`BusGroup` 抽象層把 UI toggle 與底層 RPC cities 解耦：
 
-**DB / 資料收集**
-- `data-collectors` 需要支援全台各縣市的 TDX API
-- `bus_trails_daily` per-direction GROUP BY 對所有縣市一視同仁
-- cron job 記得錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
+```typescript
+export type BusGroup = "TaipeiMetro" | "Taoyuan" | "Taichung" | "Tainan" | "Kaohsiung";
+export const BUS_GROUP_CITIES: Record<BusGroup, BusCity[]> = {
+  TaipeiMetro: ["Taipei", "NewTaipei"],
+  Taoyuan:    ["Taoyuan"],
+  // ...
+};
+```
 
-### 6.3 效能考量
+- `useTransportParams` 管 `busGroups: Record<BusGroup, boolean>`
+- `enabledBusCities` 是 computed 展開值，丟給 RPC
+- 雙北只會一起開/關，減少使用者點擊負擔
 
-目前 Taipei 單城 5650 車輛、2293 路線在 M1 Mac 約 60fps。放大到全台：
+### 6.3 渲染共用：同一個 BusScene
 
-| 項目 | 瓶頸 | 緩解 |
-|------|------|------|
-| 路線 JSON 解析 | 18MB × N 個城市 → 主執行緒 block | Web Worker 解析 / 分批 lazy load 只載當前縣市 |
-| `mergedRoutes` Map size | 幾萬條路線 | 沒問題，Map 存指標 |
-| `buildProgressPath` | snap 是 O(路線節點數) per 點 → 全台預估 hundreds of ms | 只在 ingestTrails 跑一次，非關鍵路徑 |
-| `ensureProgressPaths` | 同上，但要跑 N 次（每城市 addCityRoutes 後一次） | 可限縮只處理該城市的 trail（加 `city` 過濾） |
-| InstancedMesh count | 目前 max 5000 | 可能要升到 10000~20000 |
-| Per-frame update | `updateReplay` 每輛車 binary search + interpolateOnLineString | 後者 O(路線節點數)；考慮快取 totalLength |
+`useBusIntercityLayer` 獨立 hook，但共用 `BusEngine` 類別 + 同一個 Three.js `BusScene`：
 
-### 6.4 推薦擴展順序
+```typescript
+// useThreeJsLayers.ts
+createBusLayer({
+  getBuses: () => cityBuses.concat(intercityBuses),   // 串接兩組 activeBuses
+  getIsVisible: () => busLive || busIntercityLive,    // 任一開啟即渲染
+  getOrbScale: () => paramRefs.busOrbScale.current,   // 完全共用 color/scale/Z
+  ...
+});
+```
 
-1. **先以縣市為單位 lazy load**：使用者開啟某縣市才 fetch 對應 JSON
-2. **觀察延遲**：若某縣市 routes 載入 > 2s 很常 race → 考慮 Worker parse
-3. **調整 MAX_INSTANCES**：根據實際車輛數（可能 全台同時 30k+ 車）
-4. **考慮區域 culling**：只算/畫螢幕範圍內車輛
-5. **壓縮路線 JSON**：只保留 coords / cumDist / totalDist / stopProgress，不存冗餘的座標小數
-6. **評估 `ensureProgressPaths` 的 cost**：若全台每城市都跑，考慮只對該城市的 trail 補建
+所有顯示參數（`busOrbScale` / `busColorMode` / `busAltOffset`）兩者共享，無需重複 UI。
 
-### 6.5 需要改的檔案清單
+### 6.4 Supabase 後端（migration `037_bus_intercity_trails_daily.sql`）
 
-| 擴充方向 | 檔案 |
-|----------|------|
-| 新增城市 enum | `src/types/index.ts` (`BusCity`) |
-| 載入路線 | `src/data/busLoader.ts` (`loadBusRoutesForCity`) |
-| 預處理腳本 | `scripts/preprocess/build_bus_routes.py`（需新建） |
-| 前端城市切換 | `src/hooks/useBusLayer.ts`（cities prop）|
-| UI 選擇 | `src/components/LayerSidebar.tsx` |
-| DB migrations | `gis-platform/migrations/`（RPC 若要 filter city）|
-| 資料收集 | `data-collectors/`（TDX 各縣市 key）|
+完全沿用 `bus_trails_daily` 模式（pre-aggregate + pg_cron）：
+
+```sql
+-- 索引對齊 DISTINCT ON 排序
+CREATE INDEX idx_bus_intercity_plate_time ON realtime.bus_intercity_positions (plate_numb, collected_at);
+
+-- Refresh function: work_mem 64MB + advisory_xact_lock + MAX() 聚合
+CREATE FUNCTION public.refresh_bus_intercity_trails_daily(target_day date) ...
+
+-- cron 錯開 bus 的 :02/:17/:32/:47
+SELECT cron.schedule('refresh-bus-intercity-trails', '7,22,37,52 * * * *', ...);
+SELECT cron.schedule('cleanup-bus-intercity-trails', '7 3 * * *', ...);  -- 03:07 錯開 bus 03:02
+```
+
+dry-run 實測：今日 1,836 台 / 35,241 rows / 1.4 MB / 耗時 <1s（遠低於 bus 的 30-60s）。
+
+### 6.5 效能與費用守則
+
+| 風險 | 防線 |
+|------|------|
+| refresh OOM | `work_mem 64MB` + 5 分鐘降采樣 + `MAX()` 取代 `mode()` + 索引對齊 |
+| refresh 重複 | `pg_advisory_xact_lock(hashtext(date))` |
+| Pooler 2min timeout | refresh 走 pg_cron 繞過；對外 RPC 設 30-60s |
+| IO 尖峰 | cron 錯開分鐘（bus :02/:17/:32/:47 vs intercity :07/:22/:37/:52）|
+| 存量爆炸 | cleanup 保留 3 天 |
+| 前端狂 poll | 25s debounce + LRU 3 天 cache |
+| Response 4MB 上限 | intercity 1.8k 台，單趟 response <1MB，無需分片 |
+| 大路線 JSON | `intercity_bus_routes.json` 87 MB 走 S3 deploy-assets（不進 git）|
+
+### 6.6 部署：大檔走 S3
+
+路線 JSON 部署模式（大小閾值約 10 MB）：
+
+| 檔案 | 模式 |
+|------|------|
+| newtaipei / taoyuan / taichung / tainan / kaohsiung (<10MB) | 直接 commit 到 git |
+| **taipei (18MB) / intercity (87MB)** | 透過 S3 deploy-assets 流程，本地 / volume 內存在但不進 git |
+
+`.gitignore` 已排除 taipei & intercity；`scripts/deploy/upload-deploy-assets.sh` 與 `pull-deploy-assets.sh` 處理 tar.gz 打包。
 
 ## 7. 檔案導覽
 
-| 檔案 | 行數 | 角色 |
-|------|------|------|
-| `src/engines/BusEngine.ts` | ~700 | 主邏輯（progressPath / fade / race fix） |
-| `src/three/BusScene.ts` | ~300 | 渲染層（InstancedMesh + alpha shader） |
-| `src/data/busLoader.ts` | ~160 | Supabase RPC 包裝 |
-| `src/hooks/useBusLayer.ts` | ~205 | React hook (Live poll + Replay LRU) |
-| `src/map/busCustomLayer.ts` | ~53 | Mapbox custom layer wrapper |
-| `src/engines/railUtils.ts` | ~70 | `interpolateOnLineString` 共用工具 |
-| `src/types/index.ts` | - | `BusVehicle` / `BusRouteGeometry` / `BusTrail` |
+| 檔案 | 角色 |
+|------|------|
+| `src/engines/BusEngine.ts` | 主邏輯（progressPath / fade / race fix），city 型別為 `string` 共用 city + intercity |
+| `src/three/BusScene.ts` | 渲染層（InstancedMesh + alpha shader） |
+| `src/data/busLoader.ts` | Supabase RPC 包裝（市區公車 + 公路客運 8 支函式）|
+| `src/hooks/useBusLayer.ts` | 市區公車 hook（Live poll + Replay LRU + 多 city）|
+| `src/hooks/useBusIntercityLayer.ts` | 公路客運 hook（無 city 切換，全國單一資料源）|
+| `src/map/busCustomLayer.ts` | Mapbox custom layer wrapper |
+| `src/engines/railUtils.ts` | `interpolateOnLineString` 共用工具 |
+| `src/types/index.ts` | `BusCity` / `BusGroup` / `BUS_GROUP_CITIES` / `BUS_INTERCITY_ROUTES_JSON` |
+| `gis-platform/migrations/037_bus_intercity_trails_daily.sql` | 公路客運 replay SQL migration |
 
 ## 8. 關聯文件
 
@@ -312,3 +350,4 @@ Live 模式若 progress 偵測太嚴，車會永遠不更新。必須有 `MAX_CO
 |--------|------|
 | `b3bef73` | `feat(bus): 改為 progress-based 時間軸，抑制 GPS 跳躍與切角` |
 | `bc4b3e9` | `feat(bus): 淡入淡出 + 修復路線載入 race` |
+| _TBD_ | `feat(bus): 市區公車擴展六都（雙北合併）+ 新增公路客運 live/replay` |

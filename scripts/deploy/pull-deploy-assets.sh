@@ -9,7 +9,7 @@ export AWS_DEFAULT_REGION="${S3_REGION:-ap-southeast-2}"
 BUCKET="${S3_BUCKET:-migu-gis-data-collector}"
 PREFIX="deploy-assets"
 DATA_DIR="/data"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus"
 
 # 採扁平 S3 + 本地分目錄方案：S3 路徑維持 deploy-assets/xxx.ext，
 # 下載時依檔案類型落到對應子目錄對應前端 public/{geo,h3}/ 結構
@@ -46,5 +46,15 @@ if aws s3 cp "s3://$BUCKET/$PREFIX/rail.tar.gz" /tmp/rail.tar.gz; then
   rm /tmp/rail.tar.gz
   echo "rail/ extracted to $DATA_DIR/rail/"
 fi
+
+# 公車大檔路線 JSON（gzip 壓縮；小檔隨 git 部署不在此處）
+BUS_BIG_FILES="taipei_bus_routes.json intercity_bus_routes.json"
+for f in $BUS_BIG_FILES; do
+  echo "Pulling $f.gz → $DATA_DIR/bus/$f"
+  if aws s3 cp "s3://$BUCKET/$PREFIX/$f.gz" "/tmp/$f.gz"; then
+    gunzip -c "/tmp/$f.gz" > "$DATA_DIR/bus/$f"
+    rm "/tmp/$f.gz"
+  fi
+done
 
 echo "All assets pulled to $DATA_DIR"

@@ -5,7 +5,7 @@
  * 兩次 poll 之間依速度沿路線推進。
  */
 
-import type { BusCity, BusRouteData, BusRouteGeometry, BusPosition, BusVehicle, BusTrail, TrailPoint } from "../types";
+import type { BusRouteData, BusRouteGeometry, BusPosition, BusVehicle, BusTrail, TrailPoint } from "../types";
 import { interpolateOnLineString } from "./railUtils";
 
 /** 公車最大合理速度 (km/h)，超過視為 GPS 異常 */
@@ -193,7 +193,7 @@ interface SnappedBus {
   routeUid: string;
   direction: number;
   color: string;
-  city: BusCity;
+  city: string;
   /** 連續被判 progress 跳躍的次數，達上限就接受新 GPS */
   rejectStreak: number;
   /** 此車首次進入系統的時間（unix 秒），用於 Live 淡入效果 */
@@ -211,11 +211,11 @@ interface ReplayBus {
   direction: number;
   routeName: string;
   color: string;
-  city: BusCity;
+  city: string;
 }
 
 export class BusEngine {
-  private cityRoutes = new Map<BusCity, BusRouteData>();
+  private cityRoutes = new Map<string, BusRouteData>();
   private mergedRoutes = new Map<string, BusRouteGeometry>();
   private mergedIndex = new Map<string, string[]>();
   private snapped = new Map<string, SnappedBus>();
@@ -227,7 +227,7 @@ export class BusEngine {
   constructor() {}
 
   /** 新增或更新某城市的路線資料 */
-  addCityRoutes(city: BusCity, data: BusRouteData): void {
+  addCityRoutes(city: string, data: BusRouteData): void {
     this.cityRoutes.set(city, data);
     for (const [key, geom] of data.routes) {
       this.mergedRoutes.set(key, geom);
@@ -276,7 +276,7 @@ export class BusEngine {
   }
 
   /** 移除某城市的路線資料 */
-  removeCityRoutes(city: BusCity): void {
+  removeCityRoutes(city: string): void {
     const data = this.cityRoutes.get(city);
     if (!data) return;
     this.cityRoutes.delete(city);
@@ -296,7 +296,7 @@ export class BusEngine {
     this.routeMatch.clear();
   }
 
-  hasCityRoutes(city: BusCity): boolean {
+  hasCityRoutes(city: string): boolean {
     return this.cityRoutes.has(city);
   }
 
@@ -513,7 +513,7 @@ export class BusEngine {
         direction: trail.direction,
         routeName: trail.routeName ?? "",
         color: hashColor(trail.routeUid ?? trail.plateNumb),
-        city: (trail.city ?? "Taipei") as BusCity,
+        city: trail.city ?? "",
       });
     }
     const withProgress = Array.from(this.replayTrails.values()).filter(b => b.progressPath).length;

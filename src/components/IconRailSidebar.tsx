@@ -42,10 +42,11 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   cwaCloudImagery: "#b0c4de",
   cwaRadarImagery: "#4fc3f7",
   busLive: "#4fc3f7",
+  busIntercityLive: "#ba68c8",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
-  flights: "Flight", ships: "Ship", rail: "Rail", busLive: "Bus",
+  flights: "Flight", ships: "Ship", rail: "Rail", busLive: "Bus", busIntercityLive: "InterCity",
 };
 
 const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
@@ -85,6 +86,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   cwaCloudImagery: Cloud,
   cwaRadarImagery: CloudRain,
   busLive: Bus,
+  busIntercityLive: Bus,
 };
 
 // ── Section Config ──
@@ -197,7 +199,7 @@ interface IconRailSidebarProps {
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
-  counts: { flights: number; ships: number; trains: number; buses: number; windPlan?: number };
+  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
