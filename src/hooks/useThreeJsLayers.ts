@@ -48,6 +48,9 @@ interface UseThreeJsLayersArgs {
     busOrbScale: React.RefObject<number>;
     busColorMode: React.RefObject<string>;
     busAltOffset: React.RefObject<number>;
+    busIntercityOrbScale: React.RefObject<number>;
+    busIntercityColorMode: React.RefObject<string>;
+    busIntercityAltOffset: React.RefObject<number>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
@@ -81,6 +84,7 @@ export function useThreeJsLayers({
   const shipSceneRef = useRef<ShipScene | null>(null);
   const railSceneRef = useRef<RailScene | null>(null);
   const busSceneRef = useRef<BusScene | null>(null);
+  const busIntercitySceneRef = useRef<BusScene | null>(null);
 
   const addFlightLayer = (map: MapboxMap) => {
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
@@ -159,22 +163,29 @@ export function useThreeJsLayers({
   const addBusLayer = (map: MapboxMap) => {
     if (map.getLayer("bus-3d")) map.removeLayer("bus-3d");
     const layer = createBusLayer({
-      getBuses: () => {
-        // 共用 scene：串接 city bus + intercity 兩組 active buses
-        const city = activeBusesRef.current ?? [];
-        const intercity = activeBusesIntercityRef.current ?? [];
-        if (city.length === 0) return intercity;
-        if (intercity.length === 0) return city;
-        return city.concat(intercity);
-      },
+      id: "bus-3d",
+      getBuses: () => activeBusesRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
       getOrbScale: () => paramRefs.busOrbScale.current,
-      getIsVisible: () =>
-        layerVisibilityRef.current.busLive ||
-        layerVisibilityRef.current.busIntercityLive,
+      getIsVisible: () => layerVisibilityRef.current.busLive,
       getColorMode: () => paramRefs.busColorMode.current as import("../types").BusColorMode,
       getAltOffset: () => paramRefs.busAltOffset.current,
       onSceneReady: (scene) => { busSceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
+  const addBusIntercityLayer = (map: MapboxMap) => {
+    if (map.getLayer("bus-intercity-3d")) map.removeLayer("bus-intercity-3d");
+    const layer = createBusLayer({
+      id: "bus-intercity-3d",
+      getBuses: () => activeBusesIntercityRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getOrbScale: () => paramRefs.busIntercityOrbScale.current,
+      getIsVisible: () => layerVisibilityRef.current.busIntercityLive,
+      getColorMode: () => paramRefs.busIntercityColorMode.current as import("../types").BusColorMode,
+      getAltOffset: () => paramRefs.busIntercityAltOffset.current,
+      onSceneReady: (scene) => { busIntercitySceneRef.current = scene; },
     });
     map.addLayer(layer);
   };
@@ -247,6 +258,7 @@ export function useThreeJsLayers({
     addShipLayer(map);
     addRailLayer(map);
     addBusLayer(map);
+    addBusIntercityLayer(map);
     addLighthouseLayer(map);
     addStationPillarLayer(map);
     addTemperatureWaveLayer(map);
@@ -257,10 +269,12 @@ export function useThreeJsLayers({
     shipSceneRef,
     railSceneRef,
     busSceneRef,
+    busIntercitySceneRef,
     addFlightLayer,
     addShipLayer,
     addRailLayer,
     addBusLayer,
+    addBusIntercityLayer,
     addLighthouseLayer,
     addStationPillarLayer,
     addTemperatureWaveLayer,

@@ -257,6 +257,8 @@ export interface BusRouteGeometry {
   stopProgress: number[];
   stopNames: string[];
   subRouteName: string;
+  /** 固定班次/小時（由 preprocess 從 schedule CSV 算出），density 色階用 */
+  frequency?: number;
 }
 
 export interface BusPosition {
@@ -285,6 +287,8 @@ export interface BusVehicle {
   city: string;
   /** 視覺透明度 0~1；未提供視為 1（不淡入淡出） */
   fadeAlpha?: number;
+  /** 路線的班次/小時（從 route.frequency 帶入，density colorMode 固定查值） */
+  density?: number;
 }
 
 export interface BusRouteData {

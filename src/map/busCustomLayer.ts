@@ -3,6 +3,8 @@ import type { BusVehicle, BusColorMode } from "../types";
 import { BusScene } from "../three/BusScene";
 
 export interface BusLayerOptions {
+  /** 自訂 layer id（預設 "bus-3d"；若要同時加兩個 bus layer 需指定不同 id） */
+  id?: string;
   getBuses: () => BusVehicle[];
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
@@ -19,7 +21,7 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
   let lastDarkTheme = true;
 
   return {
-    id: "bus-3d",
+    id: opts.id ?? "bus-3d",
     type: "custom" as const,
     renderingMode: "3d" as const,
 

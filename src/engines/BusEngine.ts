@@ -300,6 +300,16 @@ export class BusEngine {
     return this.cityRoutes.has(city);
   }
 
+  /** 查該路線的 frequency（班次/小時），無資料回 0.5（預設低密度） */
+  private resolveFrequency(routeUid: string, direction: number): number {
+    const key = this.resolveRouteKey(routeUid, direction);
+    if (key) {
+      const freq = this.mergedRoutes.get(key)?.frequency;
+      if (typeof freq === "number") return freq;
+    }
+    return 0.5;
+  }
+
   /** 找到 bus_current row 對應的路線 key */
   private resolveRouteKey(routeUid: string, direction: number): string | null {
     const key1 = `${routeUid}_${direction}`;
@@ -468,6 +478,7 @@ export class BusEngine {
         direction: bus.direction,
         city: bus.city,
         fadeAlpha,
+        density: route.frequency,
       });
     }
 
@@ -687,6 +698,7 @@ export class BusEngine {
           direction: 0,
           city: bus.city,
           fadeAlpha: result.alpha,
+          density: route.frequency,
         });
         continue;
       }
@@ -706,6 +718,7 @@ export class BusEngine {
         progress: 0,
         direction: 0,
         city: bus.city,
+        density: this.resolveFrequency(bus.routeUid, 0),
       });
     }
 

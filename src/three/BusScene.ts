@@ -146,15 +146,8 @@ export class BusScene {
 
   update(buses: BusVehicle[], colorMode: BusColorMode = "route") {
     if (!this.instancedMesh) return;
-
-    // density 模式需要先統計每條路線的車輛數
-    let routeCount: Map<string, number> | null = null;
-    if (colorMode === "density") {
-      routeCount = new Map();
-      for (const bus of buses) {
-        routeCount.set(bus.routeUid, (routeCount.get(bus.routeUid) ?? 0) + 1);
-      }
-    }
+    // density 模式：直接讀 bus.density（preprocess 算好的班次/小時，固定值）
+    // 不再每 frame 統計，負擔更低；顏色對同一班車永遠相同
 
     const dummy = this._dummy;
     const baseScale = this.orbScale * 0.5;
@@ -199,9 +192,10 @@ export class BusScene {
       if (colorMode === "speed") {
         color = lerpStops(SPEED_STOPS, bus.speed, "speed");
         if (this.isDarkTheme) color.multiplyScalar(darkBoost);
-      } else if (colorMode === "density" && routeCount) {
-        const cnt = routeCount.get(bus.routeUid) ?? 1;
-        color = lerpStops(DENSITY_STOPS, cnt, "count");
+      } else if (colorMode === "density") {
+        // frequency（班次/小時）直接上色：高頻 → 暖色、低頻 → 冷色
+        const freq = bus.density ?? 0.5;
+        color = lerpStops(DENSITY_STOPS, freq, "count");
         if (this.isDarkTheme) color.multiplyScalar(darkBoost);
       } else {
         color = this.getColor(bus.color);

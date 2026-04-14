@@ -33,6 +33,10 @@ INPUT_STOPS = os.path.join(
     ANALYTICS_BASE,
     "data/processed/transportation/bus/bus_stop_of_route_all.csv",
 )
+INPUT_SCHEDULE = os.path.join(
+    ANALYTICS_BASE,
+    "data/processed/transportation/bus/bus_schedule_all.csv",
+)
 OUTPUT_DIR = os.path.join(BASE, "public", "bus")
 
 # 城市設定：命令列傳 --city taoyuan 等，預設台北+新北
@@ -149,6 +153,70 @@ def main():
     # 蒐集有效 RouteUID 集合（供後續 CSV 過濾用）
     valid_route_uids = {feat["properties"]["RouteUID"] for feat in filtered_features}
     print(f"  Unique RouteUIDs: {len(valid_route_uids)}")
+
+    # 2a. 讀取 schedule CSV 算每條路線的 frequency（班次/小時，固定值）
+    #     以 (RouteUID, Direction) 為 key，取所有 rows 的 avg headway（分鐘）倒數 × 60
+    #     ScheduleType=schedule 型（定點發車）無 headway → fallback 用 fixed_count/op_hours
+    print(f"\nReading schedule: {INPUT_SCHEDULE}")
+    headway_accum: dict[tuple, list[float]] = {}  # (routeUid, dir) → [avg_headway_mins]
+    fixed_count_accum: dict[tuple, int] = {}      # schedule 型：累積 row 數（當作近似班次數）
+    fixed_hours_accum: dict[tuple, float] = {}    # schedule 型：營運時數（取最大）
+
+    def parse_hm(s: str) -> float | None:
+        try:
+            h, m = s.split(":")
+            return int(h) + int(m) / 60.0
+        except Exception:
+            return None
+
+    with open(INPUT_SCHEDULE, encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        sched_total = sched_skipped = 0
+        for row in reader:
+            sched_total += 1
+            if row["RouteUID"] not in valid_route_uids:
+                sched_skipped += 1
+                continue
+            try:
+                rkey = (row["RouteUID"], int(row["Direction"]))
+            except (ValueError, KeyError):
+                continue
+
+            sched_type = (row.get("ScheduleType") or "").strip().lower()
+            if sched_type == "frequency":
+                try:
+                    mn = float(row.get("MinHeadwayMins") or 0)
+                    mx = float(row.get("MaxHeadwayMins") or 0)
+                    avg = (mn + mx) / 2 if (mn > 0 and mx > 0) else (mn or mx)
+                    if avg > 0:
+                        headway_accum.setdefault(rkey, []).append(avg)
+                except ValueError:
+                    pass
+            else:
+                # schedule 型：每 row = 一個班次
+                fixed_count_accum[rkey] = fixed_count_accum.get(rkey, 0) + 1
+                s, e = parse_hm(row.get("StartTime") or ""), parse_hm(row.get("EndTime") or "")
+                if s is not None and e is not None and e > s:
+                    hrs = e - s
+                    if hrs > fixed_hours_accum.get(rkey, 0):
+                        fixed_hours_accum[rkey] = hrs
+
+    print(f"  Total schedule rows: {sched_total}, skipped: {sched_skipped}")
+    print(f"  Routes with headway data: {len(headway_accum)}")
+    print(f"  Routes with fixed-time schedule: {len(fixed_count_accum)}")
+
+    def calc_frequency(route_uid: str, direction: int) -> float:
+        """回傳該路線的班次/小時（固定值）"""
+        rkey = (route_uid, direction)
+        if rkey in headway_accum:
+            avg_mins = sum(headway_accum[rkey]) / len(headway_accum[rkey])
+            if avg_mins > 0:
+                return 60.0 / avg_mins
+        if rkey in fixed_count_accum:
+            # 該 direction 的總班次 / 假設營運時數（預設 14 小時）
+            hrs = fixed_hours_accum.get(rkey, 0) or 14.0
+            return fixed_count_accum[rkey] / hrs
+        return 0.5  # 無班表資料：預設低密度（0.5 班/hr）
 
     # 2. 讀取 stops CSV（utf-8-sig BOM）
     print(f"\nReading stops: {INPUT_STOPS}")
@@ -272,6 +340,8 @@ def main():
         # 累積距離 round
         cum_dist_rounded = [round(v, 6) for v in cum_dist]
 
+        frequency = calc_frequency(route_uid, direction)
+
         output[key] = {
             "routeUid": route_uid,
             "routeName": route_name,
@@ -282,6 +352,7 @@ def main():
             "stopProgress": stop_progress_list,
             "stopNames": stop_names_list,
             "subRouteName": sub_route_name,
+            "frequency": round(frequency, 3),
         }
 
         shape_count += 1

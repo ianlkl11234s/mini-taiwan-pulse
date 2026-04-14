@@ -69,6 +69,10 @@ export function useTransportParams() {
     setBusGroups((p) => ({ ...p, [group]: v }));
   const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
   const [busAltOffset, setBusAltOffset] = useState(0);
+  // Bus InterCity（獨立參數，預設沿用市區公車初值）
+  const [busIntercityOrbScale, setBusIntercityOrbScale] = useState(0.000004);
+  const [busIntercityColorMode, setBusIntercityColorMode] = useState<BusColorMode>("route");
+  const [busIntercityAltOffset, setBusIntercityAltOffset] = useState(0);
   // Bike
   const [bikeScale, setBikeScale] = useState(1);
   // Cycling
@@ -198,10 +202,16 @@ export function useTransportParams() {
   const tempWireframeRef = useRef(tempWireframe);
   const busColorModeRef = useRef(busColorMode);
   const busAltOffsetRef = useRef(busAltOffset);
+  const busIntercityOrbScaleRef = useRef(busIntercityOrbScale);
+  const busIntercityColorModeRef = useRef(busIntercityColorMode);
+  const busIntercityAltOffsetRef = useRef(busIntercityAltOffset);
 
   busColorModeRef.current = busColorMode;
   busAltOffsetRef.current = busAltOffset;
   busOrbScaleRef.current = busOrbScale;
+  busIntercityOrbScaleRef.current = busIntercityOrbScale;
+  busIntercityColorModeRef.current = busIntercityColorMode;
+  busIntercityAltOffsetRef.current = busIntercityAltOffset;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
@@ -285,9 +295,9 @@ export function useTransportParams() {
         { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
       ];
       case "busIntercityLive": return [
-        { type: "select" as const, label: "Color", value: busColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusColorMode(v as BusColorMode) },
-        { label: `Bus Z +${busAltOffset}m`, value: busAltOffset, min: 0, max: 500, step: 10, onChange: setBusAltOffset },
-        { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
+        { type: "select" as const, label: "Color", value: busIntercityColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusIntercityColorMode(v as BusColorMode) },
+        { label: `InterCity Z +${busIntercityAltOffset}m`, value: busIntercityAltOffset, min: 0, max: 500, step: 10, onChange: setBusIntercityAltOffset },
+        { label: `InterCity Orb ${(busIntercityOrbScale * 1000000).toFixed(0)}`, value: busIntercityOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusIntercityOrbScale },
       ];
       case "busStationsCity":
       case "busStationsIntercity": return [
@@ -485,6 +495,9 @@ export function useTransportParams() {
       busOrbScale: busOrbScaleRef,
       busColorMode: busColorModeRef,
       busAltOffset: busAltOffsetRef,
+      busIntercityOrbScale: busIntercityOrbScaleRef,
+      busIntercityColorMode: busIntercityColorModeRef,
+      busIntercityAltOffset: busIntercityAltOffsetRef,
       beamVisible: beamVisibleRef,
       beamDistance: beamDistanceRef,
       beamOpacity: beamOpacityRef,
