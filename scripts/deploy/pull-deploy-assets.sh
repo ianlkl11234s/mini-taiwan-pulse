@@ -48,7 +48,7 @@ if aws s3 cp "s3://$BUCKET/$PREFIX/rail.tar.gz" /tmp/rail.tar.gz; then
 fi
 
 # 公車大檔路線 JSON（gzip 壓縮；小檔隨 git 部署不在此處）
-BUS_BIG_FILES="taipei_bus_routes.json intercity_bus_routes.json"
+BUS_BIG_FILES="taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json"
 for f in $BUS_BIG_FILES; do
   echo "Pulling $f.gz → $DATA_DIR/bus/$f"
   if aws s3 cp "s3://$BUCKET/$PREFIX/$f.gz" "/tmp/$f.gz"; then

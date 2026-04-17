@@ -42,12 +42,33 @@ OUTPUT_DIR = os.path.join(BASE, "public", "bus")
 # 城市設定：命令列傳 --city taoyuan 等，預設台北+新北
 # 注意：taipei preset 內含「臺北市 + 新北市」（對應前端雙北 group）
 CITY_PRESETS: dict[str, dict] = {
+    # 直轄市 / 雙北合併
     "taipei":    {"cities": {"臺北市", "新北市"}, "output": "taipei_bus_routes.json"},
     "newtaipei": {"cities": {"新北市"},           "output": "newtaipei_bus_routes.json"},
     "taoyuan":   {"cities": {"桃園市"},           "output": "taoyuan_bus_routes.json"},
     "taichung":  {"cities": {"臺中市"},           "output": "taichung_bus_routes.json"},
     "tainan":    {"cities": {"臺南市"},           "output": "tainan_bus_routes.json"},
     "kaohsiung": {"cities": {"高雄市"},           "output": "kaohsiung_bus_routes.json"},
+    # 省轄市
+    "keelung":   {"cities": {"基隆市"},           "output": "keelung_bus_routes.json"},
+    "hsinchu":   {"cities": {"新竹市"},           "output": "hsinchu_bus_routes.json"},
+    "chiayi":    {"cities": {"嘉義市"},           "output": "chiayi_bus_routes.json"},
+    # 縣
+    "hsinchucounty":   {"cities": {"新竹縣"}, "output": "hsinchucounty_bus_routes.json"},
+    "miaolicounty":    {"cities": {"苗栗縣"}, "output": "miaolicounty_bus_routes.json"},
+    "changhuacounty":  {"cities": {"彰化縣"}, "output": "changhuacounty_bus_routes.json"},
+    "nantoucounty":    {"cities": {"南投縣"}, "output": "nantoucounty_bus_routes.json"},
+    "yunlincounty":    {"cities": {"雲林縣"}, "output": "yunlincounty_bus_routes.json"},
+    "chiayicounty":    {"cities": {"嘉義縣"}, "output": "chiayicounty_bus_routes.json"},
+    "pingtungcounty":  {"cities": {"屏東縣"}, "output": "pingtungcounty_bus_routes.json"},
+    "yilancounty":     {"cities": {"宜蘭縣"}, "output": "yilancounty_bus_routes.json"},
+    "hualiencounty":   {"cities": {"花蓮縣"}, "output": "hualiencounty_bus_routes.json"},
+    "taitungcounty":   {"cities": {"臺東縣"}, "output": "taitungcounty_bus_routes.json"},
+    # 離島
+    "penghucounty":    {"cities": {"澎湖縣"}, "output": "penghucounty_bus_routes.json"},
+    "kinmencounty":    {"cities": {"金門縣"}, "output": "kinmencounty_bus_routes.json"},
+    "lienchiangcounty":{"cities": {"連江縣"}, "output": "lienchiangcounty_bus_routes.json"},
+    # 公路客運
     "intercity": {"cities": {"公路客運"},         "output": "intercity_bus_routes.json"},
 }
 

@@ -207,41 +207,80 @@ export interface TraData {
 // ── 公車即時 (GPS-based) ──
 
 export type BusCity =
+  // 直轄市
   | "Taipei" | "NewTaipei" | "Taoyuan"
-  | "Taichung" | "Tainan" | "Kaohsiung";
+  | "Taichung" | "Tainan" | "Kaohsiung"
+  // 省轄市
+  | "Keelung" | "Hsinchu" | "Chiayi"
+  // 縣
+  | "HsinchuCounty" | "MiaoliCounty"
+  | "ChanghuaCounty" | "NantouCounty"
+  | "YunlinCounty" | "ChiayiCounty"
+  | "PingtungCounty" | "YilanCounty"
+  | "HualienCounty" | "TaitungCounty"
+  // 離島
+  | "PenghuCounty" | "KinmenCounty" | "LienchiangCounty";
 export type BusColorMode = "route" | "speed" | "density";
 
 /**
- * 公車 UI group：把雙北合併為單一開關，其餘城市一個 group 對一個 city。
- * RPC 仍接收 BusCity[] 展開值。
+ * 公車 UI group：依台灣常見區域分組（8 組），每個 group 展開為多個 BusCity。
+ * RPC 接收 BusCity[] 展開值。
  */
 export type BusGroup =
-  | "TaipeiMetro"  // 台北 + 新北
-  | "Taoyuan" | "Taichung" | "Tainan" | "Kaohsiung";
+  | "TaipeiMetro"          // 雙北
+  | "KeelungYilan"         // 基宜
+  | "TaoyuanHsinchuMiaoli" // 桃竹苗
+  | "CentralTaiwan"        // 中彰投
+  | "YunChiaNan"           // 雲嘉南
+  | "Kaoping"              // 高屏
+  | "HualienTaitung"       // 花東
+  | "OffshoreIslands";     // 離島
 
 export const BUS_GROUP_CITIES: Record<BusGroup, BusCity[]> = {
-  TaipeiMetro: ["Taipei", "NewTaipei"],
-  Taoyuan:     ["Taoyuan"],
-  Taichung:    ["Taichung"],
-  Tainan:      ["Tainan"],
-  Kaohsiung:   ["Kaohsiung"],
+  TaipeiMetro:          ["Taipei", "NewTaipei"],
+  KeelungYilan:         ["Keelung", "YilanCounty"],
+  TaoyuanHsinchuMiaoli: ["Taoyuan", "Hsinchu", "HsinchuCounty", "MiaoliCounty"],
+  CentralTaiwan:        ["Taichung", "ChanghuaCounty", "NantouCounty"],
+  YunChiaNan:           ["YunlinCounty", "Chiayi", "ChiayiCounty", "Tainan"],
+  Kaoping:              ["Kaohsiung", "PingtungCounty"],
+  HualienTaitung:       ["HualienCounty", "TaitungCounty"],
+  OffshoreIslands:      ["PenghuCounty", "KinmenCounty", "LienchiangCounty"],
 };
 
 export const BUS_GROUP_LABELS: Record<BusGroup, string> = {
-  TaipeiMetro: "雙北",
-  Taoyuan:     "桃園",
-  Taichung:    "台中",
-  Tainan:      "台南",
-  Kaohsiung:   "高雄",
+  TaipeiMetro:          "雙北",
+  KeelungYilan:         "基宜",
+  TaoyuanHsinchuMiaoli: "桃竹苗",
+  CentralTaiwan:        "中彰投",
+  YunChiaNan:           "雲嘉南",
+  Kaoping:              "高屏",
+  HualienTaitung:       "花東",
+  OffshoreIslands:      "離島",
 };
 
 export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
-  Taipei:    { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
-  NewTaipei: { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },
-  Taoyuan:   { label: "桃園", jsonFile: "./bus/taoyuan_bus_routes.json" },
-  Taichung:  { label: "台中", jsonFile: "./bus/taichung_bus_routes.json" },
-  Tainan:    { label: "台南", jsonFile: "./bus/tainan_bus_routes.json" },
-  Kaohsiung: { label: "高雄", jsonFile: "./bus/kaohsiung_bus_routes.json" },
+  Taipei:           { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
+  NewTaipei:        { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },
+  Taoyuan:          { label: "桃園", jsonFile: "./bus/taoyuan_bus_routes.json" },
+  Taichung:         { label: "台中", jsonFile: "./bus/taichung_bus_routes.json" },
+  Tainan:           { label: "台南", jsonFile: "./bus/tainan_bus_routes.json" },
+  Kaohsiung:        { label: "高雄", jsonFile: "./bus/kaohsiung_bus_routes.json" },
+  Keelung:          { label: "基隆", jsonFile: "./bus/keelung_bus_routes.json" },
+  Hsinchu:          { label: "新竹市", jsonFile: "./bus/hsinchu_bus_routes.json" },
+  Chiayi:           { label: "嘉義市", jsonFile: "./bus/chiayi_bus_routes.json" },
+  HsinchuCounty:    { label: "新竹縣", jsonFile: "./bus/hsinchucounty_bus_routes.json" },
+  MiaoliCounty:     { label: "苗栗", jsonFile: "./bus/miaolicounty_bus_routes.json" },
+  ChanghuaCounty:   { label: "彰化", jsonFile: "./bus/changhuacounty_bus_routes.json" },
+  NantouCounty:     { label: "南投", jsonFile: "./bus/nantoucounty_bus_routes.json" },
+  YunlinCounty:     { label: "雲林", jsonFile: "./bus/yunlincounty_bus_routes.json" },
+  ChiayiCounty:     { label: "嘉義縣", jsonFile: "./bus/chiayicounty_bus_routes.json" },
+  PingtungCounty:   { label: "屏東", jsonFile: "./bus/pingtungcounty_bus_routes.json" },
+  YilanCounty:      { label: "宜蘭", jsonFile: "./bus/yilancounty_bus_routes.json" },
+  HualienCounty:    { label: "花蓮", jsonFile: "./bus/hualiencounty_bus_routes.json" },
+  TaitungCounty:    { label: "台東", jsonFile: "./bus/taitungcounty_bus_routes.json" },
+  PenghuCounty:     { label: "澎湖", jsonFile: "./bus/penghucounty_bus_routes.json" },
+  KinmenCounty:     { label: "金門", jsonFile: "./bus/kinmencounty_bus_routes.json" },
+  LienchiangCounty: { label: "連江", jsonFile: "./bus/lienchiangcounty_bus_routes.json" },
 };
 
 /** 公路客運（InterCity）路線靜態檔路徑（全國單一檔案，無 city 切換） */

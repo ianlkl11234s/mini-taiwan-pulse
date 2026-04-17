@@ -29,6 +29,7 @@ public/geo/active_faults.geojson
 # 大型公車路線 JSON（由 S3 deploy-assets 管理；小檔案仍進 git）
 public/bus/taipei_bus_routes.json
 public/bus/intercity_bus_routes.json
+public/bus/pingtungcounty_bus_routes.json
 
 # Claude Code 內部儲存（不 commit）
 .claude/projects/

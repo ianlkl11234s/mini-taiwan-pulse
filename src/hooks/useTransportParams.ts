@@ -50,13 +50,16 @@ export function useTransportParams() {
   // Bus
   const [busScale, setBusScale] = useState(0.4);
   const [busOrbScale, setBusOrbScale] = useState(0.000004);
-  // Bus groups（UI 層的合併概念）：雙北為一組，其餘各城市為一組
+  // Bus groups（UI 層的 8 區域分組，全台）
   const [busGroups, setBusGroups] = useState<Record<BusGroup, boolean>>({
-    TaipeiMetro: true,
-    Taoyuan: false,
-    Taichung: false,
-    Tainan: false,
-    Kaohsiung: false,
+    TaipeiMetro:          true,
+    KeelungYilan:         false,
+    TaoyuanHsinchuMiaoli: false,
+    CentralTaiwan:        false,
+    YunChiaNan:           false,
+    Kaoping:              false,
+    HualienTaitung:       false,
+    OffshoreIslands:      false,
   });
   // busCities 實際傳給 RPC 的展開值（BusGroup → BusCity[]）
   const enabledBusCities = useMemo<BusCity[]>(
@@ -284,7 +287,16 @@ export function useTransportParams() {
         { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
       ];
       case "busLive": return [
-        ...(["TaipeiMetro", "Taoyuan", "Taichung", "Tainan", "Kaohsiung"] as BusGroup[]).map((g) => ({
+        ...([
+          "TaipeiMetro",
+          "KeelungYilan",
+          "TaoyuanHsinchuMiaoli",
+          "CentralTaiwan",
+          "YunChiaNan",
+          "Kaoping",
+          "HualienTaitung",
+          "OffshoreIslands",
+        ] as BusGroup[]).map((g) => ({
           type: "toggle" as const,
           label: BUS_GROUP_LABELS[g],
           value: busGroups[g],
