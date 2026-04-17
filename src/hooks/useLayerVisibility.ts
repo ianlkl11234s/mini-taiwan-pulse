@@ -38,6 +38,9 @@ export function useLayerVisibility() {
     disasterAlerts: false,
     cwaCloudImagery: false,
     cwaRadarImagery: false,
+    aqiImagery: false,
+    aqiStations: false,
+    aqiMicroSensors: false,
     busLive: false,
     busIntercityLive: false,
   });

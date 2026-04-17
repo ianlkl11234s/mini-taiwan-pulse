@@ -41,6 +41,9 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   disasterAlerts: "#dc2626",
   cwaCloudImagery: "#b0c4de",
   cwaRadarImagery: "#4fc3f7",
+  aqiImagery: "#8bc34a",
+  aqiStations: "#00bcd4",
+  aqiMicroSensors: "#7e57c2",
   busLive: "#4fc3f7",
   busIntercityLive: "#ba68c8",
 };
@@ -85,6 +88,9 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   disasterAlerts: AlertTriangle,
   cwaCloudImagery: Cloud,
   cwaRadarImagery: CloudRain,
+  aqiImagery: Wind,
+  aqiStations: CircleDot,
+  aqiMicroSensors: Activity,
   busLive: Bus,
   busIntercityLive: Bus,
 };
@@ -161,6 +167,9 @@ const SECTIONS: SectionDef[] = [
       { key: "temperatureWave", label: "溫度波 Temperature", expandable: true },
       { key: "cwaCloudImagery", label: "衛星雲圖 Cloud", expandable: true },
       { key: "cwaRadarImagery", label: "雷達回波 Radar", expandable: true },
+      { key: "aqiImagery", label: "空氣品質色階 AQI Raster", expandable: true },
+      { key: "aqiStations", label: "空氣品質測站 AQI Station", expandable: true },
+      { key: "aqiMicroSensors", label: "LASS 微型感測 Micro Sensor", expandable: true },
     ],
   },
   {

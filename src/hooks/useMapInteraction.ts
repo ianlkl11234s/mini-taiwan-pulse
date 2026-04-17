@@ -123,6 +123,8 @@ export function useMapInteraction(
           { layers: ["active-faults-fill", "active-faults-line", "active-faults-glow"], type: "activeFault" },
           { layers: ["news-events-circle", "news-events-glow"], type: "newsEvent" },
           { layers: ["disasterAlerts-fill", "disasterAlerts-line", "disasterAlerts-point"], type: "disasterAlert" },
+          { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
+          { layers: ["aqi-micro-circle"], type: "microSensor" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

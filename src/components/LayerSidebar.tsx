@@ -40,6 +40,9 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   disasterAlerts: "#dc2626",
   cwaCloudImagery: "#90caf9",
   cwaRadarImagery: "#66bb6a",
+  aqiImagery: "#8bc34a",
+  aqiStations: "#00bcd4",
+  aqiMicroSensors: "#7e57c2",
   busLive: "#4fc3f7",
   busIntercityLive: "#ba68c8",
 };
@@ -123,6 +126,9 @@ const SECTIONS: SectionDef[] = [
     layers: [
       { key: "temperatureWave", label: "溫度波 Temperature", expandable: true },
       { key: "weatherStations", label: "氣象站 Weather", expandable: true },
+      { key: "aqiImagery", label: "空氣品質色階 AQI Raster", expandable: true },
+      { key: "aqiStations", label: "空氣品質測站 AQI Station", expandable: true },
+      { key: "aqiMicroSensors", label: "LASS 微型感測 Micro Sensor", expandable: true },
       { key: "windPlan", label: "風場範圍 Wind Farm", expandable: true },
     ],
   },

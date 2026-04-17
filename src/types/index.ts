@@ -98,6 +98,9 @@ export type ExpandableLayerKey =
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
+  | "aqiImagery"
+  | "aqiStations"
+  | "aqiMicroSensors"
   | "earthquakes"
   | "disasterAlerts"
   | "busLive";
@@ -375,7 +378,8 @@ export interface OverlayConfig {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert";
+    | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert"
+    | "aqiStation" | "microSensor";
   properties: Record<string, unknown>;
 }
 
@@ -417,6 +421,59 @@ export interface LayerVisibility {
   disasterAlerts: boolean;
   cwaCloudImagery: boolean;
   cwaRadarImagery: boolean;
+  aqiImagery: boolean;
+  aqiStations: boolean;
+  aqiMicroSensors: boolean;
   busLive: boolean;
   busIntercityLive: boolean;
+}
+
+// ── 空氣品質 ──
+
+/** airtw 色階圖產品 */
+export type AqiProduct = "AQI" | "PM25" | "PM10" | "O3" | "NO2";
+
+export const AQI_PRODUCT_LABELS: Record<AqiProduct, string> = {
+  AQI: "AQI",
+  PM25: "PM2.5",
+  PM10: "PM10",
+  O3: "O₃",
+  NO2: "NO₂",
+};
+
+/** 環境部 77 站即時觀測 */
+export interface AqiStation {
+  stationId: string;
+  stationName: string | null;
+  county: string | null;
+  lon: number;
+  lat: number;
+  observedAt: string;
+  aqi: number | null;
+  pollutant: string | null;
+  status: string | null;
+  pm25: number | null;
+  pm10: number | null;
+  o3: number | null;
+  no2: number | null;
+  so2: number | null;
+  co: number | null;
+  windSpeed: number | null;
+  windDirection: number | null;
+}
+
+/** LASS AirBox / 環境部微感測 */
+export interface MicroSensor {
+  deviceId: string;
+  source: string;
+  area: string | null;
+  app: string | null;
+  lon: number;
+  lat: number;
+  observedAt: string;
+  pm25: number | null;
+  pm10: number | null;
+  pm1: number | null;
+  temperature: number | null;
+  humidity: number | null;
 }

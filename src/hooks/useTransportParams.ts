@@ -171,6 +171,10 @@ export function useTransportParams() {
   const [ybElevationScale, setYbElevationScale] = useState(80);
   const [ybHeightMode, setYbHeightMode] = useState<"mixed" | "fullness" | "capacity">("mixed");
   const [ybResolution, setYbResolution] = useState(7);
+  // LASS 微型感測器：cluster on/off
+  const [aqiMicroCluster, setAqiMicroCluster] = useState(true);
+  // AQI 色階圖透明度
+  const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -483,6 +487,13 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "3D", value: ybExtruded, onChange: setYbExtruded },
         { label: `Height ${ybElevationScale}`, value: ybElevationScale, min: 10, max: 200, step: 10, onChange: setYbElevationScale },
       ];
+      case "aqiImagery": return [
+        { label: `Opacity ${aqiImageryOpacity.toFixed(2)}`, value: aqiImageryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAqiImageryOpacity },
+      ];
+      case "aqiStations": return [];
+      case "aqiMicroSensors": return [
+        { type: "toggle" as const, label: "Cluster", value: aqiMicroCluster, onChange: setAqiMicroCluster },
+      ];
     }
   };
 
@@ -543,5 +554,7 @@ export function useTransportParams() {
     eqOpacity,
     eqShowHistory,
     daOpacity,
+    aqiMicroCluster,
+    aqiImageryOpacity,
   };
 }

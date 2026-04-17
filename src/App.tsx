@@ -22,6 +22,12 @@ import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
+import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
+import { useAqiStationsLayer } from "./hooks/useAqiStationsLayer";
+import { useMicroSensorsLayer } from "./hooks/useMicroSensorsLayer";
+import { AqiProductSwitcher } from "./components/AqiProductSwitcher";
+import { AqiLegend } from "./components/AqiLegend";
+import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
 import { useDemographicsH3 } from "./hooks/useDemographicsH3";
@@ -379,6 +385,17 @@ export default function App() {
     cloudOpacity: transportParams.cwaCloudOpacity,
     radarOpacity: transportParams.cwaRadarOpacity,
   });
+
+  // ── 空氣品質：色階 raster + 77 站 + LASS 微型感測 ──
+  const [aqiProduct, setAqiProduct] = useState<AqiProduct>("AQI");
+  useAqiImageryLayer({
+    mapRef,
+    visible: layerVisibility.aqiImagery,
+    product: aqiProduct,
+    opacity: transportParams.aqiImageryOpacity,
+  });
+  useAqiStationsLayer(mapRef, layerVisibility.aqiStations, isDarkTheme);
+  useMicroSensorsLayer(mapRef, layerVisibility.aqiMicroSensors, isDarkTheme, transportParams.aqiMicroCluster);
 
   // ── Freeway congestion (動態 timeline 回放) ──
   useFreewayLayer(
@@ -1374,7 +1391,7 @@ export default function App() {
         </div>
       )}
 
-      {/* ── Bottom-right stack: Legend + Feature Info ── */}
+      {/* ── Bottom-right stack: Feature Info + AQI controls + Legend ── */}
       <div
         style={{
           position: "absolute",
@@ -1392,6 +1409,25 @@ export default function App() {
           <div style={{ pointerEvents: "auto" }}>
             <FeatureInfoPanel feature={featureInfo} onClose={() => setFeatureInfo(null)} />
           </div>
+        )}
+        {(layerVisibility.aqiImagery || layerVisibility.aqiStations || layerVisibility.aqiMicroSensors) && (
+          <>
+            {layerVisibility.aqiImagery && (
+              <div style={{ pointerEvents: "auto" }}>
+                <AqiProductSwitcher
+                  current={aqiProduct}
+                  onChange={setAqiProduct}
+                  isDark={isDarkTheme}
+                />
+              </div>
+            )}
+            <div style={{ pointerEvents: "auto" }}>
+              <AqiLegend
+                isDark={isDarkTheme}
+                caption={layerVisibility.aqiMicroSensors ? "LASS 點位以 PM2.5 濃度配色" : undefined}
+              />
+            </div>
+          </>
         )}
         <div style={{ pointerEvents: "auto" }}>
           <LegendPanel visibility={layerVisibility} />
