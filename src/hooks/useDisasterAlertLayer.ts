@@ -13,6 +13,7 @@ import {
   type DisasterAlert,
 } from "../data/disasterAlertLoader";
 import { timeStore } from "../state/timeStore";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 
 /**
  * NCDR 災害示警 timeline 圖層
@@ -169,7 +170,10 @@ export function useDisasterAlertLayer(
           activeDateRef.current = dateStr;
           lastActiveSetRef.current = "";
           const map = mapRef.current;
-          if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
+          if (map && ensureLayers(map)) {
+            refreshSource(map, timeStore.getTime());
+            keepLoadingUntilMapIdle(map, `disaster-render:${dateStr}`, "災害示警 渲染中", SOURCE_ID);
+          }
         })
         .catch((err) => {
           console.warn(`[DisasterAlerts] load ${dateStr} failed:`, err);

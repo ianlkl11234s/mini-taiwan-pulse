@@ -23,6 +23,7 @@ import {
   type CwaImageryLayerHandle,
 } from "../map/cwaImageryLayer";
 import { timeStore } from "../state/timeStore";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 
 const CLOUD_DATASET = "O-C0042-004";
 const RADAR_DATASET = "O-A0058-005";
@@ -182,10 +183,12 @@ export function useCwaImageryLayer({
           opacity,
         });
         state.currentIso = frame.observedAtIso;
+        keepLoadingUntilMapIdle(map, `cwa-render:${sourceId}`, `CWA 影像 渲染中`, null);
       } else {
         if (state.currentIso !== frame.observedAtIso) {
           state.handle.setUrl(url);
           state.currentIso = frame.observedAtIso;
+          keepLoadingUntilMapIdle(map, `cwa-render:${sourceId}`, `CWA 影像 渲染中`, null);
         }
         state.handle.setOpacity(opacity);
       }

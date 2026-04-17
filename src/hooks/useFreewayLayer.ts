@@ -6,6 +6,7 @@ import {
   type FreewayDayData,
 } from "../data/freewayLoader";
 import { timeStore } from "../state/timeStore";
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 
 /**
  * 國道壅塞動態圖層
@@ -117,7 +118,11 @@ export function useFreewayLayer(
     [width, isDark],
   );
 
-  /** 更新 source 資料（依 currentTime） */
+  /**
+   * 更新 source 資料（依 currentTime）
+   * 每秒觸發，只寫 setData，不延續 loading 指示器（否則 timeline 回放期間會一直亮）。
+   * 載入新日資料後的 **首次** refresh 才延續 loading（見 loadDay 的成功 callback）。
+   */
   const refreshSource = useCallback((map: MapboxMap, t: number) => {
     const src = map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
     if (!src) return;
@@ -152,7 +157,11 @@ export function useFreewayLayer(
           activeDateRef.current = dateStr;
           lastSnapshotTsRef.current = -1;
           const map = mapRef.current;
-          if (map && ensureLayers(map)) refreshSource(map, timeStore.getTime());
+          if (map && ensureLayers(map)) {
+            refreshSource(map, timeStore.getTime());
+            // 新日資料載入後，延續 loading 到 Mapbox 真的畫完
+            keepLoadingUntilMapIdle(map, `freeway-render:${dateStr}`, `國道壅塞 渲染中`, SOURCE_ID);
+          }
         })
         .catch((err) => {
           console.warn(`[Freeway] load ${dateStr} failed:`, err);
