@@ -31,6 +31,21 @@ const SCHOOL_LEVEL_COLORS: Record<string, string> = {
   "特殊教育學校": "#78909c",
 };
 
+/** 水利設施類型對應色 / 標籤 */
+const WATER_FACILITY_TYPE: Record<string, { color: string; label: string }> = {
+  pump_station: { color: "#60a5fa", label: "抽水站 (OSM)" },
+  pump_station_official: { color: "#2563eb", label: "官方抽水站 (WRA)" },
+  treatment_plant: { color: "#34d399", label: "自來水廠 / 淨水場" },
+  water_tower: { color: "#fbbf24", label: "水塔" },
+};
+
+/** 監測站類型對應色 / 標籤 */
+const WATER_MONITOR_TYPE: Record<string, { color: string; label: string }> = {
+  rain_gauge: { color: "#60a5fa", label: "雨量站" },
+  river_level: { color: "#22d3ee", label: "河川水位站" },
+  groundwater_well: { color: "#f472b6", label: "地下水觀測井" },
+};
+
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
   "7-ELEVEN": "#00843D",
@@ -120,6 +135,101 @@ function SchoolPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
       <Row label="網站" value={String(props.website ?? "")} />
+    </>
+  );
+}
+
+function WaterFacilityPanel({ props }: { props: Record<string, unknown> }) {
+  const type = String(props.facility_type ?? "");
+  const meta = WATER_FACILITY_TYPE[type] ?? { color: "#9ca3af", label: type };
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名設施)")}
+        </div>
+      </div>
+      <Row label="類型" value={meta.label} color={meta.color} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="管理者" value={String(props.operator ?? "")} />
+      <Row label="資料源" value={String(props.source ?? "")} />
+    </>
+  );
+}
+
+function WaterMonitorPanel({ props }: { props: Record<string, unknown> }) {
+  const type = String(props.station_type ?? "");
+  const meta = WATER_MONITOR_TYPE[type] ?? { color: "#9ca3af", label: type };
+  const isActive = props.is_active === true || props.is_active === "true";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名站)")}
+        </div>
+      </div>
+      <Row label="類型" value={meta.label} color={meta.color} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="資料源" value={String(props.source ?? "")} />
+      <Row label="狀態" value={isActive ? "啟用" : "停用"} color={isActive ? "#4ade80" : "#9ca3af"} />
+    </>
+  );
+}
+
+function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
+  const kind = String(props.kind ?? "");
+  const isDam = kind === "dam";
+  const accentColor = isDam ? "#7dd3fc" : "#22d3ee";
+  const label = isDam ? "壩體工程位置（WRA 官方）" : "水庫代表點（基本資料）";
+  const capacity = props.capacity_m3 ?? props.effective_capacity_wan;
+  const capacityStr = capacity
+    ? isDam
+      ? `${Number(capacity).toLocaleString()} m³`
+      : `${Number(capacity).toLocaleString()} 萬 m³`
+    : "";
+  const nameEn = String(props.name_en ?? "");
+  const hintColor = "rgba(255,170,80,0.65)";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名)")}
+        </div>
+      </div>
+      {nameEn && <Row label="English" value={nameEn} />}
+      <Row label="類別" value={label} color={accentColor} />
+      <Row label="流域" value={String(props.basin_name ?? "")} />
+      <Row label="河川" value={String(props.river_name ?? "")} />
+      <Row label="壩高" value={props.dam_height_m ? `${props.dam_height_m} m` : ""} />
+      <Row label="容量" value={capacityStr} />
+      {isDam && (
+        <div style={{ marginTop: 8, fontSize: 10, color: hintColor, lineHeight: 1.5 }}>
+          ⓘ 此為壩體工程位置（壩牆出水口），與水庫水面中心點不重合屬正常
+        </div>
+      )}
+    </>
+  );
+}
+
+function WaterReservoirPolyPanel({ props }: { props: Record<string, unknown> }) {
+  const name = String(props.name ?? "(未命名水庫)");
+  const accent = "#22d3ee";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accent, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {name}
+        </div>
+      </div>
+      <Row label="類別" value="蓄水水面範圍" color={accent} />
+      <Row label="資料源" value="WRA GIC reservoir_storage" />
+      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
+        ⓘ 此為水庫實際水面輪廓，部分水庫（如台電管的明潭、明湖下池）僅有面、無單獨點位
+      </div>
     </>
   );
 }
@@ -511,6 +621,10 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   disasterAlert: "災害示警",
   aqiStation: "空氣品質測站",
   microSensor: "微型感測器",
+  waterFacility: "水利設施",
+  waterMonitor: "水資源監測站",
+  waterDam: "水庫 / 壩體",
+  waterReservoirPoly: "水庫蓄水範圍",
 };
 
 export function FeatureInfoPanel({ feature, onClose }: Props) {
@@ -563,6 +677,18 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
       break;
     case "microSensor":
       content = <MicroSensorPanel props={feature.properties} />;
+      break;
+    case "waterFacility":
+      content = <WaterFacilityPanel props={feature.properties} />;
+      break;
+    case "waterMonitor":
+      content = <WaterMonitorPanel props={feature.properties} />;
+      break;
+    case "waterDam":
+      content = <WaterDamPanel props={feature.properties} />;
+      break;
+    case "waterReservoirPoly":
+      content = <WaterReservoirPolyPanel props={feature.properties} />;
       break;
   }
 

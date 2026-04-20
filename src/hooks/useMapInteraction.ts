@@ -125,6 +125,10 @@ export function useMapInteraction(
           { layers: ["disasterAlerts-fill", "disasterAlerts-line", "disasterAlerts-point"], type: "disasterAlert" },
           { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
           { layers: ["aqi-micro-circle"], type: "microSensor" },
+          { layers: ["water-facilities-core", "water-facilities-glow"], type: "waterFacility" },
+          { layers: ["water-monitor-stations-core", "water-monitor-stations-glow"], type: "waterMonitor" },
+          { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
+          { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

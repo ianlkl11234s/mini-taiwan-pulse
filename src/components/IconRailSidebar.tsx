@@ -7,6 +7,7 @@ import {
   Lightbulb, CircleDot, RailSymbol, Thermometer,
   GraduationCap, Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
+  Droplets, Waves, GitBranch, Dam, Factory, Gauge,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -46,6 +47,13 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   aqiMicroSensors: "#7e57c2",
   busLive: "#4fc3f7",
   busIntercityLive: "#ba68c8",
+  waterBasins: "#4dd0e1",
+  waterRivers: "#38bdf8",
+  waterCanals: "#a78bfa",
+  waterReservoirs: "#06b6d4",
+  waterFacilities: "#fbbf24",
+  waterMonitorStations: "#f472b6",
+  waterFloodExtreme: "#fb7185",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -93,6 +101,13 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   aqiMicroSensors: Activity,
   busLive: Bus,
   busIntercityLive: Bus,
+  waterBasins: Waves,
+  waterRivers: GitBranch,
+  waterCanals: Droplets,
+  waterReservoirs: Dam,
+  waterFacilities: Factory,
+  waterMonitorStations: Gauge,
+  waterFloodExtreme: AlertTriangle,
 };
 
 // ── Section Config ──
@@ -191,6 +206,18 @@ const SECTIONS: SectionDef[] = [
     title: "NEWS",
     layers: [
       { key: "newsEvents", label: "新聞 News", expandable: true },
+    ],
+  },
+  {
+    title: "WATER",
+    layers: [
+      { key: "waterBasins", label: "流域 Basin", expandable: true },
+      { key: "waterRivers", label: "河川 River", expandable: true },
+      { key: "waterCanals", label: "渠道 Canal", expandable: true },
+      { key: "waterReservoirs", label: "水庫 Reservoir", expandable: true },
+      { key: "waterFacilities", label: "水利設施 Facility", expandable: true },
+      { key: "waterMonitorStations", label: "監測站 Monitor", expandable: true },
+      { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
     ],
   },
 ];

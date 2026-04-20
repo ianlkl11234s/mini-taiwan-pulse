@@ -173,6 +173,24 @@ export function useTransportParams() {
   const [ybResolution, setYbResolution] = useState(7);
   // LASS 微型感測器：cluster on/off
   const [aqiMicroCluster, setAqiMicroCluster] = useState(true);
+  // 淹水最小深度篩選：0 = 全部, 0.5 / 1 / 2 / 3 = 只顯示大於等於該深度的分級
+  const [floodMinDepth, setFloodMinDepth] = useState<0 | 0.5 | 1 | 2 | 3>(0);
+  // 水庫蓄水量光球控制
+  const [reservoirBubbleOpacity, setReservoirBubbleOpacity] = useState(0.5);
+  const [reservoirBubbleGlow, setReservoirBubbleGlow] = useState(1.0);
+  const [reservoirBubbleSize, setReservoirBubbleSize] = useState(1.0);
+  const [reservoirPillarHeight, setReservoirPillarHeight] = useState(1.0);
+  // 其他水資源圖層參數
+  const [waterBasinOpacity, setWaterBasinOpacity] = useState(1.0);
+  const [waterRiverWidth, setWaterRiverWidth] = useState(1.0);
+  const [waterRiverOpacity, setWaterRiverOpacity] = useState(1.0);
+  const [waterCanalWidth, setWaterCanalWidth] = useState(1.0);
+  const [waterCanalOpacity, setWaterCanalOpacity] = useState(1.0);
+  const [waterFacilityScale, setWaterFacilityScale] = useState(1.0);
+  const [waterFacilityOpacity, setWaterFacilityOpacity] = useState(1.0);
+  const [waterMonitorScale, setWaterMonitorScale] = useState(1.0);
+  const [waterMonitorOpacity, setWaterMonitorOpacity] = useState(1.0);
+  const [waterFloodOpacity, setWaterFloodOpacity] = useState(1.0);
   // AQI 色階圖透明度
   const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
 
@@ -269,7 +287,22 @@ export function useTransportParams() {
     schoolLevelColor: schoolLevelColor ? 1 : 0,
     newsScale,
     metroPillar3d: metroPillarVisible ? 1 : 0,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible]);
+    floodMinDepth,
+    reservoirBubbleOpacity,
+    reservoirBubbleGlow,
+    reservoirBubbleSize,
+    reservoirPillarHeight,
+    waterBasinOpacity,
+    waterRiverWidth,
+    waterRiverOpacity,
+    waterCanalWidth,
+    waterCanalOpacity,
+    waterFacilityScale,
+    waterFacilityOpacity,
+    waterMonitorScale,
+    waterMonitorOpacity,
+    waterFloodOpacity,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirBubbleOpacity, reservoirBubbleGlow, reservoirBubbleSize, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -494,6 +527,48 @@ export function useTransportParams() {
       case "aqiMicroSensors": return [
         { type: "toggle" as const, label: "Cluster", value: aqiMicroCluster, onChange: setAqiMicroCluster },
       ];
+      case "waterBasins": return [
+        { label: `透明度 ${waterBasinOpacity.toFixed(2)}`, value: waterBasinOpacity, min: 0, max: 1, step: 0.05, onChange: setWaterBasinOpacity },
+      ];
+      case "waterRivers": return [
+        { label: `寬度 ${waterRiverWidth.toFixed(2)}`, value: waterRiverWidth, min: 0.3, max: 3, step: 0.1, onChange: setWaterRiverWidth },
+        { label: `透明度 ${waterRiverOpacity.toFixed(2)}`, value: waterRiverOpacity, min: 0, max: 1, step: 0.05, onChange: setWaterRiverOpacity },
+      ];
+      case "waterCanals": return [
+        { label: `寬度 ${waterCanalWidth.toFixed(2)}`, value: waterCanalWidth, min: 0.3, max: 3, step: 0.1, onChange: setWaterCanalWidth },
+        { label: `透明度 ${waterCanalOpacity.toFixed(2)}`, value: waterCanalOpacity, min: 0, max: 1, step: 0.05, onChange: setWaterCanalOpacity },
+      ];
+      case "waterReservoirs": return [
+        { label: `球透明度 ${reservoirBubbleOpacity.toFixed(2)}`, value: reservoirBubbleOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReservoirBubbleOpacity },
+        { label: `光暈 ${reservoirBubbleGlow.toFixed(2)}`, value: reservoirBubbleGlow, min: 0, max: 3, step: 0.1, onChange: setReservoirBubbleGlow },
+        { label: `大小 ${reservoirBubbleSize.toFixed(2)}`, value: reservoirBubbleSize, min: 0.3, max: 3, step: 0.1, onChange: setReservoirBubbleSize },
+        { label: `3D 高度 ${reservoirPillarHeight.toFixed(2)}`, value: reservoirPillarHeight, min: 0, max: 3, step: 0.1, onChange: setReservoirPillarHeight },
+      ];
+      case "waterFacilities": return [
+        { label: `大小 ${waterFacilityScale.toFixed(2)}`, value: waterFacilityScale, min: 0.3, max: 3, step: 0.1, onChange: setWaterFacilityScale },
+        { label: `透明度 ${waterFacilityOpacity.toFixed(2)}`, value: waterFacilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWaterFacilityOpacity },
+      ];
+      case "waterMonitorStations": return [
+        { label: `大小 ${waterMonitorScale.toFixed(2)}`, value: waterMonitorScale, min: 0.3, max: 3, step: 0.1, onChange: setWaterMonitorScale },
+        { label: `透明度 ${waterMonitorOpacity.toFixed(2)}`, value: waterMonitorOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWaterMonitorOpacity },
+      ];
+      case "waterFloodExtreme": return [
+        { label: `透明度 ${waterFloodOpacity.toFixed(2)}`, value: waterFloodOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWaterFloodOpacity },
+        {
+          type: "select" as const,
+          label: "深度",
+          value: String(floodMinDepth),
+          options: [
+            { label: "全部", value: "0" },
+            { label: "≥0.5m", value: "0.5" },
+            { label: "≥1m", value: "1" },
+            { label: "≥2m", value: "2" },
+            { label: "≥3m 最嚴重", value: "3" },
+          ],
+          onChange: (v: string) => setFloodMinDepth(Number(v) as 0 | 0.5 | 1 | 2 | 3),
+        },
+      ];
+      default: return [];
     }
   };
 

@@ -103,7 +103,14 @@ export type ExpandableLayerKey =
   | "aqiMicroSensors"
   | "earthquakes"
   | "disasterAlerts"
-  | "busLive";
+  | "busLive"
+  | "waterBasins"
+  | "waterRivers"
+  | "waterCanals"
+  | "waterReservoirs"
+  | "waterFacilities"
+  | "waterMonitorStations"
+  | "waterFloodExtreme";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -358,7 +365,7 @@ export interface BusTrail {
 
 export interface OverlayLayerSpec {
   suffix: string;
-  type: "line" | "fill" | "circle";
+  type: "line" | "fill" | "circle" | "fill-extrusion";
   layout?: Record<string, unknown>;
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
@@ -379,7 +386,8 @@ export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert"
-    | "aqiStation" | "microSensor";
+    | "aqiStation" | "microSensor"
+    | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly";
   properties: Record<string, unknown>;
 }
 
@@ -426,6 +434,13 @@ export interface LayerVisibility {
   aqiMicroSensors: boolean;
   busLive: boolean;
   busIntercityLive: boolean;
+  waterBasins: boolean;
+  waterRivers: boolean;
+  waterCanals: boolean;
+  waterReservoirs: boolean;
+  waterFacilities: boolean;
+  waterMonitorStations: boolean;
+  waterFloodExtreme: boolean;
 }
 
 // ── 空氣品質 ──
