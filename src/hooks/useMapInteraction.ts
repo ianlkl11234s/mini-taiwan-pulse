@@ -4,6 +4,8 @@ import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility } from
 import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
+import type { ReservoirScene } from "../three/ReservoirScene";
+import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 
 interface TooltipInfo {
   flight: Flight;
@@ -32,6 +34,7 @@ export function useMapInteraction(
   railSceneRef?: React.RefObject<RailScene | null>,
   busSceneRef?: React.RefObject<BusScene | null>,
   layerVisibilityRef?: React.RefObject<LayerVisibility>,
+  reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -95,6 +98,31 @@ export function useMapInteraction(
               setTrainTooltipInfo(null);
               return;
             }
+          }
+        }
+      }
+
+      // 嘗試拾取水庫 3D 水位計（僅在 waterReservoirs 圖層開啟時）
+      if (vis?.waterReservoirs) {
+        const reservoirScene = reservoirSceneRef?.current;
+        if (reservoirScene) {
+          const hit = reservoirScene.pickReservoir(e.point.x, e.point.y, w, h);
+          if (hit) {
+            const compareId = compareIdFromReservoirId(hit.reservoir_id);
+            setFeatureInfo({
+              layerType: "waterDam",
+              properties: {
+                kind: "reservoir",
+                name: hit.name,
+                compare_id: compareId,
+                capacity_m3: (hit.effective_capacity_wan ?? 0) * 10000,
+                is_reservoir: true,
+              },
+            });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
+            return;
           }
         }
       }
