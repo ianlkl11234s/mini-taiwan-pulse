@@ -24,6 +24,7 @@ import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
 import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
 import type { ReservoirScene } from "./three/ReservoirScene";
 import type { ReservoirStatus } from "./data/reservoirStatusLoader";
+import { useRainGaugeLayer } from "./hooks/useRainGaugeLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -384,6 +385,9 @@ export default function App() {
     reservoirSceneRef,
     reservoirStatusesRef,
   );
+
+  // ── Phase 2.1：即時雨量（Mapbox circle，0 bubble size for 無雨） ──
+  useRainGaugeLayer(mapRef, layerVisibility.rainGauge, isDarkTheme);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);

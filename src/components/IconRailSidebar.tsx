@@ -54,6 +54,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   waterFacilities: "#fbbf24",
   waterMonitorStations: "#f472b6",
   waterFloodExtreme: "#fb7185",
+  rainGauge: "#3b82f6",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -108,6 +109,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   waterFacilities: Factory,
   waterMonitorStations: Gauge,
   waterFloodExtreme: AlertTriangle,
+  rainGauge: CloudRain,
 };
 
 // ── Section Config ──
@@ -218,6 +220,7 @@ const SECTIONS: SectionDef[] = [
       { key: "waterFacilities", label: "水利設施 Facility", expandable: true },
       { key: "waterMonitorStations", label: "監測站 Monitor", expandable: true },
       { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
+      { key: "rainGauge", label: "即時雨量 Rain Gauge", expandable: false },
     ],
   },
 ];

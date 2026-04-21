@@ -238,6 +238,70 @@ function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
+  const p10 = Number(props.precipitation_10min) || 0;
+  const p1 = Number(props.precipitation_1hr) || 0;
+  const p3 = Number(props.precipitation_3hr) || 0;
+  const p24 = Number(props.precipitation_24hr) || 0;
+  const obs = String(props.observed_at ?? "");
+
+  // CWA 分級（依 1hr）
+  const level =
+    p1 >= 200 ? { label: "超大豪雨", color: "#ef4444" } :
+    p1 >= 80  ? { label: "大豪雨", color: "#f97316" } :
+    p1 >= 40  ? { label: "豪雨", color: "#fbbf24" } :
+    p1 >= 15  ? { label: "大雨", color: "#22c55e" } :
+    p1 >= 2.5 ? { label: "中雨", color: "#3b82f6" } :
+    p1 > 0    ? { label: "小雨", color: "#93c5fd" } :
+                { label: "無雨", color: "#6b7280" };
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: level.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.station_name ?? "(未命名站)")}
+        </div>
+        <div
+          style={{
+            marginLeft: "auto",
+            fontSize: 10,
+            padding: "2px 8px",
+            borderRadius: 3,
+            background: level.color,
+            color: "#fff",
+            fontWeight: 600,
+          }}
+        >
+          {level.label}
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 8,
+          marginTop: 4,
+          padding: "6px 8px",
+          background: "rgba(59,130,246,0.08)",
+          borderRadius: 4,
+        }}
+      >
+        <span style={{ fontSize: 22, fontWeight: 700, color: level.color }}>
+          {p10.toFixed(1)}
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>mm / 10 min</span>
+      </div>
+      <Row label="1 小時累積" value={`${p1.toFixed(1)} mm`} />
+      <Row label="3 小時累積" value={`${p3.toFixed(1)} mm`} />
+      <Row label="24 小時累積" value={`${p24.toFixed(1)} mm`} />
+      <Row label="縣市" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+    </>
+  );
+}
+
 function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
   const r = ctx.reservoir;
   const s = ctx.latest_status;
@@ -785,6 +849,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterMonitor: "水資源監測站",
   waterDam: "水庫 / 壩體",
   waterReservoirPoly: "水庫蓄水範圍",
+  rainGauge: "即時雨量站",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -857,6 +922,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "waterReservoirPoly":
       content = <WaterReservoirPolyPanel props={feature.properties} />;
+      break;
+    case "rainGauge":
+      content = <RainGaugePanel props={feature.properties} />;
       break;
   }
 
