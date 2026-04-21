@@ -1,7 +1,7 @@
 # Water Resources — Session Status
 
 > **目的**：中斷 session 回來可以 5 分鐘內接上。
-> **最後更新**：2026-04-22 (Phase 1a+1b 完成)
+> **最後更新**：2026-04-22 (Phase 1 + Phase 2 完成)
 > **分支**：`feat/water-resources`
 
 ---
@@ -165,12 +165,19 @@ water_flood_extreme.geojson   650mm/24h 淹水潛勢
 - [ ] `npm run dev` 點石門水庫（compare_id=10201）驗證 3 疊層 + context panel 顯示
 - [ ] `bash scripts/deploy/upload-deploy-assets.sh` 上傳更新的 water_*.geojson
 
-### Phase 2 — 雨量 + 河川水位 RPC + 前端（2-3 天）
+### Phase 2 — 雨量 + 河川水位（完成 2026-04-22）✅
 
-- [ ] `../gis-platform/migrations/053_rain_gauge_rpc.sql`（pre-aggregate pattern）
-- [ ] `../gis-platform/migrations/054_river_water_level_rpc.sql`
-- [ ] `useRainGaugeLayer`（雨量站圓圈半徑 = 即時雨量）
-- [ ] `useRiverLevelLayer`（河川 line 顏色 = 水位分級）
+- [x] `gis-platform/migrations/054_rain_gauge_rpc.sql` — `get_rain_gauge_latest` (1,304 站 / 160ms) + `get_rain_gauge_timeseries`
+- [x] `gis-platform/migrations/055_river_water_level_rpc.sql` — `get_river_water_level_latest` (332 站 / 64ms) + `get_river_water_level_timeseries`
+- [x] `src/data/rainGaugeLoader.ts` + `src/hooks/useRainGaugeLayer.ts`：雨量站 Mapbox circle，半徑 ∝ 10min 雨量，顏色依 CWA 1hr 分級
+- [x] `src/data/riverLevelLoader.ts` + `src/hooks/useRiverLevelLayer.ts`：河川水位 circle，check_result=0 異常紅
+- [x] `FeatureInfoPanel` 新 `RainGaugePanel` + `RiverLevelPanel`
+- [x] LayerSidebar / IconRailSidebar / types / useLayerVisibility / useMapInteraction 接線
+- [x] `npx tsc -b` 通過
+
+**遺留**：
+- 警戒水位視覺化：`public.river_stations` 目前無資料，警戒三級水位無法套 badge/顏色。需上游 seed river_stations 後回 RPC 加欄位。
+- 雨量時序回放：現只 latest，未做 `get_rain_gauge_day`（timeline 滑動時同步切換）。
 
 ### Phase 3（選配）
 
