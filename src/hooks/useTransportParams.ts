@@ -175,10 +175,8 @@ export function useTransportParams() {
   const [aqiMicroCluster, setAqiMicroCluster] = useState(true);
   // 淹水最小深度篩選：0 = 全部, 0.5 / 1 / 2 / 3 = 只顯示大於等於該深度的分級
   const [floodMinDepth, setFloodMinDepth] = useState<0 | 0.5 | 1 | 2 | 3>(0);
-  // 水庫蓄水量光球控制
-  const [reservoirBubbleOpacity, setReservoirBubbleOpacity] = useState(0.5);
-  const [reservoirBubbleGlow, setReservoirBubbleGlow] = useState(1.0);
-  const [reservoirBubbleSize, setReservoirBubbleSize] = useState(1.0);
+  // 水庫：僅保留 Three.js 水位計的高度縮放（2026-04-22 砍掉光球 + 靜態 pillar
+  // 相關 slider：球透明度 / 光暈 / 大小）
   const [reservoirPillarHeight, setReservoirPillarHeight] = useState(1.0);
   // 其他水資源圖層參數
   const [waterBasinOpacity, setWaterBasinOpacity] = useState(1.0);
@@ -288,9 +286,6 @@ export function useTransportParams() {
     newsScale,
     metroPillar3d: metroPillarVisible ? 1 : 0,
     floodMinDepth,
-    reservoirBubbleOpacity,
-    reservoirBubbleGlow,
-    reservoirBubbleSize,
     reservoirPillarHeight,
     waterBasinOpacity,
     waterRiverWidth,
@@ -302,7 +297,7 @@ export function useTransportParams() {
     waterMonitorScale,
     waterMonitorOpacity,
     waterFloodOpacity,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirBubbleOpacity, reservoirBubbleGlow, reservoirBubbleSize, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -539,10 +534,7 @@ export function useTransportParams() {
         { label: `透明度 ${waterCanalOpacity.toFixed(2)}`, value: waterCanalOpacity, min: 0, max: 1, step: 0.05, onChange: setWaterCanalOpacity },
       ];
       case "waterReservoirs": return [
-        { label: `球透明度 ${reservoirBubbleOpacity.toFixed(2)}`, value: reservoirBubbleOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReservoirBubbleOpacity },
-        { label: `光暈 ${reservoirBubbleGlow.toFixed(2)}`, value: reservoirBubbleGlow, min: 0, max: 3, step: 0.1, onChange: setReservoirBubbleGlow },
-        { label: `大小 ${reservoirBubbleSize.toFixed(2)}`, value: reservoirBubbleSize, min: 0.3, max: 3, step: 0.1, onChange: setReservoirBubbleSize },
-        { label: `3D 高度 ${reservoirPillarHeight.toFixed(2)}`, value: reservoirPillarHeight, min: 0, max: 3, step: 0.1, onChange: setReservoirPillarHeight },
+        { label: `水位計高度 ${reservoirPillarHeight.toFixed(2)}`, value: reservoirPillarHeight, min: 0, max: 3, step: 0.1, onChange: setReservoirPillarHeight },
       ];
       case "waterFacilities": return [
         { label: `大小 ${waterFacilityScale.toFixed(2)}`, value: waterFacilityScale, min: 0.3, max: 3, step: 0.1, onChange: setWaterFacilityScale },

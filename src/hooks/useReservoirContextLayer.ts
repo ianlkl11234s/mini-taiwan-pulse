@@ -189,6 +189,53 @@ function applyWatershedRivers(map: MapboxMap, fc: GeoJSON.FeatureCollection) {
   if (src) src.setData(fc);
 }
 
+/**
+ * 依 active compare_id 調整靜態水庫圖層 opacity：
+ *   - 有 active 時：active 水庫保留原亮度、其他水庫 opacity × ~0.15
+ *   - 無 active：還原原 paint
+ * 解決「點水庫後全台蓄水面都亮導致焦點散掉」的問題。
+ */
+function applyReservoirDim(map: MapboxMap, activeId: number | null) {
+  const hasActive = activeId != null;
+
+  const setIfExists = (
+    layerId: string,
+    prop: string,
+    activeExpr: unknown,
+    restoreValue: unknown,
+  ) => {
+    if (!map.getLayer(layerId)) return;
+    // 用 setPaintProperty 覆蓋原 paint。注意 theme 切換時 overlayManager
+    // 會 rebuild paint 把這裡覆蓋掉，需再次 trigger。使用者切 theme 後
+    // 若想保持 dim 請重新點水庫。
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (map.setPaintProperty as any)(layerId, prop, hasActive ? activeExpr : restoreValue);
+  };
+
+  const matchActive = <T,>(activeValue: T, dimValue: T): unknown => [
+    "case",
+    ["==", ["coalesce", ["get", "compare_id"], -1], activeId],
+    activeValue,
+    dimValue,
+  ];
+
+  // 蓄水範圍 polygon（fill + outline + glow）
+  setIfExists("water-reservoir-poly-fill", "fill-opacity",
+    matchActive(0.6, 0.05), 0.35);
+  setIfExists("water-reservoir-poly-outline", "line-opacity",
+    matchActive(1.0, 0.15), 0.8);
+  setIfExists("water-reservoir-poly-glow", "line-opacity",
+    matchActive(0.4, 0.05), 0.25);
+
+  // 壩體節點（3 層 circle）
+  setIfExists("water-reservoir-dams-glow-2", "circle-opacity",
+    matchActive(0.5, 0.1), 0.35);
+  setIfExists("water-reservoir-dams-glow-1", "circle-opacity",
+    matchActive(0.85, 0.2), 0.7);
+  setIfExists("water-reservoir-dams-core", "circle-opacity",
+    matchActive(1.0, 0.3), 1.0);
+}
+
 export function useReservoirContextLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   activeCompareId: number | null,
@@ -252,6 +299,14 @@ export function useReservoirContextLayer(
     return () => {
       stale = true;
     };
+  }, [activeCompareId, mapRef]);
+
+  // ── 依 activeCompareId 調整其他水庫圖層 opacity（突顯當前、淡化其他） ──
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    // 若 layer 還沒建（overlayManager 還沒 load），下次 effect trigger 再試
+    applyReservoirDim(map, activeCompareId);
   }, [activeCompareId, mapRef]);
 
   return context;
