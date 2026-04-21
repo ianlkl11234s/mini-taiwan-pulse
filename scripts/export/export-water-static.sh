@@ -122,18 +122,24 @@ SELECT jsonb_build_object(
 ) s;"
 
 # ── 4. 水庫蓄水範圍 (reservoir_storage) ──
+# LEFT JOIN reference.reservoir_geometry 把 compare_id 打進 properties
+# 88/129 能 match（其他 41 筆為副池/無主要水庫對應，compare_id = null）
+# 前端可憑 compare_id 打 get_reservoir_context RPC 取得水情+集水區+流域+河川
 run_export "water_reservoirs.geojson" "水庫蓄水範圍" "
 SELECT jsonb_build_object(
   'type','FeatureCollection',
   'features', COALESCE(jsonb_agg(feat),'[]'::jsonb)
 ) FROM (
   SELECT jsonb_build_object(
-    'type','Feature','id',id,
-    'geometry', ST_AsGeoJSON(ST_Force2D(geom))::jsonb,
+    'type','Feature','id',rs.id,
+    'geometry', ST_AsGeoJSON(ST_Force2D(rs.geom))::jsonb,
     'properties', jsonb_build_object(
-      'name',name,'reservoir_name',reservoir_name,'storage_area',storage_area)
+      'name',rs.name,'reservoir_name',rs.reservoir_name,'storage_area',rs.storage_area,
+      'compare_id', NULLIF(g.compare_id, 0))
   ) AS feat
-  FROM public.reservoir_storage WHERE geom IS NOT NULL
+  FROM public.reservoir_storage rs
+  LEFT JOIN reference.reservoir_geometry g ON g.res_name = rs.name
+  WHERE rs.geom IS NOT NULL
 ) s;"
 
 # ── 5. 壩體 + 水庫點位 ──
@@ -209,6 +215,7 @@ SELECT jsonb_build_object(
   'type','FeatureCollection',
   'features', COALESCE(jsonb_agg(feat),'[]'::jsonb)
 ) FROM (
+  -- dams：cht_map → reference.reservoir_geometry 兩層 JOIN 拿 compare_id
   SELECT jsonb_build_object(
     'type','Feature','id','dam:'||d.id,
     'geometry', ST_AsGeoJSON(ST_Force2D(d.geom))::jsonb,
@@ -219,12 +226,16 @@ SELECT jsonb_build_object(
       'capacity_m3', d.capacity_m3,
       'dam_height_m', d.dam_height_m,
       -- is_reservoir：名稱結尾是「水庫」（壩/堰/潭排除）
-      'is_reservoir', (COALESCE(m.name_cht,'') LIKE '%水庫'))
+      'is_reservoir', (COALESCE(m.name_cht,'') LIKE '%水庫'),
+      'compare_id', NULLIF(g.compare_id, 0))
   ) AS feat
   FROM public.dam_weirs_wra d
   LEFT JOIN cht_map m ON m.name_en = d.name_en
+  LEFT JOIN reference.reservoir_geometry g ON g.res_name = m.name_cht
   WHERE d.geom IS NOT NULL
   UNION ALL
+  -- reservoir points：public.water_reservoirs.id 等同 reference.reservoir_geometry.compare_id
+  -- （collector 已改為從 reference 同步，見 migration 048）
   SELECT jsonb_build_object(
     'type','Feature','id','reservoir:'||id,
     'geometry', ST_AsGeoJSON(ST_SetSRID(ST_MakePoint(lng, lat), 4326))::jsonb,
@@ -237,7 +248,8 @@ SELECT jsonb_build_object(
       'effective_capacity_wan',effective_capacity_wan,
       -- 統一單位：萬 m³ × 10000 → m³
       'capacity_m3', COALESCE(effective_capacity_wan, design_capacity_wan, 0) * 10000,
-      'is_reservoir', (name LIKE '%水庫'))
+      'is_reservoir', (name LIKE '%水庫'),
+      'compare_id', CASE WHEN id ~ '^[0-9]+\$' AND id::integer > 0 THEN id::integer ELSE NULL END)
   ) AS feat
   FROM public.water_reservoirs WHERE lat IS NOT NULL AND lng IS NOT NULL
 ) s;"
