@@ -19,6 +19,7 @@
 | 1 | [25776](https://data.gov.tw/dataset/25776) | 水庫堰壩位置圖 | **SHP**（gic.wra.gov.tw）+ JSON/CSV/XML metadata | 不定期（2020-05 版） | **權威座標 98 筆** | ✅ 已匯入 `reference.reservoir_geometry`（migration 048）|
 | 2 | [32726](https://data.gov.tw/dataset/32726) | 水庫基本資料 | JSON/CSV/XML | 每 1 年 | 壩高/設計容量/有效容量/鄉鎮 | ✅ collector 每次啟動同步到 `public.water_reservoirs` |
 | 3 | [45501](https://data.gov.tw/dataset/45501) | 水庫水情資料 | JSON/CSV/XML | **每 1 小時** | 水位/蓄水百分比/進出流量/降雨 | ✅ `realtime.reservoir_status`（68 庫）+ RPC 047 |
+| 4 | [129474](https://data.gov.tw/dataset/129474) | **水庫集水區** | **SHP**（gic.wra.gov.tw）+ JSON metadata | 不定期（2023-05 最新） | **80 筆集水區 polygon**，全台總面積 12,774 km² | ✅ `reference.reservoir_watershed`（migration 049 + seed script 099），53/80 自動對齊 compare_id；面積與 32726 basin_area 交叉驗證一致 |
 
 ---
 
@@ -26,7 +27,6 @@
 
 | # | dataset | 名稱 | 格式 | 更新頻率 | 用途 | 動作 |
 |---|---|---|---|---|---|---|
-| 4 | [129474](https://data.gov.tw/dataset/129474) | **水庫集水區** | ⚠️ 需進頁查格式 | 不定期 | **全台水庫集水區 polygon**（承接水的上游範圍） | 📥 下載 → `reference.reservoir_watershed`，前端疊層 |
 | 5 | [13795](https://data.gov.tw/dataset/13795) | 水庫蓄水範圍 | KML 清冊 + JSON/CSV 文字版 | 不定期 | 水庫蓄水面 polygon（對照現有 `water_reservoirs.geojson`） | 若 polygon 更準就替換 |
 | 6 | [32727](https://data.gov.tw/dataset/32727) | 水庫淤積量 | JSON/CSV/XML | 年 | 目前總容量、最近庫容測量時間 | 補 `reference.reservoir_geometry.current_capacity` |
 | 7 | [41568](https://data.gov.tw/dataset/41568) | 水庫每日營運狀況 | JSON/CSV/XML | **每 1 日（09:30）** | 歷史時序：存水量/進出水量/降雨/水位 | 📥 新 collector，寫 `realtime.reservoir_daily_ops` |
