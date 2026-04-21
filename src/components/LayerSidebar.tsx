@@ -53,6 +53,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   waterMonitorStations: "#f472b6",
   waterFloodExtreme: "#fb7185",
   rainGauge: "#3b82f6",
+  riverLevel: "#22d3ee",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -159,6 +160,7 @@ const SECTIONS: SectionDef[] = [
       { key: "waterMonitorStations", label: "監測站 Monitor", expandable: true },
       { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
       { key: "rainGauge", label: "即時雨量 Rain Gauge", expandable: false },
+      { key: "riverLevel", label: "河川水位 River Level", expandable: false },
     ],
   },
 ];

@@ -389,7 +389,7 @@ export interface FeatureInfo {
     | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly"
-    | "rainGauge";
+    | "rainGauge" | "riverLevel";
   properties: Record<string, unknown>;
 }
 
@@ -444,6 +444,7 @@ export interface LayerVisibility {
   waterMonitorStations: boolean;
   waterFloodExtreme: boolean;
   rainGauge: boolean;
+  riverLevel: boolean;
 }
 
 // ── 空氣品質 ──

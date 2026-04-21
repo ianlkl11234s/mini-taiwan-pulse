@@ -51,6 +51,7 @@ export function useLayerVisibility() {
     waterMonitorStations: false,
     waterFloodExtreme: false,
     rainGauge: false,
+    riverLevel: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

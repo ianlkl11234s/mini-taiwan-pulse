@@ -238,6 +238,61 @@ function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
+  const level = Number(props.water_level_m) || 0;
+  const check = Number(props.check_result);
+  const abnormal = check === 0;
+  const color = abnormal ? "#ef4444" : "#22d3ee";
+  const obs = String(props.observed_at ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.station_name ?? "(未命名站)")}
+        </div>
+        {abnormal && (
+          <div
+            style={{
+              marginLeft: "auto",
+              fontSize: 10,
+              padding: "2px 8px",
+              borderRadius: 3,
+              background: color,
+              color: "#fff",
+              fontWeight: 600,
+            }}
+          >
+            異常
+          </div>
+        )}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 8,
+          marginTop: 4,
+          padding: "6px 8px",
+          background: "rgba(34,211,238,0.08)",
+          borderRadius: 4,
+        }}
+      >
+        <span style={{ fontSize: 22, fontWeight: 700, color }}>
+          {level.toFixed(2)}
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>m 水位</span>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} />
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
+        ⓘ 警戒水位資料（三級警戒）待上游 seed 補齊後加入
+      </div>
+    </>
+  );
+}
+
 function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
   const p10 = Number(props.precipitation_10min) || 0;
   const p1 = Number(props.precipitation_1hr) || 0;
@@ -850,6 +905,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterDam: "水庫 / 壩體",
   waterReservoirPoly: "水庫蓄水範圍",
   rainGauge: "即時雨量站",
+  riverLevel: "河川水位站",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -925,6 +981,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "rainGauge":
       content = <RainGaugePanel props={feature.properties} />;
+      break;
+    case "riverLevel":
+      content = <RiverLevelPanel props={feature.properties} />;
       break;
   }
 

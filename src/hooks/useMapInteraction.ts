@@ -158,6 +158,7 @@ export function useMapInteraction(
           { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
           { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
           { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
+          { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],
