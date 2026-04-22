@@ -35,14 +35,38 @@ export interface ReservoirStatus {
   basin_rainfall_mm: number | null;
 }
 
-export async function fetchReservoirStatusLatest(): Promise<ReservoirStatus[]> {
+/** get_reservoir_status_day 回傳列（無 region/inflow/outflow/alert_level） */
+export interface ReservoirDayRow {
+  reservoir_id: string;
+  name: string | null;
+  lat: number;
+  lng: number;
+  effective_capacity_wan: number | null;
+  snapshot_at: string;
+  water_level_m: number | null;
+  effective_storage_wan_m3: number | null;
+  storage_ratio_pct: number | null;
+  basin_rainfall_mm: number | null;
+}
+
+/** 當日每小時全庫時序（for timeline 回放） */
+export async function fetchReservoirStatusDay(dateKey: string): Promise<ReservoirDayRow[]> {
   const { data, error } = await withLoading(
-    "reservoir-status-latest",
-    "水庫水情",
-    supabase.rpc("get_reservoir_status_latest"),
+    `reservoir-status-day-${dateKey}`,
+    `水庫水情 ${dateKey}`,
+    supabase.rpc("get_reservoir_status_day", { target_date: dateKey }),
   );
-  if (error) throw new Error(`get_reservoir_status_latest: ${error.message}`);
-  return (data ?? []) as ReservoirStatus[];
+  if (error) throw new Error(`get_reservoir_status_day(${dateKey}): ${error.message}`);
+  return (data ?? []) as ReservoirDayRow[];
+}
+
+/** 從 storage_ratio_pct 推算 alert_level（保持與 view 公式一致） */
+export function alertLevelFromPct(pct: number | null | undefined): string {
+  if (pct == null) return "normal";
+  if (pct < 15) return "critical";
+  if (pct < 30) return "warning";
+  if (pct > 90) return "high";
+  return "normal";
 }
 
 /** 警示等級 → 水柱色（對齊 022_water_system.sql reservoir_situation_v 的 alert_level 輸出） */

@@ -6,49 +6,65 @@ import type {
   ExpressionSpecification,
 } from "mapbox-gl";
 import {
-  fetchRainGaugeLatest,
-  buildRainGaugeGeoJSON,
-  type RainGauge,
+  fetchRainGaugeDay,
+  type RainGaugeDayRow,
 } from "../data/rainGaugeLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { timeStore } from "../state/timeStore";
 
 /**
- * 即時雨量圖層（Mapbox native circle）
+ * 即時雨量圖層（Mapbox native circle）— Timeline 驅動
  *
  * 視覺：
  *   - circle-radius：precipitation_10min（0 → 小, 多 → 大）
  *   - circle-color：precipitation_1hr 依 CWA 分級 step expression
- *   - 無雨的站點半徑極小/透明，避免全台滿滿灰點
+ *   - 無雨的站點半徑極小，避免全台滿滿灰點
  *
- * 策略：
- *   - visible 變 true 首次 fetch
- *   - 每 5 min 輪詢一次（資料本身每 10 min 更新）
+ * 時間模型（遵守 CLAUDE.md 規則 6）：
+ *   - visible=true 時首次 fetch 當日全時序
+ *   - timeStore.subscribeDate → 跨日換資料
+ *   - timeStore.subscribeThrottled(500ms) → 依 currentTime 切片重畫
+ *   - currentTime 不進 useEffect deps，避免 re-render cascade
  */
 
 const SOURCE_ID = "rain-gauge";
 const LAYER_GLOW = "rain-gauge-glow";
 const LAYER_CIRCLE = "rain-gauge-circle";
 
-const REFRESH_MS = 5 * 60 * 1000;
-
+const THROTTLE_MS = 500;
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
-/** CWA 雨量分級 step expression（1hr mm → color） */
+/** 每站一筆 meta + 該站當日時序讀值（按 observed_at ASC 排序） */
+interface StationSeries {
+  station_id: string;
+  station_name: string;
+  county: string;
+  town: string;
+  lng: number;
+  lat: number;
+  readings: Array<{
+    t: number; // observed_at 的 unix 秒
+    p10: number;
+    p1h: number;
+    p3h: number;
+    p24h: number;
+  }>;
+}
+
 function rainColorExpression(): ExpressionSpecification {
   return [
     "step",
     ["coalesce", ["get", "precipitation_1hr"], 0],
-    "#6b7280",       // 0
-    0.1, "#93c5fd",  // 0.1 - 2.5 小雨
-    2.5, "#3b82f6",  // 2.5 - 15 中雨
-    15, "#22c55e",   // 15 - 40 大雨
-    40, "#fbbf24",   // 40 - 80 豪雨
-    80, "#f97316",   // 80 - 200 大豪雨
-    200, "#ef4444",  // > 200 超大豪雨
+    "#6b7280",
+    0.1, "#93c5fd",
+    2.5, "#3b82f6",
+    15, "#22c55e",
+    40, "#fbbf24",
+    80, "#f97316",
+    200, "#ef4444",
   ] as unknown as ExpressionSpecification;
 }
 
-/** 半徑：瞬時（10min）雨量 interpolate */
 function rainRadiusExpression(scale: number): ExpressionSpecification {
   return [
     "interpolate",
@@ -104,6 +120,72 @@ function setLayerVisibility(map: MapboxMap, visible: boolean) {
   }
 }
 
+function groupByStation(rows: RainGaugeDayRow[]): Map<string, StationSeries> {
+  const map = new Map<string, StationSeries>();
+  for (const r of rows) {
+    if (r.lat == null || r.lng == null) continue;
+    let entry = map.get(r.station_id);
+    if (!entry) {
+      entry = {
+        station_id: r.station_id,
+        station_name: r.station_name ?? "",
+        county: r.county ?? "",
+        town: r.town ?? "",
+        lng: r.lng,
+        lat: r.lat,
+        readings: [],
+      };
+      map.set(r.station_id, entry);
+    }
+    entry.readings.push({
+      t: Date.parse(r.observed_at) / 1000,
+      p10: r.precipitation_10min ?? 0,
+      p1h: r.precipitation_1hr ?? 0,
+      p3h: r.precipitation_3hr ?? 0,
+      p24h: r.precipitation_24hr ?? 0,
+    });
+  }
+  for (const entry of map.values()) {
+    entry.readings.sort((a, b) => a.t - b.t);
+  }
+  return map;
+}
+
+/** 在排序好的 readings 裡找最後一筆 t ≤ targetT（線性掃，已足夠：每站 ≤ 24 筆） */
+function findReadingAt(series: StationSeries, targetT: number) {
+  const rs = series.readings;
+  if (rs.length === 0) return null;
+  // 從後往前找第一個 t ≤ target
+  for (let i = rs.length - 1; i >= 0; i--) {
+    if (rs[i]!.t <= targetT) return rs[i]!;
+  }
+  return null;
+}
+
+function buildFC(byStation: Map<string, StationSeries>, currentT: number): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const s of byStation.values()) {
+    const r = findReadingAt(s, currentT);
+    if (!r) continue; // 當下時刻該站尚無資料 → 不畫
+    features.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [s.lng, s.lat] },
+      properties: {
+        station_id: s.station_id,
+        station_name: s.station_name,
+        county: s.county,
+        town: s.town,
+        precipitation_10min: r.p10,
+        precipitation_1hr: r.p1h,
+        precipitation_3hr: r.p3h,
+        precipitation_24hr: r.p24h,
+        observed_at: new Date(r.t * 1000).toISOString(),
+      },
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
 export function useRainGaugeLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -111,9 +193,9 @@ export function useRainGaugeLayer(
   scale = 1,
 ) {
   const mountedRef = useRef(false);
-  const dataRef = useRef<RainGauge[]>([]);
+  const byStationRef = useRef<Map<string, StationSeries>>(new Map());
+  const currentDateRef = useRef<string>("");
 
-  // ── visible = true 時建 source/layer + 啟動 fetch ──
   useEffect(() => {
     if (!visible) return;
     const map = mapRef.current;
@@ -122,7 +204,6 @@ export function useRainGaugeLayer(
     let cancelled = false;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
-    // Polling attach（P0.1：不用 map.once('load')）
     const tryAttach = () => {
       if (cancelled || mountedRef.current) {
         if (pollTimer) clearInterval(pollTimer);
@@ -148,36 +229,46 @@ export function useRainGaugeLayer(
       tryAttach();
     }
 
-    // Load + refresh
-    const load = async () => {
+    /** 重畫當下切片 */
+    const redraw = () => {
+      if (cancelled) return;
+      const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
+      if (!src) return;
+      const t = timeStore.getTime();
+      src.setData(buildFC(byStationRef.current, t));
+    };
+
+    /** 抓當天整日 + 首次 redraw */
+    const loadDay = async (dateKey: string) => {
       if (cancelled) return;
       try {
-        console.log("[RainGauge] fetching latest...");
-        const list = await fetchRainGaugeLatest();
-        if (cancelled) return;
-        dataRef.current = list;
-        console.log(`[RainGauge] loaded ${list.length} stations`);
-
-        const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-        if (src) {
-          src.setData(buildRainGaugeGeoJSON(list));
-          keepLoadingUntilMapIdle(map, "rain-gauge-render", "即時雨量 渲染中", SOURCE_ID);
-        } else {
-          // source 還沒建好（tryAttach 還在 polling），下一輪 interval 再試
-          console.log("[RainGauge] source not ready yet, will retry");
-        }
+        console.log("[RainGauge] fetching day", dateKey);
+        const rows = await fetchRainGaugeDay(dateKey);
+        if (cancelled || currentDateRef.current !== dateKey) return;
+        byStationRef.current = groupByStation(rows);
+        console.log(`[RainGauge] loaded ${rows.length} rows, ${byStationRef.current.size} stations`);
+        redraw();
+        keepLoadingUntilMapIdle(map, "rain-gauge-render", "即時雨量 渲染中", SOURCE_ID);
       } catch (err) {
         console.warn("[RainGauge] fetch failed:", err);
       }
     };
 
-    load();
-    const fetchTimer = setInterval(load, REFRESH_MS);
+    currentDateRef.current = timeStore.getDateKey();
+    loadDay(currentDateRef.current);
+
+    const unsubDate = timeStore.subscribeDate((key) => {
+      currentDateRef.current = key;
+      byStationRef.current = new Map();
+      loadDay(key);
+    });
+    const unsubTime = timeStore.subscribeThrottled(THROTTLE_MS, redraw);
 
     return () => {
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
-      clearInterval(fetchTimer);
+      unsubDate();
+      unsubTime();
       if (map.getLayer(LAYER_GLOW) || map.getLayer(LAYER_CIRCLE)) {
         setLayerVisibility(map, false);
       }

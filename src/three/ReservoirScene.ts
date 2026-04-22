@@ -69,13 +69,6 @@ export class ReservoirScene {
   }
 
   setStatuses(statuses: ReservoirStatus[]) {
-    console.log(`[ReservoirScene] setStatuses input=${statuses.length}`);
-    // 暫時關閉全域 alt 調整，確保柱體底部貼地
-    const savedOffset = getAltOffset();
-    const savedExag = getAltExaggeration();
-    setAltOffset(0);
-    setAltExaggeration(1);
-
     // 僅保留有經緯度與容量的紀錄
     const valid = statuses.filter(
       (s) =>
@@ -84,7 +77,40 @@ export class ReservoirScene {
         (s.effective_capacity_wan ?? 0) > 0,
     );
 
-    // 容量 → 半徑（cube root，體積-半徑自然關係）
+    // Fast path：站點組與順序與現有 data 完全相同，只需更新水位高度 + 顏色
+    // 避免 per-tick 拆除/重建 InstancedMesh GPU buffer（timeline 回放必備）
+    const sameSet =
+      this.shellMesh != null &&
+      this.waterMesh != null &&
+      valid.length === this.data.length &&
+      valid.every((s, i) => s.reservoir_id === this.data[i]!.status.reservoir_id);
+
+    if (sameSet) {
+      const color = new THREE.Color();
+      for (let i = 0; i < valid.length; i++) {
+        const s = valid[i]!;
+        const d = this.data[i]!;
+        const m = metersPerUnit(s.lat);
+        const ratio = Math.max(0, Math.min(1, (s.storage_ratio_pct ?? 0) / 100));
+        d.status = s;
+        d.waterHeightMercator = H_SHELL_METERS * m * ratio;
+        d.waterColorHex =
+          ALERT_COLOR_HEX[s.alert_level ?? "normal"] ?? ALERT_COLOR_HEX["normal"]!;
+        color.setHex(d.waterColorHex);
+        this.waterMesh!.instanceColor!.setXYZ(i, color.r, color.g, color.b);
+      }
+      this.waterMesh!.instanceColor!.needsUpdate = true;
+      this.updateMatrices();
+      return;
+    }
+
+    console.log(`[ReservoirScene] setStatuses input=${statuses.length} (full rebuild)`);
+    // Slow path：站點組變動，走完整 rebuild
+    const savedOffset = getAltOffset();
+    const savedExag = getAltExaggeration();
+    setAltOffset(0);
+    setAltExaggeration(1);
+
     const cbrts = valid.map((s) => Math.cbrt(s.effective_capacity_wan ?? 1));
     const minC = Math.min(...cbrts);
     const maxC = Math.max(...cbrts);
@@ -92,7 +118,6 @@ export class ReservoirScene {
 
     this.data = valid.map((s, i) => {
       const mercator = toMercator(s.lat, s.lng, 0);
-      // 以該水庫緯度下的 meters-per-unit 轉換半徑 / 高度至 Mercator
       const m = metersPerUnit(s.lat);
       const radiusM = R_MIN_METERS + ((cbrts[i]! - minC) / spread) * (R_MAX_METERS - R_MIN_METERS);
       const shellHeightM = H_SHELL_METERS;

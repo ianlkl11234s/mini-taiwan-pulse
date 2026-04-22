@@ -1,31 +1,113 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
-  fetchReservoirStatusLatest,
+  fetchReservoirStatusDay,
+  alertLevelFromPct,
   type ReservoirStatus,
+  type ReservoirDayRow,
 } from "../data/reservoirStatusLoader";
 import { ReservoirScene } from "../three/ReservoirScene";
 import { createReservoirLayer } from "../map/reservoirCustomLayer";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { timeStore } from "../state/timeStore";
 
 /**
- * 水庫 3D 水位計 hook
+ * 水庫 3D 水位計 hook — Timeline 驅動
  *
  * 管理：
  *   1. ReservoirScene 實例 + Mapbox custom layer 掛載
- *   2. 定期呼叫 get_reservoir_status_latest() 更新水位
+ *   2. 當日每小時時序（get_reservoir_status_day）→ 依 currentTime 切片 → setStatuses
  *   3. 暴露 sceneRef 供 useMapInteraction 做 pick
  *
- * **關鍵**：以 visible 變 true 作為掛載觸發條件。
- * - useEffect 依賴 ref 不會 re-run（ref 不會觸發 render）
- * - handleMapReady 發生時 hook 已 mount 但 mapRef.current 還是 null
- * - 所以靠 visible 變 true 的 re-render 重新執行 effect 才能正確 attach
- *
- * Refresh 策略：visible 開啟後立即 fetch + 每 REFRESH_MS 輪詢
+ * 時間模型（CLAUDE.md 規則 6）：
+ *   - visible=true 時 fetch 當日
+ *   - timeStore.subscribeDate → 跨日換資料
+ *   - timeStore.subscribeThrottled(500ms) → 依 currentTime 更新水位/顏色
+ *   - scene.setStatuses 內含 fast path（站點組不變只改矩陣/顏色，不拆 GPU buffer）
  */
 
-const REFRESH_MS = 5 * 60 * 1000; // 5 分鐘
+const THROTTLE_MS = 500;
 const LAYER_ID = "reservoir-3d";
+
+/** 一個水庫的當日時序（rows 按 snapshot_at ASC 排序） */
+interface ReservoirSeries {
+  reservoir_id: string;
+  name: string | null;
+  lat: number;
+  lng: number;
+  effective_capacity_wan: number | null;
+  rows: Array<{
+    t: number; // snapshot_at unix seconds
+    water_level_m: number | null;
+    effective_storage_wan_m3: number | null;
+    storage_ratio_pct: number | null;
+    basin_rainfall_mm: number | null;
+  }>;
+}
+
+function groupByReservoir(rows: ReservoirDayRow[]): Map<string, ReservoirSeries> {
+  const map = new Map<string, ReservoirSeries>();
+  for (const r of rows) {
+    if (r.lat == null || r.lng == null) continue;
+    let entry = map.get(r.reservoir_id);
+    if (!entry) {
+      entry = {
+        reservoir_id: r.reservoir_id,
+        name: r.name,
+        lat: r.lat,
+        lng: r.lng,
+        effective_capacity_wan: r.effective_capacity_wan,
+        rows: [],
+      };
+      map.set(r.reservoir_id, entry);
+    }
+    entry.rows.push({
+      t: Date.parse(r.snapshot_at) / 1000,
+      water_level_m: r.water_level_m,
+      effective_storage_wan_m3: r.effective_storage_wan_m3,
+      storage_ratio_pct: r.storage_ratio_pct,
+      basin_rainfall_mm: r.basin_rainfall_mm,
+    });
+  }
+  for (const entry of map.values()) {
+    entry.rows.sort((a, b) => a.t - b.t);
+  }
+  return map;
+}
+
+/** 依 currentT 取每庫最近一筆（t ≤ currentT），回 ReservoirStatus[] 給 scene */
+function statusesAt(byId: Map<string, ReservoirSeries>, currentT: number): ReservoirStatus[] {
+  const out: ReservoirStatus[] = [];
+  for (const s of byId.values()) {
+    let row: ReservoirSeries["rows"][number] | null = null;
+    for (let i = s.rows.length - 1; i >= 0; i--) {
+      if (s.rows[i]!.t <= currentT) {
+        row = s.rows[i]!;
+        break;
+      }
+    }
+    // 找不到 → 用最早一筆作為 fallback（一天開頭畫面，讓水柱有初始高度）
+    if (!row && s.rows.length > 0) row = s.rows[0]!;
+    if (!row) continue;
+    out.push({
+      reservoir_id: s.reservoir_id,
+      name: s.name,
+      region: null,
+      lat: s.lat,
+      lng: s.lng,
+      effective_capacity_wan: s.effective_capacity_wan,
+      snapshot_at: new Date(row.t * 1000).toISOString(),
+      water_level_m: row.water_level_m,
+      effective_storage_wan_m3: row.effective_storage_wan_m3,
+      storage_ratio_pct: row.storage_ratio_pct,
+      alert_level: alertLevelFromPct(row.storage_ratio_pct),
+      inflow_cms: null,
+      total_outflow_cms: null,
+      basin_rainfall_mm: row.basin_rainfall_mm,
+    });
+  }
+  return out;
+}
 
 export function useReservoirStatusLayer(
   mapRef: React.RefObject<MapboxMap | null>,
@@ -39,6 +121,8 @@ export function useReservoirStatusLayer(
   const isDarkRef = useRef(isDark);
   const heightScaleRef = useRef(heightScale);
   const mountedRef = useRef(false);
+  const byIdRef = useRef<Map<string, ReservoirSeries>>(new Map());
+  const currentDateRef = useRef<string>("");
 
   visibleRef.current = visible;
   isDarkRef.current = isDark;
@@ -54,7 +138,6 @@ export function useReservoirStatusLayer(
 
     let cancelled = false;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
-    let retry = 0;
 
     const attach = () => {
       console.log("[Reservoir] attaching custom layer", { styleLoaded: map.isStyleLoaded() });
@@ -72,32 +155,24 @@ export function useReservoirStatusLayer(
       });
       try {
         map.addLayer(layer);
-        console.log("[Reservoir] layer added, getLayer =", !!map.getLayer(LAYER_ID));
       } catch (err) {
         console.warn("[Reservoir] addLayer failed:", err);
         mountedRef.current = false;
         sceneRef.current = null;
         return false;
       }
-      // 如果已經 fetch 過，立即 setStatuses
       const existing = statusesRef.current ?? [];
-      if (existing.length > 0) {
-        scene.setStatuses(existing);
-      }
+      if (existing.length > 0) scene.setStatuses(existing);
       map.triggerRepaint();
       return true;
     };
 
-    // 若 style 已 ready 直接裝；否則每 200ms retry（通常 1-2 tick 內就 ready）
     const tryAttach = () => {
       if (cancelled || mountedRef.current) {
         if (pollTimer) clearInterval(pollTimer);
         return;
       }
-      retry++;
-      if (!map.isStyleLoaded() && retry < 50) {
-        return; // 等下一個 tick
-      }
+      if (!map.isStyleLoaded()) return;
       if (attach() && pollTimer) {
         clearInterval(pollTimer);
         pollTimer = null;
@@ -107,7 +182,6 @@ export function useReservoirStatusLayer(
     if (map.isStyleLoaded()) {
       attach();
     } else {
-      console.log("[Reservoir] style not loaded, start polling");
       pollTimer = setInterval(tryAttach, 200);
       tryAttach();
     }
@@ -118,49 +192,57 @@ export function useReservoirStatusLayer(
     };
   }, [mapRef, visible, sceneRef, statusesRef]);
 
-  // ── visible = true 時啟動 fetch + 輪詢 ──
+  // ── visible=true：fetch day + 訂閱 date/time ──
   useEffect(() => {
     if (!visible) return;
+    const map = mapRef.current;
+    if (!map) return;
     let cancelled = false;
 
-    const load = async () => {
+    /** 依當下時間計算 statuses 並推給 scene */
+    const redraw = () => {
+      if (cancelled) return;
+      const t = timeStore.getTime();
+      const list = statusesAt(byIdRef.current, t);
+      statusesRef.current = list;
+      const scene = sceneRef.current;
+      if (scene) scene.setStatuses(list);
+      map.triggerRepaint();
+    };
+
+    const loadDay = async (dateKey: string) => {
+      if (cancelled) return;
       try {
-        console.log("[Reservoir] calling get_reservoir_status_latest...");
-        const list = await fetchReservoirStatusLatest();
-        if (cancelled) return;
-        console.log(`[Reservoir] RPC returned ${list.length} reservoirs`, list[0]);
-        statusesRef.current = list;
-        const scene = sceneRef.current;
-        if (scene) {
-          scene.setStatuses(list);
-          const map = mapRef.current;
-          if (map) {
-            keepLoadingUntilMapIdle(
-              map,
-              "reservoir-status-render",
-              "水庫水情 渲染中",
-              null,
-            );
-            map.triggerRepaint();
-          }
-        } else {
-          console.warn("[Reservoir] scene not ready when RPC returned");
-        }
+        console.log("[Reservoir] fetching day", dateKey);
+        const rows = await fetchReservoirStatusDay(dateKey);
+        if (cancelled || currentDateRef.current !== dateKey) return;
+        byIdRef.current = groupByReservoir(rows);
+        console.log(`[Reservoir] loaded ${rows.length} rows, ${byIdRef.current.size} reservoirs`);
+        redraw();
+        keepLoadingUntilMapIdle(map, "reservoir-status-render", "水庫水情 渲染中", null);
       } catch (err) {
-        console.warn("[Reservoir] status fetch failed:", err);
+        console.warn("[Reservoir] day fetch failed:", err);
       }
     };
 
-    load();
-    const timer = setInterval(load, REFRESH_MS);
+    currentDateRef.current = timeStore.getDateKey();
+    loadDay(currentDateRef.current);
+
+    const unsubDate = timeStore.subscribeDate((key) => {
+      currentDateRef.current = key;
+      byIdRef.current = new Map();
+      loadDay(key);
+    });
+    const unsubTime = timeStore.subscribeThrottled(THROTTLE_MS, redraw);
 
     return () => {
       cancelled = true;
-      clearInterval(timer);
+      unsubDate();
+      unsubTime();
     };
   }, [mapRef, sceneRef, statusesRef, visible]);
 
-  // ── heightScale 變化（slider 拖拉）強制 repaint ──
+  // ── heightScale 變化觸發 repaint（Scene.updateMatrices 會 apply heightScale）──
   useEffect(() => {
     const map = mapRef.current;
     if (map && visible) map.triggerRepaint();
