@@ -1,14 +1,19 @@
 # Water Resources — Session Status
 
 > **目的**：中斷 session 回來可以 5 分鐘內接上。
-> **最後更新**：2026-04-22 (Phase 1 + Phase 2 完成)
+> **最後更新**：2026-04-22 (Phase 1 + Phase 2 + 蓄水率分母修正 + 水位計顏色修正)
 > **分支**：`feat/water-resources`
 
 ---
 
 ## TL;DR — 一段話接回來
 
-後端（DB + collector + seed + docs）**100% 完成**；前端只有**靜態 GeoJSON**，4 支 RPC 都**還沒接**。下一步（Phase 1）：建 `reservoirContextLoader.ts` + `useReservoirContextLayer.ts`，讓點擊水庫能看到「本體 + 集水區 + 流域 + 下游河川 + 蓄水率時序」。後端 ready，純前端工作。
+水循環骨架已打完：**降水（雨量站）→ 集水（watershed polygon）→ 儲水（3D 水位計）→ 輸水（河川水位站）** 都已上線。
+今日（2026-04-22）另外修掉兩個 bug：
+1. **蓄水率分母**改用「現行有效容量」（扣除淤積）對齊水利署官網 — migration 056
+2. **警示顏色 key 語言不一致** — view 回英文但前端 dict keyed 中文，導致顏色一直沒生效；同時加入 critical/warning/normal/high 四色分級。
+
+**下一個 ROI 最高的方向**：Phase 2.3 **timeline 回放** — 讓滑 timeline 時雨量/水庫/河川一起動（把 Mini Taiwan Pulse「時間軸」招牌補齊到水循環）。
 
 ---
 
@@ -24,6 +29,10 @@
 | `050_reservoir_sediment.sql` | `reservoir_geometry` 擴欄（`latest_measured_capacity` / `latest_sediment` / `latest_measured_at`）| 淤積資料 |
 | `051_reservoir_daily_ops.sql` | `realtime.reservoir_daily_ops` | 每日營運時序 |
 | `052_reservoir_context_rpc.sql` | `get_reservoir_context(id)` ★ | 一站式 JSON：水庫+狀態+集水區+流域+下游河川 |
+| `053_reservoir_watershed_rivers_rpc.sql` | `get_reservoir_watershed_rivers(compare_id)` | 集水區內完整河網（ST_Intersection）|
+| `054_rain_gauge_rpc.sql` | `get_rain_gauge_latest` / `get_rain_gauge_timeseries` | 雨量站（1,304 站 / 160ms）|
+| `055_river_water_level_rpc.sql` | `get_river_water_level_latest` / `get_river_water_level_timeseries` | 河川水位（332 站 / 64ms）|
+| `056_fix_storage_ratio_denominator.sql` | 重建 `reservoir_situation_v` / `get_reservoir_status_day` / `get_reservoir_timeseries` | 蓄水率分母改用 `current_capacity_wan`（扣淤積）對齊 WRA 官網 |
 
 ### Collectors（`../data-collectors/collectors/`）
 
@@ -163,7 +172,7 @@ water_flood_extreme.geojson   650mm/24h 淹水潛勢
 
 **Step 2 — 瀏覽器實測 + S3 上傳**
 - [ ] `npm run dev` 點石門水庫（compare_id=10201）驗證 3 疊層 + context panel 顯示
-- [ ] `bash scripts/deploy/upload-deploy-assets.sh` 上傳更新的 water_*.geojson
+- [ ] `bash scripts/deploy/upload-deploy-assets.sh` 上傳更新的 water_*.geojson（若 S3 需要）
 
 ### Phase 2 — 雨量 + 河川水位（完成 2026-04-22）✅
 
@@ -175,13 +184,38 @@ water_flood_extreme.geojson   650mm/24h 淹水潛勢
 - [x] LayerSidebar / IconRailSidebar / types / useLayerVisibility / useMapInteraction 接線
 - [x] `npx tsc -b` 通過
 
-**遺留**：
-- 警戒水位視覺化：`public.river_stations` 目前無資料，警戒三級水位無法套 badge/顏色。需上游 seed river_stations 後回 RPC 加欄位。
-- 雨量時序回放：現只 latest，未做 `get_rain_gauge_day`（timeline 滑動時同步切換）。
+### Phase 1.5 — 蓄水率分母 + 顏色修正（完成 2026-04-22）✅
+
+發現點擊水庫時數字與 `fhy.wra.gov.tw` 官網差距極大（曾文 12% vs 17%、霧社 12% vs 73.87%）。
+
+- [x] **根因 1**：view 分母用設計有效容量 `effective_capacity_wan`（未扣淤積），水利署用現行有效容量 `current_capacity_wan`（扣淤積）。霧社淤積率 81%，分母用錯百分比會失真成 12%。
+- [x] **migration 056**：重建 `reservoir_situation_v` + `get_reservoir_status_day` + `get_reservoir_timeseries`，分母改 `current_capacity_wan`。
+- [x] **根因 2**：view 輸出 `alert_level` 是英文（`critical/warning/normal/high`），但 `ALERT_COLOR_HEX`（3D）與 `ALERT_COLORS`（Panel）皆 keyed 中文（`正常/輕度/中度/重度/嚴重`），顏色從未生效，全部 fallback 到預設青色。
+- [x] 改寫兩處 dict 對齊英文 key，顏色分級：critical=紅 / warning=橘 / normal=青 / high=綠；同時加 `ALERT_LABELS` 提供中文顯示標籤（嚴重/偏低/正常/滿水）。
+- [x] Commits：gis-platform `609a4b3`、mini-taiwan-pulse `4bee226`
+
+**驗證（2026-04-22 13:00 snapshot）**：
+- 曾文 16.3% 橘 / 霧社 65.9% 青 / 翡翠 100.7% 綠 / 全台 37/40 有即時資料，分佈 critical 3 / warning 8 / high 2 / normal 24。
+- 霧社還差官網 ~8% 是 snapshot 時間差 + WRA 持續淤積測量。
+
+### Phase 2.3 — Timeline 回放（下一步，高 ROI）⏳
+
+讓 timeline 滑動時水循環**同步**回放：
+- [ ] `gis-platform/migrations/057_water_day_rpc.sql`（暫定）
+  - `get_rain_gauge_day(target_date)` 仿 `get_reservoir_status_day` 回每小時/每 10 min
+  - `get_river_water_level_day(target_date)`
+- [ ] `src/data/rainGaugeLoader.ts` 加 `fetchRainGaugeDay`
+- [ ] `src/hooks/useRainGaugeLayer.ts` 切換 `timeStore.subscribeDate` + `subscribeThrottled`（走 external time store，遵守 CLAUDE.md 規則 6）
+- [ ] 同套路搬到 river level
+- [ ] 水庫已有 `get_reservoir_status_day`，但 `useReservoirStatusLayer` 目前只 fetch latest，要改 timeline 驅動
+- [ ] 評估是否需要 pre-aggregate（rain_gauge 1,304 站 × 144 筆/日 = 188k rows/day，若 > 1s 就走 matview）
+
+> 這一步完成後，整條水循環才真正「會動」，對齊 Mini Taiwan Pulse 的定位。
 
 ### Phase 3（選配）
 
-- [ ] 地下水 RPC + 前端
+- [ ] 警戒水位視覺化：`public.river_stations` 目前無資料，警戒三級水位無法套 badge/顏色。需上游 seed river_stations 後回 RPC 加欄位。
+- [ ] 地下水 RPC + 前端（migration 046 有表，缺 RPC）
 - [ ] 枯旱燈號 36695
 - [ ] 洩洪訊息 58343
 - [ ] 集水區敏感區 129475 / 129476
@@ -192,8 +226,12 @@ water_flood_extreme.geojson   650mm/24h 淹水潛勢
 
 | 坑 | 備註 |
 |---|---|
-| `water_reservoir_pillars.geojson` 檔頭有 `SET\n` 前綴 | 非合法 JSON，換動態 source 時順手處理 |
+| `water_reservoir_pillars.geojson` 檔頭有 `SET\n` 前綴 | 非合法 JSON，換動態 source 時順手處理（已刪）|
 | 淤積資料只有北區 15 筆 | WRA 公告中/南區後重跑 `seed_reservoir_sediment.py` |
+| `public.river_lines` 有 2,445 km outlier MultiLineString | name/type/code 全空，KNN nearest_river 會全台亮；Phase 1b 已用 ST_Intersection 繞過 |
+| 蓄水率分母必須用 `current_capacity_wan`（非 `effective_capacity_wan`）| 淤積大的水庫差異可達 5x（霧社）；migration 056 已修 |
+| `alert_level` 是**英文** key（`critical/warning/normal/high`）| 前端 dict 要用英文 key，中文只做 display label |
+| `current_capacity_wan` 啟動時 sync 一次 | WRA 真正的現行容量會隨測量更新，我方 DB 會慢一點（< 1% 誤差）|
 | Supabase pooler 2min timeout | RPC 回傳 > 1s 要套 pre-aggregate pattern（見 `supabase-optimization.md`）|
 | 動態圖層 currentTime 不可入 deps | 強制走 `timeStore`（CLAUDE.md 規則 6）|
 | 靜態 GeoJSON 走 S3 扁平檔名契約 | 不要改路徑 |
@@ -227,4 +265,8 @@ npm run dev                            # port 3721
 npx tsc -b
 ```
 
-下一個動作：建 `src/data/reservoirContextLoader.ts`。
+下一個動作：**Phase 2.3 — Timeline 回放**（`get_rain_gauge_day` + `get_river_water_level_day` + 前端切換到 `timeStore.subscribeDate`）。
+
+若要驗證今日修正是否生效，瀏覽器打開後點任一水庫：
+- 曾文應顯示約 16%（橘）、霧社約 66%（青）、翡翠約 100%（綠）、石門約 69%（青）
+- 3D 水柱顏色依 critical/warning/normal/high 四色，外殼維持半透明
