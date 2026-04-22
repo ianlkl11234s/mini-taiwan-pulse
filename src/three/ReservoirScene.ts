@@ -13,7 +13,7 @@ import { ALERT_COLOR_HEX } from "../data/reservoirStatusLoader";
  *   - 內部 water cylinder（可變高度 = 當下蓄水率 %）
  *     - 半徑略小於外殼（留殼厚度）
  *     - 高度 = H_SHELL × storage_ratio_pct / 100
- *     - 顏色依 alert_level（正常=青 / 輕度=黃 / 中度=橘 / 重度=紅 / 嚴重=深紅）
+ *     - 顏色依 alert_level（critical=紅 / warning=橘 / normal=青 / high=綠）
  *
  * 兩組 InstancedMesh 共享水庫陣列，單次 draw call × 2。
  */
@@ -98,14 +98,14 @@ export class ReservoirScene {
       const shellHeightM = H_SHELL_METERS;
       const ratio = Math.max(0, Math.min(1, (s.storage_ratio_pct ?? 0) / 100));
       const waterHeightM = shellHeightM * ratio;
-      const alertKey = s.alert_level ?? "正常";
+      const alertKey = s.alert_level ?? "normal";
       return {
         status: s,
         mercator,
         radiusMercator: radiusM * m,
         shellHeightMercator: shellHeightM * m,
         waterHeightMercator: waterHeightM * m,
-        waterColorHex: ALERT_COLOR_HEX[alertKey] ?? ALERT_COLOR_HEX["正常"]!,
+        waterColorHex: ALERT_COLOR_HEX[alertKey] ?? ALERT_COLOR_HEX["normal"]!,
       };
     });
 

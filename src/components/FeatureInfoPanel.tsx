@@ -65,13 +65,19 @@ interface Props {
   reservoirContext?: ReservoirContext | null;
 }
 
-/** 警示燈號顏色 */
+/** 警示燈號顏色（對齊 reservoir_situation_v 的 alert_level 輸出） */
 const ALERT_COLORS: Record<string, string> = {
-  正常: "#22c55e",
-  輕度: "#fbbf24",
-  中度: "#f97316",
-  重度: "#ef4444",
-  嚴重: "#991b1b",
+  critical: "#ef4444", // 紅
+  warning:  "#f97316", // 橘
+  normal:   "#22d3ee", // 青
+  high:     "#22c55e", // 綠（滿水）
+};
+
+const ALERT_LABELS: Record<string, string> = {
+  critical: "嚴重",
+  warning:  "偏低",
+  normal:   "正常",
+  high:     "滿水",
 };
 
 function formatTaiwanTime(iso: string | null): string {
@@ -367,6 +373,7 @@ function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
   const storageRatio = s?.storage_ratio_pct ?? null;
   const alert = s?.alert_level ?? "";
   const alertColor = ALERT_COLORS[alert] ?? "#94a3b8";
+  const alertLabel = ALERT_LABELS[alert] ?? alert;
   const accent = "#22d3ee";
 
   const capacityWan = r?.capacity_effective_m3 != null
@@ -424,7 +431,7 @@ function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
                 fontWeight: 600,
               }}
             >
-              {alert}
+              {alertLabel}
             </span>
           )}
         </div>
