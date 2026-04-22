@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type {
   Map as MapboxMap,
   CircleLayer,
+  HeatmapLayer,
   GeoJSONSource,
   ExpressionSpecification,
 } from "mapbox-gl";
@@ -28,8 +29,13 @@ import { timeStore } from "../state/timeStore";
  */
 
 const SOURCE_ID = "rain-gauge";
+const LAYER_HEATMAP = "rain-gauge-heatmap";
 const LAYER_GLOW = "rain-gauge-glow";
 const LAYER_CIRCLE = "rain-gauge-circle";
+
+/** zoom 漸變節點：小於 HEATMAP_HIDE_Z → heatmap 全透明；大於 CIRCLE_HIDE_Z → circle 全透明 */
+const HEATMAP_HIDE_Z = 12;
+const CIRCLE_HIDE_Z = 8;
 
 const THROTTLE_MS = 500;
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -78,10 +84,101 @@ function rainRadiusExpression(scale: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
+/** heatmap-weight：用 precipitation_1hr 映射到 0~1（0 mm → 0；100+ mm → 1） */
+function heatmapWeightExpression(): ExpressionSpecification {
+  return [
+    "interpolate",
+    ["linear"],
+    ["coalesce", ["get", "precipitation_1hr"], 0],
+    0, 0,
+    0.1, 0.05,
+    2.5, 0.2,
+    15, 0.45,
+    40, 0.7,
+    80, 0.88,
+    200, 1,
+  ] as unknown as ExpressionSpecification;
+}
+
+/** heatmap-color：CWA 分級色階（density 0→1 映射到色帶，暴雨紅） */
+function heatmapColorExpression(): ExpressionSpecification {
+  return [
+    "interpolate",
+    ["linear"],
+    ["heatmap-density"],
+    0,    "rgba(0,0,0,0)",
+    0.05, "rgba(147,197,253,0.4)",   // 小雨 #93c5fd
+    0.2,  "rgba(59,130,246,0.7)",    // 中雨 #3b82f6
+    0.45, "rgba(34,197,94,0.85)",    // 大雨 #22c55e
+    0.7,  "rgba(251,191,36,0.92)",   // 豪雨 #fbbf24
+    0.88, "rgba(249,115,22,0.95)",   // 大豪雨 #f97316
+    1,    "rgba(239,68,68,0.98)",    // 超大豪雨 #ef4444
+  ] as unknown as ExpressionSpecification;
+}
+
+/** heatmap-radius：zoom 越大半徑越小（近景看細節；遠景看大範圍擴散） */
+function heatmapRadiusExpression(): ExpressionSpecification {
+  return [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    5, 12,
+    7, 20,
+    9, 28,
+    11, 38,
+    13, 50,
+  ] as unknown as ExpressionSpecification;
+}
+
+/** heatmap 在近景淡出（交給 circle 表達測站位置）*/
+function heatmapOpacityExpression(): ExpressionSpecification {
+  return [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    CIRCLE_HIDE_Z - 1, 0.9,
+    HEATMAP_HIDE_Z - 2, 0.75,
+    HEATMAP_HIDE_Z, 0,
+  ] as unknown as ExpressionSpecification;
+}
+
+/** circle 在遠景淡出（交給 heatmap 表達擴散）*/
+function circleZoomOpacity(base: number): ExpressionSpecification {
+  return [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    CIRCLE_HIDE_Z - 2, 0,
+    CIRCLE_HIDE_Z, 0,
+    CIRCLE_HIDE_Z + 2, base,
+  ] as unknown as ExpressionSpecification;
+}
+
 function ensureLayers(map: MapboxMap, isDark: boolean, scale: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
   }
+  // ① heatmap（遠景主打）
+  if (!map.getLayer(LAYER_HEATMAP)) {
+    map.addLayer({
+      id: LAYER_HEATMAP,
+      type: "heatmap",
+      source: SOURCE_ID,
+      maxzoom: HEATMAP_HIDE_Z,
+      paint: {
+        "heatmap-weight": heatmapWeightExpression(),
+        "heatmap-intensity": [
+          "interpolate", ["linear"], ["zoom"],
+          5, 1,
+          11, 2.5,
+        ] as unknown as ExpressionSpecification,
+        "heatmap-color": heatmapColorExpression(),
+        "heatmap-radius": heatmapRadiusExpression(),
+        "heatmap-opacity": heatmapOpacityExpression(),
+      },
+    } as HeatmapLayer);
+  }
+  // ② glow circle（近景輔助，站點位置光暈）
   if (!map.getLayer(LAYER_GLOW)) {
     map.addLayer({
       id: LAYER_GLOW,
@@ -91,10 +188,11 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number) {
         "circle-radius": rainRadiusExpression(scale * 1.8),
         "circle-color": rainColorExpression(),
         "circle-blur": 0.8,
-        "circle-opacity": isDark ? 0.25 : 0.2,
+        "circle-opacity": circleZoomOpacity(isDark ? 0.25 : 0.2),
       },
     } as CircleLayer);
   }
+  // ③ main circle（近景主打，精確測站位置）
   if (!map.getLayer(LAYER_CIRCLE)) {
     map.addLayer({
       id: LAYER_CIRCLE,
@@ -103,17 +201,17 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number) {
       paint: {
         "circle-radius": rainRadiusExpression(scale),
         "circle-color": rainColorExpression(),
-        "circle-opacity": isDark ? 0.85 : 0.75,
+        "circle-opacity": circleZoomOpacity(isDark ? 0.85 : 0.75),
         "circle-stroke-width": 0.5,
         "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": 0.4,
+        "circle-stroke-opacity": circleZoomOpacity(0.4),
       },
     } as CircleLayer);
   }
 }
 
 function setLayerVisibility(map: MapboxMap, visible: boolean) {
-  for (const id of [LAYER_GLOW, LAYER_CIRCLE]) {
+  for (const id of [LAYER_HEATMAP, LAYER_GLOW, LAYER_CIRCLE]) {
     if (map.getLayer(id)) {
       map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
     }
