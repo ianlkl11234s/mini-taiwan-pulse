@@ -27,11 +27,12 @@ const SHELL_THICKNESS = 0.85;   // 內水圓柱半徑 = 外殼 × SHELL_THICKNES
 const CYLINDER_SEGMENTS = 20;
 
 // 進/出流 雙排日柱視覺化（active reservoir 專屬，BL-5 方案 D）
+// 注意：柱體總高應 ≤ H_SHELL × 1.5，否則高 zoom + pitch 時會被 viewport 截頂
 const OPS_BAR_SIDE_FACTOR = 0.22;        // 柱體邊長相對外殼半徑
 const OPS_BAR_SPACING_FACTOR = 2.6;      // 同排柱心距相對邊長
-const OPS_ROW_OFFSET_FACTOR = 0.9;       // N-S 兩排間距相對外殼半徑（從水庫中心）
-const OPS_FLOAT_Z_FACTOR = 1.25;         // 底部浮在水位計頂部的相對高度（× H_SHELL_METERS）
-const OPS_MAX_HEIGHT_FACTOR = 0.65;      // 柱最大高度相對 H_SHELL_METERS
+const OPS_ROW_OFFSET_FACTOR = 1.35;      // N-S 兩排間距相對外殼半徑（> 1 = 外殼外側，避免與殼重疊）
+const OPS_FLOAT_Z_FACTOR = 0.1;          // 底部浮在地面上方 × H_SHELL_METERS（低空浮空，不搶殼頂空間）
+const OPS_MAX_HEIGHT_FACTOR = 0.45;      // 柱最大高度相對 H_SHELL_METERS（柱頂 ≤ 0.55 × shell）
 const OPS_CMS_LOG_BASE = 100;            // log(cms) 正規化基準：100 cms → 全高
 const OPS_CMS_COLOR_REF = 30;            // 超過此 cms 顏色達最深
 
