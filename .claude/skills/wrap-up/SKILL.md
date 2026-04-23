@@ -51,29 +51,37 @@ Session 結束時自動：
 - `STATUS` 每次**重寫**（只保留當下狀態）
 - `DATA_SCOPE` 數字改動時，**先 Grep / `wc -l` 驗證**不單信對話摘要
 
-### Stage 3: Draft
+### Stage 3: Draft — 保持精簡 ⚠️
 
-產出 **總表**給用戶一眼看全：
+**只產出總表**（每檔一行摘要），**不 dump 完整 diff / markdown 草稿**。
 
 ```
-| 檔案 | 變動類型 | 摘要 |
+| 檔案 | 變動 | 一句話摘要（≤ 20 字） |
 |---|---|---|
-| STATUS.md | rewrite | 更新到「等待 Zeabur pull」 |
-| DATA_SCOPE.md | update | 倫敦 10 座補齊、UK region 3,358 |
-| INCIDENTS.md | append ×3 | EGLL 誤判 / bash-not-found / UK 漏加 |
-| BACKLOG.md | close 1 + add 2 | 關 B??？、加 B00?/B00? |
+| STATUS.md | rewrite | 18 commits / SessionStart hook 上線 |
+| INCIDENTS.md | +1 | macOS 無 jq → python3 |
+| PRINCIPLES.md | +1 條 | shell 不依賴 jq |
+| REFLECTIONS.md | +1 篇 | 首次 /wrap-up 反省 |
 ```
 
-然後**每個變動 show 實際 diff**（Edit 前的 old_string / new_string，或 Write 前的完整草稿）。
+**禁止**：
+- ❌ 貼出完整 markdown 改寫內容
+- ❌ 列出每個 old_string / new_string
+- ❌ 條列每條 append 的全文
+
+若某檔變動特別複雜，可**多加 1~2 行 bullet** 註明主要改動，但仍不 dump 全文。
 
 ### Stage 4: Confirm
 
-問用戶：
-1. 全部 diff 採用？
-2. 要修改哪幾個？
-3. 要 skip 哪些？
+簡短問一句：
 
-**等用戶回覆才進 Stage 5**，不自作主張。
+> 全採用 / 看某檔細節 / skip 某檔？
+
+- **全採用** → 進 Stage 5
+- **看 X 檔** → 這時才展開該檔的實際 Edit/Write 草稿
+- **skip X** → 不 commit 該檔
+
+**不要**自己 dump 細節等用戶挑。等用戶明確要求才展開。
 
 ### Stage 5: Atomic Commit
 
