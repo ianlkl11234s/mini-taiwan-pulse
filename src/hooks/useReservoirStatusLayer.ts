@@ -46,6 +46,13 @@ interface ReservoirSeries {
   }>;
 }
 
+/** 日期偏移（Asia/Taipei） */
+function offsetDateKey(key: string, deltaDays: number): string {
+  const d = new Date(`${key}T00:00:00+08:00`);
+  d.setUTCDate(d.getUTCDate() + deltaDays);
+  return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
 function groupByReservoir(rows: ReservoirDayRow[]): Map<string, ReservoirSeries> {
   const map = new Map<string, ReservoirSeries>();
   for (const r of rows) {
@@ -212,14 +219,22 @@ export function useReservoirStatusLayer(
       map.triggerRepaint();
     };
 
+    /** date + previous day 合併，避免早上時段部分水庫尚未回報就消失 */
     const loadDay = async (dateKey: string) => {
       if (cancelled) return;
       try {
-        console.log("[Reservoir] fetching day", dateKey);
-        const rows = await fetchReservoirStatusDay(dateKey);
+        const prev = offsetDateKey(dateKey, -1);
+        console.log(`[Reservoir] fetching ${dateKey} + ${prev}`);
+        const [todayRows, prevRows] = await Promise.all([
+          fetchReservoirStatusDay(dateKey),
+          fetchReservoirStatusDay(prev),
+        ]);
         if (cancelled || currentDateRef.current !== dateKey) return;
-        byIdRef.current = groupByReservoir(rows);
-        console.log(`[Reservoir] loaded ${rows.length} rows, ${byIdRef.current.size} reservoirs`);
+        // 合併：先放昨天，再放今天（groupByReservoir 會同站堆疊，sort 後自然排好）
+        byIdRef.current = groupByReservoir([...prevRows, ...todayRows]);
+        console.log(
+          `[Reservoir] loaded today=${todayRows.length} prev=${prevRows.length} → ${byIdRef.current.size} reservoirs`,
+        );
         redraw();
         keepLoadingUntilMapIdle(map, "reservoir-status-render", "水庫水情 渲染中", null);
       } catch (err) {
@@ -244,11 +259,12 @@ export function useReservoirStatusLayer(
     };
   }, [mapRef, sceneRef, statusesRef, visible]);
 
-  // ── heightScale 變化觸發 repaint（Scene.updateMatrices 會 apply heightScale）──
+  // ── heightScale / isDark / visible 變化：觸發 repaint
+  // （移除 per-frame triggerRepaint 後，需要確保 state 變動能反映到畫面）
   useEffect(() => {
     const map = mapRef.current;
-    if (map && visible) map.triggerRepaint();
-  }, [heightScale, visible, mapRef]);
+    if (map) map.triggerRepaint();
+  }, [heightScale, isDark, visible, mapRef]);
 
   // ── activeReservoirId：點選水庫後撈近 3 日進/出流量，推給 scene 畫雙柱 ──
   useEffect(() => {
