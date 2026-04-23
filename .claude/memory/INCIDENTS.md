@@ -177,4 +177,19 @@ pattern 純粹浪費 GPU。
 
 ---
 
+## 2026-04-23 macOS 預設無 jq，shell script 需改用 python3
+
+**現象**：SessionStart hook 的 `load-session.sh` 原本用 `jq` 組 JSON，pipe-test
+時 `jq: command not found`，exit 127。
+
+**根因**：macOS 預設工具鏈不含 jq（需 Homebrew 另裝）。`which jq` 空值。
+專案協作若要求使用者預裝 jq 是不合理的門檻。
+
+**對策**：
+- Shell script 組 JSON 一律用 `python3 - <<'PY' ... PY` heredoc（Python 預裝）
+- PRINCIPLES「技術慣例」加規則：shell 腳本不依賴 jq
+- 寫外部工具依賴前先 `command -v <tool>` 檢查
+
+---
+
 <!-- 追加新事件於此之上 -->
