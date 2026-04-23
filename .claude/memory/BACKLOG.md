@@ -1,0 +1,50 @@
+# Backlog
+
+優先級：**P0** = 阻塞中 / **P1** = 規劃期內 / **P2** = 穩定後再做 / **P3** = nice-to-have
+
+## 進行中 / 待辦
+
+### 水資源系統（BL 系列 — 盤點 DB 有資料但前端沒用的 Quick Wins）
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| BL-1 | P1 | `river_levees` 堤防 4,223 筆上線 | open | MultiLineString，輸水/防洪骨架，視覺 ROI 最高 |
+| BL-2 | P2 | `water_protection_zones` 水源保護區 107 筆 | open | 合併 BL-3 為同 toggle「水資源管制區」|
+| BL-3 | P2 | `groundwater_zones` 地下水管制區 21 筆 | open | 雲林/嘉義/屏東超抽帶；搭配地下水井 |
+| BL-4 | P2 | `flood_hazard_zones` 淹水潛勢**多情境** 17,303 筆 | open | dropdown 情境 slider，目前前端只用 650mm 單情境 |
+| BL-5 | P1 | 水庫點選顯示 3D 進/出流雙排日柱 | **done** | 2026-04-23 完成（commit dae1c78 / 06116e7 / 52a56ba / 6600433）|
+| BL-6 | P3 | 水庫 3D 柱顯示「最新日期」標記 | open | 討論中：panel ribbon 或 Marker「最新」小字；暫停 |
+
+### 水資源擴展（新 collector / 新 RPC）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| W001 | P2 | 警戒水位視覺化 | open | 需先 seed `public.river_stations`（目前空表），再回 055 RPC 加三級警戒欄位 |
+| W002 | P2 | 地下水 RPC + 前端 | open | migration 046 有 realtime 表，缺 RPC wrapper，缺前端圖層 |
+| W003 | P3 | 枯旱預警燈號 | open | WRA dataset 36695 |
+| W004 | P3 | 洩洪訊息 | open | WRA dataset 58343 |
+| W005 | P3 | 水權統計 | open | data.gov.tw 36696，**非空間**表格，做指標卡/長條圖，補「用水」最大缺口 |
+| W006 | P3 | 集水區敏感區（內/外 0.5km） | open | WRA 129475 / 129476 |
+
+### 一般待辦
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| G001 | P2 | 刪 `useTransportParams` 裡的 `reservoirBubbleOpacity/Glow/Size` 殘留 slider | done | 2026-04-22 已拆 |
+| G002 | P3 | `[ReservoirLayer] render #N` 改 `DEBUG_RESERVOIR` env flag 控制 | done | 2026-04-23 render loop 修掉時順手移除 |
+| G003 | P3 | `public/three-showcase.html` / `public/showcase/` untracked 是什麼？要 commit / 忽略 / 刪？ | open | 本次 session 前就存在的 untracked 檔案 |
+
+## 已完成（近期 10 筆）
+
+- 2026-04-23 ✅ **BL-5 水庫 3D 進/出流雙排日柱**（初版雙柱 → 雙排 N 日柱 → 位置/高度修正）
+- 2026-04-23 ✅ **Phase 2.3 Timeline 回放**（rain/river/reservoir 三層走 timeStore）
+- 2026-04-23 ✅ **雨量 Mapbox heatmap**（擴散視覺 + zoom 分工）
+- 2026-04-23 ✅ **水庫 3D 移除 per-frame triggerRepaint**（60 FPS render loop fix）
+- 2026-04-23 ✅ **Today + Yesterday 合併**（避免早上時段水庫閃現）
+- 2026-04-22 ✅ Migration 056 蓄水率分母修正（對齊水利署官網）
+- 2026-04-22 ✅ alert_level key 中英文對齊（view 輸出英文，前端 dict 改英文）
+- 2026-04-22 ✅ Phase 2.2 河川水位圖層（WRA 332 站）
+- 2026-04-22 ✅ Phase 2.1 雨量圖層（CWA 1,304 站）
+- 2026-04-22 ✅ Phase 1 水庫互動三合一（集水區 polygon + 集水區河網 + 3D 水位計）
+
+> 更早完成項目見 git log 與 REFLECTIONS.md
