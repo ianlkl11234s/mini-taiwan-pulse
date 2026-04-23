@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
 import type { FeatureInfo } from "../types";
 import { aqiToColor } from "../map/aqiColorScale";
+import type { ReservoirContext } from "../data/reservoirContextLoader";
 
 /** 海纜 cable_type 對應色 */
 const CABLE_TYPE_COLORS: Record<string, string> = {
@@ -31,6 +32,21 @@ const SCHOOL_LEVEL_COLORS: Record<string, string> = {
   "特殊教育學校": "#78909c",
 };
 
+/** 水利設施類型對應色 / 標籤 */
+const WATER_FACILITY_TYPE: Record<string, { color: string; label: string }> = {
+  pump_station: { color: "#60a5fa", label: "抽水站 (OSM)" },
+  pump_station_official: { color: "#2563eb", label: "官方抽水站 (WRA)" },
+  treatment_plant: { color: "#34d399", label: "自來水廠 / 淨水場" },
+  water_tower: { color: "#fbbf24", label: "水塔" },
+};
+
+/** 監測站類型對應色 / 標籤 */
+const WATER_MONITOR_TYPE: Record<string, { color: string; label: string }> = {
+  rain_gauge: { color: "#60a5fa", label: "雨量站" },
+  river_level: { color: "#22d3ee", label: "河川水位站" },
+  groundwater_well: { color: "#f472b6", label: "地下水觀測井" },
+};
+
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
   "7-ELEVEN": "#00843D",
@@ -45,6 +61,35 @@ const BRAND_COLORS: Record<string, string> = {
 interface Props {
   feature: FeatureInfo;
   onClose: () => void;
+  /** 點擊水庫時由 useReservoirContextLayer 提供：含水情/集水區/流域/最近河川 */
+  reservoirContext?: ReservoirContext | null;
+}
+
+/** 警示燈號顏色（對齊 reservoir_situation_v 的 alert_level 輸出） */
+const ALERT_COLORS: Record<string, string> = {
+  critical: "#ef4444", // 紅
+  warning:  "#f97316", // 橘
+  normal:   "#22d3ee", // 青
+  high:     "#22c55e", // 綠（滿水）
+};
+
+const ALERT_LABELS: Record<string, string> = {
+  critical: "嚴重",
+  warning:  "偏低",
+  normal:   "正常",
+  high:     "滿水",
+};
+
+function formatTaiwanTime(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString("zh-TW", {
+      timeZone: "Asia/Taipei",
+      hour12: false,
+    });
+  } catch {
+    return iso;
+  }
 }
 
 function Row({ label, value, color }: { label: string; value: string; color?: string }) {
@@ -120,6 +165,357 @@ function SchoolPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
       <Row label="網站" value={String(props.website ?? "")} />
+    </>
+  );
+}
+
+function WaterFacilityPanel({ props }: { props: Record<string, unknown> }) {
+  const type = String(props.facility_type ?? "");
+  const meta = WATER_FACILITY_TYPE[type] ?? { color: "#9ca3af", label: type };
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名設施)")}
+        </div>
+      </div>
+      <Row label="類型" value={meta.label} color={meta.color} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="管理者" value={String(props.operator ?? "")} />
+      <Row label="資料源" value={String(props.source ?? "")} />
+    </>
+  );
+}
+
+function WaterMonitorPanel({ props }: { props: Record<string, unknown> }) {
+  const type = String(props.station_type ?? "");
+  const meta = WATER_MONITOR_TYPE[type] ?? { color: "#9ca3af", label: type };
+  const isActive = props.is_active === true || props.is_active === "true";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名站)")}
+        </div>
+      </div>
+      <Row label="類型" value={meta.label} color={meta.color} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="資料源" value={String(props.source ?? "")} />
+      <Row label="狀態" value={isActive ? "啟用" : "停用"} color={isActive ? "#4ade80" : "#9ca3af"} />
+    </>
+  );
+}
+
+function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
+  const kind = String(props.kind ?? "");
+  const isDam = kind === "dam";
+  const accentColor = isDam ? "#7dd3fc" : "#22d3ee";
+  const label = isDam ? "壩體工程位置（WRA 官方）" : "水庫代表點（基本資料）";
+  const capacity = props.capacity_m3 ?? props.effective_capacity_wan;
+  const capacityStr = capacity
+    ? isDam
+      ? `${Number(capacity).toLocaleString()} m³`
+      : `${Number(capacity).toLocaleString()} 萬 m³`
+    : "";
+  const nameEn = String(props.name_en ?? "");
+  const hintColor = "rgba(255,170,80,0.65)";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名)")}
+        </div>
+      </div>
+      {nameEn && <Row label="English" value={nameEn} />}
+      <Row label="類別" value={label} color={accentColor} />
+      <Row label="流域" value={String(props.basin_name ?? "")} />
+      <Row label="河川" value={String(props.river_name ?? "")} />
+      <Row label="壩高" value={props.dam_height_m ? `${props.dam_height_m} m` : ""} />
+      <Row label="容量" value={capacityStr} />
+      {isDam && (
+        <div style={{ marginTop: 8, fontSize: 10, color: hintColor, lineHeight: 1.5 }}>
+          ⓘ 此為壩體工程位置（壩牆出水口），與水庫水面中心點不重合屬正常
+        </div>
+      )}
+    </>
+  );
+}
+
+function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
+  const level = Number(props.water_level_m) || 0;
+  const check = Number(props.check_result);
+  const abnormal = check === 0;
+  const color = abnormal ? "#ef4444" : "#22d3ee";
+  const obs = String(props.observed_at ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.station_name ?? "(未命名站)")}
+        </div>
+        {abnormal && (
+          <div
+            style={{
+              marginLeft: "auto",
+              fontSize: 10,
+              padding: "2px 8px",
+              borderRadius: 3,
+              background: color,
+              color: "#fff",
+              fontWeight: 600,
+            }}
+          >
+            異常
+          </div>
+        )}
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 8,
+          marginTop: 4,
+          padding: "6px 8px",
+          background: "rgba(34,211,238,0.08)",
+          borderRadius: 4,
+        }}
+      >
+        <span style={{ fontSize: 22, fontWeight: 700, color }}>
+          {level.toFixed(2)}
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>m 水位</span>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} />
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
+        ⓘ 警戒水位資料（三級警戒）待上游 seed 補齊後加入
+      </div>
+    </>
+  );
+}
+
+function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
+  const p10 = Number(props.precipitation_10min) || 0;
+  const p1 = Number(props.precipitation_1hr) || 0;
+  const p3 = Number(props.precipitation_3hr) || 0;
+  const p24 = Number(props.precipitation_24hr) || 0;
+  const obs = String(props.observed_at ?? "");
+
+  // CWA 分級（依 1hr）
+  const level =
+    p1 >= 200 ? { label: "超大豪雨", color: "#ef4444" } :
+    p1 >= 80  ? { label: "大豪雨", color: "#f97316" } :
+    p1 >= 40  ? { label: "豪雨", color: "#fbbf24" } :
+    p1 >= 15  ? { label: "大雨", color: "#22c55e" } :
+    p1 >= 2.5 ? { label: "中雨", color: "#3b82f6" } :
+    p1 > 0    ? { label: "小雨", color: "#93c5fd" } :
+                { label: "無雨", color: "#6b7280" };
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: level.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.station_name ?? "(未命名站)")}
+        </div>
+        <div
+          style={{
+            marginLeft: "auto",
+            fontSize: 10,
+            padding: "2px 8px",
+            borderRadius: 3,
+            background: level.color,
+            color: "#fff",
+            fontWeight: 600,
+          }}
+        >
+          {level.label}
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 8,
+          marginTop: 4,
+          padding: "6px 8px",
+          background: "rgba(59,130,246,0.08)",
+          borderRadius: 4,
+        }}
+      >
+        <span style={{ fontSize: 22, fontWeight: 700, color: level.color }}>
+          {p10.toFixed(1)}
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>mm / 10 min</span>
+      </div>
+      <Row label="1 小時累積" value={`${p1.toFixed(1)} mm`} />
+      <Row label="3 小時累積" value={`${p3.toFixed(1)} mm`} />
+      <Row label="24 小時累積" value={`${p24.toFixed(1)} mm`} />
+      <Row label="縣市" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+    </>
+  );
+}
+
+function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
+  const r = ctx.reservoir;
+  const s = ctx.latest_status;
+  const w = ctx.watershed;
+  const b = ctx.basin;
+  const nr = ctx.nearest_river;
+
+  const storageRatio = s?.storage_ratio_pct ?? null;
+  const alert = s?.alert_level ?? "";
+  const alertColor = ALERT_COLORS[alert] ?? "#94a3b8";
+  const alertLabel = ALERT_LABELS[alert] ?? alert;
+  const accent = "#22d3ee";
+
+  const capacityWan = r?.capacity_effective_m3 != null
+    ? (r.capacity_effective_m3 / 10000).toFixed(0)
+    : null;
+  const storageWanM3 = s?.effective_storage_wan_m3 ?? null;
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accent, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {r?.res_name ?? "(未命名水庫)"}
+        </div>
+        {r?.compare_id != null && (
+          <div
+            style={{
+              marginLeft: "auto",
+              fontSize: 9,
+              fontFamily: "monospace",
+              color: "rgba(255,255,255,0.3)",
+            }}
+          >
+            #{r.compare_id}
+          </div>
+        )}
+      </div>
+
+      {storageRatio != null && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "baseline",
+            gap: 8,
+            marginBottom: 6,
+            padding: "8px 10px",
+            background: "rgba(34,211,238,0.08)",
+            borderRadius: 4,
+            border: "1px solid rgba(34,211,238,0.2)",
+          }}
+        >
+          <span style={{ fontSize: 26, fontWeight: 700, color: accent, lineHeight: 1 }}>
+            {storageRatio.toFixed(1)}
+          </span>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>% 蓄水率</span>
+          {alert && (
+            <span
+              style={{
+                marginLeft: "auto",
+                fontSize: 10,
+                padding: "2px 8px",
+                borderRadius: 3,
+                background: alertColor,
+                color: "#fff",
+                fontWeight: 600,
+              }}
+            >
+              {alertLabel}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* 水情 */}
+      {storageWanM3 != null && capacityWan && (
+        <Row label="蓄水量" value={`${Number(storageWanM3).toLocaleString()} / ${Number(capacityWan).toLocaleString()} 萬 m³`} />
+      )}
+      {s?.water_level_m != null && (
+        <Row label="水位" value={`${Number(s.water_level_m).toFixed(2)} m`} />
+      )}
+      {s?.inflow_cms != null && (
+        <Row label="入流" value={`${Number(s.inflow_cms).toFixed(1)} cms`} />
+      )}
+      {s?.total_outflow_cms != null && (
+        <Row label="總出流" value={`${Number(s.total_outflow_cms).toFixed(1)} cms`} />
+      )}
+      {s?.basin_rainfall_mm != null && (
+        <Row label="集水區雨量" value={`${Number(s.basin_rainfall_mm).toFixed(1)} mm`} />
+      )}
+      {s?.snapshot_at && (
+        <Row label="更新時間" value={formatTaiwanTime(s.snapshot_at).slice(0, 16)} />
+      )}
+
+      {/* 淤積 */}
+      {r?.silt_ratio_pct != null && (
+        <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
+          <Row
+            label="淤積率"
+            value={`${r.silt_ratio_pct.toFixed(1)}% (${r.latest_measured_at ?? "—"})`}
+            color={r.silt_ratio_pct > 30 ? "#f97316" : "#94a3b8"}
+          />
+        </div>
+      )}
+
+      {/* 空間關聯 */}
+      <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
+        {w?.area_km2 != null && (
+          <Row
+            label="集水區"
+            value={`${Number(w.area_km2).toLocaleString()} km²${w.unit ? ` · ${w.unit}` : ""}`}
+            color={accent}
+          />
+        )}
+        {b?.basin_name && (
+          <Row label="所在流域" value={b.basin_name} color="#a78bfa" />
+        )}
+        {nr?.river_name && nr.dist_m != null && (
+          <Row
+            label="最近河川"
+            value={`${nr.river_name} (${Number(nr.dist_m).toLocaleString()} m)`}
+            color="#38bdf8"
+          />
+        )}
+      </div>
+
+      {/* 基本屬性 */}
+      <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed rgba(255,255,255,0.1)" }}>
+        {r?.county && <Row label="縣市" value={r.county} />}
+        {r?.org_mng && <Row label="管理" value={r.org_mng} />}
+        {r?.dam_height_m != null && <Row label="壩高" value={`${r.dam_height_m} m`} />}
+        {r?.status && <Row label="狀態" value={r.status} />}
+      </div>
+    </>
+  );
+}
+
+function WaterReservoirPolyPanel({ props }: { props: Record<string, unknown> }) {
+  const name = String(props.name ?? "(未命名水庫)");
+  const accent = "#22d3ee";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accent, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {name}
+        </div>
+      </div>
+      <Row label="類別" value="蓄水水面範圍" color={accent} />
+      <Row label="資料源" value="WRA GIC reservoir_storage" />
+      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
+        ⓘ 此為水庫實際水面輪廓，部分水庫（如台電管的明潭、明湖下池）僅有面、無單獨點位
+      </div>
     </>
   );
 }
@@ -511,11 +907,25 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   disasterAlert: "災害示警",
   aqiStation: "空氣品質測站",
   microSensor: "微型感測器",
+  waterFacility: "水利設施",
+  waterMonitor: "水資源監測站",
+  waterDam: "水庫 / 壩體",
+  waterReservoirPoly: "水庫蓄水範圍",
+  rainGauge: "即時雨量站",
+  riverLevel: "河川水位站",
 };
 
-export function FeatureInfoPanel({ feature, onClose }: Props) {
+export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
   let content: React.ReactNode;
-  switch (feature.layerType) {
+
+  // 水庫類：若點到的水庫有 compare_id 且 context 已載入，改顯示完整 context panel
+  const isReservoir =
+    feature.layerType === "waterDam" || feature.layerType === "waterReservoirPoly";
+  const compareId = feature.properties.compare_id;
+  const hasCompareId = typeof compareId === "number" && compareId > 0;
+  if (isReservoir && hasCompareId && reservoirContext?.reservoir) {
+    content = <WaterReservoirContextPanel ctx={reservoirContext} />;
+  } else switch (feature.layerType) {
     case "submarineCable":
       content = <SubmarineCablePanel props={feature.properties} />;
       break;
@@ -563,6 +973,24 @@ export function FeatureInfoPanel({ feature, onClose }: Props) {
       break;
     case "microSensor":
       content = <MicroSensorPanel props={feature.properties} />;
+      break;
+    case "waterFacility":
+      content = <WaterFacilityPanel props={feature.properties} />;
+      break;
+    case "waterMonitor":
+      content = <WaterMonitorPanel props={feature.properties} />;
+      break;
+    case "waterDam":
+      content = <WaterDamPanel props={feature.properties} />;
+      break;
+    case "waterReservoirPoly":
+      content = <WaterReservoirPolyPanel props={feature.properties} />;
+      break;
+    case "rainGauge":
+      content = <RainGaugePanel props={feature.properties} />;
+      break;
+    case "riverLevel":
+      content = <RiverLevelPanel props={feature.properties} />;
       break;
   }
 

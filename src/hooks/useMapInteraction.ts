@@ -4,6 +4,8 @@ import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility } from
 import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
+import type { ReservoirScene } from "../three/ReservoirScene";
+import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 
 interface TooltipInfo {
   flight: Flight;
@@ -32,6 +34,7 @@ export function useMapInteraction(
   railSceneRef?: React.RefObject<RailScene | null>,
   busSceneRef?: React.RefObject<BusScene | null>,
   layerVisibilityRef?: React.RefObject<LayerVisibility>,
+  reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -99,6 +102,31 @@ export function useMapInteraction(
         }
       }
 
+      // 嘗試拾取水庫 3D 水位計（僅在 waterReservoirs 圖層開啟時）
+      if (vis?.waterReservoirs) {
+        const reservoirScene = reservoirSceneRef?.current;
+        if (reservoirScene) {
+          const hit = reservoirScene.pickReservoir(e.point.x, e.point.y, w, h);
+          if (hit) {
+            const compareId = compareIdFromReservoirId(hit.reservoir_id);
+            setFeatureInfo({
+              layerType: "waterDam",
+              properties: {
+                kind: "reservoir",
+                name: hit.name,
+                compare_id: compareId,
+                capacity_m3: (hit.effective_capacity_wan ?? 0) * 10000,
+                is_reservoir: true,
+              },
+            });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
       // 未命中 Three.js 物件 → 清空 tooltip，查詢 GIS 圖層
       setTooltipInfo(null);
       setTrainTooltipInfo(null);
@@ -125,6 +153,12 @@ export function useMapInteraction(
           { layers: ["disasterAlerts-fill", "disasterAlerts-line", "disasterAlerts-point"], type: "disasterAlert" },
           { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
           { layers: ["aqi-micro-circle"], type: "microSensor" },
+          { layers: ["water-facilities-core", "water-facilities-glow"], type: "waterFacility" },
+          { layers: ["water-monitor-stations-core", "water-monitor-stations-glow"], type: "waterMonitor" },
+          { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
+          { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
+          { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
+          { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

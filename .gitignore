@@ -37,4 +37,5 @@ public/bus/pingtungcounty_bus_routes.json
 .claude/todos/
 .claude/settings.local.json
 .claude/.cache/
+.claude/scheduled_tasks.lock
 __pycache__/

@@ -20,6 +20,12 @@ import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
+import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
+import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
+import type { ReservoirScene } from "./three/ReservoirScene";
+import type { ReservoirStatus } from "./data/reservoirStatusLoader";
+import { useRainGaugeLayer } from "./hooks/useRainGaugeLayer";
+import { useRiverLevelLayer } from "./hooks/useRiverLevelLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -282,6 +288,8 @@ export default function App() {
   const metroPillarDataRef = useRef(metroPillarData);
   const airportPillarDataRef = useRef(airportPillarData);
   const portPillarDataRef = useRef(portPillarData);
+  const reservoirSceneRef = useRef<ReservoirScene | null>(null);
+  const reservoirStatusesRef = useRef<ReservoirStatus[]>([]);
   const temperatureDataRef = useRef(temperatureData);
   const playingRef = useRef(timeline.playing);
 
@@ -357,7 +365,34 @@ export default function App() {
   });
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef);
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef, reservoirSceneRef);
+
+  // ── 水庫 context 動態疊層 + panel 資料 ──
+  // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
+  const activeReservoirId: number | null = (() => {
+    if (!featureInfo) return null;
+    if (featureInfo.layerType !== "waterDam" && featureInfo.layerType !== "waterReservoirPoly") return null;
+    const id = featureInfo.properties.compare_id;
+    return typeof id === "number" && id > 0 ? id : null;
+  })();
+  const reservoirContext = useReservoirContextLayer(mapRef, activeReservoirId);
+
+  // ── 水庫 3D 水位計（Three.js cylinder：外殼 = 容量、內水位 = 蓄水率） ──
+  useReservoirStatusLayer(
+    mapRef,
+    layerVisibility.waterReservoirs,
+    isDarkTheme,
+    transportParams.overlayParams.reservoirPillarHeight ?? 1,
+    reservoirSceneRef,
+    reservoirStatusesRef,
+    activeReservoirId,
+  );
+
+  // ── Phase 2.1：即時雨量（Mapbox circle，0 bubble size for 無雨） ──
+  useRainGaugeLayer(mapRef, layerVisibility.rainGauge, isDarkTheme);
+
+  // ── Phase 2.2：河川水位（Mapbox circle，check_result=0 異常紅） ──
+  useRiverLevelLayer(mapRef, layerVisibility.riverLevel, isDarkTheme);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
@@ -1407,7 +1442,11 @@ export default function App() {
       >
         {featureInfo && (
           <div style={{ pointerEvents: "auto" }}>
-            <FeatureInfoPanel feature={featureInfo} onClose={() => setFeatureInfo(null)} />
+            <FeatureInfoPanel
+              feature={featureInfo}
+              onClose={() => setFeatureInfo(null)}
+              reservoirContext={reservoirContext}
+            />
           </div>
         )}
         {(layerVisibility.aqiImagery || layerVisibility.aqiStations || layerVisibility.aqiMicroSensors) && (

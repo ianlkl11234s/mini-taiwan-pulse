@@ -4,6 +4,18 @@
 >
 > 詳細版規則見 [`docs/development-rules.md`](./docs/development-rules.md)
 
+## Session 開頭必讀（記憶迴圈）
+
+涉及開發工作時先讀：
+1. [`.claude/lessons.md`](./.claude/lessons.md) — P0 規則累積（每條違反成本 >30 min）
+2. [`.claude/retrospectives/INDEX.md`](./.claude/retrospectives/INDEX.md) — 最近 session 回顧
+3. 若遇到似曾相識的 bug：搜 [`.claude/pitfalls/`](./.claude/pitfalls/)
+
+完成大段落（功能 commit、feature 驗證通過）後產生 retro：
+- 複製 `.claude/retrospectives/_template.md`
+- 填完後 P0 項目升級到 `lessons.md`、重要 bug 寫成 pitfalls
+- 機制說明：[`.claude/retrospectives/README.md`](./.claude/retrospectives/README.md)
+
 ## 必守規則
 
 ### 1. TypeScript 驗證

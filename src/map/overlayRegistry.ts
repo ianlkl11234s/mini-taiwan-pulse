@@ -1020,4 +1020,372 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+
+  // ── 流域 Basin (polygon outline) ──
+  {
+    id: "waterBasins",
+    sourceUrl: "./geo/water_basins.geojson",
+    sourceId: "water-basins",
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#4dd0e1" : "#0891b2",
+          "line-width": 8,
+          "line-blur": 5,
+          "line-opacity": (isDark ? 0.18 : 0.15) * (p?.waterBasinOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#4dd0e1" : "#0891b2",
+          "line-width": isDark ? 0.8 : 1.2,
+          "line-opacity": (isDark ? 0.55 : 0.65) * (p?.waterBasinOpacity ?? 1),
+          "line-dasharray": [2, 2],
+        }),
+      },
+    ],
+  },
+
+  // ── 河川 River (河道多邊形 — 河床面，補齊 river_lines 缺漏的支流) ──
+  {
+    id: "waterRivers",
+    sourceUrl: "./geo/water_river_polygons.geojson",
+    sourceId: "water-river-polygons",
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#38bdf8" : "#0284c7",
+          "line-width": 4 * (p?.waterRiverWidth ?? 1),
+          "line-blur": 3,
+          "line-opacity": (isDark ? 0.2 : 0.15) * (p?.waterRiverOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (isDark, p) => ({
+          "fill-color": isDark ? "#38bdf8" : "#0284c7",
+          "fill-opacity": (isDark ? 0.25 : 0.22) * (p?.waterRiverOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#7dd3fc" : "#0369a1",
+          "line-width": 0.6 * (p?.waterRiverWidth ?? 1),
+          "line-opacity": (isDark ? 0.7 : 0.6) * (p?.waterRiverOpacity ?? 1),
+        }),
+      },
+    ],
+  },
+
+  // ── 河川 River (line, 中央管主流 transmission-like glow) ──
+  {
+    id: "waterRivers",
+    sourceUrl: "./geo/water_rivers.geojson",
+    sourceId: "water-rivers",
+    layers: [
+      {
+        suffix: "glow-2",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#38bdf8" : "#0284c7",
+          "line-width": 10 * (p?.waterRiverWidth ?? 1),
+          "line-blur": 7,
+          "line-opacity": (isDark ? 0.12 : 0.1) * (p?.waterRiverOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "glow-1",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#38bdf8" : "#0284c7",
+          "line-width": 4 * (p?.waterRiverWidth ?? 1),
+          "line-blur": 2.5,
+          "line-opacity": (isDark ? 0.3 : 0.28) * (p?.waterRiverOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "core",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#7dd3fc" : "#0369a1",
+          "line-width": (isDark ? 1.2 : 1.6) * (p?.waterRiverWidth ?? 1),
+          "line-opacity": (isDark ? 0.85 : 0.85) * (p?.waterRiverOpacity ?? 1),
+        }),
+      },
+    ],
+  },
+
+  // ── 渠道 Canal (thin purple, low-voltage look) ──
+  {
+    id: "waterCanals",
+    sourceUrl: "./geo/water_canals.geojson",
+    sourceId: "water-canals",
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#a78bfa" : "#7c3aed",
+          "line-width": 3 * (p?.waterCanalWidth ?? 1),
+          "line-blur": 2,
+          "line-opacity": (isDark ? 0.22 : 0.18) * (p?.waterCanalOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "core",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#a78bfa" : "#7c3aed",
+          "line-width": (isDark ? 0.5 : 0.8) * (p?.waterCanalWidth ?? 1),
+          "line-opacity": (isDark ? 0.7 : 0.75) * (p?.waterCanalOpacity ?? 1),
+        }),
+      },
+    ],
+  },
+
+  // ── 水庫 Reservoir (polygon — 蓄水範圍) ──
+  {
+    id: "waterReservoirs",
+    sourceUrl: "./geo/water_reservoirs.geojson",
+    sourceId: "water-reservoir-poly",
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "#22d3ee" : "#0891b2",
+          "line-width": 10,
+          "line-blur": 6,
+          "line-opacity": isDark ? 0.25 : 0.2,
+        }),
+      },
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (isDark) => ({
+          "fill-color": isDark ? "#06b6d4" : "#0891b2",
+          "fill-opacity": isDark ? 0.35 : 0.3,
+        }),
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "#67e8f9" : "#0e7490",
+          "line-width": isDark ? 1 : 1.2,
+          "line-opacity": isDark ? 0.8 : 0.8,
+        }),
+      },
+    ],
+  },
+
+  // 2026-04-22: ② 光球 bubble + ③ 靜態 pillar 已由 Three.js 水位計取代
+  // （src/three/ReservoirScene.ts，外殼容量 + 內水位蓄水率）
+
+  // ── 水庫 Reservoir (point — 壩體，白色發光節點像 Atlas power plants) ──
+  {
+    id: "waterReservoirs",
+    sourceUrl: "./geo/water_dams.geojson",
+    sourceId: "water-reservoir-dams",
+    layers: [
+      {
+        suffix: "glow-2",
+        type: "circle",
+        paint: (isDark) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
+            0, 10, 50, 22, 200, 34,
+          ],
+          "circle-color": "#ffffff",
+          "circle-blur": 1.8,
+          "circle-opacity": isDark ? 0.35 : 0.28,
+        }),
+      },
+      {
+        suffix: "glow-1",
+        type: "circle",
+        paint: (isDark) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
+            0, 5, 50, 10, 200, 16,
+          ],
+          "circle-color": "#ffffff",
+          "circle-blur": 0.8,
+          "circle-opacity": isDark ? 0.7 : 0.55,
+        }),
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["coalesce", ["get", "dam_height_m"], 20],
+            0, 2.5, 50, 4.5, 200, 7,
+          ],
+          "circle-color": isDark ? "#ffffff" : "#0e7490",
+          "circle-stroke-color": isDark ? "#67e8f9" : "#0891b2",
+          "circle-stroke-width": 1.2,
+          "circle-opacity": 1,
+        }),
+      },
+    ],
+  },
+
+  // ── 水利設施 Facility (抽水/淨水/水塔) ──
+  {
+    id: "waterFacilities",
+    sourceUrl: "./geo/water_facilities.geojson",
+    sourceId: "water-facilities",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => ({
+          "circle-radius": 7 * (p?.waterFacilityScale ?? 1),
+          "circle-color": [
+            "match", ["get", "facility_type"],
+            "pump_station", "#60a5fa",
+            "pump_station_official", "#2563eb",
+            "treatment_plant", "#34d399",
+            "water_tower", "#fbbf24",
+            "#9ca3af",
+          ],
+          "circle-blur": 1.2,
+          "circle-opacity": (isDark ? 0.4 : 0.3) * (p?.waterFacilityOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, p) => ({
+          "circle-radius": 3 * (p?.waterFacilityScale ?? 1),
+          "circle-color": [
+            "match", ["get", "facility_type"],
+            "pump_station", "#60a5fa",
+            "pump_station_official", "#2563eb",
+            "treatment_plant", "#34d399",
+            "water_tower", "#fbbf24",
+            "#9ca3af",
+          ],
+          "circle-stroke-color": isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.4)",
+          "circle-stroke-width": 0.6,
+          "circle-opacity": 0.95 * (p?.waterFacilityOpacity ?? 1),
+        }),
+      },
+    ],
+  },
+
+  // ── 淹水潛勢 (flood_650mm_24hr, 極端情境；可調 floodMinDepth 篩選) ──
+  {
+    id: "waterFloodExtreme",
+    sourceUrl: "./geo/water_flood_extreme.geojson",
+    sourceId: "water-flood-extreme",
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (isDark, params) => {
+          // floodMinDepth: 0 (全部) / 0.5 / 1 / 2 / 3
+          const min = params?.floodMinDepth ?? 0;
+          const ALL_CLASSES = ["0.3-0.5", "0.5-1.0", "1.0-2.0", "2.0-3.0", ">3.0"];
+          // 每個 class 對應的下限（m）
+          const CLASS_MIN: Record<string, number> = {
+            "0.3-0.5": 0.3, "0.5-1.0": 0.5, "1.0-2.0": 1.0, "2.0-3.0": 2.0, ">3.0": 3.0,
+          };
+          const visible = ALL_CLASSES.filter((c) => (CLASS_MIN[c] ?? 0) >= min);
+          const fullOpacity = (isDark ? 0.55 : 0.5) * (params?.waterFloodOpacity ?? 1);
+          return {
+            "fill-color": [
+              "match", ["get", "depth_class"],
+              "0.3-0.5", "#fee2e2",
+              "0.5-1.0", "#fca5a5",
+              "1.0-2.0", "#f87171",
+              "2.0-3.0", "#dc2626",
+              ">3.0", "#7f1d1d",
+              "#fca5a5",
+            ],
+            "fill-opacity": [
+              "case",
+              ["in", ["get", "depth_class"], ["literal", visible]],
+              fullOpacity,
+              0,
+            ],
+          };
+        },
+      },
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (isDark, params) => {
+          const min = params?.floodMinDepth ?? 0;
+          const ALL_CLASSES = ["0.3-0.5", "0.5-1.0", "1.0-2.0", "2.0-3.0", ">3.0"];
+          const CLASS_MIN: Record<string, number> = {
+            "0.3-0.5": 0.3, "0.5-1.0": 0.5, "1.0-2.0": 1.0, "2.0-3.0": 2.0, ">3.0": 3.0,
+          };
+          const visible = ALL_CLASSES.filter((c) => (CLASS_MIN[c] ?? 0) >= min);
+          const op = params?.waterFloodOpacity ?? 1;
+          return {
+            "line-color": "#fb7185",
+            "line-width": 3,
+            "line-blur": 2,
+            "line-opacity": [
+              "case",
+              ["in", ["get", "depth_class"], ["literal", visible]],
+              (isDark ? 0.3 : 0.2) * op,
+              0,
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 監測站 Monitor (雨量/水位/地下水) ──
+  {
+    id: "waterMonitorStations",
+    sourceUrl: "./geo/water_monitor_stations.geojson",
+    sourceId: "water-monitor-stations",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => ({
+          "circle-radius": 5 * (p?.waterMonitorScale ?? 1),
+          "circle-color": [
+            "match", ["get", "station_type"],
+            "rain_gauge", "#60a5fa",
+            "river_level", "#22d3ee",
+            "groundwater_well", "#f472b6",
+            "#9ca3af",
+          ],
+          "circle-blur": 1,
+          "circle-opacity": (isDark ? 0.35 : 0.25) * (p?.waterMonitorOpacity ?? 1),
+        }),
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (_isDark, p) => ({
+          "circle-radius": 2 * (p?.waterMonitorScale ?? 1),
+          "circle-color": [
+            "match", ["get", "station_type"],
+            "rain_gauge", "#93c5fd",
+            "river_level", "#67e8f9",
+            "groundwater_well", "#f9a8d4",
+            "#d1d5db",
+          ],
+          "circle-opacity": 0.9,
+        }),
+      },
+    ],
+  },
 ];
