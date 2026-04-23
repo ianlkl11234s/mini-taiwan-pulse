@@ -267,9 +267,9 @@ export function useReservoirStatusLayer(
     (async () => {
       try {
         console.log(`[Reservoir] fetching ops for ${reservoirIdText}`);
-        const ops = await fetchReservoirOpsRecent(reservoirIdText, 3);
+        const ops = await fetchReservoirOpsRecent(reservoirIdText, 5);
         if (cancelled) return;
-        console.log("[Reservoir] ops", ops);
+        console.log(`[Reservoir] ops ${ops.days.length} days, max_out=${ops.max_outflow_cms.toFixed(2)} cms`, ops.days);
         // scene.data 可能還沒 load（首次點擊太快）→ 重試幾次
         let tries = 0;
         const tryApply = () => {
@@ -284,8 +284,7 @@ export function useReservoirStatusLayer(
           }
           s.setActiveOps({
             reservoir_id: reservoirIdText,
-            avg_inflow_cms: ops.avg_inflow_cms,
-            avg_outflow_cms: ops.avg_outflow_cms,
+            days: ops.days,
           });
           mapRef.current?.triggerRepaint();
         };

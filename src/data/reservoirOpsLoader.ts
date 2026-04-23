@@ -2,14 +2,20 @@ import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 
 /**
- * 水庫近期進/出流量聚合（for 3D 雙柱視覺化 — BL-5 方案 D）
+ * 水庫近期進/出流量聚合（for 3D 雙排日柱視覺化 — BL-5 方案 D）
  *
  * 後端：gis-platform migration 047 的 get_reservoir_timeseries
- *   回傳 hourly 觀測，前端聚合成「近 N 日平均 cms」
+ *   回傳 hourly 觀測，前端聚合成「近 N 日每日平均 cms」
+ *
+ * 輸出供 ReservoirScene.setActiveOps 使用：
+ *   {
+ *     reservoir_id,
+ *     days: [{ date, inflow_cms, outflow_cms }, ...]  // 最舊在前
+ *   }
  *
  * 為什麼不直接用 reservoir_daily_ops？
- *   daily_ops 目前只有 4 天歷史且欄位單位是 wan_m3/day（需再換算），
- *   hourly reservoir_status 有 5+ 天且欄位直接是 cms，算平均更直觀。
+ *   daily_ops 目前只有 ~4 天歷史且欄位單位是 wan_m3/day，
+ *   hourly reservoir_status 有 5+ 天且欄位直接是 cms，算日平均更直觀。
  */
 
 interface TimeseriesRow {
@@ -18,21 +24,27 @@ interface TimeseriesRow {
   total_outflow_cms: number | null;
 }
 
-export interface ReservoirOpsSummary {
-  reservoir_id: string;
-  avg_inflow_cms: number;
-  avg_outflow_cms: number;
-  max_outflow_cms: number;
-  sample_count: number;
-  from: string;
-  to: string;
+export interface ReservoirOpsDay {
+  date: string;            // YYYY-MM-DD（Asia/Taipei）
+  inflow_cms: number;      // 當日平均進流
+  outflow_cms: number;     // 當日平均出流
 }
 
-/** 近 N 日平均進/出流量（cms） */
+export interface ReservoirOpsRecent {
+  reservoir_id: string;
+  days: ReservoirOpsDay[]; // 最舊在前，長度可能 < days 參數（資料不足）
+  max_outflow_cms: number;
+}
+
+function dateKeyTaipei(iso: string): string {
+  return new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
+/** 近 N 日每日平均進/出流量 */
 export async function fetchReservoirOpsRecent(
   reservoirId: string,
-  days = 3,
-): Promise<ReservoirOpsSummary> {
+  days = 5,
+): Promise<ReservoirOpsRecent> {
   const to = new Date();
   const from = new Date(to.getTime() - days * 24 * 3600 * 1000);
   const { data, error } = await withLoading(
@@ -46,33 +58,29 @@ export async function fetchReservoirOpsRecent(
   );
   if (error) throw new Error(`get_reservoir_timeseries(${reservoirId}): ${error.message}`);
   const rows = (data ?? []) as TimeseriesRow[];
-  if (rows.length === 0) {
-    return {
-      reservoir_id: reservoirId,
-      avg_inflow_cms: 0,
-      avg_outflow_cms: 0,
-      max_outflow_cms: 0,
-      sample_count: 0,
-      from: from.toISOString(),
-      to: to.toISOString(),
-    };
-  }
-  let sumIn = 0, sumOut = 0, nIn = 0, nOut = 0, maxOut = 0;
+
+  // 依日期（台北時區）聚合
+  const byDate = new Map<string, { inSum: number; outSum: number; nIn: number; nOut: number }>();
   for (const r of rows) {
-    if (r.inflow_cms != null) { sumIn += r.inflow_cms; nIn++; }
-    if (r.total_outflow_cms != null) {
-      sumOut += r.total_outflow_cms;
-      nOut++;
-      if (r.total_outflow_cms > maxOut) maxOut = r.total_outflow_cms;
+    const key = dateKeyTaipei(r.snapshot_at);
+    let entry = byDate.get(key);
+    if (!entry) {
+      entry = { inSum: 0, outSum: 0, nIn: 0, nOut: 0 };
+      byDate.set(key, entry);
     }
+    if (r.inflow_cms != null) { entry.inSum += r.inflow_cms; entry.nIn++; }
+    if (r.total_outflow_cms != null) { entry.outSum += r.total_outflow_cms; entry.nOut++; }
   }
-  return {
-    reservoir_id: reservoirId,
-    avg_inflow_cms: nIn > 0 ? sumIn / nIn : 0,
-    avg_outflow_cms: nOut > 0 ? sumOut / nOut : 0,
-    max_outflow_cms: maxOut,
-    sample_count: rows.length,
-    from: from.toISOString(),
-    to: to.toISOString(),
-  };
+
+  const daysList: ReservoirOpsDay[] = [...byDate.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, v]) => ({
+      date,
+      inflow_cms: v.nIn > 0 ? v.inSum / v.nIn : 0,
+      outflow_cms: v.nOut > 0 ? v.outSum / v.nOut : 0,
+    }));
+
+  const maxOut = daysList.reduce((m, d) => Math.max(m, d.outflow_cms), 0);
+
+  return { reservoir_id: reservoirId, days: daysList, max_outflow_cms: maxOut };
 }
