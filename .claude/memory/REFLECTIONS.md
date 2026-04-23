@@ -88,4 +88,43 @@
 
 ---
 
+## 2026-04-23（晚段）SessionStart hook + 首次真正 /wrap-up
+
+### What worked ✅
+
+- **update-config skill 處理 settings.json 很順**：讀 → merge → 驗證 → 寫，
+  流程 SOP 化，少於 3 次 tool call 完成
+- **Pipe-test 抓到 jq 不在 PATH**：沒盲目寫完才驗證，`echo '{}' | script.sh`
+  pipe-test 立刻暴露 command not found
+- **修改用最小替換**：jq → python3 只改一段 heredoc，沒整個重寫
+- **設計用 additionalContext 而非純 stdout**：符合 Claude Code 官方 hook spec，
+  未來擴充不用重寫
+- **首次 /wrap-up 依 5 階段跑**：Gather 平行讀 9 檔 + git log + status 一輪到位
+
+### What didn't ❌
+
+- **沒先 `which jq` 就用 jq**：寫了整個 jq 版本才 pipe-test，開頭就該檢查
+- **STATUS 上次 commits 數沒驗證**：寫 14 實際 18。應 `git log origin/master..HEAD | wc -l`
+- **Stage 3 吐了整段 markdown rewrite**：用戶反映「內容太多」。已修 SKILL.md
+  改成只出總表 + 一句話摘要（本次 session 之內 skill 自我演進）
+- **首次 /wrap-up 尷尬**：memory 初建時已把大部分事件寫進去，/wrap-up 處理的
+  是「初建之後」的少量增量（1 commit + 1 小坑）
+
+### Next-time rules 🎯
+
+1. Shell 寫外部工具前 `command -v <tool>` 檢查
+2. STATUS commits 數用 `git log origin/master..HEAD | wc -l` 驗證
+3. /wrap-up Stage 3 保持精簡（總表只，細節按需展開）— 已寫入 SKILL.md
+4. 若本 session 剛完成 memory 大量更新（< 3h 內），/wrap-up 只處理增量
+
+### Memory 產出
+
+- SKILL.md：update（Stage 3 精簡規則）
+- STATUS.md：rewrite（18 commits / SessionStart hook / 新待執行清單）
+- INCIDENTS.md：+1（macOS 無 jq）
+- PRINCIPLES.md：+1 條（shell 不依賴 jq）
+- REFLECTIONS.md：+本條
+
+---
+
 <!-- /wrap-up 之後追加新反省 -->
