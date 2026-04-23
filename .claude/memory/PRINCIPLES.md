@@ -23,6 +23,9 @@
 - **Commit 前必跑** `npx tsc -b`
 - **Commit message**：繁體中文 + conventional commits prefix（feat/fix/docs/refactor）
 - **Inline styles**：UI 用 inline styles，所有元件支援 `isDarkTheme`
+- **Shell 腳本不依賴 jq**：macOS 預設無 jq（需 Homebrew 另裝）。組 JSON 一律用
+  `python3 - <<'PY' ... PY` heredoc。寫外部工具依賴前先 `command -v <tool>` 檢查。
+  範例：`.claude/memory/load-session.sh`。
 
 ## 資料來源管理
 
