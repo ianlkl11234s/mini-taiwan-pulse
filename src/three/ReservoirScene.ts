@@ -26,6 +26,15 @@ const SHELL_THICKNESS = 0.85;   // 內水圓柱半徑 = 外殼 × SHELL_THICKNES
 
 const CYLINDER_SEGMENTS = 20;
 
+// 進/出流雙柱視覺化（active reservoir 專屬，BL-5 方案 D）
+const OPS_PILLAR_RADIUS_FACTOR = 0.25;  // 相對外殼半徑
+const OPS_PILLAR_MAX_HEIGHT = H_SHELL_METERS * 1.2;  // 最大柱高 ~ 外殼 1.2 倍
+const OPS_PILLAR_OFFSET_FACTOR = 1.6;   // 相對外殼半徑（雙柱左右位移）
+const OPS_CMS_LOG_BASE = 100;           // log(cms) 正規化基準：100 cms → 全高
+const OPS_INFLOW_COLOR = 0x22c55e;      // 綠（進流）
+const OPS_OUTFLOW_COLOR = 0xf97316;     // 橘（出流正常）
+const OPS_OUTFLOW_ALERT_COLOR = 0xef4444; // 紅（出流 > 進流 1.5×，等同「大幅放水」）
+
 interface InstanceDatum {
   /** 原 RPC 資料（for pick callback 回查）*/
   status: ReservoirStatus;
@@ -41,12 +50,28 @@ interface InstanceDatum {
   waterColorHex: number;
 }
 
+/** Active reservoir 的進/出流視覺化輸入 */
+export interface ActiveOpsInput {
+  reservoir_id: string;
+  avg_inflow_cms: number;
+  avg_outflow_cms: number;
+}
+
+/** 內部結構：含座標與縮放後的 mercator 值 */
+interface ActiveOpsState extends ActiveOpsInput {
+  mercator: { x: number; y: number; z: number };
+  radiusMercator: number;  // 對應水庫外殼半徑
+}
+
 export class ReservoirScene {
   private renderer!: THREE.WebGLRenderer;
   private scene = new THREE.Scene();
   private camera = new THREE.Camera();
   private shellMesh: THREE.InstancedMesh | null = null;
   private waterMesh: THREE.InstancedMesh | null = null;
+  private inflowMesh: THREE.Mesh | null = null;
+  private outflowMesh: THREE.Mesh | null = null;
+  private activeOps: ActiveOpsState | null = null;
   private data: InstanceDatum[] = [];
   private isDark = true;
   private ownsRenderer = false;
@@ -101,6 +126,8 @@ export class ReservoirScene {
       }
       this.waterMesh!.instanceColor!.needsUpdate = true;
       this.updateMatrices();
+      // Active ops 位置是追隨水庫，setStatuses 不改 lat/lng，所以不需重算
+      // 但 heightScale 若同步更新 ops 已在 setHeightScale 處理
       return;
     }
 
@@ -138,6 +165,16 @@ export class ReservoirScene {
     setAltExaggeration(savedExag);
 
     this.rebuild();
+
+    // 若 active ops 已設定，重算對應位置（水庫 mercator 可能變了）
+    if (this.activeOps) {
+      const target = this.data.find((d) => d.status.reservoir_id === this.activeOps!.reservoir_id);
+      if (target) {
+        this.activeOps.mercator = target.mercator;
+        this.activeOps.radiusMercator = target.radiusMercator;
+        this.updateOpsMatrices();
+      }
+    }
   }
 
   private rebuild() {
@@ -232,15 +269,126 @@ export class ReservoirScene {
     this.waterMesh = null;
   }
 
+  private disposeOpsMeshes() {
+    for (const m of [this.inflowMesh, this.outflowMesh]) {
+      if (!m) continue;
+      this.scene.remove(m);
+      m.geometry.dispose();
+      (m.material as THREE.Material).dispose();
+    }
+    this.inflowMesh = null;
+    this.outflowMesh = null;
+  }
+
   setVisible(v: boolean) {
     if (this.shellMesh) this.shellMesh.visible = v;
     if (this.waterMesh) this.waterMesh.visible = v;
+    if (this.inflowMesh) this.inflowMesh.visible = v && this.activeOps != null;
+    if (this.outflowMesh) this.outflowMesh.visible = v && this.activeOps != null;
+  }
+
+  /**
+   * 設定當前點選水庫的進/出流雙柱
+   * @param input  { reservoir_id, avg_inflow_cms, avg_outflow_cms } 或 null 清除
+   */
+  setActiveOps(input: ActiveOpsInput | null) {
+    if (!input) {
+      this.activeOps = null;
+      if (this.inflowMesh) this.inflowMesh.visible = false;
+      if (this.outflowMesh) this.outflowMesh.visible = false;
+      return;
+    }
+    // 從既有 data 找對應水庫取得座標與外殼半徑
+    const target = this.data.find((d) => d.status.reservoir_id === input.reservoir_id);
+    if (!target) {
+      console.warn(`[ReservoirScene] setActiveOps: reservoir_id ${input.reservoir_id} not found in scene`);
+      this.activeOps = null;
+      return;
+    }
+    this.activeOps = {
+      ...input,
+      mercator: target.mercator,
+      radiusMercator: target.radiusMercator,
+    };
+    this.ensureOpsMeshes();
+    this.updateOpsMatrices();
+  }
+
+  private ensureOpsMeshes() {
+    if (this.inflowMesh && this.outflowMesh) return;
+    const geo = new THREE.CylinderGeometry(1, 1, 1, CYLINDER_SEGMENTS, 1, false);
+    geo.rotateX(Math.PI / 2);
+    const inMat = new THREE.MeshBasicMaterial({
+      color: OPS_INFLOW_COLOR,
+      transparent: true,
+      opacity: this.isDark ? 0.85 : 0.9,
+      depthWrite: false,
+    });
+    const outMat = new THREE.MeshBasicMaterial({
+      color: OPS_OUTFLOW_COLOR,
+      transparent: true,
+      opacity: this.isDark ? 0.85 : 0.9,
+      depthWrite: false,
+    });
+    this.inflowMesh = new THREE.Mesh(geo.clone(), inMat);
+    this.outflowMesh = new THREE.Mesh(geo, outMat);
+    this.scene.add(this.inflowMesh);
+    this.scene.add(this.outflowMesh);
+  }
+
+  private updateOpsMatrices() {
+    if (!this.inflowMesh || !this.outflowMesh || !this.activeOps) return;
+    const ops = this.activeOps;
+    const r = ops.radiusMercator * OPS_PILLAR_RADIUS_FACTOR;
+    const offset = ops.radiusMercator * OPS_PILLAR_OFFSET_FACTOR;
+    // 依 log10 正規化 cms → 柱高（meters）
+    const toHeightMeters = (cms: number) => {
+      if (cms <= 0) return 0;
+      const norm = Math.log10(cms + 1) / Math.log10(OPS_CMS_LOG_BASE + 1);
+      return Math.min(1, Math.max(0, norm)) * OPS_PILLAR_MAX_HEIGHT;
+    };
+    // Mercator 單位需除以 mercator→meter 比（從 radiusMercator 反推）
+    // radiusMercator = radiusM × metersPerUnit(lat) → metersPerUnit = radiusMercator / radiusM
+    // 我們不知道該水庫的 radiusM（雖然可以反推），簡化：沿用外殼比例做等比縮放
+    const inHeightM = toHeightMeters(ops.avg_inflow_cms);
+    const outHeightM = toHeightMeters(ops.avg_outflow_cms);
+    // ShellHeightMercator 已是 H_SHELL_METERS × metersPerUnit，因此 mercator per meter = shellHeightMercator / H_SHELL_METERS
+    const target = this.data.find((d) => d.status.reservoir_id === ops.reservoir_id);
+    if (!target) return;
+    const mercPerMeter = target.shellHeightMercator / H_SHELL_METERS;
+    const inHeight = inHeightM * mercPerMeter * this.heightScale;
+    const outHeight = outHeightM * mercPerMeter * this.heightScale;
+
+    const tmp = new THREE.Matrix4();
+    const s = new THREE.Matrix4();
+    // Inflow pillar：左側（-x 方向）
+    tmp.makeTranslation(ops.mercator.x - offset, ops.mercator.y, ops.mercator.z + inHeight / 2);
+    s.makeScale(r, r, Math.max(inHeight, 1e-6));
+    tmp.multiply(s);
+    this.inflowMesh.matrix.copy(tmp);
+    this.inflowMesh.matrixAutoUpdate = false;
+    // Outflow pillar：右側（+x 方向）
+    tmp.makeTranslation(ops.mercator.x + offset, ops.mercator.y, ops.mercator.z + outHeight / 2);
+    s.makeScale(r, r, Math.max(outHeight, 1e-6));
+    tmp.multiply(s);
+    this.outflowMesh.matrix.copy(tmp);
+    this.outflowMesh.matrixAutoUpdate = false;
+
+    // Outflow > Inflow × 1.5 → 警示紅
+    const alert = ops.avg_outflow_cms > ops.avg_inflow_cms * 1.5 && ops.avg_outflow_cms > 0.5;
+    (this.outflowMesh.material as THREE.MeshBasicMaterial).color.setHex(
+      alert ? OPS_OUTFLOW_ALERT_COLOR : OPS_OUTFLOW_COLOR,
+    );
+
+    this.inflowMesh.visible = true;
+    this.outflowMesh.visible = true;
   }
 
   setHeightScale(scale: number) {
     if (scale === this.heightScale) return;
     this.heightScale = scale;
     this.updateMatrices();
+    this.updateOpsMatrices();
   }
 
   setTheme(isDark: boolean) {
@@ -309,6 +457,7 @@ export class ReservoirScene {
 
   dispose() {
     this.disposeMeshes();
+    this.disposeOpsMeshes();
     if (this.ownsRenderer) this.renderer?.dispose();
   }
 }

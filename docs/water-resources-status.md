@@ -217,6 +217,46 @@ water_flood_extreme.geojson   650mm/24h 淹水潛勢
 - [ ] 警戒水位視覺化：`public.river_stations` 目前無資料，警戒三級水位無法套 badge/顏色。需上游 seed river_stations 後回 RPC 加欄位。
 - [ ] 地下水 RPC + 前端（migration 046 有表，缺 RPC）
 - [ ] 枯旱燈號 36695
+
+### Backlog — DB 有資料但前端沒用（Quick Win 候選）
+
+盤點（2026-04-23）於 `public.*` schema 下，有完整 geom 且 > 50 筆、但尚未上前端：
+
+| # | Table | 筆數 | 幾何 | 用途 | 備註 |
+|---|---|---|---|---|---|
+| BL-1 | `river_levees` 堤防 | 4,223 | MultiLineString | 輸水/防洪骨架 | ⭐ 高 ROI |
+| BL-2 | `water_protection_zones` 水源保護區 | 107 | MultiPolygon | 用水來源保護 | 合併 BL-3 為同一 toggle |
+| BL-3 | `groundwater_zones` 地下水管制區 | 21 | MultiPolygon | 管制/禁止超抽 | 合併 BL-2 |
+| **BL-4** | **`flood_hazard_zones` 淹水潛勢多情境** | **17,303** | **MultiPolygon** | **淹水模擬互動** | **記到 backlog（2026-04-23）** |
+| BL-5 | `reservoir_daily_ops` 進出流時序 | 136+（累積中）| — | 水庫 panel 收支視覺化 | 探索 3D bar/capacity array |
+
+#### BL-4 淹水潛勢 slider — backlog 細節
+
+10 種降雨情境（6hr×3 / 12hr×3 / 24hr×4）× 5 個淹水深度分級（0.3~>3m），共 17,303 polygon。
+
+前端 `water_flood_extreme.geojson` 目前只展示單一 `650mm/24h × >3m` 情境，DB 剩餘資料**完全沒用**。
+
+**三種可能 UX**：
+1. **Dropdown 情境 + 深度色階**（推）：使用者選「24hr/350mm 大豪雨」，圖層 filter 該情境的 5 個深度級
+2. **Timeline 聯動**：當前降雨量（`get_rain_gauge_day` 最大值）自動選對應情境
+3. **雙 slider**：延時 + 雨量分別拉
+
+**資料載入策略**：單情境 ~1,500~2,400 polygon，建 `get_flood_zones(scenario)` RPC 按需載入；避免一次下載全量 17k 筆（~5-8MB GeoJSON）。
+
+**優先級**：P2，等 BL-1 / BL-2+3 / BL-5 做完再回來。
+
+#### BL-5 reservoir panel 3D 收支視覺化（探索中）
+
+欄位：`inflow_wan_m3 / outflow_total_wan / outflow_discharge_wan / regulatory_discharge_wan / crossflow_wan_m3 / basin_rainfall_mm`。
+
+樣本（2026-04-20）看得出「**曾文出流 263 ≫ 進流 27 → 蓄水持續下降**」這種 story，值得視覺化。
+
+**Three.js 選項**（panel 內嵌小 canvas，獨立 scene）：
+- **3D Bar Chart**：X=日期 / Y=體積 / 成對 bar（進流 vs 出流），時序語意最強
+- **3D Capacity Array**：N 個 cube 陣列，體積 ∝ 水量，色 by 類型，視覺獨特
+- **3D Pie Chart**：適合**單日出流組成**（放水 vs 調節 vs 跨區），不適合時序
+
+**待決策**：見 session 討論
 - [ ] 洩洪訊息 58343
 - [ ] 集水區敏感區 129475 / 129476
 

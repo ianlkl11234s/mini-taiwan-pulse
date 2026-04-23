@@ -6,6 +6,7 @@ import {
   type ReservoirStatus,
   type ReservoirDayRow,
 } from "../data/reservoirStatusLoader";
+import { fetchReservoirOpsRecent } from "../data/reservoirOpsLoader";
 import { ReservoirScene } from "../three/ReservoirScene";
 import { createReservoirLayer } from "../map/reservoirCustomLayer";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
@@ -116,6 +117,7 @@ export function useReservoirStatusLayer(
   heightScale: number,
   sceneRef: React.RefObject<ReservoirScene | null>,
   statusesRef: React.RefObject<ReservoirStatus[]>,
+  activeReservoirId: number | null,
 ) {
   const visibleRef = useRef(visible);
   const isDarkRef = useRef(isDark);
@@ -247,4 +249,54 @@ export function useReservoirStatusLayer(
     const map = mapRef.current;
     if (map && visible) map.triggerRepaint();
   }, [heightScale, visible, mapRef]);
+
+  // ── activeReservoirId：點選水庫後撈近 3 日進/出流量，推給 scene 畫雙柱 ──
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (!scene) return;
+
+    if (activeReservoirId == null) {
+      scene.setActiveOps(null);
+      mapRef.current?.triggerRepaint();
+      return;
+    }
+
+    let cancelled = false;
+    const reservoirIdText = String(activeReservoirId);
+
+    (async () => {
+      try {
+        console.log(`[Reservoir] fetching ops for ${reservoirIdText}`);
+        const ops = await fetchReservoirOpsRecent(reservoirIdText, 3);
+        if (cancelled) return;
+        console.log("[Reservoir] ops", ops);
+        // scene.data 可能還沒 load（首次點擊太快）→ 重試幾次
+        let tries = 0;
+        const tryApply = () => {
+          if (cancelled) return;
+          const s = sceneRef.current;
+          if (!s) return;
+          const has = statusesRef.current?.some((x) => x.reservoir_id === reservoirIdText);
+          if (!has && tries < 10) {
+            tries++;
+            setTimeout(tryApply, 200);
+            return;
+          }
+          s.setActiveOps({
+            reservoir_id: reservoirIdText,
+            avg_inflow_cms: ops.avg_inflow_cms,
+            avg_outflow_cms: ops.avg_outflow_cms,
+          });
+          mapRef.current?.triggerRepaint();
+        };
+        tryApply();
+      } catch (err) {
+        console.warn("[Reservoir] ops fetch failed:", err);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeReservoirId, sceneRef, statusesRef, mapRef]);
 }

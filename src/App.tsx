@@ -385,6 +385,7 @@ export default function App() {
     transportParams.overlayParams.reservoirPillarHeight ?? 1,
     reservoirSceneRef,
     reservoirStatusesRef,
+    activeReservoirId,
   );
 
   // ── Phase 2.1：即時雨量（Mapbox circle，0 bubble size for 無雨） ──
