@@ -299,6 +299,40 @@ function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function GroundwaterPanel({ props }: { props: Record<string, unknown> }) {
+  const levelRaw = props.water_level_m;
+  const level = levelRaw == null ? null : Number(levelRaw);
+  const obs = String(props.observed_at ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#0ea5e9", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.well_name ?? "(未命名井)")}
+        </div>
+      </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          gap: 8,
+          marginTop: 4,
+          padding: "6px 8px",
+          background: "rgba(14,165,233,0.1)",
+          borderRadius: 4,
+        }}
+      >
+        <span style={{ fontSize: 22, fontWeight: 700, color: "#38bdf8" }}>
+          {level != null ? level.toFixed(2) : "—"}
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>m 地下水位（海拔）</span>
+      </div>
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row label="井號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+    </>
+  );
+}
+
 function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
   const p10 = Number(props.precipitation_10min) || 0;
   const p1 = Number(props.precipitation_1hr) || 0;
@@ -913,6 +947,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterReservoirPoly: "水庫蓄水範圍",
   rainGauge: "即時雨量站",
   riverLevel: "河川水位站",
+  groundwater: "地下水井",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -991,6 +1026,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "riverLevel":
       content = <RiverLevelPanel props={feature.properties} />;
+      break;
+    case "groundwater":
+      content = <GroundwaterPanel props={feature.properties} />;
       break;
   }
 

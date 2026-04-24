@@ -1124,6 +1124,43 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 堤防 Levee (amber line — 4,222 筆防洪骨架；status=待建 用 case expression 淡化) ──
+  {
+    id: "waterLevees",
+    sourceUrl: "./geo/water_levees.geojson",
+    sourceId: "water-levees",
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#f59e0b" : "#b45309",
+          "line-width": 3 * (p?.waterLeveeWidth ?? 1),
+          "line-blur": 2,
+          "line-opacity": ["case",
+            ["==", ["get", "status"], "待建"], 0.08 * (p?.waterLeveeOpacity ?? 1),
+            (isDark ? 0.22 : 0.18) * (p?.waterLeveeOpacity ?? 1),
+          ],
+        }),
+      },
+      {
+        suffix: "core",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": ["case",
+            ["==", ["get", "status"], "待建"], (isDark ? "#fcd34d" : "#b45309"),
+            (isDark ? "#fbbf24" : "#92400e"),
+          ],
+          "line-width": (isDark ? 0.9 : 1.1) * (p?.waterLeveeWidth ?? 1),
+          "line-opacity": ["case",
+            ["==", ["get", "status"], "待建"], 0.45 * (p?.waterLeveeOpacity ?? 1),
+            (isDark ? 0.85 : 0.8) * (p?.waterLeveeOpacity ?? 1),
+          ],
+        }),
+      },
+    ],
+  },
+
   // ── 渠道 Canal (thin purple, low-voltage look) ──
   {
     id: "waterCanals",
@@ -1147,6 +1184,58 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "line-color": isDark ? "#a78bfa" : "#7c3aed",
           "line-width": (isDark ? 0.5 : 0.8) * (p?.waterCanalWidth ?? 1),
           "line-opacity": (isDark ? 0.7 : 0.75) * (p?.waterCanalOpacity ?? 1),
+        }),
+      },
+    ],
+  },
+
+  // ── 水資源管制區 (水源保護區 + 地下水管制區，合併 128 polygon) ──
+  // zone_kind 分 4 種，fill 顏色各異：
+  //   protection             (107)  飲用水水源保護區  → emerald 綠
+  //   groundwater_control_2  (11)   禁止超抽          → red 紅（警告）
+  //   groundwater_control_1  (1)    限制超抽          → orange 橙
+  //   groundwater_region     (9)    地下水分區面      → neutral 灰（僅輪廓薄化）
+  {
+    id: "waterProtectionZones",
+    sourceUrl: "./geo/water_protection_zones.geojson",
+    sourceId: "water-protection-zones",
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (isDark, p) => ({
+          "fill-color": ["match", ["get", "zone_kind"],
+            "protection",            (isDark ? "#10b981" : "#047857"),
+            "groundwater_control_2", (isDark ? "#ef4444" : "#b91c1c"),
+            "groundwater_control_1", (isDark ? "#f97316" : "#c2410c"),
+            "groundwater_region",    (isDark ? "#94a3b8" : "#64748b"),
+            /* default */            (isDark ? "#94a3b8" : "#64748b"),
+          ],
+          "fill-opacity": ["match", ["get", "zone_kind"],
+            "protection",            0.32 * (p?.waterProtectionZoneOpacity ?? 1),
+            "groundwater_control_2", 0.40 * (p?.waterProtectionZoneOpacity ?? 1),
+            "groundwater_control_1", 0.35 * (p?.waterProtectionZoneOpacity ?? 1),
+            "groundwater_region",    0.08 * (p?.waterProtectionZoneOpacity ?? 1),
+            /* default */            0.2 * (p?.waterProtectionZoneOpacity ?? 1),
+          ],
+        }),
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        paint: (isDark, p) => ({
+          "line-color": ["match", ["get", "zone_kind"],
+            "protection",            (isDark ? "#34d399" : "#065f46"),
+            "groundwater_control_2", (isDark ? "#fca5a5" : "#991b1b"),
+            "groundwater_control_1", (isDark ? "#fdba74" : "#9a3412"),
+            "groundwater_region",    (isDark ? "#cbd5e1" : "#475569"),
+            /* default */            (isDark ? "#cbd5e1" : "#475569"),
+          ],
+          "line-width": ["match", ["get", "zone_kind"],
+            "groundwater_region", 0.6,
+            /* default */         1.2,
+          ],
+          "line-opacity": (isDark ? 0.75 : 0.7) * (p?.waterProtectionZoneOpacity ?? 1),
         }),
       },
     ],

@@ -184,6 +184,9 @@ export function useTransportParams() {
   const [waterRiverOpacity, setWaterRiverOpacity] = useState(1.0);
   const [waterCanalWidth, setWaterCanalWidth] = useState(1.0);
   const [waterCanalOpacity, setWaterCanalOpacity] = useState(1.0);
+  const [waterLeveeWidth, setWaterLeveeWidth] = useState(1.0);
+  const [waterLeveeOpacity, setWaterLeveeOpacity] = useState(1.0);
+  const [waterProtectionZoneOpacity, setWaterProtectionZoneOpacity] = useState(1.0);
   const [waterFacilityScale, setWaterFacilityScale] = useState(1.0);
   const [waterFacilityOpacity, setWaterFacilityOpacity] = useState(1.0);
   const [waterMonitorScale, setWaterMonitorScale] = useState(1.0);
@@ -292,12 +295,15 @@ export function useTransportParams() {
     waterRiverOpacity,
     waterCanalWidth,
     waterCanalOpacity,
+    waterLeveeWidth,
+    waterLeveeOpacity,
+    waterProtectionZoneOpacity,
     waterFacilityScale,
     waterFacilityOpacity,
     waterMonitorScale,
     waterMonitorOpacity,
     waterFloodOpacity,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -532,6 +538,13 @@ export function useTransportParams() {
       case "waterCanals": return [
         { label: `寬度 ${waterCanalWidth.toFixed(2)}`, value: waterCanalWidth, min: 0.3, max: 3, step: 0.1, onChange: setWaterCanalWidth },
         { label: `透明度 ${waterCanalOpacity.toFixed(2)}`, value: waterCanalOpacity, min: 0, max: 1, step: 0.05, onChange: setWaterCanalOpacity },
+      ];
+      case "waterLevees": return [
+        { label: `寬度 ${waterLeveeWidth.toFixed(2)}`, value: waterLeveeWidth, min: 0.3, max: 3, step: 0.1, onChange: setWaterLeveeWidth },
+        { label: `透明度 ${waterLeveeOpacity.toFixed(2)}`, value: waterLeveeOpacity, min: 0, max: 1, step: 0.05, onChange: setWaterLeveeOpacity },
+      ];
+      case "waterProtectionZones": return [
+        { label: `透明度 ${waterProtectionZoneOpacity.toFixed(2)}`, value: waterProtectionZoneOpacity, min: 0, max: 1, step: 0.05, onChange: setWaterProtectionZoneOpacity },
       ];
       case "waterReservoirs": return [
         { label: `水位計高度 ${reservoirPillarHeight.toFixed(2)}`, value: reservoirPillarHeight, min: 0, max: 3, step: 0.1, onChange: setReservoirPillarHeight },

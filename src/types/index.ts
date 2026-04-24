@@ -106,12 +106,15 @@ export type ExpandableLayerKey =
   | "busLive"
   | "waterBasins"
   | "waterRivers"
+  | "waterLevees"
   | "waterCanals"
+  | "waterProtectionZones"
   | "waterReservoirs"
   | "waterFacilities"
   | "waterMonitorStations"
   | "waterFloodExtreme"
-  | "rainGauge";
+  | "rainGauge"
+  | "groundwater";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -389,7 +392,7 @@ export interface FeatureInfo {
     | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly"
-    | "rainGauge" | "riverLevel";
+    | "rainGauge" | "riverLevel" | "groundwater";
   properties: Record<string, unknown>;
 }
 
@@ -438,13 +441,16 @@ export interface LayerVisibility {
   busIntercityLive: boolean;
   waterBasins: boolean;
   waterRivers: boolean;
+  waterLevees: boolean;
   waterCanals: boolean;
+  waterProtectionZones: boolean;
   waterReservoirs: boolean;
   waterFacilities: boolean;
   waterMonitorStations: boolean;
   waterFloodExtreme: boolean;
   rainGauge: boolean;
   riverLevel: boolean;
+  groundwater: boolean;
 }
 
 // ── 空氣品質 ──

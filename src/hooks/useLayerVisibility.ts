@@ -45,13 +45,16 @@ export function useLayerVisibility() {
     busIntercityLive: false,
     waterBasins: false,
     waterRivers: false,
+    waterLevees: false,
     waterCanals: false,
+    waterProtectionZones: false,
     waterReservoirs: false,
     waterFacilities: false,
     waterMonitorStations: false,
     waterFloodExtreme: false,
     rainGauge: false,
     riverLevel: false,
+    groundwater: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

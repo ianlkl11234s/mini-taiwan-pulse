@@ -7,7 +7,7 @@ import {
   Lightbulb, CircleDot, RailSymbol, Thermometer,
   GraduationCap, Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
-  Droplets, Waves, GitBranch, Dam, Factory, Gauge,
+  Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -49,13 +49,16 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   busIntercityLive: "#ba68c8",
   waterBasins: "#4dd0e1",
   waterRivers: "#38bdf8",
+  waterLevees: "#f59e0b",
   waterCanals: "#a78bfa",
+  waterProtectionZones: "#10b981",
   waterReservoirs: "#06b6d4",
   waterFacilities: "#fbbf24",
   waterMonitorStations: "#f472b6",
   waterFloodExtreme: "#fb7185",
   rainGauge: "#3b82f6",
   riverLevel: "#22d3ee",
+  groundwater: "#0ea5e9",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -105,13 +108,16 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   busIntercityLive: Bus,
   waterBasins: Waves,
   waterRivers: GitBranch,
+  waterLevees: Shield,
   waterCanals: Droplets,
+  waterProtectionZones: ShieldCheck,
   waterReservoirs: Dam,
   waterFacilities: Factory,
   waterMonitorStations: Gauge,
   waterFloodExtreme: AlertTriangle,
   rainGauge: CloudRain,
   riverLevel: Waves,
+  groundwater: Droplet,
 };
 
 // ── Section Config ──
@@ -217,13 +223,16 @@ const SECTIONS: SectionDef[] = [
     layers: [
       { key: "waterBasins", label: "流域 Basin", expandable: true },
       { key: "waterRivers", label: "河川 River", expandable: true },
+      { key: "waterLevees", label: "堤防 Levee", expandable: true },
       { key: "waterCanals", label: "渠道 Canal", expandable: true },
+      { key: "waterProtectionZones", label: "管制區 Protection", expandable: true },
       { key: "waterReservoirs", label: "水庫 Reservoir", expandable: true },
       { key: "waterFacilities", label: "水利設施 Facility", expandable: true },
       { key: "waterMonitorStations", label: "監測站 Monitor", expandable: true },
       { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
       { key: "rainGauge", label: "即時雨量 Rain Gauge", expandable: false },
       { key: "riverLevel", label: "河川水位 River Level", expandable: false },
+      { key: "groundwater", label: "地下水井 Groundwater", expandable: false },
     ],
   },
 ];

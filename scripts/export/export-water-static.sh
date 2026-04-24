@@ -106,6 +106,24 @@ SELECT jsonb_build_object(
   FROM public.river_lines WHERE geom IS NOT NULL
 ) s;"
 
+# ── 2c. 堤防 (river_levees) — 4,223 筆防洪骨架 ──
+run_export "water_levees.geojson" "堤防" "
+SELECT jsonb_build_object(
+  'type','FeatureCollection',
+  'features', COALESCE(jsonb_agg(feat),'[]'::jsonb)
+) FROM (
+  SELECT jsonb_build_object(
+    'type','Feature','id',id,
+    'geometry', ST_AsGeoJSON(ST_Force2D(ST_SimplifyPreserveTopology(geom, 0.00005)))::jsonb,
+    'properties', jsonb_build_object(
+      'name',name,'levee_type',levee_type,'status',status,
+      'river',river,'basin',basin,'county',county,'side',side,
+      'length_m',length_m)
+  ) AS feat
+  FROM public.river_levees
+  WHERE geom IS NOT NULL AND status <> '已滅失'
+) s;"
+
 # ── 3. 渠道 (宜蘭 ia_yilan) ──
 run_export "water_canals.geojson" "渠道 (宜蘭)" "
 SELECT jsonb_build_object(
@@ -252,6 +270,33 @@ SELECT jsonb_build_object(
       'compare_id', CASE WHEN id ~ '^[0-9]+\$' AND id::integer > 0 THEN id::integer ELSE NULL END)
   ) AS feat
   FROM public.water_reservoirs WHERE lat IS NOT NULL AND lng IS NOT NULL
+) s;"
+
+# ── 5b. 水資源管制區 (水源保護區 + 地下水管制區，合併 128 polygon) ──
+# zone_kind 分 4 種：protection / groundwater_control_2 / groundwater_control_1 / groundwater_region
+# groundwater region polygon 有 33 萬點，用 0.001 (~110m) 積極 simplify；protection 用 0.0001 (~11m)
+run_export "water_protection_zones.geojson" "水資源管制區" "
+SELECT jsonb_build_object(
+  'type','FeatureCollection',
+  'features', COALESCE(jsonb_agg(feat),'[]'::jsonb)
+) FROM (
+  SELECT jsonb_build_object(
+    'type','Feature','id','wpz:'||id,
+    'geometry', ST_AsGeoJSON(ST_Force2D(ST_SimplifyPreserveTopology(geom, 0.0001)))::jsonb,
+    'properties', jsonb_build_object(
+      'zone_kind','protection',
+      'name',name,'zone',zone,'law_ref',law_ref)
+  ) AS feat
+  FROM public.water_protection_zones WHERE geom IS NOT NULL
+  UNION ALL
+  SELECT jsonb_build_object(
+    'type','Feature','id','gwz:'||id,
+    'geometry', ST_AsGeoJSON(ST_Force2D(ST_SimplifyPreserveTopology(geom, 0.001)))::jsonb,
+    'properties', jsonb_build_object(
+      'zone_kind','groundwater_'||zone_type,
+      'name',zone_name,'zone_no',zone_no)
+  ) AS feat
+  FROM public.groundwater_zones WHERE geom IS NOT NULL
 ) s;"
 
 # ── 6. 水利設施 (water_facilities) ──
