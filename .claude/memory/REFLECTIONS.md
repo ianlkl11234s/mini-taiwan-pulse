@@ -127,4 +127,58 @@
 
 ---
 
+## 2026-04-25 PostgREST 20K cap + delta 著色 pattern
+
+### What worked ✅
+
+- **用戶反映 bug 後先做 REST probe 驗證**：不只 psql 看 COUNT，還 `curl -D`
+  讀 `content-range` header 才發現命中 cap。這三步診斷 SOP 已寫進 PB-08
+- **groundwater 踩到 cap 後 river 再犯時立刻認出**：用戶一句「中南部都沒
+  有」就意識到「可能又是 20K cap」，psql 驗證後 15 秒確認
+- **水井資料變化量先跑 SQL 實測再下設計決策**：p50 hourly change 4mm →
+  自信地告訴用戶「hourly 降頻對視覺無感」，避免空口「改就對了」
+- **用 delta_since_day_start 解決兩個層的 timeline 靜止問題**：river +
+  groundwater 同樣絕對值不可比，同一個 pattern 解兩處
+- **setPaintProperty 熱更而非 layer 重建**：toggle 滑桿即拖即見，不用等
+  Mapbox 重建 layer；updatePaint 函式抽出來清楚
+- **釐清「重新開始」意圖而非盲目 revert**：用戶語意模糊時列 A/B/C/D 選項
+  而非自作主張
+
+### What didn't ❌
+
+- **Stream timeout 打斷後銜接 Step 5 的過場太突兀**：用戶看到 API Error
+  後我直接貼 Step 5 標題繼續做，沒先簡述「剛做到哪、現在要做什麼」
+- **地下水井「切過去沒資料」第一反應是查 hook 邏輯而非 RPC 資料量**：
+  花了 ~5 分鐘讀 useGroundwaterLayer.ts 才想到「回傳 rows 超過 cap」。
+  下次 RPC 驅動的圖層出「部分資料」現象 → 先 curl content-range
+- **河川水位「中南部沒有」第一反應是解釋「資料本來就稀疏」**：其實也是
+  20K cap，被 station_id ORDER BY 排序切掉。應該先同樣跑 curl header
+  驗證，別急著腦補解釋
+- **useGroundwaterLayer radius 一開始綁 water_level_m 絕對值**：W002 上
+  線時就犯的錯，這 session 才修。應該在上線前就意識到跨站不可比
+
+### Next-time rules 🎯
+
+1. **RPC 驅動圖層出現「部分資料」現象** → 先 `curl -D` 看 content-range，
+   不要急著懷疑 hook / loader
+2. **新 RPC 預估 rows > 15K** → 直接套 DISTINCT ON hourly 降頻，不等踩雷
+3. **監測站視覺（radius / color）** → 一律 delta 不用絕對值，除非該值
+   本身跨站可比（百分比、比率、檢驗結果等）
+4. **Stream timeout / 對話中斷後** → 先一句話復盤再繼續動
+5. **Mapbox 切換底圖相關的 useEffect guard** → `styleReady(map)` 而非裸
+   `map.getStyle()`
+
+### Memory 產出
+
+- INCIDENTS：+2 條（Mapbox setStyle throw / PostgREST 20K cap）
+- PRINCIPLES：+2 條（20K cap 必查 / delta 跨站可比）
+- PLAYBOOKS：+PB-08（Supabase RPC 資料缺失診斷 SOP）
+- GLOSSARY：+3 條（db-max-rows / styleReady / delta_since_day_start）
+- DATA_SCOPE：update（060/060b 降頻 RPC + 20K cap 備註）
+- BACKLOG：+6 筆已完成
+- STATUS：rewrite
+- REFLECTIONS：+本條
+
+---
+
 <!-- /wrap-up 之後追加新反省 -->
