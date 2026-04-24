@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-04-23
+**最後更新**：2026-04-25
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -54,8 +54,14 @@
 | `get_rain_gauge_day(date)` | 057 | 當日每小時 | 398ms / 19k 筆 |
 | `get_river_water_level_latest()` | 055 | 河川水位最新 | 64ms |
 | `get_river_water_level_timeseries(id, from, to)` | 055 | 河川水位歷史 | |
-| `get_river_water_level_day(date)` | 057 | 當日所有觀測 | 164ms / 27k 筆 |
+| `get_river_water_level_day(date)` | 057 / **060b** | 當日每站每小時 1 筆（降頻避 20K cap）| ~200ms / **~8k 筆** |
+| `get_groundwater_latest()` | 058 / **060** | 地下水井最新 + delta_24h | ~500ms / ~762 筆 |
+| `get_groundwater_day(date)` | 058 / **060** | 當日每站每小時 1 筆（降頻避 20K cap）| ~300ms / **~16.5k 筆** |
+| `get_groundwater_timeseries(id, from, to)` | 058 | 單井歷史區間（panel 預留）| |
 | `reservoir_situation_v` (view) | 022/056 | 蓄水率 + alert_level（分母用 current_capacity） | |
+
+> **PostgREST db-max-rows=20000 cap** — 2026-04-25 兩次踩到（groundwater 78K、river 44K 原始）。
+> 新 RPC 預估 rows > 15K 一律套 DISTINCT ON hourly 降頻（PRINCIPLES / PB-08）。
 
 ## 前端靜態 GeoJSON（public/geo/）
 
