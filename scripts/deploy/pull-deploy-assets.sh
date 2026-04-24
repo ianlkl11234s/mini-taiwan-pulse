@@ -33,6 +33,16 @@ for f in $GEO_FILES; do
   aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
 done
 
+# 水資源圖層：動態列舉 S3 上所有 water_*.geojson（upload 端用 glob，pull 端配合動態化）
+# 新增水圖層不用改本腳本，只要 upload 完 container 重跑 pull 即可
+echo "Listing water_*.geojson from S3..."
+WATER_FILES=$(aws s3 ls "s3://$BUCKET/$PREFIX/" --region "${AWS_DEFAULT_REGION}" \
+  | awk '{print $4}' | grep -E '^water_.*\.geojson$' || true)
+for f in $WATER_FILES; do
+  echo "Pulling $f → $DATA_DIR/geo/$f"
+  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
+done
+
 for f in $H3_FILES; do
   echo "Pulling $f → $DATA_DIR/h3/$f"
   aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/h3/$f"

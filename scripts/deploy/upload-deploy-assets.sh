@@ -41,6 +41,16 @@ for f in "${FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# 水資源圖層：glob 動態上傳 public/geo/water_*.geojson
+# 新增 water 圖層時不用改本腳本，export 完直接跑 upload 即可
+shopt -s nullglob 2>/dev/null || true
+for f in public/geo/water_*.geojson; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading $name (water glob)..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
+done
+
 # Rail 個別檔案（打包成 tar.gz 上傳）
 if [ -d "public/rail" ]; then
   echo "Packing public/rail/ → rail.tar.gz..."
