@@ -35,6 +35,8 @@
 | 術語 | 說明 |
 |---|---|
 | Supabase pooler | 連線池，強制 2min statement_timeout，RPC 超過會被殺 |
+| PostgREST `db-max-rows` | 對外 REST gateway 硬上限 20000 rows，超過切掉（HTTP 206 + content-range header），無錯誤訊息；2026-04-25 兩次踩到 |
+| DISTINCT ON hourly 降頻 | 每站每小時最新 1 筆的 pattern（`DISTINCT ON (station_id, date_trunc('hour', observed_at))`）避 20K cap，實例 migration 060 / 060b |
 | pg_cron | 排程執行 SQL 的 extension，繞過 pooler timeout 做 pre-aggregate |
 | Pre-aggregate pattern | 普通 table + per-day refresh function + pg_cron + 薄 RPC |
 | RPC | `public.get_xxx()` function，前端 `supabase.rpc('get_xxx')` 呼叫 |
@@ -57,6 +59,8 @@
 | 術語 | 說明 |
 |---|---|
 | Custom Layer | Mapbox 自訂 WebGL layer，可跑 Three.js / 其他 render code |
+| `styleReady(map)` | 本專案自訂 type predicate，setStyle mid-swap 期間 `map.getStyle()` 會 throw，用 try/catch 包起來避免炸 React effect（App.tsx 內）|
+| `delta_since_day_start` | 跨站可比指標，當前讀值 − 當日最早讀值；監測站視覺著色/半徑一律用這個，不用絕對值（2026-04-25 river/groundwater 共用 pattern）|
 | `map.once('load')` | ⚠ load event 可能 fire 過 → 永不觸發。改用 polling |
 | `map.isStyleLoaded()` | 當下 style 是否 ready，可能 true → false → true 跳動 |
 | `triggerRepaint()` | 要求 Mapbox 下一幀重畫；只在資料變動時調用，不要在 render() 內 |
