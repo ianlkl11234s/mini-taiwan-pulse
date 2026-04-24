@@ -92,29 +92,59 @@ const demographicsYearlyCache = new Map<string, DemographicH3CellData[]>(); // k
 const socioeconomicCache = new Map<number, SocioeconomicH3DataSet>();
 const spatialEconomyCache = new Map<number, SpatialEconomyH3DataSet>();
 
+const MIN_RES = 7;
+
+function emptySet<T extends { metadata: H3DataSet["metadata"]; cells: unknown[] }>(
+  resolution: number,
+): T {
+  return {
+    metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] as string[] },
+    cells: [] as unknown[],
+  } as unknown as T;
+}
+
+/**
+ * Fetch a single H3 JSON and parse it.
+ * 404 / network error → null（讓呼叫端決定 fallback）。
+ */
+async function tryFetchH3<T>(filename: string): Promise<T | null> {
+  try {
+    const res = await fetch(`./h3/${filename}`);
+    if (res.ok) return (await res.json()) as T;
+  } catch { /* fallthrough */ }
+  return null;
+}
+
 /**
  * Load H3 population data by resolution.
- * Priority: local public/ → S3 fallback.
+ * 若目標 res 檔案不存在（例如 res9 尚未生成、res8 僅在 S3 上沒同步到本地），
+ * 自動退回較低解析度避免 console 錯誤與空圖層。
  */
 export async function loadH3Population(resolution: number): Promise<H3DataSet> {
   const cached = cache.get(resolution);
   if (cached) return cached;
 
-  const filename = `h3_population_res${resolution}.json`;
-
-  // Try local first
-  try {
-    const res = await fetch(`./h3/${filename}`);
-    if (res.ok) {
-      const data: H3DataSet = await res.json();
+  for (let res = resolution; res >= MIN_RES; res--) {
+    const hit = cache.get(res);
+    if (hit && hit.cells.length > 0) {
+      cache.set(resolution, hit);
+      if (res !== resolution) console.log(`[H3] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
+      return hit;
+    }
+    const data = await tryFetchH3<H3DataSet>(`h3_population_res${res}.json`);
+    if (data) {
+      cache.set(res, data);
       cache.set(resolution, data);
-      console.log(`[H3] Loaded res${resolution} from local (${data.cells.length} cells)`);
+      const suffix = res === resolution ? "" : ` (fallback from res${resolution})`;
+      console.log(`[H3] Loaded res${res}${suffix} (${data.cells.length} cells)`);
       return data;
     }
-  } catch { /* fallthrough */ }
+  }
 
-  console.warn(`[H3] Failed to load res${resolution}`);
-  return { metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] }, cells: [] };
+  console.warn(`[H3] Failed to load res${resolution} (no fallback available)`);
+  const empty = emptySet<H3DataSet>(resolution);
+  cache.set(resolution, empty); // 快取空結果避免重複觸發 404
+  return empty;
 }
 
 /**
@@ -124,20 +154,27 @@ export async function loadH3Demographics(resolution: number): Promise<Demographi
   const cached = demographicsCache.get(resolution);
   if (cached) return cached;
 
-  const filename = `h3_demographics_res${resolution}.json`;
-
-  try {
-    const res = await fetch(`./h3/${filename}`);
-    if (res.ok) {
-      const data: DemographicH3DataSet = await res.json();
+  for (let res = resolution; res >= MIN_RES; res--) {
+    const hit = demographicsCache.get(res);
+    if (hit && hit.cells.length > 0) {
+      demographicsCache.set(resolution, hit);
+      if (res !== resolution) console.log(`[H3-Demo] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
+      return hit;
+    }
+    const data = await tryFetchH3<DemographicH3DataSet>(`h3_demographics_res${res}.json`);
+    if (data) {
+      demographicsCache.set(res, data);
       demographicsCache.set(resolution, data);
-      console.log(`[H3-Demo] Loaded res${resolution} from local (${data.cells.length} cells)`);
+      const suffix = res === resolution ? "" : ` (fallback from res${resolution})`;
+      console.log(`[H3-Demo] Loaded res${res}${suffix} (${data.cells.length} cells)`);
       return data;
     }
-  } catch { /* fallthrough */ }
+  }
 
-  console.warn(`[H3-Demo] Failed to load res${resolution}`);
-  return { metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] }, cells: [] };
+  console.warn(`[H3-Demo] Failed to load res${resolution} (no fallback available)`);
+  const empty = emptySet<DemographicH3DataSet>(resolution);
+  demographicsCache.set(resolution, empty);
+  return empty;
 }
 
 /**
@@ -147,20 +184,26 @@ export async function loadH3Socioeconomic(resolution: number): Promise<Socioecon
   const cached = socioeconomicCache.get(resolution);
   if (cached) return cached;
 
-  const filename = `h3_socioeconomic_res${resolution}.json`;
-  const empty: SocioeconomicH3DataSet = { metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] }, cells: [] };
-
-  try {
-    const res = await fetch(`./h3/${filename}`);
-    if (res.ok) {
-      const data: SocioeconomicH3DataSet = await res.json();
+  for (let res = resolution; res >= MIN_RES; res--) {
+    const hit = socioeconomicCache.get(res);
+    if (hit && hit.cells.length > 0) {
+      socioeconomicCache.set(resolution, hit);
+      if (res !== resolution) console.log(`[H3-Socio] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
+      return hit;
+    }
+    const data = await tryFetchH3<SocioeconomicH3DataSet>(`h3_socioeconomic_res${res}.json`);
+    if (data) {
+      socioeconomicCache.set(res, data);
       socioeconomicCache.set(resolution, data);
-      console.log(`[H3-Socio] Loaded res${resolution} from local (${data.cells.length} cells)`);
+      const suffix = res === resolution ? "" : ` (fallback from res${resolution})`;
+      console.log(`[H3-Socio] Loaded res${res}${suffix} (${data.cells.length} cells)`);
       return data;
     }
-  } catch { /* fallthrough */ }
+  }
 
-  console.warn(`[H3-Socio] Failed to load res${resolution}`);
+  console.warn(`[H3-Socio] Failed to load res${resolution} (no fallback available)`);
+  const empty = emptySet<SocioeconomicH3DataSet>(resolution);
+  socioeconomicCache.set(resolution, empty);
   return empty;
 }
 
@@ -171,20 +214,26 @@ export async function loadH3SpatialEconomy(resolution: number): Promise<SpatialE
   const cached = spatialEconomyCache.get(resolution);
   if (cached) return cached;
 
-  const filename = `h3_spatial_economy_res${resolution}.json`;
-  const empty: SpatialEconomyH3DataSet = { metadata: { resolution, cell_count: 0, source: "", generated_at: "", value_columns: [] }, cells: [] };
-
-  try {
-    const res = await fetch(`./h3/${filename}`);
-    if (res.ok) {
-      const data: SpatialEconomyH3DataSet = await res.json();
+  for (let res = resolution; res >= MIN_RES; res--) {
+    const hit = spatialEconomyCache.get(res);
+    if (hit && hit.cells.length > 0) {
+      spatialEconomyCache.set(resolution, hit);
+      if (res !== resolution) console.log(`[H3-Spatial] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
+      return hit;
+    }
+    const data = await tryFetchH3<SpatialEconomyH3DataSet>(`h3_spatial_economy_res${res}.json`);
+    if (data) {
+      spatialEconomyCache.set(res, data);
       spatialEconomyCache.set(resolution, data);
-      console.log(`[H3-Spatial] Loaded res${resolution} from local (${data.cells.length} cells)`);
+      const suffix = res === resolution ? "" : ` (fallback from res${resolution})`;
+      console.log(`[H3-Spatial] Loaded res${res}${suffix} (${data.cells.length} cells)`);
       return data;
     }
-  } catch { /* fallthrough */ }
+  }
 
-  console.warn(`[H3-Spatial] Failed to load res${resolution}`);
+  console.warn(`[H3-Spatial] Failed to load res${resolution} (no fallback available)`);
+  const empty = emptySet<SpatialEconomyH3DataSet>(resolution);
+  spatialEconomyCache.set(resolution, empty);
   return empty;
 }
 

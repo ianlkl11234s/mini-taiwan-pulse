@@ -59,6 +59,17 @@ import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
 
+// setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
+// → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
+function styleReady(map: MapboxMap | null): map is MapboxMap {
+  if (!map) return false;
+  try {
+    return !!map.getStyle();
+  } catch {
+    return false;
+  }
+}
+
 export default function App() {
   const {
     flights: allFlights,
@@ -527,7 +538,7 @@ export default function App() {
   // and addSource-before-style-ready crashes.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
+    if (!styleReady(map)) return;
     ensureH3Layers(map);
     const cells = h3DataMap.get(h3Resolution) ?? [];
     updateH3Layer(map, cells, transportParams.h3Params, layerVisibility.h3Population);
@@ -557,7 +568,7 @@ export default function App() {
   // Demographics: update popCount layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
+    if (!styleReady(map)) return;
     ensurePopCountLayers(map);
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updatePopCountLayer(map, cells, transportParams.popCountParams, layerVisibility.popCount);
@@ -566,7 +577,7 @@ export default function App() {
   // Demographics: update indicators layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
+    if (!styleReady(map)) return;
     ensureIndicatorsLayers(map);
     const cells = demographicsDataMap.get(demoResolution) ?? [];
     updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
@@ -575,7 +586,7 @@ export default function App() {
   // Socioeconomic: update layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
+    if (!styleReady(map)) return;
     ensureSocioLayers(map);
     const cells = socioDataMap.get(demoResolution) ?? [];
     updateSocioLayer(map, cells, transportParams.socioParams, layerVisibility.socioeconomic);
@@ -584,7 +595,7 @@ export default function App() {
   // Spatial Economy: update layer
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
+    if (!styleReady(map)) return;
     ensureSpatialLayers(map);
     const cells = spatialDataMap.get(demoResolution) ?? [];
     updateSpatialLayer(map, cells, transportParams.spatialParams, layerVisibility.spatialEconomy);
@@ -608,7 +619,7 @@ export default function App() {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !map.getStyle()) return;
+    if (!styleReady(map)) return;
     ensureYoubikeLayers(map);
     const cells = getYoubikeCellsForTime(timeStore.getTime());
     updateYoubikeLayer(map, cells, transportParams.youbikeParams, layerVisibility.youbikeFullness);

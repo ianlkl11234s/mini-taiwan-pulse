@@ -192,9 +192,9 @@ export function setH3Visible(map: MapboxMap, visible: boolean): void {
 
 /**
  * Determine H3 resolution based on map zoom level.
+ * 目前僅預聚合到 res8（~3MB 人口/~6.5MB 人口指標），res9 檔案太大未生成。
  */
 export function getH3Resolution(zoom: number): number {
   if (zoom < 9.5) return 7;
-  if (zoom < 12) return 8;
-  return 9;
+  return 8;
 }
