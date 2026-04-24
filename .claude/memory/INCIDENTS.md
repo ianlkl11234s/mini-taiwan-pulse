@@ -192,4 +192,52 @@ pattern 純粹浪費 GPU。
 
 ---
 
+## 2026-04-25 Mapbox setStyle() 期間 `map.getStyle()` 會 throw
+
+**現象**：切換底圖時 React 爆 `Uncaught Error: Style is not done loading`，
+App 被 error boundary 接住白畫面。
+
+**根因**：6 個 useEffect 用 `if (!map || !map.getStyle()) return;` 當 guard，
+預期 `getStyle()` 未載入時回 `undefined`。但 Mapbox GL v3 `setStyle()` 進行
+中 Style 物件正處於 mid-swap，內部 `_checkLoaded()` **直接 throw** 而不是
+回 null。React passive effect re-run 就炸。
+
+**對策**：
+- App.tsx 加 `styleReady(map): map is MapboxMap` type predicate，內部
+  try/catch 包 `map.getStyle()`，throw 視為尚未 ready
+- 6 處 guard 全換成 `if (!styleReady(map)) return;`
+- 用 type predicate 讓後續 `ensureH3Layers(map)` 呼叫 TS 能正確 narrow
+
+---
+
+## 2026-04-25 Supabase PostgREST db-max-rows=20000 硬 cap（兩次踩到）
+
+**現象**：
+- 切到「地下水井」圖層完全空白；get_groundwater_day 回 78K rows，前端只
+  畫出前 ~190 站，~600 站消失
+- 切到「河川水位」看似只有北部有資料；get_river_water_level_day 回 44K
+  rows，ORDER BY station_id 讓北部字典序在前通吃 20K，南部 103 站只剩 1
+
+**根因**：Supabase PostgREST 伺服器端寫死 `db-max-rows=20000`，超過的列
+**悄悄切掉**（HTTP 206 Partial Content + `content-range: 0-19999/N`），
+沒有錯誤訊息。client Range header 無法覆寫（gateway 強制）。
+
+**診斷 SOP**（下次遇到「RPC 資料看起來少一半」先這三步）：
+1. `psql` 直查 `SELECT COUNT(*) FROM public.get_xxx(...)` 看實際列數
+2. `curl -D /tmp/hdr.txt -X POST .../rpc/get_xxx` 看 `content-range` header
+3. 若 `N/M` 且 N=19999 → 命中 cap，需 RPC 側降頻
+
+**對策**：
+- Migration 060：`get_groundwater_day` 降到每站每小時（78K → 16.5K）
+- Migration 060b：`get_river_water_level_day` 降到每站每小時（44K → 8K）
+- 都用 `DISTINCT ON (station_id, date_trunc('hour', observed_at))`
+- 降頻對視覺無感（groundwater p50 hourly change 4mm、river 8.5cm/day）
+
+**PRINCIPLES**：+「Supabase RPC 20K cap 必查」原則；新 RPC 預估 rows 超
+過 15K 先套 DISTINCT ON hourly pattern
+
+**Long-form（無）**：診斷 SOP 已經在本條與 PRINCIPLES
+
+---
+
 <!-- 追加新事件於此之上 -->
