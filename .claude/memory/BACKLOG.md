@@ -8,9 +8,9 @@
 
 | ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
 |---|---|---|---|---|
-| BL-1 | P1 | `river_levees` 堤防 4,223 筆上線 | open | MultiLineString，輸水/防洪骨架，視覺 ROI 最高 |
-| BL-2 | P2 | `water_protection_zones` 水源保護區 107 筆 | open | 合併 BL-3 為同 toggle「水資源管制區」|
-| BL-3 | P2 | `groundwater_zones` 地下水管制區 21 筆 | open | 雲林/嘉義/屏東超抽帶；搭配地下水井 |
+| BL-1 | P1 | `river_levees` 堤防 4,222 筆上線 | **done** | 2026-04-24 完成；overlayRegistry amber line，status=待建用 case expression 淡化 |
+| BL-2 | P2 | `water_protection_zones` 水源保護區 107 筆 | **done** | 2026-04-24 合併 BL-3 為「管制區 Protection」單一 toggle |
+| BL-3 | P2 | `groundwater_zones` 地下水管制區 21 筆 | **done** | 2026-04-24 與 BL-2 合併，zone_kind 四色 match expression |
 | BL-4 | P2 | `flood_hazard_zones` 淹水潛勢**多情境** 17,303 筆 | open | dropdown 情境 slider，目前前端只用 650mm 單情境 |
 | BL-5 | P1 | 水庫點選顯示 3D 進/出流雙排日柱 | **done** | 2026-04-23 完成（commit dae1c78 / 06116e7 / 52a56ba / 6600433）|
 | BL-6 | P3 | 水庫 3D 柱顯示「最新日期」標記 | open | 討論中：panel ribbon 或 Marker「最新」小字；暫停 |
@@ -20,7 +20,7 @@
 | ID | 優先級 | 項目 | 狀態 | 備註 |
 |---|---|---|---|---|
 | W001 | P2 | 警戒水位視覺化 | open | 需先 seed `public.river_stations`（目前空表），再回 055 RPC 加三級警戒欄位 |
-| W002 | P2 | 地下水 RPC + 前端 | open | migration 046 有 realtime 表，缺 RPC wrapper，缺前端圖層 |
+| W002 | P2 | 地下水 RPC + 前端 | **done** | 2026-04-24 完成；migration 058（latest/day/timeseries）+ useGroundwaterLayer + timeline 驅動；739 站覆蓋 |
 | W003 | P3 | 枯旱預警燈號 | open | WRA dataset 36695 |
 | W004 | P3 | 洩洪訊息 | open | WRA dataset 58343 |
 | W005 | P3 | 水權統計 | open | data.gov.tw 36696，**非空間**表格，做指標卡/長條圖，補「用水」最大缺口 |
@@ -36,6 +36,9 @@
 
 ## 已完成（近期 10 筆）
 
+- 2026-04-24 ✅ **W002 地下水井**（migration 058 + useGroundwaterLayer + GroundwaterPanel，timeline 驅動，739 站）
+- 2026-04-24 ✅ **BL-2+BL-3 水資源管制區**（合併 toggle，zone_kind 四色 match expression，128 polygon）
+- 2026-04-24 ✅ **BL-1 堤防**（4,222 筆 MultiLineString，amber line，status=待建 case-expression 淡化）
 - 2026-04-23 ✅ **BL-5 水庫 3D 進/出流雙排日柱**（初版雙柱 → 雙排 N 日柱 → 位置/高度修正）
 - 2026-04-23 ✅ **Phase 2.3 Timeline 回放**（rain/river/reservoir 三層走 timeStore）
 - 2026-04-23 ✅ **雨量 Mapbox heatmap**（擴散視覺 + zoom 分工）
