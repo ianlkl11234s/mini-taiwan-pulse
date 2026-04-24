@@ -36,18 +36,17 @@
 
 ## 已完成（近期 10 筆）
 
+- 2026-04-25 ✅ **Toggle 設定 4 水層 × 2 滑桿**（rain/river/groundwater/wells 的 scale + opacity，支援 setPaintProperty 熱更）
+- 2026-04-25 ✅ **河川水位改 delta 著色**（跨站可比；解「timeline 拖不動 + 中南部看似沒資料」）
+- 2026-04-25 ✅ **Migration 060b 河川水位降頻**（44K → 8K rows，解 PostgREST 20K cap 導致南部 103 → 1 站）
+- 2026-04-25 ✅ **Migration 060 地下水井降頻 + delta_24h**（78K → 16.5K rows）
+- 2026-04-25 ✅ **地下水井拆兩 toggle**（groundwaterWells 靜態 + groundwater 動態 delta 著色）
+- 2026-04-25 ✅ **底圖切換 throw 修復**（styleReady helper + 6 處 guard；H3 res9/res8 loader fallback）
 - 2026-04-24 ✅ **W002 地下水井**（migration 058 + useGroundwaterLayer + GroundwaterPanel，timeline 驅動，739 站）
 - 2026-04-24 ✅ **BL-2+BL-3 水資源管制區**（合併 toggle，zone_kind 四色 match expression，128 polygon）
 - 2026-04-24 ✅ **BL-1 堤防**（4,222 筆 MultiLineString，amber line，status=待建 case-expression 淡化）
 - 2026-04-23 ✅ **BL-5 水庫 3D 進/出流雙排日柱**（初版雙柱 → 雙排 N 日柱 → 位置/高度修正）
 - 2026-04-23 ✅ **Phase 2.3 Timeline 回放**（rain/river/reservoir 三層走 timeStore）
 - 2026-04-23 ✅ **雨量 Mapbox heatmap**（擴散視覺 + zoom 分工）
-- 2026-04-23 ✅ **水庫 3D 移除 per-frame triggerRepaint**（60 FPS render loop fix）
-- 2026-04-23 ✅ **Today + Yesterday 合併**（避免早上時段水庫閃現）
-- 2026-04-22 ✅ Migration 056 蓄水率分母修正（對齊水利署官網）
-- 2026-04-22 ✅ alert_level key 中英文對齊（view 輸出英文，前端 dict 改英文）
-- 2026-04-22 ✅ Phase 2.2 河川水位圖層（WRA 332 站）
-- 2026-04-22 ✅ Phase 2.1 雨量圖層（CWA 1,304 站）
-- 2026-04-22 ✅ Phase 1 水庫互動三合一（集水區 polygon + 集水區河網 + 3D 水位計）
 
 > 更早完成項目見 git log 與 REFLECTIONS.md
