@@ -55,6 +55,7 @@ export function useLayerVisibility() {
     rainGauge: false,
     riverLevel: false,
     groundwater: false,
+    groundwaterWells: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

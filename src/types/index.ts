@@ -114,7 +114,8 @@ export type ExpandableLayerKey =
   | "waterMonitorStations"
   | "waterFloodExtreme"
   | "rainGauge"
-  | "groundwater";
+  | "groundwater"
+  | "groundwaterWells";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -392,7 +393,7 @@ export interface FeatureInfo {
     | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly"
-    | "rainGauge" | "riverLevel" | "groundwater";
+    | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell";
   properties: Record<string, unknown>;
 }
 
@@ -451,6 +452,7 @@ export interface LayerVisibility {
   rainGauge: boolean;
   riverLevel: boolean;
   groundwater: boolean;
+  groundwaterWells: boolean;
 }
 
 // ── 空氣品質 ──

@@ -27,6 +27,7 @@ import type { ReservoirStatus } from "./data/reservoirStatusLoader";
 import { useRainGaugeLayer } from "./hooks/useRainGaugeLayer";
 import { useRiverLevelLayer } from "./hooks/useRiverLevelLayer";
 import { useGroundwaterLayer } from "./hooks/useGroundwaterLayer";
+import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -406,7 +407,10 @@ export default function App() {
   // ── Phase 2.2：河川水位（Mapbox circle，check_result=0 異常紅） ──
   useRiverLevelLayer(mapRef, layerVisibility.riverLevel, isDarkTheme);
 
-  // ── W002：地下水井（Mapbox circle，timeline 驅動） ──
+  // ── W002：地下水井靜態 backdrop（站位灰點，always visible 不受 timeline 影響） ──
+  useGroundwaterWellsLayer(mapRef, layerVisibility.groundwaterWells, isDarkTheme);
+
+  // ── W002：地下水井動態層（當前 vs 當日起始水位 delta 著色，timeline 驅動） ──
   useGroundwaterLayer(mapRef, layerVisibility.groundwater, isDarkTheme);
 
   // ── News timeline (time-based filter + ripple animation) ──

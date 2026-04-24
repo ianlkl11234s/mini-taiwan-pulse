@@ -13,10 +13,18 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
 
 /**
- * 地下水井圖層（Mapbox native circle）— Timeline 驅動
+ * 地下水井動態層（Mapbox native circle）— Timeline 驅動
+ *
+ * 與 useGroundwaterWellsLayer（靜態灰點 backdrop）分工：
+ *   - 這層：彩色 glow，顏色 = 當前水位 − 當日 0 時水位（日內變化 delta_since_day_start）
+ *   - 靜態層：永遠顯示站位
+ *
+ * 視覺邏輯：
+ *   color：跨站可比的「當日累積變化」→ 紅（下降）/ 灰（穩定）/ 藍（上升）
+ *     ±2cm 內視為雜訊（p50 hourly change 只有 4mm，但日累積會到 p90 27cm）
+ *   radius：變化強度絕對值（|delta|），從 4px → 10px；0 變化時仍有基礎 4px
  *
  * 時間模型：subscribeDate 換資料 + subscribeThrottled(500ms) 切片重畫（CLAUDE.md 規則 6）
- * 視覺：藍圓，半徑 ∝ water_level_m 絕對值；色階不分正常/異常（地下水觀測無 check_result）
  */
 
 const SOURCE_ID = "groundwater";
@@ -31,22 +39,37 @@ interface StationSeries {
   well_name: string;
   lng: number;
   lat: number;
+  baseLevel: number;  // 該日第一筆水位（作為 delta 基準）
   readings: Array<{ t: number; level: number }>;
 }
 
-function radiusExpression(): ExpressionSpecification {
-  // 水位 m 絕對值：-50 ~ 450m 映射到 3 ~ 11 px
+function colorExpression(): ExpressionSpecification {
+  // delta_m（當前 − 當日起始水位）→ 色階
+  // 紅(-)｜灰(0±2cm)｜藍(+)，覆蓋 p10~p90 的 ±30cm
   return [
     "interpolate",
     ["linear"],
-    ["abs", ["coalesce", ["get", "water_level_m"], 0]],
-    0, 3,
-    5, 4,
-    20, 5,
-    50, 6,
-    100, 7.5,
-    300, 9.5,
-    500, 11,
+    ["coalesce", ["get", "delta_m"], 0],
+    -0.30, "#b91c1c",  // 深紅：下降 >30cm
+    -0.10, "#ef4444",  // 紅：下降 >10cm
+    -0.02, "#fca5a5",  // 淡紅：-2~-10 cm
+     0.00, "#94a3b8",  // 灰：穩定 ±2cm
+     0.02, "#93c5fd",  // 淡藍：+2~+10 cm
+     0.10, "#3b82f6",  // 藍：上升 >10cm
+     0.30, "#1d4ed8",  // 深藍：上升 >30cm
+  ] as unknown as ExpressionSpecification;
+}
+
+function radiusExpression(): ExpressionSpecification {
+  // |delta_m| 絕對值：0cm → 4px，30cm+ → 10px
+  return [
+    "interpolate",
+    ["linear"],
+    ["abs", ["coalesce", ["get", "delta_m"], 0]],
+    0.00, 4.0,
+    0.05, 5.0,
+    0.15, 7.0,
+    0.30, 10.0,
   ] as unknown as ExpressionSpecification;
 }
 
@@ -60,10 +83,14 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": radiusExpression(),
-        "circle-color": "#0ea5e9",
+        "circle-radius": [
+          "*",
+          radiusExpression(),
+          1.8,
+        ] as unknown as ExpressionSpecification,
+        "circle-color": colorExpression(),
         "circle-blur": 0.9,
-        "circle-opacity": isDark ? 0.4 : 0.32,
+        "circle-opacity": isDark ? 0.45 : 0.35,
       },
     } as CircleLayer);
   }
@@ -73,8 +100,8 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": ["literal", 2.2] as unknown as ExpressionSpecification,
-        "circle-color": "#38bdf8",
+        "circle-radius": radiusExpression(),
+        "circle-color": colorExpression(),
         "circle-opacity": isDark ? 0.95 : 0.85,
         "circle-stroke-width": 1,
         "circle-stroke-color": "#ffffff",
@@ -103,6 +130,7 @@ function groupByStation(rows: GroundwaterDayRow[]): Map<string, StationSeries> {
         well_name: r.well_name ?? "",
         lng: r.lng,
         lat: r.lat,
+        baseLevel: r.water_level_m, // 先放第一筆，底下排序後重算
         readings: [],
       };
       map.set(r.station_id, entry);
@@ -112,8 +140,10 @@ function groupByStation(rows: GroundwaterDayRow[]): Map<string, StationSeries> {
       level: r.water_level_m,
     });
   }
+  // 排序後以最早一筆作為當日 base（用來計算 delta_since_day_start）
   for (const entry of map.values()) {
     entry.readings.sort((a, b) => a.t - b.t);
+    if (entry.readings.length > 0) entry.baseLevel = entry.readings[0]!.level;
   }
   return map;
 }
@@ -139,6 +169,7 @@ function buildFC(byStation: Map<string, StationSeries>, currentT: number): GeoJS
         station_id: s.station_id,
         well_name: s.well_name,
         water_level_m: r.level,
+        delta_m: r.level - s.baseLevel, // 當下水位 − 當日起始水位
         observed_at: new Date(r.t * 1000).toISOString(),
       },
     });

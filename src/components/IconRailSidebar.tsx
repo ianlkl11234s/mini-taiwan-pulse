@@ -59,6 +59,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   rainGauge: "#3b82f6",
   riverLevel: "#22d3ee",
   groundwater: "#0ea5e9",
+  groundwaterWells: "#64748b",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -118,6 +119,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   rainGauge: CloudRain,
   riverLevel: Waves,
   groundwater: Droplet,
+  groundwaterWells: Droplet,
 };
 
 // ── Section Config ──
@@ -232,6 +234,7 @@ const SECTIONS: SectionDef[] = [
       { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
       { key: "rainGauge", label: "即時雨量 Rain Gauge", expandable: false },
       { key: "riverLevel", label: "河川水位 River Level", expandable: false },
+      { key: "groundwaterWells", label: "水井點位 Wells", expandable: false },
       { key: "groundwater", label: "地下水井 Groundwater", expandable: false },
     ],
   },

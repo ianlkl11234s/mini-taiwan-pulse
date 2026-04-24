@@ -948,6 +948,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   rainGauge: "即時雨量站",
   riverLevel: "河川水位站",
   groundwater: "地下水井",
+  groundwaterWell: "地下水井",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {

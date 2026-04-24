@@ -15,12 +15,13 @@ import { withLoading } from "../lib/loadingRegistry";
  *   - 與 groundwater_zones 管制區 overlay 後，可說「超抽帶裡水位多低」
  */
 
-/** get_groundwater_day 回傳列 */
+/** get_groundwater_day 回傳列（migration 060：降頻至每站每小時） */
 export interface GroundwaterDayRow {
   station_id: string;
   well_name: string | null;
   lat: number;
   lng: number;
+  bucket_at: string;      // hourly bucket 起點（Asia/Taipei）
   observed_at: string;
   water_level_m: number | null;
 }
@@ -34,4 +35,30 @@ export async function fetchGroundwaterDay(dateKey: string): Promise<GroundwaterD
   );
   if (error) throw new Error(`get_groundwater_day(${dateKey}): ${error.message}`);
   return (data ?? []) as GroundwaterDayRow[];
+}
+
+/** get_groundwater_latest 回傳列（migration 060：加 delta_24h） */
+export interface GroundwaterLatestRow {
+  station_id: string;
+  well_name: string | null;
+  agency_unit: string | null;
+  county: string | null;
+  township: string | null;
+  lat: number;
+  lng: number;
+  elevation_m: number | null;
+  water_level_m: number;
+  delta_24h: number | null;  // 當前 - 24h 前水位 (m)；24h 前沒讀值則 null
+  observed_at: string;
+}
+
+/** 每站最新水位 + 24h 變化量（for 靜態點位 backdrop + 趨勢著色） */
+export async function fetchGroundwaterLatest(): Promise<GroundwaterLatestRow[]> {
+  const { data, error } = await withLoading(
+    "groundwater-latest",
+    "地下水井最新",
+    supabase.rpc("get_groundwater_latest"),
+  );
+  if (error) throw new Error(`get_groundwater_latest: ${error.message}`);
+  return (data ?? []) as GroundwaterLatestRow[];
 }
