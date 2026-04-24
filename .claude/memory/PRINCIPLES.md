@@ -62,6 +62,47 @@
 
 Hook 參數表**不收** `currentTime`。理由與節流表見 `docs/development-rules.md#8`。
 
+## Supabase PostgREST 20K cap（⚠ P0，2026-04-25 教訓）
+
+**Supabase 對外 PostgREST 有 `db-max-rows=20000` 硬 cap**，超過悄悄切掉：
+- HTTP 206 Partial Content + `content-range: 0-19999/N` header
+- 無錯誤訊息，前端只拿到前 20K 行（排序決定誰被留下）
+- client Range header 無法覆寫
+
+**新 RPC 預估 rows 超過 15K** → 一律套降頻 pattern：
+```sql
+SELECT DISTINCT ON (station_id, date_trunc('hour', observed_at))
+    ...
+FROM realtime.xxx
+WHERE ...
+ORDER BY station_id, date_trunc('hour', observed_at), observed_at DESC
+```
+
+每站每小時最新 1 筆，對時序視覺回放無感（groundwater p50 hourly 變化
+4mm，river_water_level 8.5cm/day）。
+
+**診斷 SOP**（看到「RPC 資料看起來少一半」）：
+1. `psql -c "SELECT COUNT(*) FROM public.get_xxx(...)"` 查實際列數
+2. `curl -D /tmp/hdr.txt -X POST .../rpc/get_xxx` 看 `content-range`
+3. 若 `N=19999` → 命中 cap，RPC 側降頻
+
+實例：migration 060 (groundwater 78K→16.5K)、060b (river 44K→8K)。
+
+## 跨站可比視覺指標（2026-04-25 教訓）
+
+監測站圓圈 **circle-radius / circle-color 不要綁原始絕對值**，尤其是
+水位、海拔、標高類指標 — 各站基準差異大（井口高度、河床高度）跨站
+無意義，timeline 拖動絕對值幾乎不變。
+
+**改用 delta_since_day_start**（當前讀值 − 當日最早讀值）：
+- 跨站可比（都是 cm 級變動量）
+- Timeline 撥放時數值才會動 → 視覺才有故事
+- 色階用 ±2cm / ±10cm / ±30cm 分層（紅下降 / 灰穩定 / 藍上升）
+- `check_result=0` 之類異常站用另一色覆寫（case expression）
+
+實例：`useGroundwaterLayer` / `useRiverLevelLayer`
+（歷史夠長後可升級到 vs 30-day baseline 的 anomaly %）。
+
 ## Supabase 優化（Pre-aggregate Pattern）
 
 RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
