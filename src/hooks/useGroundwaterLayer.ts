@@ -60,20 +60,24 @@ function colorExpression(): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
-function radiusExpression(): ExpressionSpecification {
-  // |delta_m| 絕對值：0cm → 4px，30cm+ → 10px
+function radiusExpression(scale: number): ExpressionSpecification {
+  // |delta_m| 絕對值：0cm → 4px，30cm+ → 10px；scale 從 UI 放大縮小
   return [
-    "interpolate",
-    ["linear"],
-    ["abs", ["coalesce", ["get", "delta_m"], 0]],
-    0.00, 4.0,
-    0.05, 5.0,
-    0.15, 7.0,
-    0.30, 10.0,
+    "*",
+    [
+      "interpolate",
+      ["linear"],
+      ["abs", ["coalesce", ["get", "delta_m"], 0]],
+      0.00, 4.0,
+      0.05, 5.0,
+      0.15, 7.0,
+      0.30, 10.0,
+    ],
+    ["literal", scale],
   ] as unknown as ExpressionSpecification;
 }
 
-function ensureLayers(map: MapboxMap, isDark: boolean) {
+function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
   }
@@ -85,12 +89,12 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       paint: {
         "circle-radius": [
           "*",
-          radiusExpression(),
+          radiusExpression(scale),
           1.8,
         ] as unknown as ExpressionSpecification,
         "circle-color": colorExpression(),
         "circle-blur": 0.9,
-        "circle-opacity": isDark ? 0.45 : 0.35,
+        "circle-opacity": (isDark ? 0.45 : 0.35) * opacity,
       },
     } as CircleLayer);
   }
@@ -100,14 +104,28 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": radiusExpression(),
+        "circle-radius": radiusExpression(scale),
         "circle-color": colorExpression(),
-        "circle-opacity": isDark ? 0.95 : 0.85,
+        "circle-opacity": (isDark ? 0.95 : 0.85) * opacity,
         "circle-stroke-width": 1,
         "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": 0.5,
+        "circle-stroke-opacity": 0.5 * opacity,
       },
     } as CircleLayer);
+  }
+}
+
+function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
+  if (map.getLayer(LAYER_GLOW)) {
+    map.setPaintProperty(LAYER_GLOW, "circle-radius", [
+      "*", radiusExpression(scale), 1.8,
+    ] as unknown as ExpressionSpecification);
+    map.setPaintProperty(LAYER_GLOW, "circle-opacity", (isDark ? 0.45 : 0.35) * opacity);
+  }
+  if (map.getLayer(LAYER_CIRCLE)) {
+    map.setPaintProperty(LAYER_CIRCLE, "circle-radius", radiusExpression(scale));
+    map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.95 : 0.85) * opacity);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.5 * opacity);
   }
 }
 
@@ -181,8 +199,9 @@ export function useGroundwaterLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   isDark: boolean,
+  scale = 1,
+  opacity = 1,
 ) {
-  const mountedRef = useRef(false);
   const byStationRef = useRef<Map<string, StationSeries>>(new Map());
   const currentDateRef = useRef<string>("");
 
@@ -194,30 +213,20 @@ export function useGroundwaterLayer(
     let cancelled = false;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
-    const tryAttach = () => {
-      if (cancelled || mountedRef.current) {
-        if (pollTimer) clearInterval(pollTimer);
-        return;
-      }
+    const attach = () => {
+      if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      console.log("[Groundwater] attaching layers");
-      ensureLayers(map, isDark);
+      ensureLayers(map, isDark, scale, opacity);
+      updatePaint(map, isDark, scale, opacity);
       setLayerVisibility(map, true);
-      mountedRef.current = true;
       if (pollTimer) {
         clearInterval(pollTimer);
         pollTimer = null;
       }
     };
 
-    if (map.isStyleLoaded()) {
-      ensureLayers(map, isDark);
-      setLayerVisibility(map, true);
-      mountedRef.current = true;
-    } else {
-      pollTimer = setInterval(tryAttach, 200);
-      tryAttach();
-    }
+    if (map.isStyleLoaded()) attach();
+    else pollTimer = setInterval(attach, 200);
 
     const redraw = () => {
       if (cancelled) return;
@@ -261,5 +270,5 @@ export function useGroundwaterLayer(
         setLayerVisibility(map, false);
       }
     };
-  }, [mapRef, visible, isDark]);
+  }, [mapRef, visible, isDark, scale, opacity]);
 }

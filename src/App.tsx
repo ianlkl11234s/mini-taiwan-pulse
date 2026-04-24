@@ -402,16 +402,40 @@ export default function App() {
   );
 
   // ── Phase 2.1：即時雨量（Mapbox circle，0 bubble size for 無雨） ──
-  useRainGaugeLayer(mapRef, layerVisibility.rainGauge, isDarkTheme);
+  useRainGaugeLayer(
+    mapRef,
+    layerVisibility.rainGauge,
+    isDarkTheme,
+    transportParams.overlayParams.rainGaugeScale ?? 1,
+    transportParams.overlayParams.rainGaugeOpacity ?? 1,
+  );
 
   // ── Phase 2.2：河川水位（Mapbox circle，check_result=0 異常紅） ──
-  useRiverLevelLayer(mapRef, layerVisibility.riverLevel, isDarkTheme);
+  useRiverLevelLayer(
+    mapRef,
+    layerVisibility.riverLevel,
+    isDarkTheme,
+    transportParams.overlayParams.riverLevelScale ?? 1,
+    transportParams.overlayParams.riverLevelOpacity ?? 1,
+  );
 
   // ── W002：地下水井靜態 backdrop（站位灰點，always visible 不受 timeline 影響） ──
-  useGroundwaterWellsLayer(mapRef, layerVisibility.groundwaterWells, isDarkTheme);
+  useGroundwaterWellsLayer(
+    mapRef,
+    layerVisibility.groundwaterWells,
+    isDarkTheme,
+    transportParams.overlayParams.groundwaterWellsScale ?? 1,
+    transportParams.overlayParams.groundwaterWellsOpacity ?? 1,
+  );
 
   // ── W002：地下水井動態層（當前 vs 當日起始水位 delta 著色，timeline 驅動） ──
-  useGroundwaterLayer(mapRef, layerVisibility.groundwater, isDarkTheme);
+  useGroundwaterLayer(
+    mapRef,
+    layerVisibility.groundwater,
+    isDarkTheme,
+    transportParams.overlayParams.groundwaterScale ?? 1,
+    transportParams.overlayParams.groundwaterOpacity ?? 1,
+  );
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);

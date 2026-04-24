@@ -16,12 +16,13 @@ import { withLoading } from "../lib/loadingRegistry";
  *   - 顏色：單色青（#22d3ee）；check_result=0 時警示紅
  */
 
-/** get_river_water_level_day 回傳列 */
+/** get_river_water_level_day 回傳列（migration 060b：降頻至每站每小時） */
 export interface RiverLevelDayRow {
   station_id: string;
   station_name: string | null;
   lat: number;
   lng: number;
+  bucket_at: string;  // hourly bucket 起點（Asia/Taipei）
   observed_at: string;
   water_level_m: number | null;
   check_result: number | null;

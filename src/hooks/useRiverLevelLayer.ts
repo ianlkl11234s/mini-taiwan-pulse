@@ -15,9 +15,13 @@ import { timeStore } from "../state/timeStore";
 /**
  * 河川水位圖層（Mapbox native circle）— Timeline 驅動
  *
- * - 圓圈大小：water_level_m（大致反映該站所在河流規模）
- * - 顏色：正常青色；check_result=0 異常時紅色
- * - 時間模型：subscribeDate 換資料、subscribeThrottled(500ms) 切片重畫（CLAUDE.md 規則 6）
+ * 視覺邏輯：
+ *   - color = delta_since_day_start（當前水位 − 當日起始水位）
+ *     跨站可比（避開各站 water_level_m 絕對值不可比的問題），
+ *     紅＝下降、灰＝穩定、藍＝上升；check_result=0 的異常強制紅邊框
+ *   - radius = 基礎 5px + |delta| 加成，實測中位 p50 變化僅 8.5cm，
+ *     所以基礎 radius 拉大才看得出站位
+ *   - scale / opacity 從 UI 滑桿動態調
  */
 
 const SOURCE_ID = "river-level";
@@ -32,33 +36,51 @@ interface StationSeries {
   station_name: string;
   lng: number;
   lat: number;
+  baseLevel: number;  // 該日第一筆水位（作為 delta 基準）
   readings: Array<{ t: number; level: number; check: number }>;
 }
 
 function colorExpression(): ExpressionSpecification {
+  // delta_m 著色；check_result=0 異常時覆寫為橙
   return [
     "case",
     ["==", ["coalesce", ["get", "check_result"], 1], 0],
-    "#ef4444",
-    "#22d3ee",
+    "#f97316", // 異常：橙
+    [
+      "interpolate",
+      ["linear"],
+      ["coalesce", ["get", "delta_m"], 0],
+      -1.0, "#b91c1c",  // 下降 >1m 深紅
+      -0.30, "#ef4444",  // -30cm 紅
+      -0.10, "#fca5a5",  // -10cm 淡紅
+      -0.02, "#94a3b8",  // -2cm 灰
+       0.02, "#94a3b8",  // +2cm 灰
+       0.10, "#93c5fd",  // +10cm 淡藍
+       0.30, "#3b82f6",  // +30cm 藍
+       1.0, "#1d4ed8",   // +1m 深藍
+    ],
   ] as unknown as ExpressionSpecification;
 }
 
-function radiusExpression(): ExpressionSpecification {
+function radiusExpression(scale: number): ExpressionSpecification {
+  // 基礎 5px，|delta| 加成至 12px；scale 從 UI 放大縮小
   return [
-    "interpolate",
-    ["linear"],
-    ["coalesce", ["get", "water_level_m"], 0],
-    0, 3,
-    10, 4,
-    50, 5.5,
-    200, 7,
-    500, 9,
-    1000, 11,
+    "*",
+    [
+      "interpolate",
+      ["linear"],
+      ["abs", ["coalesce", ["get", "delta_m"], 0]],
+      0.00, 5.0,
+      0.05, 6.0,
+      0.20, 8.0,
+      0.50, 10.0,
+      1.00, 12.0,
+    ],
+    ["literal", scale],
   ] as unknown as ExpressionSpecification;
 }
 
-function ensureLayers(map: MapboxMap, isDark: boolean) {
+function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
   }
@@ -68,10 +90,14 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": radiusExpression(),
+        "circle-radius": [
+          "*",
+          radiusExpression(scale),
+          1.9,
+        ] as unknown as ExpressionSpecification,
         "circle-color": colorExpression(),
         "circle-blur": 0.9,
-        "circle-opacity": isDark ? 0.35 : 0.3,
+        "circle-opacity": (isDark ? 0.45 : 0.35) * opacity,
       },
     } as CircleLayer);
   }
@@ -81,14 +107,28 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": ["literal", 2.5] as unknown as ExpressionSpecification,
+        "circle-radius": radiusExpression(scale),
         "circle-color": colorExpression(),
-        "circle-opacity": isDark ? 0.95 : 0.85,
+        "circle-opacity": (isDark ? 0.95 : 0.85) * opacity,
         "circle-stroke-width": 1,
         "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": 0.5,
+        "circle-stroke-opacity": 0.5 * opacity,
       },
     } as CircleLayer);
+  }
+}
+
+function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
+  if (map.getLayer(LAYER_GLOW)) {
+    map.setPaintProperty(LAYER_GLOW, "circle-radius", [
+      "*", radiusExpression(scale), 1.9,
+    ] as unknown as ExpressionSpecification);
+    map.setPaintProperty(LAYER_GLOW, "circle-opacity", (isDark ? 0.45 : 0.35) * opacity);
+  }
+  if (map.getLayer(LAYER_CIRCLE)) {
+    map.setPaintProperty(LAYER_CIRCLE, "circle-radius", radiusExpression(scale));
+    map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.95 : 0.85) * opacity);
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.5 * opacity);
   }
 }
 
@@ -111,6 +151,7 @@ function groupByStation(rows: RiverLevelDayRow[]): Map<string, StationSeries> {
         station_name: r.station_name ?? "",
         lng: r.lng,
         lat: r.lat,
+        baseLevel: r.water_level_m ?? 0,
         readings: [],
       };
       map.set(r.station_id, entry);
@@ -123,6 +164,7 @@ function groupByStation(rows: RiverLevelDayRow[]): Map<string, StationSeries> {
   }
   for (const entry of map.values()) {
     entry.readings.sort((a, b) => a.t - b.t);
+    if (entry.readings.length > 0) entry.baseLevel = entry.readings[0]!.level;
   }
   return map;
 }
@@ -148,6 +190,7 @@ function buildFC(byStation: Map<string, StationSeries>, currentT: number): GeoJS
         station_id: s.station_id,
         station_name: s.station_name,
         water_level_m: r.level,
+        delta_m: r.level - s.baseLevel, // 當下水位 − 當日起始水位
         check_result: r.check,
         observed_at: new Date(r.t * 1000).toISOString(),
       },
@@ -160,6 +203,8 @@ export function useRiverLevelLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   isDark: boolean,
+  scale = 1,
+  opacity = 1,
 ) {
   const mountedRef = useRef(false);
   const byStationRef = useRef<Map<string, StationSeries>>(new Map());
@@ -174,13 +219,10 @@ export function useRiverLevelLayer(
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
     const tryAttach = () => {
-      if (cancelled || mountedRef.current) {
-        if (pollTimer) clearInterval(pollTimer);
-        return;
-      }
+      if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      console.log("[RiverLevel] attaching layers");
-      ensureLayers(map, isDark);
+      ensureLayers(map, isDark, scale, opacity);
+      updatePaint(map, isDark, scale, opacity);
       setLayerVisibility(map, true);
       mountedRef.current = true;
       if (pollTimer) {
@@ -189,14 +231,8 @@ export function useRiverLevelLayer(
       }
     };
 
-    if (map.isStyleLoaded()) {
-      ensureLayers(map, isDark);
-      setLayerVisibility(map, true);
-      mountedRef.current = true;
-    } else {
-      pollTimer = setInterval(tryAttach, 200);
-      tryAttach();
-    }
+    if (map.isStyleLoaded()) tryAttach();
+    else pollTimer = setInterval(tryAttach, 200);
 
     const redraw = () => {
       if (cancelled) return;
@@ -209,7 +245,6 @@ export function useRiverLevelLayer(
     const loadDay = async (dateKey: string) => {
       if (cancelled) return;
       try {
-        console.log("[RiverLevel] fetching day", dateKey);
         const rows = await fetchRiverLevelDay(dateKey);
         if (cancelled || currentDateRef.current !== dateKey) return;
         byStationRef.current = groupByStation(rows);
@@ -240,5 +275,5 @@ export function useRiverLevelLayer(
         setLayerVisibility(map, false);
       }
     };
-  }, [mapRef, visible, isDark]);
+  }, [mapRef, visible, isDark, scale, opacity]);
 }

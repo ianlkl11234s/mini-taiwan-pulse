@@ -40,7 +40,7 @@ function buildFC(rows: GroundwaterLatestRow[]): GeoJSON.FeatureCollection {
   };
 }
 
-function ensureLayers(map: MapboxMap, isDark: boolean) {
+function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
   }
@@ -50,15 +50,22 @@ function ensureLayers(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        "circle-radius": 2.2,
+        "circle-radius": 2.2 * scale,
         "circle-color": isDark ? "#94a3b8" : "#64748b", // slate-400 / slate-500
-        "circle-opacity": isDark ? 0.75 : 0.6,
+        "circle-opacity": (isDark ? 0.75 : 0.6) * opacity,
         "circle-stroke-width": 0.6,
         "circle-stroke-color": isDark ? "#1e293b" : "#ffffff",
-        "circle-stroke-opacity": 0.8,
+        "circle-stroke-opacity": 0.8 * opacity,
       },
     } as CircleLayer);
   }
+}
+
+function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
+  if (!map.getLayer(LAYER_CIRCLE)) return;
+  map.setPaintProperty(LAYER_CIRCLE, "circle-radius", 2.2 * scale);
+  map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", (isDark ? 0.75 : 0.6) * opacity);
+  map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", 0.8 * opacity);
 }
 
 function setLayerVisibility(map: MapboxMap, visible: boolean) {
@@ -71,6 +78,8 @@ export function useGroundwaterWellsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   isDark: boolean,
+  scale = 1,
+  opacity = 1,
 ) {
   const dataLoadedRef = useRef(false);
 
@@ -85,7 +94,8 @@ export function useGroundwaterWellsLayer(
     const attach = () => {
       if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark);
+      ensureLayers(map, isDark, scale, opacity);
+      updatePaint(map, isDark, scale, opacity);
       setLayerVisibility(map, true);
       if (pollTimer) {
         clearInterval(pollTimer);
@@ -116,5 +126,5 @@ export function useGroundwaterWellsLayer(
       if (pollTimer) clearInterval(pollTimer);
       if (map.getLayer(LAYER_CIRCLE)) setLayerVisibility(map, false);
     };
-  }, [mapRef, visible, isDark]);
+  }, [mapRef, visible, isDark, scale, opacity]);
 }

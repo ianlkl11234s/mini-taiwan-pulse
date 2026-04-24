@@ -154,7 +154,7 @@ function circleZoomOpacity(base: number): ExpressionSpecification {
   ] as unknown as ExpressionSpecification;
 }
 
-function ensureLayers(map: MapboxMap, isDark: boolean, scale: number) {
+function ensureLayers(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, { type: "geojson", data: EMPTY_FC });
   }
@@ -188,7 +188,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number) {
         "circle-radius": rainRadiusExpression(scale * 1.8),
         "circle-color": rainColorExpression(),
         "circle-blur": 0.8,
-        "circle-opacity": circleZoomOpacity(isDark ? 0.25 : 0.2),
+        "circle-opacity": circleZoomOpacity((isDark ? 0.25 : 0.2) * opacity),
       },
     } as CircleLayer);
   }
@@ -201,12 +201,34 @@ function ensureLayers(map: MapboxMap, isDark: boolean, scale: number) {
       paint: {
         "circle-radius": rainRadiusExpression(scale),
         "circle-color": rainColorExpression(),
-        "circle-opacity": circleZoomOpacity(isDark ? 0.85 : 0.75),
+        "circle-opacity": circleZoomOpacity((isDark ? 0.85 : 0.75) * opacity),
         "circle-stroke-width": 0.5,
         "circle-stroke-color": "#ffffff",
-        "circle-stroke-opacity": circleZoomOpacity(0.4),
+        "circle-stroke-opacity": circleZoomOpacity(0.4 * opacity),
       },
     } as CircleLayer);
+  }
+}
+
+function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: number) {
+  if (map.getLayer(LAYER_GLOW)) {
+    map.setPaintProperty(LAYER_GLOW, "circle-radius", rainRadiusExpression(scale * 1.8));
+    map.setPaintProperty(LAYER_GLOW, "circle-opacity", circleZoomOpacity((isDark ? 0.25 : 0.2) * opacity));
+  }
+  if (map.getLayer(LAYER_CIRCLE)) {
+    map.setPaintProperty(LAYER_CIRCLE, "circle-radius", rainRadiusExpression(scale));
+    map.setPaintProperty(LAYER_CIRCLE, "circle-opacity", circleZoomOpacity((isDark ? 0.85 : 0.75) * opacity));
+    map.setPaintProperty(LAYER_CIRCLE, "circle-stroke-opacity", circleZoomOpacity(0.4 * opacity));
+  }
+  if (map.getLayer(LAYER_HEATMAP)) {
+    map.setPaintProperty(LAYER_HEATMAP, "heatmap-opacity", [
+      "interpolate",
+      ["linear"],
+      ["zoom"],
+      CIRCLE_HIDE_Z - 1, 0.9 * opacity,
+      HEATMAP_HIDE_Z - 2, 0.75 * opacity,
+      HEATMAP_HIDE_Z, 0,
+    ] as unknown as ExpressionSpecification);
   }
 }
 
@@ -289,8 +311,8 @@ export function useRainGaugeLayer(
   visible: boolean,
   isDark: boolean,
   scale = 1,
+  opacity = 1,
 ) {
-  const mountedRef = useRef(false);
   const byStationRef = useRef<Map<string, StationSeries>>(new Map());
   const currentDateRef = useRef<string>("");
 
@@ -302,30 +324,20 @@ export function useRainGaugeLayer(
     let cancelled = false;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
-    const tryAttach = () => {
-      if (cancelled || mountedRef.current) {
-        if (pollTimer) clearInterval(pollTimer);
-        return;
-      }
+    const attach = () => {
+      if (cancelled) return;
       if (!map.isStyleLoaded()) return;
-      console.log("[RainGauge] attaching layers");
-      ensureLayers(map, isDark, scale);
+      ensureLayers(map, isDark, scale, opacity);
+      updatePaint(map, isDark, scale, opacity);
       setLayerVisibility(map, true);
-      mountedRef.current = true;
       if (pollTimer) {
         clearInterval(pollTimer);
         pollTimer = null;
       }
     };
 
-    if (map.isStyleLoaded()) {
-      ensureLayers(map, isDark, scale);
-      setLayerVisibility(map, true);
-      mountedRef.current = true;
-    } else {
-      pollTimer = setInterval(tryAttach, 200);
-      tryAttach();
-    }
+    if (map.isStyleLoaded()) attach();
+    else pollTimer = setInterval(attach, 200);
 
     /** 重畫當下切片 */
     const redraw = () => {
@@ -371,5 +383,5 @@ export function useRainGaugeLayer(
         setLayerVisibility(map, false);
       }
     };
-  }, [mapRef, visible, isDark, scale]);
+  }, [mapRef, visible, isDark, scale, opacity]);
 }

@@ -192,6 +192,15 @@ export function useTransportParams() {
   const [waterMonitorScale, setWaterMonitorScale] = useState(1.0);
   const [waterMonitorOpacity, setWaterMonitorOpacity] = useState(1.0);
   const [waterFloodOpacity, setWaterFloodOpacity] = useState(1.0);
+  // Phase 2 monitoring layers（即時雨量 / 河川水位 / 地下水井 / 水井點位）
+  const [rainGaugeScale, setRainGaugeScale] = useState(1.0);
+  const [rainGaugeOpacity, setRainGaugeOpacity] = useState(1.0);
+  const [riverLevelScale, setRiverLevelScale] = useState(1.0);
+  const [riverLevelOpacity, setRiverLevelOpacity] = useState(1.0);
+  const [groundwaterScale, setGroundwaterScale] = useState(1.0);
+  const [groundwaterOpacity, setGroundwaterOpacity] = useState(1.0);
+  const [groundwaterWellsScale, setGroundwaterWellsScale] = useState(1.0);
+  const [groundwaterWellsOpacity, setGroundwaterWellsOpacity] = useState(1.0);
   // AQI 色階圖透明度
   const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
 
@@ -303,7 +312,15 @@ export function useTransportParams() {
     waterMonitorScale,
     waterMonitorOpacity,
     waterFloodOpacity,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity]);
+    rainGaugeScale,
+    rainGaugeOpacity,
+    riverLevelScale,
+    riverLevelOpacity,
+    groundwaterScale,
+    groundwaterOpacity,
+    groundwaterWellsScale,
+    groundwaterWellsOpacity,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -572,6 +589,22 @@ export function useTransportParams() {
           ],
           onChange: (v: string) => setFloodMinDepth(Number(v) as 0 | 0.5 | 1 | 2 | 3),
         },
+      ];
+      case "rainGauge": return [
+        { label: `大小 ${rainGaugeScale.toFixed(2)}`, value: rainGaugeScale, min: 0.5, max: 3, step: 0.1, onChange: setRainGaugeScale },
+        { label: `透明度 ${rainGaugeOpacity.toFixed(2)}`, value: rainGaugeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setRainGaugeOpacity },
+      ];
+      case "riverLevel": return [
+        { label: `大小 ${riverLevelScale.toFixed(2)}`, value: riverLevelScale, min: 0.5, max: 3, step: 0.1, onChange: setRiverLevelScale },
+        { label: `透明度 ${riverLevelOpacity.toFixed(2)}`, value: riverLevelOpacity, min: 0.1, max: 1, step: 0.05, onChange: setRiverLevelOpacity },
+      ];
+      case "groundwater": return [
+        { label: `大小 ${groundwaterScale.toFixed(2)}`, value: groundwaterScale, min: 0.5, max: 3, step: 0.1, onChange: setGroundwaterScale },
+        { label: `透明度 ${groundwaterOpacity.toFixed(2)}`, value: groundwaterOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGroundwaterOpacity },
+      ];
+      case "groundwaterWells": return [
+        { label: `大小 ${groundwaterWellsScale.toFixed(2)}`, value: groundwaterWellsScale, min: 0.5, max: 3, step: 0.1, onChange: setGroundwaterWellsScale },
+        { label: `透明度 ${groundwaterWellsOpacity.toFixed(2)}`, value: groundwaterWellsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGroundwaterWellsOpacity },
       ];
       default: return [];
     }

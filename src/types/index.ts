@@ -114,6 +114,7 @@ export type ExpandableLayerKey =
   | "waterMonitorStations"
   | "waterFloodExtreme"
   | "rainGauge"
+  | "riverLevel"
   | "groundwater"
   | "groundwaterWells";
 
