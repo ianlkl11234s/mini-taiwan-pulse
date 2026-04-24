@@ -182,3 +182,50 @@ ls public/geo/ | grep -i <keyword>
 
 # 找出「DB 有但前端沒用」 → 記進 BACKLOG
 ```
+
+---
+
+## PB-08 診斷 Supabase RPC「資料看起來少一半」
+
+> 觸發情境：前端某圖層只顯示北部 / 部分站點；某 timeline 只有前段看得見；
+> 前端抓 RPC 後 `data.length` 比 `psql COUNT(*)` 少很多。
+
+```bash
+# Step 1：psql 直接查 RPC 實際列數
+psql "$SUPABASE_DB_URL" -c "
+  SELECT COUNT(*), COUNT(DISTINCT station_id)
+  FROM public.get_xxx_day(CURRENT_DATE);
+"
+
+# Step 2：curl REST 看 content-range header
+set -a && source .env && set +a
+curl -s -X POST "${VITE_SUPABASE_URL}/rest/v1/rpc/get_xxx_day" \
+  -H "apikey: ${VITE_SUPABASE_ANON_KEY}" \
+  -H "Authorization: Bearer ${VITE_SUPABASE_ANON_KEY}" \
+  -H "Content-Type: application/json" \
+  -H "Prefer: count=exact" \
+  -d '{"target_date":"2026-04-25"}' \
+  -D /tmp/hdr.txt -o /dev/null
+grep -i "content-range\|HTTP/" /tmp/hdr.txt
+
+# Step 3：若 content-range 顯示 0-19999/N（N > 20K）→ 命中 PostgREST cap
+# 解：RPC 側降頻
+# SELECT DISTINCT ON (station_id, date_trunc('hour', observed_at)) ...
+# ORDER BY station_id, date_trunc('hour', observed_at), observed_at DESC
+
+# Step 4：驗證降頻後依地理區覆蓋不再偏斜
+psql "$SUPABASE_DB_URL" -c "
+  SELECT CASE WHEN lat >= 24.5 THEN '北' WHEN lat >= 23.5 THEN '中'
+              WHEN lat >= 22.5 THEN '南' ELSE '最南' END,
+         COUNT(DISTINCT station_id)
+  FROM public.get_xxx_day(CURRENT_DATE)
+  GROUP BY 1 ORDER BY 1;
+"
+```
+
+**不要做**：
+- ❌ 盲目加 `.range(0, 99999)` — gateway 擋，無效
+- ❌ 盲目懷疑 ORDER BY 順序不對 — 根本問題是 cap
+- ❌ 改成 paginate pagination — 時序圖層難 reassemble，降頻簡單得多
+
+**實例**：migration 060 / 060b。
