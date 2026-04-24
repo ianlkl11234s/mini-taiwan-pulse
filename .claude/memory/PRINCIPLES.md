@@ -152,6 +152,20 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 - INCIDENTS / REFLECTIONS **只 append**，不改舊條目
 - STATUS 每次 rewrite（只保留當下）
 
+- **有實質 commit 後主動更新 STATUS + BACKLOG，不等 /wrap-up**（2026-04-24 教訓）
+  - **判準**：本 session 至少 commit 1 個 feature / 架構改動 → STATUS 必須同 session rewrite
+  - **觸發時機**（任一即做）：
+    - (a) 連續 commit 告一段落，用戶說「ok 繼續 / 下一步」前先更新
+    - (b) 用戶問「記錄了嗎 / 進度如何 / 目前狀態」→ 代表該更新了
+    - (c) 用戶說收工 / 結束 / 暫停，啟動 /wrap-up 前先 draft STATUS
+  - **必改兩檔**：
+    - `STATUS.md`：rewrite 成當下狀態（本次完成 / commits / 未 push / 待辦 / 下一步）
+    - `BACKLOG.md`：把剛完成的項目標 done + 補近期 10 筆
+  - **為什麼**：STATUS 被 SessionStart hook inline 到下次 session context。
+    漏更新 = 下次 Claude 看到的是昨天狀態，會誤判「已完成」為「待辦」，或
+    錯判 commits 數量。這條教訓來自 2026-04-24 session：做完 4 commit 後
+    只更新 BACKLOG 忘了 STATUS，用戶要問一次才補。
+
 ## 行為原則（Claude 自律）
 
 - **不盲信 memory**：涉及「某資料是否存在」「某機場 / 水庫是否已抓」類判斷，

@@ -1,7 +1,7 @@
 # Status
 
-**最後更新**：2026-04-24（session：BL-1 堤防 + BL-2+3 管制區 + W002 地下水井 + deploy 架構修正）
-**分支**：`master`（本機領先 origin **25 commits**；gis-platform 領先 1 commit）
+**最後更新**：2026-04-24（session：BL-1 堤防 + BL-2+3 管制區 + W002 地下水井 + deploy 架構修正 + PRINCIPLES 收尾規則）
+**分支**：`master`（本機領先 origin **27 commits**；gis-platform 領先 1 commit）
 
 ## 本次 session 完成
 
@@ -34,15 +34,23 @@
 2. `bash scripts/deploy/upload-deploy-assets.sh`
 3. Zeabur Terminal `sh /usr/local/bin/pull-deploy-assets.sh`
 
-## 本次 session commits（4 個）
+## 本次 session commits（6 個）
 
-**mini-taiwan-pulse**（本次 3 個）
+**mini-taiwan-pulse**（本次 5 個）
+- 即將 commit: memory PRINCIPLES + STATUS 收尾規則 + 本檔 refresh
+- `8175196` memory: update STATUS — BL-1 / BL-2+3 / W002 + deploy 架構修正
 - `664de9e` memory: BACKLOG 標 BL-1 / BL-2+3 / W002 done
 - `10bef5b` feat(water): 三功能整合 — 堤防 + 管制區 + 地下水井
 - `c32d795` deploy: move water_*.geojson to S3 glob pattern
 
 **gis-platform**（本次 1 個）
 - `5c01731` feat(water): 058 地下水 RPC (W002)
+
+## 新增規則（PRINCIPLES.md）
+
+「有實質 commit 後主動更新 STATUS + BACKLOG，不等 /wrap-up」
+- 來自 2026-04-24 本 session 教訓：做完 4 commit 只改 BACKLOG 忘 STATUS，用戶問才補
+- 判準 + 3 個觸發時機 + 必改兩檔 + 為什麼，見 PRINCIPLES.md「記憶系統原則」section
 
 ## 本機未 push 累計
 
