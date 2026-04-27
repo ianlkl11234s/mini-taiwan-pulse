@@ -181,4 +181,39 @@
 
 ---
 
+## 2026-04-26 iot_wra 整合（多 collector 交叉檢核 + 雙表 pre-aggregate + 細項 toggle）
+
+### What worked ✅
+
+- **agent 平行處理大型 SQL 比對**：用 Task agent 跑「7 個 station_type × 多維比對」避免主 context 爆量（站數/重疊度/欄位填充率/歷史長度都並行查）
+- **先寫研究文件再 commit**：iot integration study + cookbook 兩篇文件變成「思考軌跡」，未來 6 個月後再來看不會迷失架構決策的 why
+- **wrap-up SOP 5 階段照走**：feat / docs / memory 拆 11 個 atomic commit，git log 可追記憶演進
+- **遇到設計衝突問用戶選**：iotWraRiver 細項分割「即時 vs 預測」當下價值不大但用戶說「都做」就做，不自行省略
+
+### What didn't ❌
+
+- **第一次重複度檢核相信 agent 用 station_id 編碼判斷**：agent 報「平行不重疊」（理由：UUID vs text 系統不同），實際座標一查 95% 完全重疊。**主動下指令「用座標而非編碼比對」就避免了這個誤判**
+- **前端做完看不到 toggle**：忘了本專案兩個 sidebar，只改 LayerSidebar 沒改 IconRailSidebar。浪費一次 round-trip 讓用戶截圖才發現
+- **boolean 塞 overlayParams 改 union type 8 個錯**：應該先看其他相同類型 state 怎麼處理（`metroPillar3d` 已示範 0/1 pattern），改型別前先 grep 既有 pattern
+
+### Next-time rules 🎯
+
+1. **重複度檢核用座標不用編號**（PRINCIPLES + PB-09 已定型）
+2. **新增 layer 兩個 sidebar 都改**（PRINCIPLES + PB-01 第 5 步加強提醒）
+3. **動既有 useMemo 型別前先看相同類型 state**（pattern matching > 改型別；PRINCIPLES 已定型）
+4. **Agent 報結果若以「編號/key 互不認識」為理由 → 必補一道座標/實體驗證**
+
+### Memory 產出
+
+- INCIDENTS：+2 條（IconRailSidebar 漏改 / overlayParams 型別嚴格）
+- PRINCIPLES：+3 條（collector 重複檢核 / 一前端兩 sidebar / boolean 0/1 中介）
+- PLAYBOOKS：+PB-09（重複度 SOP）+ PB-10（pre-aggregate 雙表設計）
+- GLOSSARY：+5 條（iot_wra 術語 + 互補 vs 重複定義）
+- DATA_SCOPE：+iot_wra 整合區段（時序表 +3 + RPC +3）
+- BACKLOG：+5 done + 1 new (BL-7 reservoir_daily_ops 診斷 P3)
+- 新增 `docs/research/` 區 + 2 篇研究文件
+- CLAUDE.md 加 docs/research/ 指向
+
+---
+
 <!-- /wrap-up 之後追加新反省 -->
