@@ -14,6 +14,16 @@
 | watershed | 集水區（某水庫上游的水匯集範圍） |
 | reservoir_id vs compare_id | reservoir_id 是 WRA 原始字串 id（40 座都是數字字串）；compare_id 是 reference 表的 int，由 `compareIdFromReservoirId` 互轉 |
 
+## 水利署 IoT 平台（iot.wra.gov.tw）
+
+| 術語 | 說明 |
+|---|---|
+| `iow_station_id` | iot.wra 給的 UUID；vs 舊版 opendata.wra 的 text station_id 互不認識（同一口井兩邊編號完全不同）|
+| `physical_quantity_id` | 測項 UUID；同一站可掛多個（watergate 平均 3.83 PQ：開度% + 內水位 + 外水位 + 絕對開度）|
+| station_type 7 類 | river / groundwater / cumulativeflow / watergate / damstructure / erosiondepth / dustemission |
+| timeline 字串編碼 | `"epoch,val;epoch,val;..."` 每小時 1 timepoint，仿 freeway pattern；避 PostgREST 20K cap（migration 063）|
+| 互補 vs 重複（collector）| 100m 內配對 > 90% = 重複 / < 30% = 互補。座標驗證，不信編號。實例：iot groundwater 95% / iot river 16% |
+
 ## WRA (經濟部水利署) Dataset
 
 | # | 名稱 | 用途 |
