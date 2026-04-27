@@ -949,6 +949,8 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   riverLevel: "河川水位站",
   groundwater: "地下水井",
   groundwaterWell: "地下水井",
+  iotWraRiver: "IoT 河川水位站",
+  iotWraStructure: "IoT 水工結構",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {

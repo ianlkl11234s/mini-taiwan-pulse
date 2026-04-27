@@ -60,6 +60,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   riverLevel: "#22d3ee",
   groundwater: "#0ea5e9",
   groundwaterWells: "#64748b",
+  iotWraRiver: "#06b6d4",
+  iotWraStructure: "#a855f7",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -120,6 +122,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   riverLevel: Waves,
   groundwater: Droplet,
   groundwaterWells: Droplet,
+  iotWraRiver: Waves,
+  iotWraStructure: Gauge,
 };
 
 // ── Section Config ──
@@ -236,6 +240,8 @@ const SECTIONS: SectionDef[] = [
       { key: "riverLevel", label: "河川水位 River Level", expandable: true },
       { key: "groundwaterWells", label: "水井點位 Wells", expandable: true },
       { key: "groundwater", label: "地下水井 Groundwater", expandable: true },
+      { key: "iotWraRiver", label: "IoT 河川 (補強) IoT River", expandable: true },
+      { key: "iotWraStructure", label: "IoT 水工結構 IoT Structure", expandable: true },
     ],
   },
 ];

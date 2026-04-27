@@ -23,6 +23,26 @@ const SEVERITY_ITEMS: { key: string; color: string; label: string }[] = [
   { key: "Minor", color: "#3b82f6", label: "輕度 Minor" },
 ];
 
+// ── IoT 河川 delta 紅↔藍 ──
+const IOT_RIVER_DELTA_STOPS = [
+  { color: "#7e22ce", label: "-1m" },
+  { color: "#a855f7", label: "-30cm" },
+  { color: "#d8b4fe", label: "-10cm" },
+  { color: "#94a3b8", label: "0" },
+  { color: "#67e8f9", label: "+10cm" },
+  { color: "#06b6d4", label: "+30cm" },
+  { color: "#0e7490", label: "+1m" },
+];
+
+// ── IoT 水工結構 5 類別 ──
+const IOT_STRUCTURE_TYPES = [
+  { color: "#a855f7", label: "累計流量 Cumulative Flow", measure: "m³" },
+  { color: "#f97316", label: "閘門 Watergate", measure: "開度 % / 水位 m" },
+  { color: "#dc2626", label: "堤防安全 Dam Structure", measure: "角度 / 應力" },
+  { color: "#eab308", label: "河床沖刷 Erosion", measure: "深度 m" },
+  { color: "#92400e", label: "揚塵 Dust", measure: "PM10 / 風速 / 溫濕度" },
+];
+
 interface LegendPanelProps {
   visibility: LayerVisibility;
 }
@@ -33,7 +53,9 @@ export function LegendPanel({ visibility }: LegendPanelProps) {
   // 判斷有哪些需要圖例的圖層是開啟的
   const hasEarthquake = visibility.earthquakes;
   const hasDisasterAlert = visibility.disasterAlerts;
-  const hasAny = hasEarthquake || hasDisasterAlert;
+  const hasIotRiver = visibility.iotWraRiver;
+  const hasIotStructure = visibility.iotWraStructure;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure;
 
   if (!hasAny) return null;
 
@@ -80,6 +102,8 @@ export function LegendPanel({ visibility }: LegendPanelProps) {
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
           {hasEarthquake && <EarthquakeLegend />}
           {hasDisasterAlert && <DisasterAlertLegend />}
+          {hasIotRiver && <IotRiverLegend />}
+          {hasIotStructure && <IotStructureLegend />}
         </div>
       )}
     </div>
@@ -168,6 +192,76 @@ function DisasterAlertLegend() {
               }}
             />
             <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── IoT River Legend (delta 紅↔藍) ──
+
+function IotRiverLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        IOT 河川（補強）
+      </div>
+      <div style={{ marginBottom: 4 }}>
+        <div style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", marginBottom: 2 }}>
+          當日水位變化
+        </div>
+        <div
+          style={{
+            height: 8,
+            borderRadius: 4,
+            background: `linear-gradient(to right, ${IOT_RIVER_DELTA_STOPS.map((s) => s.color).join(", ")})`,
+          }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>下降</span>
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>持平</span>
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>上升</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>-1m</span>
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>0</span>
+          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>+1m</span>
+        </div>
+      </div>
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", lineHeight: 1.4 }}>
+        圈大小 = 變化幅度
+      </div>
+    </div>
+  );
+}
+
+// ── IoT Structure Legend (5 類別 + 主要測項) ──
+
+function IotStructureLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        IOT 水工結構
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {IOT_STRUCTURE_TYPES.map((s) => (
+          <div key={s.label} style={{ display: "flex", alignItems: "flex-start", gap: 6 }}>
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: s.color,
+                opacity: 0.9,
+                flexShrink: 0,
+                marginTop: 3,
+              }}
+            />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)" }}>{s.measure}</span>
+            </div>
           </div>
         ))}
       </div>

@@ -28,6 +28,8 @@ import { useRainGaugeLayer } from "./hooks/useRainGaugeLayer";
 import { useRiverLevelLayer } from "./hooks/useRiverLevelLayer";
 import { useGroundwaterLayer } from "./hooks/useGroundwaterLayer";
 import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
+import { useIotWraRiverLayer } from "./hooks/useIotWraRiverLayer";
+import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -435,6 +437,31 @@ export default function App() {
     isDarkTheme,
     transportParams.overlayParams.groundwaterScale ?? 1,
     transportParams.overlayParams.groundwaterOpacity ?? 1,
+  );
+
+  // ── IoT 河川（補強 riverLevel；migration 063 預聚合表，timeline 驅動） ──
+  useIotWraRiverLayer(
+    mapRef,
+    layerVisibility.iotWraRiver,
+    isDarkTheme,
+    transportParams.overlayParams.iotWraRiverScale ?? 1,
+    transportParams.overlayParams.iotWraRiverOpacity ?? 1,
+    !!(transportParams.overlayParams.iotWraRiverShowMeasured ?? 1),
+    !!(transportParams.overlayParams.iotWraRiverShowForecast ?? 1),
+  );
+
+  // ── IoT 水工結構（流量/閘門/堤防/沖刷/揚塵 5 in 1，純 latest snapshot） ──
+  useIotWraStructureLayer(
+    mapRef,
+    layerVisibility.iotWraStructure,
+    isDarkTheme,
+    transportParams.overlayParams.iotWraStructureScale ?? 1,
+    transportParams.overlayParams.iotWraStructureOpacity ?? 1,
+    !!(transportParams.overlayParams.iotWraStructureFlow ?? 1),
+    !!(transportParams.overlayParams.iotWraStructureGate ?? 1),
+    !!(transportParams.overlayParams.iotWraStructureDam ?? 1),
+    !!(transportParams.overlayParams.iotWraStructureErosion ?? 1),
+    !!(transportParams.overlayParams.iotWraStructureDust ?? 1),
   );
 
   // ── News timeline (time-based filter + ripple animation) ──

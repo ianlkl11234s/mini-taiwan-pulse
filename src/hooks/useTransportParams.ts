@@ -201,6 +201,17 @@ export function useTransportParams() {
   const [groundwaterOpacity, setGroundwaterOpacity] = useState(1.0);
   const [groundwaterWellsScale, setGroundwaterWellsScale] = useState(1.0);
   const [groundwaterWellsOpacity, setGroundwaterWellsOpacity] = useState(1.0);
+  const [iotWraRiverScale, setIotWraRiverScale] = useState(1.0);
+  const [iotWraRiverOpacity, setIotWraRiverOpacity] = useState(1.0);
+  const [iotWraRiverShowMeasured, setIotWraRiverShowMeasured] = useState(true);
+  const [iotWraRiverShowForecast, setIotWraRiverShowForecast] = useState(true);
+  const [iotWraStructureScale, setIotWraStructureScale] = useState(1.0);
+  const [iotWraStructureOpacity, setIotWraStructureOpacity] = useState(1.0);
+  const [iotWraStructureFlow, setIotWraStructureFlow] = useState(true);
+  const [iotWraStructureGate, setIotWraStructureGate] = useState(true);
+  const [iotWraStructureDam, setIotWraStructureDam] = useState(true);
+  const [iotWraStructureErosion, setIotWraStructureErosion] = useState(true);
+  const [iotWraStructureDust, setIotWraStructureDust] = useState(true);
   // AQI 色階圖透明度
   const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
 
@@ -320,7 +331,18 @@ export function useTransportParams() {
     groundwaterOpacity,
     groundwaterWellsScale,
     groundwaterWellsOpacity,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity]);
+    iotWraRiverScale,
+    iotWraRiverOpacity,
+    iotWraRiverShowMeasured: iotWraRiverShowMeasured ? 1 : 0,
+    iotWraRiverShowForecast: iotWraRiverShowForecast ? 1 : 0,
+    iotWraStructureScale,
+    iotWraStructureOpacity,
+    iotWraStructureFlow: iotWraStructureFlow ? 1 : 0,
+    iotWraStructureGate: iotWraStructureGate ? 1 : 0,
+    iotWraStructureDam: iotWraStructureDam ? 1 : 0,
+    iotWraStructureErosion: iotWraStructureErosion ? 1 : 0,
+    iotWraStructureDust: iotWraStructureDust ? 1 : 0,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -605,6 +627,21 @@ export function useTransportParams() {
       case "groundwaterWells": return [
         { label: `大小 ${groundwaterWellsScale.toFixed(2)}`, value: groundwaterWellsScale, min: 0.5, max: 3, step: 0.1, onChange: setGroundwaterWellsScale },
         { label: `透明度 ${groundwaterWellsOpacity.toFixed(2)}`, value: groundwaterWellsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGroundwaterWellsOpacity },
+      ];
+      case "iotWraRiver": return [
+        { label: `大小 ${iotWraRiverScale.toFixed(2)}`, value: iotWraRiverScale, min: 0.5, max: 3, step: 0.1, onChange: setIotWraRiverScale },
+        { label: `透明度 ${iotWraRiverOpacity.toFixed(2)}`, value: iotWraRiverOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIotWraRiverOpacity },
+        { type: "toggle", label: "即時水位", value: iotWraRiverShowMeasured, onChange: setIotWraRiverShowMeasured },
+        { type: "toggle", label: "預測水位 (12-19h)", value: iotWraRiverShowForecast, onChange: setIotWraRiverShowForecast },
+      ];
+      case "iotWraStructure": return [
+        { label: `大小 ${iotWraStructureScale.toFixed(2)}`, value: iotWraStructureScale, min: 0.5, max: 3, step: 0.1, onChange: setIotWraStructureScale },
+        { label: `透明度 ${iotWraStructureOpacity.toFixed(2)}`, value: iotWraStructureOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIotWraStructureOpacity },
+        { type: "toggle", label: "累計流量 Flow", value: iotWraStructureFlow, onChange: setIotWraStructureFlow },
+        { type: "toggle", label: "閘門 Watergate", value: iotWraStructureGate, onChange: setIotWraStructureGate },
+        { type: "toggle", label: "堤防安全 Dam", value: iotWraStructureDam, onChange: setIotWraStructureDam },
+        { type: "toggle", label: "河床沖刷 Erosion", value: iotWraStructureErosion, onChange: setIotWraStructureErosion },
+        { type: "toggle", label: "揚塵 Dust", value: iotWraStructureDust, onChange: setIotWraStructureDust },
       ];
       default: return [];
     }
