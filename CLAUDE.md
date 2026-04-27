@@ -106,6 +106,7 @@ Hook 參數表**不收** `currentTime`。理由與節流表見 [`docs/developmen
 - [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) — 時間軸架構
 - [`docs/bus-layer-design.md`](./docs/bus-layer-design.md) — 公車 progress-based 架構 + 全台擴展指南
 - [`docs/known-issues.md`](./docs/known-issues.md) — 歷史 bug + 診斷指令
+- [`docs/research/`](./docs/research/) — 研究報告區（決策軌跡、跨系統比對、故事 cookbook）
 
 ## 關聯專案
 
