@@ -178,6 +178,58 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
   - 前端 `ALERT_COLOR_HEX` / `ALERT_COLORS` 一律英文 key
   - 中文只在 display label 層用（`ALERT_LABELS: 嚴重/偏低/正常/滿水`）
 
+## Collector 重複度檢核（2026-04-26 教訓）
+
+新加 collector 跟既有疑似重疊時：
+
+1. **不要信編號系統**：UUID vs text station_id 互不認識，看起來不重疊不代表沒重疊
+2. **用座標 ST_DWithin 100m 比對**（不是欄位 join）：
+   ```sql
+   SELECT COUNT(*)
+   FROM old_table o JOIN new_table n
+     ON ST_DWithin(o.geom::geography, n.geom::geography, 100);
+   ```
+3. **Sample 5-10 對最近站看名字**：dist=0 + 名字相同/相近 = 確認同源
+4. **比 schema 欄位填充率**：`COUNT()` 不等於有用，要 sample 看是不是空字串
+5. **歷史長度 + 取樣頻率** 決定誰當主、誰當備援
+
+**判準**：100m 內配對率 > 90% = 重複（停一邊）；< 30% = 互補（兩邊都留）。
+
+實例：iot_wra groundwater 95% 配對 → 完全重複（停 iot 子端點）；iot_wra river 16% → 互補。
+詳見 `docs/research/iot-wra-integration-study.md` § 3 + PB-09。
+
+## 一前端兩 Sidebar 同步改（2026-04-26 教訓）
+
+本專案前端有 `LayerSidebar.tsx`（舊版）+ `IconRailSidebar.tsx`（實際渲染）。新增 layer 時必須**兩個都改**：
+
+- `LAYER_COLORS`（兩檔都要）
+- `LAYER_ICONS`（IconRailSidebar 才有）
+- `SECTIONS` 列表（兩檔都要）
+
+漏改 IconRailSidebar = `tsc -b` 過但前端看不到 toggle。
+
+`FeatureInfoPanel.tsx` 的 `HEADER_LABELS` 也要補（type narrowing 要過）。
+
+PB-01「新增 Layer 強制順序」第 5 步已點明，但這次仍漏改 → 列為 P0 提醒。
+
+## boolean 透過 overlayParams 一律 0/1 中介（2026-04-26 教訓）
+
+`overlayParams: Record<string, number>` 嚴格只收 number。新增 boolean 控制要：
+
+```ts
+// useTransportParams.ts
+const overlayParams = useMemo<Record<string, number>>(() => ({
+  ...
+  myBool: myBoolState ? 1 : 0,  // 仿 metroPillar3d
+}));
+
+// App.tsx 讀時
+!!(transportParams.overlayParams.myBool ?? 1)
+```
+
+**動既有型別前先看相同類型 state 怎麼處理**（pattern matching > 改型別）。
+這次本能改 union type 結果下游 8 個錯，看到 `metroPillar3d: metroPillarVisible ? 1 : 0` 才知道既有 pattern。
+
 ## Git 慣例
 
 - 每個邏輯單位一個 commit
