@@ -240,4 +240,34 @@ App 被 error boundary 接住白畫面。
 
 ---
 
+## 2026-04-26 IconRailSidebar 漏改 toggle 不顯示
+
+**現象**：`iotWraRiver` / `iotWraStructure` layer 寫完 + `tsc -b` 通過，但 sidebar 看不到 toggle，user 截圖回報。
+
+**根因**：本專案前端有**兩個 sidebar 元件** — `LayerSidebar.tsx` 跟 `IconRailSidebar.tsx`。實際渲染用 IconRailSidebar，但我只改了 LayerSidebar 的 `LAYER_COLORS` + UI toggle 列表。
+
+**對策**：
+- 補上 `IconRailSidebar.tsx` 的 `LAYER_COLORS` / `LAYER_ICONS` / `SECTIONS` 列表 3 處
+- PRINCIPLES：新增「一前端兩 sidebar 同步改」原則
+
+**Long-form（無）**：規則直接寫進 PRINCIPLES。
+
+---
+
+## 2026-04-26 overlayParams 型別嚴格只收 number
+
+**現象**：把 7 個 boolean state（即時/預測 toggle、5 個結構類型 toggle）塞進 `overlayParams` 後 `tsc -b` 報 8 個型別錯。
+
+**根因**：`overlayParams = useMemo<Record<string, number>>(...)` 嚴格只收 number。改成 `number | boolean` union 後下游所有 site 都要 narrow，破壞性大。
+
+**對策**：
+- 仿既有 `metroPillar3d: metroPillarVisible ? 1 : 0` pattern
+- boolean 在 overlayParams 內轉 0/1 number
+- App.tsx 讀時 `!!(... ?? 1)` 還原為 boolean
+- PRINCIPLES：boolean state 透過 overlayParams 一律 0/1 中介，動既有型別前先看相同類型怎麼處理
+
+**Long-form（無）**：pattern 直接寫進 PRINCIPLES。
+
+---
+
 <!-- 追加新事件於此之上 -->
