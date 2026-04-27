@@ -229,3 +229,95 @@ psql "$SUPABASE_DB_URL" -c "
 - ❌ 改成 paginate pagination — 時序圖層難 reassemble，降頻簡單得多
 
 **實例**：migration 060 / 060b。
+
+---
+
+## PB-09 Collector 重複度檢核 SOP
+
+> 觸發：新加的 collector，懷疑跟既有 collector 抓同一批站。
+
+```bash
+# Step 1: 兩邊各多少有座標的站
+psql "$SUPABASE_DB_URL" -c "
+SELECT
+  (SELECT COUNT(*) FROM <old_stations> WHERE geom IS NOT NULL) AS old_n,
+  (SELECT COUNT(*) FROM <new_stations> WHERE geom IS NOT NULL) AS new_n;"
+
+# Step 2: 100m 內配對對數
+psql "$SUPABASE_DB_URL" -c "
+SELECT COUNT(*) AS overlap
+FROM <old> o JOIN <new> n
+  ON ST_DWithin(o.geom::geography, n.geom::geography, 100);"
+
+# Step 3: 各邊有幾個站找得到對應（用 500m 寬鬆配）
+psql "$SUPABASE_DB_URL" -c "
+SELECT
+  COUNT(DISTINCT o.id) AS old_with_match,
+  COUNT(DISTINCT n.id) AS new_with_match
+FROM <old> o JOIN <new> n
+  ON ST_DWithin(o.geom::geography, n.geom::geography, 500);"
+
+# Step 4: 8 對最近站看名字（dist=0 + 名字相近 = 確認同源）
+psql "$SUPABASE_DB_URL" -c "
+WITH a AS (SELECT id, name, geom FROM <old> WHERE geom IS NOT NULL),
+     b AS (SELECT id, name, geom FROM <new> WHERE geom IS NOT NULL)
+SELECT a.name AS old_name, b.name AS new_name,
+       ROUND(ST_Distance(a.geom::geography, b.geom::geography)::numeric, 1) AS dist_m
+FROM a CROSS JOIN LATERAL (
+  SELECT id, name, geom FROM b ORDER BY a.geom::geography <-> b.geom LIMIT 1
+) b
+WHERE ST_Distance(a.geom::geography, b.geom::geography) < 100
+LIMIT 8;"
+```
+
+**判讀矩陣**：
+
+| 配對率 | 結論 | 動作 |
+|---|---|---|
+| > 90% | 完全重複 | 停一邊（保留資訊豐富的） |
+| 30 - 70% | 部分重疊 | case by case，看欄位差異 |
+| < 30% | 互補 | 兩邊都留 |
+
+**順便比 schema 欄位**：填充率（COUNT vs sample 全空）+ 歷史長度 + 取樣頻率，決定誰當主源。
+
+詳見：`docs/research/iot-wra-integration-study.md` § 3 + § 7。
+
+實例：iot_wra groundwater（95% → 停 iot）vs river（16% → 兩邊都留）。
+
+---
+
+## PB-10 Pre-aggregate 雙表設計（latest snapshot + daily timeline）
+
+> 觸發：新時序資料源 24h rows > 100k，前端需要 **latest 地圖點** + **timeline 拖拉** 兩種視覺。
+
+| 表 | 規模 | 用途 | refresh 頻率 |
+|---|---|---|---|
+| `realtime.<src>_latest` | 固定 ~站數 × 測項 | 地圖點圖示 | 每 10 min |
+| `realtime.<src>_daily` | ~站數 × 7 天 | timeline 拖拉 | 每 20 min today + yesterday |
+
+關鍵設計：
+
+1. **Latest 表欄位**：`value` + `value_day_start` + `delta_since_day_start`（跨站可比著色用）
+2. **Daily 表 timeline 字串編碼**：`"epoch1,val1;epoch2,val2;..."` 每小時 1 個 timepoint，**仿 freeway pattern**，避 PostgREST 20K cap
+3. **Refresh function 三件套**：
+   - `pg_advisory_xact_lock` 防並發
+   - `DELETE` + `INSERT FROM (DISTINCT ON ...)` 模式
+   - `SET statement_timeout TO '0'`（cron 不受 PostgREST 2min 限制）
+4. **Cron 排程錯開分鐘**（避 IO 撞車，依 cron_throttle.sql 規則編號）
+
+**前端解析 timeline 字串**（給其他 layer 抄）：
+
+```ts
+function parseTimeline(timeline: string): Array<{ t: number; v: number }> {
+  if (!timeline) return [];
+  return timeline.split(";").reduce<Array<{t:number;v:number}>>((acc, pair) => {
+    const [t, v] = pair.split(",").map(Number);
+    if (Number.isFinite(t) && Number.isFinite(v)) acc.push({ t, v });
+    return acc;
+  }, []);
+}
+```
+
+實例：migration 063（iot_wra）— `iot_wra_latest` 4k rows + `iot_wra_daily` ~4k rows × 7 天 / 23 timepoints。
+
+詳見：`docs/research/iot-wra-integration-study.md` § 5.2。
