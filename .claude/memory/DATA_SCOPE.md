@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-04-25
+**最後更新**：2026-04-26
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -14,8 +14,12 @@
 | `realtime.rain_gauge_readings` | 10 分鐘 | 1,310 站 | 2026-04-19+（~3 天，525k 筆）|
 | `realtime.river_water_level` | 10 分鐘 | 373 站 | **2025-12-14+（~4 個月！）** |
 | `realtime.groundwater_level_readings` | 每小時 | 786 站 | 2026-04-20+（~2 天）|
+| `realtime.iot_wra_measurements` | 10 min（每 60min collector 取 6 筆）| **2,800 站 / 7 類型** | 2021-04+（5 年；7 天 retention by migration 062）|
+| `realtime.iot_wra_latest` (063 預聚合) | refresh 10 min | ~4k rows = 站 × 測項 | 跟 measurement 同步 |
+| `realtime.iot_wra_daily` (063 預聚合) | refresh 20 min today+yesterday | ~4k rows × 7 天，timeline 字串編碼 | 7 天保留 |
 
-> 最長歷史是河川水位（~4 個月）。其他 collectors 今年 4 月才開跑。
+> 最長歷史是河川水位（~4 個月）+ iot_wra（5 年但只保 7 天）。其他 collectors 今年 4 月才開跑。
+> **iot_wra collector 已停 groundwater 子端點**（2026-04-26，跟 old 95% 重複；iot_wra.py L42 已 comment）。
 
 ## 水資源 — 靜態（Supabase public + reference）
 
@@ -58,6 +62,9 @@
 | `get_groundwater_latest()` | 058 / **060** | 地下水井最新 + delta_24h | ~500ms / ~762 筆 |
 | `get_groundwater_day(date)` | 058 / **060** | 當日每站每小時 1 筆（降頻避 20K cap）| ~300ms / **~16.5k 筆** |
 | `get_groundwater_timeseries(id, from, to)` | 058 | 單井歷史區間（panel 預留）| |
+| `get_iot_wra_latest(station_type)` | 061 / **063** | iot_wra 每站每測項最新 + delta_since_day_start | ~50ms / 直讀 latest 表 |
+| `get_iot_wra_day(date, station_type)` | **063** | iot_wra 當日 timeline（字串編碼，每小時 1 timepoint）| ~100ms / ~4k rows |
+| `get_iot_wra_timeseries(uuid, from, to)` | 061 | iot_wra 單站歷史區間 | |
 | `reservoir_situation_v` (view) | 022/056 | 蓄水率 + alert_level（分母用 current_capacity） | |
 
 > **PostgREST db-max-rows=20000 cap** — 2026-04-25 兩次踩到（groundwater 78K、river 44K 原始）。
