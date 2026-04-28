@@ -15,6 +15,7 @@
 | BL-5 | P1 | 水庫點選顯示 3D 進/出流雙排日柱 | **done** | 2026-04-23 完成（commit dae1c78 / 06116e7 / 52a56ba / 6600433）|
 | BL-6 | P3 | 水庫 3D 柱顯示「最新日期」標記 | open | 討論中：panel ribbon 或 Marker「最新」小字；暫停 |
 | BL-7 | P3 | `reservoir_daily_ops` 04-23 停擺診斷 | open | collector / cron 4-23 後沒進新筆，需查 Zeabur log（2026-04-25 盤點時發現）|
+| BL-8 | P3 | Git history 清舊 water_*.geojson 大檔 | open | 5 個檔留在 history（最大 79MB water_flood_extreme），每次 push GitHub 警告但不影響功能。.gitignore + S3 機制已正確。需 git filter-repo + force push（風險高 → 暫不做）|
 
 ### 水資源擴展（新 collector / 新 RPC）
 
