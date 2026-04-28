@@ -51,6 +51,14 @@ export interface TimelineState {
 /** 時間模式：replay = 歷史回放, live = 即時模式 */
 export type TimeMode = "replay" | "live";
 
+/** App 大模式：realtime = 即時 24h, historical = 歷史長時序（年/日/月） */
+export type AppMode = "realtime" | "historical";
+
+/** 歷史模式狀態：年份（民國年）+ 後續可擴日期粒度 */
+export interface HistoricalState {
+  year: number; // 民國年，例如 113 = 西元 2024
+}
+
 /** 資料源的時間行為類型 */
 export type TimeType =
   | "track"     // 有軌跡的動態資料（航班、船舶）

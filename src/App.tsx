@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
 import { MapView } from "./map/MapView";
 import { useAirspaceData } from "./hooks/useAirspaceData";
@@ -40,7 +40,7 @@ import { AqiLegend } from "./components/AqiLegend";
 import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
-import { useDemographicsH3 } from "./hooks/useDemographicsH3";
+import { useDemographicsH3, useDemographicsYearlyH3 } from "./hooks/useDemographicsH3";
 import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
@@ -54,6 +54,8 @@ import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { TimelineControls } from "./components/TimelineControls";
+import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
+import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
@@ -357,6 +359,61 @@ export default function App() {
 
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
+  const { getCells: getYearlyCells, loadYear: loadDemoYear } = useDemographicsYearlyH3();
+
+  // ── App 大模式：即時 vs 歷史長時序 ──
+  const [appMode, setAppMode] = useState<AppMode>("realtime");
+  const [historicalYear, setHistoricalYear] = useState<number>(113); // 預設民國 113 = 2024
+  const [historicalPlaying, setHistoricalPlaying] = useState<boolean>(false);
+  const [historicalSpeed, setHistoricalSpeed] = useState<number>(1); // 倍速
+  const [historicalGranularity, setHistoricalGranularity] = useState<HistoricalGranularity>("year");
+  const HISTORICAL_YEARS = useMemo(
+    () => [104, 105, 106, 107, 108, 109, 110, 111, 112, 113],
+    [],
+  );
+
+  // 歷史模式自動播放：每 (2 / speed) 秒前進一年，到頂自動暫停
+  useEffect(() => {
+    if (appMode !== "historical" || !historicalPlaying) return;
+    const interval = Math.max(200, 2000 / historicalSpeed);
+    const id = window.setInterval(() => {
+      setHistoricalYear((y) => {
+        const max = HISTORICAL_YEARS[HISTORICAL_YEARS.length - 1] ?? y;
+        if (y >= max) {
+          setHistoricalPlaying(false);
+          return y;
+        }
+        return y + 1;
+      });
+    }, interval);
+    return () => window.clearInterval(id);
+  }, [appMode, historicalPlaying, historicalSpeed, HISTORICAL_YEARS]);
+
+  // 切到 historical mode 時，記住既有 layerVisibility 並切到「歷史專屬」可見集合；
+  // 切回 realtime 時還原。避免使用者在歷史模式看到大量無法解讀的即時圖層。
+  const layerVisBeforeHistoricalRef = useRef<LayerVisibility | null>(null);
+  useEffect(() => {
+    if (appMode === "historical") {
+      if (layerVisBeforeHistoricalRef.current === null) {
+        layerVisBeforeHistoricalRef.current = layerVisibilityRef.current;
+      }
+      // 全部關掉、預設打開人口
+      const current = layerVisibilityRef.current;
+      const allOff = { ...current };
+      for (const k of Object.keys(allOff) as (keyof LayerVisibility)[]) {
+        allOff[k] = false;
+      }
+      setLayerVisibility({ ...allOff, popCount: true });
+    } else {
+      const snapshot = layerVisBeforeHistoricalRef.current;
+      if (snapshot) {
+        setLayerVisibility(snapshot);
+        layerVisBeforeHistoricalRef.current = null;
+      }
+    }
+    // setLayerVisibility / layerVisibilityRef 都是 stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appMode]);
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
 
@@ -606,6 +663,13 @@ export default function App() {
     }
   }, [demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemographicsResolution]);
 
+  // Historical mode: 預載當前選定年份的人口 cells
+  useEffect(() => {
+    if (appMode !== "historical") return;
+    if (!layerVisibility.popCount && !layerVisibility.indicators) return;
+    loadDemoYear(historicalYear, demoResolution);
+  }, [appMode, historicalYear, demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemoYear]);
+
   // Socioeconomic: load resolution when visible
   useEffect(() => {
     if (layerVisibility.socioeconomic) {
@@ -621,22 +685,29 @@ export default function App() {
   }, [demoResolution, layerVisibility.spatialEconomy, loadSpatialResolution]);
 
   // Demographics: update popCount layer
+  // historical mode 用 yearly RPC cells；realtime mode 用本機 JSON snapshot
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
     ensurePopCountLayers(map);
-    const cells = demographicsDataMap.get(demoResolution) ?? [];
+    const cells =
+      appMode === "historical"
+        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+        : (demographicsDataMap.get(demoResolution) ?? []);
     updatePopCountLayer(map, cells, transportParams.popCountParams, layerVisibility.popCount);
-  }, [demographicsDataMap, demoResolution, layerVisibility.popCount, transportParams.popCountParams]);
+  }, [appMode, historicalYear, demographicsDataMap, demoResolution, layerVisibility.popCount, transportParams.popCountParams, getYearlyCells]);
 
   // Demographics: update indicators layer
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
     ensureIndicatorsLayers(map);
-    const cells = demographicsDataMap.get(demoResolution) ?? [];
+    const cells =
+      appMode === "historical"
+        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+        : (demographicsDataMap.get(demoResolution) ?? []);
     updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
-  }, [demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams]);
+  }, [appMode, historicalYear, demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams, getYearlyCells]);
 
   // Socioeconomic: update layer
   useEffect(() => {
@@ -1025,27 +1096,43 @@ export default function App() {
             />
           </div>
 
-          {/* 時間軸 */}
-          <TimelineControls
-            playing={timeline.playing}
-            speed={timeline.speed}
-            progress={timeline.progress}
-            currentTime={timeline.currentTime}
-            timeMode={timeline.timeMode}
-            selectedDate={timeline.selectedDate}
-            rangeDays={timeline.rangeDays}
-            windowStart={timeline.windowStart}
-            windowEnd={timeline.windowEnd}
-            isDarkTheme={isDarkTheme}
-            leftOffset={sidebarWidth + 16}
-            onToggle={timeline.toggle}
-            onSpeedChange={timeline.setSpeed}
-            onSeekByProgress={timeline.seekByProgress}
-            onTimeModeChange={timeline.setTimeMode}
-            onDateChange={timeline.setSelectedDate}
-            onShiftDate={timeline.shiftDate}
-            onRangeDaysChange={timeline.setRangeDays}
-          />
+          {/* 時間軸：依 mode 切換 realtime / historical */}
+          {appMode === "realtime" ? (
+            <TimelineControls
+              playing={timeline.playing}
+              speed={timeline.speed}
+              progress={timeline.progress}
+              currentTime={timeline.currentTime}
+              timeMode={timeline.timeMode}
+              selectedDate={timeline.selectedDate}
+              rangeDays={timeline.rangeDays}
+              windowStart={timeline.windowStart}
+              windowEnd={timeline.windowEnd}
+              isDarkTheme={isDarkTheme}
+              leftOffset={sidebarWidth + 16}
+              onToggle={timeline.toggle}
+              onSpeedChange={timeline.setSpeed}
+              onSeekByProgress={timeline.seekByProgress}
+              onTimeModeChange={timeline.setTimeMode}
+              onDateChange={timeline.setSelectedDate}
+              onShiftDate={timeline.shiftDate}
+              onRangeDaysChange={timeline.setRangeDays}
+            />
+          ) : (
+            <HistoricalTimeline
+              year={historicalYear}
+              availableYears={HISTORICAL_YEARS}
+              playing={historicalPlaying}
+              speed={historicalSpeed}
+              granularity={historicalGranularity}
+              isDarkTheme={isDarkTheme}
+              leftOffset={sidebarWidth + 16}
+              onTogglePlay={() => setHistoricalPlaying((v) => !v)}
+              onSpeedChange={setHistoricalSpeed}
+              onYearChange={setHistoricalYear}
+              onGranularityChange={setHistoricalGranularity}
+            />
+          )}
 
           {/* 右上角按鈕群 */}
           <div
@@ -1056,8 +1143,14 @@ export default function App() {
               zIndex: 10,
               display: "flex",
               gap: 8,
+              alignItems: "center",
             }}
           >
+            <ModeToggle
+              appMode={appMode}
+              isDarkTheme={isDarkTheme}
+              onAppModeChange={setAppMode}
+            />
             <button
               onClick={() => setCaptureMode(true)}
               style={{
@@ -1292,26 +1385,42 @@ export default function App() {
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <TimelineControls
-              playing={timeline.playing}
-              speed={timeline.speed}
-              progress={timeline.progress}
-              currentTime={timeline.currentTime}
-              timeMode={timeline.timeMode}
-              selectedDate={timeline.selectedDate}
-              rangeDays={timeline.rangeDays}
-              windowStart={timeline.windowStart}
-              windowEnd={timeline.windowEnd}
-              isDarkTheme={true}
-              isMobile={true}
-              onToggle={timeline.toggle}
-              onSpeedChange={timeline.setSpeed}
-              onSeekByProgress={timeline.seekByProgress}
-              onTimeModeChange={timeline.setTimeMode}
-              onDateChange={timeline.setSelectedDate}
-              onShiftDate={timeline.shiftDate}
-              onRangeDaysChange={timeline.setRangeDays}
-            />
+            {appMode === "realtime" ? (
+              <TimelineControls
+                playing={timeline.playing}
+                speed={timeline.speed}
+                progress={timeline.progress}
+                currentTime={timeline.currentTime}
+                timeMode={timeline.timeMode}
+                selectedDate={timeline.selectedDate}
+                rangeDays={timeline.rangeDays}
+                windowStart={timeline.windowStart}
+                windowEnd={timeline.windowEnd}
+                isDarkTheme={true}
+                isMobile={true}
+                onToggle={timeline.toggle}
+                onSpeedChange={timeline.setSpeed}
+                onSeekByProgress={timeline.seekByProgress}
+                onTimeModeChange={timeline.setTimeMode}
+                onDateChange={timeline.setSelectedDate}
+                onShiftDate={timeline.shiftDate}
+                onRangeDaysChange={timeline.setRangeDays}
+              />
+            ) : (
+              <HistoricalTimeline
+                year={historicalYear}
+                availableYears={HISTORICAL_YEARS}
+                playing={historicalPlaying}
+                speed={historicalSpeed}
+                granularity={historicalGranularity}
+                isDarkTheme={true}
+                isMobile={true}
+                onTogglePlay={() => setHistoricalPlaying((v) => !v)}
+                onSpeedChange={setHistoricalSpeed}
+                onYearChange={setHistoricalYear}
+                onGranularityChange={setHistoricalGranularity}
+              />
+            )}
           </div>
 
           {/* Bottom Sheet */}
