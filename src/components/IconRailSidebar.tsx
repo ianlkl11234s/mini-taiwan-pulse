@@ -8,6 +8,7 @@ import {
   GraduationCap, Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck,
+  Flame,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -62,6 +63,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   groundwaterWells: "#64748b",
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
+  fireEvents: "#ff5722",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -124,6 +126,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   groundwaterWells: Droplet,
   iotWraRiver: Waves,
   iotWraStructure: Gauge,
+  fireEvents: Flame,
 };
 
 // ── Section Config ──
@@ -216,6 +219,7 @@ const SECTIONS: SectionDef[] = [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
       { key: "earthquakes", label: "地震 Earthquake", expandable: true },
       { key: "disasterAlerts", label: "災害示警 Disaster Alerts", expandable: true },
+      { key: "fireEvents", label: "火災歷史 Fire (歷史)", expandable: true },
     ],
   },
   {

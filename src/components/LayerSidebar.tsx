@@ -60,6 +60,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   groundwaterWells: "#64748b",
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
+  fireEvents: "#ff5722",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -153,6 +154,7 @@ const SECTIONS: SectionDef[] = [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
       { key: "earthquakes", label: "地震 Earthquake", expandable: true },
       { key: "disasterAlerts", label: "災害示警 Disaster Alerts", expandable: true },
+      { key: "fireEvents", label: "火災歷史 Fire (歷史)", expandable: true },
     ],
   },
   {

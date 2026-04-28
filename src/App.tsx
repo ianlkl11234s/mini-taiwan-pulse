@@ -30,6 +30,7 @@ import { useGroundwaterLayer } from "./hooks/useGroundwaterLayer";
 import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
 import { useIotWraRiverLayer } from "./hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
+import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -537,6 +538,14 @@ export default function App() {
     mapRef,
     layerVisibility.disasterAlerts,
     transportParams.daOpacity,
+  );
+
+  // ── 火災歷史事件（僅在 historical mode + toggle 開啟時實際 fetch） ──
+  useFireEventsLayer(
+    mapRef,
+    appMode === "historical" && layerVisibility.fireEvents,
+    historicalYear,
+    isDarkTheme,
   );
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
