@@ -364,7 +364,9 @@ export default function App() {
 
   // ── App 大模式：即時 vs 歷史長時序 ──
   const [appMode, setAppMode] = useState<AppMode>("realtime");
-  const [historicalYear, setHistoricalYear] = useState<number>(113); // 預設民國 113 = 2024
+  const [historicalYear, setHistoricalYear] = useState<number>(113); // 民國年
+  const [historicalMonth, setHistoricalMonth] = useState<number>(1); // 1~12（月/日粒度時用）
+  const [historicalDay, setHistoricalDay] = useState<number>(1);     // 1~31（日粒度時用）
   const [historicalPlaying, setHistoricalPlaying] = useState<boolean>(false);
   const [historicalSpeed, setHistoricalSpeed] = useState<number>(1); // 倍速
   const [historicalGranularity, setHistoricalGranularity] = useState<HistoricalGranularity>("year");
@@ -372,23 +374,62 @@ export default function App() {
     () => [104, 105, 106, 107, 108, 109, 110, 111, 112, 113],
     [],
   );
+  // 火災資料覆蓋範圍（民國 111~113）— 月/日推進的上限
+  const FIRE_MAX_YEAR = 113;
 
-  // 歷史模式自動播放：每 (2 / speed) 秒前進一年，到頂自動暫停
+  // 歷史模式自動播放：依粒度推進年/月/日，到頂暫停
   useEffect(() => {
     if (appMode !== "historical" || !historicalPlaying) return;
     const interval = Math.max(200, 2000 / historicalSpeed);
+    const yearMax = HISTORICAL_YEARS[HISTORICAL_YEARS.length - 1] ?? 113;
+
     const id = window.setInterval(() => {
-      setHistoricalYear((y) => {
-        const max = HISTORICAL_YEARS[HISTORICAL_YEARS.length - 1] ?? y;
-        if (y >= max) {
-          setHistoricalPlaying(false);
-          return y;
-        }
-        return y + 1;
-      });
+      if (historicalGranularity === "year") {
+        setHistoricalYear((y) => {
+          if (y >= yearMax) {
+            setHistoricalPlaying(false);
+            return y;
+          }
+          return y + 1;
+        });
+      } else if (historicalGranularity === "month") {
+        setHistoricalMonth((m) => {
+          if (m < 12) return m + 1;
+          // roll over to next year, month 1
+          let stop = false;
+          setHistoricalYear((y) => {
+            if (y >= FIRE_MAX_YEAR) {
+              stop = true;
+              return y;
+            }
+            return y + 1;
+          });
+          if (stop) {
+            setHistoricalPlaying(false);
+            return m;
+          }
+          return 1;
+        });
+      } else {
+        // day
+        setHistoricalDay((d) => {
+          // 用 AD Date 算下一天，自動處理大小月與閏年
+          const ad = new Date(historicalYear + 1911, historicalMonth - 1, d + 1);
+          const ny = ad.getFullYear() - 1911;
+          const nm = ad.getMonth() + 1;
+          const nd = ad.getDate();
+          if (ny > FIRE_MAX_YEAR) {
+            setHistoricalPlaying(false);
+            return d;
+          }
+          if (ny !== historicalYear) setHistoricalYear(ny);
+          if (nm !== historicalMonth) setHistoricalMonth(nm);
+          return nd;
+        });
+      }
     }, interval);
     return () => window.clearInterval(id);
-  }, [appMode, historicalPlaying, historicalSpeed, HISTORICAL_YEARS]);
+  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS]);
 
   // 切到 historical mode 時，記住既有 layerVisibility 並切到「歷史專屬」可見集合；
   // 切回 realtime 時還原。避免使用者在歷史模式看到大量無法解讀的即時圖層。
@@ -545,6 +586,9 @@ export default function App() {
     mapRef,
     appMode === "historical" && layerVisibility.fireEvents,
     historicalYear,
+    historicalMonth,
+    historicalDay,
+    historicalGranularity,
     isDarkTheme,
   );
 
@@ -1130,6 +1174,8 @@ export default function App() {
           ) : (
             <HistoricalTimeline
               year={historicalYear}
+              month={historicalMonth}
+              day={historicalDay}
               availableYears={HISTORICAL_YEARS}
               playing={historicalPlaying}
               speed={historicalSpeed}
@@ -1139,6 +1185,8 @@ export default function App() {
               onTogglePlay={() => setHistoricalPlaying((v) => !v)}
               onSpeedChange={setHistoricalSpeed}
               onYearChange={setHistoricalYear}
+              onMonthChange={setHistoricalMonth}
+              onDayChange={setHistoricalDay}
               onGranularityChange={setHistoricalGranularity}
             />
           )}
@@ -1418,6 +1466,8 @@ export default function App() {
             ) : (
               <HistoricalTimeline
                 year={historicalYear}
+                month={historicalMonth}
+                day={historicalDay}
                 availableYears={HISTORICAL_YEARS}
                 playing={historicalPlaying}
                 speed={historicalSpeed}
@@ -1427,6 +1477,8 @@ export default function App() {
                 onTogglePlay={() => setHistoricalPlaying((v) => !v)}
                 onSpeedChange={setHistoricalSpeed}
                 onYearChange={setHistoricalYear}
+                onMonthChange={setHistoricalMonth}
+                onDayChange={setHistoricalDay}
                 onGranularityChange={setHistoricalGranularity}
               />
             )}

@@ -2,9 +2,11 @@ export type HistoricalGranularity = "year" | "month" | "day";
 
 interface Props {
   year: number;
+  month: number; // 1~12
+  day: number;   // 1~31
   availableYears: number[]; // 民國年，遞增
   playing: boolean;
-  speed: number; // 倍速：每秒前進的步數倍率
+  speed: number;
   granularity: HistoricalGranularity;
   isDarkTheme?: boolean;
   isMobile?: boolean;
@@ -12,6 +14,8 @@ interface Props {
   onTogglePlay: () => void;
   onSpeedChange: (s: number) => void;
   onYearChange: (y: number) => void;
+  onMonthChange: (m: number) => void;
+  onDayChange: (d: number) => void;
   onGranularityChange: (g: HistoricalGranularity) => void;
 }
 
@@ -45,8 +49,29 @@ const granLabel: Record<HistoricalGranularity, string> = {
   day: "日",
 };
 
+function daysInMonth(rocYear: number, month: number): number {
+  // 用 AD Date 末日 trick：new Date(year, month, 0) 回傳上個月最後一天
+  return new Date(rocYear + ROC_OFFSET, month, 0).getDate();
+}
+
+function formatLabel(
+  year: number,
+  month: number,
+  day: number,
+  granularity: HistoricalGranularity,
+): string {
+  const ad = year + ROC_OFFSET;
+  if (granularity === "year") return `民國 ${year}（${ad}）`;
+  if (granularity === "month") {
+    return `民國 ${year}/${String(month).padStart(2, "0")}（${ad}）`;
+  }
+  return `民國 ${year}/${String(month).padStart(2, "0")}/${String(day).padStart(2, "0")}`;
+}
+
 export function HistoricalTimeline({
   year,
+  month,
+  day,
   availableYears,
   playing,
   speed,
@@ -57,13 +82,16 @@ export function HistoricalTimeline({
   onTogglePlay,
   onSpeedChange,
   onYearChange,
+  onMonthChange,
+  onDayChange,
   onGranularityChange,
 }: Props) {
   const dark = isDarkTheme;
   const minYear = availableYears[0] ?? 104;
   const maxYear = availableYears[availableYears.length - 1] ?? 113;
-  const isFirst = year <= minYear;
-  const isLast = year >= maxYear;
+  const dim = daysInMonth(year, month);
+  const showMonth = granularity === "month" || granularity === "day";
+  const showDay = granularity === "day";
 
   const wrapStyle: React.CSSProperties = isMobile
     ? {}
@@ -72,60 +100,90 @@ export function HistoricalTimeline({
         bottom: 16,
         left: leftOffset,
         zIndex: 10,
-        width: 360,
+        width: 380,
         transition: "left 0.2s ease",
       };
 
-  const granBtn = (g: HistoricalGranularity, disabled = false): React.CSSProperties => ({
-    ...getBtnStyle(dark),
-    fontSize: 12,
-    padding: "3px 10px",
-    fontWeight: g === granularity ? 700 : 400,
-    color:
-      disabled
-        ? dark
-          ? "rgba(180,180,180,0.4)"
-          : "rgba(0,0,0,0.3)"
-        : g === granularity
-          ? "#4caf50"
-          : dark
-            ? "rgba(220,220,220,0.9)"
-            : "#555",
-    background:
-      g === granularity && !disabled
+  const granBtn = (g: HistoricalGranularity): React.CSSProperties => {
+    const active = g === granularity;
+    return {
+      ...getBtnStyle(dark),
+      fontSize: 12,
+      padding: "3px 10px",
+      fontWeight: active ? 700 : 400,
+      color: active ? "#4caf50" : dark ? "rgba(220,220,220,0.9)" : "#555",
+      background: active
         ? "rgba(76,175,80,0.18)"
         : dark
           ? "rgba(120,120,120,0.25)"
           : "rgba(255,255,255,0.9)",
-    border: `1px solid ${
-      g === granularity && !disabled
-        ? "rgba(76,175,80,0.5)"
-        : dark
-          ? "rgba(255,255,255,0.1)"
-          : "rgba(0,0,0,0.08)"
-    }`,
-    cursor: disabled ? "not-allowed" : "pointer",
-  });
+      border: `1px solid ${active ? "rgba(76,175,80,0.5)" : dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+      cursor: "pointer",
+    };
+  };
+
+  const sliderRow = (
+    label: string,
+    value: number,
+    min: number,
+    max: number,
+    onChange: (v: number) => void,
+    dimmed: boolean,
+  ): React.ReactNode => (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        opacity: dimmed ? 0.45 : 1,
+        marginTop: 2,
+      }}
+    >
+      <span
+        style={{
+          width: 26,
+          fontSize: 11,
+          color: dark ? "rgba(180,180,180,0.7)" : "rgba(0,0,0,0.55)",
+          fontFamily: "monospace",
+          textAlign: "right",
+        }}
+      >
+        {label}
+      </span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={1}
+        value={Math.min(Math.max(value, min), max)}
+        onChange={(e) => onChange(Number(e.target.value))}
+        disabled={dimmed}
+        style={{ flex: 1, accentColor: dark ? "#aaa" : "#4caf50" }}
+      />
+      <span
+        style={{
+          minWidth: 36,
+          fontSize: 11,
+          color: dark ? "rgba(220,220,220,0.85)" : "#444",
+          fontFamily: "monospace",
+        }}
+      >
+        {value}
+      </span>
+    </div>
+  );
 
   return (
     <div style={wrapStyle}>
-      {/* Row 1: 粒度 + 年份標籤 */}
-      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 6 }}>
+      {/* Row 1: 粒度 + Label */}
+      <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
         <button style={granBtn("year")} onClick={() => onGranularityChange("year")}>
           {granLabel.year}
         </button>
-        <button
-          style={granBtn("month", true)}
-          disabled
-          title="目前無月度資料（保留給火災等日後資料）"
-        >
+        <button style={granBtn("month")} onClick={() => onGranularityChange("month")}>
           {granLabel.month}
         </button>
-        <button
-          style={granBtn("day", true)}
-          disabled
-          title="目前無日資料（保留給火災等日後資料）"
-        >
+        <button style={granBtn("day")} onClick={() => onGranularityChange("day")}>
           {granLabel.day}
         </button>
         <span
@@ -137,20 +195,12 @@ export function HistoricalTimeline({
             fontFamily: "monospace",
           }}
         >
-          民國 {year}（{year + ROC_OFFSET}）
+          {formatLabel(year, month, day, granularity)}
         </span>
       </div>
 
       {/* Row 2: 播放控制 */}
-      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
-        <button
-          onClick={() => !isFirst && onYearChange(year - 1)}
-          style={{ ...getBtnStyle(dark), padding: "2px 8px", fontSize: 12, opacity: isFirst ? 0.4 : 1 }}
-          disabled={isFirst}
-          title="前一年"
-        >
-          ◀
-        </button>
+      <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 4 }}>
         <button
           onClick={onTogglePlay}
           style={{
@@ -159,63 +209,37 @@ export function HistoricalTimeline({
               ? { width: 44, height: 44, fontSize: 18, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }
               : {}),
           }}
-          title={playing ? "暫停" : "播放（自動跳年）"}
+          title={playing ? "暫停" : `播放（依${granLabel[granularity]}推進）`}
         >
           {playing ? "⏸" : "▶"}
-        </button>
-        <button
-          onClick={() => !isLast && onYearChange(year + 1)}
-          style={{ ...getBtnStyle(dark), padding: "2px 8px", fontSize: 12, opacity: isLast ? 0.4 : 1 }}
-          disabled={isLast}
-          title="後一年"
-        >
-          ▶
         </button>
         <select
           value={speed}
           onChange={(e) => onSpeedChange(Number(e.target.value))}
           style={getSelectStyle(dark)}
-          title="每秒幾年"
+          title="每秒幾步"
         >
           <option value={0.5}>0.5x</option>
           <option value={1}>1x</option>
           <option value={2}>2x</option>
           <option value={4}>4x</option>
+          <option value={8}>8x</option>
         </select>
         <span
           style={{
             fontSize: 11,
-            color: dark ? "rgba(180,180,180,0.6)" : "rgba(0,0,0,0.5)",
+            color: dark ? "rgba(180,180,180,0.55)" : "rgba(0,0,0,0.5)",
             fontFamily: "monospace",
           }}
         >
-          {minYear}~{maxYear}
+          火災資料：111~113
         </span>
       </div>
 
-      {/* Row 3: 年份 slider */}
-      <input
-        type="range"
-        min={minYear}
-        max={maxYear}
-        step={1}
-        value={year}
-        onChange={(e) => onYearChange(Number(e.target.value))}
-        style={{ width: "100%", height: isMobile ? 8 : undefined, accentColor: dark ? "#aaa" : "#4caf50" }}
-      />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          color: dark ? "rgba(180,180,180,0.4)" : "rgba(0,0,0,0.3)",
-          fontSize: 10,
-          fontFamily: "monospace",
-          marginTop: 2,
-        }}
-      >
-        <span>{minYear}</span>
-        <span>{maxYear}</span>
-      </div>
+      {/* Row 3-5: 三層 slider，按粒度啟用 */}
+      {sliderRow("年", year, minYear, maxYear, onYearChange, false)}
+      {sliderRow("月", month, 1, 12, onMonthChange, !showMonth)}
+      {sliderRow("日", day, 1, dim, onDayChange, !showDay)}
     </div>
   );
 }

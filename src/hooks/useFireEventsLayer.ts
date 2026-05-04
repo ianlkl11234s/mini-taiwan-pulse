@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, type FireEvent } from "../data/fireLoader";
+import type { HistoricalGranularity } from "../components/HistoricalTimeline";
 
 const SOURCE_ID = "fire-events-src";
 const LAYER_ID = "fire-events-layer";
@@ -18,7 +19,6 @@ function ensureLayer(map: MapboxMap, isDark: boolean) {
       type: "circle",
       source: SOURCE_ID,
       paint: {
-        // 死傷：強紅放大；無死傷：淡橘小點。透明度配合暗/亮底圖。
         "circle-radius": [
           "case",
           ["get", "casualty"], 6,
@@ -72,16 +72,44 @@ function setVisible(map: MapboxMap, visible: boolean) {
 }
 
 /**
- * Fire events Mapbox layer。當前年份切換時整批換資料。
- * 僅在歷史模式且 toggle 開啟時實際 fetch；切回即時模式 layer hide 但不卸載 source。
+ * 依粒度 filter 火災事件。
+ * - year: 全年
+ * - month: 該月
+ * - day: 該月該日
+ *
+ * Day 從 occurred_ts 用 getUTCDate() 取，因為來源 naive 時間以 UTC 存，
+ * UTC 數字 = 來源原始日期（不需要 tz 轉換，避免 +8h 邊界誤差）。
+ */
+function filterByGranularity(
+  events: FireEvent[],
+  granularity: HistoricalGranularity,
+  month: number,
+  day: number,
+): FireEvent[] {
+  if (granularity === "year") return events;
+  if (granularity === "month") return events.filter((e) => e.month === month);
+  // day
+  return events.filter((e) => {
+    if (e.month !== month) return false;
+    const d = new Date(e.occurred_ts * 1000).getUTCDate();
+    return d === day;
+  });
+}
+
+/**
+ * Fire events Mapbox layer。年份切換時整批換資料；月/日切換為 client-side filter。
  */
 export function useFireEventsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   year: number,
+  month: number,
+  day: number,
+  granularity: HistoricalGranularity,
   isDarkTheme: boolean,
 ) {
   const lastYearRef = useRef<number | null>(null);
+  const yearEventsRef = useRef<FireEvent[]>([]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -92,25 +120,26 @@ export function useFireEventsLayer(
       try {
         ensureLayer(map, isDarkTheme);
       } catch {
-        // 樣式還沒 ready，下個 effect run 會再嘗試
         return;
       }
       if (!visible) {
         setVisible(map, false);
         return;
       }
-      // 同年不重抓（loader 自帶 cache，但避免不必要 setData）
+      // 年份變才重抓；其餘粒度切換僅 re-filter 本機快取
       if (lastYearRef.current !== year) {
         const events = await loadFireEventsByYear(year);
         if (cancelled) return;
-        setData(map, events);
+        yearEventsRef.current = events;
         lastYearRef.current = year;
       }
+      const filtered = filterByGranularity(yearEventsRef.current, granularity, month, day);
+      setData(map, filtered);
       setVisible(map, true);
     };
     run();
     return () => {
       cancelled = true;
     };
-  }, [mapRef, visible, year, isDarkTheme]);
+  }, [mapRef, visible, year, month, day, granularity, isDarkTheme]);
 }
