@@ -8,7 +8,7 @@ import {
   GraduationCap, Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck,
-  Flame,
+  Flame, Trash2, Truck, MapPinned,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -64,6 +64,10 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
   fireEvents: "#ff5722",
+  wasteTruck: "#fbbf24",
+  wasteRoute: "#84cc16",
+  wasteStop: "#65a30d",
+  wasteFacility: "#a855f7",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -127,6 +131,10 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   iotWraRiver: Waves,
   iotWraStructure: Gauge,
   fireEvents: Flame,
+  wasteTruck: Truck,
+  wasteRoute: Route,
+  wasteStop: MapPinned,
+  wasteFacility: Trash2,
 };
 
 // ── Section Config ──
@@ -246,6 +254,15 @@ const SECTIONS: SectionDef[] = [
       { key: "groundwater", label: "地下水井 Groundwater", expandable: true },
       { key: "iotWraRiver", label: "IoT 河川 (補強) IoT River", expandable: true },
       { key: "iotWraStructure", label: "IoT 水工結構 IoT Structure", expandable: true },
+    ],
+  },
+  {
+    title: "WASTE",
+    layers: [
+      { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
+      { key: "wasteRoute", label: "清運路線 Route" },
+      { key: "wasteStop", label: "清運點位 Stop" },
+      { key: "wasteFacility", label: "焚化爐/掩埋場 Facility" },
     ],
   },
 ];

@@ -206,6 +206,9 @@ export function useTransportParams() {
   const [iotWraRiverShowMeasured, setIotWraRiverShowMeasured] = useState(true);
   const [iotWraRiverShowForecast, setIotWraRiverShowForecast] = useState(true);
   const [iotWraStructureScale, setIotWraStructureScale] = useState(1.0);
+  // Waste（垃圾車光點 + 音符）
+  const [wasteOrbScale, setWasteOrbScale] = useState(1.0);
+  const [wasteNoteSize, setWasteNoteSize] = useState(1.0);
   const [iotWraStructureOpacity, setIotWraStructureOpacity] = useState(1.0);
   const [iotWraStructureFlow, setIotWraStructureFlow] = useState(true);
   const [iotWraStructureGate, setIotWraStructureGate] = useState(true);
@@ -251,6 +254,8 @@ export function useTransportParams() {
   const busIntercityOrbScaleRef = useRef(busIntercityOrbScale);
   const busIntercityColorModeRef = useRef(busIntercityColorMode);
   const busIntercityAltOffsetRef = useRef(busIntercityAltOffset);
+  const wasteOrbScaleRef = useRef(wasteOrbScale);
+  const wasteNoteSizeRef = useRef(wasteNoteSize);
 
   busColorModeRef.current = busColorMode;
   busAltOffsetRef.current = busAltOffset;
@@ -258,6 +263,8 @@ export function useTransportParams() {
   busIntercityOrbScaleRef.current = busIntercityOrbScale;
   busIntercityColorModeRef.current = busIntercityColorMode;
   busIntercityAltOffsetRef.current = busIntercityAltOffset;
+  wasteOrbScaleRef.current = wasteOrbScale;
+  wasteNoteSizeRef.current = wasteNoteSize;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
@@ -643,6 +650,10 @@ export function useTransportParams() {
         { type: "toggle", label: "河床沖刷 Erosion", value: iotWraStructureErosion, onChange: setIotWraStructureErosion },
         { type: "toggle", label: "揚塵 Dust", value: iotWraStructureDust, onChange: setIotWraStructureDust },
       ];
+      case "wasteTruck": return [
+        { label: `光點大小 ${wasteOrbScale.toFixed(2)}`, value: wasteOrbScale, min: 0.3, max: 4, step: 0.1, onChange: setWasteOrbScale },
+        { label: `音符大小 ${wasteNoteSize.toFixed(2)}`, value: wasteNoteSize, min: 0.5, max: 3, step: 0.1, onChange: setWasteNoteSize },
+      ];
       default: return [];
     }
   };
@@ -669,6 +680,8 @@ export function useTransportParams() {
       busColorMode: busColorModeRef,
       busAltOffset: busAltOffsetRef,
       busIntercityOrbScale: busIntercityOrbScaleRef,
+      wasteOrbScale: wasteOrbScaleRef,
+      wasteNoteSize: wasteNoteSizeRef,
       busIntercityColorMode: busIntercityColorModeRef,
       busIntercityAltOffset: busIntercityAltOffsetRef,
       beamVisible: beamVisibleRef,

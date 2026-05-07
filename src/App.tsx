@@ -12,6 +12,7 @@ import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
+import { useWasteLayer } from "./hooks/useWasteLayer";
 import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -338,6 +339,10 @@ export default function App() {
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
 
+  // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
+  const { trailsRef: wasteTrailsRef } =
+    useWasteLayer(layerVisibility.wasteTruck, ["高雄市"]);
+
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {
     if (!layerVisibility.busLive || timeline.timeMode !== "replay") return;
@@ -471,7 +476,7 @@ export default function App() {
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
+    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,

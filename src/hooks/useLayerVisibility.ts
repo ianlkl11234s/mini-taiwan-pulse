@@ -59,6 +59,10 @@ export function useLayerVisibility() {
     iotWraRiver: false,
     iotWraStructure: false,
     fireEvents: false,
+    wasteTruck: false,
+    wasteRoute: false,
+    wasteStop: false,
+    wasteFacility: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

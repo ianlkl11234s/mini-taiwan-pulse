@@ -127,7 +127,8 @@ export type ExpandableLayerKey =
   | "groundwaterWells"
   | "iotWraRiver"
   | "iotWraStructure"
-  | "fireEvents";
+  | "fireEvents"
+  | "wasteTruck";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -469,6 +470,10 @@ export interface LayerVisibility {
   iotWraRiver: boolean;
   iotWraStructure: boolean;
   fireEvents: boolean;
+  wasteTruck: boolean;
+  wasteRoute: boolean;
+  wasteStop: boolean;
+  wasteFacility: boolean;
 }
 
 // ── 空氣品質 ──

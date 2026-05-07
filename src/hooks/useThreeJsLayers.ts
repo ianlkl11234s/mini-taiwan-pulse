@@ -5,9 +5,13 @@ import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
+import type { WasteTruckScene } from "../three/WasteTruckScene";
+import type { WasteMusicNoteScene } from "../three/WasteMusicNoteScene";
+import type { WasteTrailRow } from "../data/wasteLoader";
 import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
 import { createBusLayer } from "../map/busCustomLayer";
+import { createWasteTruckLayer } from "../map/wasteTruckCustomLayer";
 import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
 import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
 import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
@@ -23,6 +27,7 @@ interface UseThreeJsLayersArgs {
   activeTrainsRef: React.RefObject<RailTrain[]>;
   activeBusesRef: React.RefObject<BusVehicle[]>;
   activeBusesIntercityRef: React.RefObject<BusVehicle[]>;
+  wasteTrailsRef: React.RefObject<WasteTrailRow[]>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
   thsrPillarDataRef: React.RefObject<StationPillarData[]>;
@@ -51,6 +56,8 @@ interface UseThreeJsLayersArgs {
     busIntercityOrbScale: React.RefObject<number>;
     busIntercityColorMode: React.RefObject<string>;
     busIntercityAltOffset: React.RefObject<number>;
+    wasteOrbScale: React.RefObject<number>;
+    wasteNoteSize: React.RefObject<number>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
@@ -74,7 +81,7 @@ interface UseThreeJsLayersArgs {
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
+  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
   airportPillarDataRef, portPillarDataRef, temperatureDataRef,
   playingRef, layerVisibilityRef,
@@ -85,6 +92,8 @@ export function useThreeJsLayers({
   const railSceneRef = useRef<RailScene | null>(null);
   const busSceneRef = useRef<BusScene | null>(null);
   const busIntercitySceneRef = useRef<BusScene | null>(null);
+  const wasteTruckSceneRef = useRef<WasteTruckScene | null>(null);
+  const wasteMusicNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
 
   const addFlightLayer = (map: MapboxMap) => {
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
@@ -190,6 +199,26 @@ export function useThreeJsLayers({
     map.addLayer(layer);
   };
 
+  const addWasteTruckLayer = (map: MapboxMap) => {
+    if (map.getLayer("waste-truck-3d")) map.removeLayer("waste-truck-3d");
+    const layer = createWasteTruckLayer({
+      id: "waste-truck-3d",
+      getTrails: () => wasteTrailsRef.current ?? [],
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      // base 0.000020，可由 slider 0.3~4 倍乘
+      getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
+      getIsVisible: () => layerVisibilityRef.current.wasteTruck,
+      getAltOffset: () => 0,
+      getMusicNoteEnabled: () => layerVisibilityRef.current.wasteTruck,
+      getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
+      onSceneReady: (truckScene, noteScene) => {
+        wasteTruckSceneRef.current = truckScene;
+        wasteMusicNoteSceneRef.current = noteScene;
+      },
+    });
+    map.addLayer(layer);
+  };
+
   const addTemperatureWaveLayer = (map: MapboxMap) => {
     const id = "temperature-wave-3d";
     if (map.getLayer(id)) map.removeLayer(id);
@@ -259,6 +288,7 @@ export function useThreeJsLayers({
     addRailLayer(map);
     addBusLayer(map);
     addBusIntercityLayer(map);
+    addWasteTruckLayer(map);
     addLighthouseLayer(map);
     addStationPillarLayer(map);
     addTemperatureWaveLayer(map);
@@ -270,11 +300,14 @@ export function useThreeJsLayers({
     railSceneRef,
     busSceneRef,
     busIntercitySceneRef,
+    wasteTruckSceneRef,
+    wasteMusicNoteSceneRef,
     addFlightLayer,
     addShipLayer,
     addRailLayer,
     addBusLayer,
     addBusIntercityLayer,
+    addWasteTruckLayer,
     addLighthouseLayer,
     addStationPillarLayer,
     addTemperatureWaveLayer,
