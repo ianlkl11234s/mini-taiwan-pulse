@@ -340,8 +340,8 @@ export default function App() {
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
 
   // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
-  const { trailsRef: wasteTrailsRef } =
-    useWasteLayer(layerVisibility.wasteTruck, ["高雄市"]);
+  const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
+    useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市"]);
 
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {
@@ -362,6 +362,16 @@ export default function App() {
     handler(timeStore.getDateKey());
     return timeStore.subscribeDate(handler);
   }, [timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
+
+  // 垃圾車 replay: 載入 timeline 當天整日軌跡；live 則維持近 60 分鐘 polling
+  useEffect(() => {
+    if (!layerVisibility.wasteTruck || timeline.timeMode !== "replay") return;
+    const handler = (dayStr: string) => {
+      if (dayStr) loadWasteTrailDay(dayStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [timeline.timeMode, layerVisibility.wasteTruck, loadWasteTrailDay]);
 
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
@@ -859,7 +869,8 @@ export default function App() {
     trains: trainCount,
     buses: busCount,
     busesIntercity: busIntercityCount,
-  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount]);
+    wasteTrucks: wasteCount,
+  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount, wasteCount]);
 
   const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
     const isVisible = layerVisibilityRef.current[layer];
@@ -1325,6 +1336,7 @@ export default function App() {
               {layerVisibility.rail && ` · ${trainCount} trains`}
               {layerVisibility.busLive && ` · ${busCount} buses`}
               {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
+              {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
             <div
@@ -1508,6 +1520,7 @@ export default function App() {
                         trains: trainCount,
                         buses: busCount,
                         busesIntercity: busIntercityCount,
+                        wasteTrucks: wasteCount,
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];

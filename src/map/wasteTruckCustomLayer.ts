@@ -22,8 +22,10 @@ export interface WasteTruckLayerOptions {
   getAltOffset: () => number;
   /** 是否啟用音符特效（預設 true，跟 wasteTruck 同 toggle） */
   getMusicNoteEnabled?: () => boolean;
-  /** 音符大小倍率（base 38px，0.5~3） */
+  /** 音符大小倍率（base 38px） */
   getMusicNoteSize?: () => number;
+  /** 音符起始高度（公尺） */
+  getMusicNoteZOffset?: () => number;
   onSceneReady?: (truckScene: WasteTruckScene, noteScene: WasteMusicNoteScene) => void;
   maxInstances?: number;
 }
@@ -64,6 +66,7 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
       const noteEnabled = opts.getMusicNoteEnabled?.() ?? true;
       if (noteEnabled) {
         noteScene.setSizeMultiplier(opts.getMusicNoteSize?.() ?? 1);
+        noteScene.setBaseHeightMeters(opts.getMusicNoteZOffset?.() ?? 70);
         const nowMs = Date.now();
         noteScene.spawnFromTrucks(truckScene.getCollectingPositions(), nowMs);
         noteScene.render(matrix, nowMs);

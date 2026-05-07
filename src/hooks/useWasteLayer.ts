@@ -1,32 +1,46 @@
 /**
- * 垃圾車圖層 hook — Live trails polling（方案 A）
+ * 垃圾車圖層 hook — Live trails polling + Replay day trails
  *
- * 抓近 60 分鐘軌跡（含後端去噪 + stop snapping），每 60s refresh。
- * 前端 WasteTruckScene 用 timeStore.getTime() 在 trail 上時間插值。
+ * live   → 抓近 60 分鐘軌跡，每 60s refresh。
+ * replay → 載入指定台灣日期整日軌跡，讓 timeline 可拖到昨天 / 今日較早時段。
  *
  * 多城市可復用：cities 陣列傳給 RPC。
- *
- * Replay 模式進 Backlog（status.md §2 P3）
  */
 
-import { useEffect, useRef, useState } from "react";
-import { fetchWasteTrails, type WasteTrailRow } from "../data/wasteLoader";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { TimeMode } from "../types";
+import { fetchWasteTrails, fetchWasteTrailsDay, type WasteTrailRow } from "../data/wasteLoader";
 
 /** 載多久軌跡（分鐘） */
 const TRAIL_WINDOW_MIN = 60;
 /** 重抓間隔（ms） */
 const POLL_INTERVAL = 60_000;
+/** Replay day cache 最大天數 */
+const MAX_CACHED_DAYS = 3;
+
+interface CachedDay {
+  key: string;
+  date: string;
+  trails: WasteTrailRow[];
+}
 
 export function useWasteLayer(
   enabled: boolean,
+  timeMode: TimeMode,
   cities: string[] = ["高雄市"],
 ) {
   const trailsRef = useRef<WasteTrailRow[]>([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  const isLive = timeMode === "live";
+  const citiesKey = [...cities].sort().join(",");
+  const cacheRef = useRef<CachedDay[]>([]);
+  const loadedDayRef = useRef("");
+  const fetchingDayRef = useRef("");
+
   useEffect(() => {
-    if (!enabled) {
+    if (!enabled || !isLive) {
       trailsRef.current = [];
       setCount(0);
       return;
@@ -61,7 +75,51 @@ export function useWasteLayer(
       if (timer !== undefined) window.clearInterval(timer);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, cities.join(",")]);
+  }, [enabled, isLive, citiesKey]);
 
-  return { trailsRef, count, loading };
+  const loadDay = useCallback(async (dateStr: string) => {
+    if (!enabled || isLive || !dateStr) return;
+    const fetchKey = `${dateStr}:${citiesKey}`;
+    if (loadedDayRef.current === fetchKey) return;
+    if (fetchingDayRef.current === fetchKey) return;
+
+    const cached = cacheRef.current.find((c) => c.key === fetchKey);
+    if (cached) {
+      loadedDayRef.current = fetchKey;
+      trailsRef.current = cached.trails;
+      setCount(cached.trails.length);
+      return;
+    }
+
+    fetchingDayRef.current = fetchKey;
+    setLoading(true);
+    try {
+      const rows = await fetchWasteTrailsDay(dateStr, cities);
+      cacheRef.current = [
+        { key: fetchKey, date: dateStr, trails: rows },
+        ...cacheRef.current.filter((c) => c.key !== fetchKey),
+      ].slice(0, MAX_CACHED_DAYS);
+
+      loadedDayRef.current = fetchKey;
+      trailsRef.current = rows;
+      setCount(rows.length);
+      if (rows.length === 0) {
+        console.log(`[Waste] No trail data for ${dateStr} (${citiesKey})`);
+      }
+    } catch (err) {
+      console.error("[Waste] fetchWasteTrailsDay failed:", err);
+    } finally {
+      fetchingDayRef.current = "";
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, isLive, citiesKey]);
+
+  // 切到 replay 或城市變化時強制下一次 date subscription 重新載入。
+  useEffect(() => {
+    if (!enabled || isLive) return;
+    loadedDayRef.current = "";
+  }, [enabled, isLive, citiesKey]);
+
+  return { trailsRef, count, loading, loadDay };
 }

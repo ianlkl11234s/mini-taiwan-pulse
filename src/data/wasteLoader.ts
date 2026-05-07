@@ -9,6 +9,8 @@ import { withLoading } from "../lib/loadingRegistry";
  *   - public.get_waste_routes(p_city)           路線 LineString
  *   - public.get_waste_stops(p_city)            停靠點
  *   - public.get_waste_facilities()             焚化爐/掩埋場
+ *   - public.get_waste_trails(p_cities, p_since_minutes)      live 近 N 分鐘
+ *   - public.get_waste_trails_day(p_target_date, p_cities)    指定台灣日期整日
  *
  * 主城策略（2026-05-06 起）：
  *   高雄 — 24h GPS 8,374 / 157 車 / 1,399 路線 / 32,422 點
@@ -174,6 +176,26 @@ export async function fetchWasteTrails(
     supabase.rpc("get_waste_trails", { p_cities: cities, p_since_minutes: sinceMinutes }),
   );
   if (error) throw new Error(`get_waste_trails: ${error.message}`);
+  const rows = (data ?? []) as RawTrailRow[];
+  return rows.map((r) => ({
+    vehicle_no: r.vehicle_no,
+    city: r.city,
+    route_id: r.route_id,
+    trail: parseWasteTimeline(r.timeline),
+  }));
+}
+
+/** 取指定台灣日期整日軌跡（for timeline replay）。 */
+export async function fetchWasteTrailsDay(
+  targetDate: string,
+  cities: string[] = ["高雄市"],
+): Promise<WasteTrailRow[]> {
+  const { data, error } = await withLoading(
+    `waste-trails-day-${targetDate}-${cities.join(",")}`,
+    `垃圾車軌跡 ${targetDate} ${cities.join("/")}`,
+    supabase.rpc("get_waste_trails_day", { p_target_date: targetDate, p_cities: cities }),
+  );
+  if (error) throw new Error(`get_waste_trails_day(${targetDate}): ${error.message}`);
   const rows = (data ?? []) as RawTrailRow[];
   return rows.map((r) => ({
     vehicle_no: r.vehicle_no,

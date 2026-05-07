@@ -27,9 +27,9 @@ const VIEW_LAG_SECONDS = 300;
  *   - 接收 trails: WasteTrailRow[]（每車 ~30 點 GPS 軌跡）
  *   - 每幀用 timeStore.getTime() (= Date.now() in live) 在 trail 上時間插值
  *   - 三種插值模式：
- *       1. Catmull-Rom spline（兩 GPS 點 ≤500m & 同 trip）→ 平滑曲線經過點
- *       2. Linear lerp（兩 GPS 點 < 100m）→ 省 CPU，視覺差不多
- *       3. Teleport fade（>500m 或跨 trip）→ alpha 0.5 前淡出舊、後淡入新
+ *       1. Catmull-Rom spline（短距離 & 同 trip）→ 平滑曲線經過點
+ *       2. Linear lerp（長距離但同 trip）→ 補沒有 GPS 點的區間，避免淡出跳點
+ *       3. Teleport fade（跨 trip）→ alpha 0.5 前淡出舊、後淡入新
  *
  *   - collecting 鎖定：stop snapping 已在後端處理（連續點吸到同 stop = 不動）
  *
@@ -38,7 +38,7 @@ const VIEW_LAG_SECONDS = 300;
  * 多城市可復用：跟 city 無關，只看 trail 資料本身
  */
 
-const TRIP_BREAK_OR_LONG_HOP_M = 500;   // 距離大於這個 → teleport
+const LINEAR_HOP_THRESHOLD_M   = 120;   // 同 trip 但距離較長 → linear，避免 Catmull-Rom overshoot
 const STALE_DATA_THRESHOLD_S   = 300;   // 過去 5 分鐘沒更新 → 半透明
 const HARD_STALE_THRESHOLD_S   = 1200;  // 過去 20 分鐘沒更新 → 不顯示（車輛離線太久）
 
@@ -116,12 +116,11 @@ function interpolateTrail(trail: WasteTrailPoint[], nowSec: number): Interpolate
   const dt = p1.t - p0.t;
   const localT = dt > 0 ? (nowSec - p0.t) / dt : 0;
 
-  // 跨 trip break OR 距離過遠 → teleport fade
+  // 跨 trip break → teleport fade。距離遠但同 trip 則用線性插值補沒有 GPS 的區間。
   const distM = haversineMeters(p0.lat, p0.lng, p1.lat, p1.lng);
-  const isLongHop = distM > TRIP_BREAK_OR_LONG_HOP_M;
   const isTripBreak = p0.tripId !== p1.tripId;
 
-  if (isLongHop || isTripBreak) {
+  if (isTripBreak) {
     if (localT < 0.5) {
       // 前半：固定在 p0，淡出
       const a = Math.max(0, 1 - localT * 2);
@@ -131,6 +130,16 @@ function interpolateTrail(trail: WasteTrailPoint[], nowSec: number): Interpolate
       const a = Math.min(1, (localT - 0.5) * 2);
       return { lat: p1.lat, lng: p1.lng, status: p1.status, alpha: a, visible: true };
     }
+  }
+
+  if (distM > LINEAR_HOP_THRESHOLD_M) {
+    return {
+      lat: p0.lat + (p1.lat - p0.lat) * localT,
+      lng: p0.lng + (p1.lng - p0.lng) * localT,
+      status: p0.status,
+      alpha: 1.0,
+      visible: true,
+    };
   }
 
   // 正常段：Catmull-Rom（同 trip 才能用相鄰點當控制點）

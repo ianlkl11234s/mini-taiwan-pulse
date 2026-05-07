@@ -281,7 +281,7 @@ interface IconRailSidebarProps {
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
-  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; windPlan?: number };
+  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; wasteTrucks?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
@@ -344,6 +344,7 @@ export function IconRailSidebar({
       case "rail": return counts.trains;
       case "busLive": return counts.buses;
       case "busIntercityLive": return counts.busesIntercity;
+      case "wasteTruck": return counts.wasteTrucks;
       case "windPlan": return counts.windPlan;
       default: return undefined;
     }

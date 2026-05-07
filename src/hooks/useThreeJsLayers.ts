@@ -58,6 +58,7 @@ interface UseThreeJsLayersArgs {
     busIntercityAltOffset: React.RefObject<number>;
     wasteOrbScale: React.RefObject<number>;
     wasteNoteSize: React.RefObject<number>;
+    wasteNoteZOffset: React.RefObject<number>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
@@ -212,6 +213,7 @@ export function useThreeJsLayers({
       getAltOffset: () => 0,
       getMusicNoteEnabled: () => layerVisibilityRef.current.wasteTruck,
       getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
+      getMusicNoteZOffset: () => paramRefs.wasteNoteZOffset.current ?? 70,
       onSceneReady: (truckScene, noteScene) => {
         wasteTruckSceneRef.current = truckScene;
         wasteMusicNoteSceneRef.current = noteScene;

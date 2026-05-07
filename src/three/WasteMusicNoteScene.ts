@@ -21,6 +21,7 @@ const LIFESPAN_MS = 2200;        // 每個音符存活 2.2 秒
 const SPAWN_INTERVAL_MS = 500;   // 每車每 500ms 噴一個
 const RISE_HEIGHT_M = 120;       // 上升高度（z11 zoom 看得到）
 const SWAY_AMPL_M = 12;          // 左右搖擺幅度
+const ORBIT_RADIUS_M = 24;       // 音符繞光點半徑
 const POINT_SIZE_PX = 38;        // 音符螢幕尺寸
 
 // Mercator 1m → unit（緯度 24° 台灣：1m = 1 / (40075016 * cos(24°)) ≈ 2.74e-8）
@@ -60,8 +61,10 @@ attribute float aSeed;
 
 uniform float uTime;
 uniform float uLifespanMs;
+uniform float uBaseHeight;
 uniform float uRiseHeight;
 uniform float uSwayAmpl;
+uniform float uOrbitRadius;
 uniform float uPointSize;
 uniform vec2  uViewport;
 
@@ -74,14 +77,18 @@ void main() {
   vT = t;
   vSymbol = aSymbol;
 
-  // 位置：原點 + (sway, 0, rise)
+  // 位置：原點上方繞圈 + 緩慢上升
   // mapbox custom layer 座標系統：z = altitude (向上)
   vec3 pos = position;
   if (dt >= 0.0 && dt < uLifespanMs) {
-    float swayPhase = aSeed * 6.2831853 + t * 12.566;
-    pos.x += sin(swayPhase) * uSwayAmpl;
-    pos.y += cos(swayPhase * 0.7) * uSwayAmpl * 0.5;
-    pos.z += t * uRiseHeight;
+    float orbitPhase = aSeed * 6.2831853 + t * 9.42477796;
+    float swayPhase = aSeed * 6.2831853 + t * 12.5663706;
+    float orbitCurve = 0.75 + 0.25 * sin(t * 3.14159265);
+    pos.x += cos(orbitPhase) * uOrbitRadius * orbitCurve
+          + sin(swayPhase) * uSwayAmpl * 0.35;
+    pos.y += sin(orbitPhase) * uOrbitRadius * 0.65 * orbitCurve
+          + cos(swayPhase * 0.7) * uSwayAmpl * 0.25;
+    pos.z += uBaseHeight + t * uRiseHeight;
   } else {
     // 過期 → 推到極遠處避免渲染
     pos.z = -1e10;
@@ -205,8 +212,10 @@ export class WasteMusicNoteScene {
       uniforms: {
         uTime:        { value: 0 },
         uLifespanMs:  { value: LIFESPAN_MS },
+        uBaseHeight:  { value: 70 * METERS_TO_UNIT },
         uRiseHeight:  { value: RISE_HEIGHT_M * METERS_TO_UNIT },
         uSwayAmpl:    { value: SWAY_AMPL_M * METERS_TO_UNIT },
+        uOrbitRadius: { value: ORBIT_RADIUS_M * METERS_TO_UNIT },
         uPointSize:   { value: POINT_SIZE_PX },
         uViewport:    { value: new THREE.Vector2(1, 1) },
         uAtlas:       { value: atlas },
@@ -281,6 +290,11 @@ export class WasteMusicNoteScene {
   /** size multiplier (0.5 ~ 3)，base 38px */
   setSizeMultiplier(mul: number) {
     if (this.material) this.material.uniforms.uPointSize!.value = POINT_SIZE_PX * mul;
+  }
+
+  /** 音符起始高度（公尺），讓音符浮在光點上方 */
+  setBaseHeightMeters(meters: number) {
+    if (this.material) this.material.uniforms.uBaseHeight!.value = meters * METERS_TO_UNIT;
   }
 
   /** 音符顏色（hex）— 預設 wasteTruck 主視覺琥珀 */
