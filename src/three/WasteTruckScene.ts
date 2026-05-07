@@ -7,10 +7,10 @@ import {
   type WasteStatus,
 } from "../data/wasteLoader";
 
-// 第一版只支援 live：永遠用 Date.now()，不訂閱 timeStore
-//   理由：trail 是用「真實當前時間」回算 60 分鐘的窗口；timeStore 在 timeline
-//         播放模式給模擬時間（如 5/6 16:27 60x），會跟 trail 時間軸完全錯開導致不動。
-//   Replay 模式進 Backlog P3（要做 trail by date 的 RPC + state machine 切換）
+// 時間來源由 custom layer 傳入：
+//   - replay：用 timeStore 時間，讓播放/倍速能驅動近 60 分鐘 trail
+//   - live：timeStore 會貼近 Date.now()，再套 5 分鐘 visual lag
+// Historical replay（任意日期 trail by date）尚未支援，進 Backlog P3。
 //
 // VIEW_LAG_SECONDS：視覺時間落後真實時間幾秒
 //   trail 範圍 [now-3600s, now]，但 collector 每 2 分鐘才寫一筆，
@@ -248,13 +248,19 @@ export class WasteTruckScene {
   }
 
   /**
-   * 每幀呼叫：用 timeStore 取當前時間，對每車軌跡做時間插值
+   * 每幀呼叫：用指定時間對每車軌跡做時間插值。
+   *
+   * currentTimeSec 若貼近真實現在，視為 live，套 5 分鐘 visual lag；
+   * 若是 timeline replay 的歷史時間，直接使用該時間，讓播放/倍速可見。
    */
-  update(trails: WasteTrailRow[]) {
+  update(trails: WasteTrailRow[], currentTimeSec?: number) {
     if (!this.instancedMesh) return;
 
-    // 視覺時間落後真實時間 5 分鐘（讓 nowSec 落在 trail 中段，可雙向插值）
-    const nowSec = Date.now() / 1000 - VIEW_LAG_SECONDS;
+    const liveNowSec = Date.now() / 1000;
+    const clockSec = currentTimeSec ?? liveNowSec;
+    const isLiveClock = Math.abs(clockSec - liveNowSec) < 30;
+    // live 視覺時間落後真實時間 5 分鐘（讓 nowSec 落在 trail 中段，可雙向插值）
+    const nowSec = isLiveClock ? liveNowSec - VIEW_LAG_SECONDS : clockSec;
 
     const dummy = this._dummy;
     const baseScale = this.orbScale * 0.5;

@@ -204,6 +204,7 @@ export function useThreeJsLayers({
     const layer = createWasteTruckLayer({
       id: "waste-truck-3d",
       getTrails: () => wasteTrailsRef.current ?? [],
+      getCurrentTime: () => timeRef.current,
       getIsDarkTheme: () => isDarkThemeRef.current,
       // base 0.000020，可由 slider 0.3~4 倍乘
       getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),

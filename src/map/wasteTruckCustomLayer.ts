@@ -15,6 +15,7 @@ import { WasteMusicNoteScene } from "../three/WasteMusicNoteScene";
 export interface WasteTruckLayerOptions {
   id?: string;
   getTrails: () => WasteTrailRow[];
+  getCurrentTime?: () => number;
   getIsDarkTheme: () => boolean;
   getOrbScale: () => number;
   getIsVisible: () => boolean;
@@ -56,7 +57,7 @@ export function createWasteTruckLayer(opts: WasteTruckLayerOptions): CustomLayer
 
       truckScene.setOrbScale(opts.getOrbScale());
       truckScene.setAltitudeOffset(opts.getAltOffset());
-      truckScene.update(opts.getTrails());
+      truckScene.update(opts.getTrails(), opts.getCurrentTime?.());
       truckScene.render(matrix);
 
       // 音符：跟 wasteTruck 同 toggle（getMusicNoteEnabled 預設 true）
