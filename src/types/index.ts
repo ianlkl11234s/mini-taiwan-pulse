@@ -128,7 +128,21 @@ export type ExpandableLayerKey =
   | "iotWraRiver"
   | "iotWraStructure"
   | "fireEvents"
-  | "wasteTruck";
+  | "wasteTruck"
+  // waste facility 8 sub-types（每種有 size/opacity/altitude slider）
+  | "wfIncinerator"
+  | "wfLandfill"
+  | "wfTransfer"
+  | "wfMedical"
+  | "wfMonitoring"
+  | "wfRecycling"
+  | "wfScrapYard"
+  | "wfOther"
+  // waste disposal point 4 sub-types
+  | "wdClothes"
+  | "wdMixed"
+  | "wdRecyclingContainer"
+  | "wdBattery";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -407,7 +421,8 @@ export interface FeatureInfo {
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
-    | "iotWraRiver" | "iotWraStructure";
+    | "iotWraRiver" | "iotWraStructure"
+    | "wasteFacility" | "wasteDisposalPoint";
   properties: Record<string, unknown>;
 }
 
@@ -473,7 +488,21 @@ export interface LayerVisibility {
   wasteTruck: boolean;
   wasteRoute: boolean;
   wasteStop: boolean;
-  wasteFacility: boolean;
+  // waste_facilities 8 sub-toggles（incinerator/landfill/transfer/medical 走 Three.js 3D；
+  // monitoring/recycling/scrap/other 走 Mapbox circle）
+  wfIncinerator: boolean;
+  wfLandfill: boolean;
+  wfTransfer: boolean;
+  wfMedical: boolean;
+  wfMonitoring: boolean;
+  wfRecycling: boolean;
+  wfScrapYard: boolean;
+  wfOther: boolean;
+  // waste_disposal_points 4 sub-toggles（全部走 Mapbox circle）
+  wdClothes: boolean;
+  wdMixed: boolean;
+  wdRecyclingContainer: boolean;
+  wdBattery: boolean;
 }
 
 // ── 空氣品質 ──

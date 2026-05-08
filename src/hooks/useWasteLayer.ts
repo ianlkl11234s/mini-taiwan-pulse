@@ -9,7 +9,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TimeMode } from "../types";
-import { fetchWasteTrails, fetchWasteTrailsDay, type WasteTrailRow } from "../data/wasteLoader";
+import {
+  fetchWasteTrails,
+  fetchWasteTrailsDay,
+  fetchWasteTrailsMatchedDay,
+  type WasteTrailRow,
+} from "../data/wasteLoader";
 
 /** 載多久軌跡（分鐘） */
 const TRAIL_WINDOW_MIN = 60;
@@ -17,11 +22,17 @@ const TRAIL_WINDOW_MIN = 60;
 const POLL_INTERVAL = 60_000;
 /** Replay day cache 最大天數 */
 const MAX_CACHED_DAYS = 3;
+/** 預設啟用 matched replay；設 VITE_WASTE_MATCHED_TRAILS=0 可強制走 GPS fallback。 */
+const USE_MATCHED_REPLAY = import.meta.env.VITE_WASTE_MATCHED_TRAILS !== "0";
 
 interface CachedDay {
   key: string;
   date: string;
   trails: WasteTrailRow[];
+}
+
+function uniqueVehicleCount(rows: WasteTrailRow[]): number {
+  return new Set(rows.map((r) => `${r.city}:${r.vehicle_no}`)).size;
 }
 
 export function useWasteLayer(
@@ -58,7 +69,7 @@ export function useWasteLayer(
         const rows = await fetchWasteTrails(cities, TRAIL_WINDOW_MIN);
         if (cancelled) return;
         trailsRef.current = rows;
-        setCount(rows.length);
+        setCount(uniqueVehicleCount(rows));
       } catch (err) {
         if (!cancelled) console.error("[Waste] fetchWasteTrails failed:", err);
       } finally {
@@ -87,14 +98,30 @@ export function useWasteLayer(
     if (cached) {
       loadedDayRef.current = fetchKey;
       trailsRef.current = cached.trails;
-      setCount(cached.trails.length);
+      setCount(uniqueVehicleCount(cached.trails));
       return;
     }
 
     fetchingDayRef.current = fetchKey;
     setLoading(true);
     try {
-      const rows = await fetchWasteTrailsDay(dateStr, cities);
+      let rows: WasteTrailRow[] = [];
+
+      if (USE_MATCHED_REPLAY) {
+        try {
+          rows = await fetchWasteTrailsMatchedDay(dateStr, cities);
+          if (rows.length > 0) {
+            console.log(`[Waste] matched trails loaded for ${dateStr}: ${rows.length} segments`);
+          }
+        } catch (err) {
+          console.warn("[Waste] fetchWasteTrailsMatchedDay failed, fallback to GPS trails:", err);
+        }
+      }
+
+      if (rows.length === 0) {
+        rows = await fetchWasteTrailsDay(dateStr, cities);
+      }
+
       cacheRef.current = [
         { key: fetchKey, date: dateStr, trails: rows },
         ...cacheRef.current.filter((c) => c.key !== fetchKey),
@@ -102,7 +129,7 @@ export function useWasteLayer(
 
       loadedDayRef.current = fetchKey;
       trailsRef.current = rows;
-      setCount(rows.length);
+      setCount(uniqueVehicleCount(rows));
       if (rows.length === 0) {
         console.log(`[Waste] No trail data for ${dateStr} (${citiesKey})`);
       }

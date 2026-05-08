@@ -7,11 +7,17 @@ import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
 import type { WasteTruckScene } from "../three/WasteTruckScene";
 import type { WasteMusicNoteScene } from "../three/WasteMusicNoteScene";
-import type { WasteTrailRow } from "../data/wasteLoader";
+import type { WasteTrailRow, WasteFacilityRow } from "../data/wasteLoader";
 import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
 import { createBusLayer } from "../map/busCustomLayer";
 import { createWasteTruckLayer } from "../map/wasteTruckCustomLayer";
+import {
+  createWasteFacilityLayer,
+  type WasteFacility3DScenes,
+  type WasteFacility3DKey,
+  type WasteFacilityLayerParams,
+} from "../map/wasteFacilityCustomLayer";
 import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
 import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
 import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
@@ -28,6 +34,7 @@ interface UseThreeJsLayersArgs {
   activeBusesRef: React.RefObject<BusVehicle[]>;
   activeBusesIntercityRef: React.RefObject<BusVehicle[]>;
   wasteTrailsRef: React.RefObject<WasteTrailRow[]>;
+  wasteFacilityByTypeRef: React.RefObject<Map<string, WasteFacilityRow[]>>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
   thsrPillarDataRef: React.RefObject<StationPillarData[]>;
@@ -59,6 +66,7 @@ interface UseThreeJsLayersArgs {
     wasteOrbScale: React.RefObject<number>;
     wasteNoteSize: React.RefObject<number>;
     wasteNoteZOffset: React.RefObject<number>;
+    wasteSubParams: React.RefObject<Record<WasteFacility3DKey, WasteFacilityLayerParams> | Record<string, WasteFacilityLayerParams>>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
@@ -82,7 +90,8 @@ interface UseThreeJsLayersArgs {
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef, railDataRef,
+  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+  wasteFacilityByTypeRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
   airportPillarDataRef, portPillarDataRef, temperatureDataRef,
   playingRef, layerVisibilityRef,
@@ -95,6 +104,8 @@ export function useThreeJsLayers({
   const busIntercitySceneRef = useRef<BusScene | null>(null);
   const wasteTruckSceneRef = useRef<WasteTruckScene | null>(null);
   const wasteMusicNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
+  const wasteFacilityScenesRef = useRef<WasteFacility3DScenes | null>(null);
+  const wasteFacilityLayerRef = useRef<ReturnType<typeof createWasteFacilityLayer> | null>(null);
 
   const addFlightLayer = (map: MapboxMap) => {
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
@@ -222,6 +233,40 @@ export function useThreeJsLayers({
     map.addLayer(layer);
   };
 
+  const addWasteFacilityLayer = (map: MapboxMap) => {
+    if (map.getLayer("waste-facility-3d")) map.removeLayer("waste-facility-3d");
+    const FACILITY_KEYS: WasteFacility3DKey[] = [
+      "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+    ];
+    const layer = createWasteFacilityLayer({
+      id: "waste-facility-3d",
+      getFacilityByType: () => wasteFacilityByTypeRef.current ?? new Map(),
+      getVisibility: () => {
+        const vis = layerVisibilityRef.current;
+        const out: Record<WasteFacility3DKey, boolean> = {
+          wfIncinerator: false, wfLandfill: false, wfTransfer: false,
+          wfMedical: false, wfMonitoring: false,
+        };
+        for (const k of FACILITY_KEYS) out[k] = !!vis[k];
+        return out;
+      },
+      getParams: () => {
+        const wp = paramRefs.wasteSubParams.current ?? {};
+        const out: Record<WasteFacility3DKey, WasteFacilityLayerParams> = {
+          wfIncinerator: wp["wfIncinerator"] ?? { size: 1, opacity: 0.85, altitude: 0, ringSize: 1 },
+          wfLandfill: wp["wfLandfill"] ?? { size: 1, opacity: 0.45, altitude: 0 },
+          wfTransfer: wp["wfTransfer"] ?? { size: 1, opacity: 0.85, altitude: 0 },
+          wfMedical: wp["wfMedical"] ?? { size: 1, opacity: 0.85, altitude: 0 },
+          wfMonitoring: wp["wfMonitoring"] ?? { size: 1, opacity: 0.7, altitude: 0 },
+        };
+        return out;
+      },
+      onSceneReady: (scenes) => { wasteFacilityScenesRef.current = scenes; },
+    });
+    wasteFacilityLayerRef.current = layer;
+    map.addLayer(layer);
+  };
+
   const addTemperatureWaveLayer = (map: MapboxMap) => {
     const id = "temperature-wave-3d";
     if (map.getLayer(id)) map.removeLayer(id);
@@ -292,6 +337,7 @@ export function useThreeJsLayers({
     addBusLayer(map);
     addBusIntercityLayer(map);
     addWasteTruckLayer(map);
+    addWasteFacilityLayer(map);
     addLighthouseLayer(map);
     addStationPillarLayer(map);
     addTemperatureWaveLayer(map);
@@ -305,12 +351,15 @@ export function useThreeJsLayers({
     busIntercitySceneRef,
     wasteTruckSceneRef,
     wasteMusicNoteSceneRef,
+    wasteFacilityScenesRef,
+    wasteFacilityLayerRef,
     addFlightLayer,
     addShipLayer,
     addRailLayer,
     addBusLayer,
     addBusIntercityLayer,
     addWasteTruckLayer,
+    addWasteFacilityLayer,
     addLighthouseLayer,
     addStationPillarLayer,
     addTemperatureWaveLayer,

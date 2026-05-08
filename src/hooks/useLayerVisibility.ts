@@ -62,7 +62,18 @@ export function useLayerVisibility() {
     wasteTruck: false,
     wasteRoute: false,
     wasteStop: false,
-    wasteFacility: false,
+    wfIncinerator: false,
+    wfLandfill: false,
+    wfTransfer: false,
+    wfMedical: false,
+    wfMonitoring: false,
+    wfRecycling: false,
+    wfScrapYard: false,
+    wfOther: false,
+    wdClothes: false,
+    wdMixed: false,
+    wdRecyclingContainer: false,
+    wdBattery: false,
   });
   const layerVisibilityRef = useRef(layerVisibility);
   layerVisibilityRef.current = layerVisibility;

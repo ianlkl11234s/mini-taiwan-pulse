@@ -1,6 +1,6 @@
 # 垃圾車 OSRM Map-matching 設計文件（Phase 3）
 
-> 狀態：**Approved，待執行**（已用戶 2026-05-07 確認）
+> 狀態：**程式碼骨架已完成，待部署 / 回填 / 視覺驗證**（2026-05-07）
 > 前提：Phase 1+2 已完成（migration 071 + Catmull-Rom + stop snapping）
 > 目標：把垃圾車 GPS 軌跡精確 snap 到實際馬路網，徹底解決「視覺穿牆」感
 > 多城市可復用：本設計從第一行就支援 cities []
@@ -52,9 +52,9 @@
                                          │ 回 matched polyline
                                          ▼
                               ┌──────────────────────┐
-                              │ spatial.waste_       │
-                              │   trails_matched     │
-                              │ (LineString per trip)│
+                              │ realtime.waste_      │
+                              │ trails_matched_daily │
+                              │ (daily matched trips)│
                               └──────────┬───────────┘
                                          │
                                          ▼
@@ -109,34 +109,29 @@ curl 'http://localhost:5000/match/v1/driving/120.3,22.6;120.31,22.61;120.32,22.6
 - `overview=full`：回傳完整 polyline（不簡化）
 - `gaps=split`：時間 gap 大時自動切 trip
 
-## 5. Schema：spatial.waste_trails_matched
+## 5. Schema：realtime.waste_trails_matched_daily
 
 ```sql
-CREATE TABLE spatial.waste_trails_matched (
-    id              BIGSERIAL PRIMARY KEY,
-    vehicle_no      TEXT NOT NULL,
+CREATE TABLE realtime.waste_trails_matched_daily (
+    day             DATE NOT NULL,
     city            TEXT NOT NULL,
-    trip_id         INTEGER NOT NULL,        -- 對應 071 RPC 的 tripId
+    vehicle_no      TEXT NOT NULL,
+    route_id        TEXT,
+    trip_id         INTEGER NOT NULL,
+    segment_seq     INTEGER NOT NULL DEFAULT 0,
     started_at      TIMESTAMPTZ NOT NULL,
     ended_at        TIMESTAMPTZ NOT NULL,
-    -- matched polyline (沿馬路)
     geometry        GEOMETRY(LINESTRING, 4326) NOT NULL,
-    -- 每個 GPS 點對應在 polyline 上的 progress [0, 1]
-    -- 編碼：'epoch1,prog1;epoch2,prog2;...'
     timeline        TEXT NOT NULL,
     point_count     INTEGER NOT NULL,
-    confidence      REAL,                    -- OSRM 回傳的 matching confidence
+    confidence      REAL,
     matched_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-
-    UNIQUE (vehicle_no, trip_id, started_at)
+    PRIMARY KEY (day, city, vehicle_no, trip_id, segment_seq)
 );
-
-CREATE INDEX idx_matched_city_time ON spatial.waste_trails_matched (city, started_at DESC);
-CREATE INDEX idx_matched_vehicle ON spatial.waste_trails_matched (vehicle_no, started_at DESC);
-CREATE INDEX idx_matched_geom ON spatial.waste_trails_matched USING GIST (geometry);
-
--- 7 天 retention（同 raw 表）
 ```
+
+決策：matched trail 是動態時序 pre-aggregate，依專案規則放 `realtime.*`；
+前端只打 `public.get_waste_trails_matched_day()`，不直接碰 `realtime` schema。
 
 ## 6. Batch Matching Script
 
@@ -303,12 +298,14 @@ SELECT cron.schedule(
 
 - [ ] 部署 OSRM Docker container（本機 or 雲端）
 - [ ] 下載 + 預處理 Taiwan OSM PBF
-- [ ] 寫 migration 080 建 `spatial.waste_trails_matched` 表
-- [ ] 寫 `data-collectors/collectors/waste_match.py`（含 OSRM 呼叫 + 批次寫入）
+- [x] 寫 migration 074 建 `realtime.waste_trails_matched_daily` 表
+- [x] 寫 `data-collectors/collectors/waste_match.py`（含 OSRM 呼叫 + 批次寫入）
 - [ ] systemd timer 或 Zeabur cron 排程（每 5 分鐘）
-- [ ] 寫 migration 081 `get_waste_trails_v2` RPC
-- [ ] 前端加 `VITE_WASTE_MATCHED` env flag + v2 loader
-- [ ] WasteTruckScene 加 v2 progress-based 模式（複用 railUtils.interpolateOnLineString）
+- [x] 寫 `get_waste_trails_matched_day` RPC
+- [x] 前端加 `VITE_WASTE_MATCHED_TRAILS` env flag + matched day loader
+- [x] WasteTruckScene 加 matched progress-based 模式（複用 `railUtils.interpolateOnLineString`）
+- [ ] 跑 migration 074 進 Supabase
+- [ ] 啟用 `WASTE_MATCH_ENABLED=true` 並 backfill today/yesterday
 - [ ] 跑 7 天驗證（confidence 分布、錯配率、視覺差異）
 - [ ] LegendPanel 加「沿路網」說明
 - [ ] retention cron + 月度 PBF 更新 cron

@@ -13,6 +13,15 @@ import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
+import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
+import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
+import {
+  setupWasteMapboxLayers,
+  syncWasteMapboxData,
+  syncWasteMapboxVisibility,
+  syncWasteMapboxParams,
+  syncWasteMapboxTheme,
+} from "./map/wasteMapboxLayers";
 import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -343,6 +352,19 @@ export default function App() {
   const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
     useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市"]);
 
+  // ── 垃圾處理設施 / 投放點（靜態，第一個 sub-toggle 開時 lazy fetch） ──
+  const wasteFacilityVis =
+    layerVisibility.wfIncinerator || layerVisibility.wfLandfill
+    || layerVisibility.wfTransfer || layerVisibility.wfMedical || layerVisibility.wfMonitoring
+    || layerVisibility.wfRecycling || layerVisibility.wfScrapYard || layerVisibility.wfOther;
+  const wasteDisposalVis =
+    layerVisibility.wdClothes || layerVisibility.wdMixed
+    || layerVisibility.wdRecyclingContainer || layerVisibility.wdBattery;
+  const { byType: wasteFacilityByType } = useWasteFacilityLayer(wasteFacilityVis);
+  const { byType: wasteDisposalByType } = useWasteDisposalPointLayer(wasteDisposalVis);
+  const wasteFacilityByTypeRef = useRef(wasteFacilityByType);
+  wasteFacilityByTypeRef.current = wasteFacilityByType;
+
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {
     if (!layerVisibility.busLive || timeline.timeMode !== "replay") return;
@@ -482,11 +504,13 @@ export default function App() {
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
+    wasteFacilityLayerRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef, railDataRef,
+    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+    wasteFacilityByTypeRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,
@@ -635,6 +659,30 @@ export default function App() {
     isDarkTheme,
   );
 
+  // ── 垃圾設施 / 投放點 Mapbox circle（8 個量級大子類型） ──
+  // setup 在 handleMapReady 直接呼叫（避開 useEffect mount 時 mapRef 仍 null 的 race）
+  const wasteMapboxSetupRef = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxData(map, wasteFacilityByType, wasteDisposalByType);
+  }, [wasteFacilityByType, wasteDisposalByType]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxVisibility(map, layerVisibility);
+  }, [layerVisibility]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxParams(map, transportParams.wasteSubParams);
+  }, [transportParams.wasteSubParams]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxTheme(map, isDarkTheme);
+  }, [isDarkTheme]);
+
   // ── Derived values ──
 
   const preset = useMemo(
@@ -677,6 +725,51 @@ export default function App() {
     loadSpatialResolution(7); // preload spatial economy
 
     bindEvents(map);
+
+    // 垃圾設施 / 投放點 Mapbox circle setup — map ready 後立刻建 8 個 source + 16 個 layer
+    if (!wasteMapboxSetupRef.current) {
+      setupWasteMapboxLayers(map, {
+        isDark: isDarkTheme,
+        onFeatureClick: setFeatureInfo,
+      });
+      wasteMapboxSetupRef.current = true;
+      // map 還沒拿到目前的 byType / visibility / params → 立刻同步一次
+      syncWasteMapboxData(map, wasteFacilityByTypeRef.current ?? new Map(), wasteDisposalByType);
+      syncWasteMapboxVisibility(map, layerVisibilityRef.current);
+      syncWasteMapboxParams(map, transportParams.wasteSubParams);
+    }
+
+    // 3D 垃圾處理設施 click pick（5 sub-scene 任一命中 → popup）
+    map.on("click", (e) => {
+      const layer = wasteFacilityLayerRef.current;
+      if (!layer) return;
+      // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
+      const v = layerVisibilityRef.current;
+      if (!(v.wfIncinerator || v.wfLandfill || v.wfTransfer || v.wfMedical || v.wfMonitoring)) return;
+      const canvas = map.getCanvas();
+      const hit = layer.pickFacility(
+        e.point.x, e.point.y,
+        canvas.clientWidth, canvas.clientHeight,
+      );
+      if (!hit) return;
+      const r = hit.row;
+      setFeatureInfo({
+        layerType: "wasteFacility",
+        properties: {
+          kind: "facility",
+          id: r.id,
+          facility_name: r.facility_name,
+          facility_type: r.facility_type,
+          city: r.city,
+          operator: r.operator,
+          address: r.address,
+          capacity_tpd: r.capacity_tpd,
+          status: r.status,
+          start_year: r.start_year,
+          source_url: r.source_url,
+        },
+      });
+    });
   };
 
   // ── Effects ──

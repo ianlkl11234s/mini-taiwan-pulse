@@ -8,7 +8,7 @@ import {
   GraduationCap, Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck,
-  Flame, Trash2, Truck, MapPinned,
+  Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -67,7 +67,18 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wasteTruck: "#fbbf24",
   wasteRoute: "#84cc16",
   wasteStop: "#65a30d",
-  wasteFacility: "#a855f7",
+  wfIncinerator: "#ef4444",
+  wfLandfill: "#92400e",
+  wfTransfer: "#a855f7",
+  wfMedical: "#ec4899",
+  wfMonitoring: "#3b82f6",
+  wfRecycling: "#22c55e",
+  wfScrapYard: "#737373",
+  wfOther: "#6b7280",
+  wdClothes: "#f97316",
+  wdMixed: "#14b8a6",
+  wdRecyclingContainer: "#84cc16",
+  wdBattery: "#fbbf24",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -134,7 +145,18 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   wasteTruck: Truck,
   wasteRoute: Route,
   wasteStop: MapPinned,
-  wasteFacility: Trash2,
+  wfIncinerator: Flame,
+  wfLandfill: Mountain,
+  wfTransfer: Truck,
+  wfMedical: AlertTriangle,
+  wfMonitoring: Gauge,
+  wfRecycling: Recycle,
+  wfScrapYard: Trash2,
+  wfOther: MapPinned,
+  wdClothes: Shirt,
+  wdMixed: Trash2,
+  wdRecyclingContainer: Recycle,
+  wdBattery: Battery,
 };
 
 // ── Section Config ──
@@ -260,9 +282,28 @@ const SECTIONS: SectionDef[] = [
     title: "WASTE",
     layers: [
       { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
-      { key: "wasteRoute", label: "清運路線 Route" },
-      { key: "wasteStop", label: "清運點位 Stop" },
-      { key: "wasteFacility", label: "焚化爐/掩埋場 Facility" },
+    ],
+  },
+  {
+    title: "WASTE FACILITY",
+    layers: [
+      { key: "wfIncinerator", label: "焚化爐 Incinerator", expandable: true },
+      { key: "wfLandfill", label: "衛生掩埋場 Landfill", expandable: true },
+      { key: "wfTransfer", label: "轉運站 Transfer", expandable: true },
+      { key: "wfMedical", label: "醫療廢棄物 Medical", expandable: true },
+      { key: "wfMonitoring", label: "地下水監測井 Monitor", expandable: true },
+      { key: "wfRecycling", label: "資源回收廠 Recycling", expandable: true },
+      { key: "wfScrapYard", label: "廢車/廢金屬 Scrap", expandable: true },
+      { key: "wfOther", label: "其他事廢設施 Other", expandable: true },
+    ],
+  },
+  {
+    title: "WASTE DISPOSAL POINT",
+    layers: [
+      { key: "wdClothes", label: "衣物回收箱 Clothes", expandable: true },
+      { key: "wdMixed", label: "混合投放點 Mixed", expandable: true },
+      { key: "wdRecyclingContainer", label: "街頭資收桶 Container", expandable: true },
+      { key: "wdBattery", label: "電池回收 Battery", expandable: true },
     ],
   },
 ];

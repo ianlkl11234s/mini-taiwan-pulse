@@ -64,7 +64,20 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wasteTruck: "#fbbf24",
   wasteRoute: "#84cc16",
   wasteStop: "#65a30d",
-  wasteFacility: "#a855f7",
+  // facility 8 sub-types
+  wfIncinerator: "#ef4444",
+  wfLandfill: "#92400e",
+  wfTransfer: "#a855f7",
+  wfMedical: "#ec4899",
+  wfMonitoring: "#3b82f6",
+  wfRecycling: "#22c55e",
+  wfScrapYard: "#737373",
+  wfOther: "#6b7280",
+  // disposal points 4 sub-types
+  wdClothes: "#f97316",
+  wdMixed: "#14b8a6",
+  wdRecyclingContainer: "#84cc16",
+  wdBattery: "#fbbf24",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -185,9 +198,28 @@ const SECTIONS: SectionDef[] = [
     title: "WASTE",
     layers: [
       { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
-      { key: "wasteRoute", label: "清運路線 Route" },
-      { key: "wasteStop", label: "清運點位 Stop" },
-      { key: "wasteFacility", label: "焚化爐/掩埋場 Facility" },
+    ],
+  },
+  {
+    title: "WASTE FACILITY",
+    layers: [
+      { key: "wfIncinerator", label: "焚化爐 Incinerator (30) 🔥", expandable: true },
+      { key: "wfLandfill", label: "衛生掩埋場 Landfill (117) 🟫", expandable: true },
+      { key: "wfTransfer", label: "轉運站 Transfer (28) 🚛", expandable: true },
+      { key: "wfMedical", label: "醫療廢棄物 Medical (40) ⚕️", expandable: true },
+      { key: "wfMonitoring", label: "地下水監測井 Monitor (574) 🩸", expandable: true },
+      { key: "wfRecycling", label: "資源回收廠 Recycling (653) ♻️", expandable: true },
+      { key: "wfScrapYard", label: "廢車/廢金屬 Scrap (3)", expandable: true },
+      { key: "wfOther", label: "其他事廢設施 Other (3,164)", expandable: true },
+    ],
+  },
+  {
+    title: "WASTE DISPOSAL POINT",
+    layers: [
+      { key: "wdClothes", label: "衣物回收箱 Clothes Box (7,236)", expandable: true },
+      { key: "wdMixed", label: "混合投放點 Mixed (6,368)", expandable: true },
+      { key: "wdRecyclingContainer", label: "街頭資收桶 Container (145)", expandable: true },
+      { key: "wdBattery", label: "電池回收 Battery (2)", expandable: true },
     ],
   },
 ];

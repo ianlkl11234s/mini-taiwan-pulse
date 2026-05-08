@@ -219,6 +219,34 @@ export function useTransportParams() {
   // AQI 色階圖透明度
   const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
 
+  // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
+  const WASTE_SUB_KEYS = [
+    "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+    "wfRecycling", "wfScrapYard", "wfOther",
+    "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
+  ] as const;
+  type WasteSubKey = typeof WASTE_SUB_KEYS[number];
+  interface WasteSubParams { size: number; opacity: number; altitude: number; ringSize?: number; }
+  const DEFAULT_WASTE_SUB: Record<WasteSubKey, WasteSubParams> = {
+    wfIncinerator: { size: 1.0, opacity: 0.85, altitude: 0, ringSize: 1.0 },
+    wfLandfill:    { size: 1.0, opacity: 0.45, altitude: 0 },
+    wfTransfer:    { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfMedical:     { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfMonitoring:  { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wfRecycling:   { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfScrapYard:   { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfOther:       { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wdClothes:     { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wdMixed:       { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wdRecyclingContainer: { size: 1.0, opacity: 0.85, altitude: 0 },
+    wdBattery:     { size: 1.5, opacity: 0.9,  altitude: 0 },
+  };
+  const [wasteSubParams, setWasteSubParams] = useState<Record<WasteSubKey, WasteSubParams>>(DEFAULT_WASTE_SUB);
+  const wasteSubParamsRef = useRef(wasteSubParams);
+  wasteSubParamsRef.current = wasteSubParams;
+  const setWasteSubParam = (key: WasteSubKey, field: keyof WasteSubParams, v: number) =>
+    setWasteSubParams((prev) => ({ ...prev, [key]: { ...prev[key], [field]: v } }));
+
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
   const altOffsetRef = useRef(altOffset);
@@ -658,6 +686,38 @@ export function useTransportParams() {
         { label: `音符大小 ${wasteNoteSize.toFixed(2)}`, value: wasteNoteSize, min: 0.1, max: 2, step: 0.05, onChange: setWasteNoteSize },
         { label: `音符高度 ${wasteNoteZOffset.toFixed(0)}m`, value: wasteNoteZOffset, min: 0, max: 250, step: 5, onChange: setWasteNoteZOffset },
       ];
+      case "wfIncinerator":
+      case "wfLandfill":
+      case "wfTransfer":
+      case "wfMedical":
+      case "wfMonitoring":
+      case "wfRecycling":
+      case "wfScrapYard":
+      case "wfOther":
+      case "wdClothes":
+      case "wdMixed":
+      case "wdRecyclingContainer":
+      case "wdBattery": {
+        const k = layer as WasteSubKey;
+        const p = wasteSubParams[k];
+        const base: ParamControl[] = [
+          { label: `大小 ${p.size.toFixed(2)}`, value: p.size, min: 0.3, max: 3, step: 0.05,
+            onChange: (v: number) => setWasteSubParam(k, "size", v) },
+          { label: `透明度 ${p.opacity.toFixed(2)}`, value: p.opacity, min: 0.1, max: 1, step: 0.05,
+            onChange: (v: number) => setWasteSubParam(k, "opacity", v) },
+          { label: `Z 軸 ${p.altitude.toFixed(0)}m`, value: p.altitude, min: 0, max: 500, step: 10,
+            onChange: (v: number) => setWasteSubParam(k, "altitude", v) },
+        ];
+        // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
+        if (k === "wfIncinerator") {
+          const ringSize = p.ringSize ?? 1.0;
+          base.push({
+            label: `底圈 ${ringSize.toFixed(2)}`, value: ringSize, min: 0, max: 4, step: 0.1,
+            onChange: (v: number) => setWasteSubParam(k, "ringSize" as keyof WasteSubParams, v),
+          });
+        }
+        return base;
+      }
       default: return [];
     }
   };
@@ -687,6 +747,7 @@ export function useTransportParams() {
       wasteOrbScale: wasteOrbScaleRef,
       wasteNoteSize: wasteNoteSizeRef,
       wasteNoteZOffset: wasteNoteZOffsetRef,
+      wasteSubParams: wasteSubParamsRef,
       busIntercityColorMode: busIntercityColorModeRef,
       busIntercityAltOffset: busIntercityAltOffsetRef,
       beamVisible: beamVisibleRef,
@@ -710,6 +771,7 @@ export function useTransportParams() {
     },
     overlayParams,
     getControls,
+    wasteSubParams,
     h3Params: useMemo(() => ({ opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric, contrast: h3Contrast }), [h3Opacity, h3Extruded, h3ElevationScale, h3Metric, h3Contrast]),
     popCountParams: useMemo(() => ({ opacity: pcOpacity, contrast: pcContrast, extruded: pcExtruded, elevationScale: pcElevationScale }), [pcOpacity, pcContrast, pcExtruded, pcElevationScale]),
     indicatorsParams: useMemo(() => ({ category: indCategory, metric: indMetric, opacity: indOpacity, contrast: indContrast, extruded: indExtruded, elevationScale: indElevationScale }), [indCategory, indMetric, indOpacity, indContrast, indExtruded, indElevationScale]),

@@ -89,6 +89,22 @@
 - ✅ migration 069_waste_rpc.sql（4 個基本 RPC）完成 + 跑進 Supabase
 - ✅ 前端骨架接線完成（loader / hook / customLayer / Scene / sidebar）
 
+### 2026-05-09（修補 + 視覺強化）
+- ✅ **bug fix**：disposal points + 4 個 Mapbox circle facility (recycling/scrap/other/monitoring) 看不到 — `setupWasteMapboxLayers` 在 useEffect mount 時 mapRef 仍 null 而 bail，又因 isDarkTheme 不變從此不再 fire → 永遠沒 setup。改成 `handleMapReady` 直接呼叫 + 立刻同步當前 byType / visibility / params
+- ✅ 焚化爐加底圈（800m 橙紅環，AdditiveBlending + 慢呼吸），新增第 4 條 slider「底圈大小」(0~4×) — 拉遠 zoom 也看得到
+- ✅ 掩埋場視覺強化：新增 ① 底部填色棕盤 ② 外圍黃環（AdditiveBlending）⑤ 頂端黃光球；dome opacity 0.35 → 0.65；wireframe opacity 0.18 → 0.45
+- ✅ vite.config.ts 加 `port: 3721, strictPort: true`（避免被 mini-taipei / plan-art 的 5173 佔用）
+
+### 2026-05-08
+- ✅ Phase 10：把 4,609 筆 facilities 全 8 種子類型 + 13,751 筆 disposal_points 全 4 種子類型加上前端
+- ✅ 後端 migration 075（重寫 get_waste_facilities 全量 + types filter + source_url + counts）
+- ✅ 後端 migration 076（新增 get_waste_disposal_points + counts，回 accepts_categories[] / source / source_url）
+- ✅ 前端 12 sub-toggle（每個含 size / opacity / Z 軸 三 slider）
+- ✅ 5 個 Three.js 3D scene：incinerator（火苗+煙）/ landfill（半球 dome+霧）/ transfer（pin+radar）/ medical（脈動球+缺口環+閃電）/ monitoring well（細藍光柱 InstancedMesh + 漣漪）
+- ✅ 8 個 Mapbox circle layer：recycling/scrap/other × monitoring + 4 disposal_points
+- ✅ FeatureInfoPanel 新增 wasteFacility / wasteDisposalPoint case：完整欄位 + accepts_categories chips + source 權威度 badge（utmap=官方藍 / tnepb_kml=綠 / osm=橘群眾） + source_url 連結
+- ✅ tsc -b 通過
+
 ### 2026-05-07
 - ✅ 修 3 個視覺 bug：光點 size 太小、音符 uTime epoch ms float32 精度爆、METERS_TO_UNIT 偏小
 - ✅ 確認 Supabase 內有完整 trail（高雄 113k 筆 / 3 天 / 325 點/車）
@@ -104,7 +120,13 @@
   - 光點大小 slider（0.3~4 倍）+ 音符大小 slider（0.5~3 倍）— wasteTruck 改 expandable 加 controls
   - 音符顏色染琥珀 #fbbf24（匹配 wasteTruck 主視覺，shader uColor uniform）
 - ✅ Phase 3 OSRM map-matching 完整設計文件：`docs/research/waste-osrm-mapmatching-plan.md`（approved，跨日工程進 Backlog）
+- ✅ Phase 3 程式碼骨架：
+  - `gis-platform` migration 074：`realtime.waste_trails_matched_daily` + `get_waste_trails_matched_day`
+  - `data-collectors` `waste_match`：重建 trip、呼叫 OSRM `/match`、寫入 matched progress timeline
+  - 前端 replay day 優先讀 matched，無資料 / RPC 失敗自動 fallback 到原本 GPS trail
+  - `WasteTruckScene` 支援 matched progress-based interpolation，沿 matched polyline 移動
 - 🔜 待用戶：強制重整瀏覽器驗證軌跡 + 微調 slider
+- 🔜 待部署：OSRM Taiwan service、跑 migration 074、啟用 `WASTE_MATCH_ENABLED=true`、backfill today/yesterday、瀏覽器驗證沿路網移動
 
 ---
 

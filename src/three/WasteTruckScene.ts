@@ -1,7 +1,10 @@
 import * as THREE from "three";
 import { toMercator } from "../utils/coordinates";
+import { interpolateOnLineString } from "../engines/railUtils";
 import {
   WASTE_STATUS_COLORS,
+  type WasteMatchedTrail,
+  type WasteMatchedProgressPoint,
   type WasteTrailRow,
   type WasteTrailPoint,
   type WasteStatus,
@@ -10,7 +13,7 @@ import {
 // 時間來源由 custom layer 傳入：
 //   - replay：用 timeStore 時間，讓播放/倍速能驅動近 60 分鐘 trail
 //   - live：timeStore 會貼近 Date.now()，再套 5 分鐘 visual lag
-// Historical replay（任意日期 trail by date）尚未支援，進 Backlog P3。
+// Historical replay：useWasteLayer 會載入當天 day trail；matched 存在時沿 OSRM 路網 progress 移動。
 //
 // VIEW_LAG_SECONDS：視覺時間落後真實時間幾秒
 //   trail 範圍 [now-3600s, now]，但 collector 每 2 分鐘才寫一筆，
@@ -26,7 +29,8 @@ const VIEW_LAG_SECONDS = 300;
  * 架構：
  *   - 接收 trails: WasteTrailRow[]（每車 ~30 點 GPS 軌跡）
  *   - 每幀用 timeStore.getTime() (= Date.now() in live) 在 trail 上時間插值
- *   - 三種插值模式：
+ *   - 若 row.matched 存在：走 progress-based interpolation，沿 OSRM matched polyline 移動
+ *   - 若 matched 不存在：fallback 到既有 GPS 插值（三種插值模式）
  *       1. Catmull-Rom spline（短距離 & 同 trip）→ 平滑曲線經過點
  *       2. Linear lerp（長距離但同 trip）→ 補沒有 GPS 點的區間，避免淡出跳點
  *       3. Teleport fade（跨 trip）→ alpha 0.5 前淡出舊、後淡入新
@@ -41,6 +45,7 @@ const VIEW_LAG_SECONDS = 300;
 const LINEAR_HOP_THRESHOLD_M   = 120;   // 同 trip 但距離較長 → linear，避免 Catmull-Rom overshoot
 const STALE_DATA_THRESHOLD_S   = 300;   // 過去 5 分鐘沒更新 → 半透明
 const HARD_STALE_THRESHOLD_S   = 1200;  // 過去 20 分鐘沒更新 → 不顯示（車輛離線太久）
+const MATCHED_SEGMENT_FADE_S   = 45;    // matched rows 是 trip/segment 粒度，段外只做短 fade，避免重複車影
 
 // ── 數學工具 ──────────────────────────────────────────────
 
@@ -75,6 +80,19 @@ function findSegmentIndex(trail: WasteTrailPoint[], nowSec: number): number {
   while (lo < hi - 1) {
     const mid = (lo + hi) >> 1;
     if (trail[mid]!.t <= nowSec) lo = mid;
+    else hi = mid;
+  }
+  return lo;
+}
+
+function findMatchedSegmentIndex(timeline: WasteMatchedProgressPoint[], nowSec: number): number {
+  if (timeline.length === 0) return -2;
+  if (nowSec < timeline[0]!.t) return -1;
+  if (nowSec >= timeline[timeline.length - 1]!.t) return timeline.length - 1;
+  let lo = 0, hi = timeline.length - 1;
+  while (lo < hi - 1) {
+    const mid = (lo + hi) >> 1;
+    if (timeline[mid]!.t <= nowSec) lo = mid;
     else hi = mid;
   }
   return lo;
@@ -151,6 +169,51 @@ function interpolateTrail(trail: WasteTrailPoint[], nowSec: number): Interpolate
   const lat = catmullRom1D(pm1.lat, p0.lat, p1.lat, p2.lat, localT);
   const lng = catmullRom1D(pm1.lng, p0.lng, p1.lng, p2.lng, localT);
 
+  return { lat, lng, status: p0.status, alpha: 1.0, visible: true };
+}
+
+/** 對 OSRM matched polyline + progress timeline 算當前位置。 */
+function interpolateMatchedTrail(matched: WasteMatchedTrail, nowSec: number): InterpolatedFrame {
+  const timeline = matched.timeline;
+  const idx = findMatchedSegmentIndex(timeline, nowSec);
+  if (idx === -2 || matched.polyline.length < 2) {
+    return { lat: 0, lng: 0, status: "unknown", alpha: 0, visible: false };
+  }
+
+  if (idx === -1) {
+    const p = timeline[0]!;
+    const gap = p.t - nowSec;
+    if (gap > MATCHED_SEGMENT_FADE_S) {
+      return { lat: 0, lng: 0, status: p.status, alpha: 0, visible: false };
+    }
+    const [lng, lat] = interpolateOnLineString(matched.polyline, p.progress);
+    return { lat, lng, status: p.status, alpha: 1 - gap / MATCHED_SEGMENT_FADE_S, visible: true };
+  }
+
+  const p0 = timeline[idx]!;
+  const p1 = timeline[idx + 1];
+
+  if (!p1) {
+    const gap = nowSec - p0.t;
+    if (gap > MATCHED_SEGMENT_FADE_S) {
+      return { lat: 0, lng: 0, status: p0.status, alpha: 0, visible: false };
+    }
+    const [lng, lat] = interpolateOnLineString(matched.polyline, p0.progress);
+    return { lat, lng, status: p0.status, alpha: 1 - gap / MATCHED_SEGMENT_FADE_S, visible: true };
+  }
+
+  const dt = p1.t - p0.t;
+  const localT = dt > 0 ? (nowSec - p0.t) / dt : 0;
+
+  if (p0.tripId !== p1.tripId) {
+    const progress = localT < 0.5 ? p0.progress : p1.progress;
+    const alpha = localT < 0.5 ? Math.max(0, 1 - localT * 2) : Math.min(1, (localT - 0.5) * 2);
+    const [lng, lat] = interpolateOnLineString(matched.polyline, progress);
+    return { lat, lng, status: localT < 0.5 ? p0.status : p1.status, alpha, visible: true };
+  }
+
+  const progress = p0.progress + (p1.progress - p0.progress) * localT;
+  const [lng, lat] = interpolateOnLineString(matched.polyline, progress);
   return { lat, lng, status: p0.status, alpha: 1.0, visible: true };
 }
 
@@ -279,9 +342,11 @@ export class WasteTruckScene {
 
     for (const row of trails) {
       if (count >= this.maxInstances) break;
-      if (row.trail.length === 0) continue;
+      const matched = row.matched;
+      const hasMatched = !!matched && matched.polyline.length >= 2 && matched.timeline.length >= 2;
+      if (!hasMatched && row.trail.length === 0) continue;
 
-      const frame = interpolateTrail(row.trail, nowSec);
+      const frame = hasMatched ? interpolateMatchedTrail(matched, nowSec) : interpolateTrail(row.trail, nowSec);
       if (!frame.visible) continue;
 
       const target = toMercator(frame.lat, frame.lng, this.altOffset);
