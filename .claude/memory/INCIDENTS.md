@@ -270,4 +270,103 @@ App 被 error boundary 接住白畫面。
 
 ---
 
+## 2026-05-08 OSRM Docker image 是 distroless，無 apt-get / wget
+
+**現象**：第一版 osrm-taiwan Dockerfile 在 `ghcr.io/project-osrm/osrm-backend` 內 `apt-get install wget` 抓 PBF，build 立刻 exit 127 `apt-get: not found`。
+
+**根因**：OSRM 官方 image 改用 distroless / minimal base，預設不含包管理工具。
+
+**對策**：
+- multi-stage build：`alpine:3` 跑 `apk add wget` 抓 PBF → COPY 給 OSRM stage 跑 extract/partition/customize → final stage 只帶 .osrm 檔
+- PRINCIPLES：Dockerfile 抓外部資源前先確認 base image 工具鏈
+
+---
+
+## 2026-05-08 Zeabur PREBUILT_V2 K8s service port 預設 8080（不看 EXPOSE）
+
+**現象**：osrm-proxy 部署後 public domain 三個 endpoint 全 502 Bad Gateway。`/health`（不需 auth）也掛，跟 nginx token 邏輯無關。osrm-routed listen 5000、nginx listen 80，但 K8s service 都 expose 8080，pod 內無人 listen 8080 → connection refused。
+
+**根因**：Zeabur PREBUILT_V2 service 的 K8s service port 硬性是 **8080**，不看 Dockerfile 的 EXPOSE 也不看 PORT env var 來決定 targetPort。`service.zeabur.internal:8080` → forward 到 pod 8080，但容器內進程沒 listen 8080 → 連不到。
+
+**診斷指令**：`npx zeabur@latest service network --id <id>` 看 web (HTTP) 顯示的 port 即真實預期。
+
+**對策**：
+- nginx `listen 8080`、osrm-routed `--port 8080`、Dockerfile `EXPOSE 8080` 全部對齊到 8080
+- PRINCIPLES：Zeabur PREBUILT_V2 一律 listen 8080（不管原服務預設 port）
+
+---
+
+## 2026-05-08 Cobra CLI `-k "KEY=${VAR}"` 不可靠（CSV parser 雷）
+
+**現象**：用 `npx zeabur@latest variable create -k "OSRM_URL=http://${OSRM_TAIWAN_HOST}:5000"` 設環境變數，CLI 不報錯但 value 被截斷或變空。
+
+**根因**：Zeabur CLI 的 `-k` flag 用 Cobra 的 `StringToStringVar` parser（CSV 模式），對含 `${}` 的值會 mangle，即使單引號避 shell 展開也不行（[zeabur/cli#201](https://github.com/zeabur/cli/issues/201)）。
+
+**對策**：
+- **跨 service reference variable 一律走 dashboard**，不用 CLI
+- CLI 只設 hard-coded 值（service-id、URL 字面）
+- PRINCIPLES：含 `${}` 的 env value 不能用 zeabur CLI 設
+
+---
+
+## 2026-05-08 跨 Zeabur project 內網不通，必走 public + auth gateway
+
+**現象**：osrm-taiwan 在 `data-collectors-gomn` project，垃圾車 collector 在 `data-collectors-ship-only` project（IP 通政府 API），兩 project 內網互通失敗 — `osrm-taiwan.zeabur.internal` DNS 在 collector 那邊解不到。
+
+**根因**：Zeabur 內網（K8s ClusterIP）以 project 為 namespace 隔離，跨 project 沒 service mesh 互通。`<service>.zeabur.internal` 只在同 project 內可解析。
+
+**對策**：
+- 寫一個 `osrm-proxy` 跨層服務（nginx:alpine + Bearer token gateway）放在 OSRM 同 project
+- proxy 開 public domain，collector 走外網 HTTPS + Bearer header
+- 月固定成本 +1 個輕量 nginx service（< 50MB image，~50MB RAM）
+- PRINCIPLES：跨 Zeabur project 通訊一律 public + auth gateway
+
+**Long-form**：`docs/research/waste-osrm-mapmatching-plan.md` §14
+
+---
+
+## 2026-05-09 waste_match retry 死循環（NoMatch trip 不寫 DB → 反覆 try）
+
+**現象**：collector 連續 9+ 輪每 5 min skip warning（上輪超過 300s），5/4-5/8 每天都正好 80 unmatched trips（觸頂 LIMIT 80）。
+
+**根因**：`_find_unmatched_trips` SQL 用 `NOT EXISTS in waste_trails_matched_daily` 篩選，但 OSRM NoMatch / confidence < 0.35 / HTTP error 的 trip **不寫入 matched_daily**。下輪同樣 trip 又被當 unmatched → 永遠 retry。
+
+**對策**：
+- migration 075 新增 `realtime.waste_match_attempts(day, city, vehicle_no, trip_id, success, reason)`
+- waste_match.py 每 trip OSRM 嘗試後寫 marker（不論成功 / 失敗）
+- SQL 多加 `NOT EXISTS in waste_match_attempts`
+- 月度 PBF 更新若想 force re-match 可手動 `TRUNCATE realtime.waste_match_attempts`
+- 設計教訓：所有「寫成功才標記」的批次處理都該補「寫 attempt」marker，避免 transient failure 變死循環
+
+**Long-form**：`docs/research/waste-osrm-mapmatching-plan.md` §14「補充：5/9 上午 attempt marker 機制根本修」
+
+---
+
+## 2026-05-09 Empty git commit 不會 trigger Zeabur redeploy
+
+**現象**：用 `git commit --allow-empty` 想觸發 Zeabur redeploy（讓新 env var 生效），git push 成功但 Zeabur deployment list 一直停在前一個 commit，沒新 build。
+
+**根因**：Zeabur 的 GitHub webhook 偵測 commit 變更時看 file diff（empty commit `git diff` 為空）→ 視為「無變化」不觸發 build。Zeabur restart API 同時段也回 transient 503，連續 10 次失敗。
+
+**對策**：
+- 要強制 redeploy 一律改檔（`README.md` 加一行註解）+ commit + push
+- PRINCIPLES：Zeabur env var 變更後若 service 不自動 reload，用 trivial file change 觸發 redeploy
+- 不要靠 `npx zeabur@latest service restart`（不穩定）
+
+---
+
+## 2026-05-09 AWS Lightsail Tokyo IP 被高雄/台南政府 API 擋
+
+**現象**：把垃圾車 collector 從 Akamai/Linode（agent_test, gomn project）搬到 AWS Lightsail Tokyo（ship-only-aws project），結果高雄 GPS / 台南 GPS / motcmpb (ship_ais) 三個政府 API **全部 ConnectTimeout**。新北通。
+
+**根因**：高雄 kcg.gov.tw、台南、motcmpb 等政府網站防火牆對 AWS / GCP / Azure 雲端 IP 段做 geo/ASN block（避免被刷）。Akamai/Linode IP 在白名單內、Lightsail 不在。新北防護寬鬆例外通過。
+
+**對策**：
+- 這次決議把 collector 留在原本 `service-6940282e03ed383c19b036f5`（IP 通的 ship-only project）
+- OSRM 留在 gomn project（agent_test 機器）
+- 跨 project 走 osrm-proxy public + Bearer gateway（如另一條坑紀錄）
+- PRINCIPLES：採台灣政府 API 的 collector 選機房前先 curl 測試**目標 API**，不只測連通性
+
+---
+
 <!-- 追加新事件於此之上 -->
