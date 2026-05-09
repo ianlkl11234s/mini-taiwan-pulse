@@ -296,19 +296,199 @@ SELECT cron.schedule(
 
 ## 12. 執行 Checklist（從 0 到 production）
 
-- [ ] 部署 OSRM Docker container（本機 or 雲端）
-- [ ] 下載 + 預處理 Taiwan OSM PBF
+- [x] 部署 OSRM Docker container（Zeabur，2026-05-08）
+- [x] 下載 + 預處理 Taiwan OSM PBF（內建在 Dockerfile multi-stage build）
 - [x] 寫 migration 074 建 `realtime.waste_trails_matched_daily` 表
 - [x] 寫 `data-collectors/collectors/waste_match.py`（含 OSRM 呼叫 + 批次寫入）
-- [ ] systemd timer 或 Zeabur cron 排程（每 5 分鐘）
 - [x] 寫 `get_waste_trails_matched_day` RPC
 - [x] 前端加 `VITE_WASTE_MATCHED_TRAILS` env flag + matched day loader
 - [x] WasteTruckScene 加 matched progress-based 模式（複用 `railUtils.interpolateOnLineString`）
-- [ ] 跑 migration 074 進 Supabase
+- [x] 跑 migration 074 進 Supabase（2026-05-08，cron job id=53）
+- [ ] **將 waste_match collector 部署到實際跑垃圾車的 collector 專案（見 §14）**
 - [ ] 啟用 `WASTE_MATCH_ENABLED=true` 並 backfill today/yesterday
 - [ ] 跑 7 天驗證（confidence 分布、錯配率、視覺差異）
 - [ ] LegendPanel 加「沿路網」說明
-- [ ] retention cron + 月度 PBF 更新 cron
+- [ ] 月度 PBF 更新 cron（Zeabur GitHub auto-redeploy 已能處理，只要 push commit 即可）
+
+## 14. 2026-05-08 / 05-09 部署實戰紀錄
+
+### 最終架構（跨 project + Bearer token gateway）
+
+```
+gis-data-collectors                 osrm-proxy                osrm-taiwan
+(ship-only project,                 (gomn project,             (gomn project,
+ IP 通政府 API)        ─https+token─▶ nginx 8080,    ─internal─▶ osrm-routed
+ service-id:                          Bearer auth)              8080, MLD)
+   6940282e03ed383c19b036f5          69fe18685aa21e4719e6a9c9  69fe0ec75aa21e4719e6a80c
+                                      osrm-proxy-gis.zeabur.app
+```
+
+切兩個 project 的原因：
+- 政府 API（高雄/台南 GPS、ship_ais）擋 AWS Lightsail / 雲端 IP，但 ship-only project 上的 collector IP 通
+- Akamai dedicated server (agent_test, gomn project) 跑 OSRM 沒問題但 IP 被擋政府 API
+- → collector 必須留在 ship-only project，OSRM 留 gomn project，跨 project 用 Bearer token gateway 串
+
+### 已完成（兩 session 累積）
+
+**OSRM service**：
+- repo: `github.com/ianlkl11234s/osrm-taiwan`（private）
+- 本機: `GIS/osrm-taiwan/`
+- Dockerfile 三階段：alpine 抓 Geofabrik PBF → osrm-backend extract/partition/customize → 啟動 osrm-routed
+- Zeabur project: `data-collectors-gomn`、service id `69fe0ec75aa21e4719e6a80c`
+- Tokyo dedicated server `agent_test` (4 核 8 GB) - Akamai/Linode
+- Build ~6 分鐘（cache hit 後，多階段只重 layer 2）
+- Image 549 MB，runtime RAM ~1 GB
+- **listening on 8080**（與 Zeabur PREBUILT_V2 K8s service port 對齊，不是預設 OSRM 5000）
+- 內網 hostname：`osrm-taiwan.zeabur.internal:8080`（無 public domain）
+
+**OSRM proxy（Bearer token gateway）**：
+- repo: `github.com/ianlkl11234s/osrm-proxy`（private）
+- 本機: `GIS/osrm-proxy/`
+- nginx:1.25-alpine + envsubst template，listen 8080，proxy_pass 到 osrm-taiwan internal
+- Zeabur project: `data-collectors-gomn`，service id `69fe18685aa21e4719e6a9c9`
+- Public domain: `https://osrm-proxy-gis.zeabur.app`
+- Image ~50 MB，build < 1 分鐘
+- Bearer token 驗證 `/health` 之外的所有路徑
+- env vars:
+  ```
+  OSRM_TOKEN=58e6bb61a676dfc6bb24847467f5f28cbbdbab46ef0546c8a2489feb0dfec784
+  OSRM_UPSTREAM=osrm-taiwan.zeabur.internal:8080
+  ```
+
+**Supabase**：
+- migration 074 已套用（table + 3 indexes + cleanup function + RPC + 04:18 daily cleanup cron）
+- 用 `psql` 直接灌（idempotent），cron job id=53
+
+**Collector（ship-only project）env vars**：
+```
+OSRM_URL=https://osrm-proxy-gis.zeabur.app
+OSRM_TOKEN=58e6bb61a676dfc6bb24847467f5f28cbbdbab46ef0546c8a2489feb0dfec784
+WASTE_MATCH_ENABLED=true
+WASTE_MATCH_INTERVAL=5
+WASTE_MATCH_TARGET_DAYS=7    # 涵蓋 GPS 7 天 retention，自動 backfill
+```
+
+**data-collectors push 紀錄**（5/9 凌晨）：
+- `ab60c5d feat(waste_match): 新增垃圾車 OSRM map-matching collector`（5 檔，含 waste_match.py 532 行 + Authorization header）
+- `e26436c docs(README): note OSRM map-matching pipeline activation date`（trivial change 觸發 redeploy 帶入 TARGET_DAYS=7）
+
+**驗證證據**（5/9 凌晨 01:30 台灣時間）：
+- pipeline 端到端 curl 通：external → osrm-proxy → osrm-taiwan → 真實台北路徑回應
+- waste_match collector 啟動正常，第一輪找到 today 2 + yesterday 80 unmatched trips
+- DB 寫入：`realtime.waste_trails_matched_daily` 5/8 有 58 rows / 38 vehicles / avg confidence 0.730
+
+### 已踩過的坑（給未來 session 參考）
+
+1. **OSRM image 是 distroless**：沒 apt-get / wget。要在外面用 alpine COPY PBF 進來
+2. **Zeabur PREBUILT_V2 K8s service 預設 port 8080**（不看 EXPOSE / PORT env var）：
+   - osrm-taiwan 原本 listen 5000 → 內網 connection refused
+   - 修法：`osrm-routed --port 8080` + EXPOSE 8080
+3. **Cobra CSV parser 不能可靠處理含 `${}` 的 env value**：用 hard-coded service ID 形式取代 `${OSRM_TAIWAN_HOST}`
+4. **Empty git commit Zeabur 不會 trigger redeploy**：要實質檔案變動才會 webhook 觸發
+5. **Zeabur restart API 偶爾 transient 503**：用 `git push` trivial commit 替代
+6. **跨 Zeabur project 內網 hostname 不通**：跨 project 必須走 public domain + auth gateway
+7. **AWS Lightsail / GCP / Azure 等公雲 IP 多會被台灣政府 API 擋**：垃圾車 GPS、ship_ais 等收集必須用「IP 通的 collector instance」（這次是 ship-only project 的那台）
+
+### 早上接回來看什麼（5/9 早上）
+
+```sql
+-- 看 backfill 7 天歷史是否完整覆蓋
+SELECT day, COUNT(*) AS rows, COUNT(DISTINCT vehicle_no) AS vehicles,
+       ROUND(AVG(confidence)::numeric, 3) AS avg_conf,
+       MIN(matched_at) AS first, MAX(matched_at) AS last
+FROM realtime.waste_trails_matched_daily
+GROUP BY day ORDER BY day DESC;
+
+-- 期望：5/3 ~ 5/9 共 7 天都有 rows
+-- 早上垃圾車活動高峰，5/9 rows 應該大幅成長
+```
+
+```bash
+# 看 collector log 確認 waste_match 持續運作
+npx zeabur@latest deployment log --service-id 6940282e03ed383c19b036f5 -t runtime -i=false 2>&1 | grep -iE "waste_match|matched" | tail -20
+```
+
+前端視覺驗證：
+- `npm run dev` 開 localhost:3721
+- 強制重整、toggle 垃圾車 layer
+- 拉 timeline 到 5/8 或 5/9 早上，看垃圾車是不是沿馬路走（不再穿牆）
+- 環境變數 `VITE_WASTE_MATCHED_TRAILS=1`（預設）優先讀 matched，沒有的話 fallback v1 GPS trail
+
+### 還沒做的事（早上接手）
+
+- [x] 確認 backfill 完整（5/4-5/9 都有 matched rows）
+- [x] 早上垃圾車活動高峰時看 collector log 是否健康
+- [ ] 前端視覺驗證沿路網效果
+- [ ] LegendPanel 加「沿路網」說明
+- [ ] 月度 PBF 更新自動化（GitHub Actions cron 每月 1 號 push 觸發 redeploy）
+- [ ] 評估是否刪除 `data-collectors-ship-only-aws` project（Lightsail Tokyo 機器，IP 被擋沒用）— 月費 $X 可省
+- [ ] 評估是否關掉 osrm-taiwan service 的 ARC（如果 OSRM 流量穩定可考慮 scale-to-zero，但要確認 cold start 時間）
+- [ ] 跑 7 天驗證 confidence 分布、錯配率
+
+### 補充：5/9 上午 attempt marker 機制根本修
+
+啟用後（commit `0fe4a21`）發現 collector 卡在「retry 死循環」：原本只用 NOT EXISTS in
+`matched_daily` 篩 unmatched，但 OSRM NoMatch / low-confidence 的 trip 不寫入該表 →
+下輪又被當 unmatched → 永遠 retry，scheduler 連續 skip 警告。
+
+**根本修**（migration 075 + waste_match.py）：
+- 新增 `realtime.waste_match_attempts (day, city, vehicle_no, trip_id, success, reason)`
+- waste_match.py 每 trip OSRM 嘗試後寫 marker（不論成功 / 失敗）
+- `_find_unmatched_trips` SQL 加 `NOT EXISTS in waste_match_attempts`
+- 月度 PBF 更新若想 force re-match：`TRUNCATE realtime.waste_match_attempts;`
+
+**Drain 結果**（暫時 `WASTE_MATCH_MAX_TRIPS=500` 一次清完，事後改回 80）：
+- 3,280 trip attempted：1,510 success（46%）/ 1,770 fail（54%）
+- fail trip 特徵：parked 比例 37%（success 19%）、平均點數少 30%、收運中比例低
+- 結論：fail 是「資料本質難 map-match」（停運點靜止居多），不是系統 bug
+- 前端 fallback：fail 的車仍走 v1 GPS 直線，**沒有任何車消失**
+
+DB 最終資料（5/9 上午 10:35）：
+| day | matched_rows | vehicles | avg_conf |
+|---|---|---|---|
+| 5/4 | 392 | 235 | 0.735 |
+| 5/5 | 528 | 274 | 0.769 |
+| 5/6 |  76 |  46 | 0.743（GPS 量本身少）|
+| 5/7 | 490 | 260 | 0.741 |
+| 5/8 | 503 | 266 | 0.745 |
+| 5/9 |  20 |  20 | 0.799（早高峰起步）|
+
+## 15. 擴展其他縣市
+
+當高雄 production 視覺穩定 1 週後考慮擴展。優先序：
+
+| 縣市 | GPS 資料品質 | 預期 success rate | 工程成本 |
+|---|---|---|---|
+| 台南 | 20,627 GPS / 24h、183 車 | 應接近高雄（資料密度類似）| 改 1 個 env var：`WASTE_MATCH_CITIES=高雄市,臺南市` |
+| 新北 | 凍結式更新（每日整批）| 較低，trip 邊界不清 | 同上 + 可能要調 trip-gap 閾值 |
+| 台北 | 純靜態路線、無 GPS | 不適用 | 無 |
+
+### 接新縣市的 checklist
+
+- [ ] data-collectors 的 `WASTE_POSITIONS_CITIES` env 加新城市
+- [ ] 確認 `spatial.waste_positions_realtime` 有寫入新城市資料（city 欄位用中文全名「臺南市」/「新北市」）
+- [ ] data-collectors 的 `WASTE_MATCH_CITIES` env 加新城市
+- [ ] 等 collector 1-2 輪後看 `realtime.waste_match_attempts` 該城市 success rate
+- [ ] 若 < 30% success rate → 該城市資料本身有問題，往上游查（GPS 採樣間隔、status 欄位是否都填、trip 切分閾值是否合適）
+- [ ] 前端 `useWasteLayer.ts` 加新 city 到 cities 陣列
+- [ ] `LayerSidebar` 加切換 UI（仿 BusGroup 模式）
+
+### 預期挑戰
+
+1. **新北凍結式**：GPS 不是即時 push，是每日整批，trip 切分（10 min gap）對它不適用 → 可能整天的點會被 cut 成超多短 trip → 全部 fail map-match。要不要為新北關 `WASTE_MATCH`？或調整 trip-gap = 60 min？需要實測資料樣本決定。
+2. **多城市並發**：若 5 城同開，OSRM 每輪要處理 3-5 倍 trip → 評估 4 核機器是否扛得住
+3. **不同城市 confidence 分布**：可能某些城市 GPS 品質差導致 confidence 普遍 < 0.35 → 要不要 per-city threshold？
+
+### 往「stop-to-stop OSRM /route」演化（長期）
+
+現有 HMM /match 對「停運點靜止居多」的 trip 處理不好（54% fail）。長期可改架構：
+- 從 GPS + stop snapping 還原該車當天的 stop sequence
+- 對相鄰兩 stop 呼叫 OSRM `/route` 拿真實道路最短路徑
+- 拼接多 leg 成完整 route polyline
+
+優點：對 GPS 雜訊免疫、不需要 HMM、success rate 預期 > 90%。
+前提：要先解決 `waste_collection_stops` 沒 stop_sequence 欄位的問題（用 arrival_time 推或從 GPS 反推）。
+工程成本：1-2 天，等高雄穩定 + 多城市需求穩定後再評估。
 
 ## 13. 多城市復用 checklist
 
