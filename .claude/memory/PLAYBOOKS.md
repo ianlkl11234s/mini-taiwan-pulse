@@ -321,3 +321,118 @@ function parseTimeline(timeline: string): Array<{ t: number; v: number }> {
 實例：migration 063（iot_wra）— `iot_wra_latest` 4k rows + `iot_wra_daily` ~4k rows × 7 天 / 23 timepoints。
 
 詳見：`docs/research/iot-wra-integration-study.md` § 5.2。
+
+---
+
+## PB-11 Zeabur PREBUILT_V2 service 部署（從 GitHub repo）
+
+> 觸發：要把外部服務（如 OSRM、reverse proxy）放上 Zeabur 給 collector 或 frontend 用。
+
+```bash
+# 1. 本機建 minimal repo
+mkdir -p ~/.../<service-name>
+cd ~/.../<service-name>
+# 寫 Dockerfile + 必要 config（範例: osrm-taiwan, osrm-proxy）
+git init -b main
+git add . && git -c commit.gpgsign=false commit -m "feat: initial <service>"
+
+# 2. GitHub private repo + push
+# 用戶手動建 https://github.com/new (private)
+git remote add origin git@github.com:<user>/<service>.git
+git push -u origin main
+
+# 3. Zeabur dashboard 部署
+# - 進目標 project（同 collector 同 project 才能用內網）
+# - + Add Service → Deploy from GitHub → 選 repo
+# - Build 等候（30 分鐘 OSRM / 1 分鐘 nginx）
+
+# 4. 確認 K8s service port 預期
+npx zeabur@latest service network --id <service-id>
+# 注意：PREBUILT_V2 預期 web (HTTP) 是 8080
+# Dockerfile EXPOSE 跟 osrm-routed --port / nginx listen 都要對齊到這個 port
+```
+
+**坑點**：
+- Dockerfile EXPOSE 不影響 K8s service targetPort，**容器內進程必須真的 listen 8080**
+- Empty commit Zeabur 不會 trigger redeploy，env var 變更後要 trivial file change 才生效
+- 含 `${}` 的 env var 用 dashboard 設，不要用 CLI（Cobra parser 雷）
+- Mac M1 build 多階段 image 會跨平台慢，本機驗證 OK 後**讓 Zeabur 自己 build**（如果機器規格夠）或推 amd64 image 到 registry pull
+
+**內網 hostname 解析規則**：
+- 同 project：`<service-name>.zeabur.internal:8080` 或 `service-<service-id>:8080`
+- 跨 project：**不通**，必須走 public domain（見 PB-12）
+
+詳見：`docs/research/waste-osrm-mapmatching-plan.md` §14（OSRM 部署完整紀錄）。
+
+---
+
+## PB-12 跨 project Bearer token gateway pattern
+
+> 觸發：A service（如 OSRM、AI Hub、自有 API）必須放在 project X，但呼叫方 collector / frontend 在 project Y。Zeabur 內網跨 project 不通。
+
+**架構**：
+```
+caller (project Y) ──https + Bearer token──▶
+  proxy service (project X，nginx:alpine + envsubst)
+    ──internal http──▶ underlying service (project X)
+```
+
+**Step 1: 建一個 nginx:alpine proxy service**
+
+`Dockerfile`（3 行）：
+```dockerfile
+FROM nginx:1.25-alpine
+COPY default.conf.template /etc/nginx/templates/default.conf.template
+EXPOSE 8080
+```
+
+`default.conf.template`（envsubst 啟動時自動展開 `${OSRM_TOKEN}` / `${UPSTREAM_HOST}`）：
+```nginx
+server {
+    listen 8080;
+    location = /health { return 200 "ok\n"; }
+    location / {
+        if ($http_authorization != "Bearer ${API_TOKEN}") { return 401; }
+        proxy_pass http://${UPSTREAM_HOST};
+        proxy_http_version 1.1;
+        proxy_read_timeout 60s;
+    }
+}
+```
+
+**Step 2: Zeabur 部署到 underlying service 同 project**
+
+設兩個 env var：
+- `API_TOKEN=<openssl rand -hex 32>`
+- `UPSTREAM_HOST=<underlying>.zeabur.internal:8080`
+
+開 public domain（這個 service 就是要對外）。
+
+**Step 3: caller 設環境變數**
+
+```
+API_URL=https://<proxy>.zeabur.app
+API_TOKEN=<same token>
+```
+
+caller code 用 session-level header 一次設好：
+```python
+self.session = requests.Session()
+self.session.headers.update({'Authorization': f'Bearer {token}'})
+```
+
+**驗證**（部署後從 caller container exec）：
+```bash
+# 1. health 不需 auth
+curl https://<proxy>.zeabur.app/health  # 期望 200 "ok"
+
+# 2. 沒 token → 401
+curl https://<proxy>.zeabur.app/some-endpoint  # 期望 401
+
+# 3. 帶 token → 200
+curl -H "Authorization: Bearer $TOKEN" https://<proxy>.zeabur.app/some-endpoint
+```
+
+**月度 token 輪換**：改 proxy 的 `API_TOKEN` env var → Zeabur reload nginx → 同步改 caller 的 `API_TOKEN`。
+
+實例：osrm-proxy 包 osrm-taiwan，給跨 project ship-only collector 用。詳見 `docs/research/waste-osrm-mapmatching-plan.md` §14。
