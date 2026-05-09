@@ -28,6 +28,16 @@
 | W005 | P3 | 水權統計 | open | data.gov.tw 36696，**非空間**表格，做指標卡/長條圖，補「用水」最大缺口 |
 | W006 | P3 | 集水區敏感區（內/外 0.5km） | open | WRA 129475 / 129476 |
 
+### 廢棄物 / OSRM map-matching（BL-9~13 — 2026-05-09 上線後新待辦）
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| BL-9 | P2 | 多城市擴展 OSRM map-matching | open | 改 `WASTE_MATCH_CITIES=高雄市,臺南市` 即可。但新北凍結式可能要調 trip-gap 閾值。詳見 plan §15 |
+| BL-10 | P3 | PBF 月更自動化（GitHub Actions cron 每月 1 號）| open | 目前要手動 push trivial commit 觸發 Zeabur redeploy。寫 `.github/workflows/refresh-pbf.yml` 自動跑 |
+| BL-11 | P3 | 評估 stop-to-stop OSRM /route 取代 HMM /match | open | 預期 success rate > 90%，但要先解 `waste_collection_stops` 沒 `stop_sequence` 欄位的問題（用 `arrival_time` 推或從 GPS 反推）。1-2 天工程 |
+| BL-12 | P3 | 評估刪除 `data-collectors-ship-only-aws` Zeabur project | open | Lightsail Tokyo 機器（IP 被高雄/台南政府 API 擋）目前完全沒用。月費 $X 可省 |
+| BL-13 | P2 | LegendPanel 加「沿路網」說明 | open | 區分 matched（沿馬路）vs fallback（GPS 直線）兩種視覺，給用戶看圖例 |
+
 ### 一般待辦
 
 | ID | 優先級 | 項目 | 狀態 | 備註 |
@@ -38,6 +48,7 @@
 
 ## 已完成（近期 10 筆）
 
+- 2026-05-09 ✅ **廢棄物 OSRM map-matching pipeline 完整上線**（osrm-taiwan + osrm-proxy 兩 service / migration 074+075 / waste_match collector / 5/4-5/9 共 6 天 backfill / 1,510 success match / attempt marker 解 retry 死循環 + drain。多城市擴展計畫進 BL-9~13）
 - 2026-04-26 ✅ **iot_wra 重複度檢核 SOP**（座標 + 名字 sample，不信編號系統；發現 groundwater 95% 重複 / river 16% 互補）
 - 2026-04-26 ✅ **Migration 063 iot_wra 雙表 pre-aggregate**（latest 4k snapshot + daily timeline 字串編碼，仿 freeway pattern）
 - 2026-04-26 ✅ **iot_wra collector 停 groundwater 子端點**（避重複；iot 5 年歷史保留在 DB）
