@@ -125,3 +125,28 @@
 | Session SOP | 開頭讀 STATUS/BACKLOG/PRINCIPLES；結束用 `/wrap-up` |
 | Pitfall archive | `.claude/pitfalls/` 的 long-form 紀錄，`INCIDENTS` 放短摘要 + link |
 | 9 檔分類 | README / STATUS / BACKLOG / PRINCIPLES / PLAYBOOKS / GLOSSARY / INCIDENTS / REFLECTIONS / DATA_SCOPE |
+
+## OSRM / Map-matching（2026-05-09 加）
+
+| 術語 | 說明 |
+|---|---|
+| OSRM (Open Source Routing Machine) | 開源路徑引擎，吃 OSM 路網，提供 `/route`、`/nearest`、`/match` 三種 endpoint |
+| HMM Map-matching | 把雜訊 GPS 序列 snap 到真實道路的 Hidden Markov Model 演算法（Newson & Krumm 2009）。OSRM `/match` 內部用 |
+| PBF (Protocolbuffer Binary Format) | OSM 二進位格式，Geofabrik 提供國家／區域分檔（taiwan-latest.osm.pbf ~200MB，月更）|
+| osrm-extract / partition / customize | OSRM 預處理三步：parse PBF → 建層級分區 → 套 cost model（`car.lua`），共約 25-30 min CPU（Tokyo amd64 機器只要 6 分鐘）|
+| osrm-routed | OSRM 的 HTTP server，啟動參數 `--algorithm mld --port <p> /data/<name>.osrm` |
+| confidence (OSRM /match) | 0-1 區間，HMM 對 match 結果的信心。垃圾車設 < 0.35 視為 NoMatch（保守 threshold）|
+| matched polyline | OSRM `/match` 回的真實道路路徑（GeoJSON LineString），跟 progress timeline 配對給前端 |
+| `realtime.waste_match_attempts` | OSRM 嘗試紀錄表（migration 075）：避免 NoMatch trip 反覆 retry。`success` + `reason` 欄位 |
+| stop-to-stop /route（候選方案）| 用 stop snapping 還原 stop sequence → 對相鄰 stop 對呼叫 `/route` 拿真實道路最短路徑 → 拼接。對 stationary GPS 比 HMM 強，預期 success > 90%。要 stop_sequence 欄位（目前 schema 缺）|
+
+## Zeabur 部署（2026-05-09 加）
+
+| 術語 | 說明 |
+|---|---|
+| PREBUILT_V2 | Zeabur 對 Docker / GitHub source 部署 service 的內部 type，K8s service port 預設硬性 8080（不看 EXPOSE / PORT env）|
+| Internal hostname | 同 Zeabur project 內 service 互通用 `<service-name>.zeabur.internal:<port>` 或 `service-<service-id>:<port>`。**跨 project 不通** |
+| Bearer token gateway | nginx:alpine + envsubst template + token check pattern，包在 underlying service 前面解跨 project 通訊（PB-12）|
+| osrm-proxy | 本專案 Bearer token gateway service（[ianlkl11234s/osrm-proxy](https://github.com/ianlkl11234s/osrm-proxy)），public domain `osrm-proxy-gis.zeabur.app` |
+| osrm-taiwan | 本專案 OSRM Taiwan service（[ianlkl11234s/osrm-taiwan](https://github.com/ianlkl11234s/osrm-taiwan)），internal-only |
+| Service network 指令 | `npx zeabur@latest service network --id <id>` 看 K8s service 預期的 web (HTTP) port — 部署有 502 時必查 |
