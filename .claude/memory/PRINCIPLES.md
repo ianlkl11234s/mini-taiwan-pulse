@@ -230,6 +230,30 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 **動既有型別前先看相同類型 state 怎麼處理**（pattern matching > 改型別）。
 這次本能改 union type 結果下游 8 個錯，看到 `metroPillar3d: metroPillarVisible ? 1 : 0` 才知道既有 pattern。
 
+## Zeabur 部署（2026-05-09 教訓）
+
+從這次 OSRM map-matching pipeline 跨 project 部署踩出的 5 條：
+
+- **PREBUILT_V2 service 一律 listen 8080**：Zeabur 對這類 service 的 K8s service port 硬性是 8080，不看 Dockerfile EXPOSE 也不看 PORT env var。
+  - 服務必須 listen 8080（osrm-routed `--port 8080`、nginx `listen 8080`）
+  - 診斷指令：`npx zeabur@latest service network --id <id>` 看 web (HTTP) 顯示的 port
+
+- **跨 Zeabur project 內網不通，必走 public + auth gateway**：`<service>.zeabur.internal` 只在同 project 內可解析（K8s namespace 隔離）。
+  - 跨 project 通訊一律走 public domain + Bearer token nginx gateway（仿 osrm-proxy pattern）
+  - osrm-taiwan ↔ osrm-proxy（同 project 內網）→ 對外 public domain ↔ collector（跨 project 走外網）
+
+- **Zeabur env var 變更後 service 不會自動 reload**：要 trigger redeploy 一律改檔（`README.md` 加一行）+ commit + push。
+  - **Empty commit (`git commit --allow-empty`) Zeabur 不會 trigger build**（webhook 看 file diff 為空視為無變化）
+  - 不要靠 `npx zeabur@latest service restart`（API 不穩定，連續 503）
+
+- **含 `${}` 的 env value 不能用 zeabur CLI 設**：CLI 的 `-k` flag 用 Cobra `StringToStringVar` parser，對 `${VAR}` 會 mangle ([cli#201](https://github.com/zeabur/cli/issues/201))。
+  - cross-service reference variable 一律走 Zeabur dashboard
+  - CLI 只設 hard-coded 值（service-id、URL 字面）
+
+- **採台灣政府 API 的 collector 選機房前先測目標 API**：高雄 kcg.gov.tw、台南、motcmpb 等防火牆對 AWS / GCP / Azure 雲端 IP 段做 ASN block（避刷）。Akamai/Linode 通、Lightsail 不通。新北寬鬆例外。
+  - 換機房前 SSH 進新機 `curl -v --max-time 10 <政府 API URL>` 測通才搬
+  - 不只測連通性，要測**目標 API 是否回應**
+
 ## Git 慣例
 
 - 每個邏輯單位一個 commit
