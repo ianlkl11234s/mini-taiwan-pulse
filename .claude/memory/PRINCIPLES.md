@@ -88,6 +88,58 @@ ORDER BY station_id, date_trunc('hour', observed_at), observed_at DESC
 
 實例：migration 060 (groundwater 78K→16.5K)、060b (river 44K→8K)。
 
+### 解法二：Grouped JSONB（事件型資料用）
+
+**降頻不適用**的 case（schedule stops、GTFS、event log，每筆都不能丟）→ 改成
+**「每組一筆 row，items 為 JSONB array」**：
+
+```sql
+SELECT
+    s.city, s.route_id,
+    jsonb_agg(
+      jsonb_build_object('lng', s.lng, 'lat', s.lat, 'arr', s.arrival_sec, ...)
+      ORDER BY s.arrival_sec
+    ) AS stops
+FROM seq s
+GROUP BY s.city, s.route_id;
+```
+
+實例：migration 079 schedule (39K stops → 1281 routes)、063 timeline 字串編碼
+（同概念 timepoints → 字串）。
+
+### 設計新 RPC 的決策樹（⚠ 必看）
+
+**Step 1：估 rows 數**。預期 > 5K → 必須採取 cap 對策，不要等撞牆。
+
+**Step 2：選 pattern**：
+- **能丟**（時序 latest / hourly snapshot）→ 降頻 DISTINCT ON
+- **不能丟**（事件 log / schedule stops / 完整軌跡）→ grouped JSONB
+
+**Step 3：驗證**：
+- `psql -c "SELECT COUNT(*) FROM public.get_xxx(...)"`
+- `curl -D /tmp/hdr.txt` 看 `content-range`
+- 前端 console.log fetched 數，跟 psql 比
+
+**Step 4：寫 GLOSSARY 註明**「避 PostgREST 20K cap」+ 哪個 pattern。下次同類
+case 一查就知道用哪招。
+
+## Catmull-Rom 平滑只用於真實連續軌跡（2026-05-10 教訓）
+
+**規則**：4 控制點 spline 平滑只用於 **GPS / 真實連續軌跡**，不要套到「邏輯
+順序但非地理連續」的點序列（schedule stops、stops 直線連接 之類）。
+
+**原因**：spline 假設 4 點是「真的可達彼此」的連續路徑。schedule stops 順序是
+時間先後（早班 8:00 → 9:00 → 10:00），但這 4 個點地理上可能 Z 字形 → spline
+會 overshoot 飛出兩相鄰直線之外 → 視覺上車「往回退一點再前進」。
+
+**對策**：
+- 真實軌跡（GPS）→ Catmull-Rom 平滑曲線（看起來像沿馬路）
+- 邏輯點序列（schedule, 事件 timeline）→ 直線插值，車「穿牆」但不反向 overshoot
+- 想要「沿馬路」感 → OSRM /route 投影到真實 polyline，再用 progress-based 插值
+  （非 spline 平滑）
+
+實例：`WasteScheduleScene` (schedule, 直線) vs `WasteTruckScene` (GPS, Catmull-Rom)。
+
 ## 跨站可比視覺指標（2026-04-25 教訓）
 
 監測站圓圈 **circle-radius / circle-color 不要綁原始絕對值**，尤其是
