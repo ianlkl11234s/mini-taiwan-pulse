@@ -32,7 +32,10 @@
 
 | ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
 |---|---|---|---|---|
-| BL-9 | P2 | 多城市擴展 OSRM map-matching | open | 改 `WASTE_MATCH_CITIES=高雄市,臺南市` 即可。但新北凍結式可能要調 trip-gap 閾值。詳見 plan §15 |
+| BL-9 | P2 | 多城市擴展 OSRM map-matching | **partial** | 2026-05-09 台南上線；env var 加台南、SQL DISTINCT ON dedup（commit `d8297f9`）、trip-gap 600→900s（commit `e937383`）、DELETE 5/8+5/9 台南 attempt 重跑驗證。**待用戶前端視覺驗證**。台南 success rate baseline ~20-45%（低於高雄 5-25pt，採樣 5min vs 2min 的硬限制；BL-11 才能根本解）。新北未驗證但 plan §15 凍結式描述其實錯誤（採樣 p50=120s 跟高雄一樣穩定）。詳見 plan §14 + §15 |
+| BL-14 | P2 | 查證高雄 5/9 success 30.3% vs 5/8 49% 落差 | open | trip-gap 改 600→900 後可能誤合「短停」邊界 → trip 內出現大跳 → OSRM fail。SQL 對比 5/8 同時段 13:00-18:00 高雄 success rate 即可分辨 daily variance vs trip-gap 副作用。若是後者，考慮 per-city dict（高雄 600s / 台南 900-1500s） |
+| BL-15 | P2 | ETL UNIQUE constraint + ON CONFLICT DO NOTHING | open | `spatial.waste_positions_realtime` 無 unique 約束，台南 polling 每 ~2min 重複抓 endpoint「最近 N 分鐘 GPS」→ 同 (city, vehicle_no, observed_at) 重複寫 2-4 次（全表 56,934 dup groups / 114,182 row 該刪 / 台南 60% / 新北 7% / 高雄 0.09%）。每天約 50K dup row 累積。Migration 步驟：(1) DELETE dup 保留最早 ingested_at; (2) CREATE UNIQUE INDEX (city, vehicle_no, observed_at); (3) `storage/supabase_tables.py` waste_positions 加 `upsert_key` + `upsert_strategy='do_nothing'`。Hygiene only — 不影響當下 OSRM success rate（SQL 端已用 DISTINCT ON 防禦） |
+| BL-16 | P2 | 前端 useWasteLayer.ts 加台南 default + city 切換 UI | open | 目前 `useWasteLayer.ts:41` cities 預設 `["高雄市"]`，要改 `["高雄市", "臺南市"]` 才看得到台南；UI 仿 BusGroup pattern 加 city 切換 toggle。設計上已支援多城（cities 是陣列參數），純改 default + UI |
 | BL-10 | P3 | PBF 月更自動化（GitHub Actions cron 每月 1 號）| open | 目前要手動 push trivial commit 觸發 Zeabur redeploy。寫 `.github/workflows/refresh-pbf.yml` 自動跑 |
 | BL-11 | P3 | 評估 stop-to-stop OSRM /route 取代 HMM /match | open | 預期 success rate > 90%，但要先解 `waste_collection_stops` 沒 `stop_sequence` 欄位的問題（用 `arrival_time` 推或從 GPS 反推）。1-2 天工程 |
 | BL-12 | P3 | 評估刪除 `data-collectors-ship-only-aws` Zeabur project | open | Lightsail Tokyo 機器（IP 被高雄/台南政府 API 擋）目前完全沒用。月費 $X 可省 |
