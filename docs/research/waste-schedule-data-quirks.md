@@ -251,11 +251,54 @@ FROM pairs;
 
 ---
 
+## 視覺打磨歷程（5/10 晚 session 試過的方案 + 為何不夠）
+
+走過一輪「持續優化 → 撞到本質限制 → 決定走 OSRM」歷程。每個方案下次接續者**不要再重做**：
+
+### 1. 移除「停留時 alpha/size 切換」（解眼睛痛）→ ✅ 保留
+原本 stay 時 alpha 0.55 + size 0.65，移動時 1.0。高頻切換刺激眼睛。改成執勤中 alpha + size 都 1.0 一致。
+
+### 2. Trip-break detection (gap > 10min) fade-out / invisible / fade-in → ✅ 保留
+一條 route 一天跑 3 班，中間 gap 1-2 hr，直線插值會「龜速漂 1.5h」。判 gap > 600s = 班次切換，fade 處理。
+
+### 3. 對稱「重新分配 dwell + move」（MIN_DWELL_S + MIN_MOVE_S）→ ❌ 拿掉
+試過讓所有 segment 重新分配時間（dwell 30s + move 60s 為下限，不夠按比例壓縮）。問題：60x 下短 gap 的 segment 仍只有 1-2 視覺秒，分段視覺只剩「停 0.2s + 跳 0.8s」感，沒解掉「跳到下一個點」的閃現。
+
+### 4. 短 dwell 持續移動 / 長 dwell 真停（DWELL_THRESHOLD_S = 120）→ ✅ 保留
+dwell < 120s（含 dwell=0 過站不停 case）整段 p0.arrival → p1.arrival 純連續移動，車不停。dwell ≥ 120s 才真停 + 移動。比方案 3 直觀。
+
+### 5. Catmull-Rom 平滑（4 控制點）→ ❌ 拿掉
+試過用 spline 把折線變曲線（仿沿馬路走）。問題：schedule stops 連線不是真實路徑（v1 沒 OSRM），stops 為 Z 字形時 spline 會 overshoot 飛出 p0-p1 直線外 → 視覺上車「**往回退一點再前進**」。改回直線插值。
+
+### 6. Distance threshold 切段（hop > 300m fade out）→ ❌ 拿掉
+試過把長距離 hop 也視為 trip-break（fade out + invisible + fade in）。用戶觀察「即便 859m，車是直線前進的我看得到」，切段反而讓車「不見了又出現」 = 另一種閃現形式。**fade 不能解視覺速度問題**。
+
+### 7. 量化發現 source data 速度超標（→ OSRM 整合動機）
+
+| route | avg 間距 | max 間距 | avg dt | 視覺速度 60x |
+|---|---|---|---|---|
+| A01 | 77m | 317m | 78s | 67 m/s |
+| A12 | 111m | **859m** | 92s | 77 m/s |
+
+A12 max 859m / 90s 在 60x 下 = **560 m/s ≈ 2016 km/h** 視覺速度，1 視覺秒飛 1/3 螢幕寬。
+
+### 結論：v1 stops-直線在 60x 下的視覺極限
+
+不論怎麼調 fade / threshold / 重分配時間，**直線兩 stops 連接 + 60x + 短 gap** 都會撞到：
+- **方向問題**：連續 stops Z 字形，每到 stop「轉方向」感像跳
+- **速度問題**：1 視覺秒飛長距離，眼睛追不上
+
+**唯一根治 = OSRM 整合**（沿馬路走，方向變化在路口、distance 變大但路徑連續，看起來像走真實路線）
+
+詳見 BL-17 / [`waste-schedule-osrm-plan.md`](./waste-schedule-osrm-plan.md)。
+
+---
+
 ## 已知未解決 / Follow-up
 
 | ID | 項目 | 預估 | 備註 |
 |---|---|---|---|
-| BL-17 | OSRM 沿路網（取代 stops 直線插值） | 2-3 天 | 高雄/新北已有 1399+649 LineString 可投影；北/基/宜需打 OSRM `/route` 補。視覺上的「穿牆」靠這個解 |
+| **BL-17** | **OSRM 沿路網**（取代 stops 直線插值） | **2-3 天** | **本檔結論指向的根治方案**。高雄/新北 DB 已有 1399+649 LineString 可直接用；北/基/宜共 318 routes 需打 OSRM `/route` 補 |
 | BL-18 | 22 城上線前先跑本檔 6 個 sanity SQL | 0.5 天 | 加新城前必跑，發現新格式擴展 RPC |
 | BL-19 | dwell = 0 且 gap = 0 的 corner case | 0.5 天 | 該 stop 沒得「借」時間，車仍瞬移。改 MIN_MOVE_S 邏輯挪用「下一站 arrival 前 60s」|
 

@@ -20,19 +20,24 @@ import { withLoading } from "../lib/loadingRegistry";
  *   基隆市  1,079 stops · 55 routes  · weekday 數字 1-7 (ISO)
  */
 
-/** RPC 回傳的單筆 stop（flat row） */
-interface RawScheduleRow {
-  city: string;
-  route_id: string;
-  route_name: string | null;
-  vehicle_type: string;
+/** RPC 回傳：grouped per-route，stops 為 JSONB array
+ *  改 grouped 是因為 PostgREST 預設 20000 row 截斷，flat 39K rows 會掉一半（5 城測試）
+ */
+interface RawStopJson {
   stop_seq: number;
   stop_id: number;
   stop_name: string | null;
   lng: number;
   lat: number;
-  arrival_sec: number;     // 從當日 00:00:00 起算秒數（可 ≥ 86400 跨日）
+  arrival_sec: number;
   departure_sec: number;
+}
+interface RawScheduleRow {
+  city: string;
+  route_id: string;
+  route_name: string | null;
+  vehicle_type: string;
+  stops: RawStopJson[];
 }
 
 export interface WasteScheduleStop {
@@ -72,45 +77,40 @@ export async function fetchWasteScheduleDay(
   );
   if (error) throw new Error(`get_waste_schedule_day(dow=${dow}): ${error.message}`);
   const rows = (data ?? []) as RawScheduleRow[];
+  console.log(`[WasteSchedule] fetched ${rows.length} routes for dow=${dow} cities=${citiesKey}`);
 
-  // Group by (city, route_id) — RPC 已 ORDER BY city, route_id, arrival_sec
-  const routes: WasteScheduleRoute[] = [];
-  let current: WasteScheduleRoute | null = null;
-  for (const r of rows) {
-    if (!current || current.city !== r.city || current.routeId !== r.route_id) {
-      current = {
-        city: r.city,
-        routeId: r.route_id,
-        routeName: r.route_name,
-        vehicleType: r.vehicle_type,
-        stops: [],
-      };
-      routes.push(current);
-    }
-    current.stops.push({
-      stopId: r.stop_id,
-      stopSeq: r.stop_seq,
-      stopName: r.stop_name,
-      lng: r.lng,
-      lat: r.lat,
-      arrivalSec: r.arrival_sec,
-      departureSec: r.departure_sec,
-    });
-  }
+  // RPC 已是 grouped per-route，stops 是 JSONB array，直接 map
+  const routes: WasteScheduleRoute[] = rows.map((r) => {
+    let stops: WasteScheduleStop[] = (r.stops ?? []).map((s) => ({
+      stopId: s.stop_id,
+      stopSeq: s.stop_seq,
+      stopName: s.stop_name,
+      lng: s.lng,
+      lat: s.lat,
+      arrivalSec: s.arrival_sec,
+      departureSec: s.departure_sec,
+    }));
 
-  // 清洗時間倒退的髒資料（觀察到臺北 ~22 筆「下一站 arrival 比上一站早」）
-  // 線性插值會強制視覺折返，過濾掉非單調遞增 stops。
-  for (const route of routes) {
+    // 清洗時間倒退的髒資料（觀察到臺北 ~22 筆「下一站 arrival 比上一站早」）
+    // 線性插值會強制視覺折返，過濾非單調遞增 stops
     const cleaned: WasteScheduleStop[] = [];
     let lastArrival = -Infinity;
-    for (const stop of route.stops) {
+    for (const stop of stops) {
       if (stop.arrivalSec >= lastArrival) {
         cleaned.push(stop);
         lastArrival = Math.max(stop.arrivalSec, stop.departureSec);
       }
     }
-    route.stops = cleaned;
-  }
+    stops = cleaned;
+
+    return {
+      city: r.city,
+      routeId: r.route_id,
+      routeName: r.route_name,
+      vehicleType: r.vehicle_type,
+      stops,
+    };
+  });
 
   return routes;
 }

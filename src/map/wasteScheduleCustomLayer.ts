@@ -21,7 +21,7 @@ export interface WasteScheduleLayerOptions {
 }
 
 export function createWasteScheduleLayer(opts: WasteScheduleLayerOptions): CustomLayerInterface {
-  const scene = new WasteScheduleScene(opts.maxInstances ?? 1500);
+  const scene = new WasteScheduleScene(opts.maxInstances ?? 20000);
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
 

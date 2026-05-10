@@ -57,39 +57,44 @@ const FADE_DURATION_S  = 180;
 const ACTIVE_ALPHA     = 1.0;
 
 /**
- * 最短移動 / 停留時間 (秒)
+ * 兩段式設計：短 dwell 持續移動，長 dwell 真停
  *
- * Source data 兩種極端缺漏：
- *   (A) 高雄 / 臺北：departure_time = 下一站 arrival_time → gap=0，車瞬移
- *   (B) 新北：departure_time = arrival_time（fallback）→ dwell=0，車「過站不停」
+ * 60x 倍速下短 gap 視覺只有 1-2 秒，「停 + 跳」感很糟。但長 dwell 直接忽略
+ * 又會讓「車真的在 stop 收 5 分鐘」失真。
  *
- * 修補：對每個 (p0, p1) 重新分配時間，目標讓車每站看得見「停留」+「移動」。
+ * 解：dwell 比 DWELL_THRESHOLD_S 短的 stop，整段 arrival → next.arrival 持續移動
+ *     （車一直在路上），dwell 比門檻長的 stop，正常停留 + 移動。
  *
- * MIN_DWELL_S = 30 (60x 下 0.5 視覺秒) — 短暫停留可辨識
- * MIN_MOVE_S  = 60 (60x 下 1 視覺秒) — 直線移動可辨識
+ *   short_dwell ──→ p0.arrival ─────連續移動──── p1.arrival
+ *   long_dwell  ──→ p0.arrival ─停留─ p0.dep ─移動─ p1.arrival
  *
- * 若 dwell + gap < MIN_DWELL + MIN_MOVE 就按比例壓縮（罕見極端 case）。
+ * Catmull-Rom 平滑（4 控制點）：4 個 stops 連續（無 trip-break）用 spline 而非折線，
+ * 視覺更像「沿馬路走」。
  */
-const MIN_DWELL_S      = 30;
-const MIN_MOVE_S       = 60;
+/** dwell 短於這值，視為「過站不停」，整段純移動到下一站 */
+const DWELL_THRESHOLD_S = 120;
+/** 移動 window 最低秒數（gap=0 從 dwell 借時間用） */
+const MIN_MOVE_S        = 60;
 
 /**
  * Trip-break threshold (秒)
  *
- * 觀察到台北/新北一條 route_id 一天會跑「早班/中班/晚班」多段，中間 gap
- * 10min ~ 2hr 不等（DB 觀察：延平-2 stop 11→12 gap 6300s = 1.75hr）。
+ * 觀察到一條 route_id 一天會跑「早班/中班/晚班」多段，中間 gap 10min ~ 2hr 不等。
  *
- * 解法：相鄰 stops 時間 gap > TRIP_BREAK_S 視為跨班次：
- *   - p0.departure 之後 FADE_DURATION_S 內 → fade out @ p0
- *   - p1.arrival 之前 FADE_DURATION_S 內 → fade in @ p1
- *   - 中間時段完全 invisible（車不在路線上）
+ * 但「stops 間 gap」隨地理密度差異極大：
+ *   - 板橋 / 永和 / 新莊（密集市區）median 60s, p90 120s
+ *   - 三重 / 淡水（一般市區）        median 240-300s, p90 840-900s
+ *   - 林口（地廣山坡）              median **600s**, p90 **1200s**
  *
- * 600s threshold：要 ≥ 2 × FADE_DURATION_S = 360s 才有真正 invisible 區段，
- * 取 10 min 確保大多數班次切換有「先淡出 → 看不到 → 再淡入」的清楚段落。
- * 5-10 min gap (1628 筆新北 / 165 筆台北) 視為班次內 slow movement，
- * 60x 下 5-10s 視覺直線飄，可接受。
+ * 600s threshold 對板橋等密集區 OK，但林口正常 stops 間 movement 大量被誤判為
+ * 班次切換 → 整段 invisible。
+ *
+ * 取 1500s (25min)：林口 p90=1200s 涵蓋 90% 正常 movement 不誤判，
+ * 真班次切換 (1.5-3 hr) 仍能識別。
+ *
+ * 60x 下大 gap 視為 movement 會「線性飄 N 視覺秒」，但比「整段 invisible」好。
  */
-const TRIP_BREAK_S     = 600;
+const TRIP_BREAK_S     = 1500;
 
 // ── 時間工具 ──────────────────────────────────────────────
 
@@ -120,9 +125,14 @@ interface ScheduleFrame {
   lng: number;
   alpha: number;
   visible: boolean;
-  /** true = 在 stop 等待中（停車），false = 移動中 */
+  /** true = fade in/out 邊緣或路線開始/結束的「未動」狀態，false = 移動中 */
   waiting: boolean;
 }
+
+// 註：曾試過 Catmull-Rom 4 控制點曲線平滑，但 schedule stops 連線不是真實路徑
+// （v1 沒套 OSRM），stops 為之字形時 spline 會 overshoot 飛出 p0-p1 直線外
+// → 視覺上車「往回退一點再前進」。直線插值雖會「穿牆」，但不會反向 overshoot。
+// 真正解 OSRM 整合在 BL-17。
 
 /**
  * Binary search 找 nowSec 在 stops 中的 segment：
@@ -171,56 +181,54 @@ function interpolateRoute(stops: WasteScheduleStop[], nowSec: number): ScheduleF
   const p1 = stops[idx + 1];
 
   if (!p1) {
-    // 路線最後一站，但還在 p0 停留時段
+    // 路線最後一站
     return { lat: p0.lat, lng: p0.lng, alpha: ACTIVE_ALPHA, visible: true, waiting: true };
   }
 
-  // ── 重新分配 dwell + movement 時間 ──
-  // Source data 兩種缺漏（A: gap=0 瞬移、B: dwell=0 過站不停）都靠這段對稱處理。
-  const total      = p1.arrivalSec - p0.arrivalSec;
-  const rawDwell   = Math.max(0, p0.departureSec - p0.arrivalSec);
-  const rawGap     = Math.max(0, p1.arrivalSec - p0.departureSec);
+  const rawDwell = Math.max(0, p0.departureSec - p0.arrivalSec);
+  const isShortDwell = rawDwell < DWELL_THRESHOLD_S;
 
-  // Trip-break 在底下另判，這裡只處理「正常 segment」(rawGap ≤ TRIP_BREAK_S)
-  // total ≤ 0 是稀有的退化資料 (arrival 同時)，車卡在 p0 直到下個 segment
-  let targetDwell = Math.max(rawDwell, MIN_DWELL_S);
-  let targetMove  = Math.max(rawGap, MIN_MOVE_S);
-  if (total > 0 && targetDwell + targetMove > total) {
-    // 時間不夠分配 MIN_DWELL+MIN_MOVE，按比例壓縮
-    const ratio = total / (targetDwell + targetMove);
-    targetDwell *= ratio;
-    targetMove  *= ratio;
+  // 算 movement window 的時間範圍：
+  //   short_dwell：moveStart = p0.arrival, dt = p1.arrival - p0.arrival（整段移動，無停留）
+  //   long_dwell ：moveStart = p0.departure, dt = p1.arrival - p0.departure
+  //                若 dt < MIN_MOVE_S 從 dwell 後段借（gap=0 case）
+  let moveStart: number;
+  let dt: number;
+  if (isShortDwell) {
+    moveStart = p0.arrivalSec;
+    dt = p1.arrivalSec - p0.arrivalSec;
+  } else {
+    moveStart = p0.departureSec;
+    dt = p1.arrivalSec - moveStart;
+    if (dt < MIN_MOVE_S) {
+      // gap=0：從 dwell 後段借 MIN_MOVE_S（DWELL_THRESHOLD_S 已保證 dwell 夠借）
+      const borrow = Math.min(MIN_MOVE_S - dt, rawDwell - DWELL_THRESHOLD_S);
+      moveStart -= Math.max(0, borrow);
+      dt = p1.arrivalSec - moveStart;
+    }
   }
 
-  const dwellEnd  = p0.arrivalSec + targetDwell;
-  const dt        = targetMove;
-  const moveStart = dwellEnd;
-
-  // 在 p0 等待（arrival ~ dwellEnd）— 即使 source dwell=0 也會看見短暫停留
-  if (nowSec < moveStart) {
-    return { lat: p0.lat, lng: p0.lng, alpha: ACTIVE_ALPHA, visible: true, waiting: true };
-  }
-
-  // 跨班次：兩個 stops 之間時間 gap > TRIP_BREAK_S → fade out @ p0、invisible、fade in @ p1
-  // FADE_DURATION 設計成 60x 倍速下感受得到（180s 真實 ≈ 3 視覺秒）
+  // 跨班次：gap > TRIP_BREAK_S → fade out @ p0 → invisible → fade in @ p1
   if (dt > TRIP_BREAK_S) {
     const sinceMove = nowSec - moveStart;
     const untilArrival = p1.arrivalSec - nowSec;
     if (sinceMove < FADE_DURATION_S) {
-      // 在 p0 fade out
       const a = 1 - sinceMove / FADE_DURATION_S;
       return { lat: p0.lat, lng: p0.lng, alpha: a, visible: a > 0, waiting: true };
     }
     if (untilArrival < FADE_DURATION_S) {
-      // 在 p1 fade in
       const a = 1 - untilArrival / FADE_DURATION_S;
       return { lat: p1.lat, lng: p1.lng, alpha: a, visible: a > 0, waiting: true };
     }
-    // 中間：完全 invisible（車不在路線上）
     return { lat: 0, lng: 0, alpha: 0, visible: false, waiting: false };
   }
 
-  // 同班次內：移動中（直線插值，v1 沒套 OSRM）— 執勤中 alpha 一致
+  // long_dwell：尚未到 moveStart → 在 p0 停留（alpha 一致 1.0）
+  if (!isShortDwell && nowSec < moveStart) {
+    return { lat: p0.lat, lng: p0.lng, alpha: ACTIVE_ALPHA, visible: true, waiting: true };
+  }
+
+  // 移動：整段或 dwell 後 → p1（直線插值，避免 Catmull-Rom 反向 overshoot）
   const localT = dt > 0 ? Math.max(0, Math.min(1, (nowSec - moveStart) / dt)) : 0;
   return {
     lat: p0.lat + (p1.lat - p0.lat) * localT,
@@ -252,7 +260,7 @@ export class WasteScheduleScene {
   private _dummy = new THREE.Matrix4();
   private _color = new THREE.Color(WASTE_SCHEDULE_COLOR);
 
-  constructor(maxInstances = 1500) {
+  constructor(maxInstances = 20000) {
     this.maxInstances = maxInstances;
     this.scene = new THREE.Scene();
     this.camera = new THREE.Camera();
