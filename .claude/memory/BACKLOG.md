@@ -54,6 +54,7 @@
 
 ## 已完成（近期 10 筆）
 
+- 2026-05-10 ✅ **垃圾車表定動畫 (Phase 3 prototype) 上線**（5 城 1281 routes / 77K stops / dow 驅動 / 淡紫 #a78bfa 跟 GPS 圖層獨立 toggle 並存。RPC migration 079 grouped JSONB 避 PostgREST 20K cap / 7 種 source data quirks 修法 / 視覺打磨 7 方案 try-error 收斂。OSRM 整合計畫 BL-17，22 城擴展 sanity check BL-18，corner case BL-19）
 - 2026-05-09 ✅ **廢棄物 OSRM map-matching pipeline 完整上線**（osrm-taiwan + osrm-proxy 兩 service / migration 074+075 / waste_match collector / 5/4-5/9 共 6 天 backfill / 1,510 success match / attempt marker 解 retry 死循環 + drain。多城市擴展計畫進 BL-9~13）
 - 2026-04-26 ✅ **iot_wra 重複度檢核 SOP**（座標 + 名字 sample，不信編號系統；發現 groundwater 95% 重複 / river 16% 互補）
 - 2026-04-26 ✅ **Migration 063 iot_wra 雙表 pre-aggregate**（latest 4k snapshot + daily timeline 字串編碼，仿 freeway pattern）
