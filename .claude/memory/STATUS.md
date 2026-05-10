@@ -1,90 +1,93 @@
 # Status
 
-**最後更新**：2026-05-09（凌晨 - 上午 OSRM map-matching pipeline 跨 project 部署 + drain）
-**分支**：`feat/historical-mode`（本機領先 origin **16 commits**；gis-platform 領先 **4 commits**；data-collectors 已 push 至 `d6ac15d`）
+**最後更新**：2026-05-10（凌晨 - 早晨 台南 OSRM 上線 + 22 縣市盤點 + Phase 1 規劃）
+**分支**：`feat/historical-mode`（本機領先 origin **19 commits**）
 
-## 本次 session 完成
+## 本次 session（5/10）完成
 
-### 廢棄物 OSRM map-matching pipeline 上線
+### 1. 台南 OSRM map-matching 上線
 
-**新建 2 個 repo**（跨 project Bearer token gateway 架構）：
-- `github.com/ianlkl11234s/osrm-taiwan` — OSRM service（Geofabrik Taiwan PBF + osrm-routed MLD），listen 8080
-- `github.com/ianlkl11234s/osrm-proxy` — nginx:alpine Bearer token gateway，public domain `osrm-proxy-gis.zeabur.app`
+- 環境變數加台南：`WASTE_MATCH_CITIES=高雄市,臺南市`
+- 找到並修 3 個 production bug：
+  - **OSRM 400**：政府 polling 重疊把同 (city, vehicle_no, observed_at) 寫 2-4 次 → 相鄰兩點時差 0 → OSRM HMM 拒收。Fix: SQL `raw` CTE 加 `DISTINCT ON` （commit `d8297f9`）
+  - **trip 切碎成 2 點**：trip-gap 600s 對台南 5min 採樣太緊。Fix: 600s → 900s（commit `e937383`）
+  - **psycopg2 % escape**：SQL 註解的 `1%` `8%` 被當 placeholder。Fix: 改 `pct` 字（commit `971a105` + `b66361f`）
+- DELETE 5/8+5/9 台南 attempts 強制重跑、驗證 trip-gap 900 真效
+- 最終 success rate：5/9 台南 ~45% / 5/9 高雄 30%（vs 5/8 49% — BL-14 待查）
 
-**Zeabur 部署**：兩個 service 都在 `data-collectors-gomn` project（`agent_test` Tokyo dedicated server, 4 核 8 GB Akamai/Linode）
-- osrm-taiwan: id `69fe0ec75aa21e4719e6a80c`
-- osrm-proxy: id `69fe18685aa21e4719e6a9c9`
-- collector 跑在 `data-collectors-ship-only` project 的 `service-6940282e03ed383c19b036f5`（IP 通政府 API 的那台）
+### 2. 22 縣市資料盤點 + Phase 1 規劃
 
-**Supabase migrations**：
-- 074: `realtime.waste_trails_matched_daily`（OSRM matched 整日 polyline + RPC + cron 04:18 cleanup）
-- 075: `realtime.waste_match_attempts`（attempt marker 解 retry 死循環 + cron 04:20 cleanup）
-- 兩 migration 用 psql idempotent 套用，cron job id 53 + 54 active
+3 份新 research note（commit `[docs hash]`）：
+- `docs/research/waste-multi-city-survey.md`：22 縣市靜態 / 動態 / 平台對照
+- `docs/research/waste-multi-city-roadmap.md`：5 phase / 5-7 週工程表 + 依賴圖
+- `docs/research/waste-multi-city-progress.md`：兩維度交叉表 + 每縣市進度
 
-**data-collectors 改動**：
-- 新增 `collectors/waste_match.py`（532 行，含 OSRM 呼叫 + Bearer Authorization + attempt marker）
-- `config.py` +OSRM_URL / OSRM_TOKEN / WASTE_MATCH_* (7 條)
-- registry.py 註冊 WasteMatchCollector
-- 已 push 上 production，commit `d6ac15d` RUNNING
+**關鍵 finding**：
+- 動態 GPS 只 4 城（新北 / 台中 / 台南 / 高雄）
+- A 類靜態完整 7 城（雙北 + 高雄 + 台南 + 台中 + 基隆 + 宜蘭）
+- B 類 TGOS 補 4 城（新竹市 / 雲林 / 嘉義市 / 澎湖）
+- C 類資料缺口 11 城（含桃園這個六都意外）
+- **環保署沒有民生垃圾車統一 API**，要逐縣市串
 
-**Drain 結果**（凌晨完整 backfill 5/4-5/9）：
-- 1,510 trip success match / 1,770 fail / **success rate 46%**
-- fail 全部是 OSRM NoMatch（54%，停運點 GPS 集中型）— 「資料本質難 map-match」
-- 5/4-5/8 各天 ~250-274 vehicles matched / ~400-528 rows / avg confidence 0.74
-- 5/9 累積中（早高峰時段持續 match 新進 GPS）
+### 3. 前端視覺微調
 
-### 中間踩坑（已寫進 INCIDENTS）
+commit `fd464d7`：
+- App.tsx + useWasteLayer 預設 cities 加台南
+- WASTE_STATUS_COLORS 全 status 統一琥珀 `#fbbf24`
+- 音符色 `#fbbf24` → `#fff8d6`（暖黃白）
+- 音符 spawn 500ms → 800ms
 
-7 個坑：OSRM image distroless / Zeabur PREBUILT_V2 K8s service port 8080 / Cobra `${}` 雷 / 跨 project 內網不通 / retry 死循環 / empty commit 不 trigger redeploy / AWS Lightsail IP 被擋
+### 4. 記憶系統更新
 
-## 本次 session commits
+commit `1d2555a`：BACKLOG BL-9 標 partial、新增 BL-14（高雄落差）/ BL-15（ETL UNIQUE）/ BL-16（前端 city 切換）
 
-**mini-taiwan-pulse** — 9 個（feat/historical-mode 分支）
-- `docs(waste-osrm)` plan 文件 §14 部署紀錄 + §15 多城市擴展計畫
-- `memory: append INCIDENTS +7`（7 個坑）
-- `memory: PRINCIPLES +5 條`（Zeabur 部署章節）
-- `memory: PLAYBOOKS +PB-11 +PB-12`（部署 SOP + Bearer gateway pattern）
-- `memory: GLOSSARY +OSRM/Zeabur 兩章節`（15 條術語）
-- `memory: DATA_SCOPE +廢棄物區段`（時序+靜態+RPC+跨 repo）
-- `memory: BACKLOG +5 (BL-9~13) +1 done`
-- `memory: REFLECTIONS +1 篇`（含 9 條 next-time rules）
-- `memory: rewrite STATUS`（本檔）
+## 下次 session 必做（Phase 1）
 
-**gis-platform** — 1 個 commit（已加 074 + 075 兩個 migration）
+詳見 → [`docs/research/waste-phase-1-handoff.md`](../../docs/research/waste-phase-1-handoff.md)
 
-**data-collectors** — 7 個 commit（已 push）
-- `feat(waste_match)` 532 行 collector + Bearer header
-- `fix(waste_match)` attempt marker 解 retry 死循環
-- 數個 trivial commit triggering Zeabur redeploy（empty commit 不 trigger 教訓）
+**Phase 1 主目標**：把 Tier 1 7 城資料全部進 DB（為 Phase 2 OSRM 擴展 + Phase 3 時刻表視覺化鋪路）
 
-**新 private repo** — 2 個（已 push）
-- `osrm-taiwan`：multi-stage Dockerfile（alpine 抓 PBF + osrm-backend preprocess）
-- `osrm-proxy`：nginx:1.25-alpine + envsubst template + Bearer token
+**4 個並行 sub-task**：
 
-## 待用戶執行
+1. **接台中 GPS collector**（0.5-1 天）
+   - Endpoint 已找到：`https://newdatacenter.taichung.gov.tw/api/v1/no-auth/resource.download?rid=c923ad20-2ec6-43b9-b3ab-54527e99f7bc`
+   - 採樣 10 min / 無 token
+   - schema 與 SOA 接近但要寫 `_normalize_taichung`（X/Y 大寫、無 wrapper、time format `YYYYMMDDTHHMMSS`）
 
-- [ ] **mini-taiwan-pulse `git push origin feat/historical-mode`**（16 commits ahead）
+2. **接 5 城靜態 stops/routes seeder**（2-3 天）
+   - 台中 / 台南：static 還沒進 DB
+   - 台北 / 基隆 / 宜蘭：DB 有 stops 但需確認完整度 + 補 routes LineString
+
+3. **TGOS 啟動（user 端）**
+   - 已確認：**沒有可重用的歷史 TGOS 批次**（之前的批次是火災 / 1999 / 不動產，且高雄不動產 geocoding 失敗）
+   - 4 城（新竹市 / 雲林 / 嘉義市 / 澎湖）需從零跑 TGOS
+
+4. **新北 / 台南 OSRM 收尾**（0.5 天）
+   - 連續 3 天監控 success rate
+   - BL-9 完整 done
+
+**Phase 1 結束 deliverable**：DB 內 7 城 stops/routes 齊 + 4 城 GPS 齊（含台中）+ BL-9 收尾
+
+## 待用戶執行（5/9 殘留 + 5/10 新增）
+
+- [ ] **`git push origin feat/historical-mode`**（19 commits ahead；data-collectors 已 push 到 `b66361f`）
 - [ ] **gis-platform `git push origin master`**（4 commits ahead，含 074 + 075）
-- [ ] **視覺驗證**：`npm run dev` → toggle 垃圾車 layer → timeline 拉到 5/8 早上 → 看車是否沿馬路走（matched 的 ~266 台）
-- [ ] **早高峰 5/9 累積**：query DB 看 5/9 rows 是否大幅成長
-- [ ] **規劃寫入 gis-wiki**：本 session 的領域知識（OSRM HMM 限制、垃圾車 trip 結構、stop-to-stop 候選）規劃在 wrap-up 後寫入 `topics/廢棄物/methods/`
-- [ ] **評估 BL-12**：刪除 `data-collectors-ship-only-aws` Zeabur project（Lightsail Tokyo 機器，IP 被擋沒用，月費可省）
+- [ ] **TGOS 對外接洽啟動**（B 類 4 城）
+- [ ] **規劃寫入 gis-wiki**：本 session 領域知識（OSRM HMM 限制、台南 GPS pattern、5/10 三 bug）
 
 ## 累計狀態快照
 
-- **5 個 repo 連動**：mini-taiwan-pulse / gis-platform / data-collectors / osrm-taiwan / osrm-proxy
-- **跨 3 個 Zeabur project**：data-collectors-gomn（OSRM）/ data-collectors-ship-only（collector）/ data-collectors-ship-only-aws（廢棄）
-- **垃圾車 OSRM matched 資料**：5/4-5/9 共 6 天 / ~2,000 rows / ~1,100 vehicle-days / avg confidence 0.74
-- **attempts 表**：3,280 嘗試紀錄，永久 filter 掉 NoMatch trip 避免 retry 死循環
-- **OSRM service 月費 +**：osrm-taiwan（同 Akamai 機器既有容量）+ osrm-proxy（~50 MB nginx ~$1-2/月）
-- 記憶系統：v2 9 檔 + SessionStart auto-load + /wrap-up，這次 session 7 個 atomic memory commit
+- **垃圾車 OSRM matched 資料**：5/4-5/10 共 7 天 / ~2,800 rows / ~1,400 vehicle-days
+- **DB 內覆蓋**：5 城 stops（基隆 / 宜蘭 / 新北 / 台北 / 高雄）/ 2 城 routes LineString（新北 / 高雄）/ 3 城 GPS（新北 / 台南 / 高雄）
+- **5/9 台南覆蓋率 64.2%**（170/265 vehicles）
+- **5/9 高雄覆蓋率 58.8%**（183/311 vehicles，但 success rate 30% < 5/8 49%，待查 BL-14）
 
-## 下一步候選（[BACKLOG.md](BACKLOG.md)）
+## 關鍵下一步候選（[BACKLOG.md](BACKLOG.md)）
 
-- **BL-9** 多城市擴展 OSRM map-matching（P2，先解決台南 → 改 1 個 env var；新北凍結式可能要先調 trip-gap 閾值）
-- **BL-13** LegendPanel 加「沿路網」說明（P2，視覺改善）
-- **BL-11** 評估 stop-to-stop OSRM /route 取代 HMM /match（P3，預期 success > 90%，要先解 stop_sequence 欄位）
-- **BL-12** 刪除 ship-only-aws Zeabur project 省月費（P3）
-- **BL-10** PBF 月更自動化 GitHub Actions（P3）
+- **Phase 1.1 接台中 GPS**（Endpoint 已備好）
+- **Phase 1.2 5 城 seeder**（台中 / 台南 / 台北 / 基隆 / 宜蘭 stops/routes）
+- **Phase 2 OSRM 擴展**（4 GPS 城都跑 map-matching）
+- **Phase 3 時刻表視覺化**（捷運式動畫，依賴 Phase 1.2）
+- **BL-15 ETL UNIQUE constraint**（hygiene，每天少寫 50K dup）
 
-詳細：[DATA_SCOPE.md](DATA_SCOPE.md) / [BACKLOG.md](BACKLOG.md) / [REFLECTIONS.md](REFLECTIONS.md) / [`docs/research/waste-osrm-mapmatching-plan.md`](../../docs/research/waste-osrm-mapmatching-plan.md)
+詳細：[Phase 1 Handoff](../../docs/research/waste-phase-1-handoff.md) / [DATA_SCOPE.md](DATA_SCOPE.md) / [BACKLOG.md](BACKLOG.md)
