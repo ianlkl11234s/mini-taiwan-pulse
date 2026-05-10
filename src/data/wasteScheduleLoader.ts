@@ -118,8 +118,7 @@ export async function fetchWasteScheduleDay(
 // ── 顏色 / 圖例 ────────────────────────────────────────────
 
 /**
- * 表定動畫顏色（淡紫 / lavender）— 跟 GPS 圖層的琥珀 #fbbf24 在色相上明顯區隔，
- * 兩個圖層同開時可一眼分辨「表定 vs 實際」。
+ * 表定動畫顏色：跟 GPS 圖層一致琥珀 #fbbf24（兩圖層獨立 toggle，視覺風格統一）
  */
-export const WASTE_SCHEDULE_COLOR = "#a78bfa";
+export const WASTE_SCHEDULE_COLOR = "#fbbf24";
 export const WASTE_SCHEDULE_LABEL = "垃圾車（表定）";

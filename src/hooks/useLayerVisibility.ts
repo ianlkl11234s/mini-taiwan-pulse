@@ -61,6 +61,7 @@ export function useLayerVisibility() {
     fireEvents: false,
     wasteTruck: false,
     wasteSchedule: false,
+    wasteScheduleNote: true,
     wasteRoute: false,
     wasteStop: false,
     wfIncinerator: false,

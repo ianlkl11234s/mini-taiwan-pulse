@@ -256,6 +256,13 @@ export class WasteScheduleScene {
   /** instanceIndex → route + 當下 frame debug info（給 picking 顯示）*/
   private debugByInstance = new Map<number, ScheduleDebugFrame>();
 
+  /**
+   * 對外快照：執勤中車的 Mercator 位置（給 WasteMusicNoteScene 用）。
+   * Schedule 沒有 GPS 的 collecting/parked 狀態切分，所有 visible 車都當「執勤中」噴音符。
+   * 用 `vehicle_no` 欄位重 use WasteMusicNoteScene 的 spawnFromTrucks 簽名（實際填 routeId）。
+   */
+  private activePositions: Array<{ vehicle_no: string; x: number; y: number; z: number }> = [];
+
   private lastMatrix: THREE.Matrix4 | null = null;
   private _dummy = new THREE.Matrix4();
   private _color = new THREE.Color(WASTE_SCHEDULE_COLOR);
@@ -357,6 +364,7 @@ export class WasteScheduleScene {
     const baseScale = this.orbScale * 0.5;
     let count = 0;
     this.debugByInstance.clear();
+    this.activePositions = [];
 
     for (const route of routes) {
       if (count >= this.maxInstances) break;
@@ -373,6 +381,14 @@ export class WasteScheduleScene {
       dummy.setPosition(target.x, target.y, target.z);
       this.instancedMesh.setMatrixAt(count, dummy);
       this.alphaAttribute.setX(count, frame.alpha);
+
+      // 暴露給音符 scene（schedule 全部 visible 車都當執勤中）
+      if (frame.alpha > 0.5) {
+        this.activePositions.push({
+          vehicle_no: `${route.city}:${route.routeId}`,
+          x: target.x, y: target.y, z: target.z,
+        });
+      }
 
       // 給 picking 用：保存當下幀在 stops 中的位置資訊
       const stops = route.stops;
@@ -443,6 +459,11 @@ export class WasteScheduleScene {
   }
 
   getVisibleCount(): number { return this.instancedMesh?.count ?? 0; }
+
+  /** 給 WasteMusicNoteScene 讀目前執勤中車（Mercator 位置） */
+  getActivePositions() {
+    return this.activePositions;
+  }
 
   /** 點擊拾取：返回當下 frame 的 route + debug info */
   pickRoute(screenX: number, screenY: number, viewWidth: number, viewHeight: number): ScheduleDebugFrame | null {

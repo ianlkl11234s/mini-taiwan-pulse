@@ -110,6 +110,7 @@ export function useThreeJsLayers({
   const wasteTruckSceneRef = useRef<WasteTruckScene | null>(null);
   const wasteMusicNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
   const wasteScheduleSceneRef = useRef<WasteScheduleScene | null>(null);
+  const wasteScheduleNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
   const wasteFacilityScenesRef = useRef<WasteFacility3DScenes | null>(null);
   const wasteFacilityLayerRef = useRef<ReturnType<typeof createWasteFacilityLayer> | null>(null);
 
@@ -250,7 +251,14 @@ export function useThreeJsLayers({
       getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
       getIsVisible: () => layerVisibilityRef.current.wasteSchedule,
       getAltOffset: () => 0,
-      onSceneReady: (scene) => { wasteScheduleSceneRef.current = scene; },
+      // 音符獨立 toggle（跟主 schedule toggle 分離），共用 GPS 的音符 size / zOffset
+      getMusicNoteEnabled: () => layerVisibilityRef.current.wasteScheduleNote,
+      getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
+      getMusicNoteZOffset: () => paramRefs.wasteNoteZOffset.current ?? 70,
+      onSceneReady: (scene, noteScene) => {
+        wasteScheduleSceneRef.current = scene;
+        wasteScheduleNoteSceneRef.current = noteScene;
+      },
     });
     map.addLayer(layer);
   };
@@ -375,6 +383,7 @@ export function useThreeJsLayers({
     wasteTruckSceneRef,
     wasteMusicNoteSceneRef,
     wasteScheduleSceneRef,
+    wasteScheduleNoteSceneRef,
     wasteFacilityScenesRef,
     wasteFacilityLayerRef,
     addFlightLayer,

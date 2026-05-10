@@ -65,7 +65,8 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   iotWraStructure: "#a855f7",
   fireEvents: "#ff5722",
   wasteTruck: "#fbbf24",
-  wasteSchedule: "#a78bfa",
+  wasteSchedule: "#fbbf24",
+  wasteScheduleNote: "#fff8d6",
   wasteRoute: "#84cc16",
   wasteStop: "#65a30d",
   wfIncinerator: "#ef4444",
@@ -145,6 +146,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   fireEvents: Flame,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
+  wasteScheduleNote: CalendarDays,
   wasteRoute: Route,
   wasteStop: MapPinned,
   wfIncinerator: Flame,
@@ -285,6 +287,7 @@ const SECTIONS: SectionDef[] = [
     layers: [
       { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
       { key: "wasteSchedule", label: "垃圾車（表定）Schedule" },
+      { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
     ],
   },
   {
