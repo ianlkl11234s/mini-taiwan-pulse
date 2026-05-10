@@ -47,25 +47,40 @@ BACKLOG BL-9 標 partial、新增 BL-14（高雄落差）/ BL-15（ETL UNIQUE）
 - `.claude/memory/STATUS.md`（本檔）
 - `docs/research/waste-phase-1-handoff.md`：Phase 1 Track B 起手包
 
-## 下次 session 必做（Phase 1 Track B）
+## 下次 session 必做（Track B / Phase 3 prototype 提前）
 
 詳見 → [`docs/research/waste-phase-1-handoff.md`](../../docs/research/waste-phase-1-handoff.md)
 
-**Phase 1 兩 Track 並行**：
+**核心 framing 修正（5/10 晚）**：
+
+5/10 驗證 DB 內 **5 城共 77K stops 已 100% 完整**（高雄/新北/宜蘭/台北/基隆 — arrival_time + departure_time + weekday_pattern + route_id 都齊）。**Phase 3 prototype（時刻表動畫）不必等 TGOS callback** → 可立即用 5 城做、跟 TGOS 並行。
+
+**Track A 進度**（user / taipei-gis-analytics）：
 
 ```
-Track A — TGOS 流程（user / taipei-gis-analytics）
-  1A.1 7 天上傳 day_001-007 到 TGOS
-  1A.2 寫 12_unified_callback.py
-  1A.3 callback 跑完 → DB stops 從 77K → 385K
-
-Track B — Mini Taiwan Pulse（next session 工作）
-  1B.1 接台中 GPS collector（endpoint 已找到）
-  1B.2 新北 OSRM 接 map-matching
-  1B.3 BL-9 / BL-14 收尾
+✅ day_001+002 已上傳完拿到結果（5/10 16:36）
+   result/v2/Address_Finish (32)+(33).csv
+   座標系是 TWD97 (EPSG:3826)，callback 要轉 WGS84
+⏳ user 持續上傳 day_003-007
+🔴 寫 12_unified_callback.py
+🔴 callback 跑完 → DB stops 77K → 385K
 ```
 
-**核心 framing 修正**：「TGOS 處理完就 OK」基本對 — 因為 hwms 爬蟲、批次打包、schema migrations 都已 ready。Phase 1 收尾後，Phase 2-3（OSRM 擴展 + 時刻表動畫）才開始。
+**Track B 順序（next session）**：
+
+```
+1. Phase 3 prototype 時刻表動畫（5 城）  ← 先做、1 週
+   - 建 RPC get_waste_schedule_day
+   - 寫 wasteScheduleLoader / useWasteScheduleLayer
+   - WasteScheduleScene 3D 按表跑
+   - 高雄+新北用 routes LineString / 台北+基隆+宜蘭用 OSRM /route 補
+2. 接台中 GPS collector（0.5-1 天）
+   - Endpoint 已找好 5/10 16:14 實打 200 OK / 1300+ vehicles
+3. 新北 OSRM 接 map-matching（0.5 天）
+4. BL-9 / BL-14 收尾
+```
+
+**為何重排**：5 城時刻表完整 → Phase 3 立即可做、不卡 Track A，user 並行繼續推 TGOS 7 天上傳。
 
 ## 待用戶執行（5/9 殘留 + 5/10 新增）
 

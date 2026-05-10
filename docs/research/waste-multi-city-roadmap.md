@@ -6,18 +6,24 @@
 
 ---
 
-## TL;DR — 4 Phase / 預估 3-4 週
+## TL;DR — 重排成 2-3 週（Phase 3 prototype 提前）
 
 ```
-Phase 1   資料層收尾                   1-2 週   兩 track 並行
-  Track A: TGOS 上傳 + callback (user 端 taipei-gis-analytics)
-  Track B: 台中 GPS + 新北/台南 OSRM 收尾 (mini-taiwan-pulse)
-Phase 2   OSRM 擴展 + UI 基礎建設       1 週     依賴 Phase 1
-Phase 3   時刻表視覺化                  1-2 週   依賴 Phase 2
-Phase 4   長期優化（誤差分析 / hygiene）長期    隨時
+Track A: TGOS 流程（user / taipei-gis-analytics）
+  ✅ day_001+002 已上傳完拿到結果（5/10 16:36）
+  ⏳ user 持續上傳 day_003-007
+  🔴 寫 12_unified_callback.py（含 TWD97 → WGS84）
+  → 全 22 縣市 stops 灌進 DB
+
+Track B: mini-taiwan-pulse（next session）
+  Week 1: Phase 3 prototype（5 城時刻表動畫）  ← 先做（不卡 TGOS）
+  Week 2: 接台中 GPS + 新北 OSRM
+  Week 3: 等 callback 完 → Phase 2 OSRM 擴展（22 城）
 ```
 
-比上版 (5-7 週) 縮短 — 因為 hwms + TGOS 批次 + schema 都已 ready。
+**為何 Phase 3 prototype 提前**：5/10 驗證 5 城 77K stops 已 100% 完整（時刻表 + 星期 + 路線都齊），Phase 3 prototype 不必等 TGOS callback。
+
+比上版 (5-7 週) 縮短到 2-3 週 — 因為 hwms + TGOS 批次 + schema + 5 城資料都已 ready。
 
 ---
 

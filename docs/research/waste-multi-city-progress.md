@@ -27,14 +27,28 @@ hwms.moenv.gov.tw                     → ✅ 5/3 爬完 22 縣市 / 3,991 路�
 地址去重 + 與既有 catalog 比對         → ✅ 5/3 67,446 真新增 / 22,739 重複跳過
                                         產出 day_001-007 × 10K 共 67,911 地址
        ↓
-TGOS 跑門牌 → 經緯度                  → ⏳ user 待手動上傳 7 天 batch
+TGOS 跑門牌 → 經緯度                  → ⏳ day_001+002 已上傳完 + 拿到結果（5/10 16:36）
+                                        result/v2/Address_Finish (32)+(33).csv 各 10K 行
+                                        ⚠️ 座標系是 TWD97 (EPSG:3826)，要轉 WGS84
+                                        🔴 user 持續上傳 day_003-007（每天 1 batch）
        ↓
-12_unified_callback.py 整合三源       → 🔴 待寫（要 Day 1 結果回來前補）
+12_unified_callback.py 整合三源       → 🔴 待寫（要含 TWD97 → WGS84 transform）
        ↓
 回灌 spatial.waste_collection_stops   → ✅ Schema 已 ready（5/8 import script 跑過）
        ↓
-mini-taiwan-pulse 視覺化              → ⏳ 等 DB 資料齊（接台中 GPS 並行不卡）
+mini-taiwan-pulse 視覺化              → ⏳ Phase 3 prototype 可先 5 城做（不卡 TGOS）
+                                        等 callback 完才能擴展到 22 城
 ```
+
+## 5 城 stops 已 100% 完整（5/10 驗證）— Phase 3 prototype 立即可做
+
+| 縣市 | stops | arrival_time | departure_time | weekday_pattern | route_id | route LineString |
+|---|---:|---:|---:|---:|---:|---:|
+| 高雄市 | 32,422 | 100% | 100% | 100% | 100% | ✅ 1,399 條 |
+| 新北市 | 26,672 | 100% | 100% | 100% | 100% | ✅ 649 條 |
+| 宜蘭縣 | 12,071 | 100% | 100% | 100% | 100% | ❌ 用 OSRM /route |
+| 臺北市 | 4,048 | 100% | 100% | 100% | 100% | ❌ 用 OSRM /route |
+| 基隆市 | 1,912 | 100% | 100% | 100% | 100% | ❌ 用 OSRM /route |
 
 ---
 
