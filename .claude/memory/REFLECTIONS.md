@@ -264,4 +264,60 @@
 
 ---
 
+## 2026-05-10 晚 Schedule prototype 視覺打磨 7 方案 try-error
+
+### What worked ✅
+
+- **Source data quirks 一條一條打**：weekday_pattern 4 種格式 / 跨日 24:11 /
+  departure 空字串 / 同 stop 重複 / 時間倒退 / 班次切換 / dwell=0 共 7 種，
+  每踩到一個就量化 + 寫進 docs/research/waste-schedule-data-quirks.md。
+  下次 22 城擴展前直接跑 sanity SQL 檢查。
+- **picking + debug tooltip 救了視覺打磨**：用戶看到「閃現」我猜不到原因，
+  加 click → 顯示 route_id / stop_seq / arrival / departure / gap，
+  一點就知道 source 給了什麼。
+- **撤回比堆改動好**：試過 Catmull-Rom + distance threshold 後用戶反饋不對都
+  乾脆 revert，沒積技術債。
+- **量化分析定 threshold**：用戶反映「林口沒車」最後是用 SQL 算各區 stops
+  間 gap median + p90 才確定 600s 對林口太緊。先量化再決參數比直覺調快。
+
+### What didn't ❌
+
+- **撞 PostgREST 20K cap 撞第二次**：GLOSSARY 早寫了 timeline 字串編碼是「避
+  PostgREST 20K cap」，但設計 schedule RPC 時沒先看 → 沿用 flat row 一筆一
+  stop 結構就撞牆。**PRINCIPLES 也已有 ⚠ P0 警告**但只寫了「降頻」解法，事件型
+  資料不能降頻就沒對策。
+- **視覺打磨 7 方案順序混亂**：
+  1. Trip-break gap > 10min fade → 對
+  2. 對稱重新分配 dwell+move → 沒解短 gap 「停 + 跳」
+  3. 短 dwell 持續移動 / 長 dwell 真停 → 對
+  4. Catmull-Rom 平滑 → 用戶看到「往回退」拿掉
+  5. Distance threshold fade → 用戶說「直線 859m 看得到」拿掉
+  6. 量化發現 source data 速度超標 → 結論走 OSRM
+  7. trip-break threshold 600 → 1500 解林口
+  → **應該一開始先量化 stop gap 分布**（median 60s 板橋 vs 600s 林口 差 10x），
+  就能知道 600s threshold 對地廣區失效，不用試 4-5 個方案才察覺。
+- **Vite HMR 對 Three.js scene class buffer 不會重 init**：改 maxInstances 後
+  使用者 hard reload 才生效。debug 時忘了考慮這點，用戶以為新 code 沒套。
+
+### Next-time rules 🎯
+
+1. **設計新 RPC 預估 rows > 5K 一律先看 PRINCIPLES「PostgREST 20K cap」章節**，
+   按決策樹（能丟 → 降頻 / 不能丟 → grouped JSONB）選 pattern，不要等撞牆。
+2. **Source data 動視覺前先跑量化 SQL**：median / p90 / max 的 gap / 距離 / 密度
+   分布。不同地理特性（市區 vs 山坡）參數差距可能 10x。
+3. **試錯 ≥ 3 個方案前停下來重新理解問題**：第 4-5 個方案還沒解就是路徑錯了，
+   要量化 root cause，不要「下個 threshold 試試看」。
+4. **Catmull-Rom 只用真實連續軌跡（GPS）**，邏輯順序的 stops/events 用直線
+   不要套 spline。
+5. **Three.js scene class buffer / 大改動後叫用戶 hard reload**，不要以為 HMR 救得了。
+
+### Memory 產出
+
+- INCIDENTS：+2（PostgREST 20K cap 撞第二次 / Catmull-Rom overshoot）
+- PRINCIPLES：+grouped JSONB pattern + Catmull-Rom 限制 + 設計新 RPC 決策樹
+- GLOSSARY：+schedule 動畫術語章節（TRIP_BREAK_S / DWELL_THRESHOLD_S / 60x）
+- PLAYBOOKS：+PB-13 大集合 RPC grouped JSONB pattern
+- DATA_SCOPE：+5 城 schedule 統計 + waste_collection_routes 1399+649
+- BACKLOG：+BL-17/18/19，schedule prototype 標 done
+
 <!-- /wrap-up 之後追加新反省 -->
