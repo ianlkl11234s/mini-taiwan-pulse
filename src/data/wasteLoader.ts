@@ -354,11 +354,11 @@ export async function fetchWasteTrailsMatchedDay(
 // ── 顏色 / 圖例 ──────────────────────────────────────────
 
 export const WASTE_STATUS_COLORS: Record<WasteStatus, string> = {
-  collecting: "#fbbf24",  // 琥珀色 — 收運中（音符飄出）
-  returning: "#06b6d4",   // cyan — 返程
-  parked: "#6b7280",      // 灰 — 停車
-  offline: "#374151",     // 暗灰
-  unknown: "#9ca3af",
+  collecting: "#fbbf24",
+  returning: "#fbbf24",
+  parked: "#fbbf24",
+  offline: "#fbbf24",
+  unknown: "#fbbf24",
 };
 
 export const WASTE_STATUS_LABELS: Record<WasteStatus, string> = {

@@ -18,7 +18,7 @@ import * as THREE from "three";
 
 const MAX_NOTES = 1000;
 const LIFESPAN_MS = 2200;        // 每個音符存活 2.2 秒
-const SPAWN_INTERVAL_MS = 500;   // 每車每 500ms 噴一個
+const SPAWN_INTERVAL_MS = 800;   // 每車每 800ms 噴一個
 const RISE_HEIGHT_M = 120;       // 上升高度（z11 zoom 看得到）
 const SWAY_AMPL_M = 12;          // 左右搖擺幅度
 const ORBIT_RADIUS_M = 24;       // 音符繞光點半徑
@@ -219,8 +219,7 @@ export class WasteMusicNoteScene {
         uPointSize:   { value: POINT_SIZE_PX },
         uViewport:    { value: new THREE.Vector2(1, 1) },
         uAtlas:       { value: atlas },
-        // 預設琥珀 #fbbf24 = (0.984, 0.749, 0.141)，匹配 wasteTruck 主視覺
-        uColor:       { value: new THREE.Color("#fbbf24") },
+        uColor:       { value: new THREE.Color("#fff8d6") },
       },
     });
 

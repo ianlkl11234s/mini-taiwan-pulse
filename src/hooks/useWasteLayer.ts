@@ -38,7 +38,7 @@ function uniqueVehicleCount(rows: WasteTrailRow[]): number {
 export function useWasteLayer(
   enabled: boolean,
   timeMode: TimeMode,
-  cities: string[] = ["高雄市"],
+  cities: string[] = ["高雄市", "臺南市"],
 ) {
   const trailsRef = useRef<WasteTrailRow[]>([]);
   const [count, setCount] = useState(0);

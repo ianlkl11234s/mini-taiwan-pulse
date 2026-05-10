@@ -350,7 +350,7 @@ export default function App() {
 
   // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
   const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
-    useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市"]);
+    useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市", "臺南市"]);
 
   // ── 垃圾處理設施 / 投放點（靜態，第一個 sub-toggle 開時 lazy fetch） ──
   const wasteFacilityVis =
