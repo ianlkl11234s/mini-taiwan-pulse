@@ -6,7 +6,34 @@
 
 ---
 
-## TL;DR
+## ⚠️ 重大 finding 修正（2026-05-10 晚）
+
+本份盤點原本得出「**環保署沒有民生垃圾車統一 API**、要逐縣市串、Tier 3 11 城是資料缺口」結論。
+
+**這是錯的**。實際上：
+
+```
+hwms.moenv.gov.tw（環境部資源循環署「全國垃圾車路線網」）
+  ✅ 一站式涵蓋全臺 22 縣市
+  ✅ 純 curl GET、無登入、無 captcha
+  ✅ 含站點地址 + 清運時間 + 星期排程
+  ❌ 缺經緯度（要靠 TGOS 補）
+```
+
+用戶 5/3-5/8 已在 taipei-gis-analytics 完成：
+- 22 縣市 hwms 爬蟲（3,991 路線 / 308K unified stops）
+- TGOS 批次打包（day_001-007 共 67,911 地址）
+- Schema migrations 067/068 apply 上線
+
+**因此「Tier 1/2/3」分類在工程實作上已不適用** — 全 22 縣市都靠 hwms + TGOS 補完。
+
+詳見 → [`waste-multi-city-progress.md`](./waste-multi-city-progress.md) / [`waste-multi-city-roadmap.md`](./waste-multi-city-roadmap.md)
+
+**為什麼之前盤點漏掉 hwms**：master_catalog.sqlite 收的是各縣市 portal、沒收進中央環境部 portal。盲點。下次盤點要 cross-check 中央級單一資料源。
+
+---
+
+## TL;DR（保留作為 catalog 視角的歷史紀錄）
 
 ```
 全臺 22 縣市分三層：

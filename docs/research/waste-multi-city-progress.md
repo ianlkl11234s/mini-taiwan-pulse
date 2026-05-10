@@ -1,8 +1,8 @@
 # 全臺垃圾清運資料整合 — 進度紀錄
 
-> 寫於 2026-05-10
-> 這份是「**白話版工作清單 + 每城進度**」，反覆更新用
-> 對應規劃：[`waste-multi-city-survey.md`](./waste-multi-city-survey.md) / [`waste-multi-city-roadmap.md`](./waste-multi-city-roadmap.md)
+> 最新更新：2026-05-10
+> **核心 framing**：資料來源是 hwms.moenv.gov.tw（環境部一站式涵蓋 22 縣市）+ TGOS 補經緯度
+> 用戶 5/3-5/8 已在 taipei-gis-analytics 完成完整 ETL pipeline，剩 TGOS 上傳 + callback
 
 ---
 
@@ -14,253 +14,178 @@
 GPS 城市疊加實際位置（看誤差）、無 GPS 城市純按表跑。
 ```
 
-像 Mini Tokyo 3D 那樣 — 但對象是垃圾車不是電車。
+像 Mini Tokyo 3D 看電車，但對象是垃圾車。
 
 ---
 
-## 資料分兩種（先這樣切再來看）
-
-### 靜態資料：站點 + 路線 + 時刻表
+## 整體 pipeline（已完成 90%）
 
 ```
-政府偶爾更新、抓一次 / 每月跑一次就好
-工程上叫「seeder」/ 「loader」，不需要 cron 持續跑
-是「捷運式時刻表動畫」的基礎
-22 縣市理論上都該有，但實際看資料完整度（A/B/C 分類）
-```
-
-### 動態資料：即時 GPS
-
-```
-政府持續 push 或我們持續 polling
-工程上叫「collector」，每 2-10 min 跑一次
-是「實際位置 vs 表定誤差分析」的基礎
-22 縣市只有 4 城有：新北 / 台中 / 台南 / 高雄
+hwms.moenv.gov.tw                     → ✅ 5/3 爬完 22 縣市 / 3,991 路線
+                                        產出 308,129 筆 unified stops（含時刻表 + 星期）
+       ↓
+地址去重 + 與既有 catalog 比對         → ✅ 5/3 67,446 真新增 / 22,739 重複跳過
+                                        產出 day_001-007 × 10K 共 67,911 地址
+       ↓
+TGOS 跑門牌 → 經緯度                  → ⏳ user 待手動上傳 7 天 batch
+       ↓
+12_unified_callback.py 整合三源       → 🔴 待寫（要 Day 1 結果回來前補）
+       ↓
+回灌 spatial.waste_collection_stops   → ✅ Schema 已 ready（5/8 import script 跑過）
+       ↓
+mini-taiwan-pulse 視覺化              → ⏳ 等 DB 資料齊（接台中 GPS 並行不卡）
 ```
 
 ---
 
-## 兩維度交叉表（這份是核心）
+## 兩種資料：靜態 vs 動態
 
-✅ 政府給齊
-🟡 政府給但要處理（B 類 TGOS / C 類找）
-❌ 沒有
+### 靜態（站點 + 路線 + 時刻表）
 
-| 縣市 | 靜態：站點 | 靜態：路線 | 靜態：時刻表 | 動態：GPS |
+```
+✅ 全 22 縣市 hwms 爬完 → 308K stops + 3,991 routes
+⏳ 67,911 地址等 TGOS 補經緯（既有 22,739 已有座標 / 跳過）
+✅ migrations 067/068 上線、5/8 import 跑過
+```
+
+**TGOS 跑完後 DB 預期規模**：
+- `waste_collection_stops`: 77,125 → **~385K**（+308K）
+- `waste_collection_routes`: 2,048 → **~6,039**（+3,991）
+
+### 動態（即時 GPS）
+
+```
+✅ 新北 / 台南 / 高雄 collector 上線（GPS 持續進 spatial.waste_positions_realtime）
+⏳ 台中待接（endpoint 已找到、見 handoff）
+❌ 其他 18 城無 GPS（政府未提供）
+```
+
+---
+
+## 22 縣市現況一張表
+
+| 縣市 | hwms 爬完 | TGOS 待上傳量 | 即時 GPS | mini-taiwan-pulse 可視化 |
 |---|---|---|---|---|
-| **台北** | ✅ 經緯 | ✅ | ✅ | ❌ |
-| **新北** | ✅ 經緯 | ✅ LineString | ✅ 含週幾 | **✅ 2 min** |
-| 桃園 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 新竹市 | 🟡 TGOS | 🟡 TGOS | ✅ 文字 | ❌ |
-| 新竹縣 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 苗栗 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| **台中** | ✅ 部分經緯 | ✅ 定時定點 | ✅ 含 5 天 | **✅ 10 min** |
-| 彰化 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 南投 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 雲林 | 🟡 TGOS | ❌ | 🟡 名冊 | ❌ |
-| 嘉義市 | 🟡 TGOS | ❌ | 🟡 文字 | ❌ |
-| 嘉義縣 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| **台南** | ✅ linid | ✅ 路線群組 | ❓ 待確認 | **✅ 5 min** |
-| **高雄** | ✅ 經緯 | ✅ 38 區 | ❓ 待確認 | **✅ 2 min** |
-| 基隆 | ✅ 經緯 | ✅ 班別 | ✅ 回收日 | ❌ |
-| 宜蘭 | ✅ 經緯 | ✅ APP | ✅ 含星期 | ❌ |
-| 花蓮 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 台東 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 屏東 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 澎湖 | 🟡 TGOS | ❌ | ✅ 含星期 | ❌ |
-| 金門 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
-| 連江 | 🟡 找 | 🟡 找 | 🟡 找 | ❌ |
+| 台北 | ✅ | 含 day_004 1,895 筆 | ❌ | 待 callback |
+| **新北** | ✅ | 含 day_002 132 筆 | ✅ 2 min | 待 callback |
+| 桃園 | ✅ | 含 day_002+003 共 4,825 筆 | ❌ | 待 callback |
+| 新竹市 | ✅ | 含 day_006+007 共 2,286 筆 | ❌ | 待 callback |
+| 新竹縣 | ✅ | 含 day_007 1,896 筆 | ❌ | 待 callback |
+| 苗栗 | ✅ | 含 day_006 2,261 筆 | ❌ | 待 callback |
+| **台中** | ✅ | 含 day_003+004 共 11,960 筆 | ⏳ 待接 10 min | 待接 GPS + callback |
+| 彰化 | ✅ | 含 day_005 6,359 筆 | ❌ | 待 callback |
+| 南投 | ✅ | 含 day_006 2,269 筆 | ❌ | 待 callback |
+| 雲林 | ✅ | 含 day_005+006 共 2,128 筆 | ❌ | 待 callback |
+| 嘉義市 | ✅ | 含 day_006 636 筆 | ❌ | 待 callback |
+| 嘉義縣 | ✅ | 含 day_006 1,356 筆 | ❌ | 待 callback |
+| 台南 | ✅ | 含 day_002+003 共 8,156 筆 | ✅ 5 min | 已上線 + 待 callback |
+| **高雄** | – | 0 筆（既有座標齊） | ✅ 2 min | 已上線完整 |
+| 基隆 | ✅ | 含 day_004 1,173 筆 | ❌ | 待 callback |
+| 宜蘭 | ✅ | 含 day_004 1,480 筆 | ❌ | 待 callback |
+| 花蓮 | ✅ | 含 day_007 1,424 筆 | ❌ | 待 callback |
+| 台東 | ✅ | 含 day_007 437 筆 | ❌ | 待 callback |
+| 屏東 | ✅ | 含 day_004+005 共 3,433 筆 | ❌ | 待 callback |
+| 澎湖 | ✅ | 含 day_007 820 筆 | ❌ | 待 callback |
+| 金門 | ✅ | 含 day_007 412 筆 | ❌ | 待 callback |
+| 連江 | ✅ | 含 day_007 119 筆 | ❌ | 待 callback |
+
+**沒有 Tier 2/3 之分了**：所有 21 城（高雄已有）都靠 hwms + TGOS 補完。
 
 ---
 
-## 把這張表變成「能做到什麼」
+## 你做 vs 我做
 
-### 動態 GPS 城（4 城）— 看實際車跑
-
-```
-新北 / 台中 / 台南 / 高雄
-→ 有 collector 持續抓 GPS
-→ OSRM map-matching 把 GPS 鎖到馬路
-→ 視覺：車輛即時動畫 + 實際軌跡
-→ 加碼：跟表定疊加，看誤差
-```
-
-### 靜態完整城（共 7 城，含上面 4 城）— 做捷運動畫
+### 你做（taipei-gis-analytics 範圍）
 
 ```
-雙北 / 台中 / 台南 / 高雄 / 基隆 / 宜蘭
-→ 有完整站點 + 路線 + 時刻表（政府已給經緯度）
-→ 用 OSRM /route 預先算每段路徑
-→ 視覺：時刻表動畫（時間軸推進、車按表跑）
-→ 不需 user 處理，我寫 seeder + 視覺化
+1. 7 天循環上傳 day_001-007 到 TGOS
+   - 每天上傳 1 個 batch（CP950 編碼）
+   - 等結果（數小時 - 一天）
+   - 下載放 data/intermediate/tgos/result/
+   - 7 天都收齊再做下一步
+
+2. 寫 12_unified_callback.py
+   - 合併三源（waste callback + hwms callback + pre_geocoded.json）
+   - 讀 day_NNN_mapping.csv 的 source 欄位分流
+   - 回填各自 GeoJSON 並 import 到 supabase
+   - 待 Day 1 結果回來前補上
+
+（高雄不在 TGOS 範圍 — 高雄既有座標齊、5/3 dedupe 階段就跳過了）
 ```
 
-### 靜態 + TGOS 城（4 城）— 做捷運動畫（要等 TGOS）
+### 我做（mini-taiwan-pulse 範圍）
 
 ```
-新竹市 / 雲林 / 嘉義市 / 澎湖
-→ 政府給時刻表 + 地址，沒給經緯度
-→ user 跑 TGOS 把地址轉經緯度
-→ 之後跟靜態完整城一樣，做捷運動畫
-```
-
-### 資料缺口城（11 城）— 要 by 城探索
-
-```
-桃園 / 新竹縣 / 苗栗 / 彰化 / 南投 / 嘉義縣
-屏東 / 花蓮 / 台東 / 金門 / 連江
-→ 政府開放資料平台找不到
-→ 要 user + me 去縣市環保局網站、PDF、申請 API
-→ 工程量級難估、每城分開策略
-```
-
----
-
-## 我們各做什麼
-
-### 你做
-
-```
-[一次性]
-• B 類 4 城：用 TGOS 批次轉門牌 → 經緯度（你有 skill）
-• C 類 11 城：一城一城打開環保局網站、看有沒有東西
-• 確認台中 GPS endpoint URL（你如果手邊有資料）
-
-[每階段]
-• Design 決策（視覺呈現方向 / 顏色 / 動畫風格）
-• 看前端、回饋哪邊不對
-
-[長期]
-• 跟 TGOS 端接洽協調
-• 跟縣市環保局接洽（如果要正式申請 API）
-```
-
-### 我做
-
-```
-[資料層]
-• A 類 7 城：每城寫 1 個 normalize 函數，接進 collector
-• B 類 4 城：接收你 TGOS 結果，整理進 DB
-• C 類 11 城：你撈到資料後，逐城寫 collector
-
-[OSRM 層]
-• 已有 GPS 城（高雄/台南/新北/台中）：跑 OSRM map-matching
-• 無 GPS 城：用 OSRM /route 從 stop A 預先算到 stop B 的 polyline
-• 持續監控 success rate、調 trip-gap
-
-[前端層]
-• City 切換 UI（仿 BusGroup pattern）
-• 「捷運式時刻表動畫」3D 場景（仿 WasteTruckScene）
-• 表定 vs GPS 誤差視覺
-• Legend / 圖例
-
-[基礎設施]
-• ETL hygiene（UNIQUE constraint）
-• OSRM PBF 月更
-• 跨城 trip-gap per-city 調優
+1. 接台中 GPS collector（與 TGOS 並行，不互卡）
+2. 等 callback 把 stops 灌進 DB 後：
+   - 新北 / 台中 / 台南 OSRM map-matching 擴展
+   - 前端 City 切換 UI
+   - 時刻表視覺化（捷運式動畫）
+   - GPS + 表定誤差分析
 ```
 
 ### 一起做
 
 ```
-• 確認 A 類 7 城具體 endpoint URL 是哪些
-• B/C 類資料品質判斷（哪些可用、哪些要丟）
-• 視覺 design 反覆 iterate
-• 卡關時討論策略（譬如 OSRM 對某城資料 fail 怎麼辦）
+- TGOS 上傳遇到問題（編碼、批次大小、quota）討論
+- callback script 設計確認
+- 時刻表動畫視覺方向決策
 ```
 
 ---
 
-## 第一週可以馬上動的 4 件事
-
-並行不依賴：
+## 進度標記
 
 ```
-你做：
-  • 啟動 TGOS 對外接洽流程（B 類 4 城）
-  • 看你手邊有沒有台中 GPS 的 endpoint 資料
+✅ 已 done
+⏳ 進行中 / 待動作
+🔴 未開始 / 待寫
+```
 
-我做（並行）：
-  • A 類 7 城的開放資料 endpoint 全部確認 URL（我去 catalog 撈）
-  • 接台中 GPS collector（一旦 endpoint 確認）
-  • 接 4 城靜態 stops/routes（台中 / 台南 / 台北 / 基隆 / 宜蘭）
-  • 收尾 5/9-5/10 高雄 + 台南 OSRM 視覺驗收（前面 session 還沒 commit 的東西）
+### 5/3-5/8 已完成（taipei-gis-analytics）
+
+```
+✅ 06_hwms_full_crawl.py    爬蟲：22 縣市 3,991 路線（5/3）
+✅ 07_hwms_to_unified.py    統一 schema：308K stops（5/3）
+✅ 08_hwms_tgos_batch.py    TGOS 批次：90K → 10 batch（5/3）
+✅ 10_hwms_dedupe_and_rebatch.py  dedupe → 7 batch（5/3）
+✅ 11_repack_daily.py        合併 waste+hwms → day_001-007（5/3）
+✅ 12_clean_address_commas   清逗號（5/3）
+✅ migration 067/068 apply   schema 上線（5/5）
+✅ Phase 10 round 1-3 救援  facilities 4,609 + disposal 13,751（5/8）
+✅ 23_import_phase10_to_supabase  灌進 DB（5/8）
+```
+
+### 待 user 動作
+
+```
+⏳ TGOS 7 天上傳 day_001-007（每天 1 batch）
+🔴 12_unified_callback.py 寫（Day 1 結果回來前補）
+```
+
+### 待我動作（mini-taiwan-pulse）
+
+```
+🔴 接台中 GPS collector（並行不卡 TGOS）
+🔴 BL-9 / BL-14 收尾（5/9-5/10 OSRM 已做、視覺驗證 done）
+🔴 等 callback 後：OSRM 擴展 / City 切換 UI / 時刻表動畫
 ```
 
 ---
 
-## 22 縣市進度表（每完成一階段就回來打勾）
+## Q & A
 
-✅ = done / 🟡 = in progress / ⬜ = not started / ❌ = blocked / N/A = 不適用
+**Q: 為什麼說「TGOS 處理完就 OK」？**
+A: 因為靜態資料（22 縣市站點 / 路線 / 時刻表）你都爬好了、schema 也準備好了、pipeline 也跑通了，只差 TGOS 把地址轉經緯度這一步。沒了。
 
-### A 類
+**Q: 那高雄為什麼不在 TGOS 範圍？**
+A: 因為高雄既有 stops 已有座標（32K stops with geometry），5/3 dedupe 階段就跳過了。
 
-| 縣市 | endpoint 確認 | stops 進 DB | routes 進 DB | GPS 進 DB | OSRM matched | 前端可見 |
-|---|---|---|---|---|---|---|
-| 台北 | ⬜ | ✅ 26K | ⬜ | N/A 無 GPS | N/A | ⬜ |
-| **新北** | ✅ | ✅ 27K | ✅ 649 | ✅ 409 車 | ⬜ 待 BL-9 | ⬜ |
-| 台中 | ⬜ 待找 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| 台南 | ✅ | ⬜ | ⬜ | ✅ 296 車 | 🟡 5/10 上線 ~40% | 🟡 5/10 上線、待視覺驗收 |
-| **高雄** | ✅ | ✅ 32K | ✅ 1,399 | ✅ 366 車 | ✅ ~50% | ✅ 已上線 |
-| 基隆 | ⬜ | ✅ 部分 | ⬜ | N/A | N/A | ⬜ |
-| 宜蘭 | ⬜ | ✅ 部分 | ⬜ | N/A | N/A | ⬜ |
+**Q: hwms 跟「環保署」有什麼關係？我前面 agent 沒找到？**
+A: hwms = 環境部資源循環署「全國垃圾車路線網」（hwms.moenv.gov.tw），是中央級單一 portal、涵蓋 22 縣市。前面 agent 用 master_catalog.sqlite 找開放資料平台，那邊收的是各縣市 portal、沒收進 hwms。盲點。
 
-### B 類
-
-| 縣市 | TGOS 跑了 | stops 進 DB | routes 進 DB | 時刻表進 DB | 前端可見 |
-|---|---|---|---|---|---|
-| 新竹市 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| 雲林 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| 嘉義市 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| 澎湖 | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-
-### C 類
-
-| 縣市 | 環保局網站看過 | 找到資料 | 進 DB | 前端可見 |
-|---|---|---|---|---|
-| 桃園 | ⬜ | – | – | – |
-| 新竹縣 | ⬜ | – | – | – |
-| 苗栗 | ⬜ | – | – | – |
-| 彰化 | ⬜ | – | – | – |
-| 南投 | ⬜ | – | – | – |
-| 嘉義縣 | ⬜ | – | – | – |
-| 屏東 | ⬜ | – | – | – |
-| 花蓮 | ⬜ | – | – | – |
-| 台東 | ⬜ | – | – | – |
-| 金門 | ⬜ | – | – | – |
-| 連江 | ⬜ | – | – | – |
-
----
-
-## 進度怎麼追
-
-```
-1. 這份檔案（progress.md）：每完成一城就回來打勾
-2. BACKLOG.md：發現新 sub-task 加進去
-3. STATUS.md：每週更新整體進度
-4. 每完成一個 Phase 寫一篇 retrospective（檢討什麼順、什麼卡）
-```
-
-要不要開獨立 repo？**先不用**。
-- 文件全在 `mini-taiwan-pulse/docs/research/`
-- collector 全在 `data-collectors/collectors/waste_*.py`
-- 前端全在 `mini-taiwan-pulse/src/`
-- 三個 repo 已經夠分工，再開新 repo 反而更亂
-
-如果未來「資料整理本身」變大（譬如要做 quality check / 補資料），再考慮。
-
----
-
-## 你下一步只要決定 3 件事
-
-```
-Q1. 台中 GPS endpoint URL：你手邊有嗎？沒有的話我去 catalog 深掘
-Q2. 第一週要先做什麼？建議：
-    A) 我接台中 GPS + A 類 5 城 stops/routes（你不用做事）
-    B) 你開始啟動 TGOS 對外（B 類 4 城）
-    A 跟 B 並行不衝突
-Q3. 那 4 個前端改動跟 3 份新 doc 要 commit 嗎？
-    （cities 加台南、垃圾車統一琥珀、音符暖白、survey/roadmap/progress 三檔）
-```
-
-回我這 3 個就可以開始動。
+**Q: 還有什麼風險？**
+A:
+- TGOS 跑 67K 地址可能 quota 限制 / 上傳失敗 → 7 天分批就是因應
+- callback script 沒寫好可能會傷既有 77K stops → 必須謹慎 dedupe
+- hwms 後續若改版 / 失效 → 已爬下來的資料還能用，但下次更新要補
