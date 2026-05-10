@@ -436,3 +436,90 @@ curl -H "Authorization: Bearer $TOKEN" https://<proxy>.zeabur.app/some-endpoint
 **月度 token 輪換**：改 proxy 的 `API_TOKEN` env var → Zeabur reload nginx → 同步改 caller 的 `API_TOKEN`。
 
 實例：osrm-proxy 包 osrm-taiwan，給跨 project ship-only collector 用。詳見 `docs/research/waste-osrm-mapmatching-plan.md` §14。
+
+---
+
+## PB-13 大集合 RPC 設計 SOP（避 PostgREST 20K cap）
+
+> ⚠ 動手前先看 PRINCIPLES「Supabase PostgREST 20K cap」章節，做過兩次（063 timeline、079 schedule）
+
+### Step 1：估 rows 數
+
+寫 RPC 前先 SQL count 預期 row 數。**> 5K 必須採取對策**，不要等 production 撞牆。
+
+```sql
+SELECT COUNT(*) FROM (<RPC body 主 query>) x;
+```
+
+### Step 2：選 pattern
+
+| 資料性質 | Pattern | 範例 |
+|---|---|---|
+| 時序 latest / 每小時 snapshot（**能丟**）| 降頻 `DISTINCT ON (id, hour) ORDER BY ... DESC` | groundwater 78K → 16.5K (060) |
+| 時序 timeline 完整序列（不能丟但可壓縮）| 字串編碼 `"epoch,val;..."` | iot_wra_daily (063) |
+| 事件 / 動態結構（**不能丟**） | Grouped JSONB `jsonb_agg ORDER BY ...` GROUP BY parent | schedule stops (079) |
+
+### Step 3：實作 grouped JSONB（Pattern 3 範本）
+
+```sql
+WITH filtered AS (
+    SELECT ... FROM source WHERE ...
+),
+seq AS (
+    SELECT *,
+        ROW_NUMBER() OVER (PARTITION BY parent_id ORDER BY arrival_sec)::INT AS seq
+    FROM filtered
+)
+SELECT
+    parent_id,
+    MAX(parent_attr) AS parent_attr,
+    jsonb_agg(
+        jsonb_build_object(
+            'seq', seq,
+            'lng', lng, 'lat', lat,
+            'arrival_sec', arrival_sec
+        ) ORDER BY arrival_sec, id
+    ) AS items
+FROM seq
+GROUP BY parent_id
+ORDER BY parent_id;
+```
+
+注意：**parent attributes 用 `MAX()` 包**（即使值都一樣），否則 PostgreSQL GROUP BY 會抱怨。
+
+### Step 4：Loader 對應 grouped 結構
+
+```ts
+interface RawRow {
+  parent_id: string;
+  parent_attr: string;
+  items: ItemJson[];   // jsonb_agg 直接拆成 array
+}
+
+const routes = rows.map(r => ({
+  parentId: r.parent_id,
+  items: r.items.map(s => ({ ... })),
+}));
+```
+
+### Step 5：驗證
+
+```bash
+# 1. psql 直查 row count
+psql -c "SELECT COUNT(*) FROM public.get_xxx(...)"
+
+# 2. curl 看 content-range header（確認沒撞 cap）
+curl -D /tmp/hdr.txt -X POST $SUPABASE_URL/rest/v1/rpc/get_xxx ...
+grep content-range /tmp/hdr.txt
+# 期望：content-range: 0-N/N（N != 19999）
+
+# 3. 前端 console.log fetched 數，跟 psql 比
+console.log(`[Layer] fetched ${rows.length} rows`)
+```
+
+### Step 6：寫 GLOSSARY 註明
+
+寫一行「避 PostgREST 20K cap，改用 grouped JSONB」+ migration 編號。下次同類 case 一查就避坑。
+
+---
+
