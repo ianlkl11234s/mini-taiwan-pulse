@@ -150,3 +150,24 @@
 | osrm-proxy | 本專案 Bearer token gateway service（[ianlkl11234s/osrm-proxy](https://github.com/ianlkl11234s/osrm-proxy)），public domain `osrm-proxy-gis.zeabur.app` |
 | osrm-taiwan | 本專案 OSRM Taiwan service（[ianlkl11234s/osrm-taiwan](https://github.com/ianlkl11234s/osrm-taiwan)），internal-only |
 | Service network 指令 | `npx zeabur@latest service network --id <id>` 看 K8s service 預期的 web (HTTP) port — 部署有 502 時必查 |
+
+## 垃圾車 Schedule 動畫（2026-05-10 加）
+
+時刻表動畫（`WasteScheduleScene`）跟 GPS 實際軌跡（`WasteTruckScene`）並存的兩套圖層用語。
+
+| 術語 | 說明 |
+|---|---|
+| Schedule layer (淡紫 #a78bfa) | 從 `spatial.waste_collection_stops` 表定 arrival/departure 跑的動畫，跟 GPS 圖層獨立 toggle 並存 |
+| dow (day-of-week) | JS Date.getDay() 規則 0=Sun..6=Sat。useWasteScheduleLayer 用 timeStore.subscribeDate 取當日 dow，cache 8 entries |
+| dwell | stop 內停留時間 = departure - arrival，新北常為 0（fallback = arrival），高雄常為幾分鐘 |
+| gap | 相鄰 stops 時間 = next.arrival - current.departure。0 表示 source 沒記移動時間（瞬移）|
+| trip-break | 同一 route 內早班 / 中班 / 晚班間隔時段（gap > TRIP_BREAK_S 視為班次切換，整段 invisible）|
+| `TRIP_BREAK_S = 1500` | 25 分鐘以上才算班次切換。各區 stop gap 差 10x（板橋 60s vs 林口 600s），threshold 600s 對林口太緊把正常 movement 全砍 |
+| `DWELL_THRESHOLD_S = 120` | dwell < 2min 視為「過站不停」整段 arrival → arrival 持續移動；≥ 2min 才真停留 |
+| `FADE_DURATION_S = 180` | trip-break 兩端 / 路線首末 fade in/out 視窗，60x 倍速下 = 3 視覺秒 |
+| `MIN_MOVE_S = 60` | 最低移動秒數，gap=0 從 dwell 借時間給 movement，避免瞬移 |
+| `ACTIVE_ALPHA = 1.0` | 執勤中 alpha + size 都不切換，避免 60x 下高頻變化刺激眼睛 |
+| 60x 倍速 | 用戶主要觀看模式：1 真實秒 = 60 模擬秒。短 gap 1min = 1 視覺秒，視覺速度設計圍繞此 |
+| Grouped JSONB RPC | `get_waste_schedule_day` 返回 per-route 一筆 row，stops 為 JSONB array。避 PostgREST 20K cap（39K stops → 1281 routes）|
+| stops-as-polyline (v1) | stops 直線連接當路徑（沒 OSRM 整合前的 v1 方案），會穿牆、視覺速度過快 |
+| Catmull-Rom 不適用 | 對非真實連續軌跡會 overshoot 反向 → schedule 改純直線（GPS 仍用 spline）|
