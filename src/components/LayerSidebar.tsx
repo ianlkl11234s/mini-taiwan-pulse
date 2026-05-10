@@ -200,7 +200,7 @@ const SECTIONS: SectionDef[] = [
     title: "WASTE",
     layers: [
       { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
-      { key: "wasteSchedule", label: "垃圾車（表定）Schedule" },
+      { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
       { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
     ],
   },
