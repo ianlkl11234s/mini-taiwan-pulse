@@ -82,10 +82,21 @@
 
 | 表 | 筆數 | 幾何 | 用途 |
 |---|---|---|---|
-| `spatial.waste_collection_stops` | 65,054 | Point | 停運點（高雄/新北/台北/基隆）|
-| `spatial.waste_collection_routes` | 1,399（752 unique） | LineString | 路線（高雄/新北）|
+| `spatial.waste_collection_stops` | **77,125（5/10 更新）** | Point | 停運點（高雄 32K / 新北 27K / 宜蘭 12K / 臺北 4K / 基隆 2K）|
+| `spatial.waste_collection_routes` | **2,048**（高雄 1399 / 新北 649） | LineString | 路線（北/基/宜 0% 待 OSRM 補 — BL-17）|
 | `spatial.waste_facilities` | 16 / 463 待 geocode | Point | 焚化爐/掩埋場/轉運站 |
 | `spatial.waste_disposal_points` | 待盤點 | Point | 大型廢棄物清除點（migration 068）|
+
+### Schedule routes 5 城分布（dow=4 週四）
+
+| 城 | schedule routes | route LineString 覆蓋 |
+|---|---|---|
+| 高雄市 | 360 | 99.6%（752/755 全城）|
+| 新北市 | 579 | 100%（649 條）|
+| 臺北市 | 187 | **0%**（待 OSRM 補）|
+| 基隆市 | 63 | **0%**（待 OSRM 補）|
+| 宜蘭縣 | 75 | **0%**（待 OSRM 補）|
+| **合計 dow=4** | **1,281** | 1401 / 1283 = **109%** 過半 |
 
 ## 廢棄物 — RPC（public schema）
 
@@ -98,6 +109,11 @@
 | `get_waste_trails(cities, since_min)` | 071 | 近 N 分鐘 trail（含去噪 + stop snapping） | 105ms |
 | `get_waste_trails_day(date, cities)` | 072 | 整日 trail（timeline 字串編碼） | < 1s |
 | **`get_waste_trails_matched_day(date, cities)`** | **074** | OSRM matched 整日 polyline + progress timeline | < 1s |
+| **`get_waste_schedule_day(cities, dow)`** | **079** | 表定時刻表（grouped per-route，stops JSONB array）| < 2s |
+
+> ⚠ migration 079 用 grouped JSONB 結構（per-route 一筆 row，stops JSONB array），
+> 避 PostgREST 20K row cap。flat row 設計 39K rows 會被切到 20K，林口/臺北/高雄
+> 整片資料丟失。詳見 PRINCIPLES「Supabase PostgREST 20K cap」+ PB-13。
 
 ## 廢棄物 — 跨 repo 部署
 
