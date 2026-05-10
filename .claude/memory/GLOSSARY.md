@@ -157,7 +157,7 @@
 
 | 術語 | 說明 |
 |---|---|
-| Schedule layer (淡紫 #a78bfa) | 從 `spatial.waste_collection_stops` 表定 arrival/departure 跑的動畫，跟 GPS 圖層獨立 toggle 並存 |
+| Schedule layer (琥珀 #fbbf24) | 從 `spatial.waste_collection_stops` 表定 arrival/departure 跑的動畫，跟 GPS 圖層風格一致（共用色 + 音符），但獨立 toggle 並存。音符獨立 sub-toggle (`wasteScheduleNote`) 可單獨關。光點/音符 slider 共用 wasteOrbScale/wasteNoteSize/wasteNoteZOffset 三 paramRefs |
 | dow (day-of-week) | JS Date.getDay() 規則 0=Sun..6=Sat。useWasteScheduleLayer 用 timeStore.subscribeDate 取當日 dow，cache 8 entries |
 | dwell | stop 內停留時間 = departure - arrival，新北常為 0（fallback = arrival），高雄常為幾分鐘 |
 | gap | 相鄰 stops 時間 = next.arrival - current.departure。0 表示 source 沒記移動時間（瞬移）|
