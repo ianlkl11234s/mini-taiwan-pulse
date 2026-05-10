@@ -369,4 +369,42 @@ App 被 error boundary 接住白畫面。
 
 ---
 
+## 2026-05-10 PostgREST 20K row cap 撞第二次（schedule RPC）
+
+**現象**：`get_waste_schedule_day` 5 城 dow=4 應回 ~39K stops，但前端
+`console.log fetched 20000 rows`。新北部分區（林口 244xxx）+ 整個臺北 + 整個高雄
+的 routes **全天 0 車**。用戶看到「中永和板橋三重有車、其他都沒有」。
+
+**根因**：Supabase PostgREST 預設 `db-max-rows = 20000`，不管 supabase-js 加
+`.range(0, 99999)` 都被 server 截斷。RPC `ORDER BY city, route_id` 中文 byte 序
+基 < 宜 < 新 < 臺 < 高 → 前 20000 row 全是基/宜 + 新北前段，後面全切。
+
+**對策**：RPC 改 grouped per-route，stops 為 JSONB array：
+- 39,000 flat rows → 1,281 grouped rows（5 城合計），遠低於 20K cap
+- 22 城擴展時 routes 數可能達 4K-8K，仍安全
+- 同 GLOSSARY 已記載 migration 063 timeline 字串編碼也是「避 PostgREST 20K cap」
+  的同類 pattern
+
+**血淚版**：GLOSSARY 早寫了「timeline 字串編碼 ... 避 PostgREST 20K cap
+（migration 063）」，但這次設計新 RPC 時沒先看 → 沿用 flat row 設計就撞同個坑。
+
+**對策升級到 PRINCIPLES**：任何大集合 RPC (stops / measurements / timeline 類
+row 數可能 > 5K) 一律 grouped JSONB 起手，不要等撞牆。
+
+---
+
+## 2026-05-10 Catmull-Rom 對非真實軌跡 overshoot（schedule 視覺）
+
+**現象**：用戶看 schedule 動畫某些 stops 「車會往回退一點再前進」。
+
+**根因**：Catmull-Rom 4 控制點 spline 適合「真實連續軌跡」（GPS scene 用 OK），
+但 schedule stops 是「邏輯時間順序」非「地理連續路徑」（v1 沒套 OSRM）。Z 字形
+stops 序列下，spline 會 overshoot 飛出 p0-p1 直線兩側 → 視覺上車「先退後進」。
+
+**對策**：拿掉 Catmull-Rom，純直線插值。直線雖會「穿牆」但不會反向 overshoot。
+真正解 = OSRM 整合（BL-17）讓 stops 連線變真實路徑。
+
+**對策升級到 PRINCIPLES**：Catmull-Rom 只用於「真實連續軌跡」（如 GPS），
+邏輯順序的 stops 用直線。
+
 <!-- 追加新事件於此之上 -->
