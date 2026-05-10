@@ -40,6 +40,9 @@
 | BL-11 | P3 | 評估 stop-to-stop OSRM /route 取代 HMM /match | open | 預期 success rate > 90%，但要先解 `waste_collection_stops` 沒 `stop_sequence` 欄位的問題（用 `arrival_time` 推或從 GPS 反推）。1-2 天工程 |
 | BL-12 | P3 | 評估刪除 `data-collectors-ship-only-aws` Zeabur project | open | Lightsail Tokyo 機器（IP 被高雄/台南政府 API 擋）目前完全沒用。月費 $X 可省 |
 | BL-13 | P2 | LegendPanel 加「沿路網」說明 | open | 區分 matched（沿馬路）vs fallback（GPS 直線）兩種視覺，給用戶看圖例 |
+| BL-17 | P2 | 表定動畫沿馬路（OSRM 路徑） | open | 目前 v1 是 stops 直線插值會「穿牆」。高雄/新北 DB 已有 1399+649 LineString 可投影 stops 到 polyline；北/基/宜需打 OSRM `/route` 補。仿 GPS matched trail progress-based interpolation。預估 2-3 天 |
+| BL-18 | P1 | 22 城擴展前跑 schedule sanity SQL | open | TGOS callback 完 stops 從 77K → 385K 後加新城前，必跑 `docs/research/waste-schedule-data-quirks.md` 內 6 個 SQL（weekday/arrival/dwell/duplicate/reverse/trip-break/gap=0），發現新格式擴展 RPC parser。0.5 天 |
+| BL-19 | P3 | dwell=0 + gap=0 corner case | open | 兩個都 0（total=0）時 ratio NaN，車仍卡在 p0。改用「下一段挪用」邏輯，跨 stop 借時間。罕見 case，先放著 |
 
 ### 一般待辦
 

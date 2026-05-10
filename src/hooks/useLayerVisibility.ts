@@ -60,6 +60,7 @@ export function useLayerVisibility() {
     iotWraStructure: false,
     fireEvents: false,
     wasteTruck: false,
+    wasteSchedule: false,
     wasteRoute: false,
     wasteStop: false,
     wfIncinerator: false,

@@ -13,6 +13,7 @@ import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
+import { useWasteScheduleLayer } from "./hooks/useWasteScheduleLayer";
 import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
 import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
 import {
@@ -352,6 +353,12 @@ export default function App() {
   const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
     useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市", "臺南市"]);
 
+  // ── 垃圾車表定（5 城時刻表動畫，獨立於 GPS 圖層；day-of-week 驅動）──
+  const { routesRef: wasteScheduleRoutesRef } = useWasteScheduleLayer(
+    layerVisibility.wasteSchedule,
+    ["高雄市", "新北市", "宜蘭縣", "臺北市", "基隆市"],
+  );
+
   // ── 垃圾處理設施 / 投放點（靜態，第一個 sub-toggle 開時 lazy fetch） ──
   const wasteFacilityVis =
     layerVisibility.wfIncinerator || layerVisibility.wfLandfill
@@ -504,12 +511,14 @@ export default function App() {
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
+    wasteScheduleSceneRef,
     wasteFacilityLayerRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
     shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+    wasteScheduleRoutesRef,
     wasteFacilityByTypeRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
@@ -517,8 +526,8 @@ export default function App() {
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef, reservoirSceneRef);
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -1776,6 +1785,96 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── 垃圾車表定 Tooltip (debug) ── */}
+      {wasteScheduleTooltipInfo && (() => {
+        const { frame, x, y } = wasteScheduleTooltipInfo;
+        const fmt = (sec: number) => {
+          const h = Math.floor(sec / 3600);
+          const m = Math.floor((sec % 3600) / 60);
+          const s = Math.floor(sec % 60);
+          return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+        };
+        const fmtGap = (sec: number) => {
+          if (sec < 60) return `${Math.round(sec)}s`;
+          if (sec < 3600) return `${Math.floor(sec/60)}m ${Math.round(sec%60)}s`;
+          return `${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`;
+        };
+        const stateColor =
+          frame.state === "moving" ? "#a78bfa" :
+          frame.state === "waiting" ? "#fbbf24" :
+          "#94a3b8";
+        const isTripBreak = frame.gapToNextSec > 300 && frame.state === "moving";
+        return (
+          <div
+            style={{
+              position: "absolute",
+              left: x + 12,
+              top: y - 10,
+              zIndex: 30,
+              background: "rgba(10,10,20,0.92)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid #a78bfa66",
+              borderRadius: 8,
+              padding: "10px 14px",
+              pointerEvents: "none",
+              fontFamily: "monospace",
+              minWidth: 280,
+              maxWidth: 360,
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", letterSpacing: 1 }}>
+              {frame.route.city} · {frame.route.routeName ?? frame.route.routeId}
+            </div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+              route_id: {frame.route.routeId} · {frame.totalStops} stops · {frame.route.vehicleType}
+            </div>
+
+            <div style={{ marginTop: 8, fontSize: 11, display: "flex", gap: 6, alignItems: "center" }}>
+              <span style={{ color: stateColor, fontWeight: 700 }}>
+                {frame.state === "moving" ? "● 移動中" :
+                 frame.state === "waiting" ? "● 停留中" :
+                 frame.state === "before-route" ? "○ 路線未開始" : "○ 路線已結束"}
+              </span>
+              <span style={{ color: "rgba(255,255,255,0.5)" }}>now {fmt(frame.nowSec)}</span>
+            </div>
+
+            {isTripBreak && (
+              <div style={{ marginTop: 6, fontSize: 11, color: "#ef4444", fontWeight: 700 }}>
+                ⚠ 班次切換 gap={fmtGap(frame.gapToNextSec)}（&gt; 5min 應 invisible）
+              </div>
+            )}
+
+            <div style={{ marginTop: 8, paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.15)", fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+                ↓ 上一站 (#{frame.prevStop.stopSeq}/{frame.totalStops})
+              </div>
+              <div>{frame.prevStop.stopName ?? "(no name)"}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+                arrival {fmt(frame.prevStop.arrivalSec)} · departure {fmt(frame.prevStop.departureSec)}
+                {frame.prevStop.departureSec > frame.prevStop.arrivalSec &&
+                  ` · 停 ${fmtGap(frame.prevStop.departureSec - frame.prevStop.arrivalSec)}`}
+              </div>
+            </div>
+
+            {frame.nextStop && (
+              <div style={{ marginTop: 6, fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+                  ↓ 下一站 (#{frame.nextStop.stopSeq}/{frame.totalStops})
+                </div>
+                <div>{frame.nextStop.stopName ?? "(no name)"}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+                  arrival {fmt(frame.nextStop.arrivalSec)}
+                  {" · gap "}
+                  <span style={{ color: isTripBreak ? "#ef4444" : "rgba(255,255,255,0.55)" }}>
+                    {fmtGap(frame.gapToNextSec)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── Bottom-right stack: Feature Info + AQI controls + Legend ── */}
       <div

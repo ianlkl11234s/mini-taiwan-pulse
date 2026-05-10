@@ -1,9 +1,48 @@
 # Status
 
-**最後更新**：2026-05-10（凌晨 - 早晨 台南 OSRM 上線 + 22 縣市盤點 + hwms finding + Phase 1 規劃）
-**分支**：`feat/historical-mode`（本機領先 origin **20 commits**）
+**最後更新**：2026-05-10（晚 — Phase 3 prototype 完成 + 視覺打磨）
+**分支**：`feat/historical-mode`（本機領先 origin **多個 commits**）
 
-## 本次 session（5/10）完成
+## 5/10 晚 session 完成（Phase 3 prototype 時刻表動畫）
+
+5 城 77K stops 直接用既有 schedule 做動畫，**不等 TGOS callback**：
+
+### 1. RPC + Loader + Scene + Custom Layer + 前端整合（5 新檔 / 6 修改檔，~722 行）
+
+- `gis-platform/migrations/079_waste_schedule_rpc.sql` — `get_waste_schedule_day(cities, dow)`
+- `src/data/wasteScheduleLoader.ts` + `src/hooks/useWasteScheduleLayer.ts`（dow 驅動，subscribeDate 跟 timeline 連動）
+- `src/three/WasteScheduleScene.ts` — InstancedMesh 動畫，stops-as-polyline 直線插值
+- `src/map/wasteScheduleCustomLayer.ts` + `useThreeJsLayers` 整合
+- LayerVisibility 加 `wasteSchedule` toggle（淡紫 #a78bfa，跟 GPS 琥珀分色）
+
+### 2. 踩過的 7 種 source data quirks 全部踩平（重要：22 城擴展前必看）
+
+| 異常 | 來源 | 修法 |
+|---|---|---|
+| weekday_pattern 5 種格式 | 5 城各異 | regex `[,，、]` + 中文/數字雙 token + 空字串視為每日 |
+| arrival_time 跨日 24:11 | 高雄 | split_part 手算秒（不能 ::time cast） |
+| departure_time 空字串 | 新北大量 | fallback = arrival_sec |
+| 同 stop 完全重複 2 次 | 高雄 38% | RPC DISTINCT ON dedup |
+| 時間倒退（22 筆） | 臺北 | Loader 過濾非單調遞增 |
+| 一條 route_id 多班次 | 全 5 城（臺北最嚴重 9.8% gap > 10min） | trip-break detection: fade out @ A → invisible → fade in @ B |
+| dwell=0 / gap=0 | 高雄/臺北 gap=0、新北 dwell=0 | 對稱重新分配時間：MIN_DWELL_S=30 / MIN_MOVE_S=60 |
+
+→ **全收錄在 [`docs/research/waste-schedule-data-quirks.md`](../../docs/research/waste-schedule-data-quirks.md)**，含 22 城上線前 6 個 sanity SQL
+
+### 3. 視覺設計參數（給 60x 倍速調校）
+
+- `FADE_DURATION_S = 180`（60x 下 3 視覺秒，柔和不閃）
+- `TRIP_BREAK_S = 600`（10min 才算班次切換）
+- `MIN_DWELL_S = 30` + `MIN_MOVE_S = 60`（每 stop 看見停 0.5s + 走 1s）
+- `ACTIVE_ALPHA = 1.0`（執勤中 alpha + size 都不切換，避免眼睛痛）
+
+### 4. Picking + debug tooltip（點車看 route / stop / gap 結構）
+
+`useMapInteraction` 加 wasteSchedule 分支 + `WasteScheduleScene.pickRoute()` 返回 `ScheduleDebugFrame`。
+
+---
+
+## 5/10 凌晨 session 完成（之前）
 
 ### 1. 台南 OSRM map-matching 上線
 

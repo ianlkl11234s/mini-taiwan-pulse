@@ -7,11 +7,14 @@ import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
 import type { WasteTruckScene } from "../three/WasteTruckScene";
 import type { WasteMusicNoteScene } from "../three/WasteMusicNoteScene";
+import type { WasteScheduleScene } from "../three/WasteScheduleScene";
 import type { WasteTrailRow, WasteFacilityRow } from "../data/wasteLoader";
+import type { WasteScheduleRoute } from "../data/wasteScheduleLoader";
 import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
 import { createBusLayer } from "../map/busCustomLayer";
 import { createWasteTruckLayer } from "../map/wasteTruckCustomLayer";
+import { createWasteScheduleLayer } from "../map/wasteScheduleCustomLayer";
 import {
   createWasteFacilityLayer,
   type WasteFacility3DScenes,
@@ -34,6 +37,7 @@ interface UseThreeJsLayersArgs {
   activeBusesRef: React.RefObject<BusVehicle[]>;
   activeBusesIntercityRef: React.RefObject<BusVehicle[]>;
   wasteTrailsRef: React.RefObject<WasteTrailRow[]>;
+  wasteScheduleRoutesRef: React.RefObject<WasteScheduleRoute[]>;
   wasteFacilityByTypeRef: React.RefObject<Map<string, WasteFacilityRow[]>>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
@@ -91,6 +95,7 @@ interface UseThreeJsLayersArgs {
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
   shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+  wasteScheduleRoutesRef,
   wasteFacilityByTypeRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
   airportPillarDataRef, portPillarDataRef, temperatureDataRef,
@@ -104,6 +109,7 @@ export function useThreeJsLayers({
   const busIntercitySceneRef = useRef<BusScene | null>(null);
   const wasteTruckSceneRef = useRef<WasteTruckScene | null>(null);
   const wasteMusicNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
+  const wasteScheduleSceneRef = useRef<WasteScheduleScene | null>(null);
   const wasteFacilityScenesRef = useRef<WasteFacility3DScenes | null>(null);
   const wasteFacilityLayerRef = useRef<ReturnType<typeof createWasteFacilityLayer> | null>(null);
 
@@ -233,6 +239,22 @@ export function useThreeJsLayers({
     map.addLayer(layer);
   };
 
+  const addWasteScheduleLayer = (map: MapboxMap) => {
+    if (map.getLayer("waste-schedule-3d")) map.removeLayer("waste-schedule-3d");
+    const layer = createWasteScheduleLayer({
+      id: "waste-schedule-3d",
+      getRoutes: () => wasteScheduleRoutesRef.current ?? [],
+      getCurrentTime: () => timeRef.current ?? Date.now() / 1000,
+      getIsDarkTheme: () => isDarkThemeRef.current ?? true,
+      // 共用 wasteOrbScale slider，跟 GPS 圖層一致大小
+      getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
+      getIsVisible: () => layerVisibilityRef.current.wasteSchedule,
+      getAltOffset: () => 0,
+      onSceneReady: (scene) => { wasteScheduleSceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
   const addWasteFacilityLayer = (map: MapboxMap) => {
     if (map.getLayer("waste-facility-3d")) map.removeLayer("waste-facility-3d");
     const FACILITY_KEYS: WasteFacility3DKey[] = [
@@ -337,6 +359,7 @@ export function useThreeJsLayers({
     addBusLayer(map);
     addBusIntercityLayer(map);
     addWasteTruckLayer(map);
+    addWasteScheduleLayer(map);
     addWasteFacilityLayer(map);
     addLighthouseLayer(map);
     addStationPillarLayer(map);
@@ -351,6 +374,7 @@ export function useThreeJsLayers({
     busIntercitySceneRef,
     wasteTruckSceneRef,
     wasteMusicNoteSceneRef,
+    wasteScheduleSceneRef,
     wasteFacilityScenesRef,
     wasteFacilityLayerRef,
     addFlightLayer,
@@ -359,6 +383,7 @@ export function useThreeJsLayers({
     addBusLayer,
     addBusIntercityLayer,
     addWasteTruckLayer,
+    addWasteScheduleLayer,
     addWasteFacilityLayer,
     addLighthouseLayer,
     addStationPillarLayer,

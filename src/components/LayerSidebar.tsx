@@ -62,6 +62,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   iotWraStructure: "#a855f7",
   fireEvents: "#ff5722",
   wasteTruck: "#fbbf24",
+  wasteSchedule: "#a78bfa",
   wasteRoute: "#84cc16",
   wasteStop: "#65a30d",
   // facility 8 sub-types
@@ -198,6 +199,7 @@ const SECTIONS: SectionDef[] = [
     title: "WASTE",
     layers: [
       { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
+      { key: "wasteSchedule", label: "垃圾車（表定）Schedule" },
     ],
   },
   {
