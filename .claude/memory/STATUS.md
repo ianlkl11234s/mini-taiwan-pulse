@@ -1,12 +1,26 @@
 # Status
 
-**最後更新**：2026-05-10（晚 — Phase 3 prototype + 視覺打磨 + grouped RPC 收尾）
-**分支**：`feat/historical-mode`（本機領先 origin **32 commits**）
+**最後更新**：2026-05-11（schedule UX 細節：跟 GPS 視覺統一 + expandable toggle）
+**分支**：`feat/historical-mode`（本機領先 origin **35 commits**）
 
-## 最新 commit chain（今晚）
+## 5/11 完成（schedule UX polish）
 
 ```
-STATUS rewrite (本次)
+fe9a561 memory: GLOSSARY 更新 Schedule layer 視覺
+54452c2 feat(waste-schedule): 主 toggle 改 expandable
+1ee5e5e feat(waste-schedule): 改琥珀色 + 加音符 + 音符獨立 toggle
+```
+
+- WASTE_SCHEDULE_COLOR `#a78bfa` (淡紫) → `#fbbf24` (琥珀) — 跟 GPS 一致
+- wasteScheduleCustomLayer 加 WasteMusicNoteScene 子場景 — 全部 visible 車噴音符
+- 新 `wasteScheduleNote` LayerVisibility 獨立 sub-toggle（默認 on）
+- wasteSchedule 主 toggle 加 `expandable: true`，展開後 3 個 slider（光點大小 / 音符大小 / 音符高度），共用 GPS 的 paramRefs（wasteOrbScale / wasteNoteSize / wasteNoteZOffset）
+
+視覺結果：schedule + GPS 兩圖層風格統一，疊在一起看「表定 vs 實際」誤差超直觀。
+
+## 5/10 commit chain（前一晚）
+
+```
 c6b330e memory: BACKLOG schedule done
 a9e850f memory: DATA_SCOPE 廢棄物更新
 d2428fb memory: PLAYBOOKS +PB-13 大集合 RPC SOP
@@ -115,7 +129,7 @@ OSRM 整合後車沿馬路走，「穿牆」、「方向突變」、「視覺速
 
 發現新格式（英文 Mon,Tue / 全形數字 / 12 小時 AM/PM 等）就擴展 RPC parser。
 
-## 待 push（32 commits）
+## 待 push（35 commits）
 
 ```bash
 git push origin feat/historical-mode
