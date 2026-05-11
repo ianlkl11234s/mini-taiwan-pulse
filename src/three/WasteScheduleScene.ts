@@ -94,7 +94,7 @@ const MIN_MOVE_S        = 60;
  *
  * 60x 下大 gap 視為 movement 會「線性飄 N 視覺秒」，但比「整段 invisible」好。
  */
-const TRIP_BREAK_S     = 1500;
+export const TRIP_BREAK_S = 1500;
 
 // ── 時間工具 ──────────────────────────────────────────────
 

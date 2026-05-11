@@ -14,6 +14,7 @@ import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
 import { useWasteScheduleLayer } from "./hooks/useWasteScheduleLayer";
+import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/WasteScheduleScene";
 import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
 import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
 import {
@@ -1804,7 +1805,7 @@ export default function App() {
           frame.state === "moving" ? "#a78bfa" :
           frame.state === "waiting" ? "#fbbf24" :
           "#94a3b8";
-        const isTripBreak = frame.gapToNextSec > 300 && frame.state === "moving";
+        const isTripBreak = frame.gapToNextSec > WASTE_SCHEDULE_TRIP_BREAK_S && frame.state === "moving";
         return (
           <div
             style={{
@@ -1841,7 +1842,7 @@ export default function App() {
 
             {isTripBreak && (
               <div style={{ marginTop: 6, fontSize: 11, color: "#ef4444", fontWeight: 700 }}>
-                ⚠ 班次切換 gap={fmtGap(frame.gapToNextSec)}（&gt; 5min 應 invisible）
+                ⚠ 班次切換 gap={fmtGap(frame.gapToNextSec)}（&gt; {Math.round(WASTE_SCHEDULE_TRIP_BREAK_S / 60)}min 應 invisible）
               </div>
             )}
 
