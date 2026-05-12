@@ -62,11 +62,19 @@ export interface WasteScheduleRoute {
 /**
  * 撈指定星期幾的整日表定。
  *
- * @param cities 5 城子集，預設全 5 城
+ * @param cities 城市清單；預設全 22 城（spatial.waste_collection_stops 中所有 city）
  * @param dow JS Date.getDay() 規則：0=Sun, 1=Mon, ..., 6=Sat
  */
+export const ALL_22_CITIES: string[] = [
+  "臺北市", "新北市", "桃園市", "臺中市", "臺南市", "高雄市",
+  "基隆市", "新竹市", "嘉義市",
+  "新竹縣", "苗栗縣", "彰化縣", "南投縣", "雲林縣", "嘉義縣",
+  "屏東縣", "宜蘭縣", "花蓮縣", "臺東縣",
+  "澎湖縣", "金門縣", "連江縣",
+];
+
 export async function fetchWasteScheduleDay(
-  cities: string[] = ["高雄市", "新北市", "宜蘭縣", "臺北市", "基隆市"],
+  cities: string[] = ALL_22_CITIES,
   dow: number,
 ): Promise<WasteScheduleRoute[]> {
   const citiesKey = [...cities].sort().join(",");

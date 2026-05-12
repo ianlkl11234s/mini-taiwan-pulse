@@ -12,6 +12,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { timeStore } from "../state/timeStore";
 import {
+  ALL_22_CITIES,
   fetchWasteScheduleDay,
   type WasteScheduleRoute,
 } from "../data/wasteScheduleLoader";
@@ -33,7 +34,7 @@ function dowFromDateKey(dateKey: string): number {
 
 export function useWasteScheduleLayer(
   enabled: boolean,
-  cities: string[] = ["高雄市", "新北市", "宜蘭縣", "臺北市", "基隆市"],
+  cities: string[] = ALL_22_CITIES,
 ) {
   const routesRef = useRef<WasteScheduleRoute[]>([]);
   const [count, setCount] = useState(0);
