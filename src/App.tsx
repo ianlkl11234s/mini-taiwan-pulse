@@ -1832,6 +1832,12 @@ export default function App() {
               route_id: {frame.route.routeId} · {frame.totalStops} stops · {frame.route.vehicleType}
             </div>
 
+            {frame.route.scheduleInferred && (
+              <div style={{ marginTop: 6, fontSize: 10, color: "#fbbf24", fontWeight: 600 }}>
+                ⚠ 此路線無精確時刻，時間為推算（直線距離×1.4 ÷ 15km/h + 每站停 3 min）
+              </div>
+            )}
+
             <div style={{ marginTop: 8, fontSize: 11, display: "flex", gap: 6, alignItems: "center" }}>
               <span style={{ color: stateColor, fontWeight: 700 }}>
                 {frame.state === "moving" ? "● 移動中" :

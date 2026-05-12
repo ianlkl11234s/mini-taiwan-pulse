@@ -37,6 +37,8 @@ interface RawScheduleRow {
   route_id: string;
   route_name: string | null;
   vehicle_type: string;
+  /** true = arrival/departure 為推算（hwms flat schedule + 累積距離+停留估算）；false = source 真實 schedule */
+  schedule_inferred?: boolean;
   stops: RawStopJson[];
 }
 
@@ -56,6 +58,8 @@ export interface WasteScheduleRoute {
   routeId: string;
   routeName: string | null;
   vehicleType: string;
+  /** true = schedule 為推算（hwms flat schedule 累積距離+3min dwell 估算）；false = 真實 schedule */
+  scheduleInferred: boolean;
   stops: WasteScheduleStop[];   // 已按 arrival_sec 排序，stop_seq 1..N
 }
 
@@ -116,6 +120,7 @@ export async function fetchWasteScheduleDay(
       routeId: r.route_id,
       routeName: r.route_name,
       vehicleType: r.vehicle_type,
+      scheduleInferred: Boolean(r.schedule_inferred),
       stops,
     };
   });
