@@ -1,7 +1,53 @@
 # Status
 
-**最後更新**：2026-05-11（schedule UX 細節：跟 GPS 視覺統一 + expandable toggle）
-**分支**：`feat/historical-mode`（本機領先 origin **35 commits**）
+**最後更新**：2026-05-12（22 城 hwms 上線 + BL-22 OSRM 升級 + Geocoding pipeline 方法論文件）
+**分支**：`feat/historical-mode`（本機領先 master **41+ commits**）
+
+## 5/12 完成（22 城 + OSRM + Round 4 prep + pipeline doc）
+
+```
+42b2b1b memory: BACKLOG BL-23 補完整 Round 4 流程 5 步驟
+6133c60 memory: BACKLOG BL-22 done + 移除 BL-20 + 加 BL-23
+07d6ddd feat(waste-schedule): tooltip 標示推算 schedule
+ab6831f feat(waste): RPC 對 hwms flat schedule 推算合理時間 (083)
+98909ae fix(waste): RPC seq 排序 + spread within 60s (081+082)
+57b2208 fix(waste-schedule): tooltip 班次切換 threshold 對齊
+c6f3018 feat(waste-schedule): 預設改 22 城 (ALL_22_CITIES)
+... + 22 城 import flow + OSRM 升級 (gis-platform 084+085)
+... + Round 4 normalize batch (taipei-gis-analytics 94549ee)
+... + Geocoding pipeline doc (今天 in progress)
+```
+
+### 目前進度（spatial.waste_collection_stops）
+
+- stops 77K → **182,014**（5 城既有 + 17 城 hwms）
+- routes 2K → **6,739**
+- 18 城（缺 新竹市/嘉義市/金門/連江 4 城 0% coverage）
+- coverage: **70%** (216,768 / 308,129)
+
+### 5/12 next：Geocoding Pipeline Stage 4-6
+
+詳見 [`docs/research/geocoding-pipeline.md`](../../docs/research/geocoding-pipeline.md)
+
+**Nominatim 實測**（2026-05-12）：
+- ✅ landmark「彰化縣花壇國小」找到 (24.0264, 120.5438)
+- ❌ 路口「○○巷與○○路口」0 hit
+- ❌ 離島「金門縣金沙鎮環島東路」0 hit
+- ❌ 一般門牌「彰化縣彰化市三民路129號」0 hit
+- 結論：**只對 landmark POI 有效**，intersection/offshore/門牌都退 Stage 6 內插
+
+**To-do（3 天工程）**：
+
+| Stage | 工程 | 預計補 | 狀態 |
+|---|---|---:|---|
+| 3 Round 4 TGOS | 0（等用戶手動上傳 day_008+009）| 8-12K | day batch 已產出 |
+| 4a 學校 fuzzy match | 半天 | 1-2K | 待做 |
+| 4b Foursquare POI category | 半天 | 2-3K | 待做 |
+| 4c Nominatim POI fallback (中斷可續) | 1-2hr 執行 | 1-2K | 待做 |
+| 6 Route interpolation | 1 天 | 15-25K | 待做 |
+| 7 整合 + 達成率報表 | 半天 | - | 待做 |
+
+**Target coverage**：70% → **≥90%**（補 ~60K）
 
 ## 5/11 完成（schedule UX polish）
 
