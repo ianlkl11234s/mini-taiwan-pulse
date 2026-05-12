@@ -354,10 +354,11 @@ export default function App() {
   const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
     useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市", "臺南市"]);
 
-  // ── 垃圾車表定（5 城時刻表動畫，獨立於 GPS 圖層；day-of-week 驅動）──
+  // ── 垃圾車表定（22 城時刻表動畫，獨立於 GPS 圖層；day-of-week 驅動）──
+  // cities 由 transportParams.enabledWasteScheduleCities 控制（8 區分組 toggle）
   const { routesRef: wasteScheduleRoutesRef } = useWasteScheduleLayer(
     layerVisibility.wasteSchedule,
-    ["高雄市", "新北市", "宜蘭縣", "臺北市", "基隆市"],
+    transportParams.enabledWasteScheduleCities,
   );
 
   // ── 垃圾處理設施 / 投放點（靜態，第一個 sub-toggle 開時 lazy fetch） ──

@@ -302,6 +302,18 @@ export const BUS_GROUP_LABELS: Record<BusGroup, string> = {
   OffshoreIslands:      "離島",
 };
 
+/** 垃圾車表定用：BusGroup → 中文城名（spatial.waste_collection_stops.city 用 utf-8「臺」字） */
+export const WASTE_GROUP_CITIES: Record<BusGroup, string[]> = {
+  TaipeiMetro:          ["臺北市", "新北市"],
+  KeelungYilan:         ["基隆市", "宜蘭縣"],
+  TaoyuanHsinchuMiaoli: ["桃園市", "新竹市", "新竹縣", "苗栗縣"],
+  CentralTaiwan:        ["臺中市", "彰化縣", "南投縣"],
+  YunChiaNan:           ["雲林縣", "嘉義市", "嘉義縣", "臺南市"],
+  Kaoping:              ["高雄市", "屏東縣"],
+  HualienTaitung:       ["花蓮縣", "臺東縣"],
+  OffshoreIslands:      ["澎湖縣", "金門縣", "連江縣"],
+};
+
 export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
   Taipei:           { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
   NewTaipei:        { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },

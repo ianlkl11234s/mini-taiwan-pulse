@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
-import { BUS_GROUP_CITIES, BUS_GROUP_LABELS } from "../types";
+import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 
 export interface SliderConfig {
   type?: "slider";
@@ -70,6 +70,26 @@ export function useTransportParams() {
   );
   const setBusGroup = (group: BusGroup, v: boolean) =>
     setBusGroups((p) => ({ ...p, [group]: v }));
+
+  // 垃圾車表定 schedule groups（8 區，預設全 ON = 22 城）
+  const [wasteScheduleGroups, setWasteScheduleGroups] = useState<Record<BusGroup, boolean>>({
+    TaipeiMetro:          true,
+    KeelungYilan:         true,
+    TaoyuanHsinchuMiaoli: true,
+    CentralTaiwan:        true,
+    YunChiaNan:           true,
+    Kaoping:              true,
+    HualienTaitung:       true,
+    OffshoreIslands:      true,
+  });
+  const enabledWasteScheduleCities = useMemo<string[]>(
+    () => (Object.entries(wasteScheduleGroups) as [BusGroup, boolean][])
+      .filter(([, v]) => v)
+      .flatMap(([g]) => WASTE_GROUP_CITIES[g]),
+    [wasteScheduleGroups],
+  );
+  const setWasteScheduleGroup = (group: BusGroup, v: boolean) =>
+    setWasteScheduleGroups((p) => ({ ...p, [group]: v }));
   const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
   const [busAltOffset, setBusAltOffset] = useState(0);
   // Bus InterCity（獨立參數，預設沿用市區公車初值）
@@ -683,6 +703,22 @@ export function useTransportParams() {
       ];
       case "wasteTruck":
       case "wasteSchedule": return [
+        // 8 區分組 toggle（只有 wasteSchedule 用；wasteTruck GPS 固定高雄+台南）
+        ...(layer === "wasteSchedule" ? ([
+          "TaipeiMetro",
+          "KeelungYilan",
+          "TaoyuanHsinchuMiaoli",
+          "CentralTaiwan",
+          "YunChiaNan",
+          "Kaoping",
+          "HualienTaitung",
+          "OffshoreIslands",
+        ] as BusGroup[]).map((g) => ({
+          type: "toggle" as const,
+          label: BUS_GROUP_LABELS[g],
+          value: wasteScheduleGroups[g],
+          onChange: (v: boolean) => setWasteScheduleGroup(g, v),
+        })) : []),
         // wasteTruck (GPS) 跟 wasteSchedule (表定) 共用同 3 個 slider，視覺風格統一
         { label: `光點大小 ${wasteOrbScale.toFixed(2)}`, value: wasteOrbScale, min: 0.01, max: 0.8, step: 0.01, onChange: setWasteOrbScale },
         { label: `音符大小 ${wasteNoteSize.toFixed(2)}`, value: wasteNoteSize, min: 0.1, max: 2, step: 0.05, onChange: setWasteNoteSize },
@@ -730,6 +766,7 @@ export function useTransportParams() {
     newsTimeBased,
     newsRipple,
     enabledBusCities,
+    enabledWasteScheduleCities,
     refs: {
       altExag: altExagRef,
       altOffset: altOffsetRef,
