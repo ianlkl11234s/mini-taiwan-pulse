@@ -41,8 +41,10 @@
 | BL-12 | P3 | 評估刪除 `data-collectors-ship-only-aws` Zeabur project | open | Lightsail Tokyo 機器（IP 被高雄/台南政府 API 擋）目前完全沒用。月費 $X 可省 |
 | BL-13 | P2 | LegendPanel 加「沿路網」說明 | open | 區分 matched（沿馬路）vs fallback（GPS 直線）兩種視覺，給用戶看圖例 |
 | BL-17 | P2 | 表定動畫沿馬路（OSRM 路徑） | open | 目前 v1 是 stops 直線插值會「穿牆」。高雄/新北 DB 已有 1399+649 LineString 可投影 stops 到 polyline；北/基/宜需打 OSRM `/route` 補。仿 GPS matched trail progress-based interpolation。預估 2-3 天 |
-| BL-18 | P1 | 22 城擴展前跑 schedule sanity SQL | open | TGOS callback 完 stops 從 77K → 385K 後加新城前，必跑 `docs/research/waste-schedule-data-quirks.md` 內 6 個 SQL（weekday/arrival/dwell/duplicate/reverse/trip-break/gap=0），發現新格式擴展 RPC parser。0.5 天 |
+| BL-18 | P1 | 22 城擴展前跑 schedule sanity SQL | **done** | 2026-05-12 完成；22 城 import 後 weekday/arrival 格式都被 migration 079/080 RPC parser 涵蓋，沒新 quirks。lng 截斷 4 + 出界 5 全部由 080 sanity filter 過濾掉（migration 080 跑 18 城 routes=2,646 / stops=66K 正常） |
 | BL-19 | P3 | dwell=0 + gap=0 corner case | open | 兩個都 0（total=0）時 ratio NaN，車仍卡在 p0。改用「下一段挪用」邏輯，跨 stop 借時間。罕見 case，先放著 |
+| BL-20 | P2 | 4 城 0% coverage round 4 TGOS | open | 新竹市 9,646 / 嘉義市 3,069 / 金門 1,271 / 連江 347 stops 整個城都沒座標。原因：hwms 地址含「XX市XX市環保局XXX」重複前綴（新竹/嘉義）+ 離島地址 TGOS 不收（金門/連江）。修法：寫 normalize 腳本（剝重複城市前綴、剝環保局前綴）→ 重送 TGOS round 4（4 城共 14K 筆要 2 天）。1 day |
+| BL-21 | P3 | hwms 5 城 overlap 合進 supabase 評估 | open | `waste_collection_stops_hwms_5city_overlap.geojson` (111K stops) + `..routes_hwms_5city_overlap.geojson` (3.5K routes) 是 hwms 在 5 城範圍的部分，**目前未 import**（既有 5 城 waste 路徑保留）。hwms 路徑某些城更詳細（新北 27K→64K、臺北 4K→12K），但宜蘭反而少（12K→5K）。要研究怎麼 dedup 合併（用 stop_name + coord 雙重 key？取較詳細？）。1-2 天 |
 
 ### 一般待辦
 
@@ -54,6 +56,8 @@
 
 ## 已完成（近期 10 筆）
 
+- 2026-05-12 ✅ **22 城 hwms stops 補座標 + INSERT 進 supabase**（v1+v2 TGOS 共 7 csv ~65K 地址 callback → 補 192K stops 座標 [TGOS 103K + pre_geocoded city-match 89K]，仍 91K 缺座標。寫 12_unified_callback.py + 30_build_split_geojson.py 拆 17 城 [104K stops + 4.7K routes] + 5 城 overlap 備份 [111K stops + 3.5K routes]。05_import_to_supabase 加 --stops-file/--routes-file 參數。INSERT 不 truncate → supabase stops 77K → 182K / routes 2K → 6.7K / 5 城 → 18 城。前端 wasteScheduleLoader+useWasteScheduleLayer 預設改 ALL_22_CITIES。Migration 080 sanity filter 對新加 17 城資料一樣有效（0 出界）。RPC 跑 dow=4 共 67K stops 健康）
+- 2026-05-12 ✅ **migration 080 stop coord sanity filter**（5 城 stops 中 87 outlier + 4 lng 整數截斷 + 5 出界 → RPC 三道 filter [整數 / Taiwan bbox / route 內 outlier] 自動跳過。tooltip 5min 寫死 → import Scene TRIP_BREAK_S=1500s 對齊）
 - 2026-05-11 ✅ **垃圾車表定動畫 視覺統一 + expandable**（顏色淡紫 → 琥珀同 GPS、加 WasteMusicNoteScene 音符特效、wasteScheduleNote 獨立 sub-toggle、主 toggle expandable 展開 3 slider 共用 GPS paramRefs）
 - 2026-05-10 ✅ **垃圾車表定動畫 (Phase 3 prototype) 上線**（5 城 1281 routes / 77K stops / dow 驅動 / 淡紫 #a78bfa 跟 GPS 圖層獨立 toggle 並存。RPC migration 079 grouped JSONB 避 PostgREST 20K cap / 7 種 source data quirks 修法 / 視覺打磨 7 方案 try-error 收斂。OSRM 整合計畫 BL-17，22 城擴展 sanity check BL-18，corner case BL-19）
 - 2026-05-09 ✅ **廢棄物 OSRM map-matching pipeline 完整上線**（osrm-taiwan + osrm-proxy 兩 service / migration 074+075 / waste_match collector / 5/4-5/9 共 6 天 backfill / 1,510 success match / attempt marker 解 retry 死循環 + drain。多城市擴展計畫進 BL-9~13）
