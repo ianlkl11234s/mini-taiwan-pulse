@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
-import { BUS_GROUP_CITIES, BUS_GROUP_LABELS } from "../types";
+import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 
 export interface SliderConfig {
   type?: "slider";
@@ -70,6 +70,26 @@ export function useTransportParams() {
   );
   const setBusGroup = (group: BusGroup, v: boolean) =>
     setBusGroups((p) => ({ ...p, [group]: v }));
+
+  // 垃圾車表定 schedule groups（8 區，預設全 ON = 22 城）
+  const [wasteScheduleGroups, setWasteScheduleGroups] = useState<Record<BusGroup, boolean>>({
+    TaipeiMetro:          true,
+    KeelungYilan:         true,
+    TaoyuanHsinchuMiaoli: true,
+    CentralTaiwan:        true,
+    YunChiaNan:           true,
+    Kaoping:              true,
+    HualienTaitung:       true,
+    OffshoreIslands:      true,
+  });
+  const enabledWasteScheduleCities = useMemo<string[]>(
+    () => (Object.entries(wasteScheduleGroups) as [BusGroup, boolean][])
+      .filter(([, v]) => v)
+      .flatMap(([g]) => WASTE_GROUP_CITIES[g]),
+    [wasteScheduleGroups],
+  );
+  const setWasteScheduleGroup = (group: BusGroup, v: boolean) =>
+    setWasteScheduleGroups((p) => ({ ...p, [group]: v }));
   const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
   const [busAltOffset, setBusAltOffset] = useState(0);
   // Bus InterCity（獨立參數，預設沿用市區公車初值）
@@ -206,6 +226,10 @@ export function useTransportParams() {
   const [iotWraRiverShowMeasured, setIotWraRiverShowMeasured] = useState(true);
   const [iotWraRiverShowForecast, setIotWraRiverShowForecast] = useState(true);
   const [iotWraStructureScale, setIotWraStructureScale] = useState(1.0);
+  // Waste（垃圾車光點 + 音符）
+  const [wasteOrbScale, setWasteOrbScale] = useState(0.15);
+  const [wasteNoteSize, setWasteNoteSize] = useState(0.7);
+  const [wasteNoteZOffset, setWasteNoteZOffset] = useState(70);
   const [iotWraStructureOpacity, setIotWraStructureOpacity] = useState(1.0);
   const [iotWraStructureFlow, setIotWraStructureFlow] = useState(true);
   const [iotWraStructureGate, setIotWraStructureGate] = useState(true);
@@ -214,6 +238,34 @@ export function useTransportParams() {
   const [iotWraStructureDust, setIotWraStructureDust] = useState(true);
   // AQI 色階圖透明度
   const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
+
+  // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
+  const WASTE_SUB_KEYS = [
+    "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+    "wfRecycling", "wfScrapYard", "wfOther",
+    "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
+  ] as const;
+  type WasteSubKey = typeof WASTE_SUB_KEYS[number];
+  interface WasteSubParams { size: number; opacity: number; altitude: number; ringSize?: number; }
+  const DEFAULT_WASTE_SUB: Record<WasteSubKey, WasteSubParams> = {
+    wfIncinerator: { size: 1.0, opacity: 0.85, altitude: 0, ringSize: 1.0 },
+    wfLandfill:    { size: 1.0, opacity: 0.45, altitude: 0 },
+    wfTransfer:    { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfMedical:     { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfMonitoring:  { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wfRecycling:   { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfScrapYard:   { size: 1.0, opacity: 0.85, altitude: 0 },
+    wfOther:       { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wdClothes:     { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wdMixed:       { size: 1.0, opacity: 0.7,  altitude: 0 },
+    wdRecyclingContainer: { size: 1.0, opacity: 0.85, altitude: 0 },
+    wdBattery:     { size: 1.5, opacity: 0.9,  altitude: 0 },
+  };
+  const [wasteSubParams, setWasteSubParams] = useState<Record<WasteSubKey, WasteSubParams>>(DEFAULT_WASTE_SUB);
+  const wasteSubParamsRef = useRef(wasteSubParams);
+  wasteSubParamsRef.current = wasteSubParams;
+  const setWasteSubParam = (key: WasteSubKey, field: keyof WasteSubParams, v: number) =>
+    setWasteSubParams((prev) => ({ ...prev, [key]: { ...prev[key], [field]: v } }));
 
   // Mirror refs for Three.js render loops
   const altExagRef = useRef(altExaggeration);
@@ -251,6 +303,9 @@ export function useTransportParams() {
   const busIntercityOrbScaleRef = useRef(busIntercityOrbScale);
   const busIntercityColorModeRef = useRef(busIntercityColorMode);
   const busIntercityAltOffsetRef = useRef(busIntercityAltOffset);
+  const wasteOrbScaleRef = useRef(wasteOrbScale);
+  const wasteNoteSizeRef = useRef(wasteNoteSize);
+  const wasteNoteZOffsetRef = useRef(wasteNoteZOffset);
 
   busColorModeRef.current = busColorMode;
   busAltOffsetRef.current = busAltOffset;
@@ -258,6 +313,9 @@ export function useTransportParams() {
   busIntercityOrbScaleRef.current = busIntercityOrbScale;
   busIntercityColorModeRef.current = busIntercityColorMode;
   busIntercityAltOffsetRef.current = busIntercityAltOffset;
+  wasteOrbScaleRef.current = wasteOrbScale;
+  wasteNoteSizeRef.current = wasteNoteSize;
+  wasteNoteZOffsetRef.current = wasteNoteZOffset;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
@@ -643,6 +701,61 @@ export function useTransportParams() {
         { type: "toggle", label: "河床沖刷 Erosion", value: iotWraStructureErosion, onChange: setIotWraStructureErosion },
         { type: "toggle", label: "揚塵 Dust", value: iotWraStructureDust, onChange: setIotWraStructureDust },
       ];
+      case "wasteTruck":
+      case "wasteSchedule": return [
+        // 8 區分組 toggle（只有 wasteSchedule 用；wasteTruck GPS 固定高雄+台南）
+        ...(layer === "wasteSchedule" ? ([
+          "TaipeiMetro",
+          "KeelungYilan",
+          "TaoyuanHsinchuMiaoli",
+          "CentralTaiwan",
+          "YunChiaNan",
+          "Kaoping",
+          "HualienTaitung",
+          "OffshoreIslands",
+        ] as BusGroup[]).map((g) => ({
+          type: "toggle" as const,
+          label: BUS_GROUP_LABELS[g],
+          value: wasteScheduleGroups[g],
+          onChange: (v: boolean) => setWasteScheduleGroup(g, v),
+        })) : []),
+        // wasteTruck (GPS) 跟 wasteSchedule (表定) 共用同 3 個 slider，視覺風格統一
+        { label: `光點大小 ${wasteOrbScale.toFixed(2)}`, value: wasteOrbScale, min: 0.01, max: 0.8, step: 0.01, onChange: setWasteOrbScale },
+        { label: `音符大小 ${wasteNoteSize.toFixed(2)}`, value: wasteNoteSize, min: 0.1, max: 2, step: 0.05, onChange: setWasteNoteSize },
+        { label: `音符高度 ${wasteNoteZOffset.toFixed(0)}m`, value: wasteNoteZOffset, min: 0, max: 250, step: 5, onChange: setWasteNoteZOffset },
+      ];
+      case "wfIncinerator":
+      case "wfLandfill":
+      case "wfTransfer":
+      case "wfMedical":
+      case "wfMonitoring":
+      case "wfRecycling":
+      case "wfScrapYard":
+      case "wfOther":
+      case "wdClothes":
+      case "wdMixed":
+      case "wdRecyclingContainer":
+      case "wdBattery": {
+        const k = layer as WasteSubKey;
+        const p = wasteSubParams[k];
+        const base: ParamControl[] = [
+          { label: `大小 ${p.size.toFixed(2)}`, value: p.size, min: 0.3, max: 3, step: 0.05,
+            onChange: (v: number) => setWasteSubParam(k, "size", v) },
+          { label: `透明度 ${p.opacity.toFixed(2)}`, value: p.opacity, min: 0.1, max: 1, step: 0.05,
+            onChange: (v: number) => setWasteSubParam(k, "opacity", v) },
+          { label: `Z 軸 ${p.altitude.toFixed(0)}m`, value: p.altitude, min: 0, max: 500, step: 10,
+            onChange: (v: number) => setWasteSubParam(k, "altitude", v) },
+        ];
+        // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
+        if (k === "wfIncinerator") {
+          const ringSize = p.ringSize ?? 1.0;
+          base.push({
+            label: `底圈 ${ringSize.toFixed(2)}`, value: ringSize, min: 0, max: 4, step: 0.1,
+            onChange: (v: number) => setWasteSubParam(k, "ringSize" as keyof WasteSubParams, v),
+          });
+        }
+        return base;
+      }
       default: return [];
     }
   };
@@ -653,6 +766,7 @@ export function useTransportParams() {
     newsTimeBased,
     newsRipple,
     enabledBusCities,
+    enabledWasteScheduleCities,
     refs: {
       altExag: altExagRef,
       altOffset: altOffsetRef,
@@ -669,6 +783,10 @@ export function useTransportParams() {
       busColorMode: busColorModeRef,
       busAltOffset: busAltOffsetRef,
       busIntercityOrbScale: busIntercityOrbScaleRef,
+      wasteOrbScale: wasteOrbScaleRef,
+      wasteNoteSize: wasteNoteSizeRef,
+      wasteNoteZOffset: wasteNoteZOffsetRef,
+      wasteSubParams: wasteSubParamsRef,
       busIntercityColorMode: busIntercityColorModeRef,
       busIntercityAltOffset: busIntercityAltOffsetRef,
       beamVisible: beamVisibleRef,
@@ -692,6 +810,7 @@ export function useTransportParams() {
     },
     overlayParams,
     getControls,
+    wasteSubParams,
     h3Params: useMemo(() => ({ opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric, contrast: h3Contrast }), [h3Opacity, h3Extruded, h3ElevationScale, h3Metric, h3Contrast]),
     popCountParams: useMemo(() => ({ opacity: pcOpacity, contrast: pcContrast, extruded: pcExtruded, elevationScale: pcElevationScale }), [pcOpacity, pcContrast, pcExtruded, pcElevationScale]),
     indicatorsParams: useMemo(() => ({ category: indCategory, metric: indMetric, opacity: indOpacity, contrast: indContrast, extruded: indExtruded, elevationScale: indElevationScale }), [indCategory, indMetric, indOpacity, indContrast, indExtruded, indElevationScale]),

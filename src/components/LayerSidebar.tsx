@@ -60,6 +60,26 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   groundwaterWells: "#64748b",
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
+  fireEvents: "#ff5722",
+  wasteTruck: "#fbbf24",
+  wasteSchedule: "#fbbf24",
+  wasteScheduleNote: "#fff8d6",
+  wasteRoute: "#84cc16",
+  wasteStop: "#65a30d",
+  // facility 8 sub-types
+  wfIncinerator: "#ef4444",
+  wfLandfill: "#92400e",
+  wfTransfer: "#a855f7",
+  wfMedical: "#ec4899",
+  wfMonitoring: "#3b82f6",
+  wfRecycling: "#22c55e",
+  wfScrapYard: "#737373",
+  wfOther: "#6b7280",
+  // disposal points 4 sub-types
+  wdClothes: "#f97316",
+  wdMixed: "#14b8a6",
+  wdRecyclingContainer: "#84cc16",
+  wdBattery: "#fbbf24",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {
@@ -153,6 +173,7 @@ const SECTIONS: SectionDef[] = [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
       { key: "earthquakes", label: "地震 Earthquake", expandable: true },
       { key: "disasterAlerts", label: "災害示警 Disaster Alerts", expandable: true },
+      { key: "fireEvents", label: "火災歷史 Fire (歷史)", expandable: true },
     ],
   },
   {
@@ -175,6 +196,36 @@ const SECTIONS: SectionDef[] = [
       { key: "iotWraStructure", label: "IoT 水工結構 IoT Structure", expandable: true },
     ],
   },
+  {
+    title: "WASTE",
+    layers: [
+      { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
+      { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
+      { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
+    ],
+  },
+  {
+    title: "WASTE FACILITY",
+    layers: [
+      { key: "wfIncinerator", label: "焚化爐 Incinerator (30) 🔥", expandable: true },
+      { key: "wfLandfill", label: "衛生掩埋場 Landfill (117) 🟫", expandable: true },
+      { key: "wfTransfer", label: "轉運站 Transfer (28) 🚛", expandable: true },
+      { key: "wfMedical", label: "醫療廢棄物 Medical (40) ⚕️", expandable: true },
+      { key: "wfMonitoring", label: "地下水監測井 Monitor (574) 🩸", expandable: true },
+      { key: "wfRecycling", label: "資源回收廠 Recycling (653) ♻️", expandable: true },
+      { key: "wfScrapYard", label: "廢車/廢金屬 Scrap (3)", expandable: true },
+      { key: "wfOther", label: "其他事廢設施 Other (3,164)", expandable: true },
+    ],
+  },
+  {
+    title: "WASTE DISPOSAL POINT",
+    layers: [
+      { key: "wdClothes", label: "衣物回收箱 Clothes Box (7,236)", expandable: true },
+      { key: "wdMixed", label: "混合投放點 Mixed (6,368)", expandable: true },
+      { key: "wdRecyclingContainer", label: "街頭資收桶 Container (145)", expandable: true },
+      { key: "wdBattery", label: "電池回收 Battery (2)", expandable: true },
+    ],
+  },
 ];
 
 // ── Props ──
@@ -186,7 +237,7 @@ interface LayerSidebarProps {
   displayMode: DisplayMode;
   isDarkTheme: boolean;
   isMobile?: boolean;
-  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; windPlan?: number };
+  counts: { flights: number; ships: number; trains: number; buses: number; busesIntercity?: number; wasteTrucks?: number; windPlan?: number };
   onLayerClick: (layer: keyof LayerVisibility) => void;
   onToggleVisibility: (layer: keyof LayerVisibility) => void;
   onViewModeChange: (mode: ViewMode) => void;
@@ -224,6 +275,7 @@ export function LayerSidebar({
       case "rail": return counts.trains;
       case "busLive": return counts.buses;
       case "busIntercityLive": return counts.busesIntercity;
+      case "wasteTruck": return counts.wasteTrucks;
       case "windPlan": return counts.windPlan;
       default: return undefined;
     }

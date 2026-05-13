@@ -216,4 +216,108 @@
 
 ---
 
+## 2026-05-08 / 05-09 OSRM map-matching pipeline 跨 project 部署（凌晨夜戰）
+
+橫跨 3 個 project / 5 個 repo / 多次架構轉彎，最後 1,510 trip 成功 map-match 上線。
+
+### What worked ✅
+
+- **第一輪規劃就先區別「同一個 container」vs「同 project 不同 service」**：用戶最初想「OSRM 跟 collector 塞同一個 container」，我立刻釐清這是不對的並給出「兩個獨立 service 同 project」的正確心智圖，避免後續 Dockerfile 寫一半才發現要拆
+- **遇到「不同 IP 被擋」立刻看根因**：5/9 凌晨用戶搬 collector 到新 Lightsail 機器發生 ConnectTimeout，我從 log 看出新北通、高雄/台南/ship_ais 全擋 → 推論 AWS Lightsail IP 被政府 API 擋（Akamai 通），給用戶 3 個選項決策
+- **OSRM 跨 project 不通 → Bearer gateway pattern 一氣呵成**：發現 internal hostname 跨 project 解析失敗後，直接拿出 nginx:alpine + envsubst 的 50MB proxy service 設計（PB-12），用戶選了「一次到位」就執行，沒掉進「修 osrm-taiwan image 塞 nginx」的 distroless 雷區
+- **502 診斷用 zeabur-port-mismatch skill**：Zeabur PREBUILT_V2 預設 K8s service port 8080 是隱藏知識，叫出 skill 看到 `service network` 指令立刻看出 mismatch（osrm-routed 5000 vs Zeabur 預期 8080）
+- **發現「retry 死循環」立刻設計根本修而非 hack**：collector 跑 9 輪都顯示 5/8: 80 unmatched，沒有去調高 LIMIT（hack），而是寫了 migration 075 + attempt marker（根本修）。後來 drain 用 MAX_TRIPS=500 一次掃完 + 改回 80
+- **Drain 後立刻看 success rate 細節**：用戶問「無效資料比例 + 原因」時不止給數字，跑了 SQL JOIN trip_stats 看 fail trip 的 parked_pts 比例（37% vs success 19%）+ 平均點數（50 vs 71），讓用戶看到 fail 是「資料本質難 map-match」而非系統 bug
+- **多輪 ScheduleWakeup / Monitor / until loop 平衡 polling**：build 30 分鐘期間設 `ScheduleWakeup 1200s`、redeploy 期間用 `until grep RUNNING; do sleep N; done` until-loop，避免 cache miss 又能及時回應失敗
+
+### What didn't ❌
+
+- **第一輪設環境變數設錯 project**（gomn 而非 ship-only）：用戶後來才提到「垃圾車 collector 在另一個 project」。我**沒先確認 production collector 跑在哪個 service**就設環境變數，浪費 30+ 分鐘
+- **OSRM service 第一版 listen 5000 沒對齊 Zeabur K8s service port 8080**：osrm-taiwan 部署完跨 service 直連有 502，又 push 一次新 commit 改 osrm-routed `--port 8080`。**第一次部署前應該先用 `service network` 指令查預期 port**（這次教訓已寫進 PB-11）
+- **第一個 commit 沒原子化**（用戶質疑後才意識到）：mini-taiwan-pulse `58ff433` 把「§14 部署實戰紀錄」+「§15 多城市擴展計畫」打包，gis-platform `44ce71a` 把 migration 074 + 075 打包。**docs/feature commit 應該各自獨立**讓 git log 更可讀
+- **empty git commit 連續失敗 3 次才意識到 Zeabur 不會 trigger**：我先用 `git commit --allow-empty` 想觸發 redeploy，第一次沒 trigger 才用 README 加一行 trivial change。應該**首次就用 trivial change**（這次教訓已寫進 PRINCIPLES + PB-11）
+- **Cobra `${}` parsing 問題踩了一次才查 skill**：第一次用 `-k "OSRM_URL=http://${OSRM_TAIWAN_HOST}:5000"` 設變數，幸好 zeabur-variables skill 文件有提醒，立刻改 hard-coded service ID。**load skill 應該作為 default**（部署 Zeabur 前先 invoke 相關 skill）
+- **8 個 memory 檔的 commit 拆原子但 application 層還是粗糙**：例如 INCIDENTS 一次 append 7 條，雖然 commit 是 atomic 但 7 條坑寫在同一個 commit 也不算最細粒度。要不要每條坑一個 commit？這次取折衷（同 session 同主題打包），但這個取捨值得寫進 SOP
+
+### Next-time rules 🎯
+
+1. **動 production env var 前先確認該 service 真的跑你想跑的 collector**：用戶有多個 collector instance / project 時，先 `variable list` 看 INSTANCE_NAME / WASTE_POSITIONS_ENABLED 等識別欄位
+2. **Zeabur PREBUILT_V2 部署前先 `service network` 確認預期 port**：Dockerfile EXPOSE 跟 CMD --port 都要對齊到那個 port，預設 8080
+3. **要 trigger Zeabur redeploy 用 trivial file change**（README 加註解 + commit + push），不要 empty commit
+4. **跨 Zeabur project 通訊一律走 public + Bearer gateway**（PB-12 pattern）
+5. **政府 API 換機房前 SSH 進新機 curl 測目標 API**，不只測連通性
+6. **批次 retry 邏輯一律寫 attempt marker**（不論成功失敗），SQL 過濾用 NOT EXISTS in attempts 表，避免 transient failure 變死循環
+7. **commit 顆粒度：feature + docs 拆開，多 migration 拆開**：用戶質疑「全部一大包」是合理的，docs/feature 各自 commit、SQL migration 一個 file 一個 commit
+8. **動 Zeabur 之前先 invoke 對應 skill**（zeabur-auth / zeabur-variables / zeabur-port-mismatch）：那邊文件有踩過的雷
+9. **Drain / 大量 backfill 後立刻把參數改回 default**：MAX_TRIPS=500 是 drain 用，drain 完馬上改回 80 避免日常 burst 造成壓力
+
+### Memory 產出
+
+- INCIDENTS：+7 條（distroless image / K8s port 8080 / Cobra `${}` / 跨 project 不通 / retry 死循環 / empty commit 不 trigger / Lightsail 被擋）
+- PRINCIPLES：+5 條（Zeabur 部署章節）
+- PLAYBOOKS：+PB-11（Zeabur PREBUILT_V2 部署 SOP）+ PB-12（跨 project Bearer token gateway pattern）
+- GLOSSARY：+OSRM / Map-matching 9 條 + Zeabur 部署 6 條
+- DATA_SCOPE：+廢棄物區段（時序 3 表 + 靜態 4 表 + RPC 7 個 + 跨 repo 部署清單）
+- BACKLOG：+5 條（BL-9~13 多城市擴展 / PBF 月更 / stop-to-stop / Lightsail 退租 / LegendPanel）+1 done
+- 跨 repo：5 個 repo 各自 commit（mini-taiwan-pulse / gis-platform / data-collectors / osrm-taiwan / osrm-proxy）
+- 新 repo：osrm-taiwan + osrm-proxy 兩個 private repo 上線
+
+---
+
+## 2026-05-10 晚 Schedule prototype 視覺打磨 7 方案 try-error
+
+### What worked ✅
+
+- **Source data quirks 一條一條打**：weekday_pattern 4 種格式 / 跨日 24:11 /
+  departure 空字串 / 同 stop 重複 / 時間倒退 / 班次切換 / dwell=0 共 7 種，
+  每踩到一個就量化 + 寫進 docs/research/waste-schedule-data-quirks.md。
+  下次 22 城擴展前直接跑 sanity SQL 檢查。
+- **picking + debug tooltip 救了視覺打磨**：用戶看到「閃現」我猜不到原因，
+  加 click → 顯示 route_id / stop_seq / arrival / departure / gap，
+  一點就知道 source 給了什麼。
+- **撤回比堆改動好**：試過 Catmull-Rom + distance threshold 後用戶反饋不對都
+  乾脆 revert，沒積技術債。
+- **量化分析定 threshold**：用戶反映「林口沒車」最後是用 SQL 算各區 stops
+  間 gap median + p90 才確定 600s 對林口太緊。先量化再決參數比直覺調快。
+
+### What didn't ❌
+
+- **撞 PostgREST 20K cap 撞第二次**：GLOSSARY 早寫了 timeline 字串編碼是「避
+  PostgREST 20K cap」，但設計 schedule RPC 時沒先看 → 沿用 flat row 一筆一
+  stop 結構就撞牆。**PRINCIPLES 也已有 ⚠ P0 警告**但只寫了「降頻」解法，事件型
+  資料不能降頻就沒對策。
+- **視覺打磨 7 方案順序混亂**：
+  1. Trip-break gap > 10min fade → 對
+  2. 對稱重新分配 dwell+move → 沒解短 gap 「停 + 跳」
+  3. 短 dwell 持續移動 / 長 dwell 真停 → 對
+  4. Catmull-Rom 平滑 → 用戶看到「往回退」拿掉
+  5. Distance threshold fade → 用戶說「直線 859m 看得到」拿掉
+  6. 量化發現 source data 速度超標 → 結論走 OSRM
+  7. trip-break threshold 600 → 1500 解林口
+  → **應該一開始先量化 stop gap 分布**（median 60s 板橋 vs 600s 林口 差 10x），
+  就能知道 600s threshold 對地廣區失效，不用試 4-5 個方案才察覺。
+- **Vite HMR 對 Three.js scene class buffer 不會重 init**：改 maxInstances 後
+  使用者 hard reload 才生效。debug 時忘了考慮這點，用戶以為新 code 沒套。
+
+### Next-time rules 🎯
+
+1. **設計新 RPC 預估 rows > 5K 一律先看 PRINCIPLES「PostgREST 20K cap」章節**，
+   按決策樹（能丟 → 降頻 / 不能丟 → grouped JSONB）選 pattern，不要等撞牆。
+2. **Source data 動視覺前先跑量化 SQL**：median / p90 / max 的 gap / 距離 / 密度
+   分布。不同地理特性（市區 vs 山坡）參數差距可能 10x。
+3. **試錯 ≥ 3 個方案前停下來重新理解問題**：第 4-5 個方案還沒解就是路徑錯了，
+   要量化 root cause，不要「下個 threshold 試試看」。
+4. **Catmull-Rom 只用真實連續軌跡（GPS）**，邏輯順序的 stops/events 用直線
+   不要套 spline。
+5. **Three.js scene class buffer / 大改動後叫用戶 hard reload**，不要以為 HMR 救得了。
+
+### Memory 產出
+
+- INCIDENTS：+2（PostgREST 20K cap 撞第二次 / Catmull-Rom overshoot）
+- PRINCIPLES：+grouped JSONB pattern + Catmull-Rom 限制 + 設計新 RPC 決策樹
+- GLOSSARY：+schedule 動畫術語章節（TRIP_BREAK_S / DWELL_THRESHOLD_S / 60x）
+- PLAYBOOKS：+PB-13 大集合 RPC grouped JSONB pattern
+- DATA_SCOPE：+5 城 schedule 統計 + waste_collection_routes 1399+649
+- BACKLOG：+BL-17/18/19，schedule prototype 標 done
+
 <!-- /wrap-up 之後追加新反省 -->

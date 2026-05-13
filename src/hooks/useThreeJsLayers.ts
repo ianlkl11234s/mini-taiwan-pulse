@@ -5,9 +5,22 @@ import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
+import type { WasteTruckScene } from "../three/WasteTruckScene";
+import type { WasteMusicNoteScene } from "../three/WasteMusicNoteScene";
+import type { WasteScheduleScene } from "../three/WasteScheduleScene";
+import type { WasteTrailRow, WasteFacilityRow } from "../data/wasteLoader";
+import type { WasteScheduleRoute } from "../data/wasteScheduleLoader";
 import type { StationPillarData } from "../three/StationPillarScene";
 import { createFlightLayer, createShipLayer, createRailLayer } from "../map/customLayer";
 import { createBusLayer } from "../map/busCustomLayer";
+import { createWasteTruckLayer } from "../map/wasteTruckCustomLayer";
+import { createWasteScheduleLayer } from "../map/wasteScheduleCustomLayer";
+import {
+  createWasteFacilityLayer,
+  type WasteFacility3DScenes,
+  type WasteFacility3DKey,
+  type WasteFacilityLayerParams,
+} from "../map/wasteFacilityCustomLayer";
 import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
 import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
 import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
@@ -23,6 +36,9 @@ interface UseThreeJsLayersArgs {
   activeTrainsRef: React.RefObject<RailTrain[]>;
   activeBusesRef: React.RefObject<BusVehicle[]>;
   activeBusesIntercityRef: React.RefObject<BusVehicle[]>;
+  wasteTrailsRef: React.RefObject<WasteTrailRow[]>;
+  wasteScheduleRoutesRef: React.RefObject<WasteScheduleRoute[]>;
+  wasteFacilityByTypeRef: React.RefObject<Map<string, WasteFacilityRow[]>>;
   railDataRef: React.RefObject<RailData | null>;
   lighthousePositionsRef: React.RefObject<[number, number][]>;
   thsrPillarDataRef: React.RefObject<StationPillarData[]>;
@@ -51,6 +67,10 @@ interface UseThreeJsLayersArgs {
     busIntercityOrbScale: React.RefObject<number>;
     busIntercityColorMode: React.RefObject<string>;
     busIntercityAltOffset: React.RefObject<number>;
+    wasteOrbScale: React.RefObject<number>;
+    wasteNoteSize: React.RefObject<number>;
+    wasteNoteZOffset: React.RefObject<number>;
+    wasteSubParams: React.RefObject<Record<WasteFacility3DKey, WasteFacilityLayerParams> | Record<string, WasteFacilityLayerParams>>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
     beamOpacity: React.RefObject<number>;
@@ -74,7 +94,9 @@ interface UseThreeJsLayersArgs {
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
+  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+  wasteScheduleRoutesRef,
+  wasteFacilityByTypeRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
   airportPillarDataRef, portPillarDataRef, temperatureDataRef,
   playingRef, layerVisibilityRef,
@@ -85,6 +107,12 @@ export function useThreeJsLayers({
   const railSceneRef = useRef<RailScene | null>(null);
   const busSceneRef = useRef<BusScene | null>(null);
   const busIntercitySceneRef = useRef<BusScene | null>(null);
+  const wasteTruckSceneRef = useRef<WasteTruckScene | null>(null);
+  const wasteMusicNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
+  const wasteScheduleSceneRef = useRef<WasteScheduleScene | null>(null);
+  const wasteScheduleNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
+  const wasteFacilityScenesRef = useRef<WasteFacility3DScenes | null>(null);
+  const wasteFacilityLayerRef = useRef<ReturnType<typeof createWasteFacilityLayer> | null>(null);
 
   const addFlightLayer = (map: MapboxMap) => {
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
@@ -190,6 +218,85 @@ export function useThreeJsLayers({
     map.addLayer(layer);
   };
 
+  const addWasteTruckLayer = (map: MapboxMap) => {
+    if (map.getLayer("waste-truck-3d")) map.removeLayer("waste-truck-3d");
+    const layer = createWasteTruckLayer({
+      id: "waste-truck-3d",
+      getTrails: () => wasteTrailsRef.current ?? [],
+      getCurrentTime: () => timeRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      // base 0.000020，可由 slider 0.3~4 倍乘
+      getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
+      getIsVisible: () => layerVisibilityRef.current.wasteTruck,
+      getAltOffset: () => 0,
+      getMusicNoteEnabled: () => layerVisibilityRef.current.wasteTruck,
+      getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
+      getMusicNoteZOffset: () => paramRefs.wasteNoteZOffset.current ?? 70,
+      onSceneReady: (truckScene, noteScene) => {
+        wasteTruckSceneRef.current = truckScene;
+        wasteMusicNoteSceneRef.current = noteScene;
+      },
+    });
+    map.addLayer(layer);
+  };
+
+  const addWasteScheduleLayer = (map: MapboxMap) => {
+    if (map.getLayer("waste-schedule-3d")) map.removeLayer("waste-schedule-3d");
+    const layer = createWasteScheduleLayer({
+      id: "waste-schedule-3d",
+      getRoutes: () => wasteScheduleRoutesRef.current ?? [],
+      getCurrentTime: () => timeRef.current ?? Date.now() / 1000,
+      getIsDarkTheme: () => isDarkThemeRef.current ?? true,
+      // 共用 wasteOrbScale slider，跟 GPS 圖層一致大小
+      getOrbScale: () => 0.000020 * (paramRefs.wasteOrbScale.current ?? 1),
+      getIsVisible: () => layerVisibilityRef.current.wasteSchedule,
+      getAltOffset: () => 0,
+      // 音符獨立 toggle（跟主 schedule toggle 分離），共用 GPS 的音符 size / zOffset
+      getMusicNoteEnabled: () => layerVisibilityRef.current.wasteScheduleNote,
+      getMusicNoteSize: () => paramRefs.wasteNoteSize.current ?? 1,
+      getMusicNoteZOffset: () => paramRefs.wasteNoteZOffset.current ?? 70,
+      onSceneReady: (scene, noteScene) => {
+        wasteScheduleSceneRef.current = scene;
+        wasteScheduleNoteSceneRef.current = noteScene;
+      },
+    });
+    map.addLayer(layer);
+  };
+
+  const addWasteFacilityLayer = (map: MapboxMap) => {
+    if (map.getLayer("waste-facility-3d")) map.removeLayer("waste-facility-3d");
+    const FACILITY_KEYS: WasteFacility3DKey[] = [
+      "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+    ];
+    const layer = createWasteFacilityLayer({
+      id: "waste-facility-3d",
+      getFacilityByType: () => wasteFacilityByTypeRef.current ?? new Map(),
+      getVisibility: () => {
+        const vis = layerVisibilityRef.current;
+        const out: Record<WasteFacility3DKey, boolean> = {
+          wfIncinerator: false, wfLandfill: false, wfTransfer: false,
+          wfMedical: false, wfMonitoring: false,
+        };
+        for (const k of FACILITY_KEYS) out[k] = !!vis[k];
+        return out;
+      },
+      getParams: () => {
+        const wp = paramRefs.wasteSubParams.current ?? {};
+        const out: Record<WasteFacility3DKey, WasteFacilityLayerParams> = {
+          wfIncinerator: wp["wfIncinerator"] ?? { size: 1, opacity: 0.85, altitude: 0, ringSize: 1 },
+          wfLandfill: wp["wfLandfill"] ?? { size: 1, opacity: 0.45, altitude: 0 },
+          wfTransfer: wp["wfTransfer"] ?? { size: 1, opacity: 0.85, altitude: 0 },
+          wfMedical: wp["wfMedical"] ?? { size: 1, opacity: 0.85, altitude: 0 },
+          wfMonitoring: wp["wfMonitoring"] ?? { size: 1, opacity: 0.7, altitude: 0 },
+        };
+        return out;
+      },
+      onSceneReady: (scenes) => { wasteFacilityScenesRef.current = scenes; },
+    });
+    wasteFacilityLayerRef.current = layer;
+    map.addLayer(layer);
+  };
+
   const addTemperatureWaveLayer = (map: MapboxMap) => {
     const id = "temperature-wave-3d";
     if (map.getLayer(id)) map.removeLayer(id);
@@ -259,6 +366,9 @@ export function useThreeJsLayers({
     addRailLayer(map);
     addBusLayer(map);
     addBusIntercityLayer(map);
+    addWasteTruckLayer(map);
+    addWasteScheduleLayer(map);
+    addWasteFacilityLayer(map);
     addLighthouseLayer(map);
     addStationPillarLayer(map);
     addTemperatureWaveLayer(map);
@@ -270,11 +380,20 @@ export function useThreeJsLayers({
     railSceneRef,
     busSceneRef,
     busIntercitySceneRef,
+    wasteTruckSceneRef,
+    wasteMusicNoteSceneRef,
+    wasteScheduleSceneRef,
+    wasteScheduleNoteSceneRef,
+    wasteFacilityScenesRef,
+    wasteFacilityLayerRef,
     addFlightLayer,
     addShipLayer,
     addRailLayer,
     addBusLayer,
     addBusIntercityLayer,
+    addWasteTruckLayer,
+    addWasteScheduleLayer,
+    addWasteFacilityLayer,
     addLighthouseLayer,
     addStationPillarLayer,
     addTemperatureWaveLayer,

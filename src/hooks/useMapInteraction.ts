@@ -5,6 +5,7 @@ import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
+import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
 import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 
 interface TooltipInfo {
@@ -26,6 +27,12 @@ interface BusTooltipInfo {
   y: number;
 }
 
+export interface WasteScheduleTooltipInfo {
+  frame: ScheduleDebugFrame;
+  x: number;
+  y: number;
+}
+
 export function useMapInteraction(
   mapRef: React.RefObject<MapboxMap | null>,
   flightSceneRef: React.RefObject<FlightScene | null>,
@@ -35,11 +42,13 @@ export function useMapInteraction(
   busSceneRef?: React.RefObject<BusScene | null>,
   layerVisibilityRef?: React.RefObject<LayerVisibility>,
   reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
+  wasteScheduleSceneRef?: React.RefObject<WasteScheduleScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
   const [trainTooltipInfo, setTrainTooltipInfo] = useState<TrainTooltipInfo | null>(null);
   const [busTooltipInfo, setBusTooltipInfo] = useState<BusTooltipInfo | null>(null);
+  const [wasteScheduleTooltipInfo, setWasteScheduleTooltipInfo] = useState<WasteScheduleTooltipInfo | null>(null);
   const [featureInfo, setFeatureInfo] = useState<FeatureInfo | null>(null);
   const clickBoundRef = useRef(false);
 
@@ -62,6 +71,21 @@ export function useMapInteraction(
           if (train) {
             setTrainTooltipInfo({ train, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+      // 嘗試拾取垃圾車表定（debug 點選看哪條路線 / 班次）
+      if (vis?.wasteSchedule) {
+        const ws = wasteScheduleSceneRef?.current;
+        if (ws) {
+          const frame = ws.pickRoute(e.point.x, e.point.y, w, h);
+          if (frame) {
+            setWasteScheduleTooltipInfo({ frame, x: e.point.x, y: e.point.y });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
             return;
           }
         }
@@ -131,6 +155,7 @@ export function useMapInteraction(
       setTooltipInfo(null);
       setTrainTooltipInfo(null);
       setBusTooltipInfo(null);
+      setWasteScheduleTooltipInfo(null);
 
       {
         // 查詢 Mapbox GIS 層
@@ -259,6 +284,7 @@ export function useMapInteraction(
     tooltipInfo, setTooltipInfo,
     trainTooltipInfo, setTrainTooltipInfo,
     busTooltipInfo, setBusTooltipInfo,
+    wasteScheduleTooltipInfo, setWasteScheduleTooltipInfo,
     featureInfo, setFeatureInfo,
     selectedFlightId, setSelectedFlightId,
     bindEvents,

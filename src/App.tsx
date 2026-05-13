@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
 import { MapView } from "./map/MapView";
 import { useAirspaceData } from "./hooks/useAirspaceData";
@@ -12,6 +12,18 @@ import { useIsMobile } from "./hooks/useIsMobile";
 import { useTransportParams } from "./hooks/useTransportParams";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
+import { useWasteLayer } from "./hooks/useWasteLayer";
+import { useWasteScheduleLayer } from "./hooks/useWasteScheduleLayer";
+import { TRIP_BREAK_S as WASTE_SCHEDULE_TRIP_BREAK_S } from "./three/WasteScheduleScene";
+import { useWasteFacilityLayer } from "./hooks/useWasteFacilityLayer";
+import { useWasteDisposalPointLayer } from "./hooks/useWasteDisposalPointLayer";
+import {
+  setupWasteMapboxLayers,
+  syncWasteMapboxData,
+  syncWasteMapboxVisibility,
+  syncWasteMapboxParams,
+  syncWasteMapboxTheme,
+} from "./map/wasteMapboxLayers";
 import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -30,6 +42,7 @@ import { useGroundwaterLayer } from "./hooks/useGroundwaterLayer";
 import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
 import { useIotWraRiverLayer } from "./hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
+import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -40,7 +53,7 @@ import { AqiLegend } from "./components/AqiLegend";
 import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
-import { useDemographicsH3 } from "./hooks/useDemographicsH3";
+import { useDemographicsH3, useDemographicsYearlyH3 } from "./hooks/useDemographicsH3";
 import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
@@ -54,6 +67,8 @@ import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { TimelineControls } from "./components/TimelineControls";
+import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
+import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
@@ -335,6 +350,30 @@ export default function App() {
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
 
+  // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
+  const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
+    useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市", "臺南市"]);
+
+  // ── 垃圾車表定（22 城時刻表動畫，獨立於 GPS 圖層；day-of-week 驅動）──
+  // cities 由 transportParams.enabledWasteScheduleCities 控制（8 區分組 toggle）
+  const { routesRef: wasteScheduleRoutesRef } = useWasteScheduleLayer(
+    layerVisibility.wasteSchedule,
+    transportParams.enabledWasteScheduleCities,
+  );
+
+  // ── 垃圾處理設施 / 投放點（靜態，第一個 sub-toggle 開時 lazy fetch） ──
+  const wasteFacilityVis =
+    layerVisibility.wfIncinerator || layerVisibility.wfLandfill
+    || layerVisibility.wfTransfer || layerVisibility.wfMedical || layerVisibility.wfMonitoring
+    || layerVisibility.wfRecycling || layerVisibility.wfScrapYard || layerVisibility.wfOther;
+  const wasteDisposalVis =
+    layerVisibility.wdClothes || layerVisibility.wdMixed
+    || layerVisibility.wdRecyclingContainer || layerVisibility.wdBattery;
+  const { byType: wasteFacilityByType } = useWasteFacilityLayer(wasteFacilityVis);
+  const { byType: wasteDisposalByType } = useWasteDisposalPointLayer(wasteDisposalVis);
+  const wasteFacilityByTypeRef = useRef(wasteFacilityByType);
+  wasteFacilityByTypeRef.current = wasteFacilityByType;
+
   // 公車 replay: 跨日載入歷史軌跡（訂閱日期粒度，避免 currentTime cascade）
   useEffect(() => {
     if (!layerVisibility.busLive || timeline.timeMode !== "replay") return;
@@ -355,8 +394,114 @@ export default function App() {
     return timeStore.subscribeDate(handler);
   }, [timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
 
+  // 垃圾車 replay: 載入 timeline 當天整日軌跡；live 則維持近 60 分鐘 polling
+  useEffect(() => {
+    if (!layerVisibility.wasteTruck || timeline.timeMode !== "replay") return;
+    const handler = (dayStr: string) => {
+      if (dayStr) loadWasteTrailDay(dayStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [timeline.timeMode, layerVisibility.wasteTruck, loadWasteTrailDay]);
+
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
+  const { getCells: getYearlyCells, loadYear: loadDemoYear } = useDemographicsYearlyH3();
+
+  // ── App 大模式：即時 vs 歷史長時序 ──
+  const [appMode, setAppMode] = useState<AppMode>("realtime");
+  const [historicalYear, setHistoricalYear] = useState<number>(113); // 民國年
+  const [historicalMonth, setHistoricalMonth] = useState<number>(1); // 1~12（月/日粒度時用）
+  const [historicalDay, setHistoricalDay] = useState<number>(1);     // 1~31（日粒度時用）
+  const [historicalPlaying, setHistoricalPlaying] = useState<boolean>(false);
+  const [historicalSpeed, setHistoricalSpeed] = useState<number>(1); // 倍速
+  const [historicalGranularity, setHistoricalGranularity] = useState<HistoricalGranularity>("year");
+  const HISTORICAL_YEARS = useMemo(
+    () => [104, 105, 106, 107, 108, 109, 110, 111, 112, 113],
+    [],
+  );
+  // 火災資料覆蓋範圍（民國 111~113）— 月/日推進的上限
+  const FIRE_MAX_YEAR = 113;
+
+  // 歷史模式自動播放：依粒度推進年/月/日，到頂暫停
+  useEffect(() => {
+    if (appMode !== "historical" || !historicalPlaying) return;
+    const interval = Math.max(200, 2000 / historicalSpeed);
+    const yearMax = HISTORICAL_YEARS[HISTORICAL_YEARS.length - 1] ?? 113;
+
+    const id = window.setInterval(() => {
+      if (historicalGranularity === "year") {
+        setHistoricalYear((y) => {
+          if (y >= yearMax) {
+            setHistoricalPlaying(false);
+            return y;
+          }
+          return y + 1;
+        });
+      } else if (historicalGranularity === "month") {
+        setHistoricalMonth((m) => {
+          if (m < 12) return m + 1;
+          // roll over to next year, month 1
+          let stop = false;
+          setHistoricalYear((y) => {
+            if (y >= FIRE_MAX_YEAR) {
+              stop = true;
+              return y;
+            }
+            return y + 1;
+          });
+          if (stop) {
+            setHistoricalPlaying(false);
+            return m;
+          }
+          return 1;
+        });
+      } else {
+        // day
+        setHistoricalDay((d) => {
+          // 用 AD Date 算下一天，自動處理大小月與閏年
+          const ad = new Date(historicalYear + 1911, historicalMonth - 1, d + 1);
+          const ny = ad.getFullYear() - 1911;
+          const nm = ad.getMonth() + 1;
+          const nd = ad.getDate();
+          if (ny > FIRE_MAX_YEAR) {
+            setHistoricalPlaying(false);
+            return d;
+          }
+          if (ny !== historicalYear) setHistoricalYear(ny);
+          if (nm !== historicalMonth) setHistoricalMonth(nm);
+          return nd;
+        });
+      }
+    }, interval);
+    return () => window.clearInterval(id);
+  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS]);
+
+  // 切到 historical mode 時，記住既有 layerVisibility 並切到「歷史專屬」可見集合；
+  // 切回 realtime 時還原。避免使用者在歷史模式看到大量無法解讀的即時圖層。
+  const layerVisBeforeHistoricalRef = useRef<LayerVisibility | null>(null);
+  useEffect(() => {
+    if (appMode === "historical") {
+      if (layerVisBeforeHistoricalRef.current === null) {
+        layerVisBeforeHistoricalRef.current = layerVisibilityRef.current;
+      }
+      // 全部關掉、預設打開人口
+      const current = layerVisibilityRef.current;
+      const allOff = { ...current };
+      for (const k of Object.keys(allOff) as (keyof LayerVisibility)[]) {
+        allOff[k] = false;
+      }
+      setLayerVisibility({ ...allOff, popCount: true });
+    } else {
+      const snapshot = layerVisBeforeHistoricalRef.current;
+      if (snapshot) {
+        setLayerVisibility(snapshot);
+        layerVisBeforeHistoricalRef.current = null;
+      }
+    }
+    // setLayerVisibility / layerVisibilityRef 都是 stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appMode]);
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
 
@@ -368,19 +513,23 @@ export default function App() {
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
+    wasteScheduleSceneRef,
+    wasteFacilityLayerRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, railDataRef,
+    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+    wasteScheduleRoutesRef,
+    wasteFacilityByTypeRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef, reservoirSceneRef);
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -482,6 +631,17 @@ export default function App() {
     transportParams.daOpacity,
   );
 
+  // ── 火災歷史事件（僅在 historical mode + toggle 開啟時實際 fetch） ──
+  useFireEventsLayer(
+    mapRef,
+    appMode === "historical" && layerVisibility.fireEvents,
+    historicalYear,
+    historicalMonth,
+    historicalDay,
+    historicalGranularity,
+    isDarkTheme,
+  );
+
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({
     mapRef,
@@ -509,6 +669,30 @@ export default function App() {
     transportParams.overlayParams.freewayWidth ?? 1,
     isDarkTheme,
   );
+
+  // ── 垃圾設施 / 投放點 Mapbox circle（8 個量級大子類型） ──
+  // setup 在 handleMapReady 直接呼叫（避開 useEffect mount 時 mapRef 仍 null 的 race）
+  const wasteMapboxSetupRef = useRef(false);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxData(map, wasteFacilityByType, wasteDisposalByType);
+  }, [wasteFacilityByType, wasteDisposalByType]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxVisibility(map, layerVisibility);
+  }, [layerVisibility]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxParams(map, transportParams.wasteSubParams);
+  }, [transportParams.wasteSubParams]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+    syncWasteMapboxTheme(map, isDarkTheme);
+  }, [isDarkTheme]);
 
   // ── Derived values ──
 
@@ -552,6 +736,51 @@ export default function App() {
     loadSpatialResolution(7); // preload spatial economy
 
     bindEvents(map);
+
+    // 垃圾設施 / 投放點 Mapbox circle setup — map ready 後立刻建 8 個 source + 16 個 layer
+    if (!wasteMapboxSetupRef.current) {
+      setupWasteMapboxLayers(map, {
+        isDark: isDarkTheme,
+        onFeatureClick: setFeatureInfo,
+      });
+      wasteMapboxSetupRef.current = true;
+      // map 還沒拿到目前的 byType / visibility / params → 立刻同步一次
+      syncWasteMapboxData(map, wasteFacilityByTypeRef.current ?? new Map(), wasteDisposalByType);
+      syncWasteMapboxVisibility(map, layerVisibilityRef.current);
+      syncWasteMapboxParams(map, transportParams.wasteSubParams);
+    }
+
+    // 3D 垃圾處理設施 click pick（5 sub-scene 任一命中 → popup）
+    map.on("click", (e) => {
+      const layer = wasteFacilityLayerRef.current;
+      if (!layer) return;
+      // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
+      const v = layerVisibilityRef.current;
+      if (!(v.wfIncinerator || v.wfLandfill || v.wfTransfer || v.wfMedical || v.wfMonitoring)) return;
+      const canvas = map.getCanvas();
+      const hit = layer.pickFacility(
+        e.point.x, e.point.y,
+        canvas.clientWidth, canvas.clientHeight,
+      );
+      if (!hit) return;
+      const r = hit.row;
+      setFeatureInfo({
+        layerType: "wasteFacility",
+        properties: {
+          kind: "facility",
+          id: r.id,
+          facility_name: r.facility_name,
+          facility_type: r.facility_type,
+          city: r.city,
+          operator: r.operator,
+          address: r.address,
+          capacity_tpd: r.capacity_tpd,
+          status: r.status,
+          start_year: r.start_year,
+          source_url: r.source_url,
+        },
+      });
+    });
   };
 
   // ── Effects ──
@@ -606,6 +835,13 @@ export default function App() {
     }
   }, [demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemographicsResolution]);
 
+  // Historical mode: 預載當前選定年份的人口 cells
+  useEffect(() => {
+    if (appMode !== "historical") return;
+    if (!layerVisibility.popCount && !layerVisibility.indicators) return;
+    loadDemoYear(historicalYear, demoResolution);
+  }, [appMode, historicalYear, demoResolution, layerVisibility.popCount, layerVisibility.indicators, loadDemoYear]);
+
   // Socioeconomic: load resolution when visible
   useEffect(() => {
     if (layerVisibility.socioeconomic) {
@@ -621,22 +857,29 @@ export default function App() {
   }, [demoResolution, layerVisibility.spatialEconomy, loadSpatialResolution]);
 
   // Demographics: update popCount layer
+  // historical mode 用 yearly RPC cells；realtime mode 用本機 JSON snapshot
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
     ensurePopCountLayers(map);
-    const cells = demographicsDataMap.get(demoResolution) ?? [];
+    const cells =
+      appMode === "historical"
+        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+        : (demographicsDataMap.get(demoResolution) ?? []);
     updatePopCountLayer(map, cells, transportParams.popCountParams, layerVisibility.popCount);
-  }, [demographicsDataMap, demoResolution, layerVisibility.popCount, transportParams.popCountParams]);
+  }, [appMode, historicalYear, demographicsDataMap, demoResolution, layerVisibility.popCount, transportParams.popCountParams, getYearlyCells]);
 
   // Demographics: update indicators layer
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map)) return;
     ensureIndicatorsLayers(map);
-    const cells = demographicsDataMap.get(demoResolution) ?? [];
+    const cells =
+      appMode === "historical"
+        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
+        : (demographicsDataMap.get(demoResolution) ?? []);
     updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
-  }, [demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams]);
+  }, [appMode, historicalYear, demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams, getYearlyCells]);
 
   // Socioeconomic: update layer
   useEffect(() => {
@@ -730,7 +973,8 @@ export default function App() {
     trains: trainCount,
     buses: busCount,
     busesIntercity: busIntercityCount,
-  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount]);
+    wasteTrucks: wasteCount,
+  }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount, wasteCount]);
 
   const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
     const isVisible = layerVisibilityRef.current[layer];
@@ -1025,27 +1269,47 @@ export default function App() {
             />
           </div>
 
-          {/* 時間軸 */}
-          <TimelineControls
-            playing={timeline.playing}
-            speed={timeline.speed}
-            progress={timeline.progress}
-            currentTime={timeline.currentTime}
-            timeMode={timeline.timeMode}
-            selectedDate={timeline.selectedDate}
-            rangeDays={timeline.rangeDays}
-            windowStart={timeline.windowStart}
-            windowEnd={timeline.windowEnd}
-            isDarkTheme={isDarkTheme}
-            leftOffset={sidebarWidth + 16}
-            onToggle={timeline.toggle}
-            onSpeedChange={timeline.setSpeed}
-            onSeekByProgress={timeline.seekByProgress}
-            onTimeModeChange={timeline.setTimeMode}
-            onDateChange={timeline.setSelectedDate}
-            onShiftDate={timeline.shiftDate}
-            onRangeDaysChange={timeline.setRangeDays}
-          />
+          {/* 時間軸：依 mode 切換 realtime / historical */}
+          {appMode === "realtime" ? (
+            <TimelineControls
+              playing={timeline.playing}
+              speed={timeline.speed}
+              progress={timeline.progress}
+              currentTime={timeline.currentTime}
+              timeMode={timeline.timeMode}
+              selectedDate={timeline.selectedDate}
+              rangeDays={timeline.rangeDays}
+              windowStart={timeline.windowStart}
+              windowEnd={timeline.windowEnd}
+              isDarkTheme={isDarkTheme}
+              leftOffset={sidebarWidth + 16}
+              onToggle={timeline.toggle}
+              onSpeedChange={timeline.setSpeed}
+              onSeekByProgress={timeline.seekByProgress}
+              onTimeModeChange={timeline.setTimeMode}
+              onDateChange={timeline.setSelectedDate}
+              onShiftDate={timeline.shiftDate}
+              onRangeDaysChange={timeline.setRangeDays}
+            />
+          ) : (
+            <HistoricalTimeline
+              year={historicalYear}
+              month={historicalMonth}
+              day={historicalDay}
+              availableYears={HISTORICAL_YEARS}
+              playing={historicalPlaying}
+              speed={historicalSpeed}
+              granularity={historicalGranularity}
+              isDarkTheme={isDarkTheme}
+              leftOffset={sidebarWidth + 16}
+              onTogglePlay={() => setHistoricalPlaying((v) => !v)}
+              onSpeedChange={setHistoricalSpeed}
+              onYearChange={setHistoricalYear}
+              onMonthChange={setHistoricalMonth}
+              onDayChange={setHistoricalDay}
+              onGranularityChange={setHistoricalGranularity}
+            />
+          )}
 
           {/* 右上角按鈕群 */}
           <div
@@ -1056,8 +1320,14 @@ export default function App() {
               zIndex: 10,
               display: "flex",
               gap: 8,
+              alignItems: "center",
             }}
           >
+            <ModeToggle
+              appMode={appMode}
+              isDarkTheme={isDarkTheme}
+              onAppModeChange={setAppMode}
+            />
             <button
               onClick={() => setCaptureMode(true)}
               style={{
@@ -1170,6 +1440,7 @@ export default function App() {
               {layerVisibility.rail && ` · ${trainCount} trains`}
               {layerVisibility.busLive && ` · ${busCount} buses`}
               {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
+              {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
               {viewMode === "time-window" && " (±12h)"}
             </div>
             <div
@@ -1292,26 +1563,46 @@ export default function App() {
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <TimelineControls
-              playing={timeline.playing}
-              speed={timeline.speed}
-              progress={timeline.progress}
-              currentTime={timeline.currentTime}
-              timeMode={timeline.timeMode}
-              selectedDate={timeline.selectedDate}
-              rangeDays={timeline.rangeDays}
-              windowStart={timeline.windowStart}
-              windowEnd={timeline.windowEnd}
-              isDarkTheme={true}
-              isMobile={true}
-              onToggle={timeline.toggle}
-              onSpeedChange={timeline.setSpeed}
-              onSeekByProgress={timeline.seekByProgress}
-              onTimeModeChange={timeline.setTimeMode}
-              onDateChange={timeline.setSelectedDate}
-              onShiftDate={timeline.shiftDate}
-              onRangeDaysChange={timeline.setRangeDays}
-            />
+            {appMode === "realtime" ? (
+              <TimelineControls
+                playing={timeline.playing}
+                speed={timeline.speed}
+                progress={timeline.progress}
+                currentTime={timeline.currentTime}
+                timeMode={timeline.timeMode}
+                selectedDate={timeline.selectedDate}
+                rangeDays={timeline.rangeDays}
+                windowStart={timeline.windowStart}
+                windowEnd={timeline.windowEnd}
+                isDarkTheme={true}
+                isMobile={true}
+                onToggle={timeline.toggle}
+                onSpeedChange={timeline.setSpeed}
+                onSeekByProgress={timeline.seekByProgress}
+                onTimeModeChange={timeline.setTimeMode}
+                onDateChange={timeline.setSelectedDate}
+                onShiftDate={timeline.shiftDate}
+                onRangeDaysChange={timeline.setRangeDays}
+              />
+            ) : (
+              <HistoricalTimeline
+                year={historicalYear}
+                month={historicalMonth}
+                day={historicalDay}
+                availableYears={HISTORICAL_YEARS}
+                playing={historicalPlaying}
+                speed={historicalSpeed}
+                granularity={historicalGranularity}
+                isDarkTheme={true}
+                isMobile={true}
+                onTogglePlay={() => setHistoricalPlaying((v) => !v)}
+                onSpeedChange={setHistoricalSpeed}
+                onYearChange={setHistoricalYear}
+                onMonthChange={setHistoricalMonth}
+                onDayChange={setHistoricalDay}
+                onGranularityChange={setHistoricalGranularity}
+              />
+            )}
           </div>
 
           {/* Bottom Sheet */}
@@ -1333,6 +1624,7 @@ export default function App() {
                         trains: trainCount,
                         buses: busCount,
                         busesIntercity: busIntercityCount,
+                        wasteTrucks: wasteCount,
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];
@@ -1495,6 +1787,102 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── 垃圾車表定 Tooltip (debug) ── */}
+      {wasteScheduleTooltipInfo && (() => {
+        const { frame, x, y } = wasteScheduleTooltipInfo;
+        const fmt = (sec: number) => {
+          const h = Math.floor(sec / 3600);
+          const m = Math.floor((sec % 3600) / 60);
+          const s = Math.floor(sec % 60);
+          return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+        };
+        const fmtGap = (sec: number) => {
+          if (sec < 60) return `${Math.round(sec)}s`;
+          if (sec < 3600) return `${Math.floor(sec/60)}m ${Math.round(sec%60)}s`;
+          return `${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`;
+        };
+        const stateColor =
+          frame.state === "moving" ? "#a78bfa" :
+          frame.state === "waiting" ? "#fbbf24" :
+          "#94a3b8";
+        const isTripBreak = frame.gapToNextSec > WASTE_SCHEDULE_TRIP_BREAK_S && frame.state === "moving";
+        return (
+          <div
+            style={{
+              position: "absolute",
+              left: x + 12,
+              top: y - 10,
+              zIndex: 30,
+              background: "rgba(10,10,20,0.92)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid #a78bfa66",
+              borderRadius: 8,
+              padding: "10px 14px",
+              pointerEvents: "none",
+              fontFamily: "monospace",
+              minWidth: 280,
+              maxWidth: 360,
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", letterSpacing: 1 }}>
+              {frame.route.city} · {frame.route.routeName ?? frame.route.routeId}
+            </div>
+            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+              route_id: {frame.route.routeId} · {frame.totalStops} stops · {frame.route.vehicleType}
+            </div>
+
+            {frame.route.scheduleInferred && (
+              <div style={{ marginTop: 6, fontSize: 10, color: "#fbbf24", fontWeight: 600 }}>
+                ⚠ 此路線無精確時刻，時間為推算（直線距離×1.4 ÷ 15km/h + 每站停 3 min）
+              </div>
+            )}
+
+            <div style={{ marginTop: 8, fontSize: 11, display: "flex", gap: 6, alignItems: "center" }}>
+              <span style={{ color: stateColor, fontWeight: 700 }}>
+                {frame.state === "moving" ? "● 移動中" :
+                 frame.state === "waiting" ? "● 停留中" :
+                 frame.state === "before-route" ? "○ 路線未開始" : "○ 路線已結束"}
+              </span>
+              <span style={{ color: "rgba(255,255,255,0.5)" }}>now {fmt(frame.nowSec)}</span>
+            </div>
+
+            {isTripBreak && (
+              <div style={{ marginTop: 6, fontSize: 11, color: "#ef4444", fontWeight: 700 }}>
+                ⚠ 班次切換 gap={fmtGap(frame.gapToNextSec)}（&gt; {Math.round(WASTE_SCHEDULE_TRIP_BREAK_S / 60)}min 應 invisible）
+              </div>
+            )}
+
+            <div style={{ marginTop: 8, paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.15)", fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
+              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+                ↓ 上一站 (#{frame.prevStop.stopSeq}/{frame.totalStops})
+              </div>
+              <div>{frame.prevStop.stopName ?? "(no name)"}</div>
+              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+                arrival {fmt(frame.prevStop.arrivalSec)} · departure {fmt(frame.prevStop.departureSec)}
+                {frame.prevStop.departureSec > frame.prevStop.arrivalSec &&
+                  ` · 停 ${fmtGap(frame.prevStop.departureSec - frame.prevStop.arrivalSec)}`}
+              </div>
+            </div>
+
+            {frame.nextStop && (
+              <div style={{ marginTop: 6, fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
+                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+                  ↓ 下一站 (#{frame.nextStop.stopSeq}/{frame.totalStops})
+                </div>
+                <div>{frame.nextStop.stopName ?? "(no name)"}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+                  arrival {fmt(frame.nextStop.arrivalSec)}
+                  {" · gap "}
+                  <span style={{ color: isTripBreak ? "#ef4444" : "rgba(255,255,255,0.55)" }}>
+                    {fmtGap(frame.gapToNextSec)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── Bottom-right stack: Feature Info + AQI controls + Legend ── */}
       <div

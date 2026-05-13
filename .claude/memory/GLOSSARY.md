@@ -125,3 +125,49 @@
 | Session SOP | 開頭讀 STATUS/BACKLOG/PRINCIPLES；結束用 `/wrap-up` |
 | Pitfall archive | `.claude/pitfalls/` 的 long-form 紀錄，`INCIDENTS` 放短摘要 + link |
 | 9 檔分類 | README / STATUS / BACKLOG / PRINCIPLES / PLAYBOOKS / GLOSSARY / INCIDENTS / REFLECTIONS / DATA_SCOPE |
+
+## OSRM / Map-matching（2026-05-09 加）
+
+| 術語 | 說明 |
+|---|---|
+| OSRM (Open Source Routing Machine) | 開源路徑引擎，吃 OSM 路網，提供 `/route`、`/nearest`、`/match` 三種 endpoint |
+| HMM Map-matching | 把雜訊 GPS 序列 snap 到真實道路的 Hidden Markov Model 演算法（Newson & Krumm 2009）。OSRM `/match` 內部用 |
+| PBF (Protocolbuffer Binary Format) | OSM 二進位格式，Geofabrik 提供國家／區域分檔（taiwan-latest.osm.pbf ~200MB，月更）|
+| osrm-extract / partition / customize | OSRM 預處理三步：parse PBF → 建層級分區 → 套 cost model（`car.lua`），共約 25-30 min CPU（Tokyo amd64 機器只要 6 分鐘）|
+| osrm-routed | OSRM 的 HTTP server，啟動參數 `--algorithm mld --port <p> /data/<name>.osrm` |
+| confidence (OSRM /match) | 0-1 區間，HMM 對 match 結果的信心。垃圾車設 < 0.35 視為 NoMatch（保守 threshold）|
+| matched polyline | OSRM `/match` 回的真實道路路徑（GeoJSON LineString），跟 progress timeline 配對給前端 |
+| `realtime.waste_match_attempts` | OSRM 嘗試紀錄表（migration 075）：避免 NoMatch trip 反覆 retry。`success` + `reason` 欄位 |
+| stop-to-stop /route（候選方案）| 用 stop snapping 還原 stop sequence → 對相鄰 stop 對呼叫 `/route` 拿真實道路最短路徑 → 拼接。對 stationary GPS 比 HMM 強，預期 success > 90%。要 stop_sequence 欄位（目前 schema 缺）|
+
+## Zeabur 部署（2026-05-09 加）
+
+| 術語 | 說明 |
+|---|---|
+| PREBUILT_V2 | Zeabur 對 Docker / GitHub source 部署 service 的內部 type，K8s service port 預設硬性 8080（不看 EXPOSE / PORT env）|
+| Internal hostname | 同 Zeabur project 內 service 互通用 `<service-name>.zeabur.internal:<port>` 或 `service-<service-id>:<port>`。**跨 project 不通** |
+| Bearer token gateway | nginx:alpine + envsubst template + token check pattern，包在 underlying service 前面解跨 project 通訊（PB-12）|
+| osrm-proxy | 本專案 Bearer token gateway service（[ianlkl11234s/osrm-proxy](https://github.com/ianlkl11234s/osrm-proxy)），public domain `osrm-proxy-gis.zeabur.app` |
+| osrm-taiwan | 本專案 OSRM Taiwan service（[ianlkl11234s/osrm-taiwan](https://github.com/ianlkl11234s/osrm-taiwan)），internal-only |
+| Service network 指令 | `npx zeabur@latest service network --id <id>` 看 K8s service 預期的 web (HTTP) port — 部署有 502 時必查 |
+
+## 垃圾車 Schedule 動畫（2026-05-10 加）
+
+時刻表動畫（`WasteScheduleScene`）跟 GPS 實際軌跡（`WasteTruckScene`）並存的兩套圖層用語。
+
+| 術語 | 說明 |
+|---|---|
+| Schedule layer (琥珀 #fbbf24) | 從 `spatial.waste_collection_stops` 表定 arrival/departure 跑的動畫，跟 GPS 圖層風格一致（共用色 + 音符），但獨立 toggle 並存。音符獨立 sub-toggle (`wasteScheduleNote`) 可單獨關。光點/音符 slider 共用 wasteOrbScale/wasteNoteSize/wasteNoteZOffset 三 paramRefs |
+| dow (day-of-week) | JS Date.getDay() 規則 0=Sun..6=Sat。useWasteScheduleLayer 用 timeStore.subscribeDate 取當日 dow，cache 8 entries |
+| dwell | stop 內停留時間 = departure - arrival，新北常為 0（fallback = arrival），高雄常為幾分鐘 |
+| gap | 相鄰 stops 時間 = next.arrival - current.departure。0 表示 source 沒記移動時間（瞬移）|
+| trip-break | 同一 route 內早班 / 中班 / 晚班間隔時段（gap > TRIP_BREAK_S 視為班次切換，整段 invisible）|
+| `TRIP_BREAK_S = 1500` | 25 分鐘以上才算班次切換。各區 stop gap 差 10x（板橋 60s vs 林口 600s），threshold 600s 對林口太緊把正常 movement 全砍 |
+| `DWELL_THRESHOLD_S = 120` | dwell < 2min 視為「過站不停」整段 arrival → arrival 持續移動；≥ 2min 才真停留 |
+| `FADE_DURATION_S = 180` | trip-break 兩端 / 路線首末 fade in/out 視窗，60x 倍速下 = 3 視覺秒 |
+| `MIN_MOVE_S = 60` | 最低移動秒數，gap=0 從 dwell 借時間給 movement，避免瞬移 |
+| `ACTIVE_ALPHA = 1.0` | 執勤中 alpha + size 都不切換，避免 60x 下高頻變化刺激眼睛 |
+| 60x 倍速 | 用戶主要觀看模式：1 真實秒 = 60 模擬秒。短 gap 1min = 1 視覺秒，視覺速度設計圍繞此 |
+| Grouped JSONB RPC | `get_waste_schedule_day` 返回 per-route 一筆 row，stops 為 JSONB array。避 PostgREST 20K cap（39K stops → 1281 routes）|
+| stops-as-polyline (v1) | stops 直線連接當路徑（沒 OSRM 整合前的 v1 方案），會穿牆、視覺速度過快 |
+| Catmull-Rom 不適用 | 對非真實連續軌跡會 overshoot 反向 → schedule 改純直線（GPS 仍用 spline）|

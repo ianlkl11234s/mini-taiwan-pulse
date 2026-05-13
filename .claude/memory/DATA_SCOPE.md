@@ -70,6 +70,61 @@
 > **PostgREST db-max-rows=20000 cap** — 2026-04-25 兩次踩到（groundwater 78K、river 44K 原始）。
 > 新 RPC 預估 rows > 15K 一律套 DISTINCT ON hourly 降頻（PRINCIPLES / PB-08）。
 
+## 廢棄物 — 時序（Supabase realtime schema）
+
+| 表 | 粒度 | 筆數 / 覆蓋 | 時間深度 |
+|---|---|---|---|
+| `spatial.waste_positions_realtime` | 每 2 分鐘（高雄、台南）/ 每日整批（新北凍結式）| 高雄 ~330 車/天 / 台南 ~183 車/天 / 新北 ~12 車 | 7 天 retention（migration 070）|
+| `realtime.waste_trails_matched_daily` | 每 5 分鐘 collector 跑 OSRM 寫入 | 高雄 5/4-5/9 共 ~2,000 rows / ~1,100 vehicle-days / avg confidence 0.74 | 7 天 retention（migration 074 cron 04:18）|
+| `realtime.waste_match_attempts` | 每 trip 嘗試後寫一筆 | ~3,280 attempts（5/4-5/9）/ 46% success / 54% fail (NoMatch / low confidence) | 7 天 retention（migration 075 cron 04:20）|
+
+## 廢棄物 — 靜態（Supabase spatial schema）
+
+| 表 | 筆數 | 幾何 | 用途 |
+|---|---|---|---|
+| `spatial.waste_collection_stops` | **77,125（5/10 更新）** | Point | 停運點（高雄 32K / 新北 27K / 宜蘭 12K / 臺北 4K / 基隆 2K）|
+| `spatial.waste_collection_routes` | **2,048**（高雄 1399 / 新北 649） | LineString | 路線（北/基/宜 0% 待 OSRM 補 — BL-17）|
+| `spatial.waste_facilities` | 16 / 463 待 geocode | Point | 焚化爐/掩埋場/轉運站 |
+| `spatial.waste_disposal_points` | 待盤點 | Point | 大型廢棄物清除點（migration 068）|
+
+### Schedule routes 5 城分布（dow=4 週四）
+
+| 城 | schedule routes | route LineString 覆蓋 |
+|---|---|---|
+| 高雄市 | 360 | 99.6%（752/755 全城）|
+| 新北市 | 579 | 100%（649 條）|
+| 臺北市 | 187 | **0%**（待 OSRM 補）|
+| 基隆市 | 63 | **0%**（待 OSRM 補）|
+| 宜蘭縣 | 75 | **0%**（待 OSRM 補）|
+| **合計 dow=4** | **1,281** | 1401 / 1283 = **109%** 過半 |
+
+## 廢棄物 — RPC（public schema）
+
+| RPC | Migration | 用途 | 效能 |
+|---|---|---|---|
+| `get_waste_current(cities)` | 069 | 每車最新 30 分內 GPS | < 1s |
+| `get_waste_routes(city)` | 069 | 路線 LineString | < 1s |
+| `get_waste_stops(city)` | 069 | 停運點 | < 1s |
+| `get_waste_facilities()` | 069 | 焚化爐/掩埋場 | < 1s |
+| `get_waste_trails(cities, since_min)` | 071 | 近 N 分鐘 trail（含去噪 + stop snapping） | 105ms |
+| `get_waste_trails_day(date, cities)` | 072 | 整日 trail（timeline 字串編碼） | < 1s |
+| **`get_waste_trails_matched_day(date, cities)`** | **074** | OSRM matched 整日 polyline + progress timeline | < 1s |
+| **`get_waste_schedule_day(cities, dow)`** | **079** | 表定時刻表（grouped per-route，stops JSONB array）| < 2s |
+
+> ⚠ migration 079 用 grouped JSONB 結構（per-route 一筆 row，stops JSONB array），
+> 避 PostgREST 20K row cap。flat row 設計 39K rows 會被切到 20K，林口/臺北/高雄
+> 整片資料丟失。詳見 PRINCIPLES「Supabase PostgREST 20K cap」+ PB-13。
+
+## 廢棄物 — 跨 repo 部署
+
+| 元件 | Repo / 位置 | 用途 |
+|---|---|---|
+| `waste_positions` collector | data-collectors/collectors/waste_positions.py | 抓政府 GPS API 寫 spatial 表 |
+| `waste_match` collector | data-collectors/collectors/waste_match.py | 跑 OSRM /match 寫 realtime 表 |
+| osrm-taiwan service | [github.com/ianlkl11234s/osrm-taiwan](https://github.com/ianlkl11234s/osrm-taiwan) | OSRM HTTP server (Zeabur, agent_test) |
+| osrm-proxy service | [github.com/ianlkl11234s/osrm-proxy](https://github.com/ianlkl11234s/osrm-proxy) | nginx Bearer token gateway (Zeabur public) |
+| 前端 layer | mini-taiwan-pulse/src/hooks/useWasteLayer.ts | replay 優先讀 matched，fallback v1 GPS trail |
+
 ## 前端靜態 GeoJSON（public/geo/）
 
 ```

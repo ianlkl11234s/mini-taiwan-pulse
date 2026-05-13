@@ -1,98 +1,216 @@
 # Status
 
-**最後更新**：2026-04-26（session：iot_wra 整合 + 雙表 pre-aggregate + 兩 layer 接前端 + 研究文件區）
-**分支**：`master`（本機領先 origin **109 commits**；gis-platform 領先 **5 commits**；data-collectors 待 commit 1 個）
+**最後更新**：2026-05-12（22 城 hwms 上線 + BL-22 OSRM 升級 + Geocoding pipeline 方法論文件）
+**分支**：`feat/historical-mode`（本機領先 master **41+ commits**）
 
-## 本次 session 完成
+## 5/12 完成（22 城 + OSRM + Round 4 prep + pipeline doc）
 
-### Collector 重複度檢核（方法論）
-- **疑似重疊**：iot_wra（4-22 上線）跟既有 4 個水資源 collector 關係不清
-- **方法論**：座標 ST_DWithin 100m + sample 名字驗證（**不信編號**，前面 agent 用 UUID/text 判斷錯了）
-- **結論**：
-  - groundwater 95% 配對 → **完全重複**（停 iot 子端點）
-  - river 16% 配對 → **互補**（兩邊都留）
-  - 5 個獨有類別（流量/閘門/堤防/沖刷/揚塵）→ 全新
+```
+42b2b1b memory: BACKLOG BL-23 補完整 Round 4 流程 5 步驟
+6133c60 memory: BACKLOG BL-22 done + 移除 BL-20 + 加 BL-23
+07d6ddd feat(waste-schedule): tooltip 標示推算 schedule
+ab6831f feat(waste): RPC 對 hwms flat schedule 推算合理時間 (083)
+98909ae fix(waste): RPC seq 排序 + spread within 60s (081+082)
+57b2208 fix(waste-schedule): tooltip 班次切換 threshold 對齊
+c6f3018 feat(waste-schedule): 預設改 22 城 (ALL_22_CITIES)
+... + 22 城 import flow + OSRM 升級 (gis-platform 084+085)
+... + Round 4 normalize batch (taipei-gis-analytics 94549ee)
+... + Geocoding pipeline doc (今天 in progress)
+```
 
-### Migration 063：iot_wra 雙表 pre-aggregate
-- `realtime.iot_wra_latest`：每站每測項最新值 + delta_since_day_start（~4k rows 固定）
-- `realtime.iot_wra_daily`：每站每測項每日 1 row + hourly timeline 字串編碼（~4k × 7 天，仿 freeway pattern）
-- 改寫 `get_iot_wra_latest`、新增 `get_iot_wra_day`
-- 3 個 cron job 排程（錯開分鐘 7,17,27,37,47,57 / 19,39,59 / 04:10 cleanup）
-- 已跑進 Supabase 驗證：3,684 latest rows / 7 types / 99% 有 delta / daily 7 天 backfill
+### 目前進度（spatial.waste_collection_stops）
 
-### Collector 改動（cross-repo）
-- `data-collectors/collectors/iot_wra.py` 註解 groundwater 子端點（避重複；歷史 5 年保留 DB）
+- stops 77K → **182,014**（5 城既有 + 17 城 hwms）
+- routes 2K → **6,739**
+- 18 城（缺 新竹市/嘉義市/金門/連江 4 城 0% coverage）
+- coverage: **70%** (216,768 / 308,129)
 
-### 前端 2 新 Layer + 細項 toggle + 圖例
-- **iotWraRiver**：1,634 站河川補強（含預測水位 9 種測項），紫↔cyan delta 著色，timeline 驅動
-- **iotWraStructure**：5 in 1（流量/閘門/堤防/沖刷/揚塵），按 station_type 著色，純 latest snapshot
-- 細項 toggle（即時/預測 + 5 類型，預設全開）
-- LegendPanel +2 段（IoT 河川 delta gradient + IoT 水工結構 5 種類別 + 主要測項說明）
-- boolean 透過 `overlayParams` 0/1 中介（仿 metroPillarVisible pattern）
+### 5/12 next：Geocoding Pipeline Stage 4-6
 
-### 研究文件區（新建 docs/research/）
-- `iot-wra-integration-study.md` — 7 章重疊度分析 + 架構決策 + 方法論
-- `water-layer-cookbook.md` — 12 個故事組合速查（含 4 個 iot 新解鎖故事）
-- CLAUDE.md 加 `docs/research/` 指向
+詳見 [`docs/research/geocoding-pipeline.md`](../../docs/research/geocoding-pipeline.md)
 
-## 本次 session commits（atomic）
+**Nominatim 實測**（2026-05-12）：
+- ✅ landmark「彰化縣花壇國小」找到 (24.0264, 120.5438)
+- ❌ 路口「○○巷與○○路口」0 hit
+- ❌ 離島「金門縣金沙鎮環島東路」0 hit
+- ❌ 一般門牌「彰化縣彰化市三民路129號」0 hit
+- 結論：**只對 landmark POI 有效**，intersection/offshore/門牌都退 Stage 6 內插
 
-**mini-taiwan-pulse**（11 個）
-- `feat(iot-wra)` 兩 layer + 細項 toggle + LegendPanel
-- `docs(research)` 新增研究報告區 + 2 篇文件
-- `docs(claude)` CLAUDE.md 指向 docs/research/
-- `memory: append INCIDENTS` +2（IconRailSidebar 漏改 / overlayParams 型別嚴格）
-- `memory: PRINCIPLES` +3（collector 重複檢核 / 一前端兩 sidebar / boolean 0/1 中介）
-- `memory: append PLAYBOOKS` PB-09 + PB-10
-- `memory: GLOSSARY` +5（iot_wra 術語）
-- `memory: update DATA_SCOPE` (+iot_wra 區段)
-- `memory: BACKLOG` +5 done +1 new (BL-7 reservoir_daily_ops 診斷)
-- `memory: append REFLECTIONS` (iot_wra 整合反省)
-- `memory: rewrite STATUS` (本檔)
+**To-do（3 天工程）**：
 
-**gis-platform**（待 cross-repo commit）
-- `063_iot_wra_pre_aggregate.sql`（已手動跑進 Supabase）
+| Stage | 工程 | 預計補 | 狀態 |
+|---|---|---:|---|
+| 3 Round 4 TGOS | 0（等用戶手動上傳 day_008+009）| 8-12K | day batch 已產出 |
+| 4a 學校 fuzzy match | 半天 | 1-2K | 待做 |
+| 4b Foursquare POI category | 半天 | 2-3K | 待做 |
+| 4c Nominatim POI fallback (中斷可續) | 1-2hr 執行 | 1-2K | 待做 |
+| 6 Route interpolation | 1 天 | 15-25K | 待做 |
+| 7 整合 + 達成率報表 | 半天 | - | 待做 |
 
-**data-collectors**（待 cross-repo commit）
-- `iot_wra.py` 註解 groundwater 子端點
+**Target coverage**：70% → **≥90%**（補 ~60K）
 
-## 本機未 push 累計
+## 5/11 完成（schedule UX polish）
 
-- mini-tw：109 commits（98 + 本次 11）
-- gis-platform：5 commits（4 + 本次 1）
-- data-collectors：本次 +1
-- Supabase 已部署：migration 063 已手動跑過（cron 已啟動）
+```
+fe9a561 memory: GLOSSARY 更新 Schedule layer 視覺
+54452c2 feat(waste-schedule): 主 toggle 改 expandable
+1ee5e5e feat(waste-schedule): 改琥珀色 + 加音符 + 音符獨立 toggle
+```
 
-## 等用戶執行
+- WASTE_SCHEDULE_COLOR `#a78bfa` (淡紫) → `#fbbf24` (琥珀) — 跟 GPS 一致
+- wasteScheduleCustomLayer 加 WasteMusicNoteScene 子場景 — 全部 visible 車噴音符
+- 新 `wasteScheduleNote` LayerVisibility 獨立 sub-toggle（默認 on）
+- wasteSchedule 主 toggle 加 `expandable: true`，展開後 3 個 slider（光點大小 / 音符大小 / 音符高度），共用 GPS 的 paramRefs（wasteOrbScale / wasteNoteSize / wasteNoteZOffset）
 
-- [ ] cross-repo commits（gis-platform 063 / data-collectors iot_wra.py）
-- [ ] `git push` × 3 repo
-- [ ] **重啟 data-collectors**（讓 STATION_TYPES 改動生效，停止收 iot groundwater 重複資料）
-- [ ] 瀏覽器驗證：iotWraRiver / iotWraStructure 兩 toggle 視覺 + 細項 toggle + 右下圖例
-- [ ] BL-7 reservoir_daily_ops 04-23 停擺診斷（看 Zeabur log）
+視覺結果：schedule + GPS 兩圖層風格統一，疊在一起看「表定 vs 實際」誤差超直觀。
 
-## 新增規則（PRINCIPLES.md）
+## 5/10 commit chain（前一晚）
 
-- **Collector 重複度檢核**（⚠ P0，2026-04-26）：不信編號系統，用座標 ST_DWithin 100m + sample 名字驗證；> 90% 配對 = 重複，< 30% = 互補
-- **一前端兩 Sidebar 同步改**（⚠ P0，2026-04-26）：LayerSidebar + IconRailSidebar，漏改 = tsc 過但 toggle 看不到
-- **boolean 透過 overlayParams 一律 0/1 中介**（2026-04-26）：仿 metroPillar3d pattern；動既有型別前先看相同類型 state 怎麼處理
+```
+c6b330e memory: BACKLOG schedule done
+a9e850f memory: DATA_SCOPE 廢棄物更新
+d2428fb memory: PLAYBOOKS +PB-13 大集合 RPC SOP
+3f9a81d memory: GLOSSARY +Schedule 動畫章節
+85acaea memory: REFLECTIONS +1 篇
+71ce8a3 memory: PRINCIPLES +grouped JSONB pattern
+a435658 memory: INCIDENTS +2
+304fcff fix(waste-schedule): 視覺打磨收尾 + grouped RPC + OSRM plan
+448bd20 fix(waste): 079 grouped JSONB（gis-platform repo）
+d6e9ef2 feat(waste): 表定動畫圖層 wasteSchedule 上線（5 城 + 60x 視覺打磨）
+86dd94f docs+memory(waste): Phase 3 prototype 提前
+...
+```
 
-## 下一步候選（[BACKLOG.md](BACKLOG.md)）
+## 5/10 晚 session 完成（兩階段）
 
-- **BL-7** reservoir_daily_ops 04-23 停擺診斷（P3 但容易做）
-- **BL-4** 淹水潛勢多情境 slider（P2，17,303 polygon × 10 情境）
-- **W001** 警戒水位視覺化（P2，需先 seed `river_stations` 空表）
+### 階段 A：Phase 3 prototype 上線（commit d6e9ef2 + 2cc67b7）
 
-## 累計狀態快照
+5 城（高雄/新北/宜蘭/臺北/基隆）77K stops 直接做表定動畫，**不等 TGOS callback**：
 
-- 40 座水庫 / 1,304 雨量站 / 332 河川水位站 / 733 地下水井 / **2,800+ iot_wra 站**
-- Timeline 五層同步回放（rain / river / reservoir / groundwater / iotWraRiver）
-- **15 個水資源圖層上線**（9 靜態 backdrop + 6 動態）
-- 監測站視覺 pattern：delta_since_day_start 著色（跨站可比，timeline 撥放動）
-- **Pre-aggregate pattern**：8 個 cron refresh job（ship/flight/freeway/youbike/disaster/temp/iot 2）錯開分鐘
-- **PostgREST 20K cap 已修 2 + 1 預防**（060 / 060b / 063 daily 字串編碼）
-- 3D 視覺：水位計 + 點選後雙排日柱
-- 記憶系統：v2 9 檔 + SessionStart auto-load + /wrap-up
-- **研究報告區**：`docs/research/`（2 篇 + 方法論 SOP 進 PB-09/PB-10）
+- `gis-platform/migrations/079_waste_schedule_rpc.sql` — `get_waste_schedule_day(cities, dow)`
+- `src/data/wasteScheduleLoader.ts` + `src/hooks/useWasteScheduleLayer.ts`（dow 驅動，subscribeDate 跟 timeline 連動）
+- `src/three/WasteScheduleScene.ts` — InstancedMesh 動畫
+- `src/map/wasteScheduleCustomLayer.ts` + `useThreeJsLayers` 整合
+- LayerVisibility 加 `wasteSchedule` toggle（淡紫 #a78bfa，跟 GPS 琥珀分色）
+- Picking + debug tooltip：點車看 route_id / stop / arrival / departure / gap
 
-詳細：[DATA_SCOPE.md](DATA_SCOPE.md) / [BACKLOG.md](BACKLOG.md) / [REFLECTIONS.md](REFLECTIONS.md)
+### 階段 B：視覺打磨 7 方案 try-error + grouped RPC（commit 304fcff + 448bd20）
+
+7 方案 try-error 後收斂的設計：
+
+| 方案 | 結果 |
+|---|---|
+| 1. 移除 alpha/size 切換 | ✅ 解眼睛痛 |
+| 2. Trip-break detection (gap > 1500s) | ✅ 班次切換 fade out/invisible/fade in |
+| 3. 短 dwell 持續移動 / 長 dwell 真停 | ✅ 解 dwell=0 過站不停 |
+| 4. Catmull-Rom 平滑 | ❌ 拿掉（spline 對非真實軌跡 overshoot 反向）|
+| 5. Distance threshold fade | ❌ 拿掉（切段不解視覺速度問題）|
+| 6. TRIP_BREAK_S 600 → 1500 | ✅ 解林口（地廣山坡 stops gap median 600s） |
+| 7. **Grouped JSONB RPC** | ✅ **解 PostgREST 20K row cap，林口/北投/高雄全現身** |
+
+### 階段 B 最關鍵教訓：撞 PostgREST 20K cap 第二次
+
+GLOSSARY 早寫了 migration 063 timeline 字串編碼是「避 PostgREST 20K cap」的 pattern，PRINCIPLES 也有 ⚠ P0 章節。**但設計新 RPC 時沒先看**，沿用 flat row 39K stops 設計就撞牆。
+
+修法：grouped per-route，stops 為 JSONB array。39K rows → 1281 rows。
+
+## 5 城 schedule routes 統計（dow=4 週四 active）
+
+| 城 | routes | stops | LineString 覆蓋 |
+|---|---|---|---|
+| 新北 | 579 | 23,280 | 100%（649 條）|
+| 高雄 | 360 | 8,870 | 99.6%（752/755）|
+| 臺北 | 187 | 4,010 | **0%**（待 OSRM 補）|
+| 宜蘭 | 75 | 1,726 | **0%**|
+| 基隆 | 63 | 1,079 | **0%**|
+| **合計** | **1,281** | ~39K | 1401/1281 = 109% |
+
+## 視覺設計參數（給 60x 倍速調校）
+
+```ts
+TRIP_BREAK_S      = 1500;  // 25min 才算班次切換（板橋 60s vs 林口 600s 差 10x）
+DWELL_THRESHOLD_S = 120;   // 2min：短 dwell 整段持續移動 / 長 dwell 真停
+FADE_DURATION_S   = 180;   // 60x 下 3 視覺秒 fade
+MIN_MOVE_S        = 60;    // gap=0 從 dwell 借時間
+ACTIVE_ALPHA      = 1.0;   // 執勤中 alpha + size 不切換
+maxInstances      = 20000; // 22 城擴展 buffer
+```
+
+## 下次 session 必做
+
+### Track B Phase 1.5：OSRM 整合（BL-17，2.5-3 天）
+
+詳見 [`docs/research/waste-schedule-osrm-plan.md`](../../docs/research/waste-schedule-osrm-plan.md)。
+
+```
+Phase 1: 用既有 LineString（高雄 + 新北 1401 routes）
+   1a. 新 RPC get_waste_schedule_day_with_geometry（JOIN routes geometry）
+   1b. Loader 投影 stops → progress
+   1c. Scene 改 progress-based interpolation（仿 GPS matched trail）
+
+Phase 2: OSRM 補北/基/宜（356 routes，~30 min build）
+   2a. 新表 spatial.waste_routes_synthesized + build script
+   2b. RPC fallback (waste_collection_routes → synthesized → 直線)
+
+Phase 3: 5 城視覺驗收
+```
+
+OSRM 整合後車沿馬路走，「穿牆」、「方向突變」、「視覺速度過快」三個 v1 痛點一次解。
+
+### Track A 並行（user / taipei-gis-analytics）
+
+- ⏳ TGOS day_003-007 上傳中
+- 🔴 寫 12_unified_callback.py（含 TWD97 → WGS84）
+- 🔴 callback 完 stops 77K → 385K（22 城全覆蓋）
+
+### 上線前必跑（BL-18）
+
+22 城擴展前對新城跑 `docs/research/waste-schedule-data-quirks.md` 內 6 個 sanity SQL：
+1. weekday_pattern 格式分布
+2. arrival_time / departure_time 格式驗證
+3. 同 stop 重複
+4. 時間倒退
+5. 班次切換比例（trip-break）
+6. gap=0 瞬移密度
+
+發現新格式（英文 Mon,Tue / 全形數字 / 12 小時 AM/PM 等）就擴展 RPC parser。
+
+## 待 push（35 commits）
+
+```bash
+git push origin feat/historical-mode
+```
+
+不要忘記 gis-platform 也有 1 個未 push commit（`448bd20`）。
+
+## 5/13 完成（Geocoding Pipeline Stage 4-6 + Round 4 TGOS callback）
+
+### 達成率：70% → **82.3%**
+
+```
+geocoded_via 分布（hwms_pending 308K stops）：
+  tgos_batch (Round 1-3)            105,344  34.2%
+  pre_geocoded                       89,364  29.0%
+  (early callback legacy)            24,459   7.9%
+  interpolated_route                 24,113   7.8% ⭐ Stage 6 主力
+  tgos round 4 normalized             5,801   1.9%
+  poi_nominatim                       1,929   0.6%
+  poi_school                          1,662   0.5%
+  poi_foursquare                        862   0.3%
+  ─────────────────────────────────────────────
+  with coord                        253,534  82.3%
+  still missing                      54,595  17.7%
+```
+
+### supabase 22 城 stops: 189K → **215,088**（22 城全到齊）
+
+### scripts (taipei-gis-analytics)
+- 32_match_school_poi.py        Stage 4a +1,662 stops (84% match)
+- 33_match_foursquare_poi.py    Stage 4b +862 stops  (23% match)
+- 34_match_nominatim_poi.py     Stage 4c +1,929 stops (58% match, JSONL cache 中斷可續)
+- 35_interpolate_route.py       Stage 6 +24,113 stops (主力，前後 < 5km filter)
+
+### 還缺 17.7% (~55K stops)
+無解類別：landmark 地方小廟 / intersection 沒前後 / 路名沒門牌 / 完全孤立 stop
+可能未來打 Google Maps (Stage 5) 補回 ~5-10K
+

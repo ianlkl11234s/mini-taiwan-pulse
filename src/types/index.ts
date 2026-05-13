@@ -51,6 +51,14 @@ export interface TimelineState {
 /** 時間模式：replay = 歷史回放, live = 即時模式 */
 export type TimeMode = "replay" | "live";
 
+/** App 大模式：realtime = 即時 24h, historical = 歷史長時序（年/日/月） */
+export type AppMode = "realtime" | "historical";
+
+/** 歷史模式狀態：年份（民國年）+ 後續可擴日期粒度 */
+export interface HistoricalState {
+  year: number; // 民國年，例如 113 = 西元 2024
+}
+
 /** 資料源的時間行為類型 */
 export type TimeType =
   | "track"     // 有軌跡的動態資料（航班、船舶）
@@ -118,7 +126,25 @@ export type ExpandableLayerKey =
   | "groundwater"
   | "groundwaterWells"
   | "iotWraRiver"
-  | "iotWraStructure";
+  | "iotWraStructure"
+  | "fireEvents"
+  | "wasteTruck"
+  | "wasteSchedule"
+  | "wasteScheduleNote"
+  // waste facility 8 sub-types（每種有 size/opacity/altitude slider）
+  | "wfIncinerator"
+  | "wfLandfill"
+  | "wfTransfer"
+  | "wfMedical"
+  | "wfMonitoring"
+  | "wfRecycling"
+  | "wfScrapYard"
+  | "wfOther"
+  // waste disposal point 4 sub-types
+  | "wdClothes"
+  | "wdMixed"
+  | "wdRecyclingContainer"
+  | "wdBattery";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -276,6 +302,18 @@ export const BUS_GROUP_LABELS: Record<BusGroup, string> = {
   OffshoreIslands:      "離島",
 };
 
+/** 垃圾車表定用：BusGroup → 中文城名（spatial.waste_collection_stops.city 用 utf-8「臺」字） */
+export const WASTE_GROUP_CITIES: Record<BusGroup, string[]> = {
+  TaipeiMetro:          ["臺北市", "新北市"],
+  KeelungYilan:         ["基隆市", "宜蘭縣"],
+  TaoyuanHsinchuMiaoli: ["桃園市", "新竹市", "新竹縣", "苗栗縣"],
+  CentralTaiwan:        ["臺中市", "彰化縣", "南投縣"],
+  YunChiaNan:           ["雲林縣", "嘉義市", "嘉義縣", "臺南市"],
+  Kaoping:              ["高雄市", "屏東縣"],
+  HualienTaitung:       ["花蓮縣", "臺東縣"],
+  OffshoreIslands:      ["澎湖縣", "金門縣", "連江縣"],
+};
+
 export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string }> = {
   Taipei:           { label: "台北", jsonFile: "./bus/taipei_bus_routes.json" },
   NewTaipei:        { label: "新北", jsonFile: "./bus/newtaipei_bus_routes.json" },
@@ -397,7 +435,8 @@ export interface FeatureInfo {
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
-    | "iotWraRiver" | "iotWraStructure";
+    | "iotWraRiver" | "iotWraStructure"
+    | "wasteFacility" | "wasteDisposalPoint";
   properties: Record<string, unknown>;
 }
 
@@ -459,6 +498,27 @@ export interface LayerVisibility {
   groundwaterWells: boolean;
   iotWraRiver: boolean;
   iotWraStructure: boolean;
+  fireEvents: boolean;
+  wasteTruck: boolean;
+  wasteSchedule: boolean;
+  wasteScheduleNote: boolean;
+  wasteRoute: boolean;
+  wasteStop: boolean;
+  // waste_facilities 8 sub-toggles（incinerator/landfill/transfer/medical 走 Three.js 3D；
+  // monitoring/recycling/scrap/other 走 Mapbox circle）
+  wfIncinerator: boolean;
+  wfLandfill: boolean;
+  wfTransfer: boolean;
+  wfMedical: boolean;
+  wfMonitoring: boolean;
+  wfRecycling: boolean;
+  wfScrapYard: boolean;
+  wfOther: boolean;
+  // waste_disposal_points 4 sub-toggles（全部走 Mapbox circle）
+  wdClothes: boolean;
+  wdMixed: boolean;
+  wdRecyclingContainer: boolean;
+  wdBattery: boolean;
 }
 
 // ── 空氣品質 ──

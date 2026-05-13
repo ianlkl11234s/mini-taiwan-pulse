@@ -15,6 +15,7 @@
 | BL-5 | P1 | 水庫點選顯示 3D 進/出流雙排日柱 | **done** | 2026-04-23 完成（commit dae1c78 / 06116e7 / 52a56ba / 6600433）|
 | BL-6 | P3 | 水庫 3D 柱顯示「最新日期」標記 | open | 討論中：panel ribbon 或 Marker「最新」小字；暫停 |
 | BL-7 | P3 | `reservoir_daily_ops` 04-23 停擺診斷 | open | collector / cron 4-23 後沒進新筆，需查 Zeabur log（2026-04-25 盤點時發現）|
+| BL-8 | P3 | Git history 清舊 water_*.geojson 大檔 | open | 5 個檔留在 history（最大 79MB water_flood_extreme），每次 push GitHub 警告但不影響功能。.gitignore + S3 機制已正確。需 git filter-repo + force push（風險高 → 暫不做）|
 
 ### 水資源擴展（新 collector / 新 RPC）
 
@@ -27,6 +28,25 @@
 | W005 | P3 | 水權統計 | open | data.gov.tw 36696，**非空間**表格，做指標卡/長條圖，補「用水」最大缺口 |
 | W006 | P3 | 集水區敏感區（內/外 0.5km） | open | WRA 129475 / 129476 |
 
+### 廢棄物 / OSRM map-matching（BL-9~13 — 2026-05-09 上線後新待辦）
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| BL-9 | P2 | 多城市擴展 OSRM map-matching | **partial** | 2026-05-09 台南上線；env var 加台南、SQL DISTINCT ON dedup（commit `d8297f9`）、trip-gap 600→900s（commit `e937383`）、DELETE 5/8+5/9 台南 attempt 重跑驗證。**待用戶前端視覺驗證**。台南 success rate baseline ~20-45%（低於高雄 5-25pt，採樣 5min vs 2min 的硬限制；BL-11 才能根本解）。新北未驗證但 plan §15 凍結式描述其實錯誤（採樣 p50=120s 跟高雄一樣穩定）。詳見 plan §14 + §15 |
+| BL-14 | P2 | 查證高雄 5/9 success 30.3% vs 5/8 49% 落差 | open | trip-gap 改 600→900 後可能誤合「短停」邊界 → trip 內出現大跳 → OSRM fail。SQL 對比 5/8 同時段 13:00-18:00 高雄 success rate 即可分辨 daily variance vs trip-gap 副作用。若是後者，考慮 per-city dict（高雄 600s / 台南 900-1500s） |
+| BL-15 | P2 | ETL UNIQUE constraint + ON CONFLICT DO NOTHING | open | `spatial.waste_positions_realtime` 無 unique 約束，台南 polling 每 ~2min 重複抓 endpoint「最近 N 分鐘 GPS」→ 同 (city, vehicle_no, observed_at) 重複寫 2-4 次（全表 56,934 dup groups / 114,182 row 該刪 / 台南 60% / 新北 7% / 高雄 0.09%）。每天約 50K dup row 累積。Migration 步驟：(1) DELETE dup 保留最早 ingested_at; (2) CREATE UNIQUE INDEX (city, vehicle_no, observed_at); (3) `storage/supabase_tables.py` waste_positions 加 `upsert_key` + `upsert_strategy='do_nothing'`。Hygiene only — 不影響當下 OSRM success rate（SQL 端已用 DISTINCT ON 防禦） |
+| BL-16 | P2 | 前端 useWasteLayer.ts 加台南 default + city 切換 UI | open | 目前 `useWasteLayer.ts:41` cities 預設 `["高雄市"]`，要改 `["高雄市", "臺南市"]` 才看得到台南；UI 仿 BusGroup pattern 加 city 切換 toggle。設計上已支援多城（cities 是陣列參數），純改 default + UI |
+| BL-10 | P3 | PBF 月更自動化（GitHub Actions cron 每月 1 號）| open | 目前要手動 push trivial commit 觸發 Zeabur redeploy。寫 `.github/workflows/refresh-pbf.yml` 自動跑 |
+| BL-11 | P3 | 評估 stop-to-stop OSRM /route 取代 HMM /match | open | 預期 success rate > 90%，但要先解 `waste_collection_stops` 沒 `stop_sequence` 欄位的問題（用 `arrival_time` 推或從 GPS 反推）。1-2 天工程 |
+| BL-12 | P3 | 評估刪除 `data-collectors-ship-only-aws` Zeabur project | open | Lightsail Tokyo 機器（IP 被高雄/台南政府 API 擋）目前完全沒用。月費 $X 可省 |
+| BL-13 | P2 | LegendPanel 加「沿路網」說明 | open | 區分 matched（沿馬路）vs fallback（GPS 直線）兩種視覺，給用戶看圖例 |
+| BL-17 | P2 | 表定動畫沿馬路（OSRM 路徑） | open | 目前 v1 是 stops 直線插值會「穿牆」。高雄/新北 DB 已有 1399+649 LineString 可投影 stops 到 polyline；北/基/宜需打 OSRM `/route` 補。仿 GPS matched trail progress-based interpolation。預估 2-3 天 |
+| BL-18 | P1 | 22 城擴展前跑 schedule sanity SQL | **done** | 2026-05-12 完成；22 城 import 後 weekday/arrival 格式都被 migration 079/080 RPC parser 涵蓋，沒新 quirks。lng 截斷 4 + 出界 5 全部由 080 sanity filter 過濾掉（migration 080 跑 18 城 routes=2,646 / stops=66K 正常） |
+| BL-19 | P3 | dwell=0 + gap=0 corner case | open | 兩個都 0（total=0）時 ratio NaN，車仍卡在 p0。改用「下一段挪用」邏輯，跨 stop 借時間。罕見 case，先放著 |
+| BL-21 | P3 | hwms 5 城 overlap 合進 supabase 評估 | open | `waste_collection_stops_hwms_5city_overlap.geojson` (111K stops) + `..routes_hwms_5city_overlap.geojson` (3.5K routes) 是 hwms 在 5 城範圍的部分，**目前未 import**（既有 5 城 waste 路徑保留）。hwms 路徑某些城更詳細（新北 27K→64K、臺北 4K→12K），但宜蘭反而少（12K→5K）。要研究怎麼 dedup 合併（用 stop_name + coord 雙重 key？取較詳細？）。1-2 天 |
+| BL-22 | P2 | hwms flat schedule routes OSRM 沿馬路升級 | **done** | 2026-05-12 完成；A 類 287 routes 跑 OSRM /route 取 stop-to-stop 沿馬路距離（1,721 calls, 6.4min, 0 fail），寫 `spatial.waste_route_inferred_segments`（migration 084）。RPC migration 085 LEFT JOIN 該表，NULL fallback 直線×1.4。竹北019 從 4hr4min → 4hr21min（+10% 更貼真實）|
+| BL-23 | P2 | Round 4 TGOS 18,005 normalized addresses | open | 從 91K 沒對到 stops 篩出地址正常可救的 18K (排除 landmark/intersection/no_number/offshore 31K)，normalize 剝重複前綴+環保局後拆 day_008+day_009 進 `upload/v2/`（commit 待 push）。**Round 4 收完後完整流程**：(1) 更新 `12_unified_callback.py` PAIRS 加新 (result, mapping) 對 → 跑 `--commit` 補座標 (2) 跑 `30_build_split_geojson.py` 重 build 17 城 geojson (3) `DELETE FROM spatial.waste_collection_stops WHERE city NOT IN ('5城')` + `05_import` reinsert (4) **重跑 `compute_waste_inferred_segments.py`** — resume-aware 自動補新增 flat routes 的 OSRM segments（新竹市/嘉義市先前 0% 現在可能新出現 A 類 routes）(5) RPC 自動接 OSRM 不用改。詳見 `_phase11_round4_README_*.md` |
+
 ### 一般待辦
 
 | ID | 優先級 | 項目 | 狀態 | 備註 |
@@ -37,6 +57,11 @@
 
 ## 已完成（近期 10 筆）
 
+- 2026-05-12 ✅ **22 城 hwms stops 補座標 + INSERT 進 supabase**（v1+v2 TGOS 共 7 csv ~65K 地址 callback → 補 192K stops 座標 [TGOS 103K + pre_geocoded city-match 89K]，仍 91K 缺座標。寫 12_unified_callback.py + 30_build_split_geojson.py 拆 17 城 [104K stops + 4.7K routes] + 5 城 overlap 備份 [111K stops + 3.5K routes]。05_import_to_supabase 加 --stops-file/--routes-file 參數。INSERT 不 truncate → supabase stops 77K → 182K / routes 2K → 6.7K / 5 城 → 18 城。前端 wasteScheduleLoader+useWasteScheduleLayer 預設改 ALL_22_CITIES。Migration 080 sanity filter 對新加 17 城資料一樣有效（0 出界）。RPC 跑 dow=4 共 67K stops 健康）
+- 2026-05-12 ✅ **migration 080 stop coord sanity filter**（5 城 stops 中 87 outlier + 4 lng 整數截斷 + 5 出界 → RPC 三道 filter [整數 / Taiwan bbox / route 內 outlier] 自動跳過。tooltip 5min 寫死 → import Scene TRIP_BREAK_S=1500s 對齊）
+- 2026-05-11 ✅ **垃圾車表定動畫 視覺統一 + expandable**（顏色淡紫 → 琥珀同 GPS、加 WasteMusicNoteScene 音符特效、wasteScheduleNote 獨立 sub-toggle、主 toggle expandable 展開 3 slider 共用 GPS paramRefs）
+- 2026-05-10 ✅ **垃圾車表定動畫 (Phase 3 prototype) 上線**（5 城 1281 routes / 77K stops / dow 驅動 / 淡紫 #a78bfa 跟 GPS 圖層獨立 toggle 並存。RPC migration 079 grouped JSONB 避 PostgREST 20K cap / 7 種 source data quirks 修法 / 視覺打磨 7 方案 try-error 收斂。OSRM 整合計畫 BL-17，22 城擴展 sanity check BL-18，corner case BL-19）
+- 2026-05-09 ✅ **廢棄物 OSRM map-matching pipeline 完整上線**（osrm-taiwan + osrm-proxy 兩 service / migration 074+075 / waste_match collector / 5/4-5/9 共 6 天 backfill / 1,510 success match / attempt marker 解 retry 死循環 + drain。多城市擴展計畫進 BL-9~13）
 - 2026-04-26 ✅ **iot_wra 重複度檢核 SOP**（座標 + 名字 sample，不信編號系統；發現 groundwater 95% 重複 / river 16% 互補）
 - 2026-04-26 ✅ **Migration 063 iot_wra 雙表 pre-aggregate**（latest 4k snapshot + daily timeline 字串編碼，仿 freeway pattern）
 - 2026-04-26 ✅ **iot_wra collector 停 groundwater 子端點**（避重複；iot 5 年歷史保留在 DB）
