@@ -182,3 +182,35 @@ git push origin feat/historical-mode
 ```
 
 不要忘記 gis-platform 也有 1 個未 push commit（`448bd20`）。
+
+## 5/13 完成（Geocoding Pipeline Stage 4-6 + Round 4 TGOS callback）
+
+### 達成率：70% → **82.3%**
+
+```
+geocoded_via 分布（hwms_pending 308K stops）：
+  tgos_batch (Round 1-3)            105,344  34.2%
+  pre_geocoded                       89,364  29.0%
+  (early callback legacy)            24,459   7.9%
+  interpolated_route                 24,113   7.8% ⭐ Stage 6 主力
+  tgos round 4 normalized             5,801   1.9%
+  poi_nominatim                       1,929   0.6%
+  poi_school                          1,662   0.5%
+  poi_foursquare                        862   0.3%
+  ─────────────────────────────────────────────
+  with coord                        253,534  82.3%
+  still missing                      54,595  17.7%
+```
+
+### supabase 22 城 stops: 189K → **215,088**（22 城全到齊）
+
+### scripts (taipei-gis-analytics)
+- 32_match_school_poi.py        Stage 4a +1,662 stops (84% match)
+- 33_match_foursquare_poi.py    Stage 4b +862 stops  (23% match)
+- 34_match_nominatim_poi.py     Stage 4c +1,929 stops (58% match, JSONL cache 中斷可續)
+- 35_interpolate_route.py       Stage 6 +24,113 stops (主力，前後 < 5km filter)
+
+### 還缺 17.7% (~55K stops)
+無解類別：landmark 地方小廟 / intersection 沒前後 / 路名沒門牌 / 完全孤立 stop
+可能未來打 Google Maps (Stage 5) 補回 ~5-10K
+
