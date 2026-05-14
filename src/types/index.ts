@@ -121,6 +121,7 @@ export type ExpandableLayerKey =
   | "waterFacilities"
   | "waterMonitorStations"
   | "waterFloodExtreme"
+  | "waterDetentionBasins"
   | "rainGauge"
   | "riverLevel"
   | "groundwater"
@@ -131,6 +132,7 @@ export type ExpandableLayerKey =
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
+  | "wasteStopsStatic"
   // waste facility 8 sub-types（每種有 size/opacity/altitude slider）
   | "wfIncinerator"
   | "wfLandfill"
@@ -433,7 +435,7 @@ export interface FeatureInfo {
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert"
     | "aqiStation" | "microSensor"
-    | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly"
+    | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "iotWraRiver" | "iotWraStructure"
     | "wasteFacility" | "wasteDisposalPoint";
@@ -492,6 +494,7 @@ export interface LayerVisibility {
   waterFacilities: boolean;
   waterMonitorStations: boolean;
   waterFloodExtreme: boolean;
+  waterDetentionBasins: boolean;
   rainGauge: boolean;
   riverLevel: boolean;
   groundwater: boolean;
@@ -502,6 +505,7 @@ export interface LayerVisibility {
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;
+  wasteStopsStatic: boolean;
   wasteRoute: boolean;
   wasteStop: boolean;
   // waste_facilities 8 sub-toggles（incinerator/landfill/transfer/medical 走 Three.js 3D；

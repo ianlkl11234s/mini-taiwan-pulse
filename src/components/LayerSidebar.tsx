@@ -54,6 +54,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   waterFacilities: "#fbbf24",
   waterMonitorStations: "#f472b6",
   waterFloodExtreme: "#fb7185",
+  waterDetentionBasins: "#0284c7",
   rainGauge: "#3b82f6",
   riverLevel: "#22d3ee",
   groundwater: "#0ea5e9",
@@ -64,6 +65,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wasteTruck: "#fbbf24",
   wasteSchedule: "#fbbf24",
   wasteScheduleNote: "#fff8d6",
+  wasteStopsStatic: "#d97706",
   wasteRoute: "#84cc16",
   wasteStop: "#65a30d",
   // facility 8 sub-types
@@ -188,6 +190,7 @@ const SECTIONS: SectionDef[] = [
       { key: "waterFacilities", label: "水利設施 Facility", expandable: true },
       { key: "waterMonitorStations", label: "監測站 Monitor", expandable: true },
       { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
+      { key: "waterDetentionBasins", label: "滯洪池 Detention", expandable: true },
       { key: "rainGauge", label: "即時雨量 Rain Gauge", expandable: true },
       { key: "riverLevel", label: "河川水位 River Level", expandable: true },
       { key: "groundwaterWells", label: "水井點位 Wells", expandable: true },
@@ -202,6 +205,7 @@ const SECTIONS: SectionDef[] = [
       { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
       { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
       { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
+      { key: "wasteStopsStatic", label: "全台清運點位 (靜態)" },
     ],
   },
   {

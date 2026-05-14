@@ -1329,6 +1329,54 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 滯洪池 Detention Basin（防洪儲水池，56 點：tainan 45 + taoyuan 11）──
+  {
+    id: "waterDetentionBasins",
+    sourceUrl: "./geo/water_detention_basins.geojson",
+    sourceId: "water-detention-basins",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.detentionBasinScale ?? 1;
+          const opacity = p?.detentionBasinOpacity ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 4 * scale,
+              12, 9 * scale,
+              16, 14 * scale,
+            ],
+            "circle-color": "#0284c7",
+            "circle-blur": 1.2,
+            "circle-opacity": (isDark ? 0.45 : 0.35) * opacity,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.detentionBasinScale ?? 1;
+          const opacity = p?.detentionBasinOpacity ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 2 * scale,
+              12, 4 * scale,
+              16, 6 * scale,
+            ],
+            "circle-color": "#0284c7",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.5)",
+            "circle-stroke-width": 0.8,
+            "circle-opacity": 0.95 * opacity,
+          };
+        },
+      },
+    ],
+  },
+
   // ── 水利設施 Facility (抽水/淨水/水塔) ──
   {
     id: "waterFacilities",
@@ -1473,6 +1521,47 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "#d1d5db",
           ],
           "circle-opacity": 0.9,
+        }),
+      },
+    ],
+  },
+
+  // ── Waste Stops Static (全台清運點位散點) ──
+  {
+    id: "wasteStopsStatic",
+    sourceUrl: "./geo/waste_stops_static.geojson",
+    sourceId: "waste-stops-static",
+    layers: [
+      {
+        suffix: "waste-stops-glow",
+        type: "circle",
+        minzoom: 9,
+        paint: (isDark) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            9, 1.5,
+            13, 4,
+            16, 8,
+          ],
+          "circle-blur": 1.2,
+          "circle-color": isDark ? "#fbbf24" : "#d97706",
+          "circle-opacity": isDark ? 0.20 : 0.30,
+        }),
+      },
+      {
+        suffix: "waste-stops-fill",
+        type: "circle",
+        minzoom: 9,
+        paint: (isDark) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            9, 0.8,
+            13, 2,
+            16, 4,
+          ],
+          "circle-color": isDark ? "#fbbf24" : "#d97706",
+          "circle-opacity": isDark ? 0.55 : 0.70,
+          "circle-stroke-width": 0,
         }),
       },
     ],
