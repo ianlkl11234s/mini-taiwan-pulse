@@ -211,6 +211,8 @@ export function useTransportParams() {
   const [waterFacilityOpacity, setWaterFacilityOpacity] = useState(1.0);
   const [waterMonitorScale, setWaterMonitorScale] = useState(1.0);
   const [waterMonitorOpacity, setWaterMonitorOpacity] = useState(1.0);
+  const [detentionBasinScale, setDetentionBasinScale] = useState(1.0);
+  const [detentionBasinOpacity, setDetentionBasinOpacity] = useState(1.0);
   const [waterFloodOpacity, setWaterFloodOpacity] = useState(1.0);
   // Phase 2 monitoring layers（即時雨量 / 河川水位 / 地下水井 / 水井點位）
   const [rainGaugeScale, setRainGaugeScale] = useState(1.0);
@@ -380,6 +382,8 @@ export function useTransportParams() {
     waterFacilityOpacity,
     waterMonitorScale,
     waterMonitorOpacity,
+    detentionBasinScale,
+    detentionBasinOpacity,
     waterFloodOpacity,
     rainGaugeScale,
     rainGaugeOpacity,
@@ -400,7 +404,7 @@ export function useTransportParams() {
     iotWraStructureDam: iotWraStructureDam ? 1 : 0,
     iotWraStructureErosion: iotWraStructureErosion ? 1 : 0,
     iotWraStructureDust: iotWraStructureDust ? 1 : 0,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -653,6 +657,10 @@ export function useTransportParams() {
       case "waterMonitorStations": return [
         { label: `大小 ${waterMonitorScale.toFixed(2)}`, value: waterMonitorScale, min: 0.3, max: 3, step: 0.1, onChange: setWaterMonitorScale },
         { label: `透明度 ${waterMonitorOpacity.toFixed(2)}`, value: waterMonitorOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWaterMonitorOpacity },
+      ];
+      case "waterDetentionBasins": return [
+        { label: `大小 ${detentionBasinScale.toFixed(2)}`, value: detentionBasinScale, min: 0.3, max: 3, step: 0.1, onChange: setDetentionBasinScale },
+        { label: `透明度 ${detentionBasinOpacity.toFixed(2)}`, value: detentionBasinOpacity, min: 0.1, max: 1, step: 0.05, onChange: setDetentionBasinOpacity },
       ];
       case "waterFloodExtreme": return [
         { label: `透明度 ${waterFloodOpacity.toFixed(2)}`, value: waterFloodOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWaterFloodOpacity },

@@ -213,6 +213,46 @@ function WaterMonitorPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function WaterDetentionBasinPanel({ props }: { props: Record<string, unknown> }) {
+  const COUNTY_LABEL: Record<string, string> = {
+    tainan: "台南", taoyuan: "桃園", taipei: "台北", kaohsiung: "高雄",
+    taichung: "台中", hsinchu_park: "新竹科學園區",
+    central_park: "中科園區", south_park: "南科園區",
+  };
+  const county = String(props.county ?? "");
+  const areaHa = props.area_ha != null ? Number(props.area_ha) : null;
+  const areaM2 = props.area_m2 != null ? Number(props.area_m2) : null;
+  const designed = props.designed_volume_m3 != null ? Number(props.designed_volume_m3) : null;
+  const depth = props.max_depth_m != null ? Number(props.max_depth_m) : null;
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#0284c7", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名滯洪池)")}
+        </div>
+      </div>
+      <Row label="縣市" value={COUNTY_LABEL[county] ?? county} />
+      {props.township ? <Row label="鄉鎮" value={String(props.township)} /> : null}
+      {props.address ? <Row label="地址" value={String(props.address)} /> : null}
+      {props.agency ? <Row label="管理單位" value={String(props.agency)} /> : null}
+      {areaHa != null && Number.isFinite(areaHa)
+        ? <Row label="面積" value={`${areaHa.toLocaleString()} ha`} />
+        : areaM2 != null && Number.isFinite(areaM2)
+          ? <Row label="面積" value={`${areaM2.toLocaleString()} m²`} />
+          : null}
+      {designed != null && Number.isFinite(designed)
+        ? <Row label="設計容量" value={`${designed.toLocaleString()} m³`} />
+        : null}
+      {depth != null && Number.isFinite(depth)
+        ? <Row label="最大深度" value={`${depth} m`} />
+        : null}
+      {props.status ? <Row label="狀態" value={String(props.status)} /> : null}
+      <Row label="資料源" value={String(props.source ?? "")} />
+    </>
+  );
+}
+
 function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
   const kind = String(props.kind ?? "");
   const isDam = kind === "dam";
@@ -1087,6 +1127,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterMonitor: "水資源監測站",
   waterDam: "水庫 / 壩體",
   waterReservoirPoly: "水庫蓄水範圍",
+  waterDetentionBasin: "滯洪池",
   rainGauge: "即時雨量站",
   riverLevel: "河川水位站",
   groundwater: "地下水井",
@@ -1167,6 +1208,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "waterReservoirPoly":
       content = <WaterReservoirPolyPanel props={feature.properties} />;
+      break;
+    case "waterDetentionBasin":
+      content = <WaterDetentionBasinPanel props={feature.properties} />;
       break;
     case "rainGauge":
       content = <RainGaugePanel props={feature.properties} />;

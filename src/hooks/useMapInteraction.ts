@@ -180,6 +180,7 @@ export function useMapInteraction(
           { layers: ["aqi-micro-circle"], type: "microSensor" },
           { layers: ["water-facilities-core", "water-facilities-glow"], type: "waterFacility" },
           { layers: ["water-monitor-stations-core", "water-monitor-stations-glow"], type: "waterMonitor" },
+          { layers: ["water-detention-basins-core", "water-detention-basins-glow"], type: "waterDetentionBasin" },
           { layers: ["water-reservoir-dams-core", "water-reservoir-dams-glow-1", "water-reservoir-dams-glow-2"], type: "waterDam" },
           { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
           { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
