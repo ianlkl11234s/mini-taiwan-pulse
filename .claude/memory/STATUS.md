@@ -1,7 +1,24 @@
 # Status
 
-**最後更新**：2026-05-12（22 城 hwms 上線 + BL-22 OSRM 升級 + Geocoding pipeline 方法論文件）
-**分支**：`feat/historical-mode`（本機領先 master **41+ commits**）
+**最後更新**：2026-05-14（Geocoding Pipeline 全 7 階段完成、coverage 89.6%）
+**分支**：`feat/water-extensions`（從 master 開新，先前 feat/historical-mode 已 merge 到 master）
+
+## ⭐ 當前狀態
+
+| 指標 | 值 |
+|---|---:|
+| supabase `spatial.waste_collection_stops` | **271,460** |
+| supabase `spatial.waste_collection_routes` | **8,192** |
+| 城市覆蓋 | **22 城全到齊**（含金門 525、連江 79）|
+| hwms_pending 整體 coverage | **89.6%** (276K / 308K) |
+| 仍 miss | 32,010 (10.4%) |
+
+### 前端顯示
+- `wasteSchedule` toggle（22 城表定動畫）：reload 後直接看 22 城車按時刻表跑
+- `wasteTruck` toggle（高雄/臺南 GPS 即時）
+- 8 區分組 toggle（雙北/基宜/桃竹苗/中彰投/雲嘉南/高屏/花東/離島），預設全 ON
+
+⚠ **沒有「靜態 stops 點位 layer」**，目前僅透過 schedule 動畫顯示。若要全 271K stops 同時可見，需新 layer（BL-?? 規劃中）。
 
 ## 5/12 完成（22 城 + OSRM + Round 4 prep + pipeline doc）
 
