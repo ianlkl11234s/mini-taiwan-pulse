@@ -214,3 +214,24 @@ geocoded_via 分布（hwms_pending 308K stops）：
 無解類別：landmark 地方小廟 / intersection 沒前後 / 路名沒門牌 / 完全孤立 stop
 可能未來打 Google Maps (Stage 5) 補回 ~5-10K
 
+
+## 5/14 完成（Stage 6b 外推達 89.6%）
+
+```
+geocoded_via 分布 (308K hwms stops)：
+  tgos_batch (R1-3)         105,344  34.2%
+  pre_geocoded               89,364  29.0%
+  (legacy)                   24,459   7.9%
+  interpolated_route         24,113   7.8% ⭐ Stage 6
+  extrapolated_route         22,457   7.3% ⭐ Stage 6b
+  tgos round 4 normalized     5,801   1.9%
+  poi_nominatim               1,929   0.6%
+  poi_school                  1,662   0.5%
+  poi_foursquare                862   0.3%
+  nearest_known_route           128   0.0%
+  ─────────────────────────────────────
+  with coord                276,119  89.6%
+  still missing              32,010  10.4%
+```
+
+### supabase 22 城: 215K → 271K (連江 79、金門 525)
