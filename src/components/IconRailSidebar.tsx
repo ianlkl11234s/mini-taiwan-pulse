@@ -9,6 +9,7 @@ import {
   Cloud, CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck, Container,
   Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt,
+  Sprout,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -65,6 +66,13 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
   fireEvents: "#ff5722",
+  agriculture: "#2e7d32",
+  agriSoil: "#8d6e63",
+  agriSoilFertility: "#00897b",
+  agriLeisureFarmZones: "#66bb6a",
+  agriRuralRegen: "#ffb74d",
+  agriCropSuitability: "#1b5e20",
+  agriPOI: "#6a1b9a",
   wasteTruck: "#fbbf24",
   wasteSchedule: "#fbbf24",
   wasteScheduleNote: "#fff8d6",
@@ -147,6 +155,13 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   iotWraRiver: Waves,
   iotWraStructure: Gauge,
   fireEvents: Flame,
+  agriculture: Sprout,
+  agriSoil: Mountain,
+  agriSoilFertility: Sprout,
+  agriLeisureFarmZones: Sprout,
+  agriRuralRegen: MapPinned,
+  agriCropSuitability: Sprout,
+  agriPOI: Store,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,
@@ -288,12 +303,24 @@ const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    title: "AGRICULTURE",
+    layers: [
+      { key: "agriculture", label: "農田範圍 FTW Fields 2025", expandable: true },
+      { key: "agriSoil", label: "全台土壤分類 Soil Map", expandable: true },
+      { key: "agriSoilFertility", label: "土壤肥力 250m Soil Fertility", expandable: true },
+      { key: "agriLeisureFarmZones", label: "休閒農業區 Leisure Farm Zones", expandable: true },
+      { key: "agriRuralRegen", label: "農村再生社區 Rural Regen", expandable: true },
+      { key: "agriCropSuitability", label: "作物適栽 Crop Suitability", expandable: true },
+      { key: "agriPOI", label: "休農場 / 田媽媽 / 特色農旅 POI", expandable: true },
+    ],
+  },
+  {
     title: "WASTE",
     layers: [
       { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
       { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
       { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
-      { key: "wasteStopsStatic", label: "全台清運點位 (靜態)" },
+      { key: "wasteStopsStatic", label: "全台清運點位 (靜態)", expandable: true },
     ],
   },
   {
@@ -950,6 +977,36 @@ function ExpandedControls({
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {controls.map((ctrl) => {
             if (ctrl.type === "select") {
+              // options 過多時改用原生 <select> dropdown（132 種作物等情境）
+              if (ctrl.options.length > 6) {
+                return (
+                  <div
+                    key={ctrl.label}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 4,
+                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                    }}
+                  >
+                    <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
+                    <select
+                      value={ctrl.value}
+                      onChange={(e) => ctrl.onChange(e.target.value)}
+                      style={{
+                        flex: 1, fontSize: 10, padding: "1px 6px",
+                        background: "rgba(0,0,0,0.5)", color: "#fff",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        borderRadius: 3, fontFamily: "monospace",
+                      }}
+                    >
+                      {ctrl.options.map((opt) => (
+                        <option key={opt.value} value={opt.value} style={{ background: "#1a1a1a" }}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              }
               return (
                 <div
                   key={ctrl.label}

@@ -129,6 +129,13 @@ export type ExpandableLayerKey =
   | "iotWraRiver"
   | "iotWraStructure"
   | "fireEvents"
+  | "agriculture"
+  | "agriSoil"
+  | "agriSoilFertility"
+  | "agriLeisureFarmZones"
+  | "agriRuralRegen"
+  | "agriCropSuitability"
+  | "agriPOI"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
@@ -502,6 +509,14 @@ export interface LayerVisibility {
   iotWraRiver: boolean;
   iotWraStructure: boolean;
   fireEvents: boolean;
+  // 農業
+  agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
+  agriSoil: boolean;             // 25539 全台土壤分類
+  agriSoilFertility: boolean;    // 112848 土壤肥力 250m 網格
+  agriLeisureFarmZones: boolean; // 9809 休閒農業區
+  agriRuralRegen: boolean;       // 176846 農村再生社區
+  agriCropSuitability: boolean;  // 7294 132 種作物適栽
+  agriPOI: boolean;              // 177247+245+246 休農場/田媽媽/特色農旅 POI
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;
