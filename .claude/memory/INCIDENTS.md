@@ -408,3 +408,92 @@ stops 序列下，spline 會 overshoot 飛出 p0-p1 直線兩側 → 視覺上�
 邏輯順序的 stops 用直線。
 
 <!-- 追加新事件於此之上 -->
+
+---
+
+## 2026-05-23 連續 5 次「圖層 UX 規則應用太狹隘」糾正
+
+**現象**：農業 Phase 3 Batch 1 部署過程中，用戶連續 5 次回饋指出 UX 缺漏，
+每次都是「我以為規則只覆蓋 X，原來也包含 Y」的範圍判斷錯誤。
+
+**糾正時間軸**：
+1. **作物適栽 4 級配色看不懂** → 規則 2「顏色標註差異」第一次踩坑（我以為單色 polygon
+   不必圖例，沒注意到 match by `kind` 已產生 4 色）
+2. **農村再生社區也要能點** → 規則 3「POI 點位」用詞太窄，誤以為 polygon 豁免；
+   擴充為「所有承載有意義屬性的 feature」
+3. **4 個 polygon layer 全部都要能點 + PMTiles keep_attrs 補欄位** → 規則 3 延伸到
+   跨 repo 配套（前 PMTiles 沒帶屬性 → 後 panel 拿到 undefined）
+4. **休閒農場 POI 三類也要圖例** → 規則 2 第二次踩坑，措辭從「顏色標註類別」強化為
+   「分類 ≥ 2 種」+ 三問檢核（我又以為 POI 點位只關心 click popup 可豁免圖例）
+5. **Sidebar 6 metric dropdown 用 button row 橫向溢出** → 規則 4 新增。
+   原 dropdown 門檻 `> 6` 太鬆，4+ 中文標籤就溢出 240px sidebar；改 `> 3`
+
+**根因**：
+- 規則寫得太抽象：「顏色標註差異」「POI 點位」這種詞讓 reviewer（我）有想像空間，
+  容易自我合理化「我這個 case 不算」
+- 應用時沒對著規則逐條逐字檢查，憑感覺判斷豁免
+- Sidebar 寬度視覺驗收沒做，純看 tsc -b 通過就放行
+
+**對策**（5 次後規則升級到 4 條 + 強化語氣）：
+- 規則 2 改寫「分類 ≥ 2 種就要圖例」+ 三問檢核（明確的可量化判斷）
+- 規則 3 擴充為「可選取物件」並列舉 POI / polygon / line / 3D
+- 規則 3 加跨 repo 配套段（PMTiles keep_attrs 必須先補齊）
+- 規則 4 新增「Select options ≥ 4 用 dropdown」（從 button row 橫向溢出反推門檻 = 4）
+
+**PRINCIPLES**：新增「圖層 UX 四鐵則」章節摘要 + 指向 `docs/development-rules.md#4a`。
+auto-memory `feedback_layer_ux_triad.md` 也升級為「連續四次反饋」版（跨 session 自動載入）。
+
+**教訓**：規則寫法的具體性 = 應用準確度。
+- ❌「顏色標註差異」→ 抽象，留有「差異」的解釋空間
+- ✅「分類 ≥ 2 種 → 必寫圖例」→ 可量化，無爭議
+
+下次寫規則時：**用數字 / 列舉具體 token，避免抽象形容詞**。
+
+---
+
+## 2026-05-23 FTW outline line-width Mapbox 表達式違反「zoom only top-level」約束
+
+**現象**：app 啟動立刻吐錯（console，但 layer 仍顯示）：
+> Error: layers.agri-ftw-fields-outline.paint.line-width: "zoom" expression may only
+> be used as input to a top-level "step" or "interpolate" expression
+
+**根因**：FTW outline 把 outlineWidth 倍率包在最外層：
+```ts
+["*", params.outlineWidth, ["interpolate", ["linear"], ["zoom"], 10, 0.2, 13, 0.6, 16, 1.2]]
+```
+Mapbox GL 規定 `["zoom"]` **只能直接放在最頂層的 `interpolate` / `step` 內**，
+不能被 `["*", ...]` 包住。
+
+**對策**：把倍率乘進 stops：
+```ts
+const w = params.outlineWidth;
+["interpolate", ["linear"], ["zoom"], 10, 0.2 * w, 13, 0.6 * w, 16, 1.2 * w]
+```
+
+Fill-opacity 用 `["*", opacity, ["interpolate", ..., ["coalesce", ["get", "confidence_mean"], 0.5], ...]]`
+不受此限制（input 是 attribute 不是 zoom），保留原樣。
+
+**INCIDENTS**：這是 FTW 既有 bug（pre-existing），但本 session 統一 ensureAll/updateAll
+之後 style.load 階段就會 call → 一上 app 立刻吐。修法簡單，但這類「runtime 表達式約束」
+tsc 不會抓，需要實機驗證才能看到 console error。
+
+---
+
+## 2026-05-23 soil_fertility 多數 grid CEC/M3 = 0 是未測非真零
+
+**現象**：點 soil_fertility 任一格，常看到 `CEC 0.00 / M3_P 0.00 / M3_K 0.00`，
+但 pH 跟 OM 有正常數值。
+
+**根因**：原始 parquet 中 134,998 grid 並非每格都做完整 5 項檢驗，**CEC/M3_P/M3_K
+在很多 grid 是 0**（未量測），不是真實「值為零」（自然土壤 CEC=0 幾乎不可能）。
+
+**對策**：
+- 前端 `agriSoilFertilityMetrics.ts` 把 `[==, [coalesce, [get, key], 0], 0]` 統一視為灰色 #616161
+  「無資料」
+- popup 註明「※ 0 值表示該項未測（多數網格只測 pH / OM）」
+- health 綜合算法只用 pH + OM 兩項（全 grid 都有），不會被 CEC/M3 missing 拖累
+
+**教訓**：拿到陌生資料集**先 EDA 看 null / 0 / missing 分佈**，不要假設「有欄位 =
+全格都有值」。tippecanoe 不會幫你區分 missing 跟 0，前端要自己處理。
+
+GLOSSARY 新增「0 = 未測」條目避免下次再踩。
