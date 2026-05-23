@@ -446,7 +446,8 @@ export interface FeatureInfo {
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "iotWraRiver" | "iotWraStructure"
     | "wasteFacility" | "wasteDisposalPoint"
-    | "agriPOI" | "agriRuralRegen";
+    | "agriPOI" | "agriRuralRegen"
+    | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability";
   properties: Record<string, unknown>;
 }
 

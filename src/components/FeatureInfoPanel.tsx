@@ -1113,6 +1113,116 @@ const AGRI_POI_TYPE_META: Record<string, { color: string; label: string }> = {
   agritourism_certified: { color: "#6a1b9a", label: "特色農業旅遊場域" },
 };
 
+function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
+  const region = String(props["地區"] ?? "");
+  const sheet = String(props["圖幅名稱"] ?? "");
+  const survey = String(props["調查區"] ?? "");
+  const soilClass = String(props["土類"] ?? "");
+  const series = String(props["土系"] ?? "");
+  const soilType = String(props["土型"] ?? "");
+  const texture = String(props["表土質地"] ?? "");
+  const slope = String(props["坡度相"] ?? "");
+  const areaHa = typeof props.area_ha === "number" ? (props.area_ha as number).toFixed(2) : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#8d6e63", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {soilType || soilClass || "土壤分類"}
+        </div>
+      </div>
+      <Row label="地區" value={region} />
+      <Row label="土類" value={soilClass} />
+      <Row label="土系" value={series} />
+      <Row label="表土質地" value={texture} />
+      <Row label="坡度相" value={slope} />
+      <Row label="調查區" value={survey} />
+      <Row label="圖幅" value={sheet === "-" ? "" : sheet} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+function AgriSoilFertilityPanel({ props }: { props: Record<string, unknown> }) {
+  const fmt = (k: string, digits = 2) => {
+    const v = props[k];
+    if (typeof v !== "number") return "";
+    return v.toFixed(digits);
+  };
+  const ph = fmt("pH_H2O");
+  const phNum = typeof props.pH_H2O === "number" ? (props.pH_H2O as number) : NaN;
+  const phColor = !Number.isFinite(phNum) ? undefined
+    : phNum < 5.5 ? "#fb7185"        // 強酸 紅
+    : phNum > 7.5 ? "#a78bfa"        // 鹼性 紫
+    : "#7efcb0";                     // 中性 綠
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#00897b", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          土壤肥力 250m 網格
+        </div>
+      </div>
+      <Row label="pH (H2O)" value={ph} color={phColor} />
+      <Row label="有機質 OM" value={fmt("OM_OMU") ? `${fmt("OM_OMU")} %` : ""} />
+      <Row label="CEC" value={fmt("CEC") ? `${fmt("CEC")} cmol(+)/kg` : ""} />
+      <Row label="Mehlich-3 P" value={fmt("M3_P") ? `${fmt("M3_P")} mg/kg` : ""} />
+      <Row label="Mehlich-3 K" value={fmt("M3_K") ? `${fmt("M3_K")} mg/kg` : ""} />
+    </>
+  );
+}
+
+function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unknown> }) {
+  const name = String(props["休區名"] ?? props["LANAME"] ?? "");
+  const keyCode = String(props["KeyCode"] ?? "");
+  const aa45 = String(props["AA45"] ?? "");
+  const aa46 = String(props["AA46"] ?? "");
+  const areaHa = typeof props.area_ha === "number" ? (props.area_ha as number).toFixed(2) : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#66bb6a", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {name || "休閒農業區"}
+        </div>
+      </div>
+      <Row label="代碼" value={keyCode} />
+      <Row label="縣市碼" value={aa45} />
+      <Row label="鄉鎮碼" value={aa46} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+// 作物適栽 4 級 kind 配色（與 LegendPanel CROP_KIND_ITEMS 同源）
+const CROP_KIND_INFO: Record<string, { color: string; label: string }> = {
+  "1_premium":    { color: "#1b5e20", label: "最適 Premium" },
+  "2_suitable":   { color: "#66bb6a", label: "適栽 Suitable" },
+  "3_marginal":   { color: "#fff59d", label: "次適 Marginal" },
+  "4_unsuitable": { color: "#ef9a9a", label: "不適 Unsuitable" },
+};
+
+function AgriCropSuitabilityPanel({ props }: { props: Record<string, unknown> }) {
+  const cropNameZh = String(props.crop_name_zh ?? "").replace(/\s*適栽性等級分布圖$/, "").replace(/\s*栽性等級分布圖$/, "");
+  const cropNameEn = String(props.crop_name_en ?? "");
+  const kindLabel = String(props.kind_label ?? "");
+  const kindInfo = CROP_KIND_INFO[kindLabel] ?? { color: "#9e9e9e", label: kindLabel };
+  const areaHa = typeof props.area_ha === "number" ? (props.area_ha as number).toFixed(2) : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: kindInfo.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {cropNameZh || cropNameEn || "作物適栽"}
+        </div>
+      </div>
+      <Row label="適栽性" value={kindInfo.label} color={kindInfo.color} />
+      <Row label="作物 EN" value={cropNameEn} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
 function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> }) {
   const community = String(props["社區名"] ?? "");
   const plan = String(props["計畫名"] ?? "");
@@ -1194,6 +1304,10 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   wasteDisposalPoint: "垃圾投放點",
   agriPOI: "農業 POI",
   agriRuralRegen: "農村再生社區",
+  agriSoil: "土壤分類",
+  agriSoilFertility: "土壤肥力",
+  agriLeisureFarmZones: "休閒農業區",
+  agriCropSuitability: "作物適栽",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -1290,6 +1404,18 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "agriRuralRegen":
       content = <AgriRuralRegenPanel props={feature.properties} />;
+      break;
+    case "agriSoil":
+      content = <AgriSoilPanel props={feature.properties} />;
+      break;
+    case "agriSoilFertility":
+      content = <AgriSoilFertilityPanel props={feature.properties} />;
+      break;
+    case "agriLeisureFarmZones":
+      content = <AgriLeisureFarmZonesPanel props={feature.properties} />;
+      break;
+    case "agriCropSuitability":
+      content = <AgriCropSuitabilityPanel props={feature.properties} />;
       break;
   }
 

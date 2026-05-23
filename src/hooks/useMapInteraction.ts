@@ -188,6 +188,11 @@ export function useMapInteraction(
           { layers: ["groundwater-circle", "groundwater-glow"], type: "groundwater" },
           { layers: ["agri-pois-circle"], type: "agriPOI" },
           { layers: ["agri-rural-regen-fill"], type: "agriRuralRegen" },
+          // PMTiles polygon fill — 排序：細節豐富的小範圍優先（避免被 soil 大面積覆蓋）
+          { layers: ["agri-leisure-farm-zones-fill"], type: "agriLeisureFarmZones" },
+          { layers: ["agri-crop-suitability-fill"], type: "agriCropSuitability" },
+          { layers: ["agri-soil-fertility-fill"], type: "agriSoilFertility" },
+          { layers: ["agri-soil-fill"], type: "agriSoil" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],
