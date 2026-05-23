@@ -142,14 +142,13 @@ export function updateAgricultureLayer(
   if (map.getLayer(FTW_OUTLINE_ID)) {
     const showOutline = visible && params.showOutline;
     map.setLayoutProperty(FTW_OUTLINE_ID, "visibility", showOutline ? "visible" : "none");
+    // ["zoom"] 不能被 ["*", ...] 包起來，倍率直接乘進 stops
+    const w = params.outlineWidth;
     map.setPaintProperty(FTW_OUTLINE_ID, "line-width", [
-      "*", params.outlineWidth,
-      [
-        "interpolate", ["linear"], ["zoom"],
-        10, 0.2,
-        13, 0.6,
-        16, 1.2,
-      ],
+      "interpolate", ["linear"], ["zoom"],
+      10, 0.2 * w,
+      13, 0.6 * w,
+      16, 1.2 * w,
     ]);
   }
 }
