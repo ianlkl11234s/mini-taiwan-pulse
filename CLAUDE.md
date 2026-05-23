@@ -64,7 +64,7 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 
 可用 slash command `/new-layer <name>` 自動產生骨架。
 
-### 5a. 圖層 UX 三鐵則（⚠️ 缺一不可）
+### 5a. 圖層 UX 四鐵則（⚠️ 缺一不可）
 任何新 layer 都必須過：
 
 1. **透明度 slider** — 在 `useTransportParams.ts` 提供 opacity slider（已是慣例）
@@ -75,8 +75,12 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
    `useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
    `FeatureInfoPanel.tsx` 加 sub-panel。**注意 PMTiles `keep_attrs` 要在
    `taipei-gis-analytics` 那邊先補齊重出**，否則 popup 拿到空欄位。
+4. **Select control options ≥ 4 → 原生 `<select>` dropdown** — Sidebar 是直式 ~240px
+   narrow column，4+ 選項橫向 button row 一定撐爆（中文標籤更明顯）。
+   `LayerSidebar.tsx` / `IconRailSidebar.tsx` 內 `ctrl.options.length > 3` 自動切 dropdown。
+   若某 layer 需要多參數，用 dropdown 切「mode」而不是並排多個 slider。
 
-詳見 [`docs/development-rules.md#4a-圖層-ux-標配三大鐵則`](./docs/development-rules.md#4a-圖層-ux-標配三大鐵則)。
+詳見 [`docs/development-rules.md#4a-圖層-ux-標配四大鐵則`](./docs/development-rules.md#4a-圖層-ux-標配四大鐵則)。
 
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
 動態 / 時序圖層**禁止**把 `currentTime` 放進 React `useEffect` / `useMemo` deps；
