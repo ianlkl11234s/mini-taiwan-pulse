@@ -523,3 +523,67 @@ console.log(`[Layer] fetched ${rows.length} rows`)
 
 ---
 
+
+## PB-14 PMTiles 重出補欄位 SOP（跨 repo，2026-05-23 加）
+
+**情境**：前端 click popup 拿到 `undefined` / 空白 → 多半是 PMTiles `keep_attrs` 沒加要顯示的欄位。
+
+### 為什麼會踩
+
+tippecanoe 預設**只保留 `-y` 指定的欄位**，其他 raw 屬性全丟。`06_export_frontend.py` 為了瘦身只 keep 三五個欄位，但前端要顯示其他屬性時必須重出。
+
+### 5 步流程
+
+1. **確認 parquet 是否有那欄**（`taipei-gis-analytics/data/processed/agriculture/<slug>/<slug>.parquet`）
+   ```bash
+   venv/bin/python3 -c "import pandas as pd; df = pd.read_parquet('data/processed/agriculture/<slug>/<slug>.parquet'); print(df.columns.tolist())"
+   ```
+   有 → 進 step 2；沒有 → 該 dataset 真的沒這資料，斷念
+
+2. **改 keep_attrs**：編輯 `pipelines/agriculture/_batch_download/06_export_frontend.py` 的 `keep_attrs` list，**加上**要顯示的欄位
+
+3. **重出該 PMTiles**（不需跑全部 script，可單獨 import 函式 trigger）：
+   ```bash
+   cd /path/to/taipei-gis-analytics
+   venv/bin/python3 -c "
+   import importlib.util
+   spec = importlib.util.spec_from_file_location('ef', 'pipelines/agriculture/_batch_download/06_export_frontend.py')
+   m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+   m.export_pmtiles(
+       '<slug>',
+       layer_name='<layer_name>',
+       keep_attrs=[...],   # 同步 06_export_frontend.py 那邊
+       minzoom=<...>, maxzoom=<...>,
+   )"
+   ```
+
+4. **複製到 mini-taiwan-pulse**：
+   ```bash
+   cp data/processed/agriculture/<slug>/<slug>.pmtiles \
+      ../mini-taiwan-pulse/public/agriculture/
+   ```
+   注意 `public/agriculture/*.pmtiles` 已 gitignore，**不會進 mini repo 的 git** —
+   走 S3 deploy-assets 上線
+
+5. **前端接 panel**：在 `FeatureInfoPanel.tsx` 加 sub-panel + `HEADER_LABELS` +
+   switch case + `useMapInteraction.ts` 的 `GIS_LAYERS` 加 `{ layers: [...], type: "..." }` +
+   `FeatureInfo.layerType` union 加 key
+
+### 驗證
+
+- Dev server reload，toggle 該 layer，點 polygon/POI → 應該看到所有欄位
+- 中文欄位（如「社區名」「土系」）注意 JS 端要用字串字面值 lookup：`props["社區名"]`，
+  別忘了 useMapInteraction 拿到的 properties keys 是 PMTiles 寫進去的原始名稱
+
+### 實例（2026-05-23 連跑 4 個 layer）
+
+| Layer | 原 keep_attrs | 新 keep_attrs（加哪些）| 重出後大小變化 |
+|---|---|---|---:|
+| soil_map_national | row_id, area_ha | +圖幅名稱/地區/調查區/土類/土系/土型/表土質地/坡度相 | 23 → 28 MB |
+| soil_fertility_grid_250m | row_id, area_ha | +pH_H2O/OM_OMU/CEC/M3_P/M3_K | 14 → 32 MB |
+| leisure_farm_zones_2025 | +AA45/AA46 | +休區名/LANAME/KeyCode | 0.35 → 0.42 MB |
+| rural_regen_communities_2025 | row_id, area_ha | +社區名/計畫名/縣市/鄉鎮/村里/分署/核定時/計畫年/NOTE | 1.6 → 2.4 MB |
+| crop_suitability_132 | 不變（原本就有 kind/crop_name_zh）| — | 不變 |
+
+⚠ **soil_fertility 加 5 個數值欄位翻倍**（14 → 32MB）— 134K grid × 5 numeric col。
+minzoom 8 + range request 不會一次全載，但要評估部署成本。
