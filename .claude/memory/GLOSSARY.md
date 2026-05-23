@@ -171,3 +171,25 @@
 | Grouped JSONB RPC | `get_waste_schedule_day` 返回 per-route 一筆 row，stops 為 JSONB array。避 PostgREST 20K cap（39K stops → 1281 routes）|
 | stops-as-polyline (v1) | stops 直線連接當路徑（沒 OSRM 整合前的 v1 方案），會穿牆、視覺速度過快 |
 | Catmull-Rom 不適用 | 對非真實連續軌跡會 overshoot 反向 → schedule 改純直線（GPS 仍用 spline）|
+
+## 農業（2026-05-23 加）
+
+7 個 agriculture layer + 鐵則 4 條相關術語。
+
+| 術語 | 說明 |
+|---|---|
+| PMTiles | Cloud-Optimized 向量瓦片格式，走 HTTP Range Request 只載 viewport 內的 tile（不像 GeoJSON 一次全載）。mini-taiwan-pulse 用 `mapbox-pmtiles` 套件透過 `Style.setSourceType('pmtile-source', PmTilesSource)` 註冊一次性 SourceType |
+| tippecanoe `-y <attr>` | 產 PMTiles 時 **只保留指定 attribute**（預設全丟），這是「前端 click popup 拿到空白」最常見原因。改 `06_export_frontend.py` 的 `keep_attrs` 必須重出 + 手動 cp 到 mini-taiwan-pulse |
+| FTW Fields | Fields of The World，Sentinel-2 衛星 AI 辨識田區資料集。Taiwan 2025 版 38.6 萬田區，confidence_mean ≥ 0.5。https://fieldsofthe.world/ |
+| crop_layer_id | 132 種作物適栽圖 (7294 dataset) 的 frontend filter key（0-131）。前端 dropdown 從 `src/data/cropSuitabilityCrops.ts` 取對照表 |
+| kind / kind_label | 作物適栽 4 級：1_premium / 2_suitable / 3_marginal / 4_unsuitable。配色（深綠 → 中綠 → 淡黃 → 淡紅）跟 LegendPanel CROP_KIND_ITEMS 與 factory CROP_KIND_COLOR_EXPR 同源 |
+| pH (H2O) | 土壤酸鹼度。< 5.5 強酸（多數作物受害）/ 5.5-7.5 中性適宜 / > 8.5 強鹼。最普適的單一肥力指標 |
+| OM (有機質, %) | 土壤健康整體指標。< 1.5% 低需補堆肥 / 1.5-3% 中 / > 3% 高 / > 5% 罕見豐沃 |
+| CEC (cmol(+)/kg) | 陽離子交換量 = 土壤「保肥能力」(像水桶大小)。< 5 沙質 / 5-15 中 / > 15 黏質高保肥 |
+| Mehlich-3 P/K | 直接可被作物吸收的磷/鉀量。P: < 15 缺 / 30-60 充足 / > 60 過量；K: < 60 缺 / 120-200 充足 |
+| 健康度（health metric） | 土壤肥力綜合著色預設，用 pH + OM 兩項分 3 級。Rule: pH 5.5-7.5 且 OM > 2.5% = 良好（深綠）；極酸/鹼或 OM < 1.5% = 需改善（紅）；其他 = 一般（黃） |
+| metric dropdown | 土壤肥力 layer 的著色 selector（6 個 metric：health / pH / OM / CEC / M3_P / M3_K）。Layer 多參數時用 dropdown 切「mode」而非並排多 slider 的 pattern 範例 |
+| 0 = 未測 | soil_fertility CEC/M3_P/M3_K 在許多 grid 是 0，**不是真零**而是未量測。所有 metric paint expression 把 0 統一視為灰色「無資料」(`#616161`) |
+| 圖層 UX 四鐵則 | docs/development-rules.md §4a：(1) 透明度 slider (2) 分類 ≥ 2 種必寫圖例 (3) 可選取物件必接 click popup (4) Select options ≥ 4 用 `<select>` dropdown |
+| 單一資料源（layer types）| 把 layer 內配色/類別表抽到 `src/data/xxxTypes.ts`（如 `agriPOITypes.ts` / `agriSoilFertilityMetrics.ts`），讓 factory paint / FeatureInfoPanel / LegendPanel 三處共用，避免改一邊忘記另兩邊 |
+| GIS_LAYERS first-hit-wins | useMapInteraction.ts 內 click 查找走過陣列順序，**第一個命中即返回**。把細節小範圍排前面（休農區 109 polygon）/ 大面積背景排後面（土壤分類 5.7 萬 polygon），避免被覆蓋 |
