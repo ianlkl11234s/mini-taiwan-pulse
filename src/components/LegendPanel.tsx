@@ -3,6 +3,11 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
+import {
+  SOIL_FERTILITY_METRICS,
+  SOIL_FERTILITY_METRIC_OPTIONS,
+  type SoilFertilityMetric,
+} from "../data/agriSoilFertilityMetrics";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -68,7 +73,8 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasIotStructure = visibility.iotWraStructure;
   const hasCropSuitability = visibility.agriCropSuitability;
   const hasAgriPOI = visibility.agriPOI;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI;
+  const hasSoilFertility = visibility.agriSoilFertility;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasSoilFertility;
 
   if (!hasAny) return null;
 
@@ -119,8 +125,39 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasIotStructure && <IotStructureLegend />}
           {hasCropSuitability && <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} />}
           {hasAgriPOI && <AgriPOILegend />}
+          {hasSoilFertility && <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} />}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Soil Fertility Legend (6 metric 可切換) ──
+
+function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
+  const metricId = (SOIL_FERTILITY_METRIC_OPTIONS[metricIdx]?.value ?? "health") as SoilFertilityMetric;
+  const meta = SOIL_FERTILITY_METRICS[metricId];
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        SOIL FERTILITY
+      </div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+        {meta.label}{meta.unit ? ` (${meta.unit})` : ""}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {meta.legendStops.map((s) => (
+          <div key={`${s.color}-${s.label}`} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: 2,
+                background: s.color, opacity: 0.9, flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

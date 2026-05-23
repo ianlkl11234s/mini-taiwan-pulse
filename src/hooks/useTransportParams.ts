@@ -2,6 +2,10 @@ import { useMemo, useRef, useState } from "react";
 import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
 import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
+import {
+  SOIL_FERTILITY_METRIC_OPTIONS,
+  type SoilFertilityMetric,
+} from "../data/agriSoilFertilityMetrics";
 
 export interface SliderConfig {
   type?: "slider";
@@ -272,6 +276,7 @@ export function useTransportParams() {
   // Agriculture Phase 3 Batch 1 (5 PMTiles + 1 GeoJSON POI)
   const [agriSoilOpacity, setAgriSoilOpacity] = useState(1.0);
   const [agriSoilFertilityOpacity, setAgriSoilFertilityOpacity] = useState(1.0);
+  const [agriSoilFertilityMetric, setAgriSoilFertilityMetric] = useState<SoilFertilityMetric>("health");
   const [agriLeisureFarmZonesOpacity, setAgriLeisureFarmZonesOpacity] = useState(1.0);
   const [agriRuralRegenOpacity, setAgriRuralRegenOpacity] = useState(1.0);
   const [agriCropSuitabilityOpacity, setAgriCropSuitabilityOpacity] = useState(1.0);
@@ -451,13 +456,15 @@ export function useTransportParams() {
     agricultureZ,
     agriSoilOpacity,
     agriSoilFertilityOpacity,
+    // metric 字串轉 index 編進 overlayParams (Record<string,number>)；MapView 端再 decode 回 string
+    agriSoilFertilityMetricIdx: SOIL_FERTILITY_METRIC_OPTIONS.findIndex((o) => o.value === agriSoilFertilityMetric),
     agriLeisureFarmZonesOpacity,
     agriRuralRegenOpacity,
     agriCropSuitabilityOpacity,
     agriCropSuitabilityCropId,
     agriPOIOpacity,
     agriPOIScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -801,6 +808,13 @@ export function useTransportParams() {
       ];
       case "agriSoilFertility": return [
         { label: `透明度 ${agriSoilFertilityOpacity.toFixed(2)}`, value: agriSoilFertilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriSoilFertilityOpacity },
+        {
+          type: "select" as const,
+          label: "著色",
+          value: agriSoilFertilityMetric,
+          options: SOIL_FERTILITY_METRIC_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+          onChange: (v: string) => setAgriSoilFertilityMetric(v as SoilFertilityMetric),
+        },
       ];
       case "agriLeisureFarmZones": return [
         { label: `透明度 ${agriLeisureFarmZonesOpacity.toFixed(2)}`, value: agriLeisureFarmZonesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriLeisureFarmZonesOpacity },

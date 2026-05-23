@@ -17,6 +17,7 @@ import {
   ensureAgriCropSuitabilityLayers, updateAgriCropSuitabilityLayer,
   ensureAgriPOILayers, updateAgriPOILayer,
 } from "./agricultureLayerFactory";
+import { SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../data/agriSoilFertilityMetrics";
 
 function agricultureParamsFrom(params: Record<string, number>) {
   return {
@@ -28,6 +29,14 @@ function agricultureParamsFrom(params: Record<string, number>) {
 }
 function agriPolyOpacityParam(params: Record<string, number>, key: string) {
   return { opacity: params[key] ?? 1 };
+}
+function agriSoilFertilityParamsFrom(params: Record<string, number>) {
+  const idx = params.agriSoilFertilityMetricIdx ?? 0;
+  const metric = (SOIL_FERTILITY_METRIC_OPTIONS[idx]?.value ?? "health") as SoilFertilityMetric;
+  return {
+    opacity: params.agriSoilFertilityOpacity ?? 1,
+    metric,
+  };
 }
 function agriCropSuitabilityParamsFrom(params: Record<string, number>) {
   return {
@@ -59,7 +68,7 @@ function updateAllAgricultureLayers(
 ): void {
   updateAgricultureLayer(map, vis.agriculture, agricultureParamsFrom(params));
   updateAgriSoilLayer(map, vis.agriSoil, agriPolyOpacityParam(params, "agriSoilOpacity"));
-  updateAgriSoilFertilityLayer(map, vis.agriSoilFertility, agriPolyOpacityParam(params, "agriSoilFertilityOpacity"));
+  updateAgriSoilFertilityLayer(map, vis.agriSoilFertility, agriSoilFertilityParamsFrom(params));
   updateAgriLeisureFarmZonesLayer(map, vis.agriLeisureFarmZones, agriPolyOpacityParam(params, "agriLeisureFarmZonesOpacity"));
   updateAgriRuralRegenLayer(map, vis.agriRuralRegen, agriPolyOpacityParam(params, "agriRuralRegenOpacity"));
   updateAgriCropSuitabilityLayer(map, vis.agriCropSuitability, agriCropSuitabilityParamsFrom(params));

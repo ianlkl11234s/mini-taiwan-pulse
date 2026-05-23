@@ -3,6 +3,7 @@ import type { FeatureInfo } from "../types";
 import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
+import { SOIL_FERTILITY_METRICS } from "../data/agriSoilFertilityMetrics";
 import {
   WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS,
   WASTE_DISPOSAL_COLORS, WASTE_DISPOSAL_LABELS,
@@ -1138,17 +1139,27 @@ function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 function AgriSoilFertilityPanel({ props }: { props: Record<string, unknown> }) {
-  const fmt = (k: string, digits = 2) => {
+  const num = (k: string): number | null => {
     const v = props[k];
-    if (typeof v !== "number") return "";
-    return v.toFixed(digits);
+    return typeof v === "number" && v !== 0 ? v : null;
   };
-  const ph = fmt("pH_H2O");
-  const phNum = typeof props.pH_H2O === "number" ? (props.pH_H2O as number) : NaN;
-  const phColor = !Number.isFinite(phNum) ? undefined
-    : phNum < 5.5 ? "#fb7185"        // 強酸 紅
-    : phNum > 7.5 ? "#a78bfa"        // 鹼性 紫
-    : "#7efcb0";                     // 中性 綠
+  // 把數值轉「6.23 (微酸)」格式（用 metric 自帶的 classify）
+  const fmtWithGrade = (key: string, metricKey: keyof typeof SOIL_FERTILITY_METRICS, unit?: string) => {
+    const v = num(key);
+    if (v == null) return { text: "", color: undefined as string | undefined };
+    const grade = SOIL_FERTILITY_METRICS[metricKey].classify(v);
+    const numText = v.toFixed(2) + (unit ? ` ${unit}` : "");
+    return {
+      text: grade ? `${numText} (${grade.label})` : numText,
+      color: grade?.color,
+    };
+  };
+  const ph = fmtWithGrade("pH_H2O", "pH");
+  const om = fmtWithGrade("OM_OMU", "OM", "%");
+  const cec = fmtWithGrade("CEC", "CEC", "cmol(+)/kg");
+  const m3p = fmtWithGrade("M3_P", "M3_P", "mg/kg");
+  const m3k = fmtWithGrade("M3_K", "M3_K", "mg/kg");
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -1157,11 +1168,14 @@ function AgriSoilFertilityPanel({ props }: { props: Record<string, unknown> }) {
           土壤肥力 250m 網格
         </div>
       </div>
-      <Row label="pH (H2O)" value={ph} color={phColor} />
-      <Row label="有機質 OM" value={fmt("OM_OMU") ? `${fmt("OM_OMU")} %` : ""} />
-      <Row label="CEC" value={fmt("CEC") ? `${fmt("CEC")} cmol(+)/kg` : ""} />
-      <Row label="Mehlich-3 P" value={fmt("M3_P") ? `${fmt("M3_P")} mg/kg` : ""} />
-      <Row label="Mehlich-3 K" value={fmt("M3_K") ? `${fmt("M3_K")} mg/kg` : ""} />
+      <Row label="pH (H2O)" value={ph.text} color={ph.color} />
+      <Row label="有機質 OM" value={om.text} color={om.color} />
+      <Row label="CEC" value={cec.text} color={cec.color} />
+      <Row label="Mehlich-3 P" value={m3p.text} color={m3p.color} />
+      <Row label="Mehlich-3 K" value={m3k.text} color={m3k.color} />
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.35)", marginTop: 6, lineHeight: 1.5 }}>
+        ※ 0 值表示該項未測（多數網格只測 pH / OM）
+      </div>
     </>
   );
 }

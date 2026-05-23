@@ -7,6 +7,10 @@
 import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { agriPOIMatchColorExpr } from "../data/agriPOITypes";
+import {
+  SOIL_FERTILITY_METRICS,
+  type SoilFertilityMetric,
+} from "../data/agriSoilFertilityMetrics";
 // mapbox-pmtiles 套件的 package.json "main" 直接指 src/*.ts，會牽動 TS 編譯
 // 套件原始檔；改 import dist/ 的 ESM build 並局部宣告型別繞過。
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
@@ -247,31 +251,56 @@ export function updateAgriSoilLayer(
 
 // =============================================================================
 // 3. 土壤肥力 250m 網格 (112848) — 13.5 萬網格
+//    比其他 layer 複雜：6 個 metric 可切（health / pH / OM / CEC / M3_P / M3_K），
+//    paint fill-color 隨 metric 動態切換
 // =============================================================================
 
 const SOIL_FERT_SOURCE_ID = "agri-soil-fertility";
 const SOIL_FERT_FILL_ID = "agri-soil-fertility-fill";
-const SOIL_FERT_BASE_OPACITY = 0.45;
+const SOIL_FERT_BASE_OPACITY = 0.7;  // 高些以利分辨色塊
+
+export interface AgriSoilFertilityParams {
+  opacity: number;
+  metric: SoilFertilityMetric;
+}
+
+export const AGRI_SOIL_FERTILITY_PARAMS_DEFAULT: AgriSoilFertilityParams = {
+  opacity: 1,
+  metric: "health",
+};
 
 export function ensureAgriSoilFertilityLayers(map: MapboxMap): void {
-  ensureSimplePolyLayer(map, {
-    sourceId: SOIL_FERT_SOURCE_ID,
-    fillId: SOIL_FERT_FILL_ID,
-    fileName: "soil_fertility_grid_250m.pmtiles",
-    sourceLayer: "soil_fertility",
-    minzoom: 8,
-    maxzoom: 14,
-    fillColor: "#00897b",
-    defaultOpacity: SOIL_FERT_BASE_OPACITY,
-  });
+  registerSourceTypeOnce();
+  addPmtilesSourceIfMissing(map, SOIL_FERT_SOURCE_ID, "soil_fertility_grid_250m.pmtiles", 8, 14);
+
+  if (!map.getLayer(SOIL_FERT_FILL_ID)) {
+    map.addLayer({
+      id: SOIL_FERT_FILL_ID,
+      type: "fill",
+      source: SOIL_FERT_SOURCE_ID,
+      "source-layer": "soil_fertility",
+      minzoom: 8,
+      layout: { visibility: "none" },
+      paint: {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        "fill-color": SOIL_FERTILITY_METRICS.health.paintExpr as any,
+        "fill-opacity": SOIL_FERT_BASE_OPACITY,
+      },
+    });
+  }
 }
 
 export function updateAgriSoilFertilityLayer(
   map: MapboxMap,
   visible: boolean,
-  params: AgriPolyParams = AGRI_POLY_PARAMS_DEFAULT,
+  params: AgriSoilFertilityParams = AGRI_SOIL_FERTILITY_PARAMS_DEFAULT,
 ): void {
-  updateSimplePolyLayer(map, SOIL_FERT_FILL_ID, visible, SOIL_FERT_BASE_OPACITY, params);
+  if (!map.getLayer(SOIL_FERT_FILL_ID)) return;
+  map.setLayoutProperty(SOIL_FERT_FILL_ID, "visibility", visible ? "visible" : "none");
+  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-opacity", SOIL_FERT_BASE_OPACITY * params.opacity);
+  const meta = SOIL_FERTILITY_METRICS[params.metric] ?? SOIL_FERTILITY_METRICS.health;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  map.setPaintProperty(SOIL_FERT_FILL_ID, "fill-color", meta.paintExpr as any);
 }
 
 // =============================================================================
