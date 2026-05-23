@@ -141,12 +141,24 @@ opacity slider，使用者得以與底圖混合 / 跟其他 layer 疊看不致�
 
 純單色（無分類）的 layer 可豁免。
 
-### 規則 3：POI 點位 → 必接 click popup
-若 layer 為點位（circle）或可選取的物件，**必須**接到 `FeatureInfoPanel` 的
-click popup：
+### 規則 3：可選取物件 → 必接 click popup
+**所有承載有意義屬性的 feature**（POI circle / polygon / line / 3D）都必須接到
+`FeatureInfoPanel` 的 click popup。**polygon / line 不是 POI 的豁免條件** —
+只要點下去能講出資訊，就要接。
+
+前端 3 處接線：
 1. `src/types/index.ts` 的 `FeatureInfo.layerType` union 加 key
 2. `src/components/FeatureInfoPanel.tsx`：加 sub-panel + `HEADER_LABELS` 補 key + switch case
 3. `src/hooks/useMapInteraction.ts` 的 `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`
+   - **GIS_LAYERS 為 first-hit-wins**：把細節豐富的小範圍（如休農區）排在前面，
+     大面積背景（如全台土壤分類）排在後面，避免被覆蓋
+
+PMTiles 後端配套（**跨 repo**，在 `taipei-gis-analytics/pipelines/`）：
+4. `keep_attrs` 必須包含 popup 要顯示的所有欄位 —
+   原始 raw 屬性 ≠ 進 PMTiles 的屬性；tippecanoe 預設**只保留 -y 指定**的欄位。
+   重出後務必同步複製 `data/processed/agriculture/*/*.pmtiles` 到本 repo
+   `public/agriculture/`
+5. 數值欄位給單位（pH 無 / OM `%` / CEC `cmol(+)/kg` / M3_P/K `mg/kg` / area `公頃`）
 
 3D 物件（Three.js scene）走自己的 picking 路徑，但 tooltip 也要實作（參考
 `flightSceneRef.pickFlight` / `railSceneRef.pickTrain` 模式）。
@@ -157,12 +169,17 @@ click popup：
 |---|---|
 | 沒透明度 | 疊在底圖上看不見地形 / 跟其他 layer 互蓋無法調整 |
 | 有顏色分級沒圖例 | 用戶看到一片色塊不知道意思（如作物適栽 4 級綠→紅都不知道哪個好） |
-| POI 不能點 | 點位資訊鎖在 GeoJSON 屬性裡，使用者看不到 |
+| 可點物件沒接 popup | 屬性鎖在 PMTiles / GeoJSON 裡，使用者看不到 |
+| PMTiles `keep_attrs` 漏欄位 | 前端 panel 拿到 `undefined`，user 點開只看到空白 |
 
 ### 範例
-- 作物適栽（agriCropSuitability）— 4 級 kind 顏色 → `CropSuitabilityLegend`
-- 農業 POI（agriPOI）— 3 類 poi_type 點位 → `AgriPOIPanel` + click 接線
-- FTW 田區（agriculture）— 單色（confidence-based 透明度）→ 不需圖例
+- 作物適栽（agriCropSuitability）— 4 級 kind 顏色 + 點擊看 crop_name_zh / kind_label
+- 農業 POI（agriPOI）— 3 類 poi_type circle 點位
+- 農村再生（agriRuralRegen）— 大面積 polygon，點擊看社區名 / 計畫名 / 行政區
+- 土壤分類（agriSoil）— 整片底圖，點擊看土類 / 土系 / 表土質地
+- 土壤肥力（agriSoilFertility）— 250m 網格，點擊看 pH / OM / CEC / M3_P / M3_K
+- 休農區（agriLeisureFarmZones）— 法定 polygon，點擊看休區名 + 行政區代碼
+- FTW 田區（agriculture）— 38 萬田區僅 confidence 屬性，可暫不接 popup（單格無實用資訊）
 
 ## 5. 命名慣例
 
