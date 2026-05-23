@@ -122,6 +122,47 @@ useEffect(() => {
 - [ ] Toggle 開關有 loading 提示
 - [ ] 無 DB 查詢時間 > 1s（否則套 pre-aggregate）
 - [ ] **若為動態時序圖層：遵守 §8 動態圖層時間訂閱規則**
+- [ ] **若 paint 用顏色區分類別／級別：依 §9 寫圖例**
+- [ ] **若 layer 是 POI 點位：依 §10 接 click popup**
+- [ ] **opacity 控制必備（依 §11）**
+
+## 4a. 圖層 UX 標配（三大鐵則）
+
+新 layer 必須同時通過下列三條，缺一不可。違反時 reviewer 應退件。
+
+### 規則 1：透明度 slider 必備
+所有 layer（不論 fill / line / circle / 3D）都要在 `useTransportParams.ts` 提供
+opacity slider，使用者得以與底圖混合 / 跟其他 layer 疊看不致互卡。
+
+### 規則 2：顏色標註差異 → 必寫圖例
+若 paint 表達式用顏色標出**類別**（match by 屬性）或**級別**（step / interpolate by 數值），
+**必須**在 `src/components/LegendPanel.tsx` 加對應 sub-component；圖例與 paint
+配色**單一資料源**（共用同一 const，避免 paint 改色但圖例沒跟著）。
+
+純單色（無分類）的 layer 可豁免。
+
+### 規則 3：POI 點位 → 必接 click popup
+若 layer 為點位（circle）或可選取的物件，**必須**接到 `FeatureInfoPanel` 的
+click popup：
+1. `src/types/index.ts` 的 `FeatureInfo.layerType` union 加 key
+2. `src/components/FeatureInfoPanel.tsx`：加 sub-panel + `HEADER_LABELS` 補 key + switch case
+3. `src/hooks/useMapInteraction.ts` 的 `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`
+
+3D 物件（Three.js scene）走自己的 picking 路徑，但 tooltip 也要實作（參考
+`flightSceneRef.pickFlight` / `railSceneRef.pickTrain` 模式）。
+
+### 為什麼
+
+| 問題 | 後果 |
+|---|---|
+| 沒透明度 | 疊在底圖上看不見地形 / 跟其他 layer 互蓋無法調整 |
+| 有顏色分級沒圖例 | 用戶看到一片色塊不知道意思（如作物適栽 4 級綠→紅都不知道哪個好） |
+| POI 不能點 | 點位資訊鎖在 GeoJSON 屬性裡，使用者看不到 |
+
+### 範例
+- 作物適栽（agriCropSuitability）— 4 級 kind 顏色 → `CropSuitabilityLegend`
+- 農業 POI（agriPOI）— 3 類 poi_type 點位 → `AgriPOIPanel` + click 接線
+- FTW 田區（agriculture）— 單色（confidence-based 透明度）→ 不需圖例
 
 ## 5. 命名慣例
 

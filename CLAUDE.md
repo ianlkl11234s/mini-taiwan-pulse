@@ -64,6 +64,17 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 
 可用 slash command `/new-layer <name>` 自動產生骨架。
 
+### 5a. 圖層 UX 三鐵則（⚠️ 缺一不可）
+任何新 layer 都必須過：
+
+1. **透明度 slider** — 在 `useTransportParams.ts` 提供 opacity slider（已是慣例）
+2. **顏色分類 → 必寫圖例** — 若 paint 用 match/step/interpolate 區分類別或級別，必須在
+   `src/components/LegendPanel.tsx` 加 sub-component（paint 配色與圖例共用 const，避免漂移）
+3. **POI → 必接 click popup** — 點位 layer 必須在 `useMapInteraction.ts` 的 `GIS_LAYERS`
+   加項、`FeatureInfo.layerType` 加 key、`FeatureInfoPanel.tsx` 加 sub-panel
+
+詳見 [`docs/development-rules.md#4a-圖層-ux-標配三大鐵則`](./docs/development-rules.md#4a-圖層-ux-標配三大鐵則)。
+
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
 動態 / 時序圖層**禁止**把 `currentTime` 放進 React `useEffect` / `useMemo` deps；
 **必須**透過 `src/state/timeStore.ts` 訂閱：
