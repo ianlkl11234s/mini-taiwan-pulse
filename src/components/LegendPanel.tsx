@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LayerVisibility } from "../types";
+import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -43,11 +44,20 @@ const IOT_STRUCTURE_TYPES = [
   { color: "#92400e", label: "揚塵 Dust", measure: "PM10 / 風速 / 溫濕度" },
 ];
 
+// ── 作物適栽 4 級 kind ──（與 agricultureLayerFactory.ts CROP_KIND_COLOR_EXPR 對齊）
+const CROP_KIND_ITEMS = [
+  { kind: 1, color: "#1b5e20", label: "最適 Premium" },
+  { kind: 2, color: "#66bb6a", label: "適栽 Suitable" },
+  { kind: 3, color: "#fff59d", label: "次適 Marginal" },
+  { kind: 4, color: "#ef9a9a", label: "不適 Unsuitable" },
+];
+
 interface LegendPanelProps {
   visibility: LayerVisibility;
+  overlayParams: Record<string, number>;
 }
 
-export function LegendPanel({ visibility }: LegendPanelProps) {
+export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
   // 判斷有哪些需要圖例的圖層是開啟的
@@ -55,7 +65,8 @@ export function LegendPanel({ visibility }: LegendPanelProps) {
   const hasDisasterAlert = visibility.disasterAlerts;
   const hasIotRiver = visibility.iotWraRiver;
   const hasIotStructure = visibility.iotWraStructure;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure;
+  const hasCropSuitability = visibility.agriCropSuitability;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure || hasCropSuitability;
 
   if (!hasAny) return null;
 
@@ -104,8 +115,43 @@ export function LegendPanel({ visibility }: LegendPanelProps) {
           {hasDisasterAlert && <DisasterAlertLegend />}
           {hasIotRiver && <IotRiverLegend />}
           {hasIotStructure && <IotStructureLegend />}
+          {hasCropSuitability && <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} />}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Crop Suitability Legend (作物適栽 4 級 kind) ──
+
+function CropSuitabilityLegend({ cropId }: { cropId: number }) {
+  const crop = CROP_SUITABILITY_CROPS.find((c) => c.id === cropId);
+  const cropLabel = crop ? `${crop.nameZh} (${crop.nameEn})` : `#${cropId}`;
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        CROP SUITABILITY
+      </div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+        {cropLabel}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {CROP_KIND_ITEMS.map((s) => (
+          <div key={s.kind} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: 2,
+                background: s.color,
+                opacity: 0.85,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -1927,7 +1927,7 @@ export default function App() {
           </>
         )}
         <div style={{ pointerEvents: "auto" }}>
-          <LegendPanel visibility={layerVisibility} />
+          <LegendPanel visibility={layerVisibility} overlayParams={transportParams.overlayParams} />
         </div>
       </div>
 
