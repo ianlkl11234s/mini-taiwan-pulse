@@ -55,7 +55,19 @@
 | G002 | P3 | `[ReservoirLayer] render #N` 改 `DEBUG_RESERVOIR` env flag 控制 | done | 2026-04-23 render loop 修掉時順手移除 |
 | G003 | P3 | `public/three-showcase.html` / `public/showcase/` untracked 是什麼？要 commit / 忽略 / 刪？ | open | 本次 session 前就存在的 untracked 檔案 |
 
+### 農業（Phase 3 Batch 1，feat/water-extensions 分支）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| AG-1 | P3 | Wave D 公司登記點位 3 集（45640+45618+45655） | open | TGOS 上傳檔已備好 `taipei-gis-analytics/data/intermediate/tgos/agri_companies/upload/batch_001-004.csv` (4 batches × ≤10K)；等用戶手動上傳後跑 `pipelines/agriculture/_tgos_batch/01_post_geocode_merge.py` → `06_export_frontend.py` 擴 Wave D 區塊 |
+| AG-2 | P3 | FTW 田區 click popup | open | 目前 38 萬 polygon 只有 confidence 屬性，單格無實用資訊故未接。若要接需要 spatial JOIN 賦予地理資訊（縣市、土壤類）才有意義 |
+| AG-3 | P3 | Soil/SoilFertility 完整欄位重出評估 | open | 目前 soil_map_national 已含 8 欄、soil_fertility 含 5 欄。如果要全欄位（土壤分類 18 raw / 肥力 21 raw）PMTiles 會明顯變大（fertility 14MB → 32MB 已是部分欄位的結果）。先看是否有用戶反饋需要更多細節再決定 |
+| AG-4 | P3 | crop_suitability 跨作物 overlay 視角 | open | 目前 dropdown 只能看一個作物；若要看「這塊地適合幾種作物」需要 aggregate query。屬於 nice-to-have |
+| AG-5 | P2 | 分支重命名 feat/water-extensions → feat/agriculture | open | 本 session 主要做的是農業，但分支名仍寫水資源。建議重新命名或新開 feat/agriculture-batch-1 |
+
 ## 已完成（近期 10 筆）
+
+- 2026-05-23 ✅ **農業 Phase 3 Batch 1 完整上線**（6 PMTiles + 1 GeoJSON POI 部署到 public/agriculture/ ~215MB / FTW 既有 + agriSoil/agriSoilFertility/agriLeisureFarmZones/agriRuralRegen/agriCropSuitability/agriPOI 共 7 layer / 132 種作物 dropdown 切換 / 6 個可選取 layer 全部接 click popup [FTW 田區除外，僅 confidence 屬性無意義] / agriPOI 三類 + agriCropSuitability 4 級配色雙圖例 / 土壤肥力 6 metric 著色切換 [health/pH/OM/CEC/M3_P/M3_K] + 健康度綜合算法 + 數值分級註解 / sidebar select dropdown 門檻 > 6 → > 3 解橫向溢出 / 圖層 UX 鐵則升級 3 → 4 條完整寫進 docs/CLAUDE.md/memory）
 
 - 2026-05-12 ✅ **22 城 hwms stops 補座標 + INSERT 進 supabase**（v1+v2 TGOS 共 7 csv ~65K 地址 callback → 補 192K stops 座標 [TGOS 103K + pre_geocoded city-match 89K]，仍 91K 缺座標。寫 12_unified_callback.py + 30_build_split_geojson.py 拆 17 城 [104K stops + 4.7K routes] + 5 城 overlap 備份 [111K stops + 3.5K routes]。05_import_to_supabase 加 --stops-file/--routes-file 參數。INSERT 不 truncate → supabase stops 77K → 182K / routes 2K → 6.7K / 5 城 → 18 城。前端 wasteScheduleLoader+useWasteScheduleLayer 預設改 ALL_22_CITIES。Migration 080 sanity filter 對新加 17 城資料一樣有效（0 出界）。RPC 跑 dow=4 共 67K stops 健康）
 - 2026-05-12 ✅ **migration 080 stop coord sanity filter**（5 城 stops 中 87 outlier + 4 lng 整數截斷 + 5 出界 → RPC 三道 filter [整數 / Taiwan bbox / route 內 outlier] 自動跳過。tooltip 5min 寫死 → import Scene TRIP_BREAK_S=1500s 對齊）
