@@ -68,8 +68,9 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 任何新 layer 都必須過：
 
 1. **透明度 slider** — 在 `useTransportParams.ts` 提供 opacity slider（已是慣例）
-2. **顏色分類 → 必寫圖例** — 若 paint 用 match/step/interpolate 區分類別或級別，必須在
-   `src/components/LegendPanel.tsx` 加 sub-component（paint 配色與圖例共用 const，避免漂移）
+2. **分類 ≥ 2 種 → 必寫圖例** — 只要 layer 內顏色用 match/step/interpolate 分出 2+ 類別／級別
+   （不論 POI / polygon / line），必須在 `src/components/LegendPanel.tsx` 加 sub-component。
+   把類型表抽到 `src/data/xxxTypes.ts`（如 `agriPOITypes.ts`）給 factory / panel / legend 三處共用
 3. **可選取物件 → 必接 click popup** — POI / polygon / line 凡點下去能講出資訊就要接：
    `useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
    `FeatureInfoPanel.tsx` 加 sub-panel。**注意 PMTiles `keep_attrs` 要在

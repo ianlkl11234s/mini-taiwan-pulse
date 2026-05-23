@@ -134,12 +134,27 @@ useEffect(() => {
 所有 layer（不論 fill / line / circle / 3D）都要在 `useTransportParams.ts` 提供
 opacity slider，使用者得以與底圖混合 / 跟其他 layer 疊看不致互卡。
 
-### 規則 2：顏色標註差異 → 必寫圖例
-若 paint 表達式用顏色標出**類別**（match by 屬性）或**級別**（step / interpolate by 數值），
-**必須**在 `src/components/LegendPanel.tsx` 加對應 sub-component；圖例與 paint
-配色**單一資料源**（共用同一 const，避免 paint 改色但圖例沒跟著）。
+### 規則 2：分類 ≥ 2 種 → 必寫圖例
+**只要 layer 內的 feature 用顏色區分出 2 種以上類別／級別，不論點位 / polygon / line，
+都必須有圖例。** 判斷三問：
 
-純單色（無分類）的 layer 可豁免。
+1. paint 是否用了 `match` / `step` / `interpolate by 屬性`？
+2. 同 layer 內會不會出現 ≥ 2 種顏色？
+3. 用戶看到色塊能不能直覺對應到資料意義？
+
+第 1 或 2 為「是」、第 3 為「否」 → **必須**在 `src/components/LegendPanel.tsx` 加
+sub-component。三邊配色（factory paint expression / FeatureInfoPanel sub-panel /
+LegendPanel sub-component）**單一資料源**，把類型表抽到 `src/data/xxxTypes.ts`
+共享，避免改一邊忘改另一邊。
+
+豁免條件（同時滿足才可豁免）：
+- 整層**單一顏色** + opacity 由 confidence / 數值 attribute 自動調節（如 FTW 田區）
+- 用戶不需要分辨個別 feature 的類別
+
+### 反例（過去踩過）
+- 農業 POI 三類（休農場 / 田媽媽 / 特色農旅）顏色不同 → **第一次漏寫圖例**，
+  用戶看到三色點分不出來
+- 作物適栽 4 級配色 → **第一次漏寫圖例**，用戶看不出「綠色 = 適栽」
 
 ### 規則 3：可選取物件 → 必接 click popup
 **所有承載有意義屬性的 feature**（POI circle / polygon / line / 3D）都必須接到
@@ -173,13 +188,19 @@ PMTiles 後端配套（**跨 repo**，在 `taipei-gis-analytics/pipelines/`）�
 | PMTiles `keep_attrs` 漏欄位 | 前端 panel 拿到 `undefined`，user 點開只看到空白 |
 
 ### 範例
-- 作物適栽（agriCropSuitability）— 4 級 kind 顏色 + 點擊看 crop_name_zh / kind_label
-- 農業 POI（agriPOI）— 3 類 poi_type circle 點位
-- 農村再生（agriRuralRegen）— 大面積 polygon，點擊看社區名 / 計畫名 / 行政區
-- 土壤分類（agriSoil）— 整片底圖，點擊看土類 / 土系 / 表土質地
-- 土壤肥力（agriSoilFertility）— 250m 網格，點擊看 pH / OM / CEC / M3_P / M3_K
-- 休農區（agriLeisureFarmZones）— 法定 polygon，點擊看休區名 + 行政區代碼
-- FTW 田區（agriculture）— 38 萬田區僅 confidence 屬性，可暫不接 popup（單格無實用資訊）
+| Layer | 分類數 | 圖例 | Click popup |
+|---|---:|---|---|
+| 作物適栽（agriCropSuitability） | 4 級 kind | ✅ CropSuitabilityLegend | ✅ AgriCropSuitabilityPanel |
+| 農業 POI（agriPOI） | 3 類 poi_type | ✅ AgriPOILegend | ✅ AgriPOIPanel |
+| 農村再生（agriRuralRegen） | 1（單色） | — | ✅ AgriRuralRegenPanel |
+| 土壤分類（agriSoil） | 1（單色） | — | ✅ AgriSoilPanel |
+| 土壤肥力（agriSoilFertility） | 1（單色） | — | ✅ AgriSoilFertilityPanel |
+| 休農區（agriLeisureFarmZones） | 1（單色） | — | ✅ AgriLeisureFarmZonesPanel |
+| FTW 田區（agriculture） | 1（confidence opacity） | — | — (僅 confidence 無實用資訊) |
+
+POI 三類 / 作物 4 級的單一資料源放在 `src/data/agriPOITypes.ts` /
+`src/components/LegendPanel.tsx#CROP_KIND_ITEMS`，三處（factory / FeatureInfoPanel /
+LegendPanel）共用。
 
 ## 5. 命名慣例
 
