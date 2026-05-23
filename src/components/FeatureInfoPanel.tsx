@@ -1113,6 +1113,35 @@ const AGRI_POI_TYPE_META: Record<string, { color: string; label: string }> = {
   agritourism_certified: { color: "#6a1b9a", label: "特色農業旅遊場域" },
 };
 
+function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> }) {
+  const community = String(props["社區名"] ?? "");
+  const plan = String(props["計畫名"] ?? "");
+  const county = String(props["縣市"] ?? "");
+  const town = String(props["鄉鎮"] ?? "");
+  const village = String(props["村里"] ?? "");
+  const note = String(props["NOTE"] ?? "");
+  const region = [county, town, village].filter(Boolean).join("");
+  const areaHaRaw = props.area_ha;
+  const areaHa = typeof areaHaRaw === "number" ? areaHaRaw.toFixed(2) : String(areaHaRaw ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#ffb74d", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {community || "農村再生社區"}
+        </div>
+      </div>
+      <Row label="行政區" value={region} />
+      <Row label="計畫" value={plan} />
+      <Row label="核定時" value={String(props["核定時"] ?? "")} />
+      <Row label="計畫年" value={String(props["計畫年"] ?? "")} />
+      <Row label="分署" value={String(props["分署"] ?? "")} />
+      <Row label="狀態" value={note} color={note === "已核定" ? "#7efcb0" : undefined} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
 function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
   const poiType = String(props.poi_type ?? "");
   const meta = AGRI_POI_TYPE_META[poiType] ?? { color: "#9e9e9e", label: poiType };
@@ -1164,6 +1193,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   wasteFacility: "垃圾處理設施",
   wasteDisposalPoint: "垃圾投放點",
   agriPOI: "農業 POI",
+  agriRuralRegen: "農村再生社區",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -1257,6 +1287,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "agriPOI":
       content = <AgriPOIPanel props={feature.properties} />;
+      break;
+    case "agriRuralRegen":
+      content = <AgriRuralRegenPanel props={feature.properties} />;
       break;
   }
 
