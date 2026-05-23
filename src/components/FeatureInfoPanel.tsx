@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import type { FeatureInfo } from "../types";
 import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
+import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import {
   WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS,
   WASTE_DISPOSAL_COLORS, WASTE_DISPOSAL_LABELS,
@@ -1106,13 +1107,6 @@ function WasteDisposalPointPanel({ props }: { props: Record<string, unknown> }) 
   );
 }
 
-// 農業 POI 三類配色（與 agricultureLayerFactory.ts POI_TYPE_COLOR_EXPR 對齊）
-const AGRI_POI_TYPE_META: Record<string, { color: string; label: string }> = {
-  leisure_farm:          { color: "#2e7d32", label: "休閒農場" },
-  tian_mama:             { color: "#d84315", label: "田媽媽" },
-  agritourism_certified: { color: "#6a1b9a", label: "特色農業旅遊場域" },
-};
-
 function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
   const region = String(props["地區"] ?? "");
   const sheet = String(props["圖幅名稱"] ?? "");
@@ -1254,7 +1248,8 @@ function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> }) {
 
 function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
   const poiType = String(props.poi_type ?? "");
-  const meta = AGRI_POI_TYPE_META[poiType] ?? { color: "#9e9e9e", label: poiType };
+  const t = AGRI_POI_TYPES.find((x) => x.id === poiType);
+  const meta = t ? { color: t.color, label: t.labelZh } : { color: "#9e9e9e", label: poiType };
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>

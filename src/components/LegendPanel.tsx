@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
+import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -66,7 +67,8 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasIotRiver = visibility.iotWraRiver;
   const hasIotStructure = visibility.iotWraStructure;
   const hasCropSuitability = visibility.agriCropSuitability;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure || hasCropSuitability;
+  const hasAgriPOI = visibility.agriPOI;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI;
 
   if (!hasAny) return null;
 
@@ -116,8 +118,43 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasIotRiver && <IotRiverLegend />}
           {hasIotStructure && <IotStructureLegend />}
           {hasCropSuitability && <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} />}
+          {hasAgriPOI && <AgriPOILegend />}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Agriculture POI Legend (休農場 / 田媽媽 / 特色農旅) ──
+
+function AgriPOILegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        AGRICULTURE POI
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {AGRI_POI_TYPES.map((t) => (
+          <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: t.color,
+                opacity: 0.9,
+                border: "1px solid #fff",
+                boxSizing: "border-box",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>
+              {t.labelZh}
+              <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>{t.labelEn}</span>
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

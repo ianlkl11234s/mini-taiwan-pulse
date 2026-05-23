@@ -6,6 +6,7 @@
 
 import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { agriPOIMatchColorExpr } from "../data/agriPOITypes";
 // mapbox-pmtiles 套件的 package.json "main" 直接指 src/*.ts，會牽動 TS 編譯
 // 套件原始檔；改 import dist/ 的 ESM build 並局部宣告型別繞過。
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
@@ -404,14 +405,8 @@ export function updateAgriCropSuitabilityLayer(
 const POI_SOURCE_ID = "agri-pois";
 const POI_CIRCLE_ID = "agri-pois-circle";
 
-const POI_TYPE_COLOR_EXPR = [
-  "match",
-  ["get", "poi_type"],
-  "leisure_farm", "#2e7d32",
-  "tian_mama", "#d84315",
-  "agritourism_certified", "#6a1b9a",
-  "#616161",
-];
+// 三類 POI 配色從 src/data/agriPOITypes.ts 衍生（單一資料源）
+const POI_TYPE_COLOR_EXPR = agriPOIMatchColorExpr();
 
 export interface AgriPOIParams {
   /** opacity (0~1) */
