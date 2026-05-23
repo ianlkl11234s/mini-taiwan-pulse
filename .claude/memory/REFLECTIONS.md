@@ -321,3 +321,81 @@
 - BACKLOG：+BL-17/18/19，schedule prototype 標 done
 
 <!-- /wrap-up 之後追加新反省 -->
+
+---
+
+## 2026-05-23 農業 Phase 3 Batch 1 全套上線（7 layer + 鐵則 3 → 4）
+
+### What worked ✅
+
+- **照 handoff doc 結構分 Step 0-6 + 用 TaskList 追蹤**：用戶說「請列計畫，逐步完成」，
+  我先列 6 步驟 + TaskCreate 8 個 task。中間 step 可以 atomic commit 各自獨立 tsc 過，
+  失敗能精準回退。最終 git log 看得出階段演進（factory / wiring / activation / 修 bug /
+  legend / click / 規則）
+- **3 個 atomic commit 切分主要 wiring**：(A) factory + asset gitignore (B) types/visibility/
+  sidebar/params/data (C) MapView 啟動。中間每一步 `npx tsc -b` 全綠，可獨立 review
+- **單一資料源 pattern 主動套用**：POI 三類 → `agriPOITypes.ts` / 土壤肥力 6 metric →
+  `agriSoilFertilityMetrics.ts`。factory paint / FeatureInfoPanel / LegendPanel 三邊共用，
+  下次改色一個檔搞定
+- **跨 repo 操作謹慎**：taipei-gis-analytics 的 `pipelines/agriculture/` 整包 untracked
+  時主動拒絕 commit，避免破壞用戶批次提交的脈絡
+- **健康度綜合算法的探索式對話**：用戶問「綜合分數還是只是決策」時，我先講農業實務
+  雙軌（多指標 vs 綜合分數）+ 點出他既有的 crop_suitability 已是綜合答案，再讓他選做法。
+  避免直接做完發現他要的是另一條路
+
+### What didn't ❌
+
+- **連續 5 次規則應用太狹隘** — 最大問題：
+  1. 作物適栽 4 級配色我以為「不是 POI 所以不用圖例」
+  2. 農村再生 polygon 我以為「不是 POI 所以不用 click popup」
+  3. PMTiles `keep_attrs` 我沒主動檢查就接 panel，導致空白
+  4. POI 點位我以為「有 click popup 就夠了，圖例不用」
+  5. 6 個 dropdown options 我以為 button row 撐得住，沒實機驗收 sidebar 寬度
+- **規則寫法太抽象自找麻煩**：第一版「顏色標註差異」「POI 點位」這種詞，自己看自己寫的
+  規則時都會有想像空間。明明是自己寫的還能誤判
+- **`6 metric dropdown` 規則 4 是視覺驗收漏抓**：寫完 metric dropdown 沒打開 sidebar 看，
+  純跑 tsc -b 通過就放心。等用戶截圖才看到溢出
+- **handoff doc 沒事先看就動工**：第一次讀 user message 時以為「FRONTEND_HANDOFF.md」
+  在 mini-taiwan-pulse 內，find 找半天才在 taipei-gis-analytics 找到。應該一開始
+  就 grep 跨 repo
+
+### Next-time rules 🎯
+
+1. **寫規則時用數字 / 列舉 token，不要抽象形容詞**：
+   - ❌「顏色標註差異」→ ✅「分類 ≥ 2 種」
+   - ❌「POI 點位」→ ✅「POI / polygon / line / 3D 凡可選取」
+   - ❌「options 過多」→ ✅「options ≥ 4」
+2. **新 layer 收尾時對著 docs/development-rules.md §4a 四鐵則「逐條打勾」**，
+   不要憑感覺豁免。每條都要回答「適用嗎？適用了沒？」
+3. **PMTiles 重出 → 寫 panel 前必 check `keep_attrs`**：見 PB-14 SOP。
+   `taipei-gis-analytics/pipelines/agriculture/_batch_download/06_export_frontend.py`
+   是入口
+4. **Sidebar 寬度視覺驗收**：寫完新 control 必開 dev server 看 sidebar 展開後沒溢出，
+   特別是中文標籤（4 個就會撐爆）
+5. **跨 repo 任務先 find/grep 確認檔案位置**：handoff doc / pipeline script 可能在
+   sibling repo，動工前 `find /Users/migu/Desktop/資料庫/.../GIS -name "<file>"` 一次
+6. **新 dataset 拿到先 EDA**：parquet 讀進來看 `df.isna().sum() / (df == 0).sum()`
+   找 missing pattern。soil_fertility 0 ≠ 真零是這次教訓
+
+### Memory 產出
+
+- BACKLOG：+農業 section (AG-1~AG-5) + 已完成 1 筆
+- DATA_SCOPE：+農業 section (7 layer 對照 + 3 踩坑)
+- GLOSSARY：+農業 section (14 條術語)
+- PLAYBOOKS：+PB-14 PMTiles 重出補欄位 SOP
+- PRINCIPLES：+「圖層 UX 四鐵則」章節（指向 docs）
+- INCIDENTS：+3 條（規則應用太狹隘 / Mapbox zoom expr / 0 = 未測）
+- REFLECTIONS：本篇
+- STATUS：重寫成 5/23 農業 Batch 1 完成狀態
+- docs/development-rules.md §4a：圖層 UX 四鐵則完整版
+- CLAUDE.md §5a：四鐵則摘要 + 連結
+- auto-memory `feedback_layer_ux_triad.md`：跨 session 自動載入版本
+
+### Skill 自身反省
+
+`/wrap-up` skill 本次用得很順，按 Stage 1-5 走沒問題。
+
+**唯一改善建議**：Stage 3 「保持精簡」原則我沒犯（沒 dump 完整 markdown 草稿），但
+**Stage 2 Analyze 時把「用戶連續 5 次糾正」獨立挑出來標星，是該流程目前沒明寫的
+最佳實踐**。建議下次 SKILL.md 可加：「**用戶糾正次數 ≥ 3 → 必寫 REFLECTIONS + INCIDENTS
+雙寫**」（一個是反省，一個是事件紀錄）。
