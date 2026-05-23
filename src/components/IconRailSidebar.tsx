@@ -977,8 +977,8 @@ function ExpandedControls({
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {controls.map((ctrl) => {
             if (ctrl.type === "select") {
-              // options 過多時改用原生 <select> dropdown（132 種作物等情境）
-              if (ctrl.options.length > 6) {
+              // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
+              if (ctrl.options.length > 3) {
                 return (
                   <div
                     key={ctrl.label}
