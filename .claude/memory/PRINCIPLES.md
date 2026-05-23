@@ -185,6 +185,29 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 
 可用 slash command `/new-layer <name>` 自動產生骨架。
 
+## 圖層 UX 四鐵則（⚠ P0，2026-05-23 加）
+
+任何新 layer 必須**同時**通過四條，缺一不可。違反 reviewer 應退件。
+**詳細 rationale + 範例見 `docs/development-rules.md#4a`，本檔僅摘要**。
+
+1. **透明度 slider 必備** — `useTransportParams.ts` 加 opacity slider
+2. **分類 ≥ 2 種 → 必寫圖例** — paint 用 `match` / `step` / `interpolate by 屬性`
+   分出 2+ 顏色時，**必須**在 `src/components/LegendPanel.tsx` 加 sub-component。
+   類型表抽到 `src/data/xxxTypes.ts` 給 factory paint / FeatureInfoPanel / LegendPanel
+   三處共用（範例：`agriPOITypes.ts` / `agriSoilFertilityMetrics.ts`）
+3. **可選取物件 → 必接 click popup** — POI / polygon / line 凡點下去能講出資訊
+   就要接：`useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
+   `FeatureInfoPanel.tsx` 加 sub-panel。`GIS_LAYERS` 是 first-hit-wins → 細節小範圍排前面、
+   大背景排後面。PMTiles `keep_attrs` 必須先補齊（見 PB-14）否則 panel 拿到 undefined
+4. **Select control options ≥ 4 → 原生 `<select>` dropdown** —
+   `LayerSidebar` / `IconRailSidebar` 內 `ctrl.options.length > 3` 自動切。
+   中文標籤 4 個就溢出 240px sidebar。Layer 多參數時用 dropdown 切 "mode"
+   而非並排多個 slider（範例：土壤肥力 6 metric → 一個 dropdown）
+
+豁免條件：純單色 + opacity 由 attribute 自動調節（如 FTW confidence_mean） →
+可豁免「圖例」。若 polygon 單格無實用屬性（如 FTW 田區僅 confidence） →
+可豁免「click popup」。其他情況一律接，select 無豁免。
+
 ## 視覺層 debug（2026-04-22 教訓）
 
 - **Mapbox custom layer 掛載用 polling，不要 `map.once('load')`**
