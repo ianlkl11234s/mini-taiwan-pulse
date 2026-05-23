@@ -445,7 +445,8 @@ export interface FeatureInfo {
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "iotWraRiver" | "iotWraStructure"
-    | "wasteFacility" | "wasteDisposalPoint";
+    | "wasteFacility" | "wasteDisposalPoint"
+    | "agriPOI";
   properties: Record<string, unknown>;
 }
 

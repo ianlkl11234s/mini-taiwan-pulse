@@ -186,6 +186,7 @@ export function useMapInteraction(
           { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
           { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
           { layers: ["groundwater-circle", "groundwater-glow"], type: "groundwater" },
+          { layers: ["agri-pois-circle"], type: "agriPOI" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

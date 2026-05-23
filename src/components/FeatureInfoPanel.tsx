@@ -1106,6 +1106,33 @@ function WasteDisposalPointPanel({ props }: { props: Record<string, unknown> }) 
   );
 }
 
+// 農業 POI 三類配色（與 agricultureLayerFactory.ts POI_TYPE_COLOR_EXPR 對齊）
+const AGRI_POI_TYPE_META: Record<string, { color: string; label: string }> = {
+  leisure_farm:          { color: "#2e7d32", label: "休閒農場" },
+  tian_mama:             { color: "#d84315", label: "田媽媽" },
+  agritourism_certified: { color: "#6a1b9a", label: "特色農業旅遊場域" },
+};
+
+function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
+  const poiType = String(props.poi_type ?? "");
+  const meta = AGRI_POI_TYPE_META[poiType] ?? { color: "#9e9e9e", label: poiType };
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.poi_name ?? "Unknown")}
+        </div>
+      </div>
+      <Row label="類型" value={meta.label} color={meta.color} />
+      <Row label="資料集" value={String(props.source_dataset_id ?? "")} />
+      <Row label="行政區" value={String(props.TOWNID ?? "")} />
+      <Row label="緯度" value={typeof props.lat === "number" ? props.lat.toFixed(5) : String(props.lat ?? "")} />
+      <Row label="經度" value={typeof props.lon === "number" ? props.lon.toFixed(5) : String(props.lon ?? "")} />
+    </>
+  );
+}
+
 const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -1136,6 +1163,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   iotWraStructure: "IoT 水工結構",
   wasteFacility: "垃圾處理設施",
   wasteDisposalPoint: "垃圾投放點",
+  agriPOI: "農業 POI",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -1226,6 +1254,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "wasteDisposalPoint":
       content = <WasteDisposalPointPanel props={feature.properties} />;
+      break;
+    case "agriPOI":
+      content = <AgriPOIPanel props={feature.properties} />;
       break;
   }
 
