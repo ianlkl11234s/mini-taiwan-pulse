@@ -587,3 +587,21 @@ tippecanoe 預設**只保留 `-y` 指定的欄位**，其他 raw 屬性全丟。
 
 ⚠ **soil_fertility 加 5 個數值欄位翻倍**（14 → 32MB）— 134K grid × 5 numeric col。
 minzoom 8 + range request 不會一次全載，但要評估部署成本。
+
+## PB-15 Browser 視覺驗收 WebGL / Mapbox 圖層 SOP（2026-05-24 加）
+
+### 為什麼會踩
+- **headless agent-browser 渲染不出 Mapbox/Three.js**：console 報 `Failed to initialize WebGL`、截圖全黑（headless Chromium 無 GPU）。
+- 手動 mouse-wheel zoom + drag 導航到特定城市**極不精準**，常落在鄉間空白處（無資料）浪費大量 round-trip。
+
+### 5 步流程
+0. **先按「All Off」清掉所有圖層再只開要測的那層**（2026-05-24 用戶提醒）——否則其他 layer 的點會混進來，誤判顏色/大小/數量。
+1. **一定用 `--headed --session-name <name>`**（真實 GPU 才有 WebGL）。dev server `npm run dev`（port 3721），`.env` 確認 `VITE_DATA_SOURCE=supabase`。
+2. **先驗證靜態資源端點**：`curl -s -o /dev/null -w "%{http_code} %{size_download}" http://localhost:3721/geo/xxx.geojson`（200 才往下）。
+3. **toggle 圖層**：`snapshot | grep <中文label>` 找到 → expandable layer 的「文字 label」是展開、**toggle 開關是後面那顆 button ref**（點 label 不會切換可見性，要點 ref 如 e65）。
+4. **導航用 app 內建「Locations」面板城市預設**（台北/台中/高雄…），**別用 wheel/drag 硬找**。火災最密 + 有消防栓的是台北（county A）。
+5. **驗 popup**：`mouse move x y` → `down` → `up` → `snapshot | grep <panel 欄位>`。custom WebGL 層（火焰/3D）不可點，要靠底下常駐的 2D circle 命中。
+
+### 實例（2026-05-24 消防火焰特效）
+- headless 全黑 → 換 headed 立刻正常。
+- wheel/drag 卡在苗栗鄉間 6+ 次都無火點 → 改點 Locations「台北」一次到位，火焰特效 + popup 全驗出。
