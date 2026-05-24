@@ -71,7 +71,8 @@ function initialStage(decision: Decision, source?: string): Stage {
 const BOX_STYLE: React.CSSProperties = {
   marginTop: 8,
   width: "100%",
-  height: 176,
+  // CCTV 畫面多為 16:9，框用同比例隨寬度自適應，避免太扁造成上下裁切 / 左右黑邊
+  aspectRatio: "16 / 9",
   borderRadius: 4,
   overflow: "hidden",
   background: "#0a0a0a",
