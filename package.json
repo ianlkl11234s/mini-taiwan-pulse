@@ -27,6 +27,8 @@
     "h3-js": "^4.4.0",
     "lucide-react": "^0.576.0",
     "mapbox-gl": "^3.9.0",
+    "mapbox-pmtiles": "^1.0.56",
+    "pmtiles": "^4.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "three": "^0.172.0"
