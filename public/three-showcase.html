@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Three.js × Mapbox 視覺效果案例總覽 — Mini Taiwan Pulse</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.css" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0e14;
+    --panel: rgba(15, 20, 28, 0.92);
+    --panel-2: rgba(25, 32, 44, 0.95);
+    --border: rgba(255, 255, 255, 0.08);
+    --text: #e6edf3;
+    --muted: #8b95a3;
+    --accent: #6cb8ff;
+    --accent-2: #ff7eb6;
+    --warn: #ffb86c;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif; }
+  #map { position: absolute; top: 0; left: 0; right: 420px; bottom: 0; }
+  #sidebar {
+    position: absolute; top: 0; right: 0; bottom: 0; width: 420px;
+    background: var(--panel); border-left: 1px solid var(--border);
+    overflow-y: auto; padding: 16px;
+    backdrop-filter: blur(10px);
+  }
+  #sidebar h1 { font-size: 16px; margin: 0 0 6px; color: var(--accent); }
+  #sidebar .subtitle { font-size: 12px; color: var(--muted); margin: 0 0 14px; line-height: 1.5; }
+  #sidebar .meta { font-size: 11px; color: var(--muted); margin-bottom: 14px; padding: 8px 10px; background: var(--panel-2); border-radius: 6px; border-left: 3px solid var(--accent); }
+  .card {
+    background: var(--panel-2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 12px 10px; margin-bottom: 10px; cursor: pointer; transition: border-color 0.15s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card.active { border-color: var(--accent-2); box-shadow: 0 0 0 1px var(--accent-2) inset; }
+  .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .card-title { font-size: 14px; font-weight: 600; }
+  .card-loc { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .card-tech { font-size: 11px; color: var(--accent); margin-top: 4px; }
+  .card-desc { font-size: 12px; color: var(--text); margin: 6px 0 4px; line-height: 1.55; opacity: 0.9; }
+  .card-prompt { font-size: 11px; background: rgba(108, 184, 255, 0.08); border-left: 2px solid var(--accent); padding: 6px 8px; margin: 6px 0 0; color: #c4d8ee; line-height: 1.5; border-radius: 0 4px 4px 0; }
+  .card-prompt b { color: var(--accent-2); }
+  .params { margin-top: 8px; display: none; }
+  .card.expanded .params { display: block; }
+  .param-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 11px; }
+  .param-row label { flex: 0 0 70px; color: var(--muted); }
+  .param-row input[type=range] { flex: 1; height: 3px; }
+  .param-row .val { flex: 0 0 40px; text-align: right; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .toolbar { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .toolbar button {
+    background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+    padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;
+  }
+  .toolbar button:hover { border-color: var(--accent); }
+  .section-title { font-size: 11px; color: var(--muted); margin: 12px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
+  details.help { margin-top: 16px; padding: 8px 10px; background: var(--panel-2); border-radius: 6px; border: 1px solid var(--border); }
+  details.help summary { cursor: pointer; font-size: 12px; color: var(--accent); }
+  details.help div { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.7; }
+  details.help code { background: rgba(255,255,255,0.06); padding: 1px 5px; border-radius: 3px; color: var(--warn); font-size: 11px; }
+  .mapboxgl-ctrl-attrib { font-size: 9px; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="sidebar">
+  <h1>Three.js × Mapbox 視覺效果案例</h1>
+  <p class="subtitle">68 種 3D 視覺效果 + 對應的「下指令範例」。點卡片飛去看，可即時調參。完整查表：<code>docs/three-showcase-library.md</code></p>
+  <div class="meta">
+    底圖：Mapbox dark · 渲染：Three.js（共享 GL context）· 投影：Mercator
+    <br/>每個效果定位在台灣不同城市，避免互相遮擋。
+  </div>
+  <div class="toolbar">
+    <button id="btn-fit">回到全台</button>
+    <button id="btn-toggle-all">全顯/單顯</button>
+    <button id="btn-pause">暫停動畫</button>
+  </div>
+  <div class="section-title">案例列表（點擊飛入）</div>
+  <div id="cards"></div>
+
+  <details class="help">
+    <summary>怎麼跟 Claude 下指令？</summary>
+    <div>
+      <p>下指令時越具體越好。建議模板：</p>
+      <p>「在 <code>[經緯度/地點]</code> 放一個 <code>[大小，例如高 300m]</code> 的 <code>[顏色，hex 或描述]</code> 的 <code>[效果名]</code>，<code>[動態行為，例如脈動、旋轉、漸層方向]</code>。」</p>
+      <p>例如：「在台北 101 的位置放一根高 200m 的青色光柱，底寬頂窄，每 2 秒脈動一次。」</p>
+      <p>進階參數可指定：</p>
+      <ul style="margin: 4px 0; padding-left: 18px;">
+        <li><code>blending</code>：Additive（亮、會疊加）/ Normal（普通透明）</li>
+        <li><code>opacity</code>：0~1 的透明度</li>
+        <li><code>geometry</code>：Cylinder / Cone / Sphere / Torus / Plane / Custom</li>
+        <li><code>shader</code>：vertex 動位移（裙擺）/ fragment 動色（流動漸層）</li>
+        <li><code>particles</code>：粒子數量、生命週期、初速度</li>
+        <li><code>animation</code>：sin 脈動 / linear 旋轉 / 漣漪擴散</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="help">
+    <summary>檔案結構（要新增效果看這）</summary>
+    <div>
+      <p>已模組化拆成 9 個分類（共 68 個元件，含水資源系統關係 12 個）：</p>
+      <ul style="margin: 4px 0; padding-left: 18px;">
+        <li><code>public/showcase/effects/basic.js</code> — 基礎幾何 (8)</li>
+        <li><code>public/showcase/effects/light.js</code> — 光效 (3)</li>
+        <li><code>public/showcase/effects/animation.js</code> — 動畫事件 (12)</li>
+        <li><code>public/showcase/effects/shader.js</code> — Shader 變形 (4)</li>
+        <li><code>public/showcase/effects/particles.js</code> — 粒子 (14)</li>
+        <li><code>public/showcase/effects/line.js</code> — 線條/路徑 (7)</li>
+        <li><code>public/showcase/effects/viz.js</code> — 數據視覺化 (8)</li>
+        <li><code>public/showcase/effects/atmospheric.js</code> — 體積/大氣 (3)</li>
+        <li><code>public/showcase/effects/scene.js</code> — 場景/科幻 (9)</li>
+      </ul>
+      <p>核心：<code>public/showcase/core/layer.js</code>（Mapbox CustomLayer）+ <code>core/ui.js</code>（側邊欄）</p>
+      <p>查表：<code>docs/three-showcase-library.md</code></p>
+      <p>新增效果只要在對應分類檔案 export 陣列加一個物件（同 build/update pattern），重整就會出現。</p>
+    </div>
+  </details>
+
+  <details class="help">
+    <summary>Three.js 在這個專案能做什麼？</summary>
+    <div>
+      <p>已實作：船舶光點、航班軌跡、軌道列車、燈塔光束、水庫水量、溫度波浪曲面、車站光柱…</p>
+      <p>所有 3D 物件都透過 <code>Mapbox CustomLayer</code> 共享 GL context，每幀讀取 timeline 並呼叫 <code>map.triggerRepaint()</code>。</p>
+      <p>座標一律走 <code>mapboxgl.MercatorCoordinate.fromLngLat()</code> + <code>meterInMercatorCoordinateUnits()</code>，這樣 Three.js 物件就能對齊地理位置。</p>
+      <p>Source：<code>src/three/*Scene.ts</code> + <code>src/map/*CustomLayer.ts</code></p>
+    </div>
+  </details>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+
+<script type="module">
+// ── Mapbox token（pk publishable key，client-side 暴露 OK） ──
+const MAPBOX_TOKEN = "pk.eyJ1IjoiaWFubGsxMTIzNHMiLCJhIjoiY21qcHc3eHBxMmZtMzNnb3BodDFiOG53YiJ9.Rt57QPwfQMFg6xKlH6m3lg";
+
+// ── Mapbox 載入（UMD script tag，不是 module） ──
+await new Promise((r) => {
+  const s = document.createElement("script");
+  s.src = "https://api.mapbox.com/mapbox-gl-js/v3.7.0/mapbox-gl.js";
+  s.onload = r;
+  document.head.appendChild(s);
+});
+mapboxgl.accessToken = MAPBOX_TOKEN;
+
+// ── 載入所有效果分類 + core 模組（並行） ──
+const [
+  basic, light, animation, shader, particles, line, viz, atmospheric, scene,
+  layerMod, uiMod,
+] = await Promise.all([
+  import("./showcase/effects/basic.js"),
+  import("./showcase/effects/light.js"),
+  import("./showcase/effects/animation.js"),
+  import("./showcase/effects/shader.js"),
+  import("./showcase/effects/particles.js"),
+  import("./showcase/effects/line.js"),
+  import("./showcase/effects/viz.js"),
+  import("./showcase/effects/atmospheric.js"),
+  import("./showcase/effects/scene.js"),
+  import("./showcase/core/layer.js"),
+  import("./showcase/core/ui.js"),
+]);
+
+const EFFECTS = [
+  ...basic.default,
+  ...light.default,
+  ...animation.default,
+  ...shader.default,
+  ...particles.default,
+  ...line.default,
+  ...viz.default,
+  ...atmospheric.default,
+  ...scene.default,
+];
+
+// ── 全域狀態（layer + ui 共用） ──
+const state = {
+  selected: null,
+  showAll: true,
+  paused: false,
+};
+
+// ── 初始化 Mapbox ──
+const map = new mapboxgl.Map({
+  container: "map",
+  style: "mapbox://styles/mapbox/dark-v11",
+  center: [120.9, 23.7],
+  zoom: 6.6,
+  pitch: 50,
+  bearing: 0,
+  antialias: true,
+  projection: "mercator",
+});
+
+const showcaseLayer = layerMod.createShowcaseLayer({ effects: EFFECTS, state, mapboxgl });
+
+map.on("load", () => {
+  map.addLayer(showcaseLayer);
+  uiMod.setupUI({ effects: EFFECTS, state, map });
+});
+</script>
+</body>
+</html>
