@@ -4,6 +4,7 @@ import { CctvStreamView } from "./CctvStreamView";
 import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
+import { fireStationColor, fireHydrantColor } from "../data/fireTypes";
 import { SOIL_FERTILITY_METRICS } from "../data/agriSoilFertilityMetrics";
 import {
   WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS,
@@ -1408,6 +1409,74 @@ function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function FireEventPanel({ props }: { props: Record<string, unknown> }) {
+  const deaths = Number(props.deaths ?? 0);
+  const injuries = Number(props.injuries ?? 0);
+  const casualty = deaths > 0 || injuries > 0;
+  const accentColor = casualty ? "#ff1744" : "#ff7043";
+  const ts = Number(props.occurred_ts ?? 0);
+  let timeStr = "";
+  if (ts > 0) {
+    const d = new Date(ts * 1000);
+    const p2 = (n: number) => String(n).padStart(2, "0");
+    timeStr = `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())} ${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}`;
+  }
+  const loc = [props.county, props.township].filter(Boolean).map(String).join(" ");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {loc || "火災事件"}
+        </div>
+      </div>
+      <Row label="起火原因" value={String(props.cause ?? "")} color={accentColor} />
+      <Row label="死亡" value={String(deaths)} color={deaths > 0 ? "#ff1744" : undefined} />
+      <Row label="受傷" value={String(injuries)} color={injuries > 0 ? "#ffb300" : undefined} />
+      <Row label="發生時間" value={timeStr} />
+    </>
+  );
+}
+
+function FireStationPanel({ props }: { props: Record<string, unknown> }) {
+  const cat = String(props.cat ?? "其他");
+  const accentColor = fireStationColor(cat);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "消防分隊")}
+        </div>
+      </div>
+      <Row label="類型" value={String(props.type ?? cat)} color={accentColor} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="行政區" value={String(props.district ?? "")} />
+      <Row label="地址" value={String(props.address ?? "")} />
+      <Row label="電話" value={String(props.phone ?? "")} />
+    </>
+  );
+}
+
+function FireHydrantPanel({ props }: { props: Record<string, unknown> }) {
+  const cat = String(props.cat ?? "其他");
+  const accentColor = fireHydrantColor(cat);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          消防栓
+        </div>
+      </div>
+      <Row label="型式" value={String(props.type ?? cat)} color={accentColor} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="行政區" value={String(props.district ?? "")} />
+      <Row label="編號" value={String(props.id ?? "")} />
+    </>
+  );
+}
+
 const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -1449,6 +1518,9 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriSoilFertility: "土壤肥力",
   agriLeisureFarmZones: "休閒農業區",
   agriCropSuitability: "作物適栽",
+  fireEvent: "火災事件",
+  fireStation: "消防分隊",
+  fireHydrant: "消防栓",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -1573,12 +1645,24 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "agriCropSuitability":
       content = <AgriCropSuitabilityPanel props={feature.properties} />;
       break;
+    case "fireEvent":
+      content = <FireEventPanel props={feature.properties} />;
+      break;
+    case "fireStation":
+      content = <FireStationPanel props={feature.properties} />;
+      break;
+    case "fireHydrant":
+      content = <FireHydrantPanel props={feature.properties} />;
+      break;
   }
 
+  // CCTV 內嵌即時影像需要較大空間，只加寬此類 popup（影像框 width:100% 會跟著放大）
+  const isCctv = feature.layerType === "cctv";
   return (
     <div
       style={{
-        width: 280,
+        width: isCctv ? 460 : 280,
+        maxWidth: "92vw",
         background: "rgba(10, 10, 20, 0.88)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
