@@ -66,12 +66,14 @@ def main():
     conn = psycopg2.connect(_load_db_url())
     cur = conn.cursor()
     print("[1] 撈 supabase 5 城既有 stops (waste 路徑)...")
+    # 注意：用 DOUBLE PRECISION (FLOAT8) 而非 REAL，後者只有 6-7 位有效數字
+    # 對 121.506905 這類經緯度會被砍成 121.507，導致前端看到「3 位小數整齊網格」
     cur.execute(f"""
         SELECT
             id, city, district, stop_name, route_id, route_name,
             vehicle_type,
-            ST_X(geometry)::REAL AS lng,
-            ST_Y(geometry)::REAL AS lat
+            ST_X(geometry)::FLOAT8 AS lng,
+            ST_Y(geometry)::FLOAT8 AS lat
         FROM spatial.waste_collection_stops
         WHERE geometry IS NOT NULL
           AND city = ANY(%s)
@@ -129,11 +131,27 @@ def main():
         print(f"    kept (真實 geocoded): {n_kept:,}")
         print(f"    skipped (內插/外推): {skipped_via}")
 
+    # ── 3. dedup by rounded coord（消除同位置多 route_id 的重影）──
+    # 5 dp ≈ 1.1m 解析度；同位置不同 route_id 合併為一點，routes_count 紀錄重數
+    print(f"\n[3] dedup by (round 5dp coord)...")
+    buckets: dict[tuple, dict] = {}
+    for feat in features:
+        lng, lat = feat["geometry"]["coordinates"]
+        key = (round(lng, 5), round(lat, 5))
+        if key not in buckets:
+            feat["properties"]["routes_count"] = 1
+            buckets[key] = feat
+        else:
+            buckets[key]["properties"]["routes_count"] += 1
+    deduped = list(buckets.values())
+    print(f"    {len(features):,} → {len(deduped):,} ({len(features) - len(deduped):,} removed)")
+    features = deduped
+
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     fc = {"type": "FeatureCollection", "features": features}
     OUT_PATH.write_text(json.dumps(fc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     size_mb = OUT_PATH.stat().st_size / 1024 / 1024
-    print(f"\n[3] 寫入 {OUT_PATH.name}")
+    print(f"\n[4] 寫入 {OUT_PATH.name}")
     print(f"    features: {len(features):,}")
     print(f"    size: {size_mb:.1f} MB raw")
 

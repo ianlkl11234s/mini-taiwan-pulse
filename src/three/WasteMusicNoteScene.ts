@@ -16,9 +16,9 @@ import * as THREE from "three";
  * 與 wasteTruck 同 toggle，不獨立開關（status.md 決策）
  */
 
-const MAX_NOTES = 1000;
-const LIFESPAN_MS = 2200;        // 每個音符存活 2.2 秒
-const SPAWN_INTERVAL_MS = 800;   // 每車每 800ms 噴一個
+const MAX_NOTES = 3000;          // 從 1000 提到 3000：擋多車 + 高密度 spawn
+const LIFESPAN_MS = 3500;        // 從 2.2s 拉到 3.5s（壽命長 → 連續）
+const SPAWN_INTERVAL_MS = 220;   // 從 800ms 降到 220ms（密度 3.6x → 連續噴出）
 const RISE_HEIGHT_M = 120;       // 上升高度（z11 zoom 看得到）
 const SWAY_AMPL_M = 12;          // 左右搖擺幅度
 const ORBIT_RADIUS_M = 24;       // 音符繞光點半徑

@@ -1941,34 +1941,51 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "waste-stops-glow",
         type: "circle",
-        minzoom: 9,
-        paint: (isDark) => ({
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            9, 1.5,
-            13, 4,
-            16, 8,
-          ],
-          "circle-blur": 1.2,
-          "circle-color": isDark ? "#fbbf24" : "#d97706",
-          "circle-opacity": isDark ? 0.20 : 0.30,
-        }),
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.wasteStopsStaticScale ?? 1;
+          const glow = p?.wasteStopsStaticGlow ?? 0.10;
+          const z = p?.wasteStopsStaticZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.3 * scale,
+              9, 0.6 * scale,
+              11, 1 * scale,
+              14, 2 * scale,
+              17, 3.5 * scale,
+            ],
+            "circle-blur": 0.6,
+            "circle-color": isDark ? "#fbbf24" : "#d97706",
+            "circle-opacity": isDark ? glow : Math.min(1, glow * 1.8),
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
       },
       {
         suffix: "waste-stops-fill",
         type: "circle",
-        minzoom: 9,
-        paint: (isDark) => ({
-          "circle-radius": [
-            "interpolate", ["linear"], ["zoom"],
-            9, 0.8,
-            13, 2,
-            16, 4,
-          ],
-          "circle-color": isDark ? "#fbbf24" : "#d97706",
-          "circle-opacity": isDark ? 0.55 : 0.70,
-          "circle-stroke-width": 0,
-        }),
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.wasteStopsStaticScale ?? 1;
+          const z = p?.wasteStopsStaticZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.25 * scale,
+              9, 0.4 * scale,
+              11, 0.6 * scale,
+              14, 1.2 * scale,
+              17, 2.2 * scale,
+            ],
+            "circle-color": isDark ? "#fbbf24" : "#d97706",
+            "circle-opacity": isDark ? 0.6 : 0.75,
+            "circle-stroke-width": 0,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
       },
     ],
   },
