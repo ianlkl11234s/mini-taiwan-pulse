@@ -497,3 +497,24 @@ tsc 不會抓，需要實機驗證才能看到 console error。
 全格都有值」。tippecanoe 不會幫你區分 missing 跟 0，前端要自己處理。
 
 GLOSSARY 新增「0 = 未測」條目避免下次再踩。
+
+## 2026-05-24 消防分區 — 三個踩坑
+
+1. **Mapbox circle-radius 依資料分大小 → `["zoom"]` 表達式報錯**：想讓分隊 circle 半徑依
+   cat 分大小，寫成 `["*", ["match",cat,...], ["interpolate",["zoom"],...]]` → 噴
+   「"zoom" expression may only be used as input to a top-level "step"/"interpolate"」，
+   circle 整層沒渲染。**修**：`["zoom"]` 必須在 interpolate **最上層**，cat 倍率改放進
+   **每個 stop 的輸出**（`7, ["match",cat,大隊,b*1.8,...]`）。（與 97c9a86 那條 zoom expr 同類，再次踩。）
+
+2. **agent-browser sidebar toggle 用 ref 點錯層**：snapshot 的 `button [ref=eXX]` 與「列」
+   對應不可靠（點 e66 以為是消防分隊，其實開到「學校」，藍點誤判半天）。**改用
+   `find text "<label>" click`** 較準；測 layer 前**先 All Off**（用戶提醒）。
+
+3. **fast-refresh 假性 hooks 錯誤**：邊改 useTransportParams/App 邊開著頁面，console 跳
+   「Should have a queue / calling Hooks conditionally」「order of Hooks」。**乾淨 full reload
+   後完全消失** → 是 HMR 熱更新 hook 列表變動的假警告，非真 bug。判斷法：`errors --clear`
+   + full reload + 0 互動再看；還有就真、沒有就假。
+
+4. **commit 前發現 HEAD 不一致**：FeatureInfoPanel 的火災 panel 早先被夾進一個 CCTV commit
+   (96374f4)，但 fireTypes.ts 還 untracked → HEAD 一度 import 不存在的檔。補 commit 其餘 fire
+   檔才一致。**教訓**：commit 前 `git status` + 確認沒有「一半改動已 commit、一半還沒」。
