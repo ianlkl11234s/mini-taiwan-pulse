@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type { FeatureInfo } from "../types";
+import { CctvStreamView } from "./CctvStreamView";
 import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -801,6 +802,10 @@ function CctvPanel({ props }: { props: Record<string, unknown> }) {
   const source = String(props.source ?? "");
   const info = CCTV_SOURCE[source] ?? { color: "#26c6da", label: source };
   const streamUrl = String(props.VideoStreamURL ?? "");
+  const imageUrlRaw = props.VideoImageURL != null ? String(props.VideoImageURL) : "";
+  const imageUrl = imageUrlRaw && imageUrlRaw !== "null" && imageUrlRaw !== "undefined" ? imageUrlRaw : "";
+  // 換選別支時用 CCTVID 當 key 強制 remount，確保串流狀態機與 MJPEG 連線重置
+  const cctvKey = String(props.CCTVID ?? streamUrl);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -812,16 +817,17 @@ function CctvPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="來源" value={info.label} color={info.color} />
       <Row label="方向" value={String(props.RoadDirection ?? "")} />
       <Row label="ID" value={String(props.CCTVID ?? "")} />
-      {streamUrl && (
-        <div style={{ marginTop: 6 }}>
-          <a
-            href={streamUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: info.color, fontSize: 11, fontFamily: "monospace", textDecoration: "underline", wordBreak: "break-all" }}
-          >
-            即時影像串流 ▶
-          </a>
+      {streamUrl ? (
+        <CctvStreamView
+          key={cctvKey}
+          streamUrl={streamUrl}
+          imageUrl={imageUrl}
+          source={source}
+          accentColor={info.color}
+        />
+      ) : (
+        <div style={{ marginTop: 8, fontSize: 11, color: "rgba(255,255,255,0.55)" }}>
+          此攝影機未提供串流網址
         </div>
       )}
     </>
