@@ -96,6 +96,7 @@ export type ExpandableLayerKey =
   | "bikeStations"
   | "cyclingRoutes" | "freewayCongestion" | "weatherStations"
   | "highways" | "provincialRoads" | "ports" | "airports"
+  | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
   | "h3Population" | "popCount" | "indicators"
   | "socioeconomic" | "spatialEconomy"
   | "temperatureWave"
@@ -440,7 +441,8 @@ export interface OverlayConfig {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport" | "activeFault" | "newsEvent" | "disasterAlert"
+    | "port" | "airport" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
+    | "activeFault" | "newsEvent" | "disasterAlert"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
@@ -465,6 +467,11 @@ export interface LayerVisibility {
   airports: boolean;
   highways: boolean;
   provincialRoads: boolean;
+  cctv: boolean;
+  etcGantry: boolean;
+  serviceArea: boolean;
+  serviceAreaPolygon: boolean;
+  taxiStand: boolean;
   windPlan: boolean;
   busStationsCity: boolean;
   busStationsIntercity: boolean;

@@ -722,6 +722,265 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // ── CCTV (道路 CCTV 攝影機，~6,129 點) ──
+  // source 分色：freeway 橙 / highway 黃 / city 青
+  {
+    id: "cctv",
+    sourceUrl: "./geo/cctv.geojson",
+    sourceId: "cctv",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.cctvScale ?? 1;
+          const opacity = p?.cctvOpacity ?? 0.7;
+          const z = p?.cctvZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 1.5 * scale, 11, 4 * scale, 14, 8 * scale, 17, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "source"],
+              "freeway", "#ff9800",
+              "highway", "#ffd54f",
+              "city", "#26c6da",
+              "#26c6da",
+            ] as unknown as string,
+            "circle-opacity": (isDark ? 0.15 : 0.18) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.cctvScale ?? 1;
+          const opacity = p?.cctvOpacity ?? 0.7;
+          const z = p?.cctvZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 0.6 * scale, 11, 1.4 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": [
+              "match", ["get", "source"],
+              "freeway", "#ff9800",
+              "highway", "#ffd54f",
+              "city", "#26c6da",
+              "#26c6da",
+            ] as unknown as string,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 0, 11, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── ETC Gantry (國道收費門架，341 點) ──
+  {
+    id: "etcGantry",
+    sourceUrl: "./geo/etc_gantry.geojson",
+    sourceId: "etc-gantry",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.etcGantryScale ?? 1;
+          const opacity = p?.etcGantryOpacity ?? 0.8;
+          const z = p?.etcGantryZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2 * scale, 10, 5 * scale, 14, 10 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#f06292" : "#c2185b",
+            "circle-opacity": (isDark ? 0.18 : 0.2) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.etcGantryScale ?? 1;
+          const opacity = p?.etcGantryOpacity ?? 0.8;
+          const z = p?.etcGantryZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1 * scale, 10, 2.2 * scale, 14, 4 * scale,
+            ],
+            "circle-color": isDark ? "#f06292" : "#c2185b",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.4, 14, 0.7,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Service Area (國道服務區，22 點) ──
+  {
+    id: "serviceArea",
+    sourceUrl: "./geo/service_area.geojson",
+    sourceId: "service-area",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.serviceAreaScale ?? 1.4;
+          const opacity = p?.serviceAreaOpacity ?? 0.85;
+          const z = p?.serviceAreaZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 4 * scale, 10, 9 * scale, 14, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#4db6ac" : "#00897b",
+            "circle-opacity": (isDark ? 0.2 : 0.25) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.serviceAreaScale ?? 1.4;
+          const opacity = p?.serviceAreaOpacity ?? 0.85;
+          const z = p?.serviceAreaZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2 * scale, 10, 4 * scale, 14, 7 * scale,
+            ],
+            "circle-color": isDark ? "#4db6ac" : "#00897b",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.3, 10, 0.6, 14, 1,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Service Area Polygon (國道服務區範圍，19 面) ──
+  {
+    id: "serviceAreaPolygon",
+    sourceUrl: "./geo/service_area_polygon.geojson",
+    sourceId: "service-area-polygon",
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (isDark, p) => {
+          const opacity = p?.serviceAreaPolygonOpacity ?? 0.2;
+          return {
+            "fill-color": isDark ? "#4db6ac" : "#00897b",
+            "fill-opacity": isDark ? opacity : opacity * 1.3,
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark, p) => {
+          const width = p?.serviceAreaPolygonLineWidth ?? 1.5;
+          return {
+            "line-color": isDark ? "#4db6ac" : "#00897b",
+            "line-width": width,
+            "line-opacity": isDark ? 0.6 : 0.75,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Taxi Stand (計程車招呼站，224 點) ──
+  {
+    id: "taxiStand",
+    sourceUrl: "./geo/taxi_stand.geojson",
+    sourceId: "taxi-stand",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.taxiStandScale ?? 1;
+          const opacity = p?.taxiStandOpacity ?? 0.8;
+          const z = p?.taxiStandZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 2 * scale, 12, 6 * scale, 16, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#ffd54f" : "#f9a825",
+            "circle-opacity": (isDark ? 0.18 : 0.2) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.taxiStandScale ?? 1;
+          const opacity = p?.taxiStandOpacity ?? 0.8;
+          const z = p?.taxiStandZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 1 * scale, 12, 2.5 * scale, 16, 5 * scale,
+            ],
+            "circle-color": isDark ? "#ffd54f" : "#f9a825",
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.35)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 0, 12, 0.4, 16, 0.7,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
   // ── Submarine Cables (通訊海纜) ──
   // cable_type 分色：國際幹線 藍、海峽專線 紅、離島連接 綠、中國境內 橘、規劃中 灰
   {

@@ -790,6 +790,127 @@ function AirportPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+/** CCTV source 對應色 / 標籤 */
+const CCTV_SOURCE: Record<string, { color: string; label: string }> = {
+  freeway: { color: "#ff9800", label: "國道" },
+  highway: { color: "#ffd54f", label: "省道快速道路" },
+  city:    { color: "#26c6da", label: "市區道路" },
+};
+
+function CctvPanel({ props }: { props: Record<string, unknown> }) {
+  const source = String(props.source ?? "");
+  const info = CCTV_SOURCE[source] ?? { color: "#26c6da", label: source };
+  const streamUrl = String(props.VideoStreamURL ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: info.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.RoadName ?? props.CCTVID ?? "CCTV")}
+        </div>
+      </div>
+      <Row label="來源" value={info.label} color={info.color} />
+      <Row label="方向" value={String(props.RoadDirection ?? "")} />
+      <Row label="ID" value={String(props.CCTVID ?? "")} />
+      {streamUrl && (
+        <div style={{ marginTop: 6 }}>
+          <a
+            href={streamUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: info.color, fontSize: 11, fontFamily: "monospace", textDecoration: "underline", wordBreak: "break-all" }}
+          >
+            即時影像串流 ▶
+          </a>
+        </div>
+      )}
+    </>
+  );
+}
+
+function EtcGantryPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#f06292";
+  const start = String(props.StartInterchange ?? "");
+  const end = String(props.EndInterchange ?? "");
+  const segment = start && end ? `${start} → ${end}` : (start || end);
+  const fareSmall = String(props.FareSmall ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.GantryID ?? "ETC Gantry")}
+        </div>
+      </div>
+      <Row label="國道" value={String(props.Freeway ?? "")} color={accentColor} />
+      <Row label="方向" value={String(props.Direction ?? "")} />
+      <Row label="區間" value={segment} />
+      <Row label="里程" value={props.TollMile ? `${String(props.TollMile)} km` : ""} />
+      <Row label="小型車費率" value={fareSmall ? `${fareSmall} 元/km` : ""} color={accentColor} />
+    </>
+  );
+}
+
+function ServiceAreaPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#4db6ac";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.Name ?? "Service Area")}
+        </div>
+      </div>
+      <Row label="國道" value={String(props.Freeway ?? "")} color={accentColor} />
+      <Row label="位置" value={String(props.Location ?? "")} />
+      <Row label="方向" value={String(props.Direction ?? "")} />
+      <Row label="經營者" value={String(props.Operator ?? "")} />
+      <Row label="地址" value={String(props.Address ?? "")} />
+      <Row label="主題" value={String(props.Theme ?? "")} />
+    </>
+  );
+}
+
+function ServiceAreaPolygonPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#4db6ac";
+  const areaHa = typeof props.area_ha === "number"
+    ? props.area_ha.toFixed(2)
+    : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.Name ?? "Service Area")}
+        </div>
+      </div>
+      <Row label="經營者" value={String(props.Operator ?? "")} color={accentColor} />
+      <Row label="主題" value={String(props.Theme ?? "")} />
+      <Row label="國道" value={String(props.Freeway ?? "")} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+function TaxiStandPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#f9a825";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.Name ?? "Taxi Stand")}
+        </div>
+      </div>
+      <Row label="行政區" value={String(props.District ?? "")} color={accentColor} />
+      <Row label="位置" value={String(props.StreetName ?? "")} />
+      <Row label="格位" value={props.Slots ? `${String(props.Slots)} 格` : ""} />
+      <Row label="時段" value={String(props.Schedule ?? "")} />
+      <Row label="城市" value={String(props.city ?? "")} />
+    </>
+  );
+}
+
 function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
   const link = String(props.link ?? "");
   return (
@@ -1293,6 +1414,11 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   railStation: "車站",
   port: "港口",
   airport: "機場",
+  cctv: "道路攝影機",
+  etcGantry: "ETC 收費門架",
+  serviceArea: "國道服務區",
+  serviceAreaPolygon: "國道服務區範圍",
+  taxiStand: "計程車招呼站",
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
@@ -1362,6 +1488,21 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "airport":
       content = <AirportPanel props={feature.properties} />;
+      break;
+    case "cctv":
+      content = <CctvPanel props={feature.properties} />;
+      break;
+    case "etcGantry":
+      content = <EtcGantryPanel props={feature.properties} />;
+      break;
+    case "serviceArea":
+      content = <ServiceAreaPanel props={feature.properties} />;
+      break;
+    case "serviceAreaPolygon":
+      content = <ServiceAreaPolygonPanel props={feature.properties} />;
+      break;
+    case "taxiStand":
+      content = <TaxiStandPanel props={feature.properties} />;
       break;
     case "activeFault":
       content = <ActiveFaultPanel props={feature.properties} />;

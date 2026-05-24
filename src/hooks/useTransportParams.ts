@@ -126,6 +126,25 @@ export function useTransportParams() {
   const [cyclingWidth, setCyclingWidth] = useState(1);
   // Freeway
   const [freewayWidth, setFreewayWidth] = useState(1);
+  // CCTV（道路攝影機 靜態點）
+  const [cctvScale, setCctvScale] = useState(1);
+  const [cctvOpacity, setCctvOpacity] = useState(0.7);
+  const [cctvZ, setCctvZ] = useState(0);
+  // ETC Gantry（收費門架 靜態點）
+  const [etcGantryScale, setEtcGantryScale] = useState(1);
+  const [etcGantryOpacity, setEtcGantryOpacity] = useState(0.8);
+  const [etcGantryZ, setEtcGantryZ] = useState(0);
+  // Service Area（國道服務區 靜態點）
+  const [serviceAreaScale, setServiceAreaScale] = useState(1.4);
+  const [serviceAreaOpacity, setServiceAreaOpacity] = useState(0.85);
+  const [serviceAreaZ, setServiceAreaZ] = useState(0);
+  // Service Area Polygon（國道服務區範圍 面）
+  const [serviceAreaPolygonOpacity, setServiceAreaPolygonOpacity] = useState(0.2);
+  const [serviceAreaPolygonLineWidth, setServiceAreaPolygonLineWidth] = useState(1.5);
+  // Taxi Stand（計程車招呼站 靜態點）
+  const [taxiStandScale, setTaxiStandScale] = useState(1);
+  const [taxiStandOpacity, setTaxiStandOpacity] = useState(0.8);
+  const [taxiStandZ, setTaxiStandZ] = useState(0);
   // Weather
   const [weatherScale, setWeatherScale] = useState(1);
   // Population Flow (H3)
@@ -400,6 +419,20 @@ export function useTransportParams() {
     lighthouseScale,
     cyclingWidth,
     freewayWidth,
+    cctvScale,
+    cctvOpacity,
+    cctvZ,
+    etcGantryScale,
+    etcGantryOpacity,
+    etcGantryZ,
+    serviceAreaScale,
+    serviceAreaOpacity,
+    serviceAreaZ,
+    serviceAreaPolygonOpacity,
+    serviceAreaPolygonLineWidth,
+    taxiStandScale,
+    taxiStandOpacity,
+    taxiStandZ,
     weatherScale,
     highwayWidth,
     highwayGlow,
@@ -464,7 +497,7 @@ export function useTransportParams() {
     agriCropSuitabilityCropId,
     agriPOIOpacity,
     agriPOIScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -565,6 +598,30 @@ export function useTransportParams() {
       ];
       case "weatherStations": return [
         { label: `Weather ${weatherScale.toFixed(1)}`, value: weatherScale, min: 0.3, max: 3, step: 0.1, onChange: setWeatherScale },
+      ];
+      case "cctv": return [
+        { label: `大小 ${cctvScale.toFixed(1)}`, value: cctvScale, min: 0.3, max: 3, step: 0.1, onChange: setCctvScale },
+        { label: `透明度 ${cctvOpacity.toFixed(2)}`, value: cctvOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCctvOpacity },
+        { label: `Z 漂浮 ${cctvZ.toFixed(0)}px`, value: cctvZ, min: 0, max: 100, step: 2, onChange: setCctvZ },
+      ];
+      case "etcGantry": return [
+        { label: `大小 ${etcGantryScale.toFixed(1)}`, value: etcGantryScale, min: 0.3, max: 3, step: 0.1, onChange: setEtcGantryScale },
+        { label: `透明度 ${etcGantryOpacity.toFixed(2)}`, value: etcGantryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEtcGantryOpacity },
+        { label: `Z 漂浮 ${etcGantryZ.toFixed(0)}px`, value: etcGantryZ, min: 0, max: 100, step: 2, onChange: setEtcGantryZ },
+      ];
+      case "serviceArea": return [
+        { label: `大小 ${serviceAreaScale.toFixed(1)}`, value: serviceAreaScale, min: 0.3, max: 3, step: 0.1, onChange: setServiceAreaScale },
+        { label: `透明度 ${serviceAreaOpacity.toFixed(2)}`, value: serviceAreaOpacity, min: 0.1, max: 1, step: 0.05, onChange: setServiceAreaOpacity },
+        { label: `Z 漂浮 ${serviceAreaZ.toFixed(0)}px`, value: serviceAreaZ, min: 0, max: 100, step: 2, onChange: setServiceAreaZ },
+      ];
+      case "serviceAreaPolygon": return [
+        { label: `填色透明度 ${serviceAreaPolygonOpacity.toFixed(2)}`, value: serviceAreaPolygonOpacity, min: 0, max: 0.6, step: 0.02, onChange: setServiceAreaPolygonOpacity },
+        { label: `邊框寬 ${serviceAreaPolygonLineWidth.toFixed(1)}`, value: serviceAreaPolygonLineWidth, min: 0, max: 4, step: 0.5, onChange: setServiceAreaPolygonLineWidth },
+      ];
+      case "taxiStand": return [
+        { label: `大小 ${taxiStandScale.toFixed(1)}`, value: taxiStandScale, min: 0.3, max: 3, step: 0.1, onChange: setTaxiStandScale },
+        { label: `透明度 ${taxiStandOpacity.toFixed(2)}`, value: taxiStandOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTaxiStandOpacity },
+        { label: `Z 漂浮 ${taxiStandZ.toFixed(0)}px`, value: taxiStandZ, min: 0, max: 100, step: 2, onChange: setTaxiStandZ },
       ];
       case "temperatureWave": return [
         { type: "toggle" as const, label: "3D", value: tempExtruded, onChange: setTempExtruded },
