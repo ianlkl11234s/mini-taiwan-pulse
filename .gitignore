@@ -47,3 +47,7 @@ public/agriculture/*.geojson
 .claude/.cache/
 .claude/scheduled_tasks.lock
 __pycache__/
+
+# 消防靜態 geojson（走 S3 deploy-assets，比照其他 POI）
+public/geo/fire_stations.geojson
+public/geo/fire_hydrants.geojson
