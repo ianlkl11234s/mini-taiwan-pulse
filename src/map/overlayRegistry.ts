@@ -790,6 +790,153 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 消防分隊 (全台 22 縣市，677 點) ──
+  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰
+  {
+    id: "fireStations",
+    sourceUrl: "./geo/fire_stations.geojson",
+    sourceId: "fire-stations",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.fireStationsScale ?? 1;
+          const opacity = p?.fireStationsOpacity ?? 0.85;
+          const z = p?.fireStationsZ ?? 0;
+          // 半徑依階級分大小（大隊最大 → 分駐所/其他 最小）。
+          // 注意：["zoom"] 必須在 interpolate 最上層，cat 倍率要放進每個 stop 的輸出（match）。
+          const catR = (b: number) => [
+            "match", ["get", "cat"],
+            "大隊", b * 1.8, "分隊", b * 1.2, "分駐所", b * 0.85, b * 0.6,
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, catR(2 * scale), 11, catR(5 * scale), 14, catR(9 * scale), 17, catR(14 * scale),
+            ] as unknown as number,
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "cat"],
+              "大隊", "#b71c1c",
+              "分隊", "#e53935",
+              "分駐所", "#ff7043",
+              "#bdbdbd",
+            ] as unknown as string,
+            // 散點 toggle 關閉 → opacity 0（仍可被 queryRenderedFeatures 命中 → popup 照常）
+            "circle-opacity": (isDark ? 0.16 : 0.2) * opacity * (p?.fireStationsDots ?? 1),
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.fireStationsScale ?? 1;
+          const opacity = p?.fireStationsOpacity ?? 0.85;
+          const z = p?.fireStationsZ ?? 0;
+          const dots = p?.fireStationsDots ?? 1;
+          const catR = (b: number) => [
+            "match", ["get", "cat"],
+            "大隊", b * 1.8, "分隊", b * 1.2, "分駐所", b * 0.85, b * 0.6,
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, catR(1 * scale), 11, catR(2.2 * scale), 14, catR(4 * scale), 17, catR(6.5 * scale),
+            ] as unknown as number,
+            "circle-color": [
+              "match", ["get", "cat"],
+              "大隊", "#b71c1c",
+              "分隊", "#e53935",
+              "分駐所", "#ff7043",
+              "#bdbdbd",
+            ] as unknown as string,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.9)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 0, 11, 0.5, 14, 1,
+            ],
+            "circle-opacity": opacity * dots,
+            "circle-stroke-opacity": dots,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 消防栓 (僅臺北市 + 高雄市，69,839 點) ──
+  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → minzoom 12 控密度
+  {
+    id: "fireHydrants",
+    sourceUrl: "./geo/fire_hydrants.geojson",
+    sourceId: "fire-hydrants",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        minzoom: 12,
+        paint: (isDark, p) => {
+          const scale = p?.fireHydrantsScale ?? 1;
+          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const z = p?.fireHydrantsZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              12, 1.5 * scale, 15, 4 * scale, 18, 8 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "cat"],
+              "地上式", "#2196f3",
+              "地下式", "#00acc1",
+              "#90a4ae",
+            ] as unknown as string,
+            "circle-opacity": (isDark ? 0.14 : 0.18) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 12,
+        paint: (isDark, p) => {
+          const scale = p?.fireHydrantsScale ?? 1;
+          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const z = p?.fireHydrantsZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              12, 0.8 * scale, 15, 2 * scale, 18, 4.5 * scale,
+            ],
+            "circle-color": [
+              "match", ["get", "cat"],
+              "地上式", "#2196f3",
+              "地下式", "#00acc1",
+              "#90a4ae",
+            ] as unknown as string,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              12, 0, 15, 0.4, 18, 0.8,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
   // ── ETC Gantry (國道收費門架，341 點) ──
   {
     id: "etcGantry",

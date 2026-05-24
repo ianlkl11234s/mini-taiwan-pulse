@@ -130,6 +130,8 @@ export type ExpandableLayerKey =
   | "iotWraRiver"
   | "iotWraStructure"
   | "fireEvents"
+  | "fireStations"
+  | "fireHydrants"
   | "agriculture"
   | "agriSoil"
   | "agriSoilFertility"
@@ -443,6 +445,7 @@ export interface FeatureInfo {
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert"
+    | "fireEvent" | "fireStation" | "fireHydrant"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
@@ -518,6 +521,9 @@ export interface LayerVisibility {
   iotWraRiver: boolean;
   iotWraStructure: boolean;
   fireEvents: boolean;
+  fireLatest: boolean;     // 最新年度火災點位（113/2024，不限歷史模式）
+  fireStations: boolean;   // 消防分隊點位（全台 22 縣市，677 點）
+  fireHydrants: boolean;   // 消防栓（僅臺北市 + 高雄市，69,839 點）
   // 農業
   agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
   agriSoil: boolean;             // 25539 全台土壤分類

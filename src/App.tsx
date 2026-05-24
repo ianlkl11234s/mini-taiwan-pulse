@@ -43,6 +43,7 @@ import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
 import { useIotWraRiverLayer } from "./hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
 import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
+import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -641,6 +642,9 @@ export default function App() {
     historicalGranularity,
     isDarkTheme,
   );
+
+  // ── 火災最新年度（任何模式可見，不需歷史時間軸）──
+  useFireLatestLayer(mapRef, layerVisibility.fireLatest, isDarkTheme);
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({

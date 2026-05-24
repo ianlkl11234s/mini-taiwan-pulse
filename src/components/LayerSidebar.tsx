@@ -67,6 +67,9 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
   fireEvents: "#ff5722",
+  fireLatest: "#ff1744",
+  fireStations: "#e53935",
+  fireHydrants: "#2196f3",
   agriculture: "#2e7d32",
   agriSoil: "#8d6e63",
   agriSoilFertility: "#00897b",
@@ -192,7 +195,15 @@ const SECTIONS: SectionDef[] = [
       { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
       { key: "earthquakes", label: "地震 Earthquake", expandable: true },
       { key: "disasterAlerts", label: "災害示警 Disaster Alerts", expandable: true },
+    ],
+  },
+  {
+    title: "FIRE & RESCUE",
+    layers: [
       { key: "fireEvents", label: "火災歷史 Fire (歷史)", expandable: true },
+      { key: "fireLatest", label: "火災 最新年度 Latest", expandable: false },
+      { key: "fireStations", label: "消防分隊 Stations", expandable: true },
+      { key: "fireHydrants", label: "消防栓 Hydrants", expandable: true },
     ],
   },
   {

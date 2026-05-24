@@ -130,6 +130,17 @@ export function useTransportParams() {
   const [cctvScale, setCctvScale] = useState(1);
   const [cctvOpacity, setCctvOpacity] = useState(0.7);
   const [cctvZ, setCctvZ] = useState(0);
+  // 消防分隊（靜態點）
+  const [fireStationsScale, setFireStationsScale] = useState(1);
+  const [fireStationsOpacity, setFireStationsOpacity] = useState(0.85);
+  const [fireStationsZ, setFireStationsZ] = useState(0);
+  // 消防分隊兩種呈現各自開關：散點 (Mapbox circle) / 3D 光柱+漣漪 (Three.js)
+  const [fireStationsDots, setFireStationsDots] = useState(true);
+  const [fireStations3D, setFireStations3D] = useState(true);
+  // 消防栓（靜態點）
+  const [fireHydrantsScale, setFireHydrantsScale] = useState(1);
+  const [fireHydrantsOpacity, setFireHydrantsOpacity] = useState(0.7);
+  const [fireHydrantsZ, setFireHydrantsZ] = useState(0);
   // ETC Gantry（收費門架 靜態點）
   const [etcGantryScale, setEtcGantryScale] = useState(1);
   const [etcGantryOpacity, setEtcGantryOpacity] = useState(0.8);
@@ -370,6 +381,9 @@ export function useTransportParams() {
   const wasteOrbScaleRef = useRef(wasteOrbScale);
   const wasteNoteSizeRef = useRef(wasteNoteSize);
   const wasteNoteZOffsetRef = useRef(wasteNoteZOffset);
+  const fireStationsScaleRef = useRef(fireStationsScale);
+  const fireStationsOpacityRef = useRef(fireStationsOpacity);
+  const fireStations3DRef = useRef(fireStations3D);
 
   busColorModeRef.current = busColorMode;
   busAltOffsetRef.current = busAltOffset;
@@ -380,6 +394,9 @@ export function useTransportParams() {
   wasteOrbScaleRef.current = wasteOrbScale;
   wasteNoteSizeRef.current = wasteNoteSize;
   wasteNoteZOffsetRef.current = wasteNoteZOffset;
+  fireStationsScaleRef.current = fireStationsScale;
+  fireStationsOpacityRef.current = fireStationsOpacity;
+  fireStations3DRef.current = fireStations3D;
   altExagRef.current = altExaggeration;
   altOffsetRef.current = altOffset;
   staticOpacityRef.current = staticOpacity;
@@ -422,6 +439,13 @@ export function useTransportParams() {
     cctvScale,
     cctvOpacity,
     cctvZ,
+    fireStationsScale,
+    fireStationsOpacity,
+    fireStationsZ,
+    fireStationsDots: fireStationsDots ? 1 : 0,
+    fireHydrantsScale,
+    fireHydrantsOpacity,
+    fireHydrantsZ,
     etcGantryScale,
     etcGantryOpacity,
     etcGantryZ,
@@ -497,7 +521,7 @@ export function useTransportParams() {
     agriCropSuitabilityCropId,
     agriPOIOpacity,
     agriPOIScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -603,6 +627,18 @@ export function useTransportParams() {
         { label: `大小 ${cctvScale.toFixed(1)}`, value: cctvScale, min: 0.3, max: 3, step: 0.1, onChange: setCctvScale },
         { label: `透明度 ${cctvOpacity.toFixed(2)}`, value: cctvOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCctvOpacity },
         { label: `Z 漂浮 ${cctvZ.toFixed(0)}px`, value: cctvZ, min: 0, max: 100, step: 2, onChange: setCctvZ },
+      ];
+      case "fireStations": return [
+        { type: "toggle" as const, label: "散點", value: fireStationsDots, onChange: setFireStationsDots },
+        { type: "toggle" as const, label: "3D 光柱波動", value: fireStations3D, onChange: setFireStations3D },
+        { label: `大小 ${fireStationsScale.toFixed(1)}`, value: fireStationsScale, min: 0.3, max: 3, step: 0.1, onChange: setFireStationsScale },
+        { label: `透明度 ${fireStationsOpacity.toFixed(2)}`, value: fireStationsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFireStationsOpacity },
+        { label: `Z 漂浮 ${fireStationsZ.toFixed(0)}px`, value: fireStationsZ, min: 0, max: 100, step: 2, onChange: setFireStationsZ },
+      ];
+      case "fireHydrants": return [
+        { label: `大小 ${fireHydrantsScale.toFixed(1)}`, value: fireHydrantsScale, min: 0.3, max: 3, step: 0.1, onChange: setFireHydrantsScale },
+        { label: `透明度 ${fireHydrantsOpacity.toFixed(2)}`, value: fireHydrantsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFireHydrantsOpacity },
+        { label: `Z 漂浮 ${fireHydrantsZ.toFixed(0)}px`, value: fireHydrantsZ, min: 0, max: 100, step: 2, onChange: setFireHydrantsZ },
       ];
       case "etcGantry": return [
         { label: `大小 ${etcGantryScale.toFixed(1)}`, value: etcGantryScale, min: 0.3, max: 3, step: 0.1, onChange: setEtcGantryScale },
@@ -949,6 +985,9 @@ export function useTransportParams() {
       wasteOrbScale: wasteOrbScaleRef,
       wasteNoteSize: wasteNoteSizeRef,
       wasteNoteZOffset: wasteNoteZOffsetRef,
+      fireStationsScale: fireStationsScaleRef,
+      fireStationsOpacity: fireStationsOpacityRef,
+      fireStations3D: fireStations3DRef,
       wasteSubParams: wasteSubParamsRef,
       busIntercityColorMode: busIntercityColorModeRef,
       busIntercityAltOffset: busIntercityAltOffsetRef,

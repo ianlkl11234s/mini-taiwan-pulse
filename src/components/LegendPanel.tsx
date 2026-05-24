@@ -4,6 +4,9 @@ import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import {
+  FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
+} from "../data/fireTypes";
+import {
   SOIL_FERTILITY_METRICS,
   SOIL_FERTILITY_METRIC_OPTIONS,
   type SoilFertilityMetric,
@@ -74,7 +77,10 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasCropSuitability = visibility.agriCropSuitability;
   const hasAgriPOI = visibility.agriPOI;
   const hasSoilFertility = visibility.agriSoilFertility;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasSoilFertility;
+  const hasFireEvents = visibility.fireEvents || visibility.fireLatest;
+  const hasFireStations = visibility.fireStations;
+  const hasFireHydrants = visibility.fireHydrants;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants;
 
   if (!hasAny) return null;
 
@@ -126,8 +132,68 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasCropSuitability && <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} />}
           {hasAgriPOI && <AgriPOILegend />}
           {hasSoilFertility && <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} />}
+          {hasFireEvents && <FireEventLegend />}
+          {hasFireStations && <FireStationLegend />}
+          {hasFireHydrants && <FireHydrantLegend />}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── 消防圖例（火災 / 分隊 / 消防栓）──
+
+function FireCatRows({ cats, square }: { cats: { color: string; label: string }[]; square?: boolean }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {cats.map((c) => (
+        <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            style={{
+              width: 10, height: 10, borderRadius: square ? 2 : "50%",
+              background: c.color, opacity: 0.9, flexShrink: 0,
+              border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box",
+            }}
+          />
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{c.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FireEventLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        FIRE 火災歷史
+      </div>
+      <FireCatRows cats={FIRE_EVENT_CATS} />
+    </div>
+  );
+}
+
+function FireStationLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        消防分隊 STATIONS
+      </div>
+      <FireCatRows cats={FIRE_STATION_CATS} />
+    </div>
+  );
+}
+
+function FireHydrantLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        消防栓 HYDRANTS
+      </div>
+      <FireCatRows cats={FIRE_HYDRANT_CATS} square />
+      <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
+        ⚠️ {FIRE_HYDRANT_COVERAGE_NOTE}
+      </div>
     </div>
   );
 }
