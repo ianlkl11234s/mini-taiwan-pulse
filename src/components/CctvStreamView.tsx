@@ -55,6 +55,19 @@ function decide(streamUrl: string, imageUrl: string | undefined): Decision {
   };
 }
 
+/**
+ * 初始階段：
+ * - 明確不可能 → text
+ * - 國道（freeway）的 MJPEG 走 HTTP/2 multipart，<img> 無法解碼會靜默黑畫面（onError 也不觸發），
+ *   但 <iframe> 的子文件導航可正常渲染（實測確認）→ 直接 iframe
+ * - 其餘 → 先試 <img>（MJPEG/JPEG 可顯示），失敗再 fallback
+ */
+function initialStage(decision: Decision, source?: string): Stage {
+  if (decision.blockedReason) return "text";
+  if (source === "freeway") return decision.iframeBlocked ? "text" : "iframe";
+  return "img";
+}
+
 const BOX_STYLE: React.CSSProperties = {
   marginTop: 8,
   width: "100%",
@@ -72,16 +85,24 @@ const BOX_STYLE: React.CSSProperties = {
 export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Props) {
   const decision = useMemo(() => decide(streamUrl, imageUrl), [streamUrl, imageUrl]);
 
-  // 初始階段：明確不可能 → text；否則先試 img
-  const [stage, setStage] = useState<Stage>(decision.blockedReason ? "text" : "img");
+  const [stage, setStage] = useState<Stage>(() => initialStage(decision, source));
   const [imgLoaded, setImgLoaded] = useState(false);
   const imgRef = useRef<HTMLImageElement | null>(null);
 
   // 換選別支 / props 變動時重置狀態機
   useEffect(() => {
-    setStage(decision.blockedReason ? "text" : "img");
+    setStage(initialStage(decision, source));
     setImgLoaded(false);
-  }, [streamUrl, imageUrl, decision.blockedReason]);
+  }, [streamUrl, imageUrl, source, decision]);
+
+  // img 靜默黑畫面保險：6 秒內沒 onLoad 也沒 onError（HTTP/2 multipart 等）→ 視為失敗，轉 iframe（或 text）
+  useEffect(() => {
+    if (stage !== "img" || imgLoaded) return;
+    const t = window.setTimeout(() => {
+      setStage(decision.iframeBlocked ? "text" : "iframe");
+    }, 6000);
+    return () => window.clearTimeout(t);
+  }, [stage, imgLoaded, decision.iframeBlocked]);
 
   // lifecycle 清理：unmount 時切斷 MJPEG 長連線（清空 src）
   useEffect(() => {
