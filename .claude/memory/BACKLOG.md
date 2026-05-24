@@ -93,3 +93,10 @@
 - 2026-04-23 ✅ **雨量 Mapbox heatmap**（擴散視覺 + zoom 分工）
 
 > 更早完成項目見 git log 與 REFLECTIONS.md
+
+### 消防 FIRE & RESCUE（feat/fire-rescue 分支，2026-05-24 上線）
+- ✅ 4 layer（火災歷史/最新年度/分隊3D/消防栓）+ 分隊階級大小 + 散點/3D toggle
+- ⏳ **F-1 S3 deploy**：`upload-deploy-assets.sh` 推 fire_stations.geojson(0.18M) + fire_hydrants.geojson(12.8M)（已 gitignore，未上 S3 = production 看不到）
+- ⏳ F-2（可選）分隊 3D 光柱接 pick → 點柱體也能跳 popup（目前靠底下 circle）
+- ⏳ F-3（可選）屏東縣 39 分隊上游缺座標，回 taipei-gis-analytics 補 geocode（677/717）
+- 💤 F-4（已移除，可選復活）火災火焰特效 FireBlazeScene（git 歷史 feat/fire-rescue 中段）
