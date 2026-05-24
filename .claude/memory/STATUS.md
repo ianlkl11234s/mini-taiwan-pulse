@@ -1,11 +1,32 @@
 # Status
 
-**最後更新**：2026-05-23（農業 Phase 3 Batch 1 全套上線、鐵則 3 → 4）
-**分支**：`feat/water-extensions`（命名跟內容已脫鉤 — 5/14 之前是水資源，5/23 全做農業；BL `AG-5` 規劃重新命名）
+**最後更新**：2026-05-24（消防分區上線：分隊/消防栓 POI + Three.js 火焰特效）
+**分支**：`feat/fire-rescue`（5/24 從 `feat/water-extensions` 切出）
 
 ## ⭐ 當前狀態
 
-### 農業（本 session 主軸）
+### 消防 FIRE & RESCUE（5/24 本 session 主軸）
+
+新增獨立「消防」分區，把既有 `fireEvents` 從 HAZARD 移入，再加 2 個 POI 層 + 火焰特效。
+
+| Layer | 來源 | 圖例 | Popup | 備註 |
+|---|---|---|---|---|
+| `fireEvents` | Supabase RPC `get_fire_events_by_year`（111~113 約 4.8 萬）| ✅ 傷亡分級 | ✅ 起火原因/死傷/時間 | 2D circle；本 session 補 popup；**僅歷史模式**（火焰特效 5/24 加後又依用戶要求移除）|
+| `fireLatest` | 同 RPC 取最新年（113）| ✅（共用） | ✅（共用 FireEventPanel）| 5/24 追加：最新年度火點，**任何模式可見**、不需時間軸；純 2D circle |
+| `fireStations` | 靜態 677 點（全台 22 縣市）| ✅ 大隊/分隊/分駐所/其他 | ✅ 隊名/類型/電話/地址 | circle 半徑+3D 光柱高度+漣漪半徑**依階級分大小**；展開面板 2 toggle（散點 / 3D 光柱波動）獨立開關 |
+| `fireHydrants` | 靜態 69,839 點（⚠️ 僅臺北市+高雄市）| ✅ 地上/地下式+覆蓋註 | ✅ 型式/行政區 | `public/geo/fire_hydrants.geojson` 12.8MB，minzoom 12 |
+
+**火災 Three.js 火焰特效 — 已移除**（5/24 用戶要求）：曾做 `FireBlazeScene`+`fireBlazeCustomLayer`（火焰柱+GPU 火星粒子+視野裁切），後依用戶決定拿掉，火災回歸純 2D circle。**消防分隊的 3D 光柱/漣漪保留**（那是 `FireStationScene`，與火災無關）。
+
+**消防分隊 3D（保留）**：`FireStationScene` InstancedMesh 光柱（高度依階級）+ caps + 同步擴張漣漪；展開面板 2 toggle（散點 / 3D 光柱波動）獨立開關。
+
+**驗收（headed agent-browser，真實 GPU）**：tsc -b 綠 ✅；分隊紅點+光柱+漣漪 ✅；圖例（含覆蓋註）✅；歷史模式火災載入 ✅；火點 popup（士林/菸蒂/2024-12-22）✅；fireLatest 即時模式 2D 圓點 ✅。
+
+**資料來源**：`taipei-gis-analytics/data/processed/fire/`（分隊 stations_*.csv、消防栓 hydrants.csv）。
+轉檔腳本 `scripts/export/export_fire_pois.py`。⚠️ 屏東縣分隊 39 點上游缺座標被跳過（677/717）。
+**待辦**：跑 `upload-deploy-assets.sh` 推 2 個 geojson 到 S3。
+
+### 農業（5/23 前 session）
 
 | Layer | 來源 | 圖例 | Click popup | 備註 |
 |---|---|---|---|---|
@@ -72,10 +93,17 @@ f8a4ecc feat(agriculture): types/visibility/sidebar/params 接線 6 新 layer
 - 改寫 `src/map/MapView.tsx` — ensureAllAgricultureLayers/updateAllAgricultureLayers
 - types/visibility/sidebars/params 6 處同步加 7 個 layer keys
 
-## 待 push（眾多 commits）
+## 待 commit / push
 
+5/24 消防分區的程式改動**尚未 commit**（user 未要求）。涉及檔案：
+- 新建：`scripts/export/export_fire_pois.py`、`src/data/fireTypes.ts`、`src/three/FireBlazeScene.ts`、`src/map/fireBlazeCustomLayer.ts`
+- 改：types/index.ts、overlayRegistry.ts、useTransportParams.ts、LayerSidebar.tsx、IconRailSidebar.tsx、useLayerVisibility.ts、useMapInteraction.ts、FeatureInfoPanel.tsx、LegendPanel.tsx、useThreeJsLayers.ts
+- 產出（gitignore，走 S3）：`public/geo/fire_stations.geojson`、`public/geo/fire_hydrants.geojson`
+- **待辦**：`scripts/deploy/upload-deploy-assets.sh` 推 2 geojson 到 S3
+
+農業（feat/water-extensions）那批 commits 仍待 push（見下）：
 ```bash
-git push origin feat/water-extensions
+git push origin feat/water-extensions   # 農業 batch
 ```
 
 ⚠ 也記得 `taipei-gis-analytics` 那邊 `pipelines/agriculture/` 整包仍 untracked，
