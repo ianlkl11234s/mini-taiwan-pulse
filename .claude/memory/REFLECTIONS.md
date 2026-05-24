@@ -399,3 +399,15 @@
 **Stage 2 Analyze 時把「用戶連續 5 次糾正」獨立挑出來標星，是該流程目前沒明寫的
 最佳實踐**。建議下次 SKILL.md 可加：「**用戶糾正次數 ≥ 3 → 必寫 REFLECTIONS + INCIDENTS
 雙寫**」（一個是反省，一個是事件紀錄）。
+
+## 2026-05-24 消防分區（火災/分隊/消防栓 + 3D + 最新年度 layer）
+
+**做了**：新增 FIRE & RESCUE 分區（4 layer）；分隊階級視覺化（circle/光柱/漣漪依 cat 分大小 + InstancedMesh 3D）；散點/3D 獨立 toggle；最新年度火點 layer；火災火焰特效試做後依用戶要求移除。headed agent-browser 全程視覺驗收。
+
+**next-time rules**：
+1. **測 layer 先 All Off**（用戶明示）——已寫進 PB-15。混層時無法判讀單層顏色/大小。
+2. **WebGL/Mapbox 驗收一定 `--headed`**（headless 全黑），導航用 app 內建 Locations 城市預設別硬滾。
+3. **toggle 用 `find text label` 不要用 snapshot ref**（ref↔列對應不可靠）。
+4. **Mapbox 資料驅動 + zoom 表達式**：`["zoom"]` 只能在 interpolate/step 最上層，要乘 data 倍率就放進 stop 輸出。
+5. **commit 前查工作區是否混了別人的 WIP**：本次 overlayRegistry 混了用戶 wasteStopsStatic WIP，靠「Edit 還原該 hunk → commit fire-only → Edit 還原回 WIP」拆乾淨（`git add -p` 此環境不可用）。
+6. **HMR 期間的 hooks 錯誤先別當真**，full reload 複驗。
