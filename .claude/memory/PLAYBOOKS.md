@@ -605,3 +605,56 @@ minzoom 8 + range request 不會一次全載，但要評估部署成本。
 ### 實例（2026-05-24 消防火焰特效）
 - headless 全黑 → 換 headed 立刻正常。
 - wheel/drag 卡在苗栗鄉間 6+ 次都無火點 → 改點 Locations「台北」一次到位，火焰特效 + popup 全驗出。
+
+---
+
+## PB-16 大面積覆蓋／等時圈圖層 SOP（PMTiles + 全區聚合 + 分區 filter，2026-05-26 加）
+
+> 適用：**等時圈、服務範圍、可及性分析**等「大面積 / 高頂點覆蓋多邊形」圖層。
+> 首例：消防救援等時圈（路網 5/10/15 分鐘，全台 22 縣市 716 隊）。
+> 核心教訓：這類圖層**不要用 GeoJSON overlay**——要麼檔案大（pan 卡頓），要麼簡化到變醜。
+
+### 鐵則（順序照做）
+
+1. **門檻時間要有官方依據**，別隨便抓 15/30。先 WebSearch 查 KPI：
+   - 消防署緊急救護 KPI = **10 分鐘到場率**；救命黃金期 4–6 分；NFPA 1710 首車 4 分。
+   - 採「黃金救援」框架 **5 / 10 / 15 分**（轟燃前 / 消防署 KPI / 偏鄉可及）。
+
+2. **路網等時圈生成** = Mapbox Isochrone API（`driving`, `contours_minutes`, `polygons=true`）。
+   - 腳本 `scripts/fetch/fetch-fire-isochrones.py`：**原始回應務必磁碟快取**（`.fire_isochrone_cache/`，gitignored），調簡化參數免重打 API。
+   - 圖例/popup 標註「driving 未計優先路權＝**保守估計**」。
+
+3. **分級用環差（ring-difference）**：`band10 = union10.difference(union5)`，每塊只歸最快可達的一級
+   → 單一 fill layer（`match` minutes 配色）即可正確上色，**無填色重疊**。綠 5 / 黃 10 / 橙 15。
+
+4. **「全區」與「分區」分開算，禁止疊加**（用戶踩過：各縣市各自 dissolve 疊起來縣界很亂）：
+   - **全區**（tag `全台`）= 所有來源點**一起 union**（無接縫）。
+   - **分區**（tag county）= 區內各自 dissolve。
+   - 兩套 feature 同 PMTiles 層，靠 `county` 欄位 + `setFilter` 切換（dropdown idx 0 → 全區）。
+
+5. **來源缺座標 → geocode 補**（屏東 39 隊只有地址）：`scripts/fetch/geocode-pingtung-fire-stations.py`
+   = Mapbox Geocoding v6（`country=tw` + `proximity` 偏壓 + **bbox 驗證丟掉界外**），冪等附加回 geojson。
+
+6. **出貨用 PMTiles，不是 GeoJSON**：
+   ```bash
+   tippecanoe -o public/fire/fire_isochrone_coverage.pmtiles -l coverage -Z5 -z14 \
+     --simplification=8 --drop-densest-as-needed --extend-zooms-if-still-dropping --force \
+     build/fire_isochrone/fire_isochrone_coverage.geojson
+   ```
+   - `-l <name>` = 前端 `source-layer` 名。range request（dev/S3/nginx 都支援）→ 只載視窗瓦片。
+
+7. **前端走 factory，不走 overlayRegistry**：`src/map/fireIsochroneLayerFactory.ts`（仿 `agricultureLayerFactory.ts`）。
+   - PMTiles SourceType 註冊：factory 自帶 `registerSourceTypeOnce` + **try/catch**（agriculture 也會註冊）；
+     **MapView 裡 ensure 必須排在 `ensureAllAgricultureLayers` 之後**（先註冊者成功，後者 try 命中 already-registered 被吞）。
+   - 縣市切換 = `map.setFilter(fillId, ["==",["get","county"], 名稱])`；單一真實來源 `src/data/fireIsochroneCounties.ts`（dropdown + filter 共用）。
+   - 接 MapView 三處：`style.load` / `load` handler（ensure+update）+ params effect + visibility effect。
+
+8. **中介 GeoJSON 寫 gitignored `build/`**，`public/` 只放 `.pmtiles`（生成腳本 OUT_DIR 指 build/）。
+
+9. **UX 四鐵則照舊**：透明度 slider、顏色分級必寫圖例（`fireTypes.ts` 的 `FIRE_ISOCHRONE_BANDS` 單一來源）、
+   面可點 → popup（`useMapInteraction` GIS_LAYERS 放**清單末端**避免大面積擋點選）、**縣市選項 ≥4 用原生 `<select>`**。
+
+### 檔案地圖（首例）
+`fetch-fire-isochrones.py`（生成+全國聚合）/ `geocode-pingtung-fire-stations.py`（補座標）/
+`fireIsochroneLayerFactory.ts`（PMTiles 渲染+filter）/ `fireIsochroneCounties.ts`（縣市清單）/
+`fireTypes.ts`（分級配色）/ `public/fire/*.pmtiles`（出貨）/ `build/fire_isochrone/`（中介）。
