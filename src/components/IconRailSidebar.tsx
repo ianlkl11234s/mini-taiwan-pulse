@@ -8,6 +8,7 @@ import {
   GraduationCap, Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck,
+  Flame,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -62,6 +63,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   groundwaterWells: "#64748b",
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
+  fireScenario: "#ff4d00",
 };
 
 const TRANSPORT_LABELS: Record<string, string> = {
@@ -124,6 +126,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   groundwaterWells: Droplet,
   iotWraRiver: Waves,
   iotWraStructure: Gauge,
+  fireScenario: Flame,
 };
 
 // ── Section Config ──

@@ -60,6 +60,7 @@ const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   groundwaterWells: "#64748b",
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
+  fireScenario: "#ff4d00",
 };
 
 const TRANSPORT_LABELS: Record<TransportType, string> = {

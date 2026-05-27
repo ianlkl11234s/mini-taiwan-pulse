@@ -20,6 +20,9 @@ import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
+import { useFireScenarioLayer } from "./hooks/useFireScenarioLayer";
+import { useScenario } from "./hooks/useScenario";
+import { ScenarioPanel } from "./components/ScenarioPanel";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
 import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
 import type { ReservoirScene } from "./three/ReservoirScene";
@@ -223,6 +226,28 @@ export default function App() {
   const { isMobile, isLandscape } = useIsMobile();
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
+  // ── 消防兵棋推演模式（?mode=scenario） ──
+  const appMode = useMemo<"data" | "scenario">(
+    () => (new URLSearchParams(window.location.search).get("mode") === "scenario" ? "scenario" : "data"),
+    [],
+  );
+  const isScenario = appMode === "scenario";
+  const mapRef = useRef<MapboxMap | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+  const scenario = useScenario({ active: isScenario, mapReady, mapRef, setLayerVisibility });
+
+  // 進入想定模式：只留消防想定圖層，關掉預設開啟的運具圖層讓場景乾淨
+  useEffect(() => {
+    if (!isScenario) return;
+    setLayerVisibility((prev) => ({
+      ...prev,
+      fireScenario: true,
+      flights: false, ships: false, rail: false,
+      stationsTHSR: false, stationsTRA: false, stationsMetro: false,
+      ports: false, lighthouses: false, airports: false,
+    }));
+  }, [isScenario, setLayerVisibility]);
+
   // 圖層可見性變化時踢 Mapbox 一次，確保從 idle 喚醒渲染循環
   useEffect(() => {
     mapRef.current?.triggerRepaint();
@@ -255,6 +280,7 @@ export default function App() {
   const timeline = useTimeline({
     dataStartTime: dataTimeRange.start,
     dataEndTime: dataTimeRange.end,
+    overrideWindow: isScenario ? scenario.scenarioWindow : undefined,
   });
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
@@ -289,7 +315,6 @@ export default function App() {
   const showTrails = displayMode === "trails";
 
   // Refs for Three.js render loops
-  const mapRef = useRef<MapboxMap | null>(null);
   const flightsRef = useRef<Flight[]>([]);
   const shipsRef = useRef(ships);
   const timeRef = useRef(timeline.currentTime);
@@ -510,6 +535,14 @@ export default function App() {
     isDarkTheme,
   );
 
+  // ── 消防想定動態層（火場 + 出動單位，gate on mapReady 確保 style 就緒） ──
+  useFireScenarioLayer(
+    mapRef,
+    mapReady && layerVisibility.fireScenario,
+    isDarkTheme,
+    scenario.engineRef,
+  );
+
   // ── Derived values ──
 
   const preset = useMemo(
@@ -523,6 +556,7 @@ export default function App() {
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
+    setMapReady(true);
     addAllLayers(map);
 
     const updateCamera = () => {
@@ -841,6 +875,35 @@ export default function App() {
         onMapReady={handleMapReady}
       />
 
+      {/* ── 想定播報 Banner（消防兵棋推演模式） ── */}
+      {isScenario && scenario.banner && (
+        <div
+          style={{
+            position: "absolute",
+            top: isMobile ? 96 : 24,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 25,
+            maxWidth: "72%",
+            background: "rgba(180,40,0,0.88)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,180,0,0.6)",
+            borderRadius: 10,
+            padding: "10px 22px",
+            color: "#fff",
+            fontFamily: "monospace",
+            fontSize: isMobile ? 14 : 17,
+            fontWeight: 700,
+            letterSpacing: 1,
+            textAlign: "center",
+            boxShadow: "0 4px 24px rgba(0,0,0,0.4)",
+            pointerEvents: "none",
+          }}
+        >
+          {scenario.banner}
+        </div>
+      )}
+
       {/* ── 拍攝模式 vignette + 標題 ── */}
       {captureMode && (
         <>
@@ -1001,29 +1064,42 @@ export default function App() {
             )}
           </div>
 
-          {/* Icon Rail + Sliding Panel Sidebar */}
-          <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
-            <IconRailSidebar
-              visibility={layerVisibility}
-              expandedLayer={expandedLayer}
-              viewMode={viewMode}
-              displayMode={displayMode}
-              counts={sidebarCounts}
-              onLayerClick={handleLayerClick}
-              onToggleVisibility={toggleVisibility}
-              onViewModeChange={setViewMode}
-              onDisplayModeChange={handleDisplayModeChange}
-              onHideTransport={handleHideTransport}
-              onAllOff={handleAllOff}
-              getControls={transportParams.getControls}
-              currentLocationId={selectedAirport}
-              onLocationJump={handleLocationJump}
-              onWidthChange={handleSidebarWidthChange}
-              dataRegistry={dataRegistry}
-              selectedDate={timeline.selectedDate}
-              onDateSelect={timeline.setSelectedDate}
-            />
-          </div>
+          {/* Icon Rail + Sliding Panel Sidebar（一般模式） */}
+          {!isScenario && (
+            <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
+              <IconRailSidebar
+                visibility={layerVisibility}
+                expandedLayer={expandedLayer}
+                viewMode={viewMode}
+                displayMode={displayMode}
+                counts={sidebarCounts}
+                onLayerClick={handleLayerClick}
+                onToggleVisibility={toggleVisibility}
+                onViewModeChange={setViewMode}
+                onDisplayModeChange={handleDisplayModeChange}
+                onHideTransport={handleHideTransport}
+                onAllOff={handleAllOff}
+                getControls={transportParams.getControls}
+                currentLocationId={selectedAirport}
+                onLocationJump={handleLocationJump}
+                onWidthChange={handleSidebarWidthChange}
+                dataRegistry={dataRegistry}
+                selectedDate={timeline.selectedDate}
+                onDateSelect={timeline.setSelectedDate}
+              />
+            </div>
+          )}
+
+          {/* 想定面板（消防兵棋推演模式） */}
+          {isScenario && scenario.scenario && (
+            <div style={{ position: "absolute", top: 92, left: 16, zIndex: 11, pointerEvents: "none" }}>
+              <ScenarioPanel
+                scenario={scenario.scenario}
+                currentTime={timeline.currentTime}
+                isDarkTheme={isDarkTheme}
+              />
+            </div>
+          )}
 
           {/* 時間軸 */}
           <TimelineControls

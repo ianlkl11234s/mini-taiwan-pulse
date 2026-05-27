@@ -32,6 +32,11 @@ interface UseTimelineOptions {
   dataStartTime: number;
   dataEndTime: number;
   timeMode?: TimeMode;
+  /**
+   * 想定模式：直接指定播放視窗（unix），繞過日期格邏輯。
+   * 設定時 windowStart/windowEnd 與時鐘初值都改用它。
+   */
+  overrideWindow?: { start: number; end: number };
 }
 
 interface UseTimelineReturn {
@@ -75,6 +80,7 @@ export function useTimeline({
   dataStartTime,
   dataEndTime: _dataEndTime,
   timeMode: initialTimeMode = "replay",
+  overrideWindow,
 }: UseTimelineOptions): UseTimelineReturn {
   void _dataEndTime; // 保留 interface 相容，實際用 dataStartTime 初始化
   // 預設選定日期 = 台灣時間的今天（不依賴資料範圍，避免不同資料源日期不一致）
@@ -84,17 +90,21 @@ export function useTimeline({
   });
   const [rangeDays, setRangeDays] = useState(1);
 
-  // 視窗起止
-  const windowStart = dayStartUnix(selectedDate);
-  const windowEnd = dayEndUnix(addDays(selectedDate, rangeDays - 1));
+  // 視窗起止（想定模式直接用 overrideWindow）
+  const windowStart = overrideWindow ? overrideWindow.start : dayStartUnix(selectedDate);
+  const windowEnd = overrideWindow ? overrideWindow.end : dayEndUnix(addDays(selectedDate, rangeDays - 1));
 
   // 首次渲染寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）
   const initRef = useRef(false);
   if (!initRef.current) {
-    const startUnix = Date.now() / 1000 - 3600;
-    const initial =
-      startUnix >= windowStart && startUnix <= windowEnd ? startUnix : windowStart;
-    timeStore.setTime(initial);
+    if (overrideWindow) {
+      timeStore.setTime(overrideWindow.start);
+    } else {
+      const startUnix = Date.now() / 1000 - 3600;
+      const initial =
+        startUnix >= windowStart && startUnix <= windowEnd ? startUnix : windowStart;
+      timeStore.setTime(initial);
+    }
     initRef.current = true;
   }
 
@@ -103,6 +113,13 @@ export function useTimeline({
   const [timeMode, setTimeMode] = useState<TimeMode>(initialTimeMode);
   const rafRef = useRef<number>(0);
   const lastFrameRef = useRef<number>(0);
+
+  // overrideWindow 在想定載入後才出現/變更 → 重新把時鐘 seed 到視窗起點
+  useEffect(() => {
+    if (!overrideWindow) return;
+    timeStore.setTime(overrideWindow.start);
+    setPlaying(false);
+  }, [overrideWindow?.start, overrideWindow?.end]);
 
   // UI 取用的 currentTime：節流訂閱，不隨每幀 re-render。
   // 動畫迴圈請直接 timeStore.getTime()，不要經過這個值。

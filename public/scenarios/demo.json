@@ -1,0 +1,140 @@
+{
+  "id": "xinyi-highrise-fire",
+  "name": "信義區商辦火警",
+  "description": "台北市信義區某商辦大樓 5 樓火警，分隊出動、雲梯佈署、救護待命之引導式想定示範。",
+  "camera": { "center": [121.5672, 25.0365], "zoom": 14.5, "pitch": 55, "bearing": 20 },
+  "startUnix": 1779861600,
+  "durationSec": 1200,
+  "defaultSpeed": 60,
+  "injects": [
+    {
+      "id": "cam-open",
+      "type": "camera",
+      "at": 0,
+      "label": "進場：信義區火場",
+      "center": [121.5672, 25.0365],
+      "zoom": 14.5,
+      "pitch": 55,
+      "bearing": 20,
+      "layers": { "fireScenario": true }
+    },
+    {
+      "id": "b-report",
+      "type": "banner",
+      "at": 0,
+      "text": "14:00 信義區某商辦大樓 5 樓傳出火警，119 受理報案",
+      "holdSec": 12,
+      "label": "受理報案"
+    },
+    {
+      "id": "fire-main",
+      "type": "fire",
+      "at": 5,
+      "label": "起火點（5 樓）",
+      "origin": [121.5672, 25.0365],
+      "growth": { "startRadiusM": 15, "maxRadiusM": 130, "rampSec": 650 },
+      "wind": { "bearingDeg": 60, "stretch": 1.6 },
+      "endAt": 1000
+    },
+    {
+      "id": "d-engine",
+      "type": "dispatch",
+      "at": 30,
+      "label": "信義分隊水箱車出動",
+      "unitKind": "engine",
+      "durationSec": 120,
+      "route": [
+        [121.5601, 25.0412],
+        [121.5625, 25.0395],
+        [121.5655, 25.0378],
+        [121.5672, 25.0365]
+      ]
+    },
+    {
+      "id": "b-engine",
+      "type": "banner",
+      "at": 40,
+      "text": "信義分隊 2 車 6 人出動，預計 3 分鐘抵達",
+      "holdSec": 10,
+      "label": "分隊出動"
+    },
+    {
+      "id": "d-ladder",
+      "type": "dispatch",
+      "at": 90,
+      "label": "雲梯車出動",
+      "unitKind": "ladder",
+      "durationSec": 150,
+      "route": [
+        [121.5752, 25.0302],
+        [121.5718, 25.033],
+        [121.569, 25.0352],
+        [121.5672, 25.0365]
+      ]
+    },
+    {
+      "id": "b-ladder",
+      "type": "banner",
+      "at": 150,
+      "text": "雲梯車抵達，佈署高空射水",
+      "holdSec": 10,
+      "label": "雲梯佈署"
+    },
+    {
+      "id": "d-ambulance",
+      "type": "dispatch",
+      "at": 200,
+      "label": "救護車待命",
+      "unitKind": "ambulance",
+      "durationSec": 130,
+      "route": [
+        [121.5548, 25.0331],
+        [121.559, 25.0345],
+        [121.564, 25.0358],
+        [121.567, 25.0364]
+      ]
+    },
+    {
+      "id": "b-rescue",
+      "type": "banner",
+      "at": 210,
+      "text": "1 名民眾受困 7 樓，救護隊待命搶救",
+      "holdSec": 10,
+      "label": "民眾受困"
+    },
+    {
+      "id": "cam-wide",
+      "type": "camera",
+      "at": 400,
+      "label": "拉遠：全局指揮",
+      "center": [121.5662, 25.037],
+      "zoom": 13.6,
+      "pitch": 50,
+      "bearing": 0
+    },
+    {
+      "id": "b-spread",
+      "type": "banner",
+      "at": 420,
+      "text": "火勢延燒至 6 樓，指揮官調派鄰近分隊支援",
+      "holdSec": 12,
+      "label": "延燒擴大"
+    },
+    {
+      "id": "b-control",
+      "type": "banner",
+      "at": 700,
+      "text": "火勢獲得控制",
+      "holdSec": 10,
+      "label": "火勢控制"
+    },
+    {
+      "id": "b-out",
+      "type": "banner",
+      "at": 1000,
+      "text": "16:40 火勢撲滅，現場進行清理與火調",
+      "holdSec": 30,
+      "label": "火勢撲滅"
+    }
+  ]
+}
