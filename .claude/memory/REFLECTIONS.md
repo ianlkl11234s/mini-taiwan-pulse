@@ -437,3 +437,16 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 `git reset --soft HEAD~1` 退回後改用 **`git commit -m "..." -- <pathspec>`**（只提交指定檔、保留其他 staged 不動）修正。
 **SKILL.md 待補規則**：Stage 5 commit 前先 `git status` 看 index 是否已有他人 staged 變動；有就一律用
 `git commit -m ... -- <file>` pathspec 提交，**不要** `git add` + 裸 `git commit`。注意 `-m` 要在 `--` 之前。
+
+## 2026-05-26 救援等時圈（路網 5/10/15 分 + PMTiles + 全國聚合 + 屏東 geocode）
+
+**做了**：消防分隊救援等時圈。Mapbox Isochrone API 生成（原始回應快取）→ 環差分級 → 全國聚合 +
+各縣市兩套 → tippecanoe 切 PMTiles → factory 渲染 + 縣市 `<select>` setFilter。屏東 39 隊 geocode
+補齊（677→716，22 縣市全）。立 PB-16 + PRINCIPLES「大面積覆蓋圖層」段（用戶要求同類比照）。
+
+**next-time rules**：
+1. **大面積覆蓋多邊形（等時圈/服務範圍/可及性）一開始就選 PMTiles**，別先 GeoJSON 再為效能簡化到變醜——本次來回兩次（簡化→移描邊→才換 PMTiles）才換對工具。判準：覆蓋面廣 + 高頂點 + 全台級 → 直接 PMTiles factory。
+2. **「整體 vs 分區」聚合方式要先確認**：探索時我已標出 per-county 邊界會疊亂，卻沒主動做全國聚合，等用戶提才補。下次這種選擇主動 AskUserQuestion（全區一次 union vs 分區各自算）。
+3. **生成腳本一律快取原始 API 回應**：677 次 Isochrone call 快取後，調簡化/切片參數重跑是秒級、0 額度。外部 API 批次生成都該先做快取層。
+4. **多 PMTiles factory 並存**：SourceType 註冊 try/catch + ensure 排序保護（fire 在 agriculture 後）。
+5. 中介 GeoJSON 寫 gitignored `build/`，`public/` 只放出貨 `.pmtiles`。
