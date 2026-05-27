@@ -108,9 +108,12 @@
 
 > 更早完成項目見 git log 與 REFLECTIONS.md
 
-### 消防 FIRE & RESCUE（feat/fire-rescue 分支，2026-05-24 上線）
+### 消防 FIRE & RESCUE（feat/fire-rescue 分支，2026-05-24 上線；5/26 加救援等時圈）
 - ✅ 4 layer（火災歷史/最新年度/分隊3D/消防栓）+ 分隊階級大小 + 散點/3D toggle
-- ⏳ **F-1 S3 deploy**：`upload-deploy-assets.sh` 推 fire_stations.geojson(0.18M) + fire_hydrants.geojson(12.8M)（已 gitignore，未上 S3 = production 看不到）
+- ✅ **F-3 屏東補座標 done**（2026-05-26）：39 隊 Mapbox geocode 補齊 → fire_stations 677→**716**、22 縣市全。`scripts/fetch/geocode-pingtung-fire-stations.py`（門牌近似精度，見 F-6）
+- ✅ **救援等時圈 `fireIsochrone` done**（2026-05-26）：路網 5/10/15 分 PMTiles + 全國聚合 + 縣市 `<select>` filter，做法見 PB-16
+- ⏳ **F-1 S3 deploy**：`upload-deploy-assets.sh` 推 fire_stations.geojson(0.2M, 已含屏東) + fire_hydrants.geojson(12.8M) + **fire/fire_isochrone_coverage.pmtiles(9.3M)**（gitignore，未上 S3 = production 看不到）
 - ⏳ F-2（可選）分隊 3D 光柱接 pick → 點柱體也能跳 popup（目前靠底下 circle）
-- ⏳ F-3（可選）屏東縣 39 分隊上游缺座標，回 taipei-gis-analytics 補 geocode（677/717）
+- ⏳ **F-5 等時圈 Phase B**：點選某分隊 → 高亮該隊個別等時圈（資料已備 `build/fire_isochrone/fire_isochrone_stations.geojson`，需切 PMTiles + setFilter by `station_id`）
+- ⏳ F-6（可選）等時圈精修：pmtiles 9.3M 可調 tippecanoe 參數瘦身；屏東 geocode 為門牌近似，精度可回上游 TGOS 重做
 - 💤 F-4（已移除，可選復活）火災火焰特效 FireBlazeScene（git 歷史 feat/fire-rescue 中段）
