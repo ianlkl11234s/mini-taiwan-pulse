@@ -1,6 +1,6 @@
 # Status
 
-**最後更新**：2026-05-24（消防分區上線：分隊/消防栓 POI + Three.js 火焰特效）
+**最後更新**：2026-05-26（消防救援等時圈上線：PMTiles + 全國聚合 + 縣市 filter；屏東 geocode 補齊）
 **分支**：`feat/fire-rescue`（5/24 從 `feat/water-extensions` 切出）
 
 ## ⭐ 當前狀態
@@ -13,8 +13,9 @@
 |---|---|---|---|---|
 | `fireEvents` | Supabase RPC `get_fire_events_by_year`（111~113 約 4.8 萬）| ✅ 傷亡分級 | ✅ 起火原因/死傷/時間 | 2D circle；本 session 補 popup；**僅歷史模式**（火焰特效 5/24 加後又依用戶要求移除）|
 | `fireLatest` | 同 RPC 取最新年（113）| ✅（共用） | ✅（共用 FireEventPanel）| 5/24 追加：最新年度火點，**任何模式可見**、不需時間軸；純 2D circle |
-| `fireStations` | 靜態 677 點（全台 22 縣市）| ✅ 大隊/分隊/分駐所/其他 | ✅ 隊名/類型/電話/地址 | circle 半徑+3D 光柱高度+漣漪半徑**依階級分大小**；展開面板 2 toggle（散點 / 3D 光柱波動）獨立開關 |
+| `fireStations` | 靜態 **716** 點（全台 **22** 縣市，5/26 補屏東 39 隊 geocode）| ✅ 大隊/分隊/分駐所/其他 | ✅ 隊名/類型/電話/地址 | circle 半徑+3D 光柱高度+漣漪半徑**依階級分大小**；展開面板 2 toggle（散點 / 3D 光柱波動）獨立開關 |
 | `fireHydrants` | 靜態 69,839 點（⚠️ 僅臺北市+高雄市）| ✅ 地上/地下式+覆蓋註 | ✅ 型式/行政區 | `public/geo/fire_hydrants.geojson` 12.8MB，minzoom 12 |
+| `fireIsochrone` | **PMTiles** `public/fire/fire_isochrone_coverage.pmtiles`（9.3MB，向量切片）| ✅ 5/10/15 分分級 | ✅ 縣市/可達時間/面積 | 路網救援等時圈（黃金救援 5/10/15 分）；**全國聚合 + 各縣市兩套**，縣市 `<select>` 下拉 setFilter 切換；factory `fireIsochroneLayerFactory.ts`；**詳細 SOP 見 PB-16** |
 
 **火災 Three.js 火焰特效 — 已移除**（5/24 用戶要求）：曾做 `FireBlazeScene`+`fireBlazeCustomLayer`（火焰柱+GPU 火星粒子+視野裁切），後依用戶決定拿掉，火災回歸純 2D circle。**消防分隊的 3D 光柱/漣漪保留**（那是 `FireStationScene`，與火災無關）。
 
@@ -25,6 +26,22 @@
 **資料來源**：`taipei-gis-analytics/data/processed/fire/`（分隊 stations_*.csv、消防栓 hydrants.csv）。
 轉檔腳本 `scripts/export/export_fire_pois.py`。⚠️ 屏東縣分隊 39 點上游缺座標被跳過（677/717）。
 **待辦**：跑 `upload-deploy-assets.sh` 推 2 個 geojson 到 S3。
+
+### 農企業登記 3 layer（5/25 接線完成）
+
+接 taipei-gis-analytics 已 geocode 的 3 集公司登記散點到 **AGRICULTURE 區**，3 個獨立 toggle。
+
+| Layer | business_type | 點數 | 色 | minzoom |
+|---|---|---|---|---|
+| `agriRetail` | retail | 37,430 | #e91e63 桃紅 | 8 |
+| `agriProduceWholesale` | produce_wholesale | 22,843 | #3f51b5 靛藍 | 8 |
+| `agriWholesaleMarket` | wholesale_market | 53 | #ffd600 鮮黃 | 6 |
+
+- **走 `overlayRegistry`（非其他農業層的 `agricultureLayerFactory`）** — 大型 geojson 散點比照 fireHydrants，MapView 零改動。
+- 色/標籤 SSOT = 新建 `src/data/agriCompanyTypes.ts`；UX 四鐵則齊（opacity+scale slider / 合併圖例 `AgriCompanyLegend` / click popup `AgriCompanyPanel` / 控制項 2 個免 dropdown）。popup bracket notation 讀中文欄位。補了 IconRailSidebar 隱藏 `LAYER_ICONS` Record（TS2739，見 INCIDENTS/PRINCIPLES）。
+- **已驗證**：`npx tsc -b` 綠 ✅；dev server 起得來；3 資產 HTTP 200（21MB/13MB/30KB）；business_type 值與型別表吻合。
+- **待辦（AG-6）**：⏳ browser 驗收（先 All Off）/ ⏳ S3 deploy 3 geojson / ⏳ Supabase import `spatial.agri_business_registrations`（overwrite）/ ⏳ 程式 commit。
+- ⚠️ ~34MB eager 載入；瘦身（座標 17 位小數 + 冗欄位）**在 taipei-gis-analytics 上游做**別在前端分叉。
 
 ### 農業（5/23 前 session）
 
@@ -37,8 +54,9 @@
 | `agriRuralRegen` | 1,109 農村再生 | — | ✅ | 社區名/計畫/行政區 |
 | `agriCropSuitability` | 83.3 萬作物適栽 | ✅ 4 級 kind | ✅ | 132 種作物 dropdown |
 | `agriPOI` | 840 三類 POI | ✅ 3 類 | ✅ | 休農場/田媽媽/特色農旅 |
+| `agriRetail` / `agriProduceWholesale` / `agriWholesaleMarket` | 60,326 公司登記 | ✅ 合併 3 類 | ✅ | 5/25 加，見上節 |
 
-部署：`public/agriculture/` ~215MB（gitignore，走 S3 deploy-assets）
+部署：`public/agriculture/` ~215MB + 公司登記 ~34MB（gitignore，走 S3 deploy-assets）
 
 ### 圖層 UX 鐵則升級到 4 條（⚠ P0）
 
@@ -94,6 +112,8 @@ f8a4ecc feat(agriculture): types/visibility/sidebar/params 接線 6 新 layer
 - types/visibility/sidebars/params 6 處同步加 7 個 layer keys
 
 ## 待 commit / push
+
+5/25 農企業登記 3 layer 程式改動**尚未 commit**：新建 `src/data/agriCompanyTypes.ts`；改 `overlayRegistry.ts`(+3 entry)、`types/index.ts`、`layerCatalog.ts`、`IconRailSidebar.tsx`、`useLayerVisibility.ts`、`useTransportParams.ts`、`LegendPanel.tsx`、`useMapInteraction.ts`、`FeatureInfoPanel.tsx`；產出 `public/agriculture/{agri_retail,produce_wholesale,agri_wholesale_market}_companies.geojson`（gitignore，待 S3）。⚠️ 工作樹同時混有 5/25 結構審查 WIP（deckOverlay 刪除 / sidebar 重構 / docs）+ 5/26 fireIsochrone，commit 前 `git add` 指定檔拆乾淨。
 
 5/24 消防分區的程式改動**尚未 commit**（user 未要求）。涉及檔案：
 - 新建：`scripts/export/export_fire_pois.py`、`src/data/fireTypes.ts`、`src/three/FireBlazeScene.ts`、`src/map/fireBlazeCustomLayer.ts`
