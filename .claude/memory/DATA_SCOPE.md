@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-05-23（新增農業）
+**最後更新**：2026-05-25（農業 +公司登記 3 類）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -139,6 +139,9 @@ PMTiles + GeoJSON，由 S3 deploy-assets 管理（**.gitignore 排除**，~215MB
 | `leisure_farm_zones_2025.pmtiles` | 0.4 MB | `leisure_farm_zones` | 9809 | 109 | 6-13 | 休區名/LANAME/KeyCode/AA45/AA46 |
 | `rural_regen_communities_2025.pmtiles` | 2.4 MB | `rural_regen_communities` | 176846 | 1,109 | 7-13 | 社區名/計畫名/縣市/鄉鎮/村里/分署/核定時/計畫年/NOTE |
 | `agriculture_pois.geojson` | 0.3 MB | (GeoJSON 直 fetch) | 177247+245+246 | 840 | — | row_id/poi_type/poi_name/source_dataset_id/TOWNID/AA45/AA46/lon/lat |
+| `agri_retail_companies.geojson` | 21 MB | (overlayRegistry geojson) | 45618 | 37,430 | 8 | business_type/公司名稱/負責人/公司地址/資本總額/公司狀態/統一編號/lon/lat |
+| `produce_wholesale_companies.geojson` | 13 MB | (overlayRegistry geojson) | 蔬果批發 | 22,843 | 8 | 同上 |
+| `agri_wholesale_market_companies.geojson` | 31 KB | (overlayRegistry geojson) | 批發市場 | 53 | 6 | 同上 |
 
 ### Layer key 對應（LayerVisibility）
 - `agriculture` = FTW 田區（既有，不接 click，僅 confidence）
@@ -148,6 +151,11 @@ PMTiles + GeoJSON，由 S3 deploy-assets 管理（**.gitignore 排除**，~215MB
 - `agriRuralRegen` = 農村再生社區
 - `agriCropSuitability` = 132 種作物適栽
 - `agriPOI` = 三合一 POI（休農場 / 田媽媽 / 特色農旅）
+- `agriRetail` / `agriProduceWholesale` / `agriWholesaleMarket` = 農企業登記 3 類（2026-05-25 加，
+  business_type 區分：retail / produce_wholesale / wholesale_market；共 60,326 點 / ~34MB
+  eager 載入）。Supabase 目標表 `spatial.agri_business_registrations`（overwrite）。
+  **走 overlayRegistry 非 agricultureLayerFactory**（大型 geojson 散點比照 fireHydrants）。
+  失敗清單 `taipei-gis-analytics/data/intermediate/tgos/agri_companies/_geocode_failed.csv`（562 筆查無座標）
 
 ### 重要踩坑
 
