@@ -430,3 +430,10 @@ dev server 驗證 HTTP 200。
 5. **跨 session 工作樹漂移**：wrap-up 時發現 BACKLOG 已有別 session 的結構審查 WIP + 工作樹冒出 fireIsochrone 層。
    memory commit 只動 `.claude/memory/*`（`git add` 指定檔），STATUS 對不確定的他人 WIP 用「in-flight 非本 session」
    指針帶過、不臆測細節。
+
+### /wrap-up skill 自身踩坑（2026-05-25）
+**index 已有他人 staged 變動時，`git add <file> && git commit` 會把整個 index 一起提交**。本次第一個
+memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + deckOverlay 刪除（7 files changed）。
+`git reset --soft HEAD~1` 退回後改用 **`git commit -m "..." -- <pathspec>`**（只提交指定檔、保留其他 staged 不動）修正。
+**SKILL.md 待補規則**：Stage 5 commit 前先 `git status` 看 index 是否已有他人 staged 變動；有就一律用
+`git commit -m ... -- <file>` pathspec 提交，**不要** `git add` + 裸 `git commit`。注意 `-m` 要在 `--` 之前。
