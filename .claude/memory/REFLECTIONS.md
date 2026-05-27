@@ -411,3 +411,22 @@
 4. **Mapbox 資料驅動 + zoom 表達式**：`["zoom"]` 只能在 interpolate/step 最上層，要乘 data 倍率就放進 stop 輸出。
 5. **commit 前查工作區是否混了別人的 WIP**：本次 overlayRegistry 混了用戶 wasteStopsStatic WIP，靠「Edit 還原該 hunk → commit fire-only → Edit 還原回 WIP」拆乾淨（`git add -p` 此環境不可用）。
 6. **HMR 期間的 hooks 錯誤先別當真**，full reload 複驗。
+
+## 2026-05-25 農企業登記 3 layer（零售/蔬果批發/批發市場）
+
+**做了**：接 taipei-gis-analytics 已 geocode 的 3 集公司登記（60,326 點）到 AGRICULTURE 區，
+3 獨立 toggle。選 overlayRegistry（非其他農業層的 factory），MapView 零改動。UX 四鐵則 + tsc 綠 +
+dev server 驗證 HTTP 200。
+
+**next-time rules**：
+1. **結構分歧先問再做**：1 合併層 vs 3 獨立層會改變整個成品形狀，用 AskUserQuestion 確認（用戶選 3 獨立）
+   再動工——省得做完才發現方向錯。資料被刻意切成 3 檔/3 slug 是個訊號但不等於前端就要 3 層，仍該問。
+2. **挑機制看資料量級**：大型 geojson 散點對照「同類最接近的既有層」（fireHydrants 70k 點）而非「同主題的層」
+   （其他農業層是 PMTiles/polygon，用 factory）。對照同量級同型態的前例，複製成本最低、踩坑最少。
+3. **exhaustive Record 有 3 張不只 1 張**：別只補 layerCatalog 的 LAYER_COLORS 就跑 tsc，
+   IconRailSidebar 圖示表 + FeatureInfoPanel HEADER_LABELS 同樣會 TS2739（已寫進 PRINCIPLES + INCIDENTS）。
+4. **perf 取捨主動標注不擅自分叉**：34MB eager 載入是真成本，但瘦身屬上游 SOP 的事——
+   標注給用戶/上游決定，比在前端偷改 artifact 更不會破壞跨 repo 契約。
+5. **跨 session 工作樹漂移**：wrap-up 時發現 BACKLOG 已有別 session 的結構審查 WIP + 工作樹冒出 fireIsochrone 層。
+   memory commit 只動 `.claude/memory/*`（`git add` 指定檔），STATUS 對不確定的他人 WIP 用「in-flight 非本 session」
+   指針帶過、不臆測細節。
