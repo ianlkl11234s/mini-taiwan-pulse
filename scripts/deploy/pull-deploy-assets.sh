@@ -9,7 +9,7 @@ export AWS_DEFAULT_REGION="${S3_REGION:-ap-southeast-2}"
 BUCKET="${S3_BUCKET:-migu-gis-data-collector}"
 PREFIX="deploy-assets"
 DATA_DIR="/data"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire"
 
 # 採扁平 S3 + 本地分目錄方案：S3 路徑維持 deploy-assets/xxx.ext，
 # 下載時依檔案類型落到對應子目錄對應前端 public/{geo,h3}/ 結構
@@ -41,6 +41,24 @@ WATER_FILES=$(aws s3 ls "s3://$BUCKET/$PREFIX/" --region "${AWS_DEFAULT_REGION}"
 for f in $WATER_FILES; do
   echo "Pulling $f → $DATA_DIR/geo/$f"
   aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
+done
+
+# 消防圖層：動態列舉 S3 上所有 fire_*.geojson（同 water 慣例）→ /data/geo/
+echo "Listing fire_*.geojson from S3..."
+FIRE_GEO_FILES=$(aws s3 ls "s3://$BUCKET/$PREFIX/" --region "${AWS_DEFAULT_REGION}" \
+  | awk '{print $4}' | grep -E '^fire_.*\.geojson$' || true)
+for f in $FIRE_GEO_FILES; do
+  echo "Pulling $f → $DATA_DIR/geo/$f"
+  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
+done
+
+# 消防等時圈 PMTiles 向量切片（動態列舉）→ /data/fire/
+echo "Listing *.pmtiles from S3..."
+PMTILES_FILES=$(aws s3 ls "s3://$BUCKET/$PREFIX/" --region "${AWS_DEFAULT_REGION}" \
+  | awk '{print $4}' | grep -E '\.pmtiles$' || true)
+for f in $PMTILES_FILES; do
+  echo "Pulling $f → $DATA_DIR/fire/$f"
+  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/fire/$f"
 done
 
 for f in $H3_FILES; do
