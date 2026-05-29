@@ -112,6 +112,7 @@ export type ExpandableLayerKey =
   | "aqiMicroSensors"
   | "earthquakes"
   | "disasterAlerts"
+  | "roadEvents"
   | "busLive"
   | "waterBasins"
   | "waterRivers"
@@ -132,6 +133,7 @@ export type ExpandableLayerKey =
   | "fireEvents"
   | "fireStations"
   | "fireHydrants"
+  | "fireIsochrone"
   | "agriculture"
   | "agriSoil"
   | "agriSoilFertility"
@@ -139,6 +141,9 @@ export type ExpandableLayerKey =
   | "agriRuralRegen"
   | "agriCropSuitability"
   | "agriPOI"
+  | "agriRetail"
+  | "agriProduceWholesale"
+  | "agriWholesaleMarket"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
@@ -444,15 +449,16 @@ export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
-    | "activeFault" | "newsEvent" | "disasterAlert"
-    | "fireEvent" | "fireStation" | "fireHydrant"
+    | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
+    | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "iotWraRiver" | "iotWraStructure"
     | "wasteFacility" | "wasteDisposalPoint"
     | "agriPOI" | "agriRuralRegen"
-    | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability";
+    | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
+    | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket";
   properties: Record<string, unknown>;
 }
 
@@ -497,6 +503,7 @@ export interface LayerVisibility {
   youbikeFullness: boolean;
   earthquakes: boolean;
   disasterAlerts: boolean;
+  roadEvents: boolean;    // TDX 即時路況（live_freeway/highway/city + event_city 預告）
   cwaCloudImagery: boolean;
   cwaRadarImagery: boolean;
   aqiImagery: boolean;
@@ -524,6 +531,7 @@ export interface LayerVisibility {
   fireLatest: boolean;     // 最新年度火災點位（113/2024，不限歷史模式）
   fireStations: boolean;   // 消防分隊點位（全台 22 縣市，677 點）
   fireHydrants: boolean;   // 消防栓（僅臺北市 + 高雄市，69,839 點）
+  fireIsochrone: boolean;  // 救援等時圈（路網 5/10/15 分鐘，POC：臺北市）
   // 農業
   agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
   agriSoil: boolean;             // 25539 全台土壤分類
@@ -532,6 +540,10 @@ export interface LayerVisibility {
   agriRuralRegen: boolean;       // 176846 農村再生社區
   agriCropSuitability: boolean;  // 7294 132 種作物適栽
   agriPOI: boolean;              // 177247+245+246 休農場/田媽媽/特色農旅 POI
+  // 農企業登記（spatial.agri_business_registrations，business_type 區分 3 類）
+  agriRetail: boolean;             // 37,430 農產零售商
+  agriProduceWholesale: boolean;   // 22,843 蔬果批發商
+  agriWholesaleMarket: boolean;    // 53 農產批發市場
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;

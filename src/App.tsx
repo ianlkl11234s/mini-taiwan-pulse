@@ -45,6 +45,7 @@ import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
 import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
 import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
+import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
 import { useAqiStationsLayer } from "./hooks/useAqiStationsLayer";
@@ -630,6 +631,13 @@ export default function App() {
     mapRef,
     layerVisibility.disasterAlerts,
     transportParams.daOpacity,
+  );
+
+  // ── TDX 即時路況事件 timeline ──
+  useRoadEventsLayer(
+    mapRef,
+    layerVisibility.roadEvents,
+    transportParams.reOpacity,
   );
 
   // ── 火災歷史事件（僅在 historical mode + toggle 開啟時實際 fetch） ──

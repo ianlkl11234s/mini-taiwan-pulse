@@ -4,7 +4,8 @@ import { CctvStreamView } from "./CctvStreamView";
 import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
-import { fireStationColor, fireHydrantColor } from "../data/fireTypes";
+import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
+import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../data/fireTypes";
 import { SOIL_FERTILITY_METRICS } from "../data/agriSoilFertilityMetrics";
 import {
   WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS,
@@ -987,6 +988,55 @@ function DisasterAlertPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
+  const eventType = Number(props.event_type ?? 0);
+  const color = String(props.color ?? "#6b7280");
+  const source = String(props.source ?? "");
+  const roadName = String(props.road_name ?? "");
+  const direction = String(props.direction ?? "");
+  const title = String(props.title ?? props.description ?? props.location_other ?? "路況事件");
+  const description = String(props.description ?? "");
+  const locationOther = String(props.location_other ?? "");
+  const blockedLanes = String(props.blocked_lanes ?? "");
+  const startKm = Number(props.start_km ?? 0);
+  const endKm = Number(props.end_km ?? 0);
+  const startTs = Number(props.start_ts ?? 0);
+  const endTs = Number(props.end_ts ?? 0);
+
+  const EVENT_TYPE_LABELS: Record<number, string> = {
+    1: "壅塞/事故", 2: "施工", 3: "事故", 4: "其他",
+    5: "災害/障礙", 6: "其他", 7: "活動/管制", 8: "其他",
+  };
+  const SOURCE_LABELS: Record<string, string> = {
+    live_freeway: "國道", live_highway: "省道",
+    live_city: "縣市", event_city: "縣市預告",
+  };
+  const fmt = (ts: number) =>
+    ts > 0 ? new Date(ts * 1000).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false }) : "—";
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {title || (EVENT_TYPE_LABELS[eventType] ?? "路況事件")}
+        </div>
+        <div style={{ fontSize: 10, padding: "1px 6px", borderRadius: 3, background: color, color: "#fff", fontWeight: 600, flexShrink: 0 }}>
+          {EVENT_TYPE_LABELS[eventType] ?? "其他"}
+        </div>
+      </div>
+      {source && <Row label="來源" value={SOURCE_LABELS[source] ?? source} />}
+      {roadName && <Row label="路段" value={roadName + (direction ? ` ${direction}` : "")} />}
+      {startKm > 0 && <Row label="里程" value={`${startKm.toFixed(1)} ~ ${endKm.toFixed(1)} km`} />}
+      {description && description !== title && <Row label="描述" value={description} />}
+      {locationOther && locationOther !== description && <Row label="位置" value={locationOther} />}
+      {blockedLanes && <Row label="封閉車道" value={blockedLanes} />}
+      <Row label="生效" value={fmt(startTs)} />
+      {endTs > 0 && <Row label="失效" value={fmt(endTs)} />}
+    </>
+  );
+}
+
 function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
@@ -1409,6 +1459,29 @@ function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function AgriCompanyPanel({ props }: { props: Record<string, unknown> }) {
+  const bt = String(props.business_type ?? "");
+  const t = AGRI_COMPANY_TYPES.find((x) => x.id === bt);
+  const meta = t ? { color: t.color, label: t.labelZh } : { color: "#9e9e9e", label: bt };
+  const capital = Number(props["資本總額"] ?? 0);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props["公司名稱"] ?? "Unknown")}
+        </div>
+      </div>
+      <Row label="類別" value={meta.label} color={meta.color} />
+      <Row label="統一編號" value={String(props["統一編號"] ?? "")} />
+      <Row label="負責人" value={String(props["負責人"] ?? "")} />
+      <Row label="地址" value={String(props["公司地址"] ?? "")} />
+      {capital > 0 ? <Row label="資本額" value={`${capital.toLocaleString()} 元`} /> : null}
+      <Row label="狀態" value={String(props["公司狀態"] ?? "")} />
+    </>
+  );
+}
+
 function FireEventPanel({ props }: { props: Record<string, unknown> }) {
   const deaths = Number(props.deaths ?? 0);
   const injuries = Number(props.injuries ?? 0);
@@ -1477,6 +1550,30 @@ function FireHydrantPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function FireIsochronePanel({ props }: { props: Record<string, unknown> }) {
+  const minutes = Number(props.minutes ?? 0);
+  const accentColor = fireIsochroneColor(minutes);
+  const cumulative = props.cumulative_sqkm != null ? `${props.cumulative_sqkm} km²` : "";
+  const ring = props.ring_sqkm != null ? `${props.ring_sqkm} km²` : "";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {fireIsochroneLabel(minutes)}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="可達時間" value={`${minutes} 分鐘內`} color={accentColor} />
+      <Row label="累積可達面積" value={cumulative} />
+      <Row label="本級環帶面積" value={ring} />
+      <div style={{ fontSize: 9, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
+        ⚠️ driving 路網保守估計，未計消防車優先路權
+      </div>
+    </>
+  );
+}
+
 const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -1497,6 +1594,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
+  roadEvent: "即時路況",
   aqiStation: "空氣品質測站",
   microSensor: "微型感測器",
   waterFacility: "水利設施",
@@ -1518,8 +1616,12 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriSoilFertility: "土壤肥力",
   agriLeisureFarmZones: "休閒農業區",
   agriCropSuitability: "作物適栽",
+  agriRetail: "農產零售商",
+  agriProduceWholesale: "蔬果批發商",
+  agriWholesaleMarket: "農產批發市場",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
+  fireIsochrone: "救援等時圈",
   fireHydrant: "消防栓",
 };
 
@@ -1591,6 +1693,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "disasterAlert":
       content = <DisasterAlertPanel props={feature.properties} />;
       break;
+    case "roadEvent":
+      content = <RoadEventPanel props={feature.properties} />;
+      break;
     case "aqiStation":
       content = <AqiStationPanel props={feature.properties} />;
       break;
@@ -1627,6 +1732,11 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "wasteDisposalPoint":
       content = <WasteDisposalPointPanel props={feature.properties} />;
       break;
+    case "agriRetail":
+    case "agriProduceWholesale":
+    case "agriWholesaleMarket":
+      content = <AgriCompanyPanel props={feature.properties} />;
+      break;
     case "agriPOI":
       content = <AgriPOIPanel props={feature.properties} />;
       break;
@@ -1653,6 +1763,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "fireHydrant":
       content = <FireHydrantPanel props={feature.properties} />;
+      break;
+    case "fireIsochrone":
+      content = <FireIsochronePanel props={feature.properties} />;
       break;
   }
 

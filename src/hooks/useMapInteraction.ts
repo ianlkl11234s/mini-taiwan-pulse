@@ -185,6 +185,7 @@ export function useMapInteraction(
           { layers: ["fire-hydrants-circle", "fire-hydrants-glow"], type: "fireHydrant" },
           { layers: ["news-events-circle", "news-events-glow"], type: "newsEvent" },
           { layers: ["disasterAlerts-fill", "disasterAlerts-line", "disasterAlerts-point"], type: "disasterAlert" },
+          { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
           { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
           { layers: ["aqi-micro-circle"], type: "microSensor" },
           { layers: ["water-facilities-core", "water-facilities-glow"], type: "waterFacility" },
@@ -196,12 +197,17 @@ export function useMapInteraction(
           { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
           { layers: ["groundwater-circle", "groundwater-glow"], type: "groundwater" },
           { layers: ["agri-pois-circle"], type: "agriPOI" },
+          { layers: ["agri-wholesale-market-circle"], type: "agriWholesaleMarket" },
+          { layers: ["agri-produce-wholesale-circle"], type: "agriProduceWholesale" },
+          { layers: ["agri-retail-circle"], type: "agriRetail" },
           { layers: ["agri-rural-regen-fill"], type: "agriRuralRegen" },
           // PMTiles polygon fill — 排序：細節豐富的小範圍優先（避免被 soil 大面積覆蓋）
           { layers: ["agri-leisure-farm-zones-fill"], type: "agriLeisureFarmZones" },
           { layers: ["agri-crop-suitability-fill"], type: "agriCropSuitability" },
           { layers: ["agri-soil-fertility-fill"], type: "agriSoilFertility" },
           { layers: ["agri-soil-fill"], type: "agriSoil" },
+          // 救援等時圈覆蓋面 — 放最末端，避免大面積擋住上方點層的點選
+          { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

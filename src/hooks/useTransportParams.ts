@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
 import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
+import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "../data/fireIsochroneCounties";
 import {
   SOIL_FERTILITY_METRIC_OPTIONS,
   type SoilFertilityMetric,
@@ -141,6 +142,9 @@ export function useTransportParams() {
   const [fireHydrantsScale, setFireHydrantsScale] = useState(1);
   const [fireHydrantsOpacity, setFireHydrantsOpacity] = useState(0.7);
   const [fireHydrantsZ, setFireHydrantsZ] = useState(0);
+  // 救援等時圈（覆蓋聯集填色透明度 + 縣市篩選，"all" = 全台）
+  const [fireIsochroneOpacity, setFireIsochroneOpacity] = useState(0.5);
+  const [fireIsochroneCounty, setFireIsochroneCounty] = useState("all");
   // ETC Gantry（收費門架 靜態點）
   const [etcGantryScale, setEtcGantryScale] = useState(1);
   const [etcGantryOpacity, setEtcGantryOpacity] = useState(0.8);
@@ -238,6 +242,8 @@ export function useTransportParams() {
   const [eqShowHistory, setEqShowHistory] = useState(false);
   // Disaster Alerts
   const [daOpacity, setDaOpacity] = useState(1.0);
+  // Road Events
+  const [reOpacity, setReOpacity] = useState(1.0);
   // YouBike Fullness (H3)
   const [ybOpacity, setYbOpacity] = useState(0.65);
   const [ybContrast, setYbContrast] = useState(1);
@@ -313,6 +319,13 @@ export function useTransportParams() {
   const [agriCropSuitabilityCropId, setAgriCropSuitabilityCropId] = useState(0);
   const [agriPOIOpacity, setAgriPOIOpacity] = useState(1.0);
   const [agriPOIScale, setAgriPOIScale] = useState(1.0);
+  // 農企業登記 3 類（GeoJSON 散點，opacity + scale）
+  const [agriRetailOpacity, setAgriRetailOpacity] = useState(0.85);
+  const [agriRetailScale, setAgriRetailScale] = useState(1.0);
+  const [agriProduceWholesaleOpacity, setAgriProduceWholesaleOpacity] = useState(0.85);
+  const [agriProduceWholesaleScale, setAgriProduceWholesaleScale] = useState(1.0);
+  const [agriWholesaleMarketOpacity, setAgriWholesaleMarketOpacity] = useState(0.9);
+  const [agriWholesaleMarketScale, setAgriWholesaleMarketScale] = useState(1.0);
 
   // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
   const WASTE_SUB_KEYS = [
@@ -446,6 +459,8 @@ export function useTransportParams() {
     fireHydrantsScale,
     fireHydrantsOpacity,
     fireHydrantsZ,
+    fireIsochroneOpacity,
+    fireIsochroneCountyIdx: FIRE_ISOCHRONE_COUNTY_OPTIONS.findIndex((o) => o.value === fireIsochroneCounty),
     etcGantryScale,
     etcGantryOpacity,
     etcGantryZ,
@@ -521,7 +536,13 @@ export function useTransportParams() {
     agriCropSuitabilityCropId,
     agriPOIOpacity,
     agriPOIScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale]);
+    agriRetailOpacity,
+    agriRetailScale,
+    agriProduceWholesaleOpacity,
+    agriProduceWholesaleScale,
+    agriWholesaleMarketOpacity,
+    agriWholesaleMarketScale,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -639,6 +660,10 @@ export function useTransportParams() {
         { label: `大小 ${fireHydrantsScale.toFixed(1)}`, value: fireHydrantsScale, min: 0.3, max: 3, step: 0.1, onChange: setFireHydrantsScale },
         { label: `透明度 ${fireHydrantsOpacity.toFixed(2)}`, value: fireHydrantsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFireHydrantsOpacity },
         { label: `Z 漂浮 ${fireHydrantsZ.toFixed(0)}px`, value: fireHydrantsZ, min: 0, max: 100, step: 2, onChange: setFireHydrantsZ },
+      ];
+      case "fireIsochrone": return [
+        { type: "select" as const, label: "縣市", value: fireIsochroneCounty, options: FIRE_ISOCHRONE_COUNTY_OPTIONS, onChange: setFireIsochroneCounty },
+        { label: `透明度 ${fireIsochroneOpacity.toFixed(2)}`, value: fireIsochroneOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setFireIsochroneOpacity },
       ];
       case "etcGantry": return [
         { label: `大小 ${etcGantryScale.toFixed(1)}`, value: etcGantryScale, min: 0.3, max: 3, step: 0.1, onChange: setEtcGantryScale },
@@ -760,6 +785,9 @@ export function useTransportParams() {
       ];
       case "disasterAlerts": return [
         { label: `Opacity ${daOpacity.toFixed(2)}`, value: daOpacity, min: 0, max: 1, step: 0.05, onChange: setDaOpacity },
+      ];
+      case "roadEvents": return [
+        { label: `Opacity ${reOpacity.toFixed(2)}`, value: reOpacity, min: 0, max: 1, step: 0.05, onChange: setReOpacity },
       ];
       case "cwaCloudImagery": return [
         { label: `Opacity ${cwaCloudOpacity.toFixed(2)}`, value: cwaCloudOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaCloudOpacity },
@@ -923,6 +951,18 @@ export function useTransportParams() {
         { label: `透明度 ${agriPOIOpacity.toFixed(2)}`, value: agriPOIOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriPOIOpacity },
         { label: `大小 ${agriPOIScale.toFixed(2)}`, value: agriPOIScale, min: 0.3, max: 3, step: 0.1, onChange: setAgriPOIScale },
       ];
+      case "agriRetail": return [
+        { label: `透明度 ${agriRetailOpacity.toFixed(2)}`, value: agriRetailOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriRetailOpacity },
+        { label: `大小 ${agriRetailScale.toFixed(2)}`, value: agriRetailScale, min: 0.3, max: 3, step: 0.1, onChange: setAgriRetailScale },
+      ];
+      case "agriProduceWholesale": return [
+        { label: `透明度 ${agriProduceWholesaleOpacity.toFixed(2)}`, value: agriProduceWholesaleOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriProduceWholesaleOpacity },
+        { label: `大小 ${agriProduceWholesaleScale.toFixed(2)}`, value: agriProduceWholesaleScale, min: 0.3, max: 3, step: 0.1, onChange: setAgriProduceWholesaleScale },
+      ];
+      case "agriWholesaleMarket": return [
+        { label: `透明度 ${agriWholesaleMarketOpacity.toFixed(2)}`, value: agriWholesaleMarketOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriWholesaleMarketOpacity },
+        { label: `大小 ${agriWholesaleMarketScale.toFixed(2)}`, value: agriWholesaleMarketScale, min: 0.3, max: 3, step: 0.1, onChange: setAgriWholesaleMarketScale },
+      ];
       case "wfIncinerator":
       case "wfLandfill":
       case "wfTransfer":
@@ -1025,6 +1065,7 @@ export function useTransportParams() {
     eqOpacity,
     eqShowHistory,
     daOpacity,
+    reOpacity,
     aqiMicroCluster,
     aqiImageryOpacity,
   };
