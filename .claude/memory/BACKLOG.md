@@ -53,9 +53,35 @@
 |---|---|---|---|---|
 | G001 | P2 | 刪 `useTransportParams` 裡的 `reservoirBubbleOpacity/Glow/Size` 殘留 slider | done | 2026-04-22 已拆 |
 | G002 | P3 | `[ReservoirLayer] render #N` 改 `DEBUG_RESERVOIR` env flag 控制 | done | 2026-04-23 render loop 修掉時順手移除 |
-| G003 | P3 | `public/three-showcase.html` / `public/showcase/` untracked 是什麼？要 commit / 忽略 / 刪？ | open | 本次 session 前就存在的 untracked 檔案 |
+| G003 | P3 | `public/three-showcase.html` / `public/showcase/` 去留 | open | 2026-05-25 review 確認：獨立 Three.js demo，`src/` 未引用，從 unpkg 載 three@0.160（app 用 0.172）。用戶決定**暫留原地**（已 tracked）。未來可移 `examples/three-showcase/`（連同 `docs/three-showcase-library.md`）排除 build |
+
+### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| G004 | P1 | Docker image 瘦身：`.dockerignore` 排除 nginx 已走 /data volume 的 dist 目錄 | open | nginx.conf 把 `/geo`(280M)/`/h3`(22M)/`/rail`(101M)+根層 aviation/ship/temperature json 指向 `/data` persistent volume（`pull-deploy-assets.sh` 從 S3 拉），**dist 內這些目錄線上永遠不被讀** = 死重量，但 `.dockerignore` 沒排 `public/` → Docker image 白扛 ~400MB。安全做法：`.dockerignore` 加 `public/geo public/h3 public/rail`。⚠️ `agriculture`(254M)/`bus`(196M) **無** /data location、是從 dist 載的，要排除需先改 nginx 走 volume + S3 deploy-assets。**未動因影響部署正確性，需用戶確認** |
+| G005 | P2 | waste 圖層底圖切換 (dark/light) 後消失 | open | `MapView` styledata 重建段落（~181-187）重建了 H3/pop/youbike/agriculture，但**沒重建 waste source/layer**，又被 `wasteMapboxSetupRef` flag 擋住不重跑 → 切底圖後垃圾清運圖層消失。2026-05-25 修 waste listener 洩漏時附帶發現 |
+| G006 | P3 | 手機版 sidebar 多顯示項產品取捨 | open | 2026-05-25 統一 `sidebar/layerCatalog.ts` 後，手機版補上原本只桌機有的 FACILITY(學校/超商)/NEWS/海纜/雲圖雷達（修漏的副作用）。確認手機是否要全顯示，否則用 `labelMobile`/SECTIONS 過濾隱藏 |
+| G007 | P3 | 移除 `@deck.gl/*` 4 套件死依賴 | open | `deckOverlay.ts` 刪除後 `@deck.gl/core,geo-layers,layers,mapbox` 已無任何 import。沒 import 不進 bundle，只影響 node_modules 大小。2026-05-25 發現 |
+| G008 | P2 | 巨型檔案按 domain 拆分 | open | `App.tsx`(1945)/`overlayRegistry.ts`(1992)/`FeatureInfoPanel.tsx`(1703)/`useTransportParams.ts`(1031)/`InfoModal.tsx`(1111)。建議順序：先拆 FeatureInfoPanel（最規律低風險，按 domain 切子檔+色票進 `data/*Types.ts`）→ App.tsx（抽 `useAllLayers`/`useAppUiState`/map lifecycle hook）→ overlayRegistry（domain 片段+circle/line/fill paint 工廠）。2026-05-25 架構 review |
+| G009 | P2 | 16 處 Supabase RPC 補 `loadingRegistry`（違反規則 B）| open | 優先 `busLoader.ts:69/121/211`（公車核心動態層初次/切日無 loading UI）；其餘 `*_dates`/`*_years`/`*_counts` 13 個 metadata RPC 危害低但字面違規；`railScheduleLoader.ts:26/62` 裸 fetch 同樣無 loading。2026-05-25 效能 review（規則 A time store + 規則 C realtime schema 全合規）|
+| G010 | P3 | `FireStationScene.ts:180` 每幀 `new THREE.Matrix4()` | open | `animate()` 每幀分配 Matrix4，其他 Scene 都用 `this.lastMatrix` 快取；提升為 instance field 重用。2026-05-25 效能 review |
+
+### 農業（Phase 3 Batch 1，feat/water-extensions 分支）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| AG-1 | P3 | Wave D 公司登記點位 3 集（45640+45618+45655） | **done 2026-05-25** | TGOS geocode 完成（60,326 點 / 562 失敗）→ 前端 3 獨立 layer 接線完成（見已完成區）。後續驗收/部署拆到 AG-6 |
+| AG-6 | P2 | 農企業登記 3 layer 驗收 + 部署 | open | (a) browser 視覺驗收（先 All Off；retail/produce zoom≥8、市場 zoom≥6）(b) `upload-deploy-assets.sh` 推 3 geojson 上 S3（gitignore）(c) Supabase import `spatial.agri_business_registrations`（overwrite，走 gis-data-onboard SOP）(d) 程式 commit。⚠️ ~34MB eager 載入，若要瘦身（座標 17 位小數 + 冗欄位）**在 taipei-gis-analytics 上游做**別在前端分叉 artifact |
+| AG-2 | P3 | FTW 田區 click popup | open | 目前 38 萬 polygon 只有 confidence 屬性，單格無實用資訊故未接。若要接需要 spatial JOIN 賦予地理資訊（縣市、土壤類）才有意義 |
+| AG-3 | P3 | Soil/SoilFertility 完整欄位重出評估 | open | 目前 soil_map_national 已含 8 欄、soil_fertility 含 5 欄。如果要全欄位（土壤分類 18 raw / 肥力 21 raw）PMTiles 會明顯變大（fertility 14MB → 32MB 已是部分欄位的結果）。先看是否有用戶反饋需要更多細節再決定 |
+| AG-4 | P3 | crop_suitability 跨作物 overlay 視角 | open | 目前 dropdown 只能看一個作物；若要看「這塊地適合幾種作物」需要 aggregate query。屬於 nice-to-have |
+| AG-5 | P2 | 分支重命名 feat/water-extensions → feat/agriculture | open | 本 session 主要做的是農業，但分支名仍寫水資源。建議重新命名或新開 feat/agriculture-batch-1 |
 
 ## 已完成（近期 10 筆）
+
+- 2026-05-25 ✅ **農企業登記 3 layer 接線**（AG-1）：retail 37,430 / produce_wholesale 22,843 / wholesale_market 53（共 60,326 點 / ~34MB）。**走 `overlayRegistry`（宣告式，MapView 不用改）非 agricultureLayerFactory** — 大型 geojson 散點比照 fireHydrants。3 獨立 toggle 進 AGRICULTURE 區；色 #e91e63/#3f51b5/#ffd600；新建 `src/data/agriCompanyTypes.ts`（色/標籤 SSOT）；UX 四鐵則：opacity+scale slider / 合併圖例 AgriCompanyLegend / click popup AgriCompanyPanel（公司名稱/統編/負責人/地址/資本額/狀態，bracket notation 讀中文欄位）。`npx tsc -b` 綠（補了 IconRailSidebar LAYER_ICONS 隱藏 Record）；dev server 3 資產 HTTP 200。⏳ 驗收/S3/Supabase import/commit 見 AG-6
+- 2026-05-23 ✅ **農業 Phase 3 Batch 1 完整上線**（6 PMTiles + 1 GeoJSON POI 部署到 public/agriculture/ ~215MB / FTW 既有 + agriSoil/agriSoilFertility/agriLeisureFarmZones/agriRuralRegen/agriCropSuitability/agriPOI 共 7 layer / 132 種作物 dropdown 切換 / 6 個可選取 layer 全部接 click popup [FTW 田區除外，僅 confidence 屬性無意義] / agriPOI 三類 + agriCropSuitability 4 級配色雙圖例 / 土壤肥力 6 metric 著色切換 [health/pH/OM/CEC/M3_P/M3_K] + 健康度綜合算法 + 數值分級註解 / sidebar select dropdown 門檻 > 6 → > 3 解橫向溢出 / 圖層 UX 鐵則升級 3 → 4 條完整寫進 docs/CLAUDE.md/memory）
 
 - 2026-05-12 ✅ **22 城 hwms stops 補座標 + INSERT 進 supabase**（v1+v2 TGOS 共 7 csv ~65K 地址 callback → 補 192K stops 座標 [TGOS 103K + pre_geocoded city-match 89K]，仍 91K 缺座標。寫 12_unified_callback.py + 30_build_split_geojson.py 拆 17 城 [104K stops + 4.7K routes] + 5 城 overlap 備份 [111K stops + 3.5K routes]。05_import_to_supabase 加 --stops-file/--routes-file 參數。INSERT 不 truncate → supabase stops 77K → 182K / routes 2K → 6.7K / 5 城 → 18 城。前端 wasteScheduleLoader+useWasteScheduleLayer 預設改 ALL_22_CITIES。Migration 080 sanity filter 對新加 17 城資料一樣有效（0 出界）。RPC 跑 dow=4 共 67K stops 健康）
 - 2026-05-12 ✅ **migration 080 stop coord sanity filter**（5 城 stops 中 87 outlier + 4 lng 整數截斷 + 5 出界 → RPC 三道 filter [整數 / Taiwan bbox / route 內 outlier] 自動跳過。tooltip 5min 寫死 → import Scene TRIP_BREAK_S=1500s 對齊）
@@ -81,3 +107,13 @@
 - 2026-04-23 ✅ **雨量 Mapbox heatmap**（擴散視覺 + zoom 分工）
 
 > 更早完成項目見 git log 與 REFLECTIONS.md
+
+### 消防 FIRE & RESCUE（feat/fire-rescue 分支，2026-05-24 上線；5/26 加救援等時圈）
+- ✅ 4 layer（火災歷史/最新年度/分隊3D/消防栓）+ 分隊階級大小 + 散點/3D toggle
+- ✅ **F-3 屏東補座標 done**（2026-05-26）：39 隊 Mapbox geocode 補齊 → fire_stations 677→**716**、22 縣市全。`scripts/fetch/geocode-pingtung-fire-stations.py`（門牌近似精度，見 F-6）
+- ✅ **救援等時圈 `fireIsochrone` done**（2026-05-26）：路網 5/10/15 分 PMTiles + 全國聚合 + 縣市 `<select>` filter，做法見 PB-16
+- ⏳ **F-1 S3 deploy**：`upload-deploy-assets.sh` 推 fire_stations.geojson(0.2M, 已含屏東) + fire_hydrants.geojson(12.8M) + **fire/fire_isochrone_coverage.pmtiles(9.3M)**（gitignore，未上 S3 = production 看不到）
+- ⏳ F-2（可選）分隊 3D 光柱接 pick → 點柱體也能跳 popup（目前靠底下 circle）
+- ⏳ **F-5 等時圈 Phase B**：點選某分隊 → 高亮該隊個別等時圈（資料已備 `build/fire_isochrone/fire_isochrone_stations.geojson`，需切 PMTiles + setFilter by `station_id`）
+- ⏳ F-6（可選）等時圈精修：pmtiles 9.3M 可調 tippecanoe 參數瘦身；屏東 geocode 為門牌近似，精度可回上游 TGOS 重做
+- 💤 F-4（已移除，可選復活）火災火焰特效 FireBlazeScene（git 歷史 feat/fire-rescue 中段）

@@ -369,6 +369,29 @@ SELECT jsonb_build_object(
   FROM public.water_monitoring_stations WHERE geom IS NOT NULL
 ) s;"
 
+# ── 9. 滯洪池 (detention_basins) — water-extensions v2 ──
+# 140 筆中 56 筆有 geom（taoyuan 11/11, tainan 45/45 完整；其他縣市 0% 待補）
+# basin_type: detention / science_park
+run_export "water_detention_basins.geojson" "滯洪池" "
+SELECT jsonb_build_object(
+  'type','FeatureCollection',
+  'features', COALESCE(jsonb_agg(feat),'[]'::jsonb)
+) FROM (
+  SELECT jsonb_build_object(
+    'type','Feature','id',id,
+    'geometry', ST_AsGeoJSON(ST_Force2D(geom))::jsonb,
+    'properties', jsonb_build_object(
+      'name',name,'county',county,'township',township,
+      'address',address,'agency',agency,'basin_type',basin_type,
+      'area_m2',area_m2,'area_ha',(metadata->>'area_ha')::numeric,
+      'designed_volume_m3',designed_volume_m3,
+      'current_volume_m3',current_volume_m3,
+      'max_depth_m',max_depth_m,
+      'status',status,'source',source)
+  ) AS feat
+  FROM public.detention_basins WHERE geom IS NOT NULL
+) s;"
+
 echo ""
 echo "[DONE] Files in $OUT_DIR"
 ls -lh "$OUT_DIR"/water_*.geojson 2>/dev/null | awk '{print "  " $5 "  " $9}'

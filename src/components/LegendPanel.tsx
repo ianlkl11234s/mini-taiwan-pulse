@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LayerVisibility } from "../types";
+import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
+import { AGRI_POI_TYPES } from "../data/agriPOITypes";
+import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
+import {
+  FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
+  FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
+} from "../data/fireTypes";
+import {
+  SOIL_FERTILITY_METRICS,
+  SOIL_FERTILITY_METRIC_OPTIONS,
+  type SoilFertilityMetric,
+} from "../data/agriSoilFertilityMetrics";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -13,6 +25,15 @@ const EQ_DEPTH_STOPS: { depth: number; color: string; label: string }[] = [
   { depth: 70, color: "#ffcc00", label: "70" },
   { depth: 150, color: "#42a5f5", label: "150" },
   { depth: 300, color: "#3949ab", label: "300" },
+];
+
+// ── Road Events event_type ──
+const ROAD_EVENT_TYPE_ITEMS = [
+  { type: 3, color: "#ef4444", label: "事故 Accident" },
+  { type: 1, color: "#eab308", label: "壅塞/事故 Congestion" },
+  { type: 2, color: "#f97316", label: "施工 Construction" },
+  { type: 7, color: "#a855f7", label: "活動/管制 Controlled" },
+  { type: 5, color: "#dc2626", label: "災害/障礙 Disaster" },
 ];
 
 // ── Disaster alert severity ──
@@ -43,19 +64,37 @@ const IOT_STRUCTURE_TYPES = [
   { color: "#92400e", label: "揚塵 Dust", measure: "PM10 / 風速 / 溫濕度" },
 ];
 
+// ── 作物適栽 4 級 kind ──（與 agricultureLayerFactory.ts CROP_KIND_COLOR_EXPR 對齊）
+const CROP_KIND_ITEMS = [
+  { kind: 1, color: "#1b5e20", label: "最適 Premium" },
+  { kind: 2, color: "#66bb6a", label: "適栽 Suitable" },
+  { kind: 3, color: "#fff59d", label: "次適 Marginal" },
+  { kind: 4, color: "#ef9a9a", label: "不適 Unsuitable" },
+];
+
 interface LegendPanelProps {
   visibility: LayerVisibility;
+  overlayParams: Record<string, number>;
 }
 
-export function LegendPanel({ visibility }: LegendPanelProps) {
+export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
   // 判斷有哪些需要圖例的圖層是開啟的
   const hasEarthquake = visibility.earthquakes;
   const hasDisasterAlert = visibility.disasterAlerts;
+  const hasRoadEvents = visibility.roadEvents;
   const hasIotRiver = visibility.iotWraRiver;
   const hasIotStructure = visibility.iotWraStructure;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasIotRiver || hasIotStructure;
+  const hasCropSuitability = visibility.agriCropSuitability;
+  const hasAgriPOI = visibility.agriPOI;
+  const hasAgriCompany = visibility.agriRetail || visibility.agriProduceWholesale || visibility.agriWholesaleMarket;
+  const hasSoilFertility = visibility.agriSoilFertility;
+  const hasFireEvents = visibility.fireEvents || visibility.fireLatest;
+  const hasFireStations = visibility.fireStations;
+  const hasFireHydrants = visibility.fireHydrants;
+  const hasFireIsochrone = visibility.fireIsochrone;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone;
 
   if (!hasAny) return null;
 
@@ -102,10 +141,224 @@ export function LegendPanel({ visibility }: LegendPanelProps) {
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
           {hasEarthquake && <EarthquakeLegend />}
           {hasDisasterAlert && <DisasterAlertLegend />}
+          {hasRoadEvents && <RoadEventsLegend />}
           {hasIotRiver && <IotRiverLegend />}
           {hasIotStructure && <IotStructureLegend />}
+          {hasCropSuitability && <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} />}
+          {hasAgriPOI && <AgriPOILegend />}
+          {hasAgriCompany && <AgriCompanyLegend visibility={visibility} />}
+          {hasSoilFertility && <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} />}
+          {hasFireEvents && <FireEventLegend />}
+          {hasFireStations && <FireStationLegend />}
+          {hasFireHydrants && <FireHydrantLegend />}
+          {hasFireIsochrone && <FireIsochroneLegend />}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── 消防圖例（火災 / 分隊 / 消防栓）──
+
+function FireCatRows({ cats, square }: { cats: { color: string; label: string }[]; square?: boolean }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {cats.map((c) => (
+        <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            style={{
+              width: 10, height: 10, borderRadius: square ? 2 : "50%",
+              background: c.color, opacity: 0.9, flexShrink: 0,
+              border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box",
+            }}
+          />
+          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{c.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FireEventLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        FIRE 火災歷史
+      </div>
+      <FireCatRows cats={FIRE_EVENT_CATS} />
+    </div>
+  );
+}
+
+function FireStationLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        消防分隊 STATIONS
+      </div>
+      <FireCatRows cats={FIRE_STATION_CATS} />
+    </div>
+  );
+}
+
+function FireHydrantLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        消防栓 HYDRANTS
+      </div>
+      <FireCatRows cats={FIRE_HYDRANT_CATS} square />
+      <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
+        ⚠️ {FIRE_HYDRANT_COVERAGE_NOTE}
+      </div>
+    </div>
+  );
+}
+
+function FireIsochroneLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        救援等時圈 ISOCHRONE
+      </div>
+      <FireCatRows
+        cats={FIRE_ISOCHRONE_BANDS.map((b) => ({ color: b.color, label: b.label }))}
+        square
+      />
+      <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
+        ⚠️ {FIRE_ISOCHRONE_NOTE}
+      </div>
+    </div>
+  );
+}
+
+// ── Soil Fertility Legend (6 metric 可切換) ──
+
+function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
+  const metricId = (SOIL_FERTILITY_METRIC_OPTIONS[metricIdx]?.value ?? "health") as SoilFertilityMetric;
+  const meta = SOIL_FERTILITY_METRICS[metricId];
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        SOIL FERTILITY
+      </div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+        {meta.label}{meta.unit ? ` (${meta.unit})` : ""}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {meta.legendStops.map((s) => (
+          <div key={`${s.color}-${s.label}`} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: 2,
+                background: s.color, opacity: 0.9, flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Agriculture POI Legend (休農場 / 田媽媽 / 特色農旅) ──
+
+function AgriPOILegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        AGRICULTURE POI
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {AGRI_POI_TYPES.map((t) => (
+          <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: t.color,
+                opacity: 0.9,
+                border: "1px solid #fff",
+                boxSizing: "border-box",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>
+              {t.labelZh}
+              <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>{t.labelEn}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
+  const rows = AGRI_COMPANY_TYPES.filter((t) => visibility[t.key]);
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        農企業登記 AGRI BUSINESS
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((t) => (
+          <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: t.color,
+                opacity: 0.9,
+                border: "1px solid rgba(255,255,255,0.6)",
+                boxSizing: "border-box",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>
+              {t.labelZh}
+              <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>{t.labelEn}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Crop Suitability Legend (作物適栽 4 級 kind) ──
+
+function CropSuitabilityLegend({ cropId }: { cropId: number }) {
+  const crop = CROP_SUITABILITY_CROPS.find((c) => c.id === cropId);
+  const cropLabel = crop ? `${crop.nameZh} (${crop.nameEn})` : `#${cropId}`;
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        CROP SUITABILITY
+      </div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+        {cropLabel}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {CROP_KIND_ITEMS.map((s) => (
+          <div key={s.kind} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: 2,
+                background: s.color,
+                opacity: 0.85,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -171,6 +424,36 @@ function EarthquakeLegend() {
 }
 
 // ── Disaster Alert Legend ──
+
+function RoadEventsLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        ROAD EVENTS
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {ROAD_EVENT_TYPE_ITEMS.map((item) => (
+          <div key={item.type} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: item.color,
+                opacity: 0.85,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{item.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 4 }}>
+        ⚠ live_city 偏基隆；高雄缺 TDX 來源
+      </div>
+    </div>
+  );
+}
 
 function DisasterAlertLegend() {
   return (

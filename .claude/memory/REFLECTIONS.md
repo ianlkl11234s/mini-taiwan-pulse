@@ -321,3 +321,132 @@
 - BACKLOG：+BL-17/18/19，schedule prototype 標 done
 
 <!-- /wrap-up 之後追加新反省 -->
+
+---
+
+## 2026-05-23 農業 Phase 3 Batch 1 全套上線（7 layer + 鐵則 3 → 4）
+
+### What worked ✅
+
+- **照 handoff doc 結構分 Step 0-6 + 用 TaskList 追蹤**：用戶說「請列計畫，逐步完成」，
+  我先列 6 步驟 + TaskCreate 8 個 task。中間 step 可以 atomic commit 各自獨立 tsc 過，
+  失敗能精準回退。最終 git log 看得出階段演進（factory / wiring / activation / 修 bug /
+  legend / click / 規則）
+- **3 個 atomic commit 切分主要 wiring**：(A) factory + asset gitignore (B) types/visibility/
+  sidebar/params/data (C) MapView 啟動。中間每一步 `npx tsc -b` 全綠，可獨立 review
+- **單一資料源 pattern 主動套用**：POI 三類 → `agriPOITypes.ts` / 土壤肥力 6 metric →
+  `agriSoilFertilityMetrics.ts`。factory paint / FeatureInfoPanel / LegendPanel 三邊共用，
+  下次改色一個檔搞定
+- **跨 repo 操作謹慎**：taipei-gis-analytics 的 `pipelines/agriculture/` 整包 untracked
+  時主動拒絕 commit，避免破壞用戶批次提交的脈絡
+- **健康度綜合算法的探索式對話**：用戶問「綜合分數還是只是決策」時，我先講農業實務
+  雙軌（多指標 vs 綜合分數）+ 點出他既有的 crop_suitability 已是綜合答案，再讓他選做法。
+  避免直接做完發現他要的是另一條路
+
+### What didn't ❌
+
+- **連續 5 次規則應用太狹隘** — 最大問題：
+  1. 作物適栽 4 級配色我以為「不是 POI 所以不用圖例」
+  2. 農村再生 polygon 我以為「不是 POI 所以不用 click popup」
+  3. PMTiles `keep_attrs` 我沒主動檢查就接 panel，導致空白
+  4. POI 點位我以為「有 click popup 就夠了，圖例不用」
+  5. 6 個 dropdown options 我以為 button row 撐得住，沒實機驗收 sidebar 寬度
+- **規則寫法太抽象自找麻煩**：第一版「顏色標註差異」「POI 點位」這種詞，自己看自己寫的
+  規則時都會有想像空間。明明是自己寫的還能誤判
+- **`6 metric dropdown` 規則 4 是視覺驗收漏抓**：寫完 metric dropdown 沒打開 sidebar 看，
+  純跑 tsc -b 通過就放心。等用戶截圖才看到溢出
+- **handoff doc 沒事先看就動工**：第一次讀 user message 時以為「FRONTEND_HANDOFF.md」
+  在 mini-taiwan-pulse 內，find 找半天才在 taipei-gis-analytics 找到。應該一開始
+  就 grep 跨 repo
+
+### Next-time rules 🎯
+
+1. **寫規則時用數字 / 列舉 token，不要抽象形容詞**：
+   - ❌「顏色標註差異」→ ✅「分類 ≥ 2 種」
+   - ❌「POI 點位」→ ✅「POI / polygon / line / 3D 凡可選取」
+   - ❌「options 過多」→ ✅「options ≥ 4」
+2. **新 layer 收尾時對著 docs/development-rules.md §4a 四鐵則「逐條打勾」**，
+   不要憑感覺豁免。每條都要回答「適用嗎？適用了沒？」
+3. **PMTiles 重出 → 寫 panel 前必 check `keep_attrs`**：見 PB-14 SOP。
+   `taipei-gis-analytics/pipelines/agriculture/_batch_download/06_export_frontend.py`
+   是入口
+4. **Sidebar 寬度視覺驗收**：寫完新 control 必開 dev server 看 sidebar 展開後沒溢出，
+   特別是中文標籤（4 個就會撐爆）
+5. **跨 repo 任務先 find/grep 確認檔案位置**：handoff doc / pipeline script 可能在
+   sibling repo，動工前 `find /Users/migu/Desktop/資料庫/.../GIS -name "<file>"` 一次
+6. **新 dataset 拿到先 EDA**：parquet 讀進來看 `df.isna().sum() / (df == 0).sum()`
+   找 missing pattern。soil_fertility 0 ≠ 真零是這次教訓
+
+### Memory 產出
+
+- BACKLOG：+農業 section (AG-1~AG-5) + 已完成 1 筆
+- DATA_SCOPE：+農業 section (7 layer 對照 + 3 踩坑)
+- GLOSSARY：+農業 section (14 條術語)
+- PLAYBOOKS：+PB-14 PMTiles 重出補欄位 SOP
+- PRINCIPLES：+「圖層 UX 四鐵則」章節（指向 docs）
+- INCIDENTS：+3 條（規則應用太狹隘 / Mapbox zoom expr / 0 = 未測）
+- REFLECTIONS：本篇
+- STATUS：重寫成 5/23 農業 Batch 1 完成狀態
+- docs/development-rules.md §4a：圖層 UX 四鐵則完整版
+- CLAUDE.md §5a：四鐵則摘要 + 連結
+- auto-memory `feedback_layer_ux_triad.md`：跨 session 自動載入版本
+
+### Skill 自身反省
+
+`/wrap-up` skill 本次用得很順，按 Stage 1-5 走沒問題。
+
+**唯一改善建議**：Stage 3 「保持精簡」原則我沒犯（沒 dump 完整 markdown 草稿），但
+**Stage 2 Analyze 時把「用戶連續 5 次糾正」獨立挑出來標星，是該流程目前沒明寫的
+最佳實踐**。建議下次 SKILL.md 可加：「**用戶糾正次數 ≥ 3 → 必寫 REFLECTIONS + INCIDENTS
+雙寫**」（一個是反省，一個是事件紀錄）。
+
+## 2026-05-24 消防分區（火災/分隊/消防栓 + 3D + 最新年度 layer）
+
+**做了**：新增 FIRE & RESCUE 分區（4 layer）；分隊階級視覺化（circle/光柱/漣漪依 cat 分大小 + InstancedMesh 3D）；散點/3D 獨立 toggle；最新年度火點 layer；火災火焰特效試做後依用戶要求移除。headed agent-browser 全程視覺驗收。
+
+**next-time rules**：
+1. **測 layer 先 All Off**（用戶明示）——已寫進 PB-15。混層時無法判讀單層顏色/大小。
+2. **WebGL/Mapbox 驗收一定 `--headed`**（headless 全黑），導航用 app 內建 Locations 城市預設別硬滾。
+3. **toggle 用 `find text label` 不要用 snapshot ref**（ref↔列對應不可靠）。
+4. **Mapbox 資料驅動 + zoom 表達式**：`["zoom"]` 只能在 interpolate/step 最上層，要乘 data 倍率就放進 stop 輸出。
+5. **commit 前查工作區是否混了別人的 WIP**：本次 overlayRegistry 混了用戶 wasteStopsStatic WIP，靠「Edit 還原該 hunk → commit fire-only → Edit 還原回 WIP」拆乾淨（`git add -p` 此環境不可用）。
+6. **HMR 期間的 hooks 錯誤先別當真**，full reload 複驗。
+
+## 2026-05-25 農企業登記 3 layer（零售/蔬果批發/批發市場）
+
+**做了**：接 taipei-gis-analytics 已 geocode 的 3 集公司登記（60,326 點）到 AGRICULTURE 區，
+3 獨立 toggle。選 overlayRegistry（非其他農業層的 factory），MapView 零改動。UX 四鐵則 + tsc 綠 +
+dev server 驗證 HTTP 200。
+
+**next-time rules**：
+1. **結構分歧先問再做**：1 合併層 vs 3 獨立層會改變整個成品形狀，用 AskUserQuestion 確認（用戶選 3 獨立）
+   再動工——省得做完才發現方向錯。資料被刻意切成 3 檔/3 slug 是個訊號但不等於前端就要 3 層，仍該問。
+2. **挑機制看資料量級**：大型 geojson 散點對照「同類最接近的既有層」（fireHydrants 70k 點）而非「同主題的層」
+   （其他農業層是 PMTiles/polygon，用 factory）。對照同量級同型態的前例，複製成本最低、踩坑最少。
+3. **exhaustive Record 有 3 張不只 1 張**：別只補 layerCatalog 的 LAYER_COLORS 就跑 tsc，
+   IconRailSidebar 圖示表 + FeatureInfoPanel HEADER_LABELS 同樣會 TS2739（已寫進 PRINCIPLES + INCIDENTS）。
+4. **perf 取捨主動標注不擅自分叉**：34MB eager 載入是真成本，但瘦身屬上游 SOP 的事——
+   標注給用戶/上游決定，比在前端偷改 artifact 更不會破壞跨 repo 契約。
+5. **跨 session 工作樹漂移**：wrap-up 時發現 BACKLOG 已有別 session 的結構審查 WIP + 工作樹冒出 fireIsochrone 層。
+   memory commit 只動 `.claude/memory/*`（`git add` 指定檔），STATUS 對不確定的他人 WIP 用「in-flight 非本 session」
+   指針帶過、不臆測細節。
+
+### /wrap-up skill 自身踩坑（2026-05-25）
+**index 已有他人 staged 變動時，`git add <file> && git commit` 會把整個 index 一起提交**。本次第一個
+memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + deckOverlay 刪除（7 files changed）。
+`git reset --soft HEAD~1` 退回後改用 **`git commit -m "..." -- <pathspec>`**（只提交指定檔、保留其他 staged 不動）修正。
+**SKILL.md 待補規則**：Stage 5 commit 前先 `git status` 看 index 是否已有他人 staged 變動；有就一律用
+`git commit -m ... -- <file>` pathspec 提交，**不要** `git add` + 裸 `git commit`。注意 `-m` 要在 `--` 之前。
+
+## 2026-05-26 救援等時圈（路網 5/10/15 分 + PMTiles + 全國聚合 + 屏東 geocode）
+
+**做了**：消防分隊救援等時圈。Mapbox Isochrone API 生成（原始回應快取）→ 環差分級 → 全國聚合 +
+各縣市兩套 → tippecanoe 切 PMTiles → factory 渲染 + 縣市 `<select>` setFilter。屏東 39 隊 geocode
+補齊（677→716，22 縣市全）。立 PB-16 + PRINCIPLES「大面積覆蓋圖層」段（用戶要求同類比照）。
+
+**next-time rules**：
+1. **大面積覆蓋多邊形（等時圈/服務範圍/可及性）一開始就選 PMTiles**，別先 GeoJSON 再為效能簡化到變醜——本次來回兩次（簡化→移描邊→才換 PMTiles）才換對工具。判準：覆蓋面廣 + 高頂點 + 全台級 → 直接 PMTiles factory。
+2. **「整體 vs 分區」聚合方式要先確認**：探索時我已標出 per-county 邊界會疊亂，卻沒主動做全國聚合，等用戶提才補。下次這種選擇主動 AskUserQuestion（全區一次 union vs 分區各自算）。
+3. **生成腳本一律快取原始 API 回應**：677 次 Isochrone call 快取後，調簡化/切片參數重跑是秒級、0 額度。外部 API 批次生成都該先做快取層。
+4. **多 PMTiles factory 並存**：SourceType 註冊 try/catch + ensure 排序保護（fire 在 agriculture 後）。
+5. 中介 GeoJSON 寫 gitignored `build/`，`public/` 只放出貨 `.pmtiles`。

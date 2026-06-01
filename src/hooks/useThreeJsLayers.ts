@@ -25,6 +25,8 @@ import { createLighthouseLayer } from "../map/lighthouseCustomLayer";
 import { createCombinedStationPillarLayer } from "../map/stationPillarCustomLayer";
 import { createTemperatureWaveLayer } from "../map/temperatureWaveCustomLayer";
 import type { TemperatureGridData } from "../data/temperatureLoader";
+import { createFireStationLayer } from "../map/fireStationCustomLayer";
+import type { FireStationScene } from "../three/FireStationScene";
 
 interface UseThreeJsLayersArgs {
   timeRef: React.RefObject<number>;
@@ -70,6 +72,9 @@ interface UseThreeJsLayersArgs {
     wasteOrbScale: React.RefObject<number>;
     wasteNoteSize: React.RefObject<number>;
     wasteNoteZOffset: React.RefObject<number>;
+    fireStationsScale: React.RefObject<number>;
+    fireStationsOpacity: React.RefObject<number>;
+    fireStations3D: React.RefObject<boolean>;
     wasteSubParams: React.RefObject<Record<WasteFacility3DKey, WasteFacilityLayerParams> | Record<string, WasteFacilityLayerParams>>;
     beamVisible: React.RefObject<boolean>;
     beamDistance: React.RefObject<number>;
@@ -113,6 +118,7 @@ export function useThreeJsLayers({
   const wasteScheduleNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
   const wasteFacilityScenesRef = useRef<WasteFacility3DScenes | null>(null);
   const wasteFacilityLayerRef = useRef<ReturnType<typeof createWasteFacilityLayer> | null>(null);
+  const fireStationSceneRef = useRef<FireStationScene | null>(null);
 
   const addFlightLayer = (map: MapboxMap) => {
     if (map.getLayer("flight-3d")) map.removeLayer("flight-3d");
@@ -360,6 +366,19 @@ export function useThreeJsLayers({
     map.addLayer(layer);
   };
 
+  const addFireStationLayer = (map: MapboxMap) => {
+    const id = "fire-station-3d";
+    if (map.getLayer(id)) map.removeLayer(id);
+    const layer = createFireStationLayer({
+      id,
+      getIsVisible: () => layerVisibilityRef.current.fireStations && paramRefs.fireStations3D.current,
+      getOpacity: () => paramRefs.fireStationsOpacity.current,
+      getScale: () => paramRefs.fireStationsScale.current,
+      onSceneReady: (scene) => { fireStationSceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
   const addAllLayers = (map: MapboxMap) => {
     addFlightLayer(map);
     addShipLayer(map);
@@ -372,6 +391,7 @@ export function useThreeJsLayers({
     addLighthouseLayer(map);
     addStationPillarLayer(map);
     addTemperatureWaveLayer(map);
+    addFireStationLayer(map);
   };
 
   return {
@@ -397,6 +417,8 @@ export function useThreeJsLayers({
     addLighthouseLayer,
     addStationPillarLayer,
     addTemperatureWaveLayer,
+    addFireStationLayer,
+    fireStationSceneRef,
     addAllLayers,
   };
 }

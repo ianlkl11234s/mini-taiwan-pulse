@@ -408,3 +408,153 @@ stops 序列下，spline 會 overshoot 飛出 p0-p1 直線兩側 → 視覺上�
 邏輯順序的 stops 用直線。
 
 <!-- 追加新事件於此之上 -->
+
+---
+
+## 2026-05-23 連續 5 次「圖層 UX 規則應用太狹隘」糾正
+
+**現象**：農業 Phase 3 Batch 1 部署過程中，用戶連續 5 次回饋指出 UX 缺漏，
+每次都是「我以為規則只覆蓋 X，原來也包含 Y」的範圍判斷錯誤。
+
+**糾正時間軸**：
+1. **作物適栽 4 級配色看不懂** → 規則 2「顏色標註差異」第一次踩坑（我以為單色 polygon
+   不必圖例，沒注意到 match by `kind` 已產生 4 色）
+2. **農村再生社區也要能點** → 規則 3「POI 點位」用詞太窄，誤以為 polygon 豁免；
+   擴充為「所有承載有意義屬性的 feature」
+3. **4 個 polygon layer 全部都要能點 + PMTiles keep_attrs 補欄位** → 規則 3 延伸到
+   跨 repo 配套（前 PMTiles 沒帶屬性 → 後 panel 拿到 undefined）
+4. **休閒農場 POI 三類也要圖例** → 規則 2 第二次踩坑，措辭從「顏色標註類別」強化為
+   「分類 ≥ 2 種」+ 三問檢核（我又以為 POI 點位只關心 click popup 可豁免圖例）
+5. **Sidebar 6 metric dropdown 用 button row 橫向溢出** → 規則 4 新增。
+   原 dropdown 門檻 `> 6` 太鬆，4+ 中文標籤就溢出 240px sidebar；改 `> 3`
+
+**根因**：
+- 規則寫得太抽象：「顏色標註差異」「POI 點位」這種詞讓 reviewer（我）有想像空間，
+  容易自我合理化「我這個 case 不算」
+- 應用時沒對著規則逐條逐字檢查，憑感覺判斷豁免
+- Sidebar 寬度視覺驗收沒做，純看 tsc -b 通過就放行
+
+**對策**（5 次後規則升級到 4 條 + 強化語氣）：
+- 規則 2 改寫「分類 ≥ 2 種就要圖例」+ 三問檢核（明確的可量化判斷）
+- 規則 3 擴充為「可選取物件」並列舉 POI / polygon / line / 3D
+- 規則 3 加跨 repo 配套段（PMTiles keep_attrs 必須先補齊）
+- 規則 4 新增「Select options ≥ 4 用 dropdown」（從 button row 橫向溢出反推門檻 = 4）
+
+**PRINCIPLES**：新增「圖層 UX 四鐵則」章節摘要 + 指向 `docs/development-rules.md#4a`。
+auto-memory `feedback_layer_ux_triad.md` 也升級為「連續四次反饋」版（跨 session 自動載入）。
+
+**教訓**：規則寫法的具體性 = 應用準確度。
+- ❌「顏色標註差異」→ 抽象，留有「差異」的解釋空間
+- ✅「分類 ≥ 2 種 → 必寫圖例」→ 可量化，無爭議
+
+下次寫規則時：**用數字 / 列舉具體 token，避免抽象形容詞**。
+
+---
+
+## 2026-05-23 FTW outline line-width Mapbox 表達式違反「zoom only top-level」約束
+
+**現象**：app 啟動立刻吐錯（console，但 layer 仍顯示）：
+> Error: layers.agri-ftw-fields-outline.paint.line-width: "zoom" expression may only
+> be used as input to a top-level "step" or "interpolate" expression
+
+**根因**：FTW outline 把 outlineWidth 倍率包在最外層：
+```ts
+["*", params.outlineWidth, ["interpolate", ["linear"], ["zoom"], 10, 0.2, 13, 0.6, 16, 1.2]]
+```
+Mapbox GL 規定 `["zoom"]` **只能直接放在最頂層的 `interpolate` / `step` 內**，
+不能被 `["*", ...]` 包住。
+
+**對策**：把倍率乘進 stops：
+```ts
+const w = params.outlineWidth;
+["interpolate", ["linear"], ["zoom"], 10, 0.2 * w, 13, 0.6 * w, 16, 1.2 * w]
+```
+
+Fill-opacity 用 `["*", opacity, ["interpolate", ..., ["coalesce", ["get", "confidence_mean"], 0.5], ...]]`
+不受此限制（input 是 attribute 不是 zoom），保留原樣。
+
+**INCIDENTS**：這是 FTW 既有 bug（pre-existing），但本 session 統一 ensureAll/updateAll
+之後 style.load 階段就會 call → 一上 app 立刻吐。修法簡單，但這類「runtime 表達式約束」
+tsc 不會抓，需要實機驗證才能看到 console error。
+
+---
+
+## 2026-05-23 soil_fertility 多數 grid CEC/M3 = 0 是未測非真零
+
+**現象**：點 soil_fertility 任一格，常看到 `CEC 0.00 / M3_P 0.00 / M3_K 0.00`，
+但 pH 跟 OM 有正常數值。
+
+**根因**：原始 parquet 中 134,998 grid 並非每格都做完整 5 項檢驗，**CEC/M3_P/M3_K
+在很多 grid 是 0**（未量測），不是真實「值為零」（自然土壤 CEC=0 幾乎不可能）。
+
+**對策**：
+- 前端 `agriSoilFertilityMetrics.ts` 把 `[==, [coalesce, [get, key], 0], 0]` 統一視為灰色 #616161
+  「無資料」
+- popup 註明「※ 0 值表示該項未測（多數網格只測 pH / OM）」
+- health 綜合算法只用 pH + OM 兩項（全 grid 都有），不會被 CEC/M3 missing 拖累
+
+**教訓**：拿到陌生資料集**先 EDA 看 null / 0 / missing 分佈**，不要假設「有欄位 =
+全格都有值」。tippecanoe 不會幫你區分 missing 跟 0，前端要自己處理。
+
+GLOSSARY 新增「0 = 未測」條目避免下次再踩。
+
+## 2026-05-24 消防分區 — 三個踩坑
+
+1. **Mapbox circle-radius 依資料分大小 → `["zoom"]` 表達式報錯**：想讓分隊 circle 半徑依
+   cat 分大小，寫成 `["*", ["match",cat,...], ["interpolate",["zoom"],...]]` → 噴
+   「"zoom" expression may only be used as input to a top-level "step"/"interpolate"」，
+   circle 整層沒渲染。**修**：`["zoom"]` 必須在 interpolate **最上層**，cat 倍率改放進
+   **每個 stop 的輸出**（`7, ["match",cat,大隊,b*1.8,...]`）。（與 97c9a86 那條 zoom expr 同類，再次踩。）
+
+2. **agent-browser sidebar toggle 用 ref 點錯層**：snapshot 的 `button [ref=eXX]` 與「列」
+   對應不可靠（點 e66 以為是消防分隊，其實開到「學校」，藍點誤判半天）。**改用
+   `find text "<label>" click`** 較準；測 layer 前**先 All Off**（用戶提醒）。
+
+3. **fast-refresh 假性 hooks 錯誤**：邊改 useTransportParams/App 邊開著頁面，console 跳
+   「Should have a queue / calling Hooks conditionally」「order of Hooks」。**乾淨 full reload
+   後完全消失** → 是 HMR 熱更新 hook 列表變動的假警告，非真 bug。判斷法：`errors --clear`
+   + full reload + 0 互動再看；還有就真、沒有就假。
+
+4. **commit 前發現 HEAD 不一致**：FeatureInfoPanel 的火災 panel 早先被夾進一個 CCTV commit
+   (96374f4)，但 fireTypes.ts 還 untracked → HEAD 一度 import 不存在的檔。補 commit 其餘 fire
+   檔才一致。**教訓**：commit 前 `git status` + 確認沒有「一半改動已 commit、一半還沒」。
+
+## 2026-05-25 農企業登記 3 layer — IconRailSidebar LAYER_ICONS 隱藏 exhaustive Record
+
+新增 layer 跑 `npx tsc -b` 噴 `IconRailSidebar.tsx(28,7): error TS2739 ... missing the
+following properties from type 'Record<keyof LayerVisibility, LucideIcon>': agriRetail,
+agriProduceWholesale, agriWholesaleMarket`。
+
+**根因**：CLAUDE.md「新增 Layer 強制順序」第 5 步只點名 `layerCatalog.ts` 的 `LAYER_COLORS`
+（`Record<keyof LayerVisibility, string>`），**漏寫** `IconRailSidebar.tsx` 內另有一個
+`Record<keyof LayerVisibility, LucideIcon>` 圖示表，同樣是 exhaustive Record，缺 key 即 TS2739。
+grep `LAYER_ICONS` 在 layerCatalog 找不到（它在 IconRailSidebar），易被漏。
+
+**修法**：在 IconRailSidebar import 補 lucide icon（`ShoppingCart` / `Warehouse`，`Truck` 已有）
+→ 圖示表加 3 key。手機版 `LayerSidebar.tsx` **沒有** per-key 圖示 Record（吃 SECTIONS 文字），
+所以只需改桌機那張。
+
+**教訓**：新增 layer 的「exhaustive Record」共有 **3 張**要同步——`LAYER_COLORS`（layerCatalog）、
+`IconRailSidebar` 圖示表、`FeatureInfoPanel` 的 `HEADER_LABELS`（`Record<FeatureInfo["layerType"]>`）。
+tsc -b 會逐一抓出，別只跑一次就以為過——補完一張再跑會冒下一張。
+
+## 2026-05-26 救援等時圈 — 大面積覆蓋 GeoJSON 兩難 + 分區疊加
+
+1. **大面積覆蓋多邊形用 GeoJSON：不簡化卡頓、簡化變醜**：全台等時圈聯集 GeoJSON 一次 eager load，
+   不簡化 10MB+ 高頂點 → pan 卡（line 描邊每幀最貴）；簡化到 0.004(~440m) 雖瘦到 1.9MB
+   但邊界鋸齒、用戶嫌醜。先試「移 outline 只留 fill + `fill-antialias:false`」緩解仍不夠。
+   **正解 = PMTiles 向量切片**（tippecanoe，依縮放/視窗 HTTP range request）→ 高細節 + 流暢兼得。
+   教訓：這類圖層**一開始就該選 PMTiles**，別走 GeoJSON 簡化來回（已立 PB-16 + PRINCIPLES）。
+
+2. **各縣市各自 dissolve 疊起來當「全台」會亂**：原本 coverage 只做 per-county 環差，全台視圖把
+   22 縣市的圈疊在一起 → 縣界接縫雜亂。用戶要求「全台要一次全國聚合」。**修**：生成時多算一組
+   「所有分隊一起 union」tag `county="全台"`，同層 setFilter 切換（idx0→全國聚合、其餘→單一縣市）。
+   原則：**全區 vs 分區要分開算、禁止疊加**。
+
+3. **PMTiles SourceType 重複註冊**：agriculture factory 已 `Style.setSourceType`，新 fireIsochrone
+   factory 再註冊會衝突。**修**：factory 自帶 `registerSourceTypeOnce` + **try/catch**，且 MapView
+   裡 fire ensure 排在 `ensureAllAgricultureLayers` **之後**（先註冊者成功、後者命中 already-registered 被吞）。
+
+4. **來源缺座標整批被跳過**：屏東 39 隊上游 `needs_geocoding`（只有地址）→ export 全跳過 →
+   fire_stations 缺屏東 → 等時圈也無。**修**：`geocode-pingtung-fire-stations.py` Mapbox v6
+   （country=tw + proximity + bbox 驗證丟界外）補座標，冪等附加回 geojson。0 失敗、677→716。

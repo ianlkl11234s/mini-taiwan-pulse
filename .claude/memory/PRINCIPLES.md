@@ -185,6 +185,58 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 
 可用 slash command `/new-layer <name>` 自動產生骨架。
 
+**3 張 exhaustive Record 必須同步補 key（缺一即 tsc TS2739/TS2739，2026-05-25 教訓）**：
+① `LAYER_COLORS`（`sidebar/layerCatalog.ts`，`Record<keyof LayerVisibility>`）
+② `IconRailSidebar.tsx` 圖示表（`Record<keyof LayerVisibility, LucideIcon>`，**不在 layerCatalog，易漏**；
+   手機 `LayerSidebar` 吃 SECTIONS 文字無此 Record）
+③ `FeatureInfoPanel.tsx` 的 `HEADER_LABELS`（`Record<FeatureInfo["layerType"]>`，有接 popup 才需）。
+tsc -b 一張一張抓，補完再跑會冒下一張。
+
+**機制選擇（第 4 步）**：大型 geojson 散點（>數 MB，如 fireHydrants 70k 點 / 農企業登記 60k 點）
+走 **`overlayRegistry`**（宣告式，generic overlay loop 自動處理 visibility/theme/params，**MapView 完全不用改**）；
+小型或需特殊渲染（PMTiles / 3D / 客製 paint）才用 `agricultureLayerFactory` 之類 factory。
+同一分區（如 AGRICULTURE）**可混用兩種機制**——分區歸屬只看 `layerCatalog.ts` SECTIONS，與渲染機制無關。
+
+**前端 artifact 瘦身在上游做**：`public/*` 是 gitignore→S3 的 deploy artifact。座標精度過高 / 冗欄位
+要瘦身應改 `taipei-gis-analytics` 上游 export（保持 manifest / gis-data-onboard SOP 契約一致），
+**不要在前端 repo 偷偷分叉**（下次 SOP 直拷會覆蓋）。
+
+## 圖層 UX 四鐵則（⚠ P0，2026-05-23 加）
+
+任何新 layer 必須**同時**通過四條，缺一不可。違反 reviewer 應退件。
+**詳細 rationale + 範例見 `docs/development-rules.md#4a`，本檔僅摘要**。
+
+1. **透明度 slider 必備** — `useTransportParams.ts` 加 opacity slider
+2. **分類 ≥ 2 種 → 必寫圖例** — paint 用 `match` / `step` / `interpolate by 屬性`
+   分出 2+ 顏色時，**必須**在 `src/components/LegendPanel.tsx` 加 sub-component。
+   類型表抽到 `src/data/xxxTypes.ts` 給 factory paint / FeatureInfoPanel / LegendPanel
+   三處共用（範例：`agriPOITypes.ts` / `agriSoilFertilityMetrics.ts`）
+3. **可選取物件 → 必接 click popup** — POI / polygon / line 凡點下去能講出資訊
+   就要接：`useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
+   `FeatureInfoPanel.tsx` 加 sub-panel。`GIS_LAYERS` 是 first-hit-wins → 細節小範圍排前面、
+   大背景排後面。PMTiles `keep_attrs` 必須先補齊（見 PB-14）否則 panel 拿到 undefined
+4. **Select control options ≥ 4 → 原生 `<select>` dropdown** —
+   `LayerSidebar` / `IconRailSidebar` 內 `ctrl.options.length > 3` 自動切。
+   中文標籤 4 個就溢出 240px sidebar。Layer 多參數時用 dropdown 切 "mode"
+   而非並排多個 slider（範例：土壤肥力 6 metric → 一個 dropdown）
+
+豁免條件：純單色 + opacity 由 attribute 自動調節（如 FTW confidence_mean） →
+可豁免「圖例」。若 polygon 單格無實用屬性（如 FTW 田區僅 confidence） →
+可豁免「click popup」。其他情況一律接，select 無豁免。
+
+## 大面積覆蓋／等時圈圖層（⚠ P0，2026-05-26 加）
+
+「等時圈 / 服務範圍 / 可及性分析」等**大面積高頂點覆蓋多邊形**，一律照 **PB-16** 做，重點：
+
+1. **用 PMTiles 向量切片，不要 GeoJSON overlay** — GeoJSON 要麼大（pan 卡）要麼簡化變醜；
+   PMTiles 依縮放/視窗 range request 分級載入，又清晰又順。前端走 factory（仿 `agricultureLayerFactory`），不走 overlayRegistry。
+2. **「全區」與「分區」分開算，禁止把各分區 dissolve 疊起來當全區**（縣界會亂）：
+   全區=所有點一起 union（無接縫），分區=區內各自 dissolve，同層用屬性 + `setFilter` 切換。
+3. **分級用環差（ring-difference）** → 單一 fill layer 不重疊上色。
+4. **門檻時間查官方 KPI**（消防署 10 分到場率 / NFPA 4 分），別隨意定。
+5. **路網等時圈** = Mapbox Isochrone API + 原始回應磁碟快取 + 「保守估計」標註；**來源缺座標先 geocode 補**。
+6. 中介 GeoJSON 進 gitignored `build/`，`public/` 只放 `.pmtiles`。
+
 ## 視覺層 debug（2026-04-22 教訓）
 
 - **Mapbox custom layer 掛載用 polling，不要 `map.once('load')`**

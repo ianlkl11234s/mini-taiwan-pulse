@@ -722,6 +722,416 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // ── CCTV (道路 CCTV 攝影機，~6,129 點) ──
+  // source 分色：freeway 橙 / highway 黃 / city 青
+  {
+    id: "cctv",
+    sourceUrl: "./geo/cctv.geojson",
+    sourceId: "cctv",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.cctvScale ?? 1;
+          const opacity = p?.cctvOpacity ?? 0.7;
+          const z = p?.cctvZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 1.5 * scale, 11, 4 * scale, 14, 8 * scale, 17, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "source"],
+              "freeway", "#ff9800",
+              "highway", "#ffd54f",
+              "city", "#26c6da",
+              "#26c6da",
+            ] as unknown as string,
+            "circle-opacity": (isDark ? 0.15 : 0.18) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.cctvScale ?? 1;
+          const opacity = p?.cctvOpacity ?? 0.7;
+          const z = p?.cctvZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 0.6 * scale, 11, 1.4 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": [
+              "match", ["get", "source"],
+              "freeway", "#ff9800",
+              "highway", "#ffd54f",
+              "city", "#26c6da",
+              "#26c6da",
+            ] as unknown as string,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 0, 11, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 消防分隊 (全台 22 縣市，677 點) ──
+  // cat 分色：大隊 深紅 / 分隊 紅 / 分駐所 橘 / 其他 灰
+  {
+    id: "fireStations",
+    sourceUrl: "./geo/fire_stations.geojson",
+    sourceId: "fire-stations",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.fireStationsScale ?? 1;
+          const opacity = p?.fireStationsOpacity ?? 0.85;
+          const z = p?.fireStationsZ ?? 0;
+          // 半徑依階級分大小（大隊最大 → 分駐所/其他 最小）。
+          // 注意：["zoom"] 必須在 interpolate 最上層，cat 倍率要放進每個 stop 的輸出（match）。
+          const catR = (b: number) => [
+            "match", ["get", "cat"],
+            "大隊", b * 1.8, "分隊", b * 1.2, "分駐所", b * 0.85, b * 0.6,
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, catR(2 * scale), 11, catR(5 * scale), 14, catR(9 * scale), 17, catR(14 * scale),
+            ] as unknown as number,
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "cat"],
+              "大隊", "#b71c1c",
+              "分隊", "#e53935",
+              "分駐所", "#ff7043",
+              "#bdbdbd",
+            ] as unknown as string,
+            // 散點 toggle 關閉 → opacity 0（仍可被 queryRenderedFeatures 命中 → popup 照常）
+            "circle-opacity": (isDark ? 0.16 : 0.2) * opacity * (p?.fireStationsDots ?? 1),
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.fireStationsScale ?? 1;
+          const opacity = p?.fireStationsOpacity ?? 0.85;
+          const z = p?.fireStationsZ ?? 0;
+          const dots = p?.fireStationsDots ?? 1;
+          const catR = (b: number) => [
+            "match", ["get", "cat"],
+            "大隊", b * 1.8, "分隊", b * 1.2, "分駐所", b * 0.85, b * 0.6,
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, catR(1 * scale), 11, catR(2.2 * scale), 14, catR(4 * scale), 17, catR(6.5 * scale),
+            ] as unknown as number,
+            "circle-color": [
+              "match", ["get", "cat"],
+              "大隊", "#b71c1c",
+              "分隊", "#e53935",
+              "分駐所", "#ff7043",
+              "#bdbdbd",
+            ] as unknown as string,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.9)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 0, 11, 0.5, 14, 1,
+            ],
+            "circle-opacity": opacity * dots,
+            "circle-stroke-opacity": dots,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 消防栓 (僅臺北市 + 高雄市，69,839 點) ──
+  // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → minzoom 12 控密度
+  {
+    id: "fireHydrants",
+    sourceUrl: "./geo/fire_hydrants.geojson",
+    sourceId: "fire-hydrants",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        minzoom: 12,
+        paint: (isDark, p) => {
+          const scale = p?.fireHydrantsScale ?? 1;
+          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const z = p?.fireHydrantsZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              12, 1.5 * scale, 15, 4 * scale, 18, 8 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "cat"],
+              "地上式", "#2196f3",
+              "地下式", "#00acc1",
+              "#90a4ae",
+            ] as unknown as string,
+            "circle-opacity": (isDark ? 0.14 : 0.18) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 12,
+        paint: (isDark, p) => {
+          const scale = p?.fireHydrantsScale ?? 1;
+          const opacity = p?.fireHydrantsOpacity ?? 0.7;
+          const z = p?.fireHydrantsZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              12, 0.8 * scale, 15, 2 * scale, 18, 4.5 * scale,
+            ],
+            "circle-color": [
+              "match", ["get", "cat"],
+              "地上式", "#2196f3",
+              "地下式", "#00acc1",
+              "#90a4ae",
+            ] as unknown as string,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              12, 0, 15, 0.4, 18, 0.8,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // 救援等時圈 coverage 已改用 PMTiles 向量切片（src/map/fireIsochroneLayerFactory.ts），
+  // 不走 overlayRegistry。理由：GeoJSON 全台高頂點多邊形要麼大要麼簡化變醜，
+  // PMTiles 依縮放/視窗分級載入，又清晰又流暢。
+
+  // ── ETC Gantry (國道收費門架，341 點) ──
+  {
+    id: "etcGantry",
+    sourceUrl: "./geo/etc_gantry.geojson",
+    sourceId: "etc-gantry",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.etcGantryScale ?? 1;
+          const opacity = p?.etcGantryOpacity ?? 0.8;
+          const z = p?.etcGantryZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2 * scale, 10, 5 * scale, 14, 10 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#f06292" : "#c2185b",
+            "circle-opacity": (isDark ? 0.18 : 0.2) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.etcGantryScale ?? 1;
+          const opacity = p?.etcGantryOpacity ?? 0.8;
+          const z = p?.etcGantryZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1 * scale, 10, 2.2 * scale, 14, 4 * scale,
+            ],
+            "circle-color": isDark ? "#f06292" : "#c2185b",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.4, 14, 0.7,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Service Area (國道服務區，22 點) ──
+  {
+    id: "serviceArea",
+    sourceUrl: "./geo/service_area.geojson",
+    sourceId: "service-area",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.serviceAreaScale ?? 1.4;
+          const opacity = p?.serviceAreaOpacity ?? 0.85;
+          const z = p?.serviceAreaZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 4 * scale, 10, 9 * scale, 14, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#4db6ac" : "#00897b",
+            "circle-opacity": (isDark ? 0.2 : 0.25) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.serviceAreaScale ?? 1.4;
+          const opacity = p?.serviceAreaOpacity ?? 0.85;
+          const z = p?.serviceAreaZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2 * scale, 10, 4 * scale, 14, 7 * scale,
+            ],
+            "circle-color": isDark ? "#4db6ac" : "#00897b",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.35)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.3, 10, 0.6, 14, 1,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Service Area Polygon (國道服務區範圍，19 面) ──
+  {
+    id: "serviceAreaPolygon",
+    sourceUrl: "./geo/service_area_polygon.geojson",
+    sourceId: "service-area-polygon",
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (isDark, p) => {
+          const opacity = p?.serviceAreaPolygonOpacity ?? 0.2;
+          return {
+            "fill-color": isDark ? "#4db6ac" : "#00897b",
+            "fill-opacity": isDark ? opacity : opacity * 1.3,
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark, p) => {
+          const width = p?.serviceAreaPolygonLineWidth ?? 1.5;
+          return {
+            "line-color": isDark ? "#4db6ac" : "#00897b",
+            "line-width": width,
+            "line-opacity": isDark ? 0.6 : 0.75,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Taxi Stand (計程車招呼站，224 點) ──
+  {
+    id: "taxiStand",
+    sourceUrl: "./geo/taxi_stand.geojson",
+    sourceId: "taxi-stand",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.taxiStandScale ?? 1;
+          const opacity = p?.taxiStandOpacity ?? 0.8;
+          const z = p?.taxiStandZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 2 * scale, 12, 6 * scale, 16, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#ffd54f" : "#f9a825",
+            "circle-opacity": (isDark ? 0.18 : 0.2) * opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.taxiStandScale ?? 1;
+          const opacity = p?.taxiStandOpacity ?? 0.8;
+          const z = p?.taxiStandZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 1 * scale, 12, 2.5 * scale, 16, 5 * scale,
+            ],
+            "circle-color": isDark ? "#ffd54f" : "#f9a825",
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.35)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 0, 12, 0.4, 16, 0.7,
+            ],
+            "circle-opacity": opacity,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
   // ── Submarine Cables (通訊海纜) ──
   // cable_type 分色：國際幹線 藍、海峽專線 紅、離島連接 綠、中國境內 橘、規劃中 灰
   {
@@ -1329,6 +1739,54 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 滯洪池 Detention Basin（防洪儲水池，56 點：tainan 45 + taoyuan 11）──
+  {
+    id: "waterDetentionBasins",
+    sourceUrl: "./geo/water_detention_basins.geojson",
+    sourceId: "water-detention-basins",
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.detentionBasinScale ?? 1;
+          const opacity = p?.detentionBasinOpacity ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 4 * scale,
+              12, 9 * scale,
+              16, 14 * scale,
+            ],
+            "circle-color": "#0284c7",
+            "circle-blur": 1.2,
+            "circle-opacity": (isDark ? 0.45 : 0.35) * opacity,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.detentionBasinScale ?? 1;
+          const opacity = p?.detentionBasinOpacity ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 2 * scale,
+              12, 4 * scale,
+              16, 6 * scale,
+            ],
+            "circle-color": "#0284c7",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.5)",
+            "circle-stroke-width": 0.8,
+            "circle-opacity": 0.95 * opacity,
+          };
+        },
+      },
+    ],
+  },
+
   // ── 水利設施 Facility (抽水/淨水/水塔) ──
   {
     id: "waterFacilities",
@@ -1474,6 +1932,148 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           ],
           "circle-opacity": 0.9,
         }),
+      },
+    ],
+  },
+
+  // ── Waste Stops Static (全台清運點位散點) ──
+  {
+    id: "wasteStopsStatic",
+    sourceUrl: "./geo/waste_stops_static.geojson",
+    sourceId: "waste-stops-static",
+    layers: [
+      {
+        suffix: "waste-stops-glow",
+        type: "circle",
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.wasteStopsStaticScale ?? 1;
+          const glow = p?.wasteStopsStaticGlow ?? 0.10;
+          const z = p?.wasteStopsStaticZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.3 * scale,
+              9, 0.6 * scale,
+              11, 1 * scale,
+              14, 2 * scale,
+              17, 3.5 * scale,
+            ],
+            "circle-blur": 0.6,
+            "circle-color": isDark ? "#fbbf24" : "#d97706",
+            "circle-opacity": isDark ? glow : Math.min(1, glow * 1.8),
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+      {
+        suffix: "waste-stops-fill",
+        type: "circle",
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.wasteStopsStaticScale ?? 1;
+          const z = p?.wasteStopsStaticZ ?? 0;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.25 * scale,
+              9, 0.4 * scale,
+              11, 0.6 * scale,
+              14, 1.2 * scale,
+              17, 2.2 * scale,
+            ],
+            "circle-color": isDark ? "#fbbf24" : "#d97706",
+            "circle-opacity": isDark ? 0.6 : 0.75,
+            "circle-stroke-width": 0,
+            "circle-translate": [0, -z],
+            "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 農企業登記 (spatial.agri_business_registrations，business_type 區分 3 類) ──
+  // 顏色與 src/data/agriCompanyTypes.ts 對齊；零售/批發點多 → minzoom 8 控密度
+  {
+    id: "agriRetail",
+    sourceUrl: "./agriculture/agri_retail_companies.geojson",
+    sourceId: "agri-retail",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 8,
+        paint: (isDark, p) => {
+          const scale = p?.agriRetailScale ?? 1;
+          const opacity = p?.agriRetailOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 1.4 * scale, 12, 3 * scale, 16, 6 * scale,
+            ],
+            "circle-color": "#e91e63",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 8, 0, 12, 0.4, 16, 0.8],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "agriProduceWholesale",
+    sourceUrl: "./agriculture/produce_wholesale_companies.geojson",
+    sourceId: "agri-produce-wholesale",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 8,
+        paint: (isDark, p) => {
+          const scale = p?.agriProduceWholesaleScale ?? 1;
+          const opacity = p?.agriProduceWholesaleOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 1.4 * scale, 12, 3 * scale, 16, 6 * scale,
+            ],
+            "circle-color": "#3f51b5",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 8, 0, 12, 0.4, 16, 0.8],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "agriWholesaleMarket",
+    sourceUrl: "./agriculture/agri_wholesale_market_companies.geojson",
+    sourceId: "agri-wholesale-market",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.agriWholesaleMarketScale ?? 1;
+          const opacity = p?.agriWholesaleMarketOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 3 * scale, 10, 5 * scale, 14, 8 * scale,
+            ],
+            "circle-color": "#ffd600",
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.45)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.6, 14, 1.4],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
       },
     ],
   },

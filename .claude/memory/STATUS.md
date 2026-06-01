@@ -1,216 +1,169 @@
 # Status
 
-**最後更新**：2026-05-12（22 城 hwms 上線 + BL-22 OSRM 升級 + Geocoding pipeline 方法論文件）
-**分支**：`feat/historical-mode`（本機領先 master **41+ commits**）
+**最後更新**：2026-05-26（消防救援等時圈上線：PMTiles + 全國聚合 + 縣市 filter；屏東 geocode 補齊）
+**分支**：`feat/fire-rescue`（5/24 從 `feat/water-extensions` 切出）
 
-## 5/12 完成（22 城 + OSRM + Round 4 prep + pipeline doc）
+## ⭐ 當前狀態
 
-```
-42b2b1b memory: BACKLOG BL-23 補完整 Round 4 流程 5 步驟
-6133c60 memory: BACKLOG BL-22 done + 移除 BL-20 + 加 BL-23
-07d6ddd feat(waste-schedule): tooltip 標示推算 schedule
-ab6831f feat(waste): RPC 對 hwms flat schedule 推算合理時間 (083)
-98909ae fix(waste): RPC seq 排序 + spread within 60s (081+082)
-57b2208 fix(waste-schedule): tooltip 班次切換 threshold 對齊
-c6f3018 feat(waste-schedule): 預設改 22 城 (ALL_22_CITIES)
-... + 22 城 import flow + OSRM 升級 (gis-platform 084+085)
-... + Round 4 normalize batch (taipei-gis-analytics 94549ee)
-... + Geocoding pipeline doc (今天 in progress)
-```
+### 消防 FIRE & RESCUE（5/24 本 session 主軸）
 
-### 目前進度（spatial.waste_collection_stops）
+新增獨立「消防」分區，把既有 `fireEvents` 從 HAZARD 移入，再加 2 個 POI 層 + 火焰特效。
 
-- stops 77K → **182,014**（5 城既有 + 17 城 hwms）
-- routes 2K → **6,739**
-- 18 城（缺 新竹市/嘉義市/金門/連江 4 城 0% coverage）
-- coverage: **70%** (216,768 / 308,129)
+| Layer | 來源 | 圖例 | Popup | 備註 |
+|---|---|---|---|---|
+| `fireEvents` | Supabase RPC `get_fire_events_by_year`（111~113 約 4.8 萬）| ✅ 傷亡分級 | ✅ 起火原因/死傷/時間 | 2D circle；本 session 補 popup；**僅歷史模式**（火焰特效 5/24 加後又依用戶要求移除）|
+| `fireLatest` | 同 RPC 取最新年（113）| ✅（共用） | ✅（共用 FireEventPanel）| 5/24 追加：最新年度火點，**任何模式可見**、不需時間軸；純 2D circle |
+| `fireStations` | 靜態 **716** 點（全台 **22** 縣市，5/26 補屏東 39 隊 geocode）| ✅ 大隊/分隊/分駐所/其他 | ✅ 隊名/類型/電話/地址 | circle 半徑+3D 光柱高度+漣漪半徑**依階級分大小**；展開面板 2 toggle（散點 / 3D 光柱波動）獨立開關 |
+| `fireHydrants` | 靜態 69,839 點（⚠️ 僅臺北市+高雄市）| ✅ 地上/地下式+覆蓋註 | ✅ 型式/行政區 | `public/geo/fire_hydrants.geojson` 12.8MB，minzoom 12 |
+| `fireIsochrone` | **PMTiles** `public/fire/fire_isochrone_coverage.pmtiles`（9.3MB，向量切片）| ✅ 5/10/15 分分級 | ✅ 縣市/可達時間/面積 | 路網救援等時圈（黃金救援 5/10/15 分）；**全國聚合 + 各縣市兩套**，縣市 `<select>` 下拉 setFilter 切換；factory `fireIsochroneLayerFactory.ts`；**詳細 SOP 見 PB-16** |
 
-### 5/12 next：Geocoding Pipeline Stage 4-6
+**火災 Three.js 火焰特效 — 已移除**（5/24 用戶要求）：曾做 `FireBlazeScene`+`fireBlazeCustomLayer`（火焰柱+GPU 火星粒子+視野裁切），後依用戶決定拿掉，火災回歸純 2D circle。**消防分隊的 3D 光柱/漣漪保留**（那是 `FireStationScene`，與火災無關）。
 
-詳見 [`docs/research/geocoding-pipeline.md`](../../docs/research/geocoding-pipeline.md)
+**消防分隊 3D（保留）**：`FireStationScene` InstancedMesh 光柱（高度依階級）+ caps + 同步擴張漣漪；展開面板 2 toggle（散點 / 3D 光柱波動）獨立開關。
 
-**Nominatim 實測**（2026-05-12）：
-- ✅ landmark「彰化縣花壇國小」找到 (24.0264, 120.5438)
-- ❌ 路口「○○巷與○○路口」0 hit
-- ❌ 離島「金門縣金沙鎮環島東路」0 hit
-- ❌ 一般門牌「彰化縣彰化市三民路129號」0 hit
-- 結論：**只對 landmark POI 有效**，intersection/offshore/門牌都退 Stage 6 內插
+**驗收（headed agent-browser，真實 GPU）**：tsc -b 綠 ✅；分隊紅點+光柱+漣漪 ✅；圖例（含覆蓋註）✅；歷史模式火災載入 ✅；火點 popup（士林/菸蒂/2024-12-22）✅；fireLatest 即時模式 2D 圓點 ✅。
 
-**To-do（3 天工程）**：
+**資料來源**：`taipei-gis-analytics/data/processed/fire/`（分隊 stations_*.csv、消防栓 hydrants.csv）。
+轉檔腳本 `scripts/export/export_fire_pois.py`。⚠️ 屏東縣分隊 39 點上游缺座標被跳過（677/717）。
+**待辦**：跑 `upload-deploy-assets.sh` 推 2 個 geojson 到 S3。
 
-| Stage | 工程 | 預計補 | 狀態 |
-|---|---|---:|---|
-| 3 Round 4 TGOS | 0（等用戶手動上傳 day_008+009）| 8-12K | day batch 已產出 |
-| 4a 學校 fuzzy match | 半天 | 1-2K | 待做 |
-| 4b Foursquare POI category | 半天 | 2-3K | 待做 |
-| 4c Nominatim POI fallback (中斷可續) | 1-2hr 執行 | 1-2K | 待做 |
-| 6 Route interpolation | 1 天 | 15-25K | 待做 |
-| 7 整合 + 達成率報表 | 半天 | - | 待做 |
+### 農企業登記 3 layer（5/25 接線完成）
 
-**Target coverage**：70% → **≥90%**（補 ~60K）
+接 taipei-gis-analytics 已 geocode 的 3 集公司登記散點到 **AGRICULTURE 區**，3 個獨立 toggle。
 
-## 5/11 完成（schedule UX polish）
+| Layer | business_type | 點數 | 色 | minzoom |
+|---|---|---|---|---|
+| `agriRetail` | retail | 37,430 | #e91e63 桃紅 | 8 |
+| `agriProduceWholesale` | produce_wholesale | 22,843 | #3f51b5 靛藍 | 8 |
+| `agriWholesaleMarket` | wholesale_market | 53 | #ffd600 鮮黃 | 6 |
 
-```
-fe9a561 memory: GLOSSARY 更新 Schedule layer 視覺
-54452c2 feat(waste-schedule): 主 toggle 改 expandable
-1ee5e5e feat(waste-schedule): 改琥珀色 + 加音符 + 音符獨立 toggle
-```
+- **走 `overlayRegistry`（非其他農業層的 `agricultureLayerFactory`）** — 大型 geojson 散點比照 fireHydrants，MapView 零改動。
+- 色/標籤 SSOT = 新建 `src/data/agriCompanyTypes.ts`；UX 四鐵則齊（opacity+scale slider / 合併圖例 `AgriCompanyLegend` / click popup `AgriCompanyPanel` / 控制項 2 個免 dropdown）。popup bracket notation 讀中文欄位。補了 IconRailSidebar 隱藏 `LAYER_ICONS` Record（TS2739，見 INCIDENTS/PRINCIPLES）。
+- **已驗證**：`npx tsc -b` 綠 ✅；dev server 起得來；3 資產 HTTP 200（21MB/13MB/30KB）；business_type 值與型別表吻合。
+- **待辦（AG-6）**：⏳ browser 驗收（先 All Off）/ ⏳ S3 deploy 3 geojson / ⏳ Supabase import `spatial.agri_business_registrations`（overwrite）/ ⏳ 程式 commit。
+- ⚠️ ~34MB eager 載入；瘦身（座標 17 位小數 + 冗欄位）**在 taipei-gis-analytics 上游做**別在前端分叉。
 
-- WASTE_SCHEDULE_COLOR `#a78bfa` (淡紫) → `#fbbf24` (琥珀) — 跟 GPS 一致
-- wasteScheduleCustomLayer 加 WasteMusicNoteScene 子場景 — 全部 visible 車噴音符
-- 新 `wasteScheduleNote` LayerVisibility 獨立 sub-toggle（默認 on）
-- wasteSchedule 主 toggle 加 `expandable: true`，展開後 3 個 slider（光點大小 / 音符大小 / 音符高度），共用 GPS 的 paramRefs（wasteOrbScale / wasteNoteSize / wasteNoteZOffset）
+### 農業（5/23 前 session）
 
-視覺結果：schedule + GPS 兩圖層風格統一，疊在一起看「表定 vs 實際」誤差超直觀。
+| Layer | 來源 | 圖例 | Click popup | 備註 |
+|---|---|---|---|---|
+| `agriculture` (FTW Fields) | 38.6 萬田區 | — | — | 既有；單色 confidence opacity |
+| `agriSoil` | 5.7 萬土壤分類 | — | ✅ | 8 欄屬性（土類/土系/土型...）|
+| `agriSoilFertility` | 13.5 萬肥力 250m | **✅ 6 metric 切換** | ✅ 含分級註解 | health/pH/OM/CEC/M3_P/M3_K dropdown |
+| `agriLeisureFarmZones` | 109 法定休農區 | — | ✅ | 休區名/代碼 |
+| `agriRuralRegen` | 1,109 農村再生 | — | ✅ | 社區名/計畫/行政區 |
+| `agriCropSuitability` | 83.3 萬作物適栽 | ✅ 4 級 kind | ✅ | 132 種作物 dropdown |
+| `agriPOI` | 840 三類 POI | ✅ 3 類 | ✅ | 休農場/田媽媽/特色農旅 |
+| `agriRetail` / `agriProduceWholesale` / `agriWholesaleMarket` | 60,326 公司登記 | ✅ 合併 3 類 | ✅ | 5/25 加，見上節 |
 
-## 5/10 commit chain（前一晚）
+部署：`public/agriculture/` ~215MB + 公司登記 ~34MB（gitignore，走 S3 deploy-assets）
 
-```
-c6b330e memory: BACKLOG schedule done
-a9e850f memory: DATA_SCOPE 廢棄物更新
-d2428fb memory: PLAYBOOKS +PB-13 大集合 RPC SOP
-3f9a81d memory: GLOSSARY +Schedule 動畫章節
-85acaea memory: REFLECTIONS +1 篇
-71ce8a3 memory: PRINCIPLES +grouped JSONB pattern
-a435658 memory: INCIDENTS +2
-304fcff fix(waste-schedule): 視覺打磨收尾 + grouped RPC + OSRM plan
-448bd20 fix(waste): 079 grouped JSONB（gis-platform repo）
-d6e9ef2 feat(waste): 表定動畫圖層 wasteSchedule 上線（5 城 + 60x 視覺打磨）
-86dd94f docs+memory(waste): Phase 3 prototype 提前
-...
-```
+### 圖層 UX 鐵則升級到 4 條（⚠ P0）
 
-## 5/10 晚 session 完成（兩階段）
+1. 透明度 slider 必備
+2. 分類 ≥ 2 種 → 必寫圖例（單一資料源 `src/data/xxxTypes.ts`）
+3. 可選取物件 → 必接 click popup（GIS_LAYERS first-hit-wins + PMTiles `keep_attrs` 配套）
+4. Select options ≥ 4 → 原生 `<select>` dropdown
 
-### 階段 A：Phase 3 prototype 上線（commit d6e9ef2 + 2cc67b7）
+詳見 `docs/development-rules.md#4a` + `PRINCIPLES.md` 摘要 + auto-memory
+`feedback_layer_ux_triad.md`。
 
-5 城（高雄/新北/宜蘭/臺北/基隆）77K stops 直接做表定動畫，**不等 TGOS callback**：
+### 廢棄物（前 sessions 進度，仍為 supabase 主軸）
 
-- `gis-platform/migrations/079_waste_schedule_rpc.sql` — `get_waste_schedule_day(cities, dow)`
-- `src/data/wasteScheduleLoader.ts` + `src/hooks/useWasteScheduleLayer.ts`（dow 驅動，subscribeDate 跟 timeline 連動）
-- `src/three/WasteScheduleScene.ts` — InstancedMesh 動畫
-- `src/map/wasteScheduleCustomLayer.ts` + `useThreeJsLayers` 整合
-- LayerVisibility 加 `wasteSchedule` toggle（淡紫 #a78bfa，跟 GPS 琥珀分色）
-- Picking + debug tooltip：點車看 route_id / stop / arrival / departure / gap
+| 指標 | 值 |
+|---|---:|
+| supabase `spatial.waste_collection_stops` | **271,460** |
+| supabase `spatial.waste_collection_routes` | **8,192** |
+| 城市覆蓋 | **22 城全到齊**（含金門 525、連江 79）|
+| hwms_pending 整體 coverage | **89.6%** (276K / 308K) |
+| 仍 miss | 32,010 (10.4%) |
 
-### 階段 B：視覺打磨 7 方案 try-error + grouped RPC（commit 304fcff + 448bd20）
+前端：wasteSchedule（22 城表定）、wasteTruck（GPS）、wasteStopsStatic（5/14 加靜態 233K 點散點）。
 
-7 方案 try-error 後收斂的設計：
-
-| 方案 | 結果 |
-|---|---|
-| 1. 移除 alpha/size 切換 | ✅ 解眼睛痛 |
-| 2. Trip-break detection (gap > 1500s) | ✅ 班次切換 fade out/invisible/fade in |
-| 3. 短 dwell 持續移動 / 長 dwell 真停 | ✅ 解 dwell=0 過站不停 |
-| 4. Catmull-Rom 平滑 | ❌ 拿掉（spline 對非真實軌跡 overshoot 反向）|
-| 5. Distance threshold fade | ❌ 拿掉（切段不解視覺速度問題）|
-| 6. TRIP_BREAK_S 600 → 1500 | ✅ 解林口（地廣山坡 stops gap median 600s） |
-| 7. **Grouped JSONB RPC** | ✅ **解 PostgREST 20K row cap，林口/北投/高雄全現身** |
-
-### 階段 B 最關鍵教訓：撞 PostgREST 20K cap 第二次
-
-GLOSSARY 早寫了 migration 063 timeline 字串編碼是「避 PostgREST 20K cap」的 pattern，PRINCIPLES 也有 ⚠ P0 章節。**但設計新 RPC 時沒先看**，沿用 flat row 39K stops 設計就撞牆。
-
-修法：grouped per-route，stops 為 JSONB array。39K rows → 1281 rows。
-
-## 5 城 schedule routes 統計（dow=4 週四 active）
-
-| 城 | routes | stops | LineString 覆蓋 |
-|---|---|---|---|
-| 新北 | 579 | 23,280 | 100%（649 條）|
-| 高雄 | 360 | 8,870 | 99.6%（752/755）|
-| 臺北 | 187 | 4,010 | **0%**（待 OSRM 補）|
-| 宜蘭 | 75 | 1,726 | **0%**|
-| 基隆 | 63 | 1,079 | **0%**|
-| **合計** | **1,281** | ~39K | 1401/1281 = 109% |
-
-## 視覺設計參數（給 60x 倍速調校）
-
-```ts
-TRIP_BREAK_S      = 1500;  // 25min 才算班次切換（板橋 60s vs 林口 600s 差 10x）
-DWELL_THRESHOLD_S = 120;   // 2min：短 dwell 整段持續移動 / 長 dwell 真停
-FADE_DURATION_S   = 180;   // 60x 下 3 視覺秒 fade
-MIN_MOVE_S        = 60;    // gap=0 從 dwell 借時間
-ACTIVE_ALPHA      = 1.0;   // 執勤中 alpha + size 不切換
-maxInstances      = 20000; // 22 城擴展 buffer
-```
-
-## 下次 session 必做
-
-### Track B Phase 1.5：OSRM 整合（BL-17，2.5-3 天）
-
-詳見 [`docs/research/waste-schedule-osrm-plan.md`](../../docs/research/waste-schedule-osrm-plan.md)。
+## 5/23 完成（農業 Phase 3 Batch 1，15 commits）
 
 ```
-Phase 1: 用既有 LineString（高雄 + 新北 1401 routes）
-   1a. 新 RPC get_waste_schedule_day_with_geometry（JOIN routes geometry）
-   1b. Loader 投影 stops → progress
-   1c. Scene 改 progress-based interpolation（仿 GPS matched trail）
-
-Phase 2: OSRM 補北/基/宜（356 routes，~30 min build）
-   2a. 新表 spatial.waste_routes_synthesized + build script
-   2b. RPC fallback (waste_collection_routes → synthesized → 直線)
-
-Phase 3: 5 城視覺驗收
+015f942 docs: 鐵則升級三 → 四 — 新增規則 4「Sidebar select 4+ 必 dropdown」
+32f5793 fix(sidebar): select dropdown 門檻 > 6 → > 3 避免 4+ 選項橫向溢出
+a7f9f7a feat(agriculture): 土壤肥力 6 metric 著色切換 + 數值分級註解
+68da96e docs: 鐵則 2 加重 — 分類 ≥ 2 種一律要圖例
+76e2147 feat(agriculture): 農業 POI 三類圖例 + 三邊配色單一資料源
+8693bed docs: 鐵則 3 擴充 — 從 POI 升級為「可選取物件」+ PMTiles keep_attrs 配套
+4a2fd79 feat(agriculture): 4 個 polygon layer 全部可點擊
+f5afabf feat(agriculture): 農村再生社區點擊顯示社區/計畫資訊
+9a607a7 docs: 圖層 UX 三鐵則
+9006c56 feat(agriculture): 農業 POI 點擊顯示資訊 panel
+885579e feat(agriculture): 作物適栽 legend 進 LegendPanel
+fd4417c fix(agriculture): FTW outline line-width 表達式違反 Mapbox 約束
+7d3092b feat(agriculture): MapView 啟動 6 新 layer
+f8a4ecc feat(agriculture): types/visibility/sidebar/params 接線 6 新 layer
+9bc0e5c feat(agriculture): factory 擴充 + asset gitignore
 ```
 
-OSRM 整合後車沿馬路走，「穿牆」、「方向突變」、「視覺速度過快」三個 v1 痛點一次解。
+### Key files 新建 / 異動
 
-### Track A 並行（user / taipei-gis-analytics）
+- 新建 `src/data/agriPOITypes.ts` — POI 三類單一資料源
+- 新建 `src/data/agriSoilFertilityMetrics.ts` — 6 metric 著色/legend/classify 單一資料源
+- 新建 `src/data/cropSuitabilityCrops.ts` — 132 種作物對照表
+- 新建 `src/map/agricultureLayerFactory.ts` — 7 layer ensure/update 函式
+- 改寫 `src/components/FeatureInfoPanel.tsx` — 加 5 個 agri panel
+- 改寫 `src/components/LegendPanel.tsx` — 加 3 個 agri legend
+- 改寫 `src/map/MapView.tsx` — ensureAllAgricultureLayers/updateAllAgricultureLayers
+- types/visibility/sidebars/params 6 處同步加 7 個 layer keys
 
-- ⏳ TGOS day_003-007 上傳中
-- 🔴 寫 12_unified_callback.py（含 TWD97 → WGS84）
-- 🔴 callback 完 stops 77K → 385K（22 城全覆蓋）
+## 待 commit / push
 
-### 上線前必跑（BL-18）
+5/25 農企業登記 3 layer 程式改動**尚未 commit**：新建 `src/data/agriCompanyTypes.ts`；改 `overlayRegistry.ts`(+3 entry)、`types/index.ts`、`layerCatalog.ts`、`IconRailSidebar.tsx`、`useLayerVisibility.ts`、`useTransportParams.ts`、`LegendPanel.tsx`、`useMapInteraction.ts`、`FeatureInfoPanel.tsx`；產出 `public/agriculture/{agri_retail,produce_wholesale,agri_wholesale_market}_companies.geojson`（gitignore，待 S3）。⚠️ 工作樹同時混有 5/25 結構審查 WIP（deckOverlay 刪除 / sidebar 重構 / docs）+ 5/26 fireIsochrone，commit 前 `git add` 指定檔拆乾淨。
 
-22 城擴展前對新城跑 `docs/research/waste-schedule-data-quirks.md` 內 6 個 sanity SQL：
-1. weekday_pattern 格式分布
-2. arrival_time / departure_time 格式驗證
-3. 同 stop 重複
-4. 時間倒退
-5. 班次切換比例（trip-break）
-6. gap=0 瞬移密度
+5/24 消防分區的程式改動**尚未 commit**（user 未要求）。涉及檔案：
+- 新建：`scripts/export/export_fire_pois.py`、`src/data/fireTypes.ts`、`src/three/FireBlazeScene.ts`、`src/map/fireBlazeCustomLayer.ts`
+- 改：types/index.ts、overlayRegistry.ts、useTransportParams.ts、LayerSidebar.tsx、IconRailSidebar.tsx、useLayerVisibility.ts、useMapInteraction.ts、FeatureInfoPanel.tsx、LegendPanel.tsx、useThreeJsLayers.ts
+- 產出（gitignore，走 S3）：`public/geo/fire_stations.geojson`、`public/geo/fire_hydrants.geojson`
+- **待辦**：`scripts/deploy/upload-deploy-assets.sh` 推 2 geojson 到 S3
 
-發現新格式（英文 Mon,Tue / 全形數字 / 12 小時 AM/PM 等）就擴展 RPC parser。
-
-## 待 push（35 commits）
-
+農業（feat/water-extensions）那批 commits 仍待 push（見下）：
 ```bash
-git push origin feat/historical-mode
+git push origin feat/water-extensions   # 農業 batch
 ```
 
-不要忘記 gis-platform 也有 1 個未 push commit（`448bd20`）。
+⚠ 也記得 `taipei-gis-analytics` 那邊 `pipelines/agriculture/` 整包仍 untracked，
+本 session 動了 `06_export_frontend.py` keep_attrs（5/23 改了 4 個 layer），
+由用戶統一批次 commit 比較不會破壞跨 repo 提交脈絡。
 
-## 5/13 完成（Geocoding Pipeline Stage 4-6 + Round 4 TGOS callback）
+## 下一步候選
 
-### 達成率：70% → **82.3%**
+### 短期（user 早上 review 後決定）
 
-```
-geocoded_via 分布（hwms_pending 308K stops）：
-  tgos_batch (Round 1-3)            105,344  34.2%
-  pre_geocoded                       89,364  29.0%
-  (early callback legacy)            24,459   7.9%
-  interpolated_route                 24,113   7.8% ⭐ Stage 6 主力
-  tgos round 4 normalized             5,801   1.9%
-  poi_nominatim                       1,929   0.6%
-  poi_school                          1,662   0.5%
-  poi_foursquare                        862   0.3%
-  ─────────────────────────────────────────────
-  with coord                        253,534  82.3%
-  still missing                      54,595  17.7%
-```
+- ⏳ **Browser 視覺驗收**：7 個 layer toggle / 132 作物 dropdown / 6 metric 著色 / 所有 click popup
+- ⏳ **S3 deploy**：跑 `scripts/deploy/upload-deploy-assets.sh` 推 6 個檔到 S3（Zeabur 部署前）
+- ⏳ **分支命名**：feat/water-extensions → feat/agriculture-batch-1（AG-5）
 
-### supabase 22 城 stops: 189K → **215,088**（22 城全到齊）
+### 中期（BACKLOG 既有 P1/P2）
 
-### scripts (taipei-gis-analytics)
-- 32_match_school_poi.py        Stage 4a +1,662 stops (84% match)
-- 33_match_foursquare_poi.py    Stage 4b +862 stops  (23% match)
-- 34_match_nominatim_poi.py     Stage 4c +1,929 stops (58% match, JSONL cache 中斷可續)
-- 35_interpolate_route.py       Stage 6 +24,113 stops (主力，前後 < 5km filter)
+#### 廢棄物
+- BL-17 表定動畫沿馬路（OSRM 路徑）— 2.5-3 天（其他地區 stops 直線插值會穿牆）
+- BL-14 查證高雄 5/9 success 30.3% vs 5/8 49% 落差
+- BL-15 ETL UNIQUE constraint 修台南 60% dup
+- BL-16 useWasteLayer 加台南 default + city 切換 UI
+- BL-23 Round 4 TGOS 18K normalized — 重 build 17 城 + reinsert + 重跑 inferred segments
 
-### 還缺 17.7% (~55K stops)
-無解類別：landmark 地方小廟 / intersection 沒前後 / 路名沒門牌 / 完全孤立 stop
-可能未來打 Google Maps (Stage 5) 補回 ~5-10K
+#### 農業
+- AG-1 Wave D 公司登記 3 集（等 TGOS）
+- AG-3 Soil/SoilFertility 更多欄位重出評估
+- AG-4 crop_suitability 跨作物 overlay 視角
 
+#### 水資源
+- BL-4 flood_hazard_zones 多情境 dropdown
+- W001 警戒水位視覺化（先 seed river_stations）
+- W005 水權統計（指標卡）
+
+## 5/14 之前進度（保留摘要）
+
+- 5/14 廢棄物 Stage 6b 外推達 89.6%（22 城 stops 215K → 271K）
+- 5/13 Stage 4-6 (school/foursquare/nominatim/interpolate) 達 82.3%
+- 5/12 22 城 hwms stops import + OSRM 沿馬路 inferred segments
+- 5/10-11 廢棄物 schedule 動畫 + 視覺打磨（5 城 → 22 城）
+- 5/8-9 OSRM map-matching pipeline + Zeabur 部署
+- 4/26 iot_wra 雙表 pre-aggregate + 兩 layer
+- 4/25 河川 / 地下水 delta 著色 + 降頻
+- 4/22-24 水資源 Phase 1/2 + 3D 水庫互動

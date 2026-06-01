@@ -6,15 +6,17 @@
 
 ## Session 開頭必讀（記憶迴圈）
 
-涉及開發工作時先讀：
-1. [`.claude/lessons.md`](./.claude/lessons.md) — P0 規則累積（每條違反成本 >30 min）
-2. [`.claude/retrospectives/INDEX.md`](./.claude/retrospectives/INDEX.md) — 最近 session 回顧
-3. 若遇到似曾相識的 bug：搜 [`.claude/pitfalls/`](./.claude/pitfalls/)
+SessionStart hook（`.claude/settings.json` → `.claude/memory/load-session.sh`）會自動
+inline `STATUS` / `BACKLOG` / `PRINCIPLES` 三檔。涉及開發工作時再依需要讀：
+1. [`.claude/memory/STATUS.md`](./.claude/memory/STATUS.md) — 當前狀態（接上次 session 結束點）
+2. [`.claude/memory/PRINCIPLES.md`](./.claude/memory/PRINCIPLES.md) — P0 規則累積（每條違反成本 >30 min）
+3. [`.claude/memory/REFLECTIONS.md`](./.claude/memory/REFLECTIONS.md) — 反省紀錄（append-only）
+4. 若遇到似曾相識的 bug：搜 [`.claude/pitfalls/`](./.claude/pitfalls/)
 
-完成大段落（功能 commit、feature 驗證通過）後產生 retro：
-- 複製 `.claude/retrospectives/_template.md`
-- 填完後 P0 項目升級到 `lessons.md`、重要 bug 寫成 pitfalls
-- 機制說明：[`.claude/retrospectives/README.md`](./.claude/retrospectives/README.md)
+完成大段落（功能 commit、feature 驗證通過）後更新記憶：
+- 用 `/wrap-up` skill 對應更新 `.claude/memory/` 9 檔分類
+- P0 規則進 `PRINCIPLES.md`、事件進 `INCIDENTS.md`、重要 bug 長文寫 `.claude/pitfalls/`
+- 框架機制說明：[`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)
 
 ## 必守規則
 
@@ -58,11 +60,29 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 2. `src/data/xxxLoader.ts` → loader + loadingRegistry
 3. `src/hooks/useXxxLayer.ts` → React hook
 4. `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts`
-5. `src/components/LayerSidebar.tsx` → UI toggle + **`LAYER_COLORS` 補 key**（漏了會 tsc error）
+5. `src/components/sidebar/layerCatalog.ts` → **`LAYER_COLORS` 補 key**（漏了會 tsc error TS2739）+ `SECTIONS` 對應分區加 key（單一真實來源，桌機 IconRailSidebar 與手機 LayerSidebar 同時生效）；UI toggle 渲染仍在兩個 sidebar 元件
 6. `src/App.tsx` → 接線
 7. `src/hooks/useLayerVisibility.ts` → 預設可見性
 
 可用 slash command `/new-layer <name>` 自動產生骨架。
+
+### 5a. 圖層 UX 四鐵則（⚠️ 缺一不可）
+任何新 layer 都必須過：
+
+1. **透明度 slider** — 在 `useTransportParams.ts` 提供 opacity slider（已是慣例）
+2. **分類 ≥ 2 種 → 必寫圖例** — 只要 layer 內顏色用 match/step/interpolate 分出 2+ 類別／級別
+   （不論 POI / polygon / line），必須在 `src/components/LegendPanel.tsx` 加 sub-component。
+   把類型表抽到 `src/data/xxxTypes.ts`（如 `agriPOITypes.ts`）給 factory / panel / legend 三處共用
+3. **可選取物件 → 必接 click popup** — POI / polygon / line 凡點下去能講出資訊就要接：
+   `useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
+   `FeatureInfoPanel.tsx` 加 sub-panel。**注意 PMTiles `keep_attrs` 要在
+   `taipei-gis-analytics` 那邊先補齊重出**，否則 popup 拿到空欄位。
+4. **Select control options ≥ 4 → 原生 `<select>` dropdown** — Sidebar 是直式 ~240px
+   narrow column，4+ 選項橫向 button row 一定撐爆（中文標籤更明顯）。
+   `LayerSidebar.tsx` / `IconRailSidebar.tsx` 內 `ctrl.options.length > 3` 自動切 dropdown。
+   若某 layer 需要多參數，用 dropdown 切「mode」而不是並排多個 slider。
+
+詳見 [`docs/development-rules.md#4a-圖層-ux-標配四大鐵則`](./docs/development-rules.md#4a-圖層-ux-標配四大鐵則)。
 
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
 動態 / 時序圖層**禁止**把 `currentTime` 放進 React `useEffect` / `useMemo` deps；

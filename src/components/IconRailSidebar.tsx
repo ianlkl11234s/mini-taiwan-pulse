@@ -7,8 +7,12 @@ import {
   Lightbulb, CircleDot, RailSymbol, Thermometer,
   GraduationCap, Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
-  Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck,
+  Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck, Container,
   Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt,
+  Timer,
+  Sprout,
+  Video, Receipt, Coffee, Car,
+  ShoppingCart, Warehouse,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -18,74 +22,10 @@ import type { ParamControl } from "../hooks/useTransportParams";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 import { DataCalendarPanel } from "./DataCalendarPanel";
+// 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
+import { LAYER_COLORS, TRANSPORT_LABELS, SECTIONS } from "./sidebar/layerCatalog";
 
 // ── Color Config ──
-
-const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
-  flights: "#64aaff", ships: "#1ad9e5", rail: "#ee6c00",
-  stationsTHSR: "#ff8c00", stationsTRA: "#b8a080", stationsMetro: "#00bcd4",
-  ports: "#4a90d9", lighthouses: "#ffd700", airports: "#daa520",
-  highways: "#ff6b6b", provincialRoads: "#ffa94d", windPlan: "#7efcb0",
-  busStationsCity: "#66bb6a", busStationsIntercity: "#ab47bc",
-  bikeStations: "#ffca28", cyclingRoutes: "#66bb6a",
-  freewayCongestion: "#ef5350", weatherStations: "#4dd0e1",
-  h3Population: "#ff6b6b", popCount: "#f9bd31", indicators: "#e25822",
-  socioeconomic: "#7c4dff", spatialEconomy: "#ff6e40",
-  temperatureWave: "#ff6b35",
-  schools: "#42a5f5",
-  convenienceStores: "#26c6da",
-  submarineCables: "#2196F3",
-  landingStations: "#26c6da",
-  activeFaults: "#ef5350",
-  newsEvents: "#ff9800",
-  youbikeFullness: "#f57c00",
-  earthquakes: "#ff3b30",
-  disasterAlerts: "#dc2626",
-  cwaCloudImagery: "#b0c4de",
-  cwaRadarImagery: "#4fc3f7",
-  aqiImagery: "#8bc34a",
-  aqiStations: "#00bcd4",
-  aqiMicroSensors: "#7e57c2",
-  busLive: "#4fc3f7",
-  busIntercityLive: "#ba68c8",
-  waterBasins: "#4dd0e1",
-  waterRivers: "#38bdf8",
-  waterLevees: "#f59e0b",
-  waterCanals: "#a78bfa",
-  waterProtectionZones: "#10b981",
-  waterReservoirs: "#06b6d4",
-  waterFacilities: "#fbbf24",
-  waterMonitorStations: "#f472b6",
-  waterFloodExtreme: "#fb7185",
-  rainGauge: "#3b82f6",
-  riverLevel: "#22d3ee",
-  groundwater: "#0ea5e9",
-  groundwaterWells: "#64748b",
-  iotWraRiver: "#06b6d4",
-  iotWraStructure: "#a855f7",
-  fireEvents: "#ff5722",
-  wasteTruck: "#fbbf24",
-  wasteSchedule: "#fbbf24",
-  wasteScheduleNote: "#fff8d6",
-  wasteRoute: "#84cc16",
-  wasteStop: "#65a30d",
-  wfIncinerator: "#ef4444",
-  wfLandfill: "#92400e",
-  wfTransfer: "#a855f7",
-  wfMedical: "#ec4899",
-  wfMonitoring: "#3b82f6",
-  wfRecycling: "#22c55e",
-  wfScrapYard: "#737373",
-  wfOther: "#6b7280",
-  wdClothes: "#f97316",
-  wdMixed: "#14b8a6",
-  wdRecyclingContainer: "#84cc16",
-  wdBattery: "#fbbf24",
-};
-
-const TRANSPORT_LABELS: Record<string, string> = {
-  flights: "Flight", ships: "Ship", rail: "Rail", busLive: "Bus", busIntercityLive: "InterCity",
-};
 
 const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   flights: Plane,
@@ -100,6 +40,11 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   highways: Route,
   provincialRoads: Route,
   cyclingRoutes: Bike,
+  cctv: Video,
+  etcGantry: Receipt,
+  serviceArea: Coffee,
+  serviceAreaPolygon: Coffee,
+  taxiStand: Car,
   ports: Anchor,
   airports: PlaneTakeoff,
   lighthouses: Lightbulb,
@@ -121,6 +66,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   youbikeFullness: Bike,
   earthquakes: Activity,
   disasterAlerts: AlertTriangle,
+  roadEvents: AlertTriangle,
   cwaCloudImagery: Cloud,
   cwaRadarImagery: CloudRain,
   aqiImagery: Wind,
@@ -137,6 +83,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   waterFacilities: Factory,
   waterMonitorStations: Gauge,
   waterFloodExtreme: AlertTriangle,
+  waterDetentionBasins: Container,
   rainGauge: CloudRain,
   riverLevel: Waves,
   groundwater: Droplet,
@@ -144,9 +91,24 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   iotWraRiver: Waves,
   iotWraStructure: Gauge,
   fireEvents: Flame,
+  fireLatest: Flame,
+  fireStations: Truck,
+  fireHydrants: Droplet,
+  fireIsochrone: Timer,
+  agriculture: Sprout,
+  agriSoil: Mountain,
+  agriSoilFertility: Sprout,
+  agriLeisureFarmZones: Sprout,
+  agriRuralRegen: MapPinned,
+  agriCropSuitability: Sprout,
+  agriPOI: Store,
+  agriRetail: ShoppingCart,
+  agriProduceWholesale: Truck,
+  agriWholesaleMarket: Warehouse,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,
+  wasteStopsStatic: MapPinned,
   wasteRoute: Route,
   wasteStop: MapPinned,
   wfIncinerator: Flame,
@@ -162,157 +124,6 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   wdRecyclingContainer: Recycle,
   wdBattery: Battery,
 };
-
-// ── Section Config ──
-
-interface SectionDef {
-  title: string;
-  layers: { key: keyof LayerVisibility; label: string; expandable?: boolean }[];
-}
-
-const SECTIONS: SectionDef[] = [
-  {
-    title: "MOVING",
-    layers: [
-      { key: "flights", label: "航班 Flight", expandable: true },
-      { key: "ships", label: "船舶 Ship", expandable: true },
-      { key: "rail", label: "鐵道 Rail", expandable: true },
-      { key: "busLive", label: "公車 Bus", expandable: true },
-      { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
-    ],
-  },
-  {
-    title: "STATION",
-    layers: [
-      { key: "stationsTHSR", label: "高鐵站 THSR st.", expandable: true },
-      { key: "stationsTRA", label: "台鐵站 TRA st.", expandable: true },
-      { key: "stationsMetro", label: "捷運站 Metro st.", expandable: true },
-      { key: "busStationsCity", label: "市區公車 City Bus", expandable: true },
-      { key: "busStationsIntercity", label: "客運 Intercity", expandable: true },
-      { key: "bikeStations", label: "自行車站 Bike st.", expandable: true },
-    ],
-  },
-  {
-    title: "ROUTE",
-    layers: [
-      { key: "highways", label: "國道 Highway", expandable: true },
-      { key: "provincialRoads", label: "省道 Prov. Road", expandable: true },
-      { key: "cyclingRoutes", label: "自行車道 Cycling", expandable: true },
-    ],
-  },
-  {
-    title: "INFRA",
-    layers: [
-      { key: "ports", label: "港口 Port", expandable: true },
-      { key: "airports", label: "機場 Airport", expandable: true },
-      { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
-      { key: "submarineCables", label: "通訊海纜 Submarine Cable", expandable: true },
-      { key: "landingStations", label: "海纜登陸站 Landing Stn.", expandable: true },
-    ],
-  },
-  {
-    title: "ANALYTICS",
-    layers: [
-      { key: "h3Population", label: "人口流動 Pop. Flow", expandable: true },
-      { key: "popCount", label: "人口數 Population", expandable: true },
-      { key: "indicators", label: "指標 Indicators", expandable: true },
-      { key: "socioeconomic", label: "社經 Socio-Econ", expandable: true },
-      { key: "spatialEconomy", label: "空間經濟 Spatial", expandable: true },
-      { key: "youbikeFullness", label: "YouBike 有車率", expandable: true },
-    ],
-  },
-  {
-    title: "MONITOR",
-    layers: [
-      { key: "freewayCongestion", label: "國道壅塞 Congestion", expandable: true },
-    ],
-  },
-  {
-    title: "ENVIRON",
-    layers: [
-      { key: "weatherStations", label: "氣象站 Weather", expandable: true },
-      { key: "windPlan", label: "風電場 Wind Farm", expandable: true },
-      { key: "temperatureWave", label: "溫度波 Temperature", expandable: true },
-      { key: "cwaCloudImagery", label: "衛星雲圖 Cloud", expandable: true },
-      { key: "cwaRadarImagery", label: "雷達回波 Radar", expandable: true },
-      { key: "aqiImagery", label: "空氣品質色階 AQI Raster", expandable: true },
-      { key: "aqiStations", label: "空氣品質測站 AQI Station", expandable: true },
-      { key: "aqiMicroSensors", label: "LASS 微型感測 Micro Sensor", expandable: true },
-    ],
-  },
-  {
-    title: "FACILITY",
-    layers: [
-      { key: "schools", label: "學校 School", expandable: true },
-      { key: "convenienceStores", label: "超商 Convenience", expandable: true },
-    ],
-  },
-  {
-    title: "HAZARD",
-    layers: [
-      { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
-      { key: "earthquakes", label: "地震 Earthquake", expandable: true },
-      { key: "disasterAlerts", label: "災害示警 Disaster Alerts", expandable: true },
-      { key: "fireEvents", label: "火災歷史 Fire (歷史)", expandable: true },
-    ],
-  },
-  {
-    title: "NEWS",
-    layers: [
-      { key: "newsEvents", label: "新聞 News", expandable: true },
-    ],
-  },
-  {
-    title: "WATER",
-    layers: [
-      { key: "waterBasins", label: "流域 Basin", expandable: true },
-      { key: "waterRivers", label: "河川 River", expandable: true },
-      { key: "waterLevees", label: "堤防 Levee", expandable: true },
-      { key: "waterCanals", label: "渠道 Canal", expandable: true },
-      { key: "waterProtectionZones", label: "管制區 Protection", expandable: true },
-      { key: "waterReservoirs", label: "水庫 Reservoir", expandable: true },
-      { key: "waterFacilities", label: "水利設施 Facility", expandable: true },
-      { key: "waterMonitorStations", label: "監測站 Monitor", expandable: true },
-      { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
-      { key: "rainGauge", label: "即時雨量 Rain Gauge", expandable: true },
-      { key: "riverLevel", label: "河川水位 River Level", expandable: true },
-      { key: "groundwaterWells", label: "水井點位 Wells", expandable: true },
-      { key: "groundwater", label: "地下水井 Groundwater", expandable: true },
-      { key: "iotWraRiver", label: "IoT 河川 (補強) IoT River", expandable: true },
-      { key: "iotWraStructure", label: "IoT 水工結構 IoT Structure", expandable: true },
-    ],
-  },
-  {
-    title: "WASTE",
-    layers: [
-      { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
-      { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
-      { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
-    ],
-  },
-  {
-    title: "WASTE FACILITY",
-    layers: [
-      { key: "wfIncinerator", label: "焚化爐 Incinerator", expandable: true },
-      { key: "wfLandfill", label: "衛生掩埋場 Landfill", expandable: true },
-      { key: "wfTransfer", label: "轉運站 Transfer", expandable: true },
-      { key: "wfMedical", label: "醫療廢棄物 Medical", expandable: true },
-      { key: "wfMonitoring", label: "地下水監測井 Monitor", expandable: true },
-      { key: "wfRecycling", label: "資源回收廠 Recycling", expandable: true },
-      { key: "wfScrapYard", label: "廢車/廢金屬 Scrap", expandable: true },
-      { key: "wfOther", label: "其他事廢設施 Other", expandable: true },
-    ],
-  },
-  {
-    title: "WASTE DISPOSAL POINT",
-    layers: [
-      { key: "wdClothes", label: "衣物回收箱 Clothes", expandable: true },
-      { key: "wdMixed", label: "混合投放點 Mixed", expandable: true },
-      { key: "wdRecyclingContainer", label: "街頭資收桶 Container", expandable: true },
-      { key: "wdBattery", label: "電池回收 Battery", expandable: true },
-    ],
-  },
-];
 
 // ── IATA Map for Locations Panel ──
 
@@ -944,6 +755,36 @@ function ExpandedControls({
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {controls.map((ctrl) => {
             if (ctrl.type === "select") {
+              // options ≥ 4 一律改用原生 <select> dropdown，避免橫向 button 超出 sidebar
+              if (ctrl.options.length > 3) {
+                return (
+                  <div
+                    key={ctrl.label}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 4,
+                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                    }}
+                  >
+                    <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
+                    <select
+                      value={ctrl.value}
+                      onChange={(e) => ctrl.onChange(e.target.value)}
+                      style={{
+                        flex: 1, fontSize: 10, padding: "1px 6px",
+                        background: "rgba(0,0,0,0.5)", color: "#fff",
+                        border: "1px solid rgba(255,255,255,0.15)",
+                        borderRadius: 3, fontFamily: "monospace",
+                      }}
+                    >
+                      {ctrl.options.map((opt) => (
+                        <option key={opt.value} value={opt.value} style={{ background: "#1a1a1a" }}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                );
+              }
               return (
                 <div
                   key={ctrl.label}

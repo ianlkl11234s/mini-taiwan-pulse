@@ -1,7 +1,12 @@
 import { X } from "lucide-react";
 import type { FeatureInfo } from "../types";
+import { CctvStreamView } from "./CctvStreamView";
 import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
+import { AGRI_POI_TYPES } from "../data/agriPOITypes";
+import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
+import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../data/fireTypes";
+import { SOIL_FERTILITY_METRICS } from "../data/agriSoilFertilityMetrics";
 import {
   WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS,
   WASTE_DISPOSAL_COLORS, WASTE_DISPOSAL_LABELS,
@@ -209,6 +214,46 @@ function WaterMonitorPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="資料源" value={String(props.source ?? "")} />
       <Row label="狀態" value={isActive ? "啟用" : "停用"} color={isActive ? "#4ade80" : "#9ca3af"} />
+    </>
+  );
+}
+
+function WaterDetentionBasinPanel({ props }: { props: Record<string, unknown> }) {
+  const COUNTY_LABEL: Record<string, string> = {
+    tainan: "台南", taoyuan: "桃園", taipei: "台北", kaohsiung: "高雄",
+    taichung: "台中", hsinchu_park: "新竹科學園區",
+    central_park: "中科園區", south_park: "南科園區",
+  };
+  const county = String(props.county ?? "");
+  const areaHa = props.area_ha != null ? Number(props.area_ha) : null;
+  const areaM2 = props.area_m2 != null ? Number(props.area_m2) : null;
+  const designed = props.designed_volume_m3 != null ? Number(props.designed_volume_m3) : null;
+  const depth = props.max_depth_m != null ? Number(props.max_depth_m) : null;
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#0284c7", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名滯洪池)")}
+        </div>
+      </div>
+      <Row label="縣市" value={COUNTY_LABEL[county] ?? county} />
+      {props.township ? <Row label="鄉鎮" value={String(props.township)} /> : null}
+      {props.address ? <Row label="地址" value={String(props.address)} /> : null}
+      {props.agency ? <Row label="管理單位" value={String(props.agency)} /> : null}
+      {areaHa != null && Number.isFinite(areaHa)
+        ? <Row label="面積" value={`${areaHa.toLocaleString()} ha`} />
+        : areaM2 != null && Number.isFinite(areaM2)
+          ? <Row label="面積" value={`${areaM2.toLocaleString()} m²`} />
+          : null}
+      {designed != null && Number.isFinite(designed)
+        ? <Row label="設計容量" value={`${designed.toLocaleString()} m³`} />
+        : null}
+      {depth != null && Number.isFinite(depth)
+        ? <Row label="最大深度" value={`${depth} m`} />
+        : null}
+      {props.status ? <Row label="狀態" value={String(props.status)} /> : null}
+      <Row label="資料源" value={String(props.source ?? "")} />
     </>
   );
 }
@@ -748,6 +793,132 @@ function AirportPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+/** CCTV source 對應色 / 標籤 */
+const CCTV_SOURCE: Record<string, { color: string; label: string }> = {
+  freeway: { color: "#ff9800", label: "國道" },
+  highway: { color: "#ffd54f", label: "省道快速道路" },
+  city:    { color: "#26c6da", label: "市區道路" },
+};
+
+function CctvPanel({ props }: { props: Record<string, unknown> }) {
+  const source = String(props.source ?? "");
+  const info = CCTV_SOURCE[source] ?? { color: "#26c6da", label: source };
+  const streamUrl = String(props.VideoStreamURL ?? "");
+  const imageUrlRaw = props.VideoImageURL != null ? String(props.VideoImageURL) : "";
+  const imageUrl = imageUrlRaw && imageUrlRaw !== "null" && imageUrlRaw !== "undefined" ? imageUrlRaw : "";
+  // 換選別支時用 CCTVID 當 key 強制 remount，確保串流狀態機與 MJPEG 連線重置
+  const cctvKey = String(props.CCTVID ?? streamUrl);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: info.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.RoadName ?? props.CCTVID ?? "CCTV")}
+        </div>
+      </div>
+      <Row label="來源" value={info.label} color={info.color} />
+      <Row label="方向" value={String(props.RoadDirection ?? "")} />
+      <Row label="ID" value={String(props.CCTVID ?? "")} />
+      {streamUrl ? (
+        <CctvStreamView
+          key={cctvKey}
+          streamUrl={streamUrl}
+          imageUrl={imageUrl}
+          source={source}
+          accentColor={info.color}
+        />
+      ) : (
+        <div style={{ marginTop: 8, fontSize: 11, color: "rgba(255,255,255,0.55)" }}>
+          此攝影機未提供串流網址
+        </div>
+      )}
+    </>
+  );
+}
+
+function EtcGantryPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#f06292";
+  const start = String(props.StartInterchange ?? "");
+  const end = String(props.EndInterchange ?? "");
+  const segment = start && end ? `${start} → ${end}` : (start || end);
+  const fareSmall = String(props.FareSmall ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.GantryID ?? "ETC Gantry")}
+        </div>
+      </div>
+      <Row label="國道" value={String(props.Freeway ?? "")} color={accentColor} />
+      <Row label="方向" value={String(props.Direction ?? "")} />
+      <Row label="區間" value={segment} />
+      <Row label="里程" value={props.TollMile ? `${String(props.TollMile)} km` : ""} />
+      <Row label="小型車費率" value={fareSmall ? `${fareSmall} 元/km` : ""} color={accentColor} />
+    </>
+  );
+}
+
+function ServiceAreaPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#4db6ac";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.Name ?? "Service Area")}
+        </div>
+      </div>
+      <Row label="國道" value={String(props.Freeway ?? "")} color={accentColor} />
+      <Row label="位置" value={String(props.Location ?? "")} />
+      <Row label="方向" value={String(props.Direction ?? "")} />
+      <Row label="經營者" value={String(props.Operator ?? "")} />
+      <Row label="地址" value={String(props.Address ?? "")} />
+      <Row label="主題" value={String(props.Theme ?? "")} />
+    </>
+  );
+}
+
+function ServiceAreaPolygonPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#4db6ac";
+  const areaHa = typeof props.area_ha === "number"
+    ? props.area_ha.toFixed(2)
+    : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.Name ?? "Service Area")}
+        </div>
+      </div>
+      <Row label="經營者" value={String(props.Operator ?? "")} color={accentColor} />
+      <Row label="主題" value={String(props.Theme ?? "")} />
+      <Row label="國道" value={String(props.Freeway ?? "")} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+function TaxiStandPanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = "#f9a825";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.Name ?? "Taxi Stand")}
+        </div>
+      </div>
+      <Row label="行政區" value={String(props.District ?? "")} color={accentColor} />
+      <Row label="位置" value={String(props.StreetName ?? "")} />
+      <Row label="格位" value={props.Slots ? `${String(props.Slots)} 格` : ""} />
+      <Row label="時段" value={String(props.Schedule ?? "")} />
+      <Row label="城市" value={String(props.city ?? "")} />
+    </>
+  );
+}
+
 function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
   const link = String(props.link ?? "");
   return (
@@ -813,6 +984,55 @@ function DisasterAlertPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="生效" value={fmt(startTs)} />
       <Row label="失效" value={fmt(endTs)} />
       {sender && <Row label="發布單位" value={sender} />}
+    </>
+  );
+}
+
+function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
+  const eventType = Number(props.event_type ?? 0);
+  const color = String(props.color ?? "#6b7280");
+  const source = String(props.source ?? "");
+  const roadName = String(props.road_name ?? "");
+  const direction = String(props.direction ?? "");
+  const title = String(props.title ?? props.description ?? props.location_other ?? "路況事件");
+  const description = String(props.description ?? "");
+  const locationOther = String(props.location_other ?? "");
+  const blockedLanes = String(props.blocked_lanes ?? "");
+  const startKm = Number(props.start_km ?? 0);
+  const endKm = Number(props.end_km ?? 0);
+  const startTs = Number(props.start_ts ?? 0);
+  const endTs = Number(props.end_ts ?? 0);
+
+  const EVENT_TYPE_LABELS: Record<number, string> = {
+    1: "壅塞/事故", 2: "施工", 3: "事故", 4: "其他",
+    5: "災害/障礙", 6: "其他", 7: "活動/管制", 8: "其他",
+  };
+  const SOURCE_LABELS: Record<string, string> = {
+    live_freeway: "國道", live_highway: "省道",
+    live_city: "縣市", event_city: "縣市預告",
+  };
+  const fmt = (ts: number) =>
+    ts > 0 ? new Date(ts * 1000).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false }) : "—";
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {title || (EVENT_TYPE_LABELS[eventType] ?? "路況事件")}
+        </div>
+        <div style={{ fontSize: 10, padding: "1px 6px", borderRadius: 3, background: color, color: "#fff", fontWeight: 600, flexShrink: 0 }}>
+          {EVENT_TYPE_LABELS[eventType] ?? "其他"}
+        </div>
+      </div>
+      {source && <Row label="來源" value={SOURCE_LABELS[source] ?? source} />}
+      {roadName && <Row label="路段" value={roadName + (direction ? ` ${direction}` : "")} />}
+      {startKm > 0 && <Row label="里程" value={`${startKm.toFixed(1)} ~ ${endKm.toFixed(1)} km`} />}
+      {description && description !== title && <Row label="描述" value={description} />}
+      {locationOther && locationOther !== description && <Row label="位置" value={locationOther} />}
+      {blockedLanes && <Row label="封閉車道" value={blockedLanes} />}
+      <Row label="生效" value={fmt(startTs)} />
+      {endTs > 0 && <Row label="失效" value={fmt(endTs)} />}
     </>
   );
 }
@@ -1066,6 +1286,294 @@ function WasteDisposalPointPanel({ props }: { props: Record<string, unknown> }) 
   );
 }
 
+function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
+  const region = String(props["地區"] ?? "");
+  const sheet = String(props["圖幅名稱"] ?? "");
+  const survey = String(props["調查區"] ?? "");
+  const soilClass = String(props["土類"] ?? "");
+  const series = String(props["土系"] ?? "");
+  const soilType = String(props["土型"] ?? "");
+  const texture = String(props["表土質地"] ?? "");
+  const slope = String(props["坡度相"] ?? "");
+  const areaHa = typeof props.area_ha === "number" ? (props.area_ha as number).toFixed(2) : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#8d6e63", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {soilType || soilClass || "土壤分類"}
+        </div>
+      </div>
+      <Row label="地區" value={region} />
+      <Row label="土類" value={soilClass} />
+      <Row label="土系" value={series} />
+      <Row label="表土質地" value={texture} />
+      <Row label="坡度相" value={slope} />
+      <Row label="調查區" value={survey} />
+      <Row label="圖幅" value={sheet === "-" ? "" : sheet} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+function AgriSoilFertilityPanel({ props }: { props: Record<string, unknown> }) {
+  const num = (k: string): number | null => {
+    const v = props[k];
+    return typeof v === "number" && v !== 0 ? v : null;
+  };
+  // 把數值轉「6.23 (微酸)」格式（用 metric 自帶的 classify）
+  const fmtWithGrade = (key: string, metricKey: keyof typeof SOIL_FERTILITY_METRICS, unit?: string) => {
+    const v = num(key);
+    if (v == null) return { text: "", color: undefined as string | undefined };
+    const grade = SOIL_FERTILITY_METRICS[metricKey].classify(v);
+    const numText = v.toFixed(2) + (unit ? ` ${unit}` : "");
+    return {
+      text: grade ? `${numText} (${grade.label})` : numText,
+      color: grade?.color,
+    };
+  };
+  const ph = fmtWithGrade("pH_H2O", "pH");
+  const om = fmtWithGrade("OM_OMU", "OM", "%");
+  const cec = fmtWithGrade("CEC", "CEC", "cmol(+)/kg");
+  const m3p = fmtWithGrade("M3_P", "M3_P", "mg/kg");
+  const m3k = fmtWithGrade("M3_K", "M3_K", "mg/kg");
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#00897b", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          土壤肥力 250m 網格
+        </div>
+      </div>
+      <Row label="pH (H2O)" value={ph.text} color={ph.color} />
+      <Row label="有機質 OM" value={om.text} color={om.color} />
+      <Row label="CEC" value={cec.text} color={cec.color} />
+      <Row label="Mehlich-3 P" value={m3p.text} color={m3p.color} />
+      <Row label="Mehlich-3 K" value={m3k.text} color={m3k.color} />
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.35)", marginTop: 6, lineHeight: 1.5 }}>
+        ※ 0 值表示該項未測（多數網格只測 pH / OM）
+      </div>
+    </>
+  );
+}
+
+function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unknown> }) {
+  const name = String(props["休區名"] ?? props["LANAME"] ?? "");
+  const keyCode = String(props["KeyCode"] ?? "");
+  const aa45 = String(props["AA45"] ?? "");
+  const aa46 = String(props["AA46"] ?? "");
+  const areaHa = typeof props.area_ha === "number" ? (props.area_ha as number).toFixed(2) : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#66bb6a", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {name || "休閒農業區"}
+        </div>
+      </div>
+      <Row label="代碼" value={keyCode} />
+      <Row label="縣市碼" value={aa45} />
+      <Row label="鄉鎮碼" value={aa46} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+// 作物適栽 4 級 kind 配色（與 LegendPanel CROP_KIND_ITEMS 同源）
+const CROP_KIND_INFO: Record<string, { color: string; label: string }> = {
+  "1_premium":    { color: "#1b5e20", label: "最適 Premium" },
+  "2_suitable":   { color: "#66bb6a", label: "適栽 Suitable" },
+  "3_marginal":   { color: "#fff59d", label: "次適 Marginal" },
+  "4_unsuitable": { color: "#ef9a9a", label: "不適 Unsuitable" },
+};
+
+function AgriCropSuitabilityPanel({ props }: { props: Record<string, unknown> }) {
+  const cropNameZh = String(props.crop_name_zh ?? "").replace(/\s*適栽性等級分布圖$/, "").replace(/\s*栽性等級分布圖$/, "");
+  const cropNameEn = String(props.crop_name_en ?? "");
+  const kindLabel = String(props.kind_label ?? "");
+  const kindInfo = CROP_KIND_INFO[kindLabel] ?? { color: "#9e9e9e", label: kindLabel };
+  const areaHa = typeof props.area_ha === "number" ? (props.area_ha as number).toFixed(2) : String(props.area_ha ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: kindInfo.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {cropNameZh || cropNameEn || "作物適栽"}
+        </div>
+      </div>
+      <Row label="適栽性" value={kindInfo.label} color={kindInfo.color} />
+      <Row label="作物 EN" value={cropNameEn} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> }) {
+  const community = String(props["社區名"] ?? "");
+  const plan = String(props["計畫名"] ?? "");
+  const county = String(props["縣市"] ?? "");
+  const town = String(props["鄉鎮"] ?? "");
+  const village = String(props["村里"] ?? "");
+  const note = String(props["NOTE"] ?? "");
+  const region = [county, town, village].filter(Boolean).join("");
+  const areaHaRaw = props.area_ha;
+  const areaHa = typeof areaHaRaw === "number" ? areaHaRaw.toFixed(2) : String(areaHaRaw ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#ffb74d", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {community || "農村再生社區"}
+        </div>
+      </div>
+      <Row label="行政區" value={region} />
+      <Row label="計畫" value={plan} />
+      <Row label="核定時" value={String(props["核定時"] ?? "")} />
+      <Row label="計畫年" value={String(props["計畫年"] ?? "")} />
+      <Row label="分署" value={String(props["分署"] ?? "")} />
+      <Row label="狀態" value={note} color={note === "已核定" ? "#7efcb0" : undefined} />
+      <Row label="面積" value={areaHa ? `${areaHa} 公頃` : ""} />
+    </>
+  );
+}
+
+function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
+  const poiType = String(props.poi_type ?? "");
+  const t = AGRI_POI_TYPES.find((x) => x.id === poiType);
+  const meta = t ? { color: t.color, label: t.labelZh } : { color: "#9e9e9e", label: poiType };
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.poi_name ?? "Unknown")}
+        </div>
+      </div>
+      <Row label="類型" value={meta.label} color={meta.color} />
+      <Row label="資料集" value={String(props.source_dataset_id ?? "")} />
+      <Row label="行政區" value={String(props.TOWNID ?? "")} />
+      <Row label="緯度" value={typeof props.lat === "number" ? props.lat.toFixed(5) : String(props.lat ?? "")} />
+      <Row label="經度" value={typeof props.lon === "number" ? props.lon.toFixed(5) : String(props.lon ?? "")} />
+    </>
+  );
+}
+
+function AgriCompanyPanel({ props }: { props: Record<string, unknown> }) {
+  const bt = String(props.business_type ?? "");
+  const t = AGRI_COMPANY_TYPES.find((x) => x.id === bt);
+  const meta = t ? { color: t.color, label: t.labelZh } : { color: "#9e9e9e", label: bt };
+  const capital = Number(props["資本總額"] ?? 0);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props["公司名稱"] ?? "Unknown")}
+        </div>
+      </div>
+      <Row label="類別" value={meta.label} color={meta.color} />
+      <Row label="統一編號" value={String(props["統一編號"] ?? "")} />
+      <Row label="負責人" value={String(props["負責人"] ?? "")} />
+      <Row label="地址" value={String(props["公司地址"] ?? "")} />
+      {capital > 0 ? <Row label="資本額" value={`${capital.toLocaleString()} 元`} /> : null}
+      <Row label="狀態" value={String(props["公司狀態"] ?? "")} />
+    </>
+  );
+}
+
+function FireEventPanel({ props }: { props: Record<string, unknown> }) {
+  const deaths = Number(props.deaths ?? 0);
+  const injuries = Number(props.injuries ?? 0);
+  const casualty = deaths > 0 || injuries > 0;
+  const accentColor = casualty ? "#ff1744" : "#ff7043";
+  const ts = Number(props.occurred_ts ?? 0);
+  let timeStr = "";
+  if (ts > 0) {
+    const d = new Date(ts * 1000);
+    const p2 = (n: number) => String(n).padStart(2, "0");
+    timeStr = `${d.getUTCFullYear()}-${p2(d.getUTCMonth() + 1)}-${p2(d.getUTCDate())} ${p2(d.getUTCHours())}:${p2(d.getUTCMinutes())}`;
+  }
+  const loc = [props.county, props.township].filter(Boolean).map(String).join(" ");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {loc || "火災事件"}
+        </div>
+      </div>
+      <Row label="起火原因" value={String(props.cause ?? "")} color={accentColor} />
+      <Row label="死亡" value={String(deaths)} color={deaths > 0 ? "#ff1744" : undefined} />
+      <Row label="受傷" value={String(injuries)} color={injuries > 0 ? "#ffb300" : undefined} />
+      <Row label="發生時間" value={timeStr} />
+    </>
+  );
+}
+
+function FireStationPanel({ props }: { props: Record<string, unknown> }) {
+  const cat = String(props.cat ?? "其他");
+  const accentColor = fireStationColor(cat);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.name ?? "消防分隊")}
+        </div>
+      </div>
+      <Row label="類型" value={String(props.type ?? cat)} color={accentColor} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="行政區" value={String(props.district ?? "")} />
+      <Row label="地址" value={String(props.address ?? "")} />
+      <Row label="電話" value={String(props.phone ?? "")} />
+    </>
+  );
+}
+
+function FireHydrantPanel({ props }: { props: Record<string, unknown> }) {
+  const cat = String(props.cat ?? "其他");
+  const accentColor = fireHydrantColor(cat);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          消防栓
+        </div>
+      </div>
+      <Row label="型式" value={String(props.type ?? cat)} color={accentColor} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="行政區" value={String(props.district ?? "")} />
+      <Row label="編號" value={String(props.id ?? "")} />
+    </>
+  );
+}
+
+function FireIsochronePanel({ props }: { props: Record<string, unknown> }) {
+  const minutes = Number(props.minutes ?? 0);
+  const accentColor = fireIsochroneColor(minutes);
+  const cumulative = props.cumulative_sqkm != null ? `${props.cumulative_sqkm} km²` : "";
+  const ring = props.ring_sqkm != null ? `${props.ring_sqkm} km²` : "";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {fireIsochroneLabel(minutes)}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="可達時間" value={`${minutes} 分鐘內`} color={accentColor} />
+      <Row label="累積可達面積" value={cumulative} />
+      <Row label="本級環帶面積" value={ring} />
+      <div style={{ fontSize: 9, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
+        ⚠️ driving 路網保守估計，未計消防車優先路權
+      </div>
+    </>
+  );
+}
+
 const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -1078,15 +1586,22 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   railStation: "車站",
   port: "港口",
   airport: "機場",
+  cctv: "道路攝影機",
+  etcGantry: "ETC 收費門架",
+  serviceArea: "國道服務區",
+  serviceAreaPolygon: "國道服務區範圍",
+  taxiStand: "計程車招呼站",
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
+  roadEvent: "即時路況",
   aqiStation: "空氣品質測站",
   microSensor: "微型感測器",
   waterFacility: "水利設施",
   waterMonitor: "水資源監測站",
   waterDam: "水庫 / 壩體",
   waterReservoirPoly: "水庫蓄水範圍",
+  waterDetentionBasin: "滯洪池",
   rainGauge: "即時雨量站",
   riverLevel: "河川水位站",
   groundwater: "地下水井",
@@ -1095,6 +1610,19 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   iotWraStructure: "IoT 水工結構",
   wasteFacility: "垃圾處理設施",
   wasteDisposalPoint: "垃圾投放點",
+  agriPOI: "農業 POI",
+  agriRuralRegen: "農村再生社區",
+  agriSoil: "土壤分類",
+  agriSoilFertility: "土壤肥力",
+  agriLeisureFarmZones: "休閒農業區",
+  agriCropSuitability: "作物適栽",
+  agriRetail: "農產零售商",
+  agriProduceWholesale: "蔬果批發商",
+  agriWholesaleMarket: "農產批發市場",
+  fireEvent: "火災事件",
+  fireStation: "消防分隊",
+  fireIsochrone: "救援等時圈",
+  fireHydrant: "消防栓",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -1141,6 +1669,21 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "airport":
       content = <AirportPanel props={feature.properties} />;
       break;
+    case "cctv":
+      content = <CctvPanel props={feature.properties} />;
+      break;
+    case "etcGantry":
+      content = <EtcGantryPanel props={feature.properties} />;
+      break;
+    case "serviceArea":
+      content = <ServiceAreaPanel props={feature.properties} />;
+      break;
+    case "serviceAreaPolygon":
+      content = <ServiceAreaPolygonPanel props={feature.properties} />;
+      break;
+    case "taxiStand":
+      content = <TaxiStandPanel props={feature.properties} />;
+      break;
     case "activeFault":
       content = <ActiveFaultPanel props={feature.properties} />;
       break;
@@ -1149,6 +1692,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "disasterAlert":
       content = <DisasterAlertPanel props={feature.properties} />;
+      break;
+    case "roadEvent":
+      content = <RoadEventPanel props={feature.properties} />;
       break;
     case "aqiStation":
       content = <AqiStationPanel props={feature.properties} />;
@@ -1168,6 +1714,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "waterReservoirPoly":
       content = <WaterReservoirPolyPanel props={feature.properties} />;
       break;
+    case "waterDetentionBasin":
+      content = <WaterDetentionBasinPanel props={feature.properties} />;
+      break;
     case "rainGauge":
       content = <RainGaugePanel props={feature.properties} />;
       break;
@@ -1183,12 +1732,50 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "wasteDisposalPoint":
       content = <WasteDisposalPointPanel props={feature.properties} />;
       break;
+    case "agriRetail":
+    case "agriProduceWholesale":
+    case "agriWholesaleMarket":
+      content = <AgriCompanyPanel props={feature.properties} />;
+      break;
+    case "agriPOI":
+      content = <AgriPOIPanel props={feature.properties} />;
+      break;
+    case "agriRuralRegen":
+      content = <AgriRuralRegenPanel props={feature.properties} />;
+      break;
+    case "agriSoil":
+      content = <AgriSoilPanel props={feature.properties} />;
+      break;
+    case "agriSoilFertility":
+      content = <AgriSoilFertilityPanel props={feature.properties} />;
+      break;
+    case "agriLeisureFarmZones":
+      content = <AgriLeisureFarmZonesPanel props={feature.properties} />;
+      break;
+    case "agriCropSuitability":
+      content = <AgriCropSuitabilityPanel props={feature.properties} />;
+      break;
+    case "fireEvent":
+      content = <FireEventPanel props={feature.properties} />;
+      break;
+    case "fireStation":
+      content = <FireStationPanel props={feature.properties} />;
+      break;
+    case "fireHydrant":
+      content = <FireHydrantPanel props={feature.properties} />;
+      break;
+    case "fireIsochrone":
+      content = <FireIsochronePanel props={feature.properties} />;
+      break;
   }
 
+  // CCTV 內嵌即時影像需要較大空間，只加寬此類 popup（影像框 width:100% 會跟著放大）
+  const isCctv = feature.layerType === "cctv";
   return (
     <div
       style={{
-        width: 280,
+        width: isCctv ? 460 : 280,
+        maxWidth: "92vw",
         background: "rgba(10, 10, 20, 0.88)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",

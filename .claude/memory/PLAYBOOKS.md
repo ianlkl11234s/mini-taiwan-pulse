@@ -523,3 +523,138 @@ console.log(`[Layer] fetched ${rows.length} rows`)
 
 ---
 
+
+## PB-14 PMTiles 重出補欄位 SOP（跨 repo，2026-05-23 加）
+
+**情境**：前端 click popup 拿到 `undefined` / 空白 → 多半是 PMTiles `keep_attrs` 沒加要顯示的欄位。
+
+### 為什麼會踩
+
+tippecanoe 預設**只保留 `-y` 指定的欄位**，其他 raw 屬性全丟。`06_export_frontend.py` 為了瘦身只 keep 三五個欄位，但前端要顯示其他屬性時必須重出。
+
+### 5 步流程
+
+1. **確認 parquet 是否有那欄**（`taipei-gis-analytics/data/processed/agriculture/<slug>/<slug>.parquet`）
+   ```bash
+   venv/bin/python3 -c "import pandas as pd; df = pd.read_parquet('data/processed/agriculture/<slug>/<slug>.parquet'); print(df.columns.tolist())"
+   ```
+   有 → 進 step 2；沒有 → 該 dataset 真的沒這資料，斷念
+
+2. **改 keep_attrs**：編輯 `pipelines/agriculture/_batch_download/06_export_frontend.py` 的 `keep_attrs` list，**加上**要顯示的欄位
+
+3. **重出該 PMTiles**（不需跑全部 script，可單獨 import 函式 trigger）：
+   ```bash
+   cd /path/to/taipei-gis-analytics
+   venv/bin/python3 -c "
+   import importlib.util
+   spec = importlib.util.spec_from_file_location('ef', 'pipelines/agriculture/_batch_download/06_export_frontend.py')
+   m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+   m.export_pmtiles(
+       '<slug>',
+       layer_name='<layer_name>',
+       keep_attrs=[...],   # 同步 06_export_frontend.py 那邊
+       minzoom=<...>, maxzoom=<...>,
+   )"
+   ```
+
+4. **複製到 mini-taiwan-pulse**：
+   ```bash
+   cp data/processed/agriculture/<slug>/<slug>.pmtiles \
+      ../mini-taiwan-pulse/public/agriculture/
+   ```
+   注意 `public/agriculture/*.pmtiles` 已 gitignore，**不會進 mini repo 的 git** —
+   走 S3 deploy-assets 上線
+
+5. **前端接 panel**：在 `FeatureInfoPanel.tsx` 加 sub-panel + `HEADER_LABELS` +
+   switch case + `useMapInteraction.ts` 的 `GIS_LAYERS` 加 `{ layers: [...], type: "..." }` +
+   `FeatureInfo.layerType` union 加 key
+
+### 驗證
+
+- Dev server reload，toggle 該 layer，點 polygon/POI → 應該看到所有欄位
+- 中文欄位（如「社區名」「土系」）注意 JS 端要用字串字面值 lookup：`props["社區名"]`，
+  別忘了 useMapInteraction 拿到的 properties keys 是 PMTiles 寫進去的原始名稱
+
+### 實例（2026-05-23 連跑 4 個 layer）
+
+| Layer | 原 keep_attrs | 新 keep_attrs（加哪些）| 重出後大小變化 |
+|---|---|---|---:|
+| soil_map_national | row_id, area_ha | +圖幅名稱/地區/調查區/土類/土系/土型/表土質地/坡度相 | 23 → 28 MB |
+| soil_fertility_grid_250m | row_id, area_ha | +pH_H2O/OM_OMU/CEC/M3_P/M3_K | 14 → 32 MB |
+| leisure_farm_zones_2025 | +AA45/AA46 | +休區名/LANAME/KeyCode | 0.35 → 0.42 MB |
+| rural_regen_communities_2025 | row_id, area_ha | +社區名/計畫名/縣市/鄉鎮/村里/分署/核定時/計畫年/NOTE | 1.6 → 2.4 MB |
+| crop_suitability_132 | 不變（原本就有 kind/crop_name_zh）| — | 不變 |
+
+⚠ **soil_fertility 加 5 個數值欄位翻倍**（14 → 32MB）— 134K grid × 5 numeric col。
+minzoom 8 + range request 不會一次全載，但要評估部署成本。
+
+## PB-15 Browser 視覺驗收 WebGL / Mapbox 圖層 SOP（2026-05-24 加）
+
+### 為什麼會踩
+- **headless agent-browser 渲染不出 Mapbox/Three.js**：console 報 `Failed to initialize WebGL`、截圖全黑（headless Chromium 無 GPU）。
+- 手動 mouse-wheel zoom + drag 導航到特定城市**極不精準**，常落在鄉間空白處（無資料）浪費大量 round-trip。
+
+### 5 步流程
+0. **先按「All Off」清掉所有圖層再只開要測的那層**（2026-05-24 用戶提醒）——否則其他 layer 的點會混進來，誤判顏色/大小/數量。
+1. **一定用 `--headed --session-name <name>`**（真實 GPU 才有 WebGL）。dev server `npm run dev`（port 3721），`.env` 確認 `VITE_DATA_SOURCE=supabase`。
+2. **先驗證靜態資源端點**：`curl -s -o /dev/null -w "%{http_code} %{size_download}" http://localhost:3721/geo/xxx.geojson`（200 才往下）。
+3. **toggle 圖層**：`snapshot | grep <中文label>` 找到 → expandable layer 的「文字 label」是展開、**toggle 開關是後面那顆 button ref**（點 label 不會切換可見性，要點 ref 如 e65）。
+4. **導航用 app 內建「Locations」面板城市預設**（台北/台中/高雄…），**別用 wheel/drag 硬找**。火災最密 + 有消防栓的是台北（county A）。
+5. **驗 popup**：`mouse move x y` → `down` → `up` → `snapshot | grep <panel 欄位>`。custom WebGL 層（火焰/3D）不可點，要靠底下常駐的 2D circle 命中。
+
+### 實例（2026-05-24 消防火焰特效）
+- headless 全黑 → 換 headed 立刻正常。
+- wheel/drag 卡在苗栗鄉間 6+ 次都無火點 → 改點 Locations「台北」一次到位，火焰特效 + popup 全驗出。
+
+---
+
+## PB-16 大面積覆蓋／等時圈圖層 SOP（PMTiles + 全區聚合 + 分區 filter，2026-05-26 加）
+
+> 適用：**等時圈、服務範圍、可及性分析**等「大面積 / 高頂點覆蓋多邊形」圖層。
+> 首例：消防救援等時圈（路網 5/10/15 分鐘，全台 22 縣市 716 隊）。
+> 核心教訓：這類圖層**不要用 GeoJSON overlay**——要麼檔案大（pan 卡頓），要麼簡化到變醜。
+
+### 鐵則（順序照做）
+
+1. **門檻時間要有官方依據**，別隨便抓 15/30。先 WebSearch 查 KPI：
+   - 消防署緊急救護 KPI = **10 分鐘到場率**；救命黃金期 4–6 分；NFPA 1710 首車 4 分。
+   - 採「黃金救援」框架 **5 / 10 / 15 分**（轟燃前 / 消防署 KPI / 偏鄉可及）。
+
+2. **路網等時圈生成** = Mapbox Isochrone API（`driving`, `contours_minutes`, `polygons=true`）。
+   - 腳本 `scripts/fetch/fetch-fire-isochrones.py`：**原始回應務必磁碟快取**（`.fire_isochrone_cache/`，gitignored），調簡化參數免重打 API。
+   - 圖例/popup 標註「driving 未計優先路權＝**保守估計**」。
+
+3. **分級用環差（ring-difference）**：`band10 = union10.difference(union5)`，每塊只歸最快可達的一級
+   → 單一 fill layer（`match` minutes 配色）即可正確上色，**無填色重疊**。綠 5 / 黃 10 / 橙 15。
+
+4. **「全區」與「分區」分開算，禁止疊加**（用戶踩過：各縣市各自 dissolve 疊起來縣界很亂）：
+   - **全區**（tag `全台`）= 所有來源點**一起 union**（無接縫）。
+   - **分區**（tag county）= 區內各自 dissolve。
+   - 兩套 feature 同 PMTiles 層，靠 `county` 欄位 + `setFilter` 切換（dropdown idx 0 → 全區）。
+
+5. **來源缺座標 → geocode 補**（屏東 39 隊只有地址）：`scripts/fetch/geocode-pingtung-fire-stations.py`
+   = Mapbox Geocoding v6（`country=tw` + `proximity` 偏壓 + **bbox 驗證丟掉界外**），冪等附加回 geojson。
+
+6. **出貨用 PMTiles，不是 GeoJSON**：
+   ```bash
+   tippecanoe -o public/fire/fire_isochrone_coverage.pmtiles -l coverage -Z5 -z14 \
+     --simplification=8 --drop-densest-as-needed --extend-zooms-if-still-dropping --force \
+     build/fire_isochrone/fire_isochrone_coverage.geojson
+   ```
+   - `-l <name>` = 前端 `source-layer` 名。range request（dev/S3/nginx 都支援）→ 只載視窗瓦片。
+
+7. **前端走 factory，不走 overlayRegistry**：`src/map/fireIsochroneLayerFactory.ts`（仿 `agricultureLayerFactory.ts`）。
+   - PMTiles SourceType 註冊：factory 自帶 `registerSourceTypeOnce` + **try/catch**（agriculture 也會註冊）；
+     **MapView 裡 ensure 必須排在 `ensureAllAgricultureLayers` 之後**（先註冊者成功，後者 try 命中 already-registered 被吞）。
+   - 縣市切換 = `map.setFilter(fillId, ["==",["get","county"], 名稱])`；單一真實來源 `src/data/fireIsochroneCounties.ts`（dropdown + filter 共用）。
+   - 接 MapView 三處：`style.load` / `load` handler（ensure+update）+ params effect + visibility effect。
+
+8. **中介 GeoJSON 寫 gitignored `build/`**，`public/` 只放 `.pmtiles`（生成腳本 OUT_DIR 指 build/）。
+
+9. **UX 四鐵則照舊**：透明度 slider、顏色分級必寫圖例（`fireTypes.ts` 的 `FIRE_ISOCHRONE_BANDS` 單一來源）、
+   面可點 → popup（`useMapInteraction` GIS_LAYERS 放**清單末端**避免大面積擋點選）、**縣市選項 ≥4 用原生 `<select>`**。
+
+### 檔案地圖（首例）
+`fetch-fire-isochrones.py`（生成+全國聚合）/ `geocode-pingtung-fire-stations.py`（補座標）/
+`fireIsochroneLayerFactory.ts`（PMTiles 渲染+filter）/ `fireIsochroneCounties.ts`（縣市清單）/
+`fireTypes.ts`（分級配色）/ `public/fire/*.pmtiles`（出貨）/ `build/fire_isochrone/`（中介）。

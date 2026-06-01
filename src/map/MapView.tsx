@@ -5,9 +5,81 @@ import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
+import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
+
+/** 從 overlayParams 取等時圈 factory 參數（opacity + 縣市 idx）。 */
+function fireIsochroneParamsOf(p: Record<string, number>) {
+  return { opacity: p.fireIsochroneOpacity ?? 0.5, countyIdx: p.fireIsochroneCountyIdx ?? 0 };
+}
 import { ensureH3Layers } from "./h3LayerFactory";
 import { ensurePopCountLayers, ensureIndicatorsLayers } from "./demographicsLayerFactory";
 import { ensureYoubikeLayers } from "./youbikeLayerFactory";
+import {
+  ensureAgricultureLayers, updateAgricultureLayer,
+  ensureAgriSoilLayers, updateAgriSoilLayer,
+  ensureAgriSoilFertilityLayers, updateAgriSoilFertilityLayer,
+  ensureAgriLeisureFarmZonesLayers, updateAgriLeisureFarmZonesLayer,
+  ensureAgriRuralRegenLayers, updateAgriRuralRegenLayer,
+  ensureAgriCropSuitabilityLayers, updateAgriCropSuitabilityLayer,
+  ensureAgriPOILayers, updateAgriPOILayer,
+} from "./agricultureLayerFactory";
+import { SOIL_FERTILITY_METRIC_OPTIONS, type SoilFertilityMetric } from "../data/agriSoilFertilityMetrics";
+
+function agricultureParamsFrom(params: Record<string, number>) {
+  return {
+    opacity: params.agricultureOpacity ?? 1,
+    outlineWidth: params.agricultureOutlineWidth ?? 1,
+    showOutline: (params.agricultureShowOutline ?? 1) > 0,
+    z: params.agricultureZ ?? 0,
+  };
+}
+function agriPolyOpacityParam(params: Record<string, number>, key: string) {
+  return { opacity: params[key] ?? 1 };
+}
+function agriSoilFertilityParamsFrom(params: Record<string, number>) {
+  const idx = params.agriSoilFertilityMetricIdx ?? 0;
+  const metric = (SOIL_FERTILITY_METRIC_OPTIONS[idx]?.value ?? "health") as SoilFertilityMetric;
+  return {
+    opacity: params.agriSoilFertilityOpacity ?? 1,
+    metric,
+  };
+}
+function agriCropSuitabilityParamsFrom(params: Record<string, number>) {
+  return {
+    opacity: params.agriCropSuitabilityOpacity ?? 1,
+    cropLayerId: params.agriCropSuitabilityCropId ?? 0,
+  };
+}
+function agriPOIParamsFrom(params: Record<string, number>) {
+  return {
+    opacity: params.agriPOIOpacity ?? 1,
+    scale: params.agriPOIScale ?? 1,
+  };
+}
+
+function ensureAllAgricultureLayers(map: mapboxgl.Map): void {
+  ensureAgricultureLayers(map);
+  ensureAgriSoilLayers(map);
+  ensureAgriSoilFertilityLayers(map);
+  ensureAgriLeisureFarmZonesLayers(map);
+  ensureAgriRuralRegenLayers(map);
+  ensureAgriCropSuitabilityLayers(map);
+  ensureAgriPOILayers(map);
+}
+
+function updateAllAgricultureLayers(
+  map: mapboxgl.Map,
+  vis: LayerVisibility,
+  params: Record<string, number>,
+): void {
+  updateAgricultureLayer(map, vis.agriculture, agricultureParamsFrom(params));
+  updateAgriSoilLayer(map, vis.agriSoil, agriPolyOpacityParam(params, "agriSoilOpacity"));
+  updateAgriSoilFertilityLayer(map, vis.agriSoilFertility, agriSoilFertilityParamsFrom(params));
+  updateAgriLeisureFarmZonesLayer(map, vis.agriLeisureFarmZones, agriPolyOpacityParam(params, "agriLeisureFarmZonesOpacity"));
+  updateAgriRuralRegenLayer(map, vis.agriRuralRegen, agriPolyOpacityParam(params, "agriRuralRegenOpacity"));
+  updateAgriCropSuitabilityLayer(map, vis.agriCropSuitability, agriCropSuitabilityParamsFrom(params));
+  updateAgriPOILayer(map, vis.agriPOI, agriPOIParamsFrom(params));
+}
 
 interface MapViewProps {
   preset: CameraPreset;
@@ -117,6 +189,11 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
+      ensureAllAgricultureLayers(map);
+      updateAllAgricultureLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      // 等時圈 PMTiles 層（須排在 agriculture 之後 → 共用 PMTiles SourceType 已註冊）
+      ensureFireIsochroneLayer(map);
+      updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
 
       // 初次載入後，每次樣式切換都重建 flight layer
       if (readyRef.current) {
@@ -131,6 +208,10 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
+      ensureAllAgricultureLayers(map);
+      updateAllAgricultureLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      ensureFireIsochroneLayer(map);
+      updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       onMapReadyRef.current?.(map);
     });
 
@@ -201,7 +282,20 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     const map = mapRef.current;
     if (!map || !readyRef.current || !map.isStyleLoaded()) return;
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams);
-  }, [isDarkTheme, overlayParams]);
+    // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
+    updateAllAgricultureLayers(map, layerVisibility, overlayParams);
+    // 等時圈：透明度 / 縣市下拉變動 → 更新
+    updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParams));
+  }, [
+    isDarkTheme, overlayParams,
+    layerVisibility.agriculture,
+    layerVisibility.agriSoil,
+    layerVisibility.agriSoilFertility,
+    layerVisibility.agriLeisureFarmZones,
+    layerVisibility.agriRuralRegen,
+    layerVisibility.agriCropSuitability,
+    layerVisibility.agriPOI,
+  ]);
 
   // Overlay 可見性（一個 useEffect 取代原本 7 個）
   useEffect(() => {
@@ -210,6 +304,10 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     for (const config of OVERLAY_REGISTRY) {
       setOverlayVisible(map, config, layerVisibility[config.id]);
     }
+    // OVERLAY_REGISTRY 之外的專屬圖層
+    updateAllAgricultureLayers(map, layerVisibility, overlayParamsRef.current);
+    // 等時圈開/關層
+    updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
   }, [layerVisibility]);
 
   return (
