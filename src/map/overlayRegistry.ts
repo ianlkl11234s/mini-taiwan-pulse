@@ -937,6 +937,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // 救援等時圈 coverage 已改用 PMTiles 向量切片（src/map/fireIsochroneLayerFactory.ts），
+  // 不走 overlayRegistry。理由：GeoJSON 全台高頂點多邊形要麼大要麼簡化變醜，
+  // PMTiles 依縮放/視窗分級載入，又清晰又流暢。
+
   // ── ETC Gantry (國道收費門架，341 點) ──
   {
     id: "etcGantry",
@@ -1984,6 +1988,90 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-width": 0,
             "circle-translate": [0, -z],
             "circle-translate-anchor": "viewport",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 農企業登記 (spatial.agri_business_registrations，business_type 區分 3 類) ──
+  // 顏色與 src/data/agriCompanyTypes.ts 對齊；零售/批發點多 → minzoom 8 控密度
+  {
+    id: "agriRetail",
+    sourceUrl: "./agriculture/agri_retail_companies.geojson",
+    sourceId: "agri-retail",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 8,
+        paint: (isDark, p) => {
+          const scale = p?.agriRetailScale ?? 1;
+          const opacity = p?.agriRetailOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 1.4 * scale, 12, 3 * scale, 16, 6 * scale,
+            ],
+            "circle-color": "#e91e63",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 8, 0, 12, 0.4, 16, 0.8],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "agriProduceWholesale",
+    sourceUrl: "./agriculture/produce_wholesale_companies.geojson",
+    sourceId: "agri-produce-wholesale",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 8,
+        paint: (isDark, p) => {
+          const scale = p?.agriProduceWholesaleScale ?? 1;
+          const opacity = p?.agriProduceWholesaleOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 1.4 * scale, 12, 3 * scale, 16, 6 * scale,
+            ],
+            "circle-color": "#3f51b5",
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.3)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 8, 0, 12, 0.4, 16, 0.8],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "agriWholesaleMarket",
+    sourceUrl: "./agriculture/agri_wholesale_market_companies.geojson",
+    sourceId: "agri-wholesale-market",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.agriWholesaleMarketScale ?? 1;
+          const opacity = p?.agriWholesaleMarketOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 3 * scale, 10, 5 * scale, 14, 8 * scale,
+            ],
+            "circle-color": "#ffd600",
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.45)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.6, 14, 1.4],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
           };
         },
       },

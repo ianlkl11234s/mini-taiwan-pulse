@@ -14,7 +14,7 @@
  * 真正的 3D altitude 只對 Three.js scene 有效。
  */
 
-import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
+import type { Map as MapboxMap, GeoJSONSource, MapLayerMouseEvent } from "mapbox-gl";
 import type { FeatureInfo, LayerVisibility } from "../types";
 import {
   WASTE_FACILITY_COLORS,
@@ -156,6 +156,28 @@ export interface WasteMapboxOptions {
 }
 
 /**
+ * 已綁定的 layer-specific event handler 記錄（以 coreLayerId 為 key）。
+ * 用來在 setup 重綁前先 `map.off` 成對移除，避免 listener 累加（記憶體洩漏 + 一次點擊觸發多個 popup）。
+ * source/layer 用 `getLayer` 守門避免重複新增，listener 也比照辦理做冪等綁定。
+ */
+type WasteLayerHandlers = {
+  click: (e: MapLayerMouseEvent) => void;
+  mouseenter: () => void;
+  mouseleave: () => void;
+};
+const boundHandlers = new Map<string, WasteLayerHandlers>();
+
+/** 解綁某 layer 既有的 click / mouseenter / mouseleave handler（若有） */
+function offWasteLayerHandlers(map: MapboxMap, layerId: string) {
+  const h = boundHandlers.get(layerId);
+  if (!h) return;
+  map.off("click", layerId, h.click);
+  map.off("mouseenter", layerId, h.mouseenter);
+  map.off("mouseleave", layerId, h.mouseleave);
+  boundHandlers.delete(layerId);
+}
+
+/**
  * 在 map load 後呼叫一次：建立 8 個 source + 16 個 layer（每個 sub-key 有 glow + core 兩條），
  * 預設 visibility = none，並掛 click handler。
  */
@@ -208,28 +230,48 @@ export function setupWasteMapboxLayers(
       });
     }
 
-    // click → popup
-    map.on("click", coreLayerId(k), (e) => {
-      const feat = e.features?.[0];
-      if (!feat) return;
-      const props = feat.properties ?? {};
-      // accepts_categories 從 GeoJSON properties 拿到的會是字串化陣列，要解
-      let accepts = props["accepts_categories"];
-      if (typeof accepts === "string") {
-        try { accepts = JSON.parse(accepts); } catch { /* keep as string */ }
-      }
-      opts.onFeatureClick({
-        layerType: props["kind"] === "facility" ? "wasteFacility" : "wasteDisposalPoint",
-        properties: { ...props, accepts_categories: accepts },
-      });
-    });
+    // click → popup（listener 冪等綁定：先 off 既有 handler 再 on，避免重複呼叫 setup 時累加）
+    const coreId = coreLayerId(k);
+    offWasteLayerHandlers(map, coreId);
+    const handlers: WasteLayerHandlers = {
+      click: (e) => {
+        const feat = e.features?.[0];
+        if (!feat) return;
+        const props = feat.properties ?? {};
+        // accepts_categories 從 GeoJSON properties 拿到的會是字串化陣列，要解
+        let accepts = props["accepts_categories"];
+        if (typeof accepts === "string") {
+          try { accepts = JSON.parse(accepts); } catch { /* keep as string */ }
+        }
+        opts.onFeatureClick({
+          layerType: props["kind"] === "facility" ? "wasteFacility" : "wasteDisposalPoint",
+          properties: { ...props, accepts_categories: accepts },
+        });
+      },
+      mouseenter: () => {
+        map.getCanvas().style.cursor = "pointer";
+      },
+      mouseleave: () => {
+        map.getCanvas().style.cursor = "";
+      },
+    };
+    map.on("click", coreId, handlers.click);
+    map.on("mouseenter", coreId, handlers.mouseenter);
+    map.on("mouseleave", coreId, handlers.mouseleave);
+    boundHandlers.set(coreId, handlers);
+  }
+}
 
-    map.on("mouseenter", coreLayerId(k), () => {
-      map.getCanvas().style.cursor = "pointer";
-    });
-    map.on("mouseleave", coreLayerId(k), () => {
-      map.getCanvas().style.cursor = "";
-    });
+/**
+ * teardown：移除 8 個 source + 16 個 layer，並成對解綁 click / mouseenter / mouseleave listener。
+ * 對 source/layer 用 `getLayer` / `getSource` 守門，listener 透過 boundHandlers 成對 `map.off`。
+ */
+export function removeWasteMapboxLayers(map: MapboxMap) {
+  for (const k of ALL_KEYS) {
+    offWasteLayerHandlers(map, coreLayerId(k));
+    if (map.getLayer(coreLayerId(k))) map.removeLayer(coreLayerId(k));
+    if (map.getLayer(glowLayerId(k))) map.removeLayer(glowLayerId(k));
+    if (map.getSource(sourceId(k))) map.removeSource(sourceId(k));
   }
 }
 

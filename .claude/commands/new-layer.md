@@ -29,7 +29,7 @@ argument-hint: <layerKey> [--static|--dynamic] [--source=supabase|geojson]
 2. **`src/data/$1Loader.ts`** — Supabase loader（含 `loadingRegistry.start/complete`）
 3. **`src/hooks/use$1Layer.ts`** — React hook（state + effect + cleanup）
 4. **`src/map/overlayRegistry.ts`** 或 **`src/map/$1CustomLayer.ts`**
-5. **`src/components/LayerSidebar.tsx`** — UI toggle + ⚠️ `LAYER_COLORS` 補 `$1: "#XXX"`
+5. **`src/components/sidebar/layerCatalog.ts`** — ⚠️ `LAYER_COLORS` 補 `$1: "#XXX"`（漏了會 tsc error TS2739）+ `SECTIONS` 對應分區加 `$1`（單一真實來源，桌機/手機兩側欄共用）；UI toggle 渲染仍在 `IconRailSidebar.tsx` / `LayerSidebar.tsx`
 6. **`src/App.tsx`** — 接線
 7. **`src/hooks/useLayerVisibility.ts`** — 預設可見性
 

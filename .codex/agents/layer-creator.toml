@@ -21,9 +21,10 @@ developer_instructions = """
    - Cleanup 正確處理 race condition
 6. **Static layer**：Read `src/map/overlayRegistry.ts`，Edit 加一筆 `OverlayConfig`
    **Dynamic layer**：Write `src/map/<layerKey>CustomLayer.ts`（參考 `cwaImageryLayer.ts`）
-7. **Edit** `src/components/LayerSidebar.tsx`：
+7. **Edit** `src/components/sidebar/layerCatalog.ts`（單一真實來源，桌機 IconRailSidebar 與手機 LayerSidebar 共用）：
    - ⚠️ **最重要**：`LAYER_COLORS` 加 `<layerKey>: "#XXXX"`（不加會 tsc error TS2739）
-   - 在適當 section 加 UI toggle
+   - `SECTIONS` 對應分區加入該 layer key
+   - UI toggle 的渲染仍在兩個 sidebar 元件，但資料來源已統一在此檔
 8. **Edit** `src/App.tsx` 接線：import hook、傳 props
 9. **Edit** `src/hooks/useLayerVisibility.ts` 加預設值
 10. **Bash** `npx tsc -b` 驗證

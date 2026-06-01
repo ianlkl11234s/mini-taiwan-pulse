@@ -4,6 +4,7 @@ dist
 .env.local
 *.local
 *.tsbuildinfo
+.DS_Store
 public/aviation_data.json
 public/ship_data.json
 public/rail/
@@ -51,3 +52,16 @@ __pycache__/
 # 消防靜態 geojson（走 S3 deploy-assets，比照其他 POI）
 public/geo/fire_stations.geojson
 public/geo/fire_hydrants.geojson
+
+# 消防等時圈 API raw 快取
+scripts/fetch/.fire_isochrone_cache/
+
+# 等時圈 PMTiles 中介產物
+/build/
+
+# 消防等時圈 PMTiles（9.3MB，走 S3 deploy-assets，勿入 git）
+public/fire/*.pmtiles
+# root 層截圖 / geocode 快取（不該進版控）
+demographics-1600.png
+demographics_tpe_1280.png
+scripts/fetch/.pingtung_geocode_cache.json

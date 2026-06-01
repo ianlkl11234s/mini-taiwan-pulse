@@ -5,6 +5,12 @@ import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
+import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
+
+/** 從 overlayParams 取等時圈 factory 參數（opacity + 縣市 idx）。 */
+function fireIsochroneParamsOf(p: Record<string, number>) {
+  return { opacity: p.fireIsochroneOpacity ?? 0.5, countyIdx: p.fireIsochroneCountyIdx ?? 0 };
+}
 import { ensureH3Layers } from "./h3LayerFactory";
 import { ensurePopCountLayers, ensureIndicatorsLayers } from "./demographicsLayerFactory";
 import { ensureYoubikeLayers } from "./youbikeLayerFactory";
@@ -185,6 +191,9 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       ensureYoubikeLayers(map);
       ensureAllAgricultureLayers(map);
       updateAllAgricultureLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      // 等時圈 PMTiles 層（須排在 agriculture 之後 → 共用 PMTiles SourceType 已註冊）
+      ensureFireIsochroneLayer(map);
+      updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
 
       // 初次載入後，每次樣式切換都重建 flight layer
       if (readyRef.current) {
@@ -201,6 +210,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       ensureYoubikeLayers(map);
       ensureAllAgricultureLayers(map);
       updateAllAgricultureLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      ensureFireIsochroneLayer(map);
+      updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       onMapReadyRef.current?.(map);
     });
 
@@ -273,6 +284,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
     updateAllAgricultureLayers(map, layerVisibility, overlayParams);
+    // 等時圈：透明度 / 縣市下拉變動 → 更新
+    updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParams));
   }, [
     isDarkTheme, overlayParams,
     layerVisibility.agriculture,
@@ -293,6 +306,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     }
     // OVERLAY_REGISTRY 之外的專屬圖層
     updateAllAgricultureLayers(map, layerVisibility, overlayParamsRef.current);
+    // 等時圈開/關層
+    updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
   }, [layerVisibility]);
 
   return (

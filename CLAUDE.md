@@ -6,15 +6,17 @@
 
 ## Session 開頭必讀（記憶迴圈）
 
-涉及開發工作時先讀：
-1. [`.claude/lessons.md`](./.claude/lessons.md) — P0 規則累積（每條違反成本 >30 min）
-2. [`.claude/retrospectives/INDEX.md`](./.claude/retrospectives/INDEX.md) — 最近 session 回顧
-3. 若遇到似曾相識的 bug：搜 [`.claude/pitfalls/`](./.claude/pitfalls/)
+SessionStart hook（`.claude/settings.json` → `.claude/memory/load-session.sh`）會自動
+inline `STATUS` / `BACKLOG` / `PRINCIPLES` 三檔。涉及開發工作時再依需要讀：
+1. [`.claude/memory/STATUS.md`](./.claude/memory/STATUS.md) — 當前狀態（接上次 session 結束點）
+2. [`.claude/memory/PRINCIPLES.md`](./.claude/memory/PRINCIPLES.md) — P0 規則累積（每條違反成本 >30 min）
+3. [`.claude/memory/REFLECTIONS.md`](./.claude/memory/REFLECTIONS.md) — 反省紀錄（append-only）
+4. 若遇到似曾相識的 bug：搜 [`.claude/pitfalls/`](./.claude/pitfalls/)
 
-完成大段落（功能 commit、feature 驗證通過）後產生 retro：
-- 複製 `.claude/retrospectives/_template.md`
-- 填完後 P0 項目升級到 `lessons.md`、重要 bug 寫成 pitfalls
-- 機制說明：[`.claude/retrospectives/README.md`](./.claude/retrospectives/README.md)
+完成大段落（功能 commit、feature 驗證通過）後更新記憶：
+- 用 `/wrap-up` skill 對應更新 `.claude/memory/` 9 檔分類
+- P0 規則進 `PRINCIPLES.md`、事件進 `INCIDENTS.md`、重要 bug 長文寫 `.claude/pitfalls/`
+- 框架機制說明：[`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)
 
 ## 必守規則
 
@@ -58,7 +60,7 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 2. `src/data/xxxLoader.ts` → loader + loadingRegistry
 3. `src/hooks/useXxxLayer.ts` → React hook
 4. `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts`
-5. `src/components/LayerSidebar.tsx` → UI toggle + **`LAYER_COLORS` 補 key**（漏了會 tsc error）
+5. `src/components/sidebar/layerCatalog.ts` → **`LAYER_COLORS` 補 key**（漏了會 tsc error TS2739）+ `SECTIONS` 對應分區加 key（單一真實來源，桌機 IconRailSidebar 與手機 LayerSidebar 同時生效）；UI toggle 渲染仍在兩個 sidebar 元件
 6. `src/App.tsx` → 接線
 7. `src/hooks/useLayerVisibility.ts` → 預設可見性
 

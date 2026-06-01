@@ -111,7 +111,7 @@ useEffect(() => {
 | 2 | `src/data/xxxLoader.ts` | 寫 loader（loadingRegistry + Supabase RPC） |
 | 3 | `src/hooks/useXxxLayer.ts` | React hook：state + 觸發 loader + cleanup |
 | 4 | `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts` | 靜態 → registry；動態 → CustomLayer |
-| 5 | `src/components/LayerSidebar.tsx` | UI toggle + **`LAYER_COLORS` 加 key（⚠️ 漏了會 tsc error）** |
+| 5 | `src/components/sidebar/layerCatalog.ts` | **`LAYER_COLORS` 加 key（⚠️ 漏了會 tsc error TS2739）** + `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用）。UI toggle 渲染仍在 `IconRailSidebar.tsx` / `LayerSidebar.tsx` |
 | 6 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView |
 | 7 | `src/hooks/useLayerVisibility.ts` | 加預設可見性 |
 

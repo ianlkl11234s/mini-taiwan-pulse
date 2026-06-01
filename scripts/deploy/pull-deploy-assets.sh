@@ -1,6 +1,13 @@
 #!/bin/sh
-# 從 S3 私密下載資料到 /data/（container 內執行）
+# 從 S3 同步資料到 /data/（container 內由 entrypoint.sh 呼叫）
 # 需要環境變數：S3_ACCESS_KEY, S3_SECRET_KEY, S3_REGION, S3_BUCKET
+#
+# 2026-06 改版：全面改用 `aws s3 sync`（取代逐檔 cp）。
+#   → volume 已有且未變的檔自動跳過，不重複下載（重啟幾乎零流量）。
+#   → 加新大檔多數情況不用改本腳本（water_*/fire_* glob、agriculture/ 整夾）。
+# 注意：目前 S3 deploy-assets/ 仍是「扁平」結構（檔名直接放根目錄），
+#   故 geo/h3 用 --include filter 把扁平檔同步進對應 /data 子目錄。
+#   未來搬成「鏡像結構」後可簡化為整夾 sync（見 docs/launch/06_DEPLOY_ASSETS_MIGRATION.md）。
 
 export AWS_ACCESS_KEY_ID="$S3_ACCESS_KEY"
 export AWS_SECRET_ACCESS_KEY="$S3_SECRET_KEY"
@@ -9,80 +16,60 @@ export AWS_DEFAULT_REGION="${S3_REGION:-ap-southeast-2}"
 BUCKET="${S3_BUCKET:-migu-gis-data-collector}"
 PREFIX="deploy-assets"
 DATA_DIR="/data"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire"
+S3="s3://$BUCKET/$PREFIX"
+CACHE="$DATA_DIR/.cache"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/agriculture" "$CACHE"
 
-# 採扁平 S3 + 本地分目錄方案：S3 路徑維持 deploy-assets/xxx.ext，
-# 下載時依檔案類型落到對應子目錄對應前端 public/{geo,h3}/ 結構
+echo "[pull] sync root json → $DATA_DIR/"
+aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
+  --exclude "*" --include "aviation_data.json" --include "ship_data.json"
 
-# Root 層：動態資料檔
-ROOT_FILES="aviation_data.json ship_data.json"
+echo "[pull] sync geo → $DATA_DIR/geo/（扁平 S3 + include filter）"
+aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
+  --include "provincial_road.geojson" --include "national_highway.geojson" \
+  --include "bus_stations_city.geojson" --include "bus_stations_intercity.geojson" \
+  --include "bike_stations.geojson" --include "cycling_routes.geojson" \
+  --include "freeway_congestion.geojson" --include "weather_stations.geojson" \
+  --include "schools.geojson" --include "convenience_stores.geojson" \
+  --include "active_faults.geojson" \
+  --include "water_*.geojson" --include "fire_*.geojson"
 
-# geo/ 層：靜態 GeoJSON
-GEO_FILES="provincial_road.geojson national_highway.geojson bus_stations_city.geojson bus_stations_intercity.geojson bike_stations.geojson cycling_routes.geojson freeway_congestion.geojson weather_stations.geojson schools.geojson convenience_stores.geojson active_faults.geojson"
+echo "[pull] sync h3 → $DATA_DIR/h3/"
+aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_res8.json"
 
-# h3/ 層：H3 預聚合
-H3_FILES="h3_demographics_res8.json h3_population_res8.json"
+# 消防等時圈 PMTiles：只同步「扁平根目錄」的 *.pmtiles（不含 agriculture/ 子前綴）→ /data/fire/
+echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles"
 
-for f in $ROOT_FILES; do
-  echo "Pulling $f → $DATA_DIR/$f"
-  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/$f"
-done
+# 農業：鏡像子前綴 deploy-assets/agriculture/ → /data/agriculture/（整夾 sync，加新檔免改腳本）
+echo "[pull] sync agriculture → $DATA_DIR/agriculture/"
+aws s3 sync "$S3/agriculture/" "$DATA_DIR/agriculture/" --no-progress
 
-for f in $GEO_FILES; do
-  echo "Pulling $f → $DATA_DIR/geo/$f"
-  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
-done
-
-# 水資源圖層：動態列舉 S3 上所有 water_*.geojson（upload 端用 glob，pull 端配合動態化）
-# 新增水圖層不用改本腳本，只要 upload 完 container 重跑 pull 即可
-echo "Listing water_*.geojson from S3..."
-WATER_FILES=$(aws s3 ls "s3://$BUCKET/$PREFIX/" --region "${AWS_DEFAULT_REGION}" \
-  | awk '{print $4}' | grep -E '^water_.*\.geojson$' || true)
-for f in $WATER_FILES; do
-  echo "Pulling $f → $DATA_DIR/geo/$f"
-  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
-done
-
-# 消防圖層：動態列舉 S3 上所有 fire_*.geojson（同 water 慣例）→ /data/geo/
-echo "Listing fire_*.geojson from S3..."
-FIRE_GEO_FILES=$(aws s3 ls "s3://$BUCKET/$PREFIX/" --region "${AWS_DEFAULT_REGION}" \
-  | awk '{print $4}' | grep -E '^fire_.*\.geojson$' || true)
-for f in $FIRE_GEO_FILES; do
-  echo "Pulling $f → $DATA_DIR/geo/$f"
-  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/geo/$f"
-done
-
-# 消防等時圈 PMTiles 向量切片（動態列舉）→ /data/fire/
-echo "Listing *.pmtiles from S3..."
-PMTILES_FILES=$(aws s3 ls "s3://$BUCKET/$PREFIX/" --region "${AWS_DEFAULT_REGION}" \
-  | awk '{print $4}' | grep -E '\.pmtiles$' || true)
-for f in $PMTILES_FILES; do
-  echo "Pulling $f → $DATA_DIR/fire/$f"
-  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/fire/$f"
-done
-
-for f in $H3_FILES; do
-  echo "Pulling $f → $DATA_DIR/h3/$f"
-  aws s3 cp "s3://$BUCKET/$PREFIX/$f" "$DATA_DIR/h3/$f"
-done
-
-# Rail 個別檔案（從 tar.gz 解壓）
-echo "Pulling rail.tar.gz..."
-if aws s3 cp "s3://$BUCKET/$PREFIX/rail.tar.gz" /tmp/rail.tar.gz; then
-  mkdir -p "$DATA_DIR/rail"
-  tar -xzf /tmp/rail.tar.gz -C "$DATA_DIR"
-  rm /tmp/rail.tar.gz
-  echo "rail/ extracted to $DATA_DIR/rail/"
+# Rail：tar.gz 同步到 cache，僅在 archive 有變時才重新解壓
+echo "[pull] sync rail.tar.gz → cache"
+aws s3 sync "$S3/" "$CACHE/" --no-progress --exclude "*" --include "rail.tar.gz"
+if [ -f "$CACHE/rail.tar.gz" ]; then
+  if [ ! -f "$DATA_DIR/rail/.extracted" ] || [ "$CACHE/rail.tar.gz" -nt "$DATA_DIR/rail/.extracted" ]; then
+    echo "[pull] extracting rail.tar.gz → $DATA_DIR/rail/"
+    mkdir -p "$DATA_DIR/rail"
+    tar -xzf "$CACHE/rail.tar.gz" -C "$DATA_DIR"
+    touch "$DATA_DIR/rail/.extracted"
+  else
+    echo "[pull] rail unchanged, skip extract"
+  fi
 fi
 
-# 公車大檔路線 JSON（gzip 壓縮；小檔隨 git 部署不在此處）
-BUS_BIG_FILES="taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json"
-for f in $BUS_BIG_FILES; do
-  echo "Pulling $f.gz → $DATA_DIR/bus/$f"
-  if aws s3 cp "s3://$BUCKET/$PREFIX/$f.gz" "/tmp/$f.gz"; then
-    gunzip -c "/tmp/$f.gz" > "$DATA_DIR/bus/$f"
-    rm "/tmp/$f.gz"
+# 公車大檔：*.json.gz 同步到 cache，僅在有變時才重新 gunzip
+echo "[pull] sync bus *.json.gz → cache"
+aws s3 sync "$S3/" "$CACHE/" --no-progress --exclude "*" --include "*_bus_routes.json.gz"
+for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json; do
+  gz="$CACHE/$f.gz"
+  if [ -f "$gz" ]; then
+    if [ ! -f "$DATA_DIR/bus/$f" ] || [ "$gz" -nt "$DATA_DIR/bus/$f" ]; then
+      echo "[pull] gunzip $f → $DATA_DIR/bus/"
+      gunzip -c "$gz" > "$DATA_DIR/bus/$f"
+    fi
   fi
 done
 
-echo "All assets pulled to $DATA_DIR"
+echo "[pull] all assets synced to $DATA_DIR"

@@ -69,6 +69,31 @@ for f in public/fire/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# 農業圖層：上傳到 deploy-assets/agriculture/ 子前綴（鏡像結構，pull 端整夾 sync）
+# 與 fire 的扁平 *.pmtiles 分流，避免 pull 的 fire pmtiles glob 誤抓。
+# 範圍由本清單控制：要排除某層就把它移出 AGRI_FILES 即可（不上傳 = 該層不上線）。
+AGRI_FILES=(
+  "public/agriculture/ftw_fields_2025.pmtiles"
+  "public/agriculture/crop_suitability_132.pmtiles"
+  "public/agriculture/soil_map_national.pmtiles"
+  "public/agriculture/soil_fertility_grid_250m.pmtiles"
+  "public/agriculture/leisure_farm_zones_2025.pmtiles"
+  "public/agriculture/rural_regen_communities_2025.pmtiles"
+  "public/agriculture/agriculture_pois.geojson"
+  "public/agriculture/agri_wholesale_market_companies.geojson"
+  "public/agriculture/agri_retail_companies.geojson"
+  "public/agriculture/produce_wholesale_companies.geojson"
+)
+for f in "${AGRI_FILES[@]}"; do
+  name=$(basename "$f")
+  if [ ! -f "$f" ]; then
+    echo "Skipping agriculture/$name (file not found: $f)"
+    continue
+  fi
+  echo "Uploading agriculture/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/agriculture/$name" --region ap-southeast-2
+done
+
 # Rail 個別檔案（打包成 tar.gz 上傳）
 if [ -d "public/rail" ]; then
   echo "Packing public/rail/ → rail.tar.gz..."
