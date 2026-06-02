@@ -8,11 +8,12 @@
 - [x] ✅ `npx tsc -b` exit 0
 - [x] ✅ WIP code review 無 blocker、無既有 layer 回歸（LayerSidebar -280 為純搬移）
 - [x] ✅ fire / road events / water 部署鏈三清單齊全
-- [ ] 🔴 **GAP-1**：agriculture 10 檔的 upload+pull+nginx+compose（或決定本次不納入 agriculture）
-- [ ] 🟡 **GAP-2**：nginx `/bus/` fallback
-- [ ] 🟡 **GAP-3（Codex）**：`/geo/` `/h3/` `/bus/` 加 dist fallback（沿用舊 volume 不急，新 volume 必修）；部署前先 `service exec ls /data/geo` 驗證現況
-- [x] ✅ **/data entrypoint**：Dockerfile 已接 entrypoint.sh（啟動先 pull 再起 nginx，pull 失敗不 crash）
-- [ ] 🟡 部署後逐層 smoke test（All Off → 逐一開，對照本地）
+- [x] ✅ **GAP-1**：agriculture 10 檔 upload+pull+nginx 接好，已上傳 S3，本地 docker 實測 200/206
+- [x] ✅ **GAP-2/GAP-3**：nginx `/geo /h3 /bus` 加 `@dist` fallback，本地實測 git 小檔即使 volume 空也 200
+- [x] ✅ **/data entrypoint**：改背景 pull，nginx 立即啟動（本地實測秒起，不阻塞）
+- [x] ✅ **本地 docker build + 全鏈路 smoke test 通過**（git archive 忠實重現 Zeabur）。抓並修了 4 個會炸的雷：
+      ① package-lock 未同步（npm ci 會掛）② fire sync 遞迴誤抓 agriculture pmtiles ③ entrypoint 阻塞 pull ④ bus 3 大檔從未上 S3
+- [ ] 🟡 部署後逐層 smoke test（All Off → 逐一開，對照本地）— 線上最終確認
 
 ## B. Supabase 穩定
 
