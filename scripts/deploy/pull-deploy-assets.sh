@@ -37,9 +37,12 @@ aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
 echo "[pull] sync h3 → $DATA_DIR/h3/"
 aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_res8.json"
 
-# 消防等時圈 PMTiles：只同步「扁平根目錄」的 *.pmtiles（不含 agriculture/ 子前綴）→ /data/fire/
+# 消防等時圈 PMTiles → /data/fire/
+# ⚠️ aws s3 sync 是遞迴的，--include "*.pmtiles" 會連 agriculture/ 子前綴的 pmtiles 都抓，
+#    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
+#    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*"
 
 # 農業：鏡像子前綴 deploy-assets/agriculture/ → /data/agriculture/（整夾 sync，加新檔免改腳本）
 echo "[pull] sync agriculture → $DATA_DIR/agriculture/"
