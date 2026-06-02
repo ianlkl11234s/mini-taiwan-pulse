@@ -4,6 +4,12 @@ import { FlightScene } from "../three/FlightScene";
 import { ShipScene } from "../three/ShipScene";
 import { RailScene } from "../three/RailScene";
 import { setAltExaggeration, getAltExaggeration, setAltOffset, getAltOffset } from "../utils/coordinates";
+import { loadingRegistry } from "../lib/loadingRegistry";
+
+// 首次開啟 flight/ship 圖層時，Three.js 軌跡建構是同步阻塞主執行緒（5-10s）。
+// 用「首幀只啟動 loading 圈圈並 return、下一幀才真正建構」讓圈圈先畫出來，
+// 建構完成後收掉圈圈。最壞情況（狀態異常）也只是沒圈圈，不影響既有渲染。
+type RenderGateState = "off" | "spinning" | "on";
 
 export interface FlightLayerOptions {
   getCurrentTime: () => number;
@@ -29,6 +35,9 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
   let lastAltOffset = getAltOffset();
   let lastDarkTheme = true;
   let lastShowTrails = true;
+  let gate: RenderGateState = "off";
+  let loadId = "";
+  let armFrames = 0;
 
   return {
     id: "flight-3d",
@@ -42,7 +51,26 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!opts.getIsVisible()) return;
+      if (!opts.getIsVisible()) {
+        if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
+        gate = "off";
+        return;
+      }
+      // 首次可見：先啟動 loading 圈圈、本幀不建構，讓瀏覽器先畫圈圈
+      if (gate === "off") {
+        gate = "spinning";
+        armFrames = 0;
+        loadId = `flight-3d:${Date.now()}`;
+        loadingRegistry.start(loadId, "航班軌跡 渲染中");
+        map?.triggerRepaint();
+        return;
+      }
+      // 同步建構會阻塞主執行緒，先空轉幾幀確保圈圈真的 paint 出來，再開始建構
+      if (gate === "spinning" && armFrames < 3) {
+        armFrames++;
+        map?.triggerRepaint();
+        return;
+      }
 
       const flights = opts.getFlights();
       const time = opts.getCurrentTime();
@@ -83,11 +111,18 @@ export function createFlightLayer(opts: FlightLayerOptions): CustomLayerInterfac
       flightScene.update(flights, time);
       flightScene.render(matrix);
 
+      // 首幀建構完成 → 收掉 loading 圈圈
+      if (gate === "spinning") {
+        gate = "on";
+        if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
+      }
+
       // 請求持續重繪（動畫）
       map?.triggerRepaint();
     },
 
     onRemove() {
+      if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
       flightScene.dispose();
     },
   };
@@ -110,6 +145,9 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
   const shipScene = new ShipScene();
   let map: MapboxMap | null = null;
   let lastDarkTheme = true;
+  let gate: RenderGateState = "off";
+  let loadId = "";
+  let armFrames = 0;
 
   return {
     id: "ship-3d",
@@ -123,7 +161,26 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
     },
 
     render(_gl: WebGLRenderingContext, matrix: number[]) {
-      if (!opts.getIsVisible()) return;
+      if (!opts.getIsVisible()) {
+        if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
+        gate = "off";
+        return;
+      }
+      // 首次可見：先啟動 loading 圈圈、本幀不建構，讓瀏覽器先畫圈圈
+      if (gate === "off") {
+        gate = "spinning";
+        armFrames = 0;
+        loadId = `ship-3d:${Date.now()}`;
+        loadingRegistry.start(loadId, "船舶軌跡 渲染中");
+        map?.triggerRepaint();
+        return;
+      }
+      // 同步建構會阻塞主執行緒，先空轉幾幀確保圈圈真的 paint 出來，再開始建構
+      if (gate === "spinning" && armFrames < 3) {
+        armFrames++;
+        map?.triggerRepaint();
+        return;
+      }
 
       const isDark = opts.getIsDarkTheme();
       if (isDark !== lastDarkTheme) {
@@ -137,10 +194,17 @@ export function createShipLayer(opts: ShipLayerOptions): CustomLayerInterface {
       shipScene.update(opts.getShips(), opts.getCurrentTime());
       shipScene.render(matrix);
 
+      // 首幀建構完成 → 收掉 loading 圈圈
+      if (gate === "spinning") {
+        gate = "on";
+        if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
+      }
+
       map?.triggerRepaint();
     },
 
     onRemove() {
+      if (loadId) { loadingRegistry.end(loadId); loadId = ""; }
       shipScene.dispose();
     },
   };
