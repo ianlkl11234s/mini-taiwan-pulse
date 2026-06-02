@@ -82,7 +82,7 @@ export function useLayerVisibility() {
     agriWholesaleMarket: false,
     wasteTruck: false,
     wasteSchedule: false,
-    wasteScheduleNote: true,
+    wasteScheduleNote: false,
     wasteStopsStatic: false,
     wasteRoute: false,
     wasteStop: false,

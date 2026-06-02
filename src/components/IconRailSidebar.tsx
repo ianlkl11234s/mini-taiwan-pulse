@@ -21,7 +21,6 @@ import type {
 import type { ParamControl } from "../hooks/useTransportParams";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
-import { DataCalendarPanel } from "./DataCalendarPanel";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, SECTIONS } from "./sidebar/layerCatalog";
 
@@ -165,7 +164,7 @@ const BORDER = "#2A2D32";
 const DIM = "#6B7280";
 const INACTIVE_TEXT = "#9CA3AF";
 
-type PanelId = "layers" | "locations" | "calendar";
+type PanelId = "layers" | "locations";
 
 // ── Main Component ──
 
@@ -177,10 +176,17 @@ export function IconRailSidebar({
   counts, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   getControls, currentLocationId, onLocationJump, onWidthChange,
-  dataRegistry, selectedDate, onDateSelect,
 }: IconRailSidebarProps) {
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
+  const [comingSoon, setComingSoon] = useState(false);
+
+  // 齒輪「規劃中」提示：顯示後 2 秒自動消失
+  useEffect(() => {
+    if (!comingSoon) return;
+    const t = setTimeout(() => setComingSoon(false), 2000);
+    return () => clearTimeout(t);
+  }, [comingSoon]);
 
   const panelOpen = activePanel !== null;
 
@@ -281,20 +287,37 @@ export function IconRailSidebar({
           tooltip="Locations"
         />
 
-        {/* Calendar */}
-        <RailIcon
-          icon={CalendarDays}
-          active={activePanel === "calendar"}
-          onClick={() => togglePanel("calendar")}
-          tooltip="Data Calendar"
-        />
-
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
-        {/* Settings (placeholder) */}
-        <RailIcon icon={Settings} active={false} onClick={() => {}} tooltip="Settings" />
+        {/* Settings（規劃中） */}
+        <RailIcon icon={Settings} active={false} onClick={() => setComingSoon(true)} tooltip="Settings" />
       </div>
+
+      {/* 齒輪「規劃中」提示 */}
+      {comingSoon && (
+        <div
+          style={{
+            position: "absolute",
+            left: RAIL_WIDTH + 8,
+            bottom: 12,
+            padding: "8px 14px",
+            background: "rgba(0, 0, 0, 0.8)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            border: `1px solid ${BORDER}`,
+            borderRadius: 8,
+            color: ACCENT,
+            fontSize: 13,
+            whiteSpace: "nowrap",
+            zIndex: 5,
+            pointerEvents: "none",
+            animation: "panelFadeIn 0.2s ease-out",
+          }}
+        >
+          ⚙️ 設定功能規劃中
+        </div>
+      )}
 
       {/* ── Floating Panel ── */}
       {panelOpen && (
@@ -340,18 +363,6 @@ export function IconRailSidebar({
                 getControls={getControls}
                 onClose={closePanel}
               />
-            )}
-            {activePanel === "calendar" && dataRegistry && selectedDate && onDateSelect && (
-              <>
-                <PanelHeader title="Data Availability" onClose={closePanel} />
-                <div className="layer-sidebar-scroll" style={{ flex: 1, overflowY: "auto" }}>
-                  <DataCalendarPanel
-                    registry={dataRegistry}
-                    selectedDate={selectedDate}
-                    onDateSelect={onDateSelect}
-                  />
-                </div>
-              </>
             )}
             {activePanel === "locations" && (
               <LocationsPanel
