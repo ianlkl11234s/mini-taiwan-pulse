@@ -4,6 +4,7 @@ import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
+import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
@@ -94,7 +95,8 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasFireStations = visibility.fireStations;
   const hasFireHydrants = visibility.fireHydrants;
   const hasFireIsochrone = visibility.fireIsochrone;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone;
+  const hasEcoNetworkZones = visibility.ecoNetworkZones;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones;
 
   if (!hasAny) return null;
 
@@ -152,6 +154,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasFireStations && <FireStationLegend />}
           {hasFireHydrants && <FireHydrantLegend />}
           {hasFireIsochrone && <FireIsochroneLegend />}
+          {hasEcoNetworkZones && <EcoNetworkZonesLegend />}
         </div>
       )}
     </div>
@@ -227,6 +230,24 @@ function FireIsochroneLegend() {
       />
       <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {FIRE_ISOCHRONE_NOTE}
+      </div>
+    </div>
+  );
+}
+
+function EcoNetworkZonesLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        國土綠網分區 ECO NETWORK
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {ECO_NETWORK_ZONE_TYPES.map((z) => (
+          <div key={z.zone} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 9, height: 9, borderRadius: 1, background: z.color, flexShrink: 0 }} />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.7)" }}>{z.label}</span>
+          </div>
+        ))}
       </div>
     </div>
   );

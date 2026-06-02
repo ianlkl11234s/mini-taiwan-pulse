@@ -144,6 +144,8 @@ export type ExpandableLayerKey =
   | "agriRetail"
   | "agriProduceWholesale"
   | "agriWholesaleMarket"
+  | "farmRoads"
+  | "ecoNetworkZones"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
@@ -458,7 +460,8 @@ export interface FeatureInfo {
     | "wasteFacility" | "wasteDisposalPoint"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
-    | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket";
+    | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
+    | "farmRoads" | "ecoNetworkZones";
   properties: Record<string, unknown>;
 }
 
@@ -544,6 +547,8 @@ export interface LayerVisibility {
   agriRetail: boolean;             // 37,430 農產零售商
   agriProduceWholesale: boolean;   // 22,843 蔬果批發商
   agriWholesaleMarket: boolean;    // 53 農產批發市場
+  farmRoads: boolean;              // 8678 農路 LineString
+  ecoNetworkZones: boolean;        // 12 國土綠網地理分區 MultiPolygon
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;

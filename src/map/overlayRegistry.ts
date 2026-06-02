@@ -1,4 +1,5 @@
 import type { OverlayConfig } from "../types";
+import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 
 const BASE_RADIUS = 5;
 
@@ -2074,6 +2075,79 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-opacity": opacity,
           };
         },
+      },
+    ],
+  },
+
+  // ── 農路圖（LineString，單色，可 popup）──
+  {
+    id: "farmRoads",
+    sourceUrl: "./agriculture/farm_roads.geojson",
+    sourceId: "farm-roads",
+    rebuildOnParamChange: ["glow", "line"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        minzoom: 8,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark, params) => {
+          const w = params?.farmRoadsWidth ?? 1;
+          return {
+            "line-color": isDark ? "#a4b494" : "#7a8670",
+            "line-width": 4 * w,
+            "line-blur": 3,
+            "line-opacity": isDark ? 0.06 : 0.1,
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 8,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark, params) => {
+          const w = params?.farmRoadsWidth ?? 1;
+          const opacity = params?.farmRoadsOpacity ?? 0.8;
+          return {
+            "line-color": isDark ? "#a4b494" : "#7a8670",
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 0.4 * w, 11, 1 * w, 13, 1.6 * w, 16, 2.6 * w,
+            ],
+            "line-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 國土綠網分區圖（MultiPolygon，依 Zone 12 色分類，可 popup）──
+  {
+    id: "ecoNetworkZones",
+    sourceUrl: "./agriculture/eco_network_zones.geojson",
+    sourceId: "eco-network-zones",
+    rebuildOnParamChange: ["fill"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const opacity = params?.ecoNetworkZonesOpacity ?? 0.5;
+          return {
+            "fill-color": ["match", ["get", "Zone"], ...ECO_NETWORK_ZONE_MATCH, "#9e9e9e"],
+            "fill-opacity": opacity,
+          };
+        },
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.2)",
+          "line-width": 0.8,
+          "line-opacity": 1,
+        }),
       },
     ],
   },

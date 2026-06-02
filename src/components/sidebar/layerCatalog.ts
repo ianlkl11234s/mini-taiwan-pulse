@@ -105,6 +105,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   agriRetail: "#e91e63",
   agriProduceWholesale: "#3f51b5",
   agriWholesaleMarket: "#ffd600",
+  farmRoads: "#7a8670",
+  ecoNetworkZones: "#4caf50",
   wasteTruck: "#fbbf24",
   wasteSchedule: "#fbbf24",
   wasteScheduleNote: "#fff8d6",
@@ -295,6 +297,8 @@ export const SECTIONS: SectionDef[] = [
       { key: "agriRetail", label: "農產零售商 Retail Cos.", expandable: true },
       { key: "agriProduceWholesale", label: "蔬果批發商 Produce Wholesale", expandable: true },
       { key: "agriWholesaleMarket", label: "農產批發市場 Wholesale Market", expandable: true },
+      { key: "farmRoads", label: "農路 Farm Roads", expandable: true },
+      { key: "ecoNetworkZones", label: "國土綠網分區 Eco Network Zones", expandable: true },
     ],
   },
   {

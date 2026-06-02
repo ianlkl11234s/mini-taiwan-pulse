@@ -104,6 +104,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   agriRetail: ShoppingCart,
   agriProduceWholesale: Truck,
   agriWholesaleMarket: Warehouse,
+  farmRoads: Route,
+  ecoNetworkZones: Mountain,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,

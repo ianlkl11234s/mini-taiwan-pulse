@@ -83,6 +83,8 @@ AGRI_FILES=(
   "public/agriculture/agri_wholesale_market_companies.geojson"
   "public/agriculture/agri_retail_companies.geojson"
   "public/agriculture/produce_wholesale_companies.geojson"
+  "public/agriculture/farm_roads.geojson"
+  "public/agriculture/eco_network_zones.geojson"
 )
 for f in "${AGRI_FILES[@]}"; do
   name=$(basename "$f")

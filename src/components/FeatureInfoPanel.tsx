@@ -5,6 +5,7 @@ import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
+import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../data/fireTypes";
 import { SOIL_FERTILITY_METRICS } from "../data/agriSoilFertilityMetrics";
 import {
@@ -1482,6 +1483,42 @@ function AgriCompanyPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function FarmRoadsPanel({ props }: { props: Record<string, unknown> }) {
+  const len = Number(props.Lenth);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 12, height: 2, borderRadius: 1, background: "#7a8670", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.NAME ?? "農路")}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.County ?? "")} />
+      <Row label="鄉鎮" value={String(props.Town ?? "")} />
+      {Number.isFinite(len) ? <Row label="長度" value={`${len.toFixed(0)} m`} /> : null}
+    </>
+  );
+}
+
+function EcoNetworkZonesPanel({ props }: { props: Record<string, unknown> }) {
+  const zone = String(props.Zone ?? "");
+  const zt = ECO_NETWORK_ZONE_TYPES.find((z) => z.zone === zone);
+  const color = zt?.color ?? "#9e9e9e";
+  const ha = Number(props.Area_ha);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {zone || "國土綠網分區"}
+        </div>
+      </div>
+      <Row label="分區" value={zt?.label ?? zone} color={color} />
+      {Number.isFinite(ha) ? <Row label="面積" value={`${Math.round(ha).toLocaleString()} 公頃`} /> : null}
+    </>
+  );
+}
+
 function FireEventPanel({ props }: { props: Record<string, unknown> }) {
   const deaths = Number(props.deaths ?? 0);
   const injuries = Number(props.injuries ?? 0);
@@ -1619,6 +1656,8 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriRetail: "農產零售商",
   agriProduceWholesale: "蔬果批發商",
   agriWholesaleMarket: "農產批發市場",
+  farmRoads: "農路",
+  ecoNetworkZones: "國土綠網分區",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
   fireIsochrone: "救援等時圈",
@@ -1736,6 +1775,12 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "agriProduceWholesale":
     case "agriWholesaleMarket":
       content = <AgriCompanyPanel props={feature.properties} />;
+      break;
+    case "farmRoads":
+      content = <FarmRoadsPanel props={feature.properties} />;
+      break;
+    case "ecoNetworkZones":
+      content = <EcoNetworkZonesPanel props={feature.properties} />;
       break;
     case "agriPOI":
       content = <AgriPOIPanel props={feature.properties} />;
