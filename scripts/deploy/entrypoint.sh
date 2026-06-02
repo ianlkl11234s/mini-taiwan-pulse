@@ -1,25 +1,30 @@
 #!/bin/sh
-# Container 啟動進入點：先把 S3 deploy-assets 拉進 /data volume，再啟動 nginx。
+# Container 啟動進入點：背景 pull S3 deploy-assets → /data，nginx 立即前景啟動。
 #
 # 設計原則（上線安全）：
-# - pull 是「盡力而為」：即使 S3 key 未設或拉取失敗，也不要讓容器崩潰，
-#   nginx 仍會啟動並 serve dist/ + volume 內既有資料（persistent volume 會保留上次內容）。
-# - 需要的 runtime 環境變數：S3_ACCESS_KEY, S3_SECRET_KEY, S3_REGION, S3_BUCKET
-#   （在 Zeabur service 環境變數設定；未設時自動跳過 pull）。
+# - nginx **立刻**啟動綁 port → Zeabur 健康檢查馬上通過；不會因第一次大量 pull（~600MB）
+#   而卡住數分鐘導致部署逾時。
+# - pull 在**背景**跑且「盡力而為」：失敗 / 無 key 都不影響 nginx。
+#   persistent volume 會保留上次內容；sync 機制下重啟幾乎零下載（見 pull-deploy-assets.sh）。
+# - 第一次部署（空 volume）：小檔（dist）立即可用，大檔在背景陸續補齊（~分鐘級）。
+#   之後重啟：volume 已有資料、sync 秒跳過，全部立即可用。
+# - 需要的 runtime 環境變數：S3_ACCESS_KEY, S3_SECRET_KEY, S3_REGION, S3_BUCKET。
 
 set -u
 
 echo "[entrypoint] $(date -u) container start"
 
 if [ -n "${S3_ACCESS_KEY:-}" ] && [ -n "${S3_SECRET_KEY:-}" ]; then
-  echo "[entrypoint] S3 credentials present → pulling deploy-assets to /data ..."
-  if /usr/local/bin/pull-deploy-assets.sh; then
-    echo "[entrypoint] pull-deploy-assets.sh completed OK"
-  else
-    echo "[entrypoint] WARNING: pull-deploy-assets.sh failed (exit $?). Serving existing /data + dist only."
-  fi
+  echo "[entrypoint] launching background pull (nginx starts immediately) ..."
+  (
+    if /usr/local/bin/pull-deploy-assets.sh; then
+      echo "[entrypoint] background pull completed OK"
+    else
+      echo "[entrypoint] WARNING: background pull failed (exit $?). Serving dist + existing /data."
+    fi
+  ) &
 else
-  echo "[entrypoint] WARNING: S3_ACCESS_KEY/S3_SECRET_KEY not set → skip pull. Serving existing /data + dist only."
+  echo "[entrypoint] WARNING: S3_ACCESS_KEY/S3_SECRET_KEY not set → skip pull. Serving dist + existing /data."
 fi
 
 echo "[entrypoint] starting nginx (foreground)"
