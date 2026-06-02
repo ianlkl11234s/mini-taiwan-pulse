@@ -145,6 +145,17 @@ export function useTransportParams() {
   // 救援等時圈（覆蓋聯集填色透明度 + 縣市篩選，"all" = 全台）
   const [fireIsochroneOpacity, setFireIsochroneOpacity] = useState(0.5);
   const [fireIsochroneCounty, setFireIsochroneCounty] = useState("all");
+  // 醫療基礎點位 5 類（PMTiles 散點，各自 opacity + scale）
+  const [medHospitalOpacity, setMedHospitalOpacity] = useState(0.9);
+  const [medHospitalScale, setMedHospitalScale] = useState(1.0);
+  const [medClinicOpacity, setMedClinicOpacity] = useState(0.85);
+  const [medClinicScale, setMedClinicScale] = useState(1.0);
+  const [medPharmacyOpacity, setMedPharmacyOpacity] = useState(0.85);
+  const [medPharmacyScale, setMedPharmacyScale] = useState(1.0);
+  const [medAEDOpacity, setMedAEDOpacity] = useState(0.9);
+  const [medAEDScale, setMedAEDScale] = useState(1.0);
+  const [medLTCOpacity, setMedLTCOpacity] = useState(0.85);
+  const [medLTCScale, setMedLTCScale] = useState(1.0);
   // ETC Gantry（收費門架 靜態點）
   const [etcGantryScale, setEtcGantryScale] = useState(1);
   const [etcGantryOpacity, setEtcGantryOpacity] = useState(0.8);
@@ -466,6 +477,16 @@ export function useTransportParams() {
     fireHydrantsZ,
     fireIsochroneOpacity,
     fireIsochroneCountyIdx: FIRE_ISOCHRONE_COUNTY_OPTIONS.findIndex((o) => o.value === fireIsochroneCounty),
+    medHospitalOpacity,
+    medHospitalScale,
+    medClinicOpacity,
+    medClinicScale,
+    medPharmacyOpacity,
+    medPharmacyScale,
+    medAEDOpacity,
+    medAEDScale,
+    medLTCOpacity,
+    medLTCScale,
     etcGantryScale,
     etcGantryOpacity,
     etcGantryZ,
@@ -550,7 +571,7 @@ export function useTransportParams() {
     farmRoadsWidth,
     farmRoadsOpacity,
     ecoNetworkZonesOpacity,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -672,6 +693,26 @@ export function useTransportParams() {
       case "fireIsochrone": return [
         { type: "select" as const, label: "縣市", value: fireIsochroneCounty, options: FIRE_ISOCHRONE_COUNTY_OPTIONS, onChange: setFireIsochroneCounty },
         { label: `透明度 ${fireIsochroneOpacity.toFixed(2)}`, value: fireIsochroneOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setFireIsochroneOpacity },
+      ];
+      case "medHospital": return [
+        { label: `透明度 ${medHospitalOpacity.toFixed(2)}`, value: medHospitalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedHospitalOpacity },
+        { label: `大小 ${medHospitalScale.toFixed(1)}`, value: medHospitalScale, min: 0.3, max: 3, step: 0.1, onChange: setMedHospitalScale },
+      ];
+      case "medClinic": return [
+        { label: `透明度 ${medClinicOpacity.toFixed(2)}`, value: medClinicOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedClinicOpacity },
+        { label: `大小 ${medClinicScale.toFixed(1)}`, value: medClinicScale, min: 0.3, max: 3, step: 0.1, onChange: setMedClinicScale },
+      ];
+      case "medPharmacy": return [
+        { label: `透明度 ${medPharmacyOpacity.toFixed(2)}`, value: medPharmacyOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedPharmacyOpacity },
+        { label: `大小 ${medPharmacyScale.toFixed(1)}`, value: medPharmacyScale, min: 0.3, max: 3, step: 0.1, onChange: setMedPharmacyScale },
+      ];
+      case "medAED": return [
+        { label: `透明度 ${medAEDOpacity.toFixed(2)}`, value: medAEDOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedAEDOpacity },
+        { label: `大小 ${medAEDScale.toFixed(1)}`, value: medAEDScale, min: 0.3, max: 3, step: 0.1, onChange: setMedAEDScale },
+      ];
+      case "medLTC": return [
+        { label: `透明度 ${medLTCOpacity.toFixed(2)}`, value: medLTCOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedLTCOpacity },
+        { label: `大小 ${medLTCScale.toFixed(1)}`, value: medLTCScale, min: 0.3, max: 3, step: 0.1, onChange: setMedLTCScale },
       ];
       case "etcGantry": return [
         { label: `大小 ${etcGantryScale.toFixed(1)}`, value: etcGantryScale, min: 0.3, max: 3, step: 0.1, onChange: setEtcGantryScale },

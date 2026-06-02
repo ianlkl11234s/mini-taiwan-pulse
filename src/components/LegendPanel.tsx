@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
+import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import {
@@ -97,7 +98,8 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasFireIsochrone = visibility.fireIsochrone;
   const hasEcoNetworkZones = visibility.ecoNetworkZones;
   const hasWaterCanals = visibility.waterCanals;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasWaterCanals;
+  const hasMedical = visibility.medHospital || visibility.medClinic || visibility.medPharmacy || visibility.medAED || visibility.medLTC;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasWaterCanals || hasMedical;
 
   if (!hasAny) return null;
 
@@ -157,6 +159,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasFireIsochrone && <FireIsochroneLegend />}
           {hasEcoNetworkZones && <EcoNetworkZonesLegend />}
           {hasWaterCanals && <WaterCanalLegend />}
+          {hasMedical && <MedicalLegend visibility={visibility} />}
         </div>
       )}
     </div>
@@ -295,6 +298,41 @@ function AgriPOILegend() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {AGRI_POI_TYPES.map((t) => (
+          <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: t.color,
+                opacity: 0.9,
+                border: "1px solid #fff",
+                boxSizing: "border-box",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>
+              {t.labelZh}
+              <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>{t.labelEn}</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
+  // 只列出目前開啟的醫療 layer
+  const shown = MEDICAL_POI_TYPES.filter((t) => visibility[t.visKey]);
+  if (shown.length === 0) return null;
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        MEDICAL 醫療據點
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {shown.map((t) => (
           <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div
               style={{

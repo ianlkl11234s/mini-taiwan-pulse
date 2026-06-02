@@ -6,6 +6,7 @@ import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } fr
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
+import { ensureMedicalPOILayers, updateMedicalPOILayers } from "./medicalPOILayerFactory";
 
 /** 從 overlayParams 取等時圈 factory 參數（opacity + 縣市 idx）。 */
 function fireIsochroneParamsOf(p: Record<string, number>) {
@@ -194,6 +195,9 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       // 等時圈 PMTiles 層（須排在 agriculture 之後 → 共用 PMTiles SourceType 已註冊）
       ensureFireIsochroneLayer(map);
       updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
+      // 醫療基礎點位 5 層 PMTiles（共用 SourceType 已註冊）
+      ensureMedicalPOILayers(map);
+      updateMedicalPOILayers(map, layerVisibilityRef.current, overlayParamsRef.current);
 
       // 初次載入後，每次樣式切換都重建 flight layer
       if (readyRef.current) {
@@ -212,6 +216,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       updateAllAgricultureLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
       ensureFireIsochroneLayer(map);
       updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
+      ensureMedicalPOILayers(map);
+      updateMedicalPOILayers(map, layerVisibilityRef.current, overlayParamsRef.current);
       onMapReadyRef.current?.(map);
     });
 
@@ -286,6 +292,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     updateAllAgricultureLayers(map, layerVisibility, overlayParams);
     // 等時圈：透明度 / 縣市下拉變動 → 更新
     updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParams));
+    // 醫療點位：透明度 / 大小變動 → 更新
+    updateMedicalPOILayers(map, layerVisibility, overlayParams);
   }, [
     isDarkTheme, overlayParams,
     layerVisibility.agriculture,
@@ -295,6 +303,11 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     layerVisibility.agriRuralRegen,
     layerVisibility.agriCropSuitability,
     layerVisibility.agriPOI,
+    layerVisibility.medHospital,
+    layerVisibility.medClinic,
+    layerVisibility.medPharmacy,
+    layerVisibility.medAED,
+    layerVisibility.medLTC,
   ]);
 
   // Overlay 可見性（一個 useEffect 取代原本 7 個）
@@ -308,6 +321,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     updateAllAgricultureLayers(map, layerVisibility, overlayParamsRef.current);
     // 等時圈開/關層
     updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
+    // 醫療點位開/關層
+    updateMedicalPOILayers(map, layerVisibility, overlayParamsRef.current);
   }, [layerVisibility]);
 
   return (

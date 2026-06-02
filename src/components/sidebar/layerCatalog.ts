@@ -95,6 +95,11 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   fireStations: "#e53935",
   fireHydrants: "#2196f3",
   fireIsochrone: "#22c55e",
+  medHospital: "#d32f2f",
+  medClinic: "#1976d2",
+  medPharmacy: "#388e3c",
+  medAED: "#fbc02d",
+  medLTC: "#8e24aa",
   agriculture: "#2e7d32",
   agriSoil: "#8d6e63",
   agriSoilFertility: "#00897b",
@@ -255,6 +260,16 @@ export const SECTIONS: SectionDef[] = [
       { key: "fireStations", label: "消防分隊 Stations", expandable: true },
       { key: "fireHydrants", label: "消防栓 Hydrants", expandable: true },
       { key: "fireIsochrone", label: "救援等時圈 Isochrone", expandable: true },
+    ],
+  },
+  {
+    title: "MEDICAL",
+    layers: [
+      { key: "medHospital", label: "醫院 Hospital", expandable: true },
+      { key: "medClinic", label: "診所/其他醫療 Clinic", expandable: true },
+      { key: "medPharmacy", label: "藥局 Pharmacy", expandable: true },
+      { key: "medAED", label: "AED 點位", expandable: true },
+      { key: "medLTC", label: "長照機構 LTC", expandable: true },
     ],
   },
   {

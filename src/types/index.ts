@@ -134,6 +134,11 @@ export type ExpandableLayerKey =
   | "fireStations"
   | "fireHydrants"
   | "fireIsochrone"
+  | "medHospital"
+  | "medClinic"
+  | "medPharmacy"
+  | "medAED"
+  | "medLTC"
   | "agriculture"
   | "agriSoil"
   | "agriSoilFertility"
@@ -453,6 +458,7 @@ export interface FeatureInfo {
     | "port" | "airport" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
+    | "medicalPOI"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
@@ -535,6 +541,12 @@ export interface LayerVisibility {
   fireStations: boolean;   // 消防分隊點位（全台 22 縣市，677 點）
   fireHydrants: boolean;   // 消防栓（僅臺北市 + 高雄市，69,839 點）
   fireIsochrone: boolean;  // 救援等時圈（路網 5/10/15 分鐘，POC：臺北市）
+  // 醫療基礎點位（5 獨立 layer，單一 PMTiles source med_cat filter；全程可見）
+  medHospital: boolean;    // 醫院（NHI 醫學中心/區域/地區，451）
+  medClinic: boolean;      // 診所 + 其他醫療（NHI clinic 21765 + other_medical 1707）
+  medPharmacy: boolean;    // 藥局（NHI pharmacy 7680）
+  medAED: boolean;         // AED（15490）
+  medLTC: boolean;         // 長照機構（30764）
   // 農業
   agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
   agriSoil: boolean;             // 25539 全台土壤分類
