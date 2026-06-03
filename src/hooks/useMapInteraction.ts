@@ -184,6 +184,11 @@ export function useMapInteraction(
           { layers: ["fire-latest-layer"], type: "fireEvent" },
           { layers: ["fire-stations-circle", "fire-stations-glow"], type: "fireStation" },
           { layers: ["fire-hydrants-circle", "fire-hydrants-glow"], type: "fireHydrant" },
+          { layers: ["medical-hospital-circle"], type: "medicalPOI" },
+          { layers: ["medical-clinic-circle"], type: "medicalPOI" },
+          { layers: ["medical-pharmacy-circle"], type: "medicalPOI" },
+          { layers: ["medical-aed-circle"], type: "medicalPOI" },
+          { layers: ["medical-ltc-circle"], type: "medicalPOI" },
           { layers: ["news-events-circle", "news-events-glow"], type: "newsEvent" },
           { layers: ["disasterAlerts-fill", "disasterAlerts-line", "disasterAlerts-point"], type: "disasterAlert" },
           { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
@@ -211,6 +216,8 @@ export function useMapInteraction(
           { layers: ["agri-soil-fill"], type: "agriSoil" },
           // 救援等時圈覆蓋面 — 放最末端，避免大面積擋住上方點層的點選
           { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
+          // 醫療等時圈覆蓋面
+          { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

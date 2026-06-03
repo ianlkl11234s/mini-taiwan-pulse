@@ -61,6 +61,10 @@ scripts/fetch/.fire_isochrone_cache/
 
 # 消防等時圈 PMTiles（9.3MB，走 S3 deploy-assets，勿入 git）
 public/fire/*.pmtiles
+# 醫療基礎點位 PMTiles（7.4MB，走 S3 deploy-assets，勿入 git）
+public/medical/*.pmtiles
+# 醫療點位 merge 中繼 geojson（27.7MB，merge_medical_poi.py 可重產，勿入 git）
+scripts/preprocess/medical_poi.geojson
 # root 層截圖 / geocode 快取（不該進版控）
 demographics-1600.png
 demographics_tpe_1280.png

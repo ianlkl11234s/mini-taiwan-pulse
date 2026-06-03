@@ -69,6 +69,14 @@ for f in public/fire/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# 醫療圖層：上傳到 deploy-assets/medical/ 子前綴（鏡像結構，pull 端整夾 sync）
+for f in public/medical/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading medical/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/medical/$name" --region ap-southeast-2
+done
+
 # 農業圖層：上傳到 deploy-assets/agriculture/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 與 fire 的扁平 *.pmtiles 分流，避免 pull 的 fire pmtiles glob 誤抓。
 # 範圍由本清單控制：要排除某層就把它移出 AGRI_FILES 即可（不上傳 = 該層不上線）。
