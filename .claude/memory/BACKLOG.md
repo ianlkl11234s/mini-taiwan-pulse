@@ -72,7 +72,7 @@
 | ID | 優先級 | 項目 | 狀態 | 備註 |
 |---|---|---|---|---|
 | AG-1 | P3 | Wave D 公司登記點位 3 集（45640+45618+45655） | **done 2026-05-25** | TGOS geocode 完成（60,326 點 / 562 失敗）→ 前端 3 獨立 layer 接線完成（見已完成區）。後續驗收/部署拆到 AG-6 |
-| AG-6 | P2 | 農企業登記 3 layer 驗收 + 部署 | open | (a) browser 視覺驗收（先 All Off；retail/produce zoom≥8、市場 zoom≥6）(b) `upload-deploy-assets.sh` 推 3 geojson 上 S3（gitignore）(c) Supabase import `spatial.agri_business_registrations`（overwrite，走 gis-data-onboard SOP）(d) 程式 commit。⚠️ ~34MB eager 載入，若要瘦身（座標 17 位小數 + 冗欄位）**在 taipei-gis-analytics 上游做**別在前端分叉 artifact |
+| AG-6 | P2 | 農企業登記 3 layer 驗收 + 部署 | **done 2026-06-02** | (a) browser 視覺驗收（先 All Off；retail/produce zoom≥8、市場 zoom≥6）(b) `upload-deploy-assets.sh` 推 3 geojson 上 S3（gitignore）(c) Supabase import `spatial.agri_business_registrations`（overwrite，走 gis-data-onboard SOP）(d) 程式 commit。⚠️ ~34MB eager 載入，若要瘦身（座標 17 位小數 + 冗欄位）**在 taipei-gis-analytics 上游做**別在前端分叉 artifact |
 | AG-2 | P3 | FTW 田區 click popup | open | 目前 38 萬 polygon 只有 confidence 屬性，單格無實用資訊故未接。若要接需要 spatial JOIN 賦予地理資訊（縣市、土壤類）才有意義 |
 | AG-3 | P3 | Soil/SoilFertility 完整欄位重出評估 | open | 目前 soil_map_national 已含 8 欄、soil_fertility 含 5 欄。如果要全欄位（土壤分類 18 raw / 肥力 21 raw）PMTiles 會明顯變大（fertility 14MB → 32MB 已是部分欄位的結果）。先看是否有用戶反饋需要更多細節再決定 |
 | AG-4 | P3 | crop_suitability 跨作物 overlay 視角 | open | 目前 dropdown 只能看一個作物；若要看「這塊地適合幾種作物」需要 aggregate query。屬於 nice-to-have |
@@ -117,3 +117,16 @@
 - ⏳ **F-5 等時圈 Phase B**：點選某分隊 → 高亮該隊個別等時圈（資料已備 `build/fire_isochrone/fire_isochrone_stations.geojson`，需切 PMTiles + setFilter by `station_id`）
 - ⏳ F-6（可選）等時圈精修：pmtiles 9.3M 可調 tippecanoe 參數瘦身；屏東 geocode 為門牌近似，精度可回上游 TGOS 重做
 - 💤 F-4（已移除，可選復活）火災火焰特效 FireBlazeScene（git 歷史 feat/fire-rescue 中段）
+
+### 上線 / 部署（2026-06-02 mini-taiwan-pulse 正式上線後）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| LA-1 | — | 正式上線 Zeabur（feat/fire-rescue→master，itsmigu.com + Cloudflare）| **done 2026-06-02** | 部署鏈：entrypoint 背景pull + pull改sync + agriculture接鏈 + /geo/h3/bus dist fallback + 移除/api死碼。本地 git-archive docker 攔下 4 雷。docs/launch/ 8 份 |
+| LA-2 | — | 4 UI 改 + flight/ship loading + 農路/國土綠網 2 新層 + 預設視角 | **done 2026-06-02** | 全部已部署上線並驗證 |
+| LA-3 | — | D1 唯讀 S3 key + Mapbox URL 限制 | **done 2026-06-02** | 用戶執行；Zeabur runtime S3 改唯讀 key |
+| LA-4 | — | Cloudflare 靜態檔快取 + 404/5xx no-cache | **done 2026-06-02** | Cache Rule /geo /h3 /bus /agriculture /fire /rail + Status Code TTL |
+| D3 | P1 | 收窄 Supabase PostgREST Exposed schemas（資安） | open | 移除 reference/spatial/fire/maritime/rail/safety/demographics/opendata/metadata，只留 public+graphql_public，擋 anon 直讀表（realtime 已不曝光）。**前置**：掃其他共用 gis-platform 的站（mini-taiwan-info 等）確認無 REST 直讀這些 schema。**不可撤 table grant**（74/81 RPC 是 INVOKER 會掛）。秒級可逆（加回 schema）。詳見 docs/launch/08 |
+| LA-5 | P2 | deploy-assets 扁平 → 鏡像結構 + manifest 總帳 | open | 三邊同名（S3/data/nginx）+ 整夾 sync，加新大檔 0 改腳本。雙軌可逆，最後才清舊扁平物件。計畫見 docs/launch/06 |
+| LA-6 | P3 | pulse-api 評估關閉省錢 | open | 前端已全走 Supabase、nginx /api 死碼已移除。確認無其他消費者後可停 pulse-api service |
+| LA-7 | P2 | 上線後觀察 Supabase Dashboard + Zeabur/Mapbox 帳務 | open | 公開流量下的連線數/CPU/egress 成本；memory 有 spend cap + IO 爆表前科。設帳單警報 |
