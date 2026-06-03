@@ -227,3 +227,13 @@ Phase 3 候選：4 筆（129475/6 敏感區、36695 枯旱、58343 洩洪）
 - `river_stations` 空表 → 警戒水位視覺化阻塞中（W001）
 - 淤積資料只有北區 15 筆 → 需 WRA 公告全台後重跑 `seed_reservoir_sediment.py`
 - `water_structures` OSM 稀疏 → 缺 WRA 官方權威清單
+
+## 農業 — 靜態（2026-06-02 +農路圖 + 國土綠網分區圖）
+
+| 檔（public/agriculture/） | 筆數 | 幾何 | 前端層 | 備註 |
+|---|---|---|---|---|
+| farm_roads.geojson (33MB) | 8,678 | LineString | `farmRoads` | 農路；NAME/County/Town/Lenth；minzoom 8；單色線 |
+| eco_network_zones.geojson (8.8MB) | 12 | MultiPolygon | `ecoNetworkZones` | 國土綠網 12 地理分區（北/南及恆春/東北/東/澎湖/綠島/蘭嶼/西北/西南/西/金門/馬祖）；Zone 12 色 + 圖例；Area_ha |
+
+> 來源 `taipei-gis-analytics/data/raw/agriculture/`（WGS84，免轉）。走既有 agriculture 部署鏈：
+> gitignore → upload-deploy-assets.sh AGRI_FILES → S3 `deploy-assets/agriculture/` → pull 整夾 sync → nginx `/agriculture/`。
