@@ -7,6 +7,7 @@ import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
 import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
+import { sessionTracker } from "../lib/sessionTracker";
 
 interface TooltipInfo {
   flight: Flight;
@@ -222,6 +223,7 @@ export function useMapInteraction(
           const features = map.queryRenderedFeatures(bbox, { layers: existingIds });
           if (features.length > 0) {
             setFeatureInfo({ layerType: type, properties: features[0]!.properties ?? {} });
+            sessionTracker.log("feature_click", { layerType: type });
             found = true;
             break;
           }

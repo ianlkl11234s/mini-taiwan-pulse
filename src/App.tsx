@@ -26,6 +26,7 @@ import {
 } from "./map/wasteMapboxLayers";
 import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
+import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
@@ -720,16 +721,17 @@ export default function App() {
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
     addAllLayers(map);
+    sessionTracker.init("mini-taiwan-pulse");
+    sessionTracker.logWithSnapshot("session_start", { appMode }, layerVisibilityRef.current);
 
     const updateCamera = () => {
       const c = map.getCenter();
-      setCameraInfo({
-        lng: +c.lng.toFixed(4),
-        lat: +c.lat.toFixed(4),
-        zoom: +map.getZoom().toFixed(1),
-        pitch: +map.getPitch().toFixed(0),
-        bearing: +map.getBearing().toFixed(0),
-      });
+      const z = +map.getZoom().toFixed(1);
+      const lat = +c.lat.toFixed(4);
+      const lng = +c.lng.toFixed(4);
+      const p = +map.getPitch().toFixed(0);
+      setCameraInfo({ lng, lat, zoom: z, pitch: p, bearing: +map.getBearing().toFixed(0) });
+      sessionTracker.logMapView(z, lat, lng, p);
     };
     map.on("move", updateCamera);
     updateCamera();
@@ -993,12 +995,19 @@ export default function App() {
     if (!isVisible) {
       setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
       setExpandedLayer(layer as ExpandableLayerKey);
+      sessionTracker.logWithSnapshot("layer_toggle", { layer, on: true }, layerVisibilityRef.current);
     } else {
       setExpandedLayer((prevExpanded) =>
         prevExpanded === layer ? null : (layer as ExpandableLayerKey),
       );
     }
   }, [layerVisibilityRef, setLayerVisibility]);
+
+  const handleToggleVisibility = useCallback((layer: keyof LayerVisibility) => {
+    const wasVisible = layerVisibilityRef.current[layer];
+    toggleVisibility(layer);
+    sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !wasVisible }, layerVisibilityRef.current);
+  }, [toggleVisibility, layerVisibilityRef]);
 
   const handleDisplayModeChange = useCallback((mode: DisplayMode) => {
     setDisplayMode(mode);
@@ -1008,20 +1017,22 @@ export default function App() {
   const handleHideTransport = useCallback(() => {
     setExpandedLayer((prevExpanded) => {
       if (prevExpanded) {
+        sessionTracker.logWithSnapshot("layer_toggle", { layer: prevExpanded, on: false }, layerVisibilityRef.current);
         setLayerVisibility((prev) => ({ ...prev, [prevExpanded]: false }));
       }
       return null;
     });
-  }, [setLayerVisibility]);
+  }, [setLayerVisibility, layerVisibilityRef]);
 
   const handleAllOff = useCallback(() => {
+    sessionTracker.logWithSnapshot("all_off", {}, layerVisibilityRef.current);
     setLayerVisibility((prev) => {
       const next = { ...prev };
       for (const k in next) next[k as keyof typeof next] = false;
       return next;
     });
     setExpandedLayer(null);
-  }, [setLayerVisibility]);
+  }, [setLayerVisibility, layerVisibilityRef]);
 
   const { seek: timelineSeek, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
   const handleLocationJump = useCallback((id: string) => {
@@ -1266,7 +1277,7 @@ export default function App() {
               displayMode={displayMode}
               counts={sidebarCounts}
               onLayerClick={handleLayerClick}
-              onToggleVisibility={toggleVisibility}
+              onToggleVisibility={handleToggleVisibility}
               onViewModeChange={setViewMode}
               onDisplayModeChange={handleDisplayModeChange}
               onHideTransport={handleHideTransport}
@@ -1338,7 +1349,10 @@ export default function App() {
             <ModeToggle
               appMode={appMode}
               isDarkTheme={isDarkTheme}
-              onAppModeChange={setAppMode}
+              onAppModeChange={(mode: AppMode) => {
+                sessionTracker.log("mode_switch", { from: appMode, to: mode });
+                setAppMode(mode);
+              }}
             />
             <button
               onClick={() => setCaptureMode(true)}
@@ -1648,8 +1662,9 @@ export default function App() {
                         } else {
                           setExpandedLayer(layer as ExpandableLayerKey);
                         }
+                        sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !isVisible }, layerVisibilityRef.current);
                       }}
-                      onToggleVisibility={toggleVisibility}
+                      onToggleVisibility={handleToggleVisibility}
                       onViewModeChange={setViewMode}
                       onDisplayModeChange={(mode) => { setDisplayMode(mode); setTooltipInfo(null); }}
                       onHideTransport={() => {
