@@ -397,3 +397,23 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
   （2026-04-22 river_lines 2,445km outlier 教訓）
 - **分階段驗證**：一次改 8+ 檔才跑 tsc + 瀏覽器實測會卡死，每 3-4 檔 smoke test
 - **遇到卡點停下來問使用者選路**，列 A/B 方案，不自己選一個走下去
+
+## Zeabur 正式上線 + Cloudflare（2026-06-02 教訓）
+
+- **Cloudflare「Ignore cache-control + 固定 TTL」會連 404/5xx 一起快取**：靜態檔 Cache Rule 用固定 TTL 時，
+  部署切換期或漏檔的暫態 404 會被釘住整個 TTL（如 1 天），事後補上 origin 也沒用。**必配 Status Code TTL：
+  404 / 5xx → No cache**，且上線後若已被快取要 **Purge**（Caching → Purge Everything / by URL）。
+- **Zeabur 容器 entrypoint 用「背景 pull + nginx 立即前景啟動」**：第一次部署大量 pull（數百 MB）若阻塞 nginx，
+  Zeabur 健康檢查會逾時判失敗。entrypoint 改 `( pull-deploy-assets.sh ) &` 背景 + `exec nginx -g 'daemon off;'`，
+  port 秒綁；persistent volume + `aws s3 sync` 重啟幾乎零下載。見 `scripts/deploy/entrypoint.sh`。
+- **上線前必跑本地 git-archive docker build 忠實重現 Zeabur**：Zeabur 從 **git** build，gitignore 的大檔不在
+  build context。本地用 `git archive HEAD | docker build --build-arg VITE_MAPBOX_TOKEN=<t> -t pulse-local -`
+  才能重現（直接 `docker build .` 會把本地 public/ 大檔打進去、不真實）。本次靠它攔下 4 個會炸的雷。
+- **`npm ci` 要求 package.json 與 package-lock 同步**：移除依賴後沒跑 `npm install` 更新 lock → Docker build
+  `npm ci` 直接失敗。改 deps 後必跑 `npm install --package-lock-only` 並一起 commit。
+- **`aws s3 sync --include "*.ext"` 是遞迴的**：會跨子前綴匹配（fire pmtiles sync 誤抓 agriculture/ 子前綴 pmtiles）。
+  同類型分子前綴時要加 `--exclude "<子前綴>/*"`。
+- **靜態大檔上線前確認「在 git 或在 S3」**：gitignore 的大檔若沒上 S3 → 線上 404（本次 water_detention_basins
+  從沒上 S3）。新增/改名靜態大檔後跑 upload 腳本 + 比對 S3 清單（`aws s3 ls deploy-assets/`）。
+- **撤 anon 權限前先盤 RPC security 類型**：74/81 個 public.get_* 是 SECURITY INVOKER（以 anon 身分執行、需 anon
+  對底層表 SELECT），撤 table grant 會打掛 RPC。資安收斂改「收窄 PostgREST Exposed schemas」而非撤 grant。
