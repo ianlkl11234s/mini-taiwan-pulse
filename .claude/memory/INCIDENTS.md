@@ -558,3 +558,33 @@ tsc -b 會逐一抓出，別只跑一次就以為過——補完一張再跑會�
 4. **來源缺座標整批被跳過**：屏東 39 隊上游 `needs_geocoding`（只有地址）→ export 全跳過 →
    fire_stations 缺屏東 → 等時圈也無。**修**：`geocode-pingtung-fire-stations.py` Mapbox v6
    （country=tw + proximity + bbox 驗證丟界外）補座標，冪等附加回 geojson。0 失敗、677→716。
+
+## 2026-06-02 正式上線 Zeabur — 本地 docker 攔 4 雷 + Cloudflare 快取 404
+
+mini-taiwan-pulse 從穩定 master 一次推進 ~110 commit 正式上線（feat/fire-rescue 併入 master，
+網域 itsmigu.com + zeabur.app，前面有 Cloudflare）。本地 git-archive docker 實測 + 連線實測攔下並修掉 4 雷：
+
+1. **package-lock 未同步**：package.json 移除 @flightradar24/fr24sdk 但 lock 沒更新 → Docker `npm ci` 失敗。
+   `npm install --package-lock-only` 同步後一起 commit。
+2. **fire pmtiles sync 遞迴誤抓 agriculture**：pull 改 `aws s3 sync --include "*.pmtiles"` 是遞迴，連
+   deploy-assets/agriculture/ 子前綴的 pmtiles 都抓進 /data/fire/agriculture/（176MB 重複下載+落錯位置）。
+   加 `--exclude "agriculture/*"`。
+3. **entrypoint 阻塞式 pull**：原設計 pull 完才起 nginx，第一次部署 ~600MB pull 會讓 Zeabur 健康檢查逾時。
+   改背景 pull + nginx 立即前景啟動。
+4. **bus 三大檔從沒上 S3**：taipei/intercity/pingtungcounty_bus_routes.json gitignore 又不在 S3 → 線上 404。
+   補 gzip 上傳到 deploy-assets/。
+
+**Cloudflare 快取 404 事件**：上線後 `/geo/water_detention_basins.geojson` 404（該檔從沒上 S3）。補上 S3 +
+容器內 pull 進 /data 後**仍 404** → cf-cache-status=HIT：**Cache Rule「Ignore cache-control + 1 day」把 404 也
+快取了 1 天**。修：Status Code TTL 加 404/5xx → No cache + Purge Everything → 立即 200。→ 立 PRINCIPLES。
+
+**bus_trails timeout 誤報**：稽核 agent 報 get_bus_trails statement_timeout=0（讀 migration 030），但 live DB
+實測已是 60s（migration 033 CREATE OR REPLACE 覆蓋）+ 查詢實測 22-35ms。教訓：稽核靜態 SQL 會被舊 migration
+誤導，**以 live DB（pg_proc.proconfig）/ 實測為準**。
+
+**ships=0 非 bug**：6/3 凌晨 0 ships 是最新資料停在 6/2（當天 collector 未跑），data pipeline 時差，非程式問題。
+
+**74/81 RPC 是 SECURITY INVOKER**：原打算「撤 anon 對 reference/spatial 表 SELECT」收斂資安，但實測 81 個
+public.get_* 有 74 個 INVOKER（以 anon 身分執行、需 anon 對底層表 SELECT）→ 撤 grant 會打掛 74 RPC。
+**正解 = 收窄 PostgREST Exposed schemas**（移除 reference/spatial/...，只留 public+graphql_public）→ 擋直接
+REST 讀表、RPC 照常（D3，待掃其他共用 gis-platform 的站確認無其他 REST 直讀消費者再做）。
