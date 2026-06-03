@@ -658,3 +658,32 @@ minzoom 8 + range request 不會一次全載，但要評估部署成本。
 `fetch-fire-isochrones.py`（生成+全國聚合）/ `geocode-pingtung-fire-stations.py`（補座標）/
 `fireIsochroneLayerFactory.ts`（PMTiles 渲染+filter）/ `fireIsochroneCounties.ts`（縣市清單）/
 `fireTypes.ts`（分級配色）/ `public/fire/*.pmtiles`（出貨）/ `build/fire_isochrone/`（中介）。
+
+## PB-17 Zeabur 正式上線（push master → 自動部署 → 驗證，2026-06-02）
+
+完整計畫/稽核/runbook/SOP 見 `docs/launch/`（00 計畫 / 01 逐層稽核 / 02 Go-NoGo / 03 runbook /
+04 新資料分類SOP / 05 晨間報告 / 06 deploy-assets搬家 / 07 key設定 / 08 上線後硬化）。
+
+```bash
+# 0. 安全網
+git tag backup/pre-launch-master-<ts> origin/master
+# 1. 本地驗證（忠實重現 Zeabur 從 git build）
+npx tsc -b
+git archive HEAD | docker build --build-arg VITE_MAPBOX_TOKEN=<t> -t pulse-local -
+docker run -d -p 8088:8080 -e S3_ACCESS_KEY=.. -e S3_SECRET_KEY=.. -e S3_REGION=ap-southeast-2 -e S3_BUCKET=migu-gis-data-collector pulse-local
+# curl 逐路徑 /geo /h3 /bus /agriculture /fire 200/206 + dist fallback（git 小檔即使 volume 空也要 200）
+# 2. 靜態大檔上 S3（gitignore 的；新增/改名後必跑 + 比對 aws s3 ls）
+bash scripts/deploy/upload-deploy-assets.sh
+# 3. 上線
+git checkout master && git merge --no-ff <feature> && npx tsc -b
+git push origin master            # Zeabur git-connected → 自動 build（從 git）
+# 4. 監測 + 驗證
+npx zeabur@latest deployment list --id <service-id> -i=false      # 等 8 碼 commit 對應 deployment RUNNING
+npx zeabur@latest deployment log --id <id> -t runtime -i=false    # 看 entrypoint 背景 pull
+curl -sI https://<domain>/<path>                                  # 線上逐層 200/206
+```
+
+關鍵：Zeabur 從 git build（gitignore 大檔不在 image）→ entrypoint 從 S3 pull 進 /data volume；
+nginx `/geo /h3 /bus` 帶 `@dist` fallback；Cloudflare Cache Rule 配 404/5xx no-cache。
+容器內補抓單檔（免重啟）：`npx zeabur@latest service exec --id <id> -i=false -- /usr/local/bin/pull-deploy-assets.sh`。
+flag 是 `--id` 不是 `--service-id`。
