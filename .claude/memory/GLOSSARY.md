@@ -193,3 +193,12 @@
 | 圖層 UX 四鐵則 | docs/development-rules.md §4a：(1) 透明度 slider (2) 分類 ≥ 2 種必寫圖例 (3) 可選取物件必接 click popup (4) Select options ≥ 4 用 `<select>` dropdown |
 | 單一資料源（layer types）| 把 layer 內配色/類別表抽到 `src/data/xxxTypes.ts`（如 `agriPOITypes.ts` / `agriSoilFertilityMetrics.ts`），讓 factory paint / FeatureInfoPanel / LegendPanel 三處共用，避免改一邊忘記另兩邊 |
 | GIS_LAYERS first-hit-wins | useMapInteraction.ts 內 click 查找走過陣列順序，**第一個命中即返回**。把細節小範圍排前面（休農區 109 polygon）/ 大面積背景排後面（土壤分類 5.7 萬 polygon），避免被覆蓋 |
+
+## 部署 / 上線
+
+| 術語 | 說明 |
+|---|---|
+| cf-cache-status | Cloudflare 回應 header：HIT(邊緣快取命中)/MISS(回源)/DYNAMIC(未快取)。debug 靜態檔快取必看 |
+| Exposed schemas | Supabase Data API（PostgREST）對外曝光的 schema 清單。不在清單的 schema 即使 anon 有 table grant 也打不到（PGRST106）。資安收斂靠縮這份清單，非撤 grant |
+| deploy-assets 鏡像結構 | 目標：S3 `deploy-assets/<群組>/` ↔ 容器 `/data/<群組>/` ↔ nginx `/<群組>/` 三邊同名，pull 整夾 sync、加新大檔 0 改腳本（搬家計畫見 docs/launch/06，目前仍扁平 + include filter 過渡）|
+| entrypoint 背景 pull | 容器啟動 `( pull )&` 背景同步 S3→/data + `exec nginx` 立即前景，避免大量 pull 阻塞健康檢查 |
