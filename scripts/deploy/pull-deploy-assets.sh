@@ -32,7 +32,8 @@ aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
   --include "freeway_congestion.geojson" --include "weather_stations.geojson" \
   --include "schools.geojson" --include "convenience_stores.geojson" \
   --include "active_faults.geojson" \
-  --include "water_*.geojson" --include "fire_*.geojson"
+  --include "water_*.geojson" --include "fire_*.geojson" \
+  --include "medical_*.geojson"
 
 echo "[pull] sync h3 → $DATA_DIR/h3/"
 aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_res8.json"

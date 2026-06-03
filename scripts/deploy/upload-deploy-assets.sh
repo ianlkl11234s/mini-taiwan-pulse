@@ -60,6 +60,14 @@ for f in public/geo/fire_*.geojson; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# 醫療 GeoJSON：glob 動態上傳 public/geo/medical_*.geojson
+for f in public/geo/medical_*.geojson; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading $name (medical glob)..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
+done
+
 # 消防等時圈 PMTiles 向量切片（public/fire/*.pmtiles）
 # Mapbox 用 HTTP Range Request 載瓦片 → S3 物件預設支援 byte-range，nginx 配 /fire/ 直送即可
 for f in public/fire/*.pmtiles; do

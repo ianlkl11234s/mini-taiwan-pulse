@@ -61,7 +61,9 @@ scripts/fetch/.fire_isochrone_cache/
 
 # 消防等時圈 PMTiles（9.3MB，走 S3 deploy-assets，勿入 git）
 public/fire/*.pmtiles
-# 醫療基礎點位 PMTiles（7.4MB，走 S3 deploy-assets，勿入 git）
+# 醫療 GeoJSON（走 S3 deploy-assets，5 檔合計 ~65MB）
+public/geo/medical_*.geojson
+# 醫療 PMTiles（走 S3 deploy-assets/medical/）
 public/medical/*.pmtiles
 # 醫療點位 merge 中繼 geojson（27.7MB，merge_medical_poi.py 可重產，勿入 git）
 scripts/preprocess/medical_poi.geojson
