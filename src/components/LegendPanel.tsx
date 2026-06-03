@@ -10,6 +10,7 @@ import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
 } from "../data/fireTypes";
+import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
   SOIL_FERTILITY_METRIC_OPTIONS,
@@ -98,8 +99,9 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasFireIsochrone = visibility.fireIsochrone;
   const hasEcoNetworkZones = visibility.ecoNetworkZones;
   const hasWaterCanals = visibility.waterCanals;
+  const hasMedIsochrone = visibility.medIsochrone || visibility.medDesert;
   const hasMedical = visibility.medHospital || visibility.medClinic || visibility.medPharmacy || visibility.medAED || visibility.medLTC;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasWaterCanals || hasMedical;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasWaterCanals || hasMedical || hasMedIsochrone;
 
   if (!hasAny) return null;
 
@@ -159,6 +161,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasFireIsochrone && <FireIsochroneLegend />}
           {hasEcoNetworkZones && <EcoNetworkZonesLegend />}
           {hasWaterCanals && <WaterCanalLegend />}
+          {hasMedIsochrone && <MedicalIsochroneLegend />}
           {hasMedical && <MedicalLegend visibility={visibility} />}
         </div>
       )}
@@ -317,6 +320,23 @@ function AgriPOILegend() {
             </span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function MedicalIsochroneLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        醫療等時圈 MEDICAL ISOCHRONE
+      </div>
+      <FireCatRows
+        cats={MEDICAL_ISOCHRONE_BANDS.map((b) => ({ color: b.color, label: b.label }))}
+        square
+      />
+      <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
+        ⚠️ {MEDICAL_ISOCHRONE_NOTE}
       </div>
     </div>
   );

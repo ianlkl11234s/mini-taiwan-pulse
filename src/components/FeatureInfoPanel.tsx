@@ -7,6 +7,7 @@ import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../data/fireTypes";
+import { medIsochroneColor, medIsochroneLabel, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import { medicalColorByCat } from "../data/medicalPOITypes";
 import { SOIL_FERTILITY_METRICS } from "../data/agriSoilFertilityMetrics";
 import {
@@ -1684,6 +1685,30 @@ function FireIsochronePanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
+function MedicalIsochronePanel({ props }: { props: Record<string, unknown> }) {
+  const level = String(props.level ?? "");
+  const minutes = props.min_minutes != null ? Number(props.min_minutes) : null;
+  const accentColor = medIsochroneColor(level);
+  const nearest = String(props.nearest_name ?? "");
+  const nearestCat = String(props.nearest_category ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {medIsochroneLabel(level)}
+        </div>
+      </div>
+      {minutes != null && <Row label="最近大醫院車程" value={`${minutes.toFixed(1)} 分鐘`} color={accentColor} />}
+      {nearest && <Row label="最近醫院" value={nearest} />}
+      {nearestCat && <Row label="醫院層級" value={nearestCat.replace("hospital_", "").replace("_", " ")} />}
+      <div style={{ fontSize: 9, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
+        ⚠️ {MEDICAL_ISOCHRONE_NOTE}
+      </div>
+    </>
+  );
+}
+
 const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
@@ -1736,6 +1761,7 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   fireIsochrone: "救援等時圈",
   fireHydrant: "消防栓",
   medicalPOI: "醫療據點",
+  medicalIsochrone: "醫療等時圈",
 };
 
 export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
@@ -1888,6 +1914,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       break;
     case "medicalPOI":
       content = <MedicalPOIPanel props={feature.properties} />;
+      break;
+    case "medicalIsochrone":
+      content = <MedicalIsochronePanel props={feature.properties} />;
       break;
   }
 

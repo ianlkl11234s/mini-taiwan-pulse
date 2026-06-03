@@ -139,6 +139,7 @@ export type ExpandableLayerKey =
   | "medPharmacy"
   | "medAED"
   | "medLTC"
+  | "medIsochrone"
   | "agriculture"
   | "agriSoil"
   | "agriSoilFertility"
@@ -459,6 +460,7 @@ export interface FeatureInfo {
     | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "medicalPOI"
+    | "medicalIsochrone"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
@@ -547,6 +549,9 @@ export interface LayerVisibility {
   medPharmacy: boolean;    // 藥局（NHI pharmacy 7680）
   medAED: boolean;         // AED（15490）
   medLTC: boolean;         // 長照機構（30764）
+  medIsochrone: boolean;   // 醫療等時圈（大醫院可及性 1km grid）
+  medDesert: boolean;      // 醫療沙漠（>15 min）
+  medICUBeds: boolean;     // 急重症床位壓力（即時，Phase 3）
   // 農業
   agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
   agriSoil: boolean;             // 25539 全台土壤分類

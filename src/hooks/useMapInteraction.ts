@@ -216,6 +216,8 @@ export function useMapInteraction(
           { layers: ["agri-soil-fill"], type: "agriSoil" },
           // 救援等時圈覆蓋面 — 放最末端，避免大面積擋住上方點層的點選
           { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
+          // 醫療等時圈覆蓋面
+          { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],
