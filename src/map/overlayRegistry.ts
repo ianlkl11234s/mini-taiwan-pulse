@@ -1572,7 +1572,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 渠道 Canal (thin purple, low-voltage look) ──
+  // ── 灌排渠道 Canal (全台 17 管理處 21,785 條，依屬性 3 色) ──
+  // t: 灌溉專用渠道(teal) / 下游具引灌需求(purple) / 下游不具引灌需求(slate)
   {
     id: "waterCanals",
     sourceUrl: "./geo/water_canals.geojson",
@@ -1582,7 +1583,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "glow",
         type: "line",
         paint: (isDark, p) => ({
-          "line-color": isDark ? "#a78bfa" : "#7c3aed",
+          "line-color": [
+            "match", ["get", "t"],
+            "灌溉專用渠道", isDark ? "#2dd4bf" : "#0d9488",
+            "下游具引灌需求", isDark ? "#a78bfa" : "#7c3aed",
+            isDark ? "#94a3b8" : "#64748b",
+          ] as unknown as string,
           "line-width": 3 * (p?.waterCanalWidth ?? 1),
           "line-blur": 2,
           "line-opacity": (isDark ? 0.22 : 0.18) * (p?.waterCanalOpacity ?? 1),
@@ -1592,7 +1598,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "core",
         type: "line",
         paint: (isDark, p) => ({
-          "line-color": isDark ? "#a78bfa" : "#7c3aed",
+          "line-color": [
+            "match", ["get", "t"],
+            "灌溉專用渠道", isDark ? "#2dd4bf" : "#0d9488",
+            "下游具引灌需求", isDark ? "#a78bfa" : "#7c3aed",
+            isDark ? "#94a3b8" : "#64748b",
+          ] as unknown as string,
           "line-width": (isDark ? 0.5 : 0.8) * (p?.waterCanalWidth ?? 1),
           "line-opacity": (isDark ? 0.7 : 0.75) * (p?.waterCanalOpacity ?? 1),
         }),

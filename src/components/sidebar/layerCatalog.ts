@@ -269,7 +269,7 @@ export const SECTIONS: SectionDef[] = [
       { key: "waterBasins", label: "流域 Basin", expandable: true },
       { key: "waterRivers", label: "河川 River", expandable: true },
       { key: "waterLevees", label: "堤防 Levee", expandable: true },
-      { key: "waterCanals", label: "渠道 Canal", expandable: true },
+      { key: "waterCanals", label: "灌排渠道 Canal", expandable: true },
       { key: "waterProtectionZones", label: "管制區 Protection", expandable: true },
       { key: "waterReservoirs", label: "水庫 Reservoir", expandable: true },
       { key: "waterFacilities", label: "水利設施 Facility", expandable: true },
