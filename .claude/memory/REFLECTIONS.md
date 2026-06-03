@@ -450,3 +450,23 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 3. **生成腳本一律快取原始 API 回應**：677 次 Isochrone call 快取後，調簡化/切片參數重跑是秒級、0 額度。外部 API 批次生成都該先做快取層。
 4. **多 PMTiles factory 並存**：SourceType 註冊 try/catch + ensure 排序保護（fire 在 agriculture 後）。
 5. 中介 GeoJSON 寫 gitignored `build/`，`public/` 只放出貨 `.pmtiles`。
+
+## 2026-06-02 正式上線 Zeabur（110 commit 大躍進 + Cloudflare + 4 UI + 2 新層 + 視角）
+
+**做了**：跨多輪——上線前逐層稽核（docs/launch/ 8 份）→ merge feat/fire-rescue 進 master → 部署鏈強化
+（entrypoint 背景 pull / pull 改 sync / agriculture 接鏈 / /geo /h3 /bus dist fallback / 移除 /api 死碼）→
+本地 git-archive docker 全鏈路實測 → push 正式上線（itsmigu.com）→ Cloudflare 快取規則 → 4 UI 改
+（移除 Data Availability / 齒輪規劃中 / 音符預設關 / flight+ship loading 圈圈）→ 農路+國土綠網 2 新農業層 →
+預設開站視角 → 排查上線後 404。D1 改唯讀 S3 key + Mapbox URL 限制（用戶執行）；D4 誤報零動作。
+
+**next-time rules**：
+1. **上線前一定先跑本地 git-archive docker build**：忠實重現 Zeabur 從 git build，本次一次攔下 4 個會炸的雷
+   （npm ci 不同步 / fire sync 遞迴 / entrypoint 阻塞 / bus 沒上 S3）。沒測就 push = 明早白畫面/部署失敗/一堆 404。
+2. **Cloudflare 固定 TTL 會釘住暫態 404**：部署切換期暫態 404 被快取整個 TTL。Cache Rule 一律配 Status Code TTL
+   404/5xx no-cache，上線後若已被快取要 Purge。
+3. **稽核 agent 的靜態結論要實測覆核**：fire dist fallback、bus_trails timeout 都被 agent 誤判，連線實測 /
+   本地 docker 才是真相。靜態讀 migration 會被舊版 CREATE OR REPLACE 誤導。
+4. **資安收斂前先確認 RPC security 類型**：74/81 INVOKER → 撤 table grant 會打掛 RPC，改收窄 exposed schema。
+   動權限前先 `SELECT prosecdef FROM pg_proc` 盤點。
+5. **大躍進上線拆多次部署 + 逐次驗證**：UI / 新層 / 視角分批 commit+push，每次 zeabur deployment 監測 RUNNING
+   + 線上 curl，出錯範圍小、可逆（backup tag）。監測要等對應 8 碼 commit 的 deployment，別太早抓到舊的。
