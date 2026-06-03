@@ -1572,8 +1572,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 灌排渠道 Canal (全台 17 管理處 21,785 條，依屬性 3 色) ──
-  // t: 灌溉專用渠道(teal) / 下游具引灌需求(purple) / 下游不具引灌需求(slate)
+  // ── 灌排渠道 Canal (全台 17 管理處 29,469 條，依屬性 3 色) ──
+  // t: 灌溉專用渠道(teal) / 下游具引灌需求(purple) / 下游不具引灌需求+宜蘭(slate)
   {
     id: "waterCanals",
     sourceUrl: "./geo/water_canals.geojson",

@@ -96,7 +96,8 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasFireHydrants = visibility.fireHydrants;
   const hasFireIsochrone = visibility.fireIsochrone;
   const hasEcoNetworkZones = visibility.ecoNetworkZones;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones;
+  const hasWaterCanals = visibility.waterCanals;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasWaterCanals;
 
   if (!hasAny) return null;
 
@@ -155,6 +156,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasFireHydrants && <FireHydrantLegend />}
           {hasFireIsochrone && <FireIsochroneLegend />}
           {hasEcoNetworkZones && <EcoNetworkZonesLegend />}
+          {hasWaterCanals && <WaterCanalLegend />}
         </div>
       )}
     </div>
@@ -541,6 +543,37 @@ function IotRiverLegend() {
 }
 
 // ── IoT Structure Legend (5 類別 + 主要測項) ──
+
+// ── 灌排渠道 3 色圖例 ──
+
+const WATER_CANAL_ITEMS = [
+  { color: "#2dd4bf", label: "灌溉專用渠道 Irrigation" },
+  { color: "#a78bfa", label: "下游具引灌需求 Demand" },
+  { color: "#94a3b8", label: "不具引灌需求/宜蘭 Other" },
+];
+
+function WaterCanalLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        灌排渠道 CANAL
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {WATER_CANAL_ITEMS.map((c) => (
+          <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 16, height: 3, borderRadius: 1,
+                background: c.color, opacity: 0.9, flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function IotStructureLegend() {
   return (
