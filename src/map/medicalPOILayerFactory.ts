@@ -35,7 +35,7 @@ function registerSourceTypeOnce(): void {
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}medical`;
 const SOURCE_ID = "medical-poi";
-const SOURCE_LAYER = "medical";
+const SOURCE_LAYER = "medical_poi";
 
 export interface MedicalPOIParams {
   /** circle opacity (0~1) */

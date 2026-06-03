@@ -1345,6 +1345,241 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Medical: Hospitals (醫院，451 點) ──
+  {
+    id: "medHospital",
+    sourceUrl: "./geo/medical_hospitals.geojson",
+    sourceId: "medical-hospitals",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medHospitalScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#e53935" : "#c62828",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medHospitalScale ?? 1;
+          const opacity = params?.medHospitalOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#e53935" : "#c62828",
+            "circle-stroke-color": isDark ? "#ef9a9a" : "#b71c1c",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Medical: Clinics (診所，23,472 點) ──
+  {
+    id: "medClinic",
+    sourceUrl: "./geo/medical_clinics.geojson",
+    sourceId: "medical-clinics",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medClinicScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medClinicScale ?? 1;
+          const opacity = params?.medClinicOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#42a5f5" : "#1565c0",
+            "circle-stroke-color": isDark ? "#90caf9" : "#0d47a1",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Medical: Pharmacies (藥局，7,680 點) ──
+  {
+    id: "medPharmacy",
+    sourceUrl: "./geo/medical_pharmacies.geojson",
+    sourceId: "medical-pharmacies",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medPharmacyScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#66bb6a" : "#2e7d32",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medPharmacyScale ?? 1;
+          const opacity = params?.medPharmacyOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#66bb6a" : "#2e7d32",
+            "circle-stroke-color": isDark ? "#a5d6a7" : "#1b5e20",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Medical: AED (自動體外心臟去顫器，15,490 點) ──
+  {
+    id: "medAED",
+    sourceUrl: "./geo/medical_aed.geojson",
+    sourceId: "medical-aed",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medAEDScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#fdd835" : "#f9a825",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medAEDScale ?? 1;
+          const opacity = params?.medAEDOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#fdd835" : "#f9a825",
+            "circle-stroke-color": isDark ? "#fff176" : "#f57f17",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Medical: LTC (長照機構，30,764 點) ──
+  {
+    id: "medLTC",
+    sourceUrl: "./geo/medical_ltc.geojson",
+    sourceId: "medical-ltc",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medLTCScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 1.5 * scale, 10, 4 * scale, 14, 8 * scale, 17, 14 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-opacity": isDark ? 0.12 : 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.medLTCScale ?? 1;
+          const opacity = params?.medLTCOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.6 * scale, 10, 1.2 * scale, 14, 3 * scale, 17, 5 * scale,
+            ],
+            "circle-color": isDark ? "#ab47bc" : "#7b1fa2",
+            "circle-stroke-color": isDark ? "#ce93d8" : "#6a1b9a",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
   // ── News Events (新聞事件) ──
   {
     id: "newsEvents",
