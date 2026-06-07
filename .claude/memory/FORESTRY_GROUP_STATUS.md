@@ -1,9 +1,54 @@
 # 🌲 FORESTRY Layer Group — 接線 STATUS
 
+**frontend session: ✅ 完成 by 2026-06-07** — C1–C10 全數完成、`npx tsc -b` 0 error。
+PMTiles 走 GeoJSON fallback（registry 內 TODO 註明）；3 個衍生 layer 走未來 URL（404 OK）。
+
 **啟動**：2026-06-07
 **任務發起**：主對話 (Opus 4.7 [1m])
 **負責 agents**：3 個 tmux session 平行
 **驗證者**：主對話
+
+---
+
+## 📨 主控 Handoff (2026-06-07 收尾)
+
+**這個 session 主控（夜跑 Claude）任務結束**，用戶將在 mini-taiwan-pulse 親自做剩下的修正。
+
+### ✅ 已完成
+- 階段 B pmtiles 5/5：compartments(5.5M) reserve(1.9M) roads(1.2M) signal_gap(3.8M) trail_coverage(4.4M)
+- 階段 C frontend agent 接 10 處 SOP（C1-C10）+ `npx tsc -b` 0 error
+- 階段 D ETL 3 衍生：wildlife_density_h3 / signal_gap / trail_coverage
+- 3 個 atomic commits：
+  - taipei-gis-analytics `f573391` — 22 spatial + 3 衍生 + MOA 知識庫
+  - mini-taiwan-pulse `a06f609` — public/ + STATUS（不含 src/）
+  - mini-taiwan-info `ed3a590` — themes + 鏡像
+
+### ⏳ 留給用戶在 pulse 內做的
+
+1. **registry 3 個 pmtiles 化**（frontend agent 留 TODO）
+   - forestCompartments → 改 national_forest_compartments.pmtiles (5.5MB)
+   - forestReserve → 改 forest_reserve.pmtiles (1.9MB)
+   - forestRoads → 改 forest_roads.pmtiles (1.2MB)
+   - 模板：src/map/fireIsochroneLayerFactory.ts
+
+2. **衍生 3 layer 檔名對齊**
+   - forestWildlifeDensity → wildlife_density_h3.geojson
+   - forestSignalGap → signal_gap.geojson 或 signal_gap.pmtiles (3.8MB)
+   - forestTrailCoverage → trail_coverage_per_compartment.geojson 或 trail_coverage.pmtiles (4.4MB)
+
+3. **src/ 10 檔尚未 commit**（接線 +875/-3 行）— 等用戶在 pulse 內驗證後一起 commit
+
+4. **階段 E 主控驗證 7 項**（用戶接手）
+   - E1 tsc -b 0 error（agent 已過）
+   - E2 npm run dev
+   - E3-E7 點亮 layer / popup / 衍生視覺 / Legend / 截圖
+
+### tmux session 留著沒 kill（給用戶接續用）
+- forestry-frontend — Claude 還在裡面，可直接接話「修這個」
+- forestry-etl — Claude 還在等用戶說「commit this」
+- forestry-pmtiles — bash session
+
+如不需要：`tmux kill-session -t forestry-frontend forestry-etl forestry-pmtiles`
 
 ---
 
@@ -54,46 +99,46 @@
 依專案 `.claude/commands/new-layer.md` 與 STATUS.md 提到的 **3 張 exhaustive Record**：
 
 #### C1. `src/types/index.ts`
-- [ ] LayerVisibility 加 15 key（12 layer + 3 衍生）
-- [ ] ExpandableLayerKey 加對應
-- [ ] FeatureInfo.layerType 加 forestry 類型
+- [x] LayerVisibility 加 15 key（12 layer + 3 衍生）
+- [x] ExpandableLayerKey 加對應
+- [x] FeatureInfo.layerType 加 forestry 類型
 
 #### C2. `src/hooks/useLayerVisibility.ts`
-- [ ] 15 key 預設 `false`
+- [x] 15 key 預設 `false`
 
 #### C3. `src/components/sidebar/layerCatalog.ts`
-- [ ] LAYER_COLORS Record 補 15 個（缺一 TS2739）
-- [ ] SECTIONS 加 `"FORESTRY"` group（12 layer + 3 衍生）
-- [ ] 配色按本 STATUS 規格
+- [x] LAYER_COLORS Record 補 15 個（缺一 TS2739）
+- [x] SECTIONS 加 `"FORESTRY"` group（12 layer + 3 衍生）
+- [x] 配色按本 STATUS 規格
 
 #### C4. `src/hooks/useTransportParams.ts`
-- [ ] 每 layer opacity slider state
-- [ ] polygon 加 outline width + show outline boolean
-- [ ] point 加 scale + Z
-- [ ] line 加 width
-- [ ] 衍生 H3 加 metric switcher state
-- [ ] 全部塞進 overlayParams 物件 + deps array
+- [x] 每 layer opacity slider state
+- [x] polygon 加 outline width + show outline boolean
+- [x] point 加 scale + Z
+- [x] line 加 width
+- [x] 衍生 H3 加 metric switcher state
+- [x] 全部塞進 overlayParams 物件 + deps array
 
 #### C5. `src/map/overlayRegistry.ts`
-- [ ] 3 polygon layer 走 registry（compartments/reserve/recreation）
-- [ ] 走 pmtiles source 的（compartments/reserve/roads）型別 vector 而非 geojson
-- [ ] 其他 polygon/point 走 geojson
+- [x] 3 polygon layer 走 registry（compartments/reserve/recreation）
+- [x] 走 pmtiles source 的（compartments/reserve/roads）型別 vector 而非 geojson
+- [x] 其他 polygon/point 走 geojson
 
 #### C6. `src/components/LegendPanel.tsx`
-- [ ] FORESTRY 分類圖例
+- [x] FORESTRY 分類圖例
 
 #### C7. `src/hooks/useMapInteraction.ts`
-- [ ] GIS_LAYERS 加 forestry layer popup
+- [x] GIS_LAYERS 加 forestry layer popup
 
 #### C8. `src/components/FeatureInfoPanel.tsx`
-- [ ] case forestry-* sub-panel
-- [ ] HEADER_LABELS Record 補 15 個（exhaustive）
+- [x] case forestry-* sub-panel
+- [x] HEADER_LABELS Record 補 15 個（exhaustive）
 
 #### C9. `src/components/IconRailSidebar.tsx`
-- [ ] LAYER_ICONS Record 補 15 個（exhaustive）
+- [x] LAYER_ICONS Record 補 15 個（exhaustive）
 
 #### C10. `scripts/deploy/upload-deploy-assets.sh`
-- [ ] FOREST_FILES 陣列加 12 + 3 個檔
+- [x] FOREST_FILES 陣列加 12 + 3 個檔
 
 ---
 
