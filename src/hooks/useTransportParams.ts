@@ -345,6 +345,51 @@ export function useTransportParams() {
   const [farmRoadsOpacity, setFarmRoadsOpacity] = useState(0.8);
   const [ecoNetworkZonesOpacity, setEcoNetworkZonesOpacity] = useState(0.5);
 
+  // ── FORESTRY（12 base + 3 衍生）──
+  // polygon：opacity + outlineWidth + showOutline
+  const [forestCompartmentsOpacity, setForestCompartmentsOpacity] = useState(0.45);
+  const [forestCompartmentsOutlineWidth, setForestCompartmentsOutlineWidth] = useState(0.5);
+  const [forestCompartmentsShowOutline, setForestCompartmentsShowOutline] = useState(true);
+  const [forestReserveOpacity, setForestReserveOpacity] = useState(0.5);
+  const [forestReserveOutlineWidth, setForestReserveOutlineWidth] = useState(0.5);
+  const [forestReserveShowOutline, setForestReserveShowOutline] = useState(true);
+  const [forestRecreationOpacity, setForestRecreationOpacity] = useState(0.6);
+  const [forestRecreationOutlineWidth, setForestRecreationOutlineWidth] = useState(0.5);
+  const [forestRecreationShowOutline, setForestRecreationShowOutline] = useState(true);
+  const [forestTreatmentWorksOpacity, setForestTreatmentWorksOpacity] = useState(0.7);
+  const [forestTreatmentWorksOutlineWidth, setForestTreatmentWorksOutlineWidth] = useState(0.5);
+  const [forestTreatmentWorksShowOutline, setForestTreatmentWorksShowOutline] = useState(true);
+  const [forestFlatParksOpacity, setForestFlatParksOpacity] = useState(0.6);
+  const [forestFlatParksOutlineWidth, setForestFlatParksOutlineWidth] = useState(0.5);
+  const [forestFlatParksShowOutline, setForestFlatParksShowOutline] = useState(true);
+  const [forestDamLakesOpacity, setForestDamLakesOpacity] = useState(0.7);
+  const [forestDamLakesOutlineWidth, setForestDamLakesOutlineWidth] = useState(0.5);
+  const [forestDamLakesShowOutline, setForestDamLakesShowOutline] = useState(true);
+  // line：opacity + width
+  const [forestRoadsOpacity, setForestRoadsOpacity] = useState(0.8);
+  const [forestRoadsWidth, setForestRoadsWidth] = useState(1.0);
+  const [forestAlishanRailOpacity, setForestAlishanRailOpacity] = useState(0.9);
+  const [forestAlishanRailWidth, setForestAlishanRailWidth] = useState(1.5);
+  // point：opacity + scale
+  const [forestTrailSignsOpacity, setForestTrailSignsOpacity] = useState(0.85);
+  const [forestTrailSignsScale, setForestTrailSignsScale] = useState(1.0);
+  const [forestSignalPointsOpacity, setForestSignalPointsOpacity] = useState(0.85);
+  const [forestSignalPointsScale, setForestSignalPointsScale] = useState(1.0);
+  const [forestEducationCentersOpacity, setForestEducationCentersOpacity] = useState(0.9);
+  const [forestEducationCentersScale, setForestEducationCentersScale] = useState(1.2);
+  const [forestWildlifeOpacity, setForestWildlifeOpacity] = useState(0.85);
+  const [forestWildlifeScale, setForestWildlifeScale] = useState(1.0);
+  // 衍生（H3 / polygon）：opacity + outlineWidth + showOutline
+  const [forestWildlifeDensityOpacity, setForestWildlifeDensityOpacity] = useState(0.7);
+  const [forestWildlifeDensityOutlineWidth, setForestWildlifeDensityOutlineWidth] = useState(0.3);
+  const [forestWildlifeDensityShowOutline, setForestWildlifeDensityShowOutline] = useState(false);
+  const [forestSignalGapOpacity, setForestSignalGapOpacity] = useState(0.55);
+  const [forestSignalGapOutlineWidth, setForestSignalGapOutlineWidth] = useState(0.5);
+  const [forestSignalGapShowOutline, setForestSignalGapShowOutline] = useState(true);
+  const [forestTrailCoverageOpacity, setForestTrailCoverageOpacity] = useState(0.6);
+  const [forestTrailCoverageOutlineWidth, setForestTrailCoverageOutlineWidth] = useState(0.4);
+  const [forestTrailCoverageShowOutline, setForestTrailCoverageShowOutline] = useState(true);
+
   // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
   const WASTE_SUB_KEYS = [
     "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
@@ -574,7 +619,47 @@ export function useTransportParams() {
     farmRoadsWidth,
     farmRoadsOpacity,
     ecoNetworkZonesOpacity,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity]);
+    // FORESTRY
+    forestCompartmentsOpacity,
+    forestCompartmentsOutlineWidth,
+    forestCompartmentsShowOutline: forestCompartmentsShowOutline ? 1 : 0,
+    forestReserveOpacity,
+    forestReserveOutlineWidth,
+    forestReserveShowOutline: forestReserveShowOutline ? 1 : 0,
+    forestRecreationOpacity,
+    forestRecreationOutlineWidth,
+    forestRecreationShowOutline: forestRecreationShowOutline ? 1 : 0,
+    forestTreatmentWorksOpacity,
+    forestTreatmentWorksOutlineWidth,
+    forestTreatmentWorksShowOutline: forestTreatmentWorksShowOutline ? 1 : 0,
+    forestFlatParksOpacity,
+    forestFlatParksOutlineWidth,
+    forestFlatParksShowOutline: forestFlatParksShowOutline ? 1 : 0,
+    forestDamLakesOpacity,
+    forestDamLakesOutlineWidth,
+    forestDamLakesShowOutline: forestDamLakesShowOutline ? 1 : 0,
+    forestRoadsOpacity,
+    forestRoadsWidth,
+    forestAlishanRailOpacity,
+    forestAlishanRailWidth,
+    forestTrailSignsOpacity,
+    forestTrailSignsScale,
+    forestSignalPointsOpacity,
+    forestSignalPointsScale,
+    forestEducationCentersOpacity,
+    forestEducationCentersScale,
+    forestWildlifeOpacity,
+    forestWildlifeScale,
+    forestWildlifeDensityOpacity,
+    forestWildlifeDensityOutlineWidth,
+    forestWildlifeDensityShowOutline: forestWildlifeDensityShowOutline ? 1 : 0,
+    forestSignalGapOpacity,
+    forestSignalGapOutlineWidth,
+    forestSignalGapShowOutline: forestSignalGapShowOutline ? 1 : 0,
+    forestTrailCoverageOpacity,
+    forestTrailCoverageOutlineWidth,
+    forestTrailCoverageShowOutline: forestTrailCoverageShowOutline ? 1 : 0,
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, forestWildlifeDensityOpacity, forestWildlifeDensityOutlineWidth, forestWildlifeDensityShowOutline, forestSignalGapOpacity, forestSignalGapOutlineWidth, forestSignalGapShowOutline, forestTrailCoverageOpacity, forestTrailCoverageOutlineWidth, forestTrailCoverageShowOutline]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -1057,6 +1142,76 @@ export function useTransportParams() {
         }
         return base;
       }
+      // ── FORESTRY ─────────────────────────────────────────
+      case "forestCompartments": return [
+        { label: `透明度 ${forestCompartmentsOpacity.toFixed(2)}`, value: forestCompartmentsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestCompartmentsOpacity },
+        { label: `邊框寬 ${forestCompartmentsOutlineWidth.toFixed(1)}`, value: forestCompartmentsOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestCompartmentsOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestCompartmentsShowOutline, onChange: setForestCompartmentsShowOutline },
+      ];
+      case "forestReserve": return [
+        { label: `透明度 ${forestReserveOpacity.toFixed(2)}`, value: forestReserveOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestReserveOpacity },
+        { label: `邊框寬 ${forestReserveOutlineWidth.toFixed(1)}`, value: forestReserveOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestReserveOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestReserveShowOutline, onChange: setForestReserveShowOutline },
+      ];
+      case "forestRecreation": return [
+        { label: `透明度 ${forestRecreationOpacity.toFixed(2)}`, value: forestRecreationOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestRecreationOpacity },
+        { label: `邊框寬 ${forestRecreationOutlineWidth.toFixed(1)}`, value: forestRecreationOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestRecreationOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestRecreationShowOutline, onChange: setForestRecreationShowOutline },
+      ];
+      case "forestTreatmentWorks": return [
+        { label: `透明度 ${forestTreatmentWorksOpacity.toFixed(2)}`, value: forestTreatmentWorksOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestTreatmentWorksOpacity },
+        { label: `邊框寬 ${forestTreatmentWorksOutlineWidth.toFixed(1)}`, value: forestTreatmentWorksOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestTreatmentWorksOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestTreatmentWorksShowOutline, onChange: setForestTreatmentWorksShowOutline },
+      ];
+      case "forestFlatParks": return [
+        { label: `透明度 ${forestFlatParksOpacity.toFixed(2)}`, value: forestFlatParksOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestFlatParksOpacity },
+        { label: `邊框寬 ${forestFlatParksOutlineWidth.toFixed(1)}`, value: forestFlatParksOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestFlatParksOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestFlatParksShowOutline, onChange: setForestFlatParksShowOutline },
+      ];
+      case "forestDamLakes": return [
+        { label: `透明度 ${forestDamLakesOpacity.toFixed(2)}`, value: forestDamLakesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestDamLakesOpacity },
+        { label: `邊框寬 ${forestDamLakesOutlineWidth.toFixed(1)}`, value: forestDamLakesOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestDamLakesOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestDamLakesShowOutline, onChange: setForestDamLakesShowOutline },
+      ];
+      case "forestRoads": return [
+        { label: `寬度 ${forestRoadsWidth.toFixed(1)}`, value: forestRoadsWidth, min: 0.3, max: 4, step: 0.1, onChange: setForestRoadsWidth },
+        { label: `透明度 ${forestRoadsOpacity.toFixed(2)}`, value: forestRoadsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestRoadsOpacity },
+      ];
+      case "forestAlishanRail": return [
+        { label: `寬度 ${forestAlishanRailWidth.toFixed(1)}`, value: forestAlishanRailWidth, min: 0.5, max: 5, step: 0.1, onChange: setForestAlishanRailWidth },
+        { label: `透明度 ${forestAlishanRailOpacity.toFixed(2)}`, value: forestAlishanRailOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestAlishanRailOpacity },
+      ];
+      case "forestTrailSigns": return [
+        { label: `透明度 ${forestTrailSignsOpacity.toFixed(2)}`, value: forestTrailSignsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestTrailSignsOpacity },
+        { label: `大小 ${forestTrailSignsScale.toFixed(2)}`, value: forestTrailSignsScale, min: 0.3, max: 3, step: 0.1, onChange: setForestTrailSignsScale },
+      ];
+      case "forestSignalPoints": return [
+        { label: `透明度 ${forestSignalPointsOpacity.toFixed(2)}`, value: forestSignalPointsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestSignalPointsOpacity },
+        { label: `大小 ${forestSignalPointsScale.toFixed(2)}`, value: forestSignalPointsScale, min: 0.3, max: 3, step: 0.1, onChange: setForestSignalPointsScale },
+      ];
+      case "forestEducationCenters": return [
+        { label: `透明度 ${forestEducationCentersOpacity.toFixed(2)}`, value: forestEducationCentersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestEducationCentersOpacity },
+        { label: `大小 ${forestEducationCentersScale.toFixed(2)}`, value: forestEducationCentersScale, min: 0.3, max: 3, step: 0.1, onChange: setForestEducationCentersScale },
+      ];
+      case "forestWildlife": return [
+        { label: `透明度 ${forestWildlifeOpacity.toFixed(2)}`, value: forestWildlifeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestWildlifeOpacity },
+        { label: `大小 ${forestWildlifeScale.toFixed(2)}`, value: forestWildlifeScale, min: 0.3, max: 3, step: 0.1, onChange: setForestWildlifeScale },
+      ];
+      case "forestWildlifeDensity": return [
+        { label: `透明度 ${forestWildlifeDensityOpacity.toFixed(2)}`, value: forestWildlifeDensityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestWildlifeDensityOpacity },
+        { label: `邊框寬 ${forestWildlifeDensityOutlineWidth.toFixed(1)}`, value: forestWildlifeDensityOutlineWidth, min: 0, max: 2, step: 0.1, onChange: setForestWildlifeDensityOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestWildlifeDensityShowOutline, onChange: setForestWildlifeDensityShowOutline },
+      ];
+      case "forestSignalGap": return [
+        { label: `透明度 ${forestSignalGapOpacity.toFixed(2)}`, value: forestSignalGapOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestSignalGapOpacity },
+        { label: `邊框寬 ${forestSignalGapOutlineWidth.toFixed(1)}`, value: forestSignalGapOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestSignalGapOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestSignalGapShowOutline, onChange: setForestSignalGapShowOutline },
+      ];
+      case "forestTrailCoverage": return [
+        { label: `透明度 ${forestTrailCoverageOpacity.toFixed(2)}`, value: forestTrailCoverageOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestTrailCoverageOpacity },
+        { label: `邊框寬 ${forestTrailCoverageOutlineWidth.toFixed(1)}`, value: forestTrailCoverageOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestTrailCoverageOutlineWidth },
+        { type: "toggle" as const, label: "邊框 Outline", value: forestTrailCoverageShowOutline, onChange: setForestTrailCoverageShowOutline },
+      ];
       default: return [];
     }
   };

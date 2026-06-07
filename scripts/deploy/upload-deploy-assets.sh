@@ -112,6 +112,39 @@ for f in "${AGRI_FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/agriculture/$name" --region ap-southeast-2
 done
 
+# 林業圖層：上傳到 deploy-assets/forestry/ 子前綴（鏡像結構，pull 端整夾 sync）
+# 包含 12 個原始 GeoJSON / PMTiles + 3 個衍生分析 GeoJSON（D1-D3 ETL 產出）
+FOREST_FILES=(
+  "public/forestry/national_forest_compartments.geojson"
+  "public/forestry/national_forest_compartments.pmtiles"
+  "public/forestry/forest_reserve.geojson"
+  "public/forestry/forest_reserve.pmtiles"
+  "public/forestry/forest_roads.geojson"
+  "public/forestry/forest_roads.pmtiles"
+  "public/forestry/forest_recreation_areas.geojson"
+  "public/forestry/forestry_treatment_works.geojson"
+  "public/forestry/mountain_trail_signs.geojson"
+  "public/forestry/mountain_signal_points.geojson"
+  "public/forestry/forest_education_centers.geojson"
+  "public/forestry/wildlife_distribution_3rd.geojson"
+  "public/forestry/dam_lakes_in_forest.geojson"
+  "public/forestry/wildlife_distribution_3rd_alt.geojson"
+  "public/forestry/flat_forest_parks.geojson"
+  # 衍生 3 個（ETL D1-D3，初期可能不存在 → skip）
+  "public/forestry/wildlife_density_h3.geojson"
+  "public/forestry/signal_gap.geojson"
+  "public/forestry/trail_coverage_per_compartment.geojson"
+)
+for f in "${FOREST_FILES[@]}"; do
+  name=$(basename "$f")
+  if [ ! -f "$f" ]; then
+    echo "Skipping forestry/$name (file not found: $f)"
+    continue
+  fi
+  echo "Uploading forestry/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/forestry/$name" --region ap-southeast-2
+done
+
 # Rail 個別檔案（打包成 tar.gz 上傳）
 if [ -d "public/rail" ]; then
   echo "Packing public/rail/ → rail.tar.gz..."

@@ -152,6 +152,22 @@ export type ExpandableLayerKey =
   | "agriWholesaleMarket"
   | "farmRoads"
   | "ecoNetworkZones"
+  // FORESTRY 12 base + 3 衍生
+  | "forestCompartments"
+  | "forestReserve"
+  | "forestRecreation"
+  | "forestRoads"
+  | "forestTreatmentWorks"
+  | "forestTrailSigns"
+  | "forestSignalPoints"
+  | "forestEducationCenters"
+  | "forestWildlife"
+  | "forestDamLakes"
+  | "forestFlatParks"
+  | "forestAlishanRail"
+  | "forestWildlifeDensity"
+  | "forestSignalGap"
+  | "forestTrailCoverage"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
@@ -469,7 +485,9 @@ export interface FeatureInfo {
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
-    | "farmRoads" | "ecoNetworkZones";
+    | "farmRoads" | "ecoNetworkZones"
+    | "forestryPolygon" | "forestryLine" | "forestryPOI"
+    | "forestryWildlifeDensity" | "forestrySignalGap" | "forestryTrailCoverage";
   properties: Record<string, unknown>;
 }
 
@@ -566,6 +584,22 @@ export interface LayerVisibility {
   agriWholesaleMarket: boolean;    // 53 農產批發市場
   farmRoads: boolean;              // 8678 農路 LineString
   ecoNetworkZones: boolean;        // 12 國土綠網地理分區 MultiPolygon
+  // 林業 FORESTRY（12 base + 3 衍生）
+  forestCompartments: boolean;
+  forestReserve: boolean;
+  forestRecreation: boolean;
+  forestRoads: boolean;
+  forestTreatmentWorks: boolean;
+  forestTrailSigns: boolean;
+  forestSignalPoints: boolean;
+  forestEducationCenters: boolean;
+  forestWildlife: boolean;
+  forestDamLakes: boolean;
+  forestFlatParks: boolean;
+  forestAlishanRail: boolean;
+  forestWildlifeDensity: boolean;
+  forestSignalGap: boolean;
+  forestTrailCoverage: boolean;
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;

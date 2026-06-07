@@ -14,6 +14,8 @@ import {
   Sprout,
   Video, Receipt, Coffee, Car,
   ShoppingCart, Warehouse,
+  // FORESTRY icons
+  Trees, TreePine, Hammer, Signal, PawPrint, Hexagon, LayoutGrid,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -115,6 +117,23 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   agriWholesaleMarket: Warehouse,
   farmRoads: Route,
   ecoNetworkZones: Mountain,
+  // FORESTRY 12 base
+  forestCompartments: Trees,
+  forestReserve: Shield,
+  forestRecreation: TreePine,
+  forestRoads: Route,
+  forestTreatmentWorks: Hammer,
+  forestTrailSigns: MapPin,
+  forestSignalPoints: Signal,
+  forestEducationCenters: GraduationCap,
+  forestWildlife: PawPrint,
+  forestDamLakes: Waves,
+  forestFlatParks: Sprout,
+  forestAlishanRail: TrainFront,
+  // FORESTRY 3 衍生
+  forestWildlifeDensity: Hexagon,
+  forestSignalGap: AlertTriangle,
+  forestTrailCoverage: LayoutGrid,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,
