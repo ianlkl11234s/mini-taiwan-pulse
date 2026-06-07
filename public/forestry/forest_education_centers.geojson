@@ -1,0 +1,15 @@
+{
+"type": "FeatureCollection",
+"name": "forest_education_centers",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "AduShort": "DYS", "AduName": "東眼山自然教育中心", "Addr": "桃園市復興區霞雲里成福路600號", "Phone": "(03)3821533", "Fax": "(03)3821532", "Email": "dysnc2007@gmail.com", "AdminUnit": "林業保育署新竹分署", "Height": "849-1212", "Area": "906.0", "BlogUrl": "http://fable0204.pixnet.net/blog" }, "geometry": { "type": "Point", "coordinates": [ 121.301, 24.9937 ] } },
+{ "type": "Feature", "properties": { "AduShort": "AWD", "AduName": "奧萬大自然教育中心", "Addr": "南投縣仁愛鄉親愛村大安路153號", "Phone": "(049)2974499", "Fax": "(049)2974895", "Email": "aowandanc@gmail.com", "AdminUnit": "南投分署", "Height": "1100-2600", "Area": "2787.0", "BlogUrl": "" }, "geometry": { "type": "Point", "coordinates": [ 120.673, 23.9609 ] } },
+{ "type": "Feature", "properties": { "AduShort": "CN", "AduName": "池南自然教育中心", "Addr": "花蓮縣壽豐鄉池南村林園路65號", "Phone": "(03)864159415", "Fax": "(03)8641613", "Email": "chihnannc@gmail.com", "AdminUnit": "花蓮分署", "Height": "140-601", "Area": "169.0", "BlogUrl": "https://www.facebook.com/ChihnanNatureCenter/" }, "geometry": { "type": "Point", "coordinates": [ 121.6042, 23.9871 ] } },
+{ "type": "Feature", "properties": { "AduShort": "BSS", "AduName": "八仙山自然教育中心", "Addr": "台中市和平區東關路一段200之8號", "Phone": "(04)25950299", "Fax": "", "Email": "basianshan@gmail.com", "AdminUnit": "臺中分署", "Height": "667-2938", "Area": "2451.97", "BlogUrl": "https://www.facebook.com/BSSNC.tw" }, "geometry": { "type": "Point", "coordinates": [ 120.6478, 24.1477 ] } },
+{ "type": "Feature", "properties": { "AduShort": "LD", "AduName": "羅東自然教育中心", "Addr": "宜蘭縣羅東鎮中正北路118號", "Phone": "(03)9540823", "Fax": "(03)9532126", "Email": "ld.service@eeft.org.tw", "AdminUnit": "宜蘭分署", "Height": "8-8", "Area": "16.0", "BlogUrl": "http://luodong-nec.blogspot.tw/" }, "geometry": { "type": "Point", "coordinates": [ 121.7536, 24.7021 ] } },
+{ "type": "Feature", "properties": { "AduShort": "CK", "AduName": "觸口自然教育中心", "Addr": "602 嘉義縣番路鄉新福村1鄰五虎寮18號", "Phone": "(05)2590211052593035610", "Fax": "", "Email": "cycknc@gmail.com", "AdminUnit": "嘉義分署", "Height": "193-193", "Area": "10.0", "BlogUrl": "" }, "geometry": { "type": "Point", "coordinates": [ 120.574, 23.4518 ] } },
+{ "type": "Feature", "properties": { "AduShort": "SL", "AduName": "雙流自然教育中心", "Addr": "屏東縣獅子鄉丹路村丹路2巷23號", "Phone": "(08)8701499", "Fax": "", "Email": "slnc543@gmail.com", "AdminUnit": "屏東分署", "Height": "150-700", "Area": "1584.85", "BlogUrl": "" }, "geometry": { "type": "Point", "coordinates": [ 120.488, 22.6824 ] } },
+{ "type": "Feature", "properties": { "AduShort": "JB", "AduName": "知本自然教育中心", "Addr": "954 台東縣卑南鄉溫泉村龍泉路290號", "Phone": "(089)51096118089510961210895109612208951096123", "Fax": "(089)510749", "Email": "jbcenter089@gmail.com", "AdminUnit": "臺東分署", "Height": "125-650", "Area": "110.0", "BlogUrl": "https://jbcenter0312.blogspot.com/" }, "geometry": { "type": "Point", "coordinates": [ 121.1132, 22.7583 ] } }
+]
+}

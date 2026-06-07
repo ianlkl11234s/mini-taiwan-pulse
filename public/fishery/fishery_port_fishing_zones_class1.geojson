@@ -1,0 +1,13 @@
+{
+"type": "FeatureCollection",
+"name": "fishery_port_fishing_zones_class1",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "objectid": "1", "port_name": "烏石漁港", "kind": "第一類", "county": "宜蘭縣" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 121.842087, 24.863425 ], [ 121.842731, 24.862792 ], [ 121.843933, 24.863902 ], [ 121.843289, 24.864476 ], [ 121.842087, 24.863425 ] ] ] } },
+{ "type": "Feature", "properties": { "objectid": "2", "port_name": "八斗子漁港", "kind": "第一類", "county": "基隆市" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 121.789114, 25.148442 ], [ 121.78923, 25.148045 ], [ 121.789847, 25.148198 ], [ 121.78971, 25.14861 ], [ 121.789114, 25.148442 ] ] ] } },
+{ "type": "Feature", "properties": { "objectid": "3", "port_name": "八斗子漁港", "kind": "第一類", "county": "基隆市" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 121.791133, 25.148562 ], [ 121.790835, 25.148221 ], [ 121.791758, 25.147487 ], [ 121.792072, 25.147786 ], [ 121.791133, 25.148562 ] ] ] } },
+{ "type": "Feature", "properties": { "objectid": "4", "port_name": "八斗子漁港", "kind": "第一類", "county": "基隆市" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 121.791336, 25.14706 ], [ 121.791332, 25.146727 ], [ 121.791903, 25.146742 ], [ 121.791903, 25.14706 ], [ 121.791336, 25.14706 ] ] ] } },
+{ "type": "Feature", "properties": { "objectid": "5", "port_name": "新竹漁港", "kind": "第一類", "county": "新竹市" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 120.910715, 24.849734 ], [ 120.911499, 24.848652 ], [ 120.913796, 24.850105 ], [ 120.913012, 24.851157 ], [ 120.910715, 24.849734 ] ] ] } },
+{ "type": "Feature", "properties": { "objectid": "6", "port_name": "東港鹽埔漁港", "kind": "第一類", "county": "屏東縣" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 120.432081, 22.469316 ], [ 120.431883, 22.468866 ], [ 120.432334, 22.468699 ], [ 120.432568, 22.469133 ], [ 120.432081, 22.469316 ] ] ] } }
+]
+}
