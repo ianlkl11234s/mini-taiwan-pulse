@@ -1623,55 +1623,6 @@ function ForestryGenericPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
-function ForestryWildlifeDensityPanel({ props }: { props: Record<string, unknown> }) {
-  const species = Number(props.species_count ?? props.species ?? 0);
-  const individuals = Number(props.individual_count ?? props.count ?? 0);
-  return (
-    <>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#7E22CE", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>動物熱點 H3</div>
-      </div>
-      {Number.isFinite(species) && species > 0 && <Row label="物種數" value={String(species)} />}
-      {Number.isFinite(individuals) && individuals > 0 && <Row label="個體數" value={String(individuals)} />}
-      {props.h3 != null && <Row label="H3" value={String(props.h3)} />}
-    </>
-  );
-}
-
-function ForestrySignalGapPanel({ props }: { props: Record<string, unknown> }) {
-  const area = Number(props.area_ha ?? props.Area_ha);
-  return (
-    <>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#DC2626", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>通訊死角</div>
-      </div>
-      {Number.isFinite(area) && <Row label="面積" value={`${Math.round(area).toLocaleString()} ha`} />}
-      <div style={{ fontSize: 9, color: "rgba(255,180,80,0.7)", marginTop: 6 }}>
-        ⚠️ 推估：林班減去通訊點 1km buffer
-      </div>
-    </>
-  );
-}
-
-function ForestryTrailCoveragePanel({ props }: { props: Record<string, unknown> }) {
-  const count = Number(props.trail_count ?? 0);
-  const density = Number(props.density ?? 0);
-  return (
-    <>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#14532D", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>步道覆蓋率</div>
-      </div>
-      {Number.isFinite(count) && <Row label="路標數" value={String(count)} />}
-      {Number.isFinite(density) && density > 0 && (
-        <Row label="密度" value={`${density.toFixed(3)} /ha`} />
-      )}
-    </>
-  );
-}
-
 function FireEventPanel({ props }: { props: Record<string, unknown> }) {
   const deaths = Number(props.deaths ?? 0);
   const injuries = Number(props.injuries ?? 0);
@@ -1838,9 +1789,6 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   forestryPolygon: "林業面 (polygon)",
   forestryLine: "林業線 (line)",
   forestryPOI: "林業點位 (POI)",
-  forestryWildlifeDensity: "野生動物熱點密度",
-  forestrySignalGap: "山區通訊死角",
-  forestryTrailCoverage: "步道覆蓋率",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
   fireIsochrone: "救援等時圈",
@@ -1971,15 +1919,6 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "forestryLine":
     case "forestryPOI":
       content = <ForestryGenericPanel props={feature.properties} />;
-      break;
-    case "forestryWildlifeDensity":
-      content = <ForestryWildlifeDensityPanel props={feature.properties} />;
-      break;
-    case "forestrySignalGap":
-      content = <ForestrySignalGapPanel props={feature.properties} />;
-      break;
-    case "forestryTrailCoverage":
-      content = <ForestryTrailCoveragePanel props={feature.properties} />;
       break;
     case "agriPOI":
       content = <AgriPOIPanel props={feature.properties} />;

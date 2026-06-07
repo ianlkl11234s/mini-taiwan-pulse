@@ -6,6 +6,7 @@ import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
+import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
@@ -102,8 +103,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
     || visibility.forestRecreation || visibility.forestRoads || visibility.forestTreatmentWorks
     || visibility.forestTrailSigns || visibility.forestSignalPoints || visibility.forestEducationCenters
     || visibility.forestWildlife || visibility.forestDamLakes || visibility.forestFlatParks
-    || visibility.forestAlishanRail || visibility.forestWildlifeDensity
-    || visibility.forestSignalGap || visibility.forestTrailCoverage;
+    || visibility.forestAlishanRail;
   const hasWaterCanals = visibility.waterCanals;
   const hasMedIsochrone = visibility.medIsochrone || visibility.medDesert;
   const hasMedical = visibility.medHospital || visibility.medClinic || visibility.medPharmacy || visibility.medAED || visibility.medLTC;
@@ -275,18 +275,31 @@ const FORESTRY_LEGEND_ROWS: { key: keyof LayerVisibility; color: string; label: 
   { key: "forestReserve", color: "#0F766E", label: "保安林 Reserve", shape: "square" },
   { key: "forestRecreation", color: "#65A30D", label: "森林遊樂區 Recreation", shape: "square" },
   { key: "forestRoads", color: "#A16207", label: "林道 Forest Roads", shape: "line" },
-  { key: "forestTreatmentWorks", color: "#F59E0B", label: "治理工程 Treatment", shape: "square" },
+  { key: "forestTreatmentWorks", color: "#F59E0B", label: "治理工程 Treatment", shape: "circle" },
   { key: "forestTrailSigns", color: "#84CC16", label: "步道路標 Trail Signs", shape: "circle" },
   { key: "forestSignalPoints", color: "#22C55E", label: "通訊點 Signal Points", shape: "circle" },
   { key: "forestEducationCenters", color: "#0EA5E9", label: "自然教育中心 Education", shape: "circle" },
   { key: "forestWildlife", color: "#A855F7", label: "野生動物分布 Wildlife", shape: "circle" },
-  { key: "forestDamLakes", color: "#06B6D4", label: "堰塞湖 Dam Lakes", shape: "square" },
-  { key: "forestFlatParks", color: "#A3E635", label: "平地森林 Flat Parks", shape: "square" },
-  { key: "forestAlishanRail", color: "#92400E", label: "阿里山鐵路 Alishan Rail", shape: "line" },
-  { key: "forestWildlifeDensity", color: "#7E22CE", label: "動物熱點密度 Wildlife Density", shape: "square" },
-  { key: "forestSignalGap", color: "#DC2626", label: "通訊死角 Signal Gap", shape: "square" },
-  { key: "forestTrailCoverage", color: "#14532D", label: "步道覆蓋 Trail Coverage", shape: "square" },
+  { key: "forestDamLakes", color: "#06B6D4", label: "堰塞湖 Dam Lakes", shape: "circle" },
+  { key: "forestFlatParks", color: "#A3E635", label: "平地森林 Flat Parks", shape: "circle" },
+  { key: "forestAlishanRail", color: "#92400E", label: "阿里山鐵路 Alishan Rail (車站)", shape: "circle" },
 ];
+
+function ForestReserveTypesLegend() {
+  return (
+    <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: "1px solid rgba(255,255,255,0.12)" }}>
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", marginBottom: 2 }}>保安林種類</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        {FOREST_RESERVE_TYPES.map((t) => (
+          <div key={t.key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: 1, background: t.color, flexShrink: 0 }} />
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.55)" }}>{t.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
   const rows = FORESTRY_LEGEND_ROWS.filter((r) => visibility[r.key]);
@@ -315,6 +328,7 @@ function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
         ))}
       </div>
+      {visibility.forestReserve && <ForestReserveTypesLegend />}
     </div>
   );
 }

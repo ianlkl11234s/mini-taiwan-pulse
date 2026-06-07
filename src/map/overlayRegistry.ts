@@ -1,5 +1,6 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
+import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 
 const BASE_RADIUS = 5;
 
@@ -2435,7 +2436,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 保安林（Polygon）──
+  // ── 保安林（Polygon，按「種類」13 類配色）──
   {
     id: "forestReserve",
     sourceUrl: "./forestry/forest_reserve.geojson",
@@ -2446,15 +2447,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "fill",
         type: "fill",
         paint: (_isDark, params) => ({
-          "fill-color": "#0F766E",
-          "fill-opacity": params?.forestReserveOpacity ?? 0.5,
+          "fill-color": ["match", ["get", "種類"], ...FOREST_RESERVE_TYPE_MATCH, "#0F766E"],
+          "fill-opacity": params?.forestReserveOpacity ?? 0.6,
         }),
       },
       {
         suffix: "outline",
         type: "line",
         paint: (isDark, params) => ({
-          "line-color": isDark ? "#14b8a6" : "#115e59",
+          "line-color": isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.25)",
           "line-width": params?.forestReserveOutlineWidth ?? 0.5,
           "line-opacity": (params?.forestReserveShowOutline ?? 1) ? 0.7 : 0,
         }),
@@ -2489,83 +2490,74 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 治理工程（Polygon）──
+  // ── 治理工程（Point，源資料是 6275 個工程點位）──
   {
     id: "forestTreatmentWorks",
     sourceUrl: "./forestry/forestry_treatment_works.geojson",
     sourceId: "forest-treatment-works",
-    rebuildOnParamChange: ["fill", "outline"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": "#F59E0B",
-          "fill-opacity": params?.forestTreatmentWorksOpacity ?? 0.7,
-        }),
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => ({
-          "line-color": "#b45309",
-          "line-width": params?.forestTreatmentWorksOutlineWidth ?? 0.5,
-          "line-opacity": (params?.forestTreatmentWorksShowOutline ?? 1) ? 0.85 : 0,
-        }),
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.forestTreatmentWorksScale ?? 1;
+          return {
+            "circle-radius": BASE_RADIUS * 0.55 * scale,
+            "circle-color": "#F59E0B",
+            "circle-stroke-color": "#b45309",
+            "circle-stroke-width": 0.4,
+            "circle-opacity": params?.forestTreatmentWorksOpacity ?? 0.85,
+          };
+        },
       },
     ],
   },
 
-  // ── 平地森林（Polygon）──
+  // ── 平地森林（Point，3 個園區點位）──
   {
     id: "forestFlatParks",
     sourceUrl: "./forestry/flat_forest_parks.geojson",
     sourceId: "forest-flat-parks",
-    rebuildOnParamChange: ["fill", "outline"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": "#A3E635",
-          "fill-opacity": params?.forestFlatParksOpacity ?? 0.6,
-        }),
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => ({
-          "line-color": "#65a30d",
-          "line-width": params?.forestFlatParksOutlineWidth ?? 0.5,
-          "line-opacity": (params?.forestFlatParksShowOutline ?? 1) ? 0.8 : 0,
-        }),
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.forestFlatParksScale ?? 1.3;
+          return {
+            "circle-radius": BASE_RADIUS * 1.0 * scale,
+            "circle-color": "#A3E635",
+            "circle-stroke-color": "#365314",
+            "circle-stroke-width": 1,
+            "circle-opacity": params?.forestFlatParksOpacity ?? 0.9,
+          };
+        },
       },
     ],
   },
 
-  // ── 堰塞湖（Polygon，小面積）──
+  // ── 堰塞湖（Point，32 個點位）──
   {
     id: "forestDamLakes",
     sourceUrl: "./forestry/dam_lakes_in_forest.geojson",
     sourceId: "forest-dam-lakes",
-    rebuildOnParamChange: ["fill", "outline"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": "#06B6D4",
-          "fill-opacity": params?.forestDamLakesOpacity ?? 0.7,
-        }),
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => ({
-          "line-color": "#0e7490",
-          "line-width": params?.forestDamLakesOutlineWidth ?? 0.5,
-          "line-opacity": (params?.forestDamLakesShowOutline ?? 1) ? 0.9 : 0,
-        }),
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.forestDamLakesScale ?? 1.2;
+          return {
+            "circle-radius": BASE_RADIUS * 0.85 * scale,
+            "circle-color": "#06B6D4",
+            "circle-stroke-color": "#0e7490",
+            "circle-stroke-width": 0.8,
+            "circle-opacity": params?.forestDamLakesOpacity ?? 0.95,
+          };
+        },
       },
     ],
   },
@@ -2597,26 +2589,24 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 阿里山鐵路（LineString，鐵道棕）──
+  // ── 阿里山鐵路（Point，25 個車站；源資料是車站點位非線）──
   {
     id: "forestAlishanRail",
     sourceUrl: "./forestry/wildlife_distribution_3rd_alt.geojson",
     sourceId: "forest-alishan-rail",
-    rebuildOnParamChange: ["line"],
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
-        suffix: "line",
-        type: "line",
-        layout: { "line-cap": "round", "line-join": "round" },
+        suffix: "circle",
+        type: "circle",
         paint: (_isDark, params) => {
-          const w = params?.forestAlishanRailWidth ?? 1.5;
+          const scale = params?.forestAlishanRailScale ?? 1.2;
           return {
-            "line-color": "#92400E",
-            "line-width": [
-              "interpolate", ["linear"], ["zoom"],
-              6, 0.6 * w, 10, 1.6 * w, 14, 3 * w,
-            ],
-            "line-opacity": params?.forestAlishanRailOpacity ?? 0.9,
+            "circle-radius": BASE_RADIUS * 0.8 * scale,
+            "circle-color": "#92400E",
+            "circle-stroke-color": "#fff",
+            "circle-stroke-width": 1,
+            "circle-opacity": params?.forestAlishanRailOpacity ?? 0.95,
           };
         },
       },
@@ -2719,84 +2709,4 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 衍生 1：野生動物熱點密度（H3，Polygon）── TODO: 待 ETL D1 產出
-  {
-    id: "forestWildlifeDensity",
-    sourceUrl: "./forestry/wildlife_density_h3.geojson",
-    sourceId: "forest-wildlife-density",
-    rebuildOnParamChange: ["fill", "outline"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": "#7E22CE",
-          "fill-opacity": params?.forestWildlifeDensityOpacity ?? 0.7,
-        }),
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => ({
-          "line-color": "#4c1d95",
-          "line-width": params?.forestWildlifeDensityOutlineWidth ?? 0.3,
-          "line-opacity": (params?.forestWildlifeDensityShowOutline ?? 0) ? 0.6 : 0,
-        }),
-      },
-    ],
-  },
-
-  // ── 衍生 2：通訊死角推估（Polygon）── TODO: 待 ETL D2 產出
-  {
-    id: "forestSignalGap",
-    sourceUrl: "./forestry/signal_gap.geojson",
-    sourceId: "forest-signal-gap",
-    rebuildOnParamChange: ["fill", "outline"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": "#DC2626",
-          "fill-opacity": params?.forestSignalGapOpacity ?? 0.55,
-        }),
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => ({
-          "line-color": "#7f1d1d",
-          "line-width": params?.forestSignalGapOutlineWidth ?? 0.5,
-          "line-opacity": (params?.forestSignalGapShowOutline ?? 1) ? 0.8 : 0,
-        }),
-      },
-    ],
-  },
-
-  // ── 衍生 3：步道覆蓋率（Polygon，深綠 choropleth）── TODO: 待 ETL D3 產出
-  {
-    id: "forestTrailCoverage",
-    sourceUrl: "./forestry/trail_coverage_per_compartment.geojson",
-    sourceId: "forest-trail-coverage",
-    rebuildOnParamChange: ["fill", "outline"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => ({
-          "fill-color": "#14532D",
-          "fill-opacity": params?.forestTrailCoverageOpacity ?? 0.6,
-        }),
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => ({
-          "line-color": "#052e16",
-          "line-width": params?.forestTrailCoverageOutlineWidth ?? 0.4,
-          "line-opacity": (params?.forestTrailCoverageShowOutline ?? 1) ? 0.7 : 0,
-        }),
-      },
-    ],
-  },
 ];

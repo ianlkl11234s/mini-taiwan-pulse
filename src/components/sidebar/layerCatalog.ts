@@ -128,10 +128,6 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   forestDamLakes: "#06B6D4",
   forestFlatParks: "#A3E635",
   forestAlishanRail: "#92400E",
-  // FORESTRY 3 衍生
-  forestWildlifeDensity: "#7E22CE",
-  forestSignalGap: "#DC2626",
-  forestTrailCoverage: "#14532D",
   wasteTruck: "#fbbf24",
   wasteSchedule: "#fbbf24",
   wasteScheduleNote: "#fff8d6",
@@ -354,9 +350,6 @@ export const SECTIONS: SectionDef[] = [
       { key: "forestDamLakes", label: "堰塞湖 Dam Lakes", expandable: true },
       { key: "forestFlatParks", label: "平地森林 Flat Parks", expandable: true },
       { key: "forestAlishanRail", label: "阿里山鐵路 Alishan Rail", expandable: true },
-      { key: "forestWildlifeDensity", label: "動物熱點密度 Wildlife Density (H3)", expandable: true },
-      { key: "forestSignalGap", label: "通訊死角 Signal Gap", expandable: true },
-      { key: "forestTrailCoverage", label: "步道覆蓋 Trail Coverage", expandable: true },
     ],
   },
   {

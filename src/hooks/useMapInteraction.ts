@@ -214,16 +214,12 @@ export function useMapInteraction(
           { layers: ["forest-signal-points-circle"], type: "forestryPOI" },
           { layers: ["forest-wildlife-circle"], type: "forestryPOI" },
           { layers: ["forest-roads-line"], type: "forestryLine" },
-          { layers: ["forest-alishan-rail-line"], type: "forestryLine" },
-          // FORESTRY polygons — 小面積優先（dam lakes / treatment / recreation / flat parks）
-          { layers: ["forest-dam-lakes-fill"], type: "forestryPolygon" },
-          { layers: ["forest-treatment-works-fill"], type: "forestryPolygon" },
-          { layers: ["forest-flat-parks-fill"], type: "forestryPolygon" },
+          { layers: ["forest-alishan-rail-circle"], type: "forestryPOI" },
+          { layers: ["forest-treatment-works-circle"], type: "forestryPOI" },
+          { layers: ["forest-dam-lakes-circle"], type: "forestryPOI" },
+          { layers: ["forest-flat-parks-circle"], type: "forestryPOI" },
+          // FORESTRY polygons
           { layers: ["forest-recreation-fill"], type: "forestryPolygon" },
-          // 衍生 polygon
-          { layers: ["forest-signal-gap-fill"], type: "forestrySignalGap" },
-          { layers: ["forest-wildlife-density-fill"], type: "forestryWildlifeDensity" },
-          { layers: ["forest-trail-coverage-fill"], type: "forestryTrailCoverage" },
           // 大面積最後（compartments / reserve）
           { layers: ["forest-reserve-fill"], type: "forestryPolygon" },
           { layers: ["forest-compartments-fill"], type: "forestryPolygon" },

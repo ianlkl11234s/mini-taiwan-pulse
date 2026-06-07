@@ -15,7 +15,7 @@ import {
   Video, Receipt, Coffee, Car,
   ShoppingCart, Warehouse,
   // FORESTRY icons
-  Trees, TreePine, Hammer, Signal, PawPrint, Hexagon, LayoutGrid,
+  Trees, TreePine, Hammer, Signal, PawPrint,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -130,10 +130,6 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   forestDamLakes: Waves,
   forestFlatParks: Sprout,
   forestAlishanRail: TrainFront,
-  // FORESTRY 3 衍生
-  forestWildlifeDensity: Hexagon,
-  forestSignalGap: AlertTriangle,
-  forestTrailCoverage: LayoutGrid,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,

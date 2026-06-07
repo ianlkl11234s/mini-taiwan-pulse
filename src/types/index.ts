@@ -165,9 +165,6 @@ export type ExpandableLayerKey =
   | "forestDamLakes"
   | "forestFlatParks"
   | "forestAlishanRail"
-  | "forestWildlifeDensity"
-  | "forestSignalGap"
-  | "forestTrailCoverage"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
@@ -486,8 +483,7 @@ export interface FeatureInfo {
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
     | "farmRoads" | "ecoNetworkZones"
-    | "forestryPolygon" | "forestryLine" | "forestryPOI"
-    | "forestryWildlifeDensity" | "forestrySignalGap" | "forestryTrailCoverage";
+    | "forestryPolygon" | "forestryLine" | "forestryPOI";
   properties: Record<string, unknown>;
 }
 
@@ -597,9 +593,6 @@ export interface LayerVisibility {
   forestDamLakes: boolean;
   forestFlatParks: boolean;
   forestAlishanRail: boolean;
-  forestWildlifeDensity: boolean;
-  forestSignalGap: boolean;
-  forestTrailCoverage: boolean;
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;
