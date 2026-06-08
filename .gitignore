@@ -72,3 +72,5 @@ demographics-1600.png
 demographics_tpe_1280.png
 scripts/fetch/.pingtung_geocode_cache.json
 public/forestry/trail_coverage_per_compartment.geojson
+public/forestry/national_forest_compartments.geojson
+public/forestry/signal_gap.geojson
