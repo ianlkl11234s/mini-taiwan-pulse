@@ -62,3 +62,21 @@ export async function fetchGroundwaterLatest(): Promise<GroundwaterLatestRow[]> 
   if (error) throw new Error(`get_groundwater_latest: ${error.message}`);
   return (data ?? []) as GroundwaterLatestRow[];
 }
+
+export interface GroundwaterTimeseriesRow {
+  observed_at: string;
+  water_level_m: number | null;
+}
+
+/** 單站過去 N 小時時序（給 popup sparkline 用） */
+export async function fetchGroundwaterTimeseries(
+  stationId: string,
+  hours = 24,
+): Promise<GroundwaterTimeseriesRow[]> {
+  const { data, error } = await supabase.rpc("get_groundwater_timeseries", {
+    p_station_id: stationId,
+    p_hours: hours,
+  });
+  if (error) throw new Error(`get_groundwater_timeseries(${stationId}): ${error.message}`);
+  return (data ?? []) as GroundwaterTimeseriesRow[];
+}

@@ -107,7 +107,8 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const hasWaterCanals = visibility.waterCanals;
   const hasMedIsochrone = visibility.medIsochrone || visibility.medDesert;
   const hasMedical = visibility.medHospital || visibility.medClinic || visibility.medPharmacy || visibility.medAED || visibility.medLTC;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasForestry || hasWaterCanals || hasMedical || hasMedIsochrone;
+  const hasFloodSensor = visibility.floodSensor || visibility.floodSensorIsochrone;
+  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasForestry || hasWaterCanals || hasMedical || hasMedIsochrone || hasFloodSensor;
 
   if (!hasAny) return null;
 
@@ -170,6 +171,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           {hasWaterCanals && <WaterCanalLegend />}
           {hasMedIsochrone && <MedicalIsochroneLegend />}
           {hasMedical && <MedicalLegend visibility={visibility} />}
+          {hasFloodSensor && <FloodSensorLegend />}
         </div>
       )}
     </div>
@@ -193,6 +195,25 @@ function FireCatRows({ cats, square }: { cats: { color: string; label: string }[
           <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{c.label}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+const FLOOD_SENSOR_CATS = [
+  { color: "#404040", label: "0 cm 無淹水" },
+  { color: "#fde047", label: "<5 cm 輕度" },
+  { color: "#fb923c", label: "≥5 cm 中度" },
+  { color: "#ef4444", label: "≥15 cm 嚴重" },
+  { color: "#7f1d1d", label: "≥30 cm 極嚴重" },
+];
+
+function FloodSensorLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        都市淹水 USWG
+      </div>
+      <FireCatRows cats={FLOOD_SENSOR_CATS} />
     </div>
   );
 }

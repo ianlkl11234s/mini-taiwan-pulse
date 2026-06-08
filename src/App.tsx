@@ -39,6 +39,9 @@ import type { ReservoirScene } from "./three/ReservoirScene";
 import type { ReservoirStatus } from "./data/reservoirStatusLoader";
 import { useRainGaugeLayer } from "./hooks/useRainGaugeLayer";
 import { useRiverLevelLayer } from "./hooks/useRiverLevelLayer";
+import { useFloodSensorLayer } from "./hooks/useFloodSensorLayer";
+import { useFloodSensorIsochroneLayer } from "./hooks/useFloodSensorIsochroneLayer";
+import { usePrecipRasterLayer } from "./hooks/usePrecipRasterLayer";
 import { useGroundwaterLayer } from "./hooks/useGroundwaterLayer";
 import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
 import { useIotWraRiverLayer } from "./hooks/useIotWraRiverLayer";
@@ -562,6 +565,30 @@ export default function App() {
     isDarkTheme,
     transportParams.overlayParams.rainGaugeScale ?? 1,
     transportParams.overlayParams.rainGaugeOpacity ?? 1,
+  );
+
+  // ── 都市淹水感測器 USWG（Mapbox circle + 500m/1km buffer） ──
+  useFloodSensorLayer(
+    mapRef,
+    layerVisibility.floodSensor,
+    isDarkTheme,
+    transportParams.overlayParams.floodSensorScale ?? 1,
+    transportParams.overlayParams.floodSensorOpacity ?? 1,
+  );
+
+  // ── 雙北 USWG 3-min 步行等時圈（PMTiles，依站即時 depth_cm 著色） ──
+  useFloodSensorIsochroneLayer(
+    mapRef,
+    layerVisibility.floodSensorIsochrone,
+    transportParams.overlayParams.floodSensorIsochroneOpacity ?? 0.55,
+  );
+
+  // ── 累積雨量柵格（PNG raster image source，dropdown 切 1/3/6/24h） ──
+  usePrecipRasterLayer(
+    mapRef,
+    layerVisibility.precipRaster,
+    (transportParams.overlayParams.precipRasterHours as 1 | 3 | 6 | 24) ?? 24,
+    transportParams.overlayParams.precipRasterOpacity ?? 0.6,
   );
 
   // ── Phase 2.2：河川水位（Mapbox circle，check_result=0 異常紅） ──

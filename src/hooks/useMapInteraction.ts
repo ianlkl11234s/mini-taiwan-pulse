@@ -202,6 +202,8 @@ export function useMapInteraction(
           { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
           { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
           { layers: ["groundwater-circle", "groundwater-glow"], type: "groundwater" },
+          { layers: ["flood-sensor-dot", "flood-sensor-glow"], type: "floodSensor" },
+          { layers: ["flood-sensor-isochrone-fill"], type: "floodSensorIsochrone" },
           { layers: ["agri-pois-circle"], type: "agriPOI" },
           { layers: ["agri-wholesale-market-circle"], type: "agriWholesaleMarket" },
           { layers: ["agri-produce-wholesale-circle"], type: "agriProduceWholesale" },

@@ -38,3 +38,22 @@ export async function fetchRiverLevelDay(dateKey: string): Promise<RiverLevelDay
   if (error) throw new Error(`get_river_water_level_day(${dateKey}): ${error.message}`);
   return (data ?? []) as RiverLevelDayRow[];
 }
+
+export interface RiverLevelTimeseriesRow {
+  observed_at: string;
+  water_level_m: number | null;
+  check_result: number | null;
+}
+
+/** 單站過去 N 小時時序（給 popup sparkline 用） */
+export async function fetchRiverLevelTimeseries(
+  stationId: string,
+  hours = 24,
+): Promise<RiverLevelTimeseriesRow[]> {
+  const { data, error } = await supabase.rpc("get_river_water_level_timeseries", {
+    p_station_id: stationId,
+    p_hours: hours,
+  });
+  if (error) throw new Error(`get_river_water_level_timeseries(${stationId}): ${error.message}`);
+  return (data ?? []) as RiverLevelTimeseriesRow[];
+}

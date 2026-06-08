@@ -1,6 +1,12 @@
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import type { FeatureInfo } from "../types";
 import { CctvStreamView } from "./CctvStreamView";
+import { TimeseriesSparkline, type SparklinePoint } from "./TimeseriesSparkline";
+import { fetchFloodSensorTimeseries } from "../data/floodSensorLoader";
+import { fetchRiverLevelTimeseries } from "../data/riverLevelLoader";
+import { fetchGroundwaterTimeseries } from "../data/groundwaterLoader";
+import { fetchRainGaugeTimeseries } from "../data/rainGaugeLoader";
 import { aqiToColor } from "../map/aqiColorScale";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -298,11 +304,32 @@ function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
+  const stationId = String(props.station_id ?? "");
   const level = Number(props.water_level_m) || 0;
   const check = Number(props.check_result);
   const abnormal = check === 0;
   const color = abnormal ? "#ef4444" : "#22d3ee";
   const obs = String(props.observed_at ?? "");
+
+  const [series, setSeries] = useState<SparklinePoint[]>([]);
+  const [loadingTs, setLoadingTs] = useState(true);
+
+  useEffect(() => {
+    if (!stationId) { setLoadingTs(false); return; }
+    let cancelled = false;
+    setLoadingTs(true);
+    fetchRiverLevelTimeseries(stationId, 24)
+      .then((rows) => {
+        if (cancelled) return;
+        setSeries(rows
+          .filter((r) => r.water_level_m != null)
+          .map((r) => ({ t: Date.parse(r.observed_at) / 1000, v: Number(r.water_level_m) })));
+      })
+      .catch((e) => console.warn("[RiverLevel] timeseries fetch failed:", e))
+      .finally(() => { if (!cancelled) setLoadingTs(false); });
+    return () => { cancelled = true; };
+  }, [stationId]);
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -345,6 +372,18 @@ function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="縣市" value={String(props.county ?? "")} />
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+
+      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+        24h 趨勢
+      </div>
+      {loadingTs ? (
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+          載入中…
+        </div>
+      ) : (
+        <TimeseriesSparkline data={series} unit="m" lineColor={color} height={120} />
+      )}
+
       <div style={{ marginTop: 8, fontSize: 10, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
         ⓘ 警戒水位資料（三級警戒）待上游 seed 補齊後加入
       </div>
@@ -353,9 +392,30 @@ function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 function GroundwaterPanel({ props }: { props: Record<string, unknown> }) {
+  const stationId = String(props.station_id ?? "");
   const levelRaw = props.water_level_m;
   const level = levelRaw == null ? null : Number(levelRaw);
   const obs = String(props.observed_at ?? "");
+
+  const [series, setSeries] = useState<SparklinePoint[]>([]);
+  const [loadingTs, setLoadingTs] = useState(true);
+
+  useEffect(() => {
+    if (!stationId) { setLoadingTs(false); return; }
+    let cancelled = false;
+    setLoadingTs(true);
+    fetchGroundwaterTimeseries(stationId, 24)
+      .then((rows) => {
+        if (cancelled) return;
+        setSeries(rows
+          .filter((r) => r.water_level_m != null)
+          .map((r) => ({ t: Date.parse(r.observed_at) / 1000, v: Number(r.water_level_m) })));
+      })
+      .catch((e) => console.warn("[Groundwater] timeseries fetch failed:", e))
+      .finally(() => { if (!cancelled) setLoadingTs(false); });
+    return () => { cancelled = true; };
+  }, [stationId]);
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -382,16 +442,134 @@ function GroundwaterPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="井號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+
+      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+        24h 趨勢
+      </div>
+      {loadingTs ? (
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+          載入中…
+        </div>
+      ) : (
+        <TimeseriesSparkline data={series} unit="m" lineColor="#38bdf8" height={120} />
+      )}
+    </>
+  );
+}
+
+function FloodSensorPanel({ props }: { props: Record<string, unknown> }) {
+  const stationId = String(props.iow_station_id ?? "");
+  const name = String(props.name ?? "(未命名站)");
+  const depthCm = Number(props.depth_cm) || 0;
+  const unit = String(props.si_unit ?? "cm");
+  const obs = String(props.observed_at ?? "");
+  const county = String(props.county_name ?? "");
+  const town = String(props.town_name ?? "");
+  const admin = String(props.admin_name ?? "");
+
+  let color = "#404040";
+  let level = "無淹水";
+  if (depthCm >= 30) { color = "#7f1d1d"; level = "極嚴重 ≥30cm"; }
+  else if (depthCm >= 15) { color = "#ef4444"; level = "嚴重 ≥15cm"; }
+  else if (depthCm >= 5)  { color = "#fb923c"; level = "中度 ≥5cm"; }
+  else if (depthCm > 0)   { color = "#fde047"; level = "輕度 <5cm"; }
+
+  const [series, setSeries] = useState<SparklinePoint[]>([]);
+  const [loadingTs, setLoadingTs] = useState(true);
+
+  useEffect(() => {
+    if (!stationId) { setLoadingTs(false); return; }
+    let cancelled = false;
+    setLoadingTs(true);
+    fetchFloodSensorTimeseries(stationId, 24)
+      .then((rows) => {
+        if (cancelled) return;
+        setSeries(rows.map((r) => ({ t: Date.parse(r.observed_at) / 1000, v: r.value ?? 0 })));
+      })
+      .catch((e) => console.warn("[FloodSensor] timeseries fetch failed:", e))
+      .finally(() => { if (!cancelled) setLoadingTs(false); });
+    return () => { cancelled = true; };
+  }, [stationId]);
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {name}
+        </div>
+        {depthCm > 0 && (
+          <div style={{
+            marginLeft: "auto", fontSize: 10, padding: "1px 6px", borderRadius: 3,
+            background: color, color: "#fff", fontWeight: 600,
+          }}>
+            {level}
+          </div>
+        )}
+      </div>
+      <div
+        style={{
+          display: "flex", alignItems: "baseline", gap: 8, marginTop: 4,
+          padding: "6px 8px", background: `${color}1a`, borderRadius: 4,
+        }}
+      >
+        <span style={{ fontSize: 22, fontWeight: 700, color }}>
+          {depthCm.toFixed(1)}
+        </span>
+        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{unit} 淹水深度</span>
+      </div>
+      {(county || town) && <Row label="區域" value={[county, town].filter(Boolean).join(" / ")} />}
+      {admin && <Row label="管理單位" value={admin} />}
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+
+      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+        24h 趨勢
+      </div>
+      {loadingTs ? (
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+          載入中…
+        </div>
+      ) : (
+        <TimeseriesSparkline
+          data={series}
+          unit={unit}
+          warningValue={depthCm >= 5 ? 5 : null}
+          warningLabel="積水"
+          lineColor={color}
+          height={120}
+        />
+      )}
     </>
   );
 }
 
 function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
+  const stationId = String(props.station_id ?? "");
   const p10 = Number(props.precipitation_10min) || 0;
   const p1 = Number(props.precipitation_1hr) || 0;
   const p3 = Number(props.precipitation_3hr) || 0;
   const p24 = Number(props.precipitation_24hr) || 0;
   const obs = String(props.observed_at ?? "");
+
+  const [series, setSeries] = useState<SparklinePoint[]>([]);
+  const [loadingTs, setLoadingTs] = useState(true);
+
+  useEffect(() => {
+    if (!stationId) { setLoadingTs(false); return; }
+    let cancelled = false;
+    setLoadingTs(true);
+    fetchRainGaugeTimeseries(stationId, 24)
+      .then((rows) => {
+        if (cancelled) return;
+        setSeries(rows.map((r) => ({
+          t: Date.parse(r.observed_at) / 1000,
+          v: Number(r.precipitation_1hr ?? 0),
+        })));
+      })
+      .catch((e) => console.warn("[RainGauge] timeseries fetch failed:", e))
+      .finally(() => { if (!cancelled) setLoadingTs(false); });
+    return () => { cancelled = true; };
+  }, [stationId]);
 
   // CWA 分級（依 1hr）
   const level =
@@ -446,6 +624,24 @@ function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       <Row label="縣市" value={`${String(props.county ?? "")} ${String(props.town ?? "")}`.trim()} />
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
+
+      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+        24h 1 小時累積雨量
+      </div>
+      {loadingTs ? (
+        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+          載入中…
+        </div>
+      ) : (
+        <TimeseriesSparkline
+          data={series}
+          unit="mm"
+          warningValue={15}
+          warningLabel="大雨"
+          lineColor={level.color}
+          height={120}
+        />
+      )}
     </>
   );
 }
@@ -983,7 +1179,22 @@ function DisasterAlertPanel({ props }: { props: Record<string, unknown> }) {
         </div>
       </div>
       {headline && <Row label="標題" value={headline} />}
-      {areaDesc && <Row label="影響區域" value={areaDesc} />}
+      {areaDesc && (
+        <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: 11, lineHeight: 1.5 }}>
+          <span style={{ color: "rgba(255,255,255,0.45)", flexShrink: 0, minWidth: 56 }}>影響區域</span>
+          <div
+            style={{
+              color: "rgba(255,255,255,0.85)",
+              wordBreak: "break-word",
+              maxHeight: 20 * 16.5, // 11px × 1.5 line-height × 20 lines
+              overflowY: "auto",
+              paddingRight: 4,
+            }}
+          >
+            {areaDesc}
+          </div>
+        </div>
+      )}
       <Row label="生效" value={fmt(startTs)} />
       <Row label="失效" value={fmt(endTs)} />
       {sender && <Row label="發布單位" value={sender} />}
@@ -1811,6 +2022,8 @@ const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   groundwaterWell: "地下水井",
   iotWraRiver: "IoT 河川水位站",
   iotWraStructure: "IoT 水工結構",
+  floodSensor: "都市淹水感測器",
+  floodSensorIsochrone: "淹水 3 分步行圈",
   wasteFacility: "垃圾處理設施",
   wasteDisposalPoint: "垃圾投放點",
   agriPOI: "農業 POI",
@@ -1937,6 +2150,10 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
     case "groundwater":
       content = <GroundwaterPanel props={feature.properties} />;
       break;
+    case "floodSensor":
+    case "floodSensorIsochrone":
+      content = <FloodSensorPanel props={feature.properties} />;
+      break;
     case "wasteFacility":
       content = <WasteFacilityPanel props={feature.properties} />;
       break;
@@ -2007,6 +2224,9 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       style={{
         width: isCctv ? 460 : 280,
         maxWidth: "92vw",
+        maxHeight: "80vh",
+        display: "flex",
+        flexDirection: "column",
         background: "rgba(10, 10, 20, 0.88)",
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
@@ -2037,11 +2257,13 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       </button>
 
       {/* Header label */}
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6 }}>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.3)", letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6, flexShrink: 0 }}>
         {HEADER_LABELS[feature.layerType]}
       </div>
 
-      {content}
+      <div style={{ overflowY: "auto", minHeight: 0, flex: 1 }}>
+        {content}
+      </div>
     </div>
   );
 }

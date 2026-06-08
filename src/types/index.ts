@@ -130,6 +130,9 @@ export type ExpandableLayerKey =
   | "groundwaterWells"
   | "iotWraRiver"
   | "iotWraStructure"
+  | "floodSensor"
+  | "floodSensorIsochrone"
+  | "precipRaster"
   | "fireEvents"
   | "fireStations"
   | "fireHydrants"
@@ -479,6 +482,7 @@ export interface FeatureInfo {
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "iotWraRiver" | "iotWraStructure"
+    | "floodSensor" | "floodSensorIsochrone"
     | "wasteFacility" | "wasteDisposalPoint"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
@@ -554,6 +558,9 @@ export interface LayerVisibility {
   groundwaterWells: boolean;
   iotWraRiver: boolean;
   iotWraStructure: boolean;
+  floodSensor: boolean;          // USWG 都市淹水感測器（即時 depth_cm，1999 站）
+  floodSensorIsochrone: boolean; // 雙北 USWG 3-min 步行等時圈（PMTiles，依站即時 depth 著色）
+  precipRaster: boolean;         // 水利署 IoT 累積雨量柵格 PNG（1/3/6/24h dropdown）
   fireEvents: boolean;
   fireLatest: boolean;     // 最新年度火災點位（113/2024，不限歷史模式）
   fireStations: boolean;   // 消防分隊點位（全台 22 縣市，677 點）

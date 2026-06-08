@@ -77,6 +77,15 @@ for f in public/fire/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# 淹水感測 isochrone PMTiles（floodSensorIsochrone layer 使用，雙北試做版）
+# 走 deploy-assets/flood/ 子前綴 — 對應 mini-taiwan-pulse public/flood/
+for f in public/flood/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading flood/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/flood/$name" --region ap-southeast-2
+done
+
 # 醫療圖層：上傳到 deploy-assets/medical/ 子前綴（鏡像結構，pull 端整夾 sync）
 for f in public/medical/*.pmtiles; do
   [ -f "$f" ] || continue

@@ -44,3 +44,23 @@ export async function fetchRainGaugeDay(dateKey: string): Promise<RainGaugeDayRo
   if (error) throw new Error(`get_rain_gauge_day(${dateKey}): ${error.message}`);
   return (data ?? []) as RainGaugeDayRow[];
 }
+
+export interface RainGaugeTimeseriesRow {
+  observed_at: string;
+  precipitation_10min: number | null;
+  precipitation_1hr: number | null;
+  precipitation_24hr: number | null;
+}
+
+/** 單站過去 N 小時時序（給 popup sparkline 用，預設展示 1hr 累積） */
+export async function fetchRainGaugeTimeseries(
+  stationId: string,
+  hours = 24,
+): Promise<RainGaugeTimeseriesRow[]> {
+  const { data, error } = await supabase.rpc("get_rain_gauge_timeseries", {
+    p_station_id: stationId,
+    p_hours: hours,
+  });
+  if (error) throw new Error(`get_rain_gauge_timeseries(${stationId}): ${error.message}`);
+  return (data ?? []) as RainGaugeTimeseriesRow[];
+}
