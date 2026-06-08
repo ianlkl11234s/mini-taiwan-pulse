@@ -103,6 +103,7 @@ export function useLayerVisibility() {
     forestDamLakes: false,
     forestFlatParks: false,
     forestAlishanRail: false,
+    hikingTrails: false,
     wasteTruck: false,
     wasteSchedule: false,
     wasteScheduleNote: false,

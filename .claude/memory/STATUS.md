@@ -1,7 +1,58 @@
 # Status
 
-**最後更新**：2026-06-02（**mini-taiwan-pulse 正式上線 Zeabur**）
+**最後更新**：2026-06-08（新增 `hikingTrails` 全台步道整合 layer）
 **分支**：`master`（已部署）。`feat/fire-rescue` 已併入 master（~104 commits）並隨後多次 push。
+
+## 2026-06-08 hikingTrails 全台步道 layer（FORESTRY 區段）
+
+新增單一靜態 layer `hikingTrails`，整合 6 來源、按 `source` 屬性上色。共 **7,339 條**（去重後），20 MB GeoJSON。
+
+### 資料來源（公開／合法）
+
+| Source | 條數 | 抓法 | 顏色 |
+|--------|------|------|------|
+| `A_forest` | 345 | 林業署 `/Files/RT/GE/{TRAILID}.kml` 批次下載（CSV 列出 115 條 TRAILID）| `#d62728` |
+| `B_osm` | 7,135 | Overpass 寬版 query — 含 `highway=path` 且 name 含「步道\|古道\|山徑\|親山\|登山」+ `foot=designated` + `sac_scale` + `route=hiking` relation | `#1f77b4` |
+| `C_np_sheipa` | 107 | data.gov.tw dataset/174421 雪霸 SHP | `#2ca02c` |
+| `C_np_kinmen` | 20 | data.gov.tw dataset/174421 金門 KML（zip cp950 解壓）| `#9467bd` |
+| `D_taipei_grand` | 11 | 臺北大縱走 9 段 GPX（Google Drive 公開連結，taipeigrandtrail.gov.taipei）| `#ff7f0e` |
+| `D_newtaipei` | 307 | 新北市觀光局 GPX 84 檔（newtaipei.travel/file/{id}，含微笑山線 6 段、淡蘭古道、22 區）| `#e377c2` |
+
+7 處未開放官方步道線段的國家公園（太魯閣／玉山／陽明山／墾丁／台江／東沙／壽山）改靠 B + spatial join 各 NP 邊界 polygon 標上 `in_national_park` 欄位（boundary 來自同 catalog 9+1 個範圍 SHP）。
+
+### 去重邏輯
+A 為主：以 A 線段 EPSG:3826 buffer 50m 為 union，B/C/D 線段落在 buffer 內 ≥ 50% 長度視為與 A 重疊 → `is_dup_of_A=true`。Pruned 版（給前端用）保留全部 A + 非重疊 B/C/D，共 7,339 條。
+
+### 健行筆記（hiking.biji.co）
+**不抓**。雖然 GPX 規模 5,000+ 最完整，但需登入 + scraping 違反 ToS、再散布構成著作權與不正競爭法 § 25 風險。決議只用政府開放資料 + OSM。
+
+### 接線觸點（10 個檔，依專案 SOP）
+
+```
+src/types/index.ts                      ExpandableLayerKey + LayerVisibility + FeatureInfo.layerType
+src/map/overlayRegistry.ts              glow + line（match by source 6 色）
+src/components/sidebar/layerCatalog.ts  LAYER_COLORS + FORESTRY section
+src/components/IconRailSidebar.tsx      Footprints icon
+src/hooks/useLayerVisibility.ts         預設 false
+src/hooks/useTransportParams.ts         opacity + width slider + memo deps
+src/components/LegendPanel.tsx          FORESTRY_LEGEND_ROWS + HikingTrailsSourcesLegend (6 列)
+src/components/FeatureInfoPanel.tsx     HikingTrailsPanel + HEADER_LABELS
+src/hooks/useMapInteraction.ts          GIS_LAYERS popup target
+scripts/deploy/upload-deploy-assets.sh  FOREST_FILES 加 hiking_trails.geojson
+```
+
+### 來源資料工作目錄（不在 repo）
+
+`/Users/migu/Downloads/taiwan_trails/`
+- `A_forest_kml/` 109 KML
+- `B_osm/raw.json` 17 MB Overpass response（寬版）
+- `C_nationalpark/` 雪霸 SHP + 金門 KML/KMZ + 10 處 NP 邊界 SHP
+- `D_taipei_grand/` 9 GPX
+- `D_newtaipei/files/` 84 GPX + manifest.json
+- `build_merged_v2.py` 整合 pipeline（→ output/taiwan_trails_{merged,pruned}.geojson）
+- `output/preview.html` Leaflet 預覽
+
+如要更新：跑 `python3 build_merged_v2.py` → 複製 pruned.geojson 到 `mini-taiwan-pulse/public/forestry/hiking_trails.geojson` → push（小檔走 git，部署時 entrypoint pull）。
 
 ## ⭐ 當前狀態：已正式上線
 

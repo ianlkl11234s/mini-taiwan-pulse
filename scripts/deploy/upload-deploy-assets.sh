@@ -134,6 +134,8 @@ FOREST_FILES=(
   "public/forestry/wildlife_density_h3.geojson"
   "public/forestry/signal_gap.geojson"
   "public/forestry/trail_coverage_per_compartment.geojson"
+  # 全台步道整合（A 林業署 + B OSM 寬版 + C 雪霸/金門 NP + D 北市大縱走 + D 新北 GPX）
+  "public/forestry/hiking_trails.geojson"
 )
 for f in "${FOREST_FILES[@]}"; do
   name=$(basename "$f")

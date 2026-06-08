@@ -128,6 +128,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   forestDamLakes: "#06B6D4",
   forestFlatParks: "#A3E635",
   forestAlishanRail: "#92400E",
+  hikingTrails: "#d62728",
   wasteTruck: "#fbbf24",
   wasteSchedule: "#fbbf24",
   wasteScheduleNote: "#fff8d6",
@@ -350,6 +351,7 @@ export const SECTIONS: SectionDef[] = [
       { key: "forestDamLakes", label: "堰塞湖 Dam Lakes", expandable: true },
       { key: "forestFlatParks", label: "平地森林 Flat Parks", expandable: true },
       { key: "forestAlishanRail", label: "阿里山鐵路 Alishan Rail", expandable: true },
+      { key: "hikingTrails", label: "全台步道 Hiking Trails", labelMobile: "全台步道 Hiking Trails (7,339)", expandable: true },
     ],
   },
   {

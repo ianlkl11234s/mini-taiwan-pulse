@@ -207,6 +207,7 @@ export function useMapInteraction(
           { layers: ["agri-produce-wholesale-circle"], type: "agriProduceWholesale" },
           { layers: ["agri-retail-circle"], type: "agriRetail" },
           { layers: ["farm-roads-line", "farm-roads-glow"], type: "farmRoads" },
+          { layers: ["hiking-trails-line", "hiking-trails-glow"], type: "hikingTrails" },
           { layers: ["eco-network-zones-fill"], type: "ecoNetworkZones" },
           // FORESTRY — points / lines 先（小目標優先）
           { layers: ["forest-education-centers-circle"], type: "forestryPOI" },

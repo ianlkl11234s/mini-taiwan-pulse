@@ -2369,6 +2369,67 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 全台步道（LineString，依 source 4 色分類：A 林業署 / B OSM / C 雪霸 / C 金門）──
+  {
+    id: "hikingTrails",
+    sourceUrl: "./forestry/hiking_trails.geojson",
+    sourceId: "hiking-trails",
+    rebuildOnParamChange: ["glow", "line"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "line",
+        minzoom: 7,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.hikingTrailsWidth ?? 1.2;
+          return {
+            "line-color": [
+              "match", ["get", "source"],
+              "A_forest", "#d62728",
+              "B_osm", "#1f77b4",
+              "C_np_sheipa", "#2ca02c",
+              "C_np_kinmen", "#9467bd",
+              "D_taipei_grand", "#ff7f0e",
+              "D_newtaipei", "#e377c2",
+              "#888888",
+            ],
+            "line-width": 5 * w,
+            "line-blur": 4,
+            "line-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 7,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.hikingTrailsWidth ?? 1.2;
+          const opacity = params?.hikingTrailsOpacity ?? 0.85;
+          return {
+            "line-color": [
+              "match", ["get", "source"],
+              "A_forest", "#d62728",
+              "B_osm", "#1f77b4",
+              "C_np_sheipa", "#2ca02c",
+              "C_np_kinmen", "#9467bd",
+              "D_taipei_grand", "#ff7f0e",
+              "D_newtaipei", "#e377c2",
+              "#888888",
+            ],
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 0.5 * w, 10, 1.2 * w, 13, 2.0 * w, 16, 3.0 * w,
+            ],
+            "line-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
   // ── 國土綠網分區圖（MultiPolygon，依 Zone 12 色分類，可 popup）──
   {
     id: "ecoNetworkZones",

@@ -103,7 +103,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
     || visibility.forestRecreation || visibility.forestRoads || visibility.forestTreatmentWorks
     || visibility.forestTrailSigns || visibility.forestSignalPoints || visibility.forestEducationCenters
     || visibility.forestWildlife || visibility.forestDamLakes || visibility.forestFlatParks
-    || visibility.forestAlishanRail;
+    || visibility.forestAlishanRail || visibility.hikingTrails;
   const hasWaterCanals = visibility.waterCanals;
   const hasMedIsochrone = visibility.medIsochrone || visibility.medDesert;
   const hasMedical = visibility.medHospital || visibility.medClinic || visibility.medPharmacy || visibility.medAED || visibility.medLTC;
@@ -283,7 +283,33 @@ const FORESTRY_LEGEND_ROWS: { key: keyof LayerVisibility; color: string; label: 
   { key: "forestDamLakes", color: "#06B6D4", label: "堰塞湖 Dam Lakes", shape: "circle" },
   { key: "forestFlatParks", color: "#A3E635", label: "平地森林 Flat Parks", shape: "circle" },
   { key: "forestAlishanRail", color: "#92400E", label: "阿里山鐵路 Alishan Rail (車站)", shape: "circle" },
+  { key: "hikingTrails", color: "#d62728", label: "全台步道 Hiking Trails", shape: "line" },
 ];
+
+const HIKING_TRAIL_SOURCES: { color: string; label: string }[] = [
+  { color: "#d62728", label: "A 林業署國家步道" },
+  { color: "#1f77b4", label: "B OpenStreetMap" },
+  { color: "#2ca02c", label: "C 雪霸國家公園 SHP" },
+  { color: "#9467bd", label: "C 金門國家公園 KML" },
+  { color: "#ff7f0e", label: "D 臺北大縱走" },
+  { color: "#e377c2", label: "D 新北市觀光局" },
+];
+
+function HikingTrailsSourcesLegend() {
+  return (
+    <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: "1px solid rgba(255,255,255,0.12)" }}>
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", marginBottom: 2 }}>步道來源 source</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        {HIKING_TRAIL_SOURCES.map((t) => (
+          <div key={t.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 12, height: 2, background: t.color, flexShrink: 0 }} />
+            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.55)" }}>{t.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function ForestReserveTypesLegend() {
   return (
@@ -329,6 +355,7 @@ function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
         ))}
       </div>
       {visibility.forestReserve && <ForestReserveTypesLegend />}
+      {visibility.hikingTrails && <HikingTrailsSourcesLegend />}
     </div>
   );
 }
