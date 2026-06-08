@@ -41,6 +41,9 @@ import { useRainGaugeLayer } from "./hooks/useRainGaugeLayer";
 import { useRiverLevelLayer } from "./hooks/useRiverLevelLayer";
 import { useFloodSensorLayer } from "./hooks/useFloodSensorLayer";
 import { useFloodSensorIsochroneLayer } from "./hooks/useFloodSensorIsochroneLayer";
+import { useTaipeiSewerLayer } from "./hooks/useTaipeiSewerLayer";
+import { useTaipeiEvacuateLayer } from "./hooks/useTaipeiEvacuateLayer";
+import { useTaipeiPumbLayer } from "./hooks/useTaipeiPumbLayer";
 import { usePrecipRasterLayer } from "./hooks/usePrecipRasterLayer";
 import { useGroundwaterLayer } from "./hooks/useGroundwaterLayer";
 import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
@@ -581,6 +584,26 @@ export default function App() {
     mapRef,
     layerVisibility.floodSensorIsochrone,
     transportParams.overlayParams.floodSensorIsochroneOpacity ?? 0.55,
+  );
+
+  // ── 北市水利處水情即時三本柱（每 60s 重抓 latest） ──
+  useTaipeiSewerLayer(
+    mapRef,
+    layerVisibility.taipeiSewer,
+    transportParams.overlayParams.taipeiSewerScale ?? 1,
+    transportParams.overlayParams.taipeiSewerOpacity ?? 0.85,
+  );
+  useTaipeiEvacuateLayer(
+    mapRef,
+    layerVisibility.taipeiEvacuate,
+    transportParams.overlayParams.taipeiEvacuateScale ?? 1,
+    transportParams.overlayParams.taipeiEvacuateOpacity ?? 0.9,
+  );
+  useTaipeiPumbLayer(
+    mapRef,
+    layerVisibility.taipeiPumb,
+    transportParams.overlayParams.taipeiPumbScale ?? 1,
+    transportParams.overlayParams.taipeiPumbOpacity ?? 0.9,
   );
 
   // ── 累積雨量柵格（PNG raster image source，dropdown 切 1/3/6/24h） ──

@@ -305,6 +305,13 @@ export function useTransportParams() {
   const [floodSensorScale, setFloodSensorScale] = useState(1.0);
   const [floodSensorOpacity, setFloodSensorOpacity] = useState(1.0);
   const [floodSensorIsochroneOpacity, setFloodSensorIsochroneOpacity] = useState(0.55);
+  // 北市水利處三本柱
+  const [taipeiSewerScale, setTaipeiSewerScale] = useState(1.0);
+  const [taipeiSewerOpacity, setTaipeiSewerOpacity] = useState(0.85);
+  const [taipeiEvacuateScale, setTaipeiEvacuateScale] = useState(1.0);
+  const [taipeiEvacuateOpacity, setTaipeiEvacuateOpacity] = useState(0.9);
+  const [taipeiPumbScale, setTaipeiPumbScale] = useState(1.0);
+  const [taipeiPumbOpacity, setTaipeiPumbOpacity] = useState(0.9);
   const [precipRasterOpacity, setPrecipRasterOpacity] = useState(0.6);
   const [precipRasterHours, setPrecipRasterHours] = useState<1 | 3 | 6 | 24>(24);
   // Waste（垃圾車光點 + 音符）
@@ -595,6 +602,12 @@ export function useTransportParams() {
     floodSensorScale,
     floodSensorOpacity,
     floodSensorIsochroneOpacity,
+    taipeiSewerScale,
+    taipeiSewerOpacity,
+    taipeiEvacuateScale,
+    taipeiEvacuateOpacity,
+    taipeiPumbScale,
+    taipeiPumbOpacity,
     precipRasterOpacity,
     precipRasterHours,
     wasteStopsStaticScale,
@@ -656,7 +669,7 @@ export function useTransportParams() {
     forestWildlifeScale,
     hikingTrailsOpacity,
     hikingTrailsWidth,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -1033,6 +1046,18 @@ export function useTransportParams() {
       ];
       case "floodSensorIsochrone": return [
         { label: `透明度 ${floodSensorIsochroneOpacity.toFixed(2)}`, value: floodSensorIsochroneOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFloodSensorIsochroneOpacity },
+      ];
+      case "taipeiSewer": return [
+        { label: `大小 ${taipeiSewerScale.toFixed(2)}`, value: taipeiSewerScale, min: 0.5, max: 3, step: 0.1, onChange: setTaipeiSewerScale },
+        { label: `透明度 ${taipeiSewerOpacity.toFixed(2)}`, value: taipeiSewerOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTaipeiSewerOpacity },
+      ];
+      case "taipeiEvacuate": return [
+        { label: `大小 ${taipeiEvacuateScale.toFixed(2)}`, value: taipeiEvacuateScale, min: 0.5, max: 3, step: 0.1, onChange: setTaipeiEvacuateScale },
+        { label: `透明度 ${taipeiEvacuateOpacity.toFixed(2)}`, value: taipeiEvacuateOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTaipeiEvacuateOpacity },
+      ];
+      case "taipeiPumb": return [
+        { label: `大小 ${taipeiPumbScale.toFixed(2)}`, value: taipeiPumbScale, min: 0.5, max: 3, step: 0.1, onChange: setTaipeiPumbScale },
+        { label: `透明度 ${taipeiPumbOpacity.toFixed(2)}`, value: taipeiPumbOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTaipeiPumbOpacity },
       ];
       case "precipRaster": return [
         { label: `透明度 ${precipRasterOpacity.toFixed(2)}`, value: precipRasterOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPrecipRasterOpacity },

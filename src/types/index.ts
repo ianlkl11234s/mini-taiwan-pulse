@@ -132,6 +132,9 @@ export type ExpandableLayerKey =
   | "iotWraStructure"
   | "floodSensor"
   | "floodSensorIsochrone"
+  | "taipeiSewer"
+  | "taipeiEvacuate"
+  | "taipeiPumb"
   | "precipRaster"
   | "fireEvents"
   | "fireStations"
@@ -560,6 +563,9 @@ export interface LayerVisibility {
   iotWraStructure: boolean;
   floodSensor: boolean;          // USWG 都市淹水感測器（即時 depth_cm，1999 站）
   floodSensorIsochrone: boolean; // 雙北 USWG 3-min 步行等時圈（PMTiles，依站即時 depth 著色）
+  taipeiSewer: boolean;          // 北市雨水下水道水位 233 站（10min，wic.gov.taipei）
+  taipeiEvacuate: boolean;       // 北市疏散門 35 站（10min，gate state）
+  taipeiPumb: boolean;           // 北市抽水站 97 站（10min，含 risk_ratio 警戒）
   precipRaster: boolean;         // 水利署 IoT 累積雨量柵格 PNG（1/3/6/24h dropdown）
   fireEvents: boolean;
   fireLatest: boolean;     // 最新年度火災點位（113/2024，不限歷史模式）
