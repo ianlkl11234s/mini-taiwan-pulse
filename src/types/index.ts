@@ -486,6 +486,7 @@ export interface FeatureInfo {
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "iotWraRiver" | "iotWraStructure"
     | "floodSensor" | "floodSensorIsochrone"
+    | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
     | "wasteFacility" | "wasteDisposalPoint"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"

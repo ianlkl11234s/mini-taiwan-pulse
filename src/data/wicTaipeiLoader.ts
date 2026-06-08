@@ -87,3 +87,50 @@ export async function fetchTaipeiPumbLatest(): Promise<PumbLatestRow[]> {
   if (error) throw new Error(`get_taipei_pumb_latest: ${error.message}`);
   return (data ?? []) as PumbLatestRow[];
 }
+
+// ── 24h Timeseries（給 popup sparkline 用）──
+
+export interface SewerTimeseriesRow {
+  observed_at: string;
+  level_out: number | null;
+  ground_far: number | null;
+  voltage: number | null;
+}
+export async function fetchTaipeiSewerTimeseries(stationNo: string, hours = 24): Promise<SewerTimeseriesRow[]> {
+  const { data, error } = await supabase.rpc("get_taipei_sewer_timeseries", {
+    p_station_no: stationNo,
+    p_hours: hours,
+  });
+  if (error) throw new Error(`get_taipei_sewer_timeseries: ${error.message}`);
+  return (data ?? []) as SewerTimeseriesRow[];
+}
+
+export interface PumbTimeseriesRow {
+  observed_at: string;
+  inner_value: number | null;
+  outer_value: number | null;
+  pumb_status: string | null;
+  door_status: string | null;
+}
+export async function fetchTaipeiPumbTimeseries(stnId: string, hours = 24): Promise<PumbTimeseriesRow[]> {
+  const { data, error } = await supabase.rpc("get_taipei_pumb_timeseries", {
+    p_stn_id: stnId,
+    p_hours: hours,
+  });
+  if (error) throw new Error(`get_taipei_pumb_timeseries: ${error.message}`);
+  return (data ?? []) as PumbTimeseriesRow[];
+}
+
+export interface EvacuateTimeseriesRow {
+  observed_at: string;
+  fo01: string | null; fc01: string | null; flt01: string | null;
+  fo02: string | null; fc02: string | null; flt02: string | null;
+}
+export async function fetchTaipeiEvacuateTimeseries(stationNo: string, hours = 24): Promise<EvacuateTimeseriesRow[]> {
+  const { data, error } = await supabase.rpc("get_taipei_evacuate_timeseries", {
+    p_station_no: stationNo,
+    p_hours: hours,
+  });
+  if (error) throw new Error(`get_taipei_evacuate_timeseries: ${error.message}`);
+  return (data ?? []) as EvacuateTimeseriesRow[];
+}
