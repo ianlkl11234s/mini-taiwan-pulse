@@ -768,9 +768,15 @@ export default function App() {
 
   // ── Map ready handler ──
 
+  // 地圖首次渲染完成（idle 或 4s 保底）才允許 LoadingScreen 收掉，
+  // 避免「資料 RPC 完成但場景還沒畫出來」的空窗
+  const [mapPrepared, setMapPrepared] = useState(false);
+
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
     addAllLayers(map);
+    map.once("idle", () => setMapPrepared(true));
+    setTimeout(() => setMapPrepared(true), 4000);
     sessionTracker.init("mini-taiwan-pulse");
     sessionTracker.logWithSnapshot("session_start", { appMode }, layerVisibilityRef.current);
 
@@ -1003,6 +1009,7 @@ export default function App() {
     { label: "船舶 Ships", done: !shipsLoading, count: ships.length },
     { label: "鐵道 Rail", done: !railLoading, count: railData ? railData.systems.length : 0 },
     { label: "溫度場 Temperature", done: !temperatureLoading },
+    { label: "地圖場景 Map", done: mapPrepared },
   ];
   const allReady = loadingSteps.every((s) => s.done);
 
@@ -1107,12 +1114,14 @@ export default function App() {
 
   // ── Render ──
 
-  if ((!allReady && !loadingTimedOut) || (!dismissedLoading && !loadingTimedOut)) {
-    return <LoadingScreen steps={loadingSteps} />;
-  }
+  // LoadingScreen 改為 overlay（fixed, zIndex 9999）蓋在主 UI 上，
+  // 讓 Mapbox + Three.js 場景在 loading 期間於底下平行初始化；
+  // 舊版 early return 會讓地圖等 loading 收掉才開始載，造成進場後動態點空窗。
+  const showLoadingScreen = !loadingTimedOut && (!allReady || !dismissedLoading);
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
+      {showLoadingScreen && <LoadingScreen steps={loadingSteps} />}
       {/* Day-loading overlay — 半透明遮罩 */}
       {(shipsDayLoading || flightsDayLoading || railScheduleLoading) && (
         <div style={{

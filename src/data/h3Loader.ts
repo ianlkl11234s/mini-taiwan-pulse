@@ -107,9 +107,9 @@ function emptySet<T extends { metadata: H3DataSet["metadata"]; cells: unknown[] 
  * Fetch a single H3 JSON and parse it.
  * 404 / network error → null（讓呼叫端決定 fallback）。
  */
-async function tryFetchH3<T>(filename: string): Promise<T | null> {
+async function tryFetchH3<T>(filename: string, label: string): Promise<T | null> {
   try {
-    const res = await fetch(`./h3/${filename}`);
+    const res = await withLoading(`h3:${filename}`, label, fetch(`./h3/${filename}`));
     if (res.ok) return (await res.json()) as T;
   } catch { /* fallthrough */ }
   return null;
@@ -131,7 +131,7 @@ export async function loadH3Population(resolution: number): Promise<H3DataSet> {
       if (res !== resolution) console.log(`[H3] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
       return hit;
     }
-    const data = await tryFetchH3<H3DataSet>(`h3_population_res${res}.json`);
+    const data = await tryFetchH3<H3DataSet>(`h3_population_res${res}.json`, `H3 人口網格 res${res}`);
     if (data) {
       cache.set(res, data);
       cache.set(resolution, data);
@@ -161,7 +161,7 @@ export async function loadH3Demographics(resolution: number): Promise<Demographi
       if (res !== resolution) console.log(`[H3-Demo] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
       return hit;
     }
-    const data = await tryFetchH3<DemographicH3DataSet>(`h3_demographics_res${res}.json`);
+    const data = await tryFetchH3<DemographicH3DataSet>(`h3_demographics_res${res}.json`, `H3 人口指標 res${res}`);
     if (data) {
       demographicsCache.set(res, data);
       demographicsCache.set(resolution, data);
@@ -191,7 +191,7 @@ export async function loadH3Socioeconomic(resolution: number): Promise<Socioecon
       if (res !== resolution) console.log(`[H3-Socio] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
       return hit;
     }
-    const data = await tryFetchH3<SocioeconomicH3DataSet>(`h3_socioeconomic_res${res}.json`);
+    const data = await tryFetchH3<SocioeconomicH3DataSet>(`h3_socioeconomic_res${res}.json`, `H3 社經指標 res${res}`);
     if (data) {
       socioeconomicCache.set(res, data);
       socioeconomicCache.set(resolution, data);
@@ -221,7 +221,7 @@ export async function loadH3SpatialEconomy(resolution: number): Promise<SpatialE
       if (res !== resolution) console.log(`[H3-Spatial] res${resolution} reuse cached res${res} (${hit.cells.length} cells)`);
       return hit;
     }
-    const data = await tryFetchH3<SpatialEconomyH3DataSet>(`h3_spatial_economy_res${res}.json`);
+    const data = await tryFetchH3<SpatialEconomyH3DataSet>(`h3_spatial_economy_res${res}.json`, `H3 空間經濟 res${res}`);
     if (data) {
       spatialEconomyCache.set(res, data);
       spatialEconomyCache.set(resolution, data);

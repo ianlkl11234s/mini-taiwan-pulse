@@ -3,6 +3,8 @@
  * 優先順序：Supabase → 本地
  */
 
+import { withLoading } from "../lib/loadingRegistry";
+
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
@@ -15,7 +17,17 @@ export async function fetchSupabaseSchedule(
   date: string,
 ): Promise<unknown | null> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+  return withLoading(
+    `rail-schedule:${system}:${date}`,
+    `鐵道時刻表 ${system.toUpperCase()} ${date}`,
+    fetchSupabaseScheduleInner(system, date),
+  );
+}
 
+async function fetchSupabaseScheduleInner(
+  system: string,
+  date: string,
+): Promise<unknown | null> {
   for (const suffix of ["_daily", "_fixed"]) {
     const params = new URLSearchParams({
       system: `eq.${system}${suffix}`,
