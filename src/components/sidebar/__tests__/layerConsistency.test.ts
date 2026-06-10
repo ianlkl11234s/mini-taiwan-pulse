@@ -22,14 +22,21 @@ const sidebarKeys = new Set<string>(SECTIONS.flatMap((s) => s.layers.map((l) => 
 const paramsSource = readFileSync("src/hooks/useTransportParams.ts", "utf8");
 const legendSource = readFileSync("src/components/LegendPanel.tsx", "utf8");
 
-/** 已知「沒有 sidebar toggle」的 layer（wasteRoute/wasteStop 由 wasteTruck 子 UI 控制） */
-const BASELINE_NOT_IN_SIDEBAR = new Set(["wasteRoute", "wasteStop"]);
+/**
+ * 已知「沒有 sidebar toggle」的 layer：
+ * - wasteRoute/wasteStop 由 wasteTruck 子 UI 控制
+ * - medICUBeds Phase 3 尚未實作渲染，幽靈 toggle 已自 sidebar 移除（2026-06-10）
+ */
+const BASELINE_NOT_IN_SIDEBAR = new Set(["wasteRoute", "wasteStop", "medICUBeds"]);
 
-/** 已知「沒有透明度/參數 slider」的 layer（圖層 UX 鐵則 1 的歷史欠帳） */
+/**
+ * 已知「沒有透明度/參數 slider」的 layer：
+ * - wasteScheduleNote：Three.js ShaderMaterial 音符特效，opacity 需動 shader uniform，
+ *   屬裝飾性圖層 → 有意識地不做（2026-06-10 決定）
+ * - medICUBeds：尚無渲染實作
+ * - wasteRoute/wasteStop：由 wasteTruck 子 UI 控制
+ */
 const BASELINE_NO_PARAMS = new Set([
-  "fireEvents",
-  "fireLatest",
-  "medDesert",
   "medICUBeds",
   "wasteScheduleNote",
   "wasteRoute",

@@ -700,10 +700,16 @@ export default function App() {
     historicalDay,
     historicalGranularity,
     isDarkTheme,
+    transportParams.overlayParams.fireEventsOpacity ?? 1,
   );
 
   // ── 火災最新年度（任何模式可見，不需歷史時間軸）──
-  useFireLatestLayer(mapRef, layerVisibility.fireLatest, isDarkTheme);
+  useFireLatestLayer(
+    mapRef,
+    layerVisibility.fireLatest,
+    isDarkTheme,
+    transportParams.overlayParams.fireLatestOpacity ?? 1,
+  );
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({

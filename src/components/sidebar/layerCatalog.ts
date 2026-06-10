@@ -279,7 +279,7 @@ export const SECTIONS: SectionDef[] = [
     title: "FIRE & RESCUE",
     layers: [
       { key: "fireEvents", label: "火災歷史 Fire (歷史)", expandable: true },
-      { key: "fireLatest", label: "火災 最新年度 Latest", expandable: false },
+      { key: "fireLatest", label: "火災 最新年度 Latest", expandable: true },
       { key: "fireStations", label: "消防分隊 Stations", expandable: true },
       { key: "fireHydrants", label: "消防栓 Hydrants", expandable: true },
       { key: "fireIsochrone", label: "救援等時圈 Isochrone", expandable: true },
@@ -294,8 +294,9 @@ export const SECTIONS: SectionDef[] = [
       { key: "medAED", label: "AED 點位", expandable: true },
       { key: "medLTC", label: "長照機構 LTC", expandable: true },
       { key: "medIsochrone", label: "醫療等時圈 Isochrone", expandable: true },
-      { key: "medDesert", label: "醫療沙漠 Desert" },
-      { key: "medICUBeds", label: "急重症床位 ICU Beds", expandable: true },
+      { key: "medDesert", label: "醫療沙漠 Desert", expandable: true },
+      // medICUBeds（急重症床位）Phase 3 尚未實作渲染 — 避免幽靈 toggle，先不上 sidebar
+      // 實作後恢復：{ key: "medICUBeds", label: "急重症床位 ICU Beds", expandable: true },
     ],
   },
   {

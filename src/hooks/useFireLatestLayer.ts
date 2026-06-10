@@ -62,11 +62,18 @@ function setVisible(map: MapboxMap, visible: boolean) {
   map.setLayoutProperty(LAYER_ID, "visibility", visible ? "visible" : "none");
 }
 
+function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number) {
+  if (!map.getLayer(LAYER_ID)) return;
+  map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.8 : 0.65) * opacity);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", opacity);
+}
+
 /** 最新年度火災點位（資料只載一次，任何模式可見）。 */
 export function useFireLatestLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   isDarkTheme: boolean,
+  opacity = 1,
 ) {
   const loadedRef = useRef(false);
 
@@ -78,6 +85,7 @@ export function useFireLatestLayer(
     const run = async () => {
       try {
         ensureLayer(map, isDarkTheme);
+        updateOpacity(map, isDarkTheme, opacity);
       } catch {
         return;
       }
@@ -100,5 +108,5 @@ export function useFireLatestLayer(
     };
     run();
     return () => { cancelled = true; };
-  }, [mapRef, visible, isDarkTheme]);
+  }, [mapRef, visible, isDarkTheme, opacity]);
 }

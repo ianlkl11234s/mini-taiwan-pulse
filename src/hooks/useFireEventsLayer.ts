@@ -71,6 +71,12 @@ function setVisible(map: MapboxMap, visible: boolean) {
   map.setLayoutProperty(LAYER_ID, "visibility", visible ? "visible" : "none");
 }
 
+function updateOpacity(map: MapboxMap, isDark: boolean, opacity: number) {
+  if (!map.getLayer(LAYER_ID)) return;
+  map.setPaintProperty(LAYER_ID, "circle-opacity", (isDark ? 0.75 : 0.6) * opacity);
+  map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", opacity);
+}
+
 /**
  * 依粒度 filter 火災事件。
  * - year: 全年
@@ -107,6 +113,7 @@ export function useFireEventsLayer(
   day: number,
   granularity: HistoricalGranularity,
   isDarkTheme: boolean,
+  opacity = 1,
 ) {
   const lastYearRef = useRef<number | null>(null);
   const yearEventsRef = useRef<FireEvent[]>([]);
@@ -119,6 +126,7 @@ export function useFireEventsLayer(
     const run = async () => {
       try {
         ensureLayer(map, isDarkTheme);
+        updateOpacity(map, isDarkTheme, opacity);
       } catch {
         return;
       }
@@ -141,5 +149,5 @@ export function useFireEventsLayer(
     return () => {
       cancelled = true;
     };
-  }, [mapRef, visible, year, month, day, granularity, isDarkTheme]);
+  }, [mapRef, visible, year, month, day, granularity, isDarkTheme, opacity]);
 }
