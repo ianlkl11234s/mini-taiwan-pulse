@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "fetch:flights": "tsx scripts/fetch/fetch-flights.ts",
     "fetch:tracks": "tsx scripts/fetch/fetch-tracks.ts",
     "s3:upload": "tsx scripts/deploy/upload-to-s3.ts",
@@ -39,6 +41,7 @@
     "@vitejs/plugin-react": "^4.3.0",
     "tsx": "^4.21.0",
     "typescript": "~5.7.0",
-    "vite": "^6.1.0"
+    "vite": "^6.1.0",
+    "vitest": "^3.2.6"
   }
 }
