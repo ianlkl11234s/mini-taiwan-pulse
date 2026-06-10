@@ -12,6 +12,8 @@
  * 只有 useTimeline 應該呼叫 setTime。其他地方一律唯讀。
  */
 
+import { createDateNotifier } from "./dateNotifier";
+
 type Listener<T> = (v: T) => void;
 
 function toDateKey(unixSec: number): string {
@@ -41,9 +43,11 @@ function notifyRaw() {
   for (const cb of rawListeners) cb(currentTime);
 }
 
-function notifyDate() {
-  for (const cb of dateListeners) cb(currentDateKey);
-}
+// 日期通知走 leading+trailing debounce：單次切日零延遲；快速 scrub 跨多天
+// 只通知「最後停下來的日期」，避免 6~10 個 hook 同時為中間日期打出 RPC 洪流。
+const dateNotifier = createDateNotifier((key) => {
+  for (const cb of dateListeners) cb(key);
+}, { quietMs: 300 });
 
 function scheduleThrottled(entry: ThrottledEntry) {
   const now = performance.now();
@@ -93,7 +97,7 @@ export const timeStore = {
 
     notifyRaw();
     notifyThrottled();
-    if (dateChanged) notifyDate();
+    if (dateChanged) dateNotifier.push(currentDateKey);
   },
 
   /**
