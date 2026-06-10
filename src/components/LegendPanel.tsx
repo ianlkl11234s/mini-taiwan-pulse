@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
@@ -81,36 +81,57 @@ interface LegendPanelProps {
   overlayParams: Record<string, number>;
 }
 
+export interface LegendContext {
+  visibility: LayerVisibility;
+  overlayParams: Record<string, number>;
+}
+
+export interface LegendEntry {
+  /** 任一 key 開啟即顯示此圖例（多 key = 共用同一份圖例的圖層群） */
+  keys: (keyof LayerVisibility)[];
+  render: (ctx: LegendContext) => React.ReactNode;
+}
+
+/**
+ * Legend registry — 單一接線點：新 layer 要圖例就在這裡加一行
+ * （元件寫在本檔下方）。layerConsistency 測試以本表為覆蓋依據。
+ * 順序 = 面板顯示順序。
+ */
+export const LEGEND_REGISTRY: LegendEntry[] = [
+  { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
+  { keys: ["disasterAlerts"], render: () => <DisasterAlertLegend /> },
+  { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
+  { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
+  { keys: ["iotWraStructure"], render: () => <IotStructureLegend /> },
+  { keys: ["agriCropSuitability"], render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
+  { keys: ["agriPOI"], render: () => <AgriPOILegend /> },
+  { keys: ["agriRetail", "agriProduceWholesale", "agriWholesaleMarket"], render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
+  { keys: ["agriSoilFertility"], render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
+  { keys: ["fireEvents", "fireLatest"], render: () => <FireEventLegend /> },
+  { keys: ["fireStations"], render: () => <FireStationLegend /> },
+  { keys: ["fireHydrants"], render: () => <FireHydrantLegend /> },
+  { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
+  { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
+  {
+    keys: [
+      "forestCompartments", "forestReserve", "forestRecreation", "forestRoads",
+      "forestTreatmentWorks", "forestTrailSigns", "forestSignalPoints",
+      "forestEducationCenters", "forestWildlife", "forestDamLakes",
+      "forestFlatParks", "forestAlishanRail", "hikingTrails",
+    ],
+    render: ({ visibility }) => <ForestryLegend visibility={visibility} />,
+  },
+  { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
+  { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
+  { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
+  { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
+];
+
 export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
-  // 判斷有哪些需要圖例的圖層是開啟的
-  const hasEarthquake = visibility.earthquakes;
-  const hasDisasterAlert = visibility.disasterAlerts;
-  const hasRoadEvents = visibility.roadEvents;
-  const hasIotRiver = visibility.iotWraRiver;
-  const hasIotStructure = visibility.iotWraStructure;
-  const hasCropSuitability = visibility.agriCropSuitability;
-  const hasAgriPOI = visibility.agriPOI;
-  const hasAgriCompany = visibility.agriRetail || visibility.agriProduceWholesale || visibility.agriWholesaleMarket;
-  const hasSoilFertility = visibility.agriSoilFertility;
-  const hasFireEvents = visibility.fireEvents || visibility.fireLatest;
-  const hasFireStations = visibility.fireStations;
-  const hasFireHydrants = visibility.fireHydrants;
-  const hasFireIsochrone = visibility.fireIsochrone;
-  const hasEcoNetworkZones = visibility.ecoNetworkZones;
-  const hasForestry = visibility.forestCompartments || visibility.forestReserve
-    || visibility.forestRecreation || visibility.forestRoads || visibility.forestTreatmentWorks
-    || visibility.forestTrailSigns || visibility.forestSignalPoints || visibility.forestEducationCenters
-    || visibility.forestWildlife || visibility.forestDamLakes || visibility.forestFlatParks
-    || visibility.forestAlishanRail || visibility.hikingTrails;
-  const hasWaterCanals = visibility.waterCanals;
-  const hasMedIsochrone = visibility.medIsochrone || visibility.medDesert;
-  const hasMedical = visibility.medHospital || visibility.medClinic || visibility.medPharmacy || visibility.medAED || visibility.medLTC;
-  const hasFloodSensor = visibility.floodSensor || visibility.floodSensorIsochrone;
-  const hasAny = hasEarthquake || hasDisasterAlert || hasRoadEvents || hasIotRiver || hasIotStructure || hasCropSuitability || hasAgriPOI || hasAgriCompany || hasSoilFertility || hasFireEvents || hasFireStations || hasFireHydrants || hasFireIsochrone || hasEcoNetworkZones || hasForestry || hasWaterCanals || hasMedical || hasMedIsochrone || hasFloodSensor;
-
-  if (!hasAny) return null;
+  const active = LEGEND_REGISTRY.filter((e) => e.keys.some((k) => visibility[k]));
+  if (active.length === 0) return null;
 
   return (
     <div
@@ -150,28 +171,14 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
         <span>LEGEND</span>
       </button>
 
-      {/* Content */}
+      {/* Content — registry 驅動，順序即 LEGEND_REGISTRY 順序 */}
       {expanded && (
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
-          {hasEarthquake && <EarthquakeLegend />}
-          {hasDisasterAlert && <DisasterAlertLegend />}
-          {hasRoadEvents && <RoadEventsLegend />}
-          {hasIotRiver && <IotRiverLegend />}
-          {hasIotStructure && <IotStructureLegend />}
-          {hasCropSuitability && <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} />}
-          {hasAgriPOI && <AgriPOILegend />}
-          {hasAgriCompany && <AgriCompanyLegend visibility={visibility} />}
-          {hasSoilFertility && <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} />}
-          {hasFireEvents && <FireEventLegend />}
-          {hasFireStations && <FireStationLegend />}
-          {hasFireHydrants && <FireHydrantLegend />}
-          {hasFireIsochrone && <FireIsochroneLegend />}
-          {hasEcoNetworkZones && <EcoNetworkZonesLegend />}
-          {hasForestry && <ForestryLegend visibility={visibility} />}
-          {hasWaterCanals && <WaterCanalLegend />}
-          {hasMedIsochrone && <MedicalIsochroneLegend />}
-          {hasMedical && <MedicalLegend visibility={visibility} />}
-          {hasFloodSensor && <FloodSensorLegend />}
+          {active.map((entry, i) => (
+            <Fragment key={entry.keys[0] ?? i}>
+              {entry.render({ visibility, overlayParams })}
+            </Fragment>
+          ))}
         </div>
       )}
     </div>

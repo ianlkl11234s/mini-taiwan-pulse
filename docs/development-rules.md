@@ -117,7 +117,7 @@ useEffect(() => {
 | 4 | `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts` | 靜態 → registry；動態 → CustomLayer |
 | 5 | `src/components/sidebar/layerCatalog.ts` | **`LAYER_COLORS` 加 key（⚠️ 漏了會 tsc error TS2739）** + `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用）。UI toggle 渲染仍在 `IconRailSidebar.tsx` / `LayerSidebar.tsx` |
 | 6 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView |
-| 7 | `src/hooks/useLayerVisibility.ts` | 加預設可見性 |
+| 7 | `src/hooks/useLayerVisibility.ts` | （僅預設開啟才需要）加進 `DEFAULT_ON`；預設 false 自動派生，免改 |
 
 ### 檢查清單
 - [ ] `tsc -b` pass
@@ -147,10 +147,10 @@ opacity slider，使用者得以與底圖混合 / 跟其他 layer 疊看不致�
 2. 同 layer 內會不會出現 ≥ 2 種顏色？
 3. 用戶看到色塊能不能直覺對應到資料意義？
 
-第 1 或 2 為「是」、第 3 為「否」 → **必須**在 `src/components/LegendPanel.tsx` 加
-sub-component。三邊配色（factory paint expression / FeatureInfoPanel sub-panel /
-LegendPanel sub-component）**單一資料源**，把類型表抽到 `src/data/xxxTypes.ts`
-共享，避免改一邊忘改另一邊。
+第 1 或 2 為「是」、第 3 為「否」 → **必須**在 `src/components/LegendPanel.tsx` 寫
+sub-component 並在同檔 `LEGEND_REGISTRY` 加一行（`layerConsistency` 測試會擋漏接）。
+三邊配色（factory paint expression / featureInfo panel / legend sub-component）
+**單一資料源**，把類型表抽到 `src/data/xxxTypes.ts` 共享，避免改一邊忘改另一邊。
 
 豁免條件（同時滿足才可豁免）：
 - 整層**單一顏色** + opacity 由 confidence / 數值 attribute 自動調節（如 FTW 田區）
@@ -168,7 +168,9 @@ LegendPanel sub-component）**單一資料源**，把類型表抽到 `src/data/x
 
 前端 3 處接線：
 1. `src/types/index.ts` 的 `FeatureInfo.layerType` union 加 key
-2. `src/components/FeatureInfoPanel.tsx`：加 sub-panel + `HEADER_LABELS` 補 key + switch case
+2. `src/components/featureInfo/` 對應 domain 檔（waterPanels / agriPanels / ...）寫 panel 元件，
+   再到 `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行
+   （registry 完整性測試會擋漏接）
 3. `src/hooks/useMapInteraction.ts` 的 `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`
    - **GIS_LAYERS 為 first-hit-wins**：把細節豐富的小範圍（如休農區）排在前面，
      大面積背景（如全台土壤分類）排在後面，避免被覆蓋

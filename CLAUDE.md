@@ -62,7 +62,7 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 4. `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts`
 5. `src/components/sidebar/layerCatalog.ts` → **`LAYER_COLORS` 補 key**（漏了會 tsc error TS2739）+ `SECTIONS` 對應分區加 key（單一真實來源，桌機 IconRailSidebar 與手機 LayerSidebar 同時生效）；UI toggle 渲染仍在兩個 sidebar 元件
 6. `src/App.tsx` → 接線
-7. `src/hooks/useLayerVisibility.ts` → 預設可見性
+7. `src/hooks/useLayerVisibility.ts` → 僅「預設開啟」才需加 `DEFAULT_ON`（預設 false 自動派生）
 
 可用 slash command `/new-layer <name>` 自動產生骨架。
 
@@ -71,11 +71,14 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 
 1. **透明度 slider** — 在 `useTransportParams.ts` 提供 opacity slider（已是慣例）
 2. **分類 ≥ 2 種 → 必寫圖例** — 只要 layer 內顏色用 match/step/interpolate 分出 2+ 類別／級別
-   （不論 POI / polygon / line），必須在 `src/components/LegendPanel.tsx` 加 sub-component。
+   （不論 POI / polygon / line），必須在 `src/components/LegendPanel.tsx` 寫 sub-component
+   並在同檔 `LEGEND_REGISTRY` 加一行（測試 `layerConsistency` 會擋漏接）。
    把類型表抽到 `src/data/xxxTypes.ts`（如 `agriPOITypes.ts`）給 factory / panel / legend 三處共用
 3. **可選取物件 → 必接 click popup** — POI / polygon / line 凡點下去能講出資訊就要接：
    `useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
-   `FeatureInfoPanel.tsx` 加 sub-panel。**注意 PMTiles `keep_attrs` 要在
+   `src/components/featureInfo/` 對應 domain 檔寫 panel 元件 +
+   `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` / `HEADER_LABELS` 各加一行。
+   **注意 PMTiles `keep_attrs` 要在
    `taipei-gis-analytics` 那邊先補齊重出**，否則 popup 拿到空欄位。
 4. **Select control options ≥ 4 → 原生 `<select>` dropdown** — Sidebar 是直式 ~240px
    narrow column，4+ 選項橫向 button row 一定撐爆（中文標籤更明顯）。

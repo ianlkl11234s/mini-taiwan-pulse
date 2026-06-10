@@ -15,12 +15,13 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { LAYER_COLORS, SECTIONS } from "../layerCatalog";
+import { LEGEND_REGISTRY } from "../../LegendPanel";
 
 const allKeys = Object.keys(LAYER_COLORS);
 const sidebarKeys = new Set<string>(SECTIONS.flatMap((s) => s.layers.map((l) => l.key)));
 
 const paramsSource = readFileSync("src/hooks/useTransportParams.ts", "utf8");
-const legendSource = readFileSync("src/components/LegendPanel.tsx", "utf8");
+const legendCoveredKeys = new Set<string>(LEGEND_REGISTRY.flatMap((e) => e.keys));
 
 /**
  * 已知「沒有 sidebar toggle」的 layer：
@@ -77,7 +78,7 @@ function hasParamsCase(key: string): boolean {
 }
 
 function hasLegendRef(key: string): boolean {
-  return new RegExp(`\\b(?:visibility|vis)\\.${key}\\b`).test(legendSource);
+  return legendCoveredKeys.has(key);
 }
 
 function ratchet(
