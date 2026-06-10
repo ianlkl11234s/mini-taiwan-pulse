@@ -1,16 +1,16 @@
-import { useEffect, useRef } from "react";
 import type {
   Map as MapboxMap,
   CircleLayer,
-  GeoJSONSource,
   ExpressionSpecification,
 } from "mapbox-gl";
 import {
   fetchGroundwaterDay,
   type GroundwaterDayRow,
 } from "../data/groundwaterLoader";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { timeStore } from "../state/timeStore";
+import {
+  useTimelineSliceLayer,
+  type TimelineSliceLayerConfig,
+} from "./factories/timelineSliceLayer";
 
 /**
  * 地下水井動態層（Mapbox native circle）— Timeline 驅動
@@ -31,7 +31,6 @@ const SOURCE_ID = "groundwater";
 const LAYER_GLOW = "groundwater-glow";
 const LAYER_CIRCLE = "groundwater-circle";
 
-const THROTTLE_MS = 500;
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
 interface StationSeries {
@@ -129,14 +128,6 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
   }
 }
 
-function setLayerVisibility(map: MapboxMap, visible: boolean) {
-  for (const id of [LAYER_GLOW, LAYER_CIRCLE]) {
-    if (map.getLayer(id)) {
-      map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
-    }
-  }
-}
-
 function groupByStation(rows: GroundwaterDayRow[]): Map<string, StationSeries> {
   const map = new Map<string, StationSeries>();
   for (const r of rows) {
@@ -195,6 +186,20 @@ function buildFC(byStation: Map<string, StationSeries>, currentT: number): GeoJS
   return { type: "FeatureCollection", features };
 }
 
+const CONFIG: TimelineSliceLayerConfig<Map<string, StationSeries>> = {
+  sourceId: SOURCE_ID,
+  layerIds: [LAYER_GLOW, LAYER_CIRCLE],
+  consoleTag: "[Groundwater]",
+  loadingId: "groundwater-render",
+  loadingLabel: "地下水井 渲染中",
+  loadDay: async (dateKey) => groupByStation(await fetchGroundwaterDay(dateKey)),
+  emptyData: () => new Map(),
+  buildFC,
+  ensureLayers,
+  updatePaint,
+  describeData: (d) => `${d.size} stations`,
+};
+
 export function useGroundwaterLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -202,73 +207,5 @@ export function useGroundwaterLayer(
   scale = 1,
   opacity = 1,
 ) {
-  const byStationRef = useRef<Map<string, StationSeries>>(new Map());
-  const currentDateRef = useRef<string>("");
-
-  useEffect(() => {
-    if (!visible) return;
-    const map = mapRef.current;
-    if (!map) return;
-
-    let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-    const attach = () => {
-      if (cancelled) return;
-      if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark, scale, opacity);
-      updatePaint(map, isDark, scale, opacity);
-      setLayerVisibility(map, true);
-      if (pollTimer) {
-        clearInterval(pollTimer);
-        pollTimer = null;
-      }
-    };
-
-    if (map.isStyleLoaded()) attach();
-    else pollTimer = setInterval(attach, 200);
-
-    const redraw = () => {
-      if (cancelled) return;
-      const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-      if (!src) return;
-      const t = timeStore.getTime();
-      src.setData(buildFC(byStationRef.current, t));
-    };
-
-    const loadDay = async (dateKey: string) => {
-      if (cancelled) return;
-      try {
-        console.log("[Groundwater] fetching day", dateKey);
-        const rows = await fetchGroundwaterDay(dateKey);
-        if (cancelled || currentDateRef.current !== dateKey) return;
-        byStationRef.current = groupByStation(rows);
-        console.log(`[Groundwater] loaded ${rows.length} rows, ${byStationRef.current.size} stations`);
-        redraw();
-        keepLoadingUntilMapIdle(map, "groundwater-render", "地下水井 渲染中", SOURCE_ID);
-      } catch (err) {
-        console.warn("[Groundwater] fetch failed:", err);
-      }
-    };
-
-    currentDateRef.current = timeStore.getDateKey();
-    loadDay(currentDateRef.current);
-
-    const unsubDate = timeStore.subscribeDate((key) => {
-      currentDateRef.current = key;
-      byStationRef.current = new Map();
-      loadDay(key);
-    });
-    const unsubTime = timeStore.subscribeThrottled(THROTTLE_MS, redraw);
-
-    return () => {
-      cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      unsubDate();
-      unsubTime();
-      if (map.getLayer(LAYER_GLOW) || map.getLayer(LAYER_CIRCLE)) {
-        setLayerVisibility(map, false);
-      }
-    };
-  }, [mapRef, visible, isDark, scale, opacity]);
+  useTimelineSliceLayer(CONFIG, mapRef, visible, isDark, scale, opacity);
 }

@@ -1,17 +1,17 @@
-import { useEffect, useRef } from "react";
 import type {
   Map as MapboxMap,
   CircleLayer,
   HeatmapLayer,
-  GeoJSONSource,
   ExpressionSpecification,
 } from "mapbox-gl";
 import {
   fetchRainGaugeDay,
   type RainGaugeDayRow,
 } from "../data/rainGaugeLoader";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { timeStore } from "../state/timeStore";
+import {
+  useTimelineSliceLayer,
+  type TimelineSliceLayerConfig,
+} from "./factories/timelineSliceLayer";
 
 /**
  * 即時雨量圖層（Mapbox native circle）— Timeline 驅動
@@ -37,7 +37,6 @@ const LAYER_CIRCLE = "rain-gauge-circle";
 const HEATMAP_HIDE_Z = 12;
 const CIRCLE_HIDE_Z = 8;
 
-const THROTTLE_MS = 500;
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
 /** 每站一筆 meta + 該站當日時序讀值（按 observed_at ASC 排序） */
@@ -232,14 +231,6 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
   }
 }
 
-function setLayerVisibility(map: MapboxMap, visible: boolean) {
-  for (const id of [LAYER_HEATMAP, LAYER_GLOW, LAYER_CIRCLE]) {
-    if (map.getLayer(id)) {
-      map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
-    }
-  }
-}
-
 function groupByStation(rows: RainGaugeDayRow[]): Map<string, StationSeries> {
   const map = new Map<string, StationSeries>();
   for (const r of rows) {
@@ -306,6 +297,20 @@ function buildFC(byStation: Map<string, StationSeries>, currentT: number): GeoJS
   return { type: "FeatureCollection", features };
 }
 
+const CONFIG: TimelineSliceLayerConfig<Map<string, StationSeries>> = {
+  sourceId: SOURCE_ID,
+  layerIds: [LAYER_HEATMAP, LAYER_GLOW, LAYER_CIRCLE],
+  consoleTag: "[RainGauge]",
+  loadingId: "rain-gauge-render",
+  loadingLabel: "即時雨量 渲染中",
+  loadDay: async (dateKey) => groupByStation(await fetchRainGaugeDay(dateKey)),
+  emptyData: () => new Map(),
+  buildFC,
+  ensureLayers,
+  updatePaint,
+  describeData: (d) => `${d.size} stations`,
+};
+
 export function useRainGaugeLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -313,75 +318,5 @@ export function useRainGaugeLayer(
   scale = 1,
   opacity = 1,
 ) {
-  const byStationRef = useRef<Map<string, StationSeries>>(new Map());
-  const currentDateRef = useRef<string>("");
-
-  useEffect(() => {
-    if (!visible) return;
-    const map = mapRef.current;
-    if (!map) return;
-
-    let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-    const attach = () => {
-      if (cancelled) return;
-      if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark, scale, opacity);
-      updatePaint(map, isDark, scale, opacity);
-      setLayerVisibility(map, true);
-      if (pollTimer) {
-        clearInterval(pollTimer);
-        pollTimer = null;
-      }
-    };
-
-    if (map.isStyleLoaded()) attach();
-    else pollTimer = setInterval(attach, 200);
-
-    /** 重畫當下切片 */
-    const redraw = () => {
-      if (cancelled) return;
-      const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-      if (!src) return;
-      const t = timeStore.getTime();
-      src.setData(buildFC(byStationRef.current, t));
-    };
-
-    /** 抓當天整日 + 首次 redraw */
-    const loadDay = async (dateKey: string) => {
-      if (cancelled) return;
-      try {
-        console.log("[RainGauge] fetching day", dateKey);
-        const rows = await fetchRainGaugeDay(dateKey);
-        if (cancelled || currentDateRef.current !== dateKey) return;
-        byStationRef.current = groupByStation(rows);
-        console.log(`[RainGauge] loaded ${rows.length} rows, ${byStationRef.current.size} stations`);
-        redraw();
-        keepLoadingUntilMapIdle(map, "rain-gauge-render", "即時雨量 渲染中", SOURCE_ID);
-      } catch (err) {
-        console.warn("[RainGauge] fetch failed:", err);
-      }
-    };
-
-    currentDateRef.current = timeStore.getDateKey();
-    loadDay(currentDateRef.current);
-
-    const unsubDate = timeStore.subscribeDate((key) => {
-      currentDateRef.current = key;
-      byStationRef.current = new Map();
-      loadDay(key);
-    });
-    const unsubTime = timeStore.subscribeThrottled(THROTTLE_MS, redraw);
-
-    return () => {
-      cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      unsubDate();
-      unsubTime();
-      if (map.getLayer(LAYER_GLOW) || map.getLayer(LAYER_CIRCLE)) {
-        setLayerVisibility(map, false);
-      }
-    };
-  }, [mapRef, visible, isDark, scale, opacity]);
+  useTimelineSliceLayer(CONFIG, mapRef, visible, isDark, scale, opacity);
 }

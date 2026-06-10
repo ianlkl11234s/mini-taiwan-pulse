@@ -1,8 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import type {
   Map as MapboxMap,
   CircleLayer,
-  GeoJSONSource,
   ExpressionSpecification,
 } from "mapbox-gl";
 import {
@@ -10,8 +9,10 @@ import {
   parseTimeline,
   type IotWraDayRow,
 } from "../data/iotWraRiverLoader";
-import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
-import { timeStore } from "../state/timeStore";
+import {
+  startTimelineSliceController,
+  type TimelineSliceLayerConfig,
+} from "./factories/timelineSliceLayer";
 
 /**
  * IoT 河川水位（補強既有 riverLevel；migration 063 預聚合表）
@@ -24,7 +25,6 @@ const SOURCE_ID = "iot-wra-river";
 const LAYER_GLOW = "iot-wra-river-glow";
 const LAYER_CIRCLE = "iot-wra-river-circle";
 
-const THROTTLE_MS = 500;
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
 interface StationSeries {
@@ -118,14 +118,6 @@ function updatePaint(map: MapboxMap, isDark: boolean, scale: number, opacity: nu
   }
 }
 
-function setLayerVisibility(map: MapboxMap, visible: boolean) {
-  for (const id of [LAYER_GLOW, LAYER_CIRCLE]) {
-    if (map.getLayer(id)) {
-      map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
-    }
-  }
-}
-
 function buildSeriesMap(
   rows: IotWraDayRow[],
   showMeasured: boolean,
@@ -187,6 +179,19 @@ function buildFC(byKey: Map<string, StationSeries>, currentT: number): GeoJSON.F
   return { type: "FeatureCollection", features };
 }
 
+const BASE_CONFIG: Omit<TimelineSliceLayerConfig<Map<string, StationSeries>>, "loadDay"> = {
+  sourceId: SOURCE_ID,
+  layerIds: [LAYER_GLOW, LAYER_CIRCLE],
+  consoleTag: "[IotWraRiver]",
+  loadingId: "iot-wra-river-render",
+  loadingLabel: "IoT 河川 渲染中",
+  emptyData: () => new Map(),
+  buildFC,
+  ensureLayers,
+  updatePaint,
+  describeData: (d) => `${d.size} series after filter`,
+};
+
 export function useIotWraRiverLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
@@ -196,74 +201,17 @@ export function useIotWraRiverLayer(
   showMeasured = true,
   showForecast = true,
 ) {
-  const byKeyRef = useRef<Map<string, StationSeries>>(new Map());
-  const rawRowsRef = useRef<IotWraDayRow[]>([]);
-  const currentDateRef = useRef<string>("");
-
+  // showMeasured / showForecast 會進 loadDay 的 filter（且在 deps 內觸發重載），
+  // CONFIG 無法是純模組常數 → 在 effect 內組 config，編排仍走 factory controller
   useEffect(() => {
     if (!visible) return;
     const map = mapRef.current;
     if (!map) return;
-
-    let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-    const tryAttach = () => {
-      if (cancelled) return;
-      if (!map.isStyleLoaded()) return;
-      ensureLayers(map, isDark, scale, opacity);
-      updatePaint(map, isDark, scale, opacity);
-      setLayerVisibility(map, true);
-      if (pollTimer) {
-        clearInterval(pollTimer);
-        pollTimer = null;
-      }
+    const config: TimelineSliceLayerConfig<Map<string, StationSeries>> = {
+      ...BASE_CONFIG,
+      loadDay: async (dateKey) =>
+        buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast),
     };
-
-    if (map.isStyleLoaded()) tryAttach();
-    else pollTimer = setInterval(tryAttach, 200);
-
-    const redraw = () => {
-      if (cancelled) return;
-      const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
-      if (!src) return;
-      const t = timeStore.getTime();
-      src.setData(buildFC(byKeyRef.current, t));
-    };
-
-    const loadDay = async (dateKey: string) => {
-      if (cancelled) return;
-      try {
-        const rows = await fetchIotWraRiverDay(dateKey);
-        if (cancelled || currentDateRef.current !== dateKey) return;
-        rawRowsRef.current = rows;
-        byKeyRef.current = buildSeriesMap(rows, showMeasured, showForecast);
-        console.log(`[IotWraRiver] loaded ${rows.length} rows, ${byKeyRef.current.size} series after filter`);
-        redraw();
-        keepLoadingUntilMapIdle(map, "iot-wra-river-render", "IoT 河川 渲染中", SOURCE_ID);
-      } catch (err) {
-        console.warn("[IotWraRiver] fetch failed:", err);
-      }
-    };
-
-    currentDateRef.current = timeStore.getDateKey();
-    loadDay(currentDateRef.current);
-
-    const unsubDate = timeStore.subscribeDate((key) => {
-      currentDateRef.current = key;
-      byKeyRef.current = new Map();
-      loadDay(key);
-    });
-    const unsubTime = timeStore.subscribeThrottled(THROTTLE_MS, redraw);
-
-    return () => {
-      cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      unsubDate();
-      unsubTime();
-      if (map.getLayer(LAYER_GLOW) || map.getLayer(LAYER_CIRCLE)) {
-        setLayerVisibility(map, false);
-      }
-    };
+    return startTimelineSliceController(map, config, isDark, scale, opacity);
   }, [mapRef, visible, isDark, scale, opacity, showMeasured, showForecast]);
 }
