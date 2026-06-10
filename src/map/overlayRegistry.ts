@@ -2474,10 +2474,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ═══════════════════════════════════════════════════════════════
   //  FORESTRY — 林業 15 layer (12 base + 3 衍生)
-  //  TODO: forestCompartments / forestReserve / forestRoads 大檔
-  //        應改走 PMTiles vector source；目前 fallback GeoJSON：
-  //        - national_forest_compartments.geojson 219MB（toggle 會卡）
-  //        - forest_reserve.geojson 45MB / forest_roads.geojson 16MB OK
+  //  2026-06-10：compartments / reserve / roads 三大檔改走 PMTiles
+  //  （原 219MB / 45MB / 16MB GeoJSON；compartments geojson 已 gitignore
+  //   且本機不存在，geojson 路徑會 404 → 必須走 pmtiles）
   //  TODO: 3 衍生 layer 的 source URL 尚未產出（D1-D3 ETL pipeline），
   //        Mapbox 會 404 但不會 crash。
   // ═══════════════════════════════════════════════════════════════
@@ -2485,8 +2484,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 林班（Polygon，深綠面 + 邊框）──
   {
     id: "forestCompartments",
-    sourceUrl: "./forestry/national_forest_compartments.geojson",
+    sourceUrl: "./forestry/national_forest_compartments.pmtiles",
     sourceId: "forest-compartments",
+    pmtiles: { sourceLayer: "national_forest_compartments", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["fill", "outline"],
     layers: [
       {
@@ -2512,8 +2512,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 保安林（Polygon，按「種類」13 類配色）──
   {
     id: "forestReserve",
-    sourceUrl: "./forestry/forest_reserve.geojson",
+    sourceUrl: "./forestry/forest_reserve.pmtiles",
     sourceId: "forest-reserve",
+    pmtiles: { sourceLayer: "forest_reserve", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["fill", "outline"],
     layers: [
       {
@@ -2638,8 +2639,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 林道（LineString，木褐）──
   {
     id: "forestRoads",
-    sourceUrl: "./forestry/forest_roads.geojson",
+    sourceUrl: "./forestry/forest_roads.pmtiles",
     sourceId: "forest-roads",
+    pmtiles: { sourceLayer: "forest_roads", minzoom: 0, maxzoom: 14 },
     rebuildOnParamChange: ["line"],
     layers: [
       {
