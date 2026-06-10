@@ -51,6 +51,15 @@ for f in public/geo/water_*.geojson; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# 水利 PMTiles 向量切片：glob 動態上傳 public/geo/water_*.pmtiles（扁平，同 water geojson 慣例）
+# S3 物件預設支援 byte-range，nginx /geo/ 直送即可
+for f in public/geo/water_*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading $name (water pmtiles glob)..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
+done
+
 # 消防圖層：glob 動態上傳 public/geo/fire_*.geojson（同 water 慣例）
 # 新增 fire_xxx.geojson 不用改本腳本，export 完直接跑 upload 即可
 for f in public/geo/fire_*.geojson; do

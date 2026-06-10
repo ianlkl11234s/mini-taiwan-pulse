@@ -7,30 +7,11 @@
 //
 // 縣市下拉（params.countyIdx）→ setFilter 切換：全台(0) 顯示全國聚合、其餘顯示單一縣市。
 
-import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 import { fireIsochroneCountyByIndex } from "../data/fireIsochroneCounties";
-// mapbox-pmtiles 未提供 ESM build 型別，import dist 並局部宣告繞過（同 agricultureLayerFactory）
-// @ts-expect-error 套件未提供 ESM build 的型別宣告
-import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
-
-const SOURCE_TYPE = (PmTilesSource as unknown as { SOURCE_TYPE: string }).SOURCE_TYPE;
-
-// PMTiles SourceType 註冊：agriculture factory 也會註冊，靠單一 flag + try/catch 避免重複。
-// MapView 先 ensure 農業層再 ensure 本層 → agriculture 先註冊成功，本層 try 命中 already-registered 被吞。
-let sourceTypeRegistered = false;
-function registerSourceTypeOnce(): void {
-  if (sourceTypeRegistered) return;
-  sourceTypeRegistered = true;
-  try {
-    const Style = (mapboxgl as unknown as {
-      Style: { setSourceType: (type: string, impl: unknown) => void };
-    }).Style;
-    Style.setSourceType(SOURCE_TYPE, PmTilesSource);
-  } catch {
-    // 已由其他 PMTiles 圖層註冊過，忽略
-  }
-}
+// PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
+import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
+import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}fire`;
 const SOURCE_ID = "fire-isochrone-coverage";
@@ -64,10 +45,10 @@ function countyFilter(idx: number): FilterSpecification {
 }
 
 export function ensureFireIsochroneLayer(map: MapboxMap): void {
-  registerSourceTypeOnce();
+  registerPmtilesSourceTypeOnce();
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
-      type: SOURCE_TYPE,
+      type: PMTILES_SOURCE_TYPE,
       url: `${BASE}/fire_isochrone_coverage.pmtiles`,
       minzoom: 5,
       maxzoom: 14,

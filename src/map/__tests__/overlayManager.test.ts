@@ -181,6 +181,55 @@ describe("updateOverlayTheme (diff-based)", () => {
   });
 });
 
+describe("addOverlay (pmtiles)", () => {
+  const pmtilesConfig: OverlayConfig = {
+    ...config,
+    sourceUrl: "./geo/water_rivers.pmtiles",
+    sourceId: "water-rivers",
+    pmtiles: { sourceLayer: "rivers", minzoom: 4, maxzoom: 13 },
+  } as unknown as OverlayConfig;
+
+  it("adds a pmtile-source with min/max zoom instead of geojson", () => {
+    const { map, calls } = createMockMap();
+    addOverlay(map, pmtilesConfig, true, {});
+    const src = calls.find((c) => c.method === "addSource");
+    expect(src?.args[0]).toBe("water-rivers");
+    expect(src?.args[1]).toMatchObject({
+      type: "pmtile-source",
+      url: "./geo/water_rivers.pmtiles",
+      minzoom: 4,
+      maxzoom: 13,
+    });
+  });
+
+  it("attaches source-layer to every style layer", () => {
+    const layerSpecs: Array<Record<string, unknown>> = [];
+    const { map } = createMockMap();
+    const original = (map as unknown as { addLayer: (s: Record<string, unknown>) => void }).addLayer;
+    (map as unknown as { addLayer: (s: Record<string, unknown>) => void }).addLayer = (s) => {
+      layerSpecs.push(s);
+      original(s as { id: string });
+    };
+    addOverlay(map, pmtilesConfig, true, {});
+    expect(layerSpecs).toHaveLength(1);
+    expect(layerSpecs[0]?.["source-layer"]).toBe("rivers");
+  });
+
+  it("keeps plain geojson sources untouched (no source-layer)", () => {
+    const layerSpecs: Array<Record<string, unknown>> = [];
+    const { map, calls } = createMockMap();
+    const original = (map as unknown as { addLayer: (s: Record<string, unknown>) => void }).addLayer;
+    (map as unknown as { addLayer: (s: Record<string, unknown>) => void }).addLayer = (s) => {
+      layerSpecs.push(s);
+      original(s as { id: string });
+    };
+    addOverlay(map, config, true, {});
+    const src = calls.find((c) => c.method === "addSource");
+    expect((src?.args[1] as Record<string, unknown>).type).toBe("geojson");
+    expect(layerSpecs[0]?.["source-layer"]).toBeUndefined();
+  });
+});
+
 describe("updateOverlayTheme (rebuildOnParamChange)", () => {
   const rebuildConfig: OverlayConfig = {
     ...config,

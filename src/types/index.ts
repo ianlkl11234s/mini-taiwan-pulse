@@ -469,6 +469,12 @@ export interface OverlayConfig {
   layers: OverlayLayerSpec[];
   rebuildOnParamChange?: string[];
   filter?: unknown[];
+  /**
+   * 設定後 sourceUrl 視為 PMTiles 向量切片（HTTP Range Request 按需載入），
+   * 取代預設的 GeoJSON 全量載入。大型 line/polygon 圖層（>5MB GeoJSON）應採用。
+   * minzoom/maxzoom 對應 tippecanoe 的 -Z/-z；超過 maxzoom 由 Mapbox 自動 overzoom。
+   */
+  pmtiles?: { sourceLayer: string; minzoom: number; maxzoom: number };
 }
 
 // ── 點擊特徵資訊 ──

@@ -5,6 +5,7 @@ import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
+import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
 import { ensureMedicalIsochroneLayers, updateMedicalIsochroneLayers } from "./medicalIsochroneLayerFactory";
 
@@ -163,6 +164,9 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     map.on("style.load", () => {
       setupTerrain(map);
 
+      // PMTiles SourceType 須在任何 pmtiles source addSource 前註冊（水利層走 overlayRegistry）
+      registerPmtilesSourceTypeOnce();
+
       // 批量新增所有 overlays + 設定初始可見性
       addAllOverlays(
         map,
@@ -208,6 +212,10 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     map.on("load", () => {
       mapRef.current = map;
       readyRef.current = true;
+      // dev-only：給 E2E / 手動 debug 直接操作相機與查 style 用
+      if (import.meta.env.DEV) {
+        (window as unknown as { __map?: mapboxgl.Map }).__map = map;
+      }
       ensureH3Layers(map);
       ensurePopCountLayers(map);
       ensureIndicatorsLayers(map);

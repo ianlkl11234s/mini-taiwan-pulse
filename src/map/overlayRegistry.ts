@@ -1698,10 +1698,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 河川 River (河道多邊形 — 河床面，補齊 river_lines 缺漏的支流) ──
+  // PMTiles 向量切片（原 11MB GeoJSON 全量載入 → 按需載入）
   {
     id: "waterRivers",
-    sourceUrl: "./geo/water_river_polygons.geojson",
+    sourceUrl: "./geo/water_river_polygons.pmtiles",
     sourceId: "water-river-polygons",
+    pmtiles: { sourceLayer: "river_polygons", minzoom: 4, maxzoom: 13 },
     layers: [
       {
         suffix: "glow",
@@ -1734,10 +1736,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 河川 River (line, 中央管主流 transmission-like glow) ──
+  // PMTiles 向量切片（原 16MB GeoJSON 全量載入 → 按需載入）
   {
     id: "waterRivers",
-    sourceUrl: "./geo/water_rivers.geojson",
+    sourceUrl: "./geo/water_rivers.pmtiles",
     sourceId: "water-rivers",
+    pmtiles: { sourceLayer: "rivers", minzoom: 4, maxzoom: 13 },
     layers: [
       {
         suffix: "glow-2",
@@ -1772,10 +1776,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 堤防 Levee (amber line — 4,222 筆防洪骨架；status=待建 用 case expression 淡化) ──
+  // PMTiles 向量切片（原 1.9MB GeoJSON → 按需載入；status 屬性保留供 case expression）
   {
     id: "waterLevees",
-    sourceUrl: "./geo/water_levees.geojson",
+    sourceUrl: "./geo/water_levees.pmtiles",
     sourceId: "water-levees",
+    pmtiles: { sourceLayer: "levees", minzoom: 5, maxzoom: 13 },
     layers: [
       {
         suffix: "glow",
@@ -1810,10 +1816,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── 灌排渠道 Canal (全台 17 管理處 29,469 條，依屬性 3 色) ──
   // t: 灌溉專用渠道(teal) / 下游具引灌需求(purple) / 下游不具引灌需求+宜蘭(slate)
+  // PMTiles 向量切片（原 6.8MB GeoJSON、29,469 條 → 按需載入；t 屬性保留供 match expression）
   {
     id: "waterCanals",
-    sourceUrl: "./geo/water_canals.geojson",
+    sourceUrl: "./geo/water_canals.pmtiles",
     sourceId: "water-canals",
+    pmtiles: { sourceLayer: "canals", minzoom: 5, maxzoom: 13 },
     layers: [
       {
         suffix: "glow",

@@ -30,6 +30,7 @@ public/geo/active_faults.geojson
 # 水資源圖層統一走 S3（glob pattern；未來新增 water_* 自動適用）
 # upload / pull 腳本都以 glob 動態處理，不需要逐檔維護名單
 public/geo/water_*.geojson
+public/geo/water_*.pmtiles
 
 # 大型公車路線 JSON（由 S3 deploy-assets 管理；小檔案仍進 git）
 public/bus/taipei_bus_routes.json

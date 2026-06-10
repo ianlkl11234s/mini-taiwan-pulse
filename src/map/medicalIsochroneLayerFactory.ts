@@ -8,29 +8,11 @@
 //   medDesert    = 僅 over15（醫療沙漠高亮）
 // 兩者互斥邏輯：medIsochrone ON → 顯示全部；medDesert ON 但 medIsochrone OFF → 僅 over15。
 
-import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 import type { LayerVisibility } from "../types";
-// mapbox-pmtiles 未提供 ESM build 型別，import dist 繞過（同 fireIsochrone / medicalPOI factory）
-// @ts-expect-error 套件未提供 ESM build 的型別宣告
-import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
-
-const SOURCE_TYPE = (PmTilesSource as unknown as { SOURCE_TYPE: string }).SOURCE_TYPE;
-
-// PMTiles SourceType 註冊：其他 factory 也會註冊，靠 flag + try/catch 避免重複。
-let sourceTypeRegistered = false;
-function registerSourceTypeOnce(): void {
-  if (sourceTypeRegistered) return;
-  sourceTypeRegistered = true;
-  try {
-    const Style = (mapboxgl as unknown as {
-      Style: { setSourceType: (type: string, impl: unknown) => void };
-    }).Style;
-    Style.setSourceType(SOURCE_TYPE, PmTilesSource);
-  } catch {
-    // 已由其他 PMTiles 圖層註冊過，忽略
-  }
-}
+// PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
+import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
+import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}medical`;
 const SOURCE_ID = "medical-isochrone";
@@ -71,10 +53,10 @@ function visibilityFilter(vis: LayerVisibility): FilterSpecification | null {
 }
 
 export function ensureMedicalIsochroneLayers(map: MapboxMap): void {
-  registerSourceTypeOnce();
+  registerPmtilesSourceTypeOnce();
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
-      type: SOURCE_TYPE,
+      type: PMTILES_SOURCE_TYPE,
       url: `${BASE}/medical_isochrone.pmtiles`,
       minzoom: 5,
       maxzoom: 14,

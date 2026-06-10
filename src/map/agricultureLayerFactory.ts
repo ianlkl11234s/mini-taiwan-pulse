@@ -4,33 +4,16 @@
 // 來源：taipei-gis-analytics/data/processed/agriculture/
 // 部署：public/agriculture/*.pmtiles | *.geojson  (HTTP Range Request for PMTiles)
 
-import mapboxgl from "mapbox-gl";
+
 import type { Map as MapboxMap } from "mapbox-gl";
 import { agriPOIMatchColorExpr } from "../data/agriPOITypes";
 import {
   SOIL_FERTILITY_METRICS,
   type SoilFertilityMetric,
 } from "../data/agriSoilFertilityMetrics";
-// mapbox-pmtiles 套件的 package.json "main" 直接指 src/*.ts，會牽動 TS 編譯
-// 套件原始檔；改 import dist/ 的 ESM build 並局部宣告型別繞過。
-// @ts-expect-error 套件未提供 ESM build 的型別宣告
-import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
-
-interface PmTilesSourceCtor {
-  SOURCE_TYPE: string;
-}
-const PmTilesSourceTyped = PmTilesSource as unknown as PmTilesSourceCtor;
-
-// 一次性註冊 PMTiles SourceType 到 mapbox-gl（所有 PMTiles 圖層共用）
-let sourceTypeRegistered = false;
-function registerSourceTypeOnce(): void {
-  if (sourceTypeRegistered) return;
-  const Style = (mapboxgl as unknown as {
-    Style: { setSourceType: (type: string, impl: unknown) => void };
-  }).Style;
-  Style.setSourceType(PmTilesSourceTyped.SOURCE_TYPE, PmTilesSource);
-  sourceTypeRegistered = true;
-}
+// PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
+import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
+import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}agriculture`;
 
@@ -43,7 +26,7 @@ function addPmtilesSourceIfMissing(
 ): void {
   if (map.getSource(sourceId)) return;
   map.addSource(sourceId, {
-    type: PmTilesSourceTyped.SOURCE_TYPE,
+    type: PMTILES_SOURCE_TYPE,
     url: `${BASE}/${fileName}`,
     minzoom,
     maxzoom,
@@ -79,7 +62,7 @@ export const AGRICULTURE_PARAMS_DEFAULT: AgricultureParams = {
 };
 
 export function ensureAgricultureLayers(map: MapboxMap): void {
-  registerSourceTypeOnce();
+  registerPmtilesSourceTypeOnce();
   addPmtilesSourceIfMissing(map, FTW_SOURCE_ID, "ftw_fields_2025.pmtiles", 5, 14);
 
   if (!map.getLayer(FTW_FILL_ID)) {
@@ -186,7 +169,7 @@ export interface AgriPolyParams {
 export const AGRI_POLY_PARAMS_DEFAULT: AgriPolyParams = { opacity: 1 };
 
 function ensureSimplePolyLayer(map: MapboxMap, cfg: SimplePolyConfig): void {
-  registerSourceTypeOnce();
+  registerPmtilesSourceTypeOnce();
   addPmtilesSourceIfMissing(map, cfg.sourceId, cfg.fileName, cfg.minzoom, cfg.maxzoom);
 
   if (!map.getLayer(cfg.fillId)) {
@@ -270,7 +253,7 @@ export const AGRI_SOIL_FERTILITY_PARAMS_DEFAULT: AgriSoilFertilityParams = {
 };
 
 export function ensureAgriSoilFertilityLayers(map: MapboxMap): void {
-  registerSourceTypeOnce();
+  registerPmtilesSourceTypeOnce();
   addPmtilesSourceIfMissing(map, SOIL_FERT_SOURCE_ID, "soil_fertility_grid_250m.pmtiles", 8, 14);
 
   if (!map.getLayer(SOIL_FERT_FILL_ID)) {
@@ -394,7 +377,7 @@ export const AGRI_CROP_SUITABILITY_PARAMS_DEFAULT: AgriCropSuitabilityParams = {
 };
 
 export function ensureAgriCropSuitabilityLayers(map: MapboxMap): void {
-  registerSourceTypeOnce();
+  registerPmtilesSourceTypeOnce();
   addPmtilesSourceIfMissing(map, CROP_SOURCE_ID, "crop_suitability_132.pmtiles", 6, 13);
 
   if (!map.getLayer(CROP_FILL_ID)) {

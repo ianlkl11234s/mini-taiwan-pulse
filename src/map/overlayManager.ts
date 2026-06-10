@@ -6,6 +6,7 @@ import {
   paintSnapshotEquals,
   type SerializedPaint,
 } from "./overlayPaintDiff";
+import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
 
 function layerId(config: OverlayConfig, suffix: string) {
   return `${config.sourceId}-${suffix}`;
@@ -51,11 +52,22 @@ export function addOverlay(
   params?: Record<string, number>,
 ) {
   if (!map.getSource(config.sourceId)) {
-    map.addSource(config.sourceId, {
-      type: "geojson",
-      data: config.sourceUrl,
-      ...geojsonSourceOptions(config),
-    });
+    if (config.pmtiles) {
+      // PMTiles 向量切片：呼叫端（MapView）須先 registerPmtilesSourceTypeOnce()
+      map.addSource(config.sourceId, {
+        type: PMTILES_SOURCE_TYPE,
+        url: config.sourceUrl,
+        minzoom: config.pmtiles.minzoom,
+        maxzoom: config.pmtiles.maxzoom,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any);
+    } else {
+      map.addSource(config.sourceId, {
+        type: "geojson",
+        data: config.sourceUrl,
+        ...geojsonSourceOptions(config),
+      });
+    }
   }
 
   const cache = paintCacheOf(map);
@@ -68,6 +80,7 @@ export function addOverlay(
       id,
       type: spec.type as "line",  // TS union trick
       source: config.sourceId,
+      ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
       ...(spec.layout ? { layout: spec.layout } : {}),
       ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
       ...(config.filter ? { filter: config.filter } : {}),
@@ -122,6 +135,7 @@ export function updateOverlayTheme(
           id,
           type: spec.type as "line",
           source: config.sourceId,
+          ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
           ...(spec.layout ? { layout: spec.layout } : {}),
           ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
           ...(config.filter ? { filter: config.filter } : {}),
