@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { cachedOnce, cachedByKey } from "../loaderCache";
+import { cachedOnce, cachedByKey, keyedThunkCache } from "../loaderCache";
 
 describe("cachedOnce", () => {
   it("fetches once and reuses the result", async () => {
@@ -102,5 +102,41 @@ describe("cachedByKey", () => {
     await expect(cached("a")).rejects.toThrow();
     fail = false;
     expect(await cached("a")).toBe("a");
+  });
+});
+
+describe("keyedThunkCache", () => {
+  it("caches by key and skips the thunk on hit", async () => {
+    const cache = keyedThunkCache<string>(1000);
+    const fn = vi.fn(async () => "v1");
+    expect(await cache("k", fn)).toBe("v1");
+    expect(await cache("k", fn)).toBe("v1");
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it("different keys call their own thunks (closure 住各自參數)", async () => {
+    const cache = keyedThunkCache<string>(1000);
+    expect(await cache("a", async () => "va")).toBe("va");
+    expect(await cache("b", async () => "vb")).toBe("vb");
+    expect(await cache("a", async () => "WRONG")).toBe("va"); // 命中快取，thunk 不執行
+  });
+
+  it("expires by TTL", async () => {
+    let t = 0;
+    const cache = keyedThunkCache<string>(100, 16, () => t);
+    const fn = vi.fn(async () => "v");
+    await cache("k", fn);
+    t = 150;
+    await cache("k", fn);
+    expect(fn).toHaveBeenCalledTimes(2);
+  });
+
+  it("invalidate clears entries", async () => {
+    const cache = keyedThunkCache<string>(100000);
+    const fn = vi.fn(async () => "v");
+    await cache("k", fn);
+    cache.invalidate();
+    await cache("k", fn);
+    expect(fn).toHaveBeenCalledTimes(2);
   });
 });

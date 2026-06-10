@@ -53,6 +53,46 @@ export interface CachedByKey<T> {
   invalidate(key?: string): void;
 }
 
+export interface KeyedThunkCache<T> {
+  (key: string, fetcher: () => Promise<T>): Promise<T>;
+  invalidate(key?: string): void;
+}
+
+/**
+ * 與 cachedByKey 相同的 TTL + LRU 行為，但 fetcher 由呼叫端逐次提供
+ * （適用「key 是多參數序列化、fetcher 需要 closure 住原始參數」的 loader，
+ * 如 fetchWasteDisposalPoints(cities, types)）。
+ */
+export function keyedThunkCache<T>(
+  ttlMs: number,
+  maxEntries = 16,
+  now: () => number = Date.now,
+): KeyedThunkCache<T> {
+  const pendingThunks = new Map<string, () => Promise<T>>();
+  const inner = cachedByKey<T>(
+    (key) => {
+      const thunk = pendingThunks.get(key);
+      if (!thunk) throw new Error(`keyedThunkCache: no thunk for key ${key}`);
+      return thunk();
+    },
+    ttlMs,
+    maxEntries,
+    now,
+  );
+
+  const wrapped = ((key: string, fetcher: () => Promise<T>) => {
+    pendingThunks.set(key, fetcher);
+    try {
+      return inner(key);
+    } finally {
+      pendingThunks.delete(key);
+    }
+  }) as KeyedThunkCache<T>;
+
+  wrapped.invalidate = (key?: string) => inner.invalidate(key);
+  return wrapped;
+}
+
 export function cachedByKey<T>(
   fetcher: (key: string) => Promise<T>,
   ttlMs: number,

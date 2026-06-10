@@ -164,3 +164,18 @@ $$;
 6. **`get_disaster_alerts_day`** — 目前量小，先加觀測，颱風季前再處理。
 
 其餘 10 個 RPC 屬於 matview dates 查詢或單點小查表，維持現狀即可。
+
+---
+
+## 2026-06-10 實測追記（效能體檢 session）
+
+對先前被點名「可能慢」的三支 RPC 直接 `EXPLAIN (ANALYZE, BUFFERS)` 實測：
+
+| RPC | 實測（DB 端） | 結論 |
+|---|---|---|
+| `get_waste_trails_matched_day('2026-06-05')` | **30ms**（378 段/日） | ST_DumpPoints 在現有資料量下不是瓶頸，**不改寫**。曾評估 `ST_AsGeoJSON(...)::jsonb->'coordinates'` 改寫，抽樣 200 段有 138 段文字輸出不同（trailing zero / 捨入差異），風險大於收益 |
+| `get_disaster_alerts_day(today)` | **22ms** | LATERAL + ST_Union 在現有警訊量下無虞，維持現狀（颱風季大量警訊時再回頭看） |
+| `get_waste_disposal_points(NULL,NULL)` | **31ms**，payload **2.5MB** | DB 端不是問題，成本在網路傳輸 + 前端 JSON parse。已改在前端 `wasteLoader.ts` 套 15min TTL 快取（`keyedThunkCache`），toggle 不重抓 |
+
+教訓：audit 推測 ≠ 實測。pre-aggregate pattern 已把 DB 端整理得很乾淨，
+後續優化重心應放在「payload 大小 × 重複抓取」（前端快取層），不是 SQL 改寫。

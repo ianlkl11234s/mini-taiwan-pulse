@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { keyedThunkCache } from "../lib/loaderCache";
 
 /**
  * 垃圾清運（waste）資料 loader
@@ -133,35 +134,47 @@ export async function fetchWasteStops(city: string = "高雄市"): Promise<Waste
   return (data ?? []) as WasteStopRow[];
 }
 
-/** 取得垃圾處理設施（focal 類型 8 種，~4,609 筆全量；用 migration 075 RPC） */
-export async function fetchWasteFacilities(types?: string[]): Promise<WasteFacilityRow[]> {
+const facilitiesCache = keyedThunkCache<WasteFacilityRow[]>(15 * 60_000);
+
+/** 取得垃圾處理設施（focal 類型 8 種，~4,609 筆全量；用 migration 075 RPC）。15min TTL 快取 */
+export function fetchWasteFacilities(types?: string[]): Promise<WasteFacilityRow[]> {
   const cacheKey = types?.length ? types.slice().sort().join(",") : "all";
-  const { data, error } = await withLoading(
-    `waste-facilities-${cacheKey}`,
-    `垃圾處理設施 ${types?.length ?? "全部"}`,
-    supabase.rpc("get_waste_facilities", { p_types: types ?? null }),
-  );
-  if (error) throw new Error(`get_waste_facilities: ${error.message}`);
-  return (data ?? []) as WasteFacilityRow[];
+  return facilitiesCache(cacheKey, async () => {
+    const { data, error } = await withLoading(
+      `waste-facilities-${cacheKey}`,
+      `垃圾處理設施 ${types?.length ?? "全部"}`,
+      supabase.rpc("get_waste_facilities", { p_types: types ?? null }),
+    );
+    if (error) throw new Error(`get_waste_facilities: ${error.message}`);
+    return (data ?? []) as WasteFacilityRow[];
+  });
 }
 
-/** 取得垃圾投放點（衣物箱/街頭桶/電池站等，~13,751 筆；用 migration 076 RPC） */
-export async function fetchWasteDisposalPoints(
+const disposalPointsCache = keyedThunkCache<WasteDisposalPointRow[]>(15 * 60_000);
+
+/**
+ * 取得垃圾投放點（衣物箱/街頭桶/電池站等，~13,751 筆；用 migration 076 RPC）。
+ * payload ~2.5MB — 15min TTL 快取，toggle 不重抓（2026-06-10 實測 DB 端僅 31ms，
+ * 成本在傳輸與 JSON parse）
+ */
+export function fetchWasteDisposalPoints(
   cities?: string[],
   types?: string[],
 ): Promise<WasteDisposalPointRow[]> {
   const cityKey = cities?.length ? cities.slice().sort().join(",") : "all";
   const typeKey = types?.length ? types.slice().sort().join(",") : "all";
-  const { data, error } = await withLoading(
-    `waste-disposal-${cityKey}-${typeKey}`,
-    `垃圾投放點 ${cityKey}/${typeKey}`,
-    supabase.rpc("get_waste_disposal_points", {
-      p_cities: cities ?? null,
-      p_types: types ?? null,
-    }),
-  );
-  if (error) throw new Error(`get_waste_disposal_points: ${error.message}`);
-  return (data ?? []) as WasteDisposalPointRow[];
+  return disposalPointsCache(`${cityKey}|${typeKey}`, async () => {
+    const { data, error } = await withLoading(
+      `waste-disposal-${cityKey}-${typeKey}`,
+      `垃圾投放點 ${cityKey}/${typeKey}`,
+      supabase.rpc("get_waste_disposal_points", {
+        p_cities: cities ?? null,
+        p_types: types ?? null,
+      }),
+    );
+    if (error) throw new Error(`get_waste_disposal_points: ${error.message}`);
+    return (data ?? []) as WasteDisposalPointRow[];
+  });
 }
 
 /** sidebar 顯示「焚化爐 30 筆」用 */
