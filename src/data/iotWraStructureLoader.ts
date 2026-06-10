@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce } from "../lib/loaderCache";
 
 /**
  * 水利署 IoT 水工結構/環境 5 in 1
@@ -49,8 +50,7 @@ export interface IotWraLatestRow {
   observed_at: string;
 }
 
-/** 一次抓全部 7 type，前端 filter 結構類別（latest 表才 ~4k rows，不會踩 cap） */
-export async function fetchIotWraStructureLatest(): Promise<IotWraLatestRow[]> {
+async function fetchIotWraStructureLatestUncached(): Promise<IotWraLatestRow[]> {
   const { data, error } = await withLoading(
     "iot-wra-structure-latest",
     "IoT 水工結構",
@@ -60,4 +60,11 @@ export async function fetchIotWraStructureLatest(): Promise<IotWraLatestRow[]> {
   const rows = (data ?? []) as IotWraLatestRow[];
   const allowed = new Set<string>(STRUCTURE_TYPES);
   return rows.filter((r) => allowed.has(r.station_type));
+}
+
+const fetchIotWraStructureLatestCached = cachedOnce(fetchIotWraStructureLatestUncached, 5 * 60_000);
+
+/** 一次抓全部 7 type，前端 filter 結構類別（latest 表才 ~4k rows，不會踩 cap）。5min TTL 快取，toggle 不重抓 */
+export function fetchIotWraStructureLatest(): Promise<IotWraLatestRow[]> {
+  return fetchIotWraStructureLatestCached();
 }

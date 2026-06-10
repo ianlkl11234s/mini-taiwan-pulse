@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 /**
  * 地下水井即時讀值（WRA，每日／每小時觀測）
@@ -26,8 +27,7 @@ export interface GroundwaterDayRow {
   water_level_m: number | null;
 }
 
-/** 當日地下水時序（for timeline 回放） */
-export async function fetchGroundwaterDay(dateKey: string): Promise<GroundwaterDayRow[]> {
+async function fetchGroundwaterDayUncached(dateKey: string): Promise<GroundwaterDayRow[]> {
   const { data, error } = await withLoading(
     `groundwater-day-${dateKey}`,
     `地下水井 ${dateKey}`,
@@ -35,6 +35,13 @@ export async function fetchGroundwaterDay(dateKey: string): Promise<GroundwaterD
   );
   if (error) throw new Error(`get_groundwater_day(${dateKey}): ${error.message}`);
   return (data ?? []) as GroundwaterDayRow[];
+}
+
+const fetchGroundwaterDayCached = cachedByKey(fetchGroundwaterDayUncached, 10 * 60_000);
+
+/** 當日地下水時序（for timeline 回放）。10min TTL 快取，toggle 不重抓 */
+export function fetchGroundwaterDay(dateKey: string): Promise<GroundwaterDayRow[]> {
+  return fetchGroundwaterDayCached(dateKey);
 }
 
 /** get_groundwater_latest 回傳列（migration 060：加 delta_24h） */
@@ -52,8 +59,7 @@ export interface GroundwaterLatestRow {
   observed_at: string;
 }
 
-/** 每站最新水位 + 24h 變化量（for 靜態點位 backdrop + 趨勢著色） */
-export async function fetchGroundwaterLatest(): Promise<GroundwaterLatestRow[]> {
+async function fetchGroundwaterLatestUncached(): Promise<GroundwaterLatestRow[]> {
   const { data, error } = await withLoading(
     "groundwater-latest",
     "地下水井最新",
@@ -61,6 +67,13 @@ export async function fetchGroundwaterLatest(): Promise<GroundwaterLatestRow[]> 
   );
   if (error) throw new Error(`get_groundwater_latest: ${error.message}`);
   return (data ?? []) as GroundwaterLatestRow[];
+}
+
+const fetchGroundwaterLatestCached = cachedOnce(fetchGroundwaterLatestUncached, 5 * 60_000);
+
+/** 每站最新水位 + 24h 變化量（for 靜態點位 backdrop + 趨勢著色）。5min TTL 快取，toggle 不重抓 */
+export function fetchGroundwaterLatest(): Promise<GroundwaterLatestRow[]> {
+  return fetchGroundwaterLatestCached();
 }
 
 export interface GroundwaterTimeseriesRow {

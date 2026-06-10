@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedByKey } from "../lib/loaderCache";
 
 /**
  * 水庫即時水情（for 3D 水位計 cylinder）
@@ -49,8 +50,7 @@ export interface ReservoirDayRow {
   basin_rainfall_mm: number | null;
 }
 
-/** 當日每小時全庫時序（for timeline 回放） */
-export async function fetchReservoirStatusDay(dateKey: string): Promise<ReservoirDayRow[]> {
+async function fetchReservoirStatusDayUncached(dateKey: string): Promise<ReservoirDayRow[]> {
   const { data, error } = await withLoading(
     `reservoir-status-day-${dateKey}`,
     `水庫水情 ${dateKey}`,
@@ -58,6 +58,13 @@ export async function fetchReservoirStatusDay(dateKey: string): Promise<Reservoi
   );
   if (error) throw new Error(`get_reservoir_status_day(${dateKey}): ${error.message}`);
   return (data ?? []) as ReservoirDayRow[];
+}
+
+const fetchReservoirStatusDayCached = cachedByKey(fetchReservoirStatusDayUncached, 10 * 60_000);
+
+/** 當日每小時全庫時序（for timeline 回放）。10min TTL 快取，toggle 不重抓 */
+export function fetchReservoirStatusDay(dateKey: string): Promise<ReservoirDayRow[]> {
+  return fetchReservoirStatusDayCached(dateKey);
 }
 
 /** 從 storage_ratio_pct 推算 alert_level（保持與 view 公式一致） */

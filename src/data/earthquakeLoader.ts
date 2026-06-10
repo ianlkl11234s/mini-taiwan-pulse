@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce } from "../lib/loaderCache";
 
 export interface EarthquakeEvent {
   event_id: string;
@@ -23,8 +24,7 @@ interface RawRow {
   report_type: string | null;
 }
 
-/** 一次撈取所有地震事件（資料量小，~數百筆） */
-export async function fetchEarthquakes(): Promise<EarthquakeEvent[]> {
+async function fetchEarthquakesUncached(): Promise<EarthquakeEvent[]> {
   const t0 = performance.now();
   const { data, error } = await withLoading(
     "earthquakes",
@@ -56,6 +56,13 @@ export async function fetchEarthquakes(): Promise<EarthquakeEvent[]> {
 
   console.log(`[Earthquake] Loaded ${events.length} events in ${(performance.now() - t0).toFixed(0)}ms`);
   return events;
+}
+
+const fetchEarthquakesCached = cachedOnce(fetchEarthquakesUncached, 15 * 60_000);
+
+/** 一次撈取所有地震事件（資料量小，~數百筆）。15min TTL 快取，toggle 不重抓 */
+export function fetchEarthquakes(): Promise<EarthquakeEvent[]> {
+  return fetchEarthquakesCached();
 }
 
 /** 轉成 GeoJSON FeatureCollection */

@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedByKey } from "../lib/loaderCache";
 
 /**
  * 水利署 IoT 河川水位（補強既有 riverLevel 圖層）
@@ -31,7 +32,7 @@ export interface IotWraDayRow {
   point_count: number;
 }
 
-export async function fetchIotWraRiverDay(dateKey: string): Promise<IotWraDayRow[]> {
+async function fetchIotWraRiverDayUncached(dateKey: string): Promise<IotWraDayRow[]> {
   const { data, error } = await withLoading(
     `iot-wra-river-day-${dateKey}`,
     `IoT 河川 ${dateKey}`,
@@ -39,6 +40,13 @@ export async function fetchIotWraRiverDay(dateKey: string): Promise<IotWraDayRow
   );
   if (error) throw new Error(`get_iot_wra_day(river,${dateKey}): ${error.message}`);
   return (data ?? []) as IotWraDayRow[];
+}
+
+const fetchIotWraRiverDayCached = cachedByKey(fetchIotWraRiverDayUncached, 10 * 60_000);
+
+/** 當日 IoT 河川水位時序（for timeline 回放）。10min TTL 快取，toggle 不重抓 */
+export function fetchIotWraRiverDay(dateKey: string): Promise<IotWraDayRow[]> {
+  return fetchIotWraRiverDayCached(dateKey);
 }
 
 /** 解析 timeline 字串為 [epoch, value] 陣列 */

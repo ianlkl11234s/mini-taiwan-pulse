@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedByKey } from "../lib/loaderCache";
 
 /**
  * CWA 即時雨量站（每 10 分鐘）
@@ -34,8 +35,7 @@ export interface RainGaugeDayRow {
   precipitation_24hr: number | null;
 }
 
-/** 當日雨量每小時時序（for timeline 回放） */
-export async function fetchRainGaugeDay(dateKey: string): Promise<RainGaugeDayRow[]> {
+async function fetchRainGaugeDayUncached(dateKey: string): Promise<RainGaugeDayRow[]> {
   const { data, error } = await withLoading(
     `rain-gauge-day-${dateKey}`,
     `即時雨量 ${dateKey}`,
@@ -43,6 +43,13 @@ export async function fetchRainGaugeDay(dateKey: string): Promise<RainGaugeDayRo
   );
   if (error) throw new Error(`get_rain_gauge_day(${dateKey}): ${error.message}`);
   return (data ?? []) as RainGaugeDayRow[];
+}
+
+const fetchRainGaugeDayCached = cachedByKey(fetchRainGaugeDayUncached, 10 * 60_000);
+
+/** 當日雨量每小時時序（for timeline 回放）。10min TTL 快取，toggle 不重抓 */
+export function fetchRainGaugeDay(dateKey: string): Promise<RainGaugeDayRow[]> {
+  return fetchRainGaugeDayCached(dateKey);
 }
 
 export interface RainGaugeTimeseriesRow {

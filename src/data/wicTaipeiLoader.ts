@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce } from "../lib/loaderCache";
 
 /**
  * 北市水利處水情即時三本柱（每 10 分鐘）
@@ -27,7 +28,7 @@ export interface SewerLatestRow {
   observed_at: string;
 }
 
-export async function fetchTaipeiSewerLatest(): Promise<SewerLatestRow[]> {
+async function fetchTaipeiSewerLatestUncached(): Promise<SewerLatestRow[]> {
   const { data, error } = await withLoading(
     "taipei-sewer-latest",
     "北市下水道水位 即時",
@@ -35,6 +36,13 @@ export async function fetchTaipeiSewerLatest(): Promise<SewerLatestRow[]> {
   );
   if (error) throw new Error(`get_taipei_sewer_latest: ${error.message}`);
   return (data ?? []) as SewerLatestRow[];
+}
+
+const fetchTaipeiSewerLatestCached = cachedOnce(fetchTaipeiSewerLatestUncached, 5 * 60_000);
+
+/** 北市下水道水位即時。5min TTL 快取，toggle 不重抓 */
+export function fetchTaipeiSewerLatest(): Promise<SewerLatestRow[]> {
+  return fetchTaipeiSewerLatestCached();
 }
 
 // ── Evacuate ──
@@ -53,7 +61,7 @@ export interface EvacuateLatestRow {
   observed_at: string;
 }
 
-export async function fetchTaipeiEvacuateLatest(): Promise<EvacuateLatestRow[]> {
+async function fetchTaipeiEvacuateLatestUncached(): Promise<EvacuateLatestRow[]> {
   const { data, error } = await withLoading(
     "taipei-evacuate-latest",
     "北市疏散門 即時",
@@ -61,6 +69,13 @@ export async function fetchTaipeiEvacuateLatest(): Promise<EvacuateLatestRow[]> 
   );
   if (error) throw new Error(`get_taipei_evacuate_latest: ${error.message}`);
   return (data ?? []) as EvacuateLatestRow[];
+}
+
+const fetchTaipeiEvacuateLatestCached = cachedOnce(fetchTaipeiEvacuateLatestUncached, 5 * 60_000);
+
+/** 北市疏散門即時。5min TTL 快取，toggle 不重抓 */
+export function fetchTaipeiEvacuateLatest(): Promise<EvacuateLatestRow[]> {
+  return fetchTaipeiEvacuateLatestCached();
 }
 
 // ── Pumb ──
@@ -78,7 +93,7 @@ export interface PumbLatestRow {
   observed_at: string;
 }
 
-export async function fetchTaipeiPumbLatest(): Promise<PumbLatestRow[]> {
+async function fetchTaipeiPumbLatestUncached(): Promise<PumbLatestRow[]> {
   const { data, error } = await withLoading(
     "taipei-pumb-latest",
     "北市抽水站 即時",
@@ -86,6 +101,13 @@ export async function fetchTaipeiPumbLatest(): Promise<PumbLatestRow[]> {
   );
   if (error) throw new Error(`get_taipei_pumb_latest: ${error.message}`);
   return (data ?? []) as PumbLatestRow[];
+}
+
+const fetchTaipeiPumbLatestCached = cachedOnce(fetchTaipeiPumbLatestUncached, 5 * 60_000);
+
+/** 北市抽水站即時。5min TTL 快取，toggle 不重抓 */
+export function fetchTaipeiPumbLatest(): Promise<PumbLatestRow[]> {
+  return fetchTaipeiPumbLatestCached();
 }
 
 // ── 24h Timeseries（給 popup sparkline 用）──

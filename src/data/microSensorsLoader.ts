@@ -7,6 +7,7 @@
 
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce } from "../lib/loaderCache";
 import type { MicroSensor } from "../types";
 
 interface RawRow {
@@ -41,7 +42,7 @@ function toSensor(r: RawRow): MicroSensor {
   };
 }
 
-export async function fetchMicroSensorsLatest(): Promise<MicroSensor[]> {
+async function fetchMicroSensorsLatestUncached(): Promise<MicroSensor[]> {
   const { data, error } = await withLoading(
     "micro-sensors:latest",
     "LASS 微型感測器",
@@ -49,6 +50,13 @@ export async function fetchMicroSensorsLatest(): Promise<MicroSensor[]> {
   );
   if (error) throw new Error(`get_micro_sensors_latest: ${error.message}`);
   return (data ?? []).map(toSensor);
+}
+
+const fetchMicroSensorsLatestCached = cachedOnce(fetchMicroSensorsLatestUncached, 5 * 60_000);
+
+/** 最新微感測快照。5min TTL 快取，toggle 不重抓 */
+export function fetchMicroSensorsLatest(): Promise<MicroSensor[]> {
+  return fetchMicroSensorsLatestCached();
 }
 
 /**

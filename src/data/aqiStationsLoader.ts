@@ -8,6 +8,7 @@
 
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce } from "../lib/loaderCache";
 import type { AqiStation } from "../types";
 
 interface RawRow {
@@ -65,8 +66,7 @@ export async function fetchAqiStationsAt(observedAt: Date): Promise<AqiStation[]
   return (data ?? []).map(toStation);
 }
 
-/** 取最新 77 站觀測（無 timeline fallback） */
-export async function fetchAqiStationsLatest(): Promise<AqiStation[]> {
+async function fetchAqiStationsLatestUncached(): Promise<AqiStation[]> {
   const { data, error } = await withLoading(
     "aqi-stations:latest",
     "空氣品質測站 (latest)",
@@ -74,6 +74,13 @@ export async function fetchAqiStationsLatest(): Promise<AqiStation[]> {
   );
   if (error) throw new Error(`get_aqi_stations_latest: ${error.message}`);
   return (data ?? []).map(toStation);
+}
+
+const fetchAqiStationsLatestCached = cachedOnce(fetchAqiStationsLatestUncached, 5 * 60_000);
+
+/** 取最新 77 站觀測（無 timeline fallback）。5min TTL 快取，toggle 不重抓 */
+export function fetchAqiStationsLatest(): Promise<AqiStation[]> {
+  return fetchAqiStationsLatestCached();
 }
 
 /** 測站列表 → Mapbox 圖層用 GeoJSON FeatureCollection */

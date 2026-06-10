@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 /**
  * 都市淹水感知器 USWG（每 10 分鐘，全國 1,999 站）
@@ -33,8 +34,7 @@ export interface FloodSensorTimeseriesRow {
   si_unit: string | null;
 }
 
-/** 全國最新淹水深度（預設過去 6 小時內有讀值的站） */
-export async function fetchFloodSensorLatest(): Promise<FloodSensorRow[]> {
+async function fetchFloodSensorLatestUncached(): Promise<FloodSensorRow[]> {
   const { data, error } = await withLoading(
     "flood-sensor-latest",
     "淹水感測器 即時",
@@ -46,6 +46,13 @@ export async function fetchFloodSensorLatest(): Promise<FloodSensorRow[]> {
   );
   if (error) throw new Error(`get_uswg_latest: ${error.message}`);
   return (data ?? []) as FloodSensorRow[];
+}
+
+const fetchFloodSensorLatestCached = cachedOnce(fetchFloodSensorLatestUncached, 5 * 60_000);
+
+/** 全國最新淹水深度（預設過去 6 小時內有讀值的站）。5min TTL 快取，toggle 不重抓 */
+export function fetchFloodSensorLatest(): Promise<FloodSensorRow[]> {
+  return fetchFloodSensorLatestCached();
 }
 
 export interface FloodSensorDayRow {
@@ -68,7 +75,7 @@ export interface FloodSensorDayRow {
  * max-rows=20000。RPC 內部 LIMIT 19999、接受 p_offset → 前端連續拉直到 < PAGE。
  */
 const USWG_PAGE = 19999;
-export async function fetchFloodSensorDay(dateKey: string): Promise<FloodSensorDayRow[]> {
+async function fetchFloodSensorDayUncached(dateKey: string): Promise<FloodSensorDayRow[]> {
   const all: FloodSensorDayRow[] = [];
   for (let offset = 0, i = 0; i < 6; i++, offset += USWG_PAGE) {
     const { data, error } = await withLoading(
@@ -82,6 +89,19 @@ export async function fetchFloodSensorDay(dateKey: string): Promise<FloodSensorD
     if (rows.length < USWG_PAGE) break; // EOF
   }
   return all;
+}
+
+const fetchFloodSensorDayCached = cachedByKey(fetchFloodSensorDayUncached, 10 * 60_000);
+
+/**
+ * 當日 USWG 每小時 snapshot（for timeline 回放）
+ *
+ * USWG 全國 ~1940 站 × 24 buckets ≈ 33k rows/day，超過 PostgREST
+ * max-rows=20000。RPC 內部 LIMIT 19999、接受 p_offset → 前端連續拉直到 < PAGE。
+ * 10min TTL 快取，toggle 不重抓。
+ */
+export function fetchFloodSensorDay(dateKey: string): Promise<FloodSensorDayRow[]> {
+  return fetchFloodSensorDayCached(dateKey);
 }
 
 /** 單站過去 N 小時時序（給 popup sparkline 用） */

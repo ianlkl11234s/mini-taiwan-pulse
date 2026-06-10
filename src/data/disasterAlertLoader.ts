@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 /**
  * NCDR 災害示警 (CAP) loader
@@ -59,13 +60,20 @@ interface RawRow {
 
 const FAR_FUTURE = Number.MAX_SAFE_INTEGER;
 
-export async function fetchDisasterAlertDates(): Promise<DisasterAlertDateInfo[]> {
+async function fetchDisasterAlertDatesUncached(): Promise<DisasterAlertDateInfo[]> {
   const { data, error } = await supabase.rpc("get_disaster_alert_dates");
   if (error) throw new Error(`get_disaster_alert_dates: ${error.message}`);
   return (data ?? []) as DisasterAlertDateInfo[];
 }
 
-export async function fetchDisasterAlertsDay(date: string): Promise<DisasterAlert[]> {
+const fetchDisasterAlertDatesCached = cachedOnce(fetchDisasterAlertDatesUncached, 10 * 60_000);
+
+/** 取有災害示警的日期清單。10min TTL 快取，toggle 不重抓 */
+export function fetchDisasterAlertDates(): Promise<DisasterAlertDateInfo[]> {
+  return fetchDisasterAlertDatesCached();
+}
+
+async function fetchDisasterAlertsDayUncached(date: string): Promise<DisasterAlert[]> {
   const t0 = performance.now();
   const { data, error } = await withLoading(
     `disaster-alerts:${date}`,
@@ -115,6 +123,13 @@ export async function fetchDisasterAlertsDay(date: string): Promise<DisasterAler
     `[DisasterAlerts] Loaded ${alerts.length} alerts for ${date} in ${(performance.now() - t0).toFixed(0)}ms`,
   );
   return alerts;
+}
+
+const fetchDisasterAlertsDayCached = cachedByKey(fetchDisasterAlertsDayUncached, 10 * 60_000);
+
+/** 取指定日期的災害示警。10min TTL 快取，toggle 不重抓 */
+export function fetchDisasterAlertsDay(date: string): Promise<DisasterAlert[]> {
+  return fetchDisasterAlertsDayCached(date);
 }
 
 /** Severity → 顏色 (red/orange/yellow/blue/grey) */

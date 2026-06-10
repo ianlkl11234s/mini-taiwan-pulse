@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 /**
  * TDX 即時路況事件 loader
@@ -63,13 +64,20 @@ interface RawRow {
   last_updated_ts: number | null;
 }
 
-export async function fetchRoadEventDates(): Promise<RoadEventDateInfo[]> {
+async function fetchRoadEventDatesUncached(): Promise<RoadEventDateInfo[]> {
   const { data, error } = await supabase.rpc("get_road_events_dates");
   if (error) throw new Error(`get_road_events_dates: ${error.message}`);
   return (data ?? []) as RoadEventDateInfo[];
 }
 
-export async function fetchRoadEventsDay(date: string): Promise<RoadEvent[]> {
+const fetchRoadEventDatesCached = cachedOnce(fetchRoadEventDatesUncached, 10 * 60_000);
+
+/** 取有路況事件的日期清單。10min TTL 快取，toggle 不重抓 */
+export function fetchRoadEventDates(): Promise<RoadEventDateInfo[]> {
+  return fetchRoadEventDatesCached();
+}
+
+async function fetchRoadEventsDayUncached(date: string): Promise<RoadEvent[]> {
   const t0 = performance.now();
   const { data, error } = await withLoading(
     `road-events:${date}`,
@@ -117,6 +125,13 @@ export async function fetchRoadEventsDay(date: string): Promise<RoadEvent[]> {
     `[RoadEvents] Loaded ${events.length} events for ${date} in ${(performance.now() - t0).toFixed(0)}ms`,
   );
   return events;
+}
+
+const fetchRoadEventsDayCached = cachedByKey(fetchRoadEventsDayUncached, 10 * 60_000);
+
+/** 取指定日期的路況事件。10min TTL 快取，toggle 不重抓 */
+export function fetchRoadEventsDay(date: string): Promise<RoadEvent[]> {
+  return fetchRoadEventsDayCached(date);
 }
 
 // ── event_type 顏色（對應 sidebar 呈現設計） ──

@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedByKey } from "../lib/loaderCache";
 
 /**
  * 河川水位即時讀值（WRA，每 10 分鐘）
@@ -28,8 +29,7 @@ export interface RiverLevelDayRow {
   check_result: number | null;
 }
 
-/** 當日河川水位時序（for timeline 回放） */
-export async function fetchRiverLevelDay(dateKey: string): Promise<RiverLevelDayRow[]> {
+async function fetchRiverLevelDayUncached(dateKey: string): Promise<RiverLevelDayRow[]> {
   const { data, error } = await withLoading(
     `river-level-day-${dateKey}`,
     `河川水位 ${dateKey}`,
@@ -37,6 +37,13 @@ export async function fetchRiverLevelDay(dateKey: string): Promise<RiverLevelDay
   );
   if (error) throw new Error(`get_river_water_level_day(${dateKey}): ${error.message}`);
   return (data ?? []) as RiverLevelDayRow[];
+}
+
+const fetchRiverLevelDayCached = cachedByKey(fetchRiverLevelDayUncached, 10 * 60_000);
+
+/** 當日河川水位時序（for timeline 回放）。10min TTL 快取，toggle 不重抓 */
+export function fetchRiverLevelDay(dateKey: string): Promise<RiverLevelDayRow[]> {
+  return fetchRiverLevelDayCached(dateKey);
 }
 
 export interface RiverLevelTimeseriesRow {
