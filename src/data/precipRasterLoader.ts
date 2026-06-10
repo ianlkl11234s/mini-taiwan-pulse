@@ -16,6 +16,7 @@ import { base64ToObjectUrl } from "./cwaImageryLoader";
 export interface PrecipRasterFrame {
   cumulativeHours: number;
   observedAtIso: string;
+  observedAtMs: number; // epoch ms，timeline 比對用
   url: string;          // object URL（記得 revokeObjectURL）
   ulLat: number;
   ulLng: number;
@@ -36,6 +37,20 @@ interface RawRow {
   is_empty: boolean;
 }
 
+function rowToFrame(r: RawRow): PrecipRasterFrame {
+  return {
+    cumulativeHours: r.cumulative_hours,
+    observedAtIso: r.observed_at,
+    observedAtMs: new Date(r.observed_at).getTime(),
+    url: base64ToObjectUrl(r.image_b64, r.mime_type),
+    ulLat: r.ul_lat,
+    ulLng: r.ul_lng,
+    brLat: r.br_lat,
+    brLng: r.br_lng,
+    isEmpty: r.is_empty,
+  };
+}
+
 export async function fetchLatestPrecipRaster(
   cumulativeHours: 1 | 3 | 6 | 24,
 ): Promise<PrecipRasterFrame | null> {
@@ -49,15 +64,28 @@ export async function fetchLatestPrecipRaster(
   if (error) throw new Error(`get_latest_precipitation_raster(${cumulativeHours}): ${error.message}`);
   const rows = (data ?? []) as RawRow[];
   if (rows.length === 0) return null;
-  const r = rows[0]!;
-  return {
-    cumulativeHours: r.cumulative_hours,
-    observedAtIso: r.observed_at,
-    url: base64ToObjectUrl(r.image_b64, r.mime_type),
-    ulLat: r.ul_lat,
-    ulLng: r.ul_lng,
-    brLat: r.br_lat,
-    brLng: r.br_lng,
-    isEmpty: r.is_empty,
-  };
+  return rowToFrame(rows[0]!);
+}
+
+/**
+ * 時間窗內全部 frames（migration 160 的 get_precipitation_raster_frames）。
+ * 依 observedAtMs 升序，timeline 歷史播放用。
+ */
+export async function fetchPrecipRasterFrames(
+  cumulativeHours: 1 | 3 | 6 | 24,
+  sinceIso: string,
+  untilIso: string,
+): Promise<PrecipRasterFrame[]> {
+  const { data, error } = await withLoading(
+    `precip-raster-frames-${cumulativeHours}h`,
+    `累積雨量柵格 ${cumulativeHours}h`,
+    supabase.rpc("get_precipitation_raster_frames", {
+      p_cumulative_hours: cumulativeHours,
+      p_since: sinceIso,
+      p_until: untilIso,
+    }),
+  );
+  if (error) throw new Error(`get_precipitation_raster_frames(${cumulativeHours}): ${error.message}`);
+  const rows = (data ?? []) as RawRow[];
+  return rows.map(rowToFrame).sort((a, b) => a.observedAtMs - b.observedAtMs);
 }

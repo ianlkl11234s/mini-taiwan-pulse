@@ -40,15 +40,22 @@ interface RawBatchRow {
   image_b64: string;
 }
 
+export interface CwaImageryWindow {
+  sinceIso: string;
+  untilIso: string;
+  /** 抽稀：null = 全部 frames；30 = 只取分鐘數整除 30（歷史日減 payload 用） */
+  stepMinutes: number | null;
+}
+
 /**
  * 批次載入 metadata + bytes（一次 RPC 回傳多張），避開「N 個並發 fetch 撐爆網路層」。
+ * 時間窗由呼叫端依 timeline 日期決定（migration 160 起支援 p_until / p_step_minutes）。
  * 回傳 `{ bundle, urls }` per dataset；呼叫端負責 revokeObjectURL。
  */
 export async function loadCwaImageryBatch(
   datasetIds: string[],
-  sinceHours: number,
+  window: CwaImageryWindow,
 ): Promise<Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>> {
-  const since = new Date(Date.now() - sinceHours * 3600 * 1000).toISOString();
   const key = `cwa-imagery-batch:${datasetIds.join(",")}`;
   const label = `CWA 影像批次載入 ${datasetIds.join("/")}`;
 
@@ -57,7 +64,9 @@ export async function loadCwaImageryBatch(
     label,
     supabase.rpc("get_cwa_imagery_frames_batch", {
       p_dataset_ids: datasetIds,
-      p_since: since,
+      p_since: window.sinceIso,
+      p_until: window.untilIso,
+      p_step_minutes: window.stepMinutes,
     }),
   );
 

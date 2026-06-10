@@ -2,9 +2,14 @@
  * useCwaImageryLayer — 把 CWA 雲圖 / 雷達影像作為 Mapbox raster 圖層播放。
  *
  * 職責：
- *  - 第一次開啟時載入 24h metadata + 預載所有 frame bytes（base64 → object URL）
+ *  - 依 timeline 日期載入該日 frames（base64 → object URL）；切日（subscribeDate）重載
  *  - 根據 timeline.currentTime 找「時間不晚於 currentTime 的最近一張」並切換 image source
  *  - 關閉時 remove layer/source + revoke object URLs
+ *
+ * 時間窗策略（migration 160）：
+ *  - 今天（即時模式）：滾動 now-24h、全解析度（10min cadence），行為與舊版相同
+ *  - 歷史日：該日 00:00~24:00（Asia/Taipei）+ 30min 抽稀
+ *    （雷達單日全解析度 ~90MB base64，抽稀後 ~32MB；60x 播放下動畫仍順）
  *
  * 兩個 dataset：
  *   - O-C0042-004  衛星雲圖 (底層, 不透明預設 1.0)
@@ -17,6 +22,7 @@ import {
   loadCwaImageryBatch,
   type CwaImageryBundle,
   type CwaImageryFrame,
+  type CwaImageryWindow,
 } from "../data/cwaImageryLoader";
 import {
   createCwaImageryLayer,
@@ -27,11 +33,29 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 
 const CLOUD_DATASET = "O-C0042-004";
 const RADAR_DATASET = "O-A0058-005";
-// 改用 get_cwa_imagery_frames_batch 單次 RPC 一起回 metadata + bytes，
-// 避開舊版「list + N 個並發 fetch_frame」撐爆瀏覽器網路層的問題。
-// 48h 約 ~448 frames ~57MB base64 payload，1 個 HTTP，2 秒內完成。
-// 降到 24h 減少 egress + DB IO 壓力
-const SINCE_HOURS = 24;
+// 歷史日抽稀 cadence（分鐘）；今天維持全解析度
+const HISTORY_STEP_MINUTES = 30;
+
+function todayKey(): string {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
+/** timeline 日期 → RPC 時間窗 */
+function windowForDate(dateKey: string): CwaImageryWindow {
+  if (dateKey === todayKey()) {
+    return {
+      sinceIso: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
+      untilIso: new Date(Date.now() + 3600 * 1000).toISOString(),
+      stepMinutes: null,
+    };
+  }
+  const start = new Date(`${dateKey}T00:00:00+08:00`).getTime();
+  return {
+    sinceIso: new Date(start).toISOString(),
+    untilIso: new Date(start + 24 * 3600 * 1000).toISOString(),
+    stepMinutes: HISTORY_STEP_MINUTES,
+  };
+}
 
 interface LayerState {
   bundle: CwaImageryBundle | null;
@@ -40,6 +64,8 @@ interface LayerState {
   loading: boolean;
   loaded: boolean;
   currentIso: string | null;
+  /** 已載入 frames 所屬的 timeline 日期 key（YYYY-MM-DD） */
+  dateKey: string | null;
 }
 
 function createEmptyState(): LayerState {
@@ -50,6 +76,7 @@ function createEmptyState(): LayerState {
     loading: false,
     loaded: false,
     currentIso: null,
+    dateKey: null,
   };
 }
 
@@ -82,56 +109,76 @@ export function useCwaImageryLayer({
 }: UseCwaImageryLayerOptions) {
   const cloudRef = useRef<LayerState>(createEmptyState());
   const radarRef = useRef<LayerState>(createEmptyState());
+  // 最新可見性（給 subscribeDate callback 用，避免閉包過期）
+  const visRef = useRef({ cloud: cloudVisible, radar: radarVisible });
+  visRef.current = { cloud: cloudVisible, radar: radarVisible };
+  // reconcile 觸發器：載入完成後立即重算 frame，不等下一個 time tick
+  const runRef = useRef<((t: number) => void) | null>(null);
+  const disposedRef = useRef(false);
 
-  // ── Loader（第一次變成可見時觸發） ──
+  // ── Loader：可見性變化或 timeline 切日 → 載入該日 frames ──
   useEffect(() => {
-    const datasetsToLoad: string[] = [];
-    if (cloudVisible && !cloudRef.current.loaded && !cloudRef.current.loading) {
-      cloudRef.current.loading = true;
-      datasetsToLoad.push(CLOUD_DATASET);
-    }
-    if (radarVisible && !radarRef.current.loaded && !radarRef.current.loading) {
-      radarRef.current.loading = true;
-      datasetsToLoad.push(RADAR_DATASET);
-    }
-    if (datasetsToLoad.length === 0) return;
+    // StrictMode 會 mount→unmount→remount：unmount 清理設了 disposed，
+    // remount 時必須重置，否則所有載入被永久擋掉
+    disposedRef.current = false;
 
-    let cancelled = false;
+    const stateOf = (dsId: string) =>
+      dsId === CLOUD_DATASET ? cloudRef.current : radarRef.current;
 
-    (async () => {
+    const loadDatasets = async (dateKey: string, datasets: string[]) => {
       try {
-        const batch = await loadCwaImageryBatch(datasetsToLoad, SINCE_HOURS);
-        if (cancelled) {
-          // 取消：清理所有已建立的 object URL
-          for (const slot of batch.values()) {
-            for (const u of slot.urls.values()) URL.revokeObjectURL(u);
-          }
-          return;
-        }
-        for (const dsId of datasetsToLoad) {
+        const batch = await loadCwaImageryBatch(datasets, windowForDate(dateKey));
+        for (const dsId of datasets) {
+          const state = stateOf(dsId);
           const slot = batch.get(dsId);
-          const state = dsId === CLOUD_DATASET ? cloudRef.current : radarRef.current;
-          if (!slot || slot.bundle.frames.length === 0) {
-            console.warn(`[CWA Imagery] no frames for ${dsId}`);
-            state.loading = false;
+          if (disposedRef.current) {
+            if (slot) for (const u of slot.urls.values()) URL.revokeObjectURL(u);
             continue;
           }
-          state.bundle = slot.bundle;
-          state.urls = slot.urls;
+          // 換日：釋放舊日 object URLs 再接上新資料
+          for (const u of state.urls.values()) URL.revokeObjectURL(u);
+          state.urls = slot?.urls ?? new Map();
+          state.bundle = slot?.bundle ?? { datasetId: dsId, frames: [] };
+          state.dateKey = dateKey;
           state.loaded = true;
           state.loading = false;
-          console.log(`[CWA Imagery] ${dsId} loaded ${slot.bundle.frames.length} frames`);
+          state.currentIso = null;
+          if (state.bundle.frames.length === 0) {
+            console.warn(`[CWA Imagery] no frames for ${dsId} @ ${dateKey}`);
+            state.handle?.setVisible(false);
+          } else {
+            state.handle?.setVisible(true);
+            console.log(`[CWA Imagery] ${dsId} loaded ${state.bundle.frames.length} frames @ ${dateKey}`);
+          }
         }
       } catch (err) {
         console.warn("[CWA Imagery] load failed", err);
-        if (datasetsToLoad.includes(CLOUD_DATASET)) cloudRef.current.loading = false;
-        if (datasetsToLoad.includes(RADAR_DATASET)) radarRef.current.loading = false;
+        for (const dsId of datasets) stateOf(dsId).loading = false;
+        return;
       }
-    })();
-
-    return () => {
-      cancelled = true;
+      runRef.current?.(timeStore.getTime());
+      // 載入期間日期又變了 → 立刻補載正確日期
+      if (timeStore.getDateKey() !== dateKey) ensureFresh();
     };
+
+    const ensureFresh = () => {
+      if (disposedRef.current) return;
+      const dk = timeStore.getDateKey();
+      const need: string[] = [];
+      const check = (visible: boolean, state: LayerState, dsId: string) => {
+        if (visible && !state.loading && (!state.loaded || state.dateKey !== dk)) {
+          state.loading = true;
+          need.push(dsId);
+        }
+      };
+      check(visRef.current.cloud, cloudRef.current, CLOUD_DATASET);
+      check(visRef.current.radar, radarRef.current, RADAR_DATASET);
+      if (need.length > 0) void loadDatasets(dk, need);
+    };
+
+    ensureFresh();
+    const unsubDate = timeStore.subscribeDate(() => ensureFresh());
+    return () => unsubDate();
   }, [cloudVisible, radarVisible]);
 
   // ── Layer 生命週期 + frame 切換 ──
@@ -160,6 +207,7 @@ export function useCwaImageryLayer({
         state.loaded = false;
         state.loading = false;
         state.currentIso = null;
+        state.dateKey = null;
         return;
       }
       if (!state.bundle || !state.loaded || state.urls.size === 0) return;
@@ -198,6 +246,7 @@ export function useCwaImageryLayer({
       reconcile(cloudRef.current, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
       reconcile(radarRef.current, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
     };
+    runRef.current = run;
 
     let unsubTime: (() => void) | null = null;
     const startSubscription = () => {
@@ -212,18 +261,22 @@ export function useCwaImageryLayer({
       return () => {
         map.off("load", onLoad);
         if (unsubTime) unsubTime();
+        if (runRef.current === run) runRef.current = null;
       };
     }
 
     startSubscription();
     return () => {
       if (unsubTime) unsubTime();
+      if (runRef.current === run) runRef.current = null;
     };
   }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity]);
 
   // ── Unmount 清理 ──
   useEffect(() => {
+    disposedRef.current = false; // StrictMode remount 重置
     return () => {
+      disposedRef.current = true;
       for (const state of [cloudRef.current, radarRef.current]) {
         if (state.handle) {
           try {
