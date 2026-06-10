@@ -26,7 +26,7 @@ argument-hint: <layerKey> [--static|--dynamic] [--source=supabase|geojson]
 ## 必須產生/修改的檔案
 
 1. **`src/types/index.ts`** — `LayerVisibility` interface 新增 `$1: boolean`
-2. **`src/data/$1Loader.ts`** — Supabase loader（含 `loadingRegistry.start/complete`）
+2. **`src/data/$1Loader.ts`** — Supabase loader（所有 fetch/RPC 包 `withLoading(id, label, promise)`，來自 `src/lib/loadingRegistry.ts`）
 3. **`src/hooks/use$1Layer.ts`** — React hook（state + effect + cleanup）
 4. **`src/map/overlayRegistry.ts`** 或 **`src/map/$1CustomLayer.ts`**
 5. **`src/components/sidebar/layerCatalog.ts`** — ⚠️ `LAYER_COLORS` 補 `$1: "#XXX"`（漏了會 tsc error TS2739）+ `SECTIONS` 對應分區加 `$1`（單一真實來源，桌機/手機兩側欄共用）；UI toggle 渲染仍在 `IconRailSidebar.tsx` / `LayerSidebar.tsx`
@@ -40,7 +40,9 @@ npx tsc -b        # 必須通過
 ```
 
 - [ ] `LAYER_COLORS` 有補上（編譯時會強制，沒補會 error TS2739）
-- [ ] Loader 有呼叫 `loadingRegistry.start()` / `.complete()`
+- [ ] Loader 所有 fetch/RPC 都包 `withLoading()`（右上角 LoadingIndicator 才會自動顯示）
+- [ ] Mapbox `setData`/`updateImage` 後呼叫 `keepLoadingUntilMapIdle(map, id, label, sourceId)`，
+      涵蓋「RPC 回來 → 真正畫上地圖」的渲染空窗（範例：`useFreewayLayer.ts`）
 - [ ] Toggle layer 時 UI 有 loading 浮層
 - [ ] 若是 Supabase RPC，響應時間 < 1s（否則先跑 `/check-rpc` 判斷是否需要 pre-aggregate）
 

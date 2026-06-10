@@ -40,23 +40,27 @@
 使用 `src/lib/loadingRegistry.ts` + `src/hooks/useLoadingTasks.ts`：
 
 ```typescript
-// Loader 端：開始 task
-import { loadingRegistry } from "../lib/loadingRegistry";
+// Loader 端：所有 fetch / RPC 包 withLoading（自動 start / end）
+import { withLoading } from "../lib/loadingRegistry";
 
 export async function loadXxxData(date: string) {
-  const taskId = loadingRegistry.start({
-    id: `xxx-${date}`,
-    label: `載入 XXX ${date}`,
-    source: "xxx",
-  });
-  try {
-    const { data, error } = await supabase.rpc("get_xxx", { target_date: date });
-    if (error) throw error;
-    return data;
-  } finally {
-    loadingRegistry.complete(taskId);
-  }
+  const { data, error } = await withLoading(
+    `xxx:${date}`,
+    `載入 XXX ${date}`,
+    supabase.rpc("get_xxx", { target_date: date }),
+  );
+  if (error) throw error;
+  return data;
 }
+```
+
+```typescript
+// Mapbox setData / updateImage 之後：延續 loading 直到真正畫上地圖
+// （withLoading 只涵蓋 RPC 返回；不接這段使用者會看到 loading 消失但圖還沒出來）
+import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+
+source.setData(geojson);
+keepLoadingUntilMapIdle(map, `xxx-render:${date}`, "XXX 渲染中", SOURCE_ID);
 ```
 
 ```tsx

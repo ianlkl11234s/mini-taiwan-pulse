@@ -15,8 +15,10 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 1. **Read** `src/types/index.ts` → Edit 加 `<layerKey>: boolean` 到 `LayerVisibility`
 2. **Read** `src/data/freewayLoader.ts`（dynamic 範本）或 `src/data/earthquakeLoader.ts`（static 範本）作為參考
 3. **Write** `src/data/<layerKey>Loader.ts`：
-   - 必須 `import { loadingRegistry } from "../lib/loadingRegistry"`
-   - 必須 `start()` → try → `complete()` 包住 Supabase RPC
+   - 必須 `import { withLoading } from "../lib/loadingRegistry"`
+   - 所有 fetch / Supabase RPC 必須包 `withLoading(id, label, promise)`
+   - Hook 端 Mapbox `setData` 後呼叫 `keepLoadingUntilMapIdle(map, id, label, sourceId)`
+     （涵蓋 RPC 回來 → 真正畫上地圖的渲染空窗，參考 `useFreewayLayer.ts`）
    - Export `load<LayerKey>Data()` 函式
 4. **Read** `src/hooks/useFreewayLayer.ts` 或 `useEarthquakeLayer.ts` 作為 hook 範本
 5. **Write** `src/hooks/use<LayerKey>Layer.ts`：
