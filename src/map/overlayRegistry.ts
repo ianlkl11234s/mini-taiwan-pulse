@@ -1908,10 +1908,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 水庫 Reservoir (polygon — 蓄水範圍) ──
+  // PMTiles 向量切片（原 19MB GeoJSON → 按需載入；name/reservoir_name 等屬性保留供 popup）
   {
     id: "waterReservoirs",
-    sourceUrl: "./geo/water_reservoirs.geojson",
+    sourceUrl: "./geo/water_reservoirs.pmtiles",
     sourceId: "water-reservoir-poly",
+    pmtiles: { sourceLayer: "reservoirs", minzoom: 5, maxzoom: 13 },
     layers: [
       {
         suffix: "glow",
@@ -2088,10 +2090,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── 淹水潛勢 (flood_650mm_24hr, 極端情境；可調 floodMinDepth 篩選) ──
+  // PMTiles 向量切片（原 80MB GeoJSON → 按需載入；depth_class/county 屬性保留供 paint match）
   {
     id: "waterFloodExtreme",
-    sourceUrl: "./geo/water_flood_extreme.geojson",
+    sourceUrl: "./geo/water_flood_extreme.pmtiles",
     sourceId: "water-flood-extreme",
+    pmtiles: { sourceLayer: "flood_extreme", minzoom: 5, maxzoom: 13 },
     layers: [
       {
         suffix: "fill",
