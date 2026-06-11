@@ -212,8 +212,9 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     map.on("load", () => {
       mapRef.current = map;
       readyRef.current = true;
-      // dev-only：給 E2E / 手動 debug 直接操作相機與查 style 用
-      if (import.meta.env.DEV) {
+      // debug handle：dev 一律暴露；production 帶 ?debug 才暴露
+      // （給 E2E / 線上排障直接操作相機、查 source/layer 狀態用）
+      if (import.meta.env.DEV || window.location.search.includes("debug")) {
         (window as unknown as { __map?: mapboxgl.Map }).__map = map;
       }
       ensureH3Layers(map);
