@@ -227,6 +227,14 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
       updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       ensureMedicalIsochroneLayers(map);
       updateMedicalIsochroneLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      // 補發 load 之前用戶已切的 toggle / slider：
+      // mapRef 在 load 才設定，而 production 首載 load 事件可能晚達 ~30s，
+      // 期間 visibility / params effect 全部 no-op（mapRef null）。
+      // 這裡用 ref 的最新值重放一次，避免「toggle 開了但圖層沒出現」。
+      for (const config of OVERLAY_REGISTRY) {
+        setOverlayVisible(map, config, layerVisibilityRef.current[config.id]);
+      }
+      updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkThemeRef.current, overlayParamsRef.current);
       onMapReadyRef.current?.(map);
     });
 
@@ -293,9 +301,13 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
   }, [showTrails]);
 
   // Overlay 主題 + params 即時更新（一個 useEffect 取代原本 5+ 個）
+  // ⚠️ guard 不可加 map.isStyleLoaded()：任何 tile 還在載入它就回 false
+  //（production 首載 / busy 期間長期 false），會把更新靜默丟棄且不重試。
+  // setPaintProperty / setLayoutProperty 對已存在的 layer 任何時刻都安全；
+  // style 切換中 layer 不存在時各 update 函式自帶 getLayer no-op。
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    if (!map || !readyRef.current) return;
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
     updateAllAgricultureLayers(map, layerVisibility, overlayParams);
@@ -315,9 +327,10 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
   ]);
 
   // Overlay 可見性（一個 useEffect 取代原本 7 個）
+  // guard 不加 isStyleLoaded()，理由同上 — busy 期間 toggle 會被丟棄
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !readyRef.current || !map.isStyleLoaded()) return;
+    if (!map || !readyRef.current) return;
     for (const config of OVERLAY_REGISTRY) {
       setOverlayVisible(map, config, layerVisibility[config.id]);
     }
