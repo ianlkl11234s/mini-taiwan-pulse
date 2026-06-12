@@ -9,7 +9,7 @@
 - **gis-platform `e7d18c2`**：migration 162（已 apply）— 表 + geom trigger（admin_code→界圖 PointOnSurface，縣市級 fallback ST_Union）+ daily pre-agg + cron job 55（14,34,54 分）+ `get_news_events_day` / `get_news_event_dates` RPC
 - **本 repo `7909b25`**：`newsEventsLoader.ts` + `useNewsEventsLayer.ts` + `OverlayConfig.dynamicData`；useNewsTimeline/popup 零改動
 - 驗收：瀏覽器 204 則/today + ripple + popup PASS；tsc + 55 tests 過；成本穩態估 $1.5–3/月
-- ⚠️ 待辦：Zeabur data-collectors service 設 `NEWS_EVENTS_ENABLED=true` + `GEMINI_API_KEY` 才會在生產排程跑
+- ✅ 生產已上線（2026-06-13 凌晨）：Zeabur env 已設 + 部署完成，首輪 00:14 入庫 29 則、cron job 55 自動聚合確認。觀察項：自由時報 RSS 被 Zeabur IP 403（本地正常），持續的話改走 Google News 間接
 - 詳見全域記憶 `news-roadmap.md` + `docs/research/news-layer-revival-2026-06.md`
 
 ## 2026-06-08 hikingTrails 全台步道 layer（FORESTRY 區段）
