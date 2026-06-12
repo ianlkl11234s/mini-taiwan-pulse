@@ -1,7 +1,16 @@
 # Status
 
-**最後更新**：2026-06-08（新增 `hikingTrails` 全台步道整合 layer）
-**分支**：`master`（已部署）。`feat/fire-rescue` 已併入 master（~104 commits）並隨後多次 push。
+**最後更新**：2026-06-12（newsEvents 從靜態 PoC 變自動化即時管線）
+**分支**：`master`（已 push `7909b25`）。
+
+## 2026-06-12 newsEvents 自動化即時管線（三 repo）
+
+- **data-collectors `209bde8`**：`collectors/news_events.py` — RSS ×29 → URL 正規化 + simhash 去重 → Gemini Flash-Lite 地名抽取（20 則/batch、368 鄉鎮白名單、LLM 不吐座標）→ `realtime.news_events`，20 min/輪
+- **gis-platform `e7d18c2`**：migration 162（已 apply）— 表 + geom trigger（admin_code→界圖 PointOnSurface，縣市級 fallback ST_Union）+ daily pre-agg + cron job 55（14,34,54 分）+ `get_news_events_day` / `get_news_event_dates` RPC
+- **本 repo `7909b25`**：`newsEventsLoader.ts` + `useNewsEventsLayer.ts` + `OverlayConfig.dynamicData`；useNewsTimeline/popup 零改動
+- 驗收：瀏覽器 204 則/today + ripple + popup PASS；tsc + 55 tests 過；成本穩態估 $1.5–3/月
+- ⚠️ 待辦：Zeabur data-collectors service 設 `NEWS_EVENTS_ENABLED=true` + `GEMINI_API_KEY` 才會在生產排程跑
+- 詳見全域記憶 `news-roadmap.md` + `docs/research/news-layer-revival-2026-06.md`
 
 ## 2026-06-08 hikingTrails 全台步道 layer（FORESTRY 區段）
 
