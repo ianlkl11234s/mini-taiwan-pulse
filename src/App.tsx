@@ -31,6 +31,7 @@ import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
+import { useNewsEventsLayer } from "./hooks/useNewsEventsLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
@@ -665,6 +666,9 @@ export default function App() {
     !!(transportParams.overlayParams.iotWraStructureErosion ?? 1),
     !!(transportParams.overlayParams.iotWraStructureDust ?? 1),
   );
+
+  // ── News events 按日載入（Supabase；餵 overlayRegistry 的 news-events source） ──
+  useNewsEventsLayer(mapRef, layerVisibility.newsEvents);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);

@@ -1582,10 +1582,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ── News Events (新聞事件) ──
+  // dynamicData：資料由 useNewsEventsLayer 按日從 Supabase 餵入；
+  // sourceUrl 僅作為 newsEventsLoader 的靜態 fallback（Supabase 未設定時）
   {
     id: "newsEvents",
     sourceUrl: "./geo/news_events.geojson",
     sourceId: "news-events",
+    dynamicData: true,
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {

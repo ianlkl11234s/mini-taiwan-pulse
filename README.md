@@ -84,7 +84,7 @@
 | 人口數六角格 | Mapbox fill / fill-extrusion（Inferno 色階） | SEGIS 村里人口統計 |
 | 人口指標六角格 | Mapbox fill / fill-extrusion（Inferno 色階，9 項指標） | SEGIS 村里人口統計 |
 | 溫度波浪曲面 | Three.js BufferGeometry（RdBu 發散色盤，vertex lerp 動畫） | 中央氣象署 0.03° 格點 |
-| 新聞事件標記 | Mapbox circle + glow（主要/次要新聞分色） | 中央通訊社 CNA RSS + Gemini API 地理編碼 |
+| 新聞事件標記 | Mapbox circle + glow（依 timeline 累積 + 15min ripple） | RSS ×29（CNA／自由／ETtoday／Google News geo ×22 縣市）→ Gemini Flash-Lite 地名抽取（368 鄉鎮白名單，LLM 不吐座標）→ Supabase `realtime.news_events`（geom 由鄉鎮界圖 centroid trigger 補）；每 20 分鐘一輪 |
 | 地震事件 | circle（規模/深度色階 + ripple 動畫，依 timeline 累積） | CWA 地震目錄 → Supabase `realtime.earthquake_events` |
 | 災害示警 ×5 群組 | fill + line + centroid circle（event_term 分色、severity 驅動透明度，依 timeline 動態 active 過濾）。拆為民生中斷／水文防汛／氣象特報／交通阻斷／安全環境五個獨立 toggle，共用單一 source | NCDR CAP feed（polygon + circle 解析）→ Supabase `realtime.disaster_alerts`；geocode 行政區代碼由 migration 161 解析成村里/鄉鎮/縣市界圖（99.8% 命中），無代碼者 fallback `area_desc` 文字比對 |
 
@@ -398,7 +398,7 @@ mini-taiwan-pulse/
 │   ├── h3_demographics_res7.json  # 村里人口指標 res7（~8K cells）
 │   ├── h3_demographics_res8.json  # 村里人口指標 res8（~56K cells）
 │   ├── temperature_grid.json      # 溫度格點時序（S3 逐時快照，~941KB）
-│   ├── news_events.geojson          # 新聞事件地標（CNA RSS + Gemini 地理編碼）
+│   ├── news_events.geojson          # 新聞事件 fallback（主來源已改 Supabase RPC 按日載入）
 │   ├── bus/                        # 公車路線幾何（預處理產出，gitignored）
 │   │   └── taipei_bus_routes.json  # 台北+新北 2293 條路線（~17MB）
 │   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
@@ -634,7 +634,7 @@ sh /usr/local/bin/pull-deploy-assets.sh
 | 國道壅塞 | 交通部公路局 |
 | 氣象觀測站 | [中央氣象署](https://www.cwa.gov.tw/) |
 | 溫度格點（0.03° 網格，每小時快照） | [中央氣象署](https://www.cwa.gov.tw/) O-A0038-003 |
-| 新聞事件地標 | [中央通訊社 CNA](https://www.cna.com.tw/) RSS + Google Gemini API 地理編碼 |
+| 新聞事件地標 | [中央通訊社 CNA](https://www.cna.com.tw/)／[自由時報](https://www.ltn.com.tw/)／[ETtoday](https://www.ettoday.net/)／Google News RSS + Gemini Flash-Lite 地名抽取（座標由鄉鎮界圖 centroid 解析） |
 | 離岸風場範圍 | 經濟部能源局 |
 | 日夜間人流 | 內政部最小統計區人流統計（六角形網格化） |
 | 村里人口指標 | [社會經濟統計地理資訊網 (SEGIS)](https://segis.moi.gov.tw/)，114 年 6 月 |

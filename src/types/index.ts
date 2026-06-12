@@ -481,6 +481,12 @@ export interface OverlayConfig {
    * minzoom/maxzoom 對應 tippecanoe 的 -Z/-z；超過 maxzoom 由 Mapbox 自動 overzoom。
    */
   pmtiles?: { sourceLayer: string; minzoom: number; maxzoom: number };
+  /**
+   * 設定後 source 以空 FeatureCollection 初始化（不載入 sourceUrl），
+   * 資料由對應 loader/hook 按日 setData 餵入（如 newsEvents 走 Supabase RPC）。
+   * sourceUrl 保留作為 loader 端 Supabase 未設定時的靜態 fallback 路徑。
+   */
+  dynamicData?: boolean;
 }
 
 // ── 點擊特徵資訊 ──

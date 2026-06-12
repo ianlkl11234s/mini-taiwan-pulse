@@ -64,7 +64,10 @@ export function addOverlay(
     } else {
       map.addSource(config.sourceId, {
         type: "geojson",
-        data: config.sourceUrl,
+        // dynamicData：空 FC 起手，由對應 loader/hook 按日 setData 餵入
+        data: config.dynamicData
+          ? ({ type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection)
+          : config.sourceUrl,
         ...geojsonSourceOptions(config),
       });
     }
