@@ -86,7 +86,7 @@
 | 溫度波浪曲面 | Three.js BufferGeometry（RdBu 發散色盤，vertex lerp 動畫） | 中央氣象署 0.03° 格點 |
 | 新聞事件標記 | Mapbox circle + glow（主要/次要新聞分色） | 中央通訊社 CNA RSS + Gemini API 地理編碼 |
 | 地震事件 | circle（規模/深度色階 + ripple 動畫，依 timeline 累積） | CWA 地震目錄 → Supabase `realtime.earthquake_events` |
-| 災害示警 | fill + line + circle（severity 色階，依 timeline 動態 active 過濾） | NCDR CAP feed → Supabase `realtime.disaster_alerts`（geom 用 `spatial.boundaries` 鄉鎮/縣市 fallback） |
+| 災害示警 ×5 群組 | fill + line + centroid circle（event_term 分色、severity 驅動透明度，依 timeline 動態 active 過濾）。拆為民生中斷／水文防汛／氣象特報／交通阻斷／安全環境五個獨立 toggle，共用單一 source | NCDR CAP feed（polygon + circle 解析）→ Supabase `realtime.disaster_alerts`；geocode 行政區代碼由 migration 161 解析成村里/鄉鎮/縣市界圖（99.8% 命中），無代碼者 fallback `area_desc` 文字比對 |
 
 ## 功能
 
@@ -104,7 +104,7 @@
 | **ANALYTICS** | 人流模擬 Pop. Flow · 人口數 Population · 人口指標 Indicators（可展開） |
 | **MONITOR** | 國道壅塞 Congestion（可展開） |
 | **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm · 溫度波 Temperature（可展開） |
-| **HAZARD** | 活動斷層 Fault（可展開）· 地震 Earthquake · 災害示警 Disaster Alerts |
+| **HAZARD** | 活動斷層 Fault（可展開）· 地震 Earthquake · 民生中斷 Lifeline（停水/停電/斷訊/停班停課）· 水文防汛 Flood · 氣象特報 Weather · 交通阻斷 Transit · 安全環境 Safety（火災/海污/空品/森林）|
 
 - MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
 - 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
