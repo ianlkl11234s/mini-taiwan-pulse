@@ -417,3 +417,27 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
   從沒上 S3）。新增/改名靜態大檔後跑 upload 腳本 + 比對 S3 清單（`aws s3 ls deploy-assets/`）。
 - **撤 anon 權限前先盤 RPC security 類型**：74/81 個 public.get_* 是 SECURITY INVOKER（以 anon 身分執行、需 anon
   對底層表 SELECT），撤 table grant 會打掛 RPC。資安收斂改「收窄 PostgREST Exposed schemas」而非撤 grant。
+
+## 部署資產三處接線（2026-06-12，林班事件）
+
+**新增 public/ 資產子目錄時，三處必須同步接線**，漏任一處 = 容器上 404 但本機正常，極難察覺：
+1. `scripts/deploy/upload-deploy-assets.sh`（上傳 S3）
+2. `scripts/deploy/pull-deploy-assets.sh`（容器拉取 → /data/<dir>/ + mkdir）
+3. `nginx.conf`（`location /<dir>/ { root /data; try_files $uri @dist; }`）
+
+守門：`src/map/__tests__/deployContract.test.ts` 會掃 overlayRegistry sourceUrl
+與 factory BASE 目錄，比對 nginx + pull 覆蓋，漏接直接紅。
+教訓成本：FORESTRY 6/7 上線只接了 upload，容器上大檔 404 一週沒人發現。
+
+## Map effect 禁用 isStyleLoaded() guard（2026-06-12，toggle race）
+
+**禁止**在 visibility / params 類 effect 用 `map.isStyleLoaded()` 當 guard 丟棄更新：
+任何 tile 還在載入它就回 false（production 首載 30-47s + busy 期間長期 false），
+更新被靜默丟棄且不重試 → 「toggle 顯示 ON 但圖層沒畫」。
+
+- `setLayoutProperty` / `setPaintProperty` 對已存在的 layer 任何時刻都安全，
+  layer 不存在時各 update 函式自帶 `getLayer` no-op
+- map `load` 前的狀態變更（mapRef 尚未設定）必須在 load handler 用 ref 重放
+  （見 MapView.tsx load handler 的補發區塊）
+- 線上排障：網址加 `?debug` → `window.__map`；access log 看 pmtiles 只有
+  16384 header 讀取、無後續 range = 圖層沒真的在畫
