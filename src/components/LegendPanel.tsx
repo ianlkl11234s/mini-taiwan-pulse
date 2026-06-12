@@ -5,6 +5,7 @@ import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
+import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import {
@@ -40,13 +41,6 @@ const ROAD_EVENT_TYPE_ITEMS = [
   { type: 5, color: "#dc2626", label: "災害/障礙 Disaster" },
 ];
 
-// ── Disaster alert severity ──
-const SEVERITY_ITEMS: { key: string; color: string; label: string }[] = [
-  { key: "Extreme", color: "#dc2626", label: "極端 Extreme" },
-  { key: "Severe", color: "#ea580c", label: "嚴重 Severe" },
-  { key: "Moderate", color: "#eab308", label: "中度 Moderate" },
-  { key: "Minor", color: "#3b82f6", label: "輕度 Minor" },
-];
 
 // ── IoT 河川 delta 紅↔藍 ──
 const IOT_RIVER_DELTA_STOPS = [
@@ -99,7 +93,7 @@ export interface LegendEntry {
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
-  { keys: ["disasterAlerts"], render: () => <DisasterAlertLegend /> },
+  { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
   { keys: ["iotWraStructure"], render: () => <IotStructureLegend /> },
@@ -663,28 +657,39 @@ function RoadEventsLegend() {
   );
 }
 
-function DisasterAlertLegend() {
+function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
+  const groups = ALERT_GROUP_KEYS.filter((k) => visibility[k]);
   return (
     <div>
       <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
-        DISASTER ALERT
+        NCDR 示警 ALERTS
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {SEVERITY_ITEMS.map((s) => (
-          <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: 2,
-                background: s.color,
-                opacity: 0.8,
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+      {groups.map((g) => (
+        <div key={g} style={{ marginBottom: 4 }}>
+          <div style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>
+            {ALERT_GROUPS[g].label}
           </div>
-        ))}
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {Object.entries(ALERT_GROUPS[g].types).map(([term, color]) => (
+              <div key={term} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 2,
+                    background: color,
+                    opacity: 0.8,
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{term}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 2 }}>
+        填色深淺 = 嚴重度（Extreme→Minor）
       </div>
     </div>
   );

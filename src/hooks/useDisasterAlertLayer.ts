@@ -12,24 +12,45 @@ import {
   alertsToGeoJSON,
   type DisasterAlert,
 } from "../data/disasterAlertLoader";
+import { ALERT_GROUP_KEYS, type AlertGroupKey } from "../data/disasterAlertTypes";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 
 /**
- * NCDR 災害示警 timeline 圖層
+ * NCDR 災害示警 timeline 圖層（5 主題群組）
  *
- * - 一次載入一整天的所有 alert（含 GeoJSON 幾何）
+ * - 一次載入一整天的所有 alert，共用單一 GeoJSON source
+ * - 5 群組（民生中斷/水文防汛/氣象特報/交通阻斷/安全環境）各自
+ *   fill/line/point 三層，filter 在 properties.group 上，可獨立 toggle
+ * - 顏色依 event_term（tcolor），fill 透明度依 severity 分級
  * - 依 currentTime 過濾出當前 active（start <= now < end）
- * - 顏色依 severity（Extreme/Severe/Moderate/Minor/Unknown）
  * - 按日切換 + LRU 快取 7 天
  */
 
 const SOURCE_ID = "disaster-alerts";
-const LAYER_FILL = "disasterAlerts-fill";
-const LAYER_LINE = "disasterAlerts-line";
-const LAYER_POINT = "disasterAlerts-point"; // 給 Point geometry 的小範圍警報
-
 const CACHE_MAX = 7;
+
+const layerIds = (group: AlertGroupKey) => ({
+  fill: `${group}-fill`,
+  line: `${group}-line`,
+  point: `${group}-point`,
+});
+
+/** 給 useMapInteraction 的可點擊 layer 清單 */
+export const DISASTER_ALERT_CLICK_LAYERS = ALERT_GROUP_KEYS.flatMap((g) => {
+  const ids = layerIds(g);
+  return [ids.fill, ids.line, ids.point];
+});
+
+const SEVERITY_FILL_OPACITY: ExpressionSpecification = [
+  "match",
+  ["get", "severity"],
+  "Extreme", 0.35,
+  "Severe", 0.28,
+  "Moderate", 0.22,
+  "Minor", 0.15,
+  0.18,
+] as unknown as ExpressionSpecification;
 
 interface CachedDay {
   data: DisasterAlert[];
@@ -39,59 +60,65 @@ interface CachedDay {
 function buildLayers(map: MapboxMap): boolean {
   if (!map.getSource(SOURCE_ID)) return false;
 
-  // active 過濾條件：properties.active == 1
-  const activeFilter = ["==", ["get", "active"], 1] as unknown as FilterSpecification;
+  for (const group of ALERT_GROUP_KEYS) {
+    const ids = layerIds(group);
+    // active + 群組 + polygon/point 區分
+    const baseFilter = [
+      "all",
+      ["==", ["get", "active"], 1],
+      ["==", ["get", "group"], group],
+    ];
+    const polyFilter = [...baseFilter, ["==", ["get", "is_pt"], 0]] as unknown as FilterSpecification;
+    const ptFilter = [...baseFilter, ["==", ["get", "is_pt"], 1]] as unknown as FilterSpecification;
 
-  if (!map.getLayer(LAYER_FILL)) {
-    map.addLayer({
-      id: LAYER_FILL,
-      type: "fill",
-      source: SOURCE_ID,
-      filter: activeFilter,
-      paint: {
-        "fill-color": ["get", "color"] as unknown as ExpressionSpecification,
-        "fill-opacity": [
-          "match",
-          ["get", "severity"],
-          "Extreme", 0.35,
-          "Severe", 0.28,
-          "Moderate", 0.22,
-          "Minor", 0.15,
-          0.18,
-        ] as unknown as ExpressionSpecification,
-      },
-    } as FillLayer);
-  }
+    if (!map.getLayer(ids.fill)) {
+      map.addLayer({
+        id: ids.fill,
+        type: "fill",
+        source: SOURCE_ID,
+        filter: polyFilter,
+        paint: {
+          "fill-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
+          "fill-opacity": SEVERITY_FILL_OPACITY,
+        },
+      } as FillLayer);
+    }
 
-  if (!map.getLayer(LAYER_LINE)) {
-    map.addLayer({
-      id: LAYER_LINE,
-      type: "line",
-      source: SOURCE_ID,
-      filter: activeFilter,
-      layout: { "line-cap": "round", "line-join": "round" },
-      paint: {
-        "line-color": ["get", "color"] as unknown as ExpressionSpecification,
-        "line-width": 1.5,
-        "line-opacity": 0.9,
-      },
-    } as LineLayer);
-  }
+    if (!map.getLayer(ids.line)) {
+      map.addLayer({
+        id: ids.line,
+        type: "line",
+        source: SOURCE_ID,
+        filter: polyFilter,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: {
+          "line-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
+          "line-width": 1.5,
+          "line-opacity": 0.9,
+        },
+      } as LineLayer);
+    }
 
-  if (!map.getLayer(LAYER_POINT)) {
-    map.addLayer({
-      id: LAYER_POINT,
-      type: "circle",
-      source: SOURCE_ID,
-      filter: ["all", activeFilter, ["==", ["geometry-type"], "Point"]] as unknown as FilterSpecification,
-      paint: {
-        "circle-radius": 6,
-        "circle-color": ["get", "color"] as unknown as ExpressionSpecification,
-        "circle-stroke-color": "#ffffff",
-        "circle-stroke-width": 1.5,
-        "circle-opacity": 0.85,
-      },
-    } as CircleLayer);
+    if (!map.getLayer(ids.point)) {
+      map.addLayer({
+        id: ids.point,
+        type: "circle",
+        source: SOURCE_ID,
+        filter: ptFilter,
+        paint: {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, 3.5,
+            10, 5.5,
+            14, 7,
+          ] as unknown as ExpressionSpecification,
+          "circle-color": ["get", "tcolor"] as unknown as ExpressionSpecification,
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 1.2,
+          "circle-opacity": 0.85,
+        },
+      } as CircleLayer);
+    }
   }
 
   return true;
@@ -99,7 +126,7 @@ function buildLayers(map: MapboxMap): boolean {
 
 export function useDisasterAlertLayer(
   mapRef: React.RefObject<MapboxMap | null>,
-  visible: boolean,
+  visibility: Record<AlertGroupKey, boolean>,
   opacity: number = 1,
 ) {
   const cacheRef = useRef<Map<string, CachedDay>>(new Map());
@@ -108,6 +135,12 @@ export function useDisasterAlertLayer(
   const layersReadyRef = useRef(false);
   const fetchingRef = useRef<string>("");
   const lastActiveSetRef = useRef<string>("");
+
+  const anyVisible = ALERT_GROUP_KEYS.some((k) => visibility[k]);
+  // effect dep 用的穩定 key（避免物件 identity 每 render 變動）
+  const visKey = ALERT_GROUP_KEYS.map((k) => (visibility[k] ? "1" : "0")).join("");
+  const visRef = useRef(visibility);
+  visRef.current = visibility;
 
   const writeCache = useCallback((dateStr: string, data: DisasterAlert[]) => {
     const cache = cacheRef.current;
@@ -132,7 +165,8 @@ export function useDisasterAlertLayer(
         data: { type: "FeatureCollection", features: [] },
       });
     }
-    if (!layersReadyRef.current || !map.getLayer(LAYER_FILL)) {
+    const probe = layerIds(ALERT_GROUP_KEYS[0]!).fill;
+    if (!layersReadyRef.current || !map.getLayer(probe)) {
       layersReadyRef.current = buildLayers(map);
     }
     return layersReadyRef.current;
@@ -187,29 +221,35 @@ export function useDisasterAlertLayer(
 
   // ── 訂閱 timeStore 日期變化載入當日資料 ──
   useEffect(() => {
-    if (!visible) return;
+    if (!anyVisible) return;
     const handler = (dateStr: string) => {
       if (dateStr) loadDay(dateStr);
     };
     handler(timeStore.getDateKey());
     return timeStore.subscribeDate(handler);
-  }, [visible, loadDay]);
+  }, [anyVisible, loadDay]);
 
-  // ── 訂閱 timeStore 節流更新 active filter ──
+  // ── 群組可見性 + 訂閱 timeStore 節流更新 active filter ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
 
-    if (!visible) {
-      for (const id of [LAYER_FILL, LAYER_LINE, LAYER_POINT]) {
-        if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
+    const applyVisibility = () => {
+      for (const group of ALERT_GROUP_KEYS) {
+        const ids = layerIds(group);
+        const vis = visRef.current[group] ? "visible" : "none";
+        for (const id of [ids.fill, ids.line, ids.point]) {
+          if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
+        }
       }
+    };
+
+    if (!anyVisible) {
+      applyVisibility();
       return;
     }
     if (!ensureLayers(map)) return;
-    for (const id of [LAYER_FILL, LAYER_LINE, LAYER_POINT]) {
-      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
-    }
+    applyVisibility();
 
     const tick = (currentTime: number) => {
       const m = mapRef.current;
@@ -232,35 +272,30 @@ export function useDisasterAlertLayer(
 
     tick(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(500, tick);
-  }, [visible, ensureLayers, refreshSource, mapRef]);
+  }, [anyVisible, visKey, ensureLayers, refreshSource, mapRef]);
 
-  // 套用 opacity（乘以各 layer 的 base opacity）
+  // 套用 opacity（乘以各 layer 的 base opacity，5 群組共用）
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (!layersReadyRef.current) return;
     const o = Math.max(0, Math.min(1, opacity));
-    if (map.getLayer(LAYER_FILL)) {
-      map.setPaintProperty(LAYER_FILL, "fill-opacity", [
-        "*",
-        o,
-        [
-          "match",
-          ["get", "severity"],
-          "Extreme", 0.35,
-          "Severe", 0.28,
-          "Moderate", 0.22,
-          "Minor", 0.15,
-          0.18,
-        ],
-      ] as unknown as ExpressionSpecification);
+    for (const group of ALERT_GROUP_KEYS) {
+      const ids = layerIds(group);
+      if (map.getLayer(ids.fill)) {
+        map.setPaintProperty(ids.fill, "fill-opacity", [
+          "*",
+          o,
+          SEVERITY_FILL_OPACITY,
+        ] as unknown as ExpressionSpecification);
+      }
+      if (map.getLayer(ids.line)) {
+        map.setPaintProperty(ids.line, "line-opacity", 0.9 * o);
+      }
+      if (map.getLayer(ids.point)) {
+        map.setPaintProperty(ids.point, "circle-opacity", 0.85 * o);
+        map.setPaintProperty(ids.point, "circle-stroke-opacity", o);
+      }
     }
-    if (map.getLayer(LAYER_LINE)) {
-      map.setPaintProperty(LAYER_LINE, "line-opacity", 0.9 * o);
-    }
-    if (map.getLayer(LAYER_POINT)) {
-      map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.85 * o);
-      map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", o);
-    }
-  }, [opacity, visible, mapRef]);
+  }, [opacity, visKey, mapRef]);
 }

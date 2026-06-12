@@ -677,10 +677,16 @@ export default function App() {
     transportParams.eqShowHistory,
   );
 
-  // ── NCDR Disaster Alerts timeline ──
+  // ── NCDR Disaster Alerts timeline（5 主題群組共用 source）──
   useDisasterAlertLayer(
     mapRef,
-    layerVisibility.disasterAlerts,
+    {
+      lifelineAlerts: layerVisibility.lifelineAlerts,
+      floodAlerts: layerVisibility.floodAlerts,
+      weatherAlerts: layerVisibility.weatherAlerts,
+      transitAlerts: layerVisibility.transitAlerts,
+      safetyAlerts: layerVisibility.safetyAlerts,
+    },
     transportParams.daOpacity,
   );
 

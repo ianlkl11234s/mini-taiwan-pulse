@@ -948,7 +948,12 @@ export function useTransportParams() {
         { label: `Opacity ${eqOpacity.toFixed(2)}`, value: eqOpacity, min: 0, max: 1, step: 0.05, onChange: setEqOpacity },
         { type: "select" as const, label: "Mode", value: eqShowHistory ? "history" : "timeline", options: [{ label: "Timeline", value: "timeline" }, { label: "History", value: "history" }], onChange: (v: string) => setEqShowHistory(v === "history") },
       ];
-      case "disasterAlerts": return [
+      // NCDR 示警 5 群組共用同一個 opacity（單一 source）
+      case "lifelineAlerts":
+      case "floodAlerts":
+      case "weatherAlerts":
+      case "transitAlerts":
+      case "safetyAlerts": return [
         { label: `Opacity ${daOpacity.toFixed(2)}`, value: daOpacity, min: 0, max: 1, step: 0.05, onChange: setDaOpacity },
       ];
       case "roadEvents": return [

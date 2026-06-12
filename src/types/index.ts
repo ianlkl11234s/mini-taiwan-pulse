@@ -111,7 +111,11 @@ export type ExpandableLayerKey =
   | "aqiStations"
   | "aqiMicroSensors"
   | "earthquakes"
-  | "disasterAlerts"
+  | "lifelineAlerts"
+  | "floodAlerts"
+  | "weatherAlerts"
+  | "transitAlerts"
+  | "safetyAlerts"
   | "roadEvents"
   | "busLive"
   | "waterBasins"
@@ -545,7 +549,12 @@ export interface LayerVisibility {
   newsEvents: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
-  disasterAlerts: boolean;
+  /** NCDR 災害示警 5 主題群組（共用 disaster-alerts source，見 disasterAlertTypes.ts） */
+  lifelineAlerts: boolean;
+  floodAlerts: boolean;
+  weatherAlerts: boolean;
+  transitAlerts: boolean;
+  safetyAlerts: boolean;
   roadEvents: boolean;    // TDX 即時路況（live_freeway/highway/city + event_city 預告）
   cwaCloudImagery: boolean;
   cwaRadarImagery: boolean;

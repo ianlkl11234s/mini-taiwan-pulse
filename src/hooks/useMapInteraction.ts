@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility } from "../types";
+import { DISASTER_ALERT_CLICK_LAYERS } from "./useDisasterAlertLayer";
 import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
@@ -190,7 +191,7 @@ export function useMapInteraction(
           { layers: ["medical-aed-circle"], type: "medicalPOI" },
           { layers: ["medical-ltc-circle"], type: "medicalPOI" },
           { layers: ["news-events-circle", "news-events-glow"], type: "newsEvent" },
-          { layers: ["disasterAlerts-fill", "disasterAlerts-line", "disasterAlerts-point"], type: "disasterAlert" },
+          { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
           { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
           { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
           { layers: ["aqi-micro-circle"], type: "microSensor" },
