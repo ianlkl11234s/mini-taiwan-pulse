@@ -653,3 +653,70 @@ RPC 簽名是 `smallint` 找不到 overload。
 
 **教訓**：每個 CI workflow 上線後一定要看 Actions 頁綠燈確認，不能假設 setup
 動作會「沒問題就跳過」。
+
+---
+
+## 2026-06-13 CelesTrak 對瀏覽器 fetch 回 403
+
+**現象**：衛星圖層 v1 載 CelesTrak `active.txt` → 整天 0 顆衛星，console
+`[satellite] CelesTrak fetch error: 403`。
+
+**根因**：CelesTrak 對含瀏覽器 User-Agent + CORS preflight 回 403（疑似 anti-scrape）。
+本地 curl 直打 OK；deployed browser 全爆。
+
+**對策**：改走 gis-platform Supabase 既有 `satellite_classified` view（每 2h 從
+Space-Track 同步），完全不打 CelesTrak。Cache key v2→v3 強制重抓。
+
+**PRINCIPLES**：外部公開資料來源走後端代理優先，避免瀏覽器 CORS / UA 政策變動。
+
+---
+
+## 2026-06-13 衛星 commit 切到錯分支
+
+**現象**：完成衛星 perf split 改動後跑 `git commit`，發現 commit 跑去
+`feat/news-filter-critical`（用戶並行的新聞 WIP 分支），不是 `feat/satellite-layer`。
+
+**根因**：分支自動切換或 stash pop 過程切換了 HEAD 沒注意，直接 `git add -A` +
+`git commit` 把：
+1. 想要的 useSatellitesLayer.ts perf 改動
+2. 用戶 WIP 的 useTransportParams newsFilter（不該進衛星 PR）
+3. 未追蹤的 monitor-mode.md 草稿
+
+三者一起包成一個 commit 在錯分支上。
+
+**對策**：
+- `git reset --mixed HEAD~1` 把 commit 拆掉、變動回到 index
+- `git checkout HEAD -- src/hooks/useSatellitesLayer.ts` 還原該檔
+- 把新內容暫存 `/tmp/sat-hook-perf.ts`
+- `git checkout feat/satellite-layer`，把暫存內容覆回去再 commit
+- 切回 news 分支保留 WIP
+
+**PRINCIPLES**：commit 前 `git branch --show-current` 確認分支。`git add -A` 在
+working tree 有跨分支 WIP / 未追蹤草稿時極度危險，改 `git add <具體檔>`。
+
+---
+
+## 2026-06-13 衛星 throttle 殭屍 closure 閃爍
+
+**現象**：60x timeline 播放下，toggle off 某個衛星 cat，殘留衛星「閃一下又消失」。
+
+**根因（三層疊加）**：
+1. **殭屍 throttle trailing fire**：`timeStore.subscribeThrottled(1000ms)` 有
+   trailing setTimeout 機制，React 重 render 完成前舊的 setTimeout 仍可能 fire
+   舊 `recompute` closure，把已關掉的 cat setData 進 source
+2. **recompute 入 useCallback deps**：`visibility` 是 inline object literal，
+   每 render identity 都變 → recompute 每 render 都新 → effect 1 每 render 都
+   重綁，放大殭屍視窗
+3. **listener 洩漏**：`if (!setup()) { map.on("style.load", ...); map.on("idle", ...) }`
+   內註冊的兩個 listener 沒進 cleanup，長時間累積
+
+**對策**：
+- `visibilityRef` + `trackMinutesRef`：recompute 讀 ref，useCallback deps 空陣列 → stable
+- 所有 map.on() listener 全進 cleanup
+- 新增 `visKey` effect（5 bit 字串穩定化 deps）：toggle 一動立即 force recompute，0 延遲
+
+**後續副作用**：修穩定性後失去「隨 parent re-render 隱性 60Hz」的 bug 副產物，
+衛星變成 1Hz 跳格。**正確修法**：拆 light(10Hz 點+足跡)/heavy(1Hz 軌跡)，
+總 CPU 不增但視覺流暢。
+
+**PRINCIPLES**：視覺「順暢」可能是 effect 重綁副產物，修穩定性後要顯式設更新頻率。
