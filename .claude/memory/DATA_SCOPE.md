@@ -237,3 +237,27 @@ Phase 3 候選：4 筆（129475/6 敏感區、36695 枯旱、58343 洩洪）
 
 > 來源 `taipei-gis-analytics/data/raw/agriculture/`（WGS84，免轉）。走既有 agriculture 部署鏈：
 > gitignore → upload-deploy-assets.sh AGRI_FILES → S3 `deploy-assets/agriculture/` → pull 整夾 sync → nginx `/agriculture/`。
+
+## 衛星 SPACE（2026-06-13 上線，PR #10）
+
+走 `gis-platform` Supabase 同步管線。**無新 migration、無新 collector**——重用
+satellite-art 既有 4 個物件：
+
+| Supabase 物件 | 內容 | 用途 |
+|---|---|---|
+| `satellite_classified` view | 67k 衛星基本資料 + TLE + UCS country/category | 載入清單 + 即時 SGP4 |
+| `satellite_catalog` (reference) | UCS 詳細：發射場/火箭/COSPAR/承包商/質量/壽命 | Phase B 百科卡 |
+| `satellite_maneuvers` MV | 每 2h refresh，prev/curr TLE delta，分 4 型（ALT/PLANE/SHAPE/NOMINAL）| Phase A 變軌警報 |
+| `satellite_tle_history` | 每顆 ~289 條歷史 TLE（Yaogan 12 自 2011 起累積）| Phase C 變軌前後對比 |
+
+**前端篩選結果**（cache 6h on localStorage key `v3-grouped`）：
+- 中國 351 顆（country=China + category in (military, earth_obs)）名稱 regex 拆 4 群：
+  - Yaogan 遙感 101 · Jilin 吉林 36 · Gaofen 高分 30 · 中國其他 ~184（TJS/北斗/Shiyan/餘）
+- 台灣 15 顆（country=Taiwan + 名稱保底 `FORMOSAT*` / `TRITON*` 補 UCS country=null 漏網之魚）：
+  FORMOSAT 3×5 / FS-5 / FS-7×6 / **FS-8A NORAD 66666**（2025-10）/ **TRITON 58017** / IRIS-C
+
+**TLE 更新鏈**：data-collectors 每 2h 從 Space-Track（非 CelesTrak — 後者對瀏覽器 403）。
+30 天 epoch 過濾自動剔除 decay / 失追衛星。
+
+**前端 layer key**：satellitesYaogan / satellitesJilin / satellitesGaofen /
+satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習慣決定）。
