@@ -4,10 +4,15 @@ import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 /**
  * 新聞事件 (CNA 等來源 geocoded) loader
- * - 來源：Supabase RPC get_news_events_day(p_day) / get_news_event_dates()
- * - Supabase 未設定時 fallback 靜態檔 ./geo/news_events.geojson（舊行為：全量、不分日）
- * - properties 形狀與 public/geo/news_events.geojson 完全相同，
- *   下游（overlayRegistry newsEvents / useNewsTimeline / NewsEventPanel）零改動
+ * - 來源：Supabase RPC get_news_events_day_clustered（階段 B：按鄉鎮聚合）
+ *         + get_news_event_dates（日期清單）
+ * - Supabase 未設定時 fallback 靜態檔 ./geo/news_events.geojson
+ *
+ * 階段 B 輸出 properties（每個 Feature 代表一個鄉鎮 cluster）：
+ *  - title/summary/category/link/published/published_ts/confidence/is_primary
+ *    皆對應該 cluster「最新一則」事件（向後相容既有 useNewsTimeline filter + popup）
+ *  - event_count：cluster 內事件數（給 paint 半徑放大用）
+ *  - events_json：jsonb 字串，含整批事件清單（給 popup 多則清單渲染）
  */
 
 export interface NewsEventDateInfo {
@@ -15,18 +20,28 @@ export interface NewsEventDateInfo {
   event_count: number;
 }
 
-interface RawRow {
-  id: number;
-  source: string | null;
-  url: string | null;
-  title: string | null;
-  summary: string | null;
-  category: string | null;
-  location_name: string | null;
-  county: string | null;
+/** RPC get_news_events_day_clustered 回傳 row */
+interface RawCluster {
   lon: number | null;
   lat: number | null;
-  published_ts: string | null; // timestamptz → ISO string
+  county: string | null;
+  location_name: string | null;
+  event_count: number | null;
+  latest_category: string | null;
+  latest_published_ts: string | null; // timestamptz → ISO string
+  events: ClusterEvent[] | null;       // jsonb array
+}
+
+/** events_json 內每一則的 shape（RPC jsonb_build_object 對齊） */
+export interface ClusterEvent {
+  id: number;
+  title: string;
+  summary: string | null;
+  category: string | null;
+  source: string | null;
+  url: string | null;
+  /** unix 秒（RPC 已 extract epoch） */
+  published_ts: number;
   confidence: number | null;
 }
 
@@ -42,33 +57,36 @@ function formatPublished(tsSec: number): string {
   });
 }
 
-/** RPC rows → 與靜態檔相同 properties 形狀的 FeatureCollection */
-function rowsToGeoJSON(rows: RawRow[]): GeoJSON.FeatureCollection {
+/** Clustered RPC rows → FeatureCollection（每個 Feature 是一個鄉鎮 cluster） */
+function clustersToGeoJSON(rows: RawCluster[]): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = [];
   for (const r of rows) {
     if (r.lon == null || r.lat == null) continue;
-    const tsSec = r.published_ts ? Math.floor(Date.parse(r.published_ts) / 1000) : 0;
+    const events = (r.events ?? []) as ClusterEvent[];
+    if (events.length === 0) continue;
+    const latest = events[0]; // RPC 已按 published_ts DESC 排
+    if (!latest) continue;
     features.push({
       type: "Feature",
       geometry: { type: "Point", coordinates: [r.lon, r.lat] },
       properties: {
-        // ── 與 public/geo/news_events.geojson 完全相同的欄位（下游契約） ──
-        title: r.title ?? "",
-        summary: r.summary ?? "",
-        category: r.category ?? "",
+        // ── 向後相容欄位（既有 useNewsTimeline filter、舊版 popup、paint 都讀這些） ──
+        title: latest.title ?? "",
+        summary: latest.summary ?? "",
+        category: r.latest_category ?? latest.category ?? "",
         rss_category: "",
-        link: r.url ?? "",
-        published: formatPublished(tsSec),
+        link: latest.url ?? "",
+        published: formatPublished(latest.published_ts ?? 0),
         location_name: r.location_name ?? "",
         location_type: "",
-        confidence: r.confidence ?? 0,
+        confidence: latest.confidence ?? 0,
         note: "",
-        is_primary: true, // RPC 每事件僅一點，皆為主要地點
-        published_ts: tsSec, // unix 秒（useNewsTimeline filter 用）
-        // ── RPC 額外欄位（additive，不影響既有下游） ──
-        id: r.id,
-        source: r.source ?? "",
+        is_primary: true,
+        published_ts: latest.published_ts ?? 0, // unix 秒（useNewsTimeline filter 用）
+        // ── 階段 B 新增 ──
+        event_count: r.event_count ?? events.length,
         county: r.county ?? "",
+        events_json: JSON.stringify(events), // popup 多則清單渲染
       },
     });
   }
@@ -116,13 +134,17 @@ async function fetchNewsEventsDayUncached(date: string): Promise<GeoJSON.Feature
   const { data, error } = await withLoading(
     `news-events:${date}`,
     `新聞事件 ${date}`,
-    supabase.rpc("get_news_events_day", { p_day: date }),
+    supabase.rpc("get_news_events_day_clustered", { p_day: date }),
   );
-  if (error) throw new Error(`get_news_events_day(${date}): ${error.message}`);
+  if (error) throw new Error(`get_news_events_day_clustered(${date}): ${error.message}`);
 
-  const fc = rowsToGeoJSON((data ?? []) as RawRow[]);
+  const fc = clustersToGeoJSON((data ?? []) as RawCluster[]);
+  const totalEvents = fc.features.reduce(
+    (acc, f) => acc + (typeof f.properties?.event_count === "number" ? f.properties.event_count : 0),
+    0,
+  );
   console.log(
-    `[NewsEvents] Loaded ${fc.features.length} events for ${date} in ${(performance.now() - t0).toFixed(0)}ms`,
+    `[NewsEvents] Loaded ${fc.features.length} clusters (${totalEvents} events) for ${date} in ${(performance.now() - t0).toFixed(0)}ms`,
   );
   return fc;
 }
