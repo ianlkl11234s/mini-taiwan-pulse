@@ -12,6 +12,8 @@ import { timeStore } from "../state/timeStore";
 
 /** 新聞在 timeline 時間內「剛出現」的持續秒數 */
 const FRESH_WINDOW = 900; // 15 分鐘
+/** critical 事件（gis_relevance=3 + severity>=2）的 ripple 延長至 60 分鐘 */
+const CRITICAL_FRESH_WINDOW = 3600; // 60 分鐘
 /** 一次 ripple 脈衝在真實時間的週期（毫秒） */
 const RIPPLE_CYCLE_MS = 2200;
 /** 同時顯示的 ripple 圈數（錯開相位） */
@@ -19,7 +21,14 @@ const RIPPLE_COUNT = 2;
 /** ripple 動畫更新間隔（毫秒），~30fps */
 const FRAME_INTERVAL = 33;
 
-const NEWS_LAYER_IDS = ["news-events-glow", "news-events-circle", "news-events-count"];
+const NEWS_LAYER_IDS = ["news-events-critical-halo", "news-events-glow", "news-events-circle", "news-events-count"];
+
+/** critical 事件（gis_relevance=3 + severity>=2）ripple 強化條件 */
+const CRITICAL_EXPR = [
+  "all",
+  [">=", ["coalesce", ["get", "max_gis_relevance"], 0], 3],
+  [">=", ["coalesce", ["get", "max_severity"], 0], 2],
+];
 const RIPPLE_IDS = Array.from({ length: RIPPLE_COUNT }, (_, i) => `news-events-ripple-${i}`);
 
 export function useNewsTimeline(
@@ -85,10 +94,19 @@ export function useNewsTimeline(
       }
 
       if (timeBased && rippleEnabled) {
+        // 既有 ripple 顯示 15min 新事件，critical 事件延長至 60min（用 any 組合放寬）
         const rippleFilter = [
           "all",
           ["<=", ["get", "published_ts"], currentTime],
-          [">", ["get", "published_ts"], currentTime - FRESH_WINDOW],
+          [
+            "any",
+            [">", ["get", "published_ts"], currentTime - FRESH_WINDOW],
+            [
+              "all",
+              CRITICAL_EXPR,
+              [">", ["get", "published_ts"], currentTime - CRITICAL_FRESH_WINDOW],
+            ],
+          ],
         ];
         for (const id of RIPPLE_IDS) {
           if (map.getLayer(id)) {
@@ -149,13 +167,24 @@ export function useNewsTimeline(
           // ease-out：前快後慢，更自然
           const eased = 1 - Math.pow(1 - phase, 2);
 
-          const radius = 8 + 35 * eased;
+          const baseRadius = 8 + 35 * eased;
+          const baseStroke = 2 * (1 - eased * 0.5);
+          // critical 事件 ripple 半徑放大 1.6x、stroke 加粗 1.5x、改紅色更醒目
+          const radiusExpr = [
+            "case", CRITICAL_EXPR, baseRadius * 1.6, baseRadius,
+          ];
+          const strokeExpr = [
+            "case", CRITICAL_EXPR, baseStroke * 1.5, baseStroke,
+          ];
+          const colorExpr = [
+            "case", CRITICAL_EXPR, "#dc2626", "#ff9800",
+          ];
           const opacity = 0.55 * (1 - eased);
-          const strokeWidth = 2 * (1 - eased * 0.5);
 
-          map.setPaintProperty(id, "circle-radius", radius);
+          map.setPaintProperty(id, "circle-radius", radiusExpr as unknown as number);
           map.setPaintProperty(id, "circle-stroke-opacity", opacity);
-          map.setPaintProperty(id, "circle-stroke-width", strokeWidth);
+          map.setPaintProperty(id, "circle-stroke-width", strokeExpr as unknown as number);
+          map.setPaintProperty(id, "circle-stroke-color", colorExpr as unknown as string);
         }
       }
 

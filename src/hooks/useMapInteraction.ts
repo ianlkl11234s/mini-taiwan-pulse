@@ -191,7 +191,7 @@ export function useMapInteraction(
           { layers: ["medical-pharmacies-circle"], type: "medicalPOI" },
           { layers: ["medical-aed-circle"], type: "medicalPOI" },
           { layers: ["medical-ltc-circle"], type: "medicalPOI" },
-          { layers: ["news-events-circle", "news-events-glow", "news-events-count"], type: "newsEvent" },
+          { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
           { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
           { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
           { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
-import { fetchNewsEventsDay } from "../data/newsEventsLoader";
+import { fetchNewsEventsDay, type NewsFilterLevel } from "../data/newsEventsLoader";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 
@@ -21,9 +21,10 @@ const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", feature
 export function useNewsEventsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
+  filterLevel: NewsFilterLevel = "important",
 ) {
   const activeFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
-  const activeDateRef = useRef<string>("");
+  const activeKeyRef = useRef<string>(""); // "date|filterLevel" 組合 key
   const fetchingRef = useRef<string>("");
 
   const feed = useCallback(() => {
@@ -35,41 +36,42 @@ export function useNewsEventsLayer(
   }, [mapRef]);
 
   const loadDay = useCallback(
-    (dateStr: string) => {
-      if (dateStr === activeDateRef.current) return;
-      if (dateStr === fetchingRef.current) return;
+    (dateStr: string, level: NewsFilterLevel) => {
+      const key = `${dateStr}|${level}`;
+      if (key === activeKeyRef.current) return;
+      if (key === fetchingRef.current) return;
 
-      fetchingRef.current = dateStr;
-      fetchNewsEventsDay(dateStr)
+      fetchingRef.current = key;
+      fetchNewsEventsDay(dateStr, level)
         .then((fc) => {
-          if (fetchingRef.current !== dateStr) return; // 已切到別的日期，丟棄舊回應
+          if (fetchingRef.current !== key) return; // 已切到別的 date/filter，丟棄舊回應
           activeFcRef.current = fc;
-          activeDateRef.current = dateStr;
+          activeKeyRef.current = key;
           feed();
           const map = mapRef.current;
           if (map && map.getSource(SOURCE_ID)) {
-            keepLoadingUntilMapIdle(map, `news-render:${dateStr}`, "新聞事件 渲染中", SOURCE_ID);
+            keepLoadingUntilMapIdle(map, `news-render:${key}`, "新聞事件 渲染中", SOURCE_ID);
           }
         })
         .catch((err) => {
-          console.warn(`[NewsEvents] load ${dateStr} failed:`, err);
+          console.warn(`[NewsEvents] load ${key} failed:`, err);
         })
         .finally(() => {
-          if (fetchingRef.current === dateStr) fetchingRef.current = "";
+          if (fetchingRef.current === key) fetchingRef.current = "";
         });
     },
     [feed, mapRef],
   );
 
-  // ── 訂閱 timeStore 日期變化載入當日資料 ──
+  // ── 訂閱 timeStore 日期變化 + 監聽 filterLevel 變化 ──
   useEffect(() => {
     if (!visible) return;
     const handler = (dateStr: string) => {
-      if (dateStr) loadDay(dateStr);
+      if (dateStr) loadDay(dateStr, filterLevel);
     };
-    handler(timeStore.getDateKey()); // 初始化（toggle 開啟瞬間補載）
+    handler(timeStore.getDateKey()); // 初始化（toggle 開啟瞬間補載 / filter 切換立即重載）
     return timeStore.subscribeDate(handler);
-  }, [visible, loadDay]);
+  }, [visible, filterLevel, loadDay]);
 
   // ── style 切換後 source 重建為空 → 重餵已載入資料 ──
   useEffect(() => {

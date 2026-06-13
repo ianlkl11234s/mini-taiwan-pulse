@@ -236,6 +236,8 @@ export function useTransportParams() {
   const [newsScale, setNewsScale] = useState(1);
   const [newsTimeBased, setNewsTimeBased] = useState(true);
   const [newsRipple, setNewsRipple] = useState(true);
+  // newsFilter：critical(重大) / important(重要，預設) / local(地方相關) / all(全部含政策)
+  const [newsFilter, setNewsFilter] = useState<"critical" | "important" | "local" | "all">("important");
   // Socioeconomic (村里社經)
   const [socioCat, setSocioCat] = useState("income");
   const [socioMetric, setSocioMetric] = useState("im");
@@ -870,6 +872,12 @@ export function useTransportParams() {
       case "landingStations": return [];
       case "activeFaults": return [];
       case "newsEvents": return [
+        { type: "select" as const, label: "Filter", value: newsFilter, options: [
+          { label: "重大", value: "critical" },
+          { label: "重要", value: "important" },
+          { label: "地方", value: "local" },
+          { label: "全部", value: "all" },
+        ], onChange: (v: string) => setNewsFilter(v as "critical" | "important" | "local" | "all") },
         { type: "toggle" as const, label: "Time", value: newsTimeBased, onChange: setNewsTimeBased },
         { type: "toggle" as const, label: "Ripple", value: newsRipple, onChange: setNewsRipple },
         { label: `Scale ${newsScale.toFixed(1)}`, value: newsScale, min: 0.3, max: 3, step: 0.1, onChange: setNewsScale },
@@ -1283,6 +1291,7 @@ export function useTransportParams() {
     railTrackMode,
     newsTimeBased,
     newsRipple,
+    newsFilter,
     enabledBusCities,
     enabledWasteScheduleCities,
     refs: {

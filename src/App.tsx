@@ -669,7 +669,7 @@ export default function App() {
   );
 
   // ── News events 按日載入（Supabase；餵 overlayRegistry 的 news-events source） ──
-  useNewsEventsLayer(mapRef, layerVisibility.newsEvents);
+  useNewsEventsLayer(mapRef, layerVisibility.newsEvents, transportParams.newsFilter);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
