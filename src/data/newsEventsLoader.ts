@@ -62,7 +62,7 @@ interface FilterParams {
 
 const FILTER_PRESETS: Record<NewsFilterLevel, FilterParams> = {
   critical:  { min_gr: 3, require_event: true,  min_sev: 2 },
-  important: { min_gr: 2, require_event: true,  min_sev: 0 },
+  important: { min_gr: 2, require_event: true,  min_sev: 1 },
   local:     { min_gr: 1, require_event: false, min_sev: 0 },
   all:       { min_gr: 0, require_event: false, min_sev: 0 },
 };
