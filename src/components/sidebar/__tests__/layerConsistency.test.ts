@@ -58,7 +58,7 @@ const BASELINE_NO_LEGEND = new Set([
   "freewayCongestion", "weatherStations", "h3Population", "popCount",
   "indicators", "socioeconomic", "spatialEconomy", "temperatureWave",
   "schools", "convenienceStores", "submarineCables", "landingStations",
-  "activeFaults", "newsEvents", "youbikeFullness", "cwaCloudImagery",
+  "activeFaults", "youbikeFullness", "cwaCloudImagery",
   "cwaRadarImagery", "aqiImagery", "aqiStations", "aqiMicroSensors",
   "busLive", "busIntercityLive", "waterBasins", "waterRivers", "waterLevees",
   "waterProtectionZones", "waterReservoirs", "waterFacilities",

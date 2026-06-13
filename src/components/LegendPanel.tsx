@@ -6,6 +6,7 @@ import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
+import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import {
@@ -95,6 +96,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
+  { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
   { keys: ["iotWraStructure"], render: () => <IotStructureLegend /> },
   { keys: ["agriCropSuitability"], render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
@@ -690,6 +692,38 @@ function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
       ))}
       <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 2 }}>
         填色深淺 = 嚴重度（Extreme→Minor）
+      </div>
+    </div>
+  );
+}
+
+// ── News Events Legend (7 類分色) ──
+
+function NewsEventsLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        NEWS EVENTS
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {NEWS_CATEGORIES.map((cat) => (
+          <div key={cat.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                background: cat.color,
+                opacity: cat.key === "other" ? 0.4 : 0.9,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{cat.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 4 }}>
+        座標 = 鄉鎮代表點（非事件位置）
       </div>
     </div>
   );
