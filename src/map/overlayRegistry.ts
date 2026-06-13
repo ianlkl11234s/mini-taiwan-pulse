@@ -1,6 +1,7 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
+import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 
 const BASE_RADIUS = 5;
 
@@ -1617,18 +1618,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               5, 3 * s, 10, 5 * s, 14, 8 * s,
             ],
-            "circle-color": [
-              "case",
-              ["==", ["get", "is_primary"], true],
-              isDark ? "#ff9800" : "#e65100",
-              isDark ? "#ffcc80" : "#ff9800",
-            ] as unknown as string,
+            "circle-color": NEWS_CATEGORY_COLOR_EXPR as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
               5, 0, 10, 0.5, 14, 1,
             ],
-            "circle-opacity": isDark ? 0.85 : 0.75,
+            // other 類降透明度避免占據視覺重量
+            "circle-opacity": [
+              "case",
+              ["==", ["get", "category"], "other"],
+              isDark ? 0.4 : 0.35,
+              isDark ? 0.9 : 0.8,
+            ] as unknown as number,
           };
         },
       },
