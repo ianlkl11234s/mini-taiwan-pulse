@@ -406,9 +406,9 @@ export const SECTIONS: SectionDef[] = [
   {
     title: "SPACE",
     layers: [
-      { key: "satellitesYaogan", label: "Yaogan 遙感 (S)", labelMobile: "中國 Yaogan 遙感 (S 級 偵察)", expandable: true },
-      { key: "satellitesJilin", label: "Jilin 吉林 (S)", labelMobile: "中國 Jilin 吉林 (S 級 高解析)", expandable: true },
-      { key: "satellitesGaofen", label: "Gaofen 高分 (S)", labelMobile: "中國 Gaofen 高分 (S 級 國家級)", expandable: true },
+      { key: "satellitesYaogan", label: "Yaogan 遙感", labelMobile: "中國 Yaogan 遙感", expandable: true },
+      { key: "satellitesJilin", label: "Jilin 吉林", labelMobile: "中國 Jilin 吉林", expandable: true },
+      { key: "satellitesGaofen", label: "Gaofen 高分", labelMobile: "中國 Gaofen 高分", expandable: true },
       { key: "satellitesChinaOther", label: "中國其他 (TJS/北斗)", labelMobile: "中國其他 TJS/Beidou/Shiyan/餘", expandable: true },
       { key: "satellitesTaiwan", label: "台灣 FORMOSAT", labelMobile: "台灣衛星 FORMOSAT / TRITON / IRIS-C", expandable: true },
     ],
