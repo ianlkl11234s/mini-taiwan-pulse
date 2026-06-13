@@ -17,18 +17,46 @@ UI 結構（左 64 / top 98 / bottom 14 / width 412 glass panel）：
 5. **Card list** — timeline spine 風格，行內展開 meta grid + 跨來源 / 同地點集群 / 原文連結
 6. **Replay scrubber** — 底部，play/pause + LIVE button + range slider 接 timeStore
 
-## Phase 1 任務清單（TaskList 對應）
+## Phase 1 任務清單（夜間執行 — 已全數完成 ✅）
 
-| # | 任務 | repo | 狀態 |
+| # | 任務 | repo | commit |
 |---|---|---|---|
-| A1 | migration 166 升溫 pre-aggregate + `get_news_trending` RPC | gis-platform | pending |
-| A2 | migration 167 source_health + collector 寫入 + `get_source_health` RPC | gis-platform + data-collectors | pending |
-| B | 拆 `newsFilter` 為 3 軸 state | mini-taiwan-pulse | blocked by A1/A2 |
-| C1 | IntelPanel 殼 + Header + Replay | mini-taiwan-pulse | pending |
-| C2 | IntelFilters | mini-taiwan-pulse | pending |
-| C3 | IntelSituation 現況 | mini-taiwan-pulse | pending |
-| C4 | IntelCard timeline spine | mini-taiwan-pulse | pending |
-| D | 接線 + IconRail 入口 + 雙向選取 + tsc | mini-taiwan-pulse | blocked by C1-C4 |
+| A1 | migration 166 升溫 pre-aggregate + `get_news_trending` | gis-platform | `a7f3f27` |
+| A2 | migration 167 source_health + collector 寫入 + `get_source_health` | gis-platform + data-collectors | `acc7114` + `88af2c9` |
+| B | 拆 `newsFilter` 為 3 軸 state | mini-taiwan-pulse | `89f0a19` |
+| C1 | IntelPanel 殼 + Header + Replay | mini-taiwan-pulse | `b891396` |
+| C2 | IntelFilters | mini-taiwan-pulse | `0b15ecd` |
+| C3 | IntelSituation 現況 | mini-taiwan-pulse | `b2d30a2` |
+| C4 | IntelCard timeline spine | mini-taiwan-pulse | `89aea63` |
+| D | 接線 + IconRail 入口 + filter 同步 | mini-taiwan-pulse | `e9d5e4f` |
+
+## 早上驗收 checklist
+
+### 後端（Supabase 已實際跑過）
+- [x] migration 166 已 apply，cron job 57 重排，seed 7 天 934 行
+- [x] `SELECT * FROM public.get_news_trending(6,5);` 回 5 行含 surge_ratio
+- [x] migration 167 已 apply
+- [x] `SELECT * FROM public.get_source_health();` collector 跑過後會有 29 列
+- [ ] 確認 cron 'refresh-news-events' 下一輪（XX:01）有跑到 hourly refresh
+
+### Browser 驗收
+1. 啟動 dev server `npm run dev`，瀏覽 localhost:3721
+2. **左側 IconRail 應出現新的 Radio 圖示**（在 MapPin 下方）
+3. 點 Radio → 左側拉出 412px 寬玻璃面板（top:98 / bottom:14）
+4. **Header**：即時情報 / INTEL / LIVE pulse / 共 N 則 / 來源 29/29 popover / 倒數
+5. **Filter**：7 分類 chip / 1h-6h-24h / 縣市 dropdown / 相關度 / 嚴重 / 只看事件
+6. **現況**：24h 7 色堆疊直方圖 + 熱區 TOP 5（含 🔥）+ 分級 one-liner
+7. **卡片**：timeline spine 風格，點卡片地圖飛去，再點展開顯示 meta grid
+8. **Replay**：底部拉桿，play 動畫掃過 24h 重播
+9. **filter 同步**：在 Intel panel 改相關度 → sidebar newsEvents 的副 control 同步、地圖 pin 也跟著重抓
+10. **layer toggle 不會消失**：newsEvents toggle 仍可在 sidebar 開關（與 Intel panel 並列）
+
+### 未做（Phase 2）
+- Monitor mode / Wall mode / 右側 IndicatorPanel / TimelineDock 多軌
+- 國家信號 widget / 直播 embed
+- 地圖 pin click → scroll panel + 展開（單向 only 目前）
+- 升溫 chip 動畫 / 卡片進場動畫
+- 手機 fallback（< 1280px panel 會擠出畫面）
 
 ## 已決定
 
