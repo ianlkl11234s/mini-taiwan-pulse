@@ -687,3 +687,92 @@ curl -sI https://<domain>/<path>                                  # 線上逐層
 nginx `/geo /h3 /bus` 帶 `@dist` fallback；Cloudflare Cache Rule 配 404/5xx no-cache。
 容器內補抓單檔（免重啟）：`npx zeabur@latest service exec --id <id> -i=false -- /usr/local/bin/pull-deploy-assets.sh`。
 flag 是 `--id` 不是 `--service-id`。
+
+---
+
+## PB-XX 新增 LLM 評估維度全鏈路（2026-06-13）
+
+新增 LLM 輸出欄位（如 gis_relevance / severity / is_event）必過 5 段路，
+任一段漏接 → silent fail（LLM 跑了但 DB 全 NULL）。
+
+```
+1. data-collectors/collectors/<x>.py SYSTEM_PROMPT_HEADER
+   - 加規則 + 加輸出 schema 範例
+   - LLM_BATCH_SIZE 視 output 變多適度降低
+
+2. _annotate_items 內解析新欄位
+   - 加 validate（範圍 / 型別 / fallback None）
+
+3. _no_location_defaults / dry-run 補預設 None
+
+4. ⚠️ records.append({...}) dict 補新欄位
+   - 漏這步 = LLM 跑了但 DB 全 NULL（本 session 踩過）
+
+5. storage/supabase_tables.py TABLE_MAP[<x>].columns 補新欄位
+   - 漏這步 = supabase_writer 過濾掉新欄位、DB INSERT 不帶
+
+6. gis-platform migration <next>:
+   - ALTER TABLE realtime.<x> ADD COLUMN ... (允許 NULL，舊資料相容)
+   - ALTER TABLE realtime.<x>_daily ADD COLUMN ...
+   - refresh function 重出，帶新欄位
+   - 加 (day, <new col>) 索引給前端篩選
+   - Apply：psql "$SUPABASE_DB_URL" -f migrations/...
+
+7. 本地實跑驗證（必跑）：
+   NEWS_EVENTS_ENABLED=true SUPABASE_ENABLED=true python3 -m collectors.news_events
+   psql 驗證 count(<新欄位>) = count(*) — 沒填滿就是有環節漏接
+
+8. 前端（如需）：
+   - 新 RPC v2 加參數
+   - loader 改吃新 RPC、cache key 包含參數
+   - hook 加參數、useEffect 包含參數的 deps
+   - sidebar 加 control（options ≥ 4 自動 dropdown）
+   - paint 用新欄位（match/case expression）
+```
+
+關鍵：寫完每段「先 grep 同名舊欄位」確認 5+ 處都有對應改動。
+
+---
+
+## PB-XX 全自動 PR 工作流程（2026-06-13）
+
+個人 side project 標準流程，從寫 code 到上線約 5 分鐘：
+
+```
+# 1. 開 feature 分支
+git checkout -b feat/<name>
+
+# 2. 寫 code + 本地驗證
+npx tsc -b && npm test                # 前端
+pytest tests/ -v                      # data-collectors
+psql "$SUPABASE_DB_URL" -f migrations/<next>.sql  # gis-platform，先 apply 線上實測
+
+# 3. 本地實跑（特別是 LLM/collector/RPC 端到端）
+# - 改 LLM prompt → NEWS_EVENTS_ENABLED=true 跑一輪 + DB 驗證
+# - 改 RPC → psql 跑各種參數確認形狀
+# - 改前端 → dev server + agent-browser 截圖驗證
+
+# 4. push + PR
+git add -A && git commit -m "<type>: <subject>" && git push -u origin <branch>
+gh pr create --title "<title>" --body "<summary + 自我檢查結果 + 截圖路徑>"
+
+# 5. 等 CI + Claude review（30s-2min）
+# - CI 紅 → 修 → push 重跑
+# - Claude review 有意見 → 看是否合理、修或 dismiss
+# - 兩道全綠 → merge
+
+# 6. merge + sync
+gh pr merge <#> --squash --delete-branch
+git checkout master && git pull --ff-only && git branch -d <branch>
+
+# Zeabur 自動部署、Supabase migration 已預先 apply（步驟 2）
+```
+
+跨 repo 多 PR 時策略：DB 端 PR 先（先 apply 線上）→ collector PR → 前端 PR。
+這樣前端開 PR 時 RPC 已可用、本地驗收能跑。
+
+GitHub Actions 配置：
+- `.github/workflows/ci.yml` 跑既有測試
+- `.github/workflows/claude-review.yml` PR 開啟時自動 review
+- `.github/workflows/claude-mention.yml` `@claude` mention 觸發回應
+- 三 repo 都需要 `CLAUDE_CODE_OAUTH_TOKEN` secret（`claude setup-token` 產出）
