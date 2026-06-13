@@ -159,9 +159,11 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wdMixed: "#14b8a6",
   wdRecyclingContainer: "#84cc16",
   wdBattery: "#fbbf24",
-  // SPACE 衛星
-  satellitesChinaMil: "#ef5350",
-  satellitesChinaObs: "#ff9800",
+  // SPACE 衛星 (5 分群)
+  satellitesYaogan: "#ef5350",
+  satellitesJilin: "#ff7043",
+  satellitesGaofen: "#ec407a",
+  satellitesChinaOther: "#9e9e9e",
   satellitesTaiwan: "#4fc3f7",
 };
 
@@ -404,9 +406,11 @@ export const SECTIONS: SectionDef[] = [
   {
     title: "SPACE",
     layers: [
-      { key: "satellitesChinaMil", label: "中國軍事衛星 CN Mil Sat", labelMobile: "中國軍事/偵察衛星 CN Mil Sat", expandable: true },
-      { key: "satellitesChinaObs", label: "中國遙測衛星 CN Obs Sat", labelMobile: "中國遙測/地球觀測 CN Earth Obs Sat", expandable: true },
-      { key: "satellitesTaiwan", label: "台灣衛星 TW Sat", labelMobile: "台灣衛星 Taiwan Sat (FORMOSAT/TRITON)", expandable: true },
+      { key: "satellitesYaogan", label: "🛰️ Yaogan 遙感 (S)", labelMobile: "🛰️ 中國 Yaogan 遙感 (S 級 偵察)", expandable: true },
+      { key: "satellitesJilin", label: "🛰️ Jilin 吉林 (S)", labelMobile: "🛰️ 中國 Jilin 吉林 (S 級 高解析)", expandable: true },
+      { key: "satellitesGaofen", label: "🛰️ Gaofen 高分 (S)", labelMobile: "🛰️ 中國 Gaofen 高分 (S 級 國家級)", expandable: true },
+      { key: "satellitesChinaOther", label: "⚙️ 中國其他 (TJS/北斗)", labelMobile: "⚙️ 中國其他 TJS/Beidou/Shiyan/餘", expandable: true },
+      { key: "satellitesTaiwan", label: "🇹🇼 台灣 FORMOSAT", labelMobile: "🇹🇼 台灣衛星 FORMOSAT / TRITON / IRIS-C", expandable: true },
     ],
   },
   {

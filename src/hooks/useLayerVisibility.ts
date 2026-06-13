@@ -17,6 +17,11 @@ const DEFAULT_ON: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibi
   "ports",
   "lighthouses",
   "airports",
+  // 衛星 S 級三組 + 台灣預設開（其他中國默認關）
+  "satellitesYaogan",
+  "satellitesJilin",
+  "satellitesGaofen",
+  "satellitesTaiwan",
 ]);
 
 function buildDefaults(): LayerVisibility {

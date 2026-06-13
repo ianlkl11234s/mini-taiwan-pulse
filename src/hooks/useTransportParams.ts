@@ -961,8 +961,10 @@ export function useTransportParams() {
       case "roadEvents": return [
         { label: `Opacity ${reOpacity.toFixed(2)}`, value: reOpacity, min: 0, max: 1, step: 0.05, onChange: setReOpacity },
       ];
-      case "satellitesChinaMil":
-      case "satellitesChinaObs":
+      case "satellitesYaogan":
+      case "satellitesJilin":
+      case "satellitesGaofen":
+      case "satellitesChinaOther":
       case "satellitesTaiwan": return [
         { label: `Opacity ${satOpacity.toFixed(2)}`, value: satOpacity, min: 0, max: 1, step: 0.05, onChange: setSatOpacity },
       ];

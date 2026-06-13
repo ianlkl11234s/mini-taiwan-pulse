@@ -118,7 +118,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     ],
     render: ({ visibility }) => <ForestryLegend visibility={visibility} />,
   },
-  { keys: ["satellitesChinaMil", "satellitesChinaObs", "satellitesTaiwan"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
+  { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesChinaOther", "satellitesTaiwan"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
@@ -834,8 +834,10 @@ function IotStructureLegend() {
 
 function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {
   const items: { key: keyof LayerVisibility; cat: keyof typeof SATELLITE_COLORS }[] = [
-    { key: "satellitesChinaMil", cat: "china_military" },
-    { key: "satellitesChinaObs", cat: "china_earth_obs" },
+    { key: "satellitesYaogan", cat: "china_yaogan" },
+    { key: "satellitesJilin", cat: "china_jilin" },
+    { key: "satellitesGaofen", cat: "china_gaofen" },
+    { key: "satellitesChinaOther", cat: "china_other" },
     { key: "satellitesTaiwan", cat: "taiwan" },
   ];
   const active = items.filter((i) => visibility[i.key]);

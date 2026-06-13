@@ -4,13 +4,20 @@
 // localStorage cache 6h 避免重 fetch。
 
 import { withLoading } from "../lib/loadingRegistry";
-import { type SatelliteCategory, type SatelliteRecord } from "./satelliteTypes";
+import {
+  CN_GAOFEN_RE,
+  CN_JILIN_RE,
+  CN_YAOGAN_RE,
+  TW_NAME_RE,
+  type SatelliteCategory,
+  type SatelliteRecord,
+} from "./satelliteTypes";
 import { isTleActive } from "./satelliteSGP4";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-const CACHE_KEY = "satellite-layer-tle-v2-supabase";
+const CACHE_KEY = "satellite-layer-tle-v3-grouped";
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 interface CacheBlob {
@@ -57,20 +64,20 @@ async function fetchView(qs: string): Promise<SupabaseRow[]> {
   return (await resp.json()) as SupabaseRow[];
 }
 
-/** 台灣衛星名稱正則（UCS country_operator 不一定即時，這層保底，含 FS-8 / Triton） */
-const TW_NAME_RE = /^(FORMOSAT|TRITON\b)/i;
-
-/** 把 Supabase row 轉成 SatelliteRecord，並決定本專案的 category */
+/** 把 Supabase row 轉成 SatelliteRecord，並決定本專案的 category（5 分群） */
 function classify(row: SupabaseRow): SatelliteCategory | null {
   const country = row.country_operator;
   const cat = row.category;
+  const name = row.name;
+  // 台灣：country + 名稱保底（含 FS-8A、TRITON）
   if (country === "Taiwan") return "taiwan";
-  // 名稱保底：FORMOSAT-8A、FORMOSAT-7R/TRITON 在 UCS 還未對齊 country
-  // 排除碎片（DEB）
-  if (TW_NAME_RE.test(row.name) && cat !== "debris") return "taiwan";
+  if (TW_NAME_RE.test(name) && cat !== "debris") return "taiwan";
+  // 中國分群（依名稱前綴）
   if (country === "China") {
-    if (cat === "military") return "china_military";
-    if (cat === "earth_obs") return "china_earth_obs";
+    if (CN_YAOGAN_RE.test(name)) return "china_yaogan";
+    if (CN_JILIN_RE.test(name)) return "china_jilin";
+    if (CN_GAOFEN_RE.test(name)) return "china_gaofen";
+    if (cat === "military" || cat === "earth_obs") return "china_other";
   }
   return null;
 }

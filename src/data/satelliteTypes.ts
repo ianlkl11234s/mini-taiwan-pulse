@@ -1,17 +1,26 @@
 // 衛星圖層共用類型/顏色/標籤（loader/hook/legend/popup 共用）
 
-export type SatelliteCategory = "china_military" | "china_earth_obs" | "taiwan";
+export type SatelliteCategory =
+  | "china_yaogan"   // S 級 — 軍方光學/SAR 偵察
+  | "china_jilin"    // S 級 — 商業高解析光學
+  | "china_gaofen"   // S 級 — 國家級光學/SAR
+  | "china_other"    // 含 TJS（A）/ Beidou（B）/ Shiyan / 餘
+  | "taiwan";
 
 export const SATELLITE_COLORS: Record<SatelliteCategory, string> = {
-  china_military: "#ef5350",
-  china_earth_obs: "#ff9800",
-  taiwan: "#4fc3f7",
+  china_yaogan: "#ef5350",   // 紅
+  china_jilin: "#ff7043",    // 橘紅
+  china_gaofen: "#ec407a",   // 紫紅
+  china_other: "#9e9e9e",    // 灰
+  taiwan: "#4fc3f7",         // 藍
 };
 
 export const SATELLITE_LABELS: Record<SatelliteCategory, string> = {
-  china_military: "中國軍事/偵察",
-  china_earth_obs: "中國遙測/地球觀測",
-  taiwan: "台灣衛星",
+  china_yaogan: "中國 Yaogan 遙感",
+  china_jilin: "中國 Jilin 吉林",
+  china_gaofen: "中國 Gaofen 高分",
+  china_other: "中國其他 (TJS/北斗/Shiyan)",
+  taiwan: "台灣 (FORMOSAT/TRITON)",
 };
 
 /** Mapbox source / layer id 常量 */
@@ -33,13 +42,10 @@ export interface SatelliteRecord {
   tleLine2: string;
 }
 
-/** 中國衛星名稱白名單（CelesTrak active.txt 名稱開頭 regex） */
-export const CN_MILITARY_RE = /^(YAOGAN|TJS|TJSW|SHIYAN|SJ-|SHIJIAN|YH-)/i;
-export const CN_EARTH_OBS_RE = /^(JILIN|GAOFEN|LUDI TANCE|CSES|HAIYANG|HJ-|HUANJING|ZIYUAN|ZY-|YUNHAI)/i;
+/** 中國衛星名稱前綴 → category */
+export const CN_YAOGAN_RE = /^YAOGAN/i;
+export const CN_JILIN_RE = /^JILIN/i;
+export const CN_GAOFEN_RE = /^GAOFEN/i;
 
-/** 台灣衛星 NORAD ID 白名單 */
-export const TAIWAN_NORAD_IDS = [
-  42920, // FORMOSAT-5
-  44349, 44350, 44351, 44352, 44353, 44354, // FORMOSAT-7 ×6
-  58191, // TRITON 獵風者
-];
+/** 台灣衛星名稱保底（UCS country=null 的新衛星） */
+export const TW_NAME_RE = /^(FORMOSAT|TRITON\b)/i;

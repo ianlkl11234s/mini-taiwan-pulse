@@ -160,8 +160,10 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   wdMixed: Trash2,
   wdRecyclingContainer: Recycle,
   wdBattery: Battery,
-  satellitesChinaMil: Satellite,
-  satellitesChinaObs: Satellite,
+  satellitesYaogan: Satellite,
+  satellitesJilin: Satellite,
+  satellitesGaofen: Satellite,
+  satellitesChinaOther: Satellite,
   satellitesTaiwan: Satellite,
 };
 

@@ -196,9 +196,11 @@ export type ExpandableLayerKey =
   | "wdMixed"
   | "wdRecyclingContainer"
   | "wdBattery"
-  // 衛星 SPACE（CelesTrak 名稱白名單 + TW NORAD）
-  | "satellitesChinaMil"
-  | "satellitesChinaObs"
+  // 衛星 SPACE — 中國分 4 群 + 台灣
+  | "satellitesYaogan"
+  | "satellitesJilin"
+  | "satellitesGaofen"
+  | "satellitesChinaOther"
   | "satellitesTaiwan";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
@@ -660,8 +662,10 @@ export interface LayerVisibility {
   wdRecyclingContainer: boolean;
   wdBattery: boolean;
   // 衛星 SPACE
-  satellitesChinaMil: boolean;
-  satellitesChinaObs: boolean;
+  satellitesYaogan: boolean;
+  satellitesJilin: boolean;
+  satellitesGaofen: boolean;
+  satellitesChinaOther: boolean;
   satellitesTaiwan: boolean;
 }
 

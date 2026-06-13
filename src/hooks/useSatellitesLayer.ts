@@ -43,8 +43,10 @@ const REFRESH_THROTTLE_MS = 1000;
 const COLOR_EXPR: ExpressionSpecification = [
   "match",
   ["get", "cat"],
-  "china_military", SATELLITE_COLORS.china_military,
-  "china_earth_obs", SATELLITE_COLORS.china_earth_obs,
+  "china_yaogan", SATELLITE_COLORS.china_yaogan,
+  "china_jilin", SATELLITE_COLORS.china_jilin,
+  "china_gaofen", SATELLITE_COLORS.china_gaofen,
+  "china_other", SATELLITE_COLORS.china_other,
   "taiwan", SATELLITE_COLORS.taiwan,
   "#888",
 ];
@@ -66,8 +68,10 @@ function circleRing(centerLng: number, centerLat: number, radiusKm: number, step
 }
 
 interface SatelliteVisibilityFlags {
-  china_military: boolean;
-  china_earth_obs: boolean;
+  china_yaogan: boolean;
+  china_jilin: boolean;
+  china_gaofen: boolean;
+  china_other: boolean;
   taiwan: boolean;
 }
 
@@ -90,7 +94,8 @@ export function useSatellitesLayer(
   const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN } = opts;
   const recordsRef = useRef<PropParsed[]>([]);
   const layersReadyRef = useRef(false);
-  const anyVisible = visibility.china_military || visibility.china_earth_obs || visibility.taiwan;
+  const anyVisible = visibility.china_yaogan || visibility.china_jilin
+    || visibility.china_gaofen || visibility.china_other || visibility.taiwan;
   const [dataReady, setDataReady] = useState(false);
 
   // ── 載入 TLE（一次性，6h cache） ──
@@ -189,8 +194,10 @@ export function useSatellitesLayer(
     if (!parsed.length) return;
 
     const visibleCats: SatelliteCategory[] = [];
-    if (visibility.china_military) visibleCats.push("china_military");
-    if (visibility.china_earth_obs) visibleCats.push("china_earth_obs");
+    if (visibility.china_yaogan) visibleCats.push("china_yaogan");
+    if (visibility.china_jilin) visibleCats.push("china_jilin");
+    if (visibility.china_gaofen) visibleCats.push("china_gaofen");
+    if (visibility.china_other) visibleCats.push("china_other");
     if (visibility.taiwan) visibleCats.push("taiwan");
     if (!visibleCats.length) {
       // 清空

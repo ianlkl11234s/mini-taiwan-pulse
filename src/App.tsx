@@ -695,12 +695,14 @@ export default function App() {
     transportParams.daOpacity,
   );
 
-  // ── 衛星圖層（CelesTrak active.txt + SGP4 即時計算） ──
+  // ── 衛星圖層（Supabase satellite_classified + SGP4 即時計算） ──
   const [satGlobalMode, setSatGlobalMode] = useState(false);
   useSatellitesLayer(mapRef, {
     visibility: {
-      china_military: layerVisibility.satellitesChinaMil,
-      china_earth_obs: layerVisibility.satellitesChinaObs,
+      china_yaogan: layerVisibility.satellitesYaogan,
+      china_jilin: layerVisibility.satellitesJilin,
+      china_gaofen: layerVisibility.satellitesGaofen,
+      china_other: layerVisibility.satellitesChinaOther,
       taiwan: layerVisibility.satellitesTaiwan,
     },
     trackMinutes: satGlobalMode ? 90 : 30,
@@ -710,8 +712,10 @@ export default function App() {
     setSatGlobalMode(true);
     setLayerVisibility((prev) => ({
       ...prev,
-      satellitesChinaMil: true,
-      satellitesChinaObs: true,
+      satellitesYaogan: true,
+      satellitesJilin: true,
+      satellitesGaofen: true,
+      satellitesChinaOther: true,
       satellitesTaiwan: true,
     }));
     mapRef.current?.flyTo({
