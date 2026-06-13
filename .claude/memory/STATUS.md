@@ -1,7 +1,35 @@
 # Status
 
-**最後更新**：2026-06-12（newsEvents 從靜態 PoC 變自動化即時管線）
-**分支**：`master`（已 push `7909b25`）。
+**最後更新**：2026-06-14（衛星 + 新聞 v2 雙線當日上線、本地完全同步 origin）
+**分支**：`master`（已 push `18429d3`）。本地剩 `feat/fire-rescue` + `medical/poi-layers` 保留（24 個已合 master 的舊 branch 全清）。
+
+## 2026-06-13 衛星 SPACE 圖層上線（PR #10，10 個 commit）
+
+從零做到上線、含 Phase A-D 完整提案，分階段拆 commits：
+
+| Commit | 內容 |
+|---|---|
+| `1060e05` | 初版：3 toggle（CN mil/obs + TW）+ 雙圈足跡 + 軌跡 + 即時點 |
+| `3fb4d4b` | **CelesTrak 403** → 改走 gis-platform Supabase `satellite_classified` view（67k TLE 每 2h 從 Space-Track 同步）|
+| `4275d6f` | 補 FS-8A NORAD 66666 + TRITON 58017（UCS country_operator=null 漏網之魚，名稱 regex 保底）|
+| `96e73be` | **中國分流 4 群**：Yaogan 101 / Jilin 36 / Gaofen 30 / 中國其他 ~184，不同顏色 |
+| `652f576` | 拿掉 Satellite icon + 全球模式 |
+| `8e8163a` | **修閃爍**：殭屍 throttle closure + listener 洩漏 + recompute 改 stable callback + visKey 即時 force |
+| `d821908`/`4985397` | **perf 拆 light/heavy**：點+足跡 10 Hz、軌跡 1 Hz（總 23k SGP4/s，視覺流暢） |
+| `0196c86` | 拿掉 (S) 字樣 + 全部預設關 |
+| `18429d3` | 提案文件 `docs/proposal/satellite-console.md` 上 commit（Phase A-D 藍圖：變軌警報/百科卡/變軌前後覆蓋對比/離軌預測）|
+
+**5 個 layer keys**：satellitesYaogan / Jilin / Gaofen / ChinaOther / Taiwan。
+**Phase A-D 待辦在 BACKLOG SAT-1~7**。
+
+## 2026-06-13 新聞 v2（PR #11，用戶並行完成）
+
+3 階段全套上線：
+- A. 分類上色（`b50f6ba`）：7 類分色 + 圖例 + popup 中文
+- B. 同鄉鎮聚合（`295ca15` + migration 163）：clustered RPC + 點放大 + 數字 + 多則 popup
+- v2. GIS 相關性 + Filter（`292b884` + migration 164/165 + collector `9fc0c60`）：LLM 多判 3 維度 + 4 級 dropdown（重大/重要 預設/地方/全部）+ critical 視覺強化
+
+Zeabur 自動部署兩邊（mini-taiwan-pulse + data-collectors）已上線。
 
 ## 2026-06-12 newsEvents 自動化即時管線（三 repo）
 
