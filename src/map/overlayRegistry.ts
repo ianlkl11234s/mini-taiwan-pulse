@@ -1613,18 +1613,24 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, params) => {
           const s = params?.newsScale ?? 1;
+          // 階段 B：event_count 1→1x、5→1.6x、15→2.4x、50→3.2x
+          const countMult = [
+            "interpolate", ["linear"], ["coalesce", ["get", "event_count"], 1],
+            1, 1, 5, 1.6, 15, 2.4, 50, 3.2,
+          ];
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, 3 * s, 10, 5 * s, 14, 8 * s,
-            ],
+              5, ["*", 3 * s, countMult],
+              10, ["*", 5 * s, countMult],
+              14, ["*", 8 * s, countMult],
+            ] as unknown as number,
             "circle-color": NEWS_CATEGORY_COLOR_EXPR as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)",
             "circle-stroke-width": [
               "interpolate", ["linear"], ["zoom"],
               5, 0, 10, 0.5, 14, 1,
             ],
-            // other 類降透明度避免占據視覺重量
             "circle-opacity": [
               "case",
               ["==", ["get", "category"], "other"],
@@ -1633,6 +1639,31 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ] as unknown as number,
           };
         },
+      },
+      {
+        // 階段 B：event_count ≥ 2 時在點上顯示數字
+        suffix: "count",
+        type: "symbol",
+        layout: {
+          "text-field": [
+            "case",
+            [">=", ["coalesce", ["get", "event_count"], 0], 2],
+            ["to-string", ["get", "event_count"]],
+            "",
+          ] as unknown as string,
+          "text-size": [
+            "interpolate", ["linear"], ["zoom"],
+            5, 9, 10, 11, 14, 13,
+          ],
+          "text-font": ["DIN Pro Bold", "Arial Unicode MS Bold"],
+          "text-allow-overlap": true,
+          "text-ignore-placement": true,
+        },
+        paint: (isDark) => ({
+          "text-color": isDark ? "#fff" : "#1a1a1a",
+          "text-halo-color": isDark ? "rgba(0,0,0,0.7)" : "rgba(255,255,255,0.9)",
+          "text-halo-width": 1.2,
+        }),
       },
     ],
   },

@@ -19,7 +19,7 @@ const RIPPLE_COUNT = 2;
 /** ripple 動畫更新間隔（毫秒），~30fps */
 const FRAME_INTERVAL = 33;
 
-const NEWS_LAYER_IDS = ["news-events-glow", "news-events-circle"];
+const NEWS_LAYER_IDS = ["news-events-glow", "news-events-circle", "news-events-count"];
 const RIPPLE_IDS = Array.from({ length: RIPPLE_COUNT }, (_, i) => `news-events-ripple-${i}`);
 
 export function useNewsTimeline(

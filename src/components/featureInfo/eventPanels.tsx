@@ -1,33 +1,118 @@
 import { Row } from "./shared";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
+import type { ClusterEvent } from "../../data/newsEventsLoader";
+
+function parseEvents(raw: unknown): ClusterEvent[] {
+  if (typeof raw !== "string" || !raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as ClusterEvent[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function formatTs(unixSec: number | undefined | null): string {
+  if (!unixSec) return "";
+  return new Date(unixSec * 1000).toLocaleString("zh-TW", {
+    timeZone: "Asia/Taipei",
+    hour12: false,
+  });
+}
 
 export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
-  const link = String(props.link ?? "");
-  const cat = getNewsCategoryDef(props.category as string | undefined);
+  const eventCount = Number(props.event_count ?? 1);
+  const location = String(props.location_name ?? props.county ?? "");
+  const events = parseEvents(props.events_json);
+
+  // 單則：維持原本簡潔版型（向後相容）
+  if (eventCount <= 1 || events.length <= 1) {
+    const link = String(props.link ?? "");
+    const cat = getNewsCategoryDef(props.category as string | undefined);
+    return (
+      <>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+          <div style={{ width: 10, height: 10, borderRadius: "50%", background: cat.color, flexShrink: 0 }} />
+          <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
+            {String(props.title ?? "Unknown Event")}
+          </div>
+        </div>
+        <Row label="摘要" value={String(props.summary ?? "")} />
+        <Row label="地點" value={location} />
+        <Row label="分類" value={cat.label} color={cat.color} />
+        <Row label="時間" value={String(props.published ?? "")} />
+        {link && (
+          <div style={{ marginTop: 6 }}>
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: cat.color, fontSize: 11, fontFamily: "monospace", textDecoration: "underline" }}
+            >
+              原文連結
+            </a>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // 多則：標題列 + 可滑動清單
   return (
     <>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: cat.color, flexShrink: 0 }} />
+      <div style={{
+        display: "flex", alignItems: "center", gap: 6, marginBottom: 8,
+        paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.1)",
+      }}>
+        <div style={{ fontSize: 14, lineHeight: 1 }}>📰</div>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
-          {String(props.title ?? "Unknown Event")}
+          {location}
+        </div>
+        <div style={{
+          marginLeft: "auto", fontSize: 10, padding: "1px 6px", borderRadius: 3,
+          background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.9)", fontWeight: 600,
+        }}>
+          {eventCount} 則
         </div>
       </div>
-      <Row label="摘要" value={String(props.summary ?? "")} />
-      <Row label="地點" value={String(props.location_name ?? "")} />
-      <Row label="分類" value={cat.label} color={cat.color} />
-      <Row label="時間" value={String(props.published ?? "")} />
-      {link && (
-        <div style={{ marginTop: 6 }}>
-          <a
-            href={link}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: cat.color, fontSize: 11, fontFamily: "monospace", textDecoration: "underline" }}
-          >
-            原文連結
-          </a>
-        </div>
-      )}
+      <div style={{
+        display: "flex", flexDirection: "column", gap: 6,
+        maxHeight: 240, overflowY: "auto", paddingRight: 4,
+      }}>
+        {events.map((e) => {
+          const cat = getNewsCategoryDef(e.category);
+          return (
+            <div key={e.id} style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
+              <div style={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: cat.color, marginTop: 5, flexShrink: 0,
+              }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <a
+                  href={e.url ?? "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: "rgba(255,255,255,0.92)", fontSize: 11.5, fontWeight: 600,
+                    textDecoration: "none", lineHeight: 1.4, display: "block",
+                  }}
+                >
+                  {e.title}
+                </a>
+                <div style={{
+                  fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2,
+                  display: "flex", gap: 6, flexWrap: "wrap",
+                }}>
+                  <span style={{ color: cat.color }}>{cat.label}</span>
+                  <span>·</span>
+                  <span>{formatTs(e.published_ts)}</span>
+                  {e.source && <span>· {e.source.toUpperCase()}</span>}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </>
   );
 }
