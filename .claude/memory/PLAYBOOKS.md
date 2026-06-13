@@ -776,3 +776,81 @@ GitHub Actions 配置：
 - `.github/workflows/claude-review.yml` PR 開啟時自動 review
 - `.github/workflows/claude-mention.yml` `@claude` mention 觸發回應
 - 三 repo 都需要 `CLAUDE_CODE_OAUTH_TOKEN` secret（`claude setup-token` 產出）
+
+---
+
+## PB-17 衛星圖層分群上線（CelesTrak 或 Supabase？）
+
+> 2026-06-13 制定。新國家 / 新系列衛星 layer 都套這個流程。
+
+### Step 1: 資料來源決策（CelesTrak vs Supabase）
+
+| 條件 | 用 |
+|---|---|
+| gis-platform Supabase 已有 `satellite_classified` view | **Supabase**（推薦）|
+| 完全沒有衛星管線 | CelesTrak（要先測瀏覽器是否 403） |
+
+⚠️ CelesTrak 對瀏覽器 fetch 直接 403（CORS/UA），本機 curl 不能拿來判斷。
+若一定要走 CelesTrak，要做 Supabase wrapper RPC 後端代理。
+
+### Step 2: 衛星清單篩選（雙保險）
+
+```ts
+// loader 同時跑兩個 query 合併去重
+const [byCountry, byName] = await Promise.all([
+  fetchView("country_operator=eq.<國>"),            // UCS 有對齊的
+  fetchView("or=(name.ilike.系列前綴*)&category=neq.debris"), // UCS 漏網 + 排碎片
+]);
+```
+
+理由：UCS Satellite Database 半年才更新一次，新發射衛星 `country_operator=null`
+半年內查不到（FS-8A / TRITON 都中過招）。靠名稱 regex 補位。
+
+### Step 3: 分群（避免「重要性差距大」的雜訊）
+
+中國衛星跑 351 顆全混時：北斗 49 顆慢繞 MEO/GEO 視覺喧賓奪主，蓋過 Yaogan
+「每 10 分鐘過台灣」的戲劇性。
+
+→ 按名稱前綴 regex 分群拆 toggle：
+```ts
+const CN_YAOGAN_RE = /^YAOGAN/i;
+const CN_JILIN_RE = /^JILIN/i;
+const CN_GAOFEN_RE = /^GAOFEN/i;
+// 其他 (含 TJS / Beidou / Shiyan) 歸 china_other 預設關
+```
+
+S 級三組（即時偵察）預設可開、其他預設關。
+
+### Step 4: SGP4 計算頻率分流（避免跳格 / 過熱）
+
+```ts
+// 點 + 足跡（廉價，每顆 1 SGP4）→ 高頻
+subscribeThrottled(100ms, recomputeLight);  // 10 Hz 流暢
+// 軌跡 polyline（昂貴，每顆 60 SGP4）→ 低頻
+subscribeThrottled(1000ms, recomputeTrack); // 1 Hz 即可
+```
+
+實測 350 顆 × 10 Hz light + 1 Hz heavy ≈ 23k SGP4/s，現代瀏覽器輕鬆。
+
+### Step 5: Hook 穩定性鐵則
+
+- `visibility` / `trackMinutes` 走 ref，不入 useCallback deps
+- recompute 是 stable callback（useCallback deps `[]`）
+- 所有 `map.on(...)` listener 必須進 cleanup
+- 新增 `visKey` 字串穩定化 effect：toggle 一動立即 force recompute（0 延遲、0 閃爍）
+
+### Step 6: 9 觸點接線（依 CLAUDE.md 規則 5）
+
+types/index.ts → satelliteTypes.ts (colors/labels/regex) → satelliteSGP4.ts (純函式)
+→ satelliteLoader.ts (Supabase) → useSatellitesLayer.ts → layerCatalog.ts (LAYER_COLORS + SPACE section)
+→ useLayerVisibility.ts (DEFAULT_ON 視需要) → IconRailSidebar.tsx (LAYER_ICONS 對應)
+→ App.tsx (hook call) → SatellitePanel + featureInfo/registry.tsx + LegendPanel.tsx
+→ useMapInteraction.ts (GIS_LAYERS 加 sat-current-point)
+→ useTransportParams.ts (opacity slider case)
+
+### 反例（不要做）
+
+- ❌ 全部混一個 layer 不分群（北斗喧賓奪主）
+- ❌ recompute 入 useCallback deps（effect 頻繁重綁 + throttle 殭屍 closure）
+- ❌ 直接走 CelesTrak 不測瀏覽器（部署後才發現 403 整天 0 顆）
+- ❌ 只看 country_operator 不靠名稱保底（FS-8A 找半天）
