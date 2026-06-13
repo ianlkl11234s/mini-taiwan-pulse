@@ -441,3 +441,23 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
   （見 MapView.tsx load handler 的補發區塊）
 - 線上排障：網址加 `?debug` → `window.__map`；access log 看 pmtiles 只有
   16384 header 讀取、無後續 range = 圖層沒真的在畫
+
+## `git add -A` 危險（2026-06-13 教訓）
+
+在 working tree 有「未追蹤的草稿 / 跨分支 WIP」時 **禁止** `git add -A` 或 `git add .`：
+- 草稿（如 `docs/proposal/*.md`）會悄悄被掃進非預期 commit
+- 跨分支 WIP（如 news-filter-critical 的 useTransportParams 改動誤入衛星 commit）
+- 三次踩到都靠 `git rm --cached` + amend 救回
+
+**取代做法**：commit 前 `git status` 列檔、`git add <具體檔案>` 精準上 stage。
+新檔案要不要進 commit、進哪個 commit、要先想清楚。
+
+## 視覺「順暢」可能是 bug 副產物（2026-06-13 教訓）
+
+修 React hook 的「effect 重綁 / closure 不穩定」類 bug 時，可能不知不覺**收回**
+原本因為 effect 高頻 re-fire 而產生的「假高頻更新」。修穩定性後若視覺變跳格，
+**不是 bug 回歸，是真實頻率露出**。
+
+- 修穩定性 → 評估顯式更新頻率（throttle / RAF）
+- 視覺需求高頻 → 拆 light（廉價、高 Hz）/ heavy（昂貴、低 Hz）兩條訂閱
+- 範例：衛星 hook 拆 point+footprint(10Hz) / track polyline(1Hz)，總 CPU 不變但流暢
