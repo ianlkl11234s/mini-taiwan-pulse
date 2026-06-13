@@ -38,8 +38,8 @@ const FOOTPRINT_INNER_KM = 50;
 const FOOTPRINT_OUTER_KM = 1500;
 const TRACK_STEP_SEC = 30;
 const DEFAULT_TRACK_MIN = 30;
-/** 輕量更新（即時點 + 足跡圓）— 5 Hz 讓衛星看起來順暢流動 */
-const LIGHT_REFRESH_MS = 200;
+/** 輕量更新（即時點 + 足跡圓）— 10 Hz 讓衛星看起來順暢流動 */
+const LIGHT_REFRESH_MS = 100;
 /** 重量更新（未來 30 分軌跡 polyline）— 1 Hz 即可，軌跡形狀短期內變化極小 */
 const HEAVY_REFRESH_MS = 1000;
 
