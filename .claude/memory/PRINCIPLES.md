@@ -461,3 +461,26 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 - 修穩定性 → 評估顯式更新頻率（throttle / RAF）
 - 視覺需求高頻 → 拆 light（廉價、高 Hz）/ heavy（昂貴、低 Hz）兩條訂閱
 - 範例：衛星 hook 拆 point+footprint(10Hz) / track polyline(1Hz)，總 CPU 不變但流暢
+
+## newsEvents pipeline 5 條（2026-06-13/14）
+
+1. **LLM 不吐座標**（已從 news-roadmap 升級）：LLM 只輸出正規化地名（縣市+鄉鎮）
+   過白名單，座標由 DB trigger 查 `spatial.township_boundaries` ST_PointOnSurface
+   補。違反成本：幻覺座標亂跳難 debug
+2. **homebrew Python 3.14 PEP 668 套件安裝**：`pip3 install --break-system-packages <pkg>`，
+   不要 venv 化（已有專案慣例直接 system pip）
+3. **collector 新增 LLM 評估維度 5 段路必端到端跑一次**：
+   prompt → LLM annotation → item update → records.append dict → DB write，
+   任一段漏接都 silent fail（636 行 vs 740 行 vs 1295 行 supabase_writer）
+4. **Supabase RPC 參數一律用 integer**：smallint 從 supabase-js 傳會解析成 integer
+   找不到 overload。Default 值不變即可
+5. **RPC 變動先 apply 至線上實測再 commit**：薄 RPC 都是 stateless 可冪等 apply，
+   實測形狀正確再 git push，比 PR review 抓得更實在
+
+## 個人 PR 流程（2026-06-13）
+
+- **PR 是給自己看，不是給人看**：自我 review diff 抓「漏帶欄位 / 命名不一致 / 沒處理的 edge case」
+- **CI + Claude review 是補充，不替代自我驗證**：本 session 的 collector dict 漏欄、RPC smallint 兩個 bug 兩道網都沒抓到，自己端到端跑一輪才發現
+- **Claude review prompt 必明確「只看 diff、無問題單行 LGTM」**：未限制時會主動展開讀檔，跑 6-10 分鐘消耗訂閱
+- **首次 PR 修 workflow 檔本身會跳過 Claude review**：安全機制 "Action skipped due to workflow validation error"，不是 bug
+- **不開公司級嚴格 PR 流程**：個人 side project 不需要 2 approvers / 強制 staging，那是給多人團隊的；用 PR 主要為「強迫慢一拍 + 自動跑檢查 + 開放 AI review」
