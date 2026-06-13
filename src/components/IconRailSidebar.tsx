@@ -16,6 +16,7 @@ import {
   ShoppingCart, Warehouse,
   // FORESTRY icons
   Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
+  Satellite,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -159,6 +160,9 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   wdMixed: Trash2,
   wdRecyclingContainer: Recycle,
   wdBattery: Battery,
+  satellitesChinaMil: Satellite,
+  satellitesChinaObs: Satellite,
+  satellitesTaiwan: Satellite,
 };
 
 // ── IATA Map for Locations Panel ──
@@ -189,6 +193,8 @@ interface IconRailSidebarProps {
   dataRegistry?: DataRegistry;
   selectedDate?: Date;
   onDateSelect?: (d: Date) => void;
+  /** 點 sidebar 衛星 icon 進入「全球衛星模式」（flyTo zoom 1.8 + 開三衛星 layer + 軌跡延長到 90 min） */
+  onEnterSatelliteGlobalMode?: () => void;
 }
 
 // ── Shared Styles ──
@@ -213,6 +219,7 @@ export function IconRailSidebar({
   counts, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   getControls, currentLocationId, onLocationJump, onWidthChange,
+  onEnterSatelliteGlobalMode,
 }: IconRailSidebarProps) {
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
@@ -323,6 +330,16 @@ export function IconRailSidebar({
           onClick={() => togglePanel("locations")}
           tooltip="Locations"
         />
+
+        {/* Satellite — 進入全球衛星模式 */}
+        {onEnterSatelliteGlobalMode && (
+          <RailIcon
+            icon={Satellite}
+            active={false}
+            onClick={onEnterSatelliteGlobalMode}
+            tooltip="Satellite Globe"
+          />
+        )}
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />

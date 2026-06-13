@@ -32,6 +32,7 @@
     "pmtiles": "^4.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "satellite.js": "^5.0.0",
     "three": "^0.172.0"
   },
   "devDependencies": {

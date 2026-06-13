@@ -19,6 +19,7 @@ import {
   SOIL_FERTILITY_METRIC_OPTIONS,
   type SoilFertilityMetric,
 } from "../data/agriSoilFertilityMetrics";
+import { SATELLITE_COLORS, SATELLITE_LABELS } from "../data/satelliteTypes";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -117,6 +118,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     ],
     render: ({ visibility }) => <ForestryLegend visibility={visibility} />,
   },
+  { keys: ["satellitesChinaMil", "satellitesChinaObs", "satellitesTaiwan"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
@@ -825,6 +827,35 @@ function IotStructureLegend() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {
+  const items: { key: keyof LayerVisibility; cat: keyof typeof SATELLITE_COLORS }[] = [
+    { key: "satellitesChinaMil", cat: "china_military" },
+    { key: "satellitesChinaObs", cat: "china_earth_obs" },
+    { key: "satellitesTaiwan", cat: "taiwan" },
+  ];
+  const active = items.filter((i) => visibility[i.key]);
+  if (!active.length) return null;
+  return (
+    <div>
+      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+        衛星 SATELLITES
+      </div>
+      {active.map((i) => (
+        <div key={i.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 12, height: 12, borderRadius: "50%", background: SATELLITE_COLORS[i.cat], display: "inline-block" }} />
+          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{SATELLITE_LABELS[i.cat]}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: 8, lineHeight: 1.35, color: "rgba(255,255,255,0.4)" }}>
+        ● 即時點 = 子衛星正下方<br />
+        ● 內圓 50 km swath（成像範圍示意）<br />
+        ● 虛線外圓 1,500 km（仰角 ≥ 10° 可見 cone）<br />
+        ● 軌跡 = 未來 30 分鐘地面航跡
       </div>
     </div>
   );

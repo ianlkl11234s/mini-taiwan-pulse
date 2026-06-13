@@ -159,6 +159,10 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wdMixed: "#14b8a6",
   wdRecyclingContainer: "#84cc16",
   wdBattery: "#fbbf24",
+  // SPACE 衛星
+  satellitesChinaMil: "#ef5350",
+  satellitesChinaObs: "#ff9800",
+  satellitesTaiwan: "#4fc3f7",
 };
 
 // ── Transport Labels ──
@@ -395,6 +399,14 @@ export const SECTIONS: SectionDef[] = [
       { key: "wfRecycling", label: "資源回收廠 Recycling", labelMobile: "資源回收廠 Recycling (653) ♻️", expandable: true },
       { key: "wfScrapYard", label: "廢車/廢金屬 Scrap", labelMobile: "廢車/廢金屬 Scrap (3)", expandable: true },
       { key: "wfOther", label: "其他事廢設施 Other", labelMobile: "其他事廢設施 Other (3,164)", expandable: true },
+    ],
+  },
+  {
+    title: "SPACE",
+    layers: [
+      { key: "satellitesChinaMil", label: "中國軍事衛星 CN Mil Sat", labelMobile: "中國軍事/偵察衛星 CN Mil Sat", expandable: true },
+      { key: "satellitesChinaObs", label: "中國遙測衛星 CN Obs Sat", labelMobile: "中國遙測/地球觀測 CN Earth Obs Sat", expandable: true },
+      { key: "satellitesTaiwan", label: "台灣衛星 TW Sat", labelMobile: "台灣衛星 Taiwan Sat (FORMOSAT/TRITON)", expandable: true },
     ],
   },
   {

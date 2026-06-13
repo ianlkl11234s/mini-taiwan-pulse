@@ -195,7 +195,11 @@ export type ExpandableLayerKey =
   | "wdClothes"
   | "wdMixed"
   | "wdRecyclingContainer"
-  | "wdBattery";
+  | "wdBattery"
+  // 衛星 SPACE（CelesTrak 名稱白名單 + TW NORAD）
+  | "satellitesChinaMil"
+  | "satellitesChinaObs"
+  | "satellitesTaiwan";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -511,7 +515,8 @@ export interface FeatureInfo {
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
-    | "hikingTrails";
+    | "hikingTrails"
+    | "satellite";
   properties: Record<string, unknown>;
 }
 
@@ -654,6 +659,10 @@ export interface LayerVisibility {
   wdMixed: boolean;
   wdRecyclingContainer: boolean;
   wdBattery: boolean;
+  // 衛星 SPACE
+  satellitesChinaMil: boolean;
+  satellitesChinaObs: boolean;
+  satellitesTaiwan: boolean;
 }
 
 // ── 空氣品質 ──

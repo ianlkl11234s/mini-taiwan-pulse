@@ -32,6 +32,7 @@ import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useNewsEventsLayer } from "./hooks/useNewsEventsLayer";
+import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
@@ -693,6 +694,34 @@ export default function App() {
     },
     transportParams.daOpacity,
   );
+
+  // ── 衛星圖層（CelesTrak active.txt + SGP4 即時計算） ──
+  const [satGlobalMode, setSatGlobalMode] = useState(false);
+  useSatellitesLayer(mapRef, {
+    visibility: {
+      china_military: layerVisibility.satellitesChinaMil,
+      china_earth_obs: layerVisibility.satellitesChinaObs,
+      taiwan: layerVisibility.satellitesTaiwan,
+    },
+    trackMinutes: satGlobalMode ? 90 : 30,
+    opacity: transportParams.satOpacity,
+  });
+  const handleEnterSatelliteGlobalMode = useCallback(() => {
+    setSatGlobalMode(true);
+    setLayerVisibility((prev) => ({
+      ...prev,
+      satellitesChinaMil: true,
+      satellitesChinaObs: true,
+      satellitesTaiwan: true,
+    }));
+    mapRef.current?.flyTo({
+      center: [121, 25],
+      zoom: 1.8,
+      pitch: 0,
+      bearing: 0,
+      duration: 1800,
+    });
+  }, [setLayerVisibility]);
 
   // ── TDX 即時路況事件 timeline ──
   useRoadEventsLayer(
@@ -1364,6 +1393,7 @@ export default function App() {
               dataRegistry={dataRegistry}
               selectedDate={timeline.selectedDate}
               onDateSelect={timeline.setSelectedDate}
+              onEnterSatelliteGlobalMode={handleEnterSatelliteGlobalMode}
             />
           </div>
 
