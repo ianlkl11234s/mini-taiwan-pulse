@@ -21,7 +21,7 @@ export interface NewsEventDateInfo {
 }
 
 /** RPC get_news_events_day_clustered_v2 回傳 row */
-interface RawCluster {
+export interface RawCluster {
   lon: number | null;
   lat: number | null;
   county: string | null;
@@ -196,4 +196,28 @@ export function fetchNewsEventsDay(
 ): Promise<GeoJSON.FeatureCollection> {
   const cacheKey = `${date}|${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
   return fetchNewsEventsDayCached(cacheKey);
+}
+
+/** Intel Panel 用：取 raw cluster 列（含每 cluster 的 events[]）+ flat events */
+export async function fetchNewsEventsDayClusters(
+  date: string,
+  filter: NewsFilter = DEFAULT_NEWS_FILTER,
+): Promise<RawCluster[]> {
+  if (!supabaseConfigured) return [];
+  const cacheKey = `${date}|${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
+  const { data, error } = await withLoading(
+    `news-events-clusters:${cacheKey}`,
+    `新聞事件清單 ${date}`,
+    supabase.rpc("get_news_events_day_clustered_v2", {
+      p_day: date,
+      p_min_gis_relevance: filter.minRelevance,
+      p_require_event: filter.eventsOnly,
+      p_min_severity: filter.minSeverity,
+    }),
+  );
+  if (error) {
+    console.warn(`[NewsEvents] clusters ${cacheKey} failed:`, error.message);
+    return [];
+  }
+  return (data ?? []) as RawCluster[];
 }
