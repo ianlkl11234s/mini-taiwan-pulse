@@ -696,7 +696,6 @@ export default function App() {
   );
 
   // ── 衛星圖層（Supabase satellite_classified + SGP4 即時計算） ──
-  const [satGlobalMode, setSatGlobalMode] = useState(false);
   useSatellitesLayer(mapRef, {
     visibility: {
       china_yaogan: layerVisibility.satellitesYaogan,
@@ -705,27 +704,8 @@ export default function App() {
       china_other: layerVisibility.satellitesChinaOther,
       taiwan: layerVisibility.satellitesTaiwan,
     },
-    trackMinutes: satGlobalMode ? 90 : 30,
     opacity: transportParams.satOpacity,
   });
-  const handleEnterSatelliteGlobalMode = useCallback(() => {
-    setSatGlobalMode(true);
-    setLayerVisibility((prev) => ({
-      ...prev,
-      satellitesYaogan: true,
-      satellitesJilin: true,
-      satellitesGaofen: true,
-      satellitesChinaOther: true,
-      satellitesTaiwan: true,
-    }));
-    mapRef.current?.flyTo({
-      center: [121, 25],
-      zoom: 1.8,
-      pitch: 0,
-      bearing: 0,
-      duration: 1800,
-    });
-  }, [setLayerVisibility]);
 
   // ── TDX 即時路況事件 timeline ──
   useRoadEventsLayer(
@@ -1397,7 +1377,6 @@ export default function App() {
               dataRegistry={dataRegistry}
               selectedDate={timeline.selectedDate}
               onDateSelect={timeline.setSelectedDate}
-              onEnterSatelliteGlobalMode={handleEnterSatelliteGlobalMode}
             />
           </div>
 
