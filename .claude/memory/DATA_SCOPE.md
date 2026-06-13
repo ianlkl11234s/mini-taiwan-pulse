@@ -261,3 +261,35 @@ satellite-art 既有 4 個物件：
 
 **前端 layer key**：satellitesYaogan / satellitesJilin / satellitesGaofen /
 satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習慣決定）。
+
+## 新聞事件 — 時序（Supabase realtime schema，2026-06-13/14）
+
+- `realtime.news_events`（主表，每篇新聞 1 列）
+  - 欄位：source / url / url_norm UNIQUE / title / summary / category / location_name / county / admin_code / published_ts / confidence / title_simhash bigint / geom Point4326（由 BEFORE INSERT trigger 補）
+  - v2 新增：gis_relevance smallint / severity smallint / is_event boolean（皆 NULLable 向後相容）
+  - 索引：published_ts / url_norm unique / created_at / (published_ts, gis_relevance, severity)
+
+- `realtime.news_events_daily`（per-day pre-aggregate，前端 RPC 讀這裡）
+  - 同主表欄位 + lon / lat double precision + refreshed_at
+  - 索引：(day, id) PK / (day, gis_relevance, severity)
+  - refresh function：`public.refresh_news_events_daily(date)` 含 advisory lock + work_mem '64MB'
+  - pg_cron job 56：`1,11,21,31,41,51 * * * *`（10min 一輪 today+yesterday 循序）
+
+**RPC 簽名（4 個薄 RPC）**：
+- `public.get_news_events_day(date)` — v1 flat list（保留向後相容）
+- `public.get_news_events_day_clustered(date)` — v1 cluster 版
+- `public.get_news_events_day_clustered_v2(date, min_gr int=2, require_event bool=true, min_sev int=0)`
+  - 回 lon/lat/county/location_name/event_count/latest_category/latest_published_ts/**max_severity**/**max_gis_relevance**/events jsonb
+- `public.get_news_event_dates()` — 日期清單 + event_count
+
+**Collector 資料源**（data-collectors `collectors/news_events.py`）：
+- 29 feeds：CNA ×3（feedburner）/ 自由 ×3 / ETtoday / Google News geo ×22 縣市
+- 每 10 分鐘一輪（NEWS_EVENTS_INTERVAL=10）
+- LLM：Gemini Flash-Lite，BATCH_SIZE=15
+- 月成本實測 ~$3-4（穩態，cache 命中後）
+
+**累積量**（2026-06-13 實測 24h）：
+- 入庫量約 1,500-1,800/天（v2 + 10min 提速後待觀察）
+- 有座標 ~55%、鄉鎮級 ~30%、縣市級 ~25%
+- gis_relevance 分布（v2 抽樣 36 則）：0=14 / 1=10 / 2=8 / 3=4
+- critical 級（gr=3 + sev≥2）約 4-8 則/天
