@@ -98,6 +98,14 @@ export function useSatellitesLayer(
     || visibility.china_gaofen || visibility.china_other || visibility.taiwan;
   const [dataReady, setDataReady] = useState(false);
 
+  // visibility / trackMinutes 走 ref：recompute / 訂閱 callback 永遠讀最新值，
+  // 避免 effect 因 callback identity 改變而頻繁重綁，更避免 throttle trailing
+  // fire 抓到舊 closure 的「殭屍 setData」。
+  const visibilityRef = useRef(visibility);
+  visibilityRef.current = visibility;
+  const trackMinutesRef = useRef(trackMinutes);
+  trackMinutesRef.current = trackMinutes;
+
   // ── 載入 TLE（一次性，6h cache） ──
   useEffect(() => {
     let cancelled = false;
@@ -188,17 +196,21 @@ export function useSatellitesLayer(
   }, []);
 
   // 重算所有 GeoJSON（footprint / track / point）並 setData
+  // 注意：讀 visibilityRef / trackMinutesRef，不入 deps → callback stable，
+  // 避免 effect 重綁 + throttle 殭屍 closure。
   const recompute = useCallback((map: MapboxMap, atUnixSec: number) => {
     const t = new Date(atUnixSec * 1000);
     const parsed = recordsRef.current;
     if (!parsed.length) return;
+    const vis = visibilityRef.current;
+    const trackMin = trackMinutesRef.current;
 
     const visibleCats: SatelliteCategory[] = [];
-    if (visibility.china_yaogan) visibleCats.push("china_yaogan");
-    if (visibility.china_jilin) visibleCats.push("china_jilin");
-    if (visibility.china_gaofen) visibleCats.push("china_gaofen");
-    if (visibility.china_other) visibleCats.push("china_other");
-    if (visibility.taiwan) visibleCats.push("taiwan");
+    if (vis.china_yaogan) visibleCats.push("china_yaogan");
+    if (vis.china_jilin) visibleCats.push("china_jilin");
+    if (vis.china_gaofen) visibleCats.push("china_gaofen");
+    if (vis.china_other) visibleCats.push("china_other");
+    if (vis.taiwan) visibleCats.push("taiwan");
     if (!visibleCats.length) {
       // 清空
       (map.getSource(SAT_SRC_FOOTPRINT) as GeoJSONSource | undefined)?.setData(EMPTY_FC);
@@ -243,7 +255,7 @@ export function useSatellitesLayer(
       });
 
       // 軌跡：從現在開始往未來推
-      const stepCount = Math.floor((trackMinutes * 60) / TRACK_STEP_SEC);
+      const stepCount = Math.floor((trackMin * 60) / TRACK_STEP_SEC);
       const path: { lat: number; lng: number; altKm: number }[] = [];
       for (let i = 0; i <= stepCount; i++) {
         const tt = new Date(t.getTime() + i * TRACK_STEP_SEC * 1000);
@@ -276,9 +288,11 @@ export function useSatellitesLayer(
       type: "FeatureCollection",
       features: pointFeats,
     });
-  }, [visibility, trackMinutes]);
+  }, []);
 
   // ── 訂閱 timeStore 每秒重算 ──
+  // deps 只放 [dataReady, anyVisible]，不放 recompute（已 stable）。
+  // 所有 map listener 都進 cleanup，無洩漏。
   useEffect(() => {
     if (!dataReady) return;
     if (!anyVisible) return;
@@ -291,12 +305,12 @@ export function useSatellitesLayer(
       return true;
     };
 
+    // style 尚未 ready 時的保險：監聽 style.load + idle，setup 成功就 off
+    const onSetupStyleLoad = () => { setup(); };
+    const onSetupIdle = () => { if (setup()) map.off("idle", onSetupIdle); };
     if (!setup()) {
-      const onStyleLoad = () => { setup(); };
-      map.on("style.load", onStyleLoad);
-      // 也監聽 idle 一次保險
-      const onIdle = () => { if (setup()) map.off("idle", onIdle); };
-      map.on("idle", onIdle);
+      map.on("style.load", onSetupStyleLoad);
+      map.on("idle", onSetupIdle);
     }
 
     const unsub = timeStore.subscribeThrottled(REFRESH_THROTTLE_MS, (ts) => {
@@ -306,18 +320,34 @@ export function useSatellitesLayer(
       recompute(m, ts);
     });
 
-    // style 切換後 source/layer 會被清掉
-    const onStyleLoad = () => {
+    // style 切換後 source/layer 會被清掉，重建
+    const onMainStyleLoad = () => {
       layersReadyRef.current = false;
       if (ensureLayers(map)) recompute(map, timeStore.getTime());
     };
-    map.on("style.load", onStyleLoad);
+    map.on("style.load", onMainStyleLoad);
 
     return () => {
       unsub();
-      map.off("style.load", onStyleLoad);
+      map.off("style.load", onMainStyleLoad);
+      // setup 用的 listener 也一律清掉（避免累積洩漏）
+      map.off("style.load", onSetupStyleLoad);
+      map.off("idle", onSetupIdle);
     };
   }, [dataReady, anyVisible, ensureLayers, recompute, mapRef]);
+
+  // ── toggle 變動即刻 force recompute ──
+  // visibility 物件 identity 每 render 都新；用 JSON 字串穩定化 deps，
+  // 真正改變才觸發。確保使用者按 toggle 後即時看到正確 features，
+  // 不用等下一個 1s throttle tick。
+  const visKey = `${visibility.china_yaogan ? 1 : 0}${visibility.china_jilin ? 1 : 0}${visibility.china_gaofen ? 1 : 0}${visibility.china_other ? 1 : 0}${visibility.taiwan ? 1 : 0}`;
+  useEffect(() => {
+    if (!dataReady) return;
+    const map = mapRef.current;
+    if (!map) return;
+    if (!layersReadyRef.current && !ensureLayers(map)) return;
+    recompute(map, timeStore.getTime());
+  }, [visKey, dataReady, ensureLayers, recompute, mapRef]);
 
   // ── visibility toggle（用 layer visibility，避免 source 反覆重設） ──
   useEffect(() => {
