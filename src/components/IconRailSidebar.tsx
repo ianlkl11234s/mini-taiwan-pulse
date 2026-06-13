@@ -195,6 +195,9 @@ interface IconRailSidebarProps {
   dataRegistry?: DataRegistry;
   selectedDate?: Date;
   onDateSelect?: (d: Date) => void;
+  /** 即時情報 Intel panel toggle（外部渲染，rail 只負責切換） */
+  onIntelToggle?: () => void;
+  intelActive?: boolean;
 }
 
 // ── Shared Styles ──
@@ -219,6 +222,7 @@ export function IconRailSidebar({
   counts, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   getControls, currentLocationId, onLocationJump, onWidthChange,
+  onIntelToggle, intelActive,
 }: IconRailSidebarProps) {
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
@@ -329,6 +333,19 @@ export function IconRailSidebar({
           onClick={() => togglePanel("locations")}
           tooltip="Locations"
         />
+
+        {/* 即時情報 Intel */}
+        {onIntelToggle && (
+          <RailIcon
+            icon={Radio}
+            active={!!intelActive}
+            onClick={() => {
+              if (!intelActive) closePanel();
+              onIntelToggle();
+            }}
+            tooltip="即時情報 Intel"
+          />
+        )}
 
         {/* Spacer */}
         <div style={{ flex: 1 }} />

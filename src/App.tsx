@@ -77,6 +77,7 @@ import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
+import { IntelPanel } from "./components/intel/IntelPanel";
 import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { ModeToggle } from "./components/ModeToggle";
@@ -418,6 +419,9 @@ export default function App() {
   const { h3DataMap, loadResolution } = useH3Data();
   const { demographicsDataMap, loadDemographicsResolution } = useDemographicsH3();
   const { getCells: getYearlyCells, loadYear: loadDemoYear } = useDemographicsYearlyH3();
+
+  // ── Intel Panel（即時情報，IconRail 開關） ──
+  const [intelOpen, setIntelOpen] = useState(false);
 
   // ── App 大模式：即時 vs 歷史長時序 ──
   const [appMode, setAppMode] = useState<AppMode>("realtime");
@@ -1385,8 +1389,25 @@ export default function App() {
               dataRegistry={dataRegistry}
               selectedDate={timeline.selectedDate}
               onDateSelect={timeline.setSelectedDate}
+              onIntelToggle={() => setIntelOpen((v) => !v)}
+              intelActive={intelOpen}
             />
           </div>
+
+          {/* 即時情報 Intel Panel */}
+          <IntelPanel
+            open={intelOpen}
+            onClose={() => setIntelOpen(false)}
+            filter={newsFilter}
+            onFilterChange={(next) => {
+              transportParams.setNewsMinRelevance(next.minRelevance);
+              transportParams.setNewsEventsOnly(next.eventsOnly);
+              transportParams.setNewsMinSeverity(next.minSeverity);
+            }}
+            onSelectLocation={(lon, lat) => {
+              mapRef.current?.flyTo({ center: [lon, lat], zoom: 12, speed: 1.2 });
+            }}
+          />
 
           {/* 時間軸：依 mode 切換 realtime / historical */}
           {appMode === "realtime" ? (

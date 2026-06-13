@@ -1,60 +1,96 @@
-import { useEffect, useRef, useState } from "react";
-import { COLORS } from "./intelTokens";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { COLORS, FONT_CJK } from "./intelTokens";
+import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
+import { IntelFilters, type TimeRange } from "./IntelFilters";
+import { IntelSituation } from "./IntelSituation";
+import { IntelCard, type IntelCardEvent } from "./IntelCard";
 import {
   fetchSourceHealth,
+  fetchNewsTrending,
+  trendingKeys as buildTrendingKeys,
   type SourceHealthSummary,
+  type TrendingRow,
 } from "../../data/intelLoaders";
+import {
+  fetchNewsEventsDayClusters,
+  type NewsFilter,
+} from "../../data/newsEventsLoader";
+import type { NewsCategory } from "../../data/newsEventTypes";
+import { timeStore } from "../../state/timeStore";
 
 const EMPTY_HEALTH: SourceHealthSummary = {
   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
 };
 
-/** Cron 排程：每 10 分鐘整 1,11,21,...，倒數到下次刷新 */
+const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
+
 function secsToNextCron(nowSec: number): number {
   const minuteOfHour = Math.floor((nowSec / 60) % 60);
   const secondOfMinute = Math.floor(nowSec % 60);
-  // cron 跑在 1,11,21,31,41,51
   const slots = [1, 11, 21, 31, 41, 51];
   const found = slots.find((m) => m > minuteOfHour);
-  const next = found ?? 61; // 下一小時的 1 分
+  const next = found ?? 61;
   return (next - minuteOfHour) * 60 - secondOfMinute;
 }
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  /** events 數（從 feed body 算後傳進來；C1 先給 0） */
-  totalCount?: number;
+  /** 與 layer 共享的 filter（同步雙向） */
+  filter: NewsFilter;
+  onFilterChange: (next: NewsFilter) => void;
+  /** 選 cluster 後通知地圖飛去（lon, lat） */
+  onSelectLocation?: (lon: number, lat: number) => void;
+  /** 來自地圖 pin click 的選取（清單應 scroll + 展開） */
+  externalSelectedId?: number | null;
 }
 
-const RANGE_SEC = { "1h": 3600, "6h": 21600, "24h": 86400 } as const;
-export type TimeRange = keyof typeof RANGE_SEC;
-
-export function IntelPanel({ open, onClose, totalCount = 0 }: Props) {
+export function IntelPanel({
+  open,
+  onClose,
+  filter,
+  onFilterChange,
+  onSelectLocation,
+  externalSelectedId,
+}: Props) {
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
   const [isLive, setIsLive] = useState(true);
   const [playbackTs, setPlaybackTs] = useState(now);
   const [playing, setPlaying] = useState(false);
-  const [timeRange] = useState<TimeRange>("24h");
-  const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
+  const [timeRange, setTimeRange] = useState<TimeRange>("24h");
+  const [cats, setCats] = useState<NewsCategory[]>([]);
+  const [county, setCounty] = useState("全部");
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  // 每秒推 now（純 UI 顯示 / 倒數，不進 react state cascade 即可）
+  const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
+  const [trending, setTrending] = useState<TrendingRow[]>([]);
+  const [clusters, setClusters] = useState<
+    Array<{
+      county: string | null;
+      location_name: string | null;
+      lon: number | null;
+      lat: number | null;
+      events: IntelCardEvent[];
+    }>
+  >([]);
+
+  // tick now（顯示與倒數）
   useEffect(() => {
     if (!open) return;
     const id = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
     return () => window.clearInterval(id);
   }, [open]);
 
-  // 30s polling source health（panel 開啟時）
+  // 30s polling source health + trending
   useEffect(() => {
     if (!open) return;
     let alive = true;
     const tick = () => {
-      fetchSourceHealth().then((s) => {
-        if (alive) setSourceHealth(s);
-      });
+      fetchSourceHealth().then((s) => alive && setSourceHealth(s));
+      fetchNewsTrending(1, 50).then((t) => alive && setTrending(t));
     };
     tick();
     const id = window.setInterval(tick, 30_000);
@@ -64,7 +100,43 @@ export function IntelPanel({ open, onClose, totalCount = 0 }: Props) {
     };
   }, [open]);
 
-  // replay playback：90 step 從 windowStart 到 now
+  // 跟著 timeStore 日期載資料 + filter 變動觸發重抓
+  const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    const handler = (dateStr: string) => {
+      if (!dateStr) return;
+      fetchNewsEventsDayClusters(dateStr, filter).then((rows) => {
+        if (!alive) return;
+        const built = rows.map((r) => {
+          const events = (r.events ?? []).map<IntelCardEvent>((e, idx, arr) => ({
+            ...e,
+            county: r.county ?? undefined,
+            location_name: r.location_name ?? undefined,
+            related_count: Math.max(0, arr.length - 1 - idx),
+          }));
+          return {
+            county: r.county,
+            location_name: r.location_name,
+            lon: r.lon,
+            lat: r.lat,
+            events,
+          };
+        });
+        setClusters(built);
+      });
+    };
+    handler(timeStore.getDateKey());
+    const unsub = timeStore.subscribeDate(handler);
+    return () => {
+      alive = false;
+      unsub();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, fKey]);
+
+  // playback animation
   const spanRef = useRef(RANGE_SEC[timeRange]);
   spanRef.current = RANGE_SEC[timeRange];
   useEffect(() => {
@@ -84,10 +156,56 @@ export function IntelPanel({ open, onClose, totalCount = 0 }: Props) {
     return () => window.clearInterval(id);
   }, [playing]);
 
+  // 同步外部選取
+  useEffect(() => {
+    if (externalSelectedId == null) return;
+    setSelectedId(externalSelectedId);
+    setExpandedId(externalSelectedId);
+  }, [externalSelectedId]);
+
+  const effectivePlayback = isLive ? now : playbackTs;
+  const windowStartTs = now - RANGE_SEC[timeRange];
+
+  // Flatten events + filter
+  const flatEvents = useMemo<IntelCardEvent[]>(() => {
+    const out: IntelCardEvent[] = [];
+    for (const c of clusters) {
+      for (const e of c.events) {
+        if (e.published_ts < windowStartTs) continue;
+        if (e.published_ts > effectivePlayback) continue;
+        if (cats.length > 0 && !cats.includes((e.category ?? "other") as NewsCategory)) continue;
+        if (county !== "全部" && (c.county ?? "") !== county) continue;
+        out.push(e);
+      }
+    }
+    out.sort((a, b) => b.published_ts - a.published_ts);
+    return out;
+  }, [clusters, cats, county, windowStartTs, effectivePlayback]);
+
+  const countyByEventId = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const c of clusters) for (const e of c.events) m.set(e.id, c.county ?? "");
+    return m;
+  }, [clusters]);
+
+  const locByEventId = useMemo(() => {
+    const m = new Map<number, { lon: number; lat: number }>();
+    for (const c of clusters) {
+      if (c.lon == null || c.lat == null) continue;
+      for (const e of c.events) m.set(e.id, { lon: c.lon, lat: c.lat });
+    }
+    return m;
+  }, [clusters]);
+
+  const trendingKeySet = useMemo(() => buildTrendingKeys(trending), [trending]);
+  const isTrendingFor = (e: IntelCardEvent) => {
+    const c = countyByEventId.get(e.id);
+    if (!c) return false;
+    return trendingKeySet.has(`${c}|${e.category ?? "other"}`);
+  };
+
   if (!open) return null;
 
-  const windowStartTs = now - RANGE_SEC[timeRange];
-  const effectivePlayback = isLive ? now : playbackTs;
   const countdownSec = secsToNextCron(now);
 
   const onScrub = (ts: number) => {
@@ -109,6 +227,15 @@ export function IntelPanel({ open, onClose, totalCount = 0 }: Props) {
     setIsLive(false);
     setPlaying(true);
   };
+
+  const onSelectCard = (id: number) => {
+    setSelectedId(id);
+    const loc = locByEventId.get(id);
+    if (loc && onSelectLocation) onSelectLocation(loc.lon, loc.lat);
+  };
+  const onToggleExpand = (id: number) => setExpandedId((p) => (p === id ? null : id));
+  const toggleCat = (k: NewsCategory) =>
+    setCats((c) => (c.includes(k) ? c.filter((x) => x !== k) : [...c, k]));
 
   return (
     <div
@@ -134,27 +261,83 @@ export function IntelPanel({ open, onClose, totalCount = 0 }: Props) {
       }}
     >
       <IntelHeader
-        totalCount={totalCount}
+        totalCount={flatEvents.length}
         lastUpdateTs={now}
         countdownSec={countdownSec}
         sourceHealth={sourceHealth}
         onClose={onClose}
       />
 
-      {/* C2 / C3 / C4 之後填這塊 */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: 14,
-          color: COLORS.textMuted,
-          fontSize: 11,
-        }}
-      >
-        <div style={{ opacity: 0.7 }}>
-          [WIP] filters / 現況 / card list 將於 C2-C4 接上。
-          目前 playback = {new Date(effectivePlayback * 1000).toLocaleString("zh-TW")}
-        </div>
+      <IntelFilters
+        cats={cats}
+        onToggleCat={toggleCat}
+        onResetCats={() => setCats([])}
+        timeRange={timeRange}
+        onTimeRange={setTimeRange}
+        county={county}
+        onCounty={setCounty}
+        minRelevance={filter.minRelevance}
+        onMinRelevance={(v) => onFilterChange({ ...filter, minRelevance: v })}
+        eventsOnly={filter.eventsOnly}
+        onEventsOnly={(v) => onFilterChange({ ...filter, eventsOnly: v })}
+        minSeverity={filter.minSeverity}
+        onMinSeverity={(v) => onFilterChange({ ...filter, minSeverity: v })}
+      />
+
+      <IntelSituation
+        events={flatEvents}
+        countyByEventId={countyByEventId}
+        trending={trending}
+      />
+
+      <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 14px 14px" }}>
+        {flatEvents.length === 0 ? (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+              gap: 8,
+              textAlign: "center",
+              padding: 24,
+            }}
+          >
+            <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
+            <div style={{ fontFamily: FONT_CJK, fontSize: 12, color: COLORS.textMuted }}>
+              目前無符合條件的事件
+            </div>
+            <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint }}>
+              調整分類 / 時間範圍 / 縣市，或回到即時
+            </div>
+          </div>
+        ) : (
+          <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
+            <span
+              style={{
+                position: "absolute",
+                left: 12,
+                top: 6,
+                bottom: 6,
+                width: 1.5,
+                background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+              }}
+            />
+            {flatEvents.map((e) => (
+              <IntelCard
+                key={e.id}
+                e={e}
+                selected={e.id === selectedId}
+                expanded={e.id === expandedId}
+                trending={isTrendingFor(e)}
+                onSelect={onSelectCard}
+                onToggle={onToggleExpand}
+                nowTs={now}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <IntelReplay
