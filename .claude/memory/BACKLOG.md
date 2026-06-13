@@ -142,3 +142,19 @@
 | SAT-5 | P3 | 離軌（decay）預測 | open | 用 TLE B* 拖曳係數 + 高度衰減模型，對老衛星很有戲（哪顆快燒）。Phase D 選做 |
 | SAT-6 | P3 | §G 變軌串 newsEvents 故事卡 | open | 「Yaogan 12 變軌時當日新聞」交叉比對，新聞 layer by-day 接口可用。Phase D 選做 |
 | SAT-7 | P3 | RAF + 線性插值補幀（10 Hz → 60 Hz 視覺）| open | 在兩次 SGP4 之間用 lerp 補幀，視覺更貼真實流動。目前 10 Hz 點移動 ≈ 0.1px/frame 已肉眼滑順，非必要 |
+
+### 新聞事件 NEWS（NE 系列，2026-06-13/14 三輪升級後）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| NE-1 | — | 階段 A 分類上色 + 圖例 + popup 中文 | **done 2026-06-13** | commit b50f6ba。7 類 (accident/crime/disaster/traffic/health/policy/other) |
+| NE-2 | — | 階段 B 同鄉鎮聚合 paint + popup | **done 2026-06-13** | commit 295ca15 + migration 163。max event_count 51 (臺北市) |
+| NE-3 | — | v2 三維度（gis_relevance/severity/is_event）+ 10min 排程 | **done 2026-06-13** | migration 164 + collector 9fc0c60。LLM 多判 3 欄、cron 改 10min |
+| NE-4 | — | v2.5 Filter dropdown + critical 視覺強化 | **done 2026-06-14** | migration 165 + commit 292b884。4 級篩選、critical-halo、ripple 強化 |
+| NE-5 | P2 | POI 級精度（北科大/台大醫院等具體場所）| open | 路線 A+B 混合（gazetteer + LLM 順手判 place_name），預估覆蓋 30-50% 新聞；工程量約 1.5 天；session 紀錄有完整規劃。先做 C-1 覆蓋率分析半天 → > 40% 才繼續 |
+| NE-6 | P2 | timeline 整合 get_news_event_dates RPC | open | 目前 disasterAlerts 也沒接，比照 pattern 一起做。讓 timeline 顯示有新聞的日期 |
+| NE-7 | P3 | PTT 地方板（Atom feed 共用 LLM 管線）| open | 研究報告已標 Phase 2。一手目擊訊號獨特，但訊噪比低、需更嚴去重 |
+| NE-8 | P3 | sidebar「臺灣即時新聞」清單區塊 | open | 仿 docs/research 的 storyboard。critical 級事件 timeline 列表，不只地圖點 |
+| NE-9 | P3 | 地方政府新聞稿 RSS（桃/中/南/高市府）| open | 補強官方第一手資訊（Google News 抓不到的）。需逐一驗證 RSS 是否還活著 |
+| NE-10 | P3 | 觀察自由時報 RSS Zeabur IP 403 | open | 持續 1 週看是否改善；若不變則改走 Google News 間接（UDN/TVBS 模式） |
+| NE-11 | P3 | newsEvents Telegram daily report 加 token 花費 | open | 每天日報加當日 LLM 成本 + critical 事件數 + filter 級分布，便於監控偏離 $5/月 上限 |
