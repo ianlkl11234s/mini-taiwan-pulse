@@ -233,3 +233,24 @@
 | Beidou 北斗 (BD-) | CN | MEO/GEO/IGSO | B 級 PNT | 不偵察但精確制導武器的眼睛 |
 | FORMOSAT 福衛 | TW | SSO | — | 3×5 氣象、5 光學、7×6 GNSS-RO、8A 光學(2025) |
 | TRITON 獵風者 | TW | LEO | — | 海洋風場 GNSS-R（2023-10） |
+
+## 新聞事件（newsEvents）
+
+| 術語 | 說明 |
+|---|---|
+| gis_relevance | LLM 評：地理影響程度 0-3。0=與地理無關（政治發言/娛樂/個人）/1=有地點但不影響當地（座談/聲明）/2=地方事件（一般事故/治安）/3=重大地方事件（火災/氣爆/群聚） |
+| severity | LLM 評：傷亡或影響規模 0-3。0=無/1=個案/2=區域<100人/3=大規模>100人或死亡 |
+| is_event | LLM 判：是否為發生於物理空間的「事件」。true=火災/事故/活動；false=聲明/發言/質詢/評論 |
+| newsFilter level | 前端 4 級篩選：**critical**(gr=3, ev=true, sev≥2) / **important**(gr≥2, ev=true, 預設) / **local**(gr≥1) / **all**(全部) |
+| max_severity / max_gis_relevance | clustered RPC v2 對 cluster 內事件取 MAX，給前端 critical-halo 判斷用 |
+| critical halo | 白色背景光暈 layer，只對 gis_relevance=3 + severity≥2 cluster 亮起 |
+| CRITICAL_FRESH_WINDOW | critical 事件 ripple 持續時間延長至 60min（既有 FRESH_WINDOW 15min 對一般事件） |
+
+## CI/CD（2026-06-13）
+
+| 術語 | 說明 |
+|---|---|
+| CLAUDE_CODE_OAUTH_TOKEN | `claude setup-token` 產出的 OAuth token，repo secret，讓 GitHub Actions 走 Claude 訂閱而非 API key |
+| claude-review.yml | PR 開啟/更新時自動跑 Claude review，prompt 限制「只看 diff、無問題單行 LGTM」 |
+| claude-mention.yml | issue / PR comment 內 `@claude` 觸發回應 |
+| Workflow validation skip | Claude Code Action 安全機制：PR 修改 workflow 檔本身會跳過 review（防 prompt 注入），merge 後生效 |
