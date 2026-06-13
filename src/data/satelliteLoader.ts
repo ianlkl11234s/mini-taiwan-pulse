@@ -1,25 +1,30 @@
-// 衛星 TLE 載入：CelesTrak active.txt 取全量 → 名稱 regex 過濾出中國軍事/遙測 + 台灣 NORAD 白名單
-// localStorage cache 6h 避免 reload 重打 CelesTrak。
+// 衛星 TLE 載入 — 走 Supabase `satellite_classified` view（gis-platform 每 2h 從 Space-Track 同步）
+//
+// 不走 CelesTrak active.txt 是因為瀏覽器直接 fetch 會被 CelesTrak 用 403 擋（CORS / User-Agent）
+// localStorage cache 6h 避免重 fetch。
 
 import { withLoading } from "../lib/loadingRegistry";
-import {
-  CN_EARTH_OBS_RE,
-  CN_MILITARY_RE,
-  TAIWAN_NORAD_IDS,
-  type SatelliteCategory,
-  type SatelliteRecord,
-} from "./satelliteTypes";
+import { type SatelliteCategory, type SatelliteRecord } from "./satelliteTypes";
 import { isTleActive } from "./satelliteSGP4";
 
-const CELESTRAK_ACTIVE_URL =
-  "https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-const CACHE_KEY = "satellite-layer-tle-v1";
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6h
+const CACHE_KEY = "satellite-layer-tle-v2-supabase";
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 interface CacheBlob {
   fetchedAt: number;
   records: SatelliteRecord[];
+}
+
+interface SupabaseRow {
+  norad_id: number;
+  name: string;
+  category: string;
+  country_operator: string | null;
+  tle_line1: string;
+  tle_line2: string;
 }
 
 function readCache(): SatelliteRecord[] | null {
@@ -36,64 +41,66 @@ function readCache(): SatelliteRecord[] | null {
 
 function writeCache(records: SatelliteRecord[]): void {
   try {
-    const blob: CacheBlob = { fetchedAt: Date.now(), records };
-    localStorage.setItem(CACHE_KEY, JSON.stringify(blob));
-  } catch {
-    // localStorage 滿了/disabled 都不致命
-  }
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ fetchedAt: Date.now(), records } satisfies CacheBlob));
+  } catch { /* ignore */ }
 }
 
-/** 把名稱對應到 category；不符合白名單則 null */
-function classify(name: string, noradId: number): SatelliteCategory | null {
-  if (TAIWAN_NORAD_IDS.includes(noradId)) return "taiwan";
-  if (CN_MILITARY_RE.test(name)) return "china_military";
-  if (CN_EARTH_OBS_RE.test(name)) return "china_earth_obs";
+async function fetchView(qs: string): Promise<SupabaseRow[]> {
+  const url = `${SUPABASE_URL}/rest/v1/satellite_classified?select=norad_id,name,category,country_operator,tle_line1,tle_line2&${qs}`;
+  const resp = await fetch(url, {
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+  });
+  if (!resp.ok) throw new Error(`Supabase satellite_classified ${resp.status}`);
+  return (await resp.json()) as SupabaseRow[];
+}
+
+/** 把 Supabase row 轉成 SatelliteRecord，並決定本專案的 category */
+function classify(row: SupabaseRow): SatelliteCategory | null {
+  const country = row.country_operator;
+  const cat = row.category;
+  if (country === "Taiwan") return "taiwan";
+  if (country === "China") {
+    if (cat === "military") return "china_military";
+    if (cat === "earth_obs") return "china_earth_obs";
+  }
   return null;
 }
 
-/** 解析 CelesTrak TLE 3-line 格式（name / line1 / line2 重複） */
-function parseTleText(text: string): SatelliteRecord[] {
-  const lines = text.split(/\r?\n/);
+async function fetchAll(): Promise<SatelliteRecord[]> {
+  const [cnRows, twRows] = await Promise.all([
+    fetchView("country_operator=eq.China&category=in.(military,earth_obs)"),
+    fetchView("country_operator=eq.Taiwan"),
+  ]);
   const out: SatelliteRecord[] = [];
-  for (let i = 0; i + 2 < lines.length; i += 3) {
-    const name = lines[i]!.trim();
-    const l1 = lines[i + 1] ?? "";
-    const l2 = lines[i + 2] ?? "";
-    if (!l1.startsWith("1 ") || !l2.startsWith("2 ")) continue;
-    const noradId = parseInt(l1.substring(2, 7), 10);
-    if (!isFinite(noradId)) continue;
-    const cat = classify(name, noradId);
+  for (const row of [...cnRows, ...twRows]) {
+    const cat = classify(row);
     if (!cat) continue;
-    if (!isTleActive(l1)) continue;
-    out.push({ noradId, name, category: cat, tleLine1: l1, tleLine2: l2 });
+    if (!row.tle_line1 || !row.tle_line2) continue;
+    if (!isTleActive(row.tle_line1)) continue;
+    out.push({
+      noradId: row.norad_id,
+      name: row.name,
+      category: cat,
+      tleLine1: row.tle_line1,
+      tleLine2: row.tle_line2,
+    });
   }
   return out;
 }
 
-async function fetchActiveTle(): Promise<SatelliteRecord[]> {
-  const resp = await fetch(CELESTRAK_ACTIVE_URL);
-  if (!resp.ok) throw new Error(`CelesTrak fetch failed: ${resp.status}`);
-  const text = await resp.text();
-  return parseTleText(text);
-}
-
-/**
- * 載入衛星 TLE（含 cache）
- * 若 CelesTrak 失敗且 cache 過期，回 [] 由 UI 顯示空狀態。
- */
 export async function loadSatellites(): Promise<SatelliteRecord[]> {
   const cached = readCache();
   if (cached) return cached;
   try {
-    const records = await withLoading(
-      "satellite:tle",
-      "衛星 TLE",
-      fetchActiveTle(),
-    );
+    const records = await withLoading("satellite:tle", "衛星 TLE", fetchAll());
     writeCache(records);
+    console.log(`[satellite] 載入 ${records.length} 顆衛星 (CN/TW)`);
     return records;
   } catch (e) {
-    console.error("[satellite] CelesTrak fetch error", e);
+    console.error("[satellite] Supabase fetch error", e);
     return [];
   }
 }
