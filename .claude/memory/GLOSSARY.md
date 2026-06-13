@@ -202,3 +202,34 @@
 | Exposed schemas | Supabase Data API（PostgREST）對外曝光的 schema 清單。不在清單的 schema 即使 anon 有 table grant 也打不到（PGRST106）。資安收斂靠縮這份清單，非撤 grant |
 | deploy-assets 鏡像結構 | 目標：S3 `deploy-assets/<群組>/` ↔ 容器 `/data/<群組>/` ↔ nginx `/<群組>/` 三邊同名，pull 整夾 sync、加新大檔 0 改腳本（搬家計畫見 docs/launch/06，目前仍扁平 + include filter 過渡）|
 | entrypoint 背景 pull | 容器啟動 `( pull )&` 背景同步 S3→/data + `exec nginx` 立即前景，避免大量 pull 阻塞健康檢查 |
+
+## 衛星（2026-06-13 上線）
+
+| 術語 | 說明 |
+|---|---|
+| TLE (Two-Line Element) | 衛星軌道根數標準格式，2 行 ASCII，內含 epoch / 傾角 / 偏心率 / 平均近點角等。Space-Track 每 2-6h 更新一次 |
+| SGP4 | 標準 propagator 演算法，用 TLE 算指定時刻的衛星 ECI 位置。`satellite.js` 在瀏覽器跑 |
+| NORAD ID | 衛星目錄編號（5 digit，如 Yaogan 12 = 37875）。固定不變 |
+| COSPAR ID | 國際指定（如 `2011-066B`）：年份+第N次發射+載荷字母 |
+| Space-Track | 美軍 18 SDS 雷達網的 TLE 官方來源（authenticated API）。gis-platform collector 每 2h 從這拉 |
+| CelesTrak | Space-Track 的公開鏡像。⚠️ 對瀏覽器 fetch 回 403（CORS/UA），不可直連 |
+| UCS Satellite Database | Union of Concerned Scientists 維護的衛星元資料庫（國家/用途/承包商/壽命）。半年更新 → 最新衛星 country_operator=null |
+| sub-satellite point | 衛星正下方的地面點（星下點） |
+| swath | 感測器的成像寬度（公里）。光學偵察 ~11-60km、SAR ~20-100km |
+| elevation cone | 從地面點仰角 ≥ X° 能看到衛星的圓錐範圍。LEO 500km、≥10° 半徑 ~1,500km |
+| SSO Sun-Synchronous Orbit | 太陽同步軌道（傾角 ~97°，每天同地方時通過）。多數光學偵察走這 |
+| GEO Geostationary | 對地靜止軌道（36,000 km，週期 24h）。TJS 訊號情報衛星 |
+| LEO / MEO | Low/Medium Earth Orbit（< 2000km / 2000-36000km）|
+| 變軌類型 4 種 | ALTITUDE_CHANGE（drag compensation 最常見）/ PLANE_CHANGE（改傾角，最貴）/ SHAPE_CHANGE（離心率）/ NOMINAL（無顯著變化） |
+
+### 衛星系列（與台灣關聯性）
+
+| 系列 | 國 | 軌道 | tier | 對台灣意義 |
+|---|---|---|---|---|
+| Yaogan 遙感 | CN | LEO 500-1200km，光學/SAR/ELINT | **S 級即時偵察** | 每 ~10 min 過台灣 |
+| Jilin-1 吉林 | CN | LEO ~500km，次米級光學（商業）| **S 級高解析** | 已證實即時拍美軍 |
+| Gaofen 高分 | CN | LEO+GEO，次米光學/SAR | **S 級國家級** | 南海/台海首要監控 |
+| TJS / TJSW | CN | GEO 36,000km | A 級 SIGINT / 早期預警 | 戰略支援 |
+| Beidou 北斗 (BD-) | CN | MEO/GEO/IGSO | B 級 PNT | 不偵察但精確制導武器的眼睛 |
+| FORMOSAT 福衛 | TW | SSO | — | 3×5 氣象、5 光學、7×6 GNSS-RO、8A 光學(2025) |
+| TRITON 獵風者 | TW | LEO | — | 海洋風場 GNSS-R（2023-10） |
