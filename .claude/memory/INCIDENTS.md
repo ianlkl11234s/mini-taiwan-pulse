@@ -588,3 +588,68 @@ mini-taiwan-pulse 從穩定 master 一次推進 ~110 commit 正式上線（feat/
 public.get_* 有 74 個 INVOKER（以 anon 身分執行、需 anon 對底層表 SELECT）→ 撤 grant 會打掛 74 RPC。
 **正解 = 收窄 PostgREST Exposed schemas**（移除 reference/spatial/...，只留 public+graphql_public）→ 擋直接
 REST 讀表、RPC 照常（D3，待掃其他共用 gis-platform 的站確認無其他 REST 直讀消費者再做）。
+
+## 2026-06-13 google-genai 漏裝 + url_norm 鎖死
+
+**現象**：news_events collector 首跑 432 則全部以「無地點」入庫。
+
+**根因**：homebrew Python 3.14 + PEP 668 → `pip3 install google-genai` 被擋。
+collector 抓到 ImportError 後跳過 LLM，所有項目以無地點入庫並寫入 url_norm。
+下一輪即使 LLM 可用，這 432 個 url_norm **永遠被 unique constraint 擋住不會重處理**。
+
+**對策**：
+- 裝套件改 `pip3 install --break-system-packages google-genai`
+- TRUNCATE 該批 + 重跑（這次 36/36 全填好）
+- **教訓**：destructive 改動（pip install / DB schema）前要先驗證套件可裝
+
+**PRINCIPLES**：homebrew Python 系統用 `--break-system-packages`
+
+---
+
+## 2026-06-13 collector dict 漏帶 LLM 新欄位
+
+**現象**：news prompt v2 升級後本地實跑，LLM batch 0 失敗、output token 521 正常，
+但 DB `gis_relevance / severity / is_event` 三欄全 NULL。
+
+**根因**：collector 的 `records.append({...})` 是手寫 dict 列各欄位，
+LLM annotation 寫進 `item` 後沒被攤到 records dict — 漏接 3 欄。
+LLM 有跑、parser 也有跑，斷在「from item to record」這一步。
+
+**對策**：
+- records.append dict 補 `'gis_relevance': it.get('gis_relevance')` 等 3 欄
+- 重跑 36/36 全填好
+- **如果走快路徑直接 push 會在生產踩雷**，自我驗證在 collector→DB 端到端跑一輪救了
+
+**教訓**：新欄位走 LLM → annotation → item → record → DB 五段路，任一段漏接都會 silent fail。
+必須端到端跑一次驗證每段。
+
+---
+
+## 2026-06-13 RPC smallint 參數從 supabase-js 傳會解析失敗
+
+**現象**：本地 psql 用 `2::smallint` 正常呼叫 RPC，但 supabase-js 直接傳 `{p_min_gis_relevance: 2}` 報錯
+`function does not exist (date, integer, boolean, integer)`。
+
+**根因**：supabase-js / PostgREST 把 JS number 傳成 PostgreSQL `integer` 型別，
+RPC 簽名是 `smallint` 找不到 overload。
+
+**對策**：
+- RPC 參數型別改 `integer DEFAULT 2`（不影響 default 值）
+- 同時 `DROP FUNCTION IF EXISTS (smallint, ...)` 避免兩版本並存
+
+**PRINCIPLES**：Supabase RPC 參數一律用 integer，避免從 JS RPC 客戶端的型別陷阱
+
+---
+
+## 2026-06-13 pglast CI cache:pip 沒 requirements.txt 直接 error
+
+**現象**：gis-platform 加 CI workflow 首跑，`actions/setup-python@v5` step 直接 error
+「No file matched to **/requirements.txt or **/pyproject.toml」。
+
+**根因**：`with: cache: 'pip'` 預設要 pip 依賴清單檔做 cache key，gis-platform repo
+只有 SQL 沒 Python 依賴，找不到檔直接 fail（不是 warning）。
+
+**對策**：移除 `cache: 'pip'` 一行（不影響功能，只是少一個加速）
+
+**教訓**：每個 CI workflow 上線後一定要看 Actions 頁綠燈確認，不能假設 setup
+動作會「沒問題就跳過」。
