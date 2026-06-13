@@ -20,7 +20,7 @@ export interface NewsEventDateInfo {
   event_count: number;
 }
 
-/** RPC get_news_events_day_clustered 回傳 row */
+/** RPC get_news_events_day_clustered_v2 回傳 row */
 interface RawCluster {
   lon: number | null;
   lat: number | null;
@@ -29,6 +29,8 @@ interface RawCluster {
   event_count: number | null;
   latest_category: string | null;
   latest_published_ts: string | null; // timestamptz → ISO string
+  max_severity: number | null;
+  max_gis_relevance: number | null;
   events: ClusterEvent[] | null;       // jsonb array
 }
 
@@ -43,7 +45,27 @@ export interface ClusterEvent {
   /** unix 秒（RPC 已 extract epoch） */
   published_ts: number;
   confidence: number | null;
+  /** v2（migration 164/165）：可能為 null（舊資料未評估） */
+  gis_relevance: number | null;
+  severity: number | null;
+  is_event: boolean | null;
 }
+
+/** 篩選等級 — RPC v2 參數對應 */
+export type NewsFilterLevel = "critical" | "important" | "local" | "all";
+
+interface FilterParams {
+  min_gr: number;
+  require_event: boolean;
+  min_sev: number;
+}
+
+const FILTER_PRESETS: Record<NewsFilterLevel, FilterParams> = {
+  critical:  { min_gr: 3, require_event: true,  min_sev: 2 },
+  important: { min_gr: 2, require_event: true,  min_sev: 0 },
+  local:     { min_gr: 1, require_event: false, min_sev: 0 },
+  all:       { min_gr: 0, require_event: false, min_sev: 0 },
+};
 
 const STATIC_URL = "./geo/news_events.geojson";
 
@@ -87,6 +109,9 @@ function clustersToGeoJSON(rows: RawCluster[]): GeoJSON.FeatureCollection {
         event_count: r.event_count ?? events.length,
         county: r.county ?? "",
         events_json: JSON.stringify(events), // popup 多則清單渲染
+        // ── 階段 B+ 新增（migration 165 v2）：給 paint 條件式判斷 critical ──
+        max_severity: r.max_severity ?? latest.severity ?? 0,
+        max_gis_relevance: r.max_gis_relevance ?? latest.gis_relevance ?? 0,
       },
     });
   }
@@ -127,16 +152,24 @@ export function fetchNewsEventDates(): Promise<NewsEventDateInfo[]> {
 
 // ── 按日載入 ──
 
-async function fetchNewsEventsDayUncached(date: string): Promise<GeoJSON.FeatureCollection> {
+async function fetchNewsEventsDayUncached(cacheKey: string): Promise<GeoJSON.FeatureCollection> {
+  // cacheKey 格式："YYYY-MM-DD|<filterLevel>"
+  const [date, filterLevel = "important"] = cacheKey.split("|");
   if (!supabaseConfigured) return fetchStaticNewsEventsCached();
 
+  const preset = FILTER_PRESETS[filterLevel as NewsFilterLevel] ?? FILTER_PRESETS.important;
   const t0 = performance.now();
   const { data, error } = await withLoading(
-    `news-events:${date}`,
-    `新聞事件 ${date}`,
-    supabase.rpc("get_news_events_day_clustered", { p_day: date }),
+    `news-events:${cacheKey}`,
+    `新聞事件 ${date} (${filterLevel})`,
+    supabase.rpc("get_news_events_day_clustered_v2", {
+      p_day: date,
+      p_min_gis_relevance: preset.min_gr,
+      p_require_event: preset.require_event,
+      p_min_severity: preset.min_sev,
+    }),
   );
-  if (error) throw new Error(`get_news_events_day_clustered(${date}): ${error.message}`);
+  if (error) throw new Error(`get_news_events_day_clustered_v2(${cacheKey}): ${error.message}`);
 
   const fc = clustersToGeoJSON((data ?? []) as RawCluster[]);
   const totalEvents = fc.features.reduce(
@@ -144,14 +177,17 @@ async function fetchNewsEventsDayUncached(date: string): Promise<GeoJSON.Feature
     0,
   );
   console.log(
-    `[NewsEvents] Loaded ${fc.features.length} clusters (${totalEvents} events) for ${date} in ${(performance.now() - t0).toFixed(0)}ms`,
+    `[NewsEvents] Loaded ${fc.features.length} clusters (${totalEvents} events) for ${cacheKey} in ${(performance.now() - t0).toFixed(0)}ms`,
   );
   return fc;
 }
 
 const fetchNewsEventsDayCached = cachedByKey(fetchNewsEventsDayUncached, 10 * 60_000);
 
-/** 取指定日期的新聞事件 FeatureCollection。10min TTL + LRU 快取，toggle / 重回日期不重抓 */
-export function fetchNewsEventsDay(date: string): Promise<GeoJSON.FeatureCollection> {
-  return fetchNewsEventsDayCached(date);
+/** 取指定日期 + 篩選等級的新聞事件 FeatureCollection。10min TTL + LRU 快取 */
+export function fetchNewsEventsDay(
+  date: string,
+  filterLevel: NewsFilterLevel = "important",
+): Promise<GeoJSON.FeatureCollection> {
+  return fetchNewsEventsDayCached(`${date}|${filterLevel}`);
 }

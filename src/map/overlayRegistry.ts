@@ -1593,6 +1593,33 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
+        // 階段 B+：critical halo（gis_relevance=3 + severity>=2 才亮的白色背景光暈）
+        suffix: "critical-halo",
+        type: "circle",
+        paint: (isDark, params) => {
+          const s = params?.newsScale ?? 1;
+          const isCritical = [
+            "all",
+            [">=", ["coalesce", ["get", "max_gis_relevance"], 0], 3],
+            [">=", ["coalesce", ["get", "max_severity"], 0], 2],
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 14 * s, 10, 24 * s, 14, 36 * s,
+            ],
+            "circle-blur": 1.2,
+            "circle-color": isDark ? "#ffffff" : "#fffbeb",
+            "circle-opacity": [
+              "case",
+              isCritical,
+              isDark ? 0.3 : 0.35,
+              0,
+            ] as unknown as number,
+          };
+        },
+      },
+      {
         suffix: "glow",
         type: "circle",
         paint: (isDark, params) => {
@@ -1618,12 +1645,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "interpolate", ["linear"], ["coalesce", ["get", "event_count"], 1],
             1, 1, 5, 1.6, 15, 2.4, 50, 3.2,
           ];
+          // 階段 B+：severity 加成 — sev 3 → ×1.6、sev 2 → ×1.3、其他 ×1
+          const sevMult = [
+            "case",
+            [">=", ["coalesce", ["get", "max_severity"], 0], 3], 1.6,
+            [">=", ["coalesce", ["get", "max_severity"], 0], 2], 1.3,
+            1,
+          ];
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, ["*", 3 * s, countMult],
-              10, ["*", 5 * s, countMult],
-              14, ["*", 8 * s, countMult],
+              5, ["*", 3 * s, countMult, sevMult],
+              10, ["*", 5 * s, countMult, sevMult],
+              14, ["*", 8 * s, countMult, sevMult],
             ] as unknown as number,
             "circle-color": NEWS_CATEGORY_COLOR_EXPR as unknown as string,
             "circle-stroke-color": isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.3)",
