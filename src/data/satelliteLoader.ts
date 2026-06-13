@@ -57,11 +57,17 @@ async function fetchView(qs: string): Promise<SupabaseRow[]> {
   return (await resp.json()) as SupabaseRow[];
 }
 
+/** 台灣衛星名稱正則（UCS country_operator 不一定即時，這層保底，含 FS-8 / Triton） */
+const TW_NAME_RE = /^(FORMOSAT|TRITON\b)/i;
+
 /** 把 Supabase row 轉成 SatelliteRecord，並決定本專案的 category */
 function classify(row: SupabaseRow): SatelliteCategory | null {
   const country = row.country_operator;
   const cat = row.category;
   if (country === "Taiwan") return "taiwan";
+  // 名稱保底：FORMOSAT-8A、FORMOSAT-7R/TRITON 在 UCS 還未對齊 country
+  // 排除碎片（DEB）
+  if (TW_NAME_RE.test(row.name) && cat !== "debris") return "taiwan";
   if (country === "China") {
     if (cat === "military") return "china_military";
     if (cat === "earth_obs") return "china_earth_obs";
@@ -70,12 +76,17 @@ function classify(row: SupabaseRow): SatelliteCategory | null {
 }
 
 async function fetchAll(): Promise<SatelliteRecord[]> {
-  const [cnRows, twRows] = await Promise.all([
+  const [cnRows, twRows, twNameRows] = await Promise.all([
     fetchView("country_operator=eq.China&category=in.(military,earth_obs)"),
     fetchView("country_operator=eq.Taiwan"),
+    // 名稱保底：UCS country 還沒對齊的新衛星（FORMOSAT-8A、FORMOSAT-7R/TRITON）
+    fetchView("or=(name.ilike.FORMOSAT*,name.ilike.TRITON*)&category=neq.debris"),
   ]);
+  const seen = new Set<number>();
   const out: SatelliteRecord[] = [];
-  for (const row of [...cnRows, ...twRows]) {
+  for (const row of [...cnRows, ...twRows, ...twNameRows]) {
+    if (seen.has(row.norad_id)) continue;
+    seen.add(row.norad_id);
     const cat = classify(row);
     if (!cat) continue;
     if (!row.tle_line1 || !row.tle_line2) continue;
