@@ -38,7 +38,10 @@ const FOOTPRINT_INNER_KM = 50;
 const FOOTPRINT_OUTER_KM = 1500;
 const TRACK_STEP_SEC = 30;
 const DEFAULT_TRACK_MIN = 30;
-const REFRESH_THROTTLE_MS = 1000;
+/** 輕量更新（即時點 + 足跡圓）— 5 Hz 讓衛星看起來順暢流動 */
+const LIGHT_REFRESH_MS = 200;
+/** 重量更新（未來 30 分軌跡 polyline）— 1 Hz 即可，軌跡形狀短期內變化極小 */
+const HEAVY_REFRESH_MS = 1000;
 
 const COLOR_EXPR: ExpressionSpecification = [
   "match",
@@ -195,54 +198,49 @@ export function useSatellitesLayer(
     return true;
   }, []);
 
-  // 重算所有 GeoJSON（footprint / track / point）並 setData
-  // 注意：讀 visibilityRef / trackMinutesRef，不入 deps → callback stable，
-  // 避免 effect 重綁 + throttle 殭屍 closure。
-  const recompute = useCallback((map: MapboxMap, atUnixSec: number) => {
+  // 計算「目前可見的 cat 清單」
+  const computeVisibleCats = (): SatelliteCategory[] => {
+    const vis = visibilityRef.current;
+    const out: SatelliteCategory[] = [];
+    if (vis.china_yaogan) out.push("china_yaogan");
+    if (vis.china_jilin) out.push("china_jilin");
+    if (vis.china_gaofen) out.push("china_gaofen");
+    if (vis.china_other) out.push("china_other");
+    if (vis.taiwan) out.push("taiwan");
+    return out;
+  };
+
+  // 輕量更新：point + footprint（依當前 sub-satellite 位置）
+  // 5 Hz 跑，CPU 成本 = N 顆 × 1 SGP4，~350 sat × 5 = 1750 SGP4/sec
+  const recomputeLight = useCallback((map: MapboxMap, atUnixSec: number) => {
     const t = new Date(atUnixSec * 1000);
     const parsed = recordsRef.current;
     if (!parsed.length) return;
-    const vis = visibilityRef.current;
-    const trackMin = trackMinutesRef.current;
-
-    const visibleCats: SatelliteCategory[] = [];
-    if (vis.china_yaogan) visibleCats.push("china_yaogan");
-    if (vis.china_jilin) visibleCats.push("china_jilin");
-    if (vis.china_gaofen) visibleCats.push("china_gaofen");
-    if (vis.china_other) visibleCats.push("china_other");
-    if (vis.taiwan) visibleCats.push("taiwan");
+    const visibleCats = computeVisibleCats();
     if (!visibleCats.length) {
-      // 清空
       (map.getSource(SAT_SRC_FOOTPRINT) as GeoJSONSource | undefined)?.setData(EMPTY_FC);
-      (map.getSource(SAT_SRC_TRACK) as GeoJSONSource | undefined)?.setData(EMPTY_FC);
       (map.getSource(SAT_SRC_POINT) as GeoJSONSource | undefined)?.setData(EMPTY_FC);
       return;
     }
 
     const footprintFeats: GeoJSON.Feature[] = [];
-    const trackFeats: GeoJSON.Feature[] = [];
     const pointFeats: GeoJSON.Feature[] = [];
 
     for (const { rec, satrec } of parsed) {
       if (!visibleCats.includes(rec.category)) continue;
       const now = propagate(satrec, t);
       if (!now) continue;
-
       const props = {
         cat: rec.category,
         norad: rec.noradId,
         name: rec.name,
         altKm: Math.round(now.altKm),
       };
-
-      // point
       pointFeats.push({
         type: "Feature",
         geometry: { type: "Point", coordinates: [now.lng, now.lat] },
         properties: props,
       });
-
-      // footprint — 內外圈
       footprintFeats.push({
         type: "Feature",
         geometry: { type: "Polygon", coordinates: [circleRing(now.lng, now.lat, FOOTPRINT_INNER_KM)] },
@@ -253,9 +251,41 @@ export function useSatellitesLayer(
         geometry: { type: "Polygon", coordinates: [circleRing(now.lng, now.lat, FOOTPRINT_OUTER_KM)] },
         properties: { ...props, ring: "outer" },
       });
+    }
 
-      // 軌跡：從現在開始往未來推
-      const stepCount = Math.floor((trackMin * 60) / TRACK_STEP_SEC);
+    (map.getSource(SAT_SRC_FOOTPRINT) as GeoJSONSource | undefined)?.setData({
+      type: "FeatureCollection",
+      features: footprintFeats,
+    });
+    (map.getSource(SAT_SRC_POINT) as GeoJSONSource | undefined)?.setData({
+      type: "FeatureCollection",
+      features: pointFeats,
+    });
+  }, []);
+
+  // 重量更新：未來 30 分軌跡 polyline
+  // 1 Hz 跑，CPU 成本 = N × 60 step SGP4 = 350 × 60 = 21k SGP4/sec
+  // 軌跡形狀 1s 內變化極微，不需高頻
+  const recomputeTrack = useCallback((map: MapboxMap, atUnixSec: number) => {
+    const t = new Date(atUnixSec * 1000);
+    const parsed = recordsRef.current;
+    if (!parsed.length) return;
+    const visibleCats = computeVisibleCats();
+    const trackMin = trackMinutesRef.current;
+    if (!visibleCats.length) {
+      (map.getSource(SAT_SRC_TRACK) as GeoJSONSource | undefined)?.setData(EMPTY_FC);
+      return;
+    }
+
+    const trackFeats: GeoJSON.Feature[] = [];
+    const stepCount = Math.floor((trackMin * 60) / TRACK_STEP_SEC);
+    for (const { rec, satrec } of parsed) {
+      if (!visibleCats.includes(rec.category)) continue;
+      const props = {
+        cat: rec.category,
+        norad: rec.noradId,
+        name: rec.name,
+      };
       const path: { lat: number; lng: number; altKm: number }[] = [];
       for (let i = 0; i <= stepCount; i++) {
         const tt = new Date(t.getTime() + i * TRACK_STEP_SEC * 1000);
@@ -267,28 +297,23 @@ export function useSatellitesLayer(
         if (seg.length < 2) continue;
         trackFeats.push({
           type: "Feature",
-          geometry: {
-            type: "LineString",
-            coordinates: seg.map((p) => [p.lng, p.lat]),
-          },
+          geometry: { type: "LineString", coordinates: seg.map((p) => [p.lng, p.lat]) },
           properties: props,
         });
       }
     }
 
-    (map.getSource(SAT_SRC_FOOTPRINT) as GeoJSONSource | undefined)?.setData({
-      type: "FeatureCollection",
-      features: footprintFeats,
-    });
     (map.getSource(SAT_SRC_TRACK) as GeoJSONSource | undefined)?.setData({
       type: "FeatureCollection",
       features: trackFeats,
     });
-    (map.getSource(SAT_SRC_POINT) as GeoJSONSource | undefined)?.setData({
-      type: "FeatureCollection",
-      features: pointFeats,
-    });
   }, []);
+
+  // 兩者合一給 force-refresh（toggle 變動時用）
+  const recompute = useCallback((map: MapboxMap, atUnixSec: number) => {
+    recomputeLight(map, atUnixSec);
+    recomputeTrack(map, atUnixSec);
+  }, [recomputeLight, recomputeTrack]);
 
   // ── 訂閱 timeStore 每秒重算 ──
   // deps 只放 [dataReady, anyVisible]，不放 recompute（已 stable）。
@@ -313,11 +338,18 @@ export function useSatellitesLayer(
       map.on("idle", onSetupIdle);
     }
 
-    const unsub = timeStore.subscribeThrottled(REFRESH_THROTTLE_MS, (ts) => {
+    // 兩條訂閱：點 + 足跡 5 Hz；軌跡 1 Hz（軌跡形狀變化慢，省 CPU）
+    const unsubLight = timeStore.subscribeThrottled(LIGHT_REFRESH_MS, (ts) => {
       const m = mapRef.current;
       if (!m) return;
       if (!layersReadyRef.current && !ensureLayers(m)) return;
-      recompute(m, ts);
+      recomputeLight(m, ts);
+    });
+    const unsubHeavy = timeStore.subscribeThrottled(HEAVY_REFRESH_MS, (ts) => {
+      const m = mapRef.current;
+      if (!m) return;
+      if (!layersReadyRef.current && !ensureLayers(m)) return;
+      recomputeTrack(m, ts);
     });
 
     // style 切換後 source/layer 會被清掉，重建
@@ -328,13 +360,14 @@ export function useSatellitesLayer(
     map.on("style.load", onMainStyleLoad);
 
     return () => {
-      unsub();
+      unsubLight();
+      unsubHeavy();
       map.off("style.load", onMainStyleLoad);
       // setup 用的 listener 也一律清掉（避免累積洩漏）
       map.off("style.load", onSetupStyleLoad);
       map.off("idle", onSetupIdle);
     };
-  }, [dataReady, anyVisible, ensureLayers, recompute, mapRef]);
+  }, [dataReady, anyVisible, ensureLayers, recompute, recomputeLight, recomputeTrack, mapRef]);
 
   // ── toggle 變動即刻 force recompute ──
   // visibility 物件 identity 每 render 都新；用 JSON 字串穩定化 deps，
