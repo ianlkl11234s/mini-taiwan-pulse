@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
-import { fetchNewsEventsDay, type NewsFilterLevel } from "../data/newsEventsLoader";
+import { fetchNewsEventsDay, DEFAULT_NEWS_FILTER, type NewsFilter } from "../data/newsEventsLoader";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 
@@ -18,13 +18,17 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 const SOURCE_ID = "news-events";
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
+function filterKey(f: NewsFilter): string {
+  return `${f.minRelevance}|${f.eventsOnly ? 1 : 0}|${f.minSeverity}`;
+}
+
 export function useNewsEventsLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
-  filterLevel: NewsFilterLevel = "important",
+  filter: NewsFilter = DEFAULT_NEWS_FILTER,
 ) {
   const activeFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
-  const activeKeyRef = useRef<string>(""); // "date|filterLevel" 組合 key
+  const activeKeyRef = useRef<string>(""); // "date|gr|ev|sv" 組合 key
   const fetchingRef = useRef<string>("");
 
   const feed = useCallback(() => {
@@ -36,13 +40,13 @@ export function useNewsEventsLayer(
   }, [mapRef]);
 
   const loadDay = useCallback(
-    (dateStr: string, level: NewsFilterLevel) => {
-      const key = `${dateStr}|${level}`;
+    (dateStr: string, f: NewsFilter) => {
+      const key = `${dateStr}|${filterKey(f)}`;
       if (key === activeKeyRef.current) return;
       if (key === fetchingRef.current) return;
 
       fetchingRef.current = key;
-      fetchNewsEventsDay(dateStr, level)
+      fetchNewsEventsDay(dateStr, f)
         .then((fc) => {
           if (fetchingRef.current !== key) return; // 已切到別的 date/filter，丟棄舊回應
           activeFcRef.current = fc;
@@ -63,15 +67,17 @@ export function useNewsEventsLayer(
     [feed, mapRef],
   );
 
-  // ── 訂閱 timeStore 日期變化 + 監聽 filterLevel 變化 ──
+  // ── 訂閱 timeStore 日期變化 + 監聽 filter 變化 ──
+  const fKey = filterKey(filter);
   useEffect(() => {
     if (!visible) return;
     const handler = (dateStr: string) => {
-      if (dateStr) loadDay(dateStr, filterLevel);
+      if (dateStr) loadDay(dateStr, filter);
     };
     handler(timeStore.getDateKey()); // 初始化（toggle 開啟瞬間補載 / filter 切換立即重載）
     return timeStore.subscribeDate(handler);
-  }, [visible, filterLevel, loadDay]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, fKey, loadDay]);
 
   // ── style 切換後 source 重建為空 → 重餵已載入資料 ──
   useEffect(() => {

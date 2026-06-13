@@ -51,20 +51,21 @@ export interface ClusterEvent {
   is_event: boolean | null;
 }
 
-/** 篩選等級 — RPC v2 參數對應 */
-export type NewsFilterLevel = "critical" | "important" | "local" | "all";
-
-interface FilterParams {
-  min_gr: number;
-  require_event: boolean;
-  min_sev: number;
+/** 篩選參數（三軸，照 Intel Panel 設計） */
+export interface NewsFilter {
+  /** 0 全部 / 2 地方+ / 3 重大（RPC p_min_gis_relevance） */
+  minRelevance: 0 | 2 | 3;
+  /** true 只看事件，false 含聲明（RPC p_require_event） */
+  eventsOnly: boolean;
+  /** 0 全部 / 1 個案+ / 2 區域+（RPC p_min_severity） */
+  minSeverity: 0 | 1 | 2;
 }
 
-const FILTER_PRESETS: Record<NewsFilterLevel, FilterParams> = {
-  critical:  { min_gr: 3, require_event: true,  min_sev: 2 },
-  important: { min_gr: 2, require_event: true,  min_sev: 1 },
-  local:     { min_gr: 1, require_event: false, min_sev: 0 },
-  all:       { min_gr: 0, require_event: false, min_sev: 0 },
+/** 預設 ≈ 舊「important」 */
+export const DEFAULT_NEWS_FILTER: NewsFilter = {
+  minRelevance: 2,
+  eventsOnly: true,
+  minSeverity: 1,
 };
 
 const STATIC_URL = "./geo/news_events.geojson";
@@ -153,20 +154,24 @@ export function fetchNewsEventDates(): Promise<NewsEventDateInfo[]> {
 // ── 按日載入 ──
 
 async function fetchNewsEventsDayUncached(cacheKey: string): Promise<GeoJSON.FeatureCollection> {
-  // cacheKey 格式："YYYY-MM-DD|<filterLevel>"
-  const [date, filterLevel = "important"] = cacheKey.split("|");
+  // cacheKey 格式："YYYY-MM-DD|<gr>|<ev>|<sv>"
+  const [date, gr = "2", ev = "1", sv = "1"] = cacheKey.split("|");
   if (!supabaseConfigured) return fetchStaticNewsEventsCached();
 
-  const preset = FILTER_PRESETS[filterLevel as NewsFilterLevel] ?? FILTER_PRESETS.important;
+  const filter: NewsFilter = {
+    minRelevance: Number(gr) as 0 | 2 | 3,
+    eventsOnly: ev === "1",
+    minSeverity: Number(sv) as 0 | 1 | 2,
+  };
   const t0 = performance.now();
   const { data, error } = await withLoading(
     `news-events:${cacheKey}`,
-    `新聞事件 ${date} (${filterLevel})`,
+    `新聞事件 ${date} (gr${filter.minRelevance}/sv${filter.minSeverity}${filter.eventsOnly ? "/ev" : ""})`,
     supabase.rpc("get_news_events_day_clustered_v2", {
       p_day: date,
-      p_min_gis_relevance: preset.min_gr,
-      p_require_event: preset.require_event,
-      p_min_severity: preset.min_sev,
+      p_min_gis_relevance: filter.minRelevance,
+      p_require_event: filter.eventsOnly,
+      p_min_severity: filter.minSeverity,
     }),
   );
   if (error) throw new Error(`get_news_events_day_clustered_v2(${cacheKey}): ${error.message}`);
@@ -187,7 +192,8 @@ const fetchNewsEventsDayCached = cachedByKey(fetchNewsEventsDayUncached, 10 * 60
 /** 取指定日期 + 篩選等級的新聞事件 FeatureCollection。10min TTL + LRU 快取 */
 export function fetchNewsEventsDay(
   date: string,
-  filterLevel: NewsFilterLevel = "important",
+  filter: NewsFilter = DEFAULT_NEWS_FILTER,
 ): Promise<GeoJSON.FeatureCollection> {
-  return fetchNewsEventsDayCached(`${date}|${filterLevel}`);
+  const cacheKey = `${date}|${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
+  return fetchNewsEventsDayCached(cacheKey);
 }

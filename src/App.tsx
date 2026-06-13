@@ -669,7 +669,15 @@ export default function App() {
   );
 
   // ── News events 按日載入（Supabase；餵 overlayRegistry 的 news-events source） ──
-  useNewsEventsLayer(mapRef, layerVisibility.newsEvents, transportParams.newsFilter);
+  const newsFilter = useMemo(
+    () => ({
+      minRelevance: transportParams.newsMinRelevance,
+      eventsOnly: transportParams.newsEventsOnly,
+      minSeverity: transportParams.newsMinSeverity,
+    }),
+    [transportParams.newsMinRelevance, transportParams.newsEventsOnly, transportParams.newsMinSeverity],
+  );
+  useNewsEventsLayer(mapRef, layerVisibility.newsEvents, newsFilter);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);

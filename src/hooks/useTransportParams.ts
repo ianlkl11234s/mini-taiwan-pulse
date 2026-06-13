@@ -236,8 +236,14 @@ export function useTransportParams() {
   const [newsScale, setNewsScale] = useState(1);
   const [newsTimeBased, setNewsTimeBased] = useState(true);
   const [newsRipple, setNewsRipple] = useState(true);
-  // newsFilter：critical(重大) / important(重要，預設) / local(地方相關) / all(全部含政策)
-  const [newsFilter, setNewsFilter] = useState<"critical" | "important" | "local" | "all">("important");
+  // 新聞 filter（三軸，照 Intel Panel 設計）
+  //   minRelevance: 0 全部 / 2 地方+ / 3 重大（對應 RPC p_min_gis_relevance）
+  //   eventsOnly:   true 只看事件（對應 RPC p_require_event）
+  //   minSeverity:  0 全部 / 1 個案+ / 2 區域+（對應 RPC p_min_severity）
+  // 預設 (2, true, 1) ≈ 舊「重要」級
+  const [newsMinRelevance, setNewsMinRelevance] = useState<0 | 2 | 3>(2);
+  const [newsEventsOnly, setNewsEventsOnly] = useState<boolean>(true);
+  const [newsMinSeverity, setNewsMinSeverity] = useState<0 | 1 | 2>(1);
   // Socioeconomic (村里社經)
   const [socioCat, setSocioCat] = useState("income");
   const [socioMetric, setSocioMetric] = useState("im");
@@ -872,12 +878,17 @@ export function useTransportParams() {
       case "landingStations": return [];
       case "activeFaults": return [];
       case "newsEvents": return [
-        { type: "select" as const, label: "Filter", value: newsFilter, options: [
-          { label: "重大", value: "critical" },
-          { label: "重要", value: "important" },
-          { label: "地方", value: "local" },
-          { label: "全部", value: "all" },
-        ], onChange: (v: string) => setNewsFilter(v as "critical" | "important" | "local" | "all") },
+        { type: "select" as const, label: "相關度", value: String(newsMinRelevance), options: [
+          { label: "全部", value: "0" },
+          { label: "地方+", value: "2" },
+          { label: "重大", value: "3" },
+        ], onChange: (v: string) => setNewsMinRelevance(Number(v) as 0 | 2 | 3) },
+        { type: "select" as const, label: "嚴重", value: String(newsMinSeverity), options: [
+          { label: "全部", value: "0" },
+          { label: "個案+", value: "1" },
+          { label: "區域+", value: "2" },
+        ], onChange: (v: string) => setNewsMinSeverity(Number(v) as 0 | 1 | 2) },
+        { type: "toggle" as const, label: "只看事件", value: newsEventsOnly, onChange: setNewsEventsOnly },
         { type: "toggle" as const, label: "Time", value: newsTimeBased, onChange: setNewsTimeBased },
         { type: "toggle" as const, label: "Ripple", value: newsRipple, onChange: setNewsRipple },
         { label: `Scale ${newsScale.toFixed(1)}`, value: newsScale, min: 0.3, max: 3, step: 0.1, onChange: setNewsScale },
@@ -1291,7 +1302,12 @@ export function useTransportParams() {
     railTrackMode,
     newsTimeBased,
     newsRipple,
-    newsFilter,
+    newsMinRelevance,
+    setNewsMinRelevance,
+    newsEventsOnly,
+    setNewsEventsOnly,
+    newsMinSeverity,
+    setNewsMinSeverity,
     enabledBusCities,
     enabledWasteScheduleCities,
     refs: {
