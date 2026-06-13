@@ -260,6 +260,8 @@ export function useTransportParams() {
   const [daOpacity, setDaOpacity] = useState(1.0);
   // Road Events
   const [reOpacity, setReOpacity] = useState(1.0);
+  // Satellites (3 cats share one opacity)
+  const [satOpacity, setSatOpacity] = useState(1.0);
   // YouBike Fullness (H3)
   const [ybOpacity, setYbOpacity] = useState(0.65);
   const [ybContrast, setYbContrast] = useState(1);
@@ -959,6 +961,13 @@ export function useTransportParams() {
       case "roadEvents": return [
         { label: `Opacity ${reOpacity.toFixed(2)}`, value: reOpacity, min: 0, max: 1, step: 0.05, onChange: setReOpacity },
       ];
+      case "satellitesYaogan":
+      case "satellitesJilin":
+      case "satellitesGaofen":
+      case "satellitesChinaOther":
+      case "satellitesTaiwan": return [
+        { label: `Opacity ${satOpacity.toFixed(2)}`, value: satOpacity, min: 0, max: 1, step: 0.05, onChange: setSatOpacity },
+      ];
       case "cwaCloudImagery": return [
         { label: `Opacity ${cwaCloudOpacity.toFixed(2)}`, value: cwaCloudOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaCloudOpacity },
       ];
@@ -1336,6 +1345,7 @@ export function useTransportParams() {
     eqShowHistory,
     daOpacity,
     reOpacity,
+    satOpacity,
     aqiMicroCluster,
     aqiImageryOpacity,
   };

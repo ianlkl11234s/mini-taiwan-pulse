@@ -185,6 +185,7 @@ export function useMapInteraction(
           { layers: ["fire-latest-layer"], type: "fireEvent" },
           { layers: ["fire-stations-circle", "fire-stations-glow"], type: "fireStation" },
           { layers: ["fire-hydrants-circle", "fire-hydrants-glow"], type: "fireHydrant" },
+          { layers: ["sat-current-point"], type: "satellite" },
           { layers: ["medical-hospitals-circle"], type: "medicalPOI" },
           { layers: ["medical-clinics-circle"], type: "medicalPOI" },
           { layers: ["medical-pharmacies-circle"], type: "medicalPOI" },

@@ -32,6 +32,7 @@ import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useNewsEventsLayer } from "./hooks/useNewsEventsLayer";
+import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
@@ -693,6 +694,18 @@ export default function App() {
     },
     transportParams.daOpacity,
   );
+
+  // ── 衛星圖層（Supabase satellite_classified + SGP4 即時計算） ──
+  useSatellitesLayer(mapRef, {
+    visibility: {
+      china_yaogan: layerVisibility.satellitesYaogan,
+      china_jilin: layerVisibility.satellitesJilin,
+      china_gaofen: layerVisibility.satellitesGaofen,
+      china_other: layerVisibility.satellitesChinaOther,
+      taiwan: layerVisibility.satellitesTaiwan,
+    },
+    opacity: transportParams.satOpacity,
+  });
 
   // ── TDX 即時路況事件 timeline ──
   useRoadEventsLayer(

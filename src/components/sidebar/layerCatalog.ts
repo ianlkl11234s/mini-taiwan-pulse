@@ -159,6 +159,12 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wdMixed: "#14b8a6",
   wdRecyclingContainer: "#84cc16",
   wdBattery: "#fbbf24",
+  // SPACE 衛星 (5 分群)
+  satellitesYaogan: "#ef5350",
+  satellitesJilin: "#ff7043",
+  satellitesGaofen: "#ec407a",
+  satellitesChinaOther: "#9e9e9e",
+  satellitesTaiwan: "#4fc3f7",
 };
 
 // ── Transport Labels ──
@@ -395,6 +401,16 @@ export const SECTIONS: SectionDef[] = [
       { key: "wfRecycling", label: "資源回收廠 Recycling", labelMobile: "資源回收廠 Recycling (653) ♻️", expandable: true },
       { key: "wfScrapYard", label: "廢車/廢金屬 Scrap", labelMobile: "廢車/廢金屬 Scrap (3)", expandable: true },
       { key: "wfOther", label: "其他事廢設施 Other", labelMobile: "其他事廢設施 Other (3,164)", expandable: true },
+    ],
+  },
+  {
+    title: "SPACE",
+    layers: [
+      { key: "satellitesYaogan", label: "Yaogan 遙感", labelMobile: "中國 Yaogan 遙感", expandable: true },
+      { key: "satellitesJilin", label: "Jilin 吉林", labelMobile: "中國 Jilin 吉林", expandable: true },
+      { key: "satellitesGaofen", label: "Gaofen 高分", labelMobile: "中國 Gaofen 高分", expandable: true },
+      { key: "satellitesChinaOther", label: "中國其他 (TJS/北斗)", labelMobile: "中國其他 TJS/Beidou/Shiyan/餘", expandable: true },
+      { key: "satellitesTaiwan", label: "台灣 FORMOSAT", labelMobile: "台灣衛星 FORMOSAT / TRITON / IRIS-C", expandable: true },
     ],
   },
   {
