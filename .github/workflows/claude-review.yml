@@ -21,12 +21,6 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            請 review 這個 PR 的 diff。重點檢查：
-            1. TypeScript 型別正確性、有沒有違反專案 P0 規則（CLAUDE.md）
-            2. 新 layer 是否走完強制 7 步順序（types/loader/hook/overlay/catalog/App/visibility）
-            3. 動態圖層是否誤把 currentTime 放進 useEffect deps
-            4. Supabase 載入是否接 loadingRegistry
-            5. 圖層 UX 四鐵則（透明度 slider / 圖例 / popup / dropdown）
-            6. 有無明顯 bug、race condition、記憶體洩漏
-            把 review 意見貼成 PR comment（用繁體中文）。
-            若 diff 很小或無問題，簡短說明 LGTM 即可。
+            只 review 本 PR 的 diff，不要主動讀 diff 以外的檔案，不要全 repo 探索。
+            檢查：明顯 bug、TypeScript 錯、動態圖層誤把 currentTime 放進 useEffect deps、Supabase loader 沒接 loadingRegistry。
+            無問題回單行「LGTM」即可；有問題最多列 5 點，每點 1 行，繁體中文。
