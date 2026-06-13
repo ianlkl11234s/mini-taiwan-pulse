@@ -158,3 +158,32 @@
 | NE-9 | P3 | 地方政府新聞稿 RSS（桃/中/南/高市府）| open | 補強官方第一手資訊（Google News 抓不到的）。需逐一驗證 RSS 是否還活著 |
 | NE-10 | P3 | 觀察自由時報 RSS Zeabur IP 403 | open | 持續 1 週看是否改善；若不變則改走 Google News 間接（UDN/TVBS 模式） |
 | NE-11 | P3 | newsEvents Telegram daily report 加 token 花費 | open | 每天日報加當日 LLM 成本 + critical 事件數 + filter 級分布，便於監控偏離 $5/月 上限 |
+
+### Monitor Mode（MO 系列，2026-06-14 加 — 完整在 `docs/proposal/monitor-mode.md`）
+
+**定位**：與 Explore Mode 並存的第二種 UX，從頂部 toggle 切入，底部拉起浮動面板：
+左 News Feed / 右 Indicators+Live / 底部 Timeline Dock 三區。Phase 1 主吃既有
+`news_events` 管線 + 新一支 pre-aggregate RPC。Phase 2+ 接國防/能源/地震/匯率等
+通用信號表。
+
+| ID | 優先級 | 項目 | 狀態 | 備註 / 估時 |
+|---|---|---|---|---|
+| MO-1 | P1 | **Monitor Mode 前端整體（Phase 1）** | open | `ModeToggle` + `MonitorPanel` (拖拉手把) + `TimelineDock` (uPlot 單軌新聞密度) + `NewsFeedPanel` (升溫 chip + 集群展開) + `IndicatorPanel` (KPI/熱區Top5/24h widget/直播 slot)。時間同步 `timeStore`、Loading/空狀態、卡片進場動畫。**~7 工作日** |
+| MO-2 | P1 | **Monitor 後端 pre-aggregate RPC** | open | gis-platform migration 加 `realtime.news_events_hourly_county_cat` (普通 table + refresh function 加進 cron job 55 循序步驟，**禁止拆新 job**) + `get_news_trending_hotspots(window_hours, limit)` + `get_news_hourly_breakdown(day)`。surge_ratio = window 計數 / 24h 同時段均值。**~1.5d**。MO-1 阻塞於此 |
+| MO-3 | P2 | 信號接入 — 共機擾台 | open | 國防部 PDF 或 `EyesOnPLA` GitHub。Phase 2 第一信號（⭐⭐⭐ 最高優先）|
+| MO-4 | P2 | 信號接入 — 電網備轉容量 | open | 台電 Open Data，⭐⭐⭐ |
+| MO-5 | P2 | 信號接入 — 地震即時 | open | CWA Open API（已有 earthquakes layer 資料可共用，主要做 monitor 端 widget），⭐⭐⭐ |
+| MO-6 | P3 | 信號接入 — 加權指數 / 匯率 | open | 證交所 / 央行，⭐⭐ |
+| MO-7 | P3 | 信號接入 — Cofacts 假訊息 | open | MyGoPen / Cofacts API，⭐⭐ |
+| MO-8 | P3 | 信號接入 — Cloudflare Radar 連通性 | open | 海纜中斷 / 國際連通異常，⭐ |
+| MO-9 | P3 | 信號接入 — 疾管署公衛週報 | open | ⭐ |
+| MO-10 | P3 | 通用信號表 + Phase 2 schema 設計 | open | 統一 `realtime.signals(source, metric, value, ts)` + 通用 widget factory。MO-3~9 共用基礎建設 |
+| MO-11 | P3 | 新聞直播嵌入 (iframe widget) | open | 候選：中央社 YT live / 公視 / 民視 / TVBS / PTS。Phase 1 預留外殼，Phase 2 接 |
+| MO-12 | P3 | Realtime push 升級（Phase 3）| open | polling 20min → Supabase Realtime channel 訂閱 news_events INSERT，真正秒級推送。涉及 gis-platform RLS + replication slot 設定 |
+
+### 規劃文件總覽（2026-06-14 集中索引）
+
+| 文件 | 對應 backlog | 狀態 |
+|---|---|---|
+| `docs/proposal/satellite-console.md` | SAT-1~7 | Phase 0 衛星圖層已上線，Phase A-D 規劃完成待動工 |
+| `docs/proposal/monitor-mode.md` | MO-1~12 | 完整提案，Phase 1 工程清單就緒待動工 |
