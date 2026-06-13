@@ -130,3 +130,15 @@
 | LA-5 | P2 | deploy-assets 扁平 → 鏡像結構 + manifest 總帳 | open | 三邊同名（S3/data/nginx）+ 整夾 sync，加新大檔 0 改腳本。雙軌可逆，最後才清舊扁平物件。計畫見 docs/launch/06 |
 | LA-6 | P3 | pulse-api 評估關閉省錢 | open | 前端已全走 Supabase、nginx /api 死碼已移除。確認無其他消費者後可停 pulse-api service |
 | LA-7 | P2 | 上線後觀察 Supabase Dashboard + Zeabur/Mapbox 帳務 | open | 公開流量下的連線數/CPU/egress 成本；memory 有 spend cap + IO 爆表前科。設帳單警報 |
+
+### 衛星 SPACE（SAT 系列，2026-06-13 上線後新待辦）
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| SAT-1 | P2 | Satellite Intel Console panel（Phase A）| open | docs/proposal/satellite-console.md §3。右側 340px panel：§A 變軌警報區（紅 banner + 卡片 + 飛到衛星）+ §B 中國 6 群 accordion + §C 台灣 15 顆 hero 卡 + §D 即時統計（覆蓋台灣中 / 未來 6h 過台時刻）。入口取代現有 Satellite icon 行為（與 5 toggle 並存）。預估 4-6h |
+| SAT-2 | P2 | §E 衛星百科卡 + §D 啟發式變軌預測（Phase B）| open | UCS catalog 完整欄位 + tle_history 30 天變軌列表 + 「下次變軌約 N±N 天，信心 X%」（必標「估算 ± 信心區間」警語，2026-06-13 拍板）。預估 3-4h |
+| SAT-3 | P3 | §F 變軌前後覆蓋對比 modal（Phase C，OSINT 核心）| open | 兩張並排 mini-map：左=從 tle_history 取 prev_epoch TLE 跑 SGP4 7 天 + 右=最新 TLE 7 天。下方算「過台灣頻次 5→7 次/日 +40%」量化威脅變化。預估 3-5h，最有戲劇性 |
+| SAT-4 | P3 | gis-platform migration：satellite_classified view category 對齊（Yaogan→china_yaogan etc.）| open | 目前前端 regex 拆群，view 仍只有 military/earth_obs 粗分。後端對齊後 loader 切 view 查詢即可，前端 regex 可拆掉。**並行進行不阻塞 Phase A** |
+| SAT-5 | P3 | 離軌（decay）預測 | open | 用 TLE B* 拖曳係數 + 高度衰減模型，對老衛星很有戲（哪顆快燒）。Phase D 選做 |
+| SAT-6 | P3 | §G 變軌串 newsEvents 故事卡 | open | 「Yaogan 12 變軌時當日新聞」交叉比對，新聞 layer by-day 接口可用。Phase D 選做 |
+| SAT-7 | P3 | RAF + 線性插值補幀（10 Hz → 60 Hz 視覺）| open | 在兩次 SGP4 之間用 lerp 補幀，視覺更貼真實流動。目前 10 Hz 點移動 ≈ 0.1px/frame 已肉眼滑順，非必要 |
