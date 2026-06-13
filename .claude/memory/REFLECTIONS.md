@@ -470,3 +470,54 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
    動權限前先 `SELECT prosecdef FROM pg_proc` 盤點。
 5. **大躍進上線拆多次部署 + 逐次驗證**：UI / 新層 / 視角分批 commit+push，每次 zeabur deployment 監測 RUNNING
    + 線上 curl，出錯範圍小、可逆（backup tag）。監測要等對應 8 碼 commit 的 deployment，別太早抓到舊的。
+
+---
+
+## 2026-06-13/14 newsEvents 三輪升級 + CI/CD 全自動化
+
+### What worked ✅
+
+- **DB 先 apply 線上實測再 commit**：每個 migration 都先 `psql -f` 跑進線上、查 RPC 形狀正確再 git push，PR 開出去 CI 一定綠
+- **自我端到端跑驗證**：collector dict 漏 LLM 欄位、RPC smallint→integer 兩個 bug 都是「本地實跑寫 DB → 查欄位是否填滿」抓到的，CI / PR review 都抓不到
+- **分階段 ship**：階段 A 分類上色 → 階段 B 同鄉鎮聚合 → v2 三維度 → v2.5 Filter，每階段獨立可驗收、可回滾、可暫停
+- **PR + CI 流程一次建立全套**：CI workflow + Claude auto-review + @claude mention 三條 workflow 三 repo 同步，從此每個 PR 自動跑檢查
+- **Claude review prompt 改短後 review 從 6-10min → 30-90s**：限制「只看 diff、無問題單行 LGTM」直接解決訂閱燒鈔問題
+- **跨 repo 並行**：用戶做衛星、我做新聞 v2，useTransportParams 的 mega dep array 沒撞車（兩人各自 rebase 處理）
+- **agent-browser SwiftShader flags**：headless 跑 Mapbox 已知必須 `--use-gl=angle,--use-angle=swiftshader,--enable-unsafe-swiftshader`，這次驗收一次過
+
+### What didn't ❌
+
+- **collector dict 漏帶新欄位 silent fail**：LLM 跑了、parser 跑了、欄位攤到 item，但 records.append 是手寫 dict、漏帶 3 欄。本地實跑才發現
+- **RPC smallint 從 supabase-js 傳會 type-cast 失敗**：本地 psql 用 `2::smallint` 沒事，supabase-js 傳 plain int 找不到 overload。先在 DB 端踩到才知道，第一個 PR 已 push
+- **google-genai 套件首跑漏裝 + url_norm 鎖死**：homebrew Python 3.14 PEP 668 擋 pip，collector 跳過 LLM 但已寫 432 個 url_norm。下次新 collector 上線前先 `python3 -c "import <pkg>"` 試
+- **Claude review 第一次跑 6-10min 沒立即截停**：訂閱燒了一輪「10 分鐘」白白浪費，第二輪才意識到要 cancel + 改 prompt
+- **CI 首跑 pglast cache:pip error 沒預想到**：cache:pip 設定要有 requirements.txt，gis-platform 沒有就 fail
+- **「自我檢查 vs PR review vs CI」三道網的真實命中率**：本 session 4 個 bug 都是「自我檢查」抓到的，CI 跟 PR review 都沒抓到任一個。CI/review 主要在「擋 typo + 維持規範」，不擋 silent fail
+
+### Next-time rules 🎯
+
+1. **新欄位 LLM → DB 五段路（PB-XX 新增 LLM 評估維度）必端到端跑一次**：跑完用 SQL `count(<新欄位>) = count(*)` 驗證沒漏接
+2. **Supabase RPC 參數一律用 integer**：smallint 從 JS 客戶端會 cast 失敗
+3. **新 Python 套件本地裝完先試 import**：`python3 -c "import <pkg>"` 確認，再跑 collector
+4. **Claude review 跑 > 3 分鐘要立即 cancel**：訂閱按 token 燒，跑太久代表 prompt 沒限制好；先 cancel + 改 prompt 再重跑
+5. **DB 改完先 apply 線上實測再 commit**：薄 RPC 都是冪等可重跑，比 PR review 抓得更實在
+6. **跨 repo 多 PR 順序：DB → collector → 前端**：DB 端 PR 先 push 並 apply 線上，前端開 PR 時 RPC 已可用、能本地驗收
+7. **新 CI workflow 必驗證綠燈再做下一步**：不能假設 setup-* action 沒設好就 skip，cache:pip 找不到檔直接 error
+
+### 自我檢查 vs PR review 的職責分工
+
+| 工具 | 抓什麼 | 抓不到什麼 |
+|---|---|---|
+| 本地 `tsc -b` / `pytest` | 編譯錯、單元邏輯錯 | 整合錯、silent fail |
+| 本地端到端實跑 | silent fail、整合錯（**本 session 4 個 bug 都靠這個**） | 範圍以外的 regression |
+| CI workflow | typo、語法、套件 import、規範一致性 | 業務邏輯、整合錯 |
+| Claude PR review | 看出 prompt 可達範圍內的明顯異常 | 跨檔的隱性 silent fail |
+
+### Memory 產出
+
+- INCIDENTS：+4 條（google-genai 漏裝 / collector dict 漏欄 / RPC smallint 陷阱 / pglast cache:pip）
+- PRINCIPLES：+5 條 newsEvents pipeline + 5 條個人 PR 流程
+- PLAYBOOKS：+2 篇（PB-XX LLM 評估維度全鏈路 / PB-XX 全自動 PR 流程）
+- GLOSSARY：+1 段 newsEvents 三維度+四級 / +1 段 CI 4 術語
+- DATA_SCOPE：+1 段 newsEvents 完整表/RPC/collector 資料源
+- 全域 news-roadmap.md：階段 A/B/v2 完成紀錄
