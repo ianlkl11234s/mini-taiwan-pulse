@@ -521,3 +521,57 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 - GLOSSARY：+1 段 newsEvents 三維度+四級 / +1 段 CI 4 術語
 - DATA_SCOPE：+1 段 newsEvents 完整表/RPC/collector 資料源
 - 全域 news-roadmap.md：階段 A/B/v2 完成紀錄
+
+---
+
+## 2026-06-13 衛星圖層上線（PR #10）+ 並行新聞 v2（PR #11）
+
+### What worked ✅
+
+- **「先規劃 / 再 phase 切 / 再動手」分三段**：用戶問「規劃衛星圖層」時，沒
+  急著寫 code，先進 plan mode 寫 `/Users/migu/.claude/plans/icon-curried-locket.md`
+  + 提案文件 `docs/proposal/satellite-console.md`。提案完整後再動手，整個衛星
+  10 commit 一氣呵成、無重做。
+- **用戶要求「先診斷不要修」**：閃爍 bug 用戶明示「先確認原因，先不要急著改」，
+  迫使我把 3 個嫌疑點全列出（殭屍 closure / effect 重綁 / listener 洩漏）
+  + 建議診斷工具（DevTools setData hook）。一次修對所有 3 個。
+- **資料來源切換果斷**：CelesTrak 一回 403 立刻棄、改 Supabase satellite_classified
+  view，沒卡在「想用最直接的 endpoint」執念。半小時內整層上線。
+- **UCS catalog 漏網之魚靠名稱保底**：FS-8A / TRITON 被 `country_operator=null`
+  漏掉，沒去管 UCS 半年更新週期，直接加 `name ilike FORMOSAT*` 第二條 query +
+  classify 名稱保底。3 行 code 解決 2 顆衛星。
+- **分群決策有資料支撐**：上網查中國衛星 4 級分類（S Yaogan/Jilin/Gaofen,
+  A TJS, B 北斗）+ 引用「每 10 分鐘過台灣」NOWnews 報導，給用戶選方案 A/B/C，
+  最後拍 5 toggle 分流。
+
+### What didn't ❌
+
+- **三犯 `git add -A`**：working tree 有 `docs/proposal/monitor-mode.md`
+  untracked 草稿時，連續三次 `git add -A` 把草稿掃進衛星 commit。每次都要
+  `git rm --cached` + `git commit --amend`。第一次該記住的。
+- **commit 切到錯分支沒察覺**：在 feat/news-filter-critical 上 commit 衛星
+  perf split（用戶並行 WIP 的分支），混入 newsFilter 改動。`git reset HEAD~1`
+  + 跨分支 cherry-pick 救回，多耗 10 分鐘。
+- **修閃爍誤判副作用**：修穩定性後變成 1Hz 跳格，第一輪沒想到「原本順暢是
+  effect 重綁 60Hz 假象」，用戶說「為何變一格一格」才意識到要拆 light/heavy
+  分流。
+- **規劃時誤判 satellite-art 為何走 Three.js**：第一輪 plan 寫「Mapbox globe 已啟用、
+  不需 Three.js」，用戶問「會不會有印象那時候走 Three.js 是因 mapbox 不行」
+  迫使我回 satellite-art 查 git log + grep mapbox 確認「從沒試過 Mapbox」、
+  原因是 satellite-art 目標含太陽系（Mapbox 無法）。**該主動驗證，不要
+  「直覺說 OK」**。
+
+### Next-time rules 🎯
+
+1. **`git add -A` 列入禁術**：commit 前一律 `git status` + `git add <檔案>` 精準。
+   特別當有 `docs/proposal/*.md` 草稿、跨分支 WIP 時。
+2. **commit 前 `git branch --show-current`**：避免切錯分支 commit。
+3. **修穩定性類 bug 後評估顯式頻率**：穩定性修完視覺可能變慢，要主動問
+   「原本順暢是不是 effect 副產物？」並拆 light/heavy 訂閱補救。
+4. **plan 內「不需 X」結論要附驗證紀錄**：「不需 Three.js」要寫「驗證：
+   git log + grep mapbox 全 repo 0 hit」這種紀錄，用戶才能信。
+5. **UCS catalog 半年更新要假設 country=null**：未來任何國家衛星 loader
+   都跑「country + 名稱 regex」雙保險，不要等被打臉才補。
+6. **提案文件 `docs/proposal/` 是不錯的雙模式**：當下動手是 Phase 0，
+   後續 Phase A/B/C/D 寫進提案文件，commit 上 master 讓記憶 + 未來 session
+   都看得到完整藍圖。
