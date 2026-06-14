@@ -196,11 +196,13 @@ export type ExpandableLayerKey =
   | "wdMixed"
   | "wdRecyclingContainer"
   | "wdBattery"
-  // 衛星 SPACE — 中國分 4 群 + 台灣
+  // 衛星 SPACE — 中國分 6 群（Yaogan/Jilin/Gaofen S | TJS A | Beidou B | Shiyan/餘 C）+ 台灣
   | "satellitesYaogan"
   | "satellitesJilin"
   | "satellitesGaofen"
-  | "satellitesChinaOther"
+  | "satellitesTJS"
+  | "satellitesBeidou"
+  | "satellitesShiyan"
   | "satellitesTaiwan";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
@@ -661,11 +663,13 @@ export interface LayerVisibility {
   wdMixed: boolean;
   wdRecyclingContainer: boolean;
   wdBattery: boolean;
-  // 衛星 SPACE
+  // 衛星 SPACE — 中國 6 群 + 台灣
   satellitesYaogan: boolean;
   satellitesJilin: boolean;
   satellitesGaofen: boolean;
-  satellitesChinaOther: boolean;
+  satellitesTJS: boolean;
+  satellitesBeidou: boolean;
+  satellitesShiyan: boolean;
   satellitesTaiwan: boolean;
 }
 

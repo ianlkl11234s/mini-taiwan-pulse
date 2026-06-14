@@ -159,11 +159,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wdMixed: "#14b8a6",
   wdRecyclingContainer: "#84cc16",
   wdBattery: "#fbbf24",
-  // SPACE 衛星 (5 分群)
+  // SPACE 衛星 (6 群 CN + 1 群 TW)
   satellitesYaogan: "#ef5350",
   satellitesJilin: "#ff7043",
   satellitesGaofen: "#ec407a",
-  satellitesChinaOther: "#9e9e9e",
+  satellitesTJS: "#ba68c8",
+  satellitesBeidou: "#4fc3f7",
+  satellitesShiyan: "#9e9e9e",
   satellitesTaiwan: "#4fc3f7",
 };
 
@@ -409,7 +411,9 @@ export const SECTIONS: SectionDef[] = [
       { key: "satellitesYaogan", label: "Yaogan 遙感", labelMobile: "中國 Yaogan 遙感", expandable: true },
       { key: "satellitesJilin", label: "Jilin 吉林", labelMobile: "中國 Jilin 吉林", expandable: true },
       { key: "satellitesGaofen", label: "Gaofen 高分", labelMobile: "中國 Gaofen 高分", expandable: true },
-      { key: "satellitesChinaOther", label: "中國其他 (TJS/北斗)", labelMobile: "中國其他 TJS/Beidou/Shiyan/餘", expandable: true },
+      { key: "satellitesTJS", label: "TJS GEO 情報", labelMobile: "TJS / TJSW GEO 情報", expandable: true },
+      { key: "satellitesBeidou", label: "Beidou 北斗", labelMobile: "北斗 BD-3 PNT 導航", expandable: true },
+      { key: "satellitesShiyan", label: "Shiyan 實踐/餘", labelMobile: "Shiyan / Shijian 試驗", expandable: true },
       { key: "satellitesTaiwan", label: "台灣 FORMOSAT", labelMobile: "台灣衛星 FORMOSAT / TRITON / IRIS-C", expandable: true },
     ],
   },

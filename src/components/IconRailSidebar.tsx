@@ -163,7 +163,9 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   satellitesYaogan: Satellite,
   satellitesJilin: Satellite,
   satellitesGaofen: Satellite,
-  satellitesChinaOther: Satellite,
+  satellitesTJS: Satellite,
+  satellitesBeidou: Satellite,
+  satellitesShiyan: Satellite,
   satellitesTaiwan: Satellite,
 };
 

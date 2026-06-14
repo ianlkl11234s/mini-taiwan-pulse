@@ -983,7 +983,9 @@ export function useTransportParams() {
       case "satellitesYaogan":
       case "satellitesJilin":
       case "satellitesGaofen":
-      case "satellitesChinaOther":
+      case "satellitesTJS":
+      case "satellitesBeidou":
+      case "satellitesShiyan":
       case "satellitesTaiwan": return [
         { label: `Opacity ${satOpacity.toFixed(2)}`, value: satOpacity, min: 0, max: 1, step: 0.05, onChange: setSatOpacity },
       ];
