@@ -87,6 +87,16 @@ interface UseSatellitesLayerOpts {
   opacity?: number;
   /** 軌跡顯示時長（分鐘）。全球模式時拉長到 90 */
   trackMinutes?: number;
+  /**
+   * Console 模式 — 只渲染指定 NORAD（變軌中）+ 台灣全部
+   * undefined / null = 一般模式（依 visibility flags）
+   */
+  consoleFilter?: {
+    /** 近 24h 變軌的 NORAD set */
+    featuredNorads: Set<number>;
+    /** 若 true，console 模式失效，全部按 visibility flags 渲染 */
+    showAllOrbits: boolean;
+  } | null;
 }
 
 interface PropParsed {
@@ -98,7 +108,9 @@ export function useSatellitesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   opts: UseSatellitesLayerOpts,
 ) {
-  const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN } = opts;
+  const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN, consoleFilter = null } = opts;
+  const consoleFilterRef = useRef(consoleFilter);
+  consoleFilterRef.current = consoleFilter;
   const recordsRef = useRef<PropParsed[]>([]);
   const layersReadyRef = useRef(false);
   const anyVisible = visibility.china_yaogan || visibility.china_jilin
@@ -192,10 +204,39 @@ export function useSatellitesLayer(
         source: SAT_SRC_POINT,
         paint: {
           "circle-color": COLOR_EXPR,
-          "circle-radius": 4,
-          "circle-stroke-color": "#fff",
-          "circle-stroke-width": 1,
-          "circle-stroke-opacity": 0.6,
+          "circle-radius": [
+            "case",
+            ["==", ["get", "maneuver"], 1], 6,
+            4,
+          ],
+          "circle-stroke-color": [
+            "case",
+            ["==", ["get", "maneuver"], 1], "#ef4444",
+            "#fff",
+          ],
+          "circle-stroke-width": [
+            "case",
+            ["==", ["get", "maneuver"], 1], 2,
+            1,
+          ],
+          "circle-stroke-opacity": 0.85,
+        },
+      } as CircleLayer);
+    }
+    // 變軌 pulse ring（red glow）
+    const SAT_LAYER_MANEUVER_RING = "sat-maneuver-ring";
+    if (!map.getLayer(SAT_LAYER_MANEUVER_RING)) {
+      map.addLayer({
+        id: SAT_LAYER_MANEUVER_RING,
+        type: "circle",
+        source: SAT_SRC_POINT,
+        filter: ["==", ["get", "maneuver"], 1],
+        paint: {
+          "circle-color": "transparent",
+          "circle-radius": 14,
+          "circle-stroke-color": "#ef4444",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-opacity": 0.65,
         },
       } as CircleLayer);
     }
@@ -232,16 +273,27 @@ export function useSatellitesLayer(
 
     const footprintFeats: GeoJSON.Feature[] = [];
     const pointFeats: GeoJSON.Feature[] = [];
+    const cf = consoleFilterRef.current;
+    // Console 模式（非「顯示全部」）：只保留 maneuver + taiwan
+    const consoleMode = cf && !cf.showAllOrbits;
+    const featuredNorads = cf?.featuredNorads;
 
     for (const { rec, satrec } of parsed) {
       if (!visibleCats.includes(rec.category)) continue;
+      if (consoleMode) {
+        const isTaiwan = rec.category === "taiwan";
+        const isFeatured = featuredNorads?.has(rec.noradId) ?? false;
+        if (!isTaiwan && !isFeatured) continue;
+      }
       const now = propagate(satrec, t);
       if (!now) continue;
+      const isManeuver = featuredNorads?.has(rec.noradId) ?? false;
       const props = {
         cat: rec.category,
         norad: rec.noradId,
         name: rec.name,
         altKm: Math.round(now.altKm),
+        maneuver: isManeuver ? 1 : 0,
       };
       pointFeats.push({
         type: "Feature",
@@ -286,7 +338,15 @@ export function useSatellitesLayer(
 
     const trackFeats: GeoJSON.Feature[] = [];
     const stepCount = Math.floor((trackMin * 60) / TRACK_STEP_SEC);
+    const cf2 = consoleFilterRef.current;
+    const consoleMode2 = cf2 && !cf2.showAllOrbits;
+    const featuredNorads2 = cf2?.featuredNorads;
     for (const { rec, satrec } of parsed) {
+      if (consoleMode2) {
+        const isTaiwan = rec.category === "taiwan";
+        const isFeatured = featuredNorads2?.has(rec.noradId) ?? false;
+        if (!isTaiwan && !isFeatured) continue;
+      }
       if (!visibleCats.includes(rec.category)) continue;
       const props = {
         cat: rec.category,

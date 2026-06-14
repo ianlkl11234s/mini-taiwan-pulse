@@ -80,6 +80,7 @@ import { IconRailSidebar } from "./components/IconRailSidebar";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
+import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { ModeToggle } from "./components/ModeToggle";
@@ -425,6 +426,20 @@ export default function App() {
   // ── Intel Panel（即時情報，IconRail 開關） ──
   const [intelOpen, setIntelOpen] = useState(false);
   const satConsole = useSatelliteConsole();
+  const satManeuvers = useSatelliteManeuvers(satConsole.open);
+  const maneuverNorads = useMemo(() => {
+    const s = new Set<number>();
+    for (const m of satManeuvers) s.add(m.norad_id);
+    return s;
+  }, [satManeuvers]);
+  // 打開 Console 時，地圖飛去台灣俯瞰視角（主視覺在 panel）
+  const satConsoleOpen = satConsole.open;
+  useEffect(() => {
+    if (!satConsoleOpen) return;
+    const map = mapRef.current;
+    if (!map) return;
+    map.flyTo({ center: [121.5, 24.5], zoom: 4.5, pitch: 0, bearing: 0, speed: 1.0 });
+  }, [satConsoleOpen]);
 
   // ── App 大模式：即時 vs 歷史長時序 ──
   const [appMode, setAppMode] = useState<AppMode>("realtime");
@@ -722,6 +737,9 @@ export default function App() {
       taiwan: layerVisibility.satellitesTaiwan,
     },
     opacity: transportParams.satOpacity,
+    consoleFilter: satConsole.open
+      ? { featuredNorads: maneuverNorads, showAllOrbits: satConsole.showAllOrbits }
+      : null,
   });
 
   // ── TDX 即時路況事件 timeline ──
