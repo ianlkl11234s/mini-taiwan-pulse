@@ -64,7 +64,6 @@ export function IntelFilters({
   county, onCounty,
   minRelevance, onMinRelevance,
   eventsOnly, onEventsOnly,
-  minSeverity, onMinSeverity,
 }: Props) {
   return (
     <div
@@ -119,8 +118,8 @@ export function IntelFilters({
         })}
       </div>
 
-      {/* time range + county */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      {/* time range + 相關度（同一橫排） */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
         <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint }}>近</span>
         <div
           style={{
@@ -138,33 +137,7 @@ export function IntelFilters({
             </button>
           ))}
         </div>
-        <div style={{ flex: 1 }} />
-        <select
-          value={county}
-          onChange={(ev) => onCounty(ev.target.value)}
-          style={{
-            fontFamily: FONT_CJK,
-            fontSize: 10.5,
-            padding: "4px 8px",
-            borderRadius: 6,
-            background: "rgba(0,0,0,0.45)",
-            color: county === "全部" ? COLORS.textMuted : "#fff",
-            border: `1px solid ${COLORS.borderMid}`,
-            cursor: "pointer",
-            maxWidth: 120,
-          }}
-        >
-          {COUNTY_OPTIONS.map((c) => (
-            <option key={c} value={c} style={{ background: "#1a1c20" }}>
-              {c === "全部" ? "全部縣市" : c}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* triage: 相關度 + 嚴重度 + 只看事件 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, whiteSpace: "nowrap" }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, marginLeft: 6 }}>
           相關度
         </span>
         <div
@@ -187,27 +160,31 @@ export function IntelFilters({
             </button>
           ))}
         </div>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, marginLeft: 4 }}>嚴重</span>
-        <div
+      </div>
+
+      {/* 縣市 + 只看事件（同一橫排，縣市左、只看事件右） */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <select
+          value={county}
+          onChange={(ev) => onCounty(ev.target.value)}
           style={{
-            display: "flex",
-            background: "rgba(0,0,0,0.4)",
-            border: `1px solid ${COLORS.borderSoft}`,
+            fontFamily: FONT_CJK,
+            fontSize: 10.5,
+            padding: "4px 10px",
             borderRadius: 6,
-            padding: 2,
-            gap: 2,
+            background: "rgba(0,0,0,0.45)",
+            color: county === "全部" ? COLORS.textMuted : "#fff",
+            border: `1px solid ${COLORS.borderMid}`,
+            cursor: "pointer",
+            maxWidth: 140,
           }}
         >
-          {(
-            [
-              [0, "全部"], [1, "個案+"], [2, "區域+"],
-            ] as const
-          ).map(([v, label]) => (
-            <button key={v} onClick={() => onMinSeverity(v)} style={segBtn(minSeverity === v)}>
-              {label}
-            </button>
+          {COUNTY_OPTIONS.map((c) => (
+            <option key={c} value={c} style={{ background: "#1a1c20" }}>
+              {c === "全部" ? "全部縣市" : c}
+            </option>
           ))}
-        </div>
+        </select>
         <div style={{ flex: 1 }} />
         <button
           onClick={() => onEventsOnly(!eventsOnly)}
@@ -248,6 +225,7 @@ export function IntelFilters({
           只看事件
         </button>
       </div>
+      {/* 嚴重度 UI 暫收（Phase 1 預設 minSeverity=1，可由 sidebar 副 control 調） */}
     </div>
   );
 }
