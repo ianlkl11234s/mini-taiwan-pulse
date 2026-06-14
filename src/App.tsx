@@ -78,6 +78,8 @@ import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { IntelPanel } from "./components/intel/IntelPanel";
+import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
+import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { ModeToggle } from "./components/ModeToggle";
@@ -422,6 +424,7 @@ export default function App() {
 
   // ── Intel Panel（即時情報，IconRail 開關） ──
   const [intelOpen, setIntelOpen] = useState(false);
+  const satConsole = useSatelliteConsole();
 
   // ── App 大模式：即時 vs 歷史長時序 ──
   const [appMode, setAppMode] = useState<AppMode>("realtime");
@@ -1391,10 +1394,27 @@ export default function App() {
               dataRegistry={dataRegistry}
               selectedDate={timeline.selectedDate}
               onDateSelect={timeline.setSelectedDate}
-              onIntelToggle={() => setIntelOpen((v) => !v)}
+              onIntelToggle={() => {
+                if (!intelOpen) satelliteConsoleStore.setOpen(false);
+                setIntelOpen((v) => !v);
+              }}
               intelActive={intelOpen}
+              onSatelliteToggle={() => {
+                if (!satConsole.open) setIntelOpen(false);
+                satelliteConsoleStore.toggleOpen();
+              }}
+              satelliteActive={satConsole.open}
             />
           </div>
+
+          {/* 衛星情報 Satellite Console */}
+          <SatelliteConsole
+            open={satConsole.open}
+            onClose={() => satelliteConsoleStore.setOpen(false)}
+            layerVisibility={layerVisibility}
+            setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
+            onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 4.5, speed: 1.2 })}
+          />
 
           {/* 即時情報 Intel Panel */}
           <IntelPanel
