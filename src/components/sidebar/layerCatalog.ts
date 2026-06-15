@@ -159,14 +159,23 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wdMixed: "#14b8a6",
   wdRecyclingContainer: "#84cc16",
   wdBattery: "#fbbf24",
-  // SPACE 衛星 (6 群 CN + 1 群 TW)
+  // SPACE 衛星 (CN 6 + TW + 9 國 LEO 遙測)
   satellitesYaogan: "#ef5350",
   satellitesJilin: "#ff7043",
   satellitesGaofen: "#ec407a",
   satellitesTJS: "#ba68c8",
-  satellitesBeidou: "#4fc3f7",
+  satellitesBeidou: "#5e7ce2",
   satellitesShiyan: "#9e9e9e",
   satellitesTaiwan: "#4fc3f7",
+  satellitesUSA: "#93c5fd",
+  satellitesJapan: "#fb7185",
+  satellitesRussia: "#a8a29e",
+  satellitesIndia: "#f59e0b",
+  satellitesKorea: "#2dd4bf",
+  satellitesFrance: "#3b82f6",
+  satellitesGermany: "#fde047",
+  satellitesItaly: "#34d399",
+  satellitesIsrael: "#c4b5fd",
 };
 
 // ── Transport Labels ──
@@ -415,6 +424,20 @@ export const SECTIONS: SectionDef[] = [
       { key: "satellitesBeidou", label: "Beidou 北斗", labelMobile: "北斗 BD-3 PNT 導航", expandable: true },
       { key: "satellitesShiyan", label: "Shiyan 實踐/餘", labelMobile: "Shiyan / Shijian 試驗", expandable: true },
       { key: "satellitesTaiwan", label: "台灣 FORMOSAT", labelMobile: "台灣衛星 FORMOSAT / TRITON / IRIS-C", expandable: true },
+    ],
+  },
+  {
+    title: "SPACE · INTL RECON",
+    layers: [
+      { key: "satellitesUSA", label: "🇺🇸 美國偵察", labelMobile: "USA · KH/USA/BlackSky/Planet", expandable: true },
+      { key: "satellitesJapan", label: "🇯🇵 日本 IGS", labelMobile: "Japan · IGS-OPTICAL/RADAR/ALOS", expandable: true },
+      { key: "satellitesRussia", label: "🇷🇺 俄羅斯偵察", labelMobile: "Russia · PERSONA/RESURS/COSMOS", expandable: true },
+      { key: "satellitesIndia", label: "🇮🇳 印度遙測", labelMobile: "India · CARTOSAT/RISAT/EOS", expandable: true },
+      { key: "satellitesKorea", label: "🇰🇷 韓國 KOMPSAT", labelMobile: "Korea · KOMPSAT", expandable: true },
+      { key: "satellitesFrance", label: "🇫🇷 法國 CSO/PLEIADES", labelMobile: "France · CSO/PLEIADES/ELISA", expandable: true },
+      { key: "satellitesGermany", label: "🇩🇪 德國 SAR-Lupe", labelMobile: "Germany · SAR-Lupe/SARah/TerraSAR", expandable: true },
+      { key: "satellitesItaly", label: "🇮🇹 義大利 COSMO", labelMobile: "Italy · COSMO-SkyMed", expandable: true },
+      { key: "satellitesIsrael", label: "🇮🇱 以色列 Ofeq", labelMobile: "Israel · Ofeq/EROS", expandable: true },
     ],
   },
   {

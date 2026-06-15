@@ -167,6 +167,15 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   satellitesBeidou: Satellite,
   satellitesShiyan: Satellite,
   satellitesTaiwan: Satellite,
+  satellitesUSA: Satellite,
+  satellitesJapan: Satellite,
+  satellitesRussia: Satellite,
+  satellitesIndia: Satellite,
+  satellitesKorea: Satellite,
+  satellitesFrance: Satellite,
+  satellitesGermany: Satellite,
+  satellitesItaly: Satellite,
+  satellitesIsrael: Satellite,
 };
 
 // ── IATA Map for Locations Panel ──

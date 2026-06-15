@@ -41,8 +41,16 @@ interface PassTick {
   startMinFromNow: number; // 相對 now 的分鐘
 }
 
-/** 遙測偵察類 — 主要會「拍照」的衛星群 */
-const RECON_CATS = new Set(["china_yaogan", "china_jilin", "china_gaofen", "taiwan"]);
+/** 遙測偵察類 — 主要會「拍照」的衛星群（CN 三大群 + TW + 9 國 LEO recon）*/
+const RECON_CATS = new Set([
+  // CN（中國本來就有 6 群，但這三個是遙測核心）
+  "china_yaogan", "china_jilin", "china_gaofen",
+  // TW
+  "taiwan",
+  // 9 國（loader 已用 purpose=earth_obs 篩過，全 recon）
+  "usa", "japan", "russia", "india", "korea",
+  "france", "germany", "italy", "israel",
+]);
 
 function isRecon(cat: string): boolean {
   return RECON_CATS.has(cat);
