@@ -1432,7 +1432,7 @@ export default function App() {
             onClose={() => satelliteConsoleStore.setOpen(false)}
             layerVisibility={layerVisibility}
             setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
-            onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 5.5, speed: 1.4, pitch: 0 })}
+            onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 3.5, speed: 1.4, pitch: 0 })}
           />
 
           {/* 即時情報 Intel Panel */}

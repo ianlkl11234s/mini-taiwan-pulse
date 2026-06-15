@@ -41,6 +41,13 @@ interface PassTick {
   startMinFromNow: number; // 相對 now 的分鐘
 }
 
+/** 遙測偵察類 — 主要會「拍照」的衛星群 */
+const RECON_CATS = new Set(["china_yaogan", "china_jilin", "china_gaofen", "taiwan"]);
+
+function isRecon(cat: string): boolean {
+  return RECON_CATS.has(cat);
+}
+
 function distanceKm(aLon: number, aLat: number, bLon: number, bLat: number): number {
   const dLat = (bLat - aLat) * Math.PI / 180;
   const dLon = (bLon - aLon) * Math.PI / 180;
@@ -78,6 +85,8 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   const [passes, setPasses] = useState<PassTick[]>([]);
   const [expanded, setExpanded] = useState(false);
   const [computingScan, setComputingScan] = useState(false);
+  // 預設只看「遙測偵察」（Yaogan/Jilin/Gaofen + TW）
+  const [reconOnly, setReconOnly] = useState(true);
   // 訂閱時間軸 — 「現在覆蓋」與 6h scan 起點都跟著走
   const timelineSec = useTimeStoreTime(500);
 
@@ -172,9 +181,37 @@ export function CoverageStatsSection({ maneuvers }: Props) {
     return s;
   }, [maneuvers]);
 
+  // 覆蓋台灣中 — 按 cat 分群算 breakdown
+  const coverageBreakdown = useMemo(() => {
+    let cn = 0, tw = 0, recon = 0;
+    for (const p of coveringNow) {
+      const cat = p.rec.category;
+      if (cat === "taiwan") tw++;
+      else cn++;
+      if (RECON_CATS.has(cat)) recon++;
+    }
+    return { total: coveringNow.length, cn, tw, recon };
+  }, [coveringNow]);
+
+  // 6h 通過 — 按 cat 分群算 breakdown + 過濾顯示
+  const passBreakdown = useMemo(() => {
+    let cn = 0, tw = 0, recon = 0;
+    for (const p of passes) {
+      if (p.cat === "taiwan") tw++;
+      else cn++;
+      if (RECON_CATS.has(p.cat)) recon++;
+    }
+    return { total: passes.length, cn, tw, recon };
+  }, [passes]);
+
+  // 依 toggle 過濾的 timeline tick 清單
+  const filteredPasses = useMemo(() => {
+    return reconOnly ? passes.filter((p) => isRecon(p.cat)) : passes;
+  }, [passes, reconOnly]);
+
   return (
     <div style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK }}>
-      {/* 主數字列 */}
+      {/* 主數字列 — 覆蓋中 + 6h 通過 + breakdown */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 11 }}>
         <div>
           <span style={{ color: COLORS.textDim }}>覆蓋台灣中</span>
@@ -209,10 +246,34 @@ export function CoverageStatsSection({ maneuvers }: Props) {
         </button>
       </div>
 
+      {/* breakdown 細項 — CN/TW + 遙測類 */}
+      {coveringNow.length > 0 && (
+        <div style={{
+          marginTop: 5,
+          display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
+          fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted,
+        }}>
+          <span>CN <span style={{ color: COLORS.textDefault, fontWeight: 600 }}>{coverageBreakdown.cn}</span></span>
+          <span>/ TW <span style={{ color: "#4fc3f7", fontWeight: 600 }}>{coverageBreakdown.tw}</span></span>
+          <span style={{ color: COLORS.textFaint }}>·</span>
+          <span title="Yaogan/Jilin/Gaofen + Taiwan 整體遙測偵察">
+            遙測類 <span style={{ color: coverageBreakdown.recon > 0 ? "#22c55e" : COLORS.textMuted, fontWeight: 700 }}>
+              {coverageBreakdown.recon}
+            </span> 顆
+          </span>
+          {!computingScan && passes.length > 0 && (
+            <>
+              <span style={{ marginLeft: "auto", color: COLORS.textFaint }}>6h 內</span>
+              <span>遙測 <span style={{ color: passBreakdown.recon > 0 ? "#22c55e" : COLORS.textMuted, fontWeight: 600 }}>{passBreakdown.recon}</span> 次</span>
+            </>
+          )}
+        </div>
+      )}
+
       {/* 覆蓋中 sats 縮略 */}
       {coveringNow.length > 0 && (
         <div style={{
-          marginTop: 6,
+          marginTop: 4,
           fontFamily: FONT_DATA,
           fontSize: 10,
           color: COLORS.textMuted,
@@ -228,6 +289,42 @@ export function CoverageStatsSection({ maneuvers }: Props) {
       {/* 6h timeline 展開 */}
       {expanded && (
         <div style={{ marginTop: 10, padding: 10, borderRadius: 6, background: "rgba(0,0,0,0.25)" }}>
+          {/* 過濾 toggle */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8, marginBottom: 8,
+            fontFamily: FONT_CJK, fontSize: 10.5,
+          }}>
+            <span style={{ color: COLORS.textMuted }}>顯示</span>
+            <button
+              onClick={() => setReconOnly(true)}
+              style={{
+                padding: "3px 8px",
+                borderRadius: 4,
+                background: reconOnly ? "rgba(34,197,94,0.16)" : "transparent",
+                border: `1px solid ${reconOnly ? "rgba(34,197,94,0.55)" : COLORS.borderMid}`,
+                color: reconOnly ? "#22c55e" : COLORS.textMuted,
+                fontFamily: FONT_CJK, fontSize: 10.5, fontWeight: reconOnly ? 600 : 400, cursor: "pointer",
+              }}
+            >
+              只看遙測偵察
+            </button>
+            <button
+              onClick={() => setReconOnly(false)}
+              style={{
+                padding: "3px 8px",
+                borderRadius: 4,
+                background: !reconOnly ? COLORS.accentFaint : "transparent",
+                border: `1px solid ${!reconOnly ? COLORS.borderAccent : COLORS.borderMid}`,
+                color: !reconOnly ? "#cfe4ff" : COLORS.textMuted,
+                fontFamily: FONT_CJK, fontSize: 10.5, fontWeight: !reconOnly ? 600 : 400, cursor: "pointer",
+              }}
+            >
+              全部
+            </button>
+            <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
+              {filteredPasses.length} / {passes.length} 次
+            </span>
+          </div>
           {/* axis */}
           <div style={{ position: "relative", height: 18, marginBottom: 8 }}>
             <div style={{ position: "absolute", left: 0, right: 0, top: 14, height: 1, background: COLORS.borderMid }} />
@@ -245,14 +342,14 @@ export function CoverageStatsSection({ maneuvers }: Props) {
               </div>
             ))}
           </div>
-          {/* tick rows: limit to 12 for readability */}
+          {/* tick rows */}
           <div style={{ position: "relative", maxHeight: 220, overflowY: "auto" }} className="mtp-scroll">
-            {passes.length === 0 ? (
+            {filteredPasses.length === 0 ? (
               <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
-                {computingScan ? "計算中…" : "未來 6h 無預計通過"}
+                {computingScan ? "計算中…" : reconOnly ? "未來 6h 無遙測偵察類通過" : "未來 6h 無預計通過"}
               </div>
             ) : (
-              passes.slice(0, 80).map((p, i) => {
+              filteredPasses.slice(0, 80).map((p, i) => {
                 const left = (p.startMinFromNow / (SCAN_HOURS * 60)) * 100;
                 const color = SATELLITE_COLORS[p.cat as keyof typeof SATELLITE_COLORS] || COLORS.textDim;
                 const isManeuver = maneuverNorads.has(p.norad);
@@ -287,9 +384,9 @@ export function CoverageStatsSection({ maneuvers }: Props) {
                 );
               })
             )}
-            {passes.length > 80 && (
+            {filteredPasses.length > 80 && (
               <div style={{ padding: "4px 0", fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, textAlign: "center" }}>
-                共 {passes.length} 次 · 顯示前 80
+                共 {filteredPasses.length} 次 · 顯示前 80
               </div>
             )}
           </div>

@@ -77,6 +77,33 @@ export function formatManeuverDetail(row: ManeuverRow): string {
   }
 }
 
+/** 變軌嚴重度 — 給 §A 卡片上色 + 排序用 */
+export type ManeuverSeverity = "grey" | "orange" | "red";
+
+const SEV_THRESHOLDS = {
+  PLANE_CHANGE: { orange: 0.02, red: 0.1 },       // 絕對值 °
+  ALTITUDE_CHANGE: { orange: 0.1, red: 0.5 },     // 絕對值 min
+  SHAPE_CHANGE: { orange: 1e-4, red: 5e-4 },      // 絕對值（無單位）
+} as const;
+
+export function getManeuverSeverity(row: ManeuverRow): ManeuverSeverity {
+  const th = SEV_THRESHOLDS[row.maneuver_type];
+  let v = 0;
+  switch (row.maneuver_type) {
+    case "PLANE_CHANGE":    v = Math.abs(row.delta_inclination ?? 0); break;
+    case "ALTITUDE_CHANGE": v = Math.abs(row.delta_period_min ?? 0); break;
+    case "SHAPE_CHANGE":    v = Math.abs(row.delta_eccentricity ?? 0); break;
+  }
+  if (v >= th.red) return "red";
+  if (v >= th.orange) return "orange";
+  return "grey";
+}
+
+/** 排序 rank — 數字大優先（red=2 > orange=1 > grey=0） */
+export function severityRank(s: ManeuverSeverity): number {
+  return s === "red" ? 2 : s === "orange" ? 1 : 0;
+}
+
 /** "14 分鐘前" / "2 小時前" / "已超過 24h" */
 export function formatRelTime(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
