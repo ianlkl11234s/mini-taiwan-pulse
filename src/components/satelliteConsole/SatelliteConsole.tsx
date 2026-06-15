@@ -55,10 +55,19 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
     };
   }, [open]);
 
-  const cnManeuverCount = useMemo(
-    () => maneuvers.filter((m) => m.country_operator === "China" || m.cn_group !== "OTHER" && m.cn_group !== "TAIWAN").length,
-    [maneuvers],
-  );
+  // CN = country=China 或命中 CN 6 群 regex（cn_group 落在 6 群之一）
+  // TW = country=Taiwan 或 cn_group=TAIWAN
+  const { cnManeuverCount, twManeuverCount } = useMemo(() => {
+    let cn = 0, tw = 0;
+    const CN_GROUPS = new Set(["YAOGAN", "JILIN", "GAOFEN", "TJS", "BEIDOU", "SHIYAN"]);
+    for (const m of maneuvers) {
+      if (m.country_operator === "Taiwan" || m.cn_group === "TAIWAN") tw++;
+      else if (m.country_operator === "China" || CN_GROUPS.has(m.cn_group)) cn++;
+      // 他國 / OTHER 不計入（RPC 170 已過濾，前端 safety）
+    }
+    return { cnManeuverCount: cn, twManeuverCount: tw };
+  }, [maneuvers]);
+  void twManeuverCount;
 
   if (!open) return null;
 

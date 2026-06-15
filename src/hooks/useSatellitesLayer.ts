@@ -274,17 +274,12 @@ export function useSatellitesLayer(
     const footprintFeats: GeoJSON.Feature[] = [];
     const pointFeats: GeoJSON.Feature[] = [];
     const cf = consoleFilterRef.current;
-    // Console 模式（非「顯示全部」）：只保留 maneuver + taiwan
-    const consoleMode = cf && !cf.showAllOrbits;
+    // Console 模式只用 featuredNorads 強調變軌中衛星（紅環 + 加大）
+    // 不額外砍類別 — sidebar toggle 是唯一的「顯/隱」真實來源（修 CN toggle 失效）
     const featuredNorads = cf?.featuredNorads;
 
     for (const { rec, satrec } of parsed) {
       if (!visibleCats.includes(rec.category)) continue;
-      if (consoleMode) {
-        const isTaiwan = rec.category === "taiwan";
-        const isFeatured = featuredNorads?.has(rec.noradId) ?? false;
-        if (!isTaiwan && !isFeatured) continue;
-      }
       const now = propagate(satrec, t);
       if (!now) continue;
       const isManeuver = featuredNorads?.has(rec.noradId) ?? false;
@@ -338,15 +333,8 @@ export function useSatellitesLayer(
 
     const trackFeats: GeoJSON.Feature[] = [];
     const stepCount = Math.floor((trackMin * 60) / TRACK_STEP_SEC);
-    const cf2 = consoleFilterRef.current;
-    const consoleMode2 = cf2 && !cf2.showAllOrbits;
-    const featuredNorads2 = cf2?.featuredNorads;
+    // 軌跡層不過濾 console（同上原因）
     for (const { rec, satrec } of parsed) {
-      if (consoleMode2) {
-        const isTaiwan = rec.category === "taiwan";
-        const isFeatured = featuredNorads2?.has(rec.noradId) ?? false;
-        if (!isTaiwan && !isFeatured) continue;
-      }
       if (!visibleCats.includes(rec.category)) continue;
       const props = {
         cat: rec.category,

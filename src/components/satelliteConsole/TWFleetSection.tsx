@@ -41,6 +41,7 @@ interface LiveRow {
   zh: string;
   use: string;
   tier: "core" | "research" | "legacy";
+  launch: string; // YYYY-MM 給排序用
   altKm: number;
   lat: number;
   lon: number;
@@ -159,6 +160,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
         zh: locale?.zh ?? p.rec.name,
         use: locale?.use ?? "—",
         tier: locale?.tier ?? "core",
+        launch: locale?.launch ?? "0000-00",
         altKm: point.altKm,
         lat: point.lat,
         lon: point.lon,
@@ -166,11 +168,10 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
         daysSinceManeuver: daysSince,
       });
     }
-    // 排序：currently covering > legacy 在最後
+    // 依發射日 DESC（新的在前），無 launch 的擺最後
     return out.sort((a, b) => {
-      const pa = a.nextPassMin == null ? 9999 : a.nextPassMin;
-      const pb = b.nextPassMin == null ? 9999 : b.nextPassMin;
-      return pa - pb;
+      if (a.launch === b.launch) return a.norad - b.norad;
+      return b.launch.localeCompare(a.launch);
     });
   }, [parsed, maneuvers, tick]);
 
@@ -300,7 +301,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
                     cursor: "pointer",
                   }}
                 >
-                  飛到位置
+                  飛到衛星
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); onSelectNorad(r.norad); }}
