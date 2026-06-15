@@ -7,7 +7,7 @@
  * 影響 TW：async 計算前後 7 天過台次數差，差 != 0 標「影響 TW」綠 chip
  */
 import { useMemo, useState } from "react";
-import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN, CN_GROUP_TO_CATEGORY } from "./satelliteConsoleTokens";
+import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN, CN_GROUP_TO_CATEGORY, GROUP_FLAG } from "./satelliteConsoleTokens";
 import { SATELLITE_COLORS } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
 import {
@@ -27,6 +27,7 @@ interface Props {
 
 const TAIWAN_GROUP = new Set(["TAIWAN"]);
 const CN_GROUPS = new Set(["YAOGAN", "JILIN", "GAOFEN", "TJS", "BEIDOU", "SHIYAN"]);
+const INTL_GROUPS = new Set(["USA", "JAPAN", "RUSSIA", "INDIA", "KOREA", "FRANCE", "GERMANY", "ITALY", "ISRAEL"]);
 
 /** 嚴重度視覺 token */
 const SEV_TOKEN: Record<ManeuverSeverity, { color: string; soft: string; border: string; label: string; pulse: boolean }> = {
@@ -38,13 +39,14 @@ const SEV_TOKEN: Record<ManeuverSeverity, { color: string; soft: string; border:
 export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }: Props) {
   const [expandedGrey, setExpandedGrey] = useState(false);
 
-  const { cnCount, twCount, sortedRed, sortedOrange, sortedGrey } = useMemo(() => {
-    let cn = 0, tw = 0;
+  const { cnCount, twCount, intlCount, sortedRed, sortedOrange, sortedGrey } = useMemo(() => {
+    let cn = 0, tw = 0, intl = 0;
     const red: ManeuverRow[] = [];
     const orange: ManeuverRow[] = [];
     const grey: ManeuverRow[] = [];
     for (const m of maneuvers) {
       if (TAIWAN_GROUP.has(m.cn_group) || m.country_operator === "Taiwan") tw++;
+      else if (INTL_GROUPS.has(m.cn_group)) intl++;
       else if (m.country_operator === "China" || CN_GROUPS.has(m.cn_group)) cn++;
       const sev = getManeuverSeverity(m);
       if (sev === "red") red.push(m);
@@ -56,7 +58,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
     red.sort(byTime);
     orange.sort(byTime);
     grey.sort(byTime);
-    return { cnCount: cn, twCount: tw, sortedRed: red, sortedOrange: orange, sortedGrey: grey };
+    return { cnCount: cn, twCount: tw, intlCount: intl, sortedRed: red, sortedOrange: orange, sortedGrey: grey };
   }, [maneuvers]);
 
   // affects TW 計算（非阻塞）
@@ -112,9 +114,11 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
         }} />
         <span style={{ fontWeight: 600 }}>近 24h 變軌偵測</span>
         <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, color: COLORS.textDefault, letterSpacing: "0.3px" }}>
-          CN <span style={{ color: hasFeatured ? COLORS.statusErr : COLORS.textDefault, fontWeight: 700 }}>{cnCount}</span> 顆
+          CN <span style={{ color: hasFeatured ? COLORS.statusErr : COLORS.textDefault, fontWeight: 700 }}>{cnCount}</span>
           {" / "}
-          TW <span style={{ color: twCount > 0 ? COLORS.statusErr : COLORS.textDim, fontWeight: 700 }}>{twCount}</span> 顆
+          INTL <span style={{ color: intlCount > 0 ? "#22c55e" : COLORS.textDim, fontWeight: 700 }}>{intlCount}</span>
+          {" / "}
+          TW <span style={{ color: twCount > 0 ? COLORS.statusErr : COLORS.textDim, fontWeight: 700 }}>{twCount}</span>
         </span>
       </div>
 
@@ -232,6 +236,9 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
       {/* 上行 */}
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: groupColor, flexShrink: 0 }} />
+        <span style={{ fontSize: 13, flexShrink: 0 }} title={row.country_operator || row.cn_group}>
+          {GROUP_FLAG[row.cn_group] ?? "🌐"}
+        </span>
         <span
           onClick={() => onSelectNorad(row.norad_id)}
           style={{

@@ -4,7 +4,7 @@
  * 左 docked（與 IntelPanel 同位置 left:64, top:98），用 IntelPanel 同樣的 token / 動畫，
  * 確保視覺一致。P5-P10 接入 §A-§F 子區塊。
  */
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, PANEL_WIDTH } from "./satelliteConsoleTokens";
 import { SatelliteConsoleHeader } from "./SatelliteConsoleHeader";
 import { ManeuverAlertSection } from "./ManeuverAlertSection";
@@ -51,19 +51,8 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
     };
   }, [open]);
 
-  // CN = country=China 或命中 CN 6 群 regex（cn_group 落在 6 群之一）
-  // TW = country=Taiwan 或 cn_group=TAIWAN
-  const { cnManeuverCount, twManeuverCount } = useMemo(() => {
-    let cn = 0, tw = 0;
-    const CN_GROUPS = new Set(["YAOGAN", "JILIN", "GAOFEN", "TJS", "BEIDOU", "SHIYAN"]);
-    for (const m of maneuvers) {
-      if (m.country_operator === "Taiwan" || m.cn_group === "TAIWAN") tw++;
-      else if (m.country_operator === "China" || CN_GROUPS.has(m.cn_group)) cn++;
-      // 他國 / OTHER 不計入（RPC 170 已過濾，前端 safety）
-    }
-    return { cnManeuverCount: cn, twManeuverCount: tw };
-  }, [maneuvers]);
-  void twManeuverCount;
+  // 全部變軌（含 INTL）— Header 警示用，總數就好；細節由 §A 拆給看
+  const totalManeuverCount = maneuvers.length;
 
   if (!open) return null;
 
@@ -95,7 +84,7 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
         }}
       >
         <SatelliteConsoleHeader
-          totalManeuvers={cnManeuverCount}
+          totalManeuvers={totalManeuverCount}
           timelineSec={timelineSec}
           onClose={onClose}
         />
