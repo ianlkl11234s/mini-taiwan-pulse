@@ -5,10 +5,8 @@
 
 import { withLoading } from "../lib/loadingRegistry";
 import {
-  CN_GAOFEN_RE,
-  CN_JILIN_RE,
-  CN_YAOGAN_RE,
   TW_NAME_RE,
+  classifyChinaSatByName,
   type SatelliteCategory,
   type SatelliteRecord,
 } from "./satelliteTypes";
@@ -17,7 +15,7 @@ import { isTleActive } from "./satelliteSGP4";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-const CACHE_KEY = "satellite-layer-tle-v3-grouped";
+const CACHE_KEY = "satellite-layer-tle-v4-6groups";
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 
 interface CacheBlob {
@@ -64,7 +62,7 @@ async function fetchView(qs: string): Promise<SupabaseRow[]> {
   return (await resp.json()) as SupabaseRow[];
 }
 
-/** 把 Supabase row 轉成 SatelliteRecord，並決定本專案的 category（5 分群） */
+/** 把 Supabase row 轉成 SatelliteRecord，並決定本專案的 category（7 分群：CN 6 + TW 1） */
 function classify(row: SupabaseRow): SatelliteCategory | null {
   const country = row.country_operator;
   const cat = row.category;
@@ -72,22 +70,22 @@ function classify(row: SupabaseRow): SatelliteCategory | null {
   // 台灣：country + 名稱保底（含 FS-8A、TRITON）
   if (country === "Taiwan") return "taiwan";
   if (TW_NAME_RE.test(name) && cat !== "debris") return "taiwan";
-  // 中國分群（依名稱前綴）
+  // 中國：6 群（Yaogan/Jilin/Gaofen/TJS/Beidou/Shiyan）
   if (country === "China") {
-    if (CN_YAOGAN_RE.test(name)) return "china_yaogan";
-    if (CN_JILIN_RE.test(name)) return "china_jilin";
-    if (CN_GAOFEN_RE.test(name)) return "china_gaofen";
-    if (cat === "military" || cat === "earth_obs") return "china_other";
+    // 含 PNT（navigation）/ GEO comms / military / earth_obs 統統允許進來再依名稱分流
+    if (cat === "debris") return null;
+    return classifyChinaSatByName(name);
   }
   return null;
 }
 
 async function fetchAll(): Promise<SatelliteRecord[]> {
   const [cnRows, twRows, twNameRows] = await Promise.all([
-    fetchView("country_operator=eq.China&category=in.(military,earth_obs)"),
+    // 6 群覆蓋：military/earth_obs（Yaogan/Jilin/Gaofen）、navigation（Beidou）、geo_comms（TJS）、science/tech_demo（Shiyan/Shijian）
+    fetchView("country_operator=eq.China&category=in.(military,earth_obs,navigation,geo_comms,science,tech_demo)"),
     fetchView("country_operator=eq.Taiwan"),
     // 名稱保底：UCS country 還沒對齊的新衛星（FORMOSAT-8A、FORMOSAT-7R/TRITON）
-    fetchView("or=(name.ilike.FORMOSAT*,name.ilike.TRITON*)&category=neq.debris"),
+    fetchView("or=(name.ilike.FORMOSAT*,name.ilike.TRITON*,name.ilike.YUSHAN*,name.ilike.IRIS-*)&category=neq.debris"),
   ]);
   const seen = new Set<number>();
   const out: SatelliteRecord[] = [];

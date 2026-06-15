@@ -163,7 +163,9 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   satellitesYaogan: Satellite,
   satellitesJilin: Satellite,
   satellitesGaofen: Satellite,
-  satellitesChinaOther: Satellite,
+  satellitesTJS: Satellite,
+  satellitesBeidou: Satellite,
+  satellitesShiyan: Satellite,
   satellitesTaiwan: Satellite,
 };
 
@@ -198,6 +200,9 @@ interface IconRailSidebarProps {
   /** 即時情報 Intel panel toggle（外部渲染，rail 只負責切換） */
   onIntelToggle?: () => void;
   intelActive?: boolean;
+  /** 衛星情報 Satellite Console panel toggle */
+  onSatelliteToggle?: () => void;
+  satelliteActive?: boolean;
 }
 
 // ── Shared Styles ──
@@ -223,6 +228,7 @@ export function IconRailSidebar({
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   getControls, currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
+  onSatelliteToggle, satelliteActive,
 }: IconRailSidebarProps) {
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
@@ -344,6 +350,19 @@ export function IconRailSidebar({
               onIntelToggle();
             }}
             tooltip="即時情報 Intel"
+          />
+        )}
+
+        {/* 衛星情報 Satellite Console */}
+        {onSatelliteToggle && (
+          <RailIcon
+            icon={Satellite}
+            active={!!satelliteActive}
+            onClick={() => {
+              if (!satelliteActive) closePanel();
+              onSatelliteToggle();
+            }}
+            tooltip="衛星情報 Satellite"
           />
         )}
 

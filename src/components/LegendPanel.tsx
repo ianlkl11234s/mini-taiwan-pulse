@@ -118,7 +118,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     ],
     render: ({ visibility }) => <ForestryLegend visibility={visibility} />,
   },
-  { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesChinaOther", "satellitesTaiwan"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
+  { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
@@ -837,7 +837,9 @@ function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {
     { key: "satellitesYaogan", cat: "china_yaogan" },
     { key: "satellitesJilin", cat: "china_jilin" },
     { key: "satellitesGaofen", cat: "china_gaofen" },
-    { key: "satellitesChinaOther", cat: "china_other" },
+    { key: "satellitesTJS", cat: "china_tjs" },
+    { key: "satellitesBeidou", cat: "china_beidou" },
+    { key: "satellitesShiyan", cat: "china_shiyan" },
     { key: "satellitesTaiwan", cat: "taiwan" },
   ];
   const active = items.filter((i) => visibility[i.key]);

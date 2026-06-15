@@ -49,7 +49,9 @@ const COLOR_EXPR: ExpressionSpecification = [
   "china_yaogan", SATELLITE_COLORS.china_yaogan,
   "china_jilin", SATELLITE_COLORS.china_jilin,
   "china_gaofen", SATELLITE_COLORS.china_gaofen,
-  "china_other", SATELLITE_COLORS.china_other,
+  "china_tjs", SATELLITE_COLORS.china_tjs,
+  "china_beidou", SATELLITE_COLORS.china_beidou,
+  "china_shiyan", SATELLITE_COLORS.china_shiyan,
   "taiwan", SATELLITE_COLORS.taiwan,
   "#888",
 ];
@@ -74,7 +76,9 @@ interface SatelliteVisibilityFlags {
   china_yaogan: boolean;
   china_jilin: boolean;
   china_gaofen: boolean;
-  china_other: boolean;
+  china_tjs: boolean;
+  china_beidou: boolean;
+  china_shiyan: boolean;
   taiwan: boolean;
 }
 
@@ -83,6 +87,16 @@ interface UseSatellitesLayerOpts {
   opacity?: number;
   /** 軌跡顯示時長（分鐘）。全球模式時拉長到 90 */
   trackMinutes?: number;
+  /**
+   * Console 模式 — 只渲染指定 NORAD（變軌中）+ 台灣全部
+   * undefined / null = 一般模式（依 visibility flags）
+   */
+  consoleFilter?: {
+    /** 近 24h 變軌的 NORAD set */
+    featuredNorads: Set<number>;
+    /** 若 true，console 模式失效，全部按 visibility flags 渲染 */
+    showAllOrbits: boolean;
+  } | null;
 }
 
 interface PropParsed {
@@ -94,11 +108,14 @@ export function useSatellitesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   opts: UseSatellitesLayerOpts,
 ) {
-  const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN } = opts;
+  const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN, consoleFilter = null } = opts;
+  const consoleFilterRef = useRef(consoleFilter);
+  consoleFilterRef.current = consoleFilter;
   const recordsRef = useRef<PropParsed[]>([]);
   const layersReadyRef = useRef(false);
   const anyVisible = visibility.china_yaogan || visibility.china_jilin
-    || visibility.china_gaofen || visibility.china_other || visibility.taiwan;
+    || visibility.china_gaofen || visibility.china_tjs || visibility.china_beidou
+    || visibility.china_shiyan || visibility.taiwan;
   const [dataReady, setDataReady] = useState(false);
 
   // visibility / trackMinutes 走 ref：recompute / 訂閱 callback 永遠讀最新值，
@@ -187,10 +204,39 @@ export function useSatellitesLayer(
         source: SAT_SRC_POINT,
         paint: {
           "circle-color": COLOR_EXPR,
-          "circle-radius": 4,
-          "circle-stroke-color": "#fff",
-          "circle-stroke-width": 1,
-          "circle-stroke-opacity": 0.6,
+          "circle-radius": [
+            "case",
+            ["==", ["get", "maneuver"], 1], 6,
+            4,
+          ],
+          "circle-stroke-color": [
+            "case",
+            ["==", ["get", "maneuver"], 1], "#ef4444",
+            "#fff",
+          ],
+          "circle-stroke-width": [
+            "case",
+            ["==", ["get", "maneuver"], 1], 2,
+            1,
+          ],
+          "circle-stroke-opacity": 0.85,
+        },
+      } as CircleLayer);
+    }
+    // 變軌 pulse ring（red glow）
+    const SAT_LAYER_MANEUVER_RING = "sat-maneuver-ring";
+    if (!map.getLayer(SAT_LAYER_MANEUVER_RING)) {
+      map.addLayer({
+        id: SAT_LAYER_MANEUVER_RING,
+        type: "circle",
+        source: SAT_SRC_POINT,
+        filter: ["==", ["get", "maneuver"], 1],
+        paint: {
+          "circle-color": "transparent",
+          "circle-radius": 14,
+          "circle-stroke-color": "#ef4444",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-opacity": 0.65,
         },
       } as CircleLayer);
     }
@@ -205,7 +251,9 @@ export function useSatellitesLayer(
     if (vis.china_yaogan) out.push("china_yaogan");
     if (vis.china_jilin) out.push("china_jilin");
     if (vis.china_gaofen) out.push("china_gaofen");
-    if (vis.china_other) out.push("china_other");
+    if (vis.china_tjs) out.push("china_tjs");
+    if (vis.china_beidou) out.push("china_beidou");
+    if (vis.china_shiyan) out.push("china_shiyan");
     if (vis.taiwan) out.push("taiwan");
     return out;
   };
@@ -225,16 +273,22 @@ export function useSatellitesLayer(
 
     const footprintFeats: GeoJSON.Feature[] = [];
     const pointFeats: GeoJSON.Feature[] = [];
+    const cf = consoleFilterRef.current;
+    // Console 模式只用 featuredNorads 強調變軌中衛星（紅環 + 加大）
+    // 不額外砍類別 — sidebar toggle 是唯一的「顯/隱」真實來源（修 CN toggle 失效）
+    const featuredNorads = cf?.featuredNorads;
 
     for (const { rec, satrec } of parsed) {
       if (!visibleCats.includes(rec.category)) continue;
       const now = propagate(satrec, t);
       if (!now) continue;
+      const isManeuver = featuredNorads?.has(rec.noradId) ?? false;
       const props = {
         cat: rec.category,
         norad: rec.noradId,
         name: rec.name,
         altKm: Math.round(now.altKm),
+        maneuver: isManeuver ? 1 : 0,
       };
       pointFeats.push({
         type: "Feature",
@@ -279,6 +333,7 @@ export function useSatellitesLayer(
 
     const trackFeats: GeoJSON.Feature[] = [];
     const stepCount = Math.floor((trackMin * 60) / TRACK_STEP_SEC);
+    // 軌跡層不過濾 console（同上原因）
     for (const { rec, satrec } of parsed) {
       if (!visibleCats.includes(rec.category)) continue;
       const props = {
@@ -373,7 +428,7 @@ export function useSatellitesLayer(
   // visibility 物件 identity 每 render 都新；用 JSON 字串穩定化 deps，
   // 真正改變才觸發。確保使用者按 toggle 後即時看到正確 features，
   // 不用等下一個 1s throttle tick。
-  const visKey = `${visibility.china_yaogan ? 1 : 0}${visibility.china_jilin ? 1 : 0}${visibility.china_gaofen ? 1 : 0}${visibility.china_other ? 1 : 0}${visibility.taiwan ? 1 : 0}`;
+  const visKey = `${visibility.china_yaogan ? 1 : 0}${visibility.china_jilin ? 1 : 0}${visibility.china_gaofen ? 1 : 0}${visibility.china_tjs ? 1 : 0}${visibility.china_beidou ? 1 : 0}${visibility.china_shiyan ? 1 : 0}${visibility.taiwan ? 1 : 0}`;
   useEffect(() => {
     if (!dataReady) return;
     const map = mapRef.current;

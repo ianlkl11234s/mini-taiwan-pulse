@@ -1,0 +1,186 @@
+/**
+ * SatelliteConsole — 衛星情報儀表板主 panel
+ *
+ * 左 docked（與 IntelPanel 同位置 left:64, top:98），用 IntelPanel 同樣的 token / 動畫，
+ * 確保視覺一致。P5-P10 接入 §A-§F 子區塊。
+ */
+import { useEffect, useMemo, useState } from "react";
+import { COLORS, FONT_CJK, FONT_DATA, PANEL_WIDTH } from "./satelliteConsoleTokens";
+import { SatelliteConsoleHeader } from "./SatelliteConsoleHeader";
+import { ManeuverAlertSection } from "./ManeuverAlertSection";
+import { CNGroupSection } from "./CNGroupSection";
+import { TWFleetSection } from "./TWFleetSection";
+import { CoverageStatsSection } from "./CoverageStatsSection";
+import { SatelliteDetailCard } from "./SatelliteDetailCard";
+import { ManeuverCompareModal } from "./ManeuverCompareModal";
+import { fetchRecentManeuvers, type ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { satelliteConsoleStore, useSatelliteConsole } from "../../state/satelliteConsoleStore";
+import type { LayerVisibility } from "../../types";
+
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  layerVisibility: LayerVisibility;
+  setLayerVisibility: (next: Partial<LayerVisibility>) => void;
+  /** 點台灣 hero / CN group row → 飛去衛星目前位置 */
+  onFlyTo?: (lon: number, lat: number) => void;
+}
+
+export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisibility, onFlyTo }: Props) {
+  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+  const [maneuvers, setManeuvers] = useState<ManeuverRow[]>([]);
+  const consoleState = useSatelliteConsole();
+
+  // 每秒 tick（顯示用）
+  useEffect(() => {
+    if (!open) return;
+    const id = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
+    return () => window.clearInterval(id);
+  }, [open]);
+
+  // 載入近 24h 變軌，30s polling
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    const tick = () => {
+      fetchRecentManeuvers(24).then((rows) => {
+        if (alive) setManeuvers(rows);
+      });
+    };
+    tick();
+    const id = window.setInterval(tick, 30_000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [open]);
+
+  // CN = country=China 或命中 CN 6 群 regex（cn_group 落在 6 群之一）
+  // TW = country=Taiwan 或 cn_group=TAIWAN
+  const { cnManeuverCount, twManeuverCount } = useMemo(() => {
+    let cn = 0, tw = 0;
+    const CN_GROUPS = new Set(["YAOGAN", "JILIN", "GAOFEN", "TJS", "BEIDOU", "SHIYAN"]);
+    for (const m of maneuvers) {
+      if (m.country_operator === "Taiwan" || m.cn_group === "TAIWAN") tw++;
+      else if (m.country_operator === "China" || CN_GROUPS.has(m.cn_group)) cn++;
+      // 他國 / OTHER 不計入（RPC 170 已過濾，前端 safety）
+    }
+    return { cnManeuverCount: cn, twManeuverCount: tw };
+  }, [maneuvers]);
+  void twManeuverCount;
+
+  if (!open) return null;
+
+  return (
+    <>
+      <div
+        style={{
+          position: "fixed",
+          left: 64,
+          top: 98,
+          bottom: 14,
+          width: PANEL_WIDTH,
+          background: COLORS.panelBg,
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
+          border: `1px solid ${COLORS.panelBorder}`,
+          borderRadius: 10,
+          zIndex: 30,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+          pointerEvents: "auto",
+          boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+          animation: "satConsoleFadeIn .25s ease-out",
+          color: COLORS.textDefault,
+          fontFamily: FONT_CJK,
+        }}
+      >
+        <SatelliteConsoleHeader
+          totalManeuvers={cnManeuverCount}
+          lastUpdateTs={now}
+          onClose={onClose}
+        />
+
+        <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto" }}>
+          <ManeuverAlertSection
+            maneuvers={maneuvers}
+            onSelectNorad={(n) => satelliteConsoleStore.selectNorad(n)}
+            onOpenCompare={(m) => satelliteConsoleStore.openCompare(m)}
+            onFlyTo={onFlyTo}
+          />
+
+          <CoverageStatsSection
+            maneuvers={maneuvers}
+          />
+
+          <CNGroupSection
+            maneuvers={maneuvers}
+            layerVisibility={layerVisibility}
+            setLayerVisibility={setLayerVisibility}
+            onSelectNorad={(n) => satelliteConsoleStore.selectNorad(n)}
+          />
+
+          <TWFleetSection
+            maneuvers={maneuvers}
+            onSelectNorad={(n) => satelliteConsoleStore.selectNorad(n)}
+            onFlyTo={onFlyTo}
+          />
+        </div>
+
+        <div style={{
+          flexShrink: 0,
+          padding: "8px 14px",
+          borderTop: `1px solid ${COLORS.borderSoft}`,
+          fontFamily: FONT_DATA,
+          fontSize: 9,
+          color: COLORS.textFaint,
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+        }}>
+          <span>UCS Database · Space-Track</span>
+          <span style={{ marginLeft: "auto" }}>
+            <label style={{ display: "inline-flex", alignItems: "center", gap: 5, cursor: "pointer", color: COLORS.textMuted }}>
+              <input
+                type="checkbox"
+                checked={consoleState.showAllOrbits}
+                onChange={(e) => satelliteConsoleStore.setShowAllOrbits(e.target.checked)}
+                style={{ accentColor: COLORS.accent }}
+              />
+              顯示全部軌道
+            </label>
+          </span>
+        </div>
+      </div>
+
+      {/* §E 百科卡 — overlay on top of panel */}
+      {consoleState.selectedNorad != null && (
+        <SatelliteDetailCard
+          norad={consoleState.selectedNorad}
+          onClose={() => satelliteConsoleStore.selectNorad(null)}
+          onOpenCompare={(m) => satelliteConsoleStore.openCompare(m)}
+        />
+      )}
+
+      {/* §F 變軌前後對比 modal */}
+      {consoleState.compareManeuver && (
+        <ManeuverCompareModal
+          maneuver={consoleState.compareManeuver}
+          onClose={() => satelliteConsoleStore.closeCompare()}
+        />
+      )}
+
+      <style>{`
+        @keyframes satConsoleFadeIn {
+          from { opacity: 0; transform: translateX(-12px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes satManeuverPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.45; transform: scale(0.92); }
+        }
+      `}</style>
+    </>
+  );
+}
