@@ -118,7 +118,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     ],
     render: ({ visibility }) => <ForestryLegend visibility={visibility} />,
   },
-  { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
+  { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan", "satellitesUSA", "satellitesJapan", "satellitesRussia", "satellitesIndia", "satellitesKorea", "satellitesFrance", "satellitesGermany", "satellitesItaly", "satellitesIsrael"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
@@ -841,6 +841,15 @@ function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {
     { key: "satellitesBeidou", cat: "china_beidou" },
     { key: "satellitesShiyan", cat: "china_shiyan" },
     { key: "satellitesTaiwan", cat: "taiwan" },
+    { key: "satellitesUSA", cat: "usa" },
+    { key: "satellitesJapan", cat: "japan" },
+    { key: "satellitesRussia", cat: "russia" },
+    { key: "satellitesIndia", cat: "india" },
+    { key: "satellitesKorea", cat: "korea" },
+    { key: "satellitesFrance", cat: "france" },
+    { key: "satellitesGermany", cat: "germany" },
+    { key: "satellitesItaly", cat: "italy" },
+    { key: "satellitesIsrael", cat: "israel" },
   ];
   const active = items.filter((i) => visibility[i.key]);
   if (!active.length) return null;

@@ -986,7 +986,16 @@ export function useTransportParams() {
       case "satellitesTJS":
       case "satellitesBeidou":
       case "satellitesShiyan":
-      case "satellitesTaiwan": return [
+      case "satellitesTaiwan":
+      case "satellitesUSA":
+      case "satellitesJapan":
+      case "satellitesRussia":
+      case "satellitesIndia":
+      case "satellitesKorea":
+      case "satellitesFrance":
+      case "satellitesGermany":
+      case "satellitesItaly":
+      case "satellitesIsrael": return [
         { label: `Opacity ${satOpacity.toFixed(2)}`, value: satOpacity, min: 0, max: 1, step: 0.05, onChange: setSatOpacity },
       ];
       case "cwaCloudImagery": return [

@@ -196,14 +196,23 @@ export type ExpandableLayerKey =
   | "wdMixed"
   | "wdRecyclingContainer"
   | "wdBattery"
-  // 衛星 SPACE — 中國分 6 群（Yaogan/Jilin/Gaofen S | TJS A | Beidou B | Shiyan/餘 C）+ 台灣
+  // 衛星 SPACE — CN 6 群 + TW + 9 國 LEO 遙測
   | "satellitesYaogan"
   | "satellitesJilin"
   | "satellitesGaofen"
   | "satellitesTJS"
   | "satellitesBeidou"
   | "satellitesShiyan"
-  | "satellitesTaiwan";
+  | "satellitesTaiwan"
+  | "satellitesUSA"
+  | "satellitesJapan"
+  | "satellitesRussia"
+  | "satellitesIndia"
+  | "satellitesKorea"
+  | "satellitesFrance"
+  | "satellitesGermany"
+  | "satellitesItaly"
+  | "satellitesIsrael";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -663,7 +672,7 @@ export interface LayerVisibility {
   wdMixed: boolean;
   wdRecyclingContainer: boolean;
   wdBattery: boolean;
-  // 衛星 SPACE — 中國 6 群 + 台灣
+  // 衛星 SPACE — CN 6 群 + TW + 9 國 LEO 遙測
   satellitesYaogan: boolean;
   satellitesJilin: boolean;
   satellitesGaofen: boolean;
@@ -671,6 +680,15 @@ export interface LayerVisibility {
   satellitesBeidou: boolean;
   satellitesShiyan: boolean;
   satellitesTaiwan: boolean;
+  satellitesUSA: boolean;
+  satellitesJapan: boolean;
+  satellitesRussia: boolean;
+  satellitesIndia: boolean;
+  satellitesKorea: boolean;
+  satellitesFrance: boolean;
+  satellitesGermany: boolean;
+  satellitesItaly: boolean;
+  satellitesIsrael: boolean;
 }
 
 // ── 空氣品質 ──

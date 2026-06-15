@@ -53,6 +53,15 @@ const COLOR_EXPR: ExpressionSpecification = [
   "china_beidou", SATELLITE_COLORS.china_beidou,
   "china_shiyan", SATELLITE_COLORS.china_shiyan,
   "taiwan", SATELLITE_COLORS.taiwan,
+  "usa", SATELLITE_COLORS.usa,
+  "japan", SATELLITE_COLORS.japan,
+  "russia", SATELLITE_COLORS.russia,
+  "india", SATELLITE_COLORS.india,
+  "korea", SATELLITE_COLORS.korea,
+  "france", SATELLITE_COLORS.france,
+  "germany", SATELLITE_COLORS.germany,
+  "italy", SATELLITE_COLORS.italy,
+  "israel", SATELLITE_COLORS.israel,
   "#888",
 ];
 
@@ -80,6 +89,15 @@ interface SatelliteVisibilityFlags {
   china_beidou: boolean;
   china_shiyan: boolean;
   taiwan: boolean;
+  usa: boolean;
+  japan: boolean;
+  russia: boolean;
+  india: boolean;
+  korea: boolean;
+  france: boolean;
+  germany: boolean;
+  italy: boolean;
+  israel: boolean;
 }
 
 interface UseSatellitesLayerOpts {
@@ -115,7 +133,10 @@ export function useSatellitesLayer(
   const layersReadyRef = useRef(false);
   const anyVisible = visibility.china_yaogan || visibility.china_jilin
     || visibility.china_gaofen || visibility.china_tjs || visibility.china_beidou
-    || visibility.china_shiyan || visibility.taiwan;
+    || visibility.china_shiyan || visibility.taiwan
+    || visibility.usa || visibility.japan || visibility.russia
+    || visibility.india || visibility.korea || visibility.france
+    || visibility.germany || visibility.italy || visibility.israel;
   const [dataReady, setDataReady] = useState(false);
 
   // visibility / trackMinutes 走 ref：recompute / 訂閱 callback 永遠讀最新值，
@@ -255,6 +276,15 @@ export function useSatellitesLayer(
     if (vis.china_beidou) out.push("china_beidou");
     if (vis.china_shiyan) out.push("china_shiyan");
     if (vis.taiwan) out.push("taiwan");
+    if (vis.usa) out.push("usa");
+    if (vis.japan) out.push("japan");
+    if (vis.russia) out.push("russia");
+    if (vis.india) out.push("india");
+    if (vis.korea) out.push("korea");
+    if (vis.france) out.push("france");
+    if (vis.germany) out.push("germany");
+    if (vis.italy) out.push("italy");
+    if (vis.israel) out.push("israel");
     return out;
   };
 
@@ -428,7 +458,12 @@ export function useSatellitesLayer(
   // visibility 物件 identity 每 render 都新；用 JSON 字串穩定化 deps，
   // 真正改變才觸發。確保使用者按 toggle 後即時看到正確 features，
   // 不用等下一個 1s throttle tick。
-  const visKey = `${visibility.china_yaogan ? 1 : 0}${visibility.china_jilin ? 1 : 0}${visibility.china_gaofen ? 1 : 0}${visibility.china_tjs ? 1 : 0}${visibility.china_beidou ? 1 : 0}${visibility.china_shiyan ? 1 : 0}${visibility.taiwan ? 1 : 0}`;
+  const visKey =
+    `${visibility.china_yaogan ? 1 : 0}${visibility.china_jilin ? 1 : 0}${visibility.china_gaofen ? 1 : 0}` +
+    `${visibility.china_tjs ? 1 : 0}${visibility.china_beidou ? 1 : 0}${visibility.china_shiyan ? 1 : 0}` +
+    `${visibility.taiwan ? 1 : 0}${visibility.usa ? 1 : 0}${visibility.japan ? 1 : 0}` +
+    `${visibility.russia ? 1 : 0}${visibility.india ? 1 : 0}${visibility.korea ? 1 : 0}` +
+    `${visibility.france ? 1 : 0}${visibility.germany ? 1 : 0}${visibility.italy ? 1 : 0}${visibility.israel ? 1 : 0}`;
   useEffect(() => {
     if (!dataReady) return;
     const map = mapRef.current;
