@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
-  classifyChinaSatByName,
+  classifyByCountryName,
   CN_YAOGAN_RE,
   CN_JILIN_RE,
   CN_GAOFEN_RE,
@@ -8,11 +8,23 @@ import {
   CN_BEIDOU_RE,
   CN_SHIYAN_RE,
   TW_NAME_RE,
+  JP_NAME_RE,
+  RU_NAME_RE,
+  IN_NAME_RE,
+  FR_NAME_RE,
+  DE_NAME_RE,
+  IL_NAME_RE,
+  KR_NAME_RE,
+  IT_NAME_RE,
   SATELLITE_TIER,
   SATELLITE_LAYER_KEY,
   SATELLITE_COLORS,
   SATELLITE_LABELS,
+  GROUP_KEY_TO_CATEGORY,
 } from "../satelliteTypes";
+
+// 為了 backward compat 把舊測試的 classifyChinaSatByName 包成輔助
+const classifyChinaSatByName = (name: string) => classifyByCountryName(null, name) ?? "china_shiyan";
 
 describe("classifyChinaSatByName — 6 群分流", () => {
   it("YAOGAN-35 03A → china_yaogan", () => {
@@ -81,9 +93,9 @@ describe("regex — 6 群名稱前綴", () => {
 });
 
 describe("tier / layer key mapping", () => {
-  it("每個 category 都有 tier 與 layerKey", () => {
+  it("16 個 category 都有 tier 與 layerKey", () => {
     const cats = Object.keys(SATELLITE_COLORS) as Array<keyof typeof SATELLITE_COLORS>;
-    expect(cats.length).toBe(7);
+    expect(cats.length).toBe(16); // CN 6 + TW 1 + 9 國
     for (const c of cats) {
       expect(SATELLITE_TIER[c]).toMatch(/^[SABC]$/);
       expect(SATELLITE_LAYER_KEY[c]).toMatch(/^satellites/);
@@ -100,5 +112,67 @@ describe("tier / layer key mapping", () => {
     expect(SATELLITE_TIER.china_tjs).toBe("A");
     expect(SATELLITE_TIER.china_beidou).toBe("B");
     expect(SATELLITE_TIER.china_shiyan).toBe("C");
+  });
+  it("USA/Japan/Russia 為 S, 歐韓 A, 印度 B", () => {
+    expect(SATELLITE_TIER.usa).toBe("S");
+    expect(SATELLITE_TIER.japan).toBe("S");
+    expect(SATELLITE_TIER.russia).toBe("S");
+    expect(SATELLITE_TIER.france).toBe("A");
+    expect(SATELLITE_TIER.korea).toBe("A");
+    expect(SATELLITE_TIER.india).toBe("B");
+  });
+});
+
+describe("9 國 regex 與 classifyByCountryName", () => {
+  it("IGS-OPTICAL → japan", () => {
+    expect(classifyByCountryName(null, "IGS-OPTICAL 8")).toBe("japan");
+    expect(JP_NAME_RE.test("IGS-RADAR 7")).toBe(true);
+  });
+  it("CARTOSAT / RISAT → india", () => {
+    expect(classifyByCountryName(null, "CARTOSAT 3")).toBe("india");
+    expect(IN_NAME_RE.test("RISat-2B")).toBe(true);
+  });
+  it("OFEQ → israel", () => {
+    expect(classifyByCountryName(null, "OFEQ 16")).toBe("israel");
+    expect(IL_NAME_RE.test("EROS B")).toBe(true);
+  });
+  it("KOMPSAT → korea", () => {
+    expect(classifyByCountryName(null, "KOMPSAT 7")).toBe("korea");
+    expect(KR_NAME_RE.test("KOMPSAT-3A")).toBe(true);
+  });
+  it("CSO / PLEIADES → france", () => {
+    expect(classifyByCountryName(null, "CSO-3")).toBe("france");
+    expect(FR_NAME_RE.test("PLEIADES NEO 5")).toBe(true);
+  });
+  it("SAR-LUPE / TERRASAR → germany", () => {
+    expect(classifyByCountryName(null, "SAR-LUPE 3")).toBe("germany");
+    expect(DE_NAME_RE.test("TerraSAR-X 1")).toBe(true);
+  });
+  it("COSMO-SKYMED → italy", () => {
+    expect(classifyByCountryName(null, "COSMO-SKYMED 5")).toBe("italy");
+    expect(IT_NAME_RE.test("COSMO-SkyMed 4")).toBe(true);
+  });
+  it("PERSONA → russia", () => {
+    expect(classifyByCountryName(null, "PERSONA 3")).toBe("russia");
+    expect(RU_NAME_RE.test("RESURS-DK 2")).toBe(true);
+  });
+  it("依 country 落點", () => {
+    expect(classifyByCountryName("USA", "USA-313")).toBe("usa");
+    expect(classifyByCountryName("Japan", "Random Japan Sat")).toBe("japan");
+    expect(classifyByCountryName("Russia", "Cosmos 2580")).toBe("russia");
+  });
+  it("不認識 name 又無 country → null", () => {
+    expect(classifyByCountryName(null, "Unknown XYZ")).toBeNull();
+  });
+});
+
+describe("GROUP_KEY_TO_CATEGORY", () => {
+  it("16 group key 全有對映", () => {
+    expect(GROUP_KEY_TO_CATEGORY.YAOGAN).toBe("china_yaogan");
+    expect(GROUP_KEY_TO_CATEGORY.TAIWAN).toBe("taiwan");
+    expect(GROUP_KEY_TO_CATEGORY.USA).toBe("usa");
+    expect(GROUP_KEY_TO_CATEGORY.JAPAN).toBe("japan");
+    expect(GROUP_KEY_TO_CATEGORY.ISRAEL).toBe("israel");
+    expect(GROUP_KEY_TO_CATEGORY.OTHER).toBe("other");
   });
 });
