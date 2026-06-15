@@ -249,7 +249,15 @@ export function IconRailSidebar({
   }, [onWidthChange]);
 
   const togglePanel = (panel: PanelId) => {
-    setActivePanel((prev) => (prev === panel ? null : panel));
+    setActivePanel((prev) => {
+      const next = prev === panel ? null : panel;
+      // 開啟 Layers/Locations 時，順便關掉 Intel / Satellite（左側 panel 互斥）
+      if (next !== null) {
+        if (intelActive && onIntelToggle) onIntelToggle();
+        if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
+      }
+      return next;
+    });
   };
 
   const closePanel = () => setActivePanel(null);
