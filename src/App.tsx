@@ -432,13 +432,14 @@ export default function App() {
     for (const m of satManeuvers) s.add(m.norad_id);
     return s;
   }, [satManeuvers]);
-  // 打開 Console 時，地圖飛去台灣俯瞰視角（主視覺在 panel）
+  // 打開 Console 時：飛去台灣俯瞰 + 自動打開 Taiwan 圖層（其餘 CN 群維持使用者既有設定）
   const satConsoleOpen = satConsole.open;
   useEffect(() => {
     if (!satConsoleOpen) return;
     const map = mapRef.current;
-    if (!map) return;
-    map.flyTo({ center: [121.5, 24.5], zoom: 4.5, pitch: 0, bearing: 0, speed: 1.0 });
+    if (map) map.flyTo({ center: [121.5, 24.5], zoom: 4.5, pitch: 0, bearing: 0, speed: 1.0 });
+    // 自動開 Taiwan toggle（Console 開啟 = 想看 TW 衛星）
+    setLayerVisibility((prev) => (prev.satellitesTaiwan ? prev : { ...prev, satellitesTaiwan: true }));
   }, [satConsoleOpen]);
 
   // ── App 大模式：即時 vs 歷史長時序 ──
