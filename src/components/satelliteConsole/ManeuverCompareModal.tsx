@@ -69,7 +69,7 @@ interface GroundTrack {
   coveredRegions: Set<string>;
 }
 
-function computeGroundTrack(row: TleHistoryRow): GroundTrack | null {
+function computeGroundTrack(row: TleHistoryRow, anchorMs: number): GroundTrack | null {
   if (!row.tle_line1 || !row.tle_line2) return null;
   let satrec: satellite.SatRec;
   try {
@@ -78,7 +78,8 @@ function computeGroundTrack(row: TleHistoryRow): GroundTrack | null {
     return null;
   }
 
-  const start = Date.now();
+  // 從變軌事件 fetched_at 起算 7 天（不用現實 now、不用時間軸 — 對比 modal 是看「這次變軌」）
+  const start = anchorMs;
   const STEP_MIN = 10;
   const SPAN_HOURS = 7 * 24;
   const points: Array<{ lon: number; lat: number; altKm: number }> = [];
@@ -198,8 +199,10 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
     return () => { alive = false; };
   }, [maneuver.norad_id, maneuver.prev_epoch, maneuver.curr_epoch]);
 
-  const prevTrack = useMemo(() => (pair.prev ? computeGroundTrack(pair.prev) : null), [pair.prev]);
-  const currTrack = useMemo(() => (pair.curr ? computeGroundTrack(pair.curr) : null), [pair.curr]);
+  // §F 7 天軌跡的起點 = 變軌事件本身的時間，不跟時間軸也不跟現實 now
+  const eventMs = useMemo(() => new Date(maneuver.curr_fetched_at).getTime(), [maneuver.curr_fetched_at]);
+  const prevTrack = useMemo(() => (pair.prev ? computeGroundTrack(pair.prev, eventMs) : null), [pair.prev, eventMs]);
+  const currTrack = useMemo(() => (pair.curr ? computeGroundTrack(pair.curr, eventMs) : null), [pair.curr, eventMs]);
 
   const diff = useMemo(() => {
     if (!prevTrack || !currTrack) return null;

@@ -15,6 +15,7 @@ import { SatelliteDetailCard } from "./SatelliteDetailCard";
 import { ManeuverCompareModal } from "./ManeuverCompareModal";
 import { fetchRecentManeuvers, type ManeuverRow } from "../../data/satelliteManeuversLoader";
 import { satelliteConsoleStore, useSatelliteConsole } from "../../state/satelliteConsoleStore";
+import { useTimeStoreTime, isHistoryMode } from "../../hooks/useTimeStoreTime";
 import type { LayerVisibility } from "../../types";
 
 interface Props {
@@ -27,16 +28,11 @@ interface Props {
 }
 
 export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisibility, onFlyTo }: Props) {
-  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
   const [maneuvers, setManeuvers] = useState<ManeuverRow[]>([]);
   const consoleState = useSatelliteConsole();
-
-  // 每秒 tick（顯示用）
-  useEffect(() => {
-    if (!open) return;
-    const id = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
-    return () => window.clearInterval(id);
-  }, [open]);
+  // 訂閱時間軸 — 顯示時間徽章 + 歷史模式邊框
+  const timelineSec = useTimeStoreTime(500);
+  const isHistory = isHistoryMode(timelineSec);
 
   // 載入近 24h 變軌，30s polling
   useEffect(() => {
@@ -83,14 +79,16 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
           background: COLORS.panelBg,
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
-          border: `1px solid ${COLORS.panelBorder}`,
+          border: `1px solid ${isHistory ? "rgba(255,152,0,0.45)" : COLORS.panelBorder}`,
+          boxShadow: isHistory
+            ? "0 0 0 1px rgba(255,152,0,0.18), 0 12px 40px rgba(0,0,0,0.45)"
+            : "0 12px 40px rgba(0,0,0,0.45)",
           borderRadius: 10,
           zIndex: 30,
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
           pointerEvents: "auto",
-          boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
           animation: "satConsoleFadeIn .25s ease-out",
           color: COLORS.textDefault,
           fontFamily: FONT_CJK,
@@ -98,7 +96,7 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
       >
         <SatelliteConsoleHeader
           totalManeuvers={cnManeuverCount}
-          lastUpdateTs={now}
+          timelineSec={timelineSec}
           onClose={onClose}
         />
 

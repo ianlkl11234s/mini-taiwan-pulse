@@ -1,16 +1,27 @@
 import { IntelIcon, ICON } from "../intel/IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, clockTime } from "./satelliteConsoleTokens";
+import { isHistoryMode, formatTimelineOffset } from "../../hooks/useTimeStoreTime";
 
 interface Props {
   totalManeuvers: number;
-  lastUpdateTs: number;
+  /** 時間軸當下（秒）— panel 顯示用的「顯示時間」基準 */
+  timelineSec: number;
   onClose: () => void;
 }
 
-export function SatelliteConsoleHeader({ totalManeuvers, lastUpdateTs, onClose }: Props) {
+export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }: Props) {
   const hot = totalManeuvers > 0;
+  const isHistory = isHistoryMode(timelineSec);
+  const offsetLabel = isHistory ? formatTimelineOffset(timelineSec) : null;
+
+  // 即時 / 歷史模式的色票
+  const badgeColor = isHistory ? COLORS.statusWarn : COLORS.statusLive;
+  const badgeSoft = isHistory ? "rgba(255,152,0,0.16)" : COLORS.statusLiveSoft;
+  const badgeBorder = isHistory ? "rgba(255,152,0,0.55)" : COLORS.statusLiveBorder;
+
   return (
     <>
+      {/* ── 1 列：標題 + LIVE/ALERT/HISTORY 徽章 ── */}
       <div
         style={{
           display: "flex",
@@ -21,7 +32,6 @@ export function SatelliteConsoleHeader({ totalManeuvers, lastUpdateTs, onClose }
           flexShrink: 0,
         }}
       >
-        {/* 衛星圖示（lucide-flavored circle + orbit） */}
         <svg width={17} height={17} viewBox="0 0 24 24" fill="none" stroke={COLORS.accent}
              strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
           <circle cx="12" cy="12" r="2" />
@@ -37,32 +47,35 @@ export function SatelliteConsoleHeader({ totalManeuvers, lastUpdateTs, onClose }
             SATELLITE
           </span>
         </div>
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 5,
-            marginLeft: 6,
-            padding: "2px 8px",
-            borderRadius: 4,
-            background: hot ? "rgba(239,68,68,0.16)" : COLORS.statusLiveSoft,
-            border: `1px solid ${hot ? "rgba(239,68,68,0.45)" : COLORS.statusLiveBorder}`,
-          }}
-        >
+        {/* 變軌 ALERT 徽章（紅）— 警報是「DB 24h 內」的客觀事實，不受歷史模式影響 */}
+        {hot && !isHistory && (
           <span
             style={{
-              width: 6,
-              height: 6,
-              borderRadius: "50%",
-              background: hot ? COLORS.statusErr : COLORS.statusLive,
-              boxShadow: `0 0 6px ${hot ? COLORS.statusErr : COLORS.statusLive}`,
-              animation: "intelRing 1.6s ease-in-out infinite",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              marginLeft: 6,
+              padding: "2px 8px",
+              borderRadius: 4,
+              background: "rgba(239,68,68,0.16)",
+              border: "1px solid rgba(239,68,68,0.45)",
             }}
-          />
-          <span style={{ fontFamily: FONT_DATA, fontSize: 10, fontWeight: 700, color: hot ? COLORS.statusErr : COLORS.statusLive }}>
-            {hot ? "ALERT" : "LIVE"}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: COLORS.statusErr,
+                boxShadow: `0 0 6px ${COLORS.statusErr}`,
+                animation: "intelRing 1.6s ease-in-out infinite",
+              }}
+            />
+            <span style={{ fontFamily: FONT_DATA, fontSize: 10, fontWeight: 700, color: COLORS.statusErr }}>
+              ALERT
+            </span>
           </span>
-        </span>
+        )}
         <div style={{ flex: 1 }} />
         <button
           onClick={onClose}
@@ -84,26 +97,46 @@ export function SatelliteConsoleHeader({ totalManeuvers, lastUpdateTs, onClose }
         </button>
       </div>
 
+      {/* ── 2 列：顯示時間徽章 ── */}
       <div
         style={{
           flexShrink: 0,
-          padding: "8px 14px",
+          padding: "7px 14px 8px",
           borderBottom: `1px solid ${COLORS.borderSoft}`,
           display: "flex",
           alignItems: "center",
-          gap: 10,
-          whiteSpace: "nowrap",
+          gap: 8,
           fontFamily: FONT_DATA,
           fontSize: 10,
+          background: isHistory ? "rgba(255,152,0,0.06)" : "transparent",
         }}
       >
-        <span style={{ color: COLORS.textMuted }}>更新 {clockTime(lastUpdateTs)}</span>
-        <span style={{ color: COLORS.textFaint }}>·</span>
-        <span style={{ color: COLORS.textDefault }}>
-          近 24h 變軌 <span style={{ color: hot ? COLORS.statusErr : COLORS.textDefault, fontWeight: 700 }}>{totalManeuvers}</span> 顆
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            padding: "2px 8px",
+            borderRadius: 4,
+            background: badgeSoft,
+            border: `1px solid ${badgeBorder}`,
+            fontFamily: FONT_DATA,
+            fontWeight: 700,
+            color: badgeColor,
+          }}
+        >
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: badgeColor }} />
+          {isHistory ? "HISTORY" : "LIVE"}
         </span>
-        <span style={{ marginLeft: "auto", color: COLORS.textDim }}>
-          來源：Supabase satellite_maneuvers (2h refresh)
+        <span style={{ color: COLORS.textDim }}>顯示時間</span>
+        <span style={{ color: COLORS.textDefault, fontWeight: 600 }}>
+          {clockTime(timelineSec)}
+        </span>
+        {offsetLabel && (
+          <span style={{ color: badgeColor }}>（{offsetLabel}）</span>
+        )}
+        <span style={{ marginLeft: "auto", color: COLORS.textFaint }}>
+          §A 警報固定看現實 24h
         </span>
       </div>
     </>

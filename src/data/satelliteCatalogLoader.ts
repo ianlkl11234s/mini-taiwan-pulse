@@ -78,12 +78,14 @@ export async function fetchBatch(norads: number[]): Promise<CatalogRow[]> {
   return uniq.map((n) => cache.get(n)).filter((x): x is CatalogRow => !!x);
 }
 
-/** "14 年 7 個月" 給百科卡 §E "已運作" 欄位用 */
-export function formatOperatingSince(launchDate: string | null): string {
+/** "14 年 7 個月" 給百科卡 §E "已運作" 欄位用。anchorMs 預設為時間軸當下 */
+export function formatOperatingSince(launchDate: string | null, anchorMs?: number): string {
   if (!launchDate) return "—";
   const launch = new Date(launchDate);
   if (Number.isNaN(launch.getTime())) return "—";
-  const ms = Date.now() - launch.getTime();
+  const nowMs = anchorMs ?? Date.now();
+  const ms = nowMs - launch.getTime();
+  if (ms < 0) return "尚未發射";
   const totalMonths = Math.floor(ms / (30.44 * 86400 * 1000));
   const y = Math.floor(totalMonths / 12);
   const m = totalMonths % 12;

@@ -18,6 +18,7 @@ import { loadSatellites } from "../../data/satelliteLoader";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { localeForTaiwanSat } from "../../data/satelliteTaiwanLocale";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
 
 interface Props {
   maneuvers: ManeuverRow[];
@@ -100,7 +101,8 @@ function nextPassMin(satrec: satellite.SatRec, nowSec: number, altHint: number):
 
 export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
   const [parsed, setParsed] = useState<ParsedSat[]>([]);
-  const [tick, setTick] = useState(0);
+  // 訂閱 timeStore — 拉時間軸時整個 panel 重算位置
+  const timelineSec = useTimeStoreTime(250);
 
   // 1 次性載入 + parse
   useEffect(() => {
@@ -126,16 +128,9 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
     return () => { alive = false; };
   }, []);
 
-  // 每 5 秒更新位置
-  useEffect(() => {
-    const id = window.setInterval(() => setTick((n) => n + 1), 5000);
-    return () => window.clearInterval(id);
-  }, []);
-
   const rows: LiveRow[] = useMemo(() => {
-    void tick;
-    const now = new Date();
-    const nowSec = Math.floor(now.getTime() / 1000);
+    const now = new Date(timelineSec * 1000);
+    const nowSec = Math.floor(timelineSec);
     const lastManeuverByNorad = new Map<number, string>();
     for (const m of maneuvers) {
       if (m.country_operator !== "Taiwan" && m.cn_group !== "TAIWAN") continue;
@@ -152,7 +147,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
       const nextMin = nextPassMin(p.satrec, nowSec, p.altKm);
       const lastMan = lastManeuverByNorad.get(p.rec.noradId);
       const daysSince = lastMan
-        ? Math.round((Date.now() - new Date(lastMan).getTime()) / (86400 * 1000))
+        ? Math.round((timelineSec * 1000 - new Date(lastMan).getTime()) / (86400 * 1000))
         : null;
       out.push({
         norad: p.rec.noradId,
@@ -173,7 +168,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
       if (a.launch === b.launch) return a.norad - b.norad;
       return b.launch.localeCompare(a.launch);
     });
-  }, [parsed, maneuvers, tick]);
+  }, [parsed, maneuvers, timelineSec]);
 
   if (rows.length === 0) {
     return (

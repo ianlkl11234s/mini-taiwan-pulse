@@ -15,6 +15,8 @@ import { loadSatellites } from "../../data/satelliteLoader";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { SATELLITE_COLORS } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
+import { timeStore } from "../../state/timeStore";
 
 interface Props {
   maneuvers: ManeuverRow[];
@@ -76,6 +78,8 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   const [passes, setPasses] = useState<PassTick[]>([]);
   const [expanded, setExpanded] = useState(false);
   const [computingScan, setComputingScan] = useState(false);
+  // 訂閱時間軸 — 「現在覆蓋」與 6h scan 起點都跟著走
+  const timelineSec = useTimeStoreTime(500);
 
   useEffect(() => {
     let alive = true;
@@ -98,34 +102,30 @@ export function CoverageStatsSection({ maneuvers }: Props) {
     return () => { alive = false; };
   }, []);
 
-  // 每 5 秒掃「現在覆蓋中」
+  // 依時間軸算「該時刻覆蓋中」— timelineSec 變動就重算
   useEffect(() => {
     if (parsed.length === 0) return;
-    const tick = () => {
-      const now = new Date();
-      const out: ParsedSat[] = [];
-      for (const p of parsed) {
-        const point = subpoint(p.satrec, now);
-        if (!point) continue;
-        if (distanceKm(point.lon, point.lat, TW_CENTER.lon, TW_CENTER.lat) < p.radiusKm) {
-          out.push(p);
-        }
+    const t = new Date(timeStore.getTime() * 1000);
+    const out: ParsedSat[] = [];
+    for (const p of parsed) {
+      const point = subpoint(p.satrec, t);
+      if (!point) continue;
+      if (distanceKm(point.lon, point.lat, TW_CENTER.lon, TW_CENTER.lat) < p.radiusKm) {
+        out.push(p);
       }
-      setCoveringNow(out);
-    };
-    tick();
-    const id = window.setInterval(tick, 5000);
-    return () => window.clearInterval(id);
-  }, [parsed]);
+    }
+    setCoveringNow(out);
+  }, [parsed, timelineSec]);
 
-  // 6h pass scan，5 min 重算（避免 toggle 反覆觸發）
+  // 6h pass scan — 起點是「時間軸當下」，每分鐘級別變動才重算（拉時間軸防抖）
   useEffect(() => {
     if (parsed.length === 0) return;
     let alive = true;
     setComputingScan(true);
     const run = () => {
       const t0Ms = Date.now();
-      const nowMs = Date.now();
+      // 從時間軸當下開始往後掃 6h（不再用現實 now）
+      const nowMs = timeStore.getTime() * 1000;
       const out: PassTick[] = [];
       const totalSteps = (SCAN_HOURS * 3600) / SCAN_STEP_SEC;
       for (const p of parsed) {
@@ -155,13 +155,14 @@ export function CoverageStatsSection({ maneuvers }: Props) {
         console.log(`[satconsole] 6h pass scan: ${out.length} passes in ${ms}ms (${parsed.length} sats)`);
       }
     };
-    // 用 requestIdleCallback 或 setTimeout 把計算放到下一個 tick，不卡 UI
+    // 用 setTimeout 把計算放到下一個 tick，不卡 UI
     const id = window.setTimeout(run, 200);
-    const refreshId = window.setInterval(run, 5 * 60 * 1000);
+    // 拉時間軸 → 用 timeStore 的訂閱來重抓，60s 一次節流避免拖曳時瘋狂重算
+    const unsub = timeStore.subscribeThrottled(60_000, () => { if (alive) run(); });
     return () => {
       alive = false;
       window.clearTimeout(id);
-      window.clearInterval(refreshId);
+      unsub();
     };
   }, [parsed]);
 
