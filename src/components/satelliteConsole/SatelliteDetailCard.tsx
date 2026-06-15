@@ -23,6 +23,7 @@ import {
 } from "../../data/satelliteHistoryLoader";
 import { localeForTaiwanSat } from "../../data/satelliteTaiwanLocale";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
+import { useTimeStoreTime } from "../../hooks/useTimeStoreTime";
 
 interface Props {
   norad: number;
@@ -34,6 +35,8 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
   const [catalog, setCatalog] = useState<CatalogRow | null>(null);
   const [history, setHistory] = useState<TleHistoryRow[]>([]);
   const [loading, setLoading] = useState(true);
+  // 訂閱時間軸 — 「已運作」欄會隨拉軸更新；變軌歷史也以時間軸當下為基準
+  const timelineSec = useTimeStoreTime(1000);
 
   useEffect(() => {
     let alive = true;
@@ -144,7 +147,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
               <Row label="場地" value={catalog?.launch_site || "—"} />
               <Row label="火箭" value={catalog?.launch_vehicle || "—"} />
               <Row label="製造" value={catalog?.contractor || "—"} />
-              <Row label="已運作" value={formatOperatingSince(catalog?.launch_date || null)} />
+              <Row label="已運作" value={formatOperatingSince(catalog?.launch_date || null, timelineSec * 1000)} />
               {catalog?.launch_mass_kg != null && (
                 <Row label="質量" value={`${catalog.launch_mass_kg} kg`} />
               )}
