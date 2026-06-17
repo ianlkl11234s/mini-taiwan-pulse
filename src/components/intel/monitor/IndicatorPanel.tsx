@@ -221,12 +221,14 @@ export function IndicatorPanel({
 
       <LiveWall />
 
-      <AlertBoard
-        tally={alertTally}
-        series={alertSeries}
-        accent={COLORS.accent}
-        nowTs={nowTs}
-      />
+      <div style={{ gridColumn: "1 / -1" }}>
+        <AlertBoard
+          tally={alertTally}
+          series={alertSeries}
+          accent={COLORS.accent}
+          nowTs={nowTs}
+        />
+      </div>
 
       {/* 熱區 Top 5 */}
       <Widget>
