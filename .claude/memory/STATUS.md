@@ -1,9 +1,82 @@
 # Status
 
-**最後更新**：2026-06-14（衛星 + 新聞 v2 雙線當日上線、本地完全同步 origin）
-**分支**：`master`（已 push `18429d3`）。本地剩 `feat/fire-rescue` + `medical/poi-layers` 保留（24 個已合 master 的舊 branch 全清）。
+**最後更新**：2026-06-17（Monitor Phase 2 + YT 直播 B1 一日上線、警訊整合 handoff 寫好待接手、本地與 origin/master 完全同步）
+**分支**：`master`（最新 commit `a4d6118`，全部已 push）。本地剩 `feat/fire-rescue` + `medical/poi-layers`，PR 分支 `feat/monitor-mode-phase2` + `docs/alerts-integration` merge 後自動刪除。
 
-## 2026-06-13 衛星 SPACE 圖層上線（PR #10，10 個 commit）
+## 2026-06-17 三 PR 合進 master（Monitor Phase 2 + YT B1 + 警訊 handoff）
+
+| PR | 主題 | merge commit |
+|---|---|---|
+| #18 | Monitor Mode Phase 2 — 戰情看板 + 新聞直播牆 | `4d005c1` |
+| #19 | 警訊整合 handoff（設計需求 + 實作交接）| `4412255` |
+| —  | CLAUDE.md 加 Karpathy 4 條前言（直 commit master）| `5d47257` |
+
+### Monitor Mode Phase 2（PR #18，共 10 元件 + 5 loader）
+
+新檔（`src/components/intel/monitor/`）：
+- `MonitorPanel.tsx` — 底部上拉容器，拖拉 ns-resize 30-92%、Wall mode 全螢幕、退出
+- `TimelineDock.tsx` — 全寬 24h 直方圖 + 拖拉 scrubber + 播放 / LIVE 切換
+- `IndicatorPanel.tsx` — 右 60% grid，組 6 個 widget
+- `PressureRing.tsx` — 270° gauge + TwseTicker + CompareLine + Sparkline + Widget/SectionLabel
+- `SituationOverview.tsx` — 環 + 雙比較 + KPI + ticker + 10 軌 signal 抽屜
+- `SituationCards.tsx` — PLA 卡 + 3 CDC 疾病卡（含 sparkline）
+- `LiveWall.tsx` — 4 格 YouTube + 14 家頻道下拉
+- 順手把右上 3D Altitude button 換成 Monitor toggle（`src/App.tsx`）
+
+`src/data/intelLoaders.ts` 加 5 loader：`fetchPressureIndex` / `fetchSignalsTimeline` / `fetchMarketIndex` / `fetchPlaActivity` / `fetchPublicHealthWeekly`。
+
+### YT 直播 B1 解析三 repo 串通（同日衍生）
+
+**動機**：LiveWall 跳「無法播放這部影片」。診斷後發現 YouTube `embed/live_stream?channel=UCxxx` 在多數新聞台找不到 primary live event。
+
+**B1 方案**（三 repo 同步）：
+- **data-collectors** `e7d2d80` — `collectors/yt_live_video_resolver.py` 5 min cron 抓 14 家 `@handle/live` page → 解析 `ytInitialPlayerResponse` JSON 拿當前 videoId（@handle 不能用 channel= 認）
+- **gis-platform** migration 209 — `realtime.yt_live_current` (PK=handle) + `realtime.yt_live_history` + `get_yt_live_videos()` RPC
+- **mini-taiwan-pulse** — LiveWall 改用 `embed/<videoId>` 而非 channel ID，加 fetchLiveVideos loader
+
+**13 家當下狀態**（移除中天）：9 家可播 / 2 家拿到 videoId 但非 24h 直播（年代 / 中央社）/ 2 家 @handle 待補（鏡新聞 / 非凡）。
+
+### Monitor 卡空白 hotfix（同日，migration 210）
+
+實測發現戰情卡 / TWSE / PLA / CDC 全空。根因：前端 loader 用了 3 個不存在的 RPC（migration 207 只建了 pressure 那支）。
+
+`gis-platform` migration 210 補建 3 個薄 RPC：
+- `get_market_index_now()` → 取 t00.tw 最新 + 漲跌算好
+- `get_pla_activity_latest()` → 最新 report_date
+- `get_public_health_weekly()` → 最新 ISO 週 3 疾病 sum + 4 週 sparkline + YoY
+
+實測：TWSE 45,809.19 +412.20 (+0.91%) / CDC W23 / PLA 0 架次 6 海軍艦。詳見 INCIDENTS 「Monitor 卡片全空白」。
+
+### Zeabur 部署
+
+- `gis-data-collectors` service 啟 `YT_LIVE_VIDEO_RESOLVER_ENABLED=true`，cron 5min
+- migration 209/210 已套用 Supabase（gis-platform）
+
+### 警訊整合 handoff（PR #19，純文件無程式）
+
+兩份 docs/proposal/ 文件：
+- `alerts-integration-handoff.md` — 設計需求（給設計師）
+- `alerts-integration-impl.md` — 實作交接（給另一 session）
+
+含 migration 211 三 RPC signature / 5 元件 Props + 對應設計 jsx 行號 / 12 顆 task list / verification walkthrough / 不在範圍清單。**設計師 v2 設計檔已收到（URL 在 doc 第一段）**，下個 session 拉設計 bundle + 看 impl doc 就能開工。
+
+### 下個 session 入口
+
+```
+1. 讀 docs/proposal/alerts-integration-impl.md
+2. WebFetch 設計 URL（doc 第一段）拉 design bundle
+3. tar -xzf 解壓 → 看 intel/alerts.jsx / AlertCards.jsx / AlertBoard.jsx / IntelFeed.jsx / TimelineDock.jsx
+4. 對 impl doc §10 verification checklist 跑 browser walkthrough
+5. 開 feat/alerts-integration 分支 + PR
+```
+
+預計 4-5 hr。
+
+---
+
+## 過往里程碑（保留索引）
+
+### 2026-06-13 衛星 SPACE 圖層上線（PR #10，10 個 commit）
 
 從零做到上線、含 Phase A-D 完整提案，分階段拆 commits：
 
