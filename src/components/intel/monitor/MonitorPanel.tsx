@@ -412,6 +412,19 @@ export function MonitorPanel({
           >
             MONITOR
           </span>
+          <span
+            style={{
+              padding: "1px 7px", borderRadius: 4,
+              background: "rgba(255,152,0,0.16)",
+              border: "1px solid rgba(255,152,0,0.45)",
+              fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700, letterSpacing: "1px",
+              color: COLORS.statusWarn,
+              animation: "presBreathe 3s ease-in-out infinite",
+            }}
+            title="本模式仍在打磨中，數據與互動可能還會調整"
+          >
+            BETA
+          </span>
         </div>
         <span
           style={{
