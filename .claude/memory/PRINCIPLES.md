@@ -484,3 +484,39 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 - **Claude review prompt 必明確「只看 diff、無問題單行 LGTM」**：未限制時會主動展開讀檔，跑 6-10 分鐘消耗訂閱
 - **首次 PR 修 workflow 檔本身會跳過 Claude review**：安全機制 "Action skipped due to workflow validation error"，不是 bug
 - **不開公司級嚴格 PR 流程**：個人 side project 不需要 2 approvers / 強制 staging，那是給多人團隊的；用 PR 主要為「強迫慢一拍 + 自動跑檢查 + 開放 AI review」
+
+## Handoff doc 必含三要素（2026-06-17）
+
+> 設計 / 規格 / 實作交接給「另一 session」或「另一個人」時，文件必須**自帶足夠資訊**讓接手方不用回問。
+
+**三個必含項目**：
+
+1. **後端 RPC signature 完整列出** — 不只「需要一支 get_xxx RPC」，要寫到 `RETURNS TABLE (...)` 級別 + 實作關鍵語句（CASE WHEN、UNION、台北時區處理）
+2. **前端元件 Props + 對應設計 jsx 行號** — 例「依設計 `AlertCards.jsx:36-127`、Props 為 `{ summary, expanded, onToggle, activeGroups, onPickGroup }`」。讓接手方視覺照搬不用看設計重新理解
+3. **設計檔再抓 URL** — 寫在文件最上方，另一 session 可以 `WebFetch` 拉 bundle，不用回原 session 拿
+
+**反例**：只寫「按這份設計實作 5 個元件」→ 接手方必須翻全設計檔猜 Props、猜 prop 流向，浪費 30 min。
+
+**Why**：本 session 寫 `alerts-integration-impl.md` 時這麼做了 → 用戶可以直接複製貼到新 session 開工。若漏了 RPC signature，新 session 一定回來問「RPC 該叫什麼名字 / 該回什麼欄位」。
+
+**How to apply**：寫 handoff doc 時 checklist：(a) 有 RPC signature? (b) 有元件 Props + 設計檔行號? (c) 有設計 URL? 三項缺一就補。
+
+## 跨 repo 新管線必過 5 處（2026-06-17）
+
+> 加一支新 realtime collector（如 yt_live_video_resolver / cdc / pla）時，**data-collectors repo 內有 5 個檔案要全動**，缺一資料寫不進 Supabase 或前端讀不到。
+
+**5 處 checklist**：
+
+1. `collectors/<name>.py` — collector 本身（BaseCollector 子類）
+2. `collectors/registry.py` — 加 `from .<name> import XCollector` + `CollectorEntry(...)` 進 `COLLECTOR_REGISTRY`
+3. `config.py` — `_COLLECTOR_TOGGLES` tuple 加 `('<PREFIX>', default_enabled, default_interval)`
+4. `storage/supabase_tables.py` — 加表對應（`history` / `current` / `columns` / `upsert_key` / `upsert_strategy`）
+5. `storage/supabase_writer.py` — 加 `_transform_<name>` 方法 **AND** 註冊到 `TRANSFORMERS` dict（容易忘第二步！）
+
+**對應 gis-platform**：1 個 migration 建 `realtime.<name>_history` + `realtime.<name>_current` + `public.get_<name>_xxx()` RPC + RLS + grant anon
+
+**對應前端**：`src/data/<name>Loader.ts` 用 `withLoading()` 包 supabase.rpc
+
+**Why**：本 session yt_live_video_resolver 第一次跑出現「Supabase 寫入 ✓ 但 DB 0 rows」— 因為漏了 `supabase_writer.py` 的 transformer 註冊（只加 supabase_tables 不夠）。collector run 不會報錯，靜默失敗。
+
+**How to apply**：開新 collector 時把這 5 處貼成 task checklist，逐項打勾才算完。Supabase pre-ship smoke：`psql -c "SELECT count(*) FROM realtime.<name>_current"` 第一輪跑完應該 > 0，否則回頭查 transformer。
