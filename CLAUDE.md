@@ -1,30 +1,98 @@
+# CLAUDE.md
+
+Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+
+**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+
+## 1. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them - don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 2. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 3. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it - don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 4. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+---
+
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+> **與上方 Karpathy 4 條的優先級**：以下為本專案具體化規則。遇衝突時，下方規則 override 上方通則（特別是 §2 Simplicity 對「新增 Layer 7 步驟 + UX 四鐵則」、§3 Surgical 對「跨檔 register 多處」的例外）。不確定算不算違反專案鐵則時，先問用戶。
+
 # Mini Taiwan Pulse — 開發規則
 
 > React 19 + TypeScript + Vite (port 3721) · Mapbox GL + Three.js · Supabase (gis-platform)
 >
 > 詳細版規則見 [`docs/development-rules.md`](./docs/development-rules.md)
 
-## Session 開頭必讀（記憶迴圈）
+## Session 記憶迴圈
 
-SessionStart hook（`.claude/settings.json` → `.claude/memory/load-session.sh`）會自動
-inline `STATUS` / `BACKLOG` / `PRINCIPLES` 三檔。涉及開發工作時再依需要讀：
-1. [`.claude/memory/STATUS.md`](./.claude/memory/STATUS.md) — 當前狀態（接上次 session 結束點）
-2. [`.claude/memory/PRINCIPLES.md`](./.claude/memory/PRINCIPLES.md) — P0 規則累積（每條違反成本 >30 min）
-3. [`.claude/memory/REFLECTIONS.md`](./.claude/memory/REFLECTIONS.md) — 反省紀錄（append-only）
-4. 若遇到似曾相識的 bug：搜 [`.claude/pitfalls/`](./.claude/pitfalls/)
+SessionStart hook 自動 inline `STATUS` / `BACKLOG` / `PRINCIPLES`；似曾相識的 bug → 搜 [`.claude/pitfalls/`](./.claude/pitfalls/)；大段落完成 → `/wrap-up` 更新 9 檔（P0→PRINCIPLES / 事件→INCIDENTS / bug 長文→pitfalls）。框架機制：[`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)。
 
-完成大段落（功能 commit、feature 驗證通過）後更新記憶：
-- 用 `/wrap-up` skill 對應更新 `.claude/memory/` 9 檔分類
-- P0 規則進 `PRINCIPLES.md`、事件進 `INCIDENTS.md`、重要 bug 長文寫 `.claude/pitfalls/`
-- 框架機制說明：[`.claude/FRAMEWORK.md`](./.claude/FRAMEWORK.md)
+## 常用指令
+
+| 指令 | 用途 |
+|---|---|
+| `pnpm dev` / `npm run dev` | 啟動 dev server (port 3721) |
+| `npx tsc -b` | TypeScript 驗證（commit 前必跑，禁用 `--noEmit`） |
+| `pnpm test` | 跑測試（含 `layerConsistency` 擋漏接圖例） |
+| `/new-layer <name>` | 新增 layer 骨架（強烈建議走，免漏 7 步 + 四鐵則） |
+| `/check-rpc <name>` | 自動 EXPLAIN 判斷 RPC 效能 |
 
 ## 必守規則
 
 ### 1. TypeScript 驗證
-```bash
-npx tsc -b   # project references，禁用 --noEmit
-```
-Commit 前必跑。
+
+`npx tsc -b`（project references，禁用 `--noEmit`）— commit 前必跑。
 
 ### 2. 資料來源管理
 - **動態資料**（時序 / 即時）→ Supabase RPC（`public.*`）
@@ -48,12 +116,7 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 - Supabase pooler 強制 2min timeout **不能繞**，只有 pg_cron 例外
 - 完整 pattern + 坑點：[`docs/supabase-optimization.md`](./docs/supabase-optimization.md)
 - 可用 slash command `/check-rpc <name>` 自動 EXPLAIN 判斷
-- **效能守則**（2026-04-10 bus trails OOM 教訓）：
-  - refresh function 的 WHERE + ORDER BY **必須有對應索引**（缺索引 = 全表 sort = OOM）
-  - today + yesterday 放**同一個 cron job 循序跑**（禁止拆成兩個獨立 job）
-  - 聚合用 `MAX()` 而非 `mode()`（後者需額外 sort）
-  - 加 `SET work_mem TO '64MB'` 減少 disk spill
-  - cron 排程必須錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
+- **效能守則**（2026-04-10 bus trails OOM 教訓）：refresh function 必有 WHERE/ORDER BY 對應索引 + today+yesterday 同 cron 循序 + `MAX()` 取代 `mode()` + `SET work_mem TO '64MB'` + cron 錯開分鐘。完整 5 條：[`docs/supabase-optimization.md#oom`](./docs/supabase-optimization.md)
 
 ### 5. 新增 Layer 強制順序
 1. `src/types/index.ts` → `LayerVisibility` 加 key
@@ -67,25 +130,15 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 可用 slash command `/new-layer <name>` 自動產生骨架。
 
 ### 5a. 圖層 UX 四鐵則（⚠️ 缺一不可）
+
 任何新 layer 都必須過：
 
-1. **透明度 slider** — 在 `useTransportParams.ts` 提供 opacity slider（已是慣例）
-2. **分類 ≥ 2 種 → 必寫圖例** — 只要 layer 內顏色用 match/step/interpolate 分出 2+ 類別／級別
-   （不論 POI / polygon / line），必須在 `src/components/LegendPanel.tsx` 寫 sub-component
-   並在同檔 `LEGEND_REGISTRY` 加一行（測試 `layerConsistency` 會擋漏接）。
-   把類型表抽到 `src/data/xxxTypes.ts`（如 `agriPOITypes.ts`）給 factory / panel / legend 三處共用
-3. **可選取物件 → 必接 click popup** — POI / polygon / line 凡點下去能講出資訊就要接：
-   `useMapInteraction.ts` 的 `GIS_LAYERS` 加項、`FeatureInfo.layerType` 加 key、
-   `src/components/featureInfo/` 對應 domain 檔寫 panel 元件 +
-   `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` / `HEADER_LABELS` 各加一行。
-   **注意 PMTiles `keep_attrs` 要在
-   `taipei-gis-analytics` 那邊先補齊重出**，否則 popup 拿到空欄位。
-4. **Select control options ≥ 4 → 原生 `<select>` dropdown** — Sidebar 是直式 ~240px
-   narrow column，4+ 選項橫向 button row 一定撐爆（中文標籤更明顯）。
-   `LayerSidebar.tsx` / `IconRailSidebar.tsx` 內 `ctrl.options.length > 3` 自動切 dropdown。
-   若某 layer 需要多參數，用 dropdown 切「mode」而不是並排多個 slider。
+1. **透明度 slider** — `useTransportParams.ts` 提供 opacity slider
+2. **分類 ≥ 2 種 → 必寫圖例** — `LegendPanel.tsx` sub-component + `LEGEND_REGISTRY` 加行（`layerConsistency` 測試會擋）
+3. **可選取物件 → 必接 click popup** — `useMapInteraction.ts` / `featureInfo/registry.tsx` 各加行；PMTiles `keep_attrs` 要在 `taipei-gis-analytics` 先補齊重出
+4. **Select options ≥ 4 → 原生 `<select>` dropdown** — sidebar narrow column 橫向 button row 必爆版，`ctrl.options.length > 3` 自動切
 
-詳見 [`docs/development-rules.md#4a-圖層-ux-標配四大鐵則`](./docs/development-rules.md#4a-圖層-ux-標配四大鐵則)。
+完整實作細節（type 抽檔策略 / dropdown 寬度閾值 / PMTiles 重出 SOP）：[`docs/development-rules.md#4a-圖層-ux-標配四大鐵則`](./docs/development-rules.md#4a-圖層-ux-標配四大鐵則)。
 
 ### 6. 動態圖層時間訂閱（⚠️ 強制）
 動態 / 時序圖層**禁止**把 `currentTime` 放進 React `useEffect` / `useMemo` deps；
@@ -121,21 +174,18 @@ Hook 參數表**不收** `currentTime`。理由與節流表見 [`docs/developmen
 | `SUPABASE_DB_URL` | psql 直連 |
 | `VITE_DATA_SOURCE=supabase` | 啟用 Supabase（否則用 Pulse API） |
 
-## 參考文件
+## 相關資源
 
-- [`docs/development-rules.md`](./docs/development-rules.md) — 規則詳細版 + 範例
-- [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) — Pre-aggregate pattern 完整指南
-- [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md) — RPC 效能盤點
-- [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) — 時間軸架構
-- [`docs/bus-layer-design.md`](./docs/bus-layer-design.md) — 公車 progress-based 架構 + 全台擴展指南
-- [`docs/known-issues.md`](./docs/known-issues.md) — 歷史 bug + 診斷指令
-- [`docs/research/`](./docs/research/) — 研究報告區（決策軌跡、跨系統比對、故事 cookbook）
-
-## 關聯專案
-
-| 專案 | 路徑 | 用途 |
+| 類型 | 路徑 | 用途 |
 |---|---|---|
-| gis-platform | `../gis-platform` | Supabase migrations |
-| data-collectors | `../data-collectors` | 資料收集 + SQL 範本 |
-| pulse-api | `../pulse-api` | FastAPI 備援 |
-| mini-taipei-v3 | `../mini-taipei-v3` | 鐵道資料來源 |
+| 規則 | [`docs/development-rules.md`](./docs/development-rules.md) | 詳細版 + 範例（含 §4a 四鐵則完整） |
+| 規則 | [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) | Pre-aggregate pattern 完整指南 + OOM 5 條 |
+| 規則 | [`docs/TIMELINE_ARCHITECTURE.md`](./docs/TIMELINE_ARCHITECTURE.md) | 時間軸 / timeStore 架構 |
+| 參考 | [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md) | RPC 效能盤點 |
+| 參考 | [`docs/bus-layer-design.md`](./docs/bus-layer-design.md) | 公車 progress-based 全台擴展 |
+| 參考 | [`docs/known-issues.md`](./docs/known-issues.md) | 歷史 bug + 診斷指令 |
+| 參考 | [`docs/research/`](./docs/research/) | 決策軌跡 / 跨系統比對 / 故事 cookbook |
+| 關聯 repo | `../gis-platform` | Supabase migrations |
+| 關聯 repo | `../data-collectors` | 資料收集 + SQL 範本 |
+| 關聯 repo | `../pulse-api` | FastAPI 備援 |
+| 關聯 repo | `../mini-taipei-v3` | 鐵道資料來源 |
