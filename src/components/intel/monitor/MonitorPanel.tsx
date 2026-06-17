@@ -187,23 +187,41 @@ export function MonitorPanel({
   }, [open, fKey]);
 
   // playback animation
+  // 原本 setInterval(70ms) ≈14Hz setState 把整棵子樹拖著 reconcile。
+  // 改 rAF + ref 累積 + 200ms commit throttle：演進是 frame-rate independent
+  // 的，UI commit 降到 5Hz（人眼無感差，列表更穩）。
   const spanRef = useRef(RANGE_SEC[timeRange]);
   spanRef.current = RANGE_SEC[timeRange];
+  const playbackRef = useRef(playbackTs);
+  playbackRef.current = playbackTs;
   useEffect(() => {
     if (!playing) return;
-    const id = window.setInterval(() => {
-      setPlaybackTs((p) => {
-        const next = p + spanRef.current / 90;
-        const nowNow = Math.floor(Date.now() / 1000);
-        if (next >= nowNow) {
-          setPlaying(false);
-          setIsLive(true);
-          return nowNow;
-        }
-        return next;
-      });
-    }, 70);
-    return () => window.clearInterval(id);
+    let raf = 0;
+    let last = performance.now();
+    let lastCommit = last;
+    const PLAYBACK_SECONDS = 6.3; // 原本 70ms × 90 ticks ≈ 走完整 span
+    const tick = (t: number) => {
+      const dt = (t - last) / 1000;
+      last = t;
+      const advance = (spanRef.current / PLAYBACK_SECONDS) * dt;
+      const nowNow = Math.floor(Date.now() / 1000);
+      const next = playbackRef.current + advance;
+      if (next >= nowNow) {
+        playbackRef.current = nowNow;
+        setPlaybackTs(nowNow);
+        setPlaying(false);
+        setIsLive(true);
+        return;
+      }
+      playbackRef.current = next;
+      if (t - lastCommit >= 200) {
+        setPlaybackTs(Math.floor(next));
+        lastCommit = t;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [playing]);
 
   // external selection
