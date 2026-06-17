@@ -9,7 +9,7 @@
  * 樣式 1:1 對齊 LiveWall 的 16:9 容器 + LIVE badge + 邊框。
  */
 
-import { useRef } from "react";
+import { memo, useRef } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { useInView } from "../../../hooks/useInView";
 
@@ -163,7 +163,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
   );
 }
 
-export function HazardWatchStrip() {
+export const HazardWatchStrip = memo(function HazardWatchStrip() {
   return (
     <div
       style={{
@@ -200,4 +200,4 @@ export function HazardWatchStrip() {
       </div>
     </div>
   );
-}
+});

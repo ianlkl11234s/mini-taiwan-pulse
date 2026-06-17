@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
@@ -395,7 +395,7 @@ function LiveSlot({
   );
 }
 
-export function LiveWall() {
+export const LiveWall = memo(function LiveWall() {
   // 預設 4 格：公視 + 中視 + 三立 + 民視
   const [slots, setSlots] = useState(["pts", "ctv", "set", "ftv"]);
   const setSlot = (i: number) => (id: string) =>
@@ -495,4 +495,4 @@ export function LiveWall() {
       </div>
     </div>
   );
-}
+});
