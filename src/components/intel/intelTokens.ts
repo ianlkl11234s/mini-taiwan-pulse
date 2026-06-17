@@ -135,7 +135,76 @@ export const MICON: Record<string, string[]> = {
   trendUp:   ["M22 7 13.5 15.5 8.5 10.5 2 17", "M16 7h6v6"],
   trendDown: ["M22 17 13.5 8.5 8.5 13.5 2 7", "M16 17h6v-6"],
   pulse:     ["M22 12h-4l-3 9L9 3l-3 9H2"],
+  // Alerts
+  quake:     ["M3 12h3l2-7 4 14 2-7 3 7 2-4 2 4h2"],
+  cloud:     ["M17.5 19a4.5 4.5 0 1 0-1.4-8.8 5 5 0 1 0-9.5 2.3A3.5 3.5 0 0 0 7 19h10.5z"],
+  wave:      ["M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2", "M2 18c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2"],
+  cone:      ["M12 2 4 22h16L12 2z", "M7 14h10"],
+  plug:      ["M9 2v6", "M15 2v6", "M5 8h14v3a7 7 0 0 1-14 0V8z", "M12 18v4"],
+  warn:      ["M12 9v4", "M12 17h.01", "M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"],
+  check:     ["M20 6 9 17l-5-5"],
+  chevUp:    ["M18 15l-6-6-6 6"],
+  chevDown:  ["M6 9l6 6 6-6"],
+  pin:       ["M12 22s7-7 7-12a7 7 0 1 0-14 0c0 5 7 12 7 12z", "M12 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"],
+  clock:     ["M12 6v6l4 2", "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z"],
 };
+
+// ─── Alerts ─────────────────────────────────────────────
+
+export type AlertGroupShort =
+  | "earthquake" | "weather" | "flood" | "transit" | "lifeline" | "safety";
+
+export interface AlertGroupDef {
+  id: AlertGroupShort;
+  label: string;
+  en: string;
+  color: string;
+  iconKey: keyof typeof MICON;
+}
+
+export const ALERT_GROUPS_DEF: Record<AlertGroupShort, AlertGroupDef> = {
+  earthquake: { id: "earthquake", label: "地震", en: "EQ",       color: "#d946ef", iconKey: "quake" },
+  weather:    { id: "weather",    label: "氣象", en: "WEATHER",  color: "#38bdf8", iconKey: "cloud" },
+  flood:      { id: "flood",      label: "水文", en: "WATER",    color: "#2dd4bf", iconKey: "wave"  },
+  transit:    { id: "transit",    label: "交通", en: "TRANSIT",  color: "#fb923c", iconKey: "cone"  },
+  lifeline:   { id: "lifeline",   label: "民生", en: "LIFELINE", color: "#a3e635", iconKey: "plug"  },
+  safety:     { id: "safety",     label: "安全", en: "SAFETY",   color: "#fb7185", iconKey: "flame" },
+};
+
+export const ALERT_GROUP_ORDER: AlertGroupShort[] = [
+  "earthquake", "weather", "flood", "transit", "lifeline", "safety",
+];
+
+export interface AlertSeverityDef {
+  key: "minor" | "moderate" | "severe" | "extreme";
+  label: string;
+  en: string;
+  color: string;
+  /** CSS animation value, null = static */
+  anim: string | null;
+}
+
+export const ALERT_SEVERITY: (AlertSeverityDef | null)[] = [
+  null,
+  { key: "minor",    label: "留意", en: "MINOR",    color: "#eab308", anim: null },
+  { key: "moderate", label: "警戒", en: "MODERATE", color: "#f97316", anim: "alertBreathe 4s ease-in-out infinite" },
+  { key: "severe",   label: "嚴重", en: "SEVERE",   color: "#ef4444", anim: "alertBreathe 2s ease-in-out infinite" },
+  { key: "extreme",  label: "緊急", en: "EXTREME",  color: "#dc2626", anim: "alertPulse 1s ease-in-out infinite" },
+];
+
+export function alertSeverity(severityIdx: number): AlertSeverityDef {
+  const i = Math.max(1, Math.min(4, Math.floor(severityIdx)));
+  return ALERT_SEVERITY[i]!;
+}
+
+/** 倒數 HH:MM:SS（負值或 0 → 00:00:00） */
+export function fmtExpiry(expiresTs: number, nowTs: number): string {
+  let s = Math.max(0, Math.floor(expiresTs - nowTs));
+  const h = Math.floor(s / 3600); s -= h * 3600;
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
 
 /** 5min EMA 平滑（30s polling, N=10 → alpha≈0.18）。score=null 表示首次採樣，直接回新值。 */
 export function smoothPressure(prev: number | null, next: number, alpha = 0.18): number {

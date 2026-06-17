@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IntelIcon, ICON } from "../IntelIcon";
-import { COLORS, FONT_CJK, FONT_DATA, clockTime } from "../intelTokens";
+import {
+  COLORS, FONT_CJK, FONT_DATA, clockTime,
+  type AlertGroupShort,
+} from "../intelTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
+import { AlertsTrack } from "../alerts/AlertsTrack";
 
 interface Props {
   /** 過濾後的當日 events（用於畫直方圖） */
@@ -18,6 +22,8 @@ interface Props {
   onScrub: (ts: number) => void;
   onLive: () => void;
   onTogglePlay: () => void;
+  /** 警報軌資料（24h × 6 group），無資料時傳空 series */
+  alertSeries: Record<AlertGroupShort, number[]>;
 }
 
 interface HourlyBucket {
@@ -54,7 +60,7 @@ const TICKS = [0, 6, 12, 18, 24];
 
 export function TimelineDock({
   events, dayStartTs, nowTs, playbackTs, isLive, playing,
-  onScrub, onLive, onTogglePlay,
+  onScrub, onLive, onTogglePlay, alertSeries,
 }: Props) {
   const [hoverH, setHoverH] = useState<number | null>(null);
   const areaRef = useRef<HTMLDivElement>(null);
@@ -328,6 +334,14 @@ export function TimelineDock({
           </span>
         ))}
       </div>
+
+      <AlertsTrack
+        series={alertSeries}
+        nowFrac={nowFrac}
+        playbackFrac={frac}
+        isLive={isLive}
+        onScrubFrac={(f) => onScrub(Math.min(nowTs, dayStartTs + f * SPAN))}
+      />
     </div>
   );
 }

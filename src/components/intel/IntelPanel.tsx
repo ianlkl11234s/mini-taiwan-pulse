@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { COLORS, FONT_CJK } from "./intelTokens";
+import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
 import { IntelFilters, type TimeRange } from "./IntelFilters";
 import { IntelSituation } from "./IntelSituation";
 import { IntelCard, type IntelCardEvent } from "./IntelCard";
+import { AlertSummaryBar } from "./alerts/AlertSummaryBar";
+import { FeedTabs, type FeedTab } from "./alerts/FeedTabs";
+import { AlertCard } from "./alerts/AlertCard";
 import {
   fetchSourceHealth,
   fetchNewsTrending,
@@ -17,6 +20,14 @@ import {
   fetchNewsEventsDayClusters,
   type NewsFilter,
 } from "../../data/newsEventsLoader";
+import {
+  fetchAlertSummary,
+  fetchActiveAlerts,
+  tallySummary,
+  EMPTY_TALLY,
+  type ActiveAlert,
+  type AlertSummary,
+} from "../../data/alertsLoader";
 import type { NewsCategory } from "../../data/newsEventTypes";
 import { timeStore } from "../../state/timeStore";
 
@@ -65,6 +76,16 @@ export function IntelPanel({
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
+  // ── alerts state ──
+  const [feedTab, setFeedTab] = useState<FeedTab>("all");
+  const [alertsExpanded, setAlertsExpanded] = useState(false);
+  const [pickedGroups, setPickedGroups] = useState<AlertGroupShort[]>([]);
+  const [severityMin, setSeverityMin] = useState<1 | 2 | 3 | 4>(1);
+  const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
+  const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
+  const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
+  const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
+
   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
   const [trending, setTrending] = useState<TrendingRow[]>([]);
   const [clusters, setClusters] = useState<
@@ -99,6 +120,37 @@ export function IntelPanel({
       window.clearInterval(id);
     };
   }, [open]);
+
+  // 30s polling alert summary
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    const tick = () => {
+      fetchAlertSummary().then((s) => alive && setAlertSummaryRows(s));
+    };
+    tick();
+    const id = window.setInterval(tick, 30_000);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [open]);
+
+  // active alerts list — re-fetch when tab / filter change
+  const groupKey = pickedGroups.length === 1 ? pickedGroups[0]! : null;
+  const needsAlertList = feedTab !== "news";
+  useEffect(() => {
+    if (!open || !needsAlertList) return;
+    let alive = true;
+    fetchActiveAlerts(groupKey, severityMin).then((rows) => {
+      if (!alive) return;
+      const filtered = pickedGroups.length > 1
+        ? rows.filter((r) => pickedGroups.includes(r.group))
+        : rows;
+      setActiveAlerts(filtered);
+    });
+    return () => { alive = false; };
+  }, [open, needsAlertList, groupKey, severityMin, pickedGroups]);
 
   // 跟著 timeStore 日期載資料 + filter 變動觸發重抓
   const fKey = `${filter.minRelevance}|${filter.eventsOnly ? 1 : 0}|${filter.minSeverity}`;
@@ -204,6 +256,11 @@ export function IntelPanel({
     return trendingKeySet.has(`${c}|${e.category ?? "other"}`);
   };
 
+  const alertTally = useMemo(
+    () => (alertSummaryRows.length ? tallySummary(alertSummaryRows) : EMPTY_TALLY),
+    [alertSummaryRows],
+  );
+
   if (!open) return null;
 
   const countdownSec = secsToNextCron(now);
@@ -237,6 +294,16 @@ export function IntelPanel({
   const toggleCat = (k: NewsCategory) =>
     setCats((c) => (c.includes(k) ? c.filter((x) => x !== k) : [...c, k]));
 
+  const onAlertSelect = (id: string) => setAlertSelectedId(id);
+  const onAlertToggle = (id: string) =>
+    setAlertExpandedId((p) => (p === id ? null : id));
+
+  const onPickGroup = (g: AlertGroupShort) => {
+    setFeedTab("alerts");
+    setAlertsExpanded(true);
+    setPickedGroups((cur) => (cur.includes(g) ? cur.filter((x) => x !== g) : [...cur, g]));
+  };
+
   return (
     <div
       style={{
@@ -268,30 +335,237 @@ export function IntelPanel({
         onClose={onClose}
       />
 
-      <IntelFilters
-        cats={cats}
-        onToggleCat={toggleCat}
-        onResetCats={() => setCats([])}
-        timeRange={timeRange}
-        onTimeRange={setTimeRange}
-        county={county}
-        onCounty={setCounty}
-        minRelevance={filter.minRelevance}
-        onMinRelevance={(v) => onFilterChange({ ...filter, minRelevance: v })}
-        eventsOnly={filter.eventsOnly}
-        onEventsOnly={(v) => onFilterChange({ ...filter, eventsOnly: v })}
-        minSeverity={filter.minSeverity}
-        onMinSeverity={(v) => onFilterChange({ ...filter, minSeverity: v })}
+      <AlertSummaryBar
+        tally={alertTally}
+        expanded={alertsExpanded}
+        onToggle={() => setAlertsExpanded((v) => !v)}
+        activeGroups={pickedGroups}
+        onPickGroup={onPickGroup}
       />
 
-      <IntelSituation
-        events={flatEvents}
-        countyByEventId={countyByEventId}
-        trending={trending}
+      <FeedTabs
+        tab={feedTab}
+        onTab={(t) => setFeedTab(t)}
+        newsCount={flatEvents.length}
+        alertCount={alertTally.total}
+        alertSevere={alertTally.severe}
       />
+
+      {feedTab === "news" ? (
+        <IntelFilters
+          cats={cats}
+          onToggleCat={toggleCat}
+          onResetCats={() => setCats([])}
+          timeRange={timeRange}
+          onTimeRange={setTimeRange}
+          county={county}
+          onCounty={setCounty}
+          minRelevance={filter.minRelevance}
+          onMinRelevance={(v) => onFilterChange({ ...filter, minRelevance: v })}
+          eventsOnly={filter.eventsOnly}
+          onEventsOnly={(v) => onFilterChange({ ...filter, eventsOnly: v })}
+          minSeverity={filter.minSeverity}
+          onMinSeverity={(v) => onFilterChange({ ...filter, minSeverity: v })}
+        />
+      ) : feedTab === "alerts" ? (
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            padding: "8px 14px 8px",
+            borderBottom: `1px solid ${COLORS.borderSoft}`,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+              color: COLORS.textFaint, marginRight: 4,
+            }}
+          >
+            SEVERITY ≥
+          </span>
+          {([1, 2, 3, 4] as const).map((lv) => {
+            const labels = ["留意", "警戒", "嚴重", "緊急"];
+            const active = severityMin === lv;
+            return (
+              <button
+                key={lv}
+                onClick={() => setSeverityMin(lv)}
+                style={{
+                  padding: "3px 9px", borderRadius: 4,
+                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
+                  color: active ? COLORS.accent : COLORS.textMuted,
+                  fontFamily: FONT_CJK, fontSize: 10.5, cursor: "pointer",
+                }}
+              >
+                {labels[lv - 1]}
+              </button>
+            );
+          })}
+          {pickedGroups.length > 0 && (
+            <>
+              <div style={{ flex: 1 }} />
+              <button
+                onClick={() => setPickedGroups([])}
+                style={{
+                  padding: "3px 8px", borderRadius: 4,
+                  background: "rgba(255,255,255,0.04)",
+                  border: `1px solid ${COLORS.borderMid}`,
+                  color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: 10.5,
+                  cursor: "pointer",
+                }}
+              >
+                清除群組 ({pickedGroups.length})
+              </button>
+            </>
+          )}
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "flex", alignItems: "center", gap: 5,
+            padding: "8px 14px 8px",
+            borderBottom: `1px solid ${COLORS.borderSoft}`,
+          }}
+        >
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+              color: COLORS.textFaint, marginRight: 4,
+            }}
+          >
+            RANGE
+          </span>
+          {(["1h", "6h", "24h"] as TimeRange[]).map((r) => {
+            const active = timeRange === r;
+            return (
+              <button
+                key={r}
+                onClick={() => setTimeRange(r)}
+                style={{
+                  padding: "3px 10px", borderRadius: 4,
+                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
+                  color: active ? COLORS.accent : COLORS.textMuted,
+                  fontFamily: FONT_DATA, fontSize: 10.5, fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                {r.toUpperCase()}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {feedTab === "news" && (
+        <IntelSituation
+          events={flatEvents}
+          countyByEventId={countyByEventId}
+          trending={trending}
+        />
+      )}
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 14px 14px" }}>
-        {flatEvents.length === 0 ? (
+        {feedTab === "alerts" ? (
+          activeAlerts.length === 0 ? (
+            <div
+              style={{
+                display: "flex", flexDirection: "column",
+                alignItems: "center", justifyContent: "center",
+                height: "100%", gap: 8, textAlign: "center", padding: 24,
+              }}
+            >
+              <IntelIcon d={ICON.alert} size={28} color={COLORS.textGhost} />
+              <div style={{ fontFamily: FONT_CJK, fontSize: 12, color: COLORS.textMuted }}>
+                目前無符合條件的警報
+              </div>
+            </div>
+          ) : (
+            <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
+              <span
+                style={{
+                  position: "absolute", left: 12, top: 6, bottom: 6,
+                  width: 1.5,
+                  background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                }}
+              />
+              {activeAlerts.map((a) => (
+                <AlertCard
+                  key={a.id}
+                  a={a}
+                  selected={a.id === alertSelectedId}
+                  expanded={a.id === alertExpandedId}
+                  onSelect={onAlertSelect}
+                  onToggle={onAlertToggle}
+                  nowTs={now}
+                />
+              ))}
+            </div>
+          )
+        ) : feedTab === "all" ? (
+          (() => {
+            const merged: Array<
+              { kind: "news"; ts: number; e: IntelCardEvent } |
+              { kind: "alert"; ts: number; a: ActiveAlert }
+            > = [
+              ...flatEvents.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
+              ...activeAlerts.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
+            ];
+            merged.sort((x, y) => y.ts - x.ts);
+            if (merged.length === 0) {
+              return (
+                <div
+                  style={{
+                    display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center",
+                    height: "100%", gap: 8, textAlign: "center", padding: 24,
+                  }}
+                >
+                  <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
+                  <div style={{ fontFamily: FONT_CJK, fontSize: 12, color: COLORS.textMuted }}>
+                    目前無事件 / 警報
+                  </div>
+                </div>
+              );
+            }
+            return (
+              <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
+                <span
+                  style={{
+                    position: "absolute", left: 12, top: 6, bottom: 6,
+                    width: 1.5,
+                    background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                  }}
+                />
+                {merged.map((row) =>
+                  row.kind === "news" ? (
+                    <IntelCard
+                      key={`n${row.e.id}`}
+                      e={row.e}
+                      selected={row.e.id === selectedId}
+                      expanded={row.e.id === expandedId}
+                      trending={isTrendingFor(row.e)}
+                      onSelect={onSelectCard}
+                      onToggle={onToggleExpand}
+                      nowTs={now}
+                    />
+                  ) : (
+                    <AlertCard
+                      key={`a${row.a.id}`}
+                      a={row.a}
+                      selected={row.a.id === alertSelectedId}
+                      expanded={row.a.id === alertExpandedId}
+                      onSelect={onAlertSelect}
+                      onToggle={onAlertToggle}
+                      nowTs={now}
+                    />
+                  ),
+                )}
+              </div>
+            );
+          })()
+        ) : flatEvents.length === 0 ? (
           <div
             style={{
               display: "flex",
@@ -359,6 +633,19 @@ export function IntelPanel({
         @keyframes intelRing {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.4; transform: scale(0.78); }
+        }
+        @keyframes alertBreathe { 0%,100%{opacity:1} 50%{opacity:0.62} }
+        @keyframes alertPulse   { 0%,100%{opacity:1} 50%{opacity:0.45} }
+        @keyframes alertEdge {
+          0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+          50%     { box-shadow: 0 0 16px 0 rgba(239,68,68,0.42); }
+        }
+        @keyframes drawerOpen {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          [style*="alertBreathe"],[style*="alertPulse"],[style*="alertEdge"] { animation: none !important; }
         }
       `}</style>
     </div>
