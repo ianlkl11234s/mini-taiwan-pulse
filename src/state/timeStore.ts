@@ -139,3 +139,55 @@ export const timeStore = {
 };
 
 export type TimeStore = typeof timeStore;
+
+/**
+ * Wall Clock（掛鐘 / 真實時間 Date.now()）
+ *
+ * 用途：MonitorPanel / IntelCard 顯示「現在時間」「3 分鐘前」等需要每秒
+ *      或每分鐘跳動的 UI。**不是**資料時間軸（timeStore.getTime）。
+ *
+ * 規則：
+ *   - 1Hz tick 用 `subscribeWallClock(1000, cb)`，不要在元件用 useState +
+ *     setInterval（會讓整棵 React 子樹 reconcile）。
+ *   - 多個訂閱者共享 store 內部單一 timer per ms-bucket（訂閱數歸零自動清掉）。
+ *   - getWallNow() 純讀，不觸發 React。
+ *
+ * 與 subscribeThrottled 區分：throttled 走的是「資料時間軸」（可被 useTimeline
+ *      改寫），wallClock 走的是「真實時間」（永遠 Date.now()）。
+ */
+interface WallBucket {
+  ms: number;
+  listeners: Set<Listener<number>>;
+  timer: number | null;
+}
+const wallBuckets = new Map<number, WallBucket>();
+
+export const wallClock = {
+  getWallNow(): number {
+    return Date.now();
+  },
+
+  subscribeWallClock(ms: number, cb: Listener<number>): () => void {
+    let bucket = wallBuckets.get(ms);
+    if (!bucket) {
+      bucket = { ms, listeners: new Set(), timer: null };
+      wallBuckets.set(ms, bucket);
+    }
+    const b = bucket;
+    b.listeners.add(cb);
+    if (b.timer === null) {
+      b.timer = window.setInterval(() => {
+        const now = Date.now();
+        for (const fn of b.listeners) fn(now);
+      }, ms);
+    }
+    return () => {
+      b.listeners.delete(cb);
+      if (b.listeners.size === 0 && b.timer !== null) {
+        window.clearInterval(b.timer);
+        b.timer = null;
+        wallBuckets.delete(ms);
+      }
+    };
+  },
+};

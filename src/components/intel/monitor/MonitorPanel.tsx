@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
 import { IntelCard, type IntelCardEvent } from "../IntelCard";
@@ -77,7 +78,10 @@ export function MonitorPanel({
   open, onClose, filter, onFilterChange, onSelectLocation, externalSelectedId,
 }: Props) {
   // ── playback state（與 Phase 1 IntelPanel 各自獨立）──
-  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+  // `now` 走 wallClock 5s tick：原本 1Hz setState 會讓整棵子樹（IntelCard / TimelineDock /
+  // IndicatorPanel / LiveWall…）每秒 reconcile。5s 對 live cutoff、相對時間顯示無感差。
+  // 真的需要每秒跳動的元素（TimelineDock 指針）在自己內部訂 1Hz wallClock。
+  const now = Math.floor(useWallClock(5_000) / 1000);
   const [isLive, setIsLive] = useState(true);
   const [playbackTs, setPlaybackTs] = useState(now);
   const [playing, setPlaying] = useState(false);
@@ -104,13 +108,6 @@ export function MonitorPanel({
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
-
-  // tick now（顯示 + countdown）
-  useEffect(() => {
-    if (!open) return;
-    const id = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
-    return () => window.clearInterval(id);
-  }, [open]);
 
   // 30s pressure + market + source health + trending
   useEffect(() => {
