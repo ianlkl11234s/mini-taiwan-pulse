@@ -467,6 +467,18 @@ export function LiveWall() {
           );
         })}
       </div>
+      <div
+        style={{
+          marginTop: 7,
+          textAlign: "center",
+          fontFamily: FONT_CJK,
+          fontSize: 9.5,
+          color: COLORS.textFaint,
+          lineHeight: 1.5,
+        }}
+      >
+        ⓘ 因為與 YouTube 的連線關係，不一定每格都會有辦法顯示
+      </div>
     </div>
   );
 }
