@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
+import { useInView } from "../../../hooks/useInView";
 
 export interface LiveChannel {
   id: string;
@@ -276,8 +277,13 @@ function LiveSlot({
     resolved?.video_id ? videoEmbedSrc(resolved.video_id) :
     resolved?.channel_id ? channelEmbedSrc(resolved.channel_id) :
     null;
+  // IntersectionObserver gate：iframe 只在 slot 首次進入視窗才掛，避免 MonitorPanel
+  // 一開就把 4 個 YT player 全載起來吃 CPU/網路（rootMargin: 200px 預載）。
+  const slotRef = useRef<HTMLDivElement>(null);
+  const visible = useInView(slotRef);
   return (
     <div
+      ref={slotRef}
       style={{
         position: "relative", borderRadius: 8, overflow: "visible",
         aspectRatio: "16 / 9", background: "#000",
@@ -285,9 +291,8 @@ function LiveSlot({
       }}
     >
       <div style={{ position: "absolute", inset: 0, borderRadius: 8, overflow: "hidden" }}>
-        {src ? (
+        {src && visible ? (
           <iframe
-            key={src}
             title={ch.name}
             src={src}
             style={{
