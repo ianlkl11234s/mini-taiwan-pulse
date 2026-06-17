@@ -90,3 +90,55 @@ export function fmtCountdown(sec: number): string {
   const s = Math.floor(sec % 60);
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
+
+// ─── Monitor Mode Phase 2 ─────────────────────────────────────────
+
+/** 4 檔戰情等級（壓力指數 0–100 對應顏色 + 動畫） */
+export type PressureLevelKey = "peace" | "notice" | "alert" | "emergency";
+
+export interface PressureLevelDef {
+  key: PressureLevelKey;
+  label: string;
+  en: string;
+  min: number;
+  max: number;
+  color: string;
+  soft: string;
+  glow: string;
+  anim: "none" | "breathe" | "pulse";
+  period: number;
+}
+
+export const PRESSURE_LEVELS: PressureLevelDef[] = [
+  { key: "peace",     label: "平時", en: "PEACETIME", min: 0,  max: 35,  color: "#4caf50",
+    soft: "rgba(76,175,80,0.16)",  glow: "rgba(76,175,80,0)",     anim: "none",    period: 0 },
+  { key: "notice",    label: "留意", en: "NOTICE",    min: 36, max: 55,  color: "#eab308",
+    soft: "rgba(234,179,8,0.16)",  glow: "rgba(234,179,8,0)",     anim: "breathe", period: 4 },
+  { key: "alert",     label: "警戒", en: "ALERT",     min: 56, max: 75,  color: "#ff9800",
+    soft: "rgba(255,152,0,0.16)",  glow: "rgba(255,152,0,0.35)",  anim: "breathe", period: 2 },
+  { key: "emergency", label: "緊急", en: "EMERGENCY", min: 76, max: 100, color: "#ff3b30",
+    soft: "rgba(255,59,48,0.18)",  glow: "rgba(255,59,48,0.55)",  anim: "pulse",   period: 1 },
+];
+
+export function pressureLevel(score: number): PressureLevelDef {
+  const clamped = Math.max(0, Math.min(100, Math.round(score)));
+  return PRESSURE_LEVELS.find((l) => clamped >= l.min && clamped <= l.max) ?? PRESSURE_LEVELS[0]!;
+}
+
+/** Monitor 模式的補充 icon set（沿用 IntelIcon 的 lucide-flavor stroke） */
+export const MICON: Record<string, string[]> = {
+  grid:      ["M3 3h7v7H3z", "M14 3h7v7h-7z", "M14 14h7v7h-7z", "M3 14h7v7H3z"],
+  maximize:  ["M8 3H5a2 2 0 0 0-2 2v3", "M21 8V5a2 2 0 0 0-2-2h-3", "M3 16v3a2 2 0 0 0 2 2h3", "M16 21h3a2 2 0 0 0 2-2v-3"],
+  minimize:  ["M8 3v3a2 2 0 0 1-2 2H3", "M21 8h-3a2 2 0 0 1-2-2V3", "M3 16h3a2 2 0 0 1 2 2v3", "M16 21v-3a2 2 0 0 1 2-2h3"],
+  flame:     ["M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"],
+  plane:     ["M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"],
+  trendUp:   ["M22 7 13.5 15.5 8.5 10.5 2 17", "M16 7h6v6"],
+  trendDown: ["M22 17 13.5 8.5 8.5 13.5 2 7", "M16 17h6v-6"],
+  pulse:     ["M22 12h-4l-3 9L9 3l-3 9H2"],
+};
+
+/** 5min EMA 平滑（30s polling, N=10 → alpha≈0.18）。score=null 表示首次採樣，直接回新值。 */
+export function smoothPressure(prev: number | null, next: number, alpha = 0.18): number {
+  if (prev == null || Number.isNaN(prev)) return next;
+  return prev + (next - prev) * alpha;
+}

@@ -78,6 +78,7 @@ import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
 import { IntelPanel } from "./components/intel/IntelPanel";
+import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
@@ -425,6 +426,8 @@ export default function App() {
 
   // ── Intel Panel（即時情報，IconRail 開關） ──
   const [intelOpen, setIntelOpen] = useState(false);
+  // ── Monitor Mode（戰情看板，底部上拉） ──
+  const [monitorOpen, setMonitorOpen] = useState(false);
   const satConsole = useSatelliteConsole();
   const satManeuvers = useSatelliteManeuvers(satConsole.open);
   const maneuverNorads = useMemo(() => {
@@ -1459,6 +1462,22 @@ export default function App() {
             }}
           />
 
+          {/* Monitor Mode 戰情看板（底部上拉） */}
+          <MonitorPanel
+            open={monitorOpen}
+            onClose={() => setMonitorOpen(false)}
+            filter={newsFilter}
+            onFilterChange={(next) => {
+              transportParams.setNewsMinRelevance(next.minRelevance);
+              transportParams.setNewsEventsOnly(next.eventsOnly);
+              transportParams.setNewsMinSeverity(next.minSeverity);
+            }}
+            onSelectLocation={(lon, lat) => {
+              mapRef.current?.flyTo({ center: [lon, lat], zoom: 11, speed: 1.2 });
+            }}
+          />
+
+
           {/* 時間軸：依 mode 切換 realtime / historical */}
           {appMode === "realtime" ? (
             <TimelineControls
@@ -1539,23 +1558,44 @@ export default function App() {
               Capture
             </button>
             <button
-              onClick={() => setRenderMode((m) => (m === "3d" ? "2d" : "3d"))}
+              onClick={() => {
+                if (!monitorOpen) {
+                  setIntelOpen(false);
+                  satelliteConsoleStore.setOpen(false);
+                }
+                setMonitorOpen((v) => !v);
+              }}
+              title="監看模式 Monitor"
               style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
                 padding: "6px 14px",
-                background: renderMode === "3d"
-                  ? (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)")
-                  : (isDarkTheme ? "rgba(255,170,68,0.25)" : "rgba(255,170,68,0.15)"),
-                border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
+                background: monitorOpen
+                  ? "#64aaff"
+                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
+                border: `1px solid ${monitorOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
                 borderRadius: 6,
-                color: isDarkTheme ? "#fff" : "#333",
+                color: monitorOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
                 fontSize: 12,
                 fontFamily: "monospace",
+                fontWeight: monitorOpen ? 700 : 400,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
                 letterSpacing: 1,
               }}
             >
-              {renderMode === "3d" ? "3D Altitude" : "2D Flat"}
+              <svg
+                width={13} height={13} viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth={1.8}
+                strokeLinecap="round" strokeLinejoin="round"
+              >
+                <path d="M3 3h7v7H3z" />
+                <path d="M14 3h7v7h-7z" />
+                <path d="M14 14h7v7h-7z" />
+                <path d="M3 14h7v7H3z" />
+              </svg>
+              Monitor
             </button>
           </div>
 
