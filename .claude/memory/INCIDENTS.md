@@ -720,3 +720,63 @@ working tree 有跨分支 WIP / 未追蹤草稿時極度危險，改 `git add <�
 總 CPU 不增但視覺流暢。
 
 **PRINCIPLES**：視覺「順暢」可能是 effect 重綁副產物，修穩定性後要顯式設更新頻率。
+
+---
+
+## 2026-06-17 Monitor 卡片全空白 — RPC 名前端後端對不上
+
+**症狀**：Monitor Mode 上線後實測，戰情概覽顯示「26 平時」（壓力指數正常），但旁邊 vs+0 / vs+0、TWSE ticker 全 0、PLA 0 架次、3 張 CDC 卡顯示「等待 CDC 週報資料…」、CDC 截至 ISO 第 W0 週。
+
+**直覺診斷**：以為是 collector 沒跑 / Zeabur env 沒開。
+
+**實際根因**：跑 `SELECT count(*)` 查每張 realtime 表，**全部有資料**（pressure_index_now 1 / market_index_current 2 / pla_activity_daily 5 / public_health_weekly 25720）。問題在前端 loader 寫的 RPC 名跟後端對不上：
+- `get_market_index_now` ❌ 不存在
+- `get_pla_activity_latest` ❌ 不存在
+- `get_public_health_weekly` ❌ 不存在
+- `get_pressure_index_now` ✅ 存在（migration 207 那次有建）
+
+前端 loader 失敗時 `console.warn` + return 空殼，UI 照樣渲染 → 用戶看到「等待中」而不是錯誤。
+
+**怎麼修**：migration 210 補建 3 個薄 RPC（select + 簡單 transform），grant anon。實測：
+- TWSE 45,809.19 收盤 +412.20 (+0.91%)
+- PLA 0 架次 / 6 海軍艦 / 2026-06-15
+- CDC W23：流感 1.9萬 -41% / 登革熱 10 +150% / 腸病毒 378 +27%
+
+**Why 漏建**：寫 Monitor Phase 2 前端時直接從設計師 handoff doc 抄 RPC 名（doc 寫「沿用同樣命名規律」），假設後端會跟著做。實際只有 pressure 那支建好，其他 3 個變成「假設不存在」。
+
+**PRINCIPLES**：handoff doc 寫前端時，**ship 前一定要 `psql -c "SELECT proname FROM pg_proc WHERE proname LIKE 'get_xxx'"` 確認 RPC 真的存在**。loader fallback 空殼會讓問題藏到使用者實測時才暴露。
+
+---
+
+## 2026-06-17 YT @handle + `live_stream?channel=` 整套失敗（B1 救援）
+
+**症狀**：LiveWall 4 格全部「無法播放這部影片」。原以為頻道沒在直播 / UC ID 寫錯 / `@handle` 在 `channel=` 不認。
+
+**第一輪修法（無效）**：把 @handle 替成 UC channel ID（從 youtube.com 頁面 HTML 撈 `browseId`）。修了 5 家 (PTS/CTS/TVBS/TTV/CTV)。結果：仍然只有 PTS / CTV 能播。
+
+**真正根因（curl + 拆 embed page）**：
+```
+=== PTS === VIDEO_ID="quwqlazU-c8"   ✅
+=== CTV === VIDEO_ID="TCnaIE_SAtM"   ✅
+=== CTS === VIDEO_ID="live_stream"   ❌ 沒解析到
+=== TVBS=== VIDEO_ID="live_stream"   ❌
+=== TTV === VIDEO_ID="live_stream"   ❌
+```
+
+YouTube `embed/live_stream?channel=UCxxx` 要查頻道的「primary live event」設定。**多數新聞台沒設這個欄位**，即使有 24h 直播也找不到。是 YouTube 端的頻道後台問題，不是我們的 bug。
+
+**B1 方案救援**（用戶選定，三 repo 串通）：
+1. data-collectors 寫 `yt_live_video_resolver.py`（5 min cron）抓 14 家 `youtube.com/@handle/live` 解析當前 videoId
+2. gis-platform migration 209 建 `realtime.yt_live_current` (PK=handle) + `get_yt_live_videos()` RPC
+3. 前端 LiveWall 改用 `embed/<videoId>` 而非 `embed/live_stream?channel=`
+
+**第二輪 collector bug**：第一版 regex 抓「第一個 videoId」+「第一個 isLiveContent」。@FTV_News /live page 沒 24h 直播時會 redirect 到頻道頭推薦影片（一支三立的非直播 video）→ collector 報 video_id=`3lH66WWmUUs` 是 live，實際 `isLiveContent:false`。
+
+**第三輪正確判定**：改用 `ytInitialPlayerResponse` JSON block 取 `videoDetails.videoId + isLiveContent` + `microformat.playerMicroformatRenderer.liveBroadcastDetails.isLiveNow` + `playabilityStatus.status === 'OK'` 全部對得上才寫 video_id。結果 9/13 真的可播，4 家正確標 not live。
+
+**Why 一開始猜錯**：頻道頁 HTML 有非常多 video meta（推薦影片 / 相關影片），regex 抓「第一個」基本是亂猜。
+
+**PRINCIPLES**：
+- YouTube `embed/live_stream?channel=` **不可靠**，必須改用 `embed/<videoId>` + cron 解析（B1 模式）
+- 解析 YouTube page metadata 用 `ytInitialPlayerResponse` JSON 區塊，不要用獨立 regex 抓「第一個」
+- video_id 約 1-7 天 rotate（直播重啟），cron 間隔 5 min 安全
