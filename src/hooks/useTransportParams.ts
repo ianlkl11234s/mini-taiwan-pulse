@@ -240,8 +240,8 @@ export function useTransportParams() {
   //   minRelevance: 0 全部 / 2 地方+ / 3 重大（對應 RPC p_min_gis_relevance）
   //   eventsOnly:   true 只看事件（對應 RPC p_require_event）
   //   minSeverity:  0 全部 / 1 個案+ / 2 區域+（對應 RPC p_min_severity）
-  // 預設 (2, true, 1) ≈ 舊「重要」級
-  const [newsMinRelevance, setNewsMinRelevance] = useState<0 | 2 | 3>(2);
+  // 預設 (3, true, 1) ≈「重大」級 — 新聞 / 全部 tab 進來只看重大
+  const [newsMinRelevance, setNewsMinRelevance] = useState<0 | 2 | 3>(3);
   const [newsEventsOnly, setNewsEventsOnly] = useState<boolean>(true);
   const [newsMinSeverity, setNewsMinSeverity] = useState<0 | 1 | 2>(1);
   // Socioeconomic (村里社經)

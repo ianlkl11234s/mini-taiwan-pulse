@@ -12,6 +12,11 @@ import {
 import {
   fetchNewsEventsDayClusters, type NewsFilter,
 } from "../../../data/newsEventsLoader";
+import {
+  fetchAlertSummary, fetchAlertSeries24h,
+  tallySummary, indexSeries, EMPTY_TALLY, emptySeries,
+  type AlertSummary, type AlertSeriesPoint,
+} from "../../../data/alertsLoader";
 import type { NewsCategory } from "../../../data/newsEventTypes";
 import { timeStore } from "../../../state/timeStore";
 import { TimelineDock } from "./TimelineDock";
@@ -97,6 +102,8 @@ export function MonitorPanel({
   const [pla, setPla] = useState<PlaActivity>(EMPTY_PLA);
   const [health, setHealth] = useState<PublicHealthWeek>(EMPTY_HEALTH_WEEK);
   const [clusters, setClusters] = useState<Cluster[]>([]);
+  const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
+  const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
 
   // tick now（顯示 + countdown）
   useEffect(() => {
@@ -118,6 +125,8 @@ export function MonitorPanel({
       fetchMarketIndex().then((m) => alive && setMarket(m));
       fetchSourceHealth().then((s) => alive && setSourceHealth(s));
       fetchNewsTrending(1, 50).then((t) => alive && setTrending(t));
+      fetchAlertSummary().then((s) => alive && setAlertSummaryRows(s));
+      fetchAlertSeries24h().then((s) => alive && setAlertSeriesRows(s));
     };
     tick();
     const id = window.setInterval(tick, 30_000);
@@ -257,6 +266,15 @@ export function MonitorPanel({
     return m;
   }, [clusters]);
 
+  const alertTally = useMemo(
+    () => (alertSummaryRows.length ? tallySummary(alertSummaryRows) : EMPTY_TALLY),
+    [alertSummaryRows],
+  );
+  const alertSeries = useMemo(
+    () => (alertSeriesRows.length ? indexSeries(alertSeriesRows) : emptySeries()),
+    [alertSeriesRows],
+  );
+
   const trendingKeySet = useMemo(() => buildTrendingKeys(trending), [trending]);
   const isTrendingFor = (e: IntelCardEvent) => {
     const c = countyByEventId.get(e.id);
@@ -394,6 +412,19 @@ export function MonitorPanel({
           >
             MONITOR
           </span>
+          <span
+            style={{
+              padding: "1px 7px", borderRadius: 4,
+              background: "rgba(255,152,0,0.16)",
+              border: "1px solid rgba(255,152,0,0.45)",
+              fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700, letterSpacing: "1px",
+              color: COLORS.statusWarn,
+              animation: "presBreathe 3s ease-in-out infinite",
+            }}
+            title="本模式仍在打磨中，數據與互動可能還會調整"
+          >
+            BETA
+          </span>
         </div>
         <span
           style={{
@@ -457,6 +488,7 @@ export function MonitorPanel({
         onScrub={onScrub}
         onLive={goLive}
         onTogglePlay={togglePlay}
+        alertSeries={alertSeries}
       />
 
       {/* body: feed (left) + indicators (right) */}
@@ -593,6 +625,9 @@ export function MonitorPanel({
           sourceHealth={sourceHealth}
           totalToday={allEventsToday.length}
           onPickHotspot={onPickHotspot}
+          alertTally={alertTally}
+          alertSeries={alertSeries}
+          nowTs={now}
         />
       </div>
 
@@ -613,8 +648,17 @@ export function MonitorPanel({
           0%, 100% { opacity: 1; }
           50% { opacity: 0.45; }
         }
+        @keyframes alertBreathe { 0%,100%{opacity:1} 50%{opacity:0.62} }
+        @keyframes alertPulse   { 0%,100%{opacity:1} 50%{opacity:0.45} }
+        @keyframes alertEdge {
+          0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); }
+          50%     { box-shadow: 0 0 16px 0 rgba(239,68,68,0.42); }
+        }
         @media (prefers-reduced-motion: reduce) {
-          [style*="presBreathe"], [style*="presPulse"] { animation: none !important; }
+          [style*="presBreathe"], [style*="presPulse"],
+          [style*="alertBreathe"], [style*="alertPulse"], [style*="alertEdge"] {
+            animation: none !important;
+          }
         }
       `}</style>
     </div>

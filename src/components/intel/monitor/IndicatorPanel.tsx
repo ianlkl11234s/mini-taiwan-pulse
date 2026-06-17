@@ -2,7 +2,10 @@ import { useMemo } from "react";
 import { IntelIcon } from "../IntelIcon";
 import {
   COLORS, FONT_CJK, FONT_DATA, MICON, GIS_LEVELS, SEV_LEVELS,
+  type AlertGroupShort,
 } from "../intelTokens";
+import { AlertBoard } from "../alerts/AlertBoard";
+import type { AlertTally } from "../../../data/alertsLoader";
 import {
   NEWS_CATEGORIES, getNewsCategoryDef, type NewsCategory,
 } from "../../../data/newsEventTypes";
@@ -28,6 +31,9 @@ interface Props {
   totalToday: number;
   /** 點熱區 row → 切到該縣市 */
   onPickHotspot: (county: string) => void;
+  alertTally: AlertTally;
+  alertSeries: Record<AlertGroupShort, number[]>;
+  nowTs: number;
 }
 
 interface Hotspot {
@@ -163,6 +169,7 @@ function DistBar({
 export function IndicatorPanel({
   events, countyByEventId, pressure, smoothedScore, market, pla, health,
   sourceHealth, totalToday, onPickHotspot,
+  alertTally, alertSeries, nowTs,
 }: Props) {
   const stats = useMemo(() => {
     const ranked = rankHotspots(events, countyByEventId);
@@ -213,6 +220,15 @@ export function IndicatorPanel({
       <SituationCards pla={pla} health={health} />
 
       <LiveWall />
+
+      <div style={{ gridColumn: "1 / -1" }}>
+        <AlertBoard
+          tally={alertTally}
+          series={alertSeries}
+          accent={COLORS.accent}
+          nowTs={nowTs}
+        />
+      </div>
 
       {/* 熱區 Top 5 */}
       <Widget>

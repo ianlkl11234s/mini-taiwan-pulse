@@ -1596,6 +1596,23 @@ export default function App() {
                 <path d="M3 14h7v7H3z" />
               </svg>
               Monitor
+              <span
+                style={{
+                  marginLeft: 2,
+                  padding: "1px 5px",
+                  borderRadius: 3,
+                  background: monitorOpen
+                    ? "rgba(4,18,31,0.18)"
+                    : "rgba(255,152,0,0.18)",
+                  border: `1px solid ${monitorOpen ? "rgba(4,18,31,0.35)" : "rgba(255,152,0,0.55)"}`,
+                  fontSize: 8,
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  color: monitorOpen ? "#04121f" : "#ff9800",
+                }}
+              >
+                BETA
+              </span>
             </button>
           </div>
 

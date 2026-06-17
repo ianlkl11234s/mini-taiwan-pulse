@@ -61,9 +61,9 @@ export interface NewsFilter {
   minSeverity: 0 | 1 | 2;
 }
 
-/** 預設 ≈ 舊「important」 */
+/** 預設「重大」(minRelevance=3) — 新聞 / 全部 tab 進來就只看重大級 */
 export const DEFAULT_NEWS_FILTER: NewsFilter = {
-  minRelevance: 2,
+  minRelevance: 3,
   eventsOnly: true,
   minSeverity: 1,
 };

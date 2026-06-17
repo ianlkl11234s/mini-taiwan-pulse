@@ -168,22 +168,44 @@
 
 | ID | 優先級 | 項目 | 狀態 | 備註 / 估時 |
 |---|---|---|---|---|
-| MO-1 | P1 | **Monitor Mode 前端整體（Phase 1）** | open | `ModeToggle` + `MonitorPanel` (拖拉手把) + `TimelineDock` (uPlot 單軌新聞密度) + `NewsFeedPanel` (升溫 chip + 集群展開) + `IndicatorPanel` (KPI/熱區Top5/24h widget/直播 slot)。時間同步 `timeStore`、Loading/空狀態、卡片進場動畫。**~7 工作日** |
-| MO-2 | P1 | **Monitor 後端 pre-aggregate RPC** | open | gis-platform migration 加 `realtime.news_events_hourly_county_cat` (普通 table + refresh function 加進 cron job 55 循序步驟，**禁止拆新 job**) + `get_news_trending_hotspots(window_hours, limit)` + `get_news_hourly_breakdown(day)`。surge_ratio = window 計數 / 24h 同時段均值。**~1.5d**。MO-1 阻塞於此 |
-| MO-3 | P2 | 信號接入 — 共機擾台 | open | 國防部 PDF 或 `EyesOnPLA` GitHub。Phase 2 第一信號（⭐⭐⭐ 最高優先）|
-| MO-4 | P2 | 信號接入 — 電網備轉容量 | open | 台電 Open Data，⭐⭐⭐ |
-| MO-5 | P2 | 信號接入 — 地震即時 | open | CWA Open API（已有 earthquakes layer 資料可共用，主要做 monitor 端 widget），⭐⭐⭐ |
-| MO-6 | P3 | 信號接入 — 加權指數 / 匯率 | open | 證交所 / 央行，⭐⭐ |
-| MO-7 | P3 | 信號接入 — Cofacts 假訊息 | open | MyGoPen / Cofacts API，⭐⭐ |
-| MO-8 | P3 | 信號接入 — Cloudflare Radar 連通性 | open | 海纜中斷 / 國際連通異常，⭐ |
-| MO-9 | P3 | 信號接入 — 疾管署公衛週報 | open | ⭐ |
-| MO-10 | P3 | 通用信號表 + Phase 2 schema 設計 | open | 統一 `realtime.signals(source, metric, value, ts)` + 通用 widget factory。MO-3~9 共用基礎建設 |
-| MO-11 | P3 | 新聞直播嵌入 (iframe widget) | open | 候選：中央社 YT live / 公視 / 民視 / TVBS / PTS。Phase 1 預留外殼，Phase 2 接 |
-| MO-12 | P3 | Realtime push 升級（Phase 3）| open | polling 20min → Supabase Realtime channel 訂閱 news_events INSERT，真正秒級推送。涉及 gis-platform RLS + replication slot 設定 |
+| MO-1 | P1 | **Monitor Mode 前端整體（Phase 1）** | **done** | 2026-06-16 上線（PR #18）：右上 Monitor button + 底部上拉 + Wall mode + TimelineDock + IntelCard column + IndicatorPanel |
+| MO-2 | P1 | **Monitor 後端 pre-aggregate RPC** | **done** | 既有 `get_news_trending` + `get_source_health` 已足；新聞 hourly breakdown 在前端用 events array bucket（資料量小不需 pre-agg）|
+| MO-3 | P2 | 信號接入 — 共機擾台 | **done** | 2026-06-17 上線：data-collectors `pla_activity_daily` + gis-platform migration 205 + `get_pla_activity_latest()` RPC（migration 210）+ 前端 SituationCards PlaCard。30 min cron |
+| MO-4 | P2 | 信號接入 — 電網備轉容量 | open | 台電 Open Data，⭐⭐⭐。已進壓力指數 power signal，獨立 widget 待做 |
+| MO-5 | P2 | 信號接入 — 地震即時 | **partial** | earthquake_events 已進壓力指數 signal；獨立 monitor widget 計入 AI-1 警訊整合的「地震卡」 |
+| MO-6 | P3 | 信號接入 — 加權指數 / 匯率 | **done (TWSE)** | 2026-06-17 上線：TWSE 加權指數 ticker（collector twse_market_index + migration 204 + `get_market_index_now()` RPC）。匯率仍 open |
+| MO-7 | P3 | 信號接入 — Cofacts 假訊息 | open | TimelineDock 「Phase 2 多軌」預留位有提到 |
+| MO-8 | P3 | 信號接入 — Cloudflare Radar 連通性 | open | ⭐ |
+| MO-9 | P3 | 信號接入 — 疾管署公衛週報 | **done** | 2026-06-17 上線：collector cdc_public_health_weekly + migration 206 + `get_public_health_weekly()` RPC（migration 210）+ 前端 DiseaseCard ×3。週四 11:00 跑 |
+| MO-10 | P3 | 通用信號表 + Phase 2 schema 設計 | **done** | migration 207 `realtime.signals_hourly` + `pressure_index_now` + `compute_pressure_index('disaster')` cron 5min |
+| MO-11 | P3 | 新聞直播嵌入 (iframe widget) | **done** | 2026-06-17 上線 LiveWall 4 格 + 14 家頻道下拉 + B1 yt_live_video_resolver collector + migration 209 + `get_yt_live_videos()` RPC。embed/<videoId> 路徑。9/13 家當下可播 |
+| MO-12 | P3 | Realtime push 升級（Phase 3）| open | polling 30s → Supabase Realtime channel。仍待 |
 
-### 規劃文件總覽（2026-06-14 集中索引）
+### Monitor Mode Phase 2+ 衍生待辦（2026-06-17 加）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| MO-13 | P2 | 補 3 家 YT live handle | open | 鏡新聞 @MnewsTw / 非凡 @ustvnews 目前 /live 404；中天移除。找到正確 @handle 後改 `data-collectors/collectors/yt_live_video_resolver.py` HANDLES + `LiveWall.tsx` LIVE_CHANNELS |
+| MO-14 | P3 | TWSE turnover 格式漂亮化 | open | migration 210 RPC 目前回「12215293 千」，應顯示「1.22 兆」。改 `get_market_index_now()` 的 turnover CASE |
+| MO-15 | P3 | LiveWall 被擋頻道 fallback | open | 部分台後台可能關 embed（TVBS / 三立 / 東森常見），iframe 仍會跳「無法播放」。candidates：(a) 拿掉、(b) 改「另開分頁觀看」占位卡片 |
+| MO-16 | P3 | 加權指數 turnover 修 + 匯率接入 | open | TWSE 已上、匯率（央行）未接 |
+
+### AI 警訊整合（AI 系列，2026-06-17 加 — 規劃完整在 `docs/proposal/alerts-integration-impl.md`）
+
+**定位**：把 NCDR 災害示警（5 群組）+ CWA 地震整合進 IntelPanel + Monitor。設計師 v2 已交稿，5 個新元件（AlertSummaryBar / FeedTabs / AlertCard / AlertBoard / AlertsTrack）+ migration 211（3 RPC）+ alertsLoader.ts。**handoff doc 自帶 task list、設計 URL、Verification walkthrough — 另一 session 接手即用**。
+
+| ID | 優先級 | 項目 | 狀態 | 備註 / 估時 |
+|---|---|---|---|---|
+| AI-1 | P1 | **警訊整合 Phase 1（NCDR + 地震）** | open | impl doc 12 顆 task：migration 211 + tokens + loader + 5 元件 + 4 檔接線 + browser walkthrough。**估 4-5 hr** |
+| AI-2 | P2 | 地圖警報點 visual 重整（B2 方案）| open | alert 圓點 +60% size + 白邊 2.5px + active pulse 動畫，避免跟新聞圓點混淆。`useDisasterAlertLayer.ts` paint 微調 + earthquakes layer 對齊 |
+| AI-3 | P3 | 警報統計接 pressure index signal | open | 已有 signals_hourly framework，加 alert_count + alert_severe signal |
+
+### 規劃文件總覽（2026-06-17 更新）
 
 | 文件 | 對應 backlog | 狀態 |
 |---|---|---|
 | `docs/proposal/satellite-console.md` | SAT-1~7 | Phase 0 衛星圖層已上線，Phase A-D 規劃完成待動工 |
-| `docs/proposal/monitor-mode.md` | MO-1~12 | 完整提案，Phase 1 工程清單就緒待動工 |
+| `docs/proposal/monitor-mode.md` | MO-1~12 | Phase 1 + Phase 2 大半已上線（PR #18） |
+| `docs/proposal/monitor-mode-phase2-handoff.md` | MO-3/6/9/11 | 3 個 collector + LiveWall 全部上線 ✅ |
+| `docs/proposal/alerts-integration-handoff.md` | AI-1 | 設計需求說明，設計師已交 v2 ✅ |
+| `docs/proposal/alerts-integration-impl.md` | AI-1 | 完整實作交接，待另一 session 接手 |

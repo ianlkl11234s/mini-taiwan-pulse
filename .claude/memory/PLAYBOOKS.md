@@ -854,3 +854,76 @@ types/index.ts → satelliteTypes.ts (colors/labels/regex) → satelliteSGP4.ts 
 - ❌ recompute 入 useCallback deps（effect 頻繁重綁 + throttle 殭屍 closure）
 - ❌ 直接走 CelesTrak 不測瀏覽器（部署後才發現 403 整天 0 顆）
 - ❌ 只看 country_operator 不靠名稱保底（FS-8A 找半天）
+
+---
+
+## 新增 realtime collector → Supabase 表 → 前端 5 處 SOP（2026-06-17）
+
+> 從零加一支新 realtime 管線（如 yt_live_video_resolver / pla / cdc / twse_market_index）的標準步驟。
+
+### data-collectors（5 處檔案，缺一即靜默失敗）
+
+```
+collectors/<name>.py              # 1. collector class（繼承 BaseCollector）
+collectors/registry.py            # 2. import + CollectorEntry tuple
+config.py                         # 3. _COLLECTOR_TOGGLES 加 (PREFIX, default_enabled, interval)
+storage/supabase_tables.py        # 4. 加表 schema (history/current/columns/upsert_key/strategy)
+storage/supabase_writer.py        # 5. _transform_<name> 方法 + TRANSFORMERS dict ⚠ 易忘第二步
+```
+
+### gis-platform（1 個 migration）
+
+```sql
+-- migrations/<NNN>_realtime_<name>.sql
+CREATE TABLE realtime.<name>_history (... UNIQUE(...));
+CREATE TABLE realtime.<name>_current (PK=key, UPSERT);
+ALTER TABLE ... ENABLE ROW LEVEL SECURITY;
+CREATE POLICY ... FOR SELECT TO anon USING (true);
+CREATE OR REPLACE FUNCTION public.get_<name>_xxx() RETURNS TABLE (...)
+  LANGUAGE sql STABLE AS $$ SELECT ... FROM realtime.<name>_current $$;
+GRANT EXECUTE ON FUNCTION public.get_<name>_xxx() TO anon, authenticated;
+```
+
+### mini-taiwan-pulse（前端）
+
+```
+src/data/<name>Loader.ts          # fetchXxx() 包 withLoading()，type 完整
+src/components/.../XxxComponent.tsx  # UI
+src/App.tsx 或對應 Panel           # 接線 + 30s polling
+```
+
+### Verification（ship 前必跑）
+
+```sh
+# 1. collector 離線跑一次
+cd data-collectors && SUPABASE_ENABLED=true <PREFIX>_ENABLED=true python3 -m collectors.<name>
+
+# 2. 確認資料進 Supabase（不是只 buffer）
+psql "$DATABASE_URL" -c "SELECT count(*) FROM realtime.<name>_current"
+# 應 > 0；若 = 0 → 通常漏 step 5（transformer 註冊到 TRANSFORMERS dict）
+
+# 3. 確認 RPC 真的存在
+psql "$DATABASE_URL" -c "SELECT proname FROM pg_proc p JOIN pg_namespace n ON p.pronamespace=n.oid
+  WHERE n.nspname='public' AND proname LIKE 'get_<name>%'"
+# 應有；若無 → migration 還沒 apply 或函數名拼錯
+
+# 4. RPC 真的回資料
+psql "$DATABASE_URL" -c "SELECT * FROM public.get_<name>_xxx() LIMIT 3"
+
+# 5. 前端 tsc + 開瀏覽器看 console 沒 [Xxx] failed warn
+```
+
+### Zeabur 部署
+
+```sh
+# 1. push 三 repo
+# 2. 啟用 collector env
+npx zeabur@latest variable create --id <data-collectors service id> -k "<PREFIX>_ENABLED=true" -y -i=false
+# 3. 等 ~1-2 min 部署 + interval_min 內首輪 run
+```
+
+### 反例（本 session 教訓）
+
+- ❌ 跳過 step 5 `supabase_writer.py` transformer 註冊 → collector log 顯示「✓ 已儲存」但 DB 0 rows，靜默失敗
+- ❌ Handoff doc 寫了 RPC 名沒實際建 → 前端跑時 fallback 空殼，使用者看到「等待中」
+- ❌ 用 regex 抓 page 上「第一個」videoId / 第一個 isLiveContent → 頻道頭推薦影片會混入

@@ -575,3 +575,25 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 6. **提案文件 `docs/proposal/` 是不錯的雙模式**：當下動手是 Phase 0，
    後續 Phase A/B/C/D 寫進提案文件，commit 上 master 讓記憶 + 未來 session
    都看得到完整藍圖。
+
+---
+
+## 2026-06-17 Monitor Phase 2 + YT B1 + 警訊 handoff 反省
+
+本 session 一氣呵成 3 個主題：Monitor Phase 2（10 元件 + 5 loader + 2 RPC）→ YT 直播 B1（三 repo 同步）→ 警訊整合 handoff（給下個 session 接）。3 PR merge 進 master。
+
+**做得好**：
+1. **設計師 jsx 程式碼直接 port**：Monitor 全套（PressureRing/TwseTicker/SituationOverview/SituationCards/LiveWall/TimelineDock/IndicatorPanel/MonitorPanel）幾乎照搬，**只把 CSS var 換成 ts const、mock data 換 supabase loader**，視覺幾乎 1:1。下次有設計交接照這個 SOP 走，不要重新設計。
+2. **跨 repo SOP 已寫進 PLAYBOOKS**：本 session 第一次完整跑 data-collectors + gis-platform + mini-taiwan-pulse 三 repo 同步部署，過程踩到的坑（transformer 漏註冊、RPC 名對不上、@handle 不認）全固化進 PRINCIPLES + INCIDENTS + PLAYBOOKS。
+3. **alerts handoff 寫成自帶 task list 的 impl doc**：另一 session 拿了 `docs/proposal/alerts-integration-impl.md` + 一段 prompt 就能開工。寫的時候用 PRINCIPLES「三要素」（RPC signature / 元件 Props / 設計 URL）逐項檢查。
+
+**該改進**：
+1. **Monitor 卡空白 bug 該在 ship 前就抓到**：我寫前端 loader 時假設後端 RPC 跟著 handoff doc 建好，但只 pressure 那支真的有。下次 ship 前一定要 `psql proname` 一條一條比對。
+2. **資料載入失敗 fallback 空殼會藏 bug**：rule 3 `withLoading` 失敗時 console.warn + return 空陣列是好設計（不 crash），但使用者看到「等待中」沒辦法區分「資料剛抓中」vs「RPC 根本不存在」。考慮 loader 內部加 `lastError` 欄位，UI 顯示「⚠ 資料來源異常」而不是「等待中」。
+3. **YT 直播 video_id 第一輪沒驗就 ship**：拿到 collector regex 結果就直接寫進前端 LIVE_CHANNELS，沒實際 verify 那些 video 真的是 24h 新聞直播。用戶看到民視在播政論節目當下覺得「不是直播」才回頭查。下次資料來自外部 API 時要在 sample data 階段就驗證內容。
+4. **跨 repo 工作不要拆多 session**：本來想說 collector 跟 migration 可以下次再做，結果用戶很自然地說「你幫我都動」。一氣呵成反而省下大量 context switch + 重新讀 schema 的成本。**Default：跨 repo 同主題 commits 盡量在一個 session 串完。**
+5. **`gh pr merge` 沒 `-y` flag**：被 `-y` 卡了一次。實際語法是 `--squash --delete-branch`，不需要 confirmation flag。記在 GLOSSARY 沒必要，但下次 PR 動作直接寫對。
+6. **設計師命名跟 layer 既有命名不一致要早一步做 mapping**：alerts handoff 寫到一半才意識到設計師用短形 `weather/flood/...`，現有 layer 用長形 `weatherAlerts/floodAlerts/...`。在 impl doc 加 mapping fn 段落解決。下次看到外部交付的 enum/key 命名先過一次「跟我們既有同義詞」對照表。
+7. **同類問題：群組色 vs 既有 LAYER_COLORS 也要對照**：設計師用 `#d946ef/#38bdf8/#2dd4bf/...` 給 alert 群組，跟 `disasterAlertTypes.ts` 既有 `#a855f7/#3b82f6/...` 不同。impl doc 已說明 mapping，但下次設計師若沒主動避開既有色票，第一輪 review 就要提醒。
+
+**memo 給下個 session**：alerts 整合執行時，記得先讀 `PRINCIPLES.md` 末 2 條 + `PLAYBOOKS.md` 末 1 條 + `INCIDENTS.md` 末 2 篇。三者構成本 session 的「不要再踩」清單。
