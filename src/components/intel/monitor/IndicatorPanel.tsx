@@ -17,6 +17,7 @@ import { SectionLabel, Widget } from "./PressureRing";
 import { SituationOverview } from "./SituationOverview";
 import { SituationCards } from "./SituationCards";
 import { LiveWall } from "./LiveWall";
+import { HazardWatchStrip } from "./HazardWatchStrip";
 
 interface Props {
   events: ClusterEvent[];
@@ -220,6 +221,8 @@ export function IndicatorPanel({
       <SituationCards pla={pla} health={health} />
 
       <LiveWall />
+
+      <HazardWatchStrip />
 
       <div style={{ gridColumn: "1 / -1" }}>
         <AlertBoard

@@ -12,6 +12,13 @@ export interface LiveChannel {
   note?: string;
   emergency?: boolean;
   emergencyLabel?: string;
+  /**
+   * 寫死可 embedded 的 video_id 備援。
+   * 部分頻道（如 cts/ftv）resolver 抓到的 primary live 會被官方關 embed
+   *   → 改用同頻道另一個公開可嵌入的長期直播
+   * 若有此值，LiveSlot 會優先使用，resolver 結果僅作為次要備援。
+   */
+  fallbackVideoId?: string;
 }
 
 /**
@@ -23,11 +30,11 @@ export interface LiveChannel {
  */
 export const LIVE_CHANNELS: LiveChannel[] = [
   { id: "pts",    name: "公視新聞", en: "PTS",       tag: "公廣", handle: "@ptslivestream", note: "公廣保底，訊號最穩" },
-  { id: "cts",    name: "華視新聞", en: "CTS",       tag: "公廣", handle: "@CtsTw", emergency: true, emergencyLabel: "防災直播", note: "災防可切防災直播" },
+  { id: "cts",    name: "華視新聞", en: "CTS",       tag: "公廣", handle: "@CtsTw", emergency: true, emergencyLabel: "防災直播", note: "災防可切防災直播", fallbackVideoId: "meHTKm4XBS8" },
   { id: "tvbs",   name: "TVBS",     en: "TVBS NEWS", tag: "綜合", handle: "@TVBSNEWS01", note: "觀看數最高" },
   { id: "set",    name: "三立新聞", en: "SET",       tag: "綜合", handle: "@SETN", note: "iNEWS 24h" },
   { id: "ebc",    name: "東森新聞", en: "EBC",       tag: "綜合", handle: "@newsebc" },
-  { id: "ftv",    name: "民視新聞", en: "FTV",       tag: "綜合", handle: "@FTV_News" },
+  { id: "ftv",    name: "民視新聞", en: "FTV",       tag: "綜合", handle: "@FTV_News", fallbackVideoId: "ylYJSBUgaMA" },
   { id: "era",    name: "年代新聞", en: "ERA",       tag: "綜合", handle: "@era_news" },
   { id: "mnews",  name: "鏡新聞",   en: "MIRROR",    tag: "綜合", handle: "@MnewsTw", note: "⏳ handle 待修" },
   { id: "ttv",    name: "台視新聞", en: "TTV",       tag: "綜合", handle: "@TTV_NEWS" },
@@ -260,10 +267,12 @@ function LiveSlot({
 }) {
   const ch = LIVE_CHANNELS.find((c) => c.id === chId) ?? LIVE_CHANNELS[0]!;
   const emergency = !!ch.emergency;
-  // 優先用 resolver 拿到的 video_id（embed/<videoId> 最可靠）
+  // 優先用 fallbackVideoId（人工挑選保證可 embed 的長期直播；cts/ftv 用）
+  // 其次 resolver 拿到的 video_id（embed/<videoId> 最可靠）
   // 否則退到 channel_id（embed/live_stream?channel=UCxxx，部分頻道仍會壞）
   // 都沒有 → 顯示等待占位
   const src =
+    ch.fallbackVideoId ? videoEmbedSrc(ch.fallbackVideoId) :
     resolved?.video_id ? videoEmbedSrc(resolved.video_id) :
     resolved?.channel_id ? channelEmbedSrc(resolved.channel_id) :
     null;
