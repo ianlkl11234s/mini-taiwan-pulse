@@ -382,8 +382,8 @@ function LiveSlot({
 }
 
 export function LiveWall() {
-  // 預設 4 格：公視 + TVBS + 華視 + 台視
-  const [slots, setSlots] = useState(["pts", "tvbs", "cts", "ttv"]);
+  // 預設 4 格：公視 + 中視 + 三立 + 民視
+  const [slots, setSlots] = useState(["pts", "ctv", "set", "ftv"]);
   const setSlot = (i: number) => (id: string) =>
     setSlots((prev) => prev.map((v, k) => (k === i ? id : v)));
   const ctsLive = slots.includes("cts");
