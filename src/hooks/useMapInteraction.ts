@@ -252,7 +252,17 @@ export function useMapInteraction(
           if (existingIds.length === 0) continue;
           const features = map.queryRenderedFeatures(bbox, { layers: existingIds });
           if (features.length > 0) {
-            setFeatureInfo({ layerType: type, properties: features[0]!.properties ?? {} });
+            const f = features[0]!;
+            let coords: [number, number] | undefined;
+            const g = f.geometry as GeoJSON.Geometry | undefined;
+            if (g && g.type === "Point") {
+              const c = (g as GeoJSON.Point).coordinates;
+              if (typeof c[0] === "number" && typeof c[1] === "number") {
+                coords = [c[0], c[1]];
+              }
+            }
+            if (!coords) coords = [e.lngLat.lng, e.lngLat.lat];
+            setFeatureInfo({ layerType: type, properties: f.properties ?? {}, coords });
             sessionTracker.log("feature_click", { layerType: type });
             found = true;
             break;

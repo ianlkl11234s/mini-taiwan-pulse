@@ -531,6 +531,8 @@ export interface FeatureInfo {
     | "hikingTrails"
     | "satellite";
   properties: Record<string, unknown>;
+  /** 點擊位置 (lng, lat)，給「選中光暈」用 */
+  coords?: [number, number];
 }
 
 // ── 圖層控制 ──

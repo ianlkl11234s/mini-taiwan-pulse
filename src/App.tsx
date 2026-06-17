@@ -32,6 +32,7 @@ import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
 import { useNewsTimeline } from "./hooks/useNewsTimeline";
 import { useNewsEventsLayer } from "./hooks/useNewsEventsLayer";
+import { useSelectedFeatureHalo } from "./hooks/useSelectedFeatureHalo";
 import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
@@ -577,6 +578,9 @@ export default function App() {
     return typeof id === "number" && id > 0 ? id : null;
   })();
   const reservoirContext = useReservoirContextLayer(mapRef, activeReservoirId);
+
+  // 點選的圖層點 → 淡黃色脈動光暈
+  useSelectedFeatureHalo(mapRef, featureInfo);
 
   // ── 水庫 3D 水位計（Three.js cylinder：外殼 = 容量、內水位 = 蓄水率） ──
   useReservoirStatusLayer(
