@@ -69,6 +69,20 @@
 | G011 | P2 | Monitor wall mode 暫停地圖 engine | open | PR #21 效能優化跳過項。wall mode 下地圖全被蓋住但 rail / ship / Three.js 仍跑 RAF 吃 CPU。需在 `src/engines/` + `src/three/` 加 `setActive(false)` 介面，App.tsx 偵測 `monitorOpen && wall` 呼叫暫停。風險：地圖視覺凍結需 PM 確認可接受。2026-06-18 perf review |
 | G012 | P3 | Monitor alertSeries24h 改增量抓 | open | 目前 cachedOnce(5min TTL)，每次重抓 24h × 6 group。理想：累積式只抓最近 5min。需動 gis-platform RPC。2026-06-18 perf review |
 
+### Design System 未抽 token 範圍（DS 系列，2026-06-18 加 — 設計系統 6-phase 完成後刻意延後項）
+
+詳細 rationale 見 `docs/design-system.md` §8。原則「沒有真實痛點就不抽 token」。
+
+| ID | 優先級 | 項目 | 狀態 | 觸發時機 |
+|---|---|---|---|---|
+| DS-1 | P2 | Z_INDEX scale | open | 出現「panel 被 X 蓋掉」bug 時開。目前 Mapbox / panel / modal / loading 層級散在 inline 未集中 |
+| DS-2 | P3 | transition / duration / easing tokens | open | 兩個動畫應該同節奏但目前不同（如所有 panel slide-in），出現一致性訴求時開 |
+| DS-3 | P2 | 互動狀態色（hover / focus-ring / disabled / pressed）+ CONTROL.* 控件背景 | open | 做 button family / form UI 時自然浮現。Phase 1 codex 抓到 control bg 不該收進 SURFACE（10 處還原），未來開 CONTROL.* 群組統一 |
+| DS-4 | P3 | Breakpoint tokens | open | 出現需第 3 種 viewport（平板 / 窄寬）時開。目前用 JS `isMobile` 布林分流，動態 detection 比 CSS breakpoint 靈活 |
+| DS-5 | P3 | Control sizing scale（button height / icon size / hit-area） | open | 出現「為什麼這個按鈕比那個高」抱怨時開。Phase 6 抽 CloseButton 順手定 24×24 / 28×28 兩個，沒擴大為全域 scale |
+| DS-6 | P3 | intelTokens.ts 退役 → designTokens 收編 | open | 目前 designTokens 單向 import intelTokens。未來要把 COLORS / FONT_DATA / GIS_LEVELS / SEV_LEVELS 等常數搬進 designTokens，intelTokens 改為純 re-export，最後刪除。⚠️ 不可反向 re-export（會 circular dep） |
+| DS-7 | P3 | LayerSidebar 雙 theme 亮側套 token | open | Phase 3 只套暗側 token，亮側流量低 + 未驗證視覺保留 inline。當行動版有實際使用回饋時再做 |
+
 ### 農業（Phase 3 Batch 1，feat/water-extensions 分支）
 
 | ID | 優先級 | 項目 | 狀態 | 備註 |
