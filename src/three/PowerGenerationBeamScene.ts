@@ -14,9 +14,9 @@ import { fuelColorOf, type PowerGenerationRow } from "../data/energyLoader";
  */
 
 const MAX_BEAM_COUNT = 256;       // 預留：14 台電廠 + IPP / 未來
-// 視覺：頂尖底寬光錐（蠟燭感）— 比固定柱粗薄板更耐看
-const BEAM_RADIUS_BOTTOM = 0.000020; // ~750m 底部寬
-const BEAM_RADIUS_TOP = 0.000006;    // ~220m 頂部寬（taper to point）
+// 視覺：頂尖底寬光錐（蠟燭感）；要在 zoom 5（全台）也看得到，所以底部至少 1.5km 半徑
+const BEAM_RADIUS_BOTTOM = 0.000050; // ~1.85 km 底部寬（zoom 5 約 2.4 px、zoom 12 約 60 px）
+const BEAM_RADIUS_TOP = 0.000012;    // ~440 m 頂部寬（taper 約 4× 收尖）
 const BEAM_MAX_ALTITUDE_M = 6000;    // 滿載 = 6 km altitude（含 altExaggeration ×3 = 18km 視覺）
 const LERP_FACTOR = 0.06;
 
