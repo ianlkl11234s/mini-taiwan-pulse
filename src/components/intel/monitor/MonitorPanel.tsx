@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
+import { ELEVATION } from "../../../styles/designTokens";
 import { IntelCard, type IntelCardEvent } from "../IntelCard";
 import { IntelFilters, type TimeRange } from "../IntelFilters";
 import {
@@ -379,7 +380,7 @@ export function MonitorPanel({
         zIndex: 40,
         display: "flex", flexDirection: "column",
         overflow: "hidden",
-        boxShadow: wall ? "none" : "0 -16px 50px rgba(0,0,0,0.5)",
+        boxShadow: wall ? "none" : ELEVATION.dock,
         animation: "monitorRise .32s cubic-bezier(0.22,1,0.36,1)",
       }}
     >

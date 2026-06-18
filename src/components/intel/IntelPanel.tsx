@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
+import { ELEVATION } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
@@ -322,7 +323,7 @@ export function IntelPanel({
         flexDirection: "column",
         overflow: "hidden",
         pointerEvents: "auto",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+        boxShadow: ELEVATION.lg,
         animation: "intelPanelFadeIn .25s ease-out",
         color: COLORS.textDefault,
       }}

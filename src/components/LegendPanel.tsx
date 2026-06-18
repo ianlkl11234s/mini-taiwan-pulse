@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { SURFACE } from "../styles/designTokens";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -135,7 +136,7 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
     <div
       style={{
         width: 200,
-        background: "rgba(10, 10, 20, 0.88)",
+        background: SURFACE.strong,
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
         border: "1px solid rgba(100, 170, 255, 0.15)",

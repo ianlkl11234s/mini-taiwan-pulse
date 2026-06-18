@@ -3,6 +3,7 @@ import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from 
 import type { ParamControl } from "../hooks/useTransportParams";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, SECTIONS } from "./sidebar/layerCatalog";
+import { SURFACE } from "../styles/designTokens";
 
 // ── Props ──
 
@@ -83,7 +84,7 @@ export function LayerSidebar({
           alignItems: "center",
           gap: 6,
           width: 28,
-          background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
+          background: isDarkTheme ? SURFACE.subtle : "rgba(255,255,255,0.5)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
           borderRadius: 8,
@@ -191,7 +192,7 @@ function SidebarContent({
         width: isMobile ? "100%" : 240,
         maxHeight: isMobile ? undefined : "70vh",
         overflowY: isMobile ? undefined : "auto",
-        background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
+        background: isDarkTheme ? SURFACE.subtle : "rgba(255,255,255,0.5)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         borderRadius: 8,

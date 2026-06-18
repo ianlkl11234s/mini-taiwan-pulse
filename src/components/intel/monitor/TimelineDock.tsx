@@ -4,6 +4,7 @@ import {
   COLORS, FONT_CJK, FONT_DATA, clockTime,
   type AlertGroupShort,
 } from "../intelTokens";
+import { ELEVATION } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { AlertsTrack } from "../alerts/AlertsTrack";
@@ -287,7 +288,7 @@ export function TimelineDock({
               border: `1px solid ${COLORS.borderMid}`, borderRadius: 7,
               padding: "7px 9px", whiteSpace: "nowrap", pointerEvents: "none",
               backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
+              boxShadow: ELEVATION.sm,
             }}
           >
             <div

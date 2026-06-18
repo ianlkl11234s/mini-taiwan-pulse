@@ -12,6 +12,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
+import { ELEVATION } from "../../styles/designTokens";
 import { fetchCatalog, formatOperatingSince, type CatalogRow } from "../../data/satelliteCatalogLoader";
 import {
   fetchTleHistory,
@@ -92,7 +93,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
         overflow: "hidden",
         fontFamily: FONT_CJK,
         color: COLORS.textDefault,
-        boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+        boxShadow: ELEVATION.lg,
         animation: "satConsoleFadeIn .25s ease-out",
       }}
     >

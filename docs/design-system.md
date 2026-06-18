@@ -200,6 +200,7 @@ style={{ fontFamily: "monospace" }}          // 改用 FONT_DATA
 - ❌ 不一次大爆炸改全部元件 — 每 Phase 獨立 PR
 - ❌ 不在新元件 inline 寫死 hex / rgba / px font size
 - ❌ 不反向把 `intelTokens` 改成 re-export from `designTokens`（會 circular dep，見 §1）
+- ❌ **`SURFACE.*` 只給 panel 容器底**；button / select / segmented control 等**互動態背景不用 SURFACE**（即使數值相同 `rgba(0,0,0,0.4)`）。語意不同 — 互動態背景之後若要 token 化，會獨立開 `CONTROL.*` 群組。Phase 1 review 教訓。
 
 ## 8. 未納入 token 的範圍（未來題目，不在 Phase 0–6 scope）
 

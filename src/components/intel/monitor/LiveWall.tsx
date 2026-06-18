@@ -1,5 +1,6 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { SURFACE, ELEVATION } from "../../../styles/designTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
 
@@ -112,9 +113,9 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
             position: "absolute", bottom: "calc(100% + 6px)", left: 0,
             width: 232, zIndex: 30, borderRadius: 9, overflow: "hidden",
             border: `1px solid ${COLORS.borderMid}`,
-            background: "rgba(10,10,20,0.94)",
+            background: SURFACE.solid,
             backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.55)",
+            boxShadow: ELEVATION.md,
             animation: "drawerOpen .18s cubic-bezier(.22,1,.36,1)",
           }}
         >
