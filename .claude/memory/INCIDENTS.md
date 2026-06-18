@@ -805,3 +805,62 @@ YouTube `embed/live_stream?channel=UCxxx` 要查頻道的「primary live event�
 - YouTube `embed/live_stream?channel=` **不可靠**，必須改用 `embed/<videoId>` + cron 解析（B1 模式）
 - 解析 YouTube page metadata 用 `ytInitialPlayerResponse` JSON 區塊，不要用獨立 regex 抓「第一個」
 - video_id 約 1-7 天 rotate（直播重啟），cron 間隔 5 min 安全
+
+---
+
+## 2026-06-18 — Design tokens migration 3 個 review 教訓（PR #22）
+
+### A) Phase 1 subagent 把 control bg 也收進 SURFACE.subtle（codex 抓回 10 處）
+
+**症狀**：Phase 1 subagent 替換 panel 背景時，把 button / select / segmented control
+的 `rgba(0,0,0,0.4)` / `0.45` / `0.5` 也一併換成 `SURFACE.subtle`，10 處 over-replacement。
+
+**根因**：subagent prompt 給的對映表只寫「rgba 值 → token」，**沒區分**「panel 容器底」
+vs「控件互動態背景」這個語義差異。值相同但語意不同，subagent 看不出來。
+
+**Codex 抓回**：codex review uncommitted diff 時點出「這些是 button / select / segmented
+control 的互動態 background，不是 panel 背景」，列出 IconRailSidebar:882/915/945、
+LayerSidebar:368/439/476/514、IntelFilters:128/147/176 共 10 處。
+
+**處理**：全數還原回原 hardcoded 值，加 `IconRailSidebar` 的 SURFACE import 變 orphan
+就刪掉。design-system.md §7 KEEP OUT 加一條「SURFACE 只給 panel 容器底；button/select
+等互動態背景不用 SURFACE，即使數值相同」。
+
+**PRINCIPLES**：semantic ≠ value，token spec 必須明確界定**語意邊界**而不只是「值對映」。
+
+### B) Phase 3 codex review 卡 23 min 不返（cancel + 手動 fallback）
+
+**症狀**：Phase 3 改完 22 檔 / 165 處後跑 codex review。Phase 0/1/2 都 1-2 min 完成，
+但 Phase 3 codex 跑進 verifying phase 後 23 min 沒回。`codex-companion status` 看 log
+顯示其中一個 Python script `exit 1` 之後一直在 retry。
+
+**根因**：codex 在大改動 + 工具失敗時會反覆嘗試，沒有 timeout 機制自動放棄。
+
+**處理**：`codex-companion cancel <task-id>` 取消，改手動 grep + tsc 驗證：
+- `grep -rn 'color: "rgba(255'` 找 leftover → 5 處（4 個橘色保留 / 1 個 IndicatorPanel chart 補修）
+- `tsc -b` 過 → commit
+
+**PRINCIPLES**：codex 不是萬靈丹。**5 min 沒回就 cancel + 手動 spot check**。
+不要因為「正在跑」就無限等。判準：previous phases 同類 review 用了多久當基準。
+
+### C) Phase 1 subagent grep pattern 沒覆蓋空格版（漏改 2 檔）
+
+**症狀**：Phase 1 對映表寫「`rgba(10,10,20,0.88)` → `SURFACE.strong`」（無空格），
+subagent 跑完回報只改 8 檔。但 audit 文件明確標 `LegendPanel:138` 與 `FeatureInfoPanel:44`
+也用這個值 — 都漏了。
+
+**根因**：subagent 嚴格按 prompt 給的字串 grep，**沒含空格**的 pattern 找不到
+`rgba(10, 10, 20, 0.88)`（實際 source code 帶空格的版本）。
+
+**處理**：手動 `grep -n "rgba(10"` 找出來補 4 個 Edit（兩個 import + 兩個 background）。
+
+**PRINCIPLES**：跨團隊 / 跨年的程式碼有空格 / 無空格兩種寫法**並存**。grep pattern
+要嘛兩種都列、要嘛用 regex `rgba\(10,\s*10,\s*20,\s*0\.88\)`。Audit 顯示「同一值出現 N 次」
+不代表寫法只有一種。
+
+### Why 一開始猜錯
+
+PR #22 是本專案第一次大規模 design tokens migration（60+ 元件、1200+ 散落值），SOP 沒
+建立過。Phase 0 codex review 已抓到 fontSize 缺位、circular dep 等多個議題，**讓我過度
+信任 codex 能 catch 一切** — 沒對 subagent prompt 做更嚴的設計（semantic 區分 + grep 覆蓋空格）。
+真正的教訓：**subagent prompt 是 spec、codex 是 review、兩者各自有盲區**，需要前後互補。
