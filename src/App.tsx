@@ -60,6 +60,7 @@ import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
+import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
 import { PowerStatusHud } from "./components/hud/PowerStatusHud";
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
@@ -731,6 +732,11 @@ export default function App() {
     layerVisibility.powerRegionDemand,
     0.55,
     powerDashboardRef,
+  );
+  usePowerGenerationBeamLayer(
+    mapRef,
+    layerVisibility.powerGenerationUnit,
+    0.7,
   );
 
   // ── News timeline (time-based filter + ripple animation) ──
