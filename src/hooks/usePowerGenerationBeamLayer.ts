@@ -65,11 +65,18 @@ export function usePowerGenerationBeamLayer(
   // Mount layer — visible 加進 deps，toggle ON 時保證 effect 重跑（修：mapRef.current
   // 在初始 render 可能為 null，原本 [mapRef] 不會 re-run）
   useEffect(() => {
+    console.log("[PowerBeam] mount effect run; visible=", visible, "mapReady=", !!mapRef.current);
     const map = mapRef.current;
-    if (!map) return;
+    if (!map) {
+      console.log("[PowerBeam] mount: mapRef.current=null，等下次 deps 改變");
+      return;
+    }
 
     const mount = () => {
-      if (map.getLayer(POWER_GENERATION_BEAM_LAYER_ID)) return;
+      if (map.getLayer(POWER_GENERATION_BEAM_LAYER_ID)) {
+        console.log("[PowerBeam] mount(): layer 已存在，略過");
+        return;
+      }
       const layer = createPowerGenerationBeamLayer({
         getIsVisible: () => visibleRef.current,
         getOpacity: () => opacityRef.current,
@@ -77,20 +84,23 @@ export function usePowerGenerationBeamLayer(
         getPlants: () => plantsRef.current,
       });
       map.addLayer(layer);
-      console.info("[PowerBeam] CustomLayer mounted");
+      console.log("[PowerBeam] CustomLayer mounted ✓");
     };
 
-    if (map.isStyleLoaded()) mount();
+    if (map.isStyleLoaded()) {
+      mount();
+    } else {
+      console.log("[PowerBeam] style 還沒 load，等 style.load 觸發");
+    }
     map.on("style.load", mount);
     return () => {
       map.off("style.load", mount);
-      // 注意：visible 切 OFF 時也會跑 cleanup，但不 removeLayer
-      // （toggle 開關不該 unmount/remount，只靠 scene.setVisible）
     };
   }, [mapRef, visible]);
 
   // 24h preload + 跟隨 timeStore（client binary search 解析）
   useEffect(() => {
+    console.log("[PowerBeam] fetch effect run; visible=", visible);
     if (!visible) return;
     let cancelled = false;
     let dayRef: PowerGenerationDay | null = null;
@@ -99,12 +109,11 @@ export function usePowerGenerationBeamLayer(
       if (!dayRef) return;
       const rows = resolvePowerGenerationAt(dayRef, tsSec);
       if (rows.length === 0 && dayRef.plants.length > 0) {
-        console.info(
-          `[PowerBeam] ts ${tsSec} 在資料窗外 (data range ${dayRef.ts_range.lo}~${dayRef.ts_range.hi}) → 14 柱歸 0`,
+        console.log(
+          `[PowerBeam] ts ${tsSec} 在資料窗外 (data ${dayRef.ts_range.lo}~${dayRef.ts_range.hi}) → 14 柱歸 0`,
         );
       }
       plantsRef.current = rows;
-      // 同步餵 hit-test source（透明圈，讓 beam 可點）
       const map = mapRef.current;
       if (map) {
         const src = map.getSource(HIT_SOURCE_ID) as GeoJSONSource | undefined;
@@ -114,10 +123,12 @@ export function usePowerGenerationBeamLayer(
     };
 
     const load = () => {
+      console.log("[PowerBeam] load() 開始 fetch 24h...");
       fetchPowerGeneration24h()
         .then((day) => {
-          if (cancelled) return;
+          if (cancelled) { console.log("[PowerBeam] load cancelled"); return; }
           dayRef = day;
+          console.log(`[PowerBeam] fetch 成功：${day.plants.length} 廠 × ${day.plants[0]?.points.length ?? 0} ts`);
           applyTime(timeStore.getTime());
         })
         .catch((err) => console.warn("[PowerBeam] load failed:", err));
