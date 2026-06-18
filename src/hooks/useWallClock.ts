@@ -11,17 +11,16 @@
  *   const now = useWallClock(1000);           // 每秒跳
  *   const now = useWallClock(30_000, nowTs);  // 每 30 秒跳，初始值 fallback
  */
-import { useSyncExternalStore, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { wallClock } from "../state/timeStore";
 
+// 注意：原本用 useSyncExternalStore，但 getSnapshot 直接回 Date.now() 每次
+// 呼叫值都不同，React 認為 store 一直在變 → 無限 re-render。
+// 改 useState + subscribe：setState 只由 timer callback 觸發，安全。
 export function useWallClock(ms: number, initial?: number): number {
-  const subscribe = useMemo(
-    () => (cb: () => void) => wallClock.subscribeWallClock(ms, cb),
-    [ms],
-  );
-  return useSyncExternalStore(
-    subscribe,
-    () => wallClock.getWallNow(),
-    () => initial ?? wallClock.getWallNow(),
-  );
+  const [now, setNow] = useState(() => initial ?? wallClock.getWallNow());
+  useEffect(() => {
+    return wallClock.subscribeWallClock(ms, setNow);
+  }, [ms]);
+  return now;
 }
