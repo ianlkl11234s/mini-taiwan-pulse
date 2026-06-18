@@ -5,27 +5,32 @@ import {
   POWER_GENERATION_BEAM_LAYER_ID,
 } from "../map/powerGenerationBeamCustomLayer";
 import {
-  fetchPowerGenerationForTime,
+  fetchPowerGeneration24h,
+  invalidatePowerGeneration24h,
+  resolvePowerGenerationAt,
+  type PowerGenerationDay,
   type PowerGenerationRow,
 } from "../data/energyLoader";
 import { timeStore } from "../state/timeStore";
 
 /**
  * Layer 4：機組即時出力 3D beam，跟隨 timeline 時間軸。
- * - Snap timeStore.getTime() 到 10min 邊界（cron 寫入頻率）
- * - subscribeThrottled 2s：scrub 平滑、不打爆 RPC
- * - cachedByKey 15min TTL × 24 key LRU：重看同段不重抓
- * - retention 7 days；歷史超出範圍時 RPC 回空 → beam 高度歸 0
+ * - 一次拉 24h × 14 廠 (~45KB)，scrub 走 client binary search → 零 round-trip
+ * - 每 10min 自動 invalidate + refetch（拿新一輪 cron 結果）
+ * - 歷史超過 24h 範圍時走 beam 高度歸 0
  */
 export function usePowerGenerationBeamLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number,
+  heightScale: number,
 ) {
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
+  const heightScaleRef = useRef(heightScale);
+  heightScaleRef.current = heightScale;
   const plantsRef = useRef<PowerGenerationRow[] | null>(null);
 
   // Mount layer — visible 加進 deps，toggle ON 時保證 effect 重跑（修：mapRef.current
@@ -39,6 +44,7 @@ export function usePowerGenerationBeamLayer(
       const layer = createPowerGenerationBeamLayer({
         getIsVisible: () => visibleRef.current,
         getOpacity: () => opacityRef.current,
+        getHeightScale: () => heightScaleRef.current,
         getPlants: () => plantsRef.current,
       });
       map.addLayer(layer);
@@ -54,29 +60,40 @@ export function usePowerGenerationBeamLayer(
     };
   }, [mapRef, visible]);
 
-  // Fetch + 跟隨 timeStore（2s throttle，內部用 cachedByKey 10min boundary）
+  // 24h preload + 跟隨 timeStore（client binary search 解析）
   useEffect(() => {
     if (!visible) return;
     let cancelled = false;
-    let loadGen = 0;
+    let dayRef: PowerGenerationDay | null = null;
 
-    const load = (tsSec: number) => {
-      const myGen = ++loadGen;
-      fetchPowerGenerationForTime(tsSec)
-        .then((rows) => {
-          if (cancelled || myGen !== loadGen) return; // 舊請求丟棄
-          plantsRef.current = rows.slice();
-          mapRef.current?.triggerRepaint();
+    const applyTime = (tsSec: number) => {
+      if (!dayRef) return;
+      plantsRef.current = resolvePowerGenerationAt(dayRef, tsSec);
+      mapRef.current?.triggerRepaint();
+    };
+
+    const load = () => {
+      fetchPowerGeneration24h()
+        .then((day) => {
+          if (cancelled) return;
+          dayRef = day;
+          applyTime(timeStore.getTime());
         })
         .catch((err) => console.warn("[PowerBeam] load failed:", err));
     };
 
-    // 初始 + 訂閱
-    load(timeStore.getTime());
-    const unsub = timeStore.subscribeThrottled(2000, load);
+    load();
+    // 每 10 min 拉一輪新 cron 資料
+    const poll = window.setInterval(() => {
+      invalidatePowerGeneration24h();
+      load();
+    }, 10 * 60_000);
+    // scrub 走 client lookup，300ms throttle 已足夠流暢
+    const unsub = timeStore.subscribeThrottled(300, applyTime);
     return () => {
       cancelled = true;
       unsub();
+      window.clearInterval(poll);
     };
   }, [visible, mapRef]);
 }

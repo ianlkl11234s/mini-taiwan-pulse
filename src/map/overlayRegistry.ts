@@ -2860,24 +2860,25 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ── Layer 1：電廠總圖 all_power_plants_v 10,665 ──
   // fuel_type 分色（match expression），capacity_mw 4 階半徑（quantile p50/p80/p95）。
-  // 有 output_load_rate 的會顯示 stroke 強度（layer 4 beam 才畫光柱，這裡只是底圖）。
+  // 響應 powerPlantsScale (大小) + powerPlantsOpacity (透明度) slider
   {
     id: "powerPlants",
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-power-plants",
     dynamicData: true,
-    rebuildOnParamChange: ["energy"],
+    rebuildOnParamChange: ["powerPlantsOpacity", "powerPlantsScale"],
     layers: [
       {
         suffix: "halo",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.energyOpacity ?? 0.85;
+          const o = params?.powerPlantsOpacity ?? 0.95;
+          const s = params?.powerPlantsScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, ["*", 1.5, ["coalesce", ["get", "radius"], 3]],
-              12, ["*", 2.4, ["coalesce", ["get", "radius"], 3]],
+              5, ["*", 1.5 * s, ["coalesce", ["get", "radius"], 3]],
+              12, ["*", 2.4 * s, ["coalesce", ["get", "radius"], 3]],
             ],
             "circle-blur": 0.8,
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
@@ -2889,12 +2890,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
-          const o = params?.energyOpacity ?? 0.95;
+          const o = params?.powerPlantsOpacity ?? 0.95;
+          const s = params?.powerPlantsScale ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              5, ["coalesce", ["get", "radius"], 3],
-              12, ["*", 1.6, ["coalesce", ["get", "radius"], 3]],
+              5, ["*", s, ["coalesce", ["get", "radius"], 3]],
+              12, ["*", 1.6 * s, ["coalesce", ["get", "radius"], 3]],
             ],
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o,
@@ -2912,13 +2914,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-substations",
     dynamicData: true,
-    rebuildOnParamChange: ["energy"],
+    rebuildOnParamChange: ["osmSubstationsOpacity"],
     layers: [
       {
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
-          const o = params?.energyOpacity ?? 0.85;
+          const o = params?.osmSubstationsOpacity ?? 0.85;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -2940,13 +2942,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-ev-charging",
     dynamicData: true,
-    rebuildOnParamChange: ["energy"],
+    rebuildOnParamChange: ["evChargingOpacity"],
     layers: [
       {
         suffix: "circle",
         type: "circle",
         paint: (isDark, params) => {
-          const o = params?.energyOpacity ?? 0.8;
+          const o = params?.evChargingOpacity ?? 0.8;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],

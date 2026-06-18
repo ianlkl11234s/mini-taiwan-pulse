@@ -178,6 +178,11 @@ export type ExpandableLayerKey =
   | "forestFlatParks"
   | "forestAlishanRail"
   | "hikingTrails"
+  // ENERGY MVP
+  | "powerPlants"
+  | "powerGenerationUnit"
+  | "osmSubstations"
+  | "evChargingStations"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"

@@ -736,7 +736,8 @@ export default function App() {
   usePowerGenerationBeamLayer(
     mapRef,
     layerVisibility.powerGenerationUnit,
-    0.7,
+    transportParams.overlayParams.powerGenerationOpacity ?? 0.7,
+    transportParams.overlayParams.powerGenerationHeight ?? 1,
   );
 
   // ── News timeline (time-based filter + ripple animation) ──

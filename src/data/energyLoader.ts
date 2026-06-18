@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce, cachedByKey } from "../lib/loaderCache";
+import { cachedOnce } from "../lib/loaderCache";
 
 /**
  * Energy MVP loader（layer 1-6 + KPI HUD）
@@ -97,47 +97,88 @@ const fetchPowerPlantsCached = cachedOnce(fetchPowerPlantsUncached, 5 * 60_000);
 export const fetchPowerPlants = (): Promise<PowerPlantRow[]> => fetchPowerPlantsCached();
 export const invalidatePowerPlants = (): void => fetchPowerPlantsCached.invalidate();
 
-// ── Slim generation rows at timestamp（218 RPC，3D beam 用）────
-// 只回有對應機組的 ~14 廠（不是全 10,665），payload ~3KB vs ~500KB
+// ── 24h preload of all plants（219 RPC，3D beam 用）─────────
+// 一次拉 14 廠 × 24h timeseries (~45 KB)，scrub 走 client binary search 零延遲
+
+/** 單廠 24h 時序：每點是 [ts_unix, output_mw] tuple，按 ts 升序 */
+export interface PlantSeries {
+  plant_name: string;
+  fuel_type: string | null;
+  capacity_mw: number | null;
+  lon: number;
+  lat: number;
+  points: [number, number][];
+}
+
+export interface PowerGenerationDay {
+  plants: PlantSeries[];
+  ts_range: { lo: number; hi: number };
+}
+
+async function fetchPowerGeneration24hUncached(): Promise<PowerGenerationDay> {
+  const { data, error } = await withLoading(
+    `energy:gen24h`,
+    `機組 24h 出力預載`,
+    supabase.rpc("get_power_generation_24h"),
+  );
+  if (error) throw new Error(`get_power_generation_24h: ${error.message}`);
+  const obj = (data ?? {}) as Partial<PowerGenerationDay>;
+  return {
+    plants: obj.plants ?? [],
+    ts_range: obj.ts_range ?? { lo: 0, hi: 0 },
+  };
+}
+
+// 一次拉、cache 10 min（cron 寫入 10min 後資料才有新點）
+const fetchPowerGeneration24hCached = cachedOnce(fetchPowerGeneration24hUncached, 10 * 60_000);
+export const fetchPowerGeneration24h = (): Promise<PowerGenerationDay> => fetchPowerGeneration24hCached();
+export const invalidatePowerGeneration24h = (): void => fetchPowerGeneration24hCached.invalidate();
+
+/** Resolved snapshot at a specific ts，提供給 BeamScene */
 export interface PowerGenerationRow {
   plant_name: string;
   fuel_type: string | null;
   capacity_mw: number | null;
   output_mw: number;
-  output_unit_count: number;
   output_load_rate: number | null;
-  observed_at: string;
+  observed_at_ts: number;
   lon: number;
   lat: number;
 }
 
-async function fetchPowerGenerationAtUncached(tsSec: number | null): Promise<PowerGenerationRow[]> {
-  const { data, error } = await withLoading(
-    `energy:gen:${tsSec ?? "latest"}`,
-    `機組出力 14 廠`,
-    supabase.rpc("get_power_generation_at", { ts_unix: tsSec }),
-  );
-  if (error) throw new Error(`get_power_generation_at: ${error.message}`);
-  return (data ?? []) as PowerGenerationRow[];
-}
-
-// key = "latest" 或 snapped ts；15min TTL × LRU 24
-const fetchPowerGenerationCached = cachedByKey(
-  (key: string) => {
-    const ts = key === "latest" ? null : Number(key);
-    return fetchPowerGenerationAtUncached(ts);
-  },
-  15 * 60_000,
-  24,
-);
-
-/** Snap ts 到 10 min 邊界；wall clock 5 min 內走 latest fast path */
-export function fetchPowerGenerationForTime(tsSec: number): Promise<PowerGenerationRow[]> {
-  const wallNow = Math.floor(Date.now() / 1000);
-  const isRecent = Math.abs(tsSec - wallNow) < 300;
-  const snapped = Math.floor(tsSec / 600) * 600;
-  const key = isRecent ? "latest" : String(snapped);
-  return fetchPowerGenerationCached(key);
+/** 從預載資料 binary search 出 ts 對應的 14 廠快照（client side，零 round-trip） */
+export function resolvePowerGenerationAt(
+  day: PowerGenerationDay,
+  tsSec: number,
+): PowerGenerationRow[] {
+  const out: PowerGenerationRow[] = [];
+  for (const p of day.plants) {
+    const pts = p.points;
+    if (pts.length === 0) continue;
+    // binary search 找 ts <= target 的最後一筆
+    let lo = 0, hi = pts.length - 1, best = -1;
+    if (pts[0]![0] > tsSec) continue; // ts 在資料窗口之前
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (pts[mid]![0] <= tsSec) { best = mid; lo = mid + 1; }
+      else hi = mid - 1;
+    }
+    if (best < 0) continue;
+    const [obsTs, mw] = pts[best]!;
+    const cap = p.capacity_mw;
+    const rate = cap && cap > 0 ? Math.max(0, Math.min(1.5, mw / cap)) : null;
+    out.push({
+      plant_name: p.plant_name,
+      fuel_type: p.fuel_type,
+      capacity_mw: cap,
+      output_mw: mw,
+      output_load_rate: rate,
+      observed_at_ts: obsTs,
+      lon: p.lon,
+      lat: p.lat,
+    });
+  }
+  return out;
 }
 
 // ── 24h history per plant（217 RPC，popup sparkline 用）──────

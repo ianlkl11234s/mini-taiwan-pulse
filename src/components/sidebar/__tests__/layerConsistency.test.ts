@@ -46,14 +46,10 @@ const BASELINE_NO_PARAMS = new Set([
   "wasteScheduleNote",
   "wasteRoute",
   "wasteStop",
-  // Energy MVP v1：6 layer 先寫死 opacity（HUD/region bars/beam 內部各自常數），
-  // 第二版再接 useTransportParams sliders（見 docs/energy-mvp-status.md §3 backlog）
-  "powerPlants",
+  // powerStatusHud + powerRegionDemand：搬 monitor 面板，不在 sidebar
+  // 由 BASELINE_NOT_IN_SIDEBAR 接管；參數 slider 不適用
   "powerStatusHud",
   "powerRegionDemand",
-  "powerGenerationUnit",
-  "osmSubstations",
-  "evChargingStations",
 ]);
 
 /**

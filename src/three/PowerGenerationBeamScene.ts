@@ -13,11 +13,11 @@ import { fuelColorOf, type PowerGenerationRow } from "../data/energyLoader";
  * 三 3D skill §2.1 beam / §四 E 性能 InstancedMesh
  */
 
-const MAX_BEAM_COUNT = 256;       // 預留：14 台電廠 + 預留 IPP / 未來
-const BEAM_RADIUS = 0.00005;      // mercator 單位，約 1.8 km 半徑
-// 滿載柱「實高公尺」— 用 toMercator alt 參數讓 Mapbox 自動算 mercator z，
-// 避開原本固定 mercator 高度在 zoom 12 時飆到 25km 之外的問題
-const BEAM_MAX_ALTITUDE_M = 8000; // 滿載 = 8 km altitude（含 altExaggeration ×3 = 24km 視覺）
+const MAX_BEAM_COUNT = 256;       // 預留：14 台電廠 + IPP / 未來
+// 視覺：頂尖底寬光錐（蠟燭感）— 比固定柱粗薄板更耐看
+const BEAM_RADIUS_BOTTOM = 0.000020; // ~750m 底部寬
+const BEAM_RADIUS_TOP = 0.000006;    // ~220m 頂部寬（taper to point）
+const BEAM_MAX_ALTITUDE_M = 6000;    // 滿載 = 6 km altitude（含 altExaggeration ×3 = 18km 視覺）
 const LERP_FACTOR = 0.06;
 
 interface BeamState {
@@ -37,6 +37,7 @@ export class PowerGenerationBeamScene {
   private mesh: THREE.InstancedMesh | null = null;
   private beams: BeamState[] = [];
   private opacity = 0.55;
+  private heightScale = 1;
   private ownsRenderer = false;
 
   init(glOrRenderer: WebGLRenderingContext | THREE.WebGLRenderer) {
@@ -61,8 +62,10 @@ export class PowerGenerationBeamScene {
       this.mesh.geometry.dispose();
       (this.mesh.material as THREE.Material).dispose();
     }
-    // 單位圓柱：高度 1，向 Z 軸（旋轉 X 90°）
-    const geo = new THREE.CylinderGeometry(BEAM_RADIUS, BEAM_RADIUS * 0.4, 1, 6);
+    // 單位圓錐柱：底寬頂尖（蠟燭/光錐形），原始 Y axis 旋到 Z 軸朝上
+    // 預設 Y+ = 頂；CylinderGeometry(radiusTop, radiusBottom) 第一個是 Y+ 那端
+    // 我們要「頂(Z+) 細、底(Z-/Z=0) 粗」→ radiusTop 給 TOP（細）、radiusBottom 給 BOTTOM（粗）
+    const geo = new THREE.CylinderGeometry(BEAM_RADIUS_TOP, BEAM_RADIUS_BOTTOM, 1, 12);
     geo.rotateX(Math.PI / 2);
     const mat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
@@ -132,6 +135,13 @@ export class PowerGenerationBeamScene {
     }
   }
 
+  setHeightScale(s: number) {
+    const next = Math.max(0.1, Math.min(5, s));
+    if (next === this.heightScale) return;
+    this.heightScale = next;
+    this.updateMatrices(); // height slider 即時生效
+  }
+
   setVisible(v: boolean) {
     if (this.mesh) this.mesh.visible = v;
   }
@@ -159,8 +169,8 @@ export class PowerGenerationBeamScene {
     for (let i = 0; i < MAX_BEAM_COUNT; i++) {
       if (i < this.beams.length) {
         const b = this.beams[i]!;
-        // 高度從 maxMercatorZ × currentHeight 算來（用 toMercator 8000m 推算的 mercator 單位）
-        const h = b.maxMercatorZ * b.currentHeight;
+        // 高度從 maxMercatorZ × currentHeight × heightScale 算來
+        const h = b.maxMercatorZ * b.currentHeight * this.heightScale;
         t.makeTranslation(b.mc.x, b.mc.y, b.mc.z + h / 2);
         s.makeScale(1, 1, h);
         m.copy(t).multiply(s);
