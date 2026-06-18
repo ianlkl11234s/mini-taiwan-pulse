@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE, SURFACE } from "../styles/designTokens";
 
 interface LoadingStep {
   label: string;
@@ -112,7 +112,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
       style={{
         position: "fixed",
         inset: 0,
-        background: "#0a0a14",
+        background: SURFACE.app,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",

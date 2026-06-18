@@ -12,6 +12,7 @@
  * 起點 = 變軌事件本身（curr_fetched_at），不跟現實 now 不跟時間軸
  */
 import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
@@ -355,9 +356,9 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
               marginLeft: "auto",
               width: 28, height: 28, borderRadius: RADIUS.md, border: "none",
               background: "transparent", color: COLORS.textDim, cursor: "pointer",
-              fontSize: FONT_SIZE.xxl, lineHeight: 1,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}
-          >×</button>
+          ><X size={14} /></button>
         </div>
 
         <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "14px 16px 16px" }}>

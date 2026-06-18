@@ -11,6 +11,7 @@
  * - 預測 ← computePrediction(events)
  */
 import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fetchCatalog, formatOperatingSince, type CatalogRow } from "../../data/satelliteCatalogLoader";
@@ -119,9 +120,9 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
           style={{
             width: 24, height: 24, borderRadius: RADIUS.md, border: "none",
             background: "transparent", color: COLORS.textDim, cursor: "pointer",
-            fontSize: FONT_SIZE.xl, lineHeight: 1,
+            display: "flex", alignItems: "center", justifyContent: "center",
           }}
-        >×</button>
+        ><X size={14} /></button>
       </div>
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "11px 14px 14px" }}>
