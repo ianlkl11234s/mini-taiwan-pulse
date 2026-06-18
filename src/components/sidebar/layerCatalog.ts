@@ -456,4 +456,15 @@ export const SECTIONS: SectionDef[] = [
       { key: "wdBattery", label: "電池回收 Battery", labelMobile: "電池回收 Battery (2)", expandable: true },
     ],
   },
+  {
+    title: "ENERGY · 能源",
+    layers: [
+      { key: "powerStatusHud", label: "全國供電燈號 HUD", labelMobile: "全國供電燈號 (台電 10min)" },
+      { key: "powerPlants", label: "電廠 10,665", labelMobile: "電廠 10,665 設施 (fuel 分色)", expandable: true },
+      { key: "powerRegionDemand", label: "區域用電 3D bars", labelMobile: "北中南東 4 區用電柱" },
+      { key: "powerGenerationUnit", label: "機組即時光柱", labelMobile: "機組即時出力 3D beam (台電 205)" },
+      { key: "osmSubstations", label: "變電所 785", labelMobile: "OSM 變電所 785" },
+      { key: "evChargingStations", label: "充電站 3,060", labelMobile: "TDX 充電站 3,060" },
+    ],
+  },
 ];

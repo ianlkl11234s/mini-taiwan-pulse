@@ -21,6 +21,14 @@ import {
   type SoilFertilityMetric,
 } from "../data/agriSoilFertilityMetrics";
 import { SATELLITE_COLORS, SATELLITE_LABELS } from "../data/satelliteTypes";
+import {
+  FUEL_COLORS,
+  FUEL_FALLBACK_COLOR,
+  RESERVE_INDICATOR_COLORS,
+  RESERVE_INDICATOR_LABELS,
+  CAPACITY_BREAKS,
+  CAPACITY_RADIUS,
+} from "../data/energyLoader";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -124,6 +132,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
+  { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
+  { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
 ];
 
 export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
@@ -870,6 +880,107 @@ function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {
         ● 內圓 50 km swath（成像範圍示意）<br />
         ● 虛線外圓 1,500 km（仰角 ≥ 10° 可見 cone）<br />
         ● 軌跡 = 未來 30 分鐘地面航跡
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: fuel_type 分色 + capacity 半徑 ──
+
+const FUEL_LEGEND_ROWS: { label: string; key: string }[] = [
+  { label: "核能 Nuclear", key: "nuclear" },
+  { label: "燃煤 Coal", key: "coal" },
+  { label: "燃油 Oil", key: "oil" },
+  { label: "天然氣 Gas", key: "natural_gas" },
+  { label: "水力 Hydro", key: "hydro" },
+  { label: "太陽 Solar", key: "solar" },
+  { label: "風力 Wind", key: "wind" },
+  { label: "地熱 Geothermal", key: "geothermal" },
+  { label: "生質 Biomass/Biogas", key: "biomass" },
+];
+
+function EnergyFuelLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · FUEL
+      </div>
+      {FUEL_LEGEND_ROWS.map((row) => (
+        <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: RADIUS.full,
+              background: FUEL_COLORS[row.key] ?? FUEL_FALLBACK_COLOR,
+              display: "inline-block",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{row.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6 }}>
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 3 }}>
+          Capacity (MW)
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {[
+            { label: `<${CAPACITY_BREAKS.small}`, r: CAPACITY_RADIUS.tiny },
+            { label: `<${CAPACITY_BREAKS.medium}`, r: CAPACITY_RADIUS.small },
+            { label: `<${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.medium },
+            { label: `≥${CAPACITY_BREAKS.large}`, r: CAPACITY_RADIUS.large },
+          ].map((x) => (
+            <div key={x.label} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+              <div
+                style={{
+                  width: x.r * 2,
+                  height: x.r * 2,
+                  borderRadius: RADIUS.full,
+                  background: FUEL_FALLBACK_COLOR,
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 光柱（Layer 4）= 機組即時出力 / 裝置容量<br />
+        ● 14 台電廠有 output；OSM/IPP 等暫無
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: 燈號 G/Y/O/R ──
+
+function EnergyReserveLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 備轉燈號
+      </div>
+      {(["G", "Y", "O", "R"] as const).map((k) => (
+        <div key={k} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 12,
+              height: 12,
+              borderRadius: RADIUS.full,
+              background: RESERVE_INDICATOR_COLORS[k],
+              boxShadow: `0 0 6px ${RESERVE_INDICATOR_COLORS[k]}99`,
+              display: "inline-block",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>
+            {k} · {RESERVE_INDICATOR_LABELS[k]}
+          </span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 4 區用電柱（Layer 3）柱高 ∝ consumption_mw<br />
+        ● 柱色 = 全國燈號（共用一個值）
       </div>
     </div>
   );
