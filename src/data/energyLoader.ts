@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 /**
  * Energy MVP loader（layer 1-6 + KPI HUD）
@@ -96,6 +96,57 @@ async function fetchPowerPlantsUncached(): Promise<PowerPlantRow[]> {
 const fetchPowerPlantsCached = cachedOnce(fetchPowerPlantsUncached, 5 * 60_000);
 export const fetchPowerPlants = (): Promise<PowerPlantRow[]> => fetchPowerPlantsCached();
 export const invalidatePowerPlants = (): void => fetchPowerPlantsCached.invalidate();
+
+// ── Plants at timestamp（217 RPC，timeline 跟隨用）────────────
+
+/** 任意時間點電廠出力快照（uncached 版本，內部使用） */
+async function fetchPowerPlantsAtUncached(tsSec: number | null): Promise<PowerPlantRow[]> {
+  const { data, error } = await withLoading(
+    `energy:plants:${tsSec ?? "latest"}`,
+    `電廠出力快照`,
+    supabase.rpc("get_power_plants_at", { ts_unix: tsSec }),
+  );
+  if (error) throw new Error(`get_power_plants_at: ${error.message}`);
+  return (data ?? []) as PowerPlantRow[];
+}
+
+// key = "latest" 或 snapped ts string；15min TTL × LRU 24 個 key
+// （24h 拉滿 144 個 10min boundary，但通常只逛幾個段）
+const fetchPowerPlantsAtCached = cachedByKey(
+  (key: string) => {
+    const ts = key === "latest" ? null : Number(key);
+    return fetchPowerPlantsAtUncached(ts);
+  },
+  15 * 60_000,
+  24,
+);
+
+/** Snap ts 到 10 min 邊界；若 ts 在 wall clock 5 min 內視為 latest（吃 NULL fast path） */
+export function fetchPowerPlantsForTime(tsSec: number): Promise<PowerPlantRow[]> {
+  const wallNow = Math.floor(Date.now() / 1000);
+  const isRecent = Math.abs(tsSec - wallNow) < 300;
+  const snapped = Math.floor(tsSec / 600) * 600;
+  const key = isRecent ? "latest" : String(snapped);
+  return fetchPowerPlantsAtCached(key);
+}
+
+// ── 24h history per plant（217 RPC，popup sparkline 用）──────
+
+export interface PlantOutputPoint {
+  ts: number; // unix seconds
+  output_mw: number | null;
+  load_rate: number | null;
+}
+
+export async function fetchPlantOutput24h(plantName: string): Promise<PlantOutputPoint[]> {
+  const { data, error } = await withLoading(
+    `energy:plant24h:${plantName}`,
+    `${plantName} 24h 出力`,
+    supabase.rpc("get_power_plant_output_24h", { plant_name: plantName }),
+  );
+  if (error) throw new Error(`get_power_plant_output_24h: ${error.message}`);
+  return (data ?? []) as PlantOutputPoint[];
+}
 
 // ── Substations / EV ───────────────────────────────────────────
 

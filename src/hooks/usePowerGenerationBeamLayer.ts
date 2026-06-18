@@ -5,16 +5,17 @@ import {
   POWER_GENERATION_BEAM_LAYER_ID,
 } from "../map/powerGenerationBeamCustomLayer";
 import {
-  fetchPowerPlants,
-  invalidatePowerPlants,
+  fetchPowerPlantsForTime,
   type PowerPlantRow,
 } from "../data/energyLoader";
+import { timeStore } from "../state/timeStore";
 
 /**
- * Layer 4：機組即時出力 3D beam。
- * - 與 useEnergyPoiLayer 共用 fetchPowerPlants（cachedOnce 5min）→ 不重複網路
- * - 自己持有 plantsRef 給 CustomLayer 拉取（避免 React re-render 進 frame loop）
- * - 5 min poll，與 layer 1 同步
+ * Layer 4：機組即時出力 3D beam，跟隨 timeline 時間軸。
+ * - Snap timeStore.getTime() 到 10min 邊界（cron 寫入頻率）
+ * - subscribeThrottled 2s：scrub 平滑、不打爆 RPC
+ * - cachedByKey 15min TTL × 24 key LRU：重看同段不重抓
+ * - retention 7 days；歷史超出範圍時 RPC 回空 → beam 高度歸 0
  */
 export function usePowerGenerationBeamLayer(
   mapRef: React.RefObject<MapboxMap | null>,
@@ -53,30 +54,29 @@ export function usePowerGenerationBeamLayer(
     };
   }, [mapRef, visible]);
 
-  // Fetch + poll
+  // Fetch + 跟隨 timeStore（2s throttle，內部用 cachedByKey 10min boundary）
   useEffect(() => {
     if (!visible) return;
     let cancelled = false;
+    let loadGen = 0;
 
-    const load = () => {
-      fetchPowerPlants()
+    const load = (tsSec: number) => {
+      const myGen = ++loadGen;
+      fetchPowerPlantsForTime(tsSec)
         .then((rows) => {
-          if (cancelled) return;
-          // CustomLayer 用 reference equality 判斷 dirty，重發新 array reference
+          if (cancelled || myGen !== loadGen) return; // 舊請求丟棄
           plantsRef.current = rows.slice();
           mapRef.current?.triggerRepaint();
         })
         .catch((err) => console.warn("[PowerBeam] load failed:", err));
     };
 
-    load();
-    const t = window.setInterval(() => {
-      invalidatePowerPlants();
-      load();
-    }, 5 * 60_000);
+    // 初始 + 訂閱
+    load(timeStore.getTime());
+    const unsub = timeStore.subscribeThrottled(2000, load);
     return () => {
       cancelled = true;
-      window.clearInterval(t);
+      unsub();
     };
   }, [visible, mapRef]);
 }
