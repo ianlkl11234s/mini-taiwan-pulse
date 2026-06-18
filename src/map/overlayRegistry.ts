@@ -2854,4 +2854,112 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ══════════════════════════════════════════════════════════════════
+  //  ENERGY MVP — layer 1 / 5 / 6 (POI 2D circle)
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Layer 1：電廠總圖 all_power_plants_v 10,665 ──
+  // fuel_type 分色（match expression），capacity_mw 4 階半徑（quantile p50/p80/p95）。
+  // 有 output_load_rate 的會顯示 stroke 強度（layer 4 beam 才畫光柱，這裡只是底圖）。
+  {
+    id: "powerPlants",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-plants",
+    dynamicData: true,
+    rebuildOnParamChange: ["energy"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.energyOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", 1.5, ["coalesce", ["get", "radius"], 3]],
+              12, ["*", 2.4, ["coalesce", ["get", "radius"], 3]],
+            ],
+            "circle-blur": 0.8,
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.25,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.energyOpacity ?? 0.95;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["coalesce", ["get", "radius"], 3],
+              12, ["*", 1.6, ["coalesce", ["get", "radius"], 3]],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": isDark ? "#111827" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 5：OSM 變電所 785 ──
+  {
+    id: "osmSubstations",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-substations",
+    dynamicData: true,
+    rebuildOnParamChange: ["energy"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.energyOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2.5, 11, 4.5, 14, 6,
+            ],
+            "circle-color": "#a78bfa",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "#312e81" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 6：EV 充電站 3,060 ──
+  {
+    id: "evChargingStations",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-ev-charging",
+    dynamicData: true,
+    rebuildOnParamChange: ["energy"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.energyOpacity ?? 0.8;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 2, 12, 3.5, 15, 5,
+            ],
+            "circle-color": "#10b981",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.6,
+            "circle-stroke-color": isDark ? "#064e3b" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
 ];
