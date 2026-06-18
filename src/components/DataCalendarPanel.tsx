@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ChevronLeft, ChevronRight, Navigation } from "lucide-react";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 
@@ -125,7 +126,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
       {/* ── DAILY section ── */}
       {cyclicSources.length > 0 && (
         <div style={{ padding: "8px 12px" }}>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1.5, color: DIM, fontFamily: "monospace", marginBottom: 6 }}>
+          <div style={{ fontSize: FONT_SIZE.sm, fontWeight: 600, letterSpacing: 1.5, color: DIM, fontFamily: FONT_DATA, marginBottom: 6 }}>
             DAILY
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -133,18 +134,18 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
               <span
                 key={s.id}
                 style={{
-                  fontSize: 10,
-                  fontFamily: "monospace",
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
                   color: s.color,
                   background: "rgba(255,255,255,0.05)",
-                  borderRadius: 3,
+                  borderRadius: RADIUS.md,
                   padding: "2px 6px",
                 }}
               >
                 {s.label}
               </span>
             ))}
-            <span style={{ fontSize: 10, fontFamily: "monospace", color: DIM }}>always</span>
+            <span style={{ fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA, color: DIM }}>always</span>
           </div>
         </div>
       )}
@@ -158,7 +159,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
         <button onClick={() => shiftMonth(-1)} style={navBtnStyle}>
           <ChevronLeft size={14} />
         </button>
-        <span style={{ flex: 1, textAlign: "center", fontSize: 12, fontWeight: 600, color: "#fff", fontFamily: "Inter, system-ui, sans-serif" }}>
+        <span style={{ flex: 1, textAlign: "center", fontSize: FONT_SIZE.md, fontWeight: 600, color: "#fff", fontFamily: "Inter, system-ui, sans-serif" }}>
           {year}年{month + 1}月
         </span>
         <button onClick={() => shiftMonth(1)} style={navBtnStyle}>
@@ -172,10 +173,10 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
               key={m}
               onClick={() => setMode(m)}
               style={{
-                fontSize: 9,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.xs,
+                fontFamily: FONT_DATA,
                 padding: "2px 6px",
-                borderRadius: 3,
+                borderRadius: RADIUS.md,
                 border: mode === m ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
                 background: mode === m ? "rgba(255,255,255,0.1)" : "transparent",
                 color: mode === m ? "#fff" : DIM,
@@ -197,9 +198,9 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
               key={wd}
               style={{
                 textAlign: "center",
-                fontSize: 9,
+                fontSize: FONT_SIZE.xs,
                 color: DIM,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 padding: "2px 0",
               }}
             >
@@ -238,7 +239,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                     : isSelected
                       ? "1px solid rgba(255,255,255,0.3)"
                       : "1px solid transparent",
-                  borderRadius: 4,
+                  borderRadius: RADIUS.md,
                   background: mode === "heat"
                     ? `rgba(100, 200, 255, ${coverage * 0.35})`
                     : (isSelected ? "rgba(255,255,255,0.08)" : "transparent"),
@@ -253,9 +254,9 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
               >
                 {/* Day number */}
                 <span style={{
-                  fontSize: 10,
-                  fontFamily: "monospace",
-                  color: isSelected ? "#fff" : (sourcesOnDay.length > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)"),
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
+                  color: isSelected ? "#fff" : (sourcesOnDay.length > 0 ? COLORS.textDefault : COLORS.textFaint),
                   fontWeight: isSelected ? 700 : 400,
                   lineHeight: 1,
                 }}>
@@ -277,7 +278,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                         style={{
                           width: 4,
                           height: 4,
-                          borderRadius: "50%",
+                          borderRadius: RADIUS.full,
                           background: SOURCE_COLORS[srcId] ?? "#888",
                           flexShrink: 0,
                         }}
@@ -289,9 +290,9 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 {/* Heat mode: coverage % */}
                 {mode === "heat" && sourcesOnDay.length > 0 && (
                   <span style={{
-                    fontSize: 7,
-                    fontFamily: "monospace",
-                    color: "rgba(255,255,255,0.5)",
+                    fontSize: FONT_SIZE.xs,
+                    fontFamily: FONT_DATA,
+                    color: COLORS.textMuted,
                     lineHeight: 1,
                   }}>
                     {Math.round(coverage * 100)}%
@@ -308,10 +309,10 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
         <div style={{ padding: "4px 12px 8px" }}>
           <div style={{ height: 1, background: BORDER, marginBottom: 6 }} />
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 600, color: "#fff", fontFamily: "Inter, system-ui, sans-serif" }}>
+            <span style={{ fontSize: FONT_SIZE.base, fontWeight: 600, color: "#fff", fontFamily: "Inter, system-ui, sans-serif" }}>
               {detailDate.getMonth() + 1}/{detailDate.getDate()} ({WEEKDAYS[detailDate.getDay()]})
             </span>
-            <span style={{ fontSize: 10, color: DIM, fontFamily: "monospace" }}>
+            <span style={{ fontSize: FONT_SIZE.sm, color: DIM, fontFamily: FONT_DATA }}>
               {(() => {
                 const sources = daySourceMap.get(detailDate.getDate()) ?? [];
                 return totalSources > 0
@@ -328,12 +329,12 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 display: "flex",
                 alignItems: "center",
                 gap: 3,
-                fontSize: 10,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.sm,
+                fontFamily: FONT_DATA,
                 color: "#64aaff",
                 background: "rgba(100,170,255,0.1)",
                 border: "1px solid rgba(100,170,255,0.3)",
-                borderRadius: 4,
+                borderRadius: RADIUS.md,
                 padding: "2px 8px",
                 cursor: "pointer",
               }}
@@ -350,12 +351,12 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 <span
                   key={s.id}
                   style={{
-                    fontSize: 10,
-                    fontFamily: "monospace",
+                    fontSize: FONT_SIZE.sm,
+                    fontFamily: FONT_DATA,
                     padding: "1px 6px",
-                    borderRadius: 3,
+                    borderRadius: RADIUS.md,
                     background: hasData ? "rgba(255,255,255,0.06)" : "transparent",
-                    color: hasData ? s.color : "rgba(255,255,255,0.2)",
+                    color: hasData ? s.color : COLORS.textFaint,
                     border: hasData ? `1px solid ${s.color}33` : "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
@@ -370,7 +371,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
       {/* ── Legend (click to filter) ── */}
       <div style={{ height: 1, background: BORDER, margin: "0 12px" }} />
       <div style={{ padding: "6px 12px 8px" }}>
-        <div style={{ fontSize: 9, color: DIM, fontFamily: "monospace", marginBottom: 4, letterSpacing: 1 }}>
+        <div style={{ fontSize: FONT_SIZE.xs, color: DIM, fontFamily: FONT_DATA, marginBottom: 4, letterSpacing: 1 }}>
           FILTER (click to highlight)
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
@@ -381,13 +382,13 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 key={s.id}
                 onClick={() => setFilterSource(isActive ? null : s.id)}
                 style={{
-                  fontSize: 10,
-                  fontFamily: "monospace",
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
                   padding: "2px 6px",
-                  borderRadius: 3,
+                  borderRadius: RADIUS.md,
                   border: isActive ? `1px solid ${s.color}` : "1px solid rgba(255,255,255,0.1)",
                   background: isActive ? `${s.color}22` : "transparent",
-                  color: isActive ? s.color : "rgba(255,255,255,0.5)",
+                  color: isActive ? s.color : COLORS.textMuted,
                   cursor: "pointer",
                   transition: "all 0.15s",
                 }}
@@ -396,7 +397,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                   display: "inline-block",
                   width: 6,
                   height: 6,
-                  borderRadius: "50%",
+                  borderRadius: RADIUS.full,
                   background: s.color,
                   marginRight: 3,
                   verticalAlign: "middle",
@@ -409,10 +410,10 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
             <button
               onClick={() => setFilterSource(null)}
               style={{
-                fontSize: 9,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.xs,
+                fontFamily: FONT_DATA,
                 padding: "2px 6px",
-                borderRadius: 3,
+                borderRadius: RADIUS.md,
                 border: "1px solid rgba(255,255,255,0.15)",
                 background: "rgba(255,255,255,0.05)",
                 color: DIM,
@@ -433,7 +434,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
 const navBtnStyle: React.CSSProperties = {
   width: 24,
   height: 24,
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   border: "none",
   background: "transparent",
   color: "#9CA3AF",

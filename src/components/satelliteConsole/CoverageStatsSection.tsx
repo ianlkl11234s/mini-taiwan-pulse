@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useState } from "react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { loadSatellites } from "../../data/satelliteLoader";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { SATELLITE_COLORS } from "../../data/satelliteTypes";
@@ -220,10 +221,10 @@ export function CoverageStatsSection({ maneuvers }: Props) {
   return (
     <div style={{ padding: "10px 14px 8px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK }}>
       {/* 主數字列 — 覆蓋中 + 6h 通過 + breakdown */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 11 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: FONT_SIZE.base }}>
         <div>
           <span style={{ color: COLORS.textDim }}>覆蓋台灣中</span>
-          <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: 16, fontWeight: 700, color: coveringNow.length > 0 ? "#4fc3f7" : COLORS.textDefault }}>
+          <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: coveringNow.length > 0 ? "#4fc3f7" : COLORS.textDefault }}>
             {coveringNow.length}
           </span>
           <span style={{ color: COLORS.textDim, marginLeft: 2 }}>顆</span>
@@ -231,7 +232,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
         <div style={{ width: 1, height: 18, background: COLORS.borderSoft }} />
         <div>
           <span style={{ color: COLORS.textDim }}>未來 6h 通過</span>
-          <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: 16, fontWeight: 700, color: COLORS.textDefault }}>
+          <span style={{ marginLeft: 6, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: COLORS.textDefault }}>
             {computingScan ? "…" : passes.length}
           </span>
           <span style={{ color: COLORS.textDim, marginLeft: 2 }}>次</span>
@@ -241,12 +242,12 @@ export function CoverageStatsSection({ maneuvers }: Props) {
           style={{
             marginLeft: "auto",
             padding: "3px 8px",
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             background: "transparent",
             border: `1px solid ${COLORS.borderMid}`,
             color: COLORS.textMuted,
             fontFamily: FONT_CJK,
-            fontSize: 10,
+            fontSize: FONT_SIZE.sm,
             cursor: "pointer",
           }}
         >
@@ -259,7 +260,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
         <div style={{
           marginTop: 5,
           display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
-          fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted,
+          fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted,
         }}>
           <span>CN <span style={{ color: COLORS.textDefault, fontWeight: 600 }}>{coverageBreakdown.cn}</span></span>
           <span>/ TW <span style={{ color: "#4fc3f7", fontWeight: 600 }}>{coverageBreakdown.tw}</span></span>
@@ -283,7 +284,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
         <div style={{
           marginTop: 4,
           fontFamily: FONT_DATA,
-          fontSize: 10,
+          fontSize: FONT_SIZE.sm,
           color: COLORS.textMuted,
           whiteSpace: "nowrap",
           overflow: "hidden",
@@ -296,7 +297,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
 
       {/* 6h timeline 展開 */}
       {expanded && (
-        <div style={{ marginTop: 10, padding: 10, borderRadius: 6, background: "rgba(0,0,0,0.25)" }}>
+        <div style={{ marginTop: 10, padding: 10, borderRadius: RADIUS.lg, background: "rgba(0,0,0,0.25)" }}>
           {/* 過濾 toggle */}
           <div style={{
             display: "flex", alignItems: "center", gap: 8, marginBottom: 8,
@@ -307,7 +308,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
               onClick={() => setReconOnly(true)}
               style={{
                 padding: "3px 8px",
-                borderRadius: 4,
+                borderRadius: RADIUS.md,
                 background: reconOnly ? "rgba(34,197,94,0.16)" : "transparent",
                 border: `1px solid ${reconOnly ? "rgba(34,197,94,0.55)" : COLORS.borderMid}`,
                 color: reconOnly ? "#22c55e" : COLORS.textMuted,
@@ -320,7 +321,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
               onClick={() => setReconOnly(false)}
               style={{
                 padding: "3px 8px",
-                borderRadius: 4,
+                borderRadius: RADIUS.md,
                 background: !reconOnly ? COLORS.accentFaint : "transparent",
                 border: `1px solid ${!reconOnly ? COLORS.borderAccent : COLORS.borderMid}`,
                 color: !reconOnly ? "#cfe4ff" : COLORS.textMuted,
@@ -343,7 +344,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
                 top: 0,
                 transform: "translateX(-50%)",
                 fontFamily: FONT_DATA,
-                fontSize: 9,
+                fontSize: FONT_SIZE.xs,
                 color: COLORS.textFaint,
               }}>
                 +{h}h
@@ -353,7 +354,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
           {/* tick rows */}
           <div style={{ position: "relative", maxHeight: 220, overflowY: "auto" }} className="mtp-scroll">
             {filteredPasses.length === 0 ? (
-              <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
                 {computingScan ? "計算中…" : reconOnly ? "未來 6h 無遙測偵察類通過" : "未來 6h 無預計通過"}
               </div>
             ) : (
@@ -369,7 +370,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
                       top: 5,
                       width: 8,
                       height: 8,
-                      borderRadius: "50%",
+                      borderRadius: RADIUS.full,
                       background: color,
                       transform: "translateX(-50%)",
                       boxShadow: isManeuver ? `0 0 5px ${COLORS.statusErr}` : "none",
@@ -393,7 +394,7 @@ export function CoverageStatsSection({ maneuvers }: Props) {
               })
             )}
             {filteredPasses.length > 80 && (
-              <div style={{ padding: "4px 0", fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, textAlign: "center" }}>
+              <div style={{ padding: "4px 0", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, textAlign: "center" }}>
                 共 {filteredPasses.length} 次 · 顯示前 80
               </div>
             )}

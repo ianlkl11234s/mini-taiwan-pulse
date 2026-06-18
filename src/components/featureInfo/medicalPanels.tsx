@@ -1,3 +1,4 @@
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { medIsochroneColor, medIsochroneLabel, MEDICAL_ISOCHRONE_NOTE } from "../../data/medicalIsochroneTypes";
 import { medicalColorByCat } from "../../data/medicalPOITypes";
 import { Row } from "./shared";
@@ -19,8 +20,8 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
       </div>
       {medCat === "hospital" || medCat === "clinic" || medCat === "other_medical" ? (
         <>
@@ -83,15 +84,15 @@ export function MedicalIsochronePanel({ props }: { props: Record<string, unknown
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {medIsochroneLabel(level)}
         </div>
       </div>
       {minutes != null && <Row label="最近大醫院車程" value={`${minutes.toFixed(1)} 分鐘`} color={accentColor} />}
       {nearest && <Row label="最近醫院" value={nearest} />}
       {nearestCat && <Row label="醫院層級" value={nearestCat.replace("hospital_", "").replace("_", " ")} />}
-      <div style={{ fontSize: 9, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
         ⚠️ {MEDICAL_ISOCHRONE_NOTE}
       </div>
     </>

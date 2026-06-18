@@ -12,8 +12,10 @@
  * 起點 = 變軌事件本身（curr_fetched_at），不跟現實 now 不跟時間軸
  */
 import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fetchTlePair, type TleHistoryRow } from "../../data/satelliteHistoryLoader";
 import { formatManeuverDetail, type ManeuverRow } from "../../data/satelliteManeuversLoader";
 
@@ -197,18 +199,18 @@ function MiniMap({
   return (
     <div style={{ flex: 1 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4 }}>
-        <span style={{ width: 8, height: 8, borderRadius: "50%", background: color }} />
+        <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: color }} />
         <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, letterSpacing: "1.5px", color: COLORS.textMuted }}>
           {label}
         </span>
         {track && (
-          <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textDefault, fontWeight: 600 }}>
+          <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDefault, fontWeight: 600 }}>
             過台 {track.twPasses} 次 / 7d
           </span>
         )}
       </div>
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`}
-           style={{ background: "#0b0f14", border: `1px solid ${COLORS.borderSoft}`, borderRadius: 6, display: "block" }}>
+           style={{ background: "#0b0f14", border: `1px solid ${COLORS.borderSoft}`, borderRadius: RADIUS.lg, display: "block" }}>
         {/* 經緯線（每 5°） */}
         {Array.from({ length: 8 }).map((_, i) => {
           const lng = TW_FRAME.lngMin + i * 5;
@@ -319,7 +321,7 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
         style={{
           width: 760, maxWidth: "100%", maxHeight: "92vh",
           background: COLORS.panelBg, border: `1px solid ${COLORS.panelBorder}`,
-          borderRadius: 10, fontFamily: FONT_CJK, color: COLORS.textDefault,
+          borderRadius: RADIUS.xl, fontFamily: FONT_CJK, color: COLORS.textDefault,
           display: "flex", flexDirection: "column", overflow: "hidden",
           animation: "satConsoleFadeIn .25s ease-out",
         }}
@@ -332,40 +334,40 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
         }}>
           <span style={{
             display: "inline-flex", alignItems: "center", gap: 4,
-            padding: "2px 8px", borderRadius: 4,
+            padding: "2px 8px", borderRadius: RADIUS.md,
             background: token.soft, border: `1px solid ${token.color}66`,
-            fontFamily: FONT_DATA, fontSize: 10, fontWeight: 700, color: token.color,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, color: token.color,
             animation: token.pulse ? "satManeuverPulse 1.1s ease-in-out infinite" : "none",
           }}>
             {token.icon} {token.zh}
           </span>
-          <span style={{ fontSize: 14, fontWeight: 700, color: COLORS.textStrong }}>
+          <span style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong }}>
             {maneuver.name}
           </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textDim }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
             NORAD {maneuver.norad_id}
           </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 11, color: COLORS.textDefault, marginLeft: 6 }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginLeft: 6 }}>
             {formatManeuverDetail(maneuver)}
           </span>
           <button
             onClick={onClose}
             style={{
               marginLeft: "auto",
-              width: 28, height: 28, borderRadius: 4, border: "none",
+              width: 28, height: 28, borderRadius: RADIUS.md, border: "none",
               background: "transparent", color: COLORS.textDim, cursor: "pointer",
-              fontSize: 20, lineHeight: 1,
+              display: "flex", alignItems: "center", justifyContent: "center",
             }}
-          >×</button>
+          ><X size={14} /></button>
         </div>
 
         <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "14px 16px 16px" }}>
           {loading ? (
-            <div style={{ padding: "40px 0", textAlign: "center", color: COLORS.textFaint, fontSize: 11 }}>
+            <div style={{ padding: "40px 0", textAlign: "center", color: COLORS.textFaint, fontSize: FONT_SIZE.base }}>
               載入 TLE pair + 計算 7 天 ground track…
             </div>
           ) : !pair.prev || !pair.curr ? (
-            <div style={{ padding: "20px 0", textAlign: "center", color: COLORS.statusWarn, fontSize: 11 }}>
+            <div style={{ padding: "20px 0", textAlign: "center", color: COLORS.statusWarn, fontSize: FONT_SIZE.base }}>
               tle_history 找不到對應的 prev/curr TLE（epoch 可能尚未歸檔）
             </div>
           ) : (
@@ -386,7 +388,7 @@ export function ManeuverCompareModal({ maneuver, onClose }: Props) {
                 </div>
               )}
 
-              <div style={{ marginTop: 10, fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>
+              <div style={{ marginTop: 10, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
                 顯示框：經度 {TW_FRAME.lngMin}–{TW_FRAME.lngMax}°E · 緯度 {TW_FRAME.latMin}–{TW_FRAME.latMax}°N
                 ｜ 比對方法：前後兩條 TLE 跑 SGP4 7 天（10 min 步進），elevation&gt;10° 入境邊緣 = 1 次過台
               </div>
@@ -409,12 +411,12 @@ function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number;
   return (
     <div style={{
       padding: "12px 14px",
-      borderRadius: 8,
+      borderRadius: RADIUS.xl,
       background: "rgba(255,255,255,0.025)",
       border: `1px solid ${COLORS.borderSoft}`,
     }}>
       <div style={{
-        fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "2px",
+        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
         color: COLORS.textFaint, marginBottom: 8,
       }}>
         OVERHEAD PASSES · 過台頻次 7 天
@@ -426,11 +428,11 @@ function PassDiffHeadline({ diff }: { diff: { twBefore: number; twAfter: number;
           minWidth: 80, gap: 2,
         }}>
           <span style={{
-            fontFamily: FONT_DATA, fontSize: 22, fontWeight: 800, color: pctColor, lineHeight: 1,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 800, color: pctColor, lineHeight: 1,
           }}>
             {isUp ? "+" : ""}{diff.pct}%
           </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
             {isUp ? "↑ 增加" : isDown ? "↓ 減少" : "持平"}
             {" "}
             {isUp || isDown ? `${Math.abs(diff.twDiff)} 次` : ""}
@@ -447,18 +449,18 @@ function PassBar({ label, value, max, color }: { label: string; value: number; m
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 4 }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px", color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textFaint }}>
           {label}
         </span>
-        <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: 18, fontWeight: 700, color: COLORS.textStrong, lineHeight: 1 }}>
+        <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: COLORS.textStrong, lineHeight: 1 }}>
           {value}
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textDim }}>次</span>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>次</span>
       </div>
-      <div style={{ position: "relative", height: 8, borderRadius: 4, background: "rgba(255,255,255,0.05)" }}>
+      <div style={{ position: "relative", height: 8, borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)" }}>
         <div style={{
           position: "absolute", left: 0, top: 0, bottom: 0, width: `${pct}%`,
-          background: color, borderRadius: 4, transition: "width 0.3s ease",
+          background: color, borderRadius: RADIUS.md, transition: "width 0.3s ease",
         }} />
       </div>
     </div>
@@ -474,7 +476,7 @@ function RegionDiffChips({ gained, lost }: { gained: Region[]; lost: Region[] })
 
   if (gained.length === 0 && lost.length === 0) {
     return (
-      <div style={{ fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textFaint, padding: "4px 0" }}>
+      <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "4px 0" }}>
         7 天內覆蓋區域無實質差異（軌道平面微移，bbox 命中不變）
       </div>
     );
@@ -484,7 +486,7 @@ function RegionDiffChips({ gained, lost }: { gained: Region[]; lost: Region[] })
     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6 }}>
       {gained.length > 0 && (
         <>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, letterSpacing: "1.5px" }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, letterSpacing: "1.5px" }}>
             新增覆蓋
           </span>
           {gainedInFrame.map((r) => (
@@ -498,7 +500,7 @@ function RegionDiffChips({ gained, lost }: { gained: Region[]; lost: Region[] })
       {lost.length > 0 && (
         <>
           {gained.length > 0 && <span style={{ color: COLORS.borderMid }}>·</span>}
-          <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, letterSpacing: "1.5px" }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, letterSpacing: "1.5px" }}>
             失去覆蓋
           </span>
           {lostInFrame.map((r) => (
@@ -520,18 +522,18 @@ function Chip({ color, zh, prefix, offFrame }: { color: string; zh: string; pref
       style={{
         display: "inline-flex", alignItems: "center", gap: 3,
         padding: "2px 7px",
-        borderRadius: 4,
+        borderRadius: RADIUS.md,
         background: `${color}22`,
         border: `1px solid ${color}66`,
         fontFamily: FONT_CJK,
-        fontSize: 11,
+        fontSize: FONT_SIZE.base,
         color,
         opacity: offFrame ? 0.75 : 1,
       }}
     >
       <span style={{ fontWeight: 700 }}>{prefix}</span>
       {zh}
-      {offFrame && <span style={{ fontSize: 9, opacity: 0.8 }}>(框外)</span>}
+      {offFrame && <span style={{ fontSize: FONT_SIZE.xs, opacity: 0.8 }}>(框外)</span>}
     </span>
   );
 }

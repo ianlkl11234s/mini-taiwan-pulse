@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, COUNTY_OPTIONS } from "./intelTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../data/newsEventTypes";
 
 export type TimeRange = "1h" | "6h" | "24h";
@@ -31,10 +32,10 @@ function chip(active: boolean): CSSProperties {
     display: "inline-flex",
     alignItems: "center",
     padding: "3px 9px",
-    borderRadius: 4,
+    borderRadius: RADIUS.md,
     cursor: "pointer",
     fontFamily: FONT_CJK,
-    fontSize: 11,
+    fontSize: FONT_SIZE.base,
     whiteSpace: "nowrap",
     background: active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.03)",
     border: `1px solid ${active ? COLORS.borderStrong : COLORS.borderSoft}`,
@@ -46,7 +47,7 @@ function chip(active: boolean): CSSProperties {
 function segBtn(active: boolean): CSSProperties {
   return {
     padding: "3px 10px",
-    borderRadius: 4,
+    borderRadius: RADIUS.md,
     border: "none",
     cursor: "pointer",
     whiteSpace: "nowrap",
@@ -92,10 +93,10 @@ export function IntelFilters({
                 alignItems: "center",
                 gap: 5,
                 padding: "3px 9px",
-                borderRadius: 4,
+                borderRadius: RADIUS.md,
                 cursor: "pointer",
                 fontFamily: FONT_CJK,
-                fontSize: 11,
+                fontSize: FONT_SIZE.base,
                 whiteSpace: "nowrap",
                 background: on ? `${c.color}26` : "rgba(255,255,255,0.03)",
                 border: `1px solid ${on ? c.color : COLORS.borderSoft}`,
@@ -107,7 +108,7 @@ export function IntelFilters({
                 style={{
                   width: 7,
                   height: 7,
-                  borderRadius: "50%",
+                  borderRadius: RADIUS.full,
                   background: c.color,
                   opacity: on ? 1 : 0.5,
                 }}
@@ -120,13 +121,13 @@ export function IntelFilters({
 
       {/* time range + 相關度（同一橫排） */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint }}>近</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>近</span>
         <div
           style={{
             display: "flex",
             background: "rgba(0,0,0,0.4)",
             border: `1px solid ${COLORS.borderSoft}`,
-            borderRadius: 6,
+            borderRadius: RADIUS.lg,
             padding: 2,
             gap: 2,
           }}
@@ -137,7 +138,7 @@ export function IntelFilters({
             </button>
           ))}
         </div>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, marginLeft: 6 }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, marginLeft: 6 }}>
           相關度
         </span>
         <div
@@ -145,7 +146,7 @@ export function IntelFilters({
             display: "flex",
             background: "rgba(0,0,0,0.4)",
             border: `1px solid ${COLORS.borderSoft}`,
-            borderRadius: 6,
+            borderRadius: RADIUS.lg,
             padding: 2,
             gap: 2,
           }}
@@ -171,7 +172,7 @@ export function IntelFilters({
             fontFamily: FONT_CJK,
             fontSize: 10.5,
             padding: "4px 10px",
-            borderRadius: 6,
+            borderRadius: RADIUS.lg,
             background: "rgba(0,0,0,0.45)",
             color: county === "全部" ? COLORS.textMuted : "#fff",
             border: `1px solid ${COLORS.borderMid}`,
@@ -193,7 +194,7 @@ export function IntelFilters({
             alignItems: "center",
             gap: 5,
             padding: "3px 9px",
-            borderRadius: 5,
+            borderRadius: RADIUS.lg,
             cursor: "pointer",
             fontFamily: FONT_CJK,
             fontSize: 10.5,
@@ -208,14 +209,14 @@ export function IntelFilters({
             style={{
               width: 12,
               height: 12,
-              borderRadius: 3,
+              borderRadius: RADIUS.md,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               border: eventsOnly ? "none" : `1px solid ${COLORS.borderStrong}`,
               background: eventsOnly ? COLORS.accent : "transparent",
               color: "#04121f",
-              fontSize: 9,
+              fontSize: FONT_SIZE.xs,
               fontWeight: 700,
               fontFamily: FONT_DATA,
             }}

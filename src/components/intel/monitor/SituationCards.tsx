@@ -1,5 +1,6 @@
 import { IntelIcon } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON } from "../intelTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { Sparkline } from "./PressureRing";
 import type { PlaActivity, PublicHealthWeek, CdcDisease } from "../../../data/intelLoaders";
 
@@ -8,7 +9,7 @@ function PlaCard({ data }: { data: PlaActivity }) {
   return (
     <div
       style={{
-        borderRadius: 9,
+        borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
         padding: "12px 13px",
@@ -19,7 +20,7 @@ function PlaCard({ data }: { data: PlaActivity }) {
         <IntelIcon d={MICON.plane!} size={13} color="#ff6b6b" />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.2px", color: COLORS.textDim,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim,
           }}
         >
           PLA ACTIVITY
@@ -28,7 +29,7 @@ function PlaCard({ data }: { data: PlaActivity }) {
         <span
           style={{
             fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint,
-            padding: "1px 6px", borderRadius: 3, background: "rgba(255,255,255,0.05)",
+            padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
             whiteSpace: "nowrap",
           }}
         >
@@ -42,20 +43,20 @@ function PlaCard({ data }: { data: PlaActivity }) {
         >
           {data.sorties}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textMuted }}>架次</span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>架次</span>
         <div style={{ flex: 1 }} />
         {data.crossed_median > 0 && (
           <span
             style={{
               display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 8px",
-              borderRadius: 5,
+              borderRadius: RADIUS.lg,
               background: "rgba(239,68,68,0.16)",
               border: "1px solid rgba(239,68,68,0.5)",
             }}
           >
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 14, fontWeight: 700, color: "#ff5a5a", lineHeight: 1,
+                fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#ff5a5a", lineHeight: 1,
               }}
             >
               {data.crossed_median}
@@ -71,14 +72,14 @@ function PlaCard({ data }: { data: PlaActivity }) {
             key={z.key}
             style={{
               flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 4,
-              padding: "3px 0", borderRadius: 4,
+              padding: "3px 0", borderRadius: RADIUS.md,
               background: z.active ? "rgba(255,152,0,0.12)" : "rgba(255,255,255,0.03)",
               border: z.active ? "1px solid rgba(255,152,0,0.4)" : `1px solid ${COLORS.borderSoft}`,
             }}
           >
             <span
               style={{
-                width: 5, height: 5, borderRadius: "50%",
+                width: 5, height: 5, borderRadius: RADIUS.full,
                 background: z.active ? COLORS.statusWarn : COLORS.textGhost,
                 boxShadow: z.active ? `0 0 5px ${COLORS.statusWarn}` : "none",
               }}
@@ -95,7 +96,7 @@ function PlaCard({ data }: { data: PlaActivity }) {
         ))}
       </div>
 
-      <div style={{ display: "flex", gap: 14, fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textDim }}>
+      <div style={{ display: "flex", gap: 14, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
         <span>
           海軍 <b style={{ color: COLORS.textDefault }}>{data.plan_vessels}</b> 艦
         </span>
@@ -126,7 +127,7 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
   return (
     <div
       style={{
-        borderRadius: 9, border: `1px solid ${COLORS.panelBorder}`,
+        borderRadius: RADIUS.xl, border: `1px solid ${COLORS.panelBorder}`,
         background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.012))",
         padding: "12px 13px", display: "flex", flexDirection: "column", gap: 9,
       }}
@@ -134,11 +135,11 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <span
           style={{
-            width: 8, height: 8, borderRadius: "50%", background: d.color, flexShrink: 0,
+            width: 8, height: 8, borderRadius: RADIUS.full, background: d.color, flexShrink: 0,
           }}
         />
         <span
-          style={{ fontFamily: FONT_CJK, fontSize: 12, fontWeight: 700, color: COLORS.textStrong }}
+          style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 700, color: COLORS.textStrong }}
         >
           {d.label}
         </span>
@@ -146,7 +147,7 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint,
-            padding: "1px 6px", borderRadius: 3, background: "rgba(255,255,255,0.05)",
+            padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
           }}
         >
           W{week}
@@ -170,12 +171,12 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
         }}
       >
         <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 11, fontWeight: 700, color: yc }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700, color: yc }}>
             {worse ? "↑" : "↓"}
             {worse ? "+" : ""}
             {d.yoy}%
           </span>
-          <span style={{ fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
             vs 去年同期
           </span>
         </span>
@@ -204,16 +205,16 @@ export function SituationCards({ pla, health }: Props) {
   return (
     <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ width: 3, height: 12, borderRadius: 2, background: COLORS.accent }} />
+        <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 10, letterSpacing: "1.5px", color: COLORS.textDefault,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px", color: COLORS.textDefault,
           }}
         >
           情勢 · SITUATION BOARD
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
           共機每日 06:00 · CDC 截至 ISO 第 W{health.week} 週
         </span>
       </div>
@@ -235,8 +236,8 @@ export function SituationCards({ pla, health }: Props) {
 }
 
 const emptyCardStyle: React.CSSProperties = {
-  borderRadius: 9, border: `1px dashed ${COLORS.borderSoft}`,
+  borderRadius: RADIUS.xl, border: `1px dashed ${COLORS.borderSoft}`,
   background: "rgba(255,255,255,0.01)", padding: "12px 13px",
-  fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint,
+  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
   display: "flex", alignItems: "center", justifyContent: "center",
 };

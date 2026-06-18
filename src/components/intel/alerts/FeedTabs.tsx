@@ -1,4 +1,5 @@
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
 export type FeedTab = "all" | "news" | "alerts";
 
@@ -42,7 +43,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertSevere }: Pro
               flex: 1,
               display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
               padding: "5px 8px",
-              borderRadius: 5,
+              borderRadius: RADIUS.lg,
               cursor: "pointer",
               background: active
                 ? (hot ? "rgba(239,68,68,0.16)" : COLORS.accentFaint)
@@ -59,7 +60,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertSevere }: Pro
             {t.label}
             <span
               style={{
-                fontFamily: FONT_DATA, fontSize: 10, fontWeight: 700,
+                fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700,
                 color: hot && active ? "#ef4444" : "inherit",
                 opacity: 0.9,
               }}

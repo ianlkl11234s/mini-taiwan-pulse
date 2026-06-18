@@ -1,4 +1,5 @@
 import type { MapStyle } from "../types";
+import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 export const MAP_STYLES: MapStyle[] = [
   { id: "dark", name: "Dark", url: "mapbox://styles/mapbox/dark-v11" },
@@ -19,10 +20,10 @@ const getStyle = (dark: boolean): React.CSSProperties => ({
   background: dark ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
   color: dark ? "#fff" : "#333",
   border: `1px solid ${dark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   padding: "4px 8px",
-  fontSize: 12,
-  fontFamily: "monospace",
+  fontSize: FONT_SIZE.md,
+  fontFamily: FONT_DATA,
   backdropFilter: "blur(8px)",
 });
 

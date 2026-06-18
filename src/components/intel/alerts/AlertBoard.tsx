@@ -10,6 +10,7 @@ import {
   type AlertTally,
   type ActiveAlert,
 } from "../../../data/alertsLoader";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
 interface Props {
   tally: AlertTally;
@@ -42,7 +43,7 @@ function AlertTrend({
     <div
       style={{
         padding: "8px 10px",
-        borderRadius: 7,
+        borderRadius: RADIUS.lg,
         background: "rgba(255,255,255,0.025)",
         border: `1px solid ${COLORS.borderMid}`,
         marginBottom: 10,
@@ -55,7 +56,7 @@ function AlertTrend({
       >
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
             color: COLORS.textFaint,
           }}
         >
@@ -64,7 +65,7 @@ function AlertTrend({
         <span style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 10,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm,
             color: COLORS.textMuted,
           }}
         >
@@ -143,7 +144,7 @@ function GroupCard({
       style={{
         textAlign: "left",
         padding: "9px 10px",
-        borderRadius: 7,
+        borderRadius: RADIUS.lg,
         background: dim
           ? "rgba(255,255,255,0.015)"
           : hot
@@ -160,7 +161,7 @@ function GroupCard({
         <IntelIcon d={MICON[def.iconKey]!} size={11} color={def.color} />
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: 11, fontWeight: 600,
+            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 600,
             color: COLORS.textDefault,
           }}
         >
@@ -169,7 +170,7 @@ function GroupCard({
         <div style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, color: def.color,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: def.color,
             letterSpacing: "0.5px",
           }}
         >
@@ -179,7 +180,7 @@ function GroupCard({
       <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 22, fontWeight: 700,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700,
             color: hot ? def.color : COLORS.textStrong,
             lineHeight: 1,
           }}
@@ -199,7 +200,7 @@ function GroupCard({
       </div>
       <span
         style={{
-          fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint,
+          fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
           height: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         }}
       >
@@ -229,7 +230,7 @@ function AlertDrawer({
     return (
       <div
         style={{
-          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: 11,
+          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
           color: COLORS.textFaint,
         }}
       >
@@ -242,7 +243,7 @@ function AlertDrawer({
     return (
       <div
         style={{
-          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: 11,
+          padding: "10px 12px", fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
           color: COLORS.textFaint,
         }}
       >
@@ -273,20 +274,20 @@ function AlertDrawer({
           >
             <span
               style={{
-                width: 6, height: 6, borderRadius: "50%",
+                width: 6, height: 6, borderRadius: RADIUS.full,
                 background: sev.color, flexShrink: 0,
                 boxShadow: r.severity >= 3 ? `0 0 5px ${sev.color}` : "none",
               }}
             />
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: 11,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
                 color: COLORS.textDefault, flex: 1,
                 overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
               }}
               title={r.headline}
             >
-              <span style={{ color: COLORS.textMuted, fontSize: 10 }}>{r.county} · </span>
+              <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.sm }}>{r.county} · </span>
               {r.headline || r.term}
             </span>
             <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
@@ -309,7 +310,7 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
       <div
         style={{
           padding: "9px 12px",
-          borderRadius: 7,
+          borderRadius: RADIUS.lg,
           background: "rgba(34,197,94,0.06)",
           border: `1px solid ${COLORS.statusLiveBorder}`,
           display: "flex", alignItems: "center", gap: 7,
@@ -327,7 +328,7 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
         <div style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
             color: COLORS.textFaint,
           }}
         >
@@ -349,7 +350,7 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
         <IntelIcon d={MICON.warn!} size={12} color="#ef4444" />
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: 11, fontWeight: 700,
+            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700,
             color: COLORS.textStrong, letterSpacing: "0.5px",
           }}
         >
@@ -357,23 +358,23 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
         </span>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
             color: COLORS.textDim,
           }}
         >
           NCDR + CWA
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
           {tally.total} 則
         </span>
         {tally.severe > 0 && (
           <span
             style={{
-              padding: "1px 6px", borderRadius: 4,
+              padding: "1px 6px", borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.18)",
               border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700,
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
               color: "#ef4444",
               animation: "alertBreathe 2s ease-in-out infinite",
             }}
@@ -411,7 +412,7 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
         <div
           style={{
             marginTop: 8,
-            borderRadius: 7,
+            borderRadius: RADIUS.lg,
             background: "rgba(0,0,0,0.32)",
             border: `1px solid ${COLORS.borderMid}`,
           }}

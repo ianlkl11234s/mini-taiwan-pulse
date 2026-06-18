@@ -11,6 +11,7 @@
 
 import { memo, useRef } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { useInView } from "../../../hooks/useInView";
 
 interface HazardCh {
@@ -47,12 +48,12 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
     <div
       ref={slotRef}
       style={{
-        position: "relative", borderRadius: 8, overflow: "visible",
+        position: "relative", borderRadius: RADIUS.xl, overflow: "visible",
         aspectRatio: "16 / 9", background: "#000",
         border: "1px solid rgba(255,152,0,0.45)",
       }}
     >
-      <div style={{ position: "absolute", inset: 0, borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, borderRadius: RADIUS.xl, overflow: "hidden" }}>
         {visible ? (
         <iframe
           title={ch.name}
@@ -71,7 +72,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
             style={{
               position: "absolute", inset: 0, display: "flex",
               alignItems: "center", justifyContent: "center",
-              fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
               color: COLORS.textFaint, background: "#000",
             }}
           >
@@ -90,13 +91,13 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           <span
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
-              padding: "1px 6px", borderRadius: 3,
+              padding: "1px 6px", borderRadius: RADIUS.md,
               background: "rgba(255,152,0,0.95)",
             }}
           >
             <span
               style={{
-                width: 5, height: 5, borderRadius: "50%", background: "#fff",
+                width: 5, height: 5, borderRadius: RADIUS.full, background: "#fff",
                 animation: "intelRing 1.6s ease-in-out infinite",
               }}
             />
@@ -111,7 +112,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           </span>
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: 11, fontWeight: 700, color: "#fff",
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700, color: "#fff",
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
@@ -119,7 +120,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           </span>
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 8.5, color: "rgba(255,255,255,0.7)",
+              fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDefault,
               letterSpacing: "0.5px",
               textShadow: "0 1px 3px rgba(0,0,0,0.9)",
             }}
@@ -139,10 +140,10 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
         <span
           style={{
             display: "inline-flex", alignItems: "center", gap: 5,
-            padding: "3px 9px", borderRadius: 5,
+            padding: "3px 9px", borderRadius: RADIUS.lg,
             background: "rgba(0,0,0,0.72)",
             border: `1px solid ${COLORS.borderMid}`,
-            fontFamily: FONT_CJK, fontSize: 10,
+            fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
             color: COLORS.textDefault,
             backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
           }}
@@ -152,7 +153,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
         <span style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 8, color: "rgba(255,255,255,0.55)",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)",
           }}
         >
@@ -167,24 +168,24 @@ export const HazardWatchStrip = memo(function HazardWatchStrip() {
   return (
     <div
       style={{
-        gridColumn: "1 / -1", borderRadius: 9,
+        gridColumn: "1 / -1", borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "rgba(255,152,0,0.04)",
         padding: 13, display: "flex", flexDirection: "column",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
-        <span style={{ width: 3, height: 12, borderRadius: 2, background: COLORS.statusWarn }} />
+        <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.statusWarn }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 10, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
             color: COLORS.textDefault,
           }}
         >
           災防觀測 · HAZARD WATCH
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
           地震 + 天氣 · 24h 監測
         </span>
       </div>

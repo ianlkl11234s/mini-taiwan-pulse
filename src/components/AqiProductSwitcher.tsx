@@ -3,6 +3,7 @@
  *
  * 僅當 aqiImagery 圖層開啟時才由 App 掛上。
  */
+import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 import { AQI_PRODUCT_LABELS, type AqiProduct } from "../types";
 
@@ -24,8 +25,8 @@ export function AqiProductSwitcher({ current, onChange, isDark }: Props) {
         background: isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.7)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        borderRadius: 8,
-        fontFamily: "monospace",
+        borderRadius: RADIUS.xl,
+        fontFamily: FONT_DATA,
       }}
     >
       {PRODUCTS.map((p) => {
@@ -35,10 +36,10 @@ export function AqiProductSwitcher({ current, onChange, isDark }: Props) {
             key={p}
             onClick={() => onChange(p)}
             style={{
-              fontSize: 10,
-              fontFamily: "monospace",
+              fontSize: FONT_SIZE.sm,
+              fontFamily: FONT_DATA,
               padding: "4px 8px",
-              borderRadius: 4,
+              borderRadius: RADIUS.md,
               border: "1px solid",
               borderColor: active
                 ? "rgba(139, 195, 74, 0.7)"

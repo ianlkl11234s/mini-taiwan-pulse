@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type AlertGroupShort } from "./intelTokens";
+import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { IntelHeader } from "./IntelHeader";
 import { IntelReplay } from "./IntelReplay";
@@ -316,13 +317,13 @@ export function IntelPanel({
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${COLORS.panelBorder}`,
-        borderRadius: 10,
+        borderRadius: RADIUS.xl,
         zIndex: 30,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
         pointerEvents: "auto",
-        boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+        boxShadow: ELEVATION.lg,
         animation: "intelPanelFadeIn .25s ease-out",
         color: COLORS.textDefault,
       }}
@@ -377,7 +378,7 @@ export function IntelPanel({
         >
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
               color: COLORS.textFaint, marginRight: 4,
             }}
           >
@@ -391,7 +392,7 @@ export function IntelPanel({
                 key={lv}
                 onClick={() => setSeverityMin(lv)}
                 style={{
-                  padding: "3px 9px", borderRadius: 4,
+                  padding: "3px 9px", borderRadius: RADIUS.md,
                   background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
                   border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
                   color: active ? COLORS.accent : COLORS.textMuted,
@@ -408,7 +409,7 @@ export function IntelPanel({
               <button
                 onClick={() => setPickedGroups([])}
                 style={{
-                  padding: "3px 8px", borderRadius: 4,
+                  padding: "3px 8px", borderRadius: RADIUS.md,
                   background: "rgba(255,255,255,0.04)",
                   border: `1px solid ${COLORS.borderMid}`,
                   color: COLORS.textMuted, fontFamily: FONT_CJK, fontSize: 10.5,
@@ -430,7 +431,7 @@ export function IntelPanel({
         >
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
               color: COLORS.textFaint, marginRight: 4,
             }}
           >
@@ -443,7 +444,7 @@ export function IntelPanel({
                 key={r}
                 onClick={() => setTimeRange(r)}
                 style={{
-                  padding: "3px 10px", borderRadius: 4,
+                  padding: "3px 10px", borderRadius: RADIUS.md,
                   background: active ? COLORS.accentFaint : "rgba(255,255,255,0.04)",
                   border: `1px solid ${active ? COLORS.accentSoft : COLORS.borderMid}`,
                   color: active ? COLORS.accent : COLORS.textMuted,
@@ -477,7 +478,7 @@ export function IntelPanel({
               }}
             >
               <IntelIcon d={ICON.alert} size={28} color={COLORS.textGhost} />
-              <div style={{ fontFamily: FONT_CJK, fontSize: 12, color: COLORS.textMuted }}>
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
                 目前無符合條件的警報
               </div>
             </div>
@@ -523,7 +524,7 @@ export function IntelPanel({
                   }}
                 >
                   <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
-                  <div style={{ fontFamily: FONT_CJK, fontSize: 12, color: COLORS.textMuted }}>
+                  <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
                     目前無事件 / 警報
                   </div>
                 </div>
@@ -579,10 +580,10 @@ export function IntelPanel({
             }}
           >
             <IntelIcon d={ICON.radio} size={28} color={COLORS.textGhost} />
-            <div style={{ fontFamily: FONT_CJK, fontSize: 12, color: COLORS.textMuted }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
               目前無符合條件的事件
             </div>
-            <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
               調整分類 / 時間範圍 / 縣市，或回到即時
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE, SURFACE } from "../styles/designTokens";
 
 interface LoadingStep {
   label: string;
@@ -111,13 +112,13 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
       style={{
         position: "fixed",
         inset: 0,
-        background: "#0a0a14",
+        background: SURFACE.app,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         gap: 16,
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
         color: "#fff",
         zIndex: 9999,
         opacity: fading ? 0 : 1,
@@ -125,10 +126,10 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
       }}
     >
       {/* title */}
-      <div style={{ fontSize: 22, letterSpacing: 4, fontWeight: 700, marginBottom: 2 }}>
+      <div style={{ fontSize: FONT_SIZE.xxl, letterSpacing: 4, fontWeight: 700, marginBottom: 2 }}>
         Mini Taiwan Pulse
       </div>
-      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         Supabase Realtime
       </div>
 
@@ -145,12 +146,12 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
                 display: "flex",
                 alignItems: "center",
                 gap: 10,
-                fontSize: 13,
+                fontSize: FONT_SIZE.lg,
                 color: isDone
                   ? CAT_COLOR[stepToCat(step.label)]
                   : isActive
-                    ? "rgba(255,255,255,0.7)"
-                    : "rgba(255,255,255,0.2)",
+                    ? COLORS.textDefault
+                    : COLORS.textFaint,
                 transition: "color 0.3s",
               }}
             >
@@ -168,7 +169,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
                 ) : "○"}
               </span>
               <span style={{ minWidth: 160 }}>{step.label}</span>
-              <span style={{ fontSize: 11, opacity: 0.7 }}>
+              <span style={{ fontSize: FONT_SIZE.base, opacity: 0.7 }}>
                 {isDone && step.count != null
                   ? step.count.toLocaleString()
                   : isActive
@@ -182,7 +183,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
 
       {/* progress bar */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 4 }}>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDim, letterSpacing: 0.5 }}>
           {allDone ? "載入完成" : `載入中... ${doneCount}/${steps.length}`}
         </div>
         <div
@@ -190,7 +191,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
             width: 280,
             height: 4,
             background: "rgba(255,255,255,0.08)",
-            borderRadius: 2,
+            borderRadius: RADIUS.sm,
             overflow: "hidden",
             position: "relative",
           }}
@@ -200,13 +201,13 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
               width: `${progress * 100}%`,
               height: "100%",
               background: "linear-gradient(90deg, #64aaff, #4ecdc4)",
-              borderRadius: 2,
+              borderRadius: RADIUS.sm,
               transition: "width 0.5s ease",
               boxShadow: "0 0 12px rgba(100,170,255,0.5), 0 0 4px rgba(100,170,255,0.8)",
             }}
           />
         </div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>
+        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
           {Math.round(progress * 100)}%
         </div>
       </div>
@@ -219,7 +220,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
           marginTop: 8,
           background: "rgba(255,255,255,0.03)",
           border: "1px solid rgba(255,255,255,0.06)",
-          borderRadius: 6,
+          borderRadius: RADIUS.lg,
           padding: "8px 12px",
           overflow: "hidden",
           display: "flex",
@@ -228,7 +229,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
         }}
       >
         {lines.length === 0 && !allDone && (
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", lineHeight: "20px" }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, lineHeight: "20px" }}>
             Connecting to Supabase...
           </div>
         )}
@@ -238,7 +239,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
             <div
               key={line.id}
               style={{
-                fontSize: 11,
+                fontSize: FONT_SIZE.base,
                 lineHeight: "20px",
                 whiteSpace: "nowrap",
                 overflow: "hidden",

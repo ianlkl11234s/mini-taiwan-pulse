@@ -1,5 +1,6 @@
 import { IntelIcon, ICON } from "../intel/IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, clockTime } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { isHistoryMode, formatTimelineOffset } from "../../hooks/useTimeStoreTime";
 
 interface Props {
@@ -43,7 +44,7 @@ export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }:
           <span style={{ fontFamily: FONT_CJK, fontSize: 13.5, fontWeight: 700, color: COLORS.textStrong }}>
             衛星情報
           </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "2.5px", color: COLORS.textDim }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim }}>
             SATELLITE
           </span>
         </div>
@@ -56,7 +57,7 @@ export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }:
               gap: 5,
               marginLeft: 6,
               padding: "2px 8px",
-              borderRadius: 4,
+              borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.16)",
               border: "1px solid rgba(239,68,68,0.45)",
             }}
@@ -65,13 +66,13 @@ export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }:
               style={{
                 width: 6,
                 height: 6,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: COLORS.statusErr,
                 boxShadow: `0 0 6px ${COLORS.statusErr}`,
                 animation: "intelRing 1.6s ease-in-out infinite",
               }}
             />
-            <span style={{ fontFamily: FONT_DATA, fontSize: 10, fontWeight: 700, color: COLORS.statusErr }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, color: COLORS.statusErr }}>
               ALERT
             </span>
           </span>
@@ -83,7 +84,7 @@ export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }:
           style={{
             width: 24,
             height: 24,
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             border: "none",
             background: "transparent",
             color: COLORS.textDim,
@@ -107,7 +108,7 @@ export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }:
           alignItems: "center",
           gap: 8,
           fontFamily: FONT_DATA,
-          fontSize: 10,
+          fontSize: FONT_SIZE.sm,
           background: isHistory ? "rgba(255,152,0,0.06)" : "transparent",
         }}
       >
@@ -117,7 +118,7 @@ export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }:
             alignItems: "center",
             gap: 5,
             padding: "2px 8px",
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             background: badgeSoft,
             border: `1px solid ${badgeBorder}`,
             fontFamily: FONT_DATA,
@@ -125,7 +126,7 @@ export function SatelliteConsoleHeader({ totalManeuvers, timelineSec, onClose }:
             color: badgeColor,
           }}
         >
-          <span style={{ width: 6, height: 6, borderRadius: "50%", background: badgeColor }} />
+          <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: badgeColor }} />
           {isHistory ? "HISTORY" : "LIVE"}
         </span>
         <span style={{ color: COLORS.textDim }}>顯示時間</span>

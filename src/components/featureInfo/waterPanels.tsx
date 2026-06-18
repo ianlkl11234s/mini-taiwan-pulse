@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fetchFloodSensorTimeseries } from "../../data/floodSensorLoader";
 import { fetchRiverLevelTimeseries } from "../../data/riverLevelLoader";
 import { fetchGroundwaterTimeseries } from "../../data/groundwaterLoader";
@@ -43,8 +44,8 @@ export function WaterFacilityPanel({ props }: { props: Record<string, unknown> }
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "(未命名設施)")}
         </div>
       </div>
@@ -63,8 +64,8 @@ export function WaterMonitorPanel({ props }: { props: Record<string, unknown> })
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "(未命名站)")}
         </div>
       </div>
@@ -90,8 +91,8 @@ export function WaterDetentionBasinPanel({ props }: { props: Record<string, unkn
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#0284c7", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0284c7", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "(未命名滯洪池)")}
         </div>
       </div>
@@ -132,8 +133,8 @@ export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "(未命名)")}
         </div>
       </div>
@@ -144,7 +145,7 @@ export function WaterDamPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="壩高" value={props.dam_height_m ? `${props.dam_height_m} m` : ""} />
       <Row label="容量" value={capacityStr} />
       {isDam && (
-        <div style={{ marginTop: 8, fontSize: 10, color: hintColor, lineHeight: 1.5 }}>
+        <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: hintColor, lineHeight: 1.5 }}>
           ⓘ 此為壩體工程位置（壩牆出水口），與水庫水面中心點不重合屬正常
         </div>
       )}
@@ -182,17 +183,17 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.station_name ?? "(未命名站)")}
         </div>
         {abnormal && (
           <div
             style={{
               marginLeft: "auto",
-              fontSize: 10,
+              fontSize: FONT_SIZE.sm,
               padding: "2px 8px",
-              borderRadius: 3,
+              borderRadius: RADIUS.md,
               background: color,
               color: "#fff",
               fontWeight: 600,
@@ -210,30 +211,30 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
           marginTop: 4,
           padding: "6px 8px",
           background: "rgba(34,211,238,0.08)",
-          borderRadius: 4,
+          borderRadius: RADIUS.md,
         }}
       >
-        <span style={{ fontSize: 22, fontWeight: 700, color }}>
+        <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color }}>
           {level.toFixed(2)}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>m 水位</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>m 水位</span>
       </div>
       <Row label="縣市" value={String(props.county ?? "")} />
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor={color} height={120} />
       )}
 
-      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
         ⓘ 警戒水位資料（三級警戒）待上游 seed 補齊後加入
       </div>
     </>
@@ -268,8 +269,8 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#0ea5e9", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0ea5e9", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.well_name ?? "(未命名井)")}
         </div>
       </div>
@@ -281,22 +282,22 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
           marginTop: 4,
           padding: "6px 8px",
           background: "rgba(14,165,233,0.1)",
-          borderRadius: 4,
+          borderRadius: RADIUS.md,
         }}
       >
-        <span style={{ fontSize: 22, fontWeight: 700, color: "#38bdf8" }}>
+        <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color: "#38bdf8" }}>
           {level != null ? level.toFixed(2) : "—"}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>m 地下水位（海拔）</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>m 地下水位（海拔）</span>
       </div>
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="井號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
@@ -343,13 +344,13 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {name}
         </div>
         {depthCm > 0 && (
           <div style={{
-            marginLeft: "auto", fontSize: 10, padding: "1px 6px", borderRadius: 3,
+            marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
             background: color, color: "#fff", fontWeight: 600,
           }}>
             {level}
@@ -359,23 +360,23 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
       <div
         style={{
           display: "flex", alignItems: "baseline", gap: 8, marginTop: 4,
-          padding: "6px 8px", background: `${color}1a`, borderRadius: 4,
+          padding: "6px 8px", background: `${color}1a`, borderRadius: RADIUS.md,
         }}
       >
-        <span style={{ fontSize: 22, fontWeight: 700, color }}>
+        <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color }}>
           {depthCm.toFixed(1)}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{unit} 淹水深度</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{unit} 淹水深度</span>
       </div>
       {(county || town) && <Row label="區域" value={[county, town].filter(Boolean).join(" / ")} />}
       {admin && <Row label="管理單位" value={admin} />}
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
@@ -433,16 +434,16 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: level.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: level.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.station_name ?? "(未命名站)")}
         </div>
         <div
           style={{
             marginLeft: "auto",
-            fontSize: 10,
+            fontSize: FONT_SIZE.sm,
             padding: "2px 8px",
-            borderRadius: 3,
+            borderRadius: RADIUS.md,
             background: level.color,
             color: "#fff",
             fontWeight: 600,
@@ -459,13 +460,13 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
           marginTop: 4,
           padding: "6px 8px",
           background: "rgba(59,130,246,0.08)",
-          borderRadius: 4,
+          borderRadius: RADIUS.md,
         }}
       >
-        <span style={{ fontSize: 22, fontWeight: 700, color: level.color }}>
+        <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color: level.color }}>
           {p10.toFixed(1)}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>mm / 10 min</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>mm / 10 min</span>
       </div>
       <Row label="1 小時累積" value={`${p1.toFixed(1)} mm`} />
       <Row label="3 小時累積" value={`${p3.toFixed(1)} mm`} />
@@ -474,11 +475,11 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 1 小時累積雨量
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
@@ -516,17 +517,17 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accent, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accent, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {r?.res_name ?? "(未命名水庫)"}
         </div>
         {r?.compare_id != null && (
           <div
             style={{
               marginLeft: "auto",
-              fontSize: 9,
-              fontFamily: "monospace",
-              color: "rgba(255,255,255,0.3)",
+              fontSize: FONT_SIZE.xs,
+              fontFamily: FONT_DATA,
+              color: COLORS.textDim,
             }}
           >
             #{r.compare_id}
@@ -543,21 +544,21 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
             marginBottom: 6,
             padding: "8px 10px",
             background: "rgba(34,211,238,0.08)",
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             border: "1px solid rgba(34,211,238,0.2)",
           }}
         >
           <span style={{ fontSize: 26, fontWeight: 700, color: accent, lineHeight: 1 }}>
             {storageRatio.toFixed(1)}
           </span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>% 蓄水率</span>
+          <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault }}>% 蓄水率</span>
           {alert && (
             <span
               style={{
                 marginLeft: "auto",
-                fontSize: 10,
+                fontSize: FONT_SIZE.sm,
                 padding: "2px 8px",
-                borderRadius: 3,
+                borderRadius: RADIUS.md,
                 background: alertColor,
                 color: "#fff",
                 fontWeight: 600,
@@ -638,14 +639,14 @@ export function WaterReservoirPolyPanel({ props }: { props: Record<string, unkno
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accent, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accent, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {name}
         </div>
       </div>
       <Row label="類別" value="蓄水水面範圍" color={accent} />
       <Row label="資料源" value="WRA GIC reservoir_storage" />
-      <div style={{ marginTop: 8, fontSize: 10, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
         ⓘ 此為水庫實際水面輪廓，部分水庫（如台電管的明潭、明湖下池）僅有面、無單獨點位
       </div>
     </>

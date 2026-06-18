@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { RADIUS } from "../styles/designTokens";
 
 type SheetLevel = "collapsed" | "half" | "full";
 
@@ -73,7 +74,7 @@ export function MobileBottomSheet({ isLandscape, children }: Props) {
           style={{
             width: 36,
             height: 4,
-            borderRadius: 2,
+            borderRadius: RADIUS.sm,
             background: "rgba(255,255,255,0.3)",
           }}
         />

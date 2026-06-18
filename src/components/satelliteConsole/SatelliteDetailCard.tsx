@@ -11,7 +11,9 @@
  * - 預測 ← computePrediction(events)
  */
 import { useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN } from "./satelliteConsoleTokens";
+import { ELEVATION, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fetchCatalog, formatOperatingSince, type CatalogRow } from "../../data/satelliteCatalogLoader";
 import {
   fetchTleHistory,
@@ -85,14 +87,14 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${COLORS.panelBorder}`,
-        borderRadius: 10,
+        borderRadius: RADIUS.xl,
         zIndex: 35,
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
         fontFamily: FONT_CJK,
         color: COLORS.textDefault,
-        boxShadow: "0 12px 40px rgba(0,0,0,0.45)",
+        boxShadow: ELEVATION.lg,
         animation: "satConsoleFadeIn .25s ease-out",
       }}
     >
@@ -105,10 +107,10 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
         gap: 8,
       }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: COLORS.textStrong, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
             {twLocale ? twLocale.zh : (catalog?.name || `NORAD ${norad}`)}
           </div>
-          <div style={{ fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textDim, marginTop: 2 }}>
+          <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
             NORAD {norad}{catalog?.cospar_number ? ` · COSPAR ${catalog.cospar_number}` : ""}
           </div>
         </div>
@@ -116,16 +118,16 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
           onClick={onClose}
           aria-label="close"
           style={{
-            width: 24, height: 24, borderRadius: 4, border: "none",
+            width: 24, height: 24, borderRadius: RADIUS.md, border: "none",
             background: "transparent", color: COLORS.textDim, cursor: "pointer",
-            fontSize: 18, lineHeight: 1,
+            display: "flex", alignItems: "center", justifyContent: "center",
           }}
-        >×</button>
+        ><X size={14} /></button>
       </div>
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "11px 14px 14px" }}>
         {loading ? (
-          <div style={{ fontSize: 11, color: COLORS.textFaint, padding: "20px 0", textAlign: "center" }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textFaint, padding: "20px 0", textAlign: "center" }}>
             載入中…
           </div>
         ) : (
@@ -175,7 +177,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
                   {events.slice(0, 8).map((e, i) => {
                     const token = MANEUVER_TOKEN[e.type];
                     return (
-                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11 }}>
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: FONT_SIZE.base }}>
                         <span style={{ color: token.color, fontFamily: FONT_DATA, width: 16 }}>{token.icon}</span>
                         <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: COLORS.textMuted, width: 78 }}>
                           {e.date}
@@ -183,7 +185,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
                         <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: token.color, width: 50 }}>
                           {e.type === "PLANE_CHANGE" ? "PLANE" : e.type === "ALTITUDE_CHANGE" ? "ALT" : "SHAPE"}
                         </span>
-                        <span style={{ color: COLORS.textDefault, fontFamily: FONT_DATA, fontSize: 10 }}>{e.detail}</span>
+                        <span style={{ color: COLORS.textDefault, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm }}>{e.detail}</span>
                       </div>
                     );
                   })}
@@ -194,14 +196,14 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
             {/* 啟發式預測 */}
             {prediction.muDays != null && prediction.muDays > 0 && (
               <Section title="啟發式預測">
-                <div style={{ padding: "8px 10px", borderRadius: 6, background: "rgba(100,170,255,0.08)", border: "1px solid rgba(100,170,255,0.25)" }}>
+                <div style={{ padding: "8px 10px", borderRadius: RADIUS.lg, background: "rgba(100,170,255,0.08)", border: "1px solid rgba(100,170,255,0.25)" }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted }}>下次變軌約</span>
-                    <span style={{ fontFamily: FONT_DATA, fontSize: 16, fontWeight: 700, color: "#cfe4ff" }}>
+                    <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>下次變軌約</span>
+                    <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xl, fontWeight: 700, color: "#cfe4ff" }}>
                       {prediction.nextLowDays}–{prediction.nextHighDays}
                     </span>
-                    <span style={{ fontSize: 10, color: COLORS.textMuted }}>天內</span>
-                    <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted }}>
+                    <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>天內</span>
+                    <span style={{ marginLeft: "auto", fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
                       信心 {prediction.confidencePercent}%
                     </span>
                   </div>
@@ -209,13 +211,13 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
                     μ = {prediction.muDays.toFixed(1)}d · σ = {prediction.sigmaDays?.toFixed(1)}d · n = {prediction.sampleSize}
                   </div>
                   {/* mini bar visualization */}
-                  <div style={{ marginTop: 6, position: "relative", height: 6, borderRadius: 3, background: "rgba(255,255,255,0.08)" }}>
+                  <div style={{ marginTop: 6, position: "relative", height: 6, borderRadius: RADIUS.md, background: "rgba(255,255,255,0.08)" }}>
                     <div style={{
                       position: "absolute",
                       left: `${Math.min(100, (prediction.nextLowDays! / 30) * 100)}%`,
                       width: `${Math.min(100, ((prediction.nextHighDays! - prediction.nextLowDays!) / 30) * 100)}%`,
                       height: "100%",
-                      borderRadius: 3,
+                      borderRadius: RADIUS.md,
                       background: "rgba(100,170,255,0.5)",
                     }} />
                   </div>
@@ -227,7 +229,7 @@ export function SatelliteDetailCard({ norad, onClose }: Props) {
             )}
 
             {/* footnote */}
-            <div style={{ marginTop: 10, fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, lineHeight: 1.5 }}>
+            <div style={{ marginTop: 10, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, lineHeight: 1.5 }}>
               來源：UCS Satellite Database (reference.satellite_catalog) · TLE history (realtime.satellite_tle_history)
             </div>
           </>
@@ -242,7 +244,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     <div style={{ marginBottom: 10 }}>
       <div style={{
         fontFamily: FONT_DATA,
-        fontSize: 9,
+        fontSize: FONT_SIZE.xs,
         letterSpacing: "1.5px",
         color: COLORS.textFaint,
         marginBottom: 4,
@@ -258,7 +260,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: "flex", gap: 8, fontSize: 11, padding: "2px 0" }}>
+    <div style={{ display: "flex", gap: 8, fontSize: FONT_SIZE.base, padding: "2px 0" }}>
       <span style={{ width: 70, color: COLORS.textDim, flexShrink: 0 }}>{label}</span>
       <span style={{ color: COLORS.textDefault, flex: 1, wordBreak: "break-word" }}>{value}</span>
     </div>

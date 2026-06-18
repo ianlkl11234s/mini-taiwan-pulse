@@ -1,5 +1,6 @@
 import { CctvStreamView } from "../CctvStreamView";
 import { Row } from "./shared";
+import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 
 /** 海纜 cable_type 對應色 */
 const CABLE_TYPE_COLORS: Record<string, string> = {
@@ -65,8 +66,8 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "Unknown Cable")}
         </div>
       </div>
@@ -89,8 +90,8 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "Unknown Station")}
         </div>
       </div>
@@ -110,8 +111,8 @@ export function SchoolPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.school_name ?? "Unknown School")}
         </div>
       </div>
@@ -132,8 +133,8 @@ export function ConvenienceStorePanel({ props }: { props: Record<string, unknown
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "Unknown Store")}
         </div>
       </div>
@@ -147,8 +148,8 @@ export function LighthousePanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#ffd700", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#ffd700", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.Name ?? "Unknown Lighthouse")}
         </div>
       </div>
@@ -165,8 +166,8 @@ export function PortPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "Unknown Port")}
         </div>
       </div>
@@ -181,8 +182,8 @@ export function AirportPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: "#daa520", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#daa520", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "Unknown Airport")}
         </div>
       </div>
@@ -204,8 +205,8 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: info.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: info.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.RoadName ?? props.CCTVID ?? "CCTV")}
         </div>
       </div>
@@ -221,7 +222,7 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
           accentColor={info.color}
         />
       ) : (
-        <div style={{ marginTop: 8, fontSize: 11, color: "rgba(255,255,255,0.55)" }}>
+        <div style={{ marginTop: 8, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
           此攝影機未提供串流網址
         </div>
       )}
@@ -238,8 +239,8 @@ export function EtcGantryPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.GantryID ?? "ETC Gantry")}
         </div>
       </div>
@@ -257,8 +258,8 @@ export function ServiceAreaPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.Name ?? "Service Area")}
         </div>
       </div>
@@ -280,8 +281,8 @@ export function ServiceAreaPolygonPanel({ props }: { props: Record<string, unkno
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.Name ?? "Service Area")}
         </div>
       </div>
@@ -298,8 +299,8 @@ export function TaxiStandPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.Name ?? "Taxi Stand")}
         </div>
       </div>

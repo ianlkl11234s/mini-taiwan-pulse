@@ -1,4 +1,5 @@
 import { aqiToColor } from "../../map/aqiColorScale";
+import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row, numOrNull, formatNum } from "./shared";
 
 export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
@@ -8,8 +9,8 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.stationName ?? "Unknown")}
         </div>
       </div>
@@ -21,13 +22,13 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
           marginTop: 4,
           padding: "6px 8px",
           background: "rgba(255,255,255,0.04)",
-          borderRadius: 4,
+          borderRadius: RADIUS.md,
         }}
       >
         <span style={{ fontSize: 24, fontWeight: 700, color }}>
           {aqi ?? "—"}
         </span>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
+        <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault }}>
           AQI {String(props.status ?? "")}
         </span>
       </div>
@@ -54,8 +55,8 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.deviceId ?? "LASS Device")}
         </div>
       </div>
@@ -67,13 +68,13 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
           marginTop: 4,
           padding: "6px 8px",
           background: "rgba(255,255,255,0.04)",
-          borderRadius: 4,
+          borderRadius: RADIUS.md,
         }}
       >
-        <span style={{ fontSize: 20, fontWeight: 700, color }}>
+        <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color }}>
           {pm25 != null ? pm25.toFixed(1) : "—"}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>PM2.5 µg/m³</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>PM2.5 µg/m³</span>
       </div>
       <Row label="來源" value={String(props.source ?? "")} />
       <Row label="裝置" value={String(props.app ?? "")} />

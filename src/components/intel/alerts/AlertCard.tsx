@@ -5,6 +5,7 @@ import {
   ALERT_GROUPS_DEF, alertSeverity, fmtExpiry, relTime, clockTime,
 } from "../intelTokens";
 import type { ActiveAlert } from "../../../data/alertsLoader";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
 interface Props {
   a: ActiveAlert;
@@ -46,7 +47,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           position: "absolute",
           left: 7, top: 14,
           width: 11, height: 11,
-          borderRadius: "50%",
+          borderRadius: RADIUS.full,
           background: sev.color,
           border: "2px solid #0a0a14",
           zIndex: 1,
@@ -59,7 +60,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
         style={{
           cursor: "pointer",
           padding: "10px 12px",
-          borderRadius: 7,
+          borderRadius: RADIUS.lg,
           background: selected ? "rgba(100,170,255,0.06)" : "rgba(255,255,255,0.025)",
           border: `1px solid ${selected ? COLORS.borderAccent : COLORS.borderMid}`,
           animation: a.severity >= 3 ? "alertEdge 2s ease-in-out infinite" : undefined,
@@ -70,7 +71,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           <span
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
-              padding: "1px 7px", borderRadius: 4,
+              padding: "1px 7px", borderRadius: RADIUS.md,
               background: `${def.color}22`,
               border: `1px solid ${def.color}55`,
               fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
@@ -82,7 +83,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
           </span>
           <span
             style={{
-              padding: "1px 7px", borderRadius: 4,
+              padding: "1px 7px", borderRadius: RADIUS.md,
               background: `${sev.color}22`,
               border: `1px solid ${sev.color}55`,
               fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
@@ -114,7 +115,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
         {/* headline */}
         <div
           style={{
-            fontFamily: FONT_CJK, fontSize: 13, fontWeight: 600,
+            fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 600,
             color: COLORS.textStrong, lineHeight: 1.45, marginBottom: 4,
           }}
         >
@@ -125,7 +126,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
             <IntelIcon d={MICON.pin!} size={10} color={COLORS.textMuted} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textMuted }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
               {a.county}
               {a.area_count > 1 && (
                 <span style={{ color: COLORS.textFaint }}> · {a.area_count} 區</span>
@@ -165,7 +166,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
               <div
                 style={{
                   padding: "7px 9px",
-                  borderRadius: 5,
+                  borderRadius: RADIUS.lg,
                   background: `${def.color}10`,
                   border: `1px solid ${def.color}33`,
                   marginBottom: 8,
@@ -173,7 +174,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
               >
                 <div
                   style={{
-                    fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700,
+                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
                     color: def.color, letterSpacing: "1px", marginBottom: 3,
                   }}
                 >
@@ -194,7 +195,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
             <div
               style={{
                 display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 10px",
-                fontFamily: FONT_DATA, fontSize: 10,
+                fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm,
               }}
             >
               <span style={{ color: COLORS.textFaint }}>發佈</span>

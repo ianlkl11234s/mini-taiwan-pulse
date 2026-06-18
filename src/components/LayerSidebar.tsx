@@ -3,6 +3,7 @@ import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from 
 import type { ParamControl } from "../hooks/useTransportParams";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, SECTIONS } from "./sidebar/layerCatalog";
+import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 // ── Props ──
 
@@ -83,17 +84,17 @@ export function LayerSidebar({
           alignItems: "center",
           gap: 6,
           width: 28,
-          background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
+          background: isDarkTheme ? SURFACE.subtle : "rgba(255,255,255,0.5)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          borderRadius: 8,
+          borderRadius: RADIUS.xl,
           padding: "8px 0",
           cursor: "pointer",
           transition: "width 0.2s ease",
         }}
       >
         {/* 展開箭頭 */}
-        <span style={{ fontSize: 9, color: dimColor, userSelect: "none" }}>&#x25B6;</span>
+        <span style={{ fontSize: FONT_SIZE.xs, color: dimColor, userSelect: "none" }}>&#x25B6;</span>
         {/* 活躍圖層色點 */}
         {allLayers.map(({ key }) => {
           const active = visibility[key];
@@ -104,7 +105,7 @@ export function LayerSidebar({
               style={{
                 width: 8,
                 height: 8,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: active ? color : "transparent",
                 border: `1px solid ${active ? color : (isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)")}`,
                 transition: "all 0.15s",
@@ -130,11 +131,11 @@ export function LayerSidebar({
           zIndex: 1,
           width: 18,
           height: 18,
-          borderRadius: 3,
+          borderRadius: RADIUS.md,
           border: "none",
           background: isDarkTheme ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)",
           color: dimColor,
-          fontSize: 8,
+          fontSize: FONT_SIZE.xs,
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
@@ -191,12 +192,12 @@ function SidebarContent({
         width: isMobile ? "100%" : 240,
         maxHeight: isMobile ? undefined : "70vh",
         overflowY: isMobile ? undefined : "auto",
-        background: isDarkTheme ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.5)",
+        background: isDarkTheme ? SURFACE.subtle : "rgba(255,255,255,0.5)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        borderRadius: 8,
+        borderRadius: RADIUS.xl,
         padding: "8px 0",
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
       }}
     >
       {SECTIONS.map((section, sIdx) => (
@@ -213,7 +214,7 @@ function SidebarContent({
 
           <div
             style={{
-              fontSize: 9,
+              fontSize: FONT_SIZE.xs,
               fontWeight: 700,
               letterSpacing: 2,
               color: dimColor,
@@ -253,7 +254,7 @@ function SidebarContent({
                     style={{
                       width: 14,
                       height: 14,
-                      borderRadius: "50%",
+                      borderRadius: RADIUS.full,
                       background: active ? color : "transparent",
                       border: `1.5px solid ${active ? color : (isDarkTheme ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.2)")}`,
                       cursor: "pointer",
@@ -285,7 +286,7 @@ function SidebarContent({
                     <span
                       onClick={() => onLayerClick(key)}
                       style={{
-                        fontSize: 10,
+                        fontSize: FONT_SIZE.sm,
                         color: dimColor,
                         transform: isExpanded ? "rotate(90deg)" : "rotate(0deg)",
                         transition: "transform 0.2s",
@@ -347,10 +348,10 @@ function ExpandedPanel({
   controls,
 }: ExpandedPanelProps) {
   const btnBase: React.CSSProperties = {
-    fontSize: 9,
+    fontSize: FONT_SIZE.xs,
     padding: "2px 6px",
-    borderRadius: 3,
-    fontFamily: "monospace",
+    borderRadius: RADIUS.md,
+    fontFamily: FONT_DATA,
     cursor: "pointer",
     border: "1px solid transparent",
   };
@@ -423,8 +424,8 @@ function ExpandedPanel({
                       alignItems: "center",
                       gap: 4,
                       color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                      fontSize: 10,
-                      fontFamily: "monospace",
+                      fontSize: FONT_SIZE.sm,
+                      fontFamily: FONT_DATA,
                     }}
                   >
                     <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -433,13 +434,13 @@ function ExpandedPanel({
                       onChange={(e) => ctrl.onChange(e.target.value)}
                       style={{
                         flex: 1,
-                        fontSize: 10,
+                        fontSize: FONT_SIZE.sm,
                         padding: "1px 6px",
                         background: isDarkTheme ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.8)",
                         color: isDarkTheme ? "#fff" : "#000",
                         border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"}`,
-                        borderRadius: 3,
-                        fontFamily: "monospace",
+                        borderRadius: RADIUS.md,
+                        fontFamily: FONT_DATA,
                       }}
                     >
                       {ctrl.options.map((opt) => (
@@ -457,8 +458,8 @@ function ExpandedPanel({
                     alignItems: "center",
                     gap: 4,
                     color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                    fontSize: 10,
-                    fontFamily: "monospace",
+                    fontSize: FONT_SIZE.sm,
+                    fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -468,7 +469,7 @@ function ExpandedPanel({
                       onClick={() => ctrl.onChange(opt.value)}
                       style={{
                         ...btnBase,
-                        fontSize: 9,
+                        fontSize: FONT_SIZE.xs,
                         padding: "1px 8px",
                         background: ctrl.value === opt.value
                           ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
@@ -497,8 +498,8 @@ function ExpandedPanel({
                     alignItems: "center",
                     gap: 4,
                     color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                    fontSize: 10,
-                    fontFamily: "monospace",
+                    fontSize: FONT_SIZE.sm,
+                    fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -506,7 +507,7 @@ function ExpandedPanel({
                     onClick={() => ctrl.onChange(!ctrl.value)}
                     style={{
                       ...btnBase,
-                      fontSize: 9,
+                      fontSize: FONT_SIZE.xs,
                       padding: "1px 8px",
                       background: ctrl.value
                         ? (isDarkTheme ? "rgba(100,170,255,0.3)" : "rgba(100,170,255,0.2)")
@@ -535,8 +536,8 @@ function ExpandedPanel({
                   alignItems: "center",
                   gap: 4,
                   color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
-                  fontSize: 10,
-                  fontFamily: "monospace",
+                  fontSize: FONT_SIZE.sm,
+                  fontFamily: FONT_DATA,
                 }}
               >
                 <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{s.label}</span>

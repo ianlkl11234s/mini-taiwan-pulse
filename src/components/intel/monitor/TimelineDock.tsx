@@ -4,6 +4,7 @@ import {
   COLORS, FONT_CJK, FONT_DATA, clockTime,
   type AlertGroupShort,
 } from "../intelTokens";
+import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { AlertsTrack } from "../alerts/AlertsTrack";
@@ -121,7 +122,7 @@ export function TimelineDock({
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "2px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
             color: COLORS.textMuted, whiteSpace: "nowrap",
           }}
         >
@@ -137,7 +138,7 @@ export function TimelineDock({
               key={c.key}
               title={c.label}
               style={{
-                width: 8, height: 8, borderRadius: 2, background: c.color, opacity: 0.85,
+                width: 8, height: 8, borderRadius: RADIUS.sm, background: c.color, opacity: 0.85,
               }}
             />
           ))}
@@ -147,7 +148,7 @@ export function TimelineDock({
           onClick={onTogglePlay}
           title="play/pause"
           style={{
-            width: 26, height: 26, borderRadius: 5,
+            width: 26, height: 26, borderRadius: RADIUS.lg,
             border: `1px solid ${COLORS.borderMid}`,
             background: "rgba(255,255,255,0.05)",
             color: COLORS.textDefault, cursor: "pointer",
@@ -162,7 +163,7 @@ export function TimelineDock({
         </button>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 12, fontWeight: 700,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700,
             minWidth: 58, textAlign: "center",
             color: isLive ? COLORS.statusLive : COLORS.statusWarn,
           }}
@@ -173,8 +174,8 @@ export function TimelineDock({
           onClick={onLive}
           style={{
             display: "inline-flex", alignItems: "center", gap: 5,
-            padding: "4px 10px", borderRadius: 5, cursor: "pointer",
-            fontFamily: FONT_DATA, fontSize: 10, fontWeight: 700, letterSpacing: "0.5px",
+            padding: "4px 10px", borderRadius: RADIUS.lg, cursor: "pointer",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: "0.5px",
             background: isLive ? COLORS.statusLiveSoft : "rgba(255,255,255,0.05)",
             border: isLive ? `1px solid ${COLORS.statusLiveBorder}` : `1px solid ${COLORS.borderMid}`,
             color: isLive ? COLORS.statusLive : COLORS.textMuted,
@@ -182,7 +183,7 @@ export function TimelineDock({
         >
           <span
             style={{
-              width: 6, height: 6, borderRadius: "50%",
+              width: 6, height: 6, borderRadius: RADIUS.full,
               background: isLive ? COLORS.statusLive : COLORS.textDim,
               boxShadow: isLive ? `0 0 6px ${COLORS.statusLive}` : "none",
             }}
@@ -238,7 +239,7 @@ export function TimelineDock({
                   style={{
                     display: "flex", flexDirection: "column-reverse",
                     height: `${hPct}%`, minHeight: hd.total ? 3 : 0,
-                    borderRadius: 2, overflow: "hidden",
+                    borderRadius: RADIUS.sm, overflow: "hidden",
                     outline: isHover ? "1px solid rgba(255,255,255,0.35)" : "none",
                   }}
                 >
@@ -271,7 +272,7 @@ export function TimelineDock({
           <span
             style={{
               position: "absolute", top: -4, left: -3,
-              width: 8, height: 8, borderRadius: "50%",
+              width: 8, height: 8, borderRadius: RADIUS.full,
               background: isLive ? COLORS.statusLive : COLORS.accent,
             }}
           />
@@ -284,10 +285,10 @@ export function TimelineDock({
               left: `${((hovered.h + 0.5) / 24) * 100}%`,
               transform: "translateX(-50%)", zIndex: 5,
               background: "rgba(0,0,0,0.88)",
-              border: `1px solid ${COLORS.borderMid}`, borderRadius: 7,
+              border: `1px solid ${COLORS.borderMid}`, borderRadius: RADIUS.lg,
               padding: "7px 9px", whiteSpace: "nowrap", pointerEvents: "none",
               backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
-              boxShadow: "0 6px 20px rgba(0,0,0,0.5)",
+              boxShadow: ELEVATION.sm,
             }}
           >
             <div
@@ -309,7 +310,7 @@ export function TimelineDock({
                 >
                   <span
                     style={{
-                      width: 6, height: 6, borderRadius: "50%", background: c.color,
+                      width: 6, height: 6, borderRadius: RADIUS.full, background: c.color,
                     }}
                   />
                   {c.label} {hovered.c[c.key]}
@@ -333,7 +334,7 @@ export function TimelineDock({
               position: "absolute", left: `${(t / 24) * 100}%`,
               transform:
                 t === 0 ? "none" : t === 24 ? "translateX(-100%)" : "translateX(-50%)",
-              fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint,
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
             }}
           >
             {t === 24 ? "23:59" : `${String(t).padStart(2, "0")}:00`}

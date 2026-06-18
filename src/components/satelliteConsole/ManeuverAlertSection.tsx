@@ -8,6 +8,7 @@
  */
 import { useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, MANEUVER_TOKEN, CN_GROUP_TO_CATEGORY, GROUP_FLAG } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { SATELLITE_COLORS } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
 import {
@@ -69,7 +70,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
       <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}` }}>
         <div style={{
           padding: "8px 10px",
-          borderRadius: 6,
+          borderRadius: RADIUS.lg,
           background: COLORS.statusLiveSoft,
           border: `1px solid ${COLORS.statusLiveBorder}`,
           fontFamily: FONT_CJK,
@@ -79,7 +80,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
           alignItems: "center",
           gap: 8,
         }}>
-          <span style={{ width: 7, height: 7, borderRadius: "50%", background: COLORS.statusLive }} />
+          <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: COLORS.statusLive }} />
           近 24h 無變軌偵測 · 監測中
         </div>
       </div>
@@ -99,7 +100,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
         gap: 8,
         padding: "8px 10px",
         marginBottom: 9,
-        borderRadius: 6,
+        borderRadius: RADIUS.lg,
         background: hasFeatured ? "rgba(239,68,68,0.12)" : "rgba(156,163,175,0.10)",
         border: hasFeatured ? "1px solid rgba(239,68,68,0.45)" : `1px solid ${COLORS.borderMid}`,
         fontFamily: FONT_CJK,
@@ -107,7 +108,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
         color: COLORS.textStrong,
       }}>
         <span style={{
-          width: 7, height: 7, borderRadius: "50%",
+          width: 7, height: 7, borderRadius: RADIUS.full,
           background: hasFeatured ? COLORS.statusErr : COLORS.textDim,
           boxShadow: hasFeatured ? `0 0 6px ${COLORS.statusErr}` : "none",
           animation: hasFeatured ? "satManeuverPulse 1.1s ease-in-out infinite" : "none",
@@ -126,7 +127,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
       {(sortedRed.length > 0 || sortedOrange.length > 0) && (
         <div style={{
           marginBottom: 8,
-          fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint,
+          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
           display: "flex", alignItems: "center", gap: 8,
         }}>
           <SevDot s="red" /> 重大 {sortedRed.length}
@@ -159,12 +160,12 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
             style={{
               width: "100%",
               padding: "6px 10px",
-              borderRadius: 5,
+              borderRadius: RADIUS.lg,
               background: "rgba(255,255,255,0.025)",
               border: `1px dashed ${COLORS.borderMid}`,
               color: COLORS.textMuted,
               fontFamily: FONT_CJK,
-              fontSize: 11,
+              fontSize: FONT_SIZE.base,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -199,7 +200,7 @@ export function ManeuverAlertSection({ maneuvers, onSelectNorad, onOpenCompare }
 function SevDot({ s }: { s: ManeuverSeverity }) {
   return (
     <span style={{
-      width: 6, height: 6, borderRadius: "50%",
+      width: 6, height: 6, borderRadius: RADIUS.full,
       background: SEV_TOKEN[s].color,
       animation: SEV_TOKEN[s].pulse ? "satManeuverPulse 1.1s ease-in-out infinite" : "none",
     }} />
@@ -225,7 +226,7 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
   return (
     <div style={{
       padding: compact ? "5px 9px" : "9px 11px",
-      borderRadius: 7,
+      borderRadius: RADIUS.lg,
       background: sev.soft,
       border: `1px solid ${sev.border}`,
       display: "flex",
@@ -235,15 +236,15 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
     }}>
       {/* 上行 */}
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ width: 7, height: 7, borderRadius: "50%", background: groupColor, flexShrink: 0 }} />
-        <span style={{ fontSize: 13, flexShrink: 0 }} title={row.country_operator || row.cn_group}>
+        <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: groupColor, flexShrink: 0 }} />
+        <span style={{ fontSize: FONT_SIZE.lg, flexShrink: 0 }} title={row.country_operator || row.cn_group}>
           {GROUP_FLAG[row.cn_group] ?? "🌐"}
         </span>
         <span
           onClick={() => onSelectNorad(row.norad_id)}
           style={{
             fontFamily: FONT_CJK,
-            fontSize: compact ? 11 : 12,
+            fontSize: compact ? FONT_SIZE.base : FONT_SIZE.md,
             fontWeight: 600,
             color: COLORS.textStrong,
             whiteSpace: "nowrap",
@@ -258,11 +259,11 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
         {/* 嚴重度 chip */}
         <span style={{
           padding: "1px 6px",
-          borderRadius: 3,
+          borderRadius: RADIUS.md,
           background: `${sev.color}22`,
           border: `1px solid ${sev.color}55`,
           fontFamily: FONT_DATA,
-          fontSize: 9,
+          fontSize: FONT_SIZE.xs,
           fontWeight: 700,
           color: sev.color,
           flexShrink: 0,
@@ -272,11 +273,11 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
         {/* 類型 chip */}
         <span style={{
           padding: "1px 6px",
-          borderRadius: 3,
+          borderRadius: RADIUS.md,
           background: `${typeToken.color}22`,
           border: `1px solid ${typeToken.color}55`,
           fontFamily: FONT_DATA,
-          fontSize: 9,
+          fontSize: FONT_SIZE.xs,
           fontWeight: 700,
           color: typeToken.color,
           flexShrink: 0,
@@ -292,7 +293,7 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
       {/* 中行：detail + relTime */}
       <div style={{
         display: "flex", alignItems: "center", gap: 8,
-        fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted,
+        fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted,
       }}>
         <span>{formatManeuverDetail(row)}</span>
         <span style={{ marginLeft: "auto", color: COLORS.textDim }}>{formatRelTime(row.curr_fetched_at)}</span>
@@ -320,7 +321,7 @@ function ManeuverCard({ row, severity, impact, onSelectNorad, onOpenCompare, com
           <ImpactChip impact={impact} small />
           <button
             onClick={() => onOpenCompare(row)}
-            style={{ ...btnStyle("rgba(100,170,255,0.35)", "#cfe4ff", "transparent"), fontSize: 10, padding: "3px 8px" }}
+            style={{ ...btnStyle("rgba(100,170,255,0.35)", "#cfe4ff", "transparent"), fontSize: FONT_SIZE.sm, padding: "3px 8px" }}
           >
             對比
           </button>
@@ -336,10 +337,10 @@ function ImpactChip({ impact, small }: { impact: ReturnType<ReturnType<typeof us
     return (
       <span style={{
         padding: small ? "1px 6px" : "2px 7px",
-        borderRadius: 3,
+        borderRadius: RADIUS.md,
         background: "rgba(255,255,255,0.04)",
         border: `1px solid ${COLORS.borderMid}`,
-        fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textDim,
+        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
       }}>
         計算 TW 影響中…
       </span>
@@ -350,14 +351,14 @@ function ImpactChip({ impact, small }: { impact: ReturnType<ReturnType<typeof us
     return (
       <span style={{
         padding: small ? "1px 6px" : "2px 7px",
-        borderRadius: 3,
+        borderRadius: RADIUS.md,
         background: "rgba(34,197,94,0.16)",
         border: "1px solid rgba(34,197,94,0.55)",
-        fontFamily: FONT_CJK, fontSize: 10, color: "#22c55e", fontWeight: 600,
+        fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: "#22c55e", fontWeight: 600,
         display: "inline-flex", alignItems: "center", gap: 3,
       }}>
         ✓ 影響 TW
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9, opacity: 0.8 }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, opacity: 0.8 }}>
           ({impact.passBefore}→{impact.passAfter})
         </span>
       </span>
@@ -367,10 +368,10 @@ function ImpactChip({ impact, small }: { impact: ReturnType<ReturnType<typeof us
   return (
     <span style={{
       padding: small ? "1px 6px" : "2px 7px",
-      borderRadius: 3,
+      borderRadius: RADIUS.md,
       background: "rgba(255,255,255,0.03)",
       border: `1px solid ${COLORS.borderSoft}`,
-      fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint,
+      fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
     }}>
       過台不變 ({impact.passBefore}=)
     </span>
@@ -380,12 +381,12 @@ function ImpactChip({ impact, small }: { impact: ReturnType<ReturnType<typeof us
 function btnStyle(border: string, color: string, bg: string) {
   return {
     padding: "5px 10px",
-    borderRadius: 4,
+    borderRadius: RADIUS.md,
     background: bg,
     border: `1px solid ${border}`,
     color,
     fontFamily: FONT_CJK,
-    fontSize: 11,
+    fontSize: FONT_SIZE.base,
     cursor: "pointer",
     transition: "all 0.15s ease",
     flexShrink: 0,

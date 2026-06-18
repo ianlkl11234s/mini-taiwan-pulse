@@ -1,4 +1,5 @@
 import { Row } from "./shared";
+import { COLORS, FONT_SIZE } from "../../styles/designTokens";
 
 const HIKING_TRAIL_SOURCE_INFO: Record<string, { color: string; label: string }> = {
   A_forest: { color: "#d62728", label: "A 林業署國家步道（KML）" },
@@ -21,7 +22,7 @@ export function HikingTrailsPanel({ props }: { props: Record<string, unknown> })
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 14, height: 2, background: info.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{name}</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{name}</div>
       </div>
       <Row label="來源" value={info.label} color={info.color} />
       {region ? <Row label="管理單位" value={region} /> : null}
@@ -29,7 +30,7 @@ export function HikingTrailsPanel({ props }: { props: Record<string, unknown> })
       {dup ? <Row label="備註" value="與 A 林業署路線重疊" /> : null}
       {url ? (
         <div style={{ marginTop: 4 }}>
-          <a href={url} target="_blank" rel="noreferrer" style={{ color: "#7ec4ff", textDecoration: "underline", fontSize: 11 }}>
+          <a href={url} target="_blank" rel="noreferrer" style={{ color: "#7ec4ff", textDecoration: "underline", fontSize: FONT_SIZE.base }}>
             原始連結 ↗
           </a>
         </div>
@@ -56,7 +57,7 @@ export function ForestryGenericPanel({ props }: { props: Record<string, unknown>
   return (
     <>
       {entries.length === 0 && (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>無屬性資料</div>
+        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>無屬性資料</div>
       )}
       {entries.map(([k, v]) => {
         const label = FORESTRY_PROP_LABELS[k] ?? k;

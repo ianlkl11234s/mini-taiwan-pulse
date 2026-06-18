@@ -1,3 +1,4 @@
+import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { AGRI_POI_TYPES } from "../../data/agriPOITypes";
 import { AGRI_COMPANY_TYPES } from "../../data/agriCompanyTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../../data/ecoNetworkZoneTypes";
@@ -17,8 +18,8 @@ export function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#8d6e63", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#8d6e63", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {soilType || soilClass || "土壤分類"}
         </div>
       </div>
@@ -59,8 +60,8 @@ export function AgriSoilFertilityPanel({ props }: { props: Record<string, unknow
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#00897b", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#00897b", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           土壤肥力 250m 網格
         </div>
       </div>
@@ -69,7 +70,7 @@ export function AgriSoilFertilityPanel({ props }: { props: Record<string, unknow
       <Row label="CEC" value={cec.text} color={cec.color} />
       <Row label="Mehlich-3 P" value={m3p.text} color={m3p.color} />
       <Row label="Mehlich-3 K" value={m3k.text} color={m3k.color} />
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.35)", marginTop: 6, lineHeight: 1.5 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 6, lineHeight: 1.5 }}>
         ※ 0 值表示該項未測（多數網格只測 pH / OM）
       </div>
     </>
@@ -85,8 +86,8 @@ export function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unk
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#66bb6a", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#66bb6a", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {name || "休閒農業區"}
         </div>
       </div>
@@ -115,8 +116,8 @@ export function AgriCropSuitabilityPanel({ props }: { props: Record<string, unkn
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: kindInfo.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: kindInfo.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {cropNameZh || cropNameEn || "作物適栽"}
         </div>
       </div>
@@ -140,8 +141,8 @@ export function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#ffb74d", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#ffb74d", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {community || "農村再生社區"}
         </div>
       </div>
@@ -163,8 +164,8 @@ export function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.poi_name ?? "Unknown")}
         </div>
       </div>
@@ -185,8 +186,8 @@ export function AgriCompanyPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: meta.color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props["公司名稱"] ?? "Unknown")}
         </div>
       </div>
@@ -205,8 +206,8 @@ export function FarmRoadsPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 12, height: 2, borderRadius: 1, background: "#7a8670", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 12, height: 2, borderRadius: RADIUS.sm, background: "#7a8670", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.NAME ?? "農路")}
         </div>
       </div>
@@ -225,8 +226,8 @@ export function EcoNetworkZonesPanel({ props }: { props: Record<string, unknown>
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {zone || "國土綠網分區"}
         </div>
       </div>

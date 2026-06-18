@@ -4,6 +4,7 @@ import {
   COLORS, FONT_CJK, FONT_DATA, PRESSURE_LEVELS, pressureLevel,
 } from "../intelTokens";
 import { PressureRing, CompareLine, TwseTicker, Widget } from "./PressureRing";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type {
   PressureIndexNow, PressureSignal, MarketIndex, SourceHealthSummary,
 } from "../../../data/intelLoaders";
@@ -23,14 +24,14 @@ function MiniStat({
       <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 20, fontWeight: 700, lineHeight: 1,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xxl, fontWeight: 700, lineHeight: 1,
             color: color ?? "#fff",
           }}
         >
           {value}
         </span>
         <span
-          style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted, whiteSpace: "nowrap" }}
+          style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textMuted, whiteSpace: "nowrap" }}
         >
           {label}
         </span>
@@ -46,7 +47,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
       <div
         style={{
           marginTop: 12, paddingTop: 12, borderTop: `1px dashed ${COLORS.borderMid}`,
-          fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textFaint,
+          fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textFaint,
           animation: "drawerOpen .32s cubic-bezier(.22,1,.36,1)",
         }}
       >
@@ -66,12 +67,12 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px", color: COLORS.textDefault,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textDefault,
           }}
         >
           指數組成 · SIGNAL BREAKDOWN
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
           權重「災害重」· 5min EMA
         </span>
       </div>
@@ -83,7 +84,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
               <span style={{ width: 56, flexShrink: 0, display: "flex", alignItems: "baseline", gap: 4 }}>
                 <span
                   style={{
-                    fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textDefault, whiteSpace: "nowrap",
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textDefault, whiteSpace: "nowrap",
                   }}
                 >
                   {s.label}
@@ -91,7 +92,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
               </span>
               <span
                 style={{
-                  fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textFaint,
+                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
                   width: 30, flexShrink: 0,
                 }}
               >
@@ -99,7 +100,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
               </span>
               <div
                 style={{
-                  flex: 1, height: 7, borderRadius: 4, background: "rgba(255,255,255,0.05)",
+                  flex: 1, height: 7, borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)",
                   overflow: "hidden", minWidth: 26,
                 }}
               >
@@ -107,7 +108,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
                   style={{
                     display: "block", height: "100%",
                     width: `${(s.contribution / maxC) * 100}%`,
-                    background: lvl.color, borderRadius: 4, opacity: 0.9,
+                    background: lvl.color, borderRadius: RADIUS.md, opacity: 0.9,
                     transition: "width .5s cubic-bezier(.22,1,.36,1)",
                   }}
                 />
@@ -115,7 +116,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
               <span
                 title={s.note ?? undefined}
                 style={{
-                  fontFamily: FONT_DATA, fontSize: 11, fontWeight: 700,
+                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700,
                   color: lvl.color, width: 30, textAlign: "right", flexShrink: 0,
                 }}
               >
@@ -140,7 +141,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
               fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textMuted,
             }}
           >
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: l.color }} />
+            <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: l.color }} />
             {l.label}{" "}
             <span style={{ fontFamily: FONT_DATA, color: COLORS.textFaint }}>
               {l.min}–{l.max}
@@ -179,24 +180,24 @@ export function SituationOverview({
       {level.key === "emergency" && (
         <span
           style={{
-            position: "absolute", inset: 0, borderRadius: 9, pointerEvents: "none",
+            position: "absolute", inset: 0, borderRadius: RADIUS.xl, pointerEvents: "none",
             boxShadow: `inset 0 0 30px ${level.glow}`,
             animation: "presPulse 1s ease-in-out infinite",
           }}
         />
       )}
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 13 }}>
-        <span style={{ width: 3, height: 12, borderRadius: 2, background: level.color }} />
+        <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: level.color }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 10, letterSpacing: "1.5px", color: COLORS.textDefault,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px", color: COLORS.textDefault,
           }}
         >
           戰情概覽 · PRESSURE INDEX
         </span>
         <span
           style={{
-            fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint, whiteSpace: "nowrap",
+            fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, whiteSpace: "nowrap",
           }}
         >
           10 訊號加權 0–100
@@ -217,7 +218,7 @@ export function SituationOverview({
             style={{
               position: "absolute", bottom: 6, left: "50%", transform: "translateX(-50%)",
               display: "inline-flex", alignItems: "center", gap: 3, padding: "2px 7px",
-              borderRadius: 10, background: "rgba(0,0,0,0.45)",
+              borderRadius: RADIUS.xl, background: "rgba(0,0,0,0.45)",
               border: `1px solid ${COLORS.borderSoft}`,
               fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textMuted, whiteSpace: "nowrap",
             }}

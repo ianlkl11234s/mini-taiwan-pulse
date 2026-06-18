@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, memo, type CSSProperties } from "react";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
@@ -402,9 +403,9 @@ export function IconRailSidebar({
             backdropFilter: "blur(8px)",
             WebkitBackdropFilter: "blur(8px)",
             border: `1px solid ${BORDER}`,
-            borderRadius: 8,
+            borderRadius: RADIUS.xl,
             color: ACCENT,
-            fontSize: 13,
+            fontSize: FONT_SIZE.lg,
             whiteSpace: "nowrap",
             zIndex: 5,
             pointerEvents: "none",
@@ -434,7 +435,7 @@ export function IconRailSidebar({
               background: BG_PANEL,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
-              borderRadius: 8,
+              borderRadius: RADIUS.xl,
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
@@ -494,7 +495,7 @@ function RailIcon({
       style={{
         width: 40,
         height: 40,
-        borderRadius: 8,
+        borderRadius: RADIUS.xl,
         border: "none",
         background: active ? "rgba(255,255,255,0.08)" : "transparent",
         color: active ? ACCENT : DIM,
@@ -530,7 +531,7 @@ function PanelHeader({
         flexShrink: 0,
       }}
     >
-      <span style={{ color: "#fff", fontSize: 13, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>
+      <span style={{ color: "#fff", fontSize: FONT_SIZE.lg, fontWeight: 600, fontFamily: "Inter, system-ui, sans-serif" }}>
         {title}
       </span>
       <div style={{ flex: 1 }} />
@@ -539,7 +540,7 @@ function PanelHeader({
         style={{
           width: 24,
           height: 24,
-          borderRadius: 4,
+          borderRadius: RADIUS.md,
           border: "none",
           background: "transparent",
           color: DIM,
@@ -563,8 +564,8 @@ function CategoryLabel({ children }: { children: string }) {
     <div
       style={{
         color: DIM,
-        fontFamily: "monospace",
-        fontSize: 10,
+        fontFamily: FONT_DATA,
+        fontSize: FONT_SIZE.sm,
         fontWeight: 600,
         letterSpacing: 2,
         textTransform: "uppercase",
@@ -585,7 +586,7 @@ function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
       style={{
         width: 28,
         height: 16,
-        borderRadius: 8,
+        borderRadius: RADIUS.xl,
         border: "none",
         background: on ? ACCENT_TOGGLE : "#4B5563",
         position: "relative",
@@ -599,7 +600,7 @@ function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
         style={{
           width: 12,
           height: 12,
-          borderRadius: "50%",
+          borderRadius: RADIUS.full,
           background: on ? "#1a1a1a" : "#fff",
           position: "absolute",
           top: 2,
@@ -679,7 +680,7 @@ const LayerRow = memo(function LayerRow({
       <span
         style={{
           flex: 1,
-          fontSize: 12,
+          fontSize: FONT_SIZE.md,
           fontFamily: "Inter, system-ui, sans-serif",
           color: active ? "#fff" : INACTIVE_TEXT,
           transition: "color 0.15s",
@@ -690,8 +691,8 @@ const LayerRow = memo(function LayerRow({
       {count != null && count > 0 && (
         <span
           style={{
-            fontFamily: "monospace",
-            fontSize: 11,
+            fontFamily: FONT_DATA,
+            fontSize: FONT_SIZE.base,
             color: active ? color : INACTIVE_TEXT,
             marginRight: 4,
           }}
@@ -726,9 +727,9 @@ function LayersPanel({
             padding: "5px 0",
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 6,
-            color: "rgba(255,255,255,0.5)",
-            fontSize: 11,
+            borderRadius: RADIUS.lg,
+            color: COLORS.textMuted,
+            fontSize: FONT_SIZE.base,
             cursor: "pointer",
             fontFamily: "Inter, system-ui, sans-serif",
           }}
@@ -806,10 +807,10 @@ function ExpandedControls({
   onDisplayModeChange, onHide, controls,
 }: ExpandedControlsProps) {
   const btnBase: CSSProperties = {
-    fontSize: 9,
+    fontSize: FONT_SIZE.xs,
     padding: "2px 6px",
-    borderRadius: 3,
-    fontFamily: "monospace",
+    borderRadius: RADIUS.md,
+    fontFamily: FONT_DATA,
     cursor: "pointer",
     border: "1px solid transparent",
   };
@@ -824,7 +825,7 @@ function ExpandedControls({
   const inactiveBtn: CSSProperties = {
     ...btnBase,
     background: "rgba(0,0,0,0.4)",
-    color: "rgba(255,255,255,0.5)",
+    color: COLORS.textMuted,
   };
 
   return (
@@ -869,7 +870,7 @@ function ExpandedControls({
                     key={ctrl.label}
                     style={{
                       display: "flex", alignItems: "center", gap: 4,
-                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                      color: COLORS.textMuted, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
                     }}
                   >
                     <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -877,10 +878,10 @@ function ExpandedControls({
                       value={ctrl.value}
                       onChange={(e) => ctrl.onChange(e.target.value)}
                       style={{
-                        flex: 1, fontSize: 10, padding: "1px 6px",
+                        flex: 1, fontSize: FONT_SIZE.sm, padding: "1px 6px",
                         background: "rgba(0,0,0,0.5)", color: "#fff",
                         border: "1px solid rgba(255,255,255,0.15)",
-                        borderRadius: 3, fontFamily: "monospace",
+                        borderRadius: RADIUS.md, fontFamily: FONT_DATA,
                       }}
                     >
                       {ctrl.options.map((opt) => (
@@ -897,7 +898,7 @@ function ExpandedControls({
                   key={ctrl.label}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
-                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                    color: COLORS.textMuted, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -907,7 +908,7 @@ function ExpandedControls({
                       onClick={() => ctrl.onChange(opt.value)}
                       style={{
                         ...btnBase,
-                        fontSize: 9,
+                        fontSize: FONT_SIZE.xs,
                         padding: "1px 8px",
                         background: ctrl.value === opt.value
                           ? "rgba(255,255,255,0.12)"
@@ -915,7 +916,7 @@ function ExpandedControls({
                         border: ctrl.value === opt.value
                           ? "1px solid rgba(255,255,255,0.25)"
                           : "1px solid rgba(255,255,255,0.15)",
-                        color: ctrl.value === opt.value ? "#fff" : "rgba(255,255,255,0.4)",
+                        color: ctrl.value === opt.value ? "#fff" : COLORS.textDim,
                       }}
                     >
                       {opt.label}
@@ -931,7 +932,7 @@ function ExpandedControls({
                   key={ctrl.label}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
-                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                    color: COLORS.textMuted, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -939,13 +940,13 @@ function ExpandedControls({
                     onClick={() => ctrl.onChange(!ctrl.value)}
                     style={{
                       ...btnBase,
-                      fontSize: 9,
+                      fontSize: FONT_SIZE.xs,
                       padding: "1px 8px",
                       background: ctrl.value ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.4)",
                       border: ctrl.value
                         ? "1px solid rgba(255,255,255,0.25)"
                         : "1px solid rgba(255,255,255,0.15)",
-                      color: ctrl.value ? "#fff" : "rgba(255,255,255,0.4)",
+                      color: ctrl.value ? "#fff" : COLORS.textDim,
                     }}
                   >
                     {ctrl.value ? "ON" : "OFF"}
@@ -961,7 +962,7 @@ function ExpandedControls({
                 key={s.label}
                 style={{
                   display: "flex", alignItems: "center", gap: 4,
-                  color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                  color: COLORS.textMuted, fontSize: FONT_SIZE.sm, fontFamily: FONT_DATA,
                 }}
               >
                 <span style={{ minWidth: 50, flexShrink: 0 }}>{s.label}</span>
@@ -1024,12 +1025,12 @@ function CollapsibleSection({
           ? <ChevronDown size={12} color={DIM} />
           : <ChevronRight size={12} color={DIM} />}
         <span style={{
-          fontSize: 10, fontWeight: 700, letterSpacing: 1.5,
+          fontSize: FONT_SIZE.sm, fontWeight: 700, letterSpacing: 1.5,
           color: DIM, fontFamily: "Inter, system-ui, sans-serif",
         }}>
           {title}
         </span>
-        <span style={{ fontSize: 9, color: DIM, fontFamily: "monospace", marginLeft: 4 }}>
+        <span style={{ fontSize: FONT_SIZE.xs, color: DIM, fontFamily: FONT_DATA, marginLeft: 4 }}>
           {count}
         </span>
       </div>
@@ -1054,7 +1055,7 @@ function LocationsPanel({
             alignItems: "center",
             gap: 6,
             background: "#1A1C20",
-            borderRadius: 6,
+            borderRadius: RADIUS.lg,
             padding: "6px 8px",
           }}
         >
@@ -1070,7 +1071,7 @@ function LocationsPanel({
               border: "none",
               outline: "none",
               color: "#fff",
-              fontSize: 12,
+              fontSize: FONT_SIZE.md,
               fontFamily: "Inter, system-ui, sans-serif",
             }}
           />
@@ -1181,7 +1182,7 @@ function LocationItem({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div
           style={{
-            fontSize: 12,
+            fontSize: FONT_SIZE.md,
             fontWeight: 600,
             color: active ? "#fff" : INACTIVE_TEXT,
             fontFamily: "Inter, system-ui, sans-serif",
@@ -1194,9 +1195,9 @@ function LocationItem({
         </div>
         <div
           style={{
-            fontSize: 10,
+            fontSize: FONT_SIZE.sm,
             color: DIM,
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -1210,7 +1211,7 @@ function LocationItem({
         style={{
           width: 24,
           height: 24,
-          borderRadius: 4,
+          borderRadius: RADIUS.md,
           border: "none",
           background: "transparent",
           color: active ? ACCENT : DIM,

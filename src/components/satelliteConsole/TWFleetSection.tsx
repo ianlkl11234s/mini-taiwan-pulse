@@ -14,6 +14,7 @@
 import { useEffect, useMemo, useState } from "react";
 import * as satellite from "satellite.js";
 import { COLORS, FONT_CJK, FONT_DATA } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { loadSatellites } from "../../data/satelliteLoader";
 import type { SatelliteRecord } from "../../data/satelliteTypes";
 import { localeForTaiwanSat } from "../../data/satelliteTaiwanLocale";
@@ -172,7 +173,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
 
   if (rows.length === 0) {
     return (
-      <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textFaint }}>
+      <div style={{ padding: "12px 14px", borderBottom: `1px solid ${COLORS.borderSoft}`, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textFaint }}>
         台灣衛星 — 載入中…
       </div>
     );
@@ -183,7 +184,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
       <div style={{
         padding: "9px 14px 6px",
         fontFamily: FONT_DATA,
-        fontSize: 9,
+        fontSize: FONT_SIZE.xs,
         letterSpacing: "2px",
         color: COLORS.textFaint,
         display: "flex",
@@ -204,7 +205,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
               key={r.norad}
               style={{
                 padding: "8px 11px",
-                borderRadius: 8,
+                borderRadius: RADIUS.xl,
                 background: isCovering ? "rgba(79,195,247,0.10)" : "rgba(255,255,255,0.025)",
                 border: `1px solid ${isCovering ? "rgba(79,195,247,0.45)" : COLORS.borderSoft}`,
                 fontFamily: FONT_CJK,
@@ -223,7 +224,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
                 {isLegacy && (
                   <span style={{
                     padding: "0 5px",
-                    borderRadius: 3,
+                    borderRadius: RADIUS.md,
                     background: "rgba(255,152,0,0.16)",
                     border: "1px solid rgba(255,152,0,0.45)",
                     fontSize: 9.5,
@@ -235,7 +236,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
                 {r.tier === "research" && (
                   <span style={{
                     padding: "0 5px",
-                    borderRadius: 3,
+                    borderRadius: RADIUS.md,
                     background: "rgba(255,255,255,0.06)",
                     border: `1px solid ${COLORS.borderMid}`,
                     fontSize: 9.5,
@@ -261,7 +262,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
                 alignItems: "center",
                 gap: 10,
                 fontFamily: FONT_DATA,
-                fontSize: 10,
+                fontSize: FONT_SIZE.sm,
                 color: COLORS.textMuted,
               }}>
                 <span>{r.lat.toFixed(1)}°{r.lat >= 0 ? "N" : "S"} {Math.abs(r.lon).toFixed(1)}°{r.lon >= 0 ? "E" : "W"}</span>
@@ -287,7 +288,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
                   style={{
                     flex: 1,
                     padding: "4px 0",
-                    borderRadius: 4,
+                    borderRadius: RADIUS.md,
                     border: `1px solid ${COLORS.borderMid}`,
                     background: "transparent",
                     color: COLORS.textDefault,
@@ -303,7 +304,7 @@ export function TWFleetSection({ maneuvers, onSelectNorad, onFlyTo }: Props) {
                   style={{
                     flex: 1,
                     padding: "4px 0",
-                    borderRadius: 4,
+                    borderRadius: RADIUS.md,
                     border: "1px solid rgba(100,170,255,0.55)",
                     background: "rgba(100,170,255,0.16)",
                     color: "#cfe4ff",

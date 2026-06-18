@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -135,12 +136,12 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
     <div
       style={{
         width: 200,
-        background: "rgba(10, 10, 20, 0.88)",
+        background: SURFACE.strong,
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
         border: "1px solid rgba(100, 170, 255, 0.15)",
-        borderRadius: 8,
-        fontFamily: "monospace",
+        borderRadius: RADIUS.xl,
+        fontFamily: FONT_DATA,
         overflow: "hidden",
         transition: "all 0.2s ease",
       }}
@@ -157,9 +158,9 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           background: "none",
           border: "none",
           cursor: "pointer",
-          color: "rgba(255,255,255,0.5)",
-          fontSize: 10,
-          fontFamily: "monospace",
+          color: COLORS.textMuted,
+          fontSize: FONT_SIZE.sm,
+          fontFamily: FONT_DATA,
           letterSpacing: 1,
         }}
       >
@@ -192,12 +193,12 @@ function FireCatRows({ cats, square }: { cats: { color: string; label: string }[
         <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div
             style={{
-              width: 10, height: 10, borderRadius: square ? 2 : "50%",
+              width: 10, height: 10, borderRadius: square ? RADIUS.sm : RADIUS.full,
               background: c.color, opacity: 0.9, flexShrink: 0,
               border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box",
             }}
           />
-          <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{c.label}</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{c.label}</span>
         </div>
       ))}
     </div>
@@ -215,7 +216,7 @@ const FLOOD_SENSOR_CATS = [
 function FloodSensorLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         都市淹水 USWG
       </div>
       <FireCatRows cats={FLOOD_SENSOR_CATS} />
@@ -226,7 +227,7 @@ function FloodSensorLegend() {
 function FireEventLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         FIRE 火災歷史
       </div>
       <FireCatRows cats={FIRE_EVENT_CATS} />
@@ -237,7 +238,7 @@ function FireEventLegend() {
 function FireStationLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         消防分隊 STATIONS
       </div>
       <FireCatRows cats={FIRE_STATION_CATS} />
@@ -248,11 +249,11 @@ function FireStationLegend() {
 function FireHydrantLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         消防栓 HYDRANTS
       </div>
       <FireCatRows cats={FIRE_HYDRANT_CATS} square />
-      <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {FIRE_HYDRANT_COVERAGE_NOTE}
       </div>
     </div>
@@ -262,14 +263,14 @@ function FireHydrantLegend() {
 function FireIsochroneLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         救援等時圈 ISOCHRONE
       </div>
       <FireCatRows
         cats={FIRE_ISOCHRONE_BANDS.map((b) => ({ color: b.color, label: b.label }))}
         square
       />
-      <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {FIRE_ISOCHRONE_NOTE}
       </div>
     </div>
@@ -279,14 +280,14 @@ function FireIsochroneLegend() {
 function EcoNetworkZonesLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         國土綠網分區 ECO NETWORK
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {ECO_NETWORK_ZONE_TYPES.map((z) => (
           <div key={z.zone} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 9, height: 9, borderRadius: 1, background: z.color, flexShrink: 0 }} />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.7)" }}>{z.label}</span>
+            <div style={{ width: 9, height: 9, borderRadius: RADIUS.sm, background: z.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDefault }}>{z.label}</span>
           </div>
         ))}
       </div>
@@ -324,12 +325,12 @@ const HIKING_TRAIL_SOURCES: { color: string; label: string }[] = [
 function HikingTrailsSourcesLegend() {
   return (
     <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: "1px solid rgba(255,255,255,0.12)" }}>
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", marginBottom: 2 }}>步道來源 source</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 2 }}>步道來源 source</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {HIKING_TRAIL_SOURCES.map((t) => (
           <div key={t.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
             <div style={{ width: 12, height: 2, background: t.color, flexShrink: 0 }} />
-            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.55)" }}>{t.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{t.label}</span>
           </div>
         ))}
       </div>
@@ -340,12 +341,12 @@ function HikingTrailsSourcesLegend() {
 function ForestReserveTypesLegend() {
   return (
     <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: "1px solid rgba(255,255,255,0.12)" }}>
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", marginBottom: 2 }}>保安林種類</div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 2 }}>保安林種類</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {FOREST_RESERVE_TYPES.map((t) => (
           <div key={t.key} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-            <div style={{ width: 8, height: 8, borderRadius: 1, background: t.color, flexShrink: 0 }} />
-            <span style={{ fontSize: 8, color: "rgba(255,255,255,0.55)" }}>{t.label}</span>
+            <div style={{ width: 8, height: 8, borderRadius: RADIUS.sm, background: t.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{t.label}</span>
           </div>
         ))}
       </div>
@@ -358,7 +359,7 @@ function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
   if (rows.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         FORESTRY 林業
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -368,7 +369,7 @@ function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
               style={{
                 width: r.shape === "line" ? 14 : 10,
                 height: r.shape === "line" ? 2 : 10,
-                borderRadius: r.shape === "circle" ? "50%" : 1,
+                borderRadius: r.shape === "circle" ? RADIUS.full : RADIUS.sm,
                 background: r.color,
                 opacity: 0.9,
                 flexShrink: 0,
@@ -376,7 +377,7 @@ function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
                 boxSizing: "border-box",
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.55)" }}>{r.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.label}</span>
           </div>
         ))}
       </div>
@@ -393,10 +394,10 @@ function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
   const meta = SOIL_FERTILITY_METRICS[metricId];
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         SOIL FERTILITY
       </div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 4 }}>
         {meta.label}{meta.unit ? ` (${meta.unit})` : ""}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -404,11 +405,11 @@ function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
           <div key={`${s.color}-${s.label}`} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div
               style={{
-                width: 10, height: 10, borderRadius: 2,
+                width: 10, height: 10, borderRadius: RADIUS.sm,
                 background: s.color, opacity: 0.9, flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{s.label}</span>
           </div>
         ))}
       </div>
@@ -421,7 +422,7 @@ function SoilFertilityLegend({ metricIdx }: { metricIdx: number }) {
 function AgriPOILegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         AGRICULTURE POI
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -431,7 +432,7 @@ function AgriPOILegend() {
               style={{
                 width: 10,
                 height: 10,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: t.color,
                 opacity: 0.9,
                 border: "1px solid #fff",
@@ -439,9 +440,9 @@ function AgriPOILegend() {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
               {t.labelZh}
-              <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>{t.labelEn}</span>
+              <span style={{ color: COLORS.textDim, marginLeft: 4 }}>{t.labelEn}</span>
             </span>
           </div>
         ))}
@@ -453,14 +454,14 @@ function AgriPOILegend() {
 function MedicalIsochroneLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         醫療等時圈 MEDICAL ISOCHRONE
       </div>
       <FireCatRows
         cats={MEDICAL_ISOCHRONE_BANDS.map((b) => ({ color: b.color, label: b.label }))}
         square
       />
-      <div style={{ fontSize: 8, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 4, lineHeight: 1.3 }}>
         ⚠️ {MEDICAL_ISOCHRONE_NOTE}
       </div>
     </div>
@@ -473,7 +474,7 @@ function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
   if (shown.length === 0) return null;
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         MEDICAL 醫療據點
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -483,7 +484,7 @@ function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
               style={{
                 width: 10,
                 height: 10,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: t.color,
                 opacity: 0.9,
                 border: "1px solid #fff",
@@ -491,9 +492,9 @@ function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
               {t.labelZh}
-              <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>{t.labelEn}</span>
+              <span style={{ color: COLORS.textDim, marginLeft: 4 }}>{t.labelEn}</span>
             </span>
           </div>
         ))}
@@ -506,7 +507,7 @@ function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
   const rows = AGRI_COMPANY_TYPES.filter((t) => visibility[t.key]);
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         農企業登記 AGRI BUSINESS
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -516,7 +517,7 @@ function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
               style={{
                 width: 10,
                 height: 10,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: t.color,
                 opacity: 0.9,
                 border: "1px solid rgba(255,255,255,0.6)",
@@ -524,9 +525,9 @@ function AgriCompanyLegend({ visibility }: { visibility: LayerVisibility }) {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
               {t.labelZh}
-              <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: 4 }}>{t.labelEn}</span>
+              <span style={{ color: COLORS.textDim, marginLeft: 4 }}>{t.labelEn}</span>
             </span>
           </div>
         ))}
@@ -542,10 +543,10 @@ function CropSuitabilityLegend({ cropId }: { cropId: number }) {
   const cropLabel = crop ? `${crop.nameZh} (${crop.nameEn})` : `#${cropId}`;
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         CROP SUITABILITY
       </div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.55)", marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 4 }}>
         {cropLabel}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -555,13 +556,13 @@ function CropSuitabilityLegend({ cropId }: { cropId: number }) {
               style={{
                 width: 10,
                 height: 10,
-                borderRadius: 2,
+                borderRadius: RADIUS.sm,
                 background: s.color,
                 opacity: 0.85,
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{s.label}</span>
           </div>
         ))}
       </div>
@@ -574,25 +575,25 @@ function CropSuitabilityLegend({ cropId }: { cropId: number }) {
 function EarthquakeLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         EARTHQUAKE
       </div>
 
       {/* Depth color bar */}
       <div style={{ marginBottom: 4 }}>
-        <div style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", marginBottom: 2 }}>
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>
           Depth (km)
         </div>
         <div
           style={{
             height: 8,
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             background: `linear-gradient(to right, ${EQ_DEPTH_STOPS.map((s) => s.color).join(", ")})`,
           }}
         />
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
           {EQ_DEPTH_STOPS.map((s) => (
-            <span key={s.depth} style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>
+            <span key={s.depth} style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
               {s.label}
             </span>
           ))}
@@ -601,7 +602,7 @@ function EarthquakeLegend() {
 
       {/* Magnitude size reference */}
       <div>
-        <div style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", marginBottom: 3 }}>
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 3 }}>
           Magnitude
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -613,13 +614,13 @@ function EarthquakeLegend() {
                   style={{
                     width: Math.min(r, 16),
                     height: Math.min(r, 16),
-                    borderRadius: "50%",
+                    borderRadius: RADIUS.full,
                     background: "rgba(255, 59, 48, 0.4)",
                     border: "1px solid rgba(255, 59, 48, 0.7)",
                     flexShrink: 0,
                   }}
                 />
-                <span style={{ fontSize: 8, color: "rgba(255,255,255,0.4)" }}>M{m}</span>
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>M{m}</span>
               </div>
             );
           })}
@@ -634,7 +635,7 @@ function EarthquakeLegend() {
 function RoadEventsLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         ROAD EVENTS
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -644,17 +645,17 @@ function RoadEventsLegend() {
               style={{
                 width: 10,
                 height: 10,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: item.color,
                 opacity: 0.85,
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{item.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{item.label}</span>
           </div>
         ))}
       </div>
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         ⚠ live_city 偏基隆；高雄缺 TDX 來源
       </div>
     </div>
@@ -665,12 +666,12 @@ function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
   const groups = ALERT_GROUP_KEYS.filter((k) => visibility[k]);
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         NCDR 示警 ALERTS
       </div>
       {groups.map((g) => (
         <div key={g} style={{ marginBottom: 4 }}>
-          <div style={{ fontSize: 8, color: "rgba(255,255,255,0.3)", marginBottom: 2 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 2 }}>
             {ALERT_GROUPS[g].label}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -680,19 +681,19 @@ function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
                   style={{
                     width: 10,
                     height: 10,
-                    borderRadius: 2,
+                    borderRadius: RADIUS.sm,
                     background: color,
                     opacity: 0.8,
                     flexShrink: 0,
                   }}
                 />
-                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{term}</span>
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{term}</span>
               </div>
             ))}
           </div>
         </div>
       ))}
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 2 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         填色深淺 = 嚴重度（Extreme→Minor）
       </div>
     </div>
@@ -704,7 +705,7 @@ function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
 function NewsEventsLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         NEWS EVENTS
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -714,17 +715,17 @@ function NewsEventsLegend() {
               style={{
                 width: 10,
                 height: 10,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: cat.color,
                 opacity: cat.key === "other" ? 0.4 : 0.9,
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{cat.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{cat.label}</span>
           </div>
         ))}
       </div>
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.25)", marginTop: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         座標 = 鄉鎮代表點（非事件位置）
       </div>
     </div>
@@ -736,32 +737,32 @@ function NewsEventsLegend() {
 function IotRiverLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         IOT 河川（補強）
       </div>
       <div style={{ marginBottom: 4 }}>
-        <div style={{ fontSize: 9, color: "rgba(255,255,255,0.45)", marginBottom: 2 }}>
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>
           當日水位變化
         </div>
         <div
           style={{
             height: 8,
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             background: `linear-gradient(to right, ${IOT_RIVER_DELTA_STOPS.map((s) => s.color).join(", ")})`,
           }}
         />
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>下降</span>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>持平</span>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>上升</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>下降</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>持平</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>上升</span>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>-1m</span>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>0</span>
-          <span style={{ fontSize: 8, color: "rgba(255,255,255,0.35)" }}>+1m</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>-1m</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>0</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>+1m</span>
         </div>
       </div>
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.4)", lineHeight: 1.4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.4 }}>
         圈大小 = 變化幅度
       </div>
     </div>
@@ -781,7 +782,7 @@ const WATER_CANAL_ITEMS = [
 function WaterCanalLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         灌排渠道 CANAL
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -789,11 +790,11 @@ function WaterCanalLegend() {
           <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div
               style={{
-                width: 16, height: 3, borderRadius: 1,
+                width: 16, height: 3, borderRadius: RADIUS.sm,
                 background: c.color, opacity: 0.9, flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{c.label}</span>
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{c.label}</span>
           </div>
         ))}
       </div>
@@ -804,7 +805,7 @@ function WaterCanalLegend() {
 function IotStructureLegend() {
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         IOT 水工結構
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
@@ -814,7 +815,7 @@ function IotStructureLegend() {
               style={{
                 width: 8,
                 height: 8,
-                borderRadius: "50%",
+                borderRadius: RADIUS.full,
                 background: s.color,
                 opacity: 0.9,
                 flexShrink: 0,
@@ -822,8 +823,8 @@ function IotStructureLegend() {
               }}
             />
             <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-              <span style={{ fontSize: 9, color: "rgba(255,255,255,0.5)" }}>{s.label}</span>
-              <span style={{ fontSize: 8, color: "rgba(255,255,255,0.3)" }}>{s.measure}</span>
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{s.label}</span>
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{s.measure}</span>
             </div>
           </div>
         ))}
@@ -855,16 +856,16 @@ function SatelliteLegend({ visibility }: { visibility: LayerVisibility }) {
   if (!active.length) return null;
   return (
     <div>
-      <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         衛星 SATELLITES
       </div>
       {active.map((i) => (
         <div key={i.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-          <span style={{ width: 12, height: 12, borderRadius: "50%", background: SATELLITE_COLORS[i.cat], display: "inline-block" }} />
-          <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{SATELLITE_LABELS[i.cat]}</span>
+          <span style={{ width: 12, height: 12, borderRadius: RADIUS.full, background: SATELLITE_COLORS[i.cat], display: "inline-block" }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{SATELLITE_LABELS[i.cat]}</span>
         </div>
       ))}
-      <div style={{ marginTop: 6, fontSize: 8, lineHeight: 1.35, color: "rgba(255,255,255,0.4)" }}>
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
         ● 即時點 = 子衛星正下方<br />
         ● 內圓 50 km swath（成像範圍示意）<br />
         ● 虛線外圓 1,500 km（仰角 ≥ 10° 可見 cone）<br />

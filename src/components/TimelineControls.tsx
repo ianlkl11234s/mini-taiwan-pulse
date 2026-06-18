@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { TimeMode } from "../types";
+import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 interface Props {
   playing: boolean;
@@ -29,11 +30,11 @@ const getBtnStyle = (dark: boolean): React.CSSProperties => ({
   background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
   color: dark ? "rgba(220,220,220,0.9)" : "#555",
   border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   padding: "4px 10px",
-  fontSize: 14,
+  fontSize: FONT_SIZE.lg,
   cursor: "pointer",
-  fontFamily: "monospace",
+  fontFamily: FONT_DATA,
   backdropFilter: "blur(8px)",
 });
 
@@ -41,10 +42,10 @@ const getSelectStyle = (dark: boolean): React.CSSProperties => ({
   background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
   color: dark ? "rgba(220,220,220,0.9)" : "#555",
   border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   padding: "4px 8px",
-  fontSize: 13,
-  fontFamily: "monospace",
+  fontSize: FONT_SIZE.lg,
+  fontFamily: FONT_DATA,
   backdropFilter: "blur(8px)",
 });
 
@@ -112,7 +113,7 @@ export function TimelineControls({
   const arrowBtn: React.CSSProperties = {
     ...getBtnStyle(dark),
     padding: "2px 8px",
-    fontSize: 12,
+    fontSize: FONT_SIZE.md,
     lineHeight: 1,
   };
 
@@ -142,7 +143,7 @@ export function TimelineControls({
           onClick={() => setShowDatePicker((v) => !v)}
           style={{
             ...getBtnStyle(dark),
-            fontSize: 13,
+            fontSize: FONT_SIZE.lg,
             fontWeight: 600,
             padding: "3px 10px",
             minWidth: 110,
@@ -166,7 +167,7 @@ export function TimelineControls({
           }}
           style={{
             ...getBtnStyle(dark),
-            fontSize: 11,
+            fontSize: FONT_SIZE.base,
             padding: "3px 8px",
             fontWeight: isLive ? 700 : 400,
             letterSpacing: isLive ? 1 : 0,
@@ -186,7 +187,7 @@ export function TimelineControls({
         <select
           value={rangeDays}
           onChange={(e) => onRangeDaysChange(Number(e.target.value))}
-          style={{ ...getSelectStyle(dark), fontSize: 11, padding: "3px 4px" }}
+          style={{ ...getSelectStyle(dark), fontSize: FONT_SIZE.base, padding: "3px 4px" }}
           title="顯示天數"
         >
           <option value={1}>1d</option>
@@ -211,7 +212,7 @@ export function TimelineControls({
             style={{
               ...getSelectStyle(dark),
               width: "100%",
-              fontSize: 14,
+              fontSize: FONT_SIZE.lg,
               padding: "6px 8px",
             }}
           />
@@ -230,7 +231,7 @@ export function TimelineControls({
         >
           <button onClick={onToggle} style={{
             ...getBtnStyle(dark),
-            ...(isMobile ? { width: 44, height: 44, fontSize: 18, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" } : {}),
+            ...(isMobile ? { width: 44, height: 44, fontSize: FONT_SIZE.xl, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" } : {}),
           }}>
             {playing ? "\u23F8" : "\u25B6"}
           </button>
@@ -252,8 +253,8 @@ export function TimelineControls({
           <span
             style={{
               color: isFuture ? "#ff9800" : (dark ? "rgba(200,200,200,0.7)" : "rgba(0,0,0,0.5)"),
-              fontSize: 14,
-              fontFamily: "monospace",
+              fontSize: FONT_SIZE.lg,
+              fontFamily: FONT_DATA,
               fontWeight: 600,
             }}
           >
@@ -263,13 +264,13 @@ export function TimelineControls({
             <span
               title="此時間尚未到達，沒有最新資料"
               style={{
-                fontSize: 11,
+                fontSize: FONT_SIZE.base,
                 color: "#ff9800",
                 background: "rgba(255,152,0,0.12)",
                 border: "1px solid rgba(255,152,0,0.4)",
-                borderRadius: 4,
+                borderRadius: RADIUS.md,
                 padding: "2px 6px",
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
               }}
             >
               ⚠ 尚無資料
@@ -281,8 +282,8 @@ export function TimelineControls({
       {/* Live mode: show current time */}
       {isLive && (
         <div style={{
-          fontSize: 14,
-          fontFamily: "monospace",
+          fontSize: FONT_SIZE.lg,
+          fontFamily: FONT_DATA,
           fontWeight: 600,
           color: "#4caf50",
           marginBottom: 6,
@@ -308,8 +309,8 @@ export function TimelineControls({
               display: "flex",
               justifyContent: "space-between",
               color: dark ? "rgba(180,180,180,0.4)" : "rgba(0,0,0,0.3)",
-              fontSize: 10,
-              fontFamily: "monospace",
+              fontSize: FONT_SIZE.sm,
+              fontFamily: FONT_DATA,
               marginTop: 2,
             }}
           >

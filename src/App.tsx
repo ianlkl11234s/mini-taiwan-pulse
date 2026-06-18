@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -1213,20 +1214,20 @@ export default function App() {
         }}>
           <div style={{
             background: "rgba(0,0,0,0.8)", borderRadius: 12, padding: "24px 36px",
-            color: "#fff", textAlign: "center", fontFamily: "monospace",
+            color: "#fff", textAlign: "center", fontFamily: FONT_DATA,
           }}>
             <div style={{
               width: 32, height: 32, margin: "0 auto 12px",
               border: "3px solid rgba(255,255,255,0.15)",
               borderTop: "3px solid #64aaff",
-              borderRadius: "50%",
+              borderRadius: RADIUS.full,
               animation: "day-loading-spin 0.8s linear infinite",
             }} />
             <style>{`@keyframes day-loading-spin { to { transform: rotate(360deg); } }`}</style>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>
+            <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 600, marginBottom: 6 }}>
               資料更新中
             </div>
-            <div style={{ fontSize: 12, opacity: 0.7 }}>
+            <div style={{ fontSize: FONT_SIZE.md, opacity: 0.7 }}>
               {[
                 shipsDayLoading && "船舶",
                 flightsDayLoading && "航班",
@@ -1273,7 +1274,7 @@ export default function App() {
             <div
               style={{
                 fontSize: isMobile ? 20 : 28,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 fontWeight: 700,
                 color: "#fff",
                 letterSpacing: isMobile ? 2 : 4,
@@ -1284,10 +1285,10 @@ export default function App() {
             </div>
             <div
               style={{
-                fontSize: 18,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.xl,
+                fontFamily: FONT_DATA,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.7)",
+                color: COLORS.textDefault,
                 letterSpacing: 2,
                 marginTop: 6,
                 textShadow: "0 1px 8px rgba(0,0,0,0.5)",
@@ -1297,9 +1298,9 @@ export default function App() {
             </div>
             <div
               style={{
-                fontSize: 14,
-                fontFamily: "monospace",
-                color: "rgba(255,255,255,0.4)",
+                fontSize: FONT_SIZE.lg,
+                fontFamily: FONT_DATA,
+                color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
@@ -1317,9 +1318,9 @@ export default function App() {
             </div>
             <div
               style={{
-                fontSize: 14,
-                fontFamily: "monospace",
-                color: "rgba(255,255,255,0.3)",
+                fontSize: FONT_SIZE.lg,
+                fontFamily: FONT_DATA,
+                color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
@@ -1341,7 +1342,7 @@ export default function App() {
               background: "rgba(0,0,0,0.4)",
               border: "1px solid rgba(255,255,255,0.2)",
               color: "#fff",
-              fontSize: 22,
+              fontSize: FONT_SIZE.xxl,
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
@@ -1355,10 +1356,10 @@ export default function App() {
               padding: "4px 12px",
               background: "rgba(255,255,255,0.08)",
               border: "1px solid rgba(255,255,255,0.15)",
-              borderRadius: 4,
-              color: "rgba(255,255,255,0.4)",
-              fontSize: 11,
-              fontFamily: "monospace",
+              borderRadius: RADIUS.md,
+              color: COLORS.textDim,
+              fontSize: FONT_SIZE.base,
+              fontFamily: FONT_DATA,
               cursor: "pointer",
             }}
           >
@@ -1386,9 +1387,9 @@ export default function App() {
             <h1
               style={{
                 margin: 0,
-                fontSize: 18,
+                fontSize: FONT_SIZE.xl,
                 color: isDarkTheme ? "#fff" : "#333",
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 letterSpacing: 2,
               }}
             >
@@ -1402,7 +1403,7 @@ export default function App() {
             />
 
             {loading && (
-              <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)", fontSize: 13 }}>
+              <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: FONT_SIZE.lg }}>
                 Loading...
               </span>
             )}
@@ -1550,10 +1551,10 @@ export default function App() {
                 padding: "6px 14px",
                 background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
                 border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: 6,
+                borderRadius: RADIUS.lg,
                 color: isDarkTheme ? "#fff" : "#333",
-                fontSize: 12,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
                 letterSpacing: 1,
@@ -1579,10 +1580,10 @@ export default function App() {
                   ? "#64aaff"
                   : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
                 border: `1px solid ${monitorOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
-                borderRadius: 6,
+                borderRadius: RADIUS.lg,
                 color: monitorOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
-                fontSize: 12,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
                 fontWeight: monitorOpen ? 700 : 400,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
@@ -1604,12 +1605,12 @@ export default function App() {
                 style={{
                   marginLeft: 2,
                   padding: "1px 5px",
-                  borderRadius: 3,
+                  borderRadius: RADIUS.md,
                   background: monitorOpen
                     ? "rgba(4,18,31,0.18)"
                     : "rgba(255,152,0,0.18)",
                   border: `1px solid ${monitorOpen ? "rgba(4,18,31,0.35)" : "rgba(255,152,0,0.55)"}`,
-                  fontSize: 8,
+                  fontSize: FONT_SIZE.xs,
                   fontWeight: 700,
                   letterSpacing: 1,
                   color: monitorOpen ? "#04121f" : "#ff9800",
@@ -1638,10 +1639,10 @@ export default function App() {
                 padding: "6px 14px",
                 background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
                 border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-                borderRadius: 6,
+                borderRadius: RADIUS.lg,
                 color: isDarkTheme ? "#fff" : "#333",
-                fontSize: 12,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
                 letterSpacing: 1,
@@ -1658,9 +1659,9 @@ export default function App() {
               top: 84,
               right: 16,
               zIndex: 10,
-              color: isDarkTheme ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.2)",
-              fontSize: 10,
-              fontFamily: "monospace",
+              color: isDarkTheme ? COLORS.textFaint : "rgba(0,0,0,0.2)",
+              fontSize: FONT_SIZE.sm,
+              fontFamily: FONT_DATA,
               letterSpacing: 0.5,
               textAlign: "right",
             }}
@@ -1677,16 +1678,16 @@ export default function App() {
               zIndex: 10,
               background: isDarkTheme ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.35)",
               backdropFilter: "blur(8px)",
-              borderRadius: 6,
+              borderRadius: RADIUS.lg,
               padding: "4px 10px",
               transition: "left 0.2s ease",
             }}
           >
             <div
               style={{
-                color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
-                fontSize: 11,
-                fontFamily: "monospace",
+                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
+                fontSize: FONT_SIZE.base,
+                fontFamily: FONT_DATA,
               }}
             >
               {displayedFlights.length} flights
@@ -1699,9 +1700,9 @@ export default function App() {
             </div>
             <div
               style={{
-                color: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
-                fontSize: 11,
-                fontFamily: "monospace",
+                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.3)",
+                fontSize: FONT_SIZE.base,
+                fontFamily: FONT_DATA,
               }}
             >
               {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
@@ -1732,14 +1733,14 @@ export default function App() {
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <span style={{ color: "#fff", fontSize: 14, fontFamily: "monospace", fontWeight: 700, letterSpacing: 1 }}>
+            <span style={{ color: "#fff", fontSize: FONT_SIZE.lg, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1 }}>
               MTP
             </span>
 
             <div style={{ flex: 1 }} />
 
             {loading && (
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>
+              <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA }}>
                 Loading...
               </span>
             )}
@@ -1749,12 +1750,12 @@ export default function App() {
               style={{
                 width: 36,
                 height: 36,
-                borderRadius: 8,
+                borderRadius: RADIUS.xl,
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
                 color: "#fff",
-                fontSize: 12,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -1769,12 +1770,12 @@ export default function App() {
               style={{
                 height: 36,
                 padding: "0 10px",
-                borderRadius: 8,
+                borderRadius: RADIUS.xl,
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
                 color: "#fff",
-                fontSize: 12,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 letterSpacing: 1,
               }}
@@ -1787,14 +1788,14 @@ export default function App() {
               style={{
                 height: 36,
                 padding: "0 10px",
-                borderRadius: 8,
+                borderRadius: RADIUS.xl,
                 background: renderMode === "3d"
                   ? "rgba(80,140,255,0.25)"
                   : "rgba(255,170,68,0.25)",
                 border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
                 color: "#fff",
-                fontSize: 12,
-                fontFamily: "monospace",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 letterSpacing: 1,
               }}
@@ -1909,7 +1910,7 @@ export default function App() {
                 {level === "full" && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>Style</span>
+                      <span style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA }}>Style</span>
                       <StyleSelector
                         selected={mapStyleId}
                         isDarkTheme={true}
@@ -1952,24 +1953,24 @@ export default function App() {
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: "1px solid rgba(100,170,255,0.4)",
-            borderRadius: 8,
+            borderRadius: RADIUS.xl,
             padding: "10px 14px",
             pointerEvents: "none",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             minWidth: 160,
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 1 }}>
+          <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 1 }}>
             {tooltipInfo.flight.callsign}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginTop: 4 }}>
             {tooltipInfo.flight.origin_iata} → {tooltipInfo.flight.dest_iata}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, marginTop: 2 }}>
             {tooltipInfo.flight.aircraft_type}
             {tooltipInfo.altitude != null && ` · ${tooltipInfo.altitude}m`}
           </div>
-          <div style={{ fontSize: 10, color: "rgba(100,170,255,0.6)", marginTop: 4 }}>
+          <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(100,170,255,0.6)", marginTop: 4 }}>
             double-click to track
           </div>
         </div>
@@ -1986,24 +1987,24 @@ export default function App() {
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${trainTooltipInfo.train.color}66`,
-            borderRadius: 8,
+            borderRadius: RADIUS.xl,
             padding: "10px 14px",
             pointerEvents: "none",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             minWidth: 180,
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: trainTooltipInfo.train.color, letterSpacing: 1 }}>
+          <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: trainTooltipInfo.train.color, letterSpacing: 1 }}>
             {trainTooltipInfo.train.trainId}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginTop: 4 }}>
             {trainTooltipInfo.train.systemId.toUpperCase()} · {trainTooltipInfo.train.trackId}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, marginTop: 2 }}>
             {trainTooltipInfo.train.status === "running" ? "行駛中" : "停靠中"}
             {trainTooltipInfo.train.trainTypeCode && ` · ${trainTooltipInfo.train.trainTypeCode}`}
           </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+          <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
             {trainTooltipInfo.train.position[0].toFixed(4)}, {trainTooltipInfo.train.position[1].toFixed(4)}
           </div>
         </div>
@@ -2020,24 +2021,24 @@ export default function App() {
             background: "rgba(10,10,20,0.9)",
             backdropFilter: "blur(12px)",
             border: `1px solid ${busTooltipInfo.bus.color}66`,
-            borderRadius: 8,
+            borderRadius: RADIUS.xl,
             padding: "10px 14px",
             pointerEvents: "none",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             minWidth: 180,
           }}
         >
-          <div style={{ fontSize: 13, fontWeight: 700, color: busTooltipInfo.bus.color, letterSpacing: 1 }}>
+          <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: busTooltipInfo.bus.color, letterSpacing: 1 }}>
             {busTooltipInfo.bus.routeName}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginTop: 4 }}>
             {busTooltipInfo.bus.plateNumb} · {busTooltipInfo.bus.city}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, marginTop: 2 }}>
             {busTooltipInfo.bus.status === "running" ? "行駛中" : "停靠中"}
             {busTooltipInfo.bus.speed > 0 && ` · ${busTooltipInfo.bus.speed.toFixed(0)} km/h`}
           </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+          <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
             {busTooltipInfo.bus.position[1].toFixed(4)}, {busTooltipInfo.bus.position[0].toFixed(4)}
           </div>
         </div>
@@ -2072,48 +2073,48 @@ export default function App() {
               background: "rgba(10,10,20,0.92)",
               backdropFilter: "blur(12px)",
               border: "1px solid #a78bfa66",
-              borderRadius: 8,
+              borderRadius: RADIUS.xl,
               padding: "10px 14px",
               pointerEvents: "none",
-              fontFamily: "monospace",
+              fontFamily: FONT_DATA,
               minWidth: 280,
               maxWidth: 360,
             }}
           >
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", letterSpacing: 1 }}>
+            <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#a78bfa", letterSpacing: 1 }}>
               {frame.route.city} · {frame.route.routeName ?? frame.route.routeId}
             </div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+            <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
               route_id: {frame.route.routeId} · {frame.totalStops} stops · {frame.route.vehicleType}
             </div>
 
             {frame.route.scheduleInferred && (
-              <div style={{ marginTop: 6, fontSize: 10, color: "#fbbf24", fontWeight: 600 }}>
+              <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: "#fbbf24", fontWeight: 600 }}>
                 ⚠ 此路線無精確時刻，時間為推算（直線距離×1.4 ÷ 15km/h + 每站停 3 min）
               </div>
             )}
 
-            <div style={{ marginTop: 8, fontSize: 11, display: "flex", gap: 6, alignItems: "center" }}>
+            <div style={{ marginTop: 8, fontSize: FONT_SIZE.base, display: "flex", gap: 6, alignItems: "center" }}>
               <span style={{ color: stateColor, fontWeight: 700 }}>
                 {frame.state === "moving" ? "● 移動中" :
                  frame.state === "waiting" ? "● 停留中" :
                  frame.state === "before-route" ? "○ 路線未開始" : "○ 路線已結束"}
               </span>
-              <span style={{ color: "rgba(255,255,255,0.5)" }}>now {fmt(frame.nowSec)}</span>
+              <span style={{ color: COLORS.textMuted }}>now {fmt(frame.nowSec)}</span>
             </div>
 
             {isTripBreak && (
-              <div style={{ marginTop: 6, fontSize: 11, color: "#ef4444", fontWeight: 700 }}>
+              <div style={{ marginTop: 6, fontSize: FONT_SIZE.base, color: "#ef4444", fontWeight: 700 }}>
                 ⚠ 班次切換 gap={fmtGap(frame.gapToNextSec)}（&gt; {Math.round(WASTE_SCHEDULE_TRIP_BREAK_S / 60)}min 應 invisible）
               </div>
             )}
 
-            <div style={{ marginTop: 8, paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.15)", fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+            <div style={{ marginTop: 8, paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.15)", fontSize: FONT_SIZE.base, color: COLORS.textStrong }}>
+              <div style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.sm, marginBottom: 2 }}>
                 ↓ 上一站 (#{frame.prevStop.stopSeq}/{frame.totalStops})
               </div>
               <div>{frame.prevStop.stopName ?? "(no name)"}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+              <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, marginTop: 2 }}>
                 arrival {fmt(frame.prevStop.arrivalSec)} · departure {fmt(frame.prevStop.departureSec)}
                 {frame.prevStop.departureSec > frame.prevStop.arrivalSec &&
                   ` · 停 ${fmtGap(frame.prevStop.departureSec - frame.prevStop.arrivalSec)}`}
@@ -2121,15 +2122,15 @@ export default function App() {
             </div>
 
             {frame.nextStop && (
-              <div style={{ marginTop: 6, fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+              <div style={{ marginTop: 6, fontSize: FONT_SIZE.base, color: COLORS.textStrong }}>
+                <div style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.sm, marginBottom: 2 }}>
                   ↓ 下一站 (#{frame.nextStop.stopSeq}/{frame.totalStops})
                 </div>
                 <div>{frame.nextStop.stopName ?? "(no name)"}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+                <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, marginTop: 2 }}>
                   arrival {fmt(frame.nextStop.arrivalSec)}
                   {" · gap "}
-                  <span style={{ color: isTripBreak ? "#ef4444" : "rgba(255,255,255,0.55)" }}>
+                  <span style={{ color: isTripBreak ? "#ef4444" : COLORS.textMuted }}>
                     {fmtGap(frame.gapToNextSec)}
                   </span>
                 </div>

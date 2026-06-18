@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ALL_PRESETS } from "../map/cameraPresets";
 import type { CameraPreset } from "../types";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 interface Props {
   isDarkTheme?: boolean;
@@ -47,10 +48,10 @@ export function LocationJump({ isDarkTheme = true, onJump, currentId }: Props) {
     background: isDarkTheme ? "rgba(0,0,0,0.6)" : "rgba(255,255,255,0.85)",
     color: isDarkTheme ? "#fff" : "#333",
     border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
-    borderRadius: 4,
+    borderRadius: RADIUS.md,
     padding: "4px 8px",
-    fontSize: 14,
-    fontFamily: "monospace",
+    fontSize: FONT_SIZE.lg,
+    fontFamily: FONT_DATA,
     backdropFilter: "blur(8px)",
     cursor: "pointer",
   };
@@ -72,9 +73,9 @@ export function LocationJump({ isDarkTheme = true, onJump, currentId }: Props) {
             background: "rgba(14,14,22,0.95)",
             backdropFilter: "blur(16px)",
             border: "1px solid rgba(255,255,255,0.12)",
-            borderRadius: 8,
+            borderRadius: RADIUS.xl,
             padding: "12px 14px",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
           }}
         >
           {/* Overview */}
@@ -109,11 +110,11 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        color: "rgba(255,255,255,0.4)",
-        fontSize: 11,
+        color: COLORS.textDim,
+        fontSize: FONT_SIZE.base,
         letterSpacing: 2,
         marginBottom: 6,
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
       }}
     >
       {children}
@@ -162,7 +163,7 @@ function Item({
         alignItems: "center",
         gap: 6,
         padding: compact ? "5px 6px" : "5px 8px",
-        borderRadius: 4,
+        borderRadius: RADIUS.md,
         border: "none",
         background: active
           ? "rgba(100,170,255,0.15)"
@@ -170,19 +171,19 @@ function Item({
             ? "rgba(255,255,255,0.08)"
             : "transparent",
         color: active ? "#64aaff" : "#fff",
-        fontSize: compact ? 12 : 13,
-        fontFamily: "monospace",
+        fontSize: compact ? FONT_SIZE.md : FONT_SIZE.lg,
+        fontFamily: FONT_DATA,
         cursor: "pointer",
         textAlign: "left",
         width: "100%",
       }}
     >
-      {active && <span style={{ fontSize: 8, lineHeight: 1 }}>●</span>}
+      {active && <span style={{ fontSize: FONT_SIZE.xs, lineHeight: 1 }}>●</span>}
       <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {preset.name}
       </span>
       {airport && iata && (
-        <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{iata}</span>
+        <span style={{ color: COLORS.textDim, fontSize: FONT_SIZE.base }}>{iata}</span>
       )}
     </button>
   );

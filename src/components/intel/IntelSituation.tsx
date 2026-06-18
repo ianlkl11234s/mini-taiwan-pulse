@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA } from "./intelTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { NEWS_CATEGORIES, getNewsCategoryDef, type NewsCategory } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
 import type { TrendingRow } from "../../data/intelLoaders";
@@ -178,7 +179,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                 <span
                   key={c.key}
                   title={c.label}
-                  style={{ width: 7, height: 7, borderRadius: 2, background: c.color, opacity: 0.85 }}
+                  style={{ width: 7, height: 7, borderRadius: RADIUS.sm, background: c.color, opacity: 0.85 }}
                 />
               ))}
             </div>
@@ -233,7 +234,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
               justifyContent: "space-between",
               marginTop: 2,
               fontFamily: FONT_DATA,
-              fontSize: 8,
+              fontSize: FONT_SIZE.xs,
               color: COLORS.textGhost,
             }}
           >
@@ -258,7 +259,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
             熱區 TOP 5 · HOTSPOTS
           </div>
           {hotspots.length === 0 ? (
-            <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, padding: "2px 0" }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "2px 0" }}>
               ⚠ 尚無資料
             </div>
           ) : (
@@ -267,11 +268,11 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                 const cat = getNewsCategoryDef(r.topCat);
                 return (
                   <div key={r.county} style={{ display: "flex", alignItems: "center", gap: 7 }}>
-                    <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textDim, width: 9 }}>
+                    <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim, width: 9 }}>
                       {i + 1}
                     </span>
                     <span
-                      style={{ width: 7, height: 7, borderRadius: "50%", background: cat.color, flexShrink: 0 }}
+                      style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: cat.color, flexShrink: 0 }}
                     />
                     <span
                       style={{
@@ -287,7 +288,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                       style={{
                         flex: 1,
                         height: 4,
-                        borderRadius: 2,
+                        borderRadius: RADIUS.sm,
                         background: "rgba(255,255,255,0.05)",
                         overflow: "hidden",
                         minWidth: 14,
@@ -309,7 +310,7 @@ export function IntelSituation({ events, countyByEventId, trending }: Props) {
                     <span
                       style={{
                         fontFamily: FONT_DATA,
-                        fontSize: 11,
+                        fontSize: FONT_SIZE.base,
                         fontWeight: 700,
                         color: "#fff",
                         width: 16,

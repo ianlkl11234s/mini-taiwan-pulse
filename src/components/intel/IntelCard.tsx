@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS, relTime, clockTime } from "./intelTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
 import { useWallClock } from "../../hooks/useWallClock";
@@ -31,7 +32,7 @@ const btnGhost: CSSProperties = {
   alignItems: "center",
   gap: 5,
   padding: "5px 10px",
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   whiteSpace: "nowrap",
   background: "rgba(255,255,255,0.04)",
   border: `1px solid ${COLORS.borderMid}`,
@@ -71,7 +72,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
           top: 14,
           width: 11,
           height: 11,
-          borderRadius: "50%",
+          borderRadius: RADIUS.full,
           background: cat.color,
           border: "2px solid #0a0a14",
           zIndex: 1,
@@ -82,7 +83,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
         onClick={handleClick}
         style={{
           cursor: "pointer",
-          borderRadius: 8,
+          borderRadius: RADIUS.xl,
           padding: "11px 13px",
           background: selected ? "rgba(100,170,255,0.08)" : "rgba(255,255,255,0.022)",
           border: `1px solid ${selected ? COLORS.borderAccent : COLORS.borderSoft}`,
@@ -98,13 +99,13 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               gap: 4,
               padding: "1px 7px",
               whiteSpace: "nowrap",
-              borderRadius: 3,
+              borderRadius: RADIUS.md,
               background: `${cat.color}22`,
               border: `1px solid ${cat.color}66`,
             }}
           >
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: cat.color }} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: cat.color, fontWeight: 600 }}>
+            <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: cat.color }} />
+            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: cat.color, fontWeight: 600 }}>
               {cat.label}
             </span>
           </span>
@@ -119,7 +120,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 color: COLORS.surge,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
-                borderRadius: 3,
+                borderRadius: RADIUS.md,
                 background: "rgba(255,152,0,0.14)",
                 border: "1px solid rgba(255,152,0,0.4)",
               }}
@@ -135,7 +136,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 color: COLORS.statusWarn,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
-                borderRadius: 3,
+                borderRadius: RADIUS.md,
                 background: "rgba(255,152,0,0.12)",
                 border: "1px solid rgba(255,152,0,0.35)",
               }}
@@ -151,7 +152,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 color: COLORS.textDim,
                 whiteSpace: "nowrap",
                 padding: "1px 6px",
-                borderRadius: 3,
+                borderRadius: RADIUS.md,
                 background: "rgba(255,255,255,0.04)",
                 border: `1px solid ${COLORS.borderSoft}`,
               }}
@@ -198,7 +199,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               marginBottom: 5,
               whiteSpace: "nowrap",
               fontFamily: FONT_DATA,
-              fontSize: 10,
+              fontSize: FONT_SIZE.sm,
               color: COLORS.textDim,
             }}
           >
@@ -221,7 +222,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
           <div
             style={{
               fontFamily: FONT_CJK,
-              fontSize: 11,
+              fontSize: FONT_SIZE.base,
               color: COLORS.textDefault,
               lineHeight: 1.55,
               display: expanded ? "block" : "-webkit-box",
@@ -270,7 +271,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
               style={{
                 marginLeft: "auto",
                 fontFamily: FONT_DATA,
-                fontSize: 9,
+                fontSize: FONT_SIZE.xs,
                 color: COLORS.textFaint,
               }}
             >
@@ -298,7 +299,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 gridTemplateColumns: "auto 1fr",
                 gap: "3px 10px",
                 fontFamily: FONT_DATA,
-                fontSize: 10,
+                fontSize: FONT_SIZE.sm,
               }}
             >
               {e.county && (
@@ -353,7 +354,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                     alignItems: "center",
                     gap: 5,
                     padding: "5px 10px",
-                    borderRadius: 4,
+                    borderRadius: RADIUS.md,
                     whiteSpace: "nowrap",
                     background: `${cat.color}22`,
                     border: `1px solid ${cat.color}55`,
