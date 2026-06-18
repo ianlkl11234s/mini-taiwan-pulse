@@ -529,7 +529,8 @@ export interface FeatureInfo {
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "hikingTrails"
-    | "satellite";
+    | "satellite"
+    | "powerPlant" | "osmSubstation" | "evCharging";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
