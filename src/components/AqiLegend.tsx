@@ -1,3 +1,5 @@
+import { FONT_DATA } from "../styles/designTokens";
+
 /**
  * AqiLegend — AQI 6 級色階圖例（橫條）
  *
@@ -37,7 +39,7 @@ export function AqiLegend({ isDark, caption }: Props) {
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
         borderRadius: 8,
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
         color: isDark ? "#ddd" : "#222",
       }}
     >

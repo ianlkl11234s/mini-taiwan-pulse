@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, memo, type CSSProperties } from "react";
+import { FONT_DATA } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
@@ -563,7 +564,7 @@ function CategoryLabel({ children }: { children: string }) {
     <div
       style={{
         color: DIM,
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
         fontSize: 10,
         fontWeight: 600,
         letterSpacing: 2,
@@ -690,7 +691,7 @@ const LayerRow = memo(function LayerRow({
       {count != null && count > 0 && (
         <span
           style={{
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             fontSize: 11,
             color: active ? color : INACTIVE_TEXT,
             marginRight: 4,
@@ -809,7 +810,7 @@ function ExpandedControls({
     fontSize: 9,
     padding: "2px 6px",
     borderRadius: 3,
-    fontFamily: "monospace",
+    fontFamily: FONT_DATA,
     cursor: "pointer",
     border: "1px solid transparent",
   };
@@ -869,7 +870,7 @@ function ExpandedControls({
                     key={ctrl.label}
                     style={{
                       display: "flex", alignItems: "center", gap: 4,
-                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
                     }}
                   >
                     <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -880,7 +881,7 @@ function ExpandedControls({
                         flex: 1, fontSize: 10, padding: "1px 6px",
                         background: "rgba(0,0,0,0.5)", color: "#fff",
                         border: "1px solid rgba(255,255,255,0.15)",
-                        borderRadius: 3, fontFamily: "monospace",
+                        borderRadius: 3, fontFamily: FONT_DATA,
                       }}
                     >
                       {ctrl.options.map((opt) => (
@@ -897,7 +898,7 @@ function ExpandedControls({
                   key={ctrl.label}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
-                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -931,7 +932,7 @@ function ExpandedControls({
                   key={ctrl.label}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
-                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -961,7 +962,7 @@ function ExpandedControls({
                 key={s.label}
                 style={{
                   display: "flex", alignItems: "center", gap: 4,
-                  color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: "monospace",
+                  color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
                 }}
               >
                 <span style={{ minWidth: 50, flexShrink: 0 }}>{s.label}</span>
@@ -1029,7 +1030,7 @@ function CollapsibleSection({
         }}>
           {title}
         </span>
-        <span style={{ fontSize: 9, color: DIM, fontFamily: "monospace", marginLeft: 4 }}>
+        <span style={{ fontSize: 9, color: DIM, fontFamily: FONT_DATA, marginLeft: 4 }}>
           {count}
         </span>
       </div>
@@ -1196,7 +1197,7 @@ function LocationItem({
           style={{
             fontSize: 10,
             color: DIM,
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             whiteSpace: "nowrap",
             overflow: "hidden",
             textOverflow: "ellipsis",

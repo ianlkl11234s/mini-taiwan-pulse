@@ -1,4 +1,5 @@
 import type { AppMode } from "../types";
+import { FONT_DATA } from "../styles/designTokens";
 
 interface Props {
   appMode: AppMode;
@@ -22,7 +23,7 @@ export function ModeToggle({
     border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
     borderRadius: 6,
     backdropFilter: "blur(8px)",
-    fontFamily: "monospace",
+    fontFamily: FONT_DATA,
   };
 
   const tab = (active: boolean): React.CSSProperties => ({

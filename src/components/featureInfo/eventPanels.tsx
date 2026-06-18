@@ -1,6 +1,7 @@
 import { Row } from "./shared";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
+import { FONT_DATA } from "../../styles/designTokens";
 
 function parseEvents(raw: unknown): ClusterEvent[] {
   if (typeof raw !== "string" || !raw) return [];
@@ -47,7 +48,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: cat.color, fontSize: 11, fontFamily: "monospace", textDecoration: "underline" }}
+              style={{ color: cat.color, fontSize: 11, fontFamily: FONT_DATA, textDecoration: "underline" }}
             >
               原文連結
             </a>

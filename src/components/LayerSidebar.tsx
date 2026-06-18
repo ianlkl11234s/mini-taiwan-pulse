@@ -3,7 +3,7 @@ import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from 
 import type { ParamControl } from "../hooks/useTransportParams";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, SECTIONS } from "./sidebar/layerCatalog";
-import { SURFACE } from "../styles/designTokens";
+import { SURFACE, FONT_DATA } from "../styles/designTokens";
 
 // ── Props ──
 
@@ -197,7 +197,7 @@ function SidebarContent({
         WebkitBackdropFilter: "blur(12px)",
         borderRadius: 8,
         padding: "8px 0",
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
       }}
     >
       {SECTIONS.map((section, sIdx) => (
@@ -351,7 +351,7 @@ function ExpandedPanel({
     fontSize: 9,
     padding: "2px 6px",
     borderRadius: 3,
-    fontFamily: "monospace",
+    fontFamily: FONT_DATA,
     cursor: "pointer",
     border: "1px solid transparent",
   };
@@ -425,7 +425,7 @@ function ExpandedPanel({
                       gap: 4,
                       color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
                       fontSize: 10,
-                      fontFamily: "monospace",
+                      fontFamily: FONT_DATA,
                     }}
                   >
                     <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -440,7 +440,7 @@ function ExpandedPanel({
                         color: isDarkTheme ? "#fff" : "#000",
                         border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"}`,
                         borderRadius: 3,
-                        fontFamily: "monospace",
+                        fontFamily: FONT_DATA,
                       }}
                     >
                       {ctrl.options.map((opt) => (
@@ -459,7 +459,7 @@ function ExpandedPanel({
                     gap: 4,
                     color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
                     fontSize: 10,
-                    fontFamily: "monospace",
+                    fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -499,7 +499,7 @@ function ExpandedPanel({
                     gap: 4,
                     color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
                     fontSize: 10,
-                    fontFamily: "monospace",
+                    fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -537,7 +537,7 @@ function ExpandedPanel({
                   gap: 4,
                   color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
                   fontSize: 10,
-                  fontFamily: "monospace",
+                  fontFamily: FONT_DATA,
                 }}
               >
                 <span style={{ minWidth: isMobile ? 60 : 50, flexShrink: 0 }}>{s.label}</span>

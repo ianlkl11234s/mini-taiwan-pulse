@@ -1,3 +1,5 @@
+import { FONT_DATA } from "../styles/designTokens";
+
 export type HistoricalGranularity = "year" | "month" | "day";
 
 interface Props {
@@ -29,7 +31,7 @@ const getBtnStyle = (dark: boolean): React.CSSProperties => ({
   padding: "4px 10px",
   fontSize: 14,
   cursor: "pointer",
-  fontFamily: "monospace",
+  fontFamily: FONT_DATA,
   backdropFilter: "blur(8px)",
 });
 
@@ -40,7 +42,7 @@ const getSelectStyle = (dark: boolean): React.CSSProperties => ({
   borderRadius: 4,
   padding: "4px 8px",
   fontSize: 13,
-  fontFamily: "monospace",
+  fontFamily: FONT_DATA,
 });
 
 const granLabel: Record<HistoricalGranularity, string> = {
@@ -144,7 +146,7 @@ export function HistoricalTimeline({
           width: 26,
           fontSize: 11,
           color: dark ? "rgba(180,180,180,0.7)" : "rgba(0,0,0,0.55)",
-          fontFamily: "monospace",
+          fontFamily: FONT_DATA,
           textAlign: "right",
         }}
       >
@@ -165,7 +167,7 @@ export function HistoricalTimeline({
           minWidth: 36,
           fontSize: 11,
           color: dark ? "rgba(220,220,220,0.85)" : "#444",
-          fontFamily: "monospace",
+          fontFamily: FONT_DATA,
         }}
       >
         {value}
@@ -192,7 +194,7 @@ export function HistoricalTimeline({
             fontSize: 13,
             fontWeight: 600,
             color: dark ? "rgba(240,240,240,0.95)" : "#222",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
           }}
         >
           {formatLabel(year, month, day, granularity)}
@@ -229,7 +231,7 @@ export function HistoricalTimeline({
           style={{
             fontSize: 11,
             color: dark ? "rgba(180,180,180,0.55)" : "rgba(0,0,0,0.5)",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
           }}
         >
           火災資料：111~113

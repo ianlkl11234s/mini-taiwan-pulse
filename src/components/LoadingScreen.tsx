@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { FONT_DATA } from "../styles/designTokens";
 
 interface LoadingStep {
   label: string;
@@ -117,7 +118,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
         alignItems: "center",
         justifyContent: "center",
         gap: 16,
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
         color: "#fff",
         zIndex: 9999,
         opacity: fading ? 0 : 1,

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { FONT_DATA } from "../styles/designTokens";
 import { ChevronLeft, ChevronRight, Navigation } from "lucide-react";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 
@@ -125,7 +126,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
       {/* ── DAILY section ── */}
       {cyclicSources.length > 0 && (
         <div style={{ padding: "8px 12px" }}>
-          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1.5, color: DIM, fontFamily: "monospace", marginBottom: 6 }}>
+          <div style={{ fontSize: 10, fontWeight: 600, letterSpacing: 1.5, color: DIM, fontFamily: FONT_DATA, marginBottom: 6 }}>
             DAILY
           </div>
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -134,7 +135,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 key={s.id}
                 style={{
                   fontSize: 10,
-                  fontFamily: "monospace",
+                  fontFamily: FONT_DATA,
                   color: s.color,
                   background: "rgba(255,255,255,0.05)",
                   borderRadius: 3,
@@ -144,7 +145,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 {s.label}
               </span>
             ))}
-            <span style={{ fontSize: 10, fontFamily: "monospace", color: DIM }}>always</span>
+            <span style={{ fontSize: 10, fontFamily: FONT_DATA, color: DIM }}>always</span>
           </div>
         </div>
       )}
@@ -173,7 +174,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
               onClick={() => setMode(m)}
               style={{
                 fontSize: 9,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 padding: "2px 6px",
                 borderRadius: 3,
                 border: mode === m ? "1px solid rgba(255,255,255,0.3)" : "1px solid transparent",
@@ -199,7 +200,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 textAlign: "center",
                 fontSize: 9,
                 color: DIM,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 padding: "2px 0",
               }}
             >
@@ -254,7 +255,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 {/* Day number */}
                 <span style={{
                   fontSize: 10,
-                  fontFamily: "monospace",
+                  fontFamily: FONT_DATA,
                   color: isSelected ? "#fff" : (sourcesOnDay.length > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)"),
                   fontWeight: isSelected ? 700 : 400,
                   lineHeight: 1,
@@ -290,7 +291,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 {mode === "heat" && sourcesOnDay.length > 0 && (
                   <span style={{
                     fontSize: 7,
-                    fontFamily: "monospace",
+                    fontFamily: FONT_DATA,
                     color: "rgba(255,255,255,0.5)",
                     lineHeight: 1,
                   }}>
@@ -311,7 +312,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
             <span style={{ fontSize: 11, fontWeight: 600, color: "#fff", fontFamily: "Inter, system-ui, sans-serif" }}>
               {detailDate.getMonth() + 1}/{detailDate.getDate()} ({WEEKDAYS[detailDate.getDay()]})
             </span>
-            <span style={{ fontSize: 10, color: DIM, fontFamily: "monospace" }}>
+            <span style={{ fontSize: 10, color: DIM, fontFamily: FONT_DATA }}>
               {(() => {
                 const sources = daySourceMap.get(detailDate.getDate()) ?? [];
                 return totalSources > 0
@@ -329,7 +330,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 alignItems: "center",
                 gap: 3,
                 fontSize: 10,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 color: "#64aaff",
                 background: "rgba(100,170,255,0.1)",
                 border: "1px solid rgba(100,170,255,0.3)",
@@ -351,7 +352,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                   key={s.id}
                   style={{
                     fontSize: 10,
-                    fontFamily: "monospace",
+                    fontFamily: FONT_DATA,
                     padding: "1px 6px",
                     borderRadius: 3,
                     background: hasData ? "rgba(255,255,255,0.06)" : "transparent",
@@ -370,7 +371,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
       {/* ── Legend (click to filter) ── */}
       <div style={{ height: 1, background: BORDER, margin: "0 12px" }} />
       <div style={{ padding: "6px 12px 8px" }}>
-        <div style={{ fontSize: 9, color: DIM, fontFamily: "monospace", marginBottom: 4, letterSpacing: 1 }}>
+        <div style={{ fontSize: 9, color: DIM, fontFamily: FONT_DATA, marginBottom: 4, letterSpacing: 1 }}>
           FILTER (click to highlight)
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
@@ -382,7 +383,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 onClick={() => setFilterSource(isActive ? null : s.id)}
                 style={{
                   fontSize: 10,
-                  fontFamily: "monospace",
+                  fontFamily: FONT_DATA,
                   padding: "2px 6px",
                   borderRadius: 3,
                   border: isActive ? `1px solid ${s.color}` : "1px solid rgba(255,255,255,0.1)",
@@ -410,7 +411,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
               onClick={() => setFilterSource(null)}
               style={{
                 fontSize: 9,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 padding: "2px 6px",
                 borderRadius: 3,
                 border: "1px solid rgba(255,255,255,0.15)",

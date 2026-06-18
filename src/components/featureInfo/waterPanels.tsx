@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
+import { FONT_DATA } from "../../styles/designTokens";
 import { fetchFloodSensorTimeseries } from "../../data/floodSensorLoader";
 import { fetchRiverLevelTimeseries } from "../../data/riverLevelLoader";
 import { fetchGroundwaterTimeseries } from "../../data/groundwaterLoader";
@@ -525,7 +526,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
             style={{
               marginLeft: "auto",
               fontSize: 9,
-              fontFamily: "monospace",
+              fontFamily: FONT_DATA,
               color: "rgba(255,255,255,0.3)",
             }}
           >

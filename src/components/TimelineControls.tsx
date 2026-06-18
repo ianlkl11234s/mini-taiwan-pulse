@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { TimeMode } from "../types";
+import { FONT_DATA } from "../styles/designTokens";
 
 interface Props {
   playing: boolean;
@@ -33,7 +34,7 @@ const getBtnStyle = (dark: boolean): React.CSSProperties => ({
   padding: "4px 10px",
   fontSize: 14,
   cursor: "pointer",
-  fontFamily: "monospace",
+  fontFamily: FONT_DATA,
   backdropFilter: "blur(8px)",
 });
 
@@ -44,7 +45,7 @@ const getSelectStyle = (dark: boolean): React.CSSProperties => ({
   borderRadius: 4,
   padding: "4px 8px",
   fontSize: 13,
-  fontFamily: "monospace",
+  fontFamily: FONT_DATA,
   backdropFilter: "blur(8px)",
 });
 
@@ -253,7 +254,7 @@ export function TimelineControls({
             style={{
               color: isFuture ? "#ff9800" : (dark ? "rgba(200,200,200,0.7)" : "rgba(0,0,0,0.5)"),
               fontSize: 14,
-              fontFamily: "monospace",
+              fontFamily: FONT_DATA,
               fontWeight: 600,
             }}
           >
@@ -269,7 +270,7 @@ export function TimelineControls({
                 border: "1px solid rgba(255,152,0,0.4)",
                 borderRadius: 4,
                 padding: "2px 6px",
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
               }}
             >
               ⚠ 尚無資料
@@ -282,7 +283,7 @@ export function TimelineControls({
       {isLive && (
         <div style={{
           fontSize: 14,
-          fontFamily: "monospace",
+          fontFamily: FONT_DATA,
           fontWeight: 600,
           color: "#4caf50",
           marginBottom: 6,
@@ -309,7 +310,7 @@ export function TimelineControls({
               justifyContent: "space-between",
               color: dark ? "rgba(180,180,180,0.4)" : "rgba(0,0,0,0.3)",
               fontSize: 10,
-              fontFamily: "monospace",
+              fontFamily: FONT_DATA,
               marginTop: 2,
             }}
           >

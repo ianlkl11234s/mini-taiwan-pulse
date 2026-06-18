@@ -4,7 +4,7 @@
 // layerType → 元件對應在 featureInfo/registry.tsx。新增 layer popup 只要：
 // 1) 對應 domain 檔寫 panel 元件  2) registry.tsx 加 PANEL_REGISTRY + HEADER_LABELS 各一行。
 import { X } from "lucide-react";
-import { SURFACE } from "../styles/designTokens";
+import { SURFACE, FONT_DATA } from "../styles/designTokens";
 import type { FeatureInfo } from "../types";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { PANEL_REGISTRY, HEADER_LABELS } from "./featureInfo/registry";
@@ -48,7 +48,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
         border: "1px solid rgba(100, 170, 255, 0.25)",
         borderRadius: 10,
         padding: "12px 14px",
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
       }}
     >
       {/* Close button */}

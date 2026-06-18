@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ALL_PRESETS } from "../map/cameraPresets";
 import type { CameraPreset } from "../types";
+import { FONT_DATA } from "../styles/designTokens";
 
 interface Props {
   isDarkTheme?: boolean;
@@ -50,7 +51,7 @@ export function LocationJump({ isDarkTheme = true, onJump, currentId }: Props) {
     borderRadius: 4,
     padding: "4px 8px",
     fontSize: 14,
-    fontFamily: "monospace",
+    fontFamily: FONT_DATA,
     backdropFilter: "blur(8px)",
     cursor: "pointer",
   };
@@ -74,7 +75,7 @@ export function LocationJump({ isDarkTheme = true, onJump, currentId }: Props) {
             border: "1px solid rgba(255,255,255,0.12)",
             borderRadius: 8,
             padding: "12px 14px",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
           }}
         >
           {/* Overview */}
@@ -113,7 +114,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
         fontSize: 11,
         letterSpacing: 2,
         marginBottom: 6,
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
       }}
     >
       {children}
@@ -171,7 +172,7 @@ function Item({
             : "transparent",
         color: active ? "#64aaff" : "#fff",
         fontSize: compact ? 12 : 13,
-        fontFamily: "monospace",
+        fontFamily: FONT_DATA,
         cursor: "pointer",
         textAlign: "left",
         width: "100%",

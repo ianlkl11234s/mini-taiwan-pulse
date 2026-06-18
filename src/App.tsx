@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { FONT_DATA } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -1213,7 +1214,7 @@ export default function App() {
         }}>
           <div style={{
             background: "rgba(0,0,0,0.8)", borderRadius: 12, padding: "24px 36px",
-            color: "#fff", textAlign: "center", fontFamily: "monospace",
+            color: "#fff", textAlign: "center", fontFamily: FONT_DATA,
           }}>
             <div style={{
               width: 32, height: 32, margin: "0 auto 12px",
@@ -1273,7 +1274,7 @@ export default function App() {
             <div
               style={{
                 fontSize: isMobile ? 20 : 28,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 fontWeight: 700,
                 color: "#fff",
                 letterSpacing: isMobile ? 2 : 4,
@@ -1285,7 +1286,7 @@ export default function App() {
             <div
               style={{
                 fontSize: 18,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 fontWeight: 600,
                 color: "rgba(255,255,255,0.7)",
                 letterSpacing: 2,
@@ -1298,7 +1299,7 @@ export default function App() {
             <div
               style={{
                 fontSize: 14,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 color: "rgba(255,255,255,0.4)",
                 letterSpacing: 1,
                 marginTop: 4,
@@ -1318,7 +1319,7 @@ export default function App() {
             <div
               style={{
                 fontSize: 14,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 color: "rgba(255,255,255,0.3)",
                 letterSpacing: 1,
                 marginTop: 4,
@@ -1358,7 +1359,7 @@ export default function App() {
               borderRadius: 4,
               color: "rgba(255,255,255,0.4)",
               fontSize: 11,
-              fontFamily: "monospace",
+              fontFamily: FONT_DATA,
               cursor: "pointer",
             }}
           >
@@ -1388,7 +1389,7 @@ export default function App() {
                 margin: 0,
                 fontSize: 18,
                 color: isDarkTheme ? "#fff" : "#333",
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 letterSpacing: 2,
               }}
             >
@@ -1553,7 +1554,7 @@ export default function App() {
                 borderRadius: 6,
                 color: isDarkTheme ? "#fff" : "#333",
                 fontSize: 12,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
                 letterSpacing: 1,
@@ -1582,7 +1583,7 @@ export default function App() {
                 borderRadius: 6,
                 color: monitorOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
                 fontSize: 12,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 fontWeight: monitorOpen ? 700 : 400,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
@@ -1641,7 +1642,7 @@ export default function App() {
                 borderRadius: 6,
                 color: isDarkTheme ? "#fff" : "#333",
                 fontSize: 12,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 backdropFilter: "blur(8px)",
                 letterSpacing: 1,
@@ -1660,7 +1661,7 @@ export default function App() {
               zIndex: 10,
               color: isDarkTheme ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.2)",
               fontSize: 10,
-              fontFamily: "monospace",
+              fontFamily: FONT_DATA,
               letterSpacing: 0.5,
               textAlign: "right",
             }}
@@ -1686,7 +1687,7 @@ export default function App() {
               style={{
                 color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
                 fontSize: 11,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
               }}
             >
               {displayedFlights.length} flights
@@ -1701,7 +1702,7 @@ export default function App() {
               style={{
                 color: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
                 fontSize: 11,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
               }}
             >
               {cameraInfo.lat}, {cameraInfo.lng} z{cameraInfo.zoom} pitch {cameraInfo.pitch} bearing {cameraInfo.bearing}
@@ -1732,14 +1733,14 @@ export default function App() {
               WebkitBackdropFilter: "blur(12px)",
             }}
           >
-            <span style={{ color: "#fff", fontSize: 14, fontFamily: "monospace", fontWeight: 700, letterSpacing: 1 }}>
+            <span style={{ color: "#fff", fontSize: 14, fontFamily: FONT_DATA, fontWeight: 700, letterSpacing: 1 }}>
               MTP
             </span>
 
             <div style={{ flex: 1 }} />
 
             {loading && (
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>
+              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: FONT_DATA }}>
                 Loading...
               </span>
             )}
@@ -1754,7 +1755,7 @@ export default function App() {
                 border: "1px solid rgba(255,255,255,0.2)",
                 color: "#fff",
                 fontSize: 12,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
@@ -1774,7 +1775,7 @@ export default function App() {
                 border: "1px solid rgba(255,255,255,0.2)",
                 color: "#fff",
                 fontSize: 12,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 letterSpacing: 1,
               }}
@@ -1794,7 +1795,7 @@ export default function App() {
                 border: `1px solid ${renderMode === "3d" ? "rgba(80,140,255,0.5)" : "rgba(255,170,68,0.5)"}`,
                 color: "#fff",
                 fontSize: 12,
-                fontFamily: "monospace",
+                fontFamily: FONT_DATA,
                 cursor: "pointer",
                 letterSpacing: 1,
               }}
@@ -1909,7 +1910,7 @@ export default function App() {
                 {level === "full" && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: "monospace" }}>Style</span>
+                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: FONT_DATA }}>Style</span>
                       <StyleSelector
                         selected={mapStyleId}
                         isDarkTheme={true}
@@ -1955,7 +1956,7 @@ export default function App() {
             borderRadius: 8,
             padding: "10px 14px",
             pointerEvents: "none",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             minWidth: 160,
           }}
         >
@@ -1989,7 +1990,7 @@ export default function App() {
             borderRadius: 8,
             padding: "10px 14px",
             pointerEvents: "none",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             minWidth: 180,
           }}
         >
@@ -2023,7 +2024,7 @@ export default function App() {
             borderRadius: 8,
             padding: "10px 14px",
             pointerEvents: "none",
-            fontFamily: "monospace",
+            fontFamily: FONT_DATA,
             minWidth: 180,
           }}
         >
@@ -2075,7 +2076,7 @@ export default function App() {
               borderRadius: 8,
               padding: "10px 14px",
               pointerEvents: "none",
-              fontFamily: "monospace",
+              fontFamily: FONT_DATA,
               minWidth: 280,
               maxWidth: 360,
             }}
