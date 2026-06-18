@@ -864,3 +864,45 @@ PR #22 是本專案第一次大規模 design tokens migration（60+ 元件、120
 建立過。Phase 0 codex review 已抓到 fontSize 缺位、circular dep 等多個議題，**讓我過度
 信任 codex 能 catch 一切** — 沒對 subagent prompt 做更嚴的設計（semantic 區分 + grep 覆蓋空格）。
 真正的教訓：**subagent prompt 是 spec、codex 是 review、兩者各自有盲區**，需要前後互補。
+
+---
+
+## 2026-06-18 — Energy beam 重蹈 2026-04-22 isStyleLoaded race 覆轍
+
+**症狀**：能源 MVP v1.3 機組即時出力（usePowerGenerationBeamLayer）：
+- console log 顯示 mount effect run / mapReady=true / fetch 成功 14 廠 × 143 ts
+- 但畫面**完全沒柱** — scene.setData 沒被 customLayer.render 呼叫
+- 因為 CustomLayer 根本沒 addLayer 進 mapbox
+
+**根因**：跟 2026-04-22 水庫圖層**完全一樣**：
+```ts
+if (map.isStyleLoaded()) mount();    // ← toggle 那 frame racily 回 false
+else map.on("style.load", mount);    // ← style 早就 load 完不會再 fire → 永遠不 mount
+```
+
+**修法**：try addLayer + map.once("idle", retry) — bulletproof（commit `f6c9566` v1.3.5）。
+
+### 為什麼又踩
+
+2026-04-22 已寫成 pitfall 檔（`.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md`），
+但寫 energy beam 時**沒去讀**。SessionStart inline 的是 STATUS / BACKLOG / PRINCIPLES，
+**pitfalls 要主動 grep 才看到**。獨立 3D hook 是低頻場景（一年 < 5 次），不在 muscle memory 內。
+
+### 預防
+
+1. 那個 pitfall 檔已 append「2026-06-18 第二次踩到」段 + SOP，並加觸發詞 `3D 圖層 / Three.js / CustomLayer / addLayer / Three.js scene` 在頂
+2. PRINCIPLES 補一條規則：「寫獨立 CustomLayer hook 前 → grep `.claude/pitfalls/*mapbox*` 確認過再動工」
+3. 預設 mount 用 try/catch + idle 重試 pattern，**禁** `if (isStyleLoaded()) ... else style.load`
+
+### Why 一開始花這麼久
+
+| 階段 | 時間軸 | 卡點 |
+|---|---|---|
+| 用戶說「機組看不到」 | 第 1 輪 | 我先去調 BEAM_RADIUS、CylinderGeometry 形狀（visual 修） |
+| 還是看不到，加 console.info log | 第 2 輪 | console 沒任何 log → 假設 HMR 沒更新，要用戶 hard reload |
+| 用戶說真的沒 log | 第 3 輪 | 又加更多 log 改用 console.log；終於看到 mount effect run 但無 mounted ✓ |
+| 看到 `style 還沒 load，等 style.load 觸發` | 第 4 輪 | 才想起這個 race 模式 |
+| 改 try/catch + idle 重試 | 5 分鐘 | 修好 |
+
+**省 3 輪的方法**：用戶說「3D 圖層看不到」+ 「console 沒 log」一出現，第一件事就是
+讀 `.claude/pitfalls/2026-04-22-*.md`，不是去調視覺。

@@ -133,3 +133,53 @@ WebSocket open 等。正確處理都是「先 check 當前狀態，再 fallback 
 
 - `.claude/lessons.md` P0.1 Mapbox custom layer 掛載用 polling
 - `.claude/lessons.md` P0.2 視覺層代碼預設加 checkpoint log
+
+---
+
+## 2026-06-18 第二次踩到 — energy beam（usePowerGenerationBeamLayer）
+
+**情境**：能源 MVP v1.3 機組即時出力 3D beam，獨立 hook 改寫成 toggle 才 mount，
+完整重蹈 2026-04-22 的覆轍。**症狀完全一樣**：
+
+```
+[PowerBeam] mount effect run; visible= true mapReady= true   ✓
+[PowerBeam] style 還沒 load，等 style.load 觸發              ← 這行就是死亡標記
+[PowerBeam] fetch effect run; visible= true                  ✓
+[PowerBeam] load() 開始 fetch 24h...                          ✓
+[PowerBeam] fetch 成功：14 廠 × 143 ts                       ✓ 但畫面沒柱
+```
+
+`map.isStyleLoaded()` 在 toggle ON 那 frame 回 false → 落入 `map.on("style.load", mount)`
+分支 → style 早就 load 過不會再 fire → CustomLayer 永遠沒 addLayer。
+
+**修復走 try/catch + idle 重試**（跟 2026-04-22 的 setInterval 200ms 重試是同類型解）：
+
+```ts
+const tryMount = () => {
+  if (map.getLayer(LAYER_ID)) return;
+  try {
+    map.addLayer(layer);
+  } catch (e) {
+    map.once("idle", tryMount); // style 還在 load → 等 mapbox 安靜下來
+  }
+};
+tryMount();
+map.on("style.load", tryMount); // Dark/Light 切換用
+```
+
+commit：mini-taiwan-pulse `f6c9566` energy-mvp(v1.3.5)。
+
+**為什麼又踩**：寫獨立 3D hook 時想當然用了 `if (isStyleLoaded()) mount; else map.on("style.load", mount)`
+這個「教科書」pattern，但 mapbox 在動態 source swap 時 isStyleLoaded() 會 racy false，
+style.load 又只 fire 第一次。**獨立 hook 永遠用 try/catch + idle 重試**，不要相信 isStyleLoaded()。
+
+## 下次寫獨立 Custom Layer hook 的 SOP
+
+> 觸發詞：「3D 圖層 / Three.js / CustomLayer / addLayer / Three.js scene」
+> 看到這幾個詞，**立刻打開本檔讀過再開始寫**
+
+1. 不要 `if (isStyleLoaded()) ... else map.on("style.load", ...)`
+2. 用 `try map.addLayer + catch → map.once("idle", retry)` 或 setInterval 200ms 重試
+3. mount 函式預先加 5 個 checkpoint log（mount entry / styleLoaded? / try addLayer / catch / success ✓）
+4. mount + fetch 分兩個 useEffect，**deps 都包 `visible`**（避免 mapRef 初始 null 永遠不重跑）
+5. cleanup `map.off("style.load", ...)` + 取消 idle listener 避免 leak

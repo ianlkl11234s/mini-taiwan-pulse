@@ -568,3 +568,23 @@ intelTokens 退役 / LayerSidebar 亮側。**沒有真實痛點不開**，痛點
 **Why**：本 session yt_live_video_resolver 第一次跑出現「Supabase 寫入 ✓ 但 DB 0 rows」— 因為漏了 `supabase_writer.py` 的 transformer 註冊（只加 supabase_tables 不夠）。collector run 不會報錯，靜默失敗。
 
 **How to apply**：開新 collector 時把這 5 處貼成 task checklist，逐項打勾才算完。Supabase pre-ship smoke：`psql -c "SELECT count(*) FROM realtime.<name>_current"` 第一輪跑完應該 > 0，否則回頭查 transformer。
+
+---
+
+## 寫獨立 3D / CustomLayer hook 前先讀 pitfall（2026-06-18）
+
+**規則**：任何**獨立 Three.js / Mapbox CustomLayer hook**（toggle ON 才 addLayer 的、非 addAllLayers 同步加的）開工前必跑：
+
+```bash
+grep -l "isStyleLoaded\|style.load\|addLayer" .claude/pitfalls/
+```
+
+**Why**：2026-04-22 水庫圖層、2026-06-18 能源 beam 兩次踩同一個 `isStyleLoaded() race + style.load 不會二次 fire` 的坑。第二次又花 4 輪 debug 才回想起來。Pitfall 檔早就有，**SessionStart 不 inline pitfalls 內容、只 inline STATUS/BACKLOG/PRINCIPLES**，要主動 grep 才看到。
+
+**How to apply**：
+- 看到「3D 圖層 / Three.js / CustomLayer / addLayer / Three.js scene」這幾個觸發詞，**立刻**讀 `.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md`
+- 預設 mount 用 `try map.addLayer + catch → map.once("idle", retry)` 模式
+- **禁** `if (isStyleLoaded()) mount; else map.on("style.load", mount)` — 這個是經典陷阱
+- mount 函式預先加 5 個 checkpoint log（mount entry / try addLayer / catch / success ✓）
+
+**Debug 信號**：用戶說「3D 圖層 toggle ON 但畫面沒東西 + console 沒 setData log」→ 跳過視覺調整，直接看 mount log 有沒到 `mounted ✓`。沒到就是這個 race。

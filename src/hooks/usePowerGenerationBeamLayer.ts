@@ -63,8 +63,11 @@ export function usePowerGenerationBeamLayer(
   const plantsRef = useRef<PowerGenerationRow[] | null>(null);
 
   // Mount layer — toggle ON 時保證 effect 重跑（mapRef.current 初始可能 null）
-  // 修：isStyleLoaded() 在 toggle 瞬間 racily 回 false，但 style 其實已 load 完
-  // → style.load listener 永遠不會 fire。改用 try addLayer + idle 重試的 bulletproof pattern
+  //
+  // ⚠️ 這裡是 .claude/pitfalls/2026-04-22-mapbox-load-once-fired.md 的踩坑點 #2
+  // 寫獨立 3D / CustomLayer hook 前先讀那個檔，禁用 `if (isStyleLoaded()) ... else map.on("style.load", ...)`
+  // 因為 isStyleLoaded() 在 toggle 瞬間 racily 回 false，style 已 load 過不會再 fire
+  // → CustomLayer 永遠沒 addLayer，14 廠 fetch 成功但畫面沒柱。修法走 try/catch + idle retry
   useEffect(() => {
     console.log("[PowerBeam] mount effect run; visible=", visible, "mapReady=", !!mapRef.current);
     const map = mapRef.current;
