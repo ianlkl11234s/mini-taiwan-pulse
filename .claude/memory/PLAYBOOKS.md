@@ -927,3 +927,112 @@ npx zeabur@latest variable create --id <data-collectors service id> -k "<PREFIX>
 - ❌ 跳過 step 5 `supabase_writer.py` transformer 註冊 → collector log 顯示「✓ 已儲存」但 DB 0 rows，靜默失敗
 - ❌ Handoff doc 寫了 RPC 名沒實際建 → 前端跑時 fallback 空殼，使用者看到「等待中」
 - ❌ 用 regex 抓 page 上「第一個」videoId / 第一個 isLiveContent → 頻道頭推薦影片會混入
+
+---
+
+## PB-18 React 元件效能優化 5 step（2026-06-18）
+
+> 觸發：使用者回報「網頁變慢」、Profiler 看到大量無謂 commit、RPC 流量超預期
+> 來源：PR #21 Monitor / News 5 commits 實戰，每 step 可獨立驗收
+> 鐵則：不改 UI、不改 props 對外契約、不改檔案位置、不引入新依賴
+
+### Step 1 — RPC cache 包一層（最便宜見效）
+
+對象：polling RPC、無參數或 string-key 化的 RPC。
+
+```ts
+// data/xxxLoader.ts
+import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
+const TTL_FAST = 25_000;  // 略短於 polling interval（30s），雙 panel 共享一次 fetch
+const TTL_SLOW = 55_000;
+
+async function _fetchFooRaw() { /* 原本內容 */ }
+export const fetchFoo = cachedOnce(_fetchFooRaw, TTL_FAST);
+
+// 有參數版本
+const _barCache = keyedThunkCache<Bar[]>(TTL_SLOW);
+export function fetchBar(hours: number) {
+  return _barCache(`${hours}`, () => _fetchBarRaw(hours));
+}
+```
+
+驗收：Network 面板 30s 內每支 RPC 只打 1 次（雙 panel 開也一樣）。
+
+### Step 2 — 1Hz tick 隔離（wallClock store）
+
+對象：父元件用 `useState + setInterval(1000)` 顯示「現在時間」/「3 分鐘前」。
+
+```ts
+// state/timeStore.ts 已有 wallClock 命名空間（2026-06-18）
+// 元件內：
+const now = Math.floor(useWallClock(5_000) / 1000);  // 5s 粒度
+// 真的需要 1Hz 的子元件自己 useWallClock(1_000)
+```
+
+避雷：⚠️ **`useWallClock` 用 `useState + useEffect(subscribe)`，不要用
+`useSyncExternalStore`**（getSnapshot 回 Date.now() 會無限 re-render）。
+
+驗收：Profiler 看 idle 狀態 parent commit = 0；只有真的訂閱 1Hz 的子元件每秒動。
+
+### Step 3 — ref-DOM 或 rAF + throttle（playback / 動畫）
+
+對象：`setInterval(70ms)` 或更密、用 setState 推進動畫。
+
+```ts
+// 改 rAF + ref 累積 + commit throttle
+const playbackRef = useRef(playbackTs);
+useEffect(() => {
+  if (!playing) return;
+  let raf = 0, last = performance.now(), lastCommit = last;
+  const tick = (t: number) => {
+    const dt = (t - last) / 1000; last = t;
+    playbackRef.current += advancePerSec * dt;
+    if (t - lastCommit >= 200) {  // 5Hz commit
+      setPlaybackTs(Math.floor(playbackRef.current));
+      lastCommit = t;
+    }
+    raf = requestAnimationFrame(tick);
+  };
+  raf = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(raf);
+}, [playing]);
+```
+
+驗收：scrub 跟手；Profiler 顯示 commit ≤5Hz、frame-rate independent。
+
+### Step 4 — IntersectionObserver gate（重元件 lazy mount）
+
+對象：iframe（YouTube / Twitter embed）、Three.js scene、大 SVG / Canvas。
+
+```ts
+// hooks/useInView.ts 已有（lock once，進入視窗後不再卸載避免 jank）
+const ref = useRef<HTMLDivElement>(null);
+const visible = useInView(ref);  // rootMargin: '200px' 預載
+return <div ref={ref}>{visible && <iframe ... />}</div>;
+```
+
+驗收：MonitorPanel 關閉時 0 個 iframe 連線；非 wall mode 未捲到 LiveWall 同樣 0 個。
+
+### Step 5 — React.memo 撒網（葉節點防穿透）
+
+優先：零 props 或 props 純 primitive 的葉節點（LiveWall / HazardWatchStrip）。
+條件：callbacks 用 useCallback、物件 props 用 useMemo 穩住才有意義。
+
+```ts
+export const LiveWall = memo(function LiveWall() { /* ... */ });
+```
+
+驗收：Profiler 各葉節點不再被父層 trigger render。
+
+### 順序鐵則
+
+1 → 2 → 3 → 4 → 5。**Step 1 最便宜先做、Step 5 最後撒網**。倒過來做（先 memo
+再清 polling）會浪費功夫，memo 效果被父層 1Hz cascade 蓋掉。
+
+### 失誤點（PR #21 實戰）
+
+- ❌ `useWallClock` 第一版用 `useSyncExternalStore + getSnapshot=Date.now()` →
+  無限 re-render 炸線（INCIDENTS 2026-06-18）
+- ⚠️ tsc + 102/102 test 全綠 ≠ runtime 過：useSyncExternalStore 的 stale snapshot
+  是 dev-only runtime 檢查，**push 前先 browser 跑一遍**
+- ⚠️ Wall mode 暫停地圖 engine 看似順手但會視覺凍結，留作 G011 backlog 不該硬塞進效能 PR
