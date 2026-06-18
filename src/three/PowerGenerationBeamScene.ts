@@ -87,6 +87,9 @@ export class PowerGenerationBeamScene {
         Number.isFinite(r.lon) &&
         Number.isFinite(r.lat),
     );
+    console.info(
+      `[PowerBeam] setData: ${rows.length} rows total, ${candidates.length} have output (期望 ~14)`,
+    );
 
     // Build new beam state list - preserve currentHeight for matching plants
     const prevByKey = new Map(this.beams.map((b, i) => [`${i}`, b]));
