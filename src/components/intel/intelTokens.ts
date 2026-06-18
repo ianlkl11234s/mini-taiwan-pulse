@@ -162,10 +162,13 @@ export interface AlertGroupDef {
   iconKey: keyof typeof MICON;
 }
 
+// 警示語意色 — 以 LAYER_COLORS（地圖色）為基準對齊，讓地圖、warning bar、popup
+// 三處同色（design-system.md §3）。earthquake / flood 從原 magenta / teal 改為紅色。
+// weather / transit / lifeline / safety 在 LAYER_COLORS 無對應 layer，沿用原色保留視覺多樣性。
 export const ALERT_GROUPS_DEF: Record<AlertGroupShort, AlertGroupDef> = {
-  earthquake: { id: "earthquake", label: "地震", en: "EQ",       color: "#d946ef", iconKey: "quake" },
+  earthquake: { id: "earthquake", label: "地震", en: "EQ",       color: "#ff3b30", iconKey: "quake" },
   weather:    { id: "weather",    label: "氣象", en: "WEATHER",  color: "#38bdf8", iconKey: "cloud" },
-  flood:      { id: "flood",      label: "水文", en: "WATER",    color: "#2dd4bf", iconKey: "wave"  },
+  flood:      { id: "flood",      label: "水文", en: "WATER",    color: "#ef4444", iconKey: "wave"  },
   transit:    { id: "transit",    label: "交通", en: "TRANSIT",  color: "#fb923c", iconKey: "cone"  },
   lifeline:   { id: "lifeline",   label: "民生", en: "LIFELINE", color: "#a3e635", iconKey: "plug"  },
   safety:     { id: "safety",     label: "安全", en: "SAFETY",   color: "#fb7185", iconKey: "flame" },
