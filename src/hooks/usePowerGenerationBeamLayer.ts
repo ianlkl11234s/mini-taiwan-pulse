@@ -98,6 +98,11 @@ export function usePowerGenerationBeamLayer(
     const applyTime = (tsSec: number) => {
       if (!dayRef) return;
       const rows = resolvePowerGenerationAt(dayRef, tsSec);
+      if (rows.length === 0 && dayRef.plants.length > 0) {
+        console.info(
+          `[PowerBeam] ts ${tsSec} 在資料窗外 (data range ${dayRef.ts_range.lo}~${dayRef.ts_range.hi}) → 14 柱歸 0`,
+        );
+      }
       plantsRef.current = rows;
       // 同步餵 hit-test source（透明圈，讓 beam 可點）
       const map = mapRef.current;

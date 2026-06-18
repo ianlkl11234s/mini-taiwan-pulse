@@ -65,7 +65,8 @@ export class PowerGenerationBeamScene {
     // 單位圓錐柱：底寬頂尖（蠟燭/光錐形），原始 Y axis 旋到 Z 軸朝上
     // 預設 Y+ = 頂；CylinderGeometry(radiusTop, radiusBottom) 第一個是 Y+ 那端
     // 我們要「頂(Z+) 細、底(Z-/Z=0) 粗」→ radiusTop 給 TOP（細）、radiusBottom 給 BOTTOM（粗）
-    const geo = new THREE.CylinderGeometry(BEAM_RADIUS_TOP, BEAM_RADIUS_BOTTOM, 1, 12);
+    // openEnded=true：去掉頂底圓盤，用戶 zoom 進到柱內不會看到一片暗黑色蓋子
+    const geo = new THREE.CylinderGeometry(BEAM_RADIUS_TOP, BEAM_RADIUS_BOTTOM, 1, 12, 1, true);
     geo.rotateX(Math.PI / 2);
     const mat = new THREE.MeshBasicMaterial({
       color: 0xffffff,
