@@ -112,9 +112,10 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
   const isRetired = props.is_retired === true || props.status === "retired";
   const statusNote = String(props.status_note ?? "");
   const plantName = String(props.name ?? "");
-  // 只有 power_plants 來源（台電 22 廠）的廠才能拉 24h 時序（generation_unit 只對 power_plants 有資料）
   const hasOutput = !isRetired && props.output_mw != null;
-  const canShowSparkline = hasOutput && sourceTable === "power_plants";
+  // 不再卡 source — RPC 會用 plant_name 前綴去 JOIN realtime.power_generation_unit；
+  // 重疊的 osm_power_plants 興達/大潭 等同名廠也能匹配；RPC 回空時自然顯示「無資料」
+  const canShowSparkline = !isRetired && plantName.length >= 2;
   return (
     <div>
       <Row label="電廠" value={plantName} />

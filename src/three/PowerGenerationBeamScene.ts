@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { toMercator } from "../utils/coordinates";
-import { fuelColorOf, type PowerPlantRow } from "../data/energyLoader";
+import { fuelColorOf, type PowerGenerationRow } from "../data/energyLoader";
 
 /**
  * 機組即時出力 3D beam (layer 4)
@@ -82,8 +82,8 @@ export class PowerGenerationBeamScene {
     this.scene.add(this.mesh);
   }
 
-  /** 餵入最新一輪 plants（只取 output_mw 非 NULL 者） */
-  setData(rows: PowerPlantRow[]) {
+  /** 餵入最新一輪機組出力（slim RPC，已是有 output 的 ~14 廠） */
+  setData(rows: PowerGenerationRow[]) {
     const candidates = rows.filter(
       (r) =>
         r.output_mw != null &&
@@ -92,7 +92,7 @@ export class PowerGenerationBeamScene {
         Number.isFinite(r.lat),
     );
     console.info(
-      `[PowerBeam] setData: ${rows.length} rows total, ${candidates.length} have output (期望 ~14)`,
+      `[PowerBeam] setData: ${rows.length} rows total, ${candidates.length} active (期望 ~14)`,
     );
 
     // Build new beam state list - preserve currentHeight for matching plants

@@ -97,37 +97,47 @@ const fetchPowerPlantsCached = cachedOnce(fetchPowerPlantsUncached, 5 * 60_000);
 export const fetchPowerPlants = (): Promise<PowerPlantRow[]> => fetchPowerPlantsCached();
 export const invalidatePowerPlants = (): void => fetchPowerPlantsCached.invalidate();
 
-// ── Plants at timestamp（217 RPC，timeline 跟隨用）────────────
-
-/** 任意時間點電廠出力快照（uncached 版本，內部使用） */
-async function fetchPowerPlantsAtUncached(tsSec: number | null): Promise<PowerPlantRow[]> {
-  const { data, error } = await withLoading(
-    `energy:plants:${tsSec ?? "latest"}`,
-    `電廠出力快照`,
-    supabase.rpc("get_power_plants_at", { ts_unix: tsSec }),
-  );
-  if (error) throw new Error(`get_power_plants_at: ${error.message}`);
-  return (data ?? []) as PowerPlantRow[];
+// ── Slim generation rows at timestamp（218 RPC，3D beam 用）────
+// 只回有對應機組的 ~14 廠（不是全 10,665），payload ~3KB vs ~500KB
+export interface PowerGenerationRow {
+  plant_name: string;
+  fuel_type: string | null;
+  capacity_mw: number | null;
+  output_mw: number;
+  output_unit_count: number;
+  output_load_rate: number | null;
+  observed_at: string;
+  lon: number;
+  lat: number;
 }
 
-// key = "latest" 或 snapped ts string；15min TTL × LRU 24 個 key
-// （24h 拉滿 144 個 10min boundary，但通常只逛幾個段）
-const fetchPowerPlantsAtCached = cachedByKey(
+async function fetchPowerGenerationAtUncached(tsSec: number | null): Promise<PowerGenerationRow[]> {
+  const { data, error } = await withLoading(
+    `energy:gen:${tsSec ?? "latest"}`,
+    `機組出力 14 廠`,
+    supabase.rpc("get_power_generation_at", { ts_unix: tsSec }),
+  );
+  if (error) throw new Error(`get_power_generation_at: ${error.message}`);
+  return (data ?? []) as PowerGenerationRow[];
+}
+
+// key = "latest" 或 snapped ts；15min TTL × LRU 24
+const fetchPowerGenerationCached = cachedByKey(
   (key: string) => {
     const ts = key === "latest" ? null : Number(key);
-    return fetchPowerPlantsAtUncached(ts);
+    return fetchPowerGenerationAtUncached(ts);
   },
   15 * 60_000,
   24,
 );
 
-/** Snap ts 到 10 min 邊界；若 ts 在 wall clock 5 min 內視為 latest（吃 NULL fast path） */
-export function fetchPowerPlantsForTime(tsSec: number): Promise<PowerPlantRow[]> {
+/** Snap ts 到 10 min 邊界；wall clock 5 min 內走 latest fast path */
+export function fetchPowerGenerationForTime(tsSec: number): Promise<PowerGenerationRow[]> {
   const wallNow = Math.floor(Date.now() / 1000);
   const isRecent = Math.abs(tsSec - wallNow) < 300;
   const snapped = Math.floor(tsSec / 600) * 600;
   const key = isRecent ? "latest" : String(snapped);
-  return fetchPowerPlantsAtCached(key);
+  return fetchPowerGenerationCached(key);
 }
 
 // ── 24h history per plant（217 RPC，popup sparkline 用）──────

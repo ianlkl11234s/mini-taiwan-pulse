@@ -1,11 +1,11 @@
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
 import { PowerGenerationBeamScene } from "../three/PowerGenerationBeamScene";
-import type { PowerPlantRow } from "../data/energyLoader";
+import type { PowerGenerationRow } from "../data/energyLoader";
 
 export interface PowerGenerationBeamLayerOptions {
   getIsVisible: () => boolean;
   getOpacity: () => number;
-  getPlants: () => PowerPlantRow[] | null;
+  getPlants: () => PowerGenerationRow[] | null;
 }
 
 export const POWER_GENERATION_BEAM_LAYER_ID = "power-generation-beam-3d";
@@ -15,7 +15,7 @@ export function createPowerGenerationBeamLayer(
 ): CustomLayerInterface {
   const scene = new PowerGenerationBeamScene();
   let map: MapboxMap | null = null;
-  let lastPlantsRef: PowerPlantRow[] | null = null;
+  let lastPlantsRef: PowerGenerationRow[] | null = null;
 
   return {
     id: POWER_GENERATION_BEAM_LAYER_ID,

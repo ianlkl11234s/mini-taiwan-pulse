@@ -5,8 +5,8 @@ import {
   POWER_GENERATION_BEAM_LAYER_ID,
 } from "../map/powerGenerationBeamCustomLayer";
 import {
-  fetchPowerPlantsForTime,
-  type PowerPlantRow,
+  fetchPowerGenerationForTime,
+  type PowerGenerationRow,
 } from "../data/energyLoader";
 import { timeStore } from "../state/timeStore";
 
@@ -26,7 +26,7 @@ export function usePowerGenerationBeamLayer(
   visibleRef.current = visible;
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
-  const plantsRef = useRef<PowerPlantRow[] | null>(null);
+  const plantsRef = useRef<PowerGenerationRow[] | null>(null);
 
   // Mount layer — visible 加進 deps，toggle ON 時保證 effect 重跑（修：mapRef.current
   // 在初始 render 可能為 null，原本 [mapRef] 不會 re-run）
@@ -62,7 +62,7 @@ export function usePowerGenerationBeamLayer(
 
     const load = (tsSec: number) => {
       const myGen = ++loadGen;
-      fetchPowerPlantsForTime(tsSec)
+      fetchPowerGenerationForTime(tsSec)
         .then((rows) => {
           if (cancelled || myGen !== loadGen) return; // 舊請求丟棄
           plantsRef.current = rows.slice();
