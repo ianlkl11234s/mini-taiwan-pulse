@@ -1,9 +1,45 @@
 # Status
 
-**最後更新**：2026-06-17（Monitor Phase 2 + YT 直播 B1 一日上線、警訊整合 handoff 寫好待接手、本地與 origin/master 完全同步）
-**分支**：`master`（最新 commit `a4d6118`，全部已 push）。本地剩 `feat/fire-rescue` + `medical/poi-layers`，PR 分支 `feat/monitor-mode-phase2` + `docs/alerts-integration` merge 後自動刪除。
+**最後更新**：2026-06-18（Monitor / News 效能優化 PR #21 開立、本地與遠端皆已 push、待 browser 手測驗收後 merge）
+**分支**：`perf/monitor-optimization`（最新 commit `e66af61`，全部 push 到 origin）。master 仍在 `a010b48`。PR #21 待 review/merge。
 
-## 2026-06-17 三 PR 合進 master（Monitor Phase 2 + YT B1 + 警訊 handoff）
+## 2026-06-18 Monitor / News 效能優化（PR #21，6 commits）
+
+**背景**：PR #18 Monitor Phase 2 + 新聞圖層上線後使用者回報「網頁變慢」。
+Explore 全面盤點 9 條根因 → 5 step 重構（不改 UI / 不改 props 對外契約）。
+
+| Commit | 主題 |
+|---|---|
+| `584b950` | Step 1: intelLoaders / alertsLoader 包 `cachedOnce` / `keyedThunkCache`（TTL 25s/55s/5min） |
+| `61d4376` | Step 2: `timeStore.wallClock` 命名空間 + `useWallClock` hook；MonitorPanel 1Hz → 5s tick；IntelCard 自訂 30s |
+| `62cc3ee` | Step 3: TimelineDock 自訂 1Hz wallClock；playback `setInterval(70ms)` → rAF + 200ms throttle |
+| `212313d` | Step 4: 新 `useInView` hook；LiveSlot×4 + HazardSlot×2 iframe IO gate；移除 `key={src}` |
+| `8724f35` | Step 5: LiveWall + HazardWatchStrip 加 `React.memo` |
+| `06105c0` | **hotfix**: useWallClock 無限 re-render（useSyncExternalStore getSnapshot 不穩）→ 改 useState+subscribe |
+
+新檔：`src/hooks/useWallClock.ts` / `src/hooks/useInView.ts`。
+詳細 PB-18 流程鐵則見 PLAYBOOKS / 陷阱見 INCIDENTS 2026-06-18 / 反省見 REFLECTIONS。
+
+PR #21 body 已列 5 條 browser 手測 checklist 等待驗收。
+
+### 跳過項（保守 → BACKLOG）
+
+- **G011 (P2)** Wall mode 暫停地圖 engine — 需動 `src/engines/` + `src/three/`、視覺凍結需 PM 確認
+- **G012 (P3)** alertSeries24h 改增量抓 — 需動 gis-platform RPC
+
+### 下個 session 入口
+
+```
+1. Browser 手測 PR #21 5 條 checklist（DevTools Profiler / Network / Wall mode / playback / 頻道切換）
+2. 過了就 merge PR #21（master 推 a010b48 → perf 分支 head）
+3. 若還有 perf 痛點 → 評估 G011 / G012 進場
+```
+
+---
+
+## 過往里程碑
+
+### 2026-06-17 三 PR 合進 master（Monitor Phase 2 + YT B1 + 警訊 handoff）
 
 | PR | 主題 | merge commit |
 |---|---|---|
