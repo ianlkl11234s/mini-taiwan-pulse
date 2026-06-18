@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { COLORS } from "../styles/designTokens";
 
 interface Props {
   /** VideoStreamURL — MJPEG 串流（freeway/highway/部分 city）或 HTML 播放頁（北市/桃園/台中等 city） */
@@ -143,7 +144,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
       <span
         style={{
           fontSize: 11,
-          color: "rgba(255,255,255,0.55)",
+          color: COLORS.textMuted,
           textAlign: "center",
           padding: "0 12px",
           lineHeight: 1.5,
@@ -203,7 +204,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
             style={{
               position: "absolute",
               fontSize: 11,
-              color: "rgba(255,255,255,0.4)",
+              color: COLORS.textDim,
             }}
           >
             載入中…

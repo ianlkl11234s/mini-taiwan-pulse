@@ -441,7 +441,7 @@ export function IndicatorPanel({
             label="事件性質 IS_EVENT"
             levels={[
               { label: "事件", color: COLORS.accent },
-              { label: "聲明", color: "rgba(255,255,255,0.3)" },
+              { label: "聲明", color: COLORS.textDim },
             ]}
             counts={[tri.event, tri.statement]}
           />

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { FONT_DATA } from "../styles/designTokens";
+import { COLORS, FONT_DATA } from "../styles/designTokens";
 import { ChevronLeft, ChevronRight, Navigation } from "lucide-react";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 
@@ -256,7 +256,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                 <span style={{
                   fontSize: 10,
                   fontFamily: FONT_DATA,
-                  color: isSelected ? "#fff" : (sourcesOnDay.length > 0 ? "rgba(255,255,255,0.8)" : "rgba(255,255,255,0.25)"),
+                  color: isSelected ? "#fff" : (sourcesOnDay.length > 0 ? COLORS.textDefault : COLORS.textFaint),
                   fontWeight: isSelected ? 700 : 400,
                   lineHeight: 1,
                 }}>
@@ -292,7 +292,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                   <span style={{
                     fontSize: 7,
                     fontFamily: FONT_DATA,
-                    color: "rgba(255,255,255,0.5)",
+                    color: COLORS.textMuted,
                     lineHeight: 1,
                   }}>
                     {Math.round(coverage * 100)}%
@@ -356,7 +356,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                     padding: "1px 6px",
                     borderRadius: 3,
                     background: hasData ? "rgba(255,255,255,0.06)" : "transparent",
-                    color: hasData ? s.color : "rgba(255,255,255,0.2)",
+                    color: hasData ? s.color : COLORS.textFaint,
                     border: hasData ? `1px solid ${s.color}33` : "1px solid rgba(255,255,255,0.06)",
                   }}
                 >
@@ -388,7 +388,7 @@ export function DataCalendarPanel({ registry, selectedDate, onDateSelect }: Prop
                   borderRadius: 3,
                   border: isActive ? `1px solid ${s.color}` : "1px solid rgba(255,255,255,0.1)",
                   background: isActive ? `${s.color}22` : "transparent",
-                  color: isActive ? s.color : "rgba(255,255,255,0.5)",
+                  color: isActive ? s.color : COLORS.textMuted,
                   cursor: "pointer",
                   transition: "all 0.15s",
                 }}

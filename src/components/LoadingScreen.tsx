@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { FONT_DATA } from "../styles/designTokens";
+import { COLORS, FONT_DATA } from "../styles/designTokens";
 
 interface LoadingStep {
   label: string;
@@ -129,7 +129,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
       <div style={{ fontSize: 22, letterSpacing: 4, fontWeight: 700, marginBottom: 2 }}>
         Mini Taiwan Pulse
       </div>
-      <div style={{ fontSize: 10, color: "rgba(255,255,255,0.3)", letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: 10, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
         Supabase Realtime
       </div>
 
@@ -150,8 +150,8 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
                 color: isDone
                   ? CAT_COLOR[stepToCat(step.label)]
                   : isActive
-                    ? "rgba(255,255,255,0.7)"
-                    : "rgba(255,255,255,0.2)",
+                    ? COLORS.textDefault
+                    : COLORS.textFaint,
                 transition: "color 0.3s",
               }}
             >
@@ -183,7 +183,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
 
       {/* progress bar */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, marginTop: 4 }}>
-        <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: 11, color: COLORS.textDim, letterSpacing: 0.5 }}>
           {allDone ? "載入完成" : `載入中... ${doneCount}/${steps.length}`}
         </div>
         <div
@@ -207,7 +207,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
             }}
           />
         </div>
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.25)" }}>
+        <div style={{ fontSize: 10, color: COLORS.textFaint }}>
           {Math.round(progress * 100)}%
         </div>
       </div>
@@ -229,7 +229,7 @@ export function LoadingScreen({ steps }: LoadingScreenProps) {
         }}
       >
         {lines.length === 0 && !allDone && (
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.2)", lineHeight: "20px" }}>
+          <div style={{ fontSize: 11, color: COLORS.textFaint, lineHeight: "20px" }}>
             Connecting to Supabase...
           </div>
         )}

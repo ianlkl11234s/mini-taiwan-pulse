@@ -1,4 +1,5 @@
 import { aqiToColor } from "../../map/aqiColorScale";
+import { COLORS } from "../../styles/designTokens";
 import { Row, numOrNull, formatNum } from "./shared";
 
 export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
@@ -27,7 +28,7 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
         <span style={{ fontSize: 24, fontWeight: 700, color }}>
           {aqi ?? "—"}
         </span>
-        <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>
+        <span style={{ fontSize: 11, color: COLORS.textDefault }}>
           AQI {String(props.status ?? "")}
         </span>
       </div>
@@ -73,7 +74,7 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: 20, fontWeight: 700, color }}>
           {pm25 != null ? pm25.toFixed(1) : "—"}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>PM2.5 µg/m³</span>
+        <span style={{ fontSize: 10, color: COLORS.textDefault }}>PM2.5 µg/m³</span>
       </div>
       <Row label="來源" value={String(props.source ?? "")} />
       <Row label="裝置" value={String(props.app ?? "")} />

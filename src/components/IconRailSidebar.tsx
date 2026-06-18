@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, memo, type CSSProperties } from "react";
-import { FONT_DATA } from "../styles/designTokens";
+import { COLORS, FONT_DATA } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
@@ -728,7 +728,7 @@ function LayersPanel({
             background: "rgba(255,255,255,0.06)",
             border: "1px solid rgba(255,255,255,0.12)",
             borderRadius: 6,
-            color: "rgba(255,255,255,0.5)",
+            color: COLORS.textMuted,
             fontSize: 11,
             cursor: "pointer",
             fontFamily: "Inter, system-ui, sans-serif",
@@ -825,7 +825,7 @@ function ExpandedControls({
   const inactiveBtn: CSSProperties = {
     ...btnBase,
     background: "rgba(0,0,0,0.4)",
-    color: "rgba(255,255,255,0.5)",
+    color: COLORS.textMuted,
   };
 
   return (
@@ -870,7 +870,7 @@ function ExpandedControls({
                     key={ctrl.label}
                     style={{
                       display: "flex", alignItems: "center", gap: 4,
-                      color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
+                      color: COLORS.textMuted, fontSize: 10, fontFamily: FONT_DATA,
                     }}
                   >
                     <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -898,7 +898,7 @@ function ExpandedControls({
                   key={ctrl.label}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
-                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
+                    color: COLORS.textMuted, fontSize: 10, fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -916,7 +916,7 @@ function ExpandedControls({
                         border: ctrl.value === opt.value
                           ? "1px solid rgba(255,255,255,0.25)"
                           : "1px solid rgba(255,255,255,0.15)",
-                        color: ctrl.value === opt.value ? "#fff" : "rgba(255,255,255,0.4)",
+                        color: ctrl.value === opt.value ? "#fff" : COLORS.textDim,
                       }}
                     >
                       {opt.label}
@@ -932,7 +932,7 @@ function ExpandedControls({
                   key={ctrl.label}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
-                    color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
+                    color: COLORS.textMuted, fontSize: 10, fontFamily: FONT_DATA,
                   }}
                 >
                   <span style={{ minWidth: 50, flexShrink: 0 }}>{ctrl.label}</span>
@@ -946,7 +946,7 @@ function ExpandedControls({
                       border: ctrl.value
                         ? "1px solid rgba(255,255,255,0.25)"
                         : "1px solid rgba(255,255,255,0.15)",
-                      color: ctrl.value ? "#fff" : "rgba(255,255,255,0.4)",
+                      color: ctrl.value ? "#fff" : COLORS.textDim,
                     }}
                   >
                     {ctrl.value ? "ON" : "OFF"}
@@ -962,7 +962,7 @@ function ExpandedControls({
                 key={s.label}
                 style={{
                   display: "flex", alignItems: "center", gap: 4,
-                  color: "rgba(255,255,255,0.5)", fontSize: 10, fontFamily: FONT_DATA,
+                  color: COLORS.textMuted, fontSize: 10, fontFamily: FONT_DATA,
                 }}
               >
                 <span style={{ minWidth: 50, flexShrink: 0 }}>{s.label}</span>

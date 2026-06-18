@@ -1,5 +1,6 @@
 import { CctvStreamView } from "../CctvStreamView";
 import { Row } from "./shared";
+import { COLORS } from "../../styles/designTokens";
 
 /** 海纜 cable_type 對應色 */
 const CABLE_TYPE_COLORS: Record<string, string> = {
@@ -221,7 +222,7 @@ export function CctvPanel({ props }: { props: Record<string, unknown> }) {
           accentColor={info.color}
         />
       ) : (
-        <div style={{ marginTop: 8, fontSize: 11, color: "rgba(255,255,255,0.55)" }}>
+        <div style={{ marginTop: 8, fontSize: 11, color: COLORS.textMuted }}>
           此攝影機未提供串流網址
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { COLORS } from "../../styles/designTokens";
 import { Waves, DoorOpen, Droplets } from "lucide-react";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import {
@@ -61,14 +62,14 @@ export function TaipeiSewerPanel({ props }: { props: Record<string, unknown> }) 
       </div>
       <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
         <div style={{ flex: 1, padding: "6px 8px", background: `${color}1a`, borderRadius: 4 }}>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.6)" }}>距地面 ground_far</div>
+          <div style={{ fontSize: 9, color: COLORS.textMuted }}>距地面 ground_far</div>
           <div style={{ fontSize: 18, fontWeight: 700, color }}>
             {groundFar != null ? groundFar.toFixed(2) : "—"}
             <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 4 }}>m</span>
           </div>
         </div>
         <div style={{ flex: 1, padding: "6px 8px", background: "rgba(255,255,255,0.05)", borderRadius: 4 }}>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.6)" }}>絕對水位 level_out</div>
+          <div style={{ fontSize: 9, color: COLORS.textMuted }}>絕對水位 level_out</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>
             {levelOut != null ? levelOut.toFixed(2) : "—"}
             <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 4 }}>m</span>
@@ -76,11 +77,11 @@ export function TaipeiSewerPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: 9, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 水位高程趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>載入中…</div>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>載入中…</div>
       ) : (
         <TimeseriesSparkline data={series} unit="m" lineColor={color} height={120} />
       )}
@@ -140,14 +141,14 @@ export function TaipeiPumbPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
         <div style={{ flex: 1, padding: "6px 8px", background: `${color}1a`, borderRadius: 4 }}>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.6)" }}>內池水位 inner</div>
+          <div style={{ fontSize: 9, color: COLORS.textMuted }}>內池水位 inner</div>
           <div style={{ fontSize: 18, fontWeight: 700, color }}>
             {inner != null ? inner.toFixed(2) : "—"}
             <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 4 }}>m</span>
           </div>
         </div>
         <div style={{ flex: 1, padding: "6px 8px", background: "rgba(255,255,255,0.05)", borderRadius: 4 }}>
-          <div style={{ fontSize: 9, color: "rgba(255,255,255,0.6)" }}>外池水位 outer</div>
+          <div style={{ fontSize: 9, color: COLORS.textMuted }}>外池水位 outer</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>
             {outer != null ? outer.toFixed(2) : "—"}
             <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 4 }}>m</span>
@@ -158,11 +159,11 @@ export function TaipeiPumbPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="抽水機" value={pumbStatus || "—"} color={pumbStatus === "運轉" ? "#22d3ee" : undefined} />
       <Row label="閘門" value={doorStatus || "—"} />
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: 9, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 內池水位趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>載入中…</div>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>載入中…</div>
       ) : (
         <TimeseriesSparkline
           data={series}
@@ -194,7 +195,7 @@ export function TaipeiEvacuatePanel({ props }: { props: Record<string, unknown> 
     if (fo === "" && fc === "" && flt === "") return null;
     return (
       <div key={idx} style={{ display: "flex", gap: 4, alignItems: "center", fontSize: 11, padding: "3px 6px", background: "rgba(255,255,255,0.04)", borderRadius: 4 }}>
-        <span style={{ color: "rgba(255,255,255,0.6)", marginRight: 4 }}>門 {idx}</span>
+        <span style={{ color: COLORS.textMuted, marginRight: 4 }}>門 {idx}</span>
         <Badge label="開" on={fo === "+"} color="#22c55e" />
         <Badge label="閉" on={fc === "+"} color="#ef4444" />
         <Badge label="障" on={flt === "+"} color="#fbbf24" />
@@ -251,13 +252,13 @@ export function TaipeiEvacuatePanel({ props }: { props: Record<string, unknown> 
         {gateNum >= 2 && renderGate(2)}
       </div>
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: 9, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 狀態變化
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>載入中…</div>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>載入中…</div>
       ) : history.length === 0 ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>24h 內無狀態變化</div>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>24h 內無狀態變化</div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 140, overflowY: "auto" }}>
           {history.slice().reverse().map((h, i) => {
@@ -265,7 +266,7 @@ export function TaipeiEvacuatePanel({ props }: { props: Record<string, unknown> 
             const lbl = h.state === "closed" ? "閉" : h.state === "faulted" ? "障" : h.state === "open" ? "開" : "?";
             return (
               <div key={i} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, padding: "2px 4px" }}>
-                <span style={{ color: "rgba(255,255,255,0.5)" }}>{formatTaiwanTime(h.t).slice(5, 16)}</span>
+                <span style={{ color: COLORS.textMuted }}>{formatTaiwanTime(h.t).slice(5, 16)}</span>
                 <span style={{ background: c, color: "#fff", padding: "0 4px", borderRadius: 2, fontWeight: 600 }}>{lbl}</span>
               </div>
             );

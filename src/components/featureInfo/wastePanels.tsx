@@ -1,3 +1,4 @@
+import { COLORS } from "../../styles/designTokens";
 import {
   WASTE_FACILITY_COLORS, WASTE_FACILITY_LABELS,
   WASTE_DISPOSAL_COLORS, WASTE_DISPOSAL_LABELS,
@@ -79,7 +80,7 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
 
       {/* 來源權威度 badge */}
       <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 6 }}>
-        <span style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, minWidth: 56 }}>來源</span>
+        <span style={{ color: COLORS.textMuted, fontSize: 11, minWidth: 56 }}>來源</span>
         <span
           style={{
             fontSize: 10,
@@ -98,7 +99,7 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
       {/* 可投放類別 chips */}
       {categories.length > 0 && (
         <div style={{ marginTop: 8 }}>
-          <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, marginBottom: 4 }}>
+          <div style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 4 }}>
             可投放
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
@@ -110,7 +111,7 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
                   padding: "1px 7px",
                   borderRadius: 8,
                   background: "rgba(255,255,255,0.06)",
-                  color: "rgba(255,255,255,0.75)",
+                  color: COLORS.textDefault,
                   border: "1px solid rgba(255,255,255,0.10)",
                 }}
               >

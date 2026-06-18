@@ -119,7 +119,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           </span>
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 8.5, color: "rgba(255,255,255,0.7)",
+              fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textDefault,
               letterSpacing: "0.5px",
               textShadow: "0 1px 3px rgba(0,0,0,0.9)",
             }}
@@ -152,7 +152,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
         <span style={{ flex: 1 }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 8, color: "rgba(255,255,255,0.55)",
+            fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)",
           }}
         >

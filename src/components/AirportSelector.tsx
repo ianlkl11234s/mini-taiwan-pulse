@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ALL_PRESETS } from "../map/cameraPresets";
 import type { CameraPreset } from "../types";
-import { FONT_DATA } from "../styles/designTokens";
+import { COLORS, FONT_DATA } from "../styles/designTokens";
 
 interface Props {
   isDarkTheme?: boolean;
@@ -110,7 +110,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        color: "rgba(255,255,255,0.4)",
+        color: COLORS.textDim,
         fontSize: 11,
         letterSpacing: 2,
         marginBottom: 6,
@@ -183,7 +183,7 @@ function Item({
         {preset.name}
       </span>
       {airport && iata && (
-        <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11 }}>{iata}</span>
+        <span style={{ color: COLORS.textDim, fontSize: 11 }}>{iata}</span>
       )}
     </button>
   );

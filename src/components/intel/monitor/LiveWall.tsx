@@ -90,7 +90,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: 8,
-            color: "rgba(255,255,255,0.5)", letterSpacing: "0.5px",
+            color: COLORS.textMuted, letterSpacing: "0.5px",
           }}
         >
           {cur.en}
@@ -100,7 +100,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
             display: "inline-block",
             transform: open ? "rotate(180deg)" : "none",
             transition: "transform .2s",
-            fontSize: 8, color: "rgba(255,255,255,0.6)",
+            fontSize: 8, color: COLORS.textMuted,
           }}
         >
           ▾
@@ -385,7 +385,7 @@ function LiveSlot({
         <ChannelMenu value={chId} onPick={onPick} usedIds={usedIds} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 8, color: "rgba(255,255,255,0.55)",
+            fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)", pointerEvents: "none",
           }}
         >

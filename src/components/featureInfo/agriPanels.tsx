@@ -1,3 +1,4 @@
+import { COLORS } from "../../styles/designTokens";
 import { AGRI_POI_TYPES } from "../../data/agriPOITypes";
 import { AGRI_COMPANY_TYPES } from "../../data/agriCompanyTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../../data/ecoNetworkZoneTypes";
@@ -69,7 +70,7 @@ export function AgriSoilFertilityPanel({ props }: { props: Record<string, unknow
       <Row label="CEC" value={cec.text} color={cec.color} />
       <Row label="Mehlich-3 P" value={m3p.text} color={m3p.color} />
       <Row label="Mehlich-3 K" value={m3k.text} color={m3k.color} />
-      <div style={{ fontSize: 8, color: "rgba(255,255,255,0.35)", marginTop: 6, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 8, color: COLORS.textDim, marginTop: 6, lineHeight: 1.5 }}>
         ※ 0 值表示該項未測（多數網格只測 pH / OM）
       </div>
     </>

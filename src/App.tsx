@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FONT_DATA } from "./styles/designTokens";
+import { COLORS, FONT_DATA } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
 import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
@@ -1288,7 +1288,7 @@ export default function App() {
                 fontSize: 18,
                 fontFamily: FONT_DATA,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.7)",
+                color: COLORS.textDefault,
                 letterSpacing: 2,
                 marginTop: 6,
                 textShadow: "0 1px 8px rgba(0,0,0,0.5)",
@@ -1300,7 +1300,7 @@ export default function App() {
               style={{
                 fontSize: 14,
                 fontFamily: FONT_DATA,
-                color: "rgba(255,255,255,0.4)",
+                color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
@@ -1320,7 +1320,7 @@ export default function App() {
               style={{
                 fontSize: 14,
                 fontFamily: FONT_DATA,
-                color: "rgba(255,255,255,0.3)",
+                color: COLORS.textDim,
                 letterSpacing: 1,
                 marginTop: 4,
                 textShadow: "0 1px 6px rgba(0,0,0,0.5)",
@@ -1357,7 +1357,7 @@ export default function App() {
               background: "rgba(255,255,255,0.08)",
               border: "1px solid rgba(255,255,255,0.15)",
               borderRadius: 4,
-              color: "rgba(255,255,255,0.4)",
+              color: COLORS.textDim,
               fontSize: 11,
               fontFamily: FONT_DATA,
               cursor: "pointer",
@@ -1403,7 +1403,7 @@ export default function App() {
             />
 
             {loading && (
-              <span style={{ color: isDarkTheme ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.45)", fontSize: 13 }}>
+              <span style={{ color: isDarkTheme ? COLORS.textMuted : "rgba(0,0,0,0.45)", fontSize: 13 }}>
                 Loading...
               </span>
             )}
@@ -1659,7 +1659,7 @@ export default function App() {
               top: 84,
               right: 16,
               zIndex: 10,
-              color: isDarkTheme ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.2)",
+              color: isDarkTheme ? COLORS.textFaint : "rgba(0,0,0,0.2)",
               fontSize: 10,
               fontFamily: FONT_DATA,
               letterSpacing: 0.5,
@@ -1685,7 +1685,7 @@ export default function App() {
           >
             <div
               style={{
-                color: isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.45)",
+                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.45)",
                 fontSize: 11,
                 fontFamily: FONT_DATA,
               }}
@@ -1700,7 +1700,7 @@ export default function App() {
             </div>
             <div
               style={{
-                color: isDarkTheme ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
+                color: isDarkTheme ? COLORS.textDim : "rgba(0,0,0,0.3)",
                 fontSize: 11,
                 fontFamily: FONT_DATA,
               }}
@@ -1740,7 +1740,7 @@ export default function App() {
             <div style={{ flex: 1 }} />
 
             {loading && (
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: FONT_DATA }}>
+              <span style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT_DATA }}>
                 Loading...
               </span>
             )}
@@ -1910,7 +1910,7 @@ export default function App() {
                 {level === "full" && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, fontFamily: FONT_DATA }}>Style</span>
+                      <span style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT_DATA }}>Style</span>
                       <StyleSelector
                         selected={mapStyleId}
                         isDarkTheme={true}
@@ -1963,10 +1963,10 @@ export default function App() {
           <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 1 }}>
             {tooltipInfo.flight.callsign}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: COLORS.textDefault, marginTop: 4 }}>
             {tooltipInfo.flight.origin_iata} → {tooltipInfo.flight.dest_iata}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 2 }}>
             {tooltipInfo.flight.aircraft_type}
             {tooltipInfo.altitude != null && ` · ${tooltipInfo.altitude}m`}
           </div>
@@ -1997,14 +1997,14 @@ export default function App() {
           <div style={{ fontSize: 13, fontWeight: 700, color: trainTooltipInfo.train.color, letterSpacing: 1 }}>
             {trainTooltipInfo.train.trainId}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: COLORS.textDefault, marginTop: 4 }}>
             {trainTooltipInfo.train.systemId.toUpperCase()} · {trainTooltipInfo.train.trackId}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 2 }}>
             {trainTooltipInfo.train.status === "running" ? "行駛中" : "停靠中"}
             {trainTooltipInfo.train.trainTypeCode && ` · ${trainTooltipInfo.train.trainTypeCode}`}
           </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+          <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 2 }}>
             {trainTooltipInfo.train.position[0].toFixed(4)}, {trainTooltipInfo.train.position[1].toFixed(4)}
           </div>
         </div>
@@ -2031,14 +2031,14 @@ export default function App() {
           <div style={{ fontSize: 13, fontWeight: 700, color: busTooltipInfo.bus.color, letterSpacing: 1 }}>
             {busTooltipInfo.bus.routeName}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>
+          <div style={{ fontSize: 11, color: COLORS.textDefault, marginTop: 4 }}>
             {busTooltipInfo.bus.plateNumb} · {busTooltipInfo.bus.city}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: COLORS.textMuted, marginTop: 2 }}>
             {busTooltipInfo.bus.status === "running" ? "行駛中" : "停靠中"}
             {busTooltipInfo.bus.speed > 0 && ` · ${busTooltipInfo.bus.speed.toFixed(0)} km/h`}
           </div>
-          <div style={{ fontSize: 10, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+          <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 2 }}>
             {busTooltipInfo.bus.position[1].toFixed(4)}, {busTooltipInfo.bus.position[0].toFixed(4)}
           </div>
         </div>
@@ -2084,7 +2084,7 @@ export default function App() {
             <div style={{ fontSize: 13, fontWeight: 700, color: "#a78bfa", letterSpacing: 1 }}>
               {frame.route.city} · {frame.route.routeName ?? frame.route.routeId}
             </div>
-            <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>
+            <div style={{ fontSize: 10, color: COLORS.textDim, marginTop: 2 }}>
               route_id: {frame.route.routeId} · {frame.totalStops} stops · {frame.route.vehicleType}
             </div>
 
@@ -2100,7 +2100,7 @@ export default function App() {
                  frame.state === "waiting" ? "● 停留中" :
                  frame.state === "before-route" ? "○ 路線未開始" : "○ 路線已結束"}
               </span>
-              <span style={{ color: "rgba(255,255,255,0.5)" }}>now {fmt(frame.nowSec)}</span>
+              <span style={{ color: COLORS.textMuted }}>now {fmt(frame.nowSec)}</span>
             </div>
 
             {isTripBreak && (
@@ -2109,12 +2109,12 @@ export default function App() {
               </div>
             )}
 
-            <div style={{ marginTop: 8, paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.15)", fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
-              <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+            <div style={{ marginTop: 8, paddingTop: 6, borderTop: "1px dashed rgba(255,255,255,0.15)", fontSize: 11, color: COLORS.textStrong }}>
+              <div style={{ color: COLORS.textMuted, fontSize: 10, marginBottom: 2 }}>
                 ↓ 上一站 (#{frame.prevStop.stopSeq}/{frame.totalStops})
               </div>
               <div>{frame.prevStop.stopName ?? "(no name)"}</div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+              <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 2 }}>
                 arrival {fmt(frame.prevStop.arrivalSec)} · departure {fmt(frame.prevStop.departureSec)}
                 {frame.prevStop.departureSec > frame.prevStop.arrivalSec &&
                   ` · 停 ${fmtGap(frame.prevStop.departureSec - frame.prevStop.arrivalSec)}`}
@@ -2122,15 +2122,15 @@ export default function App() {
             </div>
 
             {frame.nextStop && (
-              <div style={{ marginTop: 6, fontSize: 11, color: "rgba(255,255,255,0.85)" }}>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 10, marginBottom: 2 }}>
+              <div style={{ marginTop: 6, fontSize: 11, color: COLORS.textStrong }}>
+                <div style={{ color: COLORS.textMuted, fontSize: 10, marginBottom: 2 }}>
                   ↓ 下一站 (#{frame.nextStop.stopSeq}/{frame.totalStops})
                 </div>
                 <div>{frame.nextStop.stopName ?? "(no name)"}</div>
-                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>
+                <div style={{ fontSize: 10, color: COLORS.textMuted, marginTop: 2 }}>
                   arrival {fmt(frame.nextStop.arrivalSec)}
                   {" · gap "}
-                  <span style={{ color: isTripBreak ? "#ef4444" : "rgba(255,255,255,0.55)" }}>
+                  <span style={{ color: isTripBreak ? "#ef4444" : COLORS.textMuted }}>
                     {fmtGap(frame.gapToNextSec)}
                   </span>
                 </div>

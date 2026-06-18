@@ -1,4 +1,5 @@
 import { Row } from "./shared";
+import { COLORS } from "../../styles/designTokens";
 
 const HIKING_TRAIL_SOURCE_INFO: Record<string, { color: string; label: string }> = {
   A_forest: { color: "#d62728", label: "A 林業署國家步道（KML）" },
@@ -56,7 +57,7 @@ export function ForestryGenericPanel({ props }: { props: Record<string, unknown>
   return (
     <>
       {entries.length === 0 && (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)" }}>無屬性資料</div>
+        <div style={{ fontSize: 10, color: COLORS.textDim }}>無屬性資料</div>
       )}
       {entries.map(([k, v]) => {
         const label = FORESTRY_PROP_LABELS[k] ?? k;

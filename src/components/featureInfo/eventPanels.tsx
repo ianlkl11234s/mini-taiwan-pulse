@@ -1,7 +1,7 @@
 import { Row } from "./shared";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
-import { FONT_DATA } from "../../styles/designTokens";
+import { COLORS, FONT_DATA } from "../../styles/designTokens";
 
 function parseEvents(raw: unknown): ClusterEvent[] {
   if (typeof raw !== "string" || !raw) return [];
@@ -71,7 +71,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
         </div>
         <div style={{
           marginLeft: "auto", fontSize: 10, padding: "1px 6px", borderRadius: 3,
-          background: "rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.9)", fontWeight: 600,
+          background: "rgba(255,255,255,0.12)", color: COLORS.textStrong, fontWeight: 600,
         }}>
           {eventCount} 則
         </div>
@@ -94,14 +94,14 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    color: "rgba(255,255,255,0.92)", fontSize: 11.5, fontWeight: 600,
+                    color: COLORS.textStrong, fontSize: 11.5, fontWeight: 600,
                     textDecoration: "none", lineHeight: 1.4, display: "block",
                   }}
                 >
                   {e.title}
                 </a>
                 <div style={{
-                  fontSize: 10, color: "rgba(255,255,255,0.4)", marginTop: 2,
+                  fontSize: 10, color: COLORS.textDim, marginTop: 2,
                   display: "flex", gap: 6, flexWrap: "wrap",
                 }}>
                   <span style={{ color: cat.color }}>{cat.label}</span>
@@ -151,10 +151,10 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
       {headline && <Row label="標題" value={headline} />}
       {areaDesc && (
         <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: 11, lineHeight: 1.5 }}>
-          <span style={{ color: "rgba(255,255,255,0.45)", flexShrink: 0, minWidth: 56 }}>影響區域</span>
+          <span style={{ color: COLORS.textMuted, flexShrink: 0, minWidth: 56 }}>影響區域</span>
           <div
             style={{
-              color: "rgba(255,255,255,0.85)",
+              color: COLORS.textStrong,
               wordBreak: "break-word",
               maxHeight: 20 * 16.5, // 11px × 1.5 line-height × 20 lines
               overflowY: "auto",

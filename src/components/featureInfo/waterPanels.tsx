@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
-import { FONT_DATA } from "../../styles/designTokens";
+import { COLORS, FONT_DATA } from "../../styles/designTokens";
 import { fetchFloodSensorTimeseries } from "../../data/floodSensorLoader";
 import { fetchRiverLevelTimeseries } from "../../data/riverLevelLoader";
 import { fetchGroundwaterTimeseries } from "../../data/groundwaterLoader";
@@ -217,17 +217,17 @@ export function RiverLevelPanel({ props }: { props: Record<string, unknown> }) {
         <span style={{ fontSize: 22, fontWeight: 700, color }}>
           {level.toFixed(2)}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>m 水位</span>
+        <span style={{ fontSize: 10, color: COLORS.textDefault }}>m 水位</span>
       </div>
       <Row label="縣市" value={String(props.county ?? "")} />
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: 9, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
@@ -288,16 +288,16 @@ export function GroundwaterPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: 22, fontWeight: 700, color: "#38bdf8" }}>
           {level != null ? level.toFixed(2) : "—"}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>m 地下水位（海拔）</span>
+        <span style={{ fontSize: 10, color: COLORS.textDefault }}>m 地下水位（海拔）</span>
       </div>
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="井號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: 9, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
@@ -366,17 +366,17 @@ export function FloodSensorPanel({ props }: { props: Record<string, unknown> }) 
         <span style={{ fontSize: 22, fontWeight: 700, color }}>
           {depthCm.toFixed(1)}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>{unit} 淹水深度</span>
+        <span style={{ fontSize: 10, color: COLORS.textDefault }}>{unit} 淹水深度</span>
       </div>
       {(county || town) && <Row label="區域" value={[county, town].filter(Boolean).join(" / ")} />}
       {admin && <Row label="管理單位" value={admin} />}
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: 9, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 趨勢
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
@@ -466,7 +466,7 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
         <span style={{ fontSize: 22, fontWeight: 700, color: level.color }}>
           {p10.toFixed(1)}
         </span>
-        <span style={{ fontSize: 10, color: "rgba(255,255,255,0.7)" }}>mm / 10 min</span>
+        <span style={{ fontSize: 10, color: COLORS.textDefault }}>mm / 10 min</span>
       </div>
       <Row label="1 小時累積" value={`${p1.toFixed(1)} mm`} />
       <Row label="3 小時累積" value={`${p3.toFixed(1)} mm`} />
@@ -475,11 +475,11 @@ export function RainGaugePanel({ props }: { props: Record<string, unknown> }) {
       {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
       <Row label="站號" value={String(props.station_id ?? "")} color="rgba(255,255,255,0.35)" />
 
-      <div style={{ marginTop: 8, fontSize: 9, color: "rgba(255,255,255,0.5)", letterSpacing: 0.5 }}>
+      <div style={{ marginTop: 8, fontSize: 9, color: COLORS.textMuted, letterSpacing: 0.5 }}>
         24h 1 小時累積雨量
       </div>
       {loadingTs ? (
-        <div style={{ fontSize: 10, color: "rgba(255,255,255,0.4)", padding: "8px 4px", textAlign: "center" }}>
+        <div style={{ fontSize: 10, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
           載入中…
         </div>
       ) : (
@@ -527,7 +527,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
               marginLeft: "auto",
               fontSize: 9,
               fontFamily: FONT_DATA,
-              color: "rgba(255,255,255,0.3)",
+              color: COLORS.textDim,
             }}
           >
             #{r.compare_id}
@@ -551,7 +551,7 @@ export function WaterReservoirContextPanel({ ctx }: { ctx: ReservoirContext }) {
           <span style={{ fontSize: 26, fontWeight: 700, color: accent, lineHeight: 1 }}>
             {storageRatio.toFixed(1)}
           </span>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)" }}>% 蓄水率</span>
+          <span style={{ fontSize: 11, color: COLORS.textDefault }}>% 蓄水率</span>
           {alert && (
             <span
               style={{
