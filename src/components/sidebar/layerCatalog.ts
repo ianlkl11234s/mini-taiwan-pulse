@@ -176,6 +176,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   satellitesGermany: "#fde047",
   satellitesItaly: "#34d399",
   satellitesIsrael: "#c4b5fd",
+  // 能源 ENERGY MVP（feat/energy-mvp）— 色配合 fuel_type 主視覺
+  powerPlants: "#facc15",          // 黃（核能主色 → 圖例代表色）
+  powerStatusHud: "#22c55e",       // 燈號綠（G）
+  powerRegionDemand: "#3b82f6",    // 區域藍
+  powerGenerationUnit: "#f97316",  // 機組橙（光柱主色）
+  osmSubstations: "#a78bfa",       // 變電所紫
+  evChargingStations: "#10b981",   // 充電綠
 };
 
 // ── Transport Labels ──

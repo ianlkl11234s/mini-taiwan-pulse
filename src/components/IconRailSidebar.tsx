@@ -18,6 +18,8 @@ import {
   // FORESTRY icons
   Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
   Satellite,
+  // ENERGY icons
+  Zap, PlugZap, Power,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -177,6 +179,13 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   satellitesGermany: Satellite,
   satellitesItaly: Satellite,
   satellitesIsrael: Satellite,
+  // 能源 ENERGY MVP
+  powerPlants: Zap,
+  powerStatusHud: Activity,
+  powerRegionDemand: BarChart3,
+  powerGenerationUnit: Power,
+  osmSubstations: Cable,
+  evChargingStations: PlugZap,
 };
 
 // ── IATA Map for Locations Panel ──
