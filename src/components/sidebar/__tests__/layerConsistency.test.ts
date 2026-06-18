@@ -42,6 +42,14 @@ const BASELINE_NO_PARAMS = new Set([
   "wasteScheduleNote",
   "wasteRoute",
   "wasteStop",
+  // Energy MVP v1：6 layer 先寫死 opacity（HUD/region bars/beam 內部各自常數），
+  // 第二版再接 useTransportParams sliders（見 docs/energy-mvp-status.md §3 backlog）
+  "powerPlants",
+  "powerStatusHud",
+  "powerRegionDemand",
+  "powerGenerationUnit",
+  "osmSubstations",
+  "evChargingStations",
 ]);
 
 /**
@@ -71,6 +79,8 @@ const BASELINE_NO_LEGEND = new Set([
   "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
+  // Energy MVP：單色 POI（紫變電所 / 綠充電站）— 鐵則 2 只要求分類 ≥ 2 才需圖例
+  "osmSubstations", "evChargingStations",
 ]);
 
 function hasParamsCase(key: string): boolean {
