@@ -19,12 +19,21 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
   const fuel = String(props.fuel_type ?? "");
   const fuelColor = fuel ? fuelColorOf(fuel) : FUEL_FALLBACK_COLOR;
   const sourceTable = String(props.source_table ?? "");
+  const isRetired = props.is_retired === true || props.status === "retired";
+  const statusNote = String(props.status_note ?? "");
   return (
     <div>
       <Row label="電廠" value={String(props.name ?? "")} />
       <Row label="燃料" value={fuel || "—"} color={fuelColor} />
       <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
-      {props.output_mw != null && (
+      {isRetired && (
+        <Row
+          label="狀態"
+          value={statusNote || "已除役"}
+          color="#ef4444"
+        />
+      )}
+      {!isRetired && props.output_mw != null && (
         <>
           <Row label="即時出力" value={fmtMW(props.output_mw)} />
           <Row label="負載率" value={fmtPct01(props.output_load_rate)} />

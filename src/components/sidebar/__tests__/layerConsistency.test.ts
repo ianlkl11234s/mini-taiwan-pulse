@@ -28,7 +28,11 @@ const legendCoveredKeys = new Set<string>(LEGEND_REGISTRY.flatMap((e) => e.keys)
  * - wasteRoute/wasteStop 由 wasteTruck 子 UI 控制
  * - medICUBeds Phase 3 尚未實作渲染，幽靈 toggle 已自 sidebar 移除（2026-06-10）
  */
-const BASELINE_NOT_IN_SIDEBAR = new Set(["wasteRoute", "wasteStop", "medICUBeds"]);
+const BASELINE_NOT_IN_SIDEBAR = new Set([
+  "wasteRoute", "wasteStop", "medICUBeds",
+  // Energy MVP：KPI 性質，預定整合到 monitor 面板（LayerVisibility key 保留）
+  "powerStatusHud", "powerRegionDemand",
+]);
 
 /**
  * 已知「沒有透明度/參數 slider」的 layer：

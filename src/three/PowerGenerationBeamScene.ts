@@ -14,8 +14,9 @@ import { fuelColorOf, type PowerPlantRow } from "../data/energyLoader";
  */
 
 const MAX_BEAM_COUNT = 256;       // 預留：14 台電廠 + 預留 IPP / 未來
-const BEAM_RADIUS = 0.00002;      // mercator 單位，約 0.75km
-const BEAM_BASE_HEIGHT = 0.0004;  // 滿載柱高 mercator 單位，約 14km
+// 全台視角 (zoom 4-6) 看得到 → 半徑放寬到 ~2 km、滿載 ~24 km 高
+const BEAM_RADIUS = 0.00006;      // mercator 單位，約 2.2km
+const BEAM_BASE_HEIGHT = 0.0007;  // 滿載柱高 mercator 單位，約 26km
 const LERP_FACTOR = 0.06;
 
 interface BeamState {

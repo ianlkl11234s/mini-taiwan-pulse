@@ -76,6 +76,9 @@ export interface PowerPlantRow {
   output_unit_count: number | null;
   output_load_rate: number | null; // 0~1.5
   output_observed_at: string | null;
+  /** 'retired' = 已除役（核電廠 7 座），NULL = 運轉中 */
+  status: string | null;
+  status_note: string | null;
   lon: number;
   lat: number;
   attrs: Record<string, unknown> | null;

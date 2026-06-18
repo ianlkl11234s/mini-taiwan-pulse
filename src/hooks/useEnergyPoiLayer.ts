@@ -31,10 +31,14 @@ const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", feature
 
 const PLANT_POLL_MS = 5 * 60_000;
 
+// 已除役廠房用退色版本，視覺上明顯區分（不直接灰色因為跟 NULL/未知混淆）
+const RETIRED_COLOR = "#7c6b3a"; // 暗黃褐色（核能黃 #facc15 降飽和）
+
 function plantsToGeoJSON(rows: PowerPlantRow[]): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = [];
   for (const r of rows) {
     if (!Number.isFinite(r.lon) || !Number.isFinite(r.lat)) continue;
+    const isRetired = r.status === "retired";
     features.push({
       type: "Feature",
       geometry: { type: "Point", coordinates: [r.lon, r.lat] },
@@ -46,8 +50,11 @@ function plantsToGeoJSON(rows: PowerPlantRow[]): GeoJSON.FeatureCollection {
         capacity_mw: r.capacity_mw,
         output_mw: r.output_mw,
         output_load_rate: r.output_load_rate,
+        status: r.status ?? "",
+        status_note: r.status_note ?? "",
+        is_retired: isRetired,
         radius: radiusForCapacity(r.capacity_mw),
-        color: fuelColorOf(r.fuel_type),
+        color: isRetired ? RETIRED_COLOR : fuelColorOf(r.fuel_type),
       },
     });
   }

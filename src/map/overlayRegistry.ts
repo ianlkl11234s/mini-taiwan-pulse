@@ -2898,8 +2898,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o,
-            "circle-stroke-width": 1,
-            "circle-stroke-color": isDark ? "#111827" : "#ffffff",
+            // 已除役 → 紅 stroke 警示；運轉中 → 跟底色相同（淡邊框）
+            "circle-stroke-width": [
+              "case", ["==", ["get", "is_retired"], true], 2, 1,
+            ],
+            "circle-stroke-color": [
+              "case",
+              ["==", ["get", "is_retired"], true], "#ef4444",
+              isDark ? "#111827" : "#ffffff",
+            ],
           };
         },
       },

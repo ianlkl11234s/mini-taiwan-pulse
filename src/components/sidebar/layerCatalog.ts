@@ -457,11 +457,11 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    // powerStatusHud + powerRegionDemand 不在地圖 sidebar，預定搬 monitor 面板
+    // （KPI 性質非地理事件）。LayerVisibility key 保留供 monitor 整合時複用。
     title: "ENERGY · 能源",
     layers: [
-      { key: "powerStatusHud", label: "全國供電燈號" },
       { key: "powerPlants", label: "電廠", expandable: true },
-      { key: "powerRegionDemand", label: "區域用電" },
       { key: "powerGenerationUnit", label: "機組即時出力" },
       { key: "osmSubstations", label: "變電所" },
       { key: "evChargingStations", label: "充電站" },

@@ -27,7 +27,8 @@ export function usePowerGenerationBeamLayer(
   opacityRef.current = opacity;
   const plantsRef = useRef<PowerPlantRow[] | null>(null);
 
-  // Mount layer
+  // Mount layer — visible 加進 deps，toggle ON 時保證 effect 重跑（修：mapRef.current
+  // 在初始 render 可能為 null，原本 [mapRef] 不會 re-run）
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -40,17 +41,17 @@ export function usePowerGenerationBeamLayer(
         getPlants: () => plantsRef.current,
       });
       map.addLayer(layer);
+      console.info("[PowerBeam] CustomLayer mounted");
     };
 
     if (map.isStyleLoaded()) mount();
     map.on("style.load", mount);
     return () => {
       map.off("style.load", mount);
-      if (map.getLayer(POWER_GENERATION_BEAM_LAYER_ID)) {
-        map.removeLayer(POWER_GENERATION_BEAM_LAYER_ID);
-      }
+      // 注意：visible 切 OFF 時也會跑 cleanup，但不 removeLayer
+      // （toggle 開關不該 unmount/remount，只靠 scene.setVisible）
     };
-  }, [mapRef]);
+  }, [mapRef, visible]);
 
   // Fetch + poll
   useEffect(() => {

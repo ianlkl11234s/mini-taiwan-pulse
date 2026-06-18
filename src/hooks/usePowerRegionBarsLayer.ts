@@ -33,15 +33,14 @@ export function usePowerRegionBarsLayer(
         getDashboard: () => dashboardRef.current,
       });
       map.addLayer(layer);
+      console.info("[PowerRegionBars] CustomLayer mounted");
     };
 
     if (map.isStyleLoaded()) mount();
     map.on("style.load", mount);
     return () => {
       map.off("style.load", mount);
-      if (map.getLayer(POWER_REGION_BARS_LAYER_ID)) {
-        map.removeLayer(POWER_REGION_BARS_LAYER_ID);
-      }
+      // toggle 切 OFF 不 removeLayer，只靠 scene.setVisible 控制
     };
-  }, [mapRef, dashboardRef]);
+  }, [mapRef, visible, dashboardRef]);
 }

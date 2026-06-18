@@ -61,7 +61,7 @@ import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
 import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
-import { PowerStatusHud } from "./components/hud/PowerStatusHud";
+// PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -720,7 +720,7 @@ export default function App() {
   // dashboard 共用：HUD + region bars 不同時 toggle 也只拉一次
   const energyDashboardActive =
     layerVisibility.powerStatusHud || layerVisibility.powerRegionDemand;
-  const { data: powerDashboardData, dataRef: powerDashboardRef } =
+  const { dataRef: powerDashboardRef } =
     usePowerDashboard(energyDashboardActive);
   useEnergyPoiLayer(mapRef, {
     showPlants: layerVisibility.powerPlants,
@@ -1438,21 +1438,8 @@ export default function App() {
             )}
           </div>
 
-          {/* Energy MVP: 供電燈號 HUD (layer 2) */}
-          {layerVisibility.powerStatusHud && (
-            <div
-              style={{
-                position: "absolute",
-                top: 64,
-                left: sidebarWidth + 16,
-                zIndex: 10,
-                transition: "left 0.2s ease",
-                pointerEvents: "auto",
-              }}
-            >
-              <PowerStatusHud data={powerDashboardData} isDark={isDarkTheme} />
-            </div>
-          )}
+          {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
+              hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
 
           {/* Icon Rail + Sliding Panel Sidebar */}
           <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
