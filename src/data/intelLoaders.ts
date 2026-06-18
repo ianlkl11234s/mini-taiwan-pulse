@@ -5,6 +5,13 @@
  */
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
+
+// TTL：略短於 polling interval（30s），讓 IntelPanel + MonitorPanel 同 tick 共享一次 fetch。
+const TTL_FAST = 25_000;   // 即時值（pressure / market / alertSummary）
+const TTL_SLOW = 55_000;   // 慢變（source health / trending / signals timeline / yt live）
+const TTL_DAILY = 60 * 60_000;  // 每日一次（pla activity）
+const TTL_WEEKLY = 5 * 60_000;  // 5 分鐘（health weekly / alert series 24h）
 
 // ── Source health ────────────────────────────────────────────────
 
@@ -36,7 +43,7 @@ function summarize(rows: SourceHealthRow[]): SourceHealthSummary {
   return { ...acc, rows };
 }
 
-export async function fetchSourceHealth(): Promise<SourceHealthSummary> {
+async function _fetchSourceHealthRaw(): Promise<SourceHealthSummary> {
   if (!supabaseConfigured) return summarize([]);
   const { data, error } = await withLoading(
     "intel:source-health",
@@ -49,6 +56,7 @@ export async function fetchSourceHealth(): Promise<SourceHealthSummary> {
   }
   return summarize((data ?? []) as SourceHealthRow[]);
 }
+export const fetchSourceHealth = cachedOnce(_fetchSourceHealthRaw, TTL_SLOW);
 
 // ── Trending（升溫）─────────────────────────────────────────────
 
@@ -60,9 +68,9 @@ export interface TrendingRow {
   surge_ratio: number | null;
 }
 
-export async function fetchNewsTrending(
-  windowHours = 1,
-  limit = 30,
+async function _fetchNewsTrendingRaw(
+  windowHours: number,
+  limit: number,
 ): Promise<TrendingRow[]> {
   if (!supabaseConfigured) return [];
   const { data, error } = await withLoading(
@@ -78,6 +86,12 @@ export async function fetchNewsTrending(
     return [];
   }
   return (data ?? []) as TrendingRow[];
+}
+const _trendingCache = keyedThunkCache<TrendingRow[]>(TTL_SLOW);
+export function fetchNewsTrending(windowHours = 1, limit = 30): Promise<TrendingRow[]> {
+  return _trendingCache(`${windowHours}|${limit}`, () =>
+    _fetchNewsTrendingRaw(windowHours, limit),
+  );
 }
 
 /** 把 trending rows 攤平成 Set<"county|category"> 給卡片快速判 🔥 */
@@ -117,7 +131,7 @@ const EMPTY_PRESSURE: PressureIndexNow = {
   composite: 0, level: null, vs_baseline: 0, vs_1h_ago: 0, per_signal: [], asof: null,
 };
 
-export async function fetchPressureIndex(): Promise<PressureIndexNow> {
+async function _fetchPressureIndexRaw(): Promise<PressureIndexNow> {
   if (!supabaseConfigured) return EMPTY_PRESSURE;
   const { data, error } = await withLoading(
     "intel:pressure-index",
@@ -140,6 +154,7 @@ export async function fetchPressureIndex(): Promise<PressureIndexNow> {
     asof: row.asof ?? null,
   };
 }
+export const fetchPressureIndex = cachedOnce(_fetchPressureIndexRaw, TTL_FAST);
 
 /** 多軌 signal 時間序列（給 TimelineDock Phase 2 multi-track） */
 export interface SignalsTimelinePoint {
@@ -149,9 +164,9 @@ export interface SignalsTimelinePoint {
   level: string | null;
 }
 
-export async function fetchSignalsTimeline(
-  hours = 24,
-  signals?: string[],
+async function _fetchSignalsTimelineRaw(
+  hours: number,
+  signals: string[] | undefined,
 ): Promise<SignalsTimelinePoint[]> {
   if (!supabaseConfigured) return [];
   const { data, error } = await withLoading(
@@ -167,6 +182,14 @@ export async function fetchSignalsTimeline(
     return [];
   }
   return (data ?? []) as SignalsTimelinePoint[];
+}
+const _signalsCache = keyedThunkCache<SignalsTimelinePoint[]>(TTL_SLOW);
+export function fetchSignalsTimeline(
+  hours = 24,
+  signals?: string[],
+): Promise<SignalsTimelinePoint[]> {
+  const key = `${hours}|${signals ? signals.slice().sort().join(",") : "*"}`;
+  return _signalsCache(key, () => _fetchSignalsTimelineRaw(hours, signals));
 }
 
 /** TWSE 加權指數 — realtime.market_index_current（取最新一列） */
@@ -188,7 +211,7 @@ const EMPTY_MARKET: MarketIndex = {
   change: 0, change_pct: 0, turnover: null, time: null, status: null,
 };
 
-export async function fetchMarketIndex(): Promise<MarketIndex> {
+async function _fetchMarketIndexRaw(): Promise<MarketIndex> {
   if (!supabaseConfigured) return EMPTY_MARKET;
   // realtime.* 不能直接打，走 public RPC wrapper（後端已上線 get_market_index_now）
   const { data, error } = await withLoading(
@@ -219,6 +242,7 @@ export async function fetchMarketIndex(): Promise<MarketIndex> {
     status: row.status ?? null,
   };
 }
+export const fetchMarketIndex = cachedOnce(_fetchMarketIndexRaw, TTL_FAST);
 
 /** 共機動態 — realtime.pla_activity_daily（最新一日） */
 export interface PlaAdizZone {
@@ -251,7 +275,7 @@ const EMPTY_PLA: PlaActivity = {
   title: "中共解放軍臺海周邊海、空域動態",
 };
 
-export async function fetchPlaActivity(): Promise<PlaActivity> {
+async function _fetchPlaActivityRaw(): Promise<PlaActivity> {
   if (!supabaseConfigured) return EMPTY_PLA;
   const { data, error } = await withLoading(
     "intel:pla-activity",
@@ -279,6 +303,7 @@ export async function fetchPlaActivity(): Promise<PlaActivity> {
     title: row.title ?? EMPTY_PLA.title,
   };
 }
+export const fetchPlaActivity = cachedOnce(_fetchPlaActivityRaw, TTL_DAILY);
 
 /** CDC 公衛週報 — realtime.public_health_weekly（最新 ISO 週的 3 個指標） */
 export interface CdcDisease {
@@ -326,7 +351,7 @@ export interface YtLiveVideo {
   updated_at: string;
 }
 
-export async function fetchLiveVideos(onlyLive = false): Promise<YtLiveVideo[]> {
+async function _fetchLiveVideosRaw(onlyLive: boolean): Promise<YtLiveVideo[]> {
   if (!supabaseConfigured) return [];
   const { data, error } = await withLoading(
     "intel:yt-live-videos",
@@ -339,8 +364,12 @@ export async function fetchLiveVideos(onlyLive = false): Promise<YtLiveVideo[]> 
   }
   return (data ?? []) as YtLiveVideo[];
 }
+const _liveVideosCache = keyedThunkCache<YtLiveVideo[]>(TTL_SLOW);
+export function fetchLiveVideos(onlyLive = false): Promise<YtLiveVideo[]> {
+  return _liveVideosCache(onlyLive ? "live" : "all", () => _fetchLiveVideosRaw(onlyLive));
+}
 
-export async function fetchPublicHealthWeekly(): Promise<PublicHealthWeek> {
+async function _fetchPublicHealthWeeklyRaw(): Promise<PublicHealthWeek> {
   if (!supabaseConfigured) return EMPTY_HEALTH;
   const { data, error } = await withLoading(
     "intel:public-health",
@@ -373,3 +402,4 @@ export async function fetchPublicHealthWeekly(): Promise<PublicHealthWeek> {
   }
   return { week, diseases };
 }
+export const fetchPublicHealthWeekly = cachedOnce(_fetchPublicHealthWeeklyRaw, TTL_WEEKLY);

@@ -11,10 +11,15 @@
 
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
 import {
   ALERT_GROUP_ORDER,
   type AlertGroupShort,
 } from "../components/intel/intelTokens";
+
+// TTL：略短於 polling interval 讓雙 panel 共享 fetch；series_24h 拉到 5min（資料源是分鐘聚合，人眼無感差）。
+const TTL_FAST = 25_000;
+const TTL_SERIES = 5 * 60_000;
 
 export interface AlertSummary {
   group: AlertGroupShort;
@@ -99,7 +104,7 @@ function asNum(v: number | string | null | undefined): number {
   return typeof v === "number" ? v : Number(v);
 }
 
-export async function fetchAlertSummary(): Promise<AlertSummary[]> {
+async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
   try {
     const { data, error } = await withLoading(
       "alert-summary",
@@ -129,8 +134,9 @@ export async function fetchAlertSummary(): Promise<AlertSummary[]> {
     return [];
   }
 }
+export const fetchAlertSummary = cachedOnce(_fetchAlertSummaryRaw, TTL_FAST);
 
-export async function fetchActiveAlerts(
+async function _fetchActiveAlertsRaw(
   group?: AlertGroupShort | null,
   severityMin: number = 1,
 ): Promise<ActiveAlert[]> {
@@ -178,8 +184,18 @@ export async function fetchActiveAlerts(
     return [];
   }
 }
+const _activeAlertsCache = keyedThunkCache<ActiveAlert[]>(TTL_FAST);
+export function fetchActiveAlerts(
+  group?: AlertGroupShort | null,
+  severityMin: number = 1,
+): Promise<ActiveAlert[]> {
+  return _activeAlertsCache(
+    `${group ?? "*"}|${severityMin}`,
+    () => _fetchActiveAlertsRaw(group, severityMin),
+  );
+}
 
-export async function fetchAlertSeries24h(): Promise<AlertSeriesPoint[]> {
+async function _fetchAlertSeries24hRaw(): Promise<AlertSeriesPoint[]> {
   try {
     const { data, error } = await withLoading(
       "alert-series-24h",
@@ -200,6 +216,7 @@ export async function fetchAlertSeries24h(): Promise<AlertSeriesPoint[]> {
     return [];
   }
 }
+export const fetchAlertSeries24h = cachedOnce(_fetchAlertSeries24hRaw, TTL_SERIES);
 
 // ─── helpers ──────────────────────────────────────────────
 

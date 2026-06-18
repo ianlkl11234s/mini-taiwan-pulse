@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-06-18 useWallClock 無限 re-render — useSyncExternalStore 陷阱
+
+**現象**：Monitor 效能優化（PR #21 perf/monitor-optimization）push 後切到即時新聞跳：
+- `Maximum update depth exceeded` × N
+- `<IntelCard>` component error
+- 串連到 `useNewsTimeline.ts:84 map.getLayer is undefined`（map 還沒 mount，timeStore subscriber 已被 1Hz tick 打中）
+- THREE.WebGLRenderer Context Lost
+
+**根因**：新寫的 `src/hooks/useWallClock.ts` 用 `useSyncExternalStore`，但 `getSnapshot`
+直接回 `wallClock.getWallNow()` = `Date.now()`，每次呼叫值都不同。React 比對前後
+snapshot 不一致就認為 store 變了 → re-render → 再呼叫 getSnapshot → 又不同 → 無限迴圈。
+
+被 IntelCard 用了（每張卡掛一個 useWallClock(30_000)），瞬間爆 update depth。
+
+**對策**：
+- `useWallClock` 改回 `useState + useEffect(subscribe)`，setNow 只由 wallClock timer
+  callback 觸發，snapshot 永遠等於 state 不會漂移
+- Hotfix commit `06105c0` 已 push
+
+**教訓**：`useSyncExternalStore` 的 `getSnapshot` **必須**回快取值（同一 store 狀態
+呼叫多次回相同 reference），不能即時計算（Date.now/Math.random/new Map）。
+這條進 PRINCIPLES。
+
+---
+
 ## 2026-04-07 Supabase 遷移後 ship / flight 全空
 
 **現象**：前端切 `VITE_DATA_SOURCE=supabase` 後 ship + flight trails 都空陣列，

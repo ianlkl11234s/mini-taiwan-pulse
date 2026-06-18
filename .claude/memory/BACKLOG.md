@@ -66,6 +66,8 @@
 | G008 | P2 | 巨型檔案按 domain 拆分 | open | `App.tsx`(1945)/`overlayRegistry.ts`(1992)/`FeatureInfoPanel.tsx`(1703)/`useTransportParams.ts`(1031)/`InfoModal.tsx`(1111)。建議順序：先拆 FeatureInfoPanel（最規律低風險，按 domain 切子檔+色票進 `data/*Types.ts`）→ App.tsx（抽 `useAllLayers`/`useAppUiState`/map lifecycle hook）→ overlayRegistry（domain 片段+circle/line/fill paint 工廠）。2026-05-25 架構 review |
 | G009 | P2 | 16 處 Supabase RPC 補 `loadingRegistry`（違反規則 B）| open | 優先 `busLoader.ts:69/121/211`（公車核心動態層初次/切日無 loading UI）；其餘 `*_dates`/`*_years`/`*_counts` 13 個 metadata RPC 危害低但字面違規；`railScheduleLoader.ts:26/62` 裸 fetch 同樣無 loading。2026-05-25 效能 review（規則 A time store + 規則 C realtime schema 全合規）|
 | G010 | P3 | `FireStationScene.ts:180` 每幀 `new THREE.Matrix4()` | open | `animate()` 每幀分配 Matrix4，其他 Scene 都用 `this.lastMatrix` 快取；提升為 instance field 重用。2026-05-25 效能 review |
+| G011 | P2 | Monitor wall mode 暫停地圖 engine | open | PR #21 效能優化跳過項。wall mode 下地圖全被蓋住但 rail / ship / Three.js 仍跑 RAF 吃 CPU。需在 `src/engines/` + `src/three/` 加 `setActive(false)` 介面，App.tsx 偵測 `monitorOpen && wall` 呼叫暫停。風險：地圖視覺凍結需 PM 確認可接受。2026-06-18 perf review |
+| G012 | P3 | Monitor alertSeries24h 改增量抓 | open | 目前 cachedOnce(5min TTL)，每次重抓 24h × 6 group。理想：累積式只抓最近 5min。需動 gis-platform RPC。2026-06-18 perf review |
 
 ### 農業（Phase 3 Batch 1，feat/water-extensions 分支）
 

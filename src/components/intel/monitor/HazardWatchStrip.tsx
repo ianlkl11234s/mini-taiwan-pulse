@@ -9,7 +9,9 @@
  * 樣式 1:1 對齊 LiveWall 的 16:9 容器 + LIVE badge + 邊框。
  */
 
+import { memo, useRef } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { useInView } from "../../../hooks/useInView";
 
 interface HazardCh {
   videoId: string;
@@ -38,8 +40,12 @@ function embedSrc(videoId: string): string {
 }
 
 function HazardSlot({ ch }: { ch: HazardCh }) {
+  // IntersectionObserver gate：iframe 只在首次進入視窗才掛
+  const slotRef = useRef<HTMLDivElement>(null);
+  const visible = useInView(slotRef);
   return (
     <div
+      ref={slotRef}
       style={{
         position: "relative", borderRadius: 8, overflow: "visible",
         aspectRatio: "16 / 9", background: "#000",
@@ -47,6 +53,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
       }}
     >
       <div style={{ position: "absolute", inset: 0, borderRadius: 8, overflow: "hidden" }}>
+        {visible ? (
         <iframe
           title={ch.name}
           src={embedSrc(ch.videoId)}
@@ -59,6 +66,18 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
           referrerPolicy="strict-origin-when-cross-origin"
           loading="lazy"
         />
+        ) : (
+          <div
+            style={{
+              position: "absolute", inset: 0, display: "flex",
+              alignItems: "center", justifyContent: "center",
+              fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px",
+              color: COLORS.textFaint, background: "#000",
+            }}
+          >
+            STANDBY
+          </div>
+        )}
 
         <div
           style={{
@@ -144,7 +163,7 @@ function HazardSlot({ ch }: { ch: HazardCh }) {
   );
 }
 
-export function HazardWatchStrip() {
+export const HazardWatchStrip = memo(function HazardWatchStrip() {
   return (
     <div
       style={{
@@ -181,4 +200,4 @@ export function HazardWatchStrip() {
       </div>
     </div>
   );
-}
+});

@@ -3,6 +3,7 @@ import { IntelIcon, ICON } from "./IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS, relTime, clockTime } from "./intelTokens";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
+import { useWallClock } from "../../hooks/useWallClock";
 
 export interface IntelCardEvent extends ClusterEvent {
   /** 所屬 cluster 的 county / location_name，給卡片顯示 */
@@ -41,6 +42,9 @@ const btnGhost: CSSProperties = {
 };
 
 export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle, nowTs }: Props) {
+  // 30s 內相對時間（「3 分鐘前」）視覺無差，元件內訂閱避開父層 1Hz cascade。
+  // nowTs prop 退為「mount 時 fallback / SSR」之用。
+  const liveNow = Math.floor(useWallClock(30_000, nowTs * 1000) / 1000);
   const cat = getNewsCategoryDef(e.category ?? "other");
   const gisLevel = GIS_LEVELS[e.gis_relevance ?? 0] ?? GIS_LEVELS[0];
   const sevLevel = SEV_LEVELS[e.severity ?? 0] ?? SEV_LEVELS[0];
@@ -164,7 +168,7 @@ export function IntelCard({ e, selected, expanded, trending, onSelect, onToggle,
                 whiteSpace: "nowrap",
               }}
             >
-              {relTime(e.published_ts, nowTs)}
+              {relTime(e.published_ts, liveNow)}
             </span>
           </span>
         </div>

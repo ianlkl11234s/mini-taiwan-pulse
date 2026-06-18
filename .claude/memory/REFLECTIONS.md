@@ -4,6 +4,46 @@
 
 ---
 
+## 2026-06-18 Monitor 效能優化 5 step
+
+### What worked ✅
+
+- **先 Explore 全面盤點 → Plan agent 設計方案 → 才動手**：產出 9 條根因清單，按
+  「最便宜見效」排序成 5 step，每步可獨立驗收 / 獨立 commit / 獨立回滾
+- **保留 props 對外契約**：把 `nowTs` 退為 fallback 而非刪除，元件內部自訂閱
+  wallClock — UI 看不出差別，內部 perf 卻徹底改變
+- **TTL cache 簡單高效**：兩個 panel 同時 polling 自然共享 fetch，不需重構成
+  shared hook，14 行改動解決雙倍 polling
+- **IntersectionObserver gate + lock once**：iframe 進視窗就 mount、不再卸載，
+  避免反覆 mount/unmount jank — 非 wall mode 場景成本歸零
+
+### What didn't ❌
+
+- **`useSyncExternalStore` 用錯**：getSnapshot 直接回 Date.now() → 無限 re-render。
+  本地沒測就 push 直接炸線。原因：tsc / test 都過、太快進入「全綠 push」慣性
+- **用戶說「先改本地」我已 push 出去**：hotfix 改完直接 commit + push，沒等
+  用戶 reload 確認就推到 remote。應該每個會動運行時的關鍵 commit 都先停一下
+
+### Next-time rules 📌
+
+1. **新 hook 涉及 React internal（useSyncExternalStore / useTransition / useDeferredValue
+   等）→ 寫完先去看 React 文件範例對照**，不單信「能編譯就是對的」
+2. **runtime-critical 改動 push 前先在 browser 跑一遍**：tsc/test 過不等於 runtime 過
+   （useSyncExternalStore 的 stale snapshot detection 是 dev-only runtime 檢查）
+3. **Hotfix 寫完先停**：commit OK，但 push 前問用戶「要先本地測還是直接推」。
+   尤其用戶說過「先改本地」之後別自動 push
+4. **效能 PR 標 manual test checklist**：tsc/test 過是 baseline，列 5 條 browser 手測
+   項目強迫自己（或用戶）逐項驗證 — 這次 PR #21 body 已有，但是「事後補」
+
+### Memory 產出
+
+- INCIDENTS：useWallClock 無限 re-render 完整事件
+- PRINCIPLES：useSyncExternalStore getSnapshot 必穩定 + wallClock hook 慣例
+- BACKLOG：G011 wall-mode 暫停 engine / G012 alertSeries24h 增量
+- PLAYBOOKS：PB-XX 效能優化 5 step（cache → wallClock → ref-DOM → IO gate → memo）
+
+---
+
 ## 2026-04-22 水資源 Phase 1（水庫互動 + 3D 水位計）
 
 ### What worked ✅

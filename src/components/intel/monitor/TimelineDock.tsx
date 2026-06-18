@@ -7,6 +7,7 @@ import {
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { AlertsTrack } from "../alerts/AlertsTrack";
+import { useWallClock } from "../../../hooks/useWallClock";
 
 interface Props {
   /** 過濾後的當日 events（用於畫直方圖） */
@@ -66,9 +67,14 @@ export function TimelineDock({
   const areaRef = useRef<HTMLDivElement>(null);
   const draggingRef = useRef(false);
 
+  // 父層 MonitorPanel 的 nowTs 以 5s 粒度更新；指針要每秒走，dock 自己訂閱
+  // 1Hz wallClock。re-render 範圍鎖在 TimelineDock 內，不影響其他子樹。
+  const liveNowTs = Math.floor(useWallClock(1_000, nowTs * 1000) / 1000);
+  const effectiveNowTs = Math.max(nowTs, liveNowTs);
+
   const SPAN = 86400;
   const frac = Math.max(0, Math.min(1, (playbackTs - dayStartTs) / SPAN));
-  const nowFrac = Math.max(0, Math.min(1, (nowTs - dayStartTs) / SPAN));
+  const nowFrac = Math.max(0, Math.min(1, (effectiveNowTs - dayStartTs) / SPAN));
 
   const buckets = useMemo(() => bucketByHour(events, dayStartTs), [events, dayStartTs]);
   const peak = Math.max(1, ...buckets.map((b) => b.total));
@@ -78,7 +84,7 @@ export function TimelineDock({
     if (!el) return null;
     const r = el.getBoundingClientRect();
     const f = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
-    return Math.min(nowTs, dayStartTs + f * SPAN);
+    return Math.min(effectiveNowTs, dayStartTs + f * SPAN);
   };
   const scrubFromEvent = (e: { clientX: number }) => {
     const ts = tsFromClientX(e.clientX);
@@ -340,7 +346,7 @@ export function TimelineDock({
         nowFrac={nowFrac}
         playbackFrac={frac}
         isLive={isLive}
-        onScrubFrac={(f) => onScrub(Math.min(nowTs, dayStartTs + f * SPAN))}
+        onScrubFrac={(f) => onScrub(Math.min(effectiveNowTs, dayStartTs + f * SPAN))}
       />
     </div>
   );

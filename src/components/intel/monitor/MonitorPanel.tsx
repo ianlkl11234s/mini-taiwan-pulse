@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
 import { IntelCard, type IntelCardEvent } from "../IntelCard";
@@ -77,7 +78,10 @@ export function MonitorPanel({
   open, onClose, filter, onFilterChange, onSelectLocation, externalSelectedId,
 }: Props) {
   // ── playback state（與 Phase 1 IntelPanel 各自獨立）──
-  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+  // `now` 走 wallClock 5s tick：原本 1Hz setState 會讓整棵子樹（IntelCard / TimelineDock /
+  // IndicatorPanel / LiveWall…）每秒 reconcile。5s 對 live cutoff、相對時間顯示無感差。
+  // 真的需要每秒跳動的元素（TimelineDock 指針）在自己內部訂 1Hz wallClock。
+  const now = Math.floor(useWallClock(5_000) / 1000);
   const [isLive, setIsLive] = useState(true);
   const [playbackTs, setPlaybackTs] = useState(now);
   const [playing, setPlaying] = useState(false);
@@ -104,13 +108,6 @@ export function MonitorPanel({
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
-
-  // tick now（顯示 + countdown）
-  useEffect(() => {
-    if (!open) return;
-    const id = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
-    return () => window.clearInterval(id);
-  }, [open]);
 
   // 30s pressure + market + source health + trending
   useEffect(() => {
@@ -190,23 +187,41 @@ export function MonitorPanel({
   }, [open, fKey]);
 
   // playback animation
+  // 原本 setInterval(70ms) ≈14Hz setState 把整棵子樹拖著 reconcile。
+  // 改 rAF + ref 累積 + 200ms commit throttle：演進是 frame-rate independent
+  // 的，UI commit 降到 5Hz（人眼無感差，列表更穩）。
   const spanRef = useRef(RANGE_SEC[timeRange]);
   spanRef.current = RANGE_SEC[timeRange];
+  const playbackRef = useRef(playbackTs);
+  playbackRef.current = playbackTs;
   useEffect(() => {
     if (!playing) return;
-    const id = window.setInterval(() => {
-      setPlaybackTs((p) => {
-        const next = p + spanRef.current / 90;
-        const nowNow = Math.floor(Date.now() / 1000);
-        if (next >= nowNow) {
-          setPlaying(false);
-          setIsLive(true);
-          return nowNow;
-        }
-        return next;
-      });
-    }, 70);
-    return () => window.clearInterval(id);
+    let raf = 0;
+    let last = performance.now();
+    let lastCommit = last;
+    const PLAYBACK_SECONDS = 6.3; // 原本 70ms × 90 ticks ≈ 走完整 span
+    const tick = (t: number) => {
+      const dt = (t - last) / 1000;
+      last = t;
+      const advance = (spanRef.current / PLAYBACK_SECONDS) * dt;
+      const nowNow = Math.floor(Date.now() / 1000);
+      const next = playbackRef.current + advance;
+      if (next >= nowNow) {
+        playbackRef.current = nowNow;
+        setPlaybackTs(nowNow);
+        setPlaying(false);
+        setIsLive(true);
+        return;
+      }
+      playbackRef.current = next;
+      if (t - lastCommit >= 200) {
+        setPlaybackTs(Math.floor(next));
+        lastCommit = t;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [playing]);
 
   // external selection
