@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import type { Map as MapboxMap } from "mapbox-gl";
+import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import {
   createPowerGenerationBeamLayer,
   POWER_GENERATION_BEAM_LAYER_ID,
@@ -8,10 +8,39 @@ import {
   fetchPowerGeneration24h,
   invalidatePowerGeneration24h,
   resolvePowerGenerationAt,
+  fuelColorOf,
+  radiusForCapacity,
   type PowerGenerationDay,
   type PowerGenerationRow,
 } from "../data/energyLoader";
 import { timeStore } from "../state/timeStore";
+
+/** 透明 hit-test source — 提供「點 beam 也會出 PowerPlantPanel」 */
+const HIT_SOURCE_ID = "energy-power-generation-hit";
+
+function plantsToHitFC(rows: PowerGenerationRow[]): GeoJSON.FeatureCollection {
+  return {
+    type: "FeatureCollection",
+    features: rows.map((r) => ({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [r.lon, r.lat] },
+      properties: {
+        // 跟 layer 1 plants 同 shape，PowerPlantPanel 直接相容
+        source_table: "power_plants",
+        name: r.plant_name,
+        fuel_type: r.fuel_type ?? "",
+        capacity_mw: r.capacity_mw,
+        output_mw: r.output_mw,
+        output_load_rate: r.output_load_rate,
+        status: "",
+        status_note: "",
+        is_retired: false,
+        radius: radiusForCapacity(r.capacity_mw),
+        color: fuelColorOf(r.fuel_type),
+      },
+    })),
+  };
+}
 
 /**
  * Layer 4：機組即時出力 3D beam，跟隨 timeline 時間軸。
@@ -68,8 +97,15 @@ export function usePowerGenerationBeamLayer(
 
     const applyTime = (tsSec: number) => {
       if (!dayRef) return;
-      plantsRef.current = resolvePowerGenerationAt(dayRef, tsSec);
-      mapRef.current?.triggerRepaint();
+      const rows = resolvePowerGenerationAt(dayRef, tsSec);
+      plantsRef.current = rows;
+      // 同步餵 hit-test source（透明圈，讓 beam 可點）
+      const map = mapRef.current;
+      if (map) {
+        const src = map.getSource(HIT_SOURCE_ID) as GeoJSONSource | undefined;
+        if (src) src.setData(plantsToHitFC(rows));
+        map.triggerRepaint();
+      }
     };
 
     const load = () => {

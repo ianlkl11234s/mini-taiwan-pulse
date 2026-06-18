@@ -462,9 +462,9 @@ export const SECTIONS: SectionDef[] = [
     title: "ENERGY · 能源",
     layers: [
       { key: "powerPlants", label: "電廠", expandable: true },
-      { key: "powerGenerationUnit", label: "機組即時出力" },
-      { key: "osmSubstations", label: "變電所" },
-      { key: "evChargingStations", label: "充電站" },
+      { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
+      { key: "osmSubstations", label: "變電所", expandable: true },
+      { key: "evChargingStations", label: "充電站", expandable: true },
     ],
   },
 ];

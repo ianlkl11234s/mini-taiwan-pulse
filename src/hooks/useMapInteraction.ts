@@ -172,6 +172,7 @@ export function useMapInteraction(
           { layers: ["bus-stations-intercity-circle", "bus-stations-intercity-glow"], type: "busStation" },
           { layers: ["lighthouses-circle", "lighthouses-glow"], type: "lighthouse" },
           { layers: ["energy-power-plants-circle", "energy-power-plants-halo"], type: "powerPlant" },
+          { layers: ["energy-power-generation-hit-hit"], type: "powerPlant" },
           { layers: ["energy-substations-circle"], type: "osmSubstation" },
           { layers: ["energy-ev-charging-circle"], type: "evCharging" },
           { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },

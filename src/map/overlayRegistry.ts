@@ -2908,6 +2908,32 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Layer 4 hit-test：機組即時出力 (3D beam) 的 2D 點擊圈 ──
+  // beam 是 Three.js CustomLayer 無法被 Mapbox queryRenderedFeatures 命中，
+  // 這層提供「跟 beam 一起出現」的隱形大圓 → 用戶可點 beam 周圍區域 → 觸發 PowerPlantPanel
+  {
+    id: "powerGenerationUnit",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-generation-hit",
+    dynamicData: true,
+    rebuildOnParamChange: [],
+    layers: [
+      {
+        suffix: "hit",
+        type: "circle",
+        paint: () => ({
+          // 完全透明（看不到），但 ≥ 10px 半徑用戶仍能點到
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            5, 10, 12, 18,
+          ],
+          "circle-color": "#000000",
+          "circle-opacity": 0,
+        }),
+      },
+    ],
+  },
+
   // ── Layer 5：OSM 變電所 785 ──
   {
     id: "osmSubstations",
