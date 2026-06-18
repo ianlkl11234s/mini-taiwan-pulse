@@ -637,3 +637,61 @@ memory commit 意外帶上前 session 已 staged 的 5 個 screenshot rename + d
 7. **同類問題：群組色 vs 既有 LAYER_COLORS 也要對照**：設計師用 `#d946ef/#38bdf8/#2dd4bf/...` 給 alert 群組，跟 `disasterAlertTypes.ts` 既有 `#a855f7/#3b82f6/...` 不同。impl doc 已說明 mapping，但下次設計師若沒主動避開既有色票，第一輪 review 就要提醒。
 
 **memo 給下個 session**：alerts 整合執行時，記得先讀 `PRINCIPLES.md` 末 2 條 + `PLAYBOOKS.md` 末 1 條 + `INCIDENTS.md` 末 2 篇。三者構成本 session 的「不要再踩」清單。
+
+---
+
+## 2026-06-18 Design System 6-phase migration 反省（PR #22）
+
+本 session 從用戶問「該不該有設計系統？」開始，做到 8 commit、~60 元件、1200+
+inline 值收斂到 token，merged 進 master。
+
+**做得好**：
+
+1. **正確順序：先 audit → 寫 token + 規範文件 → 分 6 phase 逐項收斂**。沒有跳級
+   抽通用元件庫、沒有為了改而引入 CSS 框架。Phase 0 純新增、零風險打底，後面所有
+   phase 都能 import 既有 token。
+2. **每 phase 獨立 commit / 可單獨 revert** — 用戶說「Phase 3 想還原可以嗎」我
+   直接答「git revert cc744e1」一行就行。這個結構讓用戶心理門檻低、敢驗收。
+3. **在用戶面前透明展示 trade-off**：Phase 3 文字色從半透明白變純灰 hex 我先用
+   `AskUserQuestion` 列 A/B/C 三方案 + 各自視覺差說明 → 用戶選 A 但補一句「之後想
+   改回去可以嗎」→ 我明確答可以。沒矇用戶往下做。
+4. **Codex 救了 Phase 0 / Phase 1**：Phase 0 codex 抓到 fontSize 12px 缺位（audit
+   有 66 use）、SURFACE 註解過期、circular dep 風險；Phase 1 codex 抓到 10 處
+   control bg over-replacement。兩處都是 subagent 與我都漏看的。
+5. **PR body 寫得自含**：列 6 phase 總表、視覺影響重點、萬一不滿意的 revert
+   指令、未抽 token 範圍說明。用戶之後想找哪個 commit 改了什麼一查就有。
+
+**該改進**：
+
+1. **subagent prompt 給的 grep pattern 沒含空格版** → 漏改 LegendPanel /
+   FeatureInfoPanel（INCIDENTS C）。**下次**：grep 對映表一律寫 regex 或同時列
+   無空格 + 含空格兩種；或直接讓 subagent 自己 `grep -E` 找候選再驗證。
+2. **subagent prompt 沒區分 semantic（panel 容器底 vs 控件互動態）** → Phase 1
+   被 codex 抓 10 處 over-replacement（INCIDENTS A）。**下次**：spec 表頭加
+   「what this token IS / IS NOT」兩列，明確界定語意邊界，而不只是「值對映」。
+3. **Phase 3 codex 卡 23 min 我沒早點 cancel** → 等到第 23 min 才查 status，浪費
+   user 時間（INCIDENTS B）。**下次**：previous phase 同類 review 用了 N min，下次
+   N\*5 沒回就 cancel + 手動 fallback。
+4. **沒先用 worktree 並排 master 給用戶 A/B 視覺比對**：Phase 3 / 4 視覺微差時用戶
+   說「體感不出來就好」其實有點怕「真的沒差別嗎」。下次大量視覺收斂可以建議用戶
+   開兩個 worktree 並列（master vs feat），同 panel 並排截圖。雖然需要 dev server
+   雙跑、設定成本不低，但對 user 心理踏實感很高。
+5. **codex review prompt 寫太發散**：Phase 3 prompt 寫了 5 個檢查項目又附 alpha
+   階梯範圍，codex 想 verify 太細跑到掛掉。**下次**：codex review 一次只查 1-2 個
+   高風險項目，其他用手動 grep + tsc 兜底。
+6. **Phase 5 業務語意拍板節點掌握得對，但執行前沒列 trade-off 的視覺後果**：用戶
+   早就決定「以地圖色為主」，我直接執行 — 但實際 flood 改紅後跟 safety 變相近這個
+   side effect 是 commit message 才寫的。**下次**：拍板執行前先列「這樣改之後 X
+   會跟 Y 變接近」，用戶可預期。
+7. **codex hung 時的判斷依據要寫進 PLAYBOOKS**（已做 PB-19 §5），但本次浪費了一輪
+   無謂等待。**下次**：第 5 min 開始 `codex-companion status` 看 phase + elapsed，
+   不是被動等。
+
+**memo 給下個 session**：
+
+- 若要再做大型 token / 樣式收斂，**先讀 PB-19** — 6 phase 結構、subagent prompt
+  精準度、codex fallback、user 拍板節點都已固化
+- 若要抽新 token（DS-1~7 之一），參考 docs/design-system.md §1 SSOT 結構與
+  §7 KEEP OUT。改 designTokens.ts 前確認沒違反「單向 import」避免 circular dep
+- 若用戶問「該不該抽 X 元件」，先回 PRINCIPLES「不抽通用元件庫」+ 視同 G009/008
+  巨型檔案拆分一起看，不要單獨抽
