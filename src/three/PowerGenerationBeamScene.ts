@@ -14,13 +14,16 @@ import { fuelColorOf, type PowerPlantRow } from "../data/energyLoader";
  */
 
 const MAX_BEAM_COUNT = 256;       // 預留：14 台電廠 + 預留 IPP / 未來
-// 全台視角 (zoom 4-6) 看得到 → 半徑放寬到 ~2 km、滿載 ~24 km 高
-const BEAM_RADIUS = 0.00006;      // mercator 單位，約 2.2km
-const BEAM_BASE_HEIGHT = 0.0007;  // 滿載柱高 mercator 單位，約 26km
+const BEAM_RADIUS = 0.00005;      // mercator 單位，約 1.8 km 半徑
+// 滿載柱「實高公尺」— 用 toMercator alt 參數讓 Mapbox 自動算 mercator z，
+// 避開原本固定 mercator 高度在 zoom 12 時飆到 25km 之外的問題
+const BEAM_MAX_ALTITUDE_M = 8000; // 滿載 = 8 km altitude（含 altExaggeration ×3 = 24km 視覺）
 const LERP_FACTOR = 0.06;
 
 interface BeamState {
   mc: { x: number; y: number; z: number };
+  /** 滿載對應的 mercator z 高度（從 toMercator(_, _, BEAM_MAX_ALTITUDE_M).z 算來） */
+  maxMercatorZ: number;
   color: THREE.Color;
   currentHeight: number; // 0~1.5
   targetHeight: number;
@@ -71,10 +74,11 @@ export class PowerGenerationBeamScene {
     });
     this.mesh = new THREE.InstancedMesh(geo, mat, MAX_BEAM_COUNT);
     this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    // 初始化 instanceColor
-    const colors = new Float32Array(MAX_BEAM_COUNT * 3);
-    this.mesh.instanceColor = new THREE.InstancedBufferAttribute(colors, 3);
-    (this.mesh.material as THREE.MeshBasicMaterial).color.set(0xffffff);
+    // ⚠️ InstancedMesh 預設 frustumCulled=true，但 bounding sphere 從 unit geometry 算
+    //   (instance 散佈在全台地理位置 ≠ 原點附近)，會導致整個 mesh 被誤判超出視錐 → 完全不畫
+    this.mesh.frustumCulled = false;
+    // 不預先 alloc instanceColor — 留給 setColorAt(i, color) 自動配置，
+    // 避免初始全黑混淆 shader USE_INSTANCING_COLOR define
     this.scene.add(this.mesh);
   }
 
@@ -98,15 +102,18 @@ export class PowerGenerationBeamScene {
     const newBeams: BeamState[] = [];
     for (const r of candidates.slice(0, MAX_BEAM_COUNT)) {
       const mc = toMercator(r.lat, r.lon, 0);
+      // 用 toMercator 算「滿載對應的 mercator z」(隨緯度自動轉)
+      // 比固定 mercator 高度更穩，zoom 12 跟 zoom 5 都合理
+      const maxMc = toMercator(r.lat, r.lon, BEAM_MAX_ALTITUDE_M);
       const color = new THREE.Color(fuelColorOf(r.fuel_type));
       const target = Math.max(0.05, Math.min(1.2, r.output_load_rate ?? 0));
-      // 嘗試保留前次 currentHeight（按位置匹配）
       const prev = this.beams.find(
         (b) =>
           Math.abs(b.mc.x - mc.x) < 1e-7 && Math.abs(b.mc.y - mc.y) < 1e-7,
       );
       newBeams.push({
         mc,
+        maxMercatorZ: maxMc.z - mc.z,
         color,
         currentHeight: prev?.currentHeight ?? 0,
         targetHeight: target,
@@ -152,7 +159,8 @@ export class PowerGenerationBeamScene {
     for (let i = 0; i < MAX_BEAM_COUNT; i++) {
       if (i < this.beams.length) {
         const b = this.beams[i]!;
-        const h = BEAM_BASE_HEIGHT * b.currentHeight;
+        // 高度從 maxMercatorZ × currentHeight 算來（用 toMercator 8000m 推算的 mercator 單位）
+        const h = b.maxMercatorZ * b.currentHeight;
         t.makeTranslation(b.mc.x, b.mc.y, b.mc.z + h / 2);
         s.makeScale(1, 1, h);
         m.copy(t).multiply(s);
