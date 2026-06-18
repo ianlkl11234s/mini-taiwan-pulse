@@ -182,15 +182,15 @@ style={{ fontFamily: "monospace" }}          // 改用 FONT_DATA
 
 ## 6. 遷移狀態
 
-| Phase | 範圍 | 狀態 |
-|---|---|---|
-| 0 | 建 `designTokens.ts` + 本文件 | ✅ 完成 |
-| 1 | 統一面板背景 + 陰影（→ SURFACE / ELEVATION） | pending |
-| 2 | fontFamily 統一（`"monospace"` → `FONT_DATA`） | pending |
-| 3 | 文字色階梯統一（散落 rgba 白 → `COLORS.text*`） | pending |
-| 4 | borderRadius / fontSize 收斂 | pending |
-| 5 | 災害語意色對齊（以 `LAYER_COLORS` 為基準） | pending |
-| 6 | CloseButton / Loading 統一 | pending |
+| Phase | 範圍 | 狀態 | Commit |
+|---|---|---|---|
+| 0 | 建 `designTokens.ts` + 本文件 | ✅ | `d9aaf28` |
+| 1 | 統一面板背景 + 陰影（→ SURFACE / ELEVATION） | ✅ | `1cb6f9b` |
+| 2 | fontFamily 統一（`"monospace"` → `FONT_DATA`） | ✅ | `86391f4` |
+| 3 | 文字色階梯統一（散落 rgba 白 → `COLORS.text*`） | ✅ | `cc744e1` |
+| 4 | borderRadius / fontSize 收斂 | ✅ | `7ee817b` |
+| 5 | 災害語意色對齊（以 `LAYER_COLORS` 為基準） | ✅ | `c6a4e7e` |
+| 6 | CloseButton / Loading 統一 | ✅ | `22c8d64` |
 
 ## 7. KEEP OUT — 不做的事
 
@@ -212,7 +212,67 @@ style={{ fontFamily: "monospace" }}          // 改用 FONT_DATA
 - **Breakpoint tokens** — 桌機 / 手機分流目前用 JS `isMobile` 判斷，無 CSS breakpoint scale。
 - **Control sizing**（button height / icon size / hit-area）— Phase 6 統一 CloseButton 時順手定，但不擴展為通用 scale。
 
-## 9. 相關文件
+## 9. 新元件 checklist（寫新元件 / 新 panel 時抄這份）
+
+寫一個全新 panel / card / popup 時，照下面順序檢查，**沒查到的值才考慮新增 token**（不要直接 inline 硬寫）。
+
+### 9.1 容器外框
+
+```tsx
+import { SURFACE, BORDER, RADIUS, ELEVATION } from "../styles/designTokens";
+
+<div style={{
+  background: SURFACE.panel,                     // 或 strong / solid / subtle / app
+  border: `1px solid ${BORDER.panel}`,           // 或 soft / mid / strong / accent
+  borderRadius: RADIUS.xl,                        // sm:2 / md:4 / lg:6 / xl:8 / pill / full
+  boxShadow: ELEVATION.lg,                        // sm / md / lg / dock
+  padding: "12px 14px",
+}}>
+```
+
+### 9.2 文字
+
+```tsx
+import { COLORS, FONT_DATA, FONT_CJK, FONT_SIZE, FONT_WEIGHT } from "../styles/designTokens";
+
+<span style={{
+  fontFamily: FONT_DATA,                          // 數據/時間 → FONT_DATA；中文 → FONT_CJK
+  fontSize: FONT_SIZE.base,                       // xs:9 / sm:10 / base:11 / md:12 / lg:13 / xl:18 / xxl:22
+  fontWeight: FONT_WEIGHT.semibold,
+  color: COLORS.textDefault,                       // textStrong / textDefault / textMuted / textDim / textFaint / textGhost
+}}>
+```
+
+### 9.3 圖層分類色（layer-specific）
+
+```tsx
+import { LAYER_COLORS } from "./sidebar/layerCatalog";
+
+const color = LAYER_COLORS.flights;               // 95+ 個 layer key 已預定
+```
+
+### 9.4 圖示
+
+```tsx
+import { X } from "lucide-react";                  // 關閉鈕：統一 <X size={14} />
+```
+
+### 9.5 4 個禁忌（會被 review 退回）
+
+| ❌ 寫死 | ✅ 改用 |
+|---|---|
+| `background: "rgba(0,0,0,0.52)"` | `SURFACE.panel` |
+| `color: "rgba(255,255,255,0.5)"` | `COLORS.textMuted` |
+| `fontFamily: "monospace"` | `FONT_DATA` |
+| `borderRadius: 4` | `RADIUS.md` |
+| 純文字 `×` 關閉鈕 | `<X size={14} />` from lucide |
+
+### 9.6 圖層專屬規則（new layer 時加做）
+
+新增 layer 必過 CLAUDE.md §5a 四鐵則：透明度 slider / 圖例 / click popup / select dropdown。
+細節見 `docs/development-rules.md` §4a。
+
+## 10. 相關文件
 
 - `CLAUDE.md` §5 / §5a — 新增 layer 強制順序 + UX 四鐵則
 - `docs/development-rules.md` §4a — 四鐵則完整版
