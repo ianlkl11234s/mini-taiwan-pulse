@@ -805,3 +805,104 @@ YouTube `embed/live_stream?channel=UCxxx` 要查頻道的「primary live event�
 - YouTube `embed/live_stream?channel=` **不可靠**，必須改用 `embed/<videoId>` + cron 解析（B1 模式）
 - 解析 YouTube page metadata 用 `ytInitialPlayerResponse` JSON 區塊，不要用獨立 regex 抓「第一個」
 - video_id 約 1-7 天 rotate（直播重啟），cron 間隔 5 min 安全
+
+---
+
+## 2026-06-18 — Design tokens migration 3 個 review 教訓（PR #22）
+
+### A) Phase 1 subagent 把 control bg 也收進 SURFACE.subtle（codex 抓回 10 處）
+
+**症狀**：Phase 1 subagent 替換 panel 背景時，把 button / select / segmented control
+的 `rgba(0,0,0,0.4)` / `0.45` / `0.5` 也一併換成 `SURFACE.subtle`，10 處 over-replacement。
+
+**根因**：subagent prompt 給的對映表只寫「rgba 值 → token」，**沒區分**「panel 容器底」
+vs「控件互動態背景」這個語義差異。值相同但語意不同，subagent 看不出來。
+
+**Codex 抓回**：codex review uncommitted diff 時點出「這些是 button / select / segmented
+control 的互動態 background，不是 panel 背景」，列出 IconRailSidebar:882/915/945、
+LayerSidebar:368/439/476/514、IntelFilters:128/147/176 共 10 處。
+
+**處理**：全數還原回原 hardcoded 值，加 `IconRailSidebar` 的 SURFACE import 變 orphan
+就刪掉。design-system.md §7 KEEP OUT 加一條「SURFACE 只給 panel 容器底；button/select
+等互動態背景不用 SURFACE，即使數值相同」。
+
+**PRINCIPLES**：semantic ≠ value，token spec 必須明確界定**語意邊界**而不只是「值對映」。
+
+### B) Phase 3 codex review 卡 23 min 不返（cancel + 手動 fallback）
+
+**症狀**：Phase 3 改完 22 檔 / 165 處後跑 codex review。Phase 0/1/2 都 1-2 min 完成，
+但 Phase 3 codex 跑進 verifying phase 後 23 min 沒回。`codex-companion status` 看 log
+顯示其中一個 Python script `exit 1` 之後一直在 retry。
+
+**根因**：codex 在大改動 + 工具失敗時會反覆嘗試，沒有 timeout 機制自動放棄。
+
+**處理**：`codex-companion cancel <task-id>` 取消，改手動 grep + tsc 驗證：
+- `grep -rn 'color: "rgba(255'` 找 leftover → 5 處（4 個橘色保留 / 1 個 IndicatorPanel chart 補修）
+- `tsc -b` 過 → commit
+
+**PRINCIPLES**：codex 不是萬靈丹。**5 min 沒回就 cancel + 手動 spot check**。
+不要因為「正在跑」就無限等。判準：previous phases 同類 review 用了多久當基準。
+
+### C) Phase 1 subagent grep pattern 沒覆蓋空格版（漏改 2 檔）
+
+**症狀**：Phase 1 對映表寫「`rgba(10,10,20,0.88)` → `SURFACE.strong`」（無空格），
+subagent 跑完回報只改 8 檔。但 audit 文件明確標 `LegendPanel:138` 與 `FeatureInfoPanel:44`
+也用這個值 — 都漏了。
+
+**根因**：subagent 嚴格按 prompt 給的字串 grep，**沒含空格**的 pattern 找不到
+`rgba(10, 10, 20, 0.88)`（實際 source code 帶空格的版本）。
+
+**處理**：手動 `grep -n "rgba(10"` 找出來補 4 個 Edit（兩個 import + 兩個 background）。
+
+**PRINCIPLES**：跨團隊 / 跨年的程式碼有空格 / 無空格兩種寫法**並存**。grep pattern
+要嘛兩種都列、要嘛用 regex `rgba\(10,\s*10,\s*20,\s*0\.88\)`。Audit 顯示「同一值出現 N 次」
+不代表寫法只有一種。
+
+### Why 一開始猜錯
+
+PR #22 是本專案第一次大規模 design tokens migration（60+ 元件、1200+ 散落值），SOP 沒
+建立過。Phase 0 codex review 已抓到 fontSize 缺位、circular dep 等多個議題，**讓我過度
+信任 codex 能 catch 一切** — 沒對 subagent prompt 做更嚴的設計（semantic 區分 + grep 覆蓋空格）。
+真正的教訓：**subagent prompt 是 spec、codex 是 review、兩者各自有盲區**，需要前後互補。
+
+---
+
+## 2026-06-18 — Energy beam 重蹈 2026-04-22 isStyleLoaded race 覆轍
+
+**症狀**：能源 MVP v1.3 機組即時出力（usePowerGenerationBeamLayer）：
+- console log 顯示 mount effect run / mapReady=true / fetch 成功 14 廠 × 143 ts
+- 但畫面**完全沒柱** — scene.setData 沒被 customLayer.render 呼叫
+- 因為 CustomLayer 根本沒 addLayer 進 mapbox
+
+**根因**：跟 2026-04-22 水庫圖層**完全一樣**：
+```ts
+if (map.isStyleLoaded()) mount();    // ← toggle 那 frame racily 回 false
+else map.on("style.load", mount);    // ← style 早就 load 完不會再 fire → 永遠不 mount
+```
+
+**修法**：try addLayer + map.once("idle", retry) — bulletproof（commit `f6c9566` v1.3.5）。
+
+### 為什麼又踩
+
+2026-04-22 已寫成 pitfall 檔（`.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md`），
+但寫 energy beam 時**沒去讀**。SessionStart inline 的是 STATUS / BACKLOG / PRINCIPLES，
+**pitfalls 要主動 grep 才看到**。獨立 3D hook 是低頻場景（一年 < 5 次），不在 muscle memory 內。
+
+### 預防
+
+1. 那個 pitfall 檔已 append「2026-06-18 第二次踩到」段 + SOP，並加觸發詞 `3D 圖層 / Three.js / CustomLayer / addLayer / Three.js scene` 在頂
+2. PRINCIPLES 補一條規則：「寫獨立 CustomLayer hook 前 → grep `.claude/pitfalls/*mapbox*` 確認過再動工」
+3. 預設 mount 用 try/catch + idle 重試 pattern，**禁** `if (isStyleLoaded()) ... else style.load`
+
+### Why 一開始花這麼久
+
+| 階段 | 時間軸 | 卡點 |
+|---|---|---|
+| 用戶說「機組看不到」 | 第 1 輪 | 我先去調 BEAM_RADIUS、CylinderGeometry 形狀（visual 修） |
+| 還是看不到，加 console.info log | 第 2 輪 | console 沒任何 log → 假設 HMR 沒更新，要用戶 hard reload |
+| 用戶說真的沒 log | 第 3 輪 | 又加更多 log 改用 console.log；終於看到 mount effect run 但無 mounted ✓ |
+| 看到 `style 還沒 load，等 style.load 觸發` | 第 4 輪 | 才想起這個 race 模式 |
+| 改 try/catch + idle 重試 | 5 分鐘 | 修好 |
+
+**省 3 輪的方法**：用戶說「3D 圖層看不到」+ 「console 沒 log」一出現，第一件事就是
+讀 `.claude/pitfalls/2026-04-22-*.md`，不是去調視覺。

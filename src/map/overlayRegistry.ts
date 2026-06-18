@@ -2854,4 +2854,140 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ══════════════════════════════════════════════════════════════════
+  //  ENERGY MVP — layer 1 / 5 / 6 (POI 2D circle)
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── Layer 1：電廠總圖 all_power_plants_v 10,665 ──
+  // fuel_type 分色（match expression），capacity_mw 4 階半徑（quantile p50/p80/p95）。
+  // 響應 powerPlantsScale (大小) + powerPlantsOpacity (透明度) slider
+  {
+    id: "powerPlants",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-plants",
+    dynamicData: true,
+    rebuildOnParamChange: ["powerPlantsOpacity", "powerPlantsScale"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.powerPlantsOpacity ?? 0.95;
+          const s = params?.powerPlantsScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", 1.5 * s, ["coalesce", ["get", "radius"], 3]],
+              12, ["*", 2.4 * s, ["coalesce", ["get", "radius"], 3]],
+            ],
+            "circle-blur": 0.8,
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.25,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.powerPlantsOpacity ?? 0.95;
+          const s = params?.powerPlantsScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, ["coalesce", ["get", "radius"], 3]],
+              12, ["*", 1.6 * s, ["coalesce", ["get", "radius"], 3]],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": isDark ? "#111827" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 4 hit-test：機組即時出力 (3D beam) 的 2D 點擊圈 ──
+  // beam 是 Three.js CustomLayer 無法被 Mapbox queryRenderedFeatures 命中，
+  // 這層提供「跟 beam 一起出現」的隱形大圓 → 用戶可點 beam 周圍區域 → 觸發 PowerPlantPanel
+  {
+    id: "powerGenerationUnit",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-generation-hit",
+    dynamicData: true,
+    rebuildOnParamChange: [],
+    layers: [
+      {
+        suffix: "hit",
+        type: "circle",
+        paint: () => ({
+          // 完全透明（看不到），但 ≥ 10px 半徑用戶仍能點到
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            5, 10, 12, 18,
+          ],
+          "circle-color": "#000000",
+          "circle-opacity": 0,
+        }),
+      },
+    ],
+  },
+
+  // ── Layer 5：OSM 變電所 785 ──
+  {
+    id: "osmSubstations",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-substations",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmSubstationsOpacity"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.osmSubstationsOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 2.5, 11, 4.5, 14, 6,
+            ],
+            "circle-color": "#a78bfa",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "#312e81" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 6：EV 充電站 3,060 ──
+  {
+    id: "evChargingStations",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-ev-charging",
+    dynamicData: true,
+    rebuildOnParamChange: ["evChargingOpacity"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.evChargingOpacity ?? 0.8;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              7, 2, 12, 3.5, 15, 5,
+            ],
+            "circle-color": "#10b981",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.6,
+            "circle-stroke-color": isDark ? "#064e3b" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
 ];

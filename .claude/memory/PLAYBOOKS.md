@@ -1036,3 +1036,142 @@ export const LiveWall = memo(function LiveWall() { /* ... */ });
 - ⚠️ tsc + 102/102 test 全綠 ≠ runtime 過：useSyncExternalStore 的 stale snapshot
   是 dev-only runtime 檢查，**push 前先 browser 跑一遍**
 - ⚠️ Wall mode 暫停地圖 engine 看似順手但會視覺凍結，留作 G011 backlog 不該硬塞進效能 PR
+
+---
+
+## PB-19 大規模 design tokens migration（6-phase pattern）
+
+> 跨 60+ 元件、1200+ inline 值的 token 化作業，分 phase 獨立 PR / commit，
+> 每 phase 可單獨 revert。本 SOP 來自 2026-06-18 design system 6 phase 實戰
+> （PR #22 merged）。
+
+### 何時用
+
+- 元件數 ≥ 20、要替換的散落值 ≥ 200 處
+- 改動跨「外觀」+「行為」兩種語意時（單純改色換 SQL 就好）
+- 需保留隨時 revert 能力時（視覺改動風險中高）
+
+不適用：< 20 元件的小型重構，直接做不要分 phase。
+
+### Phase 結構
+
+```
+Phase 0  純新增 token SSOT + 規範文件     ← 零風險，先打底
+Phase 1  panel bg + shadow（視覺零差）     ← 從值不變的開始
+Phase 2  fontFamily（字體 fallback）       ← 風險低
+Phase 3  text color（半透明白 → 純灰 hex） ← 視覺極微差，需 user 驗收
+Phase 4  borderRadius + fontSize 收斂      ← 視覺極微差
+Phase 5  語意色對齊（業務語意：地圖 vs 警示）← 需 user 拍板
+Phase 6  小元件統一（CloseButton / Loading） ← 收尾
+```
+
+**鐵則**：
+1. **Phase 0 純新增**，不動既有元件。讓 token SSOT + 規範文件先 ship，後續所有
+   phase 都能 import。
+2. **由低視覺風險往高排**：值不變（Phase 1）→ 字體 fallback（Phase 2）→ 微差
+   （Phase 3/4）→ 業務拍板（Phase 5）→ 收尾（Phase 6）。
+3. **每 phase 獨立 commit**，user 隨時可 `git revert <hash>` 單獨還原任一 phase
+   不影響其他。
+4. **每 phase 後 tsc + codex review + 必要時 user browser 驗收**。
+
+### 執行流程
+
+#### 1. Audit（盤點現況）
+
+派 Explore agent 全專案 grep 散落的硬寫值，產出：
+- 顏色 / 字體 / 間距 / 圓角 / 陰影 使用次數統計
+- 已有 SSOT 痕跡（如 LAYER_COLORS / intelTokens）
+- 一致性問題候選清單（同 panel bg 4 種寫法等）
+
+audit 給整個 6 phase 提供精準對映表，**不能省**。
+
+#### 2. Phase 0：建 designTokens.ts + design-system.md
+
+- token scale 從 audit 數據反推（如 fontSize 9/10/11/12/13 佔 80% → 7 階）
+- 沿用既有 token（如 intelTokens）**單向 re-export**，不破壞既有元件
+- design-system.md 必含：SSOT 結構 / token 全表 / 使用守則 / KEEP OUT / 新元件 checklist
+- Codex review 抓 circular dep / 命名雙軌風險 / scale 缺位
+
+#### 3. Phase N（替換）：subagent 平行 + 精準對映表
+
+派 general-purpose subagent 做大量精準替換，prompt 必含：
+
+```
+1. 對映表：給「出現值 → token」對照（含 alpha → hex 階梯範圍）
+2. 嚴格規則：只動哪個屬性、不動哪個屬性（borderColor/background/glow/textShadow 區分）
+3. import 路徑：依檔案深度給對應的相對路徑
+4. 跳過情境：計算式 / 三元 / CSS string / SVG / mapbox paint
+5. 回報格式：替換數、新增 import 數、跳過原因統計、tsc 結果
+```
+
+**Pitfall**：grep pattern 寫精確 — 「rgba(10,10,20,0.88)」沒空格 vs
+「rgba(10, 10, 20, 0.88)」有空格是兩種 hit。Phase 1 漏掉 LegendPanel /
+FeatureInfoPanel 因為沒列空格版。
+
+#### 4. Codex 交叉檢驗
+
+每 phase 完成跑 `Agent(codex:codex-rescue)` review uncommitted diff：
+
+```
+review the uncommitted diff. context: phase N of design tokens migration.
+check:
+(1) 對映正確性
+(2) 任何不該動的屬性被動了
+(3) 任何該動的屬性漏動（leftover grep）
+(4) import 相對路徑正確
+report only, don't fix.
+```
+
+Phase 1 codex 抓到 10 處 over-replacement（control bg 不該收進 SURFACE）→ 還原。
+Phase 0 codex 抓到 註解過期 / 命名雙軌 / circular dep 風險 → 修。
+
+#### 5. Codex 卡死的 fallback
+
+Codex 偶爾在 verifying phase 卡 20+ min（特別是改動量大時）。**判斷 5 min 沒回 → cancel + 手動 grep**：
+
+```bash
+node "/Users/migu/.claude/plugins/cache/openai-codex/.../codex-companion.mjs" status
+# 若 elapsed > 5min 且 phase 一直在 verifying → cancel
+node "/.../codex-companion.mjs" cancel <task-id>
+
+# 手動 spot check
+grep -rn 'rgba(255,255,255' src/ --include="*.tsx" | head -10  # leftover
+grep -rn 'fontFamily: "monospace"' src/                          # missed
+git diff --stat                                                  # 範圍
+```
+
+實例：Phase 3 codex 卡 23 min（Python script exit 1），cancel 後手動 grep 5 處
+leftover 全屬聲明的保留情境，commit 過。
+
+#### 6. Phase 5 需 user 拍板（業務語意）
+
+純技術替換（Phase 1-4 / 6）可一氣呵成，但**業務語意對齊**（哪個語意配哪個色）
+必須 user 拍板：
+
+- 列出選項 + trade-off（如 flood 改紅 vs 保留青綠的視覺辨識度）
+- 標明同色 collision 風險（flood #ef4444 vs safety #fb7185 接近）
+- 接受變更後在 commit message 寫明 trade-off 與還原方式
+
+#### 7. 文件補完 + PR
+
+- design-system.md §6 標 phase commit hash（之後找變動歷史不用 grep）
+- design-system.md §9 加新元件 checklist（你 / 未來 AI 寫新元件直接抄）
+- PR body 列：6 phase 總表 / 視覺影響重點 / 萬一不滿意的 revert 指令
+
+### 失誤點（PR #22 實戰）
+
+- ❌ **Phase 1 對映表沒列「rgba 中含空格版」**：漏改 2 檔，user-side 沒發現是
+  codex 沒覆蓋的盲區，subagent 看 spec 寫 grep
+- ❌ **Phase 1 subagent 把 control bg 也吃進 SURFACE.subtle**：10 處 over-replacement
+  → 還原。spec 沒明確區分「panel 容器底」vs「控件互動態背景」語意
+- ❌ **Phase 3 codex 卡 23 min**：沒設 timeout 直接跑，hung 在 verifying phase。
+  之後改成「5 min 沒回就手動 grep fallback」
+- ⚠️ **Phase 0 codex 抓到 fontSize 12px 缺位**：原 scale 從 13 跳 18，audit 顯示
+  12px 有 66 use 是真實常用。修成 xs:9/sm:10/base:11/md:12/lg:13/xl:18/xxl:22
+
+### 何時不要分 6 phase
+
+- 元件數 < 20：直接做不分 phase
+- token scale 已成熟：只是新增元件用 token，不算 migration
+- 純語意修正（如 #ff3b30 → #ef4444）一行改就好
+

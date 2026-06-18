@@ -178,6 +178,11 @@ export type ExpandableLayerKey =
   | "forestFlatParks"
   | "forestAlishanRail"
   | "hikingTrails"
+  // ENERGY MVP
+  | "powerPlants"
+  | "powerGenerationUnit"
+  | "osmSubstations"
+  | "evChargingStations"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
@@ -529,7 +534,8 @@ export interface FeatureInfo {
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "hikingTrails"
-    | "satellite";
+    | "satellite"
+    | "powerPlant" | "osmSubstation" | "evCharging";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
@@ -691,6 +697,13 @@ export interface LayerVisibility {
   satellitesGermany: boolean;
   satellitesItaly: boolean;
   satellitesIsrael: boolean;
+  // 能源 ENERGY MVP 第一波（feat/energy-mvp）
+  powerPlants: boolean;          // all_power_plants_v 10,665 設施（按 fuel_type 分色 + capacity_mw 分大小）
+  powerStatusHud: boolean;       // 供電燈號 KPI HUD（top-left 卡片）
+  powerRegionDemand: boolean;    // 北中南東 4 區 3D bars（質心柱，高 ∝ consumption_mw，色 = reserve_indicator）
+  powerGenerationUnit: boolean;  // 機組即時出力 3D beam（InstancedMesh，高 ∝ output_load_rate）
+  osmSubstations: boolean;       // 變電所 785（2D circle）
+  evChargingStations: boolean;   // 充電站 3,060（2D circle）
 }
 
 // ── 空氣品質 ──

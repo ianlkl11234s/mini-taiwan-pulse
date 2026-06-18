@@ -176,6 +176,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   satellitesGermany: "#fde047",
   satellitesItaly: "#34d399",
   satellitesIsrael: "#c4b5fd",
+  // 能源 ENERGY MVP（feat/energy-mvp）— 色配合 fuel_type 主視覺
+  powerPlants: "#facc15",          // 黃（核能主色 → 圖例代表色）
+  powerStatusHud: "#22c55e",       // 燈號綠（G）
+  powerRegionDemand: "#3b82f6",    // 區域藍
+  powerGenerationUnit: "#f97316",  // 機組橙（光柱主色）
+  osmSubstations: "#a78bfa",       // 變電所紫
+  evChargingStations: "#10b981",   // 充電綠
 };
 
 // ── Transport Labels ──
@@ -447,6 +454,17 @@ export const SECTIONS: SectionDef[] = [
       { key: "wdMixed", label: "混合投放點 Mixed", labelMobile: "混合投放點 Mixed (6,368)", expandable: true },
       { key: "wdRecyclingContainer", label: "街頭資收桶 Container", labelMobile: "街頭資收桶 Container (145)", expandable: true },
       { key: "wdBattery", label: "電池回收 Battery", labelMobile: "電池回收 Battery (2)", expandable: true },
+    ],
+  },
+  {
+    // powerStatusHud + powerRegionDemand 不在地圖 sidebar，預定搬 monitor 面板
+    // （KPI 性質非地理事件）。LayerVisibility key 保留供 monitor 整合時複用。
+    title: "ENERGY · 能源",
+    layers: [
+      { key: "powerPlants", label: "電廠", expandable: true },
+      { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
+      { key: "osmSubstations", label: "變電所", expandable: true },
+      { key: "evChargingStations", label: "充電站", expandable: true },
     ],
   },
 ];

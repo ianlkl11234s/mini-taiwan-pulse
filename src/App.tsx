@@ -56,6 +56,12 @@ import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
 import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
 import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
+// Energy MVP
+import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
+import { usePowerDashboard } from "./hooks/usePowerDashboard";
+import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
+import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
+// PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
@@ -709,6 +715,30 @@ export default function App() {
     [transportParams.newsMinRelevance, transportParams.newsEventsOnly, transportParams.newsMinSeverity],
   );
   useNewsEventsLayer(mapRef, layerVisibility.newsEvents, newsFilter);
+
+  // ── Energy MVP（Phase C/D/E）──
+  // dashboard 共用：HUD + region bars 不同時 toggle 也只拉一次
+  const energyDashboardActive =
+    layerVisibility.powerStatusHud || layerVisibility.powerRegionDemand;
+  const { dataRef: powerDashboardRef } =
+    usePowerDashboard(energyDashboardActive);
+  useEnergyPoiLayer(mapRef, {
+    showPlants: layerVisibility.powerPlants,
+    showSubstations: layerVisibility.osmSubstations,
+    showEvCharging: layerVisibility.evChargingStations,
+  });
+  usePowerRegionBarsLayer(
+    mapRef,
+    layerVisibility.powerRegionDemand,
+    0.55,
+    powerDashboardRef,
+  );
+  usePowerGenerationBeamLayer(
+    mapRef,
+    layerVisibility.powerGenerationUnit,
+    transportParams.overlayParams.powerGenerationOpacity ?? 0.7,
+    transportParams.overlayParams.powerGenerationHeight ?? 1,
+  );
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
@@ -1408,6 +1438,9 @@ export default function App() {
               </span>
             )}
           </div>
+
+          {/* Energy MVP: 供電燈號 HUD 已搬 monitor 面板（v1.5 TODO），
+              hooks/類型保留供整合時複用，地圖上不渲染卡片 */}
 
           {/* Icon Rail + Sliding Panel Sidebar */}
           <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>

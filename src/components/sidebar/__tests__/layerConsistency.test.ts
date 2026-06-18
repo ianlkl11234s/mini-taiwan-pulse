@@ -28,7 +28,11 @@ const legendCoveredKeys = new Set<string>(LEGEND_REGISTRY.flatMap((e) => e.keys)
  * - wasteRoute/wasteStop 由 wasteTruck 子 UI 控制
  * - medICUBeds Phase 3 尚未實作渲染，幽靈 toggle 已自 sidebar 移除（2026-06-10）
  */
-const BASELINE_NOT_IN_SIDEBAR = new Set(["wasteRoute", "wasteStop", "medICUBeds"]);
+const BASELINE_NOT_IN_SIDEBAR = new Set([
+  "wasteRoute", "wasteStop", "medICUBeds",
+  // Energy MVP：KPI 性質，預定整合到 monitor 面板（LayerVisibility key 保留）
+  "powerStatusHud", "powerRegionDemand",
+]);
 
 /**
  * 已知「沒有透明度/參數 slider」的 layer：
@@ -42,6 +46,10 @@ const BASELINE_NO_PARAMS = new Set([
   "wasteScheduleNote",
   "wasteRoute",
   "wasteStop",
+  // powerStatusHud + powerRegionDemand：搬 monitor 面板，不在 sidebar
+  // 由 BASELINE_NOT_IN_SIDEBAR 接管；參數 slider 不適用
+  "powerStatusHud",
+  "powerRegionDemand",
 ]);
 
 /**
@@ -71,6 +79,8 @@ const BASELINE_NO_LEGEND = new Set([
   "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
+  // Energy MVP：單色 POI（紫變電所 / 綠充電站）— 鐵則 2 只要求分類 ≥ 2 才需圖例
+  "osmSubstations", "evChargingStations",
 ]);
 
 function hasParamsCase(key: string): boolean {

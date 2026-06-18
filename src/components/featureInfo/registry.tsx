@@ -29,6 +29,7 @@ import { HikingTrailsPanel, ForestryGenericPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { MedicalPOIPanel, MedicalIsochronePanel } from "./medicalPanels";
 import { SatellitePanel } from "./satellitePanels";
+import { PowerPlantPanel, OsmSubstationPanel, EvChargingPanel } from "./energyPanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -99,6 +100,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   medicalPOI: MedicalPOIPanel,
   medicalIsochrone: MedicalIsochronePanel,
   satellite: SatellitePanel,
+  powerPlant: PowerPlantPanel,
+  osmSubstation: OsmSubstationPanel,
+  evCharging: EvChargingPanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -164,4 +168,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
   satellite: "衛星",
+  powerPlant: "電廠",
+  osmSubstation: "變電所",
+  evCharging: "電動車充電站",
 };
