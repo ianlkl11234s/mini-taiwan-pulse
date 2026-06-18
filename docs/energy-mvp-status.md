@@ -107,32 +107,98 @@
 4. **3D 元件**走三 3D skill §3.3 骨架，blending 還原 + dispose
 5. **不碰**：第二波 / 第三波 / 第四波視覺化（雖然第四波 RPC 先寫好）
 
-## 3. 第二版 backlog
+## 3. 已拉但未接 — 完整清單（27 表 / 33 - v1 6 表）
 
-### v1.1（鐵則對齊）
+> 2026-06-18 用戶要求：所有已拉資料逐筆評估後接上。先修完 v1（含此次 ST_Centroid bug）→ 再開 v1.5 起跑。
+> 群組原則：「即時動態」歸 hazard 群組（v4 改名 v_hazard）。
+
+### v1.1（鐵則對齊，最快補）
 - 6 layer 透明度 slider 補進 `useTransportParams`（移除 BASELINE_NO_PARAMS 6 key）
 - v1 暫定 opacity 常數：powerPlants 0.85 / regionBars 0.55 / beam 0.7 / substations 0.85 / EV 0.8
+- v1 修一波：[fixed 2026-06-18] 213 RPC ST_Centroid for polygon
 
-### v2（第二波）
-- OSM 風機 812（is_offshore 分色）/ 光電 734 / 離岸風 polygon 36
-- 化石燃料基礎設施 9 / IPP 9 / 離島電網 14 + 海纜
-- 地熱井 36 / 地熱潛能彙整
+### v1.5 高壓電網（用戶 priority — power_lines 是 cascade 關聯的關鍵）
+| 表 | 筆數 | 視覺 | 為何先做 |
+|---|---:|---|---|
+| `osm_power_lines` | 2,305 | LineString，按 voltage 分色（345kV 紅 / 161kV 橘 / 69kV 黃） | 1.4MB 直接 GeoJSON、把「電廠→變電所→末端」連起來 |
+| `osm_power_towers` | 26,589 | Point zoom-gated（zoom ≥ 13 才顯）或 PMTiles | 高壓電塔（不是 power_poles） |
 
-### v3（第三波）
-- power_poles 2.96M PMTiles
-- osm_power_towers 26,589（zoom-gated）
-- osm_power_lines 2,305（voltage 分色）
+評估：osm_power_lines 接線 1 個 Phase；power_towers 5.7MB raw 接 GeoJSON 應該也行，先試 zoom-gated 不行再 PMTiles。
 
-### v4（即時 + 安全）
-- 落雷 `realtime.lightning_events`（cluster + 1h time-window）— RPC 214 已備
-- 核安 `realtime.nuclear_radiation_*` 51 站 + dose 分色 + stale 視覺 — RPC 215 已備
+### v2 主圖補強（OSM + polygon + 離島，VIEW 已含但無專屬視覺）
+| 表 | 筆數 | 視覺 |
+|---|---:|---|
+| `osm_wind_turbines` | 812 | 獨立 toggle，is_offshore 分色（深 cyan / 淺 cyan）|
+| `osm_solar_farms` | 734 | 獨立 toggle |
+| `osm_power_plants` | 513 | 獨立 toggle（VIEW 已混進 layer 1） |
+| `offshore_wind_zones` | 36 | **Polygon fill**（彰化外海 21）— VIEW 看不到 |
+| `island_power_grid` | 14 | POI + **海纜 LineString** — 海纜需獨立接 |
+| `fossil_fuel_infrastructure` | 9 | POI（LNG/煉廠/LDC） |
+| `geothermal_wells` | 36 | POI（中油地熱井）|
+| `geothermal_potential` | 27 | KPI 表（無座標）→ 縣市彙整 panel |
+| `renewable_permits_taipei` | 438 | POI（北市再生案場，按 category 分色）|
 
-### v5（KPI 卡）
-- 縣市風力/生質能/小水力 + 光電月趨勢 + 共生 pie
+### v3 加油站 + 補光電
+| 表 | 筆數 | 備註 |
+|---|---:|---|
+| `osm_gas_stations` | 2,212 | **主用**，HANDOFF §⑧#3 不可 UNION 政府版 |
+| `gas_stations` | 573 | 對照用 toggle |
+| `osm_charging_stations` | 306 | 補社區型，跟 TDX 3,060 不重複 |
+| `power_poles` | 2,959,326 | **必走 PMTiles**（1.4GB raw）— 一般低壓電桿非高壓塔 |
+
+### v4 Hazard 群組（即時動態 → 歸 hazard，非 energy 主題）
+> 用戶定向：搬出 energy section、改進入既有 hazard / 災害分組（與 disaster_alerts 同層）
+| 表 | 來源狀態 |
+|---|---|
+| `realtime.lightning_events` | RPC 214 已備 — 接時做 cluster + 1h time-window |
+| `realtime.nuclear_radiation_stations` 51 | RPC 215 已備 — dose 分色 + is_stale 視覺（區分故障 vs 核災）|
+| `realtime.nuclear_radiation_measurements` | 時序 chart（per-station 24h dose 曲線） |
+
+⚠️ 對應 SECTIONS 動作：v4 動工時要把 layerCatalog `ENERGY` 拆兩段或新建 `HAZARD/災害` 群組吸收 lightning / nuclear；
+PowerStatusHud + region bars + beam + plants + substations + EV 留在 ENERGY，落雷 + 核安歸 HAZARD。
+
+### v5 KPI panel（非地圖）
+- `analytics.solar_daily_generation` 3,992 光電月發電趨勢
+- `county_wind_stats` 211 / `county_biomass_stats` 188 / `county_small_hydro_stats` 188
+- `analytics.lightning_daily_summary`（明日 02:25 後有資料）→ hazard panel
+- `analytics.nuclear_radiation_daily`（明日 02:32 後有資料）→ hazard panel
 
 ### 跨點關聯（三 3D skill §5）
-- 機組 → 4 區 `arc` 流動：弧高 ∝ MW，需「機組-區域」對應表（HANDOFF 未提供）
-- 電廠 → 變電所 → 充電站 `cascade`：資料不全（power_lines 2,305 < 變電所 785 × 4 平均度）
+- v1.5 之後：電廠 → 變電所 → 充電站 `cascade`（§5.2 層級匯流）— power_lines 連起來後就有 spine
+- v2 之後：機組 → 4 區 `arc` 流動（§5.1）— 弧高 ∝ MW，需「機組-區域」對應表（HANDOFF 未提供，可從 power_plants.address 縣市映射推導）
+
+---
+
+## 3a. three-3d-component skill 重評估（新表納入後）
+
+按三 3D skill §一鐵則「拿掉 3D 元件少看懂什麼？」逐一過：
+
+| 新 layer | 推薦 | 原因 |
+|---|---|---|
+| osm_power_lines 2,305 | **2D LineString**（voltage 分色 + glow）| 線型靜態無語意動作；§一鐵則：純拓撲 → 2D。但若做 cascade（§5.2）可疊 `flowline` 粒子表示「電力流動」方向（需電網拓撲方向資料，目前 OSM 沒有 → 第一輪 2D） |
+| osm_power_towers 26,589 | **2D circle zoom-gated** | 數量 > 1000，§一鐵則大量點 → 不用 3D；zoom-out heatmap 也 OK |
+| osm_wind_turbines 812 | **3D `pin` 或 `cylinder`**（風機柱型） | 物件有形狀語意（高塔+葉片），3D 能傳達。但 812 個要 InstancedMesh + 可選 toggle 才不爆 fps |
+| osm_solar_farms 734 | **2D circle** + 大型場用 polygon fill | 屋頂光電是面、不是 3D 物件 |
+| offshore_wind_zones 36 polygon | **3D `polyextrude`** | 海域 polygon 拉高 = 容量/開發進度，§7.4 直接適用 |
+| island_power_grid 海纜 | **2D LineString**（虛線 + 動態 dash） | 跟海纜 `submarineCables` 既有圖層同邏輯 |
+| fossil_fuel_infrastructure 9 | **3D `cylinder`**（油槽/LNG 罐型） | 9 個物件、語意清楚（巨型儲存設施），3D 增值高 |
+| geothermal_wells 36 | **3D `cone` 倒置**（井深向下） | 「井」是垂直語意 — 倒錐 + 動態粒子 |
+| renewable_permits_taipei 438 | **2D circle**（type 分色） | 數量中 + 抽象「許可」概念 → 2D |
+| 落雷 cluster | **2D + ripple 3D**（瞬發） | §3.1 ripple 短暫動畫，每筆閃 1.5s 後消失 |
+| 核安 51 站 | **3D `radar` 掃描**（運轉中視覺）+ dose color | §3.2 radar = 「監測中」語意 |
+| 高壓塔→塔 cascade | **3D `arc`**（§5.1）| 若後續做電網潮流；目前資料不夠 |
+
+**Skill 更新觸發**（§八）：
+- 新元件類別「polyextrude polygon 拉高」實際用上 → 之後 PR 更新對照表加註「offshore_wind 走過」
+- 一旦 osm_power_towers 26,589 用 zoom-gated 證實能 hold，加進 §四 E 性能段「>20k 點 zoom-gate 而不 PMTiles 也可」
+
+---
+
+## 4. 變更紀錄
+
+- 2026-06-18 13:xx 開單 + Phase A~I 完成（9 commit）
+- 2026-06-18 15:xx **fix**：213 RPC ST_Centroid for 36 polygon（VIEW 含 offshore_wind_zones MultiPolygon，ST_X 直吃會炸）
+- 2026-06-18 15:xx 用戶 review：補 §3 27 表逐筆評估 + §3a skill 重評估 + 即時動態歸 hazard 群組
 
 ---
 
