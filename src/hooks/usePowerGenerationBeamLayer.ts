@@ -62,8 +62,9 @@ export function usePowerGenerationBeamLayer(
   heightScaleRef.current = heightScale;
   const plantsRef = useRef<PowerGenerationRow[] | null>(null);
 
-  // Mount layer — visible 加進 deps，toggle ON 時保證 effect 重跑（修：mapRef.current
-  // 在初始 render 可能為 null，原本 [mapRef] 不會 re-run）
+  // Mount layer — toggle ON 時保證 effect 重跑（mapRef.current 初始可能 null）
+  // 修：isStyleLoaded() 在 toggle 瞬間 racily 回 false，但 style 其實已 load 完
+  // → style.load listener 永遠不會 fire。改用 try addLayer + idle 重試的 bulletproof pattern
   useEffect(() => {
     console.log("[PowerBeam] mount effect run; visible=", visible, "mapReady=", !!mapRef.current);
     const map = mapRef.current;
@@ -72,29 +73,28 @@ export function usePowerGenerationBeamLayer(
       return;
     }
 
-    const mount = () => {
-      if (map.getLayer(POWER_GENERATION_BEAM_LAYER_ID)) {
-        console.log("[PowerBeam] mount(): layer 已存在，略過");
-        return;
+    const tryMount = () => {
+      if (map.getLayer(POWER_GENERATION_BEAM_LAYER_ID)) return;
+      try {
+        const layer = createPowerGenerationBeamLayer({
+          getIsVisible: () => visibleRef.current,
+          getOpacity: () => opacityRef.current,
+          getHeightScale: () => heightScaleRef.current,
+          getPlants: () => plantsRef.current,
+        });
+        map.addLayer(layer);
+        console.log("[PowerBeam] CustomLayer mounted ✓");
+      } catch (e) {
+        console.log("[PowerBeam] addLayer 失敗（style 還在 load）→ idle 後重試", e);
+        map.once("idle", tryMount);
       }
-      const layer = createPowerGenerationBeamLayer({
-        getIsVisible: () => visibleRef.current,
-        getOpacity: () => opacityRef.current,
-        getHeightScale: () => heightScaleRef.current,
-        getPlants: () => plantsRef.current,
-      });
-      map.addLayer(layer);
-      console.log("[PowerBeam] CustomLayer mounted ✓");
     };
 
-    if (map.isStyleLoaded()) {
-      mount();
-    } else {
-      console.log("[PowerBeam] style 還沒 load，等 style.load 觸發");
-    }
-    map.on("style.load", mount);
+    tryMount();
+    // 未來 setStyle (Dark/Light 切換) 後也要重新掛
+    map.on("style.load", tryMount);
     return () => {
-      map.off("style.load", mount);
+      map.off("style.load", tryMount);
     };
   }, [mapRef, visible]);
 
