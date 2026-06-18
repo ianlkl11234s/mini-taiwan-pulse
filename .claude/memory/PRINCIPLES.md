@@ -27,6 +27,18 @@
   `python3 - <<'PY' ... PY` heredoc。寫外部工具依賴前先 `command -v <tool>` 檢查。
   範例：`.claude/memory/load-session.sh`。
 
+## React Hook 慣例
+
+- **`useSyncExternalStore` 的 `getSnapshot` 必須回快取值**（同一 store 狀態多次呼叫
+  必回相同 reference / 相同 primitive）。不可 `() => Date.now()`、
+  `() => new Map(...)`、`() => arr.map(...)` 等即時計算 → 會無限 re-render。
+  正確做法：store 內部維護快取，timer / event 觸發時更新快取 + 通知；或乾脆
+  用 `useState + useEffect(subscribe)` 取代。（2026-06-18 useWallClock 事件）
+- **動態圖層時間訂閱**：`currentTime` 禁入 `useEffect` / `useMemo` deps，必走
+  `timeStore.subscribeThrottled` / `subscribeDate` / `getTime()`（CLAUDE.md §6）
+- **掛鐘時間（Date.now）**：走 `wallClock.subscribeWallClock(ms)` + `useWallClock(ms)`
+  hook，不要在元件用 `useState + setInterval`（會讓整棵子樹 1Hz reconcile）
+
 ## 資料來源管理
 
 - **動態資料**（時序 / 即時）→ Supabase RPC（`public.*`）
