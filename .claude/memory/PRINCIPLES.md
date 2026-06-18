@@ -513,6 +513,42 @@ const overlayParams = useMemo<Record<string, number>>(() => ({
 
 **How to apply**：寫 handoff doc 時 checklist：(a) 有 RPC signature? (b) 有元件 Props + 設計檔行號? (c) 有設計 URL? 三項缺一就補。
 
+## Design System / inline style + token（2026-06-18）
+
+> 規範文件 SSOT 在 `docs/design-system.md`，本節僅摘要不重複。
+
+**核心決策**：**不引入 CSS 框架**（Tailwind / CSS Modules / styled-components）。
+理由：60+ 元件已走 inline `style={{}}`、Mapbox paint property 吃字串、Three.js 吃 hex、
+30-40% 樣式是動態（LAYER_COLORS 95 色 / opacity slider / time-based fade），框架反成負擔。
+
+**token SSOT**：`src/styles/designTokens.ts`（單向 import `intel/intelTokens.ts`）。
+新元件 / 重構元件**禁止**在 inline style 寫 hex / rgba / px scale，一律 import token：
+
+| 屬性 | token |
+|---|---|
+| 面板背景 | `SURFACE.app / subtle / panel / strong / solid` |
+| 文字色 | `COLORS.textStrong / textDefault / textMuted / textDim / textFaint / textGhost` |
+| 邊框 | `BORDER.soft / panel / mid / strong / accent` |
+| 圓角 | `RADIUS.sm:2 / md:4 / lg:6 / xl:8 / pill / full` |
+| 字級 | `FONT_SIZE.xs:9 / sm:10 / base:11 / md:12 / lg:13 / xl:18 / xxl:22` |
+| 字體 | `FONT_DATA`（數據 / 時間）/ `FONT_CJK`（中文） |
+| 陰影 | `ELEVATION.sm / md / lg / dock` |
+| 圖層代表色 | `LAYER_COLORS[layerKey]`（已被 `layerConsistency` 測試保護，不收進 designTokens） |
+| 關閉鈕 | `<X size={14} />` from lucide-react |
+
+**KEEP OUT**：
+- ❌ 不引入 CSS 框架
+- ❌ 不抽 `Button` / `Card` 通用元件庫（業務元件深耦合 Mapbox / timeStore，抽出 over-abstract）
+- ❌ 不在新元件 inline 寫死 hex / rgba / px font size
+- ❌ 不反向把 `intelTokens` 改成 re-export from `designTokens`（會 circular dep）
+- ❌ **`SURFACE.*` 只給 panel 容器底**；button / select / segmented control 等**互動態背景不用 SURFACE**
+  （即使數值相同 `rgba(0,0,0,0.4)`，語意不同 — 未來開 `CONTROL.*` 群組，見 DS-3）
+
+**寫新元件 checklist**：見 `docs/design-system.md` §9（5 段 code template 可直接抄）。
+
+**未抽 token 範圍**（DS-1~7）：Z_INDEX / transition / state colors / breakpoint / control sizing /
+intelTokens 退役 / LayerSidebar 亮側。**沒有真實痛點不開**，痛點出現再進 BACKLOG。
+
 ## 跨 repo 新管線必過 5 處（2026-06-17）
 
 > 加一支新 realtime collector（如 yt_live_video_resolver / cdc / pla）時，**data-collectors repo 內有 5 個檔案要全動**，缺一資料寫不進 Supabase 或前端讀不到。
