@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
-import { SURFACE, ELEVATION } from "../../../styles/designTokens";
+import { SURFACE, ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { fetchLiveVideos, type YtLiveVideo } from "../../../data/intelLoaders";
 import { useInView } from "../../../hooks/useInView";
 
@@ -79,7 +79,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
       <button
         onClick={() => setOpen((v) => !v)}
         style={{
-          display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 9px", borderRadius: 5,
+          display: "inline-flex", alignItems: "center", gap: 6, padding: "3px 9px", borderRadius: RADIUS.lg,
           background: "rgba(0,0,0,0.72)", color: "#fff",
           border: `1px solid ${COLORS.borderMid}`, cursor: "pointer",
           backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
@@ -89,7 +89,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
         <span style={{ fontWeight: 700 }}>{cur.name}</span>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 8,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
             color: COLORS.textMuted, letterSpacing: "0.5px",
           }}
         >
@@ -100,7 +100,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
             display: "inline-block",
             transform: open ? "rotate(180deg)" : "none",
             transition: "transform .2s",
-            fontSize: 8, color: COLORS.textMuted,
+            fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
           }}
         >
           ▾
@@ -111,7 +111,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
         <div
           style={{
             position: "absolute", bottom: "calc(100% + 6px)", left: 0,
-            width: 232, zIndex: 30, borderRadius: 9, overflow: "hidden",
+            width: 232, zIndex: 30, borderRadius: RADIUS.xl, overflow: "hidden",
             border: `1px solid ${COLORS.borderMid}`,
             background: SURFACE.solid,
             backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
@@ -186,7 +186,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
                   >
                     <span
                       style={{
-                        width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+                        width: 6, height: 6, borderRadius: RADIUS.full, flexShrink: 0,
                         background: c.emergency ? COLORS.statusWarn : "#ff3b30",
                         boxShadow: `0 0 5px ${c.emergency ? COLORS.statusWarn : "#ff3b30"}`,
                         animation: "intelRing 1.6s ease-in-out infinite",
@@ -209,7 +209,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
                         </span>
                         <span
                           style={{
-                            fontFamily: FONT_DATA, fontSize: 8,
+                            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
                             color: COLORS.textFaint, letterSpacing: "0.5px",
                           }}
                         >
@@ -218,8 +218,8 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
                         {c.emergency && (
                           <span
                             style={{
-                              fontFamily: FONT_CJK, fontSize: 8, color: "#04121f", fontWeight: 700,
-                              padding: "0px 5px", borderRadius: 3,
+                              fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: "#04121f", fontWeight: 700,
+                              padding: "0px 5px", borderRadius: RADIUS.md,
                               background: COLORS.statusWarn,
                             }}
                           >
@@ -242,7 +242,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
                     {active && (
                       <span
                         style={{
-                          fontFamily: FONT_DATA, fontSize: 11, color: COLORS.accent, flexShrink: 0,
+                          fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, color: COLORS.accent, flexShrink: 0,
                         }}
                       >
                         ✓
@@ -286,12 +286,12 @@ function LiveSlot({
     <div
       ref={slotRef}
       style={{
-        position: "relative", borderRadius: 8, overflow: "visible",
+        position: "relative", borderRadius: RADIUS.xl, overflow: "visible",
         aspectRatio: "16 / 9", background: "#000",
         border: emergency ? "1px solid rgba(255,152,0,0.55)" : `1px solid ${COLORS.borderSoft}`,
       }}
     >
-      <div style={{ position: "absolute", inset: 0, borderRadius: 8, overflow: "hidden" }}>
+      <div style={{ position: "absolute", inset: 0, borderRadius: RADIUS.xl, overflow: "hidden" }}>
         {src && visible ? (
           <iframe
             title={ch.name}
@@ -311,10 +311,10 @@ function LiveSlot({
               position: "absolute", inset: 0, display: "flex",
               flexDirection: "column", alignItems: "center", justifyContent: "center",
               gap: 6, color: COLORS.textFaint,
-              fontFamily: FONT_CJK, fontSize: 11, textAlign: "center", padding: 16,
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, textAlign: "center", padding: 16,
             }}
           >
-            <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px" }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px" }}>
               {resolved?.last_error ? "RESOLVER ERROR" : "RESOLVING…"}
             </span>
             <span>
@@ -336,13 +336,13 @@ function LiveSlot({
           <span
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
-              padding: "1px 6px", borderRadius: 3,
+              padding: "1px 6px", borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.9)",
             }}
           >
             <span
               style={{
-                width: 5, height: 5, borderRadius: "50%", background: "#fff",
+                width: 5, height: 5, borderRadius: RADIUS.full, background: "#fff",
                 animation: "intelRing 1.6s ease-in-out infinite",
               }}
             />
@@ -357,7 +357,7 @@ function LiveSlot({
           </span>
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: 11, fontWeight: 700, color: "#fff",
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 700, color: "#fff",
               textShadow: "0 1px 4px rgba(0,0,0,0.8)",
             }}
           >
@@ -366,8 +366,8 @@ function LiveSlot({
           {emergency && (
             <span
               style={{
-                fontFamily: FONT_CJK, fontSize: 9, color: "#04121f", fontWeight: 700,
-                padding: "1px 6px", borderRadius: 3, background: COLORS.statusWarn,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: "#04121f", fontWeight: 700,
+                padding: "1px 6px", borderRadius: RADIUS.md, background: COLORS.statusWarn,
               }}
             >
               目前播放：{ch.emergencyLabel}
@@ -385,7 +385,7 @@ function LiveSlot({
         <ChannelMenu value={chId} onPick={onPick} usedIds={usedIds} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textMuted,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
             textShadow: "0 1px 3px rgba(0,0,0,0.9)", pointerEvents: "none",
           }}
         >
@@ -428,17 +428,17 @@ export const LiveWall = memo(function LiveWall() {
   return (
     <div
       style={{
-        gridColumn: "1 / -1", borderRadius: 9,
+        gridColumn: "1 / -1", borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "rgba(255,255,255,0.022)",
         padding: 13, display: "flex", flexDirection: "column",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 11 }}>
-        <span style={{ width: 3, height: 12, borderRadius: 2, background: COLORS.accent }} />
+        <span style={{ width: 3, height: 12, borderRadius: RADIUS.sm, background: COLORS.accent }} />
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 10, letterSpacing: "1.5px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
             color: COLORS.textDefault,
           }}
         >
@@ -448,8 +448,8 @@ export const LiveWall = memo(function LiveWall() {
         {ctsLive ? (
           <span
             style={{
-              fontFamily: FONT_CJK, fontSize: 9, color: COLORS.statusWarn,
-              padding: "2px 8px", borderRadius: 3,
+              fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.statusWarn,
+              padding: "2px 8px", borderRadius: RADIUS.md,
               background: COLORS.statusWarnSoft,
               border: "1px solid rgba(255,152,0,0.3)",
             }}
@@ -457,7 +457,7 @@ export const LiveWall = memo(function LiveWall() {
             ⚠ 華視已切換防災直播
           </span>
         ) : (
-          <span style={{ fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
             4 格同步 · 可切換 {LIVE_CHANNELS.length} 家
           </span>
         )}

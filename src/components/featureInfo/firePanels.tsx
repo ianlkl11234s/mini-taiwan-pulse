@@ -1,3 +1,4 @@
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../../data/fireTypes";
 import { Row } from "./shared";
 
@@ -17,8 +18,8 @@ export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {loc || "火災事件"}
         </div>
       </div>
@@ -36,8 +37,8 @@ export function FireStationPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.name ?? "消防分隊")}
         </div>
       </div>
@@ -56,8 +57,8 @@ export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           消防栓
         </div>
       </div>
@@ -77,8 +78,8 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {fireIsochroneLabel(minutes)}
         </div>
       </div>
@@ -86,7 +87,7 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
       <Row label="可達時間" value={`${minutes} 分鐘內`} color={accentColor} />
       <Row label="累積可達面積" value={cumulative} />
       <Row label="本級環帶面積" value={ring} />
-      <div style={{ fontSize: 9, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 6, lineHeight: 1.4 }}>
         ⚠️ driving 路網保守估計，未計消防車優先路權
       </div>
     </>

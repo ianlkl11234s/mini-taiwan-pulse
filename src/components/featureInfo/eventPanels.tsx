@@ -1,7 +1,7 @@
 import { Row } from "./shared";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
-import { COLORS, FONT_DATA } from "../../styles/designTokens";
+import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 
 function parseEvents(raw: unknown): ClusterEvent[] {
   if (typeof raw !== "string" || !raw) return [];
@@ -33,8 +33,8 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
     return (
       <>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-          <div style={{ width: 10, height: 10, borderRadius: "50%", background: cat.color, flexShrink: 0 }} />
-          <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
+          <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: cat.color, flexShrink: 0 }} />
+          <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
             {String(props.title ?? "Unknown Event")}
           </div>
         </div>
@@ -48,7 +48,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: cat.color, fontSize: 11, fontFamily: FONT_DATA, textDecoration: "underline" }}
+              style={{ color: cat.color, fontSize: FONT_SIZE.base, fontFamily: FONT_DATA, textDecoration: "underline" }}
             >
               原文連結
             </a>
@@ -65,12 +65,12 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
         display: "flex", alignItems: "center", gap: 6, marginBottom: 8,
         paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.1)",
       }}>
-        <div style={{ fontSize: 14, lineHeight: 1 }}>📰</div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, lineHeight: 1 }}>📰</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
           {location}
         </div>
         <div style={{
-          marginLeft: "auto", fontSize: 10, padding: "1px 6px", borderRadius: 3,
+          marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
           background: "rgba(255,255,255,0.12)", color: COLORS.textStrong, fontWeight: 600,
         }}>
           {eventCount} 則
@@ -85,7 +85,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
           return (
             <div key={e.id} style={{ display: "flex", gap: 6, alignItems: "flex-start" }}>
               <div style={{
-                width: 8, height: 8, borderRadius: "50%",
+                width: 8, height: 8, borderRadius: RADIUS.full,
                 background: cat.color, marginTop: 5, flexShrink: 0,
               }} />
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -101,7 +101,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
                   {e.title}
                 </a>
                 <div style={{
-                  fontSize: 10, color: COLORS.textDim, marginTop: 2,
+                  fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2,
                   display: "flex", gap: 6, flexWrap: "wrap",
                 }}>
                   <span style={{ color: cat.color }}>{cat.label}</span>
@@ -137,12 +137,12 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {event}
         </div>
         <div style={{
-          marginLeft: "auto", fontSize: 10, padding: "1px 6px", borderRadius: 3,
+          marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
           background: color, color: "#fff", fontWeight: 600,
         }}>
           {sevLabel[severity] ?? severity}
@@ -150,7 +150,7 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
       </div>
       {headline && <Row label="標題" value={headline} />}
       {areaDesc && (
-        <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: 11, lineHeight: 1.5 }}>
+        <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
           <span style={{ color: COLORS.textMuted, flexShrink: 0, minWidth: 56 }}>影響區域</span>
           <div
             style={{
@@ -201,11 +201,11 @@ export function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: "50%", background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {title || (EVENT_TYPE_LABELS[eventType] ?? "路況事件")}
         </div>
-        <div style={{ fontSize: 10, padding: "1px 6px", borderRadius: 3, background: color, color: "#fff", fontWeight: 600, flexShrink: 0 }}>
+        <div style={{ fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md, background: color, color: "#fff", fontWeight: 600, flexShrink: 0 }}>
           {EVENT_TYPE_LABELS[eventType] ?? "其他"}
         </div>
       </div>
@@ -225,8 +225,8 @@ export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) 
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: 2, background: "#ef5350", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#ef5350", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
           {String(props.fault_name ?? "Unknown Fault")}
         </div>
       </div>

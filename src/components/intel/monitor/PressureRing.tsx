@@ -1,4 +1,5 @@
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type { MarketIndex } from "../../../data/intelLoaders";
 
 /** 270° SVG gauge — 主環 + 動畫，中央留洞給數字（caller 負責疊上 score 文字） */
@@ -55,7 +56,7 @@ export function PressureRing({
         >
           {Math.round(score)}
         </span>
-        <span style={{ fontFamily: FONT_CJK, fontSize: 13, fontWeight: 700, color: level.color }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: level.color }}>
           {level.label}
         </span>
         <span
@@ -74,7 +75,7 @@ export function CompareLine({ delta, label }: { delta: number; label: string }) 
     <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: 12, fontWeight: 700, width: 40,
+          fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, width: 40,
           color: up ? COLORS.statusWarn : COLORS.statusLive,
         }}
       >
@@ -96,7 +97,7 @@ export function TwseTicker({ data }: { data: MarketIndex }) {
   return (
     <div
       style={{
-        borderRadius: 8,
+        borderRadius: RADIUS.xl,
         border: `1px solid ${COLORS.panelBorder}`,
         background: "linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
         padding: "10px 14px",
@@ -106,7 +107,7 @@ export function TwseTicker({ data }: { data: MarketIndex }) {
       <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.2px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px",
             color: COLORS.textDim, whiteSpace: "nowrap",
           }}
         >
@@ -116,7 +117,7 @@ export function TwseTicker({ data }: { data: MarketIndex }) {
         <span
           style={{
             fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint,
-            padding: "1px 6px", borderRadius: 3, background: "rgba(255,255,255,0.05)", whiteSpace: "nowrap",
+            padding: "1px 6px", borderRadius: RADIUS.md, background: "rgba(255,255,255,0.05)", whiteSpace: "nowrap",
           }}
         >
           {data.status ?? "—"} {data.time ?? ""}
@@ -133,10 +134,10 @@ export function TwseTicker({ data }: { data: MarketIndex }) {
         </span>
         {has && (
           <>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 13, fontWeight: 700, color: mk }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700, color: mk }}>
               {up ? "▲" : "▼"} {up ? "+" : ""}{data.change.toLocaleString()}
             </span>
-            <span style={{ fontFamily: FONT_DATA, fontSize: 12, fontWeight: 700, color: mk }}>
+            <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700, color: mk }}>
               {up ? "+" : ""}{data.change_pct}%
             </span>
           </>
@@ -144,7 +145,7 @@ export function TwseTicker({ data }: { data: MarketIndex }) {
       </div>
       <div
         style={{
-          display: "flex", gap: 12, fontFamily: FONT_DATA, fontSize: 9,
+          display: "flex", gap: 12, fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs,
           color: COLORS.textDim, whiteSpace: "nowrap",
         }}
       >
@@ -181,12 +182,12 @@ export function SectionLabel({ children, color }: { children: React.ReactNode; c
     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 9 }}>
       <span
         style={{
-          width: 3, height: 12, borderRadius: 2, background: color ?? COLORS.accent,
+          width: 3, height: 12, borderRadius: RADIUS.sm, background: color ?? COLORS.accent,
         }}
       />
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: 10, letterSpacing: "1.5px",
+          fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, letterSpacing: "1.5px",
           color: COLORS.textDefault, textTransform: "uppercase",
         }}
       >
@@ -202,7 +203,7 @@ export function Widget({
   return (
     <div
       style={{
-        borderRadius: 9, border: `1px solid ${COLORS.panelBorder}`,
+        borderRadius: RADIUS.xl, border: `1px solid ${COLORS.panelBorder}`,
         background: "rgba(255,255,255,0.022)", padding: 13,
         display: "flex", flexDirection: "column", ...style,
       }}

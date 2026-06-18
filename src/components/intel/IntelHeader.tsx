@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { IntelIcon, ICON } from "./IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, clockTime, fmtCountdown } from "./intelTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import type { SourceHealthSummary, SourceStatus } from "../../data/intelLoaders";
 
 interface Props {
@@ -50,7 +51,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           <span style={{ fontFamily: FONT_CJK, fontSize: 13.5, fontWeight: 700, color: COLORS.textStrong }}>
             即時情報
           </span>
-          <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "2.5px", color: COLORS.textDim }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim }}>
             INTEL
           </span>
         </div>
@@ -61,7 +62,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             gap: 5,
             marginLeft: 6,
             padding: "2px 8px",
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             background: COLORS.statusLiveSoft,
             border: `1px solid ${COLORS.statusLiveBorder}`,
           }}
@@ -70,13 +71,13 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             style={{
               width: 6,
               height: 6,
-              borderRadius: "50%",
+              borderRadius: RADIUS.full,
               background: COLORS.statusLive,
               boxShadow: `0 0 6px ${COLORS.statusLive}`,
               animation: "intelRing 1.6s ease-in-out infinite",
             }}
           />
-          <span style={{ fontFamily: FONT_DATA, fontSize: 10, fontWeight: 700, color: COLORS.statusLive }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, fontWeight: 700, color: COLORS.statusLive }}>
             LIVE
           </span>
         </span>
@@ -87,7 +88,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           style={{
             width: 24,
             height: 24,
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             border: "none",
             background: "transparent",
             color: COLORS.textDim,
@@ -112,7 +113,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           gap: 10,
           whiteSpace: "nowrap",
           fontFamily: FONT_DATA,
-          fontSize: 10,
+          fontSize: FONT_SIZE.sm,
         }}
       >
         <span style={{ color: COLORS.textMuted }}>更新 {clockTime(lastUpdateTs)}</span>
@@ -126,7 +127,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             gap: 5,
             marginLeft: "auto",
             padding: "2px 7px",
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             background: "rgba(255,255,255,0.04)",
             border: `1px solid ${COLORS.borderSoft}`,
             cursor: "pointer",
@@ -139,7 +140,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             style={{
               width: 6,
               height: 6,
-              borderRadius: "50%",
+              borderRadius: RADIUS.full,
               background: degraded ? COLORS.statusWarn : COLORS.statusLive,
             }}
           />
@@ -166,7 +167,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
           <div
             style={{
               fontFamily: FONT_DATA,
-              fontSize: 9,
+              fontSize: FONT_SIZE.xs,
               letterSpacing: "1.5px",
               color: COLORS.textFaint,
               marginBottom: 6,
@@ -175,7 +176,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
             來源管線 PIPELINE · RSS×{total} → Gemini 地理編碼
           </div>
           {total === 0 ? (
-            <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint }}>
+            <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
               尚無資料（collector 還沒回報過）
             </div>
           ) : (
@@ -187,7 +188,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                       style={{
                         width: 5,
                         height: 5,
-                        borderRadius: "50%",
+                        borderRadius: RADIUS.full,
                         flexShrink: 0,
                         background: STATUS_COLOR[f.status],
                       }}
@@ -196,7 +197,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                       title={f.feed_url}
                       style={{
                         fontFamily: FONT_CJK,
-                        fontSize: 10,
+                        fontSize: FONT_SIZE.sm,
                         color: COLORS.textDefault,
                         whiteSpace: "nowrap",
                         overflow: "hidden",
@@ -209,7 +210,7 @@ export function IntelHeader({ totalCount, lastUpdateTs, countdownSec, sourceHeal
                       style={{
                         marginLeft: "auto",
                         fontFamily: FONT_DATA,
-                        fontSize: 9,
+                        fontSize: FONT_SIZE.xs,
                         color: f.status === "ok" ? COLORS.textFaint : STATUS_COLOR[f.status],
                       }}
                     >

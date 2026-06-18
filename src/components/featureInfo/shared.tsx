@@ -1,4 +1,4 @@
-import { COLORS } from "../../styles/designTokens";
+import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 
 export function formatTaiwanTime(iso: string | null): string {
   if (!iso) return "";
@@ -15,7 +15,7 @@ export function formatTaiwanTime(iso: string | null): string {
 export function Row({ label, value, color }: { label: string; value: string; color?: string }) {
   if (!value || value === "null" || value === "undefined") return null;
   return (
-    <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: 11, lineHeight: 1.5 }}>
+    <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
       <span style={{ color: COLORS.textMuted, flexShrink: 0, minWidth: 56 }}>{label}</span>
       <span style={{ color: color ?? COLORS.textStrong, wordBreak: "break-word" }}>{value}</span>
     </div>
@@ -25,9 +25,9 @@ export function Row({ label, value, color }: { label: string; value: string; col
 export function Badge({ label, on, color }: { label: string; on: boolean; color: string }) {
   return (
     <span style={{
-      fontSize: 10,
+      fontSize: FONT_SIZE.sm,
       padding: "1px 5px",
-      borderRadius: 2,
+      borderRadius: RADIUS.sm,
       background: on ? color : "rgba(255,255,255,0.08)",
       color: on ? "#fff" : COLORS.textDim,
       fontWeight: on ? 700 : 400,

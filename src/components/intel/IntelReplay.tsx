@@ -1,5 +1,6 @@
 import { IntelIcon, ICON } from "./IntelIcon";
 import { COLORS, FONT_DATA, clockTime } from "./intelTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 
 interface Props {
   /** unix sec — 當前 scrub 位置 */
@@ -32,7 +33,7 @@ export function IntelReplay({
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1.5px", color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textFaint }}>
           回放 REPLAY
         </span>
         <span
@@ -52,7 +53,7 @@ export function IntelReplay({
           style={{
             width: 24,
             height: 24,
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             border: `1px solid ${COLORS.borderMid}`,
             background: "rgba(255,255,255,0.05)",
             color: COLORS.textDefault,
@@ -72,10 +73,10 @@ export function IntelReplay({
           onClick={onLive}
           style={{
             padding: "3px 9px",
-            borderRadius: 4,
+            borderRadius: RADIUS.md,
             cursor: "pointer",
             fontFamily: FONT_DATA,
-            fontSize: 10,
+            fontSize: FONT_SIZE.sm,
             background: isLive ? COLORS.statusLiveSoft : "rgba(255,255,255,0.05)",
             border: `1px solid ${isLive ? COLORS.statusLiveBorder : COLORS.borderMid}`,
             color: isLive ? COLORS.statusLive : COLORS.textMuted,
@@ -85,7 +86,7 @@ export function IntelReplay({
         </button>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
           {clockTime(windowStartTs)}
         </span>
         <input
@@ -97,7 +98,7 @@ export function IntelReplay({
           onChange={(ev) => onScrub(Number(ev.target.value))}
           style={{ flex: 1, height: 3, accentColor: COLORS.accent, cursor: "pointer" }}
         />
-        <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
           {clockTime(nowTs)}
         </span>
       </div>

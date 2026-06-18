@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CHANGELOG } from "../data/changelog";
+import { RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 type BottomTab = "guide" | "about" | "profile";
 type GuidePage = "getting-started" | "feature-legend" | "data-sources" | "daily-changelog";
@@ -33,7 +34,7 @@ const t = (obj: T, lang: Lang) => obj[lang];
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 style={{ fontSize: 11, color: S.label, margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>
+    <h3 style={{ fontSize: FONT_SIZE.base, color: S.label, margin: "0 0 10px", letterSpacing: 1.5, textTransform: "uppercase" }}>
       {children}
     </h3>
   );
@@ -49,13 +50,13 @@ function Card({ title, children, accentColor, style }: {
     <div style={{
       background: S.cardBg,
       border: `1px solid ${S.cardBorder}`,
-      borderRadius: 8,
+      borderRadius: RADIUS.xl,
       padding: "12px 14px",
       borderLeft: accentColor ? `3px solid ${accentColor}` : undefined,
       ...style,
     }}>
-      {title && <div style={{ fontSize: 12, color: S.text, fontWeight: 600, marginBottom: 6 }}>{title}</div>}
-      <div style={{ fontSize: 12, lineHeight: 1.7, color: S.sub }}>{children}</div>
+      {title && <div style={{ fontSize: FONT_SIZE.md, color: S.text, fontWeight: 600, marginBottom: 6 }}>{title}</div>}
+      <div style={{ fontSize: FONT_SIZE.md, lineHeight: 1.7, color: S.sub }}>{children}</div>
     </div>
   );
 }
@@ -67,8 +68,8 @@ function Tag({ children }: { children: React.ReactNode }) {
       padding: "3px 10px",
       background: S.cardBg,
       border: `1px solid ${S.cardBorder}`,
-      borderRadius: 4,
-      fontSize: 11,
+      borderRadius: RADIUS.md,
+      fontSize: FONT_SIZE.base,
       color: S.sub,
     }}>
       {children}
@@ -83,8 +84,8 @@ function KeyBadge({ children }: { children: React.ReactNode }) {
       padding: "1px 6px",
       background: "rgba(255,255,255,0.08)",
       border: "1px solid rgba(255,255,255,0.15)",
-      borderRadius: 3,
-      fontSize: 11,
+      borderRadius: RADIUS.md,
+      fontSize: FONT_SIZE.base,
       fontFamily: S.font,
       color: S.text,
     }}>
@@ -95,7 +96,7 @@ function KeyBadge({ children }: { children: React.ReactNode }) {
 
 function ParamRow({ label, desc }: { label: string; desc: string }) {
   return (
-    <div style={{ display: "flex", gap: 8, fontSize: 12, lineHeight: 1.6, marginBottom: 4 }}>
+    <div style={{ display: "flex", gap: 8, fontSize: FONT_SIZE.md, lineHeight: 1.6, marginBottom: 4 }}>
       <span style={{ color: S.active, fontWeight: 600, minWidth: 80, flexShrink: 0 }}>{label}</span>
       <span style={{ color: S.sub }}>{desc}</span>
     </div>
@@ -105,7 +106,7 @@ function ParamRow({ label, desc }: { label: string; desc: string }) {
 function ExpandableParams({ lang, items }: { lang: Lang; items: { label: string; zh: string; en: string }[] }) {
   return (
     <div style={{ borderTop: `1px solid ${S.cardBorder}`, paddingTop: 8, marginTop: 4 }}>
-      <div style={{ fontSize: 11, color: S.label, marginBottom: 6 }}>
+      <div style={{ fontSize: FONT_SIZE.base, color: S.label, marginBottom: 6 }}>
         {lang === "zh" ? "▸ 展開可調整：" : "▸ Expandable parameters:"}
       </div>
       {items.map((p) => <ParamRow key={p.label} label={p.label} desc={t(p, lang)} />)}
@@ -119,7 +120,7 @@ function GettingStartedPage({ lang }: { lang: Lang }) {
   const L = lang === "zh";
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <p style={{ fontSize: 13, lineHeight: 1.8, color: S.text, margin: 0 }}>
+      <p style={{ fontSize: FONT_SIZE.lg, lineHeight: 1.8, color: S.text, margin: 0 }}>
         {L
           ? <>歡迎使用 <b>Mini Taiwan Pulse</b> — 以 3D 呈現台灣航班、船舶、鐵道的即時動態視覺化。地圖預設以全台鳥瞰視角開啟，你可以自由旋轉、縮放來探索。</>
           : <>Welcome to <b>Mini Taiwan Pulse</b> — a real-time 3D visualization of Taiwan's flights, ships, and trains. The map opens with a bird's-eye view of Taiwan. Feel free to rotate and zoom to explore.</>
@@ -268,7 +269,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <p style={{ fontSize: 13, lineHeight: 1.8, color: S.text, margin: 0 }}>
+      <p style={{ fontSize: FONT_SIZE.lg, lineHeight: 1.8, color: S.text, margin: 0 }}>
         {L
           ? <>左側面板包含 <b>23 個圖層</b>，分為 10 大分類。每個圖層有 <b>圓形開關</b> 控制可見性。帶 <b>▸ 三角形</b> 的圖層可展開參數面板，拖曳 slider 即時調整視覺效果。</>
           : <>The left panel contains <b>23 layers</b> organized into 10 categories. Each layer has a <b>circle toggle</b> for visibility. Layers with a <b>▸ triangle</b> can expand a parameter panel — drag sliders to adjust visuals in real-time.</>
@@ -279,7 +280,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>MOVING — {L ? "動態運具" : "Moving Vehicles"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "航班 Flight" : "Flight"} accentColor="#64aaff">
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? <>3D 弧線 + 光球 + 彗尾光軌。支援 <b>Live Status</b>（只看光球）與 <b>Trails</b>（含完整軌跡線）兩種模式切換。</>
               : <>3D arcs + orbs + comet trails. Supports <b>Live Status</b> (orbs only) and <b>Trails</b> (with full flight paths) mode toggle.</>
@@ -289,14 +290,14 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
         </Card>
 
         <Card title={L ? "船舶 Ship" : "Ship"} accentColor="#1ad9e5">
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L ? "InstancedMesh 光球 + 拖尾線，顯示台灣周邊海域的船舶動態。" : "InstancedMesh orbs + trailing lines, showing ship movements around Taiwan's waters."}
           </div>
           <ExpandableParams lang={lang} items={shipParams} />
         </Card>
 
         <Card title={L ? "鐵道 Rail" : "Rail"} accentColor="#ee6c00">
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "6 個軌道系統（台鐵 · 高鐵 · 台北/高雄/台中捷運 · 高雄輕軌）的列車即時位置。"
               : "Real-time train positions across 6 rail systems (TRA · THSR · Taipei/Kaohsiung/Taichung Metro · Kaohsiung LRT)."}
@@ -309,7 +310,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>NEWS — {L ? "新聞" : "News"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "新聞事件 News" : "News Events"} accentColor="#ff9800">
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。顯示中央通訊社 CNA RSS 新聞事件的地理標記，透過 Gemini API 自動地理編碼。主要新聞以較大橘色圓點顯示，次要新聞以較小灰色圓點顯示。點擊可查看新聞標題、摘要、分類與連結。"
               : "Off by default. Shows CNA RSS news events as geographic markers, auto-geocoded via Gemini API. Primary news shown as larger orange dots, secondary as smaller gray dots. Click to view title, summary, category, and link."}
@@ -321,7 +322,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>STATION — {L ? "站點標記" : "Station Markers"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "高鐵站 / 台鐵站 / 捷運站" : "THSR / TRA / Metro Stations"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "三種車站各自獨立控制。大站以 Polygon 渲染邊界，小站以圓環標記。3D 模式下支援光柱效果，光柱高度代表該站每日停靠次數。"
               : "Three station types independently controlled. Large stations rendered as polygon boundaries, small ones as circle markers. 3D mode supports light pillars — pillar height represents daily stop count."}
@@ -330,7 +331,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
         </Card>
 
         <Card title={L ? "市區公車站 / 公路客運站" : "City Bus / Intercity Bus Stations"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L ? "預設關閉。開啟後以小圓點顯示全台公車站點分佈。" : "Off by default. When enabled, shows bus stop distribution as small dots across Taiwan."}
           </div>
           <ExpandableParams lang={lang} items={[
@@ -339,7 +340,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
         </Card>
 
         <Card title={L ? "公共腳踏車 Bike" : "Public Bike"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L ? "預設關閉。顯示全台 YouBike 等公共腳踏車站點位置。" : "Off by default. Shows YouBike and other public bike station locations across Taiwan."}
           </div>
           <ExpandableParams lang={lang} items={[
@@ -352,14 +353,14 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>ROUTE — {L ? "路徑" : "Routes"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "國道 Highway / 省道 Prov.Road" : "Highway / Provincial Road"}>
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。國道以紅色線條顯示，省道以橘色線條顯示，寬度隨 zoom 層級自動調整。純開關，無額外可調參數。"
               : "Off by default. Highways shown in red, provincial roads in orange. Line width auto-adjusts with zoom level. Toggle only, no adjustable parameters."}
           </div>
         </Card>
         <Card title={L ? "自行車道 Cycling" : "Cycling Routes"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L ? "預設關閉。以綠色線條顯示全台自行車專用道。" : "Off by default. Shows cycling paths across Taiwan in green."}
           </div>
           <ExpandableParams lang={lang} items={[
@@ -372,14 +373,14 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>INFRA — {L ? "基礎設施" : "Infrastructure"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "碼頭 Port / 機場 Airport" : "Port / Airport"}>
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "港口與機場以 Polygon 邊界 + 光暈效果顯示。機場的透明度和光暈可透過航班面板的 APT / Glow 調整。碼頭為純開關。"
               : "Ports and airports rendered as polygon boundaries with glow effects. Airport opacity and glow are adjustable via the Flight panel's APT / Glow. Ports are toggle only."}
           </div>
         </Card>
         <Card title={L ? "燈塔 Lighthouse" : "Lighthouse"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? <>全台 36 座燈塔位置，3D 模式下附帶<b>旋轉錐形光束</b>動畫效果。</>
               : <>All 36 lighthouses in Taiwan. In 3D mode, features an animated <b>rotating cone-shaped beam</b>.</>
@@ -392,7 +393,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       {/* MONITOR */}
       <SectionTitle>MONITOR — {L ? "監測" : "Monitoring"}</SectionTitle>
       <Card title={L ? "國道壅塞 Congestion" : "Freeway Congestion"}>
-        <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+        <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
           {L
             ? "預設關閉。依 timeline 動態回放國道各路段壅塞程度，以色彩編碼顯示（順暢 / 壅塞 / 嚴重壅塞）。資料源：交通部 TDX → Supabase `realtime.freeway_congestion_daily`（pre-aggregate 每 20 分鐘 refresh）。"
             : "Off by default. Dynamically plays back freeway segment congestion levels along the timeline with color coding (free / congested / heavy). Source: MOTC TDX → Supabase `realtime.freeway_congestion_daily` (pre-aggregated, refreshed every 20 minutes)."}
@@ -406,14 +407,14 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>HAZARD — {L ? "災害" : "Hazards"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "地震事件 Earthquake" : "Earthquake Events"}>
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設開啟。依 timeline 當天累積顯示地震事件，圓圈大小對應規模、顏色對應深度，附 ripple 動畫。資料源：CWA 地震目錄 → Supabase `realtime.earthquake_events`。"
               : "Enabled by default. Accumulates earthquake events for the selected timeline date. Circle size scales with magnitude, color reflects depth, with ripple animation. Source: CWA earthquake catalog → Supabase `realtime.earthquake_events`."}
           </div>
         </Card>
         <Card title={L ? "災害示警 Disaster Alerts" : "Disaster Alerts"}>
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設開啟。NCDR CAP feed 彙整颱風、豪雨、強風、枯旱、水庫放流等示警，依 timeline 動態顯示生效中範圍。幾何用鄉鎮/縣市 boundaries fallback 解析。資料源：NCDR CAP → Supabase `realtime.disaster_alerts`。"
               : "Enabled by default. Aggregates NCDR CAP alerts (typhoon, heavy rain, strong wind, drought, reservoir release, etc.), dynamically filtering active alerts by timeline. Geometry resolved via township/county boundaries fallback. Source: NCDR CAP → Supabase `realtime.disaster_alerts`."}
@@ -425,7 +426,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>ANALYTICS — {L ? "分析" : "Analytics"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "人流模擬 Pop. Flow" : "Population Flow Simulation"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。以六角形網格顯示全台日間/夜間人流分布。色階：日間 Plasma（深靛→亮黃）、夜間 Viridis（深紫→亮黃），感知均勻、色盲友善。Zoom 自動切換網格精度。"
               : "Off by default. Displays day/night population flow distribution across Taiwan using hexagonal grids. Color scales: day = Plasma (indigo → yellow), night = Viridis (purple → yellow), perceptually uniform and colorblind-safe. Grid resolution auto-switches by zoom level."}
@@ -439,7 +440,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
           ]} />
         </Card>
         <Card title={L ? "人口數 Population" : "Population Count"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。以六角形網格顯示全台村里總人口密度。資料來源：SEGIS 社會經濟統計地理資訊網（114 年 6 月，7,748 村里）。色階：Inferno（深黑→紫紅→橘黃→亮黃白），log1p 正規化適合重尾分布。"
               : "Off by default. Displays village-level total population density using hexagonal grids. Source: SEGIS (2025/06, 7,748 villages). Color scale: Inferno (black → purple-red → orange → bright yellow-white), log1p normalization for heavy-tailed distribution."}
@@ -452,7 +453,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
           ]} />
         </Card>
         <Card title={L ? "人口指標 Indicators" : "Population Indicators"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。9 項村里人口衍生指標，分三類：數量（戶數/男/女）、結構（性別比/每戶人數）、負擔（扶養比/扶幼比/扶老比/老化指數）。數量指標 log 正規化，比率指標 linear 正規化。比率欄位以人口加權平均聚合至 H3 網格。"
               : "Off by default. 9 derived demographic indicators in 3 categories: Count (households/male/female), Structure (sex ratio/persons per household), Burden (dependency/child dependency/elderly dependency/aging index). Count metrics use log normalization, ratio metrics use linear normalization. Ratios are population-weighted when aggregated to H3 grids."}
@@ -467,12 +468,12 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
           ]} />
         </Card>
         <Card title={L ? "社經面貌 Socio-Econ" : "Socioeconomic Profile"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。以六角形網格顯示村里級社會經濟面貌。資料來源：SEGIS 社會經濟統計地理資訊網 + 財政部綜合所得稅統計（114 年，7,748 村里）。色階：Viridis（深紫→青綠→亮黃），感知均勻、色盲友善。分兩大類五項指標："
               : "Off by default. Displays village-level socioeconomic profiles using hexagonal grids. Source: SEGIS + Ministry of Finance income tax statistics (2025, 7,748 villages). Color scale: Viridis (purple → teal → yellow), perceptually uniform and colorblind-safe. Two categories, five indicators:"}
           </div>
-          <div style={{ marginBottom: 6, color: S.dim, fontSize: 11 }}>
+          <div style={{ marginBottom: 6, color: S.dim, fontSize: FONT_SIZE.base }}>
             {L
               ? "【收入 Income】Med — 所得中位數（萬元/年），反映當地一般收入水平；IQR — 四分位距比（Q3/Q1），數值越大代表貧富差距越懸殊；Sal% — 薪資佔比（薪資所得/總所得），越高代表該地區越依賴受薪工作。\n【社會 Social】Vital — 人口活力分數（出生率 40% + 社會增加 50% + 結婚淨率 10%，min-max 正規化後加權），衡量地區人口成長動能；Vuln — 脆弱度指數（低收入比 30% + 老年比 30% + 高風險比 20% + 無住宅比 20%），越高代表該地區越需要社會支持。"
               : "【Income】Med — Median income (¥10K/yr), reflects general income level; IQR — Interquartile ratio (Q3/Q1), higher = greater income inequality; Sal% — Salary share (salary income / total income), higher = more wage-dependent.\n【Social】Vital — Vitality score (birth rate 40% + social increase 50% + marriage net 10%, min-max normalized), measures population growth momentum; Vuln — Vulnerability index (low-income 30% + elderly 30% + high-risk 20% + no-housing 20%), higher = greater need for social support."}
@@ -487,12 +488,12 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
           ]} />
         </Card>
         <Card title={L ? "空間經濟 Spatial-Econ" : "Spatial Economy"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。以六角形網格顯示最小統計區級空間經濟指標。資料來源：SEGIS 最小統計區（157,933 區）+ 實價登錄 + 國土利用調查。色階：Magma（深黑→紫紅→橘→亮黃白）。分兩大類五項指標："
               : "Off by default. Displays minimal-statistical-area-level spatial economy indicators using hexagonal grids. Source: SEGIS minimal areas (157,933 zones) + actual price registry + national land use survey. Color scale: Magma (black → purple-red → orange → bright yellow-white). Two categories, five indicators:"}
           </div>
-          <div style={{ marginBottom: 6, color: S.dim, fontSize: 11 }}>
+          <div style={{ marginBottom: 6, color: S.dim, fontSize: FONT_SIZE.base }}>
             {L
               ? "【房市 Housing】Price — 房價中位數（萬元/坪），取自實價登錄、P99 封頂去極端值；Unit — 每坪單價（萬元），另一維度呈現房市行情；P/I — 房價所得比（房價中位數 ÷ 鄉鎮市區所得中位數），衡量購屋負擔壓力，數值越高代表當地居民越難負擔。\n【土地 Land】Amty — 便利設施密度（便利商店 + 學校等設施數 / 面積），反映生活機能；Mix — 土地混合度（Shannon 熵，9 類國土利用），越高代表土地使用越多元、都市機能越豐富。"
               : "【Housing】Price — Median housing price (¥10K/ping), from actual price registry with P99 cap; Unit — Unit price per ping (¥10K), another dimension of market conditions; P/I — Price-to-income ratio (median price ÷ town-level median income), measures housing affordability pressure.\n【Land】Amty — Amenity density (convenience stores + schools etc. / area), reflects livability; Mix — Land use mix (Shannon entropy over 9 national land use categories), higher = more diverse urban functions."}
@@ -512,7 +513,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       <SectionTitle>ENVIRON — {L ? "環境" : "Environment"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "氣象站 Weather" : "Weather Stations"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L ? "預設關閉。顯示全台氣象觀測站點位置。" : "Off by default. Shows weather observation station locations across Taiwan."}
           </div>
           <ExpandableParams lang={lang} items={[
@@ -520,14 +521,14 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
           ]} />
         </Card>
         <Card title={L ? "風場範圍 Wind Farm" : "Wind Farm"}>
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。以半透明填充顯示台灣離岸風場規劃範圍。純開關，無額外可調參數。"
               : "Off by default. Shows Taiwan's offshore wind farm planning zones as translucent fills. Toggle only, no adjustable parameters."}
           </div>
         </Card>
         <Card title={L ? "溫度波浪 Temperature" : "Temperature Wave"}>
-          <div style={{ marginBottom: 6, color: S.text, fontSize: 12 }}>
+          <div style={{ marginBottom: 6, color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。以 3D 波浪曲面或 2D 色圖顯示台灣溫度場分佈，資料來自中央氣象署 0.03° 格點每小時快照。色盤使用 RdBu 發散色階（深藍→白→深紅），動畫以 vertex lerp 平滑過渡。"
               : "Off by default. Displays Taiwan's temperature field as a 3D wave surface or 2D color map, using hourly snapshots from CWA's 0.03° grid. Uses RdBu diverging color scale (blue → white → red), with smooth vertex lerp animation."}
@@ -541,14 +542,14 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
           ]} />
         </Card>
         <Card title={L ? "衛星雲圖 Cloud Imagery" : "Cloud Imagery"}>
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設開啟。CWA 衛星雲圖 PNG frame 序列，依 timeline 回放最近 24 小時。資料源：CWA File API `O-C0042-*` → Supabase `realtime.cwa_imagery_frames`（透過 `get_cwa_imagery_frames_batch` 批次 RPC 一次載入所有 frame bytes）。"
               : "Enabled by default. CWA satellite cloud imagery PNG frame sequence, played back along the timeline over the last 24 hours. Source: CWA File API `O-C0042-*` → Supabase `realtime.cwa_imagery_frames` (loaded via `get_cwa_imagery_frames_batch` batch RPC)."}
           </div>
         </Card>
         <Card title={L ? "雷達回波 Radar Imagery" : "Radar Imagery"}>
-          <div style={{ color: S.text, fontSize: 12 }}>
+          <div style={{ color: S.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設開啟。CWA 雷達回波合成圖 PNG frame，依 timeline 回放最近 24 小時。資料源：CWA File API `O-A0058-*` → Supabase `realtime.cwa_imagery_frames`。"
               : "Enabled by default. CWA composite radar echo PNG frames, played back along the timeline over the last 24 hours. Source: CWA File API `O-A0058-*` → Supabase `realtime.cwa_imagery_frames`."}
@@ -559,7 +560,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       {/* 面板操作說明 */}
       <SectionTitle>{L ? "面板操作說明" : "PANEL USAGE"}</SectionTitle>
       <Card>
-        <div style={{ color: S.text, fontSize: 12, lineHeight: 1.8 }}>
+        <div style={{ color: S.text, fontSize: FONT_SIZE.md, lineHeight: 1.8 }}>
           {L ? (
             <>
               <b>收合/展開面板</b>：點擊面板左上角 ◀ 收合為窄條，點擊窄條展開。收合狀態下，彩色小點顯示各圖層啟用狀態。<br />
@@ -581,7 +582,7 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
       {/* 底部資訊列 */}
       <SectionTitle>{L ? "底部資訊列" : "BOTTOM STATUS BAR"}</SectionTitle>
       <Card>
-        <div style={{ color: S.text, fontSize: 12, lineHeight: 1.8 }}>
+        <div style={{ color: S.text, fontSize: FONT_SIZE.md, lineHeight: 1.8 }}>
           {L
             ? <>畫面底部顯示：即時運具數量（航班 / 船舶 / 列車各自計數）、以及相機參數 <b>Pitch</b>（俯仰角）· <b>Bearing</b>（方位角）· <b>Zoom</b>（縮放層級）。</>
             : <>The bottom bar displays: real-time vehicle counts (flights / ships / trains), and camera parameters <b>Pitch</b> · <b>Bearing</b> · <b>Zoom</b>.</>
@@ -695,16 +696,16 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-      <p style={{ fontSize: 13, lineHeight: 1.8, color: S.text, margin: "0 0 6px" }}>
+      <p style={{ fontSize: FONT_SIZE.lg, lineHeight: 1.8, color: S.text, margin: "0 0 6px" }}>
         {L
           ? "本專案整合多個即時與開放資料來源，所有資料經腳本擷取、轉換、過濾後呈現："
           : "This project integrates multiple real-time and open data sources, all processed through automated scripts:"}
       </p>
       {sources.map((s) => (
         <Card key={t(s.name, lang)} accentColor={s.color}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: S.text, marginBottom: 4 }}>{t(s.name, lang)}</div>
-          <div style={{ fontSize: 11, color: S.active, marginBottom: 4 }}>{s.source}</div>
-          <div style={{ fontSize: 12, color: S.sub, lineHeight: 1.7 }}>{t(s.desc, lang)}</div>
+          <div style={{ fontSize: FONT_SIZE.md, fontWeight: 600, color: S.text, marginBottom: 4 }}>{t(s.name, lang)}</div>
+          <div style={{ fontSize: FONT_SIZE.base, color: S.active, marginBottom: 4 }}>{s.source}</div>
+          <div style={{ fontSize: FONT_SIZE.md, color: S.sub, lineHeight: 1.7 }}>{t(s.desc, lang)}</div>
         </Card>
       ))}
     </div>
@@ -748,11 +749,11 @@ function AboutPage({ lang }: { lang: Lang }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
       <div>
-        <h2 style={{ fontSize: 18, color: S.text, margin: "0 0 10px", letterSpacing: 1 }}>Mini Taiwan Pulse</h2>
-        <p style={{ fontSize: 13, lineHeight: 1.9, color: S.text, margin: 0 }}>
+        <h2 style={{ fontSize: FONT_SIZE.xl, color: S.text, margin: "0 0 10px", letterSpacing: 1 }}>Mini Taiwan Pulse</h2>
+        <p style={{ fontSize: FONT_SIZE.lg, lineHeight: 1.9, color: S.text, margin: 0 }}>
           {L ? "用開放資料，感受台灣的脈動。" : "Feel Taiwan's pulse through open data."}
         </p>
-        <p style={{ fontSize: 13, lineHeight: 1.9, color: S.sub, margin: "8px 0 0" }}>
+        <p style={{ fontSize: FONT_SIZE.lg, lineHeight: 1.9, color: S.sub, margin: "8px 0 0" }}>
           {L
             ? "天空中的航班劃出弧線、海面上的船舶穿梭往返、軌道上的列車準時奔馳 — 這座島嶼每一刻都在呼吸。Mini Taiwan Pulse 將這些交通運輸的即時動態，以 3D 光球、光軌、拖尾線呈現在同一張地圖上，讓你看見台灣的脈搏。"
             : "Flights tracing arcs across the sky, ships navigating coastal waters, trains running on time along their tracks — this island breathes every moment. Mini Taiwan Pulse renders all this transportation activity as 3D orbs, light trails, and glowing paths on a single interactive map, letting you see Taiwan's heartbeat."}
@@ -763,11 +764,11 @@ function AboutPage({ lang }: { lang: Lang }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
         {stats.map((item) => (
           <div key={t(item.label, lang)} style={{
-            background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8,
+            background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: RADIUS.xl,
             padding: "12px 14px", textAlign: "center",
           }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: S.active }}>{item.num}</div>
-            <div style={{ fontSize: 11, color: S.sub, marginTop: 2 }}>{t(item.label, lang)}</div>
+            <div style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color: S.active }}>{item.num}</div>
+            <div style={{ fontSize: FONT_SIZE.base, color: S.sub, marginTop: 2 }}>{t(item.label, lang)}</div>
           </div>
         ))}
       </div>
@@ -818,7 +819,7 @@ function ProjectCard({ name, desc, screenshot, site, github }: {
 }) {
   return (
     <div style={{
-      background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8,
+      background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: RADIUS.xl,
       overflow: "hidden",
     }}>
       {screenshot && (
@@ -828,17 +829,17 @@ function ProjectCard({ name, desc, screenshot, site, github }: {
         </div>
       )}
       <div style={{ padding: "10px 14px" }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: S.text, marginBottom: 4 }}>{name}</div>
-        <div style={{ fontSize: 11, color: S.sub, marginBottom: 8, lineHeight: 1.5 }}>{desc}</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 600, color: S.text, marginBottom: 4 }}>{name}</div>
+        <div style={{ fontSize: FONT_SIZE.base, color: S.sub, marginBottom: 8, lineHeight: 1.5 }}>{desc}</div>
         <div style={{ display: "flex", gap: 8 }}>
           {site && (
             <a href={site} target="_blank" rel="noopener noreferrer"
-              style={{ fontSize: 11, color: S.active, textDecoration: "none" }}>
+              style={{ fontSize: FONT_SIZE.base, color: S.active, textDecoration: "none" }}>
               Live
             </a>
           )}
           <a href={github} target="_blank" rel="noopener noreferrer"
-            style={{ fontSize: 11, color: S.sub, textDecoration: "none" }}>
+            style={{ fontSize: FONT_SIZE.base, color: S.sub, textDecoration: "none" }}>
             GitHub
           </a>
         </div>
@@ -884,10 +885,10 @@ function ProfilePage({ lang }: { lang: Lang }) {
       {/* Avatar + Name */}
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <img src="./screenshots/頭貼.jpg" alt="Migu"
-          style={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }} />
+          style={{ width: 48, height: 48, borderRadius: RADIUS.full, objectFit: "cover" }} />
         <div>
-          <div style={{ fontSize: 16, fontWeight: 600, color: S.text }}>Migu</div>
-          <div style={{ fontSize: 12, color: S.sub }}>Senior Data Analyst / GIS</div>
+          <div style={{ fontSize: FONT_SIZE.xl, fontWeight: 600, color: S.text }}>Migu</div>
+          <div style={{ fontSize: FONT_SIZE.md, color: S.sub }}>Senior Data Analyst / GIS</div>
         </div>
       </div>
 
@@ -895,12 +896,12 @@ function ProfilePage({ lang }: { lang: Lang }) {
       <SectionTitle>{L ? "社群連結" : "SOCIAL LINKS"}</SectionTitle>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <a href="https://github.com/ianlkl11234s" target="_blank" rel="noopener noreferrer"
-          style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8, textDecoration: "none", color: S.text, fontSize: 12 }}>
+          style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: RADIUS.xl, textDecoration: "none", color: S.text, fontSize: FONT_SIZE.md }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           GitHub
         </a>
         <a href="https://www.threads.com/@ianlkl1314" target="_blank" rel="noopener noreferrer"
-          style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: 8, textDecoration: "none", color: S.text, fontSize: 12 }}>
+          style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 14px", background: S.cardBg, border: `1px solid ${S.cardBorder}`, borderRadius: RADIUS.xl, textDecoration: "none", color: S.text, fontSize: FONT_SIZE.md }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.59 12c.025 3.086.718 5.496 2.057 7.164 1.432 1.784 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.346-.789-.96-1.42-1.744-1.838.164 3.1-1.063 5.453-3.693 5.453-1.602 0-2.97-.767-3.652-2.048-.585-1.098-.63-2.545.013-3.878.926-1.916 3.083-2.878 5.29-2.472.1-.612.133-1.266.08-1.952l2.036-.244c.083.87.06 1.693-.06 2.455 1.038.497 1.892 1.2 2.494 2.1.864 1.29 1.196 2.86.96 4.539-.32 2.28-1.462 4.1-3.298 5.272C15.692 23.347 13.718 24 12.186 24zm.512-7.17c.828 0 1.474-.31 1.858-.892.532-.806.56-2.04-.02-2.834-.328-.21-.702-.382-1.126-.506-.078 1.072-.29 2.089-.648 2.983-.137.343-.5 1.25.064 1.25h-.128z"/></svg>
           Threads
         </a>
@@ -975,7 +976,7 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
         padding: "20px 0",
       }}>
         <div style={{ padding: "0 16px" }}>
-          <div style={{ fontSize: 11, color: S.label, letterSpacing: 1.5, marginBottom: 14, textTransform: "uppercase" }}>
+          <div style={{ fontSize: FONT_SIZE.base, color: S.label, letterSpacing: 1.5, marginBottom: 14, textTransform: "uppercase" }}>
             {lang === "zh" ? "使用指南" : "User Guide"}
           </div>
           {activeTab === "guide" && (
@@ -984,9 +985,9 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
                 <button key={item.key} onClick={() => setGuidePage(item.key)}
                   style={{
                     background: guidePage === item.key ? "rgba(100,170,255,0.12)" : "transparent",
-                    border: "none", borderRadius: 6, padding: "8px 12px", textAlign: "left",
+                    border: "none", borderRadius: RADIUS.lg, padding: "8px 12px", textAlign: "left",
                     color: guidePage === item.key ? S.active : S.sub,
-                    fontSize: 12, fontFamily: S.font, cursor: "pointer", transition: "all 0.15s",
+                    fontSize: FONT_SIZE.md, fontFamily: S.font, cursor: "pointer", transition: "all 0.15s",
                   }}>
                   {item.label[lang]}
                 </button>
@@ -999,9 +1000,9 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
             <button key={tab.key} onClick={() => setActiveTab(tab.key)}
               style={{
                 background: activeTab === tab.key ? "rgba(100,170,255,0.12)" : "transparent",
-                border: "none", borderRadius: 6, padding: "8px 12px", textAlign: "left",
+                border: "none", borderRadius: RADIUS.lg, padding: "8px 12px", textAlign: "left",
                 color: activeTab === tab.key ? S.active : S.sub,
-                fontSize: 12, fontFamily: S.font, cursor: "pointer",
+                fontSize: FONT_SIZE.md, fontFamily: S.font, cursor: "pointer",
                 fontWeight: activeTab === tab.key ? 600 : 400, transition: "all 0.15s",
               }}>
               {tab.label[lang]}
@@ -1022,7 +1023,7 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
                 flex: 1, background: "transparent", border: "none",
                 borderBottom: activeTab === tab.key ? `2px solid ${S.active}` : "2px solid transparent",
                 padding: "8px 0", color: activeTab === tab.key ? S.active : S.sub,
-                fontSize: 12, fontFamily: S.font, cursor: "pointer",
+                fontSize: FONT_SIZE.md, fontFamily: S.font, cursor: "pointer",
                 fontWeight: activeTab === tab.key ? 600 : 400,
               }}>
               {tab.label[lang]}
@@ -1037,7 +1038,7 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
                   flex: 1, background: "transparent", border: "none",
                   borderBottom: guidePage === item.key ? `2px solid ${S.active}` : "2px solid transparent",
                   padding: "6px 0", color: guidePage === item.key ? S.active : S.sub,
-                  fontSize: 11, fontFamily: S.font, cursor: "pointer",
+                  fontSize: FONT_SIZE.base, fontFamily: S.font, cursor: "pointer",
                 }}>
                 {item.label[lang]}
               </button>
@@ -1074,16 +1075,16 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
             padding: isMobile ? "14px 16px" : "20px 28px",
             borderBottom: `1px solid ${S.border}`, flexShrink: 0,
           }}>
-            <h2 style={{ margin: 0, fontSize: isMobile ? 16 : 18, letterSpacing: 1, color: S.text }}>{title}</h2>
+            <h2 style={{ margin: 0, fontSize: isMobile ? FONT_SIZE.xl : FONT_SIZE.xl, letterSpacing: 1, color: S.text }}>{title}</h2>
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ display: "flex", borderRadius: 6, overflow: "hidden", border: `1px solid ${S.border}` }}>
+              <div style={{ display: "flex", borderRadius: RADIUS.lg, overflow: "hidden", border: `1px solid ${S.border}` }}>
                 {(["zh", "en"] as Lang[]).map((l) => (
                   <button key={l} onClick={() => setLang(l)}
                     style={{
                       background: lang === l ? "rgba(100,170,255,0.15)" : "transparent",
                       border: "none", padding: "3px 10px",
                       color: lang === l ? S.active : S.sub,
-                      fontSize: 11, fontFamily: S.font, cursor: "pointer",
+                      fontSize: FONT_SIZE.base, fontFamily: S.font, cursor: "pointer",
                     }}>
                     {l.toUpperCase()}
                   </button>
@@ -1091,9 +1092,9 @@ export function InfoModal({ open, onClose, isMobile }: InfoModalProps) {
               </div>
               <button onClick={onClose}
                 style={{
-                  width: 28, height: 28, borderRadius: "50%",
+                  width: 28, height: 28, borderRadius: RADIUS.full,
                   background: "rgba(255,255,255,0.08)", border: "none", color: S.sub,
-                  fontSize: 16, cursor: "pointer",
+                  fontSize: FONT_SIZE.xl, cursor: "pointer",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
                 ✕

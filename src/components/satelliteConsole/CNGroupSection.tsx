@@ -10,6 +10,7 @@
  */
 import { useEffect, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, CN_GROUPS_META, INTL_GROUPS_META } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { loadSatellites } from "../../data/satelliteLoader";
 import type { SatelliteRecord, SatelliteCategory } from "../../data/satelliteTypes";
 import type { ManeuverRow } from "../../data/satelliteManeuversLoader";
@@ -105,23 +106,23 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
             padding: "8px 14px", cursor: "pointer", userSelect: "none",
           }}
         >
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: g.color, flexShrink: 0 }} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: 12, fontWeight: 600, color: COLORS.textStrong }}>
+          <span style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: g.color, flexShrink: 0 }} />
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong }}>
             {g.label}
           </span>
           <span style={{
-            padding: "0 5px", borderRadius: 3,
+            padding: "0 5px", borderRadius: RADIUS.md,
             border: `1px solid ${COLORS.borderMid}`,
-            fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textMuted, lineHeight: "14px",
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, lineHeight: "14px",
           }}>{g.tier}</span>
-          <span style={{ marginLeft: 4, fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textMuted }}>
+          <span style={{ marginLeft: 4, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
             {list.length} 顆
           </span>
           {manCount > 0 && (
             <span style={{
-              marginLeft: 4, padding: "1px 6px", borderRadius: 3,
+              marginLeft: 4, padding: "1px 6px", borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.16)", border: "1px solid rgba(239,68,68,0.45)",
-              fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700, color: COLORS.statusErr,
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700, color: COLORS.statusErr,
               animation: "satManeuverPulse 1.1s ease-in-out infinite",
             }}>⚡{manCount}</span>
           )}
@@ -133,7 +134,7 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
             }}
             aria-label="toggle layer"
             style={{
-              width: 28, height: 16, borderRadius: 8,
+              width: 28, height: 16, borderRadius: RADIUS.xl,
               border: `1px solid ${layerOn ? COLORS.borderAccent : COLORS.borderMid}`,
               background: layerOn ? COLORS.accentFaint : "transparent",
               cursor: "pointer", position: "relative", padding: 0,
@@ -141,19 +142,19 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
           >
             <span style={{
               position: "absolute", top: 1, left: layerOn ? 13 : 1,
-              width: 12, height: 12, borderRadius: "50%",
+              width: 12, height: 12, borderRadius: RADIUS.full,
               background: layerOn ? COLORS.accent : COLORS.textDim,
               transition: "left 0.15s ease",
             }} />
           </button>
-          <span style={{ color: COLORS.textDim, fontSize: 10, marginLeft: 4 }}>
+          <span style={{ color: COLORS.textDim, fontSize: FONT_SIZE.sm, marginLeft: 4 }}>
             {isOpen ? "▾" : "▸"}
           </span>
         </div>
         {isOpen && (
           <div style={{ padding: "0 14px 8px" }}>
             {list.length === 0 ? (
-              <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint, padding: "4px 0" }}>
+              <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "4px 0" }}>
                 {layerOn ? "無資料（loader 仍在抓 TLE）" : "尚未開啟此圖層"}
               </div>
             ) : (
@@ -166,7 +167,7 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
                       style={{
                         display: "flex", alignItems: "center", gap: 6,
                         padding: "3px 0", cursor: "pointer",
-                        fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textDefault,
+                        fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textDefault,
                       }}
                       onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.03)")}
                       onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
@@ -180,13 +181,13 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
                         </span>
                       )}
                       {isManeuver && (
-                        <span style={{ color: COLORS.statusErr, fontSize: 11 }} title="近 24h 變軌">⚡</span>
+                        <span style={{ color: COLORS.statusErr, fontSize: FONT_SIZE.base }} title="近 24h 變軌">⚡</span>
                       )}
                     </div>
                   );
                 })}
                 {list.length > 80 && (
-                  <div style={{ padding: "4px 0", fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, textAlign: "center" }}>
+                  <div style={{ padding: "4px 0", fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, textAlign: "center" }}>
                     … 共 {list.length}，顯示前 80
                   </div>
                 )}
@@ -203,7 +204,7 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
       <div style={{
         padding: "9px 14px 6px",
         fontFamily: FONT_DATA,
-        fontSize: 9,
+        fontSize: FONT_SIZE.xs,
         letterSpacing: "2px",
         color: COLORS.textFaint,
       }}>
@@ -216,7 +217,7 @@ export function CNGroupSection({ maneuvers, layerVisibility, setLayerVisibility,
         padding: "9px 14px 6px",
         marginTop: 4,
         borderTop: `1px solid ${COLORS.borderSoft}`,
-        fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "2px", color: COLORS.textFaint,
+        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px", color: COLORS.textFaint,
       }}>
         INTL RECON · 9 COUNTRIES
       </div>

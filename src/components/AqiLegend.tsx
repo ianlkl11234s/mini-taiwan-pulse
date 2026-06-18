@@ -1,4 +1,4 @@
-import { FONT_DATA } from "../styles/designTokens";
+import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 /**
  * AqiLegend — AQI 6 級色階圖例（橫條）
@@ -38,7 +38,7 @@ export function AqiLegend({ isDark, caption }: Props) {
         background: isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.7)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
-        borderRadius: 8,
+        borderRadius: RADIUS.xl,
         fontFamily: FONT_DATA,
         color: isDark ? "#ddd" : "#222",
       }}
@@ -58,7 +58,7 @@ export function AqiLegend({ isDark, caption }: Props) {
       `}</style>
       <div
         style={{
-          fontSize: 10,
+          fontSize: FONT_SIZE.sm,
           marginBottom: 4,
           opacity: 0.75,
           display: "flex",
@@ -70,7 +70,7 @@ export function AqiLegend({ isDark, caption }: Props) {
         {loadingLabel && (
           <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#93c5fd" }}>
             <span className="aqi-spin" />
-            <span style={{ fontSize: 9 }}>載入中…</span>
+            <span style={{ fontSize: FONT_SIZE.xs }}>載入中…</span>
           </span>
         )}
       </div>
@@ -79,7 +79,7 @@ export function AqiLegend({ isDark, caption }: Props) {
           display: "flex",
           height: 12,
           width: 220,
-          borderRadius: 2,
+          borderRadius: RADIUS.sm,
           overflow: "hidden",
         }}
       >
@@ -95,7 +95,7 @@ export function AqiLegend({ isDark, caption }: Props) {
         style={{
           display: "flex",
           justifyContent: "space-between",
-          fontSize: 8,
+          fontSize: FONT_SIZE.xs,
           marginTop: 2,
           opacity: 0.75,
           width: 220,
@@ -106,7 +106,7 @@ export function AqiLegend({ isDark, caption }: Props) {
         ))}
       </div>
       {caption && (
-        <div style={{ fontSize: 9, marginTop: 3, opacity: 0.6 }}>{caption}</div>
+        <div style={{ fontSize: FONT_SIZE.xs, marginTop: 3, opacity: 0.6 }}>{caption}</div>
       )}
     </div>
   );

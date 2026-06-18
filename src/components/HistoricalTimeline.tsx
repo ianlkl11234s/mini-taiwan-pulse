@@ -1,4 +1,4 @@
-import { FONT_DATA } from "../styles/designTokens";
+import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 export type HistoricalGranularity = "year" | "month" | "day";
 
@@ -27,9 +27,9 @@ const getBtnStyle = (dark: boolean): React.CSSProperties => ({
   background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
   color: dark ? "rgba(220,220,220,0.9)" : "#555",
   border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   padding: "4px 10px",
-  fontSize: 14,
+  fontSize: FONT_SIZE.lg,
   cursor: "pointer",
   fontFamily: FONT_DATA,
   backdropFilter: "blur(8px)",
@@ -39,9 +39,9 @@ const getSelectStyle = (dark: boolean): React.CSSProperties => ({
   background: dark ? "rgba(120,120,120,0.35)" : "rgba(255,255,255,0.9)",
   color: dark ? "rgba(220,220,220,0.9)" : "#555",
   border: `1px solid ${dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.08)"}`,
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   padding: "4px 8px",
-  fontSize: 13,
+  fontSize: FONT_SIZE.lg,
   fontFamily: FONT_DATA,
 });
 
@@ -110,7 +110,7 @@ export function HistoricalTimeline({
     const active = g === granularity;
     return {
       ...getBtnStyle(dark),
-      fontSize: 12,
+      fontSize: FONT_SIZE.md,
       padding: "3px 10px",
       fontWeight: active ? 700 : 400,
       color: active ? "#4caf50" : dark ? "rgba(220,220,220,0.9)" : "#555",
@@ -144,7 +144,7 @@ export function HistoricalTimeline({
       <span
         style={{
           width: 26,
-          fontSize: 11,
+          fontSize: FONT_SIZE.base,
           color: dark ? "rgba(180,180,180,0.7)" : "rgba(0,0,0,0.55)",
           fontFamily: FONT_DATA,
           textAlign: "right",
@@ -165,7 +165,7 @@ export function HistoricalTimeline({
       <span
         style={{
           minWidth: 36,
-          fontSize: 11,
+          fontSize: FONT_SIZE.base,
           color: dark ? "rgba(220,220,220,0.85)" : "#444",
           fontFamily: FONT_DATA,
         }}
@@ -191,7 +191,7 @@ export function HistoricalTimeline({
         <span
           style={{
             marginLeft: "auto",
-            fontSize: 13,
+            fontSize: FONT_SIZE.lg,
             fontWeight: 600,
             color: dark ? "rgba(240,240,240,0.95)" : "#222",
             fontFamily: FONT_DATA,
@@ -208,7 +208,7 @@ export function HistoricalTimeline({
           style={{
             ...getBtnStyle(dark),
             ...(isMobile
-              ? { width: 44, height: 44, fontSize: 18, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }
+              ? { width: 44, height: 44, fontSize: FONT_SIZE.xl, padding: 0, display: "flex", alignItems: "center", justifyContent: "center" }
               : {}),
           }}
           title={playing ? "暫停" : `播放（依${granLabel[granularity]}推進）`}
@@ -229,7 +229,7 @@ export function HistoricalTimeline({
         </select>
         <span
           style={{
-            fontSize: 11,
+            fontSize: FONT_SIZE.base,
             color: dark ? "rgba(180,180,180,0.55)" : "rgba(0,0,0,0.5)",
             fontFamily: FONT_DATA,
           }}

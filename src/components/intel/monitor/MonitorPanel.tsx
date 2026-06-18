@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
-import { ELEVATION } from "../../../styles/designTokens";
+import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { IntelCard, type IntelCardEvent } from "../IntelCard";
 import { IntelFilters, type TimeRange } from "../IntelFilters";
 import {
@@ -376,7 +376,7 @@ export function MonitorPanel({
         WebkitBackdropFilter: "blur(18px)",
         borderTop: wall ? "none" : `1px solid ${COLORS.borderMid}`,
         border: wall ? "none" : `1px solid ${COLORS.panelBorder}`,
-        borderRadius: wall ? 0 : 10,
+        borderRadius: wall ? 0 : RADIUS.xl,
         zIndex: 40,
         display: "flex", flexDirection: "column",
         overflow: "hidden",
@@ -406,7 +406,7 @@ export function MonitorPanel({
             style={{
               position: "absolute", left: "50%", top: 5,
               transform: "translateX(-50%)",
-              width: 44, height: 4, borderRadius: 3,
+              width: 44, height: 4, borderRadius: RADIUS.md,
               background: COLORS.borderStrong,
             }}
           />
@@ -418,22 +418,22 @@ export function MonitorPanel({
           }}
         >
           <IntelIcon d={MICON.grid!} size={15} color={COLORS.accent} />
-          <span style={{ fontFamily: FONT_CJK, fontSize: 13, fontWeight: 700, color: "#fff" }}>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff" }}>
             監看模式
           </span>
           <span
             style={{
-              fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "2.5px", color: COLORS.textDim,
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2.5px", color: COLORS.textDim,
             }}
           >
             MONITOR
           </span>
           <span
             style={{
-              padding: "1px 7px", borderRadius: 4,
+              padding: "1px 7px", borderRadius: RADIUS.md,
               background: "rgba(255,152,0,0.16)",
               border: "1px solid rgba(255,152,0,0.45)",
-              fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700, letterSpacing: "1px",
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700, letterSpacing: "1px",
               color: COLORS.statusWarn,
               animation: "presBreathe 3s ease-in-out infinite",
             }}
@@ -444,7 +444,7 @@ export function MonitorPanel({
         </div>
         <span
           style={{
-            fontFamily: FONT_DATA, fontSize: 10, color: COLORS.textFaint,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
             marginTop: wall ? 0 : 4, whiteSpace: "nowrap",
           }}
         >
@@ -459,8 +459,8 @@ export function MonitorPanel({
           onMouseDown={(e) => e.stopPropagation()}
           style={{
             display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "5px 11px", borderRadius: 6, cursor: "pointer",
-            marginTop: wall ? 0 : 4, fontFamily: FONT_CJK, fontSize: 11,
+            padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
+            marginTop: wall ? 0 : 4, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
             whiteSpace: "nowrap",
             background: wall ? COLORS.accentFaint : "rgba(255,255,255,0.05)",
             border: wall ? `1px solid ${COLORS.accentSoft}` : `1px solid ${COLORS.borderMid}`,
@@ -482,9 +482,9 @@ export function MonitorPanel({
           onMouseDown={(e) => e.stopPropagation()}
           style={{
             display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "5px 11px", borderRadius: 6, cursor: "pointer",
+            padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
             marginTop: wall ? 0 : 4,
-            fontFamily: FONT_CJK, fontSize: 11, whiteSpace: "nowrap",
+            fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, whiteSpace: "nowrap",
             background: "rgba(255,255,255,0.05)",
             border: `1px solid ${COLORS.borderMid}`,
             color: COLORS.textDefault,
@@ -536,14 +536,14 @@ export function MonitorPanel({
             <span
               style={{
                 display: "inline-flex", alignItems: "center", gap: 4,
-                padding: "1px 7px", borderRadius: 4,
+                padding: "1px 7px", borderRadius: RADIUS.md,
                 background: COLORS.statusLiveSoft,
                 border: `1px solid ${COLORS.statusLiveBorder}`,
               }}
             >
               <span
                 style={{
-                  width: 5, height: 5, borderRadius: "50%",
+                  width: 5, height: 5, borderRadius: RADIUS.full,
                   background: COLORS.statusLive,
                   boxShadow: `0 0 5px ${COLORS.statusLive}`,
                   animation: "intelRing 1.6s ease-in-out infinite",
@@ -551,7 +551,7 @@ export function MonitorPanel({
               />
               <span
                 style={{
-                  fontFamily: FONT_DATA, fontSize: 9, fontWeight: 700,
+                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
                   color: COLORS.statusLive,
                 }}
               >
@@ -596,10 +596,10 @@ export function MonitorPanel({
                 }}
               >
                 <IntelIcon d={ICON.radio} size={26} color={COLORS.textGhost} />
-                <div style={{ fontFamily: FONT_CJK, fontSize: 12, color: COLORS.textMuted }}>
+                <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
                   目前無符合條件的事件
                 </div>
-                <div style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textFaint }}>
+                <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
                   調整分類 / 縣市，或回到即時
                 </div>
               </div>

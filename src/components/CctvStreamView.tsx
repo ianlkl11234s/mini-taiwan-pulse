@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { COLORS } from "../styles/designTokens";
+import { COLORS, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 interface Props {
   /** VideoStreamURL — MJPEG 串流（freeway/highway/部分 city）或 HTML 播放頁（北市/桃園/台中等 city） */
@@ -74,7 +74,7 @@ const BOX_STYLE: React.CSSProperties = {
   width: "100%",
   // CCTV 畫面多為 16:9，框用同比例隨寬度自適應，避免太扁造成上下裁切 / 左右黑邊
   aspectRatio: "16 / 9",
-  borderRadius: 4,
+  borderRadius: RADIUS.md,
   overflow: "hidden",
   background: "#0a0a0a",
   border: "1px solid rgba(255,255,255,0.08)",
@@ -130,7 +130,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
         display: "inline-block",
         marginTop: 6,
         color: accentColor,
-        fontSize: 11,
+        fontSize: FONT_SIZE.base,
         textDecoration: "underline",
         wordBreak: "break-all",
       }}
@@ -143,7 +143,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
     <div style={BOX_STYLE} data-cctv-source={source}>
       <span
         style={{
-          fontSize: 11,
+          fontSize: FONT_SIZE.base,
           color: COLORS.textMuted,
           textAlign: "center",
           padding: "0 12px",
@@ -203,7 +203,7 @@ export function CctvStreamView({ streamUrl, imageUrl, source, accentColor }: Pro
           <span
             style={{
               position: "absolute",
-              fontSize: 11,
+              fontSize: FONT_SIZE.base,
               color: COLORS.textDim,
             }}
           >

@@ -5,6 +5,7 @@ import {
   type AlertGroupShort,
 } from "../intelTokens";
 import type { AlertTally } from "../../../data/alertsLoader";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
 interface Props {
   tally: AlertTally;
@@ -27,7 +28,7 @@ export function AlertSummaryBar({
           flexShrink: 0,
           display: "flex", alignItems: "center", gap: 6,
           padding: "6px 14px",
-          fontFamily: FONT_CJK, fontSize: 11,
+          fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
           color: COLORS.textFaint,
           borderBottom: `1px solid ${COLORS.borderSoft}`,
         }}
@@ -71,7 +72,7 @@ export function AlertSummaryBar({
           <span
             style={{
               display: "inline-flex", alignItems: "center", gap: 4,
-              padding: "1px 7px", borderRadius: 4,
+              padding: "1px 7px", borderRadius: RADIUS.md,
               background: "rgba(239,68,68,0.18)",
               border: "1px solid rgba(239,68,68,0.45)",
               fontFamily: FONT_DATA, fontSize: 9.5, fontWeight: 700,
@@ -94,7 +95,7 @@ export function AlertSummaryBar({
                   key={g}
                   title={`${def.label} ${s.count}`}
                   style={{
-                    width: 7, height: 7, borderRadius: "50%",
+                    width: 7, height: 7, borderRadius: RADIUS.full,
                     background: def.color,
                     boxShadow: hot ? `0 0 6px ${def.color}` : "none",
                     opacity: hot ? 1 : 0.78,
@@ -136,7 +137,7 @@ export function AlertSummaryBar({
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
                   padding: "6px 8px",
-                  borderRadius: 6,
+                  borderRadius: RADIUS.lg,
                   background: active
                     ? "rgba(100,170,255,0.14)"
                     : dim
@@ -151,7 +152,7 @@ export function AlertSummaryBar({
                 <IntelIcon d={MICON[def.iconKey]!} size={12} color={def.color} />
                 <span
                   style={{
-                    fontFamily: FONT_CJK, fontSize: 11, fontWeight: 600,
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, fontWeight: 600,
                     color: COLORS.textDefault, whiteSpace: "nowrap",
                   }}
                 >
@@ -160,7 +161,7 @@ export function AlertSummaryBar({
                 <div style={{ flex: 1 }} />
                 <span
                   style={{
-                    fontFamily: FONT_DATA, fontSize: 11, fontWeight: 700,
+                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700,
                     color: sev > 0 ? "#ef4444" : COLORS.textStrong,
                   }}
                 >

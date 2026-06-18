@@ -6,6 +6,7 @@
  */
 import { useEffect, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, PANEL_WIDTH } from "./satelliteConsoleTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { SatelliteConsoleHeader } from "./SatelliteConsoleHeader";
 import { ManeuverAlertSection } from "./ManeuverAlertSection";
 import { CNGroupSection } from "./CNGroupSection";
@@ -72,7 +73,7 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
           boxShadow: isHistory
             ? "0 0 0 1px rgba(255,152,0,0.18), 0 12px 40px rgba(0,0,0,0.45)"
             : "0 12px 40px rgba(0,0,0,0.45)",
-          borderRadius: 10,
+          borderRadius: RADIUS.xl,
           zIndex: 30,
           display: "flex",
           flexDirection: "column",
@@ -120,7 +121,7 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
           padding: "8px 14px",
           borderTop: `1px solid ${COLORS.borderSoft}`,
           fontFamily: FONT_DATA,
-          fontSize: 9,
+          fontSize: FONT_SIZE.xs,
           color: COLORS.textFaint,
           display: "flex",
           alignItems: "center",

@@ -14,6 +14,7 @@ import type {
   PressureIndexNow, MarketIndex, PlaActivity, PublicHealthWeek, SourceHealthSummary,
 } from "../../../data/intelLoaders";
 import { SectionLabel, Widget } from "./PressureRing";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SituationOverview } from "./SituationOverview";
 import { SituationCards } from "./SituationCards";
 import { LiveWall } from "./LiveWall";
@@ -110,7 +111,7 @@ function DistBar({
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <span
         style={{
-          fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "0.5px",
+          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "0.5px",
           color: COLORS.textDim,
         }}
       >
@@ -118,7 +119,7 @@ function DistBar({
       </span>
       <div
         style={{
-          display: "flex", height: 9, borderRadius: 3, overflow: "hidden",
+          display: "flex", height: 9, borderRadius: RADIUS.md, overflow: "hidden",
           background: "rgba(255,255,255,0.04)",
         }}
       >
@@ -147,7 +148,7 @@ function DistBar({
           >
             <span
               style={{
-                width: 7, height: 7, borderRadius: 2, background: lv.color,
+                width: 7, height: 7, borderRadius: RADIUS.sm, background: lv.color,
                 opacity: counts[i] ? 1 : 0.4,
               }}
             />
@@ -245,7 +246,7 @@ export function IndicatorPanel({
                 onClick={() => onPickHotspot(r.county)}
                 style={{
                   display: "flex", alignItems: "center", gap: 9,
-                  padding: "6px 8px", borderRadius: 6, cursor: "pointer",
+                  padding: "6px 8px", borderRadius: RADIUS.lg, cursor: "pointer",
                   background: "rgba(255,255,255,0.02)",
                   border: `1px solid ${COLORS.borderSoft}`,
                   textAlign: "left", transition: "background .12s",
@@ -259,7 +260,7 @@ export function IndicatorPanel({
               >
                 <span
                   style={{
-                    fontFamily: FONT_DATA, fontSize: 11, fontWeight: 700,
+                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700,
                     color: COLORS.textDim, width: 14,
                   }}
                 >
@@ -267,13 +268,13 @@ export function IndicatorPanel({
                 </span>
                 <span
                   style={{
-                    width: 8, height: 8, borderRadius: "50%",
+                    width: 8, height: 8, borderRadius: RADIUS.full,
                     background: cat.color, flexShrink: 0,
                   }}
                 />
                 <span
                   style={{
-                    fontFamily: FONT_CJK, fontSize: 12,
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.md,
                     color: COLORS.textStrong, whiteSpace: "nowrap",
                   }}
                 >
@@ -282,7 +283,7 @@ export function IndicatorPanel({
                 <span
                   style={{
                     fontFamily: FONT_CJK, fontSize: 9.5, color: cat.color,
-                    padding: "1px 6px", borderRadius: 3,
+                    padding: "1px 6px", borderRadius: RADIUS.md,
                     background: `${cat.color}1f`, whiteSpace: "nowrap",
                   }}
                 >
@@ -290,7 +291,7 @@ export function IndicatorPanel({
                 </span>
                 <div
                   style={{
-                    flex: 1, height: 5, borderRadius: 3,
+                    flex: 1, height: 5, borderRadius: RADIUS.md,
                     background: "rgba(255,255,255,0.05)",
                     overflow: "hidden", minWidth: 20,
                   }}
@@ -305,7 +306,7 @@ export function IndicatorPanel({
                 </div>
                 <span
                   style={{
-                    fontFamily: FONT_DATA, fontSize: 13, fontWeight: 700,
+                    fontFamily: FONT_DATA, fontSize: FONT_SIZE.lg, fontWeight: 700,
                     color: "#fff", width: 18, textAlign: "right",
                   }}
                 >
@@ -330,7 +331,7 @@ export function IndicatorPanel({
           {stats.ranked.length === 0 && (
             <div
               style={{
-                fontFamily: FONT_CJK, fontSize: 11, color: COLORS.textFaint,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textFaint,
                 padding: "10px 2px",
               }}
             >
@@ -359,13 +360,13 @@ export function IndicatorPanel({
                 key={c.key}
                 style={{
                   display: "inline-flex", alignItems: "center", gap: 3,
-                  fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textDim,
+                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
                   whiteSpace: "nowrap",
                 }}
               >
                 <span
                   style={{
-                    width: 7, height: 7, borderRadius: 2, background: c.color,
+                    width: 7, height: 7, borderRadius: RADIUS.sm, background: c.color,
                   }}
                 />
                 {c.label}
@@ -398,7 +399,7 @@ export function IndicatorPanel({
                   flex: 1, display: "flex", flexDirection: "column-reverse",
                   height: `${(hd.total / peak) * 100}%`,
                   minHeight: hd.total ? 3 : 0,
-                  borderRadius: 2, overflow: "hidden",
+                  borderRadius: RADIUS.sm, overflow: "hidden",
                   opacity: isFuture ? 0.25 : 1,
                 }}
               >
@@ -420,7 +421,7 @@ export function IndicatorPanel({
         <div
           style={{
             display: "flex", justifyContent: "space-between", marginTop: 4,
-            fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint,
+            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
           }}
         >
           <span>00:00</span>
@@ -452,7 +453,7 @@ export function IndicatorPanel({
       <div
         style={{
           gridColumn: "1 / -1",
-          fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint,
+          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
           textAlign: "right",
         }}
       >

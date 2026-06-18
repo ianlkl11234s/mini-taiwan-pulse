@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { COLORS } from "../styles/designTokens";
+import { COLORS, FONT_SIZE } from "../styles/designTokens";
 
 /**
  * 24h SVG sparkline — Y 軸刻度 + 警戒線 + X 軸 6/12/18h tick
@@ -118,7 +118,7 @@ export function TimeseriesSparkline({
     return (
       <div
         style={{
-          fontSize: 10,
+          fontSize: FONT_SIZE.sm,
           color: COLORS.textDim,
           padding: "8px 4px",
           textAlign: "center",
