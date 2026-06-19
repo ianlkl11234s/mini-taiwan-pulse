@@ -114,7 +114,10 @@ export function updateOverlayTheme(
     for (const spec of config.layers) {
       if (!config.rebuildOnParamChange.includes(spec.suffix)) continue;
       const id = layerId(config, spec.suffix);
-      const snapshot = snapshotPaint(spec.paint(isDark, params));
+      // 把 paint + (callback) layout 一起 snapshot；callback layout 變化也需 trigger rebuild
+      const paintObj = spec.paint(isDark, params);
+      const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : (spec.layout ?? {});
+      const snapshot = snapshotPaint({ ...paintObj, ...layoutObj });
       nextSnapshots.set(id, snapshot);
       if (!map.getLayer(id) || !paintSnapshotEquals(cache.get(id), snapshot)) {
         needRebuild = true;
@@ -136,14 +139,13 @@ export function updateOverlayTheme(
         const id = layerId(config, spec.suffix);
         if (map.getLayer(id)) continue;
         const paint = spec.paint(isDark, params);
+        const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout;
         map.addLayer({
           id,
           type: spec.type as "line",
           source: config.sourceId,
           ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
-          ...(spec.layout
-          ? { layout: typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout }
-          : {}),
+          ...(layoutObj ? { layout: layoutObj } : {}),
           ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
           ...(config.filter ? { filter: config.filter } : {}),
           paint: paint as Record<string, unknown>,
