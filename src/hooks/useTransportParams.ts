@@ -408,6 +408,12 @@ export function useTransportParams() {
   const [osmPowerLinesWidth, setOsmPowerLinesWidth] = useState(1);
   const [osmPowerTowersOpacity, setOsmPowerTowersOpacity] = useState(0.75);
   const [osmPowerTowersSize, setOsmPowerTowersSize] = useState(1);
+  const [osmWindTurbinesOpacity, setOsmWindTurbinesOpacity] = useState(0.85);
+  const [osmWindTurbinesSize, setOsmWindTurbinesSize] = useState(1);
+  const [osmSolarFarmsOpacity, setOsmSolarFarmsOpacity] = useState(0.85);
+  const [osmSolarFarmsSize, setOsmSolarFarmsSize] = useState(1);
+  const [osmPowerPlantsStaticOpacity, setOsmPowerPlantsStaticOpacity] = useState(0.85);
+  const [osmPowerPlantsStaticSize, setOsmPowerPlantsStaticSize] = useState(1);
   const [evChargingOpacity, setEvChargingOpacity] = useState(0.8);
   // HAZARD（v2 Phase B）
   const [lightningOpacity, setLightningOpacity] = useState(0.85);
@@ -710,13 +716,19 @@ export function useTransportParams() {
     osmPowerLinesWidth,
     osmPowerTowersOpacity,
     osmPowerTowersSize,
+    osmWindTurbinesOpacity,
+    osmWindTurbinesSize,
+    osmSolarFarmsOpacity,
+    osmSolarFarmsSize,
+    osmPowerPlantsStaticOpacity,
+    osmPowerPlantsStaticSize,
     evChargingOpacity,
     // HAZARD
     lightningOpacity,
     lightningMinutes,
     nuclearOpacity,
     nuclearScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -1339,6 +1351,18 @@ export function useTransportParams() {
       case "osmPowerTowers": return [
         { label: `大小 ${osmPowerTowersSize.toFixed(1)}`, value: osmPowerTowersSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmPowerTowersSize },
         { label: `透明度 ${osmPowerTowersOpacity.toFixed(2)}`, value: osmPowerTowersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmPowerTowersOpacity },
+      ];
+      case "osmWindTurbines": return [
+        { label: `大小 ${osmWindTurbinesSize.toFixed(1)}`, value: osmWindTurbinesSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmWindTurbinesSize },
+        { label: `透明度 ${osmWindTurbinesOpacity.toFixed(2)}`, value: osmWindTurbinesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmWindTurbinesOpacity },
+      ];
+      case "osmSolarFarms": return [
+        { label: `大小 ${osmSolarFarmsSize.toFixed(1)}`, value: osmSolarFarmsSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmSolarFarmsSize },
+        { label: `透明度 ${osmSolarFarmsOpacity.toFixed(2)}`, value: osmSolarFarmsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmSolarFarmsOpacity },
+      ];
+      case "osmPowerPlantsStatic": return [
+        { label: `大小 ${osmPowerPlantsStaticSize.toFixed(1)}`, value: osmPowerPlantsStaticSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmPowerPlantsStaticSize },
+        { label: `透明度 ${osmPowerPlantsStaticOpacity.toFixed(2)}`, value: osmPowerPlantsStaticOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmPowerPlantsStaticOpacity },
       ];
       case "evChargingStations": return [
         { label: `透明度 ${evChargingOpacity.toFixed(2)}`, value: evChargingOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEvChargingOpacity },

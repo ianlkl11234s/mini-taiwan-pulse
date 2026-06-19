@@ -193,6 +193,59 @@ export function OsmPowerTowerPanel({ props }: { props: Record<string, unknown> }
   );
 }
 
+function fmtM(v: unknown, unit = "m"): string {
+  if (v == null || v === "") return "—";
+  const n = Number(v);
+  return Number.isFinite(n) ? `${n.toFixed(0)} ${unit}` : "—";
+}
+
+export function OsmWindTurbinePanel({ props }: { props: Record<string, unknown> }) {
+  const offshore = props.is_offshore;
+  const offshoreLabel = offshore === true ? "離岸" : offshore === false ? "陸域" : "—";
+  return (
+    <div>
+      <Row label="名稱" value={String(props.name || "(無名)")} />
+      <Row label="類型" value={offshoreLabel} color={offshore === true ? "#67e8f9" : offshore === false ? "#2dd4bf" : undefined} />
+      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row label="塔高" value={fmtM(props.height_m)} />
+      <Row label="葉片直徑" value={fmtM(props.rotor_diameter_m)} />
+      <Row label="製造商" value={String(props.manufacturer || "—")} />
+      <Row label="型號" value={String(props.model || "—")} />
+      <Row label="營運單位" value={String(props.operator || "—")} />
+      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+    </div>
+  );
+}
+
+export function OsmSolarFarmPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="名稱" value={String(props.name || "(無名)")} />
+      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row label="模組數" value={String(props.modules ?? "—")} />
+      <Row label="面積" value={fmtM(props.area_m2, "m²")} />
+      <Row label="方式" value={String(props.plant_method || "—")} />
+      <Row label="營運單位" value={String(props.operator || "—")} />
+      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+    </div>
+  );
+}
+
+export function OsmPowerPlantStaticPanel({ props }: { props: Record<string, unknown> }) {
+  const src = String(props.plant_source || "");
+  return (
+    <div>
+      <Row label="名稱" value={String(props.name || "(無名)")} />
+      <Row label="燃料 / 來源" value={src || "—"} color={fuelColorOf(src)} />
+      <Row label="方式" value={String(props.plant_method || "—")} />
+      <Row label="發電機" value={String(props.generator_source || "—")} />
+      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row label="營運單位" value={String(props.operator || "—")} />
+      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+    </div>
+  );
+}
+
 export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>

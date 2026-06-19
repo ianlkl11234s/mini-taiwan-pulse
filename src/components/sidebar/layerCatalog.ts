@@ -184,6 +184,9 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   osmSubstations: "#a78bfa",       // 變電所紫
   osmPowerLines: "#22d3ee",        // 高壓輸電線 cyan-400（161kV 主色）
   osmPowerTowers: "#0ea5e9",       // 高壓鐵塔 sky-500（69kV 配電色）
+  osmWindTurbines: "#67e8f9",      // 風機 cyan-300（offshore 主色）
+  osmSolarFarms: "#fbbf24",        // 光電 amber-400
+  osmPowerPlantsStatic: "#9ca3af", // OSM 電廠 灰（plant_source 在 paint 內分色）
   evChargingStations: "#10b981",   // 充電綠
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
@@ -471,6 +474,9 @@ export const SECTIONS: SectionDef[] = [
       { key: "osmSubstations", label: "變電所", expandable: true },
       { key: "osmPowerLines", label: "高壓輸電線", expandable: true },
       { key: "osmPowerTowers", label: "高壓鐵塔", expandable: true },
+      { key: "osmWindTurbines", label: "風機", expandable: true },
+      { key: "osmSolarFarms", label: "光電廠", expandable: true },
+      { key: "osmPowerPlantsStatic", label: "OSM 電廠（補充）", expandable: true },
       { key: "evChargingStations", label: "充電站", expandable: true },
     ],
   },

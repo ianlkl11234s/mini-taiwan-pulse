@@ -324,6 +324,87 @@ export const POWER_LINE_VOLTAGE_COLORS = {
   mixed: "#475569", // slate-600 unknown/mixed 低調
 } as const;
 
+// ── OSM 風光電 3 件套（Energy v2 Phase D.1） ─────────────────
+
+/** OSM 風機 812（migration 229） */
+export interface OsmWindTurbine {
+  osm_id: number;
+  name: string | null;
+  operator: string | null;
+  manufacturer: string | null;
+  model: string | null;
+  height_m: number | null;
+  rotor_diameter_m: number | null;
+  capacity_mw: number | null;
+  is_offshore: boolean | null;
+  lon: number;
+  lat: number;
+}
+
+/** OSM 光電廠 734（migration 229） */
+export interface OsmSolarFarm {
+  osm_id: number;
+  name: string | null;
+  operator: string | null;
+  plant_source: string | null;
+  plant_method: string | null;
+  capacity_mw: number | null;
+  modules: number | null;
+  area_m2: number | null;
+  lon: number;
+  lat: number;
+}
+
+/** OSM 電廠 POI 513（migration 229，補 IPP/小型） */
+export interface OsmPowerPlantStatic {
+  osm_id: number;
+  name: string | null;
+  power: string | null;
+  plant_source: string | null;
+  plant_method: string | null;
+  generator_source: string | null;
+  operator: string | null;
+  capacity_mw: number | null;
+  lon: number;
+  lat: number;
+}
+
+async function fetchOsmWindTurbinesUncached(): Promise<OsmWindTurbine[]> {
+  const { data, error } = await withLoading(
+    "energy:windTurbines",
+    "風機 812",
+    supabase.rpc("get_osm_wind_turbines"),
+  );
+  if (error) throw new Error(`get_osm_wind_turbines: ${error.message}`);
+  return (data ?? []) as OsmWindTurbine[];
+}
+const fetchOsmWindTurbinesCached = cachedOnce(fetchOsmWindTurbinesUncached, 60 * 60_000);
+export const fetchOsmWindTurbines = (): Promise<OsmWindTurbine[]> => fetchOsmWindTurbinesCached();
+
+async function fetchOsmSolarFarmsUncached(): Promise<OsmSolarFarm[]> {
+  const { data, error } = await withLoading(
+    "energy:solarFarms",
+    "光電廠 734",
+    supabase.rpc("get_osm_solar_farms"),
+  );
+  if (error) throw new Error(`get_osm_solar_farms: ${error.message}`);
+  return (data ?? []) as OsmSolarFarm[];
+}
+const fetchOsmSolarFarmsCached = cachedOnce(fetchOsmSolarFarmsUncached, 60 * 60_000);
+export const fetchOsmSolarFarms = (): Promise<OsmSolarFarm[]> => fetchOsmSolarFarmsCached();
+
+async function fetchOsmPowerPlantsStaticUncached(): Promise<OsmPowerPlantStatic[]> {
+  const { data, error } = await withLoading(
+    "energy:powerPlantsStatic",
+    "OSM 電廠 513",
+    supabase.rpc("get_osm_power_plants_static"),
+  );
+  if (error) throw new Error(`get_osm_power_plants_static: ${error.message}`);
+  return (data ?? []) as OsmPowerPlantStatic[];
+}
+const fetchOsmPowerPlantsStaticCached = cachedOnce(fetchOsmPowerPlantsStaticUncached, 60 * 60_000);
+export const fetchOsmPowerPlantsStatic = (): Promise<OsmPowerPlantStatic[]> => fetchOsmPowerPlantsStaticCached();
+
 async function fetchEvChargingUncached(): Promise<EvChargingStation[]> {
   const { data, error } = await withLoading(
     "energy:ev",

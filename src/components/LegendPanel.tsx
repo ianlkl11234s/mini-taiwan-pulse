@@ -141,6 +141,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
   { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
+  { keys: ["osmWindTurbines", "osmSolarFarms", "osmPowerPlantsStatic"], render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
   { keys: ["lightning"], render: () => <LightningLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
 ];
@@ -1012,6 +1013,63 @@ function PowerGridLegend() {
         ● 鐵塔需 zoom ≥ 13<br />
         ● 來源：OSM（同 openinframap），約 60% 線未標電壓
       </div>
+    </div>
+  );
+}
+
+// ── Energy: OSM 風光電 POI（風機 offshore/onshore + 光電 + OSM 電廠 fuel） ──
+
+function RenewablePoiLegend({ visibility }: { visibility: LayerVisibility }) {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · OSM 風光電
+      </div>
+      {visibility.osmWindTurbines && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>風機 (812)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#67e8f9", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>離岸 466</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#2dd4bf", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>陸域 / 未標 346</span>
+          </div>
+        </>
+      )}
+      {visibility.osmSolarFarms && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>光電廠 (734)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#fbbf24", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>POI 中心</span>
+          </div>
+        </>
+      )}
+      {visibility.osmPowerPlantsStatic && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>OSM 電廠 (513) by fuel</div>
+          {[
+            { k: "solar", c: "#fbbf24", l: "太陽" },
+            { k: "wind", c: "#22d3ee", l: "風力" },
+            { k: "hydro", c: "#3b82f6", l: "水力" },
+            { k: "coal", c: "#374151", l: "煤" },
+            { k: "gas", c: "#94a3b8", l: "天然氣" },
+            { k: "nuclear", c: "#facc15", l: "核能" },
+            { k: "waste", c: "#a3a300", l: "廢棄物" },
+            { k: "other", c: "#9ca3af", l: "其他/未標" },
+          ].map((x) => (
+            <div key={x.k} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+            ⚠ 與「電廠」(all_power_plants_v) 可能重疊
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -728,6 +728,9 @@ export default function App() {
     showSubstations: layerVisibility.osmSubstations,
     showPowerLines: layerVisibility.osmPowerLines,
     showPowerTowers: layerVisibility.osmPowerTowers,
+    showWindTurbines: layerVisibility.osmWindTurbines,
+    showSolarFarms: layerVisibility.osmSolarFarms,
+    showOsmPowerPlantsStatic: layerVisibility.osmPowerPlantsStatic,
     showEvCharging: layerVisibility.evChargingStations,
   });
   usePowerRegionBarsLayer(

@@ -130,6 +130,46 @@ B.1 資料層必須與 B.2 UI 接線同時送進來才不會 ratchet fail。
 - substations operator filter toggle（plan 提的 showNonTaipower）— Energy MVP 既有 layer 未拆，要動會牽連 v1 PR #23，留 v3 評估
 - towers 預期 ~26k 點全量載入 5MB+ JSON，前端 setData 一次性 OK；若實測卡頓再考慮 PMTiles（屬 E-E 範疇）
 
+## Phase D.1 — OSM 風光電 3 件套（done，待視覺驗收）
+
+> E-D 8 表分 D.1/D.2/D.3 推進；本批 wind + solar + osm_power_plants 純 POI。
+
+### D.1 — migration 229 + 接線（合併 commit）
+
+- [x] `../gis-platform/migrations/229_osm_renewable_rpc.sql` 3 RPC：
+      - `get_osm_wind_turbines()` 812（含 is_offshore / height_m / rotor_diameter_m / capacity_mw）
+      - `get_osm_solar_farms()` 734（POI centroid，poly_geom 未填全 NULL）
+      - `get_osm_power_plants_static()` 513（OSM 自有，補充 IPP/小型，與 all_power_plants_v 可能重疊）
+- [x] psql apply + 3 RPC count 全對
+- [x] `types/index.ts`：3 LayerVisibility key + 3 FeatureInfo.layerType
+- [x] `energyLoader.ts`：3 interface + 3 fetchXxx（cachedOnce 60min）
+- [x] `overlayRegistry.ts` 3 entry：
+      - osmWindTurbines：halo + core，色 case is_offshore=true → `#67e8f9` cyan-300 / false → `#2dd4bf` teal-400 / null → 灰
+      - osmSolarFarms：halo + core，amber-400 `#fbbf24`
+      - osmPowerPlantsStatic：core，paint match plant_source 分色（solar/wind/hydro/coal/gas/nuclear/waste...）
+- [x] `useEnergyPoiLayer.ts`：3 source 加 cachedOnce + 3 GeoJSON converter
+- [x] `layerCatalog.ts`：ENERGY 加 3 條 + LAYER_COLORS 3 色（cyan-300/amber-400/灰）
+- [x] `IconRailSidebar.tsx`：lucide `Wind`（風機）/ `Sun`（光電）/ `Factory`（OSM 電廠）
+- [x] `useTransportParams.ts`：6 slider（size + opacity × 3）+ return + deps
+- [x] `useMapInteraction.ts` GIS_LAYERS 3 條
+- [x] `energyPanels.tsx`：3 panel（OsmWindTurbinePanel offshore label / OsmSolarFarmPanel 含 area_m² / OsmPowerPlantStaticPanel fuel 染色）
+- [x] `registry.tsx`：panel + label
+- [x] `LegendPanel.tsx`：`RenewablePoiLegend`（依 visibility 條件顯示各 sub-section、含 OSM 電廠 fuel 8 色 + "與 all_power_plants_v 可能重疊" 警語）
+- [x] `App.tsx` 接 hook 3 新 prop
+- [x] `npx tsc -b` 0 error
+- [x] `npx vitest run` 14 檔 / 155 cases pass（含 layerConsistency + registry）
+
+### D.1 暫不做
+
+- 風機 capacity_mw 分大小 — 全島 zoom 7~9 size 差距視覺不明顯，先固定大小 + slider 調整
+- solar_farms.poly_geom 全 NULL → 待 OSM scraper 補 polygon 才能上面狀渲染
+- osm_power_plants 跟 all_power_plants_v dedup — 兩 layer 獨立 toggle，使用者自己挑
+
+## Phase D.2 / D.3（pending）
+
+- D.2：offshore_wind_zones 36 polygon + island_power_grid 14 + fossil_fuel_infrastructure 9
+- D.3：geothermal_wells 36 + renewable_permits_taipei 438
+
 ## 已知不對齊（追加 plan 對比）
 
 - `docs/energy-v2-plan.md` §B 強調 cluster，B.3 暫用 zoom-gate 著色不做 mapbox cluster。

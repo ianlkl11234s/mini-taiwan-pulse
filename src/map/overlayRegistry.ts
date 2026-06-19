@@ -3097,6 +3097,149 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Energy v2 Phase D.1：OSM 風機 812 ──
+  // is_offshore boolean 分色：offshore=cyan-300、onshore=teal-400、null=灰
+  // capacity_mw 分大小（4 段 1.5~5MW vestas 主流）
+  {
+    id: "osmWindTurbines",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-wind-turbines",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmWindTurbinesOpacity", "osmWindTurbinesSize"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.osmWindTurbinesOpacity ?? 0.85;
+          const s = params?.osmWindTurbinesSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 4], 10, ["*", s, 8], 14, ["*", s, 14],
+            ],
+            "circle-color": [
+              "case", ["==", ["get", "is_offshore"], true], "#67e8f9", "#2dd4bf",
+            ],
+            "circle-opacity": o * 0.25,
+            "circle-blur": 0.6,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.osmWindTurbinesOpacity ?? 0.85;
+          const s = params?.osmWindTurbinesSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2], 10, ["*", s, 3.5], 14, ["*", s, 6],
+            ],
+            "circle-color": [
+              "case",
+              ["==", ["get", "is_offshore"], true], "#67e8f9",
+              ["==", ["get", "is_offshore"], false], "#2dd4bf",
+              "#94a3b8",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "#0c4a6e" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.1：OSM 光電廠 734（POI centroid） ──
+  // capacity_mw 分大小，色：amber
+  {
+    id: "osmSolarFarms",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-solar-farms",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmSolarFarmsOpacity", "osmSolarFarmsSize"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.osmSolarFarmsOpacity ?? 0.85;
+          const s = params?.osmSolarFarmsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 4], 10, ["*", s, 8], 14, ["*", s, 14],
+            ],
+            "circle-color": "#fbbf24",
+            "circle-opacity": o * 0.22,
+            "circle-blur": 0.6,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.osmSolarFarmsOpacity ?? 0.85;
+          const s = params?.osmSolarFarmsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2], 10, ["*", s, 3.5], 14, ["*", s, 6],
+            ],
+            "circle-color": "#fbbf24",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "#78350f" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.1：OSM 電廠 POI 513（補 IPP/小型） ──
+  // plant_source 分色：solar/hydro/wind/coal/gas/nuclear/waste...
+  {
+    id: "osmPowerPlantsStatic",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-osm-power-plants-static",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmPowerPlantsStaticOpacity", "osmPowerPlantsStaticSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.osmPowerPlantsStaticOpacity ?? 0.85;
+          const s = params?.osmPowerPlantsStaticSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2.5], 10, ["*", s, 4], 14, ["*", s, 7],
+            ],
+            "circle-color": [
+              "match", ["get", "plant_source"],
+              "solar", "#fbbf24",
+              "wind", "#22d3ee",
+              "hydro", "#3b82f6",
+              "coal", "#374151",
+              "gas", "#94a3b8",
+              "diesel", "#1f2937",
+              "nuclear", "#facc15",
+              "waste", "#a3a300",
+              "#9ca3af",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": isDark ? "#1e293b" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
   // ── Layer 6：EV 充電站 3,060 ──
   {
     id: "evChargingStations",

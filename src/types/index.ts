@@ -184,6 +184,9 @@ export type ExpandableLayerKey =
   | "osmSubstations"
   | "osmPowerLines"
   | "osmPowerTowers"
+  | "osmWindTurbines"
+  | "osmSolarFarms"
+  | "osmPowerPlantsStatic"
   | "evChargingStations"
   // HAZARD（v2 Phase B）
   | "lightning"
@@ -544,6 +547,7 @@ export interface FeatureInfo {
     | "satellite"
     | "powerPlant" | "osmSubstation" | "evCharging"
     | "osmPowerLine" | "osmPowerTower"
+    | "osmWindTurbine" | "osmSolarFarm" | "osmPowerPlantStatic"
     | "lightningStrike" | "nuclearStation";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
@@ -713,7 +717,10 @@ export interface LayerVisibility {
   powerGenerationUnit: boolean;  // 機組即時出力 3D beam（InstancedMesh，高 ∝ output_load_rate）
   osmSubstations: boolean;       // 變電所 785（2D circle）
   osmPowerLines: boolean;        // OSM 高壓輸電線 2,305（voltage 分色 + line_type 分粗細）
-  osmPowerTowers: boolean;       // OSM 高壓鐵塔 26,589（minzoom 13）
+  osmPowerTowers: boolean;       // OSM 高壓鐵塔 26,589（minzoom 8、統一 sky-300）
+  osmWindTurbines: boolean;      // OSM 風機 812（466 offshore 海上 + 346 onshore 陸上 + 含 null）
+  osmSolarFarms: boolean;        // OSM 光電廠 734（POI centroid）
+  osmPowerPlantsStatic: boolean; // OSM 電廠 513（補 IPP/小型，與 all_power_plants_v 可能重疊）
   evChargingStations: boolean;   // 充電站 3,060（2D circle）
   // 災害 HAZARD（v2 Phase B）
   lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
