@@ -25,34 +25,40 @@ export function useOsmPowerLinesGlowLayer(
   opacityRef.current = opacity;
   widthRef.current = widthMul;
 
-  // Mount custom layer once
+  // Mount custom layer — try/catch + idle retry pattern
+  // ⚠️ 不要用 isStyleLoaded() 守，因為 style.load 已 fire 過不會再 fire
+  // 參考 usePowerGenerationBeamLayer 同 pattern（.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md）
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
-
-    const layer = createOsmPowerLinesGlowLayer({
-      getIsVisible: () => visibleRef.current,
-      getOpacity:   () => opacityRef.current,
-      getWidthMul:  () => widthRef.current,
-      getFeatures:  () => featuresRef.current,
-    });
-
-    const onStyleLoad = () => {
-      if (!map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) map.addLayer(layer);
-      map.triggerRepaint();
-    };
-    if (map.isStyleLoaded()) {
-      if (!map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) map.addLayer(layer);
+    if (!map) {
+      console.log("[osmPowerLinesGlow] mount: mapRef null，等下次 deps 變化");
+      return;
     }
-    map.on("style.load", onStyleLoad);
-
+    const tryMount = () => {
+      if (map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) return;
+      try {
+        const layer = createOsmPowerLinesGlowLayer({
+          getIsVisible: () => visibleRef.current,
+          getOpacity:   () => opacityRef.current,
+          getWidthMul:  () => widthRef.current,
+          getFeatures:  () => featuresRef.current,
+        });
+        map.addLayer(layer);
+        console.log("[osmPowerLinesGlow] CustomLayer mounted ✓");
+      } catch (e) {
+        console.log("[osmPowerLinesGlow] addLayer 失敗 → idle 重試", e);
+        map.once("idle", tryMount);
+      }
+    };
+    tryMount();
+    map.on("style.load", tryMount);
     return () => {
-      map.off("style.load", onStyleLoad);
+      map.off("style.load", tryMount);
       if (map.getLayer(OSM_POWER_LINES_GLOW_LAYER_ID)) {
         map.removeLayer(OSM_POWER_LINES_GLOW_LAYER_ID);
       }
     };
-  }, [mapRef]);
+  }, [mapRef, visible]);
 
   // Lazy fetch lines when first visible
   useEffect(() => {
