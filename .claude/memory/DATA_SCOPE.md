@@ -335,12 +335,12 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 | 縣市生質統計 | `public.county_biomass_stats` | 188 | 沒接（E-F KPI）|
 | 縣市小水力 | `public.county_small_hydro_stats` | 188 | 沒接（E-F KPI）|
 | 光電月發電（站時序）| `analytics.solar_daily_generation` | 3,992 | 沒接（E-F 月趨勢）|
-| 落雷即時 | `realtime.lightning_events` | 32,912 / 24h | 沒接（E-B HAZARD 用戶要求，RPC 214 已備）|
+| 落雷即時 | `realtime.lightning_events` | 32,912 / 24h | **已接** v2 Phase B（feat/energy-v2-A b7d6154，5~360 min slider）|
 | 落雷日聚合 | `analytics.lightning_daily_summary` | 動態 | 沒接（E-F KPI）|
 | **三本柱燈號** | `realtime.power_system_status` | 1,843 (10min × 約 13 天) | ✅ HUD（v1.1 留 hooks 給 monitor E-A）|
 | **區域用電** | `realtime.power_region_demand` | 7,352 | ✅ region bars（v1.1 留 hooks 給 monitor E-A）|
 | **機組即時** | `realtime.power_generation_unit` | 376,790 (7 天 retention) | ✅ 3D beam layer 4 |
-| 核安站當下 | `realtime.nuclear_radiation_stations` | 51 | 沒接（E-B HAZARD，RPC 215 已備）|
+| 核安站當下 | `realtime.nuclear_radiation_stations` | 51 | **已接** v2 Phase B（feat/energy-v2-A b7d6154，5 階分級含 stale）|
 | 核安站歷史 | `realtime.nuclear_radiation_measurements` | 動態 | 沒接（E-B per-station sparkline）|
 | 核安日聚合 | `analytics.nuclear_radiation_daily` | 動態 | 沒接（E-F）|
 
@@ -350,8 +350,8 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 |---|---|---|
 | 212 | `get_power_dashboard()` | 燈號 + 4 區 一次拉（HUD + region bars）|
 | 213 | `get_power_plants_with_output()` | 10,665 POI 含 retired flag |
-| 214 | `get_lightning_recent(min)` | 落雷時窗（E-B 待接）|
-| 215 | `get_nuclear_radiation_status()` | 51 核安站當下（E-B 待接）|
+| 214 | `get_lightning_recent(min)` | 落雷時窗（**已接** v2 Phase B）|
+| 215 | `get_nuclear_radiation_status()` | 51 核安站當下（**已接** v2 Phase B）|
 | 216 | `get_osm_substations()` + `get_ev_charging_stations()` | 兩 slim POI |
 | 217 | `get_power_plants_at(ts)` + `get_power_plant_output_24h(name)` | timeline + popup sparkline |
 | 218 | `get_power_generation_at(ts)` | beam slim 14 廠 ~3 KB |
