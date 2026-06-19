@@ -479,34 +479,33 @@ export const SECTIONS: SectionDef[] = [
   {
     // powerStatusHud + powerRegionDemand 不在地圖 sidebar，預定搬 monitor 面板
     // （KPI 性質非地理事件）。LayerVisibility key 保留供 monitor 整合時複用。
-    title: "ENERGY · 能源",
+    title: "能源 · 電力",
     layers: [
-      // Phase 8 SSOT facilities 6-layer — 整合後的精簡視覺
-      { key: "facPrimary",       label: "主要電廠（運轉中）",  expandable: true },
-      { key: "facOffshore",      label: "離岸風電場址",         expandable: true },
-      { key: "facPlanned",       label: "規劃 / 未來電廠",      expandable: true },
-      { key: "facHistorical",    label: "歷史 — 退役/擱置",     expandable: true },
-      { key: "facSecondary",     label: "次要電廠（小型/分散）", expandable: true },
-      { key: "facOsmSupplement", label: "OSM 補充（無名單機）",  expandable: true },
-      // 電網基礎設施
+      // ── 發電廠（主視覺 — 6 層 SSOT 整理）──
+      // 由「重要 → 邊角」、「現役 → 未來 → 歷史 → 小型 → 散落 OSM」邏輯排序
+      { key: "facPrimary",       label: "發電廠（主要・運轉中）",  expandable: true },
+      { key: "facOffshore",      label: "發電廠（離岸風場）",       expandable: true },
+      { key: "facPlanned",       label: "發電廠（未來規劃）",       expandable: true },
+      { key: "facHistorical",    label: "發電廠（歷史・退役）",     expandable: true },
+      { key: "facSecondary",     label: "發電廠（小型分散）",       expandable: true },
+      { key: "facOsmSupplement", label: "發電廠（OSM 補充）",       expandable: true },
+      // ── 機組即時 3D 視覺 ──
+      { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
+      // ── 電網基礎設施 ──
       { key: "osmSubstations", label: "變電所", expandable: true },
       { key: "osmPowerLines", label: "高壓輸電線", expandable: true },
       { key: "osmPowerTowers", label: "高壓鐵塔", expandable: true },
-      // 即時 3D beam（保留）
-      { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
-      // OSM 原始細節 layer（為比對 SSOT 用，預設 OFF）
-      { key: "osmWindTurbines", label: "OSM 風機", expandable: true },
-      { key: "osmSolarFarms", label: "OSM 光電廠", expandable: true },
-      { key: "osmPowerPlantsStatic", label: "OSM 電廠（散落）", expandable: true },
-      { key: "offshoreWindZones", label: "離岸風場（OSM 36）", expandable: true },
-      { key: "islandPowerGrid", label: "離島電網", expandable: true },
-      { key: "fossilFuelInfra", label: "化石燃料設施", expandable: true },
-      { key: "geothermalWells", label: "地熱井", expandable: true },
-      { key: "renewablePermitsTaipei", label: "北市再生能源", expandable: true },
-      { key: "evChargingStations", label: "充電站", expandable: true },
-      // ⚠️ powerPlants legacy layer 已被 facPrimary+facSecondary+facHistorical+facPlanned 取代
-      // 仍保留 LayerVisibility key 供 PowerCard / 3D beam 內部使用
-      { key: "powerPlants", label: "電廠（legacy）", expandable: true },
+      // ── 其他能源點位 ──
+      { key: "osmWindTurbines",        label: "風機（OSM 點位）",  expandable: true },
+      { key: "geothermalWells",        label: "地熱井",            expandable: true },
+      { key: "renewablePermitsTaipei", label: "北市再生能源許可",   expandable: true },
+      { key: "evChargingStations",     label: "電動車充電站",      expandable: true },
+    ],
+  },
+  {
+    title: "能源 · 石化",
+    layers: [
+      { key: "fossilFuelInfra", label: "石化能源設施", expandable: true },
     ],
   },
   {
