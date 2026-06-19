@@ -165,14 +165,54 @@ export function updateOverlayTheme(
     for (const spec of config.layers) {
       if (config.rebuildOnParamChange.includes(spec.suffix)) continue;
       applyPaintDiff(map, cache, layerId(config, spec.suffix), spec.paint(isDark, params));
+      if (typeof spec.layout === "function") {
+        applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
+      }
     }
     return;
   }
 
-  // 一般 layers: diff 式 setPaintProperty
+  // 一般 layers: diff 式 setPaintProperty + callback layout 也 diff 更新
   for (const spec of config.layers) {
     applyPaintDiff(map, cache, layerId(config, spec.suffix), spec.paint(isDark, params));
+    if (typeof spec.layout === "function") {
+      applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
+    }
   }
+}
+
+const layoutCacheByMap = new WeakMap<MapboxMap, Map<string, Record<string, string>>>();
+function layoutCacheOf(map: MapboxMap): Map<string, Record<string, string>> {
+  let cache = layoutCacheByMap.get(map);
+  if (!cache) {
+    cache = new Map();
+    layoutCacheByMap.set(map, cache);
+  }
+  return cache;
+}
+
+function applyLayoutDiff(
+  map: MapboxMap,
+  id: string,
+  layout: Record<string, unknown>,
+) {
+  if (!map.getLayer(id)) return;
+  const cache = layoutCacheOf(map);
+  const prev = cache.get(id) ?? {};
+  const next: Record<string, string> = {};
+  for (const [k, v] of Object.entries(layout)) {
+    const s = JSON.stringify(v) ?? "__undefined__";
+    next[k] = s;
+    if (prev[k] !== s) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        map.setLayoutProperty(id, k as any, v as any);
+      } catch (e) {
+        console.warn(`[overlayManager] setLayoutProperty ${id}/${k} failed`, e);
+      }
+    }
+  }
+  cache.set(id, next);
 }
 
 function applyPaintDiff(
