@@ -2942,7 +2942,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-substations",
     dynamicData: true,
-    rebuildOnParamChange: ["osmSubstationsOpacity", "osmSubstationsSize"],
+    rebuildOnParamChange: ["osmSubstationsOpacity", "osmSubstationsSize", "osmSubstationsSizeBig", "osmSubstationsSizeSmall"],
     layers: [
       // halo：EHV_SWITCH + EHV 才有，標出超高壓節點（圓形光暈）
       {
@@ -2974,7 +2974,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "circle",
         type: "symbol",
         layout: (_isDark, params) => {
-          const s = params?.osmSubstationsSize ?? 1;
+          const s  = params?.osmSubstationsSize ?? 1;
+          const sB = (params?.osmSubstationsSizeBig ?? 1) * s;    // 大型 = EHV_SWITCH + EHV
+          const sS = (params?.osmSubstationsSizeSmall ?? 1) * s;  // 其他
           return {
             "icon-image": "substation-diamond",
             "icon-rotate": 45,
@@ -2983,14 +2985,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "icon-size": [
               "interpolate", ["linear"], ["zoom"],
               6, ["match", ["get", "class"],
-                  "EHV_SWITCH", 0.40 * s, "EHV", 0.32 * s, "PS", 0.25 * s,
-                  "DPS", 0.20 * s, "SS", 0.18 * s, "TRACTION", 0.16 * s, 0.13 * s],
+                  "EHV_SWITCH", 0.40 * sB, "EHV", 0.32 * sB,
+                  "PS", 0.25 * sS, "DPS", 0.20 * sS, "SS", 0.18 * sS,
+                  "TRACTION", 0.16 * sS, 0.13 * sS],
               11, ["match", ["get", "class"],
-                   "EHV_SWITCH", 0.65 * s, "EHV", 0.52 * s, "PS", 0.40 * s,
-                   "DPS", 0.32 * s, "SS", 0.28 * s, "TRACTION", 0.24 * s, 0.20 * s],
+                   "EHV_SWITCH", 0.65 * sB, "EHV", 0.52 * sB,
+                   "PS", 0.40 * sS, "DPS", 0.32 * sS, "SS", 0.28 * sS,
+                   "TRACTION", 0.24 * sS, 0.20 * sS],
               14, ["match", ["get", "class"],
-                   "EHV_SWITCH", 0.90 * s, "EHV", 0.72 * s, "PS", 0.55 * s,
-                   "DPS", 0.45 * s, "SS", 0.36 * s, "TRACTION", 0.32 * s, 0.28 * s],
+                   "EHV_SWITCH", 0.90 * sB, "EHV", 0.72 * sB,
+                   "PS", 0.55 * sS, "DPS", 0.45 * sS, "SS", 0.36 * sS,
+                   "TRACTION", 0.32 * sS, 0.28 * sS],
             ],
           };
         },
