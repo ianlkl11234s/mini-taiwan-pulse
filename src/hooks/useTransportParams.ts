@@ -406,8 +406,8 @@ export function useTransportParams() {
   const [osmSubstationsOpacity, setOsmSubstationsOpacity] = useState(0.85);
   const [osmSubstationsSize, setOsmSubstationsSize] = useState(1);
   // 分兩階：大型 = EHV_SWITCH + EHV；其他 = PS / DPS / SS / TRACTION / OTHER
-  const [osmSubstationsSizeBig, setOsmSubstationsSizeBig] = useState(1);
-  const [osmSubstationsSizeSmall, setOsmSubstationsSizeSmall] = useState(1);
+  const [osmSubstationsSizeBig, setOsmSubstationsSizeBig] = useState(0.5);
+  const [osmSubstationsSizeSmall, setOsmSubstationsSizeSmall] = useState(0.3);
   const [osmPowerLinesOpacity, setOsmPowerLinesOpacity] = useState(0.4);
   const [osmPowerLinesWidth, setOsmPowerLinesWidth] = useState(0.7);
   const [osmPowerTowersOpacity, setOsmPowerTowersOpacity] = useState(0.75);
