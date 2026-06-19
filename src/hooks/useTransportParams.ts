@@ -407,7 +407,7 @@ export function useTransportParams() {
   const [evChargingOpacity, setEvChargingOpacity] = useState(0.8);
   // HAZARD（v2 Phase B）
   const [lightningOpacity, setLightningOpacity] = useState(0.85);
-  const [lightningMinutes, setLightningMinutes] = useState(60);
+  const [lightningMinutes, setLightningMinutes] = useState(10);
   const [nuclearOpacity, setNuclearOpacity] = useState(0.9);
   const [nuclearScale, setNuclearScale] = useState(1.0);
   // point：opacity + scale
