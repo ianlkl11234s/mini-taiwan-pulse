@@ -2942,7 +2942,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-substations",
     dynamicData: true,
-    rebuildOnParamChange: ["osmSubstationsOpacity"],
+    rebuildOnParamChange: ["osmSubstationsOpacity", "osmSubstationsSize"],
     layers: [
       // halo：EHV_SWITCH + EHV 才有，標出超高壓節點（圓形光暈）
       {
@@ -2973,20 +2973,26 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "symbol",
-        layout: {
-          "icon-image": "substation-diamond",
-          "icon-rotate": 45,
-          "icon-allow-overlap": true,
-          "icon-ignore-placement": true,
-          "icon-size": [
-            "interpolate", ["linear"], ["zoom"],
-            6, ["match", ["get", "class"],
-                "EHV_SWITCH", 0.40, "EHV", 0.32, "PS", 0.25, "DPS", 0.20, "SS", 0.18, "TRACTION", 0.16, 0.13],
-            11, ["match", ["get", "class"],
-                 "EHV_SWITCH", 0.65, "EHV", 0.52, "PS", 0.40, "DPS", 0.32, "SS", 0.28, "TRACTION", 0.24, 0.20],
-            14, ["match", ["get", "class"],
-                 "EHV_SWITCH", 0.90, "EHV", 0.72, "PS", 0.55, "DPS", 0.45, "SS", 0.36, "TRACTION", 0.32, 0.28],
-          ],
+        layout: (_isDark, params) => {
+          const s = params?.osmSubstationsSize ?? 1;
+          return {
+            "icon-image": "substation-diamond",
+            "icon-rotate": 45,
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+            "icon-size": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["match", ["get", "class"],
+                  "EHV_SWITCH", 0.40 * s, "EHV", 0.32 * s, "PS", 0.25 * s,
+                  "DPS", 0.20 * s, "SS", 0.18 * s, "TRACTION", 0.16 * s, 0.13 * s],
+              11, ["match", ["get", "class"],
+                   "EHV_SWITCH", 0.65 * s, "EHV", 0.52 * s, "PS", 0.40 * s,
+                   "DPS", 0.32 * s, "SS", 0.28 * s, "TRACTION", 0.24 * s, 0.20 * s],
+              14, ["match", ["get", "class"],
+                   "EHV_SWITCH", 0.90 * s, "EHV", 0.72 * s, "PS", 0.55 * s,
+                   "DPS", 0.45 * s, "SS", 0.36 * s, "TRACTION", 0.32 * s, 0.28 * s],
+            ],
+          };
         },
         paint: (_isDark, params) => {
           const o = params?.osmSubstationsOpacity ?? 0.85;

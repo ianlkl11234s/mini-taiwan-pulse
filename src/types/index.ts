@@ -505,7 +505,7 @@ export interface BusTrail {
 export interface OverlayLayerSpec {
   suffix: string;
   type: "line" | "fill" | "circle" | "fill-extrusion" | "symbol";
-  layout?: Record<string, unknown>;
+  layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
   /** 同 sourceId 多 layer 各自 sub-filter（疊在 OverlayConfig.filter 之上 → all 串接） */

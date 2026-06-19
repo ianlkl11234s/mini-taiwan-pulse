@@ -84,7 +84,9 @@ export function addOverlay(
       type: spec.type as "line",  // TS union trick
       source: config.sourceId,
       ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
-      ...(spec.layout ? { layout: spec.layout } : {}),
+      ...(spec.layout
+          ? { layout: typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout }
+          : {}),
       ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
       ...(spec.filter ? { filter: spec.filter } : config.filter ? { filter: config.filter } : {}),
       paint: paint as Record<string, unknown>,
@@ -139,7 +141,9 @@ export function updateOverlayTheme(
           type: spec.type as "line",
           source: config.sourceId,
           ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
-          ...(spec.layout ? { layout: spec.layout } : {}),
+          ...(spec.layout
+          ? { layout: typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout }
+          : {}),
           ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
           ...(config.filter ? { filter: config.filter } : {}),
           paint: paint as Record<string, unknown>,
