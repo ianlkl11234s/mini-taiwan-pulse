@@ -29,6 +29,12 @@ import {
   CAPACITY_BREAKS,
   CAPACITY_RADIUS,
 } from "../data/energyLoader";
+import { LIGHTNING_TYPE_COLORS } from "../data/lightningLoader";
+import {
+  NUCLEAR_DOSE_THRESHOLDS,
+  NUCLEAR_LEVEL_COLORS,
+  type NuclearDoseLevel,
+} from "../data/nuclearLoader";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -134,6 +140,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
+  { keys: ["lightning"], render: () => <LightningLegend /> },
+  { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
 ];
 
 export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
@@ -981,6 +989,69 @@ function EnergyReserveLegend() {
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
         ● 4 區用電柱（Layer 3）柱高 ∝ consumption_mw<br />
         ● 柱色 = 全國燈號（共用一個值）
+      </div>
+    </div>
+  );
+}
+
+// ── HAZARD: 落雷 / 核安 ──
+
+function LightningLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        HAZARD · 落雷類型
+      </div>
+      {[
+        { label: "雲對地 CG（高傷害）", color: LIGHTNING_TYPE_COLORS[0]! },
+        { label: "雲中 IC", color: LIGHTNING_TYPE_COLORS[1]! },
+      ].map((row) => (
+        <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 10, height: 10, borderRadius: RADIUS.full,
+              background: row.color, display: "inline-block",
+              boxShadow: `0 0 5px ${row.color}aa`,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{row.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● zoom &lt; 10 自動 cluster<br />
+        ● 預設 60 min 視窗
+      </div>
+    </div>
+  );
+}
+
+function NuclearLegend() {
+  const rows: { key: NuclearDoseLevel; label: string }[] = [
+    { key: "normal", label: `正常 ≤ ${NUCLEAR_DOSE_THRESHOLDS.normal} µSv/h` },
+    { key: "watch", label: `略高 ≤ ${NUCLEAR_DOSE_THRESHOLDS.watch}` },
+    { key: "warning", label: `觀察 ≤ ${NUCLEAR_DOSE_THRESHOLDS.warning}` },
+    { key: "alarm", label: `警戒 > ${NUCLEAR_DOSE_THRESHOLDS.warning}` },
+    { key: "stale", label: "離線 stale（劑量不可信）" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        HAZARD · 核安劑量
+      </div>
+      {rows.map((row) => (
+        <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 10, height: 10, borderRadius: RADIUS.full,
+              background: NUCLEAR_LEVEL_COLORS[row.key], display: "inline-block",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{row.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ⚠️ 高劑量 + stale = 感測器離線 ≠ 真實核災<br />
+        背景值 0.039 ~ 0.072 µSv/h（自然輻射）
       </div>
     </div>
   );

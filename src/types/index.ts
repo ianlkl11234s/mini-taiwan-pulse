@@ -183,6 +183,9 @@ export type ExpandableLayerKey =
   | "powerGenerationUnit"
   | "osmSubstations"
   | "evChargingStations"
+  // HAZARD（v2 Phase B）
+  | "lightning"
+  | "nuclearRadiation"
   | "wasteTruck"
   | "wasteSchedule"
   | "wasteScheduleNote"
@@ -535,7 +538,8 @@ export interface FeatureInfo {
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "hikingTrails"
     | "satellite"
-    | "powerPlant" | "osmSubstation" | "evCharging";
+    | "powerPlant" | "osmSubstation" | "evCharging"
+    | "lightningStrike" | "nuclearStation";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
@@ -704,6 +708,9 @@ export interface LayerVisibility {
   powerGenerationUnit: boolean;  // 機組即時出力 3D beam（InstancedMesh，高 ∝ output_load_rate）
   osmSubstations: boolean;       // 變電所 785（2D circle）
   evChargingStations: boolean;   // 充電站 3,060（2D circle）
+  // 災害 HAZARD（v2 Phase B）
+  lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
+  nuclearRadiation: boolean;     // 核安 51 站即時劑量（is_stale 標離線）
 }
 
 // ── 空氣品質 ──

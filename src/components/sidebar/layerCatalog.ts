@@ -183,6 +183,9 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   powerGenerationUnit: "#f97316",  // 機組橙（光柱主色）
   osmSubstations: "#a78bfa",       // 變電所紫
   evChargingStations: "#10b981",   // 充電綠
+  // HAZARD（v2 Phase B）
+  lightning: "#fb923c",             // 落雷橘（雲對地主色）
+  nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
 };
 
 // ── Transport Labels ──
@@ -465,6 +468,15 @@ export const SECTIONS: SectionDef[] = [
       { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
       { key: "osmSubstations", label: "變電所", expandable: true },
       { key: "evChargingStations", label: "充電站", expandable: true },
+    ],
+  },
+  {
+    // HAZARD：與 disasterAlerts 同層的災害類圖層
+    // 落雷需 cluster + zoom-gate（雷雨季 1h 上萬筆）；核安須區分 is_stale 離線 vs 真實警戒。
+    title: "HAZARD · 災害",
+    layers: [
+      { key: "lightning", label: "落雷 60min", expandable: true },
+      { key: "nuclearRadiation", label: "核安輻射", expandable: true },
     ],
   },
 ];
