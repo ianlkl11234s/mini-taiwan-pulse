@@ -21,6 +21,16 @@
 - **Python / pip**：一律 `python3` / `pip3`，不是 `python` / `pip`
 - **TypeScript 驗證**：`npx tsc -b`（project references），**不要**用 `tsc --noEmit`（漏檢）
 - **Commit 前必跑** `npx tsc -b`
+- **Commit 前必跑 `git branch --show-current`**：SessionStart auto-memory-cherry-pick hook
+  會在 session 中段把 HEAD 切回 master 而不通知。任何 commit / 跨 phase 切換 / 上次互動隔了
+  幾分鐘都先確認分支。reflog 連續看到 `cherry-pick: memory:` + `checkout: moving from <feat>
+  to master` = hook 觸發，立刻 `git checkout <feat>`。（2026-06-19 Energy v2 事件）
+- **layerConsistency-class ratchet → 拆 commit 限制**：純資料層 commit 若會讓
+  layerConsistency / featureInfo registry / LegendPanel 等 ratchet 測試紅燈，
+  必須與「UI 接線 commit」合成一次（例：B.1 types/loader + B.2 Legend/Panel/params
+  一同送）。事前盤點：新 layer key 進 LayerVisibility → 自動觸發 5 條 ratchet（LAYER_COLORS
+  / SECTIONS / LEGEND_REGISTRY 或 BASELINE / PANEL_REGISTRY 或 BASELINE / useTransportParams
+  case 或 BASELINE），缺一 fail。
 - **Commit message**：繁體中文 + conventional commits prefix（feat/fix/docs/refactor）
 - **Inline styles**：UI 用 inline styles，所有元件支援 `isDarkTheme`
 - **Shell 腳本不依賴 jq**：macOS 預設無 jq（需 Homebrew 另裝）。組 JSON 一律用
