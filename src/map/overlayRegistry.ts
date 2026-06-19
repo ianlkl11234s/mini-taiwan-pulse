@@ -3041,125 +3041,20 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: ["osmPowerLinesOpacity", "osmPowerLinesWidth"],
     layers: [
-      // ── 方案 D：multi-line stacking（模仿 openinframap night mode）──
-      // 4 層 tier 主色疊加、遞減 opacity + 增 width、極少 blur
-      // 比 line-blur 更接近 emissive bloom 的自然發散感
-      //
-      // Layer 1: halo-outer（最外暈，最大寬最低透明）
+      // ── 方案 C：bloom 走 Three.js custom layer（osm-power-lines-three-glow）──
+      // Mapbox 端只保留 cable 與 hit-test 用 core（透明寬線）以維持 click popup。
+      // core 線本身視覺由 Three.js 端 emissive bloom 取代，因此 Mapbox core 設透明。
       {
-        suffix: "halo-outer",
-        type: "line",
-        paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.4;
-          const w = params?.osmPowerLinesWidth ?? 1;
-          return {
-            "line-color": [
-              "match", ["get", "tier"],
-              345, "#1AB6D9", 161, "#62D9AD", 69, "#468BA6", "#DFE0DC",
-            ],
-            "line-width": [
-              "interpolate", ["linear"], ["zoom"],
-              5,  ["*", w, ["match", ["get", "tier"], 345, 10, 161, 6,  69, 4,  3]],
-              10, ["*", w, ["match", ["get", "tier"], 345, 22, 161, 13, 69, 8,  6]],
-              14, ["*", w, ["match", ["get", "tier"], 345, 36, 161, 22, 69, 14, 10]],
-            ],
-            "line-opacity": [
-              "*", o,
-              ["match", ["get", "tier"], 345, 0.06, 161, 0.04, 69, 0.03, 0.02],
-            ],
-            "line-blur": 2,
-          };
-        },
-      },
-      // Layer 2: halo-mid（中暈）
-      {
-        suffix: "halo-mid",
-        type: "line",
-        paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.4;
-          const w = params?.osmPowerLinesWidth ?? 1;
-          return {
-            "line-color": [
-              "match", ["get", "tier"],
-              345, "#1AB6D9", 161, "#62D9AD", 69, "#468BA6", "#DFE0DC",
-            ],
-            "line-width": [
-              "interpolate", ["linear"], ["zoom"],
-              5,  ["*", w, ["match", ["get", "tier"], 345, 6,  161, 4,   69, 2.5, 2]],
-              10, ["*", w, ["match", ["get", "tier"], 345, 13, 161, 8,   69, 5,   3.5]],
-              14, ["*", w, ["match", ["get", "tier"], 345, 22, 161, 13,  69, 8,   6]],
-            ],
-            "line-opacity": [
-              "*", o,
-              ["match", ["get", "tier"], 345, 0.14, 161, 0.10, 69, 0.07, 0.05],
-            ],
-            "line-blur": 1,
-          };
-        },
-      },
-      // Layer 3: halo-inner（內暈，鄰近核心強度）
-      {
-        suffix: "halo-inner",
-        type: "line",
-        paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.4;
-          const w = params?.osmPowerLinesWidth ?? 1;
-          return {
-            "line-color": [
-              "match", ["get", "tier"],
-              345, "#1AB6D9", 161, "#62D9AD", 69, "#468BA6", "#DFE0DC",
-            ],
-            "line-width": [
-              "interpolate", ["linear"], ["zoom"],
-              5,  ["*", w, ["match", ["get", "tier"], 345, 3.5, 161, 2.2, 69, 1.6, 1.2]],
-              10, ["*", w, ["match", ["get", "tier"], 345, 8,   161, 5,   69, 3.4, 2.4]],
-              14, ["*", w, ["match", ["get", "tier"], 345, 14,  161, 9,   69, 6,   4]],
-            ],
-            "line-opacity": [
-              "*", o,
-              ["match", ["get", "tier"], 345, 0.28, 161, 0.20, 69, 0.14, 0.10],
-            ],
-            "line-blur": 0,
-          };
-        },
-      },
-      // ── Core 實線骨幹（line + minor_line）──
-      // 345 kV 加粗 + 高亮（slider 0.6 → 視覺 ~0.8），其他 tier 維持
-      {
-        suffix: "core",
+        suffix: "hit",
         type: "line",
         filter: ["!=", ["get", "line_type"], "cable"],
-        paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.6;
-          const w = params?.osmPowerLinesWidth ?? 1;
-          return {
-            "line-color": [
-              "match", ["get", "tier"],
-              345, "#1AB6D9",
-              161, "#62D9AD",
-              69,  "#468BA6",
-              "#DFE0DC",
-            ],
-            "line-width": [
-              "*", w,
-              ["match", ["get", "tier"],
-                345, ["match", ["get", "line_type"], "minor_line", 1.8, "line", 4, 3],
-                161, ["match", ["get", "line_type"], "minor_line", 1,   "line", 2.4, 1.6],
-                69,  ["match", ["get", "line_type"], "minor_line", 0.7, "line", 1.6, 1.2],
-                ["match", ["get", "line_type"], "minor_line", 0.6, "line", 1.2, 1],
-              ],
-            ],
-            "line-opacity": [
-              "match", ["get", "tier"],
-              // 345 kV 額外加 1.33x → slider 0.6 變視覺 ~0.8（cap 1）
-              345, ["min", 1, ["*", o, 1.33]],
-              // 其他 tier 維持 slider 值（minor_line 折扣 0.55）
-              ["*", o, ["match", ["get", "line_type"], "minor_line", 0.55, 1]],
-            ],
-          };
-        },
+        paint: () => ({
+          "line-color": "#000000",
+          "line-width": 14,
+          "line-opacity": 0,  // 透明寬線僅供 hit-test
+        }),
       },
-      // 地下電纜（dashed）
+      // 地下電纜（dashed）— Three.js bloom 不畫虛線，保留 Mapbox 端
       {
         suffix: "cable",
         type: "line",

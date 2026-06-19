@@ -174,7 +174,7 @@ export function useMapInteraction(
           { layers: ["energy-power-plants-circle", "energy-power-plants-halo"], type: "powerPlant" },
           { layers: ["energy-power-generation-hit-hit"], type: "powerPlant" },
           { layers: ["energy-substations-circle"], type: "osmSubstation" },
-          { layers: ["energy-power-lines-core", "energy-power-lines-cable"], type: "osmPowerLine" },
+          { layers: ["energy-power-lines-hit", "energy-power-lines-cable"], type: "osmPowerLine" },
           { layers: ["energy-power-towers-circle"], type: "osmPowerTower" },
           { layers: ["energy-wind-turbines-core", "energy-wind-turbines-halo"], type: "osmWindTurbine" },
           { layers: ["energy-solar-farms-core", "energy-solar-farms-halo"], type: "osmSolarFarm" },
