@@ -68,8 +68,8 @@ void main() {
   vec2 dn    = length(dirPx) > 1e-6 ? normalize(dirPx) : vec2(1.0, 0.0);
   vec2 normalPx = vec2(-dn.y, dn.x) * across * uHalfWidthPx;
 
-  // 選 A 或 B 端的 clip
-  vec4 clip = (along < 0.5) ? clipA : clipB;
+  // 選 A 或 B 端的 clip（GLSL ES 1.0 ternary 不支援 vec4，必用 mix）
+  vec4 clip = mix(clipA, clipB, along);
   vec2 offsetNdc = (normalPx / uResolution) * 2.0;
   clip.xy += offsetNdc * clip.w;
   gl_Position = clip;

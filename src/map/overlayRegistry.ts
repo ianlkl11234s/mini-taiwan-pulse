@@ -3042,17 +3042,38 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["osmPowerLinesOpacity", "osmPowerLinesWidth"],
     layers: [
       // ── 方案 C：bloom 走 Three.js custom layer（osm-power-lines-three-glow）──
-      // Mapbox 端只保留 cable 與 hit-test 用 core（透明寬線）以維持 click popup。
-      // core 線本身視覺由 Three.js 端 emissive bloom 取代，因此 Mapbox core 設透明。
+      // 同時保留 Mapbox simple core 作為穩定 baseline（Three.js fail 時仍可見）
       {
-        suffix: "hit",
+        suffix: "core",
         type: "line",
         filter: ["!=", ["get", "line_type"], "cable"],
-        paint: () => ({
-          "line-color": "#000000",
-          "line-width": 14,
-          "line-opacity": 0,  // 透明寬線僅供 hit-test
-        }),
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.4;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#1AB6D9",
+              161, "#62D9AD",
+              69,  "#468BA6",
+              "#DFE0DC",
+            ],
+            "line-width": [
+              "*", w,
+              ["match", ["get", "tier"],
+                345, ["match", ["get", "line_type"], "minor_line", 1.4, "line", 3, 2],
+                161, ["match", ["get", "line_type"], "minor_line", 0.9, "line", 1.8, 1.3],
+                69,  ["match", ["get", "line_type"], "minor_line", 0.6, "line", 1.2, 0.9],
+                ["match", ["get", "line_type"], "minor_line", 0.5, "line", 1, 0.8],
+              ],
+            ],
+            "line-opacity": [
+              "match", ["get", "tier"],
+              345, ["min", 1, ["*", o, 1.4]],
+              ["*", o, ["match", ["get", "line_type"], "minor_line", 0.6, 1]],
+            ],
+          };
+        },
       },
       // 地下電纜（dashed）— Three.js bloom 不畫虛線，保留 Mapbox 端
       {
