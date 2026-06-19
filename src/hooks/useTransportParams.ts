@@ -400,7 +400,7 @@ export function useTransportParams() {
   const [hikingTrailsWidth, setHikingTrailsWidth] = useState(1.2);
   // ENERGY MVP — 4 layer opacity + 2 scale/height
   const [powerPlantsOpacity, setPowerPlantsOpacity] = useState(0.95);
-  const [powerPlantsScale, setPowerPlantsScale] = useState(1);
+  const [powerPlantsScale, setPowerPlantsScale] = useState(0.5);
   const [powerGenerationOpacity, setPowerGenerationOpacity] = useState(0.7);
   const [powerGenerationHeight, setPowerGenerationHeight] = useState(1);
   const [osmSubstationsOpacity, setOsmSubstationsOpacity] = useState(0.85);
@@ -426,16 +426,16 @@ export function useTransportParams() {
   const [evChargingOpacity, setEvChargingOpacity] = useState(0.8);
   // Phase 8 SSOT facilities 6-layer
   const [facPrimaryOpacity, setFacPrimaryOpacity] = useState(0.95);
-  const [facPrimaryScale, setFacPrimaryScale] = useState(1);
+  const [facPrimaryScale, setFacPrimaryScale] = useState(0.5);
   const [facOffshoreOpacity, setFacOffshoreOpacity] = useState(0.45);
   const [facPlannedOpacity, setFacPlannedOpacity] = useState(0.7);
-  const [facPlannedScale, setFacPlannedScale] = useState(1);
+  const [facPlannedScale, setFacPlannedScale] = useState(0.5);
   const [facHistoricalOpacity, setFacHistoricalOpacity] = useState(0.5);
-  const [facHistoricalScale, setFacHistoricalScale] = useState(1);
+  const [facHistoricalScale, setFacHistoricalScale] = useState(0.5);
   const [facSecondaryOpacity, setFacSecondaryOpacity] = useState(0.85);
-  const [facSecondaryScale, setFacSecondaryScale] = useState(1);
+  const [facSecondaryScale, setFacSecondaryScale] = useState(0.5);
   const [facOsmSupplementOpacity, setFacOsmSupplementOpacity] = useState(0.7);
-  const [facOsmSupplementScale, setFacOsmSupplementScale] = useState(1);
+  const [facOsmSupplementScale, setFacOsmSupplementScale] = useState(0.5);
   // HAZARD（v2 Phase B）
   const [lightningOpacity, setLightningOpacity] = useState(0.85);
   const [lightningMinutes, setLightningMinutes] = useState(10);
