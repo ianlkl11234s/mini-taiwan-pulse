@@ -695,3 +695,61 @@ inline 值收斂到 token，merged 進 master。
   §7 KEEP OUT。改 designTokens.ts 前確認沒違反「單向 import」避免 circular dep
 - 若用戶問「該不該抽 X 元件」，先回 PRINCIPLES「不抽通用元件庫」+ 視同 G009/008
   巨型檔案拆分一起看，不要單獨抽
+
+---
+
+## 2026-06-19 — 能源 MVP v1.0~v1.3.5 反省
+
+### 1. 「3D 圖層 toggle ON 但 console 沒 setData log」應該 5 分鐘內想到 isStyleLoaded race
+
+**事實**：2026-04-22 水庫圖層已寫 pitfall `.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md`，
+這次 energy beam 完全重蹈，卡了 4 輪 debug 才回想起來。
+
+**SessionStart hook inline 的是 STATUS / BACKLOG / PRINCIPLES**，pitfalls 要主動 grep 才看到。
+獨立 3D hook 是低頻場景（一年 < 5 次），不在 muscle memory。
+
+**已採取**：
+1. pitfall 檔頂加觸發詞「3D 圖層 / Three.js / CustomLayer / addLayer / Three.js scene」
+2. PRINCIPLES 加一條「寫獨立 CustomLayer hook 前 grep `.claude/pitfalls/*mapbox*`」
+3. INCIDENTS 加完整 5 輪 debug 時間軸
+4. hook 內 inline 註解直接指 pitfall 檔
+
+**下次驗證**：下次寫新 3D hook 時觀察自己是否在動工前主動 grep。
+
+### 2. 視覺微調不要只看單一 zoom
+
+**事實**：v1.2 BEAM_RADIUS 0.00005（粗壯）→ v1.3 改 0.00002（蠟燭錐視覺修，但只在 zoom 10 試）
+→ 用戶 reload 在 zoom 5 看不到 → 才發現 < 1 px → v1.3.2 補回 0.00005。
+
+binary search 視覺尺寸要在「最常見 zoom（5）+ 中等 zoom（10）+ 街景 zoom（19）」三個視角各看一次，
+不然容易誤判「太細」或「太粗」。
+
+**已採取**：PB-20 微修迭代段加「每次改 radius 一定要在 zoom 5 + 12 + 19 三視角看一次」
+
+### 3. HANDOFF 文件不要全信，schema 必查、JOIN 公式必試一筆
+
+**事實**：HANDOFF §3.2 寫 `SPLIT_PART(unit_name, '#', 1) = plant_name`，
+真實 unit_name 是 `大潭CC#1` 不是 `大潭發電廠#1`。第一次 apply 213 RPC 跑出 `with_output = 0` 才發現。
+
+外加 schema 三處欄位名不對齊（power_system_status 全寫成 supply_capacity_mw 而非 fore_maxi_*）。
+
+**已採取**：PB-20 失誤點段「下次寫 RPC 前先抽 5 筆 raw 跑 SELECT 驗 JOIN 規則」+
+energy-mvp-status.md §0 列「與 HANDOFF 偏差（已修正）」5 條
+
+### 4. Slider 鐵則應在 Phase G 寫進去，不要 baseline + 補（雙寫成本）
+
+**事實**：v1.0 接好 4 layer 直接過 ratchet，slider 全進 BASELINE_NO_PARAMS（conscious decision）。
+v1.3 用戶要求 sliders 後才補，又要 ratchet baseline 移除 4 個 → 雙寫成本。
+
+**下次怎麼做**：Phase G 「sidebar + legends」階段同時把 sliders 也寫了，不要拆兩階段。
+PB-20 Phase G 段已含 sliders 註記。
+
+### 5. 並行 session 的協調（2026-06-19 加）
+
+**事實**：用戶在開 wrap-up 同時告知「我另一個 session 在開發」（很可能在做 energy v2-A）。
+memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 push** — 等並行 session 也收尾後一起 push 或讓用戶決定。
+
+**下次怎麼做**：用戶說「另一 session」時：
+1. 確認該 session 動哪些檔案範圍（程式碼 vs memory vs docs）
+2. 我這邊只 commit 不重疊的檔案
+3. 一律**不 push**，留給用戶手動同步順序
