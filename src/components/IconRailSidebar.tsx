@@ -20,6 +20,8 @@ import {
   Satellite,
   // ENERGY icons
   Zap, PlugZap, Power,
+  // HAZARD icons
+  CloudLightning, Atom,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -186,6 +188,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   powerGenerationUnit: Power,
   osmSubstations: Cable,
   evChargingStations: PlugZap,
+  lightning: CloudLightning,
+  nuclearRadiation: Atom,
 };
 
 // ── IATA Map for Locations Panel ──

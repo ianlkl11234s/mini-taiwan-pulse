@@ -61,6 +61,7 @@ import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
 import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
+import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
 // PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
@@ -739,6 +740,14 @@ export default function App() {
     transportParams.overlayParams.powerGenerationOpacity ?? 0.7,
     transportParams.overlayParams.powerGenerationHeight ?? 1,
   );
+
+  // ── HAZARD（v2 Phase B）──
+  useLightningLayer(
+    mapRef,
+    layerVisibility.lightning,
+    transportParams.overlayParams.lightningMinutes ?? 60,
+  );
+  useNuclearLayer(mapRef, layerVisibility.nuclearRadiation);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);

@@ -2990,4 +2990,149 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ══════════════════════════════════════════════════════════════════
+  //  HAZARD（v2 Phase B）— 落雷 + 核安
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── 落雷 day-preload + 漸入漸出 ──
+  // properties.alpha 由 hook 端依 age 算（0~1）；circle-opacity = slider × alpha
+  {
+    id: "lightning",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "hazard-lightning",
+    dynamicData: true,
+    rebuildOnParamChange: ["lightningOpacity"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.lightningOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 4, 9, 7, 12, 12,
+            ],
+            "circle-color": [
+              "match", ["get", "strike_type"],
+              0, "#fb923c",
+              1, "#22d3ee",
+              "#9ca3af",
+            ],
+            "circle-blur": 0.85,
+            "circle-opacity": [
+              "*", o * 0.45, ["coalesce", ["get", "alpha"], 1],
+            ],
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.lightningOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 1.2, 10, 2.2, 14, 3.5,
+            ],
+            "circle-color": [
+              "match", ["get", "strike_type"],
+              0, "#fb923c",
+              1, "#22d3ee",
+              "#9ca3af",
+            ],
+            "circle-opacity": [
+              "*", o, ["coalesce", ["get", "alpha"], 1],
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 核安 51 站 ──
+  // 顏色由 properties.level（loader 預算好的 normal/watch/warning/alarm/stale）決定。
+  // is_stale (level=stale) 用虛邊框 stroke 區分「離線」與真實警戒。
+  {
+    id: "nuclearRadiation",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "hazard-nuclear",
+    dynamicData: true,
+    rebuildOnParamChange: ["nuclearOpacity", "nuclearScale"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.nuclearOpacity ?? 0.9;
+          const s = params?.nuclearScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", 6 * s, 1],
+              12, ["*", 12 * s, 1],
+            ],
+            "circle-color": [
+              "match", ["get", "level"],
+              "normal", "#22c55e",
+              "watch", "#facc15",
+              "warning", "#f97316",
+              "alarm", "#ef4444",
+              "stale", "#6b7280",
+              "#6b7280",
+            ],
+            "circle-blur": 0.75,
+            "circle-opacity": [
+              "*",
+              ["match", ["get", "level"],
+                "stale", o * 0.12,
+                "normal", o * 0.18,
+                o * 0.38,
+              ],
+              ["coalesce", ["get", "alpha"], 1],
+            ],
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.nuclearOpacity ?? 0.9;
+          const s = params?.nuclearScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", 3 * s, 1],
+              12, ["*", 5.5 * s, 1],
+            ],
+            "circle-color": [
+              "match", ["get", "level"],
+              "normal", "#22c55e",
+              "watch", "#facc15",
+              "warning", "#f97316",
+              "alarm", "#ef4444",
+              "stale", "#6b7280",
+              "#6b7280",
+            ],
+            "circle-opacity": [
+              "*", o, ["coalesce", ["get", "alpha"], 1],
+            ],
+            "circle-stroke-width": [
+              "match", ["get", "level"],
+              "stale", 1.5,
+              0.8,
+            ],
+            "circle-stroke-color": [
+              "match", ["get", "level"],
+              "stale", isDark ? "#9ca3af" : "#4b5563",
+              isDark ? "#111827" : "#ffffff",
+            ],
+          };
+        },
+      },
+    ],
+  },
+
 ];

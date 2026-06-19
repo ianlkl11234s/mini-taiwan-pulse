@@ -30,6 +30,7 @@ import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel 
 import { MedicalPOIPanel, MedicalIsochronePanel } from "./medicalPanels";
 import { SatellitePanel } from "./satellitePanels";
 import { PowerPlantPanel, OsmSubstationPanel, EvChargingPanel } from "./energyPanels";
+import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -103,6 +104,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   powerPlant: PowerPlantPanel,
   osmSubstation: OsmSubstationPanel,
   evCharging: EvChargingPanel,
+  lightningStrike: LightningStrikePanel,
+  nuclearStation: NuclearStationPanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -171,4 +174,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   powerPlant: "電廠",
   osmSubstation: "變電所",
   evCharging: "電動車充電站",
+  lightningStrike: "落雷",
+  nuclearStation: "核安觀測站",
 };
