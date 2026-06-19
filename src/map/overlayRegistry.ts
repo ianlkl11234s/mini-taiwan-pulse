@@ -3041,12 +3041,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: ["osmPowerLinesOpacity", "osmPowerLinesWidth"],
     layers: [
-      // 外發光（aerial line + minor_line + cable 通吃）
+      // ── Outer glow（最外層光暈，模擬 openinframap dark mode）──
+      // 用兩層 + 大 blur 製造 cyan 發光感（截圖 reference）
       {
-        suffix: "glow",
+        suffix: "outer-glow",
         type: "line",
         paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.85;
+          const o = params?.osmPowerLinesOpacity ?? 0.6;
           const w = params?.osmPowerLinesWidth ?? 1;
           return {
             "line-color": [
@@ -3058,22 +3059,55 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
-              5, ["*", w, 2.5],
-              10, ["*", w, 5],
-              14, ["*", w, 9],
+              5,  ["*", w, ["match", ["get", "tier"], 345, 7,  161, 4,  69, 2.5, 2]],
+              10, ["*", w, ["match", ["get", "tier"], 345, 16, 161, 9,  69, 5.5, 4]],
+              14, ["*", w, ["match", ["get", "tier"], 345, 28, 161, 16, 69, 10,  7]],
             ],
-            "line-opacity": o * 0.25,
-            "line-blur": 4,
+            "line-opacity": [
+              "*", o,
+              ["match", ["get", "tier"], 345, 0.32, 161, 0.20, 69, 0.14, 0.10],
+            ],
+            "line-blur": 12,
           };
         },
       },
-      // 實線骨幹（line + minor_line）
+      // ── Inner glow（中層光暈） ──
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.6;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#1AB6D9",
+              161, "#62D9AD",
+              69,  "#468BA6",
+              "#DFE0DC",
+            ],
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              5,  ["*", w, ["match", ["get", "tier"], 345, 4,  161, 2.8, 69, 2,   1.5]],
+              10, ["*", w, ["match", ["get", "tier"], 345, 9,  161, 5.5, 69, 3.8, 3]],
+              14, ["*", w, ["match", ["get", "tier"], 345, 16, 161, 10,  69, 6.5, 5]],
+            ],
+            "line-opacity": [
+              "*", o,
+              ["match", ["get", "tier"], 345, 0.55, 161, 0.40, 69, 0.32, 0.25],
+            ],
+            "line-blur": 5,
+          };
+        },
+      },
+      // ── Core 實線骨幹（line + minor_line）──
+      // 345 kV 加粗 + 高亮（slider 0.6 → 視覺 ~0.8），其他 tier 維持
       {
         suffix: "core",
         type: "line",
         filter: ["!=", ["get", "line_type"], "cable"],
         paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.85;
+          const o = params?.osmPowerLinesOpacity ?? 0.6;
           const w = params?.osmPowerLinesWidth ?? 1;
           return {
             "line-color": [
@@ -3085,16 +3119,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "line-width": [
               "*", w,
-              ["match", ["get", "line_type"],
-                "line", 2.4,
-                "minor_line", 1,
-                1.5],
+              ["match", ["get", "tier"],
+                345, ["match", ["get", "line_type"], "minor_line", 1.8, "line", 4, 3],
+                161, ["match", ["get", "line_type"], "minor_line", 1,   "line", 2.4, 1.6],
+                69,  ["match", ["get", "line_type"], "minor_line", 0.7, "line", 1.6, 1.2],
+                ["match", ["get", "line_type"], "minor_line", 0.6, "line", 1.2, 1],
+              ],
             ],
             "line-opacity": [
-              "*", o,
-              ["match", ["get", "line_type"],
-                "minor_line", 0.55,
-                1],
+              "match", ["get", "tier"],
+              // 345 kV 額外加 1.33x → slider 0.6 變視覺 ~0.8（cap 1）
+              345, ["min", 1, ["*", o, 1.33]],
+              // 其他 tier 維持 slider 值（minor_line 折扣 0.55）
+              ["*", o, ["match", ["get", "line_type"], "minor_line", 0.55, 1]],
             ],
           };
         },
@@ -3105,7 +3142,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "line",
         filter: ["==", ["get", "line_type"], "cable"],
         paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.85;
+          const o = params?.osmPowerLinesOpacity ?? 0.6;
           const w = params?.osmPowerLinesWidth ?? 1;
           return {
             "line-color": [
