@@ -1,12 +1,87 @@
 # Status
 
-**最後更新**：2026-06-19（Energy MVP v1.0~v1.3.5 上線、PR #23 + #10 + #24 已 merged）
-**分支**：`master`，本地領先 5 個 memory commit（本次 wrap-up）。
-- mini-taiwan-pulse origin/master = `caccc6d`（PR #24 v2-plan merge）
-- gis-platform main = `ae71eab`（PR #10 v1 squash）。本地 main = origin/main 同步
-- ⚠️ 並行 session 可能在做 energy v2-A（Monitor 整合），未 push 等用戶協調
+**最後更新**：2026-06-19 晚（Energy v2 Phase A + B 完成，feat/energy-v2-A 5 commits 等用戶 review）
+**Master head**：本次 wrap-up 6 個 memory commit（含本檔）
+**Feat head**：`24026c4` on `feat/energy-v2-A`
+**未 push**：master 領先 origin 多 commit、feat/energy-v2-A 完全本地
 
-## 2026-06-18~19 Energy MVP v1.0~v1.3.5（PR #23 + #10 + #24，超大型 session）
+## 2026-06-19 晚 Energy v2 Phase A + B autonomous run（feat/energy-v2-A，5 commits）
+
+**用戶定向**：上次 PR #23 + #10 + #24 Energy MVP 上線（v1 4 layer + popup + sparkline + timeline scrub），
+本次接 `docs/energy-v2-plan.md` 6 大塊（A~F）的前兩塊。autonomous「以完成長任務的方式處理」。
+
+| Commit | 主題 |
+|---|---|
+| `d6a2db3` | **A.1** PowerCard skeleton + MonitorPanel 5min/10min dual poll + powerCardData 純函式 + 7 unit test |
+| `857871b` | **B.1+B.2** HAZARD lightning + nuclear loader / Legend / featureInfo / useTransportParams + 17 unit test |
+| `b7d6154` | **B.3+B.4** overlayRegistry + useHazardLayer hooks + App.tsx + useMapInteraction GIS_LAYERS |
+| `99aee80` | docs(energy-v2-status) A.2 + B 進度 |
+| `24026c4` | **A.2** PowerCard KPI strip + timeline isolation contract test（cherry-pick 補回，原 998089f 被踩坑脫鉤）|
+
+**最終狀態**：132 test pass / `npx tsc -b` 0 error / layerConsistency 全綠 / 未 push / 未 merge
+
+### Phase A — Monitor 整合（E-A close）
+
+PowerCard 三層：燈號頂卡（負載 / 備轉 / 預測尖峰）→ KPI strip（24h 尖峰 / fuel mix bar）→ 14 廠 sparkline grid
+（按 mw desc，rate 配色）。MonitorPanel `open` 時自動拉 dashboard（5min） + gen24h（10min）兩 cron。
+與 App.tsx 的 `energyDashboardActive` 共用 `cachedOnce` cache，不重複 RPC。
+timeline scrub 不影響 monitor（`buildPowerCardModel` 不收 time 參數 — contract test 鎖住）。
+
+### Phase B — HAZARD（E-B close）
+
+新增 sidebar HAZARD 分組，2 layer：
+- **lightning**：5~360 min slider + 透明度；CG/IC 兩色；halo blur 電光感
+- **nuclearRadiation**：51 站；劑量 5 階（normal / watch / warning / alarm / stale）；
+  `is_stale` 虛邊框 stroke 區分「離線」與真實警戒；popup is_stale → 灰底警告，alarm → 紅底建議交叉確認 AEC
+
+### Phase B 暫不做（→ BACKLOG E-G）
+
+落雷 cluster + zoom-gate 等雷雨季實測卡再升（OverlayConfig schema 沒 cluster 欄要先擴）。
+v1 用「時間窗 5~360min slider」+ 預設 60min 控 payload 量。
+
+### 1 個踩坑（→ INCIDENTS / PRINCIPLES）
+
+SessionStart auto-memory-cherry-pick hook 在 session 中段把 HEAD 切回 master、導致 A.1 commit 跑錯
++ B.1 在 master 改一半 + A.2 從 feat 歷史脫鉤。最終靠 stash + reflog + cherry-pick 補回，沒丟 work
+但花 15+ 分鐘。新原則：**commit 前必 `git branch --show-current`**（PRINCIPLES 已寫）。
+
+### 下個 session 入口（Phase C — 高壓電網）
+
+```
+繼續 mini-taiwan-pulse energy v2 Phase C（高壓電網）。
+
+當前狀態：
+- master 已 wrap-up 完，feat/energy-v2-A 5 commits 等用戶 review
+- 132 test pass / tsc -b clean
+- docs/energy-v2-status.md 是進度 SSOT
+
+Phase C 工作（已盤點，依序）：
+1. ../gis-platform 寫 migration 223：get_osm_power_lines (含 ST_AsGeoJSON
+   LineString geom + line_type/voltage/circuits/operator/frequency/location)
+   + get_osm_power_towers (含 lon/lat + voltage/operator/material/design/ref)。
+   參考 ../gis-platform/migrations/216 寫法。
+2. types/SECTIONS: osmPowerLines + osmPowerTowers
+3. energyLoader.ts 加 fetcher + parseVoltageKv helper（處理 "161000"
+   / "161000;69000" 雙迴路）+ POWER_LINE_VOLTAGE_COLORS
+4. overlayRegistry: lines voltage 三色 + glow + line-width interpolate by zoom；
+   towers minzoom 13 純色點（26k 點 5.7MB 可接受不需 PMTiles）
+5. hooks: useOsmPowerLinesLayer (cachedOnce 60min) + useOsmPowerTowersLayer
+6. featureInfo: PowerLinePanel + PowerTowerPanel
+7. LegendPanel: PowerLineLegend (345/161/69kV + mixed 灰)
+8. App.tsx + useMapInteraction GIS_LAYERS + useTransportParams 鐵則 4 條
+9. LAYER_COLORS + IconRailSidebar icon
+
+⚠️ Pitfall：voltage 是 text、"161000;69000" 雙迴路要 split；parseVoltageKv
+寫純函式 + 單測
+⚠️ commit 前先 git branch --show-current（PRINCIPLES 新規）
+⚠️ layerConsistency 全綠才 commit（B 是 B.1+B.2、B.3+B.4 合 commit 才過）
+```
+
+---
+
+## 2026-06-19 早 Energy MVP v1.0~v1.3.5（PR #23 + #10 + #24，超大型 session）
+
+## 2026-06-18~19 早 Energy MVP v1.0~v1.3.5（PR #23 + #10 + #24，超大型 session）
 
 **背景**：用戶從 HANDOFF doc 起，要把能源主題接進 mini-taiwan-pulse。本是 v1 6 layer
 規劃，過程中 HUD + 區域用電兩個 KPI 性質 layer 搬 monitor（v1.1），只留 4 個地圖
