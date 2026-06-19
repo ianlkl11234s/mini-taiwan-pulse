@@ -38,7 +38,9 @@ const BASELINE_NOT_IN_SIDEBAR = new Set([
   // - offshoreWindZones → SSOT facOffshore 取代
   // - islandPowerGrid → SSOT facPrimary 內 is_island 已涵蓋
   "powerPlants", "osmSolarFarms", "osmPowerPlantsStatic",
-  "offshoreWindZones", "islandPowerGrid",
+  "islandPowerGrid",
+  // SSOT facOffshore (8 polygon) 被換成 OSM offshoreWindZones (36 polygon) 後從 sidebar 移除
+  "facOffshore",
 ]);
 
 /**
