@@ -72,6 +72,7 @@ function plantsToGeoJSON(rows: PowerPlantRow[]): GeoJSON.FeatureCollection {
       properties: {
         source_table: r.source_table,
         source_id: r.source_id ?? "",
+        facility_id: r.facility_id ?? "", // SSOT: 給 popup lazy fetch provenance 用
         name: r.name ?? "",
         fuel_type: r.fuel_type ?? "",
         capacity_mw: r.capacity_mw,

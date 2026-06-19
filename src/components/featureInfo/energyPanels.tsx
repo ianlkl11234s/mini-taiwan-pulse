@@ -4,8 +4,10 @@ import {
   fuelColorOf,
   FUEL_FALLBACK_COLOR,
   fetchPlantOutput24h,
+  fetchFacilityProvenance,
   SUBSTATION_CLASS_COLORS,
   type PlantOutputPoint,
+  type FacilityProvenance,
 } from "../../data/energyLoader";
 import { Sparkline } from "../intel/monitor/PressureRing";
 import { COLORS, FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
@@ -137,6 +139,89 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
       )}
       <Row label="資料源" value={sourceTable || "—"} />
       {canShowSparkline && <PlantOutput24h plantName={plantName} color={fuelColor} />}
+      <FacilityProvenanceBlock facilityId={String(props.facility_id ?? "")} />
+    </div>
+  );
+}
+
+// ── 廠 provenance lazy fetch block（migration 236） ──────────────
+const TIER_COLOR: Record<number, string> = {
+  0: "#22c55e",  // 即時
+  1: "#3b82f6",  // 官方已建
+  2: "#0ea5e9",  // 官方補充
+  3: "#06b6d4",  // 台電 / 離島
+  4: "#a78bfa",  // GEM
+  5: "#94a3b8",  // OSM
+};
+
+function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
+  const [pv, setPv] = useState<FacilityProvenance | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    if (!facilityId) { setPv(null); return; }
+    let alive = true;
+    fetchFacilityProvenance(facilityId)
+      .then((d) => { if (alive) setPv(d); })
+      .catch((e) => { if (alive) setErr(String(e?.message ?? e)); });
+    return () => { alive = false; };
+  }, [facilityId]);
+
+  if (!facilityId) return null;
+  if (err) return <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: "#f87171" }}>provenance: {err}</div>;
+  if (!pv) return null;
+
+  const tierColor = pv.source_priority != null ? (TIER_COLOR[pv.source_priority] ?? COLORS.textDim) : COLORS.textDim;
+  const fetched = pv.source_last_refreshed ?? "—";
+  const cadence = pv.source_refresh_cadence ?? "—";
+
+  return (
+    <div
+      style={{
+        marginTop: 10,
+        paddingTop: 8,
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        📋 資料來源
+      </div>
+      <Row label="層級" value={pv.tier_label ?? "—"} color={tierColor} />
+      <Row label="平台" value={pv.source_platform ?? "—"} />
+      {pv.source_dataset_name && (
+        <Row label="資料集" value={pv.source_dataset_name} />
+      )}
+      {pv.source_dataset_url && (
+        <div style={{ marginTop: 3, fontSize: FONT_SIZE.xs, lineHeight: 1.4 }}>
+          <a
+            href={pv.source_dataset_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#67e8f9", textDecoration: "underline" }}
+          >
+            ↗ 開啟原始資料集
+          </a>
+        </div>
+      )}
+      <Row label="授權" value={pv.source_license ?? "—"} />
+      <Row label="抓取日" value={fetched} />
+      <Row label="更新頻率" value={cadence} />
+      {pv.agent_intervention_count > 0 && (
+        <div
+          style={{
+            marginTop: 4,
+            display: "inline-block",
+            padding: "2px 6px",
+            borderRadius: 3,
+            background: "rgba(167,139,250,0.15)",
+            border: "1px solid rgba(167,139,250,0.5)",
+            fontSize: FONT_SIZE.xs,
+            color: "#c4b5fd",
+          }}
+          title="Agent 校正中英名稱 / 配對核對 / 缺失盤點次數"
+        >
+          ⚙ Agent 校正 ×{pv.agent_intervention_count}
+        </div>
+      )}
     </div>
   );
 }

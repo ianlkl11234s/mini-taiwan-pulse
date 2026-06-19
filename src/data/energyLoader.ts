@@ -191,6 +191,53 @@ export interface PlantOutputPoint {
   load_rate: number | null;
 }
 
+// ── Facility provenance（migration 236）─────────────────────
+// Popup 點電廠時 lazy fetch 該廠的完整原始來源 metadata。
+
+export interface FacilityProvenance {
+  facility_id: string;
+  name: string | null;
+  name_zh: string | null;
+  fuel_type: string | null;
+  county: string | null;
+  total_capacity_mw: number | null;
+  status: string | null;
+  source_priority: number | null;
+  /** 中文層級標籤（即時 / 官方 / 台電 / GEM / OSM） */
+  tier_label: string | null;
+  source_code: string | null;
+  source_platform: string | null;           // 例：data.gov.tw / Global Energy Monitor
+  source_native_id: string | null;          // 上游原始 ID
+  source_dataset_name: string | null;       // 中文資料集名（含資料表名）
+  source_dataset_url: string | null;        // 資料集首頁
+  source_download_url: string | null;       // 下載連結
+  source_license: string | null;            // OGDL-1.0 / CC BY 4.0 / ODbL 1.0
+  source_format: string | null;             // CSV / GeoJSON / API
+  source_fetch_method: string | null;       // manual_download / api_pull / scrape
+  source_refresh_cadence: string | null;    // annual / monthly / realtime
+  source_last_refreshed: string | null;     // YYYY-MM-DD
+  cross_refs: Record<string, unknown> | null;
+  notes: string | null;
+  last_updated_at: string | null;           // SSOT 庫上 row 最後 update
+  agent_intervention_count: number;         // Agent 校正次數
+}
+
+const _provenanceCache = new Map<string, Promise<FacilityProvenance | null>>();
+async function _fetchProvenance(facility_id: string): Promise<FacilityProvenance | null> {
+  const { data, error } = await supabase.rpc("get_ssot_facility_provenance", {
+    p_facility_id: facility_id,
+  });
+  if (error) throw new Error(`get_ssot_facility_provenance: ${error.message}`);
+  return (data ?? null) as FacilityProvenance | null;
+}
+export function fetchFacilityProvenance(facility_id: string): Promise<FacilityProvenance | null> {
+  const cached = _provenanceCache.get(facility_id);
+  if (cached) return cached;
+  const p = _fetchProvenance(facility_id);
+  _provenanceCache.set(facility_id, p);
+  return p;
+}
+
 export async function fetchPlantOutput24h(plantName: string): Promise<PlantOutputPoint[]> {
   const { data, error } = await withLoading(
     `energy:plant24h:${plantName}`,
