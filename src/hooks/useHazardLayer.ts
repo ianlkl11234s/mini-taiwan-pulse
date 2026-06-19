@@ -1,29 +1,34 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import {
-  fetchLightningWindow, invalidateLightningWindow,
-  toLightningFC,
+  fetchLightningDay, invalidateLightningDay,
+  toLightningFCAt,
+  type LightningStrike,
 } from "../data/lightningLoader";
 import {
-  fetchNuclearAt, invalidateNuclearAt, toNuclearFC,
+  fetchNuclearDay,
+  buildNuclearFCAt,
+  type NuclearDay,
 } from "../data/nuclearLoader";
 import { timeStore } from "../state/timeStore";
 
 /**
- * HAZARD（v2 Phase B+）— 落雷 + 核安，**接 timeline**
+ * HAZARD（v2 Phase B++）— 落雷 + 核安，**day preload + scrub fade**
  *
- * 落雷：以 timeStore 當前時間為中心，抓 ±halfMin 分鐘窗
- *   - timeStore.subscribeThrottled(1000) → scrub 即時更新
- *   - 量化 ts (60s) + cachedByKey 自動 dedup
- *   - LIVE 模式 timeStore.getTime() ≈ now，未來半邊自然空 → 視覺等同「過去 halfMin」
- *   - 額外 60s poll：抓最新資料 + LIVE 視窗滾動
+ * 落雷：
+ *   - subscribeDate → 跨日重抓整天 events（cachedByKey 10min TTL）
+ *   - subscribeThrottled(200) + timeStore tick → 用 currentTs 過濾事件 + 算 alpha → setData
+ *   - 視覺壽命 lifeSec 由 minutes slider 控制（slider 60 → 60 min 內事件可見）
+ *   - 漸入 0.4s（閃光感）、漸出佔總壽命 40%
+ *   - 60s 強制 invalidate 今日資料拿最新 events
  *
- * 核安：以 timeStore 當前時間為 target，抓每站最後一筆 measurement ≤ target
- *   - timeStore.subscribeThrottled(5000) → scrub 更新（劑量變化慢、不需高頻）
- *   - 量化 ts (300s) + cachedByKey 自動 dedup
- *   - 額外 5min poll
+ * 核安：
+ *   - subscribeDate → 整天 per-station points[]（內含前一天 24h backfill）
+ *   - subscribeThrottled(2000) → binary search 每站最後 ≤ ts 一筆，
+ *     依 age 算 alpha（>120 min 開始 fade、>240 min 不渲染）→ setData
+ *   - 5min poll 重抓
  *
- * 樣式由 overlayRegistry 提供；本檔只做 fetch → setData。
+ * 樣式由 overlayRegistry 提供：circle-opacity 改吃 properties.alpha × slider。
  */
 
 const SRC_LIGHTNING = "hazard-lightning";
@@ -31,10 +36,10 @@ const SRC_NUCLEAR = "hazard-nuclear";
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
-const LIGHTNING_POLL_MS = 60_000;
-const NUCLEAR_POLL_MS = 5 * 60_000;
-const LIGHTNING_SCRUB_THROTTLE = 1000;
-const NUCLEAR_SCRUB_THROTTLE = 5000;
+const LIGHTNING_RELOAD_MS = 60_000;
+const NUCLEAR_RELOAD_MS = 5 * 60_000;
+const SCRUB_THROTTLE_LIGHTNING = 200;
+const SCRUB_THROTTLE_NUCLEAR = 2000;
 
 function useSourceFeed(
   mapRef: React.RefObject<MapboxMap | null>,
@@ -67,11 +72,13 @@ function useSourceFeed(
 export function useLightningLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
-  /** slider 給的「視窗總大小 min」— hook 內 ÷2 當 half radius */
+  /** slider 給的「視覺壽命 N min」— 每筆 strike 從擊發起持續 N 分鐘 */
   minutes: number,
 ) {
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const feed = useSourceFeed(mapRef, visible, SRC_LIGHTNING, fcRef);
+  // 整天 events buffer，scrub / minutes 變動只在這份上 client-side filter
+  const dayBufferRef = useRef<LightningStrike[]>([]);
   const minutesRef = useRef(minutes);
   minutesRef.current = minutes;
 
@@ -79,45 +86,54 @@ export function useLightningLayer(
     if (!visible) return;
     let cancelled = false;
 
-    const load = (centerTs: number) => {
-      const half = Math.max(1, Math.round(minutesRef.current / 2));
-      fetchLightningWindow(centerTs, half)
-        .then((rows) => {
-          if (cancelled) return;
-          fcRef.current = toLightningFC(rows);
-          feed();
-        })
-        .catch((err) => console.warn("[HAZARD/lightning] load failed:", err));
+    const recompute = (ts: number) => {
+      const lifeSec = Math.max(60, minutesRef.current * 60);
+      fcRef.current = toLightningFCAt(dayBufferRef.current, ts, lifeSec);
+      feed();
     };
 
-    load(timeStore.getTime());
+    const loadDay = (dateKey: string, alsoYesterday: boolean = true) => {
+      const todayP = fetchLightningDay(dateKey);
+      const yKey = alsoYesterday
+        ? new Date(`${dateKey}T00:00:00+08:00`)
+        : null;
+      if (yKey) yKey.setDate(yKey.getDate() - 1);
+      const yPromise = yKey
+        ? fetchLightningDay(yKey.toISOString().slice(0, 10))
+        : Promise.resolve<LightningStrike[]>([]);
+      Promise.all([todayP, yPromise])
+        .then(([today, yesterday]) => {
+          if (cancelled) return;
+          dayBufferRef.current = [...yesterday, ...today];
+          recompute(timeStore.getTime());
+        })
+        .catch((err) => console.warn("[HAZARD/lightning] day load failed:", err));
+    };
 
-    const unsubTime = timeStore.subscribeThrottled(LIGHTNING_SCRUB_THROTTLE, (t) => {
-      load(t);
-    });
+    loadDay(timeStore.getDateKey());
+
+    const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
+    const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_LIGHTNING, recompute);
 
     const id = window.setInterval(() => {
-      invalidateLightningWindow();
-      load(timeStore.getTime());
-    }, LIGHTNING_POLL_MS);
+      invalidateLightningDay();
+      loadDay(timeStore.getDateKey());
+    }, LIGHTNING_RELOAD_MS);
 
     return () => {
       cancelled = true;
+      unsubDate();
       unsubTime();
       window.clearInterval(id);
     };
   }, [visible, feed]);
 
-  // minutes slider 變動立刻重抓
+  // minutes 變動立即重算（不靠 throttle）
   useEffect(() => {
     if (!visible) return;
-    const half = Math.max(1, Math.round(minutes / 2));
-    fetchLightningWindow(timeStore.getTime(), half)
-      .then((rows) => {
-        fcRef.current = toLightningFC(rows);
-        feed();
-      })
-      .catch((err) => console.warn("[HAZARD/lightning] minutes change reload:", err));
+    const lifeSec = Math.max(60, minutes * 60);
+    fcRef.current = toLightningFCAt(dayBufferRef.current, timeStore.getTime(), lifeSec);
+    feed();
   }, [minutes, visible, feed]);
 }
 
@@ -127,34 +143,39 @@ export function useNuclearLayer(
 ) {
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const feed = useSourceFeed(mapRef, visible, SRC_NUCLEAR, fcRef);
+  const dayRef = useRef<NuclearDay | null>(null);
 
   useEffect(() => {
     if (!visible) return;
     let cancelled = false;
 
-    const load = (targetTs: number) => {
-      fetchNuclearAt(targetTs)
-        .then((rows) => {
-          if (cancelled) return;
-          fcRef.current = toNuclearFC(rows);
-          feed();
-        })
-        .catch((err) => console.warn("[HAZARD/nuclear] load failed:", err));
+    const recompute = (ts: number) => {
+      fcRef.current = buildNuclearFCAt(dayRef.current, ts);
+      feed();
     };
 
-    load(timeStore.getTime());
+    const loadDay = (dateKey: string) => {
+      fetchNuclearDay(dateKey)
+        .then((d) => {
+          if (cancelled) return;
+          dayRef.current = d;
+          recompute(timeStore.getTime());
+        })
+        .catch((err) => console.warn("[HAZARD/nuclear] day load failed:", err));
+    };
 
-    const unsubTime = timeStore.subscribeThrottled(NUCLEAR_SCRUB_THROTTLE, (t) => {
-      load(t);
-    });
+    loadDay(timeStore.getDateKey());
+
+    const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
+    const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_NUCLEAR, recompute);
 
     const id = window.setInterval(() => {
-      invalidateNuclearAt();
-      load(timeStore.getTime());
-    }, NUCLEAR_POLL_MS);
+      loadDay(timeStore.getDateKey());
+    }, NUCLEAR_RELOAD_MS);
 
     return () => {
       cancelled = true;
+      unsubDate();
       unsubTime();
       window.clearInterval(id);
     };

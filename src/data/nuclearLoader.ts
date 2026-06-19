@@ -64,6 +64,102 @@ export const fetchNuclearAt = (targetTs: number): Promise<NuclearStation[]> =>
 
 export const invalidateNuclearAt = (): void => fetchNuclearAtCached.invalidate();
 
+// ── day preload（v2 Phase B++，RPC 227）─────────────────────
+// 整天 per-station points[] 一次抓，scrub 走 client-side binary search
+export interface NuclearStationSeries {
+  station_id: string;
+  station_name: string;
+  lon: number;
+  lat: number;
+  /** [ts, dose] tuples 按 ts 升序，server 已 sort */
+  points: [number, number | null][];
+}
+
+export interface NuclearDay {
+  date_key: string;
+  stations: NuclearStationSeries[];
+}
+
+async function fetchNuclearDayUncached(dateKey: string): Promise<NuclearDay> {
+  const { data, error } = await withLoading(
+    `nuclear:day:${dateKey}`,
+    `核安 ${dateKey} 整日`,
+    supabase.rpc("get_nuclear_radiation_day", { date_key: dateKey }),
+  );
+  if (error) throw new Error(`get_nuclear_radiation_day: ${error.message}`);
+  const obj = (data ?? {}) as Partial<NuclearDay>;
+  return {
+    date_key: obj.date_key ?? dateKey,
+    stations: obj.stations ?? [],
+  };
+}
+const fetchNuclearDayCached = cachedByKey<NuclearDay>(
+  (key) => fetchNuclearDayUncached(key),
+  10 * 60_000,
+  3,
+);
+export const fetchNuclearDay = (dateKey: string): Promise<NuclearDay> =>
+  fetchNuclearDayCached(dateKey);
+
+/**
+ * 在 day 資料裡找每站「最後一筆 observed_ts ≤ targetTs」並組 FC。
+ *
+ * 「資料新鮮度」設計：
+ *   - age_min ≤ 30：alpha 1，level 走 dose 分級
+ *   - 30 < age_min ≤ 120：alpha 1，level = stale（劑量不可信）
+ *   - 120 < age_min ≤ 240：fade out（alpha 1 → 0 over 120 min）
+ *   - age_min > 240：站不渲染（避免整天卡 24h 前的舊資料）
+ *
+ * scrub 時這套讓「整天沒回報的站漸消失」而非突然跳掉。
+ */
+export function buildNuclearFCAt(
+  day: NuclearDay | null,
+  targetTs: number,
+): GeoJSON.FeatureCollection<GeoJSON.Point> {
+  const features: GeoJSON.Feature<GeoJSON.Point>[] = [];
+  if (!day) return { type: "FeatureCollection", features };
+
+  for (const s of day.stations) {
+    const pts = s.points;
+    if (!pts || pts.length === 0) continue;
+    // binary search 找最後一筆 ts <= targetTs
+    let lo = 0, hi = pts.length - 1, best = -1;
+    if (pts[0]![0] > targetTs) continue;
+    while (lo <= hi) {
+      const mid = (lo + hi) >> 1;
+      if (pts[mid]![0] <= targetTs) { best = mid; lo = mid + 1; }
+      else hi = mid - 1;
+    }
+    if (best < 0) continue;
+    const [obsTs, dose] = pts[best]!;
+    const ageSec = targetTs - obsTs;
+    const ageMin = ageSec / 60;
+
+    let alpha = 1;
+    let isStale = false;
+    if (ageMin > 240) continue;                       // 超過 4hr 整個 fade 完了
+    if (ageMin > 120) alpha = 1 - (ageMin - 120) / 120; // 120~240 min 漸消失
+    if (ageMin > 30) isStale = true;                    // 30+ min 視同離線
+
+    const level = classifyNuclearDose(dose, isStale);
+
+    features.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [s.lon, s.lat] },
+      properties: {
+        station_id: s.station_id,
+        station_name: s.station_name,
+        dose_usvh: dose,
+        is_stale: isStale,
+        observed_ts: obsTs,
+        level,
+        alpha,
+      },
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
 /**
  * 劑量分級（µSv/h）：
  *  - normal: ≤ 0.072（自然背景上限）

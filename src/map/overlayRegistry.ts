@@ -2994,9 +2994,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   //  HAZARD（v2 Phase B）— 落雷 + 核安
   // ══════════════════════════════════════════════════════════════════
 
-  // ── 落雷最近 N min（cluster v1 暫不接，雷雨季升級時再加） ──
-  // strike_type: 0=雲對地（CG，主視覺）/ 1=雲中（IC）
-  // halo blur 模擬「電光」感；圓心固定 1.5px 保持微點可辨識
+  // ── 落雷 day-preload + 漸入漸出 ──
+  // properties.alpha 由 hook 端依 age 算（0~1）；circle-opacity = slider × alpha
   {
     id: "lightning",
     sourceUrl: "./geo/_empty.geojson",
@@ -3021,7 +3020,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "#9ca3af",
             ],
             "circle-blur": 0.85,
-            "circle-opacity": o * 0.45,
+            "circle-opacity": [
+              "*", o * 0.45, ["coalesce", ["get", "alpha"], 1],
+            ],
           };
         },
       },
@@ -3041,7 +3042,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               1, "#22d3ee",
               "#9ca3af",
             ],
-            "circle-opacity": o,
+            "circle-opacity": [
+              "*", o, ["coalesce", ["get", "alpha"], 1],
+            ],
           };
         },
       },
@@ -3081,10 +3084,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-blur": 0.75,
             "circle-opacity": [
-              "match", ["get", "level"],
-              "stale", o * 0.12,
-              "normal", o * 0.18,
-              o * 0.38,
+              "*",
+              ["match", ["get", "level"],
+                "stale", o * 0.12,
+                "normal", o * 0.18,
+                o * 0.38,
+              ],
+              ["coalesce", ["get", "alpha"], 1],
             ],
           };
         },
@@ -3110,7 +3116,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "stale", "#6b7280",
               "#6b7280",
             ],
-            "circle-opacity": o,
+            "circle-opacity": [
+              "*", o, ["coalesce", ["get", "alpha"], 1],
+            ],
             "circle-stroke-width": [
               "match", ["get", "level"],
               "stale", 1.5,
