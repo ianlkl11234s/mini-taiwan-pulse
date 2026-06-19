@@ -4,6 +4,60 @@
 
 ---
 
+## 2026-06-19 Energy v2 Phase A + B autonomous run
+
+### What worked ✅
+
+- **autonomous「以完成長任務的方式處理」進度推得動**：用戶說「繼續」一次，
+  把 A.1 → A.2 → B.1+B.2 → B.3+B.4 → docs 5 commit 一氣呵成，每 phase tsc -b
+  + vitest run + status doc append + atomic commit
+- **B.1 (純資料層) 合併 B.2 (UI 接線) 一個 commit**：原本想拆 B.1~B.4 四 commit，
+  發現 layerConsistency ratchet 會擋「LegendPanel 漏接 / useTransportParams 漏接」，
+  純 B.1 commit 會留紅燈。合進來變 B.1+B.2 一次過，test 全綠才送
+- **Pure helpers + node-only vitest = 高 ROI 測試**：powerCardData / lightningLoader /
+  nuclearLoader 把 view-model 從 JSX 抽出來放純 .ts，13 + 17 個 case 跑 5ms 就解 90%
+  contract（區域 pct 正規化 / fuel mix / dose classify / FC builder）
+- **timeline isolation contract test**：`buildPowerCardModel` 寫成「不收 time 參數」+
+  test「永遠取 array 最後一筆」明文化契約 — 之後改 PowerCard 也不會誤接 currentTime
+  把 scrub 洩漏進 monitor
+
+### What didn't ❌
+
+- **沒早 detect SessionStart hook 把分支切回 master**：A.1 commit 訊息明明就寫
+  `[master ...]` 我沒當下 abort，繼續做 A.2 才發現。然後 B.1 又踩同樣坑（在 master
+  改了一半才察覺）。應該每次 commit 前 `git branch --show-current` 確認
+- **A.2 commit 從 feat 分支歷史脫鉤的時間花太多**：兩次 stash dance + 一次
+  cherry-pick + docs conflict 手解 ≈ 15min。其實當下若先用 reflog 確認 A.2 還在
+  repo，cherry-pick 一發就完事。慌張下重複試 stash 浪費時間
+- **沒在 phase A 結束時跑 dev server 視覺驗收**：A 收尾我問用戶「(a) 繼續 B」「(b)
+  瀏覽器驗收 A」「(c) 開 PR」，用戶選 (a)。但實際上 (b) 比較安全 — 萬一 PowerCard
+  顯示 bug、A.2 KPI strip 配色超出版面，B 已經 4 個 commit 疊上去再回頭很煩
+
+### Next-time rules 📌
+
+1. **每次 commit 前先 `git branch --show-current`**，尤其是上次 commit 後過了幾分鐘、
+   或剛和用戶來回 1-2 輪對話。SessionStart hook + 其他 auto-pilot 都可能改 HEAD
+2. **覺察 hook 存在的 signal**：reflog 出現 `cherry-pick: memory: ...` 配
+   `checkout: moving from <feat> to master` — 一旦看到立刻 `git checkout <feat>`
+3. **分支管理問題優先用 reflog 查通盤**：reflect 全範圍 → 規劃單一條 git
+   command 修，比連續試 stash + checkout + 看 status 安全
+4. **長任務不要連續 ≥ 4 phase 不休息**：A.1 → A.2 → B.1+2 → B.3+4 跑完中間沒
+   停下來驗收。下次至少在「phase 大跳轉」（A→B、B→C）前停下來問
+   「視覺驗收還是繼續」，預設答 (b) 驗收 — 我這次預設答 (a)
+5. **layerConsistency-class ratchet 預期會擋哪幾條，事前盤一次**：B 一進來時
+   就應該說「B.1 純資料層 commit 會 fail consistency，B.1+B.2 必須合」，
+   而不是被 ratchet 擋了才合
+
+### Memory 產出
+
+- BACKLOG：close E-A + E-B，add E-G（cluster 升級）
+- DATA_SCOPE：lightning + nuclear + RPC 214/215 改「已接 v2 Phase B」
+- INCIDENTS：SessionStart auto-cherry-pick 把 feat 分支拆掉事件
+- PRINCIPLES：commit 前 branch 確認 + layerConsistency 合併 commit 慣例
+- STATUS：rewrite，head 移到 feat/energy-v2-A 5 commits
+
+---
+
 ## 2026-06-18 Monitor 效能優化 5 step
 
 ### What worked ✅
