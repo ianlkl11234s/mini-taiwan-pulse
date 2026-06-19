@@ -142,6 +142,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
   { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
   { keys: ["osmSubstations"], render: () => <SubstationLegend /> },
+  { keys: ["facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement"],
+    render: ({ visibility }) => <FacilityFuelLegend visibility={visibility} /> },
+  { keys: ["facOffshore"], render: () => <FacOffshoreLegend /> },
   { keys: ["osmWindTurbines", "osmSolarFarms", "osmPowerPlantsStatic"], render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
   { keys: ["offshoreWindZones", "islandPowerGrid", "fossilFuelInfra", "geothermalWells", "renewablePermitsTaipei"], render: ({ visibility }) => <EnergySpecialtyLegend visibility={visibility} /> },
   { keys: ["lightning"], render: () => <LightningLegend /> },
@@ -1054,6 +1057,97 @@ function SubstationLegend() {
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
         ● EHV 兩階含 halo 光暈<br />
         ● 規則：name regex + voltage，台電命名 E/S / P/S / S/S 標示為準
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: Phase 8 SSOT facilities 6-layer ──
+function FacilityFuelLegend({ visibility }: { visibility: LayerVisibility }) {
+  const fuels: { c: string; label: string }[] = [
+    { c: "#ef4444", label: "燃煤 coal" },
+    { c: "#fb923c", label: "油氣 oil_gas" },
+    { c: "#a855f7", label: "核能 nuclear" },
+    { c: "#3b82f6", label: "水力 hydro" },
+    { c: "#22c55e", label: "光電 solar" },
+    { c: "#06b6d4", label: "風力 wind" },
+    { c: "#92400e", label: "生質 bioenergy" },
+    { c: "#f97316", label: "地熱 geothermal" },
+    { c: "#737373", label: "焚化 waste" },
+  ];
+  const showStatus = visibility.facPlanned || visibility.facHistorical;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 電廠燃料
+      </div>
+      {fuels.map((f) => (
+        <div key={f.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 12, height: 12, borderRadius: "50%", background: f.c, display: "inline-block" }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{f.label}</span>
+        </div>
+      ))}
+      {showStatus && (
+        <>
+          <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 3 }}>狀態</div>
+          {visibility.facPlanned && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#9ca3af", border: "1.5px solid #facc15" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>興建中（黃框）</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.55)", border: "1.5px solid #3b82f6" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>規劃中（藍框、半透明）</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.35)", border: "1.5px solid #94a3b8" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>公告中（灰框、淡）</span>
+              </div>
+            </>
+          )}
+          {visibility.facHistorical && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#525252", border: "1px solid #737373", opacity: 0.45 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>退役/擱置（深灰、退色）</span>
+            </div>
+          )}
+        </>
+      )}
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 大小 ∝ log10(容量 MW)：0.5MW ~ 6GW 連續映射
+      </div>
+    </div>
+  );
+}
+
+function FacOffshoreLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 離岸風電場址（8 場）
+      </div>
+      {[
+        { c: "#06b6d4", label: "運轉中", dash: false },
+        { c: "#22d3ee", label: "興建中（虛線 3,2）", dash: true },
+        { c: "#22d3ee", label: "規劃中（虛線 2,2）", dash: true },
+        { c: "#94a3b8", label: "公告中（虛線 1,3）", dash: true },
+      ].map((r) => (
+        <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 24, height: 8,
+              background: r.dash
+                ? `repeating-linear-gradient(to right, ${r.c} 0 4px, transparent 4px 7px)`
+                : r.c,
+              opacity: 0.7,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 來源：energy.power_facilities footprint（GEM polygon 配對成功 8 個）
       </div>
     </div>
   );

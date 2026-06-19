@@ -3677,4 +3677,266 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ══════════════════════════════════════════════════════════════════
+  //  Phase 8 SSOT — 6-layer facilities 重構
+  //  marker 大小用 log scale 連續映射（0.5MW ~ 6GW）；color 按 fuel_type
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── L1 主要電廠（運轉中）209 ──
+  {
+    id: "facPrimary",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-primary",
+    dynamicData: true,
+    rebuildOnParamChange: ["facPrimaryOpacity", "facPrimaryScale"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.facPrimaryOpacity ?? 0.95;
+          const s = params?.facPrimaryScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", 1.4 * s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 2, Math.log10(6000), 14]],
+              12, ["*", 1.7 * s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 5, Math.log10(6000), 32]],
+            ],
+            "circle-blur": 0.7,
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.28,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.facPrimaryOpacity ?? 0.95;
+          const s = params?.facPrimaryScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 2, Math.log10(6000), 14]],
+              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 5, Math.log10(6000), 32]],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L2 離岸風電場址 polygon 8 ──
+  {
+    id: "facOffshore",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-offshore",
+    dynamicData: true,
+    rebuildOnParamChange: ["facOffshoreOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.facOffshoreOpacity ?? 0.45;
+          return {
+            "fill-color": [
+              "match", ["get", "status"],
+              "operating", "#06b6d4",
+              "construction", "#22d3ee",
+              "pre-construction", "#0891b2",
+              "announced", "#155e75",
+              "#475569",
+            ],
+            "fill-opacity": o * 0.35,
+            "fill-outline-color": "#67e8f9",
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.facOffshoreOpacity ?? 0.45;
+          return {
+            "line-color": [
+              "match", ["get", "status"],
+              "operating", "#67e8f9",
+              "construction", "#22d3ee",
+              "pre-construction", "#22d3ee",
+              "announced", "#94a3b8",
+              "#94a3b8",
+            ],
+            "line-width": 1.4,
+            "line-opacity": o * 0.95,
+            "line-dasharray": [
+              "match", ["get", "status"],
+              "operating",        ["literal", [1]],
+              "construction",     ["literal", [3, 2]],
+              "pre-construction", ["literal", [2, 2]],
+              "announced",        ["literal", [1, 3]],
+              ["literal", [2, 2]],
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L3 規劃 / 未來電廠 35（半透明 + 虛線邊框）──
+  {
+    id: "facPlanned",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-planned",
+    dynamicData: true,
+    rebuildOnParamChange: ["facPlannedOpacity", "facPlannedScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.facPlannedOpacity ?? 0.7;
+          const s = params?.facPlannedScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 2, Math.log10(6000), 12]],
+              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 4, Math.log10(6000), 26]],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": [
+              "*", o,
+              ["match", ["get", "status"],
+                "construction", 0.85,
+                "pre-construction", 0.55,
+                "announced", 0.35,
+                0.6],
+            ],
+            "circle-stroke-width": 1.2,
+            "circle-stroke-color": [
+              "match", ["get", "status"],
+              "construction", "#facc15",
+              "pre-construction", "#3b82f6",
+              "announced", "#94a3b8",
+              "#9ca3af",
+            ],
+            // 注意：mapbox-gl 不支援 circle stroke dasharray
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L4 歷史（退役 / 擱置）15 ──
+  {
+    id: "facHistorical",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-historical",
+    dynamicData: true,
+    rebuildOnParamChange: ["facHistoricalOpacity", "facHistoricalScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.facHistoricalOpacity ?? 0.5;
+          const s = params?.facHistoricalScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 2, Math.log10(6000), 11]],
+              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 4, Math.log10(6000), 22]],
+            ],
+            "circle-color": "#525252",
+            "circle-opacity": [
+              "*", o,
+              ["match", ["get", "status"],
+                "mothballed", 0.55,
+                "shelved", 0.35,
+                "retired", 0.30,
+                0.4],
+            ],
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#737373",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L5 次要 341（小型 / 分散）──
+  {
+    id: "facSecondary",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-secondary",
+    dynamicData: true,
+    rebuildOnParamChange: ["facSecondaryOpacity", "facSecondaryScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.facSecondaryOpacity ?? 0.85;
+          const s = params?.facSecondaryScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 1.5, Math.log10(100), 6]],
+              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 3, Math.log10(100), 12]],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.9,
+            "circle-stroke-width": 0.6,
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L6 OSM 補充（無名單機）1,215 ──
+  {
+    id: "facOsmSupplement",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-osm-supplement",
+    dynamicData: true,
+    rebuildOnParamChange: ["facOsmSupplementOpacity", "facOsmSupplementScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.facOsmSupplementOpacity ?? 0.7;
+          const s = params?.facOsmSupplementScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, 1.5],
+              12, ["*", s, 3.5],
+              15, ["*", s, 5.5],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.75,
+            "circle-stroke-width": 0.4,
+            "circle-stroke-color": isDark ? "#1f2937" : "#e5e7eb",
+          };
+        },
+      },
+    ],
+  },
+
 ];

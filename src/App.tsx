@@ -737,6 +737,13 @@ export default function App() {
     showGeothermalWells: layerVisibility.geothermalWells,
     showRenewablePermitsTaipei: layerVisibility.renewablePermitsTaipei,
     showEvCharging: layerVisibility.evChargingStations,
+    // Phase 8 SSOT 6-layer
+    showFacPrimary: layerVisibility.facPrimary,
+    showFacOffshore: layerVisibility.facOffshore,
+    showFacPlanned: layerVisibility.facPlanned,
+    showFacHistorical: layerVisibility.facHistorical,
+    showFacSecondary: layerVisibility.facSecondary,
+    showFacOsmSupplement: layerVisibility.facOsmSupplement,
   });
   usePowerRegionBarsLayer(
     mapRef,

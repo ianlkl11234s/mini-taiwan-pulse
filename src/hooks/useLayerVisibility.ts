@@ -17,6 +17,9 @@ const DEFAULT_ON: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibi
   "ports",
   "lighthouses",
   "airports",
+  // Phase 8 SSOT facilities — L1 主要電廠 + L2 離岸風場 polygon 預設 ON
+  "facPrimary",
+  "facOffshore",
 ]);
 
 function buildDefaults(): LayerVisibility {

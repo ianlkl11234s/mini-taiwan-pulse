@@ -185,6 +185,13 @@ export function useMapInteraction(
           { layers: ["energy-geothermal-wells-core", "energy-geothermal-wells-halo"], type: "geothermalWell" },
           { layers: ["energy-taipei-re-core"], type: "renewablePermitTaipei" },
           { layers: ["energy-ev-charging-circle"], type: "evCharging" },
+          // Phase 8 SSOT 6-layer 共用 powerPlant panel
+          { layers: ["energy-fac-primary-circle", "energy-fac-primary-halo"], type: "powerPlant" },
+          { layers: ["energy-fac-offshore-fill", "energy-fac-offshore-line"], type: "powerPlant" },
+          { layers: ["energy-fac-planned-circle"], type: "powerPlant" },
+          { layers: ["energy-fac-historical-circle"], type: "powerPlant" },
+          { layers: ["energy-fac-secondary-circle"], type: "powerPlant" },
+          { layers: ["energy-fac-osm-supplement-circle"], type: "powerPlant" },
           { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
           { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
           { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },

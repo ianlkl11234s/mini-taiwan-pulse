@@ -15,6 +15,14 @@ import {
   fetchGeothermalWells,
   fetchRenewablePermitsTaipei,
   fetchEvCharging,
+  // Phase 8 SSOT 6-layer
+  fetchFacPrimary,
+  fetchFacOffshore,
+  fetchFacPlanned,
+  fetchFacHistorical,
+  fetchFacSecondary,
+  fetchFacOsmSupplement,
+  facilityFuelColor,
   fuelColorOf,
   radiusForCapacity,
   powerLineTierKv,
@@ -27,6 +35,8 @@ import {
   type OsmPowerPlantStatic,
   type OffshoreWindZone,
   type EvChargingStation,
+  type FacilityPoint,
+  type FacilityZone,
 } from "../data/energyLoader";
 
 /**
@@ -53,6 +63,13 @@ const SRC_FOSSIL_FUEL = "energy-fossil-fuel";
 const SRC_GEOTHERMAL = "energy-geothermal-wells";
 const SRC_TAIPEI_RE = "energy-taipei-re";
 const SRC_EV = "energy-ev-charging";
+// Phase 8 SSOT 6-layer
+const SRC_FAC_PRIMARY = "energy-fac-primary";
+const SRC_FAC_OFFSHORE = "energy-fac-offshore";
+const SRC_FAC_PLANNED = "energy-fac-planned";
+const SRC_FAC_HISTORICAL = "energy-fac-historical";
+const SRC_FAC_SECONDARY = "energy-fac-secondary";
+const SRC_FAC_OSM_SUPPLEMENT = "energy-fac-osm-supplement";
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 
@@ -326,6 +343,13 @@ export interface UseEnergyPoiLayerOpts {
   showGeothermalWells: boolean;
   showRenewablePermitsTaipei: boolean;
   showEvCharging: boolean;
+  // Phase 8 SSOT 6-layer
+  showFacPrimary: boolean;
+  showFacOffshore: boolean;
+  showFacPlanned: boolean;
+  showFacHistorical: boolean;
+  showFacSecondary: boolean;
+  showFacOsmSupplement: boolean;
 }
 
 export function useEnergyPoiLayer(
@@ -336,6 +360,8 @@ export function useEnergyPoiLayer(
     showOffshoreWindZones, showIslandPowerGrid, showFossilFuelInfra,
     showGeothermalWells, showRenewablePermitsTaipei,
     showEvCharging,
+    showFacPrimary, showFacOffshore, showFacPlanned, showFacHistorical,
+    showFacSecondary, showFacOsmSupplement,
   }: UseEnergyPoiLayerOpts,
 ) {
   const plantsFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -351,6 +377,13 @@ export function useEnergyPoiLayer(
   const geothermalFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const taipeiReFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const evFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  // Phase 8 SSOT 6-layer
+  const facPrimaryRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const facOffshoreRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const facPlannedRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const facHistoricalRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const facSecondaryRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const facOsmSupplementRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
   const feedPlants = useSourceFeed(mapRef, showPlants, SRC_PLANTS, plantsFcRef);
   const feedSubs = useSourceFeed(mapRef, showSubstations, SRC_SUBSTATIONS, subsFcRef);
@@ -365,6 +398,12 @@ export function useEnergyPoiLayer(
   const feedGeothermal = useSourceFeed(mapRef, showGeothermalWells, SRC_GEOTHERMAL, geothermalFcRef);
   const feedTaipeiRE = useSourceFeed(mapRef, showRenewablePermitsTaipei, SRC_TAIPEI_RE, taipeiReFcRef);
   const feedEv = useSourceFeed(mapRef, showEvCharging, SRC_EV, evFcRef);
+  const feedFacPrimary       = useSourceFeed(mapRef, showFacPrimary,       SRC_FAC_PRIMARY,        facPrimaryRef);
+  const feedFacOffshore      = useSourceFeed(mapRef, showFacOffshore,      SRC_FAC_OFFSHORE,       facOffshoreRef);
+  const feedFacPlanned       = useSourceFeed(mapRef, showFacPlanned,       SRC_FAC_PLANNED,        facPlannedRef);
+  const feedFacHistorical    = useSourceFeed(mapRef, showFacHistorical,    SRC_FAC_HISTORICAL,     facHistoricalRef);
+  const feedFacSecondary     = useSourceFeed(mapRef, showFacSecondary,     SRC_FAC_SECONDARY,      facSecondaryRef);
+  const feedFacOsmSupplement = useSourceFeed(mapRef, showFacOsmSupplement, SRC_FAC_OSM_SUPPLEMENT, facOsmSupplementRef);
 
   // power_plants：visible 時拉 + 每 5 min poll
   useEffect(() => {
@@ -604,4 +643,140 @@ export function useEnergyPoiLayer(
       cancelled = true;
     };
   }, [showEvCharging, feedEv]);
+
+  // ── Phase 8 SSOT 6-layer：facPrimary/Offshore/Planned/Historical/Secondary/OsmSupplement ──
+  useEffect(() => {
+    if (!showFacPrimary) return;
+    let cancelled = false;
+    fetchFacPrimary()
+      .then((rows) => {
+        if (cancelled) return;
+        facPrimaryRef.current = facPointsToGeoJSON(rows);
+        feedFacPrimary();
+      })
+      .catch((err) => console.warn("[Energy/facPrimary] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showFacPrimary, feedFacPrimary]);
+
+  useEffect(() => {
+    if (!showFacOffshore) return;
+    let cancelled = false;
+    fetchFacOffshore()
+      .then((zones) => {
+        if (cancelled) return;
+        facOffshoreRef.current = facZonesToGeoJSON(zones);
+        feedFacOffshore();
+      })
+      .catch((err) => console.warn("[Energy/facOffshore] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showFacOffshore, feedFacOffshore]);
+
+  useEffect(() => {
+    if (!showFacPlanned) return;
+    let cancelled = false;
+    fetchFacPlanned()
+      .then((rows) => {
+        if (cancelled) return;
+        facPlannedRef.current = facPointsToGeoJSON(rows);
+        feedFacPlanned();
+      })
+      .catch((err) => console.warn("[Energy/facPlanned] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showFacPlanned, feedFacPlanned]);
+
+  useEffect(() => {
+    if (!showFacHistorical) return;
+    let cancelled = false;
+    fetchFacHistorical()
+      .then((rows) => {
+        if (cancelled) return;
+        facHistoricalRef.current = facPointsToGeoJSON(rows);
+        feedFacHistorical();
+      })
+      .catch((err) => console.warn("[Energy/facHistorical] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showFacHistorical, feedFacHistorical]);
+
+  useEffect(() => {
+    if (!showFacSecondary) return;
+    let cancelled = false;
+    fetchFacSecondary()
+      .then((rows) => {
+        if (cancelled) return;
+        facSecondaryRef.current = facPointsToGeoJSON(rows);
+        feedFacSecondary();
+      })
+      .catch((err) => console.warn("[Energy/facSecondary] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showFacSecondary, feedFacSecondary]);
+
+  useEffect(() => {
+    if (!showFacOsmSupplement) return;
+    let cancelled = false;
+    fetchFacOsmSupplement()
+      .then((rows) => {
+        if (cancelled) return;
+        facOsmSupplementRef.current = facPointsToGeoJSON(rows);
+        feedFacOsmSupplement();
+      })
+      .catch((err) => console.warn("[Energy/facOsmSupplement] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showFacOsmSupplement, feedFacOsmSupplement]);
+}
+
+// ── Phase 8 SSOT 6-layer 共用 GeoJSON 轉換 ──
+function facPointsToGeoJSON(rows: FacilityPoint[]): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const r of rows) {
+    if (!Number.isFinite(r.lng) || !Number.isFinite(r.lat)) continue;
+    features.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [r.lng, r.lat] },
+      properties: {
+        facility_id: r.facility_id,
+        name: r.name_zh ?? r.name ?? r.facility_id,
+        fuel_type: r.fuel_type ?? "",
+        total_capacity_mw: r.total_capacity_mw ?? 0,
+        status: r.status ?? "",
+        county: r.county ?? "",
+        owner: r.owner ?? "",
+        is_offshore: !!r.is_offshore,
+        source_priority: r.source_priority,
+        color: facilityFuelColor(r.fuel_type),
+        // 兼容既有 PowerPlantPanel（source_table）
+        source_table: "energy.power_facilities",
+        capacity_mw: r.total_capacity_mw ?? 0,
+      },
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
+function facZonesToGeoJSON(zones: FacilityZone[]): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const z of zones) {
+    let geom: GeoJSON.Geometry | null = null;
+    try {
+      geom = JSON.parse(z.footprint_geojson) as GeoJSON.Geometry;
+    } catch {
+      continue;
+    }
+    if (!geom) continue;
+    features.push({
+      type: "Feature",
+      geometry: geom,
+      properties: {
+        facility_id: z.facility_id,
+        name: z.name_zh ?? z.name ?? z.facility_id,
+        total_capacity_mw: z.total_capacity_mw ?? 0,
+        status: z.status ?? "",
+        owner: z.owner ?? "",
+        fuel_type: "wind",
+        color: "#06b6d4",
+        source_table: "energy.power_facilities",
+        capacity_mw: z.total_capacity_mw ?? 0,
+      },
+    });
+  }
+  return { type: "FeatureCollection", features };
 }

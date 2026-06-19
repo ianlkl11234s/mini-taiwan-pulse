@@ -191,6 +191,119 @@ export interface PlantOutputPoint {
   load_rate: number | null;
 }
 
+// ── Phase 8 SSOT 6-layer 重構 ────────────────────────────────
+// 取代既有單一 powerPlants layer：L1 運轉中 / L2 離岸 polygon / L3 規劃 / L4 歷史 / L5 次要 / L6 OSM 補充
+
+export interface FacilityPoint {
+  facility_id: string;
+  name: string;
+  name_zh: string | null;
+  fuel_type: string | null;
+  total_capacity_mw: number | null;
+  status: string | null;
+  is_offshore: boolean | null;
+  county: string | null;
+  owner: string | null;
+  source_priority: number | null;
+  lng: number;
+  lat: number;
+  size_tier?: string | null;
+}
+export interface FacilityZone {
+  facility_id: string;
+  name: string;
+  name_zh: string | null;
+  total_capacity_mw: number | null;
+  status: string | null;
+  owner: string | null;
+  footprint_geojson: string; // GeoJSON.MultiPolygon 字串
+}
+
+/** L1 主要電廠（運轉中）209 — 火/核/水/大型風/大型光電 */
+const _l1Cached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "energy:facPrimary", "主要電廠 209",
+    supabase.rpc("get_ssot_facilities_primary_operating"),
+  );
+  if (error) throw new Error(`get_ssot_facilities_primary_operating: ${error.message}`);
+  return (data ?? []) as FacilityPoint[];
+}, 60 * 60_000);
+export const fetchFacPrimary = (): Promise<FacilityPoint[]> => _l1Cached();
+
+/** L2 離岸風電場址 polygon 8 — 大彰化/Formosa/Hai Long footprint */
+const _l2Cached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "energy:facOffshore", "離岸風電場址 8",
+    supabase.rpc("get_ssot_facilities_offshore_zones"),
+  );
+  if (error) throw new Error(`get_ssot_facilities_offshore_zones: ${error.message}`);
+  return (data ?? []) as FacilityZone[];
+}, 60 * 60_000);
+export const fetchFacOffshore = (): Promise<FacilityZone[]> => _l2Cached();
+
+/** L3 規劃 / 未來電廠 35 (pre-construction + announced) */
+const _l3Cached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "energy:facPlanned", "規劃電廠 35",
+    supabase.rpc("get_ssot_facilities_planned"),
+  );
+  if (error) throw new Error(`get_ssot_facilities_planned: ${error.message}`);
+  return (data ?? []) as FacilityPoint[];
+}, 60 * 60_000);
+export const fetchFacPlanned = (): Promise<FacilityPoint[]> => _l3Cached();
+
+/** L4 歷史 — 退役 / 擱置 15 */
+const _l4Cached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "energy:facHistorical", "歷史電廠 15",
+    supabase.rpc("get_ssot_facilities_historical"),
+  );
+  if (error) throw new Error(`get_ssot_facilities_historical: ${error.message}`);
+  return (data ?? []) as FacilityPoint[];
+}, 60 * 60_000);
+export const fetchFacHistorical = (): Promise<FacilityPoint[]> => _l4Cached();
+
+/** L5 次要 341（焚化+地熱+小水力+中小光電/風電）*/
+const _l5Cached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "energy:facSecondary", "次要電廠 341",
+    supabase.rpc("get_ssot_facilities_secondary_small"),
+  );
+  if (error) throw new Error(`get_ssot_facilities_secondary_small: ${error.message}`);
+  return (data ?? []) as FacilityPoint[];
+}, 60 * 60_000);
+export const fetchFacSecondary = (): Promise<FacilityPoint[]> => _l5Cached();
+
+/** L6 OSM 補充 1,215（source_priority=5 無名單機） */
+const _l6Cached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "energy:facOsmSupplement", "OSM 補充 1,215",
+    supabase.rpc("get_ssot_facilities_osm_supplement"),
+  );
+  if (error) throw new Error(`get_ssot_facilities_osm_supplement: ${error.message}`);
+  return (data ?? []) as FacilityPoint[];
+}, 60 * 60_000);
+export const fetchFacOsmSupplement = (): Promise<FacilityPoint[]> => _l6Cached();
+
+/** Facilities 6-layer 共用 fuel → color（不沿用舊 FUEL_COLORS，按用戶規劃重新定義）*/
+export const FACILITY_FUEL_COLORS: Record<string, string> = {
+  coal:       "#ef4444",
+  oil_gas:    "#fb923c",
+  nuclear:    "#a855f7",
+  hydro:      "#3b82f6",
+  solar:      "#22c55e",
+  wind:       "#06b6d4",
+  bioenergy:  "#92400e",
+  geothermal: "#f97316",
+  waste:      "#737373",
+  storage:    "#fbbf24",
+  other:      "#9ca3af",
+};
+export function facilityFuelColor(fuel: string | null | undefined): string {
+  if (!fuel) return "#9ca3af";
+  return FACILITY_FUEL_COLORS[fuel] ?? "#9ca3af";
+}
+
 // ── Facility provenance（migration 236）─────────────────────
 // Popup 點電廠時 lazy fetch 該廠的完整原始來源 metadata。
 

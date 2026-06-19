@@ -193,6 +193,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   geothermalWells: "#ef4444",      // 地熱井 red（熱泉語意）
   renewablePermitsTaipei: "#fbbf24", // 北市再生 amber（學校最多，amber 代表色）
   evChargingStations: "#10b981",   // 充電綠
+  // Phase 8 SSOT facilities 6-layer 重構
+  facPrimary: "#22c55e",           // 主要運轉中（綠 — 用戶規劃代表色）
+  facOffshore: "#22d3ee",          // 離岸風場 polygon (cyan)
+  facPlanned: "#facc15",           // 規劃中（黃）
+  facHistorical: "#9ca3af",        // 歷史退役（淡灰）
+  facSecondary: "#22c55e",         // 次要小型（綠）
+  facOsmSupplement: "#737373",     // OSM 補充（深灰）
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
@@ -474,20 +481,32 @@ export const SECTIONS: SectionDef[] = [
     // （KPI 性質非地理事件）。LayerVisibility key 保留供 monitor 整合時複用。
     title: "ENERGY · 能源",
     layers: [
-      { key: "powerPlants", label: "電廠", expandable: true },
-      { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
+      // Phase 8 SSOT facilities 6-layer — 整合後的精簡視覺
+      { key: "facPrimary",       label: "主要電廠（運轉中）",  expandable: true },
+      { key: "facOffshore",      label: "離岸風電場址",         expandable: true },
+      { key: "facPlanned",       label: "規劃 / 未來電廠",      expandable: true },
+      { key: "facHistorical",    label: "歷史 — 退役/擱置",     expandable: true },
+      { key: "facSecondary",     label: "次要電廠（小型/分散）", expandable: true },
+      { key: "facOsmSupplement", label: "OSM 補充（無名單機）",  expandable: true },
+      // 電網基礎設施
       { key: "osmSubstations", label: "變電所", expandable: true },
       { key: "osmPowerLines", label: "高壓輸電線", expandable: true },
       { key: "osmPowerTowers", label: "高壓鐵塔", expandable: true },
-      { key: "osmWindTurbines", label: "風機", expandable: true },
-      { key: "osmSolarFarms", label: "光電廠", expandable: true },
-      { key: "osmPowerPlantsStatic", label: "OSM 電廠（補充）", expandable: true },
-      { key: "offshoreWindZones", label: "離岸風電場址", expandable: true },
+      // 即時 3D beam（保留）
+      { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
+      // OSM 原始細節 layer（為比對 SSOT 用，預設 OFF）
+      { key: "osmWindTurbines", label: "OSM 風機", expandable: true },
+      { key: "osmSolarFarms", label: "OSM 光電廠", expandable: true },
+      { key: "osmPowerPlantsStatic", label: "OSM 電廠（散落）", expandable: true },
+      { key: "offshoreWindZones", label: "離岸風場（OSM 36）", expandable: true },
       { key: "islandPowerGrid", label: "離島電網", expandable: true },
       { key: "fossilFuelInfra", label: "化石燃料設施", expandable: true },
       { key: "geothermalWells", label: "地熱井", expandable: true },
       { key: "renewablePermitsTaipei", label: "北市再生能源", expandable: true },
       { key: "evChargingStations", label: "充電站", expandable: true },
+      // ⚠️ powerPlants legacy layer 已被 facPrimary+facSecondary+facHistorical+facPlanned 取代
+      // 仍保留 LayerVisibility key 供 PowerCard / 3D beam 內部使用
+      { key: "powerPlants", label: "電廠（legacy）", expandable: true },
     ],
   },
   {
