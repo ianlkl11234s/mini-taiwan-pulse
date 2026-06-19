@@ -293,3 +293,76 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 - 有座標 ~55%、鄉鎮級 ~30%、縣市級 ~25%
 - gis_relevance 分布（v2 抽樣 36 則）：0=14 / 1=10 / 2=8 / 3=4
 - critical 級（gr=3 + sev≥2）約 4-8 則/天
+
+---
+
+## 能源 ENERGY（2026-06-19 加 — v1.0~v1.3.5 上線 PR #23 + #10）
+
+### 來源
+- 上游 collector：`../taipei-gis-analytics/pipelines/energy/`
+- HANDOFF doc：`../taipei-gis-analytics/docs/topic-research/energy/MINI_TAIWAN_PULSE_HANDOFF.md`
+- Supabase project：`utcmcikhvxnohbxchbrs`（gis-platform）
+- 上線分組：sidebar `ENERGY · 能源`（4 layer）
+
+### 22 表（全在 public + realtime + analytics 三 schema）
+
+| 性質 | 表 | 筆數 | 已接 layer? |
+|---|---|---:|---|
+| **主圖 VIEW** | `public.all_power_plants_v` | **10,665** | ✅ 電廠 layer 1 |
+| 台電大廠 | `public.power_plants` | 22 | 在 VIEW 內 |
+| 核電廠 | `public.nuclear_plants` | 4 | 在 VIEW 內（標 retired）|
+| 民營 IPP | `public.ipp_thermal_plants` | 9 | 在 VIEW 內 |
+| 離島電網 | `public.island_power_grid` | 14 | 在 VIEW 內，海纜 LineString 沒接（E-D）|
+| 化石燃料設施 | `public.fossil_fuel_infrastructure` | 9 | 在 VIEW 內 |
+| 離岸風 polygon | `public.offshore_wind_zones` | 36 | 在 VIEW（centroid）但 polygon 沒接（E-D）|
+| OSM 風機 | `public.osm_wind_turbines` | 812 | 在 VIEW 內，獨立 toggle 沒接（E-D）|
+| OSM 光電 | `public.osm_solar_farms` | 734 | 在 VIEW 內，獨立 toggle 沒接（E-D）|
+| OSM 綜合電廠 | `public.osm_power_plants` | 513 | 在 VIEW 內，獨立 toggle 沒接（E-D）|
+| 再生案場（全國）| `public.renewable_permits` | 8,195 | 在 VIEW 內（TGOS 98.1% geocoded）|
+| 再生案場（北市）| `public.renewable_permits_taipei` | 438 | 在 VIEW，分色沒接（E-D）|
+| 地熱潛能 | `public.geothermal_potential` | 27 | 無座標，KPI 卡（E-F）|
+| 地熱井 | `public.geothermal_wells` | 36 | 在 VIEW，3D cone 沒接（E-D）|
+| **變電所** | `public.osm_substations` | **785** | ✅ layer 5 |
+| 高壓電塔 | `public.osm_power_towers` | **26,589** | 沒接（E-C 用戶 priority）|
+| 高壓線路 | `public.osm_power_lines` | **2,305** | 沒接（E-C 用戶 priority）|
+| 配電變壓器 | `public.osm_transformers` | 102 | 沒接（OSM 稀疏，台電 506k 量大）|
+| OSM 充電 | `public.osm_charging_stations` | 306 | 沒接（E-E 補社區型）|
+| OSM 加油站 | `public.osm_gas_stations` | 2,212 | 沒接（E-E 主用）|
+| 政府加油站 | `public.gas_stations` | 573 | 沒接（E-E 對照，不可 UNION OSM）|
+| **充電站** | `public.ev_charging_stations` | **3,060** | ✅ layer 6 |
+| 電桿（低壓）| `public.power_poles` | **2,959,326** | 沒接（E-E 必走 PMTiles 1.4GB raw）|
+| 縣市風力統計 | `public.county_wind_stats` | 211 | 沒接（E-F KPI）|
+| 縣市生質統計 | `public.county_biomass_stats` | 188 | 沒接（E-F KPI）|
+| 縣市小水力 | `public.county_small_hydro_stats` | 188 | 沒接（E-F KPI）|
+| 光電月發電（站時序）| `analytics.solar_daily_generation` | 3,992 | 沒接（E-F 月趨勢）|
+| 落雷即時 | `realtime.lightning_events` | 32,912 / 24h | 沒接（E-B HAZARD 用戶要求，RPC 214 已備）|
+| 落雷日聚合 | `analytics.lightning_daily_summary` | 動態 | 沒接（E-F KPI）|
+| **三本柱燈號** | `realtime.power_system_status` | 1,843 (10min × 約 13 天) | ✅ HUD（v1.1 留 hooks 給 monitor E-A）|
+| **區域用電** | `realtime.power_region_demand` | 7,352 | ✅ region bars（v1.1 留 hooks 給 monitor E-A）|
+| **機組即時** | `realtime.power_generation_unit` | 376,790 (7 天 retention) | ✅ 3D beam layer 4 |
+| 核安站當下 | `realtime.nuclear_radiation_stations` | 51 | 沒接（E-B HAZARD，RPC 215 已備）|
+| 核安站歷史 | `realtime.nuclear_radiation_measurements` | 動態 | 沒接（E-B per-station sparkline）|
+| 核安日聚合 | `analytics.nuclear_radiation_daily` | 動態 | 沒接（E-F）|
+
+### 8 個 RPC（gis-platform migrations 212~219，全 merged 進 main）
+
+| Migration | RPC | 用途 |
+|---|---|---|
+| 212 | `get_power_dashboard()` | 燈號 + 4 區 一次拉（HUD + region bars）|
+| 213 | `get_power_plants_with_output()` | 10,665 POI 含 retired flag |
+| 214 | `get_lightning_recent(min)` | 落雷時窗（E-B 待接）|
+| 215 | `get_nuclear_radiation_status()` | 51 核安站當下（E-B 待接）|
+| 216 | `get_osm_substations()` + `get_ev_charging_stations()` | 兩 slim POI |
+| 217 | `get_power_plants_at(ts)` + `get_power_plant_output_24h(name)` | timeline + popup sparkline |
+| 218 | `get_power_generation_at(ts)` | beam slim 14 廠 ~3 KB |
+| 219 | `get_power_generation_24h()` | 24h 全部 14 廠 × ~144 ts ~45 KB |
+
+### 核電廠現況（2026-06）
+
+**全國無核反應爐發電**：核一 2019-07 退役、核二 2023-03 退役、核三 2025-05 退役、核四從未商轉（2014 封存 / 2022 解體燃料外送）。213 RPC `status='retired'` + `status_note` 標示。
+
+當下 fuel mix（2026-06-18 11:30 實測）：燃氣 12,169 / 燃煤 6,193 / 民營燃氣 5,943 / 太陽能 2,407 / 民營燃煤 2,156 / 汽電共生 1,959 / 風力 1,903 / 水力 1,083 / 儲能 742 / 燃料油 193 / 其他再生 41 MW。
+
+### 14 廠對應「機組」（unit_prefix LIKE plant_core 規則）
+
+大潭、台中、通霄、興達、林口、大林、南部、明潭、協和、卓蘭、和平、谷關（22 廠裡 14 個有對應機組）。其餘 8 廠（大甲溪 / 大觀 / 萬大 / 萬大 / 等水力分廠 + 外部購電聚合）沒對到 — 視覺上「廠在地、無柱」。

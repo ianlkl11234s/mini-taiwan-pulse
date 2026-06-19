@@ -254,3 +254,18 @@
 | claude-review.yml | PR 開啟/更新時自動跑 Claude review，prompt 限制「只看 diff、無問題單行 LGTM」 |
 | claude-mention.yml | issue / PR comment 內 `@claude` 觸發回應 |
 | Workflow validation skip | Claude Code Action 安全機制：PR 修改 workflow 檔本身會跳過 review（防 prompt 注入），merge 後生效 |
+
+## 能源 ENERGY（2026-06-19 加 — v1.0~v1.3.5）
+
+| 術語 | 說明 |
+|---|---|
+| **HANDOFF** | `../taipei-gis-analytics/docs/topic-research/energy/MINI_TAIWAN_PULSE_HANDOFF.md`，能源主題交接文件。⚠️ 有 5 處與真實 schema 不對齊（unit_name 公式 / status 欄位名 / region 欄位名 / VIEW 數量 / size 分級門檻），已在 v1 修正 |
+| **all_power_plants_v** | public schema VIEW，UNION ALL 11 source = 10,665 設施。含 36 個 MultiPolygon（offshore_wind_zones）→ 取座標一律 `ST_X(ST_Centroid(geom))` |
+| **unit_prefix LIKE plant_core** | 機組對電廠 JOIN 規則。unit_name 真實格式 `{廠名core}{機型?}#{編號}` 例 `大潭CC#1`，先 `SPLIT_PART(unit_name, '#', 1)` + 拿掉 `(註X)` + 拿掉末尾 `CC|GT|IGCC|新` 得 unit_prefix，再 LIKE `regexp_replace(plant_name, '發電廠$', '') || '%'` |
+| **蠟燭錐 / openEnded cylinder** | 3D beam 視覺：CylinderGeometry(radiusTop=440m, radiusBottom=1.85km, openEnded=true) — 頂尖底寬光錐感、無頂底圓盤（user zoom 進柱位置不會看到黑色蓋）|
+| **hit-test source** | 透明 Mapbox circle source（opacity=0），跟 3D beam 同位置同變動。Three.js CustomLayer 不能被 queryRenderedFeatures 命中，靠這層接 click → PowerPlantPanel |
+| **retired flag** | 213 RPC 加 `status='retired'` + `status_note`。核電廠 7 個（4 政府 + 3 OSM）視覺退色 `#7c6b3a` + popup 紅字停機日期 |
+| **isStyleLoaded race** | mapbox `map.isStyleLoaded()` 在 toggle 瞬間 racily 回 false（即使 style 早 load 完）。**禁** `if (isStyleLoaded()) ... else map.on("style.load", ...)`，改 `try addLayer + catch → map.once("idle", retry)`。詳 `.claude/pitfalls/2026-04-22-mapbox-load-once-fired.md`（2026-04-22 水庫第一次、2026-06-18 energy beam 第二次）|
+| **slim RPC** | 跟 fat RPC 對比。218 `get_power_generation_at(ts)` 只回有對應機組的 14 廠 ~3KB（vs 213 回 10,665 行 ~500KB）。timeline scrub 用 slim |
+| **24h preload** | 219 `get_power_generation_24h()` 一次拉 14 廠 × 144 ts ~45 KB。前端 `cachedOnce 10min TTL` + `resolvePowerGenerationAt()` client binary search → scrub 零 round-trip |
+| **frustumCulled=false** | InstancedMesh 預設 `true` 但 bounding sphere 從 unit geometry 算，14 instance 散佈全台會被誤判超出視錐 → 整個 mesh 不畫。所有獨立 3D layer 都要 `mesh.frustumCulled = false` |
