@@ -1065,15 +1065,15 @@ function SubstationLegend() {
 // ── Energy: Phase 8 SSOT facilities 6-layer ──
 function FacilityFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   const fuels: { c: string; label: string }[] = [
-    { c: "#ff1744", label: "燃煤 coal" },
-    { c: "#ff9e00", label: "油氣 oil_gas" },
+    { c: "#F2622E", label: "燃煤 coal" },
+    { c: "#F2D64B", label: "油氣 oil_gas" },
     { c: "#d100ff", label: "核能 nuclear" },
-    { c: "#0091ff", label: "水力 hydro" },
-    { c: "#bfff00", label: "光電 solar" },
-    { c: "#00f5d4", label: "風力 wind" },
-    { c: "#ff6b35", label: "生質 bioenergy" },
-    { c: "#ff006e", label: "地熱 geothermal" },
-    { c: "#9b51e0", label: "焚化 waste" },
+    { c: "#3C92A6", label: "水力 hydro" },
+    { c: "#F2E085", label: "光電 solar" },
+    { c: "#1F4373", label: "風力 wind" },
+    { c: "#8C7C4A", label: "生質 bioenergy" },
+    { c: "#8C5D42", label: "地熱 geothermal" },
+    { c: "#D9863D", label: "焚化 waste" },
   ];
   const showStatus = visibility.facPlanned || visibility.facHistorical;
   return (
@@ -1128,10 +1128,10 @@ function FacOffshoreLegend() {
         ENERGY · 離岸風電場址（8 場）
       </div>
       {[
-        { c: "#7dffe7", label: "運轉中", dash: false },
-        { c: "#00f5d4", label: "興建中（虛線 3,2）", dash: true },
-        { c: "#00d4ff", label: "規劃中（虛線 2,2）", dash: true },
-        { c: "#a5b4fc", label: "公告中（虛線 1,3）", dash: true },
+        { c: "#3C92A6", label: "運轉中", dash: false },
+        { c: "#7AAEC0", label: "興建中（虛線 3,2）", dash: true },
+        { c: "#7AAEC0", label: "規劃中（虛線 2,2）", dash: true },
+        { c: "#A8C5D0", label: "公告中（虛線 1,3）", dash: true },
       ].map((r) => (
         <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span

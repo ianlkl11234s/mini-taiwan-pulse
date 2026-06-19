@@ -3750,14 +3750,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "fill-color": [
               "match", ["get", "status"],
-              "operating", "#00f5d4",
-              "construction", "#00d4ff",
-              "pre-construction", "#0091ff",
-              "announced", "#5b8def",
+              "operating", "#1F4373",
+              "construction", "#2F5A99",
+              "pre-construction", "#3C92A6",
+              "announced", "#7AAEC0",
               "#475569",
             ],
             "fill-opacity": o * 0.35,
-            "fill-outline-color": "#7dffe7",
+            "fill-outline-color": "#7AAEC0",
           };
         },
       },
@@ -3769,11 +3769,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "status"],
-              "operating", "#7dffe7",
-              "construction", "#00f5d4",
-              "pre-construction", "#00d4ff",
-              "announced", "#a5b4fc",
-              "#a5b4fc",
+              "operating", "#3C92A6",
+              "construction", "#7AAEC0",
+              "pre-construction", "#7AAEC0",
+              "announced", "#A8C5D0",
+              "#A8C5D0",
             ],
             "line-width": 1.4,
             "line-opacity": o * 0.95,

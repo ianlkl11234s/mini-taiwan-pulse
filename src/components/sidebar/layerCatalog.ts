@@ -193,13 +193,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   geothermalWells: "#ef4444",      // 地熱井 red（熱泉語意）
   renewablePermitsTaipei: "#fbbf24", // 北市再生 amber（學校最多，amber 代表色）
   evChargingStations: "#10b981",   // 充電綠
-  // Phase 8 SSOT facilities 6-layer（霓虹調色）
-  facPrimary: "#bfff00",           // 螢光萊姆（主要運轉中代表）
-  facOffshore: "#00f5d4",          // 薄荷青（離岸風場）
-  facPlanned: "#fff500",           // 電光黃（興建/規劃代表）
-  facHistorical: "#9b51e0",        // 霓虹紫（歷史退役）
-  facSecondary: "#ff6b35",         // 珊瑚橘（次要小型）
-  facOsmSupplement: "#94a3b8",     // 灰（OSM 無名）
+  // Phase 8 SSOT facilities 6-layer（用戶指定色票）
+  facPrimary: "#F2D64B",           // oil_gas 油氣黃（主要運轉中代表 — 黃是最大量）
+  facOffshore: "#1F4373",          // wind 深藍（離岸風場）
+  facPlanned: "#F2E085",           // solar 淡黃（規劃中常見光電）
+  facHistorical: "#8C5D42",        // geothermal 棕（歷史沉感）
+  facSecondary: "#8C7C4A",         // bioenergy 卡其（小型分散）
+  facOsmSupplement: "#94a3b8",     // 中性灰
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）

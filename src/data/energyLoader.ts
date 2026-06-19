@@ -289,16 +289,16 @@ export const fetchFacOsmSupplement = (): Promise<FacilityPoint[]> => _l6Cached()
  *  高飽和、深底發光、hue 之間拉開避免混淆。
  */
 export const FACILITY_FUEL_COLORS: Record<string, string> = {
-  coal:       "#ff1744", // vermilion 烈焰紅
-  oil_gas:    "#ff9e00", // 霓虹琥珀
-  nuclear:    "#d100ff", // electric magenta 電光紫
-  hydro:      "#0091ff", // 深霓虹藍
-  solar:      "#bfff00", // chartreuse 螢光萊姆
-  wind:       "#00f5d4", // mint aqua 薄荷青
-  bioenergy:  "#ff6b35", // coral 珊瑚橘
-  geothermal: "#ff006e", // hot pink 火山熱粉
-  waste:      "#9b51e0", // 霓虹紫煙
-  storage:    "#fff500", // acid yellow 電光黃
+  coal:       "#F2622E",
+  oil_gas:    "#F2D64B",
+  nuclear:    "#d100ff",
+  hydro:      "#3C92A6",
+  solar:      "#F2E085",
+  wind:       "#1F4373",
+  bioenergy:  "#8C7C4A",
+  geothermal: "#8C5D42",
+  waste:      "#D9863D",
+  storage:    "#F2EBC4",
   other:      "#94a3b8",
 };
 export function facilityFuelColor(fuel: string | null | undefined): string {
@@ -775,34 +775,34 @@ export const FUEL_COLORS: Record<string, string> = {
   nuclear: "#d100ff",
   核能: "#d100ff",
   // 燃煤 / 油
-  coal: "#ff1744",
-  煤: "#ff1744",
-  "煤/輕柴油": "#ff5e7a",
-  oil: "#ff3864",
-  重油: "#ff3864",
+  coal: "#F2622E",
+  煤: "#F2622E",
+  "煤/輕柴油": "#E07A4A",
+  oil: "#A8502A",
+  重油: "#A8502A",
   // 燃氣
-  natural_gas: "#ff9e00",
-  天然氣: "#ff9e00",
-  "天然氣/煤": "#ff7e3d",
-  燃氣: "#ff9e00",
-  oil_gas: "#ff9e00",
+  natural_gas: "#F2D64B",
+  天然氣: "#F2D64B",
+  "天然氣/煤": "#E8B83C",
+  燃氣: "#F2D64B",
+  oil_gas: "#F2D64B",
   // 水力
-  hydro: "#0091ff",
-  水: "#0091ff",
+  hydro: "#3C92A6",
+  水: "#3C92A6",
   // 太陽光電
-  solar: "#bfff00",
+  solar: "#F2E085",
   // 風力
-  wind: "#00f5d4",
-  offshore_wind: "#00d4ff",
+  wind: "#1F4373",
+  offshore_wind: "#2F5A99",
   // 地熱
-  geothermal: "#ff006e",
+  geothermal: "#8C5D42",
   // 生質 / 焚化
-  biomass: "#ff6b35",
-  biogas: "#ff6b35",
-  bioenergy: "#ff6b35",
-  waste: "#9b51e0",
+  biomass: "#8C7C4A",
+  biogas: "#8C7C4A",
+  bioenergy: "#8C7C4A",
+  waste: "#D9863D",
   // 儲能
-  storage: "#fff500",
+  storage: "#F2EBC4",
   other: "#94a3b8",
 };
 export const FUEL_FALLBACK_COLOR = "#9ca3af";
