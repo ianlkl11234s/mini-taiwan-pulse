@@ -1329,7 +1329,7 @@ export function useTransportParams() {
       ];
       // ── HAZARD ──
       case "lightning": return [
-        { label: `時間窗 ${lightningMinutes} min`, value: lightningMinutes, min: 5, max: 360, step: 5, onChange: setLightningMinutes },
+        { label: `保留 ${lightningMinutes} min`, value: lightningMinutes, min: 5, max: 360, step: 5, onChange: setLightningMinutes },
         { label: `透明度 ${lightningOpacity.toFixed(2)}`, value: lightningOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLightningOpacity },
       ];
       case "nuclearRadiation": return [
