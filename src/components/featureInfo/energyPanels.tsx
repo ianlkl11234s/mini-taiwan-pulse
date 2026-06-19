@@ -337,14 +337,21 @@ export function GeothermalWellPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, unknown> }) {
+  // 政府原始資料未提供 district / installed_at；district 從 address regex 抓 XX區
+  const addr = String(props.address || "");
+  const districtFromAddr = addr.match(/[一-龥]{1,3}區/)?.[0] ?? "";
+  const district = String(props.district || "") || districtFromAddr || "—";
   return (
     <div>
       <Row label="設施名稱" value={String(props.installation_name || "—")} />
       <Row label="類別" value={String(props.category || "—")} />
       <Row label="裝置容量" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
-      <Row label="行政區" value={String(props.district || "—")} />
-      <Row label="地址" value={String(props.address || "—")} />
-      <Row label="設置日" value={String(props.installed_at || "—")} />
+      <Row label="行政區" value={district} />
+      <Row label="地址" value={addr || "—"} />
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, lineHeight: 1.4 }}>
+        ⚠ 政府原始資料位置精度約 1km，呈網格狀；
+        設置日 / 行政區欄位上游未提供
+      </div>
     </div>
   );
 }
