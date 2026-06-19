@@ -225,3 +225,22 @@
 | `docs/proposal/monitor-mode-phase2-handoff.md` | MO-3/6/9/11 | 3 個 collector + LiveWall 全部上線 ✅ |
 | `docs/proposal/alerts-integration-handoff.md` | AI-1 | 設計需求說明，設計師已交 v2 ✅ |
 | `docs/proposal/alerts-integration-impl.md` | AI-1 | 完整實作交接，待另一 session 接手 |
+| `docs/energy-v2-plan.md` | E-A~E-F | Energy v2 6 大塊完整規劃（2026-06-19 PR #24） |
+
+### 能源 ENERGY v2（E 系列，2026-06-19 加 — 完整在 `docs/energy-v2-plan.md`）
+
+> v1.0~v1.3.5 已 merged（PR #23 + #10）：4 layer 上線（電廠 / 機組即時出力 / 變電所 / 充電站）+ popup + 24h sparkline + timeline scrub + sliders + retired 標記。下波 6 大塊：
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| E-A | **P1** | Monitor 整合 — HUD 燈號 + 4 區 bars + 14 廠 sparkline 都搬 monitor PowerCard | open | 用戶 priority。RPC 全備（get_power_dashboard / get_power_generation_24h / get_power_plant_output_24h）。新元件 `src/components/intel/monitor/PowerCard.tsx` |
+| E-B | **P1** | HAZARD 群組：閃電 + 核安輻射 | open | 用戶要求「閃電也要接」。RPC 214（get_lightning_recent）+ 215（get_nuclear_radiation_status）已備。落雷必走 cluster + zoom-gate（雷雨季每分鐘 50-500 events）。is_stale + 高劑量 ≠ 核災 popup 必強調 |
+| E-C | P2 | 高壓電網 — osm_power_lines 2,305 + osm_power_towers 26,589 | open | 用戶「之前盤點漏的最重要」。voltage 345/161/69 kV 分色（含 ";" 雙迴路格式）。tower 走 minzoom 13。把電網 spine 接起來後可疊 §5.2 cascade flowline |
+| E-D | P2 | OSM 風光電 + offshore polygon + 離島海纜 + 化石/地熱 | open | 8 表：osm_wind_turbines 812 / osm_solar_farms 734 / osm_power_plants 513 / offshore_wind_zones 36 polygon / island_power_grid 14 + 海纜 / fossil_fuel 9 (3D cylinder 油槽) / geothermal_wells 36 (3D cone 倒置) / renewable_permits_taipei 438 |
+| E-E | P3 | 加油站 3 表 + power_poles 2.96M PMTiles | open | osm_gas_stations 2,212 主用、gov 對照（不可 UNION HANDOFF §⑧#3）、osm_charging 306 補社區。power_poles 1.4GB raw 走 tippecanoe |
+| E-F | P3 | KPI 統計面板 — 縣市風光生質 + 光電月趨勢 | open | analytics.solar_daily_generation 3,992 + county_wind 211 + county_biomass 188 + county_small_hydro 188 + geothermal_potential 27。non-spatial chart |
+
+**已存在的 RPC 不要重做**（PR #10 內）：
+- Monitor 用：get_power_dashboard / get_power_generation_24h / get_power_plant_output_24h
+- Map layer 用：get_power_plants_with_output / get_power_generation_at / get_osm_substations / get_ev_charging_stations
+- Hazard 用：get_lightning_recent / get_nuclear_radiation_status
