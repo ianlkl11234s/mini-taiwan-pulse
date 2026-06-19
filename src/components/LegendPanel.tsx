@@ -1026,10 +1026,10 @@ function PowerGridLegend() {
 function SubstationLegend() {
   const rows: { color: string; label: string; sz: number; n: number }[] = [
     { color: "#ef4444", label: "超高壓開閉所 (345 kV 切換)",       sz: 9,   n: 5 },
-    { color: "#f97316", label: "超高壓變電所 E/S (345→161 kV)",    sz: 8,   n: 33 },
-    { color: "#facc15", label: "一次變電所 P/S (161→69 kV)",       sz: 6.5, n: 129 },
+    { color: "#ffffff", label: "超高壓變電所 E/S (345→161 kV)",    sz: 8,   n: 33 },
+    { color: "#f97316", label: "一次變電所 P/S (161→69 kV)",       sz: 6.5, n: 129 },
     { color: "#14b8a6", label: "一次配電變電所 D/S (161→22.8 kV)", sz: 5.5, n: 90 },
-    { color: "#a78bfa", label: "二次變電所 S/S (69→22.8 kV)",      sz: 5,   n: 199 },
+    { color: "#facc15", label: "二次變電所 S/S (69→22.8 kV)",      sz: 5,   n: 199 },
     { color: "#3b82f6", label: "鐵路牽引變電所",                    sz: 4.5, n: 11 },
     { color: "#6b7280", label: "未分類",                            sz: 4,   n: 318 },
   ];

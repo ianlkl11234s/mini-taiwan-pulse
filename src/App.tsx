@@ -59,6 +59,7 @@ import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 // Energy MVP
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { useOsmPowerLinesGlowLayer } from "./hooks/useOsmPowerLinesGlowLayer";
+import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
 import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
@@ -746,6 +747,8 @@ export default function App() {
     showFacSecondary: layerVisibility.facSecondary,
     showFacOsmSupplement: layerVisibility.facOsmSupplement,
   });
+  // 變電所菱形 SDF icon 註冊（osmSubstations symbol layer 用）
+  useSubstationDiamondIcon(mapRef);
   // Three.js bloom layer for 高壓輸電線（取代 Mapbox stacking）
   useOsmPowerLinesGlowLayer(
     mapRef,

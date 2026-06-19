@@ -387,13 +387,14 @@ export type SubstationClass =
   | "TRACTION"    // 鐵路牽引變電所
   | "OTHER";      // 未分類
 
-/** class → 顏色 + 預設半徑（zoom 11 基準） */
+/** class → 顏色 + 預設半徑（zoom 11 基準）
+ *  色票位移：EHV 改白色突顯、PS/SS 各取代原 EHV/PS 色 */
 export const SUBSTATION_CLASS_COLORS: Record<SubstationClass, string> = {
-  EHV_SWITCH: "#ef4444", // 紅 — 超高壓開閉節點（最頂層 5 個）
-  EHV:        "#f97316", // 橙 — 345 kV 變電所
-  PS:         "#facc15", // 黃 — 161 kV 一次變電所
+  EHV_SWITCH: "#ef4444", // 紅 — 超高壓開閉節點（最頂層 5 個，白邊框）
+  EHV:        "#ffffff", // 白 — 345 kV 超高壓變電所（最醒目）
+  PS:         "#f97316", // 橙 — 161 kV 一次變電所
   DPS:        "#14b8a6", // 青綠 — 一次配電
-  SS:         "#a78bfa", // 紫 — 69 kV 二次變電所
+  SS:         "#facc15", // 黃 — 69 kV 二次變電所
   TRACTION:   "#3b82f6", // 藍 — 鐵路牽引
   OTHER:      "#6b7280", // 淡灰 — 未分類
 };

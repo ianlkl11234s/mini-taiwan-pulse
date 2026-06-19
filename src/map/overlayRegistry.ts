@@ -2944,7 +2944,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: ["osmSubstationsOpacity"],
     layers: [
-      // halo：EHV_SWITCH + EHV 才有，標出超高壓節點
+      // halo：EHV_SWITCH + EHV 才有，標出超高壓節點（圓形光暈）
       {
         suffix: "halo",
         type: "circle",
@@ -2961,71 +2961,61 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": [
               "match", ["get", "class"],
               "EHV_SWITCH", "#ef4444",
-              "EHV",        "#f97316",
+              "EHV",        "#ffffff",
               "transparent",
             ],
             "circle-opacity": o * 0.45,
           };
         },
       },
-      // core circle：依 class 分色 + 分大小
+      // core marker：菱形 SDF symbol（icon-rotate 45 把正方形轉成菱形）
+      // image 'substation-diamond' 由 useSubstationDiamondIcon hook 預先 addImage
       {
         suffix: "circle",
-        type: "circle",
-        paint: (isDark, params) => {
+        type: "symbol",
+        layout: {
+          "icon-image": "substation-diamond",
+          "icon-rotate": 45,
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+          "icon-size": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["match", ["get", "class"],
+                "EHV_SWITCH", 0.40, "EHV", 0.32, "PS", 0.25, "DPS", 0.20, "SS", 0.18, "TRACTION", 0.16, 0.13],
+            11, ["match", ["get", "class"],
+                 "EHV_SWITCH", 0.65, "EHV", 0.52, "PS", 0.40, "DPS", 0.32, "SS", 0.28, "TRACTION", 0.24, 0.20],
+            14, ["match", ["get", "class"],
+                 "EHV_SWITCH", 0.90, "EHV", 0.72, "PS", 0.55, "DPS", 0.45, "SS", 0.36, "TRACTION", 0.32, 0.28],
+          ],
+        },
+        paint: (_isDark, params) => {
           const o = params?.osmSubstationsOpacity ?? 0.85;
           return {
-            "circle-radius": [
-              "interpolate", ["linear"], ["zoom"],
-              6, ["match", ["get", "class"],
-                  "EHV_SWITCH", 5,
-                  "EHV",        4,
-                  "PS",         3,
-                  "DPS",        2.5,
-                  "SS",         2,
-                  "TRACTION",   2,
-                  1.5],
-              11, ["match", ["get", "class"],
-                   "EHV_SWITCH", 8,
-                   "EHV",        6.5,
-                   "PS",         5,
-                   "DPS",        4,
-                   "SS",         3.5,
-                   "TRACTION",   3,
-                   2.5],
-              14, ["match", ["get", "class"],
-                   "EHV_SWITCH", 11,
-                   "EHV",        9,
-                   "PS",         7,
-                   "DPS",        5.5,
-                   "SS",         4.5,
-                   "TRACTION",   4,
-                   3.5],
-            ],
-            "circle-color": [
+            "icon-color": [
               "match", ["get", "class"],
               "EHV_SWITCH", "#ef4444",
-              "EHV",        "#f97316",
-              "PS",         "#facc15",
+              "EHV",        "#ffffff",
+              "PS",         "#f97316",
               "DPS",        "#14b8a6",
-              "SS",         "#a78bfa",
+              "SS",         "#facc15",
               "TRACTION",   "#3b82f6",
               "#6b7280",
             ],
-            "circle-opacity": [
+            "icon-opacity": [
               "*", o,
-              ["match", ["get", "class"],
-                "OTHER", 0.55,  // 淡化未分類
-                1.0],
+              ["match", ["get", "class"], "OTHER", 0.55, 1.0],
             ],
-            "circle-stroke-width": [
+            // EHV_SWITCH 白色 halo 邊框（SDF 用 icon-halo-* 達成 stroke 效果）
+            "icon-halo-color": [
               "match", ["get", "class"],
-              "EHV_SWITCH", 1.4,
-              "EHV",        1.2,
-              "PS",         1.0,
-              0.6,
+              "EHV_SWITCH", "#ffffff",
+              "rgba(0,0,0,0)",
             ],
-            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+            "icon-halo-width": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", 2,
+              0,
+            ],
           };
         },
       },

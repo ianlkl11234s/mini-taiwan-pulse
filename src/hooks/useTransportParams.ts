@@ -405,7 +405,7 @@ export function useTransportParams() {
   const [powerGenerationHeight, setPowerGenerationHeight] = useState(1);
   const [osmSubstationsOpacity, setOsmSubstationsOpacity] = useState(0.85);
   const [osmPowerLinesOpacity, setOsmPowerLinesOpacity] = useState(0.4);
-  const [osmPowerLinesWidth, setOsmPowerLinesWidth] = useState(1);
+  const [osmPowerLinesWidth, setOsmPowerLinesWidth] = useState(0.7);
   const [osmPowerTowersOpacity, setOsmPowerTowersOpacity] = useState(0.75);
   const [osmPowerTowersSize, setOsmPowerTowersSize] = useState(1);
   const [osmWindTurbinesOpacity, setOsmWindTurbinesOpacity] = useState(0.85);
@@ -425,7 +425,7 @@ export function useTransportParams() {
   const [renewablePermitsTaipeiSize, setRenewablePermitsTaipeiSize] = useState(1);
   const [evChargingOpacity, setEvChargingOpacity] = useState(0.8);
   // Phase 8 SSOT facilities 6-layer
-  const [facPrimaryOpacity, setFacPrimaryOpacity] = useState(0.95);
+  const [facPrimaryOpacity, setFacPrimaryOpacity] = useState(0.65);
   const [facPrimaryScale, setFacPrimaryScale] = useState(0.5);
   // L1 分級：有即時出力（台電 14 大廠 + 廠級匯總）vs 其他（小廠）
   const [facPrimaryRtScale, setFacPrimaryRtScale] = useState(1.3);
