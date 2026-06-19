@@ -484,7 +484,6 @@ export const SECTIONS: SectionDef[] = [
       // ── 發電廠（主視覺 — 6 層 SSOT 整理）──
       // 由「重要 → 邊角」、「現役 → 未來 → 歷史 → 小型 → 散落 OSM」邏輯排序
       { key: "facPrimary",       label: "發電廠（主要・運轉中）",  expandable: true },
-      { key: "offshoreWindZones", label: "離岸風場（OSM 36）",      expandable: true },
       { key: "facPlanned",       label: "發電廠（未來規劃）",       expandable: true },
       { key: "facHistorical",    label: "發電廠（歷史・退役）",     expandable: true },
       { key: "facSecondary",     label: "發電廠（小型分散）",       expandable: true },
@@ -495,7 +494,8 @@ export const SECTIONS: SectionDef[] = [
       { key: "osmSubstations", label: "變電所", expandable: true },
       { key: "osmPowerLines", label: "高壓輸電線", expandable: true },
       { key: "osmPowerTowers", label: "高壓鐵塔", expandable: true },
-      // ── 其他能源點位 ──
+      // ── 風電 + 其他能源點位 ──
+      { key: "offshoreWindZones",      label: "離岸風場（OSM 36）", expandable: true },
       { key: "osmWindTurbines",        label: "風機（OSM 點位）",  expandable: true },
       { key: "geothermalWells",        label: "地熱井",            expandable: true },
       { key: "renewablePermitsTaipei", label: "北市再生能源許可",   expandable: true },
