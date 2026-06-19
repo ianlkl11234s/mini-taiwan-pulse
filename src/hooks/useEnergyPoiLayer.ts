@@ -742,6 +742,7 @@ function facPointsToGeoJSON(rows: FacilityPoint[]): GeoJSON.FeatureCollection {
         owner: r.owner ?? "",
         is_offshore: !!r.is_offshore,
         source_priority: r.source_priority,
+        has_realtime: !!r.has_realtime,  // L1 視覺大小差異用
         color: facilityFuelColor(r.fuel_type),
         // 兼容既有 PowerPlantPanel（source_table）
         source_table: "energy.power_facilities",

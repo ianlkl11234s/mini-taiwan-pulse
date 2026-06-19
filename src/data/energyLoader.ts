@@ -208,6 +208,8 @@ export interface FacilityPoint {
   lng: number;
   lat: number;
   size_tier?: string | null;
+  /** 是否有台電即時出力資料對應（L1 用：14 大型廠 / 廠級匯總，作為視覺大小區分） */
+  has_realtime?: boolean;
 }
 export interface FacilityZone {
   facility_id: string;
@@ -219,14 +221,24 @@ export interface FacilityZone {
   footprint_geojson: string; // GeoJSON.MultiPolygon 字串
 }
 
-/** L1 主要電廠（運轉中）209 — 火/核/水/大型風/大型光電 */
+/** L1 主要電廠（運轉中）209 — 火/核/水/大型風/大型光電
+ *  順手 join realtime 標記 has_realtime（台電 14 廠 + 廠級匯總）→ 前端用作大小差異
+ */
 const _l1Cached = cachedOnce(async () => {
-  const { data, error } = await withLoading(
-    "energy:facPrimary", "主要電廠 209",
-    supabase.rpc("get_ssot_facilities_primary_operating"),
+  const [primaryRes, rtRes] = await Promise.all([
+    withLoading(
+      "energy:facPrimary", "主要電廠 209",
+      supabase.rpc("get_ssot_facilities_primary_operating"),
+    ),
+    supabase.rpc("get_ssot_realtime_facility_output"),
+  ]);
+  if (primaryRes.error) throw new Error(`get_ssot_facilities_primary_operating: ${primaryRes.error.message}`);
+  const rows = (primaryRes.data ?? []) as FacilityPoint[];
+  const rtIds = new Set<string>(
+    ((rtRes.data ?? []) as { facility_id: string }[]).map((r) => r.facility_id),
   );
-  if (error) throw new Error(`get_ssot_facilities_primary_operating: ${error.message}`);
-  return (data ?? []) as FacilityPoint[];
+  for (const r of rows) r.has_realtime = rtIds.has(r.facility_id);
+  return rows;
 }, 60 * 60_000);
 export const fetchFacPrimary = (): Promise<FacilityPoint[]> => _l1Cached();
 

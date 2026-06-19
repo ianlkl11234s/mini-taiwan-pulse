@@ -2889,7 +2889,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        paint: (_isDark, params) => {
+        paint: (isDark, params) => {
           const o = params?.powerPlantsOpacity ?? 0.95;
           const s = params?.powerPlantsScale ?? 1;
           return {
@@ -2901,7 +2901,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o,
             "circle-stroke-width": 1,
-            "circle-stroke-color": "#ffffff",
+            "circle-stroke-color": isDark ? "#111827" : "#ffffff",
           };
         },
       },
@@ -3721,13 +3721,17 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.facPrimaryOpacity ?? 0.95;
           const s = params?.facPrimaryScale ?? 1;
+          const haloRadius = (factor: number, zoom6: number, zoom12: number) => [
+            "*", factor * s,
+            ["match", ["get", "has_realtime"], true, 1, 0.3],
+            ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+              Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
+          ];
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, ["*", 1.4 * s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
-                Math.log10(0.5), 2, Math.log10(6000), 14]],
-              12, ["*", 1.7 * s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
-                Math.log10(0.5), 5, Math.log10(6000), 32]],
+              6,  haloRadius(1.4, 2, 14),
+              12, haloRadius(1.7, 5, 32),
             ],
             "circle-blur": 0.7,
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
@@ -3738,21 +3742,27 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        paint: (_isDark, params) => {
+        paint: (isDark, params) => {
           const o = params?.facPrimaryOpacity ?? 0.95;
           const s = params?.facPrimaryScale ?? 1;
+          // has_realtime=true → 台電 14 大型廠 / 8 離岸風場 / 3 離島火力 → 全尺寸
+          // has_realtime=false → 其他 ~170 廠 → ×0.3 縮小拉差異
+          const radius = (zoom6: number, zoom12: number) => [
+            "*", s,
+            ["match", ["get", "has_realtime"], true, 1, 0.3],
+            ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+              Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
+          ];
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
-                Math.log10(0.5), 2, Math.log10(6000), 14]],
-              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
-                Math.log10(0.5), 5, Math.log10(6000), 32]],
+              6,  radius(2, 14),
+              12, radius(5, 32),
             ],
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o,
             "circle-stroke-width": 1,
-            "circle-stroke-color": "#ffffff",
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
           };
         },
       },
@@ -3894,7 +3904,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
                 0.4],
             ],
             "circle-stroke-width": 1,
-            "circle-stroke-color": "#ffffff",
+            "circle-stroke-color": "#737373",
           };
         },
       },
@@ -3912,7 +3922,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        paint: (_isDark, params) => {
+        paint: (isDark, params) => {
           const o = params?.facSecondaryOpacity ?? 0.85;
           const s = params?.facSecondaryScale ?? 1;
           return {
@@ -3926,7 +3936,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o * 0.9,
             "circle-stroke-width": 0.6,
-            "circle-stroke-color": "#ffffff",
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
           };
         },
       },
@@ -3944,7 +3954,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        paint: (_isDark, params) => {
+        paint: (isDark, params) => {
           const o = params?.facOsmSupplementOpacity ?? 0.7;
           const s = params?.facOsmSupplementScale ?? 1;
           return {
@@ -3957,7 +3967,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o * 0.75,
             "circle-stroke-width": 0.4,
-            "circle-stroke-color": "#ffffff",
+            "circle-stroke-color": isDark ? "#1f2937" : "#e5e7eb",
           };
         },
       },

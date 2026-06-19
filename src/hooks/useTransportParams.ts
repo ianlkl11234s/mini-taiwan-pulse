@@ -404,7 +404,7 @@ export function useTransportParams() {
   const [powerGenerationOpacity, setPowerGenerationOpacity] = useState(0.7);
   const [powerGenerationHeight, setPowerGenerationHeight] = useState(1);
   const [osmSubstationsOpacity, setOsmSubstationsOpacity] = useState(0.85);
-  const [osmPowerLinesOpacity, setOsmPowerLinesOpacity] = useState(0.6);
+  const [osmPowerLinesOpacity, setOsmPowerLinesOpacity] = useState(0.4);
   const [osmPowerLinesWidth, setOsmPowerLinesWidth] = useState(1);
   const [osmPowerTowersOpacity, setOsmPowerTowersOpacity] = useState(0.75);
   const [osmPowerTowersSize, setOsmPowerTowersSize] = useState(1);
