@@ -36,14 +36,56 @@
   不需動 App.tsx；待 A.2 觀察是否兩處重複 fetch 浪費 RPC）
 - `get_power_generation_kpi_24h()` 新 RPC — A.2 評估後再決定（多數 KPI 前端算就夠）
 
-### A.2 — Timeline isolation + 5min refresh integration test（next）
+### A.2 — KPI strip + timeline isolation test（done）
 
-- 確認 timeline scrub 不影響 PowerCard（PowerCard 一律顯示「最新」而非 scrub 時間）
-- 觀察開啟 monitor + 同時 toggle map energy layer 時 RPC 只跑一次
-- 加 KPI mini-cards（fuel mix 比例 / 24h peak load）
+- [x] `summarisePowerKpis(day)` 純函式：算 24h 全國尖峰 / 最新時點 / fuel mix 分佈
+- [x] PowerCard 新 KPI strip：24h 尖峰 / 當前合計 / fuel mix bar + 前 5 fuel legend
+- [x] 6 新測試（共 13 cases）：
+      - peak 是「各時點全國總和」max（非單廠 max）
+      - fuel mix 用最新 ts snapshot 分組、pct normalised
+      - null fuel_type → 'unknown'
+      - **timeline isolation contract**：`buildPowerCardModel` 不收 time 參數、永遠取 array 最後一筆
 
-## 已知不對齊
+### A.3 — share dashboard fetch with App.tsx（pending）
 
-- `docs/energy-v2-plan.md` §A 提到 `energyDashboardActive` 要納 monitor signal；
-  A.1 改採 MonitorPanel 自己 poll、靠 `cachedOnce` dedup，沒動 App.tsx — 比 plan 更輕。
-  若 A.2 觀察兩處 5min interval 沒對齊造成多餘呼叫，再回頭把 monitor open 狀態暴露給 App.tsx。
+兩處跑 5min interval、`cachedOnce` 5min TTL dedup → 不浪費 RPC，
+但仍可能 invalidate 互踩。實測前不修。
+
+## Phase B — HAZARD（done，待視覺驗收）
+
+### B.1+B.2 — types + loaders + Legend + featureInfo（合併 commit done）
+
+合併原因：layerConsistency 測試會擋「LegendPanel 漏接」「useTransportParams 漏接」，所以
+B.1 資料層必須與 B.2 UI 接線同時送進來才不會 ratchet fail。
+
+- [x] types/index.ts：`LayerVisibility` / `ExpandableLayerKey` / `FeatureInfo.layerType` 各加兩 key
+- [x] `lightningLoader.ts`：clampMinutes / lightningTypeColor / toLightningFC + cachedByKey(60s)
+- [x] `nuclearLoader.ts`：classifyNuclearDose 5 階（normal/watch/warning/alarm/stale）+ cachedOnce(5min)
+      NUCLEAR_DOSE_THRESHOLDS 參考 AEC 0.5 µSv/h 警戒
+- [x] sidebar HAZARD section + LAYER_COLORS + IconRailSidebar（CloudLightning / Atom）
+- [x] LegendPanel：LightningLegend + NuclearLegend（'is_stale + 高劑量 ≠ 核災' 警語）
+- [x] hazardPanels.tsx：LightningStrikePanel + NuclearStationPanel
+      （NuclearStationPanel is_stale → 灰底警告，alarm → 紅底建議交叉確認原能會）
+- [x] useTransportParams：lightning 加時間窗 5~360 min + 透明度；nuclear 加大小 + 透明度
+- [x] 17 新 test (data/__tests__/hazardLoaders.test.ts)
+
+### B.3+B.4 — overlayRegistry + hooks + App.tsx wiring（done）
+
+- [x] overlayRegistry：lightning halo (blur 電光) + core；nuclear halo + core，stale 虛邊框
+- [x] `useHazardLayer.ts`：useLightningLayer(map, visible, minutes) + useNuclearLayer(map, visible)
+      共用 useSourceFeed helper（style.load 重 feed）
+- [x] App.tsx 接 2 hook
+- [x] useMapInteraction GIS_LAYERS 兩條
+- [x] tsc -b clean / 全套 126 test pass
+
+### B 暫不做（v2 後再加）
+
+- **Cluster + zoom-gate**：plan 預期雷雨季升級項；OverlayConfig 沒 cluster 欄要先擴 schema。
+  v1 用時間窗 5~360 min slider 控制 payload，預設 60min 通常 ≤ 數百筆。
+- Monitor HazardCard（過去 1h 閃電數 / 核安異常站數 KPI）— 等 B 視覺驗收後再做
+
+## 已知不對齊（追加 plan 對比）
+
+- `docs/energy-v2-plan.md` §B 強調 cluster，B.3 暫用 zoom-gate 著色不做 mapbox cluster。
+  雷雨季實測超過 5000 點 / 卡頓再升級。
+- §B `is_stale + 高劑量 = 灰色 stroke` 用「虛邊框」實作（plan 寫 stroke，做 stroke-width 1.5 + 灰色）。
