@@ -59,17 +59,17 @@ uniform float uHalfWidthPx;
 varying float vAcross;
 
 void main() {
-  vec2 pos    = mix(instancePosA, instancePosB, along);
-  vec2 other  = mix(instancePosB, instancePosA, along);
-  vec4 clip   = uMatrix * vec4(pos,   0.0, 1.0);
-  vec4 clipO  = uMatrix * vec4(other, 0.0, 1.0);
-  vec2 ndcS   = clip.xy  / clip.w;
-  vec2 ndcO   = clipO.xy / clipO.w;
-  vec2 dPx    = (ndcO - ndcS) * uResolution * 0.5;
-  // dPx points from self → other; we need normal (perpendicular)
-  vec2 dn     = length(dPx) > 1e-6 ? dPx / length(dPx) : vec2(1.0, 0.0);
+  // 對「整段」算固定方向 → 避免兩端各自算 normal 造成羽毛/X 形 quad
+  vec4 clipA = uMatrix * vec4(instancePosA, 0.0, 1.0);
+  vec4 clipB = uMatrix * vec4(instancePosB, 0.0, 1.0);
+  vec2 ndcA  = clipA.xy / clipA.w;
+  vec2 ndcB  = clipB.xy / clipB.w;
+  vec2 dirPx = (ndcB - ndcA) * uResolution * 0.5;
+  vec2 dn    = length(dirPx) > 1e-6 ? normalize(dirPx) : vec2(1.0, 0.0);
   vec2 normalPx = vec2(-dn.y, dn.x) * across * uHalfWidthPx;
-  // shift in clip space by px
+
+  // 選 A 或 B 端的 clip
+  vec4 clip = (along < 0.5) ? clipA : clipB;
   vec2 offsetNdc = (normalPx / uResolution) * 2.0;
   clip.xy += offsetNdc * clip.w;
   gl_Position = clip;
