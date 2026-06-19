@@ -3713,7 +3713,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-fac-primary",
     dynamicData: true,
-    rebuildOnParamChange: ["facPrimaryOpacity", "facPrimaryScale"],
+    rebuildOnParamChange: ["facPrimaryOpacity", "facPrimaryScale", "facPrimaryRtScale", "facPrimaryNoRtScale"],
     layers: [
       {
         suffix: "halo",
@@ -3721,9 +3721,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.facPrimaryOpacity ?? 0.95;
           const s = params?.facPrimaryScale ?? 1;
+          const rtScale = params?.facPrimaryRtScale ?? 1.0;
+          const noRtScale = params?.facPrimaryNoRtScale ?? 0.3;
           const haloRadius = (factor: number, zoom6: number, zoom12: number) => [
             "*", factor * s,
-            ["case", ["==", ["get", "has_realtime"], true], 1, 0.3],
+            ["case", ["==", ["get", "has_realtime"], true], rtScale, noRtScale],
             ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
               Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
           ];
@@ -3745,11 +3747,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const o = params?.facPrimaryOpacity ?? 0.95;
           const s = params?.facPrimaryScale ?? 1;
-          // has_realtime=true → 台電 14 大型廠 / 8 離岸風場 / 3 離島火力 → 全尺寸
-          // has_realtime=false → 其他 ~170 廠 → ×0.3 縮小拉差異
+          const rtScale = params?.facPrimaryRtScale ?? 1.0;
+          const noRtScale = params?.facPrimaryNoRtScale ?? 0.3;
+          // rtScale slider 控制「有即時出力」廠（台電 14 大廠 + 廠級匯總）
+          // noRtScale slider 控制「無即時出力」廠（~180 個小廠）
           const radius = (zoom6: number, zoom12: number) => [
             "*", s,
-            ["case", ["==", ["get", "has_realtime"], true], 1, 0.3],
+            ["case", ["==", ["get", "has_realtime"], true], rtScale, noRtScale],
             ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
               Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
           ];
