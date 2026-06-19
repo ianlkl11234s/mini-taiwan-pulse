@@ -3041,50 +3041,85 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: ["osmPowerLinesOpacity", "osmPowerLinesWidth"],
     layers: [
-      // ── Outer glow（最外層白色光暈，模擬發光霓虹感）──
-      // 改用白色避免 cyan 染色不自然，core 仍保留各 tier 主色作為線本色
+      // ── 方案 D：multi-line stacking（模仿 openinframap night mode）──
+      // 4 層 tier 主色疊加、遞減 opacity + 增 width、極少 blur
+      // 比 line-blur 更接近 emissive bloom 的自然發散感
+      //
+      // Layer 1: halo-outer（最外暈，最大寬最低透明）
       {
-        suffix: "outer-glow",
+        suffix: "halo-outer",
         type: "line",
         paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.6;
+          const o = params?.osmPowerLinesOpacity ?? 0.4;
           const w = params?.osmPowerLinesWidth ?? 1;
           return {
-            "line-color": "#ffffff",
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#1AB6D9", 161, "#62D9AD", 69, "#468BA6", "#DFE0DC",
+            ],
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
-              5,  ["*", w, ["match", ["get", "tier"], 345, 7,  161, 4,  69, 2.5, 2]],
-              10, ["*", w, ["match", ["get", "tier"], 345, 16, 161, 9,  69, 5.5, 4]],
-              14, ["*", w, ["match", ["get", "tier"], 345, 28, 161, 16, 69, 10,  7]],
+              5,  ["*", w, ["match", ["get", "tier"], 345, 10, 161, 6,  69, 4,  3]],
+              10, ["*", w, ["match", ["get", "tier"], 345, 22, 161, 13, 69, 8,  6]],
+              14, ["*", w, ["match", ["get", "tier"], 345, 36, 161, 22, 69, 14, 10]],
             ],
             "line-opacity": [
               "*", o,
-              ["match", ["get", "tier"], 345, 0.14, 161, 0.09, 69, 0.06, 0.05],
+              ["match", ["get", "tier"], 345, 0.06, 161, 0.04, 69, 0.03, 0.02],
             ],
-            "line-blur": 12,
+            "line-blur": 2,
           };
         },
       },
-      // ── Inner glow（中層白色光暈） ──
+      // Layer 2: halo-mid（中暈）
       {
-        suffix: "glow",
+        suffix: "halo-mid",
         type: "line",
         paint: (_isDark, params) => {
-          const o = params?.osmPowerLinesOpacity ?? 0.6;
+          const o = params?.osmPowerLinesOpacity ?? 0.4;
           const w = params?.osmPowerLinesWidth ?? 1;
           return {
-            "line-color": "#ffffff",
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#1AB6D9", 161, "#62D9AD", 69, "#468BA6", "#DFE0DC",
+            ],
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
-              5,  ["*", w, ["match", ["get", "tier"], 345, 4,  161, 2.8, 69, 2,   1.5]],
-              10, ["*", w, ["match", ["get", "tier"], 345, 9,  161, 5.5, 69, 3.8, 3]],
-              14, ["*", w, ["match", ["get", "tier"], 345, 16, 161, 10,  69, 6.5, 5]],
+              5,  ["*", w, ["match", ["get", "tier"], 345, 6,  161, 4,   69, 2.5, 2]],
+              10, ["*", w, ["match", ["get", "tier"], 345, 13, 161, 8,   69, 5,   3.5]],
+              14, ["*", w, ["match", ["get", "tier"], 345, 22, 161, 13,  69, 8,   6]],
             ],
             "line-opacity": [
               "*", o,
-              ["match", ["get", "tier"], 345, 0.25, 161, 0.18, 69, 0.14, 0.10],
+              ["match", ["get", "tier"], 345, 0.14, 161, 0.10, 69, 0.07, 0.05],
             ],
-            "line-blur": 5,
+            "line-blur": 1,
+          };
+        },
+      },
+      // Layer 3: halo-inner（內暈，鄰近核心強度）
+      {
+        suffix: "halo-inner",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.4;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#1AB6D9", 161, "#62D9AD", 69, "#468BA6", "#DFE0DC",
+            ],
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              5,  ["*", w, ["match", ["get", "tier"], 345, 3.5, 161, 2.2, 69, 1.6, 1.2]],
+              10, ["*", w, ["match", ["get", "tier"], 345, 8,   161, 5,   69, 3.4, 2.4]],
+              14, ["*", w, ["match", ["get", "tier"], 345, 14,  161, 9,   69, 6,   4]],
+            ],
+            "line-opacity": [
+              "*", o,
+              ["match", ["get", "tier"], 345, 0.28, 161, 0.20, 69, 0.14, 0.10],
+            ],
+            "line-blur": 0,
           };
         },
       },
@@ -3765,8 +3800,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o,
-            "circle-stroke-width": 1,
-            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+            "circle-stroke-width": [
+              "case", ["==", ["get", "has_realtime"], true], 1.4, 1,
+            ],
+            "circle-stroke-color": [
+              "case", ["==", ["get", "has_realtime"], true],
+              "#ffffff",                            // 大廠（即時）一律白邊
+              isDark ? "#0f172a" : "#ffffff",       // 其他廠維持原色
+            ],
           };
         },
       },

@@ -428,7 +428,7 @@ export function useTransportParams() {
   const [facPrimaryOpacity, setFacPrimaryOpacity] = useState(0.95);
   const [facPrimaryScale, setFacPrimaryScale] = useState(0.5);
   // L1 分級：有即時出力（台電 14 大廠 + 廠級匯總）vs 其他（小廠）
-  const [facPrimaryRtScale, setFacPrimaryRtScale] = useState(1.0);
+  const [facPrimaryRtScale, setFacPrimaryRtScale] = useState(1.3);
   const [facPrimaryNoRtScale, setFacPrimaryNoRtScale] = useState(0.3);
   const [facOffshoreOpacity, setFacOffshoreOpacity] = useState(0.45);
   const [facPlannedOpacity, setFacPlannedOpacity] = useState(0.7);
