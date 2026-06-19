@@ -62,15 +62,24 @@ export function useOsmPowerLinesGlowLayer(
       .then((rows) => {
         if (cancelled) return;
         const features: PowerLineFeature[] = [];
+        let skippedNoGeom = 0, skippedType = 0;
         for (const r of rows) {
-          const geom = r.geom_json as GeoJSON.LineString;
-          if (!geom || geom.type !== "LineString") continue;
+          const geom = r.geom_json as GeoJSON.LineString | string | null;
+          if (!geom) { skippedNoGeom++; continue; }
+          let parsed: GeoJSON.LineString | null = null;
+          if (typeof geom === "string") {
+            try { parsed = JSON.parse(geom) as GeoJSON.LineString; } catch { skippedType++; continue; }
+          } else {
+            parsed = geom;
+          }
+          if (!parsed || parsed.type !== "LineString") { skippedType++; continue; }
           const tier = powerLineTierKv(r.voltage);
           features.push({
-            coords: geom.coordinates as [number, number][],
+            coords: parsed.coordinates as [number, number][],
             tier,
           });
         }
+        console.log("[osmPowerLinesGlow] fetch:", rows.length, "rows →", features.length, "features (skipped noGeom:", skippedNoGeom, "badType:", skippedType, ")");
         featuresRef.current = features;
         mapRef.current?.triggerRepaint();
       })

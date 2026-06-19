@@ -25,6 +25,7 @@ export function createOsmPowerLinesGlowLayer(
     onAdd(mapInstance, gl) {
       map = mapInstance;
       scene.init(gl);
+      console.log("[osmPowerLinesGlow] onAdd → scene initialized");
     },
 
     render(_gl, matrix) {
@@ -34,6 +35,7 @@ export function createOsmPowerLinesGlowLayer(
 
       const features = opts.getFeatures();
       if (features && features !== lastFeaturesRef) {
+        console.log("[osmPowerLinesGlow] setData", features.length, "polylines");
         scene.setData(features);
         lastFeaturesRef = features;
       }
