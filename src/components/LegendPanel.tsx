@@ -142,6 +142,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
   { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
   { keys: ["osmWindTurbines", "osmSolarFarms", "osmPowerPlantsStatic"], render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
+  { keys: ["offshoreWindZones", "islandPowerGrid", "fossilFuelInfra", "geothermalWells", "renewablePermitsTaipei"], render: ({ visibility }) => <EnergySpecialtyLegend visibility={visibility} /> },
   { keys: ["lightning"], render: () => <LightningLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
 ];
@@ -1068,6 +1069,87 @@ function RenewablePoiLegend({ visibility }: { visibility: LayerVisibility }) {
           <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
             ⚠ 與「電廠」(all_power_plants_v) 可能重疊
           </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Energy: 特殊能源 5 layer 共用（offshore / island / fossil / geothermal / 北市再生） ──
+
+function EnergySpecialtyLegend({ visibility }: { visibility: LayerVisibility }) {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 特殊
+      </div>
+      {visibility.offshoreWindZones && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>離岸風電場址 (36)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 14, height: 10, background: "#22d3ee", opacity: 0.4, border: "1px solid #67e8f9" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>潛力場址（fill polygon）</span>
+          </div>
+        </>
+      )}
+      {visibility.islandPowerGrid && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>離島電網 (14) by fuel</div>
+          {[
+            { c: "#f97316", l: "柴油" },
+            { c: "#94a3b8", l: "天然氣" },
+            { c: "#fbbf24", l: "太陽" },
+            { c: "#22d3ee", l: "風力" },
+            { c: "#3b82f6", l: "水力" },
+            { c: "#a78bfa", l: "其他" },
+          ].map((x) => (
+            <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
+        </>
+      )}
+      {visibility.fossilFuelInfra && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>化石燃料 (9)</div>
+          {[
+            { c: "#22d3ee", l: "LNG 接收站" },
+            { c: "#1f2937", l: "煉油廠" },
+            { c: "#94a3b8", l: "燃氣電廠" },
+          ].map((x) => (
+            <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block", border: "1px solid #475569" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
+        </>
+      )}
+      {visibility.geothermalWells && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>地熱井 (36)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#ef4444", boxShadow: "0 0 6px #ef444466", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>井位 + 報告外連</span>
+          </div>
+        </>
+      )}
+      {visibility.renewablePermitsTaipei && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>北市再生 (438) by 類別</div>
+          {[
+            { c: "#fbbf24", l: "學校 164" },
+            { c: "#94a3b8", l: "國有房地 149" },
+            { c: "#a78bfa", l: "機關 119" },
+            { c: "#ef4444", l: "焚化發電 3" },
+            { c: "#a3a300", l: "沼氣發電 2" },
+            { c: "#3b82f6", l: "水力發電 1" },
+          ].map((x) => (
+            <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
         </>
       )}
     </div>

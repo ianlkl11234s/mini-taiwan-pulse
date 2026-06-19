@@ -9,6 +9,11 @@ import {
   fetchOsmWindTurbines,
   fetchOsmSolarFarms,
   fetchOsmPowerPlantsStatic,
+  fetchOffshoreWindZones,
+  fetchIslandPowerGrid,
+  fetchFossilFuelInfra,
+  fetchGeothermalWells,
+  fetchRenewablePermitsTaipei,
   fetchEvCharging,
   fuelColorOf,
   radiusForCapacity,
@@ -20,6 +25,7 @@ import {
   type OsmWindTurbine,
   type OsmSolarFarm,
   type OsmPowerPlantStatic,
+  type OffshoreWindZone,
   type EvChargingStation,
 } from "../data/energyLoader";
 
@@ -41,6 +47,11 @@ const SRC_POWER_TOWERS = "energy-power-towers";
 const SRC_WIND_TURBINES = "energy-wind-turbines";
 const SRC_SOLAR_FARMS = "energy-solar-farms";
 const SRC_OSM_POWER_PLANTS_STATIC = "energy-osm-power-plants-static";
+const SRC_OFFSHORE_WIND = "energy-offshore-wind-zones";
+const SRC_ISLAND_GRID = "energy-island-grid";
+const SRC_FOSSIL_FUEL = "energy-fossil-fuel";
+const SRC_GEOTHERMAL = "energy-geothermal-wells";
+const SRC_TAIPEI_RE = "energy-taipei-re";
 const SRC_EV = "energy-ev-charging";
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -206,6 +217,47 @@ function osmPowerPlantsStaticToGeoJSON(rows: OsmPowerPlantStatic[]): GeoJSON.Fea
   return { type: "FeatureCollection", features };
 }
 
+function offshoreWindZonesToGeoJSON(rows: OffshoreWindZone[]): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const r of rows) {
+    if (!r.geom_json) continue;
+    features.push({
+      type: "Feature",
+      geometry: r.geom_json,
+      properties: {
+        zone_code: r.zone_code ?? "",
+        zone_name: r.zone_name ?? "",
+        zone_type: r.zone_type ?? "",
+        phase: r.phase ?? "",
+        developer: r.developer ?? "",
+        capacity_mw: r.capacity_mw,
+        award_year: r.award_year,
+        cod_year: r.cod_year,
+        depth_min_m: r.depth_min_m,
+        depth_max_m: r.depth_max_m,
+        distance_km: r.distance_km,
+      },
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
+function pointRowsToGeoJSON<T extends { lon: number; lat: number }>(
+  rows: T[],
+  pickProps: (r: T) => Record<string, unknown>,
+): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const r of rows) {
+    if (!Number.isFinite(r.lon) || !Number.isFinite(r.lat)) continue;
+    features.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [r.lon, r.lat] },
+      properties: pickProps(r),
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
 function evToGeoJSON(rows: EvChargingStation[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
@@ -263,6 +315,11 @@ export interface UseEnergyPoiLayerOpts {
   showWindTurbines: boolean;
   showSolarFarms: boolean;
   showOsmPowerPlantsStatic: boolean;
+  showOffshoreWindZones: boolean;
+  showIslandPowerGrid: boolean;
+  showFossilFuelInfra: boolean;
+  showGeothermalWells: boolean;
+  showRenewablePermitsTaipei: boolean;
   showEvCharging: boolean;
 }
 
@@ -271,6 +328,8 @@ export function useEnergyPoiLayer(
   {
     showPlants, showSubstations, showPowerLines, showPowerTowers,
     showWindTurbines, showSolarFarms, showOsmPowerPlantsStatic,
+    showOffshoreWindZones, showIslandPowerGrid, showFossilFuelInfra,
+    showGeothermalWells, showRenewablePermitsTaipei,
     showEvCharging,
   }: UseEnergyPoiLayerOpts,
 ) {
@@ -281,6 +340,11 @@ export function useEnergyPoiLayer(
   const windFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const solarFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const osmPlantsFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const offshoreFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const islandFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const fossilFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const geothermalFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const taipeiReFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const evFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
   const feedPlants = useSourceFeed(mapRef, showPlants, SRC_PLANTS, plantsFcRef);
@@ -290,6 +354,11 @@ export function useEnergyPoiLayer(
   const feedWind = useSourceFeed(mapRef, showWindTurbines, SRC_WIND_TURBINES, windFcRef);
   const feedSolar = useSourceFeed(mapRef, showSolarFarms, SRC_SOLAR_FARMS, solarFcRef);
   const feedOsmPlants = useSourceFeed(mapRef, showOsmPowerPlantsStatic, SRC_OSM_POWER_PLANTS_STATIC, osmPlantsFcRef);
+  const feedOffshore = useSourceFeed(mapRef, showOffshoreWindZones, SRC_OFFSHORE_WIND, offshoreFcRef);
+  const feedIsland = useSourceFeed(mapRef, showIslandPowerGrid, SRC_ISLAND_GRID, islandFcRef);
+  const feedFossil = useSourceFeed(mapRef, showFossilFuelInfra, SRC_FOSSIL_FUEL, fossilFcRef);
+  const feedGeothermal = useSourceFeed(mapRef, showGeothermalWells, SRC_GEOTHERMAL, geothermalFcRef);
+  const feedTaipeiRE = useSourceFeed(mapRef, showRenewablePermitsTaipei, SRC_TAIPEI_RE, taipeiReFcRef);
   const feedEv = useSourceFeed(mapRef, showEvCharging, SRC_EV, evFcRef);
 
   // power_plants：visible 時拉 + 每 5 min poll
@@ -407,6 +476,113 @@ export function useEnergyPoiLayer(
       .catch((err) => console.warn("[Energy/osmPowerPlantsStatic] load failed:", err));
     return () => { cancelled = true; };
   }, [showOsmPowerPlantsStatic, feedOsmPlants]);
+
+  // offshore wind zones：visible 時拉一次（36 polygon）
+  useEffect(() => {
+    if (!showOffshoreWindZones) return;
+    let cancelled = false;
+    fetchOffshoreWindZones()
+      .then((rows) => {
+        if (cancelled) return;
+        offshoreFcRef.current = offshoreWindZonesToGeoJSON(rows);
+        feedOffshore();
+      })
+      .catch((err) => console.warn("[Energy/offshoreWind] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showOffshoreWindZones, feedOffshore]);
+
+  // island power grid：visible 時拉一次（14 POI）
+  useEffect(() => {
+    if (!showIslandPowerGrid) return;
+    let cancelled = false;
+    fetchIslandPowerGrid()
+      .then((rows) => {
+        if (cancelled) return;
+        islandFcRef.current = pointRowsToGeoJSON(rows, (r) => ({
+          island: r.island ?? "",
+          facility_type: r.facility_type ?? "",
+          name: r.name ?? "",
+          operator: r.operator ?? "",
+          fuel_type: r.fuel_type ?? "",
+          capacity_mw: r.capacity_mw,
+          online_year: r.online_year,
+          voltage_kv: r.voltage_kv,
+          address: r.address ?? "",
+          source: r.source ?? "",
+        }));
+        feedIsland();
+      })
+      .catch((err) => console.warn("[Energy/islandGrid] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showIslandPowerGrid, feedIsland]);
+
+  // fossil fuel infrastructure：visible 時拉一次（9 POI）
+  useEffect(() => {
+    if (!showFossilFuelInfra) return;
+    let cancelled = false;
+    fetchFossilFuelInfra()
+      .then((rows) => {
+        if (cancelled) return;
+        fossilFcRef.current = pointRowsToGeoJSON(rows, (r) => ({
+          facility_type: r.facility_type ?? "",
+          name: r.name ?? "",
+          operator: r.operator ?? "",
+          content: r.content ?? "",
+          capacity_tonnes: r.capacity_tonnes,
+          capacity_kl: r.capacity_kl,
+          daily_throughput_kbpd: r.daily_throughput_kbpd,
+          address: r.address ?? "",
+          online_year: r.online_year,
+          status: r.status ?? "",
+        }));
+        feedFossil();
+      })
+      .catch((err) => console.warn("[Energy/fossilFuel] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showFossilFuelInfra, feedFossil]);
+
+  // geothermal wells：visible 時拉一次（36 POI）
+  useEffect(() => {
+    if (!showGeothermalWells) return;
+    let cancelled = false;
+    fetchGeothermalWells()
+      .then((rows) => {
+        if (cancelled) return;
+        geothermalFcRef.current = pointRowsToGeoJSON(rows, (r) => ({
+          county_code: r.county_code ?? "",
+          geothermal_area: r.geothermal_area ?? "",
+          report_name: r.report_name ?? "",
+          figure_content: r.figure_content ?? "",
+          report_url: r.report_url ?? "",
+          figure_url: r.figure_url ?? "",
+        }));
+        feedGeothermal();
+      })
+      .catch((err) => console.warn("[Energy/geothermal] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showGeothermalWells, feedGeothermal]);
+
+  // taipei renewable permits：visible 時拉一次（438 POI）
+  useEffect(() => {
+    if (!showRenewablePermitsTaipei) return;
+    let cancelled = false;
+    fetchRenewablePermitsTaipei()
+      .then((rows) => {
+        if (cancelled) return;
+        taipeiReFcRef.current = pointRowsToGeoJSON(rows, (r) => ({
+          natural_key: r.natural_key ?? "",
+          category: r.category ?? "",
+          installation_name: r.installation_name ?? "",
+          capacity_kw: r.capacity_kw,
+          district: r.district ?? "",
+          address: r.address ?? "",
+          installed_at: r.installed_at ?? "",
+        }));
+        feedTaipeiRE();
+      })
+      .catch((err) => console.warn("[Energy/taipeiRE] load failed:", err));
+    return () => { cancelled = true; };
+  }, [showRenewablePermitsTaipei, feedTaipeiRE]);
 
   // EV：visible 時拉一次
   useEffect(() => {

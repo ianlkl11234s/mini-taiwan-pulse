@@ -414,6 +414,15 @@ export function useTransportParams() {
   const [osmSolarFarmsSize, setOsmSolarFarmsSize] = useState(1);
   const [osmPowerPlantsStaticOpacity, setOsmPowerPlantsStaticOpacity] = useState(0.85);
   const [osmPowerPlantsStaticSize, setOsmPowerPlantsStaticSize] = useState(1);
+  const [offshoreWindZonesOpacity, setOffshoreWindZonesOpacity] = useState(0.35);
+  const [islandPowerGridOpacity, setIslandPowerGridOpacity] = useState(0.9);
+  const [islandPowerGridSize, setIslandPowerGridSize] = useState(1);
+  const [fossilFuelInfraOpacity, setFossilFuelInfraOpacity] = useState(0.85);
+  const [fossilFuelInfraSize, setFossilFuelInfraSize] = useState(1.2);
+  const [geothermalWellsOpacity, setGeothermalWellsOpacity] = useState(0.85);
+  const [geothermalWellsSize, setGeothermalWellsSize] = useState(1);
+  const [renewablePermitsTaipeiOpacity, setRenewablePermitsTaipeiOpacity] = useState(0.85);
+  const [renewablePermitsTaipeiSize, setRenewablePermitsTaipeiSize] = useState(1);
   const [evChargingOpacity, setEvChargingOpacity] = useState(0.8);
   // HAZARD（v2 Phase B）
   const [lightningOpacity, setLightningOpacity] = useState(0.85);
@@ -722,13 +731,22 @@ export function useTransportParams() {
     osmSolarFarmsSize,
     osmPowerPlantsStaticOpacity,
     osmPowerPlantsStaticSize,
+    offshoreWindZonesOpacity,
+    islandPowerGridOpacity,
+    islandPowerGridSize,
+    fossilFuelInfraOpacity,
+    fossilFuelInfraSize,
+    geothermalWellsOpacity,
+    geothermalWellsSize,
+    renewablePermitsTaipeiOpacity,
+    renewablePermitsTaipeiSize,
     evChargingOpacity,
     // HAZARD
     lightningOpacity,
     lightningMinutes,
     nuclearOpacity,
     nuclearScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -1363,6 +1381,25 @@ export function useTransportParams() {
       case "osmPowerPlantsStatic": return [
         { label: `大小 ${osmPowerPlantsStaticSize.toFixed(1)}`, value: osmPowerPlantsStaticSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmPowerPlantsStaticSize },
         { label: `透明度 ${osmPowerPlantsStaticOpacity.toFixed(2)}`, value: osmPowerPlantsStaticOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmPowerPlantsStaticOpacity },
+      ];
+      case "offshoreWindZones": return [
+        { label: `透明度 ${offshoreWindZonesOpacity.toFixed(2)}`, value: offshoreWindZonesOpacity, min: 0.05, max: 1, step: 0.05, onChange: setOffshoreWindZonesOpacity },
+      ];
+      case "islandPowerGrid": return [
+        { label: `大小 ${islandPowerGridSize.toFixed(1)}`, value: islandPowerGridSize, min: 0.3, max: 3, step: 0.1, onChange: setIslandPowerGridSize },
+        { label: `透明度 ${islandPowerGridOpacity.toFixed(2)}`, value: islandPowerGridOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIslandPowerGridOpacity },
+      ];
+      case "fossilFuelInfra": return [
+        { label: `大小 ${fossilFuelInfraSize.toFixed(1)}`, value: fossilFuelInfraSize, min: 0.3, max: 3, step: 0.1, onChange: setFossilFuelInfraSize },
+        { label: `透明度 ${fossilFuelInfraOpacity.toFixed(2)}`, value: fossilFuelInfraOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFossilFuelInfraOpacity },
+      ];
+      case "geothermalWells": return [
+        { label: `大小 ${geothermalWellsSize.toFixed(1)}`, value: geothermalWellsSize, min: 0.3, max: 3, step: 0.1, onChange: setGeothermalWellsSize },
+        { label: `透明度 ${geothermalWellsOpacity.toFixed(2)}`, value: geothermalWellsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGeothermalWellsOpacity },
+      ];
+      case "renewablePermitsTaipei": return [
+        { label: `大小 ${renewablePermitsTaipeiSize.toFixed(1)}`, value: renewablePermitsTaipeiSize, min: 0.3, max: 3, step: 0.1, onChange: setRenewablePermitsTaipeiSize },
+        { label: `透明度 ${renewablePermitsTaipeiOpacity.toFixed(2)}`, value: renewablePermitsTaipeiOpacity, min: 0.1, max: 1, step: 0.05, onChange: setRenewablePermitsTaipeiOpacity },
       ];
       case "evChargingStations": return [
         { label: `透明度 ${evChargingOpacity.toFixed(2)}`, value: evChargingOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEvChargingOpacity },

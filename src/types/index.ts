@@ -187,6 +187,11 @@ export type ExpandableLayerKey =
   | "osmWindTurbines"
   | "osmSolarFarms"
   | "osmPowerPlantsStatic"
+  | "offshoreWindZones"
+  | "islandPowerGrid"
+  | "fossilFuelInfra"
+  | "geothermalWells"
+  | "renewablePermitsTaipei"
   | "evChargingStations"
   // HAZARD（v2 Phase B）
   | "lightning"
@@ -548,6 +553,8 @@ export interface FeatureInfo {
     | "powerPlant" | "osmSubstation" | "evCharging"
     | "osmPowerLine" | "osmPowerTower"
     | "osmWindTurbine" | "osmSolarFarm" | "osmPowerPlantStatic"
+    | "offshoreWindZone" | "islandPowerFacility" | "fossilFuelFacility"
+    | "geothermalWell" | "renewablePermitTaipei"
     | "lightningStrike" | "nuclearStation";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
@@ -721,6 +728,11 @@ export interface LayerVisibility {
   osmWindTurbines: boolean;      // OSM 風機 812（466 offshore 海上 + 346 onshore 陸上 + 含 null）
   osmSolarFarms: boolean;        // OSM 光電廠 734（POI centroid）
   osmPowerPlantsStatic: boolean; // OSM 電廠 513（補 IPP/小型，與 all_power_plants_v 可能重疊）
+  offshoreWindZones: boolean;    // 離岸風電潛力場址 36（MultiPolygon，含 capacity_mw 開發階段）
+  islandPowerGrid: boolean;      // 離島電網 14（澎湖 / 金門 / 馬祖 / 蘭嶼 / 綠島 / 琉球）
+  fossilFuelInfra: boolean;      // 化石燃料設施 9（gas_power_plant / lng_terminal / oil_refinery 各 3）
+  geothermalWells: boolean;      // 地熱井 36（報告 POI，外連 report_url / figure_url）
+  renewablePermitsTaipei: boolean; // 北市再生能源設置許可 438（學校 / 國有 / 機關 / 焚化 / 沼氣 / 水力）
   evChargingStations: boolean;   // 充電站 3,060（2D circle）
   // 災害 HAZARD（v2 Phase B）
   lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）

@@ -405,6 +405,158 @@ async function fetchOsmPowerPlantsStaticUncached(): Promise<OsmPowerPlantStatic[
 const fetchOsmPowerPlantsStaticCached = cachedOnce(fetchOsmPowerPlantsStaticUncached, 60 * 60_000);
 export const fetchOsmPowerPlantsStatic = (): Promise<OsmPowerPlantStatic[]> => fetchOsmPowerPlantsStaticCached();
 
+// ── 離岸風電 / 離島 / 化石 / 地熱 / 北市再生（Energy v2 Phase D.2 + D.3） ──
+
+/** 離岸風電潛力場址 36（MultiPolygon，migration 230） */
+export interface OffshoreWindZone {
+  zone_code: string | null;
+  zone_name: string | null;
+  zone_type: string | null;
+  phase: string | null;
+  developer: string | null;
+  capacity_mw: number | null;
+  award_year: number | null;
+  cod_year: number | null;
+  depth_min_m: number | null;
+  depth_max_m: number | null;
+  distance_km: number | null;
+  geom_json: GeoJSON.MultiPolygon;
+}
+
+/** 離島電網 14（migration 230） */
+export interface IslandPowerFacility {
+  island: string | null;
+  facility_type: string | null;
+  name: string | null;
+  operator: string | null;
+  fuel_type: string | null;
+  capacity_mw: number | null;
+  online_year: number | null;
+  voltage_kv: number | null;
+  address: string | null;
+  source: string | null;
+  lon: number;
+  lat: number;
+}
+
+/** 化石燃料設施 9（migration 230） */
+export interface FossilFuelFacility {
+  facility_type: string | null;
+  name: string | null;
+  operator: string | null;
+  content: string | null;
+  capacity_tonnes: number | null;
+  capacity_kl: number | null;
+  daily_throughput_kbpd: number | null;
+  address: string | null;
+  online_year: number | null;
+  status: string | null;
+  lon: number;
+  lat: number;
+}
+
+/** 地熱井 36（migration 230） */
+export interface GeothermalWell {
+  county_code: string | null;
+  geothermal_area: string | null;
+  report_name: string | null;
+  figure_content: string | null;
+  report_url: string | null;
+  figure_url: string | null;
+  lon: number;
+  lat: number;
+}
+
+/** 北市再生能源設置許可 438（migration 230） */
+export interface RenewablePermitTaipei {
+  natural_key: string | null;
+  category: string | null;
+  installation_name: string | null;
+  capacity_kw: number | null;
+  district: string | null;
+  address: string | null;
+  installed_at: string | null;
+  lon: number;
+  lat: number;
+}
+
+async function fetchOffshoreWindZonesUncached(): Promise<OffshoreWindZone[]> {
+  const { data, error } = await withLoading(
+    "energy:offshoreWind",
+    "離岸風電潛力場址 36",
+    supabase.rpc("get_offshore_wind_zones"),
+  );
+  if (error) throw new Error(`get_offshore_wind_zones: ${error.message}`);
+  return (data ?? []) as OffshoreWindZone[];
+}
+const fetchOffshoreWindZonesCached = cachedOnce(fetchOffshoreWindZonesUncached, 60 * 60_000);
+export const fetchOffshoreWindZones = (): Promise<OffshoreWindZone[]> => fetchOffshoreWindZonesCached();
+
+async function fetchIslandPowerGridUncached(): Promise<IslandPowerFacility[]> {
+  const { data, error } = await withLoading(
+    "energy:islandGrid",
+    "離島電網 14",
+    supabase.rpc("get_island_power_grid"),
+  );
+  if (error) throw new Error(`get_island_power_grid: ${error.message}`);
+  return (data ?? []) as IslandPowerFacility[];
+}
+const fetchIslandPowerGridCached = cachedOnce(fetchIslandPowerGridUncached, 60 * 60_000);
+export const fetchIslandPowerGrid = (): Promise<IslandPowerFacility[]> => fetchIslandPowerGridCached();
+
+async function fetchFossilFuelInfraUncached(): Promise<FossilFuelFacility[]> {
+  const { data, error } = await withLoading(
+    "energy:fossilFuel",
+    "化石燃料設施 9",
+    supabase.rpc("get_fossil_fuel_infrastructure"),
+  );
+  if (error) throw new Error(`get_fossil_fuel_infrastructure: ${error.message}`);
+  return (data ?? []) as FossilFuelFacility[];
+}
+const fetchFossilFuelInfraCached = cachedOnce(fetchFossilFuelInfraUncached, 60 * 60_000);
+export const fetchFossilFuelInfra = (): Promise<FossilFuelFacility[]> => fetchFossilFuelInfraCached();
+
+async function fetchGeothermalWellsUncached(): Promise<GeothermalWell[]> {
+  const { data, error } = await withLoading(
+    "energy:geothermal",
+    "地熱井 36",
+    supabase.rpc("get_geothermal_wells"),
+  );
+  if (error) throw new Error(`get_geothermal_wells: ${error.message}`);
+  return (data ?? []) as GeothermalWell[];
+}
+const fetchGeothermalWellsCached = cachedOnce(fetchGeothermalWellsUncached, 60 * 60_000);
+export const fetchGeothermalWells = (): Promise<GeothermalWell[]> => fetchGeothermalWellsCached();
+
+async function fetchRenewablePermitsTaipeiUncached(): Promise<RenewablePermitTaipei[]> {
+  const { data, error } = await withLoading(
+    "energy:taipeiRE",
+    "北市再生能源 438",
+    supabase.rpc("get_renewable_permits_taipei"),
+  );
+  if (error) throw new Error(`get_renewable_permits_taipei: ${error.message}`);
+  return (data ?? []) as RenewablePermitTaipei[];
+}
+const fetchRenewablePermitsTaipeiCached = cachedOnce(fetchRenewablePermitsTaipeiUncached, 60 * 60_000);
+export const fetchRenewablePermitsTaipei = (): Promise<RenewablePermitTaipei[]> => fetchRenewablePermitsTaipeiCached();
+
+/** 北市再生能源 category 6 色 */
+export const TAIPEI_RE_CATEGORY_COLORS: Record<string, string> = {
+  學校: "#fbbf24",       // amber
+  國有房地: "#94a3b8",   // slate
+  機關: "#a78bfa",       // violet
+  焚化發電: "#ef4444",   // red
+  沼氣發電: "#a3a300",   // olive
+  水力發電: "#3b82f6",   // blue
+};
+
+/** 化石燃料 3 type 顏色 */
+export const FOSSIL_FUEL_COLORS: Record<string, string> = {
+  gas_power_plant: "#94a3b8", // 灰
+  lng_terminal:    "#22d3ee", // cyan（LNG 冷物質感）
+  oil_refinery:    "#1f2937", // 深黑
+};
+
 async function fetchEvChargingUncached(): Promise<EvChargingStation[]> {
   const { data, error } = await withLoading(
     "energy:ev",

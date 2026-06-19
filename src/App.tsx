@@ -731,6 +731,11 @@ export default function App() {
     showWindTurbines: layerVisibility.osmWindTurbines,
     showSolarFarms: layerVisibility.osmSolarFarms,
     showOsmPowerPlantsStatic: layerVisibility.osmPowerPlantsStatic,
+    showOffshoreWindZones: layerVisibility.offshoreWindZones,
+    showIslandPowerGrid: layerVisibility.islandPowerGrid,
+    showFossilFuelInfra: layerVisibility.fossilFuelInfra,
+    showGeothermalWells: layerVisibility.geothermalWells,
+    showRenewablePermitsTaipei: layerVisibility.renewablePermitsTaipei,
     showEvCharging: layerVisibility.evChargingStations,
   });
   usePowerRegionBarsLayer(

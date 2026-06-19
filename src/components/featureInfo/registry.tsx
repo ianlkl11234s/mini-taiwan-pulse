@@ -29,7 +29,7 @@ import { HikingTrailsPanel, ForestryGenericPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { MedicalPOIPanel, MedicalIsochronePanel } from "./medicalPanels";
 import { SatellitePanel } from "./satellitePanels";
-import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, EvChargingPanel } from "./energyPanels";
+import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel } from "./energyPanels";
 import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
 
 export interface PanelProps {
@@ -108,6 +108,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   osmWindTurbine: OsmWindTurbinePanel,
   osmSolarFarm: OsmSolarFarmPanel,
   osmPowerPlantStatic: OsmPowerPlantStaticPanel,
+  offshoreWindZone: OffshoreWindZonePanel,
+  islandPowerFacility: IslandPowerFacilityPanel,
+  fossilFuelFacility: FossilFuelFacilityPanel,
+  geothermalWell: GeothermalWellPanel,
+  renewablePermitTaipei: RenewablePermitTaipeiPanel,
   evCharging: EvChargingPanel,
   lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
@@ -183,6 +188,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   osmWindTurbine: "風機",
   osmSolarFarm: "光電廠",
   osmPowerPlantStatic: "OSM 電廠",
+  offshoreWindZone: "離岸風電場址",
+  islandPowerFacility: "離島電網設施",
+  fossilFuelFacility: "化石燃料設施",
+  geothermalWell: "地熱井",
+  renewablePermitTaipei: "北市再生能源",
   evCharging: "電動車充電站",
   lightningStrike: "落雷",
   nuclearStation: "核安觀測站",

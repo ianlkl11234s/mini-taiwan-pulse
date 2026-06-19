@@ -19,7 +19,7 @@ import {
   Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
   Satellite,
   // ENERGY icons
-  Zap, PlugZap, Power, Spline, TowerControl, Sun,
+  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2,
   // HAZARD icons
   CloudLightning, Atom,
   type LucideIcon,
@@ -192,6 +192,11 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   osmWindTurbines: Wind,
   osmSolarFarms: Sun,
   osmPowerPlantsStatic: Factory,
+  offshoreWindZones: Waves,
+  islandPowerGrid: Anchor,
+  fossilFuelInfra: Container,
+  geothermalWells: Sparkles,
+  renewablePermitsTaipei: Building2,
   evChargingStations: PlugZap,
   lightning: CloudLightning,
   nuclearRadiation: Atom,

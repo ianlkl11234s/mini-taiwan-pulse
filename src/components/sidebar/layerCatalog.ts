@@ -187,6 +187,11 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   osmWindTurbines: "#67e8f9",      // 風機 cyan-300（offshore 主色）
   osmSolarFarms: "#fbbf24",        // 光電 amber-400
   osmPowerPlantsStatic: "#9ca3af", // OSM 電廠 灰（plant_source 在 paint 內分色）
+  offshoreWindZones: "#22d3ee",    // 離岸風電潛力場址 cyan-400 fill
+  islandPowerGrid: "#a78bfa",      // 離島電網 violet（其他 fuel 在 paint 分色）
+  fossilFuelInfra: "#1f2937",      // 化石燃料 深黑（oil_refinery 代表色）
+  geothermalWells: "#ef4444",      // 地熱井 red（熱泉語意）
+  renewablePermitsTaipei: "#fbbf24", // 北市再生 amber（學校最多，amber 代表色）
   evChargingStations: "#10b981",   // 充電綠
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
@@ -477,6 +482,11 @@ export const SECTIONS: SectionDef[] = [
       { key: "osmWindTurbines", label: "風機", expandable: true },
       { key: "osmSolarFarms", label: "光電廠", expandable: true },
       { key: "osmPowerPlantsStatic", label: "OSM 電廠（補充）", expandable: true },
+      { key: "offshoreWindZones", label: "離岸風電場址", expandable: true },
+      { key: "islandPowerGrid", label: "離島電網", expandable: true },
+      { key: "fossilFuelInfra", label: "化石燃料設施", expandable: true },
+      { key: "geothermalWells", label: "地熱井", expandable: true },
+      { key: "renewablePermitsTaipei", label: "北市再生能源", expandable: true },
       { key: "evChargingStations", label: "充電站", expandable: true },
     ],
   },

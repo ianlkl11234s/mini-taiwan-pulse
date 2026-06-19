@@ -3240,6 +3240,200 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Energy v2 Phase D.2：離岸風電潛力場址 36 MultiPolygon ──
+  // fill 淡 cyan + line cyan-400；無 phase 分色（全部單一 zone_type）
+  {
+    id: "offshoreWindZones",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-offshore-wind-zones",
+    dynamicData: true,
+    rebuildOnParamChange: ["offshoreWindZonesOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.offshoreWindZonesOpacity ?? 0.35;
+          return {
+            "fill-color": "#22d3ee",
+            "fill-opacity": o,
+            "fill-outline-color": "#67e8f9",
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.offshoreWindZonesOpacity ?? 0.35;
+          return {
+            "line-color": "#67e8f9",
+            "line-width": 1.3,
+            "line-opacity": Math.min(1, o * 2.5),
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.2：離島電網 14 POI ──
+  {
+    id: "islandPowerGrid",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-island-grid",
+    dynamicData: true,
+    rebuildOnParamChange: ["islandPowerGridOpacity", "islandPowerGridSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.islandPowerGridOpacity ?? 0.9;
+          const s = params?.islandPowerGridSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 3.5], 10, ["*", s, 5.5], 14, ["*", s, 8],
+            ],
+            "circle-color": [
+              "match", ["get", "fuel_type"],
+              "diesel", "#f97316",
+              "gas", "#94a3b8",
+              "solar", "#fbbf24",
+              "wind", "#22d3ee",
+              "hydro", "#3b82f6",
+              "#a78bfa",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 1.2,
+            "circle-stroke-color": isDark ? "#312e81" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.2：化石燃料設施 9 POI ──
+  // facility_type 3 種：gas_power_plant / lng_terminal / oil_refinery
+  {
+    id: "fossilFuelInfra",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fossil-fuel",
+    dynamicData: true,
+    rebuildOnParamChange: ["fossilFuelInfraOpacity", "fossilFuelInfraSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.fossilFuelInfraOpacity ?? 0.85;
+          const s = params?.fossilFuelInfraSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 3], 10, ["*", s, 5], 14, ["*", s, 8],
+            ],
+            "circle-color": [
+              "match", ["get", "facility_type"],
+              "lng_terminal", "#22d3ee",
+              "oil_refinery", "#1f2937",
+              "gas_power_plant", "#94a3b8",
+              "#9ca3af",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 1.5,
+            "circle-stroke-color": isDark ? "#0c4a6e" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.3：地熱井 36 POI ──
+  {
+    id: "geothermalWells",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-geothermal-wells",
+    dynamicData: true,
+    rebuildOnParamChange: ["geothermalWellsOpacity", "geothermalWellsSize"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.geothermalWellsOpacity ?? 0.85;
+          const s = params?.geothermalWellsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 5], 10, ["*", s, 9], 14, ["*", s, 14],
+            ],
+            "circle-color": "#ef4444",
+            "circle-opacity": o * 0.2,
+            "circle-blur": 0.8,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.geothermalWellsOpacity ?? 0.85;
+          const s = params?.geothermalWellsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2.5], 10, ["*", s, 4], 14, ["*", s, 6.5],
+            ],
+            "circle-color": "#ef4444",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.9,
+            "circle-stroke-color": isDark ? "#7f1d1d" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.3：北市再生能源設置許可 438 POI ──
+  // category 6 種 match 分色
+  {
+    id: "renewablePermitsTaipei",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-taipei-re",
+    dynamicData: true,
+    rebuildOnParamChange: ["renewablePermitsTaipeiOpacity", "renewablePermitsTaipeiSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.renewablePermitsTaipeiOpacity ?? 0.85;
+          const s = params?.renewablePermitsTaipeiSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.5], 12, ["*", s, 3], 15, ["*", s, 5],
+            ],
+            "circle-color": [
+              "match", ["get", "category"],
+              "學校", "#fbbf24",
+              "國有房地", "#94a3b8",
+              "機關", "#a78bfa",
+              "焚化發電", "#ef4444",
+              "沼氣發電", "#a3a300",
+              "水力發電", "#3b82f6",
+              "#9ca3af",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 0.6,
+            "circle-stroke-color": isDark ? "#1e293b" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
   // ── Layer 6：EV 充電站 3,060 ──
   {
     id: "evChargingStations",

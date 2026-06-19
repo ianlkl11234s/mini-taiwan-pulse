@@ -165,10 +165,54 @@ B.1 資料層必須與 B.2 UI 接線同時送進來才不會 ratchet fail。
 - solar_farms.poly_geom 全 NULL → 待 OSM scraper 補 polygon 才能上面狀渲染
 - osm_power_plants 跟 all_power_plants_v dedup — 兩 layer 獨立 toggle，使用者自己挑
 
-## Phase D.2 / D.3（pending）
+## Phase D.2 + D.3 — 5 表（done，合併 commit，待視覺驗收）
 
-- D.2：offshore_wind_zones 36 polygon + island_power_grid 14 + fossil_fuel_infrastructure 9
-- D.3：geothermal_wells 36 + renewable_permits_taipei 438
+> 合併原因：types 一加多 key、ratchet 必須同 commit 全接。5 layer 一次到底比拆 2 commit 省力且 atomic。
+
+### D.2/D.3 — migration 230 + 5 layer 接線
+
+- [x] `../gis-platform/migrations/230_energy_specialty_rpc.sql` 5 RPC：
+      - `get_offshore_wind_zones()` 36 MultiPolygon（含 capacity/depth_min/max/distance/award/cod_year）
+      - `get_island_power_grid()` 14（澎湖/金門/馬祖/蘭嶼/綠島/琉球，含 fuel_type）
+      - `get_fossil_fuel_infrastructure()` 9（gas_power_plant 3 + lng_terminal 3 + oil_refinery 3）
+      - `get_geothermal_wells()` 36（含 report_url / figure_url 外連）
+      - `get_renewable_permits_taipei()` 438（學校 164/國有 149/機關 119/焚化 3/沼氣 2/水力 1）
+- [x] psql apply + 5 RPC count 全對
+- [x] `types/index.ts`：5 LayerVisibility + 5 FeatureInfo.layerType
+- [x] `energyLoader.ts`：5 interface + 5 fetch（cachedOnce 60min）+ TAIPEI_RE_CATEGORY_COLORS / FOSSIL_FUEL_COLORS export
+- [x] `overlayRegistry.ts` 5 entry：
+      - offshoreWindZones：fill + line（cyan-400 半透明 polygon + cyan-300 outline）
+      - islandPowerGrid：core circle，fuel_type 6 色 match
+      - fossilFuelInfra：core circle，facility_type 3 色（LNG cyan / 煉油黑 / 燃氣灰）
+      - geothermalWells：halo + core（red 熱泉語意）
+      - renewablePermitsTaipei：core circle，category 6 色 match
+- [x] `useEnergyPoiLayer.ts`：5 source + 5 useEffect + offshore 專用 polygon converter + pointRowsToGeoJSON 通用 generic
+- [x] `layerCatalog.ts`：ENERGY 加 5 條 + LAYER_COLORS 5 色
+- [x] `IconRailSidebar.tsx`：lucide Waves（offshore）/ Anchor（island）/ Container（fossil）/ Sparkles（geothermal）/ Building2（北市再生）
+- [x] `useTransportParams.ts`：10 slider（offshore 只 opacity；其餘 size + opacity × 4）+ return + deps
+- [x] `useMapInteraction.ts` GIS_LAYERS 5 條（含 offshore fill+line 兩 layer）
+- [x] `energyPanels.tsx`：5 panel
+      - OffshoreWindZonePanel：含水深 range / 商轉年 / 開發階段
+      - IslandPowerFacilityPanel：含 island / 電壓
+      - FossilFuelFacilityPanel：3 capacity 欄（噸 / 公秉 / kbpd）擇有顯示
+      - GeothermalWellPanel：報告 + 圖件兩個外連 anchor（target="_blank"）
+      - RenewablePermitTaipeiPanel：含 capacity_kw / 設置日
+- [x] `registry.tsx` 5 panel + 5 label
+- [x] `LegendPanel.tsx`：`EnergySpecialtyLegend` 1 個 wrapper 視 visibility 顯示 5 sub-section
+- [x] `App.tsx` 接 hook 5 新 prop
+- [x] `npx tsc -b` 0 error
+- [x] `npx vitest run` 14 檔 / 155 cases pass
+
+### D.2/D.3 暫不做
+
+- offshore polygon 3D fill-extrusion 拉高 ∝ capacity_mw — plan 提的選做項，2D fill 已足夠看分布
+- 化石燃料 3D cylinder 油槽 — plan 提的進階視覺，2D circle 對 9 個點足夠
+- 地熱井 3D cone 倒置語意 — plan 提的進階視覺，2D + halo 配紅色已表達熱泉
+- 北市再生 capacity_kw 分大小 — 438 點 zoom 12+ 才顯，capacity 在 popup 可看
+
+## E-D 全部完成
+
+8 表全部上線：D.1 (wind 812 + solar 734 + osm_power_plants 513) + D.2 (offshore 36 polygon + island 14 + fossil 9) + D.3 (geothermal 36 + 北市再生 438) = 共 8 layer 新增。
 
 ## 已知不對齊（追加 plan 對比）
 

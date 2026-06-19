@@ -246,6 +246,109 @@ export function OsmPowerPlantStaticPanel({ props }: { props: Record<string, unkn
   );
 }
 
+export function OffshoreWindZonePanel({ props }: { props: Record<string, unknown> }) {
+  const dMin = props.depth_min_m, dMax = props.depth_max_m;
+  const depthLabel = dMin != null && dMax != null ? `${Number(dMin).toFixed(0)} ~ ${Number(dMax).toFixed(0)} m` : "—";
+  return (
+    <div>
+      <Row label="場址" value={String(props.zone_name || props.zone_code || "—")} />
+      <Row label="類型" value={String(props.zone_type || "—")} />
+      <Row label="開發階段" value={String(props.phase || "—")} />
+      <Row label="開發商" value={String(props.developer || "—")} />
+      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row label="得標年" value={String(props.award_year ?? "—")} />
+      <Row label="商轉年" value={String(props.cod_year ?? "—")} />
+      <Row label="水深" value={depthLabel} />
+      <Row label="離岸距離" value={props.distance_km != null ? `${Number(props.distance_km).toFixed(1)} km` : "—"} />
+    </div>
+  );
+}
+
+export function IslandPowerFacilityPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="名稱" value={String(props.name || "—")} />
+      <Row label="島嶼" value={String(props.island || "—")} />
+      <Row label="設施類型" value={String(props.facility_type || "—")} />
+      <Row label="燃料" value={String(props.fuel_type || "—")} />
+      <Row label="裝置容量" value={fmtMW(props.capacity_mw)} />
+      <Row label="電壓" value={props.voltage_kv != null ? `${props.voltage_kv} kV` : "—"} />
+      <Row label="商轉年" value={String(props.online_year ?? "—")} />
+      <Row label="營運單位" value={String(props.operator || "—")} />
+      <Row label="地址" value={String(props.address || "—")} />
+      <Row label="來源" value={String(props.source || "—")} />
+    </div>
+  );
+}
+
+export function FossilFuelFacilityPanel({ props }: { props: Record<string, unknown> }) {
+  const ft = String(props.facility_type || "");
+  const ftLabel =
+    ft === "lng_terminal" ? "LNG 接收站" :
+    ft === "oil_refinery" ? "煉油廠" :
+    ft === "gas_power_plant" ? "燃氣電廠" : (ft || "—");
+  return (
+    <div>
+      <Row label="名稱" value={String(props.name || "—")} />
+      <Row label="類型" value={ftLabel} />
+      <Row label="內容物" value={String(props.content || "—")} />
+      {props.capacity_tonnes != null && (
+        <Row label="容量（噸）" value={`${Number(props.capacity_tonnes).toLocaleString()}`} />
+      )}
+      {props.capacity_kl != null && (
+        <Row label="容量（公秉）" value={`${Number(props.capacity_kl).toLocaleString()}`} />
+      )}
+      {props.daily_throughput_kbpd != null && (
+        <Row label="日處理量" value={`${Number(props.daily_throughput_kbpd).toLocaleString()} kbpd`} />
+      )}
+      <Row label="商轉年" value={String(props.online_year ?? "—")} />
+      <Row label="狀態" value={String(props.status || "—")} />
+      <Row label="營運單位" value={String(props.operator || "—")} />
+      <Row label="地址" value={String(props.address || "—")} />
+    </div>
+  );
+}
+
+export function GeothermalWellPanel({ props }: { props: Record<string, unknown> }) {
+  const reportUrl = String(props.report_url || "");
+  const figureUrl = String(props.figure_url || "");
+  return (
+    <div>
+      <Row label="井名 / 區" value={String(props.geothermal_area || "—")} />
+      <Row label="報告" value={String(props.report_name || "—")} />
+      <Row label="圖件說明" value={String(props.figure_content || "—")} />
+      <Row label="縣市" value={String(props.county_code || "—")} />
+      {reportUrl && (
+        <div style={{ marginTop: 6 }}>
+          <a href={reportUrl} target="_blank" rel="noopener noreferrer"
+            style={{ color: "#22d3ee", fontSize: FONT_SIZE.sm, textDecoration: "underline" }}>
+            開報告 ↗
+          </a>
+          {figureUrl && (
+            <a href={figureUrl} target="_blank" rel="noopener noreferrer"
+              style={{ marginLeft: 12, color: "#22d3ee", fontSize: FONT_SIZE.sm, textDecoration: "underline" }}>
+              開圖件 ↗
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="設施名稱" value={String(props.installation_name || "—")} />
+      <Row label="類別" value={String(props.category || "—")} />
+      <Row label="裝置容量" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
+      <Row label="行政區" value={String(props.district || "—")} />
+      <Row label="地址" value={String(props.address || "—")} />
+      <Row label="設置日" value={String(props.installed_at || "—")} />
+    </div>
+  );
+}
+
 export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>
