@@ -12,11 +12,22 @@ import {
 import { Sparkline } from "../intel/monitor/PressureRing";
 import { COLORS, FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
 
+/**
+ * Format MW value:
+ *   - ≥ 1000 MW → GW（e.g. 2700 MW → "2.70 GW"）
+ *   - ≥ 1 MW    → MW（e.g. 36 MW → "36.0 MW"）
+ *   - < 1 MW    → kW（e.g. 0.5 MW → "500 kW"）
+ *
+ * 修正先前 bug：原 `(n/1000) 萬 kW` 差 100 倍（1 MW = 0.1 萬 kW，
+ * 2700 MW 應 = 270 萬 kW 或 2.7 GW，不是 "2.7 萬 kW"）。
+ */
 function fmtMW(v: unknown): string {
   if (v == null || v === "") return "—";
   const n = Number(v);
   if (!Number.isFinite(n)) return "—";
-  return n >= 1000 ? `${(n / 1000).toFixed(1)} 萬 kW` : `${n.toFixed(1)} MW`;
+  if (n >= 1000) return `${(n / 1000).toFixed(2)} GW`;
+  if (n >= 1) return `${n.toFixed(1)} MW`;
+  return `${Math.round(n * 1000)} kW`;
 }
 
 function fmtPct01(v: unknown): string {
