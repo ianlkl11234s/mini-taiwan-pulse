@@ -182,7 +182,24 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   powerRegionDemand: "#3b82f6",    // 區域藍
   powerGenerationUnit: "#f97316",  // 機組橙（光柱主色）
   osmSubstations: "#a78bfa",       // 變電所紫
+  osmPowerLines: "#62D9AD",        // 高壓輸電線 — 161 kV 薄荷綠主色
+  osmPowerTowers: "#468BA6",       // 高壓鐵塔 — 對齊 69 kV 藍綠
+  osmWindTurbines: "#67e8f9",      // 風機 cyan-300（offshore 主色）
+  osmSolarFarms: "#fbbf24",        // 光電 amber-400
+  osmPowerPlantsStatic: "#9ca3af", // OSM 電廠 灰（plant_source 在 paint 內分色）
+  offshoreWindZones: "#22d3ee",    // 離岸風電潛力場址 cyan-400 fill
+  islandPowerGrid: "#a78bfa",      // 離島電網 violet（其他 fuel 在 paint 分色）
+  fossilFuelInfra: "#1f2937",      // 化石燃料 深黑（oil_refinery 代表色）
+  geothermalWells: "#ef4444",      // 地熱井 red（熱泉語意）
+  renewablePermitsTaipei: "#fbbf24", // 北市再生 amber（學校最多，amber 代表色）
   evChargingStations: "#10b981",   // 充電綠
+  // Phase 8 SSOT facilities 6-layer（用戶指定色票）
+  facPrimary: "#F2D64B",           // oil_gas 油氣黃（主要運轉中代表 — 黃是最大量）
+  facOffshore: "#1F4373",          // wind 深藍（離岸風場）
+  facPlanned: "#F2E085",           // solar 淡黃（規劃中常見光電）
+  facHistorical: "#8C5D42",        // geothermal 棕（歷史沉感）
+  facSecondary: "#8C7C4A",         // bioenergy 卡其（小型分散）
+  facOsmSupplement: "#94a3b8",     // 中性灰
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
@@ -462,12 +479,33 @@ export const SECTIONS: SectionDef[] = [
   {
     // powerStatusHud + powerRegionDemand 不在地圖 sidebar，預定搬 monitor 面板
     // （KPI 性質非地理事件）。LayerVisibility key 保留供 monitor 整合時複用。
-    title: "ENERGY · 能源",
+    title: "能源 · 電力",
     layers: [
-      { key: "powerPlants", label: "電廠", expandable: true },
+      // ── 發電廠（主視覺 — 6 層 SSOT 整理）──
+      // 由「重要 → 邊角」、「現役 → 未來 → 歷史 → 小型 → 散落 OSM」邏輯排序
+      { key: "facPrimary",       label: "發電廠（主要・運轉中）",  expandable: true },
+      { key: "facPlanned",       label: "發電廠（未來規劃）",       expandable: true },
+      { key: "facHistorical",    label: "發電廠（歷史・退役）",     expandable: true },
+      { key: "facSecondary",     label: "發電廠（小型分散）",       expandable: true },
+      { key: "facOsmSupplement", label: "發電廠（OSM 補充）",       expandable: true },
+      // ── 機組即時 3D 視覺 ──
       { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
+      // ── 電網基礎設施 ──
       { key: "osmSubstations", label: "變電所", expandable: true },
-      { key: "evChargingStations", label: "充電站", expandable: true },
+      { key: "osmPowerLines", label: "高壓輸電線", expandable: true },
+      { key: "osmPowerTowers", label: "高壓鐵塔", expandable: true },
+      // ── 風電 + 其他能源點位 ──
+      { key: "offshoreWindZones",      label: "離岸風場（OSM 36）", expandable: true },
+      { key: "osmWindTurbines",        label: "風機（OSM 點位）",  expandable: true },
+      { key: "geothermalWells",        label: "地熱井",            expandable: true },
+      { key: "renewablePermitsTaipei", label: "北市再生能源許可",   expandable: true },
+      { key: "evChargingStations",     label: "電動車充電站",      expandable: true },
+    ],
+  },
+  {
+    title: "能源 · 石化",
+    layers: [
+      { key: "fossilFuelInfra", label: "石化能源設施", expandable: true },
     ],
   },
   {

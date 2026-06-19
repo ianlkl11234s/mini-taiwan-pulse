@@ -58,6 +58,8 @@ import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 // Energy MVP
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
+import { useOsmPowerLinesGlowLayer } from "./hooks/useOsmPowerLinesGlowLayer";
+import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
 import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
@@ -726,8 +728,34 @@ export default function App() {
   useEnergyPoiLayer(mapRef, {
     showPlants: layerVisibility.powerPlants,
     showSubstations: layerVisibility.osmSubstations,
+    showPowerLines: layerVisibility.osmPowerLines,
+    showPowerTowers: layerVisibility.osmPowerTowers,
+    showWindTurbines: layerVisibility.osmWindTurbines,
+    showSolarFarms: layerVisibility.osmSolarFarms,
+    showOsmPowerPlantsStatic: layerVisibility.osmPowerPlantsStatic,
+    showOffshoreWindZones: layerVisibility.offshoreWindZones,
+    showIslandPowerGrid: layerVisibility.islandPowerGrid,
+    showFossilFuelInfra: layerVisibility.fossilFuelInfra,
+    showGeothermalWells: layerVisibility.geothermalWells,
+    showRenewablePermitsTaipei: layerVisibility.renewablePermitsTaipei,
     showEvCharging: layerVisibility.evChargingStations,
+    // Phase 8 SSOT 6-layer
+    showFacPrimary: layerVisibility.facPrimary,
+    showFacOffshore: layerVisibility.facOffshore,
+    showFacPlanned: layerVisibility.facPlanned,
+    showFacHistorical: layerVisibility.facHistorical,
+    showFacSecondary: layerVisibility.facSecondary,
+    showFacOsmSupplement: layerVisibility.facOsmSupplement,
   });
+  // 變電所菱形 SDF icon 註冊（osmSubstations symbol layer 用）
+  useSubstationDiamondIcon(mapRef);
+  // Three.js bloom layer for 高壓輸電線（取代 Mapbox stacking）
+  useOsmPowerLinesGlowLayer(
+    mapRef,
+    layerVisibility.osmPowerLines,
+    transportParams.overlayParams.osmPowerLinesOpacity ?? 0.4,
+    transportParams.overlayParams.osmPowerLinesWidth ?? 1,
+  );
   usePowerRegionBarsLayer(
     mapRef,
     layerVisibility.powerRegionDemand,

@@ -19,7 +19,7 @@ import {
   Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
   Satellite,
   // ENERGY icons
-  Zap, PlugZap, Power,
+  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2,
   // HAZARD icons
   CloudLightning, Atom,
   type LucideIcon,
@@ -187,7 +187,24 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   powerRegionDemand: BarChart3,
   powerGenerationUnit: Power,
   osmSubstations: Cable,
+  osmPowerLines: Spline,
+  osmPowerTowers: TowerControl,
+  osmWindTurbines: Wind,
+  osmSolarFarms: Sun,
+  osmPowerPlantsStatic: Factory,
+  offshoreWindZones: Waves,
+  islandPowerGrid: Anchor,
+  fossilFuelInfra: Container,
+  geothermalWells: Sparkles,
+  renewablePermitsTaipei: Building2,
   evChargingStations: PlugZap,
+  // Phase 8 SSOT 6-layer（重用既有 icons）
+  facPrimary: Zap,           // 主要電廠（綠閃電）
+  facOffshore: Waves,        // 離岸風場 polygon
+  facPlanned: Clock,         // 規劃 / 未來
+  facHistorical: Power,      // 歷史退役
+  facSecondary: CircleDot,   // 次要小型
+  facOsmSupplement: MapPin,  // OSM 無名單機
   lightning: CloudLightning,
   nuclearRadiation: Atom,
 };

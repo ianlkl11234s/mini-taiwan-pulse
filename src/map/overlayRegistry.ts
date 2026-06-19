@@ -2934,28 +2934,547 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Layer 5：OSM 變電所 785 ──
+  // ── Layer 5：OSM 變電所 785（migration 235 電網層級分類）──
+  // class: EHV_SWITCH 5 / EHV 33 / PS 129 / DPS 90 / SS 199 / TRACTION 11 / OTHER 318
+  // 顏色與大小按 class_rank 階梯（rank 1=最高壓/最重要）
   {
     id: "osmSubstations",
     sourceUrl: "./geo/_empty.geojson",
     sourceId: "energy-substations",
     dynamicData: true,
-    rebuildOnParamChange: ["osmSubstationsOpacity"],
+    rebuildOnParamChange: ["osmSubstationsOpacity", "osmSubstationsSize", "osmSubstationsSizeBig", "osmSubstationsSizeSmall"],
+    layers: [
+      // halo：EHV_SWITCH + EHV 才有，標出超高壓節點（圓形光暈）
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.osmSubstationsOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", ["interpolate", ["linear"], ["zoom"], 6, 8, 11, 14, 14, 20],
+              "EHV",        ["interpolate", ["linear"], ["zoom"], 6, 6, 11, 11, 14, 16],
+              0,
+            ],
+            "circle-blur": 0.9,
+            "circle-color": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", "#ef4444",
+              "EHV",        "#ffffff",
+              "transparent",
+            ],
+            "circle-opacity": o * 0.45,
+          };
+        },
+      },
+      // core marker：菱形 SDF symbol（icon-rotate 45 把正方形轉成菱形）
+      // image 'substation-diamond' 由 useSubstationDiamondIcon hook 預先 addImage
+      {
+        suffix: "circle",
+        type: "symbol",
+        layout: (_isDark, params) => {
+          const s  = params?.osmSubstationsSize ?? 1;
+          const sB = (params?.osmSubstationsSizeBig ?? 1) * s;    // 大型 = EHV_SWITCH + EHV
+          const sS = (params?.osmSubstationsSizeSmall ?? 1) * s;  // 其他
+          return {
+            "icon-image": "substation-diamond",
+            "icon-rotate": 45,
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+            "icon-size": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["match", ["get", "class"],
+                  "EHV_SWITCH", 0.40 * sB, "EHV", 0.32 * sB,
+                  "PS", 0.25 * sS, "DPS", 0.20 * sS, "SS", 0.18 * sS,
+                  "TRACTION", 0.16 * sS, 0.13 * sS],
+              11, ["match", ["get", "class"],
+                   "EHV_SWITCH", 0.65 * sB, "EHV", 0.52 * sB,
+                   "PS", 0.40 * sS, "DPS", 0.32 * sS, "SS", 0.28 * sS,
+                   "TRACTION", 0.24 * sS, 0.20 * sS],
+              14, ["match", ["get", "class"],
+                   "EHV_SWITCH", 0.90 * sB, "EHV", 0.72 * sB,
+                   "PS", 0.55 * sS, "DPS", 0.45 * sS, "SS", 0.36 * sS,
+                   "TRACTION", 0.32 * sS, 0.28 * sS],
+            ],
+          };
+        },
+        paint: (_isDark, params) => {
+          const o = params?.osmSubstationsOpacity ?? 0.85;
+          return {
+            "icon-color": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", "#ef4444",
+              "EHV",        "#ffffff",
+              "PS",         "#f97316",
+              "DPS",        "#14b8a6",
+              "SS",         "#facc15",
+              "TRACTION",   "#3b82f6",
+              "#6b7280",
+            ],
+            "icon-opacity": [
+              "*", o,
+              ["match", ["get", "class"], "OTHER", 0.55, 1.0],
+            ],
+            // EHV_SWITCH 白色 halo 邊框（SDF 用 icon-halo-* 達成 stroke 效果）
+            "icon-halo-color": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", "#ffffff",
+              "rgba(0,0,0,0)",
+            ],
+            "icon-halo-width": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", 2,
+              0,
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 5b：OSM 高壓輸電線 2,305（Energy v2 Phase C）──
+  // hook 端把 voltage 算 tier(345/161/69/0) + 寫進 properties.tier
+  {
+    id: "osmPowerLines",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-lines",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmPowerLinesOpacity", "osmPowerLinesWidth"],
+    layers: [
+      // ── 方案 C：bloom 走 Three.js custom layer（osm-power-lines-three-glow）──
+      // 同時保留 Mapbox simple core 作為穩定 baseline（Three.js fail 時仍可見）
+      {
+        suffix: "core",
+        type: "line",
+        filter: ["!=", ["get", "line_type"], "cable"],
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.4;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#1AB6D9",
+              161, "#62D9AD",
+              69,  "#468BA6",
+              "#DFE0DC",
+            ],
+            "line-width": [
+              "*", w,
+              ["match", ["get", "tier"],
+                345, ["match", ["get", "line_type"], "minor_line", 1.4, "line", 3, 2],
+                161, ["match", ["get", "line_type"], "minor_line", 0.9, "line", 1.8, 1.3],
+                69,  ["match", ["get", "line_type"], "minor_line", 0.6, "line", 1.2, 0.9],
+                ["match", ["get", "line_type"], "minor_line", 0.5, "line", 1, 0.8],
+              ],
+            ],
+            "line-opacity": [
+              "match", ["get", "tier"],
+              345, ["min", 1, ["*", o, 1.4]],
+              ["*", o, ["match", ["get", "line_type"], "minor_line", 0.6, 1]],
+            ],
+          };
+        },
+      },
+      // 地下電纜（dashed）— Three.js bloom 不畫虛線，保留 Mapbox 端
+      {
+        suffix: "cable",
+        type: "line",
+        filter: ["==", ["get", "line_type"], "cable"],
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.6;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#1AB6D9",
+              161, "#62D9AD",
+              69,  "#468BA6",
+              "#DFE0DC",
+            ],
+            "line-width": ["*", w, 1.6],
+            "line-opacity": o * 0.7,
+            "line-dasharray": [2, 2],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 5c：OSM 高壓鐵塔 26,589（zoom-gated size） ──
+  // 注意：99.97% voltage=NULL → 不依 tier 染色，統一用 sky-300 亮色
+  // minzoom 8 全島可見、size 隨 zoom 漸進避免低 zoom 過密
+  {
+    id: "osmPowerTowers",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-towers",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmPowerTowersOpacity", "osmPowerTowersSize"],
     layers: [
       {
         suffix: "circle",
         type: "circle",
+        minzoom: 8,
         paint: (isDark, params) => {
-          const o = params?.osmSubstationsOpacity ?? 0.85;
+          const o = params?.osmPowerTowersOpacity ?? 0.85;
+          const s = params?.osmPowerTowersSize ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, 2.5, 11, 4.5, 14, 6,
+              8,  ["*", s, 0.8],
+              11, ["*", s, 1.6],
+              14, ["*", s, 2.8],
+              17, ["*", s, 4.5],
             ],
-            "circle-color": "#a78bfa",
+            "circle-color": "#468BA6",  // 藍綠，對齊 69 kV 主色（voltage 幾乎全空，不分色）
+            "circle-opacity": [
+              "interpolate", ["linear"], ["zoom"],
+              8,  o * 0.45,
+              11, o * 0.85,
+              13, o,
+            ],
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 0, 12, 0.4, 15, 0.8,
+            ],
+            "circle-stroke-color": isDark ? "#0c4a6e" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.1：OSM 風機 812 ──
+  // is_offshore boolean 分色：offshore=cyan-300、onshore=teal-400、null=灰
+  // capacity_mw 分大小（4 段 1.5~5MW vestas 主流）
+  {
+    id: "osmWindTurbines",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-wind-turbines",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmWindTurbinesOpacity", "osmWindTurbinesSize"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.osmWindTurbinesOpacity ?? 0.85;
+          const s = params?.osmWindTurbinesSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 4], 10, ["*", s, 8], 14, ["*", s, 14],
+            ],
+            "circle-color": [
+              "case", ["==", ["get", "is_offshore"], true], "#67e8f9", "#2dd4bf",
+            ],
+            "circle-opacity": o * 0.25,
+            "circle-blur": 0.6,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.osmWindTurbinesOpacity ?? 0.85;
+          const s = params?.osmWindTurbinesSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2], 10, ["*", s, 3.5], 14, ["*", s, 6],
+            ],
+            "circle-color": [
+              "case",
+              ["==", ["get", "is_offshore"], true], "#67e8f9",
+              ["==", ["get", "is_offshore"], false], "#2dd4bf",
+              "#94a3b8",
+            ],
             "circle-opacity": o,
             "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "#0c4a6e" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.1：OSM 光電廠 734（POI centroid） ──
+  // capacity_mw 分大小，色：amber
+  {
+    id: "osmSolarFarms",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-solar-farms",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmSolarFarmsOpacity", "osmSolarFarmsSize"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.osmSolarFarmsOpacity ?? 0.85;
+          const s = params?.osmSolarFarmsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 4], 10, ["*", s, 8], 14, ["*", s, 14],
+            ],
+            "circle-color": "#fbbf24",
+            "circle-opacity": o * 0.22,
+            "circle-blur": 0.6,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.osmSolarFarmsOpacity ?? 0.85;
+          const s = params?.osmSolarFarmsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2], 10, ["*", s, 3.5], 14, ["*", s, 6],
+            ],
+            "circle-color": "#fbbf24",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "#78350f" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.1：OSM 電廠 POI 513（補 IPP/小型） ──
+  // plant_source 分色：solar/hydro/wind/coal/gas/nuclear/waste...
+  {
+    id: "osmPowerPlantsStatic",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-osm-power-plants-static",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmPowerPlantsStaticOpacity", "osmPowerPlantsStaticSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.osmPowerPlantsStaticOpacity ?? 0.85;
+          const s = params?.osmPowerPlantsStaticSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2.5], 10, ["*", s, 4], 14, ["*", s, 7],
+            ],
+            "circle-color": [
+              "match", ["get", "plant_source"],
+              "solar", "#fbbf24",
+              "wind", "#22d3ee",
+              "hydro", "#3b82f6",
+              "coal", "#374151",
+              "gas", "#94a3b8",
+              "diesel", "#1f2937",
+              "nuclear", "#facc15",
+              "waste", "#a3a300",
+              "#9ca3af",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": isDark ? "#1e293b" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.2：離岸風電潛力場址 36 MultiPolygon ──
+  // fill 淡 cyan + line cyan-400；無 phase 分色（全部單一 zone_type）
+  {
+    id: "offshoreWindZones",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-offshore-wind-zones",
+    dynamicData: true,
+    rebuildOnParamChange: ["offshoreWindZonesOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.offshoreWindZonesOpacity ?? 0.35;
+          return {
+            "fill-color": "#22d3ee",
+            "fill-opacity": o,
+            "fill-outline-color": "#67e8f9",
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.offshoreWindZonesOpacity ?? 0.35;
+          return {
+            "line-color": "#67e8f9",
+            "line-width": 1.3,
+            "line-opacity": Math.min(1, o * 2.5),
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.2：離島電網 14 POI ──
+  {
+    id: "islandPowerGrid",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-island-grid",
+    dynamicData: true,
+    rebuildOnParamChange: ["islandPowerGridOpacity", "islandPowerGridSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.islandPowerGridOpacity ?? 0.9;
+          const s = params?.islandPowerGridSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 3.5], 10, ["*", s, 5.5], 14, ["*", s, 8],
+            ],
+            "circle-color": [
+              "match", ["get", "fuel_type"],
+              "diesel", "#f97316",
+              "gas", "#94a3b8",
+              "solar", "#fbbf24",
+              "wind", "#22d3ee",
+              "hydro", "#3b82f6",
+              "#a78bfa",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 1.2,
             "circle-stroke-color": isDark ? "#312e81" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.2：化石燃料設施 9 POI ──
+  // facility_type 3 種：gas_power_plant / lng_terminal / oil_refinery
+  {
+    id: "fossilFuelInfra",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fossil-fuel",
+    dynamicData: true,
+    rebuildOnParamChange: ["fossilFuelInfraOpacity", "fossilFuelInfraSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.fossilFuelInfraOpacity ?? 0.85;
+          const s = params?.fossilFuelInfraSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 3], 10, ["*", s, 5], 14, ["*", s, 8],
+            ],
+            "circle-color": [
+              "match", ["get", "facility_type"],
+              "lng_terminal", "#22d3ee",
+              "oil_refinery", "#1f2937",
+              "gas_power_plant", "#94a3b8",
+              "#9ca3af",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 1.5,
+            "circle-stroke-color": isDark ? "#0c4a6e" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.3：地熱井 36 POI ──
+  {
+    id: "geothermalWells",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-geothermal-wells",
+    dynamicData: true,
+    rebuildOnParamChange: ["geothermalWellsOpacity", "geothermalWellsSize"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.geothermalWellsOpacity ?? 0.85;
+          const s = params?.geothermalWellsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 5], 10, ["*", s, 9], 14, ["*", s, 14],
+            ],
+            "circle-color": "#ef4444",
+            "circle-opacity": o * 0.2,
+            "circle-blur": 0.8,
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.geothermalWellsOpacity ?? 0.85;
+          const s = params?.geothermalWellsSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 2.5], 10, ["*", s, 4], 14, ["*", s, 6.5],
+            ],
+            "circle-color": "#ef4444",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.9,
+            "circle-stroke-color": isDark ? "#7f1d1d" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Energy v2 Phase D.3：北市再生能源設置許可 438 POI ──
+  // category 6 種 match 分色
+  {
+    id: "renewablePermitsTaipei",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-taipei-re",
+    dynamicData: true,
+    rebuildOnParamChange: ["renewablePermitsTaipeiOpacity", "renewablePermitsTaipeiSize"],
+    layers: [
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.renewablePermitsTaipeiOpacity ?? 0.85;
+          const s = params?.renewablePermitsTaipeiSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.5], 12, ["*", s, 3], 15, ["*", s, 5],
+            ],
+            "circle-color": [
+              "match", ["get", "category"],
+              "學校", "#fbbf24",
+              "國有房地", "#94a3b8",
+              "機關", "#a78bfa",
+              "焚化發電", "#ef4444",
+              "沼氣發電", "#a3a300",
+              "水力發電", "#3b82f6",
+              "#9ca3af",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 0.6,
+            "circle-stroke-color": isDark ? "#1e293b" : "#ffffff",
           };
         },
       },
@@ -3129,6 +3648,288 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "stale", isDark ? "#9ca3af" : "#4b5563",
               isDark ? "#111827" : "#ffffff",
             ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  //  Phase 8 SSOT — 6-layer facilities 重構
+  //  marker 大小用 log scale 連續映射（0.5MW ~ 6GW）；color 按 fuel_type
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── L1 主要電廠（運轉中）209 ──
+  {
+    id: "facPrimary",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-primary",
+    dynamicData: true,
+    rebuildOnParamChange: ["facPrimaryOpacity", "facPrimaryScale", "facPrimaryRtScale", "facPrimaryNoRtScale"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.facPrimaryOpacity ?? 0.95;
+          const s = params?.facPrimaryScale ?? 1;
+          const rtScale = params?.facPrimaryRtScale ?? 1.0;
+          const noRtScale = params?.facPrimaryNoRtScale ?? 0.3;
+          const haloRadius = (factor: number, zoom6: number, zoom12: number) => [
+            "*", factor * s,
+            ["case", ["==", ["get", "has_realtime"], true], rtScale, noRtScale],
+            ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+              Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6,  haloRadius(1.4, 2, 14),
+              12, haloRadius(1.7, 5, 32),
+            ],
+            "circle-blur": 0.7,
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.28,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.facPrimaryOpacity ?? 0.95;
+          const s = params?.facPrimaryScale ?? 1;
+          const rtScale = params?.facPrimaryRtScale ?? 1.0;
+          const noRtScale = params?.facPrimaryNoRtScale ?? 0.3;
+          // rtScale slider 控制「有即時出力」廠（台電 14 大廠 + 廠級匯總）
+          // noRtScale slider 控制「無即時出力」廠（~180 個小廠）
+          const radius = (zoom6: number, zoom12: number) => [
+            "*", s,
+            ["case", ["==", ["get", "has_realtime"], true], rtScale, noRtScale],
+            ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+              Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6,  radius(2, 14),
+              12, radius(5, 32),
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o,
+            "circle-stroke-width": [
+              "case", ["==", ["get", "has_realtime"], true], 1.4, 1,
+            ],
+            "circle-stroke-color": [
+              "case", ["==", ["get", "has_realtime"], true],
+              "#ffffff",                            // 大廠（即時）一律白邊
+              isDark ? "#0f172a" : "#ffffff",       // 其他廠維持原色
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L2 離岸風電場址 polygon 8 ──
+  {
+    id: "facOffshore",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-offshore",
+    dynamicData: true,
+    rebuildOnParamChange: ["facOffshoreOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.facOffshoreOpacity ?? 0.45;
+          return {
+            "fill-color": [
+              "match", ["get", "status"],
+              "operating", "#1F4373",
+              "construction", "#2F5A99",
+              "pre-construction", "#3C92A6",
+              "announced", "#7AAEC0",
+              "#475569",
+            ],
+            "fill-opacity": o * 0.35,
+            "fill-outline-color": "#7AAEC0",
+          };
+        },
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.facOffshoreOpacity ?? 0.45;
+          return {
+            "line-color": [
+              "match", ["get", "status"],
+              "operating", "#3C92A6",
+              "construction", "#7AAEC0",
+              "pre-construction", "#7AAEC0",
+              "announced", "#A8C5D0",
+              "#A8C5D0",
+            ],
+            "line-width": 1.4,
+            "line-opacity": o * 0.95,
+            "line-dasharray": [
+              "match", ["get", "status"],
+              "operating",        ["literal", [1]],
+              "construction",     ["literal", [3, 2]],
+              "pre-construction", ["literal", [2, 2]],
+              "announced",        ["literal", [1, 3]],
+              ["literal", [2, 2]],
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L3 規劃 / 未來電廠 35（半透明 + 虛線邊框）──
+  {
+    id: "facPlanned",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-planned",
+    dynamicData: true,
+    rebuildOnParamChange: ["facPlannedOpacity", "facPlannedScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.facPlannedOpacity ?? 0.7;
+          const s = params?.facPlannedScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 2, Math.log10(6000), 12]],
+              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 4, Math.log10(6000), 26]],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": [
+              "*", o,
+              ["match", ["get", "status"],
+                "construction", 0.85,
+                "pre-construction", 0.55,
+                "announced", 0.35,
+                0.6],
+            ],
+            "circle-stroke-width": 1.2,
+            "circle-stroke-color": [
+              "match", ["get", "status"],
+              "construction", "#fff500",        // 霓虹電光黃
+              "pre-construction", "#00d4ff",    // 霓虹電光藍
+              "announced", "#a5b4fc",           // 霓虹淡紫藍
+              "#a5b4fc",
+            ],
+            // 注意：mapbox-gl 不支援 circle stroke dasharray
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L4 歷史（退役 / 擱置）15 ──
+  {
+    id: "facHistorical",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-historical",
+    dynamicData: true,
+    rebuildOnParamChange: ["facHistoricalOpacity", "facHistoricalScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.facHistoricalOpacity ?? 0.5;
+          const s = params?.facHistoricalScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 2, Math.log10(6000), 11]],
+              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 4, Math.log10(6000), 22]],
+            ],
+            "circle-color": "#525252",
+            "circle-opacity": [
+              "*", o,
+              ["match", ["get", "status"],
+                "mothballed", 0.55,
+                "shelved", 0.35,
+                "retired", 0.30,
+                0.4],
+            ],
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#737373",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L5 次要 341（小型 / 分散）──
+  {
+    id: "facSecondary",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-secondary",
+    dynamicData: true,
+    rebuildOnParamChange: ["facSecondaryOpacity", "facSecondaryScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.facSecondaryOpacity ?? 0.85;
+          const s = params?.facSecondaryScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 1.5, Math.log10(100), 6]],
+              12, ["*", s, ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
+                Math.log10(0.5), 3, Math.log10(100), 12]],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.9,
+            "circle-stroke-width": 0.6,
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── L6 OSM 補充（無名單機）1,215 ──
+  {
+    id: "facOsmSupplement",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-fac-osm-supplement",
+    dynamicData: true,
+    rebuildOnParamChange: ["facOsmSupplementOpacity", "facOsmSupplementScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.facOsmSupplementOpacity ?? 0.7;
+          const s = params?.facOsmSupplementScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, 1.5],
+              12, ["*", s, 3.5],
+              15, ["*", s, 5.5],
+            ],
+            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
+            "circle-opacity": o * 0.75,
+            "circle-stroke-width": 0.4,
+            "circle-stroke-color": isDark ? "#1f2937" : "#e5e7eb",
           };
         },
       },

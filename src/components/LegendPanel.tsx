@@ -140,6 +140,13 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
+  { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
+  { keys: ["osmSubstations"], render: () => <SubstationLegend /> },
+  { keys: ["facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement"],
+    render: ({ visibility }) => <FacilityFuelLegend visibility={visibility} /> },
+  { keys: ["facOffshore"], render: () => <FacOffshoreLegend /> },
+  { keys: ["osmWindTurbines", "osmSolarFarms", "osmPowerPlantsStatic"], render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
+  { keys: ["offshoreWindZones", "islandPowerGrid", "fossilFuelInfra", "geothermalWells", "renewablePermitsTaipei"], render: ({ visibility }) => <EnergySpecialtyLegend visibility={visibility} /> },
   { keys: ["lightning"], render: () => <LightningLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
 ];
@@ -957,6 +964,329 @@ function EnergyFuelLegend() {
         ● 光柱（Layer 4）= 機組即時出力 / 裝置容量<br />
         ● 14 台電廠有 output；OSM/IPP 等暫無
       </div>
+    </div>
+  );
+}
+
+// ── Energy: 高壓電網 voltage tier + line_type ──
+
+function PowerGridLegend() {
+  const voltageRows = [
+    { kv: "345 kV", color: "#1AB6D9" },
+    { kv: "161 kV", color: "#62D9AD" },
+    { kv: "69 kV",  color: "#468BA6" },
+    { kv: "未標／混合", color: "#DFE0DC" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 高壓電網
+      </div>
+      {voltageRows.map((r) => (
+        <div key={r.kv} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 16, height: 3, background: r.color, display: "inline-block", borderRadius: 1 }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.kv}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 3 }}>
+        線型
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 20, height: 3, background: "#62D9AD", display: "inline-block" }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>輸電（粗）</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 20, height: 1.5, background: "#62D9AD", display: "inline-block", opacity: 0.55 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>配電（細）</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span
+            style={{
+              width: 20,
+              height: 2,
+              backgroundImage: "linear-gradient(to right, #62D9AD 50%, transparent 0%)",
+              backgroundSize: "6px 2px",
+              backgroundRepeat: "repeat-x",
+              display: "inline-block",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>地下電纜（虛線）</span>
+        </div>
+      </div>
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 鐵塔需 zoom ≥ 13<br />
+        ● 來源：OSM（同 openinframap），約 60% 線未標電壓
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: OSM 變電所電網層級（migration 235）──
+function SubstationLegend() {
+  const rows: { color: string; label: string; sz: number; n: number }[] = [
+    { color: "#ef4444", label: "超高壓開閉所 (345 kV 切換)",       sz: 9,   n: 5 },
+    { color: "#ffffff", label: "超高壓變電所 E/S (345→161 kV)",    sz: 8,   n: 33 },
+    { color: "#f97316", label: "一次變電所 P/S (161→69 kV)",       sz: 6.5, n: 129 },
+    { color: "#14b8a6", label: "一次配電變電所 D/S (161→22.8 kV)", sz: 5.5, n: 90 },
+    { color: "#facc15", label: "二次變電所 S/S (69→22.8 kV)",      sz: 5,   n: 199 },
+    { color: "#3b82f6", label: "鐵路牽引變電所",                    sz: 4.5, n: 11 },
+    { color: "#6b7280", label: "未分類",                            sz: 4,   n: 318 },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 變電所層級
+      </div>
+      {rows.map((r) => (
+        <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: r.sz * 2,
+              height: r.sz * 2,
+              borderRadius: "50%",
+              background: r.color,
+              display: "inline-block",
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, flex: 1 }}>{r.label}</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.n}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● EHV 兩階含 halo 光暈<br />
+        ● 規則：name regex + voltage，台電命名 E/S / P/S / S/S 標示為準
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: Phase 8 SSOT facilities 6-layer ──
+function FacilityFuelLegend({ visibility }: { visibility: LayerVisibility }) {
+  const fuels: { c: string; label: string }[] = [
+    { c: "#F2622E", label: "燃煤 coal" },
+    { c: "#F2D64B", label: "油氣 oil_gas" },
+    { c: "#d100ff", label: "核能 nuclear" },
+    { c: "#3C92A6", label: "水力 hydro" },
+    { c: "#F2E085", label: "光電 solar" },
+    { c: "#1F4373", label: "風力 wind" },
+    { c: "#8C7C4A", label: "生質 bioenergy" },
+    { c: "#8C5D42", label: "地熱 geothermal" },
+    { c: "#D9863D", label: "焚化 waste" },
+  ];
+  const showStatus = visibility.facPlanned || visibility.facHistorical;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 電廠燃料
+      </div>
+      {fuels.map((f) => (
+        <div key={f.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 12, height: 12, borderRadius: "50%", background: f.c, display: "inline-block" }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{f.label}</span>
+        </div>
+      ))}
+      {showStatus && (
+        <>
+          <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 3 }}>狀態</div>
+          {visibility.facPlanned && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#9ca3af", border: "1.5px solid #fff500" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>興建中（電光黃框）</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.55)", border: "1.5px solid #00d4ff" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>規劃中（電光藍框、半透明）</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.35)", border: "1.5px solid #a5b4fc" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>公告中（淡紫藍框）</span>
+              </div>
+            </>
+          )}
+          {visibility.facHistorical && (
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#525252", border: "1px solid #737373", opacity: 0.45 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>退役/擱置（深灰、退色）</span>
+            </div>
+          )}
+        </>
+      )}
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 大小 ∝ log10(容量 MW)：0.5MW ~ 6GW 連續映射
+      </div>
+    </div>
+  );
+}
+
+function FacOffshoreLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 離岸風電場址（8 場）
+      </div>
+      {[
+        { c: "#3C92A6", label: "運轉中", dash: false },
+        { c: "#7AAEC0", label: "興建中（虛線 3,2）", dash: true },
+        { c: "#7AAEC0", label: "規劃中（虛線 2,2）", dash: true },
+        { c: "#A8C5D0", label: "公告中（虛線 1,3）", dash: true },
+      ].map((r) => (
+        <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 24, height: 8,
+              background: r.dash
+                ? `repeating-linear-gradient(to right, ${r.c} 0 4px, transparent 4px 7px)`
+                : r.c,
+              opacity: 0.7,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 來源：energy.power_facilities footprint（GEM polygon 配對成功 8 個）
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: OSM 風光電 POI（風機 offshore/onshore + 光電 + OSM 電廠 fuel） ──
+
+function RenewablePoiLegend({ visibility }: { visibility: LayerVisibility }) {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · OSM 風光電
+      </div>
+      {visibility.osmWindTurbines && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>風機 (812)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#67e8f9", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>離岸 466</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#2dd4bf", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>陸域 / 未標 346</span>
+          </div>
+        </>
+      )}
+      {visibility.osmSolarFarms && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>光電廠 (734)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#fbbf24", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>POI 中心</span>
+          </div>
+        </>
+      )}
+      {visibility.osmPowerPlantsStatic && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>OSM 電廠 (513) by fuel</div>
+          {[
+            { k: "solar", c: "#fbbf24", l: "太陽" },
+            { k: "wind", c: "#22d3ee", l: "風力" },
+            { k: "hydro", c: "#3b82f6", l: "水力" },
+            { k: "coal", c: "#374151", l: "煤" },
+            { k: "gas", c: "#94a3b8", l: "天然氣" },
+            { k: "nuclear", c: "#facc15", l: "核能" },
+            { k: "waste", c: "#a3a300", l: "廢棄物" },
+            { k: "other", c: "#9ca3af", l: "其他/未標" },
+          ].map((x) => (
+            <div key={x.k} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+            ⚠ 與「電廠」(all_power_plants_v) 可能重疊
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Energy: 特殊能源 5 layer 共用（offshore / island / fossil / geothermal / 北市再生） ──
+
+function EnergySpecialtyLegend({ visibility }: { visibility: LayerVisibility }) {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 特殊
+      </div>
+      {visibility.offshoreWindZones && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>離岸風電場址 (36)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 14, height: 10, background: "#22d3ee", opacity: 0.4, border: "1px solid #67e8f9" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>潛力場址（fill polygon）</span>
+          </div>
+        </>
+      )}
+      {visibility.islandPowerGrid && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>離島電網 (14) by fuel</div>
+          {[
+            { c: "#f97316", l: "柴油" },
+            { c: "#94a3b8", l: "天然氣" },
+            { c: "#fbbf24", l: "太陽" },
+            { c: "#22d3ee", l: "風力" },
+            { c: "#3b82f6", l: "水力" },
+            { c: "#a78bfa", l: "其他" },
+          ].map((x) => (
+            <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
+        </>
+      )}
+      {visibility.fossilFuelInfra && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>化石燃料 (9)</div>
+          {[
+            { c: "#22d3ee", l: "LNG 接收站" },
+            { c: "#1f2937", l: "煉油廠" },
+            { c: "#94a3b8", l: "燃氣電廠" },
+          ].map((x) => (
+            <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block", border: "1px solid #475569" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
+        </>
+      )}
+      {visibility.geothermalWells && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>地熱井 (36)</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+            <span style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#ef4444", boxShadow: "0 0 6px #ef444466", display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>井位 + 報告外連</span>
+          </div>
+        </>
+      )}
+      {visibility.renewablePermitsTaipei && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>北市再生 (438) by 類別</div>
+          {[
+            { c: "#fbbf24", l: "學校 164" },
+            { c: "#94a3b8", l: "國有房地 149" },
+            { c: "#a78bfa", l: "機關 119" },
+            { c: "#ef4444", l: "焚化發電 3" },
+            { c: "#a3a300", l: "沼氣發電 2" },
+            { c: "#3b82f6", l: "水力發電 1" },
+          ].map((x) => (
+            <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
+              <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: x.c, display: "inline-block" }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{x.l}</span>
+            </div>
+          ))}
+        </>
+      )}
     </div>
   );
 }

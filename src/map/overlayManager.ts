@@ -84,9 +84,11 @@ export function addOverlay(
       type: spec.type as "line",  // TS union trick
       source: config.sourceId,
       ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
-      ...(spec.layout ? { layout: spec.layout } : {}),
+      ...(spec.layout
+          ? { layout: typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout }
+          : {}),
       ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
-      ...(config.filter ? { filter: config.filter } : {}),
+      ...(spec.filter ? { filter: spec.filter } : config.filter ? { filter: config.filter } : {}),
       paint: paint as Record<string, unknown>,
     } as mapboxgl.AnyLayer);
     cache.set(id, snapshotPaint(paint));
@@ -112,7 +114,10 @@ export function updateOverlayTheme(
     for (const spec of config.layers) {
       if (!config.rebuildOnParamChange.includes(spec.suffix)) continue;
       const id = layerId(config, spec.suffix);
-      const snapshot = snapshotPaint(spec.paint(isDark, params));
+      // 把 paint + (callback) layout 一起 snapshot；callback layout 變化也需 trigger rebuild
+      const paintObj = spec.paint(isDark, params);
+      const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : (spec.layout ?? {});
+      const snapshot = snapshotPaint({ ...paintObj, ...layoutObj });
       nextSnapshots.set(id, snapshot);
       if (!map.getLayer(id) || !paintSnapshotEquals(cache.get(id), snapshot)) {
         needRebuild = true;
@@ -134,12 +139,13 @@ export function updateOverlayTheme(
         const id = layerId(config, spec.suffix);
         if (map.getLayer(id)) continue;
         const paint = spec.paint(isDark, params);
+        const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout;
         map.addLayer({
           id,
           type: spec.type as "line",
           source: config.sourceId,
           ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
-          ...(spec.layout ? { layout: spec.layout } : {}),
+          ...(layoutObj ? { layout: layoutObj } : {}),
           ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
           ...(config.filter ? { filter: config.filter } : {}),
           paint: paint as Record<string, unknown>,
@@ -159,14 +165,54 @@ export function updateOverlayTheme(
     for (const spec of config.layers) {
       if (config.rebuildOnParamChange.includes(spec.suffix)) continue;
       applyPaintDiff(map, cache, layerId(config, spec.suffix), spec.paint(isDark, params));
+      if (typeof spec.layout === "function") {
+        applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
+      }
     }
     return;
   }
 
-  // 一般 layers: diff 式 setPaintProperty
+  // 一般 layers: diff 式 setPaintProperty + callback layout 也 diff 更新
   for (const spec of config.layers) {
     applyPaintDiff(map, cache, layerId(config, spec.suffix), spec.paint(isDark, params));
+    if (typeof spec.layout === "function") {
+      applyLayoutDiff(map, layerId(config, spec.suffix), spec.layout(isDark, params));
+    }
   }
+}
+
+const layoutCacheByMap = new WeakMap<MapboxMap, Map<string, Record<string, string>>>();
+function layoutCacheOf(map: MapboxMap): Map<string, Record<string, string>> {
+  let cache = layoutCacheByMap.get(map);
+  if (!cache) {
+    cache = new Map();
+    layoutCacheByMap.set(map, cache);
+  }
+  return cache;
+}
+
+function applyLayoutDiff(
+  map: MapboxMap,
+  id: string,
+  layout: Record<string, unknown>,
+) {
+  if (!map.getLayer(id)) return;
+  const cache = layoutCacheOf(map);
+  const prev = cache.get(id) ?? {};
+  const next: Record<string, string> = {};
+  for (const [k, v] of Object.entries(layout)) {
+    const s = JSON.stringify(v) ?? "__undefined__";
+    next[k] = s;
+    if (prev[k] !== s) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        map.setLayoutProperty(id, k as any, v as any);
+      } catch (e) {
+        console.warn(`[overlayManager] setLayoutProperty ${id}/${k} failed`, e);
+      }
+    }
+  }
+  cache.set(id, next);
 }
 
 function applyPaintDiff(

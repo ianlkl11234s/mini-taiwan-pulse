@@ -32,6 +32,15 @@ const BASELINE_NOT_IN_SIDEBAR = new Set([
   "wasteRoute", "wasteStop", "medICUBeds",
   // Energy MVP：KPI 性質，預定整合到 monitor 面板（LayerVisibility key 保留）
   "powerStatusHud", "powerRegionDemand",
+  // Phase 8 SSOT 整理後從 sidebar 移除（key 保留供 internal use）：
+  // - powerPlants legacy → 已被 facPrimary 等 6 layer 取代
+  // - osmSolarFarms / osmPowerPlantsStatic → 跟 SSOT facilities 重疊
+  // - offshoreWindZones → SSOT facOffshore 取代
+  // - islandPowerGrid → SSOT facPrimary 內 is_island 已涵蓋
+  "powerPlants", "osmSolarFarms", "osmPowerPlantsStatic",
+  "islandPowerGrid",
+  // SSOT facOffshore (8 polygon) 被換成 OSM offshoreWindZones (36 polygon) 後從 sidebar 移除
+  "facOffshore",
 ]);
 
 /**
@@ -79,8 +88,9 @@ const BASELINE_NO_LEGEND = new Set([
   "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
-  // Energy MVP：單色 POI（紫變電所 / 綠充電站）— 鐵則 2 只要求分類 ≥ 2 才需圖例
-  "osmSubstations", "evChargingStations",
+  // Energy MVP：充電站單色 POI — 鐵則 2 只要求分類 ≥ 2 才需圖例
+  // osmSubstations 已升級 migration 235 電網層級分色 → 已從 baseline 移除（接 SubstationLegend）
+  "evChargingStations",
 ]);
 
 function hasParamsCase(key: string): boolean {

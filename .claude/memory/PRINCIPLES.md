@@ -598,3 +598,39 @@ grep -l "isStyleLoaded\|style.load\|addLayer" .claude/pitfalls/
 - mount 函式預先加 5 個 checkpoint log（mount entry / try addLayer / catch / success ✓）
 
 **Debug 信號**：用戶說「3D 圖層 toggle ON 但畫面沒東西 + console 沒 setData log」→ 跳過視覺調整，直接看 mount log 有沒到 `mounted ✓`。沒到就是這個 race。
+
+---
+
+## 寫 Mapbox expression / GLSL shader / addImage 前先讀 pitfall（2026-06-20）
+
+**規則**：寫以下任何一種前，先讀 `.claude/pitfalls/2026-06-20-mapbox-expression-glsl-shader.md`：
+
+- Mapbox `match` / `case` / paint / layout expression
+- GLSL vertex/fragment shader（特別是 fat-line 自製 quad expansion）
+- mapboxgl `addImage` / symbol layer icon-image
+- overlayRegistry spec 含 callback layout
+
+**Why**：本 session Phase 8 整理花了 30+ commit 來回，多數是 **silent fail**：
+- `match` 接 boolean → marker 全消失（無 error log）
+- GLSL `vec4 ? :` → vertex shader fail → 線消失
+- fat-line normal 算錯 → quad 變羽毛紋
+- styleimagemissing race → image 永不註冊
+- rebuildOnParamChange 只看 paint，layout slider 拉了沒反應
+
+**How to apply**：
+- 寫前掃 pitfall：`grep -l "expression\|shader\|addImage\|layout" .claude/pitfalls/`
+- 寫新 layer 「先 work 再 polish」：先用 fragment `gl_FragColor = vec4(1,0,0,1)` 純色測 vertex，再加 bloom / falloff
+- callback layout → 必須走 setLayoutProperty diff（`applyLayoutDiff` 已在 overlayManager 內，spec 直接用 callback layout 即可）
+
+---
+
+## 微調 batch + 不要每個值一個 commit（2026-06-20）
+
+**規則**：用戶要改顏色 / slider 預設值時，**先問是否還會再改**，集中 commit 不一個值一 commit。
+
+**Why**：本 session 顏色換 6 次（霓虹 → 用戶色票 → 高壓位移 → 白光暈 → 改回原色），slider 預設值換 8+ 次，commit history 雜亂、context 也吃很兇。
+
+**How to apply**：
+- 用戶說「換顏色」「調預設值」→ 回 prompt 問「需要連帶調整 X / Y / Z 一起說嗎？」，等用戶一次寫完
+- commit 訊息標 `tweak(scope):` 不標 `feat()` — 區分微調 vs 新功能
+- 連續微調可改 `git commit --amend`（用戶同意才動）

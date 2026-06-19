@@ -182,7 +182,24 @@ export type ExpandableLayerKey =
   | "powerPlants"
   | "powerGenerationUnit"
   | "osmSubstations"
+  | "osmPowerLines"
+  | "osmPowerTowers"
+  | "osmWindTurbines"
+  | "osmSolarFarms"
+  | "osmPowerPlantsStatic"
+  | "offshoreWindZones"
+  | "islandPowerGrid"
+  | "fossilFuelInfra"
+  | "geothermalWells"
+  | "renewablePermitsTaipei"
   | "evChargingStations"
+  // Phase 8 SSOT facilities 6-layer 重構
+  | "facPrimary"
+  | "facOffshore"
+  | "facPlanned"
+  | "facHistorical"
+  | "facSecondary"
+  | "facOsmSupplement"
   // HAZARD（v2 Phase B）
   | "lightning"
   | "nuclearRadiation"
@@ -488,9 +505,11 @@ export interface BusTrail {
 export interface OverlayLayerSpec {
   suffix: string;
   type: "line" | "fill" | "circle" | "fill-extrusion" | "symbol";
-  layout?: Record<string, unknown>;
+  layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
+  /** 同 sourceId 多 layer 各自 sub-filter（疊在 OverlayConfig.filter 之上 → all 串接） */
+  filter?: unknown[];
 }
 
 export interface OverlayConfig {
@@ -539,6 +558,10 @@ export interface FeatureInfo {
     | "hikingTrails"
     | "satellite"
     | "powerPlant" | "osmSubstation" | "evCharging"
+    | "osmPowerLine" | "osmPowerTower"
+    | "osmWindTurbine" | "osmSolarFarm" | "osmPowerPlantStatic"
+    | "offshoreWindZone" | "islandPowerFacility" | "fossilFuelFacility"
+    | "geothermalWell" | "renewablePermitTaipei"
     | "lightningStrike" | "nuclearStation";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
@@ -707,7 +730,24 @@ export interface LayerVisibility {
   powerRegionDemand: boolean;    // 北中南東 4 區 3D bars（質心柱，高 ∝ consumption_mw，色 = reserve_indicator）
   powerGenerationUnit: boolean;  // 機組即時出力 3D beam（InstancedMesh，高 ∝ output_load_rate）
   osmSubstations: boolean;       // 變電所 785（2D circle）
+  osmPowerLines: boolean;        // OSM 高壓輸電線 2,305（voltage 分色 + line_type 分粗細）
+  osmPowerTowers: boolean;       // OSM 高壓鐵塔 26,589（minzoom 8、統一 sky-300）
+  osmWindTurbines: boolean;      // OSM 風機 812（466 offshore 海上 + 346 onshore 陸上 + 含 null）
+  osmSolarFarms: boolean;        // OSM 光電廠 734（POI centroid）
+  osmPowerPlantsStatic: boolean; // OSM 電廠 513（補 IPP/小型，與 all_power_plants_v 可能重疊）
+  offshoreWindZones: boolean;    // 離岸風電潛力場址 36（MultiPolygon，含 capacity_mw 開發階段）
+  islandPowerGrid: boolean;      // 離島電網 14（澎湖 / 金門 / 馬祖 / 蘭嶼 / 綠島 / 琉球）
+  fossilFuelInfra: boolean;      // 化石燃料設施 9（gas_power_plant / lng_terminal / oil_refinery 各 3）
+  geothermalWells: boolean;      // 地熱井 36（報告 POI，外連 report_url / figure_url）
+  renewablePermitsTaipei: boolean; // 北市再生能源設置許可 438（學校 / 國有 / 機關 / 焚化 / 沼氣 / 水力）
   evChargingStations: boolean;   // 充電站 3,060（2D circle）
+  // Phase 8 SSOT facilities 6-layer 重構（取代既有單一 powerPlants）
+  facPrimary: boolean;           // L1: 主要電廠 209 (operating+construction，火/核/水/大風/大光電)
+  facOffshore: boolean;          // L2: 離岸風電場址 polygon 8（大彰化 / Formosa / Hai Long）
+  facPlanned: boolean;           // L3: 規劃 / 未來電廠 35 (pre-construction + announced)
+  facHistorical: boolean;        // L4: 歷史 - 退役 / 擱置 15 (retired+mothballed+shelved)
+  facSecondary: boolean;         // L5: 次要 341（焚化+地熱+小水力+中小光電/風電）
+  facOsmSupplement: boolean;     // L6: OSM 補充 1,215 (source_priority=5 無名單機)
   // 災害 HAZARD（v2 Phase B）
   lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
   nuclearRadiation: boolean;     // 核安 51 站即時劑量（is_stale 標離線）
