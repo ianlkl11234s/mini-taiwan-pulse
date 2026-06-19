@@ -3051,9 +3051,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#62D9AD",
-              161, "#468BA6",
-              69,  "#5B458C",
+              345, "#1AB6D9",
+              161, "#62D9AD",
+              69,  "#468BA6",
               "#DFE0DC",
             ],
             "line-width": [
@@ -3078,9 +3078,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#62D9AD",
-              161, "#468BA6",
-              69,  "#5B458C",
+              345, "#1AB6D9",
+              161, "#62D9AD",
+              69,  "#468BA6",
               "#DFE0DC",
             ],
             "line-width": [
@@ -3110,9 +3110,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#62D9AD",
-              161, "#468BA6",
-              69,  "#5B458C",
+              345, "#1AB6D9",
+              161, "#62D9AD",
+              69,  "#468BA6",
               "#DFE0DC",
             ],
             "line-width": ["*", w, 1.6],
@@ -3149,7 +3149,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               14, ["*", s, 2.8],
               17, ["*", s, 4.5],
             ],
-            "circle-color": "#5B458C",  // 深紫，對齊 69 kV 主色（voltage 幾乎全空，不分色）
+            "circle-color": "#468BA6",  // 藍綠，對齊 69 kV 主色（voltage 幾乎全空，不分色）
             "circle-opacity": [
               "interpolate", ["linear"], ["zoom"],
               8,  o * 0.45,

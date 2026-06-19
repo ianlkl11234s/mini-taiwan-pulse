@@ -513,9 +513,9 @@ export function powerLineTierKv(voltage: string | null | undefined): 345 | 161 |
 
 /** 高壓電網色階（用戶指定色票） */
 export const POWER_LINE_VOLTAGE_COLORS = {
-  345: "#62D9AD",   // 薄荷綠 — 345 kV 最高壓主幹
-  161: "#468BA6",   // 藍綠 — 161 kV 次幹
-  69:  "#5B458C",   // 深紫 — 69 kV 配電骨幹
+  345: "#1AB6D9",   // 青藍 — 345 kV 最高壓主幹
+  161: "#62D9AD",   // 薄荷綠 — 161 kV 次幹
+  69:  "#468BA6",   // 藍綠 — 69 kV 配電骨幹
   mixed: "#DFE0DC", // 淡灰白 — 未標 / 混合
 } as const;
 
