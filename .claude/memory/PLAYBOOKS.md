@@ -1175,3 +1175,99 @@ leftover 全屬聲明的保留情境，commit 過。
 - token scale 已成熟：只是新增元件用 token，不算 migration
 - 純語意修正（如 #ff3b30 → #ef4444）一行改就好
 
+
+---
+
+## PB-20 — Mini Taiwan Pulse 大主題視覺化：9 phase + 微修迭代
+
+> **觸發**：要為新「能源 / hazard / 醫療」等主題接整套（後端 RPC + 前端 layer + 互動 + 鐵則對齊）
+> **實戰來源**：能源 MVP v1.0~v1.3.5（PR #23 + #10）
+
+### 大框架：9 phase（第一次接，做完就能 ship 看到畫面）
+
+| Phase | 工作 | 預估 commit |
+|---|---|---|
+| **A** | gis-platform 寫所有 RPC + apply Supabase + EXPLAIN ANALYZE 驗證 < 1s | 4-6 commit |
+| **B** | mini-taiwan-pulse types/index.ts 加 LayerVisibility key + xxxLoader.ts 寫 fetcher + 顏色/分級 const | 1 commit |
+| **C** | overlayRegistry 加 2D POI（dynamicData=true） + useXxxLayer hook + setData on style.load | 1 commit |
+| **D** | 3D Scene + CustomLayer（按需）：blending 還原 + dispose + frustumCulled=false | 1 commit |
+| **E** | HUD / KPI 卡 + App.tsx 接線（pitch 警示給用戶看 3D 要傾斜地圖） | 1 commit |
+| **F** | 第二輪 3D（例如 beam）— InstancedMesh + setColorAt 不 pre-alloc + lerp | 1 commit |
+| **G** | layerCatalog SECTIONS 新分組 + LAYER_COLORS + IconRailSidebar LAYER_ICONS + LegendPanel sub-component | 1 commit |
+| **H** | featureInfo PANEL_REGISTRY + HEADER_LABELS + useMapInteraction GIS_LAYERS | 1 commit |
+| **I** | npx tsc -b + vitest run + ratchet baseline 對齊 | 1 commit + status doc |
+
+### 微修迭代（v1.x）— 用戶 review 後幾乎一定會有
+
+| 類型 | 範例 | 教訓 |
+|---|---|---|
+| 視覺微調 | beam radius 粗 → 細 → 更細 → 回粗 | **每次改 radius 一定要在 zoom 5 + zoom 12 + zoom 19 三個視角都看一次** |
+| 標籤命名 | 「電廠 10,665」→「電廠」 | 跟其他 layer 對齊；數量寫進 popup 不寫在 sidebar |
+| Sidebar 結構 | KPI 性質 layer 從 sidebar 移除 → monitor | LayerVisibility key 留下，hooks/scene 保留供 monitor 整合複用 |
+| Bug 修 | popup 點不到（OSM 興達 vs 政府興達不同點）| RPC plant_name 前綴 LIKE，前端不卡 source 條件 |
+| 性能 | 10,665 row payload 每次 scrub 重抓 | 寫 slim RPC（14 行 ~3KB）+ 24h preload + client binary search |
+| 鐵則對齊 | 4 layer 都要 opacity slider + expandable | ratchet test 會擋，baseline 必須移除 |
+
+### 失誤點（能源 MVP 實戰）
+
+- ❌ **HANDOFF unit_name JOIN 公式錯**：寫 `SPLIT_PART(name, '#', 1) = plant_name`，真實是 `{廠名core}{機型}#{編號}`，要 prefix LIKE 才對。下次寫 RPC 前**先抽 5 筆 raw 跑 SELECT** 驗 JOIN 規則
+- ❌ **VIEW 含 polygon 沒檢查**：`all_power_plants_v` 36 個 MultiPolygon → ST_X 炸。後續所有 RPC 用 `ST_X(ST_Centroid(geom))` 兼容
+- ❌ **isStyleLoaded race 第二次踩**：2026-04-22 水庫圖層 pitfall 早就記錄，但寫 energy beam 時沒讀。卡 4 輪才回想（詳見 PB 末尾觸發詞 + INCIDENTS 2026-06-18）
+- ❌ **InstancedMesh 預先 alloc instanceColor=0 卡 shader define**：所有 instance 畫成黑色。**不要 pre-alloc，用 setColorAt 自動配置**
+- ❌ **CylinderGeometry openEnded 預設 false**：用戶 zoom 進柱位置時看到黑色圓盤蓋。**openEnded=true 是預設選項**
+- ⚠️ **每次視覺改動只看單一 zoom**：v1.3 改 BEAM_RADIUS 0.00006→0.00002（只在 zoom 12 試），zoom 5 視角下每柱 < 1px → 用戶看不到 → 卡一輪才發現
+
+### 觸發詞（下次自動跳到 PB-20）
+
+「能源 / hazard / 第二波 / monitor 整合 / 新主題視覺化 / 多 RPC + 多 layer + popup + sparkline」
+
+---
+
+## PB-21 — git rebase 自動拋棄 already-in-upstream commit（PR squash 後安全同步）
+
+> **觸發**：PR 已 squash merge 後，本地 master/main 有「PR 之前還沒 push 的舊 commit」，pull --ff-only 拒絕快轉
+
+### 為什麼會發生
+
+GitHub PR squash merge 把 feature branch 的**最終檔案狀態**整套寫進 master 一個 commit。如果 feature branch 是從「本地 master + N 個未 push commit」分出去的，那這 N 個 commit 的檔案變動都被 squash 帶進 origin/master 了。
+
+本地 master 上「N 個 commit」跟 origin/master 上「1 個 squash commit」**內容已重疊**但 hash 不同 → git 視為 diverged。
+
+### 安全同步 SOP
+
+```bash
+git fetch
+git rebase origin/master
+# 結果：
+# "拋棄 XXX -- 修補檔的內容已在上游"  ← git 自動偵測重複，乾淨拋棄
+# "自動合併 INCIDENTS.md"
+# "衝突（內容）：合併衝突於 INCIDENTS.md"  ← 兩邊都 append 到檔尾才會發生
+```
+
+對衝突的 commit 用 `git rebase --skip`（如果 conflict 內容你方那邊是空的 = upstream 已有完整版）。
+
+### 為什麼這安全
+
+- **non-destructive**：本地 commit 還在 reflog 裡 30 天
+- 拋棄是 **git 對比 patch 內容**，不是粗暴 reset
+- 若有 commit 沒被拋棄（真新內容）會 cherry-pick 上 origin
+
+### 失誤點
+
+- ❌ 直接 `git reset --hard origin/master`：本地未 push commit 永久消失（reflog 90 天但難找）。**禁用**
+- ❌ `git merge origin/master`：產生額外 merge commit，git log 多分叉
+
+### 預檢查（rebase 前）
+
+```bash
+# 看本地領先什麼
+git log --oneline origin/master..master
+# 看 origin 領先什麼
+git log --oneline master..origin/master
+# 工作區乾淨嗎？不乾淨先 git stash
+git status -s
+```
+
+### 觸發詞
+
+「PR merge 完本地拒絕 fast-forward / 本地有舊 commit / 拒絕快轉 / 安全同步」
