@@ -7,7 +7,7 @@ import { cachedOnce } from "../lib/loaderCache";
  * - 來源：gis-platform Supabase migrations 212~216
  * - RPC：
  *   - get_power_dashboard()             — layer 2 HUD + layer 3 bars
- *   - get_power_plants_with_output()    — layer 1 POI + layer 4 beam
+ *   - get_ssot_power_plants_with_output() — layer 1 POI + layer 4 beam（Phase 8 SSOT）
  *   - get_osm_substations()             — layer 5
  *   - get_ev_charging_stations()        — layer 6
  *   - get_lightning_recent() / get_nuclear_radiation_status() — 第四波保留，本檔不接
@@ -69,6 +69,8 @@ export const invalidatePowerDashboard = (): void => fetchPowerDashboardCached.in
 export interface PowerPlantRow {
   source_table: string;
   source_id: string | null;
+  /** Phase 8 SSOT：energy.power_facilities.facility_id（取代多源 source_id） */
+  facility_id?: string | null;
   name: string;
   fuel_type: string | null;
   capacity_mw: number | null;
@@ -76,7 +78,7 @@ export interface PowerPlantRow {
   output_unit_count: number | null;
   output_load_rate: number | null; // 0~1.5
   output_observed_at: string | null;
-  /** 'retired' = 已除役（核電廠 7 座），NULL = 運轉中 */
+  /** 'retired' / 'mothballed' / 'cancelled' / 'shelved'，NULL = 運轉中 */
   status: string | null;
   status_note: string | null;
   lon: number;
@@ -87,10 +89,10 @@ export interface PowerPlantRow {
 async function fetchPowerPlantsUncached(): Promise<PowerPlantRow[]> {
   const { data, error } = await withLoading(
     "energy:plants",
-    "電廠 10,665 設施",
-    supabase.rpc("get_power_plants_with_output"),
+    "電廠（SSOT facilities_overview）",
+    supabase.rpc("get_ssot_power_plants_with_output", { p_authoritative_only: true }),
   );
-  if (error) throw new Error(`get_power_plants_with_output: ${error.message}`);
+  if (error) throw new Error(`get_ssot_power_plants_with_output: ${error.message}`);
   return (data ?? []) as PowerPlantRow[];
 }
 const fetchPowerPlantsCached = cachedOnce(fetchPowerPlantsUncached, 5 * 60_000);
@@ -268,6 +270,7 @@ export const FUEL_COLORS: Record<string, string> = {
   天然氣: "#94a3b8",
   "天然氣/煤": "#64748b",
   燃氣: "#94a3b8",
+  oil_gas: "#64748b", // SSOT 油氣混合（協和 / 興達 / 大林等）
   // 水力
   hydro: "#3b82f6",
   水: "#3b82f6",
@@ -278,9 +281,14 @@ export const FUEL_COLORS: Record<string, string> = {
   offshore_wind: "#0e7490",
   // 地熱
   geothermal: "#ef4444",
-  // 生質
+  // 生質 / 焚化
   biomass: "#a3a300",
   biogas: "#a3a300",
+  bioenergy: "#a3a300", // SSOT 統一標籤
+  waste: "#84cc16",     // SSOT 焚化發電（黃綠）
+  // 儲能
+  storage: "#a855f7",   // SSOT 儲能（紫）
+  other: "#9ca3af",
 };
 export const FUEL_FALLBACK_COLOR = "#9ca3af";
 
