@@ -233,8 +233,9 @@
 
 | ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
 |---|---|---|---|---|
-| E-A | **P1** | Monitor 整合 — HUD 燈號 + 4 區 bars + 14 廠 sparkline 都搬 monitor PowerCard | open | 用戶 priority。RPC 全備（get_power_dashboard / get_power_generation_24h / get_power_plant_output_24h）。新元件 `src/components/intel/monitor/PowerCard.tsx` |
-| E-B | **P1** | HAZARD 群組：閃電 + 核安輻射 | open | 用戶要求「閃電也要接」。RPC 214（get_lightning_recent）+ 215（get_nuclear_radiation_status）已備。落雷必走 cluster + zoom-gate（雷雨季每分鐘 50-500 events）。is_stale + 高劑量 ≠ 核災 popup 必強調 |
+| E-A | **P1** | Monitor 整合 — HUD 燈號 + 4 區 bars + 14 廠 sparkline 都搬 monitor PowerCard | **done** | 2026-06-19 feat/energy-v2-A commits d6a2db3 + 24026c4。PowerCard 三層（燈號頂卡 / KPI strip + 4 區 mini-bars / 14 廠 grid）+ MonitorPanel 5min/10min dual poll + powerCardData 純函式抽離 + 13 unit test。timeline isolation contract test：buildPowerCardModel 不收 time 參數 |
+| E-B | **P1** | HAZARD 群組：閃電 + 核安輻射 | **done** | 2026-06-19 feat/energy-v2-A commits 857871b + b7d6154。lightning + nuclear 兩 loader + Legend + featureInfo Panel + useTransportParams + overlayRegistry + useHazardLayer + App.tsx + GIS_LAYERS + 17 unit test。NuclearStationPanel is_stale 警告塊（背景灰）+ alarm 警示塊（背景紅）。**cluster 暫不接**（v1 用 5~360min slider 控 payload）→ E-G |
+| E-G | P2 | 落雷 cluster + zoom-gate（雷雨季升級項） | open | E-B v1 用「時間窗 slider 預設 60min」控 payload 量；雷雨季 1h 上萬筆時走 mapbox cluster。需先擴 OverlayConfig schema 加 `cluster?: { maxZoom: number; radius: number }` 欄、然後 overlayManager 建 source 時帶過去。實測卡再升 |
 | E-C | P2 | 高壓電網 — osm_power_lines 2,305 + osm_power_towers 26,589 | open | 用戶「之前盤點漏的最重要」。voltage 345/161/69 kV 分色（含 ";" 雙迴路格式）。tower 走 minzoom 13。把電網 spine 接起來後可疊 §5.2 cascade flowline |
 | E-D | P2 | OSM 風光電 + offshore polygon + 離島海纜 + 化石/地熱 | open | 8 表：osm_wind_turbines 812 / osm_solar_farms 734 / osm_power_plants 513 / offshore_wind_zones 36 polygon / island_power_grid 14 + 海纜 / fossil_fuel 9 (3D cylinder 油槽) / geothermal_wells 36 (3D cone 倒置) / renewable_permits_taipei 438 |
 | E-E | P3 | 加油站 3 表 + power_poles 2.96M PMTiles | open | osm_gas_stations 2,212 主用、gov 對照（不可 UNION HANDOFF §⑧#3）、osm_charging 306 補社區。power_poles 1.4GB raw 走 tippecanoe |
