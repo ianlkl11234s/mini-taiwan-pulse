@@ -152,6 +152,47 @@ export function OsmSubstationPanel({ props }: { props: Record<string, unknown> }
   );
 }
 
+function fmtVoltageKv(voltage: string | null | undefined): string {
+  if (!voltage) return "—";
+  const parts = String(voltage).split(";").map((s) => Number(s.trim()))
+    .filter((n) => Number.isFinite(n) && n > 0)
+    .map((n) => Math.round(n / 1000));
+  if (parts.length === 0) return "—";
+  return parts.join(" / ") + " kV";
+}
+
+export function OsmPowerLinePanel({ props }: { props: Record<string, unknown> }) {
+  const lineType = String(props.line_type ?? "");
+  const lineTypeLabel =
+    lineType === "minor_line" ? "配電線" :
+    lineType === "cable" ? "地下電纜" :
+    lineType === "line" ? "輸電線" : (lineType || "—");
+  return (
+    <div>
+      <Row label="類型" value={lineTypeLabel} />
+      <Row label="電壓" value={fmtVoltageKv(String(props.voltage ?? ""))} />
+      <Row label="迴路數" value={String(props.circuits ?? "—")} />
+      <Row label="頻率" value={String(props.frequency ?? "—")} />
+      <Row label="位置" value={String(props.location ?? "—")} />
+      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+    </div>
+  );
+}
+
+export function OsmPowerTowerPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="編號" value={String(props.ref ?? "—")} />
+      <Row label="電壓" value={fmtVoltageKv(String(props.voltage ?? ""))} />
+      <Row label="材質" value={String(props.material ?? "—")} />
+      <Row label="型式" value={String(props.design ?? "—")} />
+      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <Row label="OSM ID" value={String(props.osm_id ?? "")} />
+    </div>
+  );
+}
+
 export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
   return (
     <div>

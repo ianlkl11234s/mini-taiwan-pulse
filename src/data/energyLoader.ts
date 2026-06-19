@@ -237,6 +237,92 @@ async function fetchOsmSubstationsUncached(): Promise<OsmSubstation[]> {
 const fetchOsmSubstationsCached = cachedOnce(fetchOsmSubstationsUncached, 60 * 60_000);
 export const fetchOsmSubstations = (): Promise<OsmSubstation[]> => fetchOsmSubstationsCached();
 
+// ── OSM 高壓電網（Energy v2 Phase C）──────────────────────────
+
+/** OSM 高壓輸電線 2,305（migration 228） */
+export interface OsmPowerLine {
+  osm_id: number;
+  line_type: string | null;  // "line" / "minor_line" / "cable"
+  voltage: string | null;    // "161000" or "161000;69000"（雙迴路分號）
+  circuits: string | null;
+  operator: string | null;
+  frequency: string | null;
+  location: string | null;
+  geom_json: GeoJSON.LineString;
+}
+
+/** OSM 高壓鐵塔 26,589（migration 228） */
+export interface OsmPowerTower {
+  osm_id: number;
+  voltage: string | null;
+  operator: string | null;
+  material: string | null;
+  design: string | null;
+  ref: string | null;
+  lon: number;
+  lat: number;
+}
+
+async function fetchOsmPowerLinesUncached(): Promise<OsmPowerLine[]> {
+  const { data, error } = await withLoading(
+    "energy:powerLines",
+    "高壓輸電線 2,305",
+    supabase.rpc("get_osm_power_lines"),
+  );
+  if (error) throw new Error(`get_osm_power_lines: ${error.message}`);
+  return (data ?? []) as OsmPowerLine[];
+}
+const fetchOsmPowerLinesCached = cachedOnce(fetchOsmPowerLinesUncached, 60 * 60_000);
+export const fetchOsmPowerLines = (): Promise<OsmPowerLine[]> => fetchOsmPowerLinesCached();
+
+async function fetchOsmPowerTowersUncached(): Promise<OsmPowerTower[]> {
+  const { data, error } = await withLoading(
+    "energy:powerTowers",
+    "高壓鐵塔 26,589",
+    supabase.rpc("get_osm_power_towers"),
+  );
+  if (error) throw new Error(`get_osm_power_towers: ${error.message}`);
+  return (data ?? []) as OsmPowerTower[];
+}
+const fetchOsmPowerTowersCached = cachedOnce(fetchOsmPowerTowersUncached, 60 * 60_000);
+export const fetchOsmPowerTowers = (): Promise<OsmPowerTower[]> => fetchOsmPowerTowersCached();
+
+/**
+ * 解析 OSM voltage 欄位 → kV 陣列（升序）。
+ * - "161000"           → [161]
+ * - "161000;69000"     → [69, 161]   雙迴路分號
+ * - "161000;161000"    → [161, 161]  雙迴路同電壓
+ * - ""/null/非數字     → []
+ */
+export function parseVoltageKv(voltage: string | null | undefined): number[] {
+  if (!voltage) return [];
+  const out: number[] = [];
+  for (const part of voltage.split(";")) {
+    const n = Number(part.trim());
+    if (Number.isFinite(n) && n > 0) out.push(Math.round(n / 1000));
+  }
+  return out.sort((a, b) => a - b);
+}
+
+/** 取 voltage 主色用的 tier：345 / 161 / 69 / 0(mixed) */
+export function powerLineTierKv(voltage: string | null | undefined): 345 | 161 | 69 | 0 {
+  const kvs = parseVoltageKv(voltage);
+  if (kvs.length === 0) return 0;
+  const max = kvs[kvs.length - 1]!;
+  if (max >= 300) return 345;
+  if (max >= 150) return 161;
+  if (max >= 60) return 69;
+  return 0;
+}
+
+/** 高壓電網色階（cyan 系，align openinframap 夜間配色） */
+export const POWER_LINE_VOLTAGE_COLORS = {
+  345: "#67e8f9",   // cyan-300 最亮主幹
+  161: "#22d3ee",   // cyan-400 次幹
+  69:  "#0ea5e9",   // sky-500 配電骨幹
+  mixed: "#475569", // slate-600 unknown/mixed 低調
+} as const;
+
 async function fetchEvChargingUncached(): Promise<EvChargingStation[]> {
   const { data, error } = await withLoading(
     "energy:ev",

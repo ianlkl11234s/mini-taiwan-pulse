@@ -1,7 +1,7 @@
 # Energy v2 — 進度追蹤
 
 > 接續 `energy-v2-plan.md`。每 phase commit 一次、不 push、不 merge（等用戶 review）。
-> 分支：`feat/energy-v2-A`。
+> Phase A+B 已 merge 進 master（PR #25）；Phase C 開 `feat/energy-v2-C` 從 master 切。
 
 ## Phase A — Monitor 整合（in progress）
 
@@ -83,6 +83,52 @@ B.1 資料層必須與 B.2 UI 接線同時送進來才不會 ratchet fail。
 - **Cluster + zoom-gate**：plan 預期雷雨季升級項；OverlayConfig 沒 cluster 欄要先擴 schema。
   v1 用時間窗 5~360 min slider 控制 payload，預設 60min 通常 ≤ 數百筆。
 - Monitor HazardCard（過去 1h 閃電數 / 核安異常站數 KPI）— 等 B 視覺驗收後再做
+
+## Phase C — 高壓電網兩件套（done，待視覺驗收）
+
+> 範圍校正：substations 已在 Energy MVP 上線（migration 216 + useEnergyPoiLayer），
+> Phase C 實際只新增 **lines + towers** 兩件套。substations 留既有色不動。
+
+### C.1 — migration 228 + RPC 驗證
+
+- [x] `../gis-platform/migrations/228_osm_power_grid_rpc.sql`：
+      - `get_osm_power_lines()` RETURNS TABLE（osm_id/line_type/voltage/circuits/operator/frequency/location + geom_json）
+      - `get_osm_power_towers()` RETURNS TABLE（osm_id/voltage/operator/material/design/ref + lon/lat）
+      - 兩 RPC `GRANT EXECUTE TO anon, authenticated`
+- [x] psql apply 0 error
+- [x] 驗：lines 2,305 rows / 1.69 MB payload；towers 26,589 rows（PostgREST 走 TABLE 不撞 20k JSONB cap）
+
+### C.2 — types + loader + paint + UI 接線（合併 commit）
+
+合併原因：3 個 ratchet（LAYER_COLORS / LEGEND_REGISTRY / useTransportParams cases）會擋拆 commit。
+
+- [x] `types/index.ts`：LayerVisibility 加 `osmPowerLines` / `osmPowerTowers`，FeatureInfo.layerType 加 `osmPowerLine` / `osmPowerTower`
+- [x] `OverlayLayerSpec` 擴 `filter?: unknown[]`（同 source 多 layer 各自 sub-filter）+ `overlayManager` spec.filter 優先於 config.filter
+- [x] `energyLoader.ts`：
+      - `OsmPowerLine` / `OsmPowerTower` interface + `fetchOsmPowerLines` / `fetchOsmPowerTowers`（cachedOnce 60min）
+      - 純函式 `parseVoltageKv("161000;69000") → [69, 161]`
+      - 純函式 `powerLineTierKv(voltage) → 345 | 161 | 69 | 0`
+      - `POWER_LINE_VOLTAGE_COLORS` cyan 系（345=#67e8f9 / 161=#22d3ee / 69=#0ea5e9 / mixed=#475569）
+- [x] `useEnergyPoiLayer.ts` 加 showPowerLines / showPowerTowers + powerLinesToGeoJSON / powerTowersToGeoJSON（在 properties 寫 tier）
+- [x] `overlayRegistry.ts`：
+      - osmPowerLines 3 layer：glow（全吃 line blur）+ core（filter `!= cable`，line/minor_line 走 match width/opacity）+ cable（filter `== cable`，dasharray [2,2]）
+      - osmPowerTowers 1 layer：circle minzoom 13，color by tier match
+- [x] `layerCatalog.ts`：ENERGY section 加兩條 + LAYER_COLORS 兩色（cyan/sky）
+- [x] `IconRailSidebar.tsx`：lucide `Spline`（lines）+ `TowerControl`（towers）
+- [x] `useTransportParams.ts`：4 slider（lines opacity/width + towers opacity/size）+ return + deps
+- [x] `useMapInteraction.ts` GIS_LAYERS 兩條（lines→osmPowerLine / towers→osmPowerTower）
+- [x] `energyPanels.tsx`：`OsmPowerLinePanel` + `OsmPowerTowerPanel`（fmtVoltageKv "161000;69000" → "69 / 161 kV"）
+- [x] `registry.tsx` panel + label
+- [x] `LegendPanel.tsx`：`PowerGridLegend`（4 tier 色 + 3 線型 + "鐵塔需 zoom ≥ 13" + "約 60% 線未標電壓" 警語）
+- [x] `App.tsx` 接 hook
+- [x] 新測 `energyLoader.test.ts` 9 cases（parseVoltageKv 6 + powerLineTierKv 3 含邊界 60/150/300 kV）
+- [x] `npx tsc -b` 0 error
+- [x] `npx vitest run` 全 14 檔 / 155 cases pass（含 layerConsistency）
+
+### C 暫不做（plan 也未列）
+
+- substations operator filter toggle（plan 提的 showNonTaipower）— Energy MVP 既有 layer 未拆，要動會牽連 v1 PR #23，留 v3 評估
+- towers 預期 ~26k 點全量載入 5MB+ JSON，前端 setData 一次性 OK；若實測卡頓再考慮 PMTiles（屬 E-E 範疇）
 
 ## 已知不對齊（追加 plan 對比）
 

@@ -2962,6 +2962,136 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Layer 5b：OSM 高壓輸電線 2,305（Energy v2 Phase C）──
+  // hook 端把 voltage 算 tier(345/161/69/0) + 寫進 properties.tier
+  {
+    id: "osmPowerLines",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-lines",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmPowerLinesOpacity", "osmPowerLinesWidth"],
+    layers: [
+      // 外發光（aerial line + minor_line + cable 通吃）
+      {
+        suffix: "glow",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.85;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#67e8f9",
+              161, "#22d3ee",
+              69,  "#0ea5e9",
+              "#475569",
+            ],
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", w, 2.5],
+              10, ["*", w, 5],
+              14, ["*", w, 9],
+            ],
+            "line-opacity": o * 0.25,
+            "line-blur": 4,
+          };
+        },
+      },
+      // 實線骨幹（line + minor_line）
+      {
+        suffix: "core",
+        type: "line",
+        filter: ["!=", ["get", "line_type"], "cable"],
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.85;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#67e8f9",
+              161, "#22d3ee",
+              69,  "#0ea5e9",
+              "#475569",
+            ],
+            "line-width": [
+              "*", w,
+              ["match", ["get", "line_type"],
+                "line", 2.4,
+                "minor_line", 1,
+                1.5],
+            ],
+            "line-opacity": [
+              "*", o,
+              ["match", ["get", "line_type"],
+                "minor_line", 0.55,
+                1],
+            ],
+          };
+        },
+      },
+      // 地下電纜（dashed）
+      {
+        suffix: "cable",
+        type: "line",
+        filter: ["==", ["get", "line_type"], "cable"],
+        paint: (_isDark, params) => {
+          const o = params?.osmPowerLinesOpacity ?? 0.85;
+          const w = params?.osmPowerLinesWidth ?? 1;
+          return {
+            "line-color": [
+              "match", ["get", "tier"],
+              345, "#67e8f9",
+              161, "#22d3ee",
+              69,  "#0ea5e9",
+              "#475569",
+            ],
+            "line-width": ["*", w, 1.6],
+            "line-opacity": o * 0.7,
+            "line-dasharray": [2, 2],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 5c：OSM 高壓鐵塔 26,589（minzoom 13） ──
+  {
+    id: "osmPowerTowers",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-power-towers",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmPowerTowersOpacity", "osmPowerTowersSize"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 13,
+        paint: (isDark, params) => {
+          const o = params?.osmPowerTowersOpacity ?? 0.8;
+          const s = params?.osmPowerTowersSize ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              13, ["*", s, 1.6],
+              15, ["*", s, 2.5],
+              17, ["*", s, 4],
+            ],
+            "circle-color": [
+              "match", ["get", "tier"],
+              345, "#67e8f9",
+              161, "#22d3ee",
+              69,  "#0ea5e9",
+              "#475569",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 0.6,
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
   // ── Layer 6：EV 充電站 3,060 ──
   {
     id: "evChargingStations",

@@ -86,7 +86,7 @@ export function addOverlay(
       ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
       ...(spec.layout ? { layout: spec.layout } : {}),
       ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
-      ...(config.filter ? { filter: config.filter } : {}),
+      ...(spec.filter ? { filter: spec.filter } : config.filter ? { filter: config.filter } : {}),
       paint: paint as Record<string, unknown>,
     } as mapboxgl.AnyLayer);
     cache.set(id, snapshotPaint(paint));

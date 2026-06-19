@@ -182,6 +182,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   powerRegionDemand: "#3b82f6",    // 區域藍
   powerGenerationUnit: "#f97316",  // 機組橙（光柱主色）
   osmSubstations: "#a78bfa",       // 變電所紫
+  osmPowerLines: "#22d3ee",        // 高壓輸電線 cyan-400（161kV 主色）
+  osmPowerTowers: "#0ea5e9",       // 高壓鐵塔 sky-500（69kV 配電色）
   evChargingStations: "#10b981",   // 充電綠
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
@@ -467,6 +469,8 @@ export const SECTIONS: SectionDef[] = [
       { key: "powerPlants", label: "電廠", expandable: true },
       { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
       { key: "osmSubstations", label: "變電所", expandable: true },
+      { key: "osmPowerLines", label: "高壓輸電線", expandable: true },
+      { key: "osmPowerTowers", label: "高壓鐵塔", expandable: true },
       { key: "evChargingStations", label: "充電站", expandable: true },
     ],
   },

@@ -4,11 +4,16 @@ import {
   fetchPowerPlants,
   invalidatePowerPlants,
   fetchOsmSubstations,
+  fetchOsmPowerLines,
+  fetchOsmPowerTowers,
   fetchEvCharging,
   fuelColorOf,
   radiusForCapacity,
+  powerLineTierKv,
   type PowerPlantRow,
   type OsmSubstation,
+  type OsmPowerLine,
+  type OsmPowerTower,
   type EvChargingStation,
 } from "../data/energyLoader";
 
@@ -25,6 +30,8 @@ import {
 
 const SRC_PLANTS = "energy-power-plants";
 const SRC_SUBSTATIONS = "energy-substations";
+const SRC_POWER_LINES = "energy-power-lines";
+const SRC_POWER_TOWERS = "energy-power-towers";
 const SRC_EV = "energy-ev-charging";
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -80,6 +87,49 @@ function substationsToGeoJSON(rows: OsmSubstation[]): GeoJSON.FeatureCollection 
   };
 }
 
+function powerLinesToGeoJSON(rows: OsmPowerLine[]): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const r of rows) {
+    if (!r.geom_json) continue;
+    features.push({
+      type: "Feature",
+      geometry: r.geom_json,
+      properties: {
+        osm_id: r.osm_id,
+        line_type: r.line_type ?? "line",
+        voltage: r.voltage ?? "",
+        circuits: r.circuits ?? "",
+        operator: r.operator ?? "",
+        frequency: r.frequency ?? "",
+        location: r.location ?? "",
+        tier: powerLineTierKv(r.voltage), // 345/161/69/0
+      },
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
+function powerTowersToGeoJSON(rows: OsmPowerTower[]): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const r of rows) {
+    if (!Number.isFinite(r.lon) || !Number.isFinite(r.lat)) continue;
+    features.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [r.lon, r.lat] },
+      properties: {
+        osm_id: r.osm_id,
+        voltage: r.voltage ?? "",
+        operator: r.operator ?? "",
+        material: r.material ?? "",
+        design: r.design ?? "",
+        ref: r.ref ?? "",
+        tier: powerLineTierKv(r.voltage),
+      },
+    });
+  }
+  return { type: "FeatureCollection", features };
+}
+
 function evToGeoJSON(rows: EvChargingStation[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
@@ -132,19 +182,25 @@ function useSourceFeed(
 export interface UseEnergyPoiLayerOpts {
   showPlants: boolean;
   showSubstations: boolean;
+  showPowerLines: boolean;
+  showPowerTowers: boolean;
   showEvCharging: boolean;
 }
 
 export function useEnergyPoiLayer(
   mapRef: React.RefObject<MapboxMap | null>,
-  { showPlants, showSubstations, showEvCharging }: UseEnergyPoiLayerOpts,
+  { showPlants, showSubstations, showPowerLines, showPowerTowers, showEvCharging }: UseEnergyPoiLayerOpts,
 ) {
   const plantsFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const subsFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const linesFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const towersFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const evFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
   const feedPlants = useSourceFeed(mapRef, showPlants, SRC_PLANTS, plantsFcRef);
   const feedSubs = useSourceFeed(mapRef, showSubstations, SRC_SUBSTATIONS, subsFcRef);
+  const feedLines = useSourceFeed(mapRef, showPowerLines, SRC_POWER_LINES, linesFcRef);
+  const feedTowers = useSourceFeed(mapRef, showPowerTowers, SRC_POWER_TOWERS, towersFcRef);
   const feedEv = useSourceFeed(mapRef, showEvCharging, SRC_EV, evFcRef);
 
   // power_plants：visible 時拉 + 每 5 min poll
@@ -188,6 +244,38 @@ export function useEnergyPoiLayer(
       cancelled = true;
     };
   }, [showSubstations, feedSubs]);
+
+  // power lines：visible 時拉一次（60min cache）
+  useEffect(() => {
+    if (!showPowerLines) return;
+    let cancelled = false;
+    fetchOsmPowerLines()
+      .then((rows) => {
+        if (cancelled) return;
+        linesFcRef.current = powerLinesToGeoJSON(rows);
+        feedLines();
+      })
+      .catch((err) => console.warn("[Energy/powerLines] load failed:", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [showPowerLines, feedLines]);
+
+  // power towers：visible 時拉一次（60min cache，26.6k 點）
+  useEffect(() => {
+    if (!showPowerTowers) return;
+    let cancelled = false;
+    fetchOsmPowerTowers()
+      .then((rows) => {
+        if (cancelled) return;
+        towersFcRef.current = powerTowersToGeoJSON(rows);
+        feedTowers();
+      })
+      .catch((err) => console.warn("[Energy/powerTowers] load failed:", err));
+    return () => {
+      cancelled = true;
+    };
+  }, [showPowerTowers, feedTowers]);
 
   // EV：visible 時拉一次
   useEffect(() => {

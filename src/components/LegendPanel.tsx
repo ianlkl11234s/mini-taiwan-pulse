@@ -140,6 +140,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
+  { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
   { keys: ["lightning"], render: () => <LightningLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
 ];
@@ -956,6 +957,60 @@ function EnergyFuelLegend() {
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
         ● 光柱（Layer 4）= 機組即時出力 / 裝置容量<br />
         ● 14 台電廠有 output；OSM/IPP 等暫無
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: 高壓電網 voltage tier + line_type ──
+
+function PowerGridLegend() {
+  const voltageRows = [
+    { kv: "345 kV", color: "#67e8f9" },
+    { kv: "161 kV", color: "#22d3ee" },
+    { kv: "69 kV",  color: "#0ea5e9" },
+    { kv: "未標／混合", color: "#475569" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 高壓電網
+      </div>
+      {voltageRows.map((r) => (
+        <div key={r.kv} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 16, height: 3, background: r.color, display: "inline-block", borderRadius: 1 }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.kv}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 3 }}>
+        線型
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 20, height: 3, background: "#22d3ee", display: "inline-block" }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>輸電（粗）</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{ width: 20, height: 1.5, background: "#22d3ee", display: "inline-block", opacity: 0.55 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>配電（細）</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span
+            style={{
+              width: 20,
+              height: 2,
+              backgroundImage: "linear-gradient(to right, #22d3ee 50%, transparent 0%)",
+              backgroundSize: "6px 2px",
+              backgroundRepeat: "repeat-x",
+              display: "inline-block",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>地下電纜（虛線）</span>
+        </div>
+      </div>
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 鐵塔需 zoom ≥ 13<br />
+        ● 來源：OSM（同 openinframap），約 60% 線未標電壓
       </div>
     </div>
   );

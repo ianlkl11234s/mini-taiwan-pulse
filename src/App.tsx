@@ -726,6 +726,8 @@ export default function App() {
   useEnergyPoiLayer(mapRef, {
     showPlants: layerVisibility.powerPlants,
     showSubstations: layerVisibility.osmSubstations,
+    showPowerLines: layerVisibility.osmPowerLines,
+    showPowerTowers: layerVisibility.osmPowerTowers,
     showEvCharging: layerVisibility.evChargingStations,
   });
   usePowerRegionBarsLayer(

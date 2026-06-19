@@ -182,6 +182,8 @@ export type ExpandableLayerKey =
   | "powerPlants"
   | "powerGenerationUnit"
   | "osmSubstations"
+  | "osmPowerLines"
+  | "osmPowerTowers"
   | "evChargingStations"
   // HAZARD（v2 Phase B）
   | "lightning"
@@ -491,6 +493,8 @@ export interface OverlayLayerSpec {
   layout?: Record<string, unknown>;
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
+  /** 同 sourceId 多 layer 各自 sub-filter（疊在 OverlayConfig.filter 之上 → all 串接） */
+  filter?: unknown[];
 }
 
 export interface OverlayConfig {
@@ -539,6 +543,7 @@ export interface FeatureInfo {
     | "hikingTrails"
     | "satellite"
     | "powerPlant" | "osmSubstation" | "evCharging"
+    | "osmPowerLine" | "osmPowerTower"
     | "lightningStrike" | "nuclearStation";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
@@ -707,6 +712,8 @@ export interface LayerVisibility {
   powerRegionDemand: boolean;    // 北中南東 4 區 3D bars（質心柱，高 ∝ consumption_mw，色 = reserve_indicator）
   powerGenerationUnit: boolean;  // 機組即時出力 3D beam（InstancedMesh，高 ∝ output_load_rate）
   osmSubstations: boolean;       // 變電所 785（2D circle）
+  osmPowerLines: boolean;        // OSM 高壓輸電線 2,305（voltage 分色 + line_type 分粗細）
+  osmPowerTowers: boolean;       // OSM 高壓鐵塔 26,589（minzoom 13）
   evChargingStations: boolean;   // 充電站 3,060（2D circle）
   // 災害 HAZARD（v2 Phase B）
   lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
