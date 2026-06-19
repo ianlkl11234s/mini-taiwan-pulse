@@ -3051,10 +3051,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#67e8f9",
-              161, "#22d3ee",
-              69,  "#0ea5e9",
-              "#475569",
+              345, "#62D9AD",
+              161, "#468BA6",
+              69,  "#5B458C",
+              "#DFE0DC",
             ],
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
@@ -3078,10 +3078,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#67e8f9",
-              161, "#22d3ee",
-              69,  "#0ea5e9",
-              "#475569",
+              345, "#62D9AD",
+              161, "#468BA6",
+              69,  "#5B458C",
+              "#DFE0DC",
             ],
             "line-width": [
               "*", w,
@@ -3110,10 +3110,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#67e8f9",
-              161, "#22d3ee",
-              69,  "#0ea5e9",
-              "#475569",
+              345, "#62D9AD",
+              161, "#468BA6",
+              69,  "#5B458C",
+              "#DFE0DC",
             ],
             "line-width": ["*", w, 1.6],
             "line-opacity": o * 0.7,
@@ -3149,7 +3149,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               14, ["*", s, 2.8],
               17, ["*", s, 4.5],
             ],
-            "circle-color": "#7dd3fc",  // sky-300 統一亮色（voltage 幾乎全空，不分色）
+            "circle-color": "#5B458C",  // 深紫，對齊 69 kV 主色（voltage 幾乎全空，不分色）
             "circle-opacity": [
               "interpolate", ["linear"], ["zoom"],
               8,  o * 0.45,

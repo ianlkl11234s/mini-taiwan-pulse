@@ -182,8 +182,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   powerRegionDemand: "#3b82f6",    // 區域藍
   powerGenerationUnit: "#f97316",  // 機組橙（光柱主色）
   osmSubstations: "#a78bfa",       // 變電所紫
-  osmPowerLines: "#22d3ee",        // 高壓輸電線 cyan-400（161kV 主色）
-  osmPowerTowers: "#0ea5e9",       // 高壓鐵塔 sky-500（69kV 配電色）
+  osmPowerLines: "#468BA6",        // 高壓輸電線 — 161 kV 藍綠主色
+  osmPowerTowers: "#5B458C",       // 高壓鐵塔 — 對齊 69 kV 深紫
   osmWindTurbines: "#67e8f9",      // 風機 cyan-300（offshore 主色）
   osmSolarFarms: "#fbbf24",        // 光電 amber-400
   osmPowerPlantsStatic: "#9ca3af", // OSM 電廠 灰（plant_source 在 paint 內分色）

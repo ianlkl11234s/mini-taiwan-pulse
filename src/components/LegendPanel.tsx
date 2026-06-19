@@ -972,10 +972,10 @@ function EnergyFuelLegend() {
 
 function PowerGridLegend() {
   const voltageRows = [
-    { kv: "345 kV", color: "#67e8f9" },
-    { kv: "161 kV", color: "#22d3ee" },
-    { kv: "69 kV",  color: "#0ea5e9" },
-    { kv: "未標／混合", color: "#475569" },
+    { kv: "345 kV", color: "#62D9AD" },
+    { kv: "161 kV", color: "#468BA6" },
+    { kv: "69 kV",  color: "#5B458C" },
+    { kv: "未標／混合", color: "#DFE0DC" },
   ];
   return (
     <div>
@@ -993,11 +993,11 @@ function PowerGridLegend() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 20, height: 3, background: "#22d3ee", display: "inline-block" }} />
+          <span style={{ width: 20, height: 3, background: "#468BA6", display: "inline-block" }} />
           <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>輸電（粗）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 20, height: 1.5, background: "#22d3ee", display: "inline-block", opacity: 0.55 }} />
+          <span style={{ width: 20, height: 1.5, background: "#468BA6", display: "inline-block", opacity: 0.55 }} />
           <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>配電（細）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1005,7 +1005,7 @@ function PowerGridLegend() {
             style={{
               width: 20,
               height: 2,
-              backgroundImage: "linear-gradient(to right, #22d3ee 50%, transparent 0%)",
+              backgroundImage: "linear-gradient(to right, #468BA6 50%, transparent 0%)",
               backgroundSize: "6px 2px",
               backgroundRepeat: "repeat-x",
               display: "inline-block",

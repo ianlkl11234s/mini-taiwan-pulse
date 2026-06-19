@@ -511,12 +511,12 @@ export function powerLineTierKv(voltage: string | null | undefined): 345 | 161 |
   return 0;
 }
 
-/** 高壓電網色階（cyan 系，align openinframap 夜間配色） */
+/** 高壓電網色階（用戶指定色票） */
 export const POWER_LINE_VOLTAGE_COLORS = {
-  345: "#67e8f9",   // cyan-300 最亮主幹
-  161: "#22d3ee",   // cyan-400 次幹
-  69:  "#0ea5e9",   // sky-500 配電骨幹
-  mixed: "#475569", // slate-600 unknown/mixed 低調
+  345: "#62D9AD",   // 薄荷綠 — 345 kV 最高壓主幹
+  161: "#468BA6",   // 藍綠 — 161 kV 次幹
+  69:  "#5B458C",   // 深紫 — 69 kV 配電骨幹
+  mixed: "#DFE0DC", // 淡灰白 — 未標 / 混合
 } as const;
 
 // ── OSM 風光電 3 件套（Energy v2 Phase D.1） ─────────────────
