@@ -2934,7 +2934,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Layer 5：OSM 變電所 785 ──
+  // ── Layer 5：OSM 變電所 785（migration 235 電網層級分類）──
+  // class: EHV_SWITCH 5 / EHV 33 / PS 129 / DPS 90 / SS 199 / TRACTION 11 / OTHER 318
+  // 顏色與大小按 class_rank 階梯（rank 1=最高壓/最重要）
   {
     id: "osmSubstations",
     sourceUrl: "./geo/_empty.geojson",
@@ -2942,6 +2944,31 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     dynamicData: true,
     rebuildOnParamChange: ["osmSubstationsOpacity"],
     layers: [
+      // halo：EHV_SWITCH + EHV 才有，標出超高壓節點
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.osmSubstationsOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", ["interpolate", ["linear"], ["zoom"], 6, 8, 11, 14, 14, 20],
+              "EHV",        ["interpolate", ["linear"], ["zoom"], 6, 6, 11, 11, 14, 16],
+              0,
+            ],
+            "circle-blur": 0.9,
+            "circle-color": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", "#ef4444",
+              "EHV",        "#f97316",
+              "transparent",
+            ],
+            "circle-opacity": o * 0.45,
+          };
+        },
+      },
+      // core circle：依 class 分色 + 分大小
       {
         suffix: "circle",
         type: "circle",
@@ -2950,12 +2977,55 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6, 2.5, 11, 4.5, 14, 6,
+              6, ["match", ["get", "class"],
+                  "EHV_SWITCH", 5,
+                  "EHV",        4,
+                  "PS",         3,
+                  "DPS",        2.5,
+                  "SS",         2,
+                  "TRACTION",   2,
+                  1.5],
+              11, ["match", ["get", "class"],
+                   "EHV_SWITCH", 8,
+                   "EHV",        6.5,
+                   "PS",         5,
+                   "DPS",        4,
+                   "SS",         3.5,
+                   "TRACTION",   3,
+                   2.5],
+              14, ["match", ["get", "class"],
+                   "EHV_SWITCH", 11,
+                   "EHV",        9,
+                   "PS",         7,
+                   "DPS",        5.5,
+                   "SS",         4.5,
+                   "TRACTION",   4,
+                   3.5],
             ],
-            "circle-color": "#a78bfa",
-            "circle-opacity": o,
-            "circle-stroke-width": 0.8,
-            "circle-stroke-color": isDark ? "#312e81" : "#ffffff",
+            "circle-color": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", "#ef4444",
+              "EHV",        "#f97316",
+              "PS",         "#facc15",
+              "DPS",        "#14b8a6",
+              "SS",         "#a78bfa",
+              "TRACTION",   "#3b82f6",
+              "#6b7280",
+            ],
+            "circle-opacity": [
+              "*", o,
+              ["match", ["get", "class"],
+                "OTHER", 0.55,  // 淡化未分類
+                1.0],
+            ],
+            "circle-stroke-width": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", 1.4,
+              "EHV",        1.2,
+              "PS",         1.0,
+              0.6,
+            ],
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
           };
         },
       },

@@ -203,12 +203,45 @@ export async function fetchPlantOutput24h(plantName: string): Promise<PlantOutpu
 
 // ── Substations / EV ───────────────────────────────────────────
 
+/** 變電所電網層級分類（migration 235） */
+export type SubstationClass =
+  | "EHV_SWITCH"  // 超高壓開閉所（345 kV 切換）
+  | "EHV"         // 超高壓變電所 E/S（345→161 kV）
+  | "PS"          // 一次變電所 P/S（161→69 kV）
+  | "DPS"         // 一次配電變電所 D/S（161→22.8 kV）
+  | "SS"          // 二次變電所 S/S（69→22.8 kV）
+  | "TRACTION"    // 鐵路牽引變電所
+  | "OTHER";      // 未分類
+
+/** class → 顏色 + 預設半徑（zoom 11 基準） */
+export const SUBSTATION_CLASS_COLORS: Record<SubstationClass, string> = {
+  EHV_SWITCH: "#ef4444", // 紅 — 超高壓開閉節點（最頂層 5 個）
+  EHV:        "#f97316", // 橙 — 345 kV 變電所
+  PS:         "#facc15", // 黃 — 161 kV 一次變電所
+  DPS:        "#14b8a6", // 青綠 — 一次配電
+  SS:         "#a78bfa", // 紫 — 69 kV 二次變電所
+  TRACTION:   "#3b82f6", // 藍 — 鐵路牽引
+  OTHER:      "#6b7280", // 淡灰 — 未分類
+};
+export const SUBSTATION_CLASS_LABELS: Record<SubstationClass, string> = {
+  EHV_SWITCH: "超高壓開閉所",
+  EHV:        "超高壓變電所 E/S",
+  PS:         "一次變電所 P/S",
+  DPS:        "一次配電變電所 D/S",
+  SS:         "二次變電所 S/S",
+  TRACTION:   "鐵路牽引變電所",
+  OTHER:      "未分類",
+};
+
 export interface OsmSubstation {
   osm_id: number;
   name: string | null;
   operator: string | null;
   voltage: string | null;
   substation_type: string | null;
+  class: SubstationClass | null;
+  class_label: string | null;
+  class_rank: number | null;
   lon: number;
   lat: number;
 }

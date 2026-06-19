@@ -79,8 +79,9 @@ const BASELINE_NO_LEGEND = new Set([
   "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
-  // Energy MVP：單色 POI（紫變電所 / 綠充電站）— 鐵則 2 只要求分類 ≥ 2 才需圖例
-  "osmSubstations", "evChargingStations",
+  // Energy MVP：充電站單色 POI — 鐵則 2 只要求分類 ≥ 2 才需圖例
+  // osmSubstations 已升級 migration 235 電網層級分色 → 已從 baseline 移除（接 SubstationLegend）
+  "evChargingStations",
 ]);
 
 function hasParamsCase(key: string): boolean {

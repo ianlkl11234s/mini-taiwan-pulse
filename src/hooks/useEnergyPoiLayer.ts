@@ -102,6 +102,10 @@ function substationsToGeoJSON(rows: OsmSubstation[]): GeoJSON.FeatureCollection 
           operator: r.operator ?? "",
           voltage: r.voltage ?? "",
           substation_type: r.substation_type ?? "",
+          // migration 235：電網層級分類
+          class: r.class ?? "OTHER",
+          class_label: r.class_label ?? "未分類",
+          class_rank: r.class_rank ?? 9,
         },
       })),
   };

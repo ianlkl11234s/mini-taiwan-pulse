@@ -4,6 +4,7 @@ import {
   fuelColorOf,
   FUEL_FALLBACK_COLOR,
   fetchPlantOutput24h,
+  SUBSTATION_CLASS_COLORS,
   type PlantOutputPoint,
 } from "../../data/energyLoader";
 import { Sparkline } from "../intel/monitor/PressureRing";
@@ -141,11 +142,16 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function OsmSubstationPanel({ props }: { props: Record<string, unknown> }) {
+  const cls = String(props.class ?? "OTHER");
+  const classLabel = String(props.class_label ?? "未分類");
+  const classColor = SUBSTATION_CLASS_COLORS[cls as keyof typeof SUBSTATION_CLASS_COLORS]
+                  ?? SUBSTATION_CLASS_COLORS.OTHER;
   return (
     <div>
       <Row label="名稱" value={String(props.name ?? "(無名)")} />
-      <Row label="類型" value={String(props.substation_type ?? "—")} />
-      <Row label="電壓" value={String(props.voltage ?? "—")} />
+      <Row label="電網層級" value={classLabel} color={classColor} />
+      <Row label="OSM type" value={String(props.substation_type ?? "—")} />
+      <Row label="電壓" value={fmtVoltageKv(String(props.voltage ?? ""))} />
       <Row label="營運單位" value={String(props.operator ?? "—")} />
       <Row label="OSM ID" value={String(props.osm_id ?? "")} />
     </div>

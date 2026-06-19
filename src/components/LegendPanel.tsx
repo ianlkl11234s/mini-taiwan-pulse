@@ -141,6 +141,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
   { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
+  { keys: ["osmSubstations"], render: () => <SubstationLegend /> },
   { keys: ["osmWindTurbines", "osmSolarFarms", "osmPowerPlantsStatic"], render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
   { keys: ["offshoreWindZones", "islandPowerGrid", "fossilFuelInfra", "geothermalWells", "renewablePermitsTaipei"], render: ({ visibility }) => <EnergySpecialtyLegend visibility={visibility} /> },
   { keys: ["lightning"], render: () => <LightningLegend /> },
@@ -1013,6 +1014,46 @@ function PowerGridLegend() {
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
         ● 鐵塔需 zoom ≥ 13<br />
         ● 來源：OSM（同 openinframap），約 60% 線未標電壓
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: OSM 變電所電網層級（migration 235）──
+function SubstationLegend() {
+  const rows: { color: string; label: string; sz: number; n: number }[] = [
+    { color: "#ef4444", label: "超高壓開閉所 (345 kV 切換)",       sz: 9,   n: 5 },
+    { color: "#f97316", label: "超高壓變電所 E/S (345→161 kV)",    sz: 8,   n: 33 },
+    { color: "#facc15", label: "一次變電所 P/S (161→69 kV)",       sz: 6.5, n: 129 },
+    { color: "#14b8a6", label: "一次配電變電所 D/S (161→22.8 kV)", sz: 5.5, n: 90 },
+    { color: "#a78bfa", label: "二次變電所 S/S (69→22.8 kV)",      sz: 5,   n: 199 },
+    { color: "#3b82f6", label: "鐵路牽引變電所",                    sz: 4.5, n: 11 },
+    { color: "#6b7280", label: "未分類",                            sz: 4,   n: 318 },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 變電所層級
+      </div>
+      {rows.map((r) => (
+        <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: r.sz * 2,
+              height: r.sz * 2,
+              borderRadius: "50%",
+              background: r.color,
+              display: "inline-block",
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, flex: 1 }}>{r.label}</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.n}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● EHV 兩階含 halo 光暈<br />
+        ● 規則：name regex + voltage，台電命名 E/S / P/S / S/S 標示為準
       </div>
     </div>
   );
