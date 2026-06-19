@@ -34,13 +34,48 @@ async function fetchLightningRecentUncached(minutes: number): Promise<LightningS
 const fetchLightningCached = cachedByKey<LightningStrike[]>(
   (key) => fetchLightningRecentUncached(Number(key)),
   60_000,
-  8, // LRU 8 個不同 minutes 值（60 / 30 / 180 / ...）
+  8,
 );
 
 export const fetchLightningRecent = (minutes: number): Promise<LightningStrike[]> =>
   fetchLightningCached(String(clampMinutes(minutes)));
 
 export const invalidateLightning = (): void => fetchLightningCached.invalidate();
+
+// ── timeline 窗（v2 Phase B+，RPC 224）─────────────────────────
+// key 用「ts 量化到最近 60s + halfMin」避免每次 throttle tick 都打 RPC
+async function fetchLightningWindowUncached(
+  centerTs: number,
+  halfMin: number,
+): Promise<LightningStrike[]> {
+  const half = clampMinutes(halfMin);
+  const { data, error } = await withLoading(
+    `lightning:window:${centerTs}|${half}m`,
+    `落雷 ±${half} 分鐘`,
+    supabase.rpc("get_lightning_window", { center_ts: centerTs, half_min: half }),
+  );
+  if (error) throw new Error(`get_lightning_window: ${error.message}`);
+  return (data ?? []) as LightningStrike[];
+}
+
+const fetchLightningWindowCached = cachedByKey<LightningStrike[]>(
+  (key) => {
+    const [ts, half] = key.split("|").map(Number);
+    return fetchLightningWindowUncached(ts!, half!);
+  },
+  60_000,
+  32, // 32 個量化 ts × halfMin 組合
+);
+
+/** 量化 ts 到最近 60s（scrub 時 60s 內視為同一查詢，cache hit）*/
+export function quantiseLightningTs(ts: number): number {
+  return Math.round(ts / 60) * 60;
+}
+
+export const fetchLightningWindow = (centerTs: number, halfMin: number): Promise<LightningStrike[]> =>
+  fetchLightningWindowCached(`${quantiseLightningTs(centerTs)}|${clampMinutes(halfMin)}`);
+
+export const invalidateLightningWindow = (): void => fetchLightningWindowCached.invalidate();
 
 export function clampMinutes(m: number): number {
   if (!Number.isFinite(m)) return 60;

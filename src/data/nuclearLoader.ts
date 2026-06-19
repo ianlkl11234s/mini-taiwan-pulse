@@ -35,6 +35,35 @@ const fetchNuclearCached = cachedOnce(fetchNuclearStatusUncached, 5 * 60_000);
 export const fetchNuclearStatus = (): Promise<NuclearStation[]> => fetchNuclearCached();
 export const invalidateNuclear = (): void => fetchNuclearCached.invalidate();
 
+// ── timeline scrub（v2 Phase B+，RPC 225）─────────────────────
+// 51 站每站約 5 min 一筆 measurement → 量化 ts 到最近 300s 就夠
+async function fetchNuclearAtUncached(targetTs: number): Promise<NuclearStation[]> {
+  const { data, error } = await withLoading(
+    `nuclear:at:${targetTs}`,
+    `核安 51 站 @ ${new Date(targetTs * 1000).toLocaleTimeString("zh-TW")}`,
+    supabase.rpc("get_nuclear_radiation_at", { target_ts: targetTs }),
+  );
+  if (error) throw new Error(`get_nuclear_radiation_at: ${error.message}`);
+  return (data ?? []) as NuclearStation[];
+}
+
+import { cachedByKey } from "../lib/loaderCache";
+const fetchNuclearAtCached = cachedByKey<NuclearStation[]>(
+  (key) => fetchNuclearAtUncached(Number(key)),
+  5 * 60_000,
+  16,
+);
+
+/** 量化 ts 到最近 300s（5min），nuclear 變化慢 cache 寬鬆 */
+export function quantiseNuclearTs(ts: number): number {
+  return Math.round(ts / 300) * 300;
+}
+
+export const fetchNuclearAt = (targetTs: number): Promise<NuclearStation[]> =>
+  fetchNuclearAtCached(String(quantiseNuclearTs(targetTs)));
+
+export const invalidateNuclearAt = (): void => fetchNuclearAtCached.invalidate();
+
 /**
  * 劑量分級（µSv/h）：
  *  - normal: ≤ 0.072（自然背景上限）
