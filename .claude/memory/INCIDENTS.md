@@ -6,6 +6,41 @@
 
 ---
 
+## 2026-06-19 SessionStart auto-memory-cherry-pick 把 feat 分支歷史拆掉
+
+**現象**：Energy v2 Phase A 過程中跑了 4 次分支管理意外：
+1. `git checkout -b feat/energy-v2-A` 之後做 A.1 commit，commit 訊息顯示 `[master ...]`
+   ─ 不是預期的 `[feat/energy-v2-A ...]`
+2. A.2 commit 成功（`998089f`）後，馬上接著做 B.1 時發現工作區乾淨、分支顯示 master
+3. B.1 在 master 改一半才發現分支錯，stash + checkout 後 pop 成功
+4. 最後 `git log feat/energy-v2-A` 顯示 A.2 commit **不在歷史中**（branch tip 是 A.1 → B.1+B.2，A.2 被脫鉤）
+
+**根因**：SessionStart hook 會自動：
+- `checkout master`
+- `cherry-pick` 一個 memory commit（這次是 `e8e122d → a31040f`：memory: rewrite STATUS）
+
+這個 hook 在我做事的 session 中間觸發了 ≥ 2 次（reflog 有兩段 "checkout: moving from feat/energy-v2-A to master" 的紀錄）。
+hook 跑完只回 master，不會切回我原本工作的 feature 分支。
+
+我繼續打字 → 動作落到了 master tree，commit 也落到 master。
+
+A.2 commit 之所以從 feat branch 歷史脫鉤，是因為這次 hook 觸發時 branch HEAD 還在 A.2，
+但 hook 完不久我又 git branch -D / git branch <branch> <older-sha> 把分支重 anchor 到 A.1。
+
+**對策**：
+- 用 `git branch -f feat/energy-v2-A d6a2db3` + `git reset --hard 9367cb3 && git checkout feat/energy-v2-A`
+  把第一次跑錯 master 的 commit 搬回 feat 分支
+- 後來用 `git stash + checkout + stash pop` 把 B.1 工作搬回 feat 分支
+- A.2 用 `git cherry-pick 998089f` 補回（有 docs 衝突手解）
+- 最終 feat/energy-v2-A 5 commits 完整 / 132 test pass / 沒丟 work
+
+**教訓**（→ PRINCIPLES）：
+- **任何 commit 前先 `git branch --show-current` 確認**，特別是在 session 中段、或上次 commit 後隔了幾分鐘
+- **不要在 SessionStart hook 期間做 branch dance**（reset / force-branch），會把 hook 的 checkout 行為混在一起
+- **覺察 hook 存在的 signal**：reflog 出現 `cherry-pick: memory: ...` + `checkout: moving from X to master` 連續對；或 `git status` 顯示乾淨但工作區看起來不對
+
+工作沒丟、但解開歷史花了 15+ 分鐘。下次必須早 detect。
+
 ## 2026-06-18 useWallClock 無限 re-render — useSyncExternalStore 陷阱
 
 **現象**：Monitor 效能優化（PR #21 perf/monitor-optimization）push 後切到即時新聞跳：
