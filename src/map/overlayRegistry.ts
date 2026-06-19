@@ -3054,7 +3054,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Layer 5c：OSM 高壓鐵塔 26,589（minzoom 13） ──
+  // ── Layer 5c：OSM 高壓鐵塔 26,589（zoom-gated size） ──
+  // 注意：99.97% voltage=NULL → 不依 tier 染色，統一用 sky-300 亮色
+  // minzoom 8 全島可見、size 隨 zoom 漸進避免低 zoom 過密
   {
     id: "osmPowerTowers",
     sourceUrl: "./geo/_empty.geojson",
@@ -3065,27 +3067,30 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        minzoom: 13,
+        minzoom: 8,
         paint: (isDark, params) => {
-          const o = params?.osmPowerTowersOpacity ?? 0.8;
+          const o = params?.osmPowerTowersOpacity ?? 0.85;
           const s = params?.osmPowerTowersSize ?? 1;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              13, ["*", s, 1.6],
-              15, ["*", s, 2.5],
-              17, ["*", s, 4],
+              8,  ["*", s, 0.8],
+              11, ["*", s, 1.6],
+              14, ["*", s, 2.8],
+              17, ["*", s, 4.5],
             ],
-            "circle-color": [
-              "match", ["get", "tier"],
-              345, "#67e8f9",
-              161, "#22d3ee",
-              69,  "#0ea5e9",
-              "#475569",
+            "circle-color": "#7dd3fc",  // sky-300 統一亮色（voltage 幾乎全空，不分色）
+            "circle-opacity": [
+              "interpolate", ["linear"], ["zoom"],
+              8,  o * 0.45,
+              11, o * 0.85,
+              13, o,
             ],
-            "circle-opacity": o,
-            "circle-stroke-width": 0.6,
-            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              8, 0, 12, 0.4, 15, 0.8,
+            ],
+            "circle-stroke-color": isDark ? "#0c4a6e" : "#ffffff",
           };
         },
       },

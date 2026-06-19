@@ -276,13 +276,14 @@ const fetchOsmPowerLinesCached = cachedOnce(fetchOsmPowerLinesUncached, 60 * 60_
 export const fetchOsmPowerLines = (): Promise<OsmPowerLine[]> => fetchOsmPowerLinesCached();
 
 async function fetchOsmPowerTowersUncached(): Promise<OsmPowerTower[]> {
+  // 26.6k rows 超過 PostgREST max-rows=20000，RPC 回傳單筆 jsonb array 繞過
   const { data, error } = await withLoading(
     "energy:powerTowers",
     "高壓鐵塔 26,589",
     supabase.rpc("get_osm_power_towers"),
   );
   if (error) throw new Error(`get_osm_power_towers: ${error.message}`);
-  return (data ?? []) as OsmPowerTower[];
+  return (data ?? []) as unknown as OsmPowerTower[];
 }
 const fetchOsmPowerTowersCached = cachedOnce(fetchOsmPowerTowersUncached, 60 * 60_000);
 export const fetchOsmPowerTowers = (): Promise<OsmPowerTower[]> => fetchOsmPowerTowersCached();
