@@ -69,6 +69,81 @@ export function buildPowerCardModel(
   };
 }
 
+export interface PowerKpiFuelSlice {
+  fuel: string;
+  mw: number;
+  pct: number; // 0~1 of totalMW
+}
+
+export interface PowerKpiSummary {
+  /** 14 廠 24h 內每個 ts 的全國出力總和的最高峰 */
+  peakMW: number;
+  /** 該峰所在 ts (unix seconds)，若無資料為 null */
+  peakTs: number | null;
+  /** 最新一個 ts 的全國總出力 */
+  latestMW: number;
+  /** 最新一個 ts 的 fuel 分佈，按 mw desc 排序 */
+  fuelMix: PowerKpiFuelSlice[];
+}
+
+const EMPTY_KPI: PowerKpiSummary = {
+  peakMW: 0, peakTs: null, latestMW: 0, fuelMix: [],
+};
+
+/**
+ * 從 24h preload 算 KPI：
+ *  - 全國 24h 各時點負載和的 peak
+ *  - 最新時點的 fuel 分佈
+ *
+ * 假設：所有廠的 points 共用同一份 ts 軸；若沒有則回退用最末點。
+ */
+export function summarisePowerKpis(day: PowerGenerationDay | null): PowerKpiSummary {
+  const plants = day?.plants ?? [];
+  if (plants.length === 0) return EMPTY_KPI;
+
+  // step 1：合併所有 unique ts → 每個 ts 全國總和
+  const totalByTs = new Map<number, number>();
+  for (const p of plants) {
+    for (const [ts, mw] of p.points ?? []) {
+      totalByTs.set(ts, (totalByTs.get(ts) ?? 0) + mw);
+    }
+  }
+  let peakMW = 0;
+  let peakTs: number | null = null;
+  let latestTs = -Infinity;
+  let latestMW = 0;
+  for (const [ts, mw] of totalByTs) {
+    if (mw > peakMW) { peakMW = mw; peakTs = ts; }
+    if (ts > latestTs) { latestTs = ts; latestMW = mw; }
+  }
+
+  // step 2：最新時點的 fuel 分佈 — 對每廠取「最後一個 ts <= latestTs 的 mw」
+  const fuelTotals = new Map<string, number>();
+  for (const p of plants) {
+    const pts = p.points ?? [];
+    if (pts.length === 0) continue;
+    // 取最後一個 ts <= latestTs（若所有 ts 都 > latestTs，跳過）
+    let last: number | null = null;
+    for (const [ts, mw] of pts) {
+      if (ts <= latestTs) last = mw;
+    }
+    if (last == null) continue;
+    const fuel = p.fuel_type ?? "unknown";
+    fuelTotals.set(fuel, (fuelTotals.get(fuel) ?? 0) + last);
+  }
+  const totalFuel = Array.from(fuelTotals.values()).reduce((a, b) => a + b, 0) || 1;
+  const fuelMix: PowerKpiFuelSlice[] = Array.from(fuelTotals.entries())
+    .map(([fuel, mw]) => ({ fuel, mw, pct: mw / totalFuel }))
+    .sort((a, b) => b.mw - a.mw);
+
+  return {
+    peakMW,
+    peakTs,
+    latestMW,
+    fuelMix,
+  };
+}
+
 /** 14 廠出力的負載率 → 配色（>100% 紅 / >85% 橘 / >50% 綠 / 其他藍）*/
 export function loadRateColor(rate: number | null): string {
   if (rate == null) return "#9ca3af";

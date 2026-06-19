@@ -38,12 +38,12 @@
 
 ### A.2 — KPI strip + timeline isolation test（done）
 
-- [x] `summarisePowerKpis(day)` 純函式：算 24h 全國尖峰 / 最新時點 / fuel mix 分佈
-- [x] PowerCard 新 KPI strip：24h 尖峰 / 當前合計 / fuel mix bar + 前 5 fuel legend
+- [x] PowerCard 新 KPI strip：24h 尖峰 / 當前合計 / fuel mix bar + 前 5 項 legend（fuel 走 `fuelColorOf`）
 - [x] 6 新測試（共 13 cases）：
+      - 空 day → 零值
       - peak 是「各時點全國總和」max（非單廠 max）
-      - fuel mix 用最新 ts snapshot 分組、pct normalised
-      - null fuel_type → 'unknown'
+      - fuel mix 用最新 ts snapshot 分組、pct normalised、desc sorted
+      - `fuel_type: null` 歸 'unknown'
       - **timeline isolation contract**：`buildPowerCardModel` 不收 time 參數、永遠取 array 最後一筆
 
 ### A.3 — share dashboard fetch with App.tsx（pending）

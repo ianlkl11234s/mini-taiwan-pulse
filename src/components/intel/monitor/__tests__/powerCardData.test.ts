@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   buildPowerCardModel,
   loadRateColor,
+  summarisePowerKpis,
   POWER_REGION_ORDER,
 } from "../powerCardData";
 import type { PowerDashboard, PowerGenerationDay } from "../../../../data/energyLoader";
@@ -101,6 +102,100 @@ describe("buildPowerCardModel", () => {
   it("uses '—' as observedHHMM placeholder when status missing", () => {
     const m = buildPowerCardModel(EMPTY_DASHBOARD, EMPTY_DAY);
     expect(m.observedHHMM).toBe("—");
+  });
+});
+
+describe("summarisePowerKpis", () => {
+  it("returns zero KPI when day is null / empty", () => {
+    const k1 = summarisePowerKpis(null);
+    const k2 = summarisePowerKpis({ plants: [], ts_range: { lo: 0, hi: 0 } });
+    for (const k of [k1, k2]) {
+      expect(k.peakMW).toBe(0);
+      expect(k.peakTs).toBeNull();
+      expect(k.latestMW).toBe(0);
+      expect(k.fuelMix).toEqual([]);
+    }
+  });
+
+  it("computes peak as max of per-ts national sum (not per-plant max)", () => {
+    // ts=100 → 大潭 5000 + 台中 3000 = 8000
+    // ts=200 → 大潭 4000 + 台中 5000 = 9000  ← peak
+    const day = {
+      plants: [
+        { plant_name: "大潭", fuel_type: "natural_gas", capacity_mw: 6000, lon: 0, lat: 0,
+          points: [[100, 5000], [200, 4000]] as [number, number][] },
+        { plant_name: "台中", fuel_type: "coal", capacity_mw: 5780, lon: 0, lat: 0,
+          points: [[100, 3000], [200, 5000]] as [number, number][] },
+      ],
+      ts_range: { lo: 100, hi: 200 },
+    };
+    const k = summarisePowerKpis(day);
+    expect(k.peakMW).toBe(9000);
+    expect(k.peakTs).toBe(200);
+    expect(k.latestMW).toBe(9000);
+  });
+
+  it("fuel mix uses latest ts snapshot, grouped + pct-normalised + desc sorted", () => {
+    const day = {
+      plants: [
+        { plant_name: "大潭", fuel_type: "natural_gas", capacity_mw: 6000, lon: 0, lat: 0,
+          points: [[100, 6000]] as [number, number][] },
+        { plant_name: "通霄", fuel_type: "natural_gas", capacity_mw: 4000, lon: 0, lat: 0,
+          points: [[100, 4000]] as [number, number][] },
+        { plant_name: "台中", fuel_type: "coal", capacity_mw: 5780, lon: 0, lat: 0,
+          points: [[100, 2000]] as [number, number][] },
+      ],
+      ts_range: { lo: 100, hi: 100 },
+    };
+    const k = summarisePowerKpis(day);
+    expect(k.fuelMix.map((s) => s.fuel)).toEqual(["natural_gas", "coal"]);
+    expect(k.fuelMix[0]!.mw).toBe(10000);
+    expect(k.fuelMix[0]!.pct).toBeCloseTo(10000 / 12000, 5);
+    expect(k.fuelMix[1]!.pct).toBeCloseTo(2000 / 12000, 5);
+  });
+
+  it("groups null fuel_type as 'unknown'", () => {
+    const day = {
+      plants: [{
+        plant_name: "??", fuel_type: null, capacity_mw: 100, lon: 0, lat: 0,
+        points: [[1, 50]] as [number, number][],
+      }],
+      ts_range: { lo: 1, hi: 1 },
+    };
+    const k = summarisePowerKpis(day);
+    expect(k.fuelMix[0]!.fuel).toBe("unknown");
+  });
+});
+
+describe("PowerCard data timeline isolation", () => {
+  // PowerCard 永遠顯示「最新」snapshot；timeline scrub 不該影響 model。
+  // 用「同一份 day data 拿給 buildPowerCardModel 兩次」就算 currentTime 不同也應 deterministic。
+  it("buildPowerCardModel does not depend on any time argument (no leakage)", () => {
+    const day = {
+      plants: [
+        { plant_name: "台中", fuel_type: "coal", capacity_mw: 5780, lon: 0, lat: 0,
+          points: [[100, 2000], [200, 3000], [300, 4393]] as [number, number][] },
+      ],
+      ts_range: { lo: 100, hi: 300 },
+    };
+    const m1 = buildPowerCardModel(null, day);
+    const m2 = buildPowerCardModel(null, day);
+    expect(m1).toEqual(m2);
+    // 最後一點是 4393 — 無論 ts axis 怎麼算都該是 4393
+    expect(m1.plants[0]!.mw).toBe(4393);
+  });
+
+  it("buildPowerCardModel always picks last point even with non-monotonic ts (defensive)", () => {
+    // 即使資料順序錯亂，仍取 array 最後一筆（這是契約 — RPC 217 保證 asc，但測試 fail-fast）
+    const day = {
+      plants: [
+        { plant_name: "X", fuel_type: null, capacity_mw: 100, lon: 0, lat: 0,
+          points: [[200, 99], [100, 42]] as [number, number][] },
+      ],
+      ts_range: { lo: 100, hi: 200 },
+    };
+    const m = buildPowerCardModel(null, day);
+    expect(m.plants[0]!.mw).toBe(42); // last in array, not max-ts
   });
 });
 

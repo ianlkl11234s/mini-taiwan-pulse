@@ -8,7 +8,8 @@ import {
   type PowerDashboard,
   type PowerGenerationDay,
 } from "../../../data/energyLoader";
-import { buildPowerCardModel, loadRateColor } from "./powerCardData";
+import { fuelColorOf } from "../../../data/energyLoader";
+import { buildPowerCardModel, loadRateColor, summarisePowerKpis } from "./powerCardData";
 
 interface Props {
   dashboard: PowerDashboard | null;
@@ -22,6 +23,7 @@ function fmtMW(v: number | null | undefined): string {
 
 export function PowerCard({ dashboard, day }: Props) {
   const model = useMemo(() => buildPowerCardModel(dashboard, day), [dashboard, day]);
+  const kpis = useMemo(() => summarisePowerKpis(day), [day]);
   const status = dashboard?.status ?? null;
   const indicator = model.indicator;
   const dotColor = indicator
@@ -124,6 +126,73 @@ export function PowerCard({ dashboard, day }: Props) {
           })}
         </div>
       </div>
+
+      {/* KPI strip：24h peak + fuel mix */}
+      {kpis.peakMW > 0 && (
+        <div
+          data-testid="power-kpi-strip"
+          style={{
+            display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap",
+            padding: "8px 12px", borderRadius: RADIUS.lg,
+            background: "rgba(255,255,255,0.02)",
+            border: `1px solid ${COLORS.borderSoft}`,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>24h 尖峰</span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: 13, fontWeight: 700, color: "#fff" }}>
+              {Math.round(kpis.peakMW).toLocaleString()}
+            </span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>MW</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+            <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>當前合計</span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: 13, fontWeight: 700, color: "#fff" }}>
+              {Math.round(kpis.latestMW).toLocaleString()}
+            </span>
+            <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>MW</span>
+          </div>
+          <div style={{ flex: 1, minWidth: 120 }}>
+            <div
+              data-testid="power-fuel-mix"
+              style={{
+                display: "flex", height: 6, borderRadius: RADIUS.sm, overflow: "hidden",
+                background: "rgba(255,255,255,0.05)",
+              }}
+            >
+              {kpis.fuelMix.map((s) => (
+                <span
+                  key={s.fuel}
+                  title={`${s.fuel} · ${Math.round(s.mw)} MW · ${(s.pct * 100).toFixed(1)}%`}
+                  style={{
+                    width: `${s.pct * 100}%`,
+                    background: fuelColorOf(s.fuel),
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 8px", marginTop: 4 }}>
+              {kpis.fuelMix.slice(0, 5).map((s) => (
+                <span
+                  key={s.fuel}
+                  style={{
+                    display: "inline-flex", alignItems: "center", gap: 3,
+                    fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textMuted,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 5, height: 5, borderRadius: RADIUS.full,
+                      background: fuelColorOf(s.fuel),
+                    }}
+                  />
+                  {s.fuel} {(s.pct * 100).toFixed(0)}%
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 14 廠 sparkline grid */}
       <div
