@@ -32,8 +32,17 @@ export function useSubstationDiamondIcon(mapRef: React.RefObject<MapboxMap | nul
       }
     };
 
+    const onMissing = (e: { id: string }) => {
+      if (e.id === "substation-diamond") addIcon();
+    };
+
     if (map.isStyleLoaded()) addIcon();
     map.on("style.load", addIcon);
-    return () => { map.off("style.load", addIcon); };
+    // styleimagemissing：layer 比 image 早 mount 時補救
+    map.on("styleimagemissing", onMissing);
+    return () => {
+      map.off("style.load", addIcon);
+      map.off("styleimagemissing", onMissing);
+    };
   }, [mapRef]);
 }
