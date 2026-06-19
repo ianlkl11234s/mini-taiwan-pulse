@@ -1065,15 +1065,15 @@ function SubstationLegend() {
 // ── Energy: Phase 8 SSOT facilities 6-layer ──
 function FacilityFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   const fuels: { c: string; label: string }[] = [
-    { c: "#ef4444", label: "燃煤 coal" },
-    { c: "#fb923c", label: "油氣 oil_gas" },
-    { c: "#a855f7", label: "核能 nuclear" },
-    { c: "#3b82f6", label: "水力 hydro" },
-    { c: "#22c55e", label: "光電 solar" },
-    { c: "#06b6d4", label: "風力 wind" },
-    { c: "#92400e", label: "生質 bioenergy" },
-    { c: "#f97316", label: "地熱 geothermal" },
-    { c: "#737373", label: "焚化 waste" },
+    { c: "#ff1744", label: "燃煤 coal" },
+    { c: "#ff9e00", label: "油氣 oil_gas" },
+    { c: "#d100ff", label: "核能 nuclear" },
+    { c: "#0091ff", label: "水力 hydro" },
+    { c: "#bfff00", label: "光電 solar" },
+    { c: "#00f5d4", label: "風力 wind" },
+    { c: "#ff6b35", label: "生質 bioenergy" },
+    { c: "#ff006e", label: "地熱 geothermal" },
+    { c: "#9b51e0", label: "焚化 waste" },
   ];
   const showStatus = visibility.facPlanned || visibility.facHistorical;
   return (
@@ -1093,16 +1093,16 @@ function FacilityFuelLegend({ visibility }: { visibility: LayerVisibility }) {
           {visibility.facPlanned && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#9ca3af", border: "1.5px solid #facc15" }} />
-                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>興建中（黃框）</span>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "#9ca3af", border: "1.5px solid #fff500" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>興建中（電光黃框）</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.55)", border: "1.5px solid #3b82f6" }} />
-                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>規劃中（藍框、半透明）</span>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.55)", border: "1.5px solid #00d4ff" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>規劃中（電光藍框、半透明）</span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
-                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.35)", border: "1.5px solid #94a3b8" }} />
-                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>公告中（灰框、淡）</span>
+                <span style={{ width: 12, height: 12, borderRadius: "50%", background: "rgba(156,163,175,0.35)", border: "1.5px solid #a5b4fc" }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>公告中（淡紫藍框）</span>
               </div>
             </>
           )}
@@ -1128,10 +1128,10 @@ function FacOffshoreLegend() {
         ENERGY · 離岸風電場址（8 場）
       </div>
       {[
-        { c: "#06b6d4", label: "運轉中", dash: false },
-        { c: "#22d3ee", label: "興建中（虛線 3,2）", dash: true },
-        { c: "#22d3ee", label: "規劃中（虛線 2,2）", dash: true },
-        { c: "#94a3b8", label: "公告中（虛線 1,3）", dash: true },
+        { c: "#7dffe7", label: "運轉中", dash: false },
+        { c: "#00f5d4", label: "興建中（虛線 3,2）", dash: true },
+        { c: "#00d4ff", label: "規劃中（虛線 2,2）", dash: true },
+        { c: "#a5b4fc", label: "公告中（虛線 1,3）", dash: true },
       ].map((r) => (
         <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
           <span

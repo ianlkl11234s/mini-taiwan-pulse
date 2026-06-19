@@ -285,19 +285,21 @@ const _l6Cached = cachedOnce(async () => {
 }, 60 * 60_000);
 export const fetchFacOsmSupplement = (): Promise<FacilityPoint[]> => _l6Cached();
 
-/** Facilities 6-layer 共用 fuel → color（不沿用舊 FUEL_COLORS，按用戶規劃重新定義）*/
+/** Facilities 6-layer 共用 fuel → color（霓虹 / 賽博龐克調色）
+ *  高飽和、深底發光、hue 之間拉開避免混淆。
+ */
 export const FACILITY_FUEL_COLORS: Record<string, string> = {
-  coal:       "#ef4444",
-  oil_gas:    "#fb923c",
-  nuclear:    "#a855f7",
-  hydro:      "#3b82f6",
-  solar:      "#22c55e",
-  wind:       "#06b6d4",
-  bioenergy:  "#92400e",
-  geothermal: "#f97316",
-  waste:      "#737373",
-  storage:    "#fbbf24",
-  other:      "#9ca3af",
+  coal:       "#ff1744", // vermilion 烈焰紅
+  oil_gas:    "#ff9e00", // 霓虹琥珀
+  nuclear:    "#d100ff", // electric magenta 電光紫
+  hydro:      "#0091ff", // 深霓虹藍
+  solar:      "#bfff00", // chartreuse 螢光萊姆
+  wind:       "#00f5d4", // mint aqua 薄荷青
+  bioenergy:  "#ff6b35", // coral 珊瑚橘
+  geothermal: "#ff006e", // hot pink 火山熱粉
+  waste:      "#9b51e0", // 霓虹紫煙
+  storage:    "#fff500", // acid yellow 電光黃
+  other:      "#94a3b8",
 };
 export function facilityFuelColor(fuel: string | null | undefined): string {
   if (!fuel) return "#9ca3af";
@@ -770,38 +772,38 @@ export const fetchEvCharging = (): Promise<EvChargingStation[]> => fetchEvChargi
  */
 export const FUEL_COLORS: Record<string, string> = {
   // 核能
-  nuclear: "#facc15",
-  核能: "#facc15",
+  nuclear: "#d100ff",
+  核能: "#d100ff",
   // 燃煤 / 油
-  coal: "#374151",
-  煤: "#374151",
-  "煤/輕柴油": "#4b5563",
-  oil: "#1f2937",
-  重油: "#1f2937",
+  coal: "#ff1744",
+  煤: "#ff1744",
+  "煤/輕柴油": "#ff5e7a",
+  oil: "#ff3864",
+  重油: "#ff3864",
   // 燃氣
-  natural_gas: "#94a3b8",
-  天然氣: "#94a3b8",
-  "天然氣/煤": "#64748b",
-  燃氣: "#94a3b8",
-  oil_gas: "#64748b", // SSOT 油氣混合（協和 / 興達 / 大林等）
+  natural_gas: "#ff9e00",
+  天然氣: "#ff9e00",
+  "天然氣/煤": "#ff7e3d",
+  燃氣: "#ff9e00",
+  oil_gas: "#ff9e00",
   // 水力
-  hydro: "#3b82f6",
-  水: "#3b82f6",
+  hydro: "#0091ff",
+  水: "#0091ff",
   // 太陽光電
-  solar: "#22c55e",
+  solar: "#bfff00",
   // 風力
-  wind: "#06b6d4",
-  offshore_wind: "#0e7490",
+  wind: "#00f5d4",
+  offshore_wind: "#00d4ff",
   // 地熱
-  geothermal: "#ef4444",
+  geothermal: "#ff006e",
   // 生質 / 焚化
-  biomass: "#a3a300",
-  biogas: "#a3a300",
-  bioenergy: "#a3a300", // SSOT 統一標籤
-  waste: "#84cc16",     // SSOT 焚化發電（黃綠）
+  biomass: "#ff6b35",
+  biogas: "#ff6b35",
+  bioenergy: "#ff6b35",
+  waste: "#9b51e0",
   // 儲能
-  storage: "#a855f7",   // SSOT 儲能（紫）
-  other: "#9ca3af",
+  storage: "#fff500",
+  other: "#94a3b8",
 };
 export const FUEL_FALLBACK_COLOR = "#9ca3af";
 

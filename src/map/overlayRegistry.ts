@@ -3750,14 +3750,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "fill-color": [
               "match", ["get", "status"],
-              "operating", "#06b6d4",
-              "construction", "#22d3ee",
-              "pre-construction", "#0891b2",
-              "announced", "#155e75",
+              "operating", "#00f5d4",
+              "construction", "#00d4ff",
+              "pre-construction", "#0091ff",
+              "announced", "#5b8def",
               "#475569",
             ],
             "fill-opacity": o * 0.35,
-            "fill-outline-color": "#67e8f9",
+            "fill-outline-color": "#7dffe7",
           };
         },
       },
@@ -3769,11 +3769,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "status"],
-              "operating", "#67e8f9",
-              "construction", "#22d3ee",
-              "pre-construction", "#22d3ee",
-              "announced", "#94a3b8",
-              "#94a3b8",
+              "operating", "#7dffe7",
+              "construction", "#00f5d4",
+              "pre-construction", "#00d4ff",
+              "announced", "#a5b4fc",
+              "#a5b4fc",
             ],
             "line-width": 1.4,
             "line-opacity": o * 0.95,
@@ -3825,10 +3825,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-width": 1.2,
             "circle-stroke-color": [
               "match", ["get", "status"],
-              "construction", "#facc15",
-              "pre-construction", "#3b82f6",
-              "announced", "#94a3b8",
-              "#9ca3af",
+              "construction", "#fff500",        // 霓虹電光黃
+              "pre-construction", "#00d4ff",    // 霓虹電光藍
+              "announced", "#a5b4fc",           // 霓虹淡紫藍
+              "#a5b4fc",
             ],
             // 注意：mapbox-gl 不支援 circle stroke dasharray
           };
