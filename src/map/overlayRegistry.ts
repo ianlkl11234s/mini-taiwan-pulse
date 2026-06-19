@@ -3059,7 +3059,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "line-opacity": [
               "*", o,
-              ["match", ["get", "tier"], 345, 0.22, 161, 0.14, 69, 0.10, 0.08],
+              ["match", ["get", "tier"], 345, 0.14, 161, 0.09, 69, 0.06, 0.05],
             ],
             "line-blur": 12,
           };
@@ -3082,7 +3082,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "line-opacity": [
               "*", o,
-              ["match", ["get", "tier"], 345, 0.38, 161, 0.28, 69, 0.22, 0.16],
+              ["match", ["get", "tier"], 345, 0.25, 161, 0.18, 69, 0.14, 0.10],
             ],
             "line-blur": 5,
           };
@@ -3723,7 +3723,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const s = params?.facPrimaryScale ?? 1;
           const haloRadius = (factor: number, zoom6: number, zoom12: number) => [
             "*", factor * s,
-            ["match", ["get", "has_realtime"], true, 1, 0.3],
+            ["case", ["==", ["get", "has_realtime"], true], 1, 0.3],
             ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
               Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
           ];
@@ -3749,7 +3749,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           // has_realtime=false → 其他 ~170 廠 → ×0.3 縮小拉差異
           const radius = (zoom6: number, zoom12: number) => [
             "*", s,
-            ["match", ["get", "has_realtime"], true, 1, 0.3],
+            ["case", ["==", ["get", "has_realtime"], true], 1, 0.3],
             ["interpolate", ["linear"], ["log10", ["max", ["coalesce", ["get", "total_capacity_mw"], 0.5], 0.5]],
               Math.log10(0.5), zoom6, Math.log10(6000), zoom12],
           ];
