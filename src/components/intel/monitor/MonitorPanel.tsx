@@ -23,6 +23,11 @@ import type { NewsCategory } from "../../../data/newsEventTypes";
 import { timeStore } from "../../../state/timeStore";
 import { TimelineDock } from "./TimelineDock";
 import { IndicatorPanel } from "./IndicatorPanel";
+import {
+  fetchPowerDashboard, invalidatePowerDashboard,
+  fetchPowerGeneration24h, invalidatePowerGeneration24h,
+  type PowerDashboard, type PowerGenerationDay,
+} from "../../../data/energyLoader";
 
 const EMPTY_HEALTH: SourceHealthSummary = {
   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
@@ -109,6 +114,8 @@ export function MonitorPanel({
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
+  const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
+  const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
 
   // 30s pressure + market + source health + trending
   useEffect(() => {
@@ -131,6 +138,35 @@ export function MonitorPanel({
     return () => {
       alive = false;
       window.clearInterval(id);
+    };
+  }, [open]);
+
+  // 5min Power dashboard + 10min Power generation 24h（與 App.tsx 共用 cachedOnce）
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    const tickFast = () => {
+      fetchPowerDashboard().then((d) => alive && setPowerDashboard(d))
+        .catch((e) => console.warn("[Monitor PowerDashboard]", e));
+    };
+    const tickSlow = () => {
+      fetchPowerGeneration24h().then((d) => alive && setPowerDay(d))
+        .catch((e) => console.warn("[Monitor PowerGen24h]", e));
+    };
+    tickFast();
+    tickSlow();
+    const idFast = window.setInterval(() => {
+      invalidatePowerDashboard();
+      tickFast();
+    }, 5 * 60_000);
+    const idSlow = window.setInterval(() => {
+      invalidatePowerGeneration24h();
+      tickSlow();
+    }, 10 * 60_000);
+    return () => {
+      alive = false;
+      window.clearInterval(idFast);
+      window.clearInterval(idSlow);
     };
   }, [open]);
 
@@ -644,6 +680,8 @@ export function MonitorPanel({
           alertTally={alertTally}
           alertSeries={alertSeries}
           nowTs={now}
+          powerDashboard={powerDashboard}
+          powerDay={powerDay}
         />
       </div>
 

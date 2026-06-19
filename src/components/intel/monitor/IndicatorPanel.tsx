@@ -19,6 +19,8 @@ import { SituationOverview } from "./SituationOverview";
 import { SituationCards } from "./SituationCards";
 import { LiveWall } from "./LiveWall";
 import { HazardWatchStrip } from "./HazardWatchStrip";
+import { PowerCard } from "./PowerCard";
+import type { PowerDashboard, PowerGenerationDay } from "../../../data/energyLoader";
 
 interface Props {
   events: ClusterEvent[];
@@ -36,6 +38,9 @@ interface Props {
   alertTally: AlertTally;
   alertSeries: Record<AlertGroupShort, number[]>;
   nowTs: number;
+  /** 能源儀表（v2 A）— 缺則整張不渲染 */
+  powerDashboard: PowerDashboard | null;
+  powerDay: PowerGenerationDay | null;
 }
 
 interface Hotspot {
@@ -172,6 +177,7 @@ export function IndicatorPanel({
   events, countyByEventId, pressure, smoothedScore, market, pla, health,
   sourceHealth, totalToday, onPickHotspot,
   alertTally, alertSeries, nowTs,
+  powerDashboard, powerDay,
 }: Props) {
   const stats = useMemo(() => {
     const ranked = rankHotspots(events, countyByEventId);
@@ -220,6 +226,8 @@ export function IndicatorPanel({
       />
 
       <SituationCards pla={pla} health={health} />
+
+      <PowerCard dashboard={powerDashboard} day={powerDay} />
 
       <LiveWall />
 
