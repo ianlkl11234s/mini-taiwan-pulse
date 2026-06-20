@@ -2901,7 +2901,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o,
             "circle-stroke-width": 1,
-            "circle-stroke-color": isDark ? "#111827" : "#ffffff",
+            "circle-stroke-color": isDark ? "#0F4459" : "#ffffff",
           };
         },
       },
@@ -3679,7 +3679,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-color": [
               "match", ["get", "level"],
               "stale", isDark ? "#9ca3af" : "#4b5563",
-              isDark ? "#111827" : "#ffffff",
+              isDark ? "#0F4459" : "#ffffff",
             ],
           };
         },
@@ -3988,7 +3988,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        paint: (isDark, params) => {
+        paint: (_isDark, params) => {
           const o = params?.gasStationCpcOpacity ?? 0.85;
           const s = params?.gasStationCpcScale ?? 1;
           return {
@@ -3998,10 +3998,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#00875A",
+            "circle-color": "#D9306E",
             "circle-opacity": o,
-            "circle-stroke-width": 0.6,
-            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+            "circle-stroke-width": 1.5,
+            "circle-stroke-color": "#ffffff",
           };
         },
       },
@@ -4029,7 +4029,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#1E40AF",
+            "circle-color": "#F2522E",
             "circle-opacity": o,
             "circle-stroke-width": 0.6,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -4060,7 +4060,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3.5],
               15, ["*", s, 6],
             ],
-            "circle-color": "#EA580C",
+            "circle-color": "#82BF45",
             "circle-opacity": o,
             "circle-stroke-width": 0.6,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -4091,7 +4091,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3],
               15, ["*", s, 5],
             ],
-            "circle-color": "#6B7280",
+            "circle-color": "#0F4459",
             "circle-opacity": o,
             "circle-stroke-width": 0.4,
             "circle-stroke-color": isDark ? "#1f2937" : "#e5e7eb",
@@ -4122,7 +4122,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 4],
               15, ["*", s, 7],
             ],
-            "circle-color": "#FAFAFA",
+            "circle-color": "#F2BD1D",
             "circle-opacity": o,
             "circle-stroke-width": 0.8,
             "circle-stroke-color": isDark ? "#0f172a" : "#1f2937",
@@ -4153,7 +4153,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 5],
               15, ["*", s, 8],
             ],
-            "circle-color": "#DC2626",
+            "circle-color": "#F2A516",
             "circle-opacity": o,
             "circle-stroke-width": 0.8,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -4184,7 +4184,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 3],
               15, ["*", s, 5],
             ],
-            "circle-color": "#F87171",
+            "circle-color": "#F27127",
             "circle-opacity": o,
             "circle-stroke-width": 0.5,
             "circle-stroke-color": isDark ? "#1f2937" : "#ffffff",
@@ -4215,7 +4215,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 16],
             ],
             "circle-blur": 0.7,
-            "circle-color": "#0891B2",
+            "circle-color": "#30BBF2",
             "circle-opacity": o * 0.35,
           };
         },
@@ -4232,7 +4232,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, ["*", s, 3],
               12, ["*", s, 8],
             ],
-            "circle-color": "#0891B2",
+            "circle-color": "#30BBF2",
             "circle-opacity": o,
             "circle-stroke-width": 1.2,
             "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
@@ -4257,7 +4257,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.pipelineGasOpacity ?? 0.8;
           const w = params?.pipelineGasWidth ?? 2.0;
           return {
-            "line-color": "#FACC15",
+            "line-color": "#30BBF2",
             "line-width": w,
             "line-opacity": o,
           };
@@ -4281,7 +4281,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.pipelineOilGasOpacity ?? 0.7;
           const w = params?.pipelineOilGasWidth ?? 1.5;
           return {
-            "line-color": "#F59E0B",
+            "line-color": "#D3D925",
             "line-width": w,
             "line-opacity": o,
             "line-dasharray": [2, 2],
@@ -4305,7 +4305,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
           return {
-            "fill-color": "#1F2937",
+            "fill-color": "#F23535",
             "fill-opacity": o * 0.5,
           };
         },
@@ -4317,7 +4317,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialRefineryOpacity ?? 0.55;
           const show = (params?.industrialRefineryOutline ?? 1) > 0;
           return {
-            "line-color": "#374151",
+            "line-color": "#F23535",
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -4340,7 +4340,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           return {
-            "fill-color": "#92400E",
+            "fill-color": "#F2522E",
             "fill-opacity": o * 0.5,
           };
         },
@@ -4352,7 +4352,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           const show = (params?.industrialStorageTankOutline ?? 1) > 0;
           return {
-            "line-color": "#b45309",
+            "line-color": "#F2522E",
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -4375,7 +4375,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           return {
-            "fill-color": "#374151",
+            "fill-color": "#F2A516",
             "fill-opacity": o * 0.5,
           };
         },
@@ -4387,7 +4387,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           const show = (params?.industrialPowerPlantOutline ?? 1) > 0;
           return {
-            "line-color": "#6b7280",
+            "line-color": "#F2A516",
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -4417,7 +4417,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               12, ["*", s, 13],
             ],
             "circle-blur": 0.7,
-            "circle-color": "#111827",
+            "circle-color": "#0F4459",
             "circle-opacity": o * 0.35,
           };
         },
@@ -4434,7 +4434,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               6, ["*", s, 3],
               12, ["*", s, 7],
             ],
-            "circle-color": "#111827",
+            "circle-color": "#0F4459",
             "circle-opacity": o,
             "circle-stroke-width": 1.2,
             "circle-stroke-color": isDark ? "#fafafa" : "#ffffff",
