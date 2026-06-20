@@ -51,7 +51,8 @@ import {
  */
 
 const SRC_PLANTS = "energy-power-plants";
-const SRC_SUBSTATIONS = "energy-substations";
+const SRC_SUBSTATIONS = "energy-substations";          // 區域：PS/DPS/SS/TRACTION/OTHER
+const SRC_SUBSTATIONS_EHV = "energy-substations-ehv";  // 超高壓：EHV_SWITCH + EHV
 const SRC_POWER_LINES = "energy-power-lines";
 const SRC_POWER_TOWERS = "energy-power-towers";
 const SRC_WIND_TURBINES = "energy-wind-turbines";
@@ -106,11 +107,20 @@ function plantsToGeoJSON(rows: PowerPlantRow[]): GeoJSON.FeatureCollection {
   return { type: "FeatureCollection", features };
 }
 
-function substationsToGeoJSON(rows: OsmSubstation[]): GeoJSON.FeatureCollection {
+const EHV_CLASSES = new Set(["EHV_SWITCH", "EHV"]);
+
+function substationsToGeoJSON(
+  rows: OsmSubstation[],
+  filter: "ehv" | "local",
+): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
     features: rows
-      .filter((r) => Number.isFinite(r.lon) && Number.isFinite(r.lat))
+      .filter((r) => {
+        if (!Number.isFinite(r.lon) || !Number.isFinite(r.lat)) return false;
+        const isEhv = EHV_CLASSES.has(r.class ?? "OTHER");
+        return filter === "ehv" ? isEhv : !isEhv;
+      })
       .map((r) => ({
         type: "Feature",
         geometry: { type: "Point", coordinates: [r.lon, r.lat] },
@@ -337,6 +347,7 @@ export interface UseEnergyPoiLayerOpts {
   showWindTurbines: boolean;
   showSolarFarms: boolean;
   showOsmPowerPlantsStatic: boolean;
+  showSubstationsEhv: boolean;
   showOffshoreWindZones: boolean;
   showIslandPowerGrid: boolean;
   showFossilFuelInfra: boolean;
@@ -355,7 +366,8 @@ export interface UseEnergyPoiLayerOpts {
 export function useEnergyPoiLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   {
-    showPlants, showSubstations, showPowerLines, showPowerTowers,
+    showPlants, showSubstations, showSubstationsEhv,
+    showPowerLines, showPowerTowers,
     showWindTurbines, showSolarFarms, showOsmPowerPlantsStatic,
     showOffshoreWindZones, showIslandPowerGrid, showFossilFuelInfra,
     showGeothermalWells, showRenewablePermitsTaipei,
@@ -366,6 +378,7 @@ export function useEnergyPoiLayer(
 ) {
   const plantsFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const subsFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
+  const subsEhvFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const linesFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const towersFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const windFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
@@ -387,6 +400,7 @@ export function useEnergyPoiLayer(
 
   const feedPlants = useSourceFeed(mapRef, showPlants, SRC_PLANTS, plantsFcRef);
   const feedSubs = useSourceFeed(mapRef, showSubstations, SRC_SUBSTATIONS, subsFcRef);
+  const feedSubsEhv = useSourceFeed(mapRef, showSubstationsEhv, SRC_SUBSTATIONS_EHV, subsEhvFcRef);
   const feedLines = useSourceFeed(mapRef, showPowerLines, SRC_POWER_LINES, linesFcRef);
   const feedTowers = useSourceFeed(mapRef, showPowerTowers, SRC_POWER_TOWERS, towersFcRef);
   const feedWind = useSourceFeed(mapRef, showWindTurbines, SRC_WIND_TURBINES, windFcRef);
@@ -431,21 +445,23 @@ export function useEnergyPoiLayer(
     };
   }, [showPlants, feedPlants]);
 
-  // substations：visible 時拉一次
+  // substations：兩層共用一份 fetch；任一 visible 就拉，分流到兩個 source
   useEffect(() => {
-    if (!showSubstations) return;
+    if (!showSubstations && !showSubstationsEhv) return;
     let cancelled = false;
     fetchOsmSubstations()
       .then((rows) => {
         if (cancelled) return;
-        subsFcRef.current = substationsToGeoJSON(rows);
+        subsFcRef.current = substationsToGeoJSON(rows, "local");
+        subsEhvFcRef.current = substationsToGeoJSON(rows, "ehv");
         feedSubs();
+        feedSubsEhv();
       })
       .catch((err) => console.warn("[Energy/substations] load failed:", err));
     return () => {
       cancelled = true;
     };
-  }, [showSubstations, feedSubs]);
+  }, [showSubstations, showSubstationsEhv, feedSubs, feedSubsEhv]);
 
   // power lines：visible 時拉一次（60min cache）
   useEffect(() => {

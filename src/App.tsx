@@ -728,6 +728,7 @@ export default function App() {
   useEnergyPoiLayer(mapRef, {
     showPlants: layerVisibility.powerPlants,
     showSubstations: layerVisibility.osmSubstations,
+    showSubstationsEhv: layerVisibility.osmSubstationsEhv,
     showPowerLines: layerVisibility.osmPowerLines,
     showPowerTowers: layerVisibility.osmPowerTowers,
     showWindTurbines: layerVisibility.osmWindTurbines,

@@ -2934,22 +2934,21 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Layer 5：OSM 變電所 785（migration 235 電網層級分類）──
-  // class: EHV_SWITCH 5 / EHV 33 / PS 129 / DPS 90 / SS 199 / TRACTION 11 / OTHER 318
-  // 顏色與大小按 class_rank 階梯（rank 1=最高壓/最重要）
+  // ── Layer 5a：變電所（超高壓）38（EHV_SWITCH 5 + EHV 33）──
+  // 含 halo 光暈強化全國級主幹節點視覺
   {
-    id: "osmSubstations",
+    id: "osmSubstationsEhv",
     sourceUrl: "./geo/_empty.geojson",
-    sourceId: "energy-substations",
+    sourceId: "energy-substations-ehv",
     dynamicData: true,
-    rebuildOnParamChange: ["osmSubstationsOpacity", "osmSubstationsSize", "osmSubstationsSizeBig", "osmSubstationsSizeSmall"],
+    rebuildOnParamChange: ["osmSubstationsEhvOpacity", "osmSubstationsEhvSize"],
     layers: [
-      // halo：EHV_SWITCH + EHV 才有，標出超高壓節點（圓形光暈）
+      // halo：紅色（開閉所）/ 白色（E/S 變電所）圓形光暈
       {
         suffix: "halo",
         type: "circle",
         paint: (_isDark, params) => {
-          const o = params?.osmSubstationsOpacity ?? 0.85;
+          const o = params?.osmSubstationsEhvOpacity ?? 0.85;
           return {
             "circle-radius": [
               "match", ["get", "class"],
@@ -2968,15 +2967,65 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           };
         },
       },
-      // core marker：菱形 SDF symbol（icon-rotate 45 把正方形轉成菱形）
-      // image 'substation-diamond' 由 useSubstationDiamondIcon hook 預先 addImage
+      // core marker：菱形 SDF symbol
       {
         suffix: "circle",
         type: "symbol",
         layout: (_isDark, params) => {
-          const s  = params?.osmSubstationsSize ?? 1;
-          const sB = (params?.osmSubstationsSizeBig ?? 1) * s;    // 大型 = EHV_SWITCH + EHV
-          const sS = (params?.osmSubstationsSizeSmall ?? 1) * s;  // 其他
+          const sB = params?.osmSubstationsEhvSize ?? 1;
+          return {
+            "icon-image": "substation-diamond",
+            "icon-rotate": 45,
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+            "icon-size": [
+              "interpolate", ["linear"], ["zoom"],
+              6,  ["match", ["get", "class"], "EHV_SWITCH", 0.40 * sB, "EHV", 0.32 * sB, 0.32 * sB],
+              11, ["match", ["get", "class"], "EHV_SWITCH", 0.65 * sB, "EHV", 0.52 * sB, 0.52 * sB],
+              14, ["match", ["get", "class"], "EHV_SWITCH", 0.90 * sB, "EHV", 0.72 * sB, 0.72 * sB],
+            ],
+          };
+        },
+        paint: (_isDark, params) => {
+          const o = params?.osmSubstationsEhvOpacity ?? 0.85;
+          return {
+            "icon-color": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", "#ef4444",
+              "EHV",        "#ffffff",
+              "#ffffff",
+            ],
+            "icon-opacity": o,
+            "icon-halo-color": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", "#ffffff",
+              "rgba(0,0,0,0)",
+            ],
+            "icon-halo-width": [
+              "match", ["get", "class"],
+              "EHV_SWITCH", 2,
+              0,
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Layer 5b：變電所（區域）747（PS 129 + DPS 90 + SS 199 + TRACTION 11 + OTHER 318）──
+  // 一次／二次／配電／鐵路牽引／未分類 — 在地分布密集型
+  {
+    id: "osmSubstations",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "energy-substations",
+    dynamicData: true,
+    rebuildOnParamChange: ["osmSubstationsOpacity", "osmSubstationsSize"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "symbol",
+        layout: (_isDark, params) => {
+          const sS = params?.osmSubstationsSize ?? 1;
           return {
             "icon-image": "substation-diamond",
             "icon-rotate": 45,
@@ -2985,15 +3034,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "icon-size": [
               "interpolate", ["linear"], ["zoom"],
               6, ["match", ["get", "class"],
-                  "EHV_SWITCH", 0.40 * sB, "EHV", 0.32 * sB,
                   "PS", 0.25 * sS, "DPS", 0.20 * sS, "SS", 0.18 * sS,
                   "TRACTION", 0.16 * sS, 0.13 * sS],
               11, ["match", ["get", "class"],
-                   "EHV_SWITCH", 0.65 * sB, "EHV", 0.52 * sB,
                    "PS", 0.40 * sS, "DPS", 0.32 * sS, "SS", 0.28 * sS,
                    "TRACTION", 0.24 * sS, 0.20 * sS],
               14, ["match", ["get", "class"],
-                   "EHV_SWITCH", 0.90 * sB, "EHV", 0.72 * sB,
                    "PS", 0.55 * sS, "DPS", 0.45 * sS, "SS", 0.36 * sS,
                    "TRACTION", 0.32 * sS, 0.28 * sS],
             ],
@@ -3004,28 +3050,15 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "icon-color": [
               "match", ["get", "class"],
-              "EHV_SWITCH", "#ef4444",
-              "EHV",        "#ffffff",
-              "PS",         "#f97316",
-              "DPS",        "#14b8a6",
-              "SS",         "#facc15",
-              "TRACTION",   "#3b82f6",
+              "PS",       "#f97316",
+              "DPS",      "#14b8a6",
+              "SS",       "#facc15",
+              "TRACTION", "#3b82f6",
               "#6b7280",
             ],
             "icon-opacity": [
               "*", o,
               ["match", ["get", "class"], "OTHER", 0.55, 1.0],
-            ],
-            // EHV_SWITCH 白色 halo 邊框（SDF 用 icon-halo-* 達成 stroke 效果）
-            "icon-halo-color": [
-              "match", ["get", "class"],
-              "EHV_SWITCH", "#ffffff",
-              "rgba(0,0,0,0)",
-            ],
-            "icon-halo-width": [
-              "match", ["get", "class"],
-              "EHV_SWITCH", 2,
-              0,
             ],
           };
         },

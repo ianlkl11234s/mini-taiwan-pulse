@@ -173,6 +173,7 @@ export function useMapInteraction(
           { layers: ["lighthouses-circle", "lighthouses-glow"], type: "lighthouse" },
           { layers: ["energy-power-plants-circle", "energy-power-plants-halo"], type: "powerPlant" },
           { layers: ["energy-power-generation-hit-hit"], type: "powerPlant" },
+          { layers: ["energy-substations-ehv-circle", "energy-substations-ehv-halo"], type: "osmSubstation" },
           { layers: ["energy-substations-circle"], type: "osmSubstation" },
           { layers: ["energy-power-lines-core", "energy-power-lines-cable"], type: "osmPowerLine" },
           { layers: ["energy-power-towers-circle"], type: "osmPowerTower" },

@@ -182,6 +182,7 @@ export type ExpandableLayerKey =
   | "powerPlants"
   | "powerGenerationUnit"
   | "osmSubstations"
+  | "osmSubstationsEhv"
   | "osmPowerLines"
   | "osmPowerTowers"
   | "osmWindTurbines"
@@ -729,7 +730,8 @@ export interface LayerVisibility {
   powerStatusHud: boolean;       // 供電燈號 KPI HUD（top-left 卡片）
   powerRegionDemand: boolean;    // 北中南東 4 區 3D bars（質心柱，高 ∝ consumption_mw，色 = reserve_indicator）
   powerGenerationUnit: boolean;  // 機組即時出力 3D beam（InstancedMesh，高 ∝ output_load_rate）
-  osmSubstations: boolean;       // 變電所 785（2D circle）
+  osmSubstations: boolean;       // 變電所（區域）747：PS/DPS/SS/TRACTION/OTHER
+  osmSubstationsEhv: boolean;    // 變電所（超高壓）38：EHV_SWITCH + EHV（含 halo 光暈）
   osmPowerLines: boolean;        // OSM 高壓輸電線 2,305（voltage 分色 + line_type 分粗細）
   osmPowerTowers: boolean;       // OSM 高壓鐵塔 26,589（minzoom 8、統一 sky-300）
   osmWindTurbines: boolean;      // OSM 風機 812（466 offshore 海上 + 346 onshore 陸上 + 含 null）

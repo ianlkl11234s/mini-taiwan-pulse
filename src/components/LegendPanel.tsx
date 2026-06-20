@@ -141,7 +141,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
   { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
-  { keys: ["osmSubstations"], render: () => <SubstationLegend /> },
+  { keys: ["osmSubstationsEhv"], render: () => <SubstationEhvLegend /> },
+  { keys: ["osmSubstations"],    render: () => <SubstationLocalLegend /> },
   { keys: ["facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement"],
     render: ({ visibility }) => <FacilityFuelLegend visibility={visibility} /> },
   { keys: ["facOffshore"], render: () => <FacOffshoreLegend /> },
@@ -1022,11 +1023,34 @@ function PowerGridLegend() {
   );
 }
 
-// ── Energy: OSM 變電所電網層級（migration 235）──
-function SubstationLegend() {
+// ── Energy: 變電所（超高壓）2 階（migration 235）──
+function SubstationEhvLegend() {
   const rows: { color: string; label: string; sz: number; n: number }[] = [
-    { color: "#ef4444", label: "超高壓開閉所 (345 kV 切換)",       sz: 9,   n: 5 },
-    { color: "#ffffff", label: "超高壓變電所 E/S (345→161 kV)",    sz: 8,   n: 33 },
+    { color: "#ef4444", label: "超高壓開閉所 (345 kV 切換)",    sz: 9, n: 5 },
+    { color: "#ffffff", label: "超高壓變電所 E/S (345→161 kV)", sz: 8, n: 33 },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 超高壓變電所
+      </div>
+      {rows.map((r) => (
+        <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: r.sz * 2, height: r.sz * 2, borderRadius: "50%", background: r.color, display: "inline-block", flexShrink: 0 }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, flex: 1 }}>{r.label}</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.n}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 含圓形 halo 光暈強化全國級主幹節點
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: 變電所（區域）5 階（migration 235）──
+function SubstationLocalLegend() {
+  const rows: { color: string; label: string; sz: number; n: number }[] = [
     { color: "#f97316", label: "一次變電所 P/S (161→69 kV)",       sz: 6.5, n: 129 },
     { color: "#14b8a6", label: "一次配電變電所 D/S (161→22.8 kV)", sz: 5.5, n: 90 },
     { color: "#facc15", label: "二次變電所 S/S (69→22.8 kV)",      sz: 5,   n: 199 },
@@ -1036,27 +1060,17 @@ function SubstationLegend() {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 變電所層級
+        ENERGY · 區域變電所
       </div>
       {rows.map((r) => (
         <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-          <span
-            style={{
-              width: r.sz * 2,
-              height: r.sz * 2,
-              borderRadius: "50%",
-              background: r.color,
-              display: "inline-block",
-              flexShrink: 0,
-            }}
-          />
+          <span style={{ width: r.sz * 2, height: r.sz * 2, borderRadius: "50%", background: r.color, display: "inline-block", flexShrink: 0 }} />
           <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault, flex: 1 }}>{r.label}</span>
           <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.n}</span>
         </div>
       ))}
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
-        ● EHV 兩階含 halo 光暈<br />
-        ● 規則：name regex + voltage，台電命名 E/S / P/S / S/S 標示為準
+        ● 規則：name regex + voltage，台電 P/S / S/S 標示為準
       </div>
     </div>
   );

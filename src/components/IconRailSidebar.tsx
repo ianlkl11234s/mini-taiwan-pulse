@@ -187,6 +187,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   powerRegionDemand: BarChart3,
   powerGenerationUnit: Power,
   osmSubstations: Cable,
+  osmSubstationsEhv: Cable,
   osmPowerLines: Spline,
   osmPowerTowers: TowerControl,
   osmWindTurbines: Wind,
