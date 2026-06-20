@@ -99,11 +99,12 @@ const fetchPowerPlantsCached = cachedOnce(fetchPowerPlantsUncached, 5 * 60_000);
 export const fetchPowerPlants = (): Promise<PowerPlantRow[]> => fetchPowerPlantsCached();
 export const invalidatePowerPlants = (): void => fetchPowerPlantsCached.invalidate();
 
-// ── 24h preload of all plants（219 RPC，3D beam 用）─────────
-// 一次拉 14 廠 × 24h timeseries (~45 KB)，scrub 走 client binary search 零延遲
+// ── 24h preload of all plants（238 SSOT RPC，3D beam 用）──────
+// 一次拉 ~23 廠（14 台電 + 6 離岸風場 + 3 離島）× 24h timeseries，scrub 走 client binary search
 
 /** 單廠 24h 時序：每點是 [ts_unix, output_mw] tuple，按 ts 升序 */
 export interface PlantSeries {
+  facility_id?: string;
   plant_name: string;
   fuel_type: string | null;
   capacity_mw: number | null;
@@ -121,9 +122,9 @@ async function fetchPowerGeneration24hUncached(): Promise<PowerGenerationDay> {
   const { data, error } = await withLoading(
     `energy:gen24h`,
     `機組 24h 出力預載`,
-    supabase.rpc("get_power_generation_24h"),
+    supabase.rpc("get_ssot_facility_output_24h"),
   );
-  if (error) throw new Error(`get_power_generation_24h: ${error.message}`);
+  if (error) throw new Error(`get_ssot_facility_output_24h: ${error.message}`);
   const obj = (data ?? {}) as Partial<PowerGenerationDay>;
   return {
     plants: obj.plants ?? [],
@@ -138,6 +139,7 @@ export const invalidatePowerGeneration24h = (): void => fetchPowerGeneration24hC
 
 /** Resolved snapshot at a specific ts，提供給 BeamScene */
 export interface PowerGenerationRow {
+  facility_id?: string;
   plant_name: string;
   fuel_type: string | null;
   capacity_mw: number | null;
@@ -148,7 +150,7 @@ export interface PowerGenerationRow {
   lat: number;
 }
 
-/** 從預載資料 binary search 出 ts 對應的 14 廠快照（client side，零 round-trip） */
+/** 從預載資料 binary search 出 ts 對應的廠快照（client side，零 round-trip） */
 export function resolvePowerGenerationAt(
   day: PowerGenerationDay,
   tsSec: number,
@@ -170,6 +172,7 @@ export function resolvePowerGenerationAt(
     const cap = p.capacity_mw;
     const rate = cap && cap > 0 ? Math.max(0, Math.min(1.5, mw / cap)) : null;
     out.push({
+      facility_id: p.facility_id,
       plant_name: p.plant_name,
       fuel_type: p.fuel_type,
       capacity_mw: cap,
@@ -373,6 +376,26 @@ export async function fetchPlantOutput24h(plantName: string): Promise<PlantOutpu
   );
   if (error) throw new Error(`get_power_plant_output_24h: ${error.message}`);
   return (data ?? []) as PlantOutputPoint[];
+}
+
+// ── Facility units drill-down（239 RPC）─────────────────────────
+
+export interface FacilityUnit {
+  unit_id: string;
+  unit_name: string;
+  unit_seq: number | null;
+  capacity_mw: number | null;
+  taipower_unit_code: string | null;
+  net_gen_mw: number | null;
+  util_rate: number | null;
+  observed_at: string | null;
+}
+
+export async function fetchFacilityUnits(facilityId: string): Promise<FacilityUnit[]> {
+  const { data, error } = await supabase
+    .rpc("get_ssot_facility_units", { p_facility_id: facilityId });
+  if (error) throw new Error(`get_ssot_facility_units: ${error.message}`);
+  return (data ?? []) as FacilityUnit[];
 }
 
 // ── Substations / EV ───────────────────────────────────────────

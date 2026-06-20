@@ -181,7 +181,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   powerStatusHud: "#22c55e",       // 燈號綠（G）
   powerRegionDemand: "#3b82f6",    // 區域藍
   powerGenerationUnit: "#f97316",  // 機組橙（光柱主色）
-  osmSubstations: "#a78bfa",       // 變電所紫
+  osmSubstations: "#f97316",       // 變電所（區域）橘（PS 主色）
+  osmSubstationsEhv: "#ef4444",    // 變電所（超高壓）紅（EHV_SWITCH 主色）
   osmPowerLines: "#62D9AD",        // 高壓輸電線 — 161 kV 薄荷綠主色
   osmPowerTowers: "#468BA6",       // 高壓鐵塔 — 對齊 69 kV 藍綠
   osmWindTurbines: "#67e8f9",      // 風機 cyan-300（offshore 主色）
@@ -491,7 +492,8 @@ export const SECTIONS: SectionDef[] = [
       // ── 機組即時 3D 視覺 ──
       { key: "powerGenerationUnit", label: "機組即時出力", expandable: true },
       // ── 電網基礎設施 ──
-      { key: "osmSubstations", label: "變電所", expandable: true },
+      { key: "osmSubstationsEhv", label: "變電所（超高壓）", expandable: true },
+      { key: "osmSubstations",    label: "變電所（區域）",   expandable: true },
       { key: "osmPowerLines", label: "高壓輸電線", expandable: true },
       { key: "osmPowerTowers", label: "高壓鐵塔", expandable: true },
       // ── 風電 + 其他能源點位 ──
