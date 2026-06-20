@@ -201,6 +201,14 @@ export type ExpandableLayerKey =
   | "facHistorical"
   | "facSecondary"
   | "facOsmSupplement"
+  // 化石燃料 14 layer
+  | "gasStationCpc" | "gasStationFpcc" | "gasStationTaisugar" | "gasStationOther"
+  | "gasStationCanonical"
+  | "lpgSubpackaging" | "lpgRetailers"
+  | "lngTerminal"
+  | "pipelineGas" | "pipelineOilGas"
+  | "industrialRefinery" | "industrialStorageTank" | "industrialPowerPlant"
+  | "coalTerminal"
   // HAZARD（v2 Phase B）
   | "lightning"
   | "nuclearRadiation"
