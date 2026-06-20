@@ -5,9 +5,11 @@ import {
   FUEL_FALLBACK_COLOR,
   fetchPlantOutput24h,
   fetchFacilityProvenance,
+  fetchFacilityUnits,
   SUBSTATION_CLASS_COLORS,
   type PlantOutputPoint,
   type FacilityProvenance,
+  type FacilityUnit,
 } from "../../data/energyLoader";
 import { Sparkline } from "../intel/monitor/PressureRing";
 import { COLORS, FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
@@ -150,7 +152,76 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
       )}
       <Row label="資料源" value={sourceTable || "—"} />
       {canShowSparkline && <PlantOutput24h plantName={plantName} color={fuelColor} />}
+      <UnitDrillDownBlock facilityId={String(props.facility_id ?? "")} />
       <FacilityProvenanceBlock facilityId={String(props.facility_id ?? "")} />
+    </div>
+  );
+}
+
+// ── 機組 drill-down lazy fetch block（migration 239） ──────────
+function UnitDrillDownBlock({ facilityId }: { facilityId: string }) {
+  const [units, setUnits] = useState<FacilityUnit[] | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    if (!facilityId) { setUnits(null); return; }
+    let alive = true;
+    fetchFacilityUnits(facilityId)
+      .then((d) => { if (alive) setUnits(d); })
+      .catch((e) => { if (alive) setErr(String(e?.message ?? e)); });
+    return () => { alive = false; };
+  }, [facilityId]);
+
+  if (!facilityId) return null;
+  if (err) return (
+    <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: "#f87171" }}>機組: {err}</div>
+  );
+  if (!units || units.length === 0) return null;
+
+  const hasOutput = units.some((u) => u.net_gen_mw != null);
+  return (
+    <div
+      style={{
+        marginTop: 10,
+        paddingTop: 8,
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ⚙ 機組 ({units.length})
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {units.map((u) => {
+          const rate = u.util_rate;
+          const rateColor = rate == null
+            ? COLORS.textDim
+            : rate >= 85 ? "#f97316" : rate >= 50 ? "#22c55e" : "#64aaff";
+          return (
+            <div
+              key={u.unit_id}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1.2fr 0.9fr 0.9fr 0.6fr",
+                gap: 6,
+                alignItems: "baseline",
+                fontFamily: FONT_DATA,
+                fontSize: FONT_SIZE.xs,
+                color: COLORS.textDim,
+              }}
+            >
+              <span style={{ color: COLORS.textDefault, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {u.unit_name}
+              </span>
+              <span>{fmtMW(u.capacity_mw)}</span>
+              <span style={{ color: hasOutput ? COLORS.textDefault : COLORS.textDim }}>
+                {u.net_gen_mw != null ? fmtMW(u.net_gen_mw) : "—"}
+              </span>
+              <span style={{ color: rateColor, textAlign: "right" }}>
+                {rate != null ? `${rate.toFixed(0)}%` : "—"}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

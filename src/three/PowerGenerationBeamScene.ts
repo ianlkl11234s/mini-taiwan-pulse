@@ -86,7 +86,7 @@ export class PowerGenerationBeamScene {
     this.scene.add(this.mesh);
   }
 
-  /** 餵入最新一輪機組出力（slim RPC，已是有 output 的 ~14 廠） */
+  /** 餵入最新一輪機組出力（SSOT RPC，~23 廠：14 台電 + 6 離岸 + 3 離島） */
   setData(rows: PowerGenerationRow[]) {
     const candidates = rows.filter(
       (r) =>
@@ -96,7 +96,7 @@ export class PowerGenerationBeamScene {
         Number.isFinite(r.lat),
     );
     console.log(
-      `[PowerBeam] scene.setData: ${rows.length} rows total, ${candidates.length} active (期望 ~14)`,
+      `[PowerBeam] scene.setData: ${rows.length} rows total, ${candidates.length} active (期望 ~23 廠：14 台電 + 6 離岸 + 3 離島)`,
     );
 
     // Build new beam state list - preserve currentHeight for matching plants

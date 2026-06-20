@@ -26,7 +26,9 @@ function plantsToHitFC(rows: PowerGenerationRow[]): GeoJSON.FeatureCollection {
       geometry: { type: "Point", coordinates: [r.lon, r.lat] },
       properties: {
         // 跟 layer 1 plants 同 shape，PowerPlantPanel 直接相容
-        source_table: "power_plants",
+        source_table: "energy.power_facilities",
+        source_id: r.facility_id ?? r.plant_name,
+        facility_id: r.facility_id,
         name: r.plant_name,
         fuel_type: r.fuel_type ?? "",
         capacity_mw: r.capacity_mw,
@@ -44,7 +46,7 @@ function plantsToHitFC(rows: PowerGenerationRow[]): GeoJSON.FeatureCollection {
 
 /**
  * Layer 4：機組即時出力 3D beam，跟隨 timeline 時間軸。
- * - 一次拉 24h × 14 廠 (~45KB)，scrub 走 client binary search → 零 round-trip
+ * - 一次拉 24h × ~23 廠（14 台電 + 6 離岸 + 3 離島；SSOT RPC 238），scrub 走 client binary search
  * - 每 10min 自動 invalidate + refetch（拿新一輪 cron 結果）
  * - 歷史超過 24h 範圍時走 beam 高度歸 0
  */
