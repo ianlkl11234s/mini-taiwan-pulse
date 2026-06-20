@@ -1,9 +1,68 @@
 # Status
 
-**最後更新**：2026-06-19 晚（Energy v2 Phase A + B 完成，feat/energy-v2-A 5 commits 等用戶 review）
-**Master head**：本次 wrap-up 6 個 memory commit（含本檔）
-**Feat head**：`24026c4` on `feat/energy-v2-A`
-**未 push**：master 領先 origin 多 commit、feat/energy-v2-A 完全本地
+**最後更新**：2026-06-20 早（Energy Phase 8.2 SSOT 25 廠 + 變電所拆層 收尾 — PR #27 merged）
+**Master head**：`b3bfd62` on `master`（已 sync origin）
+**gis-platform main head**：`c9769c3`（已 sync origin）
+**Open branches**：無
+
+## 2026-06-20 Energy Phase 8.2 — SSOT 24h RPC + drill-down + 變電所拆層（PR gis-platform #15 + mini-taiwan-pulse #27 merged）
+
+**用戶定向**：接上輪 PR #26（Phase 8.1 + 6-layer 重構 + Three.js bloom）+ e625fb8 fmtMW fix，
+延 brief 三件事 C → A → B 全跑 + 加碼變電所拆兩層。
+
+### 完成清單
+
+| 段 | 內容 | PR |
+|---|---|---|
+| **Backend** migration 238 | `cross_refs.realtime_facility_alias` schema + 13-row 對應表 + 改寫 `get_ssot_facility_output_24h()` 雙路線 UNION → **14 → 23 廠**（14 台電 + 6 離岸 + 3 離島） | gis-platform [#15](https://github.com/ianlkl11234s/gis-platform/pull/15) |
+| migration 239 | `get_ssot_facility_units(facility_id)` 機組 drill-down RPC | 同上 |
+| migration 240 | `all_power_plants_v` 改 SSOT alias（保 backward compat）+ DROP 2 個無 caller 的 legacy RPC | 同上 |
+| **Frontend** PowerCard/Beam | loader 切 SSOT RPC、加 `facility_id` 欄；hit-test FC 改 `source_table='energy.power_facilities'`；comments 23 廠 | mini-taiwan-pulse [#27](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/27) |
+| 機組 drill-down | `UnitDrillDownBlock` lazy fetch — popup 點廠列機組 (unit_name / cap / net_gen / util_rate%) 含負載率配色 | 同上 |
+| 變電所拆兩層 | 從 `osmSubstations` 單層 785 → `osmSubstationsEhv` 38（含 halo）+ `osmSubstations` 747；overlayRegistry / Legend / sidebar / params slider / interaction 9 檔同步；命名對齊「發電廠（XXX）」 | 同上 |
+| **Audit** Task C | Places API (New) v2：581 廠 Pass 62 / Review 31 / Critical 488（多 GEM 通用名 false positive）。v1 Geocoding fallback 已棄。$20.99 | 同上 |
+
+### 最終驗證
+
+- `npx tsc -b` 0 error
+- `pnpm test --run` **155/155 pass** 含 layerConsistency ratchet
+- 線上 RPC smoke 過：`get_ssot_facility_output_24h()` 回 23 廠 / `get_ssot_facility_units('t1-gov-台中發電廠')` 回 10 機組 / `all_power_plants_v` 581 廠
+- 用戶手動視覺驗收通過（PowerCard sparkline / Beam 立柱 / popup drill-down / 變電所兩層獨立 toggle）
+
+### 1 個重要踩坑（已收 PRINCIPLES）
+
+**Migration 237 嘗試用 `UPDATE energy.power_units SET taipower_unit_code` 補離岸+離島 linkage 時用戶喊停**：
+「現在的電廠已經是 SSOT，如果即時有衝突，先不要改現在的電廠，先跟我說」。
+
+我 revert 6 row UPDATE 後改走 `cross_refs.realtime_facility_alias` 獨立 schema 路線（不動 SSOT
+`power_units` 欄位）。語意分離：
+- `power_units.taipower_unit_code` = 實體機組 ↔ realtime `#N` 編號精確配對（migration 233 設好）
+- `cross_refs.realtime_facility_alias` = realtime aggregate label（沃一風/澎湖尖山）↔ facility 整廠粗略配對
+
+**新規則**：碰 SSOT 結構性修改前必先跟用戶確認，不論看起來多「順手」。
+
+### 留底（後續再評）
+
+- 🟡 2 行低信心 mapping（中能風 295MW vs 中能 480MW / 離岸一期 109MW vs 台電離岸 403MW）暫 `is_active=FALSE`，待 GEM datasheet 確認 phase 對應再開啟 → +2 廠 = 25 廠
+- 🟡 舊原始 table（power_plants / nuclear_plants / ipp_thermal_plants / osm_power_plants / osm_solar_farms / osm_wind_turbines）未 drop，等下個段落再評
+- 🟡 Places audit 488 Critical 中 GEM 小型光電通用名 false positive 占多數；要真 audit 需人工 spot-check sample 或加 county hint 至 first attempt prompt
+- 🟢 Phase 8.6 設計文件提到的 PowerCard KPI strip 變動本輪沒動
+
+### 下個 session 入口
+
+```
+能源已收尾（Phase 8.1 + 8.2 + 8.6 cleanup + 變電所拆層）。下一個主題：?
+
+候選：
+1. 低信心 mapping 釐清 — 查 GEM datasheet 確認 中能風 / 離岸一期 對應哪個 facility phase
+2. Places audit Critical 488 廠 spot-check（GEM 小型光電座標可信度）
+3. 舊原始 table drop（power_plants/nuclear_plants/...）— 但先確認 mini-taipei-v3 等周邊 repo 不再用
+4. Phase 8.6 PowerCard KPI strip 設計（taipei-gis-analytics docs/topic-research/energy/PHASE_8_FRONTEND_HANDOFF_PROMPT.md）
+
+或者切換主題（非能源）— 看 BACKLOG。
+```
+
+---
 
 ## 2026-06-19 晚 Energy v2 Phase A + B autonomous run（feat/energy-v2-A，5 commits）
 
