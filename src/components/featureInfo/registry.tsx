@@ -29,7 +29,13 @@ import { HikingTrailsPanel, ForestryGenericPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { MedicalPOIPanel, MedicalIsochronePanel } from "./medicalPanels";
 import { SatellitePanel } from "./satellitePanels";
-import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel } from "./energyPanels";
+import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel,
+  GasStationCpcPanel, GasStationFpccPanel, GasStationTaisugarPanel, GasStationOtherPanel,
+  GasStationCanonicalPanel, LpgSubpackagingPanel, LpgRetailersPanel, LngTerminalPanel,
+  PipelineGasPanel, PipelineOilGasPanel,
+  IndustrialRefineryPanel, IndustrialStorageTankPanel, IndustrialPowerPlantPanel,
+  CoalTerminalPanel,
+} from "./energyPanels";
 import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
 
 export interface PanelProps {
@@ -114,6 +120,21 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   geothermalWell: GeothermalWellPanel,
   renewablePermitTaipei: RenewablePermitTaipeiPanel,
   evCharging: EvChargingPanel,
+  // 化石燃料 14 layer
+  gasStationCpc: GasStationCpcPanel,
+  gasStationFpcc: GasStationFpccPanel,
+  gasStationTaisugar: GasStationTaisugarPanel,
+  gasStationOther: GasStationOtherPanel,
+  gasStationCanonical: GasStationCanonicalPanel,
+  lpgSubpackaging: LpgSubpackagingPanel,
+  lpgRetailers: LpgRetailersPanel,
+  lngTerminal: LngTerminalPanel,
+  pipelineGas: PipelineGasPanel,
+  pipelineOilGas: PipelineOilGasPanel,
+  industrialRefinery: IndustrialRefineryPanel,
+  industrialStorageTank: IndustrialStorageTankPanel,
+  industrialPowerPlant: IndustrialPowerPlantPanel,
+  coalTerminal: CoalTerminalPanel,
   lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
 };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Row } from "./shared";
+import { Row, SourceFooter } from "./shared";
 import {
   fuelColorOf,
   FUEL_FALLBACK_COLOR,
@@ -538,6 +538,197 @@ export function EvChargingPanel({ props }: { props: Record<string, unknown> }) {
       <Row label="充電位" value={String(props.charging_points ?? "—")} />
       <Row label="車位" value={String(props.spaces ?? "—")} />
       <Row label="來源" value={String(props.source ?? "—")} />
+    </div>
+  );
+}
+
+
+// ══════════════════════════════════════════════════════════════════
+// 化石燃料 14 panel（Phase B — public.get_fossil_fuel_layers()）
+// 每個 panel 結尾必掛 SourceFooter（用戶要求溯源到原始下載頁）
+// canonical SSOT 3 個 layer 多顯示 confidence + n_sources
+// ══════════════════════════════════════════════════════════════════
+
+function joinBrand(b: unknown): string {
+  if (Array.isArray(b)) return b.join(" / ");
+  return String(b ?? "");
+}
+
+function GasStationCommonRows({ props }: { props: Record<string, unknown> }) {
+  return (
+    <>
+      <Row label="站名" value={String(props.name ?? "—")} />
+      <Row label="品牌" value={joinBrand(props.brand) || "—"} />
+      <Row label="地址" value={String(props.address ?? "—")} />
+      <Row label="電話" value={String(props.telephone ?? "—")} />
+    </>
+  );
+}
+
+export function GasStationCpcPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <GasStationCommonRows props={props} />
+      <Row label="類別" value={String(props.category ?? "—")} />
+      <Row label="營業時間" value={String(props.service_time ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function GasStationFpccPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <GasStationCommonRows props={props} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function GasStationTaisugarPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <GasStationCommonRows props={props} />
+      <Row label="自助加油" value={props.is_self_service ? "是" : props.is_self_service === false ? "否" : "—"} />
+      <Row label="24h 營業" value={props.is_24h ? "是" : props.is_24h === false ? "否" : "—"} />
+      <Row label="充電設施" value={props.has_ev_charging ? "有" : props.has_ev_charging === false ? "無" : "—"} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function GasStationOtherPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <GasStationCommonRows props={props} />
+      <Row label="統編" value={String(props.tax_id ?? "—")} />
+      <Row label="資本額" value={String(props.capital ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function GasStationCanonicalPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <GasStationCommonRows props={props} />
+      <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label="來源數" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function LpgSubpackagingPanel({ props }: { props: Record<string, unknown> }) {
+  const kinds = Array.isArray(props.facility_kinds) ? props.facility_kinds.join(", ") : "—";
+  return (
+    <div>
+      <Row label="場所名稱" value={String(props.name ?? "—")} />
+      <Row label="類型" value={kinds} />
+      <Row label="地址" value={String(props.address ?? "—")} />
+      <Row label="電話" value={String(props.telephone ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function LpgRetailersPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="店家名稱" value={String(props.name ?? "—")} />
+      <Row label="地址" value={String(props.address ?? "—")} />
+      <Row label="電話" value={String(props.telephone ?? "—")} />
+      <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label="來源數" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function LngTerminalPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="接收站" value={String(props.name ?? "—")} />
+      <Row label="英文名" value={String(props.name_en ?? "—")} />
+      <Row label="狀態" value={String(props.status ?? "—")} />
+      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <Row label="容量 (Mtpa)" value={String(props.capacity_mtpa ?? "—")} />
+      <Row label="信心分數" value={props.confidence != null ? String(props.confidence) : "—"} />
+      <Row label="來源數" value={props.n_sources != null ? String(props.n_sources) : "—"} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function PipelineGasPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="管線名稱" value={String(props.pipeline_name ?? props.name ?? "—")} />
+      <Row label="輸送物質" value={String(props.substance ?? "gas")} />
+      <Row label="狀態" value={String(props.status ?? "—")} />
+      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <Row label="管徑（吋）" value={String(props.diameter_in ?? "—")} />
+      <Row label="完工年" value={String(props.start_year ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function PipelineOilGasPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="管線名稱" value={String(props.pipeline_name ?? props.name ?? "—")} />
+      <Row label="輸送物質" value={String(props.substance ?? "—")} />
+      <Row label="狀態" value={String(props.status ?? "—")} />
+      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <Row label="管徑（吋）" value={String(props.diameter_in ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function IndustrialRefineryPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="廠區名稱" value={String(props.name ?? "—")} />
+      <Row label="類型" value={String(props.industrial_type ?? "refinery")} />
+      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function IndustrialStorageTankPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="儲槽名稱" value={String(props.name ?? "—")} />
+      <Row label="類型" value={String(props.industrial_type ?? "storage_tank")} />
+      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function IndustrialPowerPlantPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="廠區名稱" value={String(props.name ?? "—")} />
+      <Row label="類型" value={String(props.industrial_type ?? "power_plant")} />
+      <Row label="營運單位" value={String(props.operator ?? "—")} />
+      <SourceFooter props={props} />
+    </div>
+  );
+}
+
+export function CoalTerminalPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="碼頭名稱" value={String(props.terminal_name ?? props.name ?? "—")} />
+      <Row label="所屬港" value={String(props.parent_port ?? "—")} />
+      <Row label="容量 (Mt)" value={String(props.capacity_mt ?? "—")} />
+      <Row label="狀態" value={String(props.status ?? "—")} />
+      <Row label="營運者" value={String(props.owner ?? "—")} />
+      <SourceFooter props={props} />
     </div>
   );
 }
