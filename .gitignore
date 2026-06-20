@@ -75,3 +75,4 @@ scripts/fetch/.pingtung_geocode_cache.json
 public/forestry/trail_coverage_per_compartment.geojson
 public/forestry/national_forest_compartments.geojson
 public/forestry/signal_gap.geojson
+scripts/audit/.places_cache.json
