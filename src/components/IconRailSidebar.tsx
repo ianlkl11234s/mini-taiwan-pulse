@@ -19,7 +19,7 @@ import {
   Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
   Satellite,
   // ENERGY icons
-  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2,
+  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
   // HAZARD icons
   CloudLightning, Atom,
   type LucideIcon,
@@ -206,6 +206,21 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   facHistorical: Power,      // 歷史退役
   facSecondary: CircleDot,   // 次要小型
   facOsmSupplement: MapPin,  // OSM 無名單機
+  // 化石燃料 13 layer（重用既有 icons）
+  gasStationCpc: Fuel,
+  gasStationFpcc: Fuel,
+  gasStationTaisugar: Fuel,
+  gasStationOther: Fuel,
+  gasStationCanonical: Fuel,
+  lpgSubpackaging: Container,
+  lpgRetailers: Flame,
+  lngTerminal: Container,
+  pipelineGas: Spline,
+  pipelineOilGas: Spline,
+  industrialRefinery: Factory,
+  industrialStorageTank: Container,
+  industrialPowerPlant: Factory,
+  coalTerminal: Anchor,
   lightning: CloudLightning,
   nuclearRadiation: Atom,
 };

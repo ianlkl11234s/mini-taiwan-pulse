@@ -563,6 +563,14 @@ export interface FeatureInfo {
     | "osmWindTurbine" | "osmSolarFarm" | "osmPowerPlantStatic"
     | "offshoreWindZone" | "islandPowerFacility" | "fossilFuelFacility"
     | "geothermalWell" | "renewablePermitTaipei"
+    // 化石燃料 13 layer（Phase B 接 public.get_fossil_fuel_layers()）
+    | "gasStationCpc" | "gasStationFpcc" | "gasStationTaisugar" | "gasStationOther"
+    | "gasStationCanonical"
+    | "lpgSubpackaging" | "lpgRetailers"
+    | "lngTerminal"
+    | "pipelineGas" | "pipelineOilGas"
+    | "industrialRefinery" | "industrialStorageTank" | "industrialPowerPlant"
+    | "coalTerminal"
     | "lightningStrike" | "nuclearStation";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
@@ -750,6 +758,21 @@ export interface LayerVisibility {
   facHistorical: boolean;        // L4: 歷史 - 退役 / 擱置 15 (retired+mothballed+shelved)
   facSecondary: boolean;         // L5: 次要 341（焚化+地熱+小水力+中小光電/風電）
   facOsmSupplement: boolean;     // L6: OSM 補充 1,215 (source_priority=5 無名單機)
+  // 化石燃料 13 layer（接 public.get_fossil_fuel_layers() — Phase B）
+  gasStationCpc: boolean;          // 加油站（中油 1,971）
+  gasStationFpcc: boolean;         // 加油站（台塑系 OSM 348）
+  gasStationTaisugar: boolean;     // 加油站（台糖 73）
+  gasStationOther: boolean;        // 加油站（其他/私營 41455 商業司 1,179）
+  gasStationCanonical: boolean;    // 加油站 SSOT 合併（全品牌 3,053）
+  lpgSubpackaging: boolean;        // LPG 分裝/儲存/驗瓶（oil111 113）
+  lpgRetailers: boolean;           // LPG 加氣站/瓦斯行（canonical 1,292）
+  lngTerminal: boolean;            // LNG 接收站 SSOT（7）
+  pipelineGas: boolean;            // 天然氣主幹線（GEM 11）
+  pipelineOilGas: boolean;         // OSM 油氣管線（10）
+  industrialRefinery: boolean;     // 煉油 / 化工廠 polygon（OSM 98）
+  industrialStorageTank: boolean;  // 油氣儲槽 polygon（OSM 72）
+  industrialPowerPlant: boolean;   // 火力廠 polygon（OSM 26）
+  coalTerminal: boolean;           // 煤炭碼頭（GEM 4）
   // 災害 HAZARD（v2 Phase B）
   lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
   nuclearRadiation: boolean;     // 核安 51 站即時劑量（is_stale 標離線）
