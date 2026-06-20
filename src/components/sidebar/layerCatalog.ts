@@ -202,20 +202,20 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   facSecondary: "#8C7C4A",         // bioenergy 卡其（小型分散）
   facOsmSupplement: "#94a3b8",     // 中性灰
   // 化石燃料 13 layer（Phase B — public.get_fossil_fuel_layers()）
-  gasStationCpc: "#00875A",        // 中油綠
-  gasStationFpcc: "#1E40AF",       // 台塑藍
-  gasStationTaisugar: "#EA580C",   // 台糖橘
-  gasStationOther: "#6B7280",      // 其他灰
-  gasStationCanonical: "#FAFAFA",  // canonical 白（SSOT 合併）
-  lpgSubpackaging: "#DC2626",      // LPG 紅（分裝場大型）
-  lpgRetailers: "#F87171",         // LPG 淺紅（零售小型）
-  lngTerminal: "#0891B2",          // LNG 藍綠
-  pipelineGas: "#FACC15",          // 天然氣黃
-  pipelineOilGas: "#F59E0B",       // 油氣琥珀
-  industrialRefinery: "#1F2937",   // 煉油深黑
-  industrialStorageTank: "#92400E", // 儲槽棕
-  industrialPowerPlant: "#374151",  // 火力深灰
-  coalTerminal: "#111827",         // 煤黑
+  gasStationCpc: "#EE05F2",        // 中油 — 桃紅（主導品牌，最顯目）
+  gasStationFpcc: "#9305F2",       // 台塑 — 紫
+  gasStationTaisugar: "#07F2DB",   // 台糖 — 藍綠
+  gasStationOther: "#296CA6",      // 其他/私營 — 海軍灰（量大低調）
+  gasStationCanonical: "#5005F2",  // canonical SSOT — 深紫（厚重）
+  lpgSubpackaging: "#0FBFBF",      // LPG 分裝場 — 青
+  lpgRetailers: "#2E4BF2",         // LPG 加氣站/瓦斯行 — 亮藍
+  lngTerminal: "#3D9DF2",          // LNG 接收站 — 天藍
+  pipelineGas: "#3D9DF2",          // 天然氣主幹線 — 天藍（線狀，與 LNG 同系）
+  pipelineOilGas: "#296CA6",       // 油氣管線 OSM — 海軍灰（線狀）
+  industrialRefinery: "#1F34A6",   // 煉油廠 polygon — 深藍
+  industrialStorageTank: "#5005F2", // 儲槽 polygon — 深紫
+  industrialPowerPlant: "#9305F2",  // 火力廠 polygon — 紫
+  coalTerminal: "#1F34A6",         // 煤炭碼頭 — 深藍（重型）
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
