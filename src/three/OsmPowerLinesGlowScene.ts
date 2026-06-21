@@ -30,7 +30,7 @@ interface TierMesh {
 }
 
 const TIER_COLORS: Record<number, THREE.Color> = {
-  345: new THREE.Color("#D707F2"),
+  345: new THREE.Color("#1AB6D9"),
   161: new THREE.Color("#62D9AD"),
   69:  new THREE.Color("#468BA6"),
   0:   new THREE.Color("#DFE0DC"),

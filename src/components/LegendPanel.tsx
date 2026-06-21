@@ -985,7 +985,7 @@ function EnergyFuelLegend() {
 
 function PowerGridLegend() {
   const voltageRows = [
-    { kv: "345 kV", color: "#D707F2" },
+    { kv: "345 kV", color: "#1AB6D9" },
     { kv: "161 kV", color: "#62D9AD" },
     { kv: "69 kV",  color: "#468BA6" },
     { kv: "未標／混合", color: "#DFE0DC" },
