@@ -202,20 +202,20 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   facSecondary: "#8C7C4A",         // bioenergy 卡其（小型分散）
   facOsmSupplement: "#94a3b8",     // 中性灰
   // 化石燃料 13 layer（Phase B — public.get_fossil_fuel_layers()）
-  gasStationCpc: "#D9306E",        // 中油 — 桃紅（主導品牌，最顯目；白邊框）
-  gasStationFpcc: "#F2522E",       // 台塑 — 紅橙
-  gasStationTaisugar: "#82BF45",   // 台糖 — 草綠
-  gasStationOther: "#0F4459",      // 其他/私營 — 深海軍藍（量大低調）
-  gasStationCanonical: "#F2BD1D",  // canonical SSOT — 黃（醒目）
-  lpgSubpackaging: "#F2A516",      // LPG 分裝場 — 橙黃
-  lpgRetailers: "#F27127",         // LPG 加氣站/瓦斯行 — 橙
-  lngTerminal: "#30BBF2",          // LNG 接收站 — 天藍
-  pipelineGas: "#30BBF2",          // 天然氣主幹線 — 天藍（線狀，與 LNG 同系）
-  pipelineOilGas: "#D3D925",       // 油氣管線 OSM — 黃綠（線狀）
-  industrialRefinery: "#F23535",   // 煉油廠 polygon — 紅
-  industrialStorageTank: "#F2522E", // 儲槽 polygon — 紅橙
-  industrialPowerPlant: "#F2A516",  // 火力廠 polygon — 橙黃
-  coalTerminal: "#0F4459",         // 煤炭碼頭 — 深海軍藍（重型）
+  gasStationCpc: "#41AEF2",        // 中油 — 藍（白邊 0.5px）
+  gasStationFpcc: "#22C55E",       // 台塑 — 綠（白邊 0.5px）
+  gasStationTaisugar: "#F2522E",   // 台糖 — 紅橙（白邊 0.5px）
+  gasStationOther: "#D1D5DB",      // 其他/私營 — 淺灰（白邊 0.5px）
+  gasStationCanonical: "#0FBFBF",  // canonical SSOT — teal 藍綠（白邊 0.5px）
+  lpgSubpackaging: "#F2622E",      // LPG 分裝場 — 紅橙
+  lpgRetailers: "#D9863D",         // LPG 加氣站/瓦斯行 — 棕橙
+  lngTerminal: "#F2B84B",          // LNG 接收站 — 橙黃
+  pipelineGas: "#F2D64B",          // 天然氣主幹線 — 暖黃（線狀）
+  pipelineOilGas: "#EDF249",       // 油氣管線 OSM — 黃（虛線）
+  industrialRefinery: "#A855F7",   // 煉油廠 polygon — Cyberpunk 亮紫
+  industrialStorageTank: "#06B6D4", // 儲槽 polygon — Cyberpunk cyan
+  industrialPowerPlant: "#D946EF",  // 火力廠 polygon — Cyberpunk magenta
+  coalTerminal: "#3B82F6",         // 煤炭碼頭 — Cyberpunk 電光藍
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
