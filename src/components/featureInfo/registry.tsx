@@ -35,6 +35,8 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
   PipelineGasPanel, PipelineOilGasPanel,
   IndustrialRefineryPanel, IndustrialStorageTankPanel, IndustrialPowerPlantPanel,
   CoalTerminalPanel,
+  GasCoverageAllPanel, GasCoverageCpcPanel, GasCoverageFpccPanel, GasCoverageTaisugarPanel,
+  EvIslandPanel,
 } from "./energyPanels";
 import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
 
@@ -135,6 +137,12 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   industrialStorageTank: IndustrialStorageTankPanel,
   industrialPowerPlant: IndustrialPowerPlantPanel,
   coalTerminal: CoalTerminalPanel,
+  // 雲林 POC 覆蓋分析
+  gasCoverageAll: GasCoverageAllPanel,
+  gasCoverageCpc: GasCoverageCpcPanel,
+  gasCoverageFpcc: GasCoverageFpccPanel,
+  gasCoverageTaisugar: GasCoverageTaisugarPanel,
+  evIsland: EvIslandPanel,
   lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
 };
@@ -230,6 +238,12 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   industrialStorageTank: "油氣儲槽",
   industrialPowerPlant: "火力廠 polygon",
   coalTerminal: "煤炭碼頭",
+  // 雲林 POC 覆蓋分析
+  gasCoverageAll: "加油站總覆蓋密度",
+  gasCoverageCpc: "中油 30km 可達",
+  gasCoverageFpcc: "台塑 30km 可達",
+  gasCoverageTaisugar: "台糖 30km 可達",
+  evIsland: "充電站 30km 孤島",
   lightningStrike: "落雷",
   nuclearStation: "核安觀測站",
 };

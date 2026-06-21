@@ -732,3 +732,85 @@ export function CoalTerminalPanel({ props }: { props: Record<string, unknown> })
     </div>
   );
 }
+
+// ──────────────────────────────────────────────────────────────────
+// 雲林 POC 覆蓋分析 5 panel — OSRM 30km isochrone
+// ──────────────────────────────────────────────────────────────────
+
+function CoveragePocFooter() {
+  return (
+    <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.4 }}>
+      資料來源：本專案 OSRM 30km isochrone 計算（POC 雲林版）
+    </div>
+  );
+}
+
+export function GasCoverageAllPanel({ props }: { props: Record<string, unknown> }) {
+  const count = Number(props.count ?? 0);
+  return (
+    <div>
+      <Row label="可達廠數" value={`${Number.isFinite(count) ? count : "—"} 廠`} />
+      <Row label="距離門檻" value="30km 路網距離內" />
+      <Row label="H3 hex id" value={String(props.h3 ?? "—")} />
+      <CoveragePocFooter />
+    </div>
+  );
+}
+
+export function GasCoverageCpcPanel({ props: _props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="覆蓋類型" value="中油 30km 路網可達區" />
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: COLORS.textMuted, lineHeight: 1.4 }}>
+        雲林境內中油 158 站，30km 路網 isochrone union polygon。
+      </div>
+      <CoveragePocFooter />
+    </div>
+  );
+}
+
+export function GasCoverageFpccPanel({ props: _props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="覆蓋類型" value="台塑 30km 路網可達區" />
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: COLORS.textMuted, lineHeight: 1.4 }}>
+        雲林境內台塑系 41 站，30km 路網 isochrone union polygon。
+      </div>
+      <CoveragePocFooter />
+    </div>
+  );
+}
+
+export function GasCoverageTaisugarPanel({ props: _props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="覆蓋類型" value="台糖 30km 路網可達區" />
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: COLORS.textMuted, lineHeight: 1.4 }}>
+        雲林境內台糖 1 站，30km 路網 isochrone polygon。
+      </div>
+      <CoveragePocFooter />
+    </div>
+  );
+}
+
+export function EvIslandPanel({ props }: { props: Record<string, unknown> }) {
+  const evCount = Number(props.ev_count ?? 0);
+  const isIsland = props.is_island === true;
+  return (
+    <div>
+      <Row label="可達充電站" value={`${Number.isFinite(evCount) ? evCount : "—"} 個`} />
+      <Row label="距離門檻" value="30km 路網距離內" />
+      <Row label="H3 hex id" value={String(props.h3 ?? "—")} />
+      {isIsland && (
+        <div style={{
+          marginTop: 8, padding: "6px 8px",
+          background: "rgba(242,53,53,0.12)", border: "1px solid rgba(242,53,53,0.4)",
+          borderRadius: 4, color: "#F23535", fontSize: FONT_SIZE.sm, lineHeight: 1.4,
+        }}>
+          此區無充電站 30km 內可達 — 充電孤島
+        </div>
+      )}
+      <CoveragePocFooter />
+    </div>
+  );
+}

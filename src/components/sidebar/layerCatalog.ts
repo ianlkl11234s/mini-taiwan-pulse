@@ -216,6 +216,12 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   industrialStorageTank: "#06B6D4", // 儲槽 polygon — Cyberpunk cyan
   industrialPowerPlant: "#D946EF",  // 火力廠 polygon — Cyberpunk magenta
   coalTerminal: "#3B82F6",         // 煤炭碼頭 — Cyberpunk 電光藍
+  // 雲林 POC 覆蓋分析 — 30km 路網可達
+  gasCoverageAll: "#F2A516",       // 總覆蓋密度 — 橙黃（gradient mid stop）
+  gasCoverageCpc: "#41AEF2",       // 中油 — 藍
+  gasCoverageFpcc: "#22C55E",      // 台塑 — 綠
+  gasCoverageTaisugar: "#F2522E",  // 台糖 — 紅橙
+  evIsland: "#F23535",             // 充電孤島 — 警告紅
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
@@ -542,6 +548,12 @@ export const SECTIONS: SectionDef[] = [
       { key: "industrialPowerPlant",  label: "火力廠 polygon",              expandable: true },
       // ── 煤炭 ──
       { key: "coalTerminal",          label: "煤炭碼頭",                    expandable: true },
+      // ── 雲林 POC 覆蓋分析（30km 路網可達 isochrone）──
+      { key: "gasCoverageAll",        label: "加油站 30km 總覆蓋密度",       expandable: true },
+      { key: "gasCoverageCpc",        label: "加油站 30km 中油可達",         expandable: true },
+      { key: "gasCoverageFpcc",       label: "加油站 30km 台塑可達",         expandable: true },
+      { key: "gasCoverageTaisugar",   label: "加油站 30km 台糖可達",         expandable: true },
+      { key: "evIsland",              label: "充電站 30km 孤島",             expandable: true },
     ],
   },
   {

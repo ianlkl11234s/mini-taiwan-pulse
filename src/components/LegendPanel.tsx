@@ -160,6 +160,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     ],
     render: ({ visibility }) => <FossilFuelLegend visibility={visibility} />,
   },
+  // 雲林 POC 覆蓋分析 5 layer 共用 CoverageLegend，按 visibility 過濾顯示行
+  {
+    keys: ["gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc", "gasCoverageTaisugar", "evIsland"],
+    render: ({ visibility }) => <CoverageLegend visibility={visibility} />,
+  },
   { keys: ["lightning"], render: () => <LightningLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
 ];
@@ -1191,6 +1196,82 @@ function FossilFuelLegend({ visibility }: { visibility: LayerVisibility }) {
             <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.label}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 雲林 POC 覆蓋分析（OSRM 30km isochrone）──
+function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
+  const anyOn = visibility.gasCoverageAll || visibility.gasCoverageCpc
+    || visibility.gasCoverageFpcc || visibility.gasCoverageTaisugar || visibility.evIsland;
+  if (!anyOn) return null;
+
+  const GRADIENT_STOPS: { c: string; l: string }[] = [
+    { c: "#22C55E", l: "1 廠" },
+    { c: "#F2D64B", l: "3 廠" },
+    { c: "#F2A516", l: "7 廠" },
+    { c: "#F2522E", l: "15 廠" },
+    { c: "#7F1D1D", l: "30+ 廠" },
+  ];
+
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 雲林覆蓋 POC
+      </div>
+      {visibility.gasCoverageAll && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>加油站 30km 總覆蓋密度</div>
+          <div style={{
+            height: 8, marginTop: 4, borderRadius: 2,
+            background: "linear-gradient(to right, #22C55E 0%, #F2D64B 25%, #F2A516 50%, #F2522E 75%, #7F1D1D 100%)",
+          }} />
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
+            {GRADIENT_STOPS.map((s) => (
+              <span key={s.l} style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{s.l}</span>
+            ))}
+          </div>
+        </>
+      )}
+      {(visibility.gasCoverageCpc || visibility.gasCoverageFpcc || visibility.gasCoverageTaisugar) && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>30km 路網可達 union polygon</div>
+      )}
+      {visibility.gasCoverageCpc && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 14, height: 10, background: "#41AEF2", opacity: 0.5, border: "1px solid #41AEF2" }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>中油 158 站</span>
+        </div>
+      )}
+      {visibility.gasCoverageFpcc && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 14, height: 10, background: "#22C55E", opacity: 0.5, border: "1px solid #22C55E" }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>台塑 41 站</span>
+        </div>
+      )}
+      {visibility.gasCoverageTaisugar && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 14, height: 10, background: "#F2522E", opacity: 0.5, border: "1px solid #F2522E" }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>台糖 1 站</span>
+        </div>
+      )}
+      {visibility.evIsland && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>充電站 30km 孤島</div>
+          {[
+            { c: "#F23535", l: "孤島 (0 站可達)" },
+            { c: "#F2A516", l: "邊緣 (1 站)" },
+            { c: "rgba(150,150,150,0.4)", l: "充足 (2+ 站)" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{ width: 12, height: 12, background: r.c, borderRadius: 2, border: "1px solid rgba(255,255,255,0.3)" }} />
+              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.l}</span>
+            </div>
+          ))}
+        </>
+      )}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+        OSRM 30km isochrone · 雲林 POC
       </div>
     </div>
   );

@@ -4531,4 +4531,148 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ══════════════════════════════════════════════════════════════════
+  //  雲林 POC 覆蓋分析（OSRM 30km isochrone）— 5 個 toggle
+  //  資料源：static GeoJSON 在 public/coverage/yunlin_*.geojson
+  //  loader：useCoverageLayers + coverageLoader（per-key lazy fetch）
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── 加油站 30km 總覆蓋密度（H3 z8 hex × count）──
+  {
+    id: "gasCoverageAll",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "coverage-gas-all",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasCoverageAllOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.gasCoverageAllOpacity ?? 0.55;
+          return {
+            "fill-color": [
+              "interpolate", ["linear"], ["coalesce", ["get", "count"], 0],
+              0, "rgba(0,0,0,0)",
+              1, "#22C55E",
+              3, "#F2D64B",
+              7, "#F2A516",
+              15, "#F2522E",
+              30, "#7F1D1D",
+            ],
+            "fill-opacity": o,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 加油站 30km 中油可達 union polygon ──
+  {
+    id: "gasCoverageCpc",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "coverage-gas-cpc",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasCoverageCpcOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.gasCoverageCpcOpacity ?? 0.25;
+          return { "fill-color": "#41AEF2", "fill-opacity": o };
+        },
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.gasCoverageCpcOpacity ?? 0.25;
+          return { "line-color": "#41AEF2", "line-width": 1.5, "line-opacity": Math.min(1, o * 2.5) };
+        },
+      },
+    ],
+  },
+
+  // ── 加油站 30km 台塑可達 union polygon ──
+  {
+    id: "gasCoverageFpcc",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "coverage-gas-fpcc",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasCoverageFpccOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.gasCoverageFpccOpacity ?? 0.25;
+          return { "fill-color": "#22C55E", "fill-opacity": o };
+        },
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.gasCoverageFpccOpacity ?? 0.25;
+          return { "line-color": "#22C55E", "line-width": 1.5, "line-opacity": Math.min(1, o * 2.5) };
+        },
+      },
+    ],
+  },
+
+  // ── 加油站 30km 台糖可達 union polygon ──
+  {
+    id: "gasCoverageTaisugar",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "coverage-gas-taisugar",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasCoverageTaisugarOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.gasCoverageTaisugarOpacity ?? 0.25;
+          return { "fill-color": "#F2522E", "fill-opacity": o };
+        },
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.gasCoverageTaisugarOpacity ?? 0.25;
+          return { "line-color": "#F2522E", "line-width": 1.5, "line-opacity": Math.min(1, o * 2.5) };
+        },
+      },
+    ],
+  },
+
+  // ── 充電站 30km 孤島（H3 z8 hex × is_island / ev_count）──
+  {
+    id: "evIsland",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "coverage-ev-island",
+    dynamicData: true,
+    rebuildOnParamChange: ["evIslandOpacity"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, params) => {
+          const o = params?.evIslandOpacity ?? 0.6;
+          return {
+            "fill-color": [
+              "case",
+              ["==", ["get", "is_island"], true], "#F23535",
+              ["==", ["get", "ev_count"], 1], "#F2A516",
+              "rgba(150,150,150,0.15)",
+            ],
+            "fill-opacity": o,
+          };
+        },
+      },
+    ],
+  },
+
 ];

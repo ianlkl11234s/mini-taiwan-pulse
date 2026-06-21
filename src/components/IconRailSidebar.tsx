@@ -221,6 +221,12 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   industrialStorageTank: Container,
   industrialPowerPlant: Factory,
   coalTerminal: Anchor,
+  // 雲林 POC 覆蓋分析（30km isochrone）
+  gasCoverageAll: Fuel,
+  gasCoverageCpc: Fuel,
+  gasCoverageFpcc: Fuel,
+  gasCoverageTaisugar: Fuel,
+  evIsland: PlugZap,
   lightning: CloudLightning,
   nuclearRadiation: Atom,
 };

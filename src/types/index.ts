@@ -209,6 +209,12 @@ export type ExpandableLayerKey =
   | "pipelineGas" | "pipelineOilGas"
   | "industrialRefinery" | "industrialStorageTank" | "industrialPowerPlant"
   | "coalTerminal"
+  // 雲林 POC 覆蓋分析
+  | "gasCoverageAll"
+  | "gasCoverageCpc"
+  | "gasCoverageFpcc"
+  | "gasCoverageTaisugar"
+  | "evIsland"
   // HAZARD（v2 Phase B）
   | "lightning"
   | "nuclearRadiation"
@@ -579,6 +585,9 @@ export interface FeatureInfo {
     | "pipelineGas" | "pipelineOilGas"
     | "industrialRefinery" | "industrialStorageTank" | "industrialPowerPlant"
     | "coalTerminal"
+    // 雲林 POC 覆蓋分析
+    | "gasCoverageAll" | "gasCoverageCpc" | "gasCoverageFpcc" | "gasCoverageTaisugar"
+    | "evIsland"
     | "lightningStrike" | "nuclearStation";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
@@ -781,6 +790,12 @@ export interface LayerVisibility {
   industrialStorageTank: boolean;  // 油氣儲槽 polygon（OSM 72）
   industrialPowerPlant: boolean;   // 火力廠 polygon（OSM 26）
   coalTerminal: boolean;           // 煤炭碼頭（GEM 4）
+  // 雲林 POC 覆蓋分析 — 30km 路網可達 (feat coverage POC)
+  gasCoverageAll: boolean;       // H3 z8 hex × coverage_count（加油站總覆蓋密度）
+  gasCoverageCpc: boolean;       // 中油 158 站 30km union polygon
+  gasCoverageFpcc: boolean;      // 台塑 41 站 30km union polygon
+  gasCoverageTaisugar: boolean;  // 台糖 1 站 30km union polygon
+  evIsland: boolean;             // H3 z8 hex × ev_count（充電站孤島）
   // 災害 HAZARD（v2 Phase B）
   lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
   nuclearRadiation: boolean;     // 核安 51 站即時劑量（is_stale 標離線）
