@@ -3087,7 +3087,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#1AB6D9",
+              345, "#D707F2",
               161, "#62D9AD",
               69,  "#468BA6",
               "#DFE0DC",
@@ -3120,7 +3120,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "line-color": [
               "match", ["get", "tier"],
-              345, "#1AB6D9",
+              345, "#D707F2",
               161, "#62D9AD",
               69,  "#468BA6",
               "#DFE0DC",
