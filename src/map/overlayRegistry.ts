@@ -3717,12 +3717,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6,  haloRadius(1.4, 2, 14),
-              12, haloRadius(1.7, 5, 32),
+              6,  haloRadius(1.6, 3, 18),
+              12, haloRadius(2.0, 6, 40),
             ],
-            "circle-blur": 0.7,
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
-            "circle-opacity": o * 0.28,
+            "circle-blur": 0.85,
+            "circle-color": "#ffffff",
+            "circle-opacity": o * 0.45,
           };
         },
       },
