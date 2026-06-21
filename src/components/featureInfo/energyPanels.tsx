@@ -734,13 +734,13 @@ export function CoalTerminalPanel({ props }: { props: Record<string, unknown> })
 }
 
 // ──────────────────────────────────────────────────────────────────
-// 雲林 POC 覆蓋分析 5 panel — PMTiles × OSM edge nearest distance
+// 全台覆蓋分析 5 panel — PMTiles × OSM edge nearest distance
 // ──────────────────────────────────────────────────────────────────
 
 function CoveragePocFooter() {
   return (
     <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.4 }}>
-      資料來源：本專案 osmnx + multi-source dijkstra（雲林全 drive 路網 × 5 級色階）
+      資料來源：本專案 osmnx + multi-source dijkstra（全台主要路網 motorway/trunk/primary/secondary/tertiary × 5 級色階）
     </div>
   );
 }

@@ -47,7 +47,7 @@ function gasCoverageOverlay(opts: {
     id,
     sourceUrl: pmtilesUrl,
     sourceId,
-    pmtiles: { sourceLayer, minzoom: 7, maxzoom: 14 },
+    pmtiles: { sourceLayer, minzoom: 6, maxzoom: 12 },
     rebuildOnParamChange: [opacityKey, widthKey],
     layers: [
       {
@@ -61,8 +61,8 @@ function gasCoverageOverlay(opts: {
             "line-color": coverageColorExpr(palette) as any,
             "line-width": [
               "interpolate", ["linear"], ["zoom"],
-              7, w,
-              12, w * 3,
+              6, w,
+              10, w * 2.5,
               14, w * 5,
             ],
             "line-opacity": o,
@@ -4601,7 +4601,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
 
   // ══════════════════════════════════════════════════════════════════
   //  雲林 POC 覆蓋分析（multi-source dijkstra nearest distance）— 5 個 toggle
-  //  資料源：PMTiles 在 public/coverage/yunlin_*_nearest.pmtiles
+  //  資料源：PMTiles 在 public/coverage/taiwan_*_nearest.pmtiles
   //  視覺：每條 OSM drive edge 染「到最近加油站/EV 站」距離 5 級色階
   //  仿 fire isochrone PMTiles 模式（factory 不需要 — 走 overlayRegistry pmtiles 設定）
   // ══════════════════════════════════════════════════════════════════
@@ -4609,7 +4609,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...gasCoverageOverlay({
     id: "gasCoverageAll",
     sourceId: "coverage-gas-all",
-    pmtilesUrl: "./coverage/yunlin_all_gas_nearest.pmtiles",
+    pmtilesUrl: "./coverage/taiwan_all_gas_nearest.pmtiles",
     sourceLayer: "coverage_all_gas",
     opacityKey: "gasCoverageAllOpacity",
     widthKey: "gasCoverageAllLineWidth",
@@ -4618,7 +4618,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...gasCoverageOverlay({
     id: "gasCoverageCpc",
     sourceId: "coverage-gas-cpc",
-    pmtilesUrl: "./coverage/yunlin_cpc_nearest.pmtiles",
+    pmtilesUrl: "./coverage/taiwan_cpc_nearest.pmtiles",
     sourceLayer: "coverage_cpc",
     opacityKey: "gasCoverageCpcOpacity",
     widthKey: "gasCoverageCpcLineWidth",
@@ -4627,7 +4627,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...gasCoverageOverlay({
     id: "gasCoverageFpcc",
     sourceId: "coverage-gas-fpcc",
-    pmtilesUrl: "./coverage/yunlin_fpcc_nearest.pmtiles",
+    pmtilesUrl: "./coverage/taiwan_fpcc_nearest.pmtiles",
     sourceLayer: "coverage_fpcc",
     opacityKey: "gasCoverageFpccOpacity",
     widthKey: "gasCoverageFpccLineWidth",
@@ -4636,7 +4636,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...gasCoverageOverlay({
     id: "gasCoverageTaisugar",
     sourceId: "coverage-gas-taisugar",
-    pmtilesUrl: "./coverage/yunlin_taisugar_nearest.pmtiles",
+    pmtilesUrl: "./coverage/taiwan_taisugar_nearest.pmtiles",
     sourceLayer: "coverage_taisugar",
     opacityKey: "gasCoverageTaisugarOpacity",
     widthKey: "gasCoverageTaisugarLineWidth",
@@ -4645,7 +4645,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   ...gasCoverageOverlay({
     id: "evIsland",
     sourceId: "coverage-ev-island",
-    pmtilesUrl: "./coverage/yunlin_ev_nearest.pmtiles",
+    pmtilesUrl: "./coverage/taiwan_ev_nearest.pmtiles",
     sourceLayer: "coverage_ev",
     opacityKey: "evIslandOpacity",
     widthKey: "evIslandLineWidth",

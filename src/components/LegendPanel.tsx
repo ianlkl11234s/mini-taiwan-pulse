@@ -1220,7 +1220,7 @@ function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 雲林最近距離（路網）
+        ENERGY · 全台最近距離（路網）
       </div>
       {anyGas && (
         <>
@@ -1249,7 +1249,7 @@ function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
         </>
       )}
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-        osmnx + multi-source dijkstra · 每條 OSM edge 染色 · 雲林 POC
+        osmnx + multi-source dijkstra · 每條 OSM edge 染色 · 全台主要路網
       </div>
     </div>
   );
