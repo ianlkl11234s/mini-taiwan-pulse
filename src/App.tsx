@@ -59,7 +59,6 @@ import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 // Energy MVP
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { useFossilFuelLayers } from "./hooks/useFossilFuelLayers";
-import { useCoverageLayers } from "./hooks/useCoverageLayers";
 import { useOsmPowerLinesGlowLayer } from "./hooks/useOsmPowerLinesGlowLayer";
 import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
@@ -752,8 +751,7 @@ export default function App() {
   });
   // 化石燃料 14 layer（Phase B — public.get_fossil_fuel_layers()）
   useFossilFuelLayers({ mapRef, visibility: layerVisibility });
-  // 雲林 POC 覆蓋分析 5 layer（static GeoJSON in public/coverage/）
-  useCoverageLayers({ mapRef, visibility: layerVisibility });
+  // 雲林 POC 覆蓋分析 5 layer 改 PMTiles — 由 overlayRegistry pmtiles 設定自動處理
   // 變電所菱形 SDF icon 註冊（osmSubstations symbol layer 用）
   useSubstationDiamondIcon(mapRef);
   // Three.js bloom layer for 高壓輸電線（取代 Mapbox stacking）

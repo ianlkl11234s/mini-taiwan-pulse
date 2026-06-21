@@ -548,12 +548,12 @@ export const SECTIONS: SectionDef[] = [
       { key: "industrialPowerPlant",  label: "火力廠 polygon",              expandable: true },
       // ── 煤炭 ──
       { key: "coalTerminal",          label: "煤炭碼頭",                    expandable: true },
-      // ── 雲林 POC 覆蓋分析（30km 路網可達 isochrone）──
-      { key: "gasCoverageAll",        label: "加油站 30km 總覆蓋密度",       expandable: true },
-      { key: "gasCoverageCpc",        label: "加油站 30km 中油可達",         expandable: true },
-      { key: "gasCoverageFpcc",       label: "加油站 30km 台塑可達",         expandable: true },
-      { key: "gasCoverageTaisugar",   label: "加油站 30km 台糖可達",         expandable: true },
-      { key: "evIsland",              label: "充電站 30km 孤島",             expandable: true },
+      // ── 雲林 POC 覆蓋分析（PMTiles × OSM edge nearest distance 染色）──
+      { key: "gasCoverageAll",        label: "加油站 最近距離",             expandable: true },
+      { key: "gasCoverageCpc",        label: "中油 最近距離",               expandable: true },
+      { key: "gasCoverageFpcc",       label: "台塑 最近距離",               expandable: true },
+      { key: "gasCoverageTaisugar",   label: "台糖 最近距離",               expandable: true },
+      { key: "evIsland",              label: "充電站 最近距離",             expandable: true },
     ],
   },
   {

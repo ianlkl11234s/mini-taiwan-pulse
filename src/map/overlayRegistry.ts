@@ -5,6 +5,74 @@ import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 
 const BASE_RADIUS = 5;
 
+// ── 雲林覆蓋 PMTiles factory（5 layer 共用） ──
+//   nearest distance 5 級色階：0-5km 深綠 / 5-10km 草綠 / 10-20km 黃 / 20-30km 橙 / 30km+ 紅
+//   gas palette：「遠 = 沒油 = 警示紅」；ev palette：「遠 = 孤島 = 警示紅」（同方向）
+//   ev 將「充足區間」改低調灰，凸顯偏遠 — 與加油站視覺區隔。
+type CoveragePalette = "gas" | "ev";
+function coverageColorExpr(palette: CoveragePalette): unknown[] {
+  if (palette === "ev") {
+    return [
+      "match", ["get", "band"],
+      "0-5km",    "rgba(150,150,150,0.4)",
+      "5-10km",   "rgba(150,150,150,0.5)",
+      "10-20km",  "#F2D64B",
+      "20-30km",  "#F2A516",
+      "over-30km","#F23535",
+      "#7F1D1D",
+    ];
+  }
+  return [
+    "match", ["get", "band"],
+    "0-5km",    "#16A34A",
+    "5-10km",   "#84CC16",
+    "10-20km",  "#F2D64B",
+    "20-30km",  "#F2A516",
+    "over-30km","#F23535",
+    "#7F1D1D",
+  ];
+}
+function gasCoverageOverlay(opts: {
+  id: OverlayConfig["id"];
+  sourceId: string;
+  pmtilesUrl: string;
+  sourceLayer: string;
+  opacityKey: string;
+  widthKey: string;
+  palette: CoveragePalette;
+}): OverlayConfig[] {
+  const { id, sourceId, pmtilesUrl, sourceLayer, opacityKey, widthKey, palette } = opts;
+  const defaultOpacity = palette === "ev" ? 0.6 : 0.85;
+  return [{
+    id,
+    sourceUrl: pmtilesUrl,
+    sourceId,
+    pmtiles: { sourceLayer, minzoom: 7, maxzoom: 14 },
+    rebuildOnParamChange: [opacityKey, widthKey],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.[opacityKey] ?? defaultOpacity;
+          const w = params?.[widthKey] ?? 0.5;
+          return {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "line-color": coverageColorExpr(palette) as any,
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              7, w,
+              12, w * 3,
+              14, w * 5,
+            ],
+            "line-opacity": o,
+          };
+        },
+      },
+    ],
+  }];
+}
+
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
   {
@@ -4532,147 +4600,56 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
 
   // ══════════════════════════════════════════════════════════════════
-  //  雲林 POC 覆蓋分析（OSRM 30km isochrone）— 5 個 toggle
-  //  資料源：static GeoJSON 在 public/coverage/yunlin_*.geojson
-  //  loader：useCoverageLayers + coverageLoader（per-key lazy fetch）
+  //  雲林 POC 覆蓋分析（multi-source dijkstra nearest distance）— 5 個 toggle
+  //  資料源：PMTiles 在 public/coverage/yunlin_*_nearest.pmtiles
+  //  視覺：每條 OSM drive edge 染「到最近加油站/EV 站」距離 5 級色階
+  //  仿 fire isochrone PMTiles 模式（factory 不需要 — 走 overlayRegistry pmtiles 設定）
   // ══════════════════════════════════════════════════════════════════
 
-  // ── 加油站 30km 總覆蓋密度（H3 z8 hex × count）──
-  {
+  ...gasCoverageOverlay({
     id: "gasCoverageAll",
-    sourceUrl: "./geo/_empty.geojson",
     sourceId: "coverage-gas-all",
-    dynamicData: true,
-    rebuildOnParamChange: ["gasCoverageAllOpacity"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => {
-          const o = params?.gasCoverageAllOpacity ?? 0.55;
-          return {
-            "fill-color": [
-              "interpolate", ["linear"], ["coalesce", ["get", "count"], 0],
-              0, "rgba(0,0,0,0)",
-              1, "#22C55E",
-              3, "#F2D64B",
-              7, "#F2A516",
-              15, "#F2522E",
-              30, "#7F1D1D",
-            ],
-            "fill-opacity": o,
-          };
-        },
-      },
-    ],
-  },
-
-  // ── 加油站 30km 中油可達 union polygon ──
-  {
+    pmtilesUrl: "./coverage/yunlin_all_gas_nearest.pmtiles",
+    sourceLayer: "coverage_all_gas",
+    opacityKey: "gasCoverageAllOpacity",
+    widthKey: "gasCoverageAllLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
     id: "gasCoverageCpc",
-    sourceUrl: "./geo/_empty.geojson",
     sourceId: "coverage-gas-cpc",
-    dynamicData: true,
-    rebuildOnParamChange: ["gasCoverageCpcOpacity"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => {
-          const o = params?.gasCoverageCpcOpacity ?? 0.25;
-          return { "fill-color": "#41AEF2", "fill-opacity": o };
-        },
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => {
-          const o = params?.gasCoverageCpcOpacity ?? 0.25;
-          return { "line-color": "#41AEF2", "line-width": 1.5, "line-opacity": Math.min(1, o * 2.5) };
-        },
-      },
-    ],
-  },
-
-  // ── 加油站 30km 台塑可達 union polygon ──
-  {
+    pmtilesUrl: "./coverage/yunlin_cpc_nearest.pmtiles",
+    sourceLayer: "coverage_cpc",
+    opacityKey: "gasCoverageCpcOpacity",
+    widthKey: "gasCoverageCpcLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
     id: "gasCoverageFpcc",
-    sourceUrl: "./geo/_empty.geojson",
     sourceId: "coverage-gas-fpcc",
-    dynamicData: true,
-    rebuildOnParamChange: ["gasCoverageFpccOpacity"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => {
-          const o = params?.gasCoverageFpccOpacity ?? 0.25;
-          return { "fill-color": "#22C55E", "fill-opacity": o };
-        },
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => {
-          const o = params?.gasCoverageFpccOpacity ?? 0.25;
-          return { "line-color": "#22C55E", "line-width": 1.5, "line-opacity": Math.min(1, o * 2.5) };
-        },
-      },
-    ],
-  },
-
-  // ── 加油站 30km 台糖可達 union polygon ──
-  {
+    pmtilesUrl: "./coverage/yunlin_fpcc_nearest.pmtiles",
+    sourceLayer: "coverage_fpcc",
+    opacityKey: "gasCoverageFpccOpacity",
+    widthKey: "gasCoverageFpccLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
     id: "gasCoverageTaisugar",
-    sourceUrl: "./geo/_empty.geojson",
     sourceId: "coverage-gas-taisugar",
-    dynamicData: true,
-    rebuildOnParamChange: ["gasCoverageTaisugarOpacity"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => {
-          const o = params?.gasCoverageTaisugarOpacity ?? 0.25;
-          return { "fill-color": "#F2522E", "fill-opacity": o };
-        },
-      },
-      {
-        suffix: "outline",
-        type: "line",
-        paint: (_isDark, params) => {
-          const o = params?.gasCoverageTaisugarOpacity ?? 0.25;
-          return { "line-color": "#F2522E", "line-width": 1.5, "line-opacity": Math.min(1, o * 2.5) };
-        },
-      },
-    ],
-  },
-
-  // ── 充電站 30km 孤島（H3 z8 hex × is_island / ev_count）──
-  {
+    pmtilesUrl: "./coverage/yunlin_taisugar_nearest.pmtiles",
+    sourceLayer: "coverage_taisugar",
+    opacityKey: "gasCoverageTaisugarOpacity",
+    widthKey: "gasCoverageTaisugarLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
     id: "evIsland",
-    sourceUrl: "./geo/_empty.geojson",
     sourceId: "coverage-ev-island",
-    dynamicData: true,
-    rebuildOnParamChange: ["evIslandOpacity"],
-    layers: [
-      {
-        suffix: "fill",
-        type: "fill",
-        paint: (_isDark, params) => {
-          const o = params?.evIslandOpacity ?? 0.6;
-          return {
-            "fill-color": [
-              "case",
-              ["==", ["get", "is_island"], true], "#F23535",
-              ["==", ["get", "ev_count"], 1], "#F2A516",
-              "rgba(150,150,150,0.15)",
-            ],
-            "fill-opacity": o,
-          };
-        },
-      },
-    ],
-  },
+    pmtilesUrl: "./coverage/yunlin_ev_nearest.pmtiles",
+    sourceLayer: "coverage_ev",
+    opacityKey: "evIslandOpacity",
+    widthKey: "evIslandLineWidth",
+    palette: "ev",
+  }),
 
 ];

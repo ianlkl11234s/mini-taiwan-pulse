@@ -208,12 +208,12 @@ export function useMapInteraction(
           { layers: ["fossil-industrial-storage-tank-fill", "fossil-industrial-storage-tank-outline"], type: "industrialStorageTank" },
           { layers: ["fossil-industrial-power-plant-fill", "fossil-industrial-power-plant-outline"], type: "industrialPowerPlant" },
           { layers: ["fossil-coal-terminal-circle", "fossil-coal-terminal-halo"], type: "coalTerminal" },
-          // 雲林 POC 覆蓋分析（30km isochrone）
-          { layers: ["coverage-gas-all-fill"], type: "gasCoverageAll" },
-          { layers: ["coverage-gas-cpc-fill", "coverage-gas-cpc-outline"], type: "gasCoverageCpc" },
-          { layers: ["coverage-gas-fpcc-fill", "coverage-gas-fpcc-outline"], type: "gasCoverageFpcc" },
-          { layers: ["coverage-gas-taisugar-fill", "coverage-gas-taisugar-outline"], type: "gasCoverageTaisugar" },
-          { layers: ["coverage-ev-island-fill"], type: "evIsland" },
+          // 雲林 POC 覆蓋分析（PMTiles × OSM edge nearest distance）
+          { layers: ["coverage-gas-all-line"], type: "gasCoverageAll" },
+          { layers: ["coverage-gas-cpc-line"], type: "gasCoverageCpc" },
+          { layers: ["coverage-gas-fpcc-line"], type: "gasCoverageFpcc" },
+          { layers: ["coverage-gas-taisugar-line"], type: "gasCoverageTaisugar" },
+          { layers: ["coverage-ev-island-line"], type: "evIsland" },
           { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
           { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
           { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },

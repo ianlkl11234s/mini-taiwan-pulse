@@ -1201,77 +1201,61 @@ function FossilFuelLegend({ visibility }: { visibility: LayerVisibility }) {
   );
 }
 
-// ── 雲林 POC 覆蓋分析（OSRM 30km isochrone）──
+// ── 雲林 POC 覆蓋分析（PMTiles × OSM edge nearest distance）──
 function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
-  const anyOn = visibility.gasCoverageAll || visibility.gasCoverageCpc
-    || visibility.gasCoverageFpcc || visibility.gasCoverageTaisugar || visibility.evIsland;
-  if (!anyOn) return null;
+  const anyGas = visibility.gasCoverageAll || visibility.gasCoverageCpc
+    || visibility.gasCoverageFpcc || visibility.gasCoverageTaisugar;
+  const anyEv = visibility.evIsland;
+  if (!anyGas && !anyEv) return null;
 
-  const GRADIENT_STOPS: { c: string; l: string }[] = [
-    { c: "#22C55E", l: "1 廠" },
-    { c: "#F2D64B", l: "3 廠" },
-    { c: "#F2A516", l: "7 廠" },
-    { c: "#F2522E", l: "15 廠" },
-    { c: "#7F1D1D", l: "30+ 廠" },
+  const GAS_BANDS: { c: string; l: string }[] = [
+    { c: "#16A34A",   l: "0–5 km" },
+    { c: "#84CC16",   l: "5–10 km" },
+    { c: "#F2D64B",   l: "10–20 km" },
+    { c: "#F2A516",   l: "20–30 km" },
+    { c: "#F23535",   l: "30 km+" },
+  ];
+  const EV_BANDS: { c: string; l: string }[] = [
+    { c: "rgba(150,150,150,0.4)", l: "0–5 km（充足）" },
+    { c: "rgba(150,150,150,0.5)", l: "5–10 km" },
+    { c: "#F2D64B",   l: "10–20 km" },
+    { c: "#F2A516",   l: "20–30 km" },
+    { c: "#F23535",   l: "30 km+（孤島）" },
   ];
 
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        ENERGY · 雲林覆蓋 POC
+        ENERGY · 雲林最近距離（路網）
       </div>
-      {visibility.gasCoverageAll && (
+      {anyGas && (
         <>
-          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>加油站 30km 總覆蓋密度</div>
-          <div style={{
-            height: 8, marginTop: 4, borderRadius: 2,
-            background: "linear-gradient(to right, #22C55E 0%, #F2D64B 25%, #F2A516 50%, #F2522E 75%, #7F1D1D 100%)",
-          }} />
-          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-            {GRADIENT_STOPS.map((s) => (
-              <span key={s.l} style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{s.l}</span>
-            ))}
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>
+            到最近加油站的路網距離
           </div>
+          {GAS_BANDS.map((s) => (
+            <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{ width: 18, height: 4, background: s.c, borderRadius: 1 }} />
+              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{s.l}</span>
+            </div>
+          ))}
         </>
       )}
-      {(visibility.gasCoverageCpc || visibility.gasCoverageFpcc || visibility.gasCoverageTaisugar) && (
-        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>30km 路網可達 union polygon</div>
-      )}
-      {visibility.gasCoverageCpc && (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-          <span style={{ width: 14, height: 10, background: "#41AEF2", opacity: 0.5, border: "1px solid #41AEF2" }} />
-          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>中油 158 站</span>
-        </div>
-      )}
-      {visibility.gasCoverageFpcc && (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-          <span style={{ width: 14, height: 10, background: "#22C55E", opacity: 0.5, border: "1px solid #22C55E" }} />
-          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>台塑 41 站</span>
-        </div>
-      )}
-      {visibility.gasCoverageTaisugar && (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-          <span style={{ width: 14, height: 10, background: "#F2522E", opacity: 0.5, border: "1px solid #F2522E" }} />
-          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>台糖 1 站</span>
-        </div>
-      )}
-      {visibility.evIsland && (
+      {anyEv && (
         <>
-          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>充電站 30km 孤島</div>
-          {[
-            { c: "#F23535", l: "孤島 (0 站可達)" },
-            { c: "#F2A516", l: "邊緣 (1 站)" },
-            { c: "rgba(150,150,150,0.4)", l: "充足 (2+ 站)" },
-          ].map((r) => (
-            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
-              <span style={{ width: 12, height: 12, background: r.c, borderRadius: 2, border: "1px solid rgba(255,255,255,0.3)" }} />
-              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.l}</span>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>
+            到最近充電站的路網距離（遠 = 孤島）
+          </div>
+          {EV_BANDS.map((s) => (
+            <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{ width: 18, height: 4, background: s.c, borderRadius: 1 }} />
+              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{s.l}</span>
             </div>
           ))}
         </>
       )}
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-        OSRM 30km isochrone · 雲林 POC
+        osmnx + multi-source dijkstra · 每條 OSM edge 染色 · 雲林 POC
       </div>
     </div>
   );
