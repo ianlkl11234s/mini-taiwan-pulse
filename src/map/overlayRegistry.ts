@@ -3990,7 +3990,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.gasStationCpcOpacity ?? 0.85;
-          const s = params?.gasStationCpcScale ?? 1;
+          const s = params?.gasStationCpcScale ?? 1.7;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4000,7 +4000,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": "#41AEF2",
             "circle-opacity": o,
-            "circle-stroke-width": 0.5,
+            "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
           };
         },
@@ -4021,7 +4021,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.gasStationFpccOpacity ?? 0.85;
-          const s = params?.gasStationFpccScale ?? 1;
+          const s = params?.gasStationFpccScale ?? 1.7;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4031,7 +4031,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": "#22C55E",
             "circle-opacity": o,
-            "circle-stroke-width": 0.5,
+            "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
           };
         },
@@ -4052,7 +4052,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.gasStationTaisugarOpacity ?? 0.85;
-          const s = params?.gasStationTaisugarScale ?? 1;
+          const s = params?.gasStationTaisugarScale ?? 1.7;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4062,7 +4062,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": "#F2522E",
             "circle-opacity": o,
-            "circle-stroke-width": 0.5,
+            "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
           };
         },
@@ -4083,7 +4083,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.gasStationOtherOpacity ?? 0.7;
-          const s = params?.gasStationOtherScale ?? 0.8;
+          const s = params?.gasStationOtherScale ?? 2.2;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4093,7 +4093,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": "#D1D5DB",
             "circle-opacity": o,
-            "circle-stroke-width": 0.5,
+            "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
           };
         },
@@ -4114,7 +4114,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (_isDark, params) => {
           const o = params?.gasStationCanonicalOpacity ?? 0.9;
-          const s = params?.gasStationCanonicalScale ?? 1.1;
+          const s = params?.gasStationCanonicalScale ?? 1.7;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4124,7 +4124,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-color": "#0FBFBF",
             "circle-opacity": o,
-            "circle-stroke-width": 0.5,
+            "circle-stroke-width": 0.3,
             "circle-stroke-color": "#ffffff",
           };
         },
@@ -4176,7 +4176,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "circle",
         paint: (isDark, params) => {
           const o = params?.lpgRetailersOpacity ?? 0.75;
-          const s = params?.lpgRetailersScale ?? 0.9;
+          const s = params?.lpgRetailersScale ?? 1.3;
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
@@ -4291,7 +4291,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 煉油 / 化工廠 polygon ──
+  // ── 煉油 / 化工廠 polygon + halo ──
   {
     id: "industrialRefinery",
     sourceUrl: "./geo/_empty.geojson",
@@ -4300,8 +4300,36 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["industrialRefineryOpacity", "industrialRefineryOutline"],
     layers: [
       {
+        suffix: "halo",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialRefineryOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 10, 18, 14, 36],
+            "circle-blur": 0.8,
+            "circle-color": "#A855F7",
+            "circle-opacity": o * 0.5,
+          };
+        },
+      },
+      {
+        suffix: "halo-core",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialRefineryOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2, 10, 5, 14, 9],
+            "circle-color": "#A855F7",
+            "circle-opacity": o,
+          };
+        },
+      },
+      {
         suffix: "fill",
         type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
           return {
@@ -4313,6 +4341,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "outline",
         type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
           const show = (params?.industrialRefineryOutline ?? 1) > 0;
@@ -4326,7 +4355,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 油氣儲槽 polygon ──
+  // ── 油氣儲槽 polygon + halo ──
   {
     id: "industrialStorageTank",
     sourceUrl: "./geo/_empty.geojson",
@@ -4335,8 +4364,36 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["industrialStorageTankOpacity", "industrialStorageTankOutline"],
     layers: [
       {
+        suffix: "halo",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialStorageTankOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5, 10, 14, 14, 28],
+            "circle-blur": 0.8,
+            "circle-color": "#06B6D4",
+            "circle-opacity": o * 0.5,
+          };
+        },
+      },
+      {
+        suffix: "halo-core",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialStorageTankOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5, 10, 4, 14, 7],
+            "circle-color": "#06B6D4",
+            "circle-opacity": o,
+          };
+        },
+      },
+      {
         suffix: "fill",
         type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           return {
@@ -4348,6 +4405,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "outline",
         type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
         paint: (_isDark, params) => {
           const o = params?.industrialStorageTankOpacity ?? 0.55;
           const show = (params?.industrialStorageTankOutline ?? 1) > 0;
@@ -4361,7 +4419,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 火力廠 polygon ──
+  // ── 火力廠 polygon + halo ──
   {
     id: "industrialPowerPlant",
     sourceUrl: "./geo/_empty.geojson",
@@ -4370,8 +4428,36 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["industrialPowerPlantOpacity", "industrialPowerPlantOutline"],
     layers: [
       {
+        suffix: "halo",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7, 10, 20, 14, 40],
+            "circle-blur": 0.8,
+            "circle-color": "#D946EF",
+            "circle-opacity": o * 0.55,
+          };
+        },
+      },
+      {
+        suffix: "halo-core",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5, 10, 6, 14, 10],
+            "circle-color": "#D946EF",
+            "circle-opacity": o,
+          };
+        },
+      },
+      {
         suffix: "fill",
         type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           return {
@@ -4383,6 +4469,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "outline",
         type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
         paint: (_isDark, params) => {
           const o = params?.industrialPowerPlantOpacity ?? 0.5;
           const show = (params?.industrialPowerPlantOutline ?? 1) > 0;

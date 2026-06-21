@@ -73,6 +73,23 @@ function parseGeom(g: GeoJSON.Geometry | string | null): GeoJSON.Geometry | null
   return g;
 }
 
+/** industrial polygon 3 層加 halo point（centroid）讓低 zoom 也看得到。 */
+const HALO_LAYERS = new Set<FossilLayerKey>([
+  "industrialRefinery",
+  "industrialStorageTank",
+  "industrialPowerPlant",
+]);
+
+function centroidOf(geom: GeoJSON.Geometry): [number, number] | null {
+  let ring: number[][] | null = null;
+  if (geom.type === "Polygon") ring = geom.coordinates[0] ?? null;
+  else if (geom.type === "MultiPolygon") ring = geom.coordinates[0]?.[0] ?? null;
+  if (!ring || ring.length === 0) return null;
+  let lng = 0, lat = 0;
+  for (const c of ring) { lng += c[0] ?? 0; lat += c[1] ?? 0; }
+  return [lng / ring.length, lat / ring.length];
+}
+
 function rowToFeature(r: RawRow): GeoJSON.Feature | null {
   const geom = parseGeom(r.geom_json);
   if (!geom) return null;
@@ -112,6 +129,17 @@ export async function fetchFossilFuelLayers(): Promise<FossilFuelLayers> {
     const f = rowToFeature(r);
     if (!f) continue;
     out[feKey].features.push(f);
+    // industrial polygon 3 層：補一個 centroid point feature (properties._halo=true) 給 halo circle layer 用
+    if (HALO_LAYERS.has(feKey)) {
+      const c = centroidOf(f.geometry);
+      if (c) {
+        out[feKey].features.push({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: c },
+          properties: { _halo: true, id: r.id, name: r.name ?? "" },
+        });
+      }
+    }
   }
 
   const counts = Object.entries(out).map(([k, v]) => `${k}=${v.features.length}`).join(" ");

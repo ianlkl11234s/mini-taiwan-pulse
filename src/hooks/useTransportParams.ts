@@ -446,19 +446,19 @@ export function useTransportParams() {
   const [facOsmSupplementScale, setFacOsmSupplementScale] = useState(0.5);
   // ── 化石燃料 14 layer params（Phase B） ──
   const [gasStationCpcOpacity, setGasStationCpcOpacity] = useState(0.85);
-  const [gasStationCpcScale, setGasStationCpcScale] = useState(1.0);
+  const [gasStationCpcScale, setGasStationCpcScale] = useState(1.7);
   const [gasStationFpccOpacity, setGasStationFpccOpacity] = useState(0.85);
-  const [gasStationFpccScale, setGasStationFpccScale] = useState(1.0);
+  const [gasStationFpccScale, setGasStationFpccScale] = useState(1.7);
   const [gasStationTaisugarOpacity, setGasStationTaisugarOpacity] = useState(0.85);
-  const [gasStationTaisugarScale, setGasStationTaisugarScale] = useState(1.0);
+  const [gasStationTaisugarScale, setGasStationTaisugarScale] = useState(1.7);
   const [gasStationOtherOpacity, setGasStationOtherOpacity] = useState(0.7);
-  const [gasStationOtherScale, setGasStationOtherScale] = useState(0.8);
+  const [gasStationOtherScale, setGasStationOtherScale] = useState(2.2);
   const [gasStationCanonicalOpacity, setGasStationCanonicalOpacity] = useState(0.9);
-  const [gasStationCanonicalScale, setGasStationCanonicalScale] = useState(1.1);
+  const [gasStationCanonicalScale, setGasStationCanonicalScale] = useState(1.7);
   const [lpgSubpackagingOpacity, setLpgSubpackagingOpacity] = useState(0.85);
   const [lpgSubpackagingScale, setLpgSubpackagingScale] = useState(1.1);
   const [lpgRetailersOpacity, setLpgRetailersOpacity] = useState(0.75);
-  const [lpgRetailersScale, setLpgRetailersScale] = useState(0.9);
+  const [lpgRetailersScale, setLpgRetailersScale] = useState(1.3);
   const [lngTerminalOpacity, setLngTerminalOpacity] = useState(0.95);
   const [lngTerminalScale, setLngTerminalScale] = useState(1.6);
   const [pipelineGasOpacity, setPipelineGasOpacity] = useState(0.8);
