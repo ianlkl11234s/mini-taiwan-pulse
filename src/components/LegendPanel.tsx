@@ -1215,13 +1215,7 @@ function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
     { c: "#F2A516",   l: "20–30 km" },
     { c: "#F23535",   l: "30 km+" },
   ];
-  const EV_BANDS: { c: string; l: string }[] = [
-    { c: "rgba(150,150,150,0.4)", l: "0–5 km（充足）" },
-    { c: "rgba(150,150,150,0.5)", l: "5–10 km" },
-    { c: "#F2D64B",   l: "10–20 km" },
-    { c: "#F2A516",   l: "20–30 km" },
-    { c: "#F23535",   l: "30 km+（孤島）" },
-  ];
+  const EV_BANDS = GAS_BANDS;  // 跟加油站同色階
 
   return (
     <div>
@@ -1244,7 +1238,7 @@ function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
       {anyEv && (
         <>
           <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>
-            到最近充電站的路網距離（遠 = 孤島）
+            到最近充電站的路網距離
           </div>
           {EV_BANDS.map((s) => (
             <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>

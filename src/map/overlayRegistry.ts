@@ -4649,7 +4649,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceLayer: "coverage_ev",
     opacityKey: "evIslandOpacity",
     widthKey: "evIslandLineWidth",
-    palette: "ev",
+    palette: "gas",
   }),
 
 ];
