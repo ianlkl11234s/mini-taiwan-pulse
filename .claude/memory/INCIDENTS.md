@@ -6,6 +6,63 @@
 
 ---
 
+## 2026-06-22 加油站 30km coverage — Overpass mirror 連環卡 8 小時 + pyrosm 爆 RAM
+
+**現象**：開始做加油站 30km 路網可達分析（osmnx + multi_source_dijkstra）後，遇到一連串 batch 卡死：
+
+| 時點 | 卡點 | etime | 根因 | 解 |
+|---|---|---|---|---|
+| 6/21 22:33 | osmnx +unclassified 跑 8h CPU=0% | 8h | Overpass kumi mirror 某 subquery 卡 read 不回 | kill |
+| 6/22 早 | pyrosm 全台 driving 跑 40 min | 40min | 50 GB RAM 吃爆磁碟 5 GB free，swap thrash | kill |
+| 6/22 12:00 | osm.fr mirror 403 | — | whitelist only | 跳過此 mirror |
+| 6/22 13:00 | kumi 跑 23 min 0 進度 | 23min | 第一個 subquery 卡 | kill, retry overpass-api.de |
+| 6/22 13:30 | overpass-api.de 406 拒連 | — | IP 被 ban（cooldown 24-72h）| 等 |
+| 6/22 14:50 | overpass-api.de 200 OK | — | cooldown 解除（~15h）| **跑成功** 10 min |
+
+**根因**（多層交疊）：
+1. **osmnx subdivide 阿基里斯腱**：全台 bbox 80,000 km² 被切 32 個 subquery 序列跑，**任一卡死全 process 卡死**，無 socket timeout
+2. **mirror 不穩定**：overpass-api.de 短時間多打觸發 IP ban / kumi 對全台大 subquery 卡死 / fr 永遠 whitelist 403
+3. **pyrosm 沒 osmium 過濾就讀全 PBF**：driving network 含 residential 估 100-200 萬 edges，networkx Graph 物件吃 50 GB RAM
+4. **磁碟 5 GB free** 不夠 swap → swap thrash → CPU 5% 假活著
+
+**我自己也犯的兩個 bug**（→ REFLECTIONS）：
+- **`OVERPASS_URL` 設 `/api/interpreter` 拼錯**：osmnx 自動拼 → 變 `/interpreter/interpreter`。應該設 base `/api`
+- **`CUSTOM_FILTER` 沒對齊**：為了試 B 版加 `unclassified`，後來想 retry A 版（motorway-tertiary）忘記改回，**以為跑 A 實際跑 B 又卡**，浪費 ~1 小時
+
+**對策**（→ SKILL accessibility-analysis）：
+- 新增 `.claude/skills/accessibility-analysis/references/troubleshooting.md`：跑前 30 秒健康檢查 + 卡時 5 分鐘診斷流程 + 6 條 pipeline 寫法守則 + 本 session 卡點實錄
+- 新增 `references/mirror-fallback.md`：5 條救援路徑（重試 / 切 mirror / 本機 PBF+osmium / OSRM 雲端 / pgRouting）
+- PRINCIPLES 加 4 條：multi-bucket / whitelist / 跑前健康檢查 / CPU=0% 不等於 deadlock
+
+**教訓核心**：**Overpass 公開 mirror 是不可靠依賴**，生產 pipeline 必有 fallback 路徑。沒 fallback 就會像本 session 卡 8 小時。
+
+---
+
+## 2026-06-22 加油站 SQL CASE 短路求值吃掉 73 個雙品牌站
+
+**現象**：加油站 30km coverage 上線後，「台糖 最近距離」layer 在地圖上覆蓋面積比預期小很多（覆蓋率 50%）。用戶截圖回報 — 點到「台糖平和站加油站」popup 顯示 `brand=["中油","台糖"]`，但這站在「中油 layer」有出現、在「台糖 layer」沒有。
+
+**根因**：原 SQL bucket 邏輯用 `CASE WHEN` 短路求值：
+```sql
+CASE WHEN '中油' = ANY(brand) THEN 'cpc'         -- 中油+台糖 在這就停了
+     WHEN '台塑' = ANY(brand) THEN 'fpcc'
+     WHEN '台糖' = ANY(brand) THEN 'taisugar'   -- 雙品牌站永遠到不了
+END
+```
+
+DB 盤點：72 個「中油+台糖」+ 31 個「中油+台塑」+ 1 個「台塑+台糖」= **104 個雙品牌站全部漏歸**。
+
+**對策**：拉原始 `brand[]` 到 Python，`buckets_of()` 每站算「所有匹配 bucket」list，每站可進多 bucket。dijkstra 對每 bucket 跑時雙身分站貢獻多 source。
+
+**數字變化**：
+- CPC: 1,988 (不變，含 103 雙身分主導品牌)
+- FPCC: 319 → **350** (+31)
+- 台糖: 13 → **86** (+73，**覆蓋率 50%→59%**)
+
+**對策延伸**：用 whitelist regex 處理「私營」bucket（之前用 NOT IN 反向定義會吸進 374 個 41455 false positive）。**兩個對策合體**寫成 `buckets_of(brand_arr, name)` 一個函式，→ PRINCIPLES 兩條 / SKILL §⚠️ 兩大鐵則。
+
+---
+
 ## 2026-06-19 SessionStart auto-memory-cherry-pick 把 feat 分支歷史拆掉
 
 **現象**：Energy v2 Phase A 過程中跑了 4 次分支管理意外：
