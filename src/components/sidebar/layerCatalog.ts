@@ -143,6 +143,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   wasteSchedule: "#fbbf24",
   wasteScheduleNote: "#fff8d6",
   wasteStopsStatic: "#d97706",
+  wasteCleaningSquads: "#22c55e",
   wasteRoute: "#84cc16",
   wasteStop: "#65a30d",
   // facility 8 sub-types
@@ -449,6 +450,7 @@ export const SECTIONS: SectionDef[] = [
       { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
       { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
       { key: "wasteStopsStatic", label: "全台清運點位 (靜態)", expandable: true },
+      { key: "wasteCleaningSquads", label: "清潔隊 Squads", labelMobile: "清潔隊 Squads (359) 🧹" },
     ],
   },
   {

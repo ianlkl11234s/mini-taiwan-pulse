@@ -228,6 +228,7 @@ export function useMapInteraction(
           { layers: ["active-faults-fill", "active-faults-line", "active-faults-glow"], type: "activeFault" },
           { layers: ["fire-events-layer"], type: "fireEvent" },
           { layers: ["fire-latest-layer"], type: "fireEvent" },
+          { layers: ["waste-cleaning-squads-core", "waste-cleaning-squads-glow"], type: "wasteCleaningSquad" },
           { layers: ["fire-stations-circle", "fire-stations-glow"], type: "fireStation" },
           { layers: ["fire-hydrants-circle", "fire-hydrants-glow"], type: "fireHydrant" },
           { layers: ["sat-current-point"], type: "satellite" },

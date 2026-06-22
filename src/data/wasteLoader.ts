@@ -90,6 +90,21 @@ export interface WasteDisposalPointRow {
   lng: number;
 }
 
+/** 全國清潔隊辦公點（359 / 23 縣市，spatial.waste_cleaning_squads） */
+export interface WasteCleaningSquadRow {
+  id: number;
+  city: string;
+  district: string | null;
+  squad_name: string;
+  address: string | null;
+  phone: string | null;
+  jurisdiction: string | null;
+  source: string;
+  source_url: string | null;
+  lat: number;
+  lng: number;
+}
+
 /** facility 分類筆數（給 sidebar 顯示） */
 export interface WasteFacilityCount {
   facility_type: string;
@@ -178,6 +193,22 @@ export function fetchWasteDisposalPoints(
     );
     if (error) throw new Error(`get_waste_disposal_points: ${error.message}`);
     return (data ?? []) as WasteDisposalPointRow[];
+  });
+}
+
+const squadsCache = keyedThunkCache<WasteCleaningSquadRow[]>(15 * 60_000);
+
+/** 取得全國清潔隊辦公點（359 筆，~50KB JSON）。15min cache。 */
+export function fetchWasteCleaningSquads(cities?: string[]): Promise<WasteCleaningSquadRow[]> {
+  const cacheKey = cities?.length ? cities.slice().sort().join(",") : "all";
+  return squadsCache(cacheKey, async () => {
+    const { data, error } = await withLoading(
+      `waste-squads-${cacheKey}`,
+      `清潔隊 ${cacheKey}`,
+      supabase.rpc("get_waste_cleaning_squads", { p_cities: cities ?? null }),
+    );
+    if (error) throw new Error(`get_waste_cleaning_squads: ${error.message}`);
+    return (data ?? []) as WasteCleaningSquadRow[];
   });
 }
 

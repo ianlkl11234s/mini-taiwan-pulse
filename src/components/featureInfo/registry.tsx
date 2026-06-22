@@ -20,7 +20,7 @@ import {
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import { NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel } from "./eventPanels";
 import { AqiStationPanel, MicroSensorPanel } from "./airPanels";
-import { WasteFacilityPanel, WasteDisposalPointPanel } from "./wastePanels";
+import { WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel } from "./wastePanels";
 import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
@@ -87,6 +87,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   taipeiPumb: TaipeiPumbPanel,
   wasteFacility: WasteFacilityPanel,
   wasteDisposalPoint: WasteDisposalPointPanel,
+  wasteCleaningSquad: WasteCleaningSquadPanel,
   agriRetail: AgriCompanyPanel,
   agriProduceWholesale: AgriCompanyPanel,
   agriWholesaleMarket: AgriCompanyPanel,
@@ -188,6 +189,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   taipeiPumb: "北市抽水站",
   wasteFacility: "垃圾處理設施",
   wasteDisposalPoint: "垃圾投放點",
+  wasteCleaningSquad: "清潔隊辦公點",
   agriPOI: "農業 POI",
   agriRuralRegen: "農村再生社區",
   agriSoil: "土壤分類",

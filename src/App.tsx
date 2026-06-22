@@ -55,6 +55,7 @@ import { useIotWraRiverLayer } from "./hooks/useIotWraRiverLayer";
 import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
 import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
 import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
+import { useWasteCleaningSquadLayer } from "./hooks/useWasteCleaningSquadLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 // Energy MVP
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
@@ -857,6 +858,13 @@ export default function App() {
     layerVisibility.fireLatest,
     isDarkTheme,
     transportParams.overlayParams.fireLatestOpacity ?? 1,
+  );
+
+  // ── 全國清潔隊辦公點 359 / 23 縣市（spatial.waste_cleaning_squads）──
+  useWasteCleaningSquadLayer(
+    mapRef,
+    layerVisibility.wasteCleaningSquads,
+    isDarkTheme,
   );
 
   // ── CWA 衛星雲圖 / 雷達回波 ──

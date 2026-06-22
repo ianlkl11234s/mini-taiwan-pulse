@@ -222,6 +222,7 @@ export type ExpandableLayerKey =
   | "wasteSchedule"
   | "wasteScheduleNote"
   | "wasteStopsStatic"
+  | "wasteCleaningSquads"
   // waste facility 8 sub-types（每種有 size/opacity/altitude slider）
   | "wfIncinerator"
   | "wfLandfill"
@@ -565,7 +566,7 @@ export interface FeatureInfo {
     | "iotWraRiver" | "iotWraStructure"
     | "floodSensor" | "floodSensorIsochrone"
     | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
-    | "wasteFacility" | "wasteDisposalPoint"
+    | "wasteFacility" | "wasteDisposalPoint" | "wasteCleaningSquad"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
@@ -717,6 +718,7 @@ export interface LayerVisibility {
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;
   wasteStopsStatic: boolean;
+  wasteCleaningSquads: boolean;
   wasteRoute: boolean;
   wasteStop: boolean;
   // waste_facilities 8 sub-toggles（incinerator/landfill/transfer/medical 走 Three.js 3D；
