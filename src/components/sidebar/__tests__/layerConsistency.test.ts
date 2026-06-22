@@ -55,6 +55,7 @@ const BASELINE_NO_PARAMS = new Set([
   "wasteScheduleNote",
   "wasteRoute",
   "wasteStop",
+  "wasteCleaningSquads",  // 單色綠 POI，無 size/opacity slider（透過 isDark 自動配色）
   // powerStatusHud + powerRegionDemand：搬 monitor 面板，不在 sidebar
   // 由 BASELINE_NOT_IN_SIDEBAR 接管；參數 slider 不適用
   "powerStatusHud",
@@ -84,8 +85,8 @@ const BASELINE_NO_LEGEND = new Set([
   "taipeiSewer", "taipeiEvacuate", "taipeiPumb", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
   "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
-  "wasteScheduleNote", "wasteStopsStatic", "wasteRoute", "wasteStop",
-  "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+  "wasteScheduleNote", "wasteStopsStatic", "wasteCleaningSquads", "wasteRoute", "wasteStop",
+  "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
   // Energy MVP：充電站單色 POI — 鐵則 2 只要求分類 ≥ 2 才需圖例

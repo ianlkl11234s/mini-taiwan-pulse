@@ -27,6 +27,17 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
       <Row label="處理量" value={props.capacity_tpd != null ? `${props.capacity_tpd} 噸/日` : ""} />
       <Row label="狀態" value={String(props.status ?? "")} />
       <Row label="啟用年" value={props.start_year != null ? String(props.start_year) : ""} />
+      {props.is_coastal === true && (
+        <Row
+          label="距海岸"
+          value={
+            typeof props.distance_to_sea_m === "number"
+              ? `${Math.round(props.distance_to_sea_m).toLocaleString()} m`
+              : "—"
+          }
+          color="#0891b2"
+        />
+      )}
       {sourceUrl && (
         <div style={{ marginTop: 6 }}>
           <a
@@ -40,6 +51,35 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
               wordBreak: "break-all",
             }}
           >
+            原始資料 ↗
+          </a>
+        </div>
+      )}
+    </>
+  );
+}
+
+// ─── 清潔隊辦公點 ──────────────────────────────────────────
+export function WasteCleaningSquadPanel({ props }: { props: Record<string, unknown> }) {
+  const phone = props.phone ? String(props.phone) : "";
+  const sourceUrl = props.source_url ? String(props.source_url) : "";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22c55e", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          {String(props.squad_name ?? "(清潔隊)")}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.city ?? "")} />
+      <Row label="行政區" value={String(props.district ?? "")} />
+      <Row label="地址" value={String(props.address ?? "")} />
+      {phone && <Row label="電話" value={phone} color="#60a5fa" />}
+      <Row label="主管轄區" value={String(props.jurisdiction ?? "")} />
+      {sourceUrl && (
+        <div style={{ marginTop: 6 }}>
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer"
+            style={{ fontSize: FONT_SIZE.sm, color: "#60a5fa", textDecoration: "underline", wordBreak: "break-all" }}>
             原始資料 ↗
           </a>
         </div>

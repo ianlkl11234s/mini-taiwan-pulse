@@ -402,6 +402,125 @@ export class WasteLandfillScene extends WasteFacilitySceneBase {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// 2b. WasteLandfillCoastalScene — 濱海掩埋場 (23 筆)
+//    同 Landfill 結構，換深青配色（區隔內陸 / 沿海）
+// ═══════════════════════════════════════════════════════════════
+
+export class WasteLandfillCoastalScene extends WasteFacilitySceneBase {
+  private group: THREE.Group | null = null;
+  private domeMats: THREE.MeshBasicMaterial[] = [];
+
+  protected rebuild() {
+    if (this.group) {
+      this.scene.remove(this.group);
+      this.group.traverse((o) => {
+        if (o instanceof THREE.Mesh) {
+          o.geometry.dispose();
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          for (const m of mats) m.dispose();
+        }
+      });
+    }
+    this.group = new THREE.Group();
+    this.domeMats = [];
+    this.pickPoints = [];
+
+    const mu = this.getMeterUnit();
+    const radius = 600 * this.sizeMul * mu;
+
+    for (const row of this.rows) {
+      if (!Number.isFinite(row.lat) || !Number.isFinite(row.lng)) continue;
+      const m = toMercator(row.lat, row.lng, this.altitudeMeters);
+
+      const baseDiscGeo = new THREE.CircleGeometry(radius * 1.15, 48);
+      const baseDiscMat = new THREE.MeshBasicMaterial({
+        color: 0x0891b2,
+        transparent: true,
+        opacity: 0.5 * this.opacityMul,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      });
+      const baseDisc = new THREE.Mesh(baseDiscGeo, baseDiscMat);
+      baseDisc.position.set(m.x, m.y, m.z + 1 * mu);
+      this.group.add(baseDisc);
+
+      const ringGeo = new THREE.RingGeometry(radius * 1.15, radius * 1.28, 48);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x67e8f9,
+        transparent: true,
+        opacity: 0.85 * this.opacityMul,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const ringMesh = new THREE.Mesh(ringGeo, ringMat);
+      ringMesh.position.set(m.x, m.y, m.z + 2 * mu);
+      this.group.add(ringMesh);
+
+      const domeGeo = new THREE.SphereGeometry(radius, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2);
+      domeGeo.rotateX(Math.PI / 2);
+      const domeMat = new THREE.MeshBasicMaterial({
+        color: 0x0891b2,
+        transparent: true,
+        opacity: 0.65 * this.opacityMul,
+        side: THREE.DoubleSide,
+      });
+      const domeMesh = new THREE.Mesh(domeGeo, domeMat);
+      domeMesh.position.set(m.x, m.y, m.z);
+      this.group.add(domeMesh);
+      this.domeMats.push(domeMat);
+
+      const wireGeo = new THREE.SphereGeometry(radius * 1.005, 14, 7, 0, Math.PI * 2, 0, Math.PI / 2);
+      wireGeo.rotateX(Math.PI / 2);
+      const wireMat = new THREE.MeshBasicMaterial({
+        color: 0x67e8f9,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.45 * this.opacityMul,
+      });
+      const wireMesh = new THREE.Mesh(wireGeo, wireMat);
+      wireMesh.position.set(m.x, m.y, m.z);
+      this.group.add(wireMesh);
+
+      const topGeo = new THREE.SphereGeometry(radius * 0.12, 10, 10);
+      const topMat = new THREE.MeshBasicMaterial({
+        color: 0xcffafe,
+        transparent: true,
+        opacity: 0.95 * this.opacityMul,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+      });
+      const topMesh = new THREE.Mesh(topGeo, topMat);
+      topMesh.position.set(m.x, m.y, m.z + radius);
+      this.group.add(topMesh);
+
+      const fogGeo = new THREE.SphereGeometry(radius * 1.5, 12, 6, 0, Math.PI * 2, 0, Math.PI / 5);
+      fogGeo.rotateX(Math.PI / 2);
+      const fogMat = new THREE.MeshBasicMaterial({
+        color: 0x22d3ee,
+        transparent: true,
+        opacity: 0.15 * this.opacityMul,
+        depthWrite: false,
+      });
+      const fogMesh = new THREE.Mesh(fogGeo, fogMat);
+      fogMesh.position.set(m.x, m.y, m.z + radius * 0.25);
+      this.group.add(fogMesh);
+
+      this.pickPoints.push({ row, world: new THREE.Vector3(m.x, m.y, m.z + radius * 0.5) });
+    }
+    this.scene.add(this.group);
+  }
+
+  protected animate(t: number) {
+    for (const m of this.domeMats) {
+      m.opacity = (0.30 + 0.05 * Math.sin(t * 0.8)) * this.opacityMul;
+    }
+  }
+
+  protected applyOpacity() { this.rebuild(); }
+}
+
+// ═══════════════════════════════════════════════════════════════
 // 3. WasteTransferScene — 轉運站 (28 筆)
 //    Pin (倒錐 + 球) + radar 扇形掃描
 // ═══════════════════════════════════════════════════════════════

@@ -66,6 +66,10 @@ export interface WasteFacilityRow {
   status: string | null;
   start_year: number | null;
   source_url: string | null;
+  /** 是否為濱海掩埋場（landfill_coastal 一律 true，其他 false） */
+  is_coastal: boolean;
+  /** 距海岸距離（公尺）— 僅 landfill_coastal 有值 */
+  distance_to_sea_m: number | null;
   lat: number;
   lng: number;
 }
@@ -80,6 +84,21 @@ export interface WasteDisposalPointRow {
   address: string | null;
   operator: string | null;
   accepts_categories: string[] | null;
+  source: string;
+  source_url: string | null;
+  lat: number;
+  lng: number;
+}
+
+/** 全國清潔隊辦公點（359 / 23 縣市，spatial.waste_cleaning_squads） */
+export interface WasteCleaningSquadRow {
+  id: number;
+  city: string;
+  district: string | null;
+  squad_name: string;
+  address: string | null;
+  phone: string | null;
+  jurisdiction: string | null;
   source: string;
   source_url: string | null;
   lat: number;
@@ -174,6 +193,22 @@ export function fetchWasteDisposalPoints(
     );
     if (error) throw new Error(`get_waste_disposal_points: ${error.message}`);
     return (data ?? []) as WasteDisposalPointRow[];
+  });
+}
+
+const squadsCache = keyedThunkCache<WasteCleaningSquadRow[]>(15 * 60_000);
+
+/** 取得全國清潔隊辦公點（359 筆，~50KB JSON）。15min cache。 */
+export function fetchWasteCleaningSquads(cities?: string[]): Promise<WasteCleaningSquadRow[]> {
+  const cacheKey = cities?.length ? cities.slice().sort().join(",") : "all";
+  return squadsCache(cacheKey, async () => {
+    const { data, error } = await withLoading(
+      `waste-squads-${cacheKey}`,
+      `清潔隊 ${cacheKey}`,
+      supabase.rpc("get_waste_cleaning_squads", { p_cities: cities ?? null }),
+    );
+    if (error) throw new Error(`get_waste_cleaning_squads: ${error.message}`);
+    return (data ?? []) as WasteCleaningSquadRow[];
   });
 }
 
@@ -385,6 +420,7 @@ export const WASTE_STATUS_LABELS: Record<WasteStatus, string> = {
 export const WASTE_FACILITY_COLORS: Record<string, string> = {
   incinerator: "#ef4444",          // 紅 — 焚化爐
   landfill: "#92400e",             // 棕 — 掩埋場
+  landfill_coastal: "#0891b2",     // 深青 — 濱海掩埋場 🌊
   transfer_station: "#a855f7",     // 紫 — 轉運站
   recycling_plant: "#22c55e",      // 綠 — 回收廠
   monitoring_well: "#3b82f6",      // 藍 — 地下水監測井
@@ -398,6 +434,7 @@ export const WASTE_FACILITY_COLORS: Record<string, string> = {
 export const WASTE_FACILITY_LABELS: Record<string, string> = {
   incinerator: "焚化爐",
   landfill: "衛生掩埋場",
+  landfill_coastal: "濱海掩埋場",
   transfer_station: "轉運站",
   recycling_plant: "資源回收廠",
   monitoring_well: "地下水監測井",
@@ -452,6 +489,7 @@ export const WASTE_SOURCE_BADGE_COLORS: Record<string, { bg: string; fg: string 
 export const FACILITY_TYPE_TO_VIS_KEY: Record<string, string> = {
   incinerator: "wfIncinerator",
   landfill: "wfLandfill",
+  landfill_coastal: "wfLandfillCoastal",
   transfer_station: "wfTransfer",
   medical_waste: "wfMedical",
   monitoring_well: "wfMonitoring",

@@ -1,15 +1,16 @@
 /**
- * 垃圾處理設施 Custom Layer — 一個 layer 包 5 個 sub-scene。
+ * 垃圾處理設施 Custom Layer — 一個 layer 包 6 個 sub-scene。
  *
- * 5 個 sub-scene 對應 5 個 sub-toggle：
- *   - WasteIncineratorScene (wfIncinerator)
- *   - WasteLandfillScene    (wfLandfill)
- *   - WasteTransferScene    (wfTransfer)
- *   - WasteMedicalScene     (wfMedical)
- *   - WasteMonitoringWellScene (wfMonitoring)
+ * 6 個 sub-scene 對應 6 個 sub-toggle：
+ *   - WasteIncineratorScene      (wfIncinerator)
+ *   - WasteLandfillScene         (wfLandfill)
+ *   - WasteLandfillCoastalScene  (wfLandfillCoastal)  — 同 Landfill 換深青
+ *   - WasteTransferScene         (wfTransfer)
+ *   - WasteMedicalScene          (wfMedical)
+ *   - WasteMonitoringWellScene   (wfMonitoring)
  *
  * 每個 sub-scene 由 LayerSidebar 控制 visibility / size / opacity / altitude。
- * pick 統一走 customLayer 的 click handler，輪詢 5 個 scene 取最近命中。
+ * pick 統一走 customLayer 的 click handler，輪詢 sub-scenes 取最近命中。
  */
 
 import type { CustomLayerInterface, Map as MapboxMap } from "mapbox-gl";
@@ -18,17 +19,21 @@ import type { FeatureInfo } from "../types";
 import {
   WasteIncineratorScene,
   WasteLandfillScene,
+  WasteLandfillCoastalScene,
   WasteTransferScene,
   WasteMedicalScene,
   WasteMonitoringWellScene,
 } from "../three/WasteFacilityScenes";
 
-export type WasteFacility3DKey = "wfIncinerator" | "wfLandfill" | "wfTransfer" | "wfMedical" | "wfMonitoring";
+export type WasteFacility3DKey =
+  | "wfIncinerator" | "wfLandfill" | "wfLandfillCoastal"
+  | "wfTransfer" | "wfMedical" | "wfMonitoring";
 
 /** facility_type → which scene */
 const TYPE_TO_KEY: Record<string, WasteFacility3DKey> = {
   incinerator: "wfIncinerator",
   landfill: "wfLandfill",
+  landfill_coastal: "wfLandfillCoastal",
   transfer_station: "wfTransfer",
   medical_waste: "wfMedical",
   monitoring_well: "wfMonitoring",
@@ -37,6 +42,7 @@ const TYPE_TO_KEY: Record<string, WasteFacility3DKey> = {
 export interface WasteFacility3DScenes {
   wfIncinerator: WasteIncineratorScene;
   wfLandfill: WasteLandfillScene;
+  wfLandfillCoastal: WasteLandfillCoastalScene;
   wfTransfer: WasteTransferScene;
   wfMedical: WasteMedicalScene;
   wfMonitoring: WasteMonitoringWellScene;
@@ -60,7 +66,7 @@ export interface WasteFacilityLayerOptions {
 }
 
 const ALL_KEYS: WasteFacility3DKey[] = [
-  "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+  "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
 ];
 
 export function createWasteFacilityLayer(opts: WasteFacilityLayerOptions): CustomLayerInterface & {
@@ -70,6 +76,7 @@ export function createWasteFacilityLayer(opts: WasteFacilityLayerOptions): Custo
   const scenes: WasteFacility3DScenes = {
     wfIncinerator: new WasteIncineratorScene(),
     wfLandfill: new WasteLandfillScene(),
+    wfLandfillCoastal: new WasteLandfillCoastalScene(),
     wfTransfer: new WasteTransferScene(),
     wfMedical: new WasteMedicalScene(),
     wfMonitoring: new WasteMonitoringWellScene(800),
@@ -96,7 +103,7 @@ export function createWasteFacilityLayer(opts: WasteFacilityLayerOptions): Custo
       const params = opts.getParams();
 
       // 偵測 data 變更：rows 總和當作 fingerprint
-      const dataKey = `${byType.get("incinerator")?.length ?? 0}|${byType.get("landfill")?.length ?? 0}|${byType.get("transfer_station")?.length ?? 0}|${byType.get("medical_waste")?.length ?? 0}|${byType.get("monitoring_well")?.length ?? 0}`;
+      const dataKey = `${byType.get("incinerator")?.length ?? 0}|${byType.get("landfill")?.length ?? 0}|${byType.get("landfill_coastal")?.length ?? 0}|${byType.get("transfer_station")?.length ?? 0}|${byType.get("medical_waste")?.length ?? 0}|${byType.get("monitoring_well")?.length ?? 0}`;
       if (dataKey !== lastDataKey) {
         lastDataKey = dataKey;
         for (const [type, key] of Object.entries(TYPE_TO_KEY)) {
@@ -177,6 +184,8 @@ export function facilityRowToFeatureInfo(row: WasteFacilityRow): FeatureInfo {
       status: row.status,
       start_year: row.start_year,
       source_url: row.source_url,
+      is_coastal: row.is_coastal,
+      distance_to_sea_m: row.distance_to_sea_m,
     },
   };
 }
