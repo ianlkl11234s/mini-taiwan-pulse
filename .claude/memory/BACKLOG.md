@@ -245,3 +245,33 @@
 - Monitor 用：get_power_dashboard / get_power_generation_24h / get_power_plant_output_24h
 - Map layer 用：get_power_plants_with_output / get_power_generation_at / get_osm_substations / get_ev_charging_stations
 - Hazard 用：get_lightning_recent / get_nuclear_radiation_status
+
+### 加油站 / EV 30km 路網覆蓋（CV 系列，2026-06-22 加）
+
+> A 版（motorway-tertiary 全台）已上線 commits 702e382 → 8b0faf2 → 3376314 → afbf15d。
+> B 版（+ unclassified / residential 深山部落道路）兩次失敗 — 留下路線給未來。
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| CV-1 | **done** | A 版上線（motorway-tertiary 全台）| done | 2026-06-21 commit afbf15d。5 layer PMTiles（CPC/FPCC/台糖/all_gas/ev）各 ~5 MB。osmnx graph_from_bbox + custom_filter 5 類 → multi-source dijkstra → tippecanoe。雲林 POC commit 8b0faf2 + 3376314 已 swap 為全台 |
+| CV-2 | P2 | B 版加密 — 加 unclassified（鎮內次要街道 + 深山部落道路）| **blocked** | 兩次失敗：①Overpass 全台 bbox + unclassified 切 32 subquery 卡死 8h（kumi.systems mirror）②pyrosm 讀 309MB PBF 吃 50GB RAM + 磁碟 5GB free 觸發 swap thrash。等磁碟 ≥ 50 GB free 再試 |
+| CV-3 | P3 | B 版加密 — 用 osmium 預過濾 PBF（救援路徑）| open | `brew install osmium-tool` → `osmium tags-filter w/highway=motorway,trunk,primary,secondary,tertiary,unclassified taiwan-latest.osm.pbf -o filtered.pbf` 得 ~60-80 MB 小檔 → pyrosm 讀。仍需 ~10 GB RAM。Blocker 同 CV-2（磁碟）|
+| CV-4 | P3 | B 版加密 — 用 osrm-taiwan service grid sample（雲端跑）| open | 既有 osrm-proxy-gis.zeabur.app + OSRM_TOKEN 雲端跑 /table → 不吃本機 RAM。但 OSRM 無原生 isochrone，要 grid sample + concave_hull（雲林 POC pattern）。5,000 站 × ~5 batch call = 1.5h on zeabur free tier |
+| CV-5 | P3 | C 版超密集 — + residential（巷弄全染）| open | 視覺像救援等時圈。edges 估 80 萬-100 萬，PMTiles ~300-500 MB / 檔。極不建議用本機跑，須 CI / cloud worker。視覺 ROI 對加油站分析有限（加油站不會藏巷弄裡）|
+| CV-6 | P3 | Pipeline 自動化 — 月更 PBF + 跑 dijkstra + 上 S3 | open | 仿 osrm-taiwan 月更 PBF 模式。CI 跑 + 結果 push S3 deploy-assets。可順帶解決 CV-2/3/5 的本機 RAM/磁碟限制 |
+
+**關鍵檔案位置（給未來 session 接手用）**：
+- A 版 script：`taipei-gis-analytics/scripts/road_isochrone/taiwan_nearest_distance.py`（osmnx + Overpass，A 版用 custom_filter motorway-tertiary）
+- B 版 PBF script（失敗版）：`taipei-gis-analytics/scripts/road_isochrone/taiwan_pbf_pipeline.py`（pyrosm + 本機 PBF，吃爆 RAM）
+- 309MB PBF：`taipei-gis-analytics/data/raw/osm/taiwan-latest.osm.pbf`（Geofabrik，2026-06-22 抓）
+- 雲林 POC script：`taipei-gis-analytics/scripts/road_isochrone/yunlin_nearest_distance.py`（osmnx + Overpass，~2 min 成功）
+- 線上 PMTiles：`mini-taiwan-pulse/public/coverage/taiwan_{cpc,fpcc,taisugar,all_gas,ev}_nearest.pmtiles`
+- 前端接線：`overlayRegistry.ts` `gasCoverageOverlay()` helper（PMTiles + 5 級色階）+ `LegendPanel CoverageLegend`
+- OSRM 環境：`taipei-gis-analytics/.env` `OSRM_TOKEN` + `OSRM_UPSTREAM`；public domain `https://osrm-proxy-gis.zeabur.app`
+
+**A 版限制與已知 trade-off**：
+- ✅ 涵蓋 motorway / trunk（橫貫公路 台 7/8/9/14/18/20/21）/ primary / secondary / tertiary
+- ❌ 缺 unclassified（深山部落最後一哩，如司馬庫斯 / 那瑪夏內里 / 霧台原鄉道路）
+- ❌ 缺 residential（市區巷弄）
+- ❌ 缺 service / track（產業道路、林道、登山口前山徑）
+- 實務影響：加油站本身就分布在主要道路上，「最近加油站」分析誤差小；但「視覺覆蓋密度」會比 fire/medical isochrone（路網全染）稀疏
