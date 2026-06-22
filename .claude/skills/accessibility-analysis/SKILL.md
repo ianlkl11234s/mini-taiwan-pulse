@@ -12,6 +12,14 @@ user_invocable: true
 
 ---
 
+## 🚨 卡了就讀：`references/troubleshooting.md`
+
+> 跑可達分析 pipeline 容易遇到 Overpass mirror 卡 / pyrosm 爆 RAM / cache miss / silent stall。
+> **跑前 30 秒健康檢查 + 卡時 5 分鐘診斷流程 + 6 條 pipeline 寫法守則** 全在那個檔。
+> 這 session 因為沒這份 checklist 卡了 8 小時 + 反覆 retry — **不能再忘**。
+
+---
+
 ## ⚠️ 兩大鐵則（新 POI 一定要過，否則資料會錯）
 
 > 這 session 學到的兩個血淚教訓 — 任何「最近 X」分析的 SQL → Python 邊界都會碰到。
@@ -421,6 +429,11 @@ minzoom 6 / maxzoom 12  # 全台範圍對應 zoom
 ## 9. 新增 POI 類型 checklist
 
 ```
+跑前健康檢查（30 秒 — 看 troubleshooting.md §跑前）
+[ ] ★ curl 測 3 個 Overpass mirror 至少一個回 200
+[ ] ★ df -h 確認 free ≥ 50 GB
+[ ] ★ 若 retry：grep CUSTOM_FILTER / BBOX / OVERPASS_URL 跟上次成功的對齊
+
 資料邏輯（最容易踩雷）
 [ ] ★ MUST — buckets_of() 用 Python list-of-buckets 不用 SQL CASE（鐵則 #1）
 [ ] ★ MUST — PRIVATE_NAME_RE whitelist 不用 NOT IN 反向定義（鐵則 #2）
@@ -432,8 +445,13 @@ Pipeline
 [ ] 確認資料源（Supabase RPC / table）
 [ ] Clone 最像的 reference pipeline（§3 表）
 [ ] 改 SQL + buckets_of() + PRIVATE_NAME_RE
+[ ] script 必加 progress log（troubleshooting.md §預防）
 [ ] 跑 pipeline 出 GeoJSON + PMTiles
 [ ] PMTiles 命名對齊契約 §7（檔名/sourceLayer/properties）
+
+長跑監控（卡 → troubleshooting.md §真卡了）
+[ ] 若 > 30 min 無 cache 增量 / log 進度 → kill，不要被動等
+[ ] CPU=0% + alive 用 sample <PID> 看 stack 確認是 socket 卡
 
 發佈
 [ ] PMTiles 上 S3 或放 public/coverage/
@@ -445,7 +463,7 @@ Frontend（如要前端接，否則跳）
 
 收尾
 [ ] commit + push（pipeline 不 commit 中間檔，只 commit script）
-[ ] 若發現新的 bucket 模式 / whitelist 字詞，回更新本 SKILL 鐵則範本
+[ ] 若發現新的 bucket 模式 / whitelist 字詞 / 卡點 / mirror 變動，回更新本 SKILL
 ```
 
 ---
