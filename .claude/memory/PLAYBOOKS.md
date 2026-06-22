@@ -1271,3 +1271,47 @@ git status -s
 ### 觸發詞
 
 「PR merge 完本地拒絕 fast-forward / 本地有舊 commit / 拒絕快轉 / 安全同步」
+
+---
+
+## PB-22 — 新增 POI 可達性分析（accessibility-analysis SKILL 入口）
+
+> 完整 SOP 在 `.claude/skills/accessibility-analysis/SKILL.md`（10 章 + 4 個 references）。
+> 本 PB 只列**入口流程**，避免在兩處同步維護。
+
+### 何時觸發
+
+- 用戶說「30km 路網可達」「最近 X 站」「服務範圍」「沙漠」「孤島」「等時圈」「isochrone」
+- 新增任何 POI（加油 / 醫療 / 消防 / 充電 / 警消 / 學校）做「離 POI 多遠」分析
+
+### 4 步入口
+
+1. **invoke SKILL**：用 Skill tool 開 `accessibility-analysis` 或 `service-coverage`
+2. **讀 §⚠️ 兩大鐵則**（multi-bucket / whitelist）— 任何分 layer 的 bucket 邏輯必過
+3. **讀 §🚨 troubleshooting.md** — 跑前 30 秒健康檢查
+4. **clone scripts/pipeline-template.py 改 SQL + bucket** → 跑 → swap PMTiles → 前端 11 處 SOP
+
+### 三模式記憶（從問題選 mode）
+
+| 問題 | Mode |
+|---|---|
+| 「最近站幾 km」 | A — 路網染色 LineString |
+| 「服務範圍是哪一片」 | B — Polygon 沿路網外殼 |
+| 「沙漠在哪 / 跨服務疊圖」 | C — Hex / Grid |
+| 多個都要 | A + B + C 疊圖 |
+
+### 已落地案例（reference）
+
+- **Mode A**：加油站 / EV 30km coverage（本 session，commits 702e382→17c148b）
+- **Mode B**：fire isochrone 救援等時圈（`fetch-fire-isochrones.py`）
+- **Mode C**：medical isochrone grid_accessibility（`pipelines/poi/medical/isochrone/`）
+
+### 失誤點（→ INCIDENTS 2026-06-22）
+
+- ❌ 用 SQL CASE 分 bucket：雙身分 POI 漏歸（73 個台糖站漏掉）
+- ❌ 用 NOT IN 反向定義「其他」：吸入 374 個 41455 false positive
+- ❌ osmnx + 全台 bbox 沒 fallback：Overpass mirror 卡時整 pipeline 卡死
+
+### 觸發詞
+
+「30km 可達 / 最近站 / 等時圈 / isochrone / 路網覆蓋 / 服務範圍 / 服務沙漠 / 孤島 / 補點 / 擴點選址 / 競爭者疊圖」
