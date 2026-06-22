@@ -201,6 +201,27 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   facHistorical: "#8C5D42",        // geothermal 棕（歷史沉感）
   facSecondary: "#8C7C4A",         // bioenergy 卡其（小型分散）
   facOsmSupplement: "#94a3b8",     // 中性灰
+  // 化石燃料 13 layer（Phase B — public.get_fossil_fuel_layers()）
+  gasStationCpc: "#41AEF2",        // 中油 — 藍（白邊 0.5px）
+  gasStationFpcc: "#22C55E",       // 台塑 — 綠（白邊 0.5px）
+  gasStationTaisugar: "#F2522E",   // 台糖 — 紅橙（白邊 0.5px）
+  gasStationOther: "#D1D5DB",      // 其他/私營 — 淺灰（白邊 0.5px）
+  gasStationCanonical: "#0FBFBF",  // canonical SSOT — teal 藍綠（白邊 0.5px）
+  lpgSubpackaging: "#F2622E",      // LPG 分裝場 — 紅橙
+  lpgRetailers: "#D9863D",         // LPG 加氣站/瓦斯行 — 棕橙
+  lngTerminal: "#F2B84B",          // LNG 接收站 — 橙黃
+  pipelineGas: "#F2D64B",          // 天然氣主幹線 — 暖黃（線狀）
+  pipelineOilGas: "#EDF249",       // 油氣管線 OSM — 黃（虛線）
+  industrialRefinery: "#A855F7",   // 煉油廠 polygon — Cyberpunk 亮紫
+  industrialStorageTank: "#06B6D4", // 儲槽 polygon — Cyberpunk cyan
+  industrialPowerPlant: "#D946EF",  // 火力廠 polygon — Cyberpunk magenta
+  coalTerminal: "#3B82F6",         // 煤炭碼頭 — Cyberpunk 電光藍
+  // 雲林 POC 覆蓋分析 — 30km 路網可達
+  gasCoverageAll: "#F2A516",       // 總覆蓋密度 — 橙黃（gradient mid stop）
+  gasCoverageCpc: "#41AEF2",       // 中油 — 藍
+  gasCoverageFpcc: "#22C55E",      // 台塑 — 綠
+  gasCoverageTaisugar: "#F2522E",  // 台糖 — 紅橙
+  evIsland: "#F23535",             // 充電孤島 — 警告紅
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
@@ -507,7 +528,32 @@ export const SECTIONS: SectionDef[] = [
   {
     title: "能源 · 石化",
     layers: [
-      { key: "fossilFuelInfra", label: "石化能源設施", expandable: true },
+      { key: "fossilFuelInfra", label: "石化能源設施 (legacy)", expandable: true },
+      // ── 加油站 4 品牌 + SSOT canonical ──
+      { key: "gasStationCpc",         label: "加油站（中油 主要）",         expandable: true },
+      { key: "gasStationFpcc",        label: "加油站（台塑系）",            expandable: true },
+      { key: "gasStationTaisugar",    label: "加油站（台糖）",              expandable: true },
+      { key: "gasStationOther",       label: "加油站（其他 / 私營）",       expandable: true },
+      { key: "gasStationCanonical",   label: "加油站 SSOT（合併）",         expandable: true },
+      // ── 液化氣 LPG ──
+      { key: "lpgSubpackaging",       label: "LPG 分裝 / 儲存場",           expandable: true },
+      { key: "lpgRetailers",          label: "LPG 加氣站 / 瓦斯行",         expandable: true },
+      // ── 天然氣 ──
+      { key: "lngTerminal",           label: "LNG 接收站",                  expandable: true },
+      { key: "pipelineGas",           label: "天然氣主幹線",                expandable: true },
+      { key: "pipelineOilGas",        label: "油氣管線（OSM）",             expandable: true },
+      // ── 大型設施 polygon ──
+      { key: "industrialRefinery",    label: "煉油 / 化工廠 polygon",       expandable: true },
+      { key: "industrialStorageTank", label: "油氣儲槽 polygon",            expandable: true },
+      { key: "industrialPowerPlant",  label: "火力廠 polygon",              expandable: true },
+      // ── 煤炭 ──
+      { key: "coalTerminal",          label: "煤炭碼頭",                    expandable: true },
+      // ── 雲林 POC 覆蓋分析（PMTiles × OSM edge nearest distance 染色）──
+      { key: "gasCoverageAll",        label: "加油站 最近距離",             expandable: true },
+      { key: "gasCoverageCpc",        label: "中油 最近距離",               expandable: true },
+      { key: "gasCoverageFpcc",       label: "台塑 最近距離",               expandable: true },
+      { key: "gasCoverageTaisugar",   label: "台糖 最近距離",               expandable: true },
+      { key: "evIsland",              label: "充電站 最近距離",             expandable: true },
     ],
   },
   {

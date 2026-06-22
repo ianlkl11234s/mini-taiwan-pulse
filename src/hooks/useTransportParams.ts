@@ -444,6 +444,46 @@ export function useTransportParams() {
   const [facSecondaryScale, setFacSecondaryScale] = useState(0.5);
   const [facOsmSupplementOpacity, setFacOsmSupplementOpacity] = useState(0.7);
   const [facOsmSupplementScale, setFacOsmSupplementScale] = useState(0.5);
+  // ── 化石燃料 14 layer params（Phase B） ──
+  const [gasStationCpcOpacity, setGasStationCpcOpacity] = useState(0.85);
+  const [gasStationCpcScale, setGasStationCpcScale] = useState(1.7);
+  const [gasStationFpccOpacity, setGasStationFpccOpacity] = useState(0.85);
+  const [gasStationFpccScale, setGasStationFpccScale] = useState(1.7);
+  const [gasStationTaisugarOpacity, setGasStationTaisugarOpacity] = useState(0.85);
+  const [gasStationTaisugarScale, setGasStationTaisugarScale] = useState(1.7);
+  const [gasStationOtherOpacity, setGasStationOtherOpacity] = useState(0.7);
+  const [gasStationOtherScale, setGasStationOtherScale] = useState(2.2);
+  const [gasStationCanonicalOpacity, setGasStationCanonicalOpacity] = useState(0.9);
+  const [gasStationCanonicalScale, setGasStationCanonicalScale] = useState(1.7);
+  const [lpgSubpackagingOpacity, setLpgSubpackagingOpacity] = useState(0.85);
+  const [lpgSubpackagingScale, setLpgSubpackagingScale] = useState(1.1);
+  const [lpgRetailersOpacity, setLpgRetailersOpacity] = useState(0.75);
+  const [lpgRetailersScale, setLpgRetailersScale] = useState(1.3);
+  const [lngTerminalOpacity, setLngTerminalOpacity] = useState(0.95);
+  const [lngTerminalScale, setLngTerminalScale] = useState(1.6);
+  const [pipelineGasOpacity, setPipelineGasOpacity] = useState(0.8);
+  const [pipelineGasWidth, setPipelineGasWidth] = useState(2.0);
+  const [pipelineOilGasOpacity, setPipelineOilGasOpacity] = useState(0.7);
+  const [pipelineOilGasWidth, setPipelineOilGasWidth] = useState(1.5);
+  const [industrialRefineryOpacity, setIndustrialRefineryOpacity] = useState(0.55);
+  const [industrialRefineryOutline, setIndustrialRefineryOutline] = useState(true);
+  const [industrialStorageTankOpacity, setIndustrialStorageTankOpacity] = useState(0.55);
+  const [industrialStorageTankOutline, setIndustrialStorageTankOutline] = useState(true);
+  const [industrialPowerPlantOpacity, setIndustrialPowerPlantOpacity] = useState(0.5);
+  const [industrialPowerPlantOutline, setIndustrialPowerPlantOutline] = useState(true);
+  const [coalTerminalOpacity, setCoalTerminalOpacity] = useState(0.95);
+  const [coalTerminalScale, setCoalTerminalScale] = useState(1.4);
+  // ── 雲林 POC 覆蓋分析 5 layer params（PMTiles 沿 OSM edge nearest distance 染色）──
+  const [gasCoverageAllOpacity, setGasCoverageAllOpacity] = useState(0.85);
+  const [gasCoverageAllLineWidth, setGasCoverageAllLineWidth] = useState(0.5);
+  const [gasCoverageCpcOpacity, setGasCoverageCpcOpacity] = useState(0.85);
+  const [gasCoverageCpcLineWidth, setGasCoverageCpcLineWidth] = useState(0.5);
+  const [gasCoverageFpccOpacity, setGasCoverageFpccOpacity] = useState(0.85);
+  const [gasCoverageFpccLineWidth, setGasCoverageFpccLineWidth] = useState(0.5);
+  const [gasCoverageTaisugarOpacity, setGasCoverageTaisugarOpacity] = useState(0.85);
+  const [gasCoverageTaisugarLineWidth, setGasCoverageTaisugarLineWidth] = useState(0.5);
+  const [evIslandOpacity, setEvIslandOpacity] = useState(0.6);
+  const [evIslandLineWidth, setEvIslandLineWidth] = useState(0.5);
   // HAZARD（v2 Phase B）
   const [lightningOpacity, setLightningOpacity] = useState(0.85);
   const [lightningMinutes, setLightningMinutes] = useState(10);
@@ -744,6 +784,27 @@ export function useTransportParams() {
     facHistoricalOpacity, facHistoricalScale,
     facSecondaryOpacity, facSecondaryScale,
     facOsmSupplementOpacity, facOsmSupplementScale,
+    // 化石燃料 14 layer
+    gasStationCpcOpacity, gasStationCpcScale,
+    gasStationFpccOpacity, gasStationFpccScale,
+    gasStationTaisugarOpacity, gasStationTaisugarScale,
+    gasStationOtherOpacity, gasStationOtherScale,
+    gasStationCanonicalOpacity, gasStationCanonicalScale,
+    lpgSubpackagingOpacity, lpgSubpackagingScale,
+    lpgRetailersOpacity, lpgRetailersScale,
+    lngTerminalOpacity, lngTerminalScale,
+    pipelineGasOpacity, pipelineGasWidth,
+    pipelineOilGasOpacity, pipelineOilGasWidth,
+    industrialRefineryOpacity, industrialRefineryOutline: industrialRefineryOutline ? 1 : 0,
+    industrialStorageTankOpacity, industrialStorageTankOutline: industrialStorageTankOutline ? 1 : 0,
+    industrialPowerPlantOpacity, industrialPowerPlantOutline: industrialPowerPlantOutline ? 1 : 0,
+    coalTerminalOpacity, coalTerminalScale,
+    // 雲林 POC 覆蓋分析
+    gasCoverageAllOpacity, gasCoverageAllLineWidth,
+    gasCoverageCpcOpacity, gasCoverageCpcLineWidth,
+    gasCoverageFpccOpacity, gasCoverageFpccLineWidth,
+    gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth,
+    evIslandOpacity, evIslandLineWidth,
     powerGenerationOpacity,
     powerGenerationHeight,
     osmSubstationsOpacity,
@@ -775,7 +836,7 @@ export function useTransportParams() {
     lightningMinutes,
     nuclearOpacity,
     nuclearScale,
-  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale]);
+  }), [stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -1409,6 +1470,84 @@ export function useTransportParams() {
       case "facOsmSupplement": return [
         { label: `大小 ${facOsmSupplementScale.toFixed(1)}`, value: facOsmSupplementScale, min: 0.3, max: 3, step: 0.1, onChange: setFacOsmSupplementScale },
         { label: `透明度 ${facOsmSupplementOpacity.toFixed(2)}`, value: facOsmSupplementOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacOsmSupplementOpacity },
+      ];
+      // ── 化石燃料 14 layer（Phase B） ──
+      case "gasStationCpc": return [
+        { label: `大小 ${gasStationCpcScale.toFixed(1)}`, value: gasStationCpcScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationCpcScale },
+        { label: `透明度 ${gasStationCpcOpacity.toFixed(2)}`, value: gasStationCpcOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationCpcOpacity },
+      ];
+      case "gasStationFpcc": return [
+        { label: `大小 ${gasStationFpccScale.toFixed(1)}`, value: gasStationFpccScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationFpccScale },
+        { label: `透明度 ${gasStationFpccOpacity.toFixed(2)}`, value: gasStationFpccOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationFpccOpacity },
+      ];
+      case "gasStationTaisugar": return [
+        { label: `大小 ${gasStationTaisugarScale.toFixed(1)}`, value: gasStationTaisugarScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationTaisugarScale },
+        { label: `透明度 ${gasStationTaisugarOpacity.toFixed(2)}`, value: gasStationTaisugarOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationTaisugarOpacity },
+      ];
+      case "gasStationOther": return [
+        { label: `大小 ${gasStationOtherScale.toFixed(1)}`, value: gasStationOtherScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationOtherScale },
+        { label: `透明度 ${gasStationOtherOpacity.toFixed(2)}`, value: gasStationOtherOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationOtherOpacity },
+      ];
+      case "gasStationCanonical": return [
+        { label: `大小 ${gasStationCanonicalScale.toFixed(1)}`, value: gasStationCanonicalScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationCanonicalScale },
+        { label: `透明度 ${gasStationCanonicalOpacity.toFixed(2)}`, value: gasStationCanonicalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationCanonicalOpacity },
+      ];
+      case "lpgSubpackaging": return [
+        { label: `大小 ${lpgSubpackagingScale.toFixed(1)}`, value: lpgSubpackagingScale, min: 0.3, max: 3, step: 0.1, onChange: setLpgSubpackagingScale },
+        { label: `透明度 ${lpgSubpackagingOpacity.toFixed(2)}`, value: lpgSubpackagingOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLpgSubpackagingOpacity },
+      ];
+      case "lpgRetailers": return [
+        { label: `大小 ${lpgRetailersScale.toFixed(1)}`, value: lpgRetailersScale, min: 0.3, max: 3, step: 0.1, onChange: setLpgRetailersScale },
+        { label: `透明度 ${lpgRetailersOpacity.toFixed(2)}`, value: lpgRetailersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLpgRetailersOpacity },
+      ];
+      case "lngTerminal": return [
+        { label: `大小 ${lngTerminalScale.toFixed(1)}`, value: lngTerminalScale, min: 0.5, max: 4, step: 0.1, onChange: setLngTerminalScale },
+        { label: `透明度 ${lngTerminalOpacity.toFixed(2)}`, value: lngTerminalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLngTerminalOpacity },
+      ];
+      case "pipelineGas": return [
+        { label: `寬度 ${pipelineGasWidth.toFixed(1)}`, value: pipelineGasWidth, min: 0.5, max: 5, step: 0.1, onChange: setPipelineGasWidth },
+        { label: `透明度 ${pipelineGasOpacity.toFixed(2)}`, value: pipelineGasOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPipelineGasOpacity },
+      ];
+      case "pipelineOilGas": return [
+        { label: `寬度 ${pipelineOilGasWidth.toFixed(1)}`, value: pipelineOilGasWidth, min: 0.5, max: 5, step: 0.1, onChange: setPipelineOilGasWidth },
+        { label: `透明度 ${pipelineOilGasOpacity.toFixed(2)}`, value: pipelineOilGasOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPipelineOilGasOpacity },
+      ];
+      case "industrialRefinery": return [
+        { label: `透明度 ${industrialRefineryOpacity.toFixed(2)}`, value: industrialRefineryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialRefineryOpacity },
+        { type: "toggle" as const, label: "顯示外框線", value: industrialRefineryOutline, onChange: setIndustrialRefineryOutline },
+      ];
+      case "industrialStorageTank": return [
+        { label: `透明度 ${industrialStorageTankOpacity.toFixed(2)}`, value: industrialStorageTankOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialStorageTankOpacity },
+        { type: "toggle" as const, label: "顯示外框線", value: industrialStorageTankOutline, onChange: setIndustrialStorageTankOutline },
+      ];
+      case "industrialPowerPlant": return [
+        { label: `透明度 ${industrialPowerPlantOpacity.toFixed(2)}`, value: industrialPowerPlantOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialPowerPlantOpacity },
+        { type: "toggle" as const, label: "顯示外框線", value: industrialPowerPlantOutline, onChange: setIndustrialPowerPlantOutline },
+      ];
+      case "coalTerminal": return [
+        { label: `大小 ${coalTerminalScale.toFixed(1)}`, value: coalTerminalScale, min: 0.5, max: 4, step: 0.1, onChange: setCoalTerminalScale },
+        { label: `透明度 ${coalTerminalOpacity.toFixed(2)}`, value: coalTerminalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCoalTerminalOpacity },
+      ];
+      // ── 雲林 POC 覆蓋分析 ──
+      case "gasCoverageAll": return [
+        { label: `透明度 ${gasCoverageAllOpacity.toFixed(2)}`, value: gasCoverageAllOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageAllOpacity },
+        { label: `線寬 ${gasCoverageAllLineWidth.toFixed(2)}`, value: gasCoverageAllLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageAllLineWidth },
+      ];
+      case "gasCoverageCpc": return [
+        { label: `透明度 ${gasCoverageCpcOpacity.toFixed(2)}`, value: gasCoverageCpcOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageCpcOpacity },
+        { label: `線寬 ${gasCoverageCpcLineWidth.toFixed(2)}`, value: gasCoverageCpcLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageCpcLineWidth },
+      ];
+      case "gasCoverageFpcc": return [
+        { label: `透明度 ${gasCoverageFpccOpacity.toFixed(2)}`, value: gasCoverageFpccOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageFpccOpacity },
+        { label: `線寬 ${gasCoverageFpccLineWidth.toFixed(2)}`, value: gasCoverageFpccLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageFpccLineWidth },
+      ];
+      case "gasCoverageTaisugar": return [
+        { label: `透明度 ${gasCoverageTaisugarOpacity.toFixed(2)}`, value: gasCoverageTaisugarOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageTaisugarOpacity },
+        { label: `線寬 ${gasCoverageTaisugarLineWidth.toFixed(2)}`, value: gasCoverageTaisugarLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageTaisugarLineWidth },
+      ];
+      case "evIsland": return [
+        { label: `透明度 ${evIslandOpacity.toFixed(2)}`, value: evIslandOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEvIslandOpacity },
+        { label: `線寬 ${evIslandLineWidth.toFixed(2)}`, value: evIslandLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setEvIslandLineWidth },
       ];
       case "powerGenerationUnit": return [
         { label: `柱高 ${powerGenerationHeight.toFixed(1)}`, value: powerGenerationHeight, min: 0.3, max: 3, step: 0.1, onChange: setPowerGenerationHeight },

@@ -269,3 +269,19 @@
 | **slim RPC** | 跟 fat RPC 對比。218 `get_power_generation_at(ts)` 只回有對應機組的 14 廠 ~3KB（vs 213 回 10,665 行 ~500KB）。timeline scrub 用 slim |
 | **24h preload** | 219 `get_power_generation_24h()` 一次拉 14 廠 × 144 ts ~45 KB。前端 `cachedOnce 10min TTL` + `resolvePowerGenerationAt()` client binary search → scrub 零 round-trip |
 | **frustumCulled=false** | InstancedMesh 預設 `true` 但 bounding sphere 從 unit geometry 算，14 instance 散佈全台會被誤判超出視錐 → 整個 mesh 不畫。所有獨立 3D layer 都要 `mesh.frustumCulled = false` |
+
+## 可達性分析 ACCESSIBILITY（2026-06-22 加）
+
+| 術語 | 說明 |
+|---|---|
+| **可達性分析 / accessibility-analysis** | 「離我最近的 X 多遠 / 多久 / 哪邊是 X 沙漠」這類分析的統稱。`.claude/skills/accessibility-analysis/SKILL.md` 為 SSOT |
+| **服務覆蓋 / service-coverage** | 商業視角同義詞（補點策略 / 擴點選址 / 競爭者疊圖），對應同一個 SKILL |
+| **Mode A — 路網染色** | 每條 OSM edge 染「到最近 source 的路網距離」5 級色階。沿路網細線、回答「最近 X 幾 km」。本案：加油站 30km coverage |
+| **Mode B — Polygon 沿路網外殼** | per-station ego_graph / OSRM grid sample → concave_hull → polygon。回答「服務範圍是哪一片」。例：fire isochrone 救援等時圈 |
+| **Mode C — Hex / Grid 格點** | 全台 H3 z8 hex 或 1km grid，每 cell 標 nearest 距離。回答「沙漠在哪 / 跨服務疊圖」。例：medical isochrone grid_accessibility |
+| **5 級色階 band** | accessibility 圖層通用：0-5km 深綠 `#16A34A` / 5-10km 草綠 `#84CC16` / 10-20km 黃 `#F2D64B` / 20-30km 橙 `#F2A516` / >30km 紅 `#F23535` |
+| **multi-bucket 歸屬** | 雙身分 POI（如「中油+台糖」站）SQL CASE 短路求值會吃掉，必須 Python list-of-buckets 才能進多 layer。SKILL §⚠️ 鐵則 #1 |
+| **whitelist 過濾 vs NOT IN** | 「其他/私營」bucket 用 `PRIVATE_NAME_RE` 正向 regex 篩，不用 `NOT IN (大品牌)` 反向定義（會吸 41455 false positive）。SKILL §⚠️ 鐵則 #2 |
+| **PMTiles 命名契約** | `{topic}_{bucket}_{metric}.pmtiles` 檔名 / `coverage_{bucket}` sourceLayer / `band` + `dist_m` properties |
+| **osmnx subdivide** | osmnx 對大 bbox 自動切 sub-bbox 序列跑（預設 `max_query_area_size=2500 km²`，全台被切 32 個）。任一卡死全 process 卡，無 socket timeout |
+| **Overpass mirror 池** | overpass-api.de（預設，IP ban 24-72h） / overpass.kumi.systems（大 subquery 不穩） / overpass.openstreetmap.fr（whitelist 403）。完整救援見 SKILL `mirror-fallback.md` |

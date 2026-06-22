@@ -366,3 +366,55 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 ### 14 廠對應「機組」（unit_prefix LIKE plant_core 規則）
 
 大潭、台中、通霄、興達、林口、大林、南部、明潭、協和、卓蘭、和平、谷關（22 廠裡 14 個有對應機組）。其餘 8 廠（大甲溪 / 大觀 / 萬大 / 萬大 / 等水力分廠 + 外部購電聚合）沒對到 — 視覺上「廠在地、無柱」。
+
+## 化石燃料 14 layer（2026-06-21 加 — 本 session）
+
+走 `public.get_fossil_fuel_layers()` RPC（gis-platform migration 242），UNION 6 個 `energy.*` 表 → 14 layer 分類，總 ~5,420 features：
+
+| Layer | Bucket | 站數 | Geometry |
+|---|---|---|---|
+| 加油站 中油 | `gas_station_cpc` | 2,023 | Point |
+| 加油站 台塑 | `gas_station_fpcc` | 350 | Point |
+| 加油站 台糖 | `gas_station_taisugar` | 86 | Point |
+| 加油站 其他/私營 | `gas_station_other` | 698 | Point |
+| 加油站 SSOT canonical | `gas_station_canonical` | 3,053 | Point |
+| LPG 分裝/儲存場 | `lpg_subpackaging` | 107 | Point |
+| LPG 加氣站/瓦斯行 | `lpg_retailers` | 1,185 | Point |
+| LNG 接收站 | `lng_terminal` | 7 | Point |
+| 天然氣主幹線 | `pipeline_gas` | 11 | LineString |
+| 油氣管線 OSM | `pipeline_oilgas` | 10 | LineString |
+| 煉油 / 化工廠 | `industrial_refinery` | 98 | Polygon + halo |
+| 油氣儲槽 | `industrial_storage_tank` | 72 | Polygon + halo |
+| 火力廠 polygon | `industrial_power_plant` | 26 | Polygon + halo |
+| 煤炭碼頭 | `coal_terminal` | 4 | Point |
+
+EXPLAIN ANALYZE 86ms，無需 pre-aggregate。
+
+## 加油站 / EV 30km 路網可達 5 PMTiles（2026-06-22 加）
+
+走本機 osmnx + multi_source_dijkstra（避開 Overpass mirror 卡），全台主要路網 motorway-tertiary（**34,396 nodes / 75,622 edges**）：
+
+| PMTiles | Bucket | Sources（站數）| Reach |
+|---|---|---|---|
+| `taiwan_cpc_nearest.pmtiles` | CPC 中油 | 1,988 | 99% |
+| `taiwan_fpcc_nearest.pmtiles` | 台塑 | 350（+31 雙品牌）| 98% |
+| `taiwan_taisugar_nearest.pmtiles` | 台糖 | 86（+73 雙品牌 → 6.5×）| 59% |
+| `taiwan_other_nearest.pmtiles` | 私營 whitelist | 292（過 374 false positive）| 97% |
+| `taiwan_all_gas_nearest.pmtiles` | 全加油站 | 2,612（過 false positive）| 99% |
+| `taiwan_ev_nearest.pmtiles` | EV 充電 | 3,028 | 99% |
+
+5 個 ~5 MB（總 ~25 MB），存 `public/coverage/`。資料模型「每 OSM edge 染最近 source 的路網距離 5 級色階」（0-5/5-10/10-20/20-30/>30 km）。半年更新一次。
+
+Pipeline：`taipei-gis-analytics/scripts/road_isochrone/taiwan_nearest_distance.py`（osmnx + Overpass + tippecanoe）。Multi-bucket + whitelist 兩鐵則套用案例。
+
+Bonus: `taiwan_other_nearest.pmtiles` 已備但前端尚未接第 6 個 layer（暫存）。
+
+## 加油站品牌分布（DB 盤點）
+
+| 分類 | 數量 | 備註 |
+|---|---|---|
+| 三大品牌 | 2,355 | 中油 + 台塑/Formosa + 台糖 |
+| 已知私營（whitelist 命中）| 291 | 山隆/速邁樂/台亞/西歐/統一精工/Smile/7-Eleven/含「加油站」字樣 |
+| 其他 41455 商業司登記（false positive）| 374 | 「XX 股份有限公司」型，多半非加油站 |
+| 無名 | 33 | brand 也是 unknown |
+| **雙品牌站** | **104** | 中油+台糖 72 + 中油+台塑 31 + 台塑+台糖 1 |

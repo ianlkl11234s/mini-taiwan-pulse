@@ -624,6 +624,57 @@ grep -l "isStyleLoaded\|style.load\|addLayer" .claude/pitfalls/
 
 ---
 
+## 可達性分析 — Multi-bucket 歸屬不用 SQL CASE（2026-06-22）
+
+**規則**：分 layer 的 bucket 邏輯**用 Python list-of-buckets**，不用 SQL `CASE WHEN`。
+
+**Why**：SQL CASE 短路求值會吃掉多身分 POI（如「中油+台糖」72 站只進 cpc，永遠不進 taisugar）。本 session 加油站案例：台糖 layer 從 13 站漏到只有 13，修正後 86 站（+73 雙品牌 / 覆蓋率 50%→59%）。
+
+**How to apply**：
+- SQL 只回原始 `brand[]` / `categories[]`，不分類
+- Python `buckets_of(brand, name)` 用 if-list 把每站算多 bucket
+- dijkstra source 用 `defaultdict(list)` 累加
+- 跑完 grep 一筆雙身分 POI 確認真的進多 bucket
+- 完整範本 + 案例見 `.claude/skills/accessibility-analysis/SKILL.md §⚠️ 鐵則 #1`
+
+## 可達性分析 — 「其他」用 whitelist 不用 NOT IN 反向定義（2026-06-22）
+
+**規則**：「私營 / 其他 / 雜項」這類 bucket **用 whitelist regex 正向篩**，不要用 `NOT IN (大品牌)` 反向定義。
+
+**Why**：政府 raw 資料常有「商業司 41455 公司登記但非該業態」的 false positive（加油站表混入停車場 / 公司辦公室）。反向定義會把這些雜訊全吸進「其他」bucket。本 session 加油站案例：665 站 → 292 站（去 374 false positive）。
+
+**How to apply**：
+- 先跑 `SELECT name, count(*) FROM ... WHERE 反向條件 GROUP BY name ORDER BY 2 DESC LIMIT 30` 看樣本
+- 寫 `PRIVATE_NAME_RE = re.compile(r"...")` 涵蓋常見品牌 + 「加油站」/「醫院」等業態關鍵字
+- 套用：`if not bs and name and PRIVATE_NAME_RE.search(name): bs.append("other")`
+- 各 POI 類型推薦 regex 表 + 完整範本見 `.claude/skills/accessibility-analysis/SKILL.md §⚠️ 鐵則 #2`
+
+## 長跑 pipeline 跑前必健康檢查（2026-06-22）
+
+**規則**：跑外部依賴（Overpass / OSRM / 大 query）的 pipeline 前，**先 30 秒健康檢查**（curl mirror + df + ps）。
+
+**Why**：本 session 反覆 retry osmnx batch，多次跑 40 分鐘後才發現 mirror 早就 down。健康檢查可避免「batch 開跑後才知道資源不可用」。
+
+**How to apply**：
+- `curl --max-time 5` 測 3 個 Overpass mirror 至少一個回 200
+- `df -h ~` 確認 free ≥ 50 GB（pyrosm 路線）
+- 若是 retry：`grep CUSTOM_FILTER / BBOX / OVERPASS_URL` 跟「上次成功 commit」對齊
+- 完整 checklist 見 `.claude/skills/accessibility-analysis/references/troubleshooting.md`
+
+## CPU=0% + 仍 alive ≠ deadlock（2026-06-22）
+
+**規則**：長跑 process 顯示 CPU=0% 別自動以為 deadlock — 多半是 socket / IO 等候。用 `sample <PID>` 看 stack trace 判斷。
+
+**Why**：本 session 把卡 socket 的 osmnx process 等 8 小時，以為「應該很快」實際上是 mirror 不回應 + osmnx 內部無 socket timeout。
+
+**How to apply**：
+- `ps -o etime=,pcpu=,pmem= -p $PID` 看狀態
+- `sample <PID> 2` 取 2 秒 stack snapshot 看最底 frame：
+  - `socket.recv` / `_overpass_request` → 網路卡
+  - `to_graph` / `compose_all` → RAM 即將爆
+  - dijkstra / 純 Python loop → 確實 CPU bound
+- **超過 30 分鐘無 log / cache 增量 → kill**，不要被動「再等 5 分鐘」
+
 ## 微調 batch + 不要每個值一個 commit（2026-06-20）
 
 **規則**：用戶要改顏色 / slider 預設值時，**先問是否還會再改**，集中 commit 不一個值一 commit。

@@ -29,7 +29,15 @@ import { HikingTrailsPanel, ForestryGenericPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { MedicalPOIPanel, MedicalIsochronePanel } from "./medicalPanels";
 import { SatellitePanel } from "./satellitePanels";
-import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel } from "./energyPanels";
+import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel,
+  GasStationCpcPanel, GasStationFpccPanel, GasStationTaisugarPanel, GasStationOtherPanel,
+  GasStationCanonicalPanel, LpgSubpackagingPanel, LpgRetailersPanel, LngTerminalPanel,
+  PipelineGasPanel, PipelineOilGasPanel,
+  IndustrialRefineryPanel, IndustrialStorageTankPanel, IndustrialPowerPlantPanel,
+  CoalTerminalPanel,
+  GasCoverageAllPanel, GasCoverageCpcPanel, GasCoverageFpccPanel, GasCoverageTaisugarPanel,
+  EvIslandPanel,
+} from "./energyPanels";
 import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
 
 export interface PanelProps {
@@ -114,6 +122,27 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   geothermalWell: GeothermalWellPanel,
   renewablePermitTaipei: RenewablePermitTaipeiPanel,
   evCharging: EvChargingPanel,
+  // 化石燃料 14 layer
+  gasStationCpc: GasStationCpcPanel,
+  gasStationFpcc: GasStationFpccPanel,
+  gasStationTaisugar: GasStationTaisugarPanel,
+  gasStationOther: GasStationOtherPanel,
+  gasStationCanonical: GasStationCanonicalPanel,
+  lpgSubpackaging: LpgSubpackagingPanel,
+  lpgRetailers: LpgRetailersPanel,
+  lngTerminal: LngTerminalPanel,
+  pipelineGas: PipelineGasPanel,
+  pipelineOilGas: PipelineOilGasPanel,
+  industrialRefinery: IndustrialRefineryPanel,
+  industrialStorageTank: IndustrialStorageTankPanel,
+  industrialPowerPlant: IndustrialPowerPlantPanel,
+  coalTerminal: CoalTerminalPanel,
+  // 雲林 POC 覆蓋分析
+  gasCoverageAll: GasCoverageAllPanel,
+  gasCoverageCpc: GasCoverageCpcPanel,
+  gasCoverageFpcc: GasCoverageFpccPanel,
+  gasCoverageTaisugar: GasCoverageTaisugarPanel,
+  evIsland: EvIslandPanel,
   lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
 };
@@ -194,6 +223,27 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   geothermalWell: "地熱井",
   renewablePermitTaipei: "北市再生能源",
   evCharging: "電動車充電站",
+  // 化石燃料 13 layer
+  gasStationCpc: "加油站（中油）",
+  gasStationFpcc: "加油站（台塑系）",
+  gasStationTaisugar: "加油站（台糖）",
+  gasStationOther: "加油站（其他 / 私營）",
+  gasStationCanonical: "加油站 SSOT",
+  lpgSubpackaging: "LPG 分裝 / 儲存場",
+  lpgRetailers: "LPG 加氣站 / 瓦斯行",
+  lngTerminal: "LNG 接收站",
+  pipelineGas: "天然氣主幹線",
+  pipelineOilGas: "油氣管線（OSM）",
+  industrialRefinery: "煉油 / 化工廠",
+  industrialStorageTank: "油氣儲槽",
+  industrialPowerPlant: "火力廠 polygon",
+  coalTerminal: "煤炭碼頭",
+  // 雲林 POC 覆蓋分析
+  gasCoverageAll: "加油站總覆蓋密度",
+  gasCoverageCpc: "中油 30km 可達",
+  gasCoverageFpcc: "台塑 30km 可達",
+  gasCoverageTaisugar: "台糖 30km 可達",
+  evIsland: "充電站 30km 孤島",
   lightningStrike: "落雷",
   nuclearStation: "核安觀測站",
 };

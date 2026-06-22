@@ -148,6 +148,23 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["facOffshore"], render: () => <FacOffshoreLegend /> },
   { keys: ["osmWindTurbines", "osmSolarFarms", "osmPowerPlantsStatic"], render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
   { keys: ["offshoreWindZones", "islandPowerGrid", "fossilFuelInfra", "geothermalWells", "renewablePermitsTaipei"], render: ({ visibility }) => <EnergySpecialtyLegend visibility={visibility} /> },
+  // 化石燃料 14 layer（Phase B）— 共用 FossilFuelLegend，按 visibility 過濾顯示行
+  {
+    keys: [
+      "gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther", "gasStationCanonical",
+      "lpgSubpackaging", "lpgRetailers",
+      "lngTerminal",
+      "pipelineGas", "pipelineOilGas",
+      "industrialRefinery", "industrialStorageTank", "industrialPowerPlant",
+      "coalTerminal",
+    ],
+    render: ({ visibility }) => <FossilFuelLegend visibility={visibility} />,
+  },
+  // 雲林 POC 覆蓋分析 5 layer 共用 CoverageLegend，按 visibility 過濾顯示行
+  {
+    keys: ["gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc", "gasCoverageTaisugar", "evIsland"],
+    render: ({ visibility }) => <CoverageLegend visibility={visibility} />,
+  },
   { keys: ["lightning"], render: () => <LightningLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
 ];
@@ -1130,6 +1147,109 @@ function FacilityFuelLegend({ visibility }: { visibility: LayerVisibility }) {
       )}
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
         ● 大小 ∝ log10(容量 MW)：0.5MW ~ 6GW 連續映射
+      </div>
+    </div>
+  );
+}
+
+// ── Energy: 化石燃料 14 layer（Phase B） ──
+
+const FOSSIL_FUEL_LEGEND: { key: keyof LayerVisibility; color: string; label: string; shape: "circle" | "line" | "square" }[] = [
+  { key: "gasStationCpc",         color: "#00875A", label: "加油站 中油 (1,971)",          shape: "circle" },
+  { key: "gasStationFpcc",        color: "#1E40AF", label: "加油站 台塑系 (348)",          shape: "circle" },
+  { key: "gasStationTaisugar",    color: "#EA580C", label: "加油站 台糖 (73)",             shape: "circle" },
+  { key: "gasStationOther",       color: "#6B7280", label: "加油站 其他 (1,179)",          shape: "circle" },
+  { key: "gasStationCanonical",   color: "#FAFAFA", label: "加油站 SSOT (3,053)",         shape: "circle" },
+  { key: "lpgSubpackaging",       color: "#DC2626", label: "LPG 分裝/儲存 (113)",          shape: "circle" },
+  { key: "lpgRetailers",          color: "#F87171", label: "LPG 加氣站/瓦斯行 (1,292)",    shape: "circle" },
+  { key: "lngTerminal",           color: "#0891B2", label: "LNG 接收站 (7)",               shape: "circle" },
+  { key: "pipelineGas",           color: "#FACC15", label: "天然氣主幹線 (11)",            shape: "line" },
+  { key: "pipelineOilGas",        color: "#F59E0B", label: "油氣管線 OSM (10)",            shape: "line" },
+  { key: "industrialRefinery",    color: "#1F2937", label: "煉油/化工廠 (98)",             shape: "square" },
+  { key: "industrialStorageTank", color: "#92400E", label: "油氣儲槽 (72)",                shape: "square" },
+  { key: "industrialPowerPlant",  color: "#374151", label: "火力廠 polygon (26)",          shape: "square" },
+  { key: "coalTerminal",          color: "#111827", label: "煤炭碼頭 (4)",                 shape: "circle" },
+];
+
+function FossilFuelLegend({ visibility }: { visibility: LayerVisibility }) {
+  const active = FOSSIL_FUEL_LEGEND.filter((r) => visibility[r.key]);
+  if (active.length === 0) return null;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 化石燃料
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {active.map((r) => (
+          <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span
+              style={{
+                width: r.shape === "line" ? 18 : 10,
+                height: r.shape === "line" ? 3 : 10,
+                background: r.color,
+                borderRadius: r.shape === "circle" ? RADIUS.full : r.shape === "square" ? RADIUS.sm : 0,
+                border: "1px solid rgba(255,255,255,0.4)",
+                boxSizing: "border-box",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 雲林 POC 覆蓋分析（PMTiles × OSM edge nearest distance）──
+function CoverageLegend({ visibility }: { visibility: LayerVisibility }) {
+  const anyGas = visibility.gasCoverageAll || visibility.gasCoverageCpc
+    || visibility.gasCoverageFpcc || visibility.gasCoverageTaisugar;
+  const anyEv = visibility.evIsland;
+  if (!anyGas && !anyEv) return null;
+
+  const GAS_BANDS: { c: string; l: string }[] = [
+    { c: "#16A34A",   l: "0–5 km" },
+    { c: "#84CC16",   l: "5–10 km" },
+    { c: "#F2D64B",   l: "10–20 km" },
+    { c: "#F2A516",   l: "20–30 km" },
+    { c: "#F23535",   l: "30 km+" },
+  ];
+  const EV_BANDS = GAS_BANDS;  // 跟加油站同色階
+
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 全台最近距離（路網）
+      </div>
+      {anyGas && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4 }}>
+            到最近加油站的路網距離
+          </div>
+          {GAS_BANDS.map((s) => (
+            <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{ width: 18, height: 4, background: s.c, borderRadius: 1 }} />
+              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{s.l}</span>
+            </div>
+          ))}
+        </>
+      )}
+      {anyEv && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>
+            到最近充電站的路網距離
+          </div>
+          {EV_BANDS.map((s) => (
+            <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{ width: 18, height: 4, background: s.c, borderRadius: 1 }} />
+              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{s.l}</span>
+            </div>
+          ))}
+        </>
+      )}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+        osmnx + multi-source dijkstra · 每條 OSM edge 染色 · 全台主要路網
       </div>
     </div>
   );

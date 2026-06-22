@@ -5,6 +5,74 @@ import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 
 const BASE_RADIUS = 5;
 
+// ── 雲林覆蓋 PMTiles factory（5 layer 共用） ──
+//   nearest distance 5 級色階：0-5km 深綠 / 5-10km 草綠 / 10-20km 黃 / 20-30km 橙 / 30km+ 紅
+//   gas palette：「遠 = 沒油 = 警示紅」；ev palette：「遠 = 孤島 = 警示紅」（同方向）
+//   ev 將「充足區間」改低調灰，凸顯偏遠 — 與加油站視覺區隔。
+type CoveragePalette = "gas" | "ev";
+function coverageColorExpr(palette: CoveragePalette): unknown[] {
+  if (palette === "ev") {
+    return [
+      "match", ["get", "band"],
+      "0-5km",    "rgba(150,150,150,0.4)",
+      "5-10km",   "rgba(150,150,150,0.5)",
+      "10-20km",  "#F2D64B",
+      "20-30km",  "#F2A516",
+      "over-30km","#F23535",
+      "#7F1D1D",
+    ];
+  }
+  return [
+    "match", ["get", "band"],
+    "0-5km",    "#16A34A",
+    "5-10km",   "#84CC16",
+    "10-20km",  "#F2D64B",
+    "20-30km",  "#F2A516",
+    "over-30km","#F23535",
+    "#7F1D1D",
+  ];
+}
+function gasCoverageOverlay(opts: {
+  id: OverlayConfig["id"];
+  sourceId: string;
+  pmtilesUrl: string;
+  sourceLayer: string;
+  opacityKey: string;
+  widthKey: string;
+  palette: CoveragePalette;
+}): OverlayConfig[] {
+  const { id, sourceId, pmtilesUrl, sourceLayer, opacityKey, widthKey, palette } = opts;
+  const defaultOpacity = palette === "ev" ? 0.6 : 0.85;
+  return [{
+    id,
+    sourceUrl: pmtilesUrl,
+    sourceId,
+    pmtiles: { sourceLayer, minzoom: 6, maxzoom: 12 },
+    rebuildOnParamChange: [opacityKey, widthKey],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.[opacityKey] ?? defaultOpacity;
+          const w = params?.[widthKey] ?? 0.5;
+          return {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "line-color": coverageColorExpr(palette) as any,
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, w,
+              10, w * 2.5,
+              14, w * 5,
+            ],
+            "line-opacity": o,
+          };
+        },
+      },
+    ],
+  }];
+}
+
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
   {
@@ -2901,7 +2969,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
             "circle-opacity": o,
             "circle-stroke-width": 1,
-            "circle-stroke-color": isDark ? "#111827" : "#ffffff",
+            "circle-stroke-color": isDark ? "#3B82F6" : "#ffffff",
           };
         },
       },
@@ -3679,7 +3747,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-color": [
               "match", ["get", "level"],
               "stale", isDark ? "#9ca3af" : "#4b5563",
-              isDark ? "#111827" : "#ffffff",
+              isDark ? "#3B82F6" : "#ffffff",
             ],
           };
         },
@@ -3717,12 +3785,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": [
               "interpolate", ["linear"], ["zoom"],
-              6,  haloRadius(1.4, 2, 14),
-              12, haloRadius(1.7, 5, 32),
+              6,  haloRadius(1.6, 3, 18),
+              12, haloRadius(2.0, 6, 40),
             ],
-            "circle-blur": 0.7,
-            "circle-color": ["coalesce", ["get", "color"], "#9ca3af"],
-            "circle-opacity": o * 0.28,
+            "circle-blur": 0.85,
+            "circle-color": "#ffffff",
+            "circle-opacity": o * 0.45,
           };
         },
       },
@@ -3968,5 +4036,620 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+
+  // ══════════════════════════════════════════════════════════════════
+  //  化石燃料 14 layer（Phase B — public.get_fossil_fuel_layers()）
+  //  資料源：useFossilFuelLayers + fossilFuelLoader（單次 RPC + group by layer）
+  //  point: circle (5 加油站 + 2 LPG + 1 LNG + 1 煤炭)
+  //  line:  line   (天然氣 / 油氣管線)
+  //  fill:  fill + line outline (煉油 / 儲槽 / 火力 polygon)
+  // ══════════════════════════════════════════════════════════════════
+
+  // ── 加油站（中油 主要）──
+  {
+    id: "gasStationCpc",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-gas-station-cpc",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasStationCpcOpacity", "gasStationCpcScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.gasStationCpcOpacity ?? 0.85;
+          const s = params?.gasStationCpcScale ?? 1.7;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.4],
+              12, ["*", s, 3.5],
+              15, ["*", s, 6],
+            ],
+            "circle-color": "#41AEF2",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.3,
+            "circle-stroke-color": "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 加油站（台塑系）──
+  {
+    id: "gasStationFpcc",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-gas-station-fpcc",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasStationFpccOpacity", "gasStationFpccScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.gasStationFpccOpacity ?? 0.85;
+          const s = params?.gasStationFpccScale ?? 1.7;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.4],
+              12, ["*", s, 3.5],
+              15, ["*", s, 6],
+            ],
+            "circle-color": "#22C55E",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.3,
+            "circle-stroke-color": "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 加油站（台糖）──
+  {
+    id: "gasStationTaisugar",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-gas-station-taisugar",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasStationTaisugarOpacity", "gasStationTaisugarScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.gasStationTaisugarOpacity ?? 0.85;
+          const s = params?.gasStationTaisugarScale ?? 1.7;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.4],
+              12, ["*", s, 3.5],
+              15, ["*", s, 6],
+            ],
+            "circle-color": "#F2522E",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.3,
+            "circle-stroke-color": "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 加油站（其他 / 私營）──
+  {
+    id: "gasStationOther",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-gas-station-other",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasStationOtherOpacity", "gasStationOtherScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.gasStationOtherOpacity ?? 0.7;
+          const s = params?.gasStationOtherScale ?? 2.2;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.2],
+              12, ["*", s, 3],
+              15, ["*", s, 5],
+            ],
+            "circle-color": "#D1D5DB",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.3,
+            "circle-stroke-color": "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 加油站 SSOT Canonical（全品牌合併） ──
+  {
+    id: "gasStationCanonical",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-gas-station-canonical",
+    dynamicData: true,
+    rebuildOnParamChange: ["gasStationCanonicalOpacity", "gasStationCanonicalScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.gasStationCanonicalOpacity ?? 0.9;
+          const s = params?.gasStationCanonicalScale ?? 1.7;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.6],
+              12, ["*", s, 4],
+              15, ["*", s, 7],
+            ],
+            "circle-color": "#0FBFBF",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.3,
+            "circle-stroke-color": "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── LPG 分裝 / 儲存場 ──
+  {
+    id: "lpgSubpackaging",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-lpg-subpackaging",
+    dynamicData: true,
+    rebuildOnParamChange: ["lpgSubpackagingOpacity", "lpgSubpackagingScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.lpgSubpackagingOpacity ?? 0.85;
+          const s = params?.lpgSubpackagingScale ?? 1.1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, 2],
+              12, ["*", s, 5],
+              15, ["*", s, 8],
+            ],
+            "circle-color": "#F2622E",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── LPG 加氣站 / 瓦斯行 ──
+  {
+    id: "lpgRetailers",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-lpg-retailers",
+    dynamicData: true,
+    rebuildOnParamChange: ["lpgRetailersOpacity", "lpgRetailersScale"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.lpgRetailersOpacity ?? 0.75;
+          const s = params?.lpgRetailersScale ?? 1.3;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              8, ["*", s, 1.2],
+              12, ["*", s, 3],
+              15, ["*", s, 5],
+            ],
+            "circle-color": "#D9863D",
+            "circle-opacity": o,
+            "circle-stroke-width": 0.5,
+            "circle-stroke-color": isDark ? "#1f2937" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── LNG 接收站 ──
+  {
+    id: "lngTerminal",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-lng-terminal",
+    dynamicData: true,
+    rebuildOnParamChange: ["lngTerminalOpacity", "lngTerminalScale"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.lngTerminalOpacity ?? 0.95;
+          const s = params?.lngTerminalScale ?? 1.6;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, 6],
+              12, ["*", s, 16],
+            ],
+            "circle-blur": 0.7,
+            "circle-color": "#F2B84B",
+            "circle-opacity": o * 0.35,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.lngTerminalOpacity ?? 0.95;
+          const s = params?.lngTerminalScale ?? 1.6;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, 3],
+              12, ["*", s, 8],
+            ],
+            "circle-color": "#F2B84B",
+            "circle-opacity": o,
+            "circle-stroke-width": 1.2,
+            "circle-stroke-color": isDark ? "#0f172a" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 天然氣主幹線（LineString） ──
+  {
+    id: "pipelineGas",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-pipeline-gas",
+    dynamicData: true,
+    rebuildOnParamChange: ["pipelineGasOpacity", "pipelineGasWidth"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.pipelineGasOpacity ?? 0.8;
+          const w = params?.pipelineGasWidth ?? 2.0;
+          return {
+            "line-color": "#F2D64B",
+            "line-width": w,
+            "line-opacity": o,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 油氣管線（OSM LineString） ──
+  {
+    id: "pipelineOilGas",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-pipeline-oilgas",
+    dynamicData: true,
+    rebuildOnParamChange: ["pipelineOilGasOpacity", "pipelineOilGasWidth"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, params) => {
+          const o = params?.pipelineOilGasOpacity ?? 0.7;
+          const w = params?.pipelineOilGasWidth ?? 1.5;
+          return {
+            "line-color": "#EDF249",
+            "line-width": w,
+            "line-opacity": o,
+            "line-dasharray": [2, 2],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 煉油 / 化工廠 polygon + halo ──
+  {
+    id: "industrialRefinery",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-industrial-refinery",
+    dynamicData: true,
+    rebuildOnParamChange: ["industrialRefineryOpacity", "industrialRefineryOutline"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialRefineryOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 10, 18, 14, 36],
+            "circle-blur": 0.8,
+            "circle-color": "#A855F7",
+            "circle-opacity": o * 0.5,
+          };
+        },
+      },
+      {
+        suffix: "halo-core",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialRefineryOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2, 10, 5, 14, 9],
+            "circle-color": "#A855F7",
+            "circle-opacity": o,
+          };
+        },
+      },
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialRefineryOpacity ?? 0.55;
+          return {
+            "fill-color": "#A855F7",
+            "fill-opacity": o * 0.5,
+          };
+        },
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialRefineryOpacity ?? 0.55;
+          const show = (params?.industrialRefineryOutline ?? 1) > 0;
+          return {
+            "line-color": "#A855F7",
+            "line-width": show ? 1 : 0,
+            "line-opacity": show ? o : 0,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 油氣儲槽 polygon + halo ──
+  {
+    id: "industrialStorageTank",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-industrial-storage-tank",
+    dynamicData: true,
+    rebuildOnParamChange: ["industrialStorageTankOpacity", "industrialStorageTankOutline"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialStorageTankOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5, 10, 14, 14, 28],
+            "circle-blur": 0.8,
+            "circle-color": "#06B6D4",
+            "circle-opacity": o * 0.5,
+          };
+        },
+      },
+      {
+        suffix: "halo-core",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialStorageTankOpacity ?? 0.55;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.5, 10, 4, 14, 7],
+            "circle-color": "#06B6D4",
+            "circle-opacity": o,
+          };
+        },
+      },
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialStorageTankOpacity ?? 0.55;
+          return {
+            "fill-color": "#06B6D4",
+            "fill-opacity": o * 0.5,
+          };
+        },
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialStorageTankOpacity ?? 0.55;
+          const show = (params?.industrialStorageTankOutline ?? 1) > 0;
+          return {
+            "line-color": "#06B6D4",
+            "line-width": show ? 2 : 0,
+            "line-opacity": show ? o : 0,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 火力廠 polygon + halo ──
+  {
+    id: "industrialPowerPlant",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-industrial-power-plant",
+    dynamicData: true,
+    rebuildOnParamChange: ["industrialPowerPlantOpacity", "industrialPowerPlantOutline"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 7, 10, 20, 14, 40],
+            "circle-blur": 0.8,
+            "circle-color": "#D946EF",
+            "circle-opacity": o * 0.55,
+          };
+        },
+      },
+      {
+        suffix: "halo-core",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2.5, 10, 6, 14, 10],
+            "circle-color": "#D946EF",
+            "circle-opacity": o,
+          };
+        },
+      },
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          return {
+            "fill-color": "#D946EF",
+            "fill-opacity": o * 0.5,
+          };
+        },
+      },
+      {
+        suffix: "outline",
+        type: "line",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (_isDark, params) => {
+          const o = params?.industrialPowerPlantOpacity ?? 0.5;
+          const show = (params?.industrialPowerPlantOutline ?? 1) > 0;
+          return {
+            "line-color": "#D946EF",
+            "line-width": show ? 1 : 0,
+            "line-opacity": show ? o : 0,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 煤炭碼頭 ──
+  {
+    id: "coalTerminal",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "fossil-coal-terminal",
+    dynamicData: true,
+    rebuildOnParamChange: ["coalTerminalOpacity", "coalTerminalScale"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.coalTerminalOpacity ?? 0.95;
+          const s = params?.coalTerminalScale ?? 1.4;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, 5],
+              12, ["*", s, 13],
+            ],
+            "circle-blur": 0.7,
+            "circle-color": "#3B82F6",
+            "circle-opacity": o * 0.35,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.coalTerminalOpacity ?? 0.95;
+          const s = params?.coalTerminalScale ?? 1.4;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, 3],
+              12, ["*", s, 7],
+            ],
+            "circle-color": "#3B82F6",
+            "circle-opacity": o,
+            "circle-stroke-width": 1.2,
+            "circle-stroke-color": isDark ? "#fafafa" : "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  //  雲林 POC 覆蓋分析（multi-source dijkstra nearest distance）— 5 個 toggle
+  //  資料源：PMTiles 在 public/coverage/taiwan_*_nearest.pmtiles
+  //  視覺：每條 OSM drive edge 染「到最近加油站/EV 站」距離 5 級色階
+  //  仿 fire isochrone PMTiles 模式（factory 不需要 — 走 overlayRegistry pmtiles 設定）
+  // ══════════════════════════════════════════════════════════════════
+
+  ...gasCoverageOverlay({
+    id: "gasCoverageAll",
+    sourceId: "coverage-gas-all",
+    pmtilesUrl: "./coverage/taiwan_all_gas_nearest.pmtiles",
+    sourceLayer: "coverage_all_gas",
+    opacityKey: "gasCoverageAllOpacity",
+    widthKey: "gasCoverageAllLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
+    id: "gasCoverageCpc",
+    sourceId: "coverage-gas-cpc",
+    pmtilesUrl: "./coverage/taiwan_cpc_nearest.pmtiles",
+    sourceLayer: "coverage_cpc",
+    opacityKey: "gasCoverageCpcOpacity",
+    widthKey: "gasCoverageCpcLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
+    id: "gasCoverageFpcc",
+    sourceId: "coverage-gas-fpcc",
+    pmtilesUrl: "./coverage/taiwan_fpcc_nearest.pmtiles",
+    sourceLayer: "coverage_fpcc",
+    opacityKey: "gasCoverageFpccOpacity",
+    widthKey: "gasCoverageFpccLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
+    id: "gasCoverageTaisugar",
+    sourceId: "coverage-gas-taisugar",
+    pmtilesUrl: "./coverage/taiwan_taisugar_nearest.pmtiles",
+    sourceLayer: "coverage_taisugar",
+    opacityKey: "gasCoverageTaisugarOpacity",
+    widthKey: "gasCoverageTaisugarLineWidth",
+    palette: "gas",
+  }),
+  ...gasCoverageOverlay({
+    id: "evIsland",
+    sourceId: "coverage-ev-island",
+    pmtilesUrl: "./coverage/taiwan_ev_nearest.pmtiles",
+    sourceLayer: "coverage_ev",
+    opacityKey: "evIslandOpacity",
+    widthKey: "evIslandLineWidth",
+    palette: "gas",
+  }),
 
 ];

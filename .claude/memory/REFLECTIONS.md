@@ -798,6 +798,70 @@ v1.3 用戶要求 sliders 後才補，又要 ratchet baseline 移除 4 個 → �
 **下次怎麼做**：Phase G 「sidebar + legends」階段同時把 sliders 也寫了，不要拆兩階段。
 PB-20 Phase G 段已含 sliders 註記。
 
+## 2026-06-21~22 化石燃料 14 layer + 加油站 30km coverage + accessibility SKILL 落地
+
+### What worked ✅
+
+- **化石燃料 14 layer 一次性 agent delegate**：13 個 panel + 14 colorScale + 11 處 SOP 細節密集，
+  delegate 給 agent 一次完成 3 commits（types/loader/hook + overlay/params/sidebar + popup/legend/test），
+  保留 main context 給後續決策（顏色 / halo / coverage）。
+- **雲林 POC → 全台模式驗證**：先用 ~1,000 站雲林跑 2 分鐘出 5 個 GeoJSON，視覺對了再 commit + 擴全台。
+  小迭代避免「一次跑全台 ~6 小時才發現方向錯」。
+- **發現 fire isochrone pattern → 升級資料模型**：用戶指出救援等時圈視覺更精細，
+  從原本「H3 hex 馬賽克 / coverage_count 計數」改成「LineString 沿路網 / nearest distance 5 級色階」。
+  資料模型對齊既有 fire/medical pattern，未來新 POI 可複用。
+- **SKILL 落地是這 session 最大的 win**：把三模式（路網/Polygon/Hex）+ 兩大鐵則（multi-bucket/whitelist）+
+  troubleshooting（卡了怎麼辦）整理成可複用工具箱。下次新 POI 不用重新踩坑。
+
+### What didn't ❌
+
+- **8 小時卡 Overpass 沒早 kill**：osmnx subdivide 32-way 第一個 subquery 卡 socket 不回，
+  CPU=0% + alive 我以為是「慢」實際上是「死等」。應該每 ~5 min 看 cache 增量，無增量就 kill。
+- **OVERPASS_URL 設成 `/api/interpreter` 拼錯**：osmnx 自動拼 → 變 `/interpreter/interpreter` 雙拼。
+  我 retry 一次 fail 之後才發現是 base URL 問題。**第一次設 mirror config 應立即用一個小 query test**。
+- **CUSTOM_FILTER 沒對齊重跑卡了 ~1 小時**：B 版加的 `unclassified` 沒改回 A 版的 motorway-tertiary，
+  以為跑 A 版實際跑 B 版又卡 mirror。**重跑前 grep config 跟「上次成功的」對齊** 是基本動作但我漏了。
+- **pyrosm 全台 driving 直接吃 50 GB RAM**：應該先 grep 「pyrosm + 全台」量級才動手，
+  而不是「先試試看」直接跑。**新工具第一次用前先做 RAM/磁碟試算**。
+- **8 小時 + 多次 40 分鐘 retry 才解出來**：用戶說「你剛剛做了什麼」「為什麼之前可以」這兩個問句是
+  正確的 retrospection 提示。**用戶問「為什麼之前順」時就該先做 diff 而不是繼續硬幹**。
+
+### Next-time rules 📌
+
+1. **長跑 batch 必加 progress log**（`flush=True`），沒 log 一律當卡死
+2. **每 ~5 min 看 cache / log 增量**，無增量超過 10 min → kill 不要等
+3. **第一次設 mirror config 立刻用一行 query test**，不要拿全台 query 試 base URL 對不對
+4. **重跑前 grep CUSTOM_FILTER / BBOX / OVERPASS_URL 跟上次成功 commit 對齊**（一行 diff）
+5. **遇 `network_type='driving'` 級的 in-memory ops，先試算 RAM**（edges 數 × 500 bytes）
+6. **用戶問「為何之前可以」是 strong signal**：先停下做 diff 不要硬 retry
+
+### SKILL 自學習價值 🌱
+
+這 session 因為「用戶要求 SKILL 化」而把 8 小時痛苦轉成可複用知識：
+- 三模式選擇決策樹 — 之前需要看 3 個既有 pipeline 才搞懂
+- 兩大鐵則 — multi-bucket / whitelist 之前是隱性知識
+- troubleshooting.md — 把「卡了怎麼辦」5 分鐘流程明文化
+- mirror-fallback.md — 5 條救援路徑 + 健康度測試
+
+下次新 POI 啟動：`Skill accessibility-analysis` → 讀 §⚠️ + §🚨 → 30 秒準備 → 直接動手。
+
+**核心 insight**：**痛點不寫進 SKILL，就會在下個 session 重新踩**。寫進 SKILL 不是 nice-to-have，是預算控制。
+
+### Memory 產出（這 8 個 commit）
+
+| Commit | 檔 | 內容 |
+|---|---|---|
+| ea8de59 | PRINCIPLES | +4 條（multi-bucket / whitelist / 健康檢查 / CPU=0% 診斷）|
+| 350abf7 | INCIDENTS | +2 段（Overpass mirror 8h 連環卡 + SQL CASE 短路求值）|
+| f84e911 | GLOSSARY | +可達性分析章節（Mode A/B/C + 5 級色階）|
+| 15616ee | DATA_SCOPE | +14 化石燃料 + 5 coverage PMTiles + 品牌分布 |
+| 2ba6b8d | PLAYBOOKS | +PB-22 新增 POI 可達性分析入口 |
+| d1f4f70 | BACKLOG | CV-7/9 done + CV-3 osmium 裝好 + CV-8 第 6 layer |
+| TBD | STATUS | rewrite — 本 session 總結 |
+| TBD | REFLECTIONS | 本篇 |
+
+---
+
 ### 5. 並行 session 的協調（2026-06-19 加）
 
 **事實**：用戶在開 wrap-up 同時告知「我另一個 session 在開發」（很可能在做 energy v2-A）。
