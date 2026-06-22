@@ -391,7 +391,7 @@ export default function App() {
 
   // ── 垃圾處理設施 / 投放點（靜態，第一個 sub-toggle 開時 lazy fetch） ──
   const wasteFacilityVis =
-    layerVisibility.wfIncinerator || layerVisibility.wfLandfill
+    layerVisibility.wfIncinerator || layerVisibility.wfLandfill || layerVisibility.wfLandfillCoastal
     || layerVisibility.wfTransfer || layerVisibility.wfMedical || layerVisibility.wfMonitoring
     || layerVisibility.wfRecycling || layerVisibility.wfScrapYard || layerVisibility.wfOther;
   const wasteDisposalVis =
@@ -980,7 +980,7 @@ export default function App() {
       if (!layer) return;
       // 只在任一 facility 3D toggle 開時嘗試 pick（避免命中隱形物件）
       const v = layerVisibilityRef.current;
-      if (!(v.wfIncinerator || v.wfLandfill || v.wfTransfer || v.wfMedical || v.wfMonitoring)) return;
+      if (!(v.wfIncinerator || v.wfLandfill || v.wfLandfillCoastal || v.wfTransfer || v.wfMedical || v.wfMonitoring)) return;
       const canvas = map.getCanvas();
       const hit = layer.pickFacility(
         e.point.x, e.point.y,
@@ -1002,6 +1002,8 @@ export default function App() {
           status: r.status,
           start_year: r.start_year,
           source_url: r.source_url,
+          is_coastal: r.is_coastal,
+          distance_to_sea_m: r.distance_to_sea_m,
         },
       });
     });

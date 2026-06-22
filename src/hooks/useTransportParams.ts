@@ -502,7 +502,8 @@ export function useTransportParams() {
 
   // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
   const WASTE_SUB_KEYS = [
-    "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+    "wfIncinerator", "wfLandfill", "wfLandfillCoastal",
+    "wfTransfer", "wfMedical", "wfMonitoring",
     "wfRecycling", "wfScrapYard", "wfOther",
     "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
   ] as const;
@@ -511,6 +512,7 @@ export function useTransportParams() {
   const DEFAULT_WASTE_SUB: Record<WasteSubKey, WasteSubParams> = {
     wfIncinerator: { size: 1.0, opacity: 0.85, altitude: 0, ringSize: 1.0 },
     wfLandfill:    { size: 1.0, opacity: 0.45, altitude: 0 },
+    wfLandfillCoastal: { size: 1.0, opacity: 0.55, altitude: 0 },
     wfTransfer:    { size: 1.0, opacity: 0.85, altitude: 0 },
     wfMedical:     { size: 1.0, opacity: 0.85, altitude: 0 },
     wfMonitoring:  { size: 1.0, opacity: 0.7,  altitude: 0 },
@@ -1367,6 +1369,7 @@ export function useTransportParams() {
       ];
       case "wfIncinerator":
       case "wfLandfill":
+      case "wfLandfillCoastal":
       case "wfTransfer":
       case "wfMedical":
       case "wfMonitoring":

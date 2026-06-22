@@ -85,7 +85,7 @@ const BASELINE_NO_LEGEND = new Set([
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
   "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
   "wasteScheduleNote", "wasteStopsStatic", "wasteRoute", "wasteStop",
-  "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+  "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
   // Energy MVP：充電站單色 POI — 鐵則 2 只要求分類 ≥ 2 才需圖例

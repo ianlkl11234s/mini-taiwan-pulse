@@ -272,7 +272,7 @@ export function useThreeJsLayers({
   const addWasteFacilityLayer = (map: MapboxMap) => {
     if (map.getLayer("waste-facility-3d")) map.removeLayer("waste-facility-3d");
     const FACILITY_KEYS: WasteFacility3DKey[] = [
-      "wfIncinerator", "wfLandfill", "wfTransfer", "wfMedical", "wfMonitoring",
+      "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
     ];
     const layer = createWasteFacilityLayer({
       id: "waste-facility-3d",
@@ -280,8 +280,8 @@ export function useThreeJsLayers({
       getVisibility: () => {
         const vis = layerVisibilityRef.current;
         const out: Record<WasteFacility3DKey, boolean> = {
-          wfIncinerator: false, wfLandfill: false, wfTransfer: false,
-          wfMedical: false, wfMonitoring: false,
+          wfIncinerator: false, wfLandfill: false, wfLandfillCoastal: false,
+          wfTransfer: false, wfMedical: false, wfMonitoring: false,
         };
         for (const k of FACILITY_KEYS) out[k] = !!vis[k];
         return out;
@@ -291,6 +291,7 @@ export function useThreeJsLayers({
         const out: Record<WasteFacility3DKey, WasteFacilityLayerParams> = {
           wfIncinerator: wp["wfIncinerator"] ?? { size: 1, opacity: 0.85, altitude: 0, ringSize: 1 },
           wfLandfill: wp["wfLandfill"] ?? { size: 1, opacity: 0.45, altitude: 0 },
+          wfLandfillCoastal: wp["wfLandfillCoastal"] ?? { size: 1, opacity: 0.55, altitude: 0 },
           wfTransfer: wp["wfTransfer"] ?? { size: 1, opacity: 0.85, altitude: 0 },
           wfMedical: wp["wfMedical"] ?? { size: 1, opacity: 0.85, altitude: 0 },
           wfMonitoring: wp["wfMonitoring"] ?? { size: 1, opacity: 0.7, altitude: 0 },

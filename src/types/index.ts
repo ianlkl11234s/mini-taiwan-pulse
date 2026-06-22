@@ -225,6 +225,7 @@ export type ExpandableLayerKey =
   // waste facility 8 sub-types（每種有 size/opacity/altitude slider）
   | "wfIncinerator"
   | "wfLandfill"
+  | "wfLandfillCoastal"
   | "wfTransfer"
   | "wfMedical"
   | "wfMonitoring"
@@ -722,6 +723,7 @@ export interface LayerVisibility {
   // monitoring/recycling/scrap/other 走 Mapbox circle）
   wfIncinerator: boolean;
   wfLandfill: boolean;
+  wfLandfillCoastal: boolean;
   wfTransfer: boolean;
   wfMedical: boolean;
   wfMonitoring: boolean;

@@ -155,6 +155,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   wasteStop: MapPinned,
   wfIncinerator: Flame,
   wfLandfill: Mountain,
+  wfLandfillCoastal: Waves,
   wfTransfer: Truck,
   wfMedical: AlertTriangle,
   wfMonitoring: Gauge,

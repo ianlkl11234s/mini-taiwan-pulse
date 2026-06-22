@@ -27,6 +27,17 @@ export function WasteFacilityPanel({ props }: { props: Record<string, unknown> }
       <Row label="處理量" value={props.capacity_tpd != null ? `${props.capacity_tpd} 噸/日` : ""} />
       <Row label="狀態" value={String(props.status ?? "")} />
       <Row label="啟用年" value={props.start_year != null ? String(props.start_year) : ""} />
+      {props.is_coastal === true && (
+        <Row
+          label="距海岸"
+          value={
+            typeof props.distance_to_sea_m === "number"
+              ? `${Math.round(props.distance_to_sea_m).toLocaleString()} m`
+              : "—"
+          }
+          color="#0891b2"
+        />
+      )}
       {sourceUrl && (
         <div style={{ marginTop: 6 }}>
           <a

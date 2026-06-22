@@ -148,6 +148,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   // facility 8 sub-types
   wfIncinerator: "#ef4444",
   wfLandfill: "#92400e",
+  wfLandfillCoastal: "#0891b2",
   wfTransfer: "#a855f7",
   wfMedical: "#ec4899",
   wfMonitoring: "#3b82f6",
@@ -454,7 +455,8 @@ export const SECTIONS: SectionDef[] = [
     title: "WASTE FACILITY",
     layers: [
       { key: "wfIncinerator", label: "焚化爐 Incinerator", labelMobile: "焚化爐 Incinerator (30) 🔥", expandable: true },
-      { key: "wfLandfill", label: "衛生掩埋場 Landfill", labelMobile: "衛生掩埋場 Landfill (117) 🟫", expandable: true },
+      { key: "wfLandfill", label: "衛生掩埋場 Landfill", labelMobile: "衛生掩埋場 Landfill (154) 🟫", expandable: true },
+      { key: "wfLandfillCoastal", label: "濱海掩埋場 Coastal", labelMobile: "濱海掩埋場 Coastal (23) 🌊", expandable: true },
       { key: "wfTransfer", label: "轉運站 Transfer", labelMobile: "轉運站 Transfer (28) 🚛", expandable: true },
       { key: "wfMedical", label: "醫療廢棄物 Medical", labelMobile: "醫療廢棄物 Medical (40) ⚕️", expandable: true },
       { key: "wfMonitoring", label: "地下水監測井 Monitor", labelMobile: "地下水監測井 Monitor (574) 🩸", expandable: true },
