@@ -12,6 +12,127 @@ user_invocable: true
 
 ---
 
+## ⚠️ 兩大鐵則（新 POI 一定要過，否則資料會錯）
+
+> 這 session 學到的兩個血淚教訓 — 任何「最近 X」分析的 SQL → Python 邊界都會碰到。
+> 看到「按 brand / category 分 layer」的需求，**先讀本節**再寫 SQL。
+
+### 鐵則 #1：Multi-bucket 歸屬（**不要用 SQL `CASE WHEN`**）
+
+**症狀**：雙身分的 POI（如「中油+台糖」加油站 73 站）只進第一個匹配 bucket，後面所有 layer 永遠收不到。
+
+**根因**：SQL `CASE WHEN ... WHEN ... ELSE` 是**短路求值**，匹配第一個就停。
+
+**❌ 錯誤寫法**：
+```sql
+CASE WHEN '中油' = ANY(brand) THEN 'cpc'           -- 中油+台糖 在這就停了
+     WHEN '台塑' = ANY(brand) THEN 'fpcc'
+     WHEN '台糖' = ANY(brand) THEN 'taisugar'      -- 雙品牌站永遠到不了
+END
+```
+
+**✅ 正確寫法（Python 端 list-of-buckets）**：
+```sql
+-- SQL 只回原始 brand[] / categories[] 不分類
+SELECT id, name, brand, ...
+```
+
+```python
+def buckets_of(brand_arr, name):
+    bs = []
+    if "中油" in (brand_arr or []): bs.append("cpc")
+    if "台塑" in (brand_arr or []) or "Formosa" in (brand_arr or []): bs.append("fpcc")
+    if "台糖" in (brand_arr or []): bs.append("taisugar")
+    # 不在三大才考慮 other（避免 cpc 站重複進 other）
+    if not bs and name and PRIVATE_NAME_RE.search(name): bs.append("other")
+    return bs
+
+# 每站可進多 bucket
+for r in poi: r["_buckets"] = buckets_of(r.get("brand"), r.get("name"))
+
+# dijkstra source 自然多 bucket
+buckets = defaultdict(list)
+for n, r in zip(nn, poi):
+    for b in r["_buckets"]:
+        buckets[b].append(n)
+```
+
+**影響數字（加油站本 session 案例）**：
+- 台糖：13 站 → **86 站**（+73 雙品牌，覆蓋率 50% → 59%）
+- 台塑：319 站 → 350 站（+31）
+
+---
+
+### 鐵則 #2：Whitelist > 反向定義（**「其他」不要用 NOT IN**）
+
+**症狀**：「其他/私營」layer 收進 374 個 41455 商業司登記但實際非加油站的 false positive（停車場 / 公司辦公室 / 設備儲存場）。
+
+**根因**：政府 raw 資料的「name 含『加油站』」是 ground truth，「brand=`{unknown}`」是雜訊。
+
+**❌ 錯誤寫法**：
+```sql
+-- 把所有不是三大品牌的當「私營」
+WHERE NOT ('中油' = ANY(brand) OR '台塑' = ANY(brand) OR '台糖' = ANY(brand))
+-- → 665 站，含 374 false positive
+```
+
+**✅ 正確寫法（Python whitelist regex）**：
+```python
+import re
+
+# Whitelist — 看 SQL 樣本決定字詞
+# SELECT name, count(*) FROM ... WHERE 反向條件 GROUP BY name ORDER BY 2 DESC LIMIT 30
+PRIVATE_NAME_RE = re.compile(r"山隆|速邁樂|台亞|西歐|統一精工|Smile|7-?Eleven|加油站|加油")
+
+# 在 buckets_of() 內套用（見鐵則 #1 範本）
+if not bs and name and PRIVATE_NAME_RE.search(name):
+    bs.append("other")
+```
+
+**影響數字（加油站本 session 案例）**：
+- 「其他/私營」：665 → **292 站**（去 374 false positive）
+- 「全加油站」：3,010 → 2,612（也清乾淨）
+
+**Whitelist 字詞怎麼選**：
+
+| POI 類型 | 推薦 regex |
+|---|---|
+| 加油站 | `山隆\|速邁樂\|台亞\|西歐\|統一精工\|Smile\|7-?Eleven\|加油站\|加油` |
+| 醫療 | `醫院\|診所\|衛生所\|藥局\|藥房\|長照\|護理` |
+| 教育 | `國小\|國中\|高中\|高職\|大學\|學校\|幼兒園\|托嬰` |
+| 警消 | `分隊\|派出所\|警察局\|消防局\|分局` |
+| 自定義 | 先跑 `SELECT name, count(*) ... GROUP BY name ORDER BY 2 DESC LIMIT 30` 看樣本 |
+
+---
+
+### 兩個鐵則合體 — 完整 buckets_of 函式（**copy 這個改**）
+
+```python
+import re
+
+# ★ 改：依 POI 類型調整 whitelist regex
+PRIVATE_NAME_RE = re.compile(r"<your-pattern-here>")
+
+# ★ 改：依 POI 類型調整 bucket 邏輯（可有 0 到多個 bucket）
+def buckets_of(brand_arr, name):
+    bs = []
+    # 已知大品牌（多 bucket）
+    if "<品牌 A>" in (brand_arr or []): bs.append("brand_a")
+    if "<品牌 B>" in (brand_arr or []): bs.append("brand_b")
+    # ...
+    # 不在已知品牌才落到 other（whitelist 過濾 false positive）
+    if not bs and name and PRIVATE_NAME_RE.search(name):
+        bs.append("other")
+    return bs
+
+# 套用：每站可進多 bucket，false positive 自動丟掉
+for r in poi:
+    r["_buckets"] = buckets_of(r.get("brand"), r.get("name"))
+poi = [r for r in poi if r["_buckets"]]   # 過 false positive
+```
+
+---
+
 ## 0. TL;DR — 何時用這個 SKILL
 
 | 觸發場景 | 用這個 SKILL |
@@ -300,16 +421,31 @@ minzoom 6 / maxzoom 12  # 全台範圍對應 zoom
 ## 9. 新增 POI 類型 checklist
 
 ```
+資料邏輯（最容易踩雷）
+[ ] ★ MUST — buckets_of() 用 Python list-of-buckets 不用 SQL CASE（鐵則 #1）
+[ ] ★ MUST — PRIVATE_NAME_RE whitelist 不用 NOT IN 反向定義（鐵則 #2）
+[ ] 跑 SELECT name, count(*) GROUP BY 看樣本決定 whitelist 字詞
+[ ] 驗證雙身分 POI 確實進多 bucket（grep 一筆親自確認）
+
+Pipeline
 [ ] 決定 Mode A/B/C（依 §1 決策樹）
 [ ] 確認資料源（Supabase RPC / table）
 [ ] Clone 最像的 reference pipeline（§3 表）
 [ ] 改 SQL + buckets_of() + PRIVATE_NAME_RE
 [ ] 跑 pipeline 出 GeoJSON + PMTiles
+[ ] PMTiles 命名對齊契約 §7（檔名/sourceLayer/properties）
+
+發佈
 [ ] PMTiles 上 S3 或放 public/coverage/
-[ ] Frontend 11 處 SOP
+
+Frontend（如要前端接，否則跳）
+[ ] Frontend 11 處 SOP（§8）
 [ ] tsc + test 過
 [ ] browser 視覺驗收（先 "All Off" 再單獨開新 layer）
+
+收尾
 [ ] commit + push（pipeline 不 commit 中間檔，只 commit script）
+[ ] 若發現新的 bucket 模式 / whitelist 字詞，回更新本 SKILL 鐵則範本
 ```
 
 ---
