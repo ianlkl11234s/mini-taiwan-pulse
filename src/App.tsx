@@ -1322,6 +1322,7 @@ export default function App() {
       <MapView
         preset={preset}
         styleUrl={styleUrl}
+        pureBlack={mapStyleId === "black"}
         flights={displayedFlights}
         renderMode={renderMode}
         isDarkTheme={isDarkTheme}
