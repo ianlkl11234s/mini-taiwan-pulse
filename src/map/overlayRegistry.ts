@@ -73,6 +73,80 @@ function gasCoverageOverlay(opts: {
   }];
 }
 
+// ── 房地產 REAL ESTATE factory（3 類 × {grid 150m, point}，共 2 個 PMTiles source） ──
+//   grid 依 price_per_sqm_median 上色、point 依 price_per_sqm；domain 單位 NT$/m²。
+//   period filter 由 useRealEstateTimeline 用 setFilter 動態切換（realtime→ALL / historical→當季）。
+//   ⚠️ 不用 rebuildOnParamChange：opacity 走 paint diff（setPaintProperty），避免 rebuild 洗掉 setFilter。
+type RePalette = "rental" | "sale" | "presale";
+// 每類：色票（low→high）+ 含雙北 domain + 排除雙北壓縮 domain（雙北房價過高會壓縮色階）。
+// 色票科學分歧/序列、high=貴=紅、low 在深色底圖可辨識。domainExcl 由資料 p99（不含雙北）決定。
+export const RE_PALETTES: Record<RePalette, { colors: string[]; domain: [number, number]; domainExcl: [number, number] }> = {
+  // domain ≈ 全體 p95；domainExcl ≈ 排除雙北 p95（sale max 是 3200 萬 outlier，故用 p95 封頂）
+  rental:  { colors: ["#41919A", "#7DB3B8", "#B3D6D8", "#EAB49C", "#D17A57", "#B33C1B"], domain: [92, 518], domainExcl: [92, 386] },
+  sale:    { colors: ["#1a9850", "#f7f7f7", "#d73027"], domain: [28480, 227802], domainExcl: [28480, 147000] },
+  presale: { colors: ["#ffffb2", "#fd8d3c", "#bd0026"], domain: [72845, 387844], domainExcl: [72845, 202000] },
+};
+function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean): unknown[] {
+  const p = RE_PALETTES[palette];
+  const [lo, hi] = excludeTaipei ? p.domainExcl : p.domain;
+  const n = p.colors.length;
+  const stops = p.colors.flatMap((c, i) => [lo + ((hi - lo) * i) / (n - 1), c]);
+  return ["interpolate", ["linear"], ["coalesce", ["get", field], 0], ...stops];
+}
+function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type: string): OverlayConfig {
+  return {
+    id,
+    sourceUrl: "./coverage/real_estate_grid.pmtiles",
+    sourceId: "re-grid",
+    pmtiles: { sourceLayer: "real_estate_grid", minzoom: 6, maxzoom: 14 },
+    // 初始 = realtime 全期靜態（period=ALL）；historical 模式由 hook 改成當季
+    filter: ["all", ["==", ["get", "type"], type], ["==", ["get", "period"], "ALL"]],
+    layers: [
+      {
+        suffix: `${type}-fill`,
+        type: "fill",
+        paint: (_isDark, params) => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "fill-color": reColorExpr(palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei)) as any,
+          "fill-opacity": params?.realEstateOpacity ?? 0.7,
+        }),
+      },
+      {
+        suffix: `${type}-line`,
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.15)",
+          "line-width": 0.3,
+        }),
+      },
+    ],
+  };
+}
+function realEstatePointOverlay(id: OverlayConfig["id"], palette: RePalette, type: string): OverlayConfig {
+  return {
+    id,
+    sourceUrl: "./coverage/real_estate_points.pmtiles",
+    sourceId: "re-points",
+    pmtiles: { sourceLayer: "real_estate_points", minzoom: 6, maxzoom: 14 },
+    // 點無 period=ALL：realtime 顯示全部交易（僅 type filter）；historical 由 hook 加當季
+    filter: ["==", ["get", "type"], type],
+    layers: [
+      {
+        suffix: `${type}-circle`,
+        type: "circle",
+        paint: (_isDark, params) => ({
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.5, 9, 2.5, 14, 5],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "circle-color": reColorExpr(palette, "price_per_sqm", !!(params?.realEstateExcludeTaipei)) as any,
+          "circle-opacity": params?.realEstateOpacity ?? 0.85,
+          "circle-stroke-width": 0.3,
+          "circle-stroke-color": "rgba(0,0,0,0.25)",
+        }),
+      },
+    ],
+  };
+}
+
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
   {
@@ -4651,5 +4725,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     widthKey: "evIslandLineWidth",
     palette: "gas",
   }),
+
+  // ── 房地產 REAL ESTATE（6 layer：3 類 × {grid, point}） ──
+  realEstateGridOverlay("realEstateRentalGrid", "rental", "rental"),
+  realEstatePointOverlay("realEstateRentalPoint", "rental", "rental"),
+  realEstateGridOverlay("realEstateSaleGrid", "sale", "sale"),
+  realEstatePointOverlay("realEstateSalePoint", "sale", "sale"),
+  realEstateGridOverlay("realEstatePresaleGrid", "presale", "presale"),
+  realEstatePointOverlay("realEstatePresalePoint", "presale", "presale"),
 
 ];

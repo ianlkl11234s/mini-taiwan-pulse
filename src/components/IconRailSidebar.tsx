@@ -231,6 +231,13 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   evIsland: PlugZap,
   lightning: CloudLightning,
   nuclearRadiation: Atom,
+  // 房地產（格用 Building2、點用 MapPin）
+  realEstateRentalGrid: Building2,
+  realEstateRentalPoint: MapPin,
+  realEstateSaleGrid: Building2,
+  realEstateSalePoint: MapPin,
+  realEstatePresaleGrid: Building2,
+  realEstatePresalePoint: MapPin,
 };
 
 // ── IATA Map for Locations Panel ──

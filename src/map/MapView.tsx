@@ -306,8 +306,12 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     if (pureBlack) {
       applyPureBlackTheme(map);
     } else {
-      // 關掉 → 重灌目前的 styleUrl 還原原色
-      map.setStyle(styleUrl);
+      // 關掉 → 重灌目前的 styleUrl 還原原色。
+      // ⚠️ 此處 styleUrl 與當前底圖相同（black/dark 共用 dark-v11），預設 setStyle 會走 diff
+      //    增量更新 → 移除自訂 overlay 但「不觸發 style.load」→ 圖層全消失回不來。
+      //    用 { diff: false } 強制完整 reload，確保 style.load 重建所有 overlay。
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map.setStyle(styleUrl, { diff: false } as any);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pureBlack]);

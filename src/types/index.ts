@@ -254,7 +254,13 @@ export type ExpandableLayerKey =
   | "satellitesFrance"
   | "satellitesGermany"
   | "satellitesItaly"
-  | "satellitesIsrael";
+  | "satellitesIsrael"
+  | "realEstateRentalGrid"
+  | "realEstateRentalPoint"
+  | "realEstateSaleGrid"
+  | "realEstateSalePoint"
+  | "realEstatePresaleGrid"
+  | "realEstatePresalePoint";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -550,6 +556,14 @@ export interface OverlayConfig {
   dynamicData?: boolean;
 }
 
+// ── 房地產 hover tooltip ──
+export interface RealEstateTooltipInfo {
+  x: number;
+  y: number;
+  kind: "grid" | "point";
+  properties: Record<string, unknown>;
+}
+
 // ── 點擊特徵資訊 ──
 
 export interface FeatureInfo {
@@ -803,6 +817,13 @@ export interface LayerVisibility {
   // 災害 HAZARD（v2 Phase B）
   lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
   nuclearRadiation: boolean;     // 核安 51 站即時劑量（is_stale 標離線）
+  // 房地產 REAL ESTATE（3 類 × {grid 150m, point}；PMTiles 靜態，period filter 切季）
+  realEstateRentalGrid: boolean;   // 租賃 150m 格（price_per_sqm_median 上色）
+  realEstateRentalPoint: boolean;  // 租賃 交易點（price_per_sqm 上色）
+  realEstateSaleGrid: boolean;     // 買賣 150m 格
+  realEstateSalePoint: boolean;    // 買賣 交易點
+  realEstatePresaleGrid: boolean;  // 預售 150m 格
+  realEstatePresalePoint: boolean; // 預售 交易點
 }
 
 // ── 空氣品質 ──

@@ -10,6 +10,7 @@ import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
+import { RE_PALETTES } from "../map/overlayRegistry";
 import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
@@ -120,6 +121,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["agriRetail", "agriProduceWholesale", "agriWholesaleMarket"], render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
   { keys: ["agriSoilFertility"], render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { keys: ["fireEvents", "fireLatest"], render: () => <FireEventLegend /> },
+  { keys: ["realEstateRentalGrid", "realEstateRentalPoint", "realEstateSaleGrid", "realEstateSalePoint", "realEstatePresaleGrid", "realEstatePresalePoint"], render: ({ visibility, overlayParams }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} /> },
   { keys: ["fireStations"], render: () => <FireStationLegend /> },
   { keys: ["fireHydrants"], render: () => <FireHydrantLegend /> },
   { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
@@ -333,6 +335,43 @@ function EcoNetworkZonesLegend() {
             <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDefault }}>{z.label}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 房地產 Legend（3 類價格色帶，依開啟類別顯示；色票/domain 單一真實來源 = RE_PALETTES）──
+
+const RE_LEGEND_ROWS: { keys: (keyof LayerVisibility)[]; label: string; palette: "rental" | "sale" | "presale" }[] = [
+  { keys: ["realEstateRentalGrid", "realEstateRentalPoint"], label: "🏠 租賃 單價", palette: "rental" },
+  { keys: ["realEstateSaleGrid", "realEstateSalePoint"], label: "🏢 買賣 單價", palette: "sale" },
+  { keys: ["realEstatePresaleGrid", "realEstatePresalePoint"], label: "🏗️ 預售 單價", palette: "presale" },
+];
+
+function RealEstateLegend({ visibility, overlayParams }: { visibility: LayerVisibility; overlayParams: Record<string, number> }) {
+  const excl = !!overlayParams.realEstateExcludeTaipei;
+  const active = RE_LEGEND_ROWS.filter((r) => r.keys.some((k) => visibility[k]));
+  if (active.length === 0) return null;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        房地產 單價 (NT$/m²){excl ? " · 排除雙北" : ""}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+        {active.map((r) => {
+          const p = RE_PALETTES[r.palette];
+          const [lo, hi] = excl ? p.domainExcl : p.domain;
+          return (
+            <div key={r.label}>
+              <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDefault, marginBottom: 2 }}>{r.label}</div>
+              <div style={{ height: 8, borderRadius: RADIUS.sm, background: `linear-gradient(to right, ${p.colors.join(", ")})` }} />
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 1 }}>
+                <span>{lo.toLocaleString()}</span>
+                <span>{hi.toLocaleString()}{excl ? "+" : ""}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

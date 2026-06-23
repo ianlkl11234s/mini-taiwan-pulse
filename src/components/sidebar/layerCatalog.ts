@@ -227,6 +227,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   // HAZARD（v2 Phase B）
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
+  // 房地產（grid/point 同類同色）
+  realEstateRentalGrid: "#41919A",  // 租賃 teal→red 分歧
+  realEstateRentalPoint: "#41919A",
+  realEstateSaleGrid: "#d73027",    // 買賣 綠-白-紅（代表色取紅）
+  realEstateSalePoint: "#d73027",
+  realEstatePresaleGrid: "#fd8d3c", // 預售 黃-橙-紅（代表色取橙）
+  realEstatePresalePoint: "#fd8d3c",
 };
 
 // ── Transport Labels ──
@@ -567,6 +574,17 @@ export const SECTIONS: SectionDef[] = [
     layers: [
       { key: "lightning", label: "落雷 60min", expandable: true },
       { key: "nuclearRadiation", label: "核安輻射", expandable: true },
+    ],
+  },
+  {
+    title: "REAL ESTATE",
+    layers: [
+      { key: "realEstateRentalGrid", label: "租賃 · 格", labelMobile: "租賃熱力圖 (格)", expandable: true },
+      { key: "realEstateRentalPoint", label: "租賃 · 點", labelMobile: "租賃交易點", expandable: true },
+      { key: "realEstateSaleGrid", label: "買賣 · 格", labelMobile: "買賣熱力圖 (格)", expandable: true },
+      { key: "realEstateSalePoint", label: "買賣 · 點", labelMobile: "買賣交易點", expandable: true },
+      { key: "realEstatePresaleGrid", label: "預售 · 格", labelMobile: "預售熱力圖 (格)", expandable: true },
+      { key: "realEstatePresalePoint", label: "預售 · 點", labelMobile: "預售交易點", expandable: true },
     ],
   },
 ];
