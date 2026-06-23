@@ -98,6 +98,7 @@ import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { useRealEstateTimeline } from "./hooks/useRealEstateTimeline";
+import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -467,12 +468,14 @@ export default function App() {
   const [historicalPlaying, setHistoricalPlaying] = useState<boolean>(false);
   const [historicalSpeed, setHistoricalSpeed] = useState<number>(1); // 倍速
   const [historicalGranularity, setHistoricalGranularity] = useState<HistoricalGranularity>("year");
-  // 房地產季粒度（2024Q3~2026Q1，共 7 季）
-  const REAL_ESTATE_PERIODS = useMemo(
-    () => ["2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3", "2025Q4", "2026Q1"],
-    [],
-  );
-  const [historicalPeriodIndex, setHistoricalPeriodIndex] = useState<number>(REAL_ESTATE_PERIODS.length - 1);
+  // 房地產時間軸：季/月/週 粒度 + 連續日期游標 ts（grid 按季、point 月/週漸入漸出）
+  const [reGran, setReGran] = useState<ReGran>("quarter");
+  const [reCursorTs, setReCursorTs] = useState<number>(RANGE_END);
+  // 房地產任一 layer 開啟（決定歷史時間軸是否顯示 RE 季/月/週 控制）
+  const realEstateActive =
+    layerVisibility.realEstateRentalGrid || layerVisibility.realEstateRentalPoint ||
+    layerVisibility.realEstateSaleGrid || layerVisibility.realEstateSalePoint ||
+    layerVisibility.realEstatePresaleGrid || layerVisibility.realEstatePresalePoint;
   const HISTORICAL_YEARS = useMemo(
     () => [104, 105, 106, 107, 108, 109, 110, 111, 112, 113],
     [],
@@ -481,21 +484,14 @@ export default function App() {
   const FIRE_MAX_YEAR = 113;
 
   // 歷史模式自動播放：依粒度推進年/月/日，到頂暫停
+  // （房地產的播放交給 useRealEstateTimeline 的 RAF 引擎，這裡略過）
   useEffect(() => {
-    if (appMode !== "historical" || !historicalPlaying) return;
+    if (appMode !== "historical" || !historicalPlaying || realEstateActive) return;
     const interval = Math.max(200, 2000 / historicalSpeed);
     const yearMax = HISTORICAL_YEARS[HISTORICAL_YEARS.length - 1] ?? 113;
 
     const id = window.setInterval(() => {
-      if (historicalGranularity === "quarter") {
-        setHistoricalPeriodIndex((i) => {
-          if (i >= REAL_ESTATE_PERIODS.length - 1) {
-            setHistoricalPlaying(false);
-            return i;
-          }
-          return i + 1;
-        });
-      } else if (historicalGranularity === "year") {
+      if (historicalGranularity === "year") {
         setHistoricalYear((y) => {
           if (y >= yearMax) {
             setHistoricalPlaying(false);
@@ -540,7 +536,7 @@ export default function App() {
       }
     }, interval);
     return () => window.clearInterval(id);
-  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS, REAL_ESTATE_PERIODS]);
+  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS, realEstateActive]);
 
   // 切到 historical mode 時，記住既有 layerVisibility 並切到「歷史專屬」可見集合；
   // 切回 realtime 時還原。避免使用者在歷史模式看到大量無法解讀的即時圖層。
@@ -568,31 +564,19 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appMode]);
 
-  // 房地產任一 layer 是否開啟（決定是否顯示「季」粒度按鈕）
-  const realEstateActive =
-    layerVisibility.realEstateRentalGrid || layerVisibility.realEstateRentalPoint ||
-    layerVisibility.realEstateSaleGrid || layerVisibility.realEstateSalePoint ||
-    layerVisibility.realEstatePresaleGrid || layerVisibility.realEstatePresalePoint;
-
-  // 歷史模式開啟房地產 → 自動切「季」粒度；關閉且仍在季 → 回「年」
-  useEffect(() => {
-    if (appMode !== "historical") return;
-    if (realEstateActive && historicalGranularity !== "quarter") {
-      setHistoricalGranularity("quarter");
-    } else if (!realEstateActive && historicalGranularity === "quarter") {
-      setHistoricalGranularity("year");
-    }
-  }, [appMode, realEstateActive, historicalGranularity]);
-
-  // 房地產 period 時間軸：realtime→ALL / historical 季→當季（setFilter）
-  useRealEstateTimeline(
-    mapRef,
+  // 房地產時間軸：realtime→ALL 全期 / historical→游標所在季(grid)+點漸入漸出(月/週)
+  const stopHistorical = useCallback(() => setHistoricalPlaying(false), []);
+  useRealEstateTimeline(mapRef, {
     appMode,
-    historicalGranularity === "quarter",
-    historicalPeriodIndex,
-    REAL_ESTATE_PERIODS,
-    !!transportParams.overlayParams.realEstateExcludeTaipei,
-  );
+    gran: reGran,
+    cursorTs: reCursorTs,
+    excludeTaipei: !!transportParams.overlayParams.realEstateExcludeTaipei,
+    baseOpacity: transportParams.overlayParams.realEstateOpacity ?? 0.85,
+    playing: historicalPlaying,
+    speed: historicalSpeed,
+    onCursorChange: setReCursorTs,
+    onStop: stopHistorical,
+  });
 
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
@@ -1650,10 +1634,15 @@ export default function App() {
               onMonthChange={setHistoricalMonth}
               onDayChange={setHistoricalDay}
               onGranularityChange={setHistoricalGranularity}
-              showQuarter={realEstateActive}
-              periods={REAL_ESTATE_PERIODS}
-              periodIndex={historicalPeriodIndex}
-              onPeriodChange={setHistoricalPeriodIndex}
+              reActive={realEstateActive}
+              reGran={reGran}
+              onReGranChange={(g) => { setReGran(g); if (g === "quarter") setReCursorTs((t) => snapQuarterStart(t)); }}
+              reCursorTs={reCursorTs}
+              reCursorMin={RANGE_START}
+              reCursorMax={RANGE_END}
+              reCursorStep={DAY}
+              reCursorLabel={reLabel(reGran, reCursorTs)}
+              onReCursorChange={(ts) => setReCursorTs(reGran === "quarter" ? snapQuarterStart(ts) : ts)}
             />
           )}
 
@@ -2231,6 +2220,11 @@ export default function App() {
                 <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, marginTop: 2 }}>
                   總價 {num(p.total_price)} 元 · {num(p.area_sqm)} m²
                 </div>
+                {p.trade_ts != null && Number(p.trade_ts) > 0 && (
+                  <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
+                    交易日 {tsToDate(Number(p.trade_ts))}
+                  </div>
+                )}
               </>
             )}
           </div>
