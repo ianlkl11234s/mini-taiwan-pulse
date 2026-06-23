@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import type { Map as MapboxMap, PointLike } from "mapbox-gl";
-import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility } from "../types";
+import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
+import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { DISASTER_ALERT_CLICK_LAYERS } from "./useDisasterAlertLayer";
 import type { FlightScene } from "../three/FlightScene";
 import type { RailScene } from "../three/RailScene";
@@ -51,6 +51,7 @@ export function useMapInteraction(
   const [trainTooltipInfo, setTrainTooltipInfo] = useState<TrainTooltipInfo | null>(null);
   const [busTooltipInfo, setBusTooltipInfo] = useState<BusTooltipInfo | null>(null);
   const [wasteScheduleTooltipInfo, setWasteScheduleTooltipInfo] = useState<WasteScheduleTooltipInfo | null>(null);
+  const [realEstateTooltipInfo, setRealEstateTooltipInfo] = useState<RealEstateTooltipInfo | null>(null);
   const [featureInfo, setFeatureInfo] = useState<FeatureInfo | null>(null);
   const clickBoundRef = useRef(false);
 
@@ -342,7 +343,27 @@ export function useMapInteraction(
     map.on("wheel", () => setSelectedFlightId(null));
     map.on("rotatestart", () => setSelectedFlightId(null));
     map.on("pitchstart", () => setSelectedFlightId(null));
-    map.on("move", () => { setTooltipInfo(null); setTrainTooltipInfo(null); setBusTooltipInfo(null); });
+    map.on("move", () => { setTooltipInfo(null); setTrainTooltipInfo(null); setBusTooltipInfo(null); setRealEstateTooltipInfo(null); });
+
+    // 房地產 hover tooltip（滑鼠移上即顯示，非 click）。layer 尚未建立先綁無害（mapbox 容忍）。
+    const reMove = (kind: "grid" | "point") => (e: MapLayerMouseEvent) => {
+      const f = e.features?.[0];
+      if (!f) return;
+      map.getCanvas().style.cursor = "pointer";
+      setRealEstateTooltipInfo({ x: e.point.x, y: e.point.y, kind, properties: f.properties ?? {} });
+    };
+    const reLeave = () => {
+      map.getCanvas().style.cursor = "";
+      setRealEstateTooltipInfo(null);
+    };
+    for (const id of ["re-grid-rental-fill", "re-grid-sale-fill", "re-grid-presale-fill"]) {
+      map.on("mousemove", id, reMove("grid"));
+      map.on("mouseleave", id, reLeave);
+    }
+    for (const id of ["re-points-rental-circle", "re-points-sale-circle", "re-points-presale-circle"]) {
+      map.on("mousemove", id, reMove("point"));
+      map.on("mouseleave", id, reLeave);
+    }
   };
 
   // ESC 鍵取消跟隨
@@ -398,6 +419,7 @@ export function useMapInteraction(
     trainTooltipInfo, setTrainTooltipInfo,
     busTooltipInfo, setBusTooltipInfo,
     wasteScheduleTooltipInfo, setWasteScheduleTooltipInfo,
+    realEstateTooltipInfo, setRealEstateTooltipInfo,
     featureInfo, setFeatureInfo,
     selectedFlightId, setSelectedFlightId,
     bindEvents,

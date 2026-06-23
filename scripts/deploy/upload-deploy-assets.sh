@@ -165,6 +165,15 @@ for f in "${FOREST_FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/forestry/$name" --region ap-southeast-2
 done
 
+# 房地產 PMTiles：上傳到 deploy-assets/coverage/ 子前綴（鏡像結構，pull 端整夾 sync）。
+# 只上傳 real_estate_*（26+43MB 大檔走 S3）；gas coverage 小檔（5MB）仍進 git/dist，不上傳。
+for f in public/coverage/real_estate_*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading coverage/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/coverage/$name" --region ap-southeast-2
+done
+
 # Rail 個別檔案（打包成 tar.gz 上傳）
 if [ -d "public/rail" ]; then
   echo "Packing public/rail/ → rail.tar.gz..."

@@ -97,6 +97,7 @@ import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteCon
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
+import { useRealEstateTimeline } from "./hooks/useRealEstateTimeline";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
@@ -466,6 +467,12 @@ export default function App() {
   const [historicalPlaying, setHistoricalPlaying] = useState<boolean>(false);
   const [historicalSpeed, setHistoricalSpeed] = useState<number>(1); // 倍速
   const [historicalGranularity, setHistoricalGranularity] = useState<HistoricalGranularity>("year");
+  // 房地產季粒度（2024Q3~2026Q1，共 7 季）
+  const REAL_ESTATE_PERIODS = useMemo(
+    () => ["2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3", "2025Q4", "2026Q1"],
+    [],
+  );
+  const [historicalPeriodIndex, setHistoricalPeriodIndex] = useState<number>(REAL_ESTATE_PERIODS.length - 1);
   const HISTORICAL_YEARS = useMemo(
     () => [104, 105, 106, 107, 108, 109, 110, 111, 112, 113],
     [],
@@ -480,7 +487,15 @@ export default function App() {
     const yearMax = HISTORICAL_YEARS[HISTORICAL_YEARS.length - 1] ?? 113;
 
     const id = window.setInterval(() => {
-      if (historicalGranularity === "year") {
+      if (historicalGranularity === "quarter") {
+        setHistoricalPeriodIndex((i) => {
+          if (i >= REAL_ESTATE_PERIODS.length - 1) {
+            setHistoricalPlaying(false);
+            return i;
+          }
+          return i + 1;
+        });
+      } else if (historicalGranularity === "year") {
         setHistoricalYear((y) => {
           if (y >= yearMax) {
             setHistoricalPlaying(false);
@@ -525,7 +540,7 @@ export default function App() {
       }
     }, interval);
     return () => window.clearInterval(id);
-  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS]);
+  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS, REAL_ESTATE_PERIODS]);
 
   // 切到 historical mode 時，記住既有 layerVisibility 並切到「歷史專屬」可見集合；
   // 切回 realtime 時還原。避免使用者在歷史模式看到大量無法解讀的即時圖層。
@@ -552,6 +567,32 @@ export default function App() {
     // setLayerVisibility / layerVisibilityRef 都是 stable
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appMode]);
+
+  // 房地產任一 layer 是否開啟（決定是否顯示「季」粒度按鈕）
+  const realEstateActive =
+    layerVisibility.realEstateRentalGrid || layerVisibility.realEstateRentalPoint ||
+    layerVisibility.realEstateSaleGrid || layerVisibility.realEstateSalePoint ||
+    layerVisibility.realEstatePresaleGrid || layerVisibility.realEstatePresalePoint;
+
+  // 歷史模式開啟房地產 → 自動切「季」粒度；關閉且仍在季 → 回「年」
+  useEffect(() => {
+    if (appMode !== "historical") return;
+    if (realEstateActive && historicalGranularity !== "quarter") {
+      setHistoricalGranularity("quarter");
+    } else if (!realEstateActive && historicalGranularity === "quarter") {
+      setHistoricalGranularity("year");
+    }
+  }, [appMode, realEstateActive, historicalGranularity]);
+
+  // 房地產 period 時間軸：realtime→ALL / historical 季→當季（setFilter）
+  useRealEstateTimeline(
+    mapRef,
+    appMode,
+    historicalGranularity === "quarter",
+    historicalPeriodIndex,
+    REAL_ESTATE_PERIODS,
+  );
+
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
 
@@ -578,7 +619,7 @@ export default function App() {
     paramRefs: transportParams.refs,
   });
 
-  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
+  const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
     useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
@@ -1608,6 +1649,10 @@ export default function App() {
               onMonthChange={setHistoricalMonth}
               onDayChange={setHistoricalDay}
               onGranularityChange={setHistoricalGranularity}
+              showQuarter={realEstateActive}
+              periods={REAL_ESTATE_PERIODS}
+              periodIndex={historicalPeriodIndex}
+              onPeriodChange={setHistoricalPeriodIndex}
             />
           )}
 
@@ -2129,6 +2174,67 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ── 房地產 hover Tooltip ── */}
+      {realEstateTooltipInfo && (() => {
+        const { x, y, kind, properties: p } = realEstateTooltipInfo;
+        const typeStr = String(p.type ?? "");
+        const typeLabel = typeStr === "rental" ? "租賃" : typeStr === "sale" ? "買賣" : typeStr === "presale" ? "預售" : typeStr;
+        const accent = typeStr === "rental" ? "#38bdf8" : typeStr === "sale" ? "#16a34a" : "#9333ea";
+        const num = (v: unknown) => (v == null || v === "" ? "—" : Number(v).toLocaleString());
+        const periodStr = String(p.period ?? "");
+        const periodLabel = periodStr === "ALL" ? "全期" : periodStr;
+        return (
+          <div
+            style={{
+              position: "absolute",
+              left: x + 12,
+              top: y - 10,
+              zIndex: 30,
+              background: "rgba(10,10,20,0.9)",
+              backdropFilter: "blur(12px)",
+              border: `1px solid ${accent}66`,
+              borderRadius: RADIUS.xl,
+              padding: "10px 14px",
+              pointerEvents: "none",
+              fontFamily: FONT_DATA,
+              minWidth: 200,
+            }}
+          >
+            {kind === "grid" ? (
+              <>
+                <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: accent, letterSpacing: 1 }}>
+                  {typeLabel} · {periodLabel}
+                </div>
+                <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
+                  格 {String(p.grid_id ?? "—")} · {num(p.n_tx)} 筆
+                </div>
+                <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginTop: 4 }}>
+                  單價中位 {num(p.price_per_sqm_median)} 元/m²
+                </div>
+                <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, marginTop: 2 }}>
+                  總價中位 {num(p.price_median)} 元
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: accent, letterSpacing: 1 }}>
+                  {typeLabel} · {String(p.district ?? "")}
+                </div>
+                <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
+                  {String(p.address ?? "—")}
+                </div>
+                <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginTop: 4 }}>
+                  單價 {num(p.price_per_sqm)} 元/m²
+                </div>
+                <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, marginTop: 2 }}>
+                  總價 {num(p.total_price)} 元 · {num(p.area_sqm)} m²
+                </div>
+              </>
+            )}
+          </div>
+        );
+      })()}
 
       {/* ── 垃圾車表定 Tooltip (debug) ── */}
       {wasteScheduleTooltipInfo && (() => {

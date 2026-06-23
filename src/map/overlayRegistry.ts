@@ -73,6 +73,79 @@ function gasCoverageOverlay(opts: {
   }];
 }
 
+// ── 房地產 REAL ESTATE factory（3 類 × {grid 150m, point}，共 2 個 PMTiles source） ──
+//   grid 依 price_per_sqm_median 上色、point 依 price_per_sqm；domain 單位 NT$/m²。
+//   period filter 由 useRealEstateTimeline 用 setFilter 動態切換（realtime→ALL / historical→當季）。
+//   ⚠️ 不用 rebuildOnParamChange：opacity 走 paint diff（setPaintProperty），避免 rebuild 洗掉 setFilter。
+type RePalette = "rental" | "sale" | "presale";
+function reColorExpr(palette: RePalette, field: string): unknown[] {
+  const stops: Record<RePalette, [number, string][]> = {
+    // 租賃：藍 → 黃（92–518）
+    rental: [[92, "#2563eb"], [200, "#38bdf8"], [350, "#fde047"], [518, "#f59e0b"]],
+    // 買賣：淺綠 → 深綠（28,480–227,802）
+    sale: [[28480, "#bbf7d0"], [90000, "#4ade80"], [160000, "#16a34a"], [227802, "#14532d"]],
+    // 預售：淺紫 → 深紫（72,845–387,844）
+    presale: [[72845, "#f3e8ff"], [180000, "#c084fc"], [300000, "#9333ea"], [387844, "#581c87"]],
+  };
+  return [
+    "interpolate", ["linear"], ["coalesce", ["get", field], 0],
+    ...stops[palette].flatMap(([v, c]) => [v, c]),
+  ];
+}
+function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type: string): OverlayConfig {
+  return {
+    id,
+    sourceUrl: "./coverage/real_estate_grid.pmtiles",
+    sourceId: "re-grid",
+    pmtiles: { sourceLayer: "real_estate_grid", minzoom: 9, maxzoom: 14 },
+    // 初始 = realtime 全期靜態（period=ALL）；historical 模式由 hook 改成當季
+    filter: ["all", ["==", ["get", "type"], type], ["==", ["get", "period"], "ALL"]],
+    layers: [
+      {
+        suffix: `${type}-fill`,
+        type: "fill",
+        paint: (_isDark, params) => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "fill-color": reColorExpr(palette, "price_per_sqm_median") as any,
+          "fill-opacity": params?.realEstateOpacity ?? 0.7,
+        }),
+      },
+      {
+        suffix: `${type}-line`,
+        type: "line",
+        paint: (isDark) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.15)",
+          "line-width": 0.3,
+        }),
+      },
+    ],
+  };
+}
+function realEstatePointOverlay(id: OverlayConfig["id"], palette: RePalette, type: string): OverlayConfig {
+  return {
+    id,
+    sourceUrl: "./coverage/real_estate_points.pmtiles",
+    sourceId: "re-points",
+    pmtiles: { sourceLayer: "real_estate_points", minzoom: 9, maxzoom: 14 },
+    // 點無 period=ALL：realtime 顯示全部交易（僅 type filter）；historical 由 hook 加當季
+    filter: ["==", ["get", "type"], type],
+    layers: [
+      {
+        suffix: `${type}-circle`,
+        type: "circle",
+        paint: (_isDark, params) => ({
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 2, 14, 5],
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          "circle-color": reColorExpr(palette, "price_per_sqm") as any,
+          "circle-opacity": params?.realEstateOpacity ?? 0.85,
+          "circle-stroke-width": 0.3,
+          "circle-stroke-color": "rgba(0,0,0,0.25)",
+        }),
+      },
+    ],
+  };
+}
+
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
   {
@@ -4651,5 +4724,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     widthKey: "evIslandLineWidth",
     palette: "gas",
   }),
+
+  // ── 房地產 REAL ESTATE（6 layer：3 類 × {grid, point}） ──
+  realEstateGridOverlay("realEstateRentalGrid", "rental", "rental"),
+  realEstatePointOverlay("realEstateRentalPoint", "rental", "rental"),
+  realEstateGridOverlay("realEstateSaleGrid", "sale", "sale"),
+  realEstatePointOverlay("realEstateSalePoint", "sale", "sale"),
+  realEstateGridOverlay("realEstatePresaleGrid", "presale", "presale"),
+  realEstatePointOverlay("realEstatePresalePoint", "presale", "presale"),
 
 ];
