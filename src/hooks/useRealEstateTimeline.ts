@@ -26,15 +26,20 @@ const RE_LAYERS: { id: string; type: string; kind: Kind }[] = [
   { id: "re-points-presale-circle", type: "presale", kind: "point" },
 ];
 
+const TAIPEI_CITIES = ["taipei", "newtaipei"];
+// 排除雙北：city 不在 [taipei, newtaipei]（grid 與 point 都有 city 欄位）
+const EXCLUDE_TAIPEI_F: unknown[] = ["!", ["in", ["get", "city"], ["literal", TAIPEI_CITIES]]];
+
 // period === null → realtime 全期視圖；否則 historical 當季
-function buildFilter(type: string, kind: Kind, period: string | null): unknown[] {
-  const typeF = ["==", ["get", "type"], type];
-  if (period === null) {
-    return kind === "grid"
-      ? ["all", typeF, ["==", ["get", "period"], "ALL"]]
-      : typeF;
+function buildFilter(type: string, kind: Kind, period: string | null, excludeTaipei: boolean): unknown[] {
+  const clauses: unknown[] = [["==", ["get", "type"], type]];
+  if (kind === "grid") {
+    clauses.push(["==", ["get", "period"], period ?? "ALL"]);
+  } else if (period !== null) {
+    clauses.push(["==", ["get", "period"], period]);
   }
-  return ["all", typeF, ["==", ["get", "period"], period]];
+  if (excludeTaipei) clauses.push(EXCLUDE_TAIPEI_F);
+  return ["all", ...clauses];
 }
 
 export function useRealEstateTimeline(
@@ -43,6 +48,7 @@ export function useRealEstateTimeline(
   isQuarterMode: boolean,
   periodIndex: number,
   periods: string[],
+  excludeTaipei: boolean,
 ) {
   useEffect(() => {
     const map = mapRef.current;
@@ -55,7 +61,7 @@ export function useRealEstateTimeline(
       for (const l of RE_LAYERS) {
         if (map.getLayer(l.id)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          map.setFilter(l.id, buildFilter(l.type, l.kind, period) as any);
+          map.setFilter(l.id, buildFilter(l.type, l.kind, period, excludeTaipei) as any);
         }
       }
     };
@@ -65,5 +71,5 @@ export function useRealEstateTimeline(
     return () => {
       map.off("style.load", apply);
     };
-  }, [mapRef, appMode, isQuarterMode, periodIndex, periods]);
+  }, [mapRef, appMode, isQuarterMode, periodIndex, periods, excludeTaipei]);
 }

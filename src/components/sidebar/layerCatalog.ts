@@ -228,12 +228,12 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   lightning: "#fb923c",             // 落雷橘（雲對地主色）
   nuclearRadiation: "#22c55e",      // 核安綠（正常背景值代表色）
   // 房地產（grid/point 同類同色）
-  realEstateRentalGrid: "#38bdf8",  // 租賃 藍
-  realEstateRentalPoint: "#38bdf8",
-  realEstateSaleGrid: "#16a34a",    // 買賣 綠
-  realEstateSalePoint: "#16a34a",
-  realEstatePresaleGrid: "#9333ea", // 預售 紫
-  realEstatePresalePoint: "#9333ea",
+  realEstateRentalGrid: "#41919A",  // 租賃 teal→red 分歧
+  realEstateRentalPoint: "#41919A",
+  realEstateSaleGrid: "#d73027",    // 買賣 綠-白-紅（代表色取紅）
+  realEstateSalePoint: "#d73027",
+  realEstatePresaleGrid: "#fd8d3c", // 預售 黃-橙-紅（代表色取橙）
+  realEstatePresalePoint: "#fd8d3c",
 };
 
 // ── Transport Labels ──

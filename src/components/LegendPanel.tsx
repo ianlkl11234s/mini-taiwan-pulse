@@ -10,6 +10,7 @@ import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
+import { RE_PALETTES } from "../map/overlayRegistry";
 import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
@@ -120,7 +121,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["agriRetail", "agriProduceWholesale", "agriWholesaleMarket"], render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
   { keys: ["agriSoilFertility"], render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { keys: ["fireEvents", "fireLatest"], render: () => <FireEventLegend /> },
-  { keys: ["realEstateRentalGrid", "realEstateRentalPoint", "realEstateSaleGrid", "realEstateSalePoint", "realEstatePresaleGrid", "realEstatePresalePoint"], render: ({ visibility }) => <RealEstateLegend visibility={visibility} /> },
+  { keys: ["realEstateRentalGrid", "realEstateRentalPoint", "realEstateSaleGrid", "realEstateSalePoint", "realEstatePresaleGrid", "realEstatePresalePoint"], render: ({ visibility, overlayParams }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} /> },
   { keys: ["fireStations"], render: () => <FireStationLegend /> },
   { keys: ["fireHydrants"], render: () => <FireHydrantLegend /> },
   { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
@@ -339,38 +340,38 @@ function EcoNetworkZonesLegend() {
   );
 }
 
-// ── 房地產 Legend（3 類價格色帶，依開啟類別顯示）──
+// ── 房地產 Legend（3 類價格色帶，依開啟類別顯示；色票/domain 單一真實來源 = RE_PALETTES）──
 
-const REAL_ESTATE_RAMPS: {
-  rentalKeys: (keyof LayerVisibility)[];
-  label: string;
-  colors: string[];
-  domain: [number, number];
-}[] = [
-  { rentalKeys: ["realEstateRentalGrid", "realEstateRentalPoint"], label: "🏠 租賃 單價", colors: ["#2563eb", "#38bdf8", "#fde047", "#f59e0b"], domain: [92, 518] },
-  { rentalKeys: ["realEstateSaleGrid", "realEstateSalePoint"], label: "🏢 買賣 單價", colors: ["#bbf7d0", "#4ade80", "#16a34a", "#14532d"], domain: [28480, 227802] },
-  { rentalKeys: ["realEstatePresaleGrid", "realEstatePresalePoint"], label: "🏗️ 預售 單價", colors: ["#f3e8ff", "#c084fc", "#9333ea", "#581c87"], domain: [72845, 387844] },
+const RE_LEGEND_ROWS: { keys: (keyof LayerVisibility)[]; label: string; palette: "rental" | "sale" | "presale" }[] = [
+  { keys: ["realEstateRentalGrid", "realEstateRentalPoint"], label: "🏠 租賃 單價", palette: "rental" },
+  { keys: ["realEstateSaleGrid", "realEstateSalePoint"], label: "🏢 買賣 單價", palette: "sale" },
+  { keys: ["realEstatePresaleGrid", "realEstatePresalePoint"], label: "🏗️ 預售 單價", palette: "presale" },
 ];
 
-function RealEstateLegend({ visibility }: { visibility: LayerVisibility }) {
-  const active = REAL_ESTATE_RAMPS.filter((r) => r.rentalKeys.some((k) => visibility[k]));
+function RealEstateLegend({ visibility, overlayParams }: { visibility: LayerVisibility; overlayParams: Record<string, number> }) {
+  const excl = !!overlayParams.realEstateExcludeTaipei;
+  const active = RE_LEGEND_ROWS.filter((r) => r.keys.some((k) => visibility[k]));
   if (active.length === 0) return null;
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        房地產 單價 (NT$/m²)
+        房地產 單價 (NT$/m²){excl ? " · 排除雙北" : ""}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {active.map((r) => (
-          <div key={r.label}>
-            <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDefault, marginBottom: 2 }}>{r.label}</div>
-            <div style={{ height: 8, borderRadius: RADIUS.sm, background: `linear-gradient(to right, ${r.colors.join(", ")})` }} />
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 1 }}>
-              <span>{r.domain[0].toLocaleString()}</span>
-              <span>{r.domain[1].toLocaleString()}</span>
+        {active.map((r) => {
+          const p = RE_PALETTES[r.palette];
+          const [lo, hi] = excl ? p.domainExcl : p.domain;
+          return (
+            <div key={r.label}>
+              <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDefault, marginBottom: 2 }}>{r.label}</div>
+              <div style={{ height: 8, borderRadius: RADIUS.sm, background: `linear-gradient(to right, ${p.colors.join(", ")})` }} />
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 1 }}>
+                <span>{lo.toLocaleString()}</span>
+                <span>{hi.toLocaleString()}{excl ? "+" : ""}</span>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

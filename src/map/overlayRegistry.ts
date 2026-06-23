@@ -78,26 +78,27 @@ function gasCoverageOverlay(opts: {
 //   period filter 由 useRealEstateTimeline 用 setFilter 動態切換（realtime→ALL / historical→當季）。
 //   ⚠️ 不用 rebuildOnParamChange：opacity 走 paint diff（setPaintProperty），避免 rebuild 洗掉 setFilter。
 type RePalette = "rental" | "sale" | "presale";
-function reColorExpr(palette: RePalette, field: string): unknown[] {
-  const stops: Record<RePalette, [number, string][]> = {
-    // 租賃：藍 → 黃（92–518）
-    rental: [[92, "#2563eb"], [200, "#38bdf8"], [350, "#fde047"], [518, "#f59e0b"]],
-    // 買賣：淺綠 → 深綠（28,480–227,802）
-    sale: [[28480, "#bbf7d0"], [90000, "#4ade80"], [160000, "#16a34a"], [227802, "#14532d"]],
-    // 預售：淺紫 → 深紫（72,845–387,844）
-    presale: [[72845, "#f3e8ff"], [180000, "#c084fc"], [300000, "#9333ea"], [387844, "#581c87"]],
-  };
-  return [
-    "interpolate", ["linear"], ["coalesce", ["get", field], 0],
-    ...stops[palette].flatMap(([v, c]) => [v, c]),
-  ];
+// 每類：色票（low→high）+ 含雙北 domain + 排除雙北壓縮 domain（雙北房價過高會壓縮色階）。
+// 色票科學分歧/序列、high=貴=紅、low 在深色底圖可辨識。domainExcl 由資料 p99（不含雙北）決定。
+export const RE_PALETTES: Record<RePalette, { colors: string[]; domain: [number, number]; domainExcl: [number, number] }> = {
+  // domain ≈ 全體 p95；domainExcl ≈ 排除雙北 p95（sale max 是 3200 萬 outlier，故用 p95 封頂）
+  rental:  { colors: ["#41919A", "#7DB3B8", "#B3D6D8", "#EAB49C", "#D17A57", "#B33C1B"], domain: [92, 518], domainExcl: [92, 386] },
+  sale:    { colors: ["#1a9850", "#f7f7f7", "#d73027"], domain: [28480, 227802], domainExcl: [28480, 147000] },
+  presale: { colors: ["#ffffb2", "#fd8d3c", "#bd0026"], domain: [72845, 387844], domainExcl: [72845, 202000] },
+};
+function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean): unknown[] {
+  const p = RE_PALETTES[palette];
+  const [lo, hi] = excludeTaipei ? p.domainExcl : p.domain;
+  const n = p.colors.length;
+  const stops = p.colors.flatMap((c, i) => [lo + ((hi - lo) * i) / (n - 1), c]);
+  return ["interpolate", ["linear"], ["coalesce", ["get", field], 0], ...stops];
 }
 function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type: string): OverlayConfig {
   return {
     id,
     sourceUrl: "./coverage/real_estate_grid.pmtiles",
     sourceId: "re-grid",
-    pmtiles: { sourceLayer: "real_estate_grid", minzoom: 9, maxzoom: 14 },
+    pmtiles: { sourceLayer: "real_estate_grid", minzoom: 6, maxzoom: 14 },
     // 初始 = realtime 全期靜態（period=ALL）；historical 模式由 hook 改成當季
     filter: ["all", ["==", ["get", "type"], type], ["==", ["get", "period"], "ALL"]],
     layers: [
@@ -106,7 +107,7 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
         type: "fill",
         paint: (_isDark, params) => ({
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          "fill-color": reColorExpr(palette, "price_per_sqm_median") as any,
+          "fill-color": reColorExpr(palette, "price_per_sqm_median", !!(params?.realEstateExcludeTaipei)) as any,
           "fill-opacity": params?.realEstateOpacity ?? 0.7,
         }),
       },
@@ -126,7 +127,7 @@ function realEstatePointOverlay(id: OverlayConfig["id"], palette: RePalette, typ
     id,
     sourceUrl: "./coverage/real_estate_points.pmtiles",
     sourceId: "re-points",
-    pmtiles: { sourceLayer: "real_estate_points", minzoom: 9, maxzoom: 14 },
+    pmtiles: { sourceLayer: "real_estate_points", minzoom: 6, maxzoom: 14 },
     // 點無 period=ALL：realtime 顯示全部交易（僅 type filter）；historical 由 hook 加當季
     filter: ["==", ["get", "type"], type],
     layers: [
@@ -134,9 +135,9 @@ function realEstatePointOverlay(id: OverlayConfig["id"], palette: RePalette, typ
         suffix: `${type}-circle`,
         type: "circle",
         paint: (_isDark, params) => ({
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 9, 2, 14, 5],
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.5, 9, 2.5, 14, 5],
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          "circle-color": reColorExpr(palette, "price_per_sqm") as any,
+          "circle-color": reColorExpr(palette, "price_per_sqm", !!(params?.realEstateExcludeTaipei)) as any,
           "circle-opacity": params?.realEstateOpacity ?? 0.85,
           "circle-stroke-width": 0.3,
           "circle-stroke-color": "rgba(0,0,0,0.25)",

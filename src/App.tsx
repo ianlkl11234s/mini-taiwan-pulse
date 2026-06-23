@@ -591,6 +591,7 @@ export default function App() {
     historicalGranularity === "quarter",
     historicalPeriodIndex,
     REAL_ESTATE_PERIODS,
+    !!transportParams.overlayParams.realEstateExcludeTaipei,
   );
 
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
