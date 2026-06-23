@@ -2,6 +2,7 @@ import type { MapStyle } from "../types";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 export const MAP_STYLES: MapStyle[] = [
+  { id: "black", name: "Pure Black", url: "mapbox://styles/mapbox/dark-v11" },
   { id: "dark", name: "Dark", url: "mapbox://styles/mapbox/dark-v11" },
   { id: "light", name: "Light", url: "mapbox://styles/mapbox/light-v11" },
   { id: "satellite", name: "Satellite", url: "mapbox://styles/mapbox/satellite-v9" },

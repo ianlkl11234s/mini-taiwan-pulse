@@ -86,6 +86,8 @@ function updateAllAgricultureLayers(
 interface MapViewProps {
   preset: CameraPreset;
   styleUrl: string;
+  /** 套用「Pure Black」自訂配色：背景純黑、面/路/字壓暗 */
+  pureBlack?: boolean;
   flights: Flight[];
   renderMode: RenderMode;
   isDarkTheme?: boolean;
@@ -122,7 +124,46 @@ function setupTerrain(map: mapboxgl.Map) {
   map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
 }
 
-export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = true, showTrails = true, layerVisibility, overlayParams, onMapReady }: MapViewProps) {
+/** 把 Mapbox 內建底圖（dark-v11 等）整套配色壓到「純黑」：
+ *  - background / fill / fill-extrusion → 黑或近黑
+ *  - line（道路、行政邊界）→ 極暗灰，只剩骨架
+ *  - symbol（地名）→ 暗灰 + 黑色 halo
+ *  注：只動 Mapbox 原生底圖層；自家 overlay（id 含 "-overlay" 等）不受影響。
+ */
+function applyPureBlackTheme(map: mapboxgl.Map): void {
+  const style = map.getStyle();
+  if (!style?.layers) return;
+  for (const layer of style.layers) {
+    // 只處理 Mapbox composite source 的原生底圖層
+    if ((layer as { source?: string }).source !== "composite" && layer.type !== "background") continue;
+    const id = layer.id;
+    try {
+      if (layer.type === "background") {
+        map.setPaintProperty(id, "background-color", "#000000");
+      } else if (layer.type === "fill") {
+        // 水域（海/湖/河川面）→ #262626；其餘陸地全黑
+        const isWater = /water/i.test(id);
+        const fillColor = isWater ? "#262626" : "#000000";
+        map.setPaintProperty(id, "fill-color", fillColor);
+        map.setPaintProperty(id, "fill-outline-color", fillColor);
+      } else if (layer.type === "fill-extrusion") {
+        map.setPaintProperty(id, "fill-extrusion-color", "#0a0a0a");
+      } else if (layer.type === "line") {
+        // waterway（河川線）跟海同色，其餘路網/邊界維持極暗灰
+        const lineColor = /waterway/i.test(id) ? "#262626" : "#1a1a1a";
+        map.setPaintProperty(id, "line-color", lineColor);
+      } else if (layer.type === "symbol") {
+        map.setPaintProperty(id, "text-color", "#4a4a4a");
+        map.setPaintProperty(id, "text-halo-color", "#000000");
+        map.setPaintProperty(id, "text-halo-width", 1);
+      }
+    } catch {
+      // 某些 layer 沒有對應 paint property，吞掉
+    }
+  }
+}
+
+export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMode, isDarkTheme = true, showTrails = true, layerVisibility, overlayParams, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -132,6 +173,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
   const renderModeRef = useRef(renderMode);
   const flightsRef = useRef(flights);
   const isDarkThemeRef = useRef(isDarkTheme);
+  const pureBlackRef = useRef(pureBlack);
   const showTrailsRef = useRef(showTrails);
   const layerVisibilityRef = useRef(layerVisibility);
   const overlayParamsRef = useRef(overlayParams);
@@ -141,6 +183,7 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
   renderModeRef.current = renderMode;
   flightsRef.current = flights;
   isDarkThemeRef.current = isDarkTheme;
+  pureBlackRef.current = pureBlack;
   showTrailsRef.current = showTrails;
   layerVisibilityRef.current = layerVisibility;
   overlayParamsRef.current = overlayParams;
@@ -162,6 +205,8 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
 
     // 唯一的 style.load handler：每次底圖切換都會觸發，重建所有圖層
     map.on("style.load", () => {
+      // Pure Black 配色：在加 overlay 前先壓 Mapbox 原生底圖層
+      if (pureBlackRef.current) applyPureBlackTheme(map);
       setupTerrain(map);
 
       // PMTiles SourceType 須在任何 pmtiles source addSource 前註冊（水利層走 overlayRegistry）
@@ -253,6 +298,19 @@ export function MapView({ preset, styleUrl, flights, renderMode, isDarkTheme = t
     map.setStyle(styleUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [styleUrl]);
+
+  // Pure Black 切換：同 styleUrl（都是 dark-v11）下，靠 paint override 切換
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !readyRef.current) return;
+    if (pureBlack) {
+      applyPureBlackTheme(map);
+    } else {
+      // 關掉 → 重灌目前的 styleUrl 還原原色
+      map.setStyle(styleUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pureBlack]);
 
   // 切換機場時平滑飛行
   useEffect(() => {
