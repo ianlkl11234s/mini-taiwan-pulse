@@ -54,8 +54,9 @@ export function reLabel(gran: ReGran, ts: number): string {
 
 /** point 梯形時間窗（秒）：full = 全亮、fade = 之後淡出尾段 */
 export function reWindow(gran: ReGran): { full: number; fade: number } {
-  if (gran === "week") return { full: 5 * DAY, fade: 10 * DAY };
-  if (gran === "month") return { full: 20 * DAY, fade: 30 * DAY };
+  // 俐落版：縮短淡出尾，減少「延續」感（畫面較稀疏為取捨）
+  if (gran === "week") return { full: 2 * DAY, fade: 3 * DAY };
+  if (gran === "month") return { full: 6 * DAY, fade: 10 * DAY };
   return { full: 0, fade: 0 }; // quarter 用 period filter
 }
 
