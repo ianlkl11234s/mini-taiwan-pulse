@@ -360,10 +360,7 @@ export function useMapInteraction(
       map.on("mousemove", id, reMove("grid"));
       map.on("mouseleave", id, reLeave);
     }
-    for (const id of ["re-points-rental-circle", "re-points-sale-circle", "re-points-presale-circle"]) {
-      map.on("mousemove", id, reMove("point"));
-      map.on("mouseleave", id, reLeave);
-    }
+    // 點 hover 暫時移除：point 已改 WebGL CustomLayer，不支援 queryRenderedFeatures（待補 GPU/空間索引 picking）
   };
 
   // ESC 鍵取消跟隨

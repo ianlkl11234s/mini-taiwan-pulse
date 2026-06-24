@@ -3,32 +3,31 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import type { AppMode } from "../types";
 import {
   quarterOfTs, reWindow, rePlaySeconds, snapQuarterStart, nextQuarterStart,
-  RANGE_START, RANGE_END, type ReGran,
+  RANGE_START, RANGE_END, DAY, type ReGran,
 } from "../lib/realEstateTime";
+import { rePointsStore } from "../state/realEstatePointsStore";
 
 /**
- * 房地產時間軸 + 播放引擎（純 setFilter / setPaintProperty，零 RPC、零 React 逐格 re-render）
+ * 房地產時間軸 + 播放引擎（grid 走 PMTiles setFilter；point 走 WebGL CustomLayer）。
  *
- * - realtime：grid=period"ALL"、point 全部、全不透明。
- * - historical：grid 永遠按游標所在「季」snapshot；point：
- *   - 季：filter 當季 + 全不透明（snap）。
- *   - 月/週：依 trade_ts 與游標距離做梯形窗 circle-opacity → 漸入漸出。
- * - 播放：月/週 用 requestAnimationFrame **連續**推進游標（cursorRef，不進 React），
- *   每 ~40ms 更新一次 paint → 平滑演變；季用 interval 逐季 snap。
- * - 暫停/拖曳：依 React cursorTs 套用。
+ * 本 hook 負責：
+ *   - grid（PMTiles fill/line）的 period filter：realtime → "ALL"、historical → 當季 snapshot。
+ *   - 寫 rePointsStore 的「時間欄位」（mode / cursorTs / 季窗 / fade 窗）給 CustomLayer 讀。
+ *   - 播放：月/週用 requestAnimationFrame 連續推進游標（只更新 store.cursorTs + triggerRepaint，
+ *     fade 在 GPU 算 → 每幀零逐 feature 成本）；季用 interval 逐季 snap。
+ *
+ * point 的 opacity/fade 不再由這裡 setPaintProperty —— 改由 RealEstatePointsScene 的 uCursorTs uniform。
+ * 控制欄位（show / excludeTaipei / baseOpacity）由 useRealEstatePointsLayer 寫入 store。
  */
 
-type Kind = "grid" | "point";
-const RE_LAYERS: { id: string; type: string; kind: Kind }[] = [
-  { id: "re-grid-rental-fill", type: "rental", kind: "grid" },
-  { id: "re-grid-rental-line", type: "rental", kind: "grid" },
-  { id: "re-grid-sale-fill", type: "sale", kind: "grid" },
-  { id: "re-grid-sale-line", type: "sale", kind: "grid" },
-  { id: "re-grid-presale-fill", type: "presale", kind: "grid" },
-  { id: "re-grid-presale-line", type: "presale", kind: "grid" },
-  { id: "re-points-rental-circle", type: "rental", kind: "point" },
-  { id: "re-points-sale-circle", type: "sale", kind: "point" },
-  { id: "re-points-presale-circle", type: "presale", kind: "point" },
+// grid PMTiles 圖層（fill + line × 3 類）；point 已移除
+const RE_GRID_LAYERS: { id: string; type: string }[] = [
+  { id: "re-grid-rental-fill", type: "rental" },
+  { id: "re-grid-rental-line", type: "rental" },
+  { id: "re-grid-sale-fill", type: "sale" },
+  { id: "re-grid-sale-line", type: "sale" },
+  { id: "re-grid-presale-fill", type: "presale" },
+  { id: "re-grid-presale-line", type: "presale" },
 ];
 
 const TAIPEI_CITIES = ["taipei", "newtaipei"];
@@ -40,11 +39,11 @@ function withClauses(base: unknown[], excludeTaipei: boolean): unknown[] {
   return ["all", ...c];
 }
 
-function fadeFactor(cursorTs: number, full: number, fade: number): unknown[] {
-  return [
-    "interpolate", ["linear"], ["-", cursorTs, ["coalesce", ["get", "trade_ts"], 0]],
-    -1, 0, 0, 1, full, 1, full + fade, 0,
-  ];
+/** 當季 [start, end)（絕對 unix 秒）；最後一季 end 用 RANGE_END+1天 */
+function quarterBounds(ts: number): { start: number; end: number } {
+  const start = snapQuarterStart(ts);
+  const next = nextQuarterStart(start);
+  return { start, end: next > start ? next : RANGE_END + DAY };
 }
 
 export interface ReTimelineOpts {
@@ -65,53 +64,40 @@ export function useRealEstateTimeline(
 ) {
   const { appMode, gran, cursorTs, excludeTaipei, baseOpacity, playing, speed, onCursorChange, onStop } = opts;
   const cursorRef = useRef(cursorTs);
-  // 非播放時：React 游標 → ref（拖曳/初始）
   if (!playing) cursorRef.current = cursorTs;
 
-  // 全套用：grid+point 的 filter + 初始 opacity（scrub / 播放起點 / 換季時呼叫）
+  // grid filter 套用 + 寫 store 時間欄位（scrub / 播放起點 / 換季時呼叫）
   const applyRef = useRef<(ts: number) => void>(() => {});
-  // 僅更新點 opacity（RAF 每幀呼叫，避免每幀重設 grid filter）
-  const paintPointsRef = useRef<(ts: number) => void>(() => {});
-
   applyRef.current = (ts: number) => {
     const map = mapRef.current;
     if (!map) return;
     const historical = appMode === "historical";
     const quarter = historical ? quarterOfTs(ts) : "ALL";
-    const fadeMode = historical && gran !== "quarter";
-    const win = reWindow(gran);
-    for (const l of RE_LAYERS) {
+
+    // grid PMTiles filter
+    for (const l of RE_GRID_LAYERS) {
       if (!map.getLayer(l.id)) continue;
       const typeF = ["==", ["get", "type"], l.type];
-      if (l.kind === "grid") {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        map.setFilter(l.id, withClauses([typeF, ["==", ["get", "period"], quarter]], excludeTaipei) as any);
-      } else if (fadeMode) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        map.setFilter(l.id, withClauses([typeF], excludeTaipei) as any);
-        // 短 transition：讓 ~20fps 的 opacity 更新平滑銜接（不用預設 300ms，否則會 chase 變鈍）
-        map.setPaintProperty(l.id, "circle-opacity-transition", { duration: 150, delay: 0 });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        map.setPaintProperty(l.id, "circle-opacity", ["*", baseOpacity, fadeFactor(ts, win.full, win.fade)] as any);
-      } else {
-        const base: unknown[] = historical ? [typeF, ["==", ["get", "period"], quarter]] : [typeF];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        map.setFilter(l.id, withClauses(base, excludeTaipei) as any);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        map.setPaintProperty(l.id, "circle-opacity", baseOpacity as any);
-      }
-    }
-  };
-
-  paintPointsRef.current = (ts: number) => {
-    const map = mapRef.current;
-    if (!map) return;
-    const win = reWindow(gran);
-    for (const l of RE_LAYERS) {
-      if (l.kind !== "point" || !map.getLayer(l.id)) continue;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      map.setPaintProperty(l.id, "circle-opacity", ["*", baseOpacity, fadeFactor(ts, win.full, win.fade)] as any);
+      map.setFilter(l.id, withClauses([typeF, ["==", ["get", "period"], quarter]], excludeTaipei) as any);
     }
+
+    // store 時間欄位 → CustomLayer
+    if (!historical) {
+      rePointsStore.mode = "realtime";
+    } else if (gran === "quarter") {
+      rePointsStore.mode = "quarter";
+      const b = quarterBounds(ts);
+      rePointsStore.qStart = b.start;
+      rePointsStore.qEnd = b.end;
+    } else {
+      rePointsStore.mode = "fadewindow";
+      const win = reWindow(gran);
+      rePointsStore.full = win.full;
+      rePointsStore.fade = win.fade;
+    }
+    rePointsStore.cursorTs = ts;
+    map.triggerRepaint();
   };
 
   // 暫停 / realtime / 拖曳：靜態套用 + style.load 重套
@@ -147,16 +133,16 @@ export function useRealEstateTimeline(
       return () => window.clearInterval(id);
     }
 
-    // 月/週：RAF 連續推進
+    // 月/週：RAF 連續推進（只更新 store.cursorTs + triggerRepaint，fade 在 GPU）
     const span = RANGE_END - RANGE_START;
     const ratePerMs = span / ((rePlaySeconds(gran) * 1000) / speed); // 資料秒 / 真實毫秒
     let cur = cursorRef.current;
-    if (cur >= RANGE_END) cur = RANGE_START; // 已到底 → 從頭播
+    if (cur >= RANGE_END) cur = RANGE_START;
     let raf = 0;
     let last = performance.now();
-    let lastPaint = 0;
     let lastSync = 0;
     let lastQuarter = quarterOfTs(cur);
+    applyRef.current(cur); // 起點：grid + store 全套用
     const tick = (now: number) => {
       cur += ratePerMs * (now - last);
       last = now;
@@ -170,12 +156,16 @@ export function useRealEstateTimeline(
       }
       cursorRef.current = cur;
       const q = quarterOfTs(cur);
-      if (q !== lastQuarter) { applyRef.current(cur); lastQuarter = q; lastPaint = now; } // 換季 → 連 grid 一起刷
-      else if (now - lastPaint > 50) { paintPointsRef.current(cur); lastPaint = now; } // 平常只更新點 opacity
+      if (q !== lastQuarter) {
+        applyRef.current(cur); // 換季 → 連 grid filter 一起刷（內含 triggerRepaint）
+        lastQuarter = q;
+      } else {
+        rePointsStore.cursorTs = cur; // 平常只推游標
+        map.triggerRepaint();
+      }
       if (now - lastSync > 200) { onCursorChange(cur); lastSync = now; }
       raf = requestAnimationFrame(tick);
     };
-    applyRef.current(cur); // 起點全套用一次
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -122,30 +122,6 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
     ],
   };
 }
-function realEstatePointOverlay(id: OverlayConfig["id"], palette: RePalette, type: string): OverlayConfig {
-  return {
-    id,
-    sourceUrl: "./coverage/real_estate_points.pmtiles",
-    sourceId: "re-points",
-    pmtiles: { sourceLayer: "real_estate_points", minzoom: 6, maxzoom: 14 },
-    // 點無 period=ALL：realtime 顯示全部交易（僅 type filter）；historical 由 hook 加當季
-    filter: ["==", ["get", "type"], type],
-    layers: [
-      {
-        suffix: `${type}-circle`,
-        type: "circle",
-        paint: (_isDark, params) => ({
-          "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 1.5, 9, 2.5, 14, 5],
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          "circle-color": reColorExpr(palette, "price_per_sqm", !!(params?.realEstateExcludeTaipei)) as any,
-          "circle-opacity": params?.realEstateOpacity ?? 0.85,
-          "circle-stroke-width": 0.3,
-          "circle-stroke-color": "rgba(0,0,0,0.25)",
-        }),
-      },
-    ],
-  };
-}
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── THSR Station Polygon (高鐵站) ──
@@ -4726,12 +4702,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     palette: "gas",
   }),
 
-  // ── 房地產 REAL ESTATE（6 layer：3 類 × {grid, point}） ──
+  // ── 房地產 REAL ESTATE（grid 走 PMTiles；point 改走 WebGL CustomLayer，見 useRealEstatePointsLayer） ──
   realEstateGridOverlay("realEstateRentalGrid", "rental", "rental"),
-  realEstatePointOverlay("realEstateRentalPoint", "rental", "rental"),
   realEstateGridOverlay("realEstateSaleGrid", "sale", "sale"),
-  realEstatePointOverlay("realEstateSalePoint", "sale", "sale"),
   realEstateGridOverlay("realEstatePresaleGrid", "presale", "presale"),
-  realEstatePointOverlay("realEstatePresalePoint", "presale", "presale"),
 
 ];
