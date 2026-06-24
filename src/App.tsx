@@ -98,6 +98,7 @@ import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
 import { useRealEstateTimeline } from "./hooks/useRealEstateTimeline";
+import { useRealEstatePointsLayer } from "./hooks/useRealEstatePointsLayer";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
@@ -576,6 +577,14 @@ export default function App() {
     speed: historicalSpeed,
     onCursorChange: setReCursorTs,
     onStop: stopHistorical,
+  });
+  // 房地產「點」WebGL CustomLayer（GPU fade，取代 3 個 PMTiles circle）
+  useRealEstatePointsLayer(mapRef, {
+    showRental: layerVisibility.realEstateRentalPoint,
+    showSale: layerVisibility.realEstateSalePoint,
+    showPresale: layerVisibility.realEstatePresalePoint,
+    excludeTaipei: !!transportParams.overlayParams.realEstateExcludeTaipei,
+    baseOpacity: transportParams.overlayParams.realEstateOpacity ?? 0.85,
   });
 
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();

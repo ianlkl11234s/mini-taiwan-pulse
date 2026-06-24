@@ -65,6 +65,7 @@ public/fire/*.pmtiles
 # 房地產 PMTiles（grid 26MB + point 43MB，走 S3 deploy-assets/coverage/，勿入 git；
 # gas coverage 小檔 taiwan_*_nearest.pmtiles 仍進 git/dist）
 public/coverage/real_estate_*.pmtiles
+public/coverage/real_estate_points_buffer.bin
 # 醫療 GeoJSON（走 S3 deploy-assets，5 檔合計 ~65MB）
 public/geo/medical_*.geojson
 # 醫療 PMTiles（走 S3 deploy-assets/medical/）
