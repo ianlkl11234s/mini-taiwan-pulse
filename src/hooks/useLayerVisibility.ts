@@ -7,21 +7,9 @@ import { LAYER_COLORS } from "../components/sidebar/layerCatalog";
  * key 全集從 layerCatalog 的 LAYER_COLORS 派生（型別強制完整）—
  * 新增 layer 不用再改本檔，除非要預設開啟。
  */
-const DEFAULT_ON: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
-  "flights",
-  "ships",
-  "rail",
-  "stationsTHSR",
-  "stationsTRA",
-  "stationsMetro",
-  "ports",
-  "lighthouses",
-  "airports",
-  // Phase 8 SSOT facilities — L1 主要電廠 預設 ON
-  "facPrimary",
-  // 離岸風場走 OSM 36 polygon（資料較全），SSOT facOffshore 8 個保留 internal
-  "offshoreWindZones",
-]);
+// 全部預設關閉：訪客一進站不打任何 RPC，手動開啟圖層才開始抓取/輪詢
+// （降低 Supabase 連線池壓力；poller 已依 enabled gating，關閉自動停止）
+const DEFAULT_ON: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([]);
 
 function buildDefaults(): LayerVisibility {
   const keys = Object.keys(LAYER_COLORS) as (keyof LayerVisibility)[];
