@@ -278,3 +278,23 @@
 - ❌ 缺 residential（市區巷弄）
 - ❌ 缺 service / track（產業道路、林道、登山口前山徑）
 - 實務影響：加油站本身就分布在主要道路上，「最近加油站」分析誤差小；但「視覺覆蓋密度」會比 fire/medical isochrone（路網全染）稀疏
+
+### 房地產 REAL ESTATE（RE 系列，2026-06-25 加 — 點圖層 CustomLayer + 資料補抓 + city 修正）
+
+> 點圖層改 WebGL CustomLayer + GPU fade（PR #32 已 merge master）；同步補抓缺口資料 + 修 city 分類。
+> 前端時間軸 = **交易/訂約日期**（trade_ts），範圍寫死 RANGE_START 2024-07-01 ~ RANGE_END 2026-03-31（2024Q3~2026Q1）。
+> 資料管線 runbook：`taipei-gis-analytics/docs/systems/real_estate_sync_runbook.md`；打包 buffer：`scripts/pack_real_estate_points_buffer.py`。
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| RE-1 | — | 點圖層改 WebGL CustomLayer + GPU fade | **done** | 2026-06-24 PR #32（master `b4bb90c`）。每幀對 365k 點重設 circle-opacity → GPU uCursorTs uniform。fade 窗調俐落（週 2+3 / 月 6+10 天）。點 hover/click 暫放棄 → RE-3 |
+| RE-2 | — | 補抓租賃+預售 2025-09/10 缺口 | **done** | 2026-06-25。下載官方 114S3/S4 季 zip（`DownloadSeason?season=114S3`）→ convert mirror → 離線 geocode（L1 cache 97%）→ 02b → 06 → build → S3。租賃 0→13,290/12,431、預售 0→2,164/2,993。ALL_points 365k→423,404 |
+| RE-3 | P2 | 點 hover/click picking 待補 | open | CustomLayer 無 `queryRenderedFeatures`。需自建 GPU/空間索引 picking（或保留隱形 PMTiles 點層供 query）。grid hover 不受影響仍正常 |
+| RE-4 | P2 | TGOS 934 筆批次離線補座標 | open | 離線 geocode 解不到的 1.6%（262 地號 + 672 地址）。批次檔已備 `taipei-gis-analytics/data/intermediate/tgos/real_estate/tgos_batch_rental_gap_2025Q3Q4.csv`（cp950, 5 欄）。用戶離線跑 TGOS → 拿 `Address_Finish*.csv` 放 `results/` → `_build_geocode_cache.py` → 重跑 02b/06/07/09/build。262 地號 TGOS 地址定位可能解不到，走 NLSC 地段地號 |
+| RE-5 | P2 | 補 115S1 季回填 2026 年初 + 收登記延遲尾巴 | open | 2026-02（458）/2026-03（5）幾乎空 = 近月登記延遲，下載 115S1 季可回填。⚠️ 若要顯示 2026Q2 以後，需同步延伸前端 `realEstateTime.ts` 的 `RANGE_END`/`RE_PERIODS`/`Q_START_TS` 三處（buffer epoch 仍是 RANGE_START 不動） |
+| RE-6 | P3 | 2024 上半邊界偏少補齊 | open | 2024-07~10 偏少是**資料邊界**（缺 113 年更早季檔，那些交易早就登記在我們沒下載的季）。非市況。需更早季檔才補得齊，ROI 低 |
+
+**資料品質結論（2026-06-25 盤查，已查證）**：
+- ✅ 2025-04~09 **買賣**量縮（2025-06 谷底 2,296）是**真實市況**：央行 2024-09 第七波信用管制，2025 全年買賣移轉年減 23~25%、創 1991 來最大跌幅（六都八年新低）。只買賣崩、租賃高檔 = 打房貸特徵。**非資料問題，不需處理**。
+- ⚠️ city="?" 36,354(8.8%)→77(0.02%)：根因地號地址無縣市前綴，06_merge 只解地址 → 改**優先用 MOI 來源權威 `city` 欄位**（避 district 名稱歧義如信義/東/中正區）。96% 來自單一檔 sale_moi_B5_B6_extended。analytics commit `a5f98c7`（本地 master 未 push，依慣例）。
+- ⚠️ "?" 點有少量段-中心疊點（地號無門牌 geocode 落地段中心，最多 196 點疊一處，但 83% 唯一座標），屬地號精度正常現象。
