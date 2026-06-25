@@ -37,10 +37,10 @@ function formatDate(d: Date): string {
   return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
-export function useAirspaceData(): UseAirspaceDataReturn {
+export function useAirspaceData(enabled: boolean): UseAirspaceDataReturn {
   const [flights, setFlights] = useState<Flight[]>([]);
   const [timeRange, setTimeRange] = useState({ start: 0, end: 0 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);  // boot lazy：關閉時初始即非 loading
   const [dayLoading, setDayLoading] = useState(false);
   const [availableDates, setAvailableDates] = useState<AirspaceDateInfo[]>([]);
   const [activeDate, setActiveDate] = useState("");
@@ -154,7 +154,9 @@ export function useAirspaceData(): UseAirspaceDataReturn {
 
   // ── 初始載入 ──
   useEffect(() => {
+    if (!enabled) return;  // boot lazy：圖層關閉不抓
     let cancelled = false;
+    setLoading(true);
 
     (async () => {
       try {
@@ -186,7 +188,7 @@ export function useAirspaceData(): UseAirspaceDataReturn {
     })();
 
     return () => { cancelled = true; };
-  }, []);
+  }, [enabled]);
 
   const loadDay = useCallback((date: Date) => {
     if (!apiAvailable.current) return;
