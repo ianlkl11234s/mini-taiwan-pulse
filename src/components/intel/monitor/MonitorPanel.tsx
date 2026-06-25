@@ -117,7 +117,7 @@ export function MonitorPanel({
   const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
   const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
 
-  // 30s pressure + market + source health + trending
+  // 60s pressure + market + source health + trending（降載：TTL 已蓋住輪詢間隔）
   useEffect(() => {
     if (!open) return;
     let alive = true;
@@ -134,7 +134,7 @@ export function MonitorPanel({
       fetchAlertSeries24h().then((s) => alive && setAlertSeriesRows(s));
     };
     tick();
-    const id = window.setInterval(tick, 30_000);
+    const id = window.setInterval(tick, 60_000);
     return () => {
       alive = false;
       window.clearInterval(id);
