@@ -1565,8 +1565,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Medical: Pharmacies (藥局，7,680 點) ──
   {
     id: "medPharmacy",
-    sourceUrl: "./geo/medical_pharmacies.geojson",
+    sourceUrl: "./geo/medical_pharmacies.pmtiles",
     sourceId: "medical-pharmacies",
+    pmtiles: { sourceLayer: "medical_pharmacies", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
