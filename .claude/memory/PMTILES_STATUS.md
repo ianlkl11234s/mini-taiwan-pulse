@@ -1,8 +1,9 @@
 # PMTiles 過夜批次轉換 — STATUS
 
 **Plan**：`/Users/migu/.claude/plans/pmtiles-overnight.md`
-**啟動時間**：（執行時自動填入）
-**結束時間**：（執行時自動填入）
+**啟動時間**：2026-06-25 23:59
+**結束時間**：（campaign 完成時填入）
+**Branch**：`perf/pmtiles-batch`
 
 ## 進度總覽
 
@@ -15,8 +16,8 @@
 
 | # | 檔 | 大小 | 類型 | 路徑 | sourceLayer | 狀態 | 結果 | Commit |
 |---|---|---:|---|---|---|---|---|---|
-| T1  | provincial_road             | 44 MB  | line    | public/geo/         | provincial_road      | ⏳ pending | — | — |
-| T2  | farm_roads                  | 33 MB  | line    | public/agriculture/ | farm_roads           | ⏳ pending | — | — |
+| T1  | provincial_road             | 44 MB  | line    | public/geo/         | provincial_road      | ✅ done | 9.3MB / 21% | 2e12f66 |
+| T2  | farm_roads                  | 33 MB  | line    | public/agriculture/ | farm_roads           | ✅ done | 2.7MB / 8% | 41b237b |
 | T3  | hiking_trails               | 20 MB  | line    | public/forestry/    | hiking_trails        | ⏳ pending | — | — |
 | T4  | national_highway            | 7.9 MB | line    | public/geo/         | national_highway     | ⏳ pending | — | — |
 | T5  | medical_clinics             | 26 MB  | point   | public/geo/         | medical_clinics      | ⏳ pending | — | — |
