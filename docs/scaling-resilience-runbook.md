@@ -174,11 +174,10 @@ DB hang / 網路黑洞時寫入無限阻塞 → 因為全 collector 共用同一
 4. ✅ 通過 = watchdog 全鏈成立；測完**移除 `WATCHDOG_SELFTEST` env**。
 5. ❌ 沒重啟 = Zeabur 不重啟崩潰進程 → 改用外部 cron ping + API 重啟。
 
-### 第 4 項 — Cloudflare 邊緣快取（網站解 suspend 後）
-1. Cloudflare Cache Rules 應只剩**一條** `cache-static-assets`（Active）。
-2. 無痕開站 → DevTools → Network → 點任一 `.pmtiles` / `.geojson`。
-3. 看 Response Header `cf-cache-status`：第一次 `MISS`，**重整後 `HIT`** = 成功。
-4. 一直 `DYNAMIC` = 規則沒對到（檢查 expression 路徑前綴）。
+### 第 4 項 — Cloudflare 邊緣快取 ✅ 已驗證（2026-06-25）
+- `ftw_fields_2025.pmtiles` 回 `Cf-Cache-Status: HIT` + `Server: cloudflare` + `Cache-Control: public, max-age=86400`，Age 55800。
+- 確認：站走 itsmigu.com 經 Cloudflare，`.pmtiles` 已由邊緣供應、不回 origin。
+- ⏳ 剩：刪掉那條無效的「Cache GIS static assets」規則（保留 `cache-static-assets`）。
 
 ## 進度追蹤
 

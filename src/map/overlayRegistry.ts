@@ -3068,11 +3068,12 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.osmSubstationsEhvOpacity ?? 0.85;
           return {
+            // zoom 必須在 interpolate 最上層；per-class 倍率放進每個 stop 的 match 輸出
             "circle-radius": [
-              "match", ["get", "class"],
-              "EHV_SWITCH", ["interpolate", ["linear"], ["zoom"], 6, 8, 11, 14, 14, 20],
-              "EHV",        ["interpolate", ["linear"], ["zoom"], 6, 6, 11, 11, 14, 16],
-              0,
+              "interpolate", ["linear"], ["zoom"],
+              6,  ["match", ["get", "class"], "EHV_SWITCH", 8,  "EHV", 6,  0],
+              11, ["match", ["get", "class"], "EHV_SWITCH", 14, "EHV", 11, 0],
+              14, ["match", ["get", "class"], "EHV_SWITCH", 20, "EHV", 16, 0],
             ],
             "circle-blur": 0.9,
             "circle-color": [
