@@ -1659,8 +1659,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Medical: LTC (長照機構，30,764 點) ──
   {
     id: "medLTC",
-    sourceUrl: "./geo/medical_ltc.geojson",
+    sourceUrl: "./geo/medical_ltc.pmtiles",
     sourceId: "medical-ltc",
+    pmtiles: { sourceLayer: "medical_ltc", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
