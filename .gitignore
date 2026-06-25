@@ -70,6 +70,14 @@ public/coverage/real_estate_points_buffer.bin
 public/geo/medical_*.geojson
 # 醫療 PMTiles（走 S3 deploy-assets/medical/）
 public/medical/*.pmtiles
+# PT-1 批次新增 PMTiles（走 S3 deploy-assets，與原 *.geojson 同位置）
+public/geo/medical_*.pmtiles
+public/geo/provincial_road.pmtiles
+public/geo/national_highway.pmtiles
+public/geo/bus_stations_city.pmtiles
+public/geo/bus_stations_intercity.pmtiles
+public/geo/fire_hydrants.pmtiles
+public/forestry/hiking_trails.pmtiles
 # 醫療點位 merge 中繼 geojson（27.7MB，merge_medical_poi.py 可重產，勿入 git）
 scripts/preprocess/medical_poi.geojson
 # root 層截圖 / geocode 快取（不該進版控）
