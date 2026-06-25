@@ -1517,8 +1517,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Medical: Clinics (診所，23,472 點) ──
   {
     id: "medClinic",
-    sourceUrl: "./geo/medical_clinics.geojson",
+    sourceUrl: "./geo/medical_clinics.pmtiles",
     sourceId: "medical-clinics",
+    pmtiles: { sourceLayer: "medical_clinics", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
