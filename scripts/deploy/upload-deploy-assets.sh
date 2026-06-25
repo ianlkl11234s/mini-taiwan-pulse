@@ -60,6 +60,18 @@ for f in public/geo/water_*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
+# PT-1 批次 PMTiles：geo / agriculture / forestry 三目錄通吃 *.pmtiles
+# 新增 PMTiles 不用改本腳本，跑 tippecanoe 後直接 upload 即可
+for d in public/geo public/agriculture public/forestry; do
+  for f in "$d"/*.pmtiles; do
+    [ -f "$f" ] || continue
+    name=$(basename "$f")
+    # 避開已被上方明確 glob 上傳的 water_*.pmtiles（aws s3 cp idempotent，重複也 OK）
+    echo "Uploading $name (pmtiles glob from $d)..."
+    aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
+  done
+done
+
 # 消防圖層：glob 動態上傳 public/geo/fire_*.geojson（同 water 慣例）
 # 新增 fire_xxx.geojson 不用改本腳本，export 完直接跑 upload 即可
 for f in public/geo/fire_*.geojson; do
