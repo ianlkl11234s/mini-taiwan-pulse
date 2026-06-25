@@ -2644,8 +2644,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 國土綠網分區圖（MultiPolygon，依 Zone 12 色分類，可 popup）──
   {
     id: "ecoNetworkZones",
-    sourceUrl: "./agriculture/eco_network_zones.geojson",
+    sourceUrl: "./agriculture/eco_network_zones.pmtiles",
     sourceId: "eco-network-zones",
+    pmtiles: { sourceLayer: "eco_network_zones", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["fill"],
     layers: [
       {
