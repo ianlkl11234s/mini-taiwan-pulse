@@ -194,3 +194,48 @@ DB hang / 網路黑洞時寫入無限阻塞 → 因為全 collector 共用同一
 - [ ] 5B/5C（**延後，看數據再決定**）：B = targeted 反代無參快照走 Cloudflare 邊緣（cross-user 減量）；C = read replica（讀寫隔離治本，要花錢）。兩者互補，等網站重開觀察連線池再選。
 - [ ] 6. Read Replica（評估）
 - [ ] staging 環境建置
+
+---
+
+## 本 session 額外處理（原 6 項以外，2026-06-24~25）
+
+| 項目 | 內容 | 產出 / commit |
+|---|---|---|
+| **資料停寫死人開關** | Supabase pg_cron 每 15 分檢查 `metadata.collector_status` 的 `MAX(last_success_at)`，停寫 > 30 分用 pg_net 發 Telegram、恢復再發一封。**完全外部於 collector**，連 collector/Zeabur 整個死也會通知（補 14h 靜默缺口）。憑證存 Supabase Vault；`metadata.alert_state` 防洗版。已套線上 + 驗證 pg_net 回 200。 | gis-platform `migrations/255_collector_freshness_alert.sql`（PR #18） |
+| **EHV halo bug** | `energy-substations-ehv-halo` 的 `circle-radius` 把 `["zoom"]` 包在 `match` 裡（違反 Mapbox 規則）→ addLayer 失敗噴 console error。zoom 提到 interpolate 最外層、倍率放進每 stop。視覺不變。 | mini-taiwan-pulse `overlayRegistry.ts`（PR #34） |
+| **precipitation_raster 空列** | collector 刻意存 `image_bytes=NULL` 空 raster 佔位列（搭配 `is_empty` 欄），但表有 NOT NULL → 反覆寫入失敗。`ALTER COLUMN image_bytes DROP NOT NULL` 讓表配合程式原意。 | gis-platform `migrations/256_precipitation_raster_nullable_image.sql`（PR #19） |
+| **S3 durability 查證** | 確認 Supabase 掛了，S3 仍有：①即時 collector 原始 JSON（每日 03:00 tar.gz，獨立於 Supabase）②靜態/衍生表快照（prod `BACKUP_ENABLED=true`，Robot A 03:30）。唯一缺口=「今天未歸檔」窗口最多 1 天只在本地 volume+Supabase。 | （無 code，結論記此） |
+| **config drift 釐清** | 本地 `.env` 無 `BACKUP_ENABLED`（dev），但 prod gomn service 早已 `=true`。無害漂移。 | （查證） |
+
+## 最終健康快照（2026-06-25 14:35 台北）
+
+- **整體管線健康**：47 個 enabled collectors，死人開關指標 `MAX(last_success_at)=0 分`。
+- **10 個 stale-by-success（>30min）幾乎全是低頻/事件型**（驗證死人開關用 MAX 而非逐一 collector 的設計正確）：
+  - 正常低頻：`wra_drought_alert`(乾旱事件)、`rail_timetable`/`water_reservoir_daily_ops`(每日)、`road_event_planned`(低頻)、`earthquake`(地震事件型)、`cdc_public_health_weekly`(週級, 外部 VM)。
+  - **待留意**：`precipitation_raster`(剛修 NOT NULL，待下次 run 恢復；source 自 06-24 05:37 停供)、`lightning_events`(dedup 撞鍵, 既有小毛病)、`ship_ais`/`waste_positions`(外部 VM, 停 ~19 天)。
+
+---
+
+## BACKLOG — 還可以做的（未來，非緊急）
+
+### 讀取側減量 / 隔離（看數據再決定）
+- **5B targeted 反代**：把 ~8 個無參全域快照 RPC（`get_source_health`/`get_pressure_index_now`/`get_market_index_now`/`get_pla_activity_latest`/`get_power_dashboard`/`get_alert_summary`…）改走 itsmigu.com 反代 + Cloudflare 邊緣快取（cross-user 減量）。需 nginx `/sb/` proxy + 前端 helper + Cache Rule。`VITE_SUPABASE_URL` 單點改即整 app 跟著走。
+- **5C / 6 Read Replica**：Supabase Pro 加唯讀副本，public 讀 → replica、collector 寫 → primary，讀寫物理隔離治本。要花錢（+1 台同規格 compute）。與 5B 互補（一個減量、一個隔離）。
+
+### 韌性 / 監控收尾
+- **第 3 項 staging 驗收**：`WATCHDOG_SELFTEST=true` 確認 Zeabur 會重啟崩潰進程（見上方待驗收清單）。若 Zeabur 不重啟 → 改外部 cron ping `/health` + API 重啟。
+- **staging 環境建置**：master(prod) + staging 兩分支 + Zeabur 兩 deploy；DB 用 Supabase Branching 或免費 Micro 當 staging DB。
+- **死人開關門檻調校**：目前 30 分；觀察實際後可調。也可加「單一高頻 canary collector 停寫」的更細告警（目前只看 MAX）。
+
+### 既有小毛病（pre-existing，獨立修）
+- **`lightning_events` dedup**：寫入應用 `ON CONFLICT (dedup_hash) DO NOTHING`，而非當失敗 buffer 重試（省 buffer churn + 告警噪音）。
+- **`precipitation_raster` 後續**：確認下次 run 真的恢復（存 `is_empty=true` 空列）；若 source 長期停供需查 CWA 來源。
+- **外部 VM collectors**：`ship_ais` / `waste_positions` 停 ~19 天 → 查 VM 是否該重啟或已棄用。
+- **`cdc_public_health_weekly`**：~9 天 overdue（週級，外部 VM）→ 查 VM 排程。
+
+### 資料保命強化（可選）
+- **縮短當日未歸檔窗口**：archive 每日 03:00 才跑且跳過今天 → 當日資料只在本地 volume+Supabase。可改更頻繁歸檔或加第二副本，降低「Supabase+volume 同時掛」的 ≤1 天遺失風險。
+
+### 效能 / 體驗（低優先）
+- **靜態資產 content hash**：目前靠 1d TTL + 部署後 purge；長遠可加 hash 走 `immutable` 1y（需動扁平檔名契約 + 部署腳本）。
+- **per-user GET 讀取快取**：對無參快照 RPC 加 `{ get: true }` + Cache-Control 讓瀏覽器快取（per-user 補強，非 cross-user）。
