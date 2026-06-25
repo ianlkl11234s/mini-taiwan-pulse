@@ -140,17 +140,23 @@ export default function App() {
 
   // ── Data Source Registry ──
   const dataRegistry = useDataRegistry();
-  // 燈塔座標
+  // 燈塔座標（lazy：toggle 開啟才抓）
   const [lighthousePositions, setLighthousePositions] = useState<[number, number][]>([]);
+  const lighthouseFetchedRef = useRef(false);
   useEffect(() => {
+    if (!layerVisibility.lighthouses || lighthouseFetchedRef.current) return;
+    lighthouseFetchedRef.current = true;
     fetch("./geo/lighthouse.geojson")
       .then((r) => r.json())
       .then((geojson: GeoJSON.FeatureCollection<GeoJSON.Point>) => {
         const positions = geojson.features.map((f) => f.geometry.coordinates.slice(0, 2) as [number, number]);
         setLighthousePositions(positions);
       })
-      .catch((err) => console.warn("Lighthouse data not available:", err));
-  }, []);
+      .catch((err) => {
+        lighthouseFetchedRef.current = false;
+        console.warn("Lighthouse data not available:", err);
+      });
+  }, [layerVisibility.lighthouses]);
 
   // 車站光柱資料 — 三體系各自獨立
   const [thsrPillarData, setThsrPillarData] = useState<StationPillarData[]>([]);
@@ -212,8 +218,12 @@ export default function App() {
     }
   }, [temperatureTimeRange, dataRegistry.register]);
 
-  // 預計算光柱資料（靜態 JSON，不依賴 railData）
+  // 預計算光柱資料（靜態 JSON，不依賴 railData；lazy：任一車站 toggle 開才抓）
+  const stationPillarFetchedRef = useRef(false);
+  const needStationPillars = layerVisibility.stationsTHSR || layerVisibility.stationsTRA || layerVisibility.stationsMetro;
   useEffect(() => {
+    if (!needStationPillars || stationPillarFetchedRef.current) return;
+    stationPillarFetchedRef.current = true;
     fetch("./station_pillars.json")
       .then((r) => r.json())
       .then((data: Record<string, { lng: number; lat: number; height: number }[]>) => {
@@ -223,11 +233,17 @@ export default function App() {
         setTraPillarData(toArr(data.tra ?? []));
         setMetroPillarData(toArr(data.metro ?? []));
       })
-      .catch((err) => console.warn("Station pillar data:", err));
-  }, []);
+      .catch((err) => {
+        stationPillarFetchedRef.current = false;
+        console.warn("Station pillar data:", err);
+      });
+  }, [needStationPillars]);
 
-  // 機場光柱 — 從 airports.geojson 算質心，高度依起降量排序
+  // 機場光柱 — 從 airports.geojson 算質心，高度依起降量排序（lazy：airports toggle 開才抓）
+  const airportPillarFetchedRef = useRef(false);
   useEffect(() => {
+    if (!layerVisibility.airports || airportPillarFetchedRef.current) return;
+    airportPillarFetchedRef.current = true;
     const AIRPORT_HEIGHTS: Record<string, number> = {
       RCTP: 1.0, RCSS: 0.85, RCKH: 0.7, RCMQ: 0.55,
       RCBS: 0.45, RCNN: 0.35, RCFN: 0.3, RCKU: 0.25,
@@ -248,11 +264,17 @@ export default function App() {
         });
         setAirportPillarData(data);
       })
-      .catch((err) => console.warn("Airport pillar data:", err));
-  }, []);
+      .catch((err) => {
+        airportPillarFetchedRef.current = false;
+        console.warn("Airport pillar data:", err);
+      });
+  }, [layerVisibility.airports]);
 
-  // 碼頭光柱 — 從 port_polygons.geojson 算質心
+  // 碼頭光柱 — 從 port_polygons.geojson 算質心（lazy：ports toggle 開才抓）
+  const portPillarFetchedRef = useRef(false);
   useEffect(() => {
+    if (!layerVisibility.ports || portPillarFetchedRef.current) return;
+    portPillarFetchedRef.current = true;
     fetch("./geo/port_polygons.geojson")
       .then((r) => r.json())
       .then((geojson: GeoJSON.FeatureCollection) => {
@@ -267,8 +289,11 @@ export default function App() {
         });
         setPortPillarData(data);
       })
-      .catch((err) => console.warn("Port pillar data:", err));
-  }, []);
+      .catch((err) => {
+        portPillarFetchedRef.current = false;
+        console.warn("Port pillar data:", err);
+      });
+  }, [layerVisibility.ports]);
 
   const { isMobile, isLandscape } = useIsMobile();
 
@@ -307,6 +332,9 @@ export default function App() {
   });
 
   // ── 活躍日追蹤：訂閱 timeStore 日期粒度（不走 React re-render） ──
+  // 注意：handler 內 loadShipDay / loadFlightDay 看似 mount 就 fire，
+  // 但下游 useShipData / useAirspaceData 用 apiAvailable.current 守門，
+  // layer 關著時 silent no-op；保留訂閱是為了切日時已開啟的 layer 能立即跟上。
   useEffect(() => {
     const handler = (dayStr: string) => {
       if (!dayStr) return;
@@ -932,9 +960,29 @@ export default function App() {
     isDarkTheme,
   );
 
+  // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
+  const [mapPrepared, setMapPrepared] = useState(false);
+
   // ── 垃圾設施 / 投放點 Mapbox circle（8 個量級大子類型） ──
-  // setup 在 handleMapReady 直接呼叫（避開 useEffect mount 時 mapRef 仍 null 的 race）
+  // Lazy setup：任一 wf* toggle 開 + map 已 ready 才建 8 sources + 16 layers
   const wasteMapboxSetupRef = useRef(false);
+  const anyWasteFacilityOn = layerVisibility.wfIncinerator || layerVisibility.wfLandfill
+    || layerVisibility.wfLandfillCoastal || layerVisibility.wfTransfer
+    || layerVisibility.wfMedical || layerVisibility.wfMonitoring;
+  useEffect(() => {
+    if (!anyWasteFacilityOn || wasteMapboxSetupRef.current) return;
+    const map = mapRef.current;
+    if (!styleReady(map)) return;
+    setupWasteMapboxLayers(map, {
+      isDark: isDarkTheme,
+      onFeatureClick: setFeatureInfo,
+    });
+    wasteMapboxSetupRef.current = true;
+    // setup 完立刻把目前 byType / visibility / params 同步進去
+    syncWasteMapboxData(map, wasteFacilityByTypeRef.current ?? new Map(), wasteDisposalByType);
+    syncWasteMapboxVisibility(map, layerVisibilityRef.current);
+    syncWasteMapboxParams(map, transportParams.wasteSubParams);
+  }, [anyWasteFacilityOn, mapPrepared, isDarkTheme, wasteDisposalByType, transportParams.wasteSubParams]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
@@ -968,8 +1016,7 @@ export default function App() {
   // ── Map ready handler ──
 
   // 地圖首次渲染完成（idle 或 4s 保底）才允許 LoadingScreen 收掉，
-  // 避免「資料 RPC 完成但場景還沒畫出來」的空窗
-  const [mapPrepared, setMapPrepared] = useState(false);
+  // 避免「資料 RPC 完成但場景還沒畫出來」的空窗 — state 宣告已上移至 waste lazy setup 前
 
   const handleMapReady = (map: MapboxMap) => {
     mapRef.current = map;
@@ -999,25 +1046,11 @@ export default function App() {
     };
     map.on("zoomend", onZoomH3);
     onZoomH3(); // initial
-    loadResolution(7); // preload default resolution
-    loadDemographicsResolution(7); // preload demographics
-    loadSocioResolution(7); // preload socioeconomic
-    loadSpatialResolution(7); // preload spatial economy
+    // H3 res 預載已移除 — 各 h3* subscriber（L1086 / L1105 / L1119 / L1126）會在 visibility 開啟時自行 loadResolution
 
     bindEvents(map);
 
-    // 垃圾設施 / 投放點 Mapbox circle setup — map ready 後立刻建 8 個 source + 16 個 layer
-    if (!wasteMapboxSetupRef.current) {
-      setupWasteMapboxLayers(map, {
-        isDark: isDarkTheme,
-        onFeatureClick: setFeatureInfo,
-      });
-      wasteMapboxSetupRef.current = true;
-      // map 還沒拿到目前的 byType / visibility / params → 立刻同步一次
-      syncWasteMapboxData(map, wasteFacilityByTypeRef.current ?? new Map(), wasteDisposalByType);
-      syncWasteMapboxVisibility(map, layerVisibilityRef.current);
-      syncWasteMapboxParams(map, transportParams.wasteSubParams);
-    }
+    // 垃圾設施 / 投放點 Mapbox circle setup 已移至獨立 effect（lazy：任一 wf* toggle 開才 setup）
 
     // 3D 垃圾處理設施 click pick（5 sub-scene 任一命中 → popup）
     map.on("click", (e) => {
