@@ -106,7 +106,7 @@ export function IntelPanel({
     return () => window.clearInterval(id);
   }, [open]);
 
-  // 30s polling source health + trending
+  // 60s polling source health + trending（降載：cross-tab TTL 已蓋住中間的 re-render）
   useEffect(() => {
     if (!open) return;
     let alive = true;
@@ -115,14 +115,14 @@ export function IntelPanel({
       fetchNewsTrending(1, 50).then((t) => alive && setTrending(t));
     };
     tick();
-    const id = window.setInterval(tick, 30_000);
+    const id = window.setInterval(tick, 60_000);
     return () => {
       alive = false;
       window.clearInterval(id);
     };
   }, [open]);
 
-  // 30s polling alert summary
+  // 60s polling alert summary（降載）
   useEffect(() => {
     if (!open) return;
     let alive = true;
@@ -130,7 +130,7 @@ export function IntelPanel({
       fetchAlertSummary().then((s) => alive && setAlertSummaryRows(s));
     };
     tick();
-    const id = window.setInterval(tick, 30_000);
+    const id = window.setInterval(tick, 60_000);
     return () => {
       alive = false;
       window.clearInterval(id);

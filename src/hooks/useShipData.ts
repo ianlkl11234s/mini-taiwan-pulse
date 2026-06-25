@@ -29,10 +29,10 @@ function formatDate(d: Date): string {
   return d.toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
-export function useShipData(): UseShipDataReturn {
+export function useShipData(enabled: boolean): UseShipDataReturn {
   const [ships, setShips] = useState<Ship[]>([]);
   const [timeRange, setTimeRange] = useState({ start: 0, end: 0 });
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);  // boot lazy：關閉時初始即非 loading
   const [dayLoading, setDayLoading] = useState(false);
   const [availableDates, setAvailableDates] = useState<ShipDateInfo[]>([]);
   const [activeDate, setActiveDate] = useState("");
@@ -147,7 +147,9 @@ export function useShipData(): UseShipDataReturn {
 
   // ── 初始載入 ──
   useEffect(() => {
+    if (!enabled) return;  // boot lazy：圖層關閉不抓
     let cancelled = false;
+    setLoading(true);
 
     (async () => {
       try {
@@ -177,7 +179,7 @@ export function useShipData(): UseShipDataReturn {
     })();
 
     return () => { cancelled = true; };
-  }, []);
+  }, [enabled]);
 
   const loadDay = useCallback((date: Date) => {
     if (!apiAvailable.current) return;

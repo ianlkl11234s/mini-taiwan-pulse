@@ -121,6 +121,9 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
 }
 
 export default function App() {
+  // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
+  const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
+
   const {
     flights: allFlights,
     timeRange,
@@ -128,9 +131,9 @@ export default function App() {
     dayLoading: flightsDayLoading,
     loadDay: loadFlightDay,
     prefetch: prefetchFlight,
-  } = useAirspaceData();
+  } = useAirspaceData(layerVisibility.flights);
 
-  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData();
+  const { ships, timeRange: shipTimeRange, loading: shipsLoading, dayLoading: shipsDayLoading, loadDay: loadShipDay, prefetch: prefetchShip } = useShipData(layerVisibility.ships);
 
   // 地點選擇（用於攝影機定位，不影響資料過濾）
   const [selectedAirport, setSelectedAirport] = useState("");
@@ -182,7 +185,7 @@ export default function App() {
 
   // ── 鐵道：活躍日期驅動時刻表切換（Supabase daily_schedules） ──
   const [railActiveDate, setRailActiveDate] = useState<string | undefined>();
-  const { railData, loading: railLoading, scheduleLoading: railScheduleLoading, } = useRailData(railActiveDate);
+  const { railData, loading: railLoading, scheduleLoading: railScheduleLoading, } = useRailData(railActiveDate, layerVisibility.rail);
 
   useEffect(() => {
     if (railData) {
@@ -195,7 +198,7 @@ export default function App() {
     }
   }, [railData, dataRegistry.register]);
 
-  const { temperatureData, temperatureLoading, temperatureTimeRange } = useTemperatureData();
+  const { temperatureData, temperatureLoading, temperatureTimeRange } = useTemperatureData(layerVisibility.temperatureWave);
 
   useEffect(() => {
     if (temperatureTimeRange.start > 0) {
@@ -268,7 +271,6 @@ export default function App() {
   }, []);
 
   const { isMobile, isLandscape } = useIsMobile();
-  const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
   // 圖層可見性變化時踢 Mapbox 一次，確保從 idle 喚醒渲染循環
   useEffect(() => {
@@ -1202,12 +1204,12 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, [captureMode]);
 
-  // 全資料預載進度
+  // 預載進度：只顯示「預設開啟」的動態源（boot lazy 後通常只剩地圖場景）
   const loadingSteps = [
-    { label: "空域 Airspace", done: !loading, count: allFlights.length },
-    { label: "船舶 Ships", done: !shipsLoading, count: ships.length },
-    { label: "鐵道 Rail", done: !railLoading, count: railData ? railData.systems.length : 0 },
-    { label: "溫度場 Temperature", done: !temperatureLoading },
+    ...(layerVisibility.flights ? [{ label: "空域 Airspace", done: !loading, count: allFlights.length }] : []),
+    ...(layerVisibility.ships ? [{ label: "船舶 Ships", done: !shipsLoading, count: ships.length }] : []),
+    ...(layerVisibility.rail ? [{ label: "鐵道 Rail", done: !railLoading, count: railData ? railData.systems.length : 0 }] : []),
+    ...(layerVisibility.temperatureWave ? [{ label: "溫度場 Temperature", done: !temperatureLoading }] : []),
     { label: "地圖場景 Map", done: mapPrepared },
   ];
   const allReady = loadingSteps.every((s) => s.done);

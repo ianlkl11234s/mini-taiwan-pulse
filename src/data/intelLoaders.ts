@@ -7,9 +7,9 @@ import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
 
-// TTL：略短於 polling interval（30s），讓 IntelPanel + MonitorPanel 同 tick 共享一次 fetch。
-const TTL_FAST = 25_000;   // 即時值（pressure / market / alertSummary）
-const TTL_SLOW = 55_000;   // 慢變（source health / trending / signals timeline / yt live）
+// TTL：對齊 60s polling interval，讓 IntelPanel + MonitorPanel 同 tick 共享一次 fetch、減輕連線池。
+const TTL_FAST = 55_000;   // 即時值（pressure / market / alertSummary）— 約每次輪詢實打一次
+const TTL_SLOW = 115_000;  // 慢變（source health / trending / signals timeline / yt live）— 約每兩次輪詢才實打一次
 const TTL_DAILY = 60 * 60_000;  // 每日一次（pla activity）
 const TTL_WEEKLY = 5 * 60_000;  // 5 分鐘（health weekly / alert series 24h）
 

@@ -63,9 +63,9 @@ function parseThsrSchedules(data: Record<string, unknown>): Map<string, RailSche
   return map;
 }
 
-export function useRailData(selectedDate?: string): UseRailDataReturn {
+export function useRailData(selectedDate: string | undefined, enabled: boolean): UseRailDataReturn {
   const [railData, setRailData] = useState<RailData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);  // boot lazy：關閉時初始即非 loading
   const [scheduleLoading, setScheduleLoading] = useState(false);
   const [scheduleDate, setScheduleDate] = useState<string | null>(null);
   const [availableDates, setAvailableDates] = useState<string[]>([]);
@@ -77,7 +77,9 @@ export function useRailData(selectedDate?: string): UseRailDataReturn {
 
   // ── 初始載入：靜態資料 + 預設時刻表 + 可用日期 ──
   useEffect(() => {
+    if (!enabled) return;  // boot lazy：圖層關閉不抓
     let cancelled = false;
+    setLoading(true);
 
     (async () => {
       try {
@@ -110,7 +112,7 @@ export function useRailData(selectedDate?: string): UseRailDataReturn {
     })();
 
     return () => { cancelled = true; };
-  }, []);
+  }, [enabled]);
 
   // ── 日期切換：只重載時刻表（TRA + THSR） ──
   const loadScheduleForDate = useCallback(async (date: string) => {
