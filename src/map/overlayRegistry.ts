@@ -998,8 +998,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // cat 分色：地上式 藍 / 地下式 青 / 其他 灰藍；70k 點 → minzoom 12 控密度
   {
     id: "fireHydrants",
-    sourceUrl: "./geo/fire_hydrants.geojson",
+    sourceUrl: "./geo/fire_hydrants.pmtiles",
     sourceId: "fire-hydrants",
+    pmtiles: { sourceLayer: "fire_hydrants", minzoom: 0, maxzoom: 12 },
     layers: [
       {
         suffix: "glow",
