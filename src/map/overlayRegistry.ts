@@ -2574,8 +2574,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 全台步道（LineString，依 source 4 色分類：A 林業署 / B OSM / C 雪霸 / C 金門）──
   {
     id: "hikingTrails",
-    sourceUrl: "./forestry/hiking_trails.geojson",
+    sourceUrl: "./forestry/hiking_trails.pmtiles",
     sourceId: "hiking-trails",
+    pmtiles: { sourceLayer: "hiking_trails", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["glow", "line"],
     layers: [
       {
