@@ -1612,8 +1612,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Medical: AED (自動體外心臟去顫器，15,490 點) ──
   {
     id: "medAED",
-    sourceUrl: "./geo/medical_aed.geojson",
+    sourceUrl: "./geo/medical_aed.pmtiles",
     sourceId: "medical-aed",
+    pmtiles: { sourceLayer: "medical_aed", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
