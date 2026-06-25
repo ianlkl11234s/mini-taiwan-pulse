@@ -563,8 +563,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Bus Stations (City) ──
   {
     id: "busStationsCity",
-    sourceUrl: "./geo/bus_stations_city.geojson",
+    sourceUrl: "./geo/bus_stations_city.pmtiles",
     sourceId: "bus-stations-city",
+    pmtiles: { sourceLayer: "bus_stations_city", minzoom: 0, maxzoom: 12 },
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
