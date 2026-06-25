@@ -2481,8 +2481,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   {
     id: "agriProduceWholesale",
-    sourceUrl: "./agriculture/produce_wholesale_companies.geojson",
+    sourceUrl: "./agriculture/produce_wholesale_companies.pmtiles",
     sourceId: "agri-produce-wholesale",
+    pmtiles: { sourceLayer: "produce_wholesale", minzoom: 0, maxzoom: 12 },
     layers: [
       {
         suffix: "circle",
