@@ -2453,8 +2453,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 顏色與 src/data/agriCompanyTypes.ts 對齊；零售/批發點多 → minzoom 8 控密度
   {
     id: "agriRetail",
-    sourceUrl: "./agriculture/agri_retail_companies.geojson",
+    sourceUrl: "./agriculture/agri_retail_companies.pmtiles",
     sourceId: "agri-retail",
+    pmtiles: { sourceLayer: "agri_retail", minzoom: 0, maxzoom: 12 },
     layers: [
       {
         suffix: "circle",
