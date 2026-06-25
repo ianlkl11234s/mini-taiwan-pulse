@@ -485,8 +485,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── Provincial Road (省道) ──
   {
     id: "provincialRoads",
-    sourceUrl: "./geo/provincial_road.geojson",
+    sourceUrl: "./geo/provincial_road.pmtiles",
     sourceId: "provincial-roads",
+    pmtiles: { sourceLayer: "provincial_road", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["glow", "line"],
     layers: [
       {
@@ -2529,8 +2530,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── 農路圖（LineString，單色，可 popup）──
   {
     id: "farmRoads",
-    sourceUrl: "./agriculture/farm_roads.geojson",
+    sourceUrl: "./agriculture/farm_roads.pmtiles",
     sourceId: "farm-roads",
+    pmtiles: { sourceLayer: "farm_roads", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["glow", "line"],
     layers: [
       {
