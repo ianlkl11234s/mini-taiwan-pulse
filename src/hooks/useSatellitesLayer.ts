@@ -147,8 +147,9 @@ export function useSatellitesLayer(
   const trackMinutesRef = useRef(trackMinutes);
   trackMinutesRef.current = trackMinutes;
 
-  // ── 載入 TLE（一次性，6h cache） ──
+  // ── 載入 TLE（一次性，6h cache；lazy：anyVisible 為 true 才抓） ──
   useEffect(() => {
+    if (!anyVisible || recordsRef.current.length > 0) return;
     let cancelled = false;
     loadSatellites().then((records) => {
       if (cancelled) return;
@@ -164,7 +165,7 @@ export function useSatellitesLayer(
       setDataReady(true);
     });
     return () => { cancelled = true; };
-  }, []);
+  }, [anyVisible]);
 
   // ── 建立 sources + layers ──
   const ensureLayers = useCallback((map: MapboxMap): boolean => {

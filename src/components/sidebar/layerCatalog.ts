@@ -588,3 +588,12 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
 ];
+
+// SECTIONS 派生 → 給 overlayManager hydrate 等需要 user-facing label 的場景查表
+export const LAYER_LABELS: Partial<Record<keyof LayerVisibility, string>> = (() => {
+  const out: Partial<Record<keyof LayerVisibility, string>> = {};
+  for (const section of SECTIONS) {
+    for (const def of section.layers) out[def.key] = def.label;
+  }
+  return out;
+})();

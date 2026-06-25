@@ -54,6 +54,8 @@
 | G001 | P2 | 刪 `useTransportParams` 裡的 `reservoirBubbleOpacity/Glow/Size` 殘留 slider | done | 2026-04-22 已拆 |
 | G002 | P3 | `[ReservoirLayer] render #N` 改 `DEBUG_RESERVOIR` env flag 控制 | done | 2026-04-23 render loop 修掉時順手移除 |
 | G003 | P3 | `public/three-showcase.html` / `public/showcase/` 去留 | open | 2026-05-25 review 確認：獨立 Three.js demo，`src/` 未引用，從 unpkg 載 three@0.160（app 用 0.172）。用戶決定**暫留原地**（已 tracked）。未來可移 `examples/three-showcase/`（連同 `docs/three-showcase-library.md`）排除 build |
+| CS-1 | P3 | Code Splitting / Dynamic Import 重型依賴 | open | 對象：`mapbox-gl` / `three` / `pmtiles` / `@deck.gl/*` / `satellite.js` / `h3-js` 全部 eager import。效益：首屏 JS bundle 變小、TTI 加快（次要瓶頸，主要瓶頸已由 perf ①+② 解決）。風險：Vite chunk 邊界 / Mapbox worker 註冊時機 / PMTiles protocol 註冊順序常踩坑，需完整回歸。工時：1-2 天。觸發時機：等到出現「首頁 JS bundle 過大」用戶抱怨，或 ①+② 完成後仍想再壓首屏。**規劃源**：`/Users/migu/.claude/plans/1-2-modular-rossum.md` |
+| PT-1 | P2 | 大型 GeoJSON → PMTiles 轉換 | open | perf ② 把靜態 GeoJSON 改成 toggle 才抓，但「toggle 後 fetch 整檔」對大檔仍重。改 PMTiles + HTTP Range Request 後實際下載量可壓到 1/20~1/50。候選（按 size 排）：`provincial_road` 44MB / `medical_clinic` 26MB / `medical_ltc` 17MB / `forest_trail_signs` 17MB / `fire_hydrants` 13MB / `medical_aed` 9.4MB / `medical_pharmacy` 8.4MB / `national_highway` 7.9MB（共 ~142MB）。流程：collector 端跑 tippecanoe 切 tiles + 包 .pmtiles，前端 overlayRegistry 該 entry 加 `pmtiles: { sourceLayer, minzoom, maxzoom }`，hydrate 路徑自動 no-op（Mapbox 自動 tile-on-demand）。先試 `provincial_road` 一條，驗證流程後再批次。工時：先做 1 個 ~半天（含 tippecanoe 參數調），後續每個 ~1h |
 
 ### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
 

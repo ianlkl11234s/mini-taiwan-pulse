@@ -126,22 +126,22 @@ export function useEarthquakeLayer(
   const rafRef = useRef(0);
   const lastFrameRef = useRef(0);
 
-  // 載入一次
+  // 載入一次（lazy：visible 為 true 才抓，之後不重抓）
   useEffect(() => {
+    if (!visible || dataReadyRef.current) return;
     let cancelled = false;
     fetchEarthquakes()
       .then((evs) => {
         if (cancelled) return;
         eventsRef.current = evs;
         dataReadyRef.current = true;
-        // 嘗試立即注入
         const map = mapRef.current;
         if (map && map.isStyleLoaded()) ensureSource(map);
       })
       .catch((err) => console.warn("[Earthquake] load failed:", err));
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [visible]);
 
   const ensureSource = useCallback((map: MapboxMap) => {
     if (!dataReadyRef.current) return false;

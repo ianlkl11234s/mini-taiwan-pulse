@@ -7,6 +7,8 @@ import {
   type SerializedPaint,
 } from "./overlayPaintDiff";
 import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
+import { loadingRegistry } from "../lib/loadingRegistry";
+import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 
 function layerId(config: OverlayConfig, suffix: string) {
   return `${config.sourceId}-${suffix}`;
@@ -62,12 +64,12 @@ export function addOverlay(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
     } else {
+      // 全部用空 FC 起手，避免 mount 時 Mapbox 自動 fetch sourceUrl。
+      // 靜態 GeoJSON 改由 hydrateOverlayIfNeeded（toggle on 觸發）setData。
+      // dynamicData：由對應 loader/hook 按日 setData 餵入。
       map.addSource(config.sourceId, {
         type: "geojson",
-        // dynamicData：空 FC 起手，由對應 loader/hook 按日 setData 餵入
-        data: config.dynamicData
-          ? ({ type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection)
-          : config.sourceUrl,
+        data: { type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection,
         ...geojsonSourceOptions(config),
       });
     }
@@ -229,6 +231,47 @@ function applyPaintDiff(
     map.setPaintProperty(id, key as any, value);
   }
   cache.set(id, serialized);
+}
+
+// ── Static GeoJSON lazy hydration ──
+// 全域單例：紀錄哪些 sourceId 已經 hydrate（fetch + setData）過，避免重抓。
+// key 用 sourceId（不是 config.id），自然處理「多個 overlay 共用同一 sourceUrl」。
+const hydratedSources = new Set<string>();
+
+/**
+ * 若 config 是靜態 GeoJSON 且尚未 hydrate → fetch sourceUrl + setData。
+ * dynamicData / pmtiles 配置直接 no-op（pmtiles 由 Mapbox 自動 lazy load tile，
+ * dynamicData 由各自 loader 負責）。
+ *
+ * 設計：
+ * - 失敗時清掉 set 讓下次 toggle 可重試
+ * - 先標記 hydrated 防同一 toggle 內重複觸發 race
+ */
+export async function hydrateOverlayIfNeeded(
+  map: MapboxMap,
+  config: OverlayConfig,
+): Promise<void> {
+  if (config.pmtiles || config.dynamicData) return;
+  if (hydratedSources.has(config.sourceId)) return;
+  hydratedSources.add(config.sourceId);
+  const taskId = `overlay-hydrate:${config.sourceId}`;
+  const label = LAYER_LABELS[config.id] ?? config.sourceId;
+  loadingRegistry.start(taskId, label);
+  try {
+    const res = await fetch(config.sourceUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = (await res.json()) as GeoJSON.FeatureCollection;
+    const src = map.getSource(config.sourceId);
+    if (src && "setData" in src) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (src as any).setData(json);
+    }
+  } catch (e) {
+    hydratedSources.delete(config.sourceId);
+    console.warn(`[overlay] hydrate ${config.sourceId} failed:`, e);
+  } finally {
+    loadingRegistry.end(taskId);
+  }
 }
 
 /** 設定單一 overlay 可見性 */

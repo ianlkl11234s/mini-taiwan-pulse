@@ -4,7 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible } from "./overlayManager";
+import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded } from "./overlayManager";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
 import { ensureMedicalIsochroneLayers, updateMedicalIsochroneLayers } from "./medicalIsochroneLayerFactory";
@@ -277,7 +277,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // 期間 visibility / params effect 全部 no-op（mapRef null）。
       // 這裡用 ref 的最新值重放一次，避免「toggle 開了但圖層沒出現」。
       for (const config of OVERLAY_REGISTRY) {
-        setOverlayVisible(map, config, layerVisibilityRef.current[config.id]);
+        const vis = layerVisibilityRef.current[config.id];
+        if (vis) void hydrateOverlayIfNeeded(map, config);
+        setOverlayVisible(map, config, vis);
       }
       updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkThemeRef.current, overlayParamsRef.current);
       onMapReadyRef.current?.(map);
@@ -394,7 +396,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
     for (const config of OVERLAY_REGISTRY) {
-      setOverlayVisible(map, config, layerVisibility[config.id]);
+      const vis = layerVisibility[config.id];
+      if (vis) void hydrateOverlayIfNeeded(map, config);
+      setOverlayVisible(map, config, vis);
     }
     // OVERLAY_REGISTRY 之外的專屬圖層
     updateAllAgricultureLayers(map, layerVisibility, overlayParamsRef.current);
