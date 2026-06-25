@@ -14,6 +14,7 @@ import {
 // PMTiles SourceType 註冊統一走 pmtilesSourceType.ts（所有 PMTiles 圖層共用）
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
+import { loadingRegistry } from "../lib/loadingRegistry";
 
 const BASE = `${import.meta.env.BASE_URL ?? "/"}agriculture`;
 
@@ -431,9 +432,11 @@ export const AGRI_POI_PARAMS_DEFAULT: AgriPOIParams = { opacity: 1, scale: 1 };
 
 export function ensureAgriPOILayers(map: MapboxMap): void {
   if (!map.getSource(POI_SOURCE_ID)) {
+    // 空 FC 起手，避免 mount 時 Mapbox 自動 fetch。
+    // 真正 fetch 由 updateAgriPOILayer 在 visible=true 時 lazy 觸發。
     map.addSource(POI_SOURCE_ID, {
       type: "geojson",
-      data: `${BASE}/agriculture_pois.geojson`,
+      data: { type: "FeatureCollection", features: [] } as GeoJSON.FeatureCollection,
     });
   }
   if (!map.getLayer(POI_CIRCLE_ID)) {
@@ -458,12 +461,32 @@ export function ensureAgriPOILayers(map: MapboxMap): void {
   }
 }
 
+let agriPOIHydrated = false;
 export function updateAgriPOILayer(
   map: MapboxMap,
   visible: boolean,
   params: AgriPOIParams = AGRI_POI_PARAMS_DEFAULT,
 ): void {
   if (!map.getLayer(POI_CIRCLE_ID)) return;
+  if (visible && !agriPOIHydrated) {
+    agriPOIHydrated = true;
+    const taskId = "overlay-hydrate:agri-pois";
+    loadingRegistry.start(taskId, "農業 POI");
+    fetch(`${BASE}/agriculture_pois.geojson`)
+      .then((r) => r.json() as Promise<GeoJSON.FeatureCollection>)
+      .then((json) => {
+        const src = map.getSource(POI_SOURCE_ID);
+        if (src && "setData" in src) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (src as any).setData(json);
+        }
+      })
+      .catch((e) => {
+        agriPOIHydrated = false;
+        console.warn("[agri-pois] hydrate failed:", e);
+      })
+      .finally(() => loadingRegistry.end(taskId));
+  }
   map.setLayoutProperty(POI_CIRCLE_ID, "visibility", visible ? "visible" : "none");
   map.setPaintProperty(POI_CIRCLE_ID, "circle-opacity", 0.9 * params.opacity);
   map.setPaintProperty(POI_CIRCLE_ID, "circle-radius", [

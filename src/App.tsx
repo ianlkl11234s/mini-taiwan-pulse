@@ -1351,7 +1351,11 @@ export default function App() {
   // LoadingScreen 改為 overlay（fixed, zIndex 9999）蓋在主 UI 上，
   // 讓 Mapbox + Three.js 場景在 loading 期間於底下平行初始化；
   // 舊版 early return 會讓地圖等 loading 收掉才開始載，造成進場後動態點空窗。
-  const showLoadingScreen = !loadingTimedOut && (!allReady || !dismissedLoading);
+  //
+  // 一次性：只在初次 mount 顯示，dismissedLoading=true 後絕不重開。
+  // 之後使用者 toggle 動態圖層的 loading 由 loadingRegistry 的小型 indicator 處理，
+  // 不再用 full-screen splash 蓋整個畫面（會打斷已經在用地圖的使用者）。
+  const showLoadingScreen = !loadingTimedOut && !dismissedLoading;
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
