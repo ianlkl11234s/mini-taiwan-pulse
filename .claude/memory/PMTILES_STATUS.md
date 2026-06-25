@@ -19,7 +19,7 @@
 | T1  | provincial_road             | 44 MB  | line    | public/geo/         | provincial_road      | ✅ done | 9.3MB / 21% | 2e12f66 |
 | T2  | farm_roads                  | 33 MB  | line    | public/agriculture/ | farm_roads           | ✅ done | 2.7MB / 8% | 41b237b |
 | T3  | hiking_trails               | 20 MB  | line    | public/forestry/    | hiking_trails        | ✅ done | 2.6MB / 13% | 5871328 |
-| T4  | national_highway            | 7.9 MB | line    | public/geo/         | national_highway     | ⏳ pending | — | — |
+| T4  | national_highway            | 7.9 MB | line    | public/geo/         | national_highway     | ✅ done | 1.4MB / 17% | (pending) |
 | T5  | medical_clinics             | 26 MB  | point   | public/geo/         | medical_clinics      | ⏳ pending | — | — |
 | T6  | medical_ltc                 | 17 MB  | point   | public/geo/         | medical_ltc          | ⏳ pending | — | — |
 | T7  | medical_aed                 | 9.4 MB | point   | public/geo/         | medical_aed          | ⏳ pending | — | — |

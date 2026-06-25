@@ -445,8 +445,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // ── National Highway (國道) ──
   {
     id: "highways",
-    sourceUrl: "./geo/national_highway.geojson",
+    sourceUrl: "./geo/national_highway.pmtiles",
     sourceId: "national-highways",
+    pmtiles: { sourceLayer: "national_highway", minzoom: 0, maxzoom: 13 },
     rebuildOnParamChange: ["glow", "line"],
     layers: [
       {
