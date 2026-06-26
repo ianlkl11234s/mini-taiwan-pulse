@@ -39,6 +39,10 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
   EvIslandPanel,
 } from "./energyPanels";
 import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
+import {
+  CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
+  Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
+} from "./baseMapPanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -146,6 +150,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   evIsland: EvIslandPanel,
   lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
+  // Base map
+  countyBoundary: CountyBoundaryPanel,
+  townshipBoundary: TownshipBoundaryPanel,
+  villageBoundary: VillageBoundaryPanel,
+  contour25k: Contour25kPanel,
+  contourDtm20: ContourDtm20Panel,
+  osmRoadDrive: OsmRoadDrivePanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -248,4 +259,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   evIsland: "充電站 30km 孤島",
   lightningStrike: "落雷",
   nuclearStation: "核安觀測站",
+  // Base map
+  countyBoundary: "縣市界",
+  townshipBoundary: "鄉鎮市區界",
+  villageBoundary: "村里界",
+  contour25k: "等高線 25k (10m)",
+  contourDtm20: "等高線 DTM 20m",
+  osmRoadDrive: "道路 (OSM)",
 };

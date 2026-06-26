@@ -4721,4 +4721,235 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   realEstateGridOverlay("realEstateSaleGrid", "sale", "sale"),
   realEstateGridOverlay("realEstatePresaleGrid", "presale", "presale"),
 
+  // ── BASE MAP（PMTiles 來自 taipei-gis-analytics SSOT，~406MB 走 S3/base_map → Volume）──
+  //   行政邊界 3 層、等高線 2 層（25k 精度 10m / dtm20 全臺）、OSM 可駕駛道路 1 層
+  //   全部預設 OFF；attr 全保留供 popup（見 featureInfo/baseMapPanels.tsx）
+  {
+    id: "countyBoundary",
+    sourceUrl: "./base_map/county_boundary.pmtiles",
+    sourceId: "base-county-boundary",
+    pmtiles: { sourceLayer: "county_boundary", minzoom: 0, maxzoom: 14 },
+    rebuildOnParamChange: ["line", "fill"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        minzoom: 4,
+        paint: () => ({
+          "fill-color": "#4b5563",
+          "fill-opacity": 0,
+          "fill-outline-color": "rgba(0,0,0,0)",
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 4,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark, params) => {
+          const w = params?.countyBoundaryWidth ?? 1;
+          return {
+            "line-color": isDark ? "#9ca3af" : "#374151",
+            "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.8 * w, 8, 1.4 * w, 12, 2.4 * w],
+            "line-opacity": params?.countyBoundaryOpacity ?? 0.85,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "townshipBoundary",
+    sourceUrl: "./base_map/township_boundary.pmtiles",
+    sourceId: "base-township-boundary",
+    pmtiles: { sourceLayer: "township_boundary", minzoom: 0, maxzoom: 14 },
+    rebuildOnParamChange: ["line", "fill"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        minzoom: 8,
+        paint: () => ({
+          "fill-color": "#6b7280",
+          "fill-opacity": 0,
+          "fill-outline-color": "rgba(0,0,0,0)",
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 8,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark, params) => {
+          const w = params?.townshipBoundaryWidth ?? 1;
+          return {
+            "line-color": isDark ? "#94a3b8" : "#4b5563",
+            "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5 * w, 11, 1.0 * w, 14, 1.8 * w],
+            "line-opacity": params?.townshipBoundaryOpacity ?? 0.75,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "villageBoundary",
+    sourceUrl: "./base_map/village_boundary.pmtiles",
+    sourceId: "base-village-boundary",
+    pmtiles: { sourceLayer: "village_boundary", minzoom: 0, maxzoom: 14 },
+    rebuildOnParamChange: ["line", "fill"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        minzoom: 11,
+        paint: () => ({
+          "fill-color": "#9ca3af",
+          "fill-opacity": 0,
+          "fill-outline-color": "rgba(0,0,0,0)",
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 11,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (isDark, params) => {
+          const w = params?.villageBoundaryWidth ?? 1;
+          return {
+            "line-color": isDark ? "#cbd5e1" : "#6b7280",
+            "line-width": ["interpolate", ["linear"], ["zoom"], 11, 0.4 * w, 14, 0.9 * w, 17, 1.6 * w],
+            "line-opacity": params?.villageBoundaryOpacity ?? 0.65,
+          };
+        },
+      },
+    ],
+  },
+  // ── 等高線 25k（elevation_m；精度 10m，~21% 全臺覆蓋）──
+  //   主等高線 100m 倍數加粗、500m 倍數更粗。欄名 elevation_m 與 dtm20 的 elev_m 不同。
+  {
+    id: "contour25k",
+    sourceUrl: "./base_map/contour_25k.pmtiles",
+    sourceId: "base-contour-25k",
+    pmtiles: { sourceLayer: "contour_25k", minzoom: 8, maxzoom: 14 },
+    rebuildOnParamChange: ["line"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 8,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.contour25kWidth ?? 1;
+          return {
+            "line-color": "#8B4513",
+            "line-width": [
+              "*",
+              w,
+              ["case",
+                ["==", ["%", ["coalesce", ["get", "elevation_m"], 0], 500], 0], 1.4,
+                ["==", ["%", ["coalesce", ["get", "elevation_m"], 0], 100], 0], 0.9,
+                0.4,
+              ],
+            ],
+            "line-opacity": params?.contour25kOpacity ?? 0.7,
+          };
+        },
+      },
+    ],
+  },
+  // ── 等高線 DTM20（elev_m；精度 20m，全臺完整。欄名 elev_m 是 Shapefile 10 字限制縮寫）──
+  {
+    id: "contourDtm20",
+    sourceUrl: "./base_map/contour_dtm20.pmtiles",
+    sourceId: "base-contour-dtm20",
+    pmtiles: { sourceLayer: "contour_dtm20", minzoom: 0, maxzoom: 14 },
+    rebuildOnParamChange: ["line"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 9,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.contourDtm20Width ?? 1;
+          return {
+            "line-color": "#a16207",
+            "line-width": [
+              "*",
+              w,
+              ["case",
+                ["==", ["%", ["coalesce", ["get", "elev_m"], 0], 500], 0], 1.2,
+                ["==", ["%", ["coalesce", ["get", "elev_m"], 0], 100], 0], 0.7,
+                0.3,
+              ],
+            ],
+            "line-opacity": params?.contourDtm20Opacity ?? 0.55,
+          };
+        },
+      },
+    ],
+  },
+  // ── OSM 可駕駛道路（55 萬 edges，highway 分級分色）──
+  //   motorway 橘 / trunk 紅橙 / primary 黃 / secondary 灰 / tertiary 淺灰 / 其餘細淺灰
+  {
+    id: "osmRoadDrive",
+    sourceUrl: "./base_map/osm_road_drive.pmtiles",
+    sourceId: "base-osm-road",
+    pmtiles: { sourceLayer: "osm_road_drive", minzoom: 0, maxzoom: 14 },
+    rebuildOnParamChange: ["line"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 10,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.osmRoadDriveWidth ?? 1;
+          // 依 highway 分色（catalog: motorway+link 6.9k / trunk 4.2k / primary 16k / secondary 13k / tertiary 37k / others）
+          const colorExpr: unknown[] = [
+            "match", ["get", "highway"],
+            ["motorway", "motorway_link"], "#fb923c",
+            ["trunk", "trunk_link"], "#f87171",
+            ["primary", "primary_link"], "#fcd34d",
+            ["secondary", "secondary_link"], "#9ca3af",
+            ["tertiary", "tertiary_link"], "#d4d4d4",
+            "#e5e7eb",
+          ];
+          const widthExpr: unknown[] = [
+            "interpolate", ["linear"], ["zoom"],
+            10, ["*", w, ["match", ["get", "highway"],
+              ["motorway", "motorway_link"], 1.4,
+              ["trunk", "trunk_link"], 1.2,
+              ["primary", "primary_link"], 1.0,
+              ["secondary", "secondary_link"], 0.7,
+              ["tertiary", "tertiary_link"], 0.5,
+              0.25,
+            ]],
+            14, ["*", w, ["match", ["get", "highway"],
+              ["motorway", "motorway_link"], 4.0,
+              ["trunk", "trunk_link"], 3.2,
+              ["primary", "primary_link"], 2.6,
+              ["secondary", "secondary_link"], 1.8,
+              ["tertiary", "tertiary_link"], 1.2,
+              0.6,
+            ]],
+            17, ["*", w, ["match", ["get", "highway"],
+              ["motorway", "motorway_link"], 8.0,
+              ["trunk", "trunk_link"], 6.5,
+              ["primary", "primary_link"], 5.2,
+              ["secondary", "secondary_link"], 3.6,
+              ["tertiary", "tertiary_link"], 2.4,
+              1.2,
+            ]],
+          ];
+          return {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "line-color": colorExpr as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "line-width": widthExpr as any,
+            "line-opacity": params?.osmRoadDriveOpacity ?? 0.85,
+          };
+        },
+      },
+    ],
+  },
 ];

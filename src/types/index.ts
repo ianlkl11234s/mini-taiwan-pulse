@@ -260,7 +260,10 @@ export type ExpandableLayerKey =
   | "realEstateSaleGrid"
   | "realEstateSalePoint"
   | "realEstatePresaleGrid"
-  | "realEstatePresalePoint";
+  | "realEstatePresalePoint"
+  // Base map
+  | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+  | "contour25k" | "contourDtm20" | "osmRoadDrive";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -604,7 +607,10 @@ export interface FeatureInfo {
     // 雲林 POC 覆蓋分析
     | "gasCoverageAll" | "gasCoverageCpc" | "gasCoverageFpcc" | "gasCoverageTaisugar"
     | "evIsland"
-    | "lightningStrike" | "nuclearStation";
+    | "lightningStrike" | "nuclearStation"
+    // Base map（PMTiles 來自 taipei-gis-analytics）
+    | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+    | "contour25k" | "contourDtm20" | "osmRoadDrive";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
@@ -824,6 +830,13 @@ export interface LayerVisibility {
   realEstateSalePoint: boolean;    // 買賣 交易點
   realEstatePresaleGrid: boolean;  // 預售 150m 格
   realEstatePresalePoint: boolean; // 預售 交易點
+  // Base map（行政邊界 + 等高線 + OSM 路網，PMTiles 來自 taipei-gis-analytics SSOT）
+  countyBoundary: boolean;     // 22 縣市界（內政部，名稱/行政區域代碼）
+  townshipBoundary: boolean;   // 鄉鎮市區界
+  villageBoundary: boolean;    // 村里界
+  contour25k: boolean;         // 經建版 1:25000 等高線（精度 10m，~21% 全臺覆蓋）
+  contourDtm20: boolean;       // DTM 20m 等高線（精度 20m，全臺完整）
+  osmRoadDrive: boolean;       // OSM 可駕駛道路（55 萬 edges，按 highway 等級分色）
 }
 
 // ── 空氣品質 ──
