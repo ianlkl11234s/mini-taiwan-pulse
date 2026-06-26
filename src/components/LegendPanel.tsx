@@ -169,6 +169,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   },
   { keys: ["lightning"], render: () => <LightningLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
+  // Base map：OSM 道路 highway 分級分色（其他 5 base layer 單色，依鐵則 2 不需圖例）
+  { keys: ["osmRoadDrive"], render: () => <OsmRoadDriveLegend /> },
 ];
 
 export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
@@ -246,6 +248,29 @@ function FireCatRows({ cats, square }: { cats: { color: string; label: string }[
           <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{c.label}</span>
         </div>
       ))}
+    </div>
+  );
+}
+
+const OSM_ROAD_DRIVE_CATS = [
+  { color: "#fb923c", label: "高速公路 Motorway" },
+  { color: "#f87171", label: "快速道路 Trunk" },
+  { color: "#fcd34d", label: "主要道路 Primary" },
+  { color: "#9ca3af", label: "次要道路 Secondary" },
+  { color: "#d4d4d4", label: "聯絡道路 Tertiary" },
+  { color: "#e5e7eb", label: "其餘 (residential / service / unclassified)" },
+];
+
+function OsmRoadDriveLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        OSM 道路 ROAD
+      </div>
+      <FireCatRows cats={OSM_ROAD_DRIVE_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        z≥10 才顯示｜來源 OpenStreetMap｜55 萬 edges
+      </div>
     </div>
   );
 }

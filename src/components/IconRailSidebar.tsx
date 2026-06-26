@@ -238,6 +238,13 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   realEstateSalePoint: MapPin,
   realEstatePresaleGrid: Building2,
   realEstatePresalePoint: MapPin,
+  // Base map
+  countyBoundary: MapPinned,
+  townshipBoundary: MapPinned,
+  villageBoundary: MapPinned,
+  contour25k: Mountain,
+  contourDtm20: Mountain,
+  osmRoadDrive: Route,
 };
 
 // ── IATA Map for Locations Panel ──

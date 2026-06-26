@@ -288,6 +288,13 @@ export function useMapInteraction(
           { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
           // 醫療等時圈覆蓋面
           { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
+          // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
+          { layers: ["base-osm-road-line"], type: "osmRoadDrive" },
+          { layers: ["base-village-boundary-line", "base-village-boundary-fill"], type: "villageBoundary" },
+          { layers: ["base-township-boundary-line", "base-township-boundary-fill"], type: "townshipBoundary" },
+          { layers: ["base-county-boundary-line", "base-county-boundary-fill"], type: "countyBoundary" },
+          { layers: ["base-contour-25k-line"], type: "contour25k" },
+          { layers: ["base-contour-dtm20-line"], type: "contourDtm20" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

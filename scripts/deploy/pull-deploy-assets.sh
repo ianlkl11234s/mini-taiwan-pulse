@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/coverage" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -43,7 +43,7 @@ aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_r
 #    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
 #    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "coverage/*" --exclude "water_*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "water_*.pmtiles"
 
 # 醫療：鏡像子前綴 deploy-assets/medical/ → /data/medical/（基礎點位 + 等時圈 PMTiles）
 echo "[pull] sync medical → $DATA_DIR/medical/"
@@ -61,6 +61,10 @@ aws s3 sync "$S3/forestry/" "$DATA_DIR/forestry/" --no-progress
 # 房地產：鏡像子前綴 deploy-assets/coverage/ → /data/coverage/（real_estate_* 大檔；gas 小檔在 dist fallback）
 echo "[pull] sync coverage → $DATA_DIR/coverage/"
 aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress
+
+# Base map：鏡像子前綴 deploy-assets/base_map/ → /data/base_map/（行政邊界 + 等高線 + OSM 路網 PMTiles ~406MB）
+echo "[pull] sync base_map → $DATA_DIR/base_map/"
+aws s3 sync "$S3/base_map/" "$DATA_DIR/base_map/" --no-progress
 
 # 淹水感測 isochrone：鏡像子前綴 deploy-assets/flood/ → /data/flood/
 echo "[pull] sync flood → $DATA_DIR/flood/"

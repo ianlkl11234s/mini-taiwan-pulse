@@ -234,6 +234,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   realEstateSalePoint: "#d73027",
   realEstatePresaleGrid: "#fd8d3c", // 預售 黃-橙-紅（代表色取橙）
   realEstatePresalePoint: "#fd8d3c",
+  // Base map（行政邊界 + 等高線 + OSM 路網）— 灰階為主、等高線棕、道路依等級色
+  countyBoundary: "#4b5563",       // 縣界 深灰
+  townshipBoundary: "#6b7280",     // 鄉界 中灰
+  villageBoundary: "#9ca3af",      // 村界 淺灰
+  contour25k: "#8B4513",           // 等高線 25k 棕（saddle brown）
+  contourDtm20: "#a16207",         // 等高線 dtm20 較淡棕（amber-700）
+  osmRoadDrive: "#fb923c",         // 道路 motorway 橘（代表色）
 };
 
 // ── Transport Labels ──
@@ -574,6 +581,17 @@ export const SECTIONS: SectionDef[] = [
     layers: [
       { key: "lightning", label: "落雷 60min", expandable: true },
       { key: "nuclearRadiation", label: "核安輻射", expandable: true },
+    ],
+  },
+  {
+    title: "BASE MAP",
+    layers: [
+      { key: "countyBoundary", label: "縣市界 County", expandable: true },
+      { key: "townshipBoundary", label: "鄉鎮市區界 Township", expandable: true },
+      { key: "villageBoundary", label: "村里界 Village", expandable: true },
+      { key: "contour25k", label: "等高線 25k (10m, 21% 覆蓋)", labelMobile: "等高線 25k 10m", expandable: true },
+      { key: "contourDtm20", label: "等高線 DTM20 (20m, 全臺)", labelMobile: "等高線 DTM 20m", expandable: true },
+      { key: "osmRoadDrive", label: "OSM 道路 OSM Roads", expandable: true },
     ],
   },
   {

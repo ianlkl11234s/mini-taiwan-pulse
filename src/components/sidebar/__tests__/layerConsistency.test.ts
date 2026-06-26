@@ -92,6 +92,10 @@ const BASELINE_NO_LEGEND = new Set([
   // Energy MVP：充電站單色 POI — 鐵則 2 只要求分類 ≥ 2 才需圖例
   // osmSubstations 已升級 migration 235 電網層級分色 → 已從 baseline 移除（接 SubstationLegend）
   "evChargingStations",
+  // Base map：行政邊界 3 層皆單色灰 + 等高線 2 層皆單色棕（無分類）→ 鐵則 2 不適用
+  // osmRoadDrive 才有 highway 分級 6 色 → 必接 legend（見 OsmRoadDriveLegend）
+  "countyBoundary", "townshipBoundary", "villageBoundary",
+  "contour25k", "contourDtm20",
 ]);
 
 function hasParamsCase(key: string): boolean {
