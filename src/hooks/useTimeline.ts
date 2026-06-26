@@ -94,6 +94,16 @@ export function useTimeline({
   const windowStart = dayStartUnix(selectedDate);
   const windowEnd = dayEndUnix(addDays(selectedDate, rangeDays - 1));
 
+  // 視窗內每一天的 dateKey（YYYY-MM-DD, Asia/Taipei）→ 寫入 timeStore SSOT，
+  // time-aware loader 訂閱 subscribeWindowDateKeys 後嚴格只預載這份；視窗外不打 RPC。
+  useEffect(() => {
+    const keys: string[] = [];
+    for (let i = 0; i < rangeDays; i++) {
+      keys.push(addDays(selectedDate, i).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
+    }
+    timeStore.setWindowDateKeys(keys);
+  }, [selectedDate, rangeDays]);
+
   // 首次渲染寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）
   const initRef = useRef(false);
   if (!initRef.current) {

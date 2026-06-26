@@ -1,51 +1,53 @@
 /**
- * dayPrefetch — 以「當前日為中心、共用 prefetch 視窗」預熱 loader 的工具。
+ * dayPrefetch — 對 loader 預載 timeline 視窗內的日期清單。
  *
- * 背景：time-aware loader（lightning / nuclear / precipRaster / cwa-imagery / ...）
- * 多半已用 cachedByKey/cachedOnce 做 LRU+TTL 快取；缺的是「主動把鄰近日
- * fetch 進 cache」，否則切到鄰近日仍要等 RPC。
+ * 設計原則（2026-06-26 修正）：
+ *  - **嚴格只動視窗內**：清單由 timeStore.getWindowDateKeys() 給定，不外推 ±N，
+ *    避免畫面看不到的日期也打 RPC 把 LOADING panel 灌爆。
+ *  - **背景靜默**：fetcher 必須是「不走 withLoading」的 prefetch 版本
+ *    （如 prefetchLightningDay，與正常 fetchLightningDay 共用 cachedByKey 但跳過 loading panel）。
+ *  - **錯誤吞掉**：prefetch 失敗只警告，不影響主流程。
  *
- * 用法：在 subscribeDate 的 handler 內呼叫 prefetchAroundDate(...)
- *   prefetchAroundDate(dk, timeStore.getRangeDays(), fetchLightningDay);
- *
- * 規則：
- *  - days <= 1 一律 no-op
- *  - 不 await（背景進行），失敗只警告
- *  - 由 fetcher 自己的 cache 處理 dedup / 重複呼叫（這裡只負責喊一聲）
+ * 用法：
+ *   const unsub = subscribePrefetchWindow(prefetchLightningDay, "[HAZARD/lightning]");
+ *   // 初次 + 視窗變動時都會自動 fire
+ *   return () => unsub();
  */
 
-/** 以 centerKey 為中心算出 ±floor((N-1)/2) ~ ±ceil((N-1)/2) 的日期 keys（含中心） */
-export function neighborDateKeys(centerKey: string, totalDays: number): string[] {
-  const out = [centerKey];
-  if (totalDays <= 1) return out;
-  const back = Math.floor((totalDays - 1) / 2);
-  const fwd = Math.ceil((totalDays - 1) / 2);
-  const centerMs = new Date(`${centerKey}T00:00:00+08:00`).getTime();
-  for (let d = 1; d <= back; d++) {
-    out.push(new Date(centerMs - d * 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
-  }
-  for (let d = 1; d <= fwd; d++) {
-    out.push(new Date(centerMs + d * 86_400_000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
-  }
-  return out;
-}
+import { timeStore } from "../state/timeStore";
 
 /**
- * 對 fetcher 預載 ±days 的鄰近日（含中心；中心由呼叫端自行 await 才能立刻渲染）。
- * 回傳 unsubscribe-style 取消器 — 但因為背景 promise 已 in-flight，取消只能拒收結果，
- * 實際 fetch 仍會完成並進 fetcher 的 cache（這在多數場景是想要的副作用）。
+ * 對視窗內的 dateKeys 全部呼叫 fetcher（背景、不 await）。
+ * 中心日由呼叫端自己 foreground 載入；prefetch 只負責「其他日塞 cache」。
  */
-export function prefetchAroundDate(
-  centerKey: string,
-  rangeDays: number,
+export function prefetchWindow(
   fetcher: (key: string) => Promise<unknown>,
   consoleTag = "",
+  skipKey?: string,
 ): void {
-  const keys = neighborDateKeys(centerKey, rangeDays);
+  const keys = timeStore.getWindowDateKeys();
   for (const k of keys) {
-    if (k === centerKey) continue; // 中心日由呼叫端 foreground 載入
+    if (k === skipKey) continue;
     fetcher(k).catch((err) => {
       console.warn(`${consoleTag}[prefetch] ${k} failed:`, err);
     });
   }
+}
+
+/**
+ * 訂閱視窗變動：subscribeDate / subscribeWindowDateKeys 任一觸發都會 fire 一次。
+ * 用 setTimeout(0) 把呼叫延後到 microtask 之後，避免和 center 日的 foreground load
+ * 同時打 RPC 卡頻寬。回傳 unsubscribe。
+ */
+export function subscribePrefetchWindow(
+  fetcher: (key: string) => Promise<unknown>,
+  consoleTag = "",
+): () => void {
+  const fire = () => {
+    setTimeout(() => prefetchWindow(fetcher, consoleTag, timeStore.getDateKey()), 0);
+  };
+  fire(); // 初始一次
+  const unsubWindow = timeStore.subscribeWindowDateKeys(fire);
+  const unsubDate = timeStore.subscribeDate(fire);
+  return () => { unsubWindow(); unsubDate(); };
 }

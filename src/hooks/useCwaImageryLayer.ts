@@ -22,7 +22,7 @@
  *  - 用戶調小 preloadDays → 立刻 evict 多出的最舊日
  */
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
   loadCwaImageryBatch,
@@ -112,24 +112,6 @@ function evictExcess(
   }
 }
 
-/** 以當前日為中心，回傳要預載的 ±days dateKey 陣列（含當日） */
-function prefetchDateKeys(center: string, totalDays: number): string[] {
-  const out: string[] = [center];
-  if (totalDays <= 1) return out;
-  const back = Math.floor((totalDays - 1) / 2);
-  const fwd = Math.ceil((totalDays - 1) / 2);
-  const centerMs = new Date(`${center}T00:00:00+08:00`).getTime();
-  for (let d = 1; d <= back; d++) {
-    const ms = centerMs - d * 86400_000;
-    out.push(new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
-  }
-  for (let d = 1; d <= fwd; d++) {
-    const ms = centerMs + d * 86400_000;
-    out.push(new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
-  }
-  return out;
-}
-
 /** 找出時間 <= currentMs 的最近一張 frame（若全部晚於 currentMs 則回傳第一張） */
 function pickFrameForTime(frames: CwaImageryFrame[], currentMs: number): CwaImageryFrame | null {
   if (frames.length === 0) return null;
@@ -150,14 +132,6 @@ interface UseCwaImageryLayerOptions {
   radarOpacity: number;
 }
 
-// Cache + prefetch 視窗從 timeStore.getRangeDays() 讀取（與 TimelineControls 共用 SSOT）
-function subscribeRange(cb: () => void) {
-  return timeStore.subscribeRangeDays(cb);
-}
-function getRangeSnapshot() {
-  return timeStore.getRangeDays();
-}
-
 export function useCwaImageryLayer({
   mapRef,
   cloudVisible,
@@ -165,15 +139,11 @@ export function useCwaImageryLayer({
   cloudOpacity,
   radarOpacity,
 }: UseCwaImageryLayerOptions) {
-  // 與全域共用：用戶切 TimelineControls 上的 1~7d，整批 time-aware layer 一起改
-  const preloadDays = useSyncExternalStore(subscribeRange, getRangeSnapshot);
   const cloudRef = useRef<LayerState>(createEmptyState());
   const radarRef = useRef<LayerState>(createEmptyState());
-  // 最新可見性 / preloadDays（給 subscribeDate / 背景預載 callback 避免閉包過期）
+  // 最新可見性（給 subscribeDate / 背景預載 callback 避免閉包過期）
   const visRef = useRef({ cloud: cloudVisible, radar: radarVisible });
   visRef.current = { cloud: cloudVisible, radar: radarVisible };
-  const preloadDaysRef = useRef(preloadDays);
-  preloadDaysRef.current = preloadDays;
   // per-dataset cache：dsId → dateKey → CacheSlot；access order 維護 LRU（last = 最近用過）
   const cacheRef = useRef<Map<string, Map<string, CacheSlot>>>(new Map());
   const orderRef = useRef<Map<string, string[]>>(new Map());
@@ -202,7 +172,7 @@ export function useCwaImageryLayer({
       touchLRU(getOrder(dsId), dateKey);
     };
 
-    /** 載入單一 (dsId, dateKey) 進 cache；foreground=true 走 withLoading 顯示 spinner */
+    /** 載入單一 (dsId, dateKey) 進 cache；foreground=true 才灌 LOADING panel */
     const loadOne = async (dsId: string, dateKey: string, foreground: boolean) => {
       const cache = getCache(dsId);
       if (cache.has(dateKey)) {
@@ -213,7 +183,7 @@ export function useCwaImageryLayer({
       if (inflight.has(dateKey)) return;
       inflight.add(dateKey);
       try {
-        const batch = await loadCwaImageryBatch([dsId], windowForDate(dateKey));
+        const batch = await loadCwaImageryBatch([dsId], windowForDate(dateKey), { silent: !foreground });
         const slot = batch.get(dsId);
         if (disposedRef.current) {
           if (slot) for (const u of slot.urls.values()) URL.revokeObjectURL(u);
@@ -234,7 +204,7 @@ export function useCwaImageryLayer({
       }
     };
 
-    /** 對 visible datasets，foreground 載入當天 + background 預載鄰近日 + LRU 清舊 */
+    /** 對 visible datasets，foreground 載入當天 + background 預載視窗其他日 + LRU 清舊 */
     const ensureFresh = async () => {
       if (disposedRef.current) return;
       const dk = timeStore.getDateKey();
@@ -243,8 +213,10 @@ export function useCwaImageryLayer({
       if (visRef.current.radar) datasets.push(RADAR_DATASET);
       if (datasets.length === 0) return;
 
-      const N = Math.max(1, Math.min(7, preloadDaysRef.current));
-      const allKeys = prefetchDateKeys(dk, N);
+      // 嚴格用 timeline 視窗的日期清單，不外推 ±N（視窗外不打 RPC）
+      const allKeys = timeStore.getWindowDateKeys();
+      if (!allKeys.includes(dk)) allKeys.push(dk); // 當前日不在視窗也要載
+      const N = Math.max(allKeys.length, 1);
 
       // 1) 當天前景載入（若 cache 已有 = no-op）
       const fg = datasets.map(async (dsId) => {
@@ -280,8 +252,10 @@ export function useCwaImageryLayer({
 
     void ensureFresh();
     const unsubDate = timeStore.subscribeDate(() => { void ensureFresh(); });
-    return () => unsubDate();
-  }, [cloudVisible, radarVisible, preloadDays]);
+    // 視窗變動 → 重跑預載 + LRU evict
+    const unsubWindow = timeStore.subscribeWindowDateKeys(() => { void ensureFresh(); });
+    return () => { unsubDate(); unsubWindow(); };
+  }, [cloudVisible, radarVisible]);
 
   // ── Layer 生命週期 + frame 切換 ──
   // visibility / opacity 變動 → reconcile；時間變動由 timeStore 訂閱觸發 reconcile
@@ -372,17 +346,8 @@ export function useCwaImageryLayer({
     };
   }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity]);
 
-  // ── 調整 preloadDays 時：以當前日為中心 evict 多出的最舊日 ──
-  useEffect(() => {
-    const N = Math.max(1, Math.min(7, preloadDays));
-    const dk = timeStore.getDateKey();
-    const protect = new Set(prefetchDateKeys(dk, N));
-    for (const [dsId, cache] of cacheRef.current) {
-      const order = orderRef.current.get(dsId);
-      if (!order) continue;
-      evictExcess(cache, order, N, protect);
-    }
-  }, [preloadDays]);
+  // 注：原本獨立的 preloadDays effect 已不需要 — window 變動會由 subscribeWindowDateKeys
+  // 觸發 ensureFresh，evict 邏輯在那裡執行（保護視窗內所有日）。
 
   // ── Unmount 清理 ──
   useEffect(() => {

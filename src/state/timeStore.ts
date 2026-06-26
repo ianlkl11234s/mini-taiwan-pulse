@@ -25,12 +25,15 @@ function toDateKey(unixSec: number): string {
 
 let currentTime = Date.now() / 1000;
 let currentDateKey = toDateKey(currentTime);
-// timeline 範圍天數（1~7）；time-aware loader 用它決定要 prefetch ±幾天
+// timeline 範圍天數（1~7）；time-aware loader 用它決定要 prefetch 幾天
 let currentRangeDays = 1;
+// timeline 視窗內的完整日期 keys（含 selectedDate 起 N 天）；prefetch 嚴格只認這份
+let currentWindowDateKeys: string[] = [currentDateKey];
 
 const rawListeners = new Set<Listener<number>>();
 const dateListeners = new Set<Listener<string>>();
 const rangeDaysListeners = new Set<Listener<number>>();
+const windowListeners = new Set<Listener<string[]>>();
 
 // 節流訂閱需要各自追蹤 last fire 時間，所以包成獨立 entry。
 interface ThrottledEntry {
@@ -155,6 +158,25 @@ export const timeStore = {
   subscribeRangeDays(cb: Listener<number>): () => void {
     rangeDaysListeners.add(cb);
     return () => rangeDaysListeners.delete(cb);
+  },
+
+  // ── Timeline 視窗內的日期 keys ──
+  // SSOT 由 useTimeline 寫入：selectedDate ~ selectedDate+rangeDays-1。
+  // time-aware loader 預載這份清單而**不**外推；視窗外完全不打 RPC。
+  getWindowDateKeys(): string[] {
+    return currentWindowDateKeys;
+  },
+  setWindowDateKeys(keys: string[]): void {
+    if (
+      keys.length === currentWindowDateKeys.length &&
+      keys.every((k, i) => k === currentWindowDateKeys[i])
+    ) return;
+    currentWindowDateKeys = keys.slice();
+    for (const cb of windowListeners) cb(currentWindowDateKeys);
+  },
+  subscribeWindowDateKeys(cb: Listener<string[]>): () => void {
+    windowListeners.add(cb);
+    return () => windowListeners.delete(cb);
   },
 };
 

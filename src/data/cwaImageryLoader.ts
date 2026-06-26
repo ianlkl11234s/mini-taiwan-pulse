@@ -55,20 +55,23 @@ export interface CwaImageryWindow {
 export async function loadCwaImageryBatch(
   datasetIds: string[],
   window: CwaImageryWindow,
+  opts: { silent?: boolean } = {},
 ): Promise<Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>> {
-  const key = `cwa-imagery-batch:${datasetIds.join(",")}`;
-  const label = `CWA 影像批次載入 ${datasetIds.join("/")}`;
+  const rpcPromise = supabase.rpc("get_cwa_imagery_frames_batch", {
+    p_dataset_ids: datasetIds,
+    p_since: window.sinceIso,
+    p_until: window.untilIso,
+    p_step_minutes: window.stepMinutes,
+  });
 
-  const { data, error } = await withLoading(
-    key,
-    label,
-    supabase.rpc("get_cwa_imagery_frames_batch", {
-      p_dataset_ids: datasetIds,
-      p_since: window.sinceIso,
-      p_until: window.untilIso,
-      p_step_minutes: window.stepMinutes,
-    }),
-  );
+  // silent=true 走背景 prefetch 路徑，不灌 LOADING panel
+  const { data, error } = await (opts.silent
+    ? rpcPromise
+    : withLoading(
+        `cwa-imagery-batch:${datasetIds.join(",")}`,
+        `CWA 影像批次載入 ${datasetIds.join("/")}`,
+        rpcPromise,
+      ));
 
   if (error) throw new Error(`get_cwa_imagery_frames_batch: ${error.message}`);
 

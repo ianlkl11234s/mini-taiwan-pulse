@@ -80,12 +80,9 @@ export interface NuclearDay {
   stations: NuclearStationSeries[];
 }
 
-async function fetchNuclearDayUncached(dateKey: string): Promise<NuclearDay> {
-  const { data, error } = await withLoading(
-    `nuclear:day:${dateKey}`,
-    `核安 ${dateKey} 整日`,
-    supabase.rpc("get_nuclear_radiation_day", { date_key: dateKey }),
-  );
+// 2026-06-26：分 raw + wrapped — prefetch 走 raw（背景靜默不灌 LOADING panel）。
+async function fetchNuclearDayRaw(dateKey: string): Promise<NuclearDay> {
+  const { data, error } = await supabase.rpc("get_nuclear_radiation_day", { date_key: dateKey });
   if (error) throw new Error(`get_nuclear_radiation_day: ${error.message}`);
   const obj = (data ?? {}) as Partial<NuclearDay>;
   return {
@@ -94,11 +91,15 @@ async function fetchNuclearDayUncached(dateKey: string): Promise<NuclearDay> {
   };
 }
 const fetchNuclearDayCached = cachedByKey<NuclearDay>(
-  (key) => fetchNuclearDayUncached(key),
+  fetchNuclearDayRaw,
   10 * 60_000,
-  3,
+  8, // 配合 timeline rangeDays 最高 7 + 1 spare
 );
+/** Foreground — 顯示 LOADING tracker。Hook 應該用這個載當前日。 */
 export const fetchNuclearDay = (dateKey: string): Promise<NuclearDay> =>
+  withLoading(`nuclear:day:${dateKey}`, `核安 ${dateKey} 整日`, fetchNuclearDayCached(dateKey));
+/** Prefetch — 靜默，不灌 LOADING panel。與 fetchNuclearDay 共用 cache。 */
+export const prefetchNuclearDay = (dateKey: string): Promise<NuclearDay> =>
   fetchNuclearDayCached(dateKey);
 
 /**

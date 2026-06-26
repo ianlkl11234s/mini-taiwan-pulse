@@ -1,17 +1,17 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import {
-  fetchLightningDay, invalidateLightningDay,
+  fetchLightningDay, prefetchLightningDay, invalidateLightningDay,
   toLightningFCAt,
   type LightningStrike,
 } from "../data/lightningLoader";
 import {
-  fetchNuclearDay,
+  fetchNuclearDay, prefetchNuclearDay,
   buildNuclearFCAt,
   type NuclearDay,
 } from "../data/nuclearLoader";
 import { timeStore } from "../state/timeStore";
-import { prefetchAroundDate } from "../lib/dayPrefetch";
+import { subscribePrefetchWindow } from "../lib/dayPrefetch";
 
 /**
  * HAZARD（v2 Phase B++）— 落雷 + 核安，**day preload + scrub fade**
@@ -111,16 +111,11 @@ export function useLightningLayer(
         .catch((err) => console.warn("[HAZARD/lightning] day load failed:", err));
     };
 
-    const prefetchNeighbors = (dateKey: string) => {
-      // 預載 ±days 進 fetchLightningDay 的 cache（cachedByKey 10min TTL 自動去重）
-      prefetchAroundDate(dateKey, timeStore.getRangeDays(), fetchLightningDay, "[HAZARD/lightning]");
-    };
-
     loadDay(timeStore.getDateKey());
-    prefetchNeighbors(timeStore.getDateKey());
+    // 視窗內其他日 → silent prefetch（共用 cachedByKey，不灌 LOADING panel）
+    const unsubPrefetch = subscribePrefetchWindow(prefetchLightningDay, "[HAZARD/lightning]");
 
-    const unsubDate = timeStore.subscribeDate((key) => { loadDay(key); prefetchNeighbors(key); });
-    const unsubRange = timeStore.subscribeRangeDays(() => prefetchNeighbors(timeStore.getDateKey()));
+    const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
     const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_LIGHTNING, recompute);
 
     const id = window.setInterval(() => {
@@ -131,7 +126,7 @@ export function useLightningLayer(
     return () => {
       cancelled = true;
       unsubDate();
-      unsubRange();
+      unsubPrefetch();
       unsubTime();
       window.clearInterval(id);
     };
@@ -173,15 +168,10 @@ export function useNuclearLayer(
         .catch((err) => console.warn("[HAZARD/nuclear] day load failed:", err));
     };
 
-    const prefetchNeighbors = (dateKey: string) => {
-      prefetchAroundDate(dateKey, timeStore.getRangeDays(), fetchNuclearDay, "[HAZARD/nuclear]");
-    };
-
     loadDay(timeStore.getDateKey());
-    prefetchNeighbors(timeStore.getDateKey());
+    const unsubPrefetch = subscribePrefetchWindow(prefetchNuclearDay, "[HAZARD/nuclear]");
 
-    const unsubDate = timeStore.subscribeDate((key) => { loadDay(key); prefetchNeighbors(key); });
-    const unsubRange = timeStore.subscribeRangeDays(() => prefetchNeighbors(timeStore.getDateKey()));
+    const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
     const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_NUCLEAR, recompute);
 
     const id = window.setInterval(() => {
@@ -191,7 +181,7 @@ export function useNuclearLayer(
     return () => {
       cancelled = true;
       unsubDate();
-      unsubRange();
+      unsubPrefetch();
       unsubTime();
       window.clearInterval(id);
     };

@@ -78,22 +78,23 @@ export const fetchLightningWindow = (centerTs: number, halfMin: number): Promise
 export const invalidateLightningWindow = (): void => fetchLightningWindowCached.invalidate();
 
 // ── day preload（v2 Phase B++，RPC 226）─────────────────────
-// 整天落雷一次抓，前端 client-side filter + fade，scrub 不再打 server
-async function fetchLightningDayUncached(dateKey: string): Promise<LightningStrike[]> {
-  const { data, error } = await withLoading(
-    `lightning:day:${dateKey}`,
-    `落雷 ${dateKey} 整日`,
-    supabase.rpc("get_lightning_day", { date_key: dateKey }),
-  );
+// 整天落雷一次抓，前端 client-side filter + fade，scrub 不再打 server。
+// 2026-06-26：分 raw + wrapped — prefetch 走 raw（背景靜默不灌 LOADING panel）。
+async function fetchLightningDayRaw(dateKey: string): Promise<LightningStrike[]> {
+  const { data, error } = await supabase.rpc("get_lightning_day", { date_key: dateKey });
   if (error) throw new Error(`get_lightning_day: ${error.message}`);
   return (data ?? []) as LightningStrike[];
 }
 const fetchLightningDayCached = cachedByKey<LightningStrike[]>(
-  (key) => fetchLightningDayUncached(key),
+  fetchLightningDayRaw,
   10 * 60_000,
-  3, // 通常只用今日 / 昨日 / 前日
+  8, // 配合 timeline rangeDays 最高 7 + 1 spare
 );
+/** Foreground — 顯示 LOADING tracker。Hook 應該用這個載當前日。 */
 export const fetchLightningDay = (dateKey: string): Promise<LightningStrike[]> =>
+  withLoading(`lightning:day:${dateKey}`, `落雷 ${dateKey} 整日`, fetchLightningDayCached(dateKey));
+/** Prefetch — 靜默，不灌 LOADING panel。與 fetchLightningDay 共用 cache。 */
+export const prefetchLightningDay = (dateKey: string): Promise<LightningStrike[]> =>
   fetchLightningDayCached(dateKey);
 export const invalidateLightningDay = (dateKey?: string): void =>
   fetchLightningDayCached.invalidate(dateKey);
