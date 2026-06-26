@@ -290,23 +290,23 @@ export function useCwaImageryLayer({
       currentTimeSec: number,
     ) => {
       if (!visible) {
-        // 關閉：移除 handle 但**保留 cache**（再開啟可秒切回原日資料）
-        if (state.handle) {
-          state.handle.remove();
-          state.handle = null;
-        }
-        state.currentIso = null;
-        state.activeDateKey = null;
+        // 軟隱藏：保留 handle + cache + activeDateKey，再開啟只要 setVisible(true)
+        // (map.removeLayer/removeSource 在 in-flight 期間有時不生效，setVisible 較穩)
+        state.handle?.setVisible(false);
         return;
       }
       const dsCache = cacheRef.current.get(dsId);
       const slot = state.activeDateKey ? dsCache?.get(state.activeDateKey) : undefined;
-      if (!slot || slot.bundle.frames.length === 0) return;
+      if (!slot || slot.bundle.frames.length === 0) {
+        // 沒資料：handle 仍存在但隱藏（避免顯示空白）
+        state.handle?.setVisible(false);
+        return;
+      }
 
       const frame = pickFrameForTime(slot.bundle.frames, currentTimeSec * 1000);
-      if (!frame) return;
+      if (!frame) { state.handle?.setVisible(false); return; }
       const url = slot.urls.get(frame.observedAtIso);
-      if (!url) return;
+      if (!url) { state.handle?.setVisible(false); return; }
 
       if (!state.handle) {
         state.handle = createCwaImageryLayer(map, {
@@ -324,6 +324,7 @@ export function useCwaImageryLayer({
         state.currentIso = frame.observedAtIso;
         keepLoadingUntilMapIdle(map, `cwa-render:${sourceId}`, `CWA 影像 渲染中`, null);
       } else {
+        state.handle.setVisible(true); // 從軟隱藏恢復
         if (state.currentIso !== frame.observedAtIso) {
           state.handle.setUrl(url);
           state.currentIso = frame.observedAtIso;
