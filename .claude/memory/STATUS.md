@@ -1,11 +1,61 @@
 # Status
 
-**最後更新**：2026-06-22 下午（化石燃料 14 layer + 加油站 30km coverage + accessibility-analysis SKILL 落地）
-**Master head**：本地 26 commits ahead origin（待 push + PR + merge）
+**最後更新**：2026-06-27 晚（PR #38 cwa-imagery cache + timeline rangeDays SSOT + dayPrefetch helper + 4 輪 bugfix 已 merged）
+**Master head**：`6cef521` 同步 origin/master ✅
 **gis-platform main head**：已 sync（migration 242 已 merged 為 c58c335）
-**Open branches**：無（一切在 master）
+**Open branches**：無
 
-## 2026-06-21~22 本 session 完成
+## 2026-06-27 本 session 完成
+
+**用戶定向**：base_map 5 dataset / 6 PMTiles 上線 → CWA 雷達 cache + 1~7d 預載 → 推廣到 lightning/nuclear → Supabase 被打掛 emergency fix → UX bug 連環修。
+
+### 完成清單（兩個 PR 都已 merged）
+
+| 段 | 內容 | PR / commits |
+|---|---|---|
+| **base_map 6 PMTiles 接線** | county / township / village 邊界 + contour_25k (10m) / contour_dtm20 (20m) + osm_road_drive 55 萬 edges；S3 子前綴 `deploy-assets/base_map/` 鏡像結構 + nginx + 7 處接線 + 6 popup panel + OsmRoadDriveLegend | **PR [#37](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/37)** (squash) `3cbb2c0` + `8775bea` |
+| **cwa-imagery per-day LRU cache** | 切日跳回原日 0 RPC，layer 關閉只 hide handle 不 dispose cache | PR [#38](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/38) `ccd74a7` |
+| **TimelineControls 1~7d 全選項** | 原本只有 1/3/7，補 2/4/5/6 | `f314a9c` |
+| **timeStore rangeDays + windowDateKeys SSOT** | 廢掉每 layer 各自 slider 的 fragmented 設計，整站共用 | `e6d273e` |
+| **dayPrefetch helper** | `src/lib/dayPrefetch.ts` — `prefetchWindow / subscribePrefetchWindow`，任何 `(dateKey) => Promise<T>` loader 一行接，已套 lightning / nuclear | 同上 |
+| **fix 1: window-only + silent prefetch** | 鄰近 ±N 改成嚴格只動 timeline 視窗；lightning/nuclear/cwa 分 `fetchXxxDay`（foreground）+ `prefetchXxxDay`（silent 不灌 LOADING panel），cache size 3→8 配合 rangeDays 7 | `c659812` |
+| **fix 2: rangeDays 走 useEffect sync** | setRangeDays 不再做副作用 + getWindowDateKeys 回傳 .slice() 防 mutate | `cb3fdcd` |
+| **fix 3: concurrency cap + debounce** | dayPrefetch 全域 `MAX_CONCURRENT_PREFETCH=2` + 500ms debounce；cwa 自己串行 + 600ms debounce + prefetchSeq 防 race（Supabase 之前被打到 unhealthy） | `c93a6e8` |
+| **fix 4: 軟隱藏取代 removeLayer** | 雷達關閉仍顯示 bug → reconcile visible=false 改用 `setVisible(false)`（Mapbox `removeLayer + removeSource` 在 in-flight image source 期間有時不生效） | `4c40a12` |
+
+### 關鍵新檔 / 概念
+
+- **`src/state/timeStore.ts`** 加 `getRangeDays / setRangeDays / subscribeRangeDays` + `getWindowDateKeys / setWindowDateKeys / subscribeWindowDateKeys`（後者為 prefetch 視窗 SSOT，由 useTimeline 寫入）
+- **`src/lib/dayPrefetch.ts`** 全新檔 — 全域 prefetch queue（concurrency cap 2 + 500ms debounce）+ `subscribePrefetchWindow(fetcher, tag)` 一行訂閱
+- **Loader pattern 分 raw + wrapped + prefetch**（lightning / nuclear 已套；其他 layer 未來照樣）：
+  - `fetchXxxDayRaw` 純 RPC，無 withLoading
+  - `cachedByKey` 上 raw（共用 cache）
+  - `export fetchXxxDay = (key) => withLoading(...id, label, cached(key))` foreground 顯示 LOADING tracker
+  - `export prefetchXxxDay = (key) => cached(key)` silent，與 foreground dedup 同一 promise
+
+### 1 個重要踩坑（教訓）
+
+**rangeDays=7 × 多 layer × 無 concurrency cap → Supabase pooler 被打掛 unhealthy**：
+- CWA radar 單日 ~32MB base64，rangeDays=7 + cloud + radar + lightning + nuclear = 28 個並發 RPC
+- 用戶看到 LOADING panel 滿屏 + 真實打掉 Supabase
+- 修法：全域 queue cap=2 + cwa 自己串行 cap=1 + debounce 500~600ms
+- **教訓**：任何「視窗預載」必須先做 concurrency budget 才能加
+
+### 還沒做但 helper 已就緒（下次 session 候補）
+
+- **precipRaster** hook-level cache 重構（同 cwa-imagery 之前坑：fetchPrecipRasterFrames revoke object URLs）
+- **8 個 helper 直套**：newsEvents / roadEvents / disasterAlerts / wasteSchedule / reservoirStatus / floodSensor / iotWraStructure / freeway
+- **4 個走 timelineSliceLayer factory**：rainGauge / riverLevel / groundwater / iotWraRiver（改 factory 一次到位）
+
+### 最終驗證
+
+- `npx tsc -b` 0 error（每個 commit 都過）
+- `pnpm test` 155/155（layerConsistency + featureInfoRegistry 全綠）
+- CI（test + review）兩個 PR 都 SUCCESS
+
+---
+
+## 2026-06-21~22 上一 session 完成
 
 **用戶定向**：能源 v2 化石燃料 13 layer sidebar toggle（先做）→ 加油站視覺化討論 → OSRM/可達性分析（後段大宗）→ SKILL 化整理。
 
