@@ -204,8 +204,11 @@ export function useCwaImageryLayer({
       }
     };
 
-    /** 對 visible datasets，foreground 載入當天 + background 預載視窗其他日 + LRU 清舊 */
-    const ensureFresh = async () => {
+    /**
+     * Foreground 載入當天（馬上要顯示）— 不 debounce、不排隊
+     * 注意：CWA 一個 day = ~30MB base64，foreground 已經夠重，不能再外推
+     */
+    const ensureForeground = async () => {
       if (disposedRef.current) return;
       const dk = timeStore.getDateKey();
       const datasets: string[] = [];
@@ -213,48 +216,62 @@ export function useCwaImageryLayer({
       if (visRef.current.radar) datasets.push(RADAR_DATASET);
       if (datasets.length === 0) return;
 
-      // 嚴格用 timeline 視窗的日期清單，不外推 ±N（視窗外不打 RPC）
-      const allKeys = timeStore.getWindowDateKeys();
-      if (!allKeys.includes(dk)) allKeys.push(dk); // 當前日不在視窗也要載
-      const N = Math.max(allKeys.length, 1);
-
-      // 1) 當天前景載入（若 cache 已有 = no-op）
       const fg = datasets.map(async (dsId) => {
         await loadOne(dsId, dk, true);
         if (disposedRef.current) return;
-        // 載完立刻 apply 並通知 reconcile，避免 race
         applyActive(stateOf(dsId), dsId, dk);
         runRef.current?.(timeStore.getTime());
       });
       await Promise.all(fg);
       if (disposedRef.current) return;
-
-      // 載入期間日期又變了 → 重新跑（避免渲染舊日）
-      if (timeStore.getDateKey() !== dk) {
-        void ensureFresh();
-        return;
-      }
-
-      // 2) 背景預載鄰近日（不 await，不擋 UI）
-      for (const dsId of datasets) {
-        for (const k of allKeys) {
-          if (k === dk) continue; // 當天已 foreground 載過
-          void loadOne(dsId, k, false);
-        }
-      }
-
-      // 3) LRU 清舊（保護當前 active + 即將預載的鄰近日）
-      const protect = new Set(allKeys);
-      for (const dsId of datasets) {
-        evictExcess(getCache(dsId), getOrder(dsId), N, protect);
-      }
+      if (timeStore.getDateKey() !== dk) void ensureForeground();
     };
 
-    void ensureFresh();
-    const unsubDate = timeStore.subscribeDate(() => { void ensureFresh(); });
-    // 視窗變動 → 重跑預載 + LRU evict
-    const unsubWindow = timeStore.subscribeWindowDateKeys(() => { void ensureFresh(); });
-    return () => { unsubDate(); unsubWindow(); };
+    /**
+     * Background prefetch 視窗其他日 + LRU 清舊
+     * 串行（每次只一個 RPC）+ debounce，避免 rangeDays=7 × 2 dataset 同時打 14 個 RPC 把 Supabase 撐死
+     */
+    let prefetchTimer: number | null = null;
+    let prefetchSeq = 0;
+    const PREFETCH_DEBOUNCE_MS = 600;
+    const schedulePrefetch = () => {
+      if (prefetchTimer !== null) window.clearTimeout(prefetchTimer);
+      prefetchTimer = window.setTimeout(async () => {
+        prefetchTimer = null;
+        if (disposedRef.current) return;
+        const mySeq = ++prefetchSeq;
+        const dk = timeStore.getDateKey();
+        const datasets: string[] = [];
+        if (visRef.current.cloud) datasets.push(CLOUD_DATASET);
+        if (visRef.current.radar) datasets.push(RADAR_DATASET);
+        if (datasets.length === 0) return;
+        const allKeys = timeStore.getWindowDateKeys();
+        if (!allKeys.includes(dk)) allKeys.push(dk);
+        // LRU evict 先做（保護視窗 + 當前日）
+        const protect = new Set(allKeys);
+        for (const dsId of datasets) {
+          evictExcess(getCache(dsId), getOrder(dsId), Math.max(allKeys.length, 1), protect);
+        }
+        // 串行 prefetch — 一次一個 RPC（CWA payload 重，並發會撐死 pooler）
+        for (const k of allKeys) {
+          if (k === dk) continue; // 當前日由 foreground 處理
+          for (const dsId of datasets) {
+            if (disposedRef.current || mySeq !== prefetchSeq) return;
+            await loadOne(dsId, k, false);
+          }
+        }
+      }, PREFETCH_DEBOUNCE_MS);
+    };
+
+    void ensureForeground();
+    schedulePrefetch();
+    const unsubDate = timeStore.subscribeDate(() => { void ensureForeground(); schedulePrefetch(); });
+    const unsubWindow = timeStore.subscribeWindowDateKeys(() => schedulePrefetch());
+    return () => {
+      if (prefetchTimer !== null) window.clearTimeout(prefetchTimer);
+      unsubDate();
+      unsubWindow();
+    };
   }, [cloudVisible, radarVisible]);
 
   // ── Layer 生命週期 + frame 切換 ──
