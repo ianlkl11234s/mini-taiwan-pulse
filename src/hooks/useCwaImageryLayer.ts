@@ -4,7 +4,7 @@
  * 職責：
  *  - 依 timeline 日期載入該日 frames（base64 → object URL）；切日（subscribeDate）重載
  *  - 根據 timeline.currentTime 找「時間不晚於 currentTime 的最近一張」並切換 image source
- *  - 關閉時 remove layer/source + revoke object URLs
+ *  - 關閉時 remove handle（但保留 cache，再開啟立即可用）
  *
  * 時間窗策略（migration 160）：
  *  - 今天（即時模式）：滾動 now-24h、全解析度（10min cadence），行為與舊版相同
@@ -14,6 +14,12 @@
  * 兩個 dataset：
  *   - O-C0042-004  衛星雲圖 (底層, 不透明預設 1.0)
  *   - O-A0058-005  雷達回波 (上層, 透明 0.85)
+ *
+ * Per-day LRU cache（2026-06-26）：
+ *  - cacheRef: dsId → dateKey → { bundle, urls }，access order 維護 LRU
+ *  - preloadDays (1~7) 控制 cache 上限 + 在當前日附近背景預載 ±days
+ *  - 切日命中 cache 就立即套用（不發 RPC、不 revoke）；layer 關閉只 remove handle，cache 留著
+ *  - 用戶調小 preloadDays → 立刻 evict 多出的最舊日
  */
 
 import { useEffect, useRef } from "react";
@@ -57,27 +63,71 @@ function windowForDate(dateKey: string): CwaImageryWindow {
   };
 }
 
-interface LayerState {
-  bundle: CwaImageryBundle | null;
+/** Cache slot：單 dataset × 單日 的 frames + object URLs */
+interface CacheSlot {
+  bundle: CwaImageryBundle;
   urls: Map<string, string>; // observedAtIso → object URL
+}
+
+/** LayerState：只追蹤目前 active handle / 渲染中 frame，資料一律從 cache 拿 */
+interface LayerState {
   handle: CwaImageryLayerHandle | null;
-  loading: boolean;
-  loaded: boolean;
   currentIso: string | null;
-  /** 已載入 frames 所屬的 timeline 日期 key（YYYY-MM-DD） */
-  dateKey: string | null;
+  /** 目前 handle 對應的 cache slot 日期（YYYY-MM-DD） */
+  activeDateKey: string | null;
 }
 
 function createEmptyState(): LayerState {
-  return {
-    bundle: null,
-    urls: new Map(),
-    handle: null,
-    loading: false,
-    loaded: false,
-    currentIso: null,
-    dateKey: null,
-  };
+  return { handle: null, currentIso: null, activeDateKey: null };
+}
+
+/** Cache 管理：LRU 容量 = preloadDays */
+function getOrCreate<K, V>(m: Map<K, V>, k: K, factory: () => V): V {
+  let v = m.get(k);
+  if (v === undefined) { v = factory(); m.set(k, v); }
+  return v;
+}
+
+function touchLRU(arr: string[], dateKey: string) {
+  const idx = arr.indexOf(dateKey);
+  if (idx >= 0) arr.splice(idx, 1);
+  arr.push(dateKey);
+}
+
+function evictExcess(
+  cache: Map<string, CacheSlot>,
+  order: string[],
+  maxSize: number,
+  protectKeys: ReadonlySet<string>,
+) {
+  // 從最舊開始 evict，但不動 protectKeys（當前 active + 鄰近待預載日）
+  let i = 0;
+  while (cache.size > maxSize && i < order.length) {
+    const k = order[i]!;
+    if (protectKeys.has(k)) { i++; continue; }
+    const slot = cache.get(k);
+    if (slot) for (const u of slot.urls.values()) URL.revokeObjectURL(u);
+    cache.delete(k);
+    order.splice(i, 1);
+  }
+}
+
+/** 以當前日為中心，回傳要預載的 ±days dateKey 陣列（含當日） */
+function prefetchDateKeys(center: string, totalDays: number): string[] {
+  const out: string[] = [center];
+  if (totalDays <= 1) return out;
+  const back = Math.floor((totalDays - 1) / 2);
+  const fwd = Math.ceil((totalDays - 1) / 2);
+  const centerMs = new Date(`${center}T00:00:00+08:00`).getTime();
+  for (let d = 1; d <= back; d++) {
+    const ms = centerMs - d * 86400_000;
+    out.push(new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
+  }
+  for (let d = 1; d <= fwd; d++) {
+    const ms = centerMs + d * 86400_000;
+    out.push(new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }));
+  }
+  return out;
 }
 
 /** 找出時間 <= currentMs 的最近一張 frame（若全部晚於 currentMs 則回傳第一張） */
@@ -98,6 +148,8 @@ interface UseCwaImageryLayerOptions {
   radarVisible: boolean;
   cloudOpacity: number;
   radarOpacity: number;
+  /** Cache + 預載天數（1~7）；以當前日為中心 ±days，cache 上限 = 此值 */
+  preloadDays: number;
 }
 
 export function useCwaImageryLayer({
@@ -106,80 +158,123 @@ export function useCwaImageryLayer({
   radarVisible,
   cloudOpacity,
   radarOpacity,
+  preloadDays,
 }: UseCwaImageryLayerOptions) {
   const cloudRef = useRef<LayerState>(createEmptyState());
   const radarRef = useRef<LayerState>(createEmptyState());
-  // 最新可見性（給 subscribeDate callback 用，避免閉包過期）
+  // 最新可見性 / preloadDays（給 subscribeDate / 背景預載 callback 避免閉包過期）
   const visRef = useRef({ cloud: cloudVisible, radar: radarVisible });
   visRef.current = { cloud: cloudVisible, radar: radarVisible };
+  const preloadDaysRef = useRef(preloadDays);
+  preloadDaysRef.current = preloadDays;
+  // per-dataset cache：dsId → dateKey → CacheSlot；access order 維護 LRU（last = 最近用過）
+  const cacheRef = useRef<Map<string, Map<string, CacheSlot>>>(new Map());
+  const orderRef = useRef<Map<string, string[]>>(new Map());
+  // in-flight 防併發：dsId → set of dateKey 載入中
+  const inflightRef = useRef<Map<string, Set<string>>>(new Map());
   // reconcile 觸發器：載入完成後立即重算 frame，不等下一個 time tick
   const runRef = useRef<((t: number) => void) | null>(null);
   const disposedRef = useRef(false);
 
-  // ── Loader：可見性變化或 timeline 切日 → 載入該日 frames ──
+  // ── Loader / cache 管理 ──
   useEffect(() => {
-    // StrictMode 會 mount→unmount→remount：unmount 清理設了 disposed，
-    // remount 時必須重置，否則所有載入被永久擋掉
     disposedRef.current = false;
 
     const stateOf = (dsId: string) =>
       dsId === CLOUD_DATASET ? cloudRef.current : radarRef.current;
 
-    const loadDatasets = async (dateKey: string, datasets: string[]) => {
-      try {
-        const batch = await loadCwaImageryBatch(datasets, windowForDate(dateKey));
-        for (const dsId of datasets) {
-          const state = stateOf(dsId);
-          const slot = batch.get(dsId);
-          if (disposedRef.current) {
-            if (slot) for (const u of slot.urls.values()) URL.revokeObjectURL(u);
-            continue;
-          }
-          // 換日：釋放舊日 object URLs 再接上新資料
-          for (const u of state.urls.values()) URL.revokeObjectURL(u);
-          state.urls = slot?.urls ?? new Map();
-          state.bundle = slot?.bundle ?? { datasetId: dsId, frames: [] };
-          state.dateKey = dateKey;
-          state.loaded = true;
-          state.loading = false;
-          state.currentIso = null;
-          if (state.bundle.frames.length === 0) {
-            console.warn(`[CWA Imagery] no frames for ${dsId} @ ${dateKey}`);
-            state.handle?.setVisible(false);
-          } else {
-            state.handle?.setVisible(true);
-            console.log(`[CWA Imagery] ${dsId} loaded ${state.bundle.frames.length} frames @ ${dateKey}`);
-          }
-        }
-      } catch (err) {
-        console.warn("[CWA Imagery] load failed", err);
-        for (const dsId of datasets) stateOf(dsId).loading = false;
+    const getCache = (dsId: string) => getOrCreate(cacheRef.current, dsId, () => new Map<string, CacheSlot>());
+    const getOrder = (dsId: string) => getOrCreate(orderRef.current, dsId, () => [] as string[]);
+    const getInflight = (dsId: string) => getOrCreate(inflightRef.current, dsId, () => new Set<string>());
+
+    /** 套用 cache slot 到 active state（已在 cache 內），通知 reconcile 重算 */
+    const applyActive = (state: LayerState, dsId: string, dateKey: string) => {
+      if (state.activeDateKey === dateKey) return;
+      state.activeDateKey = dateKey;
+      state.currentIso = null; // 強制 reconcile 重選 frame + setUrl
+      touchLRU(getOrder(dsId), dateKey);
+    };
+
+    /** 載入單一 (dsId, dateKey) 進 cache；foreground=true 走 withLoading 顯示 spinner */
+    const loadOne = async (dsId: string, dateKey: string, foreground: boolean) => {
+      const cache = getCache(dsId);
+      if (cache.has(dateKey)) {
+        touchLRU(getOrder(dsId), dateKey);
         return;
       }
-      runRef.current?.(timeStore.getTime());
-      // 載入期間日期又變了 → 立刻補載正確日期
-      if (timeStore.getDateKey() !== dateKey) ensureFresh();
+      const inflight = getInflight(dsId);
+      if (inflight.has(dateKey)) return;
+      inflight.add(dateKey);
+      try {
+        const batch = await loadCwaImageryBatch([dsId], windowForDate(dateKey));
+        const slot = batch.get(dsId);
+        if (disposedRef.current) {
+          if (slot) for (const u of slot.urls.values()) URL.revokeObjectURL(u);
+          return;
+        }
+        if (!slot) return;
+        cache.set(dateKey, slot);
+        touchLRU(getOrder(dsId), dateKey);
+        if (slot.bundle.frames.length === 0) {
+          console.warn(`[CWA Imagery] no frames for ${dsId} @ ${dateKey}`);
+        } else {
+          console.log(`[CWA Imagery] ${dsId} ${foreground ? "loaded" : "prefetched"} ${slot.bundle.frames.length} frames @ ${dateKey}`);
+        }
+      } catch (err) {
+        console.warn(`[CWA Imagery] load failed ${dsId}@${dateKey}`, err);
+      } finally {
+        inflight.delete(dateKey);
+      }
     };
 
-    const ensureFresh = () => {
+    /** 對 visible datasets，foreground 載入當天 + background 預載鄰近日 + LRU 清舊 */
+    const ensureFresh = async () => {
       if (disposedRef.current) return;
       const dk = timeStore.getDateKey();
-      const need: string[] = [];
-      const check = (visible: boolean, state: LayerState, dsId: string) => {
-        if (visible && !state.loading && (!state.loaded || state.dateKey !== dk)) {
-          state.loading = true;
-          need.push(dsId);
+      const datasets: string[] = [];
+      if (visRef.current.cloud) datasets.push(CLOUD_DATASET);
+      if (visRef.current.radar) datasets.push(RADAR_DATASET);
+      if (datasets.length === 0) return;
+
+      const N = Math.max(1, Math.min(7, preloadDaysRef.current));
+      const allKeys = prefetchDateKeys(dk, N);
+
+      // 1) 當天前景載入（若 cache 已有 = no-op）
+      const fg = datasets.map(async (dsId) => {
+        await loadOne(dsId, dk, true);
+        if (disposedRef.current) return;
+        // 載完立刻 apply 並通知 reconcile，避免 race
+        applyActive(stateOf(dsId), dsId, dk);
+        runRef.current?.(timeStore.getTime());
+      });
+      await Promise.all(fg);
+      if (disposedRef.current) return;
+
+      // 載入期間日期又變了 → 重新跑（避免渲染舊日）
+      if (timeStore.getDateKey() !== dk) {
+        void ensureFresh();
+        return;
+      }
+
+      // 2) 背景預載鄰近日（不 await，不擋 UI）
+      for (const dsId of datasets) {
+        for (const k of allKeys) {
+          if (k === dk) continue; // 當天已 foreground 載過
+          void loadOne(dsId, k, false);
         }
-      };
-      check(visRef.current.cloud, cloudRef.current, CLOUD_DATASET);
-      check(visRef.current.radar, radarRef.current, RADAR_DATASET);
-      if (need.length > 0) void loadDatasets(dk, need);
+      }
+
+      // 3) LRU 清舊（保護當前 active + 即將預載的鄰近日）
+      const protect = new Set(allKeys);
+      for (const dsId of datasets) {
+        evictExcess(getCache(dsId), getOrder(dsId), N, protect);
+      }
     };
 
-    ensureFresh();
-    const unsubDate = timeStore.subscribeDate(() => ensureFresh());
+    void ensureFresh();
+    const unsubDate = timeStore.subscribeDate(() => { void ensureFresh(); });
     return () => unsubDate();
-  }, [cloudVisible, radarVisible]);
+  }, [cloudVisible, radarVisible, preloadDays]);
 
   // ── Layer 生命週期 + frame 切換 ──
   // visibility / opacity 變動 → reconcile；時間變動由 timeStore 訂閱觸發 reconcile
@@ -189,6 +284,7 @@ export function useCwaImageryLayer({
 
     const reconcile = (
       state: LayerState,
+      dsId: string,
       visible: boolean,
       opacity: number,
       sourceId: string,
@@ -196,25 +292,22 @@ export function useCwaImageryLayer({
       currentTimeSec: number,
     ) => {
       if (!visible) {
-        // 關閉：移除 layer + source，釋放 object URLs
+        // 關閉：移除 handle 但**保留 cache**（再開啟可秒切回原日資料）
         if (state.handle) {
           state.handle.remove();
           state.handle = null;
         }
-        for (const url of state.urls.values()) URL.revokeObjectURL(url);
-        state.urls = new Map();
-        state.bundle = null;
-        state.loaded = false;
-        state.loading = false;
         state.currentIso = null;
-        state.dateKey = null;
+        state.activeDateKey = null;
         return;
       }
-      if (!state.bundle || !state.loaded || state.urls.size === 0) return;
+      const dsCache = cacheRef.current.get(dsId);
+      const slot = state.activeDateKey ? dsCache?.get(state.activeDateKey) : undefined;
+      if (!slot || slot.bundle.frames.length === 0) return;
 
-      const frame = pickFrameForTime(state.bundle.frames, currentTimeSec * 1000);
+      const frame = pickFrameForTime(slot.bundle.frames, currentTimeSec * 1000);
       if (!frame) return;
-      const url = state.urls.get(frame.observedAtIso);
+      const url = slot.urls.get(frame.observedAtIso);
       if (!url) return;
 
       if (!state.handle) {
@@ -243,8 +336,8 @@ export function useCwaImageryLayer({
     };
 
     const run = (currentTimeSec: number) => {
-      reconcile(cloudRef.current, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
-      reconcile(radarRef.current, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
+      reconcile(cloudRef.current, CLOUD_DATASET, cloudVisible, cloudOpacity, "cwa-cloud-src", "cwa-cloud-layer", currentTimeSec);
+      reconcile(radarRef.current, RADAR_DATASET, radarVisible, radarOpacity, "cwa-radar-src", "cwa-radar-layer", currentTimeSec);
     };
     runRef.current = run;
 
@@ -272,6 +365,18 @@ export function useCwaImageryLayer({
     };
   }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity]);
 
+  // ── 調整 preloadDays 時：以當前日為中心 evict 多出的最舊日 ──
+  useEffect(() => {
+    const N = Math.max(1, Math.min(7, preloadDays));
+    const dk = timeStore.getDateKey();
+    const protect = new Set(prefetchDateKeys(dk, N));
+    for (const [dsId, cache] of cacheRef.current) {
+      const order = orderRef.current.get(dsId);
+      if (!order) continue;
+      evictExcess(cache, order, N, protect);
+    }
+  }, [preloadDays]);
+
   // ── Unmount 清理 ──
   useEffect(() => {
     disposedRef.current = false; // StrictMode remount 重置
@@ -279,16 +384,19 @@ export function useCwaImageryLayer({
       disposedRef.current = true;
       for (const state of [cloudRef.current, radarRef.current]) {
         if (state.handle) {
-          try {
-            state.handle.remove();
-          } catch {
-            /* map 可能已銷毀 */
-          }
+          try { state.handle.remove(); } catch { /* map 可能已銷毀 */ }
           state.handle = null;
         }
-        for (const url of state.urls.values()) URL.revokeObjectURL(url);
-        state.urls = new Map();
       }
+      // 全清 cache 內的 object URLs（避免洩漏）
+      for (const cache of cacheRef.current.values()) {
+        for (const slot of cache.values()) {
+          for (const u of slot.urls.values()) URL.revokeObjectURL(u);
+        }
+      }
+      cacheRef.current.clear();
+      orderRef.current.clear();
+      inflightRef.current.clear();
     };
   }, []);
 }
