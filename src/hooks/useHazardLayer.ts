@@ -1,16 +1,17 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import {
-  fetchLightningDay, invalidateLightningDay,
+  fetchLightningDay, prefetchLightningDay, invalidateLightningDay,
   toLightningFCAt,
   type LightningStrike,
 } from "../data/lightningLoader";
 import {
-  fetchNuclearDay,
+  fetchNuclearDay, prefetchNuclearDay,
   buildNuclearFCAt,
   type NuclearDay,
 } from "../data/nuclearLoader";
 import { timeStore } from "../state/timeStore";
+import { subscribePrefetchWindow } from "../lib/dayPrefetch";
 
 /**
  * HAZARD（v2 Phase B++）— 落雷 + 核安，**day preload + scrub fade**
@@ -111,6 +112,8 @@ export function useLightningLayer(
     };
 
     loadDay(timeStore.getDateKey());
+    // 視窗內其他日 → silent prefetch（共用 cachedByKey，不灌 LOADING panel）
+    const unsubPrefetch = subscribePrefetchWindow(prefetchLightningDay, "[HAZARD/lightning]");
 
     const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
     const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_LIGHTNING, recompute);
@@ -123,6 +126,7 @@ export function useLightningLayer(
     return () => {
       cancelled = true;
       unsubDate();
+      unsubPrefetch();
       unsubTime();
       window.clearInterval(id);
     };
@@ -165,6 +169,7 @@ export function useNuclearLayer(
     };
 
     loadDay(timeStore.getDateKey());
+    const unsubPrefetch = subscribePrefetchWindow(prefetchNuclearDay, "[HAZARD/nuclear]");
 
     const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
     const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_NUCLEAR, recompute);
@@ -176,6 +181,7 @@ export function useNuclearLayer(
     return () => {
       cancelled = true;
       unsubDate();
+      unsubPrefetch();
       unsubTime();
       window.clearInterval(id);
     };
