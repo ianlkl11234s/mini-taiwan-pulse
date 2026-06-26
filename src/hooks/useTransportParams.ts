@@ -261,8 +261,6 @@ export function useTransportParams() {
   // CWA Imagery (衛星雲圖 / 雷達)
   const [cwaCloudOpacity, setCwaCloudOpacity] = useState(1.0);
   const [cwaRadarOpacity, setCwaRadarOpacity] = useState(0.85);
-  // CWA 影像 LRU + 預載天數（雲圖 / 雷達共用）：當前日 ± floor((N-1)/2) ~ ceil((N-1)/2)
-  const [imageryPreloadDays, setImageryPreloadDays] = useState(3);
   // Earthquake
   const [eqOpacity, setEqOpacity] = useState(1.0);
   const [eqShowHistory, setEqShowHistory] = useState(false);
@@ -1180,13 +1178,12 @@ export function useTransportParams() {
       case "satellitesIsrael": return [
         { label: `Opacity ${satOpacity.toFixed(2)}`, value: satOpacity, min: 0, max: 1, step: 0.05, onChange: setSatOpacity },
       ];
+      // 預載 1~7d 共用 timeline rangeDays（TimelineControls 下拉），這裡不重覆出 slider
       case "cwaCloudImagery": return [
         { label: `Opacity ${cwaCloudOpacity.toFixed(2)}`, value: cwaCloudOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaCloudOpacity },
-        { label: `預載 ${imageryPreloadDays}d (cache)`, value: imageryPreloadDays, min: 1, max: 7, step: 1, onChange: setImageryPreloadDays },
       ];
       case "cwaRadarImagery": return [
         { label: `Opacity ${cwaRadarOpacity.toFixed(2)}`, value: cwaRadarOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaRadarOpacity },
-        { label: `預載 ${imageryPreloadDays}d (cache)`, value: imageryPreloadDays, min: 1, max: 7, step: 1, onChange: setImageryPreloadDays },
       ];
       case "youbikeFullness": return [
         { type: "select" as const, label: "Grid", value: String(ybResolution), options: [{ label: "大", value: "7" }, { label: "中", value: "8" }, { label: "小", value: "9" }], onChange: (v: string) => setYbResolution(Number(v)) },
@@ -1769,7 +1766,6 @@ export function useTransportParams() {
     youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale, heightMode: ybHeightMode }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale, ybHeightMode]),
     cwaCloudOpacity,
     cwaRadarOpacity,
-    imageryPreloadDays,
     eqOpacity,
     eqShowHistory,
     daOpacity,

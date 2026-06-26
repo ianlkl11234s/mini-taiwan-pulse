@@ -939,7 +939,6 @@ export default function App() {
     radarVisible: layerVisibility.cwaRadarImagery,
     cloudOpacity: transportParams.cwaCloudOpacity,
     radarOpacity: transportParams.cwaRadarOpacity,
-    preloadDays: transportParams.imageryPreloadDays,
   });
 
   // ── 空氣品質：色階 raster + 77 站 + LASS 微型感測 ──

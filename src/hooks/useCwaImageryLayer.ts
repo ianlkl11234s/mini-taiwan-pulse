@@ -22,7 +22,7 @@
  *  - 用戶調小 preloadDays → 立刻 evict 多出的最舊日
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import {
   loadCwaImageryBatch,
@@ -148,8 +148,14 @@ interface UseCwaImageryLayerOptions {
   radarVisible: boolean;
   cloudOpacity: number;
   radarOpacity: number;
-  /** Cache + 預載天數（1~7）；以當前日為中心 ±days，cache 上限 = 此值 */
-  preloadDays: number;
+}
+
+// Cache + prefetch 視窗從 timeStore.getRangeDays() 讀取（與 TimelineControls 共用 SSOT）
+function subscribeRange(cb: () => void) {
+  return timeStore.subscribeRangeDays(cb);
+}
+function getRangeSnapshot() {
+  return timeStore.getRangeDays();
 }
 
 export function useCwaImageryLayer({
@@ -158,8 +164,9 @@ export function useCwaImageryLayer({
   radarVisible,
   cloudOpacity,
   radarOpacity,
-  preloadDays,
 }: UseCwaImageryLayerOptions) {
+  // 與全域共用：用戶切 TimelineControls 上的 1~7d，整批 time-aware layer 一起改
+  const preloadDays = useSyncExternalStore(subscribeRange, getRangeSnapshot);
   const cloudRef = useRef<LayerState>(createEmptyState());
   const radarRef = useRef<LayerState>(createEmptyState());
   // 最新可見性 / preloadDays（給 subscribeDate / 背景預載 callback 避免閉包過期）

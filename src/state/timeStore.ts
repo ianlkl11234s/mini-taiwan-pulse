@@ -25,9 +25,12 @@ function toDateKey(unixSec: number): string {
 
 let currentTime = Date.now() / 1000;
 let currentDateKey = toDateKey(currentTime);
+// timeline 範圍天數（1~7）；time-aware loader 用它決定要 prefetch ±幾天
+let currentRangeDays = 1;
 
 const rawListeners = new Set<Listener<number>>();
 const dateListeners = new Set<Listener<string>>();
+const rangeDaysListeners = new Set<Listener<number>>();
 
 // 節流訂閱需要各自追蹤 last fire 時間，所以包成獨立 entry。
 interface ThrottledEntry {
@@ -135,6 +138,23 @@ export const timeStore = {
   subscribeDate(cb: Listener<string>): () => void {
     dateListeners.add(cb);
     return () => dateListeners.delete(cb);
+  },
+
+  // ── Timeline 範圍天數（共用 prefetch window）──
+  // SSOT 由 useTimeline 寫入；time-aware loader（cwa-imagery / lightning /
+  // precip / ...）讀此值決定要 prefetch ±幾天。1~7 由 TimelineControls 下拉。
+  getRangeDays(): number {
+    return currentRangeDays;
+  },
+  setRangeDays(n: number): void {
+    const clamped = Math.max(1, Math.min(7, Math.floor(n)));
+    if (clamped === currentRangeDays) return;
+    currentRangeDays = clamped;
+    for (const cb of rangeDaysListeners) cb(currentRangeDays);
+  },
+  subscribeRangeDays(cb: Listener<number>): () => void {
+    rangeDaysListeners.add(cb);
+    return () => rangeDaysListeners.delete(cb);
   },
 };
 
