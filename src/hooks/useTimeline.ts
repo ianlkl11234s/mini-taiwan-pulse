@@ -82,13 +82,11 @@ export function useTimeline({
     const todayStr = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
     return new Date(todayStr + "T00:00:00+08:00");
   });
-  // rangeDays SSOT 在 timeStore（共用給 time-aware loader 的 prefetch 視窗）。
-  // 本地 mirror 一份給 React render，setRangeDays 雙寫保證 listener 收到。
-  const [rangeDays, setRangeDaysState] = useState<number>(() => timeStore.getRangeDays());
-  const setRangeDays = useCallback((n: number) => {
-    timeStore.setRangeDays(n);
-    setRangeDaysState(timeStore.getRangeDays());
-  }, []);
+  const [rangeDays, setRangeDays] = useState<number>(1);
+  // rangeDays 同步進 timeStore — 給 time-aware loader 訂閱 prefetch 視窗
+  useEffect(() => {
+    timeStore.setRangeDays(rangeDays);
+  }, [rangeDays]);
 
   // 視窗起止
   const windowStart = dayStartUnix(selectedDate);

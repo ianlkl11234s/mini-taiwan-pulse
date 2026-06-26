@@ -164,7 +164,8 @@ export const timeStore = {
   // SSOT 由 useTimeline 寫入：selectedDate ~ selectedDate+rangeDays-1。
   // time-aware loader 預載這份清單而**不**外推；視窗外完全不打 RPC。
   getWindowDateKeys(): string[] {
-    return currentWindowDateKeys;
+    // 回傳 copy — 防止 caller 不小心 mutate 影響到下一次 equality 判斷
+    return currentWindowDateKeys.slice();
   },
   setWindowDateKeys(keys: string[]): void {
     if (
