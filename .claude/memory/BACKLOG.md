@@ -300,3 +300,35 @@
 - ✅ 2025-04~09 **買賣**量縮（2025-06 谷底 2,296）是**真實市況**：央行 2024-09 第七波信用管制，2025 全年買賣移轉年減 23~25%、創 1991 來最大跌幅（六都八年新低）。只買賣崩、租賃高檔 = 打房貸特徵。**非資料問題，不需處理**。
 - ⚠️ city="?" 36,354(8.8%)→77(0.02%)：根因地號地址無縣市前綴，06_merge 只解地址 → 改**優先用 MOI 來源權威 `city` 欄位**（避 district 名稱歧義如信義/東/中正區）。96% 來自單一檔 sale_moi_B5_B6_extended。analytics commit `a5f98c7`（本地 master 未 push，依慣例）。
 - ⚠️ "?" 點有少量段-中心疊點（地號無門牌 geocode 落地段中心，最多 196 點疊一處，但 83% 唯一座標），屬地號精度正常現象。
+
+### Base Map 擴展（BM 系列，2026-06-27 加 — 4 個新底圖 dataset）
+
+> PR #37 已上線 6 個 base_map PMTiles（county/township/village_boundary、contour_25k、contour_dtm20、osm_road_drive）。此區段為下一批 4 個 dataset。
+> 來源 SSOT：`taipei-gis-analytics/data/processed/base_map/{hillshade,slope,aspect}/` + `data/processed/transportation/osm_expressway/`
+> Catalog：`taipei-gis-analytics/docs/data-catalog/base_map/{hillshade,slope,aspect}.md` + `transportation/osm_expressway.md`
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| BM-1 | P1 | osm_expressway 快速道路 vector PMTiles（1.9 MB） | open | EPSG:4326 PMTiles 直接走現有 base_map PMTiles 模式，橘色粗線 #FF8C00 stroke 3px，z6-14。最簡單，先做 |
+| BM-2 | P1 | hillshade 山體陰影 raster（烤 PNG 路線） | open | 上游烤成單張 PNG（灰階、~4096²、~2-5MB）→ 前端複用 `createCwaImageryLayer`。EPSG:3857 已轉好。opacity 0.5 疊 contour 下方 |
+| BM-3 | P1 | slope 坡度 raster（烤 PNG 路線） | open | 上游 `gdaldem color-relief` 烤綠黃紅 colormap → 單張 PNG。前端同 BM-2 pattern。建議 ramp 0-45°（>45 不顯著）|
+| BM-4 | P1 | aspect 坡向 raster（烤 PNG 路線） | open | 上游烤環狀 HSV 色盤（N=紅 E=黃 S=綠 W=藍）→ 單張 PNG。⚠️ aspect 環狀資料，烤時注意跨 0/360 不可算術平均 |
+| BM-5 | P3 | **改走 deck.gl COG 路線**（未來再做） | open | 換掉 BM-2/3/4 烤 PNG 改 deck.gl `@deck.gl/geo-layers` TileLayer + GeoTIFF loader，**讓使用者拉 slider 動態調 ramp / 色盤 / opacity**。trade-off 詳見下方 |
+
+**BM-2~4 烤 PNG vs BM-5 deck.gl COG 決策對照（2026-06-27 討論結論）**：
+
+| 面向 | 烤 PNG（採用） | deck.gl COG（BM-5 待做） |
+|---|---|---|
+| Colormap 動態調整 | ❌ 重烤 | ✅ shader 即時調 |
+| 解析度 | 固定 4096²，高 zoom 糊 | COG overview，任何 zoom 銳利 |
+| 前端程式碼 | 三個 hook 各 ~40 lines（複用 createCwaImageryLayer） | ~300 lines + GeoTIFF loader + deck.gl mapbox interleave |
+| 既有先例 | ✅ CWA / AQI / 雨量 | ❌ 專案無 raster COG / deck.gl 先例 |
+| Frame time 額外成本 | 接近 0 | 1 個 raster ~3-7ms / 3 個 ~20-40ms |
+| 適合場景 | 視覺底圖 | 分析工具（即時調 ramp 看坡度分級） |
+
+**BM-5 改走 deck.gl 觸發條件**：用戶想做「地形分析互動」（拉 slider 看 slope 0-15° / 15-30° / 30-45° 分級變化、量點實際坡度、找全台 > 30° 山坡）。
+
+**BM-5 加速三招（屆時必做）**：
+1. COG 必有 overview（`gdaladdo -r average tif 2 4 8 16 32`）— 沒 overview 慢 5-10×
+2. Web Worker decode（`@loaders.gl/geotiff` `loadOptions: { worker: true }`）
+3. UI 強制 hillshade/slope/aspect 三選一（radio 而非 checkbox），避免 3 個同開掉 30fps

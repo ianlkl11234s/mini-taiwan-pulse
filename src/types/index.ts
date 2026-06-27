@@ -263,7 +263,8 @@ export type ExpandableLayerKey =
   | "realEstatePresalePoint"
   // Base map
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
-  | "contour25k" | "contourDtm20" | "osmRoadDrive";
+  | "contour25k" | "contourDtm20" | "osmRoadDrive"
+  | "osmExpressway" | "hillshade" | "slope" | "aspect";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -610,7 +611,8 @@ export interface FeatureInfo {
     | "lightningStrike" | "nuclearStation"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
-    | "contour25k" | "contourDtm20" | "osmRoadDrive";
+    | "contour25k" | "contourDtm20" | "osmRoadDrive"
+    | "osmExpressway" | "hillshade" | "slope" | "aspect";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
@@ -837,6 +839,10 @@ export interface LayerVisibility {
   contour25k: boolean;         // 經建版 1:25000 等高線（精度 10m，~21% 全臺覆蓋）
   contourDtm20: boolean;       // DTM 20m 等高線（精度 20m，全臺完整）
   osmRoadDrive: boolean;       // OSM 可駕駛道路（55 萬 edges，按 highway 等級分色）
+  osmExpressway: boolean;      // OSM 快速道路 / 高速公路（橘色粗線突顯）
+  hillshade: boolean;          // 山體陰影 raster（灰階 PNG，烤過 colormap）
+  slope: boolean;              // 坡度 raster（綠→黃→紅 ramp，0-45°）
+  aspect: boolean;             // 坡向 raster（HSV 環狀 N=紅 E=黃 S=綠 W=藍）
 }
 
 // ── 空氣品質 ──

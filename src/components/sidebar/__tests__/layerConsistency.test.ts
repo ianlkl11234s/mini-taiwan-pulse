@@ -94,8 +94,11 @@ const BASELINE_NO_LEGEND = new Set([
   "evChargingStations",
   // Base map：行政邊界 3 層皆單色灰 + 等高線 2 層皆單色棕（無分類）→ 鐵則 2 不適用
   // osmRoadDrive 才有 highway 分級 6 色 → 必接 legend（見 OsmRoadDriveLegend）
+  // osmExpressway 單色橘線（與 osmRoadDrive motorway 同色但無分級） → 不需 legend
+  // hillshade 單色灰 raster（無分類） → 不需 legend；slope/aspect 為 ramp 色階 → 已接 legend
   "countyBoundary", "townshipBoundary", "villageBoundary",
   "contour25k", "contourDtm20",
+  "osmExpressway", "hillshade",
 ]);
 
 function hasParamsCase(key: string): boolean {

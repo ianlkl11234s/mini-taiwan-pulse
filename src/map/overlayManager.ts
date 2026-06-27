@@ -149,7 +149,7 @@ export function updateOverlayTheme(
           ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
           ...(layoutObj ? { layout: layoutObj } : {}),
           ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
-          ...(config.filter ? { filter: config.filter } : {}),
+          ...(spec.filter ? { filter: spec.filter } : config.filter ? { filter: config.filter } : {}),
           paint: paint as Record<string, unknown>,
         } as mapboxgl.AnyLayer);
         cache.set(id, nextSnapshots.get(id) ?? snapshotPaint(paint));

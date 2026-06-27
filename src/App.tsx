@@ -69,6 +69,15 @@ import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
 // PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
+import { useStaticRasterLayer } from "./hooks/useStaticRasterLayer";
+
+// 全臺 raster bbox（WGS84，繼承自 dtm_20m 上游 EPSG:3826 → 3857）
+const TERRAIN_BBOX = {
+  lonMin: 120.0166,
+  lonMax: 122.0096,
+  latMin: 21.8938,
+  latMax: 25.3015,
+} as const;
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
 import { useAqiStationsLayer } from "./hooks/useAqiStationsLayer";
 import { useMicroSensorsLayer } from "./hooks/useMicroSensorsLayer";
@@ -472,6 +481,8 @@ export default function App() {
 
   // ── Intel Panel（即時情報，IconRail 開關） ──
   const [intelOpen, setIntelOpen] = useState(false);
+  // 4-way panel mutex：每次 Intel/Satellite 開啟時 +1，IconRailSidebar 收起 Layers/Locations
+  const [railCloseEpoch, setRailCloseEpoch] = useState(0);
   // ── Monitor Mode（戰情看板，底部上拉） ──
   const [monitorOpen, setMonitorOpen] = useState(false);
   const satConsole = useSatelliteConsole();
@@ -932,6 +943,35 @@ export default function App() {
     isDarkTheme,
   );
 
+  // ── Base map 地形 raster（hillshade / slope / aspect，單張 PNG 預烤 colormap）──
+  useStaticRasterLayer({
+    mapRef,
+    sourceId: "base-hillshade-src",
+    layerId: "base-hillshade-layer",
+    url: "./base_map/hillshade.png",
+    bbox: TERRAIN_BBOX,
+    visible: layerVisibility.hillshade,
+    opacity: transportParams.hillshadeOpacity,
+  });
+  useStaticRasterLayer({
+    mapRef,
+    sourceId: "base-slope-src",
+    layerId: "base-slope-layer",
+    url: "./base_map/slope.png",
+    bbox: TERRAIN_BBOX,
+    visible: layerVisibility.slope,
+    opacity: transportParams.slopeOpacity,
+  });
+  useStaticRasterLayer({
+    mapRef,
+    sourceId: "base-aspect-src",
+    layerId: "base-aspect-layer",
+    url: "./base_map/aspect.png",
+    bbox: TERRAIN_BBOX,
+    visible: layerVisibility.aspect,
+    opacity: transportParams.aspectOpacity,
+  });
+
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({
     mapRef,
@@ -1292,12 +1332,17 @@ export default function App() {
         prevExpanded === layer ? null : (layer as ExpandableLayerKey),
       );
     }
+    // 點 layer 時自動關掉即時情報 / 衛星情報 panel（與點 location 一致）
+    setIntelOpen(false);
+    satelliteConsoleStore.setOpen(false);
   }, [layerVisibilityRef, setLayerVisibility]);
 
   const handleToggleVisibility = useCallback((layer: keyof LayerVisibility) => {
     const wasVisible = layerVisibilityRef.current[layer];
     toggleVisibility(layer);
     sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !wasVisible }, layerVisibilityRef.current);
+    setIntelOpen(false);
+    satelliteConsoleStore.setOpen(false);
   }, [toggleVisibility, layerVisibilityRef]);
 
   const handleDisplayModeChange = useCallback((mode: DisplayMode) => {
@@ -1324,6 +1369,22 @@ export default function App() {
     });
     setExpandedLayer(null);
   }, [setLayerVisibility, layerVisibilityRef]);
+
+  const handleBulkSetVisibility = useCallback(
+    (keys: (keyof LayerVisibility)[], value: boolean) => {
+      setLayerVisibility((prev) => {
+        const next = { ...prev };
+        for (const k of keys) next[k] = value;
+        return next;
+      });
+      sessionTracker.logWithSnapshot(
+        "layer_toggle",
+        { bulk: true, keys, on: value },
+        layerVisibilityRef.current,
+      );
+    },
+    [setLayerVisibility, layerVisibilityRef],
+  );
 
   const { seek: timelineSeek, setSpeed: timelineSetSpeed, play: timelinePlay } = timeline;
   const handleLocationJump = useCallback((id: string) => {
@@ -1583,6 +1644,7 @@ export default function App() {
               onDisplayModeChange={handleDisplayModeChange}
               onHideTransport={handleHideTransport}
               onAllOff={handleAllOff}
+              onBulkSetVisibility={handleBulkSetVisibility}
               getControls={transportParams.getControls}
               currentLocationId={selectedAirport}
               onLocationJump={handleLocationJump}
@@ -1591,15 +1653,24 @@ export default function App() {
               selectedDate={timeline.selectedDate}
               onDateSelect={timeline.setSelectedDate}
               onIntelToggle={() => {
-                if (!intelOpen) satelliteConsoleStore.setOpen(false);
+                if (!intelOpen) {
+                  // 開啟 Intel → 同時關 Satellite + 收 rail Layers/Locations panel
+                  satelliteConsoleStore.setOpen(false);
+                  setRailCloseEpoch((e) => e + 1);
+                }
                 setIntelOpen((v) => !v);
               }}
               intelActive={intelOpen}
               onSatelliteToggle={() => {
-                if (!satConsole.open) setIntelOpen(false);
+                if (!satConsole.open) {
+                  // 開啟 Satellite → 同時關 Intel + 收 rail Layers/Locations panel
+                  setIntelOpen(false);
+                  setRailCloseEpoch((e) => e + 1);
+                }
                 satelliteConsoleStore.toggleOpen();
               }}
               satelliteActive={satConsole.open}
+              externalCloseEpoch={railCloseEpoch}
             />
           </div>
 
@@ -2071,6 +2142,7 @@ export default function App() {
                           setExpandedLayer(null);
                         }
                       }}
+                      onBulkSetVisibility={handleBulkSetVisibility}
                       getControls={transportParams.getControls}
                     />
                   </div>
