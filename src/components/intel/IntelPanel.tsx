@@ -311,7 +311,7 @@ export function IntelPanel({
         position: "fixed",
         left: 64,
         top: 98,
-        bottom: 14,
+        bottom: 130,
         width: 412,
         background: COLORS.panelBg,
         backdropFilter: "blur(16px)",

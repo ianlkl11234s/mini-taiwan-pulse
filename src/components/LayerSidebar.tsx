@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
 import type { ParamControl } from "../hooks/useTransportParams";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
-import { LAYER_COLORS, TRANSPORT_LABELS, SECTIONS } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, TRANSPORT_LABELS, THEMES } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 // ── Props ──
@@ -20,6 +20,8 @@ interface LayerSidebarProps {
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
+  /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
+  onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   getControls: (layer: ExpandableLayerKey) => ParamControl[];
 }
 
@@ -38,6 +40,7 @@ export function LayerSidebar({
   onViewModeChange,
   onDisplayModeChange,
   onHideTransport,
+  onBulkSetVisibility,
   getControls,
 }: LayerSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
@@ -67,14 +70,14 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} getControls={getControls}
+        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility} getControls={getControls}
       />
     );
   }
 
   // ── 收合狀態：窄條 ──
   if (collapsed) {
-    const allLayers = SECTIONS.flatMap((s) => s.layers);
+    const allLayers = THEMES.flatMap((t) => t.groups.flatMap((g) => g.layers));
     return (
       <div
         onClick={() => setCollapsed(false)}
@@ -151,7 +154,7 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} getControls={getControls}
+        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility} getControls={getControls}
       />
     </div>
   );
@@ -163,7 +166,7 @@ function SidebarContent({
   visibility, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   textColor, dimColor, baseFontSize,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport, getControls,
+  onViewModeChange, onDisplayModeChange, onHideTransport, onBulkSetVisibility, getControls,
 }: {
   visibility: LayerVisibility;
   expandedLayer: ExpandableLayerKey | null;
@@ -180,8 +183,21 @@ function SidebarContent({
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
+  onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   getControls: (layer: ExpandableLayerKey) => ParamControl[];
 }) {
+  // Theme 摺疊狀態：預設只摺疊 defaultCollapsed=true 的（BASE）
+  const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
+    () => new Set(THEMES.filter((t) => t.defaultCollapsed).map((t) => t.title)),
+  );
+  const toggleTheme = (title: string) => {
+    setCollapsedThemes((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title); else next.add(title);
+      return next;
+    });
+  };
+
   return (
     <div
       className="layer-sidebar-scroll"
@@ -200,32 +216,110 @@ function SidebarContent({
         fontFamily: FONT_DATA,
       }}
     >
-      {SECTIONS.map((section, sIdx) => (
-        <div key={section.title}>
-          {sIdx > 0 && (
+      {THEMES.map((theme) => {
+        const isCollapsed = collapsedThemes.has(theme.title);
+        const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
+        const onCount = allKeys.filter((k) => visibility[k]).length;
+        const someOn = onCount > 0;
+        const handleBulkToggle = () => {
+          if (onBulkSetVisibility) {
+            onBulkSetVisibility(allKeys, !someOn);
+          } else {
+            for (const k of allKeys) {
+              if ((!someOn && !visibility[k]) || (someOn && visibility[k])) {
+                onToggleVisibility(k);
+              }
+            }
+          }
+        };
+
+        return (
+          <div key={theme.title}>
+            {/* ── Theme Banner（sticky：滾到該 theme 時黏頂） ── */}
             <div
+              onClick={() => toggleTheme(theme.title)}
               style={{
-                height: 1,
-                background: isDarkTheme ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
-                margin: "6px 12px",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "8px 12px",
+                position: "sticky",
+                top: 0,
+                zIndex: 2,
+                background: isDarkTheme
+                  ? "rgba(20,21,24,0.95)"
+                  : "rgba(255,255,255,0.92)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                borderTop: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
+                borderBottom: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)"}`,
+                cursor: "pointer",
+                userSelect: "none",
               }}
-            />
-          )}
+            >
+              <span style={{ color: dimColor, fontSize: FONT_SIZE.xs, width: 10 }}>
+                {isCollapsed ? "▶" : "▼"}
+              </span>
+              <span
+                style={{
+                  flex: 1,
+                  fontSize: baseFontSize + 1,
+                  fontWeight: 700,
+                  letterSpacing: 1.5,
+                  color: textColor,
+                  textTransform: "uppercase",
+                }}
+              >
+                {theme.title}
+              </span>
+              <span
+                style={{
+                  fontSize: baseFontSize - 1,
+                  color: someOn ? textColor : dimColor,
+                  marginRight: 4,
+                }}
+              >
+                {onCount}/{allKeys.length}
+              </span>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleBulkToggle(); }}
+                style={{
+                  width: 28,
+                  height: 14,
+                  borderRadius: RADIUS.full,
+                  background: someOn ? (isDarkTheme ? "#fff" : "#333") : (isDarkTheme ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)"),
+                  border: "none",
+                  cursor: "pointer",
+                  position: "relative",
+                  padding: 0,
+                  flexShrink: 0,
+                }}
+              >
+                <span style={{
+                  position: "absolute",
+                  top: 1, left: someOn ? 15 : 1,
+                  width: 12, height: 12, borderRadius: "50%",
+                  background: someOn ? (isDarkTheme ? "#000" : "#fff") : (isDarkTheme ? "#666" : "#999"),
+                  transition: "left 0.15s",
+                }} />
+              </button>
+            </div>
 
-          <div
-            style={{
-              fontSize: FONT_SIZE.xs,
-              fontWeight: 700,
-              letterSpacing: 2,
-              color: dimColor,
-              padding: "4px 14px 2px",
-              textTransform: "uppercase",
-            }}
-          >
-            {section.title}
-          </div>
+            {!isCollapsed && theme.groups.map((group) => (
+              <div key={group.title}>
+                <div
+                  style={{
+                    fontSize: baseFontSize,
+                    fontWeight: 600,
+                    letterSpacing: 1.2,
+                    color: isDarkTheme ? "#D1D5DB" : "rgba(0,0,0,0.7)",
+                    padding: "10px 14px 4px 24px",
+                  }}
+                >
+                  └ {group.title}
+                </div>
 
-          {section.layers.map(({ key, label, labelMobile, expandable }) => {
+                {group.layers.map(({ key, label, labelMobile, expandable }) => {
             // 手機版優先用全稱 labelMobile，未提供則沿用桌機 label
             const displayLabel = labelMobile ?? label;
             const active = visibility[key];
@@ -315,9 +409,12 @@ function SidebarContent({
                 )}
               </div>
             );
-          })}
-        </div>
-      ))}
+                })}
+              </div>
+            ))}
+          </div>
+        );
+      })}
     </div>
   );
 }

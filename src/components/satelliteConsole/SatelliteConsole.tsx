@@ -64,7 +64,7 @@ export function SatelliteConsole({ open, onClose, layerVisibility, setLayerVisib
           position: "fixed",
           left: 64,
           top: 98,
-          bottom: 14,
+          bottom: 130,
           width: PANEL_WIDTH,
           background: COLORS.panelBg,
           backdropFilter: "blur(16px)",

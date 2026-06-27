@@ -4888,7 +4888,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
-  // ── OSM 快速道路 / 高速公路（motorway + trunk，橘色粗線突顯）──
+  // ── OSM 快速道路（PMTiles 含 motorway+trunk，但前端只渲染 trunk＝真．快速道路）──
+  //   國道（motorway）已由 highways layer 從 national_highway.pmtiles 渲染，
+  //   兩者來源不同會視覺重疊 → 這裡 filter 掉 motorway，只留 trunk / trunk_link。
   {
     id: "osmExpressway",
     sourceUrl: "./base_map/osm_expressway.pmtiles",
@@ -4900,6 +4902,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "line",
         type: "line",
         minzoom: 6,
+        filter: ["in", ["get", "highway"], ["literal", ["trunk", "trunk_link"]]],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (_isDark, params) => {
           const w = params?.osmExpresswayWidth ?? 1;

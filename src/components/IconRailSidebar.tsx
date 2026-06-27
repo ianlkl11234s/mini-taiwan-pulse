@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo, type CSSProperties } from "react";
+import { useState, useEffect, useMemo, useRef, memo, type CSSProperties } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
@@ -31,7 +31,7 @@ import type { ParamControl } from "../hooks/useTransportParams";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, TRANSPORT_LABELS, SECTIONS } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, TRANSPORT_LABELS, THEMES } from "./sidebar/layerCatalog";
 
 // ── Color Config ──
 
@@ -272,6 +272,8 @@ interface IconRailSidebarProps {
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
   onAllOff: () => void;
+  /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
+  onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   getControls: (layer: ExpandableLayerKey) => ParamControl[];
   currentLocationId?: string;
   onLocationJump: (presetId: string) => void;
@@ -285,6 +287,8 @@ interface IconRailSidebarProps {
   /** 衛星情報 Satellite Console panel toggle */
   onSatelliteToggle?: () => void;
   satelliteActive?: boolean;
+  /** 由外部觸發強制收起 rail panel（4-way panel mutex 用）— epoch 變動就收 */
+  externalCloseEpoch?: number;
 }
 
 // ── Shared Styles ──
@@ -302,15 +306,17 @@ type PanelId = "layers" | "locations";
 // ── Main Component ──
 
 const RAIL_WIDTH = 56;
-const PANEL_WIDTH = 240;
+const PANEL_WIDTH = 288;
 
 export function IconRailSidebar({
   visibility, expandedLayer, viewMode, displayMode,
   counts, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
+  onBulkSetVisibility,
   getControls, currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
   onSatelliteToggle, satelliteActive,
+  externalCloseEpoch,
 }: IconRailSidebarProps) {
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
@@ -322,6 +328,14 @@ export function IconRailSidebar({
     const t = setTimeout(() => setComingSoon(false), 2000);
     return () => clearTimeout(t);
   }, [comingSoon]);
+
+  // 4-way panel mutex：外部（Intel / Satellite）打開時，epoch 變動 → 收 rail panel
+  const firstEpochRunRef = useRef(true);
+  useEffect(() => {
+    if (firstEpochRunRef.current) { firstEpochRunRef.current = false; return; }
+    if (externalCloseEpoch === undefined) return;
+    setActivePanel(null);
+  }, [externalCloseEpoch]);
 
   const panelOpen = activePanel !== null;
 
@@ -529,6 +543,7 @@ export function IconRailSidebar({
                 onDisplayModeChange={onDisplayModeChange}
                 onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
+                onBulkSetVisibility={onBulkSetVisibility}
                 getControls={getControls}
                 onClose={closePanel}
               />
@@ -629,25 +644,6 @@ function PanelHeader({
   );
 }
 
-// ── Category Label ──
-
-function CategoryLabel({ children }: { children: string }) {
-  return (
-    <div
-      style={{
-        color: DIM,
-        fontFamily: FONT_DATA,
-        fontSize: FONT_SIZE.sm,
-        fontWeight: 600,
-        letterSpacing: 2,
-        textTransform: "uppercase",
-        padding: "10px 12px 4px",
-      }}
-    >
-      {children}
-    </div>
-  );
-}
 
 // ── Toggle Switch ──
 
@@ -700,6 +696,7 @@ interface LayersPanelProps {
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
   onAllOff: () => void;
+  onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
   getControls: (layer: ExpandableLayerKey) => ParamControl[];
   onClose: () => void;
 }
@@ -782,16 +779,112 @@ const LayerRow = memo(function LayerRow({
   );
 });
 
+function ThemeBanner({
+  title, isCollapsed, onCount, totalCount, onToggleCollapse, onBulkToggle,
+}: {
+  title: string;
+  isCollapsed: boolean;
+  onCount: number;
+  totalCount: number;
+  onToggleCollapse: () => void;
+  onBulkToggle: () => void;
+}) {
+  const allOn = onCount === totalCount;
+  const someOn = onCount > 0;
+  // tri-state visual: 全開 / 部分開 / 全關
+  const indicatorColor = allOn ? "#fff" : someOn ? "#9CA3AF" : DIM;
+  return (
+    <div
+      onClick={onToggleCollapse}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "8px 12px",
+        // sticky：滾到該 theme 內容時 banner 黏在頂部，直到下一個 theme banner 把它推出
+        position: "sticky",
+        top: 0,
+        zIndex: 2,
+        background: "rgba(20,21,24,0.95)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        borderTop: `1px solid ${BORDER}`,
+        borderBottom: isCollapsed ? `1px solid ${BORDER}` : `1px solid ${BORDER}`,
+        cursor: "pointer",
+        userSelect: "none",
+      }}
+    >
+      <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
+        {isCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+      </span>
+      <span
+        style={{
+          flex: 1,
+          fontFamily: FONT_DATA,
+          fontSize: FONT_SIZE.md,
+          fontWeight: 700,
+          letterSpacing: 1.5,
+          color: "#fff",
+          textTransform: "uppercase",
+        }}
+      >
+        {title}
+      </span>
+      <span
+        style={{
+          fontFamily: FONT_DATA,
+          fontSize: FONT_SIZE.xs,
+          color: indicatorColor,
+          marginRight: 4,
+        }}
+      >
+        {onCount}/{totalCount}
+      </span>
+      <ToggleSwitch on={someOn} onChange={onBulkToggle} />
+    </div>
+  );
+}
+
+function SubGroupLabel({ children }: { children: string }) {
+  return (
+    <div
+      style={{
+        color: "#D1D5DB",
+        fontFamily: FONT_DATA,
+        fontSize: FONT_SIZE.sm,
+        fontWeight: 600,
+        letterSpacing: 1.2,
+        padding: "10px 12px 4px 22px",
+      }}
+    >
+      └ {children}
+    </div>
+  );
+}
+
 function LayersPanel({
   visibility, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
-  onAllOff, getControls, onClose,
+  onAllOff, onBulkSetVisibility, getControls, onClose,
 }: LayersPanelProps) {
+  // Theme 摺疊狀態：預設只摺疊 defaultCollapsed=true 的（BASE）
+  const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
+    () => new Set(THEMES.filter((t) => t.defaultCollapsed).map((t) => t.title)),
+  );
+
+  const toggleTheme = (title: string) => {
+    setCollapsedThemes((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title); else next.add(title);
+      return next;
+    });
+  };
+
   return (
     <>
       <PanelHeader title="Layers" onClose={onClose} />
-      <div style={{ padding: "4px 12px 0" }}>
+      <div style={{ padding: "4px 12px 4px" }}>
         <button
           onClick={onAllOff}
           style={{
@@ -814,50 +907,79 @@ function LayersPanel({
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "4px 0 8px",
+          padding: "0 0 8px",
         }}
       >
-        {SECTIONS.map((section, sIdx) => (
-          <div key={section.title}>
-            {sIdx > 0 && (
-              <div style={{ height: 1, background: BORDER, margin: "4px 12px" }} />
-            )}
-            <CategoryLabel>{section.title}</CategoryLabel>
-            {section.layers.map(({ key, label, expandable }) => {
-              const active = visibility[key];
-              const isExpanded = expandedLayer === key;
-              const isTransport = key in TRANSPORT_LABELS;
+        {THEMES.map((theme) => {
+          const isCollapsed = collapsedThemes.has(theme.title);
+          const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
+          const onCount = allKeys.filter((k) => visibility[k]).length;
+          const someOn = onCount > 0;
 
-              return (
-                <div key={key}>
-                  <LayerRow
-                    layerKey={key}
-                    label={label}
-                    expandable={!!expandable}
-                    active={active}
-                    color={LAYER_COLORS[key]}
-                    count={getCount(key)}
-                    isExpanded={isExpanded}
-                    Icon={LAYER_ICONS[key]}
-                    onLayerClick={onLayerClick}
-                    onToggleVisibility={onToggleVisibility}
-                  />
-                  {/* Expanded Controls — 不 memo（狀態變動要即時反映到 slider） */}
-                  {isExpanded && expandable && (
-                    <ExpandedControls
-                      layerKey={key as ExpandableLayerKey}
-                      isTransport={isTransport}
-                      displayMode={displayMode}
-                      onDisplayModeChange={onDisplayModeChange}
-                      onHide={onHideTransport}
-                      controls={getControls(key as ExpandableLayerKey)}
-                    />
-                  )}
+          const handleBulkToggle = () => {
+            // 有任何一個 on → 全部 off；全部 off → 全部 on
+            if (onBulkSetVisibility) {
+              onBulkSetVisibility(allKeys, !someOn);
+            } else {
+              // fallback: 逐一 toggle 還沒對齊的 key
+              for (const k of allKeys) {
+                if (visibility[k] === someOn) continue;
+                if ((!someOn && !visibility[k]) || (someOn && visibility[k])) {
+                  onToggleVisibility(k);
+                }
+              }
+            }
+          };
+
+          return (
+            <div key={theme.title}>
+              <ThemeBanner
+                title={theme.title}
+                isCollapsed={isCollapsed}
+                onCount={onCount}
+                totalCount={allKeys.length}
+                onToggleCollapse={() => toggleTheme(theme.title)}
+                onBulkToggle={handleBulkToggle}
+              />
+              {!isCollapsed && theme.groups.map((group) => (
+                <div key={group.title}>
+                  <SubGroupLabel>{group.title}</SubGroupLabel>
+                  {group.layers.map(({ key, label, expandable }) => {
+                    const active = visibility[key];
+                    const isExpanded = expandedLayer === key;
+                    const isTransport = key in TRANSPORT_LABELS;
+                    return (
+                      <div key={key}>
+                        <LayerRow
+                          layerKey={key}
+                          label={label}
+                          expandable={!!expandable}
+                          active={active}
+                          color={LAYER_COLORS[key]}
+                          count={getCount(key)}
+                          isExpanded={isExpanded}
+                          Icon={LAYER_ICONS[key]}
+                          onLayerClick={onLayerClick}
+                          onToggleVisibility={onToggleVisibility}
+                        />
+                        {isExpanded && expandable && (
+                          <ExpandedControls
+                            layerKey={key as ExpandableLayerKey}
+                            isTransport={isTransport}
+                            displayMode={displayMode}
+                            onDisplayModeChange={onDisplayModeChange}
+                            onHide={onHideTransport}
+                            controls={getControls(key as ExpandableLayerKey)}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        ))}
+              ))}
+            </div>
+          );
+        })}
       </div>
     </>
   );
@@ -1156,7 +1278,7 @@ function LocationsPanel({
         style={{ flex: 1, overflowY: "auto", padding: "0 0 8px" }}
       >
         {/* Scenes */}
-        <CollapsibleSection title="SCENE" count={scenePresets.length} defaultOpen={true}>
+        <CollapsibleSection title="SCENE" count={scenePresets.length} defaultOpen={false}>
           {scenePresets.map((p) => (
             <LocationItem
               key={p.id}
