@@ -4888,6 +4888,35 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // ── OSM 快速道路 / 高速公路（motorway + trunk，橘色粗線突顯）──
+  {
+    id: "osmExpressway",
+    sourceUrl: "./base_map/osm_expressway.pmtiles",
+    sourceId: "base-osm-expressway",
+    pmtiles: { sourceLayer: "osm_expressway", minzoom: 0, maxzoom: 14 },
+    rebuildOnParamChange: ["line"],
+    layers: [
+      {
+        suffix: "line",
+        type: "line",
+        minzoom: 6,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.osmExpresswayWidth ?? 1;
+          return {
+            "line-color": "#FF8C00",
+            "line-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", w, 0.8],
+              10, ["*", w, 2.2],
+              14, ["*", w, 4.5],
+            ],
+            "line-opacity": params?.osmExpresswayOpacity ?? 0.9,
+          };
+        },
+      },
+    ],
+  },
   // ── OSM 可駕駛道路（55 萬 edges，highway 分級分色）──
   //   motorway 橘 / trunk 紅橙 / primary 黃 / secondary 灰 / tertiary 淺灰 / 其餘細淺灰
   {

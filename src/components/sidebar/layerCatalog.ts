@@ -241,6 +241,10 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   contour25k: "#8B4513",           // 等高線 25k 棕（saddle brown）
   contourDtm20: "#a16207",         // 等高線 dtm20 較淡棕（amber-700）
   osmRoadDrive: "#fb923c",         // 道路 motorway 橘（代表色）
+  osmExpressway: "#FF8C00",        // 快速道路 深橘（比 osmRoadDrive 更搶眼）
+  hillshade: "#6b7280",            // 山體陰影 中灰
+  slope: "#e67e22",                // 坡度 橘紅（ramp 中間色）
+  aspect: "#22c55e",               // 坡向 綠（HSV 環中段）
 };
 
 // ── Transport Labels ──
@@ -592,6 +596,10 @@ export const SECTIONS: SectionDef[] = [
       { key: "contour25k", label: "等高線 25k (10m, 21% 覆蓋)", labelMobile: "等高線 25k 10m", expandable: true },
       { key: "contourDtm20", label: "等高線 DTM20 (20m, 全臺)", labelMobile: "等高線 DTM 20m", expandable: true },
       { key: "osmRoadDrive", label: "OSM 道路 OSM Roads", expandable: true },
+      { key: "osmExpressway", label: "OSM 快速道路 Expressway", labelMobile: "OSM 快速道路", expandable: true },
+      { key: "hillshade", label: "山體陰影 Hillshade", expandable: true },
+      { key: "slope", label: "坡度 Slope (0-45°)", labelMobile: "坡度", expandable: true },
+      { key: "aspect", label: "坡向 Aspect (HSV)", labelMobile: "坡向", expandable: true },
     ],
   },
   {

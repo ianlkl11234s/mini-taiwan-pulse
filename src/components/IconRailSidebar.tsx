@@ -245,6 +245,10 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   contour25k: Mountain,
   contourDtm20: Mountain,
   osmRoadDrive: Route,
+  osmExpressway: Route,
+  hillshade: Mountain,
+  slope: Mountain,
+  aspect: Mountain,
 };
 
 // ── IATA Map for Locations Panel ──

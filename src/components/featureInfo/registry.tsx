@@ -266,4 +266,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   contour25k: "等高線 25k (10m)",
   contourDtm20: "等高線 DTM 20m",
   osmRoadDrive: "道路 (OSM)",
+  osmExpressway: "快速道路 (OSM)",
+  hillshade: "山體陰影",
+  slope: "坡度",
+  aspect: "坡向",
 };

@@ -69,6 +69,15 @@ import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
 // PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
+import { useStaticRasterLayer } from "./hooks/useStaticRasterLayer";
+
+// 全臺 raster bbox（WGS84，繼承自 dtm_20m 上游 EPSG:3826 → 3857）
+const TERRAIN_BBOX = {
+  lonMin: 120.0166,
+  lonMax: 122.0096,
+  latMin: 21.8938,
+  latMax: 25.3015,
+} as const;
 import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
 import { useAqiStationsLayer } from "./hooks/useAqiStationsLayer";
 import { useMicroSensorsLayer } from "./hooks/useMicroSensorsLayer";
@@ -931,6 +940,35 @@ export default function App() {
     layerVisibility.wasteCleaningSquads,
     isDarkTheme,
   );
+
+  // ── Base map 地形 raster（hillshade / slope / aspect，單張 PNG 預烤 colormap）──
+  useStaticRasterLayer({
+    mapRef,
+    sourceId: "base-hillshade-src",
+    layerId: "base-hillshade-layer",
+    url: "./base_map/hillshade.png",
+    bbox: TERRAIN_BBOX,
+    visible: layerVisibility.hillshade,
+    opacity: transportParams.hillshadeOpacity,
+  });
+  useStaticRasterLayer({
+    mapRef,
+    sourceId: "base-slope-src",
+    layerId: "base-slope-layer",
+    url: "./base_map/slope.png",
+    bbox: TERRAIN_BBOX,
+    visible: layerVisibility.slope,
+    opacity: transportParams.slopeOpacity,
+  });
+  useStaticRasterLayer({
+    mapRef,
+    sourceId: "base-aspect-src",
+    layerId: "base-aspect-layer",
+    url: "./base_map/aspect.png",
+    bbox: TERRAIN_BBOX,
+    visible: layerVisibility.aspect,
+    opacity: transportParams.aspectOpacity,
+  });
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({
