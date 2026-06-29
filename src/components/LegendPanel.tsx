@@ -143,6 +143,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
   { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
+  { keys: ["powerPoles"], render: () => <PowerPolesLegend /> },
   { keys: ["osmSubstationsEhv"], render: () => <SubstationEhvLegend /> },
   { keys: ["osmSubstations"],    render: () => <SubstationLocalLegend /> },
   { keys: ["facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement"],
@@ -1136,6 +1137,55 @@ function EnergyFuelLegend() {
 }
 
 // ── Energy: 高壓電網 voltage tier + line_type ──
+
+function PowerPolesLegend() {
+  const typeRows = [
+    { label: "水泥桿（83.7%）", color: "#94a3b8" },
+    { label: "水泥併桿（14.4%）", color: "#64748b" },
+    { label: "木桿（1.0%）", color: "#a16207" },
+    { label: "H桿（0.7%）", color: "#0ea5e9" },
+    { label: "其他 8 種（0.2%）", color: "#f43f5e" },
+  ];
+  const heatStops = [
+    { pct: "稀", color: "#38bdf8" },
+    { pct: "中", color: "#22c55e" },
+    { pct: "高", color: "#facc15" },
+    { pct: "很高", color: "#f97316" },
+    { pct: "極高", color: "#ef4444" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        ENERGY · 全國電桿 2.96M
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>
+        密度（z8-12）
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 3, marginBottom: 4 }}>
+        {heatStops.map((s) => (
+          <div key={s.pct} style={{ flex: 1, textAlign: "center" }}>
+            <span style={{ display: "block", height: 8, background: s.color, borderRadius: 1 }} />
+            <span style={{ fontSize: 9, color: COLORS.textDim }}>{s.pct}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6, marginBottom: 2 }}>
+        桿型（z11+）
+      </div>
+      {typeRows.map((r) => (
+        <div key={r.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 10, height: 10, background: r.color, display: "inline-block", borderRadius: "50%" }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 來源：台電 d077010（22 縣市，2026-06-15）<br />
+        ● z8-12 看密度熱區、z13+ 看個別桿型<br />
+        ● 金門 / 連江 / 澎湖無資料 → 走離島電網
+      </div>
+    </div>
+  );
+}
 
 function PowerGridLegend() {
   const voltageRows = [

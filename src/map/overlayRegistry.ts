@@ -4932,10 +4932,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "line",
         type: "line",
-        minzoom: 10,
+        minzoom: 5,
         layout: { "line-cap": "round", "line-join": "round" },
         paint: (_isDark, params) => {
           const w = params?.osmRoadDriveWidth ?? 1;
+          // z5 顯示開關（預設 0 = z<8 不顯示）— 給用戶看全台路網密度時主動開
+          const z5Reveal = params?.osmRoadDriveZ5Reveal ?? 0;
+          const baseOp = params?.osmRoadDriveOpacity ?? 0.85;
           // 依 highway 分色（catalog: motorway+link 6.9k / trunk 4.2k / primary 16k / secondary 13k / tertiary 37k / others）
           const colorExpr: unknown[] = [
             "match", ["get", "highway"],
@@ -4978,7 +4981,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "line-color": colorExpr as any,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             "line-width": widthExpr as any,
-            "line-opacity": params?.osmRoadDriveOpacity ?? 0.85,
+            // z<8 用 z5Reveal 控制（0=隱形，1=baseOp）；z≥8 永遠用 baseOp
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "line-opacity": [
+              "interpolate", ["linear"], ["zoom"],
+              5, baseOp * z5Reveal,
+              7.9, baseOp * z5Reveal,
+              8, baseOp,
+            ] as any,
           };
         },
       },

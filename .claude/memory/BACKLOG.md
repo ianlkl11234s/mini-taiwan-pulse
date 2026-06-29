@@ -240,7 +240,7 @@
 | E-G | P2 | 落雷 cluster + zoom-gate（雷雨季升級項） | open | E-B v1 用「時間窗 slider 預設 60min」控 payload 量；雷雨季 1h 上萬筆時走 mapbox cluster。需先擴 OverlayConfig schema 加 `cluster?: { maxZoom: number; radius: number }` 欄、然後 overlayManager 建 source 時帶過去。實測卡再升 |
 | E-C | P2 | 高壓電網 — osm_power_lines 2,305 + osm_power_towers 26,589 | open | 用戶「之前盤點漏的最重要」。voltage 345/161/69 kV 分色（含 ";" 雙迴路格式）。tower 走 minzoom 13。把電網 spine 接起來後可疊 §5.2 cascade flowline |
 | E-D | P2 | OSM 風光電 + offshore polygon + 離島海纜 + 化石/地熱 | open | 8 表：osm_wind_turbines 812 / osm_solar_farms 734 / osm_power_plants 513 / offshore_wind_zones 36 polygon / island_power_grid 14 + 海纜 / fossil_fuel 9 (3D cylinder 油槽) / geothermal_wells 36 (3D cone 倒置) / renewable_permits_taipei 438 |
-| E-E | P3 | 加油站 3 表 + power_poles 2.96M PMTiles | open | osm_gas_stations 2,212 主用、gov 對照（不可 UNION HANDOFF §⑧#3）、osm_charging 306 補社區。power_poles 1.4GB raw 走 tippecanoe |
+| E-E | P3 | 加油站 3 表 + ~~power_poles 2.96M PMTiles~~ | partial | 加油站段 open。**power_poles ✅ 2026-06-28**：tippecanoe -Z8 -z14 + cluster + drop-densest 壓到 26MB 單檔 PMTiles → S3 deploy-assets/coverage/ + 前端 6 處接線（usePowerPolesLayer + pole_type 5 類分色圖例 + opacity/size slider + 預設 OFF）。零 DB 負擔，純靜態 PMTiles。 |
 | E-F | P3 | KPI 統計面板 — 縣市風光生質 + 光電月趨勢 | open | analytics.solar_daily_generation 3,992 + county_wind 211 + county_biomass 188 + county_small_hydro 188 + geothermal_potential 27。non-spatial chart |
 
 **已存在的 RPC 不要重做**（PR #10 內）：

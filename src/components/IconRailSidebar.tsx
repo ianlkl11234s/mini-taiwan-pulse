@@ -192,6 +192,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   osmSubstationsEhv: Cable,
   osmPowerLines: Spline,
   osmPowerTowers: TowerControl,
+  powerPoles: TowerControl,
   osmWindTurbines: Wind,
   osmSolarFarms: Sun,
   osmPowerPlantsStatic: Factory,

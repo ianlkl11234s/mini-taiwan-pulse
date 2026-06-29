@@ -61,6 +61,7 @@ import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { useFossilFuelLayers } from "./hooks/useFossilFuelLayers";
 import { useOsmPowerLinesGlowLayer } from "./hooks/useOsmPowerLinesGlowLayer";
+import { usePowerPolesLayer } from "./hooks/usePowerPolesLayer";
 import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
@@ -837,6 +838,14 @@ export default function App() {
     layerVisibility.osmPowerLines,
     transportParams.overlayParams.osmPowerLinesOpacity ?? 0.4,
     transportParams.overlayParams.osmPowerLinesWidth ?? 1,
+  );
+  usePowerPolesLayer(
+    mapRef,
+    layerVisibility.powerPoles,
+    transportParams.overlayParams.powerPolesOpacity ?? 0.7,
+    transportParams.overlayParams.powerPolesSize ?? 1,
+    transportParams.overlayParams.powerPolesHeat ?? 1,
+    transportParams.overlayParams.powerPolesZ5Reveal ?? 0,
   );
   usePowerRegionBarsLayer(
     mapRef,
