@@ -185,6 +185,7 @@ export type ExpandableLayerKey =
   | "osmSubstationsEhv"
   | "osmPowerLines"
   | "osmPowerTowers"
+  | "powerPoles"
   | "osmWindTurbines"
   | "osmSolarFarms"
   | "osmPowerPlantsStatic"
@@ -785,6 +786,7 @@ export interface LayerVisibility {
   osmSubstationsEhv: boolean;    // 變電所（超高壓）38：EHV_SWITCH + EHV（含 halo 光暈）
   osmPowerLines: boolean;        // OSM 高壓輸電線 2,305（voltage 分色 + line_type 分粗細）
   osmPowerTowers: boolean;       // OSM 高壓鐵塔 26,589（minzoom 8、統一 sky-300）
+  powerPoles: boolean;           // 台電全國電桿 PMTiles 2,959,326（pole_type 5 類分色、純靜態 PMTiles 無 DB）
   osmWindTurbines: boolean;      // OSM 風機 812（466 offshore 海上 + 346 onshore 陸上 + 含 null）
   osmSolarFarms: boolean;        // OSM 光電廠 734（POI centroid）
   osmPowerPlantsStatic: boolean; // OSM 電廠 513（補 IPP/小型，與 all_power_plants_v 可能重疊）

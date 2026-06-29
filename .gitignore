@@ -66,6 +66,8 @@ public/fire/*.pmtiles
 # gas coverage 小檔 taiwan_*_nearest.pmtiles 仍進 git/dist）
 public/coverage/real_estate_*.pmtiles
 public/coverage/real_estate_points_buffer.bin
+# 全國電桿 PMTiles 26MB（台電 d077010 2.96M points，走 S3 deploy-assets/coverage/）
+public/coverage/power_poles.pmtiles
 # 醫療 GeoJSON（走 S3 deploy-assets，5 檔合計 ~65MB）
 public/geo/medical_*.geojson
 # 醫療 PMTiles（走 S3 deploy-assets/medical/）

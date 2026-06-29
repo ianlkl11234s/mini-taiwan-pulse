@@ -183,6 +183,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   osmSubstationsEhv: "#ef4444",
   osmPowerLines: "#62D9AD",
   osmPowerTowers: "#468BA6",
+  powerPoles: "#94a3b8",
   osmWindTurbines: "#67e8f9",
   osmSolarFarms: "#fbbf24",
   osmPowerPlantsStatic: "#9ca3af",
@@ -718,6 +719,7 @@ export const THEMES: ThemeDef[] = [
           { key: "osmSubstations", label: "變電所 區域 Substation", expandable: true },
           { key: "osmPowerLines", label: "高壓輸電線 Power Lines", expandable: true },
           { key: "osmPowerTowers", label: "高壓鐵塔 Power Towers", expandable: true },
+          { key: "powerPoles", label: "電桿 Power Poles (2.96M)", expandable: true },
         ],
       },
       {
