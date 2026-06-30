@@ -1,0 +1,228 @@
+layer_key,dataset_id,rule,confidence,status,notes
+countyBoundary,county_boundary,R4,MED,verified,R4 normalized name exact match. layer_key=countyBoundary (norm=countyboundary) <=> dataset_id (norm match)
+townshipBoundary,township_boundary,R4,MED,verified,R4 normalized name exact match. layer_key=townshipBoundary (norm=townshipboundary) <=> dataset_id (norm match)
+villageBoundary,village_boundary,R4,MED,verified,R4 normalized name exact match. layer_key=villageBoundary (norm=villageboundary) <=> dataset_id (norm match)
+contour25k,contour_25k,R4,MED,verified,R4 normalized name exact match. layer_key=contour25k (norm=contour25k) <=> dataset_id (norm match)
+contourDtm20,contour_dtm20,R4,MED,verified,R4 normalized name exact match. layer_key=contourDtm20 (norm=contourdtm20) <=> dataset_id (norm match)
+hillshade,hillshade,R4,MED,verified,R4 normalized name exact match. layer_key=hillshade (norm=hillshade) <=> dataset_id (norm match)
+slope,slope,R4,MED,verified,R4 normalized name exact match. layer_key=slope (norm=slope) <=> dataset_id (norm match)
+aspect,aspect,R4,MED,verified,R4 normalized name exact match. layer_key=aspect (norm=aspect) <=> dataset_id (norm match)
+osmRoadDrive,osm_road_drive,R4,MED,verified,R4 normalized name exact match. layer_key=osmRoadDrive (norm=osmroaddrive) <=> dataset_id (norm match)
+flights,,hunt,UNMATCHED,catalog_missing,hunt: 航班 (外部 API)
+ships,ship,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 中文 label 船舶 → ship.md
+rail,rail,R4,MED,verified,R4 normalized name exact match. layer_key=rail (norm=rail) <=> dataset_id (norm match)
+busLive,,hunt,UNMATCHED,catalog_missing,hunt: 公車即時 (RPC)
+busIntercityLive,,hunt,UNMATCHED,catalog_missing,hunt: 公路客運即時 (RPC)
+stationsTHSR,rail_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 高鐵站 → rail_stations.md (THSR subset)
+stationsTRA,rail_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 台鐵站 → rail_stations.md (TRA subset)
+stationsMetro,rail_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 捷運站 → rail_stations.md (Metro subset)
+busStationsCity,bus,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 市區公車站 → bus.md
+busStationsIntercity,bus,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 公路客運站 → bus.md
+bikeStations,bike,R4,MED,verified,R4 normalized name exact match. layer_key=bikeStations (norm=bike) <=> dataset_id (norm match)
+highways,freeway,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 國道 → freeway.md
+osmExpressway,osm_expressway,R4,MED,verified,R4 normalized name exact match. layer_key=osmExpressway (norm=osmexpressway) <=> dataset_id (norm match)
+provincialRoads,road,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 省道 → road.md
+cyclingRoutes,bike,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 自行車道 → bike.md
+cctv,cctv,R4,MED,verified,R4 normalized name exact match. layer_key=cctv (norm=cctv) <=> dataset_id (norm match)
+etcGantry,etc_gantry,R4,MED,verified,R4 normalized name exact match. layer_key=etcGantry (norm=etcgantry) <=> dataset_id (norm match)
+serviceArea,service_area,R4,MED,verified,R4 normalized name exact match. layer_key=serviceArea (norm=servicearea) <=> dataset_id (norm match)
+serviceAreaPolygon,service_area_polygon,R4,MED,verified,R4 normalized name exact match. layer_key=serviceAreaPolygon (norm=serviceareapolygon) <=> dataset_id (norm match)
+taxiStand,taxi_stand,R4,MED,verified,R4 normalized name exact match. layer_key=taxiStand (norm=taxistand) <=> dataset_id (norm match)
+ports,ports,R4,MED,verified,R4 normalized name exact match. layer_key=ports (norm=ports) <=> dataset_id (norm match)
+airports,airport,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 中文 label 機場 → airport.md
+lighthouses,light_house,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 中文 label 燈塔 → light_house.md
+aviationControl,airspace_aip,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 飛航管制 → airspace_aip.md
+aviationRestricted,airport_safety_zones,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 機場管制 → airport_safety_zones.md
+droneNoFlyZone,airport_safety_zones,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 無人機禁航區 → airport_safety_zones.md
+droneRestrictedZone,drone_restricted_zones,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=aviation_drone | hunt: 無人機限航區 → drone_restricted_zones.md
+freewayCongestion,road_congestion,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 國道壅塞 → road_congestion.md
+roadEvents,road_event,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 路況事件 → road_event.md
+popCount,population,manual_fix,MED,verified,FIX: 對應 demographics/population.md
+h3Population,,hunt,UNMATCHED,catalog_missing,hunt: 人流模擬 (RPC)
+indicators,county_indicators_yearly,manual_fix,MED,verified,FIX: 對應 demographics/county_indicators_yearly.md
+socioeconomic,village_comprehensive_extended,manual_fix,LOW,verified,FIX: 對應 demographics/village_comprehensive_extended.md（社經面貌＝村里綜合）
+spatialEconomy,village_comprehensive_extended,manual_fix,LOW,verified,FIX: 同 socioeconomic（空間經濟＝村里綜合衍生）
+youbikeFullness,youbike_baselines,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: YouBike 有車率 → youbike_baselines.md
+weatherStations,weather,R4+hunt,HIGH,verified,R4 normalized name exact match. layer_key=weatherStations (norm=weather) <=> dat | hunt: 氣象站 → weather.md
+cwaCloudImagery,,manual_fix,UNMATCHED,catalog_missing,FIX: CWA 衛星雲圖 dataset 未登錄到 catalog
+cwaRadarImagery,,manual_fix,UNMATCHED,catalog_missing,FIX: CWA 雷達整合回波 dataset 未登錄到 catalog
+temperatureWave,weather,manual_fix,MED,verified,FIX: 對應 weather/weather.md（CWA 溫度觀測）
+aqiImagery,air_quality,manual_fix,MED,verified,FIX: 對應 environment/air_quality.md（空氣品質）
+aqiStations,,hunt,UNMATCHED,catalog_missing,hunt: 空氣品質測站 (RPC)
+aqiMicroSensors,,hunt,UNMATCHED,catalog_missing,hunt: LASS 微型感測 (RPC)
+waterFacilities,water_facilities_osm,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 水利設施 → water_facilities_osm.md
+waterMonitorStations,rain_gauge_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 監測站 → rain_gauge_stations.md
+waterReservoirs,reservoir_storage_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 水庫 → reservoir_storage_wra.md
+groundwaterWells,groundwater_wells,R4,MED,verified,R4 normalized name exact match. layer_key=groundwaterWells (norm=groundwaterwells) <=> dataset_id (norm match)
+rainGauge,rain_gauge_stations,R4,MED,verified,R4 normalized name exact match. layer_key=rainGauge (norm=raingauge) <=> dataset_id (norm match)
+riverLevel,river_level_stations_wra,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=water_resources
+floodSensor,water.uswg_measurements,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 都市淹水感測 → uswg_measurements.md
+iotWraRiver,river_water_level_realtime,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: IoT 河川 → river_water_level_realtime.md
+iotWraStructure,dam_weirs_wra,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: IoT 水工結構 → dam_weirs_wra.md
+taipeiSewer,,adversarial_fix,UNMATCHED,catalog_missing,ADV: 北市下水道即時水位無對應 catalog（storm_drainage_pipes 是靜態管網，非即時水位）
+taipeiEvacuate,civil_defense_shelters,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 北市疏散門 → civil_defense_shelters.md
+taipeiPumb,pump_stations_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 北市抽水站 → pump_stations_wra.md
+waterBasins,river_basins_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 流域 → river_basins_wra.md
+waterRivers,river_polygons_wra,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=water_resources | hunt: 河川 → river_polygons_wra.md
+waterLevees,river_levees_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 堤防 → river_levees_wra.md
+waterCanals,irrigation_canals,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 灌排渠道 → irrigation_canals.md
+waterProtectionZones,water_zones_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 管制區 → water_zones_wra.md
+waterDetentionBasins,detention_basins,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=water_resources
+groundwater,groundwater_wells,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 地下水井 → groundwater_wells.md
+waterFloodExtreme,flood_hazard_wra,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 淹水潛勢 → flood_hazard_wra.md
+floodSensorIsochrone,water.uswg_measurements,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 淹水等時圈 → uswg_measurements.md
+precipRaster,water.precipitation_raster_frames,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 累積雨量柵格 → precipitation_raster.md
+lifelineAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 民生中斷警示 (RPC)
+floodAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 水文防汛警示 (RPC)
+weatherAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 氣象特報警示 (RPC)
+transitAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 交通阻斷警示 (RPC)
+safetyAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 安全環境警示 (RPC)
+earthquakes,earthquake,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 地震 → earthquake.md
+activeFaults,earthquake,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 活動斷層 → earthquake.md (subset)
+lightning,,hunt,UNMATCHED,catalog_missing,hunt: 落雷 (無靜態對應)
+nuclearRadiation,,hunt,UNMATCHED,catalog_missing,hunt: 核安輻射 (外部 API)
+earthquakesGlobal,usgs_earthquakes_global,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 全球地震 → usgs_earthquakes_global.md
+typhoonTracks,jma_typhoon_positions,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 颱風軌跡 → jma_typhoon_positions.md
+windField,noaa_gfs_wind_forecast,manual_fix,MED,verified,FIX: 對應 global_climate/noaa_gfs_wind_forecast.md
+oceanCurrents,cmems_ocean_forecast,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 海流 → cmems_ocean_forecast.md
+dustForecast,cams_atmosphere_forecast,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 沙塵預報 → cams_atmosphere_forecast.md
+fireStations,fire_stations,R4,MED,verified,R4 normalized name exact match. layer_key=fireStations (norm=fire) <=> dataset_id (norm match)
+fireHydrants,fire_hydrants,R4,MED,verified,R4 normalized name exact match. layer_key=fireHydrants (norm=firehydrants) <=> dataset_id (norm match)
+fireEvents,fire_incidents,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 火災歷史 → fire_incidents.md
+fireLatest,fire_incidents,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 火災最新 → fire_incidents.md
+fireIsochrone,,manual_fix,UNMATCHED,pulse_only,FIX: 派生分析：消防分隊 + 路網救援等時圈
+medHospital,medical,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 醫院 → medical.md
+medClinic,medical,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 診所 → medical.md
+medPharmacy,medical,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 藥局 → medical.md
+medAED,aed,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: AED 點位 → aed.md
+medLTC,long_term_care,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 長照機構 → long_term_care.md
+medIsochrone,,manual_fix,UNMATCHED,pulse_only,FIX: 派生分析：醫療 POI + 路網等時圈計算結果
+medDesert,,manual_fix,UNMATCHED,pulse_only,FIX: 派生分析：等時圈反演的醫療沙漠
+agriPOI,agritourism_certified_2024,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 休農場/田媽媽 → agritourism_certified_2024.md
+agriRetail,agri_retail_companies,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=agri_ | hunt: 農產零售商 → agri_retail_companies.md
+agriProduceWholesale,produce_wholesale_companies,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=produ | hunt: 蔬果批發商 → produce_wholesale_companies.md
+agriWholesaleMarket,agri_wholesale_market_companies,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=agri_ | hunt: 農產批發市場 → agri_wholesale_market_companies.md
+agriculture,ftw_fields,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 農田範圍 → ftw_fields.md
+agriLeisureFarmZones,leisure_farm_zones_2025,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 休閒農業區 → leisure_farm_zones_2025.md
+agriRuralRegen,rural_regen_communities_2025,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 農村再生社區 → rural_regen_communities_2025.md
+ecoNetworkZones,,adversarial_fix,UNMATCHED,catalog_missing,ADV: 國土綠網分區無對應 catalog dataset
+agriSoil,soil_map_national,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 土壤分類 → soil_map_national.md
+agriSoilFertility,soil_fertility_grid_250m,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 土壤肥力 → soil_fertility_grid_250m.md
+agriCropSuitability,crop_suitability_132,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 作物適栽 → crop_suitability_132.md
+farmRoads,,adversarial_fix,UNMATCHED,catalog_missing,ADV: 農路無對應 catalog（forest_roads 是林道，主責機關不同）
+forestCompartments,national_forest_compartments,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=natio | hunt: 林班 → national_forest_compartments.md
+forestReserve,forest_reserve,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=fores | hunt: 保安林 → forest_reserve.md
+forestRecreation,forest_recreation_areas,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=fores | hunt: 森林遊樂區 → forest_recreation_areas.md
+forestFlatParks,flat_forest_parks,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=flat_ | hunt: 平地森林 → flat_forest_parks.md
+forestTreatmentWorks,forestry_treatment_works,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=fores | hunt: 治理工程 → forestry_treatment_works.md
+forestTrailSigns,mountain_trail_signs,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=mount | hunt: 步道路標 → mountain_trail_signs.md
+forestSignalPoints,mountain_signal_points,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=mount | hunt: 通訊點 → mountain_signal_points.md
+forestEducationCenters,forest_education_centers,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=fores | hunt: 自然教育中心 → forest_education_centers.md
+forestDamLakes,dam_lakes_in_forest,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=dam_l | hunt: 堰塞湖 → dam_lakes_in_forest.md
+forestRoads,forest_roads,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=fores | hunt: 林道 → forest_roads.md
+forestAlishanRail,wildlife_distribution_3rd_alt,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=wildl | hunt: 阿里山森林鐵路 → wildlife_distribution_3rd_alt.md
+hikingTrails,mountain_trail_signs,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 全台步道 → mountain_trail_signs.md
+forestWildlife,wildlife_distribution_3rd,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=wildl | hunt: 野生動物分布 → wildlife_distribution_3rd.md
+wasteTruck,garbage_collection,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 垃圾車 → garbage_collection.md
+wasteSchedule,garbage_collection,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 垃圾車表定 → garbage_collection.md
+wasteScheduleNote,waste_collection_routes,manual_fix,LOW,verified,FIX: wasteSchedule 子層，共用 routes dataset
+wasteCleaningSquads,waste_cleaning_squads,R4,MED,verified,R4 normalized name exact match. layer_key=wasteCleaningSquads (norm=wastecleaningsquads) <=> dataset_id (norm match)
+wasteStopsStatic,waste_collection_stops,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 清運點位 → waste_collection_stops.md
+wdClothes,waste_positions_realtime,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 衣物回收箱 → waste_positions_realtime.md
+wdMixed,waste_positions_realtime,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 混合投放點 → waste_positions_realtime.md
+wdRecyclingContainer,waste_positions_realtime,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 街頭資收桶 → waste_positions_realtime.md
+wdBattery,waste_positions_realtime,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 電池回收 → waste_positions_realtime.md
+wfIncinerator,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 焚化爐 → waste_facilities.md
+wfLandfill,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 衛生掩埋場 → waste_facilities.md
+wfLandfillCoastal,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 濱海掩埋場 → waste_facilities.md
+wfTransfer,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 轉運站 → waste_facilities.md
+wfMedical,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 醫療廢棄物 → waste_facilities.md
+wfMonitoring,waste_facilities,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 地下水監測井 → waste_facilities.md (monitoring subset)
+wfRecycling,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 資源回收廠 → waste_facilities.md
+wfScrapYard,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 廢車/廢金屬 → waste_facilities.md
+wfOther,waste_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 其他事廢設施 → waste_facilities.md
+facPrimary,power_plants,adversarial_fix,MED,verified,ADV: ADV-FIX: 應為靜態廠址 power_plants 非即時 power_generation
+facPlanned,power_plants,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 發電廠規劃 → power_plants.md
+facHistorical,power_plants,manual_fix,MED,verified,FIX: 對應 energy/power_plants.md（含退役歷史）
+facSecondary,power_plants,adversarial_fix,MED,verified,ADV: ADV-FIX: 應為靜態廠址 power_plants 非即時 power_generation
+facOsmSupplement,osm_power,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 發電廠 OSM → osm_power.md
+powerGenerationUnit,power_generation,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=energy
+osmSubstationsEhv,osm_power,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 變電所超高壓 → osm_power.md
+osmSubstations,osm_power,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 變電所區域 → osm_power.md
+osmPowerLines,osm_power,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 高壓輸電線 → osm_power.md
+osmPowerTowers,osm_power,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 高壓鐵塔 → osm_power.md
+powerPoles,power_poles,R4+hunt,HIGH,verified,R4 normalized name exact match. layer_key=powerPoles (norm=powerpoles) <=> datas | hunt: 電線桿 → power_poles.md
+offshoreWindZones,offshore_wind_zones,R4+hunt,HIGH,verified,R4 normalized name exact match. layer_key=offshoreWindZones (norm=offshorewindzo | hunt: 離岸風電區 → offshore_wind_zones.md
+osmWindTurbines,osm_power,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 風機 → osm_power.md
+windPlan,renewable,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 風電場規劃 → renewable.md
+geothermalWells,,hunt,UNMATCHED,catalog_missing,hunt: 地熱井 (無對應)
+renewablePermitsTaipei,,hunt,UNMATCHED,catalog_missing,hunt: 北市再生能源許可 (無對應)
+evChargingStations,ev_charging_stations,R4+hunt,HIGH,verified,R4 normalized name exact match. layer_key=evChargingStations (norm=evcharging) < | hunt: 電動車充電站 → ev_charging.md
+gasStationCpc,gas_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 加油站 CPC → gas_stations.md
+gasStationFpcc,gas_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 加油站台塑 → gas_stations.md
+gasStationTaisugar,gas_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 加油站台糖 → gas_stations.md
+gasStationOther,gas_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 加油站其他 → gas_stations.md
+gasStationCanonical,gas_stations,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 加油站 SSOT → gas_stations.md
+lpgSubpackaging,lpg_facilities_canonical,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: LPG 分裝 → lpg_facilities_canonical.md
+lpgRetailers,lpg_facilities_canonical,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: LPG 加氣站 → lpg_facilities_canonical.md
+lngTerminal,gem_lng_terminals_tw,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: LNG 接收站 → gem_lng_terminals_tw.md
+pipelineGas,gem_gas_pipelines_tw,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 天然氣主幹線 → gem_gas_pipelines_tw.md
+pipelineOilGas,gem_oil_ngl_pipelines_tw,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 油氣管線 → gem_oil_ngl_pipelines_tw.md
+industrialRefinery,osm_refineries,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 煉油/化工廠 → osm_refineries.md
+industrialStorageTank,osm_storage_tanks_oil_gas,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 油氣儲槽 → osm_storage_tanks_oil_gas.md
+industrialPowerPlant,osm_fossil_power_plants,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=energy
+coalTerminal,gem_coal_terminals,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 煤炭碼頭 → gem_coal_terminals.md
+fossilFuelInfra,,hunt,UNMATCHED,catalog_missing,hunt: 化石燃料基礎設施 (組合類型)
+gasCoverageAll,,hunt,UNMATCHED,catalog_missing,hunt: 瓦斯涵蓋全體 (無對應)
+gasCoverageCpc,gas_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 瓦斯涵蓋 CPC → gas_stations.md
+gasCoverageFpcc,gas_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 瓦斯涵蓋台塑 → gas_stations.md
+gasCoverageTaisugar,gas_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 瓦斯涵蓋台糖 → gas_stations.md
+evIsland,,hunt,UNMATCHED,catalog_missing,hunt: 電動車島 (無對應)
+submarineCables,submarine_cable,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 海底光纜 → submarine_cable.md
+landingStations,submarine_cable,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 登陸站 → submarine_cable.md (subset)
+schools,layer2_polygon,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 學校 POI → layer2_polygon.md
+convenienceStores,convenience_store,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 便利商店 → convenience_store.md
+realEstateRentalGrid,real_estate,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 不動產租賃色階 → real_estate.md
+realEstateRentalPoint,real_estate,manual_fix,HIGH,verified,FIX: real_estate dataset 涵蓋租賃成交點
+realEstateSaleGrid,real_estate,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 不動產成交色階 → real_estate.md
+realEstateSalePoint,real_estate,manual_fix,HIGH,verified,FIX: real_estate dataset 涵蓋買賣成交點
+realEstatePresaleGrid,real_estate,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 不動產預售色階 → real_estate.md
+realEstatePresalePoint,real_estate,manual_fix,HIGH,verified,FIX: real_estate dataset 涵蓋預售成交點
+satellitesTaiwan,,manual_fix,UNMATCHED,catalog_missing,FIX: CelesTrak/Space-Track 外部 API，catalog 未登錄衛星追蹤源
+satellitesYaogan,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesJilin,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesGaofen,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesTJS,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesBeidou,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesShiyan,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesUSA,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesJapan,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesRussia,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesIndia,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesKorea,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesFrance,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesGermany,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesItaly,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesIsrael,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+newsEvents,layer2_polygon,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 新聞事件 → layer2_polygon.md
+policeStation,police_stations,R4,MED,verified,R4 normalized name exact match. layer_key=policeStation (norm=police) <=> dataset_id (norm match)
+womenChildWarning,women_child_warning,R4,MED,verified,R4 normalized name exact match. layer_key=womenChildWarning (norm=womenchildwarning) <=> dataset_id (norm match)
+speedCamera,speed_cameras,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=police_justice
+speedZoneSegment,speed_zone_segments,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=police_justice
+court,courts,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 法院 → courts.md
+prosecutorsOffice,prosecutors_offices,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 檢察署 → prosecutors_offices.md
+correctionalFacility,correctional_facilities,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 矯正機構 → correctional_facilities.md
+courtJurisdiction,court_jurisdictions,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=police_justice
+crimeAreaMonthly,crime_area_monthly,R4,MED,verified,R4 normalized name exact match. layer_key=crimeAreaMonthly (norm=crimeareamonthly) <=> dataset_id (norm match)
+theftTaoyuan,theft_points_taoyuan,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=police_justice
+trafficAccidentYearly,traffic_accident_yearly,R4,MED,verified,R4 normalized name exact match. layer_key=trafficAccidentYearly (norm=trafficaccidentyearly) <=> dataset_id (norm match)
+accidentTaipei,accident_taipei_dots,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=police_justice
+a1AccidentRealtime,traffic_accident,adversarial_fix,HIGH,verified,ADV: ADV-FIX: catalog 已有 environment/traffic_accident.md（A1+A2 警政署）
+investigationBureau,investigation_bureau,R4,MED,verified,R4 normalized name exact match. layer_key=investigationBureau (norm=investigationbureau) <=> dataset_id (norm match)
+antiCorruptionOffice,anti_corruption_offices,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=police_justice
+immigrationOffice,immigration_offices,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 移民署 → immigration_offices.md
+coastGuardStation,coast_guard_stations,R4,MED,verified,R4 normalized name exact match. layer_key=coastGuardStation (norm=coastguard) <=> dataset_id (norm match)
+civilDefenseShelter,civil_defense_shelters,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=police_justice
+policeIsoSubstation,police_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 警分駐所等時圈 → police_stations.md
+policeIsoPrecinct,police_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 警分局等時圈 → police_stations.md
+policeIsoCityDept,police_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 警察局等時圈 → police_stations.md
