@@ -66,6 +66,12 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   newsEvents: "#ff9800",
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
+  // 全球氣候 GLOBAL CLIMATE
+  earthquakesGlobal: "#dc2626",
+  typhoonTracks: "#a855f7",
+  dustForecast: "#b45309",
+  oceanCurrents: "#0ea5e9",
+  windField: "#94a3b8",
   lifelineAlerts: "#facc15",
   floodAlerts: "#2563eb",
   weatherAlerts: "#7c3aed",
@@ -209,7 +215,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   lngTerminal: "#F2B84B",
   pipelineGas: "#F2D64B",
   pipelineOilGas: "#EDF249",
-  industrialRefinery: "#A855F7",
+  industrialRefinery: "#F97316",
   industrialStorageTank: "#06B6D4",
   industrialPowerPlant: "#D946EF",
   coalTerminal: "#3B82F6",
@@ -236,6 +242,33 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   hillshade: "#6b7280",
   slope: "#e67e22",
   aspect: "#22c55e",
+  // 警政司法民防 17 layer
+  policeStation: "#1e40af",          // 警察 — 深藍
+  womenChildWarning: "#ec4899",      // 婦幼 — 粉
+  speedCamera: "#dc2626",            // 測速 — 紅
+  speedZoneSegment: "#b91c1c",       // 區間測速 — 深紅
+  court: "#7c3aed",                  // 法院 — 紫
+  prosecutorsOffice: "#a855f7",      // 檢察署 — 淺紫
+  correctionalFacility: "#374151",   // 矯正 — 鐵灰
+  courtJurisdiction: "#c4b5fd",      // 法院管轄區 — 紫白（polygon fill）
+  crimeAreaMonthly: "#991b1b",       // 鄉鎮犯罪 choropleth — 暗紅
+  theftTaoyuan: "#f59e0b",           // 竊盜 — 橙
+  trafficAccidentYearly: "#fb7185",  // A1 死亡 — 玫紅
+  accidentTaipei: "#fda4af",         // 北市事故 — 淡玫
+  a1AccidentRealtime: "#ef4444",     // A1 realtime — 鮮紅
+  investigationBureau: "#0f766e",    // 調查局 — 墨綠
+  antiCorruptionOffice: "#14b8a6",   // 廉政 — 青
+  immigrationOffice: "#0ea5e9",      // 移民 — 天藍
+  coastGuardStation: "#0284c7",      // 海巡 — 海藍
+  civilDefenseShelter: "#64748b",    // 防空避難 — 鋼灰
+  aviationControl: "#4682B4",        // ✈️ 飛航情報 / 終端管制（TMA 深藍代表色）
+  aviationRestricted: "#DC3545",     // ⛔ 機場管制 / 限航 / 危險（RCR 紅代表色）
+  droneNoFlyZone: "#DC3545",         // 🚫 無人機禁航區（紅+未分類）
+  droneRestrictedZone: "#FFC107",    // ⚠️ 無人機限航區（黃，需申請）
+  // 警察覆蓋分析 isochrone（overlap_count step 色階，這裡填代表色給圖例）
+  policeIsoSubstation: "#1e40af",
+  policeIsoPrecinct: "#3b82f6",
+  policeIsoCityDept: "#60a5fa",
 };
 
 // ── Transport Labels ──
@@ -363,6 +396,10 @@ export const THEMES: ThemeDef[] = [
           { key: "ports", label: "港口 Port", expandable: true },
           { key: "airports", label: "機場 Airport", expandable: true },
           { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
+          { key: "aviationControl", label: "飛航情報/終端管制 ✈️ FIR + TMA", expandable: true },
+          { key: "aviationRestricted", label: "機場管制/限航/危險 ⛔ CTR+RCR+DANGER", expandable: true },
+          { key: "droneNoFlyZone", label: "無人機禁航區 🚫 Drone NFZ", expandable: true },
+          { key: "droneRestrictedZone", label: "無人機限航區 ⚠️ Drone Restricted", expandable: true },
         ],
       },
       {
@@ -510,6 +547,30 @@ export const THEMES: ThemeDef[] = [
         title: "核安",
         layers: [
           { key: "nuclearRadiation", label: "核安輻射 Radiation", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🌍 GLOBAL CLIMATE 全球氣候
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "全球氣候 Global Climate",
+    groups: [
+      {
+        title: "事件",
+        layers: [
+          { key: "earthquakesGlobal", label: "全球地震 USGS Earthquake", expandable: true },
+          { key: "typhoonTracks", label: "颱風軌跡 Typhoon Track", expandable: true },
+        ],
+      },
+      {
+        title: "預報場（粒子動畫，待 PMTiles 上線）",
+        layers: [
+          { key: "windField", label: "風場 Wind Field 10m", expandable: true },
+          { key: "oceanCurrents", label: "海流 Ocean Currents", expandable: true },
+          { key: "dustForecast", label: "沙塵預報 Dust Forecast", expandable: true },
         ],
       },
     ],
@@ -874,6 +935,84 @@ export const THEMES: ThemeDef[] = [
         title: "事件",
         layers: [
           { key: "newsEvents", label: "新聞事件 News Events", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🚓 LAW & ORDER 執法治安（4 子群、16 個 layer）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "執法治安 Law & Order",
+    groups: [
+      {
+        title: "警政",
+        layers: [
+          { key: "policeStation", label: "警察機關 Police", expandable: true },
+          { key: "womenChildWarning", label: "婦幼警示點 Women/Child Warning", expandable: true },
+          { key: "speedCamera", label: "測速照相 Speed Camera", expandable: true },
+          { key: "speedZoneSegment", label: "區間測速 Speed Zone", expandable: true },
+        ],
+      },
+      {
+        title: "司法矯正",
+        layers: [
+          { key: "court", label: "法院 Courts", expandable: true },
+          { key: "prosecutorsOffice", label: "檢察署 Prosecutors", expandable: true },
+          { key: "correctionalFacility", label: "矯正機關 Correctional", expandable: true },
+          { key: "courtJurisdiction", label: "法院管轄區 Jurisdiction", expandable: true },
+        ],
+      },
+      {
+        title: "治安態勢",
+        layers: [
+          { key: "crimeAreaMonthly", label: "鄉鎮犯罪統計 Crime Area", expandable: true },
+          { key: "theftTaoyuan", label: "桃園竊盜 Theft Taoyuan", expandable: true },
+          { key: "trafficAccidentYearly", label: "A1 死亡事故 Fatal Accident", expandable: true },
+          { key: "accidentTaipei", label: "北市事故點 Taipei Dots", expandable: true },
+          { key: "a1AccidentRealtime", label: "A1 即時事故 A1 Realtime", expandable: true },
+        ],
+      },
+      {
+        title: "廉政移民海巡",
+        layers: [
+          { key: "investigationBureau", label: "調查局 MJIB", expandable: true },
+          { key: "antiCorruptionOffice", label: "廉政署 AAC", expandable: true },
+          { key: "immigrationOffice", label: "移民署 Immigration", expandable: true },
+          { key: "coastGuardStation", label: "海巡 Coast Guard", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🛡️ CIVIL DEFENSE 民防避難
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "民防避難 Civil Defense",
+    groups: [
+      {
+        title: "避難設施",
+        layers: [
+          { key: "civilDefenseShelter", label: "防空避難 Civil Defense Shelters", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🚔 POLICE COVERAGE 警察覆蓋分析（isochrone × overlap_count）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "警察覆蓋分析 Police Coverage",
+    groups: [
+      {
+        title: "等時圈（多站重疊深色）",
+        layers: [
+          { key: "policeIsoSubstation", label: "派出所 5/10 min", expandable: true },
+          { key: "policeIsoPrecinct", label: "分局 15/30 min", expandable: true },
+          { key: "policeIsoCityDept", label: "縣市警局 30/60 min", expandable: true },
         ],
       },
     ],

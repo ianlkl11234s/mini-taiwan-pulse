@@ -111,6 +111,8 @@ export interface LegendEntry {
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
+  { keys: ["earthquakesGlobal"], render: () => <EarthquakeGlobalLegend /> },
+  { keys: ["typhoonTracks"], render: () => <TyphoonTrackLegend /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
@@ -144,6 +146,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
   { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
   { keys: ["powerPoles"], render: () => <PowerPolesLegend /> },
+  { keys: ["aviationControl", "aviationRestricted"], render: ({ visibility }) => <AviationAirspaceLegend visibility={visibility} /> },
+  { keys: ["droneNoFlyZone", "droneRestrictedZone"], render: ({ visibility }) => <DroneZonesLegend visibility={visibility} /> },
   { keys: ["osmSubstationsEhv"], render: () => <SubstationEhvLegend /> },
   { keys: ["osmSubstations"],    render: () => <SubstationLocalLegend /> },
   { keys: ["facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement"],
@@ -174,6 +178,23 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["osmRoadDrive"], render: () => <OsmRoadDriveLegend /> },
   { keys: ["slope"], render: () => <SlopeLegend /> },
   { keys: ["aspect"], render: () => <AspectLegend /> },
+  // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
+  {
+    keys: ["policeIsoSubstation", "policeIsoPrecinct", "policeIsoCityDept"],
+    render: ({ visibility }) => <PoliceIsochroneLegend visibility={visibility} />,
+  },
+  // 警政司法民防 17 layer — 共用 PoliceJusticeLegend，按 visibility 過濾顯示行
+  {
+    keys: [
+      "policeStation", "womenChildWarning", "speedCamera", "speedZoneSegment",
+      "court", "prosecutorsOffice", "correctionalFacility", "courtJurisdiction",
+      "crimeAreaMonthly", "theftTaoyuan", "trafficAccidentYearly", "accidentTaipei",
+      "a1AccidentRealtime",
+      "investigationBureau", "antiCorruptionOffice", "immigrationOffice", "coastGuardStation",
+      "civilDefenseShelter",
+    ],
+    render: ({ visibility }) => <PoliceJusticeLegend visibility={visibility} />,
+  },
 ];
 
 export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
@@ -823,6 +844,108 @@ function EarthquakeLegend() {
   );
 }
 
+// ── USGS Global Earthquake Legend ──
+
+const EQ_GLOBAL_DEPTH_STOPS: { depth: number; color: string; label: string }[] = [
+  { depth: 0, color: "#dc2626", label: "0" },
+  { depth: 30, color: "#f97316", label: "30" },
+  { depth: 70, color: "#facc15", label: "70" },
+  { depth: 150, color: "#38bdf8", label: "150" },
+  { depth: 300, color: "#3949ab", label: "300" },
+];
+
+function EarthquakeGlobalLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        USGS GLOBAL · HOURLY
+      </div>
+      <div style={{ marginBottom: 4 }}>
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>
+          Depth (km)
+        </div>
+        <div
+          style={{
+            height: 8,
+            borderRadius: RADIUS.md,
+            background: `linear-gradient(to right, ${EQ_GLOBAL_DEPTH_STOPS.map((s) => s.color).join(", ")})`,
+          }}
+        />
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
+          {EQ_GLOBAL_DEPTH_STOPS.map((s) => (
+            <span key={s.depth} style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+              {s.label}
+            </span>
+          ))}
+        </div>
+      </div>
+      <div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 3 }}>
+          Magnitude (M)
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {[2, 4, 6, 8].map((m) => {
+            const r = m === 2 ? 4 : m === 4 ? 8 : m === 6 ? 14 : 20;
+            return (
+              <div key={m} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <div
+                  style={{
+                    width: Math.min(r, 18),
+                    height: Math.min(r, 18),
+                    borderRadius: RADIUS.full,
+                    background: "rgba(220, 38, 38, 0.4)",
+                    border: "1px solid rgba(220, 38, 38, 0.85)",
+                    flexShrink: 0,
+                  }}
+                />
+                <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>M{m}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Typhoon Track Legend ──
+
+function TyphoonTrackLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        TYPHOON · JMA / JTWC
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 28, height: 0, borderTop: "2px solid #a855f7", flexShrink: 0 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>觀測軌跡 Observed</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            style={{
+              width: 28,
+              height: 0,
+              borderTop: "2px dashed #c084fc",
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>預報軌跡 Forecast</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            style={{
+              width: 8, height: 8, borderRadius: RADIUS.full,
+              background: "#a855f7", border: "1px solid white", flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>軌跡點（click 看詳情）</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Disaster Alert Legend ──
 
 function RoadEventsLegend() {
@@ -1136,6 +1259,90 @@ function EnergyFuelLegend() {
   );
 }
 
+// ── Aviation: 航空器空域 eAIP ──
+
+function AviationAirspaceLegend({ visibility }: { visibility: LayerVisibility }) {
+  type Row = { key: string; label: string; color: string; dashed?: boolean };
+  const controlRows: Row[] = [
+    { key: "FIR", label: "FIR 飛航情報區（3）僅邊框", color: "#6495ED", dashed: true },
+    { key: "TMA", label: "TMA 終端管制區（6）", color: "#4682B4" },
+  ];
+  const restrictedRows: Row[] = [
+    { key: "CTR", label: "CTR/CONTROL/SURFACE 機場管制（20）", color: "#1E90FF" },
+    { key: "RCR", label: "RCR 限航區（29）", color: "#DC3545" },
+    { key: "DANGER", label: "DANGER 危險區（2）", color: "#FF5722" },
+    { key: "ULZ", label: "ULZ 超輕型活動區（20）", color: "#FFC107" },
+    { key: "CIRCUIT", label: "CIRCUIT 起降航線（1）", color: "#4CAF50" },
+  ];
+  const renderRow = (r: Row) => (
+    <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+      <span style={r.dashed
+        ? { width: 14, height: 10, border: `1.5px dashed ${r.color}`, display: "inline-block", borderRadius: 2, boxSizing: "border-box" }
+        : { width: 14, height: 10, background: r.color, display: "inline-block", borderRadius: 2, opacity: 0.55 }} />
+      <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.label}</span>
+    </div>
+  );
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        AVIATION · 航空器空域 eAIP
+      </div>
+      {visibility.aviationControl && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 4, marginBottom: 2 }}>
+            ✈️ 飛航情報 / 終端管制
+          </div>
+          {controlRows.map(renderRow)}
+        </>
+      )}
+      {visibility.aviationRestricted && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6, marginBottom: 2 }}>
+            ⛔ 機場管制 / 限航 / 危險
+          </div>
+          {restrictedRows.map(renderRow)}
+        </>
+      )}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 來源：民航局 eAIP AIRAC 01-26（2026-03-19）<br />
+        ● 載人航空器適用（民航法 §43），與 🛸 無人機規則不同<br />
+        ● 點 polygon 看 floor/ceiling 高度上下界
+      </div>
+    </div>
+  );
+}
+
+// ── Aviation: 無人機禁航區 ──
+
+function DroneZonesLegend({ visibility }: { visibility: LayerVisibility }) {
+  const rows: Array<{ key: string; label: string; color: string }> = [];
+  if (visibility.droneNoFlyZone) {
+    rows.push({ key: "nfz", label: "🚫 禁航區（紅+未分類 5,633）禁飛", color: "#DC3545" });
+  }
+  if (visibility.droneRestrictedZone) {
+    rows.push({ key: "restricted", label: "⚠️ 限航區（黃 108）需申請", color: "#FFC107" });
+  }
+  if (rows.length === 0) return null;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        AVIATION · 無人機空域
+      </div>
+      {rows.map((r) => (
+        <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={{ width: 14, height: 10, background: r.color, display: "inline-block", borderRadius: 2, opacity: 0.55 }} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ● 來源：民航局 dronegis（2026-06）<br />
+        ● z &lt; 7 不顯示，避免大區塊遮蓋<br />
+        ● 點 polygon 可看罰則 / 主管機關
+      </div>
+    </div>
+  );
+}
+
 // ── Energy: 高壓電網 voltage tier + line_type ──
 
 function PowerPolesLegend() {
@@ -1364,7 +1571,7 @@ const FOSSIL_FUEL_LEGEND: { key: keyof LayerVisibility; color: string; label: st
   { key: "lngTerminal",           color: "#0891B2", label: "LNG 接收站 (7)",               shape: "circle" },
   { key: "pipelineGas",           color: "#FACC15", label: "天然氣主幹線 (11)",            shape: "line" },
   { key: "pipelineOilGas",        color: "#F59E0B", label: "油氣管線 OSM (10)",            shape: "line" },
-  { key: "industrialRefinery",    color: "#1F2937", label: "煉油/化工廠 (98)",             shape: "square" },
+  { key: "industrialRefinery",    color: "#F97316", label: "煉油/化工廠（精選）",         shape: "square" },
   { key: "industrialStorageTank", color: "#92400E", label: "油氣儲槽 (72)",                shape: "square" },
   { key: "industrialPowerPlant",  color: "#374151", label: "火力廠 polygon (26)",          shape: "square" },
   { key: "coalTerminal",          color: "#111827", label: "煤炭碼頭 (4)",                 shape: "circle" },
@@ -1583,7 +1790,7 @@ function EnergySpecialtyLegend({ visibility }: { visibility: LayerVisibility }) 
           <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginTop: 6 }}>化石燃料 (9)</div>
           {[
             { c: "#22d3ee", l: "LNG 接收站" },
-            { c: "#1f2937", l: "煉油廠" },
+            { c: "#F97316", l: "煉油廠" },
             { c: "#94a3b8", l: "燃氣電廠" },
           ].map((x) => (
             <div key={x.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 2 }}>
@@ -1716,6 +1923,249 @@ function NuclearLegend() {
         ⚠️ 高劑量 + stale = 感測器離線 ≠ 真實核災<br />
         背景值 0.039 ~ 0.072 µSv/h（自然輻射）
       </div>
+    </div>
+  );
+}
+
+// ── 警政司法民防 17 layer 共用圖例 ──
+const POLICE_JUSTICE_LEGEND: { key: keyof LayerVisibility; color: string; label: string; shape: "circle" | "line" | "square" }[] = [
+  { key: "policeStation", color: "#1e40af", label: "警察機關", shape: "circle" },
+  { key: "womenChildWarning", color: "#ec4899", label: "婦幼警示點", shape: "circle" },
+  { key: "speedCamera", color: "#dc2626", label: "測速照相", shape: "circle" },
+  { key: "speedZoneSegment", color: "#b91c1c", label: "區間測速路段", shape: "line" },
+  { key: "court", color: "#7c3aed", label: "法院", shape: "circle" },
+  { key: "prosecutorsOffice", color: "#a855f7", label: "檢察署", shape: "circle" },
+  { key: "correctionalFacility", color: "#374151", label: "矯正機關", shape: "circle" },
+  { key: "courtJurisdiction", color: "#c4b5fd", label: "法院管轄區（縣市）", shape: "square" },
+  { key: "crimeAreaMonthly", color: "#991b1b", label: "鄉鎮犯罪 choropleth", shape: "square" },
+  { key: "theftTaoyuan", color: "#f59e0b", label: "桃園竊盜", shape: "circle" },
+  { key: "trafficAccidentYearly", color: "#fb7185", label: "A1 死亡事故（年度）", shape: "circle" },
+  { key: "accidentTaipei", color: "#fda4af", label: "北市事故點 (A1/A2)", shape: "circle" },
+  { key: "a1AccidentRealtime", color: "#ef4444", label: "A1 即時死亡事故", shape: "circle" },
+  { key: "investigationBureau", color: "#0f766e", label: "調查局", shape: "circle" },
+  { key: "antiCorruptionOffice", color: "#14b8a6", label: "廉政（中央/地方）", shape: "circle" },
+  { key: "immigrationOffice", color: "#0ea5e9", label: "移民署服務站", shape: "circle" },
+  { key: "coastGuardStation", color: "#0284c7", label: "海巡（巡防/漁港）", shape: "circle" },
+  { key: "civilDefenseShelter", color: "#64748b", label: "防空避難所", shape: "circle" },
+];
+
+// ── 警察覆蓋分析 isochrone — overlap_count 色階 ──
+const ISO_OVERLAP_BANDS: { c: string; l: string }[] = [
+  { c: "#fee2e2", l: "1 站覆蓋" },
+  { c: "#fca5a5", l: "2 站重疊" },
+  { c: "#f87171", l: "3~4 站" },
+  { c: "#ef4444", l: "5~7 站" },
+  { c: "#dc2626", l: "8~11 站" },
+  { c: "#991b1b", l: "12~19 站" },
+  { c: "#7f1d1d", l: "20+ 站（市中心多重保護）" },
+];
+
+function PoliceIsochroneLegend({ visibility }: { visibility: LayerVisibility }) {
+  const anyOn = visibility.policeIsoSubstation || visibility.policeIsoPrecinct || visibility.policeIsoCityDept;
+  if (!anyOn) return null;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        警察覆蓋 · 重疊計數
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {ISO_OVERLAP_BANDS.map((b) => (
+          <div key={b.l} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 14, height: 10, background: b.c, borderRadius: RADIUS.sm, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{b.l}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 5, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.4 }}>
+        每個面塊算「被幾個 station 同時覆蓋」，市中心通常 20+ 站重疊。
+      </div>
+    </div>
+  );
+}
+
+function PoliceJusticeLegend({ visibility }: { visibility: LayerVisibility }) {
+  const active = POLICE_JUSTICE_LEGEND.filter((r) => visibility[r.key]);
+  if (active.length === 0) return null;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        LAW & ORDER · 警政司法民防
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {active.map((r) => (
+          <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span
+              style={{
+                width: r.shape === "line" ? 18 : 10,
+                height: r.shape === "line" ? 3 : 10,
+                background: r.color,
+                borderRadius: r.shape === "circle" ? RADIUS.full : r.shape === "square" ? RADIUS.sm : 0,
+                border: "1px solid rgba(255,255,255,0.4)",
+                boxSizing: "border-box",
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.label}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* 警察階層細分 — 開啟 policeStation 時顯示 */}
+      {visibility.policeStation && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>警察階層（大小+色深）</div>
+          {[
+            { c: "#0a1e6b", s: 14, l: "警政署（總部）" },
+            { c: "#1e3a8a", s: 11, l: "縣市警察局" },
+            { c: "#1e40af", s: 9, l: "分局" },
+            { c: "#3b82f6", s: 6, l: "派出所" },
+            { c: "#dc2626", s: 8, l: "專業警隊（紅）" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 測速限速 — 開啟 speedCamera 時顯示 */}
+      {visibility.speedCamera && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>限速越低 圈越大</div>
+          {[
+            { s: 14, l: "≤30 km/h（學校區）" },
+            { s: 10, l: "40~50（市區）" },
+            { s: 7, l: "60~80（省道）" },
+            { s: 5, l: "≥90（國道）" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: "#dc2626", border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* A1 即時 30 天滾動 — 開啟 a1AccidentRealtime 時顯示 */}
+      {visibility.a1AccidentRealtime && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>過去 30 天滾動</div>
+          {[
+            { c: "#ef4444", s: 14, l: "當天 (<24h)+漣漪" },
+            { c: "#dc2626", s: 9, l: "本週 (1~7天)" },
+            { c: "#7f1d1d", s: 5, l: "30 天內" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 法院階層 */}
+      {visibility.court && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>法院階層</div>
+          {[
+            { c: "#4c1d95", s: 14, l: "最高法院 (2)" },
+            { c: "#6d28d9", s: 11, l: "高等法院 (6)" },
+            { c: "#7c3aed", s: 10, l: "高等行政 (3)" },
+            { c: "#a855f7", s: 9, l: "智財商業 / 少家事" },
+            { c: "#c4b5fd", s: 7, l: "地方法院 (22)" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 檢察署階層 */}
+      {visibility.prosecutorsOffice && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>檢察署階層</div>
+          {[
+            { c: "#581c87", s: 13, l: "最高檢察署 (1)" },
+            { c: "#7e22ce", s: 10, l: "高等檢察署 (6)" },
+            { c: "#c084fc", s: 7, l: "地方檢察署 (22)" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 矯正機關階層 */}
+      {visibility.correctionalFacility && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>矯正機關</div>
+          {[
+            { c: "#111827", s: 14, l: "監獄 (29)" },
+            { c: "#374151", s: 11, l: "看守所 (12)" },
+            { c: "#7c3aed", s: 9, l: "戒治所 (4)" },
+            { c: "#0d9488", s: 9, l: "矯正學校 (4)" },
+            { c: "#0ea5e9", s: 8, l: "少年觀護所 (2)" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 調查局階層 */}
+      {visibility.investigationBureau && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>調查局</div>
+          {[
+            { c: "#064e3b", s: 11, l: "縣市調查處 (10)" },
+            { c: "#0f766e", s: 7, l: "調查站 / 其他 (19)" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 廉政階層 */}
+      {visibility.antiCorruptionOffice && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>廉政</div>
+          {[
+            { c: "#134e4a", s: 10, l: "中央 central (43)" },
+            { c: "#5eead4", s: 6, l: "地方 local (23)" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 海巡分類 */}
+      {visibility.coastGuardStation && (
+        <div style={{ marginTop: 6, paddingTop: 4, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginBottom: 3 }}>海巡</div>
+          {[
+            { c: "#0c4a6e", s: 11, l: "海洋分署 (17)" },
+            { c: "#38bdf8", s: 6, l: "巡防隊 (252)" },
+          ].map((r) => (
+            <div key={r.l} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 1 }}>
+              <span style={{ width: r.s, height: r.s, borderRadius: RADIUS.full, background: r.c, border: "1px solid rgba(255,255,255,0.4)", flexShrink: 0 }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{r.l}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

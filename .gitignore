@@ -82,6 +82,9 @@ public/geo/fire_hydrants.pmtiles
 public/forestry/hiking_trails.pmtiles
 # Base map PMTiles（行政邊界 + 等高線 + OSM 路網，6 檔合計 ~406MB，走 S3 deploy-assets/base_map/）
 public/base_map/*.pmtiles
+# 警政司法民防 19 dataset（172MB，dev 用 symlink → taipei-gis-analytics/data/processed/police_justice/）
+# Production：走 S3 deploy-assets/police_justice/
+public/police_justice
 # 醫療點位 merge 中繼 geojson（27.7MB，merge_medical_poi.py 可重產，勿入 git）
 scripts/preprocess/medical_poi.geojson
 # root 層截圖 / geocode 快取（不該進版控）

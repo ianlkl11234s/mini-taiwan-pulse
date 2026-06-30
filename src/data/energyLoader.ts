@@ -785,7 +785,7 @@ export const TAIPEI_RE_CATEGORY_COLORS: Record<string, string> = {
 export const FOSSIL_FUEL_COLORS: Record<string, string> = {
   gas_power_plant: "#94a3b8", // 灰
   lng_terminal:    "#22d3ee", // cyan（LNG 冷物質感）
-  oil_refinery:    "#1f2937", // 深黑
+  oil_refinery:    "#F97316", // 橘色
 };
 
 async function fetchEvChargingUncached(): Promise<EvChargingStation[]> {

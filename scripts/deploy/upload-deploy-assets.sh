@@ -186,6 +186,16 @@ for f in public/base_map/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/base_map/$name" --region ap-southeast-2
 done
 
+# 全球氣候 PMTiles：上傳到 deploy-assets/climate/ 子前綴（沙塵/海流/風場 PMTiles 切片）。
+# 來源是 data-collectors 跑 CMEMS / CAMS / NOAA GFS 後產出的 .pmtiles。
+# Collector PMTiles 生成管線尚未上線（plan-misty-fog P5.5），此 glob 先就位。
+for f in public/climate/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading climate/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/climate/$name" --region ap-southeast-2
+done
+
 # 房地產 PMTiles：上傳到 deploy-assets/coverage/ 子前綴（鏡像結構，pull 端整夾 sync）。
 # 只上傳 real_estate_*（26+43MB 大檔走 S3）；gas coverage 小檔（5MB）仍進 git/dist，不上傳。
 for f in public/coverage/real_estate_*.pmtiles; do

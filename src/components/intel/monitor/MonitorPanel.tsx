@@ -23,6 +23,9 @@ import type { NewsCategory } from "../../../data/newsEventTypes";
 import { timeStore } from "../../../state/timeStore";
 import { TimelineDock } from "./TimelineDock";
 import { IndicatorPanel } from "./IndicatorPanel";
+import { PrisonCard, type PrisonDay } from "./PrisonCard";
+import { AirportPaxCard } from "./AirportPaxCard";
+import { supabase } from "../../../lib/supabase";
 import {
   fetchPowerDashboard, invalidatePowerDashboard,
   fetchPowerGeneration24h, invalidatePowerGeneration24h,
@@ -116,6 +119,7 @@ export function MonitorPanel({
   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
   const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
   const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
+  const [prisonLatest, setPrisonLatest] = useState<PrisonDay | null>(null);
 
   // 60s pressure + market + source health + trending（降載：TTL 已蓋住輪詢間隔）
   useEffect(() => {
@@ -168,6 +172,24 @@ export function MonitorPanel({
       window.clearInterval(idFast);
       window.clearInterval(idSlow);
     };
+  }, [open]);
+
+  // 30min Prison population (最新一筆，realtime.prison_population_daily PK=observed_date)
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    const tick = () => {
+      supabase.rpc("get_prison_population_window", { p_days: 365 })
+        .then(({ data, error }) => {
+          if (!alive) return;
+          if (error) { console.warn("[Monitor Prison]", error); return; }
+          const rows = (data ?? []) as PrisonDay[];
+          setPrisonLatest(rows[0] ?? null);
+        });
+    };
+    tick();
+    const id = window.setInterval(tick, 30 * 60_000);
+    return () => { alive = false; window.clearInterval(id); };
   }, [open]);
 
   // 30min PLA + week-once Health
@@ -683,6 +705,12 @@ export function MonitorPanel({
           powerDashboard={powerDashboard}
           powerDay={powerDay}
         />
+      </div>
+
+      {/* 警政司法民防 — 2 張新卡（與 IndicatorPanel 同層底下） */}
+      <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <PrisonCard latest={prisonLatest} />
+        <AirportPaxCard open={open} />
       </div>
 
       <style>{`

@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -66,9 +66,20 @@ aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress
 echo "[pull] sync base_map → $DATA_DIR/base_map/"
 aws s3 sync "$S3/base_map/" "$DATA_DIR/base_map/" --no-progress
 
+# 全球氣候：鏡像子前綴 deploy-assets/climate/ → /data/climate/（CMEMS / CAMS / NOAA GFS 衍生 PMTiles）
+# Collector PMTiles 生成管線尚未上線，目前 S3 prefix 可能為空，sync 會 no-op。
+echo "[pull] sync climate → $DATA_DIR/climate/"
+aws s3 sync "$S3/climate/" "$DATA_DIR/climate/" --no-progress
+
 # 淹水感測 isochrone：鏡像子前綴 deploy-assets/flood/ → /data/flood/
 echo "[pull] sync flood → $DATA_DIR/flood/"
 aws s3 sync "$S3/flood/" "$DATA_DIR/flood/" --no-progress
+
+# 警政司法民防：鏡像子前綴 deploy-assets/police_justice/ → /data/police_justice/
+# 19 個 dataset 子目錄（每 dataset 自帶 *_20260626.geojson + _manifest.json）+ 3 個 *.pmtiles
+mkdir -p "$DATA_DIR/police_justice"
+echo "[pull] sync police_justice → $DATA_DIR/police_justice/"
+aws s3 sync "$S3/police_justice/" "$DATA_DIR/police_justice/" --no-progress
 
 # Rail：tar.gz 同步到 cache，僅在 archive 有變時才重新解壓
 echo "[pull] sync rail.tar.gz → cache"

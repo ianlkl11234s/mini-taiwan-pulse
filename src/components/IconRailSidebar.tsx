@@ -22,6 +22,11 @@ import {
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
   // HAZARD icons
   CloudLightning, Atom,
+  // GLOBAL CLIMATE icons
+  Tornado,
+  // POLICE / JUSTICE / CIVIL DEFENSE icons（新增；既有 Shield/Search/MapPinned/PlaneTakeoff/Anchor/AlertTriangle/AlertCircle 已 import 復用）
+  ShieldAlert, Gavel, Scale, Lock, Hexagon, Crosshair,
+  Ban,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -56,6 +61,10 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   ports: Anchor,
   airports: PlaneTakeoff,
   lighthouses: Lightbulb,
+  aviationControl: Plane,
+  aviationRestricted: Hexagon,
+  droneNoFlyZone: Ban,
+  droneRestrictedZone: AlertTriangle,
   h3Population: Activity,
   popCount: Users,
   indicators: BarChart3,
@@ -232,6 +241,12 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   evIsland: PlugZap,
   lightning: CloudLightning,
   nuclearRadiation: Atom,
+  // 全球氣候 GLOBAL CLIMATE
+  earthquakesGlobal: AlertTriangle,
+  typhoonTracks: Tornado,
+  dustForecast: Cloud,
+  oceanCurrents: Waves,
+  windField: Wind,
   // 房地產（格用 Building2、點用 MapPin）
   realEstateRentalGrid: Building2,
   realEstateRentalPoint: MapPin,
@@ -250,6 +265,29 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   hillshade: Mountain,
   slope: Mountain,
   aspect: Mountain,
+  // 警政司法民防 17 layer
+  policeStation: ShieldAlert,
+  womenChildWarning: AlertTriangle,
+  speedCamera: Crosshair,
+  speedZoneSegment: Timer,
+  court: Gavel,
+  prosecutorsOffice: Scale,
+  correctionalFacility: Lock,
+  courtJurisdiction: MapPinned,
+  crimeAreaMonthly: Hexagon,
+  theftTaoyuan: Search,
+  trafficAccidentYearly: AlertTriangle,
+  accidentTaipei: AlertCircle,
+  a1AccidentRealtime: AlertTriangle,
+  investigationBureau: Search,
+  antiCorruptionOffice: Sparkles,
+  immigrationOffice: PlaneTakeoff,
+  coastGuardStation: Anchor,
+  civilDefenseShelter: ShieldCheck,
+  // 警察覆蓋分析
+  policeIsoSubstation: Hexagon,
+  policeIsoPrecinct: Hexagon,
+  policeIsoCityDept: Hexagon,
 };
 
 // ── IATA Map for Locations Panel ──

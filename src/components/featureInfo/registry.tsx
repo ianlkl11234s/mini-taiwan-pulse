@@ -39,10 +39,22 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
   EvIslandPanel,
 } from "./energyPanels";
 import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
+import { EarthquakeGlobalPanel, TyphoonTrackPanel } from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
 } from "./baseMapPanels";
+import {
+  PoliceStationPanel, WomenChildWarningPanel, SpeedCameraPanel, SpeedZoneSegmentPanel,
+  CourtPanel, ProsecutorsOfficePanel, CorrectionalFacilityPanel, CourtJurisdictionPanel,
+  CrimeAreaMonthlyPanel, TheftTaoyuanPanel, TrafficAccidentYearlyPanel, AccidentTaipeiPanel,
+  A1AccidentRealtimePanel,
+  InvestigationBureauPanel, AntiCorruptionOfficePanel, ImmigrationOfficePanel, CoastGuardStationPanel,
+  CivilDefenseShelterPanel,
+  AviationAirspacePanel,
+  DroneZonesPanel,
+  PoliceIsoSubstationPanel, PoliceIsoPrecinctPanel, PoliceIsoCityDeptPanel,
+} from "./policeJusticePanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -150,6 +162,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   evIsland: EvIslandPanel,
   lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
+  earthquakeGlobal: EarthquakeGlobalPanel,
+  typhoonTrack: TyphoonTrackPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -157,6 +171,32 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
+  // 警政司法民防 17 layer
+  policeStation: PoliceStationPanel,
+  womenChildWarning: WomenChildWarningPanel,
+  speedCamera: SpeedCameraPanel,
+  speedZoneSegment: SpeedZoneSegmentPanel,
+  court: CourtPanel,
+  prosecutorsOffice: ProsecutorsOfficePanel,
+  correctionalFacility: CorrectionalFacilityPanel,
+  courtJurisdiction: CourtJurisdictionPanel,
+  crimeAreaMonthly: CrimeAreaMonthlyPanel,
+  theftTaoyuan: TheftTaoyuanPanel,
+  trafficAccidentYearly: TrafficAccidentYearlyPanel,
+  accidentTaipei: AccidentTaipeiPanel,
+  a1AccidentRealtime: A1AccidentRealtimePanel,
+  investigationBureau: InvestigationBureauPanel,
+  antiCorruptionOffice: AntiCorruptionOfficePanel,
+  immigrationOffice: ImmigrationOfficePanel,
+  coastGuardStation: CoastGuardStationPanel,
+  civilDefenseShelter: CivilDefenseShelterPanel,
+  aviationControl: AviationAirspacePanel,
+  aviationRestricted: AviationAirspacePanel,
+  droneNoFlyZone: DroneZonesPanel,
+  droneRestrictedZone: DroneZonesPanel,
+  policeIsoSubstation: PoliceIsoSubstationPanel,
+  policeIsoPrecinct: PoliceIsoPrecinctPanel,
+  policeIsoCityDept: PoliceIsoCityDeptPanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -259,6 +299,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   evIsland: "充電站 30km 孤島",
   lightningStrike: "落雷",
   nuclearStation: "核安觀測站",
+  earthquakeGlobal: "全球地震 USGS",
+  typhoonTrack: "颱風軌跡",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
@@ -270,4 +312,31 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   hillshade: "山體陰影",
   slope: "坡度",
   aspect: "坡向",
+  // 警政司法民防
+  policeStation: "警察機關",
+  womenChildWarning: "婦幼警示點",
+  speedCamera: "測速照相",
+  speedZoneSegment: "區間測速路段",
+  court: "法院",
+  prosecutorsOffice: "檢察署",
+  correctionalFacility: "矯正機關",
+  courtJurisdiction: "法院管轄區",
+  crimeAreaMonthly: "鄉鎮犯罪統計",
+  theftTaoyuan: "桃園竊盜點",
+  trafficAccidentYearly: "A1 死亡事故（年度）",
+  accidentTaipei: "北市事故點",
+  a1AccidentRealtime: "A1 即時事故",
+  investigationBureau: "調查局",
+  antiCorruptionOffice: "廉政署",
+  immigrationOffice: "移民署服務站",
+  coastGuardStation: "海巡",
+  civilDefenseShelter: "防空避難所",
+  aviationControl: "飛航情報/終端管制",
+  aviationRestricted: "機場管制/限航/危險",
+  droneNoFlyZone: "無人機禁航區",
+  droneRestrictedZone: "無人機限航區",
+  // 警察覆蓋分析
+  policeIsoSubstation: "派出所等時圈",
+  policeIsoPrecinct: "分局等時圈",
+  policeIsoCityDept: "縣市警局等時圈",
 };

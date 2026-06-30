@@ -111,6 +111,11 @@ export type ExpandableLayerKey =
   | "aqiStations"
   | "aqiMicroSensors"
   | "earthquakes"
+  | "earthquakesGlobal"
+  | "typhoonTracks"
+  | "dustForecast"
+  | "oceanCurrents"
+  | "windField"
   | "lifelineAlerts"
   | "floodAlerts"
   | "weatherAlerts"
@@ -265,7 +270,21 @@ export type ExpandableLayerKey =
   // Base map
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
-  | "osmExpressway" | "hillshade" | "slope" | "aspect";
+  | "osmExpressway" | "hillshade" | "slope" | "aspect"
+  // 警政司法民防 17 layer（slider 接 useTransportParams）
+  | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
+  | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
+  | "crimeAreaMonthly" | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
+  | "a1AccidentRealtime"
+  | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
+  | "civilDefenseShelter"
+  // 航空器空域（eAIP AIRAC，9 種 layer 拆兩 toggle）
+  | "aviationControl"        // FIR + TMA（情報 / 終端管制，FIR 只邊框）
+  | "aviationRestricted"     // CTR/CONTROL/SURFACE + RCR + DANGER + ULZ + CIRCUIT
+  // 航空安全 — 無人機禁/限航區（共用 PMTiles + filter 拆兩 toggle）
+  | "droneNoFlyZone" | "droneRestrictedZone"
+  // 警察覆蓋分析 isochrone × 3 層級
+  | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -610,10 +629,24 @@ export interface FeatureInfo {
     | "gasCoverageAll" | "gasCoverageCpc" | "gasCoverageFpcc" | "gasCoverageTaisugar"
     | "evIsland"
     | "lightningStrike" | "nuclearStation"
+    | "earthquakeGlobal" | "typhoonTrack"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
-    | "osmExpressway" | "hillshade" | "slope" | "aspect";
+    | "osmExpressway" | "hillshade" | "slope" | "aspect"
+    // 警政司法民防 17 layer
+    | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
+    | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
+    | "crimeAreaMonthly" | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"
+    | "a1AccidentRealtime"
+    | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
+    | "civilDefenseShelter"
+    // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
+    | "aviationControl" | "aviationRestricted"
+    // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
+    | "droneNoFlyZone" | "droneRestrictedZone"
+    // 警察覆蓋分析 (PMTiles, 帶 overlap_count)
+    | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];
@@ -659,6 +692,12 @@ export interface LayerVisibility {
   newsEvents: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
+  // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
+  earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
+  typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
+  dustForecast: boolean;         // CAMS 沙塵預報（PMTiles 待出，stub）
+  oceanCurrents: boolean;        // CMEMS 海流（u/v 粒子動畫，PMTiles 待出，stub）
+  windField: boolean;            // NOAA GFS 10m 風場（u/v 粒子動畫，PMTiles 待出，stub）
   /** NCDR 災害示警 5 主題群組（共用 disaster-alerts source，見 disasterAlertTypes.ts） */
   lifelineAlerts: boolean;
   floodAlerts: boolean;
@@ -845,6 +884,33 @@ export interface LayerVisibility {
   hillshade: boolean;          // 山體陰影 raster（灰階 PNG，烤過 colormap）
   slope: boolean;              // 坡度 raster（綠→黃→紅 ramp，0-45°）
   aspect: boolean;             // 坡向 raster（HSV 環狀 N=紅 E=黃 S=綠 W=藍）
+  // 警政司法民防 17 layer（資料來自 taipei-gis-analytics police_justice/）
+  policeStation: boolean;             // 2,065 警察機關（分局/派出所/專業警隊/總局）
+  womenChildWarning: boolean;         // 185 婦幼警示點
+  speedCamera: boolean;               // 2,056 測速照相
+  speedZoneSegment: boolean;          // 25 區間測速路段（LineString）
+  court: boolean;                     // 35 法院（最高/高/地方/行政/智慧財產/少年及家事）
+  prosecutorsOffice: boolean;         // 29 檢察署
+  correctionalFacility: boolean;      // 51 矯正機關（監獄/看守所/戒治所/少觀所/矯正學校）
+  courtJurisdiction: boolean;         // 22 法院管轄縣市範圍（MultiPolygon PMTiles）
+  crimeAreaMonthly: boolean;          // 368 鄉鎮犯罪統計（Polygon PMTiles，11 年累計 39 萬事件）
+  theftTaoyuan: boolean;              // 1,423 桃園竊盜點（住宅/機車/自行車/汽車）
+  trafficAccidentYearly: boolean;     // 1,600 A1 死亡事故年度累積（114 年靜態）
+  accidentTaipei: boolean;            // 22,918 北市事故點（A1+A2 多年累積）
+  a1AccidentRealtime: boolean;        // realtime.traffic_accidents_a1 每 12h（rpc_a1_by_bbox）
+  investigationBureau: boolean;       // 29 調查局所屬
+  antiCorruptionOffice: boolean;      // 66 廉政署（central/local）
+  immigrationOffice: boolean;         // 25 移民署服務站
+  coastGuardStation: boolean;         // 269 海巡（巡防隊+漁港）
+  civilDefenseShelter: boolean;       // 62,695 防空避難（PMTiles，z≥10 才顯示）
+  aviationControl: boolean;           // ✈️ 飛航情報/終端管制（FIR 3 + TMA 6，FIR 只邊框）
+  aviationRestricted: boolean;        // ⛔ 禁/限航 + 危險 + 機場管制（CTR/CONTROL/SURFACE/RCR/DANGER/ULZ/CIRCUIT 72）
+  droneNoFlyZone: boolean;            // 🚫 無人機禁航區 紅+未分類 5,633（共用 drone_restricted_zones.pmtiles）
+  droneRestrictedZone: boolean;       // ⚠️ 無人機限航區 黃 108（需申請）
+  // 警察覆蓋分析（isochrone PMTiles，帶 overlap_count）
+  policeIsoSubstation: boolean;       // 派出所 isochrone（步行/開車 × 5/10 min）
+  policeIsoPrecinct: boolean;         // 分局 isochrone（步行/開車 × 15/30 min）
+  policeIsoCityDept: boolean;         // 縣市警局 isochrone（步行/開車 × 30/60 min）
 }
 
 // ── 空氣品質 ──

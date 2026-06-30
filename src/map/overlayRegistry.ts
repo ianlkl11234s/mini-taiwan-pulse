@@ -3548,7 +3548,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": [
               "match", ["get", "facility_type"],
               "lng_terminal", "#22d3ee",
-              "oil_refinery", "#1f2937",
+              "oil_refinery", "#F97316",
               "gas_power_plant", "#94a3b8",
               "#9ca3af",
             ],
@@ -4440,7 +4440,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 6, 10, 18, 14, 36],
             "circle-blur": 0.8,
-            "circle-color": "#A855F7",
+            "circle-color": "#F97316",
             "circle-opacity": o * 0.5,
           };
         },
@@ -4453,7 +4453,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialRefineryOpacity ?? 0.55;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 2, 10, 5, 14, 9],
-            "circle-color": "#A855F7",
+            "circle-color": "#F97316",
             "circle-opacity": o,
           };
         },
@@ -4465,7 +4465,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (_isDark, params) => {
           const o = params?.industrialRefineryOpacity ?? 0.55;
           return {
-            "fill-color": "#A855F7",
+            "fill-color": "#F97316",
             "fill-opacity": o * 0.5,
           };
         },
@@ -4478,7 +4478,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const o = params?.industrialRefineryOpacity ?? 0.55;
           const show = (params?.industrialRefineryOutline ?? 1) > 0;
           return {
-            "line-color": "#A855F7",
+            "line-color": "#F97316",
             "line-width": show ? 1 : 0,
             "line-opacity": show ? o : 0,
           };
@@ -4993,5 +4993,758 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         },
       },
     ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // 警政司法民防 17 layer（資料來自 /police_justice/，扁平 dataset/ 子目錄）
+  // 13 靜態 GeoJSON + 3 PMTiles + 1 動態 RPC
+  // ═══════════════════════════════════════════════════════════════
+
+  // ── 警政 4 layer ──
+  {
+    id: "policeStation",
+    sourceUrl: "./police_justice/police_stations/police_stations_20260626.geojson",
+    sourceId: "police-station",
+    rebuildOnParamChange: ["policeStationOpacity", "policeStationScale"],
+    // 按 facility_subtype 階層分大小 + 深淺：
+    //   headquarters (5)        → 最大、最深藍（警政署）
+    //   police_dept (27)        → 大、深藍（縣市警察局）
+    //   precinct (163)          → 中、中藍（分局）
+    //   substation (1,541)      → 小、淺藍（派出所，量最多）
+    //   specialized (298)       → 中、紅色（專業警隊：交通/刑事/保警，視覺突出）
+    //   security / other (62)   → 最小、灰
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.policeStationScale ?? 1;
+        const op = p?.policeStationOpacity ?? 0.85;
+        // 半徑用 (zoom × subtype tier) 二維插值：subtype 帶 baseRadius factor
+        const radiusFactor: unknown[] = [
+          "match", ["get", "facility_subtype"],
+          "headquarters", 1.7,
+          "police_dept", 1.4,
+          "precinct", 1.15,
+          "specialized", 1.0,
+          "security", 0.75,
+          "substation", 0.7,
+          "other", 0.6,
+          0.7,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["*", s, ["*", 2, radiusFactor]],
+            10, ["*", s, ["*", 4, radiusFactor]],
+            14, ["*", s, ["*", 7, radiusFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "match", ["get", "facility_subtype"],
+            "headquarters", "#0a1e6b",   // 最深藍
+            "police_dept", "#1e3a8a",
+            "precinct", "#1e40af",
+            "substation", "#3b82f6",     // 淺藍
+            "specialized", "#dc2626",     // 紅色突顯（專業警隊）
+            "security", "#475569",        // 灰藍
+            "other", "#64748b",
+            "#1e40af",
+          ] as unknown as string,
+          "circle-stroke-color": "#fff",
+          "circle-stroke-width": [
+            "match", ["get", "facility_subtype"],
+            "headquarters", 1.2,
+            "police_dept", 1,
+            "precinct", 0.8,
+            0.5,
+          ] as unknown as number,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "womenChildWarning",
+    sourceUrl: "./police_justice/women_child_warning/women_child_warning_20260626.geojson",
+    sourceId: "women-child-warning",
+    rebuildOnParamChange: ["womenChildWarningOpacity", "womenChildWarningScale"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.womenChildWarningScale ?? 1;
+        const op = p?.womenChildWarningOpacity ?? 0.9;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3 * s, 14, 7 * s] as unknown as number,
+          "circle-color": "#ec4899",
+          "circle-stroke-color": "#fff", "circle-stroke-width": 0.8,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "speedCamera",
+    sourceUrl: "./police_justice/speed_cameras/speed_cameras_20260626.geojson",
+    sourceId: "speed-camera",
+    rebuildOnParamChange: ["speedCameraOpacity", "speedCameraScale"],
+    // 顏色按 subtype（4 類）：general 紅 / freeway 暗紅 / red_light 玫紅 / railway 黃
+    // 大小按 limit_kph：限速越低=越嚴=圈越大（30km/h 學校區最醒目，110 國道最小）
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.speedCameraScale ?? 1;
+        const op = p?.speedCameraOpacity ?? 0.85;
+        // limit_kph 字串轉數字後分級 factor
+        const limitFactor: unknown[] = [
+          "step", ["coalesce", ["to-number", ["get", "limit_kph"]], 60],
+          1.5,   // < 30：學校區/巷弄
+          30, 1.4,
+          40, 1.2,
+          50, 1.0,
+          60, 0.9,
+          70, 0.85,
+          90, 0.75,
+          100, 0.7,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            8, ["*", s, ["*", 2, limitFactor]],
+            12, ["*", s, ["*", 4, limitFactor]],
+            16, ["*", s, ["*", 6, limitFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "match", ["get", "facility_subtype"],
+            "speed_camera_freeway", "#7f1d1d",
+            "red_light_camera", "#fb7185",
+            "railway_crossing_camera", "#facc15",
+            "#dc2626",  // speed_camera_general
+          ] as unknown as string,
+          "circle-stroke-color": "#fff", "circle-stroke-width": 0.4,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "speedZoneSegment",
+    sourceUrl: "./police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson",
+    sourceId: "speed-zone-segment",
+    rebuildOnParamChange: ["speedZoneSegmentOpacity", "speedZoneSegmentWidth"],
+    layers: [{
+      suffix: "line", type: "line",
+      paint: (_isDark, p) => {
+        const w = p?.speedZoneSegmentWidth ?? 1;
+        const op = p?.speedZoneSegmentOpacity ?? 0.85;
+        return {
+          "line-color": "#b91c1c",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 8, 1.5 * w, 14, 4 * w] as unknown as number,
+          "line-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // ── 司法矯正 4 layer ──
+  {
+    id: "court",
+    sourceUrl: "./police_justice/courts/courts_20260626.geojson",
+    sourceId: "court",
+    rebuildOnParamChange: ["courtOpacity", "courtScale"],
+    // 按 court_type 6 階層：supreme 最大深紫 → district 小淺紫
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.courtScale ?? 1;
+        const op = p?.courtOpacity ?? 0.9;
+        const radiusFactor: unknown[] = [
+          "match", ["get", "court_type"],
+          "supreme", 1.7,
+          "high", 1.35,
+          "admin", 1.2,
+          "ipc", 1.15,
+          "juvenile_family", 1.15,
+          "district", 0.85,
+          0.85,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["*", s, ["*", 3, radiusFactor]],
+            10, ["*", s, ["*", 6, radiusFactor]],
+            14, ["*", s, ["*", 9, radiusFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "match", ["get", "court_type"],
+            "supreme", "#4c1d95",       // 最深紫（最高法院）
+            "high", "#6d28d9",
+            "admin", "#7c3aed",          // 高等行政
+            "ipc", "#a855f7",            // 智財商業
+            "juvenile_family", "#c084fc",
+            "district", "#c4b5fd",       // 淺紫（地方法院）
+            "#7c3aed",
+          ] as unknown as string,
+          "circle-stroke-color": "#fff",
+          "circle-stroke-width": ["match", ["get", "court_type"], "supreme", 1.4, "high", 1.1, 0.8] as unknown as number,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "prosecutorsOffice",
+    sourceUrl: "./police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson",
+    sourceId: "prosecutors-office",
+    rebuildOnParamChange: ["prosecutorsOfficeOpacity", "prosecutorsOfficeScale"],
+    // 按 pros_type 3 階：supreme 最深紫 / high 中 / district 淺
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.prosecutorsOfficeScale ?? 1;
+        const op = p?.prosecutorsOfficeOpacity ?? 0.9;
+        const radiusFactor: unknown[] = [
+          "match", ["get", "pros_type"],
+          "supreme", 1.7,
+          "high", 1.3,
+          "district", 0.9,
+          0.9,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["*", s, ["*", 3, radiusFactor]],
+            10, ["*", s, ["*", 5, radiusFactor]],
+            14, ["*", s, ["*", 8, radiusFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "match", ["get", "pros_type"],
+            "supreme", "#581c87",
+            "high", "#7e22ce",
+            "district", "#c084fc",
+            "#a855f7",
+          ] as unknown as string,
+          "circle-stroke-color": "#fff",
+          "circle-stroke-width": ["match", ["get", "pros_type"], "supreme", 1.4, "high", 1.0, 0.7] as unknown as number,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "correctionalFacility",
+    sourceUrl: "./police_justice/correctional_facilities/correctional_facilities_20260626.geojson",
+    sourceId: "correctional-facility",
+    rebuildOnParamChange: ["correctionalFacilityOpacity", "correctionalFacilityScale"],
+    // 按 facility_type 5 類，大小反映「收容強度」、顏色區隔機關性質
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.correctionalFacilityScale ?? 1;
+        const op = p?.correctionalFacilityOpacity ?? 0.9;
+        const radiusFactor: unknown[] = [
+          "match", ["get", "facility_type"],
+          "prison", 1.5,            // 監獄（最大）
+          "detention", 1.2,         // 看守所
+          "drug_rehab", 0.95,       // 戒治所
+          "juvenile_obs", 0.85,     // 少觀所
+          "correction_school", 1.0, // 矯正學校
+          0.9,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["*", s, ["*", 3, radiusFactor]],
+            10, ["*", s, ["*", 6, radiusFactor]],
+            14, ["*", s, ["*", 10, radiusFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "match", ["get", "facility_type"],
+            "prison", "#111827",         // 監獄 — 最深鐵灰
+            "detention", "#374151",      // 看守所 — 深灰
+            "drug_rehab", "#7c3aed",     // 戒治所 — 紫
+            "juvenile_obs", "#0ea5e9",   // 少觀所 — 藍
+            "correction_school", "#0d9488", // 矯正學校 — 青綠（教育）
+            "#374151",
+          ] as unknown as string,
+          "circle-stroke-color": "#fff",
+          "circle-stroke-width": ["match", ["get", "facility_type"], "prison", 1.2, "detention", 1.0, 0.7] as unknown as number,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "courtJurisdiction",
+    sourceUrl: "./police_justice/court_jurisdictions/court_jurisdictions.pmtiles",
+    sourceId: "court-jurisdiction",
+    pmtiles: { sourceLayer: "court_jurisdictions", minzoom: 0, maxzoom: 10 },
+    rebuildOnParamChange: ["courtJurisdictionOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": "#c4b5fd",
+          "fill-opacity": p?.courtJurisdictionOpacity ?? 0.18,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: () => ({
+          "line-color": "#7c3aed",
+          "line-width": 0.8,
+          "line-opacity": 0.7,
+        }),
+      },
+    ],
+  },
+
+  // ── 治安態勢 5 layer ──
+  {
+    id: "crimeAreaMonthly",
+    sourceUrl: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
+    sourceId: "crime-area-monthly",
+    pmtiles: { sourceLayer: "crime_area_monthly", minzoom: 0, maxzoom: 12 },
+    rebuildOnParamChange: ["crimeAreaMonthlyOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": [
+            "interpolate", ["linear"], ["coalesce", ["to-number", ["get", "total_events"]], 0],
+            0, "#fef2f2",
+            100, "#fca5a5",
+            500, "#ef4444",
+            1500, "#991b1b",
+            5000, "#450a0a",
+          ] as unknown as string,
+          "fill-opacity": p?.crimeAreaMonthlyOpacity ?? 0.55,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: () => ({ "line-color": "#7f1d1d", "line-width": 0.3, "line-opacity": 0.5 }),
+      },
+    ],
+  },
+  {
+    id: "theftTaoyuan",
+    sourceUrl: "./police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson",
+    sourceId: "theft-taoyuan",
+    rebuildOnParamChange: ["theftTaoyuanOpacity", "theftTaoyuanScale"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.theftTaoyuanScale ?? 1;
+        const op = p?.theftTaoyuanOpacity ?? 0.8;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 2 * s, 14, 4 * s, 17, 7 * s] as unknown as number,
+          "circle-color": [
+            "match", ["get", "case_type"],
+            "住宅竊盜", "#f59e0b",
+            "汽車竊盜", "#fb923c",
+            "機車竊盜", "#fbbf24",
+            "自行車竊盜", "#fde047",
+            "#f59e0b",
+          ] as unknown as string,
+          "circle-stroke-color": "#fff", "circle-stroke-width": 0.3,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "trafficAccidentYearly",
+    sourceUrl: "./police_justice/traffic_accident_yearly/traffic_accident_yearly_20260626.geojson",
+    sourceId: "traffic-accident-yearly",
+    rebuildOnParamChange: ["trafficAccidentYearlyOpacity", "trafficAccidentYearlyScale"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.trafficAccidentYearlyScale ?? 1;
+        const op = p?.trafficAccidentYearlyOpacity ?? 0.85;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2 * s, 12, 4 * s, 16, 7 * s] as unknown as number,
+          "circle-color": "#fb7185",
+          "circle-stroke-color": "#fff", "circle-stroke-width": 0.4,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "accidentTaipei",
+    sourceUrl: "./police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson",
+    sourceId: "accident-taipei",
+    rebuildOnParamChange: ["accidentTaipeiOpacity", "accidentTaipeiScale"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 10,
+      paint: (_isDark, p) => {
+        const s = p?.accidentTaipeiScale ?? 1;
+        const op = p?.accidentTaipeiOpacity ?? 0.7;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 10, 1.2 * s, 14, 2.5 * s, 17, 5 * s] as unknown as number,
+          "circle-color": [
+            "match", ["get", "case_class"],
+            "1", "#dc2626",
+            "2", "#fda4af",
+            "#fda4af",
+          ] as unknown as string,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "a1AccidentRealtime",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "a1-accident-realtime",
+    dynamicData: true,
+    rebuildOnParamChange: ["a1AccidentRealtimeOpacity", "a1AccidentRealtimeScale"],
+    // 30 天滾動 + age 分桶：
+    //   當天 (<24h)：大圈 + 雙層漣漪 halo（鮮紅 #ef4444）
+    //   一週 (24~168h)：中圈 + 單層光暈（紅 #dc2626）
+    //   30 天 (168~720h)：小點 + 淡（暗紅 #7f1d1d）
+    // ripple_phase 0~1 週期 3s（由 hook 每 60s 重餵時計算）讓當天事故脈動
+    layers: [
+      // 外層漣漪：只有當天事故顯示
+      {
+        suffix: "ripple-outer", type: "circle",
+        paint: (_isDark, p) => {
+          const s = p?.a1AccidentRealtimeScale ?? 1;
+          const op = p?.a1AccidentRealtimeOpacity ?? 0.95;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["case", ["<", ["get", "age_hours"], 24], 14, 0]],
+              10, ["*", s, ["case", ["<", ["get", "age_hours"], 24], 24, 0]],
+              14, ["*", s, ["case", ["<", ["get", "age_hours"], 24], 36, 0]],
+            ] as unknown as number,
+            "circle-color": "#ef4444",
+            "circle-blur": 1,
+            "circle-opacity": [
+              "case",
+              ["<", ["get", "age_hours"], 24],
+              ["*", 0.3, op],
+              0,
+            ] as unknown as number,
+          };
+        },
+      },
+      // 內層光暈：當天 (full) / 一週 (淡)
+      {
+        suffix: "halo", type: "circle",
+        paint: (_isDark, p) => {
+          const s = p?.a1AccidentRealtimeScale ?? 1;
+          const op = p?.a1AccidentRealtimeOpacity ?? 0.95;
+          // age 分桶 radius factor
+          const ageRadiusFactor: unknown[] = [
+            "step", ["get", "age_hours"],
+            1.2,        // < 24h
+            24, 0.7,    // 24~168h
+            168, 0.4,   // 168~720h
+            720, 0,     // > 720h 不顯示
+          ];
+          // age 分桶 color
+          const ageColor: unknown[] = [
+            "step", ["get", "age_hours"],
+            "#ef4444",
+            24, "#dc2626",
+            168, "#7f1d1d",
+          ];
+          // age 分桶 opacity
+          const ageOpacity: unknown[] = [
+            "step", ["get", "age_hours"],
+            0.45,
+            24, 0.25,
+            168, 0.12,
+            720, 0,
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["*", 6, ageRadiusFactor]],
+              10, ["*", s, ["*", 12, ageRadiusFactor]],
+              14, ["*", s, ["*", 20, ageRadiusFactor]],
+            ] as unknown as number,
+            "circle-color": ageColor as unknown as string,
+            "circle-blur": 0.6,
+            "circle-opacity": ["*", op, ageOpacity] as unknown as number,
+          };
+        },
+      },
+      // 主圈：所有 (< 720h) 都顯示，分桶大小 + 色
+      {
+        suffix: "circle", type: "circle",
+        paint: (_isDark, p) => {
+          const s = p?.a1AccidentRealtimeScale ?? 1;
+          const op = p?.a1AccidentRealtimeOpacity ?? 0.95;
+          const ageRadiusFactor: unknown[] = [
+            "step", ["get", "age_hours"],
+            1.4,        // 當天最大
+            24, 0.85,   // 一週
+            168, 0.5,   // 30 天
+            720, 0,
+          ];
+          const ageColor: unknown[] = [
+            "step", ["get", "age_hours"],
+            "#ef4444",
+            24, "#dc2626",
+            168, "#7f1d1d",
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", s, ["*", 3, ageRadiusFactor]],
+              10, ["*", s, ["*", 5, ageRadiusFactor]],
+              14, ["*", s, ["*", 8, ageRadiusFactor]],
+            ] as unknown as number,
+            "circle-color": ageColor as unknown as string,
+            "circle-stroke-color": "#fff",
+            "circle-stroke-width": [
+              "step", ["get", "age_hours"],
+              1,
+              24, 0.6,
+              168, 0.3,
+            ] as unknown as number,
+            "circle-opacity": op,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 廉政移民海巡 4 layer ──
+  {
+    id: "investigationBureau",
+    sourceUrl: "./police_justice/investigation_bureau/investigation_bureau_20260626.geojson",
+    sourceId: "investigation-bureau",
+    rebuildOnParamChange: ["investigationBureauOpacity", "investigationBureauScale"],
+    // 調查局 29 筆名稱含「處」(縣市調查處 10 個) vs「站」/其他單位 (19 個)
+    // 用 name 末字判：「處」=縣市調查處，較大；其他=站/室/組
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.investigationBureauScale ?? 1;
+        const op = p?.investigationBureauOpacity ?? 0.9;
+        // mapbox 沒有 string contains，用 slice(-1) 取 name 末字
+        const radiusFactor: unknown[] = [
+          "case",
+          ["==", ["slice", ["get", "name"], -1], "處"], 1.35,
+          0.9,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["*", s, ["*", 3, radiusFactor]],
+            10, ["*", s, ["*", 5, radiusFactor]],
+            14, ["*", s, ["*", 8, radiusFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "case",
+            ["==", ["slice", ["get", "name"], -1], "處"], "#064e3b",  // 縣市調查處 — 深綠
+            "#0f766e",  // 站/其他 — 中綠
+          ] as unknown as string,
+          "circle-stroke-color": "#fff",
+          "circle-stroke-width": ["case", ["==", ["slice", ["get", "name"], -1], "處"], 1.1, 0.7] as unknown as number,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "antiCorruptionOffice",
+    sourceUrl: "./police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson",
+    sourceId: "anti-corruption-office",
+    rebuildOnParamChange: ["antiCorruptionOfficeOpacity", "antiCorruptionOfficeScale"],
+    // central (中央 43) 比 local (地方 23) 大
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.antiCorruptionOfficeScale ?? 1;
+        const op = p?.antiCorruptionOfficeOpacity ?? 0.9;
+        const radiusFactor: unknown[] = [
+          "match", ["get", "level"],
+          "central", 1.35,
+          "local", 0.85,
+          0.9,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["*", s, ["*", 2.5, radiusFactor]],
+            10, ["*", s, ["*", 5, radiusFactor]],
+            14, ["*", s, ["*", 7, radiusFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "match", ["get", "level"],
+            "central", "#134e4a",   // 中央 — 深青
+            "local", "#5eead4",     // 地方 — 淺青
+            "#14b8a6",
+          ] as unknown as string,
+          "circle-stroke-color": "#fff",
+          "circle-stroke-width": ["match", ["get", "level"], "central", 1.0, 0.5] as unknown as number,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "immigrationOffice",
+    sourceUrl: "./police_justice/immigration_offices/immigration_offices_20260626.geojson",
+    sourceId: "immigration-office",
+    rebuildOnParamChange: ["immigrationOfficeOpacity", "immigrationOfficeScale"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.immigrationOfficeScale ?? 1;
+        const op = p?.immigrationOfficeOpacity ?? 0.9;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * s, 10, 5 * s, 14, 8 * s] as unknown as number,
+          "circle-color": "#0ea5e9",
+          "circle-stroke-color": "#fff", "circle-stroke-width": 0.8,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+  {
+    id: "coastGuardStation",
+    sourceUrl: "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson",
+    sourceId: "coast-guard-station",
+    rebuildOnParamChange: ["coastGuardStationOpacity", "coastGuardStationScale"],
+    // 252 巡防隊（密、小、淺）/ 17 海洋分署（稀、大、深）
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (_isDark, p) => {
+        const s = p?.coastGuardStationScale ?? 1;
+        const op = p?.coastGuardStationOpacity ?? 0.85;
+        const radiusFactor: unknown[] = [
+          "match", ["get", "facility_subtype"],
+          "ocean_pier", 1.5,
+          "patrol_station", 0.85,
+          0.9,
+        ];
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, ["*", s, ["*", 2.5, radiusFactor]],
+            10, ["*", s, ["*", 4, radiusFactor]],
+            14, ["*", s, ["*", 7, radiusFactor]],
+          ] as unknown as number,
+          "circle-color": [
+            "match", ["get", "facility_subtype"],
+            "ocean_pier", "#0c4a6e",      // 海洋分署 — 深海藍
+            "patrol_station", "#38bdf8",  // 巡防隊 — 淺海藍
+            "#0284c7",
+          ] as unknown as string,
+          "circle-stroke-color": "#fff",
+          "circle-stroke-width": ["match", ["get", "facility_subtype"], "ocean_pier", 1.1, 0.4] as unknown as number,
+          "circle-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // ── 警察覆蓋分析 isochrone × 3 layer（4 變體合進 1 PMTiles，paint case 切 mode/minutes）──
+  // 每個 combined PMTiles 含 walk/drive × 2 minutes，feature 帶 mode + minutes property
+  // paint case expression 按目前 mode/minutes 顯示 / 隱藏（不符合的 fill-opacity = 0）
+  // overlap_count step expression: 1 站淺紅 → 20+ 站深紫紅
+  ...(["policeIsoSubstation", "policeIsoPrecinct", "policeIsoCityDept"] as const).map((id) => {
+    const tier = id === "policeIsoSubstation" ? "substation"
+      : id === "policeIsoPrecinct" ? "precinct" : "police_dept";
+    const sourceId = id === "policeIsoSubstation" ? "police-iso-substation"
+      : id === "policeIsoPrecinct" ? "police-iso-precinct" : "police-iso-city-dept";
+    const sourceLayer = `police_iso_${tier}`;
+    const defaultMinutesNum = id === "policeIsoSubstation" ? 5 : id === "policeIsoPrecinct" ? 15 : 30;
+    return {
+      id,
+      sourceUrl: `./police_justice/isochrone/police_iso_${tier}_combined.pmtiles`,
+      sourceId,
+      pmtiles: { sourceLayer, minzoom: 0, maxzoom: 14 },
+      // paint 內讀 p?.${id}Mode_drive / Minutes_num，select 改了 params → paint diff → rebuild
+      rebuildOnParamChange: ["fill", "line"],
+      layers: [
+        {
+          suffix: "fill", type: "fill" as const,
+          paint: (_isDark: boolean, p: Record<string, number | undefined> | undefined) => {
+            const modeDrive = p?.[`${id}Mode_drive`] ?? 0;
+            const minutesNum = p?.[`${id}Minutes_num`] ?? defaultMinutesNum;
+            const baseOp = p?.[`${id}Opacity`] ?? 0.5;
+            return {
+              "fill-color": [
+                "step", ["coalesce", ["to-number", ["get", "overlap_count"]], 0],
+                "#fef2f2",
+                1, "#fee2e2",
+                2, "#fca5a5",
+                3, "#f87171",
+                5, "#ef4444",
+                8, "#dc2626",
+                12, "#991b1b",
+                20, "#7f1d1d",
+              ] as unknown as string,
+              "fill-opacity": [
+                "case",
+                ["all",
+                  // mode == drive ? mode_drive_num==1 : mode_drive_num==0
+                  ["==",
+                    ["case", ["==", ["get", "mode"], "drive"], 1, 0],
+                    modeDrive,
+                  ],
+                  ["==", ["to-number", ["get", "minutes"]], minutesNum],
+                ],
+                baseOp,
+                0,
+              ] as unknown as number,
+            };
+          },
+        },
+        {
+          suffix: "line", type: "line" as const,
+          paint: (_isDark: boolean, p: Record<string, number | undefined> | undefined) => {
+            const modeDrive = p?.[`${id}Mode_drive`] ?? 0;
+            const minutesNum = p?.[`${id}Minutes_num`] ?? defaultMinutesNum;
+            const baseOp = (p?.[`${id}Opacity`] ?? 0.5) * 0.6;
+            return {
+              "line-color": "#7f1d1d",
+              "line-width": 0.3,
+              "line-opacity": [
+                "case",
+                ["all",
+                  ["==", ["case", ["==", ["get", "mode"], "drive"], 1, 0], modeDrive],
+                  ["==", ["to-number", ["get", "minutes"]], minutesNum],
+                ],
+                baseOp,
+                0,
+              ] as unknown as number,
+            };
+          },
+        },
+      ],
+    };
+  }),
+
+  // ── 民防避難（PMTiles，z≥7 才顯示避免擠爆）──
+  {
+    id: "civilDefenseShelter",
+    sourceUrl: "./police_justice/civil_defense_shelters/civil_defense_shelters.pmtiles",
+    sourceId: "civil-defense-shelter",
+    pmtiles: { sourceLayer: "civil_defense_shelters", minzoom: 0, maxzoom: 14 },
+    rebuildOnParamChange: ["civilDefenseShelterOpacity", "civilDefenseShelterScale"],
+    layers: [{
+      suffix: "circle", type: "circle", minzoom: 7,
+      paint: (_isDark, p) => {
+        const s = p?.civilDefenseShelterScale ?? 1;
+        const op = p?.civilDefenseShelterOpacity ?? 0.7;
+        return {
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 0.6 * s, 10, 1.2 * s, 14, 2.5 * s, 17, 5 * s] as unknown as number,
+          "circle-color": [
+            "match", ["get", "subtype"],
+            "一般住宅", "#64748b",
+            "公共設施", "#0ea5e9",
+            "機關", "#7c3aed",
+            "#64748b",
+          ] as unknown as string,
+          "circle-opacity": op,
+        };
+      },
+    }],
   },
 ];

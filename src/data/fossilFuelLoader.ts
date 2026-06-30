@@ -61,6 +61,32 @@ function emptyAll(): FossilFuelLayers {
   return out;
 }
 
+
+const TRUE_REFINERY_CHEMICAL_NAME_ALLOWLIST = new Set([
+  "林園產業園區",        // 高雄林園石化聚落（OSM 以園區 polygon 呈現）
+  "台塑麥寮六輕工業區",  // 麥寮六輕石化園區
+  "大林煉油廠",
+  "亞東石化觀音一廠",
+  "天弘化學 台中廠",
+  "台塑石化彰濱摻配廠",
+  "台塑石化麥寮煉油廠",
+  "長春石化",
+  "中油桃園煉油廠",
+  "台塑仁武廠區",
+  "聯豐精密 台中廠",   // OSM industrial=chemical（真化工廠，名稱無關鍵字會被規則誤殺，白名單補回）
+]);
+
+const INDUSTRIAL_REFINERY_EXCLUDE_RE = /(加油站|漁船加油|油庫|油槽|儲油|儲槽|儲運|庫區|材料庫|倉庫|供油|供輸|供氣|配氣|接收站|天然氣|發電廠|電廠|研究所|訓練中心|服務中心|營業部|工程處|管線處|探採|鑽探|油井|井場|交通|貨運|汽車|紙業|糖廠|生技|海洋基礎|資源莊|航空汽油中心|注儲)/;
+const INDUSTRIAL_REFINERY_INCLUDE_RE = /(煉油|石化|化學|化工|塑化)/;
+
+function isTrueRefineryChemicalPlant(r: RawRow): boolean {
+  const name = (r.name ?? "").trim();
+  if (!name) return false;
+  if (TRUE_REFINERY_CHEMICAL_NAME_ALLOWLIST.has(name)) return true;
+  if (INDUSTRIAL_REFINERY_EXCLUDE_RE.test(name)) return false;
+  return INDUSTRIAL_REFINERY_INCLUDE_RE.test(name);
+}
+
 function parseGeom(g: GeoJSON.Geometry | string | null): GeoJSON.Geometry | null {
   if (g == null) return null;
   if (typeof g === "string") {
@@ -123,9 +149,16 @@ export async function fetchFossilFuelLayers(): Promise<FossilFuelLayers> {
 
   const out = emptyAll();
   const rows = (data ?? []) as RawRow[];
+  let industrialRefineryRaw = 0;
+  let industrialRefineryKept = 0;
   for (const r of rows) {
     const feKey = (FOSSIL_LAYER_MAP as Record<string, FossilLayerKey | undefined>)[r.layer];
     if (!feKey) continue;
+    if (feKey === "industrialRefinery") {
+      industrialRefineryRaw += 1;
+      if (!isTrueRefineryChemicalPlant(r)) continue;
+      industrialRefineryKept += 1;
+    }
     const f = rowToFeature(r);
     if (!f) continue;
     out[feKey].features.push(f);
@@ -144,7 +177,8 @@ export async function fetchFossilFuelLayers(): Promise<FossilFuelLayers> {
 
   const counts = Object.entries(out).map(([k, v]) => `${k}=${v.features.length}`).join(" ");
   console.log(
-    `[FossilFuel] loaded ${rows.length} rows in ${(performance.now() - t0).toFixed(0)}ms · ${counts}`,
+    `[FossilFuel] loaded ${rows.length} rows in ${(performance.now() - t0).toFixed(0)}ms · ${counts}` +
+    ` · industrialRefinery filtered ${industrialRefineryRaw}→${industrialRefineryKept} polygons`,
   );
   return out;
 }

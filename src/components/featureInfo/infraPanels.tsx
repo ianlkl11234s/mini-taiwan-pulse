@@ -1,6 +1,9 @@
+import { useEffect, useState } from "react";
 import { CctvStreamView } from "../CctvStreamView";
 import { Row } from "./shared";
 import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
+import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
 
 /** 海纜 cable_type 對應色 */
 const CABLE_TYPE_COLORS: Record<string, string> = {
@@ -179,6 +182,28 @@ export function PortPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function AirportPanel({ props }: { props: Record<string, unknown> }) {
+  const iata = String(props.iata ?? "");
+  const [series, setSeries] = useState<{ inSeries: SparklinePoint[]; outSeries: SparklinePoint[] }>({ inSeries: [], outSeries: [] });
+  const [loadingTs, setLoadingTs] = useState(true);
+  const [hasData, setHasData] = useState(false);
+
+  useEffect(() => {
+    if (!iata) { setLoadingTs(false); return; }
+    let cancelled = false;
+    setLoadingTs(true);
+    fetchAirportHourlyPax(iata, 24)
+      .then((rows) => {
+        if (cancelled) return;
+        const inSeries = rows.map((r) => ({ t: Date.parse(r.hour_bucket) / 1000, v: Number(r.pax_in) || 0 }));
+        const outSeries = rows.map((r) => ({ t: Date.parse(r.hour_bucket) / 1000, v: Number(r.pax_out) || 0 }));
+        setSeries({ inSeries, outSeries });
+        setHasData(rows.length > 0);
+      })
+      .catch((e) => console.warn("[AirportPanel] hourly pax fetch failed:", e))
+      .finally(() => { if (!cancelled) setLoadingTs(false); });
+    return () => { cancelled = true; };
+  }, [iata]);
+
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
@@ -189,7 +214,32 @@ export function AirportPanel({ props }: { props: Record<string, unknown> }) {
       </div>
       <Row label="英文" value={String(props.name_en ?? "")} />
       <Row label="ICAO" value={String(props.icao ?? "")} />
-      <Row label="IATA" value={String(props.iata ?? "")} />
+      <Row label="IATA" value={iata} />
+
+      {iata && (
+        <>
+          <div style={{ marginTop: 10, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
+            24h 入境人次（每小時）
+          </div>
+          {loadingTs ? (
+            <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
+              載入中…
+            </div>
+          ) : !hasData ? (
+            <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, padding: "8px 4px", textAlign: "center" }}>
+              無資料（border_airport_snapshot collector 未涵蓋此機場）
+            </div>
+          ) : (
+            <>
+              <TimeseriesSparkline data={series.inSeries} unit="人" lineColor="#10b981" height={80} />
+              <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, letterSpacing: 0.5 }}>
+                24h 出境人次
+              </div>
+              <TimeseriesSparkline data={series.outSeries} unit="人" lineColor="#fb7185" height={80} />
+            </>
+          )}
+        </>
+      )}
     </>
   );
 }
