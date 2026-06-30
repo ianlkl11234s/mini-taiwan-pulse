@@ -550,10 +550,10 @@ export function useTransportParams() {
   const [windFieldOpacity, setWindFieldOpacity] = useState(0.8);
   // 全球氣候粒子：風場 / 海流尺度不同，參數分開避免互相污染。
   const [windAnimationSpeed, setWindAnimationSpeed] = useState(1.0);
-  const [windParticleCount, setWindParticleCount] = useState(7000);
+  const [windParticleCount, setWindParticleCount] = useState(12000);
   const [windLineWidth, setWindLineWidth] = useState(1.15);
   const [oceanAnimationSpeed, setOceanAnimationSpeed] = useState(1.0);
-  const [oceanParticleCount, setOceanParticleCount] = useState(8000);
+  const [oceanParticleCount, setOceanParticleCount] = useState(12000);
   const [oceanLineWidth, setOceanLineWidth] = useState(1.05);
   // Base map（行政邊界 + 等高線 + OSM 路網）
   const [countyBoundaryOpacity, setCountyBoundaryOpacity] = useState(0.85);
@@ -1297,13 +1297,13 @@ export function useTransportParams() {
       case "oceanCurrents": return [
         { label: `透明度 ${oceanCurrentsOpacity.toFixed(2)}`, value: oceanCurrentsOpacity, min: 0, max: 1, step: 0.05, onChange: setOceanCurrentsOpacity },
         { label: `動畫速度 ${oceanAnimationSpeed.toFixed(1)}×`, value: oceanAnimationSpeed, min: 0.2, max: 3, step: 0.1, onChange: setOceanAnimationSpeed },
-        { label: `粒子數 ${oceanParticleCount}`, value: oceanParticleCount, min: 1000, max: 20000, step: 1000, onChange: setOceanParticleCount },
+        { label: `粒子數 ${oceanParticleCount}`, value: oceanParticleCount, min: 2000, max: 50000, step: 1000, onChange: setOceanParticleCount },
         { label: `線寬 ${oceanLineWidth.toFixed(2)}px`, value: oceanLineWidth, min: 0.5, max: 1.5, step: 0.05, onChange: setOceanLineWidth },
       ];
       case "windField": return [
         { label: `透明度 ${windFieldOpacity.toFixed(2)}`, value: windFieldOpacity, min: 0, max: 1, step: 0.05, onChange: setWindFieldOpacity },
         { label: `動畫速度 ${windAnimationSpeed.toFixed(1)}×`, value: windAnimationSpeed, min: 0.2, max: 3, step: 0.1, onChange: setWindAnimationSpeed },
-        { label: `粒子數 ${windParticleCount}`, value: windParticleCount, min: 1000, max: 20000, step: 1000, onChange: setWindParticleCount },
+        { label: `粒子數 ${windParticleCount}`, value: windParticleCount, min: 2000, max: 80000, step: 1000, onChange: setWindParticleCount },
         { label: `線寬 ${windLineWidth.toFixed(2)}px`, value: windLineWidth, min: 0.5, max: 1.5, step: 0.05, onChange: setWindLineWidth },
       ];
       // NCDR 示警 5 群組共用同一個 opacity（單一 source）
