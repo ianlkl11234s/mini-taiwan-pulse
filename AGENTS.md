@@ -7,7 +7,8 @@
 ## Session 開頭必讀（記憶迴圈）
 
 SessionStart hook（`.codex/hooks.json` → `.claude/memory/load-session.sh`）會自動
-inline `STATUS` / `BACKLOG` / `PRINCIPLES` 三檔。涉及開發工作時再依需要讀：
+inline `STATUS` 最新段落 + `BACKLOG` / `PRINCIPLES` 的「標題索引（含行號）」以節省 context。
+需要待辦 / 規則細節時，依索引行號 Read 對應段落。涉及開發工作時再依需要讀：
 1. [`.claude/memory/STATUS.md`](./.claude/memory/STATUS.md) — 當前狀態（接上次 session 結束點）
 2. [`.claude/memory/PRINCIPLES.md`](./.claude/memory/PRINCIPLES.md) — P0 規則累積（每條違反成本 >30 min）
 3. [`.claude/memory/REFLECTIONS.md`](./.claude/memory/REFLECTIONS.md) — 反省紀錄（append-only）
