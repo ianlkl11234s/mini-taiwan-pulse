@@ -1,0 +1,18 @@
+{
+  "width": 1440,
+  "height": 721,
+  "u_min": -26.3042049407959,
+  "u_max": 27.145795822143555,
+  "v_min": -25.153972625732422,
+  "v_max": 24.68602752685547,
+  "valid_pct": 100.0,
+  "dataset": "gfs_wind10m",
+  "valid_at": "2026-07-03T12:00:00+00:00",
+  "source_s3": "s3://migu-gis-data-collector/global_climate_noaa_gfs/2026/07/03/gfs_wind10m_1200.grib2",
+  "bbox": [
+    -180.0,
+    -90.0,
+    179.75,
+    90.0
+  ]
+}

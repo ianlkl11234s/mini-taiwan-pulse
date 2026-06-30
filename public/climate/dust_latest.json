@@ -1,0 +1,15 @@
+{
+  "dataset": "cams_dust",
+  "valid_at": "2026-06-29T00:00:00+00:00",
+  "source_s3": "s3://migu-gis-data-collector/global_climate_cams/2026/06/29/cams_forecast_0007.nc",
+  "bbox": [
+    100.0,
+    5.2,
+    144.8,
+    50.0
+  ],
+  "width": 113,
+  "height": 113,
+  "dust_min": 7.24373385310173e-05,
+  "dust_max": 0.41050824522972107
+}

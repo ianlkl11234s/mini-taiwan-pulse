@@ -36,6 +36,19 @@ import { useNewsEventsLayer } from "./hooks/useNewsEventsLayer";
 import { useSelectedFeatureHalo } from "./hooks/useSelectedFeatureHalo";
 import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
+import { useEarthquakesGlobalLayer } from "./hooks/useEarthquakesGlobalLayer";
+import { useTyphoonTracksLayer } from "./hooks/useTyphoonTracksLayer";
+import { useClimateParticleLineLayer } from "./hooks/useClimateParticleLineLayer";
+import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
+
+// 海流色帶 hoist 到 module-level，避免每次 render 製造新 object 觸發 hook re-mount
+const OCEAN_CURRENTS_RAMP = {
+  0.0: "#0c4a6e",
+  0.3: "#0ea5e9",
+  0.6: "#67e8f9",
+  0.85: "#fef3c7",
+  1.0: "#fb923c",
+};
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
 import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
@@ -60,8 +73,11 @@ import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
 // Energy MVP
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { useFossilFuelLayers } from "./hooks/useFossilFuelLayers";
+import { useA1AccidentRealtimeLayer } from "./hooks/useA1AccidentRealtimeLayer";
 import { useOsmPowerLinesGlowLayer } from "./hooks/useOsmPowerLinesGlowLayer";
 import { usePowerPolesLayer } from "./hooks/usePowerPolesLayer";
+import { useAviationAirspaceLayer } from "./hooks/useAviationAirspaceLayer";
+import { useDroneZonesLayer } from "./hooks/useDroneRestrictedZonesLayer";
 import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
@@ -829,6 +845,8 @@ export default function App() {
   });
   // 化石燃料 14 layer（Phase B — public.get_fossil_fuel_layers()）
   useFossilFuelLayers({ mapRef, visibility: layerVisibility });
+  // A1 即時死亡事故（rpc_a1_by_bbox，每 12h 更新）
+  useA1AccidentRealtimeLayer(mapRef, layerVisibility.a1AccidentRealtime);
   // 雲林 POC 覆蓋分析 5 layer 改 PMTiles — 由 overlayRegistry pmtiles 設定自動處理
   // 變電所菱形 SDF icon 註冊（osmSubstations symbol layer 用）
   useSubstationDiamondIcon(mapRef);
@@ -846,6 +864,20 @@ export default function App() {
     transportParams.overlayParams.powerPolesSize ?? 1,
     transportParams.overlayParams.powerPolesHeat ?? 1,
     transportParams.overlayParams.powerPolesZ5Reveal ?? 0,
+  );
+  useAviationAirspaceLayer(
+    mapRef,
+    layerVisibility.aviationControl,
+    layerVisibility.aviationRestricted,
+    transportParams.overlayParams.aviationControlOpacity ?? 0.7,
+    transportParams.overlayParams.aviationRestrictedOpacity ?? 0.7,
+  );
+  useDroneZonesLayer(
+    mapRef,
+    layerVisibility.droneNoFlyZone,
+    layerVisibility.droneRestrictedZone,
+    transportParams.overlayParams.droneNfzOpacity ?? 0.45,
+    transportParams.overlayParams.droneRestrictedOpacity ?? 0.45,
   );
   usePowerRegionBarsLayer(
     mapRef,
@@ -877,6 +909,62 @@ export default function App() {
     layerVisibility.earthquakes,
     transportParams.eqOpacity,
     transportParams.eqShowHistory,
+  );
+
+  // ── 全球氣候 GLOBAL CLIMATE（migration 261）──
+  // 真實接線：earthquakesGlobal（USGS）+ typhoonTracks（JMA/JTWC）
+  // 三個 stub layer（dustForecast / oceanCurrents / windField）等 PMTiles 上線後接，
+  // 目前 toggle 開啟僅在 sidebar 出現，地圖無物件。
+  useEarthquakesGlobalLayer(
+    mapRef,
+    layerVisibility.earthquakesGlobal,
+    transportParams.overlayParams.earthquakesGlobalOpacity ?? 0.9,
+  );
+  useTyphoonTracksLayer(
+    mapRef,
+    layerVisibility.typhoonTracks,
+    transportParams.overlayParams.typhoonTracksOpacity ?? 0.9,
+  );
+
+  // 風場粒子：地理座標 WebGL 細線，避免 canvas raster 放大後變短粗白棒。
+  useClimateParticleLineLayer(mapRef, {
+    layerId: "climate-windfield",
+    pngUrl: "/climate/wind10m_latest.png",
+    metaUrl: "/climate/wind10m_latest.json",
+    visible: layerVisibility.windField,
+    opacity: transportParams.overlayParams.windFieldOpacity ?? 0.8,
+    animationSpeed: transportParams.overlayParams.windAnimationSpeed ?? 1.0,
+    particleCount: Math.floor(transportParams.overlayParams.windParticleCount ?? 7_000),
+    lineWidth: transportParams.overlayParams.windLineWidth ?? 1.15,
+    speedMax: 30,
+    timeScaleSeconds: 18_000,
+    trailPoints: 18,
+    particleAlpha: 0.62,
+  });
+
+  // 海流粒子：地理座標 WebGL 細線 + strict ocean mask，避免放大方塊與陸地覆蓋。
+  useClimateParticleLineLayer(mapRef, {
+    layerId: "climate-ocean-currents",
+    pngUrl: "/climate/currents_latest.png",
+    metaUrl: "/climate/currents_latest.json",
+    visible: layerVisibility.oceanCurrents,
+    opacity: transportParams.overlayParams.oceanCurrentsOpacity ?? 0.65,
+    animationSpeed: transportParams.overlayParams.oceanAnimationSpeed ?? 1.0,
+    particleCount: Math.floor(transportParams.overlayParams.oceanParticleCount ?? 8_000),
+    lineWidth: transportParams.overlayParams.oceanLineWidth ?? 1.05,
+    speedMax: 2.0,
+    rampColors: OCEAN_CURRENTS_RAMP,
+    timeScaleSeconds: 86_400,
+    trailPoints: 16,
+    maskErodePx: 1,
+    particleAlpha: 0.58,
+  });
+
+  // 沙塵預報 raster overlay（CAMS duaod550 預烤棕色色階 + alpha mask）
+  useDustForecastLayer(
+    mapRef,
+    layerVisibility.dustForecast,
+    transportParams.overlayParams.dustForecastOpacity ?? 0.7,
   );
 
   // ── NCDR Disaster Alerts timeline（5 主題群組共用 source）──
