@@ -63,6 +63,10 @@ function setVis(map: MapboxMap, id: string, on: boolean) {
   if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
 }
 
+function safeIsStyleLoaded(map: MapboxMap): boolean {
+  try { return map.isStyleLoaded(); } catch { return false; }
+}
+
 export function useDroneZonesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   nfzVisible: boolean,
@@ -71,21 +75,22 @@ export function useDroneZonesLayer(
   restrictedOpacity: number,
 ) {
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
     const anyVisible = nfzVisible || restrictedVisible;
-    if (!anyVisible) {
-      setVis(map, NFZ_FILL, false); setVis(map, NFZ_LINE, false);
-      setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
-      return;
-    }
-
     let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
+    let map: MapboxMap | null = null;
+    let retryTimer: ReturnType<typeof setInterval> | null = null;
 
-    const ensureLayers = () => {
-      if (cancelled) return;
-      if (!map.isStyleLoaded()) return;
+    const ensureLayers = (): boolean => {
+      map = mapRef.current;
+      if (cancelled || !map) return false;
+      if (!safeIsStyleLoaded(map)) return false;
+
+      if (!anyVisible) {
+        setVis(map, NFZ_FILL, false); setVis(map, NFZ_LINE, false);
+        setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+        return true;
+      }
+
       registerSourceTypeOnce();
       if (!map.getSource(SOURCE_ID)) {
         map.addSource(SOURCE_ID, {
@@ -98,8 +103,8 @@ export function useDroneZonesLayer(
       }
 
       const ensureFill = (id: string, filter: FilterSpecification, color: string, opacity: number) => {
-        if (!map.getLayer(id)) {
-          map.addLayer({
+        if (!map?.getLayer(id)) {
+          map?.addLayer({
             id,
             type: "fill",
             source: SOURCE_ID,
@@ -117,8 +122,8 @@ export function useDroneZonesLayer(
         }
       };
       const ensureLine = (id: string, filter: FilterSpecification, color: string, opacity: number) => {
-        if (!map.getLayer(id)) {
-          map.addLayer({
+        if (!map?.getLayer(id)) {
+          map?.addLayer({
             id,
             type: "line",
             source: SOURCE_ID,
@@ -127,10 +132,7 @@ export function useDroneZonesLayer(
             filter,
             paint: {
               "line-color": color,
-              "line-width": [
-                "interpolate", ["linear"], ["zoom"],
-                8, 0.4, 12, 1.2, 14, 2,
-              ],
+              "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 12, 1.2, 14, 2],
               "line-opacity": Math.min(1, opacity + 0.3),
             },
           });
@@ -148,17 +150,43 @@ export function useDroneZonesLayer(
       setVis(map, NFZ_LINE, nfzVisible);
       setVis(map, RESTRICTED_FILL, restrictedVisible);
       setVis(map, RESTRICTED_LINE, restrictedVisible);
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      console.log("[DroneZones] layers ready", { nfzVisible, restrictedVisible });
+      return true;
     };
 
-    if (map.isStyleLoaded()) ensureLayers();
-    else pollTimer = setInterval(ensureLayers, 200);
+    const retry = () => {
+      if (ensureLayers() && retryTimer) {
+        clearInterval(retryTimer);
+        retryTimer = null;
+      }
+    };
+
+    retry();
+    if (!map || !safeIsStyleLoaded(map)) retryTimer = setInterval(retry, 200);
+
+    const onStyleLoad = () => {
+      if (!cancelled) setTimeout(retry, 0);
+    };
+    const bindTimer = setInterval(() => {
+      const nextMap = mapRef.current;
+      if (!nextMap || nextMap === map) return;
+      map?.off("style.load", onStyleLoad);
+      map = nextMap;
+      map.on("style.load", onStyleLoad);
+      retry();
+    }, 200);
+    const initialMap = map as MapboxMap | null;
+    if (initialMap) initialMap.on("style.load", onStyleLoad);
 
     return () => {
       cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      setVis(map, NFZ_FILL, false); setVis(map, NFZ_LINE, false);
-      setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+      if (retryTimer) clearInterval(retryTimer);
+      clearInterval(bindTimer);
+      map?.off("style.load", onStyleLoad);
+      if (map) {
+        setVis(map, NFZ_FILL, false); setVis(map, NFZ_LINE, false);
+        setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+      }
     };
   }, [mapRef, nfzVisible, restrictedVisible, nfzOpacity, restrictedOpacity]);
 }

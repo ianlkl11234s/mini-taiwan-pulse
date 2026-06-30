@@ -84,6 +84,10 @@ function setVis(map: MapboxMap, id: string, on: boolean) {
   if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
 }
 
+function safeIsStyleLoaded(map: MapboxMap): boolean {
+  try { return map.isStyleLoaded(); } catch { return false; }
+}
+
 export function useAviationAirspaceLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   controlVisible: boolean,
@@ -92,21 +96,22 @@ export function useAviationAirspaceLayer(
   restrictedOpacity: number,
 ) {
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
     const anyVisible = controlVisible || restrictedVisible;
-    if (!anyVisible) {
-      setVis(map, CONTROL_FILL, false); setVis(map, CONTROL_LINE, false);
-      setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
-      return;
-    }
-
     let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
+    let map: MapboxMap | null = null;
+    let retryTimer: ReturnType<typeof setInterval> | null = null;
 
-    const ensureLayers = () => {
-      if (cancelled) return;
-      if (!map.isStyleLoaded()) return;
+    const ensureLayers = (): boolean => {
+      map = mapRef.current;
+      if (cancelled || !map) return false;
+      if (!safeIsStyleLoaded(map)) return false;
+
+      if (!anyVisible) {
+        setVis(map, CONTROL_FILL, false); setVis(map, CONTROL_LINE, false);
+        setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+        return true;
+      }
+
       registerSourceTypeOnce();
       if (!map.getSource(SOURCE_ID)) {
         map.addSource(SOURCE_ID, {
@@ -119,7 +124,6 @@ export function useAviationAirspaceLayer(
       }
 
       // ── Control 群：FIR 只邊框、TMA 淡 fill+邊框 ──
-      // TMA fill 用較淡 opacity（避免大區塊覆蓋）
       const controlFillOpacity = 0.22 * controlOpacity;
       const controlLineOpacity = Math.min(1, controlOpacity * 0.9 + 0.2);
       if (!map.getLayer(CONTROL_FILL)) {
@@ -149,10 +153,7 @@ export function useAviationAirspaceLayer(
           filter: FIR_AND_TMA,
           paint: {
             "line-color": COLOR_EXPR,
-            "line-width": [
-              "interpolate", ["linear"], ["zoom"],
-              4, 0.6, 8, 1.4, 12, 2.2,
-            ],
+            "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.6, 8, 1.4, 12, 2.2],
             "line-opacity": controlLineOpacity,
             "line-dasharray": [4, 2],
           },
@@ -193,10 +194,7 @@ export function useAviationAirspaceLayer(
           filter: RESTRICTED_LAYERS,
           paint: {
             "line-color": COLOR_EXPR,
-            "line-width": [
-              "interpolate", ["linear"], ["zoom"],
-              6, 0.4, 10, 1.0, 12, 1.6,
-            ],
+            "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 10, 1.0, 12, 1.6],
             "line-opacity": restrictedLineOpacity,
           },
         });
@@ -208,17 +206,43 @@ export function useAviationAirspaceLayer(
       setVis(map, CONTROL_LINE, controlVisible);
       setVis(map, RESTRICTED_FILL, restrictedVisible);
       setVis(map, RESTRICTED_LINE, restrictedVisible);
-      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      console.log("[AviationAirspace] layers ready", { controlVisible, restrictedVisible });
+      return true;
     };
 
-    if (map.isStyleLoaded()) ensureLayers();
-    else pollTimer = setInterval(ensureLayers, 200);
+    const retry = () => {
+      if (ensureLayers() && retryTimer) {
+        clearInterval(retryTimer);
+        retryTimer = null;
+      }
+    };
+
+    retry();
+    if (!map || !safeIsStyleLoaded(map)) retryTimer = setInterval(retry, 200);
+
+    const onStyleLoad = () => {
+      if (!cancelled) setTimeout(retry, 0);
+    };
+    const bindTimer = setInterval(() => {
+      const nextMap = mapRef.current;
+      if (!nextMap || nextMap === map) return;
+      map?.off("style.load", onStyleLoad);
+      map = nextMap;
+      map.on("style.load", onStyleLoad);
+      retry();
+    }, 200);
+    const initialMap = map as MapboxMap | null;
+    if (initialMap) initialMap.on("style.load", onStyleLoad);
 
     return () => {
       cancelled = true;
-      if (pollTimer) clearInterval(pollTimer);
-      setVis(map, CONTROL_FILL, false); setVis(map, CONTROL_LINE, false);
-      setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+      if (retryTimer) clearInterval(retryTimer);
+      clearInterval(bindTimer);
+      map?.off("style.load", onStyleLoad);
+      if (map) {
+        setVis(map, CONTROL_FILL, false); setVis(map, CONTROL_LINE, false);
+        setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
+      }
     };
   }, [mapRef, controlVisible, restrictedVisible, controlOpacity, restrictedOpacity]);
 }
