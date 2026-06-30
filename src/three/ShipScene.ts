@@ -3,8 +3,27 @@ import type { Ship } from "../types";
 import { toMercator } from "../utils/coordinates";
 import { interpolatePosition, getTrailUpToTime } from "../utils/interpolation";
 
-const SHIP_COLOR_DARK = new THREE.Color(0.1, 0.85, 0.9); // 青藍
-const SHIP_COLOR_LIGHT = new THREE.Color(0.0, 0.3, 0.45); // 深青
+const SHIP_COLOR_DARK = new THREE.Color(0.1, 0.85, 0.9); // fallback 青藍
+const SHIP_COLOR_LIGHT = new THREE.Color(0.0, 0.3, 0.45); // fallback 深青
+
+export function shipTypeLabel(vesselType: number): string {
+  if (vesselType >= 60 && vesselType <= 69) return "客船 Passenger";
+  if (vesselType >= 70 && vesselType <= 79) return "貨船 Cargo";
+  if (vesselType >= 80 && vesselType <= 89) return "油輪 Tanker";
+  if (vesselType >= 30 && vesselType <= 39) return "漁船 Fishing";
+  if (vesselType >= 50 && vesselType <= 59) return "作業/拖船 Tug/Special";
+  if (vesselType >= 90 && vesselType <= 99) return "其他 Other";
+  return "未知 Unknown";
+}
+
+function shipTypeColor(vesselType: number, isDark: boolean): THREE.Color {
+  if (vesselType >= 60 && vesselType <= 69) return new THREE.Color(isDark ? "#a78bfa" : "#6d28d9");
+  if (vesselType >= 70 && vesselType <= 79) return new THREE.Color(isDark ? "#38bdf8" : "#0369a1");
+  if (vesselType >= 80 && vesselType <= 89) return new THREE.Color(isDark ? "#f97316" : "#c2410c");
+  if (vesselType >= 30 && vesselType <= 39) return new THREE.Color(isDark ? "#22c55e" : "#15803d");
+  if (vesselType >= 50 && vesselType <= 59) return new THREE.Color(isDark ? "#facc15" : "#a16207");
+  return new THREE.Color(isDark ? "#67e8f9" : "#0e7490");
+}
 
 const TRAIL_DURATION = 1800; // 0.5 小時 = 1800 秒
 const MAX_TRAIL_VERTICES = 200000; // LineSegments 頂點上限
@@ -22,6 +41,8 @@ export class ShipScene {
   private isDarkTheme = true;
   private orbScale = 0.000005;
   private breathPhase = 0;
+  private lastMatrix: THREE.Matrix4 | null = null;
+  private shipPositions = new Map<number, { ship: Ship; lat: number; lng: number; timestamp: number }>();
 
   // 拖尾線
   private trailGeo: THREE.BufferGeometry | null = null;
@@ -46,19 +67,25 @@ export class ShipScene {
     });
     this.renderer.autoClear = false;
 
-    const geo = new THREE.IcosahedronGeometry(1, 2);
+    const geo = new THREE.CircleGeometry(1, 24);
 
-    // 主光球 Mesh
+    // 主船舶點：2D 圓點（比球體在俯視/球面視角更清楚）
     const mat = new THREE.MeshBasicMaterial({
       color: SHIP_COLOR_DARK,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.92,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
+      depthTest: false,
+      side: THREE.DoubleSide,
     });
     this.instancedMesh = new THREE.InstancedMesh(geo, mat, this.maxInstances);
     this.instancedMesh.frustumCulled = false;
     this.instancedMesh.count = 0;
+    this.instancedMesh.instanceColor = new THREE.InstancedBufferAttribute(
+      new Float32Array(this.maxInstances * 3),
+      3,
+    );
     this.scene.add(this.instancedMesh);
 
     // 拖尾 LineSegments（per-vertex color）
@@ -122,9 +149,10 @@ export class ShipScene {
     let headCount = 0;
     let vi = 0; // trail vertex index
     const bounds = this.viewBounds;
-    const baseScale = this.orbScale * 0.6;
+    const baseScale = this.orbScale * 1.15;
 
-    const baseColor = this.isDarkTheme ? SHIP_COLOR_DARK : SHIP_COLOR_LIGHT;
+    const fallbackColor = this.isDarkTheme ? SHIP_COLOR_DARK : SHIP_COLOR_LIGHT;
+    this.shipPositions.clear();
     const positions = this.trailPositions;
     const colors = this.trailColors;
 
@@ -157,7 +185,10 @@ export class ShipScene {
       const s = baseScale * breathFactor;
       dummy.makeScale(s, s, s);
       dummy.setPosition(mc.x, mc.y, mc.z);
+      const shipColor = shipTypeColor(ship.vessel_type, this.isDarkTheme);
       this.instancedMesh.setMatrixAt(headCount, dummy);
+      this.instancedMesh.setColorAt(headCount, shipColor);
+      this.shipPositions.set(headCount, { ship, lat, lng, timestamp: currentTime });
       headCount++;
 
       // 拖尾線段
@@ -177,9 +208,10 @@ export class ShipScene {
           positions[vi * 3 + 1] = mcA.y;
           positions[vi * 3 + 2] = mcA.z;
           const bA = 0.1 + 0.9 * progressA;
-          colors[vi * 3] = baseColor.r * bA;
-          colors[vi * 3 + 1] = baseColor.g * bA;
-          colors[vi * 3 + 2] = baseColor.b * bA;
+          const trailColor = shipColor ?? fallbackColor;
+          colors[vi * 3] = trailColor.r * bA;
+          colors[vi * 3 + 1] = trailColor.g * bA;
+          colors[vi * 3 + 2] = trailColor.b * bA;
           vi++;
 
           // 頂點 B
@@ -187,9 +219,9 @@ export class ShipScene {
           positions[vi * 3 + 1] = mcB.y;
           positions[vi * 3 + 2] = mcB.z;
           const bB = 0.1 + 0.9 * progressB;
-          colors[vi * 3] = baseColor.r * bB;
-          colors[vi * 3 + 1] = baseColor.g * bB;
-          colors[vi * 3 + 2] = baseColor.b * bB;
+          colors[vi * 3] = trailColor.r * bB;
+          colors[vi * 3 + 1] = trailColor.g * bB;
+          colors[vi * 3 + 2] = trailColor.b * bB;
           vi++;
         }
       }
@@ -197,6 +229,9 @@ export class ShipScene {
 
     this.instancedMesh.count = headCount;
     this.instancedMesh.instanceMatrix.needsUpdate = true;
+    if (this.instancedMesh.instanceColor) {
+      (this.instancedMesh.instanceColor as THREE.InstancedBufferAttribute).needsUpdate = true;
+    }
 
     this.trailGeo.setDrawRange(0, vi);
     (this.trailGeo.attributes.position as THREE.BufferAttribute).needsUpdate = true;
@@ -211,7 +246,9 @@ export class ShipScene {
     const blendSrcA = gl.getParameter(gl.BLEND_SRC_ALPHA);
     const blendDstA = gl.getParameter(gl.BLEND_DST_ALPHA);
 
-    this.camera.projectionMatrix.fromArray(matrix);
+    if (!this.lastMatrix) this.lastMatrix = new THREE.Matrix4();
+    this.lastMatrix.fromArray(matrix);
+    this.camera.projectionMatrix.copy(this.lastMatrix);
     this.renderer.resetState();
     this.renderer.render(this.scene, this.camera);
     this.renderer.resetState();
@@ -219,6 +256,27 @@ export class ShipScene {
     if (blendEnabled) gl.enable(gl.BLEND);
     else gl.disable(gl.BLEND);
     gl.blendFuncSeparate(blendSrc, blendDst, blendSrcA, blendDstA);
+  }
+
+  pickShip(screenX: number, screenY: number, viewWidth: number, viewHeight: number): { ship: Ship; lat: number; lng: number; timestamp: number } | null {
+    if (!this.lastMatrix || !this.instancedMesh) return null;
+
+    const threshold = 24;
+    let closest: { hit: { ship: Ship; lat: number; lng: number; timestamp: number }; dist: number } | null = null;
+    const mat = new THREE.Matrix4();
+
+    for (const [idx, hit] of this.shipPositions) {
+      this.instancedMesh.getMatrixAt(idx, mat);
+      const v = new THREE.Vector4(mat.elements[12], mat.elements[13], mat.elements[14], 1.0);
+      v.applyMatrix4(this.lastMatrix);
+      if (v.w <= 0) continue;
+      const sx = ((v.x / v.w) * 0.5 + 0.5) * viewWidth;
+      const sy = ((-v.y / v.w) * 0.5 + 0.5) * viewHeight;
+      const dist = Math.hypot(sx - screenX, sy - screenY);
+      if (dist < threshold && (!closest || dist < closest.dist)) closest = { hit, dist };
+    }
+
+    return closest?.hit ?? null;
   }
 
   getVisibleCount(): number {
@@ -231,6 +289,7 @@ export class ShipScene {
       this.instancedMesh.geometry.dispose();
       (this.instancedMesh.material as THREE.Material).dispose();
       this.instancedMesh = null;
+      this.shipPositions.clear();
     }
     if (this.trailLine) {
       this.scene.remove(this.trailLine);

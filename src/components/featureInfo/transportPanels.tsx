@@ -111,3 +111,35 @@ export function RailStationPanel({ props }: { props: Record<string, unknown> }) 
     </>
   );
 }
+
+
+const SHIP_TYPE_INFO = (type: number): { label: string; color: string } => {
+  if (type >= 60 && type <= 69) return { label: "客船 Passenger", color: "#a78bfa" };
+  if (type >= 70 && type <= 79) return { label: "貨船 Cargo", color: "#38bdf8" };
+  if (type >= 80 && type <= 89) return { label: "油輪 Tanker", color: "#f97316" };
+  if (type >= 30 && type <= 39) return { label: "漁船 Fishing", color: "#22c55e" };
+  if (type >= 50 && type <= 59) return { label: "作業/拖船 Tug/Special", color: "#facc15" };
+  return { label: "未知 Unknown", color: "#67e8f9" };
+};
+
+export function ShipPanel({ props }: { props: Record<string, unknown> }) {
+  const vesselType = Number(props.vessel_type ?? 0);
+  const info = SHIP_TYPE_INFO(vesselType);
+  const ts = Number(props.timestamp ?? 0);
+  const time = ts > 0 ? new Date(ts * 1000).toLocaleString("zh-TW", { hour12: false }) : "—";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: info.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+          MMSI {String(props.mmsi ?? "—")}
+        </div>
+      </div>
+      <Row label="船舶類型" value={info.label} color={info.color} />
+      <Row label="AIS 類型碼" value={Number.isFinite(vesselType) ? String(vesselType) : "—"} />
+      <Row label="時間" value={time} />
+      <Row label="經度" value={props.lon != null ? Number(props.lon).toFixed(5) : "—"} />
+      <Row label="緯度" value={props.lat != null ? Number(props.lat).toFixed(5) : "—"} />
+    </>
+  );
+}

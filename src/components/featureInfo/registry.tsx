@@ -10,7 +10,7 @@ import {
   ServiceAreaPanel, ServiceAreaPolygonPanel, TaxiStandPanel,
 } from "./infraPanels";
 import {
-  WeatherStationPanel, BikeStationPanel, BusStationPanel, RailStationPanel,
+  WeatherStationPanel, BikeStationPanel, BusStationPanel, RailStationPanel, ShipPanel,
 } from "./transportPanels";
 import {
   WaterFacilityPanel, WaterMonitorPanel, WaterDetentionBasinPanel, WaterDamPanel,
@@ -73,6 +73,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   weatherStation: WeatherStationPanel,
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
+  ship: ShipPanel,
   lighthouse: LighthousePanel,
   railStation: RailStationPanel,
   port: PortPanel,
@@ -207,6 +208,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   weatherStation: "氣象站",
   bikeStation: "公共自行車站",
   busStation: "公車站",
+  ship: "船舶",
   lighthouse: "燈塔",
   railStation: "車站",
   port: "港口",

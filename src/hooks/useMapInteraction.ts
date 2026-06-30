@@ -3,6 +3,7 @@ import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl"
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { DISASTER_ALERT_CLICK_LAYERS } from "./useDisasterAlertLayer";
 import type { FlightScene } from "../three/FlightScene";
+import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
@@ -42,6 +43,7 @@ export function useMapInteraction(
   timeRef: React.RefObject<number>,
   railSceneRef?: React.RefObject<RailScene | null>,
   busSceneRef?: React.RefObject<BusScene | null>,
+  shipSceneRef?: React.RefObject<ShipScene | null>,
   layerVisibilityRef?: React.RefObject<LayerVisibility>,
   reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
   wasteScheduleSceneRef?: React.RefObject<WasteScheduleScene | null>,
@@ -103,6 +105,33 @@ export function useMapInteraction(
             setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
             setTrainTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+
+      // 嘗試拾取船舶（以目前船頭圓點為準）
+      if (vis?.ships) {
+        const shipScene = shipSceneRef?.current;
+        if (shipScene) {
+          const hit = shipScene.pickShip(e.point.x, e.point.y, w, h);
+          if (hit) {
+            setFeatureInfo({
+              layerType: "ship",
+              properties: {
+                mmsi: hit.ship.mmsi,
+                vessel_type: hit.ship.vessel_type,
+                lat: hit.lat,
+                lon: hit.lng,
+                timestamp: hit.timestamp,
+              },
+              coords: [hit.lng, hit.lat],
+            });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
+            setWasteScheduleTooltipInfo(null);
             return;
           }
         }

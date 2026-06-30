@@ -593,7 +593,7 @@ export interface RealEstateTooltipInfo {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
-    | "port" | "airport" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
+    | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "medicalPOI"
