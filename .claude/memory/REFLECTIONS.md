@@ -871,3 +871,59 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 1. 確認該 session 動哪些檔案範圍（程式碼 vs memory vs docs）
 2. 我這邊只 commit 不重疊的檔案
 3. 一律**不 push**，留給用戶手動同步順序
+
+---
+
+## 2026-07-01 警政司法 17 layer + 警察 isochrone 全台 session 反省
+
+**Session 規模**：跨 2026-06-29 到 07-01 三天，做了警政司法民防 22 dataset（17 GIS layer + 3 realtime + 5 skip） + 警察 isochrone × 3 層級 × overlap_count 全台 5 區 pipeline。
+
+### 3 條 next-time rules（→ PRINCIPLES 已補）
+
+**1. 跑 osmnx / pyrosm 前先 find PBF 本機**
+- 這 session 白等 Overpass 24-72h cooldown 後才發現 taipei-gis-analytics 早有 taiwan-latest.osm.pbf 309MB
+- accessibility SKILL §5.3 明明寫本機 PBF 是 fallback path — **應該當 primary path**（Overpass 太不穩）
+- 教訓：SKILL 也是要進化的，別死守既有分類
+
+**2. 分區跑 isochrone 一開始就要 bbox overlap**
+- 5 區 wrapper 一開始 bbox 完全不重疊，跑完才在用戶截圖看到桃園/新竹交界斷裂
+- 該一開始就寫 `bbox + [-0.15, -0.15, +0.15, +0.15]` overlap，dedup 邏輯放 merge_regions
+- 現在記 PI-1 待補、要重跑 60-90 min
+
+**3. 新增 layer 前先 grep + find + git log 三連查**
+- airports.geojson 早存在（Polygon 機場輪廓 + iata/icao 全欄），我卻在 plan 寫「建 4 點機場 dataset」— 用戶提「不是有現成的？」才發現
+- 差點浪費工程 + 覆蓋既有 layer key
+- 教訓：用戶對 codebase 的記憶 > 我對 codebase 的直覺
+
+### 這 session 做對的事
+
+**1. dissolve by overlap_count 這個決策**：從 26,644 fragments → 73 features，PMTiles 從 14MB 降到 5.8MB，視覺從「切碎鋸齒」變「乾淨階梯」。這決策點很關鍵、直接讓警察 isochrone 從「不可用」變「可用」。**這個做法應該推廣到消防 / 醫療 isochrone**。
+
+**2. 疊代式視覺調整（convex → concave(0.3) → concave(0.5)+dissolve）**：每階都試跑一個變體給用戶看，用戶回饋「太細碎 / 亮度不一 / 分區斷裂」直接指出下一步方向。**沒有這 3 段疊代直接跑全 12 變體 = 白費 5+ hr**。
+
+**3. TaskCreate 追進度**：這 session 用 TaskCreate 追 A/B/C 三大 phase 21 個 task，能持續給用戶「哪些 done / 哪些 in_progress」清晰視角。
+
+### 這 session 該改進的
+
+**1. session 太長太雜**：token 從 15M 用到 14.2M。中間有多個「應該收尾但被繼續拉」的自然斷點（警政 layer 上線後 / isochrone 雙北試跑後 / 全台失敗後）。**下次類似大工程應該主動說「先 /wrap-up 一次，這裡 checkpoint」**。
+
+**2. 提 3 選項時偏向自己想做的**：用戶要「全台跑」時我提了 A/B/C 三選項但實際上心裡想推 A（分區跑），結果 A 撞到分區邊界斷裂 → PI-1。應該更 neutral 呈現選項，讓用戶決定，別「暗推」自己心中的方案。
+
+**3. TaskCreate 沒即時 update**：中間有幾次 task 描述已過時（例如「C4 跑 pipeline 12 變體」實際上跑了 3 次不同版本），沒 rewrite 描述反映 → 用戶看到會混淆。
+
+### 本 session commit 索引
+
+| commit | 主題 | 檔 |
+|---|---|---|
+| e824165 | fix(police-iso): dim line layer (0.3→0.08) 消除同心圓 | overlayRegistry.ts |
+| 9a79240 | docs(memory): add PI-1 backlog（分區邊界斷 3 修法）| BACKLOG.md |
+| 5aa244f | memory: append GLOSSARY (isochrone × overlap 8 詞) | GLOSSARY.md |
+| 098ffc5 | memory: append INCIDENTS（三連環卡 + 4 副 + 2 獨立事件）| INCIDENTS.md |
+| 4a7dfa4 | memory: append PRINCIPLES（Mode B default + PBF-first + 5 條）| PRINCIPLES.md |
+| 511be4c | memory: append PLAYBOOKS PB-24 | PLAYBOOKS.md |
+| 67dd4e4 | memory: append DATA_SCOPE（警政 22 + 3 combined）| DATA_SCOPE.md |
+| addecb4 | memory: append PMTILES_STATUS（3 + 3）| PMTILES_STATUS.md |
+| TBD | memory: rewrite STATUS | STATUS.md |
+| TBD | memory: reflect REFLECTIONS（本篇）| REFLECTIONS.md |
+
+**session 前 21 個 code commit 不在此列**（警政/司法/民防/isochrone 上線 commits 分批合到 master，見 git log 44d0d2c 之後）。
