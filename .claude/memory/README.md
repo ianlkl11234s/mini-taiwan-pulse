@@ -40,13 +40,32 @@ Mini Taiwan Pulse 專案記憶系統。Session 開頭讀這裡，結束時透過
 - `PRINCIPLES` 衝突時：新原則覆蓋舊，舊的搬去 `INCIDENTS` 記錄演進
 - `/wrap-up` 跑完第 10 次後，回頭掃 `DATA_SCOPE` 是否過期
 
-## 分層
+## 分層（雙 memory 系統分工）
 
-| 層級 | 位置 | 性質 |
-|---|---|---|
-| 全域 | `~/.claude/projects/.../memory/` | 跨專案 + 用戶偏好 |
-| 規則 | `mini-taiwan-pulse/CLAUDE.md` | 不變規則（程式風格、流程） |
-| **狀態** | `mini-taiwan-pulse/.claude/memory/` | **變動狀態 + 反省 + backlog** |
-| 長文 | `mini-taiwan-pulse/.claude/pitfalls/` | 事件的 long-form archive |
+| 層級 | 位置 | 性質 | 什麼進來 |
+|---|---|---|---|
+| **全域 auto-memory** | `~/.claude/projects/.../memory/` | 個人偏好 + 跨 session WIP status | `feedback_*.md`（用戶偏好，長期）；`<feature>-status.md`（in-flight WIP，功能上線後歸檔） |
+| **規則** | `CLAUDE.md`（本 repo） | 不變規則、程式風格 | 開發鐵則、目錄慣例、Git workflow |
+| **狀態框架** | `.claude/memory/`（本 repo，跟 commit） | 專案本體：pattern / 事件 / 術語 / backlog | 9 檔框架（STATUS/BACKLOG/PRINCIPLES/...） |
+| **長文** | `.claude/pitfalls/` | 事件 long-form archive | 具體 incident 的完整 postmortem |
+| **Feature 文件** | `docs/features/<slug>/` | 單一 feature 完整脈絡 | README + backlog + changelog + handoff |
+| **跨 repo SSOT** | `taipei-gis-analytics/docs/{handoff,adr}/` | 資料契約 + 決策紀錄 | Handoff（下游要接的） + ADR（決策） |
+
+### 分工判斷樹
+
+新記憶進來時問自己：
+
+1. **是不是「這次要用完就丟」？** → 不用寫，直接做事
+2. **是不是「一個 feature 的脈絡」？** → `docs/features/<slug>/`
+3. **是不是「跨 repo 的資料契約 / 架構決策」？** → `taipei-gis-analytics/docs/{handoff,adr}/`
+4. **是不是「全站規則、多 feature 共用」？** → `.claude/memory/PRINCIPLES.md` 或 `CLAUDE.md`
+5. **是不是「踩坑事件的長文分析」？** → `.claude/pitfalls/YYYY-MM-DD-*.md`
+6. **是不是「個人偏好 / WIP 短期 status」？** → 全域 `~/.claude/projects/.../memory/`
+7. **是不是「當週動態」？** → `.claude/memory/STATUS.md`
+
+### 歷史清理原則
+
+- 全域 `~/.claude/projects/.../memory/` 中 `<feature>-status.md` 型檔案 → **功能上線後**應該併入 `docs/features/<slug>/README.md` 或 `changelog.md`，然後全域 memory 檔可以刪
+- 全域 `feedback_*.md` → 若是 P0 級規則應該搬進 `PRINCIPLES.md`；純個人習慣可留全域
 
 詳見可移植框架說明：[../FRAMEWORK.md](../FRAMEWORK.md)

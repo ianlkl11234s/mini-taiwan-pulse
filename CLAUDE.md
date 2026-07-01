@@ -118,7 +118,9 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 - 可用 slash command `/check-rpc <name>` 自動 EXPLAIN 判斷
 - **效能守則**（2026-04-10 bus trails OOM 教訓）：refresh function 必有 WHERE/ORDER BY 對應索引 + today+yesterday 同 cron 循序 + `MAX()` 取代 `mode()` + `SET work_mem TO '64MB'` + cron 錯開分鐘。完整 5 條：[`docs/supabase-optimization.md#oom`](./docs/supabase-optimization.md)
 
-### 5. 新增 Layer 強制順序
+### 5. 新增 Layer 強制順序 ⚠️
+
+**任何 layer 相關工作（新增 / 修改 / 除錯 / UX 調整）→ 一律先跑 `layer-onboarding` skill**。它會引導 7 步 SOP + UX baseline + 跨 repo 對齊。CLAUDE.md 只列強制順序，決策細節走 skill。
 1. `src/types/index.ts` → `LayerVisibility` 加 key
 2. `src/data/xxxLoader.ts` → loader + loadingRegistry
 3. `src/hooks/useXxxLayer.ts` → React hook
@@ -150,6 +152,80 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 - UI 顯示：`useSyncExternalStore` + `subscribeThrottled(250)`
 
 Hook 參數表**不收** `currentTime`。理由與節流表見 [`docs/development-rules.md#8-動態圖層時間訂閱`](./docs/development-rules.md#8-動態圖層時間訂閱external-time-store)。
+
+## Git Workflow（GitHub Flow）
+
+單人開發，採 GitHub Flow：`master` = 生產、`feat/*` 分支 → PR → squash 進 master。
+
+### Branch 命名
+
+| Prefix | 用途 | 何時用 |
+|---|---|---|
+| `feat/<slug>` | 新功能 / 新 layer | 加東西 |
+| `fix/<slug>` | Bug 修 | 修東西 |
+| `perf/<slug>` | 效能 | 只改效能不改行為 |
+| `docs/<slug>` | 文件 | 純文件 |
+| `chore/<slug>` | 建置 / 依賴 / 雜項 | 沒有 user-facing 變更 |
+| `hotfix/<slug>` | 線上緊急 | 上線後立即修 |
+
+`<slug>` 用 kebab-case，對應 `docs/features/<slug>/` 資料夾名。
+
+### Commit prefix（沿用 Conventional Commits）
+
+`feat / fix / perf / docs / memory / chore / refactor / test`
+
+**特殊 prefix**：
+- `memory:` — `.claude/memory/` 或 `~/.claude/projects/*/memory/` 的變更
+- 專案已用範例（近期 log）：`memory:`, `docs:`, `perf:`, `fix:`, `feat:`
+
+### PR 流程
+
+1. 開 feat branch：`git checkout -b feat/<slug>`
+2. 開跑同時 `cp -r docs/features/_TEMPLATE docs/features/<slug>` 建功能檔案
+3. 若動到跨 repo 資料契約 → **先開 upstream handoff**：`taipei-gis-analytics/docs/handoff/<slug>.md`
+4. 完成 → `npx tsc -b` + `pnpm test` 全綠
+5. `gh pr create` — PR 描述用下列模板
+6. Squash merge 進 master
+7. 更新 `docs/features/<slug>/changelog.md` 記錄 PR # + squash hash
+
+### PR 描述模板
+
+```
+## Summary
+- <一句話>
+
+## Changes
+- <每個檔案或每個小段的變更>
+
+## Test
+- [ ] npx tsc -b 通過
+- [ ] pnpm test 通過
+- [ ] Browser 驗收（若有 UI）
+
+## Risk / Rollback
+- <風險>
+- <回滾方式>
+
+## Related
+- Feature: docs/features/<slug>/
+- Upstream handoff: taipei-gis-analytics/docs/handoff/<slug>.md
+- ADR: (若有)
+```
+
+### 何時開 hotfix、何時走正常 feature flow
+
+- **hotfix**：線上炸了、用戶感知（例如 Supabase 打掛、layer 全消失） → `hotfix/<slug>` → 快速 PR + squash
+- **正常**：其他一律走 `feat/fix/perf/docs`
+
+### 跨 repo 同步順序（有資料契約變動時）
+
+**上游先動、下游後動**：
+1. taipei-gis-analytics：pipeline 改 + `docs/handoff/<slug>.md` 更新 + push
+2. gis-platform：migration 補 + push
+3. data-collectors：若涉 collector 改 + push
+4. mini-taiwan-pulse：前端接線 + `docs/features/<slug>/handoff.md` 反向引用 + PR
+
+反向亂序會造成「上線時前端硬依賴的欄位不存在」。
 
 ## 目錄規則
 

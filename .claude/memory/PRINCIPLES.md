@@ -2,6 +2,26 @@
 
 不用再重複溝通的預設與慣例。新增原則時註明日期。
 
+## ⚠️ P0 開發流程強制觸發（2026-07-01）
+
+**任何涉及 layer / 資料接線的工作，強制先跑 `layer-onboarding` skill**。
+
+觸發條件（其中一項成立就要跑）：
+- 新增 / 修改 layer（不管走 `/new-layer` 產骨架與否）
+- 從 taipei-gis-analytics 拿到新資料要接
+- Layer 顯示異常（點少了 / popup 空 / legend 錯）
+- 討論 UX 設定（radius / opacity / cluster / min-zoom）
+- 跨 repo 資料契約有變
+
+**強制附加流程**：
+1. 先開 `docs/features/<slug>/` 資料夾（`cp -r docs/features/_TEMPLATE ...`）
+2. 若涉資料契約 → 先開 `taipei-gis-analytics/docs/handoff/<slug>.md`
+3. 若涉架構決策 → 開 ADR `taipei-gis-analytics/docs/adr/NNNN-*.md`
+4. 走 GitHub Flow branch：`feat/<slug>` / `fix/<slug>` / `perf/<slug>`（見 CLAUDE.md §Git Workflow）
+
+**Why**：層層漏項是最常見 bug 根因（PMTiles keep_attrs / LAYER_COLORS / legend / popup / cross-repo drift）。
+**How to apply**：Session 開頭讀到本條 = 之後任何 layer 對話都先觸發 skill。
+
 ## 專案預設（溝通層）
 
 - **回應語言**：繁體中文，技術術語保留英文
