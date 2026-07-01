@@ -56,6 +56,7 @@
 | G003 | P3 | `public/three-showcase.html` / `public/showcase/` 去留 | open | 2026-05-25 review 確認：獨立 Three.js demo，`src/` 未引用，從 unpkg 載 three@0.160（app 用 0.172）。用戶決定**暫留原地**（已 tracked）。未來可移 `examples/three-showcase/`（連同 `docs/three-showcase-library.md`）排除 build |
 | CS-1 | P3 | Code Splitting / Dynamic Import 重型依賴 | open | 對象：`mapbox-gl` / `three` / `pmtiles` / `@deck.gl/*` / `satellite.js` / `h3-js` 全部 eager import。效益：首屏 JS bundle 變小、TTI 加快（次要瓶頸，主要瓶頸已由 perf ①+② 解決）。風險：Vite chunk 邊界 / Mapbox worker 註冊時機 / PMTiles protocol 註冊順序常踩坑，需完整回歸。工時：1-2 天。觸發時機：等到出現「首頁 JS bundle 過大」用戶抱怨，或 ①+② 完成後仍想再壓首屏。**規劃源**：`/Users/migu/.claude/plans/1-2-modular-rossum.md` |
 | PT-1 | P2 | 大型 GeoJSON → PMTiles 轉換（13 檔） | **done (pending review)** | 2026-06-26 過夜批次完成。**234.7 MB → 75.0 MB（整體壓到 32%；range request 後實際下載再降 5-10 倍）**。完成 13 檔：provincial_road / farm_roads / hiking_trails / national_highway / medical_clinics / medical_ltc / medical_aed / medical_pharmacies / fire_hydrants / agri_retail_companies / produce_wholesale_companies / eco_network_zones / bus_stations_city。Branch：`perf/pmtiles-batch`。詳見 `.claude/memory/PMTILES_STATUS.md`。⚠️ 待人工 3 件：(1) browser 視覺驗證 13 layer (2) `bash scripts/deploy/upload-deploy-assets.sh` (3) push + PR + merge |
+| G011 | P2 | 船舶拖尾 LOD / 降載（保留近景品質） | open | 2026-07-01 先做 B+C：時間/資料未變跳過 ShipScene rebuild + 船型顏色快取。A 暫不動以免影響目前港口近景視覺；未來若船舶仍卡，做 zoom-based LOD：低 zoom/全台視角縮短 trail duration 或加大 step，高 zoom/港口保留 1800s/10s 細節。 |
 
 ### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
 

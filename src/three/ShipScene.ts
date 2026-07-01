@@ -16,13 +16,36 @@ export function shipTypeLabel(vesselType: number): string {
   return "未知 Unknown";
 }
 
+const SHIP_TYPE_COLORS_DARK = {
+  passenger: new THREE.Color("#a78bfa"),
+  cargo: new THREE.Color("#38bdf8"),
+  tanker: new THREE.Color("#f97316"),
+  fishing: new THREE.Color("#22c55e"),
+  special: new THREE.Color("#facc15"),
+  other: new THREE.Color("#67e8f9"),
+};
+
+const SHIP_TYPE_COLORS_LIGHT = {
+  passenger: new THREE.Color("#6d28d9"),
+  cargo: new THREE.Color("#0369a1"),
+  tanker: new THREE.Color("#c2410c"),
+  fishing: new THREE.Color("#15803d"),
+  special: new THREE.Color("#a16207"),
+  other: new THREE.Color("#0e7490"),
+};
+
+function shipTypeBucket(vesselType: number): keyof typeof SHIP_TYPE_COLORS_DARK {
+  if (vesselType >= 60 && vesselType <= 69) return "passenger";
+  if (vesselType >= 70 && vesselType <= 79) return "cargo";
+  if (vesselType >= 80 && vesselType <= 89) return "tanker";
+  if (vesselType >= 30 && vesselType <= 39) return "fishing";
+  if (vesselType >= 50 && vesselType <= 59) return "special";
+  return "other";
+}
+
 function shipTypeColor(vesselType: number, isDark: boolean): THREE.Color {
-  if (vesselType >= 60 && vesselType <= 69) return new THREE.Color(isDark ? "#a78bfa" : "#6d28d9");
-  if (vesselType >= 70 && vesselType <= 79) return new THREE.Color(isDark ? "#38bdf8" : "#0369a1");
-  if (vesselType >= 80 && vesselType <= 89) return new THREE.Color(isDark ? "#f97316" : "#c2410c");
-  if (vesselType >= 30 && vesselType <= 39) return new THREE.Color(isDark ? "#22c55e" : "#15803d");
-  if (vesselType >= 50 && vesselType <= 59) return new THREE.Color(isDark ? "#facc15" : "#a16207");
-  return new THREE.Color(isDark ? "#67e8f9" : "#0e7490");
+  const bucket = shipTypeBucket(vesselType);
+  return (isDark ? SHIP_TYPE_COLORS_DARK : SHIP_TYPE_COLORS_LIGHT)[bucket];
 }
 
 const TRAIL_DURATION = 1800; // 0.5 小時 = 1800 秒
@@ -43,6 +66,12 @@ export class ShipScene {
   private breathPhase = 0;
   private lastMatrix: THREE.Matrix4 | null = null;
   private shipPositions = new Map<number, { ship: Ship; lat: number; lng: number; timestamp: number }>();
+  private lastUpdateTime = Number.NaN;
+  private lastShipsRef: Ship[] | null = null;
+  private lastBoundsKey = "";
+  private lastOrbScale = Number.NaN;
+  private lastThemeDark = true;
+  private forceRebuild = true;
 
   // 拖尾線
   private trailGeo: THREE.BufferGeometry | null = null;
@@ -112,6 +141,7 @@ export class ShipScene {
   setTheme(isDark: boolean) {
     if (this.isDarkTheme === isDark) return;
     this.isDarkTheme = isDark;
+    this.forceRebuild = true;
     if (this.instancedMesh) {
       const mat = this.instancedMesh.material as THREE.MeshBasicMaterial;
       mat.color.copy(isDark ? SHIP_COLOR_DARK : SHIP_COLOR_LIGHT);
@@ -126,13 +156,22 @@ export class ShipScene {
   }
 
   setOrbScale(scale: number) {
-    this.orbScale = scale;
+    if (this.orbScale !== scale) {
+      this.orbScale = scale;
+      this.forceRebuild = true;
+    }
   }
 
   setTrailOpacity(opacity: number) {
     if (!this.trailLine) return;
     const mat = this.trailLine.material as THREE.LineBasicMaterial;
     mat.opacity = opacity;
+  }
+
+  private boundsKey(bounds: { minLng: number; maxLng: number; minLat: number; maxLat: number } | null) {
+    if (!bounds) return "none";
+    // 避免滑鼠微動/浮點雜訊造成每幀重建；約 10m 級精度已足夠做視口剔除。
+    return `${bounds.minLng.toFixed(4)},${bounds.maxLng.toFixed(4)},${bounds.minLat.toFixed(4)},${bounds.maxLat.toFixed(4)}`;
   }
 
   setViewBounds(bounds: { minLng: number; maxLng: number; minLat: number; maxLat: number } | null) {
@@ -142,6 +181,26 @@ export class ShipScene {
   update(ships: Ship[], currentTime: number) {
     if (!this.instancedMesh || !this.trailGeo) return;
 
+    const boundsKey = this.boundsKey(this.viewBounds);
+    if (
+      !this.forceRebuild &&
+      this.lastShipsRef === ships &&
+      this.lastUpdateTime === currentTime &&
+      this.lastBoundsKey === boundsKey &&
+      this.lastOrbScale === this.orbScale &&
+      this.lastThemeDark === this.isDarkTheme
+    ) {
+      return;
+    }
+
+    this.forceRebuild = false;
+    this.lastShipsRef = ships;
+    this.lastUpdateTime = currentTime;
+    this.lastBoundsKey = boundsKey;
+    this.lastOrbScale = this.orbScale;
+    this.lastThemeDark = this.isDarkTheme;
+
+    // B: 時間/資料未變時不再為了呼吸動畫重建全部 buffer；只有需要 rebuild 時才更新相位。
     this.breathPhase += 0.02;
     const breathFactor = 1.0 + 0.15 * Math.sin(this.breathPhase);
 
@@ -298,6 +357,8 @@ export class ShipScene {
       this.trailLine = null;
       this.trailGeo = null;
     }
+    this.lastShipsRef = null;
+    this.forceRebuild = true;
     this.renderer?.dispose();
   }
 }
