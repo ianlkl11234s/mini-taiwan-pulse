@@ -285,3 +285,16 @@
 | **PMTiles 命名契約** | `{topic}_{bucket}_{metric}.pmtiles` 檔名 / `coverage_{bucket}` sourceLayer / `band` + `dist_m` properties |
 | **osmnx subdivide** | osmnx 對大 bbox 自動切 sub-bbox 序列跑（預設 `max_query_area_size=2500 km²`，全台被切 32 個）。任一卡死全 process 卡，無 socket timeout |
 | **Overpass mirror 池** | overpass-api.de（預設，IP ban 24-72h） / overpass.kumi.systems（大 subquery 不穩） / overpass.openstreetmap.fr（whitelist 403）。完整救援見 SKILL `mirror-fallback.md` |
+
+## 警察 isochrone × overlap_count（2026-07-01 加）
+
+| 術語 | 說明 |
+|---|---|
+| **overlap_count / 覆蓋重疊計數** | 「此處同時被幾個 station N 分鐘 isochrone 包含」的整數指標。GIS 標準做法：`unary_union(polygons.boundary)` → `polygonize` 切不重疊 fragments → 對每 fragment `representative_point` 用 STRtree 查有多少 polygon `covers` 它。用來視覺化「警力沙漠 vs 多重保護」等服務冗餘密度 |
+| **dissolve by overlap_count** | polygonize 切出的 N 萬 fragments 太細碎 → 按 overlap_count 分組 `unary_union` 合成大片連續 MultiPolygon。實測 26,622 fragments → 73 features（乾淨階梯，PMTiles 從 14MB 降到 5.8MB）。**沒 dissolve = 同心圓錯覺**（每個 station hull 邊界都是 fragment 邊界） |
+| **concave_hull / α-shape** | shapely 2.1+ `shapely.concave_hull(mp, ratio=0.5)`；ratio 越小越貼路網（0.3 太細碎、1.0=convex 鋸齒）。isochrone Mode B 標配，取代 `convex_hull`；後接 buffer 15% 平滑 + simplify radius×10% 控 polygon 點數 |
+| **polygonize** | `shapely.ops.polygonize(unary_union(boundaries))`：把多個 polygon 的 boundary line union 切成互不重疊的「面塊」，是 GIS 算 pairwise intersection 的標準工具 |
+| **PBF / osmium tags-filter** | Overpass mirror IP ban 時的救援路徑（accessibility SKILL §5.3）。`osmium tags-filter taiwan.osm.pbf w/highway=motorway,trunk,primary,...` 從 PBF 直接過濾出 walk / drive PBF（309MB → 58MB walk / 16MB drive），繞開網路依賴 |
+| **pyrosm** | 從 PBF 讀 network → networkx graph，API：`pyrosm.OSM(pbf, bounding_box).get_network(network_type="walking"/"driving")` → `to_graph(nodes, edges, graph_type="networkx")`。⚠ network_type 用 `"walking"/"driving"` 不是 osmnx 的 `"walk"/"drive"` |
+| **分區 bbox 邊界斷裂** | 全台跑 osmnx 卡（mirror ban / 6M nodes OOM），退階分 5 區跑（north / north2 / central / south / east）。但區 bbox 不重疊 → 邊界 station 的 `ego_graph` 被本區 graph 截斷 → polygon 在區界斷開。修法 A：bbox 各 +0.15° overlap + dedup；修法 B：raster heatmap 完全避開 vector 邊界；修法 C：補丁 pass。詳 BACKLOG **PI-1** |
+| **isochrone Mode B + dissolve 三段演化** | ① convex_hull → 鋸齒過度膨脹；② concave_hull(0.3) → 26K micro fragments；③ concave_hull(0.5) + buffer + **dissolve by overlap_count** → 73 features 乾淨階梯。標準做法 = ③ |
