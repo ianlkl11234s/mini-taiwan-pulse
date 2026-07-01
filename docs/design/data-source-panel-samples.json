@@ -1,0 +1,225 @@
+{
+  "meta": {
+    "generated_at": "2026-07-01",
+    "source": "production Supabase metadata.data_catalog",
+    "purpose": "設計師參考 — 用真實資料設計 3 種 UI 入口的元件"
+  },
+  "全站統計": {
+    "total_datasets": 271,
+    "themes": 23,
+    "with_pulse": 143,
+    "distinct_agencies": 127
+  },
+  "主題分布_TOP10": [
+    {
+      "theme": "water_resources",
+      "dataset_count": 42,
+      "with_pulse": 17
+    },
+    {
+      "theme": "energy",
+      "dataset_count": 39,
+      "with_pulse": 19
+    },
+    {
+      "theme": "transportation",
+      "dataset_count": 34,
+      "with_pulse": 22
+    },
+    {
+      "theme": "environment",
+      "dataset_count": 25,
+      "with_pulse": 12
+    },
+    {
+      "theme": "police_justice",
+      "dataset_count": 20,
+      "with_pulse": 17
+    },
+    {
+      "theme": "forestry",
+      "dataset_count": 17,
+      "with_pulse": 12
+    },
+    {
+      "theme": "demographics",
+      "dataset_count": 17,
+      "with_pulse": 6
+    },
+    {
+      "theme": "agriculture",
+      "dataset_count": 17,
+      "with_pulse": 12
+    },
+    {
+      "theme": "fishery",
+      "dataset_count": 9,
+      "with_pulse": 0
+    },
+    {
+      "theme": "tourism",
+      "dataset_count": 7,
+      "with_pulse": 0
+    }
+  ],
+  "lifecycle_分布": [
+    {
+      "lifecycle": "yearly",
+      "cnt": 40
+    },
+    {
+      "lifecycle": "yearly / 不定期",
+      "cnt": 22
+    },
+    {
+      "lifecycle": "static",
+      "cnt": 20
+    },
+    {
+      "lifecycle": "monthly",
+      "cnt": 16
+    },
+    {
+      "lifecycle": "realtime",
+      "cnt": 16
+    },
+    {
+      "lifecycle": "quarterly",
+      "cnt": 8
+    },
+    {
+      "lifecycle": "daily",
+      "cnt": 7
+    },
+    {
+      "lifecycle": "年度",
+      "cnt": 5
+    },
+    {
+      "lifecycle": "semi_annual",
+      "cnt": 4
+    },
+    {
+      "lifecycle": "靜態",
+      "cnt": 3
+    }
+  ],
+  "CASE_1_verified_短標題_1對1": {
+    "dataset_id": "agri_retail_companies",
+    "title": "公司登記－農產品零售業（F201010）（dataset 45618）",
+    "summary": "依《公司法》登記之農產品零售業者，量大",
+    "provider_agency": "經濟部商業發展署",
+    "source_url": null,
+    "license": "政府資料開放授權條款-第1版",
+    "lifecycle": "每 1 月",
+    "update_frequency": "每 1 月",
+    "last_updated": "2026-05-25",
+    "used_by_pulse_layers": [
+      "agriRetail"
+    ],
+    "catalog_md_path": "docs/data-catalog/agriculture/agri_retail_companies.md"
+  },
+  "CASE_2_verified_長標題_學術資料": {
+    "dataset_id": "soil_fertility_grid_250m",
+    "title": "全台農田平地表土層土壤網格肥力資訊（250m）（dataset 112848）",
+    "summary": "全台平地農田表土層 250m × 250m 採樣分析網格，含 pH、有機質、磷、鉀、鈣、鎂、硼、銅、鐵、錳、鋅、鈉等檢測項目，用於精準農業 / 施肥建議",
+    "provider_agency": "農業部",
+    "lifecycle": "每 5 年",
+    "used_by_pulse_layers": [
+      "agriSoilFertility"
+    ],
+    "catalog_md_path": "docs/data-catalog/agriculture/soil_fertility_grid_250m.md"
+  },
+  "CASE_3_realtime_即時RPC": {
+    "dataset_id": "ncdr_alerts",
+    "title": "NCDR 災害告警 CAP Feed",
+    "provider_agency": "國家災害防救科技中心（NCDR, National Science and Technology Center for Disaster Reduction）",
+    "lifecycle": "realtime",
+    "update_frequency": "即時（有事件即發布）",
+    "used_by_pulse_layers": [
+      "floodAlerts",
+      "lifelineAlerts",
+      "safetyAlerts",
+      "transitAlerts",
+      "weatherAlerts"
+    ]
+  },
+  "CASE_4_multi_layer_1對多_中型": {
+    "dataset_id": "celestrak_satellites",
+    "title": "CelesTrak / Space-Track 衛星軌道 TLE",
+    "provider_agency": "美國太空軍（USSF, via Space-Track.org） / T.S. Kelso（CelesTrak）",
+    "layer_count": 16,
+    "used_by_pulse_layers": [
+      "satellitesBeidou",
+      "satellitesFrance",
+      "satellitesGaofen",
+      "satellitesGermany",
+      "satellitesIndia",
+      "satellitesIsrael",
+      "satellitesItaly",
+      "satellitesJapan",
+      "satellitesJilin",
+      "satellitesKorea",
+      "satellitesRussia",
+      "satellitesShiyan",
+      "satellitesTJS",
+      "satellitesTaiwan",
+      "satellitesUSA",
+      "satellitesYaogan"
+    ]
+  },
+  "CASE_5_multi_layer_1對多_極端": {
+    "dataset_id": "celestrak_satellites",
+    "title": "CelesTrak / Space-Track 衛星軌道 TLE",
+    "provider_agency": "美國太空軍（USSF, via Space-Track.org） / T.S. Kelso（CelesTrak）",
+    "layer_count": 16,
+    "used_by_pulse_layers": [
+      "satellitesBeidou",
+      "satellitesFrance",
+      "satellitesGaofen",
+      "satellitesGermany",
+      "satellitesIndia",
+      "satellitesIsrael",
+      "satellitesItaly",
+      "satellitesJapan",
+      "satellitesJilin",
+      "satellitesKorea",
+      "satellitesRussia",
+      "satellitesShiyan",
+      "satellitesTJS",
+      "satellitesTaiwan",
+      "satellitesUSA",
+      "satellitesYaogan"
+    ]
+  },
+  "CASE_6_pulse_only_派生_無RPC_只由前端UPSTREAM_REGISTRY提供": {
+    "說明": "此類 layer 不在 Supabase catalog（因為是前端計算），前端會 fallback 讀 UPSTREAM_REGISTRY.ts。範例：",
+    "layer_key": "medIsochrone",
+    "status": "pulse_only",
+    "derivationType": "isochrone",
+    "derivedFromLayers": [
+      "medHospital",
+      "medClinic"
+    ],
+    "processing": "OSRM 路網等時圈計算（駕車 5/10/15/30 分鐘）— 從醫療 POI 出發沿實際路網擴散",
+    "transitivelyResolvedDatasets": [
+      "medical"
+    ]
+  },
+  "CASE_7_無URL_無summary_邊緣": [
+    {
+      "dataset_id": "drone_restricted_zones",
+      "title": "無人機禁/限航區 polygon (NFZ ∪ UAV_fs_ryg union)",
+      "provider_agency": "交通部民用航空局",
+      "source_url": null,
+      "lifecycle": "monthly"
+    },
+    {
+      "dataset_id": "water.precipitation_raster_frames",
+      "title": "累積雨量柵格圖（precipitation raster）",
+      "provider_agency": null,
+      "source_url": null,
+      "lifecycle": null
+    }
+  ]
+}
