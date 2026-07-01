@@ -50,6 +50,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 3. `tsc -b` 結果
 4. ⚠️ 是否 `LAYER_COLORS` 有補上
 5. 是否有需要人工確認的地方（例如色碼、預設可見性、RPC 名稱）
+6. **⭐ 提示主 agent 接著跑 `layer-onboarding` skill 完成驗收 SOP**（Step 1 資料驗收 / Step 3 UX baseline / Step 4 四鐵則 / Step 5 跨 repo 對齊 / Step 7 收尾）— 骨架完成 ≠ layer 上線完成
 
 ## 動態圖層特別規則（⚠️ 2026-04-14 起強制）
 

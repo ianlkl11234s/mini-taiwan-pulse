@@ -84,10 +84,30 @@ FILES = [
     (".claude/memory/PRINCIPLES.md", "PRINCIPLES.md（P0 規則索引，需要時 Read 對應段）", "toc"),
 ]
 
+import os
+
+def features_index():
+    """列出 docs/features/ 下的子目錄，讓 SessionStart 看到 feature 分工。"""
+    fdir = "docs/features"
+    if not os.path.isdir(fdir):
+        return "(docs/features/ 不存在)"
+    items = []
+    for name in sorted(os.listdir(fdir)):
+        full = os.path.join(fdir, name)
+        if os.path.isdir(full) and not name.startswith("_"):
+            items.append(f"- `docs/features/{name}/` (README/backlog/changelog/handoff)")
+    if not items:
+        return "(尚無 feature 資料夾)"
+    return "\n".join(items)
+
 parts = [
     "## Mini Taiwan Pulse — Session 記憶已載入\n",
     "STATUS 僅 inline 最新段落；BACKLOG / PRINCIPLES 僅注入標題索引以節省 context，",
     "需要細節時用 Read 讀對應檔案 / 行號。完整 9 檔見 `.claude/memory/` 或 `.claude/FRAMEWORK.md`。\n",
+    "\n=== docs/features/（feature 完整脈絡，每個功能一夾） ===\n",
+    features_index(),
+    "\n上游 handoff SSOT 在 `../taipei-gis-analytics/docs/handoff/`；ADR 在 `../taipei-gis-analytics/docs/adr/`。",
+    "\n⚠️ P0：任何 layer / 資料接線工作 → 先跑 `layer-onboarding` skill（見 PRINCIPLES.md 檔頭）。\n",
 ]
 
 for path, title, mode in FILES:

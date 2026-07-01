@@ -50,6 +50,6 @@
 - **Google News 2026 新格式 redirect**（`AU_yqL…`）解不出真實 URL → fallback 用 `articles/<id>` 當 url_norm，跨媒體重複由 simhash 層攔
 - **LLM 不吐座標的原則**：collector 只寫 admin_code，geom 全由 DB trigger 解析
 
-## TBD
+## Notes
 
-- Zeabur env 是否已設完（memory 說已設 `NEWS_EVENTS_ENABLED` + `GEMINI_API_KEY`，但 MEMORY.md 提「Zeabur env 待設」— 兩處不一致，待用戶確認）
+- ✅ Zeabur env 已設完（用戶 2026-07-01 確認：`NEWS_EVENTS_ENABLED=true` + `GEMINI_API_KEY` 都上）
