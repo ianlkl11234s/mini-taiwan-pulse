@@ -144,7 +144,9 @@ git log --oneline --graph -5   # 驗證 merge commit
 
 ---
 
-## PB-06 Deploy（Zeabur auto build）
+## PB-06 Deploy（Zeabur auto build + S3 deploy-assets 同步）
+
+### 6a. 純程式部署（沒新資料）
 
 ```bash
 # 本地驗證
@@ -158,6 +160,58 @@ git push origin master
 
 若改了 5 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / zeabur.json / package.json）
 要同步確認 port 3721 一致。
+
+### 6b. ⚠️ 新增大型資料檔到 S3 → **5 檔強制同步 checklist**（2026-03-06 教訓）
+
+漏一處就 production 404 或載入 index.html：
+
+| # | 檔案 | 動作 |
+|---|---|---|
+| 1 | `scripts/upload-deploy-assets.sh` | FILES 陣列加新檔名 |
+| 2 | `scripts/pull-deploy-assets.sh` | FILES 字串加新檔名 |
+| 3 | `docker-compose.yml` | volumes 加對應掛載 |
+| 4 | `.gitignore` | 加排除規則 |
+| 5 | **`nginx.conf`** | **location regex 加新檔名路由到 /data**（⚠️ 最常漏，漏了 fetch 走 SPA fallback 回 index.html → JSON parse fail → 圖層不顯示） |
+
+### 6c. Glob pattern 例外（水資源模式，2026-04-24）
+
+若同群檔（例如 `water_*.geojson`）預期會不斷新增，改走 glob 動態列舉可免掉每次改 5 處：
+
+- `.gitignore` 用 glob 排除
+- `upload-deploy-assets.sh` 顯式 FILES 迴圈後 append `for f in public/geo/xxx_*.geojson`
+- `pull-deploy-assets.sh` 用 `aws s3 ls | grep '^xxx_'` 動態抓
+- nginx `location /geo/` 已涵蓋所有 `.geojson`，不需個別 regex
+
+**已用 glob**：`water_*.geojson`
+**其他類別想用**：照 water_* 段抄一份改 prefix
+
+### 6d. 首次部署 checklist
+
+1. Zeabur → GitHub repo
+2. 環境變數：`VITE_MAPBOX_TOKEN` (build) / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_REGION=ap-southeast-2` / `S3_BUCKET=migu-gis-data-collector`
+3. Volume mount `/data`
+4. Web Terminal：`sh /usr/local/bin/pull-deploy-assets.sh`
+5. 確認 `rail/ extracted to /data/rail/`
+
+### 6e. 資料更新流程
+
+```bash
+# 本地
+bash scripts/upload-deploy-assets.sh     # 上 S3 deploy-assets/
+
+# Zeabur Web Terminal
+sh /usr/local/bin/pull-deploy-assets.sh  # 從 S3 拉到 /data/
+```
+
+### 6f. 5 個易錯提醒
+
+1. **S3 路徑**：部署一律用 `upload-deploy-assets.sh`（`deploy-assets/`），不是 `npm run s3:upload:rail`（`rail-data/`，前端 fallback 用）
+2. **rail 格式**：前端請求個別 `.json` / S3 存 `rail.tar.gz` / pull 腳本自動解壓，**不是**單一 `rail_bundle.json`
+3. **S3 ACL**：bucket 不支援 ACL（`--acl public-read` 會 fail），改用私密 + 環境變數認證
+4. **pull 腳本路徑**：`/usr/local/bin/pull-deploy-assets.sh`（不是舊 README 寫的 nginx html 路徑）
+5. **腳本更新**：改 `pull-deploy-assets.sh` 後需要 commit + push + **重部署**（Dockerfile COPY 到 image 內），只跑 pull 不會更新腳本
+
+**Long-form**：`~/.claude/projects/.../memory/_archive/deploy-checklist.md`
 
 ---
 

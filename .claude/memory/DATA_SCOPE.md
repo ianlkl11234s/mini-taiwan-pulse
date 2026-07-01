@@ -457,3 +457,53 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 - feature 數 dissolve 後：substation 334 / precinct 168 / police_dept 72
 - 走本機 PBF（`taipei-gis-analytics/data/raw/osm/taiwan-latest.osm.pbf` 309MB）+ osmium tags-filter（drive 16MB / walk 58MB）
 - **分 5 區跑**（bbox 邊界未 overlap → PI-1 邊界斷裂待修）
+
+## 動態 Collector 基礎設施（data-collectors repo）
+
+**7 個現役 collector**（`../data-collectors/collectors/`）：
+
+| Collector | 資料來源 | 間隔 | S3 前綴 |
+|---|---|---|---|
+| ship_ais.py | 航港局 AIS | 10 min | `ship_ais/` |
+| flight_opensky.py | OpenSky Network | 5 min | `flight_opensky/` |
+| tra_train.py | TDX 台鐵即時 | 2 min | `tra_train/` |
+| youbike.py | TDX YouBike | 15 min | `youbike/` |
+| weather.py | CWA 氣象站 | 60 min | `weather/` |
+| temperature.py | CWA 溫度網格 | 60 min | `temperature/` |
+| freeway.py | TDX 國道壅塞 | 10 min | `freeway/` |
+
+**正常量參考**：ship ~800K records/day、flight ~34K records/day → 若前端顯示 0 且對應 collector S3 前綴無新檔 = collector 當機（非前端 bug）
+
+## S3 Bucket 結構（`s3://migu-gis-data-collector/`）
+
+```
+├── deploy-assets/       # 部署用（upload-deploy-assets.sh，含 base_map/coverage/ 等子目錄）
+├── flight-arc/          # FR24 匯出（前端 fallback，legacy）
+├── ship-data/           # 船舶匯出（前端 fallback，legacy）
+├── rail-data/           # 軌道 bundle（前端 fallback）
+├── ship_ais/            # 原始 AIS 快照（collector 直寫）
+├── flight_opensky/      # OpenSky 空域快照 + archives/
+├── tra_train/           # 台鐵即時位置
+├── youbike/             # YouBike 車位
+├── weather/             # 氣象觀測
+├── temperature/         # 溫度網格
+└── freeway/             # 國道壅塞
+```
+
+**S3 base URL**：`https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com`
+
+## 前端載入策略層級
+
+1. **動態時序**（ship / airspace / trails 類）→ Supabase RPC（`get_xxx_trails`）
+2. **靜態運具參考**（rail 時刻表）→ Supabase PostgREST（`reference.daily_schedules`）
+3. **H3 / 溫度 / 靜態 GeoJSON** → 本地 JSON → S3 fallback
+4. **大型 line/polygon** → PMTiles（S3 `deploy-assets/coverage/*.pmtiles`）
+
+## 飛機資料雙軌（歷史脈絡）
+
+- **方式 A（legacy）**：FR24 官方 API → `fetch-flights.ts` → `public/aviation_data.json` → S3 `flight-arc/`（完整軌跡）
+- **方式 B（現役，2026-03 起）**：`data-collectors flight_opensky.py` → S3 → pulse-api sync → DuckDB → Arrow IPC API → 前端 `airspaceLoader.ts`
+
+方式 B 是空域快照（非完整軌跡）取代 FR24，用於降低成本 + 提高涵蓋。
+
+**Long-form** collector pipeline 與 legacy 指令：`~/.claude/projects/.../memory/_archive/data-pipeline.md`

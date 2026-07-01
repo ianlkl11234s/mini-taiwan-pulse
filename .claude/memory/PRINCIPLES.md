@@ -210,10 +210,21 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 **效能守則**（2026-04-10 bus trails OOM 教訓）：
 
 - refresh function 的 WHERE + ORDER BY **必須有對應索引**（缺索引 = 全表 sort = OOM）
+  - 必須有 `(id_column, collected_at)` 複合索引
+  - 必須有 `(collected_at)` 單欄索引
+  - 常用條件（如 city）考慮 partial index
 - today + yesterday 放**同一個 cron job 循序跑**（禁止拆成兩個獨立 job）
 - 聚合用 `MAX()` 而非 `mode()`（後者需額外 sort）
 - 加 `SET work_mem TO '64MB'` 減少 disk spill
 - cron 排程必須錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
+
+**⚠️ pg_cron target_day 一律用台北時區**（2026-06-17 教訓，7 dataset 全炸）：
+
+- **禁用** `current_date` / `CURRENT_DATE` 在 `cron.schedule` 內
+- **必用** `(now() AT TIME ZONE 'Asia/Taipei')::date`
+- **Why**：Supabase DB session timezone = UTC → `current_date` 是 UTC 日 → 台北 00:00~08:00 那 8 小時 UTC 還停在昨天 → cron 只 refresh 台北昨天 + 前天，**從不 refresh 台北今天** → 前端在早上 8 小時窗口看不到資料
+- **實證**：2026-06-17 07:50 (Taipei) ship / flight / freeway / youbike / disaster / temperature / iot-wra 七 dataset 全空 → 修法 `gis-platform/migrations/208_fix_cron_taipei_tz.sql`
+- **Code review 規則**：`cron.schedule(...)` 內看到 `current_date` → 一律改為 `(now() AT TIME ZONE 'Asia/Taipei')::date`
 
 ## 新增 Layer 強制順序
 

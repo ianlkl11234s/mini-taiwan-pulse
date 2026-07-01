@@ -123,6 +123,54 @@ snapshot 不一致就認為 store 變了 → re-render → 再呼叫 getSnapshot
 
 ---
 
+## 2026-06-12 Prod 首載「toggle 開但圖層沒畫」race（`ccac54b`）
+
+**現象**：Production 首載後開 toggle → 圖層沒出來。本機重現不了。
+
+**根因**：兩條 race：
+1. `mapRef.current` 在 map `load` 事件才設定；production 首載 load 延遲達 **30~47 秒**，這期間所有 visibility/params effect 全 no-op **且永不補發**
+2. load 後 busy 期間 `isStyleLoaded()` guard 同樣把更新丟掉
+
+**對策**：
+- load handler 末尾用 refs **重放 visibility + theme**
+- 兩個 overlay effect **拿掉 `isStyleLoaded()` guard**（改進 PRINCIPLES）
+- prod 加 `?debug` → `window.__map` 永久保留給排障用
+
+**教訓**：
+- **本機（資料秒載）永遠重現不了這種 race** → prod 級驗證要等 map load（30s+）再斷言
+- Access log 看 pmtiles「只有 16384 header 讀取、無後續 range」= 圖層沒真的在畫
+- 已進 PRINCIPLES：**Map effect 禁用 isStyleLoaded() guard**（L454）
+
+**Long-form**：`~/.claude/projects/.../memory/_archive/perf-overhaul-2026-06.md`（含 8 commits 完整清單 + tippecanoe 坑 + Feature/Legend registry 化）
+
+---
+
+## 2026-06-10 效能體檢 8 commits — tippecanoe polygon 坑
+
+**現象**：13k 河道 polygon 走 PMTiles 後低 zoom 變整島實心色塊。
+
+**根因**：`tippecanoe` 預設 `--coalesce-densest-as-needed` 會把 polygon 合併成大色塊；預設也會把 <1px 小 polygon 換成占位方塊。
+
+**對策**：
+- **polygon 轉檔必加 `--no-tiny-polygon-reduction`**
+- `--coalesce-densest-as-needed` **只用於 line**，polygon 禁用
+- GeoJSON source 補 `tolerance: 1.2, buffer: 64`（純 line/fill）
+
+**教訓**：**audit 推測 ≠ 實測**。原本 audit 標的慢 RPC 實測全 <31ms（matched_day 30 / disaster_alerts 22 / disposal_points 31）— 差點白改 ST_AsGeoJSON。改前必實測。
+
+**副產物**（同批 8 commits）：
+- vitest 測試基建首次進來（48 tests）
+- overlayManager diff 式 paint 更新（只 set 有變的 key）
+- 水利四層轉 PMTiles（35.7MB → 17.1MB）
+- `loaderCache` 三種 factory（cachedOnce / cachedByKey / keyedThunkCache），16+2 fetch 套快取
+- `dateNotifier` timeline 日期 debounce（leading+trailing 300ms）
+- `timelineSliceLayer` factory 收斂水文四 hook（-244 行）
+- `layerConsistency.test.ts` ratchet 測試（新 layer 漏接鐵則會 fail）
+
+**Long-form**：`~/.claude/projects/.../memory/_archive/perf-overhaul-2026-06.md`
+
+---
+
 ## 2026-04-07 Supabase 遷移後 ship / flight 全空
 
 **現象**：前端切 `VITE_DATA_SOURCE=supabase` 後 ship + flight trails 都空陣列，
@@ -136,6 +184,37 @@ snapshot 不一致就認為 store 變了 → re-render → 再呼叫 getSnapshot
 - PRINCIPLES：RPC 建立後一律補 GRANT
 
 **Long-form**：[.claude/pitfalls/2026-04-07-empty-ships-flights.md](../pitfalls/2026-04-07-empty-ships-flights.md)
+
+---
+
+## 2026-04-09 gis-platform 整台 DB 掛掉（IO/pool 爆表）
+
+**現象**：Goal 2 一口氣加 8 個 `*/10` pg_cron refresh job 後，Disk IO budget 93% → pool 耗盡 → 57P03 整個 DB 掛掉。
+
+**根因**：新 cron × 舊 MV cron × Micro 規格 三合一：
+- 新加 8 個 `*/10` 高頻 cron
+- **早期遺忘 5 個 `refresh_mv_*_dates`**（ship / flight / youbike_h3 / freeway / disaster_alert）仍在 `*/30` 全掃大表 REFRESH MATERIALIZED VIEW CONCURRENTLY
+- Micro compute 87 Mbps IO baseline 承受不住重疊
+
+**對策**：
+- **升 Small compute**（2GB / 174 Mbps）— 月費 ~$15.04（Pro plan 內含 $10 credit 後實付 ~$5.23/月）
+- Unschedule 5 個廢棄 `refresh_mv_*` cron
+- 新 cron 全部錯開分鐘（見 `data-collectors/docs/sql/cron_throttle.sql`）
+- 禁再建 `*/10` 以下高頻 cron
+
+**教訓**：
+
+1. **舊 MV cron 用底線命名易漏看** — `ORDER BY jobname` 時 `refresh_mv_*`（底線）與 `refresh-*`（連字號）分開排。做 pg_cron 盤點必須人工掃全表。
+2. **Pro plan Spend cap 會擋升級** — Org → Cost Control 若開啟，add-on 加購（含 compute）全被擋。要升級第一步先關 spend cap。Project 頁面不會提示。
+3. **Supabase Usage 頁全 0 ≠ 沒事** — Usage 是 plan quota 層（Egress/MAU/Storage），**硬體層（CPU/IO/RAM）不在這頁**。判斷資源要看 Project Advisor + Reports → Database/API。
+4. **Pre-aggregate pattern 不是免費** — 把「前端慢」轉成「背景聚合慢」，頻率密集 × 機器小 → 總 IO 反而更多。加新 pre-aggregate 必算「每日總 IO 預算」= cron 頻率 × refresh 掃描量。
+
+**相關 commits**：
+- data-collectors `0b50dc2` — `cron_throttle.sql` v1
+- data-collectors `aad8026` — `diagnose_resource.sql`
+- mini-taiwan-pulse `0e18dd0` — CWA SINCE_HOURS 48→24
+
+**Long-form**：`~/.claude/projects/.../memory/_archive/supabase-compute-sizing.md`（Pro plan 計費完整細節）
 
 ---
 
