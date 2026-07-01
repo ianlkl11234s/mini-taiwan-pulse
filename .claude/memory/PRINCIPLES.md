@@ -685,3 +685,72 @@ grep -l "isStyleLoaded\|style.load\|addLayer" .claude/pitfalls/
 - 用戶說「換顏色」「調預設值」→ 回 prompt 問「需要連帶調整 X / Y / Z 一起說嗎？」，等用戶一次寫完
 - commit 訊息標 `tweak(scope):` 不標 `feat()` — 區分微調 vs 新功能
 - 連續微調可改 `git commit --amend`（用戶同意才動）
+
+## Isochrone Mode B 的預設就是 concave_hull(0.5) + buffer + dissolve（2026-07-01）
+
+**規則**：任何「per-station ego_graph → polygon」isochrone pipeline，polygon 生成一律用：
+1. `shapely.concave_hull(mp, ratio=0.5)` — 貼路網形狀（不要 convex 鋸齒、不要 0.3 太細碎）
+2. `hull.buffer(radius_m × 0.15)` — 平滑邊緣 + 覆蓋 hull 沒包到的 edge tail
+3. `hull.simplify(radius_m × 0.10)` — 控 polygon 點數
+4. 對所有 station 的 polygons 用 `unary_union(boundary) → polygonize` 切 fragments
+5. **`dissolve by overlap_count`**：同 count 的所有 fragments `unary_union` 成 MultiPolygon，最終每個 count 值 1 個 feature
+
+**Why**：警察 isochrone 本 session 走完完整 convex → concave(0.3) → concave(0.5)+dissolve 三段演化：
+- convex → 過度膨脹三角形鋸齒
+- concave(0.3) → 26,644 micro fragments / 14MB / 視覺切碎
+- concave(0.5) + buffer + dissolve → **73 features / 5.8MB / 乾淨階梯**
+
+**How to apply**：
+- 新增 Mode B 型 isochrone layer（消防 / 警察 / 醫療步行 / 加油站步行）預設走這個 pipeline
+- reference：`taipei-gis-analytics/pipelines/police_justice/isochrone/10_police_isochrone.py`
+- 前端 paint 用 `["step", ["get", "overlap_count"], color1, 2, color2, ...]` step expression 上色，line 層 opacity ≤ 0.08 避免同心圓錯覺
+
+## 跑 osmnx / pyrosm 前先 find PBF 本機（2026-07-01）
+
+**規則**：任何 isochrone / 路網分析 pipeline 啟動前，先跑：
+```bash
+find ~ -name "*.osm.pbf" -size +50M 2>/dev/null | head -5
+```
+
+有本機 PBF → **直接走 osmium tags-filter + pyrosm**，跳過 Overpass。
+
+**Why**：Overpass 3 個公開 mirror 都不穩（IP ban 24-72h / kumi timeout / fr whitelist 403）。本 session 全台 bbox 觸發 IP ban 後才發現 `taipei-gis-analytics/data/raw/osm/taiwan-latest.osm.pbf` 早就存在 309MB — 直接省 24-72h 等 cooldown。
+
+**How to apply**：
+- SKILL `accessibility-analysis` §5.3 本來就寫 PBF 是救援路徑 — **但實務上應該當 primary path，不是 fallback**
+- 過濾範例：`osmium tags-filter taiwan-latest.osm.pbf w/highway=motorway,trunk,primary,secondary,tertiary,unclassified,motorway_link,... -o taiwan-drive.osm.pbf`
+- pyrosm 讀：`osm = pyrosm.OSM(pbf, bounding_box=bbox); nodes, edges = osm.get_network(network_type="walking")`（⚠ 是 `walking`/`driving`，不是 osmnx 的 `walk`/`drive`）
+
+## 分區跑 isochrone 必留 bbox overlap（2026-07-01）
+
+**規則**：全台範圍太大無法一次跑（graph OOM / Overpass query timeout）時，分區跑的 bbox **必留至少 0.15° (~16km) overlap**，邊界 station 兩區都跑後 dedup。
+
+**Why**：本 session 5 區 bbox 完全不重疊，邊界 station 的 `ego_graph` 只在本區 graph 上跑 → 跨區被切斷 → polygon 在區界斷開。桃園/新竹交界、雲林/嘉義交界明顯可見（BACKLOG PI-1）。
+
+**How to apply**：
+- 5 區 bbox 各邊 +0.15°（原 `120.3,24.1,121.4,24.9` → `120.15,23.95,121.55,25.05`）
+- station 篩選：station 落在 bbox **核心區**（原 bbox）才計入，overlap 帶 station 兩區都跑但 dedup 保留一次
+- pipeline 位置：`taipei-gis-analytics/pipelines/police_justice/isochrone/15_run_by_region.sh`
+
+## Realtime schema 表要驗證 collector 是否真的在跑（2026-07-01）
+
+**規則**：apply `realtime.*` schema migration 後，smoke test 不能只驗 RPC 語法，要**驗表內 row count + max timestamp**。
+
+**Why**：`realtime.prison_population_daily` migration 258 存在，但 `data-collectors/collectors/correctional_daily_snapshot.py` 沒在跑 → 全表只 1 row（2026-05-15，已 1 個多月沒更新）。前端 Monitor PrisonCard 開了顯示空白。
+
+**How to apply**：
+- migration apply 後跑：`psql -c "SELECT count(*), max(observed_date) FROM realtime.xxx;"`
+- 0 rows / max 太舊 → 記 BACKLOG 「collector 補跑」而非上線
+- Front-end panel 加「無資料時的 fallback UI」提示，不留白
+
+## 新增 layer 前一律 grep + find 檢查現有（2026-07-01）
+
+**規則**：規劃新 layer 前，跑：
+```bash
+grep -rn "layerKey" src/ | head -5
+find public -name "*.geojson" | grep -i "topic"
+```
+
+**Why**：本 session 規劃 airport layer 時，plan 寫「建 4 點 airports.geojson」— 用戶提「不是有現成的？」grep 才發現 `public/geo/airports.geojson` 早就存在 Polygon + iata/icao 全欄，`LayerVisibility.airports` + `LAYER_COLORS.airports` + sidebar + `AirportPanel` + `AirportSelector` cameraPreset 全串好。差點重建。
+
+**How to apply**：任何新 layer 骨架 plan 起手 = `grep + find + git log --all -- "*topic*"` 三連查。用戶記憶通常 > 我對 codebase 的直覺。
