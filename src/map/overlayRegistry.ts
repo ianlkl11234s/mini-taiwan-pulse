@@ -5697,21 +5697,21 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           },
         },
         {
+          // line layer 改成「只畫最外緣輪廓」效果：極低 opacity + 細 — 視覺幾乎無，避免內部 ring 同心圓感
           suffix: "line", type: "line" as const,
           paint: (_isDark: boolean, p: Record<string, number | undefined> | undefined) => {
             const modeDrive = p?.[`${id}Mode_drive`] ?? 0;
             const minutesNum = p?.[`${id}Minutes_num`] ?? defaultMinutesNum;
-            const baseOp = (p?.[`${id}Opacity`] ?? 0.5) * 0.6;
             return {
               "line-color": "#7f1d1d",
-              "line-width": 0.3,
+              "line-width": 0.15,
               "line-opacity": [
                 "case",
                 ["all",
                   ["==", ["case", ["==", ["get", "mode"], "drive"], 1, 0], modeDrive],
                   ["==", ["to-number", ["get", "minutes"]], minutesNum],
                 ],
-                baseOp,
+                0.08,  // 從 baseOp*0.6 (~0.3) 降到 0.08
                 0,
               ] as unknown as number,
             };
