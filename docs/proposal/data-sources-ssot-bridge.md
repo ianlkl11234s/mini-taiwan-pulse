@@ -284,7 +284,15 @@ layer_key, dataset_id, rule, confidence, evidence, alt_candidates
 | Step | 內容 | Repo | 狀態 |
 |---|---|---|---|
 | Step 2 | `metadata.data_catalog` table + `public.get_data_catalog_for_layer/by_theme()` RPC + 271-row seed | gis-platform + taipei-gis-analytics | ✅ 完成 2026-07-01（commits: gis-platform `04ec3ad`, tgis `4439e22`）|
-| Step 3 | `scripts/sync_catalog_to_supabase.py` 續 upsert + GitHub Action on catalog change | taipei-gis-analytics | ⬜ 待開始 |
-| Step 4 | 前端「資料來源」icon + 浮窗 UI（讀 RPC）| mini-taiwan-pulse | ⬜ 待開始 |
+| Step 3 | `scripts/sync/sync_catalog_to_supabase.py` hash-based upsert + GitHub Action on catalog `.md` change + SKILL / template 更新 | taipei-gis-analytics | ✅ 完成 2026-07-01（commit `18f1607`）|
+| Step 4 | `DataSourceBrowser` 浮動 icon + `DataSourceModal` 詳細浮窗（讀 RPC，fallback UPSTREAM_REGISTRY）| mini-taiwan-pulse | ✅ 完成 2026-07-01 |
+
+**全 4 Steps 完成。** 用戶剩餘動作：
+
+1. Apply migration 269 到 Supabase：`psql "$SUPABASE_DB_URL" -f gis-platform/migrations/269_metadata_data_catalog.sql`
+2. Seed 271 rows：`psql "$SUPABASE_DB_URL" -f taipei-gis-analytics/scripts/audit/out/data_catalog_seed.sql`
+3. Supabase Dashboard → API → 加 `metadata` 到 Exposed schemas
+4. 加 `SUPABASE_DB_URL` 到 taipei-gis-analytics GitHub secrets（enable sync workflow）
+5. push 一次 pulse → Cloudflare 部署 → 右下角 ℹ 按鈕就有效
 
 Step 2 詳細計畫：[`data-sources-step2-gis-platform.md`](./data-sources-step2-gis-platform.md)
