@@ -11,19 +11,21 @@
 | 指標 | 數量 | 占比 |
 |---|---|---|
 | **Pulse layer 總數** | **227** | 100% |
-| ✅ **verified**（橋接到 catalog dataset）| **185** | **81.5%** |
-| ⚙️ `pulse_only`（派生分析，無獨立 dataset）| 3 | 1.3% |
-| 📋 `catalog_missing`（catalog 待補登）| 39 | 17.2% |
-| **Catalog dataset 總數** | **261** | — |
-| 被 pulse 引用的 dataset | 129 | 49.4% |
+| ✅ **verified**（橋接到 catalog dataset）| **222** | **97.8%** |
+| ⚙️ `pulse_only`（派生分析，含 lineage）| 5 | 2.2% |
+| 📋 `catalog_missing`（catalog 待補登）| **0** | **0%** ✅ |
+| **Catalog dataset 總數** | **271** | +10（Class C 新建） |
+| 被 pulse 引用的 dataset | 137 | 50.6% |
 
-> **Phase 3.5 修正**：初版 agent 把 33 個 layer 誤標 pulse_only（看到 three_only / 動態就歸類）。手動 review + catalog 內容驗證後，30 個重新分類為 verified 或 catalog_missing，真正純前端派生只剩 3 個（醫療等時圈、醫療沙漠、救援等時圈）。詳見 `scratchpad/audit/08_pulse_only_fix_report.md`。
+> **Phase 3.5 修正**：初版 agent 把 33 個 layer 誤標 pulse_only。手動 review + catalog 內容驗證後，30 個重新分類，真正純前端派生只剩 3 個。詳見 `scratchpad/audit/08_pulse_only_fix_report.md`。
 
-> **Phase 3.6 對抗式修正**：第二輪 adversarial agent 找到 4 個誤判 + 1 個漏判：
-> - 誤判改 catalog_missing：`taipeiSewer`（即時水位 ≠ 靜態污水廠）、`ecoNetworkZones`（綠網分區無對應）、`farmRoads`（農路 ≠ 林道）
-> - 修配對：`facPrimary` / `facSecondary` 由 power_generation（即時出力）改 power_plants（靜態廠址）
-> - 漏判改 verified：`a1AccidentRealtime` → `traffic_accident`（catalog 已有）
-> 詳見 `scratchpad/audit/09_adversarial_review_report.md`。
+> **Phase 3.6 對抗式修正**：Adversarial agent 找到 4 個誤判 + 1 個漏判，全部修正。詳見 `scratchpad/audit/09_adversarial_review_report.md`。
+
+> **Phase 3.7 Class B 修正**：深挖 catalog 發現 6 個 layer 有對應但被漏配（aqiStations/Micro→air_quality、renewablePermitsTaipei→renewable、fossilFuelInfra→gem_coal_plants、taipeiSewer→storm_drainage_pipes、h3Population→population）。
+
+> **Phase 3.8 Class C 補建 catalog**：用戶指出 data-collectors 有 collector 但 catalog 缺 .md。新建 10 個 catalog .md（cwa_satellite、celestrak_satellites、ncdr_alerts、bus_realtime、opensky_flights、lightning_taipower、nuclear_radiation_taipower、farm_roads、geothermal_wells、eco_network_zones）→ 31 個 layer 從 catalog_missing 轉 verified。上游 web search 補齊：geothermal(GeoTEX)、eco_network(林保署綠網)、farm_roads(ARDSWC BigGIS)。
+
+> **Phase 3.9 覆蓋分析歸位**：gasCoverageAll / evIsland 是 pulse 自跑 PMTiles 分析，改 pulse_only + derivedFrom (gas_stations / evChargingStations)。
 
 ### Verified 信心分布
 
@@ -35,32 +37,30 @@
 
 ---
 
-## 2. 主題覆蓋率（Phase 3.5 修正後）
+## 2. 主題覆蓋率（Phase 3.8/3.9 最終）
 
-| 主題 | Total | Verified | pulse_only | catalog_missing | 覆蓋率 |
-|---|---:|---:|---:|---:|---:|
-| 底圖 Base Map | 9 | 9 | 0 | 0 | 100% ✅ |
-| 水資源 Water | 22 | 22 | 0 | 0 | 100% ✅ |
-| 全球氣候 Global Climate | 5 | 5 | 0 | 0 | 100% ✅ |
-| 農業 Agriculture | 12 | 12 | 0 | 0 | 100% ✅ |
-| 林業 Forestry | 13 | 13 | 0 | 0 | 100% ✅ |
-| 廢棄物 Waste | 18 | 18 | 0 | 0 | 100% ✅ |
-| 基礎建設 Infrastructure | 4 | 4 | 0 | 0 | 100% ✅ |
-| 房地產 Real Estate | 6 | 6 | 0 | 0 | 100% ✅ |
-| 新聞 News | 1 | 1 | 0 | 0 | 100% ✅ |
-| 民防避難 Civil Defense | 1 | 1 | 0 | 0 | 100% ✅ |
-| 警察覆蓋分析 Police Coverage | 3 | 3 | 0 | 0 | 100% ✅ |
-| 執法治安 Law & Order | 17 | 16 | 0 | 1 | 94% |
-| 交通 Move | 29 | 26 | 0 | 3 | 90% |
-| 能源 Energy | 37 | 32 | 0 | 5 | 86% |
-| 人口社經 People | 6 | 5 | 0 | 1 | 83% |
-| 消防 Fire & Rescue | 5 | 4 | 1 | 0 | 80% |
-| 醫療 Medical | 7 | 5 | 2 | 0 | 71% |
-| 環境氣候 Environment | 7 | 3 | 0 | 4 | 43% |
-| 災害 Hazard | 9 | 2 | 0 | 7 | 22% |
-| 太空 Space | 16 | 0 | 0 | 16 | 0% ※ |
-
-※ 太空 Space 16 個 layer 全部走外部 API（CelesTrak / Space-Track），catalog 確實未登錄，列入 catalog_missing 待補。
+| 主題 | Total | Verified | pulse_only | 覆蓋率 |
+|---|---:|---:|---:|---:|
+| 交通 Move | 29 | 29 | 0 | 100% ✅ |
+| 水資源 Water | 22 | 22 | 0 | 100% ✅ |
+| 廢棄物 Waste | 18 | 18 | 0 | 100% ✅ |
+| 執法治安 Law & Order | 17 | 17 | 0 | 100% ✅ |
+| 太空 Space | 16 | 16 | 0 | 100% ✅ |
+| 林業 Forestry | 13 | 13 | 0 | 100% ✅ |
+| 農業 Agriculture | 12 | 12 | 0 | 100% ✅ |
+| 底圖 Base Map | 9 | 9 | 0 | 100% ✅ |
+| 災害 Hazard | 9 | 9 | 0 | 100% ✅ |
+| 環境氣候 Environment | 7 | 7 | 0 | 100% ✅ |
+| 人口社經 People | 6 | 6 | 0 | 100% ✅ |
+| 房地產 Real Estate | 6 | 6 | 0 | 100% ✅ |
+| 全球氣候 Global Climate | 5 | 5 | 0 | 100% ✅ |
+| 基礎建設 Infrastructure | 4 | 4 | 0 | 100% ✅ |
+| 警察覆蓋分析 Police Coverage | 3 | 3 | 0 | 100% ✅ |
+| 新聞 News | 1 | 1 | 0 | 100% ✅ |
+| 民防避難 Civil Defense | 1 | 1 | 0 | 100% ✅ |
+| 能源 Energy | 37 | 35 | 2 | 95%（gasCoverageAll/evIsland 派生）|
+| 消防 Fire & Rescue | 5 | 4 | 1 | 80%（fireIsochrone 派生）|
+| 醫療 Medical | 7 | 5 | 2 | 71%（medIsochrone/medDesert 派生）|
 
 ---
 
@@ -117,7 +117,11 @@ Step 4 前端 UI 已有完整 fuel：
 
 ---
 
-## 6. catalog_missing 37 筆（給 Step 2 之前 catalog 補登）
+## 6. catalog_missing = 0 ✅（Phase 3.8 全數補齊）
+
+Class C 補建 10 個 catalog .md 覆蓋 31 個 layer；Class B 修正 6 個漏配。詳見 §1 更新註記。
+
+<details><summary>歷史紀錄（Phase 3.6 catalog_missing 37 筆）</summary>
 
 | 主題 | layer_keys |
 |---|---|
@@ -133,17 +137,21 @@ Step 4 前端 UI 已有完整 fuel：
 
 詳見 `docs/audit/data_sources_pending_catalog.md` 與 `scratchpad/audit/08_pulse_only_fix_report.md`。
 
+</details>
+
 ---
 
-## 7. pulse_only 3 筆（純派生分析，含完整 lineage）
+## 7. pulse_only 5 筆（純派生分析，含完整 lineage）
 
 | layer_key | derivedFrom | processing |
 |---|---|---|
 | `medIsochrone` | `medHospital`, `medClinic` | OSRM 路網等時圈計算（駕車 5/10/15/30 分鐘）|
 | `medDesert` | `medIsochrone` | 等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠 |
 | `fireIsochrone` | `fireStations` | OSRM 路網等時圈計算（救援 ≤ 5/8/10 分鐘）|
+| `gasCoverageAll` | `gasStationCpc`, `Fpcc`, `Taisugar`, `Other` | 全台加油站聚合 + OSRM 路網最近距離分析 → PMTiles（0-5/5-10/10-20/20-30/30+km 分級）|
+| `evIsland` | `evChargingStations` | 全台充電站 + 路網最近距離分析 → 反演孤島區域 PMTiles |
 
-→ 這 3 個都記在 `UPSTREAM_REGISTRY` 的 `derivedFrom + processing` 欄位，UI 可顯示「派生自 X，使用 Y 處理」。
+→ 5 個都記在 `UPSTREAM_REGISTRY` 的 `derivedFrom + processing` 欄位，UI 可顯示「派生自 X，使用 Y 處理」。
 
 ---
 

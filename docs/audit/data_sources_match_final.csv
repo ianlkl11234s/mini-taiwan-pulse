@@ -8,11 +8,11 @@ hillshade,hillshade,R4,MED,verified,R4 normalized name exact match. layer_key=hi
 slope,slope,R4,MED,verified,R4 normalized name exact match. layer_key=slope (norm=slope) <=> dataset_id (norm match)
 aspect,aspect,R4,MED,verified,R4 normalized name exact match. layer_key=aspect (norm=aspect) <=> dataset_id (norm match)
 osmRoadDrive,osm_road_drive,R4,MED,verified,R4 normalized name exact match. layer_key=osmRoadDrive (norm=osmroaddrive) <=> dataset_id (norm match)
-flights,,hunt,UNMATCHED,catalog_missing,hunt: 航班 (外部 API)
+flights,opensky_flights,class_c_new_catalog,HIGH,verified,CLASS-C: OpenSky Network flight_opensky.py collector
 ships,ship,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 中文 label 船舶 → ship.md
 rail,rail,R4,MED,verified,R4 normalized name exact match. layer_key=rail (norm=rail) <=> dataset_id (norm match)
-busLive,,hunt,UNMATCHED,catalog_missing,hunt: 公車即時 (RPC)
-busIntercityLive,,hunt,UNMATCHED,catalog_missing,hunt: 公路客運即時 (RPC)
+busLive,bus_realtime,class_c_new_catalog,HIGH,verified,CLASS-C: TDX RealTime bus.py + bus_intercity.py collectors
+busIntercityLive,bus_realtime,class_c_new_catalog,HIGH,verified,CLASS-C: TDX RealTime bus.py + bus_intercity.py collectors
 stationsTHSR,rail_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 高鐵站 → rail_stations.md (THSR subset)
 stationsTRA,rail_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 台鐵站 → rail_stations.md (TRA subset)
 stationsMetro,rail_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 捷運站 → rail_stations.md (Metro subset)
@@ -38,18 +38,18 @@ droneRestrictedZone,drone_restricted_zones,R5+theme+hunt,HIGH,verified,R5 token+
 freewayCongestion,road_congestion,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 國道壅塞 → road_congestion.md
 roadEvents,road_event,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 路況事件 → road_event.md
 popCount,population,manual_fix,MED,verified,FIX: 對應 demographics/population.md
-h3Population,,hunt,UNMATCHED,catalog_missing,hunt: 人流模擬 (RPC)
+h3Population,population,class_b_fix,MED,verified,CLASS-B: population.md 主 pipeline 涵蓋 H3 網格聚合
 indicators,county_indicators_yearly,manual_fix,MED,verified,FIX: 對應 demographics/county_indicators_yearly.md
 socioeconomic,village_comprehensive_extended,manual_fix,LOW,verified,FIX: 對應 demographics/village_comprehensive_extended.md（社經面貌＝村里綜合）
 spatialEconomy,village_comprehensive_extended,manual_fix,LOW,verified,FIX: 同 socioeconomic（空間經濟＝村里綜合衍生）
 youbikeFullness,youbike_baselines,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: YouBike 有車率 → youbike_baselines.md
 weatherStations,weather,R4+hunt,HIGH,verified,R4 normalized name exact match. layer_key=weatherStations (norm=weather) <=> dat | hunt: 氣象站 → weather.md
-cwaCloudImagery,,manual_fix,UNMATCHED,catalog_missing,FIX: CWA 衛星雲圖 dataset 未登錄到 catalog
-cwaRadarImagery,,manual_fix,UNMATCHED,catalog_missing,FIX: CWA 雷達整合回波 dataset 未登錄到 catalog
+cwaCloudImagery,cwa_satellite,class_c_new_catalog,HIGH,verified,CLASS-C: CWA File API cwa_satellite.py collector
+cwaRadarImagery,cwa_satellite,class_c_new_catalog,HIGH,verified,CLASS-C: CWA File API cwa_satellite.py collector
 temperatureWave,weather,manual_fix,MED,verified,FIX: 對應 weather/weather.md（CWA 溫度觀測）
 aqiImagery,air_quality,manual_fix,MED,verified,FIX: 對應 environment/air_quality.md（空氣品質）
-aqiStations,,hunt,UNMATCHED,catalog_missing,hunt: 空氣品質測站 (RPC)
-aqiMicroSensors,,hunt,UNMATCHED,catalog_missing,hunt: LASS 微型感測 (RPC)
+aqiStations,air_quality,class_b_fix,HIGH,verified,CLASS-B: air_quality.md 明確涵蓋 77 站即時觀測 (MOENV AQX_P_432)
+aqiMicroSensors,air_quality,class_b_fix,HIGH,verified,CLASS-B: air_quality.md 明確涵蓋 LASS AirBox ~500 個微感測器
 waterFacilities,water_facilities_osm,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 水利設施 → water_facilities_osm.md
 waterMonitorStations,rain_gauge_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 監測站 → rain_gauge_stations.md
 waterReservoirs,reservoir_storage_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 水庫 → reservoir_storage_wra.md
@@ -59,7 +59,7 @@ riverLevel,river_level_stations_wra,R5+theme,MED,verified,R5 token+theme alignme
 floodSensor,water.uswg_measurements,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 都市淹水感測 → uswg_measurements.md
 iotWraRiver,river_water_level_realtime,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: IoT 河川 → river_water_level_realtime.md
 iotWraStructure,dam_weirs_wra,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: IoT 水工結構 → dam_weirs_wra.md
-taipeiSewer,,adversarial_fix,UNMATCHED,catalog_missing,ADV: 北市下水道即時水位無對應 catalog（storm_drainage_pipes 是靜態管網，非即時水位）
+taipeiSewer,storm_drainage_pipes,class_b_fix,MED,verified,CLASS-B: storm_drainage_pipes.md 含北市 dataset 145829 雨水下水道
 taipeiEvacuate,civil_defense_shelters,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 北市疏散門 → civil_defense_shelters.md
 taipeiPumb,pump_stations_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 北市抽水站 → pump_stations_wra.md
 waterBasins,river_basins_wra,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 流域 → river_basins_wra.md
@@ -72,15 +72,15 @@ groundwater,groundwater_wells,hunt,HIGH,verified,hunt overrode existing (none/UN
 waterFloodExtreme,flood_hazard_wra,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 淹水潛勢 → flood_hazard_wra.md
 floodSensorIsochrone,water.uswg_measurements,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 淹水等時圈 → uswg_measurements.md
 precipRaster,water.precipitation_raster_frames,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 累積雨量柵格 → precipitation_raster.md
-lifelineAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 民生中斷警示 (RPC)
-floodAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 水文防汛警示 (RPC)
-weatherAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 氣象特報警示 (RPC)
-transitAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 交通阻斷警示 (RPC)
-safetyAlerts,,hunt,UNMATCHED,catalog_missing,hunt: 安全環境警示 (RPC)
+lifelineAlerts,ncdr_alerts,class_c_new_catalog,HIGH,verified,CLASS-C: NCDR JSONAtomFeeds via ncdr_alerts.py collector (共用 dataset 分 5 群視圖)
+floodAlerts,ncdr_alerts,class_c_new_catalog,HIGH,verified,CLASS-C: NCDR JSONAtomFeeds via ncdr_alerts.py collector (共用 dataset 分 5 群視圖)
+weatherAlerts,ncdr_alerts,class_c_new_catalog,HIGH,verified,CLASS-C: NCDR JSONAtomFeeds via ncdr_alerts.py collector (共用 dataset 分 5 群視圖)
+transitAlerts,ncdr_alerts,class_c_new_catalog,HIGH,verified,CLASS-C: NCDR JSONAtomFeeds via ncdr_alerts.py collector (共用 dataset 分 5 群視圖)
+safetyAlerts,ncdr_alerts,class_c_new_catalog,HIGH,verified,CLASS-C: NCDR JSONAtomFeeds via ncdr_alerts.py collector (共用 dataset 分 5 群視圖)
 earthquakes,earthquake,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 地震 → earthquake.md
 activeFaults,earthquake,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 活動斷層 → earthquake.md (subset)
-lightning,,hunt,UNMATCHED,catalog_missing,hunt: 落雷 (無靜態對應)
-nuclearRadiation,,hunt,UNMATCHED,catalog_missing,hunt: 核安輻射 (外部 API)
+lightning,lightning_taipower,class_c_new_catalog,HIGH,verified,CLASS-C: 台電落雷 CSV lightning_events.py collector
+nuclearRadiation,nuclear_radiation_taipower,class_c_new_catalog,HIGH,verified,CLASS-C: 台電核安輻射 CSV nuclear_radiation.py collector
 earthquakesGlobal,usgs_earthquakes_global,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 全球地震 → usgs_earthquakes_global.md
 typhoonTracks,jma_typhoon_positions,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 颱風軌跡 → jma_typhoon_positions.md
 windField,noaa_gfs_wind_forecast,manual_fix,MED,verified,FIX: 對應 global_climate/noaa_gfs_wind_forecast.md
@@ -105,11 +105,11 @@ agriWholesaleMarket,agri_wholesale_market_companies,R0+hunt,HIGH,verified,R0 fro
 agriculture,ftw_fields,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 農田範圍 → ftw_fields.md
 agriLeisureFarmZones,leisure_farm_zones_2025,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 休閒農業區 → leisure_farm_zones_2025.md
 agriRuralRegen,rural_regen_communities_2025,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 農村再生社區 → rural_regen_communities_2025.md
-ecoNetworkZones,,adversarial_fix,UNMATCHED,catalog_missing,ADV: 國土綠網分區無對應 catalog dataset
+ecoNetworkZones,eco_network_zones,class_c_new_catalog,HIGH,verified,CLASS-C: 農業部林業及自然保育署 國土生態綠網 45 條軸帶
 agriSoil,soil_map_national,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 土壤分類 → soil_map_national.md
 agriSoilFertility,soil_fertility_grid_250m,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 土壤肥力 → soil_fertility_grid_250m.md
 agriCropSuitability,crop_suitability_132,R5+theme+hunt,HIGH,verified,R5 token+theme alignment. dataset theme=agriculture | hunt: 作物適栽 → crop_suitability_132.md
-farmRoads,,adversarial_fix,UNMATCHED,catalog_missing,ADV: 農路無對應 catalog（forest_roads 是林道，主責機關不同）
+farmRoads,farm_roads,class_c_new_catalog,HIGH,verified,CLASS-C: ARDSWC 農路圖 data.gov.tw 71255 / data.moa a98
 forestCompartments,national_forest_compartments,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=natio | hunt: 林班 → national_forest_compartments.md
 forestReserve,forest_reserve,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=fores | hunt: 保安林 → forest_reserve.md
 forestRecreation,forest_recreation_areas,R0+hunt,HIGH,verified,R0 frontend_target points to pulse file directly. frontend_target basename=fores | hunt: 森林遊樂區 → forest_recreation_areas.md
@@ -155,8 +155,8 @@ powerPoles,power_poles,R4+hunt,HIGH,verified,R4 normalized name exact match. lay
 offshoreWindZones,offshore_wind_zones,R4+hunt,HIGH,verified,R4 normalized name exact match. layer_key=offshoreWindZones (norm=offshorewindzo | hunt: 離岸風電區 → offshore_wind_zones.md
 osmWindTurbines,osm_power,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 風機 → osm_power.md
 windPlan,renewable,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 風電場規劃 → renewable.md
-geothermalWells,,hunt,UNMATCHED,catalog_missing,hunt: 地熱井 (無對應)
-renewablePermitsTaipei,,hunt,UNMATCHED,catalog_missing,hunt: 北市再生能源許可 (無對應)
+geothermalWells,geothermal_wells,class_c_new_catalog,HIGH,verified,CLASS-C: 經濟部地調所 GeoTEX 地熱探勘平臺
+renewablePermitsTaipei,renewable,class_b_fix,HIGH,verified,CLASS-B: renewable.md 明確涵蓋(b) 臺北市再生能源設置 438 筆
 evChargingStations,ev_charging_stations,R4+hunt,HIGH,verified,R4 normalized name exact match. layer_key=evChargingStations (norm=evcharging) < | hunt: 電動車充電站 → ev_charging.md
 gasStationCpc,gas_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 加油站 CPC → gas_stations.md
 gasStationFpcc,gas_stations,hunt,MED,verified,hunt overrode existing (none/UNMATCHED). evidence: 加油站台塑 → gas_stations.md
@@ -172,12 +172,12 @@ industrialRefinery,osm_refineries,hunt,HIGH,verified,hunt overrode existing (non
 industrialStorageTank,osm_storage_tanks_oil_gas,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 油氣儲槽 → osm_storage_tanks_oil_gas.md
 industrialPowerPlant,osm_fossil_power_plants,R5+theme,MED,verified,R5 token+theme alignment. dataset theme=energy
 coalTerminal,gem_coal_terminals,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 煤炭碼頭 → gem_coal_terminals.md
-fossilFuelInfra,,hunt,UNMATCHED,catalog_missing,hunt: 化石燃料基礎設施 (組合類型)
-gasCoverageAll,,hunt,UNMATCHED,catalog_missing,hunt: 瓦斯涵蓋全體 (無對應)
+fossilFuelInfra,gem_coal_plants,class_b_fix,MED,verified,CLASS-B: energy/gem_* 系列涵蓋化石燃料基礎設施（coal_plants 為代表）
+gasCoverageAll,,coverage_derived,UNMATCHED,pulse_only,DERIVED: pulse-derived coverage analysis (PMTiles from gas stations + road network)
 gasCoverageCpc,gas_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 瓦斯涵蓋 CPC → gas_stations.md
 gasCoverageFpcc,gas_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 瓦斯涵蓋台塑 → gas_stations.md
 gasCoverageTaisugar,gas_stations,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 瓦斯涵蓋台糖 → gas_stations.md
-evIsland,,hunt,UNMATCHED,catalog_missing,hunt: 電動車島 (無對應)
+evIsland,,coverage_derived,UNMATCHED,pulse_only,DERIVED: pulse-derived island analysis (PMTiles from EV chargers + road network)
 submarineCables,submarine_cable,hunt,HIGH,verified,hunt overrode existing (none/UNMATCHED). evidence: 海底光纜 → submarine_cable.md
 landingStations,submarine_cable,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 登陸站 → submarine_cable.md (subset)
 schools,layer2_polygon,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 學校 POI → layer2_polygon.md
@@ -188,22 +188,22 @@ realEstateSaleGrid,real_estate,hunt,LOW,verified,hunt overrode existing (none/UN
 realEstateSalePoint,real_estate,manual_fix,HIGH,verified,FIX: real_estate dataset 涵蓋買賣成交點
 realEstatePresaleGrid,real_estate,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 不動產預售色階 → real_estate.md
 realEstatePresalePoint,real_estate,manual_fix,HIGH,verified,FIX: real_estate dataset 涵蓋預售成交點
-satellitesTaiwan,,manual_fix,UNMATCHED,catalog_missing,FIX: CelesTrak/Space-Track 外部 API，catalog 未登錄衛星追蹤源
-satellitesYaogan,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesJilin,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesGaofen,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesTJS,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesBeidou,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesShiyan,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesUSA,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesJapan,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesRussia,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesIndia,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesKorea,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesFrance,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesGermany,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesItaly,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
-satellitesIsrael,,manual_fix,UNMATCHED,catalog_missing,FIX: 同上
+satellitesTaiwan,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesYaogan,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesJilin,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesGaofen,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesTJS,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesBeidou,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesShiyan,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesUSA,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesJapan,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesRussia,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesIndia,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesKorea,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesFrance,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesGermany,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesItaly,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
+satellitesIsrael,celestrak_satellites,class_c_new_catalog,HIGH,verified,CLASS-C: Space-Track/CelesTrak satellite.py + satellite_passes_daily.py collectors
 newsEvents,layer2_polygon,hunt,LOW,verified,hunt overrode existing (none/UNMATCHED). evidence: 新聞事件 → layer2_polygon.md
 policeStation,police_stations,R4,MED,verified,R4 normalized name exact match. layer_key=policeStation (norm=police) <=> dataset_id (norm match)
 womenChildWarning,women_child_warning,R4,MED,verified,R4 normalized name exact match. layer_key=womenChildWarning (norm=womenchildwarning) <=> dataset_id (norm match)

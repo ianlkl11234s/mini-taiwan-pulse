@@ -40,6 +40,14 @@ DERIVATION = {
         "derivedFrom": ["fireStations"],
         "processing": "OSRM 路網等時圈計算（救援抵達 ≤ 5/8/10 分鐘）— 從消防分隊出發",
     },
+    "gasCoverageAll": {
+        "derivedFrom": ["gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther"],
+        "processing": "全台加油站聚合 + OSRM 路網最近距離分析 → PMTiles（30km 覆蓋分級：0-5/5-10/10-20/20-30/30km+）",
+    },
+    "evIsland": {
+        "derivedFrom": ["evChargingStations"],
+        "processing": "全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles",
+    },
 }
 
 # Group catalogs assigned to same layer
