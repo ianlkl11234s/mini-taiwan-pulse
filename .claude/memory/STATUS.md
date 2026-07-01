@@ -1,152 +1,81 @@
 # Status
 
-**最後更新**：2026-06-27 晚（PR #38 cwa-imagery cache + timeline rangeDays SSOT + dayPrefetch helper + 4 輪 bugfix 已 merged）
-**Master head**：`6cef521` 同步 origin/master ✅
-**gis-platform main head**：已 sync（migration 242 已 merged 為 c58c335）
-**Open branches**：無
+**最後更新**：2026-07-01 晚（警政司法 17 layer + 警察 isochrone × overlap_count 全台 5 區跑完 → dissolve by count + 分區斷裂記 PI-1 收尾）
+**Master head**：`0eb4137` 同步 origin/master（memory wrap-up 8 commits 已 push；本次 STATUS 是第 9 個）
+**gis-platform head**：已 sync（migrations 262-264 3 個 RPC 已 applied）
+**Open branches**：`feat/aviation-drone-airspace-layers` / `feat/energy-v2-C` / `feat/real-estate-layers` / `staging`（本地 base_map + 3 raster BM-1~4 待整合）
 
-## 2026-06-27 本 session 完成
+## 2026-06-29~07-01 本 session 完成（跨 3 天大工程）
 
-**用戶定向**：base_map 5 dataset / 6 PMTiles 上線 → CWA 雷達 cache + 1~7d 預載 → 推廣到 lightning/nuclear → Supabase 被打掛 emergency fix → UX bug 連環修。
+**用戶定向**：警政司法民防體系 22 dataset 完整上前端 → 3 realtime 進 Monitor / popup → 警察轄區蝶圖（isochrone × 3 層級） → 重疊越多顏色越深 → 收尾整理 git。
 
-### 完成清單（兩個 PR 都已 merged）
+### A. 警政司法民防 17 GIS layer + 3 realtime 全上線（21 code commits，已 squash 合到 master）
 
-| 段 | 內容 | PR / commits |
+| 段 | 內容 | 對應 commit（示意） |
 |---|---|---|
-| **base_map 6 PMTiles 接線** | county / township / village 邊界 + contour_25k (10m) / contour_dtm20 (20m) + osm_road_drive 55 萬 edges；S3 子前綴 `deploy-assets/base_map/` 鏡像結構 + nginx + 7 處接線 + 6 popup panel + OsmRoadDriveLegend | **PR [#37](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/37)** (squash) `3cbb2c0` + `8775bea` |
-| **cwa-imagery per-day LRU cache** | 切日跳回原日 0 RPC，layer 關閉只 hide handle 不 dispose cache | PR [#38](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/38) `ccd74a7` |
-| **TimelineControls 1~7d 全選項** | 原本只有 1/3/7，補 2/4/5/6 | `f314a9c` |
-| **timeStore rangeDays + windowDateKeys SSOT** | 廢掉每 layer 各自 slider 的 fragmented 設計，整站共用 | `e6d273e` |
-| **dayPrefetch helper** | `src/lib/dayPrefetch.ts` — `prefetchWindow / subscribePrefetchWindow`，任何 `(dateKey) => Promise<T>` loader 一行接，已套 lightning / nuclear | 同上 |
-| **fix 1: window-only + silent prefetch** | 鄰近 ±N 改成嚴格只動 timeline 視窗；lightning/nuclear/cwa 分 `fetchXxxDay`（foreground）+ `prefetchXxxDay`（silent 不灌 LOADING panel），cache size 3→8 配合 rangeDays 7 | `c659812` |
-| **fix 2: rangeDays 走 useEffect sync** | setRangeDays 不再做副作用 + getWindowDateKeys 回傳 .slice() 防 mutate | `cb3fdcd` |
-| **fix 3: concurrency cap + debounce** | dayPrefetch 全域 `MAX_CONCURRENT_PREFETCH=2` + 500ms debounce；cwa 自己串行 + 600ms debounce + prefetchSeq 防 race（Supabase 之前被打到 unhealthy） | `c93a6e8` |
-| **fix 4: 軟隱藏取代 removeLayer** | 雷達關閉仍顯示 bug → reconcile visible=false 改用 `setVisible(false)`（Mapbox `removeLayer + removeSource` 在 in-flight image source 期間有時不生效） | `4c40a12` |
+| **Phase A 資料 ready** | 3 個 Supabase RPC migration（airport_hourly_pax / a1_by_bbox / prison_population_window）+ 3 個 PMTiles（civil_defense/crime_area/court_jurisdictions）+ S3 sync 40 檔 172MiB → `deploy-assets/police_justice/` + nginx `/police_justice/` route + pull-deploy-assets 加子前綴 | migrations 262-264 |
+| **Phase B 前端骨架** | LayerVisibility +17 keys / LAYER_COLORS +17 / FeatureInfo.layerType +17 / THEMES 新增 2 主題（執法治安 4 子群 / 民防避難 1 子群） / ICONS +6 lucide + reuse / PANEL_REGISTRY +17 / HEADER_LABELS +17 | — |
+| **Phase B 17 layer 接線** | overlayRegistry 17 entries（paint 讀 params + rebuildOnParamChange）/ useMapInteraction GIS_LAYERS +17 / useTransportParams state+deps+case +17 / policeJusticePanels.tsx 17 panel（共用 Header + POLICE/CORRECTIONAL/COURT/PROS/SPEED_CAM 中英對照表） | — |
+| **階層分級視覺** | 警察 6 階（headquarters/police_dept/precinct/substation/specialized/security/other，radius factor 1.7→0.6，色深淺）/ 法院 6 階 / 檢察署 3 階 / 矯正 5 類 / 廉政 central-local / 海巡 patrol/pier / 調查局 name 末字（處 vs 站） | — |
+| **測速照相 subtype × limit_kph** | 4 subtype 分色 + 限速越低圈越大（≤30 學校 1.5× → ≥100 國道 0.7×） | — |
+| **A1 realtime 30 天滾動** | rpc_a1_by_bbox loader + wallClock 60s 重算 age_hours + 3 桶漣漪（<24h 大圈鮮紅雙層 halo / <168h 中 / <720h 小） | — |
+| **累計時間 chip** | crime/theft/accidentTaipei/trafficAccidentYearly 4 popup 都加紅色 chip 標「民國 104~115 / 2014~2024 / 2025 / 2019~ 累計」避免誤認即時 | — |
+| **AirportPanel 擴 24h pax** | 既有 airports.geojson layer（Polygon 4 機場 iata）內部擴：拉 rpc_airport_hourly_pax(iata,24) → TimeseriesSparkline 顯示 in/out 兩折線 | — |
+| **MonitorPanel 2 卡** | PrisonCard（30min 拉全國在監 KPI，⚠ collector 只 1 row）/ AirportPaxCard（4 機場 tab + 5min 拉 24h pax） | — |
+| **PoliceJusticeLegend + 8 mini-legend** | overlap_count 色階 + 警察階層 / 測速限速 / A1 30 天 / 法院階層 / 檢察階層 / 矯正 / 調查局 / 廉政 / 海巡 visibility-driven mini-legend | — |
+| **UX 四鐵則齊活** | 透明度 slider（17 layer + 3 iso layer）/ 圖例（`layerConsistency` 全綠）/ click popup（17 panel）/ select（原生 dropdown for options ≥ 4） | — |
 
-### 關鍵新檔 / 概念
+### B. 警察 isochrone × overlap_count × 3 層級全台 5 區
 
-- **`src/state/timeStore.ts`** 加 `getRangeDays / setRangeDays / subscribeRangeDays` + `getWindowDateKeys / setWindowDateKeys / subscribeWindowDateKeys`（後者為 prefetch 視窗 SSOT，由 useTimeline 寫入）
-- **`src/lib/dayPrefetch.ts`** 全新檔 — 全域 prefetch queue（concurrency cap 2 + 500ms debounce）+ `subscribePrefetchWindow(fetcher, tag)` 一行訂閱
-- **Loader pattern 分 raw + wrapped + prefetch**（lightning / nuclear 已套；其他 layer 未來照樣）：
-  - `fetchXxxDayRaw` 純 RPC，無 withLoading
-  - `cachedByKey` 上 raw（共用 cache）
-  - `export fetchXxxDay = (key) => withLoading(...id, label, cached(key))` foreground 顯示 LOADING tracker
-  - `export prefetchXxxDay = (key) => cached(key)` silent，與 foreground dedup 同一 promise
+**Pipeline 4 檔**（`taipei-gis-analytics/pipelines/police_justice/isochrone/`）：
 
-### 1 個重要踩坑（教訓）
+| 檔 | 職責 |
+|---|---|
+| `10_police_isochrone.py` | 主 script：`pyrosm.OSM(pbf, bbox).get_network(network_type=walking/driving)` → osmnx `simplify_graph` 加速 2x → per-station `nx.ego_graph(radius=r_m)` → `shapely.concave_hull(mp, ratio=0.5)` + `buffer(0.15×r_deg)` + `simplify(0.10×r_deg)` → `polygonize(unary_union(boundaries))` + STRtree.covers 計 overlap_count → **dissolve by overlap_count**（每 count 一 MultiPolygon） |
+| `15_run_by_region.sh` | 5 區（north / north2 / central / south / east）獨立 process 跑 `--all` 12 變體，`mv *.geojson` 到 `by_region/{name}/` |
+| `16_merge_regions.py` | 5 區同變體 GeoJSON 合 1 個到頂層 |
+| `20_merge_combined.py` | 同 tier 4 變體（walk 5/10 + drive 5/10）合成 1 個 combined GeoJSON（每 feature 帶 `tier + mode + minutes + overlap_count`） |
 
-**rangeDays=7 × 多 layer × 無 concurrency cap → Supabase pooler 被打掛 unhealthy**：
-- CWA radar 單日 ~32MB base64，rangeDays=7 + cloud + radar + lightning + nuclear = 28 個並發 RPC
-- 用戶看到 LOADING panel 滿屏 + 真實打掉 Supabase
-- 修法：全域 queue cap=2 + cwa 自己串行 cap=1 + debounce 500~600ms
-- **教訓**：任何「視窗預載」必須先做 concurrency budget 才能加
+**前端 3 layer**（`overlayRegistry.ts`）：
 
-### 還沒做但 helper 已就緒（下次 session 候補）
+- `policeIsoSubstation` / `policeIsoPrecinct` / `policeIsoCityDept`
+- 每 layer 鎖 `combined.pmtiles`，paint 用 `case fill-opacity` 讀 `${id}Mode_drive` + `${id}Minutes_num` params 互斥顯示（不換 sourceUrl）
+- fill-color: overlap_count `step` 色階（1 站 淺粉 #fee2e2 → 20+ 站 深紫紅 #7f1d1d）
+- line-opacity: 0.08（e824165 commit：從 0.3 降下，消除 dissolve 後多重 ring 產生的同心圓錯覺）
 
-- **precipRaster** hook-level cache 重構（同 cwa-imagery 之前坑：fetchPrecipRasterFrames revoke object URLs）
-- **8 個 helper 直套**：newsEvents / roadEvents / disasterAlerts / wasteSchedule / reservoirStatus / floodSensor / iotWraStructure / freeway
-- **4 個走 timelineSliceLayer factory**：rainGauge / riverLevel / groundwater / iotWraRiver（改 factory 一次到位）
+**規模**：3 tier × 4 變體 = 12 GeoJSON → 3 combined PMTiles：
+- substation: 11 MB / 334 features / 全台 1504 站
+- precinct: 3.0 MB / 168 features / 全台 163 站
+- police_dept: 278 KB / 72 features / 全台 32 站
 
-### 最終驗證
+### C. 收尾整理
 
-- `npx tsc -b` 0 error（每個 commit 都過）
-- `pnpm test` 155/155（layerConsistency + featureInfoRegistry 全綠）
-- CI（test + review）兩個 PR 都 SUCCESS
+- master 完全 sync origin/master
+- 未 tracked 舊實驗 climate 檔（`useClimateParticleLayer.ts` + `climateParticleCustomLayer.ts`）已刪（被 `a8d28e7` hybrid globe drape 取代）
+- 2 個 code commit + 8 個 memory commit（本 wrap-up）
+
+## 3 天累計 code 改動概覽
+
+- **taipei-gis-analytics**：新增 `pipelines/police_justice/isochrone/` 4 檔 + `data/processed/police_justice/isochrone/` 12 + 3 combined GeoJSON + 3 combined PMTiles + `data/raw/osm/filtered/` 2 個 osmium 過濾 PBF
+- **gis-platform**：3 個 migration（262-264）已 applied
+- **mini-taiwan-pulse**：Types / LayerCatalog / 17 panels / overlayRegistry / useMapInteraction / useTransportParams / LegendPanel / MonitorPanel + 2 cards / 新 hook（useA1AccidentRealtimeLayer / usePoliceIsochroneSourceSwap—已刪） / policeJusticePanels（含 3 iso panel）
+
+## 待辦（收尾時已列 BACKLOG / TaskCreate）
+
+- **BACKLOG PI-1**：警察 isochrone 5 區邊界斷裂 3 修法（A bbox +0.15° overlap 60-90min 重跑 / B raster heatmap 1-2 天 / C 補丁 pass）
+- **TaskCreate #15**：`⚠️ data-collectors collector 補跑 prison_population_daily`（realtime 只 1 row / 2026-05-15）— 屬 data-collectors repo
+- **isochrone S3 sync + production deploy**：等 PI-1 修完再上（避免上線後又要重推 S3）
+
+## 最終驗證
+
+- `npx tsc -b` ✅ 0 error
+- `pnpm test` ✅ 159/159（包含用戶新加的 4 tests）
+- browser 視覺驗證：17 layer + 3 iso layer + AirportPanel 折線 + Monitor 2 卡 全都 renderable
+
+## 上一個 session（2026-06-27）
+
+見 git log — cwa-imagery per-day LRU cache + timeline rangeDays SSOT + dayPrefetch helper + 4 輪 bugfix。詳前一版 STATUS 已 memory commit `20399a4`。
 
 ---
 
-## 2026-06-21~22 上一 session 完成
-
-**用戶定向**：能源 v2 化石燃料 13 layer sidebar toggle（先做）→ 加油站視覺化討論 → OSRM/可達性分析（後段大宗）→ SKILL 化整理。
-
-### 完成清單
-
-| 段 | 內容 | Commit |
-|---|---|---|
-| **化石燃料 14 layer** 3 段 SOP | types + loader + hook / overlay + params + sidebar / popup + legend + interaction + test | efa7a16 → 2631812 → 494221e |
-| **配色 / 互動微調** 5 commits | 9 色 palette → 10 色 → 加油站藍綠系 → 加油站放大 + outline + industrial halo | 27c4595 → e27cddd → 1ef5bdf → bbdbb93 |
-| **facPrimary 白光暈** | 主要電廠 halo 從燃料色改 #ffffff + 半徑放大 25% | 872b21b |
-| **345 kV 桃紫嘗試 → revert** | #1AB6D9 → #D707F2 試了不喜歡換回 | b084990 → 15e5546 |
-| **加油站 30km coverage** 4 段 | 雲林 POC hex → PMTiles LineString → EV 同色 → 全台 motorway-tertiary | 702e382 → 8b0faf2 → 3376314 → afbf15d |
-| **BACKLOG +CV 系列** | 9 條未來路線（CV-1~9，含 B 版加密 / osmium 預過濾 / OSRM 雲端 / pgRouting）| bd25af8 |
-| **accessibility-analysis SKILL 落地** | 主檔 10 章 + scripts/pipeline-template.py + 4 個 references（pitfalls / mode-comparison / mirror-fallback / troubleshooting）+ service-coverage alias | 02a6bd8 |
-| **multi-bucket + whitelist 修正** | 雙品牌 73 站歸多 bucket（台糖 13→86）+ whitelist 過 374 false positive（其他 665→292）| 7f8f005 |
-| **SKILL 兩大鐵則升級** | §⚠️ multi-bucket / whitelist + §9 ★ MUST checklist | 17c148b |
-| **SKILL 加 troubleshooting.md** | 卡了怎麼辦：跑前 30 秒 + 卡時 5 分鐘 + 寫法守則 + 本 session 卡點實錄 | df3f72a |
-
-### Memory 8 個 atomic commits
-
-ea8de59 PRINCIPLES / 350abf7 INCIDENTS / f84e911 GLOSSARY / 15616ee DATA_SCOPE / 2ba6b8d PLAYBOOKS / d1f4f70 BACKLOG / 2be6637 REFLECTIONS / 本 commit STATUS
-
-### 最終驗證
-
-- `npx tsc -b` 0 error
-- `pnpm test --run` 155/155 pass 含 layerConsistency ratchet + featureInfoRegistry
-- 加油站 30km coverage RPC `get_fossil_fuel_layers()` EXPLAIN 86ms
-- 全台 osmnx motorway-tertiary 75,622 edges / 5 PMTiles 各 ~5 MB 跑 10 min
-
-### 1 個重要踩坑（已收 PRINCIPLES + INCIDENTS）
-
-**Overpass mirror 連環卡 8 小時 + OVERPASS_URL 拼錯 + CUSTOM_FILTER 沒對齊**（INCIDENTS 2026-06-22）：
-- osmnx subdivide 32-way 任一卡死全卡，無 socket timeout → 8 小時 CPU=0% 等
-- OVERPASS_URL 設 `/api/interpreter` osmnx 自動拼變雙拼 → 必須 base URL
-- B 版 +unclassified 後忘記改回 A 版 filter，retry 又卡
-
-**新規則**（PRINCIPLES 已寫）：
-- 跑前 30 秒健康檢查（curl mirror + df + grep config）
-- CPU=0% + alive 用 `sample <PID>` 看 stack 不要被動等
-- 超過 30 min 無進度 → kill 不要等
-- multi-bucket 用 Python list / whitelist 不用 NOT IN
-
-### 留底（後續再評）
-
-- 🟡 **CV-8 第 6 layer**「私營 最近距離」：`taiwan_other_nearest.pmtiles` 已備（292 站 whitelist），前端尚未接 toggle，~30 min 工程
-- 🟡 **CV-2 B 版加密 +unclassified**：磁碟 25 GB free 還不夠（建議 ≥ 50 GB），osmium 已裝好（CV-3 路線可走）
-- 🟡 **fossil fuel 14 layer 部分 polygon 在 zoom 低看不到**：已加 halo 補救 industrial 3 layer，但儲槽仍小
-- 🟢 **18 + 8 = 26 commits 待 push + PR + merge** 本 session 全集中 master
-
-### 下個 session 入口
-
-```
-本地 master 26 commits ahead origin（18 feature + 8 memory），未 push。
-
-候選下步：
-1. 直接 push + PR + merge 本 session 工作
-2. 動 CV-8 — 第 6 個 layer「私營 最近距離」接前端（30 min，sourceUrl + paint + panel + legend）
-3. 動 CV-2 — B 版加 unclassified（先清磁碟到 50 GB，走 osmium → pyrosm 路線）
-4. 切其他主題：能源 Phase C 高壓電網 / Phase 8.6 PowerCard KPI / Places audit Critical spot-check
-
-「我要做 X」→ 進 BACKLOG 找對應條目
-「30km 路網 / 最近站 / 服務沙漠」→ invoke accessibility-analysis SKILL
-「服務覆蓋 / 補點策略」→ invoke service-coverage SKILL（同 SKILL 商業視角）
-```
-
----
-
-## 2026-06-20 早 Energy Phase 8.2 — SSOT 24h RPC + drill-down + 變電所拆層（PR gis-platform #15 + mini-taiwan-pulse #27 merged）
-
-**用戶定向**：接上輪 PR #26（Phase 8.1 + 6-layer 重構 + Three.js bloom）+ e625fb8 fmtMW fix，
-延 brief 三件事 C → A → B 全跑 + 加碼變電所拆兩層。
-
-### 完成清單
-
-| 段 | 內容 | PR |
-|---|---|---|
-| **Backend** migration 238 | `cross_refs.realtime_facility_alias` schema + 13-row 對應表 + 改寫 `get_ssot_facility_output_24h()` 雙路線 UNION → **14 → 23 廠**（14 台電 + 6 離岸 + 3 離島） | gis-platform [#15](https://github.com/ianlkl11234s/gis-platform/pull/15) |
-| migration 239 | `get_ssot_facility_units(facility_id)` 機組 drill-down RPC | 同上 |
-| migration 240 | `all_power_plants_v` 改 SSOT alias（保 backward compat）+ DROP 2 個無 caller 的 legacy RPC | 同上 |
-| **Frontend** PowerCard/Beam | loader 切 SSOT RPC、加 `facility_id` 欄；hit-test FC 改 `source_table='energy.power_facilities'`；comments 23 廠 | mini-taiwan-pulse [#27](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/27) |
-| 機組 drill-down | `UnitDrillDownBlock` lazy fetch — popup 點廠列機組 (unit_name / cap / net_gen / util_rate%) 含負載率配色 | 同上 |
-| 變電所拆兩層 | 從 `osmSubstations` 單層 785 → `osmSubstationsEhv` 38（含 halo）+ `osmSubstations` 747；overlayRegistry / Legend / sidebar / params slider / interaction 9 檔同步；命名對齊「發電廠（XXX）」 | 同上 |
-| **Audit** Task C | Places API (New) v2：581 廠 Pass 62 / Review 31 / Critical 488（多 GEM 通用名 false positive）。v1 Geocoding fallback 已棄。$20.99 | 同上 |
-
----
-
-## 過往里程碑（保留摘要）
-
-- **2026-06-19 晚** Energy v2 Phase A + B autonomous run（feat/energy-v2-A 5 commits，已 PR merged 為 #28）
-- **2026-06-18~19 早** Energy MVP v1.0~v1.3.5（PR #23 + #10 + #24）4 layer + popup + sparkline + timeline scrub + 6 sliders
-- **2026-06-18** Design System Phase 0-6 上線（PR #22，9 commits）— `src/styles/designTokens.ts` SSOT
-- **2026-06-18** Monitor / News 效能優化（PR #21，6 commits）— React.memo + useWallClock + fetch 30s→60s
-
-更早完整記錄見 git log + .claude/pitfalls/。
+_wrap-up 8 commits_：`5aa244f 098ffc5 4a7dfa4 511be4c 67dd4e4 addecb4 0eb4137` + 本檔
