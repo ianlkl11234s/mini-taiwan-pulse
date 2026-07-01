@@ -26,26 +26,31 @@ with (SCRATCH / "catalog_datasets.csv").open() as f:
 with (SCRATCH / "pulse_layers.csv").open() as f:
     pulse = {r["layer_key"]: r for r in csv.DictReader(f)}
 
-# Derivation map: pulse_only layers — what they're derived from + how
+# Derivation map: pulse_only layers — full lineage (layers / datasets / type / processing)
 DERIVATION = {
     "medIsochrone": {
-        "derivedFrom": ["medHospital", "medClinic"],
+        "derivedFromLayers": ["medHospital", "medClinic"],
+        "derivationType": "isochrone",
         "processing": "OSRM 路網等時圈計算（駕車時間 5/10/15/30 分鐘）— 從醫療 POI 出發沿實際路網擴散",
     },
     "medDesert": {
-        "derivedFrom": ["medIsochrone"],
+        "derivedFromLayers": ["medIsochrone"],
+        "derivationType": "inverse",
         "processing": "等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠",
     },
     "fireIsochrone": {
-        "derivedFrom": ["fireStations"],
+        "derivedFromLayers": ["fireStations"],
+        "derivationType": "isochrone",
         "processing": "OSRM 路網等時圈計算（救援抵達 ≤ 5/8/10 分鐘）— 從消防分隊出發",
     },
     "gasCoverageAll": {
-        "derivedFrom": ["gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther"],
+        "derivedFromLayers": ["gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther"],
+        "derivationType": "coverage",
         "processing": "全台加油站聚合 + OSRM 路網最近距離分析 → PMTiles（30km 覆蓋分級：0-5/5-10/10-20/20-30/30km+）",
     },
     "evIsland": {
-        "derivedFrom": ["evChargingStations"],
+        "derivedFromLayers": ["evChargingStations"],
+        "derivationType": "coverage",
         "processing": "全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles",
     },
 }
@@ -97,14 +102,33 @@ lines.append("  /** match confidence — HIGH = explicit frontend_target / exact
 lines.append("  confidence: UpstreamConfidence;")
 lines.append("}")
 lines.append("")
+lines.append("/** Type of derivation for pulse_only layers. Extendable — add new kinds as compound")
+lines.append(" *  analyses emerge (e.g. 'ratio' for A/B, 'temporal_diff' for time-series delta). */")
+lines.append("export type DerivationType =")
+lines.append("  | 'isochrone'         // OSRM 路網等時圈")
+lines.append("  | 'coverage'          // 最近距離覆蓋分析（PMTiles 分級）")
+lines.append("  | 'inverse'           // 反演（例：等時圈 → 沙漠）")
+lines.append("  | 'aggregate'         // 聚合（例：多品牌 → 全體）")
+lines.append("  | 'ratio'             // 比值（例：供需比）— 未來複合分析用")
+lines.append("  | 'intersect'         // 空間交集（例：災害 × 人口）— 未來複合分析用")
+lines.append("  | 'temporal_diff'     // 時序差分 — 未來")
+lines.append("  | 'custom';           // 其他自訂")
+lines.append("")
 lines.append("export interface UpstreamRef {")
 lines.append("  status: UpstreamStatus;")
-lines.append("  /** Primary catalog dataset (empty array for pulse_only / catalog_missing) */")
+lines.append("  /** Primary catalog datasets (empty array for pulse_only / catalog_missing) */")
 lines.append("  datasets: UpstreamDataset[];")
-lines.append("  /** For status='pulse_only': which other layer_keys / datasets this is derived from */")
-lines.append("  derivedFrom?: string[];")
-lines.append("  /** For status='pulse_only': short description of how the data is generated/processed */")
+lines.append("")
+lines.append("  // ── Lineage fields (only meaningful when status='pulse_only') ──")
+lines.append("  /** Pulse layer_keys this is derived from. Transitively yields upstream datasets via UPSTREAM_REGISTRY lookup. */")
+lines.append("  derivedFromLayers?: string[];")
+lines.append("  /** Catalog dataset_ids used directly (for compound analyses that bypass a pulse layer). */")
+lines.append("  derivedFromDatasets?: string[];")
+lines.append("  /** Classification of the derivation operation — for UI grouping and future-proofing compound analyses. */")
+lines.append("  derivationType?: DerivationType;")
+lines.append("  /** Short human-readable description of how the data is generated/processed. */")
 lines.append("  processing?: string;")
+lines.append("")
 lines.append("  /** Free-form reason when status != 'verified' */")
 lines.append("  note?: string;")
 lines.append("}")
@@ -139,7 +163,12 @@ for layer_key in pulse:
             lines.append(f"  {layer_key}: {{")
             lines.append(f"    status: 'pulse_only',")
             lines.append(f"    datasets: [],")
-            lines.append(f"    derivedFrom: {ts_str_array(deriv['derivedFrom'])},")
+            if deriv.get("derivedFromLayers"):
+                lines.append(f"    derivedFromLayers: {ts_str_array(deriv['derivedFromLayers'])},")
+            if deriv.get("derivedFromDatasets"):
+                lines.append(f"    derivedFromDatasets: {ts_str_array(deriv['derivedFromDatasets'])},")
+            if deriv.get("derivationType"):
+                lines.append(f"    derivationType: {ts_escape(deriv['derivationType'])},")
             lines.append(f"    processing: {ts_escape(deriv['processing'])},")
             lines.append(f"    note: {ts_escape(note)},")
             lines.append(f"  }},")
@@ -183,6 +212,26 @@ lines.append("      for (const d of ref.datasets) out.add(d.datasetId);")
 lines.append("    }")
 lines.append("  }")
 lines.append("  return out;")
+lines.append("}")
+lines.append("")
+lines.append("/** Resolve upstream catalog dataset_ids for any layer (verified or pulse_only).")
+lines.append(" *  For pulse_only: transitively walk derivedFromLayers + include derivedFromDatasets.")
+lines.append(" *  Cycle-safe via visited set. */")
+lines.append("export function resolveUpstreamDatasets(")
+lines.append("  layerKey: keyof LayerVisibility,")
+lines.append("  visited: Set<string> = new Set()")
+lines.append("): string[] {")
+lines.append("  if (visited.has(layerKey)) return [];")
+lines.append("  visited.add(layerKey);")
+lines.append("  const ref = UPSTREAM_REGISTRY[layerKey];")
+lines.append("  if (!ref) return [];")
+lines.append("  const out = new Set<string>();")
+lines.append("  for (const d of ref.datasets) out.add(d.datasetId);")
+lines.append("  for (const d of ref.derivedFromDatasets ?? []) out.add(d);")
+lines.append("  for (const l of ref.derivedFromLayers ?? []) {")
+lines.append("    for (const d of resolveUpstreamDatasets(l as keyof LayerVisibility, visited)) out.add(d);")
+lines.append("  }")
+lines.append("  return [...out];")
 lines.append("}")
 
 OUT_TS.write_text("\n".join(lines) + "\n", encoding="utf-8")

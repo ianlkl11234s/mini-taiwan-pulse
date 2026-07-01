@@ -23,14 +23,33 @@ export interface UpstreamDataset {
   confidence: UpstreamConfidence;
 }
 
+/** Type of derivation for pulse_only layers. Extendable — add new kinds as compound
+ *  analyses emerge (e.g. 'ratio' for A/B, 'temporal_diff' for time-series delta). */
+export type DerivationType =
+  | 'isochrone'         // OSRM 路網等時圈
+  | 'coverage'          // 最近距離覆蓋分析（PMTiles 分級）
+  | 'inverse'           // 反演（例：等時圈 → 沙漠）
+  | 'aggregate'         // 聚合（例：多品牌 → 全體）
+  | 'ratio'             // 比值（例：供需比）— 未來複合分析用
+  | 'intersect'         // 空間交集（例：災害 × 人口）— 未來複合分析用
+  | 'temporal_diff'     // 時序差分 — 未來
+  | 'custom';           // 其他自訂
+
 export interface UpstreamRef {
   status: UpstreamStatus;
-  /** Primary catalog dataset (empty array for pulse_only / catalog_missing) */
+  /** Primary catalog datasets (empty array for pulse_only / catalog_missing) */
   datasets: UpstreamDataset[];
-  /** For status='pulse_only': which other layer_keys / datasets this is derived from */
-  derivedFrom?: string[];
-  /** For status='pulse_only': short description of how the data is generated/processed */
+
+  // ── Lineage fields (only meaningful when status='pulse_only') ──
+  /** Pulse layer_keys this is derived from. Transitively yields upstream datasets via UPSTREAM_REGISTRY lookup. */
+  derivedFromLayers?: string[];
+  /** Catalog dataset_ids used directly (for compound analyses that bypass a pulse layer). */
+  derivedFromDatasets?: string[];
+  /** Classification of the derivation operation — for UI grouping and future-proofing compound analyses. */
+  derivationType?: DerivationType;
+  /** Short human-readable description of how the data is generated/processed. */
   processing?: string;
+
   /** Free-form reason when status != 'verified' */
   note?: string;
 }
@@ -403,7 +422,8 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   fireIsochrone: {
     status: 'pulse_only',
     datasets: [],
-    derivedFrom: ['fireStations'],
+    derivedFromLayers: ['fireStations'],
+    derivationType: 'isochrone',
     processing: 'OSRM 路網等時圈計算（救援抵達 ≤ 5/8/10 分鐘）— 從消防分隊出發',
     note: 'FIX: 派生分析：消防分隊 + 路網救援等時圈',
   },
@@ -430,14 +450,16 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   medIsochrone: {
     status: 'pulse_only',
     datasets: [],
-    derivedFrom: ['medHospital', 'medClinic'],
+    derivedFromLayers: ['medHospital', 'medClinic'],
+    derivationType: 'isochrone',
     processing: 'OSRM 路網等時圈計算（駕車時間 5/10/15/30 分鐘）— 從醫療 POI 出發沿實際路網擴散',
     note: 'FIX: 派生分析：醫療 POI + 路網等時圈計算結果',
   },
   medDesert: {
     status: 'pulse_only',
     datasets: [],
-    derivedFrom: ['medIsochrone'],
+    derivedFromLayers: ['medIsochrone'],
+    derivationType: 'inverse',
     processing: '等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠',
     note: 'FIX: 派生分析：等時圈反演的醫療沙漠',
   },
@@ -744,7 +766,8 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   gasCoverageAll: {
     status: 'pulse_only',
     datasets: [],
-    derivedFrom: ['gasStationCpc', 'gasStationFpcc', 'gasStationTaisugar', 'gasStationOther'],
+    derivedFromLayers: ['gasStationCpc', 'gasStationFpcc', 'gasStationTaisugar', 'gasStationOther'],
+    derivationType: 'coverage',
     processing: '全台加油站聚合 + OSRM 路網最近距離分析 → PMTiles（30km 覆蓋分級：0-5/5-10/10-20/20-30/30km+）',
     note: 'DERIVED: pulse-derived coverage analysis (PMTiles from gas stations + road netwo',
   },
@@ -763,7 +786,8 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   evIsland: {
     status: 'pulse_only',
     datasets: [],
-    derivedFrom: ['evChargingStations'],
+    derivedFromLayers: ['evChargingStations'],
+    derivationType: 'coverage',
     processing: '全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles',
     note: 'DERIVED: pulse-derived island analysis (PMTiles from EV chargers + road network)',
   },
@@ -986,4 +1010,24 @@ export function getAllVerifiedDatasets(): Set<string> {
     }
   }
   return out;
+}
+
+/** Resolve upstream catalog dataset_ids for any layer (verified or pulse_only).
+ *  For pulse_only: transitively walk derivedFromLayers + include derivedFromDatasets.
+ *  Cycle-safe via visited set. */
+export function resolveUpstreamDatasets(
+  layerKey: keyof LayerVisibility,
+  visited: Set<string> = new Set()
+): string[] {
+  if (visited.has(layerKey)) return [];
+  visited.add(layerKey);
+  const ref = UPSTREAM_REGISTRY[layerKey];
+  if (!ref) return [];
+  const out = new Set<string>();
+  for (const d of ref.datasets) out.add(d.datasetId);
+  for (const d of ref.derivedFromDatasets ?? []) out.add(d);
+  for (const l of ref.derivedFromLayers ?? []) {
+    for (const d of resolveUpstreamDatasets(l as keyof LayerVisibility, visited)) out.add(d);
+  }
+  return [...out];
 }

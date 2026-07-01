@@ -13,7 +13,7 @@ import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { LAYER_COLORS } from "../../components/sidebar/layerCatalog";
-import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
+import { UPSTREAM_REGISTRY, resolveUpstreamDatasets } from "../upstreamRegistry";
 
 // 解析 catalog 所有 dataset_id（從 frontmatter + 檔名 fallback）
 function loadCatalogDatasetIds(): Set<string> {
@@ -84,6 +84,32 @@ describe("UPSTREAM_REGISTRY consistency", () => {
       }
     }
     expect(violations, violations.join("\n")).toEqual([]);
+  });
+
+  it("pulse_only derivedFromLayers reference real layer_keys", () => {
+    const layerKeys = new Set(Object.keys(LAYER_COLORS));
+    const broken: string[] = [];
+    for (const [key, ref] of Object.entries(UPSTREAM_REGISTRY)) {
+      if (ref.status !== "pulse_only") continue;
+      for (const src of ref.derivedFromLayers ?? []) {
+        if (!layerKeys.has(src)) broken.push(`${key} → ${src}`);
+      }
+    }
+    expect(broken, `Broken derivedFromLayers refs:\n  ${broken.join("\n  ")}`).toEqual([]);
+  });
+
+  it("pulse_only derivations transitively resolve to at least one upstream dataset", () => {
+    const noUpstream: string[] = [];
+    for (const [key, ref] of Object.entries(UPSTREAM_REGISTRY)) {
+      if (ref.status !== "pulse_only") continue;
+      if (!ref.derivedFromLayers?.length && !ref.derivedFromDatasets?.length) continue;
+      const upstream = resolveUpstreamDatasets(key as keyof import("../../types").LayerVisibility);
+      if (upstream.length === 0) noUpstream.push(key);
+    }
+    expect(
+      noUpstream,
+      `pulse_only layers with lineage but no resolvable upstream:\n  ${noUpstream.join("\n  ")}`
+    ).toEqual([]);
   });
 
   it("every verified datasetId exists in catalog (skips if sibling repo absent)", () => {
