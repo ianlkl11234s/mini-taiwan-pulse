@@ -125,3 +125,25 @@ f8ef137 chore(deploy): glob upload PMTiles from geo/agriculture/forestry (PT-1)
 2026-06-26 00:10 — 收尾 A: upload-deploy-assets.sh 加 PMTiles glob (f8ef137)
 2026-06-26 00:10 — Campaign 完成，待人工視覺驗證 + S3 upload + PR
 ```
+
+## 警政司法民防 3 個 PMTiles（2026-06-29 上線，`deploy-assets/police_justice/`）
+
+| dataset | 原檔 GeoJSON | PMTiles | tippecanoe 參數 |
+|---|---|---|---|
+| civil_defense_shelters | 22 MB (62,695 Point) | 3.4 MB | `-z 14 -Z 10 --drop-densest-as-needed` |
+| crime_area_monthly | 43 MB (368 Polygon) | 2.3 MB | `-z 12 -Z 8` |
+| court_jurisdictions | 12 MB (22 MultiPolygon) | 295 KB | `-z 10 -Z 6` |
+
++ 19 個原始 GeoJSON + 18 個 `_manifest.json` 一起 S3 sync（40 檔 / 172 MiB）
+
+## 警察 isochrone 3 個 combined PMTiles（2026-07-01 上線，`public/police_justice/isochrone/`）
+
+⚠ 目前**未上 S3**，透過 symlink `public/police_justice → taipei-gis-analytics/data/processed/police_justice/` 給 dev server 用；production 部署待 PI-1 修完再上 S3。
+
+| tier | features | PMTiles | tippecanoe |
+|---|---|---|---|
+| police_iso_substation_combined | 334（walk5/walk10/drive5/drive10 dissolved by overlap_count） | 11 MB | `-z 14 -Z 6 -l police_iso_substation --drop-densest-as-needed` |
+| police_iso_precinct_combined | 168 | 3.0 MB | `-z 14 -Z 6 -l police_iso_precinct --drop-densest-as-needed` |
+| police_iso_police_dept_combined | 72 | 278 KB | `-z 12 -Z 5 -l police_iso_police_dept` |
+
+Pipeline reference：`taipei-gis-analytics/pipelines/police_justice/isochrone/10_police_isochrone.py` + `15_run_by_region.sh` + `16_merge_regions.py` + `20_merge_combined.py`。詳 PLAYBOOKS PB-24。
