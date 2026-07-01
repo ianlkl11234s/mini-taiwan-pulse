@@ -126,6 +126,7 @@ import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
+import { DataSourceBrowser } from "./components/DataSourceBrowser";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
@@ -2669,6 +2670,9 @@ export default function App() {
 
       {/* ── Info Modal ── */}
       <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} />
+
+      {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
+      <DataSourceBrowser />
     </div>
   );
 }
