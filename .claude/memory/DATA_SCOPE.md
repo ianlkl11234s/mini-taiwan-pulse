@@ -418,3 +418,42 @@ Bonus: `taiwan_other_nearest.pmtiles` 已備但前端尚未接第 6 個 layer（
 | 其他 41455 商業司登記（false positive）| 374 | 「XX 股份有限公司」型，多半非加油站 |
 | 無名 | 33 | brand 也是 unknown |
 | **雙品牌站** | **104** | 中油+台糖 72 + 中油+台塑 31 + 台塑+台糖 1 |
+
+## 警政司法民防體系（2026-06-29~07-01 上線；`taipei-gis-analytics/data/processed/police_justice/`）
+
+### 22 dataset 分佈
+
+| 類 | 數 | 前端 |
+|---|---|---|
+| 機構 POI（含 airports 早存在） | 11 | 10 layer 上線（cctv_poi 桃園 skip — 已有 mini-cctv-tw 獨立站）|
+| 事件 點/線 | 4 | 全上線 |
+| Polygon / 大量 POI | 4 | civil_defense_shelters / crime_area_monthly / court_jurisdictions 3 PMTiles 上線；police_districts 自製 KNN v1 tier=3 暫緩 |
+| Realtime Supabase | 3 | prison_population_daily → Monitor PrisonCard（⚠ collector 沒跑 1 row / 2026-05-15）；border_airport_snapshot → Monitor AirportPaxCard + AirportPanel 24h 折線；traffic_accidents_a1 → a1AccidentRealtime 30 天滾動漣漪 |
+
+### 前端 17 GIS layer 上線
+
+- 警政 4：policeStation(2065 分 6 階層) / womenChildWarning(185) / speedCamera(2056 分 4 subtype + limit_kph 分大小) / speedZoneSegment(25 LineString)
+- 司法矯正 4：court(35 分 6 階) / prosecutorsOffice(29 分 3 階) / correctionalFacility(51 分 5 類) / courtJurisdiction(22 MultiPolygon PMTiles)
+- 治安態勢 5：crimeAreaMonthly(368 Polygon PMTiles) / theftTaoyuan(1423) / trafficAccidentYearly(1600) / accidentTaipei(22918) / a1AccidentRealtime(rpc_a1_by_bbox 30 天滾動)
+- 廉政移民海巡 4：investigationBureau(29 name 末字分級) / antiCorruptionOffice(66 central/local) / immigrationOffice(25) / coastGuardStation(269 patrol/pier)
+- 民防避難 1：civilDefenseShelter(62,695 PMTiles z≥7)
+
+### 3 Supabase RPC（`gis-platform/migrations/262-264`）
+
+- `get_airport_hourly_pax(airport, hours)` — border_airport_snapshot 按小時 in/out/transit pax
+- `get_a1_accidents_by_bbox(bbox, days=30)` — realtime.traffic_accidents_a1 DISTINCT ON 每事故一筆
+- `get_prison_population_window(days=30)` — 全國每日總計時序（薄 SELECT wrapper）
+
+### 3 個 police_justice PMTiles（S3 `deploy-assets/police_justice/`）
+
+civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(295K)
+
+## 警察 isochrone × overlap_count（2026-07-01 上線）
+
+- 3 層級 × 2 mode × 2 分鐘 = 12 變體 → 3 個 combined PMTiles
+- `police_iso_substation_combined.pmtiles` 11M（walk 5/10 + drive 5/10 全台 1504 站）
+- `police_iso_precinct_combined.pmtiles` 3.0M（walk 15/30 + drive 15/30 全台 163 站）
+- `police_iso_police_dept_combined.pmtiles` 278K（walk 30/60 + drive 30/60 全台 32 站）
+- feature 數 dissolve 後：substation 334 / precinct 168 / police_dept 72
+- 走本機 PBF（`taipei-gis-analytics/data/raw/osm/taiwan-latest.osm.pbf` 309MB）+ osmium tags-filter（drive 16MB / walk 58MB）
+- **分 5 區跑**（bbox 邊界未 overlap → PI-1 邊界斷裂待修）
