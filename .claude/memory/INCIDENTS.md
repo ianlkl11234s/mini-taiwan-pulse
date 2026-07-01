@@ -998,3 +998,72 @@ else map.on("style.load", mount);    // ← style 早就 load 完不會再 fire 
 
 **省 3 輪的方法**：用戶說「3D 圖層看不到」+ 「console 沒 log」一出現，第一件事就是
 讀 `.claude/pitfalls/2026-04-22-*.md`，不是去調視覺。
+
+## 2026-07-01 警察 isochrone 全台跑 — 三連環卡（Overpass ban / pyrosm OOM / 邊界斷）
+
+### 事件
+
+要跑 3 層警察 × 2 mode × 2 分鐘 = 12 變體 isochrone 全台，連環撞牆：
+
+**1. Overpass mirror IP ban 24-72h**（accessibility SKILL §4 #1 印證）
+- 前一天雙北 bbox 跑得順，隔日全台 bbox 直接 `Connection refused`
+- 3 個 mirror 全掛：`overpass-api.de` refused / `overpass.kumi.systems` timeout / `overpass.openstreetmap.fr` 404
+- 之前全台 subquery 觸發 IP ban，等 cooldown 24-72h
+
+**2. pyrosm 全台 walk graph 6M nodes / 12.7M edges**
+- 已切 osmium 過濾（w/highway），walk PBF 從 309MB 降到 58MB — 但 pyrosm 讀進 networkx 仍是 6M nodes（含 footway/path/track/cycleway）
+- 載 graph 用 2137 秒（35 min），simplify 20+ min，per-station ego_graph 1504 站 × 6M nodes 估算 3-4 hr / variant
+- kill 掉，退階分區
+
+**3. 分區 5 區跑後邊界斷裂**
+- 5 區 bbox 不重疊 → 邊界 station 的 ego_graph 只在本區 graph 上跑，跨區被切
+- 桃園 / 新竹交界、雲林 / 嘉義交界最明顯（見用戶回報截圖）
+- 記 BACKLOG PI-1 — 3 修法（bbox +0.15° overlap / raster heatmap / 補丁 pass）
+
+### 三段拆彈
+
+| 撞牆 | 拆彈 |
+|---|---|
+| Overpass mirror ban | `find ~/Desktop -name "*.osm.pbf"` 找到 `taipei-gis-analytics/data/raw/osm/taiwan-latest.osm.pbf` 309MB **本機已有** → osmium tags-filter 過濾 walk/drive 兩份 → pyrosm 讀，完全避開 Overpass |
+| pyrosm 全台 walk graph OOM | `ox.simplify_graph()` 加速 2x（815s → 388s per variant），但仍不夠 → 分 5 區跑 |
+| 分區邊界斷 | 記 PI-1，不即時修（要重跑 60-90 min） |
+
+### 教訓（→ PRINCIPLES）
+
+- **PBF 本機優先**：跑 isochrone 前 `find` 確認本機是否已有 PBF，避免打 Overpass
+- **osmium tags-filter 過濾 residential**：walk 加太多 footway/path 會導致 graph 巨大化，要更嚴格過濾
+- **分區 bbox 一定要 overlap**：不重疊 = 邊界 station 被切，一開始就該加 0.15° overlap
+
+### 4 個副 incident 一次記
+
+**A. pyrosm network_type API 差異**：
+- pyrosm 用 `"walking" / "driving"`，osmnx 用 `"walk" / "drive"` — script 混用會噴 `ValueError: 'network_type' should be one of: driving, walking, ...`
+- 修：定義 `PYROSM_NET_TYPE = {"walk": "walking", "drive": "driving"}` 隔開
+
+**B. osmnx `ox.settings.overpass_url` 用法**：
+- osmnx 2.x 該欄位是「完整 endpoint URL」（含 `/interpreter`），設 `"https://overpass-api.de/api/interpreter"` 對；設 `"https://overpass-api.de/api"` 會被 osmnx 內部再加 `/interpreter` 變 `.../interpreter/interpreter` 404
+
+**C. convex_hull vs concave_hull vs dissolve 三段演化**：
+- convex_hull → 過度膨脹三角形鋸齒
+- concave_hull(0.3) → 26,644 fragments GeoJSON 14MB
+- concave_hull(0.5) + buffer 15% + `dissolve by overlap_count` → 73 features 5.8MB（乾淨階梯）
+- 教訓：Mode B polygon isochrone 的 default 應該 = concave_hull(0.5) + buffer + dissolve
+
+**D. line layer 造成同心圓錯覺**：
+- 3 個 policeIso layer 的 line 子 layer 把 dissolve 後 MultiPolygon 內部 ring（單站 hull）邊界全畫出，視覺呈「同心圓」感
+- 修：line-opacity 0.3 → 0.08、line-width 0.3 → 0.15（commit `e824165`）
+- 教訓：多層 vector overlap 場合，line 邊界要幾乎不可見
+
+## 2026-07-01 airports.geojson 差點重建（實際上已存在）
+
+**事件**：規劃警政 layer 時，plan 寫要在 `taipei-gis-analytics/data/processed/police_justice/airports/` 建 4 點機場 geojson。用戶提「不是有現成的？」我才 `grep` 發現 `mini-taiwan-pulse/public/geo/airports.geojson` 早就存在（Polygon 機場輪廓 + iata/icao/name 全欄，還在 `LayerVisibility` + `LAYER_COLORS` + sidebar + `AirportPanel` popup + `AirportSelector` cameraPreset 全串好）。
+
+差點重建、把 plan A1 整段刪掉。
+
+**教訓**：新增 layer 前一律 `grep -r "layerKey"` + `find public -name "*.geojson"` 檢查是否已有。用戶記憶 > 我對 codebase 的直覺。
+
+## 2026-07-01 prison_population_daily 只 1 row（collector 沒在跑）
+
+**事件**：apply RPC migration 264 後 smoke test `get_prison_population_window(7)` 回 0 rows。查表 `realtime.prison_population_daily` 只 1 row（2026-05-15），`data-collectors/collectors/correctional_daily_snapshot.py` 沒在跑。
+
+**教訓**：realtime schema 表要驗證 collector 有沒有真的跑，不能單看 migration 存在就假設有資料。BACKLOG 記 collector 待補跑。
