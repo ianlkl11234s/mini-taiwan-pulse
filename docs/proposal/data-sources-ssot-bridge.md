@@ -279,12 +279,12 @@ layer_key, dataset_id, rule, confidence, evidence, alt_candidates
 
 ---
 
-## 6. 後續 Step（本計畫之後）
+## 6. 後續 Step
 
-| Step | 內容 | Repo |
-|---|---|---|
-| Step 2 | `reference.data_catalog` table + `public.get_data_catalog_for_layer()` RPC | gis-platform |
-| Step 3 | `scripts/sync_catalog_to_supabase.py` + GitHub Action | taipei-gis-analytics |
-| Step 4 | 前端「資料來源」icon + 浮窗 UI | mini-taiwan-pulse |
+| Step | 內容 | Repo | 狀態 |
+|---|---|---|---|
+| Step 2 | `metadata.data_catalog` table + `public.get_data_catalog_for_layer/by_theme()` RPC + 271-row seed | gis-platform + taipei-gis-analytics | ✅ 完成 2026-07-01（commits: gis-platform `04ec3ad`, tgis `4439e22`）|
+| Step 3 | `scripts/sync_catalog_to_supabase.py` 續 upsert + GitHub Action on catalog change | taipei-gis-analytics | ⬜ 待開始 |
+| Step 4 | 前端「資料來源」icon + 浮窗 UI（讀 RPC）| mini-taiwan-pulse | ⬜ 待開始 |
 
-每個 Step 各自獨立計畫書。
+Step 2 詳細計畫：[`data-sources-step2-gis-platform.md`](./data-sources-step2-gis-platform.md)
