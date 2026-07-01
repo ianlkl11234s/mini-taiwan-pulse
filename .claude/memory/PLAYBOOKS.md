@@ -1315,3 +1315,45 @@ git status -s
 ### 觸發詞
 
 「30km 可達 / 最近站 / 等時圈 / isochrone / 路網覆蓋 / 服務範圍 / 服務沙漠 / 孤島 / 補點 / 擴點選址 / 競爭者疊圖」
+
+## PB-24 Isochrone × Overlap Count 全流程（2026-07-01 加）
+
+> 用於「N 個 station 每個都跑 isochrone，看多站重疊區顏色深淺」。
+> reference：警察 3 層級（派出所 1541 / 分局 163 / 縣市警局 32）× 步行/開車 × 5/10 min（或該層級對應）= 12 變體 → 3 個 combined PMTiles。
+
+### 何時觸發
+
+- 「N 個服務站的重疊服務範圍」— 多重保護區、警力沙漠、消防重疊區
+- 「不同層級的可能覆蓋範圍蝶圖」— 3 層機構各自 isochrone
+- 「重疊越多顏色越深」= service coverage overlap count / service redundancy
+
+### 4 檔 pipeline（`taipei-gis-analytics/pipelines/police_justice/isochrone/`）
+
+| 檔 | 職責 |
+|---|---|
+| `10_police_isochrone.py` | 主 script：pyrosm 讀 PBF → per-station ego_graph → concave_hull(0.5) + buffer 15% + simplify → polygonize + STRtree.covers → **dissolve by overlap_count** |
+| `15_run_by_region.sh` | 分 5 區跑（north/north2/central/south/east）— 全台 walk graph 6M nodes OOM 的救援；每區獨立 process 跑 `--all` 12 變體，mv 到 `by_region/{name}/` |
+| `16_merge_regions.py` | 5 區同變體 GeoJSON 合成 1 個 → 進 `by_region/*/police_iso_{tier}_{mode}_{min}min.geojson` → 頂層 `police_iso_{tier}_{mode}_{min}min.geojson` |
+| `20_merge_combined.py` | 同 tier 4 變體（walk 5/10 + drive 5/10）合進 1 個 combined GeoJSON（每 feature 帶 `tier + mode + minutes + overlap_count`），前端用 case fill-opacity 按 mode/minutes 切、不換 sourceUrl |
+
+### 前端接線 pattern
+
+- 3 個 layer（每 tier 一個）鎖固定 combined PMTiles
+- **不切 sourceUrl**：case fill-opacity 讀 `mode + minutes` properties + `${id}Mode_drive` (0/1) / `${id}Minutes_num` params 互斥顯示
+- **必配 dissolve**：沒 dissolve = 幾萬 fragment 切碎 + 同心圓錯覺；有 dissolve = N 個乾淨階梯 MultiPolygon
+- **line-opacity ≤ 0.08**：避免 multipolygon 內部 ring（單站 hull 邊界）畫出來造成同心圓
+
+### 三段演化的教訓（→ INCIDENTS 2026-07-01）
+
+- convex_hull → 過度膨脹三角形鋸齒
+- concave_hull(0.3) → 26,644 micro fragments
+- concave_hull(0.5) + buffer + **dissolve by overlap_count** → 73 features 乾淨階梯
+
+### 已知限制（→ BACKLOG PI-1）
+
+- 分區 bbox 不重疊 → 邊界 station ego_graph 被切 → polygon 區界斷開
+- 3 修法：bbox 各 +0.15° overlap / raster heatmap / 補丁 pass
+
+### 觸發詞
+
+「N 站重疊 / 覆蓋計數 / overlap count / service redundancy / 多重保護 / 警力沙漠 / 蝶圖 / N 分鐘可達且重疊多」
