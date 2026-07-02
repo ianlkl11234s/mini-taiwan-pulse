@@ -507,3 +507,16 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 方式 B 是空域快照（非完整軌跡）取代 FR24，用於降低成本 + 提高涵蓋。
 
 **Long-form** collector pipeline 與 legacy 指令：`~/.claude/projects/.../memory/_archive/data-pipeline.md`
+
+## 全球氣候 GLOBAL CLIMATE（2026-07-02 上線）
+
+**data-collectors `collectors/global_climate/` 7 collector**（plan-misty-fog）：
+- 向量（純 Supabase）：`usgs_earthquake`（全球地震 hourly → `realtime.earthquakes_global`）/ `jma_typhoon`（3h）+ `jtwc`（6h）→ `realtime.typhoon_positions`（source 區分）
+- 模式場（S3 原檔 + Supabase digest `realtime.global_climate_grids`）：`noaa_gfs`（全球 0.25° 風場/氣壓/噴流）/ `cmems`（西太→廣域 90-180E×-15-55N 海流/SST/波浪）/ `cams`（東亞沙塵/PM）— 每日
+- `climate_bake`（第 7，每 6h）：讀 Supabase 最新 f000 → 烤 RGBA PNG/raster → `deploy-assets/climate/{wind10m,currents,dust}_latest.{png,json}`
+
+**雲端注意**：CMEMS/CAMS 需 env 憑證 + requirements 需 xarray/cfgrib/cdsapi/copernicusmarine + Dockerfile libeccodes0（見 INCIDENTS 2026-07-02）。CMEMS subset 必帶時間範圍。
+
+**前端遞送**：`/climate/*.png` 由 nginx 從 `/data/climate/` 服務；`entrypoint.sh` 背景迴圈每 6h re-sync `deploy-assets/climate/`（refresh-climate.sh）；PNG 帶 `?v=valid_at` 破快取。
+
+**前端 5 layer**（`docs/features/global-climate/`）：windField / oceanCurrents（WebGL instanced 粒子線，全 zoom）/ dustForecast（raster）/ earthquakesGlobal（circle）/ typhoonTracks（線+點+現在位置圈，JMA/JTWC 資料源選擇器）。
