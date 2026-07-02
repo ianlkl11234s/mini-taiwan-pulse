@@ -925,28 +925,29 @@ function TyphoonTrackLegend() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 28, height: 0, borderTop: "2px solid #a855f7", flexShrink: 0 }} />
-          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>觀測軌跡 Observed</span>
+          <div style={{ width: 28, height: 0, borderTop: "3px solid #a855f7", flexShrink: 0 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>實際軌跡 Observed（實心紫）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div
             style={{
               width: 28,
               height: 0,
-              borderTop: "2px dashed #c084fc",
+              borderTop: "2px dashed #38bdf8",
               flexShrink: 0,
             }}
           />
-          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>預報軌跡 Forecast</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>預測軌跡 Forecast（藍虛線 / 空心點）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div
             style={{
-              width: 8, height: 8, borderRadius: RADIUS.full,
-              background: "#a855f7", border: "1px solid white", flexShrink: 0,
+              width: 12, height: 12, borderRadius: RADIUS.full,
+              background: "transparent", border: "2px solid #fde047", flexShrink: 0,
+              boxShadow: "0 0 4px rgba(240,171,252,0.6)",
             }}
           />
-          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>軌跡點（click 看詳情）</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>現在位置 Current（黃圈，click 看詳情）</span>
         </div>
       </div>
     </div>
