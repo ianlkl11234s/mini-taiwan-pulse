@@ -1,5 +1,6 @@
 import { supabase, todayTaiwan } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { keyedThunkCache } from "../lib/loaderCache";
 
 export interface YoubikeH3CellData {
   h: string;   // H3 index
@@ -22,7 +23,8 @@ export interface YoubikeH3DataSet {
   snapshots: Record<string, YoubikeH3CellData[]>;  // "2026-03-28T08:00" → cells
 }
 
-const cache = new Map<string, YoubikeH3DataSet>();
+/** 10min TTL + LRU 快取（key = "res7:2026-04-03"），toggle / 重切同日期不重抓 */
+const dayCache = keyedThunkCache<YoubikeH3DataSet>(10 * 60_000);
 
 /** cache key = "res7:2026-04-03" */
 function cacheKey(resolution: number, date: string): string {
@@ -38,11 +40,11 @@ async function fetchAvailableDates(): Promise<string[]> {
   return (data as { date: string }[]).map((d) => d.date);
 }
 
-/** 從 Supabase RPC 載入單日 H3 聚合 */
+/** 從 Supabase RPC 載入單日 H3 聚合。失敗 / 空資料 throw（讓快取不留失敗結果） */
 async function fetchFromSupabase(
   resolution: number,
   date: string,
-): Promise<YoubikeH3DataSet | null> {
+): Promise<YoubikeH3DataSet> {
   const { data, error } = await withLoading(
     `youbike-h3:${date}:r${resolution}`,
     `YouBike ${date}`,
@@ -53,8 +55,9 @@ async function fetchFromSupabase(
   );
 
   if (error || !data || data.length === 0) {
-    console.warn(`[YouBike-H3] Supabase RPC failed for ${date} res${resolution}:`, error?.message);
-    return null;
+    throw new Error(
+      `get_youbike_h3_snapshots(${date}, res${resolution}): ${error?.message ?? "empty result"}`,
+    );
   }
 
   const rows = data as { time_key: string; cells: YoubikeH3CellData[] }[];
@@ -66,7 +69,12 @@ async function fetchFromSupabase(
     for (const c of row.cells) allCells.add(c.h);
   }
 
+  if (allCells.size === 0) {
+    throw new Error(`get_youbike_h3_snapshots(${date}, res${resolution}): 0 cells`);
+  }
+
   const timeKeys = Object.keys(snapshots).sort();
+  console.log(`[YouBike-H3] res${resolution} ${date}: ${allCells.size} cells, ${timeKeys.length} snapshots`);
   return {
     metadata: {
       resolution,
@@ -100,18 +108,13 @@ export async function loadYoubikeH3(
 
   const targetDate = date ?? todayTaiwan();
   const key = cacheKey(resolution, targetDate);
-  const cached = cache.get(key);
-  if (cached) return cached;
 
-  const dataset = await fetchFromSupabase(resolution, targetDate);
-  if (dataset && dataset.metadata.cell_count > 0) {
-    cache.set(key, dataset);
-    console.log(`[YouBike-H3] res${resolution} ${targetDate}: ${dataset.metadata.cell_count} cells, ${dataset.metadata.snapshot_count} snapshots`);
-    return dataset;
+  try {
+    return await dayCache(key, () => fetchFromSupabase(resolution, targetDate));
+  } catch (err) {
+    console.warn(`[YouBike-H3] Failed to load res${resolution} for ${targetDate}:`, err);
+    return empty;
   }
-
-  console.warn(`[YouBike-H3] Failed to load res${resolution} for ${targetDate}`);
-  return empty;
 }
 
 /**
