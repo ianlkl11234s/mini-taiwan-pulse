@@ -958,3 +958,40 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 | b65aa8e | Wave 2: memory 28→7 大改組 + 4 缺項補完 | 24 檔 |
 | 6df1b8c | Wave 3: PR/postmortem 模板 + /handoff + agent sync | 8 檔 |
 | c510618 | Wave 3: 5 upstream handoff SSOT | 5 檔 |
+
+---
+
+## 2026-07-01/02 — 對「初次分析」要保持更多懷疑（PI-1 收尾）
+
+**Session**：接續處理 PI-1（警察 isochrone 區界斷裂），結果同時修好第 2 個 bug（山區 station 偏移），完全非預期。
+
+### 用戶 3 次 push 都指真問題
+
+| Push | 用戶說法 | 我的初次反應（錯的） | 真相 |
+|---|---|---|---|
+| #1 | 「這次確定會根治嗎？之前也說會根治？」 | 提出 3 步驗證方法就繼續往推薦修法 A（bbox +0.15° overlap）走 | 檢查 15_run_by_region.sh 才發現 5 區 bbox 早已有 40km overlap → 修法 A 前提就是錯的。真根因是 per-region dissolve concat trap |
+| #2 | 「山區這幾顆完全沒看到」 | 說「山區半徑天然小，這是資料真實反映」 | 榮興在台8線主幹道旁，polygon 有 3-4km² 但**離 station 5 km**（偏移 5306m > drive 5min radius 2739m）→ 完全不在 station 附近 |
+| #3 | 「他就在主要的道路上，這件事不太合理，請你再好好的確認一下」 | 才做 polygon centroid vs station 座標偏移檢查 | 找到 drive PBF 過濾造成 nearest_nodes 拉錯 4-5km 的第 2 bug |
+
+**核心教訓**：**當用戶物理直覺說「這不合理」時，我的第一次資料分析常常抓不到真根因**。用戶不需要看到我的分析過程，只需要看到最終結果 — 但如果最終結果違反物理直覺，多半是我漏了某個檢查維度（例如：不只查「有沒有 polygon」，還要查「polygon 有沒有包住 station」）。
+
+### 3 條 next-time rules
+
+1. **驗證前提假設，別急著實作原修法**：提修法前先跑 3-5 min 的 mini-check 確認「診斷的觀察前提」還成立（例如：檢查 bbox 是否真的沒 overlap、檢查最近節點距離是否合理）。前提錯了，修法再精緻也白搭。
+2. **GIS 檢查一律 `polygon.contains(Point(station))`**：不要只看「有無 polygon / polygon 面積」判斷「station 有沒有被覆蓋」。centroid 偏移和 contains 是兩個維度。
+3. **對照測試在動全台前**：10 顆邊界 station 15 min vs 全台 90 min。用戶 push #1 後我做的對照測試（OLD 8 features vs NEW 4 features）是本 session 最有效率的診斷投資 — 全台跑之前就確定新架構會 work。
+
+### 本 session commits（8 memory + 1 sidebar UX + 1 taipei-gis-analytics pipeline）
+
+| commit | 說明 |
+|---|---|
+| `d6582a9` | memory: update GLOSSARY（改正分區斷裂診斷 + 2 條新詞）|
+| `d52724b` | memory: revise PRINCIPLES（分區覆蓋 layer 改正 + nearest_nodes 閾值）|
+| `f6901c4` | memory: update PLAYBOOKS PB-24（pipeline 5 檔架構 + PI-1 收尾）|
+| `c06351b` | memory: append INCIDENTS（2026-07-01/02 PI-1 兩 bugs 完整診斷）|
+| `670f02c` | memory: update PMTILES_STATUS（isochrone 已上 S3）|
+| `b3c3fdd` | memory: close BACKLOG PI-1 + add PI-2 / PS-1 |
+| TBD | memory: reflect REFLECTIONS（本篇）|
+| TBD | memory: rewrite STATUS（PI-1 收尾）|
+| （另檔）| **taipei-gis-analytics** `a44f6f3` 5 檔 pipeline（未 push）|
+| （另檔）| **mini-taiwan-pulse** sidebar `layerCatalog.ts` 警察覆蓋分析降級到執法治安子群（未 commit）|
