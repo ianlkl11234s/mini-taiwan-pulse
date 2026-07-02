@@ -21,6 +21,25 @@ export interface ClimateParticleLineLayerOptions {
   particleAlpha?: number;
   /** 粒子色帶（速度 0→1）。 */
   rampColors?: Record<number, string>;
+  /**
+   * zoom 自適應密度：拉遠（視野大）自動增加粒子填滿，拉近回到 getParticleCount 基準值。
+   * 預設開啟；baseZoom 以下每少 1 級 zoom 乘 perLevel，封頂 maxBoost。
+   */
+  adaptiveDensity?: boolean;
+}
+
+// zoom ≥ ADAPTIVE_BASE_ZOOM 用 slider 基準值；每往下 1 級 ×(1+PER_LEVEL)，封頂 MAX_BOOST。
+const ADAPTIVE_BASE_ZOOM = 5.5;
+const ADAPTIVE_PER_LEVEL = 0.7;
+const ADAPTIVE_MAX_BOOST = 6;
+// 量化到此倍數的粒子數，避免連續 zoom 每幀重配置陣列。
+const ADAPTIVE_QUANTUM = 4000;
+
+function adaptiveCount(base: number, zoom: number): number {
+  const boost = clamp(1 + Math.max(0, ADAPTIVE_BASE_ZOOM - zoom) * ADAPTIVE_PER_LEVEL, 1, ADAPTIVE_MAX_BOOST);
+  if (boost <= 1) return base; // 近景維持 slider 精確值
+  // 拉遠才加成，量化到 QUANTUM 避免連續 zoom 每幀重配置陣列
+  return Math.round(base * boost / ADAPTIVE_QUANTUM) * ADAPTIVE_QUANTUM || base;
 }
 
 export interface ClimateMeta {
@@ -571,7 +590,10 @@ export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOpt
       }
 
       state.setSpawnBounds(spawnBoundsForMap(map, meta));
-      const requestedCount = opts.getParticleCount();
+      const baseCount = opts.getParticleCount();
+      const requestedCount = (opts.adaptiveDensity ?? true) && map
+        ? adaptiveCount(baseCount, map.getZoom())
+        : baseCount;
       state.resize(requestedCount);
 
       const now = performance.now();
