@@ -57,7 +57,11 @@ function splitTrailByGap(path: TrailPoint[], maxGap: number = 1800): TrailPoint[
 
 /** 取得所有有航班資料的日期 */
 export async function fetchAirspaceDates(): Promise<AirspaceDateInfo[]> {
-  const { data, error } = await supabase.rpc("get_flight_dates");
+  const { data, error } = await withLoading(
+    "airspace:dates",
+    "航班日期",
+    supabase.rpc("get_flight_dates"),
+  );
   if (error) throw new Error(`Supabase get_flight_dates: ${error.message}`);
   return (data as { date: string; records: number; flights: number }[]).map((d) => ({
     date: d.date,

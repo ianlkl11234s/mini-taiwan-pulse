@@ -214,14 +214,22 @@ export function fetchWasteCleaningSquads(cities?: string[]): Promise<WasteCleani
 
 /** sidebar 顯示「焚化爐 30 筆」用 */
 export async function fetchWasteFacilityCounts(): Promise<WasteFacilityCount[]> {
-  const { data, error } = await supabase.rpc("get_waste_facility_counts");
+  const { data, error } = await withLoading(
+    "waste:facility-counts",
+    "垃圾處理設施數量",
+    supabase.rpc("get_waste_facility_counts"),
+  );
   if (error) throw new Error(`get_waste_facility_counts: ${error.message}`);
   return (data ?? []) as WasteFacilityCount[];
 }
 
 /** sidebar 顯示「衣物箱 utmap 6915 / tnepb 302 / osm 19」用 */
 export async function fetchWasteDisposalPointCounts(): Promise<WasteDisposalPointCount[]> {
-  const { data, error } = await supabase.rpc("get_waste_disposal_point_counts");
+  const { data, error } = await withLoading(
+    "waste:disposal-point-counts",
+    "垃圾投放點數量",
+    supabase.rpc("get_waste_disposal_point_counts"),
+  );
   if (error) throw new Error(`get_waste_disposal_point_counts: ${error.message}`);
   return (data ?? []) as WasteDisposalPointCount[];
 }

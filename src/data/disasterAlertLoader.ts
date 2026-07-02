@@ -67,7 +67,11 @@ interface RawRow {
 const FAR_FUTURE = Number.MAX_SAFE_INTEGER;
 
 async function fetchDisasterAlertDatesUncached(): Promise<DisasterAlertDateInfo[]> {
-  const { data, error } = await supabase.rpc("get_disaster_alert_dates");
+  const { data, error } = await withLoading(
+    "disaster-alert:dates",
+    "災害示警日期",
+    supabase.rpc("get_disaster_alert_dates"),
+  );
   if (error) throw new Error(`get_disaster_alert_dates: ${error.message}`);
   return (data ?? []) as DisasterAlertDateInfo[];
 }

@@ -63,7 +63,17 @@ export async function fetchSupabaseDates(
   days: number = 30,
 ): Promise<string[]> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return [];
+  return withLoading(
+    `rail-dates:${system}`,
+    `鐵道時刻表日期 ${system.toUpperCase()}`,
+    fetchSupabaseDatesInner(system, days),
+  );
+}
 
+async function fetchSupabaseDatesInner(
+  system: string,
+  days: number,
+): Promise<string[]> {
   const params = new URLSearchParams({
     system: `eq.${system}_daily`,
     select: "schedule_date",

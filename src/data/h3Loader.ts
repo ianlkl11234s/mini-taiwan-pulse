@@ -274,7 +274,11 @@ export async function loadH3DemographicsYearly(
 export async function loadH3DemographicsYears(): Promise<
   { year: number; resolution: number; cell_count: number }[]
 > {
-  const { data, error } = await supabase.rpc("get_h3_demographics_years");
+  const { data, error } = await withLoading(
+    "h3-demographics:years",
+    "人口網格年份",
+    supabase.rpc("get_h3_demographics_years"),
+  );
   if (error || !data) {
     console.warn(`[H3-DemoYearly] get_h3_demographics_years failed:`, error?.message);
     return [];
