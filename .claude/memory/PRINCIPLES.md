@@ -832,3 +832,23 @@ find public -name "*.geojson" | grep -i "topic"
 - 保底再開一個「大小 slider」給用戶手動微調（自動 + 手動雙控最順）
 
 Ref：`docs/features/bloom-experiments/README.md`
+
+## copernicusmarine subset 必帶時間範圍（2026-07-02）
+
+`copernicusmarine subset` 不帶 `--start/--end-datetime` 會抓整段 anfc 時間軸（多年 + 10 天預報）。小 bbox 時檔案小沒事，擴域後單檔可爆到 18GB。**一律帶時間範圍**（例：今日 00Z +48h）。見 INCIDENTS 2026-07-02。
+
+## 前端 Supabase loader 欄位名要對照 DB 驗（2026-07-02）
+
+前端 loader 的 `.select("colA,colB")` 欄位名若與 public view 不符，PostgREST 整包查詢報錯 → 若 catch 只 console.warn，layer 會**靜默不建、完全空白**（颱風軌跡 center_pressure vs center_pressure_hpa 壞很久沒發現）。**接完 Supabase layer 一定要實際 toggle 開來看有沒有東西**，別只信 tsc 過。
+
+## 大量粒子/流場 → instanced rendering + 快取世界座標（2026-07-02）
+
+WebGL 逐幀重建整個頂點 buffer（count × trail × 6 頂點 × 10 float）+ 逐段算 mercator（log/tan）在高粒子數會爆。改法：① instanced rendering — 四角幾何固定 static buffer，每段只上傳 8 float（fromMerc/toMerc/rgba），`drawArraysInstanced`，上傳量降 ~87%；② 快取世界座標 — 世界座標（mercator）在點建立時算一次存起來，繪製直接讀（zoom/pan 靠 u_matrix，不用重算）。用 VAO 封裝 attribute+divisor 免污染 mapbox。
+
+## 地圖是 mercator 非 globe → 自訂 WebGL 線層全 zoom 有效（2026-07-02）
+
+`new mapboxgl.Map` 沒指定 `projection:'globe'` = 預設 mercator 平面。自訂 WebGL CustomLayer（吃 u_matrix）在**所有 zoom 都正確**，不需要低 zoom 的 canvas globe drape 疊層。動 climate drape 前先確認投影。粒子密度改用 zoom 自適應（拉遠加密、量化避免每幀重配置陣列）取代雙層。
+
+## 多機構同一實體 → 提供資料源選擇 + 去重（2026-07-02）
+
+颱風被 JMA（TC26xx）+ JTWC（wpNNyy）兩機構各自追蹤，同一實體出現兩次、位置略差 → 兩條軌跡兩個圈重疊混亂。原則：① 加**資料源選擇器**（全部/JMA/JTWC，UX 鐵則 4，≤3 選項用 button row）讓用戶選單一來源；② 同一 storm×source×時刻的多點質心去重（JMA preTyphoon/typhoon 段同時間戳）。任何「多來源同實體」資料都適用。
