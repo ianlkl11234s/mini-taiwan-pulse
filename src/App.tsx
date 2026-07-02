@@ -39,20 +39,10 @@ import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useEarthquakesGlobalLayer } from "./hooks/useEarthquakesGlobalLayer";
 import { useTyphoonTracksLayer } from "./hooks/useTyphoonTracksLayer";
 import { useClimateParticleLineLayer } from "./hooks/useClimateParticleLineLayer";
-import { useClimateCanvasParticleLayer } from "./hooks/useClimateCanvasParticleLayer";
 import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
 // 色帶集中在 climateRamps（module-level 常數，避免每次 render 新 object 觸發 hook re-mount）；
 // LegendPanel 圖例吃同一份，改色階兩邊自動同步。
 import { WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX } from "./map/climateRamps";
-
-const CLIMATE_DRAPE_END_Z = 3.2;
-const CLIMATE_LINE_FULL_Z = 4.2;
-const climateFade = (zoom: number) => Math.max(0, Math.min(1, (zoom - CLIMATE_DRAPE_END_Z) / (CLIMATE_LINE_FULL_Z - CLIMATE_DRAPE_END_Z)));
-const climateDrapeCount = (base: number, zoom: number, min: number, max: number) => {
-  // 全球遠景是整張球面貼圖，不像 WebGL line 會集中在 viewport；zoom 越遠需要越高全域粒子量。
-  const farBoost = 1 + Math.max(0, CLIMATE_DRAPE_END_Z - zoom) * 1.25;
-  return Math.floor(Math.min(max, Math.max(min, base * farBoost)));
-};
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
 import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
@@ -398,37 +388,6 @@ export default function App() {
 
   // Refs for Three.js render loops
   const mapRef = useRef<MapboxMap | null>(null);
-  const [climateZoom, setClimateZoom] = useState(7);
-
-  // Climate hybrid renderer: globe/low zoom uses draped canvas; high zoom uses screen-pixel WebGL lines.
-  useEffect(() => {
-    let stopped = false;
-    let map: MapboxMap | null = null;
-    let intervalId: number | null = null;
-    const sync = () => {
-      if (!map) return;
-      setClimateZoom(map.getZoom());
-    };
-    const bind = () => {
-      if (stopped || map || !mapRef.current) return;
-      map = mapRef.current;
-      sync();
-      map.on("zoom", sync);
-      map.on("moveend", sync);
-      if (intervalId !== null) {
-        window.clearInterval(intervalId);
-        intervalId = null;
-      }
-    };
-    bind();
-    if (!map) intervalId = window.setInterval(bind, 100);
-    return () => {
-      stopped = true;
-      if (intervalId !== null) window.clearInterval(intervalId);
-      map?.off("zoom", sync);
-      map?.off("moveend", sync);
-    };
-  }, []);
   const flightsRef = useRef<Flight[]>([]);
   const shipsRef = useRef(ships);
   const timeRef = useRef(timeline.currentTime);
@@ -962,32 +921,16 @@ export default function App() {
     transportParams.overlayParams.typhoonTracksOpacity ?? 0.9,
   );
 
-  const climateLineFade = climateFade(climateZoom);
-  const climateDrapeFade = 1 - climateLineFade;
   const windBaseOpacity = transportParams.overlayParams.windFieldOpacity ?? 0.8;
   const oceanBaseOpacity = transportParams.overlayParams.oceanCurrentsOpacity ?? 0.65;
 
-  // 全球/低 zoom：Mapbox canvas source drape，確保貼合 globe 曲面；只負責遠景觀感。
-  useClimateCanvasParticleLayer(mapRef, {
-    layerId: "climate-windfield-drape",
-    pngUrl: "/climate/wind10m_latest.png",
-    metaUrl: "/climate/wind10m_latest.json",
-    visible: layerVisibility.windField && climateDrapeFade > 0.02,
-    opacity: windBaseOpacity * climateDrapeFade,
-    animationSpeed: transportParams.overlayParams.windAnimationSpeed ?? 1.0,
-    particleCount: climateDrapeCount(transportParams.overlayParams.windParticleCount ?? 7_000, climateZoom, 28_000, 70_000),
-    speedMax: WIND_SPEED_MAX,
-    rampColors: WIND_FIELD_RAMP,
-    timeScaleSeconds: 18_000,
-  });
-
-  // 高 zoom：地理座標 WebGL 細線，維持 Windy/nullschool 風格與 viewport 密度。
+  // 風場：地理座標 WebGL instanced 細線，全 zoom 涵蓋（drape 已移除，mercator 投影下線層各 zoom 皆正確）。
   useClimateParticleLineLayer(mapRef, {
     layerId: "climate-windfield",
     pngUrl: "/climate/wind10m_latest.png",
     metaUrl: "/climate/wind10m_latest.json",
-    visible: layerVisibility.windField && climateLineFade > 0.02,
-    opacity: windBaseOpacity * climateLineFade,
+    visible: layerVisibility.windField,
+    opacity: windBaseOpacity,
     animationSpeed: transportParams.overlayParams.windAnimationSpeed ?? 1.0,
     particleCount: Math.floor(transportParams.overlayParams.windParticleCount ?? 7_000),
     lineWidth: transportParams.overlayParams.windLineWidth ?? 1.15,
@@ -998,27 +941,13 @@ export default function App() {
     particleAlpha: 0.66,
   });
 
-  // 海流低 zoom drape：貼合曲面；高 zoom 再交給 WebGL 細線避免方塊化。
-  useClimateCanvasParticleLayer(mapRef, {
-    layerId: "climate-ocean-currents-drape",
-    pngUrl: "/climate/currents_latest.png",
-    metaUrl: "/climate/currents_latest.json",
-    visible: layerVisibility.oceanCurrents && climateDrapeFade > 0.02,
-    opacity: oceanBaseOpacity * climateDrapeFade,
-    animationSpeed: transportParams.overlayParams.oceanAnimationSpeed ?? 1.0,
-    particleCount: climateDrapeCount(transportParams.overlayParams.oceanParticleCount ?? 8_000, climateZoom, 14_000, 42_000),
-    speedMax: OCEAN_SPEED_MAX,
-    rampColors: OCEAN_CURRENTS_RAMP,
-    timeScaleSeconds: 86_400,
-  });
-
-  // 海流高 zoom：地理座標 WebGL 細線 + strict ocean mask，避免放大方塊與陸地覆蓋。
+  // 海流：地理座標 WebGL instanced 細線 + strict ocean mask，全 zoom 涵蓋。
   useClimateParticleLineLayer(mapRef, {
     layerId: "climate-ocean-currents",
     pngUrl: "/climate/currents_latest.png",
     metaUrl: "/climate/currents_latest.json",
-    visible: layerVisibility.oceanCurrents && climateLineFade > 0.02,
-    opacity: oceanBaseOpacity * climateLineFade,
+    visible: layerVisibility.oceanCurrents,
+    opacity: oceanBaseOpacity,
     animationSpeed: transportParams.overlayParams.oceanAnimationSpeed ?? 1.0,
     particleCount: Math.floor(transportParams.overlayParams.oceanParticleCount ?? 8_000),
     lineWidth: transportParams.overlayParams.oceanLineWidth ?? 1.05,
