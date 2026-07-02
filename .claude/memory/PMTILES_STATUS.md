@@ -136,14 +136,16 @@ f8ef137 chore(deploy): glob upload PMTiles from geo/agriculture/forestry (PT-1)
 
 + 19 個原始 GeoJSON + 18 個 `_manifest.json` 一起 S3 sync（40 檔 / 172 MiB）
 
-## 警察 isochrone 3 個 combined PMTiles（2026-07-01 上線，`public/police_justice/isochrone/`）
+## 警察 isochrone 3 個 combined PMTiles（2026-07-01 上線 / 2026-07-02 PI-1 修法後重跑 + 上 S3）
 
-⚠ 目前**未上 S3**，透過 symlink `public/police_justice → taipei-gis-analytics/data/processed/police_justice/` 給 dev server 用；production 部署待 PI-1 修完再上 S3。
+**S3 位置**：`s3://migu-gis-data-collector/deploy-assets/police_justice/isochrone/police_iso_{tier}_combined.pmtiles`（hard link + dev server 也讀 `mini-taiwan-pulse/public/police_justice/isochrone/`）。
+
+**PI-1 修法後**（raw polys → 全域 dedup + dissolve + 500m 閾值）：feature 數與尺寸都比首版變乾淨。
 
 | tier | features | PMTiles | tippecanoe |
 |---|---|---|---|
-| police_iso_substation_combined | 334（walk5/walk10/drive5/drive10 dissolved by overlap_count） | 11 MB | `-z 14 -Z 6 -l police_iso_substation --drop-densest-as-needed` |
-| police_iso_precinct_combined | 168 | 3.0 MB | `-z 14 -Z 6 -l police_iso_precinct --drop-densest-as-needed` |
-| police_iso_police_dept_combined | 72 | 278 KB | `-z 12 -Z 5 -l police_iso_police_dept` |
+| police_iso_substation_combined | 112（walk5/walk10/drive5/drive10 全域 dissolved by overlap_count） | 11 MB | `-Z4 -z14 -l police_iso_substation --coalesce-densest-as-needed --no-tile-size-limit` |
+| police_iso_precinct_combined | 64 | 2.7 MB | 同上 |
+| police_iso_police_dept_combined | 37 | 1.1 MB | 同上 |
 
-Pipeline reference：`taipei-gis-analytics/pipelines/police_justice/isochrone/10_police_isochrone.py` + `15_run_by_region.sh` + `16_merge_regions.py` + `20_merge_combined.py`。詳 PLAYBOOKS PB-24。
+前端 paint 屬性：`-y overlap_count -y mode -y minutes`。Pipeline 見 PLAYBOOKS PB-24（5 檔架構）。
