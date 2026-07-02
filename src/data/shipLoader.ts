@@ -63,7 +63,11 @@ function parseTrail(trail: string): TrailPoint[] {
 
 /** 取得所有有船舶資料的日期 */
 export async function fetchShipDates(): Promise<ShipDateInfo[]> {
-  const { data, error } = await supabase.rpc("get_ship_dates");
+  const { data, error } = await withLoading(
+    "ship:dates",
+    "船舶日期",
+    supabase.rpc("get_ship_dates"),
+  );
   if (error) throw new Error(`Supabase get_ship_dates: ${error.message}`);
   return (data as { date: string; records: number; ships: number }[]).map((d) => ({
     date: d.date,

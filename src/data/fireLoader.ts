@@ -71,7 +71,11 @@ export async function loadFireEventsByYear(year: number): Promise<FireEvent[]> {
 
 /** 取可用年份（前端可動態擴展 scrubber 範圍） */
 export async function loadFireEventYears(): Promise<{ year: number; n: number }[]> {
-  const { data, error } = await supabase.rpc("get_fire_event_years");
+  const { data, error } = await withLoading(
+    "fire:years",
+    "火災年份",
+    supabase.rpc("get_fire_event_years"),
+  );
   if (error || !data) {
     console.warn(`[Fire] get_fire_event_years error:`, error?.message);
     return [];

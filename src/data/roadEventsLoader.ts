@@ -65,7 +65,11 @@ interface RawRow {
 }
 
 async function fetchRoadEventDatesUncached(): Promise<RoadEventDateInfo[]> {
-  const { data, error } = await supabase.rpc("get_road_events_dates");
+  const { data, error } = await withLoading(
+    "road-events:dates",
+    "道路事件日期",
+    supabase.rpc("get_road_events_dates"),
+  );
   if (error) throw new Error(`get_road_events_dates: ${error.message}`);
   return (data ?? []) as RoadEventDateInfo[];
 }

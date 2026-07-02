@@ -139,7 +139,11 @@ const fetchStaticNewsEventsCached = cachedOnce(fetchStaticNewsEventsUncached, 15
 
 async function fetchNewsEventDatesUncached(): Promise<NewsEventDateInfo[]> {
   if (!supabaseConfigured) return [];
-  const { data, error } = await supabase.rpc("get_news_event_dates");
+  const { data, error } = await withLoading(
+    "news-events:dates",
+    "新聞事件日期",
+    supabase.rpc("get_news_event_dates"),
+  );
   if (error) throw new Error(`get_news_event_dates: ${error.message}`);
   return (data ?? []) as NewsEventDateInfo[];
 }

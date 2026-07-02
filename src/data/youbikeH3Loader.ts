@@ -35,7 +35,11 @@ function cacheKey(resolution: number, date: string): string {
 
 /** 取得可用日期清單 */
 async function fetchAvailableDates(): Promise<string[]> {
-  const { data, error } = await supabase.rpc("get_youbike_h3_dates");
+  const { data, error } = await withLoading(
+    "youbike-h3:dates",
+    "YouBike 網格日期",
+    supabase.rpc("get_youbike_h3_dates"),
+  );
   if (error || !data) return [];
   return (data as { date: string }[]).map((d) => d.date);
 }

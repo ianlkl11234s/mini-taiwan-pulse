@@ -37,7 +37,11 @@ export interface FreewayDayData {
 
 /** 取得可用日期 */
 export async function fetchFreewayDates(): Promise<FreewayDateInfo[]> {
-  const { data, error } = await supabase.rpc("get_freeway_dates");
+  const { data, error } = await withLoading(
+    "freeway:dates",
+    "國道日期",
+    supabase.rpc("get_freeway_dates"),
+  );
   if (error) throw new Error(`get_freeway_dates: ${error.message}`);
   return (data ?? []) as FreewayDateInfo[];
 }

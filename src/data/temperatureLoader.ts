@@ -44,7 +44,11 @@ function gridCoordsToIndex(lat: number, lng: number): number {
 
 /** 找最近有資料的日期。10min TTL 快取，toggle 不重打 get_temperature_dates */
 const resolveTargetDate = cachedOnce(async (): Promise<string> => {
-  const { data: dates, error: datesErr } = await supabase.rpc("get_temperature_dates");
+  const { data: dates, error: datesErr } = await withLoading(
+    "temperature:dates",
+    "氣溫日期",
+    supabase.rpc("get_temperature_dates"),
+  );
   if (datesErr) throw new Error(`get_temperature_dates: ${datesErr.message}`);
   if (!dates || dates.length === 0) throw new Error("No temperature data available");
 

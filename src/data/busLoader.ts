@@ -12,6 +12,9 @@ import { dedupRpc } from "../lib/rpcDebounce";
 const cityRouteCache = new Map<BusCity, BusRouteData>();
 const cityRouteFetching = new Map<BusCity, Promise<BusRouteData>>();
 
+// 公車即時位置：只有初次載入顯示 loading，背景 30s tick 靜默（避免 loading UI 每次閃）
+const busCurrentLoadedOnce = new Set<string>();
+
 /** 載入指定城市的靜態路線幾何（lazy，有 per-city 快取） */
 export async function loadBusRoutesForCity(city: BusCity): Promise<BusRouteData> {
   if (cityRouteCache.has(city)) return cityRouteCache.get(city)!;
@@ -64,9 +67,14 @@ export async function fetchBusCurrent(cities: BusCity[]): Promise<BusPosition[]>
   if (cities.length === 0) return [];
 
   const dedupKey = `get_bus_current:${[...cities].sort().join(",")}`;
+  const firstLoad = !busCurrentLoadedOnce.has(dedupKey);
 
   return dedupRpc(dedupKey, async () => {
-    const { data, error } = await supabase.rpc("get_bus_current", { cities });
+    const rpc = supabase.rpc("get_bus_current", { cities });
+    const { data, error } = await (firstLoad
+      ? withLoading(dedupKey, `公車即時 ${cities.join("/")}`, rpc)
+      : rpc);
+    busCurrentLoadedOnce.add(dedupKey);
     if (error) {
       console.warn("[Bus] RPC error:", error.message);
       return [];
@@ -103,7 +111,11 @@ function parseTrail(trail: string): TrailPoint[] {
 /** 取得可用日期清單 */
 export async function fetchBusDates(): Promise<BusDateInfo[]> {
   if (!supabaseConfigured) return [];
-  const { data, error } = await supabase.rpc("get_bus_dates");
+  const { data, error } = await withLoading(
+    "bus:dates",
+    "公車日期",
+    supabase.rpc("get_bus_dates"),
+  );
   if (error) {
     console.warn("[Bus] get_bus_dates error:", error.message);
     return [];
@@ -206,11 +218,15 @@ export async function loadBusIntercityRoutes(): Promise<BusRouteData> {
 export async function fetchBusIntercityCurrent(): Promise<BusPosition[]> {
   if (!supabaseConfigured) return [];
 
+  const firstLoad = !busCurrentLoadedOnce.has("get_bus_intercity_current");
+
   return dedupRpc("get_bus_intercity_current", async () => {
     // 無 city 過濾：sub_authorities=NULL 取全部
-    const { data, error } = await supabase.rpc("get_bus_intercity_current", {
-      sub_authorities: null,
-    });
+    const rpc = supabase.rpc("get_bus_intercity_current", { sub_authorities: null });
+    const { data, error } = await (firstLoad
+      ? withLoading("get_bus_intercity_current", "公路客運即時", rpc)
+      : rpc);
+    busCurrentLoadedOnce.add("get_bus_intercity_current");
     if (error) {
       console.warn("[BusIntercity] RPC error:", error.message);
       return [];
@@ -234,7 +250,11 @@ export async function fetchBusIntercityCurrent(): Promise<BusPosition[]> {
 /** 取得公路客運可用日期清單 */
 export async function fetchBusIntercityDates(): Promise<BusDateInfo[]> {
   if (!supabaseConfigured) return [];
-  const { data, error } = await supabase.rpc("get_bus_intercity_dates");
+  const { data, error } = await withLoading(
+    "bus-intercity:dates",
+    "公路客運日期",
+    supabase.rpc("get_bus_intercity_dates"),
+  );
   if (error) {
     console.warn("[BusIntercity] get_bus_intercity_dates error:", error.message);
     return [];
