@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedByKey } from "../lib/loaderCache";
 
 export interface FreewayDateInfo {
   date: string;
@@ -75,8 +76,7 @@ function parseLineString(geojsonStr: string): [number, number][] {
   }
 }
 
-/** 載入某一天全部路段 timeline */
-export async function fetchFreewayDay(date: string): Promise<FreewayDayData> {
+async function fetchFreewayDayUncached(date: string): Promise<FreewayDayData> {
   const t0 = performance.now();
   const { data, error } = await withLoading(
     `freeway:${date}`,
@@ -121,6 +121,13 @@ export async function fetchFreewayDay(date: string): Promise<FreewayDayData> {
       end: Number.isFinite(maxTs) ? maxTs : 0,
     },
   };
+}
+
+const fetchFreewayDayCached = cachedByKey(fetchFreewayDayUncached, 10 * 60_000);
+
+/** 載入某一天全部路段 timeline。10min TTL 快取，toggle 不重抓 */
+export function fetchFreewayDay(date: string): Promise<FreewayDayData> {
+  return fetchFreewayDayCached(date);
 }
 
 /** 等級 1~5 對應顏色（順暢 / 車多 / 略壅塞 / 壅塞 / 嚴重壅塞；0 = 無資料） */

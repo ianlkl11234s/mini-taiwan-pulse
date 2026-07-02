@@ -4,6 +4,7 @@
 
 import { supabase, todayTaiwan } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 export interface TemperatureGridData {
   metadata: {
@@ -32,8 +33,6 @@ const GRID_BOTTOM_LAT = 21.88;
 const GRID_BOTTOM_LNG = 120.0;
 const GRID_RESOLUTION = 0.03;
 
-let cached: TemperatureGridData | null = null;
-
 /**
  * 從 grid_lat/grid_lng 計算在 full grid 中的 flat index
  */
@@ -43,22 +42,21 @@ function gridCoordsToIndex(lat: number, lng: number): number {
   return row * GRID_COLS + col;
 }
 
-export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
-  if (cached) return cached;
-  const t0 = performance.now();
-
-  // 找最近有資料的日期
+/** 找最近有資料的日期。10min TTL 快取，toggle 不重打 get_temperature_dates */
+const resolveTargetDate = cachedOnce(async (): Promise<string> => {
   const { data: dates, error: datesErr } = await supabase.rpc("get_temperature_dates");
   if (datesErr) throw new Error(`get_temperature_dates: ${datesErr.message}`);
   if (!dates || dates.length === 0) throw new Error("No temperature data available");
 
   const today = todayTaiwan();
-  let targetDate = (dates as { date: string; frames: number; cells: number }[])
+  const targetDate = (dates as { date: string; frames: number; cells: number }[])
     .filter((d) => d.date <= today && d.frames >= 10)
     .pop()?.date;
-  if (!targetDate) {
-    targetDate = (dates as { date: string }[])[dates.length - 1]!.date;
-  }
+  return targetDate ?? (dates as { date: string }[])[dates.length - 1]!.date;
+}, 10 * 60_000);
+
+async function loadTemperatureGridForDateUncached(targetDate: string): Promise<TemperatureGridData> {
+  const t0 = performance.now();
 
   const [gridRes, framesRes] = await withLoading(
     `temperature:${targetDate}`,
@@ -100,7 +98,7 @@ export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
     `[Temperature/Supabase] ${targetDate}: ${frames.length} frames, ${landIndices.length} cells, ${elapsed}ms`
   );
 
-  cached = {
+  return {
     metadata: {
       rows: GRID_ROWS,
       cols: GRID_COLS,
@@ -113,5 +111,12 @@ export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
     landIndices,
     frames,
   };
-  return cached;
+}
+
+const loadTemperatureGridForDateCached = cachedByKey(loadTemperatureGridForDateUncached, 10 * 60_000);
+
+/** 載入最近有資料日的溫度網格。10min TTL + LRU 快取，toggle 不重抓 */
+export async function loadTemperatureGrid(): Promise<TemperatureGridData> {
+  const targetDate = await resolveTargetDate();
+  return loadTemperatureGridForDateCached(targetDate);
 }
