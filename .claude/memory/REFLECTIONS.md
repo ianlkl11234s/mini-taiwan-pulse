@@ -995,3 +995,13 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 | TBD | memory: rewrite STATUS（PI-1 收尾）|
 | （另檔）| **taipei-gis-analytics** `a44f6f3` 5 檔 pipeline（未 push）|
 | （另檔）| **mini-taiwan-pulse** sidebar `layerCatalog.ts` 警察覆蓋分析降級到執法治安子群（未 commit）|
+
+## 2026-07-02 全球氣候 session — 3 條 next-time
+
+1. **接完 Supabase layer 一定實際 toggle 驗**：颱風軌跡 loader 欄位 bug（center_pressure）讓整個 layer 靜默壞掉、可能壞很久沒人發現。tsc 過 ≠ 有資料。用戶問「有資料嗎」我才去查，一查就發現壞的。→ 接資料 layer 收尾必開來看。
+
+2. **「多來源同實體」要主動想到去重/選擇**：用戶截圖問「這兩個是同一個颱風嗎」我才意識到 JMA/JTWC 雙機構重複。這是資料常識（RSMC vs JTWC），設計颱風 layer 時就該預想，而非被動發現。→ 接多來源資料先問「會不會同一實體出現多次」。
+
+3. **分支整合前先盤點結構再動手**：用戶說「幫我整理成乾淨分支」，我先花時間 map 清楚（哪些已在 master / 哪條混了幾個 feature / memory 內容會不會遺失）再提方案讓用戶選，才動 cherry-pick。混亂分支拆乾淨靠「topic-scoped commit 各自 cherry-pick + 依序 merge + 每次 rebase」——這次 climate/bloom/police 三條乾淨併回，衝突只有 2 個（deps 陣列 + baseline）都好解。
+
+4. **驗證工具的限制要誠實講**：agent-browser 合成 wheel 縮不到全球 zoom（工具限制非 app），拉遠自適應密度我用數值驗算補足並明講「這段我沒法自動驗、麻煩你用真滑鼠看」。別假裝驗過。
