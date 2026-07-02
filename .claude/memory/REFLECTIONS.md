@@ -927,3 +927,34 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 | TBD | memory: reflect REFLECTIONS（本篇）| REFLECTIONS.md |
 
 **session 前 21 個 code commit 不在此列**（警政/司法/民防/isochrone 上線 commits 分批合到 master，見 git log 44d0d2c 之後）。
+
+---
+
+## 2026-07-01/02 — DX Overhaul（Workflow / Docs / Memory 全面升級）
+
+**觸發**：用戶盤整開發流程，目標「下一次開發能有效觸發 SKILLS、避免重複問題」。
+
+**做了什麼**：3 波共 65+ 檔改動 — 建 handoff/ADR/features 骨架、寫 layer-onboarding skill、CLAUDE.md 加 Git Workflow、全域 memory 28→7 大改組。詳見 `docs/proposal/dx-overhaul-2026-07.md`。
+
+**做對的地方**：
+- 用對抗式 Explore agent 平行驗證 memory 涵蓋度，揭露 2 條 critical 缺項（複合索引 / pg_cron TZ 教訓）之前 PRINCIPLES 沒有
+- Auto-trigger 用 4 重備援（PRINCIPLES / CLAUDE / load-session.sh / skill description keywords），單點失效不會全垮
+- 「不刪只 archive」政策 + 帶 canonical 出處 header，救得回
+- 建骨架時同步做 1 個實際範例（real-estate 完整 4 檔）→ 用戶隔天自主上線 bloom-experiments 印證 pattern 可用
+
+**做錯的地方**：
+- Phase 1 & 3 的 12 檔用 `rm` 刪，才被用戶提醒改「移到垃圾桶」→ Phase 2 8 檔才改用 `mv ~/.Trash/`。原檔仍在 `_archive/`（帶 header 備份），但少了一層救援
+- Wave 3 補 5 個 upstream handoff 靠 agent 讀 archive 檔，若 archive header 沒寫清楚 canonical 出處就會斷鏈 — 未來 archive 政策要更嚴謹
+
+**通用教訓（考慮進 PRINCIPLES）**：
+- **對抗式驗證比信任 memory 描述更可靠** — memory 是 snapshot，主檔才是 SSOT；改組前一律對照驗證
+- **auto-trigger 要多重備援** — session hook + rule doc + skill keyword + command 4 重才穩
+- **「不刪只 archive」對用戶承諾** — 未來所有清理走垃圾桶模式，不用 `rm`
+
+| commit | 摘要 | 影響檔案 |
+|---|---|---|
+| f45eddf | Wave 1: skill + Git Workflow + features 骨架 | 15 檔 |
+| 87da753 | Wave 1: analytics handoff + ADR 骨架 | 7 檔 |
+| b65aa8e | Wave 2: memory 28→7 大改組 + 4 缺項補完 | 24 檔 |
+| 6df1b8c | Wave 3: PR/postmortem 模板 + /handoff + agent sync | 8 檔 |
+| c510618 | Wave 3: 5 upstream handoff SSOT | 5 檔 |
