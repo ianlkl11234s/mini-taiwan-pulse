@@ -1146,3 +1146,47 @@ else map.on("style.load", mount);    // ← style 早就 load 完不會再 fire 
 **事件**：apply RPC migration 264 後 smoke test `get_prison_population_window(7)` 回 0 rows。查表 `realtime.prison_population_daily` 只 1 row（2026-05-15），`data-collectors/collectors/correctional_daily_snapshot.py` 沒在跑。
 
 **教訓**：realtime schema 表要驗證 collector 有沒有真的跑，不能單看 migration 存在就假設有資料。BACKLOG 記 collector 待補跑。
+
+## 2026-07-01/02 PI-1 收尾 — 兩個 bug 一起挖出（區界 concat trap + 山區 nearest_node 拉錯）
+
+**Session 脈絡**：接續 2026-07-01 全台 isochrone 跑完後留下的 PI-1（區界斷裂）。原本目標是「照 3 修法 A/B/C 挑一個做」。做完後又意外找到第 2 個 bug（用戶 push 才發現）。
+
+### Bug 1：區界斷裂的真根因不是 bbox 截斷
+
+**首次分析**（錯的）：推薦修法 A「5 區 bbox 各 +0.15° overlap + dedup」，理由是「邊界 station ego_graph 被本區 graph 截斷」。用戶 push「這次確定嗎？之前也說會根治」→ 做「單站測試 + 兩區對照 + 量化指標」3 步驗證前檢查 `15_run_by_region.sh` 才發現：**5 區 bbox 早已有大量 overlap**（north 121.0-121.95 vs north2 120.3-121.4 = lng 0.4° × lat 0.4° = ~40km×44km 重疊）。修法 A 的前提假設從一開始就是錯的。
+
+**真根因**：每區獨立跑 `compute_overlap_count → dissolve` → `16_merge_regions.py` 只做 concat（無 dedup 無 re-dissolve）→ 同片地理區被 5 個區各自 dissolve 產出的 fragments 疊層，每層 overlap_count 值不同（因每區看到的鄰居 station 集合不同）→ 前端 fill-color step 讀 count 出現色塊接不上，看起來像「區界」但其實是同一片區域多層疊色。
+
+**驗證**：10 顆桃竹（north/north2 交界）+ 10 顆嘉南（central/south 交界）station 對照測試：
+- OLD 架構（現行）：8 features / count 分布 `[(1,2),(2,2),(3,2),(4,2)]` — 每個 count 2 個 feature = 2 個區各出 1 個
+- NEW 架構（raw polys → 全域 dedup by entity_id → 全域 dissolve）：4 features / count 分布 `[(1,1),(2,1),(3,1),(4,1)]` — 每個 count 只有 1 個 feature，語意乾淨
+
+### Bug 2：山區 nearest_node 拉錯 4-5 km
+
+**用戶 push（第 2 次）**：「有些派出所沒有抓到，但他就在主要的道路上，這件事不太合理」。截圖顯示榮興（碧綠溪）、泰崗（尖石深山）、大禹（太魯閣）、永竹（嘉義六腳）4 顆。
+
+**首次診斷**（不完整）：查 raw polys 發現 4 顆都有產出、面積各 3-4 km²，我以為「山區半徑天然小，這是資料真實反映」。**用戶再次 push**「請你再好好的確認一下」→ 我做 polygon centroid vs station 座標偏移檢查發現：
+- 泰崗：polygon centroid (121.307, 24.574) vs station (121.296, 24.612) → **偏移 4317m**
+- 榮興：polygon centroid (121.256, 24.257) vs station (121.290, 24.223) → **偏移 5306m**
+- 大禹：285m ✓（本來就在台8主幹道）
+
+drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 station 附近，「跑到隔壁山谷」。
+
+**真根因**：`taiwan-drive.osm.pbf` osmium 已過濾掉 residential/service/track（只留 primary/secondary/tertiary），中橫深山派出所（榮興在碧綠巷、泰崗在秀巒林道）附近**沒 drive 節點** → `ox.nearest_nodes(G, X, Y)` 沒設距離上限，找 3-5 km 外的主幹道節點 → ego_graph 從錯位置展開。既有 fallback `len(node_ids) < 3` 抓不到（節點多但都在錯地方）。
+
+**修法**：加 500m 閾值 + fallback 圓 buffer at station 座標（詳 PRINCIPLES）。修後 掃全台 drive 6 變體：「polygon 不含 station」raw features 從 100+ 降到 23（<1.5%），視作 concave_hull 邊界誤差可接受。
+
+### 執行
+
+- 重構 10/15/16 三檔（拆兩段 raw + dissolve 架構）+ 新增 25_to_pmtiles.sh
+- 全台 Stage 1（walk + drive）第一輪 ~90 min（north 35 min / north2 15 min / central+south+east 40 min）
+- Bug 2 修好後 drive-only 補跑（7 min）
+- S3 上傳 3 PMTiles + git commit taipei-gis-analytics `a44f6f3`（未 push）
+- 副產物：發現 62 顆 station 缺 polygon = 60 顆離島 + 3 顆本島邊界（卯澳/新豐分駐所/座標錯的綠島分駐所）→ PI-2 + PS-1
+
+### 教訓
+
+1. **用戶 push「這次確定嗎」時，先驗證前提假設**（bbox overlap 是否真存在），別急著實作原修法。前提錯了，修法再精緻也白搭。
+2. **「有 polygon」≠「polygon 正確」**：山區 station 有 3-4 km² polygon 看起來正常，但不代表包住 station。GIS 檢查一律：`polygon.contains(Point(station))`。
+3. **看起來合理但不符物理直覺時要再挖**：「深山派出所面積小」聽起來合理但榮興在台8線主幹道旁，「小」不該小到看不見 → 用戶物理直覺對，我第一次沒挖夠深。
+4. **對照測試在動全台前**：10 顆邊界 station 15 min 就跑完 vs 全台 90 min。設計 diagnostic mini-test 而不是直接 dry-run 大工程。
