@@ -752,16 +752,37 @@ find ~ -name "*.osm.pbf" -size +50M 2>/dev/null | head -5
 - 過濾範例：`osmium tags-filter taiwan-latest.osm.pbf w/highway=motorway,trunk,primary,secondary,tertiary,unclassified,motorway_link,... -o taiwan-drive.osm.pbf`
 - pyrosm 讀：`osm = pyrosm.OSM(pbf, bounding_box=bbox); nodes, edges = osm.get_network(network_type="walking")`（⚠ 是 `walking`/`driving`，不是 osmnx 的 `walk`/`drive`）
 
-## 分區跑 isochrone 必留 bbox overlap（2026-07-01）
+## 分區跑覆蓋 layer：raw features → 全域 dedup + 全域 dissolve（2026-07-02 改正）
 
-**規則**：全台範圍太大無法一次跑（graph OOM / Overpass query timeout）時，分區跑的 bbox **必留至少 0.15° (~16km) overlap**，邊界 station 兩區都跑後 dedup。
+**規則**：全台 vector 覆蓋 layer（isochrone / service area 類）分區跑時，**每區只出 raw per-station polygons（不做 dissolve）**，統一在頂層 concat → dedup by entity_id → 全域跑一次 `compute_overlap_count` → dissolve。**禁**「per-region dissolve → concat 到頂層」。
 
-**Why**：本 session 5 區 bbox 完全不重疊，邊界 station 的 `ego_graph` 只在本區 graph 上跑 → 跨區被切斷 → polygon 在區界斷開。桃園/新竹交界、雲林/嘉義交界明顯可見（BACKLOG PI-1）。
+**Why**（改正 2026-07-01 錯誤診斷）：本 session 原本以為區界斷裂是「bbox 不重疊 → ego_graph 截斷」→ 推薦「bbox +0.15° overlap」修法。用戶 push「這次確定嗎」後做對照測試發現：5 區 bbox 實際上**已有 40km overlap**（north/north2 交界 lng 121.0-121.4 lat 24.5-24.9），問題不是 graph 截斷，而是**每區獨立 `compute_overlap_count + dissolve`**：同片地理區域被 5 個區各自 dissolve 產出「不同 overlap_count」的 features → concat 後同片區疊多層不同色 fragment → 前端 fill-color step 讀 count 出現色塊接不上。10 顆桃竹 + 10 顆嘉南 station 對照證實：OLD 8 features 每 count 2 個 vs NEW 4 features 每 count 1 個。
 
 **How to apply**：
-- 5 區 bbox 各邊 +0.15°（原 `120.3,24.1,121.4,24.9` → `120.15,23.95,121.55,25.05`）
-- station 篩選：station 落在 bbox **核心區**（原 bbox）才計入，overlap 帶 station 兩區都跑但 dedup 保留一次
-- pipeline 位置：`taipei-gis-analytics/pipelines/police_justice/isochrone/15_run_by_region.sh`
+- `10_police_isochrone.py` 加 `--polys-only` 只出 per-station raw polygons（每 feature 帶 `entity_id + station_name`）
+- `15_run_by_region.sh` 用 `--polys-only`，per-region 檔名 `*.polys.geojson`
+- `16_merge_regions.py` concat 5 區 raw polys → dedup by entity_id（overlap 帶 station 兩區都跑到，只保留一次）→ 呼叫 `dissolve_polys_to_final()` 全域 compute_overlap_count + dissolve
+- 前端不用改，consume 同樣 combined PMTiles schema
+- **關鍵**：`compute_overlap_count` 必須在**全站集合**上一次算完，不能分區算後合併
+- pipeline：`taipei-gis-analytics/pipelines/police_justice/isochrone/` 5 檔
+
+## nearest_nodes 必加距離閾值 + fallback（2026-07-02）
+
+**規則**：呼叫 `ox.nearest_nodes(G, X=x, Y=y)` 後**必須**檢查 nearest_node 距 station 的距離；> 500m（EPSG:3826 metres）視為「station 不在路網上」，改用理論半徑圓 `Point.buffer(radius_m/111000)` at **station 座標**（不是 node 座標）。
+
+**Why**：本 session 用戶 push「山區榮興/泰崗完全看不到」— 診斷發現 drive PBF osmium 已過濾掉 residential/service/track（只留 primary/secondary/tertiary），中橫深山 station 附近沒 drive 節點 → `nearest_nodes` 回傳 3-5 km 外的主幹道節點 → ego_graph 從錯位置展開 → polygon 完全不在 station 附近（榮興偏移 5306m、泰崗 4317m > drive 5min radius 2739m）。既有 fallback (`len(node_ids) < 3`) 抓不到這種：nearest node 找到、ego_graph 節點也 > 3，只是產物在錯位置。
+
+**How to apply**：
+- station_polygon() 加：
+  ```python
+  node_x, node_y = G_proj.nodes[node]['x'], G_proj.nodes[node]['y']
+  if ((node_x - x)**2 + (node_y - y)**2) ** 0.5 > 500:  # EPSG:3826 m
+      r_deg = radius_m / 111000
+      return Point(station["lng"], station["lat"]).buffer(r_deg, resolution=12)
+  ```
+- 閾值 500m：都市 station 到 nearest node 通常 <100m；山區主幹道旁 500m 內找不到節點 → 視為離線
+- Fallback 圓 buffer 語意：「假設路網完整、可到理論半徑」— overestimates 但比錯位置好，也比 None 好（避免山區完全消失）
+- 修法後掃全台：drive 6 變體「polygon 不含 station」raw feature 從 100+ 降到 23（<1.5%），視作邊界誤差可接受
 
 ## Realtime schema 表要驗證 collector 是否真的在跑（2026-07-01）
 
