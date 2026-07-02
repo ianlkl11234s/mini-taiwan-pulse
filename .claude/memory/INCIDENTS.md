@@ -1190,3 +1190,25 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 2. **「有 polygon」≠「polygon 正確」**：山區 station 有 3-4 km² polygon 看起來正常，但不代表包住 station。GIS 檢查一律：`polygon.contains(Point(station))`。
 3. **看起來合理但不符物理直覺時要再挖**：「深山派出所面積小」聽起來合理但榮興在台8線主幹道旁，「小」不該小到看不見 → 用戶物理直覺對，我第一次沒挖夠深。
 4. **對照測試在動全台前**：10 顆邊界 station 15 min 就跑完 vs 全台 90 min。設計 diagnostic mini-test 而不是直接 dry-run 大工程。
+
+## 2026-07-02 全球氣候上線 4 事件
+
+### CMEMS subset 單檔 18.7GB 爆量
+- **現象**：CMEMS bbox 從台灣 9°×8° 擴到西太 60°×45° 後，Zeabur 上 `cmems_currents.nc` 單檔 18.7GB + sst 9.4GB，container 被 health check 判死重啟 → 每 ~25 min 重跑一輪，一下午 56GB 上 S3。
+- **根因**：`copernicusmarine subset` **沒帶 `--start/--end-datetime`** → 抓整段 anfc 時間軸（多年 analysis + 10 天 forecast）。台灣小 bbox 時 2.7MB 沒人發現，擴域後爆。
+- **修法**：subset 固定帶「今日 00Z +48h」時間範圍（data-collectors PR #25）。實測 currents 27MB。刪 S3 5 個廢檔 ~70GB。
+
+### 颱風軌跡圖層一直是壞的（loader 欄位 bug 靜默失敗）
+- **現象**：颱風軌跡 toggle 打開一片空白，layer 完全沒建。
+- **根因**：`typhoonTracksLoader` select `center_pressure`，但 public.typhoon_positions 欄位是 `center_pressure_hpa` → PostgREST 整包查詢報錯 → catch 只 console.warn → layer 靜默不建。**接了 layer 沒實際 toggle 驗，壞很久沒發現**。
+- **修法**：欄位名對照（TY-1）。教訓 → PRINCIPLES「前端 loader 欄位名要對照 DB 驗」。
+
+### Mekkhala 軌跡穿越 X（JMA preTyphoon 時間戳碰撞）
+- **現象**：Mekkhala 軌跡在日本外海（32°N）和關島（13°N）間來回畫穿越線，3 小時跳 2200km。
+- **根因**：JMA bosai forecast.json 的 preTyphoon / typhoon / analysis 段用**同一時間戳**，排序後交錯。
+- **修法**：loader 依「相鄰點跳躍 > 120km/h×時距 + 250km」斷開 LineString（TY-5）+ 同時刻多點質心去重（TY-4）。
+
+### data-collectors 雲端缺依賴（env 設了但沒套件）
+- **現象**：GFS/CMEMS/CAMS 三 collector env `_ENABLED=true` 都設了卻沒資料。
+- **根因**：requirements.txt 缺 xarray/cfgrib/cdsapi/copernicusmarine + Dockerfile 缺 libeccodes0 → lazy import 掛。**只有 USGS/JMA/JTWC（無額外套件）活著**。
+- **修法**：PR #24 補依賴。教訓 → 「env 開了沒效果先查 image 是否有套件」。
