@@ -964,6 +964,14 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
+        title: "警察覆蓋分析",
+        layers: [
+          { key: "policeIsoSubstation", label: "派出所 5/10 min", expandable: true },
+          { key: "policeIsoPrecinct", label: "分局 15/30 min", expandable: true },
+          { key: "policeIsoCityDept", label: "縣市警局 30/60 min", expandable: true },
+        ],
+      },
+      {
         title: "司法矯正",
         layers: [
           { key: "court", label: "法院 Courts", expandable: true },
@@ -1009,22 +1017,6 @@ export const THEMES: ThemeDef[] = [
     ],
   },
 
-  // ───────────────────────────────────────────────────────────────
-  // 🚔 POLICE COVERAGE 警察覆蓋分析（isochrone × overlap_count）
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "警察覆蓋分析 Police Coverage",
-    groups: [
-      {
-        title: "等時圈（多站重疊深色）",
-        layers: [
-          { key: "policeIsoSubstation", label: "派出所 5/10 min", expandable: true },
-          { key: "policeIsoPrecinct", label: "分局 15/30 min", expandable: true },
-          { key: "policeIsoCityDept", label: "縣市警局 30/60 min", expandable: true },
-        ],
-      },
-    ],
-  },
 ];
 
 // ── SECTIONS（derived flat — backward compat for 兩個 sidebar 元件）──
