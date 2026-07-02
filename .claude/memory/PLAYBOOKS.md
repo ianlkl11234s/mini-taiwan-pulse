@@ -1381,14 +1381,17 @@ git status -s
 - 「不同層級的可能覆蓋範圍蝶圖」— 3 層機構各自 isochrone
 - 「重疊越多顏色越深」= service coverage overlap count / service redundancy
 
-### 4 檔 pipeline（`taipei-gis-analytics/pipelines/police_justice/isochrone/`）
+### 5 檔 pipeline（`taipei-gis-analytics/pipelines/police_justice/isochrone/`）
+
+**架構（2026-07-02 PI-1 收尾後定型）**：Stage 1 只出 raw per-station polys（不 dissolve），Stage 2 全域 dedup + 全域 dissolve。禁「per-region dissolve → concat」（會產生同片區域多 count 疊層）。
 
 | 檔 | 職責 |
 |---|---|
-| `10_police_isochrone.py` | 主 script：pyrosm 讀 PBF → per-station ego_graph → concave_hull(0.5) + buffer 15% + simplify → polygonize + STRtree.covers → **dissolve by overlap_count** |
-| `15_run_by_region.sh` | 分 5 區跑（north/north2/central/south/east）— 全台 walk graph 6M nodes OOM 的救援；每區獨立 process 跑 `--all` 12 變體，mv 到 `by_region/{name}/` |
-| `16_merge_regions.py` | 5 區同變體 GeoJSON 合成 1 個 → 進 `by_region/*/police_iso_{tier}_{mode}_{min}min.geojson` → 頂層 `police_iso_{tier}_{mode}_{min}min.geojson` |
+| `10_police_isochrone.py` | 主 script：pyrosm 讀 PBF → per-station ego_graph → concave_hull(0.5) + buffer 15% + simplify。**`--polys-only` mode 只出 raw per-station polygons（每 feature 帶 `entity_id + station_name`），檔名 `*.polys.geojson`**。全 mode 才走完整 polygonize + dissolve。`--mode-filter walk/drive` 搭配 `--all` 只跑指定 mode 變體。`station_polygon()` 加 500m 閾值 fallback（山區離線 station → 圓 buffer at station 座標） |
+| `15_run_by_region.sh` | 分 5 區跑（north/north2/central/south/east）— 全台 walk graph 6M nodes OOM 的救援；每區跑 `--all --polys-only`，mv `*.polys.geojson` 到 `by_region/{name}/`。**不做 dissolve** |
+| `16_merge_regions.py` | Concat 5 區 raw polys → dedup by entity_id（overlap 帶 station 兩區都跑到，dedup 保留一次）→ 呼叫 `mod.dissolve_polys_to_final()` **全域 compute_overlap_count + dissolve** → 產最終 `police_iso_{tier}_{mode}_{min}min.geojson` |
 | `20_merge_combined.py` | 同 tier 4 變體（walk 5/10 + drive 5/10）合進 1 個 combined GeoJSON（每 feature 帶 `tier + mode + minutes + overlap_count`），前端用 case fill-opacity 按 mode/minutes 切、不換 sourceUrl |
+| `25_to_pmtiles.sh` | tippecanoe 產 3 個 combined PMTiles：`-Z4 -z14 --coalesce-densest-as-needed --no-tile-size-limit -y overlap_count -y mode -y minutes` |
 
 ### 前端接線 pattern
 
@@ -1403,10 +1406,11 @@ git status -s
 - concave_hull(0.3) → 26,644 micro fragments
 - concave_hull(0.5) + buffer + **dissolve by overlap_count** → 73 features 乾淨階梯
 
-### 已知限制（→ BACKLOG PI-1）
+### 已知限制 / 已收尾
 
-- 分區 bbox 不重疊 → 邊界 station ego_graph 被切 → polygon 區界斷開
-- 3 修法：bbox 各 +0.15° overlap / raster heatmap / 補丁 pass
+- **PI-1 收尾（2026-07-02）**：區界斷裂修好（改架構：per-region raw polys → 全域 dedup + dissolve），山區偏移修好（500m 閾值 + fallback 圓 buffer）
+- **PI-2 open**：離島 60 顆 substation 無 isochrone（澎湖 27 / 金門 6 / 馬祖 3 / 綠島 1 / 恆春 2 / 本島邊界 3）— 主島 bbox 排除，需另抓離島 OSM PBF
+- **PS-1 open**：`police_stations` upstream geocode bug（綠島分駐所座標 26.22 位於馬祖，屬 taipei-gis-analytics 上游）
 
 ### 觸發詞
 
