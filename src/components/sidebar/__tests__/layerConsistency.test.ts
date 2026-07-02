@@ -89,6 +89,8 @@ const BASELINE_NO_LEGEND = new Set([
   "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical", "wfMonitoring",
   "wfRecycling", "wfScrapYard", "wfOther", "wdClothes", "wdMixed",
   "wdRecyclingContainer", "wdBattery",
+  // Bloom 實驗層：單色光暈疊在既有 layer 上（發電廠/變電所/電線/航空管制），無分類 → 鐵則 2 不適用
+  "powerPlantGlow", "substationEhvGlow", "powerLinesGlow", "aviationRestrictedGlow",
   // Energy MVP：充電站單色 POI — 鐵則 2 只要求分類 ≥ 2 才需圖例
   // osmSubstations 已升級 migration 235 電網層級分色 → 已從 baseline 移除（接 SubstationLegend）
   "evChargingStations",

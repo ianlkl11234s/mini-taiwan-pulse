@@ -194,6 +194,10 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   satellitesIsrael: Satellite,
   // 能源 ENERGY MVP
   powerPlants: Zap,
+  powerPlantGlow: Zap,
+  substationEhvGlow: Zap,
+  powerLinesGlow: Zap,
+  aviationRestrictedGlow: Zap,
   powerStatusHud: Activity,
   powerRegionDemand: BarChart3,
   powerGenerationUnit: Power,

@@ -76,6 +76,10 @@ import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
 import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
+import { usePowerPlantGlowLayer } from "./hooks/usePowerPlantGlowLayer";
+import { useSubstationEhvGlowLayer } from "./hooks/useSubstationEhvGlowLayer";
+import { usePowerLinesGlowTestLayer } from "./hooks/usePowerLinesGlowTestLayer";
+import { useAviationRestrictedGlowLayer } from "./hooks/useAviationRestrictedGlowLayer";
 import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
 // PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
@@ -885,6 +889,29 @@ export default function App() {
     layerVisibility.powerGenerationUnit,
     transportParams.overlayParams.powerGenerationOpacity ?? 0.7,
     transportParams.overlayParams.powerGenerationHeight ?? 1,
+  );
+  usePowerPlantGlowLayer(
+    mapRef,
+    layerVisibility.powerPlantGlow,
+    transportParams.overlayParams.powerPlantGlowOpacity ?? 0.9,
+    transportParams.overlayParams.powerPlantGlowSize ?? 1,
+  );
+  useSubstationEhvGlowLayer(
+    mapRef,
+    layerVisibility.substationEhvGlow,
+    transportParams.overlayParams.substationEhvGlowOpacity ?? 0.9,
+    transportParams.overlayParams.substationEhvGlowSize ?? 1,
+  );
+  usePowerLinesGlowTestLayer(
+    mapRef,
+    layerVisibility.powerLinesGlow,
+    transportParams.overlayParams.powerLinesGlowOpacity ?? 0.7,
+    transportParams.overlayParams.powerLinesGlowWidth ?? 2,
+  );
+  useAviationRestrictedGlowLayer(
+    mapRef,
+    layerVisibility.aviationRestrictedGlow,
+    transportParams.overlayParams.aviationRestrictedGlowOpacity ?? 0.85,
   );
 
   // ── HAZARD（v2 Phase B）──

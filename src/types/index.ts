@@ -185,6 +185,10 @@ export type ExpandableLayerKey =
   | "hikingTrails"
   // ENERGY MVP
   | "powerPlants"
+  | "powerPlantGlow"
+  | "substationEhvGlow"
+  | "powerLinesGlow"
+  | "aviationRestrictedGlow"
   | "powerGenerationUnit"
   | "osmSubstations"
   | "osmSubstationsEhv"
@@ -818,6 +822,10 @@ export interface LayerVisibility {
   satellitesIsrael: boolean;
   // 能源 ENERGY MVP 第一波（feat/energy-mvp）
   powerPlants: boolean;          // all_power_plants_v 10,665 設施（按 fuel_type 分色 + capacity_mw 分大小）
+  powerPlantGlow: boolean;       // 發電廠 Bloom 測試（Three.js CustomLayer 偽 bloom halo）
+  substationEhvGlow: boolean;    // 超高壓變電所 Bloom 測試（複用 GlowPointsScene）
+  powerLinesGlow: boolean;       // 高壓輸電線 Bloom 測試（複用 OsmPowerLinesGlowScene，開爆炸參數）
+  aviationRestrictedGlow: boolean; // 機場管制/限航/危險 rim glow（Mapbox 4-layer stacked）
   powerStatusHud: boolean;       // 供電燈號 KPI HUD（top-left 卡片）
   powerRegionDemand: boolean;    // 北中南東 4 區 3D bars（質心柱，高 ∝ consumption_mw，色 = reserve_indicator）
   powerGenerationUnit: boolean;  // 機組即時出力 3D beam（InstancedMesh，高 ∝ output_load_rate）

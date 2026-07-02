@@ -785,3 +785,29 @@ find public -name "*.geojson" | grep -i "topic"
 **Why**：本 session 規劃 airport layer 時，plan 寫「建 4 點 airports.geojson」— 用戶提「不是有現成的？」grep 才發現 `public/geo/airports.geojson` 早就存在 Polygon + iata/icao 全欄，`LayerVisibility.airports` + `LAYER_COLORS.airports` + sidebar + `AirportPanel` + `AirportSelector` cameraPreset 全串好。差點重建。
 
 **How to apply**：任何新 layer 骨架 plan 起手 = `grep + find + git log --all -- "*topic*"` 三連查。用戶記憶通常 > 我對 codebase 的直覺。
+
+## 一 Mapbox gl context 只掛一個 Three.js CustomLayer 實例（2026-07-01）
+
+**規則**：想在同一份 Mapbox map 上做多個 Three.js 特效時，**共用同一個 CustomLayer + 內部 Scene**，多個效果走 InstancedMesh / group 分。**不要 mount 兩個獨立 CustomLayer（各自 new THREE.WebGLRenderer）**。
+
+**Why**：`feat/power-plant-glow` 新增 `PowerLinesGlowTestLayer` 想跟既有 `OsmPowerLinesGlow` 並存做視覺對照 → setData 收到 2,305 條、log 全綠、畫面卻完全沒東西。根因：兩個 `THREE.WebGLRenderer` 各包同一 gl context，各自維持 state cache；第一個 renderer 跑完 GL state 被改動，第二個以為 state 是預設 → shader program / VBO / uniform 對不上 → 什麼都不畫。
+
+**How to apply**：
+- 需要多個 Three.js 特效 → 塞進**同一個 Scene**（用 mesh 分組 / uniform 分色）
+- 若真的要「A / B 對照」的並存 → **改走純 Mapbox 疊層**（`line-blur` × 多 pass）避開 Three.js
+- 也不要 hot-reload 期間把舊 CustomLayer 忘記 removeLayer 就 addLayer 新 CustomLayer，同樣會踩
+
+詳細案例：`docs/features/bloom-experiments/README.md#pitfall`。
+
+## Bloom / halo 光暈類視覺一定要 zoom 自適應（2026-07-01）
+
+**規則**：Three.js Points 的 `gl_PointSize` 跟 Mapbox `line-blur` 都是**螢幕像素**，跟 map zoom 完全脫鉤 → 拉遠光暈會佔滿畫面看不到底圖。設計 bloom layer 時，size / blur 一律走 zoom 縮放係數。
+
+**Why**：`feat/power-plant-glow` 一開始沒加 zoom scaling，全台 zoom 5 開發電廠 Bloom → 每顆廠光暈占 1/4 台灣，變成一片白霧看不到分佈。
+
+**How to apply**：
+- Three.js shader：加 `uniform float uZoomScale`，每 frame 由 CustomLayer 讀 `map.getZoom()` 換算（`pow(1.5, zoom - REF)` clamp 0.15~3.5）
+- Mapbox line / fill：`"line-blur": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 12, 4]`
+- 保底再開一個「大小 slider」給用戶手動微調（自動 + 手動雙控最順）
+
+Ref：`docs/features/bloom-experiments/README.md`
