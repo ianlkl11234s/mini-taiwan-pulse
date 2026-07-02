@@ -40,13 +40,15 @@ export function useDustForecastLayer(
       // 已存在 → 不重複加
       if (map.getLayer(LAYER_ID)) return;
       try {
-        const meta: DustMeta = await fetch("./climate/dust_latest.json").then((r) => r.json());
+        const meta: DustMeta = await fetch("./climate/dust_latest.json", { cache: "no-cache" }).then((r) => r.json());
         if (cancelled) return;
         const [lonMin, latMin, lonMax, latMax] = meta.bbox;
+        // valid_at 帶進 PNG URL 破快取（S3 每日重烤 → 前端追得上）
+        const pngUrl = "./climate/dust_latest.png" + (meta.valid_at ? `?v=${encodeURIComponent(meta.valid_at)}` : "");
         if (!map.getSource(SOURCE_ID)) {
           map.addSource(SOURCE_ID, {
             type: "image",
-            url: "./climate/dust_latest.png",
+            url: pngUrl,
             coordinates: [
               [lonMin, latMax], // top-left
               [lonMax, latMax], // top-right

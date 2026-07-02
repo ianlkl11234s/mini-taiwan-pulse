@@ -12,6 +12,10 @@ import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import {
+  WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX,
+  DUST_BAKE_STOPS, rampToGradient,
+} from "../map/climateRamps";
+import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
 } from "../data/fireTypes";
@@ -113,6 +117,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
   { keys: ["earthquakesGlobal"], render: () => <EarthquakeGlobalLegend /> },
   { keys: ["typhoonTracks"], render: () => <TyphoonTrackLegend /> },
+  { keys: ["windField"], render: () => <WindFieldLegend /> },
+  { keys: ["oceanCurrents"], render: () => <OceanCurrentsLegend /> },
+  { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
@@ -918,30 +925,103 @@ function TyphoonTrackLegend() {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <div style={{ width: 28, height: 0, borderTop: "2px solid #a855f7", flexShrink: 0 }} />
-          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>觀測軌跡 Observed</span>
+          <div style={{ width: 28, height: 0, borderTop: "3px solid #a855f7", flexShrink: 0 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>實際軌跡 Observed（實心紫）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div
             style={{
               width: 28,
               height: 0,
-              borderTop: "2px dashed #c084fc",
+              borderTop: "2px dashed #38bdf8",
               flexShrink: 0,
             }}
           />
-          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>預報軌跡 Forecast</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>預測軌跡 Forecast（藍虛線 / 空心點）</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <div
             style={{
-              width: 8, height: 8, borderRadius: RADIUS.full,
-              background: "#a855f7", border: "1px solid white", flexShrink: 0,
+              width: 12, height: 12, borderRadius: RADIUS.full,
+              background: "transparent", border: "2px solid #fde047", flexShrink: 0,
+              boxShadow: "0 0 4px rgba(240,171,252,0.6)",
             }}
           />
-          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>軌跡點（click 看詳情）</span>
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>現在位置 Current（黃圈，click 看詳情）</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── 全球氣候場 Legends（色階與 climateRamps.ts 共用，改色兩邊同步）──
+
+function ClimateGradientBar({ gradient, labels }: { gradient: string; labels: string[] }) {
+  return (
+    <>
+      <div style={{ height: 8, borderRadius: RADIUS.md, background: gradient }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 1 }}>
+        {labels.map((l) => (
+          <span key={l} style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>{l}</span>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function WindFieldLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        WIND 10M · NOAA GFS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>
+        風速 Wind speed (m/s)
+      </div>
+      <ClimateGradientBar
+        gradient={rampToGradient(WIND_FIELD_RAMP)}
+        labels={["0", "10", "20", `${WIND_SPEED_MAX}+`]}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4 }}>
+        click 地圖任一點讀風速/風向
+      </div>
+    </div>
+  );
+}
+
+function OceanCurrentsLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        OCEAN CURRENTS · CMEMS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>
+        流速 Current speed (m/s)
+      </div>
+      <ClimateGradientBar
+        gradient={rampToGradient(OCEAN_CURRENTS_RAMP)}
+        labels={["0", "0.6", "1.2", `${OCEAN_SPEED_MAX.toFixed(1)}+`]}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4 }}>
+        click 海面任一點讀流速/流向
+      </div>
+    </div>
+  );
+}
+
+function DustForecastLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        DUST AOD 550NM · CAMS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>
+        沙塵光學厚度（相對色階，透明 = 無沙塵）
+      </div>
+      <ClimateGradientBar
+        gradient={`linear-gradient(to right, ${DUST_BAKE_STOPS.map((s) => `${s.color} ${(s.t * 100).toFixed(0)}%`).join(", ")})`}
+        labels={["低 Low", "高 High"]}
+      />
     </div>
   );
 }

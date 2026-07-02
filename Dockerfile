@@ -19,8 +19,9 @@ RUN apk add --no-cache aws-cli
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist /usr/share/nginx/html
 COPY scripts/deploy/pull-deploy-assets.sh /usr/local/bin/pull-deploy-assets.sh
+COPY scripts/deploy/refresh-climate.sh /usr/local/bin/refresh-climate.sh
 COPY scripts/deploy/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/pull-deploy-assets.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/pull-deploy-assets.sh /usr/local/bin/refresh-climate.sh /usr/local/bin/entrypoint.sh
 
 EXPOSE 8080
 

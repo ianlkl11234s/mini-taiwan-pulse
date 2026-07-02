@@ -39,7 +39,7 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
   EvIslandPanel,
 } from "./energyPanels";
 import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
-import { EarthquakeGlobalPanel, TyphoonTrackPanel } from "./globalClimatePanels";
+import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel } from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
@@ -165,6 +165,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   nuclearStation: NuclearStationPanel,
   earthquakeGlobal: EarthquakeGlobalPanel,
   typhoonTrack: TyphoonTrackPanel,
+  climateField: ClimateFieldPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
@@ -303,6 +304,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   nuclearStation: "核安觀測站",
   earthquakeGlobal: "全球地震 USGS",
   typhoonTrack: "颱風軌跡",
+  climateField: "氣候場讀值",
   // Base map
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",

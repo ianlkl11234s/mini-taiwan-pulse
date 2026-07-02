@@ -9,6 +9,7 @@ import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
 import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
+import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sessionTracker } from "../lib/sessionTracker";
 
 interface TooltipInfo {
@@ -248,7 +249,7 @@ export function useMapInteraction(
           { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
           // 全球氣候 GLOBAL CLIMATE
           { layers: ["earthquakes-global-circle"], type: "earthquakeGlobal" },
-          { layers: ["typhoon-tracks-points"], type: "typhoonTrack" },
+          { layers: ["typhoon-tracks-current-ring", "typhoon-tracks-current-dot", "typhoon-tracks-points"], type: "typhoonTrack" },
           { layers: ["port-polygons-fill", "port-polygons-line", "port-polygons-glow-1", "port-polygons-glow-2"], type: "port" },
           { layers: ["airport-boundaries-fill", "airport-boundaries-line", "airport-boundaries-glow-1", "airport-boundaries-glow-2"], type: "airport" },
           { layers: ["cctv-circle", "cctv-glow"], type: "cctv" },
@@ -381,7 +382,30 @@ export function useMapInteraction(
             break;
           }
         }
-        if (!found) setFeatureInfo(null);
+        // 沒命中任何向量 feature → 風場/海流開啟時改讀氣候 UV 場（nullschool 式點擊讀值）
+        if (!found) {
+          if (vis?.windField || vis?.oceanCurrents) {
+            const lng = e.lngLat.lng;
+            const lat = e.lngLat.lat;
+            void sampleClimateFields(
+              { wind: !!vis?.windField, currents: !!vis?.oceanCurrents },
+              lng, lat,
+            ).then((sample) => {
+              if (sample) {
+                setFeatureInfo({
+                  layerType: "climateField",
+                  properties: { wind: sample.wind, currents: sample.currents },
+                  coords: [lng, lat],
+                });
+                sessionTracker.log("feature_click", { layerType: "climateField" });
+              } else {
+                setFeatureInfo(null);
+              }
+            });
+          } else {
+            setFeatureInfo(null);
+          }
+        }
       }
     });
 

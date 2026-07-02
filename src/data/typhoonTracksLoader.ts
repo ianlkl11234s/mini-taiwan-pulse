@@ -30,7 +30,7 @@ interface RawRow {
   name_en: string | null;
   center_lat: number | null;
   center_lon: number | null;
-  center_pressure: number | null;
+  center_pressure_hpa: number | null;
   max_wind_kt: number | null;
 }
 
@@ -42,7 +42,7 @@ async function fetchTyphoonPointsUncached(): Promise<TyphoonPoint[]> {
     supabase
       .from("typhoon_positions")
       .select(
-        "storm_id,source,valid_at,point_type,advisory_number,name_local,name_en,center_lat,center_lon,center_pressure,max_wind_kt",
+        "storm_id,source,valid_at,point_type,advisory_number,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt",
       )
       .order("valid_at", { ascending: true })
       .limit(5000),
@@ -63,7 +63,7 @@ async function fetchTyphoonPointsUncached(): Promise<TyphoonPoint[]> {
       name_local: r.name_local ?? "",
       center_lat: Number(r.center_lat),
       center_lon: Number(r.center_lon),
-      center_pressure: r.center_pressure == null ? null : Number(r.center_pressure),
+      center_pressure: r.center_pressure_hpa == null ? null : Number(r.center_pressure_hpa),
       max_wind_kt: r.max_wind_kt == null ? null : Number(r.max_wind_kt),
     });
   }
@@ -82,9 +82,77 @@ export function fetchTyphoonPoints(): Promise<TyphoonPoint[]> {
  * - LineString per (storm_id, source, point_type) — 觀測 / 預報各一條
  * - Point per row — 給 hover popup
  */
+/** 活躍門檻：storm 最新觀測點若落後「全體最新觀測」超過此秒數，視為已消散，不標現在位置。 */
+const ACTIVE_WINDOW_SEC = 48 * 3600;
+
+// 颱風前進最快約 120 km/h；相鄰點距離超過「120×時距 + 緩衝」視為資料異常（JMA preTyphoon
+// 時間戳與主軌跡交錯造成的跳點），在此斷開 LineString，避免畫出穿越整張圖的假線。
+const MAX_STORM_KMH = 120;
+const JUMP_BUFFER_KM = 250;
+
+function haversineKm(a: [number, number], b: [number, number]): number {
+  const R = 6371;
+  const dLat = ((b[1] - a[1]) * Math.PI) / 180;
+  const dLon = ((b[0] - a[0]) * Math.PI) / 180;
+  const la1 = (a[1] * Math.PI) / 180;
+  const la2 = (b[1] * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+/** 把時序點陣列切成多段（相鄰點跳躍不合理處斷開），每段回傳座標陣列。 */
+function splitOnJumps(arr: TyphoonPoint[]): number[][][] {
+  const segments: number[][][] = [];
+  let cur: number[][] = [];
+  for (let i = 0; i < arr.length; i++) {
+    const p = arr[i]!;
+    const coord = [p.center_lon, p.center_lat];
+    if (cur.length > 0) {
+      const prev = arr[i - 1]!;
+      const dtHr = Math.max(0.5, (p.valid_ts - prev.valid_ts) / 3600);
+      const maxKm = MAX_STORM_KMH * dtHr + JUMP_BUFFER_KM;
+      if (haversineKm([prev.center_lon, prev.center_lat], [p.center_lon, p.center_lat]) > maxKm) {
+        if (cur.length >= 2) segments.push(cur);
+        cur = [];
+      }
+    }
+    cur.push(coord);
+  }
+  if (cur.length >= 2) segments.push(cur);
+  return segments;
+}
+
+/**
+ * 同一 storm×source×point_type×時刻若有多點（JMA preTyphoon/typhoon/analysis 段
+ * 用同時間戳），合成單一質心點，消除軌跡鋸齒與堆疊點。
+ */
+function dedupeSameTimestamp(pts: TyphoonPoint[]): TyphoonPoint[] {
+  const acc = new Map<string, { lat: number; lon: number; n: number; wind: number | null; press: number | null; base: TyphoonPoint }>();
+  for (const p of pts) {
+    if (p.center_lat == null || p.center_lon == null) continue;
+    const key = `${p.storm_id}::${p.source}::${p.point_type}::${p.valid_ts}`;
+    const cur = acc.get(key);
+    if (!cur) {
+      acc.set(key, { lat: p.center_lat, lon: p.center_lon, n: 1, wind: p.max_wind_kt, press: p.center_pressure, base: p });
+    } else {
+      cur.lat += p.center_lat; cur.lon += p.center_lon; cur.n += 1;
+      if (p.max_wind_kt != null) cur.wind = Math.max(cur.wind ?? 0, p.max_wind_kt);
+      if (p.center_pressure != null) cur.press = Math.min(cur.press ?? Infinity, p.center_pressure);
+    }
+  }
+  return [...acc.values()].map((a) => ({
+    ...a.base,
+    center_lat: a.lat / a.n,
+    center_lon: a.lon / a.n,
+    max_wind_kt: a.wind,
+    center_pressure: a.press === Infinity ? null : a.press,
+  }));
+}
+
 export function typhoonPointsToGeoJSON(
-  pts: TyphoonPoint[],
-): { lines: GeoJSON.FeatureCollection; points: GeoJSON.FeatureCollection } {
+  rawPts: TyphoonPoint[],
+): { lines: GeoJSON.FeatureCollection; points: GeoJSON.FeatureCollection; current: GeoJSON.FeatureCollection } {
+  const pts = dedupeSameTimestamp(rawPts);
   const groups = new Map<string, TyphoonPoint[]>();
   for (const p of pts) {
     const key = `${p.storm_id}::${p.source}::${p.point_type}`;
@@ -98,20 +166,20 @@ export function typhoonPointsToGeoJSON(
     arr.sort((a, b) => a.valid_ts - b.valid_ts);
     const [stormId, source, pointType] = key.split("::");
     const head = arr[0]!;
-    lineFeatures.push({
-      type: "Feature",
-      geometry: {
-        type: "LineString",
-        coordinates: arr.map((p) => [p.center_lon, p.center_lat]),
-      },
-      properties: {
-        storm_id: stormId,
-        source,
-        point_type: pointType,
-        name_en: head.name_en,
-        name_local: head.name_local,
-      },
-    });
+    // 在不合理跳點處斷開成多段（避免 JMA preTyphoon 時間戳交錯畫出穿越假線）
+    for (const coords of splitOnJumps(arr)) {
+      lineFeatures.push({
+        type: "Feature",
+        geometry: { type: "LineString", coordinates: coords },
+        properties: {
+          storm_id: stormId,
+          source,
+          point_type: pointType,
+          name_en: head.name_en,
+          name_local: head.name_local,
+        },
+      });
+    }
   }
   const pointFeatures: GeoJSON.Feature[] = pts.map((p) => ({
     type: "Feature",
@@ -128,8 +196,38 @@ export function typhoonPointsToGeoJSON(
       max_wind_kt: p.max_wind_kt,
     },
   }));
+  // 現在位置：每個「活躍」storm×source 的最新觀測點（畫成醒目圈圈）
+  const latestByStorm = new Map<string, TyphoonPoint>();
+  let globalMaxObs = 0;
+  for (const p of pts) {
+    if (p.point_type !== "observed") continue;
+    globalMaxObs = Math.max(globalMaxObs, p.valid_ts);
+    const key = `${p.storm_id}::${p.source}`;
+    const cur = latestByStorm.get(key);
+    if (!cur || p.valid_ts > cur.valid_ts) latestByStorm.set(key, p);
+  }
+  const currentFeatures: GeoJSON.Feature[] = [];
+  for (const p of latestByStorm.values()) {
+    if (globalMaxObs - p.valid_ts > ACTIVE_WINDOW_SEC) continue; // 已消散
+    currentFeatures.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [p.center_lon, p.center_lat] },
+      properties: {
+        storm_id: p.storm_id,
+        source: p.source,
+        point_type: p.point_type,
+        valid_ts: p.valid_ts,
+        name_en: p.name_en,
+        name_local: p.name_local,
+        center_pressure: p.center_pressure,
+        max_wind_kt: p.max_wind_kt,
+      },
+    });
+  }
+
   return {
     lines: { type: "FeatureCollection", features: lineFeatures },
     points: { type: "FeatureCollection", features: pointFeatures },
+    current: { type: "FeatureCollection", features: currentFeatures },
   };
 }

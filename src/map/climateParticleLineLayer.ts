@@ -21,9 +21,28 @@ export interface ClimateParticleLineLayerOptions {
   particleAlpha?: number;
   /** 粒子色帶（速度 0→1）。 */
   rampColors?: Record<number, string>;
+  /**
+   * zoom 自適應密度：拉遠（視野大）自動增加粒子填滿，拉近回到 getParticleCount 基準值。
+   * 預設開啟；baseZoom 以下每少 1 級 zoom 乘 perLevel，封頂 maxBoost。
+   */
+  adaptiveDensity?: boolean;
 }
 
-interface ClimateMeta {
+// zoom ≥ ADAPTIVE_BASE_ZOOM 用 slider 基準值；每往下 1 級 ×(1+PER_LEVEL)，封頂 MAX_BOOST。
+const ADAPTIVE_BASE_ZOOM = 5.5;
+const ADAPTIVE_PER_LEVEL = 0.7;
+const ADAPTIVE_MAX_BOOST = 6;
+// 量化到此倍數的粒子數，避免連續 zoom 每幀重配置陣列。
+const ADAPTIVE_QUANTUM = 4000;
+
+function adaptiveCount(base: number, zoom: number): number {
+  const boost = clamp(1 + Math.max(0, ADAPTIVE_BASE_ZOOM - zoom) * ADAPTIVE_PER_LEVEL, 1, ADAPTIVE_MAX_BOOST);
+  if (boost <= 1) return base; // 近景維持 slider 精確值
+  // 拉遠才加成，量化到 QUANTUM 避免連續 zoom 每幀重配置陣列
+  return Math.round(base * boost / ADAPTIVE_QUANTUM) * ADAPTIVE_QUANTUM || base;
+}
+
+export interface ClimateMeta {
   width: number;
   height: number;
   u_min: number;
@@ -31,9 +50,11 @@ interface ClimateMeta {
   v_min: number;
   v_max: number;
   bbox: [number, number, number, number];
+  dataset?: string;
+  valid_at?: string;
 }
 
-interface ClimateRasterData {
+export interface ClimateRasterData {
   meta: ClimateMeta;
   data: Uint8ClampedArray;
 }
@@ -51,6 +72,13 @@ const MAX_FRAME_DT = 1 / 20;
 const MIN_PARTICLES = 500;
 const MAX_PARTICLES = 60_000;
 const PI = Math.PI;
+
+// 每段線的固定四角幾何（2 triangles = 6 vertices，(side, along)）；instanced 下只上傳一次。
+const CORNERS = new Float32Array([
+  -1, 0,   1, 0,   -1, 1,
+  -1, 1,   1, 0,    1, 1,
+]);
+const INSTANCE_FLOATS = 8; // fromMerc.xy + toMerc.xy + rgba
 
 function clamp(v: number, lo: number, hi: number) {
   return Math.max(lo, Math.min(hi, v));
@@ -180,17 +208,17 @@ function createProgram(gl: WebGL2RenderingContext): WebGLProgram {
   return program;
 }
 
-async function loadClimateRaster(pngUrl: string, metaUrl: string): Promise<ClimateRasterData> {
-  const [meta, image] = await Promise.all([
-    fetchJson<ClimateMeta>(metaUrl),
-    new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error(`failed to load image: ${resolvePublicAssetUrl(pngUrl)}`));
-      img.src = resolvePublicAssetUrl(pngUrl);
-    }),
-  ]);
+export async function loadClimateRaster(pngUrl: string, metaUrl: string): Promise<ClimateRasterData> {
+  // 先讀 meta 拿 valid_at，PNG 帶 ?v= 破快取（S3 每日重烤 → 前端追得上）
+  const meta = await fetchJson<ClimateMeta>(metaUrl);
+  const resolved = resolvePublicAssetUrl(pngUrl) + (meta.valid_at ? `?v=${encodeURIComponent(meta.valid_at)}` : "");
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`failed to load image: ${resolved}`));
+    img.src = resolved;
+  });
 
   const canvas = document.createElement("canvas");
   canvas.width = meta.width;
@@ -218,10 +246,13 @@ class ClimateParticleLineState {
   private count = 0;
   private historyX = new Float32Array(0);
   private historyY = new Float32Array(0);
+  // 快取 mercator 座標（避免 buildInstanceData 每幀重算 log/tan）；建立/前進歷史點時算一次。
+  private historyMX = new Float32Array(0);
+  private historyMY = new Float32Array(0);
   private historyValid = new Uint8Array(0);
   private ages = new Float32Array(0);
   private speedT = new Float32Array(0);
-  private vertices = new Float32Array(0);
+  private instances = new Float32Array(0);
   private spawnBounds: [number, number, number, number] | null = null;
 
   constructor(data: ClimateRasterData, opts: ClimateParticleLineLayerOptions) {
@@ -248,11 +279,13 @@ class ClimateParticleLineState {
     const pointCount = this.count * this.trailPoints;
     this.historyX = new Float32Array(pointCount);
     this.historyY = new Float32Array(pointCount);
+    this.historyMX = new Float32Array(pointCount);
+    this.historyMY = new Float32Array(pointCount);
     this.historyValid = new Uint8Array(pointCount);
     this.ages = new Float32Array(this.count);
     this.speedT = new Float32Array(this.count);
-    // 每個歷史 segment 展開成 2 triangles（6 vertices），每 vertex = from.xy + to.xy + rgba + side + along。
-    this.vertices = new Float32Array(this.count * (this.trailPoints - 1) * 6 * 10);
+    // 每段一個 instance（8 floats）；四角幾何固定另存 static buffer。
+    this.instances = new Float32Array(this.count * (this.trailPoints - 1) * INSTANCE_FLOATS);
     for (let i = 0; i < this.count; i++) this.resetParticle(i);
   }
 
@@ -295,46 +328,62 @@ class ClimateParticleLineState {
       for (let s = this.trailPoints - 1; s >= 1; s--) {
         this.historyX[base + s] = this.historyX[base + s - 1]!;
         this.historyY[base + s] = this.historyY[base + s - 1]!;
+        this.historyMX[base + s] = this.historyMX[base + s - 1]!;
+        this.historyMY[base + s] = this.historyMY[base + s - 1]!;
         this.historyValid[base + s] = this.historyValid[base + s - 1]!;
       }
       this.historyX[base] = nx;
       this.historyY[base] = ny;
+      const [mx, my] = this.mercatorFromNorm(nx, ny);
+      this.historyMX[base] = mx;
+      this.historyMY[base] = my;
       this.historyValid[base] = 1;
       this.speedT[i] = clamp(vec.speed / this.speedMax, 0, 1);
     }
   }
 
-  buildVertexBuffer(opacity: number, particleAlpha: number): { data: Float32Array; vertexCount: number } {
+  /** 每段一個 instance（8 floats：fromMerc.xy, toMerc.xy, rgba）；四角展開交給 GPU instancing。 */
+  buildInstanceData(opacity: number, particleAlpha: number): { data: Float32Array; instanceCount: number } {
     let ptr = 0;
     const layerOpacity = clamp(opacity, 0, 1);
     const baseAlpha = clamp(particleAlpha, 0.02, 1) * layerOpacity;
+    const inv = 1 / Math.max(1, this.trailPoints - 1);
     for (let i = 0; i < this.count; i++) {
       const base = i * this.trailPoints;
       const [r, g, b] = rampColor(this.ramp, this.speedT[i]!);
       for (let s = 0; s < this.trailPoints - 1; s++) {
         if (!this.historyValid[base + s] || !this.historyValid[base + s + 1]) continue;
         const x0 = this.historyX[base + s]!;
-        const y0 = this.historyY[base + s]!;
         const x1 = this.historyX[base + s + 1]!;
-        const y1 = this.historyY[base + s + 1]!;
         if (this.isGlobalX && Math.abs(x0 - x1) > 0.5) continue;
-        if (this.maskErodePx > 0 && !this.sampleValid((x0 + x1) * 0.5, (y0 + y1) * 0.5)) continue;
+        if (this.maskErodePx > 0 && !this.sampleValid((x0 + x1) * 0.5, (this.historyY[base + s]! + this.historyY[base + s + 1]!) * 0.5)) continue;
 
-        const fade = Math.pow(1 - s / Math.max(1, this.trailPoints - 1), 1.35);
+        const fade = Math.pow(1 - s * inv, 1.35);
         const a = baseAlpha * fade;
         if (a <= 0.002) continue;
-        ptr = this.writeSegment(ptr, x1, y1, x0, y0, r, g, b, a);
+        // from = 較舊點 (base+s+1)，to = 較新點 (base+s)，用快取 mercator
+        this.instances[ptr++] = this.historyMX[base + s + 1]!;
+        this.instances[ptr++] = this.historyMY[base + s + 1]!;
+        this.instances[ptr++] = this.historyMX[base + s]!;
+        this.instances[ptr++] = this.historyMY[base + s]!;
+        this.instances[ptr++] = r;
+        this.instances[ptr++] = g;
+        this.instances[ptr++] = b;
+        this.instances[ptr++] = a;
       }
     }
-    return { data: this.vertices.subarray(0, ptr), vertexCount: ptr / 10 };
+    return { data: this.instances.subarray(0, ptr), instanceCount: ptr / INSTANCE_FLOATS };
   }
 
   private resetParticle(i: number) {
     const p = this.randomParticle();
     const base = i * this.trailPoints;
+    const [mx, my] = this.mercatorFromNorm(p.x, p.y);
     for (let s = 0; s < this.trailPoints; s++) {
       this.historyX[base + s] = p.x;
       this.historyY[base + s] = p.y;
+      this.historyMX[base + s] = mx;
+      this.historyMY[base + s] = my;
       this.historyValid[base + s] = 1;
     }
     this.ages[i] = Math.random() * 240;
@@ -364,42 +413,6 @@ class ClimateParticleLineState {
     if (!this.spawnBounds) return true;
     const [x0, y0, x1, y1] = this.spawnBounds;
     return x >= x0 && x <= x1 && y >= y0 && y <= y1;
-  }
-
-  private writeSegment(ptr: number, x0: number, y0: number, x1: number, y1: number, r: number, g: number, b: number, a: number) {
-    const from = this.mercatorFromNorm(x0, y0);
-    const to = this.mercatorFromNorm(x1, y1);
-    ptr = this.writeQuadVertex(ptr, from, to, r, g, b, a, -1, 0);
-    ptr = this.writeQuadVertex(ptr, from, to, r, g, b, a,  1, 0);
-    ptr = this.writeQuadVertex(ptr, from, to, r, g, b, a, -1, 1);
-    ptr = this.writeQuadVertex(ptr, from, to, r, g, b, a, -1, 1);
-    ptr = this.writeQuadVertex(ptr, from, to, r, g, b, a,  1, 0);
-    ptr = this.writeQuadVertex(ptr, from, to, r, g, b, a,  1, 1);
-    return ptr;
-  }
-
-  private writeQuadVertex(
-    ptr: number,
-    from: [number, number],
-    to: [number, number],
-    r: number,
-    g: number,
-    b: number,
-    a: number,
-    side: number,
-    along: number,
-  ) {
-    this.vertices[ptr++] = from[0];
-    this.vertices[ptr++] = from[1];
-    this.vertices[ptr++] = to[0];
-    this.vertices[ptr++] = to[1];
-    this.vertices[ptr++] = r;
-    this.vertices[ptr++] = g;
-    this.vertices[ptr++] = b;
-    this.vertices[ptr++] = a;
-    this.vertices[ptr++] = side;
-    this.vertices[ptr++] = along;
-    return ptr;
   }
 
   private mercatorFromNorm(x: number, y: number): [number, number] {
@@ -484,7 +497,9 @@ export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOpt
   let map: MapboxMap | null = null;
   let gl: WebGL2RenderingContext | null = null;
   let program: WebGLProgram | null = null;
-  let buffer: WebGLBuffer | null = null;
+  let vao: WebGLVertexArrayObject | null = null;
+  let cornerBuffer: WebGLBuffer | null = null;
+  let instanceBuffer: WebGLBuffer | null = null;
   let aFrom = -1;
   let aTo = -1;
   let aColor = -1;
@@ -527,7 +542,6 @@ export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOpt
       map = mapInstance;
       gl = glCtx;
       program = createProgram(gl);
-      buffer = gl.createBuffer();
       aFrom = gl.getAttribLocation(program, "a_from");
       aTo = gl.getAttribLocation(program, "a_to");
       aColor = gl.getAttribLocation(program, "a_color");
@@ -536,49 +550,70 @@ export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOpt
       uMatrix = gl.getUniformLocation(program, "u_matrix");
       uResolution = gl.getUniformLocation(program, "u_resolution");
       uLineWidth = gl.getUniformLocation(program, "u_line_width");
+
+      // VAO 封裝所有 attribute + divisor 設定，避免污染 mapbox 共用的 GL 狀態。
+      vao = gl.createVertexArray();
+      cornerBuffer = gl.createBuffer();
+      instanceBuffer = gl.createBuffer();
+      gl.bindVertexArray(vao);
+      // 固定四角幾何（per-vertex，divisor 0）
+      gl.bindBuffer(gl.ARRAY_BUFFER, cornerBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, CORNERS, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(aSide);
+      gl.vertexAttribPointer(aSide, 1, gl.FLOAT, false, 2 * 4, 0);
+      gl.vertexAttribDivisor(aSide, 0);
+      gl.enableVertexAttribArray(aAlong);
+      gl.vertexAttribPointer(aAlong, 1, gl.FLOAT, false, 2 * 4, 1 * 4);
+      gl.vertexAttribDivisor(aAlong, 0);
+      // per-instance 段資料（divisor 1）：fromMerc.xy, toMerc.xy, rgba
+      gl.bindBuffer(gl.ARRAY_BUFFER, instanceBuffer);
+      const iStride = INSTANCE_FLOATS * 4;
+      gl.enableVertexAttribArray(aFrom);
+      gl.vertexAttribPointer(aFrom, 2, gl.FLOAT, false, iStride, 0);
+      gl.vertexAttribDivisor(aFrom, 1);
+      gl.enableVertexAttribArray(aTo);
+      gl.vertexAttribPointer(aTo, 2, gl.FLOAT, false, iStride, 2 * 4);
+      gl.vertexAttribDivisor(aTo, 1);
+      gl.enableVertexAttribArray(aColor);
+      gl.vertexAttribPointer(aColor, 4, gl.FLOAT, false, iStride, 4 * 4);
+      gl.vertexAttribDivisor(aColor, 1);
+      gl.bindVertexArray(null);
       loadData();
     },
 
     render(glCtx: WebGL2RenderingContext, matrix: number[]) {
       if (!opts.getIsVisible()) return;
-      if (!dataReady || !state || !program || !buffer || !uMatrix || !uResolution || !uLineWidth) {
+      if (!dataReady || !state || !program || !vao || !instanceBuffer || !uMatrix || !uResolution || !uLineWidth) {
         loadData();
         map?.triggerRepaint();
         return;
       }
 
       state.setSpawnBounds(spawnBoundsForMap(map, meta));
-      const requestedCount = opts.getParticleCount();
+      const baseCount = opts.getParticleCount();
+      const requestedCount = (opts.adaptiveDensity ?? true) && map
+        ? adaptiveCount(baseCount, map.getZoom())
+        : baseCount;
       state.resize(requestedCount);
 
       const now = performance.now();
       const dt = lastTs ? clamp((now - lastTs) / 1000, 0, MAX_FRAME_DT) : 1 / 60;
       lastTs = now;
       state.step(dt, opts.timeScaleSeconds * opts.getAnimationSpeed());
-      const { data, vertexCount } = state.buildVertexBuffer(opts.getOpacity(), opts.particleAlpha ?? 0.28);
-      if (vertexCount <= 0) {
+      const { data, instanceCount } = state.buildInstanceData(opts.getOpacity(), opts.particleAlpha ?? 0.28);
+      if (instanceCount <= 0) {
         map?.triggerRepaint();
         return;
       }
       if (!firstRenderLogged) {
         firstRenderLogged = true;
-        console.log(`[ClimateParticleLine ${opts.id}] first render`, { vertexCount, particleCount: opts.getParticleCount() });
+        console.log(`[ClimateParticleLine ${opts.id}] first render`, { instanceCount, particleCount: opts.getParticleCount() });
       }
 
       glCtx.useProgram(program);
-      glCtx.bindBuffer(glCtx.ARRAY_BUFFER, buffer);
+      glCtx.bindVertexArray(vao);
+      glCtx.bindBuffer(glCtx.ARRAY_BUFFER, instanceBuffer);
       glCtx.bufferData(glCtx.ARRAY_BUFFER, data, glCtx.DYNAMIC_DRAW);
-      const stride = 10 * 4;
-      glCtx.enableVertexAttribArray(aFrom);
-      glCtx.vertexAttribPointer(aFrom, 2, glCtx.FLOAT, false, stride, 0);
-      glCtx.enableVertexAttribArray(aTo);
-      glCtx.vertexAttribPointer(aTo, 2, glCtx.FLOAT, false, stride, 2 * 4);
-      glCtx.enableVertexAttribArray(aColor);
-      glCtx.vertexAttribPointer(aColor, 4, glCtx.FLOAT, false, stride, 4 * 4);
-      glCtx.enableVertexAttribArray(aSide);
-      glCtx.vertexAttribPointer(aSide, 1, glCtx.FLOAT, false, stride, 8 * 4);
-      glCtx.enableVertexAttribArray(aAlong);
-      glCtx.vertexAttribPointer(aAlong, 1, glCtx.FLOAT, false, stride, 9 * 4);
       glCtx.uniformMatrix4fv(uMatrix, false, matrix);
       glCtx.uniform2f(uResolution, glCtx.drawingBufferWidth, glCtx.drawingBufferHeight);
       glCtx.uniform1f(uLineWidth, clamp(opts.getLineWidth(), 0.5, 4.0) * (window.devicePixelRatio || 1));
@@ -587,16 +622,21 @@ export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOpt
       glCtx.disable(glCtx.CULL_FACE);
       glCtx.enable(glCtx.BLEND);
       glCtx.blendFuncSeparate(glCtx.SRC_ALPHA, glCtx.ONE_MINUS_SRC_ALPHA, glCtx.ONE, glCtx.ONE_MINUS_SRC_ALPHA);
-      glCtx.drawArrays(glCtx.TRIANGLES, 0, vertexCount);
+      glCtx.drawArraysInstanced(glCtx.TRIANGLES, 0, 6, instanceCount);
+      glCtx.bindVertexArray(null);
 
       map?.triggerRepaint();
     },
 
     onRemove(_map: MapboxMap, glCtx: WebGL2RenderingContext) {
       disposed = true;
-      if (buffer) glCtx.deleteBuffer(buffer);
+      if (cornerBuffer) glCtx.deleteBuffer(cornerBuffer);
+      if (instanceBuffer) glCtx.deleteBuffer(instanceBuffer);
+      if (vao) glCtx.deleteVertexArray(vao);
       if (program) glCtx.deleteProgram(program);
-      buffer = null;
+      cornerBuffer = null;
+      instanceBuffer = null;
+      vao = null;
       program = null;
       state = null;
       meta = null;
