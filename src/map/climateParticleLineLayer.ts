@@ -183,16 +183,16 @@ function createProgram(gl: WebGL2RenderingContext): WebGLProgram {
 }
 
 export async function loadClimateRaster(pngUrl: string, metaUrl: string): Promise<ClimateRasterData> {
-  const [meta, image] = await Promise.all([
-    fetchJson<ClimateMeta>(metaUrl),
-    new Promise<HTMLImageElement>((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => resolve(img);
-      img.onerror = () => reject(new Error(`failed to load image: ${resolvePublicAssetUrl(pngUrl)}`));
-      img.src = resolvePublicAssetUrl(pngUrl);
-    }),
-  ]);
+  // 先讀 meta 拿 valid_at，PNG 帶 ?v= 破快取（S3 每日重烤 → 前端追得上）
+  const meta = await fetchJson<ClimateMeta>(metaUrl);
+  const resolved = resolvePublicAssetUrl(pngUrl) + (meta.valid_at ? `?v=${encodeURIComponent(meta.valid_at)}` : "");
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error(`failed to load image: ${resolved}`));
+    img.src = resolved;
+  });
 
   const canvas = document.createElement("canvas");
   canvas.width = meta.width;

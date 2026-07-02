@@ -9,6 +9,12 @@
 - feature 資料夾建立（本夾）
 - PR #：（待補）squash hash：（待補）
 
+## 2026-07-02 — GC-2 烤圖排程化 + 遞送
+
+- data-collectors PR #26：`ClimateBakeCollector`（每 6h）自動烤 texture 上 deploy-assets/climate/，取代手動 extract_climate_uv.py；選檔改 f000 實況（修「風場顯示 +5 天預報」）
+- 前端遞送（feat/global-climate-ux）：`refresh-climate.sh` + entrypoint 背景迴圈每 6h re-sync climate（免前端重啟）；wind/currents/dust PNG 帶 `?v=valid_at` 破瀏覽器快取
+- public/climate/ 同步為最新實況（wind 7/2 00Z / currents 7/4 / dust 7/1）
+
 ## 2026-07-02 — data-collectors PR #24
 
 - 雲端缺依賴修正（xarray/netCDF4/cfgrib/eccodes/cdsapi/copernicusmarine）→ GFS/CMEMS/CAMS 三支 collector 上 Zeabur 可跑

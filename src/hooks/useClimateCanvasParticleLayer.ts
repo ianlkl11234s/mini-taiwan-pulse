@@ -23,6 +23,7 @@ interface ClimateMeta {
   v_min: number;
   v_max: number;
   bbox: [number, number, number, number];
+  valid_at?: string;
 }
 
 interface Particle {
@@ -360,13 +361,12 @@ export function useClimateCanvasParticleLayer(
       if (!map || cancelled) return;
       if (map.getLayer(o.layerId) && map.getSource(sourceId)) return;
 
-      const [meta, image] = await Promise.all([
-        fetch(o.metaUrl).then((r) => {
-          if (!r.ok) throw new Error(`${o.metaUrl} ${r.status}`);
-          return r.json() as Promise<ClimateMeta>;
-        }),
-        loadImage(o.pngUrl),
-      ]);
+      // 先讀 meta 拿 valid_at，PNG 帶 ?v= 破快取（S3 每日重烤 → 前端追得上，見 climateFieldSampler 同款）
+      const meta = await fetch(o.metaUrl, { cache: "no-cache" }).then((r) => {
+        if (!r.ok) throw new Error(`${o.metaUrl} ${r.status}`);
+        return r.json() as Promise<ClimateMeta>;
+      });
+      const image = await loadImage(o.pngUrl + (meta.valid_at ? `?v=${encodeURIComponent(meta.valid_at)}` : ""));
       if (cancelled || !map) return;
 
       const animator = new ClimateCanvasParticleAnimator({

@@ -5,7 +5,7 @@
 ## Phase 0 — 資料活水
 
 - [x] **GC-1** Zeabur 開啟 GFS/CMEMS/CAMS collector — 環境變數已設 + data-collectors PR #24 補依賴（requirements.txt + Dockerfile eccodes），2026-07-02 merge
-- [ ] **GC-2** `extract_climate_uv.py` 烤圖排程化（建議搬進 data-collectors 當 post-collect step）+ 前端 `_latest` cache-busting（先讀 JSON 的 valid_at 再帶 `?v=`）
+- [x] **GC-2** 烤圖排程化：data-collectors 新增 `ClimateBakeCollector`（每 6h，讀 f000 實況場，取代手動 extract_climate_uv.py）→ deploy-assets/climate/。前端遞送：entrypoint 背景迴圈每 6h re-sync climate（`refresh-climate.sh`）+ PNG 帶 `?v=valid_at` 破快取。順帶修「風場是 +5 天預報」→ 改當下實況。(data-collectors PR #26 + mini-taiwan-pulse feat/global-climate-ux)
 - [ ] **GC-2b** 沙塵改烤「數值通道」texture（現為預烤色階，數值不可逆 → popup 讀值做不到）
 - [x] **GC-3** 文件補齊：本 feature 資料夾 + App.tsx 過時 stub 註解修正 + BACKLOG 條目
 
