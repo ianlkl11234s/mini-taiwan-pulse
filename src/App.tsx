@@ -37,7 +37,7 @@ import { useSelectedFeatureHalo } from "./hooks/useSelectedFeatureHalo";
 import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useEarthquakesGlobalLayer } from "./hooks/useEarthquakesGlobalLayer";
-import { useTyphoonTracksLayer } from "./hooks/useTyphoonTracksLayer";
+import { useTyphoonTracksLayer, type TyphoonSource } from "./hooks/useTyphoonTracksLayer";
 import { useClimateParticleLineLayer } from "./hooks/useClimateParticleLineLayer";
 import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
 // 色帶集中在 climateRamps（module-level 常數，避免每次 render 新 object 觸發 hook re-mount）；
@@ -919,6 +919,7 @@ export default function App() {
     mapRef,
     layerVisibility.typhoonTracks,
     transportParams.overlayParams.typhoonTracksOpacity ?? 0.9,
+    (["all", "jma", "jtwc"][transportParams.overlayParams.typhoonSourceIdx ?? 0] ?? "all") as TyphoonSource,
   );
 
   const windBaseOpacity = transportParams.overlayParams.windFieldOpacity ?? 0.8;

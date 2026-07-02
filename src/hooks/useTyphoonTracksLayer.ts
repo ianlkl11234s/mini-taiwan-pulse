@@ -23,10 +23,13 @@ const LAYER_CURRENT_DOT = "typhoon-tracks-current-dot";
 const OBS_COLOR = "#a855f7";
 const FCST_COLOR = "#38bdf8";
 
+export type TyphoonSource = "all" | "jma" | "jtwc";
+
 export function useTyphoonTracksLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number = 0.9,
+  sourceFilter: TyphoonSource = "all",
 ) {
   const dataRef = useRef<TyphoonPoint[]>([]);
   const dataReadyRef = useRef(false);
@@ -157,6 +160,17 @@ export function useTyphoonTracksLayer(
     for (const id of [LAYER_LINE_OBS, LAYER_LINE_FCST, LAYER_POINTS, LAYER_CURRENT_HALO, LAYER_CURRENT_RING, LAYER_CURRENT_DOT]) {
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", v);
     }
+    // 資料源篩選（全部 / JMA / JTWC）：組合 point_type 與 source 條件套到各 layer
+    const srcCond: unknown[] | null = sourceFilter === "all" ? null : ["==", ["get", "source"], sourceFilter];
+    const withSrc = (base: unknown[] | null): unknown => {
+      if (base && srcCond) return ["all", base, srcCond];
+      return (base ?? srcCond ?? true) as unknown;
+    };
+    if (map.getLayer(LAYER_LINE_OBS)) map.setFilter(LAYER_LINE_OBS, withSrc(["==", ["get", "point_type"], "observed"]) as ExpressionSpecification);
+    if (map.getLayer(LAYER_LINE_FCST)) map.setFilter(LAYER_LINE_FCST, withSrc(["==", ["get", "point_type"], "forecast"]) as ExpressionSpecification);
+    for (const id of [LAYER_POINTS, LAYER_CURRENT_HALO, LAYER_CURRENT_RING, LAYER_CURRENT_DOT]) {
+      if (map.getLayer(id)) map.setFilter(id, withSrc(null) as ExpressionSpecification);
+    }
     const o = Math.max(0, Math.min(1, opacity));
     if (map.getLayer(LAYER_LINE_OBS)) map.setPaintProperty(LAYER_LINE_OBS, "line-opacity", 0.9 * o);
     if (map.getLayer(LAYER_LINE_FCST)) map.setPaintProperty(LAYER_LINE_FCST, "line-opacity", 0.7 * o);
@@ -164,5 +178,5 @@ export function useTyphoonTracksLayer(
     if (map.getLayer(LAYER_CURRENT_HALO)) map.setPaintProperty(LAYER_CURRENT_HALO, "circle-opacity", 0.16 * o);
     if (map.getLayer(LAYER_CURRENT_RING)) map.setPaintProperty(LAYER_CURRENT_RING, "circle-stroke-opacity", 0.95 * o);
     if (map.getLayer(LAYER_CURRENT_DOT)) map.setPaintProperty(LAYER_CURRENT_DOT, "circle-opacity", 1 * o);
-  }, [visible, opacity, ensureSource, mapRef]);
+  }, [visible, opacity, sourceFilter, ensureSource, mapRef]);
 }

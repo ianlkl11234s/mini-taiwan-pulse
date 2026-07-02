@@ -122,9 +122,37 @@ function splitOnJumps(arr: TyphoonPoint[]): number[][][] {
   return segments;
 }
 
+/**
+ * 同一 storm×source×point_type×時刻若有多點（JMA preTyphoon/typhoon/analysis 段
+ * 用同時間戳），合成單一質心點，消除軌跡鋸齒與堆疊點。
+ */
+function dedupeSameTimestamp(pts: TyphoonPoint[]): TyphoonPoint[] {
+  const acc = new Map<string, { lat: number; lon: number; n: number; wind: number | null; press: number | null; base: TyphoonPoint }>();
+  for (const p of pts) {
+    if (p.center_lat == null || p.center_lon == null) continue;
+    const key = `${p.storm_id}::${p.source}::${p.point_type}::${p.valid_ts}`;
+    const cur = acc.get(key);
+    if (!cur) {
+      acc.set(key, { lat: p.center_lat, lon: p.center_lon, n: 1, wind: p.max_wind_kt, press: p.center_pressure, base: p });
+    } else {
+      cur.lat += p.center_lat; cur.lon += p.center_lon; cur.n += 1;
+      if (p.max_wind_kt != null) cur.wind = Math.max(cur.wind ?? 0, p.max_wind_kt);
+      if (p.center_pressure != null) cur.press = Math.min(cur.press ?? Infinity, p.center_pressure);
+    }
+  }
+  return [...acc.values()].map((a) => ({
+    ...a.base,
+    center_lat: a.lat / a.n,
+    center_lon: a.lon / a.n,
+    max_wind_kt: a.wind,
+    center_pressure: a.press === Infinity ? null : a.press,
+  }));
+}
+
 export function typhoonPointsToGeoJSON(
-  pts: TyphoonPoint[],
+  rawPts: TyphoonPoint[],
 ): { lines: GeoJSON.FeatureCollection; points: GeoJSON.FeatureCollection; current: GeoJSON.FeatureCollection } {
+  const pts = dedupeSameTimestamp(rawPts);
   const groups = new Map<string, TyphoonPoint[]>();
   for (const p of pts) {
     const key = `${p.storm_id}::${p.source}::${p.point_type}`;
