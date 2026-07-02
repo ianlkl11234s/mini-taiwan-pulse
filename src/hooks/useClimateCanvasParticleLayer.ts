@@ -95,6 +95,21 @@ function colorFromRamp(ramp: Record<number, string>, t: number): string {
   return `rgba(${r},${g},${b},0.9)`;
 }
 
+// 速度色桶數：把粒子依速度分成 N 桶，每桶一條 Path2D 只 stroke 一次
+//（取代每顆粒子一次 stroke + 一次字串運算）→ stroke 呼叫從 O(粒子數) 降到 O(NB)。
+const SPEED_BUCKETS = 24;
+
+/** 預算色階為 NB 個 rgb 字串（alpha 交給 ctx.globalAlpha 統一設）。 */
+function buildColorBuckets(ramp: Record<number, string>, nb: number): string[] {
+  const out: string[] = [];
+  for (let i = 0; i < nb; i++) {
+    const t = nb === 1 ? 0 : i / (nb - 1);
+    const m = colorFromRamp(ramp, t).match(/(\d+),(\d+),(\d+)/);
+    out.push(m ? `rgb(${m[1]},${m[2]},${m[3]})` : "rgb(255,255,255)");
+  }
+  return out;
+}
+
 function canvasSizeFor(meta: ClimateMeta): [number, number] {
   const s = Math.min(1, MAX_CANVAS_WIDTH / meta.width, MAX_CANVAS_HEIGHT / meta.height);
   return [Math.max(2, Math.round(meta.width * s)), Math.max(2, Math.round(meta.height * s))];
@@ -130,7 +145,7 @@ class ClimateCanvasParticleAnimator {
   private readonly meta: ClimateMeta;
   private readonly particles: Particle[] = [];
   private readonly isGlobalX: boolean;
-  private readonly ramp: Record<number, string>;
+  private readonly colorBuckets: string[];
   private readonly speedMax: number;
   private readonly getParticleCount: () => number;
   private readonly getAnimationSpeed: () => number;
@@ -153,7 +168,7 @@ class ClimateCanvasParticleAnimator {
     onFrame: () => void;
   }) {
     this.meta = args.meta;
-    this.ramp = args.ramp;
+    this.colorBuckets = buildColorBuckets(args.ramp, SPEED_BUCKETS);
     this.speedMax = args.speedMax;
     this.getParticleCount = args.getParticleCount;
     this.getAnimationSpeed = args.getAnimationSpeed;
@@ -272,12 +287,18 @@ class ClimateCanvasParticleAnimator {
     ctx.globalCompositeOperation = "lighter";
     ctx.lineWidth = Math.max(0.65, Math.min(1.5, w / 1000));
     ctx.lineCap = "round";
+    // alpha 統一由 globalAlpha 控（色桶只存 rgb），避免每顆粒子做字串運算
+    ctx.globalAlpha = 0.25 + 0.65 * clamp(this.getOpacity(), 0, 1);
 
     const [lonMin, latMin, lonMax, latMax] = this.meta.bbox;
     const lonSpan = Math.max(1e-6, lonMax - lonMin);
     const latSpan = Math.max(1e-6, latMax - latMin);
     const flowSeconds = this.getTimeScaleSeconds() * this.getAnimationSpeed() * dt;
-    const layerOpacity = clamp(this.getOpacity(), 0, 1);
+
+    // 依速度分桶累積線段 → 每桶一條 Path2D，最後每桶只 stroke 一次
+    const nb = this.colorBuckets.length;
+    const paths: Path2D[] = new Array(nb);
+    for (let i = 0; i < nb; i++) paths[i] = new Path2D();
 
     for (const p of this.particles) {
       p.age += dt * 60;
@@ -305,9 +326,6 @@ class ClimateCanvasParticleAnimator {
         continue;
       }
 
-      const speedT = clamp(vec.speed / Math.max(0.001, this.speedMax), 0, 1);
-      ctx.strokeStyle = colorFromRamp(this.ramp, speedT).replace("0.9)", `${0.25 + 0.65 * layerOpacity})`);
-
       // 跨 antimeridian 時不要畫一條穿越整張貼圖的長線。
       if (this.isGlobalX && Math.abs(nx - p.x) > 0.5) {
         p.px = nx;
@@ -317,15 +335,21 @@ class ClimateCanvasParticleAnimator {
         continue;
       }
 
-      ctx.beginPath();
-      ctx.moveTo(p.x * w, p.y * h);
-      ctx.lineTo(nx * w, ny * h);
-      ctx.stroke();
+      const speedT = clamp(vec.speed / Math.max(0.001, this.speedMax), 0, 1);
+      const bucket = clamp(Math.round(speedT * (nb - 1)), 0, nb - 1);
+      const seg = paths[bucket]!;
+      seg.moveTo(p.x * w, p.y * h);
+      seg.lineTo(nx * w, ny * h);
 
       p.px = p.x;
       p.py = p.y;
       p.x = nx;
       p.y = ny;
+    }
+
+    for (let i = 0; i < nb; i++) {
+      ctx.strokeStyle = this.colorBuckets[i]!;
+      ctx.stroke(paths[i]!);
     }
     ctx.restore();
 
