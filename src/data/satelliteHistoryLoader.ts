@@ -10,6 +10,7 @@
  */
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { keyedThunkCache } from "../lib/loaderCache";
 
 export interface TleHistoryRow {
   norad_id: number;
@@ -28,17 +29,26 @@ export interface TlePair {
   curr: TleHistoryRow | null;
 }
 
-export async function fetchTleHistory(norad: number, days = 30): Promise<TleHistoryRow[]> {
-  if (!supabaseConfigured) return [];
+const tleHistoryCache = keyedThunkCache<TleHistoryRow[]>(10 * 60_000);
+
+/** 30 天 TLE 歷史。10min TTL 快取（key=norad:days），重選同衛星不重打（失敗不留快取） */
+export function fetchTleHistory(norad: number, days = 30): Promise<TleHistoryRow[]> {
+  if (!supabaseConfigured) return Promise.resolve([]);
+  return tleHistoryCache(`${norad}:${days}`, () => fetchTleHistoryUncached(norad, days)).catch(
+    (err) => {
+      console.warn(`[satconsole] get_satellite_tle_history(${norad}) failed:`, err);
+      return [] as TleHistoryRow[];
+    },
+  );
+}
+
+async function fetchTleHistoryUncached(norad: number, days: number): Promise<TleHistoryRow[]> {
   const { data, error } = await withLoading(
     `satellite:tle-history:${norad}`,
     `TLE 歷史 ${norad}`,
     supabase.rpc("get_satellite_tle_history", { p_norad: norad, p_days: days }),
   );
-  if (error) {
-    console.warn(`[satconsole] get_satellite_tle_history(${norad}) failed:`, error.message);
-    return [];
-  }
+  if (error) throw new Error(`get_satellite_tle_history(${norad}): ${error.message}`);
   return (data ?? []) as TleHistoryRow[];
 }
 

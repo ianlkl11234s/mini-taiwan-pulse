@@ -4,9 +4,12 @@
  */
 
 import { withLoading } from "../lib/loadingRegistry";
+import { keyedThunkCache } from "../lib/loaderCache";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "";
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+
+const scheduleCache = keyedThunkCache<unknown | null>(10 * 60_000, 32);
 
 /**
  * 從 Supabase reference.daily_schedules 查詢時刻表
@@ -17,10 +20,13 @@ export async function fetchSupabaseSchedule(
   date: string,
 ): Promise<unknown | null> {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
-  return withLoading(
-    `rail-schedule:${system}:${date}`,
-    `鐵道時刻表 ${system.toUpperCase()} ${date}`,
-    fetchSupabaseScheduleInner(system, date),
+  // 10min TTL 快取（key=system:date）：日期切換重選同日 / loadAllRail 各系統共用時不重打
+  return scheduleCache(`${system}:${date}`, () =>
+    withLoading(
+      `rail-schedule:${system}:${date}`,
+      `鐵道時刻表 ${system.toUpperCase()} ${date}`,
+      fetchSupabaseScheduleInner(system, date),
+    ),
   );
 }
 

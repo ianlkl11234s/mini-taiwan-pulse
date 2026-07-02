@@ -1,6 +1,7 @@
 import type { RailSystem, RailSchedule, RailData, RailStationTime, TraData, TraDeparture, TraSchedule } from "../types";
 import { fetchSupabaseSchedule } from "./railScheduleLoader";
 import { todayTaiwan } from "../lib/supabase";
+import { cachedOnce } from "../lib/loaderCache";
 
 // 系統定義：5 系統（不含 TRA，TRA 由 TraTrainEngine 獨立處理）
 const RAIL_SYSTEMS = [
@@ -350,9 +351,12 @@ async function loadFromLocalFiles(): Promise<{ systems: RailSystem[]; traData: T
 // ── 公開 API ──
 
 /**
- * 載入所有軌道系統資料（本地散檔 + Supabase 時刻表）
+ * 載入所有軌道系統資料（本地散檔 + Supabase 時刻表）。
+ * 10min TTL 快取：重新 toggle on 不重載數百個本地 geojson（含 StrictMode 雙跑去重）。
  */
-export async function loadAllRail(): Promise<RailData> {
+export const loadAllRail = cachedOnce(loadAllRailImpl, 10 * 60_000);
+
+async function loadAllRailImpl(): Promise<RailData> {
   const local = await loadFromLocalFiles();
   const { systems, traData } = local;
   const goldenCount = traData?.goldenTracks?.length ?? 0;

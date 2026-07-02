@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+import { keyedThunkCache } from "../lib/loaderCache";
 
 /**
  * 水庫近期進/出流量聚合（for 3D 雙排日柱視覺化 — BL-5 方案 D）
@@ -40,10 +41,21 @@ function dateKeyTaipei(iso: string): string {
   return new Date(iso).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
 }
 
-/** 近 N 日每日平均進/出流量 */
-export async function fetchReservoirOpsRecent(
+const opsCache = keyedThunkCache<ReservoirOpsRecent>(10 * 60_000);
+
+/** 近 N 日每日平均進/出流量。10min TTL 快取（key=id:days），重選同水庫不重打 */
+export function fetchReservoirOpsRecent(
   reservoirId: string,
   days = 5,
+): Promise<ReservoirOpsRecent> {
+  return opsCache(`${reservoirId}:${days}`, () =>
+    fetchReservoirOpsRecentUncached(reservoirId, days),
+  );
+}
+
+async function fetchReservoirOpsRecentUncached(
+  reservoirId: string,
+  days: number,
 ): Promise<ReservoirOpsRecent> {
   const to = new Date();
   const from = new Date(to.getTime() - days * 24 * 3600 * 1000);
