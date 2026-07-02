@@ -18,7 +18,8 @@
 ## Phase 2 — 覆蓋與時間（等 collector 跑穩）
 
 - [x] **GC-7（海流）** CMEMS bbox 擴廣域 90-180E x -15-55N（data-collectors PR #27）；PNG 1081x841 / 597KB。CAMS bbox 擴域仍 open（`cams.py` 東亞 → 更廣）
-- [x] **GC-6b 效能** Canvas drape（全球視角）改分色桶批次繪製：stroke 呼叫 O(粒子數)→O(24)、消除每顆粒子字串運算 → 高粒子數不再卡頓。WebGL 高 zoom 路徑仍為逐幀 CPU 積分+上傳（若高 zoom 也卡再優化）
+- [x] **GC-6b 效能（全球視角）** Canvas drape 改分色桶批次繪製：stroke 呼叫 O(粒子數)→O(24)、消除每顆粒子字串運算
+- [x] **GC-6c 效能（高 zoom 細緻線）** WebGL 線層改 instanced rendering（四角幾何固定、每段只上傳 8 float，上傳量降 ~87%）+ 快取 mercator 座標（消除逐幀 log/tan）→ 粒子數拉到 50k 仍順、細緻。browser 實測 50k 無 GL error / 無破圖
 - [ ] **GC-8** GFS 預報時間序列：leadtime 0/24/48/72/96/120hr 烤 6 張 texture 接 timeStore 播放（守動態圖層時間訂閱鐵則）
 
 ## Phase 3 — 交互故事
