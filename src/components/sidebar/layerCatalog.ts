@@ -566,7 +566,7 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
-        title: "預報場（粒子動畫，待 PMTiles 上線）",
+        title: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）",
         layers: [
           { key: "windField", label: "風場 Wind Field 10m", expandable: true },
           { key: "oceanCurrents", label: "海流 Ocean Currents", expandable: true },
