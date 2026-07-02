@@ -51,14 +51,19 @@
 
 | ID | 優先級 | 項目 | 狀態 | 備註 |
 |---|---|---|---|---|
-| GC-1 | P1 | GFS/CMEMS/CAMS collector 上雲 | **done** | data-collectors PR #24（補 xarray/cfgrib/eccodes/cdsapi/copernicusmarine 依賴 + CMEMS bbox 擴西太平洋）；2026-07-02 merge，隔日驗 S3 `global_climate_{noaa_gfs,cmems,cams}/` 有新檔 |
-| GC-2 | P1 | `extract_climate_uv.py` 烤圖排程化 + 前端 cache-busting | open | 建議搬 data-collectors 當 post-collect step；沒做前地圖上是舊快照（現為 6/29 手烤） |
-| GC-4/5/6 | P1 | 風場速度色階 + 三層圖例 + click 讀值 popup + 粒子調校 | **done (pending browser 驗收)** | feat/global-climate-ux；色階 SSOT `src/map/climateRamps.ts`；沙塵 popup 讀值需 GC-2b 改烤數值通道 |
-| GC-7 | P2 | CAMS bbox 擴域 + CMEMS 全球化 texture 降採樣 | open | 等 collector 跑穩再動，避免一次兩個變因 |
-| GC-8 | P2 | GFS 預報時間序列（6 leadtime 接 timeStore） | open | 從快照變 Windy 式預報播放的關鍵一步 |
+| GC-1 | P1 | GFS/CMEMS/CAMS collector 上雲 | **done** | data-collectors PR #24（補依賴）+ #25（CMEMS 爆量修）；已驗 S3 有新檔 |
+| GC-2 | P1 | 烤圖排程化 + 前端 cache-busting | **done** | data-collectors PR #26（climate_bake collector 每 6h，取 f000 實況）+ 前端 entrypoint 每 6h re-sync + PNG ?v=valid_at（PR #42） |
+| GC-2b | P2 | 沙塵改烤數值通道供 popup 讀值 | open | 現為預烤色階、數值不可逆，dust 無 click 讀值 |
+| GC-4/5/6 | P1 | 風場速度色階 + 三層圖例 + click 讀值 + 粒子調校 | **done** | PR #42；色階 SSOT `climateRamps.ts` |
+| GC-6b/6c/6d | P1 | 粒子引擎效能 | **done** | drape 分色桶批次 / WebGL instanced + 快取 mercator / 移除 drape + zoom 自適應密度（PR #42） |
+| GC-7 | P2 | 海流 bbox 擴廣域（90-180E×-15-55N）| **done（CMEMS）** | data-collectors PR #27；CAMS bbox 擴域仍 open |
+| GC-8 | P2 | GFS 預報時間序列（6 leadtime 接 timeStore） | open | 從快照變 Windy 式預報播放 |
 | GC-9 | P2 | PRMSL 等壓線 / 250hPa 噴流 / SST / 波浪 quick wins | open | collector 已抓、前端零接線 |
 | GC-10 | P3 | 颱風作戰室 preset | open | 對應 worldmonitor-taiwan-vision D-1 |
 | GC-11 | P3 | 海流 × 船舶軌跡疊圖 | open | |
+| TY-1 | P1 | 颱風 loader 欄位 center_pressure→center_pressure_hpa | **done** | 圖層本來全空的元凶（PR #42） |
+| TY-2 | P3 | JMA 強度資料缺（氣壓/風速） | open | bosai 端點只有位置；需另接 JMA 強度來源（data-collectors） |
+| TY-4/5/6 | P1 | 現在位置圈 + 跳點斷線 + 預測/實際差異 + 資料源選擇器 + 同時刻去重 | **done** | PR #42 |
 
 ### 一般待辦
 
