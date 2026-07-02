@@ -300,3 +300,13 @@
 | **per-region dissolve concat trap** | 分區跑覆蓋 layer 的反模式：每區獨立 `compute_overlap_count + dissolve` → concat 到頂層 → **同片地理區域被 concat 進 N 份 fragments，overlap_count 值各異**（因為每區看到的鄰居 station 集合不同）→ 前端 fill-color step 讀 count 出現色塊接不上。**正確做法**：per-region 只出 raw per-station polygons（不 dissolve）→ 全域 concat → dedup by entity_id → 全域 compute_overlap_count → dissolve 1 次。核心：`compute_overlap_count` 必須全域執行，不能分區。詳 INCIDENTS 2026-07-02 |
 | **nearest_node 距離閾值 / offline station fallback** | `ox.nearest_nodes(G, X, Y)` 沒設距離上限，山區 station 在被過濾過的 drive PBF（只留 primary/secondary/tertiary）附近可能沒節點 → 回傳 3-5 km 外的主幹道節點 → ego_graph 從錯位置展開 → polygon 完全不在 station 附近（榮興偏移 5306m、泰崗 4317m）。修法：檢查 nearest_node 距 station EPSG:3826 距離 > 500m → 視為「station 不在路網上」，改用理論半徑圓 `Point.buffer(radius/111000)` at **station 座標**（非 node 座標）。詳 PRINCIPLES + INCIDENTS 2026-07-02 |
 | **isochrone Mode B + dissolve 三段演化** | ① convex_hull → 鋸齒過度膨脹；② concave_hull(0.3) → 26K micro fragments；③ concave_hull(0.5) + buffer + **dissolve by overlap_count** → 73 features 乾淨階梯。標準做法 = ③ |
+
+## 全球氣候 / 颱風（2026-07-02）
+
+- **JMA / RSMC Tokyo**：日本氣象廳，WMO 指定西北太平洋官方颱風中心，颱風編號 TC26xx，10-min sustained 風速。bosai forecast.json 只有位置無強度。
+- **JTWC**：美軍聯合颱風警報中心，颱風編號 wpNNyy（wp=西太），暫用名（Nine/Ten…），1-min sustained 風速（比 JMA 高 12-15%），ATCF RSS 有風速無氣壓。
+- **同實體雙編號**：Bavi = JMA TC2611 = JTWC wp0926；南海系統 = JMA TC2610 = JTWC "Ten" wp1026。同一颱風兩機構各自定位。
+- **f000 實況 vs forecast**：GFS 等模式場 `observed_at`=預報有效時刻、`init_at`=cycle 時刻、`leadtime_hr`=預報時數。烤「現在實況」要取 `init_at DESC + leadtime ASC`（最新 cycle 的 f000 分析），不是 observed_at 最遠（那是 +120h 預報）。
+- **instanced rendering**：WebGL 每段線一個 instance（8 float），四角幾何固定不重傳，`drawArraysInstanced`，上傳量 -87%。climateParticleLineLayer 用。
+- **zoom 自適應密度**：粒子數隨 zoom 拉遠自動加密（填滿大視野）、拉近回 slider 值，量化避免每幀重配置陣列。取代舊的低 zoom canvas drape。
+- **climate bake collector**：data-collectors 第 7 個 global_climate collector，讀 Supabase 最新 f000 → 烤 RGBA PNG（風/流 UV）/ raster（沙塵）→ deploy-assets/climate/。
