@@ -1415,3 +1415,17 @@ git status -s
 ### 觸發詞
 
 「N 站重疊 / 覆蓋計數 / overlap count / service redundancy / 多重保護 / 警力沙漠 / 蝶圖 / N 分鐘可達且重疊多」
+
+## PB-25 混亂分支拆乾淨 → 依序 PR 併回 master（2026-07-02 加）
+
+一條分支混了多個 feature（bloom + 派出所 sidebar + 大量 memory）要拆成乾淨 PR 時：
+
+1. **先盤點不動手**：`git log --oneline master..<branch>` 看 commit 組成，判斷每個 commit 屬哪個 feature；`git diff --stat master <branch> -- <path>` 確認哪些檔已在 master（避免重複 / 遺失）。
+2. **確認已併的別重做**：feature code 可能早已透過別的 squash PR 進 master（commit 看似「領先」但內容重複）。用 `git grep -l <代表 key> master -- src/` 驗證 feature 是否已在 master。
+3. **舊分支改名備份**：`git branch -m feat/X feat/X-OLD`，再從 master 切乾淨 `feat/X`。
+4. **topic-scoped cherry-pick**：每個 feature 的 commit 各自 cherry-pick 到乾淨分支。commit 若各自 scope 清楚（bloom commit 只動 bloom 段），衝突少。
+5. **依序 merge + 每次同步 master**：`gh pr create` → `gh pr merge --squash --delete-branch` → `git checkout master && git pull` → 下一條 rebase 到新 master。共用檔（layerCatalog/App/types）的衝突在此逐一解。
+6. **memory commit 直接 cherry-pick**：純 memory/docs 的 commit（append-only）通常乾淨 cherry-pick，不同 section 不衝突。
+7. **清理**：`gh pr merge --delete-branch` 連本地也刪；stale 分支確認 content 在 master 後 `git branch -D`；worktree 分支（`+` 前綴）不動。
+
+本次：climate/bloom/police 三條乾淨併回，衝突只 2 個（useMemo deps 陣列合併 + layerConsistency baseline 補 glow 層），全綠 merge。
