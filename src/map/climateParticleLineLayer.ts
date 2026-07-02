@@ -23,7 +23,7 @@ export interface ClimateParticleLineLayerOptions {
   rampColors?: Record<number, string>;
 }
 
-interface ClimateMeta {
+export interface ClimateMeta {
   width: number;
   height: number;
   u_min: number;
@@ -31,9 +31,11 @@ interface ClimateMeta {
   v_min: number;
   v_max: number;
   bbox: [number, number, number, number];
+  dataset?: string;
+  valid_at?: string;
 }
 
-interface ClimateRasterData {
+export interface ClimateRasterData {
   meta: ClimateMeta;
   data: Uint8ClampedArray;
 }
@@ -180,7 +182,7 @@ function createProgram(gl: WebGL2RenderingContext): WebGLProgram {
   return program;
 }
 
-async function loadClimateRaster(pngUrl: string, metaUrl: string): Promise<ClimateRasterData> {
+export async function loadClimateRaster(pngUrl: string, metaUrl: string): Promise<ClimateRasterData> {
   const [meta, image] = await Promise.all([
     fetchJson<ClimateMeta>(metaUrl),
     new Promise<HTMLImageElement>((resolve, reject) => {

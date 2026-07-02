@@ -99,8 +99,6 @@ const BASELINE_NO_LEGEND = new Set([
   "countyBoundary", "townshipBoundary", "villageBoundary",
   "contour25k", "contourDtm20",
   "osmExpressway", "hillshade",
-  // GLOBAL CLIMATE 3 stub layer — PMTiles 生成管線未上線，layer 顯示為 placeholder
-  "dustForecast", "oceanCurrents", "windField",
 ]);
 
 function hasParamsCase(key: string): boolean {

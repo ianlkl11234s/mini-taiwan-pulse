@@ -101,3 +101,76 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
     </div>
   );
 }
+
+// ── 氣候場 click 讀值（風場 / 海流 UV 前端取樣）──
+
+const COMPASS_16 = [
+  "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+  "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW",
+];
+
+function compassLabel(deg: number): string {
+  return COMPASS_16[Math.round(((deg % 360) + 360) % 360 / 22.5) % 16]!;
+}
+
+/** 風「來向」（氣象慣例）：u 東向、v 北向分量 → 風從哪個方位吹來。 */
+function windDirFrom(u: number, v: number): number {
+  return ((Math.atan2(-u, -v) * 180) / Math.PI + 360) % 360;
+}
+
+/** 流「去向」（海洋慣例）：海流往哪個方位流。 */
+function currentDirTo(u: number, v: number): number {
+  return ((Math.atan2(u, v) * 180) / Math.PI + 360) % 360;
+}
+
+function fmtValidAt(validAt: unknown): string {
+  if (typeof validAt !== "string" || !validAt) return "—";
+  const d = new Date(validAt);
+  if (Number.isNaN(d.getTime())) return validAt;
+  return d.toLocaleString("zh-TW", {
+    month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+}
+
+interface FieldSampleProps {
+  u: number;
+  v: number;
+  speed: number;
+  valid_at: string | null;
+}
+
+function asFieldSample(raw: unknown): FieldSampleProps | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  if (typeof o.u !== "number" || typeof o.v !== "number" || typeof o.speed !== "number") return null;
+  return { u: o.u, v: o.v, speed: o.speed, valid_at: typeof o.valid_at === "string" ? o.valid_at : null };
+}
+
+export function ClimateFieldPanel({ props }: { props: Record<string, unknown> }) {
+  const wind = asFieldSample(props.wind);
+  const currents = asFieldSample(props.currents);
+  return (
+    <div>
+      {wind && (
+        <>
+          <Row label="風速" value={`${wind.speed.toFixed(1)} m/s（${(wind.speed * 3.6).toFixed(0)} km/h）`} />
+          <Row
+            label="風向"
+            value={`${windDirFrom(wind.u, wind.v).toFixed(0)}°（${compassLabel(windDirFrom(wind.u, wind.v))} 來風）`}
+          />
+          <Row label="風場時刻" value={fmtValidAt(wind.valid_at)} />
+        </>
+      )}
+      {currents && (
+        <>
+          <Row label="流速" value={`${currents.speed.toFixed(2)} m/s（${(currents.speed * 1.944).toFixed(1)} kt）`} />
+          <Row
+            label="流向"
+            value={`${currentDirTo(currents.u, currents.v).toFixed(0)}°（往 ${compassLabel(currentDirTo(currents.u, currents.v))}）`}
+          />
+          <Row label="海流時刻" value={fmtValidAt(currents.valid_at)} />
+        </>
+      )}
+    </div>
+  );
+}

@@ -629,7 +629,7 @@ export interface FeatureInfo {
     | "gasCoverageAll" | "gasCoverageCpc" | "gasCoverageFpcc" | "gasCoverageTaisugar"
     | "evIsland"
     | "lightningStrike" | "nuclearStation"
-    | "earthquakeGlobal" | "typhoonTrack"
+    | "earthquakeGlobal" | "typhoonTrack" | "climateField"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
