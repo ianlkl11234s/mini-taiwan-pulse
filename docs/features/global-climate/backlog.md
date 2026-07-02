@@ -23,6 +23,11 @@
 - [x] **GC-6d 拿掉 drape + zoom 自適應密度** 移除低 zoom Canvas drape（mercator 投影下非必要），WebGL 線層覆蓋全 zoom。補回「拉遠自動加密」：`adaptiveCount` z≤5.5 起每級 ×(1+0.7) 封頂 6×、量化 4000 避免連續 zoom 重配置、近景維持 slider 精確值。修正「拉遠粒子數不隨 zoom 變動」
 - [ ] **GC-8** GFS 預報時間序列：leadtime 0/24/48/72/96/120hr 烤 6 張 texture 接 timeStore 播放（守動態圖層時間訂閱鐵則）
 
+## 修復 / 資料品質
+
+- [x] **TY-1 颱風軌跡 loader 欄位 bug** `typhoonTracksLoader` 選 `center_pressure` 但 public view 欄位是 `center_pressure_hpa` → 查詢整個失敗、圖層靜默不建、颱風軌跡一直空白。修正欄位名。實測 442 點正常渲染（Bavi TC2611 / TC2610 / JTWC Ten/Nine 等）
+- [ ] **TY-2 JMA 強度資料缺** JMA bosai forecast.json 只有位置軌跡，無氣壓/風速（強度在 JMA 另一端點）；JTWC ATCF 有風速無氣壓 → popup 強度多為「—」。要補需新增 JMA 強度來源（data-collectors，P3）
+
 ## Phase 3 — 交互故事
 
 - [ ] **GC-9** Quick wins：PRMSL 等壓線 / 250hPa 噴流 / SST / 波浪（collector 已抓、前端零接線）

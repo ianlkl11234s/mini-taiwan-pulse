@@ -30,7 +30,7 @@ interface RawRow {
   name_en: string | null;
   center_lat: number | null;
   center_lon: number | null;
-  center_pressure: number | null;
+  center_pressure_hpa: number | null;
   max_wind_kt: number | null;
 }
 
@@ -42,7 +42,7 @@ async function fetchTyphoonPointsUncached(): Promise<TyphoonPoint[]> {
     supabase
       .from("typhoon_positions")
       .select(
-        "storm_id,source,valid_at,point_type,advisory_number,name_local,name_en,center_lat,center_lon,center_pressure,max_wind_kt",
+        "storm_id,source,valid_at,point_type,advisory_number,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt",
       )
       .order("valid_at", { ascending: true })
       .limit(5000),
@@ -63,7 +63,7 @@ async function fetchTyphoonPointsUncached(): Promise<TyphoonPoint[]> {
       name_local: r.name_local ?? "",
       center_lat: Number(r.center_lat),
       center_lon: Number(r.center_lon),
-      center_pressure: r.center_pressure == null ? null : Number(r.center_pressure),
+      center_pressure: r.center_pressure_hpa == null ? null : Number(r.center_pressure_hpa),
       max_wind_kt: r.max_wind_kt == null ? null : Number(r.max_wind_kt),
     });
   }
