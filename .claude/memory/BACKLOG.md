@@ -47,6 +47,19 @@
 | BL-22 | P2 | hwms flat schedule routes OSRM 沿馬路升級 | **done** | 2026-05-12 完成；A 類 287 routes 跑 OSRM /route 取 stop-to-stop 沿馬路距離（1,721 calls, 6.4min, 0 fail），寫 `spatial.waste_route_inferred_segments`（migration 084）。RPC migration 085 LEFT JOIN 該表，NULL fallback 直線×1.4。竹北019 從 4hr4min → 4hr21min（+10% 更貼真實）|
 | BL-23 | P2 | Round 4 TGOS 18,005 normalized addresses | open | 從 91K 沒對到 stops 篩出地址正常可救的 18K (排除 landmark/intersection/no_number/offshore 31K)，normalize 剝重複前綴+環保局後拆 day_008+day_009 進 `upload/v2/`（commit 待 push）。**Round 4 收完後完整流程**：(1) 更新 `12_unified_callback.py` PAIRS 加新 (result, mapping) 對 → 跑 `--commit` 補座標 (2) 跑 `30_build_split_geojson.py` 重 build 17 城 geojson (3) `DELETE FROM spatial.waste_collection_stops WHERE city NOT IN ('5城')` + `05_import` reinsert (4) **重跑 `compute_waste_inferred_segments.py`** — resume-aware 自動補新增 flat routes 的 OSRM segments（新竹市/嘉義市先前 0% 現在可能新出現 A 類 routes）(5) RPC 自動接 OSRM 不用改。詳見 `_phase11_round4_README_*.md` |
 
+### 全球氣候 GLOBAL CLIMATE（GC 系列，2026-07-02 盤點後加 — 完整清單在 `docs/features/global-climate/backlog.md`）
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| GC-1 | P1 | GFS/CMEMS/CAMS collector 上雲 | **done** | data-collectors PR #24（補 xarray/cfgrib/eccodes/cdsapi/copernicusmarine 依賴 + CMEMS bbox 擴西太平洋）；2026-07-02 merge，隔日驗 S3 `global_climate_{noaa_gfs,cmems,cams}/` 有新檔 |
+| GC-2 | P1 | `extract_climate_uv.py` 烤圖排程化 + 前端 cache-busting | open | 建議搬 data-collectors 當 post-collect step；沒做前地圖上是舊快照（現為 6/29 手烤） |
+| GC-4/5/6 | P1 | 風場速度色階 + 三層圖例 + click 讀值 popup + 粒子調校 | **done (pending browser 驗收)** | feat/global-climate-ux；色階 SSOT `src/map/climateRamps.ts`；沙塵 popup 讀值需 GC-2b 改烤數值通道 |
+| GC-7 | P2 | CAMS bbox 擴域 + CMEMS 全球化 texture 降採樣 | open | 等 collector 跑穩再動，避免一次兩個變因 |
+| GC-8 | P2 | GFS 預報時間序列（6 leadtime 接 timeStore） | open | 從快照變 Windy 式預報播放的關鍵一步 |
+| GC-9 | P2 | PRMSL 等壓線 / 250hPa 噴流 / SST / 波浪 quick wins | open | collector 已抓、前端零接線 |
+| GC-10 | P3 | 颱風作戰室 preset | open | 對應 worldmonitor-taiwan-vision D-1 |
+| GC-11 | P3 | 海流 × 船舶軌跡疊圖 | open | |
+
 ### 一般待辦
 
 | ID | 優先級 | 項目 | 狀態 | 備註 |
