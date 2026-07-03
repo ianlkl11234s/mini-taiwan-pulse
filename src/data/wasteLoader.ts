@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 import { keyedThunkCache } from "../lib/loaderCache";
 
@@ -217,7 +218,7 @@ export async function fetchWasteFacilityCounts(): Promise<WasteFacilityCount[]> 
   const { data, error } = await withLoading(
     "waste:facility-counts",
     "垃圾處理設施數量",
-    supabase.rpc("get_waste_facility_counts"),
+    staticRpc("get_waste_facility_counts"),
   );
   if (error) throw new Error(`get_waste_facility_counts: ${error.message}`);
   return (data ?? []) as WasteFacilityCount[];
@@ -228,7 +229,7 @@ export async function fetchWasteDisposalPointCounts(): Promise<WasteDisposalPoin
   const { data, error } = await withLoading(
     "waste:disposal-point-counts",
     "垃圾投放點數量",
-    supabase.rpc("get_waste_disposal_point_counts"),
+    staticRpc("get_waste_disposal_point_counts"),
   );
   if (error) throw new Error(`get_waste_disposal_point_counts: ${error.message}`);
   return (data ?? []) as WasteDisposalPointCount[];

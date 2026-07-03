@@ -50,6 +50,9 @@ RPCS=(
   "get_ssot_facilities_offshore_zones:table"
   "get_ssot_facilities_historical:table"
   "get_ssot_facilities_osm_supplement:table"
+  # ── Batch 1b：param-less 廢棄物 sidebar 數量（no-cache，每次 toggle 都打 DB）──
+  "get_waste_facility_counts:table"
+  "get_waste_disposal_point_counts:table"
 )
 
 CURRENT_PSQL_PID=""
