@@ -1238,3 +1238,26 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 - 修法：`npm install --package-lock-only` 重生 package-lock.json（PR #53）；實測 npm ci exit 0 後才 merge，master CI 綠 + Zeabur success。
 
 **附帶｜AI SDK v7 abort 不 throw**：`streamText` 遇 abortSignal 送 `abort` stream part 正常收尾，不拋例外 → 中斷處理要在 fullStream 迴圈 `case "abort"`。
+
+## 2026-07-03 架構審計 session（P0 止血 + AR-11 影像上 CDN）— 3 技術事件
+
+> 時序上早於上方「BYOK/會員 session」（本 session 的 #46~#50 在 master，BYOK #51~#53 疊在其上）。完整脈絡見 `docs/research/architecture-audit-2026-07-02.md` + `docs/proposal/architecture-overhaul-plan.md`。起因：用戶要求「數百人規模」架構審計 → 5 面向平行審計 → 五階段計畫 → P0 止血全做完 + P1 第一槍 AR-11 上線。
+
+**事件 1｜lightning_events 雙 unique index → 單目標 ON CONFLICT 炸整批**
+- `realtime.lightning_events` 有 `uk_eventid`(event_id) + `uk_dedup`(dedup_hash) 兩個 unique index（雙保險設計）。writer 的 do_nothing 策略只下 `ON CONFLICT (event_id) DO NOTHING` → feed 用**新 event_id 重發同一筆落雷**時，dedup_hash 撞第二個 index → 整批 INSERT 失敗。
+- 症狀：2026-07-02 08:21（台北）起 lightning 連續寫入失敗，資料進 VM/主容器 buffer（未丟，3 天保留內）。用戶在 Zeabur log 看到 `duplicate key ... "uk...` 才發現。
+- 修法：do_nothing 策略改**無目標** `ON CONFLICT DO NOTHING`（接住任一 unique 違反）。附 SQL 形式回歸測試。data-collectors PR #31。部署後 buffer 自動補寫、MAX(collected_at) 3 分鐘內恢復。
+- **教訓**：多 unique index 的表用 do_nothing 去重，一律無目標 ON CONFLICT，別指定單一 key。
+
+**事件 2｜Supavisor transaction pooler 丟棄 startup statement_timeout（保護形同虛設）**
+- data-collectors `db.py` 用 psycopg2 startup `options=-c statement_timeout=30s`，連 transaction mode pooler（6543）。**實測（AR-06）：`SHOW statement_timeout`=0、`pg_sleep(35)` 跑滿不被砍**——pooler 直接丟棄 startup options。更糟：pooled 連線會撿到前一 client 洩漏的 session 值（實測見 0/5s/10s 不定），行為不可控。
+- 修法：16 個寫入路徑統一走 `_txn()` context manager，在**每個 transaction 內** `SET LOCAL statement_timeout`（transaction mode 下唯一可靠；不可用 ALTER ROLE，會波及 pg_cron 長 refresh）。data-collectors PR #29。live 實測 `pg_sleep(5)` ~2s 被砍。
+- **教訓**：走 transaction pooler 時，per-statement timeout 只有 transaction 內 SET LOCAL 可靠；startup options / session SET 都不保證。
+
+**事件 3｜監控清冊 enabled 全標 false，但 19/23 collector 實際在 production 跑**
+- AR-05 自動回填 `cross_layer_map.yaml` 缺的 23 個 collector 時，照 config.py repo 預設一律標 `enabled: false`。審查時連 DB 查 `MAX(collected_at)` 發現 **19 個其實幾分鐘前還在寫入**（road_congestion/wic×3/global_climate 系/immigration…）。照原樣 merge 監控對這些活著的 collector 依然全盲。
+- 修法：依 production 實測校正 enabled/deployment/interval；事件驅動兩個特例照 earthquake_events 先例（lightning/twse interval=1440 + critical:false 避免無資料日誤報）；補 realtime_tables.yaml 16 表（跨層 B-check 依賴，不補則每日誤報）。data-collectors PR #30。
+- 附帶破案：`correctional_daily_snapshot` + `npa_traffic_accident_a1` 曾疑「6/27 同時停寫」→ 查 distinct collected_at=1 證實是**開發期一次性測試寫入、從未排程**，非事故；用戶 2026-07-03 設 Zeabur env 正式啟用。
+- **教訓**：判斷 collector「是否在跑」用 DB ground-truth（MAX 時間戳）而非 config 預設值；審查 agent 產出時，「照字面做完」不等於「達到目的」。
+
+**附帶｜AR-11 里程碑**：CWA 衛星/雷達影像從「Supabase RPC 回 base64（~90MB/人/日 DB egress）」改為「R2 + Cloudflare CDN（`data.itsmigu.com`）直取 + 輕量 manifest RPC」。collector best-effort 雙寫、前端 `VITE_IMAGERY_CDN_BASE` flag 閘控、21,587 張歷史 backfill（keyset 冪等、中斷續跑）、browser 端到端驗收（走 CDN、`get_cwa_imagery_frames_batch` 0 呼叫）。DB 影像 egress 歸零。剩 AR-11e（穩定一週後清 3.2GB bytea + 補 cleanup cron）。
