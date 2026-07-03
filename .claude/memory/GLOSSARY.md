@@ -310,3 +310,13 @@
 - **instanced rendering**：WebGL 每段線一個 instance（8 float），四角幾何固定不重傳，`drawArraysInstanced`，上傳量 -87%。climateParticleLineLayer 用。
 - **zoom 自適應密度**：粒子數隨 zoom 拉遠自動加密（填滿大視野）、拉近回 slider 值，量化避免每幀重配置陣列。取代舊的低 zoom canvas drape。
 - **climate bake collector**：data-collectors 第 7 個 global_climate collector，讀 Supabase 最新 f000 → 烤 RGBA PNG（風/流 UV）/ raster（沙塵）→ deploy-assets/climate/。
+
+## BYOK 對話 / 會員 / 資安（2026-07-03）
+- **BYOK**（Bring Your Own Key）：使用者自帶 LLM key，瀏覽器直連三家（Anthropic/OpenAI/Gemini），key 零經手伺服器。Anthropic 需 `anthropic-dangerous-direct-browser-access: true` header 才能瀏覽器直打。
+- **AI SDK v7**（Vercel `ai@7`）：tool 用 `inputSchema`、停步 `stopWhen: stepCountIs(N)`（非 maxSteps）、讀 `fullStream` 逐 part；**abort 不 throw 而是送 `abort` part**。
+- **MapBridge**：契約介面，把 App.tsx 既有 handler 注入 chat tools，LLM 操作地圖但邏輯留 App.tsx。
+- **capToolResult**：截斷鐵則，tool 回 LLM 前過（maxItems/maxChars），超限回統計+樣本+hint。
+- **RLS**：Postgres 資料列層權限。Supabase anon key 公開是正常設計，安全靠 RLS。ENABLE RLS + 無 policy = deny-all。
+- **Exposed schemas**：Supabase Dashboard→API 設定，PostgREST 對外暴露哪些 schema。前端 `Accept-Profile:<schema>` header 直讀。專案原則：只留 public+graphql_public（+reference 因 airports/ports app 直讀而保留）。
+- **to_regclass 守衛**：migration 內 `IF to_regclass('schema.'||t) IS NOT NULL THEN ...` 防表不存在時 ALTER ERROR，跨環境安全。
+- **ground-truth 查證**：聲稱「已完成」前用工具查真實狀態（git status / psql SELECT / curl / gh api check-runs），不靠記憶敘述。
