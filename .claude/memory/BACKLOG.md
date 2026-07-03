@@ -4,6 +4,20 @@
 
 ## 進行中 / 待辦
 
+### BYOK 對話 + 會員（BC 系列，2026-07-03 上線）
+
+| ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
+|---|---|---|---|---|
+| BC-1 | P1 | 會員 P0：Google OAuth + profiles + UserAvatar | **done** | PR #52；migration 270（RLS+trigger+REVOKE 防 tier 自升）；OAuth 登入端到端實測過 |
+| — | — | BYOK 對話 MVP + 資料問答 | **done** | PR #51；三家直連 + 白名單 tools + 13 dataset/RPC + 顧問式 |
+| — | — | Supabase 資安：public 22 + reference 6 表補 RLS | **done** | migration 271/272；realtime/spatial 由 Dashboard 收窄 Exposed schemas |
+| BC-2 | P1 | P3 會員加值：user_favorites（圖層狀態快照）+ chat_logs（含匿名 session_id）+ 對話歷史跨裝置 | open | 依賴 BC-1（已完成），可開工 |
+| BC-3 | P2 | 對話預設模型檔位改中階（Flash/Sonnet 級） | open | 實測 Gemini 2.5 Pro 遠勝 Haiku；一行改 KeySettings MODEL_OPTIONS |
+| BC-4 | P1 | 部署前置：CSP header（connect-src 三家 LLM）+ 隱私頁 BYOK 揭露 + OAuth 網域切換（Site URL/Redirect/Google JS 來源加正式網域，測試期只設 localhost） | open | 上線公開前必做 |
+| BC-5 | P2 | police_stations 日期戳 URL 改 manifest/latest 別名 | open | 上游換版免同步 datasets.ts |
+| BC-6 | P3 | Anthropic 進階檔開 extended thinking（providerOptions） | open | 深度思考 |
+| BC-7 | P3 | Phase 4：站方付費免費額度（Edge Function 單 key）/ 對話 pin 成 Monitor 面板 | open | AR-43/44 |
+
 ### 水資源系統（BL 系列 — 盤點 DB 有資料但前端沒用的 Quick Wins）
 
 | ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
