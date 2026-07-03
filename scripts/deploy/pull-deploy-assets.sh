@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -70,6 +70,10 @@ aws s3 sync "$S3/base_map/" "$DATA_DIR/base_map/" --no-progress
 # Collector PMTiles 生成管線尚未上線，目前 S3 prefix 可能為空，sync 會 no-op。
 echo "[pull] sync climate → $DATA_DIR/climate/"
 aws s3 sync "$S3/climate/" "$DATA_DIR/climate/" --no-progress
+
+# 靜態化 RPC 快照：鏡像子前綴 deploy-assets/static-rpc/ → /data/static-rpc/（整夾 sync，加新檔免改腳本）
+echo "[pull] sync static-rpc → $DATA_DIR/static-rpc/"
+aws s3 sync "$S3/static-rpc/" "$DATA_DIR/static-rpc/" --no-progress
 
 # 淹水感測 isochrone：鏡像子前綴 deploy-assets/flood/ → /data/flood/
 echo "[pull] sync flood → $DATA_DIR/flood/"

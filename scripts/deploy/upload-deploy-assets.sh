@@ -205,6 +205,15 @@ for f in public/coverage/real_estate_*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/coverage/$name" --region ap-southeast-2
 done
 
+# 靜態化 RPC 快照：上傳到 deploy-assets/static-rpc/ 子前綴（鏡像結構，pull 端整夾 sync）
+# 見 docs/features/static-to-cdn。新增靜態層跑 export 後直接 upload，免改本腳本。
+for f in public/static-rpc/*.json; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading static-rpc/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/static-rpc/$name" --region ap-southeast-2
+done
+
 # Rail 個別檔案（打包成 tar.gz 上傳）
 if [ -d "public/rail" ]; then
   echo "Packing public/rail/ → rail.tar.gz..."

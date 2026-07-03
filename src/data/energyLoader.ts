@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase";
+import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce } from "../lib/loaderCache";
 
@@ -460,7 +461,7 @@ async function fetchOsmSubstationsUncached(): Promise<OsmSubstation[]> {
   const { data, error } = await withLoading(
     "energy:substations",
     "變電所 785",
-    supabase.rpc("get_osm_substations"),
+    staticRpc("get_osm_substations"),
   );
   if (error) throw new Error(`get_osm_substations: ${error.message}`);
   return (data ?? []) as OsmSubstation[];
@@ -498,7 +499,7 @@ async function fetchOsmPowerLinesUncached(): Promise<OsmPowerLine[]> {
   const { data, error } = await withLoading(
     "energy:powerLines",
     "高壓輸電線 2,305",
-    supabase.rpc("get_osm_power_lines"),
+    staticRpc("get_osm_power_lines"),
   );
   if (error) throw new Error(`get_osm_power_lines: ${error.message}`);
   return (data ?? []) as OsmPowerLine[];
@@ -511,7 +512,7 @@ async function fetchOsmPowerTowersUncached(): Promise<OsmPowerTower[]> {
   const { data, error } = await withLoading(
     "energy:powerTowers",
     "高壓鐵塔 26,589",
-    supabase.rpc("get_osm_power_towers"),
+    staticRpc("get_osm_power_towers"),
   );
   if (error) throw new Error(`get_osm_power_towers: ${error.message}`);
   return (data ?? []) as unknown as OsmPowerTower[];
