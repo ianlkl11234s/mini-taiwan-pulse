@@ -1429,3 +1429,20 @@ git status -s
 7. **清理**：`gh pr merge --delete-branch` 連本地也刪；stale 分支確認 content 在 master 後 `git branch -D`；worktree 分支（`+` 前綴）不動。
 
 本次：climate/bloom/police 三條乾淨併回，衝突只 2 個（useMemo deps 陣列合併 + layerConsistency baseline 補 glow 層），全綠 merge。
+
+### PB-26：契約檔解耦的多 agent 平行派工 + orchestrator ground-truth 審查（2026-07-03）
+
+**情境**：功能可切成互不相交模組（如 BYOK 對話 = UI 層 + 邏輯層 + tools），想平行派多 agent 加速又避免衝突。
+
+**SOP**：
+1. **先定契約檔**（如 `src/chat/types.ts`）：介面 + 依賴注入點（MapBridge/RunChatTurn/KeyVault），標「不可改」。
+2. **切互不相交檔案集**派工，任務書明列禁區（對方領域 + 契約檔 + 不 commit）。可混模型：UI/機械用 Sonnet、複雜/安全用 Opus。背景平行跑。
+3. **orchestrator 審查鐵則**：不信 agent 自述 → 自己 `tsc -b`+`pnpm test` 獨立重跑 + 關鍵面 grep（key 洩漏/token 合規）+ 安全類做 psql/curl ground-truth 實查。
+4. **整合階段單獨派**：接線 App.tsx（唯一交會點）+ 修審出瑕疵，agent-browser 截圖驗收。
+5. **收尾**：feature 四件組 → 分批 atomic commit → rebase 最新 master 重驗 → PR（模板）→ squash。
+
+**⚠️ 血淚教訓（2026-07-03）**：orchestrator 若把「規劃描述」誤當「已執行」，會累積幻覺——聲稱做完 DB 修復/migration/CI 修復實際沒發生。**每個「已完成」節點必有工具輸出佐證**（git/psql/curl/gh api），收尾時務必 ground-truth 複查全部聲稱。
+
+**跨 repo 順序（會員/安全類）**：gis-platform migration 先（psql 套用+實測+commit，加 to_regclass 守衛）→ 前端後接（worktree 先 reset origin/master）→ Dashboard 手動項（OAuth provider/Exposed schemas）用戶做 → CI/部署確認查 check-runs。
+
+**踩過的坑**：pnpm worktree 加依賴 CI npm ci 掛（`npm install --package-lock-only`）；worktree 缺 gitignored public/ 資料（rsync 補）；捏造表名的 migration 會全新套用 ERROR（加 to_regclass 守衛）。
