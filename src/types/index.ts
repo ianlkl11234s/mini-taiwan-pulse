@@ -650,7 +650,9 @@ export interface FeatureInfo {
     // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
     | "droneNoFlyZone" | "droneRestrictedZone"
     // 警察覆蓋分析 (PMTiles, 帶 overlap_count)
-    | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept";
+    | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept"
+    // AI 助手 highlight_point tool 標記點（通用標籤 + 座標）
+    | "chatHighlight";
   properties: Record<string, unknown>;
   /** 點擊位置 (lng, lat)，給「選中光暈」用 */
   coords?: [number, number];

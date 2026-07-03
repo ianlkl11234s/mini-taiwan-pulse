@@ -55,6 +55,7 @@ import {
   DroneZonesPanel,
   PoliceIsoSubstationPanel, PoliceIsoPrecinctPanel, PoliceIsoCityDeptPanel,
 } from "./policeJusticePanels";
+import { ChatHighlightPanel } from "./shared";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -199,6 +200,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   policeIsoSubstation: PoliceIsoSubstationPanel,
   policeIsoPrecinct: PoliceIsoPrecinctPanel,
   policeIsoCityDept: PoliceIsoCityDeptPanel,
+  // AI 助手標記點
+  chatHighlight: ChatHighlightPanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -343,4 +346,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   policeIsoSubstation: "派出所等時圈",
   policeIsoPrecinct: "分局等時圈",
   policeIsoCityDept: "縣市警局等時圈",
+  // AI 助手標記點
+  chatHighlight: "地圖標記",
 };

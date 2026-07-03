@@ -22,6 +22,24 @@ export function Row({ label, value, color }: { label: string; value: string; col
   );
 }
 
+/**
+ * AI 助手 highlight_point tool 的通用標記 panel。
+ * properties 期望帶：label（選填標籤）、lng / lat（座標）。
+ */
+export function ChatHighlightPanel({ props }: { props: Record<string, unknown> }) {
+  const label = typeof props.label === "string" ? props.label : "";
+  const lng = Number(props.lng);
+  const lat = Number(props.lat);
+  const hasCoords = Number.isFinite(lng) && Number.isFinite(lat);
+  return (
+    <div>
+      {label && <Row label="標記" value={label} />}
+      {hasCoords && <Row label="座標" value={`${lng.toFixed(4)}, ${lat.toFixed(4)}`} />}
+      {!label && !hasCoords && <Row label="標記" value="地圖標記點" />}
+    </div>
+  );
+}
+
 export function Badge({ label, on, color }: { label: string; on: boolean; color: string }) {
   return (
     <span style={{
