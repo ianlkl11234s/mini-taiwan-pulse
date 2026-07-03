@@ -250,7 +250,7 @@ export const fetchFacPrimary = (): Promise<FacilityPoint[]> => _l1Cached();
 const _l2Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facOffshore", "離岸風電場址 8",
-    supabase.rpc("get_ssot_facilities_offshore_zones"),
+    staticRpc("get_ssot_facilities_offshore_zones"),
   );
   if (error) throw new Error(`get_ssot_facilities_offshore_zones: ${error.message}`);
   return (data ?? []) as FacilityZone[];
@@ -261,7 +261,7 @@ export const fetchFacOffshore = (): Promise<FacilityZone[]> => _l2Cached();
 const _l3Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facPlanned", "規劃電廠 35",
-    supabase.rpc("get_ssot_facilities_planned"),
+    staticRpc("get_ssot_facilities_planned"),
   );
   if (error) throw new Error(`get_ssot_facilities_planned: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -272,7 +272,7 @@ export const fetchFacPlanned = (): Promise<FacilityPoint[]> => _l3Cached();
 const _l4Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facHistorical", "歷史電廠 15",
-    supabase.rpc("get_ssot_facilities_historical"),
+    staticRpc("get_ssot_facilities_historical"),
   );
   if (error) throw new Error(`get_ssot_facilities_historical: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -283,7 +283,7 @@ export const fetchFacHistorical = (): Promise<FacilityPoint[]> => _l4Cached();
 const _l5Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facSecondary", "次要電廠 341",
-    supabase.rpc("get_ssot_facilities_secondary_small"),
+    staticRpc("get_ssot_facilities_secondary_small"),
   );
   if (error) throw new Error(`get_ssot_facilities_secondary_small: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -294,7 +294,7 @@ export const fetchFacSecondary = (): Promise<FacilityPoint[]> => _l5Cached();
 const _l6Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facOsmSupplement", "OSM 補充 1,215",
-    supabase.rpc("get_ssot_facilities_osm_supplement"),
+    staticRpc("get_ssot_facilities_osm_supplement"),
   );
   if (error) throw new Error(`get_ssot_facilities_osm_supplement: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -605,7 +605,7 @@ async function fetchOsmWindTurbinesUncached(): Promise<OsmWindTurbine[]> {
   const { data, error } = await withLoading(
     "energy:windTurbines",
     "風機 812",
-    supabase.rpc("get_osm_wind_turbines"),
+    staticRpc("get_osm_wind_turbines"),
   );
   if (error) throw new Error(`get_osm_wind_turbines: ${error.message}`);
   return (data ?? []) as OsmWindTurbine[];
@@ -617,7 +617,7 @@ async function fetchOsmSolarFarmsUncached(): Promise<OsmSolarFarm[]> {
   const { data, error } = await withLoading(
     "energy:solarFarms",
     "光電廠 734",
-    supabase.rpc("get_osm_solar_farms"),
+    staticRpc("get_osm_solar_farms"),
   );
   if (error) throw new Error(`get_osm_solar_farms: ${error.message}`);
   return (data ?? []) as OsmSolarFarm[];
@@ -629,7 +629,7 @@ async function fetchOsmPowerPlantsStaticUncached(): Promise<OsmPowerPlantStatic[
   const { data, error } = await withLoading(
     "energy:powerPlantsStatic",
     "OSM 電廠 513",
-    supabase.rpc("get_osm_power_plants_static"),
+    staticRpc("get_osm_power_plants_static"),
   );
   if (error) throw new Error(`get_osm_power_plants_static: ${error.message}`);
   return (data ?? []) as OsmPowerPlantStatic[];
@@ -716,7 +716,7 @@ async function fetchOffshoreWindZonesUncached(): Promise<OffshoreWindZone[]> {
   const { data, error } = await withLoading(
     "energy:offshoreWind",
     "離岸風電潛力場址 36",
-    supabase.rpc("get_offshore_wind_zones"),
+    staticRpc("get_offshore_wind_zones"),
   );
   if (error) throw new Error(`get_offshore_wind_zones: ${error.message}`);
   return (data ?? []) as OffshoreWindZone[];
@@ -728,7 +728,7 @@ async function fetchIslandPowerGridUncached(): Promise<IslandPowerFacility[]> {
   const { data, error } = await withLoading(
     "energy:islandGrid",
     "離島電網 14",
-    supabase.rpc("get_island_power_grid"),
+    staticRpc("get_island_power_grid"),
   );
   if (error) throw new Error(`get_island_power_grid: ${error.message}`);
   return (data ?? []) as IslandPowerFacility[];
@@ -740,7 +740,7 @@ async function fetchFossilFuelInfraUncached(): Promise<FossilFuelFacility[]> {
   const { data, error } = await withLoading(
     "energy:fossilFuel",
     "化石燃料設施 9",
-    supabase.rpc("get_fossil_fuel_infrastructure"),
+    staticRpc("get_fossil_fuel_infrastructure"),
   );
   if (error) throw new Error(`get_fossil_fuel_infrastructure: ${error.message}`);
   return (data ?? []) as FossilFuelFacility[];
@@ -752,7 +752,7 @@ async function fetchGeothermalWellsUncached(): Promise<GeothermalWell[]> {
   const { data, error } = await withLoading(
     "energy:geothermal",
     "地熱井 36",
-    supabase.rpc("get_geothermal_wells"),
+    staticRpc("get_geothermal_wells"),
   );
   if (error) throw new Error(`get_geothermal_wells: ${error.message}`);
   return (data ?? []) as GeothermalWell[];
@@ -764,7 +764,7 @@ async function fetchRenewablePermitsTaipeiUncached(): Promise<RenewablePermitTai
   const { data, error } = await withLoading(
     "energy:taipeiRE",
     "北市再生能源 438",
-    supabase.rpc("get_renewable_permits_taipei"),
+    staticRpc("get_renewable_permits_taipei"),
   );
   if (error) throw new Error(`get_renewable_permits_taipei: ${error.message}`);
   return (data ?? []) as RenewablePermitTaipei[];
@@ -793,7 +793,7 @@ async function fetchEvChargingUncached(): Promise<EvChargingStation[]> {
   const { data, error } = await withLoading(
     "energy:ev",
     "充電站 3,060",
-    supabase.rpc("get_ev_charging_stations"),
+    staticRpc("get_ev_charging_stations"),
   );
   if (error) throw new Error(`get_ev_charging_stations: ${error.message}`);
   return (data ?? []) as EvChargingStation[];

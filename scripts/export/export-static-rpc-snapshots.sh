@@ -34,6 +34,22 @@ RPCS=(
   "get_osm_substations:table"
   "get_osm_power_lines:table"
   "get_osm_power_towers:jsonb"
+  # ── Batch 1：param-less 能源靜態（全 RETURNS TABLE，DB 探型別確認）──
+  "get_osm_wind_turbines:table"
+  "get_osm_solar_farms:table"
+  "get_osm_power_plants_static:table"
+  "get_renewable_permits_taipei:table"
+  "get_offshore_wind_zones:table"
+  "get_geothermal_wells:table"
+  "get_island_power_grid:table"
+  "get_fossil_fuel_infrastructure:table"
+  "get_fossil_fuel_layers:table"
+  "get_ev_charging_stations:table"
+  "get_ssot_facilities_secondary_small:table"
+  "get_ssot_facilities_planned:table"
+  "get_ssot_facilities_offshore_zones:table"
+  "get_ssot_facilities_historical:table"
+  "get_ssot_facilities_osm_supplement:table"
 )
 
 CURRENT_PSQL_PID=""
