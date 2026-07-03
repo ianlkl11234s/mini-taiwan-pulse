@@ -226,6 +226,20 @@ RPC 響應 > 1s 或回傳 > 10k rows → **必須**套 pre-aggregate pattern：
 - **實證**：2026-06-17 07:50 (Taipei) ship / flight / freeway / youbike / disaster / temperature / iot-wra 七 dataset 全空 → 修法 `gis-platform/migrations/208_fix_cron_taipei_tz.sql`
 - **Code review 規則**：`cron.schedule(...)` 內看到 `current_date` → 一律改為 `(now() AT TIME ZONE 'Asia/Taipei')::date`
 
+## ⚠️ P0 「已完成」必有工具佐證（2026-07-03，幻覺教訓）
+
+任何聲稱「已做完」（改 DB / commit / 部署 / 測試通過 / 修好）前，**用工具查真實狀態**：`git status`/`git log`/psql `SELECT`/`curl`/`gh api commits/<sha>/check-runs`。不靠記憶或敘述——曾大段描述做完 RLS 修復/migration/CI 修復，實際從未執行，收尾 ground-truth 查證才發現。修復類跑完立刻獨立驗證（exit 0 ≠ 達成目的）。不信 agent 二手報告的事實（表名/數字/狀態），自查 ground truth。
+
+## ⚠️ P0 Supabase RLS 安全鐵則（2026-07-03，anon key 裸奔教訓）
+
+**anon key 公開是正常設計**（進 bundle 正常），安全全靠 RLS。service_role key 絕不進 bundle（禁 `VITE_` 前綴）。
+
+1. **新建 table 必 `ENABLE ROW LEVEL SECURITY` + read policy**。Supabase 建表 default 把 ALL 授 anon/authenticated；忘開 RLS = anon 拿公開 key 可 SELECT/INSERT/UPDATE/DELETE（本 session 踩 public 22 張 + reference 6 張 + profiles，migration 270/271/272）。
+2. **要 column 級權限先 `REVOKE ALL FROM anon,authenticated` 再授最小集**——表級 UPDATE 蓋過 column-level GRANT（profiles 的 tier 一度可自升級）。
+3. **Exposed schemas 只留 `public`+`graphql_public`**（+ 有前端直讀的才留，如 reference 因 airports/ports app）。**改 Exposed schemas 前必 grep 全生態所有前端 repo**（DB 共用，一度只掃單 repo 差點弄壞其他 app）。
+4. **改線上 DB 前自查 ground truth**（psql SELECT），改用 `SET ROLE anon` + anon key curl 實測讀/寫（讀通/寫擋）。migration 加 `to_regclass` 守衛防不存在表 ERROR。
+5. SECURITY DEFINER function 必 `SET search_path`。
+
 ## 新增 Layer 強制順序
 
 1. `src/types/index.ts` → `LayerVisibility` 加 key
