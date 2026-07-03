@@ -10,6 +10,14 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 
+/**
+ * Feature flag（AR-11d）：影像 frame 讀取路徑。
+ * - 有值 → 走 R2/CDN，打 get_cwa_imagery_manifest，frame URL = `${base}/${image_key}`（不產 object URL）
+ * - 未設 → 走既有 base64 路徑，打 get_cwa_imagery_frames_batch（預設安全，merge 後行為零變化）
+ * 切換方式：設 env + rebuild。尾斜線先剝除，避免拼出 `base//key`。
+ */
+const IMAGERY_CDN_BASE = (import.meta.env.VITE_IMAGERY_CDN_BASE ?? "").replace(/\/+$/, "");
+
 export interface CwaImageryFrame {
   datasetId: string;
   /** 原始 ISO 字串（作為 RPC 查詢 key） */
@@ -40,6 +48,19 @@ interface RawBatchRow {
   image_b64: string;
 }
 
+/** get_cwa_imagery_manifest 的列：與 RawBatchRow 同構，但無 bytes、改回 image_key + image_size。 */
+interface RawManifestRow {
+  dataset_id: string;
+  observed_at: string;
+  mime_type: string;
+  lon_min: number;
+  lon_max: number;
+  lat_min: number;
+  lat_max: number;
+  image_key: string;
+  image_size: number;
+}
+
 export interface CwaImageryWindow {
   sinceIso: string;
   untilIso: string;
@@ -48,16 +69,25 @@ export interface CwaImageryWindow {
 }
 
 /**
- * 批次載入 metadata + bytes（一次 RPC 回傳多張），避開「N 個並發 fetch 撐爆網路層」。
+ * 批次載入 metadata + 影像 URL（一次 RPC 回傳多張），避開「N 個並發 fetch 撐爆網路層」。
  * 時間窗由呼叫端依 timeline 日期決定（migration 160 起支援 p_until / p_step_minutes）。
- * 回傳 `{ bundle, urls }` per dataset；呼叫端負責 revokeObjectURL。
+ * 回傳 `{ bundle, urls }` per dataset。
+ *
+ * 兩態（見 IMAGERY_CDN_BASE）：
+ * - CDN 開啟 → get_cwa_imagery_manifest，url = R2 物件的 http URL（非 object URL）
+ * - CDN 未設 → get_cwa_imagery_frames_batch，url = base64 → Blob → object URL
+ * 兩態的參數與回傳形狀完全一致，故 cwaImageryLayer / useCwaImageryLayer 零改動。
+ * 呼叫端（hook）在 evict/unmount 會對 url 呼叫 revokeObjectURL：對 CDN 的 http URL 是無害 no-op，
+ * 對 object URL 則正確釋放（handoff read-path-cdn-imagery.md 已確認，故不需改 hook）。
  */
 export async function loadCwaImageryBatch(
   datasetIds: string[],
   window: CwaImageryWindow,
   opts: { silent?: boolean } = {},
 ): Promise<Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>> {
-  const rpcPromise = supabase.rpc("get_cwa_imagery_frames_batch", {
+  const useCdn = IMAGERY_CDN_BASE.length > 0;
+  const rpcName = useCdn ? "get_cwa_imagery_manifest" : "get_cwa_imagery_frames_batch";
+  const rpcPromise = supabase.rpc(rpcName, {
     p_dataset_ids: datasetIds,
     p_since: window.sinceIso,
     p_until: window.untilIso,
@@ -73,9 +103,9 @@ export async function loadCwaImageryBatch(
         rpcPromise,
       ));
 
-  if (error) throw new Error(`get_cwa_imagery_frames_batch: ${error.message}`);
+  if (error) throw new Error(`${rpcName}: ${error.message}`);
 
-  const rows = (data ?? []) as RawBatchRow[];
+  const rows = (data ?? []) as (RawBatchRow | RawManifestRow)[];
   const result = new Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>();
   for (const id of datasetIds) {
     result.set(id, { bundle: { datasetId: id, frames: [] }, urls: new Map() });
@@ -84,6 +114,13 @@ export async function loadCwaImageryBatch(
   for (const r of rows) {
     const slot = result.get(r.dataset_id);
     if (!slot) continue;
+    // 共通欄位在兩型 union 皆有；bytes / key 只存在單一型別，故各自 narrow cast。
+    const url = useCdn
+      ? `${IMAGERY_CDN_BASE}/${(r as RawManifestRow).image_key}`
+      : base64ToObjectUrl((r as RawBatchRow).image_b64, r.mime_type);
+    const imageSize = useCdn
+      ? (r as RawManifestRow).image_size
+      : (r as RawBatchRow).image_b64.length;
     slot.bundle.frames.push({
       datasetId: r.dataset_id,
       observedAtIso: r.observed_at,
@@ -93,9 +130,9 @@ export async function loadCwaImageryBatch(
       lonMax: r.lon_max,
       latMin: r.lat_min,
       latMax: r.lat_max,
-      imageSize: r.image_b64.length,
+      imageSize,
     });
-    slot.urls.set(r.observed_at, base64ToObjectUrl(r.image_b64, r.mime_type));
+    slot.urls.set(r.observed_at, url);
   }
 
   for (const slot of result.values()) {
