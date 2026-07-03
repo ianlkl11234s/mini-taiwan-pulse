@@ -109,6 +109,7 @@ commit 順序建議：**STATUS 最後**（其他檔都 commit 完再更新 STATU
 - `git status` 確認 tree clean
 - **提醒用戶**：「要 push 嗎？`git push origin master`」
 - **不要自己 push**
+- **若本 session 動了程式碼結構**（新增/刪除/改名 檔案或函式）→ 提醒用戶：codebase-memory 圖譜可能已過期，可 `index_repository(mode="moderate")` 重建；純改函式內部可略過。理由見 `.claude/HARNESS.md §4.2`。
 
 ## 注意事項
 
