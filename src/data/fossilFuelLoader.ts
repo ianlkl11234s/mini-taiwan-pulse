@@ -1,4 +1,4 @@
-import { supabase } from "../lib/supabase";
+import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 
 /**
@@ -143,7 +143,7 @@ export async function fetchFossilFuelLayers(): Promise<FossilFuelLayers> {
   const { data, error } = await withLoading(
     "fossilFuel:all",
     "化石燃料 13 圖層",
-    supabase.rpc("get_fossil_fuel_layers"),
+    staticRpc("get_fossil_fuel_layers"),
   );
   if (error) throw new Error(`get_fossil_fuel_layers: ${error.message}`);
 

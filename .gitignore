@@ -8,6 +8,7 @@ dist
 public/aviation_data.json
 public/ship_data.json
 public/rail/
+public/static-rpc/
 public/rail_bundle.json
 scripts/flight-list.json
 scripts/track-progress.json
