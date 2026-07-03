@@ -39,6 +39,7 @@
 | BC-5 | P2 | police_stations 日期戳 URL 改 manifest/latest 別名 | open | 上游換版免同步 datasets.ts |
 | BC-6 | P3 | Anthropic 進階檔開 extended thinking（providerOptions） | open | 深度思考 |
 | BC-7 | P3 | Phase 4：站方付費免費額度（Edge Function 單 key）/ 對話 pin 成 Monitor 面板 | open | AR-43/44 |
+| BC-8 | P2 | 變電所/超高壓電力線圖層開多圖層時回 0（後端 RPC 實測 179KB 完好，疑 #46 韌性層併發上限 8 + 大 RPC 交互）| open | 2026-07-03；待測 All Off→單開變電所→硬重載 確認是否併發問題；非本 session 程式碼改動造成 |
 
 ### 水資源系統（BL 系列 — 盤點 DB 有資料但前端沒用的 Quick Wins）
 
