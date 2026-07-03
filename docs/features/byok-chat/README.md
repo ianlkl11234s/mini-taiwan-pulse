@@ -1,10 +1,10 @@
 # BYOK AI 對話助手
 
 > **Slug**：`byok-chat`
-> **狀態**：dev（PR 審核中）
+> **狀態**：shipped（BYOK chat + 會員 P0）
 > **Owner**：migu
-> **上線日期**：TBD
-> **相關 PR**：#TBD
+> **上線日期**：2026-07-03
+> **相關 PR**：#51（chat）#52 `pending`（member P0）
 
 ## 一句話說明
 

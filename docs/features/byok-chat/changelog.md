@@ -2,7 +2,13 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
-## 2026-07-03 — PR #TBD（待 squash 後補 hash）
+## 2026-07-03 — PR #52 `pending`（member P0）
+
+- 會員基礎：Google OAuth 登入（signInWithGoogle/signOut/useUser）+ UserAvatar（桌機+手機 header）
+- 上游：gis-platform migration 270（profiles + RLS + REVOKE default grants 修正 + signup trigger），已套用並實測
+- 登入端到端驗證：OAuth → trigger 自動建列（display_name/avatar 從 Google metadata）→ Avatar 顯示
+
+## 2026-07-03 — PR #51 `68f3df5`
 
 - P1 對話 MVP：BYOK 三家瀏覽器直連（key 零經手）、AI SDK v7 agent loop、
   5 地圖 tools + 2 目錄 tools、ChatPanel/KeySettings（design token 全合規）、App.tsx 接線

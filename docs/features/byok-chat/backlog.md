@@ -4,8 +4,7 @@
 
 ## 進行中
 
-- [ ] **BC-1**：P0 會員系統（Supabase Auth Google OAuth）— 等 OAuth 憑證備妥，
-  migration（profiles + RLS + trigger）+ `src/lib/auth.ts` + Avatar；分支 `feat/member-auth`
+（無）
 
 ## 待辦
 
@@ -22,7 +21,9 @@
 
 ## 已完成（近期）
 
-- [x] P1 對話 MVP（BYOK 三家直連 + 地圖 tools + UI）— PR #TBD, 2026-07-02
-- [x] P2 資料問答（13 dataset + 10 RPC 白名單 + h3 人口 join）— 同 PR, 2026-07-03
-- [x] 高度讓位（popup 開啟自動縮 45vh）— 同 PR, 2026-07-03
-- [x] FX-1~5 驗收回饋修正（IME / 對話記憶 / 顧問式 tools / 檔位 hint / agentic 人體工學 + abort 真修）— 同 PR, 2026-07-03
+- [x] **BC-1**：P0 會員系統 — migration 270 + auth.ts + UserAvatar + OAuth 端到端實測 — PR #52, 2026-07-03
+
+- [x] P1 對話 MVP（BYOK 三家直連 + 地圖 tools + UI）— PR #51, 2026-07-02
+- [x] P2 資料問答（13 dataset + 10 RPC 白名單 + h3 人口 join）— PR #51, 2026-07-03
+- [x] 高度讓位（popup 開啟自動縮 45vh）— PR #51, 2026-07-03
+- [x] FX-1~5 驗收回饋修正（IME / 對話記憶 / 顧問式 tools / 檔位 hint / agentic 人體工學 + abort 真修）— PR #51, 2026-07-03

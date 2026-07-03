@@ -129,6 +129,7 @@ import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
+import { UserAvatar } from "./components/auth/UserAvatar";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
@@ -2079,6 +2080,7 @@ export default function App() {
             >
               Info
             </button>
+            <UserAvatar />
           </div>
 
           {/* 操作提示 */}
@@ -2250,6 +2252,8 @@ export default function App() {
             >
               {renderMode === "3d" ? "3D" : "2D"}
             </button>
+
+            <UserAvatar />
           </div>
 
           {/* Timeline */}
