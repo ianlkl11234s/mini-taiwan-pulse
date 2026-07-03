@@ -4,6 +4,28 @@
 
 ## 進行中 / 待辦
 
+### 架構改造（AR 系列，2026-07-03 — 全系統審計後五階段計畫）
+
+> SSOT：`docs/proposal/architecture-overhaul-plan.md`（審計報告 `docs/research/architecture-audit-2026-07-02.md`）。核心洞察：站上 9 成「動態」資料是共享快照，不該 per-user 打 DB，該走 CDN。目標數百人規模：讀取 QPS O(N)→O(1)。
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| AR-01 | P0 | Supabase client 韌性（併發上限 8 + 30s timeout + 讀取 retry） | **done** | pulse PR #46 |
+| AR-02 | P0 | 無快取 loader 套 loaderCache（batch1+2 共 7 loader；其餘有理由排除） | **done** | pulse PR #47/#49 |
+| AR-03 | P0 | 補 17 處缺 loadingRegistry（含 G009；公車輪詢初次才顯 loading） | **done** | pulse PR #48 |
+| AR-04 | P0 | VM collectors 本地 buffer + 連線 retry（DB outage 不丟資料） | **done** | data-collectors PR #28；已 scp 部署 3 台 VM 並實測 |
+| AR-05 | P0 | 監控清冊 config↔yaml 自動同步 + 回填 23 collector（19 依實測校正 enabled） | **done** | data-collectors PR #30；drift test 護欄 |
+| AR-06 | P0 | statement_timeout 改 transaction 內 SET LOCAL（pooler 丟棄 startup options） | **done** | data-collectors PR #29；見 INCIDENTS 2026-07-03 |
+| AR-11 | P1 | CWA 衛星/雷達影像上 R2 CDN（雙寫 + manifest RPC + flag + 21,587 backfill） | **done** | pulse #50 + data-collectors #32；`data.itsmigu.com`；browser 驗收過 |
+| AR-11e | P1 | 影像收尾（穩定一週後）：清 DB 3.2GB bytea + 補 pg_cron cleanup | open | 不可逆，刻意延後至 CDN 穩定 |
+| AR-11f | P2 | AQI + precip raster imagery 同套 CDN 化 | open | 同構於 AR-11，aqiImageryLoader/precipRasterLoader |
+| AR-12/13 | P1 | C 類即時快照（bus current/news/alerts…）snapshot-to-CDN | open | 需 R2 + collector snapshot_writer；讀取去 DB 化主體 |
+| AR-14~16 | P1 | B 類歷史 trails（ship/bus/flight）per-day 靜態檔（Arrow） | open | nightly export，避 pooler 2min timeout |
+| AR-21~26 | P2 | 圖層架構：細粒度 visibility/params store + Layer Manifest（消滅 5 靜默失敗點 + 對話介面地基） | open | 翻倍到 100+ layer 的結構解 |
+| AR-31~36 | P2 | 渲染效能：renderer 合併 + FlightScene 重構 + GPU 時間過濾 + worker | open | 多層同開順暢 |
+| AR-41~44 | P2 | D3 schema 收窄 → Auth 會員 → 對話介面（吃 manifest + 分析 RPC 白名單） | 部分已由 BC 系列先行 | 會員/BYOK 已上線，manifest 地基待 AR-21 |
+| — | — | 後續小項：`with_conn()` 自訂 SQL 與長任務（satellite_passes/waste_match）仍無 timeout 保護 | open | AR-06 附帶發現，各自 transaction 內 SET LOCAL |
+
 ### BYOK 對話 + 會員（BC 系列，2026-07-03 上線）
 
 | ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
