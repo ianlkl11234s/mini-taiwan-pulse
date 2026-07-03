@@ -18,12 +18,16 @@
     "pillars:generate": "python3 scripts/preprocess/generate-station-pillars.py"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.5",
+    "@ai-sdk/google": "^4.0.6",
+    "@ai-sdk/openai": "^4.0.5",
     "@aws-sdk/client-s3": "^3.995.0",
     "@deck.gl/core": "^9.2.10",
     "@deck.gl/geo-layers": "^9.2.10",
     "@deck.gl/layers": "^9.2.10",
     "@deck.gl/mapbox": "^9.2.10",
     "@supabase/supabase-js": "^2.101.1",
+    "ai": "^7.0.11",
     "dotenv": "^17.3.1",
     "h3-js": "^4.4.0",
     "lucide-react": "^0.576.0",
@@ -33,7 +37,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "satellite.js": "^5.0.0",
-    "three": "^0.172.0"
+    "three": "^0.172.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

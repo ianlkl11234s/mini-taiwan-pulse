@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "./styles/designTokens";
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode } from "./types";
+import type { ViewMode, RenderMode, DisplayMode, Flight, ExpandableLayerKey, LayerVisibility, AppMode, FeatureInfo } from "./types";
 import type { StationPillarData } from "./three/StationPillarScene";
 import { MapView } from "./map/MapView";
 import { useAirspaceData } from "./hooks/useAirspaceData";
@@ -130,6 +130,11 @@ import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
+import { HEADER_LABELS } from "./components/featureInfo/registry";
+import { ChatPanel } from "./components/chat/ChatPanel";
+import { runChatTurn, testKey } from "./chat/agent";
+import type { MapBridge } from "./chat/types";
+import { MessageSquare } from "lucide-react";
 import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
@@ -334,6 +339,7 @@ export default function App() {
   const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
   const [captureMode, setCaptureMode] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
   const handleSidebarWidthChange = useCallback((w: number) => setSidebarWidth(w), []);
   const [cameraInfo, setCameraInfo] = useState({ lng: 0, lat: 0, zoom: 0, pitch: 0, bearing: 0 });
@@ -1531,6 +1537,40 @@ export default function App() {
     }
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
 
+  // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
+  const chatBridge = useMemo<MapBridge>(() => ({
+    bulkSetVisibility: (keys, visible) =>
+      handleBulkSetVisibility(keys as (keyof LayerVisibility)[], visible),
+    allOff: handleAllOff,
+    flyTo: (lng, lat, zoom) =>
+      mapRef.current?.flyTo({ center: [lng, lat], zoom: zoom ?? 11, speed: 1.2 }),
+    jumpToPlace: (presetId) => {
+      if (!getPresetById(presetId)) return false;
+      handleLocationJump(presetId);
+      return true;
+    },
+    highlightPoint: (lng, lat, layerType, properties) => {
+      // 已知 layerType → 走該圖層專屬 popup；未知（含 chat 標記）→ 通用 chatHighlight
+      const known = typeof layerType === "string" && layerType in HEADER_LABELS;
+      const lt = known ? (layerType as FeatureInfo["layerType"]) : "chatHighlight";
+      const props = known ? (properties ?? {}) : { ...(properties ?? {}), lng, lat };
+      setFeatureInfo({ layerType: lt, properties: props, coords: [lng, lat] });
+    },
+    getVisibleLayerKeys: () =>
+      Object.entries(layerVisibilityRef.current)
+        .filter(([, v]) => v)
+        .map(([k]) => k),
+    getCurrentTimeISO: () => new Date(timeStore.getTime() * 1000).toISOString(),
+    getCamera: () => {
+      const map = mapRef.current;
+      if (!map) {
+        return { lng: DEFAULT_CAMERA.center[0], lat: DEFAULT_CAMERA.center[1], zoom: DEFAULT_CAMERA.zoom };
+      }
+      const c = map.getCenter();
+      return { lng: c.lng, lat: c.lat, zoom: map.getZoom() };
+    },
+  }), [handleBulkSetVisibility, handleAllOff, handleLocationJump, setFeatureInfo, layerVisibilityRef]);
+
   // ── Render ──
 
   // LoadingScreen 改為 overlay（fixed, zIndex 9999）蓋在主 UI 上，
@@ -1983,6 +2023,31 @@ export default function App() {
                 BETA
               </span>
             </button>
+            <button
+              onClick={() => setChatOpen((v) => !v)}
+              title="AI 助手 BYOK Chat"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 14px",
+                background: chatOpen
+                  ? "#64aaff"
+                  : (isDarkTheme ? "rgba(80,140,255,0.25)" : "rgba(80,140,255,0.15)"),
+                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
+                borderRadius: RADIUS.lg,
+                color: chatOpen ? "#04121f" : (isDarkTheme ? "#fff" : "#333"),
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
+                fontWeight: chatOpen ? 700 : 400,
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+                letterSpacing: 1,
+              }}
+            >
+              <MessageSquare size={13} />
+              AI
+            </button>
           </div>
 
           {/* 右上角第二排 */}
@@ -2145,6 +2210,25 @@ export default function App() {
               }}
             >
               Capture
+            </button>
+
+            <button
+              onClick={() => setChatOpen((v) => !v)}
+              title="AI 助手"
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: RADIUS.xl,
+                background: chatOpen ? "#64aaff" : "rgba(80,140,255,0.25)",
+                border: `1px solid ${chatOpen ? "#64aaff" : "rgba(80,140,255,0.5)"}`,
+                color: chatOpen ? "#04121f" : "#fff",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <MessageSquare size={16} />
             </button>
 
             <button
@@ -2623,6 +2707,16 @@ export default function App() {
 
       {/* ── Info Modal ── */}
       <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} />
+
+      {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
+      <ChatPanel
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        bridge={chatBridge}
+        runChatTurn={runChatTurn}
+        onTestKey={testKey}
+        compact={featureInfo !== null}
+      />
 
       {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
       <DataSourceBrowser />
