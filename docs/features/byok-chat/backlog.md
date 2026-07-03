@@ -13,6 +13,8 @@
   （含匿名 session_id，已拍板）+ 對話歷史跨裝置；依賴 BC-1
 - [ ] **BC-3**：預設模型檔位是否從最便宜檔改中階檔（Flash/Sonnet 級）— 用戶待決
 - [ ] **BC-4**：部署前置 — CSP header（connect-src 三家 LLM 域名）+ 隱私頁 BYOK 揭露
+  + **OAuth 網域切換**：Supabase Site URL 改正式網域、Redirect URLs 加正式網域、
+    Google Console「已授權的 JavaScript 來源」加正式網域（測試期全走 localhost，2026-07-03 拍板）
 - [ ] **BC-5**：`police_stations_20260626` 日期戳 URL 改吃 manifest 或 latest 別名（上游換版免同步）
 - [ ] **BC-6**：（選配）Anthropic 進階檔開 extended thinking（AI SDK providerOptions）
 - [ ] **BC-7**：Phase 4 選項 — 站方付費免費額度（Edge Function + 單 key，AR-43 原案）／
