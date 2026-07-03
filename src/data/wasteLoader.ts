@@ -1,7 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
-import { keyedThunkCache } from "../lib/loaderCache";
+import { cachedOnce } from "../lib/loaderCache";
 
 /**
  * 垃圾清運（waste）資料 loader
@@ -132,18 +132,24 @@ export async function fetchWasteCurrent(
   return (data ?? []) as WasteVehicleRow[];
 }
 
-/** 取得路線 LineString（高雄/新北有資料） */
-export async function fetchWasteRoutes(city: string = "高雄市"): Promise<WasteRouteRow[]> {
+// 全量靜態檔（無參 RPC = DEFAULT NULL = 全城市），前端 filter city。15min TTL。
+const _routesAllCached = cachedOnce(async () => {
   const { data, error } = await withLoading(
-    `waste-routes-${city}`,
-    `垃圾車路線 ${city}`,
-    supabase.rpc("get_waste_routes", { p_city: city }),
+    "waste-routes",
+    "垃圾車路線",
+    staticRpc("get_waste_routes"),
   );
-  if (error) throw new Error(`get_waste_routes(${city}): ${error.message}`);
+  if (error) throw new Error(`get_waste_routes: ${error.message}`);
   return (data ?? []) as WasteRouteRow[];
+}, 15 * 60_000);
+
+/** 取得路線 LineString（高雄/新北有資料）。抓全量靜態檔後前端 filter city。 */
+export async function fetchWasteRoutes(city: string = "高雄市"): Promise<WasteRouteRow[]> {
+  const all = await _routesAllCached();
+  return all.filter((r) => r.city === city);
 }
 
-/** 取得清運點位 */
+/** 取得清運點位（193k 筆全量 56MB，不適合全量靜態檔 → 保留 per-city RPC） */
 export async function fetchWasteStops(city: string = "高雄市"): Promise<WasteStopRow[]> {
   const { data, error } = await withLoading(
     `waste-stops-${city}`,
@@ -154,63 +160,63 @@ export async function fetchWasteStops(city: string = "高雄市"): Promise<Waste
   return (data ?? []) as WasteStopRow[];
 }
 
-const facilitiesCache = keyedThunkCache<WasteFacilityRow[]>(15 * 60_000);
+// 全量靜態檔（~4,609 筆）只抓一次，前端依 facility_type filter。15min TTL。
+const _facilitiesAllCached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "waste-facilities",
+    "垃圾處理設施",
+    staticRpc("get_waste_facilities"),
+  );
+  if (error) throw new Error(`get_waste_facilities: ${error.message}`);
+  return (data ?? []) as WasteFacilityRow[];
+}, 15 * 60_000);
 
-/** 取得垃圾處理設施（focal 類型 8 種，~4,609 筆全量；用 migration 075 RPC）。15min TTL 快取 */
-export function fetchWasteFacilities(types?: string[]): Promise<WasteFacilityRow[]> {
-  const cacheKey = types?.length ? types.slice().sort().join(",") : "all";
-  return facilitiesCache(cacheKey, async () => {
-    const { data, error } = await withLoading(
-      `waste-facilities-${cacheKey}`,
-      `垃圾處理設施 ${types?.length ?? "全部"}`,
-      supabase.rpc("get_waste_facilities", { p_types: types ?? null }),
-    );
-    if (error) throw new Error(`get_waste_facilities: ${error.message}`);
-    return (data ?? []) as WasteFacilityRow[];
-  });
+/** 取得垃圾處理設施（focal 類型 8 種，~4,609 筆全量）。抓全量靜態檔後前端 filter facility_type。 */
+export async function fetchWasteFacilities(types?: string[]): Promise<WasteFacilityRow[]> {
+  const all = await _facilitiesAllCached();
+  return all.filter((r) => !types?.length || types.includes(r.facility_type));
 }
 
-const disposalPointsCache = keyedThunkCache<WasteDisposalPointRow[]>(15 * 60_000);
+// 全量靜態檔（~13,751 筆 / ~2.5MB）只抓一次，前端依 city + point_type filter。15min TTL。
+// cachedOnce 抓一次全量後 filter 走記憶體，脫離 DB（2026-06-10 實測 DB 端僅 31ms，成本在傳輸與 parse）。
+const _disposalPointsAllCached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "waste-disposal",
+    "垃圾投放點",
+    staticRpc("get_waste_disposal_points"),
+  );
+  if (error) throw new Error(`get_waste_disposal_points: ${error.message}`);
+  return (data ?? []) as WasteDisposalPointRow[];
+}, 15 * 60_000);
 
-/**
- * 取得垃圾投放點（衣物箱/街頭桶/電池站等，~13,751 筆；用 migration 076 RPC）。
- * payload ~2.5MB — 15min TTL 快取，toggle 不重抓（2026-06-10 實測 DB 端僅 31ms，
- * 成本在傳輸與 JSON parse）
- */
-export function fetchWasteDisposalPoints(
+/** 取得垃圾投放點（衣物箱/街頭桶/電池站等）。抓全量靜態檔後前端 filter city + point_type。 */
+export async function fetchWasteDisposalPoints(
   cities?: string[],
   types?: string[],
 ): Promise<WasteDisposalPointRow[]> {
-  const cityKey = cities?.length ? cities.slice().sort().join(",") : "all";
-  const typeKey = types?.length ? types.slice().sort().join(",") : "all";
-  return disposalPointsCache(`${cityKey}|${typeKey}`, async () => {
-    const { data, error } = await withLoading(
-      `waste-disposal-${cityKey}-${typeKey}`,
-      `垃圾投放點 ${cityKey}/${typeKey}`,
-      supabase.rpc("get_waste_disposal_points", {
-        p_cities: cities ?? null,
-        p_types: types ?? null,
-      }),
-    );
-    if (error) throw new Error(`get_waste_disposal_points: ${error.message}`);
-    return (data ?? []) as WasteDisposalPointRow[];
-  });
+  const all = await _disposalPointsAllCached();
+  return all.filter(
+    (r) =>
+      (!cities?.length || cities.includes(r.city)) &&
+      (!types?.length || types.includes(r.point_type)),
+  );
 }
 
-const squadsCache = keyedThunkCache<WasteCleaningSquadRow[]>(15 * 60_000);
+// 全量靜態檔（359 筆 / ~50KB）只抓一次，前端依 city filter。15min TTL。
+const _squadsAllCached = cachedOnce(async () => {
+  const { data, error } = await withLoading(
+    "waste-squads",
+    "清潔隊",
+    staticRpc("get_waste_cleaning_squads"),
+  );
+  if (error) throw new Error(`get_waste_cleaning_squads: ${error.message}`);
+  return (data ?? []) as WasteCleaningSquadRow[];
+}, 15 * 60_000);
 
-/** 取得全國清潔隊辦公點（359 筆，~50KB JSON）。15min cache。 */
-export function fetchWasteCleaningSquads(cities?: string[]): Promise<WasteCleaningSquadRow[]> {
-  const cacheKey = cities?.length ? cities.slice().sort().join(",") : "all";
-  return squadsCache(cacheKey, async () => {
-    const { data, error } = await withLoading(
-      `waste-squads-${cacheKey}`,
-      `清潔隊 ${cacheKey}`,
-      supabase.rpc("get_waste_cleaning_squads", { p_cities: cities ?? null }),
-    );
-    if (error) throw new Error(`get_waste_cleaning_squads: ${error.message}`);
-    return (data ?? []) as WasteCleaningSquadRow[];
-  });
+/** 取得全國清潔隊辦公點（359 筆）。抓全量靜態檔後前端 filter city。 */
+export async function fetchWasteCleaningSquads(cities?: string[]): Promise<WasteCleaningSquadRow[]> {
+  const all = await _squadsAllCached();
+  return all.filter((r) => !cities?.length || cities.includes(r.city));
 }
 
 /** sidebar 顯示「焚化爐 30 筆」用 */

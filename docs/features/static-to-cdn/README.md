@@ -81,6 +81,23 @@ SSOT 靜態 5：`get_ssot_facilities_secondary_small` `get_ssot_facilities_plann
 - **驗證陷阱**：fallback 讓「忘了部署檔」也能跑 → 驗收時要確認 Network 真的打 `/static-rpc/*.json`（非 fallback 到 rpc）。
 
 ## 進度
-- [ ] Pilot：export 腳本 + staticRpc helper + 3 grid loader + deploy 接線 + 冷載驗證 + S3
-- [ ] Batch 1 其餘 15 能源層
-- [ ] Batch 2 規劃（參數化模板）
+- [x] **Pilot**（電網 3 層）：export 腳本 + staticRpc helper + 3 grid loader + deploy 接線 + **冷載驗證過**（settle ~16s→~2s、零 fallback）+ S3。commit `4c52e1c`
+- [x] **Batch 1**（15 能源層）：OSM 6 + 專項 4 + fossil_fuel_layers(9.5MB) + renewable/ev + SSOT 分桶 5。**browser 驗證過**（11 靜態層全走 CDN、rpc_fallback 空、渲染正常）。commit `3670c36`
+- [x] **Batch 1b**（廢棄物 2 counts）：facility_counts / disposal_point_counts（param-less、no-cache）。commit `2f0a458`
+- [x] **Batch 2**（廢棄物 4 參數化層）：routes/facilities/disposal_points/squads → fetch-all + 前端 filter（cachedOnce 全量 + 記憶體 filter）。**psql 對數驗證 10/10 全等**（client filter 筆數 = RPC 帶參筆數）。⚠️ **stops 排除**：全量 193k/56MB 太大，且 fallback 無參會打爆 pooler → 保留 per-city RPC
+- [x] **primary_operating**：swap 靜態座標半，保留 realtime 出力 join（has_realtime 仍即時算）
+- [ ] **收尾**：PR + merge；（部署後）Cloudflare cache rule for /static-rpc/
+- [ ] **刻意延後**（低 DB 衝擊 / 需 bespoke）：waste_stops（per-city 拆檔才行）、data_catalog（per-key metadata）、h3_demographics_yearly（per-year）、reservoir_context（混即時水情）、satellite_catalog（已 session cache）、電廠 popup provenance/units（點擊 lazy）
+
+### 已搬統計
+| 批次 | 層數 | 最大 payload | 狀態 |
+|---|---|---|---|
+| Pilot | 3 | power_towers 3.8MB | ✅ 冷載驗證 |
+| Batch 1 | 15 | fossil_fuel_layers 9.5MB | ✅ browser 驗證 |
+| Batch 1b | 2 | (counts, ~0) | ✅ |
+| Batch 2（廢棄物） | 4 | disposal_points 4.7MB | ✅ psql 對數 10/10 |
+| primary_operating | 1 | (209 rows) | ✅ |
+| **合計** | **25** | | |
+
+S3 `deploy-assets/static-rpc/`：**25 檔已上**。
+排除：waste_stops（193k/56MB，per-city RPC 保留）。

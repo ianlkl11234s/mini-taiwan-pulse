@@ -232,7 +232,7 @@ const _l1Cached = cachedOnce(async () => {
   const [primaryRes, rtRes] = await Promise.all([
     withLoading(
       "energy:facPrimary", "主要電廠 209",
-      supabase.rpc("get_ssot_facilities_primary_operating"),
+      staticRpc("get_ssot_facilities_primary_operating"),
     ),
     supabase.rpc("get_ssot_realtime_facility_output"),
   ]);

@@ -53,6 +53,15 @@ RPCS=(
   # ── Batch 1b：param-less 廢棄物 sidebar 數量（no-cache，每次 toggle 都打 DB）──
   "get_waste_facility_counts:table"
   "get_waste_disposal_point_counts:table"
+  # ── Batch 2：廢棄物參數化（全量匯出，前端 filter）──
+  #   RPC 有 city/type 參數，無參呼叫 = DEFAULT NULL = 回全量；前端抓全量後在記憶體 filter。
+  #   注意：get_waste_stops 全量 193k 筆 / 56MB，不適合此模式 → 仍走 per-city RPC，未列入。
+  "get_waste_routes:table"
+  "get_waste_facilities:table"
+  "get_waste_disposal_points:table"
+  "get_waste_cleaning_squads:table"
+  # ── 收尾：主要電廠座標（靜態）；loader 仍另打 realtime 出力 RPC 做 has_realtime join ──
+  "get_ssot_facilities_primary_operating:table"
 )
 
 CURRENT_PSQL_PID=""
