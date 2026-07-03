@@ -520,3 +520,11 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 **前端遞送**：`/climate/*.png` 由 nginx 從 `/data/climate/` 服務；`entrypoint.sh` 背景迴圈每 6h re-sync `deploy-assets/climate/`（refresh-climate.sh）；PNG 帶 `?v=valid_at` 破快取。
 
 **前端 5 layer**（`docs/features/global-climate/`）：windField / oceanCurrents（WebGL instanced 粒子線，全 zoom）/ dustForecast（raster）/ earthquakesGlobal（circle）/ typhoonTracks（線+點+現在位置圈，JMA/JTWC 資料源選擇器）。
+
+## 會員 + BYOK 對話（2026-07-03 上線）
+
+**新增資料表**：`public.profiles`（gis-platform migration 270）— auth.users 1:1 延伸（display_name/avatar_url/tier），signup trigger 自動建列，RLS 本人讀/改自己（tier 不可自改）。會員屬 D 類（唯一合理直打 DB、量小）。
+
+**BYOK 對話零新增資料源**：消費既有 13 個靜態 geojson dataset（DATASET_WHITELIST）+ 10 支既有 anon RPC（RPC_WHITELIST）+ h3 人口 res7。LLM key 使用者自帶、瀏覽器直連三家 API，不經我方伺服器、不落任何表。
+
+**資安 RLS 補正**（migration 271/272）：public 22 張裸奔表（核電/乾旱/疏散/水利…）+ reference 6 張（airports/ports/…）補 RLS 唯讀 policy。Exposed schemas 收窄為 public+graphql_public+reference（realtime/spatial 移除）。spatial_ref_sys（PostGIS 系統表）刻意保留。
