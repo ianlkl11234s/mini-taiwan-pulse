@@ -102,7 +102,7 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 | 架構總覽 / 模組分群 | `get_architecture` | ⭐⭐⭐ | Leiden 分群看真實模組邊界 |
 | 追頂層函式/class method 的 caller | `trace_path(mode=calls)` | ⭐⭐ | 大致可信 |
 | 追**物件字面量 store/registry 方法**的 caller | `trace_path` | ⭐ **會漏邊** | 見下方 ⚠️ |
-| 跨 repo 資料契約鏈 | `trace_path(mode=cross_service)` | — | **需先建跨 repo 邊**（見 §5 F3） |
+| 跨 repo 資料契約鏈 | `trace_path(mode=cross_service)` | ❌ 此架構不適用 | 見 §5 F3：cross-repo 比對靠 HTTP Route，本生態走 Supabase 中介，比不到 |
 
 > ⚠️ **已證實的限制**：`timeStore` / `chatStore` / `loadingRegistry` / `overlayRegistry` 這類 `export const store = { method(){} }` 物件字面量，呼叫端寫 `store.method(...)`，圖譜的 CALLS 邊**連不回內部方法節點**。實測 `trace_path(subscribeThrottled, inbound)` 回 0 callers，但 grep 有 20+ 個真實呼叫散在 18 個 hook。
 > **鐵則：改這類扇出核心前，空 caller ≠ 沒 caller，關鍵處務必 grep 複核。**
@@ -131,7 +131,7 @@ harness = 「每次開 session 自動載入記憶 → 開發中用一組 GIS 專
 |---|---|---|---|---|
 | **F1** | codebase-memory 缺 re-index 節奏，圖譜會靜默腐化 | 中 | `/wrap-up` 收尾加「動了結構就提醒重建」 | ✅ 已實作 |
 | **F2** | `trace_path` 對物件字面量 store 漏 caller 邊 | 中 | 文件化為已知限制 + grep 後盾鐵則（§4.1） | ✅ 已文件化 |
-| **F3** | 9 repo 全索引，但**跨 repo 邊未建**，`/handoff` 仍純手動 | 高（機會） | 跑 `index_repository(mode="cross-repo-intelligence", target_projects=["*"])` 建 CROSS 邊 → `trace_path(cross_service)` 可半自動化 handoff | ⏸️ 待你點頭（較重的運算） |
+| **F3** | 跨 repo 邊：實測 `cross-repo-intelligence` 掃 8 repo **建出 0 邊** | — | cross-repo 比對靠 HTTP Route/Channel；本生態走 **Supabase 中介 + SQL migration + RPC 名字串**，非可靜態分析的服務間 HTTP 呼叫，故比不到。`/handoff` command 維持手動（它本就是為填補此缺口而設計） | ❌ 試過，此架構不適用 |
 | **F4** | graphiti-memory 有註冊沒服務，每 session 可能靜默嘗試連線失敗 | 低 | **二選一**：(a) 真要用→開 Docker+Neo4j 起服務；(b) 不用→從 `~/.claude.json` 移除註冊。已有兩套可用記憶，graphiti 目前冗餘 | ⏸️ 待你決定（動全域設定） |
 | **F5** | Codex 鏡像（`.codex/hooks.json`、`AGENTS.md`）與 `.claude/settings.json`、`CLAUDE.md` 重複 | 低 | 改一邊要想到另一邊；長期可讓 AGENTS.md 只當指標 | 📝 文件化 |
 | **F6** | MCP 全走全域、專案無 `.mcp.json`，harness 不 self-contained | 低 | 單人開發 OK；要可複製/團隊共享再加 per-project `.mcp.json` | 📝 文件化 |
