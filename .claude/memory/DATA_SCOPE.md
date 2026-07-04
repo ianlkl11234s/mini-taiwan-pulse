@@ -528,3 +528,10 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 **BYOK 對話零新增資料源**：消費既有 13 個靜態 geojson dataset（DATASET_WHITELIST）+ 10 支既有 anon RPC（RPC_WHITELIST）+ h3 人口 res7。LLM key 使用者自帶、瀏覽器直連三家 API，不經我方伺服器、不落任何表。
 
 **資安 RLS 補正**（migration 271/272）：public 22 張裸奔表（核電/乾旱/疏散/水利…）+ reference 6 張（airports/ports/…）補 RLS 唯讀 policy。Exposed schemas 收窄為 public+graphql_public+reference（realtime/spatial 移除）。spatial_ref_sys（PostGIS 系統表）刻意保留。
+
+## 靜態層讀取去 DB 化 static-to-cdn（2026-07-04 上線）
+
+**新增供檔**：`public/static-rpc/*.json` = 25 個「靜態 RPC 輸出的預匯出快照」，走 S3 `deploy-assets/static-rpc/` → nginx `/static-rpc/` → Cloudflare。前端 `staticRpc()` 讀取（404 fallback 回 RPC）。**零新增資料源**——只是把既有靜態 RPC 的讀取路徑從 DB 改成 CDN（脫離併發排隊，O(N)→O(1)）。
+- 涵蓋：電網 OSM 3（substations/power_lines/power_towers）+ 能源 15（OSM 風機/光電/電廠、離岸/離島/化石/地熱、再生/EV、SSOT 分桶 5、fossil_fuel_layers 9.5MB）+ 廢棄物 6（2 counts + routes/facilities/disposal_points/squads 全量+前端 filter）+ 主要電廠座標。
+- 排除：`get_waste_stops`（193k/56MB 太大，保留 per-city RPC）；data_catalog/h3_yearly/reservoir/satellite（低衝擊延後）。
+- 匯出：`scripts/export/export-static-rpc-snapshots.sh`（psql）。**刷新**：資料月更後重跑 export→upload→purge Cloudflare（同 `water_*.geojson` 慣例，手動）。詳 `docs/features/static-to-cdn/` + PLAYBOOKS PB-27。
