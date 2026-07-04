@@ -866,3 +866,11 @@ WebGL 逐幀重建整個頂點 buffer（count × trail × 6 頂點 × 10 float�
 ## 多機構同一實體 → 提供資料源選擇 + 去重（2026-07-02）
 
 颱風被 JMA（TC26xx）+ JTWC（wpNNyy）兩機構各自追蹤，同一實體出現兩次、位置略差 → 兩條軌跡兩個圈重疊混亂。原則：① 加**資料源選擇器**（全部/JMA/JTWC，UX 鐵則 4，≤3 選項用 button row）讓用戶選單一來源；② 同一 storm×source×時刻的多點質心去重（JMA preTyphoon/typhoon 段同時間戳）。任何「多來源同實體」資料都適用。
+
+## 靜態層讀取走 CDN 快照，別擠 RPC 併發排隊（2026-07-04，BC-8 教訓）
+
+前端韌性層有全域併發上限（AR-01=8）保護 DB 不被單人 reload 雪崩，但副作用：**靜態資料走 RPC 會擠這條排隊** → 開多層時被排後面的層冷載暫態空窗（BC-8：~16s 才補、非 fetch 失敗、非 render race）；且多人各自打同一份靜態資料 = DB 讀取 **O(N)**，數十~數百人打爆 pooler / CPU / egress。
+
+原則：**資料月更或更慢 + param-less（或可全量化）+ 非時序/realtime → 預匯出 JSON 快照走 S3+Cloudflare CDN，別走 RPC**（O(N)→O(1)）。實作 `staticRpc()`（讀 `/static-rpc/*.json`，404 fallback 回 RPC）+ 匯出腳本 + nginx/S3 鏡像子前綴。完整 SOP 見 PLAYBOOKS PB-27，交付 `docs/features/static-to-cdn/`。
+
+推論：**新 layer 接資料前先分類**——靜態 → CDN 靜態檔（geojson/PMTiles 或 static-rpc 快照）；半動態共享快照 → R2 快照（AR-12/13）；真動態時序 → 保留 RPC。**只有真動態該進 DB 併發排隊。**（呼應 §資料來源管理 + 大面積覆蓋 PMTiles）
