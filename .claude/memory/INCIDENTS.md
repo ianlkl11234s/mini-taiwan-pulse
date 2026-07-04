@@ -1261,3 +1261,20 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 - **教訓**：判斷 collector「是否在跑」用 DB ground-truth（MAX 時間戳）而非 config 預設值；審查 agent 產出時，「照字面做完」不等於「達到目的」。
 
 **附帶｜AR-11 里程碑**：CWA 衛星/雷達影像從「Supabase RPC 回 base64（~90MB/人/日 DB egress）」改為「R2 + Cloudflare CDN（`data.itsmigu.com`）直取 + 輕量 manifest RPC」。collector best-effort 雙寫、前端 `VITE_IMAGERY_CDN_BASE` flag 閘控、21,587 張歷史 backfill（keyset 冪等、中斷續跑）、browser 端到端驗收（走 CDN、`get_cwa_imagery_frames_batch` 0 呼叫）。DB 影像 egress 歸零。剩 AR-11e（穩定一週後清 3.2GB bytea + 補 cleanup cron）。
+
+## 2026-07-04 BC-8 診斷 + static-to-cdn（靜態層 CDN 化）
+
+> 起於用戶「變電所/電力線開多圖層回 0，是不是 Supabase 改動造成的？硬重載一樣」。完整交付見 `docs/features/static-to-cdn/`（PR #54，squash `325bae6`）。
+
+**四步排除 Supabase（用戶假設）**：
+- BC-8 原記「後端 RPC 179KB 完好」是 RLS 大掃除**前**測的。用線上 anon key 直打 `get_osm_substations`(785)/`get_osm_power_lines`(2305) → HTTP 200 回滿；migration 271/272 表清單不含 osm 電力表（早在 176/228 自帶 anon SELECT policy）→ **後端與資安改動清白**。
+- **暖機 browser 測不出來**：subagent 開 4 電網層加壓 7 次全載滿。踩坑：`setData([])` 只清 Mapbox source，`cachedOnce` 記憶體 cache 沒清 → 重 toggle 都 instant cache hit、沒觸發冷 fetch。**真冷 repro 必須 page reload 清 JS 記憶體**。
+- **真冷 repro 成功**：reload + 21 層併發、電網刻意排在 8 重量層後 → 開後 ~8s 電網全 0、~16s 才補滿（38/747/2305/26589），全程零 fetch 錯誤。
+- **根因**：前端韌性層併發上限 8（AR-01）的 FIFO 排隊，靜態大層排在動態層後 → 冷載暫態空窗（非 fetch 失敗、非 setData/render race）。且多人各自打同一份 = DB 讀取 O(N)。
+
+**修法**：25 靜態層預匯出 JSON 快照走 S3+Cloudflare CDN，前端 `staticRpc()` 讀 `/static-rpc/*.json`（404 fallback 回 RPC）。脫離 DB 併發排隊，settle 16s→2s，O(N)→O(1)。prod 端到端驗證（25 檔上線、缺檔正確 404、fallback 安全）。廢棄物 4 層改「全量 + 前端 filter」（psql 對數 10/10）；`get_waste_stops` 193k/56MB 太大排除（保留 per-city RPC）。
+
+**教訓**：
+1. 「後端完好」的舊結論要標時間戳——資安/schema 改動後可能失效，**重測才算數**。
+2. 有 in-memory cache（cachedOnce）的 repro：清 source ≠ 冷載；**必 page reload 才清 JS 記憶體**觸發真冷 fetch。
+3. 併發限流器（保護 DB）的副作用是靜態層暫態空窗——**靜態資料根本不該佔動態併發 slot**（該走 CDN）。
