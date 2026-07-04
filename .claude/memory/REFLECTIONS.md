@@ -1025,3 +1025,23 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 4. **改共用 DB 的 schema 級設定前，grep 全生態所有前端 repo**。
 5. **Supabase 新表 checklist**：ENABLE RLS + read policy；column 級權限先 REVOKE default grants；migration 加 to_regclass 守衛。
 6. **pnpm worktree 開發但 CI 用 npm**：加依賴後 `npm install --package-lock-only` 同步 package-lock.json，否則 npm ci 掛、部署不生效。
+
+## 2026-07-04 BC-8 診斷 + static-to-cdn（25 層讀取去 DB 化）
+
+### What worked ✅
+- **先排除用戶假設再往下挖**：用戶疑「Supabase 改動造成」，我沒照著查 RLS，而是用線上 anon key 直打 RPC 拿 ground truth → 一次排除後端，把方向鎖到前端。
+- **repro 卡住時質疑「冷載定義」**：subagent 暖機測 7 次測不出，我意識到 `cachedOnce` 記憶體 cache 要 page reload 才清、`setData([])` 不算冷 → 換真冷 repro（reload）一次命中。
+- **pilot 先跑通 pattern 再放大**：電網 3 層完整走完 export→loader→deploy→冷載驗證，確認模式無誤才 delegate batch 15 + 廢棄物。
+- **delegate 高風險重構帶「對數驗證 gate」**：廢棄物 fetch-all+filter 改動 loader 邏輯（易錯），要求 subagent psql 對照「客戶端 filter 筆數 = RPC 帶參筆數」10/10 才算過——比信任自述可靠。
+- **信任 subagent 的 push-back**：subagent 判斷 stops 全量 193k/56MB 不該搬（且 fallback 危險）主動保留 per-city RPC——正確，沒硬套模板。
+- **fallback 設計讓 merge 低風險**：staticRpc 404→RPC，即使部署過渡/漏檔也只是「沒加速」不會壞；prod poll 到真檔才算完成。
+
+### What didn't / 可改進
+- **面對「全部搬完」一度想直接批量**：幸好收斂成 pilot→batch→驗證分層，否則 15 loader 盲改風險高。
+- **併發子任務碰同檔差點衝突**：waste subagent 改 export 腳本時，我差點同時加 primary_operating → 及時改成「等它完成再整合」。delegate 前該先畫清「誰擁有哪些檔」。
+
+### Next-time rules
+1. **診斷先拿 ground truth 排除最貴的假設**（後端/資安），再往前端挖，別被敘述帶著走。
+2. **有 in-memory cache 的 repro 必 page reload**（清 source ≠ 冷載）。
+3. **delegate 會改邏輯的重構 → 給可量化的驗證 gate**（對數/count 相等），不收「我測過了」。
+4. **併發 delegate 前先分檔案所有權**，主 agent 不碰 subagent 正在改的檔。
