@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from "react";
 import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
 import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
+import { FARM_HIGHLIGHT_OPTIONS } from "../data/livestockTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "../data/fireIsochroneCounties";
 import {
   SOIL_FERTILITY_METRIC_OPTIONS,
@@ -410,6 +411,36 @@ export function useTransportParams() {
   const [agriProduceWholesaleScale, setAgriProduceWholesaleScale] = useState(1.0);
   const [agriWholesaleMarketOpacity, setAgriWholesaleMarketOpacity] = useState(0.9);
   const [agriWholesaleMarketScale, setAgriWholesaleMarketScale] = useState(1.0);
+
+  // 🐷 畜牧 Livestock（散點，opacity + scale；預設 scale 0.3 = 小點）
+  const [livestockFarmPigOpacity, setLivestockFarmPigOpacity] = useState(0.85);
+  const [livestockFarmPigScale, setLivestockFarmPigScale] = useState(0.3);
+  const [livestockFarmChickenOpacity, setLivestockFarmChickenOpacity] = useState(0.85);
+  const [livestockFarmChickenScale, setLivestockFarmChickenScale] = useState(0.3);
+  const [livestockFarmCattleOpacity, setLivestockFarmCattleOpacity] = useState(0.85);
+  const [livestockFarmCattleScale, setLivestockFarmCattleScale] = useState(0.3);
+  const [livestockFarmDuckOpacity, setLivestockFarmDuckOpacity] = useState(0.85);
+  const [livestockFarmDuckScale, setLivestockFarmDuckScale] = useState(0.3);
+  const [livestockFarmGooseOpacity, setLivestockFarmGooseOpacity] = useState(0.85);
+  const [livestockFarmGooseScale, setLivestockFarmGooseScale] = useState(0.3);
+  const [livestockFarmSheepOpacity, setLivestockFarmSheepOpacity] = useState(0.85);
+  const [livestockFarmSheepScale, setLivestockFarmSheepScale] = useState(0.3);
+  const [livestockFarmOtherOpacity, setLivestockFarmOtherOpacity] = useState(0.85);
+  const [livestockFarmOtherScale, setLivestockFarmOtherScale] = useState(0.3);
+  const [livestockSlaughterOpacity, setLivestockSlaughterOpacity] = useState(0.9);
+  const [livestockSlaughterScale, setLivestockSlaughterScale] = useState(1.0);
+  const [livestockFeedOpacity, setLivestockFeedOpacity] = useState(0.9);
+  const [livestockFeedScale, setLivestockFeedScale] = useState(1.0);
+  const [livestockMarketOpacity, setLivestockMarketOpacity] = useState(0.95);
+  const [livestockMarketScale, setLivestockMarketScale] = useState(1.0); // 21 家全國拍賣樞紐，醒目大點
+  // 飼養場品項高亮（index into FARM_HIGHLIGHT_OPTIONS；0 = 全部，不高亮）
+  const [livestockFarmPigHighlightIdx, setLivestockFarmPigHighlightIdx] = useState(0);
+  const [livestockFarmChickenHighlightIdx, setLivestockFarmChickenHighlightIdx] = useState(0);
+  const [livestockFarmCattleHighlightIdx, setLivestockFarmCattleHighlightIdx] = useState(0);
+  const [livestockFarmDuckHighlightIdx, setLivestockFarmDuckHighlightIdx] = useState(0);
+  const [livestockFarmGooseHighlightIdx, setLivestockFarmGooseHighlightIdx] = useState(0);
+  const [livestockFarmSheepHighlightIdx, setLivestockFarmSheepHighlightIdx] = useState(0);
+  const [livestockFarmOtherHighlightIdx, setLivestockFarmOtherHighlightIdx] = useState(0);
 
   // 農路（線，width + opacity）+ 國土綠網分區（面，opacity）
   const [farmRoadsWidth, setFarmRoadsWidth] = useState(1.0);
@@ -867,6 +898,33 @@ export function useTransportParams() {
     agriProduceWholesaleScale,
     agriWholesaleMarketOpacity,
     agriWholesaleMarketScale,
+    livestockFarmPigOpacity,
+    livestockFarmPigScale,
+    livestockFarmChickenOpacity,
+    livestockFarmChickenScale,
+    livestockFarmCattleOpacity,
+    livestockFarmCattleScale,
+    livestockFarmDuckOpacity,
+    livestockFarmDuckScale,
+    livestockFarmGooseOpacity,
+    livestockFarmGooseScale,
+    livestockFarmSheepOpacity,
+    livestockFarmSheepScale,
+    livestockFarmOtherOpacity,
+    livestockFarmOtherScale,
+    livestockSlaughterOpacity,
+    livestockSlaughterScale,
+    livestockFeedOpacity,
+    livestockFeedScale,
+    livestockMarketOpacity,
+    livestockMarketScale,
+    livestockFarmPigHighlightIdx,
+    livestockFarmChickenHighlightIdx,
+    livestockFarmCattleHighlightIdx,
+    livestockFarmDuckHighlightIdx,
+    livestockFarmGooseHighlightIdx,
+    livestockFarmSheepHighlightIdx,
+    livestockFarmOtherHighlightIdx,
     farmRoadsWidth,
     farmRoadsOpacity,
     ecoNetworkZonesOpacity,
@@ -1003,7 +1061,7 @@ export function useTransportParams() {
     osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal,
     osmExpresswayOpacity, osmExpresswayWidth,
     hillshadeOpacity, slopeOpacity, aspectOpacity,
-  }), [realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeOpacity, aspectOpacity, stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth,
+  }), [realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeOpacity, aspectOpacity, stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockSlaughterOpacity, livestockSlaughterScale, livestockFeedOpacity, livestockFeedScale, livestockMarketOpacity, livestockMarketScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth,
     policeStationOpacity, policeStationScale, womenChildWarningOpacity, womenChildWarningScale,
     speedCameraOpacity, speedCameraScale, speedZoneSegmentOpacity, speedZoneSegmentWidth,
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
@@ -1564,6 +1622,53 @@ export function useTransportParams() {
       case "agriWholesaleMarket": return [
         { label: `透明度 ${agriWholesaleMarketOpacity.toFixed(2)}`, value: agriWholesaleMarketOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriWholesaleMarketOpacity },
         { label: `大小 ${agriWholesaleMarketScale.toFixed(2)}`, value: agriWholesaleMarketScale, min: 0.3, max: 3, step: 0.1, onChange: setAgriWholesaleMarketScale },
+      ];
+      case "livestockFarmPig": return [
+        { label: `透明度 ${livestockFarmPigOpacity.toFixed(2)}`, value: livestockFarmPigOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmPigOpacity },
+        { label: `大小 ${livestockFarmPigScale.toFixed(2)}`, value: livestockFarmPigScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFarmPigScale },
+        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmPig[livestockFarmPigHighlightIdx] ?? "全部"}`, value: String(livestockFarmPigHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmPig.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmPigHighlightIdx(Number(v)) },
+      ];
+      case "livestockFarmChicken": return [
+        { label: `透明度 ${livestockFarmChickenOpacity.toFixed(2)}`, value: livestockFarmChickenOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmChickenOpacity },
+        { label: `大小 ${livestockFarmChickenScale.toFixed(2)}`, value: livestockFarmChickenScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFarmChickenScale },
+        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmChicken[livestockFarmChickenHighlightIdx] ?? "全部"}`, value: String(livestockFarmChickenHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmChicken.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmChickenHighlightIdx(Number(v)) },
+      ];
+      case "livestockFarmCattle": return [
+        { label: `透明度 ${livestockFarmCattleOpacity.toFixed(2)}`, value: livestockFarmCattleOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmCattleOpacity },
+        { label: `大小 ${livestockFarmCattleScale.toFixed(2)}`, value: livestockFarmCattleScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFarmCattleScale },
+        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmCattle[livestockFarmCattleHighlightIdx] ?? "全部"}`, value: String(livestockFarmCattleHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmCattle.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmCattleHighlightIdx(Number(v)) },
+      ];
+      case "livestockFarmDuck": return [
+        { label: `透明度 ${livestockFarmDuckOpacity.toFixed(2)}`, value: livestockFarmDuckOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmDuckOpacity },
+        { label: `大小 ${livestockFarmDuckScale.toFixed(2)}`, value: livestockFarmDuckScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFarmDuckScale },
+        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmDuck[livestockFarmDuckHighlightIdx] ?? "全部"}`, value: String(livestockFarmDuckHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmDuck.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmDuckHighlightIdx(Number(v)) },
+      ];
+      case "livestockFarmGoose": return [
+        { label: `透明度 ${livestockFarmGooseOpacity.toFixed(2)}`, value: livestockFarmGooseOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmGooseOpacity },
+        { label: `大小 ${livestockFarmGooseScale.toFixed(2)}`, value: livestockFarmGooseScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFarmGooseScale },
+        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmGoose[livestockFarmGooseHighlightIdx] ?? "全部"}`, value: String(livestockFarmGooseHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmGoose.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmGooseHighlightIdx(Number(v)) },
+      ];
+      case "livestockFarmSheep": return [
+        { label: `透明度 ${livestockFarmSheepOpacity.toFixed(2)}`, value: livestockFarmSheepOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmSheepOpacity },
+        { label: `大小 ${livestockFarmSheepScale.toFixed(2)}`, value: livestockFarmSheepScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFarmSheepScale },
+        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmSheep[livestockFarmSheepHighlightIdx] ?? "全部"}`, value: String(livestockFarmSheepHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmSheep.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmSheepHighlightIdx(Number(v)) },
+      ];
+      case "livestockFarmOther": return [
+        { label: `透明度 ${livestockFarmOtherOpacity.toFixed(2)}`, value: livestockFarmOtherOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmOtherOpacity },
+        { label: `大小 ${livestockFarmOtherScale.toFixed(2)}`, value: livestockFarmOtherScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFarmOtherScale },
+        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmOther[livestockFarmOtherHighlightIdx] ?? "全部"}`, value: String(livestockFarmOtherHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmOther.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmOtherHighlightIdx(Number(v)) },
+      ];
+      case "livestockSlaughter": return [
+        { label: `透明度 ${livestockSlaughterOpacity.toFixed(2)}`, value: livestockSlaughterOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockSlaughterOpacity },
+        { label: `大小 ${livestockSlaughterScale.toFixed(2)}`, value: livestockSlaughterScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockSlaughterScale },
+      ];
+      case "livestockFeed": return [
+        { label: `透明度 ${livestockFeedOpacity.toFixed(2)}`, value: livestockFeedOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFeedOpacity },
+        { label: `大小 ${livestockFeedScale.toFixed(2)}`, value: livestockFeedScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockFeedScale },
+      ];
+      case "livestockMarket": return [
+        { label: `透明度 ${livestockMarketOpacity.toFixed(2)}`, value: livestockMarketOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockMarketOpacity },
+        { label: `大小 ${livestockMarketScale.toFixed(2)}`, value: livestockMarketScale, min: 0.3, max: 3, step: 0.1, onChange: setLivestockMarketScale },
       ];
       case "farmRoads": return [
         { label: `寬度 ${farmRoadsWidth.toFixed(1)}`, value: farmRoadsWidth, min: 0.3, max: 3, step: 0.1, onChange: setFarmRoadsWidth },

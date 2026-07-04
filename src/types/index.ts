@@ -104,6 +104,9 @@ export type ExpandableLayerKey =
   | "submarineCables" | "landingStations"
   | "activeFaults"
   | "newsEvents"
+  | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
+  | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
+  | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -600,6 +603,7 @@ export interface FeatureInfo {
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
+    | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "medicalPOI"
     | "medicalIsochrone"
     | "aqiStation" | "microSensor"
@@ -745,6 +749,17 @@ export interface LayerVisibility {
   fireStations: boolean;   // 消防分隊點位（全台 22 縣市，677 點）
   fireHydrants: boolean;   // 消防栓（僅臺北市 + 高雄市，69,839 點）
   fireIsochrone: boolean;  // 救援等時圈（路網 5/10/15 分鐘，POC：臺北市）
+  // 🐷 畜牧 Livestock（靜態 CDN geojson 點層；飼養場 4 層共用 livestock_farms source + 主畜種 filter）
+  livestockFarmPig: boolean;      // 畜禽飼養場·豬（3,224）
+  livestockFarmChicken: boolean;  // 畜禽飼養場·雞（3,583）
+  livestockFarmCattle: boolean;   // 畜禽飼養場·牛（370）
+  livestockFarmDuck: boolean;     // 畜禽飼養場·鴨（930）
+  livestockFarmGoose: boolean;    // 畜禽飼養場·鵝（394）
+  livestockFarmSheep: boolean;    // 畜禽飼養場·羊（415）
+  livestockFarmOther: boolean;    // 畜禽飼養場·其他（175，鹿/馬/鵪鶉/兔/鴕鳥）
+  livestockSlaughter: boolean;    // 屠宰場（185，家畜/家禽分色）
+  livestockFeed: boolean;         // 飼料廠（258）
+  livestockMarket: boolean;       // 拍賣/批發市場（21）
   // 醫療基礎點位（5 獨立 layer，單一 PMTiles source med_cat filter；全程可見）
   medHospital: boolean;    // 醫院（NHI 醫學中心/區域/地區，451）
   medClinic: boolean;      // 診所 + 其他醫療（NHI clinic 21765 + other_medical 1707）

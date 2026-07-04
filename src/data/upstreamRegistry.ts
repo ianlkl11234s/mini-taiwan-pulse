@@ -479,6 +479,17 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'agri_wholesale_market_companies', confidence: 'HIGH' }],
   },
+  // 🐷 畜牧 — 飼養場 4 層共用 livestock_farms dataset（filter 分畜種）
+  livestockFarmPig: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
+  livestockFarmChicken: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
+  livestockFarmCattle: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
+  livestockFarmDuck: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
+  livestockFarmGoose: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
+  livestockFarmSheep: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
+  livestockFarmOther: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
+  livestockSlaughter: { status: 'verified', datasets: [{ datasetId: 'slaughterhouses', confidence: 'HIGH' }] },
+  livestockFeed: { status: 'verified', datasets: [{ datasetId: 'feed_factories', confidence: 'HIGH' }] },
+  livestockMarket: { status: 'verified', datasets: [{ datasetId: 'livestock_markets', confidence: 'HIGH' }] },
   agriculture: {
     status: 'verified',
     datasets: [{ datasetId: 'ftw_fields', confidence: 'MED' }],
