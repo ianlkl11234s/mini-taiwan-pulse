@@ -19,6 +19,7 @@ import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
 } from "../data/fireTypes";
+import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -134,6 +135,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["fireStations"], render: () => <FireStationLegend /> },
   { keys: ["fireHydrants"], render: () => <FireHydrantLegend /> },
   { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
+  { keys: ["livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck", "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther"], render: () => <LivestockFarmLegend /> },
+  { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
     keys: [
@@ -426,6 +429,43 @@ function FireStationLegend() {
         消防分隊 STATIONS
       </div>
       <FireCatRows cats={FIRE_STATION_CATS} />
+    </div>
+  );
+}
+
+function LivestockFarmLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        畜禽飼養場 主畜種
+      </div>
+      <FireCatRows cats={FARM_SPECIES.filter((s) => s.key !== "其他")} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, marginBottom: 2 }}>
+        其他（各物種）
+      </div>
+      <FireCatRows cats={OTHER_SPECIES_LEGEND} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        大小＋深淺 = 總隻數（越多越大越深；各畜種層內相對，跨畜種不可比）
+      </div>
+    </div>
+  );
+}
+
+function LivestockFacilityLegend() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+          屠宰場 SLAUGHTER
+        </div>
+        <FireCatRows cats={SLAUGHTER_CATS} />
+      </div>
+      <FireCatRows
+        cats={[
+          { color: FEED_COLOR, label: "飼料廠 Feed Factory" },
+          { color: MARKET_COLOR, label: "拍賣/批發市場 Market" },
+        ]}
+      />
     </div>
   );
 }

@@ -1,43 +1,38 @@
 # Status
 
-**最後更新**：2026-07-03（BYOK 對話 + 會員 P0 上線 + Supabase 資安大掃除 + CI/部署修復）
-**mini-taiwan-pulse head**：`master` = `44ecc2f`，CI test + Zeabur 皆 success（實際部署上線）
-**gis-platform head**：`main`，migration 270/271/272 已 push（會員 + RLS 資安）
+**最後更新**：2026-07-04（static-to-cdn — 25 靜態層搬 CDN，BC-8 根治）
+**mini-taiwan-pulse head**：`master` = `325bae6`（PR #54），CI（test+review）綠 + Zeabur 部署 + prod 端到端驗證
+**gis-platform head**：無變動（純前端 + S3/CDN，無 migration）
 **data-collectors head**：無變動
 
-## 本 session 完成（2026-07-03）
+## 本 session 完成（2026-07-04）
 
-用戶定向：規劃並實作「會員功能 + 自備 LLM key 的空間問答」→ 一路做到上線 → 用戶追問資安 → 揪出並修好 Supabase 裸奔 + CI 部署未生效。
+用戶起手：「變電所/電力線開多圖層回 0，是不是 Supabase 改動造成的？硬重載一樣」→ 診斷 → 結構面根治 → 一路做到 prod 驗證。
 
-### A. BYOK AI 對話（PR #51，squash 68f3df5）
-- 三家瀏覽器直連（Anthropic/OpenAI/Gemini），key 零經手伺服器（Anthropic 帶 dangerous-direct-browser-access header）
-- AI SDK v7 agent loop（streamText + stopWhen stepCountIs(10)）+ 白名單 tools（地圖操作 5 + 目錄 3 + 資料查詢 3；13 dataset + 10 RPC）
-- ChatPanel（右上 55vh、popup 讓位 45vh、IME 守門）+ KeySettings（三層 key 儲存）+ chatStore
-- FX-1~5 驗收修正：IME composition / 對話記憶 / 顧問式 tools / 檔位 hint / 教學性工具錯誤 + abort 真修（AI SDK v7 abort 不 throw）
+### A. BC-8 診斷（根因非 Supabase）
+- 線上 anon key 直打 RPC → 後端回滿（785/2305 筆）；migration 271/272 表清單不含 osm 電力表（早在 176/228 自帶 anon policy）→ **排除 Supabase / 資安改動**。
+- **真冷 repro**（page reload 清 `cachedOnce` 記憶體，`setData([])` 不算冷）→ 併發上限 8（AR-01）的 FIFO 佇列讓靜態大層排在動態層後 → 冷載暫態空窗 ~16s（非 fetch 失敗、非 render race）。且多人各自打同一份 = DB 讀取 **O(N)**。
 
-### B. 會員系統 P0（PR #52，squash 648d624）
-- Supabase Auth Google OAuth（signInWithGoogle/signOut/useUser）+ UserAvatar（桌機+手機）
-- gis-platform migration 270：profiles 表 + RLS（本人讀/改自己、tier 不可自改）+ signup trigger + REVOKE default grants
-- 登入端到端實測過（OAuth → trigger 自動建列 → Avatar 顯示）
+### B. static-to-cdn — 25 靜態層讀取去 DB 化（PR #54，squash `325bae6`）
+- **可複用管線**：`scripts/export/export-static-rpc-snapshots.sh`（psql 匯出）+ `src/data/staticRpc.ts`（讀 `/static-rpc/*.json`，404 fallback 回 RPC）+ deploy 鏈（nginx `/static-rpc/` + upload/pull 鏡像子前綴，加檔零改腳本）。
+- **25 層**：電網 3 + 能源 15（含 fossil_fuel_layers 9.5MB）+ 廢棄物 6（2 counts + routes/facilities/disposal_points/squads 全量+前端 filter）+ 主要電廠座標 1。loader 改動多數僅一 token（transform/popup/legend 不動）。
+- **成效**：脫離 DB 併發排隊，BC-8 settle 16s→2s，O(N)→O(1)。
+- **排除**：`get_waste_stops`（193k/56MB，保留 per-city RPC）；data_catalog/h3_yearly/reservoir/satellite（低衝擊延後 → SC-1）。
 
-### C. Supabase 資安大掃除（用戶追問「anon key 安全嗎」觸發）
-- **實查發現**：public 22 張圖層表 RLS 關 + anon 可寫可刪（核電/乾旱/疏散/水利…）；Exposed schemas 暴露 realtime/spatial/reference
-- **修復**：migration 271（public 22 張）+ 272（reference 6 張 airports/ports…）補 RLS 唯讀 policy，實測 anon 讀通/寫擋；用戶 Dashboard 收窄 Exposed schemas（realtime/spatial 移除，reference 保留因 airports/ports app 直讀）
-- 最終：public 剩 1 張裸奔（spatial_ref_sys 刻意）、reference 0 張
+### C. 驗證鏈（每關綠）
+- `tsc -b` ✅ · CI（test+review）✅ · 廢棄物 **psql 對數驗證 10/10 全等** ✅
+- Pilot 冷載 browser（BC-8 不再重現、settle 16s→2s）✅ · Batch 1 browser（11 層零 fallback）✅ · 最終 browser（渲染 + popup 屬性未壞）✅
+- **prod 端到端**：25 檔上線、缺檔正確 404、首頁正常、fallback 安全 ✅
 
-### D. CI/部署修復（PR #53，squash 進 44ecc2f）
-- pnpm worktree 開發加 AI SDK 依賴只更新 pnpm-lock.yaml，package-lock.json 未同步 → npm ci 失敗 → master CI + Zeabur 皆 red、功能 merge 卻未實際部署
-- npm install --package-lock-only 重生 lockfile，實測 npm ci exit 0 後 merge → CI 綠 + Zeabur success
+### 多 agent 協作模式
+主 agent 定 pattern + 電網 pilot 驗證 → delegate：靜態層盤點（31 個）+ 廢棄物重構（帶 psql 對數 gate）+ browser 驗證（`bc8` session 複用）。信任 subagent push-back（stops 56MB 判斷不搬）。詳 PLAYBOOKS PB-27 / INCIDENTS + REFLECTIONS 2026-07-04。
 
-### ⚠️ 本 session 重大自省
-過程中一度**幻覺聲稱做完 RLS 修復/migration/CI 修復但實際未執行**，收尾時 ground-truth 查證（git status + psql）才發現並真正修好。教訓入 PRINCIPLES「已完成必有工具佐證」+ INCIDENTS + REFLECTIONS。
-
-## 待辦（詳 BACKLOG BC 系列）
-- **BC-2**（P1）：P3 會員加值（user_favorites + chat_logs + 對話歷史），可開工
-- **BC-4**（P1）：部署前置（CSP header + 隱私頁 + OAuth 正式網域切換）— 公開前必做
-- **BC-3**（P2）：對話預設模型檔位改中階
-- 前 session 遺留：GC-2b/7/8/9（全球氣候）、TY-2、PI-2/PS-1
+## 待辦
+- **SC-1**（P3）：static-to-cdn 延後項（waste_stops per-city 拆檔 / data_catalog / h3_yearly / reservoir/satellite）— 模板成熟，需要時 export append
+- **BC-4**（P1）：部署前置（CSP header + 隱私頁 BYOK 揭露 + OAuth 正式網域切換）— 公開前必做
+- **BC-2**（P1）：會員加值（細部規劃已拍板，見 `docs/proposal/member-features-plan.md` M 系列，migration 273/274）— 另條工作流
+- 前 session 遺留：BC-3、GC 系列、AR-11e/12~16、SAT/NE/MO 系列
 
 ---
 
-_本 session memory commits_：INCIDENTS / REFLECTIONS / PLAYBOOKS PB-26 / GLOSSARY / PRINCIPLES / BACKLOG BC 系列 / DATA_SCOPE + 本檔
+_本 session memory commits_：INCIDENTS / PLAYBOOKS PB-27 / PRINCIPLES / REFLECTIONS / DATA_SCOPE / GLOSSARY / BACKLOG（BC-8 done + SC-1）+ 本檔

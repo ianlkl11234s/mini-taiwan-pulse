@@ -320,3 +320,9 @@
 - **Exposed schemas**：Supabase Dashboard→API 設定，PostgREST 對外暴露哪些 schema。前端 `Accept-Profile:<schema>` header 直讀。專案原則：只留 public+graphql_public（+reference 因 airports/ports app 直讀而保留）。
 - **to_regclass 守衛**：migration 內 `IF to_regclass('schema.'||t) IS NOT NULL THEN ...` 防表不存在時 ALTER ERROR，跨環境安全。
 - **ground-truth 查證**：聲稱「已完成」前用工具查真實狀態（git status / psql SELECT / curl / gh api check-runs），不靠記憶敘述。
+
+## static-to-cdn（2026-07-04）
+- **staticRpc**：`src/data/staticRpc.ts` helper，讀 `/static-rpc/<rpc>.json` CDN 快照，回傳形狀同 `supabase.rpc`（`{data,error}`，error 型別 `{message}|null`），404 / parse fail 自動 fallback 回真 RPC。把靜態層讀取從 DB 併發排隊移到 CDN。
+- **static-rpc 快照**：靜態 RPC 輸出的預匯出 JSON（`public/static-rpc/*.json`，gitignore，走 S3 鏡像子前綴 `deploy-assets/static-rpc/`），一支 RPC 一檔。
+- **O(N)→O(1) 讀取**：靜態資料每人各自打 DB = 負載 ∝ 人數（O(N)）；搬 CDN 邊緣快取後所有人共用一份 = O(1)。AR 系列核心目標。
+- **真冷 repro**：測 in-memory cache（cachedOnce）相關 bug 時，`setData([])` 只清 Mapbox source 不清 JS 記憶體 → 必 **page reload** 才是真冷載入、才觸發冷 fetch。

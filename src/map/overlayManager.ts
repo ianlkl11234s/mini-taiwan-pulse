@@ -274,6 +274,12 @@ export async function hydrateOverlayIfNeeded(
   }
 }
 
+/** 底圖切換（style.load）後 overlay source 會被 Mapbox 重建為空 FC → 清 hydrate 記錄，
+ *  讓可見的靜態 GeoJSON 圖層可重新 fetch + setData（否則切底圖後圖層變空白）。 */
+export function resetOverlayHydration(): void {
+  hydratedSources.clear();
+}
+
 /** 設定單一 overlay 可見性 */
 export function setOverlayVisible(
   map: MapboxMap,

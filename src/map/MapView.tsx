@@ -4,7 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded } from "./overlayManager";
+import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration } from "./overlayManager";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
 import { ensureMedicalIsochroneLayers, updateMedicalIsochroneLayers } from "./medicalIsochroneLayerFactory";
@@ -212,6 +212,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // PMTiles SourceType 須在任何 pmtiles source addSource 前註冊（水利層走 overlayRegistry）
       registerPmtilesSourceTypeOnce();
 
+      // 底圖切換 → 所有 overlay source 被 Mapbox 重建為空 FC。先清 hydrate 記錄，
+      // 否則 hydratedSources 殘留會讓下方 re-hydrate 被跳過 → 靜態 GeoJSON 圖層切底圖後變空白。
+      resetOverlayHydration();
+
       // 批量新增所有 overlays + 設定初始可見性
       addAllOverlays(
         map,
@@ -220,6 +224,11 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
         layerVisibilityRef.current,
         overlayParamsRef.current,
       );
+
+      // 重建後：把目前可見的靜態 GeoJSON 圖層重新 fetch + setData（切底圖不再消失）
+      for (const config of OVERLAY_REGISTRY) {
+        if (layerVisibilityRef.current[config.id]) void hydrateOverlayIfNeeded(map, config);
+      }
 
       // 永遠保留 Mapbox 原生靜態軌跡
       const is3d = renderModeRef.current === "3d";

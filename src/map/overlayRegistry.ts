@@ -2,8 +2,111 @@ import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
+import {
+  FARM_COLOR, FARM_COLOR_RAMP, FARM_SIZE_DOMAIN, FARM_RADIUS_PX, FARM_HIGHLIGHT_OPTIONS,
+  OTHER_SPECIES_SIZE_DOMAIN, OTHER_SIZE_DOMAIN_DEFAULT,
+  OTHER_SPECIES_COLOR_RAMP, OTHER_COLOR_RAMP_DEFAULT,
+  POULTRY_HEADS, SLAUGHTER_COLOR, FEED_COLOR, MARKET_COLOR,
+} from "../data/livestockTypes";
 
 const BASE_RADIUS = 5;
+
+// ── 🐷 畜牧 Livestock helpers ──
+const FARM_SOURCE = "./agriculture/livestock_farms.geojson";
+
+// 飼養場圓圈大小：per-species 總隻數 log 尺標（各層獨立 domain + 兩端 clamp）。
+// 無 zoom 項（用戶要大小純綁數量，不隨 zoom 變）。
+function farmRadius(scale: number, lo: number, hi: number): unknown[] {
+  const [rMin, rMax] = FARM_RADIUS_PX;
+  return [
+    "interpolate", ["linear"],
+    ["ln", ["max", ["to-number", ["get", "總隻數"]], 1]],
+    Math.log(lo), rMin * scale,
+    Math.log(hi), rMax * scale,
+  ];
+}
+
+// 「其他」層依主畜種各自 size domain（鵪鶉量大、鹿量小，不共用尺標）
+function otherFarmRadius(scale: number): unknown[] {
+  const m: unknown[] = ["match", ["get", "主畜種"]];
+  for (const [sp, dom] of Object.entries(OTHER_SPECIES_SIZE_DOMAIN)) {
+    m.push(sp, farmRadius(scale, dom[0], dom[1]));
+  }
+  m.push(farmRadius(scale, OTHER_SIZE_DOMAIN_DEFAULT[0], OTHER_SIZE_DOMAIN_DEFAULT[1])); // default
+  return m;
+}
+
+// 同色系「淺→深」依總隻數內插（越多越深）
+function farmColorRamp(lo: number, hi: number, light: string, dark: string): unknown[] {
+  return [
+    "interpolate", ["linear"],
+    ["ln", ["max", ["to-number", ["get", "總隻數"]], 1]],
+    Math.log(lo), light,
+    Math.log(hi), dark,
+  ];
+}
+
+// 「其他」層依主畜種各自色系（domain 同 size，各物種淺→深）
+function otherFarmColor(): unknown[] {
+  const m: unknown[] = ["match", ["get", "主畜種"]];
+  for (const [sp, dom] of Object.entries(OTHER_SPECIES_SIZE_DOMAIN)) {
+    const ramp = OTHER_SPECIES_COLOR_RAMP[sp] ?? OTHER_COLOR_RAMP_DEFAULT;
+    m.push(sp, farmColorRamp(dom[0], dom[1], ramp[0], ramp[1]));
+  }
+  m.push(farmColorRamp(OTHER_SIZE_DOMAIN_DEFAULT[0], OTHER_SIZE_DOMAIN_DEFAULT[1], OTHER_COLOR_RAMP_DEFAULT[0], OTHER_COLOR_RAMP_DEFAULT[1]));
+  return m;
+}
+
+// 飼養場單層 config：4 層共用 livestock-farms source（1 次 fetch），靠 config.filter 分畜種。
+function livestockFarmOverlay(
+  id: "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle" | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther",
+  species: string,
+  filter: unknown[],
+): OverlayConfig {
+  const color = FARM_COLOR[species] ?? "#9e9e9e";
+  const [lo, hi]: [number, number] = FARM_SIZE_DOMAIN[id] ?? [1, 100];
+  const [lightColor, darkColor] = FARM_COLOR_RAMP[species] ?? [color, color];
+  // 同色系「淺→深」依總隻數內插（越多越深）；「其他」層再依主畜種各自色系
+  const colorExpr: unknown[] = id === "livestockFarmOther"
+    ? otherFarmColor()
+    : farmColorRamp(lo, hi, lightColor, darkColor);
+  const suffix = id.replace("livestockFarm", "").toLowerCase();
+  return {
+    id,
+    sourceUrl: FARM_SOURCE,
+    sourceId: "livestock-farms",
+    filter,
+    layers: [
+      {
+        suffix,
+        type: "circle",
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.[`${id}Scale`] ?? 1;
+          const opacity = p?.[`${id}Opacity`] ?? 0.85;
+          // 品項高亮：下拉選一個種類明細品項（idx>0）→ 命中場保持正常、其他淡化
+          const hIdx = p?.[`${id}HighlightIdx`] ?? 0;
+          const selected = hIdx > 0 ? FARM_HIGHLIGHT_OPTIONS[id][hIdx] : undefined;
+          // 基礎透明度（低精度 523 場淡化，避免誤讀為精確場址）
+          const baseFill: unknown[] = ["case", ["==", ["get", "精度"], "低"], opacity * 0.35, opacity];
+          const matched: unknown[] = ["in", selected ?? "", ["get", "種類明細"]];
+          const fillExpr: unknown[] = selected ? ["case", matched, baseFill, opacity * 0.08] : baseFill;
+          const strokeExpr: unknown[] | number = selected
+            ? ["case", matched, opacity * 0.7, opacity * 0.06]
+            : opacity * 0.7;
+          return {
+            "circle-radius": id === "livestockFarmOther" ? otherFarmRadius(scale) : farmRadius(scale, lo, hi),
+            "circle-color": colorExpr,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1],
+            "circle-opacity": fillExpr,
+            "circle-stroke-opacity": strokeExpr,
+          };
+        },
+      },
+    ],
+  };
+}
 
 // ── 雲林覆蓋 PMTiles factory（5 layer 共用） ──
 //   nearest distance 5 級色階：0-5km 深綠 / 5-10km 草綠 / 10-20km 黃 / 20-30km 橙 / 30km+ 紅
@@ -2528,6 +2631,91 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-color": "#ffd600",
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.45)",
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.6, 14, 1.4],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 🐷 畜牧 Livestock（靜態 CDN geojson，走 ./agriculture/）──
+  // 飼養場 4 層共用 livestock-farms source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分畜種
+  livestockFarmOverlay("livestockFarmPig", "豬", ["==", ["get", "主畜種"], "豬"]),
+  livestockFarmOverlay("livestockFarmChicken", "雞", ["==", ["get", "主畜種"], "雞"]),
+  livestockFarmOverlay("livestockFarmCattle", "牛", ["==", ["get", "主畜種"], "牛"]),
+  livestockFarmOverlay("livestockFarmDuck", "鴨", ["==", ["get", "主畜種"], "鴨"]),
+  livestockFarmOverlay("livestockFarmGoose", "鵝", ["==", ["get", "主畜種"], "鵝"]),
+  livestockFarmOverlay("livestockFarmSheep", "羊", ["==", ["get", "主畜種"], "羊"]),
+  livestockFarmOverlay("livestockFarmOther", "其他", ["!", ["in", ["get", "主畜種"], ["literal", ["豬", "雞", "牛", "鴨", "鵝", "羊"]]]]),
+  // 屠宰場：依「種類」首字分家畜(豬牛羊)/家禽(雞鴨鵝)
+  {
+    id: "livestockSlaughter",
+    sourceUrl: "./agriculture/slaughterhouses.geojson",
+    sourceId: "livestock-slaughter",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.livestockSlaughterScale ?? 1;
+          const opacity = p?.livestockSlaughterOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3.5 * scale, 10, 6 * scale, 14, 9 * scale],
+            "circle-color": ["match", ["slice", ["get", "種類"], 0, 1], POULTRY_HEADS, SLAUGHTER_COLOR.poultry, SLAUGHTER_COLOR.livestock],
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.5, 14, 1.3],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  // 飼料廠：單色
+  {
+    id: "livestockFeed",
+    sourceUrl: "./agriculture/feed_factories.geojson",
+    sourceId: "livestock-feed",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 6,
+        paint: (isDark, p) => {
+          const scale = p?.livestockFeedScale ?? 1;
+          const opacity = p?.livestockFeedOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 10, 5 * scale, 14, 8 * scale],
+            "circle-color": FEED_COLOR,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.5, 14, 1.2],
+            "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  // 拍賣/批發市場：21 家全國拍賣樞紐，醒目大點
+  {
+    id: "livestockMarket",
+    sourceUrl: "./agriculture/livestock_markets.geojson",
+    sourceId: "livestock-market",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 5,
+        paint: (_isDark, p) => {
+          const scale = p?.livestockMarketScale ?? 1;
+          const opacity = p?.livestockMarketOpacity ?? 0.95;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 5 * scale, 10, 9 * scale, 14, 14 * scale],
+            "circle-color": MARKET_COLOR,
+            "circle-stroke-color": "#ffffff",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 5, 1, 14, 2],
             "circle-opacity": opacity,
             "circle-stroke-opacity": opacity,
           };

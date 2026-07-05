@@ -1446,3 +1446,20 @@ git status -s
 **跨 repo 順序（會員/安全類）**：gis-platform migration 先（psql 套用+實測+commit，加 to_regclass 守衛）→ 前端後接（worktree 先 reset origin/master）→ Dashboard 手動項（OAuth provider/Exposed schemas）用戶做 → CI/部署確認查 check-runs。
 
 **踩過的坑**：pnpm worktree 加依賴 CI npm ci 掛（`npm install --package-lock-only`）；worktree 缺 gitignored public/ 資料（rsync 補）；捏造表名的 migration 會全新套用 ERROR（加 to_regclass 守衛）。
+
+### PB-27：靜態層讀取去 DB 化（static-to-cdn 遷移 SOP，2026-07-04）
+
+**情境**：某圖層資料靜態（月更或更慢）卻走 Supabase RPC → 開多層擠併發排隊出現暫態空窗；且多人各自打同一份 = DB 讀取 O(N)。要搬去 CDN 靜態檔（O(N)→O(1)）。
+
+**判斷候選**：param-less（或 DEFAULT NULL=全量）+ 資料月更以下 + 非時序/realtime。用 psql `pg_get_function_arguments` / `pg_get_function_result` 探參數與回傳型別（table vs jsonb）。
+
+**SOP**：
+1. **匯出腳本** `scripts/export/export-static-rpc-snapshots.sh`：psql 把 RPC 輸出**原樣**存 `public/static-rpc/<rpc>.json`（table→`SELECT jsonb_agg(t) FROM f() t`；jsonb→直接 `SELECT f()`）。清單 append 一行即可。
+2. **前端 helper** `src/data/staticRpc.ts`：`staticRpc(name)` fetch `/static-rpc/<name>.json`，回傳形狀同 `supabase.rpc`（error 型別 `{message}|null`），**404 / parse fail 自動 fallback 回真 RPC**（rollout + 部署過渡期 HTML→json 失敗都安全）。
+3. **swap loader**：`supabase.rpc("X")` → `staticRpc("X")`（一 token，transform/popup/legend/cachedOnce 全不動）。
+4. **參數化層**（per-city/type）：改「cachedOnce 抓全量 + 記憶體 filter」；filter 欄位**讀 migration 確認**（p_city→回傳哪欄）。**⚠️ 全量太大者不搬**（waste_stops 193k/56MB，且無參 fallback 打全表撞 pooler 2min timeout）。
+5. **deploy 鏈**：nginx `location /static-rpc/ { root /data; }`（純鏡像無 SPA fallback → 缺檔回 404 供 staticRpc fallback）；upload/pull 用鏡像子前綴（比照 `/agriculture/`，整夾 sync，加檔零改腳本）；`.gitignore` 加 `public/static-rpc/`。
+6. **驗證三關**：`tsc -b` + **psql 對數驗證**（客戶端 filter 筆數 = RPC 帶參筆數，每層抽 1-2 參數）+ **冷載 browser**（reload 清 cache → 開多層 → fetch 攔截確認打 /static-rpc/ 非 rpc）+ **prod curl**（真檔 size、缺檔 404）。
+7. 上 S3 → PR → CI 綠 → squash merge → poll prod 部署（/static-rpc/ 供真檔）。
+
+**成效範本（本次）**：25 層搬 CDN（最大 fossil_fuel_layers 9.5MB），BC-8 settle 16s→2s。多 agent 分工：主 agent 定 pattern + 電網 pilot 冷載驗證，delegate batch（廢棄物重構帶 psql 對數 gate），信任 subagent push-back（stops 56MB 判斷不搬）。詳見 [[incidents]] 2026-07-04。

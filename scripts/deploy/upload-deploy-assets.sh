@@ -60,17 +60,19 @@ for f in public/geo/water_*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
 done
 
-# PT-1 批次 PMTiles：geo / agriculture / forestry 三目錄通吃 *.pmtiles
-# 新增 PMTiles 不用改本腳本，跑 tippecanoe 後直接 upload 即可
-for d in public/geo public/agriculture public/forestry; do
-  for f in "$d"/*.pmtiles; do
-    [ -f "$f" ] || continue
-    name=$(basename "$f")
-    # 避開已被上方明確 glob 上傳的 water_*.pmtiles（aws s3 cp idempotent，重複也 OK）
-    echo "Uploading $name (pmtiles glob from $d)..."
-    aws s3 cp "$f" "s3://$BUCKET/$PREFIX/$name" --region ap-southeast-2
-  done
+# PT-1 批次 PMTiles（geo 子目錄）：上傳到 deploy-assets/geo/ 鏡像子前綴。
+# ⚠️ 為何不上扁平根（2026-07-04 修 13 層 404 教訓）：
+#   pull 端 /data/geo/ 用 include-filter 只挑既有扁平 geojson 檔名，扁平根的新 pmtiles
+#   挑不進 /data/geo/，反被 fire 的 *.pmtiles glob 誤抓進 /data/fire/ → 前端 /geo/*.pmtiles 404。
+#   改走 deploy-assets/geo/ 鏡像後，pull 端 `aws s3 sync $S3/geo/ → /data/geo/` 整夾同步，nginx /geo/ 直送。
+# 涵蓋 national_highway / provincial_road / bus_stations_city / fire_hydrants / medical_{clinics,pharmacies,aed,ltc} + water_*。
+for f in public/geo/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading geo/$name (pmtiles mirror)..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/geo/$name" --region ap-southeast-2
 done
+# agriculture / forestry 的 PMTiles 改由下方 AGRI_FILES / FOREST_FILES 明確清單上傳到各自鏡像子前綴
 
 # 消防圖層：glob 動態上傳 public/geo/fire_*.geojson（同 water 慣例）
 # 新增 fire_xxx.geojson 不用改本腳本，export 完直接跑 upload 即可
@@ -131,6 +133,16 @@ AGRI_FILES=(
   "public/agriculture/produce_wholesale_companies.geojson"
   "public/agriculture/farm_roads.geojson"
   "public/agriculture/eco_network_zones.geojson"
+  # 🐷 畜牧 Livestock（靜態點層，去日期穩定檔名；farm 4 層前端共用此檔 + filter）
+  "public/agriculture/livestock_farms.geojson"
+  "public/agriculture/slaughterhouses.geojson"
+  "public/agriculture/feed_factories.geojson"
+  "public/agriculture/livestock_markets.geojson"
+  # PT-1 PMTiles（前端 sourceUrl 已切 .pmtiles；geojson 保留但未使用）
+  "public/agriculture/agri_retail_companies.pmtiles"
+  "public/agriculture/produce_wholesale_companies.pmtiles"
+  "public/agriculture/farm_roads.pmtiles"
+  "public/agriculture/eco_network_zones.pmtiles"
 )
 for f in "${AGRI_FILES[@]}"; do
   name=$(basename "$f")
@@ -166,6 +178,8 @@ FOREST_FILES=(
   "public/forestry/trail_coverage_per_compartment.geojson"
   # 全台步道整合（A 林業署 + B OSM 寬版 + C 雪霸/金門 NP + D 北市大縱走 + D 新北 GPX）
   "public/forestry/hiking_trails.geojson"
+  # PT-1 PMTiles（前端 sourceUrl 已切 .pmtiles；geojson 保留但未使用）
+  "public/forestry/hiking_trails.pmtiles"
 )
 for f in "${FOREST_FILES[@]}"; do
   name=$(basename "$f")
