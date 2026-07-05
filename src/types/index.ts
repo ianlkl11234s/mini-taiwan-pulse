@@ -750,13 +750,13 @@ export interface LayerVisibility {
   fireHydrants: boolean;   // 消防栓（僅臺北市 + 高雄市，69,839 點）
   fireIsochrone: boolean;  // 救援等時圈（路網 5/10/15 分鐘，POC：臺北市）
   // 🐷 畜牧 Livestock（靜態 CDN geojson 點層；飼養場 7 層共用 livestock_farms source + 主畜種 filter）
-  livestockFarmPig: boolean;      // 畜禽飼養場·豬（4,285）
-  livestockFarmChicken: boolean;  // 畜禽飼養場·雞（4,872）
-  livestockFarmCattle: boolean;   // 畜禽飼養場·牛（535）
-  livestockFarmDuck: boolean;     // 畜禽飼養場·鴨（1,217）
-  livestockFarmGoose: boolean;    // 畜禽飼養場·鵝（508）
-  livestockFarmSheep: boolean;    // 畜禽飼養場·羊（604）
-  livestockFarmOther: boolean;    // 畜禽飼養場·其他（254，鹿/馬/鵪鶉/兔/鴕鳥）
+  livestockFarmPig: boolean;      // 畜禽飼養場·豬（4,584）
+  livestockFarmChicken: boolean;  // 畜禽飼養場·雞（5,176）
+  livestockFarmCattle: boolean;   // 畜禽飼養場·牛（574）
+  livestockFarmDuck: boolean;     // 畜禽飼養場·鴨（1,305）
+  livestockFarmGoose: boolean;    // 畜禽飼養場·鵝（531）
+  livestockFarmSheep: boolean;    // 畜禽飼養場·羊（644）
+  livestockFarmOther: boolean;    // 畜禽飼養場·其他（273，鹿/馬/鵪鶉/兔/鴕鳥）
   livestockSlaughter: boolean;    // 屠宰場（185，家畜/家禽分色）
   livestockFeed: boolean;         // 飼料廠（258）
   livestockMarket: boolean;       // 拍賣/批發市場（21）

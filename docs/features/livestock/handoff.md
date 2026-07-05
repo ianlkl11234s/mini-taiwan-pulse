@@ -9,9 +9,9 @@
 - 產物路徑（上游）：`taipei-gis-analytics/data/processed/agriculture/livestock_ranch/`（4 geojson）
 - 前端 CDN 路徑：`public/agriculture/{livestock_farms,slaughterhouses,feed_factories,livestock_markets}.geojson`（去日期穩定檔名）
 - Supabase 留底：`agriculture.{livestock_farms,slaughterhouses,feed_factories,livestock_markets}`（前端不讀）
-- 更新頻率：不定期（ARIS batch 補齊時覆蓋，目前 v2 batch01+02 ≈80% 關鍵字）
+- 更新頻率：不定期（ARIS batch 補齊時覆蓋，目前 v3 batch01+02+03，⑤⑥ 已查回）
 - 座標系統：WGS84
-- 資料量：farm 12,275 / slaughter 185 / feed 258 / market 21
+- 資料量：farm 13,087 / slaughter 185 / feed 258 / market 21
 
 ## 前端接線位置
 
@@ -25,7 +25,7 @@
 farm（`livestock_farms.geojson`）：
 - `主畜種` — **分層 filter + 分色**（值域：豬/雞/牛/鴨/鵝/羊/鹿/鵪鶉/馬/其他/兔/鴕鳥）。改名或改值 → 4 層 filter 全失效。
 - `總隻數` — **circle-radius per-species log 尺標**（數值）。
-- `精度` — 值 `低` → 前端淡化（720 場，v2）。
+- `精度` — 值 `低` → 前端淡化（769 場，v3）。
 - `場名` / `種類明細` / `縣市` / `定位來源` — popup 顯示。
 
 slaughter：`種類`（家畜/家禽）分色 + popup。
@@ -41,5 +41,5 @@ slaughter：`種類`（家畜/家禽）分色 + popup。
 
 ## 已知不對稱
 
-- v2（20260705）主畜種實測：雞 4,872 / 豬 4,285 / 鴨 1,217 / 羊 604 / 牛 535 / 鵝 508 / 其他 254 → 以 enriched 實測為準。
-- 「其他」層（254）內含鹿(200)/鵪鶉(23)/馬(11)/其他(11)/兔(6)/鴕鳥(3)，量級跨度大 → 該層 **size + 顏色皆 per-species**（鹿綠/鵪鶉橙/馬靛/兔粉/鴕鳥橄欖）。
+- v3（20260705, batch03）主畜種實測：雞 5,176 / 豬 4,584 / 鴨 1,305 / 羊 644 / 牛 574 / 鵝 531 / 其他 273 → 以 enriched 實測為準。
+- 「其他」層（273）內含鹿(216)/鵪鶉(25)/馬(11)/其他(11)/兔(7)/鴕鳥(3)，量級跨度大 → 該層 **size + 顏色皆 per-species**（鹿綠/鵪鶉橙/馬靛/兔粉/鴕鳥橄欖）。

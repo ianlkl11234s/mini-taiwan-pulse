@@ -4,14 +4,14 @@
 
 ---
 
-## 2026-07-05 (b) — 資料更新 v1→v2（PR #TBD）
+## 2026-07-05 (b) — 資料更新 v1→v3 final（batch03，PR #TBD）
 
-- **畜禽飼養場資料 9,091 → 12,275**（ARIS batch01+02，≈80% 關鍵字，100% geocode 命中）。
+- **畜禽飼養場資料 9,091 → 13,087**（ARIS batch01+02+03，100% geocode 命中；中途 batch02 12,275 未上線，直接到 batch03 final）。
 - 換 CDN 檔 `livestock_farms.geojson`（覆蓋同名檔）+ S3 重上傳 + Zeabur restart 重拉 + Cloudflare purge。
-- 低精度 523 → **720 場**（段質心_google）；精度 高 11,508 / 中 47 / 低 720。
-- 主畜種 v2：雞 4,872 / 豬 4,285 / 鴨 1,217 / 羊 604 / 牛 535 / 鵝 508 / 其他 254。
+- 低精度 523 → **769 場**（段質心_google）；精度 高 12,271 / 中 47 / 低 769。
+- 主畜種 v3：雞 5,176 / 豬 4,584 / 鴨 1,305 / 羊 644 / 牛 574 / 鵝 531 / 其他 273。
 - **零程式改動**（layer 全 data-driven：filter 靠值、大小靠 總隻數）；僅更新寫死計數註解 + 文件。
-- Supabase `agriculture.livestock_farms` 同步 re-ingest 12,275（雙寫）；上游 catalog/registry 更新。
+- Supabase `agriculture.livestock_farms` 同步 re-ingest 13,087（雙寫）；上游 catalog/registry 更新。
 
 ## 2026-07-05 (a) — PR #55 `5ffe3e3`（feat/livestock，初版上線）
 
