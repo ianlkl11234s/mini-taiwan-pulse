@@ -35,6 +35,12 @@ aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
   --include "water_*.geojson" --include "water_*.pmtiles" --include "fire_*.geojson" \
   --include "medical_*.geojson"
 
+# PT-1 PMTiles（geo 鏡像子前綴 deploy-assets/geo/）→ /data/geo/（前端請求 /geo/*.pmtiles）
+# 與上方扁平 geojson include-filter 並存；aws s3 sync 非破壞（無 --delete），兩者同進 /data/geo/ 不衝突。
+# national_highway / provincial_road / bus_stations_city / fire_hydrants / medical_{clinics,pharmacies,aed,ltc} + water_*
+echo "[pull] sync geo pmtiles → $DATA_DIR/geo/"
+aws s3 sync "$S3/geo/" "$DATA_DIR/geo/" --no-progress
+
 echo "[pull] sync h3 → $DATA_DIR/h3/"
 aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_res8.json"
 
@@ -43,7 +49,7 @@ aws s3 sync "$S3/" "$DATA_DIR/h3/" --no-progress --exclude "*" --include "h3_*_r
 #    必須用 --exclude "agriculture/*" 排除（否則農業 pmtiles 會被灌進 /data/fire/agriculture/）。
 #    未來新增其他「含 pmtiles 的子前綴」也要在此比照排除；搬成鏡像結構後本行可簡化（見 06 搬家計畫）。
 echo "[pull] sync fire pmtiles → $DATA_DIR/fire/"
-aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "water_*.pmtiles"
+aws s3 sync "$S3/" "$DATA_DIR/fire/" --no-progress --exclude "*" --include "*.pmtiles" --exclude "agriculture/*" --exclude "medical/*" --exclude "flood/*" --exclude "forestry/*" --exclude "coverage/*" --exclude "base_map/*" --exclude "geo/*" --exclude "water_*.pmtiles"
 
 # 醫療：鏡像子前綴 deploy-assets/medical/ → /data/medical/（基礎點位 + 等時圈 PMTiles）
 echo "[pull] sync medical → $DATA_DIR/medical/"
