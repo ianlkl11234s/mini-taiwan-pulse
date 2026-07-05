@@ -140,6 +140,11 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   livestockSlaughter: "#c62828",
   livestockFeed: "#455a64",
   livestockMarket: "#d500f9",
+  sportsSchool: "#5c6bc0",
+  sportsPublicOther: "#26a69a",
+  sportsPrivate: "#ef6c00",
+  sportsPark: "#66bb6a",
+  sportsCenter: "#ec407a",
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -696,6 +701,25 @@ export const THEMES: ThemeDef[] = [
         title: "線",
         layers: [
           { key: "farmRoads", label: "農路 Farm Roads", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🏟️ SPORTS 運動場館
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "運動 Sports",
+    groups: [
+      {
+        title: "運動場館",
+        layers: [
+          { key: "sportsSchool", label: "學校場館 School", expandable: true },
+          { key: "sportsPublicOther", label: "其他公共場館 Public", expandable: true },
+          { key: "sportsPrivate", label: "民營場館 Private", expandable: true },
+          { key: "sportsPark", label: "運動公園/開放空間 Park", expandable: true },
+          { key: "sportsCenter", label: "國民運動中心 Sports Center", expandable: true },
         ],
       },
     ],

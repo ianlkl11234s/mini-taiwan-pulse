@@ -107,6 +107,8 @@ export type ExpandableLayerKey =
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
+  // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
+  | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -604,6 +606,7 @@ export interface FeatureInfo {
     | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
+    | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
     | "aqiStation" | "microSensor"
@@ -760,6 +763,12 @@ export interface LayerVisibility {
   livestockSlaughter: boolean;    // 屠宰場（185，家畜/家禽分色）
   livestockFeed: boolean;         // 飼料廠（258）
   livestockMarket: boolean;       // 拍賣/批發市場（21）
+  // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
+  sportsSchool: boolean;          // 學校場館（12,221）
+  sportsPublicOther: boolean;     // 其他公共場館（1,135）
+  sportsPrivate: boolean;         // 民營場館（691）
+  sportsPark: boolean;            // 運動公園/開放空間（596）
+  sportsCenter: boolean;          // 國民運動中心（357）
   // 醫療基礎點位（5 獨立 layer，單一 PMTiles source med_cat filter；全程可見）
   medHospital: boolean;    // 醫院（NHI 醫學中心/區域/地區，451）
   medClinic: boolean;      // 診所 + 其他醫療（NHI clinic 21765 + other_medical 1707）

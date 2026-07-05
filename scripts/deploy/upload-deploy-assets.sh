@@ -154,6 +154,15 @@ for f in "${AGRI_FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/agriculture/$name" --region ap-southeast-2
 done
 
+# 🏟️ 運動場館 Sports：上傳到 deploy-assets/sports/ 子前綴（8.4MB 靜態 GeoJSON，去日期穩定檔名）
+# 5 sublayer 前端共用此檔 + layer filter。加新檔（如統計 JSON）免改本腳本。
+for f in public/sports/*.geojson public/sports/*.json; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading sports/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/sports/$name" --region ap-southeast-2
+done
+
 # 林業圖層：上傳到 deploy-assets/forestry/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 包含 12 個原始 GeoJSON / PMTiles + 3 個衍生分析 GeoJSON（D1-D3 ETL 產出）
 FOREST_FILES=(

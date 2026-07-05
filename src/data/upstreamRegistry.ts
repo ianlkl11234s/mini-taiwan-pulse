@@ -490,6 +490,12 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   livestockSlaughter: { status: 'verified', datasets: [{ datasetId: 'slaughterhouses', confidence: 'HIGH' }] },
   livestockFeed: { status: 'verified', datasets: [{ datasetId: 'feed_factories', confidence: 'HIGH' }] },
   livestockMarket: { status: 'verified', datasets: [{ datasetId: 'livestock_markets', confidence: 'HIGH' }] },
+  // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
+  sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
+  sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
+  sportsPrivate: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
+  sportsPark: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
+  sportsCenter: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   agriculture: {
     status: 'verified',
     datasets: [{ datasetId: 'ftw_fields', confidence: 'MED' }],

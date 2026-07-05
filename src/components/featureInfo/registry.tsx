@@ -28,6 +28,7 @@ import {
 import { HikingTrailsPanel, ForestryGenericPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
+import { SportsVenuePanel } from "./sportsPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel } from "./medicalPanels";
 import { SatellitePanel } from "./satellitePanels";
 import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel,
@@ -208,6 +209,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   livestockSlaughter: LivestockSlaughterPanel,
   livestockFeed: LivestockFeedPanel,
   livestockMarket: LivestockMarketPanel,
+  // 🏟️ 運動場館
+  sportsVenue: SportsVenuePanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -276,6 +279,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   livestockSlaughter: "屠宰場",
   livestockFeed: "飼料廠",
   livestockMarket: "拍賣/批發市場",
+  sportsVenue: "運動場館",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
   satellite: "衛星",

@@ -8,6 +8,10 @@ import {
   OTHER_SPECIES_COLOR_RAMP, OTHER_COLOR_RAMP_DEFAULT,
   POULTRY_HEADS, SLAUGHTER_COLOR, FEED_COLOR, MARKET_COLOR,
 } from "../data/livestockTypes";
+import {
+  sportsCategoryColorExpr, SPORTS_LAYERS, SPORTS_AREA_DOMAIN, SPORTS_RADIUS_PX,
+  SPORTS_RADIUS_FALLBACK_PX, SPORTS_CLOSED_DIM, type SportsLayerMeta,
+} from "../data/sportsTypes";
 
 const BASE_RADIUS = 5;
 
@@ -101,6 +105,60 @@ function livestockFarmOverlay(
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1],
             "circle-opacity": fillExpr,
             "circle-stroke-opacity": strokeExpr,
+          };
+        },
+      },
+    ],
+  };
+}
+
+// ── 🏟️ 運動場館 Sports helpers ──
+const SPORTS_SOURCE = "./sports/all_venues.geojson";
+
+// 圓圈大小：area_sqm log 尺標（兩端 clamp）；area_sqm 缺值（380 筆 NULL/0）退化為固定半徑。
+// 無 zoom 項（大小純綁面積，比照 livestock farmRadius）。
+function sportsRadius(scale: number): unknown[] {
+  const [lo, hi] = SPORTS_AREA_DOMAIN;
+  const [rMin, rMax] = SPORTS_RADIUS_PX;
+  const area: unknown[] = ["to-number", ["get", "area_sqm"], 0]; // null → 0
+  const logSize: unknown[] = [
+    "interpolate", ["linear"],
+    ["ln", ["max", area, 1]],
+    Math.log(lo), rMin * scale,
+    Math.log(hi), rMax * scale,
+  ];
+  return ["case", [">", area, 0], logSize, SPORTS_RADIUS_FALLBACK_PX * scale];
+}
+
+// 單一 sublayer config：5 層共用 sports-venues source（sourceId 相同 → 只 fetch 一次），
+// 靠 config.filter 分 layer 隸屬類；circle 依 category 27 類 match 分色 + open_status 淡化。
+function sportsVenueOverlay(meta: SportsLayerMeta): OverlayConfig {
+  const { id, layerValue, suffix } = meta;
+  return {
+    id,
+    sourceUrl: SPORTS_SOURCE,
+    sourceId: "sports-venues",
+    filter: ["==", ["get", "layer"], layerValue],
+    layers: [
+      {
+        suffix,
+        type: "circle",
+        minzoom: 7,
+        paint: (isDark, p) => {
+          const scale = p?.[`${id}Scale`] ?? 1;
+          const opacity = p?.[`${id}Opacity`] ?? 0.8;
+          // open_status="不對外" 淡化（避免誤讀為可用場地）
+          const closed: unknown[] = ["==", ["get", "open_status"], "不對外"];
+          const fillOpacity: unknown[] = ["case", closed, opacity * SPORTS_CLOSED_DIM, opacity];
+          const strokeOpacity: unknown[] = ["case", closed, opacity * SPORTS_CLOSED_DIM * 0.8, opacity * 0.7];
+          return {
+            "circle-radius": sportsRadius(scale),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "circle-color": sportsCategoryColorExpr() as any,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 7, 0.3, 14, 1],
+            "circle-opacity": fillOpacity,
+            "circle-stroke-opacity": strokeOpacity,
           };
         },
       },
@@ -2723,6 +2781,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+
+  // ── 🏟️ 運動場館 Sports（靜態 CDN geojson，走 ./sports/）──
+  // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。
+  // circle：category 27 類 match 分色 + area_sqm log 點大小（NULL fallback 固定半徑）+ open_status="不對外" 淡化。
+  ...SPORTS_LAYERS.map((meta) => sportsVenueOverlay(meta)),
 
   // ── 農路圖（LineString，單色，可 popup）──
   {
