@@ -269,6 +269,7 @@ export function useMapInteraction(
           { layers: ["livestock-slaughter-circle"], type: "livestockSlaughter" },
           { layers: ["livestock-feed-circle"], type: "livestockFeed" },
           { layers: ["livestock-market-circle"], type: "livestockMarket" },
+          { layers: ["sports-venues-school", "sports-venues-public-other", "sports-venues-private", "sports-venues-park", "sports-venues-center"], type: "sportsVenue" },
           { layers: ["sat-current-point"], type: "satellite" },
           { layers: ["medical-hospitals-circle"], type: "medicalPOI" },
           { layers: ["medical-clinics-circle"], type: "medicalPOI" },

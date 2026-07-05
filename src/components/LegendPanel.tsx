@@ -20,6 +20,7 @@ import {
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
+import { SPORTS_CATEGORIES } from "../data/sportsTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -137,6 +138,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
   { keys: ["livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck", "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther"], render: () => <LivestockFarmLegend /> },
   { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
+  { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
     keys: [
@@ -466,6 +468,26 @@ function LivestockFacilityLegend() {
           { color: MARKET_COLOR, label: "拍賣/批發市場 Market" },
         ]}
       />
+    </div>
+  );
+}
+
+function SportsVenueLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        運動場館 分類 CATEGORY
+      </div>
+      <FireCatRows cats={SPORTS_CATEGORIES} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        大小 = 面積（area_sqm log；缺值退化固定大小）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        隸屬 5 類：學校 / 其他公共 / 民營 / 運動公園 / 國民運動中心（各自 toggle）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 2, lineHeight: 1.4 }}>
+        ⚠️「不對外」場館半透明淡化
+      </div>
     </div>
   );
 }

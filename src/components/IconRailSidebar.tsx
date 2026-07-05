@@ -150,6 +150,12 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   livestockSlaughter: Factory,
   livestockFeed: Warehouse,
   livestockMarket: ShoppingCart,
+  // 🏟️ 運動場館 Sports
+  sportsSchool: GraduationCap,
+  sportsPublicOther: Activity,
+  sportsPrivate: Activity,
+  sportsPark: Trees,
+  sportsCenter: Building2,
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // FORESTRY 12 base

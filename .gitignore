@@ -42,6 +42,9 @@ public/bus/pingtungcounty_bus_routes.json
 public/agriculture/*.pmtiles
 public/agriculture/*.geojson
 
+# 運動場館 Sports（全國 15,000 點靜態 GeoJSON 8.4MB；由 S3 deploy-assets 管理）
+public/sports/
+
 # Claude Code 內部儲存（不 commit）
 .claude/projects/
 .claude/worktrees/
