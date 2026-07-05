@@ -4,7 +4,16 @@
 
 ---
 
-## 2026-07-05 — PR #TBD（feat/livestock）
+## 2026-07-05 (b) — 資料更新 v1→v2（PR #TBD）
+
+- **畜禽飼養場資料 9,091 → 12,275**（ARIS batch01+02，≈80% 關鍵字，100% geocode 命中）。
+- 換 CDN 檔 `livestock_farms.geojson`（覆蓋同名檔）+ S3 重上傳 + Zeabur restart 重拉 + Cloudflare purge。
+- 低精度 523 → **720 場**（段質心_google）；精度 高 11,508 / 中 47 / 低 720。
+- 主畜種 v2：雞 4,872 / 豬 4,285 / 鴨 1,217 / 羊 604 / 牛 535 / 鵝 508 / 其他 254。
+- **零程式改動**（layer 全 data-driven：filter 靠值、大小靠 總隻數）；僅更新寫死計數註解 + 文件。
+- Supabase `agriculture.livestock_farms` 同步 re-ingest 12,275（雙寫）；上游 catalog/registry 更新。
+
+## 2026-07-05 (a) — PR #55 `5ffe3e3`（feat/livestock，初版上線）
 
 - **新增畜牧圖層群組（10 toggle）**：飼養場 7 層（豬/雞/牛/鴨/鵝/羊/其他）+ 屠宰場/飼料廠/拍賣市場 3 層。
 - 走 CDN 靜態 geojson（`public/agriculture/`），不打 Supabase；飼養場 4 層曾為原設計，後依需求拆成 7 層（鴨/鵝/羊 獨立）。
@@ -14,5 +23,5 @@
 - 預設 scale：飼養場 0.3、設施 1.0。
 - **附帶修復**：切底圖後靜態 GeoJSON overlay 重新 hydrate（`overlayManager` + `MapView`），全站 geojson 圖層受惠。
 - 跨 repo：gis-platform `agriculture.*` schema 4 表留底；taipei-gis-analytics catalog + registry + handoff §9。
-- Breaking：無。資料為 v1（ARIS batch01 ≈60%），後續同名檔覆蓋。
+- Breaking：無。（初版資料為 v1 ARIS batch01 ≈60%；後續同名檔覆蓋，見上方 v2 條目。）
 - 驗證：`tsc -b` + 190 測試綠 + browser 多輪驗證。

@@ -9,19 +9,19 @@
 
 ## 一句話說明
 
-全國畜牧點位視覺化：畜禽飼養場 9,091 + 屠宰場 185 + 飼料廠 258 + 拍賣/批發市場 21。飼養場依**主畜種分層著色**、依**總隻數（各畜種獨立 log 尺標）**定圓圈大小。
+全國畜牧點位視覺化：畜禽飼養場 12,275（v2, 2026-07-05）+ 屠宰場 185 + 飼料廠 258 + 拍賣/批發市場 21。飼養場依**主畜種分層著色**、依**總隻數（各畜種獨立 log 尺標）**定圓圈大小。
 
 ## 圖層 / 元件（🐷 畜牧群組，10 toggle，預設全關）
 
 | layer key | 名稱 | 類型 | 資料源 | 分色 | 大小 |
 |---|---|---|---|---|---|
-| `livestockFarmPig` | 飼養場·豬 | point | `livestock_farms` filter 主畜種=豬（3,224） | 珊瑚粉 | log(總隻數) 100→4000 |
-| `livestockFarmChicken` | 飼養場·雞 | point | 同上 =雞（3,583） | 橙黃 | log 1000→75000 |
-| `livestockFarmCattle` | 飼養場·牛 | point | 同上 =牛（370） | 棕 | log 20→700 |
-| `livestockFarmDuck` | 飼養場·鴨 | point | 同上 =鴨（930） | 青綠 | log 100→16000 |
-| `livestockFarmGoose` | 飼養場·鵝 | point | 同上 =鵝（394） | 藍綠 | log 100→8000 |
-| `livestockFarmSheep` | 飼養場·羊 | point | 同上 =羊（415） | 紫 | log 20→600 |
-| `livestockFarmOther` | 飼養場·其他 | point | 同上 非豬雞牛鴨鵝羊（175） | 灰 | log 50→3000 |
+| `livestockFarmPig` | 飼養場·豬 | point | `livestock_farms` filter 主畜種=豬（4,285） | 珊瑚粉 | log(總隻數) 100→4000 |
+| `livestockFarmChicken` | 飼養場·雞 | point | 同上 =雞（4,872） | 橙黃 | log 1000→75000 |
+| `livestockFarmCattle` | 飼養場·牛 | point | 同上 =牛（535） | 棕 | log 20→700 |
+| `livestockFarmDuck` | 飼養場·鴨 | point | 同上 =鴨（1,217） | 青綠 | log 100→16000 |
+| `livestockFarmGoose` | 飼養場·鵝 | point | 同上 =鵝（508） | 藍綠 | log 100→8000 |
+| `livestockFarmSheep` | 飼養場·羊 | point | 同上 =羊（604） | 紫 | log 20→600 |
+| `livestockFarmOther` | 飼養場·其他 | point | 同上 非豬雞牛鴨鵝羊（254） | 灰 | log 50→3000 |
 | `livestockSlaughter` | 屠宰場 | point | `slaughterhouses`（185） | 依種類 家畜/家禽 | 固定 |
 | `livestockFeed` | 飼料廠 | point | `feed_factories`（258） | 單色 | 固定 |
 | `livestockMarket` | 拍賣市場 | point | `livestock_markets`（21） | 醒目 | 固定（大） |
@@ -56,13 +56,13 @@
 
 ## 資料品質旗標
 
-- farm 用 **enriched 那份（9,091 全命中）**。`精度` 欄：高 8,535 / 中 33 / **低 523**。
-- **低精度 523 場**（`定位來源=段質心_google`）＝只定位到段/村里中心 → 前端**降 opacity 或 stroke 虛化**，勿當精確場址。
+- farm 用 **最新 enriched（20260705，12,275 全命中）**。`精度` 欄：高 11,508 / 中 47 / **低 720**。
+- **低精度 720 場**（`定位來源=段質心_google`）＝只定位到段/村里中心 → 前端**降 opacity 或 stroke 虛化**，勿當精確場址。
 
 ## 施工步驟（逐一，對應 layer-onboarding SOP + CLAUDE.md §5/§5a）
 
 - [x] **Step 0 規劃**：branch `feat/livestock` / feature docs / 4 geojson → `public/agriculture/`（穩定檔名）
-- [x] **Step 1 資料驗收**：counts 9091/185/258/21；farm 欄位齊（證號/場名/縣市/主畜種/總隻數/種類明細/段/地號/定位來源/精度）
+- [x] **Step 1 資料驗收**：counts 12275/185/258/21；farm 欄位齊（證號/場名/縣市/主畜種/總隻數/種類明細/段/地號/定位來源/精度）
 - [ ] **Step 2 接線 7 步**：types → `livestockLoader` → `useLivestockLayer` → overlay → catalog(LAYER_COLORS+SECTIONS 畜牧子分區) → App → useLayerVisibility(預設 false 自動派生)
 - [ ] **Step 3 UX baseline**：點層 1k–10k → per-species radius / opacity 0.85 / 不 cluster
 - [ ] **Step 4 四鐵則**：① opacity slider ② legend(畜種 4 色 + size 註記 + 屠宰種類) ③ popup(場名/主畜種/總隻數/種類明細/精度) ④ dropdown（N/A，是 toggle）
