@@ -9,9 +9,9 @@
 - 產物路徑（上游）：`taipei-gis-analytics/data/processed/agriculture/livestock_ranch/`（4 geojson）
 - 前端 CDN 路徑：`public/agriculture/{livestock_farms,slaughterhouses,feed_factories,livestock_markets}.geojson`（去日期穩定檔名）
 - Supabase 留底：`agriculture.{livestock_farms,slaughterhouses,feed_factories,livestock_markets}`（前端不讀）
-- 更新頻率：不定期（ARIS batch 補齊時覆蓋，目前 v1 ≈ 60% 關鍵字）
+- 更新頻率：不定期（ARIS batch 補齊時覆蓋，目前 v2 batch01+02 ≈80% 關鍵字）
 - 座標系統：WGS84
-- 資料量：farm 9,091 / slaughter 185 / feed 258 / market 21
+- 資料量：farm 12,275 / slaughter 185 / feed 258 / market 21
 
 ## 前端接線位置
 
@@ -25,7 +25,7 @@
 farm（`livestock_farms.geojson`）：
 - `主畜種` — **分層 filter + 分色**（值域：豬/雞/牛/鴨/鵝/羊/鹿/鵪鶉/馬/其他/兔/鴕鳥）。改名或改值 → 4 層 filter 全失效。
 - `總隻數` — **circle-radius per-species log 尺標**（數值）。
-- `精度` — 值 `低` → 前端淡化（523 場）。
+- `精度` — 值 `低` → 前端淡化（720 場，v2）。
 - `場名` / `種類明細` / `縣市` / `定位來源` — popup 顯示。
 
 slaughter：`種類`（家畜/家禽）分色 + popup。
@@ -35,11 +35,11 @@ slaughter：`種類`（家畜/家禽）分色 + popup。
 | 上游改動 | 下游動作 |
 |---|---|
 | ARIS 補到 100% 覆蓋同名檔 | CDN 重新 upload + `purge-cloudflare-cache.sh`；**Supabase 也要重跑 `ingest_livestock.py`**（雙寫） |
-| 新增畜種值（超出現有值域） | 落入「其他」層（`!in [豬,雞,牛]` 自動涵蓋，通常免改）；若要獨立成層才動 catalog |
+| 新增畜種值（超出現有值域） | 落入「其他」層（`!in [豬,雞,牛,鴨,鵝,羊]` 自動涵蓋，通常免改）；若要獨立成層才動 catalog |
 | farm 各畜種數量分布大變 | 檢查 per-species size domain（p95 錨點）是否要重算 |
 | 改欄位名（主畜種/總隻數/精度） | filter / radius / 淡化全要跟改 → **務必先開 upstream handoff** |
 
 ## 已知不對稱
 
-- 上游 HANDOFF 的畜種數字是舊 batch（雞 2,855 / 豬 2,668…）；**enriched 那份實測較多**（雞 3,583 / 豬 3,224 / 牛 370 / 其他 1,914）→ 以 enriched 實測為準。
-- 「其他」層內含鴨(930)/羊(415)/鵝(394)/鹿(136)/鵪鶉(15)/馬(9)/其他(8)/兔(4)/鴕鳥(3)，量級跨度大 → 該層 size 內部最不「公平」，可接受。
+- v2（20260705）主畜種實測：雞 4,872 / 豬 4,285 / 鴨 1,217 / 羊 604 / 牛 535 / 鵝 508 / 其他 254 → 以 enriched 實測為準。
+- 「其他」層（254）內含鹿(200)/鵪鶉(23)/馬(11)/其他(11)/兔(6)/鴕鳥(3)，量級跨度大 → 該層 **size + 顏色皆 per-species**（鹿綠/鵪鶉橙/馬靛/兔粉/鴕鳥橄欖）。
