@@ -33,14 +33,29 @@
 | BC-1 | P1 | 會員 P0：Google OAuth + profiles + UserAvatar | **done** | PR #52；migration 270（RLS+trigger+REVOKE 防 tier 自升）；OAuth 登入端到端實測過 |
 | — | — | BYOK 對話 MVP + 資料問答 | **done** | PR #51；三家直連 + 白名單 tools + 13 dataset/RPC + 顧問式 |
 | — | — | Supabase 資安：public 22 + reference 6 表補 RLS | **done** | migration 271/272；realtime/spatial 由 Dashboard 收窄 Exposed schemas |
-| BC-2 | P1 | P3 會員加值：user_favorites（圖層狀態快照）+ chat_logs（含匿名 session_id）+ 對話歷史跨裝置 | open | 依賴 BC-1（已完成），可開工 |
+| BC-2 | P1 | P3 會員加值：會員面板 icon + user_favorites（視圖快照收藏）+ member_visits 上站統計 + chat_logs（含匿名 session_id）+ 對話歷史跨裝置 | open | 依賴 BC-1（已完成）；**細部規劃已拍板 2026-07-03 → `docs/proposal/member-features-plan.md`**（M 系列；migration 用 273/274，271/272 已被 RLS lockdown 占用） |
 | BC-3 | P2 | 對話預設模型檔位改中階（Flash/Sonnet 級） | open | 實測 Gemini 2.5 Pro 遠勝 Haiku；一行改 KeySettings MODEL_OPTIONS |
-| BC-4 | P1 | 部署前置：CSP header（connect-src 三家 LLM）+ 隱私頁 BYOK 揭露 + OAuth 網域切換（Site URL/Redirect/Google JS 來源加正式網域，測試期只設 localhost） | open | 上線公開前必做 |
+| BC-4 | P1 | 部署前置：CSP header + 隱私頁 BYOK 揭露 + OAuth 網域切換 | **partial 2026-07-05** | PR #56：nginx 加 X-Frame-Options/nosniff/Referrer-Policy（enforcing）+ CSP **Report-Only**（connect-src 白名單三家 LLM+Supabase+Mapbox+CDN）；BYOK 揭露本就在 `KeySettings.tsx:284`（金鑰只存瀏覽器/不經我方/建議低額度 key）。prod header 實測全在。**剩下 BC-4a/BC-4b** |
+| BC-4a | P1 | OAuth 正式網域切換（dashboard，非程式） | open | `auth.ts` 已用 `window.location.origin`（程式正確）。手動：Supabase→Auth→URL Config：Site URL + Redirect URLs 加 `https://mini-taiwan-pulse.itsmigu.com/**`（保留 `localhost:3721`）；Google Console redirect URI 確認含 `…supabase.co/auth/v1/callback`。**不做則線上 Google 登入失敗** |
+| BC-4b | P2 | CSP 從 Report-Only 轉 enforcing | open | 需先 agent-browser 打線上跑全功能（地圖/對話/CCTV/新聞/直播）收 console CSP violation → 零違規後把 nginx 那行 header 名 `Content-Security-Policy-Report-Only` → `Content-Security-Policy`（另開 PR）。img/frame-src 目前放寬 `https:` 因 CCTV/新聞/YT 動態多源，勿鎖死 |
 | BC-5 | P2 | police_stations 日期戳 URL 改 manifest/latest 別名 | open | 上游換版免同步 datasets.ts |
 | BC-6 | P3 | Anthropic 進階檔開 extended thinking（providerOptions） | open | 深度思考 |
 | BC-7 | P3 | Phase 4：站方付費免費額度（Edge Function 單 key）/ 對話 pin 成 Monitor 面板 | open | AR-43/44 |
 | BC-8 | P2 | 變電所/超高壓電力線圖層開多圖層時回 0 | **done 2026-07-04** | 根因非 Supabase（anon 實測後端回滿）而是韌性層併發上限 8 的 FIFO 佇列，靜態層排在動態層後 → 冷載暫態空窗（~16s→補），非 fetch 失敗。修法 = static-to-cdn（見 SC-1），電網搬 CDN 後 settle 16s→2s。PR #54 `325bae6`，merged+部署+prod 驗證 |
 | SC-1 | P3 | static-to-cdn 延後項：`get_waste_stops`（193k/56MB → 需 per-city 拆檔）+ data_catalog（per-key）+ h3_demographics_yearly（per-year）+ reservoir_context/satellite_catalog（低衝擊/已 session cache）| open | 2026-07-04；模板已成熟（PLAYBOOKS PB-27），需要時 export 清單 append 即可。詳 `docs/features/static-to-cdn/` |
+
+### 資料資產鎖定 / 治理（OG 系列，2026-07-07 上線）
+
+> 敏感私有圖層真鎖 + 分層治理後台。SSOT：`docs/features/owner-gated-layers/`。migration 275/276/277/278/279（gis-platform）+ 前端 PR #60/#62。安全模型：DB REVOKE anon（唯一真防線）+ 前端 gating（體驗層）+ CDN 斷源。
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| — | P1 | 資料真鎖（畜牧/石化/電網/電廠 34 層）+ 分層治理後台 + lock_type 分型 | **done 2026-07-07** | 前端 #60/#62 + gis #28/#30；34 層 REVOKE anon + owner 守門 + 站內後台四分頁 |
+| — | P0 | 電廠 public schema 洩漏修補（all_power_plants_v 等 4 個 anon 可讀）| **done 2026-07-07** | 安全審計掃出 → migration 279；見 INCIDENTS 2026-07-07 |
+| OG-1 | P2 | anon key 濫用防護 / Supabase Spend Cap 確認 | open | 機密已 RLS 鎖死，殘餘僅額度濫用。⚠️ Supabase 在自己 Cloudflare 後、不經自站 zone → 自站 CF rate limit 無效，走 Supabase Spend Cap。詳 `docs/features/owner-gated-layers/backlog.md` OG-1 |
+| OG-2 | P3 | 資料新鮮度後台可編輯（admin_upsert_freshness UI）| open | 目前唯讀 |
+| OG-3 | P3 | UI 鎖首個實際圖層驗收 | open | lock_type='ui' 機制就緒但無實際 ui 圖層 |
+| OG-4 | P3 | powerPlants owner 存取（若需要）| open | 279 REVOKE all_power_plants_v 後 owner 也讀不到；需 owner-gated RPC 包 view |
 
 ### 水資源系統（BL 系列 — 盤點 DB 有資料但前端沒用的 Quick Wins）
 
@@ -111,7 +126,7 @@
 | G002 | P3 | `[ReservoirLayer] render #N` 改 `DEBUG_RESERVOIR` env flag 控制 | done | 2026-04-23 render loop 修掉時順手移除 |
 | G003 | P3 | `public/three-showcase.html` / `public/showcase/` 去留 | open | 2026-05-25 review 確認：獨立 Three.js demo，`src/` 未引用，從 unpkg 載 three@0.160（app 用 0.172）。用戶決定**暫留原地**（已 tracked）。未來可移 `examples/three-showcase/`（連同 `docs/three-showcase-library.md`）排除 build |
 | CS-1 | P3 | Code Splitting / Dynamic Import 重型依賴 | open | 對象：`mapbox-gl` / `three` / `pmtiles` / `@deck.gl/*` / `satellite.js` / `h3-js` 全部 eager import。效益：首屏 JS bundle 變小、TTI 加快（次要瓶頸，主要瓶頸已由 perf ①+② 解決）。風險：Vite chunk 邊界 / Mapbox worker 註冊時機 / PMTiles protocol 註冊順序常踩坑，需完整回歸。工時：1-2 天。觸發時機：等到出現「首頁 JS bundle 過大」用戶抱怨，或 ①+② 完成後仍想再壓首屏。**規劃源**：`/Users/migu/.claude/plans/1-2-modular-rossum.md` |
-| PT-1 | P2 | 大型 GeoJSON → PMTiles 轉換（13 檔） | **done (pending review)** | 2026-06-26 過夜批次完成。**234.7 MB → 75.0 MB（整體壓到 32%；range request 後實際下載再降 5-10 倍）**。完成 13 檔：provincial_road / farm_roads / hiking_trails / national_highway / medical_clinics / medical_ltc / medical_aed / medical_pharmacies / fire_hydrants / agri_retail_companies / produce_wholesale_companies / eco_network_zones / bus_stations_city。Branch：`perf/pmtiles-batch`。詳見 `.claude/memory/PMTILES_STATUS.md`。⚠️ 待人工 3 件：(1) browser 視覺驗證 13 layer (2) `bash scripts/deploy/upload-deploy-assets.sh` (3) push + PR + merge |
+| PT-1 | P2 | 大型 GeoJSON → PMTiles 轉換（13 檔） | **done 2026-07-05（上線+prod 驗證）** | 2026-06-26 批次轉檔（234.7→75.0 MB）。**2026-07-05 PR #56 修部署上線**：先前 code 已切 `.pmtiles` 但檔案上到 S3 扁平根、pull 端 include-filter 挑不到、反被 fire glob 誤抓進 `/data/fire/` → 線上 13 層全 404（點開空白，多為預設關的冷門層故沒人回報）。修法：13 檔改走鏡像子前綴（geo 8→`deploy-assets/geo/` + agri 4/forestry 1 進 AGRI/FOREST_FILES）；pull 加 geo/ 鏡像 sync + fire glob `--exclude geo/*`。**prod 實測 13/13 → 200**。教訓：新 PMTiles 一律走鏡像子前綴，勿上扁平根（見 PRINCIPLES 部署三處接線） |
 | G011 | P2 | 船舶拖尾 LOD / 降載（保留近景品質） | open | 2026-07-01 先做 B+C：時間/資料未變跳過 ShipScene rebuild + 船型顏色快取。A 暫不動以免影響目前港口近景視覺；未來若船舶仍卡，做 zoom-based LOD：低 zoom/全台視角縮短 trail duration 或加大 step，高 zoom/港口保留 1800s/10s 細節。 |
 | PI-1 | P2 | 警察 isochrone 5 區邊界斷裂修正 | **done 2026-07-02** | 收尾：真根因不是 bbox 截斷（實測 5 區已有 40km overlap），是每區獨立 dissolve → concat 造成同片區域多 count 疊層。修法：`10_police_isochrone.py` 拆兩段（`--polys-only` raw + `dissolve_polys_to_final` 全域）→ `16_merge_regions.py` concat 5 區 raw → dedup by entity_id → 全域 dissolve。**同 session 意外發現 bug 2（山區 nearest_node 拉錯 4-5km）**：drive PBF osmium 過濾掉 residential → 榮興/泰崗 附近沒節點 → nearest_nodes 找 3-5 km 外主幹道節點 → polygon 漂到隔壁山谷。修：`station_polygon()` 加 500m 閾值 + fallback 圓 buffer at station 座標。全掃「polygon 不含 station」raw features 從 100+ 降到 23（<1.5%）。詳 INCIDENTS 2026-07-01/02。taipei-gis-analytics `a44f6f3`（未 push） |
 | PI-2 | P3 | 離島 60 顆 substation 無 isochrone | open | 2026-07-02 全掃缺失發現：澎湖 27 + 金門 6 + 馬祖 3 + 綠島 1 + 恆春末端 2 + 本島邊界誤切 3（卯澳 lng 121.988 north bbox 外、新豐分駐所 lat 24.901 north2 bbox 外、上游 geocode 錯的綠島分駐所座標 26.22）。主要問題：`TW_MAIN_BBOX (120-122.05, 21.85-25.35)` 排除離島，且 `taiwan-drive/walk.osm.pbf` 也不含離島 OSM。修法：另抓澎湖/金門/馬祖 OSM PBF 另跑一套 pipeline，或本島邊界 3 顆微調 south/east/north bbox 各 +0.05°（後者 30 min 內可修）。優先低（4% coverage gap） |
@@ -190,7 +205,8 @@
 - ✅ 4 layer（火災歷史/最新年度/分隊3D/消防栓）+ 分隊階級大小 + 散點/3D toggle
 - ✅ **F-3 屏東補座標 done**（2026-05-26）：39 隊 Mapbox geocode 補齊 → fire_stations 677→**716**、22 縣市全。`scripts/fetch/geocode-pingtung-fire-stations.py`（門牌近似精度，見 F-6）
 - ✅ **救援等時圈 `fireIsochrone` done**（2026-05-26）：路網 5/10/15 分 PMTiles + 全國聚合 + 縣市 `<select>` filter，做法見 PB-16
-- ⏳ **F-1 S3 deploy**：`upload-deploy-assets.sh` 推 fire_stations.geojson(0.2M, 已含屏東) + fire_hydrants.geojson(12.8M) + **fire/fire_isochrone_coverage.pmtiles(9.3M)**（gitignore，未上 S3 = production 看不到）
+- ✅ **F-1 S3 deploy done 2026-07-05（prod 實測）**：backlog 舊述過度悲觀 — fire_stations.geojson(200) + fire_isochrone_coverage.pmtiles(9.7M,200) **早已在線上**；唯一真缺的是消防栓改切 `.pmtiles` 後沒上傳（前端要 `/geo/fire_hydrants.pmtiles` 卻 404），已由 PR #56 修好（見 PT-1，prod 200）
+- ⏳ **FR-hydrants-expand**（P3）：消防栓資料**只有臺北市+高雄市 69,839 點**（`overlayRegistry.ts` 註解），其他縣市待補上游資料。非 bug，是 coverage gap
 - ⏳ F-2（可選）分隊 3D 光柱接 pick → 點柱體也能跳 popup（目前靠底下 circle）
 - ⏳ **F-5 等時圈 Phase B**：點選某分隊 → 高亮該隊個別等時圈（資料已備 `build/fire_isochrone/fire_isochrone_stations.geojson`，需切 PMTiles + setFilter by `station_id`）
 - ⏳ F-6（可選）等時圈精修：pmtiles 9.3M 可調 tippecanoe 參數瘦身；屏東 geocode 為門牌近似，精度可回上游 TGOS 重做
