@@ -15,7 +15,7 @@
 //   缺 key 會 tsc 報錯 → 新增 layer 必補色。
 // - THEMES：新 SSOT；新增 layer 把 key 放進對應 theme.groups[].layers。
 // - 命名格式：`中文 English`（例：「水資源 Water」「國道 Highway」）。
-// - 預設全關（DEFAULT_ON = empty Set），開站乾淨。
+// - 預設開關由 useLayerVisibility 控制；動態 RPC 原則上預設關閉。
 //
 // 排序原則：
 // 1. BASE 頂置（不算主題、純底圖）
@@ -288,6 +288,12 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   policeIsoSubstation: "#1e40af",
   policeIsoPrecinct: "#3b82f6",
   policeIsoCityDept: "#60a5fa",
+  // 環境污染 POLLUTION
+  pollutionFacility: "#f97316",
+  pollutionPenaltyCritical: "#ef4444",
+  pollutionPenaltyGeneral: "#94a3b8",
+  pollutionPenaltyMobile: "#22c55e",
+  pollutionSite: "#111827",
 };
 
 // ── Transport Labels ──
@@ -482,6 +488,16 @@ export const THEMES: ThemeDef[] = [
           { key: "aqiImagery", label: "空氣品質色階 AQI Raster", expandable: true },
           { key: "aqiStations", label: "空氣品質測站 AQI Station", expandable: true },
           { key: "aqiMicroSensors", label: "LASS 微型感測 Micro Sensor", expandable: true },
+        ],
+      },
+      {
+        title: "環境污染",
+        layers: [
+          { key: "pollutionFacility", label: "污染潛勢設施 Facility", labelMobile: "污染潛勢設施 Facility (152k)", expandable: true },
+          { key: "pollutionPenaltyCritical", label: "重大裁處 Critical Penalty", labelMobile: "重大裁處 Critical", expandable: true },
+          { key: "pollutionPenaltyGeneral", label: "一般裁處 General Penalty", labelMobile: "一般裁處 General", expandable: true },
+          { key: "pollutionPenaltyMobile", label: "移動污染 Mobile Penalty", labelMobile: "移動污染 Mobile", expandable: true },
+          { key: "pollutionSite", label: "污染場址 Site", labelMobile: "污染場址 Site (8,253)", expandable: true },
         ],
       },
     ],

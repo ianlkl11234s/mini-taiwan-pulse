@@ -42,6 +42,11 @@ import {
   NUCLEAR_LEVEL_COLORS,
   type NuclearDoseLevel,
 } from "../data/nuclearLoader";
+import {
+  SEVERITY_BANDS, POLLUTION_MEDIUM_COLORS, POLLUTION_MEDIUM_LABELS,
+  PENALTY_MEDIA, PENALTY_SEVERITY_COLORS, PENALTY_SEVERITY_LABELS,
+  type PollutionMedium, type PollutionPenaltySeverity,
+} from "../data/pollutionTypes";
 
 /**
  * 右下角圖例面板 — 只顯示目前開啟的圖層對應圖例
@@ -207,6 +212,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     ],
     render: ({ visibility }) => <PoliceJusticeLegend visibility={visibility} />,
   },
+  // 環境污染 3 層
+  { keys: ["pollutionFacility", "pollutionSite"], render: ({ visibility }) => <PollutionSeverityLegend visibility={visibility} /> },
+  {
+    keys: ["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"],
+    render: ({ visibility }) => <PollutionPenaltyLegend visibility={visibility} />,
+  },
 ];
 
 export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
@@ -263,6 +274,56 @@ export function LegendPanel({ visibility, overlayParams }: LegendPanelProps) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── 環境污染：嚴重度（設施 + 場址共用）──
+function PollutionSeverityLegend({ visibility }: { visibility: LayerVisibility }) {
+  const bands = visibility.pollutionSite && !visibility.pollutionFacility
+    ? SEVERITY_BANDS.filter((b) => b.sev === 4)
+    : SEVERITY_BANDS;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        污染嚴重度 SEVERITY
+      </div>
+      <FireCatRows cats={bands.map((b) => ({ color: b.color, label: b.label }))} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        列管 ≠ 污染｜設施色 = 最高嚴重度
+      </div>
+    </div>
+  );
+}
+
+// ── 環境污染：裁處事件介質 ──
+function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility }) {
+  const severityKeys: PollutionPenaltySeverity[] = [
+    ...(visibility.pollutionPenaltyCritical ? ["critical" as const] : []),
+    ...(visibility.pollutionPenaltyGeneral ? (["high", "normal"] as const) : []),
+    ...(visibility.pollutionPenaltyMobile ? ["mobile" as const] : []),
+  ];
+  const severityCats = severityKeys.map((k) => ({
+    color: PENALTY_SEVERITY_COLORS[k],
+    label: PENALTY_SEVERITY_LABELS[k],
+  }));
+  const mediumCats = PENALTY_MEDIA.map((m: PollutionMedium) => ({
+    color: POLLUTION_MEDIUM_COLORS[m],
+    label: POLLUTION_MEDIUM_LABELS[m],
+  }));
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        裁處分層 PENALTY
+      </div>
+      <FireCatRows cats={severityCats} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginTop: 8, marginBottom: 4 }}>
+        介質 MEDIUM
+      </div>
+      <FireCatRows cats={mediumCats} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        重大點大小 ∝ 罰鍰｜白框 = 連續 / 停工等｜可年份播放
+      </div>
     </div>
   );
 }

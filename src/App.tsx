@@ -70,6 +70,7 @@ import { useFossilFuelLayers } from "./hooks/useFossilFuelLayers";
 import { useA1AccidentRealtimeLayer } from "./hooks/useA1AccidentRealtimeLayer";
 import { useOsmPowerLinesGlowLayer } from "./hooks/useOsmPowerLinesGlowLayer";
 import { usePowerPolesLayer } from "./hooks/usePowerPolesLayer";
+import { usePollutionLayers } from "./hooks/usePollutionLayers";
 import { useAviationAirspaceLayer } from "./hooks/useAviationAirspaceLayer";
 import { useDroneZonesLayer } from "./hooks/useDroneRestrictedZonesLayer";
 import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
@@ -884,6 +885,25 @@ export default function App() {
     layerVisibility.droneRestrictedZone,
     transportParams.overlayParams.droneNfzOpacity ?? 0.45,
     transportParams.overlayParams.droneRestrictedOpacity ?? 0.45,
+  );
+  // 環境污染三層 filter（介質 / 嚴重度 / 年份時間軸 / 列管中）— paint 走 overlayManager
+  usePollutionLayers(
+    mapRef,
+    {
+      pollutionFacility: layerVisibility.pollutionFacility,
+      pollutionPenaltyCritical: layerVisibility.pollutionPenaltyCritical,
+      pollutionPenaltyGeneral: layerVisibility.pollutionPenaltyGeneral,
+      pollutionPenaltyMobile: layerVisibility.pollutionPenaltyMobile,
+      pollutionSite: layerVisibility.pollutionSite,
+    },
+    {
+      facilityMedia: transportParams.pollutionFacilityMedia,
+      facilityMinSev: transportParams.pollutionFacilityMinSev,
+      penaltyMediumIdx: transportParams.pollutionPenaltyMediumIdx,
+      penaltyYear: transportParams.pollutionPenaltyYear,
+      penaltyMode: transportParams.pollutionPenaltyMode,
+      siteActiveOnly: transportParams.pollutionSiteActiveOnly,
+    },
   );
   usePowerRegionBarsLayer(
     mapRef,

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
 import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
@@ -8,6 +8,11 @@ import {
   SOIL_FERTILITY_METRIC_OPTIONS,
   type SoilFertilityMetric,
 } from "../data/agriSoilFertilityMetrics";
+import {
+  FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
+  pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
+  type PollutionMedium,
+} from "../data/pollutionTypes";
 
 export interface SliderConfig {
   type?: "slider";
@@ -188,6 +193,47 @@ export function useTransportParams() {
   const [policeIsoCityDeptOpacity, setPoliceIsoCityDeptOpacity] = useState(0.45);
   const [policeIsoCityDeptMode, setPoliceIsoCityDeptMode] = useState<"walk" | "drive">("drive");
   const [policeIsoCityDeptMinutes, setPoliceIsoCityDeptMinutes] = useState<"30" | "60">("30");
+  // ── 環境污染 POLLUTION ──
+  // 設施：opacity + scale + 5 介質 filter（勾選 → 只顯示登記該介質的設施）+ 最低嚴重度門檻
+  const [pollutionFacilityOpacity, setPollutionFacilityOpacity] = useState(0.8);
+  const [pollutionFacilityScale, setPollutionFacilityScale] = useState(1);
+  const [pollutionFacilityMedia, setPollutionFacilityMedia] = useState<Record<PollutionMedium, boolean>>({
+    air: true, water: true, waste: true, toxic: true, soil: true, noise: false, other: false,
+  });
+  const [pollutionFacilityMinSev, setPollutionFacilityMinSev] = useState(0);
+  // 裁處事件：opacity + scale + medium select + 年份 + 模式（累積/單年）+ 播放
+  const [pollutionPenaltyOpacity, setPollutionPenaltyOpacity] = useState(0.75);
+  const [pollutionPenaltyScale, setPollutionPenaltyScale] = useState(1);
+  const [pollutionPenaltyMediumIdx, setPollutionPenaltyMediumIdx] = useState(0); // 0 = 全部
+  // 預設「只有今年」：今年（clamp 到資料年份範圍）+ 僅該年模式。
+  const [pollutionPenaltyYear, setPollutionPenaltyYear] = useState(
+    Math.min(PENALTY_YEAR_MAX, Math.max(PENALTY_YEAR_MIN, new Date().getFullYear())),
+  );
+  const [pollutionPenaltyMode, setPollutionPenaltyMode] = useState(1);           // 0 = 累積、1 = 僅該年（預設僅今年）
+  const [pollutionPenaltyPlaying, setPollutionPenaltyPlaying] = useState(false);
+  // 場址：opacity + scale + 只看列管中
+  const [pollutionSiteOpacity, setPollutionSiteOpacity] = useState(0.9);
+  const [pollutionSiteScale, setPollutionSiteScale] = useState(1);
+  const [pollutionSiteActiveOnly, setPollutionSiteActiveOnly] = useState(true);
+
+  const setPollutionFacilityMedium = (m: PollutionMedium, v: boolean) =>
+    setPollutionFacilityMedia((p) => ({ ...p, [m]: v }));
+
+  // 裁處事件歷史播放引擎：從起始年逐年推進到 2026 後停（比照火災事件的自動播放）。
+  useEffect(() => {
+    if (!pollutionPenaltyPlaying) return;
+    const id = setInterval(() => {
+      setPollutionPenaltyYear((y) => {
+        const cur = y === 0 ? PENALTY_YEAR_MIN : y;
+        if (cur >= PENALTY_YEAR_MAX) {
+          setPollutionPenaltyPlaying(false);
+          return PENALTY_YEAR_MAX;
+        }
+        return cur + 1;
+      });
+    }, 1100);
+    return () => clearInterval(id);
+  }, [pollutionPenaltyPlaying]);
   // 救援等時圈（覆蓋聯集填色透明度 + 縣市篩選，"all" = 全台）
   const [fireIsochroneOpacity, setFireIsochroneOpacity] = useState(0.5);
   const [fireIsochroneCounty, setFireIsochroneCounty] = useState("all");
@@ -785,6 +831,10 @@ export function useTransportParams() {
     policeIsoCityDeptOpacity,
     policeIsoCityDeptMode_drive: policeIsoCityDeptMode === "drive" ? 1 : 0,
     policeIsoCityDeptMinutes_num: Number(policeIsoCityDeptMinutes),
+    // 環境污染（paint 用；filter 值另由 return 物件傳給 usePollutionLayers）
+    pollutionFacilityOpacity, pollutionFacilityScale,
+    pollutionPenaltyOpacity, pollutionPenaltyScale,
+    pollutionSiteOpacity, pollutionSiteScale,
     stationScale,
     airportOpacity,
     airportGlow,
@@ -1096,7 +1146,10 @@ export function useTransportParams() {
     coastGuardStationOpacity, coastGuardStationScale, civilDefenseShelterOpacity, civilDefenseShelterScale,
     policeIsoSubstationOpacity, policeIsoSubstationMode, policeIsoSubstationMinutes,
     policeIsoPrecinctOpacity, policeIsoPrecinctMode, policeIsoPrecinctMinutes,
-    policeIsoCityDeptOpacity, policeIsoCityDeptMode, policeIsoCityDeptMinutes]);
+    policeIsoCityDeptOpacity, policeIsoCityDeptMode, policeIsoCityDeptMinutes,
+    pollutionFacilityOpacity, pollutionFacilityScale,
+    pollutionPenaltyOpacity, pollutionPenaltyScale,
+    pollutionSiteOpacity, pollutionSiteScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -2166,6 +2219,36 @@ export function useTransportParams() {
         ], onChange: (v: string) => setPoliceIsoCityDeptMinutes(v as "30" | "60") },
         { label: `透明度 ${policeIsoCityDeptOpacity.toFixed(2)}`, value: policeIsoCityDeptOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setPoliceIsoCityDeptOpacity },
       ];
+      // ── 環境污染 POLLUTION ──
+      case "pollutionFacility": return [
+        { label: `透明度 ${pollutionFacilityOpacity.toFixed(2)}`, value: pollutionFacilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionFacilityOpacity },
+        { label: `大小 ${pollutionFacilityScale.toFixed(2)}`, value: pollutionFacilityScale, min: 0.3, max: 3, step: 0.1, onChange: setPollutionFacilityScale },
+        { type: "select" as const, label: "最低嚴重度", value: String(pollutionFacilityMinSev), options: SEVERITY_BANDS.slice(0, 4).map((b) => ({ label: `S${b.sev}+`, value: String(b.sev) })), onChange: (v: string) => setPollutionFacilityMinSev(Number(v)) },
+        ...FACILITY_MEDIA.map((m) => ({
+          type: "toggle" as const,
+          label: POLLUTION_MEDIUM_LABELS[m],
+          value: pollutionFacilityMedia[m],
+          onChange: (v: boolean) => setPollutionFacilityMedium(m, v),
+        })),
+      ];
+      case "pollutionPenaltyCritical":
+      case "pollutionPenaltyGeneral":
+      case "pollutionPenaltyMobile": {
+        const medOpts = [{ label: "全部介質", value: "0" }, ...PENALTY_MEDIA.map((m, i) => ({ label: POLLUTION_MEDIUM_LABELS[m], value: String(i + 1) }))];
+        return [
+          { label: `透明度 ${pollutionPenaltyOpacity.toFixed(2)}`, value: pollutionPenaltyOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionPenaltyOpacity },
+          { label: `大小 ${pollutionPenaltyScale.toFixed(2)}`, value: pollutionPenaltyScale, min: 0.3, max: 3, step: 0.1, onChange: setPollutionPenaltyScale },
+          { type: "select" as const, label: "介質", value: String(pollutionPenaltyMediumIdx), options: medOpts, onChange: (v: string) => setPollutionPenaltyMediumIdx(Number(v)) },
+          { type: "select" as const, label: "年份", value: String(pollutionPenaltyYear), options: pollutionYearOptions(), onChange: (v: string) => { setPollutionPenaltyYear(Number(v)); setPollutionPenaltyPlaying(false); } },
+          { type: "select" as const, label: "模式", value: String(pollutionPenaltyMode), options: PENALTY_MODE_OPTIONS, onChange: (v: string) => setPollutionPenaltyMode(Number(v)) },
+          { type: "toggle" as const, label: pollutionPenaltyPlaying ? "⏸ 停止播放" : "▶ 歷史播放", value: pollutionPenaltyPlaying, onChange: (v: boolean) => { if (v && (pollutionPenaltyYear === 0 || pollutionPenaltyYear >= PENALTY_YEAR_MAX)) setPollutionPenaltyYear(PENALTY_YEAR_MIN); setPollutionPenaltyPlaying(v); } },
+        ];
+      }
+      case "pollutionSite": return [
+        { label: `透明度 ${pollutionSiteOpacity.toFixed(2)}`, value: pollutionSiteOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionSiteOpacity },
+        { label: `大小 ${pollutionSiteScale.toFixed(2)}`, value: pollutionSiteScale, min: 0.3, max: 3, step: 0.1, onChange: setPollutionSiteScale },
+        { type: "toggle" as const, label: "只看列管中 Active", value: pollutionSiteActiveOnly, onChange: setPollutionSiteActiveOnly },
+      ];
       default: return [];
     }
   };
@@ -2249,5 +2332,12 @@ export function useTransportParams() {
     hillshadeOpacity,
     slopeOpacity,
     aspectOpacity,
+    // 環境污染 filter 狀態（餵 usePollutionLayers 的 setFilter）
+    pollutionFacilityMedia,
+    pollutionFacilityMinSev,
+    pollutionPenaltyMediumIdx,
+    pollutionPenaltyYear,
+    pollutionPenaltyMode,
+    pollutionSiteActiveOnly,
   };
 }

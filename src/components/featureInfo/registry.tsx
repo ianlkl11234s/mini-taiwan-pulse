@@ -58,6 +58,7 @@ import {
   PoliceIsoSubstationPanel, PoliceIsoPrecinctPanel, PoliceIsoCityDeptPanel,
 } from "./policeJusticePanels";
 import { ChatHighlightPanel } from "./shared";
+import { PollutionFacilityPanel, PollutionPenaltyPanel, PollutionSitePanel } from "./pollutionPanels";
 
 export interface PanelProps {
   props: Record<string, unknown>;
@@ -202,6 +203,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   policeIsoSubstation: PoliceIsoSubstationPanel,
   policeIsoPrecinct: PoliceIsoPrecinctPanel,
   policeIsoCityDept: PoliceIsoCityDeptPanel,
+  // 環境污染
+  pollutionFacility: PollutionFacilityPanel,
+  pollutionPenalty: PollutionPenaltyPanel,
+  pollutionSite: PollutionSitePanel,
   // AI 助手標記點
   chatHighlight: ChatHighlightPanel,
   // 🐷 畜牧
@@ -360,6 +365,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   policeIsoSubstation: "派出所等時圈",
   policeIsoPrecinct: "分局等時圈",
   policeIsoCityDept: "縣市警局等時圈",
+  // 環境污染
+  pollutionFacility: "污染潛勢設施",
+  pollutionPenalty: "污染裁處事件",
+  pollutionSite: "污染場址",
   // AI 助手標記點
   chatHighlight: "地圖標記",
 };
