@@ -446,15 +446,16 @@ export function IconRailSidebar({
   }, [onWidthChange]);
 
   const togglePanel = (panel: PanelId) => {
-    setActivePanel((prev) => {
-      const next = prev === panel ? null : panel;
-      // 開啟 Layers/Locations 時，順便關掉 Intel / Satellite（左側 panel 互斥）
-      if (next !== null) {
-        if (intelActive && onIntelToggle) onIntelToggle();
-        if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
-      }
-      return next;
-    });
+    // 是否為「開啟」動作（切到別的 panel 或開啟目前關閉的）。activePanel === panel 才是關閉。
+    const willOpen = activePanel !== panel;
+    // 開啟 Layers/Locations 時，關掉 Intel / Satellite（左側 panel 互斥）。
+    // ⚠️ 副作用必須放在 setState updater 外：StrictMode 下 updater 會被呼叫兩次，
+    // 若在其中 toggle，Intel/Satellite 會開了又關（淨零）→ 關不掉。
+    if (willOpen) {
+      if (intelActive && onIntelToggle) onIntelToggle();
+      if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
+    }
+    setActivePanel((prev) => (prev === panel ? null : panel));
   };
 
   const closePanel = () => setActivePanel(null);
