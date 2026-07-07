@@ -1278,3 +1278,18 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 1. 「後端完好」的舊結論要標時間戳——資安/schema 改動後可能失效，**重測才算數**。
 2. 有 in-memory cache（cachedOnce）的 repro：清 source ≠ 冷載；**必 page reload 才清 JS 記憶體**觸發真冷 fetch。
 3. 併發限流器（保護 DB）的副作用是靜態層暫態空窗——**靜態資料根本不該佔動態併發 slot**（該走 CDN）。
+
+## 2026-07-07 owner-gated 安全鎖定 — 電廠 public schema 漏鎖 + read-only tx regression
+
+**背景**：把畜牧/石化/電網/電廠 34 層從「前端假鎖」升級成 DB 真鎖（migration 275 REVOKE anon + RPC owner 守門）+ 分層治理後台 + lock_type 分型。上線後做全面安全審計。
+
+### 事件 A：電廠 public schema 漏鎖（275 漏 → 279 修）
+275 鎖了 `energy` schema 電廠 SSOT + REVOKE `public.osm_*`，但漏掉 `public` schema 另 4 個電廠 table/view（`all_power_plants_v` 全台電廠 SSOT 鏡像 581 筆 / `power_plants` / `nuclear_plants` / `ipp_thermal_plants`）。`public` schema 有被 PostgREST expose → anon 用公開 key 直打 `/rest/v1/` 可讀，繞過所有 owner-gated 電廠圖層。安全審計 agent 掃出。**修法**：279 REVOKE anon/authenticated + DROP anon policy；前端 `powerPlants`（用 all_power_plants_v 的已下架圖層）補進 GATED_LAYERS。
+
+### 事件 B：gated RPC STABLE → read-only tx 爆 audit INSERT（276 引入 → 277 修）
+276 把含 `INSERT`（寫 access_audit_log）的 `enforce_layer_access` 植入 24 支鎖定 RPC，但沿用原 STABLE 標記。**PostgREST 對 STABLE/IMMUTABLE function 一律用 READ ONLY transaction** → 內部 INSERT 觸發 `25006 cannot execute INSERT in a read-only transaction`。只有「有 EXECUTE 權限、真正進入 function 的 owner」踩到；anon 在 ACL 層就 401、psql 直測不經 PostgREST read-only 包裝，故 275/276 驗證都漏，用戶 browser 登入開圖層才炸出。**修法**：277 把 24 支改 VOLATILE（PostgREST 改用 READ WRITE tx）。
+
+**教訓**：
+1. 鎖 schema-level（未 expose 的 schema）安全，但散在 `public` schema 的**同主題** table/view 容易漏——鎖清單要反查全部讀者，不只鎖 API 用到的（孤兒表也要）。
+2. **PostgREST 對 STABLE func 用 read-only tx** → SECURITY DEFINER + 內含 INSERT（audit）的 RPC 必須 VOLATILE。
+3. migration 驗證盲點：psql 直測 `SELECT func()` 不觸發 PostgREST read-only 包裝，anon REST 又被 ACL 擋門外 → **owner 透過真 REST 的路徑沒被測到**。要用真 authenticated（或 service_role）REST 驗 owner。
