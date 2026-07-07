@@ -1463,3 +1463,15 @@ git status -s
 7. 上 S3 → PR → CI 綠 → squash merge → poll prod 部署（/static-rpc/ 供真檔）。
 
 **成效範本（本次）**：25 層搬 CDN（最大 fossil_fuel_layers 9.5MB），BC-8 settle 16s→2s。多 agent 分工：主 agent 定 pattern + 電網 pilot 冷載驗證，delegate batch（廢棄物重構帶 psql 對數 gate），信任 subagent push-back（stops 56MB 判斷不搬）。詳見 [[incidents]] 2026-07-04。
+
+## PB-28：worktree 隔離拆分混合工作區成多 PR（2026-07-07）
+
+情境：單一工作區同時堆疊多份未 commit 工作（owner-gated + pollution + 主題化 + docs WIP），改到同幾個檔案、hunk 交錯，要拆成各自乾淨的 PR。
+
+SOP：
+1. **hunk 分類**：`git diff <混合檔>` 拆 hunk，按關鍵字自動分類（Python 腳本：每份工作的特徵詞 → OWNER/POLL/…），無法自動判的人工看 added 行。⚠️ **import 區最易行級混合**（大家往同一 import block 加行），hunk 級歸類會誤判（如 Biohazard pollution icon 混進 owner import）→ 要看 added 行實際內容，必要時行級拆。
+2. **純檔整檔 diff + 混合檔選定 hunks** → 生成 per-work patch，驗證「各 patch hunk 數相加 = 原始，無漏無重疊」。
+3. **worktree 隔離驗證**：`git worktree add -b <branch> <path> master` + symlink node_modules + `git apply <patch>` + copy untracked → **tsc -b + pnpm test 在隔離 worktree 跑**（確認該份工作自足、不暗依賴其他份）→ commit + push + PR。原工作區完全不碰（保護用戶其他 WIP）。
+4. **merge 後 sync**：備份要保留的 WIP patch → `git reset --hard origin/master`（清已 merge 的，untracked 保留）→ apply 回 WIP patch。⚠️ 大檔（pmtiles >100MB）走 S3 + gitignore，不進 git。
+
+成效：owner-gated / pollution / lock_type 三份各自乾淨 PR（#60/#61/#62），GitHub 判無衝突（拆分不重疊），原工作區的主題化 + docs WIP 全程零觸碰。
