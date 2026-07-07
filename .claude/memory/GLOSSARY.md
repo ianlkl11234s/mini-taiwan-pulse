@@ -326,3 +326,8 @@
 - **static-rpc 快照**：靜態 RPC 輸出的預匯出 JSON（`public/static-rpc/*.json`，gitignore，走 S3 鏡像子前綴 `deploy-assets/static-rpc/`），一支 RPC 一檔。
 - **O(N)→O(1) 讀取**：靜態資料每人各自打 DB = 負載 ∝ 人數（O(N)）；搬 CDN 邊緣快取後所有人共用一份 = O(1)。AR 系列核心目標。
 - **真冷 repro**：測 in-memory cache（cachedOnce）相關 bug 時，`setData([])` 只清 Mapbox source 不清 JS 記憶體 → 必 **page reload** 才是真冷載入、才觸發冷 fetch。
+
+## owner-gated（2026-07-07）
+- **lock_type**：`gated_layers.lock_type`（`'ui'`|`'full'`）。`full`=乾淨鎖（DB REVOKE anon、資料真鎖，機密用）；`ui`=UI 鎖（不 REVOKE、資料公開，未登入顯示鎖頭引導登入、登入即開，非機密引導註冊用）。純宣告欄位，後台改它不動 DB grant（防誤公開）。
+- **gated_layers**：`public.gated_layers` 治理表，圖層鎖定的 DB SSOT（layer_key/category/required_tier/enabled/lock_type）。公開 RPC `get_layer_gates()` 回前 3+lock_type 供前端動態 gating（不含地理資料）。
+- **enforce_layer_access**：鎖定 RPC 的守門 helper，查 profiles.tier vs gated_layers.required_tier，granted 寫 access_audit_log、denied RAISE 42501 + server log。SECURITY DEFINER，故被它守的 RPC 必 VOLATILE。
