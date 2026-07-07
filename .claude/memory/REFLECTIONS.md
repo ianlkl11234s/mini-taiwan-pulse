@@ -1045,3 +1045,10 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 2. **有 in-memory cache 的 repro 必 page reload**（清 source ≠ 冷載）。
 3. **delegate 會改邏輯的重構 → 給可量化的驗證 gate**（對數/count 相等），不收「我測過了」。
 4. **併發 delegate 前先分檔案所有權**，主 agent 不碰 subagent 正在改的檔。
+
+## 2026-07-07 owner-gated 安全鎖定
+
+### Next-time rules（續）
+5. **安全鎖定要主動全掃 public schema**，不只鎖「前端 API 用到的」——孤兒 table/view（無前端引用但 anon 可讀）一樣洩漏。上線後派獨立安全審計 agent 掃 DB 繞道 + PostgREST schema + git 歷史 + bundle，別假設「鎖了清單就安全」（這次真掃出電廠 public schema 洩漏）。
+6. **DB migration 驗證要走真實呼叫路徑**：psql `SELECT func()` ≠ PostgREST REST（後者對 STABLE func 用 read-only tx）。owner-only 功能要用真 authenticated / service_role REST 驗，別只 psql 模擬 → read-only tx bug 就是這樣漏到 browser 才炸。
+7. **接手他人 session 先盤點工作區有幾份未完成 WIP**（這次 owner-gated + pollution + 主題化 + 會員 docs 四份混疊），delegate 前明確劃「不碰 pollution/主題化」，拆 PR 時逐份隔離。**改動來源不確定時先問，別擅自 revert**（差點把用戶主題化 WIP 當「agent 跑偏」還原）。
