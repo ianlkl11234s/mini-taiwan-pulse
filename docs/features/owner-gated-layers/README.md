@@ -1,11 +1,11 @@
 # owner-gated-layers（私人圖層鎖定）
 
 > **Slug**：`owner-gated-layers`
-> **狀態**：dev
+> **狀態**：上線
 > **Owner**：migu
-> **上線日期**：YYYY-MM-DD
-> **相關 PR**：#XX
-> **依賴 migration**：275（RPC 加 owner 檢查 + REVOKE anon）+ 276（Phase 2：分層 tier + 治理表 + admin RPC + 公開 `get_layer_gates`）；profiles.tier 讀取靠 migration 270 的 `profiles_select_own` RLS
+> **上線日期**：2026-07-07
+> **相關 PR**：前端 #60（Phase 1+2）· #62（lock_type）；gis-platform #28（275/276/277）· #30（278/279）
+> **依賴 migration**：275（RPC owner 檢查 + REVOKE anon）· 276（分層 tier + 治理表 + admin RPC + `get_layer_gates`）· 277（gated RPC STABLE→VOLATILE 修 read-only tx）· 278（lock_type 分型）· 279（電廠 public schema 洩漏修補）；profiles.tier 讀取靠 migration 270 的 `profiles_select_own` RLS
 
 ## 一句話說明
 
@@ -44,6 +44,7 @@ tier 載入為非同步，載入完成前 `isOwner=false`（先顯示鎖），�
 
 - facOffshore（get_ssot_facilities_offshore_zones）
 - osmPowerPlantsStatic（get_osm_power_plants_static）
+- powerPlants（電廠總圖，資料源 `all_power_plants_v`；Phase 8 從 sidebar 下架，migration 279 REVOKE 後補入 GATED_LAYERS）
 
 **明確排除（保持公開，不鎖）**：`waterCanals`（灌排渠道）、`powerPoles`（電桿 2.96M）、
 加油站 5 層（gasStationCpc/Fpcc/Taisugar/Other/Canonical）與加油站覆蓋分析。
@@ -130,6 +131,41 @@ tier 載入為非同步，載入完成前 `isOwner=false`（先顯示鎖），�
 - `src/App.tsx`（`lockedKeys` 動態計算 + 接線 + 掛 AdminPanel）
 - `src/components/IconRailSidebar.tsx` / `LayerSidebar.tsx`（prop `isOwner` → `lockedKeys`）
 - `src/hooks/useLivestockLayers.ts` / `useFossilFuelLayers.ts`（access-denied 靜默）
+
+## Phase 3 — 鎖型分型（UI 鎖 vs 乾淨鎖，migration 278）
+
+`gated_layers` 加 `lock_type`（`'ui'` | `'full'`），區分兩種鎖的**目的與強度**：
+
+| lock_type | DB 端 | 前端行為 | 用途 |
+|---|---|---|---|
+| `full`（乾淨鎖，預設）| REVOKE anon，資料真鎖 | 鎖頭；非授權完全拿不到 | 機密資料（現有 34 圖層全是這種）|
+| `ui`（UI 鎖）| **不** REVOKE，資料公開 | 未登入顯示鎖頭引導登入，登入即可開 | 非機密、想引導註冊的圖層 |
+
+**關鍵安全取捨**：`lock_type` 是純宣告欄位，**後台改它不會自動改任何 DB grant**。理由：若切成 `ui` 就自動 GRANT anon，會有「誤觸把機密公開」的風險。所以真正要上線一個 `ui` 圖層，除了後台設 `lock_type='ui'`，還必須另跑 migration GRANT anon。寧可「切了 ui 但資料仍被 DB 擋」的錯配，也不誤洩。
+
+⚠️ **anon key 是公開的**：任何人打開網站就能從前端 bundle 取得 anon key。所以「UI 鎖」（不 REVOKE）等於資料對所有人公開——機密資料**只能**用乾淨鎖（`full` + DB REVOKE），這是本系統的根本前提。
+
+`isLayerLocked(key, tier, gates)`（`src/lib/layerGates.ts`）依 lock_type 分支：`full` 依 tier rank（現狀）；`ui` 未登入一律鎖（引導登入）、登入且 tier 足夠即開。後台「圖層鎖定」分頁每列可切 lock_type。
+
+## 安全模型與審計
+
+### 三道防線
+1. **DB GRANT/RLS（唯一真防線）** — 機密表 REVOKE anon + 鎖定 RPC 改 SECURITY DEFINER + `enforce_layer_access` owner 守門。就算拿到公開 anon key 也擋在門外。
+2. **前端 gating** — 鎖頭 UI + toggle gate，防一般使用者、引導登入。**不是安全邊界**（DevTools 可繞），只是體驗層。
+3. **CDN 斷源 + gitignore** — 靜態機密檔不進 CDN 供應、不進 git。
+
+### 稽核涵蓋範圍
+- `access_audit_log` 記「已登入且函式有執行到」的存取（owner 正常使用 granted=true；登入者越權嘗試 granted=false 另寫 Postgres server log，因 RAISE 會 rollback 表 INSERT）。
+- **匿名掃描記不到本表**（ACL 在函式執行前就擋 → 不進 audit）；需看 Supabase 平台 API logs。
+
+### 安全審計紀錄（2026-07-07）
+上線後做過一次全面洩漏掃描（DB 繞道 / PostgREST exposed schema / GitHub git 歷史 / 前端 bundle / CDN），結論：
+
+- ✅ **守住**：畜牧 / 石化油氣 / 電網 / PostgREST schema 繞道（`agriculture`/`energy`/`realtime` 未 expose）/ git 歷史（無機密資料檔或 service key 進過歷史，`.env` 未 track）/ CDN 靜態機密檔 404 / profiles 防提權（authenticated 不能自改 tier）。
+- 🔴 **發現並修補（migration 279）**：`public` schema 有 4 個電廠 table/view（`all_power_plants_v` 全台電廠 SSOT 鏡像、`power_plants`、`nuclear_plants`、`ipp_thermal_plants`）migration 275 漏了 REVOKE，anon 用公開 key 直打 `/rest/v1/` 可讀，繞過所有 owner-gated 電廠圖層。已 REVOKE + DROP anon policy；前端 `powerPlants`（用 `all_power_plants_v` 的已下架圖層）補進 GATED_LAYERS。
+- ⚙️ **確認維持公開（開放資料）**：離島電廠 `island_power_grid`、OSM 太陽能/風機、政府離岸風電潛力場址——皆為 OSM/政府開放資料且有公開圖層在用，經 owner 確認維持公開。
+
+**教訓**：鎖 schema-level（未 expose 的 schema）很安全，但散在 `public` schema 的同主題 table/view 容易漏。新增機密資料時，凡放 `public` schema 的一律確認 anon grant + RLS policy 都收斂。
 
 ## 相關 backlog / changelog / ADR
 
