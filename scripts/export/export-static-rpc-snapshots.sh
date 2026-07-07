@@ -29,27 +29,24 @@ PSQL_SET="SET statement_timeout='120s'; SET idle_in_transaction_session_timeout=
 #   kind = table  → RETURNS TABLE，用 jsonb_agg 包成陣列
 #   kind = jsonb  → RETURNS jsonb，本身已是陣列，直接 SELECT
 # 新增靜態層時：在此 append 一行即可（batch 1 之後陸續補）。
+# ⚠️ owner-gated（docs/features/owner-gated-layers）：以下 12 支已從匯出清單移除，
+#    改走 owner-only 直連 RPC（不再產 CDN 快照，避免重跑又把私有資料放回公開 CDN）：
+#      get_osm_substations / get_osm_power_lines / get_osm_power_towers /
+#      get_osm_power_plants_static / get_fossil_fuel_infrastructure / get_fossil_fuel_layers /
+#      get_ssot_facilities_{primary_operating,planned,historical,secondary_small,osm_supplement,offshore_zones}
+#    get_gas_station_layers（公開）取代 get_fossil_fuel_layers，讓加油站層續有快照。
+#    ⚠️ get_gas_station_layers 需 migration 套用後才存在，實際 export 前確認 RPC 已建。
 RPCS=(
-  # ── Pilot：電網 3 層（BC-8）──
-  "get_osm_substations:table"
-  "get_osm_power_lines:table"
-  "get_osm_power_towers:jsonb"
+  # ── 加油站（公開，取代 get_fossil_fuel_layers）──
+  "get_gas_station_layers:table"
   # ── Batch 1：param-less 能源靜態（全 RETURNS TABLE，DB 探型別確認）──
   "get_osm_wind_turbines:table"
   "get_osm_solar_farms:table"
-  "get_osm_power_plants_static:table"
   "get_renewable_permits_taipei:table"
   "get_offshore_wind_zones:table"
   "get_geothermal_wells:table"
   "get_island_power_grid:table"
-  "get_fossil_fuel_infrastructure:table"
-  "get_fossil_fuel_layers:table"
   "get_ev_charging_stations:table"
-  "get_ssot_facilities_secondary_small:table"
-  "get_ssot_facilities_planned:table"
-  "get_ssot_facilities_offshore_zones:table"
-  "get_ssot_facilities_historical:table"
-  "get_ssot_facilities_osm_supplement:table"
   # ── Batch 1b：param-less 廢棄物 sidebar 數量（no-cache，每次 toggle 都打 DB）──
   "get_waste_facility_counts:table"
   "get_waste_disposal_point_counts:table"
@@ -60,8 +57,6 @@ RPCS=(
   "get_waste_facilities:table"
   "get_waste_disposal_points:table"
   "get_waste_cleaning_squads:table"
-  # ── 收尾：主要電廠座標（靜態）；loader 仍另打 realtime 出力 RPC 做 has_realtime join ──
-  "get_ssot_facilities_primary_operating:table"
 )
 
 CURRENT_PSQL_PID=""

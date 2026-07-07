@@ -2,20 +2,22 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import type { LayerVisibility } from "../types";
 import {
-  fetchFossilFuelLayers,
-  FOSSIL_LAYER_MAP,
+  fetchGasStationLayers,
+  fetchFossilFuelLockedLayers,
+  GAS_STATION_FE_KEYS,
+  FOSSIL_LOCKED_FE_KEYS,
   type FossilFuelLayers,
   type FossilLayerKey,
 } from "../data/fossilFuelLoader";
+import { isAccessDenied } from "../lib/layerGates";
 
 /**
- * 化石燃料 13 圖層的資料供應 hook。
+ * 化石燃料圖層資料供應 hook（拆兩條路徑，coordinator owner-gated 契約）：
+ * - 加油站 5 層（公開）：get_gas_station_layers（staticRpc CDN 快照）
+ * - 石化 9 層（owner-gated）：get_fossil_fuel_layers（直連 supabase.rpc）
  *
- * 設計：
- * - 一次 RPC 拉全部（後端 86ms / ~7,730 rows），不分段拉
- * - 任一 visibility true 才觸發 fetch
- * - Fetched FC 用 module-level 變數 cache 30 min（重新 toggle on 不重打）
- * - 樣式（circle / line / fill）在 overlayRegistry 內定義，本 hook 只 setData
+ * 各自「任一 visible 才 fetch」+ module-level 30 min cache；樣式在 overlayRegistry，本 hook 只 setData。
+ * 非 owner：石化 9 key 的 toggle 被 App 端 gate no-op → 不觸發 locked fetch。
  */
 
 /** sourceId 命名（與 overlayRegistry 對齊） */
@@ -39,28 +41,32 @@ const SRC_ID: Record<FossilLayerKey, string> = {
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 const CACHE_TTL_MS = 30 * 60_000;
 
-let cachedData: FossilFuelLayers | null = null;
-let cachedAt = 0;
-let inflight: Promise<FossilFuelLayers> | null = null;
-
-function loadCached(): Promise<FossilFuelLayers> {
+// ── 加油站 cache（公開）──
+let gasCache: FossilFuelLayers | null = null;
+let gasCachedAt = 0;
+let gasInflight: Promise<FossilFuelLayers> | null = null;
+function loadGas(): Promise<FossilFuelLayers> {
   const now = Date.now();
-  if (cachedData && now - cachedAt < CACHE_TTL_MS) {
-    return Promise.resolve(cachedData);
-  }
-  if (inflight) return inflight;
-  inflight = fetchFossilFuelLayers()
-    .then((d) => {
-      cachedData = d;
-      cachedAt = Date.now();
-      inflight = null;
-      return d;
-    })
-    .catch((err) => {
-      inflight = null;
-      throw err;
-    });
-  return inflight;
+  if (gasCache && now - gasCachedAt < CACHE_TTL_MS) return Promise.resolve(gasCache);
+  if (gasInflight) return gasInflight;
+  gasInflight = fetchGasStationLayers()
+    .then((d) => { gasCache = d; gasCachedAt = Date.now(); gasInflight = null; return d; })
+    .catch((err) => { gasInflight = null; throw err; });
+  return gasInflight;
+}
+
+// ── 石化 cache（owner-gated）──
+let lockedCache: FossilFuelLayers | null = null;
+let lockedCachedAt = 0;
+let lockedInflight: Promise<FossilFuelLayers> | null = null;
+function loadLocked(): Promise<FossilFuelLayers> {
+  const now = Date.now();
+  if (lockedCache && now - lockedCachedAt < CACHE_TTL_MS) return Promise.resolve(lockedCache);
+  if (lockedInflight) return lockedInflight;
+  lockedInflight = fetchFossilFuelLockedLayers()
+    .then((d) => { lockedCache = d; lockedCachedAt = Date.now(); lockedInflight = null; return d; })
+    .catch((err) => { lockedInflight = null; throw err; });
+  return lockedInflight;
 }
 
 export interface UseFossilFuelLayersOpts {
@@ -69,48 +75,54 @@ export interface UseFossilFuelLayersOpts {
 }
 
 export function useFossilFuelLayers({ mapRef, visibility }: UseFossilFuelLayersOpts) {
-  const dataRef = useRef<FossilFuelLayers | null>(null);
-  const keys = Object.values(FOSSIL_LAYER_MAP) as FossilLayerKey[];
+  const gasDataRef = useRef<FossilFuelLayers | null>(null);
+  const lockedDataRef = useRef<FossilFuelLayers | null>(null);
 
-  // 把目前 data 餵進對應 source（visible 的）
-  const feedAll = useCallback(() => {
+  const feed = useCallback((keys: readonly FossilLayerKey[], data: FossilFuelLayers | null) => {
     const map = mapRef.current;
     if (!map) return;
-    const d = dataRef.current;
     for (const k of keys) {
       const src = map.getSource(SRC_ID[k]) as GeoJSONSource | undefined;
       if (!src) continue;
-      src.setData(d ? d[k] : EMPTY_FC);
+      src.setData(data ? data[k] : EMPTY_FC);
     }
-  }, [mapRef, keys]);
+  }, [mapRef]);
 
-  // 任一 visible 才 fetch
-  const anyVisible = keys.some((k) => visibility[k]);
+  const feedAll = useCallback(() => {
+    feed(GAS_STATION_FE_KEYS, gasDataRef.current);
+    feed(FOSSIL_LOCKED_FE_KEYS, lockedDataRef.current);
+  }, [feed]);
 
+  const anyGasVisible = GAS_STATION_FE_KEYS.some((k) => visibility[k]);
+  const anyLockedVisible = FOSSIL_LOCKED_FE_KEYS.some((k) => visibility[k]);
+
+  // 加油站：任一 visible 才拉（公開）
   useEffect(() => {
-    if (!anyVisible) return;
+    if (!anyGasVisible) return;
     let cancelled = false;
-    loadCached()
-      .then((d) => {
-        if (cancelled) return;
-        dataRef.current = d;
-        feedAll();
-      })
-      .catch((err) => console.warn("[FossilFuel] load failed:", err));
-    return () => {
-      cancelled = true;
-    };
-  }, [anyVisible, feedAll]);
+    loadGas()
+      .then((d) => { if (cancelled) return; gasDataRef.current = d; feed(GAS_STATION_FE_KEYS, d); })
+      .catch((err) => console.warn("[FossilFuel] gas load failed:", err));
+    return () => { cancelled = true; };
+  }, [anyGasVisible, feed]);
+
+  // 石化：任一 visible 才拉（owner-gated）
+  useEffect(() => {
+    if (!anyLockedVisible) return;
+    let cancelled = false;
+    loadLocked()
+      .then((d) => { if (cancelled) return; lockedDataRef.current = d; feed(FOSSIL_LOCKED_FE_KEYS, d); })
+      .catch((err) => { if (!isAccessDenied(err)) console.warn("[FossilFuel] locked load failed:", err); });
+    return () => { cancelled = true; };
+  }, [anyLockedVisible, feed]);
 
   // map style.load 後重新餵
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !anyVisible) return;
+    if (!map || (!anyGasVisible && !anyLockedVisible)) return;
     const onStyleLoad = () => feedAll();
     map.on("style.load", onStyleLoad);
     feedAll();
-    return () => {
-      map.off("style.load", onStyleLoad);
-    };
-  }, [mapRef, anyVisible, feedAll]);
+    return () => { map.off("style.load", onStyleLoad); };
+  }, [mapRef, anyGasVisible, anyLockedVisible, feedAll]);
 }

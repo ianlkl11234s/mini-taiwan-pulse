@@ -1,3 +1,4 @@
+import { supabase } from "../lib/supabase";
 import { staticRpc } from "./staticRpc";
 import { withLoading } from "../lib/loadingRegistry";
 
@@ -33,6 +34,17 @@ export const FOSSIL_LAYER_MAP = {
 } as const;
 
 export type FossilLayerKey = (typeof FOSSIL_LAYER_MAP)[keyof typeof FOSSIL_LAYER_MAP];
+
+// owner-gated 資料路徑拆分（coordinator 契約）：
+// - 加油站 5 層 → 公開 RPC get_gas_station_layers（走 staticRpc 保留 CDN 快照+fallback，不 gated）
+// - 石化 9 層  → 直連 supabase.rpc get_fossil_fuel_layers（owner-gated；新版仍含加油站 key，忽略即可）
+export const GAS_STATION_FE_KEYS: readonly FossilLayerKey[] = [
+  "gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther", "gasStationCanonical",
+];
+export const FOSSIL_LOCKED_FE_KEYS: readonly FossilLayerKey[] = [
+  "lpgSubpackaging", "lpgRetailers", "lngTerminal", "pipelineGas", "pipelineOilGas",
+  "industrialRefinery", "industrialStorageTank", "industrialPowerPlant", "coalTerminal",
+];
 
 interface RawRow {
   layer: string;
@@ -137,28 +149,13 @@ function rowToFeature(r: RawRow): GeoJSON.Feature | null {
   return { type: "Feature", geometry: geom, properties };
 }
 
-/** 載入化石燃料 13 layer。一次 RPC + client-side group by layer。 */
-export async function fetchFossilFuelLayers(): Promise<FossilFuelLayers> {
-  const t0 = performance.now();
-  const { data, error } = await withLoading(
-    "fossilFuel:all",
-    "化石燃料 13 圖層",
-    staticRpc("get_fossil_fuel_layers"),
-  );
-  if (error) throw new Error(`get_fossil_fuel_layers: ${error.message}`);
-
+/** rows → FossilFuelLayers（group by layer；industrialRefinery 白名單過濾 + industrial halo centroid）。 */
+function parseRows(rows: RawRow[]): FossilFuelLayers {
   const out = emptyAll();
-  const rows = (data ?? []) as RawRow[];
-  let industrialRefineryRaw = 0;
-  let industrialRefineryKept = 0;
   for (const r of rows) {
     const feKey = (FOSSIL_LAYER_MAP as Record<string, FossilLayerKey | undefined>)[r.layer];
     if (!feKey) continue;
-    if (feKey === "industrialRefinery") {
-      industrialRefineryRaw += 1;
-      if (!isTrueRefineryChemicalPlant(r)) continue;
-      industrialRefineryKept += 1;
-    }
+    if (feKey === "industrialRefinery" && !isTrueRefineryChemicalPlant(r)) continue;
     const f = rowToFeature(r);
     if (!f) continue;
     out[feKey].features.push(f);
@@ -174,11 +171,40 @@ export async function fetchFossilFuelLayers(): Promise<FossilFuelLayers> {
       }
     }
   }
+  return out;
+}
 
-  const counts = Object.entries(out).map(([k, v]) => `${k}=${v.features.length}`).join(" ");
-  console.log(
-    `[FossilFuel] loaded ${rows.length} rows in ${(performance.now() - t0).toFixed(0)}ms · ${counts}` +
-    ` · industrialRefinery filtered ${industrialRefineryRaw}→${industrialRefineryKept} polygons`,
+/**
+ * 加油站 5 層（公開）：走 public.get_gas_station_layers()，staticRpc 保留 CDN 快照 + fallback。
+ * 回傳的 FossilFuelLayers 只有加油站 key 有值（其餘空 FC）。
+ */
+export async function fetchGasStationLayers(): Promise<FossilFuelLayers> {
+  const t0 = performance.now();
+  const { data, error } = await withLoading(
+    "fossilFuel:gasStations",
+    "加油站 5 圖層",
+    staticRpc("get_gas_station_layers"),
   );
+  if (error) throw new Error(`get_gas_station_layers: ${error.message}`);
+  const out = parseRows((data ?? []) as RawRow[]);
+  console.log(`[FossilFuel] gas stations loaded in ${(performance.now() - t0).toFixed(0)}ms`);
+  return out;
+}
+
+/**
+ * 石化 9 層（owner-gated）：直連 supabase.rpc get_fossil_fuel_layers（脫離公開 CDN 快照）。
+ * 新版 RPC 仍含加油站 key，但本路徑只餵石化 source（hook 端負責），忽略加油站部分。
+ * 非 owner 前端 toggle 已擋 → 不會走到這裡。
+ */
+export async function fetchFossilFuelLockedLayers(): Promise<FossilFuelLayers> {
+  const t0 = performance.now();
+  const { data, error } = await withLoading(
+    "fossilFuel:locked",
+    "石化能源 9 圖層",
+    supabase.rpc("get_fossil_fuel_layers"),
+  );
+  if (error) throw new Error(`get_fossil_fuel_layers: ${error.message}`);
+  const out = parseRows((data ?? []) as RawRow[]);
+  console.log(`[FossilFuel] locked layers loaded in ${(performance.now() - t0).toFixed(0)}ms`);
   return out;
 }

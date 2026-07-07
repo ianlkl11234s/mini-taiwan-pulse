@@ -130,6 +130,11 @@ import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { UserAvatar } from "./components/auth/UserAvatar";
+import { AdminPanel } from "./components/admin/AdminPanel";
+import { useMemberGate, signInWithGoogle } from "./lib/auth";
+import { GATED_LAYERS } from "./components/sidebar/layerCatalog";
+import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
+import { useLivestockLayers } from "./hooks/useLivestockLayers";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
@@ -154,6 +159,37 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
 export default function App() {
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
+
+  // owner-only 私人圖層閘門（見 docs/features/owner-gated-layers）：
+  // tier 載入完成前 isOwner=false（顯示鎖）。非 owner 點鎖層 → 未登入導 Google 登入 / 已登入顯示提示。
+  const { user: memberUser, tier: memberTier, isOwner } = useMemberGate();
+  const memberUserRef = useRef(memberUser);
+  memberUserRef.current = memberUser;
+  const [gatedNotice, setGatedNotice] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  useEffect(() => {
+    if (!gatedNotice) return;
+    const t = setTimeout(() => setGatedNotice(false), 2600);
+    return () => clearTimeout(t);
+  }, [gatedNotice]);
+
+  // 動態 gating（Phase 2）：啟動拉一次公開 get_layer_gates()（fail-safe：失敗維持靜態 GATED_LAYERS）。
+  useEffect(() => { void loadLayerGates(); }, []);
+  const layerGates = useLayerGates();
+  // 對「目前使用者」上鎖的 keys（tier + 動態清單解析）。owner → 空集合。
+  const lockedKeys = useMemo(() => {
+    const s = new Set<keyof LayerVisibility>();
+    const candidates = new Set<keyof LayerVisibility>([
+      ...GATED_LAYERS,
+      ...((layerGates ? [...layerGates.keys()] : []) as (keyof LayerVisibility)[]),
+    ]);
+    for (const key of candidates) {
+      if (isLayerLocked(key, memberTier, layerGates)) s.add(key);
+    }
+    return s;
+  }, [memberTier, layerGates]);
+  const lockedKeysRef = useRef(lockedKeys);
+  lockedKeysRef.current = lockedKeys;
 
   const {
     flights: allFlights,
@@ -849,8 +885,10 @@ export default function App() {
     showFacSecondary: layerVisibility.facSecondary,
     showFacOsmSupplement: layerVisibility.facOsmSupplement,
   });
-  // 化石燃料 14 layer（Phase B — public.get_fossil_fuel_layers()）
+  // 化石燃料：加油站（公開 get_gas_station_layers）+ 石化（owner-gated get_fossil_fuel_layers）
   useFossilFuelLayers({ mapRef, visibility: layerVisibility });
+  // 畜牧 owner-only 動態層（get_livestock_farms / get_livestock_slaughterhouses）
+  useLivestockLayers({ mapRef, visibility: layerVisibility });
   // A1 即時死亡事故（rpc_a1_by_bbox，每 12h 更新）
   useA1AccidentRealtimeLayer(mapRef, layerVisibility.a1AccidentRealtime);
   // 雲林 POC 覆蓋分析 5 layer 改 PMTiles — 由 overlayRegistry pmtiles 設定自動處理
@@ -1452,7 +1490,21 @@ export default function App() {
     wasteTrucks: wasteCount,
   }), [displayedFlights.length, ships.length, trainCount, busCount, busIntercityCount, wasteCount]);
 
+  // owner-only 圖層：非 owner 的開啟意圖一律攔截（回 true = 呼叫端直接 return no-op）。
+  // 未登入 → 導 Google 登入；已登入非 owner → 顯示「私人圖層」提示。
+  const handleGatedIntercept = useCallback((layer: keyof LayerVisibility): boolean => {
+    // lockedKeys 已內含 tier 判定（owner / 授權 tier → 不在集合）
+    if (!lockedKeysRef.current.has(layer)) return false;
+    if (!memberUserRef.current) {
+      void signInWithGoogle().catch((err) => console.error("[owner-gate] signIn failed", err));
+    } else {
+      setGatedNotice(true);
+    }
+    return true;
+  }, []);
+
   const handleLayerClick = useCallback((layer: keyof LayerVisibility) => {
+    if (handleGatedIntercept(layer)) return;
     const isVisible = layerVisibilityRef.current[layer];
     if (!isVisible) {
       setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
@@ -1466,15 +1518,17 @@ export default function App() {
     // 點 layer 時自動關掉即時情報 / 衛星情報 panel（與點 location 一致）
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [layerVisibilityRef, setLayerVisibility]);
+  }, [layerVisibilityRef, setLayerVisibility, handleGatedIntercept]);
 
   const handleToggleVisibility = useCallback((layer: keyof LayerVisibility) => {
+    // 已開啟的圖層允許關閉；只攔截「開啟」意圖（gated 且非 owner 恆為關閉態，故等同全攔）
+    if (!layerVisibilityRef.current[layer] && handleGatedIntercept(layer)) return;
     const wasVisible = layerVisibilityRef.current[layer];
     toggleVisibility(layer);
     sessionTracker.logWithSnapshot("layer_toggle", { layer, on: !wasVisible }, layerVisibilityRef.current);
     setIntelOpen(false);
     satelliteConsoleStore.setOpen(false);
-  }, [toggleVisibility, layerVisibilityRef]);
+  }, [toggleVisibility, layerVisibilityRef, handleGatedIntercept]);
 
   const handleDisplayModeChange = useCallback((mode: DisplayMode) => {
     setDisplayMode(mode);
@@ -1503,14 +1557,18 @@ export default function App() {
 
   const handleBulkSetVisibility = useCallback(
     (keys: (keyof LayerVisibility)[], value: boolean) => {
+      // 開啟時（value=true）過濾掉對此使用者上鎖的 key（Theme 全開 / chat bridge 亦走此路徑）
+      const effectiveKeys = value
+        ? keys.filter((k) => !lockedKeysRef.current.has(k))
+        : keys;
       setLayerVisibility((prev) => {
         const next = { ...prev };
-        for (const k of keys) next[k] = value;
+        for (const k of effectiveKeys) next[k] = value;
         return next;
       });
       sessionTracker.logWithSnapshot(
         "layer_toggle",
-        { bulk: true, keys, on: value },
+        { bulk: true, keys: effectiveKeys, on: value },
         layerVisibilityRef.current,
       );
     },
@@ -1586,6 +1644,32 @@ export default function App() {
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {showLoadingScreen && <LoadingScreen steps={loadingSteps} />}
+      {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
+      {gatedNotice && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 28,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 3000,
+            padding: "9px 16px",
+            background: "rgba(0,0,0,0.82)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
+            border: "1px solid rgba(255,255,255,0.14)",
+            borderRadius: 10,
+            color: "#E5E7EB",
+            fontSize: 13,
+            fontFamily: "Inter, system-ui, sans-serif",
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            boxShadow: "0 6px 24px rgba(0,0,0,0.35)",
+          }}
+        >
+          私人圖層，僅擁有者可檢視
+        </div>
+      )}
       {/* Day-loading overlay — 半透明遮罩 */}
       {(shipsDayLoading || flightsDayLoading || railScheduleLoading) && (
         <div style={{
@@ -1799,6 +1883,7 @@ export default function App() {
           <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
             <IconRailSidebar
               visibility={layerVisibility}
+              lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
               viewMode={viewMode}
               displayMode={displayMode}
@@ -2080,7 +2165,7 @@ export default function App() {
             >
               Info
             </button>
-            <UserAvatar />
+            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
           </div>
 
           {/* 操作提示 */}
@@ -2253,7 +2338,7 @@ export default function App() {
               {renderMode === "3d" ? "3D" : "2D"}
             </button>
 
-            <UserAvatar />
+            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
           </div>
 
           {/* Timeline */}
@@ -2320,6 +2405,7 @@ export default function App() {
                   <div style={{ marginTop: 12 }}>
                     <LayerSidebar
                       visibility={layerVisibility}
+                      lockedKeys={lockedKeys}
                       expandedLayer={expandedLayer}
                       viewMode={viewMode}
                       displayMode={displayMode}
@@ -2335,6 +2421,7 @@ export default function App() {
                       }}
                       onLayerClick={(layer) => {
                         const isVisible = layerVisibility[layer];
+                        if (!isVisible && handleGatedIntercept(layer)) return;
                         if (!isVisible) {
                           setLayerVisibility((prev) => ({ ...prev, [layer]: true }));
                           setExpandedLayer(layer as ExpandableLayerKey);
@@ -2711,6 +2798,7 @@ export default function App() {
 
       {/* ── Info Modal ── */}
       <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} />
+      {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
 
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel

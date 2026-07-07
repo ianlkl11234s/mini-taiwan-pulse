@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Lock } from "lucide-react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
 import type { ParamControl } from "../hooks/useTransportParams";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
@@ -9,6 +10,8 @@ import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 
 interface LayerSidebarProps {
   visibility: LayerVisibility;
+  /** 對目前使用者上鎖的圖層 keys（動態 gating，見 lib/layerGates）：命中 → 顯示鎖頭 + 禁 toggle */
+  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
@@ -29,6 +32,7 @@ interface LayerSidebarProps {
 
 export function LayerSidebar({
   visibility,
+  lockedKeys,
   expandedLayer,
   viewMode,
   displayMode,
@@ -65,7 +69,7 @@ export function LayerSidebar({
   if (isMobile) {
     return (
       <SidebarContent
-        visibility={visibility} expandedLayer={expandedLayer} viewMode={viewMode}
+        visibility={visibility} lockedKeys={lockedKeys} expandedLayer={expandedLayer} viewMode={viewMode}
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
@@ -149,7 +153,7 @@ export function LayerSidebar({
         &#x25C0;
       </button>
       <SidebarContent
-        visibility={visibility} expandedLayer={expandedLayer} viewMode={viewMode}
+        visibility={visibility} lockedKeys={lockedKeys} expandedLayer={expandedLayer} viewMode={viewMode}
         displayMode={displayMode} isDarkTheme={isDarkTheme} isMobile={isMobile}
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
@@ -163,12 +167,13 @@ export function LayerSidebar({
 // ── Sidebar Content (extracted for reuse) ──
 
 function SidebarContent({
-  visibility, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
+  visibility, lockedKeys, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   textColor, dimColor, baseFontSize,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onBulkSetVisibility, getControls,
 }: {
   visibility: LayerVisibility;
+  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
@@ -327,39 +332,52 @@ function SidebarContent({
             const count = getCount(key);
             const isExpanded = expandedLayer === key;
             const isTransport = key in TRANSPORT_LABELS;
+            // 動態 gating：對此使用者上鎖 → 顯示鎖頭、點擊走 App 端 gate（onToggleVisibility）
+            const locked = !!lockedKeys?.has(key);
 
             return (
               <div key={key}>
                 <div
+                  title={locked ? "私人圖層，僅擁有者可檢視" : undefined}
                   style={{
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
                     padding: "4px 12px",
                     cursor: "pointer",
+                    opacity: locked ? 0.5 : 1,
                     background: isExpanded
                       ? (isDarkTheme ? `${color}15` : `${color}10`)
                       : "transparent",
                     transition: "background 0.15s",
                   }}
                 >
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onToggleVisibility(key); }}
-                    style={{
-                      width: 14,
-                      height: 14,
-                      borderRadius: RADIUS.full,
-                      background: active ? color : "transparent",
-                      border: `1.5px solid ${active ? color : (isDarkTheme ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.2)")}`,
-                      cursor: "pointer",
-                      flexShrink: 0,
-                      padding: 0,
-                      transition: "all 0.15s",
-                    }}
-                  />
+                  {locked ? (
+                    <span
+                      onClick={(e) => { e.stopPropagation(); onToggleVisibility(key); }}
+                      style={{ display: "flex", flexShrink: 0, color: dimColor, cursor: "pointer" }}
+                    >
+                      <Lock size={13} />
+                    </span>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onToggleVisibility(key); }}
+                      style={{
+                        width: 14,
+                        height: 14,
+                        borderRadius: RADIUS.full,
+                        background: active ? color : "transparent",
+                        border: `1.5px solid ${active ? color : (isDarkTheme ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.2)")}`,
+                        cursor: "pointer",
+                        flexShrink: 0,
+                        padding: 0,
+                        transition: "all 0.15s",
+                      }}
+                    />
+                  )}
 
                   <div
-                    onClick={() => expandable ? onLayerClick(key) : onToggleVisibility(key)}
+                    onClick={() => locked ? onToggleVisibility(key) : (expandable ? onLayerClick(key) : onToggleVisibility(key))}
                     style={{
                       flex: 1,
                       fontSize: baseFontSize,
@@ -369,14 +387,14 @@ function SidebarContent({
                     }}
                   >
                     {displayLabel}
-                    {count != null && count > 0 && (
+                    {count != null && count > 0 && !locked && (
                       <span style={{ marginLeft: 4, opacity: 0.5, fontSize: baseFontSize - 1 }}>
                         {count}
                       </span>
                     )}
                   </div>
 
-                  {expandable && (
+                  {expandable && !locked && (
                     <span
                       onClick={() => onLayerClick(key)}
                       style={{

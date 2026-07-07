@@ -133,9 +133,9 @@ AGRI_FILES=(
   "public/agriculture/produce_wholesale_companies.geojson"
   "public/agriculture/farm_roads.geojson"
   "public/agriculture/eco_network_zones.geojson"
-  # 🐷 畜牧 Livestock（靜態點層，去日期穩定檔名；farm 4 層前端共用此檔 + filter）
-  "public/agriculture/livestock_farms.geojson"
-  "public/agriculture/slaughterhouses.geojson"
+  # 🐷 畜牧 Livestock（靜態點層，去日期穩定檔名）
+  # ⚠️ owner-gated：livestock_farms.geojson / slaughterhouses.geojson 已改走 owner-only RPC，
+  #    刻意不上傳（斷 prod 供應）；本地 public/ 檔案保留不刪。見 docs/features/owner-gated-layers。
   "public/agriculture/feed_factories.geojson"
   "public/agriculture/livestock_markets.geojson"
   # PT-1 PMTiles（前端 sourceUrl 已切 .pmtiles；geojson 保留但未使用）
@@ -230,9 +230,30 @@ done
 
 # 靜態化 RPC 快照：上傳到 deploy-assets/static-rpc/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 見 docs/features/static-to-cdn。新增靜態層跑 export 後直接 upload，免改本腳本。
+# ⚠️ owner-gated：以下 12 支快照刻意不上傳（改走 owner-only 直連 RPC，斷 prod CDN 供應）。
+#    見 docs/features/owner-gated-layers。get_gas_station_layers 仍為公開，照常上傳。
+STATIC_RPC_GATED_EXCLUDE=(
+  "get_fossil_fuel_layers.json"
+  "get_fossil_fuel_infrastructure.json"
+  "get_osm_substations.json"
+  "get_osm_power_lines.json"
+  "get_osm_power_towers.json"
+  "get_ssot_facilities_primary_operating.json"
+  "get_ssot_facilities_planned.json"
+  "get_ssot_facilities_historical.json"
+  "get_ssot_facilities_secondary_small.json"
+  "get_ssot_facilities_osm_supplement.json"
+  "get_osm_power_plants_static.json"
+  "get_ssot_facilities_offshore_zones.json"
+)
 for f in public/static-rpc/*.json; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
+  skip=""
+  for ex in "${STATIC_RPC_GATED_EXCLUDE[@]}"; do
+    [ "$name" = "$ex" ] && { skip=1; break; }
+  done
+  [ -n "$skip" ] && { echo "Skipping owner-gated static-rpc/$name (不上傳)"; continue; }
   echo "Uploading static-rpc/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/static-rpc/$name" --region ap-southeast-2
 done
