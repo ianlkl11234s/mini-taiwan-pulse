@@ -2,6 +2,7 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { medIsochroneColor, medIsochroneLabel, MEDICAL_ISOCHRONE_NOTE } from "../../data/medicalIsochroneTypes";
 import { medicalColorByCat } from "../../data/medicalPOITypes";
 import { Row } from "./shared";
+import { useFeatureTheme } from "./featureTheme";
 
 const LTC_ABC_LABEL: Record<string, string> = {
   A: "A 社區整合型",
@@ -10,6 +11,7 @@ const LTC_ABC_LABEL: Record<string, string> = {
 };
 
 export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const medCat = String(props.med_cat ?? "");
   const color = medicalColorByCat(medCat);
   const title = String(props.name ?? "醫療據點");
@@ -21,7 +23,7 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{title}</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{title}</div>
       </div>
       {medCat === "hospital" || medCat === "clinic" || medCat === "other_medical" ? (
         <>
@@ -76,6 +78,7 @@ export function MedicalPOIPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function MedicalIsochronePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const level = String(props.level ?? "");
   const minutes = props.min_minutes != null ? Number(props.min_minutes) : null;
   const accentColor = medIsochroneColor(level);
@@ -85,7 +88,7 @@ export function MedicalIsochronePanel({ props }: { props: Record<string, unknown
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {medIsochroneLabel(level)}
         </div>
       </div>

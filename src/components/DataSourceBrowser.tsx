@@ -19,6 +19,8 @@ import type { LayerVisibility } from "../types";
 interface Props {
   /** 覆寫按鈕位置。預設 bottom-right。 */
   position?: { top?: number; right?: number; bottom?: number; left?: number };
+  /** 淺色底圖時切換浮動鈕主題色 */
+  isDarkTheme?: boolean;
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -27,7 +29,7 @@ const STATUS_LABEL: Record<string, string> = {
   catalog_missing: "?",
 };
 
-export function DataSourceBrowser({ position }: Props) {
+export function DataSourceBrowser({ position, isDarkTheme = true }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState<keyof LayerVisibility | null>(null);
   const [filter, setFilter] = useState("");
@@ -70,10 +72,11 @@ export function DataSourceBrowser({ position }: Props) {
         style={{
           position: "fixed", ...pos, zIndex: 9990,
           width: 44, height: 44, borderRadius: "50%",
-          background: "#111827", border: "1px solid #374151",
-          color: "#60A5FA", cursor: "pointer",
+          background: isDarkTheme ? "#111827" : "#FFFFFF",
+          border: `1px solid ${isDarkTheme ? "#374151" : "rgba(0,0,0,0.12)"}`,
+          color: isDarkTheme ? "#60A5FA" : "#2563EB", cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+          boxShadow: isDarkTheme ? "0 4px 12px rgba(0,0,0,0.4)" : "0 4px 12px rgba(0,0,0,0.15)",
         }}
       >
         <Info size={20} />

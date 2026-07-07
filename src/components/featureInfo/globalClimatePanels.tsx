@@ -1,5 +1,5 @@
 import { Row } from "./shared";
-import { COLORS } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -39,10 +39,11 @@ function magBadgeColor(mag: number): string {
 }
 
 export function EarthquakeGlobalPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const mag = typeof props.mag === "number" ? props.mag : null;
   const depth = typeof props.depth_km === "number" ? props.depth_km : null;
-  const magColor = mag != null ? magBadgeColor(mag) : COLORS.textDim;
-  const dColor = depth != null ? depthColor(depth) : COLORS.textDim;
+  const magColor = mag != null ? magBadgeColor(mag) : t.textDim;
+  const dColor = depth != null ? depthColor(depth) : t.textDim;
   return (
     <div>
       <Row label="地點" value={String(props.place ?? "—")} />

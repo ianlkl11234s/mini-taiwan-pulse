@@ -31,6 +31,8 @@ export interface ChatPanelProps {
   ) => Promise<{ ok: boolean; message: string }>;
   /** 右下 stack（FeatureInfoPanel popup / LegendPanel）有東西時傳 true，面板縮高度讓位 */
   compact?: boolean;
+  /** 淺色地圖底時傳 false，面板改用淺色中性 chrome；預設深色（維持既有行為） */
+  isDarkTheme?: boolean;
 }
 
 const PROVIDER_LABELS: Record<ChatProviderId, string> = {
@@ -39,23 +41,71 @@ const PROVIDER_LABELS: Record<ChatProviderId, string> = {
   google: "Google Gemini",
 };
 
-function actionButtonStyle(): React.CSSProperties {
+// ─── 主題中性色票（chrome only）─────────────────────────────
+// 深色分支沿用本檔既有 hardcode token；淺色分支為白底地圖用的中性 chrome。
+// accent 藍 / 狀態色（statusErr 等）不進此表，兩主題共用。
+function buildPalette(isDark: boolean) {
+  return isDark
+    ? {
+        panelMobile: SURFACE.strong,        // rgba(10,10,20,0.88)
+        panelDesktop: SURFACE.panel,        // rgba(0,0,0,0.52)
+        cardBg: SURFACE.subtle,             // rgba(0,0,0,0.40)
+        borderPanel: BORDER.panel,          // rgba(255,255,255,0.10)
+        borderMid: BORDER.mid,              // rgba(255,255,255,0.14)
+        borderSoft: BORDER.soft,            // rgba(255,255,255,0.06)
+        chipBg: WHITE_ALPHA[4],             // rgba(255,255,255,0.04)
+        aiBubbleBg: WHITE_ALPHA[4],         // rgba(255,255,255,0.04)
+        inputBg: WHITE_ALPHA[4],            // rgba(255,255,255,0.04)
+        userBubbleBg: COLORS.accentFaint,   // rgba(100,170,255,0.16)
+        userBubbleBorder: COLORS.accentSoft, // rgba(100,170,255,0.55)
+        textStrong: COLORS.textStrong,      // #f3f4f6
+        textBody: COLORS.textDefault,       // #d8dce3
+        bubbleText: COLORS.textDefault,     // #d8dce3
+        inputText: COLORS.textDefault,      // #d8dce3
+        textSecondary: COLORS.textMuted,    // #9ca3af
+        textDim: COLORS.textDim,            // #6b7280
+        textFaint: COLORS.textFaint,        // #4b5560
+      }
+    : {
+        panelMobile: "rgba(255,255,255,0.96)",
+        panelDesktop: "rgba(255,255,255,0.96)",
+        cardBg: "#F9FAFB",
+        borderPanel: "rgba(0,0,0,0.10)",
+        borderMid: "rgba(0,0,0,0.12)",
+        borderSoft: "rgba(0,0,0,0.08)",
+        chipBg: "rgba(0,0,0,0.04)",
+        aiBubbleBg: "#F9FAFB",
+        inputBg: "#F3F4F6",
+        userBubbleBg: "#EFF6FF",
+        userBubbleBorder: "rgba(37,99,235,0.22)",
+        textStrong: "#111827",
+        textBody: "#1F2937",
+        bubbleText: "#111827",
+        inputText: "#111827",
+        textSecondary: "#4B5563",
+        textDim: "#6B7280",
+        textFaint: "#9CA3AF",
+      };
+}
+type Palette = ReturnType<typeof buildPalette>;
+
+function actionButtonStyle(c: Palette): React.CSSProperties {
   return {
     display: "inline-flex", alignItems: "center", gap: 4,
     padding: "5px 10px", borderRadius: RADIUS.lg, cursor: "pointer",
-    background: WHITE_ALPHA[4], border: `1px solid ${BORDER.mid}`,
-    color: COLORS.textDefault, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+    background: c.chipBg, border: `1px solid ${c.borderMid}`,
+    color: c.textBody, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
     whiteSpace: "nowrap",
   };
 }
 
-function ToolChip({ summary }: { summary: string }) {
+function ToolChip({ summary, c }: { summary: string; c: Palette }) {
   return (
     <span
       style={{
         padding: "2px 8px", borderRadius: RADIUS.pill,
-        background: WHITE_ALPHA[4], border: `1px solid ${BORDER.mid}`,
-        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
+        background: c.chipBg, border: `1px solid ${c.borderMid}`,
+        fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: c.textSecondary,
       }}
     >
       {summary}
@@ -66,9 +116,11 @@ function ToolChip({ summary }: { summary: string }) {
 function MessageBubble({
   msg,
   streamingPlaceholder,
+  c,
 }: {
   msg: ChatMessage;
   streamingPlaceholder: boolean;
+  c: Palette;
 }) {
   const isUser = msg.role === "user";
   return (
@@ -82,9 +134,9 @@ function MessageBubble({
         <div
           style={{
             padding: "8px 12px", borderRadius: RADIUS.lg,
-            background: isUser ? COLORS.accentFaint : WHITE_ALPHA[4],
-            border: `1px solid ${isUser ? COLORS.accentSoft : BORDER.soft}`,
-            color: COLORS.textDefault, fontFamily: FONT_CJK, fontSize: FONT_SIZE.md,
+            background: isUser ? c.userBubbleBg : c.aiBubbleBg,
+            border: `1px solid ${isUser ? c.userBubbleBorder : c.borderSoft}`,
+            color: c.bubbleText, fontFamily: FONT_CJK, fontSize: FONT_SIZE.md,
             lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word",
           }}
         >
@@ -93,12 +145,12 @@ function MessageBubble({
         {!isUser && msg.toolCalls && msg.toolCalls.length > 0 && (
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {msg.toolCalls.map((call, idx) => (
-              <ToolChip key={`${msg.id}-tool-${idx}`} summary={call.summary} />
+              <ToolChip key={`${msg.id}-tool-${idx}`} summary={call.summary} c={c} />
             ))}
           </div>
         )}
         {!isUser && msg.usage && (
-          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: c.textFaint }}>
             輸入 {msg.usage.inputTokens} ・ 輸出 {msg.usage.outputTokens} tokens
           </span>
         )}
@@ -112,9 +164,10 @@ function MessageBubble({
   );
 }
 
-export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compact = false }: ChatPanelProps) {
+export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compact = false, isDarkTheme = true }: ChatPanelProps) {
   const { messages, status, provider, model, settingsOpen } = useChatStore();
   const { isMobile } = useIsMobile();
+  const c = buildPalette(isDarkTheme);
   const [draft, setDraft] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -228,30 +281,30 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
   const containerStyle: React.CSSProperties = isMobile
     ? {
         position: "fixed", left: 0, right: 0, bottom: 0, height: "60vh",
-        background: SURFACE.strong,
-        borderTop: `1px solid ${BORDER.panel}`,
+        background: c.panelMobile,
+        borderTop: `1px solid ${c.borderPanel}`,
         borderRadius: "16px 16px 0 0",
         zIndex: 60,
         display: "flex", flexDirection: "column", overflow: "hidden",
         boxShadow: ELEVATION.dock,
         animation: "chatPanelRiseMobile .28s cubic-bezier(0.22,1,0.36,1)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
-        color: COLORS.textDefault,
+        color: c.textBody,
       }
     : {
         position: "fixed", top: 88, right: 14, width: 380,
         height: compact ? "min(45vh, 520px)" : "min(55vh, 640px)",
         opacity: compact ? 0.96 : 1,
         transition: "height 200ms ease, opacity 200ms ease",
-        background: SURFACE.panel,
+        background: c.panelDesktop,
         backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-        border: `1px solid ${BORDER.panel}`,
+        border: `1px solid ${c.borderPanel}`,
         borderRadius: RADIUS.xl,
         zIndex: 60,
         display: "flex", flexDirection: "column", overflow: "hidden",
         boxShadow: ELEVATION.lg,
         animation: "chatPanelRise .22s ease-out",
-        color: COLORS.textDefault,
+        color: c.textBody,
       };
 
   return (
@@ -260,25 +313,25 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
       <div
         style={{
           flexShrink: 0, display: "flex", alignItems: "center", gap: 8,
-          padding: "10px 14px", borderBottom: `1px solid ${BORDER.panel}`,
+          padding: "10px 14px", borderBottom: `1px solid ${c.borderPanel}`,
         }}
       >
-        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: COLORS.textStrong }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.lg, fontWeight: 700, color: c.textStrong }}>
           AI 助手
         </span>
-        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px", color: COLORS.textDim }}>
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px", color: c.textDim }}>
           BYOK CHAT
         </span>
         <div style={{ flex: 1 }} />
         {!settingsOpen && messages.length > 0 && (
-          <button onClick={() => chatStore.reset()} style={actionButtonStyle()} title="清空對話">
+          <button onClick={() => chatStore.reset()} style={actionButtonStyle(c)} title="清空對話">
             <RotateCcw size={13} /> 清空
           </button>
         )}
-        <button onClick={() => chatStore.setSettingsOpen(!settingsOpen)} style={actionButtonStyle()}>
+        <button onClick={() => chatStore.setSettingsOpen(!settingsOpen)} style={actionButtonStyle(c)}>
           <Settings size={13} /> {settingsOpen ? "對話" : "設定"}
         </button>
-        <button onClick={onClose} style={actionButtonStyle()}>
+        <button onClick={onClose} style={actionButtonStyle(c)}>
           <X size={14} />
         </button>
       </div>
@@ -291,14 +344,14 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
             <div
               style={{
                 margin: "10px 14px 0", padding: "8px 10px", borderRadius: RADIUS.lg,
-                background: SURFACE.subtle, border: `1px solid ${BORDER.soft}`,
+                background: c.cardBg, border: `1px solid ${c.borderSoft}`,
                 display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
               }}
             >
-              <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textMuted, flex: 1 }}>
+              <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: c.textSecondary, flex: 1 }}>
                 尚未設定 {PROVIDER_LABELS[provider]} 的 API key，請先到設定頁貼上金鑰。
               </span>
-              <button onClick={() => chatStore.setSettingsOpen(true)} style={actionButtonStyle()}>
+              <button onClick={() => chatStore.setSettingsOpen(true)} style={actionButtonStyle(c)}>
                 前往設定
               </button>
             </div>
@@ -319,7 +372,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                   justifyContent: "center", height: "100%", gap: 8, textAlign: "center", padding: 24,
                 }}
               >
-                <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
+                <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: c.textSecondary }}>
                   問我地圖上的資料，我可以幫你開圖層、飛到定點、查數字
                 </span>
               </div>
@@ -331,6 +384,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                   streamingPlaceholder={
                     status === "streaming" && idx === messages.length - 1 && m.role === "assistant"
                   }
+                  c={c}
                 />
               ))
             )}
@@ -339,7 +393,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
           {/* Input */}
           <div
             style={{
-              flexShrink: 0, borderTop: `1px solid ${BORDER.panel}`,
+              flexShrink: 0, borderTop: `1px solid ${c.borderPanel}`,
               padding: "10px 14px", display: "flex", flexDirection: "column", gap: 6,
             }}
           >
@@ -352,14 +406,14 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                 rows={2}
                 style={{
                   flex: 1, resize: "none", padding: "8px 10px", borderRadius: RADIUS.lg,
-                  background: WHITE_ALPHA[4], border: `1px solid ${BORDER.mid}`,
-                  color: COLORS.textDefault, fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, lineHeight: 1.5,
+                  background: c.inputBg, border: `1px solid ${c.borderMid}`,
+                  color: c.inputText, fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, lineHeight: 1.5,
                 }}
               />
               {status === "streaming" ? (
                 <button
                   onClick={() => abortRef.current?.abort()}
-                  style={{ ...actionButtonStyle(), color: COLORS.statusErr }}
+                  style={{ ...actionButtonStyle(c), color: COLORS.statusErr }}
                   title="中斷"
                 >
                   <Square size={13} /> 中斷
@@ -369,7 +423,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
                   onClick={() => void handleSend()}
                   disabled={!draft.trim()}
                   style={{
-                    ...actionButtonStyle(),
+                    ...actionButtonStyle(c),
                     opacity: draft.trim() ? 1 : 0.5,
                     cursor: draft.trim() ? "pointer" : "not-allowed",
                   }}
@@ -381,7 +435,7 @@ export function ChatPanel({ open, onClose, bridge, runChatTurn, onTestKey, compa
             <span
               style={{
                 display: "inline-flex", alignItems: "center", gap: 4,
-                fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
+                fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: c.textFaint,
               }}
             >
               <CornerDownLeft size={10} /> 送出・Shift+Enter 換行

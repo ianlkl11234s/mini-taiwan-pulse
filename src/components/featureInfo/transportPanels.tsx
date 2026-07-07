@@ -1,5 +1,6 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row } from "./shared";
+import { useFeatureTheme } from "./featureTheme";
 
 /** 氣象站類型對應色 */
 const WEATHER_TYPE_COLORS: Record<string, string> = {
@@ -28,6 +29,7 @@ const RAIL_SYSTEM_INFO: Record<string, { name: string; color: string }> = {
 };
 
 export function WeatherStationPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const stationType = String(props.station_type ?? "");
   const accentColor = WEATHER_TYPE_COLORS[stationType] ?? "#4dd0e1";
   const isActive = props.is_active;
@@ -37,7 +39,7 @@ export function WeatherStationPanel({ props }: { props: Record<string, unknown> 
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.station_name ?? "Unknown Station")}
         </div>
       </div>
@@ -53,6 +55,7 @@ export function WeatherStationPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function BikeStationPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const serviceType = String(props.ServiceTypeName ?? "");
   const accentColor = BIKE_SERVICE_COLORS[serviceType] ?? "#ffca28";
 
@@ -60,7 +63,7 @@ export function BikeStationPanel({ props }: { props: Record<string, unknown> }) 
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.StationName ?? "Unknown Station")}
         </div>
       </div>
@@ -73,6 +76,7 @@ export function BikeStationPanel({ props }: { props: Record<string, unknown> }) 
 }
 
 export function BusStationPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const busType = String(props.bus_type ?? props.BusType ?? "");
   const isIntercity = busType === "intercity";
   const accentColor = isIntercity ? "#ab47bc" : "#66bb6a";
@@ -81,7 +85,7 @@ export function BusStationPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.StationName ?? "Unknown Station")}
         </div>
       </div>
@@ -94,6 +98,7 @@ export function BusStationPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function RailStationPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const systemId = String(props.system_id ?? "");
   const info = RAIL_SYSTEM_INFO[systemId];
   const accentColor = String(props.color ?? info?.color ?? "#b8a080");
@@ -102,7 +107,7 @@ export function RailStationPanel({ props }: { props: Record<string, unknown> }) 
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.name ?? "Unknown Station")}
         </div>
       </div>
@@ -123,6 +128,7 @@ const SHIP_TYPE_INFO = (type: number): { label: string; color: string } => {
 };
 
 export function ShipPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const vesselType = Number(props.vessel_type ?? 0);
   const info = SHIP_TYPE_INFO(vesselType);
   const ts = Number(props.timestamp ?? 0);
@@ -131,7 +137,7 @@ export function ShipPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: info.color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           MMSI {String(props.mmsi ?? "—")}
         </div>
       </div>

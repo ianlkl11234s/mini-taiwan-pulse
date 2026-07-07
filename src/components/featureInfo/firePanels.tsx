@@ -1,8 +1,10 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { fireStationColor, fireHydrantColor, fireIsochroneColor, fireIsochroneLabel } from "../../data/fireTypes";
 import { Row } from "./shared";
+import { useFeatureTheme } from "./featureTheme";
 
 export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const deaths = Number(props.deaths ?? 0);
   const injuries = Number(props.injuries ?? 0);
   const casualty = deaths > 0 || injuries > 0;
@@ -19,7 +21,7 @@ export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {loc || "火災事件"}
         </div>
       </div>
@@ -32,13 +34,14 @@ export function FireEventPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function FireStationPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const cat = String(props.cat ?? "其他");
   const accentColor = fireStationColor(cat);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.name ?? "消防分隊")}
         </div>
       </div>
@@ -52,13 +55,14 @@ export function FireStationPanel({ props }: { props: Record<string, unknown> }) 
 }
 
 export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const cat = String(props.cat ?? "其他");
   const accentColor = fireHydrantColor(cat);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           消防栓
         </div>
       </div>
@@ -71,6 +75,7 @@ export function FireHydrantPanel({ props }: { props: Record<string, unknown> }) 
 }
 
 export function FireIsochronePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const minutes = Number(props.minutes ?? 0);
   const accentColor = fireIsochroneColor(minutes);
   const cumulative = props.cumulative_sqkm != null ? `${props.cumulative_sqkm} km²` : "";
@@ -79,7 +84,7 @@ export function FireIsochronePanel({ props }: { props: Record<string, unknown> }
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {fireIsochroneLabel(minutes)}
         </div>
       </div>

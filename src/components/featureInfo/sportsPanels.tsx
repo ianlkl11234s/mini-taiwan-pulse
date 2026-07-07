@@ -1,12 +1,14 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { SPORTS_CATEGORY_COLOR, SPORTS_FALLBACK_COLOR } from "../../data/sportsTypes";
 import { Row } from "./shared";
+import { useFeatureTheme } from "./featureTheme";
 
 function Title({ color, children }: { color: string; children: string }) {
+  const t = useFeatureTheme();
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{children}</div>
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{children}</div>
     </div>
   );
 }
@@ -20,6 +22,7 @@ function openStatusColor(s: string): string {
 }
 
 export function SportsVenuePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const category = String(props["category"] ?? "");
   const accent = SPORTS_CATEGORY_COLOR[category] ?? SPORTS_FALLBACK_COLOR;
   const openStatus = String(props["open_status"] ?? "");
@@ -39,7 +42,7 @@ export function SportsVenuePanel({ props }: { props: Record<string, unknown> }) 
       <Row label="經營單位" value={String(props["owner_org"] ?? "")} />
       {website && website !== "null" && (
         <div style={{ marginTop: 4, fontSize: FONT_SIZE.base }}>
-          <a href={website} target="_blank" rel="noreferrer" style={{ color: "#7DD3FC", textDecoration: "none" }}>
+          <a href={website} target="_blank" rel="noreferrer" style={{ color: t.link, textDecoration: "none" }}>
             官方網站 ↗
           </a>
         </div>

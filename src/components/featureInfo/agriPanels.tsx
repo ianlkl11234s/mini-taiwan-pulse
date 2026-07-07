@@ -1,11 +1,13 @@
-import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { AGRI_POI_TYPES } from "../../data/agriPOITypes";
 import { AGRI_COMPANY_TYPES } from "../../data/agriCompanyTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../../data/ecoNetworkZoneTypes";
 import { SOIL_FERTILITY_METRICS } from "../../data/agriSoilFertilityMetrics";
 import { Row } from "./shared";
+import { useFeatureTheme } from "./featureTheme";
 
 export function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const region = String(props["地區"] ?? "");
   const sheet = String(props["圖幅名稱"] ?? "");
   const survey = String(props["調查區"] ?? "");
@@ -19,7 +21,7 @@ export function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#8d6e63", flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {soilType || soilClass || "土壤分類"}
         </div>
       </div>
@@ -36,6 +38,7 @@ export function AgriSoilPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function AgriSoilFertilityPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const num = (k: string): number | null => {
     const v = props[k];
     return typeof v === "number" && v !== 0 ? v : null;
@@ -61,7 +64,7 @@ export function AgriSoilFertilityPanel({ props }: { props: Record<string, unknow
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#00897b", flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           土壤肥力 250m 網格
         </div>
       </div>
@@ -70,7 +73,7 @@ export function AgriSoilFertilityPanel({ props }: { props: Record<string, unknow
       <Row label="CEC" value={cec.text} color={cec.color} />
       <Row label="Mehlich-3 P" value={m3p.text} color={m3p.color} />
       <Row label="Mehlich-3 K" value={m3k.text} color={m3k.color} />
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 6, lineHeight: 1.5 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6, lineHeight: 1.5 }}>
         ※ 0 值表示該項未測（多數網格只測 pH / OM）
       </div>
     </>
@@ -78,6 +81,7 @@ export function AgriSoilFertilityPanel({ props }: { props: Record<string, unknow
 }
 
 export function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const name = String(props["休區名"] ?? props["LANAME"] ?? "");
   const keyCode = String(props["KeyCode"] ?? "");
   const aa45 = String(props["AA45"] ?? "");
@@ -87,7 +91,7 @@ export function AgriLeisureFarmZonesPanel({ props }: { props: Record<string, unk
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#66bb6a", flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {name || "休閒農業區"}
         </div>
       </div>
@@ -108,6 +112,7 @@ const CROP_KIND_INFO: Record<string, { color: string; label: string }> = {
 };
 
 export function AgriCropSuitabilityPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const cropNameZh = String(props.crop_name_zh ?? "").replace(/\s*適栽性等級分布圖$/, "").replace(/\s*栽性等級分布圖$/, "");
   const cropNameEn = String(props.crop_name_en ?? "");
   const kindLabel = String(props.kind_label ?? "");
@@ -117,7 +122,7 @@ export function AgriCropSuitabilityPanel({ props }: { props: Record<string, unkn
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: kindInfo.color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {cropNameZh || cropNameEn || "作物適栽"}
         </div>
       </div>
@@ -129,6 +134,7 @@ export function AgriCropSuitabilityPanel({ props }: { props: Record<string, unkn
 }
 
 export function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const community = String(props["社區名"] ?? "");
   const plan = String(props["計畫名"] ?? "");
   const county = String(props["縣市"] ?? "");
@@ -142,7 +148,7 @@ export function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> 
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#ffb74d", flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {community || "農村再生社區"}
         </div>
       </div>
@@ -158,14 +164,15 @@ export function AgriRuralRegenPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const poiType = String(props.poi_type ?? "");
-  const t = AGRI_POI_TYPES.find((x) => x.id === poiType);
-  const meta = t ? { color: t.color, label: t.labelZh } : { color: "#9e9e9e", label: poiType };
+  const typeDef = AGRI_POI_TYPES.find((x) => x.id === poiType);
+  const meta = typeDef ? { color: typeDef.color, label: typeDef.labelZh } : { color: "#9e9e9e", label: poiType };
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.poi_name ?? "Unknown")}
         </div>
       </div>
@@ -179,15 +186,16 @@ export function AgriPOIPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function AgriCompanyPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const bt = String(props.business_type ?? "");
-  const t = AGRI_COMPANY_TYPES.find((x) => x.id === bt);
-  const meta = t ? { color: t.color, label: t.labelZh } : { color: "#9e9e9e", label: bt };
+  const typeDef = AGRI_COMPANY_TYPES.find((x) => x.id === bt);
+  const meta = typeDef ? { color: typeDef.color, label: typeDef.labelZh } : { color: "#9e9e9e", label: bt };
   const capital = Number(props["資本總額"] ?? 0);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: meta.color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props["公司名稱"] ?? "Unknown")}
         </div>
       </div>
@@ -202,12 +210,13 @@ export function AgriCompanyPanel({ props }: { props: Record<string, unknown> }) 
 }
 
 export function FarmRoadsPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const len = Number(props.Lenth);
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 12, height: 2, borderRadius: RADIUS.sm, background: "#7a8670", flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.NAME ?? "農路")}
         </div>
       </div>
@@ -219,6 +228,7 @@ export function FarmRoadsPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function EcoNetworkZonesPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const zone = String(props.Zone ?? "");
   const zt = ECO_NETWORK_ZONE_TYPES.find((z) => z.zone === zone);
   const color = zt?.color ?? "#9e9e9e";
@@ -227,7 +237,7 @@ export function EcoNetworkZonesPanel({ props }: { props: Record<string, unknown>
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {zone || "國土綠網分區"}
         </div>
       </div>

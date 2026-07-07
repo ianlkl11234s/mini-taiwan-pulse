@@ -1,8 +1,10 @@
 import { Row } from "./shared";
-import { COLORS, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_SIZE } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 import { SATELLITE_COLORS, SATELLITE_LABELS, type SatelliteCategory } from "../../data/satelliteTypes";
 
 export function SatellitePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const cat = String(props.cat ?? "") as SatelliteCategory;
   const name = String(props.name ?? "");
   const norad = String(props.norad ?? "");
@@ -15,7 +17,7 @@ export function SatellitePanel({ props }: { props: Record<string, unknown> }) {
       <Row label="類別" value={catLabel} color={color} />
       <Row label="NORAD" value={norad} />
       <Row label="高度" value={Number.isFinite(altKm) ? `${altKm.toLocaleString()} km` : ""} />
-      <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textDim }}>
         足跡：內圈 50 km swath / 外圈 1,500 km elevation ≥10° cone
       </div>
     </div>

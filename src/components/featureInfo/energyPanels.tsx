@@ -12,7 +12,8 @@ import {
   type FacilityUnit,
 } from "../../data/energyLoader";
 import { Sparkline } from "../intel/monitor/PressureRing";
-import { COLORS, FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_DATA, FONT_SIZE } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 
 /**
  * Format MW value:
@@ -46,6 +47,7 @@ function fmtHHmm(tsSec: number): string {
 
 /** 24h 機組出力時序 sparkline + 數據摘要 */
 function PlantOutput24h({ plantName, color }: { plantName: string; color: string }) {
+  const t = useFeatureTheme();
   const [points, setPoints] = useState<PlantOutputPoint[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -61,21 +63,21 @@ function PlantOutput24h({ plantName, color }: { plantName: string; color: string
 
   if (error) {
     return (
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>
         24h 時序載入失敗
       </div>
     );
   }
   if (!points) {
     return (
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>
         24h 時序載入中…
       </div>
     );
   }
   if (points.length < 2) {
     return (
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: t.textMuted }}>
         24h 內無機組資料
       </div>
     );
@@ -88,14 +90,14 @@ function PlantOutput24h({ plantName, color }: { plantName: string; color: string
   const last = series[series.length - 1]!;
   const delta = last - first;
   const deltaSign = delta > 0 ? "▲" : delta < 0 ? "▼" : "·";
-  const deltaColor = delta > 0 ? "#ef4444" : delta < 0 ? "#22c55e" : COLORS.textMuted;
+  const deltaColor = delta > 0 ? "#ef4444" : delta < 0 ? "#22c55e" : t.textMuted;
 
   return (
-    <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px dashed rgba(255,255,255,0.12)" }}>
+    <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px dashed ${t.border}` }}>
       <div
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
-          fontSize: FONT_SIZE.sm, color: COLORS.textMuted, marginBottom: 4,
+          fontSize: FONT_SIZE.sm, color: t.textMuted, marginBottom: 4,
         }}
       >
         <span>24h 出力（MW）</span>
@@ -109,7 +111,7 @@ function PlantOutput24h({ plantName, color }: { plantName: string; color: string
       <div
         style={{
           display: "flex", justifyContent: "space-between",
-          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textDim,
+          fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: t.textDim,
           marginTop: 2,
         }}
       >
@@ -160,6 +162,7 @@ export function PowerPlantPanel({ props }: { props: Record<string, unknown> }) {
 
 // ── 機組 drill-down lazy fetch block（migration 239） ──────────
 function UnitDrillDownBlock({ facilityId }: { facilityId: string }) {
+  const t = useFeatureTheme();
   const [units, setUnits] = useState<FacilityUnit[] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
@@ -183,17 +186,17 @@ function UnitDrillDownBlock({ facilityId }: { facilityId: string }) {
       style={{
         marginTop: 10,
         paddingTop: 8,
-        borderTop: "1px solid rgba(255,255,255,0.08)",
+        borderTop: `1px solid ${t.border}`,
       }}
     >
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         ⚙ 機組 ({units.length})
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {units.map((u) => {
           const rate = u.util_rate;
           const rateColor = rate == null
-            ? COLORS.textDim
+            ? t.textDim
             : rate >= 85 ? "#f97316" : rate >= 50 ? "#22c55e" : "#64aaff";
           return (
             <div
@@ -205,14 +208,14 @@ function UnitDrillDownBlock({ facilityId }: { facilityId: string }) {
                 alignItems: "baseline",
                 fontFamily: FONT_DATA,
                 fontSize: FONT_SIZE.xs,
-                color: COLORS.textDim,
+                color: t.textDim,
               }}
             >
-              <span style={{ color: COLORS.textDefault, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <span style={{ color: t.textDefault, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {u.unit_name}
               </span>
               <span>{fmtMW(u.capacity_mw)}</span>
-              <span style={{ color: hasOutput ? COLORS.textDefault : COLORS.textDim }}>
+              <span style={{ color: hasOutput ? t.textDefault : t.textDim }}>
                 {u.net_gen_mw != null ? fmtMW(u.net_gen_mw) : "—"}
               </span>
               <span style={{ color: rateColor, textAlign: "right" }}>
@@ -237,6 +240,7 @@ const TIER_COLOR: Record<number, string> = {
 };
 
 function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
+  const t = useFeatureTheme();
   const [pv, setPv] = useState<FacilityProvenance | null>(null);
   const [err, setErr] = useState<string | null>(null);
   useEffect(() => {
@@ -252,7 +256,7 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
   if (err) return <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: "#f87171" }}>provenance: {err}</div>;
   if (!pv) return null;
 
-  const tierColor = pv.source_priority != null ? (TIER_COLOR[pv.source_priority] ?? COLORS.textDim) : COLORS.textDim;
+  const tierColor = pv.source_priority != null ? (TIER_COLOR[pv.source_priority] ?? t.textDim) : t.textDim;
   const fetched = pv.source_last_refreshed ?? "—";
   const cadence = pv.source_refresh_cadence ?? "—";
 
@@ -261,10 +265,10 @@ function FacilityProvenanceBlock({ facilityId }: { facilityId: string }) {
       style={{
         marginTop: 10,
         paddingTop: 8,
-        borderTop: "1px solid rgba(255,255,255,0.08)",
+        borderTop: `1px solid ${t.border}`,
       }}
     >
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         📋 資料來源
       </div>
       <Row label="層級" value={pv.tier_label ?? "—"} color={tierColor} />
@@ -510,6 +514,7 @@ export function GeothermalWellPanel({ props }: { props: Record<string, unknown> 
 }
 
 export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   // 政府原始資料未提供 district / installed_at；district 從 address regex 抓 XX區
   const addr = String(props.address || "");
   const districtFromAddr = addr.match(/[一-龥]{1,3}區/)?.[0] ?? "";
@@ -521,7 +526,7 @@ export function RenewablePermitTaipeiPanel({ props }: { props: Record<string, un
       <Row label="裝置容量" value={props.capacity_kw != null ? `${Number(props.capacity_kw).toFixed(1)} kW` : "—"} />
       <Row label="行政區" value={district} />
       <Row label="地址" value={addr || "—"} />
-      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: COLORS.textMuted, lineHeight: 1.4 }}>
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.4 }}>
         ⚠ 政府原始資料位置精度約 1km，呈網格狀；
         設置日 / 行政區欄位上游未提供
       </div>
@@ -738,8 +743,9 @@ export function CoalTerminalPanel({ props }: { props: Record<string, unknown> })
 // ──────────────────────────────────────────────────────────────────
 
 function CoveragePocFooter() {
+  const t = useFeatureTheme();
   return (
-    <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.4 }}>
+    <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
       資料來源：本專案 osmnx + multi-source dijkstra（全台主要路網 motorway/trunk/primary/secondary/tertiary × 5 級色階）
     </div>
   );

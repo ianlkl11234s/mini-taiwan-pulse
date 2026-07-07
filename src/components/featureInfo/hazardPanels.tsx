@@ -1,5 +1,5 @@
 import { Row } from "./shared";
-import { COLORS } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 import {
   LIGHTNING_TYPE_LABELS,
   lightningTypeColor,
@@ -48,6 +48,7 @@ export function LightningStrikePanel({ props }: { props: Record<string, unknown>
 }
 
 export function NuclearStationPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const dose = typeof props.dose_usvh === "number" ? props.dose_usvh : null;
   const isStale = props.is_stale === true;
   const level = classifyNuclearDose(dose, isStale);
@@ -69,8 +70,8 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
           style={{
             marginTop: 8, padding: "6px 8px", borderRadius: 6,
             background: "rgba(107,114,128,0.15)",
-            border: `1px solid ${COLORS.borderSoft}`,
-            fontSize: 11, lineHeight: 1.4, color: COLORS.textDim,
+            border: `1px solid ${t.border}`,
+            fontSize: 11, lineHeight: 1.4, color: t.textDim,
           }}
         >
           ⚠️ 感測器已離線（is_stale），上方劑量值為最後可信回報，<br />

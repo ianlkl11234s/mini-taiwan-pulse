@@ -1,4 +1,5 @@
-import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 
 export function formatTaiwanTime(iso: string | null): string {
   if (!iso) return "";
@@ -13,11 +14,12 @@ export function formatTaiwanTime(iso: string | null): string {
 }
 
 export function Row({ label, value, color }: { label: string; value: string; color?: string }) {
+  const t = useFeatureTheme();
   if (!value || value === "null" || value === "undefined") return null;
   return (
     <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
-      <span style={{ color: COLORS.textMuted, flexShrink: 0, minWidth: 56 }}>{label}</span>
-      <span style={{ color: color ?? COLORS.textStrong, wordBreak: "break-word" }}>{value}</span>
+      <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56 }}>{label}</span>
+      <span style={{ color: color ?? t.textStrong, wordBreak: "break-word" }}>{value}</span>
     </div>
   );
 }
@@ -41,13 +43,14 @@ export function ChatHighlightPanel({ props }: { props: Record<string, unknown> }
 }
 
 export function Badge({ label, on, color }: { label: string; on: boolean; color: string }) {
+  const t = useFeatureTheme();
   return (
     <span style={{
       fontSize: FONT_SIZE.sm,
       padding: "1px 5px",
       borderRadius: RADIUS.sm,
-      background: on ? color : "rgba(255,255,255,0.08)",
-      color: on ? "#fff" : COLORS.textDim,
+      background: on ? color : t.bgStrong,
+      color: on ? "#fff" : t.textDim,
       fontWeight: on ? 700 : 400,
     }}>
       {label}
@@ -72,6 +75,7 @@ export function formatNum(v: number | null, unit: string, digits = 1): string {
  * canonical SSOT layer 多帶 provenance jsonb（會展成 details 列出）。
  */
 export function SourceFooter({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const org = String(props.source_org ?? "");
   const url = String(props.source_url ?? "");
   const license = String(props.license ?? "");
@@ -84,9 +88,9 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
       style={{
         marginTop: 10,
         paddingTop: 8,
-        borderTop: "1px solid rgba(100,170,255,0.15)",
+        borderTop: `1px solid ${t.border}`,
         fontSize: FONT_SIZE.xs,
-        color: COLORS.textDim,
+        color: t.textDim,
       }}
     >
       <div style={{ marginBottom: 4, letterSpacing: 1.2 }}>
@@ -100,7 +104,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
           rel="noreferrer"
           style={{
             display: "inline-block",
-            color: "#7DD3FC",
+            color: t.link,
             textDecoration: "none",
             marginTop: 2,
           }}
@@ -137,7 +141,7 @@ export function SourceFooter({ props }: { props: Record<string, unknown> }) {
                         href={pUrl}
                         target="_blank"
                         rel="noreferrer"
-                        style={{ color: "#7DD3FC" }}
+                        style={{ color: t.link }}
                       >
                         原始頁
                       </a>

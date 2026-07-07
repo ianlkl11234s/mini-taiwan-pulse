@@ -9,15 +9,33 @@ import type { FeatureInfo } from "../types";
 import type { ReservoirContext } from "../data/reservoirContextLoader";
 import { PANEL_REGISTRY, HEADER_LABELS } from "./featureInfo/registry";
 import { WaterReservoirContextPanel } from "./featureInfo/waterPanels";
+import { DARK_FEATURE, LIGHT_FEATURE, FeatureThemeProvider } from "./featureInfo/featureTheme";
 
 interface Props {
   feature: FeatureInfo;
   onClose: () => void;
   /** 點擊水庫時由 useReservoirContextLayer 提供：含水情/集水區/流域/最近河川 */
   reservoirContext?: ReservoirContext | null;
+  /** 主題：深色（預設）/ 淺色。白底地圖時傳 false 讓 chrome 中性化 */
+  isDarkTheme?: boolean;
 }
 
-export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) {
+export function FeatureInfoPanel({ feature, onClose, reservoirContext, isDarkTheme = true }: Props) {
+  // 主題化 chrome 色票（僅中性面板/邊框/次要文字；accent 藍、狀態色、資料色兩主題共用）
+  const c = isDarkTheme
+    ? {
+        panelBg: SURFACE.strong, // rgba(10,10,20,0.88) 半透浮層
+        border: "rgba(100, 170, 255, 0.25)",
+        textDim: COLORS.textDim,
+      }
+    : {
+        panelBg: "rgba(255,255,255,0.95)",
+        border: "rgba(0,0,0,0.10)",
+        textDim: "#6B7280",
+      };
+  // 內容子面板（各 domain *Panels）走 context 讀主題色
+  const featurePalette = isDarkTheme ? DARK_FEATURE : LIGHT_FEATURE;
+
   // 水庫類：若點到的水庫有 compare_id 且 context 已載入，改顯示完整 context panel
   const isReservoir =
     feature.layerType === "waterDam" || feature.layerType === "waterReservoirPoly";
@@ -35,6 +53,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
   // CCTV 內嵌即時影像需要較大空間，只加寬此類 popup（影像框 width:100% 會跟著放大）
   const isCctv = feature.layerType === "cctv";
   return (
+    <FeatureThemeProvider palette={featurePalette}>
     <div
       style={{
         width: isCctv ? 460 : 280,
@@ -42,10 +61,10 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
         maxHeight: "80vh",
         display: "flex",
         flexDirection: "column",
-        background: SURFACE.strong,
+        background: c.panelBg,
         backdropFilter: "blur(14px)",
         WebkitBackdropFilter: "blur(14px)",
-        border: "1px solid rgba(100, 170, 255, 0.25)",
+        border: `1px solid ${c.border}`,
         borderRadius: RADIUS.xl,
         padding: "12px 14px",
         fontFamily: FONT_DATA,
@@ -60,7 +79,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
           right: 8,
           background: "none",
           border: "none",
-          color: COLORS.textDim,
+          color: c.textDim,
           cursor: "pointer",
           padding: 2,
           display: "flex",
@@ -72,7 +91,7 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
       </button>
 
       {/* Header label */}
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6, flexShrink: 0 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: c.textDim, letterSpacing: 1.5, textTransform: "uppercase", marginBottom: 6, flexShrink: 0 }}>
         {HEADER_LABELS[feature.layerType]}
       </div>
 
@@ -80,5 +99,6 @@ export function FeatureInfoPanel({ feature, onClose, reservoirContext }: Props) 
         {content}
       </div>
     </div>
+    </FeatureThemeProvider>
   );
 }
