@@ -309,6 +309,11 @@ export interface LayerDef {
   /** 手機 LayerSidebar 顯示文字（多為較長全稱）；未填則沿用 label */
   labelMobile?: string;
   expandable?: boolean;
+  /**
+   * owner-only 私人圖層：非 owner 帳號顯示鎖頭、禁 toggle。
+   * runtime SSOT 為下方 GATED_LAYERS（兩個 sidebar + App toggle gate 共用）。
+   */
+  gated?: boolean;
 }
 
 export interface SubGroupDef {
@@ -1087,3 +1092,32 @@ export const LAYER_LABELS: Partial<Record<keyof LayerVisibility, string>> = (() 
   }
   return out;
 })();
+
+// ── owner-only 私人圖層 SSOT（見 docs/features/owner-gated-layers）──
+// 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：sidebar 顯示鎖頭 + toggle no-op。
+// DB 端由 migration 275 同步：對應 RPC 加 owner 檢查 + REVOKE anon。
+// ⚠️ 明確排除（保持公開）：waterCanals（灌排渠道）、powerPoles（電桿 2.96M）。
+export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
+  // 畜牧 Livestock（改走 owner-only RPC；不含 livestockFeed / livestockMarket）
+  "livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck",
+  "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther", "livestockSlaughter",
+  // 石化 · 油氣
+  "lpgSubpackaging", "lpgRetailers", "lngTerminal", "pipelineGas", "pipelineOilGas",
+  "industrialRefinery", "industrialStorageTank", "industrialPowerPlant", "coalTerminal",
+  "fossilFuelInfra",
+  // 電力 · 電網
+  "osmSubstationsEhv", "osmSubstations", "osmPowerLines", "osmPowerTowers",
+  "substationEhvGlow", "powerLinesGlow",
+  // 電力 · 廠
+  "facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement",
+  "powerGenerationUnit", "powerPlantGlow",
+  // 僅做 UI 鎖（資料載入路徑不動）
+  "aviationRestrictedGlow",
+  // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
+  "facOffshore", "osmPowerPlantsStatic",
+]);
+
+/** 對某使用者而言此 key 是否上鎖（gated 且非 owner）。 */
+export function isLayerLockedFor(key: keyof LayerVisibility, isOwner: boolean): boolean {
+  return !isOwner && GATED_LAYERS.has(key);
+}

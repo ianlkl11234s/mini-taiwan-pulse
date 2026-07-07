@@ -56,8 +56,12 @@ echo "[pull] sync medical → $DATA_DIR/medical/"
 aws s3 sync "$S3/medical/" "$DATA_DIR/medical/" --no-progress
 
 # 農業：鏡像子前綴 deploy-assets/agriculture/ → /data/agriculture/（整夾 sync，加新檔免改腳本）
+# ⚠️ owner-gated：livestock_farms.geojson / slaughterhouses.geojson 改走 owner-only RPC → 排除 +
+#    rm -f 清掉既有 volume 殘留舊檔（防繼續供應）。見 docs/features/owner-gated-layers。
 echo "[pull] sync agriculture → $DATA_DIR/agriculture/"
-aws s3 sync "$S3/agriculture/" "$DATA_DIR/agriculture/" --no-progress
+aws s3 sync "$S3/agriculture/" "$DATA_DIR/agriculture/" --no-progress \
+  --exclude "livestock_farms.geojson" --exclude "slaughterhouses.geojson"
+rm -f "$DATA_DIR/agriculture/livestock_farms.geojson" "$DATA_DIR/agriculture/slaughterhouses.geojson"
 
 # 🏟️ 運動場館：鏡像子前綴 deploy-assets/sports/ → /data/sports/（整夾 sync，加新檔免改腳本）
 echo "[pull] sync sports → $DATA_DIR/sports/"
@@ -82,8 +86,29 @@ echo "[pull] sync climate → $DATA_DIR/climate/"
 aws s3 sync "$S3/climate/" "$DATA_DIR/climate/" --no-progress
 
 # 靜態化 RPC 快照：鏡像子前綴 deploy-assets/static-rpc/ → /data/static-rpc/（整夾 sync，加新檔免改腳本）
+# ⚠️ owner-gated：12 支快照改走 owner-only 直連 RPC → 排除 + rm -f 清既有 volume 殘留舊檔。
+#    get_gas_station_layers 仍公開，照常 sync。見 docs/features/owner-gated-layers。
 echo "[pull] sync static-rpc → $DATA_DIR/static-rpc/"
-aws s3 sync "$S3/static-rpc/" "$DATA_DIR/static-rpc/" --no-progress
+aws s3 sync "$S3/static-rpc/" "$DATA_DIR/static-rpc/" --no-progress \
+  --exclude "get_fossil_fuel_layers.json" \
+  --exclude "get_fossil_fuel_infrastructure.json" \
+  --exclude "get_osm_substations.json" \
+  --exclude "get_osm_power_lines.json" \
+  --exclude "get_osm_power_towers.json" \
+  --exclude "get_ssot_facilities_primary_operating.json" \
+  --exclude "get_ssot_facilities_planned.json" \
+  --exclude "get_ssot_facilities_historical.json" \
+  --exclude "get_ssot_facilities_secondary_small.json" \
+  --exclude "get_ssot_facilities_osm_supplement.json" \
+  --exclude "get_osm_power_plants_static.json" \
+  --exclude "get_ssot_facilities_offshore_zones.json"
+for gated in \
+  get_fossil_fuel_layers get_fossil_fuel_infrastructure get_osm_substations \
+  get_osm_power_lines get_osm_power_towers get_ssot_facilities_primary_operating \
+  get_ssot_facilities_planned get_ssot_facilities_historical get_ssot_facilities_secondary_small \
+  get_ssot_facilities_osm_supplement get_osm_power_plants_static get_ssot_facilities_offshore_zones; do
+  rm -f "$DATA_DIR/static-rpc/$gated.json"
+done
 
 # 淹水感測 isochrone：鏡像子前綴 deploy-assets/flood/ → /data/flood/
 echo "[pull] sync flood → $DATA_DIR/flood/"

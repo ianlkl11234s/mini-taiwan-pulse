@@ -79,6 +79,9 @@ function livestockFarmOverlay(
     id,
     sourceUrl: FARM_SOURCE,
     sourceId: "livestock-farms",
+    // owner-only 動態：改由 useLivestockLayers 從 owner-only RPC setData（見 docs/features/owner-gated-layers）；
+    // sourceUrl 保留作 loader 端 fallback（本層已改走 RPC，實務不再 fetch 該檔）。
+    dynamicData: true,
     filter,
     layers: [
       {
@@ -2711,6 +2714,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "livestockSlaughter",
     sourceUrl: "./agriculture/slaughterhouses.geojson",
     sourceId: "livestock-slaughter",
+    // owner-only 動態：改由 useLivestockLayers 從 owner-only RPC setData
+    dynamicData: true,
     layers: [
       {
         suffix: "circle",

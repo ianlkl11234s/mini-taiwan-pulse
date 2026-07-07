@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { LogIn, LogOut, User as UserIcon } from "lucide-react";
+import { LogIn, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 import { signInWithGoogle, signOut, useUser } from "../../lib/auth";
 import {
   COLORS,
@@ -19,7 +19,11 @@ import {
  * 未登入 → 「使用 Google 登入」按鈕；登入 → avatar + 名稱 + 下拉（登出）。
  * 純元件、獨立掛載，App.tsx 接線待 byok-chat PR 併回 master 後再做。
  */
-export function UserAvatar() {
+/**
+ * @param isOwner      是否為 owner（決定是否顯示「資料治理」入口）。
+ * @param onOpenAdmin  點「資料治理」時開啟站內後台（僅 owner）。
+ */
+export function UserAvatar({ isOwner, onOpenAdmin }: { isOwner?: boolean; onOpenAdmin?: () => void } = {}) {
   const { user, loading } = useUser();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -127,6 +131,35 @@ export function UserAvatar() {
           >
             {user.email ?? displayName}
           </div>
+          {isOwner && onOpenAdmin && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onOpenAdmin();
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: SPACING.sm,
+                width: "100%",
+                padding: `${SPACING.md}px ${SPACING.lg}px`,
+                background: "transparent",
+                color: COLORS.textDefault,
+                border: "none",
+                borderBottom: `1px solid ${BORDER.soft}`,
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_CJK,
+                textAlign: "left",
+                cursor: "pointer",
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = WHITE_ALPHA[8])}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+            >
+              <ShieldCheck size={14} />
+              資料治理
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {

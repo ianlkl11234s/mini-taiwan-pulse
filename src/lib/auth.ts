@@ -55,3 +55,47 @@ export function useUser(): { user: User | null; loading: boolean } {
 
   return { user, loading };
 }
+
+/**
+ * 會員分級閘門（owner-gated 私人圖層用）。
+ * 登入後 select profiles.tier where id = auth.uid()（migration 270 的 RLS 允許讀自己 row）。
+ * - tier 載入為非同步：載入完成前 isOwner=false（顯示鎖），完成後才可能解鎖。
+ * - 未登入：user=null / tier=null / isOwner=false。
+ * - tier 用於 Phase 2 分層 gating（free/member/insider/owner，見 lib/layerGates）；
+ *   isOwner 為 tier==='owner' 的捷徑（後台入口 + 舊鎖頭邏輯共用）。
+ */
+export function useMemberGate(): { user: User | null; tier: string | null; isOwner: boolean; loading: boolean } {
+  const { user, loading: userLoading } = useUser();
+  const [tier, setTier] = useState<string | null>(null);
+  const [tierLoading, setTierLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      setTier(null);
+      setTierLoading(false);
+      return;
+    }
+    let mounted = true;
+    setTierLoading(true);
+    void supabase
+      .from("profiles")
+      .select("tier")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!mounted) return;
+        setTier((data?.tier as string | undefined) ?? null);
+        setTierLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
+
+  return {
+    user,
+    tier,
+    isOwner: tier === "owner",
+    loading: userLoading || tierLoading,
+  };
+}

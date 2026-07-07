@@ -232,7 +232,7 @@ const _l1Cached = cachedOnce(async () => {
   const [primaryRes, rtRes] = await Promise.all([
     withLoading(
       "energy:facPrimary", "主要電廠 209",
-      staticRpc("get_ssot_facilities_primary_operating"),
+      supabase.rpc("get_ssot_facilities_primary_operating"),  // owner-gated：直連 RPC
     ),
     supabase.rpc("get_ssot_realtime_facility_output"),
   ]);
@@ -250,7 +250,7 @@ export const fetchFacPrimary = (): Promise<FacilityPoint[]> => _l1Cached();
 const _l2Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facOffshore", "離岸風電場址 8",
-    staticRpc("get_ssot_facilities_offshore_zones"),
+    supabase.rpc("get_ssot_facilities_offshore_zones"),  // owner-gated：直連 RPC（敏感電廠資料）
   );
   if (error) throw new Error(`get_ssot_facilities_offshore_zones: ${error.message}`);
   return (data ?? []) as FacilityZone[];
@@ -261,7 +261,7 @@ export const fetchFacOffshore = (): Promise<FacilityZone[]> => _l2Cached();
 const _l3Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facPlanned", "規劃電廠 35",
-    staticRpc("get_ssot_facilities_planned"),
+    supabase.rpc("get_ssot_facilities_planned"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_ssot_facilities_planned: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -272,7 +272,7 @@ export const fetchFacPlanned = (): Promise<FacilityPoint[]> => _l3Cached();
 const _l4Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facHistorical", "歷史電廠 15",
-    staticRpc("get_ssot_facilities_historical"),
+    supabase.rpc("get_ssot_facilities_historical"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_ssot_facilities_historical: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -283,7 +283,7 @@ export const fetchFacHistorical = (): Promise<FacilityPoint[]> => _l4Cached();
 const _l5Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facSecondary", "次要電廠 341",
-    staticRpc("get_ssot_facilities_secondary_small"),
+    supabase.rpc("get_ssot_facilities_secondary_small"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_ssot_facilities_secondary_small: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -294,7 +294,7 @@ export const fetchFacSecondary = (): Promise<FacilityPoint[]> => _l5Cached();
 const _l6Cached = cachedOnce(async () => {
   const { data, error } = await withLoading(
     "energy:facOsmSupplement", "OSM 補充 1,215",
-    staticRpc("get_ssot_facilities_osm_supplement"),
+    supabase.rpc("get_ssot_facilities_osm_supplement"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_ssot_facilities_osm_supplement: ${error.message}`);
   return (data ?? []) as FacilityPoint[];
@@ -461,7 +461,7 @@ async function fetchOsmSubstationsUncached(): Promise<OsmSubstation[]> {
   const { data, error } = await withLoading(
     "energy:substations",
     "變電所 785",
-    staticRpc("get_osm_substations"),
+    supabase.rpc("get_osm_substations"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_osm_substations: ${error.message}`);
   return (data ?? []) as OsmSubstation[];
@@ -499,7 +499,7 @@ async function fetchOsmPowerLinesUncached(): Promise<OsmPowerLine[]> {
   const { data, error } = await withLoading(
     "energy:powerLines",
     "高壓輸電線 2,305",
-    staticRpc("get_osm_power_lines"),
+    supabase.rpc("get_osm_power_lines"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_osm_power_lines: ${error.message}`);
   return (data ?? []) as OsmPowerLine[];
@@ -512,7 +512,7 @@ async function fetchOsmPowerTowersUncached(): Promise<OsmPowerTower[]> {
   const { data, error } = await withLoading(
     "energy:powerTowers",
     "高壓鐵塔 26,589",
-    staticRpc("get_osm_power_towers"),
+    supabase.rpc("get_osm_power_towers"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_osm_power_towers: ${error.message}`);
   return (data ?? []) as unknown as OsmPowerTower[];
@@ -629,7 +629,7 @@ async function fetchOsmPowerPlantsStaticUncached(): Promise<OsmPowerPlantStatic[
   const { data, error } = await withLoading(
     "energy:powerPlantsStatic",
     "OSM 電廠 513",
-    staticRpc("get_osm_power_plants_static"),
+    supabase.rpc("get_osm_power_plants_static"),  // owner-gated：直連 RPC（敏感電廠資料）
   );
   if (error) throw new Error(`get_osm_power_plants_static: ${error.message}`);
   return (data ?? []) as OsmPowerPlantStatic[];
@@ -740,7 +740,7 @@ async function fetchFossilFuelInfraUncached(): Promise<FossilFuelFacility[]> {
   const { data, error } = await withLoading(
     "energy:fossilFuel",
     "化石燃料設施 9",
-    staticRpc("get_fossil_fuel_infrastructure"),
+    supabase.rpc("get_fossil_fuel_infrastructure"),  // owner-gated：直連 RPC
   );
   if (error) throw new Error(`get_fossil_fuel_infrastructure: ${error.message}`);
   return (data ?? []) as FossilFuelFacility[];

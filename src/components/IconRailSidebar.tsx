@@ -321,6 +321,8 @@ for (const [icao, info] of Object.entries(AIRPORT_INFO)) {
 
 interface IconRailSidebarProps {
   visibility: LayerVisibility;
+  /** 對目前使用者上鎖的圖層 keys（動態 gating，見 lib/layerGates）：命中 → 顯示鎖頭 + 禁 toggle */
+  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
@@ -368,7 +370,7 @@ const RAIL_WIDTH = 56;
 const PANEL_WIDTH = 288;
 
 export function IconRailSidebar({
-  visibility, expandedLayer, viewMode, displayMode,
+  visibility, lockedKeys, expandedLayer, viewMode, displayMode,
   counts, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   onBulkSetVisibility,
@@ -592,6 +594,7 @@ export function IconRailSidebar({
             {activePanel === "layers" && (
               <LayersPanel
                 visibility={visibility}
+                lockedKeys={lockedKeys}
                 expandedLayer={expandedLayer}
                 viewMode={viewMode}
                 displayMode={displayMode}
@@ -745,6 +748,7 @@ function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
 
 interface LayersPanelProps {
   visibility: LayerVisibility;
+  lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
   viewMode: ViewMode;
   displayMode: DisplayMode;
@@ -768,6 +772,8 @@ interface LayerRowProps {
   label: string;
   expandable: boolean;
   active: boolean;
+  /** owner-only 私人圖層且當前 viewer 非 owner → 顯示鎖頭、禁 toggle */
+  locked: boolean;
   color: string;
   count: number | undefined;
   isExpanded: boolean;
@@ -777,16 +783,19 @@ interface LayerRowProps {
 }
 
 const LayerRow = memo(function LayerRow({
-  layerKey, label, expandable, active, color, count, isExpanded, Icon,
+  layerKey, label, expandable, active, locked, color, count, isExpanded, Icon,
   onLayerClick, onToggleVisibility,
 }: LayerRowProps) {
+  // locked：點整列一律走 onToggleVisibility → App 端 gate（未登入導登入 / 已登入顯示提示）
   const handleClick = () =>
-    expandable ? onLayerClick(layerKey) : onToggleVisibility(layerKey);
+    locked ? onToggleVisibility(layerKey)
+      : expandable ? onLayerClick(layerKey) : onToggleVisibility(layerKey);
   const handleToggle = () => onToggleVisibility(layerKey);
 
   return (
     <div
       onClick={handleClick}
+      title={locked ? "私人圖層，僅擁有者可檢視" : undefined}
       style={{
         display: "flex",
         alignItems: "center",
@@ -795,6 +804,7 @@ const LayerRow = memo(function LayerRow({
         cursor: "pointer",
         borderLeft: active ? `2px solid ${color}` : "2px solid transparent",
         paddingLeft: 10,
+        opacity: locked ? 0.5 : 1,
         transition: "background 0.1s",
       }}
       onMouseEnter={(e) => {
@@ -816,7 +826,7 @@ const LayerRow = memo(function LayerRow({
       >
         {label}
       </span>
-      {count != null && count > 0 && (
+      {count != null && count > 0 && !locked && (
         <span
           style={{
             fontFamily: FONT_DATA,
@@ -828,12 +838,14 @@ const LayerRow = memo(function LayerRow({
           {count.toLocaleString()}
         </span>
       )}
-      {expandable && (
+      {expandable && !locked && (
         <span style={{ color: DIM, flexShrink: 0, display: "flex" }}>
           {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
         </span>
       )}
-      <ToggleSwitch on={active} onChange={handleToggle} />
+      {locked
+        ? <Lock size={13} color={DIM} style={{ flexShrink: 0 }} />
+        : <ToggleSwitch on={active} onChange={handleToggle} />}
     </div>
   );
 });
@@ -922,7 +934,7 @@ function SubGroupLabel({ children }: { children: string }) {
 }
 
 function LayersPanel({
-  visibility, expandedLayer, viewMode: _viewMode, displayMode,
+  visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
   onAllOff, onBulkSetVisibility, getControls, onClose,
@@ -1014,6 +1026,7 @@ function LayersPanel({
                           label={label}
                           expandable={!!expandable}
                           active={active}
+                          locked={!!lockedKeys?.has(key)}
                           color={LAYER_COLORS[key]}
                           count={getCount(key)}
                           isExpanded={isExpanded}
