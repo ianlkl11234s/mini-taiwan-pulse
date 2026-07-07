@@ -29,6 +29,8 @@ export interface AuditRow {
   granted: boolean;
 }
 
+export type LockType = "ui" | "full";
+
 export interface GatedLayerRow {
   layer_key: string;
   category: string;
@@ -36,6 +38,7 @@ export interface GatedLayerRow {
   rpc_name: string | null;
   required_tier: string;
   enabled: boolean;
+  lock_type: LockType;
   sort_order: number | null;
   source_date: string | null;
   next_refresh: string | null;
@@ -69,11 +72,18 @@ export async function listGatedLayers(): Promise<GatedLayerRow[]> {
   return unwrap<GatedLayerRow[]>(data, error, "admin_list_gated_layers");
 }
 
-export async function setLayerGate(layerKey: string, requiredTier: Tier, enabled: boolean): Promise<void> {
+export async function setLayerGate(
+  layerKey: string,
+  requiredTier: Tier,
+  enabled: boolean,
+  lockType?: LockType,
+): Promise<void> {
+  // p_lock_type 省略（undefined）時後端 COALESCE 不改該欄（宣告性欄位，不動 DB grant）。
   const { error } = await supabase.rpc("admin_set_layer_gate", {
     p_layer_key: layerKey,
     p_required_tier: requiredTier,
     p_enabled: enabled,
+    ...(lockType ? { p_lock_type: lockType } : {}),
   });
   if (error) throw new Error(`admin_set_layer_gate: ${error.message}`);
 }

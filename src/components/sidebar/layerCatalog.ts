@@ -1130,7 +1130,7 @@ export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof La
   // 僅做 UI 鎖（資料載入路徑不動）
   "aviationRestrictedGlow",
   // 已從 sidebar 下架但 API 敏感（無鎖頭 UI；仍 gate 掉 bulk/chat 等程式化開啟路徑）
-  "facOffshore", "osmPowerPlantsStatic",
+  "facOffshore", "osmPowerPlantsStatic", "powerPlants",
 ]);
 
 /** 對某使用者而言此 key 是否上鎖（gated 且非 owner）。 */

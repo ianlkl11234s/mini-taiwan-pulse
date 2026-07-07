@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { X, ShieldCheck, Users, ScrollText, Lock, Database } from "lucide-react";
 import {
   listMembers, setMemberTier, listAudit, listGatedLayers, setLayerGate,
-  TIERS, type Tier, type AdminMember, type AuditRow, type GatedLayerRow,
+  TIERS, type Tier, type LockType, type AdminMember, type AuditRow, type GatedLayerRow,
 } from "../../lib/adminApi";
 import { loadLayerGates } from "../../lib/layerGates";
 import {
@@ -225,10 +225,10 @@ function LayersTab() {
   const { data, loading, error, reload } = useAsync(listGatedLayers, []);
   const [busy, setBusy] = useState<string | null>(null);
 
-  const apply = async (row: GatedLayerRow, tier: Tier, enabled: boolean) => {
+  const apply = async (row: GatedLayerRow, tier: Tier, enabled: boolean, lockType?: LockType) => {
     setBusy(row.layer_key);
     try {
-      await setLayerGate(row.layer_key, tier, enabled);
+      await setLayerGate(row.layer_key, tier, enabled, lockType);
       await loadLayerGates(); // 讓地圖鎖頭即時更新
       reload();
     } catch (err) {
@@ -248,12 +248,16 @@ function LayersTab() {
 
   return (
     <div>
+      <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted, marginBottom: SPACING.md, lineHeight: 1.6 }}>
+        鎖型 <b>full（乾淨鎖）</b>= DB 真鎖機密（改此欄<b>不會</b>動 DB grant，需另跑 migration REVOKE/GRANT）；
+        <b>ui（UI 鎖）</b>= 資料公開、僅前端引導未登入者登入。改 lock_type 只影響前端鎖頭行為，不碰後端真鎖狀態。
+      </div>
       {[...byCat.entries()].map(([cat, list]) => (
         <div key={cat} style={{ marginBottom: SPACING.xl }}>
           <div style={{ fontSize: FONT_SIZE.md, fontWeight: 600, color: COLORS.textStrong, marginBottom: SPACING.sm }}>{cat}</div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr><th style={th}>圖層</th><th style={th}>required_tier</th><th style={th}>啟用</th><th style={th}>新鮮度</th></tr>
+              <tr><th style={th}>圖層</th><th style={th}>required_tier</th><th style={th}>鎖型</th><th style={th}>啟用</th><th style={th}>新鮮度</th></tr>
             </thead>
             <tbody>
               {list.map((r) => (
@@ -266,6 +270,13 @@ function LayersTab() {
                     <select value={r.required_tier} disabled={busy === r.layer_key} style={selectStyle}
                       onChange={(e) => void apply(r, e.target.value as Tier, r.enabled)}>
                       {TIERS.map((t) => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </td>
+                  <td style={td}>
+                    <select value={r.lock_type} disabled={busy === r.layer_key} style={selectStyle}
+                      onChange={(e) => void apply(r, r.required_tier as Tier, r.enabled, e.target.value as LockType)}>
+                      <option value="full">full 乾淨鎖</option>
+                      <option value="ui">ui UI 鎖</option>
                     </select>
                   </td>
                   <td style={td}>
