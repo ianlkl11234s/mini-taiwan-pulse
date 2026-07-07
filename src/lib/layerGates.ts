@@ -23,6 +23,13 @@ export function tierRank(tier: string | null | undefined): number {
 export interface LayerGate {
   required_tier: string;
   enabled: boolean;
+  /**
+   * 鎖型（migration 278）：
+   * - 'full'：乾淨鎖（DB 已 REVOKE anon，機密資料）。未登入也 locked。
+   * - 'ui'  ：UI 鎖（DB 未 REVOKE、資料公開）。未登入 locked（引導登入）、
+   *           登入且 tier>=required 即開。
+   */
+  lock_type: "ui" | "full";
 }
 export type LayerGates = ReadonlyMap<string, LayerGate>;
 
@@ -47,8 +54,12 @@ export async function loadLayerGates(): Promise<void> {
     const { data, error } = await supabase.rpc("get_layer_gates");
     if (error) throw error;
     const next = new Map<string, LayerGate>();
-    for (const row of (data ?? []) as Array<{ layer_key: string; required_tier: string; enabled: boolean }>) {
-      next.set(row.layer_key, { required_tier: row.required_tier, enabled: row.enabled });
+    for (const row of (data ?? []) as Array<{ layer_key: string; required_tier: string; enabled: boolean; lock_type?: "ui" | "full" }>) {
+      next.set(row.layer_key, {
+        required_tier: row.required_tier,
+        enabled: row.enabled,
+        lock_type: row.lock_type === "ui" ? "ui" : "full", // 缺值 fallback 'full'（fail-safe）
+      });
     }
     gatesCache = next;
     emit();
@@ -74,8 +85,13 @@ export function useLayerGates(): LayerGates | null {
 /**
  * 某 key 對某 tier 是否上鎖（純函式）。
  * - gates 已載入 → 權威來源（get_layer_gates 只回 enabled 的鎖定層）：
- *   不在清單 = 公開；在清單 = 需 tierRank(tier) >= tierRank(required_tier) 才解鎖。
- * - gates=null（未載入 / 失敗）→ fail-safe 用靜態 GATED_LAYERS，需 owner 才解鎖。
+ *   不在清單 = 公開；在清單 = 依 lock_type 判定：
+ *     • full：tierRank(tier) < required → locked（未登入 tier=null → rank 0，也 locked）。
+ *     • ui  ：未登入（tier==null）→ locked（顯示鎖頭引導登入）；
+ *             已登入 → tierRank(tier) < required 才 locked（tier>=required 即開）。
+ *   （full 與 ui 唯一差異：ui 對「未登入」一律上鎖，即使 required=free；
+ *    真正資料保護在 DB grant，此處僅前端顯示行為。）
+ * - gates=null（未載入 / 失敗）→ fail-safe 用靜態 GATED_LAYERS，一律當 full 鎖需 owner。
  */
 export function isLayerLocked(
   key: keyof LayerVisibility,
@@ -86,6 +102,12 @@ export function isLayerLocked(
   if (gates) {
     const gate = gates.get(key);
     if (!gate) return false;
+    if (gate.lock_type === "ui") {
+      // UI 鎖：未登入一律上鎖（引導登入）；已登入依 tier 判定
+      if (tier == null) return true;
+      return userRank < tierRank(gate.required_tier);
+    }
+    // full（乾淨鎖，現狀不變）
     return userRank < tierRank(gate.required_tier);
   }
   return GATED_LAYERS.has(key) && userRank < tierRank("owner");
