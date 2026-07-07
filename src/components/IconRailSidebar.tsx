@@ -27,6 +27,8 @@ import {
   // POLICE / JUSTICE / CIVIL DEFENSE icons（新增；既有 Shield/Search/MapPinned/PlaneTakeoff/Anchor/AlertTriangle/AlertCircle 已 import 復用）
   ShieldAlert, Gavel, Scale, Lock, Hexagon, Crosshair,
   Ban,
+  // 環境污染 icons
+  Biohazard,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -308,6 +310,12 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   policeIsoSubstation: Hexagon,
   policeIsoPrecinct: Hexagon,
   policeIsoCityDept: Hexagon,
+  // 環境污染
+  pollutionFacility: Factory,
+  pollutionPenaltyCritical: AlertTriangle,
+  pollutionPenaltyGeneral: AlertCircle,
+  pollutionPenaltyMobile: Car,
+  pollutionSite: Biohazard,
 };
 
 // ── IATA Map for Locations Panel ──

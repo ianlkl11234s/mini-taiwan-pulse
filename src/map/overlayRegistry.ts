@@ -3,6 +3,14 @@ import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
+  SEVERITY_COLOR_EXPR,
+  PENALTY_MEDIUM_COLOR_EXPR,
+  PENALTY_SEVERITY_COLORS,
+  PENALTY_CRITICAL_FILTER,
+  PENALTY_GENERAL_FILTER,
+  PENALTY_MOBILE_FILTER,
+} from "../data/pollutionTypes";
+import {
   FARM_COLOR, FARM_COLOR_RAMP, FARM_SIZE_DOMAIN, FARM_RADIUS_PX, FARM_HIGHLIGHT_OPTIONS,
   OTHER_SPECIES_SIZE_DOMAIN, OTHER_SIZE_DOMAIN_DEFAULT,
   OTHER_SPECIES_COLOR_RAMP, OTHER_COLOR_RAMP_DEFAULT,
@@ -5999,6 +6007,196 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "#64748b",
           ] as unknown as string,
           "circle-opacity": op,
+        };
+      },
+    }],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  //  環境污染 POLLUTION（PMTiles，來自 taipei-gis-analytics environment/pollution_source）
+  //  ⚠️ 語意紅線：EMS_S_01 列管 ≠ 污染源。標籤用「污染潛勢設施」。
+  //  filter（介質 / 年份 / 模式）走專屬 hook 的 setFilter；此處不設 rebuildOnParamChange
+  //  以免 rebuild 洗掉 setFilter（比照 gasCoverage / realEstate）。opacity/大小走 paint diff。
+  // ══════════════════════════════════════════════════════════════════
+
+  // 污染潛勢設施（介質 × 嚴重度）— 一點一次渲染，色 = max_sev
+  {
+    id: "pollutionFacility",
+    sourceUrl: "./geo/pollution_facilities.pmtiles",
+    sourceId: "pollution-facility",
+    pmtiles: { sourceLayer: "pollution_facilities", minzoom: 0, maxzoom: 14 },
+    layers: [{
+      suffix: "circle",
+      type: "circle",
+      minzoom: 0,
+      paint: (_isDark, p) => {
+        const s = p?.pollutionFacilityScale ?? 1;
+        const op = p?.pollutionFacilityOpacity ?? 0.8;
+        return {
+          "circle-color": SEVERITY_COLOR_EXPR as unknown as string,
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            0, ["*", s, ["+", 0.7, ["*", 0.35, ["coalesce", ["to-number", ["get", "max_sev"]], 0]]]],
+            5, ["*", s, ["+", 1.2, ["*", 0.7, ["coalesce", ["to-number", ["get", "max_sev"]], 0]]]],
+            11, ["*", s, ["+", 2.5, ["*", 1.3, ["coalesce", ["to-number", ["get", "max_sev"]], 0]]]],
+            14, ["*", s, ["+", 4, ["*", 2, ["coalesce", ["to-number", ["get", "max_sev"]], 0]]]],
+          ] as unknown as number,
+          "circle-opacity": op,
+          "circle-stroke-width": ["case", [">=", ["coalesce", ["to-number", ["get", "max_sev"]], 0], 3], 0.8, 0] as unknown as number,
+          "circle-stroke-color": "#ffffff",
+          "circle-blur": 0.15,
+        };
+      },
+    }],
+  },
+
+  // 污染裁處事件（重大亮點）— 色 = event_medium；大小 = penalty_money；filter 由 severity_event 切出
+  {
+    id: "pollutionPenaltyCritical",
+    sourceUrl: "./geo/pollution_penalties.pmtiles",
+    sourceId: "pollution-penalty",
+    pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
+    layers: [{
+      suffix: "critical-circle",
+      type: "circle",
+      minzoom: 5,
+      filter: PENALTY_CRITICAL_FILTER,
+      paint: (_isDark, p) => {
+        const s = p?.pollutionPenaltyScale ?? 1;
+        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        return {
+          "circle-color": PENALTY_MEDIUM_COLOR_EXPR as unknown as string,
+          // 大小 ∝ 罰鍰：以 log10(penalty_money) 為主軸，**全 zoom（含拉到全台 z5）都反映金額**。
+          // moneyR = 依 log10 罰鍰映射基礎半徑（1萬→~2px．．．4億→~11px），再乘 zoom 微幅放大 + 使用者 scale。
+          //   moneyLog: 4(1萬)→3(3萬)→…→8.65(4.4億)；clamp 於 [3,9] 對應 [2,11]px。
+          "circle-radius": (() => {
+            const moneyR: unknown[] = [
+              "interpolate", ["linear"],
+              ["log10", ["max", 10, ["coalesce", ["to-number", ["get", "penalty_money"]], 10]]],
+              3, 2,   // ≤1千
+              4, 3,   // 1萬
+              5, 4.5, // 10萬
+              6, 6.5, // 100萬
+              7, 8.5, // 1千萬
+              9, 11,  // ≥1億
+            ];
+            // Mapbox 規則：["zoom"] 必須是 paint property 的 top-level step/interpolate input；
+            // 因此不要把 zoom interpolate 包進 ["*", ...]，否則整層 addLayer 會失敗。
+            return [
+              "interpolate", ["linear"], ["zoom"],
+              5, ["*", s, 0.85, moneyR],
+              10, ["*", s, 1.1, moneyR],
+              14, ["*", s, 1.6, moneyR],
+            ] as unknown as number;
+          })(),
+          "circle-opacity": op,
+          "circle-stroke-width": [
+            "case",
+            ["any",
+              ["==", ["coalesce", ["to-number", ["get", "is_continuous"]], 0], 1],
+              ["==", ["coalesce", ["to-number", ["get", "is_stop_order"]], 0], 1],
+            ],
+            1.2,
+            0.7,
+          ] as unknown as number,
+          "circle-stroke-color": "#fee2e2",
+          "circle-blur": 0.08,
+        };
+      },
+    }],
+  },
+
+  // 污染裁處事件（一般背景）— high + normal，淡色小點，與重大層分 toggle
+  {
+    id: "pollutionPenaltyGeneral",
+    sourceUrl: "./geo/pollution_penalties.pmtiles",
+    sourceId: "pollution-penalty",
+    pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
+    layers: [{
+      suffix: "general-circle",
+      type: "circle",
+      minzoom: 5,
+      filter: PENALTY_GENERAL_FILTER,
+      paint: (_isDark, p) => {
+        const s = p?.pollutionPenaltyScale ?? 1;
+        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        return {
+          "circle-color": PENALTY_MEDIUM_COLOR_EXPR as unknown as string,
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            5, ["*", s, ["case", ["==", ["get", "severity_event"], "high"], 1.8, 0.9]],
+            10, ["*", s, ["case", ["==", ["get", "severity_event"], "high"], 2.6, 1.4]],
+            14, ["*", s, ["case", ["==", ["get", "severity_event"], "high"], 4.0, 2.2]],
+          ] as unknown as number,
+          "circle-opacity": [
+            "case",
+            ["==", ["get", "severity_event"], "high"], op * 0.45,
+            op * 0.28,
+          ] as unknown as number,
+          "circle-stroke-width": 0,
+          "circle-blur": 0.25,
+        };
+      },
+    }],
+  },
+
+  // 污染裁處事件（移動污染）— 車輛排煙 / 空品維護區等，預設關閉
+  {
+    id: "pollutionPenaltyMobile",
+    sourceUrl: "./geo/pollution_penalties.pmtiles",
+    sourceId: "pollution-penalty",
+    pmtiles: { sourceLayer: "pollution_penalties", minzoom: 5, maxzoom: 14 },
+    layers: [{
+      suffix: "mobile-circle",
+      type: "circle",
+      minzoom: 5,
+      filter: PENALTY_MOBILE_FILTER,
+      paint: (_isDark, p) => {
+        const s = p?.pollutionPenaltyScale ?? 1;
+        const op = p?.pollutionPenaltyOpacity ?? 0.75;
+        return {
+          "circle-color": PENALTY_SEVERITY_COLORS.mobile,
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            5, ["*", s, 0.9],
+            10, ["*", s, 1.5],
+            14, ["*", s, 2.6],
+          ] as unknown as number,
+          "circle-opacity": op * 0.55,
+          "circle-stroke-width": 0,
+          "circle-blur": 0.18,
+        };
+      },
+    }],
+  },
+
+  // 污染場址（S4 確認污染）— 深色方形觀感（circle + stroke），可選只看列管中
+  {
+    id: "pollutionSite",
+    sourceUrl: "./geo/pollution_sites.pmtiles",
+    sourceId: "pollution-site",
+    pmtiles: { sourceLayer: "pollution_sites", minzoom: 0, maxzoom: 14 },
+    layers: [{
+      suffix: "circle",
+      type: "circle",
+      minzoom: 0,
+      paint: (_isDark, p) => {
+        const s = p?.pollutionSiteScale ?? 1;
+        const op = p?.pollutionSiteOpacity ?? 0.9;
+        return {
+          // 仍列管（is_active=1）用亮紅描邊突顯，已解除用灰
+          "circle-color": ["case", ["==", ["coalesce", ["to-number", ["get", "is_active"]], 0], 1], "#dc2626", "#6b7280"] as unknown as string,
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            0, ["*", s, 1.2],
+            5, ["*", s, 2],
+            11, ["*", s, 4],
+            14, ["*", s, 7],
+          ] as unknown as number,
+          "circle-opacity": op,
+          "circle-stroke-width": 1.2,
+          "circle-stroke-color": ["case", ["==", ["coalesce", ["to-number", ["get", "is_active"]], 0], 1], "#fecaca", "#9ca3af"] as unknown as string,
+          "circle-blur": 0.1,
         };
       },
     }],

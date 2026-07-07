@@ -1015,6 +1015,32 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   osmPowerPlantsStatic: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   islandPowerGrid: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   facOffshore: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
+  // 環境污染（來源 taipei-gis-analytics environment/pollution_source；PMTiles）
+  pollutionFacility: {
+    status: 'verified',
+    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
+    processing: 'EMS_S_01 列管對象 × EMS_P_46 裁處 → 介質×嚴重度 PMTiles（列管≠污染）',
+  },
+  pollutionPenaltyCritical: {
+    status: 'verified',
+    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
+    processing: 'EMS_P_46 裁處事件 geocoded → severity_event=critical 重大裁處 PMTiles filter',
+  },
+  pollutionPenaltyGeneral: {
+    status: 'verified',
+    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
+    processing: 'EMS_P_46 裁處事件 geocoded → severity_event=high/normal 一般裁處 PMTiles filter',
+  },
+  pollutionPenaltyMobile: {
+    status: 'verified',
+    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
+    processing: 'EMS_P_46 裁處事件 geocoded → severity_event=mobile 移動污染 PMTiles filter',
+  },
+  pollutionSite: {
+    status: 'verified',
+    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
+    processing: 'EMS_S_07 確認污染場址（S4）PMTiles',
+  },
 };
 
 // ── Convenience helpers ──

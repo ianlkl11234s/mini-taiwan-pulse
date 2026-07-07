@@ -293,7 +293,11 @@ export type ExpandableLayerKey =
   // 航空安全 — 無人機禁/限航區（共用 PMTiles + filter 拆兩 toggle）
   | "droneNoFlyZone" | "droneRestrictedZone"
   // 警察覆蓋分析 isochrone × 3 層級
-  | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept";
+  | "policeIsoSubstation" | "policeIsoPrecinct" | "policeIsoCityDept"
+  // 環境污染
+  | "pollutionFacility"
+  | "pollutionPenaltyCritical" | "pollutionPenaltyGeneral" | "pollutionPenaltyMobile"
+  | "pollutionSite";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -652,6 +656,8 @@ export interface FeatureInfo {
     | "a1AccidentRealtime"
     | "investigationBureau" | "antiCorruptionOffice" | "immigrationOffice" | "coastGuardStation"
     | "civilDefenseShelter"
+    // 環境污染（PMTiles：設施 × 介質 × 嚴重度 / 裁處事件時間軸 / 污染場址）
+    | "pollutionFacility" | "pollutionPenalty" | "pollutionSite"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
     | "aviationControl" | "aviationRestricted"
     // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
@@ -945,6 +951,12 @@ export interface LayerVisibility {
   policeIsoSubstation: boolean;       // 派出所 isochrone（步行/開車 × 5/10 min）
   policeIsoPrecinct: boolean;         // 分局 isochrone（步行/開車 × 15/30 min）
   policeIsoCityDept: boolean;         // 縣市警局 isochrone（步行/開車 × 30/60 min）
+  // 環境污染 POLLUTION（PMTiles，來自 taipei-gis-analytics environment/pollution_source）
+  pollutionFacility: boolean;   // 污染潛勢設施（EMS_S_01 × 5 介質 × 嚴重度；152,246）
+  pollutionPenaltyCritical: boolean; // 重大裁處事件（severity_event=critical；預設亮點）
+  pollutionPenaltyGeneral: boolean;  // 一般裁處事件（severity_event=high/normal；預設背景）
+  pollutionPenaltyMobile: boolean;   // 移動污染裁處（severity_event=mobile；預設關閉）
+  pollutionSite: boolean;       // 污染場址（EMS_S_07；8,253；S4 確認污染）
 }
 
 // ── 空氣品質 ──

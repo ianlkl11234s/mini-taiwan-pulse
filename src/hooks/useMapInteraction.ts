@@ -352,6 +352,17 @@ export function useMapInteraction(
           { layers: ["immigration-office-circle"], type: "immigrationOffice" },
           { layers: ["coast-guard-station-circle"], type: "coastGuardStation" },
           { layers: ["civil-defense-shelter-circle"], type: "civilDefenseShelter" },
+          // 環境污染（點層優先於大面積；三層皆 PMTiles circle）
+          { layers: ["pollution-site-circle"], type: "pollutionSite" },
+          {
+            layers: [
+              "pollution-penalty-critical-circle",
+              "pollution-penalty-general-circle",
+              "pollution-penalty-mobile-circle",
+            ],
+            type: "pollutionPenalty",
+          },
+          { layers: ["pollution-facility-circle"], type: "pollutionFacility" },
           { layers: ["aviation-control-fill", "aviation-control-line"], type: "aviationControl" },
           { layers: ["aviation-restricted-fill", "aviation-restricted-line"], type: "aviationRestricted" },
           { layers: ["drone-nfz-fill", "drone-nfz-line"], type: "droneNoFlyZone" },
