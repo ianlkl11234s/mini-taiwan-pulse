@@ -1,38 +1,45 @@
 # Status
 
-**最後更新**：2026-07-04（static-to-cdn — 25 靜態層搬 CDN，BC-8 根治）
-**mini-taiwan-pulse head**：`master` = `325bae6`（PR #54），CI（test+review）綠 + Zeabur 部署 + prod 端到端驗證
-**gis-platform head**：無變動（純前端 + S3/CDN，無 migration）
+**最後更新**：2026-07-07（owner-gated 資料資產鎖定 + 分層治理後台 + lock_type + 電廠洩漏修補）
+**mini-taiwan-pulse head**：`master` = `2de4c3f`（PR #63 docs）；本 session 6 PR 全 merged，本地=遠端
+**gis-platform head**：`main` = `e30796a`（migration 275/276/277/278/279）
 **data-collectors head**：無變動
 
-## 本 session 完成（2026-07-04）
+## 本 session 完成（2026-07-07）— 接手他人 session 續作
 
-用戶起手：「變電所/電力線開多圖層回 0，是不是 Supabase 改動造成的？硬重載一樣」→ 診斷 → 結構面根治 → 一路做到 prod 驗證。
+起手：用戶要把畜牧/污染等私有圖層「鎖起來不讓外部取得」、結合會員系統、做管理後台。從另一帳號的中斷 session（`~/.claude-work/.../c4d972ee`）讀 transcript 接續。
 
-### A. BC-8 診斷（根因非 Supabase）
-- 線上 anon key 直打 RPC → 後端回滿（785/2305 筆）；migration 271/272 表清單不含 osm 電力表（早在 176/228 自帶 anon policy）→ **排除 Supabase / 資安改動**。
-- **真冷 repro**（page reload 清 `cachedOnce` 記憶體，`setData([])` 不算冷）→ 併發上限 8（AR-01）的 FIFO 佇列讓靜態大層排在動態層後 → 冷載暫態空窗 ~16s（非 fetch 失敗、非 render race）。且多人各自打同一份 = DB 讀取 **O(N)**。
+### A. 資料真鎖（Phase 1，前端 #60 + gis #28 migration 275）
+- 34 層（畜牧 8 / 石化油氣 10 / 電網 6 / 電廠 9 + aviationGlow）從「前端假鎖」升級：22+ 支 RPC 改 SECURITY DEFINER + owner 守門、19 張表 REVOKE anon。
+- **關鍵洞察**：光下架 CDN 鎖不住（anon key 公開 + staticRpc 404 fallback 打真 RPC）→ 真斷源在 DB REVOKE。
+- 加油站是公開資料 → 拆出公開 `get_gas_station_layers`（不鎖）。排除：灌排渠道 / 電桿（用戶指定）。
+- 前端：gated 旗標 + 單色鎖頭雙 sidebar + 非 owner 擋 toggle；石化/電網/電廠 loader 改直連 RPC；畜牧改 owner-only RPC 動態載入；deploy 腳本斷源（S3 不刪、只斷供應）。
 
-### B. static-to-cdn — 25 靜態層讀取去 DB 化（PR #54，squash `325bae6`）
-- **可複用管線**：`scripts/export/export-static-rpc-snapshots.sh`（psql 匯出）+ `src/data/staticRpc.ts`（讀 `/static-rpc/*.json`，404 fallback 回 RPC）+ deploy 鏈（nginx `/static-rpc/` + upload/pull 鏡像子前綴，加檔零改腳本）。
-- **25 層**：電網 3 + 能源 15（含 fossil_fuel_layers 9.5MB）+ 廢棄物 6（2 counts + routes/facilities/disposal_points/squads 全量+前端 filter）+ 主要電廠座標 1。loader 改動多數僅一 token（transform/popup/legend 不動）。
-- **成效**：脫離 DB 併發排隊，BC-8 settle 16s→2s，O(N)→O(1)。
-- **排除**：`get_waste_stops`（193k/56MB，保留 per-city RPC）；data_catalog/h3_yearly/reservoir/satellite（低衝擊延後 → SC-1）。
+### B. 分層治理後台（Phase 2，migration 276）
+- 分層 tier（free<member<insider<owner）+ 3 治理表（gated_layers/dataset_freshness/access_audit_log）+ enforce_layer_access 守門 + 6 admin RPC + 公開 get_layer_gates。
+- 站內 owner-only 後台四分頁（會員/tier、稽核、圖層鎖定、資料新鮮度）。動態 gating（DB SSOT，fail-safe 維持鎖定）。
 
-### C. 驗證鏈（每關綠）
-- `tsc -b` ✅ · CI（test+review）✅ · 廢棄物 **psql 對數驗證 10/10 全等** ✅
-- Pilot 冷載 browser（BC-8 不再重現、settle 16s→2s）✅ · Batch 1 browser（11 層零 fallback）✅ · 最終 browser（渲染 + popup 屬性未壞）✅
-- **prod 端到端**：25 檔上線、缺檔正確 404、首頁正常、fallback 安全 ✅
+### C. lock_type 分型（Phase 3，前端 #62 + gis #30 migration 278）
+- gated_layers 加 lock_type（ui/full）。純宣告、不動 grant（防誤公開）。34 層全 full（乾淨鎖）。
 
-### 多 agent 協作模式
-主 agent 定 pattern + 電網 pilot 驗證 → delegate：靜態層盤點（31 個）+ 廢棄物重構（帶 psql 對數 gate）+ browser 驗證（`bc8` session 複用）。信任 subagent push-back（stops 56MB 判斷不搬）。詳 PLAYBOOKS PB-27 / INCIDENTS + REFLECTIONS 2026-07-04。
+### D. 安全審計 + 洩漏修補（migration 277/279）
+- 上線後派獨立安全審計 agent 全掃 → ✅ 畜牧/石化/電網/PostgREST schema 繞道/git 歷史/CDN/防提權全守住。
+- 🔴 掃出電廠 `public` schema 漏鎖（all_power_plants_v 等 4 個 anon 可讀）→ migration 279 REVOKE。
+- 🐛 read-only tx regression（STABLE func + audit INSERT → 25006）→ migration 277 改 VOLATILE。詳 INCIDENTS 2026-07-07。
+- denied 稽核落地限制：RAISE 令表 INSERT rollback → 改 RAISE LOG 寫 server log（app 表只留 granted）。
+
+### E. 文件（PR #63）
+- docs/features/owner-gated-layers/README 補 Phase 3 + 安全模型（三道防線）+ 2026-07-07 審計紀錄。
+
+### 協作 / 工作區
+- 主 agent 定契約 + delegate（DB 查核 / 前端 gating / migration / 安全審計 / lock_type）。用 worktree 隔離把混合工作區拆成各自乾淨 PR（PB-28），全程零觸碰用戶其他 WIP。
 
 ## 待辦
-- **SC-1**（P3）：static-to-cdn 延後項（waste_stops per-city 拆檔 / data_catalog / h3_yearly / reservoir/satellite）— 模板成熟，需要時 export append
-- **BC-4**（P1）：部署前置（CSP header + 隱私頁 BYOK 揭露 + OAuth 正式網域切換）— 公開前必做
-- **BC-2**（P1）：會員加值（細部規劃已拍板，見 `docs/proposal/member-features-plan.md` M 系列，migration 273/274）— 另條工作流
-- 前 session 遺留：BC-3、GC 系列、AR-11e/12~16、SAT/NE/MO 系列
+- **OG-1**（P2）：anon key 濫用防護 / Supabase Spend Cap（機密已鎖，殘餘僅額度濫用）— 用戶之後處理
+- **OG-2~4**（P3）：freshness 後台編輯 / UI 鎖首個實際圖層驗收 / powerPlants owner 存取
+- 前 session 遺留：BC-2/4a/4b、AR-11e/12~16、SC-1、GC/SAT/NE/MO 系列
+- ⚠️ **工作區有用戶並行 WIP（本 session 未碰）**：淺色底圖主題化（App/DataSourceBrowser/IconRailSidebar + 全 featureInfo panels + 新 featureTheme.tsx）+ 會員規劃 docs（member-features-plan.md 等）
 
 ---
 
-_本 session memory commits_：INCIDENTS / PLAYBOOKS PB-27 / PRINCIPLES / REFLECTIONS / DATA_SCOPE / GLOSSARY / BACKLOG（BC-8 done + SC-1）+ 本檔
+_本 session memory commits_：INCIDENTS / PRINCIPLES / PLAYBOOKS PB-28 / REFLECTIONS / GLOSSARY / BACKLOG（OG 系列）+ 本檔
