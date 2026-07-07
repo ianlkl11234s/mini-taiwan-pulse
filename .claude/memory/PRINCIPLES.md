@@ -874,3 +874,14 @@ WebGL 逐幀重建整個頂點 buffer（count × trail × 6 頂點 × 10 float�
 原則：**資料月更或更慢 + param-less（或可全量化）+ 非時序/realtime → 預匯出 JSON 快照走 S3+Cloudflare CDN，別走 RPC**（O(N)→O(1)）。實作 `staticRpc()`（讀 `/static-rpc/*.json`，404 fallback 回 RPC）+ 匯出腳本 + nginx/S3 鏡像子前綴。完整 SOP 見 PLAYBOOKS PB-27，交付 `docs/features/static-to-cdn/`。
 
 推論：**新 layer 接資料前先分類**——靜態 → CDN 靜態檔（geojson/PMTiles 或 static-rpc 快照）；半動態共享快照 → R2 快照（AR-12/13）；真動態時序 → 保留 RPC。**只有真動態該進 DB 併發排隊。**（呼應 §資料來源管理 + 大面積覆蓋 PMTiles）
+
+## owner-gated 安全鎖定原則（2026-07-07）
+
+### 鎖機密資料要掃 public schema 全面，不只鎖 API 清單
+Supabase 只 expose `public`（+少數）schema 給 REST。把機密表放**未 expose 的 schema**（energy/agriculture/realtime）+ RPC 供應 → schema-level 天然擋 anon 繞道（`Accept-Profile` 打不進去，實測 406）。但**散落 `public` schema 的同主題 table/view 容易漏鎖**（275 漏 4 個電廠 table/view）。鐵則：鎖某主題機密時，反查**所有**讀該資料的 table/view/function（不只前端用到的，孤兒表也要），`public` schema 的一律確認 anon grant + RLS policy 都收斂。
+
+### anon key 是公開的，安全靠 RLS/GRANT 不靠藏 key
+Supabase anon key 設計上就是前端公開憑證（bundle 可抽出）。安全**不能靠藏 anon key**，要靠後端 RLS + GRANT/REVOKE。「即使拿到 anon key 也讀不到機密」= REVOKE anon + RPC owner 守門；要拿機密必須換到登入後的 user token（authenticated JWT）+ tier 足夠。UI 鎖（不 REVOKE）= 資料對所有人公開，只能用在非機密引導註冊。註：Supabase host 是架在 Supabase 自己的 Cloudflare 後（`server: cloudflare`），**不經自站 zone** → 自站 Cloudflare rate limit 對 Supabase 無效，防額度濫用走 Supabase Spend Cap。
+
+### SECURITY DEFINER + 含 INSERT 的 RPC 必須 VOLATILE
+PostgREST 對 STABLE/IMMUTABLE function 用 READ ONLY transaction，VOLATILE 才用 READ WRITE。所以任何「函式內要寫入」（audit log、計數、狀態）的 RPC **必須標 VOLATILE**，否則 REST 呼叫觸發 `25006 read-only transaction`。此類 bug 只有「有權限進入函式的角色透過真 REST」會踩到，psql 直測與 anon（ACL 擋）都測不出。
