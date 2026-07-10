@@ -127,6 +127,7 @@ export type ExpandableLayerKey =
   | "transitAlerts"
   | "safetyAlerts"
   | "roadEvents"
+  | "roadCongestion"
   | "busLive"
   | "waterBasins"
   | "waterRivers"
@@ -611,7 +612,7 @@ export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
-    | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
+    | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent" | "roadCongestion"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "sportsVenue"
@@ -729,6 +730,7 @@ export interface LayerVisibility {
   transitAlerts: boolean;
   safetyAlerts: boolean;
   roadEvents: boolean;    // TDX 即時路況（live_freeway/highway/city + event_city 預告）
+  roadCongestion: boolean; // 省道路況 v1（TDX live_highway；PMTiles 幾何 + feature-state 染色）
   cwaCloudImagery: boolean;
   cwaRadarImagery: boolean;
   aqiImagery: boolean;

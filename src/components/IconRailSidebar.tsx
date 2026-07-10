@@ -90,6 +90,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   transitAlerts: TrainFront,
   safetyAlerts: AlertTriangle,
   roadEvents: AlertTriangle,
+  roadCongestion: AlertTriangle,
   cwaCloudImagery: Cloud,
   cwaRadarImagery: CloudRain,
   aqiImagery: Wind,

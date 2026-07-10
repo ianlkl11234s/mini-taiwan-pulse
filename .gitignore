@@ -88,6 +88,8 @@ public/geo/fire_hydrants.pmtiles
 public/forestry/hiking_trails.pmtiles
 # Base map PMTiles（行政邊界 + 等高線 + OSM 路網，6 檔合計 ~406MB，走 S3 deploy-assets/base_map/）
 public/base_map/*.pmtiles
+# 路況省道幾何 PMTiles（road_congestion_highway 3.1MB，前端 feature-state 染色，走 S3 deploy-assets/road/）
+public/road/*.pmtiles
 # 警政司法民防 19 dataset（172MB，dev 用 symlink → taipei-gis-analytics/data/processed/police_justice/）
 # Production：走 S3 deploy-assets/police_justice/
 public/police_justice

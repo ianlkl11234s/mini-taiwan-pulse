@@ -209,6 +209,16 @@ for f in public/base_map/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/base_map/$name" --region ap-southeast-2
 done
 
+# 路況省道幾何 PMTiles：上傳到 deploy-assets/road/ 子前綴（鏡像結構，pull 端整夾 sync）。
+# road_congestion_highway.pmtiles（省道 6818 段幾何，前端 setFeatureState 染色）。
+# SSOT 在 taipei-gis-analytics（pipelines/transportation/road/06_export_highway_congestion_pmtiles.sh）。
+for f in public/road/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading road/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/road/$name" --region ap-southeast-2
+done
+
 # 全球氣候 PMTiles：上傳到 deploy-assets/climate/ 子前綴（沙塵/海流/風場 PMTiles 切片）。
 # 來源是 data-collectors 跑 CMEMS / CAMS / NOAA GFS 後產出的 .pmtiles。
 # Collector PMTiles 生成管線尚未上線（plan-misty-fog P5.5），此 glob 先就位。

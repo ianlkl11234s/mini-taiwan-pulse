@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -135,6 +136,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
+  { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
   { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
@@ -1213,6 +1215,37 @@ function RoadEventsLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         ⚠ live_city 偏基隆；高雄缺 TDX 來源
+      </div>
+    </div>
+  );
+}
+
+function RoadCongestionLegend() {
+  const items = [
+    { level: 1, label: "順暢" },
+    { level: 2, label: "車多" },
+    { level: 3, label: "略壅" },
+    { level: 4, label: "壅塞" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        省道路況 CONGESTION
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {items.map((it) => (
+          <div key={it.level} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 14, height: 4, borderRadius: 2, background: ROAD_CONGESTION_COLORS[it.level], flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{it.level} {it.label}</span>
+          </div>
+        ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 14, height: 4, borderRadius: 2, background: ROAD_CONGESTION_COLORS[0], flexShrink: 0 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>無資料</span>
+        </div>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        v1 僅省道 highway
       </div>
     </div>
   );

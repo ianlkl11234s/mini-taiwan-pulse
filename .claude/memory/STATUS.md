@@ -1,12 +1,28 @@
 # Status
 
-**最後更新**：2026-07-10（Batch 1 即時圖層：急診 er_hospital + 台灣好行 tourist_shuttle）
-**mini-taiwan-pulse head**：`feat/er-hospital`（base=master；含急診+台灣好行兩 layer，**未 commit / 未 push**）
-**gis-platform head**：`main`（+ migration 283/284 **已 apply production、未 commit**）
-**taipei-gis-analytics head**：`feat/aquaculture-pmtiles`（+ `08_build_tourist_shuttle_routes.py` 未 commit）
+**最後更新**：2026-07-10（Batch 1+2 即時圖層：急診 / 台灣好行 / 路況省道）
+**mini-taiwan-pulse head**：`feat/road-congestion`（stack 於 feat/er-hospital；含急診+台灣好行+路況三 layer，**未 push**）
+**gis-platform head**：`main`（+ migration 283/284/285 **已 apply production**）
+**taipei-gis-analytics head**：`feat/aquaculture-pmtiles`（+ tourist_shuttle 08 + road congestion 06 script）
 **data-collectors head**：無變動（相關 collector 早已在跑）
 
 > ⚠️ 另有 `feat/aquaculture-layers`（養殖漁業 3 圖層，commit `7946a59` 本地暫存未 push）平行未 merge。
+
+## 本 session 完成（2026-07-10）— Batch 2 路況省道（road_congestion，接 Batch 1 後）
+
+用戶「繼續處理，晚點一起驗收」→ 做 Batch 2 = ② 路況（v1 省道 highway）。branch `feat/road-congestion`（stack 於 er-hospital）。feature 文件 `docs/features/road-congestion/`。
+
+### 路況 road_congestion（即時監控 §，key `roadCongestion`，v1 highway）
+- **全站首個 PMTiles feature-state 染色**：幾何走 PMTiles（不隨 RPC），前端 `setFeatureState`（promoteId=section_uid）。省道路段依即時 congestion level 綠→紅染色。
+- 上游 migration 285：**288 字元編碼** pre-aggregate（每段一列，每字元一 5min 槽，'1'-'4'=level '-'=無資料）+ refresh + cron :00/:15/:30/:45 + get_road_congestion_day/_dates。payload **2.1MB raw**（vs 裸抄 freeway 43MB）；refresh 23 秒未 OOM；backfill 7 天。
+- PMTiles `road_congestion_highway.pmtiles`（2.65MB，6818 段，走 S3 deploy-assets/road/，taipei-gis 06 script）。
+- 前端：loader 288 解碼 + hook feature-state diff 染色 + hit 層 popup（section_id + 當前等級）+ 4 級圖例 + opacity/width slider。
+- 驗收 tsc 0 / test 190 / browser 主 agent 親驗（彰化省道四色染色截圖 + promoteId round-trip 實證）。
+- **⚠ 取捨（待用戶拍板）**：pre-aggregate refresh 落後當下 ~15-18 分鐘 → 前端 clamp 到「最新可得快照」（對齊 freeway snap-back，離線路段仍灰）。若要嚴格精確 slot 拿掉 clamp。
+- 待辦 v2：市區 city 5 縣市（台中幾何過粗）、速度欄位 popup、精確 slot 選項。
+
+### ⚠ cron 盤點（已排定，未來新增避開）
+bus refresh `:02/:17/:32/:47` · intercity `:07/:22/:37/:52` · 好行 `:12/:27/:42/:57` · **路況 `:00/:15/:30/:45`**。cleanup：bus 03:02 / intercity 03:07 / 好行 03:12 / 路況 03:15。→ 下一個 pre-aggregate 圖層再找未占分鐘。
 
 ## 本 session 完成（2026-07-10）— Batch 1 即時資料補接（急診 + 台灣好行）
 

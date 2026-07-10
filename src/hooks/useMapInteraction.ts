@@ -208,6 +208,7 @@ export function useMapInteraction(
       {
         // 查詢 Mapbox GIS 層
         const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+          { layers: ["road-congestion-hit"], type: "roadCongestion" },
           { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
           { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
           { layers: ["schools-circle", "schools-glow"], type: "school" },
@@ -408,7 +409,11 @@ export function useMapInteraction(
               }
             }
             if (!coords) coords = [e.lngLat.lng, e.lngLat.lat];
-            setFeatureInfo({ layerType: type, properties: f.properties ?? {}, coords });
+            // roadCongestion 的 level 在 feature-state（非 baked properties）→ 併入
+            const properties = type === "roadCongestion"
+              ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
+              : (f.properties ?? {});
+            setFeatureInfo({ layerType: type, properties, coords });
             sessionTracker.log("feature_click", { layerType: type });
             found = true;
             break;

@@ -45,6 +45,7 @@ import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
 // LegendPanel 圖例吃同一份，改色階兩邊自動同步。
 import { WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX } from "./map/climateRamps";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
+import { useRoadCongestionLayer } from "./hooks/useRoadCongestionLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
 import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
 import type { ReservoirScene } from "./three/ReservoirScene";
@@ -1205,6 +1206,14 @@ export default function App() {
     layerVisibility.freewayCongestion,
     transportParams.overlayParams.freewayWidth ?? 1,
     isDarkTheme,
+  );
+
+  // ── 省道路況 v1（PMTiles + feature-state 染色） ──
+  useRoadCongestionLayer(
+    mapRef,
+    layerVisibility.roadCongestion,
+    transportParams.overlayParams.roadCongestionWidth ?? 1,
+    transportParams.overlayParams.roadCongestionOpacity ?? 0.85,
   );
 
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告

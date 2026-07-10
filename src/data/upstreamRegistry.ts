@@ -207,6 +207,10 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'road_congestion', confidence: 'HIGH' }],
   },
+  roadCongestion: {
+    status: 'verified',
+    datasets: [{ datasetId: 'road_congestion', confidence: 'HIGH' }],
+  },
   roadEvents: {
     status: 'verified',
     datasets: [{ datasetId: 'road_event', confidence: 'HIGH' }],

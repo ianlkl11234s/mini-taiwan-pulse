@@ -51,6 +51,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   bikeStations: "#ffca28",
   cyclingRoutes: "#66bb6a",
   freewayCongestion: "#ef5350",
+  roadCongestion: "#fb923c",
   weatherStations: "#4dd0e1",
   h3Population: "#ff6b6b",
   popCount: "#f9bd31",
@@ -440,6 +441,7 @@ export const THEMES: ThemeDef[] = [
         title: "即時監控",
         layers: [
           { key: "freewayCongestion", label: "國道壅塞 Congestion", expandable: true },
+          { key: "roadCongestion", label: "省道路況 Provincial v1", expandable: true },
           { key: "roadEvents", label: "即時路況 Road Events", expandable: true },
         ],
       },
