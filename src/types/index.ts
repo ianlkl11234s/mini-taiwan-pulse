@@ -107,6 +107,8 @@ export type ExpandableLayerKey =
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
+  // 🐟 養殖漁業 Aquaculture（靜態 overlay polygon）
+  | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
@@ -610,6 +612,7 @@ export interface FeatureInfo {
     | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
+    | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
@@ -769,6 +772,10 @@ export interface LayerVisibility {
   livestockSlaughter: boolean;    // 屠宰場（185，家畜/家禽分色）
   livestockFeed: boolean;         // 飼料廠（258）
   livestockMarket: boolean;       // 拍賣/批發市場（21）
+  // 🐟 養殖漁業 Aquaculture（靜態 overlay；ponds=PMTiles，zone/cageNet=GeoJSON polygon）
+  aquaculturePonds: boolean;      // 逐口魚塭（OSM PMTiles，~15k 面）
+  aquacultureZone: boolean;       // 養殖漁業生產區（62 面）
+  aquacultureCageNet: boolean;    // 海上箱網（42 面）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

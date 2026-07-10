@@ -164,6 +164,9 @@ export function useTransportParams() {
   const [correctionalFacilityOpacity, setCorrectionalFacilityOpacity] = useState(0.9);
   const [correctionalFacilityScale, setCorrectionalFacilityScale] = useState(1);
   const [courtJurisdictionOpacity, setCourtJurisdictionOpacity] = useState(0.18);
+  const [aquaculturePondsOpacity, setAquaculturePondsOpacity] = useState(0.5);
+  const [aquacultureZoneOpacity, setAquacultureZoneOpacity] = useState(0.35);
+  const [aquacultureCageNetOpacity, setAquacultureCageNetOpacity] = useState(0.4);
   const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
   const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
   const [theftTaoyuanScale, setTheftTaoyuanScale] = useState(1);
@@ -811,6 +814,7 @@ export function useTransportParams() {
     prosecutorsOfficeOpacity, prosecutorsOfficeScale,
     correctionalFacilityOpacity, correctionalFacilityScale,
     courtJurisdictionOpacity,
+    aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
     crimeAreaMonthlyOpacity,
     theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
@@ -1139,6 +1143,7 @@ export function useTransportParams() {
     speedCameraOpacity, speedCameraScale, speedZoneSegmentOpacity, speedZoneSegmentWidth,
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
     correctionalFacilityOpacity, correctionalFacilityScale, courtJurisdictionOpacity,
+    aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -2151,6 +2156,15 @@ export function useTransportParams() {
       ];
       case "courtJurisdiction": return [
         { label: `填色透明度 ${courtJurisdictionOpacity.toFixed(2)}`, value: courtJurisdictionOpacity, min: 0, max: 0.6, step: 0.02, onChange: setCourtJurisdictionOpacity },
+      ];
+      case "aquaculturePonds": return [
+        { label: `填色透明度 ${aquaculturePondsOpacity.toFixed(2)}`, value: aquaculturePondsOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquaculturePondsOpacity },
+      ];
+      case "aquacultureZone": return [
+        { label: `填色透明度 ${aquacultureZoneOpacity.toFixed(2)}`, value: aquacultureZoneOpacity, min: 0, max: 0.7, step: 0.05, onChange: setAquacultureZoneOpacity },
+      ];
+      case "aquacultureCageNet": return [
+        { label: `填色透明度 ${aquacultureCageNetOpacity.toFixed(2)}`, value: aquacultureCageNetOpacity, min: 0, max: 0.7, step: 0.05, onChange: setAquacultureCageNetOpacity },
       ];
       case "crimeAreaMonthly": return [
         { label: `填色透明度 ${crimeAreaMonthlyOpacity.toFixed(2)}`, value: crimeAreaMonthlyOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setCrimeAreaMonthlyOpacity },

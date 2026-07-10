@@ -174,6 +174,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
   { keys: ["livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck", "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther"], render: () => <LivestockFarmLegend /> },
   { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
+  { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
@@ -592,6 +593,36 @@ function LivestockFacilityLegend() {
           { color: MARKET_COLOR, label: "拍賣/批發市場 Market" },
         ]}
       />
+    </div>
+  );
+}
+
+function AquacultureLegend({ visibility }: { visibility: LayerVisibility }) {
+  const t = useLegendTheme();
+  const rows = ([
+    { key: "aquaculturePonds", color: "#26c6da", label: "逐口魚塭 Ponds" },
+    { key: "aquacultureZone", color: "#66bb6a", label: "養殖漁業生產區 Zone" },
+    { key: "aquacultureCageNet", color: "#5c6bc0", label: "海上箱網 Cage Net" },
+  ] as const).filter((it) => visibility[it.key]);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        養殖漁業 AQUACULTURE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => (
+          <div key={it.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: 2, background: it.color,
+                opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+                boxSizing: "border-box", flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

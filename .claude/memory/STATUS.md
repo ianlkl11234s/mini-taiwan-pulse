@@ -1,9 +1,34 @@
 # Status
 
-**最後更新**：2026-07-07（owner-gated 資料資產鎖定 + 分層治理後台 + lock_type + 電廠洩漏修補）
-**mini-taiwan-pulse head**：`master` = `2de4c3f`（PR #63 docs）；本 session 6 PR 全 merged，本地=遠端
-**gis-platform head**：`main` = `e30796a`（migration 275/276/277/278/279）
+**最後更新**：2026-07-09（養殖漁業 3 圖層接線：逐口魚塭 PMTiles + 生產區/箱網 geojson）
+**mini-taiwan-pulse head**：`feat/aquaculture-layers`（base=feat/light-theme；**未 commit、未 push**，用戶指定過夜先不 push）
+**taipei-gis-analytics head**：`feat/aquaculture-pmtiles`（base=master；未 commit、未 push）
+**gis-platform head**：無變動
 **data-collectors head**：無變動
+
+## 本 session 完成（2026-07-09）— 養殖漁業圖層上架（過夜自動執行 + 主 agent 驗收）
+
+起手：用戶要整理 taipei-gis-analytics 養殖漁業資料 + 確認怎麼把「撈出來的魚塭」接成 layer。發現上游資料早已整理好（SSOT `docs/topic-research/fishery/_status.md`）；「魚塭」= `aquaculture_ponds_osm`（OSM 逐口魚塭 15,241 面，7/08 剛 ingest、當時未 commit 躺 master）。
+
+### 決策（用戶拍板）
+- 接 3 層：逐口魚塭（PMTiles）+ 養殖漁業生產區（geojson 62）+ 海上箱網（geojson 42）。放養量 G70 未接。
+- 魚塭走 PMTiles 重出（15k 面 6.6MB geojson 太重 → 3.1MB pmtiles）；生產區/箱網量小維持 geojson。
+- 公開，不 owner-gated（OSM ODbL + 政府開放資料）。
+
+### 執行（主 agent orchestrate + delegate + 逐階段驗收；契約鎖死後上下游平行）
+- **上游**（feat/aquaculture-pmtiles）：加 `pipelines/fishery/aquaculture_ponds_osm/03_pmtiles.py`（tippecanoe -Z5 -z14 + keep_attrs 5 欄 + `-l aquaculture_ponds_osm`），出 3.1MB pmtiles → 複製前端 public/fishery/。
+- **下游**（feat/aquaculture-layers）：接線 10 檔（types / overlayRegistry / useMapInteraction / fisheryPanels(新) / registry / useTransportParams / LegendPanel / layerCatalog 新分組 / IconRailSidebar / upstreamRegistry）+ 部署契約 3 檔（nginx.conf + pull/upload-deploy-assets.sh 補 fishery 子前綴，含 fire catch-all `--exclude "fishery/*"`）。
+- 新分組「養殖漁業 Aquaculture」掛農業主題；四鐵則齊（opacity slider / legend / popup / dropdown-N/A）。範本：ponds 抄 courtJurisdiction(PMTiles fill)、zone/cageNet 抄 livestockFeed(geojson 靜態)。
+
+### 驗收（工具佐證，主 agent 親驗）
+- `npx tsc -b` exit 0；`pnpm test` 190/190（deployContract fishery 契約由紅轉綠 + layerConsistency 圖例）。
+- Browser（本地 dev z12 雲嘉南沿海）：ponds 2400 面（青 #26c6da）、zone 28 面（綠 #66bb6a）、cageNet 澎湖 41 面（靛 #5c6bc0）；popup 點魚塭跳面板（面積 1.08 ha）；console 0 error；pmtiles HEAD 200 / Range 206 magic `PMTiles`。**主 agent 親眼看兩張截圖確認**。
+
+### 待決 / 未竟（給用戶）
+- **部署方式待定**：3.1MB pmtiles 要 git commit 進版控、還是 gitignore + 跑 upload-deploy-assets.sh 上 S3（deploy 腳本已備 S3 fishery 路徑）。
+- **未 commit、未 push**；PR 待開。上游魚塭 ingest（用戶 7/08 的工作）仍未 commit，一併留給用戶。
+- backlog：popup footer「(Tier ?)」（養殖資料缺 source_org/tier）、魚塭屬性稀疏（多數 produce/name 空、非 bug）、放養量 G70 / 牡蠣養殖區未接。
+- feature 文件：`docs/features/aquaculture/` + 上游 `docs/handoff/aquaculture.md`。
 
 ## 本 session 完成（2026-07-07）— 接手他人 session 續作
 

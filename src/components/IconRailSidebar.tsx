@@ -14,7 +14,7 @@ import {
   Hospital, Stethoscope, Pill, HeartPulse, Accessibility, Clock, AlertCircle, Bed,
   Sprout,
   Video, Receipt, Coffee, Car,
-  ShoppingCart, Warehouse,
+  ShoppingCart, Warehouse, Fish,
   // FORESTRY icons
   Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
   Satellite,
@@ -152,6 +152,9 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   livestockSlaughter: Factory,
   livestockFeed: Warehouse,
   livestockMarket: ShoppingCart,
+  aquaculturePonds: Fish,
+  aquacultureZone: Fish,
+  aquacultureCageNet: Fish,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,

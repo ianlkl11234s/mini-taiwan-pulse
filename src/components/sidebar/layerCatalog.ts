@@ -140,6 +140,9 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   livestockSlaughter: "#c62828",
   livestockFeed: "#455a64",
   livestockMarket: "#d500f9",
+  aquaculturePonds: "#26c6da",
+  aquacultureZone: "#66bb6a",
+  aquacultureCageNet: "#5c6bc0",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -699,6 +702,14 @@ export const THEMES: ThemeDef[] = [
           { key: "livestockSlaughter", label: "屠宰場 Slaughterhouses", expandable: true },
           { key: "livestockFeed", label: "飼料廠 Feed Factories", expandable: true },
           { key: "livestockMarket", label: "拍賣/批發市場 Markets", expandable: true },
+        ],
+      },
+      {
+        title: "養殖漁業 Aquaculture",
+        layers: [
+          { key: "aquaculturePonds", label: "逐口魚塭 Aquaculture Ponds", expandable: true },
+          { key: "aquacultureZone", label: "養殖漁業生產區 Production Zone", expandable: true },
+          { key: "aquacultureCageNet", label: "海上箱網 Cage Net", expandable: true },
         ],
       },
       {

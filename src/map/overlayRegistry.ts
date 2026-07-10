@@ -2795,6 +2795,66 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 🐟 養殖漁業 Aquaculture（靜態 overlay；ponds=PMTiles，zone/cageNet=GeoJSON polygon）──
+  {
+    id: "aquaculturePonds",
+    sourceUrl: "./fishery/aquaculture_ponds_osm.pmtiles",
+    sourceId: "aquaculture-ponds",
+    pmtiles: { sourceLayer: "aquaculture_ponds_osm", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["aquaculturePondsOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 9,
+        paint: (_isDark, p) => ({
+          "fill-color": "#26c6da",
+          "fill-opacity": p?.aquaculturePondsOpacity ?? 0.5,
+        }),
+      },
+      {
+        suffix: "line", type: "line", minzoom: 9,
+        paint: () => ({ "line-color": "#26c6da", "line-width": 0.5, "line-opacity": 0.6 }),
+      },
+    ],
+  },
+  {
+    id: "aquacultureZone",
+    sourceUrl: "./fishery/aquaculture_production_zone.geojson",
+    sourceId: "aquaculture-zone",
+    rebuildOnParamChange: ["aquacultureZoneOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 6,
+        paint: (_isDark, p) => ({
+          "fill-color": "#66bb6a",
+          "fill-opacity": p?.aquacultureZoneOpacity ?? 0.35,
+        }),
+      },
+      {
+        suffix: "line", type: "line", minzoom: 6,
+        paint: () => ({ "line-color": "#66bb6a", "line-width": 1, "line-opacity": 0.7 }),
+      },
+    ],
+  },
+  {
+    id: "aquacultureCageNet",
+    sourceUrl: "./fishery/aquaculture_cage_net.geojson",
+    sourceId: "aquaculture-cage-net",
+    rebuildOnParamChange: ["aquacultureCageNetOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 6,
+        paint: (_isDark, p) => ({
+          "fill-color": "#5c6bc0",
+          "fill-opacity": p?.aquacultureCageNetOpacity ?? 0.4,
+        }),
+      },
+      {
+        suffix: "line", type: "line", minzoom: 6,
+        paint: () => ({ "line-color": "#5c6bc0", "line-width": 1, "line-opacity": 0.7 }),
+      },
+    ],
+  },
+
   // ── 🏟️ 運動場館 Sports（靜態 CDN geojson，走 ./sports/）──
   // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。
   // circle：category 27 類 match 分色 + area_sqm log 點大小（NULL fallback 固定半徑）+ open_status="不對外" 淡化。
