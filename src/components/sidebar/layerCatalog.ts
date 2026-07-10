@@ -123,6 +123,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   medDesert: "#ef4444",
   medICUBeds: "#ff1744",
   erHospital: "#ef4444",
+  parkingOnstreet: "#64748b",
+  parkingOffstreet: "#22c55e",
   agriculture: "#2e7d32",
   agriSoil: "#8d6e63",
   agriSoilFertility: "#00897b",
@@ -443,6 +445,13 @@ export const THEMES: ThemeDef[] = [
           { key: "freewayCongestion", label: "國道壅塞 Congestion", expandable: true },
           { key: "roadCongestion", label: "省道路況 Provincial v1", expandable: true },
           { key: "roadEvents", label: "即時路況 Road Events", expandable: true },
+        ],
+      },
+      {
+        title: "停車 Parking",
+        layers: [
+          { key: "parkingOnstreet", label: "路邊停車 On-street", labelMobile: "路邊停車", expandable: true },
+          { key: "parkingOffstreet", label: "場外停車場 Off-street", labelMobile: "場外停車場", expandable: true },
         ],
       },
     ],

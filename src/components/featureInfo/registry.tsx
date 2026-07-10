@@ -31,6 +31,7 @@ import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel 
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
+import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
 import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel,
   GasStationCpcPanel, GasStationFpccPanel, GasStationTaisugarPanel, GasStationOtherPanel,
@@ -133,6 +134,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   medicalPOI: MedicalPOIPanel,
   medicalIsochrone: MedicalIsochronePanel,
   erHospital: EmergencyHospitalPanel,
+  parkingOnstreet: ParkingOnstreetPanel,
+  parkingOffstreet: ParkingOffstreetPanel,
   satellite: SatellitePanel,
   powerPlant: PowerPlantPanel,
   osmSubstation: OsmSubstationPanel,
@@ -292,6 +295,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
   erHospital: "急診壅塞",
+  parkingOnstreet: "路邊停車",
+  parkingOffstreet: "場外停車場",
   satellite: "衛星",
   powerPlant: "電廠",
   osmSubstation: "變電所",

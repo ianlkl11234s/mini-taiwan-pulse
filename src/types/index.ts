@@ -164,6 +164,8 @@ export type ExpandableLayerKey =
   | "medLTC"
   | "medIsochrone"
   | "erHospital"
+  | "parkingOnstreet"
+  | "parkingOffstreet"
   | "agriculture"
   | "agriSoil"
   | "agriSoilFertility"
@@ -619,6 +621,7 @@ export interface FeatureInfo {
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
+    | "parkingOnstreet" | "parkingOffstreet"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
@@ -793,6 +796,9 @@ export interface LayerVisibility {
   medDesert: boolean;      // 醫療沙漠（>15 min）
   medICUBeds: boolean;     // 急重症床位壓力（即時，Phase 3）
   erHospital: boolean;     // 急診壅塞（59 家急診即時量能，circle by wait_general_cnt）
+  // 停車 Parking（hybrid v1 當下快照，交通分組）
+  parkingOnstreet: boolean;  // 路邊 3084 段（台北 polygon 中性容量 / 新北台中 點空位率）
+  parkingOffstreet: boolean; // 場外 2083 場（空位率點 + 容量大小 + source_category 環）
   // 農業
   agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
   agriSoil: boolean;             // 25539 全台土壤分類

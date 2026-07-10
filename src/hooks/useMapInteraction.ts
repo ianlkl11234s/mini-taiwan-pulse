@@ -293,6 +293,8 @@ export function useMapInteraction(
           { layers: ["medical-aed-circle"], type: "medicalPOI" },
           { layers: ["medical-ltc-circle"], type: "medicalPOI" },
           { layers: ["er-hospital-circle"], type: "erHospital" },
+          { layers: ["parking-onstreet-fill", "parking-onstreet-circle"], type: "parkingOnstreet" },
+          { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
           { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
           { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
           { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },

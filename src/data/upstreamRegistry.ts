@@ -476,6 +476,16 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     datasets: [],
     note: '即時急診壅塞 RPC（get_er_hospital_latest / 24h，realtime.er_hospital_status）已 apply 到 production；座標 join medical geojson。catalog dataset 條目待補（handoff pending）',
   },
+  parkingOnstreet: {
+    status: 'pulse_only',
+    datasets: [],
+    note: '停車 hybrid v1 路邊 RPC（get_parking_segments_current）已 apply 到 production；台北 POLYGON 有 geom 無即時空位、新北/台中點有空位率。catalog dataset 條目待補（handoff pending）',
+  },
+  parkingOffstreet: {
+    status: 'pulse_only',
+    datasets: [],
+    note: '停車 hybrid v1 場外 RPC（get_parking_lots_current）已 apply 到 production；city/tourism/freeway_service_area 三源全點座標含空位率。catalog dataset 條目待補（handoff pending）',
+  },
   agriPOI: {
     status: 'verified',
     datasets: [{ datasetId: 'agritourism_certified_2024', confidence: 'MED' }],

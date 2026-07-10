@@ -13,7 +13,7 @@ import {
   Timer,
   Hospital, Stethoscope, Pill, HeartPulse, Accessibility, Clock, AlertCircle, Bed,
   Sprout,
-  Video, Receipt, Coffee, Car,
+  Video, Receipt, Coffee, Car, SquareParking, CircleParking,
   ShoppingCart, Warehouse,
   // FORESTRY icons
   Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
@@ -134,6 +134,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   medIsochrone: Clock,
   medDesert: AlertCircle,
   erHospital: Activity,
+  parkingOnstreet: SquareParking,
+  parkingOffstreet: CircleParking,
   medICUBeds: Bed,
   agriculture: Sprout,
   agriSoil: Mountain,

@@ -50,6 +50,10 @@ import {
   type ErCongestionLevel,
 } from "../data/erCongestionTypes";
 import {
+  parkingAvailabilityColor, PARKING_NEUTRAL_STOPS, AVAILABILITY_NULL_COLOR,
+  SOURCE_CATEGORY_META,
+} from "../data/parkingLoader";
+import {
   SEVERITY_BANDS, POLLUTION_MEDIUM_COLORS, POLLUTION_MEDIUM_LABELS,
   PENALTY_MEDIA, PENALTY_SEVERITY_COLORS, PENALTY_SEVERITY_LABELS,
   type PollutionMedium, type PollutionPenaltySeverity,
@@ -168,6 +172,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
   { keys: ["erHospital"], render: () => <ErCongestionLegend /> },
+  { keys: ["parkingOnstreet", "parkingOffstreet"], render: ({ visibility }) => <ParkingLegend visibility={visibility} /> },
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
@@ -2196,6 +2201,61 @@ function NuclearLegend() {
         ⚠️ 高劑量 + stale = 感測器離線 ≠ 真實核災<br />
         背景值 0.039 ~ 0.072 µSv/h（自然輻射）
       </div>
+    </div>
+  );
+}
+
+function ParkingLegend({ visibility }: { visibility: LayerVisibility }) {
+  const rateRows = [
+    { rate: 1.0, label: "空位多 100%" },
+    { rate: 0.5, label: "半滿 50%" },
+    { rate: 0.15, label: "略滿 15%" },
+    { rate: 0.0, label: "滿 0%" },
+  ];
+  const dot = (bg: string) => ({
+    width: 10, height: 10, borderRadius: RADIUS.full,
+    background: bg, display: "inline-block", flexShrink: 0,
+  } as const);
+  const neutralMid = PARKING_NEUTRAL_STOPS[Math.floor(PARKING_NEUTRAL_STOPS.length / 2)]?.[1] ?? "#94a3b8";
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        MOVE · 停車空位率
+      </div>
+      {rateRows.map((r) => (
+        <div key={r.rate} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={dot(parkingAvailabilityColor(r.rate))} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.label}</span>
+        </div>
+      ))}
+      {visibility.parkingOnstreet && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5 }}>
+          <span style={dot(neutralMid)} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+            台北路邊：僅容量（深=多），無即時空位
+          </span>
+        </div>
+      )}
+      {visibility.parkingOffstreet && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, margin: "6px 0 3px" }}>
+            場外分類（外環）
+          </div>
+          {Object.values(SOURCE_CATEGORY_META).map((m) => (
+            <div key={m.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{
+                width: 10, height: 10, borderRadius: RADIUS.full,
+                background: AVAILABILITY_NULL_COLOR, border: `2px solid ${m.ring}`,
+                display: "inline-block", flexShrink: 0, boxSizing: "border-box",
+              }} />
+              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{m.label}</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.35 }}>
+            圓越大 = 車位越多
+          </div>
+        </>
+      )}
     </div>
   );
 }

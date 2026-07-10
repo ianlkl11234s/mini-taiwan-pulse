@@ -85,6 +85,7 @@ import { usePowerLinesGlowTestLayer } from "./hooks/usePowerLinesGlowTestLayer";
 import { useAviationRestrictedGlowLayer } from "./hooks/useAviationRestrictedGlowLayer";
 import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
 import { useErHospitalLayer } from "./hooks/useErHospitalLayer";
+import { useParkingLayer } from "./hooks/useParkingLayer";
 // PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
@@ -1005,6 +1006,9 @@ export default function App() {
 
   // ── 急診壅塞（當下快照，比照核安 LIVE）──
   useErHospitalLayer(mapRef, layerVisibility.erHospital);
+
+  // ── 停車 Parking（路邊 + 場外 當下快照，比照急診 LIVE）──
+  useParkingLayer(mapRef, layerVisibility.parkingOnstreet, layerVisibility.parkingOffstreet);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
