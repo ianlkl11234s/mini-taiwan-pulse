@@ -111,6 +111,10 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
   },
+  touristShuttleLive: {
+    status: 'verified',
+    datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
+  },
   stationsTHSR: {
     status: 'verified',
     datasets: [{ datasetId: 'rail_stations', confidence: 'MED' }],
@@ -462,6 +466,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     derivationType: 'inverse',
     processing: '等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠',
     note: 'FIX: 派生分析：等時圈反演的醫療沙漠',
+  },
+  erHospital: {
+    status: 'pulse_only',
+    datasets: [],
+    note: '即時急診壅塞 RPC（get_er_hospital_latest / 24h，realtime.er_hospital_status）已 apply 到 production；座標 join medical geojson。catalog dataset 條目待補（handoff pending）',
   },
   agriPOI: {
     status: 'verified',

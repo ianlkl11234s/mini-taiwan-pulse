@@ -134,6 +134,18 @@ export class BusScene {
     this.altOffset = offset;
   }
 
+  /**
+   * 覆寫材質透明度（可選；未呼叫時 opacity 由 setTheme 依明暗主題決定）。
+   * 每輛車共用同一個 InstancedMesh 材質，故此值套用到整個 scene 實例。
+   * 僅台灣好行圖層有接（透過 busCustomLayer 的 getOpacity），
+   * 市區公車 / 公路客運未接 → 行為不變。
+   */
+  setOpacity(opacity: number) {
+    if (this.instancedMesh) {
+      (this.instancedMesh.material as THREE.MeshBasicMaterial).opacity = opacity;
+    }
+  }
+
   private getColor(hex: string): THREE.Color {
     let c = this.colorCache.get(hex);
     if (!c) {

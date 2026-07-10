@@ -136,8 +136,8 @@ fi
 
 # 公車大檔：*.json.gz 同步到 cache，僅在有變時才重新 gunzip
 echo "[pull] sync bus *.json.gz → cache"
-aws s3 sync "$S3/" "$CACHE/" --no-progress --exclude "*" --include "*_bus_routes.json.gz"
-for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json; do
+aws s3 sync "$S3/" "$CACHE/" --no-progress --exclude "*" --include "*_bus_routes.json.gz" --include "tourist_shuttle_routes.json.gz"
+for f in taipei_bus_routes.json intercity_bus_routes.json pingtungcounty_bus_routes.json tourist_shuttle_routes.json; do
   gz="$CACHE/$f.gz"
   if [ -f "$gz" ]; then
     if [ ! -f "$DATA_DIR/bus/$f" ] || [ "$gz" -nt "$DATA_DIR/bus/$f" ]; then

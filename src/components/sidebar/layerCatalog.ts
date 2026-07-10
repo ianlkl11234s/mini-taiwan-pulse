@@ -85,6 +85,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   aqiMicroSensors: "#7e57c2",
   busLive: "#4fc3f7",
   busIntercityLive: "#ba68c8",
+  touristShuttleLive: "#26a69a",
   waterBasins: "#4dd0e1",
   waterRivers: "#38bdf8",
   waterLevees: "#f59e0b",
@@ -120,6 +121,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   medIsochrone: "#22c55e",
   medDesert: "#ef4444",
   medICUBeds: "#ff1744",
+  erHospital: "#ef4444",
   agriculture: "#2e7d32",
   agriSoil: "#8d6e63",
   agriSoilFertility: "#00897b",
@@ -304,6 +306,7 @@ export const TRANSPORT_LABELS: Record<TransportType, string> = {
   rail: "鐵道 Rail",
   busLive: "公車 Bus",
   busIntercityLive: "公路客運 InterCity",
+  touristShuttleLive: "台灣好行 Tourist Shuttle",
 };
 
 // ── Type Defs ──
@@ -393,6 +396,7 @@ export const THEMES: ThemeDef[] = [
           { key: "rail", label: "鐵道 Rail", expandable: true },
           { key: "busLive", label: "公車 Bus", expandable: true },
           { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
+          { key: "touristShuttleLive", label: "台灣好行 Tourist Shuttle", labelMobile: "台灣好行", expandable: true },
         ],
       },
       {
@@ -659,6 +663,12 @@ export const THEMES: ThemeDef[] = [
           { key: "medPharmacy", label: "藥局 Pharmacy", expandable: true },
           { key: "medAED", label: "AED 點位 AED", expandable: true },
           { key: "medLTC", label: "長照機構 LTC", expandable: true },
+        ],
+      },
+      {
+        title: "即時 Emergency",
+        layers: [
+          { key: "erHospital", label: "急診壅塞 ER", expandable: true },
         ],
       },
       {

@@ -38,6 +38,7 @@ public/geo/pollution_*.pmtiles
 public/bus/taipei_bus_routes.json
 public/bus/intercity_bus_routes.json
 public/bus/pingtungcounty_bus_routes.json
+public/bus/tourist_shuttle_routes.json
 
 # Agriculture PMTiles + GeoJSON（由 S3 deploy-assets 管理；總計 ~215MB）
 public/agriculture/*.pmtiles

@@ -86,7 +86,7 @@ export interface DataSourceMeta {
 export type ViewMode = "all-taiwan" | "time-window";
 
 /** 運具類型 */
-export type TransportType = "flights" | "ships" | "rail" | "busLive" | "busIntercityLive";
+export type TransportType = "flights" | "ships" | "rail" | "busLive" | "busIntercityLive" | "touristShuttleLive";
 
 /** 可展開面板的圖層 key */
 export type ExpandableLayerKey =
@@ -162,6 +162,7 @@ export type ExpandableLayerKey =
   | "medAED"
   | "medLTC"
   | "medIsochrone"
+  | "erHospital"
   | "agriculture"
   | "agriSoil"
   | "agriSoilFertility"
@@ -495,6 +496,9 @@ export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string 
 /** 公路客運（InterCity）路線靜態檔路徑（全國單一檔案，無 city 切換） */
 export const BUS_INTERCITY_ROUTES_JSON = "./bus/intercity_bus_routes.json";
 
+/** 台灣好行（Tourist Shuttle）路線靜態檔路徑（全國單一檔案，無 city 切換） */
+export const TOURIST_SHUTTLE_ROUTES_JSON = "./bus/tourist_shuttle_routes.json";
+
 export interface BusRouteGeometry {
   routeUid: string;
   routeName: string;
@@ -613,6 +617,7 @@ export interface FeatureInfo {
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
+    | "erHospital"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
@@ -731,6 +736,7 @@ export interface LayerVisibility {
   aqiMicroSensors: boolean;
   busLive: boolean;
   busIntercityLive: boolean;
+  touristShuttleLive: boolean;
   waterBasins: boolean;
   waterRivers: boolean;
   waterLevees: boolean;
@@ -784,6 +790,7 @@ export interface LayerVisibility {
   medIsochrone: boolean;   // 醫療等時圈（大醫院可及性 1km grid）
   medDesert: boolean;      // 醫療沙漠（>15 min）
   medICUBeds: boolean;     // 急重症床位壓力（即時，Phase 3）
+  erHospital: boolean;     // 急診壅塞（59 家急診即時量能，circle by wait_general_cnt）
   // 農業
   agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
   agriSoil: boolean;             // 25539 全台土壤分類

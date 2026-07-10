@@ -48,6 +48,7 @@ export function useMapInteraction(
   layerVisibilityRef?: React.RefObject<LayerVisibility>,
   reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
   wasteScheduleSceneRef?: React.RefObject<WasteScheduleScene | null>,
+  touristShuttleSceneRef?: React.RefObject<BusScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -102,6 +103,20 @@ export function useMapInteraction(
         const busScene = busSceneRef?.current;
         if (busScene) {
           const bus = busScene.pickBus(e.point.x, e.point.y, w, h);
+          if (bus) {
+            setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+      // 嘗試拾取台灣好行（僅在 touristShuttleLive 圖層開啟時，共用 bus tooltip）
+      if (vis?.touristShuttleLive) {
+        const shuttleScene = touristShuttleSceneRef?.current;
+        if (shuttleScene) {
+          const bus = shuttleScene.pickBus(e.point.x, e.point.y, w, h);
           if (bus) {
             setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
@@ -276,6 +291,7 @@ export function useMapInteraction(
           { layers: ["medical-pharmacies-circle"], type: "medicalPOI" },
           { layers: ["medical-aed-circle"], type: "medicalPOI" },
           { layers: ["medical-ltc-circle"], type: "medicalPOI" },
+          { layers: ["er-hospital-circle"], type: "erHospital" },
           { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
           { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
           { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },

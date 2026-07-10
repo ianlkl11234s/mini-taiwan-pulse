@@ -26,6 +26,7 @@ import {
   syncWasteMapboxTheme,
 } from "./map/wasteMapboxLayers";
 import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
+import { useTouristShuttleLayer } from "./hooks/useTouristShuttleLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -82,6 +83,7 @@ import { useSubstationEhvGlowLayer } from "./hooks/useSubstationEhvGlowLayer";
 import { usePowerLinesGlowTestLayer } from "./hooks/usePowerLinesGlowTestLayer";
 import { useAviationRestrictedGlowLayer } from "./hooks/useAviationRestrictedGlowLayer";
 import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
+import { useErHospitalLayer } from "./hooks/useErHospitalLayer";
 // PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
@@ -480,6 +482,8 @@ export default function App() {
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode, transportParams.enabledBusCities);
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
+  const { busCount: touristShuttleCount, activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
+    useTouristShuttleLayer(layerVisibility.touristShuttleLive, timeline.timeMode);
 
   // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
   const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
@@ -524,6 +528,16 @@ export default function App() {
     handler(timeStore.getDateKey());
     return timeStore.subscribeDate(handler);
   }, [timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
+
+  // 台灣好行 replay: 同步
+  useEffect(() => {
+    if (!layerVisibility.touristShuttleLive || timeline.timeMode !== "replay") return;
+    const handler = (dayStr: string) => {
+      if (dayStr) loadTouristShuttleTrailDay(dayStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [timeline.timeMode, layerVisibility.touristShuttleLive, loadTouristShuttleTrailDay]);
 
   // 垃圾車 replay: 載入 timeline 當天整日軌跡；live 則維持近 60 分鐘 polling
   useEffect(() => {
@@ -699,13 +713,14 @@ export default function App() {
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
+    touristShuttleSceneRef,
     wasteScheduleSceneRef,
     wasteFacilityLayerRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, activeBusesTouristShuttleRef, wasteTrailsRef,
     wasteScheduleRoutesRef,
     wasteFacilityByTypeRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
@@ -715,7 +730,7 @@ export default function App() {
   });
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef);
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -986,6 +1001,9 @@ export default function App() {
     transportParams.overlayParams.lightningMinutes ?? 60,
   );
   useNuclearLayer(mapRef, layerVisibility.nuclearRadiation);
+
+  // ── 急診壅塞（當下快照，比照核安 LIVE）──
+  useErHospitalLayer(mapRef, layerVisibility.erHospital);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
@@ -2231,6 +2249,7 @@ export default function App() {
               {layerVisibility.rail && ` · ${trainCount} trains`}
               {layerVisibility.busLive && ` · ${busCount} buses`}
               {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
+              {layerVisibility.touristShuttleLive && ` · ${touristShuttleCount} 台灣好行`}
               {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
               {viewMode === "time-window" && " (±12h)"}
             </div>

@@ -4083,6 +4083,51 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 急診壅塞 er_hospital（59 家）──
+  // 顏色由 properties.level（loader 依 wait_general_cnt 預算 smooth/light/congested/severe/nodata）決定。
+  // 色值 = erCongestionTypes.ts 的 ER_LEVEL_COLORS（inline 對齊 nuclear 風格）。
+  // wait_icu_cnt>0（has_icu=1）→ 白色 circle-stroke ring（不改 fill 主色）。
+  {
+    id: "erHospital",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "er-hospital",
+    dynamicData: true,
+    rebuildOnParamChange: ["erHospitalOpacity"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.erHospitalOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 6, 12, 11,
+            ],
+            "circle-color": [
+              "match", ["get", "level"],
+              "smooth", "#22c55e",
+              "light", "#facc15",
+              "congested", "#f97316",
+              "severe", "#ef4444",
+              "nodata", "#6b7280",
+              "#6b7280",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": [
+              "match", ["get", "has_icu"], 1, 2.2, 0.8,
+            ],
+            "circle-stroke-color": [
+              "match", ["get", "has_icu"],
+              1, "#ffffff",
+              isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.3)",
+            ],
+          };
+        },
+      },
+    ],
+  },
+
   // ══════════════════════════════════════════════════════════════════
   //  Phase 8 SSOT — 6-layer facilities 重構
   //  marker 大小用 log scale 連續映射（0.5MW ~ 6GW）；color 按 fuel_type

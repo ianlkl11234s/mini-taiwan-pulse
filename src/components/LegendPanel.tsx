@@ -43,6 +43,12 @@ import {
   type NuclearDoseLevel,
 } from "../data/nuclearLoader";
 import {
+  ER_LEVEL_COLORS,
+  ER_LEVEL_LABELS,
+  ER_CONGESTION_THRESHOLDS,
+  type ErCongestionLevel,
+} from "../data/erCongestionTypes";
+import {
   SEVERITY_BANDS, POLLUTION_MEDIUM_COLORS, POLLUTION_MEDIUM_LABELS,
   PENALTY_MEDIA, PENALTY_SEVERITY_COLORS, PENALTY_SEVERITY_LABELS,
   type PollutionMedium, type PollutionPenaltySeverity,
@@ -129,6 +135,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
+  { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
   { keys: ["iotWraStructure"], render: () => <IotStructureLegend /> },
@@ -158,6 +165,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
+  { keys: ["erHospital"], render: () => <ErCongestionLegend /> },
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
@@ -323,6 +331,35 @@ function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility })
       <FireCatRows cats={mediumCats} />
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
         重大點大小 ∝ 罰鍰｜白框 = 連續 / 停工等｜可年份播放
+      </div>
+    </div>
+  );
+}
+
+// ── 台灣好行 Tourist Shuttle：配色模式圖例（route / speed / density 三模式）──
+// 色階與 BusScene 的 SPEED_STOPS / DENSITY_STOPS 對齊
+function TouristShuttleLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        台灣好行 · 配色模式 COLOR
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <span style={{
+          width: 10, height: 10, borderRadius: RADIUS.full,
+          background: "linear-gradient(90deg,#4fc3f7,#f06292,#ba68c8)", display: "inline-block",
+        }} />
+        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>路線 Route：依路線配色</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>速度 Speed (km/h)</div>
+      <div style={{ height: 10, borderRadius: 3, background: "linear-gradient(to right,#b71c1c 0%,#e53935 12%,#ff9800 40%,#fdd835 66%,#66bb6a 100%)" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 6, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+        <span>停</span><span>慢</span><span>快</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>密度 Density (班次/hr)</div>
+      <div style={{ height: 10, borderRadius: 3, background: "linear-gradient(to right,#1a237e 0%,#0097a7 33%,#fdd835 66%,#ff5722 100%)" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+        <span>冷門</span><span>幹線</span>
       </div>
     </div>
   );
@@ -2125,6 +2162,40 @@ function NuclearLegend() {
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
         ⚠️ 高劑量 + stale = 感測器離線 ≠ 真實核災<br />
         背景值 0.039 ~ 0.072 µSv/h（自然輻射）
+      </div>
+    </div>
+  );
+}
+
+function ErCongestionLegend() {
+  const rows: { key: ErCongestionLevel; label: string }[] = [
+    { key: "smooth", label: `順暢 ≤ ${ER_CONGESTION_THRESHOLDS.smooth}` },
+    { key: "light", label: `略壅 ${ER_CONGESTION_THRESHOLDS.smooth + 1}–${ER_CONGESTION_THRESHOLDS.light}` },
+    { key: "congested", label: `壅塞 ${ER_CONGESTION_THRESHOLDS.light + 1}–${ER_CONGESTION_THRESHOLDS.congested}` },
+    { key: "severe", label: `嚴重 > ${ER_CONGESTION_THRESHOLDS.congested}` },
+    { key: "nodata", label: "無資料" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        MEDICAL · 急診壅塞（等一般病床）
+      </div>
+      {rows.map((row) => (
+        <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 10, height: 10, borderRadius: RADIUS.full,
+              background: ER_LEVEL_COLORS[row.key], display: "inline-block",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>
+            {ER_LEVEL_LABELS[row.key]} · {row.label}
+          </span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ⚪ 白框 = 有加護病房 (ICU) 等待<br />
+        分級依 wait_general_cnt 37 天 history 校準
       </div>
     </div>
   );

@@ -25,6 +25,7 @@ import { TimelineDock } from "./TimelineDock";
 import { IndicatorPanel } from "./IndicatorPanel";
 import { PrisonCard, type PrisonDay } from "./PrisonCard";
 import { AirportPaxCard } from "./AirportPaxCard";
+import { ERCard } from "./ERCard";
 import { supabase } from "../../../lib/supabase";
 import {
   fetchPowerDashboard, invalidatePowerDashboard,
@@ -711,6 +712,11 @@ export function MonitorPanel({
       <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <PrisonCard latest={prisonLatest} />
         <AirportPaxCard open={open} />
+      </div>
+
+      {/* 急診壅塞 — 選區 + 醫院 tab + 24h 折線（另起整列，需較寬空間） */}
+      <div style={{ marginTop: 12 }}>
+        <ERCard open={open} />
       </div>
 
       <style>{`
