@@ -1008,7 +1008,7 @@ export default function App() {
   useErHospitalLayer(mapRef, layerVisibility.erHospital);
 
   // ── 停車 Parking（路邊 + 場外 當下快照，比照急診 LIVE）──
-  useParkingLayer(mapRef, layerVisibility.parkingOnstreet, layerVisibility.parkingOffstreet);
+  useParkingLayer(mapRef, layerVisibility.parkingOnstreet, layerVisibility.parkingOffstreet, timeline.timeMode);
 
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);

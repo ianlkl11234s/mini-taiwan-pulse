@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-07-11 — 停車 timeline 回放（PK5/PK6，接 v1 後）
+
+- 用戶驗收要求補「timeline 回放」（v1 刻意砍的功能）。
+- **上游 migration 288**：`realtime.parking_availability_daily`（per entity 96 字元 15min 槽，空位率 `'0'-'9'` 分級 + `'-'` 無資料）+ refresh（segments+lots）+ cron `:05/:20/:35/:50` + cleanup 03:20 + `get_parking_segments_day` / `get_parking_lots_day` / `get_parking_dates`（DEFINER join ref 座標）。apply + backfill 4 天。
+- **前端**（surgical 3 檔）：`parkingLoader` 加 day RPC + 96 解碼；`useParkingLayer` 雙模式（Live 走 `_current` / Replay 走 `_day` timeline，clamp lastPopulatedSlot 深夜不全灰）；`App` 1 行。色軸/圖例/popup/opacity 皆不變。
+- 驗收 tsc 0 / test 190 / browser 親驗（`window.__map` 直查：商校街停車場 00:00 rate=0.889 綠→中午 slot48 rate=0 紅，與 raw RPC 字元吻合；花蓮某場深夜空綠）。
+
+---
+
 ## 2026-07-10 — Batch 3 hybrid v1（branch `feat/parking`，stack 於 road-congestion，未 PR / 未 push）
 
 - 新增 `parkingOnstreet`（路邊）+ `parkingOffstreet`（場外）兩層（交通 §停車 Parking）。

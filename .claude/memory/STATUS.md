@@ -2,7 +2,7 @@
 
 **最後更新**：2026-07-10（Batch 1+2+3 即時圖層：急診 / 台灣好行 / 路況 / 停車）
 **mini-taiwan-pulse head**：`feat/parking`（stack 鏈 er-hospital→road-congestion→parking；含急診/好行/路況/停車，**未 push**）
-**gis-platform head**：`main`（+ migration 283/284/285/286/287 **已 apply production**）
+**gis-platform head**：`main`（+ migration 283/284/285/286/287/**288** **已 apply production**）
 **taipei-gis-analytics head**：`feat/aquaculture-pmtiles`（+ tourist_shuttle 08 + road congestion 06 script）
 **data-collectors head**：**+ parking_ref.py collector**（灌 spatial.parking_*_ref，enabled=false 月更手動）
 
@@ -16,7 +16,7 @@
 - **關鍵前置**：即時可用性表無座標 → 新建靜態座標 collector（data-collectors `parking_ref.py`）灌 `spatial.parking_segments_ref` / `parking_lots_ref`（migration 286）；前端走 SECURITY DEFINER join RPC（287：get_parking_segments_current / get_parking_lots_current）。
 - **hybrid v1 範疇**：路邊台北 2347 POLYGON 填色（availability_rate=null → 中性色僅容量）+ 新北 553/台中 184 點（空位率）；場外 2083 點（city/tourism/freeway，空位率綠→紅 + 大小隨 total）。availability_rate guard 台北 -1。
 - phase-2 缺口：台北場外(10%)/基隆場外(0%)/新北台中路邊(半覆蓋、無幾何)。需各府自家開放資料補。
-- 統一「服務可得性」色軸（綠=空位多/紅=滿，比照 youbike）。當下快照（v1 不做 timeline 回放）。
+- 統一「服務可得性」色軸（綠=空位多/紅=滿，比照 youbike）。**timeline 回放已補**（2026-07-11，migration 288 + 前端雙模式：Live `_current` / Replay 96 槽 `_day`）。
 - 驗收 tsc 0 / test 190 / browser 主 agent 親驗（雙北+全台空位率點染色截圖 + 台北 polygon 中性 fiber 實證）。
 - 待辦：phase-2 覆蓋補洞、timeline 回放、collector 月更排程（現手動）。
 

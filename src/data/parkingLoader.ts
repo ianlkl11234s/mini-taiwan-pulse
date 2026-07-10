@@ -1,6 +1,6 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 /**
  * 停車 parking loader（Batch 3 hybrid v1，RPC 287）
@@ -214,3 +214,162 @@ async function fetchLotsUncached(): Promise<GeoJSON.FeatureCollection<GeoJSON.Po
 const fetchLotsCached = cachedOnce(fetchLotsUncached, 60_000);
 export const fetchParkingLotsFC = (): Promise<GeoJSON.FeatureCollection<GeoJSON.Point>> => fetchLotsCached();
 export const invalidateParkingLots = (): void => fetchLotsCached.invalidate();
+
+// ════════════════════════════════════════════════════════════════════════
+// Timeline 回放（day 模式，RPC 288 get_parking_*_day）
+// ════════════════════════════════════════════════════════════════════════
+/**
+ * timeline：96 字元字串，每字元一個 15 分鐘槽，Asia/Taipei 00:00 對齊。
+ *   '0'~'9' = 空位率分級（9=空位多/綠、0=滿/紅）
+ *   '-'（或其他非數字）= 無資料（台北路邊全日、當日尚未發生的未來槽）
+ *
+ * 回放與當下快照共用 overlayRegistry 既有 paint（availabilityColorExpr /
+ * neutralCapacityColorExpr）：回放只是把「當前 slot 的字元 → 空位率」就地寫進
+ * feature.availability_rate 再 setData，染色邏輯與色軸完全一致。
+ */
+
+/** 給定 unix 秒 → 96 槽 index（0~95）。slot = floor((台北當下 − 當日 00:00+08)/900)，clamp 0~95。 */
+export function parkingSlotIndexAt(t: number): number {
+  const dateKey = new Date(t * 1000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+  const midnight = Date.parse(`${dateKey}T00:00:00+08:00`) / 1000;
+  const slot = Math.floor((t - midnight) / 900);
+  return slot < 0 ? 0 : slot > 95 ? 95 : slot;
+}
+
+/** timeline 單一字元 → 空位率（0~1）。9=空位多→1.0、0=滿→0.0；'-'/非數字 → null（無資料） */
+export function rateFromChar(ch: string | undefined): number | null {
+  if (ch == null || ch < "0" || ch > "9") return null;
+  return Number(ch) / 9;
+}
+
+export interface ParkingDayData {
+  date: string;
+  /** 靜態幾何 + props 的 FeatureCollection（recolor 時就地改 availability_rate 再 setData） */
+  fc: GeoJSON.FeatureCollection;
+  /** 與 fc.features 平行對齊的 96 字元 timeline */
+  timelines: string[];
+  /**
+   * 全日「有資料」的最後 slot（跨所有 entity 取 max）。當日回放讀「當下」常落在
+   * 尚未刷新的未來槽（全 '-'），clamp 到此才不會全灰（比照 road congestion）。
+   */
+  lastPopulatedSlot: number;
+}
+
+/** 掃 timeline 找該串最後一個有資料 slot，更新全域 max */
+function updateLastPopulated(timeline: string, prevMax: number): number {
+  for (let i = timeline.length - 1; i > prevMax; i--) {
+    if (rateFromChar(timeline[i]) != null) return i;
+  }
+  return prevMax;
+}
+
+// ── 路邊 segments day ────────────────────────────────────────────────
+interface ParkingSegmentDayRow {
+  segment_id: string;
+  city: string;
+  segment_name: string | null;
+  lon: number | null;
+  lat: number | null;
+  geom: string | null;           // 台北 = GeoJSON Polygon 字串；其餘 null
+  total_spaces: number | null;
+  timeline: string | null;
+}
+
+async function fetchSegmentsDayUncached(date: string): Promise<ParkingDayData> {
+  const { data, error } = await withLoading(
+    `parking:onstreet:${date}`,
+    `路邊停車 ${date} 回放`,
+    supabase.rpc("get_parking_segments_day", { target_date: date }),
+  );
+  if (error) throw new Error(`get_parking_segments_day(${date}): ${error.message}`);
+  const rows = (data ?? []) as ParkingSegmentDayRow[];
+
+  const features: GeoJSON.Feature[] = [];
+  const timelines: string[] = [];
+  let lastPopulatedSlot = 0;
+  let badGeom = 0;
+  for (const r of rows) {
+    let geometry: GeoJSON.Geometry | null = null;
+    if (r.geom) {
+      try { geometry = JSON.parse(r.geom) as GeoJSON.Geometry; } catch { badGeom++; continue; }
+    } else if (r.lon != null && r.lat != null) {
+      geometry = { type: "Point", coordinates: [r.lon, r.lat] };
+    }
+    if (!geometry) continue;
+    features.push({
+      type: "Feature",
+      geometry,
+      properties: {
+        segment_id: r.segment_id,
+        city: r.city,
+        segment_name: r.segment_name,
+        total_spaces: r.total_spaces,
+        availability_rate: null, // recolor 依 slot 填入
+      },
+    });
+    const timeline = r.timeline ?? "";
+    timelines.push(timeline);
+    lastPopulatedSlot = updateLastPopulated(timeline, lastPopulatedSlot);
+  }
+  if (badGeom > 0) console.warn(`[parking] day ${badGeom} 段 geom parse 失敗`);
+  return { date, fc: { type: "FeatureCollection", features }, timelines, lastPopulatedSlot };
+}
+const fetchSegmentsDayCached = cachedByKey(fetchSegmentsDayUncached, 10 * 60_000);
+export const fetchParkingSegmentsDay = (date: string): Promise<ParkingDayData> => fetchSegmentsDayCached(date);
+
+// ── 場外 lots day ────────────────────────────────────────────────────
+interface ParkingLotDayRow {
+  car_park_uid: string;
+  car_park_name: string | null;
+  source_category: string;
+  lon: number | null;
+  lat: number | null;
+  total_spaces: number | null;
+  timeline: string | null;
+}
+
+async function fetchLotsDayUncached(date: string): Promise<ParkingDayData> {
+  const { data, error } = await withLoading(
+    `parking:offstreet:${date}`,
+    `場外停車 ${date} 回放`,
+    supabase.rpc("get_parking_lots_day", { target_date: date }),
+  );
+  if (error) throw new Error(`get_parking_lots_day(${date}): ${error.message}`);
+  const rows = (data ?? []) as ParkingLotDayRow[];
+
+  const features: GeoJSON.Feature[] = [];
+  const timelines: string[] = [];
+  let lastPopulatedSlot = 0;
+  for (const r of rows) {
+    if (r.lon == null || r.lat == null) continue;
+    features.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [r.lon, r.lat] },
+      properties: {
+        car_park_uid: r.car_park_uid,
+        car_park_name: r.car_park_name,
+        source_category: r.source_category,
+        total_spaces: r.total_spaces,
+        availability_rate: null,
+      },
+    });
+    const timeline = r.timeline ?? "";
+    timelines.push(timeline);
+    lastPopulatedSlot = updateLastPopulated(timeline, lastPopulatedSlot);
+  }
+  return { date, fc: { type: "FeatureCollection", features }, timelines, lastPopulatedSlot };
+}
+const fetchLotsDayCached = cachedByKey(fetchLotsDayUncached, 10 * 60_000);
+export const fetchParkingLotsDay = (date: string): Promise<ParkingDayData> => fetchLotsDayCached(date);
+
+// ── 可用回放日期（parity；供 timeline 可用日 UI 未來使用）────────────────
+export interface ParkingDateInfo { day: string; entities: number; }
+export async function fetchParkingDates(): Promise<ParkingDateInfo[]> {
+  const { data, error } = await withLoading(
+    "parking:dates",
+    "停車回放日期",
+    supabase.rpc("get_parking_dates"),
+  );
+  if (error) throw new Error(`get_parking_dates: ${error.message}`);
+  return (data ?? []) as ParkingDateInfo[];
+}
