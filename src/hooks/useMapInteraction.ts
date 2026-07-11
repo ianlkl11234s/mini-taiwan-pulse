@@ -386,6 +386,8 @@ export function useMapInteraction(
           { layers: ["aviation-restricted-fill", "aviation-restricted-line"], type: "aviationRestricted" },
           { layers: ["drone-nfz-fill", "drone-nfz-line"], type: "droneNoFlyZone" },
           { layers: ["drone-restricted-fill", "drone-restricted-line"], type: "droneRestrictedZone" },
+          { layers: ["slope-vector-fill"], type: "slopeVector" },
+          { layers: ["aspect-vector-fill"], type: "aspectVector" },
           // 警察覆蓋分析 isochrone（fill + line 兩層）
           { layers: ["police-iso-substation-fill", "police-iso-substation-line"], type: "policeIsoSubstation" },
           { layers: ["police-iso-precinct-fill", "police-iso-precinct-line"], type: "policeIsoPrecinct" },

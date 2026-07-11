@@ -284,6 +284,7 @@ export type ExpandableLayerKey =
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
   | "osmExpressway" | "hillshade" | "slope" | "aspect"
+  | "slopeVector" | "aspectVector"
   // 警政司法民防 17 layer（slider 接 useTransportParams）
   | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
   | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
@@ -658,6 +659,7 @@ export interface FeatureInfo {
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
     | "osmExpressway" | "hillshade" | "slope" | "aspect"
+    | "slopeVector" | "aspectVector"
     // 警政司法民防 17 layer
     | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
     | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
@@ -939,6 +941,8 @@ export interface LayerVisibility {
   hillshade: boolean;          // 山體陰影 raster（灰階 PNG，烤過 colormap）
   slope: boolean;              // 坡度 raster（綠→黃→紅 ramp，0-45°）
   aspect: boolean;             // 坡向 raster（HSV 環狀 N=紅 E=黃 S=綠 W=藍）
+  slopeVector: boolean;        // 坡度分級向量（建管六級坡 PMTiles，可點選/疊圖）
+  aspectVector: boolean;       // 坡向分級向量（8 方位 PMTiles，可點選/疊圖）
   // 警政司法民防 17 layer（資料來自 taipei-gis-analytics police_justice/）
   policeStation: boolean;             // 2,065 警察機關（分局/派出所/專業警隊/總局）
   womenChildWarning: boolean;         // 185 婦幼警示點

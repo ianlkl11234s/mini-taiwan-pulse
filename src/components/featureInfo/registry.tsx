@@ -47,6 +47,7 @@ import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel } from "./g
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
+  SlopeVectorPanel, AspectVectorPanel,
 } from "./baseMapPanels";
 import {
   PoliceStationPanel, WomenChildWarningPanel, SpeedCameraPanel, SpeedZoneSegmentPanel,
@@ -183,6 +184,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
+  slopeVector: SlopeVectorPanel,
+  aspectVector: AspectVectorPanel,
   // 警政司法民防 17 layer
   policeStation: PoliceStationPanel,
   womenChildWarning: WomenChildWarningPanel,
@@ -348,6 +351,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   hillshade: "山體陰影",
   slope: "坡度",
   aspect: "坡向",
+  slopeVector: "坡度分級",
+  aspectVector: "坡向",
   // 警政司法民防
   policeStation: "警察機關",
   womenChildWarning: "婦幼警示點",

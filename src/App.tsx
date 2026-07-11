@@ -75,6 +75,8 @@ import { usePowerPolesLayer } from "./hooks/usePowerPolesLayer";
 import { usePollutionLayers } from "./hooks/usePollutionLayers";
 import { useAviationAirspaceLayer } from "./hooks/useAviationAirspaceLayer";
 import { useDroneZonesLayer } from "./hooks/useDroneRestrictedZonesLayer";
+import { useSlopeVectorLayer } from "./hooks/useSlopeVectorLayer";
+import { useAspectVectorLayer } from "./hooks/useAspectVectorLayer";
 import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
@@ -1183,6 +1185,18 @@ export default function App() {
     visible: layerVisibility.aspect,
     opacity: transportParams.aspectOpacity,
   });
+
+  // ── 坡度 / 坡向分級向量（PMTiles polygon，可點選 / 疊圖，與 PNG 版並存）──
+  useSlopeVectorLayer(
+    mapRef,
+    layerVisibility.slopeVector,
+    transportParams.slopeVectorOpacity,
+  );
+  useAspectVectorLayer(
+    mapRef,
+    layerVisibility.aspectVector,
+    transportParams.aspectVectorOpacity,
+  );
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({

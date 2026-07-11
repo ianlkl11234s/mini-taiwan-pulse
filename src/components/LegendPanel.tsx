@@ -241,6 +241,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["osmRoadDrive"], render: () => <OsmRoadDriveLegend /> },
   { keys: ["slope"], render: () => <SlopeLegend /> },
   { keys: ["aspect"], render: () => <AspectLegend /> },
+  { keys: ["slopeVector"], render: () => <SlopeVectorLegend /> },
+  { keys: ["aspectVector"], render: () => <AspectVectorLegend /> },
   // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
   {
     keys: ["policeIsoSubstation", "policeIsoPrecinct", "policeIsoCityDept"],
@@ -552,6 +554,56 @@ function AspectLegend() {
           坡面朝向 0–360°<br />
           DTM 20m 計算
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── 坡度 / 坡向 分級向量（PMTiles polygon）圖例 ──
+const SLOPE_VECTOR_CATS = [
+  { color: "#1a9850", label: "1級 <5% 平緩" },
+  { color: "#66bd63", label: "2級 5-15%" },
+  { color: "#d9ef8b", label: "3級 15-30%" },
+  { color: "#fee08b", label: "4級 30-40%" },
+  { color: "#fc8d59", label: "5級 40-55%" },
+  { color: "#d73027", label: "6級 >55% 極陡" },
+];
+
+function SlopeVectorLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        坡度分級 SLOPE（建管六級坡）
+      </div>
+      <FireCatRows cats={SLOPE_VECTOR_CATS} square />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        建築技術規則坡度分級｜可點選查級別
+      </div>
+    </div>
+  );
+}
+
+const ASPECT_VECTOR_CATS = [
+  { color: "#e41a1c", label: "N 北" },
+  { color: "#ff7f00", label: "NE 東北" },
+  { color: "#ffde00", label: "E 東" },
+  { color: "#a6d854", label: "SE 東南" },
+  { color: "#4daf4a", label: "S 南" },
+  { color: "#20b2aa", label: "SW 西南" },
+  { color: "#377eb8", label: "W 西" },
+  { color: "#984ea3", label: "NW 西北" },
+  { color: "#bdbdbd", label: "平地" },
+];
+
+function AspectVectorLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        坡向分級 ASPECT（8 方位）
+      </div>
+      <FireCatRows cats={ASPECT_VECTOR_CATS} square />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        坡面朝向 8 方位｜可點選查方位
       </div>
     </div>
   );

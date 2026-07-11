@@ -87,6 +87,14 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'aspect', confidence: 'MED' }],
   },
+  slopeVector: {
+    status: 'verified',
+    datasets: [{ datasetId: 'slope', confidence: 'MED' }],
+  },
+  aspectVector: {
+    status: 'verified',
+    datasets: [{ datasetId: 'aspect', confidence: 'MED' }],
+  },
   osmRoadDrive: {
     status: 'verified',
     datasets: [{ datasetId: 'osm_road_drive', confidence: 'MED' }],

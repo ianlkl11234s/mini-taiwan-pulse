@@ -292,6 +292,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   hillshade: Mountain,
   slope: Mountain,
   aspect: Mountain,
+  slopeVector: Mountain,
+  aspectVector: Mountain,
   // 警政司法民防 17 layer
   policeStation: ShieldAlert,
   womenChildWarning: AlertTriangle,

@@ -266,6 +266,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   hillshade: "#6b7280",
   slope: "#e67e22",
   aspect: "#22c55e",
+  slopeVector: "#fc8d59",
+  aspectVector: "#ff7f00",
   // 警政司法民防 17 layer
   policeStation: "#1e40af",          // 警察 — 深藍
   womenChildWarning: "#ec4899",      // 婦幼 — 粉
@@ -374,6 +376,8 @@ export const THEMES: ThemeDef[] = [
           { key: "hillshade", label: "山體陰影 Hillshade", expandable: true },
           { key: "slope", label: "坡度 Slope (0-45°)", labelMobile: "坡度", expandable: true },
           { key: "aspect", label: "坡向 Aspect (HSV)", labelMobile: "坡向", expandable: true },
+          { key: "slopeVector", label: "坡度分級 Slope 6級", labelMobile: "坡度分級", expandable: true },
+          { key: "aspectVector", label: "坡向分級 Aspect 8向", labelMobile: "坡向分級", expandable: true },
         ],
       },
       {
