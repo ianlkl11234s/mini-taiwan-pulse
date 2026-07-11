@@ -283,7 +283,7 @@ export type ExpandableLayerKey =
   // Base map
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
-  | "osmExpressway" | "hillshade" | "slope" | "aspect"
+  | "osmExpressway" | "hillshade"
   | "slopeVector" | "aspectVector"
   // 警政司法民防 17 layer（slider 接 useTransportParams）
   | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
@@ -658,7 +658,7 @@ export interface FeatureInfo {
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
-    | "osmExpressway" | "hillshade" | "slope" | "aspect"
+    | "osmExpressway" | "hillshade"
     | "slopeVector" | "aspectVector"
     // 警政司法民防 17 layer
     | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
@@ -939,8 +939,6 @@ export interface LayerVisibility {
   osmRoadDrive: boolean;       // OSM 可駕駛道路（55 萬 edges，按 highway 等級分色）
   osmExpressway: boolean;      // OSM 快速道路 / 高速公路（橘色粗線突顯）
   hillshade: boolean;          // 山體陰影 raster（灰階 PNG，烤過 colormap）
-  slope: boolean;              // 坡度 raster（綠→黃→紅 ramp，0-45°）
-  aspect: boolean;             // 坡向 raster（HSV 環狀 N=紅 E=黃 S=綠 W=藍）
   slopeVector: boolean;        // 坡度分級向量（建管六級坡 PMTiles，可點選/疊圖）
   aspectVector: boolean;       // 坡向分級向量（8 方位 PMTiles，可點選/疊圖）
   // 警政司法民防 17 layer（資料來自 taipei-gis-analytics police_justice/）

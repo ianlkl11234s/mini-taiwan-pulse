@@ -239,8 +239,6 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
   // Base map：OSM 道路 highway 分級分色（其他 base layer 單色，依鐵則 2 不需圖例）
   { keys: ["osmRoadDrive"], render: () => <OsmRoadDriveLegend /> },
-  { keys: ["slope"], render: () => <SlopeLegend /> },
-  { keys: ["aspect"], render: () => <AspectLegend /> },
   { keys: ["slopeVector"], render: () => <SlopeVectorLegend /> },
   { keys: ["aspectVector"], render: () => <AspectVectorLegend /> },
   // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
@@ -469,91 +467,6 @@ function OsmRoadDriveLegend() {
       <FireCatRows cats={OSM_ROAD_DRIVE_CATS} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         z≥10 才顯示｜來源 OpenStreetMap｜55 萬 edges
-      </div>
-    </div>
-  );
-}
-
-// ── Slope / Aspect 地形 raster 圖例 ──
-function SlopeLegend() {
-  const t = useLegendTheme();
-  // ramp 對齊 /tmp/slope_ramp.txt 烤入 PNG 的色：
-  // 0°綠 → 15°黃 → 30°橘 → 45°紅，>45° 維持紅
-  const ticks = ["0°", "15°", "30°", "45°"];
-  return (
-    <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        坡度 SLOPE
-      </div>
-      <div
-        style={{
-          height: 10,
-          borderRadius: 3,
-          background: "linear-gradient(to right, #2ecc71 0%, #f1c40f 33%, #e67e22 66%, #c0392b 100%)",
-        }}
-      />
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-        {ticks.map((it) => <span key={it}>{it}</span>)}
-      </div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
-        綠＝緩坡 / 紅＝陡坡｜DTM 20m 計算
-      </div>
-    </div>
-  );
-}
-
-function AspectLegend() {
-  const t = useLegendTheme();
-  // HSV 環狀：N=0°紅 / E=90°黃 / S=180°綠 / W=270°藍
-  const size = 64;
-  const r = size / 2;
-  const cx = r;
-  const cy = r;
-  // 用 8 段扇形拼出 HSV（45° 一段，N→NE→E→SE→S→SW→W→NW）
-  const segments = [
-    { start: -22.5, end: 22.5, color: "#ef4444" }, // N
-    { start: 22.5, end: 67.5, color: "#f59e0b" },  // NE
-    { start: 67.5, end: 112.5, color: "#facc15" }, // E
-    { start: 112.5, end: 157.5, color: "#84cc16" },// SE
-    { start: 157.5, end: 202.5, color: "#22c55e" },// S
-    { start: 202.5, end: 247.5, color: "#06b6d4" },// SW
-    { start: 247.5, end: 292.5, color: "#3b82f6" },// W
-    { start: 292.5, end: 337.5, color: "#a855f7" },// NW
-  ];
-  const arcPath = (startDeg: number, endDeg: number) => {
-    // SVG: 0° at 3 o'clock; 我們要 0°（N）在 12 點 → 減 90
-    const toRad = (d: number) => ((d - 90) * Math.PI) / 180;
-    const x1 = cx + r * Math.cos(toRad(startDeg));
-    const y1 = cy + r * Math.sin(toRad(startDeg));
-    const x2 = cx + r * Math.cos(toRad(endDeg));
-    const y2 = cy + r * Math.sin(toRad(endDeg));
-    const largeArc = endDeg - startDeg > 180 ? 1 : 0;
-    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-  };
-  return (
-    <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        坡向 ASPECT
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-            {segments.map((s, i) => (
-              <path key={i} d={arcPath(s.start, s.end)} fill={s.color} />
-            ))}
-            <circle cx={cx} cy={cy} r={r * 0.32} fill="#0a0a0a" />
-          </svg>
-          {/* N/E/S/W 方位字 */}
-          <div style={{ position: "absolute", top: -2, left: 0, right: 0, textAlign: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>N</div>
-          <div style={{ position: "absolute", bottom: -2, left: 0, right: 0, textAlign: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>S</div>
-          <div style={{ position: "absolute", top: 0, bottom: 0, right: -2, display: "flex", alignItems: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>E</div>
-          <div style={{ position: "absolute", top: 0, bottom: 0, left: -2, display: "flex", alignItems: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>W</div>
-        </div>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.4 }}>
-          N 紅・E 黃・S 綠・W 藍<br />
-          坡面朝向 0–360°<br />
-          DTM 20m 計算
-        </div>
       </div>
     </div>
   );

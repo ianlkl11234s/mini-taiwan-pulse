@@ -349,8 +349,6 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   osmRoadDrive: "道路 (OSM)",
   osmExpressway: "快速道路 (OSM)",
   hillshade: "山體陰影",
-  slope: "坡度",
-  aspect: "坡向",
   slopeVector: "坡度分級",
   aspectVector: "坡向",
   // 警政司法民防

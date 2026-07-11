@@ -264,8 +264,6 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   osmRoadDrive: "#fb923c",
   osmExpressway: "#FF8C00",
   hillshade: "#6b7280",
-  slope: "#e67e22",
-  aspect: "#22c55e",
   slopeVector: "#fc8d59",
   aspectVector: "#ff7f00",
   // 警政司法民防 17 layer
@@ -374,8 +372,6 @@ export const THEMES: ThemeDef[] = [
           { key: "contour25k", label: "等高線 Contour 25k (10m)", labelMobile: "等高線 25k 10m", expandable: true },
           { key: "contourDtm20", label: "等高線 Contour DTM20 (20m)", labelMobile: "等高線 DTM 20m", expandable: true },
           { key: "hillshade", label: "山體陰影 Hillshade", expandable: true },
-          { key: "slope", label: "坡度 Slope (0-45°)", labelMobile: "坡度", expandable: true },
-          { key: "aspect", label: "坡向 Aspect (HSV)", labelMobile: "坡向", expandable: true },
           { key: "slopeVector", label: "坡度分級 Slope 6級", labelMobile: "坡度分級", expandable: true },
           { key: "aspectVector", label: "坡向分級 Aspect 8向", labelMobile: "坡向分級", expandable: true },
         ],

@@ -290,8 +290,6 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   osmRoadDrive: Route,
   osmExpressway: Route,
   hillshade: Mountain,
-  slope: Mountain,
-  aspect: Mountain,
   slopeVector: Mountain,
   aspectVector: Mountain,
   // 警政司法民防 17 layer
@@ -428,6 +426,7 @@ export function IconRailSidebar({
   const { BG_RAIL, BORDER, BG_PANEL } = palette;
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
+  const [layerSearch, setLayerSearch] = useState("");
   const [comingSoon, setComingSoon] = useState(false);
 
   // 齒輪「規劃中」提示：顯示後 2 秒自動消失
@@ -642,6 +641,8 @@ export function IconRailSidebar({
           >
             {activePanel === "layers" && (
               <LayersPanel
+                search={layerSearch}
+                onSearchChange={setLayerSearch}
                 visibility={visibility}
                 lockedKeys={lockedKeys}
                 expandedLayer={expandedLayer}
@@ -800,6 +801,8 @@ function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
 // ══════════════════════════════════
 
 interface LayersPanelProps {
+  search: string;
+  onSearchChange: (v: string) => void;
   visibility: LayerVisibility;
   lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
@@ -990,12 +993,14 @@ function SubGroupLabel({ children }: { children: string }) {
 }
 
 function LayersPanel({
+  search, onSearchChange,
   visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
   onAllOff, onBulkSetVisibility, getControls, onClose,
 }: LayersPanelProps) {
-  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT } = useRailTheme();
+  const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
+  const q = search.trim().toLowerCase();
   // Theme 摺疊狀態：預設只摺疊 defaultCollapsed=true 的（BASE）
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
     () => new Set(THEMES.filter((t) => t.defaultCollapsed).map((t) => t.title)),
@@ -1030,6 +1035,36 @@ function LayersPanel({
           All Off
         </button>
       </div>
+      {/* Search Bar（仿 Locations，主題感知）*/}
+      <div style={{ padding: "0 12px 4px" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            background: SEARCH_BG,
+            borderRadius: RADIUS.lg,
+            padding: "6px 8px",
+          }}
+        >
+          <Search size={13} color={DIM} style={{ flexShrink: 0 }} />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="搜尋圖層… Search layers…"
+            style={{
+              flex: 1,
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              color: TEXT_STRONG,
+              fontSize: FONT_SIZE.md,
+              fontFamily: "Inter, system-ui, sans-serif",
+            }}
+          />
+        </div>
+      </div>
       <div
         className="layer-sidebar-scroll"
         style={{
@@ -1039,10 +1074,26 @@ function LayersPanel({
         }}
       >
         {THEMES.map((theme) => {
-          const isCollapsed = collapsedThemes.has(theme.title);
+          const isCollapsed = q ? false : collapsedThemes.has(theme.title);
           const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
           const onCount = allKeys.filter((k) => visibility[k]).length;
           const someOn = onCount > 0;
+
+          // 搜尋過濾：query 非空時只保留符合的 group/layer；整組/整 theme 空則不渲染
+          const groups = q
+            ? theme.groups
+                .map((g) => ({
+                  ...g,
+                  layers: g.layers.filter(
+                    (l) =>
+                      l.label.toLowerCase().includes(q) ||
+                      (l.labelMobile?.toLowerCase().includes(q) ?? false) ||
+                      l.key.toLowerCase().includes(q),
+                  ),
+                }))
+                .filter((g) => g.layers.length > 0)
+            : theme.groups;
+          if (q && groups.length === 0) return null;
 
           const handleBulkToggle = () => {
             // 有任何一個 on → 全部 off；全部 off → 全部 on
@@ -1069,7 +1120,7 @@ function LayersPanel({
                 onToggleCollapse={() => toggleTheme(theme.title)}
                 onBulkToggle={handleBulkToggle}
               />
-              {!isCollapsed && theme.groups.map((group) => (
+              {!isCollapsed && groups.map((group) => (
                 <div key={group.title}>
                   <SubGroupLabel>{group.title}</SubGroupLabel>
                   {group.layers.map(({ key, label, expandable }) => {

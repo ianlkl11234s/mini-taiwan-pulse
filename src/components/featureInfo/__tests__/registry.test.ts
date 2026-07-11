@@ -11,7 +11,7 @@ import { PANEL_REGISTRY, HEADER_LABELS } from "../registry";
 const BASELINE_NO_PANEL = new Set([
   "groundwaterWell", "iotWraRiver", "iotWraStructure",
   // Base map：單色 raster / 線，無 click feature — 無 panel 需求
-  "osmExpressway", "hillshade", "slope", "aspect",
+  "osmExpressway", "hillshade",
 ]);
 
 describe("featureInfo registry", () => {

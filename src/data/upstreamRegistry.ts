@@ -79,14 +79,6 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'hillshade', confidence: 'MED' }],
   },
-  slope: {
-    status: 'verified',
-    datasets: [{ datasetId: 'slope', confidence: 'MED' }],
-  },
-  aspect: {
-    status: 'verified',
-    datasets: [{ datasetId: 'aspect', confidence: 'MED' }],
-  },
   slopeVector: {
     status: 'verified',
     datasets: [{ datasetId: 'slope', confidence: 'MED' }],

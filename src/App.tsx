@@ -1157,7 +1157,7 @@ export default function App() {
     isDarkTheme,
   );
 
-  // ── Base map 地形 raster（hillshade / slope / aspect，單張 PNG 預烤 colormap）──
+  // ── Base map 地形 raster（hillshade，單張 PNG 預烤 colormap）──
   useStaticRasterLayer({
     mapRef,
     sourceId: "base-hillshade-src",
@@ -1167,26 +1167,8 @@ export default function App() {
     visible: layerVisibility.hillshade,
     opacity: transportParams.hillshadeOpacity,
   });
-  useStaticRasterLayer({
-    mapRef,
-    sourceId: "base-slope-src",
-    layerId: "base-slope-layer",
-    url: "./base_map/slope.png",
-    bbox: TERRAIN_BBOX,
-    visible: layerVisibility.slope,
-    opacity: transportParams.slopeOpacity,
-  });
-  useStaticRasterLayer({
-    mapRef,
-    sourceId: "base-aspect-src",
-    layerId: "base-aspect-layer",
-    url: "./base_map/aspect.png",
-    bbox: TERRAIN_BBOX,
-    visible: layerVisibility.aspect,
-    opacity: transportParams.aspectOpacity,
-  });
 
-  // ── 坡度 / 坡向分級向量（PMTiles polygon，可點選 / 疊圖，與 PNG 版並存）──
+  // ── 坡度 / 坡向分級向量（PMTiles polygon，可點選 / 疊圖）──
   useSlopeVectorLayer(
     mapRef,
     layerVisibility.slopeVector,
