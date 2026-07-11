@@ -42,6 +42,7 @@ export function useSlopeVectorLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
   opacity: number,
+  styleId: string,
 ) {
   useEffect(() => {
     let cancelled = false;
@@ -119,5 +120,7 @@ export function useSlopeVectorLayer(
       map?.off("style.load", onStyleLoad);
       if (map) setVis(map, FILL_LAYER, false);
     };
-  }, [mapRef, visible, opacity]);
+    // styleId 進 deps：底圖 style 切換時 effect 重跑 → 重新 ensureLayer（走與手動 re-toggle
+    // 相同的成功路徑）。diff setStyle 會移除自訂圖層且 event listener 重掛不可靠，改靠 React 重跑。
+  }, [mapRef, visible, opacity, styleId]);
 }

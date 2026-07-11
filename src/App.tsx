@@ -1173,11 +1173,13 @@ export default function App() {
     mapRef,
     layerVisibility.slopeVector,
     transportParams.slopeVectorOpacity,
+    mapStyleId,
   );
   useAspectVectorLayer(
     mapRef,
     layerVisibility.aspectVector,
     transportParams.aspectVectorOpacity,
+    mapStyleId,
   );
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
