@@ -570,13 +570,14 @@ const SLOPE_VECTOR_CATS = [
 ];
 
 function SlopeVectorLegend() {
+  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         坡度分級 SLOPE（建管六級坡）
       </div>
       <FireCatRows cats={SLOPE_VECTOR_CATS} square />
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         建築技術規則坡度分級｜可點選查級別
       </div>
     </div>
@@ -596,13 +597,14 @@ const ASPECT_VECTOR_CATS = [
 ];
 
 function AspectVectorLegend() {
+  const t = useLegendTheme();
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         坡向分級 ASPECT（8 方位）
       </div>
       <FireCatRows cats={ASPECT_VECTOR_CATS} square />
-      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, marginTop: 4, lineHeight: 1.3 }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         坡面朝向 8 方位｜可點選查方位
       </div>
     </div>
