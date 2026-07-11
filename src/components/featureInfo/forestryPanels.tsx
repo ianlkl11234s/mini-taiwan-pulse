@@ -1,5 +1,6 @@
 import { Row } from "./shared";
-import { COLORS, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_SIZE } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 
 const HIKING_TRAIL_SOURCE_INFO: Record<string, { color: string; label: string }> = {
   A_forest: { color: "#d62728", label: "A 林業署國家步道（KML）" },
@@ -11,6 +12,7 @@ const HIKING_TRAIL_SOURCE_INFO: Record<string, { color: string; label: string }>
 };
 
 export function HikingTrailsPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const src = String(props.source ?? "");
   const info = HIKING_TRAIL_SOURCE_INFO[src] ?? { color: "#888", label: src || "未知來源" };
   const name = String(props.name ?? "(無名步道)");
@@ -22,7 +24,7 @@ export function HikingTrailsPanel({ props }: { props: Record<string, unknown> })
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 14, height: 2, background: info.color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>{name}</div>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{name}</div>
       </div>
       <Row label="來源" value={info.label} color={info.color} />
       {region ? <Row label="管理單位" value={region} /> : null}
@@ -53,11 +55,12 @@ const FORESTRY_PROP_LABELS: Record<string, string> = {
 };
 
 export function ForestryGenericPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const entries = Object.entries(props).slice(0, 8);
   return (
     <>
       {entries.length === 0 && (
-        <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>無屬性資料</div>
+        <div style={{ fontSize: FONT_SIZE.sm, color: t.textDim }}>無屬性資料</div>
       )}
       {entries.map(([k, v]) => {
         const label = FORESTRY_PROP_LABELS[k] ?? k;

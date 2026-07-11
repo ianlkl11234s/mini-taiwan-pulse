@@ -1933,6 +1933,7 @@ export default function App() {
           {/* Icon Rail + Sliding Panel Sidebar */}
           <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, zIndex: 11, pointerEvents: "none" }}>
             <IconRailSidebar
+              isDarkTheme={isDarkTheme}
               visibility={layerVisibility}
               lockedKeys={lockedKeys}
               expandedLayer={expandedLayer}
@@ -2216,7 +2217,7 @@ export default function App() {
             >
               Info
             </button>
-            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} />
+            <UserAvatar isOwner={isOwner} onOpenAdmin={() => setAdminOpen(true)} isDarkTheme={isDarkTheme} />
           </div>
 
           {/* 操作提示 */}
@@ -2818,6 +2819,7 @@ export default function App() {
               feature={featureInfo}
               onClose={() => setFeatureInfo(null)}
               reservoirContext={reservoirContext}
+              isDarkTheme={isDarkTheme}
             />
           </div>
         )}
@@ -2841,7 +2843,7 @@ export default function App() {
           </>
         )}
         <div style={{ pointerEvents: "auto" }}>
-          <LegendPanel visibility={layerVisibility} overlayParams={transportParams.overlayParams} />
+          <LegendPanel visibility={layerVisibility} overlayParams={transportParams.overlayParams} isDarkTheme={isDarkTheme} />
         </div>
       </div>
 
@@ -2849,11 +2851,12 @@ export default function App() {
       <LoadingIndicator />
 
       {/* ── Info Modal ── */}
-      <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} />
+      <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
       {isOwner && <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} selfId={memberUser?.id ?? null} />}
 
       {/* ── BYOK 對話浮層（桌機右側 / 手機底部上拉，自帶 mobile 版型）── */}
       <ChatPanel
+        isDarkTheme={isDarkTheme}
         open={chatOpen}
         onClose={() => setChatOpen(false)}
         bridge={chatBridge}
@@ -2863,7 +2866,7 @@ export default function App() {
       />
 
       {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
-      <DataSourceBrowser />
+      <DataSourceBrowser isDarkTheme={isDarkTheme} />
     </div>
   );
 }

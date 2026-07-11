@@ -23,10 +23,31 @@ import {
  * @param isOwner      是否為 owner（決定是否顯示「資料治理」入口）。
  * @param onOpenAdmin  點「資料治理」時開啟站內後台（僅 owner）。
  */
-export function UserAvatar({ isOwner, onOpenAdmin }: { isOwner?: boolean; onOpenAdmin?: () => void } = {}) {
+export function UserAvatar({ isOwner, onOpenAdmin, isDarkTheme = true }: { isOwner?: boolean; onOpenAdmin?: () => void; isDarkTheme?: boolean } = {}) {
   const { user, loading } = useUser();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // 下拉選單面板的中性 chrome 色票（頭像本體、accent、狀態色不受此控制）
+  const c = isDarkTheme
+    ? {
+        menuBg: SURFACE.strong,
+        border: BORDER.panel,
+        shadow: ELEVATION.lg,
+        divider: BORDER.soft,
+        textStrong: COLORS.textDefault,
+        textDim: COLORS.textMuted,
+        hover: WHITE_ALPHA[8],
+      }
+    : {
+        menuBg: "#FFFFFF",
+        border: "rgba(0,0,0,0.10)",
+        shadow: "0 8px 24px rgba(0,0,0,0.15)",
+        divider: "rgba(0,0,0,0.08)",
+        textStrong: "#111827",
+        textDim: "#6B7280",
+        hover: "rgba(0,0,0,0.05)",
+      };
 
   // 下拉開啟時，點擊外部關閉
   useEffect(() => {
@@ -108,10 +129,10 @@ export function UserAvatar({ isOwner, onOpenAdmin }: { isOwner?: boolean; onOpen
             top: "calc(100% + 6px)",
             right: 0,
             minWidth: 160,
-            background: SURFACE.strong,
-            border: `1px solid ${BORDER.panel}`,
+            background: c.menuBg,
+            border: `1px solid ${c.border}`,
             borderRadius: RADIUS.lg,
-            boxShadow: ELEVATION.lg,
+            boxShadow: c.shadow,
             backdropFilter: "blur(8px)",
             overflow: "hidden",
             zIndex: 10,
@@ -120,10 +141,10 @@ export function UserAvatar({ isOwner, onOpenAdmin }: { isOwner?: boolean; onOpen
           <div
             style={{
               padding: `${SPACING.md}px ${SPACING.lg}px`,
-              borderBottom: `1px solid ${BORDER.soft}`,
+              borderBottom: `1px solid ${c.divider}`,
               fontSize: FONT_SIZE.sm,
               fontFamily: FONT_CJK,
-              color: COLORS.textMuted,
+              color: c.textDim,
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
@@ -145,15 +166,15 @@ export function UserAvatar({ isOwner, onOpenAdmin }: { isOwner?: boolean; onOpen
                 width: "100%",
                 padding: `${SPACING.md}px ${SPACING.lg}px`,
                 background: "transparent",
-                color: COLORS.textDefault,
+                color: c.textStrong,
                 border: "none",
-                borderBottom: `1px solid ${BORDER.soft}`,
+                borderBottom: `1px solid ${c.divider}`,
                 fontSize: FONT_SIZE.md,
                 fontFamily: FONT_CJK,
                 textAlign: "left",
                 cursor: "pointer",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = WHITE_ALPHA[8])}
+              onMouseEnter={(e) => (e.currentTarget.style.background = c.hover)}
               onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
             >
               <ShieldCheck size={14} />
@@ -173,14 +194,14 @@ export function UserAvatar({ isOwner, onOpenAdmin }: { isOwner?: boolean; onOpen
               width: "100%",
               padding: `${SPACING.md}px ${SPACING.lg}px`,
               background: "transparent",
-              color: COLORS.textDefault,
+              color: c.textStrong,
               border: "none",
               fontSize: FONT_SIZE.md,
               fontFamily: FONT_CJK,
               textAlign: "left",
               cursor: "pointer",
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = WHITE_ALPHA[8])}
+            onMouseEnter={(e) => (e.currentTarget.style.background = c.hover)}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <LogOut size={14} />

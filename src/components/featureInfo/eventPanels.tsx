@@ -1,7 +1,8 @@
 import { Row } from "./shared";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
-import { COLORS, FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 
 function parseEvents(raw: unknown): ClusterEvent[] {
   if (typeof raw !== "string" || !raw) return [];
@@ -22,6 +23,7 @@ function formatTs(unixSec: number | undefined | null): string {
 }
 
 export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const eventCount = Number(props.event_count ?? 1);
   const location = String(props.location_name ?? props.county ?? "");
   const events = parseEvents(props.events_json);
@@ -34,7 +36,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
       <>
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
           <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: cat.color, flexShrink: 0 }} />
-          <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
+          <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5, lineHeight: 1.4 }}>
             {String(props.title ?? "Unknown Event")}
           </div>
         </div>
@@ -63,15 +65,15 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{
         display: "flex", alignItems: "center", gap: 6, marginBottom: 8,
-        paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.1)",
+        paddingBottom: 6, borderBottom: `1px solid ${t.border}`,
       }}>
         <div style={{ fontSize: FONT_SIZE.lg, lineHeight: 1 }}>📰</div>
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, lineHeight: 1.4 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5, lineHeight: 1.4 }}>
           {location}
         </div>
         <div style={{
           marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
-          background: "rgba(255,255,255,0.12)", color: COLORS.textStrong, fontWeight: 600,
+          background: t.bgStrong, color: t.textStrong, fontWeight: 600,
         }}>
           {eventCount} 則
         </div>
@@ -94,14 +96,14 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    color: COLORS.textStrong, fontSize: 11.5, fontWeight: 600,
+                    color: t.textStrong, fontSize: 11.5, fontWeight: 600,
                     textDecoration: "none", lineHeight: 1.4, display: "block",
                   }}
                 >
                   {e.title}
                 </a>
                 <div style={{
-                  fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2,
+                  fontSize: FONT_SIZE.sm, color: t.textDim, marginTop: 2,
                   display: "flex", gap: 6, flexWrap: "wrap",
                 }}>
                   <span style={{ color: cat.color }}>{cat.label}</span>
@@ -119,6 +121,7 @@ export function NewsEventPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const severity = String(props.severity ?? "Unknown");
   const color = String(props.color ?? "#dc2626");
   const event = String(props.event ?? props.event_term ?? "災害示警");
@@ -138,7 +141,7 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {event}
         </div>
         <div style={{
@@ -151,10 +154,10 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
       {headline && <Row label="標題" value={headline} />}
       {areaDesc && (
         <div style={{ display: "flex", gap: 8, marginTop: 4, fontSize: FONT_SIZE.base, lineHeight: 1.5 }}>
-          <span style={{ color: COLORS.textMuted, flexShrink: 0, minWidth: 56 }}>影響區域</span>
+          <span style={{ color: t.textMuted, flexShrink: 0, minWidth: 56 }}>影響區域</span>
           <div
             style={{
-              color: COLORS.textStrong,
+              color: t.textStrong,
               wordBreak: "break-word",
               maxHeight: 20 * 16.5, // 11px × 1.5 line-height × 20 lines
               overflowY: "auto",
@@ -173,6 +176,7 @@ export function DisasterAlertPanel({ props }: { props: Record<string, unknown> }
 }
 
 export function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const eventType = Number(props.event_type ?? 0);
   const color = String(props.color ?? "#6b7280");
   const source = String(props.source ?? "");
@@ -202,7 +206,7 @@ export function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5, flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {title || (EVENT_TYPE_LABELS[eventType] ?? "路況事件")}
         </div>
         <div style={{ fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md, background: color, color: "#fff", fontWeight: 600, flexShrink: 0 }}>
@@ -222,11 +226,12 @@ export function RoadEventPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#ef5350", flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.fault_name ?? "Unknown Fault")}
         </div>
       </div>

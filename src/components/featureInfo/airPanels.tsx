@@ -1,8 +1,10 @@
 import { aqiToColor } from "../../map/aqiColorScale";
-import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row, numOrNull, formatNum } from "./shared";
+import { useFeatureTheme } from "./featureTheme";
 
 export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const aqi = numOrNull(props.aqi);
   const color = aqi != null ? aqiToColor(aqi) : "#707070";
   const observedAt = String(props.observedAt ?? "");
@@ -10,7 +12,7 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.stationName ?? "Unknown")}
         </div>
       </div>
@@ -21,14 +23,14 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
           gap: 8,
           marginTop: 4,
           padding: "6px 8px",
-          background: "rgba(255,255,255,0.04)",
+          background: t.bgSubtle,
           borderRadius: RADIUS.md,
         }}
       >
         <span style={{ fontSize: 24, fontWeight: 700, color }}>
           {aqi ?? "—"}
         </span>
-        <span style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault }}>
+        <span style={{ fontSize: FONT_SIZE.base, color: t.textDefault }}>
           AQI {String(props.status ?? "")}
         </span>
       </div>
@@ -47,6 +49,7 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
 }
 
 export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
   const pm25 = numOrNull(props.pm25);
   const color = String(props.color ?? "#707070");
   const temperature = Number(props.temperature);
@@ -56,7 +59,7 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5 }}>
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
           {String(props.deviceId ?? "LASS Device")}
         </div>
       </div>
@@ -67,14 +70,14 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
           gap: 8,
           marginTop: 4,
           padding: "6px 8px",
-          background: "rgba(255,255,255,0.04)",
+          background: t.bgSubtle,
           borderRadius: RADIUS.md,
         }}
       >
         <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color }}>
           {pm25 != null ? pm25.toFixed(1) : "—"}
         </span>
-        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>PM2.5 µg/m³</span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>PM2.5 µg/m³</span>
       </div>
       <Row label="來源" value={String(props.source ?? "")} />
       <Row label="裝置" value={String(props.app ?? "")} />

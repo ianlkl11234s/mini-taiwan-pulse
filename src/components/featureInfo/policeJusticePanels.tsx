@@ -1,13 +1,15 @@
 import { Row, SourceFooter } from "./shared";
-import { COLORS, RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
+import { useFeatureTheme } from "./featureTheme";
 
 type PanelProps = { props: Record<string, unknown> };
 
 function Header({ color, name }: { color: string; name: string }) {
+  const t = useFeatureTheme();
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
       <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
-      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: "#fff", letterSpacing: 0.5, wordBreak: "break-word" }}>
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5, wordBreak: "break-word" }}>
         {name}
       </div>
     </div>
@@ -139,6 +141,7 @@ export function ProsecutorsOfficePanel({ props }: PanelProps) {
 }
 
 export function CorrectionalFacilityPanel({ props }: PanelProps) {
+  const t = useFeatureTheme();
   const ft = String(props.facility_type ?? "");
   return (
     <>
@@ -147,7 +150,7 @@ export function CorrectionalFacilityPanel({ props }: PanelProps) {
       <Row label="地址" value={String(props.address ?? "")} />
       <Row label="電話" value={String(props.phone ?? "")} />
       <Row label="官網" value={String(props.url ?? "")} />
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
         ⓘ 全國在監人數請看右下 Monitor PrisonCard
       </div>
       <SourceFooter props={props} />
@@ -173,6 +176,7 @@ export function CourtJurisdictionPanel({ props }: PanelProps) {
 
 // ── 治安態勢 ──
 export function CrimeAreaMonthlyPanel({ props }: PanelProps) {
+  const t = useFeatureTheme();
   const byType = (() => {
     try {
       const v = props.by_type;
@@ -203,11 +207,11 @@ export function CrimeAreaMonthlyPanel({ props }: PanelProps) {
       <Row label="總事件" value={String(props.total_events ?? "0")} />
       {topTypes.length > 0 && (
         <div style={{ marginTop: 6 }}>
-          <div style={{ color: COLORS.textMuted, fontSize: FONT_SIZE.sm, marginBottom: 2 }}>主要類型 Top 5</div>
+          <div style={{ color: t.textMuted, fontSize: FONT_SIZE.sm, marginBottom: 2 }}>主要類型 Top 5</div>
           {topTypes.map(([k, v]) => <Row key={k} label={k} value={String(v)} />)}
         </div>
       )}
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim }}>
         資料來源：警政署 nid 14200 鄉鎮犯罪資料表（民國 104~115）<br />
         ⚠ 顯示為累計值，非即時／近期統計
       </div>
@@ -265,6 +269,7 @@ export function AccidentTaipeiPanel({ props }: PanelProps) {
 }
 
 export function A1AccidentRealtimePanel({ props }: PanelProps) {
+  const t = useFeatureTheme();
   const ageH = Number(props.age_hours ?? 0);
   const ageLabel = ageH < 1 ? `${Math.round(ageH * 60)} 分鐘前`
     : ageH < 24 ? `${ageH.toFixed(1)} 小時前 · 當天`
@@ -285,7 +290,7 @@ export function A1AccidentRealtimePanel({ props }: PanelProps) {
       <Row label="肇因大類" value={String(props.cause_main_major ?? "")} />
       <Row label="肇因子類" value={String(props.cause_main_sub ?? "")} />
       <Row label="死傷" value={String(props.death_injury ?? "")} />
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
         資料來源：警政署 nid 57023（每 12h 更新）<br />
         畫面顯示過去 30 天滾動，當天/本週/30 天分桶呈現
       </div>
@@ -321,6 +326,7 @@ export function AntiCorruptionOfficePanel({ props }: PanelProps) {
 }
 
 export function ImmigrationOfficePanel({ props }: PanelProps) {
+  const t = useFeatureTheme();
   return (
     <>
       <Header color="#0ea5e9" name={String(props.name ?? "移民署服務站")} />
@@ -329,7 +335,7 @@ export function ImmigrationOfficePanel({ props }: PanelProps) {
       <Row label="電話" value={String(props.phone ?? "")} />
       <Row label="傳真" value={String(props.fax ?? "")} />
       <Row label="官網" value={String(props.url ?? "")} />
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim }}>
         資料來源：內政部移民署 opendata.immigration.gov.tw
       </div>
     </>
@@ -351,6 +357,7 @@ export function CoastGuardStationPanel({ props }: PanelProps) {
 
 // ── 警察覆蓋分析 isochrone（共用 panel） ──
 function IsochronePanel({ props, title, color }: PanelProps & { title: string; color: string }) {
+  const t = useFeatureTheme();
   const cnt = Number(props.overlap_count ?? 0);
   const tier = String(props.tier ?? "");
   const mode = String(props.mode ?? "");
@@ -365,7 +372,7 @@ function IsochronePanel({ props, title, color }: PanelProps & { title: string; c
       <Row label="層級" value={tier === "substation" ? "派出所" : tier === "precinct" ? "分局" : "縣市警局"} />
       <Row label="模式" value={mode === "walk" ? "步行" : mode === "drive" ? "開車" : mode} />
       <Row label="時間" value={`${mins} 分鐘`} />
-      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.5 }}>
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.5 }}>
         重疊計數法（Overlap Count）：此處同時被 {cnt} 個{tier === "substation" ? "派出所" : tier === "precinct" ? "分局" : "縣市警局"}的 {mins} 分鐘{mode === "walk" ? "步行" : "開車"}圈包含。
       </div>
     </>
