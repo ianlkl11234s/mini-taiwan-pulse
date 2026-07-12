@@ -2567,6 +2567,48 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 湖泊 / 埤塘 / 池塘 Lakes & Ponds (OSM natural=water，52,314 面) ──
+  // water 分色（pond/lake/reservoir/basin）；預設濾掉 overlaps_aquaculture=true
+  // （39.1% 與魚塭圖層重疊，避免視覺打架，見上游 lakes_ponds_osm.md）。
+  {
+    id: "lakesPondsOsm",
+    sourceUrl: "./water_resources/lakes_ponds_osm.pmtiles",
+    sourceId: "lakes-ponds-osm",
+    pmtiles: { sourceLayer: "lakes_ponds_osm", minzoom: 5, maxzoom: 14 },
+    filter: ["!=", ["get", "overlaps_aquaculture"], true],
+    rebuildOnParamChange: ["lakesPondsOsmOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": [
+            "match", ["get", "water"],
+            "pond", "#4fc3f7",
+            "lake", "#1e88e5",
+            "reservoir", "#00acc1",
+            "basin", "#7e57c2",
+            "#4fc3f7",
+          ],
+          "fill-opacity": p?.lakesPondsOsmOpacity ?? 0.5,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: () => ({
+          "line-color": [
+            "match", ["get", "water"],
+            "pond", "#4fc3f7",
+            "lake", "#1e88e5",
+            "reservoir", "#00acc1",
+            "basin", "#7e57c2",
+            "#4fc3f7",
+          ],
+          "line-width": 0.5, "line-opacity": 0.6,
+        }),
+      },
+    ],
+  },
+
   // ── Waste Stops Static (全台清運點位散點) ──
   {
     id: "wasteStopsStatic",
@@ -2794,6 +2836,92 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-opacity": opacity,
           };
         },
+      },
+    ],
+  },
+
+  // ── 🐟 養殖漁業 Aquaculture（靜態 overlay；ponds=PMTiles，zone/cageNet=GeoJSON polygon）──
+  {
+    id: "aquaculturePonds",
+    sourceUrl: "./fishery/aquaculture_ponds_osm.pmtiles",
+    sourceId: "aquaculture-ponds",
+    pmtiles: { sourceLayer: "aquaculture_ponds_osm", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["aquaculturePondsOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 9,
+        paint: (_isDark, p) => ({
+          "fill-color": "#26c6da",
+          "fill-opacity": p?.aquaculturePondsOpacity ?? 0.5,
+        }),
+      },
+      {
+        suffix: "line", type: "line", minzoom: 9,
+        paint: () => ({ "line-color": "#26c6da", "line-width": 0.5, "line-opacity": 0.6 }),
+      },
+    ],
+  },
+  {
+    id: "aquacultureZone",
+    sourceUrl: "./fishery/aquaculture_production_zone.geojson",
+    sourceId: "aquaculture-zone",
+    rebuildOnParamChange: ["aquacultureZoneOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 6,
+        paint: (_isDark, p) => ({
+          "fill-color": "#66bb6a",
+          "fill-opacity": p?.aquacultureZoneOpacity ?? 0.35,
+        }),
+      },
+      {
+        suffix: "line", type: "line", minzoom: 6,
+        paint: () => ({ "line-color": "#66bb6a", "line-width": 1, "line-opacity": 0.7 }),
+      },
+    ],
+  },
+  {
+    id: "aquacultureCageNet",
+    sourceUrl: "./fishery/aquaculture_cage_net.geojson",
+    sourceId: "aquaculture-cage-net",
+    rebuildOnParamChange: ["aquacultureCageNetOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill", minzoom: 6,
+        paint: (_isDark, p) => ({
+          "fill-color": "#5c6bc0",
+          "fill-opacity": p?.aquacultureCageNetOpacity ?? 0.4,
+        }),
+      },
+      {
+        suffix: "line", type: "line", minzoom: 6,
+        paint: () => ({ "line-color": "#5c6bc0", "line-width": 1, "line-opacity": 0.7 }),
+      },
+    ],
+  },
+  // 衛星偵測養殖水體（Sentinel-2 + RandomForest，5,095 面）。in_osm 分兩色：
+  // false（OSM 漏標候選，本圖層核心價值）用醒目橘、true（與 OSM 逐口重疊）用低調灰藍。
+  // 顏色刻意跟 OSM ponds 的青色 #26c6da 區隔，避免視覺混淆。
+  {
+    id: "aquacultureWaterSatellite",
+    sourceUrl: "./fishery/aquaculture_water_satellite.pmtiles",
+    sourceId: "aquaculture-water-satellite",
+    pmtiles: { sourceLayer: "aquaculture_water_satellite", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["aquacultureWaterSatelliteOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": ["case", ["==", ["get", "in_osm"], true], "#78909c", "#ff5722"],
+          "fill-opacity": p?.aquacultureWaterSatelliteOpacity ?? 0.5,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: () => ({
+          "line-color": ["case", ["==", ["get", "in_osm"], true], "#78909c", "#ff5722"],
+          "line-width": 0.5, "line-opacity": 0.7,
+        }),
       },
     ],
   },

@@ -15,7 +15,7 @@ import {
 import {
   WaterFacilityPanel, WaterMonitorPanel, WaterDetentionBasinPanel, WaterDamPanel,
   RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel,
-  WaterReservoirPolyPanel,
+  WaterReservoirPolyPanel, LakesPondsPanel,
 } from "./waterPanels";
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import { NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel } from "./eventPanels";
@@ -29,6 +29,10 @@ import {
 import { HikingTrailsPanel, ForestryGenericPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
+import {
+  AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
+  AquacultureWaterSatellitePanel,
+} from "./fisheryPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
@@ -102,6 +106,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   waterDam: WaterDamPanel,
   waterReservoirPoly: WaterReservoirPolyPanel,
   waterDetentionBasin: WaterDetentionBasinPanel,
+  lakesPondsOsm: LakesPondsPanel,
   rainGauge: RainGaugePanel,
   riverLevel: RiverLevelPanel,
   groundwater: GroundwaterPanel,
@@ -223,6 +228,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   livestockSlaughter: LivestockSlaughterPanel,
   livestockFeed: LivestockFeedPanel,
   livestockMarket: LivestockMarketPanel,
+  // 🐟 養殖漁業
+  aquaculturePonds: AquaculturePondsPanel,
+  aquacultureZone: AquacultureZonePanel,
+  aquacultureCageNet: AquacultureCageNetPanel,
+  aquacultureWaterSatellite: AquacultureWaterSatellitePanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
 };
@@ -257,6 +267,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   waterDam: "水庫 / 壩體",
   waterReservoirPoly: "水庫蓄水範圍",
   waterDetentionBasin: "滯洪池",
+  lakesPondsOsm: "湖泊/埤塘",
   rainGauge: "即時雨量站",
   riverLevel: "河川水位站",
   groundwater: "地下水井",
@@ -294,6 +305,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   livestockSlaughter: "屠宰場",
   livestockFeed: "飼料廠",
   livestockMarket: "拍賣/批發市場",
+  aquaculturePonds: "逐口魚塭",
+  aquacultureZone: "養殖漁業生產區",
+  aquacultureCageNet: "海上箱網",
+  aquacultureWaterSatellite: "衛星偵測養殖水體",
   sportsVenue: "運動場館",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",

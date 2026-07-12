@@ -192,6 +192,9 @@ App.tsx 只加：一顆觸發按鈕 + `<ChatPanel …/>`，把既有 handler 當
 
 ## 6. 子系統 D：會員系統（需求 2）
 
+> 2026-07-03 更新：會員功能細部規劃（會員面板 icon / 收藏快照 schema / 上站統計 / migration 273+274 / 風險 8 條）
+> 已拍板獨立成 [`member-features-plan.md`](./member-features-plan.md)（M 系列）。本章保留架構決策，實作以該檔為準。
+
 ### 6.1 Auth
 
 - Supabase Auth + **Google OAuth only**（沿用舊計畫拍板）；gis-platform Dashboard 開 provider，

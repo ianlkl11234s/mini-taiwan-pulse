@@ -339,6 +339,10 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'detention_basins', confidence: 'MED' }],
   },
+  lakesPondsOsm: {
+    status: 'verified',
+    datasets: [{ datasetId: 'lakes_ponds_osm', confidence: 'HIGH' }],
+  },
   groundwater: {
     status: 'verified',
     datasets: [{ datasetId: 'groundwater_wells', confidence: 'HIGH' }],
@@ -513,6 +517,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   livestockSlaughter: { status: 'verified', datasets: [{ datasetId: 'slaughterhouses', confidence: 'HIGH' }] },
   livestockFeed: { status: 'verified', datasets: [{ datasetId: 'feed_factories', confidence: 'HIGH' }] },
   livestockMarket: { status: 'verified', datasets: [{ datasetId: 'livestock_markets', confidence: 'HIGH' }] },
+  // 🐟 養殖漁業 Aquaculture
+  aquaculturePonds: { status: 'verified', datasets: [{ datasetId: 'aquaculture_ponds_osm', confidence: 'MED' }] },
+  aquacultureZone: { status: 'verified', datasets: [{ datasetId: 'aquaculture_production_zone', confidence: 'HIGH' }] },
+  aquacultureCageNet: { status: 'verified', datasets: [{ datasetId: 'aquaculture_cage_net', confidence: 'HIGH' }] },
+  aquacultureWaterSatellite: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite', confidence: 'HIGH' }] },
   // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
   sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
