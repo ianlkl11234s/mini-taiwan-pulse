@@ -113,6 +113,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   groundwaterWells: Droplet,
   iotWraRiver: Waves,
   iotWraStructure: Gauge,
+  lakesPondsOsm: Waves,
   floodSensor: Droplets,
   floodSensorIsochrone: Timer,
   taipeiSewer: Waves,
@@ -155,6 +156,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   aquaculturePonds: Fish,
   aquacultureZone: Fish,
   aquacultureCageNet: Fish,
+  aquacultureWaterSatellite: Satellite,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,

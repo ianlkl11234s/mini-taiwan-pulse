@@ -202,10 +202,12 @@ done
 
 # 養殖漁業圖層：上傳到 deploy-assets/fishery/ 子前綴（鏡像結構，pull 端整夾 sync）
 # ponds 逐口魚塭 PMTiles 大檔（3.1MB）+ 生產區/箱網 GeoJSON 小檔（後兩者亦在 git dist fallback）
+# + 衛星偵測養殖水體 PMTiles（2.5MB）
 FISHERY_FILES=(
   "public/fishery/aquaculture_ponds_osm.pmtiles"
   "public/fishery/aquaculture_production_zone.geojson"
   "public/fishery/aquaculture_cage_net.geojson"
+  "public/fishery/aquaculture_water_satellite.pmtiles"
 )
 for f in "${FISHERY_FILES[@]}"; do
   name=$(basename "$f")
@@ -215,6 +217,15 @@ for f in "${FISHERY_FILES[@]}"; do
   fi
   echo "Uploading fishery/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/fishery/$name" --region ap-southeast-2
+done
+
+# 水資源圖層：上傳到 deploy-assets/water_resources/ 子前綴（鏡像結構，pull 端整夾 sync）
+# 湖泊/埤塘 PMTiles（11.3MB，純 S3，無 git 小檔）
+for f in public/water_resources/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading water_resources/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/water_resources/$name" --region ap-southeast-2
 done
 
 # Base map PMTiles：上傳到 deploy-assets/base_map/ 子前綴（鏡像結構，pull 端整夾 sync）。

@@ -101,6 +101,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   groundwaterWells: "#64748b",
   iotWraRiver: "#06b6d4",
   iotWraStructure: "#a855f7",
+  lakesPondsOsm: "#4fc3f7",
   floodSensor: "#ef4444",
   floodSensorIsochrone: "#ef4444",
   taipeiSewer: "#3b82f6",
@@ -143,6 +144,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   aquaculturePonds: "#26c6da",
   aquacultureZone: "#66bb6a",
   aquacultureCageNet: "#5c6bc0",
+  aquacultureWaterSatellite: "#ff5722",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -544,6 +546,7 @@ export const THEMES: ThemeDef[] = [
           { key: "waterProtectionZones", label: "管制區 Protection", expandable: true },
           { key: "waterDetentionBasins", label: "滯洪池 Detention", expandable: true },
           { key: "groundwater", label: "地下水井 Groundwater", expandable: true },
+          { key: "lakesPondsOsm", label: "湖泊 / 埤塘 Lakes & Ponds", expandable: true },
         ],
       },
       {
@@ -710,6 +713,7 @@ export const THEMES: ThemeDef[] = [
           { key: "aquaculturePonds", label: "逐口魚塭 Aquaculture Ponds", expandable: true },
           { key: "aquacultureZone", label: "養殖漁業生產區 Production Zone", expandable: true },
           { key: "aquacultureCageNet", label: "海上箱網 Cage Net", expandable: true },
+          { key: "aquacultureWaterSatellite", label: "衛星偵測養殖水體 Satellite Detected", expandable: true },
         ],
       },
       {

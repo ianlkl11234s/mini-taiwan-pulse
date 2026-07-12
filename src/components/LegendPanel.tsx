@@ -174,7 +174,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
   { keys: ["livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck", "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther"], render: () => <LivestockFarmLegend /> },
   { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
-  { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
+  { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet", "aquacultureWaterSatellite"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
@@ -188,6 +188,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   },
   { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan", "satellitesUSA", "satellitesJapan", "satellitesRussia", "satellitesIndia", "satellitesKorea", "satellitesFrance", "satellitesGermany", "satellitesItaly", "satellitesIsrael"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
+  { keys: ["lakesPondsOsm"], render: () => <LakesPondsLegend /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
@@ -603,6 +604,8 @@ function AquacultureLegend({ visibility }: { visibility: LayerVisibility }) {
     { key: "aquaculturePonds", color: "#26c6da", label: "逐口魚塭 Ponds" },
     { key: "aquacultureZone", color: "#66bb6a", label: "養殖漁業生產區 Zone" },
     { key: "aquacultureCageNet", color: "#5c6bc0", label: "海上箱網 Cage Net" },
+    { key: "aquacultureWaterSatellite", color: "#ff5722", label: "衛星偵測·OSM 漏標候選" },
+    { key: "aquacultureWaterSatellite", color: "#78909c", label: "衛星偵測·與 OSM 重疊" },
   ] as const).filter((it) => visibility[it.key]);
   return (
     <div>
@@ -611,7 +614,7 @@ function AquacultureLegend({ visibility }: { visibility: LayerVisibility }) {
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (
-          <div key={it.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <div
               style={{
                 width: 10, height: 10, borderRadius: 2, background: it.color,
@@ -1436,6 +1439,28 @@ function WaterCanalLegend() {
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+const LAKES_PONDS_CATS = [
+  { color: "#4fc3f7", label: "埤塘 Pond" },
+  { color: "#1e88e5", label: "湖泊 Lake" },
+  { color: "#00acc1", label: "水塘 Reservoir (OSM 自標)" },
+  { color: "#7e57c2", label: "水池 Basin" },
+];
+
+function LakesPondsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        湖泊 / 埤塘 LAKES & PONDS
+      </div>
+      <FireCatRows cats={LAKES_PONDS_CATS} square />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        已濾掉與魚塭圖層重疊者（39.1%）｜OSM ODbL
       </div>
     </div>
   );

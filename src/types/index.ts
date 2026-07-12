@@ -109,6 +109,7 @@ export type ExpandableLayerKey =
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
   // 🐟 養殖漁業 Aquaculture（靜態 overlay polygon）
   | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
+  | "aquacultureWaterSatellite"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
@@ -146,6 +147,7 @@ export type ExpandableLayerKey =
   | "groundwaterWells"
   | "iotWraRiver"
   | "iotWraStructure"
+  | "lakesPondsOsm"
   | "floodSensor"
   | "floodSensorIsochrone"
   | "taipeiSewer"
@@ -613,13 +615,14 @@ export interface FeatureInfo {
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
+    | "aquacultureWaterSatellite"
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
-    | "iotWraRiver" | "iotWraStructure"
+    | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
     | "floodSensor" | "floodSensorIsochrone"
     | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
     | "wasteFacility" | "wasteDisposalPoint" | "wasteCleaningSquad"
@@ -750,6 +753,7 @@ export interface LayerVisibility {
   groundwaterWells: boolean;
   iotWraRiver: boolean;
   iotWraStructure: boolean;
+  lakesPondsOsm: boolean;        // 湖泊/埤塘/池塘（OSM natural=water，52,314 面，預設濾掉與魚塭重疊者）
   floodSensor: boolean;          // USWG 都市淹水感測器（即時 depth_cm，1999 站）
   floodSensorIsochrone: boolean; // 雙北 USWG 3-min 步行等時圈（PMTiles，依站即時 depth 著色）
   taipeiSewer: boolean;          // 北市雨水下水道水位 233 站（10min，wic.gov.taipei）
@@ -776,6 +780,7 @@ export interface LayerVisibility {
   aquaculturePonds: boolean;      // 逐口魚塭（OSM PMTiles，~15k 面）
   aquacultureZone: boolean;       // 養殖漁業生產區（62 面）
   aquacultureCageNet: boolean;    // 海上箱網（42 面）
+  aquacultureWaterSatellite: boolean; // 衛星偵測養殖水體（Sentinel-2 RF，5,095 面，in_osm 分色標 OSM 漏標候選）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

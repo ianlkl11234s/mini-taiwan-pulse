@@ -24,6 +24,19 @@ const WATER_MONITOR_TYPE: Record<string, { color: string; label: string }> = {
   groundwater_well: { color: "#f472b6", label: "地下水觀測井" },
 };
 
+/** 湖泊/埤塘 water 分類對應色 / 標籤（同 overlayRegistry lakesPondsOsm match 色票）*/
+const LAKES_PONDS_TYPE: Record<string, { color: string; label: string }> = {
+  pond: { color: "#4fc3f7", label: "埤塘 Pond" },
+  lake: { color: "#1e88e5", label: "湖泊 Lake" },
+  reservoir: { color: "#00acc1", label: "水塘 Reservoir (OSM 自標)" },
+  basin: { color: "#7e57c2", label: "水池 Basin" },
+};
+
+function areaHa(v: unknown): string {
+  const n = Number(v);
+  return Number.isFinite(n) ? `${n.toLocaleString(undefined, { maximumFractionDigits: 2 })} ha` : "";
+}
+
 /** 警示燈號顏色（對齊 reservoir_situation_v 的 alert_level 輸出） */
 const ALERT_COLORS: Record<string, string> = {
   critical: "#ef4444", // 紅
@@ -659,6 +672,28 @@ export function WaterReservoirPolyPanel({ props }: { props: Record<string, unkno
       <Row label="資料源" value="WRA GIC reservoir_storage" />
       <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
         ⓘ 此為水庫實際水面輪廓，部分水庫（如台電管的明潭、明湖下池）僅有面、無單獨點位
+      </div>
+    </>
+  );
+}
+
+export function LakesPondsPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const type = String(props.water ?? "");
+  const meta = LAKES_PONDS_TYPE[type] ?? { color: "#4fc3f7", label: type || "湖泊/埤塘" };
+  const name = String(props.name ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: meta.color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {name || meta.label}
+        </div>
+      </div>
+      <Row label="類別" value={meta.label} color={meta.color} />
+      <Row label="面積" value={areaHa(props.area_ha)} />
+      <div style={{ marginTop: 8, fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5 }}>
+        ⓘ OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）；已濾掉與魚塭圖層重疊者
       </div>
     </>
   );

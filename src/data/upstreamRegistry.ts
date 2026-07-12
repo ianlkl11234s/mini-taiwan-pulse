@@ -331,6 +331,10 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'detention_basins', confidence: 'MED' }],
   },
+  lakesPondsOsm: {
+    status: 'verified',
+    datasets: [{ datasetId: 'lakes_ponds_osm', confidence: 'HIGH' }],
+  },
   groundwater: {
     status: 'verified',
     datasets: [{ datasetId: 'groundwater_wells', confidence: 'HIGH' }],
@@ -494,6 +498,7 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   aquaculturePonds: { status: 'verified', datasets: [{ datasetId: 'aquaculture_ponds_osm', confidence: 'MED' }] },
   aquacultureZone: { status: 'verified', datasets: [{ datasetId: 'aquaculture_production_zone', confidence: 'HIGH' }] },
   aquacultureCageNet: { status: 'verified', datasets: [{ datasetId: 'aquaculture_cage_net', confidence: 'HIGH' }] },
+  aquacultureWaterSatellite: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite', confidence: 'HIGH' }] },
   // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
   sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },

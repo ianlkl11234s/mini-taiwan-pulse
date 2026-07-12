@@ -50,3 +50,33 @@ export function AquacultureCageNetPanel({ props }: { props: Record<string, unkno
     </>
   );
 }
+
+/** nlsc_name + nlsc_code → 「水產養殖（0102）」；缺 name 退回純 code，皆空回空字串（Row 自動隱藏） */
+function nlscLandUse(props: Record<string, unknown>): string {
+  const name = typeof props.nlsc_name === "string" ? props.nlsc_name : "";
+  const code = typeof props.nlsc_code === "string" ? props.nlsc_code : "";
+  if (name && code) return `${name}（${code}）`;
+  return name || code;
+}
+
+export function AquacultureWaterSatellitePanel({ props }: { props: Record<string, unknown> }) {
+  const inOsm = props.in_osm === true;
+  const solarSymbiotic = props.solar_symbiotic === true;
+  const color = inOsm ? "#78909c" : "#ff5722";
+  return (
+    <>
+      <Title color={color}>衛星偵測養殖水體</Title>
+      <Row label="面積" value={areaHa(props.area_ha)} />
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="狀態" value={inOsm ? "OSM 已標" : "OSM 漏標候選"} color={color} />
+      <Row label="土地使用（NLSC 113年）" value={nlscLandUse(props)} />
+      {solarSymbiotic && (
+        <Row label="漁電共生" value="光電案場內，官方認定水產養殖或有魚塭證據而保留" color="#fbbf24" />
+      )}
+      <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
+        ⓘ 10m 解析度水體團塊，非逐口輪廓；漏標候選含少量假陽性（太陽能板/滯洪池等）
+      </div>
+      <SourceFooter props={props} />
+    </>
+  );
+}
