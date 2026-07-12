@@ -162,6 +162,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   aquacultureZone: Fish,
   aquacultureCageNet: Fish,
   aquacultureWaterSatellite: Satellite,
+  aquacultureIntegrated: Fish,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,

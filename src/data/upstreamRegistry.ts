@@ -522,6 +522,14 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   aquacultureZone: { status: 'verified', datasets: [{ datasetId: 'aquaculture_production_zone', confidence: 'HIGH' }] },
   aquacultureCageNet: { status: 'verified', datasets: [{ datasetId: 'aquaculture_cage_net', confidence: 'HIGH' }] },
   aquacultureWaterSatellite: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite', confidence: 'HIGH' }] },
+  aquacultureIntegrated: {
+    status: 'pulse_only',
+    datasets: [],
+    derivedFromLayers: ['aquaculturePonds', 'aquacultureWaterSatellite', 'aquacultureZone'],
+    derivationType: 'aggregate',
+    processing: '整合逐口魚塭（OSM）+ 衛星偵測補充 + 生產區為單一 PMTiles（20,212 面），依 source 三色染色',
+    note: '派生分析：三來源養殖面聚合',
+  },
   // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
   sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },

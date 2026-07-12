@@ -177,6 +177,7 @@ export function useTransportParams() {
   const [aquacultureCageNetOpacity, setAquacultureCageNetOpacity] = useState(0.4);
   const [aquacultureWaterSatelliteOpacity, setAquacultureWaterSatelliteOpacity] = useState(0.5);
   const [aquacultureWaterSatelliteConfidence, setAquacultureWaterSatelliteConfidence] = useState<string>("all"); // all / reservoir / certain（累積式信心篩選）
+  const [aquacultureIntegratedOpacity, setAquacultureIntegratedOpacity] = useState(0.6);
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
   const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
   const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
@@ -840,7 +841,7 @@ export function useTransportParams() {
     correctionalFacilityOpacity, correctionalFacilityScale,
     courtJurisdictionOpacity,
     aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
-    aquacultureWaterSatelliteOpacity, lakesPondsOsmOpacity,
+    aquacultureWaterSatelliteOpacity, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
     // 信心層級 select（all/reservoir/certain）編成 idx（0/1/2）；paint 端 decode 做 opacity 篩選
     aquacultureWaterSatelliteConfidenceIdx: ["all", "reservoir", "certain"].indexOf(aquacultureWaterSatelliteConfidence),
     crimeAreaMonthlyOpacity,
@@ -1178,7 +1179,7 @@ export function useTransportParams() {
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
     correctionalFacilityOpacity, correctionalFacilityScale, courtJurisdictionOpacity,
     aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
-    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, lakesPondsOsmOpacity,
+    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -2226,6 +2227,9 @@ export function useTransportParams() {
       case "aquacultureWaterSatellite": return [
         { type: "select" as const, label: "信心", value: aquacultureWaterSatelliteConfidence, options: [{ label: "全部", value: "all" }, { label: "含蓄水池", value: "reservoir" }, { label: "只確定", value: "certain" }], onChange: setAquacultureWaterSatelliteConfidence },
         { label: `填色透明度 ${aquacultureWaterSatelliteOpacity.toFixed(2)}`, value: aquacultureWaterSatelliteOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureWaterSatelliteOpacity },
+      ];
+      case "aquacultureIntegrated": return [
+        { label: `填色透明度 ${aquacultureIntegratedOpacity.toFixed(2)}`, value: aquacultureIntegratedOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureIntegratedOpacity },
       ];
       case "crimeAreaMonthly": return [
         { label: `填色透明度 ${crimeAreaMonthlyOpacity.toFixed(2)}`, value: crimeAreaMonthlyOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setCrimeAreaMonthlyOpacity },

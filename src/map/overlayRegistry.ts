@@ -2940,6 +2940,32 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // 養殖漁業整合（PMTiles 20,212 面：逐口魚塭 OSM 15,241 + 衛星偵測補充 4,967 + 生產區 4）。
+  // 依 source 三色染色：ponds 青 #26c6da / satellite 綠 #66bb6a / production 橙 #ffa726。
+  {
+    id: "aquacultureIntegrated",
+    sourceUrl: "./fishery/aquaculture_integrated.pmtiles",
+    sourceId: "aquaculture-integrated",
+    pmtiles: { sourceLayer: "aquaculture_integrated", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["aquacultureIntegratedOpacity"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": ["match", ["get", "source"], "ponds", "#26c6da", "satellite", "#66bb6a", "production", "#ffa726", "#9e9e9e"],
+          "fill-opacity": p?.aquacultureIntegratedOpacity ?? 0.6,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: () => ({
+          "line-color": ["match", ["get", "source"], "ponds", "#26c6da", "satellite", "#66bb6a", "production", "#ffa726", "#9e9e9e"],
+          "line-width": 0.5,
+          "line-opacity": 0.6,
+        }),
+      },
+    ],
+  },
 
   // ── 🏟️ 運動場館 Sports（靜態 CDN geojson，走 ./sports/）──
   // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。

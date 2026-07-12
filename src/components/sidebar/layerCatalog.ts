@@ -150,6 +150,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   aquacultureZone: "#66bb6a",
   aquacultureCageNet: "#5c6bc0",
   aquacultureWaterSatellite: "#26c6da",
+  aquacultureIntegrated: "#26c6da",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -735,6 +736,7 @@ export const THEMES: ThemeDef[] = [
           { key: "aquacultureZone", label: "養殖漁業生產區 Production Zone", expandable: true },
           { key: "aquacultureCageNet", label: "海上箱網 Cage Net", expandable: true },
           { key: "aquacultureWaterSatellite", label: "衛星偵測養殖水體 Satellite Detected", expandable: true },
+          { key: "aquacultureIntegrated", label: "養殖漁業整合 Integrated", expandable: true },
         ],
       },
       {

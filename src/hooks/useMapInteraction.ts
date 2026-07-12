@@ -289,6 +289,7 @@ export function useMapInteraction(
           { layers: ["aquaculture-zone-fill", "aquaculture-zone-line"], type: "aquacultureZone" },
           { layers: ["aquaculture-cage-net-fill", "aquaculture-cage-net-line"], type: "aquacultureCageNet" },
           { layers: ["aquaculture-water-satellite-fill", "aquaculture-water-satellite-line"], type: "aquacultureWaterSatellite" },
+          { layers: ["aquaculture-integrated-fill", "aquaculture-integrated-line"], type: "aquacultureIntegrated" },
           { layers: ["sports-venues-school", "sports-venues-public-other", "sports-venues-private", "sports-venues-park", "sports-venues-center"], type: "sportsVenue" },
           { layers: ["sat-current-point"], type: "satellite" },
           { layers: ["medical-hospitals-circle"], type: "medicalPOI" },

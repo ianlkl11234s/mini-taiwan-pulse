@@ -110,6 +110,7 @@ export type ExpandableLayerKey =
   // 🐟 養殖漁業 Aquaculture（靜態 overlay polygon）
   | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
   | "aquacultureWaterSatellite"
+  | "aquacultureIntegrated"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
@@ -624,6 +625,7 @@ export interface FeatureInfo {
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
     | "aquacultureWaterSatellite"
+    | "aquacultureIntegrated"
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
@@ -794,6 +796,7 @@ export interface LayerVisibility {
   aquacultureZone: boolean;       // 養殖漁業生產區（62 面）
   aquacultureCageNet: boolean;    // 海上箱網（42 面）
   aquacultureWaterSatellite: boolean; // 衛星偵測養殖水體（Sentinel-2 RF，5,095 面，信心 3 級染色：確定/蓄水池/不確定 藍→灰）
+  aquacultureIntegrated: boolean; // 養殖漁業整合（PMTiles，20,212 面；source 三色：ponds 青/satellite 綠/production 橙）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

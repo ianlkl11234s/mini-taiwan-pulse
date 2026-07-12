@@ -188,6 +188,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck", "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther"], render: () => <LivestockFarmLegend /> },
   { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
   { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet", "aquacultureWaterSatellite"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
+  { keys: ["aquacultureIntegrated"], render: () => <AquacultureIntegratedLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
@@ -623,6 +624,36 @@ function AquacultureLegend({ visibility }: { visibility: LayerVisibility }) {
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         養殖漁業 AQUACULTURE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => (
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: 2, background: it.color,
+                opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+                boxSizing: "border-box", flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AquacultureIntegratedLegend() {
+  const t = useLegendTheme();
+  const rows = [
+    { color: "#26c6da", label: "逐口魚塭（OSM）Ponds" },
+    { color: "#66bb6a", label: "衛星偵測補充 Satellite" },
+    { color: "#ffa726", label: "生產區 Production" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        養殖漁業整合 INTEGRATED
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (

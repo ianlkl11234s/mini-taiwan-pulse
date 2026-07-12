@@ -86,3 +86,23 @@ export function AquacultureWaterSatellitePanel({ props }: { props: Record<string
     </>
   );
 }
+
+/** source 三值 → 中文標籤 + 代表色（ponds 青 / satellite 綠 / production 橙） */
+const INTEGRATED_SOURCE: Record<string, { label: string; color: string }> = {
+  ponds: { label: "逐口魚塭（OSM）", color: "#26c6da" },
+  satellite: { label: "衛星偵測補充", color: "#66bb6a" },
+  production: { label: "生產區", color: "#ffa726" },
+};
+
+export function AquacultureIntegratedPanel({ props }: { props: Record<string, unknown> }) {
+  const src = typeof props.source === "string" ? props.source : "";
+  const tier = INTEGRATED_SOURCE[src] ?? { label: src || "未知", color: "#9e9e9e" };
+  return (
+    <>
+      <Title color={tier.color}>養殖漁業整合</Title>
+      <Row label="來源" value={tier.label} color={tier.color} />
+      <Row label="面積" value={areaHa(props.area_ha)} />
+      <SourceFooter props={props} />
+    </>
+  );
+}

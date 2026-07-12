@@ -31,7 +31,7 @@ import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel 
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
-  AquacultureWaterSatellitePanel,
+  AquacultureWaterSatellitePanel, AquacultureIntegratedPanel,
 } from "./fisheryPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
@@ -233,6 +233,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   aquacultureZone: AquacultureZonePanel,
   aquacultureCageNet: AquacultureCageNetPanel,
   aquacultureWaterSatellite: AquacultureWaterSatellitePanel,
+  aquacultureIntegrated: AquacultureIntegratedPanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
 };
@@ -309,6 +310,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   aquacultureZone: "養殖漁業生產區",
   aquacultureCageNet: "海上箱網",
   aquacultureWaterSatellite: "衛星偵測養殖水體",
+  aquacultureIntegrated: "養殖漁業整合",
   sportsVenue: "運動場館",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
