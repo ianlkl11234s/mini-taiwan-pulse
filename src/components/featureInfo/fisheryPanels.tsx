@@ -62,13 +62,19 @@ function nlscLandUse(props: Record<string, unknown>): string {
 export function AquacultureWaterSatellitePanel({ props }: { props: Record<string, unknown> }) {
   const inOsm = props.in_osm === true;
   const solarSymbiotic = props.solar_symbiotic === true;
-  const color = inOsm ? "#78909c" : "#ff5722";
+  const nlscCode = typeof props.nlsc_code === "string" ? props.nlsc_code : "";
+  const tier =
+    inOsm || nlscCode === "0102" || solarSymbiotic
+      ? { color: "#26c6da", label: "確定 · 養殖/OSM" }
+      : nlscCode === "0402" || nlscCode === "0104"
+        ? { color: "#90a4ae", label: "蓄水池/農業設施" }
+        : { color: "#cfd8dc", label: "不確定 · 水田/其他" };
   return (
     <>
-      <Title color={color}>衛星偵測養殖水體</Title>
+      <Title color={tier.color}>衛星偵測養殖水體</Title>
       <Row label="面積" value={areaHa(props.area_ha)} />
       <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="狀態" value={inOsm ? "OSM 已標" : "OSM 漏標候選"} color={color} />
+      <Row label="信心" value={tier.label} color={tier.color} />
       <Row label="土地使用（NLSC 113年）" value={nlscLandUse(props)} />
       {solarSymbiotic && (
         <Row label="漁電共生" value="光電案場內，官方認定水產養殖或有魚塭證據而保留" color="#fbbf24" />

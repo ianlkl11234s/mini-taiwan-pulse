@@ -793,7 +793,7 @@ export interface LayerVisibility {
   aquaculturePonds: boolean;      // 逐口魚塭（OSM PMTiles，~15k 面）
   aquacultureZone: boolean;       // 養殖漁業生產區（62 面）
   aquacultureCageNet: boolean;    // 海上箱網（42 面）
-  aquacultureWaterSatellite: boolean; // 衛星偵測養殖水體（Sentinel-2 RF，5,095 面，in_osm 分色標 OSM 漏標候選）
+  aquacultureWaterSatellite: boolean; // 衛星偵測養殖水體（Sentinel-2 RF，5,095 面，信心 3 級染色：確定/蓄水池/不確定 藍→灰）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

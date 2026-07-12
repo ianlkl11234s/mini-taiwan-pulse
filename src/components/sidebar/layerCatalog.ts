@@ -149,7 +149,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   aquaculturePonds: "#26c6da",
   aquacultureZone: "#66bb6a",
   aquacultureCageNet: "#5c6bc0",
-  aquacultureWaterSatellite: "#ff5722",
+  aquacultureWaterSatellite: "#26c6da",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",

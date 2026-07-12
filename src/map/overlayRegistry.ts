@@ -2899,9 +2899,10 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
-  // 衛星偵測養殖水體（Sentinel-2 + RandomForest，5,095 面）。in_osm 分兩色：
-  // false（OSM 漏標候選，本圖層核心價值）用醒目橘、true（與 OSM 逐口重疊）用低調灰藍。
-  // 顏色刻意跟 OSM ponds 的青色 #26c6da 區隔，避免視覺混淆。
+  // 衛星偵測養殖水體（Sentinel-2 + RandomForest，5,095 面）。信心 3 級染色（藍→灰）：
+  // 確定（in_osm / nlsc_code 0102 水產養殖 / solar_symbiotic 漁電共生）青 #26c6da、
+  // 蓄水池/農業設施（nlsc_code 0402/0104）灰藍 #90a4ae、其他不確定 #cfd8dc。
+  // 信心層級 select（ConfidenceIdx 0=全部 1=含蓄水池 2=只確定）走 opacity 篩選（filter 靜態，只 paint 隨 param 重算）。
   {
     id: "aquacultureWaterSatellite",
     sourceUrl: "./fishery/aquaculture_water_satellite.pmtiles",
@@ -2911,17 +2912,31 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     layers: [
       {
         suffix: "fill", type: "fill",
-        paint: (_isDark, p) => ({
-          "fill-color": ["case", ["==", ["get", "in_osm"], true], "#78909c", "#ff5722"],
-          "fill-opacity": p?.aquacultureWaterSatelliteOpacity ?? 0.5,
-        }),
+        paint: (_isDark, p) => {
+          const base = p?.aquacultureWaterSatelliteOpacity ?? 0.5;
+          const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0; // 0=全部 1=含蓄水池 2=只確定
+          const isCertain: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
+          const isReservoir: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]]; // 蓄水池 0402 + 農業生產設施 0104
+          return {
+            "fill-color": ["case", isCertain, "#26c6da", isReservoir, "#90a4ae", "#cfd8dc"],
+            // 確定恆顯示；蓄水池於「只確定」隱藏；不確定僅「全部」顯示
+            "fill-opacity": ["case", isCertain, base, isReservoir, level === 2 ? 0 : base, level === 0 ? base : 0],
+          };
+        },
       },
       {
         suffix: "line", type: "line",
-        paint: () => ({
-          "line-color": ["case", ["==", ["get", "in_osm"], true], "#78909c", "#ff5722"],
-          "line-width": 0.5, "line-opacity": 0.7,
-        }),
+        paint: (_isDark, p) => {
+          const base = p?.aquacultureWaterSatelliteOpacity ?? 0.5;
+          const level = p?.aquacultureWaterSatelliteConfidenceIdx ?? 0;
+          const isCertain: unknown[] = ["any", ["==", ["get", "in_osm"], true], ["==", ["get", "nlsc_code"], "0102"], ["==", ["get", "solar_symbiotic"], true]];
+          const isReservoir: unknown[] = ["in", ["get", "nlsc_code"], ["literal", ["0402", "0104"]]];
+          return {
+            "line-color": ["case", isCertain, "#26c6da", isReservoir, "#90a4ae", "#cfd8dc"],
+            "line-width": 0.5,
+            "line-opacity": ["case", isCertain, base, isReservoir, level === 2 ? 0 : base, level === 0 ? base : 0],
+          };
+        },
       },
     ],
   },

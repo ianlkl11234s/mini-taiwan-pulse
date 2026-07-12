@@ -615,8 +615,9 @@ function AquacultureLegend({ visibility }: { visibility: LayerVisibility }) {
     { key: "aquaculturePonds", color: "#26c6da", label: "逐口魚塭 Ponds" },
     { key: "aquacultureZone", color: "#66bb6a", label: "養殖漁業生產區 Zone" },
     { key: "aquacultureCageNet", color: "#5c6bc0", label: "海上箱網 Cage Net" },
-    { key: "aquacultureWaterSatellite", color: "#ff5722", label: "衛星偵測·OSM 漏標候選" },
-    { key: "aquacultureWaterSatellite", color: "#78909c", label: "衛星偵測·與 OSM 重疊" },
+    { key: "aquacultureWaterSatellite", color: "#26c6da", label: "確定 · 養殖/OSM" },
+    { key: "aquacultureWaterSatellite", color: "#90a4ae", label: "蓄水池/農業設施" },
+    { key: "aquacultureWaterSatellite", color: "#cfd8dc", label: "不確定 · 水田/其他" },
   ] as const).filter((it) => visibility[it.key]);
   return (
     <div>
