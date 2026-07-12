@@ -1,6 +1,7 @@
 import { Fragment, useState, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
+import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -42,6 +43,16 @@ import {
   NUCLEAR_LEVEL_COLORS,
   type NuclearDoseLevel,
 } from "../data/nuclearLoader";
+import {
+  ER_LEVEL_COLORS,
+  ER_LEVEL_LABELS,
+  ER_CONGESTION_THRESHOLDS,
+  type ErCongestionLevel,
+} from "../data/erCongestionTypes";
+import {
+  parkingAvailabilityColor, PARKING_NEUTRAL_STOPS, AVAILABILITY_NULL_COLOR,
+  SOURCE_CATEGORY_META,
+} from "../data/parkingLoader";
 import {
   SEVERITY_BANDS, POLLUTION_MEDIUM_COLORS, POLLUTION_MEDIUM_LABELS,
   PENALTY_MEDIA, PENALTY_SEVERITY_COLORS, PENALTY_SEVERITY_LABELS,
@@ -160,6 +171,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
+  { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
+  { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
   { keys: ["iotWraStructure"], render: () => <IotStructureLegend /> },
@@ -191,6 +204,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["lakesPondsOsm"], render: () => <LakesPondsLegend /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
+  { keys: ["erHospital"], render: () => <ErCongestionLegend /> },
+  { keys: ["parkingOnstreet", "parkingOffstreet"], render: ({ visibility }) => <ParkingLegend visibility={visibility} /> },
   { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
   { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
   { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
@@ -226,8 +241,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
   // Base map：OSM 道路 highway 分級分色（其他 base layer 單色，依鐵則 2 不需圖例）
   { keys: ["osmRoadDrive"], render: () => <OsmRoadDriveLegend /> },
-  { keys: ["slope"], render: () => <SlopeLegend /> },
-  { keys: ["aspect"], render: () => <AspectLegend /> },
+  { keys: ["slopeVector"], render: () => <SlopeVectorLegend /> },
+  { keys: ["aspectVector"], render: () => <AspectVectorLegend /> },
   // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
   {
     keys: ["policeIsoSubstation", "policeIsoPrecinct", "policeIsoCityDept"],
@@ -384,6 +399,35 @@ function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility })
   );
 }
 
+// ── 台灣好行 Tourist Shuttle：配色模式圖例（route / speed / density 三模式）──
+// 色階與 BusScene 的 SPEED_STOPS / DENSITY_STOPS 對齊
+function TouristShuttleLegend() {
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        台灣好行 · 配色模式 COLOR
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <span style={{
+          width: 10, height: 10, borderRadius: RADIUS.full,
+          background: "linear-gradient(90deg,#4fc3f7,#f06292,#ba68c8)", display: "inline-block",
+        }} />
+        <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>路線 Route：依路線配色</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>速度 Speed (km/h)</div>
+      <div style={{ height: 10, borderRadius: 3, background: "linear-gradient(to right,#b71c1c 0%,#e53935 12%,#ff9800 40%,#fdd835 66%,#66bb6a 100%)" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, marginBottom: 6, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+        <span>停</span><span>慢</span><span>快</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted, marginBottom: 2 }}>密度 Density (班次/hr)</div>
+      <div style={{ height: 10, borderRadius: 3, background: "linear-gradient(to right,#1a237e 0%,#0097a7 33%,#fdd835 66%,#ff5722 100%)" }} />
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>
+        <span>冷門</span><span>幹線</span>
+      </div>
+    </div>
+  );
+}
+
 // ── 消防圖例（火災 / 分隊 / 消防栓）──
 
 function FireCatRows({ cats, square }: { cats: { color: string; label: string }[]; square?: boolean }) {
@@ -430,86 +474,53 @@ function OsmRoadDriveLegend() {
   );
 }
 
-// ── Slope / Aspect 地形 raster 圖例 ──
-function SlopeLegend() {
+// ── 坡度 / 坡向 分級向量（PMTiles polygon）圖例 ──
+const SLOPE_VECTOR_CATS = [
+  { color: "#1a9850", label: "1級 <5% 平緩" },
+  { color: "#66bd63", label: "2級 5-15%" },
+  { color: "#d9ef8b", label: "3級 15-30%" },
+  { color: "#fee08b", label: "4級 30-40%" },
+  { color: "#fc8d59", label: "5級 40-55%" },
+  { color: "#d73027", label: "6級 >55% 極陡" },
+];
+
+function SlopeVectorLegend() {
   const t = useLegendTheme();
-  // ramp 對齊 /tmp/slope_ramp.txt 烤入 PNG 的色：
-  // 0°綠 → 15°黃 → 30°橘 → 45°紅，>45° 維持紅
-  const ticks = ["0°", "15°", "30°", "45°"];
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        坡度 SLOPE
+        坡度分級 SLOPE（建管六級坡）
       </div>
-      <div
-        style={{
-          height: 10,
-          borderRadius: 3,
-          background: "linear-gradient(to right, #2ecc71 0%, #f1c40f 33%, #e67e22 66%, #c0392b 100%)",
-        }}
-      />
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2, fontSize: FONT_SIZE.xs, color: t.textMuted }}>
-        {ticks.map((it) => <span key={it}>{it}</span>)}
-      </div>
+      <FireCatRows cats={SLOPE_VECTOR_CATS} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
-        綠＝緩坡 / 紅＝陡坡｜DTM 20m 計算
+        建築技術規則坡度分級｜可點選查級別
       </div>
     </div>
   );
 }
 
-function AspectLegend() {
+const ASPECT_VECTOR_CATS = [
+  { color: "#e41a1c", label: "N 北" },
+  { color: "#ff7f00", label: "NE 東北" },
+  { color: "#ffde00", label: "E 東" },
+  { color: "#a6d854", label: "SE 東南" },
+  { color: "#4daf4a", label: "S 南" },
+  { color: "#20b2aa", label: "SW 西南" },
+  { color: "#377eb8", label: "W 西" },
+  { color: "#984ea3", label: "NW 西北" },
+  { color: "#bdbdbd", label: "平地" },
+];
+
+function AspectVectorLegend() {
   const t = useLegendTheme();
-  // HSV 環狀：N=0°紅 / E=90°黃 / S=180°綠 / W=270°藍
-  const size = 64;
-  const r = size / 2;
-  const cx = r;
-  const cy = r;
-  // 用 8 段扇形拼出 HSV（45° 一段，N→NE→E→SE→S→SW→W→NW）
-  const segments = [
-    { start: -22.5, end: 22.5, color: "#ef4444" }, // N
-    { start: 22.5, end: 67.5, color: "#f59e0b" },  // NE
-    { start: 67.5, end: 112.5, color: "#facc15" }, // E
-    { start: 112.5, end: 157.5, color: "#84cc16" },// SE
-    { start: 157.5, end: 202.5, color: "#22c55e" },// S
-    { start: 202.5, end: 247.5, color: "#06b6d4" },// SW
-    { start: 247.5, end: 292.5, color: "#3b82f6" },// W
-    { start: 292.5, end: 337.5, color: "#a855f7" },// NW
-  ];
-  const arcPath = (startDeg: number, endDeg: number) => {
-    // SVG: 0° at 3 o'clock; 我們要 0°（N）在 12 點 → 減 90
-    const toRad = (d: number) => ((d - 90) * Math.PI) / 180;
-    const x1 = cx + r * Math.cos(toRad(startDeg));
-    const y1 = cy + r * Math.sin(toRad(startDeg));
-    const x2 = cx + r * Math.cos(toRad(endDeg));
-    const y2 = cy + r * Math.sin(toRad(endDeg));
-    const largeArc = endDeg - startDeg > 180 ? 1 : 0;
-    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
-  };
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        坡向 ASPECT
+        坡向分級 ASPECT（8 方位）
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }}>
-          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-            {segments.map((s, i) => (
-              <path key={i} d={arcPath(s.start, s.end)} fill={s.color} />
-            ))}
-            <circle cx={cx} cy={cy} r={r * 0.32} fill="#0a0a0a" />
-          </svg>
-          {/* N/E/S/W 方位字 */}
-          <div style={{ position: "absolute", top: -2, left: 0, right: 0, textAlign: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>N</div>
-          <div style={{ position: "absolute", bottom: -2, left: 0, right: 0, textAlign: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>S</div>
-          <div style={{ position: "absolute", top: 0, bottom: 0, right: -2, display: "flex", alignItems: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>E</div>
-          <div style={{ position: "absolute", top: 0, bottom: 0, left: -2, display: "flex", alignItems: "center", fontSize: 9, color: "#fff", fontWeight: 700, textShadow: "0 0 2px #000" }}>W</div>
-        </div>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, lineHeight: 1.4 }}>
-          N 紅・E 黃・S 綠・W 藍<br />
-          坡面朝向 0–360°<br />
-          DTM 20m 計算
-        </div>
+      <FireCatRows cats={ASPECT_VECTOR_CATS} square />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        坡面朝向 8 方位｜可點選查方位
       </div>
     </div>
   );
@@ -1295,6 +1306,37 @@ function RoadEventsLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         ⚠ live_city 偏基隆；高雄缺 TDX 來源
+      </div>
+    </div>
+  );
+}
+
+function RoadCongestionLegend() {
+  const items = [
+    { level: 1, label: "順暢" },
+    { level: 2, label: "車多" },
+    { level: 3, label: "略壅" },
+    { level: 4, label: "壅塞" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        省道路況 CONGESTION
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {items.map((it) => (
+          <div key={it.level} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 14, height: 4, borderRadius: 2, background: ROAD_CONGESTION_COLORS[it.level], flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>{it.level} {it.label}</span>
+          </div>
+        ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 14, height: 4, borderRadius: 2, background: ROAD_CONGESTION_COLORS[0], flexShrink: 0 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textMuted }}>無資料</span>
+        </div>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        v1 僅省道 highway
       </div>
     </div>
   );
@@ -2288,6 +2330,95 @@ function NuclearLegend() {
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: t.textDim }}>
         ⚠️ 高劑量 + stale = 感測器離線 ≠ 真實核災<br />
         背景值 0.039 ~ 0.072 µSv/h（自然輻射）
+      </div>
+    </div>
+  );
+}
+
+function ParkingLegend({ visibility }: { visibility: LayerVisibility }) {
+  const rateRows = [
+    { rate: 1.0, label: "空位多 100%" },
+    { rate: 0.5, label: "半滿 50%" },
+    { rate: 0.15, label: "略滿 15%" },
+    { rate: 0.0, label: "滿 0%" },
+  ];
+  const dot = (bg: string) => ({
+    width: 10, height: 10, borderRadius: RADIUS.full,
+    background: bg, display: "inline-block", flexShrink: 0,
+  } as const);
+  const neutralMid = PARKING_NEUTRAL_STOPS[Math.floor(PARKING_NEUTRAL_STOPS.length / 2)]?.[1] ?? "#94a3b8";
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        MOVE · 停車空位率
+      </div>
+      {rateRows.map((r) => (
+        <div key={r.rate} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span style={dot(parkingAvailabilityColor(r.rate))} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{r.label}</span>
+        </div>
+      ))}
+      {visibility.parkingOnstreet && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5 }}>
+          <span style={dot(neutralMid)} />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+            台北路邊：僅容量（深=多），無即時空位
+          </span>
+        </div>
+      )}
+      {visibility.parkingOffstreet && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, margin: "6px 0 3px" }}>
+            場外分類（外環）
+          </div>
+          {Object.values(SOURCE_CATEGORY_META).map((m) => (
+            <div key={m.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+              <span style={{
+                width: 10, height: 10, borderRadius: RADIUS.full,
+                background: AVAILABILITY_NULL_COLOR, border: `2px solid ${m.ring}`,
+                display: "inline-block", flexShrink: 0, boxSizing: "border-box",
+              }} />
+              <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>{m.label}</span>
+            </div>
+          ))}
+          <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.35 }}>
+            圓越大 = 車位越多
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ErCongestionLegend() {
+  const rows: { key: ErCongestionLevel; label: string }[] = [
+    { key: "smooth", label: `順暢 ≤ ${ER_CONGESTION_THRESHOLDS.smooth}` },
+    { key: "light", label: `略壅 ${ER_CONGESTION_THRESHOLDS.smooth + 1}–${ER_CONGESTION_THRESHOLDS.light}` },
+    { key: "congested", label: `壅塞 ${ER_CONGESTION_THRESHOLDS.light + 1}–${ER_CONGESTION_THRESHOLDS.congested}` },
+    { key: "severe", label: `嚴重 > ${ER_CONGESTION_THRESHOLDS.congested}` },
+    { key: "nodata", label: "無資料" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        MEDICAL · 急診壅塞（等一般病床）
+      </div>
+      {rows.map((row) => (
+        <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 10, height: 10, borderRadius: RADIUS.full,
+              background: ER_LEVEL_COLORS[row.key], display: "inline-block",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDefault }}>
+            {ER_LEVEL_LABELS[row.key]} · {row.label}
+          </span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: COLORS.textDim }}>
+        ⚪ 白框 = 有加護病房 (ICU) 等待<br />
+        分級依 wait_general_cnt 37 天 history 校準
       </div>
     </div>
   );

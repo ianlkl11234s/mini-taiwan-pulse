@@ -20,6 +20,9 @@ import {
   sportsCategoryColorExpr, SPORTS_LAYERS, SPORTS_AREA_DOMAIN, SPORTS_RADIUS_PX,
   SPORTS_RADIUS_FALLBACK_PX, SPORTS_CLOSED_DIM, type SportsLayerMeta,
 } from "../data/sportsTypes";
+import {
+  availabilityColorExpr, neutralCapacityColorExpr, sourceCategoryRingExpr,
+} from "../data/parkingLoader";
 
 const BASE_RADIUS = 5;
 
@@ -4205,6 +4208,131 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "stale", isDark ? "#9ca3af" : "#4b5563",
               isDark ? "#3B82F6" : "#ffffff",
             ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 急診壅塞 er_hospital（59 家）──
+  // 顏色由 properties.level（loader 依 wait_general_cnt 預算 smooth/light/congested/severe/nodata）決定。
+  // 色值 = erCongestionTypes.ts 的 ER_LEVEL_COLORS（inline 對齊 nuclear 風格）。
+  // wait_icu_cnt>0（has_icu=1）→ 白色 circle-stroke ring（不改 fill 主色）。
+  {
+    id: "erHospital",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "er-hospital",
+    dynamicData: true,
+    rebuildOnParamChange: ["erHospitalOpacity"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const o = params?.erHospitalOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 6, 12, 11,
+            ],
+            "circle-color": [
+              "match", ["get", "level"],
+              "smooth", "#22c55e",
+              "light", "#facc15",
+              "congested", "#f97316",
+              "severe", "#ef4444",
+              "nodata", "#6b7280",
+              "#6b7280",
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": [
+              "match", ["get", "has_icu"], 1, 2.2, 0.8,
+            ],
+            "circle-stroke-color": [
+              "match", ["get", "has_icu"],
+              1, "#ffffff",
+              isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.3)",
+            ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 🅿️ 停車 路邊 parkingOnstreet（hybrid v1 當下快照）──
+  // 一個 source 依 geometry-type 拆兩 render 層：
+  //   fill（台北 Polygon）→ availability_rate=null → 中性藍灰依 total_spaces 表容量
+  //   circle（新北/台中 Point）→ availability_rate 空位率染色（綠=空位多 / 紅=滿）
+  // 資料由 useParkingLayer 從 get_parking_segments_current() setData。
+  {
+    id: "parkingOnstreet",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "parking-onstreet",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: ["==", ["geometry-type"], "Polygon"],
+        paint: (isDark, params) => {
+          const o = params?.parkingOnstreetOpacity ?? 0.6;
+          return {
+            "fill-color": neutralCapacityColorExpr() as unknown as string,
+            "fill-opacity": o,
+            "fill-outline-color": isDark ? "rgba(255,255,255,0.25)" : "rgba(0,0,0,0.25)",
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: ["==", ["geometry-type"], "Point"],
+        paint: (isDark, params) => {
+          const o = params?.parkingOnstreetOpacity ?? 0.6;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 3, 14, 7],
+            "circle-color": availabilityColorExpr() as unknown as string,
+            "circle-opacity": o,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 🅿️ 停車 場外 parkingOffstreet（hybrid v1 當下快照）──
+  // circle 空位率染色（綠→紅）+ circle-radius 隨 total_spaces（大場大圓）
+  // + circle-stroke-color 依 source_category（city / tourism / freeway_service_area）分類。
+  // 資料由 useParkingLayer 從 get_parking_lots_current() setData。
+  {
+    id: "parkingOffstreet",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "parking-offstreet",
+    dynamicData: true,
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.parkingOffstreetOpacity ?? 0.9;
+          // 半徑隨 total_spaces（log 尺標，兩端 clamp）：小場小圓、大場大圓
+          const radius = (zoom6: number, zoom13: number) => [
+            "interpolate", ["linear"],
+            ["log10", ["max", ["to-number", ["get", "total_spaces"], 1], 1]],
+            Math.log10(5), zoom6,
+            Math.log10(1000), zoom13,
+          ];
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, radius(3, 8),
+              13, radius(6, 18),
+            ],
+            "circle-color": availabilityColorExpr() as unknown as string,
+            "circle-opacity": o,
+            "circle-stroke-width": 1.4,
+            "circle-stroke-color": sourceCategoryRingExpr() as unknown as string,
           };
         },
       },

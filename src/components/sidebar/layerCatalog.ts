@@ -51,6 +51,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   bikeStations: "#ffca28",
   cyclingRoutes: "#66bb6a",
   freewayCongestion: "#ef5350",
+  roadCongestion: "#fb923c",
   weatherStations: "#4dd0e1",
   h3Population: "#ff6b6b",
   popCount: "#f9bd31",
@@ -85,6 +86,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   aqiMicroSensors: "#7e57c2",
   busLive: "#4fc3f7",
   busIntercityLive: "#ba68c8",
+  touristShuttleLive: "#26a69a",
   waterBasins: "#4dd0e1",
   waterRivers: "#38bdf8",
   waterLevees: "#f59e0b",
@@ -121,6 +123,9 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   medIsochrone: "#22c55e",
   medDesert: "#ef4444",
   medICUBeds: "#ff1744",
+  erHospital: "#ef4444",
+  parkingOnstreet: "#64748b",
+  parkingOffstreet: "#22c55e",
   agriculture: "#2e7d32",
   agriSoil: "#8d6e63",
   agriSoilFertility: "#00897b",
@@ -264,8 +269,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   osmRoadDrive: "#fb923c",
   osmExpressway: "#FF8C00",
   hillshade: "#6b7280",
-  slope: "#e67e22",
-  aspect: "#22c55e",
+  slopeVector: "#fc8d59",
+  aspectVector: "#ff7f00",
   // 警政司法民防 17 layer
   policeStation: "#1e40af",          // 警察 — 深藍
   womenChildWarning: "#ec4899",      // 婦幼 — 粉
@@ -309,6 +314,7 @@ export const TRANSPORT_LABELS: Record<TransportType, string> = {
   rail: "鐵道 Rail",
   busLive: "公車 Bus",
   busIntercityLive: "公路客運 InterCity",
+  touristShuttleLive: "台灣好行 Tourist Shuttle",
 };
 
 // ── Type Defs ──
@@ -371,8 +377,8 @@ export const THEMES: ThemeDef[] = [
           { key: "contour25k", label: "等高線 Contour 25k (10m)", labelMobile: "等高線 25k 10m", expandable: true },
           { key: "contourDtm20", label: "等高線 Contour DTM20 (20m)", labelMobile: "等高線 DTM 20m", expandable: true },
           { key: "hillshade", label: "山體陰影 Hillshade", expandable: true },
-          { key: "slope", label: "坡度 Slope (0-45°)", labelMobile: "坡度", expandable: true },
-          { key: "aspect", label: "坡向 Aspect (HSV)", labelMobile: "坡向", expandable: true },
+          { key: "slopeVector", label: "坡度分級 Slope 6級", labelMobile: "坡度分級", expandable: true },
+          { key: "aspectVector", label: "坡向分級 Aspect 8向", labelMobile: "坡向分級", expandable: true },
         ],
       },
       {
@@ -398,6 +404,7 @@ export const THEMES: ThemeDef[] = [
           { key: "rail", label: "鐵道 Rail", expandable: true },
           { key: "busLive", label: "公車 Bus", expandable: true },
           { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
+          { key: "touristShuttleLive", label: "台灣好行 Tourist Shuttle", labelMobile: "台灣好行", expandable: true },
         ],
       },
       {
@@ -441,7 +448,15 @@ export const THEMES: ThemeDef[] = [
         title: "即時監控",
         layers: [
           { key: "freewayCongestion", label: "國道壅塞 Congestion", expandable: true },
+          { key: "roadCongestion", label: "省道路況 Provincial v1", expandable: true },
           { key: "roadEvents", label: "即時路況 Road Events", expandable: true },
+        ],
+      },
+      {
+        title: "停車 Parking",
+        layers: [
+          { key: "parkingOnstreet", label: "路邊停車 On-street", labelMobile: "路邊停車", expandable: true },
+          { key: "parkingOffstreet", label: "場外停車場 Off-street", labelMobile: "場外停車場", expandable: true },
         ],
       },
     ],
@@ -665,6 +680,12 @@ export const THEMES: ThemeDef[] = [
           { key: "medPharmacy", label: "藥局 Pharmacy", expandable: true },
           { key: "medAED", label: "AED 點位 AED", expandable: true },
           { key: "medLTC", label: "長照機構 LTC", expandable: true },
+        ],
+      },
+      {
+        title: "即時 Emergency",
+        layers: [
+          { key: "erHospital", label: "急診壅塞 ER", expandable: true },
         ],
       },
       {

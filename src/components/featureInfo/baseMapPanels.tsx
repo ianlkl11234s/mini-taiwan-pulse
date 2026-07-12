@@ -93,6 +93,39 @@ export function ContourDtm20Panel({ props }: { props: Record<string, unknown> })
   );
 }
 
+// 坡度分級（建管六級坡）— slope_class 1-6 對照坡度百分比區間
+const SLOPE_CLASS_RANGE: Record<number, string> = {
+  1: "<5%", 2: "5-15%", 3: "15-30%", 4: "30-40%", 5: "40-55%", 6: ">55%",
+};
+
+export function SlopeVectorPanel({ props }: { props: Record<string, unknown> }) {
+  const cls = Number(props.slope_class ?? 0);
+  const range = SLOPE_CLASS_RANGE[cls] ?? "";
+  return (
+    <div>
+      <Row label="坡度級別" value={cls ? `${cls}級坡 · ${range}（建管）` : "無資料"} />
+      <Row label="來源" value="建築技術規則六級坡分級（DTM 20m 計算）" />
+    </div>
+  );
+}
+
+// 坡向分級（8 方位）— aspect_class 1-8 方位，9 為平地
+const ASPECT_CLASS_NAME: Record<number, string> = {
+  1: "北", 2: "東北", 3: "東", 4: "東南", 5: "南",
+  6: "西南", 7: "西", 8: "西北", 9: "平地（坡度<5°）",
+};
+
+export function AspectVectorPanel({ props }: { props: Record<string, unknown> }) {
+  const cls = Number(props.aspect_class ?? 0);
+  const name = ASPECT_CLASS_NAME[cls] ?? "";
+  return (
+    <div>
+      <Row label="坡向" value={cls ? name : "無資料"} />
+      <Row label="來源" value="坡面朝向 8 方位分級（DTM 20m 計算）" />
+    </div>
+  );
+}
+
 export function OsmRoadDrivePanel({ props }: { props: Record<string, unknown> }) {
   const name = String(props.name ?? "");
   const ref = String(props.ref ?? "");

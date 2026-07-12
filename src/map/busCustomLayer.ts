@@ -11,6 +11,8 @@ export interface BusLayerOptions {
   getIsVisible: () => boolean;
   getColorMode: () => BusColorMode;
   getAltOffset: () => number;
+  /** 可選：材質透明度覆寫（未提供則沿用 BusScene 依主題自動決定的 opacity） */
+  getOpacity?: () => number;
   onSceneReady?: (scene: BusScene) => void;
   maxInstances?: number;
 }
@@ -42,6 +44,7 @@ export function createBusLayer(opts: BusLayerOptions): CustomLayerInterface {
 
       busScene.setOrbScale(opts.getOrbScale());
       busScene.setAltitudeOffset(opts.getAltOffset());
+      if (opts.getOpacity) busScene.setOpacity(opts.getOpacity());
       busScene.update(opts.getBuses(), opts.getColorMode());
       busScene.render(matrix);
 

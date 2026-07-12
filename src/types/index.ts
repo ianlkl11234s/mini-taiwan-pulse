@@ -86,7 +86,7 @@ export interface DataSourceMeta {
 export type ViewMode = "all-taiwan" | "time-window";
 
 /** 運具類型 */
-export type TransportType = "flights" | "ships" | "rail" | "busLive" | "busIntercityLive";
+export type TransportType = "flights" | "ships" | "rail" | "busLive" | "busIntercityLive" | "touristShuttleLive";
 
 /** 可展開面板的圖層 key */
 export type ExpandableLayerKey =
@@ -130,6 +130,7 @@ export type ExpandableLayerKey =
   | "transitAlerts"
   | "safetyAlerts"
   | "roadEvents"
+  | "roadCongestion"
   | "busLive"
   | "waterBasins"
   | "waterRivers"
@@ -166,6 +167,9 @@ export type ExpandableLayerKey =
   | "medAED"
   | "medLTC"
   | "medIsochrone"
+  | "erHospital"
+  | "parkingOnstreet"
+  | "parkingOffstreet"
   | "agriculture"
   | "agriSoil"
   | "agriSoilFertility"
@@ -283,7 +287,8 @@ export type ExpandableLayerKey =
   // Base map
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
-  | "osmExpressway" | "hillshade" | "slope" | "aspect"
+  | "osmExpressway" | "hillshade"
+  | "slopeVector" | "aspectVector"
   // 警政司法民防 17 layer（slider 接 useTransportParams）
   | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
   | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
@@ -499,6 +504,9 @@ export const BUS_CITY_CONFIG: Record<BusCity, { label: string; jsonFile: string 
 /** 公路客運（InterCity）路線靜態檔路徑（全國單一檔案，無 city 切換） */
 export const BUS_INTERCITY_ROUTES_JSON = "./bus/intercity_bus_routes.json";
 
+/** 台灣好行（Tourist Shuttle）路線靜態檔路徑（全國單一檔案，無 city 切換） */
+export const TOURIST_SHUTTLE_ROUTES_JSON = "./bus/tourist_shuttle_routes.json";
+
 export interface BusRouteGeometry {
   routeUid: string;
   routeName: string;
@@ -611,7 +619,7 @@ export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
-    | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent"
+    | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent" | "roadCongestion"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
@@ -619,6 +627,8 @@ export interface FeatureInfo {
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
+    | "erHospital"
+    | "parkingOnstreet" | "parkingOffstreet"
     | "aqiStation" | "microSensor"
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
@@ -654,7 +664,8 @@ export interface FeatureInfo {
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
-    | "osmExpressway" | "hillshade" | "slope" | "aspect"
+    | "osmExpressway" | "hillshade"
+    | "slopeVector" | "aspectVector"
     // 警政司法民防 17 layer
     | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
     | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
@@ -730,6 +741,7 @@ export interface LayerVisibility {
   transitAlerts: boolean;
   safetyAlerts: boolean;
   roadEvents: boolean;    // TDX 即時路況（live_freeway/highway/city + event_city 預告）
+  roadCongestion: boolean; // 省道路況 v1（TDX live_highway；PMTiles 幾何 + feature-state 染色）
   cwaCloudImagery: boolean;
   cwaRadarImagery: boolean;
   aqiImagery: boolean;
@@ -737,6 +749,7 @@ export interface LayerVisibility {
   aqiMicroSensors: boolean;
   busLive: boolean;
   busIntercityLive: boolean;
+  touristShuttleLive: boolean;
   waterBasins: boolean;
   waterRivers: boolean;
   waterLevees: boolean;
@@ -796,6 +809,10 @@ export interface LayerVisibility {
   medIsochrone: boolean;   // 醫療等時圈（大醫院可及性 1km grid）
   medDesert: boolean;      // 醫療沙漠（>15 min）
   medICUBeds: boolean;     // 急重症床位壓力（即時，Phase 3）
+  erHospital: boolean;     // 急診壅塞（59 家急診即時量能，circle by wait_general_cnt）
+  // 停車 Parking（hybrid v1 當下快照，交通分組）
+  parkingOnstreet: boolean;  // 路邊 3084 段（台北 polygon 中性容量 / 新北台中 點空位率）
+  parkingOffstreet: boolean; // 場外 2083 場（空位率點 + 容量大小 + source_category 環）
   // 農業
   agriculture: boolean;          // FTW 2025 農田範圍（PMTiles）
   agriSoil: boolean;             // 25539 全台土壤分類
@@ -934,8 +951,8 @@ export interface LayerVisibility {
   osmRoadDrive: boolean;       // OSM 可駕駛道路（55 萬 edges，按 highway 等級分色）
   osmExpressway: boolean;      // OSM 快速道路 / 高速公路（橘色粗線突顯）
   hillshade: boolean;          // 山體陰影 raster（灰階 PNG，烤過 colormap）
-  slope: boolean;              // 坡度 raster（綠→黃→紅 ramp，0-45°）
-  aspect: boolean;             // 坡向 raster（HSV 環狀 N=紅 E=黃 S=綠 W=藍）
+  slopeVector: boolean;        // 坡度分級向量（建管六級坡 PMTiles，可點選/疊圖）
+  aspectVector: boolean;       // 坡向分級向量（8 方位 PMTiles，可點選/疊圖）
   // 警政司法民防 17 layer（資料來自 taipei-gis-analytics police_justice/）
   policeStation: boolean;             // 2,065 警察機關（分局/派出所/專業警隊/總局）
   womenChildWarning: boolean;         // 185 婦幼警示點

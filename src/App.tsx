@@ -26,6 +26,7 @@ import {
   syncWasteMapboxTheme,
 } from "./map/wasteMapboxLayers";
 import { useBusIntercityLayer } from "./hooks/useBusIntercityLayer";
+import { useTouristShuttleLayer } from "./hooks/useTouristShuttleLayer";
 import { useLayerVisibility } from "./hooks/useLayerVisibility";
 import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
@@ -44,6 +45,7 @@ import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
 // LegendPanel 圖例吃同一份，改色階兩邊自動同步。
 import { WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX } from "./map/climateRamps";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
+import { useRoadCongestionLayer } from "./hooks/useRoadCongestionLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
 import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
 import type { ReservoirScene } from "./three/ReservoirScene";
@@ -73,6 +75,8 @@ import { usePowerPolesLayer } from "./hooks/usePowerPolesLayer";
 import { usePollutionLayers } from "./hooks/usePollutionLayers";
 import { useAviationAirspaceLayer } from "./hooks/useAviationAirspaceLayer";
 import { useDroneZonesLayer } from "./hooks/useDroneRestrictedZonesLayer";
+import { useSlopeVectorLayer } from "./hooks/useSlopeVectorLayer";
+import { useAspectVectorLayer } from "./hooks/useAspectVectorLayer";
 import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
 import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
@@ -82,6 +86,8 @@ import { useSubstationEhvGlowLayer } from "./hooks/useSubstationEhvGlowLayer";
 import { usePowerLinesGlowTestLayer } from "./hooks/usePowerLinesGlowTestLayer";
 import { useAviationRestrictedGlowLayer } from "./hooks/useAviationRestrictedGlowLayer";
 import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
+import { useErHospitalLayer } from "./hooks/useErHospitalLayer";
+import { useParkingLayer } from "./hooks/useParkingLayer";
 // PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
@@ -480,6 +486,8 @@ export default function App() {
   const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode, transportParams.enabledBusCities);
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
+  const { busCount: touristShuttleCount, activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
+    useTouristShuttleLayer(layerVisibility.touristShuttleLive, timeline.timeMode);
 
   // ── 垃圾車（高雄主城，60s polling 軌跡 + 後端去噪/stop snapping）+ 音符特效 ──
   const { trailsRef: wasteTrailsRef, count: wasteCount, loadDay: loadWasteTrailDay } =
@@ -524,6 +532,16 @@ export default function App() {
     handler(timeStore.getDateKey());
     return timeStore.subscribeDate(handler);
   }, [timeline.timeMode, layerVisibility.busIntercityLive, loadBusIntercityTrailDay]);
+
+  // 台灣好行 replay: 同步
+  useEffect(() => {
+    if (!layerVisibility.touristShuttleLive || timeline.timeMode !== "replay") return;
+    const handler = (dayStr: string) => {
+      if (dayStr) loadTouristShuttleTrailDay(dayStr);
+    };
+    handler(timeStore.getDateKey());
+    return timeStore.subscribeDate(handler);
+  }, [timeline.timeMode, layerVisibility.touristShuttleLive, loadTouristShuttleTrailDay]);
 
   // 垃圾車 replay: 載入 timeline 當天整日軌跡；live 則維持近 60 分鐘 polling
   useEffect(() => {
@@ -699,13 +717,14 @@ export default function App() {
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
+    touristShuttleSceneRef,
     wasteScheduleSceneRef,
     wasteFacilityLayerRef,
     addFlightLayer,
     addAllLayers,
   } = useThreeJsLayers({
     timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+    shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, activeBusesTouristShuttleRef, wasteTrailsRef,
     wasteScheduleRoutesRef,
     wasteFacilityByTypeRef, railDataRef,
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
@@ -715,7 +734,7 @@ export default function App() {
   });
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef);
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -987,6 +1006,12 @@ export default function App() {
   );
   useNuclearLayer(mapRef, layerVisibility.nuclearRadiation);
 
+  // ── 急診壅塞（當下快照，比照核安 LIVE）──
+  useErHospitalLayer(mapRef, layerVisibility.erHospital);
+
+  // ── 停車 Parking（路邊 + 場外 當下快照，比照急診 LIVE）──
+  useParkingLayer(mapRef, layerVisibility.parkingOnstreet, layerVisibility.parkingOffstreet, timeline.timeMode);
+
   // ── News timeline (time-based filter + ripple animation) ──
   useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
 
@@ -1132,7 +1157,7 @@ export default function App() {
     isDarkTheme,
   );
 
-  // ── Base map 地形 raster（hillshade / slope / aspect，單張 PNG 預烤 colormap）──
+  // ── Base map 地形 raster（hillshade，單張 PNG 預烤 colormap）──
   useStaticRasterLayer({
     mapRef,
     sourceId: "base-hillshade-src",
@@ -1142,24 +1167,20 @@ export default function App() {
     visible: layerVisibility.hillshade,
     opacity: transportParams.hillshadeOpacity,
   });
-  useStaticRasterLayer({
+
+  // ── 坡度 / 坡向分級向量（PMTiles polygon，可點選 / 疊圖）──
+  useSlopeVectorLayer(
     mapRef,
-    sourceId: "base-slope-src",
-    layerId: "base-slope-layer",
-    url: "./base_map/slope.png",
-    bbox: TERRAIN_BBOX,
-    visible: layerVisibility.slope,
-    opacity: transportParams.slopeOpacity,
-  });
-  useStaticRasterLayer({
+    layerVisibility.slopeVector,
+    transportParams.slopeVectorOpacity,
+    mapStyleId,
+  );
+  useAspectVectorLayer(
     mapRef,
-    sourceId: "base-aspect-src",
-    layerId: "base-aspect-layer",
-    url: "./base_map/aspect.png",
-    bbox: TERRAIN_BBOX,
-    visible: layerVisibility.aspect,
-    opacity: transportParams.aspectOpacity,
-  });
+    layerVisibility.aspectVector,
+    transportParams.aspectVectorOpacity,
+    mapStyleId,
+  );
 
   // ── CWA 衛星雲圖 / 雷達回波 ──
   useCwaImageryLayer({
@@ -1187,6 +1208,14 @@ export default function App() {
     layerVisibility.freewayCongestion,
     transportParams.overlayParams.freewayWidth ?? 1,
     isDarkTheme,
+  );
+
+  // ── 省道路況 v1（PMTiles + feature-state 染色） ──
+  useRoadCongestionLayer(
+    mapRef,
+    layerVisibility.roadCongestion,
+    transportParams.overlayParams.roadCongestionWidth ?? 1,
+    transportParams.overlayParams.roadCongestionOpacity ?? 0.85,
   );
 
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
@@ -2232,6 +2261,7 @@ export default function App() {
               {layerVisibility.rail && ` · ${trainCount} trains`}
               {layerVisibility.busLive && ` · ${busCount} buses`}
               {layerVisibility.busIntercityLive && ` · ${busIntercityCount} intercity`}
+              {layerVisibility.touristShuttleLive && ` · ${touristShuttleCount} 台灣好行`}
               {layerVisibility.wasteTruck && ` · ${wasteCount} waste`}
               {viewMode === "time-window" && " (±12h)"}
             </div>

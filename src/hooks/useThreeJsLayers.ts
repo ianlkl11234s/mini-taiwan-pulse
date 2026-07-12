@@ -38,6 +38,7 @@ interface UseThreeJsLayersArgs {
   activeTrainsRef: React.RefObject<RailTrain[]>;
   activeBusesRef: React.RefObject<BusVehicle[]>;
   activeBusesIntercityRef: React.RefObject<BusVehicle[]>;
+  activeBusesTouristShuttleRef: React.RefObject<BusVehicle[]>;
   wasteTrailsRef: React.RefObject<WasteTrailRow[]>;
   wasteScheduleRoutesRef: React.RefObject<WasteScheduleRoute[]>;
   wasteFacilityByTypeRef: React.RefObject<Map<string, WasteFacilityRow[]>>;
@@ -69,6 +70,10 @@ interface UseThreeJsLayersArgs {
     busIntercityOrbScale: React.RefObject<number>;
     busIntercityColorMode: React.RefObject<string>;
     busIntercityAltOffset: React.RefObject<number>;
+    touristShuttleOrbScale: React.RefObject<number>;
+    touristShuttleColorMode: React.RefObject<string>;
+    touristShuttleAltOffset: React.RefObject<number>;
+    touristShuttleOpacity: React.RefObject<number>;
     wasteOrbScale: React.RefObject<number>;
     wasteNoteSize: React.RefObject<number>;
     wasteNoteZOffset: React.RefObject<number>;
@@ -99,7 +104,7 @@ interface UseThreeJsLayersArgs {
 
 export function useThreeJsLayers({
   timeRef, flightsRef, renderModeRef, isDarkThemeRef, showTrailsRef,
-  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, wasteTrailsRef,
+  shipsRef, activeTrainsRef, activeBusesRef, activeBusesIntercityRef, activeBusesTouristShuttleRef, wasteTrailsRef,
   wasteScheduleRoutesRef,
   wasteFacilityByTypeRef, railDataRef,
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
@@ -112,6 +117,7 @@ export function useThreeJsLayers({
   const railSceneRef = useRef<RailScene | null>(null);
   const busSceneRef = useRef<BusScene | null>(null);
   const busIntercitySceneRef = useRef<BusScene | null>(null);
+  const touristShuttleSceneRef = useRef<BusScene | null>(null);
   const wasteTruckSceneRef = useRef<WasteTruckScene | null>(null);
   const wasteMusicNoteSceneRef = useRef<WasteMusicNoteScene | null>(null);
   const wasteScheduleSceneRef = useRef<WasteScheduleScene | null>(null);
@@ -220,6 +226,22 @@ export function useThreeJsLayers({
       getColorMode: () => paramRefs.busIntercityColorMode.current as import("../types").BusColorMode,
       getAltOffset: () => paramRefs.busIntercityAltOffset.current,
       onSceneReady: (scene) => { busIntercitySceneRef.current = scene; },
+    });
+    map.addLayer(layer);
+  };
+
+  const addTouristShuttleLayer = (map: MapboxMap) => {
+    if (map.getLayer("tourist-shuttle-3d")) map.removeLayer("tourist-shuttle-3d");
+    const layer = createBusLayer({
+      id: "tourist-shuttle-3d",
+      getBuses: () => activeBusesTouristShuttleRef.current,
+      getIsDarkTheme: () => isDarkThemeRef.current,
+      getOrbScale: () => paramRefs.touristShuttleOrbScale.current,
+      getIsVisible: () => layerVisibilityRef.current.touristShuttleLive,
+      getColorMode: () => paramRefs.touristShuttleColorMode.current as import("../types").BusColorMode,
+      getAltOffset: () => paramRefs.touristShuttleAltOffset.current,
+      getOpacity: () => paramRefs.touristShuttleOpacity.current,
+      onSceneReady: (scene) => { touristShuttleSceneRef.current = scene; },
     });
     map.addLayer(layer);
   };
@@ -386,6 +408,7 @@ export function useThreeJsLayers({
     addRailLayer(map);
     addBusLayer(map);
     addBusIntercityLayer(map);
+    addTouristShuttleLayer(map);
     addWasteTruckLayer(map);
     addWasteScheduleLayer(map);
     addWasteFacilityLayer(map);
@@ -401,6 +424,7 @@ export function useThreeJsLayers({
     railSceneRef,
     busSceneRef,
     busIntercitySceneRef,
+    touristShuttleSceneRef,
     wasteTruckSceneRef,
     wasteMusicNoteSceneRef,
     wasteScheduleSceneRef,
@@ -412,6 +436,7 @@ export function useThreeJsLayers({
     addRailLayer,
     addBusLayer,
     addBusIntercityLayer,
+    addTouristShuttleLayer,
     addWasteTruckLayer,
     addWasteScheduleLayer,
     addWasteFacilityLayer,

@@ -19,6 +19,7 @@ import {
 } from "./waterPanels";
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import { NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel } from "./eventPanels";
+import { RoadCongestionPanel } from "./roadPanels";
 import { AqiStationPanel, MicroSensorPanel } from "./airPanels";
 import { WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel } from "./wastePanels";
 import {
@@ -33,7 +34,8 @@ import {
   AquacultureWaterSatellitePanel,
 } from "./fisheryPanels";
 import { SportsVenuePanel } from "./sportsPanels";
-import { MedicalPOIPanel, MedicalIsochronePanel } from "./medicalPanels";
+import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
+import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
 import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPanel, OsmWindTurbinePanel, OsmSolarFarmPanel, OsmPowerPlantStaticPanel, OffshoreWindZonePanel, IslandPowerFacilityPanel, FossilFuelFacilityPanel, GeothermalWellPanel, RenewablePermitTaipeiPanel, EvChargingPanel,
   GasStationCpcPanel, GasStationFpccPanel, GasStationTaisugarPanel, GasStationOtherPanel,
@@ -49,6 +51,7 @@ import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel } from "./g
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
+  SlopeVectorPanel, AspectVectorPanel,
 } from "./baseMapPanels";
 import {
   PoliceStationPanel, WomenChildWarningPanel, SpeedCameraPanel, SpeedZoneSegmentPanel,
@@ -95,6 +98,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   newsEvent: NewsEventPanel,
   disasterAlert: DisasterAlertPanel,
   roadEvent: RoadEventPanel,
+  roadCongestion: RoadCongestionPanel,
   aqiStation: AqiStationPanel,
   microSensor: MicroSensorPanel,
   waterFacility: WaterFacilityPanel,
@@ -135,6 +139,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   fireIsochrone: FireIsochronePanel,
   medicalPOI: MedicalPOIPanel,
   medicalIsochrone: MedicalIsochronePanel,
+  erHospital: EmergencyHospitalPanel,
+  parkingOnstreet: ParkingOnstreetPanel,
+  parkingOffstreet: ParkingOffstreetPanel,
   satellite: SatellitePanel,
   powerPlant: PowerPlantPanel,
   osmSubstation: OsmSubstationPanel,
@@ -182,6 +189,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
+  slopeVector: SlopeVectorPanel,
+  aspectVector: AspectVectorPanel,
   // 警政司法民防 17 layer
   policeStation: PoliceStationPanel,
   womenChildWarning: WomenChildWarningPanel,
@@ -250,6 +259,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
   roadEvent: "即時路況",
+  roadCongestion: "省道路況",
   aqiStation: "空氣品質測站",
   microSensor: "微型感測器",
   waterFacility: "水利設施",
@@ -302,6 +312,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   sportsVenue: "運動場館",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
+  erHospital: "急診壅塞",
+  parkingOnstreet: "路邊停車",
+  parkingOffstreet: "場外停車場",
   satellite: "衛星",
   powerPlant: "電廠",
   osmSubstation: "變電所",
@@ -351,8 +364,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   osmRoadDrive: "道路 (OSM)",
   osmExpressway: "快速道路 (OSM)",
   hillshade: "山體陰影",
-  slope: "坡度",
-  aspect: "坡向",
+  slopeVector: "坡度分級",
+  aspectVector: "坡向",
   // 警政司法民防
   policeStation: "警察機關",
   womenChildWarning: "婦幼警示點",

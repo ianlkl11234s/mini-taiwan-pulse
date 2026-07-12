@@ -48,6 +48,7 @@ export function useMapInteraction(
   layerVisibilityRef?: React.RefObject<LayerVisibility>,
   reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
   wasteScheduleSceneRef?: React.RefObject<WasteScheduleScene | null>,
+  touristShuttleSceneRef?: React.RefObject<BusScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -102,6 +103,20 @@ export function useMapInteraction(
         const busScene = busSceneRef?.current;
         if (busScene) {
           const bus = busScene.pickBus(e.point.x, e.point.y, w, h);
+          if (bus) {
+            setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+      // 嘗試拾取台灣好行（僅在 touristShuttleLive 圖層開啟時，共用 bus tooltip）
+      if (vis?.touristShuttleLive) {
+        const shuttleScene = touristShuttleSceneRef?.current;
+        if (shuttleScene) {
+          const bus = shuttleScene.pickBus(e.point.x, e.point.y, w, h);
           if (bus) {
             setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
@@ -193,6 +208,7 @@ export function useMapInteraction(
       {
         // 查詢 Mapbox GIS 層
         const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
+          { layers: ["road-congestion-hit"], type: "roadCongestion" },
           { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
           { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
           { layers: ["schools-circle", "schools-glow"], type: "school" },
@@ -280,6 +296,9 @@ export function useMapInteraction(
           { layers: ["medical-pharmacies-circle"], type: "medicalPOI" },
           { layers: ["medical-aed-circle"], type: "medicalPOI" },
           { layers: ["medical-ltc-circle"], type: "medicalPOI" },
+          { layers: ["er-hospital-circle"], type: "erHospital" },
+          { layers: ["parking-onstreet-fill", "parking-onstreet-circle"], type: "parkingOnstreet" },
+          { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
           { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
           { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
           { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
@@ -372,6 +391,8 @@ export function useMapInteraction(
           { layers: ["aviation-restricted-fill", "aviation-restricted-line"], type: "aviationRestricted" },
           { layers: ["drone-nfz-fill", "drone-nfz-line"], type: "droneNoFlyZone" },
           { layers: ["drone-restricted-fill", "drone-restricted-line"], type: "droneRestrictedZone" },
+          { layers: ["slope-vector-fill"], type: "slopeVector" },
+          { layers: ["aspect-vector-fill"], type: "aspectVector" },
           // 警察覆蓋分析 isochrone（fill + line 兩層）
           { layers: ["police-iso-substation-fill", "police-iso-substation-line"], type: "policeIsoSubstation" },
           { layers: ["police-iso-precinct-fill", "police-iso-precinct-line"], type: "policeIsoPrecinct" },
@@ -397,7 +418,11 @@ export function useMapInteraction(
               }
             }
             if (!coords) coords = [e.lngLat.lng, e.lngLat.lat];
-            setFeatureInfo({ layerType: type, properties: f.properties ?? {}, coords });
+            // roadCongestion 的 level 在 feature-state（非 baked properties）→ 併入
+            const properties = type === "roadCongestion"
+              ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
+              : (f.properties ?? {});
+            setFeatureInfo({ layerType: type, properties, coords });
             sessionTracker.log("feature_click", { layerType: type });
             found = true;
             break;

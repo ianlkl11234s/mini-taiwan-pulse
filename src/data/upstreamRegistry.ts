@@ -79,11 +79,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'hillshade', confidence: 'MED' }],
   },
-  slope: {
+  slopeVector: {
     status: 'verified',
     datasets: [{ datasetId: 'slope', confidence: 'MED' }],
   },
-  aspect: {
+  aspectVector: {
     status: 'verified',
     datasets: [{ datasetId: 'aspect', confidence: 'MED' }],
   },
@@ -108,6 +108,10 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
   },
   busIntercityLive: {
+    status: 'verified',
+    datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
+  },
+  touristShuttleLive: {
     status: 'verified',
     datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
   },
@@ -200,6 +204,10 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     datasets: [{ datasetId: 'drone_restricted_zones', confidence: 'HIGH' }],
   },
   freewayCongestion: {
+    status: 'verified',
+    datasets: [{ datasetId: 'road_congestion', confidence: 'HIGH' }],
+  },
+  roadCongestion: {
     status: 'verified',
     datasets: [{ datasetId: 'road_congestion', confidence: 'HIGH' }],
   },
@@ -466,6 +474,21 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     derivationType: 'inverse',
     processing: '等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠',
     note: 'FIX: 派生分析：等時圈反演的醫療沙漠',
+  },
+  erHospital: {
+    status: 'pulse_only',
+    datasets: [],
+    note: '即時急診壅塞 RPC（get_er_hospital_latest / 24h，realtime.er_hospital_status）已 apply 到 production；座標 join medical geojson。catalog dataset 條目待補（handoff pending）',
+  },
+  parkingOnstreet: {
+    status: 'pulse_only',
+    datasets: [],
+    note: '停車 hybrid v1 路邊 RPC（get_parking_segments_current）已 apply 到 production；台北 POLYGON 有 geom 無即時空位、新北/台中點有空位率。catalog dataset 條目待補（handoff pending）',
+  },
+  parkingOffstreet: {
+    status: 'pulse_only',
+    datasets: [],
+    note: '停車 hybrid v1 場外 RPC（get_parking_lots_current）已 apply 到 production；city/tourism/freeway_service_area 三源全點座標含空位率。catalog dataset 條目待補（handoff pending）',
   },
   agriPOI: {
     status: 'verified',
