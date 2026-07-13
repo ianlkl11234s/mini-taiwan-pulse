@@ -27,8 +27,13 @@
 
 ## 渲染參數
 
-- 單 circle layer：`circle-color` 依 `status` match 三色；`circle-opacity` 用 `case` 判 `renumber_suspect` 降透明 + status 篩選；`circle-radius` 隨 zoom `interpolate`（z5=1 → z14=4.5），避免低 zoom 糊成一片。
-- 控制項：狀態 select（all/disappeared/changed，編成 idx 進 paint）+ 透明度 slider（預設 0.7）。
+- 單 circle layer：`circle-color` 依「染色模式」四選一（見下）；`circle-opacity` 用 `case` 判 `renumber_suspect` 降透明 + status 篩選（四種染色模式下都繼續有效）；`circle-radius` 隨 zoom `interpolate`（z5=1 → z14=4.5），避免低 zoom 糊成一片。
+- **染色模式**（`streetTreesTaipeiDiffColorModeIdx`，`src/data/streetTreeColors.ts` 為色票 SSOT）：
+  - `status`（預設）：三狀態色 綠存續 / 紅消失 / 淺綠新增
+  - `species`：前 10 大樹種各一色（榕樹/茄苳/樟樹/楓香/臺灣欒樹/白千層/黑板樹/小葉欖仁/大花紫薇/水黃皮）+ 其他灰，`match` TreeType
+  - `diameter`：胸徑 5 級 `step`（break 10/20/30/40 cm，全量分位取整），亮暖色帶淺→深＝細→粗，缺值/≤0 灰
+  - `height`：樹高 5 級 `step`（break 6/8/10/13 m），同暖色帶
+- 控制項：染色模式 select（status/species/diameter/height，編成 idx 進 paint）+ 狀態 select（all/disappeared/changed）+ 透明度 slider（預設 0.7）+ 點位大小 slider。
 - 預設關閉（`false`，未列入 `useLayerVisibility` 的 `DEFAULT_ON` → 自動派生 false）。
 
 ## 關鍵檔案
