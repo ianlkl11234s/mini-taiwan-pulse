@@ -111,6 +111,8 @@ export type ExpandableLayerKey =
   | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
   | "aquacultureWaterSatellite"
   | "aquacultureIntegrated"
+  // 🌳 都市開放空間 Urban Open Space（靜態 overlay PMTiles 點）
+  | "streetTreesTaipeiDiff"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
@@ -626,6 +628,7 @@ export interface FeatureInfo {
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
     | "aquacultureWaterSatellite"
     | "aquacultureIntegrated"
+    | "streetTreesTaipeiDiff"
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
@@ -797,6 +800,8 @@ export interface LayerVisibility {
   aquacultureCageNet: boolean;    // 海上箱網（42 面）
   aquacultureWaterSatellite: boolean; // 衛星偵測養殖水體（Sentinel-2 RF，5,095 面，信心 3 級染色：確定/蓄水池/不確定 藍→灰）
   aquacultureIntegrated: boolean; // 養殖漁業整合（PMTiles，20,212 面；source 三色：ponds 青/satellite 綠/production 橙）
+  // 🌳 都市開放空間 Urban Open Space（靜態 overlay PMTiles 點）
+  streetTreesTaipeiDiff: boolean; // 台北行道樹 2024/11 vs 現在 三狀態變化（PMTiles，99,527 點；status 分色 persisted/disappeared/appeared）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

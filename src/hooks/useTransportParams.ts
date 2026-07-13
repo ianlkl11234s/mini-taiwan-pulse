@@ -178,6 +178,9 @@ export function useTransportParams() {
   const [aquacultureWaterSatelliteOpacity, setAquacultureWaterSatelliteOpacity] = useState(0.5);
   const [aquacultureWaterSatelliteConfidence, setAquacultureWaterSatelliteConfidence] = useState<string>("all"); // all / reservoir / certain（累積式信心篩選）
   const [aquacultureIntegratedOpacity, setAquacultureIntegratedOpacity] = useState(0.6);
+  const [streetTreesTaipeiDiffOpacity, setStreetTreesTaipeiDiffOpacity] = useState(0.7);
+  const [streetTreesTaipeiDiffStatus, setStreetTreesTaipeiDiffStatus] = useState<string>("all"); // all / disappeared / changed
+  const [streetTreesTaipeiDiffRadius, setStreetTreesTaipeiDiffRadius] = useState(1.0); // 點位大小縮放倍率
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
   const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
   const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
@@ -844,6 +847,10 @@ export function useTransportParams() {
     aquacultureWaterSatelliteOpacity, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
     // 信心層級 select（all/reservoir/certain）編成 idx（0/1/2）；paint 端 decode 做 opacity 篩選
     aquacultureWaterSatelliteConfidenceIdx: ["all", "reservoir", "certain"].indexOf(aquacultureWaterSatelliteConfidence),
+    streetTreesTaipeiDiffOpacity,
+    // status 篩選 select（all/disappeared/changed）編成 idx（0/1/2）；paint 端 decode 做 opacity 篩選
+    streetTreesTaipeiDiffStatusIdx: ["all", "disappeared", "changed"].indexOf(streetTreesTaipeiDiffStatus),
+    streetTreesTaipeiDiffRadius,
     crimeAreaMonthlyOpacity,
     theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
@@ -1180,6 +1187,7 @@ export function useTransportParams() {
     correctionalFacilityOpacity, correctionalFacilityScale, courtJurisdictionOpacity,
     aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
     aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
+    streetTreesTaipeiDiffOpacity, streetTreesTaipeiDiffStatus, streetTreesTaipeiDiffRadius,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -2230,6 +2238,11 @@ export function useTransportParams() {
       ];
       case "aquacultureIntegrated": return [
         { label: `填色透明度 ${aquacultureIntegratedOpacity.toFixed(2)}`, value: aquacultureIntegratedOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureIntegratedOpacity },
+      ];
+      case "streetTreesTaipeiDiff": return [
+        { type: "select" as const, label: "狀態", value: streetTreesTaipeiDiffStatus, options: [{ label: "全部", value: "all" }, { label: "只看消失", value: "disappeared" }, { label: "只看變動", value: "changed" }], onChange: setStreetTreesTaipeiDiffStatus },
+        { label: `透明度 ${streetTreesTaipeiDiffOpacity.toFixed(2)}`, value: streetTreesTaipeiDiffOpacity, min: 0, max: 1, step: 0.05, onChange: setStreetTreesTaipeiDiffOpacity },
+        { label: `點位大小 ${streetTreesTaipeiDiffRadius.toFixed(2)}`, value: streetTreesTaipeiDiffRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setStreetTreesTaipeiDiffRadius },
       ];
       case "crimeAreaMonthly": return [
         { label: `填色透明度 ${crimeAreaMonthlyOpacity.toFixed(2)}`, value: crimeAreaMonthlyOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setCrimeAreaMonthlyOpacity },

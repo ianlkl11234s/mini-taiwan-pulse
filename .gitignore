@@ -90,6 +90,8 @@ public/forestry/hiking_trails.pmtiles
 public/base_map/*.pmtiles
 # 路況省道幾何 PMTiles（road_congestion_highway 3.1MB，前端 feature-state 染色，走 S3 deploy-assets/road/）
 public/road/*.pmtiles
+# 都市開放空間 PMTiles（台北行道樹變化 3.1MB，走 S3 deploy-assets/urban/）
+public/urban/*.pmtiles
 # 警政司法民防 19 dataset（172MB，dev 用 symlink → taipei-gis-analytics/data/processed/police_justice/）
 # Production：走 S3 deploy-assets/police_justice/
 public/police_justice
