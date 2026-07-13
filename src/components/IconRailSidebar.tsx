@@ -1008,7 +1008,7 @@ function LayersPanel({
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
-  // Theme 摺疊狀態：預設只摺疊 defaultCollapsed=true 的（BASE）
+  // Theme 摺疊狀態：預設摺疊 defaultCollapsed=true 的（目前僅環境氣候 Environment 預設展開）
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
     () => new Set(THEMES.filter((t) => t.defaultCollapsed).map((t) => t.title)),
   );

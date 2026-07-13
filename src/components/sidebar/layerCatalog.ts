@@ -344,7 +344,7 @@ export interface SubGroupDef {
 export interface ThemeDef {
   /** 主題名 `中文 English` 格式 */
   title: string;
-  /** 預設是否摺疊（BASE = true，其餘 false） */
+  /** 預設是否摺疊（僅環境氣候 Environment = false，其餘全部 true） */
   defaultCollapsed?: boolean;
   groups: SubGroupDef[];
 }
@@ -397,6 +397,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "交通 Move",
+    defaultCollapsed: true,
     groups: [
       {
         title: "即時運具",
@@ -469,6 +470,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "人口社經 People",
+    defaultCollapsed: true,
     groups: [
       {
         title: "人口分布",
@@ -541,6 +543,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "水資源 Water",
+    defaultCollapsed: true,
     groups: [
       {
         title: "點位",
@@ -588,6 +591,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "災害 Hazard",
+    defaultCollapsed: true,
     groups: [
       {
         title: "即時警示",
@@ -626,6 +630,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "全球氣候 Global Climate",
+    defaultCollapsed: true,
     groups: [
       {
         title: "事件",
@@ -650,6 +655,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "消防 Fire & Rescue",
+    defaultCollapsed: true,
     groups: [
       {
         title: "點位",
@@ -679,6 +685,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "醫療 Medical",
+    defaultCollapsed: true,
     groups: [
       {
         title: "點位",
@@ -711,6 +718,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "農業 Agriculture",
+    defaultCollapsed: true,
     groups: [
       {
         title: "點位",
@@ -777,6 +785,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "運動 Sports",
+    defaultCollapsed: true,
     groups: [
       {
         title: "運動場館",
@@ -796,6 +805,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "林業 Forestry",
+    defaultCollapsed: true,
     groups: [
       {
         title: "分區",
@@ -838,6 +848,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "廢棄物 Waste",
+    defaultCollapsed: true,
     groups: [
       {
         title: "即時",
@@ -880,6 +891,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "能源 Energy",
+    defaultCollapsed: true,
     groups: [
       {
         title: "電力 · 廠",
@@ -960,6 +972,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "基礎建設 Infrastructure",
+    defaultCollapsed: true,
     groups: [
       {
         title: "通訊",
@@ -983,6 +996,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "房地產 Real Estate",
+    defaultCollapsed: true,
     groups: [
       {
         title: "租賃",
@@ -1013,6 +1027,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "太空 Space",
+    defaultCollapsed: true,
     groups: [
       {
         title: "台灣",
@@ -1053,6 +1068,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "新聞 News",
+    defaultCollapsed: true,
     groups: [
       {
         title: "事件",
@@ -1068,6 +1084,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "執法治安 Law & Order",
+    defaultCollapsed: true,
     groups: [
       {
         title: "警政",
@@ -1122,6 +1139,7 @@ export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
   {
     title: "民防避難 Civil Defense",
+    defaultCollapsed: true,
     groups: [
       {
         title: "避難設施",
