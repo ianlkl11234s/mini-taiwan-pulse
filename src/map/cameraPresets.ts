@@ -284,7 +284,13 @@ export const ALL_PRESETS: CameraPreset[] = [
   },
 ];
 
-export const DEFAULT_CAMERA: CameraPreset = ALL_PRESETS[0]!;
+// 開站預設鏡位：台北市中心 z12.5（行道樹圖層預設開啟，進站直接落在主場景；
+// 「全台總覽」preset 本身不動，仍可從鏡位選單切換）
+export const DEFAULT_CAMERA: CameraPreset = {
+  ...ALL_PRESETS[0]!,
+  center: [121.5318, 25.0464],
+  zoom: 12.5,
+};
 
 export function getPresetById(id: string): CameraPreset | undefined {
   return ALL_PRESETS.find((p) => p.id === id);

@@ -180,7 +180,7 @@ export function useTransportParams() {
   const [aquacultureIntegratedOpacity, setAquacultureIntegratedOpacity] = useState(0.6);
   const [streetTreesTaipeiDiffOpacity, setStreetTreesTaipeiDiffOpacity] = useState(0.7);
   const [streetTreesTaipeiDiffStatus, setStreetTreesTaipeiDiffStatus] = useState<string>("all"); // all / disappeared / changed
-  const [streetTreesTaipeiDiffRadius, setStreetTreesTaipeiDiffRadius] = useState(1.0); // 點位大小縮放倍率
+  const [streetTreesTaipeiDiffRadius, setStreetTreesTaipeiDiffRadius] = useState(0.5); // 點位大小縮放倍率
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
   const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
   const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
