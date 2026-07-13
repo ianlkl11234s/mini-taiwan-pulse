@@ -7,8 +7,10 @@ import { LAYER_COLORS } from "../components/sidebar/layerCatalog";
  * key 全集從 layerCatalog 的 LAYER_COLORS 派生（型別強制完整）—
  * 新增 layer 不用再改本檔，除非要預設開啟。
  */
-// 全部預設關閉：訪客一進站不打任何 RPC；PMTiles 圖層也依使用者 toggle 才顯示。
-const DEFAULT_ON: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([]);
+// 預設幾乎全關：訪客一進站不打任何 RPC；唯行道樹（靜態 PMTiles，經 Cloudflare 邊緣快取）預設開啟。
+const DEFAULT_ON: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
+  "streetTreesTaipeiDiff",
+]);
 
 function buildDefaults(): LayerVisibility {
   const keys = Object.keys(LAYER_COLORS) as (keyof LayerVisibility)[];
