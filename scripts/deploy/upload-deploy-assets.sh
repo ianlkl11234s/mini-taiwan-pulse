@@ -228,6 +228,15 @@ for f in public/water_resources/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/water_resources/$name" --region ap-southeast-2
 done
 
+# 都市開放空間圖層：上傳到 deploy-assets/urban/ 子前綴（鏡像結構，pull 端整夾 sync）
+# 台北行道樹變化 PMTiles（3.1MB，99,527 點，純 S3，無 git 小檔；glob 動態上傳加新檔免改腳本）
+for f in public/urban/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading urban/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/urban/$name" --region ap-southeast-2
+done
+
 # Base map PMTiles：上傳到 deploy-assets/base_map/ 子前綴（鏡像結構，pull 端整夾 sync）。
 # 6 檔合計 ~406MB（行政邊界 3 + 等高線 2 + OSM 路網 1）。SSOT 在 taipei-gis-analytics。
 for f in public/base_map/*.pmtiles; do

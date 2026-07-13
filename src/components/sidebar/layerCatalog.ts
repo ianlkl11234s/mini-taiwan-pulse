@@ -151,6 +151,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   aquacultureCageNet: "#5c6bc0",
   aquacultureWaterSatellite: "#26c6da",
   aquacultureIntegrated: "#26c6da",
+  streetTreesTaipeiDiff: "#2e7d32",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -524,6 +525,12 @@ export const THEMES: ThemeDef[] = [
           { key: "pollutionPenaltyGeneral", label: "一般裁處 General Penalty", labelMobile: "一般裁處 General", expandable: true },
           { key: "pollutionPenaltyMobile", label: "移動污染 Mobile Penalty", labelMobile: "移動污染 Mobile", expandable: true },
           { key: "pollutionSite", label: "污染場址 Site", labelMobile: "污染場址 Site (8,253)", expandable: true },
+        ],
+      },
+      {
+        title: "都市開放空間 Urban Open Space",
+        layers: [
+          { key: "streetTreesTaipeiDiff", label: "行道樹變化 Street Tree Diff", expandable: true },
         ],
       },
     ],

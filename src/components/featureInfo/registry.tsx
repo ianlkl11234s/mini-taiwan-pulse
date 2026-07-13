@@ -33,6 +33,7 @@ import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
   AquacultureWaterSatellitePanel, AquacultureIntegratedPanel,
 } from "./fisheryPanels";
+import { StreetTreesTaipeiDiffPanel } from "./urbanPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
@@ -234,6 +235,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   aquacultureCageNet: AquacultureCageNetPanel,
   aquacultureWaterSatellite: AquacultureWaterSatellitePanel,
   aquacultureIntegrated: AquacultureIntegratedPanel,
+  // 🌳 都市開放空間
+  streetTreesTaipeiDiff: StreetTreesTaipeiDiffPanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
 };
@@ -311,6 +314,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   aquacultureCageNet: "海上箱網",
   aquacultureWaterSatellite: "衛星偵測養殖水體",
   aquacultureIntegrated: "養殖漁業整合",
+  streetTreesTaipeiDiff: "行道樹變化",
   sportsVenue: "運動場館",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",

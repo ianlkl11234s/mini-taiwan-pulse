@@ -2967,6 +2967,58 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 🌳 都市開放空間 Urban Open Space（靜態 overlay PMTiles 點，走 ./urban/）──
+  // 台北行道樹 2024/11 vs 現在 三狀態點圖層（status 分色 + renumber 疑似重編號降透明 + status 篩選）
+  {
+    id: "streetTreesTaipeiDiff",
+    sourceUrl: "./urban/street_trees_taipei_diff.pmtiles",
+    sourceId: "street-trees-taipei-diff",
+    pmtiles: { sourceLayer: "street_trees_taipei_diff", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["streetTreesTaipeiDiffOpacity", "streetTreesTaipeiDiffStatusIdx", "streetTreesTaipeiDiffRadius"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (_isDark, p) => {
+          const base = p?.streetTreesTaipeiDiffOpacity ?? 0.7;
+          const filt = p?.streetTreesTaipeiDiffStatusIdx ?? 0; // 0=全部 1=只看消失 2=只看變動
+          const radiusMult = p?.streetTreesTaipeiDiffRadius ?? 1;
+          const opFor = (st: string) => {
+            if (filt === 1 && st !== "disappeared") return 0;      // 只看消失
+            if (filt === 2 && st === "persisted") return 0;        // 只看變動（消失+新增）
+            return base;
+          };
+          const opExpr = (mult: number): unknown[] => [
+            "match", ["get", "status"],
+            "disappeared", opFor("disappeared") * mult,
+            "appeared", opFor("appeared") * mult,
+            opFor("persisted") * mult, // persisted / default
+          ];
+          return {
+            "circle-color": ["match", ["get", "status"],
+              "disappeared", "#e53935",
+              "appeared", "#9ccc65",
+              "#2e7d32"], // persisted
+            // renumber_suspect 疑似重編號（真 boolean）→ 透明度降 0.35 倍
+            "circle-opacity": ["case",
+              ["==", ["get", "renumber_suspect"], true], opExpr(0.35),
+              opExpr(1)],
+            // 隨 zoom 漸變的基準值 × 點位大小倍率，並設 1.5px 下限，避免低 zoom（拉遠）
+            // 配合縮小倍率時點位小到肉眼看不見（PMTiles 沒有 minzoom 限制，z5 起即可見）。
+            // 注意：MapLibre 規定 zoom 表達式只能在最外層 interpolate/step，
+            // 故倍率與下限在 JS 端算進各 stop（radiusMult 是重繪時的純數字）。
+            "circle-radius": ["interpolate", ["linear"], ["zoom"],
+              5, Math.max(1.5, 1 * radiusMult),
+              9, Math.max(1.5, 1.8 * radiusMult),
+              12, Math.max(1.5, 3 * radiusMult),
+              14, Math.max(1.5, 4.5 * radiusMult),
+            ],
+            "circle-stroke-width": 0,
+          };
+        },
+      },
+    ],
+  },
+
   // ── 🏟️ 運動場館 Sports（靜態 CDN geojson，走 ./sports/）──
   // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。
   // circle：category 27 類 match 分色 + area_sqm log 點大小（NULL fallback 固定半徑）+ open_status="不對外" 淡化。

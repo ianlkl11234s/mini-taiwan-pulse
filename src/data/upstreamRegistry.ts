@@ -530,6 +530,8 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     processing: '整合逐口魚塭（OSM）+ 衛星偵測補充 + 生產區為單一 PMTiles（20,212 面），依 source 三色染色',
     note: '派生分析：三來源養殖面聚合',
   },
+  // 🌳 都市開放空間 Urban Open Space（台北行道樹 2024/11 vs 現在 三狀態變化）
+  streetTreesTaipeiDiff: { status: 'verified', datasets: [{ datasetId: 'street_trees_taipei_diff', confidence: 'HIGH' }] },
   // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
   sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },

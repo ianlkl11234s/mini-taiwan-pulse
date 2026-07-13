@@ -189,6 +189,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
   { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet", "aquacultureWaterSatellite"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
   { keys: ["aquacultureIntegrated"], render: () => <AquacultureIntegratedLegend /> },
+  { keys: ["streetTreesTaipeiDiff"], render: () => <StreetTreesTaipeiDiffLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
@@ -668,6 +669,39 @@ function AquacultureIntegratedLegend() {
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function StreetTreesTaipeiDiffLegend() {
+  const t = useLegendTheme();
+  const rows = [
+    { color: "#2e7d32", label: "存續 persisted" },
+    { color: "#e53935", label: "消失 disappeared" },
+    { color: "#9ccc65", label: "新增 appeared" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        行道樹變化 STREET TREE DIFF
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => (
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: RADIUS.full, background: it.color,
+                opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+                boxSizing: "border-box", flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+          半透明點 = 疑似重編號（非真消失/新增）
+        </div>
       </div>
     </div>
   );
