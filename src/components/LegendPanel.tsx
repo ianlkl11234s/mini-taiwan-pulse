@@ -22,6 +22,10 @@ import {
 } from "../data/fireTypes";
 import { FARM_SPECIES, OTHER_SPECIES_LEGEND, SLAUGHTER_CATS, FEED_COLOR, MARKET_COLOR } from "../data/livestockTypes";
 import { SPORTS_CATEGORIES } from "../data/sportsTypes";
+import {
+  STREET_TREE_SPECIES, STREET_TREE_OTHER_COLOR,
+  STREET_TREE_DIAMETER_BANDS, STREET_TREE_HEIGHT_BANDS,
+} from "../data/streetTreeColors";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -189,7 +193,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
   { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet", "aquacultureWaterSatellite"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
   { keys: ["aquacultureIntegrated"], render: () => <AquacultureIntegratedLegend /> },
-  { keys: ["streetTreesTaipeiDiff"], render: () => <StreetTreesTaipeiDiffLegend /> },
+  { keys: ["streetTreesTaipeiDiff"], render: ({ overlayParams }) => <StreetTreesTaipeiDiffLegend colorModeIdx={overlayParams.streetTreesTaipeiDiffColorModeIdx ?? 0} /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
@@ -674,31 +678,55 @@ function AquacultureIntegratedLegend() {
   );
 }
 
-function StreetTreesTaipeiDiffLegend() {
+// 行道樹變化圖例：依染色模式（0=狀態 1=樹種 2=胸徑 3=樹高）切換顯示內容。
+// 色票資料 = src/data/streetTreeColors.ts（與 overlayRegistry 配色同一 SSOT）。
+function StreetTreesTaipeiDiffLegend({ colorModeIdx = 0 }: { colorModeIdx?: number }) {
   const t = useLegendTheme();
-  const rows = [
-    { color: "#2e7d32", label: "存續 persisted" },
-    { color: "#e53935", label: "消失 disappeared" },
-    { color: "#9ccc65", label: "新增 appeared" },
-  ];
+
+  // 一列圓點色塊 + 標籤
+  const dotRow = (color: string, label: string) => (
+    <div key={label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <div
+        style={{
+          width: 10, height: 10, borderRadius: RADIUS.full, background: color,
+          opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+          boxSizing: "border-box", flexShrink: 0,
+        }}
+      />
+      <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{label}</span>
+    </div>
+  );
+
+  let subhead = "狀態 STATUS";
+  let rows: { color: string; label: string }[];
+  if (colorModeIdx === 1) {
+    subhead = "樹種 SPECIES（前 10 大）";
+    rows = [
+      ...STREET_TREE_SPECIES.map((s) => ({ color: s.color, label: s.name })),
+      { color: STREET_TREE_OTHER_COLOR, label: "其他 Other" },
+    ];
+  } else if (colorModeIdx === 2) {
+    subhead = "胸徑 DIAMETER (cm)";
+    rows = STREET_TREE_DIAMETER_BANDS.map((b) => ({ color: b.color, label: b.label }));
+  } else if (colorModeIdx === 3) {
+    subhead = "樹高 HEIGHT (m)";
+    rows = STREET_TREE_HEIGHT_BANDS.map((b) => ({ color: b.color, label: b.label }));
+  } else {
+    rows = [
+      { color: "#2e7d32", label: "存續 persisted" },
+      { color: "#e53935", label: "消失 disappeared" },
+      { color: "#9ccc65", label: "新增 appeared" },
+    ];
+  }
+
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         行道樹變化 STREET TREE DIFF
       </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {rows.map((it) => (
-          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div
-              style={{
-                width: 10, height: 10, borderRadius: RADIUS.full, background: it.color,
-                opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
-                boxSizing: "border-box", flexShrink: 0,
-              }}
-            />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
-          </div>
-        ))}
+        {rows.map((it) => dotRow(it.color, it.label))}
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
           半透明點 = 疑似重編號（非真消失/新增）
         </div>

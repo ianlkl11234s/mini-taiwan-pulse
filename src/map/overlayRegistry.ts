@@ -23,6 +23,9 @@ import {
 import {
   availabilityColorExpr, neutralCapacityColorExpr, sourceCategoryRingExpr,
 } from "../data/parkingLoader";
+import {
+  streetTreeSpeciesColorExpr, streetTreeDiameterColorExpr, streetTreeHeightColorExpr,
+} from "../data/streetTreeColors";
 
 const BASE_RADIUS = 5;
 
@@ -2974,7 +2977,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     sourceUrl: "./urban/street_trees_taipei_diff.pmtiles",
     sourceId: "street-trees-taipei-diff",
     pmtiles: { sourceLayer: "street_trees_taipei_diff", minzoom: 5, maxzoom: 14 },
-    rebuildOnParamChange: ["streetTreesTaipeiDiffOpacity", "streetTreesTaipeiDiffStatusIdx", "streetTreesTaipeiDiffRadius"],
+    rebuildOnParamChange: ["streetTreesTaipeiDiffOpacity", "streetTreesTaipeiDiffStatusIdx", "streetTreesTaipeiDiffRadius", "streetTreesTaipeiDiffColorModeIdx"],
     layers: [
       {
         suffix: "circle", type: "circle",
@@ -2982,6 +2985,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           const base = p?.streetTreesTaipeiDiffOpacity ?? 0.7;
           const filt = p?.streetTreesTaipeiDiffStatusIdx ?? 0; // 0=全部 1=只看消失 2=只看變動
           const radiusMult = p?.streetTreesTaipeiDiffRadius ?? 1;
+          const colorMode = p?.streetTreesTaipeiDiffColorModeIdx ?? 0; // 0=status 1=species 2=diameter 3=height
           const opFor = (st: string) => {
             if (filt === 1 && st !== "disappeared") return 0;      // 只看消失
             if (filt === 2 && st === "persisted") return 0;        // 只看變動（消失+新增）
@@ -2993,11 +2997,21 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "appeared", opFor("appeared") * mult,
             opFor("persisted") * mult, // persisted / default
           ];
+          // 染色模式分支（JS 端 switch，重繪時 colorMode 是純數字，不引入 zoom）。
+          // status 篩選（opacity）與 renumber 降透明在四種模式下都繼續有效（共用下方 opExpr）。
+          const statusColor: unknown[] = ["match", ["get", "status"],
+            "disappeared", "#e53935",
+            "appeared", "#9ccc65",
+            "#2e7d32"]; // persisted
+          let circleColor: unknown[];
+          switch (colorMode) {
+            case 1: circleColor = streetTreeSpeciesColorExpr(); break;
+            case 2: circleColor = streetTreeDiameterColorExpr(); break;
+            case 3: circleColor = streetTreeHeightColorExpr(); break;
+            default: circleColor = statusColor;
+          }
           return {
-            "circle-color": ["match", ["get", "status"],
-              "disappeared", "#e53935",
-              "appeared", "#9ccc65",
-              "#2e7d32"], // persisted
+            "circle-color": circleColor,
             // renumber_suspect 疑似重編號（真 boolean）→ 透明度降 0.35 倍
             "circle-opacity": ["case",
               ["==", ["get", "renumber_suspect"], true], opExpr(0.35),
