@@ -532,6 +532,13 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   },
   // 🌳 都市開放空間 Urban Open Space（台北行道樹 2024/11 vs 現在 三狀態變化）
   streetTreesTaipeiDiff: { status: 'verified', datasets: [{ datasetId: 'street_trees_taipei_diff', confidence: 'HIGH' }] },
+  // 都市開放空間新三層（2026-07 上線；catalog dataset 待 taipei-gis-analytics 補建後改 verified）
+  protectedTreesNational: { status: 'catalog_missing', datasets: [], note: '受保護樹木全國 8 城彙整（public/urban/protected_trees_national.geojson），catalog 待建' },
+  riversideTreesTaipei: { status: 'catalog_missing', datasets: [], note: '台北河濱喬木 30 座河濱公園（public/urban/riverside_trees_taipei.geojson），catalog 待建' },
+  parksTaipei: { status: 'catalog_missing', datasets: [], note: '台北公園點位（public/urban/parks_taipei.geojson），catalog 待建' },
+  streetTreesTaipei3epoch: { status: 'catalog_missing', datasets: [], note: '台北行道樹三時點 2022/2024/2026 軌跡（public/urban/street_trees_taipei_3epoch.pmtiles），catalog 待建' },
+  streetTreesNational: { status: 'catalog_missing', datasets: [], note: '行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles），catalog 待建' },
+  treePitsTaipei: { status: 'catalog_missing', datasets: [], note: '台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles），catalog 待建' },
   // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
   sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
@@ -622,6 +629,7 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'wildlife_distribution_3rd', confidence: 'HIGH' }],
   },
+  canopyHeight: { status: 'catalog_missing', datasets: [], note: '全台樹冠高度 raster PMTiles（Meta/WRI 2020 10m，public/forestry/canopy_height_taiwan.pmtiles），catalog 待建' },
   wasteTruck: {
     status: 'verified',
     datasets: [{ datasetId: 'garbage_collection', confidence: 'MED' }],

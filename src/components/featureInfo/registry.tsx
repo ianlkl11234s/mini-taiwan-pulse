@@ -33,7 +33,11 @@ import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
   AquacultureWaterSatellitePanel, AquacultureIntegratedPanel,
 } from "./fisheryPanels";
-import { StreetTreesTaipeiDiffPanel } from "./urbanPanels";
+import {
+  StreetTreesTaipeiDiffPanel, ProtectedTreesNationalPanel,
+  RiversideTreesTaipeiPanel, ParksTaipeiPanel, StreetTrees3epochPanel,
+  StreetTreesNationalPanel, TreePitsTaipeiPanel,
+} from "./urbanPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
@@ -237,6 +241,12 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   aquacultureIntegrated: AquacultureIntegratedPanel,
   // 🌳 都市開放空間
   streetTreesTaipeiDiff: StreetTreesTaipeiDiffPanel,
+  protectedTreesNational: ProtectedTreesNationalPanel,
+  riversideTreesTaipei: RiversideTreesTaipeiPanel,
+  parksTaipei: ParksTaipeiPanel,
+  streetTreesTaipei3epoch: StreetTrees3epochPanel,
+  streetTreesNational: StreetTreesNationalPanel,
+  treePitsTaipei: TreePitsTaipeiPanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
 };
@@ -315,6 +325,12 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   aquacultureWaterSatellite: "衛星偵測養殖水體",
   aquacultureIntegrated: "養殖漁業整合",
   streetTreesTaipeiDiff: "行道樹變化",
+  protectedTreesNational: "受保護樹木",
+  riversideTreesTaipei: "河濱喬木",
+  parksTaipei: "公園",
+  streetTreesTaipei3epoch: "行道樹三時點",
+  streetTreesNational: "行道樹全國",
+  treePitsTaipei: "人行道樹穴",
   sportsVenue: "運動場館",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",

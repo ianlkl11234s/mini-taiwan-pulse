@@ -113,6 +113,9 @@ export type ExpandableLayerKey =
   | "aquacultureIntegrated"
   // 🌳 都市開放空間 Urban Open Space（靜態 overlay PMTiles 點）
   | "streetTreesTaipeiDiff"
+  | "protectedTreesNational" | "riversideTreesTaipei" | "parksTaipei"
+  | "streetTreesTaipei3epoch"
+  | "streetTreesNational" | "treePitsTaipei"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
@@ -199,6 +202,7 @@ export type ExpandableLayerKey =
   | "forestFlatParks"
   | "forestAlishanRail"
   | "hikingTrails"
+  | "canopyHeight"
   // ENERGY MVP
   | "powerPlants"
   | "powerPlantGlow"
@@ -579,7 +583,7 @@ export interface BusTrail {
 
 export interface OverlayLayerSpec {
   suffix: string;
-  type: "line" | "fill" | "circle" | "fill-extrusion" | "symbol";
+  type: "line" | "fill" | "circle" | "fill-extrusion" | "symbol" | "raster";
   layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
@@ -595,11 +599,13 @@ export interface OverlayConfig {
   rebuildOnParamChange?: string[];
   filter?: unknown[];
   /**
-   * 設定後 sourceUrl 視為 PMTiles 向量切片（HTTP Range Request 按需載入），
+   * 設定後 sourceUrl 視為 PMTiles 切片（HTTP Range Request 按需載入），
    * 取代預設的 GeoJSON 全量載入。大型 line/polygon 圖層（>5MB GeoJSON）應採用。
    * minzoom/maxzoom 對應 tippecanoe 的 -Z/-z；超過 maxzoom 由 Mapbox 自動 overzoom。
+   * raster PMTiles（tile type PNG，mapbox-pmtiles 依 header 自動切 raster 模式）
+   * 不填 sourceLayer（raster layer 不允許 source-layer 屬性）。
    */
-  pmtiles?: { sourceLayer: string; minzoom: number; maxzoom: number };
+  pmtiles?: { sourceLayer?: string; minzoom: number; maxzoom: number };
   /**
    * 設定後 source 以空 FeatureCollection 初始化（不載入 sourceUrl），
    * 資料由對應 loader/hook 按日 setData 餵入（如 newsEvents 走 Supabase RPC）。
@@ -629,6 +635,9 @@ export interface FeatureInfo {
     | "aquacultureWaterSatellite"
     | "aquacultureIntegrated"
     | "streetTreesTaipeiDiff"
+    | "protectedTreesNational" | "riversideTreesTaipei" | "parksTaipei"
+    | "streetTreesTaipei3epoch"
+    | "streetTreesNational" | "treePitsTaipei"
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
@@ -802,6 +811,12 @@ export interface LayerVisibility {
   aquacultureIntegrated: boolean; // 養殖漁業整合（PMTiles，20,212 面；source 三色：ponds 青/satellite 綠/production 橙）
   // 🌳 都市開放空間 Urban Open Space（靜態 overlay PMTiles 點）
   streetTreesTaipeiDiff: boolean; // 台北行道樹 2024/11 vs 現在 三狀態變化（PMTiles，99,527 點；status 分色 persisted/disappeared/appeared）
+  protectedTreesNational: boolean; // 受保護樹木全國（GeoJSON 6,544 點，8 城市；樹齡 5 級/城市雙染色模式 + 城市篩選 + dbh_m 胸徑點大小因子）
+  riversideTreesTaipei: boolean;  // 台北河濱喬木（GeoJSON 10,917 點，30 座河濱公園；樹種前 10 大染色 + 公園篩選）
+  parksTaipei: boolean;           // 台北公園（GeoJSON 2,917 點；category 7 類染色 + area_sqm log 點大小 + 分類篩選）
+  streetTreesTaipei3epoch: boolean; // 台北行道樹三時點 2022/2024/2026 軌跡（PMTiles，105,675 點；traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
+  streetTreesNational: boolean;   // 行道樹全國分佈（PMTiles，210,436 點：台北+台中；樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
+  treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）
@@ -849,6 +864,7 @@ export interface LayerVisibility {
   forestFlatParks: boolean;
   forestAlishanRail: boolean;
   hikingTrails: boolean;           // 全台步道 2,818 條（A 林業署 + B OSM + C 國家公園）
+  canopyHeight: boolean;           // 全台樹冠高度 raster PNG PMTiles（Meta/WRI 2020 10m，z7-12 預烤 Greens 色帶）
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;

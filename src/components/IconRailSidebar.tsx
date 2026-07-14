@@ -16,7 +16,8 @@ import {
   Video, Receipt, Coffee, Car, SquareParking, CircleParking,
   ShoppingCart, Warehouse, Fish,
   // FORESTRY icons
-  Trees, TreePine, Hammer, Signal, PawPrint, Footprints,
+  Trees, TreePine, TreeDeciduous, TreePalm, Flower2, Hammer, Signal, PawPrint, Footprints,
+  Ruler,
   Satellite,
   // ENERGY icons
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
@@ -164,6 +165,12 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   aquacultureWaterSatellite: Satellite,
   aquacultureIntegrated: Fish,
   streetTreesTaipeiDiff: TreePine,
+  protectedTreesNational: TreeDeciduous,
+  riversideTreesTaipei: Waves,
+  parksTaipei: Trees,
+  streetTreesTaipei3epoch: Sprout,
+  streetTreesNational: TreePalm,
+  treePitsTaipei: Flower2,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,
@@ -186,6 +193,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   forestFlatParks: Sprout,
   forestAlishanRail: TrainFront,
   hikingTrails: Footprints,
+  canopyHeight: Ruler,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,

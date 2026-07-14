@@ -26,6 +26,16 @@ import {
 import {
   streetTreeSpeciesColorExpr, streetTreeDiameterColorExpr, streetTreeHeightColorExpr,
 } from "../data/streetTreeColors";
+import {
+  protectedTreeAgeColorExpr, protectedTreeCityColorExpr, PROTECTED_TREE_CITIES,
+  riversideTreeSpeciesColorExpr, RIVERSIDE_PARKS,
+  taipeiParkCategoryColorExpr, TAIPEI_PARK_CATEGORIES, PARK_AREA_DOMAIN,
+  streetTree3epochTrajColorExpr, streetTree3epochSpeciesColorExpr,
+  streetTree3epochDiameterColorExpr, streetTree3epochHeightColorExpr,
+  STREET_TREE_3EPOCH_TRAJ_FILTERS,
+  streetTreeNationalSpeciesColorExpr, streetTreeNationalCityColorExpr, STREET_TREE_NATIONAL_CITIES,
+  treePitTypeColorExpr, TREE_PIT_TYPES,
+} from "../data/urbanOpenSpaceTypes";
 
 const BASE_RADIUS = 5;
 
@@ -3033,6 +3043,248 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // 受保護樹木全國（GeoJSON 6,544 點，8 城市）：預設依推估樹齡 5 級冷→暖染色（null 灰），
+  // 可切換依城市 categorical；城市篩選走 opacity 歸零（同 streetTreesTaipeiDiff statusIdx 做法）。
+  // 半徑 = zoom 基準（z6 4px → z12 8px）× dbh_m 胸徑因子 × 用戶倍率（composite：zoom 只在最外層）。
+  {
+    id: "protectedTreesNational",
+    sourceUrl: "./urban/protected_trees_national.geojson",
+    sourceId: "protected-trees-national",
+    rebuildOnParamChange: ["protectedTreesNationalOpacity", "protectedTreesNationalRadius", "protectedTreesNationalColorModeIdx", "protectedTreesNationalCityIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const opacity = p?.protectedTreesNationalOpacity ?? 0.85;
+          const radiusMult = p?.protectedTreesNationalRadius ?? 1;
+          const colorMode = p?.protectedTreesNationalColorModeIdx ?? 0; // 0=樹齡 1=城市
+          const cityIdx = p?.protectedTreesNationalCityIdx ?? 0;       // 0=全部 1..8=單一城市
+          const city = cityIdx > 0 ? PROTECTED_TREE_CITIES[cityIdx - 1]?.name : undefined;
+          const opExpr = (mult: number): unknown[] | number =>
+            city ? ["case", ["==", ["get", "city"], city], opacity * mult, 0] : opacity * mult;
+          // 胸徑因子：dbh_m 0.3→×0.7 / 1→×1 / 2→×1.6 / 4→×2.2（null coalesce 0.5 ≈ ×0.79）
+          const dbhFactor: unknown[] = [
+            "interpolate", ["linear"], ["coalesce", ["get", "dbh_m"], 0.5],
+            0.3, 0.7, 1, 1, 2, 1.6, 4, 2.2,
+          ];
+          const r = (base: number): unknown[] => ["*", base * radiusMult, dbhFactor];
+          return {
+            "circle-color": colorMode === 1 ? protectedTreeCityColorExpr() : protectedTreeAgeColorExpr(),
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, r(4), 12, r(8)],
+            "circle-opacity": opExpr(1),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opExpr(0.7),
+          };
+        },
+      },
+    ],
+  },
+  // 台北河濱喬木（GeoJSON 10,917 點，30 座河濱公園）：樹種前 10 大 categorical 染色（其他灰），
+  // 河濱公園篩選走 opacity 歸零。半徑 z6 3px → z12 6px × 用戶倍率（設 1px 下限防縮小到不可見）。
+  {
+    id: "riversideTreesTaipei",
+    sourceUrl: "./urban/riverside_trees_taipei.geojson",
+    sourceId: "riverside-trees-taipei",
+    rebuildOnParamChange: ["riversideTreesTaipeiOpacity", "riversideTreesTaipeiRadius", "riversideTreesTaipeiParkIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const opacity = p?.riversideTreesTaipeiOpacity ?? 0.85;
+          const radiusMult = p?.riversideTreesTaipeiRadius ?? 1;
+          const parkIdx = p?.riversideTreesTaipeiParkIdx ?? 0; // 0=全部 1..30=單一河濱公園
+          const park = parkIdx > 0 ? RIVERSIDE_PARKS[parkIdx - 1] : undefined;
+          const opExpr = (mult: number): unknown[] | number =>
+            park ? ["case", ["==", ["get", "park_name"], park], opacity * mult, 0] : opacity * mult;
+          return {
+            "circle-color": riversideTreeSpeciesColorExpr(),
+            "circle-radius": ["interpolate", ["linear"], ["zoom"],
+              6, Math.max(1, 3 * radiusMult),
+              12, Math.max(1, 6 * radiusMult),
+            ],
+            "circle-opacity": opExpr(1),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.2, 14, 0.8],
+            "circle-stroke-opacity": opExpr(0.6),
+          };
+        },
+      },
+    ],
+  },
+  // 台北公園（GeoJSON 2,917 點）：category 7 類 categorical 染色，分類篩選走 opacity 歸零。
+  // 圓點大小依 area_sqm log 尺標（z12 時小公園 3px → 大公園 10px，兩端 clamp）；
+  // area_sqm null/0 → fallback 固定最小半徑（同 sportsRadius 做法）。
+  {
+    id: "parksTaipei",
+    sourceUrl: "./urban/parks_taipei.geojson",
+    sourceId: "parks-taipei",
+    rebuildOnParamChange: ["parksTaipeiOpacity", "parksTaipeiRadius", "parksTaipeiCategoryIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const opacity = p?.parksTaipeiOpacity ?? 0.85;
+          const radiusMult = p?.parksTaipeiRadius ?? 1;
+          const catIdx = p?.parksTaipeiCategoryIdx ?? 0; // 0=全部 1..7=單一分類
+          const cat = catIdx > 0 ? TAIPEI_PARK_CATEGORIES[catIdx - 1]?.name : undefined;
+          const opExpr = (mult: number): unknown[] | number =>
+            cat ? ["case", ["==", ["get", "category"], cat], opacity * mult, 0] : opacity * mult;
+          const [lo, hi] = PARK_AREA_DOMAIN;
+          const area: unknown[] = ["to-number", ["get", "area_sqm"], 0]; // null → 0
+          const areaRadius = (rMin: number, rMax: number): unknown[] => ["case",
+            [">", area, 0],
+            ["interpolate", ["linear"], ["ln", ["max", area, 1]],
+              Math.log(lo), rMin * radiusMult,
+              Math.log(hi), rMax * radiusMult],
+            rMin * radiusMult,
+          ];
+          return {
+            "circle-color": taipeiParkCategoryColorExpr(),
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, areaRadius(1.5, 5), 12, areaRadius(3, 10)],
+            "circle-opacity": opExpr(1),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opExpr(0.7),
+          };
+        },
+      },
+    ],
+  },
+  // 台北行道樹三時點 2022/2024/2026 軌跡（PMTiles，105,675 點）：traj 7 類 categorical 染色（預設），
+  // 可切換樹種/胸徑/樹高（分級與顏色照抄 streetTreeColors，跨層視覺可比）；
+  // 軌跡篩選走 opacity 歸零（同 streetTreesTaipeiDiff statusIdx 做法）。
+  // 半徑基準 + 倍率照抄 streetTreesTaipeiDiff（同資料密度同城市）。
+  {
+    id: "streetTreesTaipei3epoch",
+    sourceUrl: "./urban/street_trees_taipei_3epoch.pmtiles",
+    sourceId: "street-trees-taipei-3epoch",
+    pmtiles: { sourceLayer: "street_trees_taipei_3epoch", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["streetTreesTaipei3epochOpacity", "streetTreesTaipei3epochRadius", "streetTreesTaipei3epochColorModeIdx", "streetTreesTaipei3epochTrajFilterIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (_isDark, p) => {
+          const base = p?.streetTreesTaipei3epochOpacity ?? 0.7;
+          const radiusMult = p?.streetTreesTaipei3epochRadius ?? 1;
+          const colorMode = p?.streetTreesTaipei3epochColorModeIdx ?? 0; // 0=traj 1=species 2=diameter 3=height
+          const filtIdx = p?.streetTreesTaipei3epochTrajFilterIdx ?? 0;  // 0=全部 1..4 見 STREET_TREE_3EPOCH_TRAJ_FILTERS
+          const codes = STREET_TREE_3EPOCH_TRAJ_FILTERS[filtIdx]?.codes ?? null;
+          // 軌跡篩選：非目標 traj → opacity 歸零（match 的 label 可用字串陣列一臂多值）
+          const opExpr: unknown[] | number = codes
+            ? ["match", ["get", "traj"], codes, base, 0]
+            : base;
+          let circleColor: unknown[];
+          switch (colorMode) {
+            case 1: circleColor = streetTree3epochSpeciesColorExpr(); break;
+            case 2: circleColor = streetTree3epochDiameterColorExpr(); break;
+            case 3: circleColor = streetTree3epochHeightColorExpr(); break;
+            default: circleColor = streetTree3epochTrajColorExpr();
+          }
+          return {
+            "circle-color": circleColor,
+            "circle-opacity": opExpr,
+            // 隨 zoom 漸變基準 × 倍率 + 1.5px 下限（同 streetTreesTaipeiDiff；
+            // zoom 表達式只能在最外層，倍率在 JS 端算進各 stop）。
+            "circle-radius": ["interpolate", ["linear"], ["zoom"],
+              5, Math.max(1.5, 1 * radiusMult),
+              9, Math.max(1.5, 1.8 * radiusMult),
+              12, Math.max(1.5, 3 * radiusMult),
+              14, Math.max(1.5, 4.5 * radiusMult),
+            ],
+            "circle-stroke-width": 0,
+          };
+        },
+      },
+    ],
+  },
+  // 行道樹全國分佈（PMTiles，210,436 點：台北 92,033 + 台中 118,403；z5-11 均勻抽稀、z13+ 全量）：
+  // 樹種前 10 大 categorical 染色（預設），可切換胸徑/樹高（欄位 dbh_cm/height_m 與 3epoch 層同
+  // → 直接沿用其 expr，分級與顏色照抄 streetTreeColors 跨層可比）與城市二色（台北藍/台中橙）。
+  // 城市篩選走 opacity 歸零（同 protectedTreesNational cityIdx 做法）。
+  // >100k 密集層 → 半徑基準 + 倍率 + 1.5px 下限照抄 streetTreesTaipeiDiff/3epoch 同款 paint。
+  {
+    id: "streetTreesNational",
+    sourceUrl: "./urban/street_trees_national.pmtiles",
+    sourceId: "street-trees-national",
+    pmtiles: { sourceLayer: "street_trees_national", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["streetTreesNationalOpacity", "streetTreesNationalRadius", "streetTreesNationalColorModeIdx", "streetTreesNationalCityIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (_isDark, p) => {
+          const base = p?.streetTreesNationalOpacity ?? 0.7;
+          const radiusMult = p?.streetTreesNationalRadius ?? 1;
+          const colorMode = p?.streetTreesNationalColorModeIdx ?? 0; // 0=species 1=diameter 2=height 3=city
+          const cityIdx = p?.streetTreesNationalCityIdx ?? 0;        // 0=全部 1=台北 2=台中
+          const city = cityIdx > 0 ? STREET_TREE_NATIONAL_CITIES[cityIdx - 1]?.value : undefined;
+          const opExpr: unknown[] | number = city
+            ? ["case", ["==", ["get", "city"], city], base, 0]
+            : base;
+          let circleColor: unknown[];
+          switch (colorMode) {
+            case 1: circleColor = streetTree3epochDiameterColorExpr(); break; // 欄位同 dbh_cm
+            case 2: circleColor = streetTree3epochHeightColorExpr(); break;   // 欄位同 height_m
+            case 3: circleColor = streetTreeNationalCityColorExpr(); break;
+            default: circleColor = streetTreeNationalSpeciesColorExpr();
+          }
+          return {
+            "circle-color": circleColor,
+            "circle-opacity": opExpr,
+            // 隨 zoom 漸變基準 × 倍率 + 1.5px 下限（同 streetTreesTaipeiDiff/3epoch；
+            // zoom 表達式只能在最外層，倍率在 JS 端算進各 stop）。
+            "circle-radius": ["interpolate", ["linear"], ["zoom"],
+              5, Math.max(1.5, 1 * radiusMult),
+              9, Math.max(1.5, 1.8 * radiusMult),
+              12, Math.max(1.5, 3 * radiusMult),
+              14, Math.max(1.5, 4.5 * radiusMult),
+            ],
+            "circle-stroke-width": 0,
+          };
+        },
+      },
+    ],
+  },
+  // 台北人行道樹穴（PMTiles，56,720 MultiPolygon，z11 起有 tile；個別樹穴僅數 m²，z15+ 才看得清）：
+  // pit_type 二色 fill（樹穴綠 / 花圃黃）+ 同色細 outline（同 aquaculturePonds fill+line 面層慣例）；
+  // 類型篩選走 opacity 歸零（fill 與 line 共用 opExpr，篩掉的類型輪廓一併隱藏）。
+  {
+    id: "treePitsTaipei",
+    sourceUrl: "./urban/tree_pits_taipei.pmtiles",
+    sourceId: "tree-pits-taipei",
+    pmtiles: { sourceLayer: "tree_pits_taipei", minzoom: 11, maxzoom: 16 },
+    rebuildOnParamChange: ["treePitsTaipeiOpacity", "treePitsTaipeiTypeIdx"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => {
+          const base = p?.treePitsTaipeiOpacity ?? 0.55;
+          const typeIdx = p?.treePitsTaipeiTypeIdx ?? 0; // 0=全部 1=樹穴 2=花圃
+          const pitType = typeIdx > 0 ? TREE_PIT_TYPES[typeIdx - 1]?.name : undefined;
+          return {
+            "fill-color": treePitTypeColorExpr(),
+            "fill-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], base, 0] : base,
+          };
+        },
+      },
+      {
+        suffix: "line", type: "line",
+        paint: (_isDark, p) => {
+          const base = p?.treePitsTaipeiOpacity ?? 0.55;
+          const typeIdx = p?.treePitsTaipeiTypeIdx ?? 0;
+          const pitType = typeIdx > 0 ? TREE_PIT_TYPES[typeIdx - 1]?.name : undefined;
+          // outline 比填色略實（min(1, base+0.2)），低填色透明度時仍可辨邊界
+          const lineOp = Math.min(1, base + 0.2);
+          return {
+            "line-color": treePitTypeColorExpr(),
+            "line-width": 0.5,
+            "line-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], lineOp, 0] : lineOp,
+          };
+        },
+      },
+    ],
+  },
+
   // ── 🏟️ 運動場館 Sports（靜態 CDN geojson，走 ./sports/）──
   // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。
   // circle：category 27 類 match 分色 + area_sqm log 點大小（NULL fallback 固定半徑）+ open_status="不對外" 淡化。
@@ -3311,6 +3563,25 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-opacity": params?.forestFlatParksOpacity ?? 0.9,
           };
         },
+      },
+    ],
+  },
+
+  // ── 全台樹冠高度（raster PNG PMTiles，Meta/WRI 2020 10m，z7-12）──
+  // 顏色已預烤進 PNG（Greens 色帶，低植被端半透明）；mapbox-pmtiles 依 header
+  // tile type 自動切 raster 模式，z13+ 靠 Mapbox raster overzoom 拉伸。
+  // raster layer 不允許 source-layer → pmtiles 不填 sourceLayer。
+  {
+    id: "canopyHeight",
+    sourceUrl: "./forestry/canopy_height_taiwan.pmtiles",
+    sourceId: "canopy-height",
+    pmtiles: { minzoom: 7, maxzoom: 12 },
+    layers: [
+      {
+        suffix: "raster", type: "raster",
+        paint: (_isDark, p) => ({
+          "raster-opacity": p?.canopyHeightOpacity ?? 0.7,
+        }),
       },
     ],
   },

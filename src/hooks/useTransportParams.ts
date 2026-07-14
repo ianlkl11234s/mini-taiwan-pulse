@@ -13,6 +13,11 @@ import {
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
   type PollutionMedium,
 } from "../data/pollutionTypes";
+import {
+  PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
+  STREET_TREE_3EPOCH_TRAJ_FILTERS,
+  STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
+} from "../data/urbanOpenSpaceTypes";
 
 export interface SliderConfig {
   type?: "slider";
@@ -182,6 +187,30 @@ export function useTransportParams() {
   const [streetTreesTaipeiDiffStatus, setStreetTreesTaipeiDiffStatus] = useState<string>("all"); // all / disappeared / changed
   const [streetTreesTaipeiDiffRadius, setStreetTreesTaipeiDiffRadius] = useState(0.5); // 點位大小縮放倍率
   const [streetTreesTaipeiDiffColorMode, setStreetTreesTaipeiDiffColorMode] = useState<string>("status"); // status / species / diameter / height
+  // 都市開放空間三層（受保護樹木 / 河濱喬木 / 台北公園）
+  const [protectedTreesNationalOpacity, setProtectedTreesNationalOpacity] = useState(0.85);
+  const [protectedTreesNationalRadius, setProtectedTreesNationalRadius] = useState(1);
+  const [protectedTreesNationalColorMode, setProtectedTreesNationalColorMode] = useState<string>("age"); // age / city
+  const [protectedTreesNationalCity, setProtectedTreesNationalCity] = useState<string>("all"); // all / 8 城市名
+  const [riversideTreesTaipeiOpacity, setRiversideTreesTaipeiOpacity] = useState(0.85);
+  const [riversideTreesTaipeiRadius, setRiversideTreesTaipeiRadius] = useState(1);
+  const [riversideTreesTaipeiPark, setRiversideTreesTaipeiPark] = useState<string>("all"); // all / 30 座河濱公園名
+  const [parksTaipeiOpacity, setParksTaipeiOpacity] = useState(0.85);
+  const [parksTaipeiRadius, setParksTaipeiRadius] = useState(1);
+  const [parksTaipeiCategory, setParksTaipeiCategory] = useState<string>("all"); // all / 7 種分類
+  // 行道樹三時點（traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
+  const [streetTreesTaipei3epochOpacity, setStreetTreesTaipei3epochOpacity] = useState(0.7);
+  const [streetTreesTaipei3epochRadius, setStreetTreesTaipei3epochRadius] = useState(0.5); // 點位大小縮放倍率
+  const [streetTreesTaipei3epochColorMode, setStreetTreesTaipei3epochColorMode] = useState<string>("traj"); // traj / species / diameter / height
+  const [streetTreesTaipei3epochTrajFilter, setStreetTreesTaipei3epochTrajFilter] = useState<string>("all"); // STREET_TREE_3EPOCH_TRAJ_FILTERS values
+  // 行道樹全國（樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
+  const [streetTreesNationalOpacity, setStreetTreesNationalOpacity] = useState(0.7);
+  const [streetTreesNationalRadius, setStreetTreesNationalRadius] = useState(0.5); // 點位大小縮放倍率
+  const [streetTreesNationalColorMode, setStreetTreesNationalColorMode] = useState<string>("species"); // species / diameter / height / city
+  const [streetTreesNationalCity, setStreetTreesNationalCity] = useState<string>("all"); // all / taipei / taichung
+  // 台北人行道樹穴（pit_type 樹穴/花圃二色 fill + 類型篩選）
+  const [treePitsTaipeiOpacity, setTreePitsTaipeiOpacity] = useState(0.55);
+  const [treePitsTaipeiType, setTreePitsTaipeiType] = useState<string>("all"); // all / 樹穴 / 花圃
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
   const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
   const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
@@ -556,6 +585,8 @@ export function useTransportParams() {
   const [forestAlishanRailWidth, setForestAlishanRailWidth] = useState(1.5);
   const [hikingTrailsOpacity, setHikingTrailsOpacity] = useState(0.85);
   const [hikingTrailsWidth, setHikingTrailsWidth] = useState(1.2);
+  // raster：樹冠高度（PNG 預烤色帶，僅 opacity）
+  const [canopyHeightOpacity, setCanopyHeightOpacity] = useState(0.7);
   // ENERGY MVP — 4 layer opacity + 2 scale/height
   const [powerPlantsOpacity, setPowerPlantsOpacity] = useState(0.95);
   const [powerPlantsScale, setPowerPlantsScale] = useState(0.5);
@@ -854,6 +885,22 @@ export function useTransportParams() {
     streetTreesTaipeiDiffRadius,
     // 染色模式 select（status/species/diameter/height）編成 idx（0-3）；paint 端 switch 分支
     streetTreesTaipeiDiffColorModeIdx: ["status", "species", "diameter", "height"].indexOf(streetTreesTaipeiDiffColorMode),
+    // 都市開放空間三層：select 一律編成 Idx 餵 paint（overlayParams 只收數字）
+    protectedTreesNationalOpacity, protectedTreesNationalRadius,
+    protectedTreesNationalColorModeIdx: ["age", "city"].indexOf(protectedTreesNationalColorMode),
+    protectedTreesNationalCityIdx: ["all", ...PROTECTED_TREE_CITIES.map((c) => c.name)].indexOf(protectedTreesNationalCity),
+    riversideTreesTaipeiOpacity, riversideTreesTaipeiRadius,
+    riversideTreesTaipeiParkIdx: ["all", ...RIVERSIDE_PARKS].indexOf(riversideTreesTaipeiPark),
+    parksTaipeiOpacity, parksTaipeiRadius,
+    parksTaipeiCategoryIdx: ["all", ...TAIPEI_PARK_CATEGORIES.map((c) => c.name)].indexOf(parksTaipeiCategory),
+    streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius,
+    streetTreesTaipei3epochColorModeIdx: ["traj", "species", "diameter", "height"].indexOf(streetTreesTaipei3epochColorMode),
+    streetTreesTaipei3epochTrajFilterIdx: STREET_TREE_3EPOCH_TRAJ_FILTERS.findIndex((f) => f.value === streetTreesTaipei3epochTrajFilter),
+    streetTreesNationalOpacity, streetTreesNationalRadius,
+    streetTreesNationalColorModeIdx: ["species", "diameter", "height", "city"].indexOf(streetTreesNationalColorMode),
+    streetTreesNationalCityIdx: ["all", ...STREET_TREE_NATIONAL_CITIES.map((c) => c.value)].indexOf(streetTreesNationalCity),
+    treePitsTaipeiOpacity,
+    treePitsTaipeiTypeIdx: ["all", ...TREE_PIT_TYPES.map((t) => t.name)].indexOf(treePitsTaipeiType),
     crimeAreaMonthlyOpacity,
     theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
@@ -1082,6 +1129,7 @@ export function useTransportParams() {
     forestWildlifeScale,
     hikingTrailsOpacity,
     hikingTrailsWidth,
+    canopyHeightOpacity,
     // ENERGY
     powerPlantsOpacity,
     powerPlantsScale,
@@ -1183,7 +1231,7 @@ export function useTransportParams() {
     osmExpresswayOpacity, osmExpresswayWidth,
     hillshadeOpacity,
     slopeVectorOpacity, aspectVectorOpacity,
-  }), [realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, roadCongestionWidth, roadCongestionOpacity, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, erHospitalOpacity, parkingOnstreetOpacity, parkingOffstreetOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockSlaughterOpacity, livestockSlaughterScale, livestockFeedOpacity, livestockFeedScale, livestockMarketOpacity, livestockMarketScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, sportsSchoolOpacity, sportsSchoolScale, sportsPublicOtherOpacity, sportsPublicOtherScale, sportsPrivateOpacity, sportsPrivateScale, sportsParkOpacity, sportsParkScale, sportsCenterOpacity, sportsCenterScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth,
+  }), [realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, roadCongestionWidth, roadCongestionOpacity, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, erHospitalOpacity, parkingOnstreetOpacity, parkingOffstreetOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockSlaughterOpacity, livestockSlaughterScale, livestockFeedOpacity, livestockFeedScale, livestockMarketOpacity, livestockMarketScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, sportsSchoolOpacity, sportsSchoolScale, sportsPublicOtherOpacity, sportsPublicOtherScale, sportsPrivateOpacity, sportsPrivateScale, sportsParkOpacity, sportsParkScale, sportsCenterOpacity, sportsCenterScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, canopyHeightOpacity, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth,
     policeStationOpacity, policeStationScale, womenChildWarningOpacity, womenChildWarningScale,
     speedCameraOpacity, speedCameraScale, speedZoneSegmentOpacity, speedZoneSegmentWidth,
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
@@ -1191,6 +1239,12 @@ export function useTransportParams() {
     aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
     aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
     streetTreesTaipeiDiffOpacity, streetTreesTaipeiDiffStatus, streetTreesTaipeiDiffRadius, streetTreesTaipeiDiffColorMode,
+    protectedTreesNationalOpacity, protectedTreesNationalRadius, protectedTreesNationalColorMode, protectedTreesNationalCity,
+    riversideTreesTaipeiOpacity, riversideTreesTaipeiRadius, riversideTreesTaipeiPark,
+    parksTaipeiOpacity, parksTaipeiRadius, parksTaipeiCategory,
+    streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius, streetTreesTaipei3epochColorMode, streetTreesTaipei3epochTrajFilter,
+    streetTreesNationalOpacity, streetTreesNationalRadius, streetTreesNationalColorMode, streetTreesNationalCity,
+    treePitsTaipeiOpacity, treePitsTaipeiType,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -1924,6 +1978,9 @@ export function useTransportParams() {
         { label: `寬度 ${hikingTrailsWidth.toFixed(1)}`, value: hikingTrailsWidth, min: 0.3, max: 4, step: 0.1, onChange: setHikingTrailsWidth },
         { label: `透明度 ${hikingTrailsOpacity.toFixed(2)}`, value: hikingTrailsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setHikingTrailsOpacity },
       ];
+      case "canopyHeight": return [
+        { label: `透明度 ${canopyHeightOpacity.toFixed(2)}`, value: canopyHeightOpacity, min: 0.3, max: 1, step: 0.05, onChange: setCanopyHeightOpacity },
+      ];
       // ── ENERGY MVP ──
       case "powerPlants": return [
         { label: `大小 ${powerPlantsScale.toFixed(1)}`, value: powerPlantsScale, min: 0.3, max: 3, step: 0.1, onChange: setPowerPlantsScale },
@@ -2247,6 +2304,38 @@ export function useTransportParams() {
         { type: "select" as const, label: "狀態", value: streetTreesTaipeiDiffStatus, options: [{ label: "全部", value: "all" }, { label: "只看消失", value: "disappeared" }, { label: "只看變動", value: "changed" }], onChange: setStreetTreesTaipeiDiffStatus },
         { label: `透明度 ${streetTreesTaipeiDiffOpacity.toFixed(2)}`, value: streetTreesTaipeiDiffOpacity, min: 0, max: 1, step: 0.05, onChange: setStreetTreesTaipeiDiffOpacity },
         { label: `點位大小 ${streetTreesTaipeiDiffRadius.toFixed(2)}`, value: streetTreesTaipeiDiffRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setStreetTreesTaipeiDiffRadius },
+      ];
+      case "protectedTreesNational": return [
+        { type: "select" as const, label: "染色模式", value: protectedTreesNationalColorMode, options: [{ label: "依樹齡", value: "age" }, { label: "依城市", value: "city" }], onChange: setProtectedTreesNationalColorMode },
+        { type: "select" as const, label: "城市", value: protectedTreesNationalCity, options: [{ label: "全部", value: "all" }, ...PROTECTED_TREE_CITIES.map((c) => ({ label: c.name, value: c.name }))], onChange: setProtectedTreesNationalCity },
+        { label: `透明度 ${protectedTreesNationalOpacity.toFixed(2)}`, value: protectedTreesNationalOpacity, min: 0, max: 1, step: 0.05, onChange: setProtectedTreesNationalOpacity },
+        { label: `點位大小 ${protectedTreesNationalRadius.toFixed(2)}`, value: protectedTreesNationalRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setProtectedTreesNationalRadius },
+      ];
+      case "riversideTreesTaipei": return [
+        { type: "select" as const, label: "河濱公園", value: riversideTreesTaipeiPark, options: [{ label: "全部", value: "all" }, ...RIVERSIDE_PARKS.map((n) => ({ label: n, value: n }))], onChange: setRiversideTreesTaipeiPark },
+        { label: `透明度 ${riversideTreesTaipeiOpacity.toFixed(2)}`, value: riversideTreesTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setRiversideTreesTaipeiOpacity },
+        { label: `點位大小 ${riversideTreesTaipeiRadius.toFixed(2)}`, value: riversideTreesTaipeiRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setRiversideTreesTaipeiRadius },
+      ];
+      case "parksTaipei": return [
+        { type: "select" as const, label: "分類", value: parksTaipeiCategory, options: [{ label: "全部", value: "all" }, ...TAIPEI_PARK_CATEGORIES.map((c) => ({ label: c.name, value: c.name }))], onChange: setParksTaipeiCategory },
+        { label: `透明度 ${parksTaipeiOpacity.toFixed(2)}`, value: parksTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setParksTaipeiOpacity },
+        { label: `點位大小 ${parksTaipeiRadius.toFixed(2)}`, value: parksTaipeiRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setParksTaipeiRadius },
+      ];
+      case "streetTreesTaipei3epoch": return [
+        { type: "select" as const, label: "染色模式", value: streetTreesTaipei3epochColorMode, options: [{ label: "依軌跡", value: "traj" }, { label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }], onChange: setStreetTreesTaipei3epochColorMode },
+        { type: "select" as const, label: "軌跡篩選", value: streetTreesTaipei3epochTrajFilter, options: STREET_TREE_3EPOCH_TRAJ_FILTERS.map((f) => ({ label: f.label, value: f.value })), onChange: setStreetTreesTaipei3epochTrajFilter },
+        { label: `透明度 ${streetTreesTaipei3epochOpacity.toFixed(2)}`, value: streetTreesTaipei3epochOpacity, min: 0, max: 1, step: 0.05, onChange: setStreetTreesTaipei3epochOpacity },
+        { label: `點位大小 ${streetTreesTaipei3epochRadius.toFixed(2)}`, value: streetTreesTaipei3epochRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setStreetTreesTaipei3epochRadius },
+      ];
+      case "streetTreesNational": return [
+        { type: "select" as const, label: "染色模式", value: streetTreesNationalColorMode, options: [{ label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }, { label: "依城市", value: "city" }], onChange: setStreetTreesNationalColorMode },
+        { type: "select" as const, label: "城市", value: streetTreesNationalCity, options: [{ label: "全部", value: "all" }, ...STREET_TREE_NATIONAL_CITIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setStreetTreesNationalCity },
+        { label: `透明度 ${streetTreesNationalOpacity.toFixed(2)}`, value: streetTreesNationalOpacity, min: 0, max: 1, step: 0.05, onChange: setStreetTreesNationalOpacity },
+        { label: `點位大小 ${streetTreesNationalRadius.toFixed(2)}`, value: streetTreesNationalRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setStreetTreesNationalRadius },
+      ];
+      case "treePitsTaipei": return [
+        { type: "select" as const, label: "類型", value: treePitsTaipeiType, options: [{ label: "全部", value: "all" }, ...TREE_PIT_TYPES.map((t) => ({ label: t.name, value: t.name }))], onChange: setTreePitsTaipeiType },
+        { label: `填色透明度 ${treePitsTaipeiOpacity.toFixed(2)}`, value: treePitsTaipeiOpacity, min: 0, max: 0.85, step: 0.05, onChange: setTreePitsTaipeiOpacity },
       ];
       case "crimeAreaMonthly": return [
         { label: `填色透明度 ${crimeAreaMonthlyOpacity.toFixed(2)}`, value: crimeAreaMonthlyOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setCrimeAreaMonthlyOpacity },

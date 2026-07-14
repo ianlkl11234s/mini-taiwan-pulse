@@ -85,7 +85,8 @@ export function addOverlay(
       id,
       type: spec.type as "line",  // TS union trick
       source: config.sourceId,
-      ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
+      // raster PMTiles 無 sourceLayer（raster layer 不允許 source-layer 屬性）
+      ...(config.pmtiles?.sourceLayer ? { "source-layer": config.pmtiles.sourceLayer } : {}),
       ...(spec.layout
           ? { layout: typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout }
           : {}),
@@ -146,7 +147,7 @@ export function updateOverlayTheme(
           id,
           type: spec.type as "line",
           source: config.sourceId,
-          ...(config.pmtiles ? { "source-layer": config.pmtiles.sourceLayer } : {}),
+          ...(config.pmtiles?.sourceLayer ? { "source-layer": config.pmtiles.sourceLayer } : {}),
           ...(layoutObj ? { layout: layoutObj } : {}),
           ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
           ...(spec.filter ? { filter: spec.filter } : config.filter ? { filter: config.filter } : {}),
