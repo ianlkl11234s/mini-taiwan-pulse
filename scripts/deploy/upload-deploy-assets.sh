@@ -189,6 +189,8 @@ FOREST_FILES=(
   "public/forestry/hiking_trails.geojson"
   # PT-1 PMTiles（前端 sourceUrl 已切 .pmtiles；geojson 保留但未使用）
   "public/forestry/hiking_trails.pmtiles"
+  # 全台樹冠高度 raster PMTiles（93MB，Meta/WRI 2020 10m，tree-layers PR #70）
+  "public/forestry/canopy_height_taiwan.pmtiles"
 )
 for f in "${FOREST_FILES[@]}"; do
   name=$(basename "$f")
@@ -229,8 +231,8 @@ for f in public/water_resources/*.pmtiles; do
 done
 
 # 都市開放空間圖層：上傳到 deploy-assets/urban/ 子前綴（鏡像結構，pull 端整夾 sync）
-# 台北行道樹變化 PMTiles（3.1MB，99,527 點，純 S3，無 git 小檔；glob 動態上傳加新檔免改腳本）
-for f in public/urban/*.pmtiles; do
+# 行道樹 diff/3epoch/全國 + 樹穴 PMTiles + 受保護樹木/河濱喬木/公園 GeoJSON（純 S3，無 git 小檔；glob 動態上傳加新檔免改腳本）
+for f in public/urban/*.pmtiles public/urban/*.geojson; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   echo "Uploading urban/$name..."
