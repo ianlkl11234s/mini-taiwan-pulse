@@ -393,6 +393,12 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
+        title: "建成環境",
+        layers: [
+          { key: "buildingsGba", label: "建物輪廓 Buildings", expandable: true },
+        ],
+      },
+      {
         title: "道路底圖",
         layers: [
           { key: "osmRoadDrive", label: "OSM 道路 OSM Roads", expandable: true },
@@ -548,7 +554,6 @@ export const THEMES: ThemeDef[] = [
           { key: "riversideTreesTaipei", label: "河濱喬木 Riverside Trees", expandable: true },
           { key: "parksTaipei", label: "公園 Parks", expandable: true },
           { key: "treePitsTaipei", label: "人行道樹穴 Tree Pits", expandable: true },
-          { key: "buildingsGba", label: "建物輪廓 Buildings", expandable: true },
           { key: "urbanFormGrid", label: "都市紋理網格 Urban Form", expandable: true },
         ],
       },
