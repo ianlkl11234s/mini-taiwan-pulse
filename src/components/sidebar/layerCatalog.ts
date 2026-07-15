@@ -512,6 +512,22 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🏙️ URBAN ANALYSIS 都市分析（都市 × 環境交叉分析；未來熱島效應、風廊等進此區）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "都市分析 Urban Analysis",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "都市紋理",
+        layers: [
+          { key: "urbanFormGrid", label: "都市紋理網格 Urban Form", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🌤️ ENV 環境氣候
   // ───────────────────────────────────────────────────────────────
   {
@@ -545,16 +561,14 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
-        title: "都市開放空間 Urban Open Space",
+        title: "都市樹木 Urban Trees",
         layers: [
           { key: "streetTreesTaipeiDiff", label: "行道樹變化 Street Tree Diff", expandable: true },
           { key: "streetTreesTaipei3epoch", label: "行道樹三時點 Street Tree 3-Epoch", expandable: true },
           { key: "streetTreesNational", label: "行道樹全國 Street Trees TW", expandable: true },
           { key: "protectedTreesNational", label: "受保護樹木 Protected Trees", expandable: true },
           { key: "riversideTreesTaipei", label: "河濱喬木 Riverside Trees", expandable: true },
-          { key: "parksTaipei", label: "公園 Parks", expandable: true },
           { key: "treePitsTaipei", label: "人行道樹穴 Tree Pits", expandable: true },
-          { key: "urbanFormGrid", label: "都市紋理網格 Urban Form", expandable: true },
         ],
       },
     ],
@@ -803,10 +817,10 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
-  // 🏟️ SPORTS 運動場館
+  // 🏟️ SPORTS & LEISURE 運動休閒
   // ───────────────────────────────────────────────────────────────
   {
-    title: "運動 Sports",
+    title: "運動休閒 Sports & Leisure",
     defaultCollapsed: true,
     groups: [
       {
@@ -817,6 +831,12 @@ export const THEMES: ThemeDef[] = [
           { key: "sportsPrivate", label: "民營場館 Private", expandable: true },
           { key: "sportsPark", label: "運動公園/開放空間 Park", expandable: true },
           { key: "sportsCenter", label: "國民運動中心 Sports Center", expandable: true },
+        ],
+      },
+      {
+        title: "公園 Parks",
+        layers: [
+          { key: "parksTaipei", label: "公園 Parks", expandable: true },
         ],
       },
     ],

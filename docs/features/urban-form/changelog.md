@@ -40,3 +40,8 @@
 - 建物 PMTiles 上游重切 z13–16 → z8–16（z13+ 磚 MD5 不變；z8–12 tiny-polygon 合併紋理），檔案 139.8MB → 185.5MB
 - overlayRegistry：pmtiles minzoom 13→8；extrusion sublayer 鎖 minzoom 13；3D 模式 z<13 fill zoom-step 平面後備
 - 建物輪廓自「都市開放空間」移至「底圖 Base Map → 建成環境」（用戶回饋：靜態環境脈絡屬底圖性質）
+
+## 2026-07-15（深夜）分類重組（用戶回饋：機能導向拆分）
+- 解散「都市開放空間」大雜燴群組：公園 → 運動休閒（原「運動」改名，公園群組，未來健身器材進此）；
+  都市紋理網格 → 新頂層「都市分析 Urban Analysis」（未來熱島效應、風廊等交叉分析進此）；
+  餘 6 樹木層收斂為「都市樹木 Urban Trees」留環境氣候
