@@ -297,6 +297,8 @@ export function useMapInteraction(
           { layers: ["street-trees-taipei-3epoch-circle"], type: "streetTreesTaipei3epoch" },
           { layers: ["street-trees-national-circle"], type: "streetTreesNational" },
           { layers: ["tree-pits-taipei-fill", "tree-pits-taipei-line"], type: "treePitsTaipei" },
+          { layers: ["buildings-gba-fill", "buildings-gba-extrusion"], type: "buildingsGba" },
+          { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
           { layers: ["sports-venues-school", "sports-venues-public-other", "sports-venues-private", "sports-venues-park", "sports-venues-center"], type: "sportsVenue" },
           { layers: ["sat-current-point"], type: "satellite" },
           { layers: ["medical-hospitals-circle"], type: "medicalPOI" },

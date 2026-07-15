@@ -36,6 +36,8 @@ import {
   streetTreeNationalSpeciesColorExpr, streetTreeNationalCityColorExpr, STREET_TREE_NATIONAL_CITIES,
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
+import { buildingHeightColorExpr, buildingSrcColorExpr } from "../data/buildingsGbaTypes";
+import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 
 const BASE_RADIUS = 5;
 
@@ -3279,6 +3281,88 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "line-color": treePitTypeColorExpr(),
             "line-width": 0.5,
             "line-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], lineOp, 0] : lineOp,
+          };
+        },
+      },
+    ],
+  },
+  // GBA 全台 3D 建物輪廓（vector PMTiles，152 萬棟本島，z8-16；z13-16 逐棟原值、
+  // z8-12 為 tippecanoe tiny-polygon 合併近似（只當建成區紋理，不可逐棟分析，extrusion
+  // 因此 minzoom 鎖 13）；height 100% 有值 float，
+  // src=osm 為 OSM 志願者繪製、其餘為 GBA AI 推估；CC BY-NC 4.0，署名見 LegendPanel）：
+  // 三種顯示模式 modeIdx 0=高度 6 級分級（fill）1=資料來源二色（fill）2=3D 立體（fill-extrusion，
+  // 沿用高度色階）。suffix fill/extrusion 兩層永遠都在，靠 paint 把非當前模式那層的 opacity
+  // 壓成 0（純 JS 常數，非 data-driven，fill-extrusion-opacity 合法）── 不用 layout.visibility
+  // 切換，因為 rebuildOnParamChange 的 wasHidden 還原邏輯是整組 suffix 共用同一顆布林值，
+  // 若靠 visibility 做「模式互斥顯示」會被誤判成使用者關閉整層而遭覆寫（見 overlayManager.ts）。
+  // 高度門檻篩選：兩 suffix 共用 filter [">=",["get","height"],min]（函式形式，見
+  // OverlayLayerSpec.filter），不能走 opacity 歸零法，因 fill-extrusion-opacity 不支援
+  // data-driven 表達式；filter 靠 rebuildOnParamChange 整層重建才能把新門檻值烤進去。
+  {
+    id: "buildingsGba",
+    sourceUrl: "./urban/buildings_3d_taiwan.pmtiles",
+    sourceId: "buildings-gba",
+    pmtiles: { sourceLayer: "buildings", minzoom: 8, maxzoom: 16 },
+    rebuildOnParamChange: ["fill", "extrusion"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
+        paint: (_isDark, p) => {
+          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D
+          const op = p?.buildingsGbaOpacity ?? 0.75;
+          return {
+            "fill-color": modeIdx === 1 ? buildingSrcColorExpr() : buildingHeightColorExpr(),
+            // 3D 模式：z<13 extrusion 不存在（minzoom 鎖 13），fill 用 zoom step 當平面後備；
+            // z13+ 壓 0 交棒給 extrusion（zoom 表達式合法，非 data-driven）
+            "fill-opacity": modeIdx === 2 ? ["step", ["zoom"], op, 13, 0] : op,
+          };
+        },
+      },
+      {
+        suffix: "extrusion",
+        type: "fill-extrusion",
+        minzoom: 13,
+        filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
+        paint: (_isDark, p) => {
+          const modeIdx = p?.buildingsGbaModeIdx ?? 0;
+          const opacity = modeIdx === 2 ? (p?.buildingsGbaOpacity ?? 0.75) : 0; // 非 3D 模式壓 0 隱藏
+          return {
+            "fill-extrusion-color": buildingHeightColorExpr(),
+            "fill-extrusion-height": ["coalesce", ["get", "height"], 3],
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  // 都市紋理網格（vector PMTiles，全台 500m 格，145,119 格，z5-12；六欄 100% 有值：
+  // bld_count 棟數/avg_height 平均高度 m/total_vol 總量體 萬m³/built_pct 建蔽率%/
+  // canopy_pct 樹冠覆蓋%/gg_index 灰綠指數 −100~100；CC BY-NC 4.0 雙署名見 LegendPanel）：
+  // 六種顯示模式 modeIdx 0-5（單一 fill sublayer，SSOT 見 urbanFormGridTypes.ts），
+  // 純靠 paint 表達式隨 modeIdx 切換 fill-color/fill-opacity ── 同 streetTreesTaipei3epoch
+  // 的 paint-function 機制，不需 rebuildOnParamChange（setPaintProperty 可直接 diff 套用
+  // 新的 step expression，不像 buildingsGba 高度門檻篩選要動 filter）。
+  // 0 值格淡出：bld_count/avg_height/total_vol/built_pct 四個「建物衍生」欄位 =0 代表
+  // 格內無建物（多數 cell，median 皆 0），用 opacity 淡出避免蓋掉底圖；canopy_pct/gg_index
+  // 分佈廣泛非零，不淡出（見 urbanFormGridTypes.ts zeroFade 註解）。
+  {
+    id: "urbanFormGrid",
+    sourceUrl: "./urban/urban_form_grid_500m.pmtiles",
+    sourceId: "urban-form-grid",
+    pmtiles: { sourceLayer: "urban_form", minzoom: 5, maxzoom: 12 },
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, p) => {
+          const modeIdx = p?.urbanFormGridModeIdx ?? 5; // 預設 5=灰綠指數
+          const base = p?.urbanFormGridOpacity ?? 0.55;
+          return {
+            "fill-color": urbanFormGridColorExpr(modeIdx),
+            "fill-opacity": urbanFormGridOpacityExpr(modeIdx, base),
           };
         },
       },

@@ -5,6 +5,8 @@ import {
   STREET_TREE_3EPOCH_TRAJ,
   STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "../../data/urbanOpenSpaceTypes";
+import { buildingHeightBandColor } from "../../data/buildingsGbaTypes";
+import { GG_INDEX_BANDS, gridBandColor, URBAN_FORM_GRID_APPROX_NOTE } from "../../data/urbanFormGridTypes";
 
 // 本檔 Title 為極簡本地版（同 fisheryPanels 慣例）：shared.tsx 未 export Title，故不去改動它。
 function Title({ color, children }: { color: string; children: string }) {
@@ -241,6 +243,55 @@ export function TreePitsTaipeiPanel({ props }: { props: Record<string, unknown> 
       <Row label="行政區" value={String(props.district ?? "")} />
       <Row label="面積" value={Number.isFinite(area) ? `${area.toFixed(2)} m²` : ""} />
       <Row label="編號" value={String(props.pit_id ?? "")} />
+      <SourceFooter props={props} />
+    </>
+  );
+}
+
+// ── GBA 全台 3D 建物輪廓（152 萬棟）──
+
+/**
+ * 建物：高度 + 估算樓層（≈ round(height/3)，height<4 顯示 1 層）+ 資料來源
+ * （src="osm" → OpenStreetMap，其餘 → GBA AI 推估）+ RMSE 提醒（CC BY-NC 4.0）。
+ */
+export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> }) {
+  const height = Number(props.height);
+  const src = String(props.src ?? "");
+  const sourceLabel = src === "osm" ? "OpenStreetMap" : "GBA AI 推估";
+  const floors = Number.isFinite(height) ? Math.max(1, Math.round(height / 3)) : null;
+  const color = Number.isFinite(height) ? buildingHeightBandColor(height) : "#78909c";
+  return (
+    <>
+      <Title color={color}>建物</Title>
+      <Row label="高度" value={Number.isFinite(height) ? `${height.toFixed(1)} m` : ""} />
+      <Row label="估算樓層" value={floors != null ? `≈ ${floors} 層` : ""} />
+      <Row label="資料來源" value={sourceLabel} />
+      <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
+        ⓘ 高度為 AI 推估（RMSE ≈ 5.9m），超高層建物可能被低估
+      </div>
+      <SourceFooter props={props} />
+    </>
+  );
+}
+
+// ── 都市紋理網格（500m 格，145,119 格；六欄全列）──
+
+/** 都市紋理：棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六值全列；Title 依 gg_index 上色。 */
+export function UrbanFormGridPanel({ props }: { props: Record<string, unknown> }) {
+  const ggIndex = Number(props.gg_index);
+  const color = Number.isFinite(ggIndex) ? gridBandColor(GG_INDEX_BANDS, ggIndex) : "#8d9c6b";
+  return (
+    <>
+      <Title color={color}>都市紋理網格</Title>
+      <Row label="棟數" value={numUnit(props.bld_count, "棟")} />
+      <Row label="平均高度" value={numUnit(props.avg_height, "m")} />
+      <Row label="總量體" value={numUnit(props.total_vol, "萬m³")} />
+      <Row label="建蔽率" value={numUnit(props.built_pct, "%")} />
+      <Row label="樹冠覆蓋" value={numUnit(props.canopy_pct, "%")} />
+      <Row label="灰綠指數" value={Number.isFinite(ggIndex) ? ggIndex.toFixed(1) : ""} />
+      <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
+        ⓘ {URBAN_FORM_GRID_APPROX_NOTE}
+      </div>
       <SourceFooter props={props} />
     </>
   );

@@ -20,7 +20,7 @@ import {
   Ruler,
   Satellite,
   // ENERGY icons
-  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
+  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel, LayoutGrid,
   // HAZARD icons
   CloudLightning, Atom,
   // GLOBAL CLIMATE icons
@@ -171,6 +171,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   streetTreesTaipei3epoch: Sprout,
   streetTreesNational: TreePalm,
   treePitsTaipei: Flower2,
+  buildingsGba: Building2,
+  urbanFormGrid: LayoutGrid,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,
