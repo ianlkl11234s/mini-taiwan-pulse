@@ -117,6 +117,7 @@ export type ExpandableLayerKey =
   | "streetTreesTaipei3epoch"
   | "streetTreesNational" | "treePitsTaipei"
   | "buildingsGba"
+  | "urbanFormGrid"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
@@ -645,6 +646,7 @@ export interface FeatureInfo {
     | "streetTreesTaipei3epoch"
     | "streetTreesNational" | "treePitsTaipei"
     | "buildingsGba"
+    | "urbanFormGrid"
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
@@ -825,6 +827,7 @@ export interface LayerVisibility {
   streetTreesNational: boolean;   // 行道樹全國分佈（PMTiles，210,436 點：台北+台中；樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
   buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles，152 萬棟；height 6 級/來源二色/3D 立體三模式 + 高度門檻篩選，CC BY-NC 4.0）
+  urbanFormGrid: boolean;         // 都市紋理網格（PMTiles，500m 格，145,119 格；棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六模式染色，CC BY-NC 4.0）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

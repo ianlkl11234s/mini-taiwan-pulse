@@ -540,6 +540,7 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   streetTreesNational: { status: 'catalog_missing', datasets: [], note: '行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles），catalog 待建' },
   treePitsTaipei: { status: 'catalog_missing', datasets: [], note: '台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles），catalog 待建' },
   buildingsGba: { status: 'catalog_missing', datasets: [], note: '全台 3D 建物輪廓 152 萬棟（GBA/OSM 融合，public/urban/buildings_3d_taiwan.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md' },
+  urbanFormGrid: { status: 'catalog_missing', datasets: [], note: '都市紋理網格 500m 145,119 格（GBA+Meta 樹冠合成，public/urban/urban_form_grid_500m.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/urban-form-grid.md' },
   // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
   sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },

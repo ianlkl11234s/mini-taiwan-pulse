@@ -36,7 +36,7 @@ import {
 import {
   StreetTreesTaipeiDiffPanel, ProtectedTreesNationalPanel,
   RiversideTreesTaipeiPanel, ParksTaipeiPanel, StreetTrees3epochPanel,
-  StreetTreesNationalPanel, TreePitsTaipeiPanel, BuildingsGbaPanel,
+  StreetTreesNationalPanel, TreePitsTaipeiPanel, BuildingsGbaPanel, UrbanFormGridPanel,
 } from "./urbanPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
@@ -248,6 +248,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   streetTreesNational: StreetTreesNationalPanel,
   treePitsTaipei: TreePitsTaipeiPanel,
   buildingsGba: BuildingsGbaPanel,
+  urbanFormGrid: UrbanFormGridPanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
 };
@@ -333,6 +334,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   streetTreesNational: "行道樹全國",
   treePitsTaipei: "人行道樹穴",
   buildingsGba: "建物",
+  urbanFormGrid: "都市紋理",
   sportsVenue: "運動場館",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",

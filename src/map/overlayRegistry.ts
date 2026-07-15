@@ -37,6 +37,7 @@ import {
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
 import { buildingHeightColorExpr, buildingSrcColorExpr } from "../data/buildingsGbaTypes";
+import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 
 const BASE_RADIUS = 5;
 
@@ -3327,6 +3328,36 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "fill-extrusion-height": ["coalesce", ["get", "height"], 3],
             "fill-extrusion-base": 0,
             "fill-extrusion-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+  // 都市紋理網格（vector PMTiles，全台 500m 格，145,119 格，z5-12；六欄 100% 有值：
+  // bld_count 棟數/avg_height 平均高度 m/total_vol 總量體 萬m³/built_pct 建蔽率%/
+  // canopy_pct 樹冠覆蓋%/gg_index 灰綠指數 −100~100；CC BY-NC 4.0 雙署名見 LegendPanel）：
+  // 六種顯示模式 modeIdx 0-5（單一 fill sublayer，SSOT 見 urbanFormGridTypes.ts），
+  // 純靠 paint 表達式隨 modeIdx 切換 fill-color/fill-opacity ── 同 streetTreesTaipei3epoch
+  // 的 paint-function 機制，不需 rebuildOnParamChange（setPaintProperty 可直接 diff 套用
+  // 新的 step expression，不像 buildingsGba 高度門檻篩選要動 filter）。
+  // 0 值格淡出：bld_count/avg_height/total_vol/built_pct 四個「建物衍生」欄位 =0 代表
+  // 格內無建物（多數 cell，median 皆 0），用 opacity 淡出避免蓋掉底圖；canopy_pct/gg_index
+  // 分佈廣泛非零，不淡出（見 urbanFormGridTypes.ts zeroFade 註解）。
+  {
+    id: "urbanFormGrid",
+    sourceUrl: "./urban/urban_form_grid_500m.pmtiles",
+    sourceId: "urban-form-grid",
+    pmtiles: { sourceLayer: "urban_form", minzoom: 5, maxzoom: 12 },
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, p) => {
+          const modeIdx = p?.urbanFormGridModeIdx ?? 5; // 預設 5=灰綠指數
+          const base = p?.urbanFormGridOpacity ?? 0.55;
+          return {
+            "fill-color": urbanFormGridColorExpr(modeIdx),
+            "fill-opacity": urbanFormGridOpacityExpr(modeIdx, base),
           };
         },
       },

@@ -12,6 +12,20 @@
 
 ---
 
+## 2026-07-15 — PR #待開 `待 squash`（都市紋理網格）
+
+- 新增 `urbanFormGrid` 圖層：全台 500m 都市紋理網格（145,119 格），合成建物量體統計與
+  樹冠灰綠比為六指標 choropleth
+- 六種顯示模式：棟數密度（OrRd）/ 平均高度（RdYlBu）/ 總量體（PuRd）/ 建蔽率（YlOrBr）/
+  樹冠覆蓋（Greens）/ 灰綠指數（BrBG diverging，預設模式）
+- `bld_count`/`avg_height`/`total_vol`/`built_pct` 四個建物衍生欄位 =0（無建物）的格用
+  opacity 淡出，避免多數 cell（median 皆 0）蓋掉底圖
+- 單一 `fill` sublayer，不設 `rebuildOnParamChange`（同 streetTreesTaipei3epoch 的
+  paint-function 機制，setPaintProperty 直接 diff 套用新 step expression）
+- 資料源：taipei-gis-analytics `docs/handoff/urban-form-grid.md`；CC BY-NC 4.0 雙署名
+  （GlobalBuildingAtlas + Meta/WRI），圖例已掛
+- Breaking：無（純新增）
+
 ## 2026-07-15 — PR #待開 `待 squash`
 
 - 新增 `buildingsGba` 圖層：全台 3D 建物輪廓（GBA + OSM 融合，152 萬棟本島）

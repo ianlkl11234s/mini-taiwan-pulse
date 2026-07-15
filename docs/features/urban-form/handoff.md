@@ -1,10 +1,44 @@
 # Handoff — 都市形態 Urban Form（下游視角）
 
-> **上游 SSOT**：`../../../taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md`（詳細契約看那份）
+> **上游 SSOT**：
+> - buildingsGba：`../../../taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md`
+> - urbanFormGrid：`../../../taipei-gis-analytics/docs/handoff/urban-form-grid.md`（詳細契約看那份）
 >
 > 本檔只放**前端接線的簡表 + 上游約定的差異點**。契約細節不重複寫，只反向引用。
 
-## 上游 handoff 摘要
+## urbanFormGrid：上游 handoff 摘要
+
+- 產物路徑：`taipei-gis-analytics/data/processed/urban_composite/urban_form_grid/urban_form_grid_500m.pmtiles`
+  （複製進本 repo `public/urban/urban_form_grid_500m.pmtiles`，15.2MB，**不進 git**，走 S3 deploy-assets）
+- 更新頻率：`lifecycle: yearly`（隨上游建物/樹冠任一更新重跑）
+- 座標系統：WGS84（建格於 EPSG:3826）
+- 資料量：145,119 格（500m×500m，台灣本島；**不含外島**）
+- source-layer：`urban_form`；vector PMTiles z5–12
+
+## urbanFormGrid：硬依賴欄位（改一定爆）
+
+| 欄位 | 型別 | 值域 | 前端用途 |
+|---|---|---|---|
+| `bld_count` | int | ≥0 | 棟數密度染色（mode 0）+ popup；=0 opacity 淡出 |
+| `avg_height` | float | ≥0（m） | 平均高度染色（mode 1）+ popup；=0 opacity 淡出 |
+| `total_vol` | float | ≥0（萬m³） | 總量體染色（mode 2）+ popup；=0 opacity 淡出 |
+| `built_pct` | float | 0–100（%） | 建蔽率染色（mode 3）+ popup；=0 opacity 淡出 |
+| `canopy_pct` | float | 0–100（%） | 樹冠覆蓋染色（mode 4）+ popup；無 0 淡出 |
+| `gg_index` | float | −100~100 | ⭐ 灰綠指數染色（mode 5，預設）+ popup；diverging BrBG 以 0 為中心，無 0 淡出 |
+
+六欄皆由 `src/data/urbanFormGridTypes.ts` 的 `URBAN_FORM_GRID_MODES` 統一管理分級/色票，
+`src/map/overlayRegistry.ts`（`id: "urbanFormGrid"`）單一 `fill` layer 依 `urbanFormGridModeIdx`
+切換 `fill-color`/`fill-opacity` 表達式。**上游保證六欄 100% 有值**（無 null）。
+
+## urbanFormGrid：上游改動 → 下游要跟改的觸發點
+
+| 上游改動 | 下游動作 |
+|---|---|
+| 六欄任一改名 / 值域改變 | `urbanFormGridTypes.ts` 的對應 `*_BANDS` + `URBAN_FORM_GRID_MODES` 要跟改 |
+| 補外島圖磚 | 無需改前端程式（PMTiles 自動涵蓋新範圍） |
+| 授權變更 | `URBAN_FORM_GRID_ATTRIBUTION_GBA`/`_META`（`urbanFormGridTypes.ts`）+ README 授權敘述跟改 |
+
+## buildingsGba：上游 handoff 摘要
 
 - 產物路徑：`taipei-gis-analytics/data/processed/urban_composite/buildings_3d_gba/buildings_3d_taiwan.pmtiles`
   （複製進本 repo `public/urban/buildings_3d_taiwan.pmtiles`，139.8MB，**不進 git**，走 S3 deploy-assets）
@@ -13,13 +47,13 @@
 - 資料量：152 萬棟本島（**不含外島**：澎湖/金馬未涵蓋，上游待補）
 - source-layer：`buildings`；vector PMTiles z13–16
 
-## 前端接線位置
+## buildingsGba：前端接線位置
 
 - SSOT 色票/分級：`src/data/buildingsGbaTypes.ts`
 - Overlay：`src/map/overlayRegistry.ts`（`id: "buildingsGba"`）
 - UI toggle：`src/components/sidebar/layerCatalog.ts`（LAYER_COLORS + SECTIONS 都市開放空間分區）
 
-## 硬依賴欄位（改一定爆）
+## buildingsGba：硬依賴欄位（改一定爆）
 
 - `height`（float，公尺）— fill/fill-extrusion 染色分級、`fill-extrusion-height`、高度門檻 filter、
   popup 高度/估算樓層，**上游保證 100% 有值**（本檔各處未寫缺值 fallback UI，只在色階函式內部有
@@ -28,7 +62,7 @@
   「非 osm 一律視為 GBA AI 推估」，若上游未來新增第三種 src 值，前端顯示不會壞（match 表達式仍
   fallback 到 GBA 紫色），但語意會不精確，需回頭跟上游確認新 src 值代表什麼
 
-## 上游改動 → 下游要跟改的觸發點
+## buildingsGba：上游改動 → 下游要跟改的觸發點
 
 | 上游改動 | 下游動作 |
 |---|---|

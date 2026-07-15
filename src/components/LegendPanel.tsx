@@ -36,6 +36,9 @@ import {
 import {
   BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION,
 } from "../data/buildingsGbaTypes";
+import {
+  URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
+} from "../data/urbanFormGridTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -211,6 +214,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["streetTreesNational"], render: ({ overlayParams }) => <StreetTreesNationalLegend colorModeIdx={overlayParams.streetTreesNationalColorModeIdx ?? 0} /> },
   { keys: ["treePitsTaipei"], render: () => <TreePitsTaipeiLegend /> },
   { keys: ["buildingsGba"], render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
+  { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
@@ -916,6 +920,34 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         {BUILDINGS_GBA_ATTRIBUTION}
+      </div>
+    </div>
+  );
+}
+
+// 都市紋理網格圖例：依顯示模式（0-5）切換該模式的分級色帶；0 值格淡出的四個模式
+// （棟數/平均高度/總量體/建蔽率）額外補一行「無建物」淡色說明。雙署名必掛（GBA + Meta/WRI）。
+function UrbanFormGridLegend({ modeIdx = 5 }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  const mode = URBAN_FORM_GRID_MODES[modeIdx] ?? URBAN_FORM_GRID_MODES[URBAN_FORM_GRID_MODES.length - 1]!;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        都市紋理網格 URBAN FORM
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{mode.label}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {mode.zeroFade && <UrbanDotRow color={t.textDim} label="0（無建物，淡出顯示）" />}
+        {mode.bands.map((b) => <UrbanDotRow key={b.label} color={b.color} label={b.label} />)}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        500m 網格統計，建物 centroid 歸屬 + 樹冠 ≥3m 閾值之近似值
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        {URBAN_FORM_GRID_ATTRIBUTION_GBA}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
+        {URBAN_FORM_GRID_ATTRIBUTION_META}
       </div>
     </div>
   );
