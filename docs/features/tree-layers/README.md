@@ -1,10 +1,10 @@
 # 都市樹木資源圖層（tree-layers）
 
 > **Slug**：`tree-layers`（與 taipei-gis-analytics handoff 一致）
-> **狀態**：dev（本地 feat/tree-layers，待 PR）
+> **狀態**：shipped（程式已合併；資料檔待 S3 deploy-assets 上傳 TL-1）
 > **Owner**：migu
-> **上線日期**：—
-> **相關 PR**：—
+> **上線日期**：2026-07-15
+> **相關 PR**：#70
 
 ## 一句話說明
 

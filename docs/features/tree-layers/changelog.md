@@ -4,7 +4,7 @@
 
 ---
 
-## 2026-07-15 — PR #（待開）
+## 2026-07-15 — PR #70 `34b8fd5`
 
 - 一次新增 7 個樹木圖層：protectedTreesNational / riversideTreesTaipei / parksTaipei（GeoJSON 點層）、streetTreesTaipei3epoch / streetTreesNational（PMTiles 點層）、treePitsTaipei（PMTiles 面層）、canopyHeight（raster PMTiles）
 - 新增 `src/data/urbanOpenSpaceTypes.ts` 色票/選項 SSOT
