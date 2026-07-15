@@ -45,3 +45,7 @@
 - 解散「都市開放空間」大雜燴群組：公園 → 運動休閒（原「運動」改名，公園群組，未來健身器材進此）；
   都市紋理網格 → 新頂層「都市分析 Urban Analysis」（未來熱島效應、風廊等交叉分析進此）；
   餘 6 樹木層收斂為「都市樹木 Urban Trees」留環境氣候
+
+## 2026-07-16 shipped
+- PR #71 squash merge 進 master：`18d24c7`（7 commits：建物層/網格層/label/底圖搬移/z8 擴展/分類重組）
+- S3 deploy-assets 上傳：buildings_3d_taiwan.pmtiles (185.5MB, z8-16) + urban_form_grid_500m.pmtiles (15.2MB)
