@@ -14,6 +14,18 @@ function layerId(config: OverlayConfig, suffix: string) {
   return `${config.sourceId}-${suffix}`;
 }
 
+/**
+ * 解出 spec.filter 的當下值：函式形式（buildingsGba 高度門檻篩選首用）要餵目前 params 求值，
+ * 純陣列形式直接回傳。filter 不像 paint 有 setFilter 式 diff API 可用 → 只能靠
+ * rebuildOnParamChange 整層 remove/addLayer 帶新值重建（見 updateOverlayTheme）。
+ */
+function resolveFilter(
+  spec: OverlayConfig["layers"][number],
+  params?: Record<string, number>,
+): unknown[] | undefined {
+  return typeof spec.filter === "function" ? spec.filter(params) : spec.filter;
+}
+
 // 每個 map instance 一份「上次套用的 paint 快照」（layer id → serialized paint）。
 // style 切換時 layer 會被清掉重建，addOverlay 會重設對應快照，所以不會殘留髒值。
 const paintCacheByMap = new WeakMap<MapboxMap, Map<string, SerializedPaint>>();
@@ -81,6 +93,7 @@ export function addOverlay(
     if (map.getLayer(id)) continue;
 
     const paint = spec.paint(isDark, params);
+    const filter = resolveFilter(spec, params);
     map.addLayer({
       id,
       type: spec.type as "line",  // TS union trick
@@ -91,10 +104,11 @@ export function addOverlay(
           ? { layout: typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout }
           : {}),
       ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
-      ...(spec.filter ? { filter: spec.filter } : config.filter ? { filter: config.filter } : {}),
+      ...(filter ? { filter } : config.filter ? { filter: config.filter } : {}),
       paint: paint as Record<string, unknown>,
     } as mapboxgl.AnyLayer);
-    cache.set(id, snapshotPaint(paint));
+    // __filter 併入快照僅供 rebuild 變更偵測比對用，不會送進 mapbox（見下方 updateOverlayTheme）
+    cache.set(id, snapshotPaint({ ...paint, ...(filter ? { __filter: filter } : {}) }));
   }
 }
 
@@ -117,10 +131,12 @@ export function updateOverlayTheme(
     for (const spec of config.layers) {
       if (!config.rebuildOnParamChange.includes(spec.suffix)) continue;
       const id = layerId(config, spec.suffix);
-      // 把 paint + (callback) layout 一起 snapshot；callback layout 變化也需 trigger rebuild
+      // 把 paint + (callback) layout + (函式) filter 一起 snapshot；三者任一變化都需 trigger rebuild
+      // （filter 併入 __filter 合成 key 僅供比對，不是真的 mapbox paint property）
       const paintObj = spec.paint(isDark, params);
       const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : (spec.layout ?? {});
-      const snapshot = snapshotPaint({ ...paintObj, ...layoutObj });
+      const filterObj = resolveFilter(spec, params);
+      const snapshot = snapshotPaint({ ...paintObj, ...layoutObj, ...(filterObj ? { __filter: filterObj } : {}) });
       nextSnapshots.set(id, snapshot);
       if (!map.getLayer(id) || !paintSnapshotEquals(cache.get(id), snapshot)) {
         needRebuild = true;
@@ -143,6 +159,7 @@ export function updateOverlayTheme(
         if (map.getLayer(id)) continue;
         const paint = spec.paint(isDark, params);
         const layoutObj = typeof spec.layout === "function" ? spec.layout(isDark, params) : spec.layout;
+        const filter = resolveFilter(spec, params);
         map.addLayer({
           id,
           type: spec.type as "line",
@@ -150,7 +167,7 @@ export function updateOverlayTheme(
           ...(config.pmtiles?.sourceLayer ? { "source-layer": config.pmtiles.sourceLayer } : {}),
           ...(layoutObj ? { layout: layoutObj } : {}),
           ...(spec.minzoom != null ? { minzoom: spec.minzoom } : {}),
-          ...(spec.filter ? { filter: spec.filter } : config.filter ? { filter: config.filter } : {}),
+          ...(filter ? { filter } : config.filter ? { filter: config.filter } : {}),
           paint: paint as Record<string, unknown>,
         } as mapboxgl.AnyLayer);
         cache.set(id, nextSnapshots.get(id) ?? snapshotPaint(paint));

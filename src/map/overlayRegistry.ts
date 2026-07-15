@@ -36,6 +36,7 @@ import {
   streetTreeNationalSpeciesColorExpr, streetTreeNationalCityColorExpr, STREET_TREE_NATIONAL_CITIES,
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
+import { buildingHeightColorExpr, buildingSrcColorExpr } from "../data/buildingsGbaTypes";
 
 const BASE_RADIUS = 5;
 
@@ -3279,6 +3280,53 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "line-color": treePitTypeColorExpr(),
             "line-width": 0.5,
             "line-opacity": pitType ? ["case", ["==", ["get", "pit_type"], pitType], lineOp, 0] : lineOp,
+          };
+        },
+      },
+    ],
+  },
+  // GBA 全台 3D 建物輪廓（vector PMTiles，152 萬棟本島，z13-16；height 100% 有值 float，
+  // src=osm 為 OSM 志願者繪製、其餘為 GBA AI 推估；CC BY-NC 4.0，署名見 LegendPanel）：
+  // 三種顯示模式 modeIdx 0=高度 6 級分級（fill）1=資料來源二色（fill）2=3D 立體（fill-extrusion，
+  // 沿用高度色階）。suffix fill/extrusion 兩層永遠都在，靠 paint 把非當前模式那層的 opacity
+  // 壓成 0（純 JS 常數，非 data-driven，fill-extrusion-opacity 合法）── 不用 layout.visibility
+  // 切換，因為 rebuildOnParamChange 的 wasHidden 還原邏輯是整組 suffix 共用同一顆布林值，
+  // 若靠 visibility 做「模式互斥顯示」會被誤判成使用者關閉整層而遭覆寫（見 overlayManager.ts）。
+  // 高度門檻篩選：兩 suffix 共用 filter [">=",["get","height"],min]（函式形式，見
+  // OverlayLayerSpec.filter），不能走 opacity 歸零法，因 fill-extrusion-opacity 不支援
+  // data-driven 表達式；filter 靠 rebuildOnParamChange 整層重建才能把新門檻值烤進去。
+  {
+    id: "buildingsGba",
+    sourceUrl: "./urban/buildings_3d_taiwan.pmtiles",
+    sourceId: "buildings-gba",
+    pmtiles: { sourceLayer: "buildings", minzoom: 13, maxzoom: 16 },
+    rebuildOnParamChange: ["fill", "extrusion"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
+        paint: (_isDark, p) => {
+          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D（此層在 3D 模式壓 0 隱藏）
+          const opacity = modeIdx === 2 ? 0 : (p?.buildingsGbaOpacity ?? 0.75);
+          return {
+            "fill-color": modeIdx === 1 ? buildingSrcColorExpr() : buildingHeightColorExpr(),
+            "fill-opacity": opacity,
+          };
+        },
+      },
+      {
+        suffix: "extrusion",
+        type: "fill-extrusion",
+        filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
+        paint: (_isDark, p) => {
+          const modeIdx = p?.buildingsGbaModeIdx ?? 0;
+          const opacity = modeIdx === 2 ? (p?.buildingsGbaOpacity ?? 0.75) : 0; // 非 3D 模式壓 0 隱藏
+          return {
+            "fill-extrusion-color": buildingHeightColorExpr(),
+            "fill-extrusion-height": ["coalesce", ["get", "height"], 3],
+            "fill-extrusion-base": 0,
+            "fill-extrusion-opacity": opacity,
           };
         },
       },

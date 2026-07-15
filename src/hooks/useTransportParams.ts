@@ -18,6 +18,7 @@ import {
   STREET_TREE_3EPOCH_TRAJ_FILTERS,
   STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
+import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 
 export interface SliderConfig {
   type?: "slider";
@@ -211,6 +212,10 @@ export function useTransportParams() {
   // 台北人行道樹穴（pit_type 樹穴/花圃二色 fill + 類型篩選）
   const [treePitsTaipeiOpacity, setTreePitsTaipeiOpacity] = useState(0.55);
   const [treePitsTaipeiType, setTreePitsTaipeiType] = useState<string>("all"); // all / 樹穴 / 花圃
+  // GBA 全台建物輪廓（0=高度分級 1=資料來源 2=3D 立體；高度門檻篩選 + 透明度）
+  const [buildingsGbaModeIdx, setBuildingsGbaModeIdx] = useState(0);
+  const [buildingsGbaMinHeight, setBuildingsGbaMinHeight] = useState(0);
+  const [buildingsGbaOpacity, setBuildingsGbaOpacity] = useState(0.75);
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
   const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
   const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
@@ -901,6 +906,7 @@ export function useTransportParams() {
     streetTreesNationalCityIdx: ["all", ...STREET_TREE_NATIONAL_CITIES.map((c) => c.value)].indexOf(streetTreesNationalCity),
     treePitsTaipeiOpacity,
     treePitsTaipeiTypeIdx: ["all", ...TREE_PIT_TYPES.map((t) => t.name)].indexOf(treePitsTaipeiType),
+    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity,
     crimeAreaMonthlyOpacity,
     theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
@@ -1245,6 +1251,7 @@ export function useTransportParams() {
     streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius, streetTreesTaipei3epochColorMode, streetTreesTaipei3epochTrajFilter,
     streetTreesNationalOpacity, streetTreesNationalRadius, streetTreesNationalColorMode, streetTreesNationalCity,
     treePitsTaipeiOpacity, treePitsTaipeiType,
+    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -2336,6 +2343,11 @@ export function useTransportParams() {
       case "treePitsTaipei": return [
         { type: "select" as const, label: "類型", value: treePitsTaipeiType, options: [{ label: "全部", value: "all" }, ...TREE_PIT_TYPES.map((t) => ({ label: t.name, value: t.name }))], onChange: setTreePitsTaipeiType },
         { label: `填色透明度 ${treePitsTaipeiOpacity.toFixed(2)}`, value: treePitsTaipeiOpacity, min: 0, max: 0.85, step: 0.05, onChange: setTreePitsTaipeiOpacity },
+      ];
+      case "buildingsGba": return [
+        { type: "select" as const, label: "顯示模式", value: String(buildingsGbaModeIdx), options: [...BUILDINGS_GBA_MODES], onChange: (v: string) => setBuildingsGbaModeIdx(parseInt(v, 10)) },
+        { label: `高度門檻 ≥ ${buildingsGbaMinHeight} m`, value: buildingsGbaMinHeight, min: 0, max: 100, step: 5, onChange: setBuildingsGbaMinHeight },
+        { label: `透明度 ${buildingsGbaOpacity.toFixed(2)}`, value: buildingsGbaOpacity, min: 0, max: 1, step: 0.05, onChange: setBuildingsGbaOpacity },
       ];
       case "crimeAreaMonthly": return [
         { label: `填色透明度 ${crimeAreaMonthlyOpacity.toFixed(2)}`, value: crimeAreaMonthlyOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setCrimeAreaMonthlyOpacity },

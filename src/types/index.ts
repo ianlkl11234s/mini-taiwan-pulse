@@ -116,6 +116,7 @@ export type ExpandableLayerKey =
   | "protectedTreesNational" | "riversideTreesTaipei" | "parksTaipei"
   | "streetTreesTaipei3epoch"
   | "streetTreesNational" | "treePitsTaipei"
+  | "buildingsGba"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   | "youbikeFullness"
@@ -587,8 +588,13 @@ export interface OverlayLayerSpec {
   layout?: Record<string, unknown> | ((isDark: boolean, params?: Record<string, number>) => Record<string, unknown>);
   paint: (isDark: boolean, params?: Record<string, number>) => Record<string, unknown>;
   minzoom?: number;
-  /** 同 sourceId 多 layer 各自 sub-filter（疊在 OverlayConfig.filter 之上 → all 串接） */
-  filter?: unknown[];
+  /**
+   * 同 sourceId 多 layer 各自 sub-filter（疊在 OverlayConfig.filter 之上 → all 串接）。
+   * 函式形式：供 rebuildOnParamChange 場景把即時 params（如 slider 門檻值）烤進 filter
+   * literal（buildingsGba 高度門檻篩選首用；filter 不支援 setFilter 式 diff，只能靠 rebuild
+   * 帶新值重新 addLayer）。
+   */
+  filter?: unknown[] | ((params?: Record<string, number>) => unknown[]);
 }
 
 export interface OverlayConfig {
@@ -638,6 +644,7 @@ export interface FeatureInfo {
     | "protectedTreesNational" | "riversideTreesTaipei" | "parksTaipei"
     | "streetTreesTaipei3epoch"
     | "streetTreesNational" | "treePitsTaipei"
+    | "buildingsGba"
     | "sportsVenue"
     | "medicalPOI"
     | "medicalIsochrone"
@@ -817,6 +824,7 @@ export interface LayerVisibility {
   streetTreesTaipei3epoch: boolean; // 台北行道樹三時點 2022/2024/2026 軌跡（PMTiles，105,675 點；traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
   streetTreesNational: boolean;   // 行道樹全國分佈（PMTiles，210,436 點：台北+台中；樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
+  buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles，152 萬棟；height 6 級/來源二色/3D 立體三模式 + 高度門檻篩選，CC BY-NC 4.0）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

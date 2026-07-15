@@ -33,6 +33,9 @@ import {
   STREET_TREE_3EPOCH_TRAJ, CANOPY_HEIGHT_RAMP,
   STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
+import {
+  BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION,
+} from "../data/buildingsGbaTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -207,6 +210,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["streetTreesTaipei3epoch"], render: ({ overlayParams }) => <StreetTrees3epochLegend colorModeIdx={overlayParams.streetTreesTaipei3epochColorModeIdx ?? 0} /> },
   { keys: ["streetTreesNational"], render: ({ overlayParams }) => <StreetTreesNationalLegend colorModeIdx={overlayParams.streetTreesNationalColorModeIdx ?? 0} /> },
   { keys: ["treePitsTaipei"], render: () => <TreePitsTaipeiLegend /> },
+  { keys: ["buildingsGba"], render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
@@ -894,6 +898,29 @@ function TreePitsTaipeiLegend() {
   );
 }
 
+// GBA 建物輪廓圖例：依顯示模式（0=高度分級 1=資料來源 2=3D 立體沿用高度色階）切換內容 + 必掛署名。
+function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  const subhead = modeIdx === 1 ? "資料來源 SOURCE" : "高度 HEIGHT";
+  const rows = modeIdx === 1
+    ? BUILDING_SRC_LABELS.map((s) => ({ color: s.color, label: s.label }))
+    : BUILDING_HEIGHT_BANDS.map((b) => ({ color: b.color, label: b.label }));
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        建物輪廓 BUILDINGS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        {BUILDINGS_GBA_ATTRIBUTION}
+      </div>
+    </div>
+  );
+}
+
 // 樹冠高度圖例：綠色漸層條 0m → 30m+（色帶與 raster PNG 預烤 colormap 一致）。
 function CanopyHeightLegend() {
   const t = useLegendTheme();
@@ -909,6 +936,9 @@ function CanopyHeightLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
         Meta/WRI 2020 · 10m 解析度
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        © Meta & WRI · Tolan et al. 2024 · CC-BY 4.0
       </div>
     </div>
   );
