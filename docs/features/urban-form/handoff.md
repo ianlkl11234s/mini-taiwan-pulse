@@ -41,11 +41,13 @@
 ## buildingsGba：上游 handoff 摘要
 
 - 產物路徑：`taipei-gis-analytics/data/processed/urban_composite/buildings_3d_gba/buildings_3d_taiwan.pmtiles`
-  （複製進本 repo `public/urban/buildings_3d_taiwan.pmtiles`，139.8MB，**不進 git**，走 S3 deploy-assets）
+  （複製進本 repo `public/urban/buildings_3d_taiwan.pmtiles`，185.5MB，**不進 git**，走 S3 deploy-assets）
 - 更新頻率：`lifecycle: yearly`（見上游 `_manifest.json`）
 - 座標系統：WGS84
 - 資料量：152 萬棟本島（**不含外島**：澎湖/金馬未涵蓋，上游待補）
-- source-layer：`buildings`；vector PMTiles z13–16
+- source-layer：`buildings`；vector PMTiles z8–16（2026-07-15 自 z13–16 重切：z13–16 逐棟原值
+  磚 MD5 不變；z8–12 為 tiny-polygon 合併近似，僅供建成區紋理，extrusion sublayer 鎖 minzoom 13，
+  3D 模式 z<13 由 fill 以 zoom step 表達式平面後備）
 
 ## buildingsGba：前端接線位置
 

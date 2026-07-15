@@ -3286,7 +3286,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
-  // GBA 全台 3D 建物輪廓（vector PMTiles，152 萬棟本島，z13-16；height 100% 有值 float，
+  // GBA 全台 3D 建物輪廓（vector PMTiles，152 萬棟本島，z8-16；z13-16 逐棟原值、
+  // z8-12 為 tippecanoe tiny-polygon 合併近似（只當建成區紋理，不可逐棟分析，extrusion
+  // 因此 minzoom 鎖 13）；height 100% 有值 float，
   // src=osm 為 OSM 志願者繪製、其餘為 GBA AI 推估；CC BY-NC 4.0，署名見 LegendPanel）：
   // 三種顯示模式 modeIdx 0=高度 6 級分級（fill）1=資料來源二色（fill）2=3D 立體（fill-extrusion，
   // 沿用高度色階）。suffix fill/extrusion 兩層永遠都在，靠 paint 把非當前模式那層的 opacity
@@ -3300,7 +3302,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "buildingsGba",
     sourceUrl: "./urban/buildings_3d_taiwan.pmtiles",
     sourceId: "buildings-gba",
-    pmtiles: { sourceLayer: "buildings", minzoom: 13, maxzoom: 16 },
+    pmtiles: { sourceLayer: "buildings", minzoom: 8, maxzoom: 16 },
     rebuildOnParamChange: ["fill", "extrusion"],
     layers: [
       {
@@ -3308,17 +3310,20 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "fill",
         filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
         paint: (_isDark, p) => {
-          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D（此層在 3D 模式壓 0 隱藏）
-          const opacity = modeIdx === 2 ? 0 : (p?.buildingsGbaOpacity ?? 0.75);
+          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D
+          const op = p?.buildingsGbaOpacity ?? 0.75;
           return {
             "fill-color": modeIdx === 1 ? buildingSrcColorExpr() : buildingHeightColorExpr(),
-            "fill-opacity": opacity,
+            // 3D 模式：z<13 extrusion 不存在（minzoom 鎖 13），fill 用 zoom step 當平面後備；
+            // z13+ 壓 0 交棒給 extrusion（zoom 表達式合法，非 data-driven）
+            "fill-opacity": modeIdx === 2 ? ["step", ["zoom"], op, 13, 0] : op,
           };
         },
       },
       {
         suffix: "extrusion",
         type: "fill-extrusion",
+        minzoom: 13,
         filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
         paint: (_isDark, p) => {
           const modeIdx = p?.buildingsGbaModeIdx ?? 0;

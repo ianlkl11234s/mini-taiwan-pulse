@@ -35,3 +35,8 @@
 - 架構調整：`OverlayLayerSpec.filter` 擴充為可函式化（供 rebuildOnParamChange 把即時 params 烤進 filter literal）
 - Breaking：無（純新增；`overlayManager.ts` 的 filter 解析為向下相容擴充，既有 layer 行為不變，
   overlayManager.test.ts 18 項測試維持全綠）
+
+## 2026-07-15（晚）zoom 範圍擴展 + 分區搬移
+- 建物 PMTiles 上游重切 z13–16 → z8–16（z13+ 磚 MD5 不變；z8–12 tiny-polygon 合併紋理），檔案 139.8MB → 185.5MB
+- overlayRegistry：pmtiles minzoom 13→8；extrusion sublayer 鎖 minzoom 13；3D 模式 z<13 fill zoom-step 平面後備
+- 建物輪廓自「都市開放空間」移至「底圖 Base Map → 建成環境」（用戶回饋：靜態環境脈絡屬底圖性質）
