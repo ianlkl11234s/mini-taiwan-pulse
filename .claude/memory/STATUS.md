@@ -1,12 +1,27 @@
 # Status
 
-**最後更新**：2026-07-10（Batch 1+2+3 即時圖層：急診 / 台灣好行 / 路況 / 停車）
-**mini-taiwan-pulse head**：`feat/parking`（stack 鏈 er-hospital→road-congestion→parking；含急診/好行/路況/停車，**未 push**）
+**最後更新**：2026-07-15（都市樹木圖層批次 7 層，排程 06:10 autonomous run）
+**mini-taiwan-pulse head**：`feat/tree-layers`（7 樹木圖層接線完成 + browser 驗收 7/7 PASS，**未 push、待開 PR**）
 **gis-platform head**：`main`（+ migration 283/284/285/286/287/**288** **已 apply production**）
-**taipei-gis-analytics head**：`feat/aquaculture-pmtiles`（+ tourist_shuttle 08 + road congestion 06 script）
+**taipei-gis-analytics head**：`feat/aquaculture-pmtiles`（+ tourist_shuttle 08 + road congestion 06 script + **docs/handoff/tree-layers.md 未 commit**）
 **data-collectors head**：**+ parking_ref.py collector**（灌 spatial.parking_*_ref，enabled=false 月更手動）
 
 > ⚠️ 另有 `feat/aquaculture-layers`（養殖漁業 3 圖層，commit `7946a59` 本地暫存未 push）平行未 merge。
+
+## 本 session 完成（2026-07-15）— 都市樹木圖層批次（7 層，autonomous 06:10 排程）
+
+用戶睡前設定 06:10 chain loop 排程，指定 Fable 5 當總指揮（解讀規格→分派 subagent→調節共用檔衝突→驗收）。規格書：`taipei-gis-analytics/docs/topic-research/street_tree_removal/tree-layers-prompt.md`（8 層，#2 diff 已上線跳過）。branch `feat/tree-layers`，feature 文件 `docs/features/tree-layers/`。
+
+### 7 個新圖層（都市開放空間 ×6 + 林業分區 ×1，全預設關）
+- **Batch A geojson**：protectedTreesNational（6,544，樹齡 5 級+城市模式，半徑∝dbh）/ riversideTreesTaipei（10,917，樹種 top-10，30 河濱公園篩選）/ parksTaipei（2,917，category 7 類，半徑∝面積 log）
+- **Batch B**：streetTreesTaipei3epoch（105,675，PMTiles z5-14，traj 7 色 4 染色模式，popup 三格軌跡 badge）/ canopyHeight（**raster PNG PMTiles** z7-12，mapbox-pmtiles 原生支援 raster，overlayManager 只改 sourceLayer optional）
+- **Batch C**（tippecanoe 新轉檔）：streetTreesNational（210,436 全國台北+台中，z5-11 1MB/磚 cap 抽稀、z13+ 全量；城市篩選+4 染色模式）/ treePitsTaipei（56,720 面 z11-16 無損，樹穴綠/花圃黃）
+- 新增 `src/data/urbanOpenSpaceTypes.ts` 色票 SSOT；胸徑/樹高分級照抄 streetTreeColors 跨層可比
+- **接線接觸點實測 11 處**（第 11 處：`upstreamRegistry.ts` exhaustive Record，tsc 強制）
+- 驗收：tsc 0 錯 / 190 tests 全綠 / agent-browser 逐層 7/7 PASS（All Off 後單層開、popup/圖例/controls/篩選全驗、台中點位實證、canopy raster 206）
+- **編排心得**：PMTiles/geojson 層無 loader/hook（全走 overlayRegistry），共用檔為主 → subagent 平行寫檔必衝突，改「循序 worker（每批唯一寫檔者）+ 主 agent 批間 gate 驗收」
+- 待辦：TL-1 S3 deploy-assets 上傳 7 資料檔（>2MB 不進 git）、TL-2 上游 data-catalog 補條目、上游 handoff `tree-layers.md` 已寫未 commit（在 analytics repo，避免污染其 aquaculture branch，待用戶拍板）
+- 非阻擋觀察：城市篩選 opacity 歸零法理論上隱形點仍可點擊（沿用既有慣例）；canopy tile 256px 但 mapbox-pmtiles 寫死 512 顯示略軟（TL-4）
 
 ## 本 session 完成（2026-07-10）— Batch 3 停車（hybrid v1，接 Batch 2 後）
 

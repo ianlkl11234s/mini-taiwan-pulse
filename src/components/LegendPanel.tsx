@@ -26,6 +26,13 @@ import {
   STREET_TREE_SPECIES, STREET_TREE_OTHER_COLOR,
   STREET_TREE_DIAMETER_BANDS, STREET_TREE_HEIGHT_BANDS,
 } from "../data/streetTreeColors";
+import {
+  PROTECTED_TREE_AGE_BANDS, PROTECTED_TREE_CITIES,
+  RIVERSIDE_TREE_SPECIES, RIVERSIDE_TREE_OTHER_COLOR,
+  TAIPEI_PARK_CATEGORIES, URBAN_MISSING_COLOR,
+  STREET_TREE_3EPOCH_TRAJ, CANOPY_HEIGHT_RAMP,
+  STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
+} from "../data/urbanOpenSpaceTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -194,6 +201,13 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet", "aquacultureWaterSatellite"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
   { keys: ["aquacultureIntegrated"], render: () => <AquacultureIntegratedLegend /> },
   { keys: ["streetTreesTaipeiDiff"], render: ({ overlayParams }) => <StreetTreesTaipeiDiffLegend colorModeIdx={overlayParams.streetTreesTaipeiDiffColorModeIdx ?? 0} /> },
+  { keys: ["protectedTreesNational"], render: ({ overlayParams }) => <ProtectedTreesNationalLegend colorModeIdx={overlayParams.protectedTreesNationalColorModeIdx ?? 0} /> },
+  { keys: ["riversideTreesTaipei"], render: () => <RiversideTreesTaipeiLegend /> },
+  { keys: ["parksTaipei"], render: () => <ParksTaipeiLegend /> },
+  { keys: ["streetTreesTaipei3epoch"], render: ({ overlayParams }) => <StreetTrees3epochLegend colorModeIdx={overlayParams.streetTreesTaipei3epochColorModeIdx ?? 0} /> },
+  { keys: ["streetTreesNational"], render: ({ overlayParams }) => <StreetTreesNationalLegend colorModeIdx={overlayParams.streetTreesNationalColorModeIdx ?? 0} /> },
+  { keys: ["treePitsTaipei"], render: () => <TreePitsTaipeiLegend /> },
+  { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
@@ -729,6 +743,190 @@ function StreetTreesTaipeiDiffLegend({ colorModeIdx = 0 }: { colorModeIdx?: numb
         {rows.map((it) => dotRow(it.color, it.label))}
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
           半透明點 = 疑似重編號（非真消失/新增）
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 都市開放空間三層共用：一列圓點色塊 + 標籤（色票 SSOT = src/data/urbanOpenSpaceTypes.ts）
+function UrbanDotRow({ color, label }: { color: string; label: string }) {
+  const t = useLegendTheme();
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+      <div
+        style={{
+          width: 10, height: 10, borderRadius: RADIUS.full, background: color,
+          opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+          boxSizing: "border-box", flexShrink: 0,
+        }}
+      />
+      <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{label}</span>
+    </div>
+  );
+}
+
+// 受保護樹木圖例：依染色模式（0=樹齡 5 級冷→暖 1=城市 8 色）切換顯示內容。
+function ProtectedTreesNationalLegend({ colorModeIdx = 0 }: { colorModeIdx?: number }) {
+  const t = useLegendTheme();
+  const rows = colorModeIdx === 1
+    ? PROTECTED_TREE_CITIES.map((c) => ({ color: c.color, label: c.name }))
+    : [
+        ...PROTECTED_TREE_AGE_BANDS.map((b) => ({ color: b.color, label: b.label })),
+        { color: URBAN_MISSING_COLOR, label: "樹齡未知" },
+      ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        受保護樹木 PROTECTED TREES
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        {colorModeIdx === 1 ? "城市 CITY" : "推估樹齡 AGE"}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+          點大小 ∝ 胸徑 dbh
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 河濱喬木圖例：樹種前 10 大 + 其他灰。
+function RiversideTreesTaipeiLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        河濱喬木 RIVERSIDE TREES
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>樹種 SPECIES（前 10 大）</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {RIVERSIDE_TREE_SPECIES.map((s) => <UrbanDotRow key={s.name} color={s.color} label={s.name} />)}
+        <UrbanDotRow color={RIVERSIDE_TREE_OTHER_COLOR} label="其他 Other" />
+      </div>
+    </div>
+  );
+}
+
+// 行道樹三時點圖例：依染色模式（0=軌跡 7 類 1=樹種 2=胸徑 3=樹高）切換顯示內容。
+// 軌跡色票 SSOT = urbanOpenSpaceTypes.ts；樹種/胸徑/樹高沿用 streetTreeColors.ts（跨層視覺可比）。
+function StreetTrees3epochLegend({ colorModeIdx = 0 }: { colorModeIdx?: number }) {
+  const t = useLegendTheme();
+  let subhead = "軌跡 TRAJECTORY（2022/2024/2026）";
+  let rows: { color: string; label: string }[];
+  if (colorModeIdx === 1) {
+    subhead = "樹種 SPECIES（前 10 大）";
+    rows = [
+      ...STREET_TREE_SPECIES.map((s) => ({ color: s.color, label: s.name })),
+      { color: STREET_TREE_OTHER_COLOR, label: "其他 Other" },
+    ];
+  } else if (colorModeIdx === 2) {
+    subhead = "胸徑 DIAMETER (cm)";
+    rows = STREET_TREE_DIAMETER_BANDS.map((b) => ({ color: b.color, label: b.label }));
+  } else if (colorModeIdx === 3) {
+    subhead = "樹高 HEIGHT (m)";
+    rows = STREET_TREE_HEIGHT_BANDS.map((b) => ({ color: b.color, label: b.label }));
+  } else {
+    rows = STREET_TREE_3EPOCH_TRAJ.map((c) => ({ color: c.color, label: `${c.label} (${c.code})` }));
+  }
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        行道樹三時點 STREET TREE 3-EPOCH
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
+      </div>
+    </div>
+  );
+}
+
+// 行道樹全國圖例：依染色模式（0=樹種前 10 大 1=胸徑 2=樹高 3=城市二色）切換顯示內容。
+// 樹種/城市色票 SSOT = urbanOpenSpaceTypes.ts；胸徑/樹高沿用 streetTreeColors.ts（跨層視覺可比）。
+function StreetTreesNationalLegend({ colorModeIdx = 0 }: { colorModeIdx?: number }) {
+  const t = useLegendTheme();
+  let subhead = "樹種 SPECIES（前 10 大）";
+  let rows: { color: string; label: string }[];
+  if (colorModeIdx === 1) {
+    subhead = "胸徑 DIAMETER (cm)";
+    rows = STREET_TREE_DIAMETER_BANDS.map((b) => ({ color: b.color, label: b.label }));
+  } else if (colorModeIdx === 2) {
+    subhead = "樹高 HEIGHT (m)";
+    rows = STREET_TREE_HEIGHT_BANDS.map((b) => ({ color: b.color, label: b.label }));
+  } else if (colorModeIdx === 3) {
+    subhead = "城市 CITY";
+    rows = STREET_TREE_NATIONAL_CITIES.map((c) => ({ color: c.color, label: c.label }));
+  } else {
+    rows = [
+      ...STREET_TREE_NATIONAL_SPECIES.map((s) => ({ color: s.color, label: s.label })),
+      { color: STREET_TREE_OTHER_COLOR, label: "其他 Other" },
+    ];
+  }
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        行道樹全國 STREET TREES TW
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
+      </div>
+    </div>
+  );
+}
+
+// 人行道樹穴圖例：pit_type 二色（樹穴綠 / 花圃黃）。
+function TreePitsTaipeiLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        人行道樹穴 TREE PITS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類型 TYPE</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {TREE_PIT_TYPES.map((p) => <UrbanDotRow key={p.name} color={p.color} label={p.name} />)}
+      </div>
+    </div>
+  );
+}
+
+// 樹冠高度圖例：綠色漸層條 0m → 30m+（色帶與 raster PNG 預烤 colormap 一致）。
+function CanopyHeightLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        樹冠高度 CANOPY HEIGHT
+      </div>
+      <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${CANOPY_HEIGHT_RAMP.join(", ")})` }} />
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2 }}>
+        <span>0 m</span>
+        <span>30 m+</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        Meta/WRI 2020 · 10m 解析度
+      </div>
+    </div>
+  );
+}
+
+// 台北公園圖例：category 7 類。
+function ParksTaipeiLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        公園 PARKS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>分類 CATEGORY</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {TAIPEI_PARK_CATEGORIES.map((c) => <UrbanDotRow key={c.name} color={c.color} label={c.name} />)}
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+          點大小 ∝ 面積（log）
         </div>
       </div>
     </div>
