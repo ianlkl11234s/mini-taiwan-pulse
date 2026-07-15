@@ -549,7 +549,7 @@ export const THEMES: ThemeDef[] = [
           { key: "parksTaipei", label: "公園 Parks", expandable: true },
           { key: "treePitsTaipei", label: "人行道樹穴 Tree Pits", expandable: true },
           { key: "buildingsGba", label: "建物輪廓 Buildings", expandable: true },
-          { key: "urbanFormGrid", label: "都市紋理網格", expandable: true },
+          { key: "urbanFormGrid", label: "都市紋理網格 Urban Form", expandable: true },
         ],
       },
     ],
