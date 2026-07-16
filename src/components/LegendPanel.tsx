@@ -44,6 +44,7 @@ import {
 import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
 } from "../data/urbanFormGridTypes";
+import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -220,6 +221,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["treePitsTaipei"], render: () => <TreePitsTaipeiLegend /> },
   { keys: ["buildingsGba"], render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
   { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
+  { keys: ["urbanZoningTaipei", "urbanZoningNewTaipei"], render: () => <UrbanZoningLegend /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["culturalFacilities"], render: () => <CulturalFacilitiesLegend /> },
@@ -958,6 +960,22 @@ function UrbanFormGridLegend({ modeIdx = 5 }: { modeIdx?: number }) {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
         {URBAN_FORM_GRID_ATTRIBUTION_META}
+      </div>
+    </div>
+  );
+}
+
+// 土地使用分區圖例（北市 + 新北共用）：zone_category 9 類統一分色（色票 SSOT = urbanZoningTypes.ts）。
+function UrbanZoningLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        土地使用分區 ZONING
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>分類 CATEGORY</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {URBAN_ZONING_CATEGORIES.map((c) => <UrbanDotRow key={c.value} color={c.color} label={c.label} />)}
       </div>
     </div>
   );

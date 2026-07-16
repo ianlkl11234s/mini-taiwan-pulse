@@ -20,6 +20,7 @@ import {
 } from "../data/urbanOpenSpaceTypes";
 import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 import { URBAN_FORM_GRID_MODES } from "../data/urbanFormGridTypes";
+import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
 export interface SliderConfig {
@@ -233,6 +234,11 @@ export function useTransportParams() {
   // 都市紋理網格（0-5：棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數；預設 5=灰綠指數）
   const [urbanFormGridModeIdx, setUrbanFormGridModeIdx] = useState(5);
   const [urbanFormGridOpacity, setUrbanFormGridOpacity] = useState(0.55);
+  // 🗺️ 都市計畫土地使用分區（北市 + 新北）：category select（all / 9 類）+ 透明度
+  const [urbanZoningTaipeiOpacity, setUrbanZoningTaipeiOpacity] = useState(0.5);
+  const [urbanZoningTaipeiCategory, setUrbanZoningTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
+  const [urbanZoningNewTaipeiOpacity, setUrbanZoningNewTaipeiOpacity] = useState(0.5);
+  const [urbanZoningNewTaipeiCategory, setUrbanZoningNewTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
   const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
   const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
@@ -935,6 +941,11 @@ export function useTransportParams() {
     treePitsTaipeiTypeIdx: ["all", ...TREE_PIT_TYPES.map((t) => t.name)].indexOf(treePitsTaipeiType),
     buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity,
     urbanFormGridModeIdx, urbanFormGridOpacity,
+    // 🗺️ 土地使用分區：category select 編成 Idx 餵 filter（overlayParams 只收數字，0=全部 1..9 單類）
+    urbanZoningTaipeiOpacity,
+    urbanZoningTaipeiCategoryIdx: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)].indexOf(urbanZoningTaipeiCategory),
+    urbanZoningNewTaipeiOpacity,
+    urbanZoningNewTaipeiCategoryIdx: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)].indexOf(urbanZoningNewTaipeiCategory),
     crimeAreaMonthlyOpacity,
     theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
@@ -1286,6 +1297,8 @@ export function useTransportParams() {
     treePitsTaipeiOpacity, treePitsTaipeiType,
     buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity,
     urbanFormGridModeIdx, urbanFormGridOpacity,
+    urbanZoningTaipeiOpacity, urbanZoningTaipeiCategory,
+    urbanZoningNewTaipeiOpacity, urbanZoningNewTaipeiCategory,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -2408,6 +2421,14 @@ export function useTransportParams() {
       case "urbanFormGrid": return [
         { type: "select" as const, label: "顯示模式", value: String(urbanFormGridModeIdx), options: [...URBAN_FORM_GRID_MODES], onChange: (v: string) => setUrbanFormGridModeIdx(parseInt(v, 10)) },
         { label: `填色透明度 ${urbanFormGridOpacity.toFixed(2)}`, value: urbanFormGridOpacity, min: 0, max: 1, step: 0.05, onChange: setUrbanFormGridOpacity },
+      ];
+      case "urbanZoningTaipei": return [
+        { type: "select" as const, label: "分區", value: urbanZoningTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningTaipeiCategory },
+        { label: `填色透明度 ${urbanZoningTaipeiOpacity.toFixed(2)}`, value: urbanZoningTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setUrbanZoningTaipeiOpacity },
+      ];
+      case "urbanZoningNewTaipei": return [
+        { type: "select" as const, label: "分區", value: urbanZoningNewTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningNewTaipeiCategory },
+        { label: `填色透明度 ${urbanZoningNewTaipeiOpacity.toFixed(2)}`, value: urbanZoningNewTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setUrbanZoningNewTaipeiOpacity },
       ];
       case "crimeAreaMonthly": return [
         { label: `填色透明度 ${crimeAreaMonthlyOpacity.toFixed(2)}`, value: crimeAreaMonthlyOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setCrimeAreaMonthlyOpacity },

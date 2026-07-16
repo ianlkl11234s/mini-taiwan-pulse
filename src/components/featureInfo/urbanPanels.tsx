@@ -7,6 +7,7 @@ import {
 } from "../../data/urbanOpenSpaceTypes";
 import { buildingHeightBandColor } from "../../data/buildingsGbaTypes";
 import { GG_INDEX_BANDS, gridBandColor, URBAN_FORM_GRID_APPROX_NOTE } from "../../data/urbanFormGridTypes";
+import { urbanZoningCategoryLabel, urbanZoningCategoryColor } from "../../data/urbanZoningTypes";
 
 // 本檔 Title 為極簡本地版（同 fisheryPanels 慣例）：shared.tsx 未 export Title，故不去改動它。
 function Title({ color, children }: { color: string; children: string }) {
@@ -292,6 +293,29 @@ export function UrbanFormGridPanel({ props }: { props: Record<string, unknown> }
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ {URBAN_FORM_GRID_APPROX_NOTE}
       </div>
+      <SourceFooter props={props} />
+    </>
+  );
+}
+
+// ── 都市計畫土地使用分區（北市 15,518 + 新北 34,190 面；北市 / 新北兩 layerType 共用本 panel）──
+
+/**
+ * 土地使用分區：Title=zone_name 原始分區全名（色點依 zone_category）；
+ * Row：分類（中文 label）/ 簡稱 / 代碼 / 城市 / 計畫層級。
+ * zone_category 9 類色票 SSOT = urbanZoningTypes.ts（與 overlayRegistry / Legend 同源）。
+ */
+export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) {
+  const category = String(props.zone_category ?? "");
+  const color = urbanZoningCategoryColor(category);
+  return (
+    <>
+      <Title color={color}>{String(props.zone_name ?? "土地使用分區")}</Title>
+      <Row label="分類" value={urbanZoningCategoryLabel(category)} color={color} />
+      <Row label="簡稱" value={String(props.zone_short ?? "")} />
+      <Row label="代碼" value={String(props.zone_code ?? "")} />
+      <Row label="城市" value={String(props.city ?? "")} />
+      <Row label="計畫層級" value={String(props.plan_level ?? "")} />
       <SourceFooter props={props} />
     </>
   );
