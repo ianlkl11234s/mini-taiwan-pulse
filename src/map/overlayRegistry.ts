@@ -3392,7 +3392,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "culturalFacilities",
     sourceUrl: "./culture/cultural_facilities_national.geojson",
     sourceId: "culture-facilities",
-    rebuildOnParamChange: ["culturalFacilitiesOpacity", "culturalFacilitiesRadius", "culturalFacilitiesTypeIdx"],
+    // rebuildOnParamChange 收 layer suffix（同 buildingsGba），filter 變更才會整層重建
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle", type: "circle",
@@ -3421,7 +3422,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "culturalMuseums",
     sourceUrl: "./culture/local_cultural_museums_national.geojson",
     sourceId: "culture-museums",
-    rebuildOnParamChange: ["culturalMuseumsOpacity", "culturalMuseumsRadius", "culturalMuseumsTypeIdx"],
+    // rebuildOnParamChange 收 layer suffix（同 buildingsGba），filter 變更才會整層重建
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle", type: "circle",
@@ -3451,7 +3453,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "artsEvents",
     sourceUrl: "./culture/arts_events_national.geojson",
     sourceId: "culture-events",
-    rebuildOnParamChange: ["artsEventsOpacity", "artsEventsRadius", "artsEventsStatusIdx"],
+    // rebuildOnParamChange 收 layer suffix（同 buildingsGba），filter 變更才會整層重建
+    rebuildOnParamChange: ["circle"],
     layers: [
       {
         suffix: "circle", type: "circle",
