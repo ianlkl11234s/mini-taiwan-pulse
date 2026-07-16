@@ -169,6 +169,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   culturalMuseums: "#b5651d",
   artsEvents: "#4d9de0",
   performingVenues: "#7c4dff",
+  librarySeats: "#22c55e",
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -865,6 +866,12 @@ export const THEMES: ThemeDef[] = [
         layers: [
           { key: "artsEvents", label: "藝文活動 Arts Events", labelMobile: "藝文活動", expandable: true },
           { key: "performingVenues", label: "表演場館 Performing Venues", labelMobile: "表演場館", expandable: true },
+        ],
+      },
+      {
+        title: "即時 Realtime",
+        layers: [
+          { key: "librarySeats", label: "圖書館即時座位 Library Seats", labelMobile: "圖書館座位", expandable: true },
         ],
       },
     ],

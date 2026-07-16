@@ -41,6 +41,7 @@ import {
 import { SportsVenuePanel } from "./sportsPanels";
 import {
   CulturalFacilitiesPanel, CulturalMuseumsPanel, ArtsEventsPanel, PerformingVenuesPanel,
+  LibrarySeatsPanel,
 } from "./culturePanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
@@ -259,6 +260,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   culturalMuseums: CulturalMuseumsPanel,
   artsEvents: ArtsEventsPanel,
   performingVenues: PerformingVenuesPanel,
+  librarySeats: LibrarySeatsPanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -348,6 +350,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   culturalMuseums: "地方文化館",
   artsEvents: "藝文活動",
   performingVenues: "表演場館",
+  librarySeats: "圖書館座位",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
   erHospital: "急診壅塞",

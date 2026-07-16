@@ -36,6 +36,7 @@ import {
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
+  LIBRARY_SEATS_COLORS,
 } from "../data/cultureTypes";
 import {
   BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION,
@@ -225,6 +226,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["culturalMuseums"], render: () => <CulturalMuseumsLegend /> },
   { keys: ["artsEvents"], render: () => <ArtsEventsLegend /> },
   { keys: ["performingVenues"], render: () => <PerformingVenuesLegend /> },
+  { keys: ["librarySeats"], render: () => <LibrarySeatsLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
     keys: [
@@ -1088,6 +1090,28 @@ function PerformingVenuesLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
         點大小 ∝ √活動場次數
+      </div>
+    </div>
+  );
+}
+
+// 北市圖即時座位圖例：空位率漸層（紅=滿→黃→綠=空位多）+ 灰=休館中。
+function LibrarySeatsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市圖即時座位 LIBRARY SEATS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>空位率 FREE RATIO</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.empty} label="滿（無空位）" />
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.half} label="半滿" />
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.full} label="空位多" />
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.closed} label="休館中" />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        6 分館聚合 · 資料 10 分鐘更新
       </div>
     </div>
   );

@@ -4856,6 +4856,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 📚 北市圖即時座位 librarySeats（6 分館聚合，當下快照）──
+  // 顏色由 properties.free_ratio（空位率 0=滿→1=全空）interpolate；
+  // all_closed=1（全區休館）→ 灰。資料由 useLibrarySeatsLayer 從
+  // get_tpml_seat_current() branch 聚合後 setData（6 點 → 半徑固定偏大 + 白描邊）。
+  {
+    id: "librarySeats",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "library-seats",
+    dynamicData: true,
+    rebuildOnParamChange: ["librarySeatsOpacity"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.librarySeatsOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 8, 12, 14,
+            ],
+            "circle-color": [
+              "case",
+              ["==", ["get", "all_closed"], 1], "#6b7280",
+              [
+                "interpolate", ["linear"], ["get", "free_ratio"],
+                0, "#ef4444",
+                0.5, "#f59e0b",
+                1, "#22c55e",
+              ],
+            ],
+            "circle-opacity": o,
+            "circle-stroke-width": 1.6,
+            "circle-stroke-color": "#ffffff",
+          };
+        },
+      },
+    ],
+  },
+
   // ── 🅿️ 停車 路邊 parkingOnstreet（hybrid v1 當下快照）──
   // 一個 source 依 geometry-type 拆兩 render 層：
   //   fill（台北 Polygon）→ availability_rate=null → 中性藍灰依 total_spaces 表容量

@@ -63,3 +63,13 @@ export const ARTS_EVENT_UPCOMING_COLOR = "#4d9de0"; // 未開始（cool = 尚未
 // ── 🎭 表演場館 Performing Venues（全國 857 點）──
 // 單色；半徑 ∝ √event_count（1~101）。
 export const PERFORMING_VENUE_COLOR = "#7c4dff"; // vivid violet（表演 / 舞台）
+
+// ── 📚 北市圖即時座位 Library Seats（realtime，6 分館）──
+// 空位率漸層（0=滿→1=全空）+ 休館灰；overlayRegistry paint inline 同色，
+// panel header dot 與 LegendPanel 引用此處（單一真實來源）。
+export const LIBRARY_SEATS_COLORS = {
+  empty: "#ef4444",   // 空位率 0（滿）
+  half: "#f59e0b",    // 空位率 0.5
+  full: "#22c55e",    // 空位率 1（空位多）
+  closed: "#6b7280",  // 休館中（is_closed）
+} as const;

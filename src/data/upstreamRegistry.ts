@@ -552,6 +552,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   culturalMuseums: { status: 'verified', datasets: [{ datasetId: 'local_cultural_museums_moc', confidence: 'HIGH' }], note: '地方文化館全國 252 點（MOC，docs/data-catalog/culture/local_cultural_museums_moc.md）' },
   artsEvents: { status: 'verified', datasets: [{ datasetId: 'arts_events_moc', confidence: 'HIGH' }], note: '藝文活動全國 6,121 點（MOC，docs/data-catalog/culture/arts_events_moc.md）' },
   performingVenues: { status: 'verified', datasets: [{ datasetId: 'performing_venues_moc', confidence: 'HIGH' }], note: '表演場館全國 857 點（MOC，docs/data-catalog/culture/performing_venues_moc.md）' },
+  librarySeats: {
+    status: 'pulse_only',
+    datasets: [],
+    note: '北市圖 6 分館即時座位 RPC（get_tpml_seat_current / 24h，realtime）已 apply 到 production（gis-platform migration 290/291）；29 閱覽區聚合成 6 marker，10min 資料/5min 輪詢。catalog dataset 條目待補（handoff pending，見 taipei-gis-analytics/docs/handoff/culture-layers.md）',
+  },
   agriculture: {
     status: 'verified',
     datasets: [{ datasetId: 'ftw_fields', confidence: 'MED' }],
