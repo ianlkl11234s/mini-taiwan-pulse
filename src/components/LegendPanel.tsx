@@ -34,6 +34,11 @@ import {
   STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
 import {
+  CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
+  ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
+  LIBRARY_SEATS_COLORS,
+} from "../data/cultureTypes";
+import {
   BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION,
 } from "../data/buildingsGbaTypes";
 import {
@@ -217,6 +222,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
+  { keys: ["culturalFacilities"], render: () => <CulturalFacilitiesLegend /> },
+  { keys: ["culturalMuseums"], render: () => <CulturalMuseumsLegend /> },
+  { keys: ["artsEvents"], render: () => <ArtsEventsLegend /> },
+  { keys: ["performingVenues"], render: () => <PerformingVenuesLegend /> },
+  { keys: ["librarySeats"], render: () => <LibrarySeatsLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
     keys: [
@@ -1011,6 +1021,97 @@ function SportsVenueLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: "rgba(255,180,80,0.7)", marginTop: 2, lineHeight: 1.4 }}>
         ⚠️「不對外」場館半透明淡化
+      </div>
+    </div>
+  );
+}
+
+// 文化設施圖例：facility_type 6 類。
+function CulturalFacilitiesLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        文化設施 CULTURAL FACILITIES
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類型 TYPE</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {CULTURAL_FACILITY_TYPES.map((c) => <UrbanDotRow key={c.name} color={c.color} label={c.name} />)}
+      </div>
+    </div>
+  );
+}
+
+// 地方文化館圖例：type 5 類。
+function CulturalMuseumsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        地方文化館 LOCAL MUSEUMS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類型 TYPE</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {CULTURAL_MUSEUM_TYPES.map((c) => <UrbanDotRow key={c.name} color={c.color} label={c.name} />)}
+      </div>
+    </div>
+  );
+}
+
+// 藝文活動圖例：進行中 / 未開始 二色（by start_date ≤ 今日）。
+function ArtsEventsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        藝文活動 ARTS EVENTS
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <UrbanDotRow color={ARTS_EVENT_ONGOING_COLOR} label="進行中（已開始）" />
+        <UrbanDotRow color={ARTS_EVENT_UPCOMING_COLOR} label="未開始（尚未開始）" />
+      </div>
+    </div>
+  );
+}
+
+// 表演場館圖例：單色點 + 大小語意（∝ √活動場次數）。
+function PerformingVenuesLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        表演場館 PERFORMING VENUES
+      </div>
+      <UrbanDotRow color={PERFORMING_VENUE_COLOR} label="表演場館" />
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+        <div style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: PERFORMING_VENUE_COLOR, flexShrink: 0, border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box" }} />
+        <div style={{ width: 16, height: 16, borderRadius: RADIUS.full, background: PERFORMING_VENUE_COLOR, flexShrink: 0, border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>小 = 1 場次 · 大 = 100+ 場次</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        點大小 ∝ √活動場次數
+      </div>
+    </div>
+  );
+}
+
+// 北市圖即時座位圖例：空位率漸層（紅=滿→黃→綠=空位多）+ 灰=休館中。
+function LibrarySeatsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市圖即時座位 LIBRARY SEATS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>空位率 FREE RATIO</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.empty} label="滿（無空位）" />
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.half} label="半滿" />
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.full} label="空位多" />
+        <UrbanDotRow color={LIBRARY_SEATS_COLORS.closed} label="休館中" />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        6 分館聚合 · 資料 10 分鐘更新
       </div>
     </div>
   );

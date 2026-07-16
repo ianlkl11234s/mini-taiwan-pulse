@@ -165,6 +165,11 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   sportsPrivate: "#ef6c00",
   sportsPark: "#66bb6a",
   sportsCenter: "#ec407a",
+  culturalFacilities: "#ef8a3c",
+  culturalMuseums: "#b5651d",
+  artsEvents: "#4d9de0",
+  performingVenues: "#7c4dff",
+  librarySeats: "#22c55e",
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -528,6 +533,414 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🏠 ESTATE 房地產
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "房地產 Real Estate",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "租賃",
+        layers: [
+          { key: "realEstateRentalGrid", label: "租賃熱力圖 Rental Grid", expandable: true },
+          { key: "realEstateRentalPoint", label: "租賃交易點 Rental Point", expandable: true },
+        ],
+      },
+      {
+        title: "買賣",
+        layers: [
+          { key: "realEstateSaleGrid", label: "買賣熱力圖 Sale Grid", expandable: true },
+          { key: "realEstateSalePoint", label: "買賣交易點 Sale Point", expandable: true },
+        ],
+      },
+      {
+        title: "預售",
+        layers: [
+          { key: "realEstatePresaleGrid", label: "預售熱力圖 Presale Grid", expandable: true },
+          { key: "realEstatePresalePoint", label: "預售交易點 Presale Point", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🏗️ INFRA 基礎建設
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "基礎建設 Infrastructure",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "通訊",
+        layers: [
+          { key: "submarineCables", label: "通訊海纜 Submarine Cable", expandable: true },
+          { key: "landingStations", label: "海纜登陸站 Landing Station", expandable: true },
+        ],
+      },
+      {
+        title: "公共設施",
+        layers: [
+          { key: "schools", label: "學校 School", expandable: true },
+          { key: "convenienceStores", label: "超商 Convenience Store", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // ⚡ ENERGY 能源
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "能源 Energy",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "電力 · 廠",
+        layers: [
+          { key: "facPrimary", label: "發電廠 主要・運轉中 Primary", expandable: true },
+          { key: "facPlanned", label: "發電廠 未來規劃 Planned", expandable: true },
+          { key: "facHistorical", label: "發電廠 歷史・退役 Historical", expandable: true },
+          { key: "facSecondary", label: "發電廠 小型分散 Secondary", expandable: true },
+          { key: "facOsmSupplement", label: "發電廠 OSM 補充 Supplement", expandable: true },
+          { key: "powerGenerationUnit", label: "機組即時出力 Live Output", expandable: true },
+          { key: "powerPlantGlow", label: "發電廠 Bloom 測試 ✨", expandable: true },
+          { key: "aviationRestrictedGlow", label: "機場管制/限航 Rim Glow 測試 ⛔✨", expandable: true },
+        ],
+      },
+      {
+        title: "電力 · 電網",
+        layers: [
+          { key: "osmSubstationsEhv", label: "變電所 超高壓 EHV", expandable: true },
+          { key: "substationEhvGlow", label: "變電所 EHV Bloom 測試 ⚡✨", expandable: true },
+          { key: "osmSubstations", label: "變電所 區域 Substation", expandable: true },
+          { key: "osmPowerLines", label: "高壓輸電線 Power Lines", expandable: true },
+          { key: "powerLinesGlow", label: "高壓輸電線 Bloom 測試 ⚡✨", expandable: true },
+          { key: "osmPowerTowers", label: "高壓鐵塔 Power Towers", expandable: true },
+          { key: "powerPoles", label: "電桿 Power Poles (2.96M)", expandable: true },
+        ],
+      },
+      {
+        title: "再生能源",
+        layers: [
+          { key: "offshoreWindZones", label: "離岸風場 Offshore Wind", expandable: true },
+          { key: "osmWindTurbines", label: "風機 Wind Turbines", expandable: true },
+          { key: "windPlan", label: "風電場規劃 Wind Plan", expandable: true },
+          { key: "geothermalWells", label: "地熱井 Geothermal", expandable: true },
+          { key: "renewablePermitsTaipei", label: "北市再生能源許可 Renewable Permits", expandable: true },
+          { key: "evChargingStations", label: "電動車充電站 EV Charging", expandable: true },
+        ],
+      },
+      {
+        title: "石化 · 加油站",
+        layers: [
+          { key: "gasStationCpc", label: "加油站 中油 CPC", expandable: true },
+          { key: "gasStationFpcc", label: "加油站 台塑 FPCC", expandable: true },
+          { key: "gasStationTaisugar", label: "加油站 台糖 Taisugar", expandable: true },
+          { key: "gasStationOther", label: "加油站 其他 / 私營 Other", expandable: true },
+          { key: "gasStationCanonical", label: "加油站 SSOT 合併 Canonical", expandable: true },
+        ],
+      },
+      {
+        title: "石化 · 油氣",
+        layers: [
+          { key: "lpgSubpackaging", label: "LPG 分裝 / 儲存場 Subpackaging", expandable: true },
+          { key: "lpgRetailers", label: "LPG 加氣站 / 瓦斯行 Retailer", expandable: true },
+          { key: "lngTerminal", label: "LNG 接收站 Terminal", expandable: true },
+          { key: "pipelineGas", label: "天然氣主幹線 Gas Pipeline", expandable: true },
+          { key: "pipelineOilGas", label: "油氣管線 OSM Oil/Gas Pipeline", expandable: true },
+          { key: "industrialRefinery", label: "煉油 / 化工廠 Refinery", expandable: true },
+          { key: "industrialStorageTank", label: "油氣儲槽 Storage Tank", expandable: true },
+          { key: "industrialPowerPlant", label: "火力廠 polygon Thermal Plant", expandable: true },
+          { key: "coalTerminal", label: "煤炭碼頭 Coal Terminal", expandable: true },
+          { key: "fossilFuelInfra", label: "石化能源設施 Fossil Fuel (legacy)", expandable: true },
+        ],
+      },
+      {
+        title: "覆蓋分析",
+        layers: [
+          { key: "gasCoverageAll", label: "加油站 最近距離 Coverage All", expandable: true },
+          { key: "gasCoverageCpc", label: "中油 最近距離 Coverage CPC", expandable: true },
+          { key: "gasCoverageFpcc", label: "台塑 最近距離 Coverage FPCC", expandable: true },
+          { key: "gasCoverageTaisugar", label: "台糖 最近距離 Coverage Taisugar", expandable: true },
+          { key: "evIsland", label: "充電站 最近距離 EV Island", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🏟️ SPORTS & LEISURE 運動休閒
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "運動休閒 Sports & Leisure",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "運動場館",
+        layers: [
+          { key: "sportsSchool", label: "學校場館 School", expandable: true },
+          { key: "sportsPublicOther", label: "其他公共場館 Public", expandable: true },
+          { key: "sportsPrivate", label: "民營場館 Private", expandable: true },
+          { key: "sportsPark", label: "運動公園/開放空間 Park", expandable: true },
+          { key: "sportsCenter", label: "國民運動中心 Sports Center", expandable: true },
+        ],
+      },
+      {
+        title: "公園 Parks",
+        layers: [
+          { key: "parksTaipei", label: "公園 Parks", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🎭 CULTURE 文化
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "文化 Culture",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "設施 Facilities",
+        layers: [
+          { key: "culturalFacilities", label: "文化設施 Cultural Facilities", labelMobile: "文化設施", expandable: true },
+          { key: "culturalMuseums", label: "地方文化館 Local Museums", labelMobile: "地方文化館", expandable: true },
+        ],
+      },
+      {
+        title: "藝文活動 Arts & Events",
+        layers: [
+          { key: "artsEvents", label: "藝文活動 Arts Events", labelMobile: "藝文活動", expandable: true },
+          { key: "performingVenues", label: "表演場館 Performing Venues", labelMobile: "表演場館", expandable: true },
+        ],
+      },
+      {
+        title: "即時 Realtime",
+        layers: [
+          { key: "librarySeats", label: "圖書館即時座位 Library Seats", labelMobile: "圖書館座位", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // ♻️ WASTE 廢棄物
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "廢棄物 Waste",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "即時",
+        layers: [
+          { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
+          { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
+          { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
+          { key: "wasteCleaningSquads", label: "清潔隊 Squads", labelMobile: "清潔隊 Squads (359) 🧹" },
+        ],
+      },
+      {
+        title: "投放點",
+        layers: [
+          { key: "wasteStopsStatic", label: "全台清運點位 Stops (靜態)", expandable: true },
+          { key: "wdClothes", label: "衣物回收箱 Clothes", labelMobile: "衣物回收箱 Clothes Box (7,236)", expandable: true },
+          { key: "wdMixed", label: "混合投放點 Mixed", labelMobile: "混合投放點 Mixed (6,368)", expandable: true },
+          { key: "wdRecyclingContainer", label: "街頭資收桶 Container", labelMobile: "街頭資收桶 Container (145)", expandable: true },
+          { key: "wdBattery", label: "電池回收 Battery", labelMobile: "電池回收 Battery (2)", expandable: true },
+        ],
+      },
+      {
+        title: "處理設施",
+        layers: [
+          { key: "wfIncinerator", label: "焚化爐 Incinerator", labelMobile: "焚化爐 Incinerator (30) 🔥", expandable: true },
+          { key: "wfLandfill", label: "衛生掩埋場 Landfill", labelMobile: "衛生掩埋場 Landfill (154) 🟫", expandable: true },
+          { key: "wfLandfillCoastal", label: "濱海掩埋場 Coastal", labelMobile: "濱海掩埋場 Coastal (23) 🌊", expandable: true },
+          { key: "wfTransfer", label: "轉運站 Transfer", labelMobile: "轉運站 Transfer (28) 🚛", expandable: true },
+          { key: "wfMedical", label: "醫療廢棄物 Medical", labelMobile: "醫療廢棄物 Medical (40) ⚕️", expandable: true },
+          { key: "wfMonitoring", label: "地下水監測井 Monitor", labelMobile: "地下水監測井 Monitor (574) 🩸", expandable: true },
+          { key: "wfRecycling", label: "資源回收廠 Recycling", labelMobile: "資源回收廠 Recycling (653) ♻️", expandable: true },
+          { key: "wfScrapYard", label: "廢車 / 廢金屬 Scrap", labelMobile: "廢車 / 廢金屬 Scrap (3)", expandable: true },
+          { key: "wfOther", label: "其他事廢設施 Other", labelMobile: "其他事廢設施 Other (3,164)", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🏥 MEDICAL 醫療
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "醫療 Medical",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "點位",
+        layers: [
+          { key: "medHospital", label: "醫院 Hospital", expandable: true },
+          { key: "medClinic", label: "診所 / 其他醫療 Clinic", expandable: true },
+          { key: "medPharmacy", label: "藥局 Pharmacy", expandable: true },
+          { key: "medAED", label: "AED 點位 AED", expandable: true },
+          { key: "medLTC", label: "長照機構 LTC", expandable: true },
+        ],
+      },
+      {
+        title: "即時 Emergency",
+        layers: [
+          { key: "erHospital", label: "急診壅塞 ER", expandable: true },
+        ],
+      },
+      {
+        title: "分析",
+        layers: [
+          { key: "medIsochrone", label: "醫療等時圈 Isochrone", expandable: true },
+          { key: "medDesert", label: "醫療沙漠 Desert", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🚒 FIRE 消防
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "消防 Fire & Rescue",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "點位",
+        layers: [
+          { key: "fireStations", label: "消防分隊 Fire Station", expandable: true },
+          { key: "fireHydrants", label: "消防栓 Hydrant", expandable: true },
+        ],
+      },
+      {
+        title: "事件",
+        layers: [
+          { key: "fireEvents", label: "火災歷史 Fire History", expandable: true },
+          { key: "fireLatest", label: "火災 最新年度 Latest", expandable: true },
+        ],
+      },
+      {
+        title: "分析",
+        layers: [
+          { key: "fireIsochrone", label: "救援等時圈 Isochrone", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // ⚠️ HAZARD 災害
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "災害 Hazard",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "即時警示",
+        layers: [
+          { key: "lifelineAlerts", label: "民生中斷 Lifeline", expandable: true },
+          { key: "floodAlerts", label: "水文防汛 Flood Alerts", expandable: true },
+          { key: "weatherAlerts", label: "氣象特報 Weather Alerts", expandable: true },
+          { key: "transitAlerts", label: "交通阻斷 Transit Alerts", expandable: true },
+          { key: "safetyAlerts", label: "安全環境 Safety Alerts", expandable: true },
+        ],
+      },
+      {
+        title: "地震 / 斷層",
+        layers: [
+          { key: "earthquakes", label: "地震 Earthquake", expandable: true },
+          { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
+        ],
+      },
+      {
+        title: "雷暴",
+        layers: [
+          { key: "lightning", label: "落雷 Lightning 60min", expandable: true },
+        ],
+      },
+      {
+        title: "核安",
+        layers: [
+          { key: "nuclearRadiation", label: "核安輻射 Radiation", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🛡️ CIVIL DEFENSE 民防避難
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "民防避難 Civil Defense",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "避難設施",
+        layers: [
+          { key: "civilDefenseShelter", label: "防空避難 Civil Defense Shelters", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🚓 LAW & ORDER 執法治安（4 子群、16 個 layer）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "執法治安 Law & Order",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "警政",
+        layers: [
+          { key: "policeStation", label: "警察機關 Police", expandable: true },
+          { key: "womenChildWarning", label: "婦幼警示點 Women/Child Warning", expandable: true },
+          { key: "speedCamera", label: "測速照相 Speed Camera", expandable: true },
+          { key: "speedZoneSegment", label: "區間測速 Speed Zone", expandable: true },
+        ],
+      },
+      {
+        title: "警察覆蓋分析",
+        layers: [
+          { key: "policeIsoSubstation", label: "派出所 5/10 min", expandable: true },
+          { key: "policeIsoPrecinct", label: "分局 15/30 min", expandable: true },
+          { key: "policeIsoCityDept", label: "縣市警局 30/60 min", expandable: true },
+        ],
+      },
+      {
+        title: "司法矯正",
+        layers: [
+          { key: "court", label: "法院 Courts", expandable: true },
+          { key: "prosecutorsOffice", label: "檢察署 Prosecutors", expandable: true },
+          { key: "correctionalFacility", label: "矯正機關 Correctional", expandable: true },
+          { key: "courtJurisdiction", label: "法院管轄區 Jurisdiction", expandable: true },
+        ],
+      },
+      {
+        title: "治安態勢",
+        layers: [
+          { key: "crimeAreaMonthly", label: "鄉鎮犯罪統計 Crime Area", expandable: true },
+          { key: "theftTaoyuan", label: "桃園竊盜 Theft Taoyuan", expandable: true },
+          { key: "trafficAccidentYearly", label: "A1 死亡事故 Fatal Accident", expandable: true },
+          { key: "accidentTaipei", label: "北市事故點 Taipei Dots", expandable: true },
+          { key: "a1AccidentRealtime", label: "A1 即時事故 A1 Realtime", expandable: true },
+        ],
+      },
+      {
+        title: "廉政移民海巡",
+        layers: [
+          { key: "investigationBureau", label: "調查局 MJIB", expandable: true },
+          { key: "antiCorruptionOffice", label: "廉政署 AAC", expandable: true },
+          { key: "immigrationOffice", label: "移民署 Immigration", expandable: true },
+          { key: "coastGuardStation", label: "海巡 Coast Guard", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🌤️ ENV 環境氣候
   // ───────────────────────────────────────────────────────────────
   {
@@ -623,45 +1036,6 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
-  // ⚠️ HAZARD 災害
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "災害 Hazard",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "即時警示",
-        layers: [
-          { key: "lifelineAlerts", label: "民生中斷 Lifeline", expandable: true },
-          { key: "floodAlerts", label: "水文防汛 Flood Alerts", expandable: true },
-          { key: "weatherAlerts", label: "氣象特報 Weather Alerts", expandable: true },
-          { key: "transitAlerts", label: "交通阻斷 Transit Alerts", expandable: true },
-          { key: "safetyAlerts", label: "安全環境 Safety Alerts", expandable: true },
-        ],
-      },
-      {
-        title: "地震 / 斷層",
-        layers: [
-          { key: "earthquakes", label: "地震 Earthquake", expandable: true },
-          { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
-        ],
-      },
-      {
-        title: "雷暴",
-        layers: [
-          { key: "lightning", label: "落雷 Lightning 60min", expandable: true },
-        ],
-      },
-      {
-        title: "核安",
-        layers: [
-          { key: "nuclearRadiation", label: "核安輻射 Radiation", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
   // 🌍 GLOBAL CLIMATE 全球氣候
   // ───────────────────────────────────────────────────────────────
   {
@@ -681,69 +1055,6 @@ export const THEMES: ThemeDef[] = [
           { key: "windField", label: "風場 Wind Field 10m", expandable: true },
           { key: "oceanCurrents", label: "海流 Ocean Currents", expandable: true },
           { key: "dustForecast", label: "沙塵預報 Dust Forecast", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // 🚒 FIRE 消防
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "消防 Fire & Rescue",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "點位",
-        layers: [
-          { key: "fireStations", label: "消防分隊 Fire Station", expandable: true },
-          { key: "fireHydrants", label: "消防栓 Hydrant", expandable: true },
-        ],
-      },
-      {
-        title: "事件",
-        layers: [
-          { key: "fireEvents", label: "火災歷史 Fire History", expandable: true },
-          { key: "fireLatest", label: "火災 最新年度 Latest", expandable: true },
-        ],
-      },
-      {
-        title: "分析",
-        layers: [
-          { key: "fireIsochrone", label: "救援等時圈 Isochrone", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // 🏥 MEDICAL 醫療
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "醫療 Medical",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "點位",
-        layers: [
-          { key: "medHospital", label: "醫院 Hospital", expandable: true },
-          { key: "medClinic", label: "診所 / 其他醫療 Clinic", expandable: true },
-          { key: "medPharmacy", label: "藥局 Pharmacy", expandable: true },
-          { key: "medAED", label: "AED 點位 AED", expandable: true },
-          { key: "medLTC", label: "長照機構 LTC", expandable: true },
-        ],
-      },
-      {
-        title: "即時 Emergency",
-        layers: [
-          { key: "erHospital", label: "急診壅塞 ER", expandable: true },
-        ],
-      },
-      {
-        title: "分析",
-        layers: [
-          { key: "medIsochrone", label: "醫療等時圈 Isochrone", expandable: true },
-          { key: "medDesert", label: "醫療沙漠 Desert", expandable: true },
         ],
       },
     ],
@@ -817,32 +1128,6 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
-  // 🏟️ SPORTS & LEISURE 運動休閒
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "運動休閒 Sports & Leisure",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "運動場館",
-        layers: [
-          { key: "sportsSchool", label: "學校場館 School", expandable: true },
-          { key: "sportsPublicOther", label: "其他公共場館 Public", expandable: true },
-          { key: "sportsPrivate", label: "民營場館 Private", expandable: true },
-          { key: "sportsPark", label: "運動公園/開放空間 Park", expandable: true },
-          { key: "sportsCenter", label: "國民運動中心 Sports Center", expandable: true },
-        ],
-      },
-      {
-        title: "公園 Parks",
-        layers: [
-          { key: "parksTaipei", label: "公園 Parks", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
   // 🌲 FORESTRY 林業
   // ───────────────────────────────────────────────────────────────
   {
@@ -881,185 +1166,6 @@ export const THEMES: ThemeDef[] = [
         title: "生態",
         layers: [
           { key: "forestWildlife", label: "野生動物分布 Wildlife", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // ♻️ WASTE 廢棄物
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "廢棄物 Waste",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "即時",
-        layers: [
-          { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
-          { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
-          { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
-          { key: "wasteCleaningSquads", label: "清潔隊 Squads", labelMobile: "清潔隊 Squads (359) 🧹" },
-        ],
-      },
-      {
-        title: "投放點",
-        layers: [
-          { key: "wasteStopsStatic", label: "全台清運點位 Stops (靜態)", expandable: true },
-          { key: "wdClothes", label: "衣物回收箱 Clothes", labelMobile: "衣物回收箱 Clothes Box (7,236)", expandable: true },
-          { key: "wdMixed", label: "混合投放點 Mixed", labelMobile: "混合投放點 Mixed (6,368)", expandable: true },
-          { key: "wdRecyclingContainer", label: "街頭資收桶 Container", labelMobile: "街頭資收桶 Container (145)", expandable: true },
-          { key: "wdBattery", label: "電池回收 Battery", labelMobile: "電池回收 Battery (2)", expandable: true },
-        ],
-      },
-      {
-        title: "處理設施",
-        layers: [
-          { key: "wfIncinerator", label: "焚化爐 Incinerator", labelMobile: "焚化爐 Incinerator (30) 🔥", expandable: true },
-          { key: "wfLandfill", label: "衛生掩埋場 Landfill", labelMobile: "衛生掩埋場 Landfill (154) 🟫", expandable: true },
-          { key: "wfLandfillCoastal", label: "濱海掩埋場 Coastal", labelMobile: "濱海掩埋場 Coastal (23) 🌊", expandable: true },
-          { key: "wfTransfer", label: "轉運站 Transfer", labelMobile: "轉運站 Transfer (28) 🚛", expandable: true },
-          { key: "wfMedical", label: "醫療廢棄物 Medical", labelMobile: "醫療廢棄物 Medical (40) ⚕️", expandable: true },
-          { key: "wfMonitoring", label: "地下水監測井 Monitor", labelMobile: "地下水監測井 Monitor (574) 🩸", expandable: true },
-          { key: "wfRecycling", label: "資源回收廠 Recycling", labelMobile: "資源回收廠 Recycling (653) ♻️", expandable: true },
-          { key: "wfScrapYard", label: "廢車 / 廢金屬 Scrap", labelMobile: "廢車 / 廢金屬 Scrap (3)", expandable: true },
-          { key: "wfOther", label: "其他事廢設施 Other", labelMobile: "其他事廢設施 Other (3,164)", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // ⚡ ENERGY 能源
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "能源 Energy",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "電力 · 廠",
-        layers: [
-          { key: "facPrimary", label: "發電廠 主要・運轉中 Primary", expandable: true },
-          { key: "facPlanned", label: "發電廠 未來規劃 Planned", expandable: true },
-          { key: "facHistorical", label: "發電廠 歷史・退役 Historical", expandable: true },
-          { key: "facSecondary", label: "發電廠 小型分散 Secondary", expandable: true },
-          { key: "facOsmSupplement", label: "發電廠 OSM 補充 Supplement", expandable: true },
-          { key: "powerGenerationUnit", label: "機組即時出力 Live Output", expandable: true },
-          { key: "powerPlantGlow", label: "發電廠 Bloom 測試 ✨", expandable: true },
-          { key: "aviationRestrictedGlow", label: "機場管制/限航 Rim Glow 測試 ⛔✨", expandable: true },
-        ],
-      },
-      {
-        title: "電力 · 電網",
-        layers: [
-          { key: "osmSubstationsEhv", label: "變電所 超高壓 EHV", expandable: true },
-          { key: "substationEhvGlow", label: "變電所 EHV Bloom 測試 ⚡✨", expandable: true },
-          { key: "osmSubstations", label: "變電所 區域 Substation", expandable: true },
-          { key: "osmPowerLines", label: "高壓輸電線 Power Lines", expandable: true },
-          { key: "powerLinesGlow", label: "高壓輸電線 Bloom 測試 ⚡✨", expandable: true },
-          { key: "osmPowerTowers", label: "高壓鐵塔 Power Towers", expandable: true },
-          { key: "powerPoles", label: "電桿 Power Poles (2.96M)", expandable: true },
-        ],
-      },
-      {
-        title: "再生能源",
-        layers: [
-          { key: "offshoreWindZones", label: "離岸風場 Offshore Wind", expandable: true },
-          { key: "osmWindTurbines", label: "風機 Wind Turbines", expandable: true },
-          { key: "windPlan", label: "風電場規劃 Wind Plan", expandable: true },
-          { key: "geothermalWells", label: "地熱井 Geothermal", expandable: true },
-          { key: "renewablePermitsTaipei", label: "北市再生能源許可 Renewable Permits", expandable: true },
-          { key: "evChargingStations", label: "電動車充電站 EV Charging", expandable: true },
-        ],
-      },
-      {
-        title: "石化 · 加油站",
-        layers: [
-          { key: "gasStationCpc", label: "加油站 中油 CPC", expandable: true },
-          { key: "gasStationFpcc", label: "加油站 台塑 FPCC", expandable: true },
-          { key: "gasStationTaisugar", label: "加油站 台糖 Taisugar", expandable: true },
-          { key: "gasStationOther", label: "加油站 其他 / 私營 Other", expandable: true },
-          { key: "gasStationCanonical", label: "加油站 SSOT 合併 Canonical", expandable: true },
-        ],
-      },
-      {
-        title: "石化 · 油氣",
-        layers: [
-          { key: "lpgSubpackaging", label: "LPG 分裝 / 儲存場 Subpackaging", expandable: true },
-          { key: "lpgRetailers", label: "LPG 加氣站 / 瓦斯行 Retailer", expandable: true },
-          { key: "lngTerminal", label: "LNG 接收站 Terminal", expandable: true },
-          { key: "pipelineGas", label: "天然氣主幹線 Gas Pipeline", expandable: true },
-          { key: "pipelineOilGas", label: "油氣管線 OSM Oil/Gas Pipeline", expandable: true },
-          { key: "industrialRefinery", label: "煉油 / 化工廠 Refinery", expandable: true },
-          { key: "industrialStorageTank", label: "油氣儲槽 Storage Tank", expandable: true },
-          { key: "industrialPowerPlant", label: "火力廠 polygon Thermal Plant", expandable: true },
-          { key: "coalTerminal", label: "煤炭碼頭 Coal Terminal", expandable: true },
-          { key: "fossilFuelInfra", label: "石化能源設施 Fossil Fuel (legacy)", expandable: true },
-        ],
-      },
-      {
-        title: "覆蓋分析",
-        layers: [
-          { key: "gasCoverageAll", label: "加油站 最近距離 Coverage All", expandable: true },
-          { key: "gasCoverageCpc", label: "中油 最近距離 Coverage CPC", expandable: true },
-          { key: "gasCoverageFpcc", label: "台塑 最近距離 Coverage FPCC", expandable: true },
-          { key: "gasCoverageTaisugar", label: "台糖 最近距離 Coverage Taisugar", expandable: true },
-          { key: "evIsland", label: "充電站 最近距離 EV Island", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // 🏗️ INFRA 基礎建設
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "基礎建設 Infrastructure",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "通訊",
-        layers: [
-          { key: "submarineCables", label: "通訊海纜 Submarine Cable", expandable: true },
-          { key: "landingStations", label: "海纜登陸站 Landing Station", expandable: true },
-        ],
-      },
-      {
-        title: "公共設施",
-        layers: [
-          { key: "schools", label: "學校 School", expandable: true },
-          { key: "convenienceStores", label: "超商 Convenience Store", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // 🏠 ESTATE 房地產
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "房地產 Real Estate",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "租賃",
-        layers: [
-          { key: "realEstateRentalGrid", label: "租賃熱力圖 Rental Grid", expandable: true },
-          { key: "realEstateRentalPoint", label: "租賃交易點 Rental Point", expandable: true },
-        ],
-      },
-      {
-        title: "買賣",
-        layers: [
-          { key: "realEstateSaleGrid", label: "買賣熱力圖 Sale Grid", expandable: true },
-          { key: "realEstateSalePoint", label: "買賣交易點 Sale Point", expandable: true },
-        ],
-      },
-      {
-        title: "預售",
-        layers: [
-          { key: "realEstatePresaleGrid", label: "預售熱力圖 Presale Grid", expandable: true },
-          { key: "realEstatePresalePoint", label: "預售交易點 Presale Point", expandable: true },
         ],
       },
     ],
@@ -1117,77 +1223,6 @@ export const THEMES: ThemeDef[] = [
         title: "事件",
         layers: [
           { key: "newsEvents", label: "新聞事件 News Events", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // 🚓 LAW & ORDER 執法治安（4 子群、16 個 layer）
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "執法治安 Law & Order",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "警政",
-        layers: [
-          { key: "policeStation", label: "警察機關 Police", expandable: true },
-          { key: "womenChildWarning", label: "婦幼警示點 Women/Child Warning", expandable: true },
-          { key: "speedCamera", label: "測速照相 Speed Camera", expandable: true },
-          { key: "speedZoneSegment", label: "區間測速 Speed Zone", expandable: true },
-        ],
-      },
-      {
-        title: "警察覆蓋分析",
-        layers: [
-          { key: "policeIsoSubstation", label: "派出所 5/10 min", expandable: true },
-          { key: "policeIsoPrecinct", label: "分局 15/30 min", expandable: true },
-          { key: "policeIsoCityDept", label: "縣市警局 30/60 min", expandable: true },
-        ],
-      },
-      {
-        title: "司法矯正",
-        layers: [
-          { key: "court", label: "法院 Courts", expandable: true },
-          { key: "prosecutorsOffice", label: "檢察署 Prosecutors", expandable: true },
-          { key: "correctionalFacility", label: "矯正機關 Correctional", expandable: true },
-          { key: "courtJurisdiction", label: "法院管轄區 Jurisdiction", expandable: true },
-        ],
-      },
-      {
-        title: "治安態勢",
-        layers: [
-          { key: "crimeAreaMonthly", label: "鄉鎮犯罪統計 Crime Area", expandable: true },
-          { key: "theftTaoyuan", label: "桃園竊盜 Theft Taoyuan", expandable: true },
-          { key: "trafficAccidentYearly", label: "A1 死亡事故 Fatal Accident", expandable: true },
-          { key: "accidentTaipei", label: "北市事故點 Taipei Dots", expandable: true },
-          { key: "a1AccidentRealtime", label: "A1 即時事故 A1 Realtime", expandable: true },
-        ],
-      },
-      {
-        title: "廉政移民海巡",
-        layers: [
-          { key: "investigationBureau", label: "調查局 MJIB", expandable: true },
-          { key: "antiCorruptionOffice", label: "廉政署 AAC", expandable: true },
-          { key: "immigrationOffice", label: "移民署 Immigration", expandable: true },
-          { key: "coastGuardStation", label: "海巡 Coast Guard", expandable: true },
-        ],
-      },
-    ],
-  },
-
-  // ───────────────────────────────────────────────────────────────
-  // 🛡️ CIVIL DEFENSE 民防避難
-  // ───────────────────────────────────────────────────────────────
-  {
-    title: "民防避難 Civil Defense",
-    defaultCollapsed: true,
-    groups: [
-      {
-        title: "避難設施",
-        layers: [
-          { key: "civilDefenseShelter", label: "防空避難 Civil Defense Shelters", expandable: true },
         ],
       },
     ],
