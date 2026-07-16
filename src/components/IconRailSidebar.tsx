@@ -30,6 +30,8 @@ import {
   Ban,
   // 環境污染 icons
   Biohazard,
+  // 🎭 CULTURE icons（Building2 / CalendarDays 已 import 復用）
+  Landmark, Theater,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -179,6 +181,11 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   sportsPrivate: Activity,
   sportsPark: Trees,
   sportsCenter: Building2,
+  // 🎭 文化 Culture
+  culturalFacilities: Landmark,
+  culturalMuseums: Building2,
+  artsEvents: CalendarDays,
+  performingVenues: Theater,
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // FORESTRY 12 base

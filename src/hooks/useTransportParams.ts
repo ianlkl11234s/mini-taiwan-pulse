@@ -20,6 +20,7 @@ import {
 } from "../data/urbanOpenSpaceTypes";
 import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 import { URBAN_FORM_GRID_MODES } from "../data/urbanFormGridTypes";
+import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
 export interface SliderConfig {
   type?: "slider";
@@ -200,6 +201,18 @@ export function useTransportParams() {
   const [parksTaipeiOpacity, setParksTaipeiOpacity] = useState(0.85);
   const [parksTaipeiRadius, setParksTaipeiRadius] = useState(1);
   const [parksTaipeiCategory, setParksTaipeiCategory] = useState<string>("all"); // all / 7 種分類
+  // 🎭 文化 Culture 四層
+  const [culturalFacilitiesOpacity, setCulturalFacilitiesOpacity] = useState(0.9);
+  const [culturalFacilitiesRadius, setCulturalFacilitiesRadius] = useState(1);
+  const [culturalFacilitiesType, setCulturalFacilitiesType] = useState<string>("all"); // all / 6 類 facility_type
+  const [culturalMuseumsOpacity, setCulturalMuseumsOpacity] = useState(0.9);
+  const [culturalMuseumsRadius, setCulturalMuseumsRadius] = useState(1);
+  const [culturalMuseumsType, setCulturalMuseumsType] = useState<string>("all"); // all / 5 類 type
+  const [artsEventsOpacity, setArtsEventsOpacity] = useState(0.85);
+  const [artsEventsRadius, setArtsEventsRadius] = useState(1);
+  const [artsEventsStatus, setArtsEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
+  const [performingVenuesOpacity, setPerformingVenuesOpacity] = useState(0.85);
+  const [performingVenuesRadius, setPerformingVenuesRadius] = useState(1);
   // 行道樹三時點（traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
   const [streetTreesTaipei3epochOpacity, setStreetTreesTaipei3epochOpacity] = useState(0.7);
   const [streetTreesTaipei3epochRadius, setStreetTreesTaipei3epochRadius] = useState(0.5); // 點位大小縮放倍率
@@ -902,6 +915,14 @@ export function useTransportParams() {
     riversideTreesTaipeiParkIdx: ["all", ...RIVERSIDE_PARKS].indexOf(riversideTreesTaipeiPark),
     parksTaipeiOpacity, parksTaipeiRadius,
     parksTaipeiCategoryIdx: ["all", ...TAIPEI_PARK_CATEGORIES.map((c) => c.name)].indexOf(parksTaipeiCategory),
+    // 🎭 文化 Culture：select 編成 Idx 餵 paint/filter（overlayParams 只收數字）
+    culturalFacilitiesOpacity, culturalFacilitiesRadius,
+    culturalFacilitiesTypeIdx: ["all", ...CULTURAL_FACILITY_TYPES.map((c) => c.name)].indexOf(culturalFacilitiesType),
+    culturalMuseumsOpacity, culturalMuseumsRadius,
+    culturalMuseumsTypeIdx: ["all", ...CULTURAL_MUSEUM_TYPES.map((c) => c.name)].indexOf(culturalMuseumsType),
+    artsEventsOpacity, artsEventsRadius,
+    artsEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(artsEventsStatus),
+    performingVenuesOpacity, performingVenuesRadius,
     streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius,
     streetTreesTaipei3epochColorModeIdx: ["traj", "species", "diameter", "height"].indexOf(streetTreesTaipei3epochColorMode),
     streetTreesTaipei3epochTrajFilterIdx: STREET_TREE_3EPOCH_TRAJ_FILTERS.findIndex((f) => f.value === streetTreesTaipei3epochTrajFilter),
@@ -1253,6 +1274,10 @@ export function useTransportParams() {
     protectedTreesNationalOpacity, protectedTreesNationalRadius, protectedTreesNationalColorMode, protectedTreesNationalCity,
     riversideTreesTaipeiOpacity, riversideTreesTaipeiRadius, riversideTreesTaipeiPark,
     parksTaipeiOpacity, parksTaipeiRadius, parksTaipeiCategory,
+    culturalFacilitiesOpacity, culturalFacilitiesRadius, culturalFacilitiesType,
+    culturalMuseumsOpacity, culturalMuseumsRadius, culturalMuseumsType,
+    artsEventsOpacity, artsEventsRadius, artsEventsStatus,
+    performingVenuesOpacity, performingVenuesRadius,
     streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius, streetTreesTaipei3epochColorMode, streetTreesTaipei3epochTrajFilter,
     streetTreesNationalOpacity, streetTreesNationalRadius, streetTreesNationalColorMode, streetTreesNationalCity,
     treePitsTaipeiOpacity, treePitsTaipeiType,
@@ -2333,6 +2358,25 @@ export function useTransportParams() {
         { type: "select" as const, label: "分類", value: parksTaipeiCategory, options: [{ label: "全部", value: "all" }, ...TAIPEI_PARK_CATEGORIES.map((c) => ({ label: c.name, value: c.name }))], onChange: setParksTaipeiCategory },
         { label: `透明度 ${parksTaipeiOpacity.toFixed(2)}`, value: parksTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setParksTaipeiOpacity },
         { label: `點位大小 ${parksTaipeiRadius.toFixed(2)}`, value: parksTaipeiRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setParksTaipeiRadius },
+      ];
+      case "culturalFacilities": return [
+        { type: "select" as const, label: "類型", value: culturalFacilitiesType, options: [{ label: "全部", value: "all" }, ...CULTURAL_FACILITY_TYPES.map((c) => ({ label: c.name, value: c.name }))], onChange: setCulturalFacilitiesType },
+        { label: `透明度 ${culturalFacilitiesOpacity.toFixed(2)}`, value: culturalFacilitiesOpacity, min: 0, max: 1, step: 0.05, onChange: setCulturalFacilitiesOpacity },
+        { label: `點位大小 ${culturalFacilitiesRadius.toFixed(2)}`, value: culturalFacilitiesRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setCulturalFacilitiesRadius },
+      ];
+      case "culturalMuseums": return [
+        { type: "select" as const, label: "類型", value: culturalMuseumsType, options: [{ label: "全部", value: "all" }, ...CULTURAL_MUSEUM_TYPES.map((c) => ({ label: c.name, value: c.name }))], onChange: setCulturalMuseumsType },
+        { label: `透明度 ${culturalMuseumsOpacity.toFixed(2)}`, value: culturalMuseumsOpacity, min: 0, max: 1, step: 0.05, onChange: setCulturalMuseumsOpacity },
+        { label: `點位大小 ${culturalMuseumsRadius.toFixed(2)}`, value: culturalMuseumsRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setCulturalMuseumsRadius },
+      ];
+      case "artsEvents": return [
+        { type: "select" as const, label: "狀態", value: artsEventsStatus, options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }], onChange: setArtsEventsStatus },
+        { label: `透明度 ${artsEventsOpacity.toFixed(2)}`, value: artsEventsOpacity, min: 0, max: 1, step: 0.05, onChange: setArtsEventsOpacity },
+        { label: `點位大小 ${artsEventsRadius.toFixed(2)}`, value: artsEventsRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setArtsEventsRadius },
+      ];
+      case "performingVenues": return [
+        { label: `透明度 ${performingVenuesOpacity.toFixed(2)}`, value: performingVenuesOpacity, min: 0, max: 1, step: 0.05, onChange: setPerformingVenuesOpacity },
+        { label: `點位大小 ${performingVenuesRadius.toFixed(2)}`, value: performingVenuesRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setPerformingVenuesRadius },
       ];
       case "streetTreesTaipei3epoch": return [
         { type: "select" as const, label: "染色模式", value: streetTreesTaipei3epochColorMode, options: [{ label: "依軌跡", value: "traj" }, { label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }], onChange: setStreetTreesTaipei3epochColorMode },

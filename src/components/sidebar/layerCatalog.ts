@@ -165,6 +165,10 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   sportsPrivate: "#ef6c00",
   sportsPark: "#66bb6a",
   sportsCenter: "#ec407a",
+  culturalFacilities: "#ef8a3c",
+  culturalMuseums: "#b5651d",
+  artsEvents: "#4d9de0",
+  performingVenues: "#7c4dff",
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -837,6 +841,30 @@ export const THEMES: ThemeDef[] = [
         title: "公園 Parks",
         layers: [
           { key: "parksTaipei", label: "公園 Parks", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🎭 CULTURE 文化
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "文化 Culture",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "設施 Facilities",
+        layers: [
+          { key: "culturalFacilities", label: "文化設施 Cultural Facilities", labelMobile: "文化設施", expandable: true },
+          { key: "culturalMuseums", label: "地方文化館 Local Museums", labelMobile: "地方文化館", expandable: true },
+        ],
+      },
+      {
+        title: "藝文活動 Arts & Events",
+        layers: [
+          { key: "artsEvents", label: "藝文活動 Arts Events", labelMobile: "藝文活動", expandable: true },
+          { key: "performingVenues", label: "表演場館 Performing Venues", labelMobile: "表演場館", expandable: true },
         ],
       },
     ],

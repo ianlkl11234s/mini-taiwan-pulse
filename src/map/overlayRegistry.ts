@@ -38,6 +38,16 @@ import {
 } from "../data/urbanOpenSpaceTypes";
 import { buildingHeightColorExpr, buildingSrcColorExpr } from "../data/buildingsGbaTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
+import {
+  culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
+  culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
+  ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
+} from "../data/cultureTypes";
+
+/** 台北時區今日 YYYY/MM/DD（sv-SE 慣例見 useTimeline.ts:82；藝文活動進行中/未開始判斷用） */
+function cultureTodayStr(): string {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }).replace(/-/g, "/");
+}
 
 const BASE_RADIUS = 5;
 
@@ -3373,6 +3383,131 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。
   // circle：category 27 類 match 分色 + area_sqm log 點大小（NULL fallback 固定半徑）+ open_status="不對外" 淡化。
   ...SPORTS_LAYERS.map((meta) => sportsVenueOverlay(meta)),
+
+  // ── 🎭 文化 Culture（靜態 GeoJSON 點，走 ./culture/）──
+  // 文化設施（787 點）：facility_type 6 類 match 分色；分類篩選走 per-layer filter 函式
+  // （同 buildingsGba；idx 0=全部 1..6 單類 → 未選中的點被濾除而非淡化）。半徑 z6 4px → z12 8px × 倍率。
+  // ⚠️ 金門點（lon 118.25 起）不得被任何 lon 假設濾掉——本層 filter/paint 皆不涉經度。
+  {
+    id: "culturalFacilities",
+    sourceUrl: "./culture/cultural_facilities_national.geojson",
+    sourceId: "culture-facilities",
+    rebuildOnParamChange: ["culturalFacilitiesOpacity", "culturalFacilitiesRadius", "culturalFacilitiesTypeIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        filter: (p) => {
+          const idx = p?.culturalFacilitiesTypeIdx ?? 0; // 0=全部 1..6=單一類型
+          const type = idx > 0 ? CULTURAL_FACILITY_TYPES[idx - 1]?.name : undefined;
+          return type ? ["==", ["get", "facility_type"], type] : ["has", "facility_type"];
+        },
+        paint: (isDark, p) => {
+          const opacity = p?.culturalFacilitiesOpacity ?? 0.9;
+          const radiusMult = p?.culturalFacilitiesRadius ?? 1;
+          return {
+            "circle-color": culturalFacilityColorExpr(),
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, Math.max(1, 4 * radiusMult), 12, Math.max(1, 8 * radiusMult)],
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  // 地方文化館（252 點）：type 5 類 match 分色；分類篩選走 per-layer filter 函式（idx 0=全部 1..5）。
+  {
+    id: "culturalMuseums",
+    sourceUrl: "./culture/local_cultural_museums_national.geojson",
+    sourceId: "culture-museums",
+    rebuildOnParamChange: ["culturalMuseumsOpacity", "culturalMuseumsRadius", "culturalMuseumsTypeIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        filter: (p) => {
+          const idx = p?.culturalMuseumsTypeIdx ?? 0; // 0=全部 1..5=單一類型
+          const type = idx > 0 ? CULTURAL_MUSEUM_TYPES[idx - 1]?.name : undefined;
+          return type ? ["==", ["get", "type"], type] : ["has", "type"];
+        },
+        paint: (isDark, p) => {
+          const opacity = p?.culturalMuseumsOpacity ?? 0.9;
+          const radiusMult = p?.culturalMuseumsRadius ?? 1;
+          return {
+            "circle-color": culturalMuseumColorExpr(),
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, Math.max(1, 4 * radiusMult), 12, Math.max(1, 8 * radiusMult)],
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  // 藝文活動（6,121 點）：進行中（start_date ≤ 今日）暖橙 / 未開始（> 今日）冷藍二色 case；
+  // 狀態篩選走 per-layer filter 函式（idx 0=全部 1=進行中 2=未開始，同用 cultureTodayStr 比較）。
+  {
+    id: "artsEvents",
+    sourceUrl: "./culture/arts_events_national.geojson",
+    sourceId: "culture-events",
+    rebuildOnParamChange: ["artsEventsOpacity", "artsEventsRadius", "artsEventsStatusIdx"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        filter: (p) => {
+          const idx = p?.artsEventsStatusIdx ?? 0; // 0=全部 1=進行中 2=未開始
+          const today = cultureTodayStr();
+          if (idx === 1) return ["<=", ["get", "start_date"], today];
+          if (idx === 2) return [">", ["get", "start_date"], today];
+          return ["has", "start_date"];
+        },
+        paint: (isDark, p) => {
+          const opacity = p?.artsEventsOpacity ?? 0.85;
+          const radiusMult = p?.artsEventsRadius ?? 1;
+          const today = cultureTodayStr();
+          return {
+            "circle-color": ["case", ["<=", ["get", "start_date"], today], ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, Math.max(1, 3 * radiusMult), 12, Math.max(1, 6 * radiusMult)],
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.2, 14, 0.8],
+            "circle-stroke-opacity": opacity * 0.6,
+          };
+        },
+      },
+    ],
+  },
+  // 表演場館（857 點）：單色紫；半徑 ∝ √event_count（sqrt(1)=1→rMin，sqrt(101)≈10.05→rMax；
+  // 純綁場次量不隨 zoom 變，同 farmRadius 慣例）。金門點同不涉經度假設。
+  {
+    id: "performingVenues",
+    sourceUrl: "./culture/performing_venues_national.geojson",
+    sourceId: "culture-venues",
+    rebuildOnParamChange: ["performingVenuesOpacity", "performingVenuesRadius"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const opacity = p?.performingVenuesOpacity ?? 0.85;
+          const radiusMult = p?.performingVenuesRadius ?? 1;
+          return {
+            "circle-color": PERFORMING_VENUE_COLOR,
+            "circle-radius": [
+              "interpolate", ["linear"],
+              ["sqrt", ["max", ["to-number", ["get", "event_count"], 1], 1]],
+              1, 3 * radiusMult,
+              10.05, 14 * radiusMult,
+            ],
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
 
   // ── 農路圖（LineString，單色，可 popup）──
   {

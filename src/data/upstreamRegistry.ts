@@ -547,6 +547,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   sportsPrivate: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPark: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsCenter: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
+  // 🎭 文化 Culture（上游 handoff: taipei-gis-analytics/docs/handoff/culture-layers.md；catalog: docs/data-catalog/culture/）
+  culturalFacilities: { status: 'verified', datasets: [{ datasetId: 'cultural_facilities_moc', confidence: 'HIGH' }], note: '文化設施全國 787 點（MOC 文化資料開放平台，docs/data-catalog/culture/cultural_facilities_moc.md）' },
+  culturalMuseums: { status: 'verified', datasets: [{ datasetId: 'local_cultural_museums_moc', confidence: 'HIGH' }], note: '地方文化館全國 252 點（MOC，docs/data-catalog/culture/local_cultural_museums_moc.md）' },
+  artsEvents: { status: 'verified', datasets: [{ datasetId: 'arts_events_moc', confidence: 'HIGH' }], note: '藝文活動全國 6,121 點（MOC，docs/data-catalog/culture/arts_events_moc.md）' },
+  performingVenues: { status: 'verified', datasets: [{ datasetId: 'performing_venues_moc', confidence: 'HIGH' }], note: '表演場館全國 857 點（MOC，docs/data-catalog/culture/performing_venues_moc.md）' },
   agriculture: {
     status: 'verified',
     datasets: [{ datasetId: 'ftw_fields', confidence: 'MED' }],

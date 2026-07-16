@@ -120,6 +120,8 @@ export type ExpandableLayerKey =
   | "urbanFormGrid"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
+  // 🎭 文化 Culture（靜態 overlay GeoJSON 點）
+  | "culturalFacilities" | "culturalMuseums" | "artsEvents" | "performingVenues"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -648,6 +650,7 @@ export interface FeatureInfo {
     | "buildingsGba"
     | "urbanFormGrid"
     | "sportsVenue"
+    | "culturalFacilities" | "culturalMuseums" | "artsEvents" | "performingVenues"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -834,6 +837,11 @@ export interface LayerVisibility {
   sportsPrivate: boolean;         // 民營場館（691）
   sportsPark: boolean;            // 運動公園/開放空間（596）
   sportsCenter: boolean;          // 國民運動中心（357）
+  // 🎭 文化 Culture（靜態 overlay GeoJSON 點；4 獨立 layer）
+  culturalFacilities: boolean;    // 文化設施全國（787 點，facility_type 6 類：實體書店/工藝之家/博物館/特色圖書館/文化行政據點/文創商店 categorical 染色 + 分類篩選）
+  culturalMuseums: boolean;       // 地方文化館全國（252 點，type 5 類：歷史與人文/綜合與其他/藝術與工藝/生活與休閒/自然與科學 categorical 染色 + 分類篩選）
+  artsEvents: boolean;            // 藝文活動全國（6,121 點，進行中/未開始二色 by start_date≤今日 + 狀態篩選）
+  performingVenues: boolean;      // 表演場館全國（857 點，單色；半徑 ∝ √event_count 1~101）
   // 醫療基礎點位（5 獨立 layer，單一 PMTiles source med_cat filter；全程可見）
   medHospital: boolean;    // 醫院（NHI 醫學中心/區域/地區，451）
   medClinic: boolean;      // 診所 + 其他醫療（NHI clinic 21765 + other_medical 1707）
