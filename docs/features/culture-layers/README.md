@@ -1,10 +1,10 @@
 # 藝文文化圖層批次（culture-layers）
 
 > **Slug**：`culture-layers`（與 taipei-gis-analytics handoff 一致）
-> **狀態**：dev
+> **狀態**：shipped
 > **Owner**：migu
-> **上線日期**：TBD
-> **相關 PR**：TBD
+> **上線日期**：2026-07-17
+> **相關 PR**：#72（squash `47c5af2`）
 
 ## 一句話說明
 
@@ -14,11 +14,11 @@
 
 | 名稱（layer key） | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
-| culturalFacilities | point | GeoJSON `public/culture/cultural_facilities_national.geojson`（787，facility_type 6 類分色） | dev |
-| culturalMuseums | point | GeoJSON `public/culture/local_cultural_museums_national.geojson`（252，type 5 類分色） | dev |
-| artsEvents | point | GeoJSON `public/culture/arts_events_national.geojson`（6,121 場次，進行中/未開始兩色，today 注入 paint） | dev |
-| performingVenues | point | GeoJSON `public/culture/performing_venues_national.geojson`（857，半徑∝√event_count） | dev |
-| librarySeats | point（realtime） | RPC `get_tpml_seat_current` / `get_tpml_seat_24h`（29 區聚合 6 分館，5min 輪詢） | dev |
+| culturalFacilities | point | GeoJSON `public/culture/cultural_facilities_national.geojson`（787，facility_type 6 類分色） | ✅ |
+| culturalMuseums | point | GeoJSON `public/culture/local_cultural_museums_national.geojson`（252，type 5 類分色） | ✅ |
+| artsEvents | point | GeoJSON `public/culture/arts_events_national.geojson`（6,121 場次，進行中/未開始兩色，today 注入 paint） | ✅ |
+| performingVenues | point | GeoJSON `public/culture/performing_venues_national.geojson`（857，半徑∝√event_count） | ✅ |
+| librarySeats | point（realtime） | RPC `get_tpml_seat_current` / `get_tpml_seat_24h`（29 區聚合 6 分館，5min 輪詢） | ✅ |
 
 ## 關鍵檔案
 
