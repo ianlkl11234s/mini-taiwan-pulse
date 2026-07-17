@@ -905,6 +905,22 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'gov_service_offices', confidence: 'HIGH' }],
   },
+  publicLibraries: {
+    status: 'verified',
+    datasets: [{ datasetId: 'public_libraries', confidence: 'HIGH' }],
+  },
+  welfareCenters: {
+    status: 'verified',
+    datasets: [{ datasetId: 'welfare_centers', confidence: 'HIGH' }],
+  },
+  retailMarkets: {
+    status: 'verified',
+    datasets: [{ datasetId: 'public_retail_markets', confidence: 'HIGH' }],
+  },
+  publicToilets: {
+    status: 'verified',
+    datasets: [{ datasetId: 'public_toilets', confidence: 'HIGH' }],
+  },
   realEstateRentalGrid: {
     status: 'verified',
     datasets: [{ datasetId: 'real_estate', confidence: 'LOW' }],

@@ -53,6 +53,14 @@ const GOV_OFFICE_TYPE: Record<string, { color: string; label: string }> = {
   land_office: { color: "#9ccc65", label: "地政事務所" },
 };
 
+/** 公廁清潔評鑑等級 → 色（缺值 fallback 灰）*/
+const TOILET_GRADE_COLOR: Record<string, string> = {
+  特優級: "#7e57c2",
+  優等級: "#ab47bc",
+  普通級: "#ffb300",
+  不合格: "#e53935",
+};
+
 /** 港口分類對應色 */
 const PORT_CLASS_COLORS: Record<string, string> = {
   "國際商港": "#42a5f5",
@@ -239,6 +247,79 @@ export function GovServiceOfficePanel({ props }: { props: Record<string, unknown
       <Row label="類型" value={info.label} color={info.color} />
       <Row label="縣市" value={String(props.county ?? "")} />
       <Row label="轄區" value={String(props.jurisdiction ?? "")} />
+    </>
+  );
+}
+
+export function PublicLibraryPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const accentColor = "#5c6bc0";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown Library")}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} color={accentColor} />
+      <Row label="類型" value={String(props.type ?? "")} />
+    </>
+  );
+}
+
+export function WelfareCenterPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const accentColor = "#ec407a";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown Welfare Center")}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} color={accentColor} />
+      <Row label="服務區" value={String(props.service_area ?? "")} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
+        資料時點 2023-04
+      </div>
+    </>
+  );
+}
+
+export function RetailMarketPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const accentColor = "#66bb6a";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown Market")}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} color={accentColor} />
+      <Row label="營業時間" value={String(props.business_hours ?? "")} />
+    </>
+  );
+}
+
+export function PublicToiletPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const grade = String(props.grade ?? "");
+  const gradeColor = TOILET_GRADE_COLOR[grade] ?? "#9e9e9e";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: gradeColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown Toilet")}
+        </div>
+      </div>
+      <Row label="縣市" value={String(props.county ?? "")} />
+      <Row label="等級" value={grade} color={gradeColor} />
+      <Row label="類別" value={String(props.type2 ?? "")} />
     </>
   );
 }

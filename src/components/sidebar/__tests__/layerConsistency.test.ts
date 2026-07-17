@@ -78,6 +78,8 @@ const BASELINE_NO_LEGEND = new Set([
   "schools", "convenienceStores", "submarineCables", "landingStations",
   // 公共設施：郵局 / i郵箱 / 活動中心 皆單色 POI（鐵則 2 不適用）；govServiceOffices 3 類分色 → 接 GovServiceOfficeLegend
   "postOffices", "iPostBoxes", "communityCenters",
+  // 公共設施 Batch 2：圖書館 / 社福 / 市場 皆單色 POI（鐵則 2 不適用）；publicToilets grade 4 級分色 → 接 PublicToiletLegend
+  "publicLibraries", "welfareCenters", "retailMarkets",
   "activeFaults", "youbikeFullness", "cwaCloudImagery",
   "cwaRadarImagery", "aqiImagery", "aqiStations", "aqiMicroSensors",
   "busLive", "busIntercityLive", "waterBasins", "waterRivers", "waterLevees",

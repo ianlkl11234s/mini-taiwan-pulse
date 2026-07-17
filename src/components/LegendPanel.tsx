@@ -230,6 +230,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["performingVenues"], render: () => <PerformingVenuesLegend /> },
   { keys: ["librarySeats"], render: () => <LibrarySeatsLegend /> },
   { keys: ["govServiceOffices"], render: () => <GovServiceOfficeLegend /> },
+  { keys: ["publicToilets"], render: () => <PublicToiletLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
   {
     keys: [
@@ -661,6 +662,37 @@ function GovServiceOfficeLegend() {
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         機關便民據點 GOV SERVICE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => (
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: 2, background: it.color,
+                opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+                boxSizing: "border-box", flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PublicToiletLegend() {
+  const t = useLegendTheme();
+  const rows = [
+    { color: "#7e57c2", label: "特優級 Excellent" },
+    { color: "#ab47bc", label: "優等級 Superior" },
+    { color: "#ffb300", label: "普通級 Ordinary" },
+    { color: "#e53935", label: "不合格 Failed" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        公廁清潔評鑑 TOILET GRADE
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (

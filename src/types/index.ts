@@ -102,6 +102,7 @@ export type ExpandableLayerKey =
   | "temperatureWave"
   | "schools" | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
+  | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
   | "submarineCables" | "landingStations"
   | "activeFaults"
   | "newsEvents"
@@ -640,6 +641,7 @@ export interface RealEstateTooltipInfo {
 export interface FeatureInfo {
   layerType: "submarineCable" | "landingStation" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
+    | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
     | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent" | "roadCongestion"
@@ -759,6 +761,10 @@ export interface LayerVisibility {
   iPostBoxes: boolean;
   communityCenters: boolean;
   govServiceOffices: boolean;
+  publicLibraries: boolean;
+  welfareCenters: boolean;
+  retailMarkets: boolean;
+  publicToilets: boolean;
   submarineCables: boolean;
   landingStations: boolean;
   activeFaults: boolean;

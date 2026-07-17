@@ -1870,6 +1870,211 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Public Libraries (公共圖書館，634 點) ──
+  {
+    id: "publicLibraries",
+    sourceUrl: "./culture/public_libraries_national.geojson",
+    sourceId: "public-libraries",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.publicLibrariesScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 8 * scale, 12, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": "#5c6bc0",
+            "circle-opacity": 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.publicLibrariesScale ?? 1;
+          const opacity = params?.publicLibrariesOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 4 * scale, 12, 8 * scale,
+            ],
+            "circle-color": "#5c6bc0",
+            "circle-stroke-color": "#3949ab",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Welfare Centers (社福中心，157 點，資料時點 2023-04) ──
+  {
+    id: "welfareCenters",
+    sourceUrl: "./civic_facilities/welfare_centers_national.geojson",
+    sourceId: "welfare-centers",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.welfareCentersScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 8 * scale, 12, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": "#ec407a",
+            "circle-opacity": 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.welfareCentersScale ?? 1;
+          const opacity = params?.welfareCentersOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 4 * scale, 12, 8 * scale,
+            ],
+            "circle-color": "#ec407a",
+            "circle-stroke-color": "#c2185b",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Public Retail Markets (公有零售市場，731 點) ──
+  {
+    id: "retailMarkets",
+    sourceUrl: "./poi/public_retail_markets_national.geojson",
+    sourceId: "retail-markets",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.retailMarketsScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 8 * scale, 12, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": "#66bb6a",
+            "circle-opacity": 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.retailMarketsScale ?? 1;
+          const opacity = params?.retailMarketsOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 4 * scale, 12, 8 * scale,
+            ],
+            "circle-color": "#66bb6a",
+            "circle-stroke-color": "#388e3c",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Public Toilets (公廁，13,281 點) ──
+  // grade 4 級分色（特優/優等/普通/不合格，缺值 fallback 灰）；13k 點 → minzoom 11 控密度
+  {
+    id: "publicToilets",
+    sourceUrl: "./environment/public_toilets_national.geojson",
+    sourceId: "public-toilets",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        minzoom: 11,
+        paint: (_isDark, params) => {
+          const scale = params?.publicToiletsScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              11, 5 * scale, 16, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "grade"],
+              "特優級", "#7e57c2",
+              "優等級", "#ab47bc",
+              "普通級", "#ffb300",
+              "不合格", "#e53935",
+              "#9e9e9e",
+            ] as unknown as string,
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 11,
+        paint: (_isDark, params) => {
+          const scale = params?.publicToiletsScale ?? 1;
+          const opacity = params?.publicToiletsOpacity ?? 0.75;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              11, 2.5 * scale, 16, 6 * scale,
+            ],
+            "circle-color": [
+              "match", ["get", "grade"],
+              "特優級", "#7e57c2",
+              "優等級", "#ab47bc",
+              "普通級", "#ffb300",
+              "不合格", "#e53935",
+              "#9e9e9e",
+            ] as unknown as string,
+            "circle-stroke-color": "#311b92",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              11, 0, 13, 0.3, 16, 0.6,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
   // ── Medical: Hospitals (醫院，451 點) ──
   {
     id: "medHospital",
