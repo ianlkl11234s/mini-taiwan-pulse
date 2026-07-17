@@ -1670,6 +1670,206 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── Post Offices (郵局，1278 點) ──
+  {
+    id: "postOffices",
+    sourceUrl: "./civic_facilities/post_offices_national.geojson",
+    sourceId: "post-offices",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.postOfficesScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 6 * scale, 12, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": "#d32f2f",
+            "circle-opacity": 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.postOfficesScale ?? 1;
+          const opacity = params?.postOfficesOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 3 * scale, 12, 6 * scale,
+            ],
+            "circle-color": "#d32f2f",
+            "circle-stroke-color": "#b71c1c",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── iPost Boxes (i郵箱，2345 點) ──
+  {
+    id: "iPostBoxes",
+    sourceUrl: "./civic_facilities/ibox_national.geojson",
+    sourceId: "ipost-boxes",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.iPostBoxesScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 6 * scale, 12, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": "#ef6c00",
+            "circle-opacity": 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.iPostBoxesScale ?? 1;
+          const opacity = params?.iPostBoxesOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 3 * scale, 12, 6 * scale,
+            ],
+            "circle-color": "#ef6c00",
+            "circle-stroke-color": "#e65100",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Community Centers (社區活動中心，1794 點，8 縣市部分覆蓋) ──
+  {
+    id: "communityCenters",
+    sourceUrl: "./civic_facilities/community_centers_national.geojson",
+    sourceId: "community-centers",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.communityCentersScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 6 * scale, 12, 12 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": "#26a69a",
+            "circle-opacity": 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.communityCentersScale ?? 1;
+          const opacity = params?.communityCentersOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 3 * scale, 12, 6 * scale,
+            ],
+            "circle-color": "#26a69a",
+            "circle-stroke-color": "#00897b",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.5,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── Gov Service Offices (機關便民據點，702 點，type 3 類分色) ──
+  {
+    id: "govServiceOffices",
+    sourceUrl: "./civic_facilities/gov_service_offices_national.geojson",
+    sourceId: "gov-service-offices",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.govServiceOfficesScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 8 * scale, 12, 16 * scale,
+            ],
+            "circle-blur": 1,
+            "circle-color": [
+              "match", ["get", "type"],
+              "district_office", "#8d6e63",
+              "household_registration", "#7986cb",
+              "land_office", "#9ccc65",
+              "#8d6e63",
+            ] as unknown as string,
+            "circle-opacity": 0.15,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const scale = params?.govServiceOfficesScale ?? 1;
+          const opacity = params?.govServiceOfficesOpacity ?? 0.9;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 4 * scale, 12, 8 * scale,
+            ],
+            "circle-color": [
+              "match", ["get", "type"],
+              "district_office", "#8d6e63",
+              "household_registration", "#7986cb",
+              "land_office", "#9ccc65",
+              "#8d6e63",
+            ] as unknown as string,
+            "circle-stroke-color": "#3e2723",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0, 10, 0.3, 14, 0.6,
+            ],
+            "circle-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
   // ── Medical: Hospitals (醫院，451 點) ──
   {
     id: "medHospital",

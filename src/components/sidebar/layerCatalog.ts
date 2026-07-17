@@ -4,8 +4,8 @@
 //
 // LayerSidebar（手機版）與 IconRailSidebar（桌機版）共用此檔。
 //
-// 結構（2026-06-27 重組）：
-// - 14 主題（Theme） → 多子群（SubGroup） → 多 Layer
+// 結構（2026-07 現況，PR #72 後）：
+// - 22 主題（Theme） → 多子群（SubGroup） → 多 Layer
 // - SECTIONS 為 derived flat list，每筆 SectionDef = 一個 SubGroup，
 //   title 格式：`主題中文 English · 子群中文`，視覺上連續行構成主題分組。
 //   下一階段 sidebar 升級後可直接消費 THEMES。
@@ -19,9 +19,8 @@
 //
 // 排序原則：
 // 1. BASE 頂置（不算主題、純底圖）
-// 2. 主題順序依「日常使用頻率」+「故事性」：MOVE → PEOPLE → ENV → WATER
-//    → HAZARD → FIRE → MEDICAL → AGRI → FOREST → WASTE → ENERGY
-//    → INFRA → ESTATE → SPACE → NEWS
+// 2. 主題順序沿七段敘事帶推進：
+//    基準/脈動 → 人與城市 → 公共服務 → 安全緊急 → 環境資源 → 產業 → 情報
 // 3. 每主題內子群順序：點位 → 線/面 → 即時 → 分析
 
 import type { LayerVisibility, TransportType } from "../../types";
@@ -61,6 +60,10 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   temperatureWave: "#ff6b35",
   schools: "#42a5f5",
   convenienceStores: "#26c6da",
+  postOffices: "#d32f2f",
+  iPostBoxes: "#ef6c00",
+  communityCenters: "#26a69a",
+  govServiceOffices: "#8d6e63",
   submarineCables: "#2196F3",
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
@@ -592,6 +595,10 @@ export const THEMES: ThemeDef[] = [
         layers: [
           { key: "schools", label: "學校 School", expandable: true },
           { key: "convenienceStores", label: "超商 Convenience Store", expandable: true },
+          { key: "postOffices", label: "郵局 Post Office", expandable: true },
+          { key: "iPostBoxes", label: "i郵箱 iPost Box", expandable: true },
+          { key: "communityCenters", label: "活動中心（部分縣市）Community Center", expandable: true },
+          { key: "govServiceOffices", label: "機關便民據點 Gov Service Office", expandable: true },
         ],
       },
     ],

@@ -6,6 +6,7 @@ import type { FC } from "react";
 import type { FeatureInfo } from "../../types";
 import {
   SubmarineCablePanel, LandingStationPanel, SchoolPanel, ConvenienceStorePanel,
+  PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel,
   LighthousePanel, PortPanel, AirportPanel, CctvPanel, EtcGantryPanel,
   ServiceAreaPanel, ServiceAreaPolygonPanel, TaxiStandPanel,
 } from "./infraPanels";
@@ -91,6 +92,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   landingStation: LandingStationPanel,
   school: SchoolPanel,
   convenienceStore: ConvenienceStorePanel,
+  postOffice: PostOfficePanel,
+  iPostBox: IPostBoxPanel,
+  communityCenter: CommunityCenterPanel,
+  govServiceOffice: GovServiceOfficePanel,
   weatherStation: WeatherStationPanel,
   bikeStation: BikeStationPanel,
   busStation: BusStationPanel,
@@ -271,6 +276,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   landingStation: "海纜登陸站",
   school: "學校",
   convenienceStore: "超商",
+  postOffice: "郵局",
+  iPostBox: "i郵箱",
+  communityCenter: "活動中心",
+  govServiceOffice: "機關便民據點",
   weatherStation: "氣象站",
   bikeStation: "公共自行車站",
   busStation: "公車站",
