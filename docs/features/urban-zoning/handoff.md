@@ -15,7 +15,7 @@
 
 - 色票 SSOT：`src/data/urbanZoningTypes.ts`
 - Overlay：`src/map/overlayRegistry.ts`（pmtiles fill + line，篩選 filter 函式，`rebuildOnParamChange: ["fill","line"]`）
-- UI toggle：`layerCatalog.ts`（都市分析 > 土地使用分區 Zoning）
+- UI toggle：`layerCatalog.ts`（底圖 Base Map > 土地使用分區 Zoning）
 - Popup：`urbanPanels.tsx` UrbanZoningPanel（兩 key 共用）
 
 ## 硬依賴欄位（改一定爆）

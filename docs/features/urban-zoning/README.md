@@ -8,7 +8,7 @@
 
 ## 一句話說明
 
-北市 + 新北官方都市計畫使用分區 polygon（住宅/商業/工業/農業/綠地/公設/交通/保護/其他 9 類統一分色），掛「都市分析」主題新 group「土地使用分區 Zoning」。
+北市 + 新北官方都市計畫使用分區 polygon（住宅/商業/工業/農業/綠地/公設/交通/保護/其他 9 類統一分色），掛「底圖 Base Map」主題新 group「土地使用分區 Zoning」（官方參考底圖，非分析產物；上游 topic-research 原始目標即底圖層）。
 
 ## 圖層 / 元件
 
@@ -22,7 +22,7 @@
 - 色票 SSOT：`src/data/urbanZoningTypes.ts`（9 類 zone_category）
 - Overlay：`src/map/overlayRegistry.ts`（fill + line 雙 spec，pmtiles sourceLayer 各自對應）
 - Popup：`src/components/featureInfo/urbanPanels.tsx`（兩 key 共用 UrbanZoningPanel）
-- Catalog：`src/components/sidebar/layerCatalog.ts`（都市分析 > 土地使用分區）
+- Catalog：`src/components/sidebar/layerCatalog.ts`（底圖 Base Map > 土地使用分區）
 
 ## 資料契約摘要
 

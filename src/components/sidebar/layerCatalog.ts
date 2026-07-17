@@ -406,6 +406,14 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
+        // 官方參考底圖（非分析產物）——上游 topic-research 原始目標即「pulse 底圖層」
+        title: "土地使用分區 Zoning",
+        layers: [
+          { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
+          { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
+        ],
+      },
+      {
         title: "道路底圖",
         layers: [
           { key: "osmRoadDrive", label: "OSM 道路 OSM Roads", expandable: true },
@@ -529,13 +537,6 @@ export const THEMES: ThemeDef[] = [
         title: "都市紋理",
         layers: [
           { key: "urbanFormGrid", label: "都市紋理網格 Urban Form", expandable: true },
-        ],
-      },
-      {
-        title: "土地使用分區 Zoning",
-        layers: [
-          { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
-          { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
         ],
       },
     ],
