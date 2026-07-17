@@ -32,6 +32,8 @@ import {
   Biohazard,
   // 🎭 CULTURE icons（Building2 / CalendarDays 已 import 復用）
   Landmark, Theater, Library,
+  // 🗺️ 土地使用分區 icons
+  LandPlot, Map,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -175,6 +177,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   treePitsTaipei: Flower2,
   buildingsGba: Building2,
   urbanFormGrid: LayoutGrid,
+  urbanZoningTaipei: LandPlot,
+  urbanZoningNewTaipei: Map,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,

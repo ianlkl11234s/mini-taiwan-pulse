@@ -37,6 +37,7 @@ import {
   StreetTreesTaipeiDiffPanel, ProtectedTreesNationalPanel,
   RiversideTreesTaipeiPanel, ParksTaipeiPanel, StreetTrees3epochPanel,
   StreetTreesNationalPanel, TreePitsTaipeiPanel, BuildingsGbaPanel, UrbanFormGridPanel,
+  UrbanZoningPanel,
 } from "./urbanPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import {
@@ -253,6 +254,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   treePitsTaipei: TreePitsTaipeiPanel,
   buildingsGba: BuildingsGbaPanel,
   urbanFormGrid: UrbanFormGridPanel,
+  urbanZoningTaipei: UrbanZoningPanel,
+  urbanZoningNewTaipei: UrbanZoningPanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
   // 🎭 文化
@@ -345,6 +348,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   treePitsTaipei: "人行道樹穴",
   buildingsGba: "建物",
   urbanFormGrid: "都市紋理",
+  urbanZoningTaipei: "土地使用分區",
+  urbanZoningNewTaipei: "土地使用分區",
   sportsVenue: "運動場館",
   culturalFacilities: "文化設施",
   culturalMuseums: "地方文化館",

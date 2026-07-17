@@ -299,6 +299,8 @@ export function useMapInteraction(
           { layers: ["tree-pits-taipei-fill", "tree-pits-taipei-line"], type: "treePitsTaipei" },
           { layers: ["buildings-gba-fill", "buildings-gba-extrusion"], type: "buildingsGba" },
           { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
+          { layers: ["urban-zoning-taipei-fill"], type: "urbanZoningTaipei" },
+          { layers: ["urban-zoning-newtaipei-fill"], type: "urbanZoningNewTaipei" },
           { layers: ["sports-venues-school", "sports-venues-public-other", "sports-venues-private", "sports-venues-park", "sports-venues-center"], type: "sportsVenue" },
           { layers: ["culture-facilities-circle"], type: "culturalFacilities" },
           { layers: ["culture-museums-circle"], type: "culturalMuseums" },

@@ -38,6 +38,7 @@ import {
 } from "../data/urbanOpenSpaceTypes";
 import { buildingHeightColorExpr, buildingSrcColorExpr } from "../data/buildingsGbaTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
+import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
@@ -3375,6 +3376,88 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "fill-opacity": urbanFormGridOpacityExpr(modeIdx, base),
           };
         },
+      },
+    ],
+  },
+  // 都市計畫土地使用分區（vector PMTiles，北市 15,518 + 新北 34,190，z6-15；WGS84 MultiPolygon，
+  // tippecanoe -y 10 欄全保留，上游 handoff urban-zoning.md）：zone_category 9 類跨市統一分色
+  // （SSOT 見 urbanZoningTypes.ts），fill + 細邊界 line 兩 sublayer。分類篩選走 per-layer filter
+  // 函式（同 buildingsGba；idx 0=全部 1..9 單類 → 未選中的分區被濾除而非淡化），故
+  // rebuildOnParamChange 收 ["fill","line"] 兩 suffix（收參數名會靜默失效，見
+  // .claude/pitfalls/2026-07-16-rebuildonparamchange-suffix-not-param.md）。line-opacity 跟主 opacity
+  // 連動 ×0.6；line-width z10 0.3px → z15 1px 內插（zoom 只在最外層 interpolate）。
+  {
+    id: "urbanZoningTaipei",
+    sourceUrl: "./urban/urban_zoning_taipei.pmtiles",
+    sourceId: "urban-zoning-taipei",
+    pmtiles: { sourceLayer: "urban_zoning_taipei", minzoom: 6, maxzoom: 15 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: (p) => {
+          const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0; // 0=全部 1..9=單一分類
+          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          // zone_raw="nan" 的 4 筆是規劃範圍框（meta-polygon 非分區面），不渲染不點擊；上游 drop 前的防禦（UZ-5）
+          const notMeta = ["!=", ["get", "zone_raw"], "nan"];
+          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
+        },
+        paint: (_isDark, p) => ({
+          "fill-color": urbanZoningColorExpr(),
+          "fill-opacity": p?.urbanZoningTaipeiOpacity ?? 0.5,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: (p) => {
+          const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0;
+          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          const notMeta = ["!=", ["get", "zone_raw"], "nan"];
+          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
+        },
+        paint: (_isDark, p) => ({
+          "line-color": urbanZoningColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
+          "line-opacity": (p?.urbanZoningTaipeiOpacity ?? 0.5) * 0.6,
+        }),
+      },
+    ],
+  },
+  {
+    id: "urbanZoningNewTaipei",
+    sourceUrl: "./urban/urban_zoning_newtaipei.pmtiles",
+    sourceId: "urban-zoning-newtaipei",
+    pmtiles: { sourceLayer: "urban_zoning_newtaipei", minzoom: 6, maxzoom: 15 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: (p) => {
+          const idx = p?.urbanZoningNewTaipeiCategoryIdx ?? 0; // 0=全部 1..9=單一分類
+          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+        },
+        paint: (_isDark, p) => ({
+          "fill-color": urbanZoningColorExpr(),
+          "fill-opacity": p?.urbanZoningNewTaipeiOpacity ?? 0.5,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: (p) => {
+          const idx = p?.urbanZoningNewTaipeiCategoryIdx ?? 0;
+          const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
+          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+        },
+        paint: (_isDark, p) => ({
+          "line-color": urbanZoningColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
+          "line-opacity": (p?.urbanZoningNewTaipeiOpacity ?? 0.5) * 0.6,
+        }),
       },
     ],
   },

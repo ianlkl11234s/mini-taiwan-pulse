@@ -7,6 +7,7 @@ import {
 } from "../../data/urbanOpenSpaceTypes";
 import { buildingHeightBandColor } from "../../data/buildingsGbaTypes";
 import { GG_INDEX_BANDS, gridBandColor, URBAN_FORM_GRID_APPROX_NOTE } from "../../data/urbanFormGridTypes";
+import { urbanZoningCategoryLabel, urbanZoningCategoryColor } from "../../data/urbanZoningTypes";
 
 // 本檔 Title 為極簡本地版（同 fisheryPanels 慣例）：shared.tsx 未 export Title，故不去改動它。
 function Title({ color, children }: { color: string; children: string }) {
@@ -292,6 +293,38 @@ export function UrbanFormGridPanel({ props }: { props: Record<string, unknown> }
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ {URBAN_FORM_GRID_APPROX_NOTE}
       </div>
+      <SourceFooter props={props} />
+    </>
+  );
+}
+
+// ── 都市計畫土地使用分區（北市 15,518 + 新北 34,190 面；北市 / 新北兩 layerType 共用本 panel）──
+
+/**
+ * 土地使用分區：Title 走 fallback 鏈 zone_name → zone_raw → zone_short → 分類 label
+ * （北市 zone_name 齊全；新北 zone_name/zone_short 全空、原始分區名在 zone_raw——見上游 handoff §2）；
+ * "nan"/"null" 字面字串一律視為缺值（北市範圍框 meta-polygon 遺留，上游 UZ-5 待清）。
+ * zone_category 9 類色票 SSOT = urbanZoningTypes.ts（與 overlayRegistry / Legend 同源）。
+ */
+const zoneText = (v: unknown): string => {
+  const s = String(v ?? "").trim();
+  return s && s !== "nan" && s !== "null" ? s : "";
+};
+
+export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) {
+  const category = String(props.zone_category ?? "");
+  const color = urbanZoningCategoryColor(category);
+  const title =
+    zoneText(props.zone_name) || zoneText(props.zone_raw) || zoneText(props.zone_short) ||
+    urbanZoningCategoryLabel(category) || "土地使用分區";
+  return (
+    <>
+      <Title color={color}>{title}</Title>
+      <Row label="分類" value={urbanZoningCategoryLabel(category)} color={color} />
+      <Row label="簡稱" value={zoneText(props.zone_short)} />
+      <Row label="代碼" value={zoneText(props.zone_code)} />
+      <Row label="城市" value={zoneText(props.city)} />
+      <Row label="計畫層級" value={zoneText(props.plan_level)} />
       <SourceFooter props={props} />
     </>
   );

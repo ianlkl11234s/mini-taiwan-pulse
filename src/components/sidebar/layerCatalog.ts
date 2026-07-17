@@ -160,6 +160,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   treePitsTaipei: "#8d6e63",
   buildingsGba: "#78909c",
   urbanFormGrid: "#8d9c6b",
+  urbanZoningTaipei: "#f2c94c",
+  urbanZoningNewTaipei: "#eb5757",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -401,6 +403,14 @@ export const THEMES: ThemeDef[] = [
         title: "建成環境",
         layers: [
           { key: "buildingsGba", label: "建物輪廓 Buildings", expandable: true },
+        ],
+      },
+      {
+        // 官方參考底圖（非分析產物）——上游 topic-research 原始目標即「pulse 底圖層」
+        title: "土地使用分區 Zoning",
+        layers: [
+          { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
+          { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
         ],
       },
       {
