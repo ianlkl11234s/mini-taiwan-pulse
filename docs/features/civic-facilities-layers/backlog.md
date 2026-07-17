@@ -4,7 +4,7 @@
 
 ## 進行中
 
-- [ ] **CF-1**：browser 逐層驗收（另一 agent 執行中）— 8 層 toggle / opacity+scale slider / click popup / 圖例（govServiceOffices type、publicToilets grade）逐一過。完成前不得視為 shipped
+（無）
 
 ## 待辦
 
@@ -15,6 +15,7 @@
 
 ## 已完成（近期）
 
+- [x] **CF-1**：browser 逐層驗收 8/8 PASS（2026-07-17）— 8 層 toggle / opacity+scale slider / click popup / 圖例（govServiceOffices 3 類、publicToilets 4 級）/ 公廁 zoom-gate（z9 無點、z12 有點）全過
 - [x] **CF-0**：公共設施 8 圖層接線（郵局/i郵箱/活動中心/機關便民據點/公共圖書館/社福中心/公有市場/公廁）— commits `7e16edd` + `6e7f02e`，2026-07-17，PR 待開；tsc 0 錯 / 190 tests 全綠
 
 ## 已放棄 / 延後

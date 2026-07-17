@@ -1,7 +1,7 @@
 # 公共設施圖層批次（civic-facilities-layers）
 
 > **Slug**：`civic-facilities-layers`（上游 handoff slug 為 `public-facilities`，見 handoff.md 說明）
-> **狀態**：staging（接線完成，browser 驗收進行中）
+> **狀態**：wired + verified（接線完成，browser 驗收 8/8 PASS 2026-07-17；PR 待開）
 > **Owner**：migu
 > **上線日期**：待定（PR 未開）
 > **相關 PR**：待開
@@ -14,14 +14,14 @@
 
 | 名稱（layer key） | 類型 | 資料源 | n | 色 / icon | 狀態 |
 |---|---|---|---|---|---|
-| postOffices | point | GeoJSON `public/civic_facilities/post_offices_national.geojson` | 1,278 | `#d32f2f` / Mail | 接線完成，驗收中 |
-| iPostBoxes | point | GeoJSON `public/civic_facilities/ibox_national.geojson` | 2,345 | `#ef6c00` / PackageCheck | 接線完成，驗收中 |
-| communityCenters | point | GeoJSON `public/civic_facilities/community_centers_national.geojson`（partial coverage 8 縣市） | 1,794 | `#26a69a` / Users | 接線完成，驗收中 |
-| govServiceOffices | point | GeoJSON `public/civic_facilities/gov_service_offices_national.geojson`（type 3 分色） | 702 | `#8d6e63` / Landmark | 接線完成，驗收中 |
-| publicLibraries | point | GeoJSON `public/culture/public_libraries_national.geojson` | 634 | `#5c6bc0` / BookOpen | 接線完成，驗收中 |
-| welfareCenters | point | GeoJSON `public/civic_facilities/welfare_centers_national.geojson` | 157 | `#ec407a` / HeartHandshake | 接線完成，驗收中 |
-| retailMarkets | point | GeoJSON `public/poi/public_retail_markets_national.geojson` | 731 | `#66bb6a` / ShoppingBasket | 接線完成，驗收中 |
-| publicToilets | point | GeoJSON `public/environment/public_toilets_national.geojson`（minzoom 11 zoom-gate + grade 4 級分色） | 13,281 | `#7e57c2` / Toilet | 接線完成，驗收中 |
+| postOffices | point | GeoJSON `public/civic_facilities/post_offices_national.geojson` | 1,278 | `#d32f2f` / Mail | ✅ 驗收 PASS |
+| iPostBoxes | point | GeoJSON `public/civic_facilities/ibox_national.geojson` | 2,345 | `#ef6c00` / PackageCheck | ✅ 驗收 PASS |
+| communityCenters | point | GeoJSON `public/civic_facilities/community_centers_national.geojson`（partial coverage 8 縣市） | 1,794 | `#26a69a` / Users | ✅ 驗收 PASS |
+| govServiceOffices | point | GeoJSON `public/civic_facilities/gov_service_offices_national.geojson`（type 3 分色） | 702 | `#8d6e63` / Landmark | ✅ 驗收 PASS |
+| publicLibraries | point | GeoJSON `public/culture/public_libraries_national.geojson` | 634 | `#5c6bc0` / BookOpen | ✅ 驗收 PASS |
+| welfareCenters | point | GeoJSON `public/civic_facilities/welfare_centers_national.geojson` | 157 | `#ec407a` / HeartHandshake | ✅ 驗收 PASS |
+| retailMarkets | point | GeoJSON `public/poi/public_retail_markets_national.geojson` | 731 | `#66bb6a` / ShoppingBasket | ✅ 驗收 PASS |
+| publicToilets | point | GeoJSON `public/environment/public_toilets_national.geojson`（minzoom 11 zoom-gate + grade 4 級分色） | 13,281 | `#7e57c2` / Toilet | ✅ 驗收 PASS |
 
 全 8 層皆為靜態 GeoJSON，走 `overlayRegistry` glow+circle 樣板；預設關；每層 opacity + scale 雙 slider + click popup。
 

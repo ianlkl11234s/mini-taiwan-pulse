@@ -17,6 +17,6 @@
   - 全接觸點：types / LAYER_COLORS / THEMES / icon / params（opacity+scale）/ popup / upstreamRegistry / chat datasets
   - deployContract：nginx.conf + pull-deploy-assets.sh 補 `civic_facilities/` 子目錄契約
   - layerCatalog 檔頭註解 14 主題 → 22 主題七段敘事帶（補 PR #72 漏更）
-- 驗收：tsc 0 錯 / 190 tests 全綠；agent-browser 逐層驗收**進行中**（尚未回報結果，未 PASS）
+- 驗收：tsc 0 錯 / 190 tests 全綠；agent-browser 逐層驗收 **8/8 PASS**（All Off 後單層開，逐層驗 點渲染/顏色/popup 欄位/雙 slider；govServiceOffices 3 類與 publicToilets 4 級圖例正確；communityCenters label 含「部分縣市」；welfareCenters footer 日期正確；publicToilets zoom-gate 生效 z9→0 點 / z12→2,566 點）
 - Breaking：無
 
