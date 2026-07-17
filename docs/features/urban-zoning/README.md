@@ -1,10 +1,10 @@
 # 都市計畫土地使用分區（urban-zoning）
 
 > **Slug**：`urban-zoning`（與 taipei-gis-analytics handoff 一致）
-> **狀態**：dev
+> **狀態**：shipped
 > **Owner**：migu
-> **上線日期**：TBD
-> **相關 PR**：TBD
+> **上線日期**：2026-07-17
+> **相關 PR**：#73（squash `54b7f17`）
 
 ## 一句話說明
 
@@ -14,8 +14,8 @@
 
 | 名稱（layer key） | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
-| urbanZoningTaipei | polygon (PMTiles z6-15) | `public/urban/urban_zoning_taipei.pmtiles`（15,518，S3 管理） | dev |
-| urbanZoningNewTaipei | polygon (PMTiles z6-15) | `public/urban/urban_zoning_newtaipei.pmtiles`（34,190，S3 管理） | dev |
+| urbanZoningTaipei | polygon (PMTiles z6-15) | `public/urban/urban_zoning_taipei.pmtiles`（15,518，S3 管理） | ✅ |
+| urbanZoningNewTaipei | polygon (PMTiles z6-15) | `public/urban/urban_zoning_newtaipei.pmtiles`（34,190，S3 管理） | ✅ |
 
 ## 關鍵檔案
 
