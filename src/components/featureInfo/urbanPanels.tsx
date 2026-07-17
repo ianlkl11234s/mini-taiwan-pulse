@@ -301,21 +301,30 @@ export function UrbanFormGridPanel({ props }: { props: Record<string, unknown> }
 // ── 都市計畫土地使用分區（北市 15,518 + 新北 34,190 面；北市 / 新北兩 layerType 共用本 panel）──
 
 /**
- * 土地使用分區：Title=zone_name 原始分區全名（色點依 zone_category）；
- * Row：分類（中文 label）/ 簡稱 / 代碼 / 城市 / 計畫層級。
+ * 土地使用分區：Title 走 fallback 鏈 zone_name → zone_raw → zone_short → 分類 label
+ * （北市 zone_name 齊全；新北 zone_name/zone_short 全空、原始分區名在 zone_raw——見上游 handoff §2）；
+ * "nan"/"null" 字面字串一律視為缺值（北市範圍框 meta-polygon 遺留，上游 UZ-5 待清）。
  * zone_category 9 類色票 SSOT = urbanZoningTypes.ts（與 overlayRegistry / Legend 同源）。
  */
+const zoneText = (v: unknown): string => {
+  const s = String(v ?? "").trim();
+  return s && s !== "nan" && s !== "null" ? s : "";
+};
+
 export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) {
   const category = String(props.zone_category ?? "");
   const color = urbanZoningCategoryColor(category);
+  const title =
+    zoneText(props.zone_name) || zoneText(props.zone_raw) || zoneText(props.zone_short) ||
+    urbanZoningCategoryLabel(category) || "土地使用分區";
   return (
     <>
-      <Title color={color}>{String(props.zone_name ?? "土地使用分區")}</Title>
+      <Title color={color}>{title}</Title>
       <Row label="分類" value={urbanZoningCategoryLabel(category)} color={color} />
-      <Row label="簡稱" value={String(props.zone_short ?? "")} />
-      <Row label="代碼" value={String(props.zone_code ?? "")} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="計畫層級" value={String(props.plan_level ?? "")} />
+      <Row label="簡稱" value={zoneText(props.zone_short)} />
+      <Row label="代碼" value={zoneText(props.zone_code)} />
+      <Row label="城市" value={zoneText(props.city)} />
+      <Row label="計畫層級" value={zoneText(props.plan_level)} />
       <SourceFooter props={props} />
     </>
   );

@@ -21,7 +21,8 @@
 ## 硬依賴欄位（改一定爆）
 
 - `zone_category`（9 值統一分類）— match 分色 + 分類篩選 + 圖例
-- `zone_name` — popup 標題（`other` 類占 13-19%，全靠它讓用戶看到原始分區名）
+- `zone_name` / `zone_raw` — popup 標題 fallback 鏈（北市用 zone_name；**新北 zone_name/zone_short 全空，靠 zone_raw**）；`"nan"`/`"null"` 字面字串視為缺值
+- 北市 4 筆範圍框 meta-polygon（zone_raw=`"nan"`）已用 filter 濾除（渲染+點擊都排除），上游 UZ-5 清資料前不可移除此 filter
 - `zone_short` / `zone_code` / `city` / `plan_level` — popup rows
 - source-layer 名 `urban_zoning_taipei` / `urban_zoning_newtaipei` — overlayRegistry pmtiles.sourceLayer
 

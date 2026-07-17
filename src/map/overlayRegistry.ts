@@ -3399,7 +3399,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => {
           const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0; // 0=全部 1..9=單一分類
           const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
-          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+          // zone_raw="nan" 的 4 筆是規劃範圍框（meta-polygon 非分區面），不渲染不點擊；上游 drop 前的防禦（UZ-5）
+          const notMeta = ["!=", ["get", "zone_raw"], "nan"];
+          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
         },
         paint: (_isDark, p) => ({
           "fill-color": urbanZoningColorExpr(),
@@ -3412,7 +3414,8 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         filter: (p) => {
           const idx = p?.urbanZoningTaipeiCategoryIdx ?? 0;
           const cat = idx > 0 ? URBAN_ZONING_CATEGORIES[idx - 1]?.value : undefined;
-          return cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"];
+          const notMeta = ["!=", ["get", "zone_raw"], "nan"];
+          return ["all", notMeta, cat ? ["==", ["get", "zone_category"], cat] : ["has", "zone_category"]];
         },
         paint: (_isDark, p) => ({
           "line-color": urbanZoningColorExpr(),
