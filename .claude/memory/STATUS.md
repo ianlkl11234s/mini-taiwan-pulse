@@ -1,7 +1,7 @@
 # Status
 
-**最後更新**：2026-07-17（公共設施 8 圖層接線 + 驗收 8/8 PASS）
-**mini-taiwan-pulse head**：`feat/civic-facilities-layers`（8 公共設施圖層接線完成 + browser 驗收 8/8 PASS，**未 push、待開 PR**）
+**最後更新**：2026-07-18（公共設施 8 圖層 PR #74 squash `8682d57` merged）
+**mini-taiwan-pulse head**：`master`（公共設施 8 圖層已上線：PR #74 squash `8682d57`，browser 驗收 8/8 PASS，changelog 已記 `436a26a`）
 **gis-platform head**：`main`（+ migration 283/284/285/286/287/**288** **已 apply production**）
 **taipei-gis-analytics head**：`master`（+ **docs/handoff/public-facilities.md 回填 + _status.md 勾 pulse 項，未 commit 待用戶檢視**）
 **data-collectors head**：**+ parking_ref.py collector**（灌 spatial.parking_*_ref，enabled=false 月更手動）
