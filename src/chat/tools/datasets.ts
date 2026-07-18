@@ -96,6 +96,56 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
       "全國連鎖超商點位。欄位 brand（7-ELEVEN / 全家 FamilyMart / 萊爾富 Hi-Life / OK）、county（縣市）。",
   },
 
+  // ── 公共設施（Civic Facilities）──
+  postOffices: {
+    url: "./civic_facilities/post_offices_national.geojson",
+    label: "郵局",
+    description:
+      "全國郵局點位（約 1278）。欄位 name / address / phone / city / district，及 4 個服務旗標（weekday_service 平日 / weekday_extended_service 平日延時 / saturday_service 週六 / sunday_service 週日）。",
+  },
+  iPostBoxes: {
+    url: "./civic_facilities/ibox_national.geojson",
+    label: "i郵箱",
+    description:
+      "全國中華郵政 i郵箱自助取件點（約 2345）。欄位 name / address / relative_location / business_hours / locker_count（格數）/ cabinet_type（櫃型）。",
+  },
+  communityCenters: {
+    url: "./civic_facilities/community_centers_national.geojson",
+    label: "社區活動中心",
+    description:
+      "社區活動中心點位（約 1794，部分縣市：新北/彰化/南投/桃園/臺北/高雄/花蓮/金門）。欄位 name / county / town / address。",
+  },
+  govServiceOffices: {
+    url: "./civic_facilities/gov_service_offices_national.geojson",
+    label: "機關便民據點",
+    description:
+      "全國機關便民據點（約 702）。欄位 type（district_office 公所 / household_registration 戶政事務所 / land_office 地政事務所）、county（縣市）、jurisdiction（轄區）。",
+  },
+  publicLibraries: {
+    url: "./culture/public_libraries_national.geojson",
+    label: "公共圖書館",
+    description:
+      "全國公共圖書館點位（約 634）。欄位 name / county（縣市）/ type（類型）。",
+  },
+  welfareCenters: {
+    url: "./civic_facilities/welfare_centers_national.geojson",
+    label: "社福中心",
+    description:
+      "全國社會福利服務中心點位（約 157，資料時點 2023-04）。欄位 name / county（縣市）/ service_area（服務區）。",
+  },
+  retailMarkets: {
+    url: "./poi/public_retail_markets_national.geojson",
+    label: "公有零售市場",
+    description:
+      "全國公有零售市場點位（約 731）。欄位 name / county（縣市）/ business_hours（營業時間）。",
+  },
+  publicToilets: {
+    url: "./environment/public_toilets_national.geojson",
+    label: "公廁",
+    description:
+      "全國公廁點位（約 13281）。欄位 name / county（縣市）/ grade（清潔評鑑等級：特優級 / 優等級 / 普通級 / 不合格）/ type2（場所類別）。",
+  },
+
   // ── 廢棄物 / 清運（Waste，全國 22 縣市）──
   wasteStopsStatic: {
     url: "./geo/waste_stops_static.geojson",

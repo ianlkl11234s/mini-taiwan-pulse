@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/environment" "$DATA_DIR/poi" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -87,6 +87,18 @@ aws s3 sync "$S3/urban/" "$DATA_DIR/urban/" --no-progress
 # 藝文文化：鏡像子前綴 deploy-assets/culture/ → /data/culture/（目前 4 檔全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync culture → $DATA_DIR/culture/"
 aws s3 sync "$S3/culture/" "$DATA_DIR/culture/" --no-progress
+
+# 公共設施：鏡像子前綴 deploy-assets/civic_facilities/ → /data/civic_facilities/（geojson 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
+echo "[pull] sync civic_facilities → $DATA_DIR/civic_facilities/"
+aws s3 sync "$S3/civic_facilities/" "$DATA_DIR/civic_facilities/" --no-progress
+
+# 環境：鏡像子前綴 deploy-assets/environment/ → /data/environment/（public_toilets geojson git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
+echo "[pull] sync environment → $DATA_DIR/environment/"
+aws s3 sync "$S3/environment/" "$DATA_DIR/environment/" --no-progress
+
+# POI：鏡像子前綴 deploy-assets/poi/ → /data/poi/（geojson 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
+echo "[pull] sync poi → $DATA_DIR/poi/"
+aws s3 sync "$S3/poi/" "$DATA_DIR/poi/" --no-progress
 
 # 房地產：鏡像子前綴 deploy-assets/coverage/ → /data/coverage/（real_estate_* 大檔；gas 小檔在 dist fallback）
 echo "[pull] sync coverage → $DATA_DIR/coverage/"

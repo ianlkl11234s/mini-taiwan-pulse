@@ -1,12 +1,25 @@
 # Status
 
-**最後更新**：2026-07-15（都市樹木圖層批次 7 層，排程 06:10 autonomous run）
-**mini-taiwan-pulse head**：`feat/tree-layers`（7 樹木圖層接線完成 + browser 驗收 7/7 PASS，**未 push、待開 PR**）
+**最後更新**：2026-07-17（公共設施 8 圖層接線 + 驗收 8/8 PASS）
+**mini-taiwan-pulse head**：`feat/civic-facilities-layers`（8 公共設施圖層接線完成 + browser 驗收 8/8 PASS，**未 push、待開 PR**）
 **gis-platform head**：`main`（+ migration 283/284/285/286/287/**288** **已 apply production**）
-**taipei-gis-analytics head**：`feat/aquaculture-pmtiles`（+ tourist_shuttle 08 + road congestion 06 script + **docs/handoff/tree-layers.md 未 commit**）
+**taipei-gis-analytics head**：`master`（+ **docs/handoff/public-facilities.md 回填 + _status.md 勾 pulse 項，未 commit 待用戶檢視**）
 **data-collectors head**：**+ parking_ref.py collector**（灌 spatial.parking_*_ref，enabled=false 月更手動）
 
-> ⚠️ 另有 `feat/aquaculture-layers`（養殖漁業 3 圖層，commit `7946a59` 本地暫存未 push）平行未 merge。
+> ⚠️ 平行未 merge branch：`feat/tree-layers`（7 樹木圖層 7/7 PASS 未 push）、`feat/aquaculture-layers`（養殖漁業 3 圖層 `7946a59` 未 push）。
+
+## 本 session 完成（2026-07-17）— 公共設施 8 圖層批次（civic-facilities）
+
+Fable 5 總指揮（規格核對→循序 worker 分批→gate 驗收），worker 皆 Opus、docs 走 Sonnet。上游 civic_facilities 主題 8 dataset 快照已先 commit（`bd41d02`+`e69a88c`），本 session 純前端接線。branch `feat/civic-facilities-layers`，feature 文件 `docs/features/civic-facilities-layers/`。
+
+### 8 個新圖層（基礎建設 > 公共設施子群，全靜態 geojson、全預設關）
+- postOffices 郵局 1,278（#d32f2f，popup 4 服務旗標）/ iPostBoxes 2,345（#ef6c00）/ communityCenters 1,794（#26a69a，**label 標「部分縣市」**，8 縣市）/ govServiceOffices 702（**type 3 分色+圖例**：公所/戶政/地政）/ publicLibraries 634（#5c6bc0）/ welfareCenters 157（#ec407a，popup 標「資料時點 2023-04」）/ retailMarkets 731（#66bb6a）/ publicToilets 13,281（**minzoom 11 zoom-gate 照 fireHydrants 前例 + grade 4 級分色+圖例**）
+- 每層 ~14 接觸點（types×3/layerCatalog/IconRail/overlayRegistry glow+circle/params opacity+scale 雙 slider 照 medHospital 機制/popup infraPanels/upstreamRegistry/chat datasets/layerConsistency baseline）
+- deployContract 補 3 個 public 子目錄契約：`civic_facilities/`、`environment/`、`poi/`（nginx.conf + pull-deploy-assets.sh）；順手修 layerCatalog 檔頭註解 14→22 主題（PR #72 漏更）
+- Commits：`7e16edd`（批次1）/ `6e7f02e`（批次2）/ `cfae91e`（feature 文件）；tsc 0 錯 / 190 tests 全綠 / agent-browser 逐層 **8/8 PASS**（公廁 zoom-gate z9→0 點 z12→2,566 點實證）
+- 上游回填（**未 commit，待用戶檢視**）：public-facilities.md 狀態欄+§2.5-2.8 四層欄位契約+community_centers 592→**1,794/8 縣市**修正+§6 下游採用表；_status.md 勾 pulse 接線項
+- 編排再驗證 tree-layers 心得：共用檔為主 → 循序 worker（每批唯一寫檔者）+ 批間 gate（主 agent 重跑 tsc/test）零衝突
+- 待辦：CF-2 圖書館與文化設施 typeId=K 去重（上游未實作）、CF-3 公廁 pulse 4 欄擴充（上游 07_export.py pulse_props_keys）、CF-4 社福資料 2023-04 舊、CF-5 i郵箱 payment_method 部分空
 
 ## 本 session 完成（2026-07-15）— 都市樹木圖層批次（7 層，autonomous 06:10 排程）
 
