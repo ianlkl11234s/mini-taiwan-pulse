@@ -1,7 +1,7 @@
 # 公共設施圖層批次（civic-facilities-layers）
 
 > **Slug**：`civic-facilities-layers`（上游 handoff slug 為 `public-facilities`，見 handoff.md 說明）
-> **狀態**：wired + verified（接線完成，browser 驗收 8/8 PASS 2026-07-17；PR 待開）
+> **狀態**：shipped（PR #74 squash `8682d57` merged 2026-07-18；browser 驗收 8/8 PASS）
 > **Owner**：migu
 > **上線日期**：待定（PR 未開）
 > **相關 PR**：待開

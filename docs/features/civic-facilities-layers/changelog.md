@@ -4,7 +4,11 @@
 
 ---
 
-## 2026-07-17 — PR 待開（branch `feat/civic-facilities-layers`，commits `7e16edd` + `6e7f02e`）
+## 2026-07-18 — PR #74 merged（squash `8682d57`）
+
+- PR #74 squash merge 進 master，branch 已刪；以下為 branch 內容紀錄。
+
+## 2026-07-17 — branch `feat/civic-facilities-layers`（commits `7e16edd` + `6e7f02e`）
 
 - `6e7f02e` feat(civic-facilities)：公共設施批次 2/2 — 圖書館/社福/市場/公廁 4 圖層
   - 公廁 13,281 點：minzoom 11 zoom-gate（照 fireHydrants 前例）+ grade 4 級分色 + 圖例
