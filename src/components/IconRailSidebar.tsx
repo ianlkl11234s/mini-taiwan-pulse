@@ -47,13 +47,14 @@ import type { ParamControl } from "../hooks/useTransportParams";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, TRANSPORT_LABELS, THEMES, WORLD_THEME_TITLE, type ThemeDef } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, type ThemeDef } from "./sidebar/layerCatalog";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
-// - 主 Layers panel 只渲染非世界主題（MAIN_THEMES）
-// - 世界 tab 只渲染世界主題（WORLD_THEMES）
-const WORLD_THEMES = THEMES.filter((t) => t.title === WORLD_THEME_TITLE);
-const MAIN_THEMES = THEMES.filter((t) => t.title !== WORLD_THEME_TITLE);
+// - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
+// - 世界 tab 只渲染 WORLD_TAB_THEME_TITLES 的主題（含全球氣候），順序照該陣列
+const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
+  .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
+const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title));
 
 // ── Color Config ──
 

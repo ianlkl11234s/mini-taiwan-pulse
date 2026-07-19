@@ -384,10 +384,13 @@ export interface SectionDef {
 
 /**
  * 「世界 World」主題 title —— 獨立 rail tab「世界」的唯一來源。
- * 桌機主 Layers panel 用此常數把世界主題濾掉（只在世界 tab 出現），
- * 世界 tab 則只渲染此主題。
+ * 桌機主 Layers panel 用 WORLD_TAB_THEME_TITLES 把世界 tab 的主題濾掉（只在世界 tab 出現），
+ * 世界 tab 則只渲染這批主題（陣列順序＝世界 tab 內的顯示順序）。
  */
 export const WORLD_THEME_TITLE = "世界 World";
+
+/** 劃入「世界」rail tab 的主題清單（2026-07-19 全球氣候自主 Layers panel 搬入）。 */
+export const WORLD_TAB_THEME_TITLES: string[] = [WORLD_THEME_TITLE, "全球氣候 Global Climate"];
 
 export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
