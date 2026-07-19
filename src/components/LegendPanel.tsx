@@ -16,6 +16,7 @@ import {
   WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX,
   DUST_BAKE_STOPS, rampToGradient,
 } from "../map/climateRamps";
+import { useClimateFrameStatus, type ClimateFrameStatusKey } from "../state/climateFrameStore";
 import {
   FIRE_STATION_CATS, FIRE_HYDRANT_CATS, FIRE_EVENT_CATS, FIRE_HYDRANT_COVERAGE_NOTE,
   FIRE_ISOCHRONE_BANDS, FIRE_ISOCHRONE_NOTE,
@@ -1755,6 +1756,30 @@ function ClimateGradientBar({ gradient, labels }: { gradient: string; labels: st
   );
 }
 
+// timeline 當前顯示幀的有效時間 + 種類（實況/預報）；無 manifest 時 hook 不寫入 → 不顯示。
+function formatClimateFrameTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString("sv-SE", {
+    timeZone: "Asia/Taipei",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).replace(/-/g, "/");
+}
+
+function ClimateFrameStamp({ statusKey }: { statusKey: ClimateFrameStatusKey }) {
+  const t = useLegendTheme();
+  const frame = useClimateFrameStatus(statusKey);
+  if (!frame.validAt) return null;
+  return (
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4 }}>
+      {frame.kind === "forecast" ? "預報" : "實況"} · {formatClimateFrameTime(frame.validAt)}
+    </div>
+  );
+}
+
 function WindFieldLegend() {
   const t = useLegendTheme();
   return (
@@ -1762,6 +1787,7 @@ function WindFieldLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         WIND 10M · NOAA GFS
       </div>
+      <ClimateFrameStamp statusKey="windField" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         風速 Wind speed (m/s)
       </div>
@@ -1783,6 +1809,7 @@ function OceanCurrentsLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         OCEAN CURRENTS · CMEMS
       </div>
+      <ClimateFrameStamp statusKey="oceanCurrents" />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
         流速 Current speed (m/s)
       </div>

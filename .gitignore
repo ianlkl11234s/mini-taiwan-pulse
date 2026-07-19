@@ -47,6 +47,9 @@ public/agriculture/*.geojson
 # 運動場館 Sports（全國 15,000 點靜態 GeoJSON 8.4MB；由 S3 deploy-assets 管理）
 public/sports/
 
+# 全球氣候時間軸多幀（風/海 UV PNG + manifest；由 S3 deploy-assets/climate/frames 管理）
+public/climate/frames/
+
 # Claude Code 內部儲存（不 commit）
 .claude/projects/
 .claude/worktrees/
