@@ -322,7 +322,9 @@ export type ExpandableLayerKey =
   // 環境污染
   | "pollutionFacility"
   | "pollutionPenaltyCritical" | "pollutionPenaltyGeneral" | "pollutionPenaltyMobile"
-  | "pollutionSite";
+  | "pollutionSite"
+  // 🌍 世界 World
+  | "worldTrashDebris";
 
 /** 渲染模式：3D（Three.js 含高度）或 2D（Mapbox 原生平面） */
 export type RenderMode = "3d" | "2d";
@@ -710,6 +712,8 @@ export interface FeatureInfo {
     | "civilDefenseShelter"
     // 環境污染（PMTiles：設施 × 介質 × 嚴重度 / 裁處事件時間軸 / 污染場址）
     | "pollutionFacility" | "pollutionPenalty" | "pollutionSite"
+    // 🌍 世界 World（Outerview 全球垃圾殘骸點）
+    | "worldTrashDebris"
     // 航空器空域（eAIP，含 floor/ceiling，分管制 vs 禁限航 兩 layerType）
     | "aviationControl" | "aviationRestricted"
     // 無人機禁/限航區（PMTiles polygon，filter 拆兩 layerType）
@@ -1050,6 +1054,8 @@ export interface LayerVisibility {
   pollutionPenaltyGeneral: boolean;  // 一般裁處事件（severity_event=high/normal；預設背景）
   pollutionPenaltyMobile: boolean;   // 移動污染裁處（severity_event=mobile；預設關閉）
   pollutionSite: boolean;       // 污染場址（EMS_S_07；8,253；S4 確認污染）
+  // ── 🌍 世界 WORLD ──
+  worldTrashDebris: boolean;    // 全球垃圾殘骸（Outerview，~25k Point，region+id；點密度反映 Mapillary 街景覆蓋，CC-BY-4.0）
 }
 
 // ── 空氣品質 ──

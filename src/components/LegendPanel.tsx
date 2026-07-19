@@ -188,6 +188,7 @@ export interface LegendEntry {
 export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
   { keys: ["earthquakesGlobal"], render: () => <EarthquakeGlobalLegend /> },
+  { keys: ["worldTrashDebris"], render: () => <WorldTrashDebrisLegend /> },
   { keys: ["typhoonTracks"], render: () => <TyphoonTrackLegend /> },
   { keys: ["windField"], render: () => <WindFieldLegend /> },
   { keys: ["oceanCurrents"], render: () => <OceanCurrentsLegend /> },
@@ -2039,6 +2040,36 @@ function LakesPondsLegend() {
       <FireCatRows cats={LAKES_PONDS_CATS} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         已濾掉與魚塭圖層重疊者（39.1%）｜OSM ODbL
+      </div>
+    </div>
+  );
+}
+
+function WorldTrashDebrisLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        全球垃圾殘骸 TRASH & DEBRIS
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <div
+          style={{
+            width: 8,
+            height: 8,
+            borderRadius: RADIUS.full,
+            background: "#f59e0b",
+            opacity: 0.9,
+            flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>偵測到的垃圾 / 殘骸點位</span>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        點位密度反映 Mapillary 街景覆蓋，非真實垃圾分佈
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.3 }}>
+        資料：Outerview (CC-BY-4.0)
       </div>
     </div>
   );

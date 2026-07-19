@@ -1138,6 +1138,13 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
     processing: 'EMS_S_07 確認污染場址（S4）PMTiles',
   },
+  // 🌍 世界 World
+  worldTrashDebris: {
+    status: 'catalog_missing',
+    datasets: [],
+    processing: 'Outerview 全球垃圾殘骸 ~25k Point（區域名 + id）；點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈',
+    note: '外部資料源 Outerview（CC-BY-4.0）— 非台灣開放資料 catalog，尚無 dataset_id',
+  },
 };
 
 // ── Convenience helpers ──

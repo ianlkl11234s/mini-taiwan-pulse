@@ -38,6 +38,7 @@ import { useSelectedFeatureHalo } from "./hooks/useSelectedFeatureHalo";
 import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
 import { useEarthquakesGlobalLayer } from "./hooks/useEarthquakesGlobalLayer";
+import { useWorldTrashDebrisLayer } from "./hooks/useWorldTrashDebrisLayer";
 import { useTyphoonTracksLayer, type TyphoonSource } from "./hooks/useTyphoonTracksLayer";
 import { useClimateParticleLineLayer } from "./hooks/useClimateParticleLineLayer";
 import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
@@ -1039,6 +1040,13 @@ export default function App() {
     layerVisibility.typhoonTracks,
     transportParams.overlayParams.typhoonTracksOpacity ?? 0.9,
     (["all", "jma", "jtwc"][transportParams.overlayParams.typhoonSourceIdx ?? 0] ?? "all") as TyphoonSource,
+  );
+
+  // ── 🌍 世界 WORLD：全球垃圾殘骸（Outerview 靜態 GeoJSON，載一次，不接 timeline）──
+  useWorldTrashDebrisLayer(
+    mapRef,
+    layerVisibility.worldTrashDebris,
+    transportParams.overlayParams.worldTrashDebrisOpacity ?? 0.85,
   );
 
   const windBaseOpacity = transportParams.overlayParams.windFieldOpacity ?? 0.8;

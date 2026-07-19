@@ -329,6 +329,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   pollutionPenaltyGeneral: "#94a3b8",
   pollutionPenaltyMobile: "#22c55e",
   pollutionSite: "#111827",
+  // 🌍 世界 WORLD
+  worldTrashDebris: "#f59e0b",
 };
 
 // ── Transport Labels ──
@@ -379,6 +381,13 @@ export interface SectionDef {
 }
 
 // ── THEMES（新 SSOT）──
+
+/**
+ * 「世界 World」主題 title —— 獨立 rail tab「世界」的唯一來源。
+ * 桌機主 Layers panel 用此常數把世界主題濾掉（只在世界 tab 出現），
+ * 世界 tab 則只渲染此主題。
+ */
+export const WORLD_THEME_TITLE = "世界 World";
 
 export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
@@ -1248,6 +1257,21 @@ export const THEMES: ThemeDef[] = [
         title: "事件",
         layers: [
           { key: "newsEvents", label: "新聞事件 News Events", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🌍 WORLD 世界（獨立 rail tab「世界」專屬；桌機主 Layers panel 排除此主題）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: WORLD_THEME_TITLE,
+    groups: [
+      {
+        title: "環境",
+        layers: [
+          { key: "worldTrashDebris", label: "全球垃圾殘骸 Trash & Debris", labelMobile: "全球垃圾殘骸", expandable: true },
         ],
       },
     ],
