@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties } from "react";
+import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
@@ -36,6 +36,8 @@ import {
   Landmark, Theater, Library,
   // 🗺️ 土地使用分區 icons
   LandPlot, Map,
+  // 🌍 世界 World icon（複合 rail icon 用）
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -45,7 +47,14 @@ import type { ParamControl } from "../hooks/useTransportParams";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
-import { LAYER_COLORS, TRANSPORT_LABELS, THEMES } from "./sidebar/layerCatalog";
+import { LAYER_COLORS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, type ThemeDef } from "./sidebar/layerCatalog";
+
+// 「世界」rail tab 與桌機主 Layers panel 的主題分流：
+// - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
+// - 世界 tab 只渲染 WORLD_TAB_THEME_TITLES 的主題（含全球氣候），順序照該陣列
+const WORLD_THEMES = THEMES.filter((t) => WORLD_TAB_THEME_TITLES.includes(t.title))
+  .sort((a, b) => WORLD_TAB_THEME_TITLES.indexOf(a.title) - WORLD_TAB_THEME_TITLES.indexOf(b.title));
+const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.title));
 
 // ── Color Config ──
 
@@ -360,6 +369,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   pollutionPenaltyGeneral: AlertCircle,
   pollutionPenaltyMobile: Car,
   pollutionSite: Biohazard,
+  // 🌍 世界 World
+  worldTrashDebris: Trash2,
 };
 
 // ── IATA Map for Locations Panel ──
@@ -443,7 +454,7 @@ const LIGHT_PALETTE: RailPalette = {
 const RailThemeContext = createContext<RailPalette>(DARK_PALETTE);
 const useRailTheme = () => useContext(RailThemeContext);
 
-type PanelId = "layers" | "locations";
+type PanelId = "layers" | "locations" | "world";
 
 // ── Main Component ──
 
@@ -466,6 +477,7 @@ export function IconRailSidebar({
   const [activePanel, setActivePanel] = useState<PanelId | null>("layers");
   const [locationSearch, setLocationSearch] = useState("");
   const [layerSearch, setLayerSearch] = useState("");
+  const [worldSearch, setWorldSearch] = useState("");
   const [comingSoon, setComingSoon] = useState(false);
 
   // 齒輪「規劃中」提示：顯示後 2 秒自動消失
@@ -618,6 +630,14 @@ export function IconRailSidebar({
           />
         )}
 
+        {/* 🌍 世界 World（獨立圖層清單，只顯示世界主題） */}
+        <RailIcon
+          icon={WorldGlyph}
+          active={activePanel === "world"}
+          onClick={() => togglePanel("world")}
+          tooltip="世界 World"
+        />
+
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
@@ -682,6 +702,30 @@ export function IconRailSidebar({
               <LayersPanel
                 search={layerSearch}
                 onSearchChange={setLayerSearch}
+                themes={MAIN_THEMES}
+                visibility={visibility}
+                lockedKeys={lockedKeys}
+                expandedLayer={expandedLayer}
+                viewMode={viewMode}
+                displayMode={displayMode}
+                getCount={getCount}
+                onLayerClick={onLayerClick}
+                onToggleVisibility={onToggleVisibility}
+                onViewModeChange={onViewModeChange}
+                onDisplayModeChange={onDisplayModeChange}
+                onHideTransport={onHideTransport}
+                onAllOff={onAllOff}
+                onBulkSetVisibility={onBulkSetVisibility}
+                getControls={getControls}
+                onClose={closePanel}
+              />
+            )}
+            {activePanel === "world" && (
+              <LayersPanel
+                search={worldSearch}
+                onSearchChange={setWorldSearch}
+                themes={WORLD_THEMES}
+                title="世界 World"
                 visibility={visibility}
                 lockedKeys={lockedKeys}
                 expandedLayer={expandedLayer}
@@ -722,10 +766,24 @@ export function IconRailSidebar({
 
 // ── Rail Icon Button ──
 
+// 「世界」複合 icon：Layers 底 + 右下疊小 Globe（沿用 currentColor 隨 active/dim 變色）。
+function WorldGlyph({ size = 20 }: { size?: number }) {
+  const badge = Math.round(size * 0.58);
+  return (
+    <span style={{ position: "relative", display: "inline-flex", width: size, height: size }}>
+      <Layers size={size} />
+      <Globe
+        size={badge}
+        style={{ position: "absolute", right: -3, bottom: -3, strokeWidth: 2.5 }}
+      />
+    </span>
+  );
+}
+
 function RailIcon({
   icon: Icon, active, onClick, tooltip,
 }: {
-  icon: LucideIcon; active: boolean; onClick: () => void; tooltip: string;
+  icon: ComponentType<{ size?: number }>; active: boolean; onClick: () => void; tooltip: string;
 }) {
   const { ACCENT, DIM, RAIL_ICON_ACTIVE } = useRailTheme();
   return (
@@ -842,6 +900,10 @@ function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
 interface LayersPanelProps {
   search: string;
   onSearchChange: (v: string) => void;
+  /** 只渲染這批主題（預設全部 THEMES）。世界 tab 傳世界主題、主 Layers panel 傳非世界主題。 */
+  themes?: ThemeDef[];
+  /** PanelHeader 標題（預設 "Layers"）。 */
+  title?: string;
   visibility: LayerVisibility;
   lockedKeys?: ReadonlySet<keyof LayerVisibility>;
   expandedLayer: ExpandableLayerKey | null;
@@ -1032,7 +1094,7 @@ function SubGroupLabel({ children }: { children: string }) {
 }
 
 function LayersPanel({
-  search, onSearchChange,
+  search, onSearchChange, themes, title = "Layers",
   visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
@@ -1040,9 +1102,10 @@ function LayersPanel({
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
+  const themesToRender = themes ?? THEMES;
   // Theme 摺疊狀態：預設摺疊 defaultCollapsed=true 的（目前僅環境氣候 Environment 預設展開）
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
-    () => new Set(THEMES.filter((t) => t.defaultCollapsed).map((t) => t.title)),
+    () => new Set(themesToRender.filter((t) => t.defaultCollapsed).map((t) => t.title)),
   );
 
   const toggleTheme = (title: string) => {
@@ -1055,7 +1118,7 @@ function LayersPanel({
 
   return (
     <>
-      <PanelHeader title="Layers" onClose={onClose} />
+      <PanelHeader title={title} onClose={onClose} />
       <div style={{ padding: "4px 12px 4px" }}>
         <button
           onClick={onAllOff}
@@ -1112,7 +1175,7 @@ function LayersPanel({
           padding: "0 0 8px",
         }}
       >
-        {THEMES.map((theme) => {
+        {themesToRender.map((theme) => {
           const isCollapsed = q ? false : collapsedThemes.has(theme.title);
           const allKeys = theme.groups.flatMap((g) => g.layers.map((l) => l.key));
           const onCount = allKeys.filter((k) => visibility[k]).length;

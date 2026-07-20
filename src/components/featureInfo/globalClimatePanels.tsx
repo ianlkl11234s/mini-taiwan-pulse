@@ -103,6 +103,19 @@ export function TyphoonTrackPanel({ props }: { props: Record<string, unknown> })
   );
 }
 
+// ── 🌍 世界 World：全球垃圾殘骸（Outerview）──
+
+export function WorldTrashDebrisPanel({ props }: { props: Record<string, unknown> }) {
+  return (
+    <div>
+      <Row label="區域 Region" value={String(props.region ?? "—")} />
+      <Row label="ID" value={String(props.id ?? "—")} />
+      <Row label="資料" value="Outerview（CC-BY-4.0）" />
+      <Row label="說明" value="點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈" />
+    </div>
+  );
+}
+
 // ── 氣候場 click 讀值（風場 / 海流 UV 前端取樣）──
 
 const COMPASS_16 = [
