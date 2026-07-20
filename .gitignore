@@ -109,3 +109,14 @@ public/forestry/national_forest_compartments.geojson
 public/forestry/signal_gap.geojson
 scripts/audit/.places_cache.json
 scripts/fetch/.taipei_renewable_geocode_cache.json
+
+# 工具產物（codebase-memory MCP 索引）
+.codebase-memory/
+
+# S3 deploy-assets 供應的本地 dev 副本（prod 走 /data volume，不進 git）
+public/fishery/aquaculture_integrated.pmtiles
+public/fishery/aquaculture_ponds_osm.pmtiles
+public/fishery/aquaculture_water_satellite.pmtiles
+public/forestry/canopy_height_taiwan.pmtiles
+public/urban/*.geojson
+public/water_resources/*.pmtiles
