@@ -299,6 +299,8 @@ export function useMapInteraction(
           { layers: ["aquaculture-zone-fill", "aquaculture-zone-line"], type: "aquacultureZone" },
           { layers: ["aquaculture-cage-net-fill", "aquaculture-cage-net-line"], type: "aquacultureCageNet" },
           { layers: ["aquaculture-water-satellite-fill", "aquaculture-water-satellite-line"], type: "aquacultureWaterSatellite" },
+          { layers: ["aquaculture-water-satellite-moa-fill", "aquaculture-water-satellite-moa-line"], type: "aquacultureWaterSatelliteMoa" },
+          { layers: ["aquaculture-water-satellite-union-fill", "aquaculture-water-satellite-union-line"], type: "aquacultureWaterUnion" },
           { layers: ["aquaculture-integrated-fill", "aquaculture-integrated-line"], type: "aquacultureIntegrated" },
           { layers: ["street-trees-taipei-diff-circle"], type: "streetTreesTaipeiDiff" },
           { layers: ["protected-trees-national-circle"], type: "protectedTreesNational" },

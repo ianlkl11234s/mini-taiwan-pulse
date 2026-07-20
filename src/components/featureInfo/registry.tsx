@@ -33,7 +33,8 @@ import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel 
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
-  AquacultureWaterSatellitePanel, AquacultureIntegratedPanel,
+  AquacultureWaterSatellitePanel, AquacultureWaterSatelliteMoaPanel, AquacultureWaterUnionPanel,
+  AquacultureIntegratedPanel,
 } from "./fisheryPanels";
 import {
   StreetTreesTaipeiDiffPanel, ProtectedTreesNationalPanel,
@@ -254,6 +255,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   aquacultureZone: AquacultureZonePanel,
   aquacultureCageNet: AquacultureCageNetPanel,
   aquacultureWaterSatellite: AquacultureWaterSatellitePanel,
+  aquacultureWaterSatelliteMoa: AquacultureWaterSatelliteMoaPanel,
+  aquacultureWaterUnion: AquacultureWaterUnionPanel,
   aquacultureIntegrated: AquacultureIntegratedPanel,
   // 🌳 都市開放空間
   streetTreesTaipeiDiff: StreetTreesTaipeiDiffPanel,
@@ -357,6 +360,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   aquacultureZone: "養殖漁業生產區",
   aquacultureCageNet: "海上箱網",
   aquacultureWaterSatellite: "衛星偵測養殖水體",
+  aquacultureWaterSatelliteMoa: "魚塭·官方標籤版",
+  aquacultureWaterUnion: "魚塭·整合對照版",
   aquacultureIntegrated: "養殖漁業整合",
   streetTreesTaipeiDiff: "行道樹變化",
   protectedTreesNational: "受保護樹木",

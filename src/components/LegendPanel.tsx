@@ -213,6 +213,8 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck", "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther"], render: () => <LivestockFarmLegend /> },
   { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
   { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet", "aquacultureWaterSatellite"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
+  { keys: ["aquacultureWaterSatelliteMoa"], render: () => <AquacultureWaterSatelliteMoaLegend /> },
+  { keys: ["aquacultureWaterUnion"], render: () => <AquacultureWaterUnionLegend /> },
   { keys: ["aquacultureIntegrated"], render: () => <AquacultureIntegratedLegend /> },
   { keys: ["streetTreesTaipeiDiff"], render: ({ overlayParams }) => <StreetTreesTaipeiDiffLegend colorModeIdx={overlayParams.streetTreesTaipeiDiffColorModeIdx ?? 0} /> },
   { keys: ["protectedTreesNational"], render: ({ overlayParams }) => <ProtectedTreesNationalLegend colorModeIdx={overlayParams.protectedTreesNationalColorModeIdx ?? 0} /> },
@@ -728,6 +730,66 @@ function AquacultureLegend({ visibility }: { visibility: LayerVisibility }) {
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
         養殖漁業 AQUACULTURE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => (
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: 2, background: it.color,
+                opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+                boxSizing: "border-box", flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AquacultureWaterSatelliteMoaLegend() {
+  const t = useLegendTheme();
+  const rows = [
+    { color: "#26c6da", label: "確認 Confirmed（NLSC 確認）" },
+    { color: "#1e88e5", label: "漁電共生 Solar Symbiotic" },
+    { color: "#9e9e9e", label: "其他 Other（未確認/有疑慮/疑山影）" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        魚塭·官方標籤版 MOA LABELED
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {rows.map((it) => (
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: 2, background: it.color,
+                opacity: 0.9, border: "1px solid rgba(255,255,255,0.6)",
+                boxSizing: "border-box", flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AquacultureWaterUnionLegend() {
+  const t = useLegendTheme();
+  const rows = [
+    { color: "#26c6da", label: "兩版都有 Both（最高信心）" },
+    { color: "#43a047", label: "只官方 MOA Only" },
+    { color: "#fb8c00", label: "只舊版 OSM Only" },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        魚塭·整合對照版 UNION
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => (

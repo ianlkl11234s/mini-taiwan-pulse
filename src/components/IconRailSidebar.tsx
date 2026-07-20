@@ -186,6 +186,8 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   aquacultureZone: Fish,
   aquacultureCageNet: Fish,
   aquacultureWaterSatellite: Satellite,
+  aquacultureWaterSatelliteMoa: ShieldCheck,
+  aquacultureWaterUnion: Layers,
   aquacultureIntegrated: Fish,
   streetTreesTaipeiDiff: TreePine,
   protectedTreesNational: TreeDeciduous,

@@ -522,6 +522,8 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   aquacultureZone: { status: 'verified', datasets: [{ datasetId: 'aquaculture_production_zone', confidence: 'HIGH' }] },
   aquacultureCageNet: { status: 'verified', datasets: [{ datasetId: 'aquaculture_cage_net', confidence: 'HIGH' }] },
   aquacultureWaterSatellite: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite', confidence: 'HIGH' }] },
+  aquacultureWaterSatelliteMoa: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite_moa', confidence: 'HIGH' }] },
+  aquacultureWaterUnion: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite_union', confidence: 'HIGH' }] },
   aquacultureIntegrated: {
     status: 'pulse_only',
     datasets: [],

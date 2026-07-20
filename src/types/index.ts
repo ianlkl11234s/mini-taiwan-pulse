@@ -112,6 +112,8 @@ export type ExpandableLayerKey =
   // 🐟 養殖漁業 Aquaculture（靜態 overlay polygon）
   | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
   | "aquacultureWaterSatellite"
+  | "aquacultureWaterSatelliteMoa"
+  | "aquacultureWaterUnion"
   | "aquacultureIntegrated"
   // 🌳 都市開放空間 Urban Open Space（靜態 overlay PMTiles 點）
   | "streetTreesTaipeiDiff"
@@ -651,6 +653,8 @@ export interface FeatureInfo {
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
     | "aquacultureWaterSatellite"
+    | "aquacultureWaterSatelliteMoa"
+    | "aquacultureWaterUnion"
     | "aquacultureIntegrated"
     | "streetTreesTaipeiDiff"
     | "protectedTreesNational" | "riversideTreesTaipei" | "parksTaipei"
@@ -841,6 +845,8 @@ export interface LayerVisibility {
   aquacultureZone: boolean;       // 養殖漁業生產區（62 面）
   aquacultureCageNet: boolean;    // 海上箱網（42 面）
   aquacultureWaterSatellite: boolean; // 衛星偵測養殖水體（Sentinel-2 RF，5,095 面，信心 3 級染色：確定/蓄水池/不確定 藍→灰）
+  aquacultureWaterSatelliteMoa: boolean; // 官方標籤版魚塭辨識（27,205 面，2026-07；display_class 5 級染色，與舊版 aquacultureWaterSatellite 並排比較）
+  aquacultureWaterUnion: boolean; // 魚塭偵測整合對照版（舊衛星∪新MOA，31,884 面，2026-07；union_class 3 級染色：both/moa_only/osm_only）
   aquacultureIntegrated: boolean; // 養殖漁業整合（PMTiles，20,212 面；source 三色：ponds 青/satellite 綠/production 橙）
   // 🌳 都市開放空間 Urban Open Space（靜態 overlay PMTiles 點）
   streetTreesTaipeiDiff: boolean; // 台北行道樹 2024/11 vs 現在 三狀態變化（PMTiles，99,527 點；status 分色 persisted/disappeared/appeared）
