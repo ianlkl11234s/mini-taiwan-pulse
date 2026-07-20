@@ -50,6 +50,34 @@ function cultureTodayStr(): string {
   return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" }).replace(/-/g, "/");
 }
 
+/**
+ * aquacultureWaterSatelliteMoa 的「確認／漁電共生／其他」三組類別篩選 checkbox（0/1 param，預設全開）
+ * → 組成 display_class in-list filter。三組皆關閉時回傳恆假 filter（面全隱藏，而非退回顯示全部）。
+ */
+function moaDisplayClassFilter(p?: Record<string, number>): unknown[] {
+  const classes: string[] = [];
+  if ((p?.aquacultureWaterSatelliteMoaShowConfirmed ?? 1) === 1) classes.push("confirmed");
+  if ((p?.aquacultureWaterSatelliteMoaShowSolar ?? 1) === 1) classes.push("solar_symbiotic");
+  if ((p?.aquacultureWaterSatelliteMoaShowOther ?? 1) === 1) classes.push("unverified", "ambiguous", "mountain_suspect");
+  return classes.length > 0
+    ? ["in", ["get", "display_class"], ["literal", classes]]
+    : ["==", ["get", "display_class"], "__none__"];
+}
+
+/**
+ * aquacultureWaterUnion 的「兩版都有／只官方／只舊版」三組類別篩選 checkbox（0/1 param，預設全開）
+ * → 組成 union_class in-list filter（同 moaDisplayClassFilter pattern）。
+ */
+function unionClassFilter(p?: Record<string, number>): unknown[] {
+  const classes: string[] = [];
+  if ((p?.aquacultureWaterUnionShowBoth ?? 1) === 1) classes.push("both");
+  if ((p?.aquacultureWaterUnionShowMoaOnly ?? 1) === 1) classes.push("moa_only");
+  if ((p?.aquacultureWaterUnionShowOsmOnly ?? 1) === 1) classes.push("osm_only");
+  return classes.length > 0
+    ? ["in", ["get", "union_class"], ["literal", classes]]
+    : ["==", ["get", "union_class"], "__none__"];
+}
+
 const BASE_RADIUS = 5;
 
 // ── 🐷 畜牧 Livestock helpers ──
@@ -3393,6 +3421,86 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "line-color": ["match", ["get", "source"], "ponds", "#26c6da", "satellite", "#66bb6a", "production", "#ffa726", "#9e9e9e"],
           "line-width": 0.5,
           "line-opacity": 0.6,
+        }),
+      },
+    ],
+  },
+  // 官方標籤版魚塭辨識（27,205 面，2026-07，NLSC 標籤校正版）。與舊版 aquacultureWaterSatellite
+  // 並排比較用，各自獨立 toggle。display_class 3 級分色（只凸顯確認/漁電共生，其餘壓灰底）：
+  // confirmed 青 #26c6da（NLSC 確認，同舊版 certain 色）/ solar_symbiotic 藍 #1e88e5（漁電共生）/
+  // unverified・ambiguous・mountain_suspect 一律灰 #9e9e9e（其他，未細分）。
+  // 類別篩選走「確認／漁電共生／其他」三組 checkbox（0/1 param）→ filter 函式組 in-list；
+  // filter 無 setFilter 式 diff，故 rebuildOnParamChange 收兩個 layer suffix 讓變更整層重建（同 buildingsGba）。
+  {
+    id: "aquacultureWaterSatelliteMoa",
+    sourceUrl: "./fishery/aquaculture_water_satellite_moa.pmtiles",
+    sourceId: "aquaculture-water-satellite-moa",
+    pmtiles: { sourceLayer: "aquaculture_water_satellite_moa", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        filter: (p) => moaDisplayClassFilter(p),
+        paint: (_isDark, p) => ({
+          "fill-color": ["match", ["get", "display_class"],
+            "confirmed", "#26c6da",
+            "solar_symbiotic", "#1e88e5",
+            "#9e9e9e",
+          ],
+          "fill-opacity": p?.aquacultureWaterSatelliteMoaOpacity ?? 0.55,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        filter: (p) => moaDisplayClassFilter(p),
+        paint: (_isDark, p) => ({
+          "line-color": ["match", ["get", "display_class"],
+            "confirmed", "#26c6da",
+            "solar_symbiotic", "#1e88e5",
+            "#9e9e9e",
+          ],
+          "line-width": 0.5,
+          "line-opacity": p?.aquacultureWaterSatelliteMoaOpacity ?? 0.55,
+        }),
+      },
+    ],
+  },
+  // 魚塭偵測整合對照版（舊衛星 aquacultureWaterSatellite ∪ 新 aquacultureWaterSatelliteMoa，31,884 面，2026-07）。
+  // union_class 3 級分色：both 青 #26c6da（兩版都命中，最高信心）/ moa_only 綠 #43a047（官方新找到）/
+  // osm_only 橙 #fb8c00（舊版獨有，官方未涵蓋）。類別篩選同 moa 走三組 checkbox → filter in-list（同
+  // buildingsGba pattern，filter 只能靠 rebuildOnParamChange 整層重建）。
+  {
+    id: "aquacultureWaterUnion",
+    sourceUrl: "./fishery/aquaculture_water_satellite_union.pmtiles",
+    sourceId: "aquaculture-water-satellite-union",
+    pmtiles: { sourceLayer: "aquaculture_water_satellite_union", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        filter: (p) => unionClassFilter(p),
+        paint: (_isDark, p) => ({
+          "fill-color": ["match", ["get", "union_class"],
+            "both", "#26c6da",
+            "moa_only", "#43a047",
+            "osm_only", "#fb8c00",
+            "#9e9e9e",
+          ],
+          "fill-opacity": p?.aquacultureWaterUnionOpacity ?? 0.55,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        filter: (p) => unionClassFilter(p),
+        paint: (_isDark, p) => ({
+          "line-color": ["match", ["get", "union_class"],
+            "both", "#26c6da",
+            "moa_only", "#43a047",
+            "osm_only", "#fb8c00",
+            "#9e9e9e",
+          ],
+          "line-width": 0.5,
+          "line-opacity": p?.aquacultureWaterUnionOpacity ?? 0.55,
         }),
       },
     ],

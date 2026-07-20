@@ -186,6 +186,16 @@ export function useTransportParams() {
   const [aquacultureCageNetOpacity, setAquacultureCageNetOpacity] = useState(0.4);
   const [aquacultureWaterSatelliteOpacity, setAquacultureWaterSatelliteOpacity] = useState(0.5);
   const [aquacultureWaterSatelliteConfidence, setAquacultureWaterSatelliteConfidence] = useState<string>("all"); // all / reservoir / certain（累積式信心篩選）
+  const [aquacultureWaterSatelliteMoaOpacity, setAquacultureWaterSatelliteMoaOpacity] = useState(0.55);
+  // display_class 三組類別篩選 checkbox：確認 / 漁電共生 / 其他（unverified+ambiguous+mountain_suspect）。預設全開。
+  const [aquacultureWaterSatelliteMoaShowConfirmed, setAquacultureWaterSatelliteMoaShowConfirmed] = useState(true);
+  const [aquacultureWaterSatelliteMoaShowSolar, setAquacultureWaterSatelliteMoaShowSolar] = useState(true);
+  const [aquacultureWaterSatelliteMoaShowOther, setAquacultureWaterSatelliteMoaShowOther] = useState(true);
+  const [aquacultureWaterUnionOpacity, setAquacultureWaterUnionOpacity] = useState(0.55);
+  // union_class 三組類別篩選 checkbox：兩版都有 / 只官方 MOA / 只舊版 OSM。預設全開。
+  const [aquacultureWaterUnionShowBoth, setAquacultureWaterUnionShowBoth] = useState(true);
+  const [aquacultureWaterUnionShowMoaOnly, setAquacultureWaterUnionShowMoaOnly] = useState(true);
+  const [aquacultureWaterUnionShowOsmOnly, setAquacultureWaterUnionShowOsmOnly] = useState(true);
   const [aquacultureIntegratedOpacity, setAquacultureIntegratedOpacity] = useState(0.6);
   const [streetTreesTaipeiDiffOpacity, setStreetTreesTaipeiDiffOpacity] = useState(0.7);
   const [streetTreesTaipeiDiffStatus, setStreetTreesTaipeiDiffStatus] = useState<string>("all"); // all / disappeared / changed
@@ -926,9 +936,17 @@ export function useTransportParams() {
     correctionalFacilityOpacity, correctionalFacilityScale,
     courtJurisdictionOpacity,
     aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
-    aquacultureWaterSatelliteOpacity, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
+    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteMoaOpacity, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
+    aquacultureWaterUnionOpacity,
     // 信心層級 select（all/reservoir/certain）編成 idx（0/1/2）；paint 端 decode 做 opacity 篩選
     aquacultureWaterSatelliteConfidenceIdx: ["all", "reservoir", "certain"].indexOf(aquacultureWaterSatelliteConfidence),
+    // 三組類別篩選 checkbox 編成 0/1；overlayRegistry 的 filter 函式讀取組成 in-list
+    aquacultureWaterSatelliteMoaShowConfirmed: aquacultureWaterSatelliteMoaShowConfirmed ? 1 : 0,
+    aquacultureWaterSatelliteMoaShowSolar: aquacultureWaterSatelliteMoaShowSolar ? 1 : 0,
+    aquacultureWaterSatelliteMoaShowOther: aquacultureWaterSatelliteMoaShowOther ? 1 : 0,
+    aquacultureWaterUnionShowBoth: aquacultureWaterUnionShowBoth ? 1 : 0,
+    aquacultureWaterUnionShowMoaOnly: aquacultureWaterUnionShowMoaOnly ? 1 : 0,
+    aquacultureWaterUnionShowOsmOnly: aquacultureWaterUnionShowOsmOnly ? 1 : 0,
     streetTreesTaipeiDiffOpacity,
     // status 篩選 select（all/disappeared/changed）編成 idx（0/1/2）；paint 端 decode 做 opacity 篩選
     streetTreesTaipeiDiffStatusIdx: ["all", "disappeared", "changed"].indexOf(streetTreesTaipeiDiffStatus),
@@ -1313,7 +1331,9 @@ export function useTransportParams() {
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
     correctionalFacilityOpacity, correctionalFacilityScale, courtJurisdictionOpacity,
     aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
-    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
+    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, aquacultureWaterSatelliteMoaOpacity, aquacultureIntegratedOpacity, lakesPondsOsmOpacity,
+    aquacultureWaterSatelliteMoaShowConfirmed, aquacultureWaterSatelliteMoaShowSolar, aquacultureWaterSatelliteMoaShowOther,
+    aquacultureWaterUnionOpacity, aquacultureWaterUnionShowBoth, aquacultureWaterUnionShowMoaOnly, aquacultureWaterUnionShowOsmOnly,
     streetTreesTaipeiDiffOpacity, streetTreesTaipeiDiffStatus, streetTreesTaipeiDiffRadius, streetTreesTaipeiDiffColorMode,
     protectedTreesNationalOpacity, protectedTreesNationalRadius, protectedTreesNationalColorMode, protectedTreesNationalCity,
     riversideTreesTaipeiOpacity, riversideTreesTaipeiRadius, riversideTreesTaipeiPark,
@@ -2418,6 +2438,18 @@ export function useTransportParams() {
       case "aquacultureWaterSatellite": return [
         { type: "select" as const, label: "信心", value: aquacultureWaterSatelliteConfidence, options: [{ label: "全部", value: "all" }, { label: "含蓄水池", value: "reservoir" }, { label: "只確定", value: "certain" }], onChange: setAquacultureWaterSatelliteConfidence },
         { label: `填色透明度 ${aquacultureWaterSatelliteOpacity.toFixed(2)}`, value: aquacultureWaterSatelliteOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureWaterSatelliteOpacity },
+      ];
+      case "aquacultureWaterSatelliteMoa": return [
+        { label: `填色透明度 ${aquacultureWaterSatelliteMoaOpacity.toFixed(2)}`, value: aquacultureWaterSatelliteMoaOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureWaterSatelliteMoaOpacity },
+        { type: "toggle" as const, label: "確認 Confirmed", value: aquacultureWaterSatelliteMoaShowConfirmed, onChange: setAquacultureWaterSatelliteMoaShowConfirmed },
+        { type: "toggle" as const, label: "漁電共生 Solar", value: aquacultureWaterSatelliteMoaShowSolar, onChange: setAquacultureWaterSatelliteMoaShowSolar },
+        { type: "toggle" as const, label: "其他 Other", value: aquacultureWaterSatelliteMoaShowOther, onChange: setAquacultureWaterSatelliteMoaShowOther },
+      ];
+      case "aquacultureWaterUnion": return [
+        { label: `填色透明度 ${aquacultureWaterUnionOpacity.toFixed(2)}`, value: aquacultureWaterUnionOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureWaterUnionOpacity },
+        { type: "toggle" as const, label: "兩版都有 Both", value: aquacultureWaterUnionShowBoth, onChange: setAquacultureWaterUnionShowBoth },
+        { type: "toggle" as const, label: "只官方 MOA", value: aquacultureWaterUnionShowMoaOnly, onChange: setAquacultureWaterUnionShowMoaOnly },
+        { type: "toggle" as const, label: "只舊版 OSM", value: aquacultureWaterUnionShowOsmOnly, onChange: setAquacultureWaterUnionShowOsmOnly },
       ];
       case "aquacultureIntegrated": return [
         { label: `填色透明度 ${aquacultureIntegratedOpacity.toFixed(2)}`, value: aquacultureIntegratedOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureIntegratedOpacity },
