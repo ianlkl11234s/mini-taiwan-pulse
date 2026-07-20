@@ -300,15 +300,17 @@ export async function loadClimateRaster(pngUrl: string, metaUrl: string): Promis
 }
 
 class ClimateParticleLineState {
-  private readonly meta: ClimateMeta;
-  private readonly data: Uint8ClampedArray;
-  private readonly isGlobalX: boolean;
-  private readonly lonMin: number;
-  private readonly latMin: number;
-  private readonly lonMax: number;
-  private readonly latMax: number;
-  private readonly lonSpan: number;
-  private readonly latSpan: number;
+  // meta / data 與 bbox 衍生欄位非 readonly：swapField 切幀時原地更新（同 dataset bbox 不變，
+  // 粒子 normalized 歷史仍有效 → 體感連續，不重生粒子）。
+  private meta!: ClimateMeta;
+  private data!: Uint8ClampedArray;
+  private isGlobalX = false;
+  private lonMin = 0;
+  private latMin = 0;
+  private lonMax = 0;
+  private latMax = 0;
+  private lonSpan = 1;
+  private latSpan = 1;
   private readonly maskErodePx: number;
   private readonly trailPoints: number;
   private readonly speedMax: number;
@@ -326,16 +328,30 @@ class ClimateParticleLineState {
   private spawnBounds: [number, number, number, number] | null = null;
 
   constructor(data: ClimateRasterData, opts: ClimateParticleLineLayerOptions) {
-    this.meta = data.meta;
+    this.applyMeta(data.meta);
     this.data = data.data;
-    this.isGlobalX = Math.abs(this.meta.bbox[2] - this.meta.bbox[0]) > 300;
-    [this.lonMin, this.latMin, this.lonMax, this.latMax] = this.meta.bbox;
-    this.lonSpan = Math.max(1e-6, this.lonMax - this.lonMin);
-    this.latSpan = Math.max(1e-6, this.latMax - this.latMin);
     this.maskErodePx = Math.max(0, Math.floor(opts.maskErodePx ?? 0));
     this.trailPoints = clamp(Math.floor(opts.trailPoints), 2, 96);
     this.speedMax = Math.max(0.001, opts.speedMax);
     this.ramp = buildRamp(opts.rampColors ?? DEFAULT_RAMP);
+  }
+
+  private applyMeta(meta: ClimateMeta) {
+    this.meta = meta;
+    this.isGlobalX = Math.abs(meta.bbox[2] - meta.bbox[0]) > 300;
+    [this.lonMin, this.latMin, this.lonMax, this.latMax] = meta.bbox;
+    this.lonSpan = Math.max(1e-6, this.lonMax - this.lonMin);
+    this.latSpan = Math.max(1e-6, this.latMax - this.latMin);
+  }
+
+  /**
+   * 切換 UV 場（timeline 換幀）：只換 meta + raster data，保留粒子歷史（count / trail /
+   * ages / mercator cache 全不動）。同 dataset 各幀 bbox 相同，故歷史 normalized 位置維持
+   * 地理正確，視覺連續。
+   */
+  swapField(next: ClimateRasterData) {
+    this.applyMeta(next.meta);
+    this.data = next.data;
   }
 
   setSpawnBounds(bounds: [number, number, number, number] | null) {
@@ -563,7 +579,12 @@ function spawnBoundsForMap(map: MapboxMap | null, meta: ClimateMeta | null): [nu
   ];
 }
 
-export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOptions): CustomLayerInterface {
+export interface ClimateParticleLineLayer extends CustomLayerInterface {
+  /** timeline 換幀：換 UV 場、保留粒子。可在 layer 資料就緒前呼叫（會建立 state）。 */
+  setField(raster: ClimateRasterData): void;
+}
+
+export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOptions): ClimateParticleLineLayer {
   let map: MapboxMap | null = null;
   let gl: WebGL2RenderingContext | null = null;
   let program: WebGLProgram | null = null;
@@ -595,6 +616,8 @@ export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOpt
     loadClimateRaster(opts.pngUrl, opts.metaUrl)
       .then((data) => {
         if (disposed) return;
+        // time-aware 幀可能已先到（setField 建好 state）；latest 是 fallback，不覆蓋已建好的 state。
+        if (state) return;
         meta = data.meta;
         state = new ClimateParticleLineState(data, opts);
         state.setSpawnBounds(spawnBoundsForMap(map, meta));
@@ -606,10 +629,26 @@ export function createClimateParticleLineLayer(opts: ClimateParticleLineLayerOpt
       .catch((e) => console.warn(`[ClimateParticleLine ${opts.id}] load failed`, e));
   };
 
+  // timeline 換幀入口：state 已建 → 原地換場（保留粒子）；未建 → 直接用此幀建 state（幀先於 latest 到）。
+  const setField = (raster: ClimateRasterData) => {
+    if (disposed) return;
+    meta = raster.meta;
+    if (state) {
+      state.swapField(raster);
+    } else {
+      state = new ClimateParticleLineState(raster, opts);
+      state.setSpawnBounds(spawnBoundsForMap(map, meta));
+      state.resize(opts.getParticleCount());
+      dataReady = true;
+    }
+    map?.triggerRepaint();
+  };
+
   return {
     id: opts.id,
     type: "custom" as const,
     renderingMode: "2d" as const,
+    setField,
 
     onAdd(mapInstance: MapboxMap, glCtx: WebGL2RenderingContext) {
       map = mapInstance;
