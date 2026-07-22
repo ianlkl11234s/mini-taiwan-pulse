@@ -84,6 +84,7 @@ import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
 import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
 import { usePowerPlantGlowLayer } from "./hooks/usePowerPlantGlowLayer";
 import { useSubstationEhvGlowLayer } from "./hooks/useSubstationEhvGlowLayer";
+import { useBuildingsNightBloomLayer } from "./hooks/useBuildingsNightBloomLayer";
 import { usePowerLinesGlowTestLayer } from "./hooks/usePowerLinesGlowTestLayer";
 import { useAviationRestrictedGlowLayer } from "./hooks/useAviationRestrictedGlowLayer";
 import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
@@ -981,6 +982,13 @@ export default function App() {
     layerVisibility.powerPlantGlow,
     transportParams.overlayParams.powerPlantGlowOpacity ?? 0.9,
     transportParams.overlayParams.powerPlantGlowSize ?? 1,
+  );
+  // 夜景燈光 mode 3 的高樓 bloom 疊層（層開 且 顯示模式=夜景燈光 時才 render）
+  useBuildingsNightBloomLayer(
+    mapRef,
+    layerVisibility.buildingsGba && (transportParams.overlayParams.buildingsGbaModeIdx ?? 0) === 3,
+    transportParams.overlayParams.buildingsGbaOpacity ?? 0.75,
+    transportParams.overlayParams.buildingsGbaBloomMinHeight ?? 100,
   );
   useSubstationEhvGlowLayer(
     mapRef,

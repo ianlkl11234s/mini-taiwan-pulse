@@ -40,7 +40,7 @@ import {
   LIBRARY_SEATS_COLORS,
 } from "../data/cultureTypes";
 import {
-  BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION,
+  BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION, BUILDING_NIGHT_LEGEND,
 } from "../data/buildingsGbaTypes";
 import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
@@ -1044,8 +1044,10 @@ function TreePitsTaipeiLegend() {
 // GBA 建物輪廓圖例：依顯示模式（0=高度分級 1=資料來源 2=3D 立體沿用高度色階）切換內容 + 必掛署名。
 function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   const t = useLegendTheme();
-  const subhead = modeIdx === 1 ? "資料來源 SOURCE" : "高度 HEIGHT";
-  const rows = modeIdx === 1
+  const subhead = modeIdx === 3 ? "夜景燈光 NIGHT LIGHTS" : modeIdx === 1 ? "資料來源 SOURCE" : "高度 HEIGHT";
+  const rows = modeIdx === 3
+    ? BUILDING_NIGHT_LEGEND
+    : modeIdx === 1
     ? BUILDING_SRC_LABELS.map((s) => ({ color: s.color, label: s.label }))
     : BUILDING_HEIGHT_BANDS.map((b) => ({ color: b.color, label: b.label }));
   return (
@@ -1057,6 +1059,11 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
       </div>
+      {modeIdx === 3 && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+          樓層越高光越亮 · 橘白交錯 · 建議搭深色底圖
+        </div>
+      )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         {BUILDINGS_GBA_ATTRIBUTION}
       </div>
