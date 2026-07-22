@@ -22,7 +22,7 @@
 
 ### 其他
 - changelog 回填（PR #80 `e8f915e`）。
-- 診斷 `get_waste_schedule_day` 實測 **48s** → BL-24 pre-aggregate（未實作，待用戶拍板 migration）。
+- `get_waste_schedule_day` pre-aggregate **已上線**：gis-platform migration 301（`0f2b878`，未 push）— 48s → **<1s**（7 dow 預算表 `spatial.waste_schedule_day_agg` + per-dow refresh + 薄 RPC），anon REST 驗 0.5s → 垃圾車表定圖層恢復（BL-24 done）。
 
 ## 本 session 完成（2026-07-17）— 公共設施 8 圖層批次（civic-facilities）
 
