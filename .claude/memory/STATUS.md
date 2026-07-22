@@ -1,12 +1,28 @@
 # Status
 
-**最後更新**：2026-07-18（公共設施 8 圖層 PR #74 squash `8682d57` merged）
-**mini-taiwan-pulse head**：`master`（公共設施 8 圖層已上線：PR #74 squash `8682d57`，browser 驗收 8/8 PASS，changelog 已記 `436a26a`）
+**最後更新**：2026-07-22（建物夜景燈光 + bloom PR #78 / timeline 修正 PR #79 / changelog PR #80，三 PR 全 merged，未 push memory 除外）
+**mini-taiwan-pulse head**：`master` = `e8f915e`（建物夜景燈光 mode 3 + 高樓 bloom、timeline setState-in-render 修正已上線；前批公共設施 8 圖層 PR #74 `8682d57`）
 **gis-platform head**：`main`（+ migration 283/284/285/286/287/**288** **已 apply production**）
 **taipei-gis-analytics head**：`master`（+ **docs/handoff/public-facilities.md 回填 + _status.md 勾 pulse 項，未 commit 待用戶檢視**）
 **data-collectors head**：**+ parking_ref.py collector**（灌 spatial.parking_*_ref，enabled=false 月更手動）
 
 > ⚠️ 平行未 merge branch：`feat/tree-layers`（7 樹木圖層 7/7 PASS 未 push）、`feat/aquaculture-layers`（養殖漁業 3 圖層 `7946a59` 未 push）。
+
+## 本 session 完成（2026-07-22）— 建物夜景燈光 + bloom + timeline 修正
+
+3 PR 全 squash merged 進 master（head `e8f915e`），memory 尚未 push。
+
+### 建物夜景燈光（PR #78 `ffff9ca`，feature `docs/features/buildings-night-lights/`）
+- `buildingsGba` 加第 4 個顯示模式「夜景燈光」：純 Mapbox fill，暖橘/白雙 6 段色階依 `height` 由暗轉亮 + `round(height*10)%3` pseudo-random 交錯（約 1/3 白光），深底模擬城市夜空。全量 152 萬棟、零效能風險、無資料契約變更。
+- 高樓 bloom 疊層 `buildings-night-bloom-3d`（新 CustomLayer + hook）：夜景模式時 `querySourceFeatures` 取視野內 `height≥門檻`（slider 40–200m 預設 100）、去重、取最高前 4096 棟 → 復用 `GlowPointsScene`（additive 光暈、zoom 自適應）。實測信義區 ≥100m 取出 12 棟真摩天樓。
+- ⚠️ 勿與發電廠/變電所 Bloom 測試同開（一 gl context 只能一個 render 中 Three Scene）。browser 驗 z12/z14 橘白光海 PASS；tsc / 197 tests 綠。
+
+### timeline setState-in-render 修正（PR #79 `e2cb2cb`）
+- `useTimeline` render body 的 `timeStore.setTime` init 搬進掛載 effect，修 React「update App while rendering App」警告。全專案稽核（8 store + 535 setState）確認孤例 → 新 PRINCIPLE + INCIDENTS 2026-07-22。
+
+### 其他
+- changelog 回填（PR #80 `e8f915e`）。
+- 診斷 `get_waste_schedule_day` 實測 **48s** → BL-24 pre-aggregate（未實作，待用戶拍板 migration）。
 
 ## 本 session 完成（2026-07-17）— 公共設施 8 圖層批次（civic-facilities）
 
