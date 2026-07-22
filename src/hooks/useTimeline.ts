@@ -102,15 +102,21 @@ export function useTimeline({
     timeStore.setWindowDateKeys(keys);
   }, [selectedDate, rangeDays]);
 
-  // 首次渲染寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）
+  // 首次掛載寫入 timeStore 初始值（從「現在 - 1 小時」開始；過去日期從午夜開始）。
+  // ⚠️ 必走 effect 不可放 render body：本 hook 下方以 useSyncExternalStore 訂閱 timeStore
+  // （currentTime），若在 App render 期間直接 timeStore.setTime() 會同步通知該訂閱者，觸發
+  // React「Cannot update a component (App) while rendering a different component (App)」警告。
   const initRef = useRef(false);
-  if (!initRef.current) {
+  useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
     const startUnix = Date.now() / 1000 - 3600;
     const initial =
       startUnix >= windowStart && startUnix <= windowEnd ? startUnix : windowStart;
     timeStore.setTime(initial);
-    initRef.current = true;
-  }
+    // 僅初始化一次，刻意使用首次掛載的視窗界限
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState(60);
