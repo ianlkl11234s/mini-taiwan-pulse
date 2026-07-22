@@ -104,6 +104,10 @@
 
 Hook 參數表**不收** `currentTime`。理由與節流表見 `docs/development-rules.md#8`。
 
+## render body 禁止寫入被訂閱的外部 store（⚠ P0，2026-07-22 教訓）
+
+在 component / hook **render body**（含裸 `if`）直接呼叫 store write（`timeStore.setTime()` / 其他 `*Store.set*` / `emit`），若該 store 有被 `useSyncExternalStore` 訂閱，會 render 期間同步通知訂閱者 → React 警告「Cannot update a component (X) while rendering a different component (Y)」。**一律搬進掛載 `useEffect`**（一次性 init 用 `useRef` guard 或 `useState` lazy initializer）。此警告 remount / StrictMode / HMR 時序才穩定冒出、clean load 常隱身**易漏測**，靠「render-phase 寫被訂閱 store」結構判定即可定案。2026-07-22 全專案稽核（8 store 全 write 呼叫點 + 535 個 setState）確認唯一違規是 `useTimeline` 初始 `timeStore.setTime`（PR #79 修）；`loadingRegistry`（每 layer loader 都用）全在 async / effect / GL-loop，layer 慣例乾淨。
+
 ## Supabase PostgREST 20K cap（⚠ P0，2026-04-25 教訓）
 
 **Supabase 對外 PostgREST 有 `db-max-rows=20000` 硬 cap**，超過悄悄切掉：
