@@ -1052,3 +1052,14 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 5. **安全鎖定要主動全掃 public schema**，不只鎖「前端 API 用到的」——孤兒 table/view（無前端引用但 anon 可讀）一樣洩漏。上線後派獨立安全審計 agent 掃 DB 繞道 + PostgREST schema + git 歷史 + bundle，別假設「鎖了清單就安全」（這次真掃出電廠 public schema 洩漏）。
 6. **DB migration 驗證要走真實呼叫路徑**：psql `SELECT func()` ≠ PostgREST REST（後者對 STABLE func 用 read-only tx）。owner-only 功能要用真 authenticated / service_role REST 驗，別只 psql 模擬 → read-only tx bug 就是這樣漏到 browser 才炸。
 7. **接手他人 session 先盤點工作區有幾份未完成 WIP**（這次 owner-gated + pollution + 主題化 + 會員 docs 四份混疊），delegate 前明確劃「不碰 pollution/主題化」，拆 PR 時逐份隔離。**改動來源不確定時先問，別擅自 revert**（差點把用戶主題化 WIP 當「agent 跑偏」還原）。
+
+## 2026-07-22 夜景 layer + timeline 修正
+
+### What went well
+- **需求分歧先給選項再動手**：夜景燈光有「Mapbox 原生 vs Three.js bloom vs 離線點集」三路線、視覺/工作量差很多 → AskUserQuestion 附 preview 讓用戶拍板，避免盲做（用戶選 Mapbox 原生）。
+- **修完單點順手全掃同 class**：用戶問「其他 layer 會不會一樣」→ 2 平行 agent 掃 8 store + 535 setState 確認孤例，比只修那一行更有說服力。
+
+### Next-time rules
+1. **headless 驗視覺前先確認能驅動**：`window.__THREE__` 非可用 namespace、React layer state 無法外部驅動 → 別硬 eval 重建，改「資料管線 probe + 元件級已驗證據」組合佐證。
+2. **render-phase 寫被訂閱 store = setState-in-render 同 class**：clean load 隱身、remount 才冒 → 別因「重現不出」當沒事，靠結構判定定案並全掃同 class。
+3. **修 bug 後主動 audit 同 class**：單點修完派 agent 掃全專案同類反模式，順手升級成 PRINCIPLE。
