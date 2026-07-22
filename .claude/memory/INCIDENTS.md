@@ -1293,3 +1293,13 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 1. 鎖 schema-level（未 expose 的 schema）安全，但散在 `public` schema 的**同主題** table/view 容易漏——鎖清單要反查全部讀者，不只鎖 API 用到的（孤兒表也要）。
 2. **PostgREST 對 STABLE func 用 read-only tx** → SECURITY DEFINER + 內含 INSERT（audit）的 RPC 必須 VOLATILE。
 3. migration 驗證盲點：psql 直測 `SELECT func()` 不觸發 PostgREST read-only 包裝，anon REST 又被 ACL 擋門外 → **owner 透過真 REST 的路徑沒被測到**。要用真 authenticated（或 service_role）REST 驗 owner。
+
+## 2026-07-22 timeline render-phase store write + waste RPC 48s 診斷
+
+### 事件 A：useTimeline setState-in-render（PR #79 `e2cb2cb`）
+用戶 console 見 React「Cannot update a component (App) while rendering a different component (App)」。根因：`useTimeline.ts` 在 render body 直接 `timeStore.setTime(initial)`（一次性 init 裸 `if`），而同 hook 下方 `useSyncExternalStore(subscribeUiTime, …)` 訂閱同一 store → render 期間寫入同步通知訂閱者。修法：搬進掛載 `useEffect`（timeStore 預設本就 `Date.now()`，首幀無感）。**全專案稽核**（2 平行 agent：8 store write 呼叫點 + 535 個 setState）確認為孤例，其餘 layer/hook/`loadingRegistry` 全乾淨。
+- 教訓：此警告 remount / StrictMode / HMR 時序才穩定冒出，clean load 隱身 → headless 難重現，靠結構判定（render-phase 寫被訂閱 store）即可定案。→ PRINCIPLES 新增一條。
+- headless 驗證踩雷：`window.__THREE__` 不是可用的 THREE namespace（`Camera`/`Points` undefined，只是 devtools revision 標記）→ 無法 eval 重建 Three 場景；App layer 是 React state 無法從外部驅動 → 改用「資料管線 probe（querySourceFeatures 抽高樓）+ 元件級證據（GlowPointsScene 已驗）」佐證。
+
+### 事件 B：get_waste_schedule_day 實測 48s（🔴 需 pre-aggregate，未實作）
+`/check-rpc` 實測 `get_waste_schedule_day(NULL, 2)` = **48.06s**、來源 `spatial.waste_collection_stops` 193,541 筆、回 2,978 route groups。每次即時重算：逐列 regex 解析時刻 + weekday EXISTS + `DISTINCT ON` + **每列 3× ST_Distance geography**（離群偵測）+ 多輪 LAG/LEAD window + LEFT JOIN OSRM segments + `jsonb_agg`。前端 30s 逾時 → 圖層載不出（用戶 console 那條 timeout）。結果只依 `p_dow`×`p_cities`、來源靜態 → 物化表 + refresh function。→ BACKLOG BL-24（DB migration，待用戶拍板）。
