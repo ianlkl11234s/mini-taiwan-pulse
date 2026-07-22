@@ -237,10 +237,12 @@ export function useTransportParams() {
   // 台北人行道樹穴（pit_type 樹穴/花圃二色 fill + 類型篩選）
   const [treePitsTaipeiOpacity, setTreePitsTaipeiOpacity] = useState(0.55);
   const [treePitsTaipeiType, setTreePitsTaipeiType] = useState<string>("all"); // all / 樹穴 / 花圃
-  // GBA 全台建物輪廓（0=高度分級 1=資料來源 2=3D 立體；高度門檻篩選 + 透明度）
+  // GBA 全台建物輪廓（0=高度分級 1=資料來源 2=3D 立體 3=夜景燈光；高度門檻篩選 + 透明度）
   const [buildingsGbaModeIdx, setBuildingsGbaModeIdx] = useState(0);
   const [buildingsGbaMinHeight, setBuildingsGbaMinHeight] = useState(0);
   const [buildingsGbaOpacity, setBuildingsGbaOpacity] = useState(0.75);
+  // 夜景燈光 mode 3 專用：≥N m 高樓額外給 Three.js additive bloom 光暈（視野內取最高前 4096 棟）
+  const [buildingsGbaBloomMinHeight, setBuildingsGbaBloomMinHeight] = useState(100);
   // 都市紋理網格（0-5：棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數；預設 5=灰綠指數）
   const [urbanFormGridModeIdx, setUrbanFormGridModeIdx] = useState(5);
   const [urbanFormGridOpacity, setUrbanFormGridOpacity] = useState(0.55);
@@ -977,7 +979,7 @@ export function useTransportParams() {
     streetTreesNationalCityIdx: ["all", ...STREET_TREE_NATIONAL_CITIES.map((c) => c.value)].indexOf(streetTreesNationalCity),
     treePitsTaipeiOpacity,
     treePitsTaipeiTypeIdx: ["all", ...TREE_PIT_TYPES.map((t) => t.name)].indexOf(treePitsTaipeiType),
-    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity,
+    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
     urbanFormGridModeIdx, urbanFormGridOpacity,
     // 🗺️ 土地使用分區：category select 編成 Idx 餵 filter（overlayParams 只收數字，0=全部 1..9 單類）
     urbanZoningTaipeiOpacity,
@@ -1345,7 +1347,7 @@ export function useTransportParams() {
     streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius, streetTreesTaipei3epochColorMode, streetTreesTaipei3epochTrajFilter,
     streetTreesNationalOpacity, streetTreesNationalRadius, streetTreesNationalColorMode, streetTreesNationalCity,
     treePitsTaipeiOpacity, treePitsTaipeiType,
-    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity,
+    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
     urbanFormGridModeIdx, urbanFormGridOpacity,
     urbanZoningTaipeiOpacity, urbanZoningTaipeiCategory,
     urbanZoningNewTaipeiOpacity, urbanZoningNewTaipeiCategory,
@@ -2515,6 +2517,9 @@ export function useTransportParams() {
         { type: "select" as const, label: "顯示模式", value: String(buildingsGbaModeIdx), options: [...BUILDINGS_GBA_MODES], onChange: (v: string) => setBuildingsGbaModeIdx(parseInt(v, 10)) },
         { label: `高度門檻 ≥ ${buildingsGbaMinHeight} m`, value: buildingsGbaMinHeight, min: 0, max: 100, step: 5, onChange: setBuildingsGbaMinHeight },
         { label: `透明度 ${buildingsGbaOpacity.toFixed(2)}`, value: buildingsGbaOpacity, min: 0, max: 1, step: 0.05, onChange: setBuildingsGbaOpacity },
+        ...(buildingsGbaModeIdx === 3
+          ? [{ label: `Bloom 高樓門檻 ≥ ${buildingsGbaBloomMinHeight} m`, value: buildingsGbaBloomMinHeight, min: 40, max: 200, step: 10, onChange: setBuildingsGbaBloomMinHeight }]
+          : []),
       ];
       case "urbanFormGrid": return [
         { type: "select" as const, label: "顯示模式", value: String(urbanFormGridModeIdx), options: [...URBAN_FORM_GRID_MODES], onChange: (v: string) => setUrbanFormGridModeIdx(parseInt(v, 10)) },

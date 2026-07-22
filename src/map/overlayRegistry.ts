@@ -36,7 +36,7 @@ import {
   streetTreeNationalSpeciesColorExpr, streetTreeNationalCityColorExpr, STREET_TREE_NATIONAL_CITIES,
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
-import { buildingHeightColorExpr, buildingSrcColorExpr } from "../data/buildingsGbaTypes";
+import { buildingHeightColorExpr, buildingSrcColorExpr, buildingNightLightColorExpr } from "../data/buildingsGbaTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import {
@@ -3814,8 +3814,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // z8-12 為 tippecanoe tiny-polygon 合併近似（只當建成區紋理，不可逐棟分析，extrusion
   // 因此 minzoom 鎖 13）；height 100% 有值 float，
   // src=osm 為 OSM 志願者繪製、其餘為 GBA AI 推估；CC BY-NC 4.0，署名見 LegendPanel）：
-  // 三種顯示模式 modeIdx 0=高度 6 級分級（fill）1=資料來源二色（fill）2=3D 立體（fill-extrusion，
-  // 沿用高度色階）。suffix fill/extrusion 兩層永遠都在，靠 paint 把非當前模式那層的 opacity
+  // 四種顯示模式 modeIdx 0=高度 6 級分級（fill）1=資料來源二色（fill）2=3D 立體（fill-extrusion，
+  // 沿用高度色階）3=夜景燈光（fill，深底暖橘/白發光，height 越高越亮，橘白交錯，建議搭深色底圖）。
+  // suffix fill/extrusion 兩層永遠都在，靠 paint 把非當前模式那層的 opacity
   // 壓成 0（純 JS 常數，非 data-driven，fill-extrusion-opacity 合法）── 不用 layout.visibility
   // 切換，因為 rebuildOnParamChange 的 wasHidden 還原邏輯是整組 suffix 共用同一顆布林值，
   // 若靠 visibility 做「模式互斥顯示」會被誤判成使用者關閉整層而遭覆寫（見 overlayManager.ts）。
@@ -3834,10 +3835,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         type: "fill",
         filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
         paint: (_isDark, p) => {
-          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D
+          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D 3=夜景燈光
           const op = p?.buildingsGbaOpacity ?? 0.75;
           return {
-            "fill-color": modeIdx === 1 ? buildingSrcColorExpr() : buildingHeightColorExpr(),
+            "fill-color":
+              modeIdx === 3 ? buildingNightLightColorExpr()
+              : modeIdx === 1 ? buildingSrcColorExpr()
+              : buildingHeightColorExpr(),
             // 3D 模式：z<13 extrusion 不存在（minzoom 鎖 13），fill 用 zoom step 當平面後備；
             // z13+ 壓 0 交棒給 extrusion（zoom 表達式合法，非 data-driven）
             "fill-opacity": modeIdx === 2 ? ["step", ["zoom"], op, 13, 0] : op,

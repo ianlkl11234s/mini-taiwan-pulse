@@ -64,11 +64,55 @@ export function buildingSrcColorExpr(): unknown[] {
   return ["match", ["get", "src"], "osm", BUILDING_SRC_COLORS.osm, BUILDING_SRC_COLORS.other];
 }
 
+// 夜景燈光模式：深色底圖上模擬城市夜空。height 越高 → 越亮越白（低樓層暗暖橘、高樓層爆白），
+// 以 height 小數位做確定性 pseudo-random 分流，約 1/3 建物走白光家族、其餘走暖橘家族 → 橘白交錯（偏白）。
+// Mapbox fill 無 additive blending，靠深底 + 明亮暖白色階近似 bloom 觀感（非真光暈）。
+// 兩組 6 段色階皆隨 height 由暗轉亮，對齊「樓層越高光越亮」語意。
+const NIGHT_WARM_RAMP: [number, string][] = [
+  [0, "#2a1505"],
+  [8, "#7a3d12"],
+  [18, "#c46220"],
+  [35, "#ff9838"],
+  [70, "#ffd59a"],
+  [140, "#fff4e2"],
+];
+const NIGHT_WHITE_RAMP: [number, string][] = [
+  [0, "#43392a"],
+  [8, "#807763"],
+  [18, "#c6bea8"],
+  [35, "#ece7d8"],
+  [70, "#fbf9f2"],
+  [140, "#ffffff"],
+];
+
+function nightRampExpr(h: unknown[], ramp: [number, string][]): unknown[] {
+  const e: unknown[] = ["interpolate", ["linear"], h];
+  for (const [stop, color] of ramp) e.push(stop, color);
+  return e;
+}
+
+/** 夜景燈光 fill-color：橘/白雙家族依 height 由暗轉亮，pseudo-random 交錯（⚠️ 不含 ["zoom"]） */
+export function buildingNightLightColorExpr(): unknown[] {
+  const h: unknown[] = ["to-number", ["get", "height"], 0];
+  // round(height*10) mod 3 == 0 → 白光家族（約 1/3，偏白），其餘暖橘；height 小數位讓相鄰建物散開
+  const bucket: unknown[] = ["%", ["round", ["*", h, 10]], 3];
+  return ["case", ["==", bucket, 0], nightRampExpr(h, NIGHT_WHITE_RAMP), nightRampExpr(h, NIGHT_WARM_RAMP)];
+}
+
+/** 夜景燈光圖例色帶（低→高，代表暖橘→暖白爆光；白光家族僅點綴不另列） */
+export const BUILDING_NIGHT_LEGEND: { color: string; label: string }[] = [
+  { color: "#7a3d12", label: "低樓層 · 暖橘微光" },
+  { color: "#ff9838", label: "中樓層 · 橘光" },
+  { color: "#fff4e2", label: "高樓層 · 暖白" },
+  { color: "#ffffff", label: "超高層 · 白熱交錯" },
+];
+
 /** 顯示模式 select 選項；index 對齊 overlayRegistry 讀的 buildingsGbaModeIdx */
 export const BUILDINGS_GBA_MODES = [
   { label: "高度分級", value: "0" },
   { label: "資料來源", value: "1" },
   { label: "3D 立體", value: "2" },
+  { label: "夜景燈光", value: "3" },
 ] as const;
 
 // 圖例必掛署名（CC BY-NC 4.0，禁商用）
