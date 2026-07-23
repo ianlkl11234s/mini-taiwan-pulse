@@ -37,6 +37,7 @@ import {
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
 import { buildingHeightColorExpr, buildingSrcColorExpr, buildingNightLightColorExpr } from "../data/buildingsGbaTypes";
+import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import {
@@ -4472,6 +4473,31 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             1.0,   "#00441b",        // 40m+
           ],
         }),
+      },
+    ],
+  },
+
+  // ── 🌲 樹冠巨木 Canopy Giants（GeoJSON 7,823 點；依 dist_access_m 離道路距離分級染色）──
+  // 半徑 z6 3px → z12 7px；資料源 = Meta/WRI 樹冠高度 10m × 可及性分析（≥45m 巨木）。
+  {
+    id: "canopyGiants",
+    sourceUrl: "./forestry/canopy_giants_taiwan.geojson",
+    sourceId: "canopy-giants",
+    rebuildOnParamChange: ["canopyGiantsOpacity"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const opacity = p?.canopyGiantsOpacity ?? 0.85;
+          return {
+            "circle-color": canopyGiantDistColorExpr(),
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3, 12, 7],
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
       },
     ],
   },

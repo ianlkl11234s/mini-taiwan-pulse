@@ -305,6 +305,7 @@ export function useMapInteraction(
           { layers: ["street-trees-taipei-diff-circle"], type: "streetTreesTaipeiDiff" },
           { layers: ["protected-trees-national-circle"], type: "protectedTreesNational" },
           { layers: ["riverside-trees-taipei-circle"], type: "riversideTreesTaipei" },
+          { layers: ["canopy-giants-circle"], type: "canopyGiants" },
           { layers: ["parks-taipei-circle"], type: "parksTaipei" },
           { layers: ["street-trees-taipei-3epoch-circle"], type: "streetTreesTaipei3epoch" },
           { layers: ["street-trees-national-circle"], type: "streetTreesNational" },

@@ -219,6 +219,7 @@ export type ExpandableLayerKey =
   | "forestAlishanRail"
   | "hikingTrails"
   | "canopyHeight"
+  | "canopyGiants"
   // ENERGY MVP
   | "powerPlants"
   | "powerPlantGlow"
@@ -693,6 +694,7 @@ export interface FeatureInfo {
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
     | "hikingTrails"
+    | "canopyGiants"
     | "satellite"
     | "powerPlant" | "osmSubstation" | "evCharging"
     | "osmPowerLine" | "osmPowerTower"
@@ -938,6 +940,7 @@ export interface LayerVisibility {
   forestAlishanRail: boolean;
   hikingTrails: boolean;           // 全台步道 2,818 條（A 林業署 + B OSM + C 國家公園）
   canopyHeight: boolean;           // 全台樹冠高度 raster PNG PMTiles（Meta/WRI 2020 10m，z7-12 預烤 Greens 色帶）
+  canopyGiants: boolean;           // 樹冠 45m+ 巨木 7,823 點（GeoJSON；依 dist_access_m 離道路距離分級）
   wasteTruck: boolean;
   wasteSchedule: boolean;
   wasteScheduleNote: boolean;

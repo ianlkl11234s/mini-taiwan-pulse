@@ -41,6 +41,26 @@ export function HikingTrailsPanel({ props }: { props: Record<string, unknown> })
   );
 }
 
+// 樹冠巨木 popup：樹高 / 離最近可及線 / 海拔。
+export function CanopyGiantsPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const fmt = (v: unknown) => (v == null ? "—" : `${v} m`);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 5, background: "#a50026", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>樹冠巨木</div>
+      </div>
+      <Row label="樹高" value={fmt(props.height_m)} />
+      <Row label="離最近道路/步道/林道" value={fmt(props.dist_access_m)} />
+      <Row label="海拔" value={fmt(props.elev_m)} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        Meta/WRI 樹冠高度 10m × 可及性分析（≥ 45m）
+      </div>
+    </>
+  );
+}
+
 // ── FORESTRY panels ────────────────────────────────────────────
 
 const FORESTRY_PROP_LABELS: Record<string, string> = {
