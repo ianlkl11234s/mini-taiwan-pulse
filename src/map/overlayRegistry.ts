@@ -8117,7 +8117,9 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // 11. 旅宿 Hotels & B&Bs（~15,654 點，hotel_classes 四類分色 + 類別篩選 + minzoom 9 防糊，10k+ 半徑 2→5）
+  // 11. 旅宿 Hotels & B&Bs（~15,654 點，hotel_classes 四類分色 + 類別篩選，10k+ 半徑）
+  // 全 zoom 常駐（2026-07-24 移除 minzoom 9 gate）：低 zoom 縮到 1.2px 呈密度點雲防糊，
+  // glow 於 z8→9.5 淡入（15.6K 光暈低 zoom 疊加會糊成一片）。
   {
     id: "tourHotels",
     sourceUrl: "./tourism/hotels_national.geojson",
@@ -8125,7 +8127,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
-        suffix: "glow", type: "circle", minzoom: 9,
+        suffix: "glow", type: "circle",
         filter: (p) => tourHotelsClassFilter(p),
         paint: (_isDark, p) => {
           const scale = p?.tourHotelsScale ?? 1;
@@ -8133,18 +8135,18 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 9 * scale],
             "circle-blur": 1,
             "circle-color": TOUR_HOTELS_CLASS_COLOR,
-            "circle-opacity": 0.1,
+            "circle-opacity": ["interpolate", ["linear"], ["zoom"], 8, 0, 9.5, 0.1],
           };
         },
       },
       {
-        suffix: "circle", type: "circle", minzoom: 9,
+        suffix: "circle", type: "circle",
         filter: (p) => tourHotelsClassFilter(p),
         paint: (isDark, p) => {
           const scale = p?.tourHotelsScale ?? 1;
           const opacity = p?.tourHotelsOpacity ?? 0.85;
           return {
-            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2 * scale, 12, 5 * scale],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.2 * scale, 9, 2.5 * scale, 12, 5 * scale],
             "circle-color": TOUR_HOTELS_CLASS_COLOR,
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",

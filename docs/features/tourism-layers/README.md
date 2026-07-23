@@ -24,7 +24,7 @@
 | tourFactories | point | GeoJSON（C git, 158） | 🔧 |
 | tourAmusementParks | point | GeoJSON（C git, 26） | 🔧 |
 | tourCamping | point | GeoJSON（C git, 1,737） | 🔧 |
-| tourHotels | point | GeoJSON（D volume, 15,654，zoom-gate） | 🔧 |
+| tourHotels | point | GeoJSON（D volume, 15,654，全 zoom 常駐低 zoom 縮點） | 🔧 |
 | tourRestaurants | point | GeoJSON（D volume, 3,688） | 🔧 |
 
 ## 關鍵檔案
