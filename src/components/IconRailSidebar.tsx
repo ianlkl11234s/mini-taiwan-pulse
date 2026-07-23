@@ -244,6 +244,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   forestAlishanRail: TrainFront,
   hikingTrails: Footprints,
   canopyHeight: Ruler,
+  canopyGiants: TreePine,
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,

@@ -210,6 +210,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   forestAlishanRail: "#92400E",
   hikingTrails: "#d62728",
   canopyHeight: "#33691e",
+  canopyGiants: "#a50026",
   wasteTruck: "#fbbf24",
   wasteSchedule: "#fbbf24",
   wasteScheduleNote: "#fff8d6",
@@ -1238,6 +1239,7 @@ export const THEMES: ThemeDef[] = [
           { key: "forestRecreation", label: "森林遊樂區 Recreation", expandable: true },
           { key: "forestFlatParks", label: "平地森林 Flat Parks", expandable: true },
           { key: "canopyHeight", label: "樹冠高度 Canopy Height", expandable: true },
+          { key: "canopyGiants", label: "樹冠巨木 Canopy Giants", expandable: true },
         ],
       },
       {

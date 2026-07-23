@@ -28,7 +28,7 @@ import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
 } from "./agriPanels";
-import { HikingTrailsPanel, ForestryGenericPanel } from "./forestryPanels";
+import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -267,6 +267,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   streetTreesTaipeiDiff: StreetTreesTaipeiDiffPanel,
   protectedTreesNational: ProtectedTreesNationalPanel,
   riversideTreesTaipei: RiversideTreesTaipeiPanel,
+  canopyGiants: CanopyGiantsPanel,
   parksTaipei: ParksTaipeiPanel,
   streetTreesTaipei3epoch: StreetTrees3epochPanel,
   streetTreesNational: StreetTreesNationalPanel,
@@ -384,6 +385,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   streetTreesTaipeiDiff: "行道樹變化",
   protectedTreesNational: "受保護樹木",
   riversideTreesTaipei: "河濱喬木",
+  canopyGiants: "樹冠巨木",
   parksTaipei: "公園",
   streetTreesTaipei3epoch: "行道樹三時點",
   streetTreesNational: "行道樹全國",

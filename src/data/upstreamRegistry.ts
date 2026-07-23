@@ -660,6 +660,7 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     datasets: [{ datasetId: 'wildlife_distribution_3rd', confidence: 'HIGH' }],
   },
   canopyHeight: { status: 'catalog_missing', datasets: [], note: '全台樹冠高度 raster PMTiles（Meta/WRI 2020 10m，public/forestry/canopy_height_taiwan.pmtiles），catalog 待建' },
+  canopyGiants: { status: 'catalog_missing', datasets: [], note: '樹冠 45m+ 巨木 GeoJSON（Meta/WRI 樹冠高度 10m × 可及性分析衍生，public/forestry/canopy_giants_taiwan.geojson），衍生資料無 catalog 來源' },
   wasteTruck: {
     status: 'verified',
     datasets: [{ datasetId: 'garbage_collection', confidence: 'MED' }],

@@ -34,6 +34,7 @@ import {
   STREET_TREE_3EPOCH_TRAJ, CANOPY_HEIGHT_RAMP,
   STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
+import { CANOPY_GIANT_DIST_BANDS } from "../data/canopyGiantsTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -227,6 +228,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
   { keys: ["urbanZoningTaipei", "urbanZoningNewTaipei"], render: () => <UrbanZoningLegend /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
+  { keys: ["canopyGiants"], render: () => <CanopyGiantsLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
   { keys: ["culturalFacilities"], render: () => <CulturalFacilitiesLegend /> },
   { keys: ["culturalMuseums"], render: () => <CulturalMuseumsLegend /> },
@@ -1131,13 +1133,34 @@ function CanopyHeightLegend() {
       <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${CANOPY_HEIGHT_RAMP.join(", ")})` }} />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2 }}>
         <span>0 m</span>
-        <span>30 m+</span>
+        <span>40 m+</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
-        Meta/WRI 2020 · 10m 解析度
+        Meta/WRI 2024 · ~20m 解析度
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
         © Meta & WRI · Tolan et al. 2024 · CC-BY 4.0
+      </div>
+    </div>
+  );
+}
+
+// 樹冠巨木圖例：依離最近道路/步道/林道距離 5 級（近→遠 = 黃→深紅）。
+function CanopyGiantsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        樹冠巨木 CANOPY GIANTS
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        離最近道路/步道/林道
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {CANOPY_GIANT_DIST_BANDS.map((b) => <UrbanDotRow key={b.label} color={b.color} label={b.label} />)}
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+          ≥ 45m 樹冠 · 7,823 點
+        </div>
       </div>
     </div>
   );

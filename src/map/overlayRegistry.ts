@@ -37,6 +37,7 @@ import {
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
 import { buildingHeightColorExpr, buildingSrcColorExpr, buildingNightLightColorExpr } from "../data/buildingsGbaTypes";
+import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import {
@@ -4440,21 +4441,63 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── 全台樹冠高度（raster PNG PMTiles，Meta/WRI 2020 10m，z7-12）──
-  // 顏色已預烤進 PNG（Greens 色帶，低植被端半透明）；mapbox-pmtiles 依 header
-  // tile type 自動切 raster 模式，z13+ 靠 Mapbox raster overzoom 拉伸。
+  // ── 全台樹冠高度（高度編碼 RGBA PMTiles，Meta/WRI 2024 v2，~20m/z13 等效，512px）──
+  // R=G=B=公尺高度、A=nodata mask；前端用 raster-color 動態上色（不再預烤顏色）。
+  // 512px 磚 → mapbox-pmtiles「寫死 512」的假設反而正確，順帶解決舊 256px 的糊。
+  // raster-color-mix 取 R 通道×(1/40)；range=[0,1] 讓正規化 no-op → raster-value=高度/40（與 spec 解讀無關）。
   // raster layer 不允許 source-layer → pmtiles 不填 sourceLayer。
   {
     id: "canopyHeight",
-    sourceUrl: "./forestry/canopy_height_taiwan.pmtiles",
+    sourceUrl: "./forestry/canopy_height_rgb_taiwan.pmtiles",
     sourceId: "canopy-height",
-    pmtiles: { minzoom: 7, maxzoom: 12 },
+    pmtiles: { minzoom: 6, maxzoom: 12 },
     layers: [
       {
         suffix: "raster", type: "raster",
         paint: (_isDark, p) => ({
           "raster-opacity": p?.canopyHeightOpacity ?? 0.7,
+          "raster-resampling": "nearest",
+          // mapbox 把 channels 正規化為 0-1 再進 mix，故 R=公尺/255；6.375 = (1/40)×255 → mix 輸出=高度/40
+          "raster-color-mix": [6.375, 0, 0, 0],
+          "raster-color-range": [0, 1],
+          "raster-color": [
+            "interpolate", ["linear"], ["raster-value"],
+            0.0,   "rgba(0,0,0,0)",  // 0m / nodata 透明
+            0.025, "#f7fcf5",        // 1m
+            0.075, "#c7e9c0",        // 3m
+            0.15,  "#a1d99b",        // 6m
+            0.25,  "#74c476",        // 10m
+            0.375, "#41ab5d",        // 15m
+            0.5,   "#238b45",        // 20m
+            0.75,  "#006d2c",        // 30m
+            1.0,   "#00441b",        // 40m+
+          ],
         }),
+      },
+    ],
+  },
+
+  // ── 🌲 樹冠巨木 Canopy Giants（GeoJSON 7,823 點；依 dist_access_m 離道路距離分級染色）──
+  // 半徑 z6 3px → z12 7px；資料源 = Meta/WRI 樹冠高度 10m × 可及性分析（≥45m 巨木）。
+  {
+    id: "canopyGiants",
+    sourceUrl: "./forestry/canopy_giants_taiwan.geojson",
+    sourceId: "canopy-giants",
+    rebuildOnParamChange: ["canopyGiantsOpacity"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const opacity = p?.canopyGiantsOpacity ?? 0.85;
+          return {
+            "circle-color": canopyGiantDistColorExpr(),
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3, 12, 7],
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
       },
     ],
   },

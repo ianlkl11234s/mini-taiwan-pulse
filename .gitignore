@@ -44,6 +44,9 @@ public/bus/tourist_shuttle_routes.json
 public/agriculture/*.pmtiles
 public/agriculture/*.geojson
 
+# 樹冠高度大 PMTiles（80–98MB 高度編碼；由 S3 deploy-assets/Volume 管理，小 forestry pmtiles 仍進 git）
+public/forestry/canopy_height_*.pmtiles
+
 # 運動場館 Sports（全國 15,000 點靜態 GeoJSON 8.4MB；由 S3 deploy-assets 管理）
 public/sports/
 
