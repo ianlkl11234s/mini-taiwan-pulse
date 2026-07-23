@@ -1131,10 +1131,10 @@ function CanopyHeightLegend() {
       <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${CANOPY_HEIGHT_RAMP.join(", ")})` }} />
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2 }}>
         <span>0 m</span>
-        <span>30 m+</span>
+        <span>40 m+</span>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
-        Meta/WRI 2020 · 10m 解析度
+        Meta/WRI 2024 · ~20m 解析度
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
         © Meta & WRI · Tolan et al. 2024 · CC-BY 4.0
