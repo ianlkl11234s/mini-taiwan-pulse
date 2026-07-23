@@ -120,3 +120,8 @@ public/fishery/aquaculture_water_satellite.pmtiles
 public/forestry/canopy_height_taiwan.pmtiles
 public/urban/*.geojson
 public/water_resources/*.pmtiles
+
+# Tourism D 類大檔（S3 deploy-assets/tourism/，其餘 9 檔 C 類進 git）
+public/tourism/attractions_national.geojson
+public/tourism/hotels_national.geojson
+public/tourism/restaurants_national.geojson

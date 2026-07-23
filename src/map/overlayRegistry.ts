@@ -51,6 +51,57 @@ function cultureTodayStr(): string {
 }
 
 /**
+ * 台北時區今日 YYYY-MM-DD（觀光活動 tourEvents 用；activities start_time/end_time 是 ISO 時間戳，
+ * 比較用 ["slice", ["get","start_time"], 0, 10] 取日期段對此字串比 → 保留連字號，**不** replace 斜線）。
+ */
+function tourTodayStr(): string {
+  return new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
+/** tourHotels 類別篩選：0=全部 / 1..4 = hotel_classes 單碼（"1"~"4"）。filter 函式 → rebuild 帶入。 */
+function tourHotelsClassFilter(p?: Record<string, number>): unknown[] {
+  const idx = p?.tourHotelsClassIdx ?? 0;
+  if (idx >= 1 && idx <= 4) return ["==", ["get", "hotel_classes"], String(idx)];
+  return ["has", "hotel_classes"];
+}
+
+// tourAttractions 分類著色（category 五類；fallback=Other 灰）
+const TOUR_ATTRACTIONS_CATEGORY_COLOR: unknown[] = [
+  "match", ["get", "category"],
+  "Nature", "#2e7d32",
+  "Culture", "#6d4c41",
+  "Leisure_Arts", "#ab47bc",
+  "Urban_Comm", "#0288d1",
+  "#9e9e9e",
+];
+// tourAttractions 熱度著色（annual_visitors_2024 log10 色帶；非 number（含 null）= 灰「無統計」，絕不當 0）
+const TOUR_ATTRACTIONS_HEAT_COLOR: unknown[] = [
+  "case",
+  ["==", ["typeof", ["get", "annual_visitors_2024"]], "number"],
+  ["interpolate", ["linear"],
+    ["log10", ["max", ["get", "annual_visitors_2024"], 1]],
+    4, "#ffe082", 5, "#ffb300", 6, "#f4511e", 7.5, "#b71c1c"],
+  "#616161",
+];
+// tourHotels hotel_classes 四類分色（fallback 灰）
+const TOUR_HOTELS_CLASS_COLOR: unknown[] = [
+  "match", ["get", "hotel_classes"],
+  "1", "#d32f2f",
+  "2", "#f57c00",
+  "3", "#1976d2",
+  "4", "#43a047",
+  "#9e9e9e",
+];
+// tourHeritage category 三類同色系分色（fallback 基底 #6d4c41）
+const TOUR_HERITAGE_CATEGORY_COLOR: unknown[] = [
+  "match", ["get", "category"],
+  "古蹟", "#5d4037",
+  "歷史建築", "#8d6e63",
+  "文化景觀", "#a1887f",
+  "#6d4c41",
+];
+
+/**
  * aquacultureWaterSatelliteMoa 的「確認／漁電共生／其他」三組類別篩選 checkbox（0/1 param，預設全開）
  * → 組成 display_class in-list filter。三組皆關閉時回傳恆假 filter（面全隱藏，而非退回顯示全部）。
  */
@@ -7696,5 +7747,437 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         };
       },
     }],
+  },
+
+  // ─── 🧳 觀光 Tourism ───────────────────────────────────────────────
+  // 12 層：點層仿 postOffices（glow+circle，中性白/黑描邊）；面層仿 activeFaults（glow+fill+line）。
+  // 分色 hex / 熱度色帶 / 三態日期比較 見 tourism-spec.md；WP-C 圖例硬編需與此一致。
+
+  // 1. 觀光景點 Attractions（旗艦，~6,070 點，1k~10k 半徑 3→6）
+  // circle-color 依 tourAttractionsModeIdx：0=category 五值 match / 1=annual_visitors_2024 熱度 log10。
+  {
+    id: "tourAttractions",
+    sourceUrl: "./tourism/attractions_national.geojson",
+    sourceId: "tour-attractions",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle",
+        paint: (_isDark, p) => {
+          const scale = p?.tourAttractionsScale ?? 1;
+          const color = p?.tourAttractionsModeIdx === 1 ? TOUR_ATTRACTIONS_HEAT_COLOR : TOUR_ATTRACTIONS_CATEGORY_COLOR;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 6 * scale, 12, 12 * scale],
+            "circle-blur": 1,
+            "circle-color": color,
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourAttractionsScale ?? 1;
+          const opacity = p?.tourAttractionsOpacity ?? 0.85;
+          const color = p?.tourAttractionsModeIdx === 1 ? TOUR_ATTRACTIONS_HEAT_COLOR : TOUR_ATTRACTIONS_CATEGORY_COLOR;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": color,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 2. 溫泉露頭 Hot Springs（150 點，單色，<1k 半徑 4→8）
+  {
+    id: "tourHotSprings",
+    sourceUrl: "./tourism/hot_springs_national.geojson",
+    sourceId: "tour-hot-springs",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle",
+        paint: (_isDark, p) => {
+          const scale = p?.tourHotSpringsScale ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 7 * scale, 12, 14 * scale],
+            "circle-blur": 1,
+            "circle-color": "#d81b60",
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourHotSpringsScale ?? 1;
+          const opacity = p?.tourHotSpringsOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": "#d81b60",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 3. 溫泉露頭區 Hot Spring Zones（16 面，Polygon，仿 activeFaults glow+fill+line；只 opacity）
+  {
+    id: "tourHotSpringZones",
+    sourceUrl: "./tourism/hot_spring_zones_national.geojson",
+    sourceId: "tour-hot-spring-zones",
+    layers: [
+      {
+        suffix: "glow", type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#c2185b" : "#880e4f",
+          "line-width": 8,
+          "line-blur": 6,
+          "line-opacity": 0.12 * (p?.tourHotSpringZonesOpacity ?? 0.5),
+        }),
+      },
+      {
+        suffix: "fill", type: "fill",
+        paint: (isDark, p) => ({
+          "fill-color": isDark ? "#c2185b" : "#880e4f",
+          "fill-opacity": 0.35 * (p?.tourHotSpringZonesOpacity ?? 0.5),
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#c2185b" : "#880e4f",
+          "line-width": 1,
+          "line-opacity": 0.7 * (p?.tourHotSpringZonesOpacity ?? 0.5),
+        }),
+      },
+    ],
+  },
+
+  // 4. 國家風景區 National Scenic Areas（12 面，Polygon，仿 activeFaults；只 opacity）
+  {
+    id: "tourScenicAreas",
+    sourceUrl: "./tourism/national_scenic_areas_national.geojson",
+    sourceId: "tour-scenic-areas",
+    layers: [
+      {
+        suffix: "glow", type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#26a69a" : "#00695c",
+          "line-width": 8,
+          "line-blur": 6,
+          "line-opacity": 0.12 * (p?.tourScenicAreasOpacity ?? 0.5),
+        }),
+      },
+      {
+        suffix: "fill", type: "fill",
+        paint: (isDark, p) => ({
+          "fill-color": isDark ? "#26a69a" : "#00695c",
+          "fill-opacity": 0.35 * (p?.tourScenicAreasOpacity ?? 0.5),
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: (isDark, p) => ({
+          "line-color": isDark ? "#26a69a" : "#00695c",
+          "line-width": 1,
+          "line-opacity": 0.7 * (p?.tourScenicAreasOpacity ?? 0.5),
+        }),
+      },
+    ],
+  },
+
+  // 5. 文化資產 Heritage（2,894 點，category 三類同色系分色，1k~10k 半徑 3→6）
+  {
+    id: "tourHeritage",
+    sourceUrl: "./tourism/heritage_national.geojson",
+    sourceId: "tour-heritage",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle",
+        paint: (_isDark, p) => {
+          const scale = p?.tourHeritageScale ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 6 * scale, 12, 12 * scale],
+            "circle-blur": 1,
+            "circle-color": TOUR_HERITAGE_CATEGORY_COLOR,
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourHeritageScale ?? 1;
+          const opacity = p?.tourHeritageOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": TOUR_HERITAGE_CATEGORY_COLOR,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 6. 宗教百景 Religious Sites（100 點，單色，<1k 半徑 4→8）
+  {
+    id: "tourReligion",
+    sourceUrl: "./tourism/religion_national.geojson",
+    sourceId: "tour-religion",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle",
+        paint: (_isDark, p) => {
+          const scale = p?.tourReligionScale ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 7 * scale, 12, 14 * scale],
+            "circle-blur": 1,
+            "circle-color": "#7b1fa2",
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourReligionScale ?? 1;
+          const opacity = p?.tourReligionOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": "#7b1fa2",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 7. 觀光活動・節慶 Tourism Events（~828 點，circle only，三態日期篩選 + 進行中/未開始二色）
+  // start_time/end_time 是 ISO 時間戳 → slice 0..10 取 YYYY-MM-DD 對 tourTodayStr() 字串比。
+  {
+    id: "tourEvents",
+    sourceUrl: "./tourism/activities_national.geojson",
+    sourceId: "tour-events",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        filter: (p) => {
+          const idx = p?.tourEventsStatusIdx ?? 0; // 0=全部 1=進行中 2=未開始
+          const today = tourTodayStr();
+          const startDay = ["slice", ["get", "start_time"], 0, 10];
+          const endDay = ["slice", ["get", "end_time"], 0, 10];
+          if (idx === 1) return ["all", ["<=", startDay, today], [">=", endDay, today]];
+          if (idx === 2) return [">", startDay, today];
+          return ["has", "start_time"];
+        },
+        paint: (isDark, p) => {
+          const opacity = p?.tourEventsOpacity ?? 0.85;
+          const scale = p?.tourEventsScale ?? 1;
+          const today = tourTodayStr();
+          return {
+            "circle-color": ["case", ["<=", ["slice", ["get", "start_time"], 0, 10], today], "#f9a825", "#90a4ae"],
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 8. 觀光工廠 Tourism Factories（158 點，單色，<1k 半徑 4→8）
+  {
+    id: "tourFactories",
+    sourceUrl: "./tourism/tourism_factories_national.geojson",
+    sourceId: "tour-factories",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle",
+        paint: (_isDark, p) => {
+          const scale = p?.tourFactoriesScale ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 7 * scale, 12, 14 * scale],
+            "circle-blur": 1,
+            "circle-color": "#546e7a",
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourFactoriesScale ?? 1;
+          const opacity = p?.tourFactoriesOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": "#546e7a",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 9. 民營遊樂園 Amusement Parks（26 點，單色，大點 4→8）
+  {
+    id: "tourAmusementParks",
+    sourceUrl: "./tourism/amusement_parks_national.geojson",
+    sourceId: "tour-amusement-parks",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle",
+        paint: (_isDark, p) => {
+          const scale = p?.tourAmusementParksScale ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 7 * scale, 12, 14 * scale],
+            "circle-blur": 1,
+            "circle-color": "#00acc1",
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourAmusementParksScale ?? 1;
+          const opacity = p?.tourAmusementParksOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": "#00acc1",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 10. 露營場 Campgrounds（1,737 點，單色，1k~10k 半徑 3→6）
+  {
+    id: "tourCamping",
+    sourceUrl: "./tourism/camping_national.geojson",
+    sourceId: "tour-camping",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle",
+        paint: (_isDark, p) => {
+          const scale = p?.tourCampingScale ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 6 * scale, 12, 12 * scale],
+            "circle-blur": 1,
+            "circle-color": "#7cb342",
+            "circle-opacity": 0.12,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourCampingScale ?? 1;
+          const opacity = p?.tourCampingOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": "#7cb342",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 11. 旅宿 Hotels & B&Bs（~15,654 點，hotel_classes 四類分色 + 類別篩選 + minzoom 9 防糊，10k+ 半徑 2→5）
+  {
+    id: "tourHotels",
+    sourceUrl: "./tourism/hotels_national.geojson",
+    sourceId: "tour-hotels",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow", type: "circle", minzoom: 9,
+        filter: (p) => tourHotelsClassFilter(p),
+        paint: (_isDark, p) => {
+          const scale = p?.tourHotelsScale ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 9 * scale],
+            "circle-blur": 1,
+            "circle-color": TOUR_HOTELS_CLASS_COLOR,
+            "circle-opacity": 0.1,
+          };
+        },
+      },
+      {
+        suffix: "circle", type: "circle", minzoom: 9,
+        filter: (p) => tourHotelsClassFilter(p),
+        paint: (isDark, p) => {
+          const scale = p?.tourHotelsScale ?? 1;
+          const opacity = p?.tourHotelsOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2 * scale, 12, 5 * scale],
+            "circle-color": TOUR_HOTELS_CLASS_COLOR,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 9, 0, 12, 0.3, 16, 0.6],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 12. 觀光餐飲 Restaurants（~3,688 點，circle only 省 overdraw，單色 #c62828，1k~10k 半徑 3→6）
+  {
+    id: "tourRestaurants",
+    sourceUrl: "./tourism/restaurants_national.geojson",
+    sourceId: "tour-restaurants",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle", type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.tourRestaurantsScale ?? 1;
+          const opacity = p?.tourRestaurantsOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": "#c62828",
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
   },
 ];

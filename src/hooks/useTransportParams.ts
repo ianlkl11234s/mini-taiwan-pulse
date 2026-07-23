@@ -224,6 +224,32 @@ export function useTransportParams() {
   const [artsEventsStatus, setArtsEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
   const [performingVenuesOpacity, setPerformingVenuesOpacity] = useState(0.85);
   const [performingVenuesRadius, setPerformingVenuesRadius] = useState(1);
+  // 🧳 觀光 Tourism 12 層（點層 opacity 0.85 + scale 1；面層 opacity 0.5；select 存字串，overlayParams 轉 Idx）
+  const [tourAttractionsOpacity, setTourAttractionsOpacity] = useState(0.85);
+  const [tourAttractionsScale, setTourAttractionsScale] = useState(1);
+  const [tourAttractionsMode, setTourAttractionsMode] = useState<string>("category"); // category / heat
+  const [tourHotSpringsOpacity, setTourHotSpringsOpacity] = useState(0.85);
+  const [tourHotSpringsScale, setTourHotSpringsScale] = useState(1);
+  const [tourHotSpringZonesOpacity, setTourHotSpringZonesOpacity] = useState(0.5);
+  const [tourScenicAreasOpacity, setTourScenicAreasOpacity] = useState(0.5);
+  const [tourHeritageOpacity, setTourHeritageOpacity] = useState(0.85);
+  const [tourHeritageScale, setTourHeritageScale] = useState(1);
+  const [tourReligionOpacity, setTourReligionOpacity] = useState(0.85);
+  const [tourReligionScale, setTourReligionScale] = useState(1);
+  const [tourEventsOpacity, setTourEventsOpacity] = useState(0.85);
+  const [tourEventsScale, setTourEventsScale] = useState(1);
+  const [tourEventsStatus, setTourEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
+  const [tourFactoriesOpacity, setTourFactoriesOpacity] = useState(0.85);
+  const [tourFactoriesScale, setTourFactoriesScale] = useState(1);
+  const [tourAmusementParksOpacity, setTourAmusementParksOpacity] = useState(0.85);
+  const [tourAmusementParksScale, setTourAmusementParksScale] = useState(1);
+  const [tourCampingOpacity, setTourCampingOpacity] = useState(0.85);
+  const [tourCampingScale, setTourCampingScale] = useState(1);
+  const [tourHotelsOpacity, setTourHotelsOpacity] = useState(0.85);
+  const [tourHotelsScale, setTourHotelsScale] = useState(1);
+  const [tourHotelsClass, setTourHotelsClass] = useState<string>("all"); // all / 1 / 2 / 3 / 4
+  const [tourRestaurantsOpacity, setTourRestaurantsOpacity] = useState(0.85);
+  const [tourRestaurantsScale, setTourRestaurantsScale] = useState(1);
   // 行道樹三時點（traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
   const [streetTreesTaipei3epochOpacity, setStreetTreesTaipei3epochOpacity] = useState(0.7);
   const [streetTreesTaipei3epochRadius, setStreetTreesTaipei3epochRadius] = useState(0.5); // 點位大小縮放倍率
@@ -971,6 +997,22 @@ export function useTransportParams() {
     artsEventsOpacity, artsEventsRadius,
     artsEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(artsEventsStatus),
     performingVenuesOpacity, performingVenuesRadius,
+    // 🧳 觀光 Tourism：select 編成 Idx 餵 paint/filter（overlayParams 只收數字）
+    tourAttractionsOpacity, tourAttractionsScale,
+    tourAttractionsModeIdx: ["category", "heat"].indexOf(tourAttractionsMode),
+    tourHotSpringsOpacity, tourHotSpringsScale,
+    tourHotSpringZonesOpacity,
+    tourScenicAreasOpacity,
+    tourHeritageOpacity, tourHeritageScale,
+    tourReligionOpacity, tourReligionScale,
+    tourEventsOpacity, tourEventsScale,
+    tourEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(tourEventsStatus),
+    tourFactoriesOpacity, tourFactoriesScale,
+    tourAmusementParksOpacity, tourAmusementParksScale,
+    tourCampingOpacity, tourCampingScale,
+    tourHotelsOpacity, tourHotelsScale,
+    tourHotelsClassIdx: ["all", "1", "2", "3", "4"].indexOf(tourHotelsClass),
+    tourRestaurantsOpacity, tourRestaurantsScale,
     streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius,
     streetTreesTaipei3epochColorModeIdx: ["traj", "species", "diameter", "height"].indexOf(streetTreesTaipei3epochColorMode),
     streetTreesTaipei3epochTrajFilterIdx: STREET_TREE_3EPOCH_TRAJ_FILTERS.findIndex((f) => f.value === streetTreesTaipei3epochTrajFilter),
@@ -1361,7 +1403,15 @@ export function useTransportParams() {
     policeIsoCityDeptOpacity, policeIsoCityDeptMode, policeIsoCityDeptMinutes,
     pollutionFacilityOpacity, pollutionFacilityScale,
     pollutionPenaltyOpacity, pollutionPenaltyScale,
-    pollutionSiteOpacity, pollutionSiteScale]);
+    pollutionSiteOpacity, pollutionSiteScale,
+    tourAttractionsOpacity, tourAttractionsScale, tourAttractionsMode,
+    tourHotSpringsOpacity, tourHotSpringsScale, tourHotSpringZonesOpacity, tourScenicAreasOpacity,
+    tourHeritageOpacity, tourHeritageScale, tourReligionOpacity, tourReligionScale,
+    tourEventsOpacity, tourEventsScale, tourEventsStatus,
+    tourFactoriesOpacity, tourFactoriesScale, tourAmusementParksOpacity, tourAmusementParksScale,
+    tourCampingOpacity, tourCampingScale,
+    tourHotelsOpacity, tourHotelsScale, tourHotelsClass,
+    tourRestaurantsOpacity, tourRestaurantsScale]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -2496,6 +2546,56 @@ export function useTransportParams() {
       case "performingVenues": return [
         { label: `透明度 ${performingVenuesOpacity.toFixed(2)}`, value: performingVenuesOpacity, min: 0, max: 1, step: 0.05, onChange: setPerformingVenuesOpacity },
         { label: `點位大小 ${performingVenuesRadius.toFixed(2)}`, value: performingVenuesRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setPerformingVenuesRadius },
+      ];
+      // 🧳 觀光 Tourism 12 層
+      case "tourAttractions": return [
+        { type: "select" as const, label: "著色模式", value: tourAttractionsMode, options: [{ label: "分類", value: "category" }, { label: "熱度", value: "heat" }], onChange: setTourAttractionsMode },
+        { label: `透明度 ${tourAttractionsOpacity.toFixed(2)}`, value: tourAttractionsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourAttractionsOpacity },
+        { label: `大小 ${tourAttractionsScale.toFixed(1)}`, value: tourAttractionsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourAttractionsScale },
+      ];
+      case "tourHotSprings": return [
+        { label: `透明度 ${tourHotSpringsOpacity.toFixed(2)}`, value: tourHotSpringsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHotSpringsOpacity },
+        { label: `大小 ${tourHotSpringsScale.toFixed(1)}`, value: tourHotSpringsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHotSpringsScale },
+      ];
+      case "tourHotSpringZones": return [
+        { label: `透明度 ${tourHotSpringZonesOpacity.toFixed(2)}`, value: tourHotSpringZonesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHotSpringZonesOpacity },
+      ];
+      case "tourScenicAreas": return [
+        { label: `透明度 ${tourScenicAreasOpacity.toFixed(2)}`, value: tourScenicAreasOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourScenicAreasOpacity },
+      ];
+      case "tourHeritage": return [
+        { label: `透明度 ${tourHeritageOpacity.toFixed(2)}`, value: tourHeritageOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHeritageOpacity },
+        { label: `大小 ${tourHeritageScale.toFixed(1)}`, value: tourHeritageScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHeritageScale },
+      ];
+      case "tourReligion": return [
+        { label: `透明度 ${tourReligionOpacity.toFixed(2)}`, value: tourReligionOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourReligionOpacity },
+        { label: `大小 ${tourReligionScale.toFixed(1)}`, value: tourReligionScale, min: 0.3, max: 3, step: 0.1, onChange: setTourReligionScale },
+      ];
+      case "tourEvents": return [
+        { type: "select" as const, label: "狀態", value: tourEventsStatus, options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }], onChange: setTourEventsStatus },
+        { label: `透明度 ${tourEventsOpacity.toFixed(2)}`, value: tourEventsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourEventsOpacity },
+        { label: `大小 ${tourEventsScale.toFixed(1)}`, value: tourEventsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourEventsScale },
+      ];
+      case "tourFactories": return [
+        { label: `透明度 ${tourFactoriesOpacity.toFixed(2)}`, value: tourFactoriesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourFactoriesOpacity },
+        { label: `大小 ${tourFactoriesScale.toFixed(1)}`, value: tourFactoriesScale, min: 0.3, max: 3, step: 0.1, onChange: setTourFactoriesScale },
+      ];
+      case "tourAmusementParks": return [
+        { label: `透明度 ${tourAmusementParksOpacity.toFixed(2)}`, value: tourAmusementParksOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourAmusementParksOpacity },
+        { label: `大小 ${tourAmusementParksScale.toFixed(1)}`, value: tourAmusementParksScale, min: 0.3, max: 3, step: 0.1, onChange: setTourAmusementParksScale },
+      ];
+      case "tourCamping": return [
+        { label: `透明度 ${tourCampingOpacity.toFixed(2)}`, value: tourCampingOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourCampingOpacity },
+        { label: `大小 ${tourCampingScale.toFixed(1)}`, value: tourCampingScale, min: 0.3, max: 3, step: 0.1, onChange: setTourCampingScale },
+      ];
+      case "tourHotels": return [
+        { type: "select" as const, label: "類別", value: tourHotelsClass, options: [{ label: "全部", value: "all" }, { label: "國際觀光旅館", value: "1" }, { label: "一般觀光旅館", value: "2" }, { label: "旅館", value: "3" }, { label: "民宿", value: "4" }], onChange: setTourHotelsClass },
+        { label: `透明度 ${tourHotelsOpacity.toFixed(2)}`, value: tourHotelsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHotelsOpacity },
+        { label: `大小 ${tourHotelsScale.toFixed(1)}`, value: tourHotelsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHotelsScale },
+      ];
+      case "tourRestaurants": return [
+        { label: `透明度 ${tourRestaurantsOpacity.toFixed(2)}`, value: tourRestaurantsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourRestaurantsOpacity },
+        { label: `大小 ${tourRestaurantsScale.toFixed(1)}`, value: tourRestaurantsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourRestaurantsScale },
       ];
       case "streetTreesTaipei3epoch": return [
         { type: "select" as const, label: "染色模式", value: streetTreesTaipei3epochColorMode, options: [{ label: "依軌跡", value: "traj" }, { label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }], onChange: setStreetTreesTaipei3epochColorMode },

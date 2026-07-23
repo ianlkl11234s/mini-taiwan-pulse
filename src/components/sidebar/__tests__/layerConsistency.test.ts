@@ -105,6 +105,11 @@ const BASELINE_NO_LEGEND = new Set([
   "countyBoundary", "townshipBoundary", "villageBoundary",
   "contour25k", "contourDtm20",
   "osmExpressway", "hillshade",
+  // 🧳 觀光 Tourism：單色 POI / 單色面層（分類 < 2）→ 鐵則 2 不適用。
+  // 有分類/雙模式圖例的 4 層（tourAttractions 五類+熱度 / tourHotels 四類 /
+  // tourHeritage 三類 / tourEvents 二色）已接 LEGEND_REGISTRY，不列入 baseline。
+  "tourHotSprings", "tourHotSpringZones", "tourScenicAreas", "tourReligion",
+  "tourFactories", "tourAmusementParks", "tourCamping", "tourRestaurants",
 ]);
 
 function hasParamsCase(key: string): boolean {
