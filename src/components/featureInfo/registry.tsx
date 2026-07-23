@@ -47,6 +47,11 @@ import {
   CulturalFacilitiesPanel, CulturalMuseumsPanel, ArtsEventsPanel, PerformingVenuesPanel,
   LibrarySeatsPanel,
 } from "./culturePanels";
+import {
+  AttractionsPanel, HotSpringsPanel, HotSpringZonesPanel, ScenicAreasPanel,
+  HeritagePanel, ReligionPanel, EventsPanel, FactoriesPanel,
+  AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
+} from "./tourismPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
 import { ParkingOnstreetPanel, ParkingOffstreetPanel } from "./parkingPanels";
 import { SatellitePanel } from "./satellitePanels";
@@ -278,6 +283,19 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   artsEvents: ArtsEventsPanel,
   performingVenues: PerformingVenuesPanel,
   librarySeats: LibrarySeatsPanel,
+  // 🧳 觀光 Tourism 12 layer
+  tourAttractions: AttractionsPanel,
+  tourHotSprings: HotSpringsPanel,
+  tourHotSpringZones: HotSpringZonesPanel,
+  tourScenicAreas: ScenicAreasPanel,
+  tourHeritage: HeritagePanel,
+  tourReligion: ReligionPanel,
+  tourEvents: EventsPanel,
+  tourFactories: FactoriesPanel,
+  tourAmusementParks: AmusementParksPanel,
+  tourCamping: CampingPanel,
+  tourHotels: HotelsPanel,
+  tourRestaurants: RestaurantsPanel,
 };
 
 export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
@@ -380,6 +398,19 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   artsEvents: "藝文活動",
   performingVenues: "表演場館",
   librarySeats: "圖書館座位",
+  // 🧳 觀光 Tourism
+  tourAttractions: "觀光景點",
+  tourHotSprings: "溫泉露頭",
+  tourHotSpringZones: "溫泉露頭區",
+  tourScenicAreas: "國家風景區",
+  tourHeritage: "文化資產",
+  tourReligion: "宗教百景",
+  tourEvents: "觀光活動",
+  tourFactories: "觀光工廠",
+  tourAmusementParks: "民營遊樂園",
+  tourCamping: "露營場",
+  tourHotels: "旅宿",
+  tourRestaurants: "觀光餐飲",
   medicalPOI: "醫療據點",
   medicalIsochrone: "醫療等時圈",
   erHospital: "急診壅塞",

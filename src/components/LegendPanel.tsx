@@ -233,6 +233,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["artsEvents"], render: () => <ArtsEventsLegend /> },
   { keys: ["performingVenues"], render: () => <PerformingVenuesLegend /> },
   { keys: ["librarySeats"], render: () => <LibrarySeatsLegend /> },
+  // 🧳 觀光 Tourism — 4 個分類/雙模式圖例（其餘 8 單色/面層走 baseline）
+  { keys: ["tourAttractions"], render: ({ overlayParams }) => <TourAttractionsLegend modeIdx={overlayParams.tourAttractionsModeIdx ?? 0} /> },
+  { keys: ["tourHotels"], render: () => <TourHotelsLegend /> },
+  { keys: ["tourHeritage"], render: () => <TourHeritageLegend /> },
+  { keys: ["tourEvents"], render: () => <TourEventsLegend /> },
   { keys: ["govServiceOffices"], render: () => <GovServiceOfficeLegend /> },
   { keys: ["publicToilets"], render: () => <PublicToiletLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
@@ -1264,6 +1269,110 @@ function LibrarySeatsLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         6 分館聚合 · 資料 10 分鐘更新
+      </div>
+    </div>
+  );
+}
+
+// ── 🧳 觀光 Tourism 圖例 ──
+
+// 觀光景點：分類著色（五類）↔ 熱度著色（年遊客量 log 色帶 + 灰=無統計）雙模式。
+const TOUR_ATTRACTION_CATS = [
+  { color: "#2e7d32", label: "自然 Nature" },
+  { color: "#6d4c41", label: "文化 Culture" },
+  { color: "#ab47bc", label: "休閒藝術 Leisure & Arts" },
+  { color: "#0288d1", label: "都會社區 Urban Community" },
+  { color: "#9e9e9e", label: "其他 Other" },
+];
+
+function TourAttractionsLegend({ modeIdx }: { modeIdx: number }) {
+  const t = useLegendTheme();
+  const heat = modeIdx === 1;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        觀光景點 ATTRACTIONS
+      </div>
+      {heat ? (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>年遊客量（log）VISITORS</div>
+          <div style={{ height: 10, borderRadius: 3, background: "linear-gradient(to right, #ffe082, #ffb300, #f4511e, #b71c1c)" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 2 }}>
+            <span>1 萬</span>
+            <span>3,000 萬</span>
+          </div>
+          <div style={{ marginTop: 4 }}>
+            <UrbanDotRow color="#616161" label="無統計（非統計據點）" />
+          </div>
+        </>
+      ) : (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>分類 CATEGORY</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {TOUR_ATTRACTION_CATS.map((c) => <UrbanDotRow key={c.label} color={c.color} label={c.label} />)}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// 旅宿：hotel_classes 四類分色。
+const TOUR_HOTEL_CATS = [
+  { color: "#d32f2f", label: "國際觀光旅館 Intl. Tourist Hotel" },
+  { color: "#f57c00", label: "一般觀光旅館 Std. Tourist Hotel" },
+  { color: "#1976d2", label: "旅館 Hotel" },
+  { color: "#43a047", label: "民宿 B&B" },
+];
+
+function TourHotelsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        旅宿 HOTELS & B&Bs
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類別 CLASS</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {TOUR_HOTEL_CATS.map((c) => <UrbanDotRow key={c.label} color={c.color} label={c.label} />)}
+      </div>
+    </div>
+  );
+}
+
+// 文化資產：category 三值分色。
+const TOUR_HERITAGE_CATS = [
+  { color: "#5d4037", label: "古蹟 Monument" },
+  { color: "#8d6e63", label: "歷史建築 Historic Building" },
+  { color: "#a1887f", label: "文化景觀 Cultural Landscape" },
+];
+
+function TourHeritageLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        文化資產 HERITAGE
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>類別 CATEGORY</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {TOUR_HERITAGE_CATS.map((c) => <UrbanDotRow key={c.label} color={c.color} label={c.label} />)}
+      </div>
+    </div>
+  );
+}
+
+// 觀光活動・節慶：進行中 / 未開始 二色（by start/end 對今日）。
+function TourEventsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        觀光活動・節慶 EVENTS
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <UrbanDotRow color="#f9a825" label="進行中 Ongoing" />
+        <UrbanDotRow color="#90a4ae" label="未開始 Upcoming" />
       </div>
     </div>
   );

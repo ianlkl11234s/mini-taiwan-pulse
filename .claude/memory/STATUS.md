@@ -1,6 +1,20 @@
 # Status
 
-**最後更新**：2026-07-22（建物夜景燈光 + bloom PR #78 / timeline 修正 PR #79 / changelog PR #80，三 PR 全 merged，未 push memory 除外）
+**最後更新**：2026-07-23（觀光 Tourism 12 圖層 `feat/tourism-layers` 已 commit 未 push，待 PR 拍板）
+
+## 本 session 完成（2026-07-23）— 觀光 Tourism 12 圖層（新主題分組）
+
+- 依上游 `taipei-gis-analytics/docs/handoff/tourism-layers.md` §0.5 開工清單完成：新主題「觀光 Tourism」四子群 + 12 靜態圖層（景點/溫泉露頭點+面/國家風景區/文化資產/宗教百景/活動/工廠/遊樂園/露營/旅宿/餐飲，31,333 features）
+- 亮點：tourAttractions 分類/熱度雙模式（`annual_visitors_2024` log10、**null=灰「無統計」非 0**）；tourHotels 四類原生 select + 全 zoom 常駐（原 minzoom 9 依 7/24 用戶回饋移除，低 zoom 1.2px 點雲 + glow z8→9.5 淡入）；tourEvents 三態篩選（ISO 時間戳 → `["slice",…,0,10]` 日期比較，today 用 sv-SE **不** replace 斜線，與 cultureTodayStr 不同）
+- 部署：9 檔 C 類 git `public/tourism/`；3 檔 D 類（attractions/hotels/restaurants）五處 SOP 接好（docker-compose 既有技術債跳過）——**S3 上傳待拍板**（TO-2）
+- 踩坑：上游快照 `"yoy_pct":Infinity`（除零）→ 瀏覽器 JSON.parse 整檔失敗、圖層 0 點（Python json 接受非標準 literal 所以上游驗不到）。已 patch 兩份快照 + 上游 `08_pulse_export.py` 加 `math.isfinite` + `allow_nan=False`；handoff §6 已回填
+- 驗收：tsc 0 error / 197 tests 綠 / agent-browser 12/12 PASS（含 hotels 類別篩選 691→21、events 三態 593/108/134、attractions popup 遊客人次格式）
+- 待辦：PR 開立與 squash merge（待拍板）、D 類上 volume（TO-2）、taipei-gis-analytics 端修改（export 腳本 + handoff 回填）未 commit 待用戶檢視
+- ⚠️ master 原有未 commit 的 canopy v2 WIP（LegendPanel + overlayRegistry 兩檔）已 stash `canopy v2 WIP (parked during tourism-layers wiring)` 並於 commit 後 pop 回工作區
+
+---
+
+**前次更新**：2026-07-22（建物夜景燈光 + bloom PR #78 / timeline 修正 PR #79 / changelog PR #80，三 PR 全 merged，未 push memory 除外）
 **mini-taiwan-pulse head**：`master` = `e8f915e`（建物夜景燈光 mode 3 + 高樓 bloom、timeline setState-in-render 修正已上線；前批公共設施 8 圖層 PR #74 `8682d57`）
 **gis-platform head**：`main`（+ migration 283/284/285/286/287/**288** **已 apply production**）
 **taipei-gis-analytics head**：`master`（+ **docs/handoff/public-facilities.md 回填 + _status.md 勾 pulse 項，未 commit 待用戶檢視**）

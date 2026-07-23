@@ -34,6 +34,8 @@ import {
   Biohazard,
   // 🎭 CULTURE icons（Building2 / CalendarDays 已 import 復用）
   Landmark, Theater, Library,
+  // 🧳 TOURISM icons（Mountain / Factory 已 import 復用）
+  Camera, ThermometerSun, Castle, Church, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
   // 🗺️ 土地使用分區 icons
   LandPlot, Map,
   // 🌍 世界 World icon（複合 rail icon 用）
@@ -212,6 +214,19 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   artsEvents: CalendarDays,
   performingVenues: Theater,
   librarySeats: Library,
+  // 🧳 觀光 Tourism
+  tourAttractions: Camera,
+  tourHotSprings: Droplets,
+  tourHotSpringZones: ThermometerSun,
+  tourScenicAreas: Mountain,
+  tourHeritage: Castle,
+  tourReligion: Church,
+  tourEvents: PartyPopper,
+  tourFactories: Factory,
+  tourAmusementParks: FerrisWheel,
+  tourCamping: Tent,
+  tourHotels: BedDouble,
+  tourRestaurants: UtensilsCrossed,
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // FORESTRY 12 base

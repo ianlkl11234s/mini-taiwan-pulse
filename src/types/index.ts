@@ -129,6 +129,11 @@ export type ExpandableLayerKey =
   // 🎭 文化 Culture（靜態 overlay GeoJSON 點）
   | "culturalFacilities" | "culturalMuseums" | "artsEvents" | "performingVenues"
   | "librarySeats"
+  // 🧳 觀光 Tourism（靜態 overlay GeoJSON 點/面，12 layer）
+  | "tourAttractions" | "tourHotSprings" | "tourHotSpringZones" | "tourScenicAreas"
+  | "tourHeritage" | "tourReligion"
+  | "tourEvents" | "tourFactories" | "tourAmusementParks" | "tourCamping"
+  | "tourHotels" | "tourRestaurants"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -666,6 +671,11 @@ export interface FeatureInfo {
     | "sportsVenue"
     | "culturalFacilities" | "culturalMuseums" | "artsEvents" | "performingVenues"
     | "librarySeats"
+    // 🧳 觀光 Tourism（layerType = layer key 同名，12 個）
+    | "tourAttractions" | "tourHotSprings" | "tourHotSpringZones" | "tourScenicAreas"
+    | "tourHeritage" | "tourReligion"
+    | "tourEvents" | "tourFactories" | "tourAmusementParks" | "tourCamping"
+    | "tourHotels" | "tourRestaurants"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -873,6 +883,19 @@ export interface LayerVisibility {
   artsEvents: boolean;            // 藝文活動全國（6,121 點，進行中/未開始二色 by start_date≤今日 + 狀態篩選）
   performingVenues: boolean;      // 表演場館全國（857 點，單色；半徑 ∝ √event_count 1~101）
   librarySeats: boolean;          // 北市圖 6 分館即時座位（29 區聚合成 6 marker，10min 資料/5min 輪詢；空位率染色 + 休館灰）
+  // 🧳 觀光 Tourism（靜態 overlay GeoJSON 點/面；12 layer，全預設關閉）
+  tourAttractions: boolean;       // 觀光景點全國（~6,070 點，category 五類 Nature/Culture/Leisure_Arts/Urban_Comm/Other 分色 + 熱度模式 log(annual_visitors_2024)）
+  tourHotSprings: boolean;        // 溫泉露頭全國（150 點，單色）
+  tourHotSpringZones: boolean;    // 溫泉露頭區（16 面，Polygon，全國僅北市有公告範圍圖）
+  tourScenicAreas: boolean;       // 國家風景區（12 面，Polygon）
+  tourHeritage: boolean;          // 文化資產全國（2,894 點，category 三類 古蹟/歷史建築/文化景觀 同色系分色）
+  tourReligion: boolean;          // 宗教百景（100 點，單色）
+  tourEvents: boolean;            // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
+  tourFactories: boolean;         // 觀光工廠（158 點，單色）
+  tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）
+  tourCamping: boolean;           // 露營場（1,737 點，單色）
+  tourHotels: boolean;            // 旅宿全國（~15,654 點，hotel_classes 四類分色 + 類別篩選 + zoom-gate）
+  tourRestaurants: boolean;       // 觀光餐飲（~3,688 點，單色）
   // 醫療基礎點位（5 獨立 layer，單一 PMTiles source med_cat filter；全程可見）
   medHospital: boolean;    // 醫院（NHI 醫學中心/區域/地區，451）
   medClinic: boolean;      // 診所 + 其他醫療（NHI clinic 21765 + other_medical 1707）
