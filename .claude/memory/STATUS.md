@@ -1,16 +1,24 @@
 # Status
 
-**最後更新**：2026-07-23（觀光 Tourism 12 圖層 `feat/tourism-layers` 已 commit 未 push，待 PR 拍板）
+**最後更新**：2026-07-24（觀光 Tourism PR #82 + canopy/giants PR #83 全 merged；S3 上傳待跑 G012）
+**mini-taiwan-pulse head**：`master` = `caef2ec`（#83 canopy 高度編碼+giants 疊在 #82 tourism `204459c` 上）+ 本地未 push：`f7156ce` docs 回填 + 本批 memory commits
+**gis-platform head**：`main`（+ migration 301 waste 預算表 `0f2b878` 未 push）
+**taipei-gis-analytics head**：`master` + 本地 `aa115e2`（canopy pipeline，依用戶決定不推）+ 未 commit：tourism handoff 回填（§6 Infinity 坑 + §8 shipped）與 `08_pulse_export.py` isfinite 守門，待用戶檢視
+**data-collectors head**：不變（parking_ref.py collector，enabled=false 月更手動）
 
-## 本 session 完成（2026-07-23）— 觀光 Tourism 12 圖層（新主題分組）
+> ⚠️ 平行未 merge branch：`feat/tree-layers`（7/7 PASS 未 push）、`feat/aquaculture-layers`（`7946a59` 未 push）。
+> 🔴 部署 blocker（BACKLOG G012）：tourism D 類 3 檔 + canopy 80MB pmtiles 未上 S3 → prod 4 層 404。
+
+## 本 session 完成（2026-07-23/24）— 觀光 Tourism 12 圖層（新主題分組，已 merged）
 
 - 依上游 `taipei-gis-analytics/docs/handoff/tourism-layers.md` §0.5 開工清單完成：新主題「觀光 Tourism」四子群 + 12 靜態圖層（景點/溫泉露頭點+面/國家風景區/文化資產/宗教百景/活動/工廠/遊樂園/露營/旅宿/餐飲，31,333 features）
 - 亮點：tourAttractions 分類/熱度雙模式（`annual_visitors_2024` log10、**null=灰「無統計」非 0**）；tourHotels 四類原生 select + 全 zoom 常駐（原 minzoom 9 依 7/24 用戶回饋移除，低 zoom 1.2px 點雲 + glow z8→9.5 淡入）；tourEvents 三態篩選（ISO 時間戳 → `["slice",…,0,10]` 日期比較，today 用 sv-SE **不** replace 斜線，與 cultureTodayStr 不同）
 - 部署：9 檔 C 類 git `public/tourism/`；3 檔 D 類（attractions/hotels/restaurants）五處 SOP 接好（docker-compose 既有技術債跳過）——**S3 上傳待拍板**（TO-2）
 - 踩坑：上游快照 `"yoy_pct":Infinity`（除零）→ 瀏覽器 JSON.parse 整檔失敗、圖層 0 點（Python json 接受非標準 literal 所以上游驗不到）。已 patch 兩份快照 + 上游 `08_pulse_export.py` 加 `math.isfinite` + `allow_nan=False`；handoff §6 已回填
 - 驗收：tsc 0 error / 197 tests 綠 / agent-browser 12/12 PASS（含 hotels 類別篩選 691→21、events 三態 593/108/134、attractions popup 遊客人次格式）
-- 待辦：PR 開立與 squash merge（待拍板）、D 類上 volume（TO-2）、taipei-gis-analytics 端修改（export 腳本 + handoff 回填）未 commit 待用戶檢視
-- ⚠️ master 原有未 commit 的 canopy v2 WIP（LegendPanel + overlayRegistry 兩檔）已 stash `canopy v2 WIP (parked during tourism-layers wiring)` 並於 commit 後 pop 回工作區
+- 上線：PR #82 squash `204459c`（tourism 12 層 + 旅宿全 zoom 常駐修正同 PR）；另一 session 的 canopy v2 + canopyGiants 以 PR #83 `caef2ec` 疊上。tourism branch（local+remote）經 `git diff origin/master <branch>` 驗零獨有內容後已刪
+- 平行 session 事故與解法（canopy commit 落錯 branch → scratch worktree 組乾淨血統 push sha 開 PR）：見 INCIDENTS 2026-07-23/24 + PRINCIPLES「共用 worktree 紀律」+ PB-29
+- 待辦：G012 S3 上傳（部署 blocker）；TO-3~TO-5 見 `docs/features/tourism-layers/backlog.md`；analytics 端修改未 commit 待用戶檢視
 
 ---
 
