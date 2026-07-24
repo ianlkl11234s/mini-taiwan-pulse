@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-05-25（農業 +公司登記 3 類）
+**最後更新**：2026-07-24（+觀光 12 檔靜態快照）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -535,3 +535,10 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 - 涵蓋：電網 OSM 3（substations/power_lines/power_towers）+ 能源 15（OSM 風機/光電/電廠、離岸/離島/化石/地熱、再生/EV、SSOT 分桶 5、fossil_fuel_layers 9.5MB）+ 廢棄物 6（2 counts + routes/facilities/disposal_points/squads 全量+前端 filter）+ 主要電廠座標。
 - 排除：`get_waste_stops`（193k/56MB 太大，保留 per-city RPC）；data_catalog/h3_yearly/reservoir/satellite（低衝擊延後）。
 - 匯出：`scripts/export/export-static-rpc-snapshots.sh`（psql）。**刷新**：資料月更後重跑 export→upload→purge Cloudflare（同 `water_*.geojson` 慣例，手動）。詳 `docs/features/static-to-cdn/` + PLAYBOOKS PB-27。
+
+## 觀光 Tourism（2026-07-24 上線，PR #82）
+
+**靜態 GeoJSON 快照** `public/tourism/*_national.geojson` × 12 = 31,333 features / 16.4MB（上游 taipei-gis-analytics `pipelines/tourism/08_pulse_export.py`；Supabase `tourism.*` 15 表為 store-of-record，前端不讀 DB）。
+- C 類 9 檔進 git；D 類 3 檔（attractions 6,070 / hotels 15,654 / restaurants 3,688）走 S3 `deploy-assets/tourism/` → `/data/tourism/`（G012 待上傳）
+- 亮點欄位：attractions `annual_visitors_2024`（263/6,070 有值，null=非統計據點非 0）；hotels `hotel_classes` 單碼 1~4；activities `start_time/end_time` ISO 時間戳
+- 更新機制：觀光署家族 4 源上游每日更 → 本站 monthly 手動重跑快照（C 類重 copy 進 git + D 類重傳 S3）
