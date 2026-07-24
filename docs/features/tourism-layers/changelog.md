@@ -12,7 +12,7 @@
 
 ---
 
-## 2026-07-23 — PR 待開 `feat/tourism-layers`
+## 2026-07-24 — PR #82 `204459c`
 
 - 首發：新開「觀光 Tourism」主題分組（四子群），一次接上 12 個全國靜態圖層（31,333 features）
 - 特殊行為：tourAttractions 分類/熱度雙著色模式（log10 色帶、null=灰「無統計」）、tourHotels 四類 select 篩選、tourEvents 三態時間篩選（ISO 時間戳 slice 日期比較）、兩個面層仿 activeFaults 樣式
