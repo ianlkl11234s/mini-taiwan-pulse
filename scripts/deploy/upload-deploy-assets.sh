@@ -189,8 +189,8 @@ FOREST_FILES=(
   "public/forestry/hiking_trails.geojson"
   # PT-1 PMTiles（前端 sourceUrl 已切 .pmtiles；geojson 保留但未使用）
   "public/forestry/hiking_trails.pmtiles"
-  # 全台樹冠高度 raster PMTiles（93MB，Meta/WRI 2020 10m，tree-layers PR #70）
-  "public/forestry/canopy_height_taiwan.pmtiles"
+  # 全台樹冠高度 raster PMTiles（80MB，高度編碼 RGBA z13/512px，PR #83；舊預烤版 canopy_height_taiwan.pmtiles 已退役）
+  "public/forestry/canopy_height_rgb_taiwan.pmtiles"
 )
 for f in "${FOREST_FILES[@]}"; do
   name=$(basename "$f")
