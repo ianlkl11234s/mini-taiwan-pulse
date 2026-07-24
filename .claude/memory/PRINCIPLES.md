@@ -889,3 +889,17 @@ Supabase anon key 設計上就是前端公開憑證（bundle 可抽出）。安�
 
 ### SECURITY DEFINER + 含 INSERT 的 RPC 必須 VOLATILE
 PostgREST 對 STABLE/IMMUTABLE function 用 READ ONLY transaction，VOLATILE 才用 READ WRITE。所以任何「函式內要寫入」（audit log、計數、狀態）的 RPC **必須標 VOLATILE**，否則 REST 呼叫觸發 `25006 read-only transaction`。此類 bug 只有「有權限進入函式的角色透過真 REST」會踩到，psql 直測與 anon（ACL 擋）都測不出。
+
+## 靜態 GeoJSON 快照上線前必過 strict-JSON 驗證（2026-07-23 教訓）
+
+Python `json` 與 `jq` 都接受 `Infinity` / `-Infinity` / `NaN` 非標準 literal，瀏覽器 `JSON.parse` 不接受——一個壞值讓**整檔**解析失敗、圖層 0 點（不是單 feature 壞）。
+- 驗收指令：`node -e 'JSON.parse(require("fs").readFileSync(f,"utf8"))'` 或快篩 `grep -c ':Infinity\|:-Infinity\|:NaN'`
+- 上游匯出腳本一律 `json.dumps(..., allow_nan=False)` + 計算處 `math.isfinite` 守門
+- 除法產生的欄位（yoy、比率、成長率）是高風險點：分母 0 → inf
+
+## 共用 worktree 有平行 session 時的 git 紀律（2026-07-24 教訓）
+
+同一 repo 主 worktree 可能多個 session 同時動工（本次 canopy commit 因本 session checkout feature branch 而落錯 branch）：
+- 開工先 `git status`：發現非預期 WIP → 當作「另一 session 進行中」處理，**只 stash 自己必要的檔**、用畢即 pop，不做超出必要的清理
+- commit 前**逐檔驗 diff**（`git show <hash> -- <file>`），確認沒吞到別人的 hunks
+- branch 手術（rebase / 拆 commit / 組乾淨血統）**絕不在主 worktree 做**：`git worktree add`（scratch）操作 + `git push origin <sha>:refs/heads/<branch>` 推乾淨結果，主 worktree 與對方 WIP 全程不碰（呼應 PLAYBOOKS 混合 WIP 拆分 SOP + PB-29）
