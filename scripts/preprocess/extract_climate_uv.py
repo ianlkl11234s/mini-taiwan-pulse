@@ -74,7 +74,7 @@ def latest_s3_uri(env: dict[str, str], dataset_id: str) -> Tuple[str, str]:
         cur.execute(
             """
             SELECT s3_uri, observed_at
-              FROM realtime.global_climate_grids
+              FROM live.global_climate_grids
              WHERE dataset_id = %s
                AND s3_uri IS NOT NULL
              ORDER BY observed_at DESC
