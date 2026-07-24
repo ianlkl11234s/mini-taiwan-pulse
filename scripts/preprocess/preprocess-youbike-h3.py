@@ -5,7 +5,7 @@ YouBike H3 滿車率預處理腳本 v3
 聚合到 H3 多解析度六角格，輸出帶實際時間戳的滿車率。
 
 資料來源：
-  - realtime.youbike_snapshots（時序資料，按日分區）
+  - live.youbike_snapshots（時序資料，按日分區）
   - reference.stations（站點座標，system='youbike'）
 
 輸出：
@@ -74,7 +74,7 @@ print("[2/4] Querying 15-min aggregated snapshots from Supabase...")
 with conn.cursor() as cur:
     cur.execute("""
         SELECT MIN(collected_at), MAX(collected_at), COUNT(*)
-        FROM realtime.youbike_snapshots
+        FROM live.youbike_snapshots
         WHERE city IN %s
     """, (CITIES,))
     min_time, max_time, total_rows = cur.fetchone()
@@ -91,7 +91,7 @@ with conn.cursor() as cur:
             AVG(y.available_rent) AS avg_rent,
             AVG(y.total) AS avg_total,
             COUNT(*) AS sample_count
-        FROM realtime.youbike_snapshots y
+        FROM live.youbike_snapshots y
         WHERE y.city IN %s
         GROUP BY y.station_uid, y.city, quarter_tw
         ORDER BY quarter_tw
@@ -167,7 +167,7 @@ for res in H3_RESOLUTIONS:
         "metadata": {
             "resolution": res,
             "cell_count": len(all_cells_set),
-            "source": "supabase:realtime.youbike_snapshots",
+            "source": "supabase:live.youbike_snapshots",
             "generated_at": datetime.now().isoformat(),
             "time_range": [time_keys[0], time_keys[-1]] if time_keys else [],
             "snapshot_count": len(snapshots),

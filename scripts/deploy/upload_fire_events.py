@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Upload pre-processed fire events GeoJSON to Supabase realtime.fire_events.
+Upload pre-processed fire events GeoJSON to Supabase spatial.fire_events
+(via PostgREST REST API with `Content-Profile: spatial` header, not realtime schema).
 
 Source: taipei-gis-analytics/output/fire/fire_111_113_kepler.geojson
         (民國 111~113 年 ~48k 筆，已 geocoding)
