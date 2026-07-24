@@ -1063,3 +1063,15 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 1. **headless 驗視覺前先確認能驅動**：`window.__THREE__` 非可用 namespace、React layer state 無法外部驅動 → 別硬 eval 重建，改「資料管線 probe + 元件級已驗證據」組合佐證。
 2. **render-phase 寫被訂閱 store = setState-in-render 同 class**：clean load 隱身、remount 才冒 → 別因「重現不出」當沒事，靠結構判定定案並全掃同 class。
 3. **修 bug 後主動 audit 同 class**：單點修完派 agent 掃全專案同類反模式，順手升級成 PRINCIPLE。
+
+## 2026-07-24 觀光 tourism 12 層（多 agent 編排 + 平行 session 事故）
+
+### What went well
+- **規格書先行**：orchestrator 把 12 層 key/sourceId/參數名/hex/特殊行為全釘死成單一 SSOT 再切 3 包平行 → 零撞檔、接縫全對齊；骨架包 agent 還自主查上游真實 catalog dataset_id 取代規格書猜測值，讓 upstreamRegistry ratchet 是真驗證非僥倖
+- **browser 驗收價值再確認**：tsc + 197 tests 全綠仍漏 Infinity 整檔炸（資料層 bug 只有真 fetch 才炸）——「逐層 queryRenderedFeatures > 0」不可省
+- **PR 純淨手術**：本地 branch 被平行 session 污染時，scratch worktree 組乾淨血統 + push sha 開 PR，全程不動主 worktree
+
+### Next-time rules
+1. **資料驗收加一步 node strict-JSON parse**：jq/Python 驗過 ≠ 瀏覽器能吃；grep `:Infinity\|:NaN` 三秒完事（→ 已入 PRINCIPLES）
+2. **開工 git status 見非預期 WIP**：先判「另一 session 進行中」再定 stash 策略；branch 手術走 scratch worktree + push sha（→ 已入 PRINCIPLES）
+3. **多 agent 平行時 tsc gate 放包級不放全量**：平行中全量必互紅，prompt 明寫「錯誤不指向你的檔即可」，避免 agent 空轉修別人的紅字（→ 已入 PB-29）
