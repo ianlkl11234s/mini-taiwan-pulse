@@ -1,13 +1,13 @@
 # Status
 
-**最後更新**：2026-07-24（觀光 Tourism PR #82 + canopy/giants PR #83 全 merged；S3 上傳待跑 G012）
+**最後更新**：2026-07-24（觀光 Tourism PR #82 + canopy/giants PR #83 + 收尾 #85/#86 全 merged；G012 部署已上線，prod 4 層實測 206/200）
 **mini-taiwan-pulse head**：`master` = `caef2ec`（#83 canopy 高度編碼+giants 疊在 #82 tourism `204459c` 上）+ 本地未 push：`f7156ce` docs 回填 + 本批 memory commits
 **gis-platform head**：`main`（+ migration 301 waste 預算表 `0f2b878` 未 push）
 **taipei-gis-analytics head**：`master` + 本地 `aa115e2`（canopy pipeline，依用戶決定不推）+ 未 commit：tourism handoff 回填（§6 Infinity 坑 + §8 shipped）與 `08_pulse_export.py` isfinite 守門，待用戶檢視
 **data-collectors head**：不變（parking_ref.py collector，enabled=false 月更手動）
 
 > ⚠️ 平行未 merge branch：`feat/tree-layers`（7/7 PASS 未 push）、`feat/aquaculture-layers`（`7946a59` 未 push）。
-> 🔴 部署 blocker（BACKLOG G012）：tourism D 類 3 檔 + canopy 80MB pmtiles 未上 S3 → prod 4 層 404。
+> ✅ 部署（BACKLOG G012 已解）：tourism D 類 3 檔 + canopy rgb pmtiles 已上 S3 + Zeabur redeploy pull → prod 4 層實測 206/200 上線。
 
 ## 本 session 完成（2026-07-23/24）— 觀光 Tourism 12 圖層（新主題分組，已 merged）
 
@@ -18,7 +18,7 @@
 - 驗收：tsc 0 error / 197 tests 綠 / agent-browser 12/12 PASS（含 hotels 類別篩選 691→21、events 三態 593/108/134、attractions popup 遊客人次格式）
 - 上線：PR #82 squash `204459c`（tourism 12 層 + 旅宿全 zoom 常駐修正同 PR）；另一 session 的 canopy v2 + canopyGiants 以 PR #83 `caef2ec` 疊上。tourism branch（local+remote）經 `git diff origin/master <branch>` 驗零獨有內容後已刪
 - 平行 session 事故與解法（canopy commit 落錯 branch → scratch worktree 組乾淨血統 push sha 開 PR）：見 INCIDENTS 2026-07-23/24 + PRINCIPLES「共用 worktree 紀律」+ PB-29
-- 待辦：G012 S3 上傳（部署 blocker）；TO-3~TO-5 見 `docs/features/tourism-layers/backlog.md`；analytics 端修改未 commit 待用戶檢視
+- 待辦：TO-3~TO-5 見 `docs/features/tourism-layers/backlog.md`；analytics 端修改未 commit 待用戶檢視（G012 部署已完成上線）
 
 ---
 

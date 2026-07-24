@@ -539,6 +539,6 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 ## 觀光 Tourism（2026-07-24 上線，PR #82）
 
 **靜態 GeoJSON 快照** `public/tourism/*_national.geojson` × 12 = 31,333 features / 16.4MB（上游 taipei-gis-analytics `pipelines/tourism/08_pulse_export.py`；Supabase `tourism.*` 15 表為 store-of-record，前端不讀 DB）。
-- C 類 9 檔進 git；D 類 3 檔（attractions 6,070 / hotels 15,654 / restaurants 3,688）走 S3 `deploy-assets/tourism/` → `/data/tourism/`（G012 待上傳）
+- C 類 9 檔進 git；D 類 3 檔（attractions 6,070 / hotels 15,654 / restaurants 3,688）走 S3 `deploy-assets/tourism/` → `/data/tourism/`（G012 已上傳上線 2026-07-24）
 - 亮點欄位：attractions `annual_visitors_2024`（263/6,070 有值，null=非統計據點非 0）；hotels `hotel_classes` 單碼 1~4；activities `start_time/end_time` ISO 時間戳
 - 更新機制：觀光署家族 4 源上游每日更 → 本站 monthly 手動重跑快照（C 類重 copy 進 git + D 類重傳 S3）
