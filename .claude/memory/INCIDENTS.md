@@ -1303,3 +1303,15 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 
 ### 事件 B：get_waste_schedule_day 實測 48s（🔴 需 pre-aggregate，未實作）
 `/check-rpc` 實測 `get_waste_schedule_day(NULL, 2)` = **48.06s**、來源 `spatial.waste_collection_stops` 193,541 筆、回 2,978 route groups。每次即時重算：逐列 regex 解析時刻 + weekday EXISTS + `DISTINCT ON` + **每列 3× ST_Distance geography**（離群偵測）+ 多輪 LAG/LEAD window + LEFT JOIN OSRM segments + `jsonb_agg`。前端 30s 逾時 → 圖層載不出（用戶 console 那條 timeout）。結果只依 `p_dow`×`p_cities`、來源靜態 → 物化表 + refresh function。→ BACKLOG BL-24（DB migration，待用戶拍板）。
+
+## 2026-07-23/24 tourism 12 圖層 — Infinity JSON 整檔炸 + 平行 session 共用 worktree
+
+### 事件 A：`yoy_pct:Infinity` → 瀏覽器 JSON.parse 整檔失敗（旗艦層 0 點）
+上游 `08_pulse_export.py` 算 yoy 除零（苗栗客家圓樓前一年 0 人次）→ `float('inf')`，Python `json.dumps` 預設寫出非標準 `Infinity` literal。Python `json.load` / `jq` 都吞得下 → 上游驗證與資料驗收 agent 全沒抓到；瀏覽器 `res.json()` 直接 SyntaxError **整檔**失敗 → attractions 6,070 點全滅。browser 驗收 `queryRenderedFeatures`=0 才揪出（tsc / 197 tests 全綠也擋不到）。
+**修法**：兩份快照 sed `Infinity`→`null`；上游加 `math.isfinite` 守門 + `json.dumps(allow_nan=False)`（未來違規在匯出端直接 raise）。
+**教訓**：Python/jq 對 JSON 的寬容度 > 瀏覽器——strict 驗證要用 node `JSON.parse`；除法欄位（yoy/比率）是高風險點。→ PRINCIPLES 新增一條。
+
+### 事件 B：平行 session 共用 worktree — canopy commit 落到 tourism branch
+本 session 在共用主 worktree checkout `feat/tourism-layers`；另一 session（canopy v2）23:40 commit 時不知 HEAD 已換，canopy `313ba5c` 落在 tourism branch 上、夾在兩顆 tourism commit 中間。另外對方進行中的 canopy giants WIP（10 檔）與本 session 的 stash/pop 時間交錯——靠「stash 只鎖必要檔 + commit 前 `git show <hash> -- <file>` 逐檔驗 diff」保住雙方內容零污染（驗證：tourism 兩顆 commit 無 canopy hunks）。
+**解法（PR 純淨）**：不動本地 branch、不 rebase——`git worktree add`（scratch）以 tourism 基底 cherry-pick 修正 → `git push origin <sha>:refs/heads/feat/tourism-layers` 推乾淨血統開 PR #82；canopy 由對方 session 併 giants 收成 PR #83。事後 `git diff origin/master <branch>` 驗零獨有內容才刪 branch。
+**教訓**：共用 worktree 的 branch checkout 會讓平行 session 的 commit 落錯 branch；branch 手術一律 scratch worktree + push sha。→ PRINCIPLES 新增一條。
