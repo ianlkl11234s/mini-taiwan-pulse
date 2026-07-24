@@ -5,7 +5,7 @@ YouBike H3 滿車率預處理腳本 v3
 聚合到 H3 多解析度六角格，輸出帶實際時間戳的滿車率。
 
 資料來源：
-  - realtime.youbike_snapshots（時序資料，按日分區）
+  - live.youbike_snapshots（時序資料，按日分區）
   - reference.stations（站點座標，system='youbike'）
 
 輸出：
