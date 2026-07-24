@@ -72,7 +72,7 @@ Fable 5 總指揮（規格核對→循序 worker 分批→gate 驗收），worke
 - 驗收：tsc 0 錯 / 190 tests 全綠 / agent-browser 逐層 7/7 PASS（All Off 後單層開、popup/圖例/controls/篩選全驗、台中點位實證、canopy raster 206）
 - **編排心得**：PMTiles/geojson 層無 loader/hook（全走 overlayRegistry），共用檔為主 → subagent 平行寫檔必衝突，改「循序 worker（每批唯一寫檔者）+ 主 agent 批間 gate 驗收」
 - 待辦：TL-1 S3 deploy-assets 上傳 7 資料檔（>2MB 不進 git）、TL-2 上游 data-catalog 補條目、上游 handoff `tree-layers.md` 已寫未 commit（在 analytics repo，避免污染其 aquaculture branch，待用戶拍板）
-- 非阻擋觀察：城市篩選 opacity 歸零法理論上隱形點仍可點擊（沿用既有慣例）；canopy tile 256px 但 mapbox-pmtiles 寫死 512 顯示略軟（TL-4）
+- 非阻擋觀察：城市篩選 opacity 歸零法理論上隱形點仍可點擊（沿用既有慣例）。canopy 256px 略軟（TL-4）→ PR #83 改 512px 高度編碼磚已解
 
 ## 本 session 完成（2026-07-10）— Batch 3 停車（hybrid v1，接 Batch 2 後）
 
