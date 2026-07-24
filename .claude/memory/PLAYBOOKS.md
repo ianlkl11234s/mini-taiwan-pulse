@@ -1475,3 +1475,15 @@ SOP：
 4. **merge 後 sync**：備份要保留的 WIP patch → `git reset --hard origin/master`（清已 merge 的，untracked 保留）→ apply 回 WIP patch。⚠️ 大檔（pmtiles >100MB）走 S3 + gitignore，不進 git。
 
 成效：owner-gated / pollution / lock_type 三份各自乾淨 PR（#60/#61/#62），GitHub 判無衝突（拆分不重疊），原工作區的主題化 + docs WIP 全程零觸碰。
+
+## PB-29 大批次 layer 平行分工（2026-07-24 定型：觀光 12 層；前例公共設施 8 層）
+
+適用：一次上 ≥8 個同主題 layer（單線串行太慢、多 agent 同檔會撞）。
+
+1. **偵察先行（平行 2 agent）**：① 接線 recipe——拿最近一批同型 PR 的 `git show --stat` 當檔案清單基準 + 各 registry 結構/行號；② 資料驗收——feature 數/欄位/座標系對 handoff 契約 + **node strict-JSON 驗證**（見 PRINCIPLES）
+2. **規格書釘死共用識別字**（orchestrator 自寫單一 SSOT 檔）：layer key / sourceId / mapbox layer id（`${sourceId}-${suffix}`）/ 參數名 / 分色 hex / 特殊行為。實作 agent 一律照表不可自創
+3. **3 工作包按「檔案集合互斥」切**（可全平行）：骨架（types / layerCatalog / LAYER_ICONS / upstreamRegistry）｜核心渲染（overlayRegistry + useTransportParams）｜互動（*Panels.tsx 新檔 + featureInfo registry + useMapInteraction + LegendPanel + layerConsistency baseline）。跨包型別耦合（FeatureInfo union 等）指定給單一包，其他包用釘死名字
+4. **包級 tsc gate**：平行中全量 tsc 必互紅，prompt 寫明「錯誤不指向你的檔即可」；orchestrator 收齊後跑全量 tsc + pnpm test + 接縫抽查（參數名 / click id / 圖例 hex 三處對齊）
+5. **browser 驗收**（agent-browser 8 條坑照全域 memory）：All Off 起手、逐層 queryRenderedFeatures + popup + 參數面板、旗艦層特殊行為逐項驗
+
+成效：觀光 12 層一天 spec→merged（PR #82），3 包零檔案衝突、ratchet 全綠；browser 驗收揪出 Infinity 資料 bug（tsc/vitest 抓不到的類型）。
