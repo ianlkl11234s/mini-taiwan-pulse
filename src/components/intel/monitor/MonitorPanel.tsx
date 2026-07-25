@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
 import { ELEVATION, RADIUS, FONT_SIZE } from "../../../styles/designTokens";
-import { IntelCard, type IntelCardEvent } from "../IntelCard";
-import { IntelFilters, type TimeRange } from "../IntelFilters";
+import { type IntelCardEvent } from "../IntelCard";
+import { type TimeRange } from "../IntelFilters";
 import {
   fetchSourceHealth, fetchNewsTrending, trendingKeys as buildTrendingKeys,
   fetchPressureIndex, fetchMarketIndex, fetchPlaActivity, fetchPublicHealthWeekly,
@@ -22,10 +22,24 @@ import {
 import type { NewsCategory } from "../../../data/newsEventTypes";
 import { timeStore } from "../../../state/timeStore";
 import { TimelineDock } from "./TimelineDock";
-import { IndicatorPanel } from "./IndicatorPanel";
+import { NewsFeedPanel } from "./NewsFeedPanel";
+import { AlertBoard } from "../alerts/AlertBoard";
+import { SituationOverview } from "./SituationOverview";
+import { SituationCards } from "./SituationCards";
+import { LiveWall } from "./LiveWall";
+import { HazardWatchStrip } from "./HazardWatchStrip";
+import { PowerCard } from "./PowerCard";
+import { HotspotsWidget } from "./HotspotsWidget";
+import { HourlyHistogramWidget } from "./HourlyHistogramWidget";
+import { TriageWidget } from "./TriageWidget";
 import { PrisonCard, type PrisonDay } from "./PrisonCard";
 import { AirportPaxCard } from "./AirportPaxCard";
 import { ERCard } from "./ERCard";
+import {
+  MONITOR_VISIBLE_LAYOUT, MONITOR_GRID_COLS,
+  MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP,
+  type MonitorWidgetId,
+} from "./monitorLayout";
 import { supabase } from "../../../lib/supabase";
 import {
   fetchPowerDashboard, invalidatePowerDashboard,
@@ -421,6 +435,83 @@ export function MonitorPanel({
     }
   };
 
+  const severeCount = allEventsToday.filter((e) => (e.severity ?? 0) >= 3).length;
+
+  // widget id → 節點。座標由 monitorLayout.ts（排版沙盒定稿）決定，這裡只負責接線。
+  const widgets: Record<MonitorWidgetId, ReactNode> = {
+    newsFeed: (
+      <NewsFeedPanel
+        events={flatEvents}
+        cats={cats}
+        onToggleCat={toggleCat}
+        onResetCats={() => setCats([])}
+        timeRange={timeRange}
+        onTimeRange={(r) => {
+          setTimeRange(r);
+          goLive();
+        }}
+        county={county}
+        onCounty={setCounty}
+        filter={filter}
+        onFilterChange={onFilterChange}
+        selectedId={selectedId}
+        expandedId={expandedId}
+        onSelectCard={onSelectCard}
+        onToggleExpand={onToggleExpand}
+        isTrendingFor={isTrendingFor}
+        nowTs={now}
+      />
+    ),
+    alertBoard: (
+      <AlertBoard
+        tally={alertTally}
+        series={alertSeries}
+        accent={COLORS.accent}
+        nowTs={now}
+      />
+    ),
+    histogram: <HourlyHistogramWidget events={allEventsToday} />,
+    timeline: (
+      <TimelineDock
+        events={allEventsToday}
+        dayStartTs={dayStartTs}
+        nowTs={now}
+        playbackTs={effectivePlayback}
+        isLive={isLive}
+        playing={playing}
+        onScrub={onScrub}
+        onLive={goLive}
+        onTogglePlay={togglePlay}
+        alertSeries={alertSeries}
+      />
+    ),
+    triage: <TriageWidget events={allEventsToday} />,
+    hotZones: (
+      <HotspotsWidget
+        events={allEventsToday}
+        countyByEventId={countyByEventId}
+        onPickHotspot={onPickHotspot}
+      />
+    ),
+    situationOverview: (
+      <SituationOverview
+        pressure={pressure}
+        smoothedScore={smoothed}
+        market={market}
+        sourceHealth={sourceHealth}
+        totalEvents={allEventsToday.length}
+        severeCount={severeCount}
+      />
+    ),
+    liveWall: <LiveWall />,
+    situationCards: <SituationCards pla={pla} health={health} />,
+    hazardStrip: <HazardWatchStrip />,
+    powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} />,
+    erCongestion: <ERCard open={open} />,
+    prison: <PrisonCard latest={prisonLatest} />,
+    airportPax: <AirportPaxCard open={open} />,
+  };
+
   return (
     <div
       style={{
@@ -553,175 +644,40 @@ export function MonitorPanel({
         </button>
       </div>
 
-      <TimelineDock
-        events={allEventsToday}
-        dayStartTs={dayStartTs}
-        nowTs={now}
-        playbackTs={effectivePlayback}
-        isLive={isLive}
-        playing={playing}
-        onScrub={onScrub}
-        onLive={goLive}
-        onTogglePlay={togglePlay}
-        alertSeries={alertSeries}
-      />
-
-      {/* body: feed (left) + indicators (right) */}
-      <div style={{ flex: 1, minHeight: 180, display: "flex" }}>
-        {/* News Feed column (reuses IntelCard + IntelFilters) */}
-        <div
-          style={{
-            width: "40%", minWidth: 340, maxWidth: 520, flexShrink: 0,
-            display: "flex", flexDirection: "column",
-            borderRight: `1px solid ${COLORS.panelBorder}`, overflow: "hidden",
-          }}
-        >
+      {/* header 以下：單一可捲動的 12 欄靜態網格（座標見 monitorLayout.ts） */}
+      <div
+        className="mtp-scroll"
+        style={{
+          flex: 1, minHeight: 0, overflowY: "auto",
+          padding: "14px 16px 18px",
+          display: "grid",
+          gridTemplateColumns: `repeat(${MONITOR_GRID_COLS}, minmax(0, 1fr))`,
+          gridAutoRows: `${MONITOR_GRID_ROW_HEIGHT}px`,
+          gap: MONITOR_GRID_GAP,
+          alignContent: "start",
+        }}
+      >
+        {MONITOR_VISIBLE_LAYOUT.map((item) => (
           <div
+            key={item.i}
+            className="mtp-scroll mtp-monitor-cell"
             style={{
-              flexShrink: 0,
-              display: "flex", alignItems: "center", gap: 8,
-              padding: "11px 14px 9px",
+              gridColumn: `${item.x + 1} / span ${item.w}`,
+              gridRow: `${item.y + 1} / span ${item.h}`,
+              minWidth: 0, minHeight: 0,
+              display: "flex", flexDirection: "column", overflow: "auto",
             }}
           >
-            <IntelIcon d={ICON.radio} size={15} color={COLORS.accent} />
-            <span
-              style={{
-                fontFamily: FONT_CJK, fontSize: 12.5, fontWeight: 700,
-                color: COLORS.textStrong, whiteSpace: "nowrap",
-              }}
-            >
-              新聞 Feed
-            </span>
-            <span
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 4,
-                padding: "1px 7px", borderRadius: RADIUS.md,
-                background: COLORS.statusLiveSoft,
-                border: `1px solid ${COLORS.statusLiveBorder}`,
-              }}
-            >
-              <span
-                style={{
-                  width: 5, height: 5, borderRadius: RADIUS.full,
-                  background: COLORS.statusLive,
-                  boxShadow: `0 0 5px ${COLORS.statusLive}`,
-                  animation: "intelRing 1.6s ease-in-out infinite",
-                }}
-              />
-              <span
-                style={{
-                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, fontWeight: 700,
-                  color: COLORS.statusLive,
-                }}
-              >
-                LIVE
-              </span>
-            </span>
-            <div style={{ flex: 1 }} />
-            <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: COLORS.textMuted }}>
-              {flatEvents.length} 則
-            </span>
+            {widgets[item.i]}
           </div>
-
-          <IntelFilters
-            cats={cats}
-            onToggleCat={toggleCat}
-            onResetCats={() => setCats([])}
-            timeRange={timeRange}
-            onTimeRange={(r) => {
-              setTimeRange(r);
-              goLive();
-            }}
-            county={county}
-            onCounty={setCounty}
-            minRelevance={filter.minRelevance}
-            onMinRelevance={(v) => onFilterChange({ ...filter, minRelevance: v })}
-            eventsOnly={filter.eventsOnly}
-            onEventsOnly={(v) => onFilterChange({ ...filter, eventsOnly: v })}
-            minSeverity={filter.minSeverity}
-            onMinSeverity={(v) => onFilterChange({ ...filter, minSeverity: v })}
-          />
-
-          <div
-            className="mtp-scroll"
-            style={{ flex: 1, overflowY: "auto", padding: "12px 14px 16px" }}
-          >
-            {flatEvents.length === 0 ? (
-              <div
-                style={{
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", justifyContent: "center",
-                  height: "100%", gap: 8, textAlign: "center", padding: 24,
-                }}
-              >
-                <IntelIcon d={ICON.radio} size={26} color={COLORS.textGhost} />
-                <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, color: COLORS.textMuted }}>
-                  目前無符合條件的事件
-                </div>
-                <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
-                  調整分類 / 縣市，或回到即時
-                </div>
-              </div>
-            ) : (
-              <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
-                <span
-                  style={{
-                    position: "absolute", left: 12, top: 6, bottom: 6,
-                    width: 1.5,
-                    background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
-                  }}
-                />
-                {flatEvents.map((e) => (
-                  <IntelCard
-                    key={e.id}
-                    e={e}
-                    selected={e.id === selectedId}
-                    expanded={e.id === expandedId}
-                    trending={isTrendingFor(e)}
-                    onSelect={onSelectCard}
-                    onToggle={onToggleExpand}
-                    nowTs={now}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Indicators column */}
-        <IndicatorPanel
-          events={allEventsToday}
-          countyByEventId={countyByEventId}
-          pressure={pressure}
-          smoothedScore={smoothed}
-          market={market}
-          pla={pla}
-          health={health}
-          sourceHealth={sourceHealth}
-          totalToday={allEventsToday.length}
-          onPickHotspot={onPickHotspot}
-          alertTally={alertTally}
-          alertSeries={alertSeries}
-          nowTs={now}
-          powerDashboard={powerDashboard}
-          powerDay={powerDay}
-        />
-      </div>
-
-      <div className="mtp-scroll" style={{ marginTop: 12, flex: "0 1 auto", minHeight: 0, overflowY: "auto" }}>
-        {/* 警政司法民防 — 2 張新卡（與 IndicatorPanel 同層底下） */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-          <PrisonCard latest={prisonLatest} />
-          <AirportPaxCard open={open} />
-        </div>
-
-        {/* 急診壅塞 — 選區 + 醫院 tab + 24h 折線（另起整列，需較寬空間） */}
-        <div style={{ marginTop: 12 }}>
-          <ERCard open={open} />
-        </div>
+        ))}
       </div>
 
       <style>{`
+        /* 每格只有一個 widget 根節點。grow 撐滿 cell（內容仍靠上、不變形）、
+           不 shrink：內容比格子高時由 cell 自己捲動，不裁切也不壓到下一列。
+           （LiveWall 是 2×2 16:9 磚，實高隨欄寬變動，固定 row span 無法通吃） */
+        .mtp-monitor-cell > * { flex: 1 0 auto; min-height: 0; }
         @keyframes monitorRise {
           from { transform: translateY(18px); opacity: 0; }
           to   { transform: translateY(0); opacity: 1; }
