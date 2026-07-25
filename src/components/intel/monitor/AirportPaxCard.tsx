@@ -28,8 +28,15 @@ export function AirportPaxCard({ open }: Props) {
       fetchAirportHourlyPax(activeCode, 24)
         .then((rows) => {
           if (cancelled) return;
-          setInSeries(rows.map((r) => ({ t: Date.parse(r.hour_bucket) / 1000, v: Number(r.pax_in) || 0 })));
-          setOutSeries(rows.map((r) => ({ t: Date.parse(r.hour_bucket) / 1000, v: Number(r.pax_out) || 0 })));
+          // v=0 視為缺格剔除：APIS 快照常見「該小時只收到單一方向細格」，
+          // 另一方向被 RPC SUM(CASE…ELSE 0) 聚合成假 0（TPE 白天 in=0 即此類）。
+          // 剔除後由 sparkline 的 gapSec 呈現斷線；24h 加總不受影響（0 貢獻 0）。
+          const toSeries = (pick: (r: (typeof rows)[number]) => number) =>
+            rows
+              .map((r) => ({ t: Date.parse(r.hour_bucket) / 1000, v: pick(r) || 0 }))
+              .filter((p) => p.v > 0);
+          setInSeries(toSeries((r) => Number(r.pax_in)));
+          setOutSeries(toSeries((r) => Number(r.pax_out)));
         })
         .catch((e) => console.warn("[AirportPaxCard]", e))
         .finally(() => { if (!cancelled) setLoading(false); });
@@ -90,8 +97,9 @@ export function AirportPaxCard({ open }: Props) {
           </div>
         ) : (
           <>
-            <TimeseriesSparkline data={inSeries} unit="人" lineColor="#10b981" height={70} />
-            <TimeseriesSparkline data={outSeries} unit="人" lineColor="#fb7185" height={70} />
+            {/* gapSec 2h：相鄰快照缺 2 小時以上 → 斷線呈現（缺格 ≠ 低谷） */}
+            <TimeseriesSparkline data={inSeries} unit="人" lineColor="#10b981" height={70} gapSec={2 * 3600} />
+            <TimeseriesSparkline data={outSeries} unit="人" lineColor="#fb7185" height={70} gapSec={2 * 3600} />
           </>
         )}
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>

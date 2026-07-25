@@ -567,7 +567,7 @@ export function MonitorPanel({
       />
 
       {/* body: feed (left) + indicators (right) */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
+      <div style={{ flex: 1, minHeight: 180, display: "flex" }}>
         {/* News Feed column (reuses IntelCard + IntelFilters) */}
         <div
           style={{
@@ -708,15 +708,17 @@ export function MonitorPanel({
         />
       </div>
 
-      {/* 警政司法民防 — 2 張新卡（與 IndicatorPanel 同層底下） */}
-      <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <PrisonCard latest={prisonLatest} />
-        <AirportPaxCard open={open} />
-      </div>
+      <div className="mtp-scroll" style={{ marginTop: 12, flex: "0 1 auto", minHeight: 0, overflowY: "auto" }}>
+        {/* 警政司法民防 — 2 張新卡（與 IndicatorPanel 同層底下） */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <PrisonCard latest={prisonLatest} />
+          <AirportPaxCard open={open} />
+        </div>
 
-      {/* 急診壅塞 — 選區 + 醫院 tab + 24h 折線（另起整列，需較寬空間） */}
-      <div style={{ marginTop: 12 }}>
-        <ERCard open={open} />
+        {/* 急診壅塞 — 選區 + 醫院 tab + 24h 折線（另起整列，需較寬空間） */}
+        <div style={{ marginTop: 12 }}>
+          <ERCard open={open} />
+        </div>
       </div>
 
       <style>{`
