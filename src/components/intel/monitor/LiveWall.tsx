@@ -33,9 +33,11 @@ export interface LiveChannel {
 export const LIVE_CHANNELS: LiveChannel[] = [
   { id: "pts",    name: "公視新聞", en: "PTS",       tag: "公廣", handle: "@ptslivestream", note: "公廣保底，訊號最穩" },
   { id: "cts",    name: "華視新聞", en: "CTS",       tag: "公廣", handle: "@CtsTw", emergency: true, emergencyLabel: "防災直播", note: "災防可切防災直播", fallbackVideoId: "meHTKm4XBS8" },
-  { id: "tvbs",   name: "TVBS",     en: "TVBS NEWS", tag: "綜合", handle: "@TVBSNEWS01", note: "觀看數最高" },
+  // tvbs/ebc fallback = 官方 24hr 常設直播（TVBS 開播 2023-05 至今未換、EBC 穩定 5+ 週）；
+  // set 刻意不設：@SETN 輪播單場直播（會下播），寫死必成殭屍 ID，交給 resolver 下播補查
+  { id: "tvbs",   name: "TVBS",     en: "TVBS NEWS", tag: "綜合", handle: "@TVBSNEWS01", note: "觀看數最高", fallbackVideoId: "m_dhMSvUCIc" },
   { id: "set",    name: "三立新聞", en: "SET",       tag: "綜合", handle: "@SETN", note: "iNEWS 24h" },
-  { id: "ebc",    name: "東森新聞", en: "EBC",       tag: "綜合", handle: "@newsebc" },
+  { id: "ebc",    name: "東森新聞", en: "EBC",       tag: "綜合", handle: "@newsebc", fallbackVideoId: "V1p33hqPrUk" },
   { id: "ftv",    name: "民視新聞", en: "FTV",       tag: "綜合", handle: "@FTV_News", fallbackVideoId: "ylYJSBUgaMA" },
   { id: "era",    name: "年代新聞", en: "ERA",       tag: "綜合", handle: "@era_news" },
   { id: "mnews",  name: "鏡新聞",   en: "MIRROR",    tag: "綜合", handle: "@MnewsTw", note: "⏳ handle 待修" },
