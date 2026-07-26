@@ -1,4 +1,5 @@
 import type { ErHospital24hAllRow, ErHospitalLatest } from "../../../data/erHospitalLoader";
+import { classifyErCongestion, type ErCongestionLevel } from "../../../data/erCongestionTypes";
 
 /**
  * ERCard 卡片網格的資料整形（比照 powerCardData.ts）。
@@ -74,4 +75,37 @@ export function buildErRegionGroups(
       hospitals: (byRegion.get(region) ?? []).sort((a, b) => (b.wait ?? -1) - (a.wait ?? -1)),
     }))
     .filter((g) => g.hospitals.length > 0);
+}
+
+/**
+ * 總集摘要（全台 / 單區共用，`erCongestionTypes.classifyErCongestion` 沿用既有分級，
+ * 不發明新閾值）。四級對映使用者需求「紅/橘/黃/綠」：
+ *   severe(紅) / congested(橘) / light(黃) / smooth(綠)
+ * `nodata`（wait_general_cnt 為 null）不計入 counts 也不計入 total，另以 noData 回報。
+ */
+export type ErSeverityLevel = Exclude<ErCongestionLevel, "nodata">;
+
+/** 顯示順序：紅 → 橘 → 黃 → 綠（嚴重度由高到低） */
+export const ER_SEVERITY_ORDER: readonly ErSeverityLevel[] = ["severe", "congested", "light", "smooth"];
+
+export interface ErSummary {
+  /** 有資料醫院的等一般病床數合計 */
+  total: number;
+  /** 各嚴重度家數（不含 nodata） */
+  counts: Record<ErSeverityLevel, number>;
+  /** 無資料（wait_general_cnt === null）家數 */
+  noData: number;
+}
+
+/** 純函式：全台與單區共用，傳入不同醫院子集即可 */
+export function buildErSummary(hospitals: ErHospitalCell[]): ErSummary {
+  const counts: Record<ErSeverityLevel, number> = { severe: 0, congested: 0, light: 0, smooth: 0 };
+  let total = 0;
+  let noData = 0;
+  for (const h of hospitals) {
+    if (h.wait == null) { noData++; continue; }
+    counts[classifyErCongestion(h.wait) as ErSeverityLevel]++;
+    total += h.wait;
+  }
+  return { total, counts, noData };
 }
