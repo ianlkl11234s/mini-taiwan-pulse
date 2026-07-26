@@ -14,6 +14,10 @@
 - [ ] **OG-2：資料新鮮度後台可編輯** — 目前「資料新鮮度」分頁唯讀；`admin_upsert_freshness` RPC 已備但無 UI 表單。
 - [ ] **OG-3：UI 鎖首個實際圖層驗收** — lock_type='ui' 機制已就緒但目前無實際 ui 圖層在用；未來加非機密引導註冊圖層時，需驗「未登入鎖頭 → 登入即開 + DB 有 GRANT anon」的完整鏈。
 - [ ] **OG-4：powerPlants owner 存取（若需要）** — migration 279 REVOKE `all_power_plants_v` 後，已下架的 powerPlants 電廠總圖 owner 也讀不到；若日後要恢復給 owner 用，需建 owner-gated RPC 包該 view。目前 owner 看電廠走 facPrimary 等 SSOT RPC，暫不影響。
+- [ ] **OG-5：Monitor PowerCard 誤導性空狀態**（2026-07-26 發現，owner 拍板「先不動」記錄備查）
+  - `get_ssot_facility_output_24h` 是 owner-gated（`powerGenerationUnit`，PR #60 刻意鎖），但 MonitorPanel 對 gating 零感知：無條件呼叫、generic catch，匿名者看到「等待機組出力資料…」——像在載入、其實永遠不會來。
+  - 修法（待啟動時）：`MonitorPanel.tsx:164-189` 的 catch 改 `isAccessDenied()` 分類（比照 useFossilFuelLayers），PowerCard UNIT OUTPUT 段顯示「機組出力為私有資料，擁有者登入可檢視」。
+  - 相關：`energyLoader.ts:122-134`（缺 owner-gated 註解標記）、`PowerCard.tsx:207-215`。
 
 ## 已完成（近期）
 

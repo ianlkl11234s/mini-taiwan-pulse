@@ -153,7 +153,7 @@ function GroupCard({
         border: `1px solid ${hot ? `${def.color}55` : COLORS.borderMid}`,
         opacity: dim ? 0.38 : 1,
         cursor: dim ? "default" : "pointer",
-        display: "flex", flexDirection: "column", gap: 4,
+        display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 4,
         animation: hot ? "alertEdge 2s ease-in-out infinite" : undefined,
       }}
     >
@@ -307,44 +307,46 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
   // 0-state — 單條綠訊息
   if (tally.total === 0) {
     return (
-      <div
-        style={{
-          padding: "9px 12px",
-          borderRadius: RADIUS.lg,
-          background: "rgba(34,197,94,0.06)",
-          border: `1px solid ${COLORS.statusLiveBorder}`,
-          display: "flex", alignItems: "center", gap: 7,
-          marginBottom: 12,
-        }}
-      >
-        <IntelIcon d={MICON.check!} size={12} color={COLORS.statusLive} />
-        <span
+      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "100%" }}>
+        <div
           style={{
-            fontFamily: FONT_CJK, fontSize: 11.5, color: COLORS.statusLive, fontWeight: 600,
+            padding: "9px 12px",
+            borderRadius: RADIUS.lg,
+            background: "rgba(34,197,94,0.06)",
+            border: `1px solid ${COLORS.statusLiveBorder}`,
+            display: "flex", alignItems: "center", gap: 7,
           }}
         >
-          目前全國無 active 警報
-        </span>
-        <div style={{ flex: 1 }} />
-        <span
-          style={{
-            fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
-            color: COLORS.textFaint,
-          }}
-        >
-          ALL CLEAR
-        </span>
+          <IntelIcon d={MICON.check!} size={12} color={COLORS.statusLive} />
+          <span
+            style={{
+              fontFamily: FONT_CJK, fontSize: 11.5, color: COLORS.statusLive, fontWeight: 600,
+            }}
+          >
+            目前全國無 active 警報
+          </span>
+          <div style={{ flex: 1 }} />
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px",
+              color: COLORS.textFaint,
+            }}
+          >
+            ALL CLEAR
+          </span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* section label */}
       <div
         style={{
           display: "flex", alignItems: "center", gap: 8,
           padding: "0 2px 6px",
+          flexShrink: 0,
         }}
       >
         <IntelIcon d={MICON.warn!} size={12} color="#ef4444" />
@@ -384,11 +386,20 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
         )}
       </div>
 
-      <AlertTrend series={series} accent={accent} />
+      <div
+        style={{
+          display: "flex", flexDirection: "column", justifyContent: "center",
+          flex: "1 1 auto", minHeight: 0, maxHeight: 120,
+        }}
+      >
+        <AlertTrend series={series} accent={accent} />
+      </div>
 
       <div
         style={{
-          display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 6,
+          display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
+          gridTemplateRows: "repeat(2, 1fr)", gap: 6,
+          flex: 1, minHeight: 0,
         }}
       >
         {ALERT_GROUP_ORDER.map((g) => {
@@ -415,6 +426,7 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
             borderRadius: RADIUS.lg,
             background: "rgba(0,0,0,0.32)",
             border: `1px solid ${COLORS.borderMid}`,
+            flexShrink: 0,
           }}
         >
           <div

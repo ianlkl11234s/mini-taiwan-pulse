@@ -1,4 +1,7 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect, useLayoutEffect, useMemo, useRef, useState,
+  type CSSProperties, type ReactNode,
+} from "react";
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON, smoothPressure } from "../intelTokens";
@@ -38,7 +41,7 @@ import { ERCard } from "./ERCard";
 import {
   MONITOR_VISIBLE_LAYOUT, MONITOR_GRID_COLS,
   MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP,
-  type MonitorWidgetId,
+  type MonitorWidgetId, type MonitorGridItem,
 } from "./monitorLayout";
 import { supabase } from "../../../lib/supabase";
 import {
@@ -72,6 +75,19 @@ const EMPTY_PLA: PlaActivity = {
 const EMPTY_HEALTH_WEEK: PublicHealthWeek = { week: 0, diseases: [] };
 
 const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
+
+// ── 窄螢幕堆疊模式 ──
+/** grid 容器實寬 < 此值 → 切換單欄堆疊（量容器寬，非 window 寬） */
+const STACK_BREAKPOINT_PX = 1100;
+/** 堆疊模式 cell 高度 px：與 grid 模式視覺同高（h 個 row + (h-1) 個 gap），
+ *  避免 height:auto 讓內部 flex:1 區塊（例如 TimelineDock 密度圖）塌陷 */
+function stackCellHeightPx(h: number): number {
+  return h * MONITOR_GRID_ROW_HEIGHT + (h - 1) * MONITOR_GRID_GAP;
+}
+/** 堆疊模式渲染順序：依 (y, x) 排序，視覺閱讀順序與 grid 版一致 */
+const MONITOR_STACK_ORDER: MonitorGridItem[] = [...MONITOR_VISIBLE_LAYOUT].sort(
+  (a, b) => a.y - b.y || a.x - b.x,
+);
 
 /** Taipei 00:00 of a YYYY-MM-DD string → unix seconds */
 function dayKeyToStartTs(key: string): number {
@@ -392,6 +408,30 @@ export function MonitorPanel({
     };
   }, [open, wall]);
 
+  // grid 容器實寬（非 window 寬——面板有 left 64/right 14 inset，wall mode 又不同）→
+  // 窄於 STACK_BREAKPOINT_PX 時切堆疊模式。做法比照 TimeseriesSparkline 的
+  // useLayoutEffect + ResizeObserver 模式。
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [gridWidth, setGridWidth] = useState(0);
+  useLayoutEffect(() => {
+    // `open` 入 deps：MonitorPanel 在 App.tsx 是常駐掛載（!open 只是 return null），
+    // 容器 DOM 節點要等 open 變 true 才存在，[] deps 會讓 observer 永遠接不到它。
+    const el = gridRef.current;
+    if (!el) return;
+    const measure = (width: number) => {
+      if (width === 0) return; // 元素隱藏時維持原值
+      setGridWidth(Math.round(width));
+    };
+    measure(el.clientWidth);
+    const ro = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (entry) measure(entry.contentRect.width);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [open]);
+  const isStacked = gridWidth > 0 && gridWidth < STACK_BREAKPOINT_PX;
+
   if (!open) return null;
 
   const onScrub = (ts: number) => {
@@ -644,33 +684,50 @@ export function MonitorPanel({
         </button>
       </div>
 
-      {/* header 以下：單一可捲動的 12 欄靜態網格（座標見 monitorLayout.ts） */}
+      {/* header 以下：單一可捲動容器。寬 >= STACK_BREAKPOINT_PX 用 12 欄靜態網格
+         （座標見 monitorLayout.ts），窄於此改單欄堆疊（依 y,x 排序，見 MONITOR_STACK_ORDER） */}
       <div
+        ref={gridRef}
         className="mtp-scroll"
-        style={{
-          flex: 1, minHeight: 0, overflowY: "auto",
-          padding: "14px 16px 18px",
-          display: "grid",
-          gridTemplateColumns: `repeat(${MONITOR_GRID_COLS}, minmax(0, 1fr))`,
-          gridAutoRows: `${MONITOR_GRID_ROW_HEIGHT}px`,
-          gap: MONITOR_GRID_GAP,
-          alignContent: "start",
-        }}
+        style={
+          isStacked
+            ? {
+                flex: 1, minHeight: 0, overflowY: "auto",
+                padding: "14px 16px 18px",
+                display: "flex", flexDirection: "column", gap: MONITOR_GRID_GAP,
+              }
+            : {
+                flex: 1, minHeight: 0, overflowY: "auto",
+                padding: "14px 16px 18px",
+                display: "grid",
+                gridTemplateColumns: `repeat(${MONITOR_GRID_COLS}, minmax(0, 1fr))`,
+                gridAutoRows: `${MONITOR_GRID_ROW_HEIGHT}px`,
+                gap: MONITOR_GRID_GAP,
+                alignContent: "start",
+              }
+        }
       >
-        {MONITOR_VISIBLE_LAYOUT.map((item) => (
-          <div
-            key={item.i}
-            className="mtp-scroll mtp-monitor-cell"
-            style={{
-              gridColumn: `${item.x + 1} / span ${item.w}`,
-              gridRow: `${item.y + 1} / span ${item.h}`,
-              minWidth: 0, minHeight: 0,
-              display: "flex", flexDirection: "column", overflow: "auto",
-            }}
-          >
-            {widgets[item.i]}
-          </div>
-        ))}
+        {(isStacked ? MONITOR_STACK_ORDER : MONITOR_VISIBLE_LAYOUT).map((item) => {
+          const cellStyle: CSSProperties = isStacked
+            ? {
+                width: "100%",
+                height: stackCellHeightPx(item.h),
+                flexShrink: 0, // flex column 子元素不設會被壓縮塞進容器高度而非溢出捲動
+                minWidth: 0, minHeight: 0,
+                display: "flex", flexDirection: "column", overflow: "auto",
+              }
+            : {
+                gridColumn: `${item.x + 1} / span ${item.w}`,
+                gridRow: `${item.y + 1} / span ${item.h}`,
+                minWidth: 0, minHeight: 0,
+                display: "flex", flexDirection: "column", overflow: "auto",
+              };
+          return (
+            <div key={item.i} className="mtp-scroll mtp-monitor-cell" style={cellStyle}>
+              {widgets[item.i]}
+            </div>
+          );
+        })}
       </div>
 
       <style>{`
