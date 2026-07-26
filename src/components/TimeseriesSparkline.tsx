@@ -158,14 +158,30 @@ export function TimeseriesSparkline({
       return { pts, areaPath, single: seg.length === 1, first: seg[0]! };
     });
 
-    // X 軸時間 tick：取整點（local）、步距依範圍選 1/2/4/8h，最多 ~4 個
+    // X 軸時間 tick：≤48h 取整點（local）、步距 1/2/4/8h；>48h 取日界 00:00、
+    // 步距 1/2/4/7 天、標籤 M/D（8h 步距在多日範圍會生出數十個 tick 疊成字牆）
     const rangeH = (tMax - tMin) / 3600;
-    const stepH = rangeH <= 4 ? 1 : rangeH <= 9 ? 2 : rangeH <= 18 ? 4 : 8;
     const timeTicks: { x: number; label: string }[] = [];
-    for (let t = Math.ceil(tMin / 3600) * 3600; t <= tMax; t += 3600) {
-      const d = new Date(t * 1000);
-      if (d.getHours() % stepH !== 0 || d.getMinutes() !== 0) continue;
-      timeTicks.push({ x: xScale(t), label: `${d.getHours().toString().padStart(2, "0")}:00` });
+    if (rangeH > 48) {
+      const rangeD = rangeH / 24;
+      const stepD = rangeD <= 5 ? 1 : rangeD <= 16 ? 2 : rangeD <= 32 ? 4 : 7;
+      const cursor = new Date(tMin * 1000);
+      cursor.setHours(0, 0, 0, 0);
+      if (cursor.getTime() < tMin * 1000) cursor.setDate(cursor.getDate() + 1);
+      for (let i = 0; cursor.getTime() / 1000 <= tMax; cursor.setDate(cursor.getDate() + 1), i++) {
+        if (i % stepD !== 0) continue;
+        timeTicks.push({
+          x: xScale(cursor.getTime() / 1000),
+          label: `${cursor.getMonth() + 1}/${cursor.getDate()}`,
+        });
+      }
+    } else {
+      const stepH = rangeH <= 4 ? 1 : rangeH <= 9 ? 2 : rangeH <= 18 ? 4 : 8;
+      for (let t = Math.ceil(tMin / 3600) * 3600; t <= tMax; t += 3600) {
+        const d = new Date(t * 1000);
+        if (d.getHours() % stepH !== 0 || d.getMinutes() !== 0) continue;
+        timeTicks.push({ x: xScale(t), label: `${d.getHours().toString().padStart(2, "0")}:00` });
+      }
     }
     if (timeTicks.length === 0) {
       // 超短範圍（< 1 整點）fallback：首尾 hh:mm
