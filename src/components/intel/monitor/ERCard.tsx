@@ -2,9 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel, Sparkline } from "./PressureRing";
+import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import {
-  fetchErHospitalLatest, fetchErHospital24hAll,
-  type ErHospitalLatest, type ErHospital24hAllRow,
+  fetchErHospitalLatest, fetchErHospital24hAll, fetchErWaitTotal14d,
+  type ErHospitalLatest, type ErHospital24hAllRow, type ErWaitTotal14dRow,
 } from "../../../data/erHospitalLoader";
 import { erCongestionColor, ER_LEVEL_COLORS, ER_LEVEL_LABELS, classifyErCongestion } from "../../../data/erCongestionTypes";
 import { buildErRegionGroups, buildErSummary, ER_SEVERITY_ORDER, type ErHospitalCell, type ErSummary } from "./erCardData";
@@ -14,8 +15,9 @@ interface Props { open: boolean }
 export function ERCard({ open }: Props) {
   const [latest, setLatest] = useState<ErHospitalLatest[]>([]);
   const [series, setSeries] = useState<ErHospital24hAllRow[]>([]);
+  const [trend14d, setTrend14d] = useState<ErWaitTotal14dRow[]>([]);
 
-  // ── latest 快照 + 全院 24h，open 時載入 + 5min poll（沿用舊 ERCard 節奏）──
+  // ── latest 快照 + 全院 24h + 全台 14d 趨勢，open 時載入 + 5min poll（沿用舊 ERCard 節奏）──
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -26,6 +28,9 @@ export function ERCard({ open }: Props) {
       fetchErHospital24hAll()
         .then((rows) => { if (!cancelled) setSeries(rows); })
         .catch((e) => console.warn("[ERCard] 24h all", e));
+      fetchErWaitTotal14d()
+        .then((rows) => { if (!cancelled) setTrend14d(rows); })
+        .catch((e) => console.warn("[ERCard] wait total 14d", e));
     };
     tick();
     const id = window.setInterval(tick, 5 * 60_000);
@@ -35,6 +40,11 @@ export function ERCard({ open }: Props) {
   const groups = useMemo(() => buildErRegionGroups(latest, series), [latest, series]);
   const allHospitals = useMemo(() => groups.flatMap((g) => g.hospitals), [groups]);
   const nationalSummary = useMemo(() => buildErSummary(allHospitals), [allHospitals]);
+  // 第一筆是 rolling window 邊界的部分小時（樣本少會偏低）→ 捨棄首桶再畫
+  const trend14dSpark = useMemo<SparklinePoint[]>(
+    () => trend14d.slice(1).map((r) => ({ t: r.bucket_ts, v: r.total_wait })),
+    [trend14d],
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -53,6 +63,8 @@ export function ERCard({ open }: Props) {
         </span>
 
         {allHospitals.length > 0 && <ErNationalSummaryRow summary={nationalSummary} />}
+
+        {allHospitals.length > 0 && <ErWaitTrend14d spark={trend14dSpark} />}
 
         {groups.length === 0 ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
@@ -199,6 +211,24 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** 全台 14 天等床趨勢（總集列正下方）— TimeseriesSparkline 動態寬版，捨棄首桶（rolling window 邊界偏低） */
+function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
+  return (
+    <div data-testid="er-wait-trend-14d" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1px", color: COLORS.textFaint }}>
+        14D TREND · 全台等床
+      </span>
+      {spark.length === 0 ? (
+        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
+          載入中…
+        </div>
+      ) : (
+        <TimeseriesSparkline data={spark} unit="人" height={64} fillArea lineColor="#fb7185" />
+      )}
     </div>
   );
 }
