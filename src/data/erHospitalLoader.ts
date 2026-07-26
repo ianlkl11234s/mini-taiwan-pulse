@@ -6,9 +6,10 @@ import { classifyErCongestion } from "./erCongestionTypes";
 /**
  * 急診壅塞 er_hospital loader（RPC 283）
  *
- * 兩支 public RPC（前端一律走 public，禁直打 realtime.*）：
+ * 三支 public RPC（前端一律走 public，禁直打 realtime.*）：
  *   - get_er_hospital_latest()          → 59 家急診即時量能快照
- *   - get_er_hospital_24h(p_hosp_id)    → 單一醫院 24h ~96 點折線
+ *   - get_er_hospital_24h(p_hosp_id)    → 單一醫院 24h ~96 點折線（popup 用）
+ *   - get_er_hospital_24h_all()         → 59 家 24h 打包（monitor 卡片網格用，實測 26ms）
  *
  * 特殊點：RPC 不回座標。座標從 public/geo/medical_hospitals.geojson
  * 以 properties.facility_id === hosp_id join（實測 57/59 命中）。
@@ -38,6 +39,19 @@ export interface ErHospital24hRow {
   wait_bed_cnt: number | null;
   wait_general_cnt: number | null;
   wait_icu_cnt: number | null;
+}
+
+/** [observed_ts 秒, wait_see, wait_bed, wait_general, wait_icu]，欄位順序同 ErHospital24hRow */
+export type ErHospital24hPoint = [
+  number, number | null, number | null, number | null, number | null,
+];
+
+export interface ErHospital24hAllRow {
+  hosp_id: string;
+  hosp_name: string;
+  area_name: string;
+  /** 時間升冪，每家約 84 點 */
+  points: ErHospital24hPoint[];
 }
 
 /**
@@ -124,3 +138,16 @@ export async function fetchErHospital24h(hospId: string): Promise<ErHospital24hR
   if (error) throw new Error(`get_er_hospital_24h: ${error.message}`);
   return (data ?? []) as ErHospital24hRow[];
 }
+
+// ── 全院 24h 打包（monitor ERCard 網格）───────────────────────────────────────
+async function fetch24hAllUncached(): Promise<ErHospital24hAllRow[]> {
+  const { data, error } = await withLoading(
+    "er:24h:all",
+    "急診 59 院 24h 趨勢",
+    supabase.rpc("get_er_hospital_24h_all"),
+  );
+  if (error) throw new Error(`get_er_hospital_24h_all: ${error.message}`);
+  return (data ?? []) as ErHospital24hAllRow[];
+}
+const fetch24hAllCached = cachedOnce(fetch24hAllUncached, 60_000);
+export const fetchErHospital24hAll = (): Promise<ErHospital24hAllRow[]> => fetch24hAllCached();
