@@ -43,10 +43,11 @@ export function HourlyHistogramWidget({ events }: Props) {
   const nowHour = new Date().getHours();
 
   return (
-    <Widget>
+    <Widget style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div
         style={{
           display: "flex", alignItems: "center", justifyContent: "space-between",
+          flexShrink: 0,
         }}
       >
         <SectionLabel>24h 事件直方圖 · BREAKDOWN</SectionLabel>
@@ -78,7 +79,7 @@ export function HourlyHistogramWidget({ events }: Props) {
       <div
         style={{
           display: "flex", alignItems: "flex-end", gap: 2,
-          height: 118, position: "relative",
+          flex: 1, minHeight: 0, position: "relative",
         }}
       >
         {[0.5, 1].map((g) => (
@@ -123,6 +124,7 @@ export function HourlyHistogramWidget({ events }: Props) {
         style={{
           display: "flex", justifyContent: "space-between", marginTop: 4,
           fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textFaint,
+          flexShrink: 0,
         }}
       >
         <span>00:00</span>

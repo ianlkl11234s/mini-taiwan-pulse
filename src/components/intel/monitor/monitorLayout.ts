@@ -45,26 +45,25 @@ export const MONITOR_GRID_ROW_HEIGHT = 40;
 /** 格線間距 px（沙盒 margin） */
 export const MONITOR_GRID_GAP = 10;
 
-/** 沙盒定稿佈局（2026-07-26 匯出） */
+/** 沙盒定稿佈局（2026-07-26 三版匯出 — 移除 24H 直方圖，與時間軸資料重複） */
 export const MONITOR_LAYOUT: MonitorGridItem[] = [
-  { i: "newsFeed", x: 0, y: 0, w: 4, h: 9 },
-  { i: "alertBoard", x: 4, y: 0, w: 3, h: 9 },
-  { i: "histogram", x: 7, y: 0, w: 5, h: 6 },
-  { i: "timeline", x: 7, y: 6, w: 5, h: 7 },
-  { i: "triage", x: 0, y: 9, w: 4, h: 4 },
-  { i: "hotZones", x: 4, y: 9, w: 3, h: 4 },
-  { i: "situationOverview", x: 0, y: 13, w: 5, h: 6 },
-  { i: "liveWall", x: 5, y: 13, w: 7, h: 10 },
-  { i: "situationCards", x: 0, y: 19, w: 5, h: 4 },
-  { i: "hazardStrip", x: 0, y: 23, w: 5, h: 4 },
-  { i: "powerCard", x: 5, y: 23, w: 7, h: 6 },
-  { i: "erCongestion", x: 0, y: 27, w: 5, h: 6 },
-  { i: "prison", x: 0, y: 33, w: 2, h: 4 },
-  { i: "airportPax", x: 2, y: 33, w: 3, h: 6 },
+  { i: "newsFeed", x: 0, y: 0, w: 4, h: 12 },
+  { i: "alertBoard", x: 4, y: 0, w: 3, h: 7 },
+  { i: "timeline", x: 7, y: 0, w: 5, h: 8 },
+  { i: "hotZones", x: 4, y: 7, w: 3, h: 5 },
+  { i: "triage", x: 7, y: 8, w: 5, h: 4 },
+  { i: "situationOverview", x: 0, y: 12, w: 5, h: 5 },
+  { i: "liveWall", x: 5, y: 12, w: 7, h: 13 },
+  { i: "situationCards", x: 0, y: 17, w: 5, h: 5 },
+  { i: "erCongestion", x: 0, y: 22, w: 5, h: 6 },
+  { i: "hazardStrip", x: 5, y: 25, w: 7, h: 4 },
+  { i: "prison", x: 0, y: 28, w: 2, h: 4 },
+  { i: "airportPax", x: 2, y: 28, w: 3, h: 6 },
+  { i: "powerCard", x: 5, y: 29, w: 7, h: 6 },
 ];
 
-/** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染 */
-export const MONITOR_HIDDEN: MonitorWidgetId[] = [];
+/** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */
+export const MONITOR_HIDDEN: MonitorWidgetId[] = ["histogram"];
 
 /** 實際要渲染的格子（過濾 hidden，資料驅動） */
 export const MONITOR_VISIBLE_LAYOUT: MonitorGridItem[] = MONITOR_LAYOUT.filter(
