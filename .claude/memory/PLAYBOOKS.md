@@ -1487,3 +1487,15 @@ SOP：
 5. **browser 驗收**（agent-browser 8 條坑照全域 memory）：All Off 起手、逐層 queryRenderedFeatures + popup + 參數面板、旗艦層特殊行為逐項驗
 
 成效：觀光 12 層一天 spec→merged（PR #82），3 包零檔案衝突、ratchet 全綠；browser 驗收揪出 Infinity 資料 bug（tsc/vitest 抓不到的類型）。
+
+## PB-30 排版沙盒 → monitorLayout.ts 換版流程（2026-07-26 定型：一日五版實戰）
+
+監看模式版面 = 資料驅動，`monitorLayout.ts` 為 SSOT（相容 react-grid-layout `layout` 格式）：
+
+1. 開排版沙盒 Artifact 拖拉 / 縮放 / 勾隱藏 → 「複製 JSON」
+2. 用戶貼 JSON → **只換** `MONITOR_LAYOUT` 陣列 + `MONITOR_HIDDEN`，JSX 零改動；hidden 的 widget 保留在對照表可隨時勾回（histogram 案例）
+3. HMR 即時生效 → agent-browser 截圖驗證（cell 座標、內容填滿、900px 堆疊模式）
+4. widget 內容不隨格高展開時套統一模式：根節點 flex column + height:100%、圖表區 flex:1 + minHeight:0、固定列 flexShrink:0（TimelineDock / 直方圖 / AlertBoard 皆此修法；TREND 類加 maxHeight 上限防失義）
+5. 常數：ROW_HEIGHT 40 / GAP 10 / 堆疊斷點 1100px（容器實寬非視窗寬）；cell 高 = h×40+(h-1)×10；**堆疊模式 cell 必設 flexShrink:0**（flex column 子元素不設會被壓縮塞進容器而非溢出捲動）
+
+成效：v1→v5 每輪 <10 分鐘，用戶自助拖版、工程端只換一個檔。
