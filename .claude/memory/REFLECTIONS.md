@@ -1075,3 +1075,18 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 1. **資料驗收加一步 node strict-JSON parse**：jq/Python 驗過 ≠ 瀏覽器能吃；grep `:Infinity\|:NaN` 三秒完事（→ 已入 PRINCIPLES）
 2. **開工 git status 見非預期 WIP**：先判「另一 session 進行中」再定 stash 策略；branch 手術走 scratch worktree + push sha（→ 已入 PRINCIPLES）
 3. **多 agent 平行時 tsc gate 放包級不放全量**：平行中全量必互紅，prompt 明寫「錯誤不指向你的檔即可」，避免 agent 空轉修別人的紅字（→ 已入 PB-29）
+
+---
+
+## 2026-07-26/27 — orchestrator 模式全日戰（3 PR + 4 migration + collector 重寫 + 沙盒 Artifact）
+
+### 亮點
+- **主 agent 驗收層的價值**（本日三次抓漏全靠親看截圖/實查，agent 自驗都「通過」）：堆疊模式漏 flexShrink:0（13 cell 被壓成細條，agent 驗了 DOM 順序卻沒看出視覺穿幫）；14 天圖 42 個「0:00」tick 疊字牆（tick 邏輯只設計到 8h 步距，agent 回報寫「密集顯示」一詞露餡）；三立 fallback 候選 oembed 一查是會下播的單場直播
+- **用戶質疑觸發查證**：「10,000 免費額度有上網驗證過嗎」→ 官方文件實查發現 YouTube quota 已改制（search 獨立 100 calls/day 桶），即時 SendMessage 修正實作中 agent 的數學
+- **對照實驗勝過猜測**：TVBS 嵌入失敗先猜網域白名單 → 四格並排 embed 實驗證明是 channel= 路徑問題；agent 還自己識破 player API curl 檢查法對任何影片（含 jNQXAC9IVRw）都失敗、整段證據作廢——負面證據的自我審查是好樣板
+- **診斷先於動手**全日貫徹：五次「先派唯讀調查、拿證據再決策」（monitor 結構/git 考古/401 根因/RLS 掃描/嵌入實驗），沒有一次白工
+
+### Next-time rules
+1. **agent 回報裡的異常描述詞要追**（「密集顯示」「意外插曲」）——自驗通過 ≠ 視覺正確，截圖必親看
+2. **登入態 bug 第一反應想「兩種身分的權限路徑差異」**：anon vs authenticated 的 GRANT/RLS 靜默分歧，SET ROLE 實測最快（→ 已入 PRINCIPLES）
+3. **寫死外部資源 ID 前先 oembed 驗身分**（常設直播 vs 單場），三秒避免殭屍（→ 已入 INCIDENTS C）
