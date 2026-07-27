@@ -1315,3 +1315,24 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 本 session 在共用主 worktree checkout `feat/tourism-layers`；另一 session（canopy v2）23:40 commit 時不知 HEAD 已換，canopy `313ba5c` 落在 tourism branch 上、夾在兩顆 tourism commit 中間。另外對方進行中的 canopy giants WIP（10 檔）與本 session 的 stash/pop 時間交錯——靠「stash 只鎖必要檔 + commit 前 `git show <hash> -- <file>` 逐檔驗 diff」保住雙方內容零污染（驗證：tourism 兩顆 commit 無 canopy hunks）。
 **解法（PR 純淨）**：不動本地 branch、不 rebase——`git worktree add`（scratch）以 tourism 基底 cherry-pick 修正 → `git push origin <sha>:refs/heads/feat/tourism-layers` 推乾淨血統開 PR #82；canopy 由對方 session 併 giants 收成 PR #83。事後 `git diff origin/master <branch>` 驗零獨有內容才刪 branch。
 **教訓**：共用 worktree 的 branch checkout 會讓平行 session 的 commit 落錯 branch；branch 手術一律 scratch worktree + push sha。→ PRINCIPLES 新增一條。
+
+---
+
+## 2026-07-26/27 — monitor 三部曲 + 登入半殘站 + 直播牆重生
+
+### 事件 A：monitor 版面雙缺陷疊加 + 修法卡死未合併分支三週
+用戶回報「圖表巨大 + 內容消失」= 兩個獨立缺陷：TimeseriesSparkline（為 280px popup 設計）SVG 無 height 屬性 → 寬容器按 viewBox 256:h 固有比例整張放大 4-8 倍；MonitorPanel body row `flex-basis:0`（scaled shrink factor=0）被撐爆的卡片壓到 0px + 外層 overflow:hidden 連捲都捲不到（「內容消失」其實是被壓扁）。git 考古發現 7/8-9 已在 `fix/monitor-airport-card`/`feat/monitor-grid-layout` 修過但從未 merge、master 一直是壞的。
+**修**：ResizeObserver 動態 viewBox（1 unit=1px，優於分支版 1 行 style height——後者寬容器下文字水平變形）+ 語意移植 88cb2f4 軸域修正（y clamp / 步距格式 / 整點 tick / gapSec 斷線）→ PR #89。`fix/monitor-airport-card` 已完全取代可刪；`feat/monitor-grid-layout` 仍有 14 commits Monitor v2（RGL）未被取代（BACKLOG G015）。
+**教訓**：分支上的修法不 merge 等於沒修；共用圖表元件設計給特定容器寬時要動態量測。
+
+### 事件 B：live.* RLS anon-only → 登入會員半殘站三週（詳 pitfalls/2026-07-26-live-rls-anon-only.md）
+用戶回報「登入後反而只剩機組出力有資料」。根因：live.*（原 realtime.*）48 條 RLS policy 建表時只寫 `TO anon`（當時系統無登入功能），7/3 會員上線後 authenticated 讀取靜默 0 rows（RLS 無 matching policy 不報錯）；7/24 兩輪 lint 清理（314/315）因 Advisor 0013 只抓 RLS-disabled 而漏掃。SET ROLE 實測定罪（anon 59 rows vs authenticated 0）→ migration 318（48 條 ALTER POLICY 純加法、pg_policies 現場生成清單）→ authenticated 全數恢復 = anon、anon 零變化。機組出力反轉（登入才有）是另一套 owner-gated 機制正常運作，順帶記 OG-5（PowerCard 誤導空狀態，owner 拍板先不動）。
+
+### 事件 C：yt 直播牆 resolver 反爬蟲全滅 + 失敗覆寫放大 → Data API v3 重寫
+7 天 ~2007 次執行每頻道僅成功 6-8 次（YouTube 擋 HTML 爬取，僅每日一小時窗口可過），且失敗時無條件清空 video_id——TVBS 三年沒換的 24hr 直播 ID 也活不過 5 分鐘。重寫（data-collectors `d8b6f10`）：videos.list 批次驗證（1 unit/輪，50 id/call）+ search.list 只在無有效 live ID 時（獨立桶 100 calls/day 硬上限；冷卻 60min→6h 退避 + 每日 80 自限）+ sticky 三態 + channels.list forHandle 一次性解 channelId 寫死（順修鏡新聞/非凡兩個從來就錯的 handle）。實測 11/13 台解出、正常日 ~288 units。
+附帶三發現：**TTV 實測遭著作權封鎖第三方嵌入**（YouTube 官方訊息，embedBlocked 永久過濾）；`embed/live_stream?channel=` 路徑實證多數頻道不可靠、整條移除；華視寫死 fallback 已下播 → resolveSrc 改 resolver 優先 + fallback 安全網 + 動態過濾（無有效 src 不入選單）+ 失效自動換台。
+**教訓**：→ PRINCIPLES sticky 原則 + quota 上網驗證；寫死外部資源 ID 前先 oembed 驗身分（三立候選實為單場直播,寫死必殭屍）。
+
+### 事件 D：KHH 機場無資料 = collector ENDPOINTS 漏收 + VM 手動部署陷阱
+高雄 KHH1（入境）/KHH5（出境）端點從未列入 ENDPOINTS（前端/RPC 都正確；curl 驗證端點活著格式一致）。補上後本地跑一輪 1,289 筆進 DB、commit `a2f158a` 已 push。⚠ 生產實跑的是 HiCloud VM（210.61.15.74）cron 版，檔案手動 SCP 不接 git——**git push 不會生效**；Zeabur 版因移民署 API 擋國際雲商 IP 而 enabled=false。VM 更新待用戶執行（G013），未更新前 KHH 只有 7/26 一次性資料。
+**教訓**：`external/` 目錄的 collector 先讀部署說明再談上線；「push 了」≠「部署了」。
