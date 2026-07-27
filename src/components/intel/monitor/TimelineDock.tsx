@@ -113,13 +113,14 @@ export function TimelineDock({
   return (
     <div
       style={{
+        display: "flex", flexDirection: "column", height: "100%",
         flexShrink: 0, padding: "10px 16px 8px",
         borderBottom: `1px solid ${COLORS.panelBorder}`,
         background: "rgba(0,0,0,0.28)",
       }}
     >
       {/* top row */}
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexShrink: 0 }}>
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "2px",
@@ -200,7 +201,7 @@ export function TimelineDock({
           scrubFromEvent(e);
         }}
         onMouseLeave={() => setHoverH(null)}
-        style={{ position: "relative", height: 84, cursor: "pointer", userSelect: "none" }}
+        style={{ position: "relative", flex: 1, minHeight: 0, cursor: "pointer", userSelect: "none" }}
       >
         {[0, 0.25, 0.5, 0.75, 1].map((g) => (
           <span
@@ -326,7 +327,7 @@ export function TimelineDock({
         )}
       </div>
 
-      <div style={{ position: "relative", height: 14, marginTop: 3 }}>
+      <div style={{ position: "relative", height: 14, marginTop: 3, flexShrink: 0 }}>
         {TICKS.map((t) => (
           <span
             key={t}

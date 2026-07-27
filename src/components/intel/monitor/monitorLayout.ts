@@ -1,0 +1,71 @@
+/**
+ * 監看模式（Monitor）靜態 12 欄網格佈局 — 單一真實來源。
+ *
+ * 座標由**排版沙盒**拖曳定稿後匯出，格式刻意與 react-grid-layout 的 `layout`
+ * 陣列相容（`{ i, x, y, w, h }`，x/y/w/h 以 grid cell 為單位、x 值域 0..11）。
+ * 目前執行期不做拖曳，只用這份資料驅動 CSS grid 的 gridColumn / gridRow。
+ *
+ * 要改版面 → 回沙盒拖完重新匯出、覆蓋 `MONITOR_LAYOUT`，
+ * 不要在 `MonitorPanel.tsx` 裡手調座標。
+ */
+
+export type MonitorWidgetId =
+  | "newsFeed"
+  | "alertBoard"
+  | "histogram"
+  | "timeline"
+  | "triage"
+  | "hotZones"
+  | "situationOverview"
+  | "liveWall"
+  | "situationCards"
+  | "hazardStrip"
+  | "powerCard"
+  | "erCongestion"
+  | "prison"
+  | "airportPax";
+
+export interface MonitorGridItem {
+  /** widget id（對應 MonitorPanel 的 widget 對照表） */
+  i: MonitorWidgetId;
+  /** 起始欄（0-based） */
+  x: number;
+  /** 起始列（0-based） */
+  y: number;
+  /** 跨欄數 */
+  w: number;
+  /** 跨列數 */
+  h: number;
+}
+
+/** 欄數（沙盒 cols） */
+export const MONITOR_GRID_COLS = 12;
+/** 單列高度 px（沙盒 rowHeight） */
+export const MONITOR_GRID_ROW_HEIGHT = 40;
+/** 格線間距 px（沙盒 margin） */
+export const MONITOR_GRID_GAP = 10;
+
+/** 沙盒定稿佈局（2026-07-26 四版匯出 — timeline/liveWall/hazardStrip/powerCard 加高） */
+export const MONITOR_LAYOUT: MonitorGridItem[] = [
+  { i: "newsFeed", x: 0, y: 0, w: 4, h: 12 },
+  { i: "alertBoard", x: 4, y: 0, w: 3, h: 7 },
+  { i: "timeline", x: 7, y: 0, w: 5, h: 9 },
+  { i: "hotZones", x: 4, y: 7, w: 3, h: 5 },
+  { i: "triage", x: 7, y: 9, w: 5, h: 3 },
+  { i: "situationOverview", x: 0, y: 12, w: 5, h: 5 },
+  { i: "liveWall", x: 5, y: 12, w: 7, h: 14 },
+  { i: "situationCards", x: 0, y: 17, w: 5, h: 5 },
+  { i: "erCongestion", x: 0, y: 22, w: 5, h: 6 },
+  { i: "hazardStrip", x: 5, y: 26, w: 7, h: 8 },
+  { i: "prison", x: 0, y: 28, w: 2, h: 4 },
+  { i: "airportPax", x: 2, y: 28, w: 3, h: 6 },
+  { i: "powerCard", x: 5, y: 34, w: 7, h: 14 },
+];
+
+/** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */
+export const MONITOR_HIDDEN: MonitorWidgetId[] = ["histogram"];
+
+/** 實際要渲染的格子（過濾 hidden，資料驅動） */
+export const MONITOR_VISIBLE_LAYOUT: MonitorGridItem[] = MONITOR_LAYOUT.filter(
+  (item) => !MONITOR_HIDDEN.includes(item.i),
+);
