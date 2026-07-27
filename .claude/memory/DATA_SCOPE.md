@@ -428,7 +428,7 @@ Bonus: `taiwan_other_nearest.pmtiles` 已備但前端尚未接第 6 個 layer（
 | 機構 POI（含 airports 早存在） | 11 | 10 layer 上線（cctv_poi 桃園 skip — 已有 mini-cctv-tw 獨立站）|
 | 事件 點/線 | 4 | 全上線 |
 | Polygon / 大量 POI | 4 | civil_defense_shelters / crime_area_monthly / court_jurisdictions 3 PMTiles 上線；police_districts 自製 KNN v1 tier=3 暫緩 |
-| Realtime Supabase | 3 | prison_population_daily → Monitor PrisonCard（⚠ collector 沒跑 1 row / 2026-05-15）；border_airport_snapshot → Monitor AirportPaxCard + AirportPanel 24h 折線；traffic_accidents_a1 → a1AccidentRealtime 30 天滾動漣漪 |
+| Realtime Supabase | 3 | prison_population_daily → Monitor PrisonCard；border_airport_snapshot → Monitor AirportPaxCard + AirportPanel 24h 折線（**2026-07-26 補 KHH 端點**，TPE/TSA/RMQ/KHH 四機場全；⚠ KHH 持續收集待 VM SCP，見 BACKLOG G013）；traffic_accidents_a1 → a1AccidentRealtime 30 天滾動漣漪 |
 
 ### 前端 17 GIS layer 上線
 
