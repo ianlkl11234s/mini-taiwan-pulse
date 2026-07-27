@@ -4,7 +4,12 @@
 
 ---
 
-## 2026-07-26 — ERCard 全醫院分區網格改版（branch `feat/er-hospital-grid`，PR #待補）
+## 2026-07-26/27 — ERCard 全醫院分區網格改版（PR #91 `015a8b0`）
+
+> 同 PR 後續：全台/分區總集摘要列（總等床 + 紅橘黃綠比例條 + 各區 Σ 小計，`buildErSummary`）、
+> 14 天全台等床趨勢（上游 migration `320` `get_er_wait_total_14d()`，每小時 336 桶 67ms，
+> 前端捨 rolling window 邊界首桶）、TimeseriesSparkline >48h 範圍改日界 M/D tick、
+> LiveWall 動態過濾修復（非本 feature 但同 PR squash）。
 
 - **上游**：gis-platform migration `319`（`public.get_er_hospital_24h_all()`，無參數、anon+authenticated、實測 26ms / 59 rows / 每院約 84 點），已 apply production。
 - Loader 新增 `fetchErHospital24hAll()`（`cachedOnce` 60s + `withLoading("er:24h:all")`）；單院 `fetchErHospital24h()` 保留（popup `EmergencyHospitalPanel` 仍在用）。

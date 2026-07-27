@@ -12,7 +12,11 @@
 
 ---
 
-## 2026-07-26 — PR #NN `xxxxxxx`（草稿，待補 PR # 與 squash hash）
+## 2026-07-26 — PR #90 `3888014`
+
+> 同 PR 後續三 commit：沙盒佈局 v2-v4 迭代（histogram 因與時間軸資料重複進 MONITOR_HIDDEN）、
+> TimelineDock / HourlyHistogramWidget / AlertBoard 內容隨格高 flex 展開、
+> <1100px 單欄堆疊響應式（cell 必設 flexShrink:0，見 PB-30）。
 
 - 新增 `monitorLayout.ts`：排版沙盒定稿的 12 欄座標（14 widget）+ `hidden` 過濾，
   格式相容 react-grid-layout `layout` 陣列。
