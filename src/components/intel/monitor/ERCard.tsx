@@ -1,28 +1,23 @@
 import { useEffect, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
-import { SectionLabel } from "./PressureRing";
+import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import {
-  fetchErHospitalLatest, fetchErHospital24h, type ErHospitalLatest,
+  fetchErHospitalLatest, fetchErHospital24hAll, fetchErWaitTotal14d,
+  type ErHospitalLatest, type ErHospital24hAllRow, type ErWaitTotal14dRow,
 } from "../../../data/erHospitalLoader";
-import {
-  classifyErCongestion, erCongestionColor, ER_LEVEL_LABELS, ER_CONGESTION_THRESHOLDS,
-} from "../../../data/erCongestionTypes";
+import { erCongestionColor, ER_LEVEL_COLORS, ER_LEVEL_LABELS, classifyErCongestion } from "../../../data/erCongestionTypes";
+import { buildErRegionGroups, buildErSummary, ER_SEVERITY_ORDER, type ErHospitalCell, type ErSummary } from "./erCardData";
 
 interface Props { open: boolean }
 
-const ALL = "all";
-const TOP_N = 6;
-
 export function ERCard({ open }: Props) {
   const [latest, setLatest] = useState<ErHospitalLatest[]>([]);
-  const [area, setArea] = useState(ALL);
-  const [activeHospId, setActiveHospId] = useState<string | null>(null);
-  const [series, setSeries] = useState<SparklinePoint[]>([]);
-  const [loading24h, setLoading24h] = useState(false);
+  const [series, setSeries] = useState<ErHospital24hAllRow[]>([]);
+  const [trend14d, setTrend14d] = useState<ErWaitTotal14dRow[]>([]);
 
-  // ── latest 快照（全 59 家），open 時載入 + 5min poll ──
+  // ── latest 快照 + 全院 24h + 全台 14d 趨勢，open 時載入 + 5min poll（沿用舊 ERCard 節奏）──
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
@@ -30,64 +25,26 @@ export function ERCard({ open }: Props) {
       fetchErHospitalLatest()
         .then((rows) => { if (!cancelled) setLatest(rows); })
         .catch((e) => console.warn("[ERCard] latest", e));
+      fetchErHospital24hAll()
+        .then((rows) => { if (!cancelled) setSeries(rows); })
+        .catch((e) => console.warn("[ERCard] 24h all", e));
+      fetchErWaitTotal14d()
+        .then((rows) => { if (!cancelled) setTrend14d(rows); })
+        .catch((e) => console.warn("[ERCard] wait total 14d", e));
     };
     tick();
     const id = window.setInterval(tick, 5 * 60_000);
     return () => { cancelled = true; window.clearInterval(id); };
   }, [open]);
 
-  // 區域下拉選項（distinct area_name，依 area_no 排序）+ 全台
-  const areaOptions = useMemo(() => {
-    const seen = new Map<string, string>(); // area_name → area_no
-    for (const r of latest) {
-      if (r.area_name && !seen.has(r.area_name)) seen.set(r.area_name, r.area_no ?? "");
-    }
-    const opts = [...seen.entries()]
-      .sort((a, b) => a[1].localeCompare(b[1]))
-      .map(([name]) => ({ value: name, label: name }));
-    return [{ value: ALL, label: "全台" }, ...opts];
-  }, [latest]);
-
-  // 顯示的醫院 tab：全台 → 壅塞 top-6；選區 → 該區全部（壅塞排序）
-  const displayed = useMemo(() => {
-    const pool = area === ALL ? latest : latest.filter((r) => r.area_name === area);
-    const sorted = [...pool].sort(
-      (a, b) => (b.wait_general_cnt ?? -1) - (a.wait_general_cnt ?? -1),
-    );
-    return area === ALL ? sorted.slice(0, TOP_N) : sorted;
-  }, [latest, area]);
-
-  // 有效選中醫院：activeHospId 仍在清單則沿用，否則退回清單首位
-  const effectiveHospId = useMemo(() => {
-    if (activeHospId && displayed.some((h) => h.hosp_id === activeHospId)) return activeHospId;
-    return displayed[0]?.hosp_id ?? null;
-  }, [activeHospId, displayed]);
-
-  const activeHosp = useMemo(
-    () => latest.find((h) => h.hosp_id === effectiveHospId) ?? null,
-    [latest, effectiveHospId],
+  const groups = useMemo(() => buildErRegionGroups(latest, series), [latest, series]);
+  const allHospitals = useMemo(() => groups.flatMap((g) => g.hospitals), [groups]);
+  const nationalSummary = useMemo(() => buildErSummary(allHospitals), [allHospitals]);
+  // 第一筆是 rolling window 邊界的部分小時（樣本少會偏低）→ 捨棄首桶再畫
+  const trend14dSpark = useMemo<SparklinePoint[]>(
+    () => trend14d.slice(1).map((r) => ({ t: r.bucket_ts, v: r.total_wait })),
+    [trend14d],
   );
-
-  // 選中醫院 24h 折線（等一般病床）
-  useEffect(() => {
-    if (!open || !effectiveHospId) { setSeries([]); return; }
-    let cancelled = false;
-    setLoading24h(true);
-    fetchErHospital24h(effectiveHospId)
-      .then((rows) => {
-        if (cancelled) return;
-        setSeries(rows
-          .filter((r) => r.wait_general_cnt != null)
-          .map((r) => ({ t: Number(r.observed_ts), v: Number(r.wait_general_cnt) })));
-      })
-      .catch((e) => console.warn("[ERCard] 24h", e))
-      .finally(() => { if (!cancelled) setLoading24h(false); });
-    return () => { cancelled = true; };
-  }, [open, effectiveHospId]);
-
-  const curWait = activeHosp?.wait_general_cnt ?? null;
-  const curLevel = classifyErCongestion(curWait);
-  const dotColor = erCongestionColor(curWait);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -98,90 +55,203 @@ export function ERCard({ open }: Props) {
           border: `1px solid ${COLORS.panelBorder}`,
           background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
           padding: "12px 14px",
-          display: "flex", flexDirection: "column", gap: 8,
+          display: "flex", flexDirection: "column", gap: 10,
         }}
       >
-        {/* 區域下拉（原生 select，19 區 + 全台） */}
-        <select
-          value={area}
-          onChange={(e) => { setArea(e.target.value); setActiveHospId(null); }}
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.2px", color: COLORS.textDim }}>
+          ER WAIT · {latest.length} 院 24h 等一般病床
+        </span>
+
+        {allHospitals.length > 0 && <ErNationalSummaryRow summary={nationalSummary} />}
+
+        {allHospitals.length > 0 && <ErWaitTrend14d spark={trend14dSpark} />}
+
+        {groups.length === 0 ? (
+          <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
+            資料載入中…
+          </div>
+        ) : groups.map((g) => {
+          const regionSummary = buildErSummary(g.hospitals);
+          return (
+          <div key={g.region} data-testid={`er-region-${g.region}`} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontFamily: FONT_CJK, fontSize: 11, fontWeight: 700, color: COLORS.textDefault }}>
+                {g.region}
+              </span>
+              <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>
+                {g.hospitals.length} 院
+              </span>
+              <span
+                data-testid={`er-region-total-${g.region}`}
+                style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}
+              >
+                Σ {regionSummary.total.toLocaleString()} 等床
+              </span>
+              <ErRegionMiniBar summary={regionSummary} />
+              <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+                gap: 6,
+              }}
+            >
+              {g.hospitals.map((h) => <HospitalCell key={h.hospId} cell={h} />)}
+            </div>
+          </div>
+          );
+        })}
+
+        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
+          來源：衛福部 急診即時訂閱（get_er_hospital_latest / 24h_all）
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HospitalCell({ cell }: { cell: ErHospitalCell }) {
+  const color = erCongestionColor(cell.wait);
+  const level = classifyErCongestion(cell.wait);
+  return (
+    <div
+      title={`${cell.name} · ${cell.areaName} · ${ER_LEVEL_LABELS[level]}`}
+      style={{
+        display: "flex", alignItems: "center", gap: 6,
+        padding: "5px 7px", borderRadius: RADIUS.md,
+        background: "rgba(255,255,255,0.025)",
+        border: `1px solid ${COLORS.borderSoft}`,
+        minWidth: 0,
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+        <span
           style={{
-            fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
-            padding: "4px 8px", borderRadius: RADIUS.sm,
-            border: `1px solid ${COLORS.panelBorder}`,
-            background: "rgba(255,255,255,0.04)", color: COLORS.textStrong,
-            cursor: "pointer", width: "100%",
+            fontFamily: FONT_CJK, fontSize: 10.5, color: COLORS.textDefault,
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
-          {areaOptions.map((o) => (
-            <option key={o.value} value={o.value} style={{ background: "#111827" }}>{o.label}</option>
-          ))}
-        </select>
+          {cell.name}
+        </span>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: 14, fontWeight: 700, color, lineHeight: 1.1 }}>
+            {cell.wait == null ? "—" : cell.wait}
+          </span>
+          <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint }}>等床</span>
+        </div>
+      </div>
+      <Sparkline data={cell.spark.length >= 2 ? cell.spark : [0, 0]} color={color} w={40} h={18} />
+    </div>
+  );
+}
 
-        {/* 醫院 tab（全台=壅塞 top6 / 選區=該區） */}
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          {displayed.length === 0 ? (
-            <span style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>資料載入中…</span>
-          ) : displayed.map((h) => {
-            const on = h.hosp_id === effectiveHospId;
-            const c = erCongestionColor(h.wait_general_cnt);
+/** 全台總集列（卡片頂部、分區 section 之前）— 視覺密度比照能源卡標頭列 */
+function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
+  const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
+  return (
+    <div
+      data-testid="er-national-summary"
+      style={{
+        display: "flex", alignItems: "center", gap: 14,
+        padding: "6px 10px", borderRadius: RADIUS.lg,
+        background: "rgba(255,255,255,0.03)",
+        border: `1px solid ${COLORS.borderSoft}`,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "baseline", gap: 5, flexShrink: 0 }}>
+        <span style={{ fontFamily: FONT_CJK, fontSize: 10, color: COLORS.textMuted }}>全台等床</span>
+        <span
+          data-testid="er-national-total"
+          style={{
+            fontFamily: FONT_DATA, fontSize: 20, fontWeight: 700, color: "#fff",
+            fontVariantNumeric: "tabular-nums", lineHeight: 1,
+          }}
+        >
+          {summary.total.toLocaleString()}
+        </span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: 9, color: COLORS.textFaint }}>人</span>
+      </div>
+
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 3 }}>
+        <div
+          style={{
+            display: "flex", height: 6, borderRadius: RADIUS.sm, overflow: "hidden",
+            background: "rgba(255,255,255,0.06)",
+          }}
+        >
+          {ER_SEVERITY_ORDER.map((lv) => {
+            const n = summary.counts[lv];
+            if (n === 0) return null;
+            const pct = withData > 0 ? n / withData : 0;
             return (
-              <button
-                key={h.hosp_id}
-                onClick={() => setActiveHospId(h.hosp_id)}
-                style={{
-                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
-                  padding: "3px 8px", borderRadius: RADIUS.sm,
-                  border: `1px solid ${on ? c : COLORS.panelBorder}`,
-                  background: on ? "rgba(239,68,68,0.14)" : "transparent",
-                  color: on ? COLORS.textStrong : COLORS.textMuted,
-                  cursor: "pointer", display: "flex", alignItems: "center", gap: 5,
-                }}
-              >
-                <span style={{ width: 7, height: 7, borderRadius: RADIUS.full, background: c, flexShrink: 0 }} />
-                {h.hosp_name}
-              </button>
+              <span
+                key={lv}
+                title={`${ER_LEVEL_LABELS[lv]} · ${n} 院 · ${(pct * 100).toFixed(0)}%`}
+                style={{ width: `${pct * 100}%`, background: ER_LEVEL_COLORS[lv] }}
+              />
             );
           })}
         </div>
-
-        {/* 當前壅塞燈 + 數值 */}
-        {activeHosp && (
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{
-              width: 11, height: 11, borderRadius: RADIUS.full, background: dotColor,
-              boxShadow: `0 0 7px ${dotColor}`, flexShrink: 0,
-            }} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.md, fontWeight: 700, color: COLORS.textStrong }}>
-              {activeHosp.hosp_name}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px" }}>
+          {ER_SEVERITY_ORDER.map((lv) => (
+            <span
+              key={lv}
+              data-testid={`er-national-count-${lv}`}
+              style={{ display: "inline-flex", alignItems: "center", gap: 3, fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textMuted }}
+            >
+              <span style={{ width: 5, height: 5, borderRadius: RADIUS.full, background: ER_LEVEL_COLORS[lv] }} />
+              {ER_LEVEL_LABELS[lv]} {summary.counts[lv]} 院
             </span>
-            <span style={{ fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-              {ER_LEVEL_LABELS[curLevel]} · 等一般病床
-              <span style={{ fontFamily: FONT_DATA, fontWeight: 700, color: dotColor, marginLeft: 4 }}>
-                {curWait == null ? "—" : curWait}
-              </span>
+          ))}
+          {summary.noData > 0 && (
+            <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>
+              無資料 {summary.noData}
             </span>
-          </div>
-        )}
-
-        {loading24h ? (
-          <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, textAlign: "center", padding: "8px 0" }}>
-            載入中…
-          </div>
-        ) : (
-          <TimeseriesSparkline
-            data={series}
-            unit="等一般病床"
-            lineColor={dotColor}
-            warningValue={ER_CONGESTION_THRESHOLDS.congested}
-            warningLabel="嚴重"
-            height={80}
-          />
-        )}
-        <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
-          來源：衛福部 急診即時訂閱（get_er_hospital_latest / 24h）
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** 全台 14 天等床趨勢（總集列正下方）— TimeseriesSparkline 動態寬版，捨棄首桶（rolling window 邊界偏低） */
+function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
+  return (
+    <div data-testid="er-wait-trend-14d" style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span style={{ fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "1px", color: COLORS.textFaint }}>
+        14D TREND · 全台等床
+      </span>
+      {spark.length === 0 ? (
+        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint, padding: "8px 0", textAlign: "center" }}>
+          載入中…
+        </div>
+      ) : (
+        <TimeseriesSparkline data={spark} unit="人" height={64} fillArea lineColor="#fb7185" />
+      )}
+    </div>
+  );
+}
+
+/** 區 header 小計迷你比例條（4px 高 × 80px 寬） */
+function ErRegionMiniBar({ summary }: { summary: ErSummary }) {
+  const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
+  if (withData === 0) return null;
+  return (
+    <div
+      title={ER_SEVERITY_ORDER.map((lv) => `${ER_LEVEL_LABELS[lv]} ${summary.counts[lv]}`).join(" · ")}
+      style={{
+        width: 80, height: 4, borderRadius: RADIUS.sm, overflow: "hidden",
+        display: "flex", background: "rgba(255,255,255,0.08)", flexShrink: 0,
+      }}
+    >
+      {ER_SEVERITY_ORDER.map((lv) => {
+        const n = summary.counts[lv];
+        if (n === 0) return null;
+        return (
+          <span key={lv} style={{ width: `${(n / withData) * 100}%`, height: "100%", background: ER_LEVEL_COLORS[lv] }} />
+        );
+      })}
     </div>
   );
 }

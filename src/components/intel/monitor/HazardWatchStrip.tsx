@@ -3,10 +3,15 @@
  *
  * 放兩個與災防直接相關的 24h 直播：
  *   - 台灣地震監視 KyT4qSK8lJo（地震速報 / 強震即時警報）
- *   - 台灣颱風論壇 LzOTY4mZG00（天氣即時監測 + 颱風）
+ *   - 台灣颱風論壇 ADZTiqEGT8g（天氣即時監測 + 颱風；氣溫/雨量/風力/雷達多面板 dashboard）
  *
  * 不走 collector — 直接寫死 video_id（這兩個都是長年穩定、官方公開 embed）。
  * 樣式 1:1 對齊 LiveWall 的 16:9 容器 + LIVE badge + 邊框。
+ *
+ * 2026-07-26：用戶指定更新颱風論壇格 video_id（上一支 LzOTY4mZG00 已下播，畫面顯示
+ * 「無法播放這部直播影片的錄影存檔」）。新 ID 已用 oembed + embed 實測確認可嵌入播放，
+ * 頻道仍是同一個「台灣颱風論壇」(@twtybbs2009)，內容為多面板天氣監測 dashboard（無特定
+ * 颱風命名/事件字樣）研判屬 24hr 常設直播，非單場會下播的直播 —— 暫不需接 resolver。
  */
 
 import { memo, useRef } from "react";
@@ -29,7 +34,7 @@ const HAZARD_CHANNELS: HazardCh[] = [
     hint: "地震速報 · 強震即時警報",
   },
   {
-    videoId: "LzOTY4mZG00",
+    videoId: "ADZTiqEGT8g",
     name: "台灣颱風論壇",
     en: "WEATHER LIVE",
     hint: "氣溫 · 雨量 · 雷達 · 颱風",

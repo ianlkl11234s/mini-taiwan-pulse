@@ -15,12 +15,27 @@ export interface LiveChannel {
   emergency?: boolean;
   emergencyLabel?: string;
   /**
-   * 寫死可 embedded 的 video_id 備援。
-   * 部分頻道（如 cts/ftv）resolver 抓到的 primary live 會被官方關 embed
-   *   → 改用同頻道另一個公開可嵌入的長期直播
-   * 若有此值，LiveSlot 會優先使用，resolver 結果僅作為次要備援。
+   * 寫死可 embedded 的 video_id 備援，resolver 沒給 video_id（或該台 embedBlocked）
+   * 時才會用到——resolver 有結果一律優先用 resolver（見 resolveSrc）。
+   *
+   * 2026-07-26 之前 resolver 是舊版 HTML 爬蟲、成功率極低（~0.2%），fallbackVideoId
+   * 一度是「resolver 給的 primary live 常被關 embed」的主要繞路，因此當時優先序反過來。
+   * 今日新版 resolver 改走 YouTube Data API v3（見 collectors/yt_live_video_resolver.py
+   * commit d8b6f10），實測 tvbs/ebc/ftv 現在 resolver 給的 video_id 已與這裡寫死的值完全
+   * 相同；cts 則反而是 fallbackVideoId（meHTKm4XBS8）已下播、resolver 給的新 id
+   * （wM0g8EoUZ_E）才是活的——故改為 resolver 優先、fallbackVideoId 僅作安全網。
    */
   fallbackVideoId?: string;
+  /**
+   * 確認為 YouTube 官方封鎖第三方 embed（非「未開播」）→ 動態過濾會連同 resolver
+   * 給的 video_id 一併隱藏，避免渲染必壞的 iframe。若之後該台開放 embed 或提供
+   * 可嵌入的替代 video_id，改設 fallbackVideoId 或移除本 flag。
+   *
+   * 實測：2026-07-26 22:28（本地）— embed/<resolver video_id> 顯示 YouTube 官方訊息
+   *   「無法播放影片：這部影片含有『TTV』的著作權內容，而對方已禁止在這個網站上或
+   *     應用程式中播放這部影片」（ttv：@TTV_NEWS，見 embed-test3 診斷）
+   */
+  embedBlocked?: boolean;
 }
 
 /**
@@ -32,14 +47,21 @@ export interface LiveChannel {
  */
 export const LIVE_CHANNELS: LiveChannel[] = [
   { id: "pts",    name: "公視新聞", en: "PTS",       tag: "公廣", handle: "@ptslivestream", note: "公廣保底，訊號最穩" },
+  // fallbackVideoId 只在 resolver 沒給 video_id 時當安全網（見 fallbackVideoId 欄位註解）；
+  // 2026-07-26 診斷：meHTKm4XBS8 本身已下播（「無法播放這部直播影片的錄影存檔」），
+  // 現在 resolver 給的 video_id 才是活的，留著這個值只為未來 resolver 又斷線時墊底
   { id: "cts",    name: "華視新聞", en: "CTS",       tag: "公廣", handle: "@CtsTw", emergency: true, emergencyLabel: "防災直播", note: "災防可切防災直播", fallbackVideoId: "meHTKm4XBS8" },
-  { id: "tvbs",   name: "TVBS",     en: "TVBS NEWS", tag: "綜合", handle: "@TVBSNEWS01", note: "觀看數最高" },
+  // tvbs/ebc fallback = 官方 24hr 常設直播（TVBS 開播 2023-05 至今未換、EBC 穩定 5+ 週）；
+  // 2026-07-26 實測這兩台 resolver 給的 video_id 現在已跟這裡寫死的值完全相同，純安全網；
+  // set 刻意不設：@SETN 輪播單場直播（會下播），寫死必成殭屍 ID，交給 resolver 下播補查
+  { id: "tvbs",   name: "TVBS",     en: "TVBS NEWS", tag: "綜合", handle: "@TVBSNEWS01", note: "觀看數最高", fallbackVideoId: "m_dhMSvUCIc" },
   { id: "set",    name: "三立新聞", en: "SET",       tag: "綜合", handle: "@SETN", note: "iNEWS 24h" },
-  { id: "ebc",    name: "東森新聞", en: "EBC",       tag: "綜合", handle: "@newsebc" },
+  { id: "ebc",    name: "東森新聞", en: "EBC",       tag: "綜合", handle: "@newsebc", fallbackVideoId: "V1p33hqPrUk" },
   { id: "ftv",    name: "民視新聞", en: "FTV",       tag: "綜合", handle: "@FTV_News", fallbackVideoId: "ylYJSBUgaMA" },
   { id: "era",    name: "年代新聞", en: "ERA",       tag: "綜合", handle: "@era_news" },
   { id: "mnews",  name: "鏡新聞",   en: "MIRROR",    tag: "綜合", handle: "@MnewsTw", note: "⏳ handle 待修" },
-  { id: "ttv",    name: "台視新聞", en: "TTV",       tag: "綜合", handle: "@TTV_NEWS" },
+  // embedBlocked：TTV 對第三方網站封鎖 embed（見上方 embedBlocked 欄位註解的實測證據）
+  { id: "ttv",    name: "台視新聞", en: "TTV",       tag: "綜合", handle: "@TTV_NEWS", embedBlocked: true },
   { id: "ctv",    name: "中視新聞", en: "CTV",       tag: "綜合", handle: "@twctvnews" },
   { id: "global", name: "寰宇新聞", en: "GLOBAL",    tag: "綜合", handle: "@globalnewstw" },
   { id: "ustv",   name: "非凡新聞", en: "USTV",      tag: "財經", handle: "@ustvnews", note: "⏳ handle 待修" },
@@ -50,17 +72,40 @@ function videoEmbedSrc(videoId: string): string {
   return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&playsinline=1`;
 }
 
-function channelEmbedSrc(channelId: string): string {
-  return `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&mute=1&playsinline=1`;
+/**
+ * 頻道目前可用的 embed src，沒有可用來源回傳 null。
+ *
+ * 優先序：resolver 給的 video_id（embedBlocked 的台跳過，不管 resolver 給了什麼 id）
+ * → fallbackVideoId（人工挑選的安全網，resolver 沒結果時墊底）。
+ *
+ * 2026-07-26 由 fallbackVideoId 優先改成 resolver 優先：新版 resolver（YouTube Data API v3，
+ * 5 min cron）實測可靠，tvbs/ebc/ftv 的 resolver video_id 現在已與人工寫死的 fallback 完全
+ * 相同；cts 則是 fallback 已下播、resolver 給的 id 才是活的——resolver 優先才不會渲染出
+ * 已下播的殭屍 fallback。
+ *
+ * 註：曾經還有第三層 `embed/live_stream?channel=` 備援，2026-07-26 診斷證實對多數頻道
+ * 不可靠（TVBS 實測跳「無法播放這部影片」，intelLoaders.ts 也早有同樣註記），且原本仰賴
+ * 這條路的中視（ctv）resolver 現在已能直接給可嵌入的 video_id，故整條移除，不再保留。
+ */
+function resolveSrc(ch: LiveChannel, resolved: YtLiveVideo | undefined): string | null {
+  if (!ch.embedBlocked && resolved?.video_id) return videoEmbedSrc(resolved.video_id);
+  if (ch.fallbackVideoId) return videoEmbedSrc(ch.fallbackVideoId);
+  return null;
+}
+
+function isChannelAvailable(ch: LiveChannel, resolved: YtLiveVideo | undefined): boolean {
+  return resolveSrc(ch, resolved) !== null;
 }
 
 interface MenuProps {
   value: string;
   onPick: (id: string) => void;
   usedIds: string[];
+  /** 只顯示目前有有效 src 的頻道（資料驅動隱藏，LIVE_CHANNELS 本體不刪減） */
+  channels: LiveChannel[];
 }
 
-function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
+function ChannelMenu({ value, onPick, usedIds, channels }: MenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const cur = LIVE_CHANNELS.find((c) => c.id === value) ?? LIVE_CHANNELS[0]!;
@@ -135,14 +180,14 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
             </span>
             <div style={{ flex: 1 }} />
             <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint }}>
-              {LIVE_CHANNELS.length} 家 24h 直播
+              {channels.length} 家可看
             </span>
           </div>
           <div className="mtp-scroll" style={{ maxHeight: 320, overflowY: "auto" }}>
-            {LIVE_CHANNELS.map((c, i) => {
+            {channels.map((c, i) => {
               const active = c.id === value;
               const inOther = !active && usedIds.includes(c.id);
-              const prev = LIVE_CHANNELS[i - 1];
+              const prev = channels[i - 1];
               const newGroup = i === 0 || prev?.tag !== c.tag;
               return (
                 <div key={c.id}>
@@ -163,7 +208,7 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
                       </span>
                       <span style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
                       <span style={{ fontFamily: FONT_DATA, fontSize: 8, color: COLORS.textFaint }}>
-                        {LIVE_CHANNELS.filter((x) => x.tag === c.tag).length}
+                        {channels.filter((x) => x.tag === c.tag).length}
                       </span>
                     </div>
                   )}
@@ -260,24 +305,17 @@ function ChannelMenu({ value, onPick, usedIds }: MenuProps) {
 }
 
 function LiveSlot({
-  chId, onPick, usedIds, resolved,
+  chId, onPick, usedIds, resolved, channels,
 }: {
   chId: string;
   onPick: (id: string) => void;
   usedIds: string[];
   resolved: YtLiveVideo | undefined;
+  channels: LiveChannel[];
 }) {
   const ch = LIVE_CHANNELS.find((c) => c.id === chId) ?? LIVE_CHANNELS[0]!;
   const emergency = !!ch.emergency;
-  // 優先用 fallbackVideoId（人工挑選保證可 embed 的長期直播；cts/ftv 用）
-  // 其次 resolver 拿到的 video_id（embed/<videoId> 最可靠）
-  // 否則退到 channel_id（embed/live_stream?channel=UCxxx，部分頻道仍會壞）
-  // 都沒有 → 顯示等待占位
-  const src =
-    ch.fallbackVideoId ? videoEmbedSrc(ch.fallbackVideoId) :
-    resolved?.video_id ? videoEmbedSrc(resolved.video_id) :
-    resolved?.channel_id ? channelEmbedSrc(resolved.channel_id) :
-    null;
+  const src = resolveSrc(ch, resolved);
   // IntersectionObserver gate：iframe 只在 slot 首次進入視窗才掛，避免 MonitorPanel
   // 一開就把 4 個 YT player 全載起來吃 CPU/網路（rootMargin: 200px 預載）。
   const slotRef = useRef<HTMLDivElement>(null);
@@ -382,7 +420,7 @@ function LiveSlot({
           display: "flex", alignItems: "center", gap: 8, zIndex: 20,
         }}
       >
-        <ChannelMenu value={chId} onPick={onPick} usedIds={usedIds} />
+        <ChannelMenu value={chId} onPick={onPick} usedIds={usedIds} channels={channels} />
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, color: COLORS.textMuted,
@@ -425,6 +463,36 @@ export const LiveWall = memo(function LiveWall() {
     return m;
   }, [resolvedRows]);
 
+  // 動態過濾：只留「有有效 src」的頻道（fallbackVideoId 或 resolver 給的可嵌入 video_id）。
+  // 沒開播 / embedBlocked 的台不進選單，開播後 resolvedRows 更新會自動回來。
+  const availableChannels = useMemo(
+    () => LIVE_CHANNELS.filter((ch) => isChannelAvailable(ch, resolvedMap.get(ch.handle))),
+    [resolvedMap],
+  );
+
+  // 目前選中的格若失效（頻道被過濾掉），自動跳到下一個可用、且未被其他格佔用的頻道，
+  // 避免白格。resolvedRows.length === 0 代表首次資料還沒回來，先不動，避免載入瞬間誤判。
+  useEffect(() => {
+    if (resolvedRows.length === 0) return;
+    setSlots((prev) => {
+      const next = [...prev];
+      const used = new Set(next);
+      let changed = false;
+      for (let i = 0; i < next.length; i++) {
+        const ch = LIVE_CHANNELS.find((c) => c.id === next[i]);
+        if (ch && isChannelAvailable(ch, resolvedMap.get(ch.handle))) continue;
+        used.delete(next[i]!);
+        const replacement = availableChannels.find((c) => !used.has(c.id));
+        if (replacement) {
+          next[i] = replacement.id;
+          used.add(replacement.id);
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [resolvedRows, resolvedMap, availableChannels]);
+
   return (
     <div
       style={{
@@ -458,7 +526,7 @@ export const LiveWall = memo(function LiveWall() {
           </span>
         ) : (
           <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.xs, color: COLORS.textFaint }}>
-            4 格同步 · 可切換 {LIVE_CHANNELS.length} 家
+            4 格同步 · 可切換 {availableChannels.length} 家
           </span>
         )}
       </div>
@@ -478,6 +546,7 @@ export const LiveWall = memo(function LiveWall() {
               onPick={setSlot(i)}
               usedIds={slots}
               resolved={resolved}
+              channels={availableChannels}
             />
           );
         })}

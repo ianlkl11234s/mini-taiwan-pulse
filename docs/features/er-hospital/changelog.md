@@ -4,6 +4,15 @@
 
 ---
 
+## 2026-07-26 — ERCard 全醫院分區網格改版（branch `feat/er-hospital-grid`，PR #待補）
+
+- **上游**：gis-platform migration `319`（`public.get_er_hospital_24h_all()`，無參數、anon+authenticated、實測 26ms / 59 rows / 每院約 84 點），已 apply production。
+- Loader 新增 `fetchErHospital24hAll()`（`cachedOnce` 60s + `withLoading("er:24h:all")`）；單院 `fetchErHospital24h()` 保留（popup `EmergencyHospitalPanel` 仍在用）。
+- 新增 `src/components/intel/monitor/erCardData.ts`：19 縣市 → 台電四大區對映（宜蘭歸北部）+ `buildErRegionGroups()`。實測 area_name 無離島縣市（澎湖／金門／連江無重度級或兒童急救責任醫院），未知縣市落「其他」保底。
+- `ERCard.tsx` 改版：移除縣市 select／醫院 chip tabs／單院大圖，改為 59 院全覽 —— 北部 30 / 中部 17 / 南部 10 / 東部 2 分區 section（區名 + 院數），區內按等一般病床 desc；小卡 = 院名（截斷）+ 等床大字（嚴重度色）+ 24h `wait_general_cnt` 迷你 sparkline（沿用 PowerCard UNIT OUTPUT 的 `Sparkline`，無軸）。grid `auto-fill minmax(140px,1fr)`。
+- 嚴重度判定／配色仍走 `erCongestionTypes.ts` SSOT，未改閾值。輪詢維持 5 min。
+- **驗收**：`tsc -b` exit 0 / `vitest run` 18 files 197 綠 / browser 2000×1300（監看格）+ 900×1200（堆疊）雙尺寸親驗，console 無新 error。
+
 ## 2026-07-10 — Batch 1（branch `feat/er-hospital`，未 PR / 未 push）
 
 - 新增 `erHospital` 圖層：掛在既有「醫療 Medical」section 新增的「即時 Emergency」group。59 家重度級/兒童急救責任醫院即時急診量能，動態 GeoJSON circle 層，點色分 5 級壅塞。
