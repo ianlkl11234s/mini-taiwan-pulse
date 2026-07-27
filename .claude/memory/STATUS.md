@@ -1,6 +1,28 @@
 # Status
 
-**最後更新**：2026-07-24（觀光 Tourism PR #82 + canopy/giants PR #83 + 收尾 #85/#86 全 merged；G012 部署已上線，prod 4 層實測 206/200）
+**最後更新**：2026-07-27（monitor 三部曲 PR #89/#90/#91 全 merged + migration 318-320 apply + yt resolver Data API 重寫部署）
+**mini-taiwan-pulse head**：`master` = `015a8b0`（#91 ER 網格+直播牆 疊 #90 靜態網格 `3888014` 疊 #89 修復 `919f695`）+ 本批 memory/docs commits 未 push
+**gis-platform head**：`main` + **未 commit：migration 318/319/320（皆已 apply production 在跑）+ 更早的 301**（BACKLOG G014）
+**data-collectors head**：`main` = `d8b6f10`（yt resolver Data API v3 + sticky，已部署 Zeabur + YOUTUBE_API_KEY）；`a2f158a`（KHH 端點）已 push 但 **生產 VM 未 SCP**（G013）
+**taipei-gis-analytics head**：不變（tourism handoff 回填仍未 commit 待用戶檢視）
+
+> ⚠️ 平行未 merge branch：`feat/tree-layers`、`feat/aquaculture-layers`（不變）；`fix/monitor-airport-card` 已被 #89 完全取代**可刪**；`feat/monitor-grid-layout`（14 commits Monitor v2 RGL）保留待議（G015）。
+
+## 本 session 完成（2026-07-26/27）— monitor 修復→網格改版→ER 深化→直播牆重生
+
+- **PR #89**：monitor 版面雙缺陷修復（sparkline ResizeObserver 動態 viewBox + body row flex 守門 + 88cb2f4 軸域移植）。根因與「修法卡死未合併分支三週」考古見 INCIDENTS 事件 A
+- **排版沙盒 Artifact**（https://claude.ai/code/artifact/f5d75312-41b8-4480-9458-e9e2bf98738e）：14 widget 拖拉模擬、匯出相容 RGL；換版流程定型 PB-30
+- **PR #90**：MonitorPanel 改靜態 12 欄 grid（`monitorLayout.ts` SSOT、widget 抽離照 46218e5、IndicatorPanel 刪除）+ 佈局 v2-v4 + 三 widget flex 展開 + <1100px 單欄堆疊
+- **PR #91**：ER 卡三部曲（59 院北中南東網格 / 全台+分區總集摘要 / 14 天趨勢 migration 319+320）+ sparkline 日界 tick + LiveWall 動態過濾（TTV embedBlocked、channel= 路徑移除、resolver 優先）+ 災防颱風論壇換 ADZTiqEGT8g
+- **migration 318**：live.* 48 條 RLS policy 補 authenticated——登入會員半殘站三週修復（INCIDENTS 事件 B + pitfall）
+- **yt resolver 重寫**（事件 C）：HTML 爬取 0.3% 成功率 → YouTube Data API v3 + sticky；11/13 台穩定解析、quota ~288 units/日（免費額度 3%）；Zeabur 已接管（22:24 起自主維護）
+- **KHH 機場**（事件 D）：ENDPOINTS 補 KHH1/KHH5、一次性回填 1,289 筆；**持續收集卡在 VM 手動 SCP**（G013）
+- 驗收模式：全程 orchestrator 分工（sonnet 偵察/機械、opus 複雜實作、主 agent 驗收），三次 agent 自驗漏網由截圖親驗抓回（REFLECTIONS）
+- 待辦：G013（VM SCP）/ G014（gis-platform 收納）/ G015（RGL 分支）；OG-5 記於 owner-gated backlog
+
+---
+
+**前次更新**：2026-07-24（觀光 Tourism PR #82 + canopy/giants PR #83 + 收尾 #85/#86 全 merged；G012 部署已上線，prod 4 層實測 206/200）
 **mini-taiwan-pulse head**：`master` = `caef2ec`（#83 canopy 高度編碼+giants 疊在 #82 tourism `204459c` 上）+ 本地未 push：`f7156ce` docs 回填 + 本批 memory commits
 **gis-platform head**：`main`（+ migration 301 waste 預算表 `0f2b878` 未 push）
 **taipei-gis-analytics head**：`master` + 本地 `aa115e2`（canopy pipeline，依用戶決定不推）+ 未 commit：tourism handoff 回填（§6 Infinity 坑 + §8 shipped）與 `08_pulse_export.py` isfinite 守門，待用戶檢視
