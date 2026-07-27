@@ -903,3 +903,23 @@ Python `json` 與 `jq` 都接受 `Infinity` / `-Infinity` / `NaN` 非標準 lite
 - 開工先 `git status`：發現非預期 WIP → 當作「另一 session 進行中」處理，**只 stash 自己必要的檔**、用畢即 pop，不做超出必要的清理
 - commit 前**逐檔驗 diff**（`git show <hash> -- <file>`），確認沒吞到別人的 hunks
 - branch 手術（rebase / 拆 commit / 組乾淨血統）**絕不在主 worktree 做**：`git worktree add`（scratch）操作 + `git push origin <sha>:refs/heads/<branch>` 推乾淨結果，主 worktree 與對方 WIP 全程不碰（呼應 PLAYBOOKS 混合 WIP 拆分 SOP + PB-29）
+
+## RLS policy 角色完整性（⚠ P0，2026-07-26 登入半殘站教訓）
+
+- 新表 RLS policy 一律 `TO anon, authenticated`（或 `roles={public}`，範本：reservoir_* 系列）
+- **新增身分角色上線時（如 migration 270 會員系統），必須回掃全 schema 既有 policy 的 roles**——live.* 48 條 anon-only 讓登入會員靜默拿 0 rows 三週（RLS 無 matching policy 不報錯，前端只會「載入中」）
+- lint 驅動的安全清理要核對涵蓋類別：Supabase Advisor 0013 只抓「RLS 未啟用」，抓不到「已啟用但 roles 不完整」（314/315 兩輪清理都因此漏掃）
+- 診斷法：`SET ROLE authenticated; SELECT count(*) FROM <表>;` 直接模擬，勝過讀 policy 定義猜行為
+- 修復範式：migration 318——`ALTER POLICY … TO anon, authenticated` 純加法；清單由 `pg_policies WHERE roles::text='{anon}' AND cmd='SELECT'` 現場生成，不手抄
+
+## 外部服務 quota / 計價數字必上網驗證（2026-07-26 YouTube 改制教訓）
+
+訓練知識的配額數字可能已過時：YouTube Data API 舊制「search.list 100 units 從 10,000 共用池扣」已改為「search.list 獨立桶 100 calls/day 硬上限（PT 午夜重置）+ 其他端點共用 10,000 units」。約束性質從「花錢」變「硬擋」，直接影響錯誤處理設計（quotaExceeded → sticky + 冷卻到次日，不重試）。**影響架構決策的外部數字，設計前一律 WebFetch 官方文件驗證**——本次是用戶質疑「有上網驗證過嗎」才抓到。
+
+## Collector sticky 寫入原則（2026-07-26 yt resolver 教訓）
+
+時序「現值表」（*_current）的 collector 失敗時**禁止覆寫已知有效值**：
+- 抓取/API 失敗 → 保留上次值，last_error 記原因
+- 確定失效（如直播下播）→ 先補查替代，找到才換、找不到才清
+- 配 TTL（如 48h 未驗證才清）防殭屍殘留
+反例：舊 yt resolver 失敗即整列清空，在 0.3% 成功率下等於每天只有 5 分鐘有資料（TVBS 三年沒換的 ID 也活不過下一輪）。寫入層 transform 是無條件整列覆寫時，sticky 要做在 collector 層。
