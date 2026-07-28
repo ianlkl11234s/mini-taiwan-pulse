@@ -4,7 +4,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
-import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration } from "./overlayManager";
+import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible } from "./overlayManager";
 import { registerPmtilesSourceTypeOnce } from "./pmtilesSourceType";
 import { ensureFireIsochroneLayer, updateFireIsochroneLayer } from "./fireIsochroneLayerFactory";
 import { ensureMedicalIsochroneLayers, updateMedicalIsochroneLayers } from "./medicalIsochroneLayerFactory";
@@ -227,7 +227,9 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
 
       // 重建後：把目前可見的靜態 GeoJSON 圖層重新 fetch + setData（切底圖不再消失）
       for (const config of OVERLAY_REGISTRY) {
-        if (layerVisibilityRef.current[config.id]) void hydrateOverlayIfNeeded(map, config);
+        if (isOverlayVisible(config, layerVisibilityRef.current, overlayParamsRef.current)) {
+          void hydrateOverlayIfNeeded(map, config);
+        }
       }
 
       // 永遠保留 Mapbox 原生靜態軌跡
@@ -286,7 +288,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // 期間 visibility / params effect 全部 no-op（mapRef null）。
       // 這裡用 ref 的最新值重放一次，避免「toggle 開了但圖層沒出現」。
       for (const config of OVERLAY_REGISTRY) {
-        const vis = layerVisibilityRef.current[config.id];
+        const vis = isOverlayVisible(config, layerVisibilityRef.current, overlayParamsRef.current);
         if (vis) void hydrateOverlayIfNeeded(map, config);
         setOverlayVisible(map, config, vis);
       }
@@ -405,7 +407,7 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
     for (const config of OVERLAY_REGISTRY) {
-      const vis = layerVisibility[config.id];
+      const vis = isOverlayVisible(config, layerVisibility, overlayParamsRef.current);
       if (vis) void hydrateOverlayIfNeeded(map, config);
       setOverlayVisible(map, config, vis);
     }
@@ -415,7 +417,10 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
     updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
     // 醫療等時圈 + 醫療沙漠開/關
     updateMedicalIsochroneLayers(map, layerVisibility, overlayParamsRef.current);
-  }, [layerVisibility]);
+    // ⚠️ deps 除了 layerVisibility 還要收 propertyValueGridScaleIdx：
+    //    總市值網格的三個尺度共用同一個 layer key，切尺度是 param 變動而非 toggle 變動，
+    //    不收這個 dep 會「選了 450m 但畫面還是 150m」（見 overlayManager.isOverlayVisible）。
+  }, [layerVisibility, overlayParams.propertyValueGridScaleIdx]);
 
   return (
     <div

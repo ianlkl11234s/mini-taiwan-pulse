@@ -44,6 +44,10 @@ import {
   BUILDING_HEIGHT_BANDS, BUILDING_SRC_LABELS, BUILDINGS_GBA_ATTRIBUTION, BUILDING_NIGHT_LEGEND,
 } from "../data/buildingsGbaTypes";
 import {
+  BUILDING_VALUE_BANDS, BUILDING_VALUE_NON_MARKET_COLOR,
+  PROPERTY_VALUE_ATTRIBUTION, resolvePropertyValueScale, formatWanTwd,
+} from "../data/propertyValueTypes";
+import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
 } from "../data/urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
@@ -226,6 +230,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["treePitsTaipei"], render: () => <TreePitsTaipeiLegend /> },
   { keys: ["buildingsGba"], render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
   { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
+  { keys: ["propertyValueGrid"], render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { keys: ["urbanZoningTaipei", "urbanZoningNewTaipei"], render: () => <UrbanZoningLegend /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["canopyGiants"], render: () => <CanopyGiantsLegend /> },
@@ -1048,11 +1053,17 @@ function TreePitsTaipeiLegend() {
   );
 }
 
-// GBA 建物輪廓圖例：依顯示模式（0=高度分級 1=資料來源 2=3D 立體沿用高度色階）切換內容 + 必掛署名。
+// GBA 建物輪廓圖例：依顯示模式（0=高度分級 1=資料來源 2=3D 立體沿用高度色階 3=夜景燈光
+// 4=估值）切換內容 + 必掛署名。估值模式額外掛實價登錄署名 + 非市場建物灰色說明。
 function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   const t = useLegendTheme();
-  const subhead = modeIdx === 3 ? "夜景燈光 NIGHT LIGHTS" : modeIdx === 1 ? "資料來源 SOURCE" : "高度 HEIGHT";
-  const rows = modeIdx === 3
+  const subhead = modeIdx === 4 ? "估值 VALUE（單棟）"
+    : modeIdx === 3 ? "夜景燈光 NIGHT LIGHTS"
+    : modeIdx === 1 ? "資料來源 SOURCE"
+    : "高度 HEIGHT";
+  const rows = modeIdx === 4
+    ? BUILDING_VALUE_BANDS.map((b) => ({ color: b.color, label: b.label }))
+    : modeIdx === 3
     ? BUILDING_NIGHT_LEGEND
     : modeIdx === 1
     ? BUILDING_SRC_LABELS.map((s) => ({ color: s.color, label: s.label }))
@@ -1065,14 +1076,59 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{subhead}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {rows.map((it) => <UrbanDotRow key={it.label} color={it.color} label={it.label} />)}
+        {modeIdx === 4 && (
+          <UrbanDotRow color={BUILDING_VALUE_NON_MARKET_COLOR} label="未估值（非市場建物）" />
+        )}
       </div>
       {modeIdx === 3 && (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
           樓層越高光越亮 · 橘白交錯 · 建議搭深色底圖
         </div>
       )}
+      {modeIdx === 4 && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+          房+地合計市值（土地價已含在實價單價內）· 全台市場合計 ≈ 204 兆 · z13+ 才可逐棟看
+        </div>
+      )}
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
-        {BUILDINGS_GBA_ATTRIBUTION}
+        {modeIdx === 4 ? PROPERTY_VALUE_ATTRIBUTION : BUILDINGS_GBA_ATTRIBUTION}
+      </div>
+    </div>
+  );
+}
+
+// 🏢 房地產總市值網格圖例：v_mkt 9 級 inferno 色階 + 「總量 ≠ 單價」語意說明 + 雙署名。
+// 級距標籤與 3D 高度錨都**隨手動選的網格大小換**（粗格值域整體右移，共用細格斷點會全部爆頂）。
+function PropertyValueGridLegend({ scaleIdx = 0, extruded = false }: { scaleIdx?: number; extruded?: boolean }) {
+  const t = useLegendTheme();
+  const scale = resolvePropertyValueScale(scaleIdx);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        總市值網格 PROPERTY VALUE · {scale.shortLabel}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        每 {scale.shortLabel} 格總市值（不是單價）{extruded ? " · 3D 高度同步" : ""}
+      </div>
+      {/* 9 級 inferno：UrbanDotRow 的 swatch 自帶 1px 白 60% 細邊框，
+          前兩級深紫（#1b0c41 / #4a0c6b）在深色 panel 上才不會糊掉 */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        <UrbanDotRow color={t.textDim} label="0（格內僅非市場建物，淡出顯示）" />
+        {scale.bands.map((b) => <UrbanDotRow key={b.label} color={b.color} label={b.label} />)}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        越亮 = 這 {scale.shortLabel} 內壓了越多錢（量體 × 單價）；深紫沉底、亮黃發光。
+        想看「每 m² 多貴」請開房地產買賣熱力圖。
+      </div>
+      {extruded && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+          高度：≤ {formatWanTwd(scale.heightFloorWan)}貼地、全台最高格（{formatWanTwd(scale.heightMaxWan)}）滿格，
+          不封頂 —— 極端值直接刺出來。顏色看分佈、高度看極值。
+          對比 γ 調中低值高度、整體高度調滿格公尺數。
+        </div>
+      )}
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        {PROPERTY_VALUE_ATTRIBUTION}
       </div>
     </div>
   );

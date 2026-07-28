@@ -37,6 +37,10 @@ import {
   treePitTypeColorExpr, TREE_PIT_TYPES,
 } from "../data/urbanOpenSpaceTypes";
 import { buildingHeightColorExpr, buildingSrcColorExpr, buildingNightLightColorExpr } from "../data/buildingsGbaTypes";
+import {
+  buildingValueColorExpr, propertyValueGridColorExpr, propertyValueGridOpacityExpr,
+  propertyValueGridHeightExpr, PROPERTY_VALUE_SCALES, type PropertyValueScale,
+} from "../data/propertyValueTypes";
 import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
@@ -374,6 +378,59 @@ function reColorExpr(palette: RePalette, field: string, excludeTaipei: boolean):
   const stops = p.colors.flatMap((c, i) => [lo + ((hi - lo) * i) / (n - 1), c]);
   return ["interpolate", ["linear"], ["coalesce", ["get", field], 0], ...stops];
 }
+// ── 🏢 房地產總市值網格 factory（三尺度共用，見 OVERLAY_REGISTRY 內的接線註解）──
+//   純 paint-function（無 rebuildOnParamChange，本層無 param-driven filter）：opacity / 3D /
+//   對比 / 高度都是 paint property，走 setPaintProperty diff，同 urbanFormGrid 機制。
+//   2D/3D 切換照 buildingsGba 慣例用「把非當前模式那層的 opacity 壓 0」而非 layout.visibility ——
+//   layout.visibility 已被「尺度選擇」佔用（setOverlayVisible 是整個 config 一起切）。
+function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
+  const scaleIdx = Number(scale.value);
+  return {
+    id: "propertyValueGrid",
+    sourceUrl: scale.sourceUrl,
+    sourceId: scale.sourceId,
+    pmtiles: { sourceLayer: scale.sourceLayer, minzoom: scale.minzoom, maxzoom: scale.maxzoom },
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, p) => {
+          const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
+          const op = p?.propertyValueGridOpacity ?? 0.7;
+          return {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "fill-color": propertyValueGridColorExpr(scaleIdx) as any,
+            // 3D 模式交棒給 extrusion（壓 0 隱藏，避免與立體塊 z-fighting）
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "fill-opacity": (extruded ? 0 : propertyValueGridOpacityExpr(op)) as any,
+          };
+        },
+      },
+      {
+        suffix: "extrusion",
+        type: "fill-extrusion",
+        paint: (_isDark, p) => {
+          const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
+          return {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            "fill-extrusion-color": propertyValueGridColorExpr(scaleIdx) as any,
+            "fill-extrusion-height": propertyValueGridHeightExpr(
+              scaleIdx,
+              p?.propertyValueGridContrast ?? 1.8,
+              p?.propertyValueGridElevationScale ?? 40,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ) as any,
+            "fill-extrusion-base": 0,
+            // ⚠️ fill-extrusion-opacity 不支援 data-driven → 只能給純數字（非 3D 模式壓 0 隱藏）；
+            //    v_mkt=0 的格 height 恰為 0（FLOOR 以下 → norm 夾成 0），自然貼地不需另外淡出
+            "fill-extrusion-opacity": extruded ? (p?.propertyValueGridOpacity ?? 0.7) : 0,
+          };
+        },
+      },
+    ],
+  };
+}
+
 function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type: string): OverlayConfig {
   return {
     id,
@@ -3864,20 +3921,24 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   },
   // GBA 全台 3D 建物輪廓（vector PMTiles，152 萬棟本島，z8-16；z13-16 逐棟原值、
   // z8-12 為 tippecanoe tiny-polygon 合併近似（只當建成區紋理，不可逐棟分析，extrusion
-  // 因此 minzoom 鎖 13）；height 100% 有值 float，
+  // 因此 minzoom 鎖 13）；⚠️ 2026-07-27 起整檔換成 buildings_value_taiwan.pmtiles
+  // （同一批 152 萬棟、同 z8-16、同 source-layer `buildings`、同 tippecanoe 策略，
+  // 屬性是舊磚的超集：高度欄 height → **h** 改名，另加 f/v/ps/nm 估值四欄），
   // src=osm 為 OSM 志願者繪製、其餘為 GBA AI 推估；CC BY-NC 4.0，署名見 LegendPanel）：
-  // 四種顯示模式 modeIdx 0=高度 6 級分級（fill）1=資料來源二色（fill）2=3D 立體（fill-extrusion，
-  // 沿用高度色階）3=夜景燈光（fill，深底暖橘/白發光，height 越高越亮，橘白交錯，建議搭深色底圖）。
+  // 五種顯示模式 modeIdx 0=高度 6 級分級（fill）1=資料來源二色（fill）2=3D 立體（fill-extrusion，
+  // 沿用高度色階）3=夜景燈光（fill，深底暖橘/白發光，h 越高越亮，橘白交錯，建議搭深色底圖）
+  // 4=估值（fill，v 萬元 log 7 級 YlOrRd；nm=1 非市場建物一律灰「未估值」，SSOT propertyValueTypes.ts）。
   // suffix fill/extrusion 兩層永遠都在，靠 paint 把非當前模式那層的 opacity
   // 壓成 0（純 JS 常數，非 data-driven，fill-extrusion-opacity 合法）── 不用 layout.visibility
   // 切換，因為 rebuildOnParamChange 的 wasHidden 還原邏輯是整組 suffix 共用同一顆布林值，
   // 若靠 visibility 做「模式互斥顯示」會被誤判成使用者關閉整層而遭覆寫（見 overlayManager.ts）。
-  // 高度門檻篩選：兩 suffix 共用 filter [">=",["get","height"],min]（函式形式，見
+  // 高度門檻篩選：兩 suffix 共用 filter [">=",["get","h"],min]（函式形式，見
   // OverlayLayerSpec.filter），不能走 opacity 歸零法，因 fill-extrusion-opacity 不支援
   // data-driven 表達式；filter 靠 rebuildOnParamChange 整層重建才能把新門檻值烤進去。
+  // 該 filter 同時擋掉 h=-999 缺值 sentinel（門檻最小值 0 → -999 恆不通過）。
   {
     id: "buildingsGba",
-    sourceUrl: "./urban/buildings_3d_taiwan.pmtiles",
+    sourceUrl: "./urban/buildings_value_taiwan.pmtiles",
     sourceId: "buildings-gba",
     pmtiles: { sourceLayer: "buildings", minzoom: 8, maxzoom: 16 },
     rebuildOnParamChange: ["fill", "extrusion"],
@@ -3885,13 +3946,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "fill",
         type: "fill",
-        filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
+        filter: (p) => [">=", ["get", "h"], p?.buildingsGbaMinHeight ?? 0],
         paint: (_isDark, p) => {
-          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D 3=夜景燈光
+          const modeIdx = p?.buildingsGbaModeIdx ?? 0; // 0=高度 1=來源 2=3D 3=夜景燈光 4=估值
           const op = p?.buildingsGbaOpacity ?? 0.75;
           return {
             "fill-color":
-              modeIdx === 3 ? buildingNightLightColorExpr()
+              modeIdx === 4 ? buildingValueColorExpr()
+              : modeIdx === 3 ? buildingNightLightColorExpr()
               : modeIdx === 1 ? buildingSrcColorExpr()
               : buildingHeightColorExpr(),
             // 3D 模式：z<13 extrusion 不存在（minzoom 鎖 13），fill 用 zoom step 當平面後備；
@@ -3904,13 +3966,13 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         suffix: "extrusion",
         type: "fill-extrusion",
         minzoom: 13,
-        filter: (p) => [">=", ["get", "height"], p?.buildingsGbaMinHeight ?? 0],
+        filter: (p) => [">=", ["get", "h"], p?.buildingsGbaMinHeight ?? 0],
         paint: (_isDark, p) => {
           const modeIdx = p?.buildingsGbaModeIdx ?? 0;
           const opacity = modeIdx === 2 ? (p?.buildingsGbaOpacity ?? 0.75) : 0; // 非 3D 模式壓 0 隱藏
           return {
             "fill-extrusion-color": buildingHeightColorExpr(),
-            "fill-extrusion-height": ["coalesce", ["get", "height"], 3],
+            "fill-extrusion-height": ["coalesce", ["get", "h"], 3],
             "fill-extrusion-base": 0,
             "fill-extrusion-opacity": opacity,
           };
@@ -3918,6 +3980,19 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       },
     ],
   },
+  // 🏢 房地產總市值網格（vector PMTiles，全台 150m 格 333,847 格，z6-14；
+  // v_mkt 萬元 = 市場only + per-county GFA 校正後**總市值**，全格加總 = 204.1 兆）。
+  // ⚠️ 與 realEstate*Grid 是姊妹層但語意不同：房價網格是「每 m² 多貴」（單價），
+  // 本層是「這 150m 內壓了多少錢」（總量）——同一格可能單價低但總值高（大量體）。
+  // 三尺度（150m / 450m / 1.5km）各一個 config、各自的 PMTiles source。
+  // 三個 config **共用同一個 id `propertyValueGrid`**（＝同一個 sidebar toggle / 圖例 / 參數組），
+  // 由 MapView 的 isOverlayVisible() 依 propertyValueGridScaleIdx 決定哪一個真的 visible。
+  //   ↳ 為什麼不是「單 config 換 sourceUrl」：OverlayConfig 的 source 在 addOverlay 時建立，
+  //     paint/layout/filter 都改不了 source，換源要動 overlayManager 的架構。
+  //   ↳ 為什麼不是「三組 sublayer 疊在同一 config」：sublayer 全綁 config.sourceId，做不到。
+  //   ↳ 為什麼用 layout.visibility 而非 opacity 壓 0：opacity 0 的 layer 仍會下載圖磚
+  //     （三尺度合計 110MB），visibility:none 才會讓 Mapbox 完全跳過該 source。
+  ...PROPERTY_VALUE_SCALES.map(propertyValueGridOverlay),
   // 都市紋理網格（vector PMTiles，全台 500m 格，145,119 格，z5-12；六欄 100% 有值：
   // bld_count 棟數/avg_height 平均高度 m/total_vol 總量體 萬m³/built_pct 建蔽率%/
   // canopy_pct 樹冠覆蓋%/gg_index 灰綠指數 −100~100；CC BY-NC 4.0 雙署名見 LegendPanel）：

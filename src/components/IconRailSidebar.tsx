@@ -40,6 +40,8 @@ import {
   LandPlot, Map,
   // 🌍 世界 World icon（複合 rail icon 用）
   Globe,
+  // 🏢 房地產總市值 icons（layer toggle 用 Coins、rail panel 用 PiggyBank）
+  Coins, PiggyBank,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -347,6 +349,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   realEstateSalePoint: MapPin,
   realEstatePresaleGrid: Building2,
   realEstatePresalePoint: MapPin,
+  propertyValueGrid: Coins,
   // Base map
   countyBoundary: MapPinned,
   townshipBoundary: MapPinned,
@@ -431,6 +434,9 @@ interface IconRailSidebarProps {
   /** 衛星情報 Satellite Console panel toggle */
   onSatelliteToggle?: () => void;
   satelliteActive?: boolean;
+  /** 🏢 房地產總市值 PropertyValuePanel toggle（縣市長條圖，非地圖層） */
+  onPropertyValueToggle?: () => void;
+  propertyValueActive?: boolean;
   /** 由外部觸發強制收起 rail panel（4-way panel mutex 用）— epoch 變動就收 */
   externalCloseEpoch?: number;
 }
@@ -487,6 +493,7 @@ export function IconRailSidebar({
   getControls, currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
   onSatelliteToggle, satelliteActive,
+  onPropertyValueToggle, propertyValueActive,
   externalCloseEpoch,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
@@ -529,6 +536,7 @@ export function IconRailSidebar({
     if (willOpen) {
       if (intelActive && onIntelToggle) onIntelToggle();
       if (satelliteActive && onSatelliteToggle) onSatelliteToggle();
+      if (propertyValueActive && onPropertyValueToggle) onPropertyValueToggle();
     }
     setActivePanel((prev) => (prev === panel ? null : panel));
   };
@@ -645,6 +653,19 @@ export function IconRailSidebar({
               onSatelliteToggle();
             }}
             tooltip="衛星情報 Satellite"
+          />
+        )}
+
+        {/* 🏢 房地產總市值 Property Value（縣市長條圖面板） */}
+        {onPropertyValueToggle && (
+          <RailIcon
+            icon={PiggyBank}
+            active={!!propertyValueActive}
+            onClick={() => {
+              if (!propertyValueActive) closePanel();
+              onPropertyValueToggle();
+            }}
+            tooltip="房地產總市值 Property Value"
           />
         )}
 

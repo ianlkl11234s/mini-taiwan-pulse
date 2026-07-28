@@ -6,7 +6,7 @@ import { GlowPointsScene, type GlowPoint } from "../three/GlowPointsScene";
  * 給 ≥N m 的高樓額外一層 Three.js additive 光暈（真爆白，補 Mapbox fill 沒有的 bloom 觀感）。
  *
  * 資料來源直接復用 buildingsGba 的 pmtile source（同一份，不另外載）：
- * 每次 moveend 從 map.querySourceFeatures 撈視野內建物 → 篩 height ≥ 門檻 → 算中心點 →
+ * 每次 moveend 從 map.querySourceFeatures 撈視野內建物 → 篩 h（高度 m）≥ 門檻 → 算中心點 →
  * 去重 → 取最高前 4096 棟（對齊 GlowPointsScene 上限）餵光暈。因此低 zoom（全城）為城市地標
  * 群聚發亮、高 zoom（街廓）為逐棟高樓 beacon，都自動貼合視野。
  *
@@ -85,7 +85,8 @@ export function createBuildingsNightBloomLayer(
     const seen = new Set<string>();
     const rows: { lon: number; lat: number; h: number }[] = [];
     for (const f of feats) {
-      const h = Number((f.properties as { height?: number } | null)?.height);
+      // 高度欄位 = `h`（2026-07-27 換 buildings_value_taiwan.pmtiles 後上游改名，舊磚叫 height）
+      const h = Number((f.properties as { h?: number } | null)?.h);
       if (!Number.isFinite(h) || h < minH) continue;
       const c = featureCentroid(f.geometry);
       if (!c || !Number.isFinite(c[0]) || !Number.isFinite(c[1])) continue;

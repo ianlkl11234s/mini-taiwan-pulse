@@ -6,6 +6,10 @@ import {
   STREET_TREE_NATIONAL_SPECIES, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
 } from "../../data/urbanOpenSpaceTypes";
 import { buildingHeightBandColor } from "../../data/buildingsGbaTypes";
+import {
+  BUILDING_VALUE_NON_MARKET_COLOR, PROPERTY_VALUE_APPROX_NOTE,
+  formatWanTwd, priceSourceLabel, propertyValueBandColor, scaleFromGridId,
+} from "../../data/propertyValueTypes";
 import { GG_INDEX_BANDS, gridBandColor, URBAN_FORM_GRID_APPROX_NOTE } from "../../data/urbanFormGridTypes";
 import { urbanZoningCategoryLabel, urbanZoningCategoryColor } from "../../data/urbanZoningTypes";
 
@@ -252,23 +256,79 @@ export function TreePitsTaipeiPanel({ props }: { props: Record<string, unknown> 
 // ── GBA 全台 3D 建物輪廓（152 萬棟）──
 
 /**
- * 建物：高度 + 估算樓層（≈ round(height/3)，height<4 顯示 1 層）+ 資料來源
- * （src="osm" → OpenStreetMap，其餘 → GBA AI 推估）+ RMSE 提醒（CC BY-NC 4.0）。
+ * 建物：高度 `h` + 樓層 `f`（上游 h÷3.2 算好的；缺值退回 round(h/3)）+ 資料來源
+ * （src="osm" → OpenStreetMap，其餘 → GBA AI 推估）+ 估值三欄（`v` 萬元 / `ps` 價格來源 /
+ * `nm` 非市場）+ RMSE 提醒（CC BY-NC 4.0）。
+ *
+ * 誠實度：nm=1 顯示「未估值（非市場建物）」而不顯示金額（該棟不計入 204 兆總值）；
+ * ps=t/c 代表該棟所在網格無實價成交、是用鄉鎮/縣市中位價推的，必須讓使用者看到。
  */
 export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> }) {
-  const height = Number(props.height);
+  const height = Number(props.h);
   const src = String(props.src ?? "");
   const sourceLabel = src === "osm" ? "OpenStreetMap" : "GBA AI 推估";
-  const floors = Number.isFinite(height) ? Math.max(1, Math.round(height / 3)) : null;
-  const color = Number.isFinite(height) ? buildingHeightBandColor(height) : "#78909c";
+  const floorsRaw = Number(props.f);
+  const floors = Number.isFinite(floorsRaw) && floorsRaw > 0
+    ? floorsRaw
+    : Number.isFinite(height) ? Math.max(1, Math.round(height / 3)) : null;
+  const nonMarket = Number(props.nm) === 1;
+  const value = Number(props.v);
+  const hasValue = Number.isFinite(value) && value > 0;
+  const color = nonMarket
+    ? BUILDING_VALUE_NON_MARKET_COLOR
+    : Number.isFinite(height) ? buildingHeightBandColor(height) : "#78909c";
   return (
     <>
       <Title color={color}>建物</Title>
       <Row label="高度" value={Number.isFinite(height) ? `${height.toFixed(1)} m` : ""} />
       <Row label="估算樓層" value={floors != null ? `≈ ${floors} 層` : ""} />
+      <Row
+        label="估值"
+        value={nonMarket ? "未估值（非市場建物）" : hasValue ? formatWanTwd(value) : ""}
+        color={nonMarket ? BUILDING_VALUE_NON_MARKET_COLOR : undefined}
+      />
+      {!nonMarket && hasValue && (
+        <Row label="價格來源" value={priceSourceLabel(props.ps)} />
+      )}
       <Row label="資料來源" value={sourceLabel} />
       <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
         ⓘ 高度為 AI 推估（RMSE ≈ 5.9m），超高層建物可能被低估
+      </div>
+      {!nonMarket && hasValue && (
+        <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
+          ⓘ {PROPERTY_VALUE_APPROX_NOTE}
+        </div>
+      )}
+      <SourceFooter props={props} />
+    </>
+  );
+}
+
+// ── 房地產總市值網格（150m 格，333,847 格）──
+
+/**
+ * 總市值網格：v_mkt 主數字 + 棟數 / 總樓地板面積 / 主要價格來源。三尺度共用本 panel，
+ * 目前是哪個尺度由 `grid_id` 前綴反推（`G_` / `G450_` / `G1500_`），不必額外傳參。
+ * ⚠️ 不顯示 v_all，也不做 v_mkt − v_all：v_all 未套 GFA 校正係數，可能小於 v_mkt，
+ *    相減沒有意義（上游 admin_value.json meta.field_notes 明文警告）。
+ */
+export function PropertyValueGridPanel({ props }: { props: Record<string, unknown> }) {
+  const vMkt = Number(props.v_mkt);
+  const scale = scaleFromGridId(props.grid_id);
+  const color = propertyValueBandColor(scale.bands, vMkt);
+  return (
+    <>
+      <Title color={color}>{`總市值網格 ${scale.shortLabel}`}</Title>
+      <Row label="總市值" value={Number.isFinite(vMkt) && vMkt > 0 ? formatWanTwd(vMkt) : "0（格內僅非市場建物）"} />
+      <Row label="建物棟數" value={numUnit(props.n_bld, "棟")} />
+      <Row label="總樓地板面積" value={numUnit(props.gfa, "m²")} />
+      <Row label="主要價格來源" value={priceSourceLabel(props.ps_dom)} />
+      <Row label="網格編號" value={String(props.grid_id ?? "")} />
+      <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 6 }}>
+        ⓘ 這是 {scale.shortLabel} 格內的「總市值」（總量），不是單價 —— 單價看房地產買賣熱力圖
+      </div>
+      <div style={{ fontSize: FONT_SIZE.sm, color: "rgba(150,200,255,0.6)", lineHeight: 1.5, marginTop: 4 }}>
+        ⓘ {PROPERTY_VALUE_APPROX_NOTE}
       </div>
       <SourceFooter props={props} />
     </>

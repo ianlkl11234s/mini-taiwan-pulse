@@ -20,6 +20,7 @@ import {
 } from "../data/urbanOpenSpaceTypes";
 import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 import { URBAN_FORM_GRID_MODES } from "../data/urbanFormGridTypes";
+import { PROPERTY_VALUE_SCALES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
@@ -263,7 +264,7 @@ export function useTransportParams() {
   // 台北人行道樹穴（pit_type 樹穴/花圃二色 fill + 類型篩選）
   const [treePitsTaipeiOpacity, setTreePitsTaipeiOpacity] = useState(0.55);
   const [treePitsTaipeiType, setTreePitsTaipeiType] = useState<string>("all"); // all / 樹穴 / 花圃
-  // GBA 全台建物輪廓（0=高度分級 1=資料來源 2=3D 立體 3=夜景燈光；高度門檻篩選 + 透明度）
+  // GBA 全台建物輪廓（0=高度分級 1=資料來源 2=3D 立體 3=夜景燈光 4=估值；高度門檻篩選 + 透明度）
   const [buildingsGbaModeIdx, setBuildingsGbaModeIdx] = useState(0);
   const [buildingsGbaMinHeight, setBuildingsGbaMinHeight] = useState(0);
   const [buildingsGbaOpacity, setBuildingsGbaOpacity] = useState(0.75);
@@ -272,6 +273,21 @@ export function useTransportParams() {
   // 都市紋理網格（0-5：棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數；預設 5=灰綠指數）
   const [urbanFormGridModeIdx, setUrbanFormGridModeIdx] = useState(5);
   const [urbanFormGridOpacity, setUrbanFormGridOpacity] = useState(0.55);
+  // 🏢 房地產總市值網格（150m 格，v_mkt 總市值 6 級染色）
+  // 控件組照人口網格（h3Population / popCount）慣例：Opacity → Contrast → 3D → Height。
+  // Contrast 0.5–4 預設 1.8 完全沿用；Height step 10 沿用但上限 200 → **400**
+  // （2026-07-27 高度映射改用資料真實 max 當上錨、不再 100 億封頂後，對數範圍變寬 42%，
+  //   同一 scale 下整體變矮 → 拉高上限讓「要誇張可以更誇張」）。
+  // Height 預設 40（滿格 4,000m）：新映射下 p50 ≈ 245m、p99 ≈ 2,040m、max 4,000m，
+  // 中段觀感與舊版（CAP 封頂 / scale 20）相當，但頂端不再撞平頂。
+  // 尺度：0=150m 細格 / 1=450m 中格 / 2=1.5km 粗格（**手動選，不隨 zoom 自動切**）。
+  // 三份 PMTiles 各自的斷點與 3D 高度錨見 PROPERTY_VALUE_SCALES；
+  // 切尺度不重置 Contrast/Height（正規化各吃各的錨，滑桿語意跨尺度一致）。
+  const [propertyValueGridScaleIdx, setPropertyValueGridScaleIdx] = useState(0);
+  const [propertyValueGridOpacity, setPropertyValueGridOpacity] = useState(0.7);
+  const [propertyValueGridContrast, setPropertyValueGridContrast] = useState(1.8);
+  const [propertyValueGridExtruded, setPropertyValueGridExtruded] = useState(false);
+  const [propertyValueGridElevationScale, setPropertyValueGridElevationScale] = useState(40);
   // 🗺️ 都市計畫土地使用分區（北市 + 新北）：category select（all / 9 類）+ 透明度
   const [urbanZoningTaipeiOpacity, setUrbanZoningTaipeiOpacity] = useState(0.5);
   const [urbanZoningTaipeiCategory, setUrbanZoningTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
@@ -1024,6 +1040,9 @@ export function useTransportParams() {
     treePitsTaipeiTypeIdx: ["all", ...TREE_PIT_TYPES.map((t) => t.name)].indexOf(treePitsTaipeiType),
     buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
     urbanFormGridModeIdx, urbanFormGridOpacity,
+    propertyValueGridScaleIdx,
+    propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridElevationScale,
+    propertyValueGridExtruded: propertyValueGridExtruded ? 1 : 0,
     // 🗺️ 土地使用分區：category select 編成 Idx 餵 filter（overlayParams 只收數字，0=全部 1..9 單類）
     urbanZoningTaipeiOpacity,
     urbanZoningTaipeiCategoryIdx: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)].indexOf(urbanZoningTaipeiCategory),
@@ -1393,6 +1412,7 @@ export function useTransportParams() {
     treePitsTaipeiOpacity, treePitsTaipeiType,
     buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
     urbanFormGridModeIdx, urbanFormGridOpacity,
+    propertyValueGridScaleIdx, propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridExtruded, propertyValueGridElevationScale,
     urbanZoningTaipeiOpacity, urbanZoningTaipeiCategory,
     urbanZoningNewTaipeiOpacity, urbanZoningNewTaipeiCategory,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
@@ -2629,6 +2649,21 @@ export function useTransportParams() {
       case "urbanFormGrid": return [
         { type: "select" as const, label: "顯示模式", value: String(urbanFormGridModeIdx), options: [...URBAN_FORM_GRID_MODES], onChange: (v: string) => setUrbanFormGridModeIdx(parseInt(v, 10)) },
         { label: `填色透明度 ${urbanFormGridOpacity.toFixed(2)}`, value: urbanFormGridOpacity, min: 0, max: 1, step: 0.05, onChange: setUrbanFormGridOpacity },
+      ];
+      // 控件組沿用人口網格（h3Population / popCount）：Opacity → Contrast → 3D → Height，
+      // 滑桿範圍與 step 完全相同。對比/高度只在 3D 開啟時出現（同 buildingsGba 的
+      // Bloom 門檻只在夜景模式出現）—— 本層 contrast 只驅動 extrusion 高度、不影響 2D 配色，
+      // 2D 時常駐會是「拉了沒反應」的死控件。
+      case "propertyValueGrid": return [
+        { type: "select" as const, label: "網格大小", value: String(propertyValueGridScaleIdx), options: PROPERTY_VALUE_SCALES.map((sc) => ({ label: sc.label, value: sc.value })), onChange: (v: string) => setPropertyValueGridScaleIdx(parseInt(v, 10)) },
+        { label: `填色透明度 ${propertyValueGridOpacity.toFixed(2)}`, value: propertyValueGridOpacity, min: 0, max: 1, step: 0.05, onChange: setPropertyValueGridOpacity },
+        { type: "toggle" as const, label: "3D 立體", value: propertyValueGridExtruded, onChange: setPropertyValueGridExtruded },
+        ...(propertyValueGridExtruded
+          ? [
+              { label: `對比 Contrast ${propertyValueGridContrast.toFixed(1)}`, value: propertyValueGridContrast, min: 0.5, max: 4, step: 0.1, onChange: setPropertyValueGridContrast },
+              { label: `整體高度 Height ${propertyValueGridElevationScale}`, value: propertyValueGridElevationScale, min: 10, max: 400, step: 10, onChange: setPropertyValueGridElevationScale },
+            ]
+          : []),
       ];
       case "urbanZoningTaipei": return [
         { type: "select" as const, label: "分區", value: urbanZoningTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningTaipeiCategory },

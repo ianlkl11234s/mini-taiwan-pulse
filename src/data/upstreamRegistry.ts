@@ -957,6 +957,15 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'real_estate', confidence: 'LOW' }],
   },
+  propertyValueGrid: {
+    status: 'pulse_only',
+    datasets: [],
+    derivedFromLayers: ['buildingsGba', 'realEstateSaleGrid'],
+    derivedFromDatasets: ['property_value'],
+    derivationType: 'custom',
+    processing: '每棟 GBA 建物 footprint × 樓層(h÷3.2) × 所在 150m 網格實價買賣中位單價 × per-county GFA 校正係數 → 聚合回 150m 格（v_mkt 萬元，市場only）；全台 204.1 兆',
+    note: '上游 pipeline taipei-gis-analytics/pipelines/urban_composite/property_value/；handoff 見 docs/handoff/property-value.md',
+  },
   realEstatePresalePoint: {
     status: 'verified',
     datasets: [{ datasetId: 'real_estate', confidence: 'HIGH' }],

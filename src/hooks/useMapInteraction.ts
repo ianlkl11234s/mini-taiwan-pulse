@@ -311,6 +311,14 @@ export function useMapInteraction(
           { layers: ["street-trees-national-circle"], type: "streetTreesNational" },
           { layers: ["tree-pits-taipei-fill", "tree-pits-taipei-line"], type: "treePitsTaipei" },
           { layers: ["buildings-gba-fill", "buildings-gba-extrusion"], type: "buildingsGba" },
+          // 網格背景層：細（總市值 150m/450m/1.5km）排前、粗（500m 都市紋理）排後 —— first-hit-wins。
+          // 三個尺度的 layer id 都收（同時只有一個 visible，隱形的不會被 query 命中）；
+          // 每尺度兩個 sublayer 都收（3D 模式看到的是 extrusion 側面，點它才要能開 popup，同 buildingsGba）
+          { layers: [
+            "property-value-grid-150-fill", "property-value-grid-150-extrusion",
+            "property-value-grid-450-fill", "property-value-grid-450-extrusion",
+            "property-value-grid-1500-fill", "property-value-grid-1500-extrusion",
+          ], type: "propertyValueGrid" },
           { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
           { layers: ["urban-zoning-taipei-fill"], type: "urbanZoningTaipei" },
           { layers: ["urban-zoning-newtaipei-fill"], type: "urbanZoningNewTaipei" },

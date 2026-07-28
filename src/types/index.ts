@@ -122,6 +122,7 @@ export type ExpandableLayerKey =
   | "streetTreesNational" | "treePitsTaipei"
   | "buildingsGba"
   | "urbanFormGrid"
+  | "propertyValueGrid"
   // 🗺️ 都市計畫土地使用分區（PMTiles polygon，zone_category 9 類分色 + 分類篩選）
   | "urbanZoningTaipei" | "urbanZoningNewTaipei"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
@@ -668,6 +669,7 @@ export interface FeatureInfo {
     | "streetTreesNational" | "treePitsTaipei"
     | "buildingsGba"
     | "urbanFormGrid"
+    | "propertyValueGrid"
     | "urbanZoningTaipei" | "urbanZoningNewTaipei"
     | "sportsVenue"
     | "culturalFacilities" | "culturalMuseums" | "artsEvents" | "performingVenues"
@@ -868,8 +870,9 @@ export interface LayerVisibility {
   streetTreesTaipei3epoch: boolean; // 台北行道樹三時點 2022/2024/2026 軌跡（PMTiles，105,675 點；traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
   streetTreesNational: boolean;   // 行道樹全國分佈（PMTiles，210,436 點：台北+台中；樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
   treePitsTaipei: boolean;        // 台北人行道樹穴（PMTiles，56,720 面；pit_type 樹穴/花圃二色 fill + 類型篩選）
-  buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles，152 萬棟；height 6 級/來源二色/3D 立體三模式 + 高度門檻篩選，CC BY-NC 4.0）
+  buildingsGba: boolean;          // 全台 3D 建物輪廓（PMTiles buildings_value_taiwan，152 萬棟；h 高度 6 級/來源二色/3D 立體/夜景燈光/估值 五模式 + 高度門檻篩選，CC BY-NC 4.0）
   urbanFormGrid: boolean;         // 都市紋理網格（PMTiles，500m 格，145,119 格；棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數 六模式染色，CC BY-NC 4.0）
+  propertyValueGrid: boolean;     // 房地產總市值網格（PMTiles，150m 格，333,847 格；v_mkt 萬元總市值 9 級 inferno 染色 + 3D 立體，全國 204.1 兆，CC BY-NC 4.0）
   // 🗺️ 都市計畫土地使用分區（靜態 PMTiles polygon；zone_category 9 類統一分色 + 分類篩選；OGDL-Taiwan-1.0）
   urbanZoningTaipei: boolean;     // 臺北市都市計畫土地使用分區（15,518 面，z6-15）
   urbanZoningNewTaipei: boolean;  // 新北市都市計畫土地使用分區（34,190 面，z6-15）

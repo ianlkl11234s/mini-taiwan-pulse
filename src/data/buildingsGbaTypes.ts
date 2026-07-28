@@ -4,7 +4,11 @@
  * 給 overlayRegistry 配色（fill-color / fill-extrusion-color 表達式）、
  * LegendPanel 圖例、featureInfo popup Title 三處共用（同 urbanOpenSpaceTypes.ts 慣例）。
  *
- * 屬性：height（公尺 float，100% 有值）、src（"osm" = OSM 志願者繪製，其餘如 "ours2" = GBA AI 推估）。
+ * 屬性（2026-07-27 起改吃 `buildings_value_taiwan.pmtiles`，欄位隨上游改名）：
+ *   `h`   公尺 float 高度（舊磚叫 `height`；-999 = 缺值 sentinel，台北 101 已覆寫 508.0）
+ *   `f`   int 樓層估計（= h÷3.2，上游算好的，不要自己再除）
+ *   `v`   int 估值 **萬元**、`ps` str 價格來源 g/n/t/c、`nm` int 非市場 0/1 —— 見 propertyValueTypes.ts
+ *   `src` str（"osm" = OSM 志願者繪製，其餘如 "ours2"/"clsm" = GBA AI 推估；此欄未改名）
  * 授權 CC BY-NC 4.0，署名見 BUILDINGS_GBA_ATTRIBUTION（圖例必掛）。
  *
  * ⚠️ 表達式不得含 ["zoom"]：zoom 只能在最外層 interpolate/step（見 streetTreeColors.ts 註）。
@@ -31,7 +35,7 @@ const BUILDING_HEIGHT_MISSING_COLOR = "#9e9e9e";
 
 /** 高度分級 step：缺值/<=0 → 灰；否則依 6 級 band break 上色（同 streetTreeColors 的 bandStepColorExpr 慣例） */
 export function buildingHeightColorExpr(): unknown[] {
-  const val: unknown[] = ["to-number", ["get", "height"], 0]; // null → 0 → 判為缺值
+  const val: unknown[] = ["to-number", ["get", "h"], 0]; // null → 0 → 判為缺值（-999 sentinel 亦然）
   const step: unknown[] = ["step", val, BUILDING_HEIGHT_BANDS[0]!.color];
   for (let i = 1; i < BUILDING_HEIGHT_BANDS.length; i++) {
     step.push(BUILDING_HEIGHT_BANDS[i - 1]!.max as number, BUILDING_HEIGHT_BANDS[i]!.color);
@@ -91,10 +95,10 @@ function nightRampExpr(h: unknown[], ramp: [number, string][]): unknown[] {
   return e;
 }
 
-/** 夜景燈光 fill-color：橘/白雙家族依 height 由暗轉亮，pseudo-random 交錯（⚠️ 不含 ["zoom"]） */
+/** 夜景燈光 fill-color：橘/白雙家族依 h 由暗轉亮，pseudo-random 交錯（⚠️ 不含 ["zoom"]） */
 export function buildingNightLightColorExpr(): unknown[] {
-  const h: unknown[] = ["to-number", ["get", "height"], 0];
-  // round(height*10) mod 3 == 0 → 白光家族（約 1/3，偏白），其餘暖橘；height 小數位讓相鄰建物散開
+  const h: unknown[] = ["to-number", ["get", "h"], 0];
+  // round(h*10) mod 3 == 0 → 白光家族（約 1/3，偏白），其餘暖橘；高度小數位讓相鄰建物散開
   const bucket: unknown[] = ["%", ["round", ["*", h, 10]], 3];
   return ["case", ["==", bucket, 0], nightRampExpr(h, NIGHT_WHITE_RAMP), nightRampExpr(h, NIGHT_WARM_RAMP)];
 }
@@ -113,6 +117,7 @@ export const BUILDINGS_GBA_MODES = [
   { label: "資料來源", value: "1" },
   { label: "3D 立體", value: "2" },
   { label: "夜景燈光", value: "3" },
+  { label: "估值", value: "4" },
 ] as const;
 
 // 圖例必掛署名（CC BY-NC 4.0，禁商用）

@@ -128,6 +128,7 @@ import { DataSourceBrowser } from "./components/DataSourceBrowser";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
+import { PropertyValuePanel } from "./components/PropertyValuePanel";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
@@ -562,7 +563,9 @@ export default function App() {
 
   // ── Intel Panel（即時情報，IconRail 開關） ──
   const [intelOpen, setIntelOpen] = useState(false);
-  // 4-way panel mutex：每次 Intel/Satellite 開啟時 +1，IconRailSidebar 收起 Layers/Locations
+  // ── 房地產總市值面板（縣市長條圖，IconRail 開關；非地圖層） ──
+  const [propertyValueOpen, setPropertyValueOpen] = useState(false);
+  // 4-way panel mutex：每次 Intel/Satellite/PropertyValue 開啟時 +1，IconRailSidebar 收起 Layers/Locations
   const [railCloseEpoch, setRailCloseEpoch] = useState(0);
   // ── Monitor Mode（戰情看板，底部上拉） ──
   const [monitorOpen, setMonitorOpen] = useState(false);
@@ -1976,8 +1979,9 @@ export default function App() {
               onDateSelect={timeline.setSelectedDate}
               onIntelToggle={() => {
                 if (!intelOpen) {
-                  // 開啟 Intel → 同時關 Satellite + 收 rail Layers/Locations panel
+                  // 開啟 Intel → 同時關 Satellite / PropertyValue + 收 rail Layers/Locations panel
                   satelliteConsoleStore.setOpen(false);
+                  setPropertyValueOpen(false);
                   setRailCloseEpoch((e) => e + 1);
                 }
                 setIntelOpen((v) => !v);
@@ -1985,13 +1989,24 @@ export default function App() {
               intelActive={intelOpen}
               onSatelliteToggle={() => {
                 if (!satConsole.open) {
-                  // 開啟 Satellite → 同時關 Intel + 收 rail Layers/Locations panel
+                  // 開啟 Satellite → 同時關 Intel / PropertyValue + 收 rail Layers/Locations panel
                   setIntelOpen(false);
+                  setPropertyValueOpen(false);
                   setRailCloseEpoch((e) => e + 1);
                 }
                 satelliteConsoleStore.toggleOpen();
               }}
               satelliteActive={satConsole.open}
+              onPropertyValueToggle={() => {
+                if (!propertyValueOpen) {
+                  // 開啟總市值 → 同時關 Intel / Satellite + 收 rail Layers/Locations panel
+                  setIntelOpen(false);
+                  satelliteConsoleStore.setOpen(false);
+                  setRailCloseEpoch((e) => e + 1);
+                }
+                setPropertyValueOpen((v) => !v);
+              }}
+              propertyValueActive={propertyValueOpen}
               externalCloseEpoch={railCloseEpoch}
             />
           </div>
@@ -2003,6 +2018,12 @@ export default function App() {
             layerVisibility={layerVisibility}
             setLayerVisibility={(next) => setLayerVisibility({ ...layerVisibility, ...next })}
             onFlyTo={(lon, lat) => mapRef.current?.flyTo({ center: [lon, lat], zoom: 3.5, speed: 1.4, pitch: 0 })}
+          />
+
+          {/* 🏢 房地產總市值 Property Value（縣市長條圖） */}
+          <PropertyValuePanel
+            open={propertyValueOpen}
+            onClose={() => setPropertyValueOpen(false)}
           />
 
           {/* 即時情報 Intel Panel */}

@@ -302,6 +302,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   realEstateSalePoint: "#d73027",
   realEstatePresaleGrid: "#fd8d3c",
   realEstatePresalePoint: "#fd8d3c",
+  propertyValueGrid: "#ed6925",
   countyBoundary: "#4b5563",
   townshipBoundary: "#6b7280",
   villageBoundary: "#9ca3af",
@@ -603,6 +604,13 @@ export const THEMES: ThemeDef[] = [
         layers: [
           { key: "realEstatePresaleGrid", label: "預售熱力圖 Presale Grid", expandable: true },
           { key: "realEstatePresalePoint", label: "預售交易點 Presale Point", expandable: true },
+        ],
+      },
+      {
+        // 上三組是「單價」（每 m² 多貴），本組是「總量」（這格壓了多少錢）——語意不同，見圖例
+        title: "總市值",
+        layers: [
+          { key: "propertyValueGrid", label: "總市值網格 Value Grid", labelMobile: "總市值網格", expandable: true },
         ],
       },
     ],
