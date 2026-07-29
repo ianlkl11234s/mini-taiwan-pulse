@@ -81,7 +81,8 @@ const BASELINE_NO_LEGEND = new Set([
   // 公共設施 Batch 2：圖書館 / 社福 / 市場 皆單色 POI（鐵則 2 不適用）；publicToilets grade 4 級分色 → 接 PublicToiletLegend
   "publicLibraries", "welfareCenters", "retailMarkets",
   "activeFaults", "youbikeFullness", "cwaCloudImagery",
-  "cwaRadarImagery", "aqiImagery", "aqiStations", "aqiMicroSensors",
+  // aqiMicroSensors 已升級三模式上色（PM2.5/溫度/濕度）→ 接 MicroSensorLegend，不再列 baseline
+  "cwaRadarImagery", "aqiImagery", "aqiStations",
   "busLive", "busIntercityLive", "waterBasins", "waterRivers", "waterLevees",
   "waterProtectionZones", "waterReservoirs", "waterFacilities",
   "waterMonitorStations", "waterFloodExtreme", "waterDetentionBasins",
