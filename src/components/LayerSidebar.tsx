@@ -559,7 +559,7 @@ function ExpandedPanel({
                       }}
                     >
                       {ctrl.options.map((opt) => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        <option key={opt.value} value={opt.value} disabled={opt.disabled}>{opt.label}</option>
                       ))}
                     </select>
                   </div>
@@ -581,7 +581,8 @@ function ExpandedPanel({
                   {ctrl.options.map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => ctrl.onChange(opt.value)}
+                      disabled={opt.disabled}
+                      onClick={() => { if (!opt.disabled) ctrl.onChange(opt.value); }}
                       style={{
                         ...btnBase,
                         fontSize: FONT_SIZE.xs,
@@ -595,6 +596,8 @@ function ExpandedPanel({
                         color: ctrl.value === opt.value
                           ? (isDarkTheme ? "#fff" : "#000")
                           : (isDarkTheme ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"),
+                        // disabled（如人均模式在 150m 尺度）：降不透明度 + 禁用游標，label 已自帶原因
+                        ...(opt.disabled ? { opacity: 0.4, cursor: "not-allowed" } : {}),
                       }}
                     >
                       {opt.label}

@@ -150,6 +150,11 @@ export interface PropertyValueScale {
   heightFloorWan: number;
   /** 3D 高度上錨（萬元）= 該尺度資料真實最大格；**不封頂**，超過就刺出滿格 */
   heightMaxWan: number;
+  /**
+   * 該尺度 PMTiles 是否帶 `pop` 屬性（人口，最小統計區面積加權；0 = 無人口資料或無人）。
+   * 上游只烤進 450m / 1.5km 兩份磚，**150m 沒有** → 人均模式在 150m 停用（UI disabled）。
+   */
+  hasPop: boolean;
 }
 
 // 逐級占比（上游 grid_value_150m.parquet 實算，2026-07-27）：
@@ -165,7 +170,7 @@ export const PROPERTY_VALUE_SCALES: PropertyValueScale[] = [
     value: "0", label: "150m 細格", shortLabel: "150m",
     sourceId: "property-value-grid-150",
     sourceUrl: "./urban/property_value_grid_150m.pmtiles",
-    sourceLayer: "grid_value_150m", minzoom: 4, maxzoom: 14, idPrefix: "G_",
+    sourceLayer: "grid_value_150m", minzoom: 4, maxzoom: 14, idPrefix: "G_", hasPop: false,
     bands: infernoBands(
       [1_000, 3_000, 10_000, 30_000, 100_000, 300_000, 1_000_000, 3_000_000],
       ["< 0.1 億", "0.1 – 0.3 億", "0.3 – 1 億", "1 – 3 億", "3 – 10 億", "10 – 30 億", "30 – 100 億", "100 – 300 億", "> 300 億"],
@@ -177,7 +182,7 @@ export const PROPERTY_VALUE_SCALES: PropertyValueScale[] = [
     value: "1", label: "450m 中格", shortLabel: "450m",
     sourceId: "property-value-grid-450",
     sourceUrl: "./urban/property_value_grid_450m.pmtiles",
-    sourceLayer: "grid_value_450m", minzoom: 4, maxzoom: 13, idPrefix: "G450_",
+    sourceLayer: "grid_value_450m", minzoom: 4, maxzoom: 13, idPrefix: "G450_", hasPop: true,
     bands: infernoBands(
       [3_000, 10_000, 30_000, 100_000, 300_000, 1_000_000, 3_000_000, 10_000_000],
       ["< 0.3 億", "0.3 – 1 億", "1 – 3 億", "3 – 10 億", "10 – 30 億", "30 – 100 億", "100 – 300 億", "300 – 1,000 億", "> 1,000 億"],
@@ -189,7 +194,7 @@ export const PROPERTY_VALUE_SCALES: PropertyValueScale[] = [
     value: "2", label: "1.5km 粗格", shortLabel: "1.5km",
     sourceId: "property-value-grid-1500",
     sourceUrl: "./urban/property_value_grid_1500m.pmtiles",
-    sourceLayer: "grid_value_1500m", minzoom: 4, maxzoom: 12, idPrefix: "G1500_",
+    sourceLayer: "grid_value_1500m", minzoom: 4, maxzoom: 12, idPrefix: "G1500_", hasPop: true,
     bands: infernoBands(
       [30_000, 100_000, 300_000, 1_000_000, 3_000_000, 10_000_000, 30_000_000, 100_000_000],
       ["< 3 億", "3 – 10 億", "10 – 30 億", "30 – 100 億", "100 – 300 億", "300 – 1,000 億", "1,000 – 3,000 億", "3,000 – 1 兆", "> 1 兆"],
@@ -235,6 +240,107 @@ export function propertyValueGridColorExpr(scaleIdx: number): unknown[] {
  */
 export function propertyValueGridOpacityExpr(baseOpacity: number): unknown[] {
   return ["case", ["<=", ["to-number", ["get", "v_mkt"], 0], 0], 0.04, baseOpacity];
+}
+
+// ── 上色模式：總市值（0，預設）/ 人均市值（1）────────────────────
+//
+// 人均市值 = `v_mkt / pop`（萬元/人）。`pop` 只存在於 450m / 1.5km 兩份磚（150m 沒有）
+// → 150m 時人均選項 disabled（不自動跳尺度），paint 端由 resolvePropertyValueGridMode()
+// 統一回退成總市值，UI / 圖例 / paint 三邊都吃同一個 helper，不會各自為政。
+//
+// 配色：**viridis 8 級**（perceptually-uniform；紫→藍→青→綠→黃）。刻意選一條與總市值
+// 模式的 inferno（紫→紅→橙→黃）中段區分得開的色帶——兩模式切換時一眼看得出「換了語意」，
+// 且與 buildingsGba 估值 YlOrRd 也不撞。
+//
+// pop < PROPERTY_VALUE_PER_CAPITA_MIN_POP 的格視為統計不可靠（分母太小，一棟豪宅配
+// 兩個人會爆表）→ 上灰 #555 + 半透明，**不隱藏**（保留可點查，popup 會講明樣本不足）。
+
+/** 顯示模式 select 選項；index 對齊 overlayParams.propertyValueGridModeIdx。預設 0=總市值。 */
+export const PROPERTY_VALUE_GRID_MODES = [
+  { value: "0", label: "總市值" },
+  { value: "1", label: "人均市值" },
+] as const;
+
+/** 人均統計可靠門檻（人）：pop < 10 → 灰色不分級（含 pop=0 = 無人口資料或無人） */
+export const PROPERTY_VALUE_PER_CAPITA_MIN_POP = 10;
+
+/** pop < 門檻的格用色（半透明處理在 opacity expr，這裡只管色相） */
+export const PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR = "#555555";
+
+/**
+ * 人均市值斷點（萬元/人），已依上游實算分位數校準（2026-07-29，pop>=10 格）：
+ *   450m  p5 50 / p25 261 / p50 549 / p75 1235 / p90 3179 / p95 6178 / p99 28730
+ *   1.5km p5 63 / p25 310 / p50 560 / p75 1073 / p90 2373 / p95 4263 / p99 20090
+ * 中位數 ~550 落第 4 級、頂級 >10000 約佔 2%（長尾主要是工業區/機場等低人口格）。
+ * 級距標籤與 mapbox expression 都從這裡自動衍生，再校準只改這一個陣列。
+ * 兩尺度共用同一組（人均是強度量、已被人口正規化，實算分佈確認相近，不拆 per-scale）。
+ */
+export const PROPERTY_VALUE_PER_CAPITA_BREAKS_WAN: number[] = [100, 250, 550, 1000, 2000, 4000, 10000];
+
+/** viridis 8 級（低→高）；與總市值 inferno 9 級明確區分（見上方模式段註解） */
+export const PROPERTY_VALUE_VIRIDIS_8 = [
+  "#440154", "#46327e", "#365c8d", "#277f8e", "#1fa187", "#4ac16d", "#a0da39", "#fde725",
+] as const;
+
+/** 斷點 → 人均 band（標籤自動衍生，校準只動 BREAKS 陣列） */
+function perCapitaBands(): GridColorBand[] {
+  const br = PROPERTY_VALUE_PER_CAPITA_BREAKS_WAN;
+  const fmt = (n: number) => n.toLocaleString();
+  return PROPERTY_VALUE_VIRIDIS_8.map((color, i) => ({
+    max: i < br.length ? br[i]! : null,
+    color,
+    label:
+      i === 0 ? `< ${fmt(br[0]!)} 萬/人`
+      : i < br.length ? `${fmt(br[i - 1]!)} – ${fmt(br[i]!)} 萬/人`
+      : `> ${fmt(br[br.length - 1]!)} 萬/人`,
+  }));
+}
+
+/** 人均市值 8 級 band（圖例 / popup Title 上色共用） */
+export const PROPERTY_VALUE_PER_CAPITA_BANDS: GridColorBand[] = perCapitaBands();
+
+/**
+ * scaleIdx + modeIdx → **有效**模式（0=總市值 / 1=人均）。
+ * 人均只在帶 pop 的尺度（450m / 1.5km）有效；150m 選了人均一律回退總市值 ——
+ * paint / 圖例 / popup 的模式判斷都必須走這裡，不可自己讀 raw modeIdx。
+ */
+export function resolvePropertyValueGridMode(scaleIdx: number, modeIdx: number): number {
+  return modeIdx === 1 && resolvePropertyValueScale(scaleIdx).hasPop ? 1 : 0;
+}
+
+/**
+ * 人均市值 fill-color：pop < 門檻（含 0）→ 灰；否則依 `v_mkt / pop` 8 級 viridis step。
+ * 除法只發生在 pop ≥ 門檻的分支，不會除以 0。
+ */
+export function propertyValueGridPerCapitaColorExpr(): unknown[] {
+  const bands = PROPERTY_VALUE_PER_CAPITA_BANDS;
+  const perCapita: unknown[] = [
+    "/", ["to-number", ["get", "v_mkt"], 0], ["to-number", ["get", "pop"], 0],
+  ];
+  const step: unknown[] = ["step", perCapita, bands[0]!.color];
+  for (let i = 1; i < bands.length; i++) {
+    step.push(bands[i - 1]!.max as number, bands[i]!.color);
+  }
+  return [
+    "case",
+    ["<", ["to-number", ["get", "pop"], 0], PROPERTY_VALUE_PER_CAPITA_MIN_POP],
+    PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR,
+    step,
+  ];
+}
+
+/**
+ * 人均市值 fill-opacity：pop < 門檻的灰格半透明（×0.45），其餘吃 baseOpacity。
+ * 不做 v_mkt=0 淡出——人均模式下 pop ≥ 門檻而 v_mkt=0 是「有人住但格內僅非市場建物」，
+ * 0 萬/人落在第 1 級是誠實的低值，不是缺值。
+ */
+export function propertyValueGridPerCapitaOpacityExpr(baseOpacity: number): unknown[] {
+  return [
+    "case",
+    ["<", ["to-number", ["get", "pop"], 0], PROPERTY_VALUE_PER_CAPITA_MIN_POP],
+    baseOpacity * 0.45,
+    baseOpacity,
+  ];
 }
 
 // ── 3D 立體高度映射（照人口網格 h3LayerFactory 的 log + gamma 慣例）──────

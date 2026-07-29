@@ -59,6 +59,18 @@ S3 `deploy-assets/urban/buildings_3d_taiwan.pmtiles` 已無人引用，可刪（
 | `n_bld` / `gfa` / `ps_dom` / `grid_id` | int / float m² / str / str | popup |
 | `v_all` | int 萬元 | **前端不顯示、不相減**（未套 GFA 校正 → 可能 < `v_mkt`）|
 
+**layer `grid_value_450m` / `grid_value_1500m` 追加欄位**（2026-07-29 契約，上游平行處理中）
+
+| 欄位 | 型別 | 前端用途 |
+|---|---|---|
+| `pop` | int 人（最小統計區**面積加權**；`0` = 無人口資料或無人） | 人均市值模式染色（`v_mkt / pop`，萬元/人）+ popup「人口」「人均市值」兩列；`pop < 10` 視為統計不可靠 → 灰 `#555` 半透明（不隱藏，保留可點查）|
+
+⚠️ **`grid_value_150m` 沒有 `pop`** → 人均模式在 150m 尺度 disabled（select 選項灰掉並註明
+「僅 450m / 1.5km 提供」，**不自動跳尺度**；有效模式統一由 `resolvePropertyValueGridMode()`
+回退總市值）。上游磚**尚未帶 `pop`** 期間：popup 兩列自動隱藏（`pop` 缺 → NaN 判掉）；
+人均模式上色會整片灰半透明（缺欄位 `to-number` 成 0 → 落入不可靠門檻）——誠實呈現「還沒有
+人口資料」，磚換新後自動恢復，不需改前端。
+
 **`property_value_admin.json`**：`meta.total_trillion`（headline）/ `meta.limitations`（摺疊必露）/
 `meta.license_note` / `county[].value_market_corrected`（⭐ 長條圖主數字，**單位是元不是萬元**）。
 
@@ -175,6 +187,31 @@ inferno 是 perceptually-uniform 色圖、亮度嚴格單調（L\* 0.22 → 0.98
 3D 立起來吃同一套色。`v_mkt=0` 的 1,808 格仍走 opacity 0.04 淡出，不進色階。
 圖例 swatch 由 `UrbanDotRow` 提供 1px 白 60% 細邊框，前兩級深紫在深色 panel 上才不會糊掉。
 
+## propertyValueGrid 的上色模式（總市值 / 人均市值，2026-07-29）
+
+「上色模式」select（照 LASS 微感測 fd6189b 的模式範式）：`propertyValueGridModeIdx`
+（0=總市值預設 / 1=人均市值），存在 `useTransportParams` state → 走 `overlayParams` 傳進
+paint function，切模式 = param 變動 → `updateOverlayTheme` diff `setPaintProperty`，不重建 layer。
+
+- **有效模式判斷單一入口** `resolvePropertyValueGridMode(scaleIdx, modeIdx)`（SSOT
+  `propertyValueTypes.ts`）：人均只在 `hasPop`（450m / 1.5km）尺度生效，150m 選了人均一律
+  回退總市值 —— paint / 圖例 / UI disabled 三邊同源，不會出現「圖例說人均、地圖畫總市值」。
+- **配色**：8 級 viridis（`PROPERTY_VALUE_VIRIDIS_8`，紫→藍→青→綠→黃），刻意與總市值
+  inferno 及 buildingsGba YlOrRd 區分。`pop < 10` → `#555` + opacity ×0.45（不隱藏，可點查）。
+- **✅ 斷點已按實算分位數校準（2026-07-29）**：`PROPERTY_VALUE_PER_CAPITA_BREAKS_WAN =
+  [100, 250, 550, 1000, 2000, 4000, 10000]`（萬元/人）。依上游 pop>=10 格實算：450m
+  p50=549 / p90=3179 / p95=6178；1.5km p50=560 / p90=2373 / p95=4263。中位數落第 4 級、
+  頂級 >10000 約 2%（長尾 = 工業區/機場等低人口格）。級距標籤與 expression 都從這一個陣列
+  衍生，再校準只改它。兩尺度分佈實算相近 → 共用同一組，不拆 per-scale。
+- **3D 高度 = 量體、顏色 = 強度（刻意設計）**：人均模式下 extrusion 高度**維持 `v_mkt` 總量**，
+  只有顏色換人均 —— 高黃 = 人少錢多、高紫 = 人多攤薄，兩通道疊出密度語意。灰格（pop<10）照常
+  用 v_mkt 立高度（總值本身可信，只是人均不可靠）；`fill-extrusion-opacity` 不支援 data-driven，
+  3D 下灰格半透明做不到，僅靠色相標示。
+- **人均模式不做 v_mkt=0 淡出**：pop ≥ 10 而 v_mkt=0 是「有人住但格內僅非市場建物」，
+  0 萬/人落第 1 級是誠實低值不是缺值。
+- **popup 跟尺度走、不跟模式走**：450m/1.5km 一律顯示「人口」「人均市值」兩列
+  （總市值模式點查也看得到），150m 不顯示。
+
 ## propertyValueGrid 的 3D 高度映射
 
 控件組**照人口網格**（`h3Population` / `popCount`，SSOT `src/map/h3LayerFactory.ts`）：
@@ -235,6 +272,7 @@ inferno 是 perceptually-uniform 色圖、亮度嚴格單調（L\* 0.22 → 0.98
 | 上游改動 | 下游動作 |
 |---|---|
 | 實價網格新一季重跑（預計每季）| 重跑上游兩支腳本 → `cp` 五個檔 → 跑 `upload-deploy-assets.sh` 上 S3；**前端程式不用改**（斷點/高度錨值會略微失準但不會壞，要精準就回填 `PROPERTY_VALUE_SCALES`）|
+| 人口新年度重跑（上游 03 → 重烤 450/1500 磚）| `cp` 兩個 pmtiles → 上 S3；若人均分佈大幅改變再回填 `PROPERTY_VALUE_PER_CAPITA_BREAKS_WAN` 一個陣列（標籤/expression 自動衍生）|
 | `h`/`v`/`ps`/`nm`/`v_mkt` 任一改名 | `propertyValueTypes.ts` + `buildingsGbaTypes.ts` + overlayRegistry filter/paint + panels 一起改 |
 | `v_mkt` 分佈大幅改變（如改幣別／改單位）| `PROPERTY_VALUE_GRID_BANDS`（9 級斷點）與 `PROPERTY_VALUE_HEIGHT_FLOOR_WAN` / `PROPERTY_VALUE_HEIGHT_MAX_WAN`（3D 上下錨）都要重取；FLOOR 刻意 = 色階第 1 級上界（1,000 萬），改色階時要跟著改 |
 | 排除非住宅量體（限制 1 落地，38 兆會下修）| headline 數字自動跟 json 走；`PROPERTY_VALUE_APPROX_NOTE` 與圖例的「≈ 204 兆」文案要跟改 |
@@ -247,3 +285,19 @@ inferno 是 perceptually-uniform 色圖、亮度嚴格單調（L\* 0.22 → 0.98
 3. `meta.limitations` 三條必須在面板內可讀（`<details>` 可摺，但不可只放 tooltip）
 4. GBA **CC BY-NC 4.0 禁商用**：圖例 + 面板 `license_note` 都要露出；本層衍生品不得入
    Supabase 對外服務
+5. 人均模式 `pop < 10` 一律灰 + 半透明「統計不可靠」，popup 標「樣本不足」，不給人均數字
+
+## Changelog
+
+- **2026-07-29 人均市值模式**：新增第二種上色模式 `propertyValueGridModeIdx`
+  （0=總市值 / 1=人均 `v_mkt/pop` 萬元/人，僅 450m/1.5km；150m 無 `pop` → select disabled
+  不跳尺度）。8 級 viridis + `pop<10` 灰半透明；3D 高度維持 v_mkt（高度=量體、顏色=強度）；
+  popup 450m/1.5km 加「人口」「人均市值」兩列。斷點 `PROPERTY_VALUE_PER_CAPITA_BREAKS_WAN =
+  [100, 250, 550, 1000, 2000, 4000, 10000]` 已按上游實算分位數校準。改動：`propertyValueTypes.ts`
+  （模式/色票/expression SSOT）、`overlayRegistry.ts`（paint 隨 modeIdx 切）、
+  `useTransportParams.ts`（state + 上色模式 select）、`IconRailSidebar.tsx` / `LayerSidebar.tsx`
+  （SelectConfig options 新增 `disabled` 支援）、`LegendPanel.tsx`（兩模式圖例）、
+  `urbanPanels.tsx`（popup 兩列）。
+- **2026-07-27 v2**：150m PMTiles 改 z4-14；6 級 BuPu → 9 級 inferno；3D 不封頂；
+  三尺度（150m/450m/1.5km）手動切換上線。
+- **2026-07-27 v1**：初版接線（見全文）。

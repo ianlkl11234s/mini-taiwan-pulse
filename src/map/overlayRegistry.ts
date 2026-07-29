@@ -40,6 +40,7 @@ import { buildingHeightColorExpr, buildingSrcColorExpr, buildingNightLightColorE
 import {
   buildingValueColorExpr, propertyValueGridColorExpr, propertyValueGridOpacityExpr,
   propertyValueGridHeightExpr, PROPERTY_VALUE_SCALES, type PropertyValueScale,
+  resolvePropertyValueGridMode, propertyValueGridPerCapitaColorExpr, propertyValueGridPerCapitaOpacityExpr,
 } from "../data/propertyValueTypes";
 import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
@@ -395,14 +396,21 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
         suffix: "fill",
         type: "fill",
         paint: (_isDark, p) => {
+          // 有效模式（0=總市值 / 1=人均）：150m 磚沒有 pop → helper 統一回退總市值，
+          // 與 UI disabled / 圖例判斷同源（SSOT propertyValueTypes.ts）
+          const modeIdx = resolvePropertyValueGridMode(scaleIdx, p?.propertyValueGridModeIdx ?? 0);
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           const op = p?.propertyValueGridOpacity ?? 0.7;
           return {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            "fill-color": propertyValueGridColorExpr(scaleIdx) as any,
+            "fill-color": (modeIdx === 1
+              ? propertyValueGridPerCapitaColorExpr()
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              : propertyValueGridColorExpr(scaleIdx)) as any,
             // 3D 模式交棒給 extrusion（壓 0 隱藏，避免與立體塊 z-fighting）
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            "fill-opacity": (extruded ? 0 : propertyValueGridOpacityExpr(op)) as any,
+            "fill-opacity": (extruded ? 0
+              : modeIdx === 1 ? propertyValueGridPerCapitaOpacityExpr(op)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              : propertyValueGridOpacityExpr(op)) as any,
           };
         },
       },
@@ -410,10 +418,18 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
         suffix: "extrusion",
         type: "fill-extrusion",
         paint: (_isDark, p) => {
+          const modeIdx = resolvePropertyValueGridMode(scaleIdx, p?.propertyValueGridModeIdx ?? 0);
           const extruded = (p?.propertyValueGridExtruded ?? 0) === 1;
           return {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            "fill-extrusion-color": propertyValueGridColorExpr(scaleIdx) as any,
+            // 人均模式只換「顏色」，extrusion 高度**維持 v_mkt**（見下方 height 註解）
+            "fill-extrusion-color": (modeIdx === 1
+              ? propertyValueGridPerCapitaColorExpr()
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              : propertyValueGridColorExpr(scaleIdx)) as any,
+            // 🔵 高度=量體、顏色=強度（刻意設計，兩模式共用）：3D 高度永遠是 v_mkt 總量 ——
+            //    「這格壓了多少錢」的天際線不隨模式消失；人均模式下顏色改答「平均每人多有錢」，
+            //    高黃=人少錢多、高紫=人多攤薄，兩通道疊出密度語意。pop<10 灰格照常用
+            //    v_mkt 立高度（值本身可信，只是人均不可靠）。
             "fill-extrusion-height": propertyValueGridHeightExpr(
               scaleIdx,
               p?.propertyValueGridContrast ?? 1.8,
@@ -422,7 +438,8 @@ function propertyValueGridOverlay(scale: PropertyValueScale): OverlayConfig {
             ) as any,
             "fill-extrusion-base": 0,
             // ⚠️ fill-extrusion-opacity 不支援 data-driven → 只能給純數字（非 3D 模式壓 0 隱藏）；
-            //    v_mkt=0 的格 height 恰為 0（FLOOR 以下 → norm 夾成 0），自然貼地不需另外淡出
+            //    v_mkt=0 的格 height 恰為 0（FLOOR 以下 → norm 夾成 0），自然貼地不需另外淡出；
+            //    人均灰格的「半透明」在 3D 同樣做不到 data-driven，僅靠 #555 色相標示
             "fill-extrusion-opacity": extruded ? (p?.propertyValueGridOpacity ?? 0.7) : 0,
           };
         },

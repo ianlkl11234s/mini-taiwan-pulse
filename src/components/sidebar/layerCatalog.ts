@@ -611,7 +611,7 @@ export const THEMES: ThemeDef[] = [
         // 上三組是「單價」（每 m² 多貴），本組是「總量」（這格壓了多少錢）——語意不同，見圖例
         title: "總市值",
         layers: [
-          { key: "propertyValueGrid", label: "總市值網格 Value Grid", labelMobile: "總市值網格", expandable: true },
+          { key: "propertyValueGrid", label: "不動產總市值網格 Value Grid", labelMobile: "不動產總市值網格", expandable: true },
         ],
       },
     ],

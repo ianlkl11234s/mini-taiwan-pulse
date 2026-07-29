@@ -394,7 +394,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   treePitsTaipei: "人行道樹穴",
   buildingsGba: "建物",
   urbanFormGrid: "都市紋理",
-  propertyValueGrid: "總市值網格",
+  propertyValueGrid: "不動產總市值網格",
   urbanZoningTaipei: "土地使用分區",
   urbanZoningNewTaipei: "土地使用分區",
   sportsVenue: "運動場館",
