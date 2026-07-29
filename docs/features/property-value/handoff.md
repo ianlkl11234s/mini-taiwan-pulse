@@ -289,7 +289,8 @@ paint function，切模式 = param 變動 → `updateOverlayTheme` diff `setPain
 
 ## Changelog
 
-- **2026-07-29 人均市值模式**：新增第二種上色模式 `propertyValueGridModeIdx`
+- **2026-07-29 人均市值模式**（PR #95，squash `3a55e46`；上游 pop 欄 taipei-gis-analytics#30，
+  同日並改圖層名為「不動產總市值網格 Value Grid」）：新增第二種上色模式 `propertyValueGridModeIdx`
   （0=總市值 / 1=人均 `v_mkt/pop` 萬元/人，僅 450m/1.5km；150m 無 `pop` → select disabled
   不跳尺度）。8 級 viridis + `pop<10` 灰半透明；3D 高度維持 v_mkt（高度=量體、顏色=強度）；
   popup 450m/1.5km 加「人口」「人均市值」兩列。斷點 `PROPERTY_VALUE_PER_CAPITA_BREAKS_WAN =
