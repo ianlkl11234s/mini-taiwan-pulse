@@ -134,7 +134,7 @@
 | PS-1 | P3 | police_stations upstream geocode bug | open | 2026-07-02 發現「航空警察局綠島分駐所」座標 (121.481, **26.226**) 位於馬祖北竿附近，明顯錯（綠島正確座標應是 22.6, 121.5）。屬 taipei-gis-analytics 上游 `data/processed/police_justice/police_stations/police_stations_20260626.geojson`，需追 collector geocode 邏輯。修完後 rerun isochrone pipeline stage 2/3/4 即可（<20 min） |
 | G012 | P1 | tourism D 類 3 檔 + canopy 高度 pmtiles（80MB）上 S3 | done | 2026-07-24 部署 blocker → **已解**：canopy rgb + tourism D 類 3 檔上 S3 `deploy-assets/`、FOREST_FILES 對齊 rgb 檔名（#86）、Zeabur redeploy 開機 pull 進 /data，prod 4 層實測 206/200 上線；舊 canopy_height_taiwan.pmtiles S3 物件已清 |
 | G013 | P1 | KHH collector 檔 SCP 上 HiCloud VM | open | 2026-07-26 KHH1/KHH5 端點修正已 push（data-collectors `a2f158a`），但生產實跑的是 VM（210.61.15.74）cron 版、手動 SCP 不接 git；未更新前 KHH 資料停在 7/26 一次性回填。照 `external/immigration_apis_airport_vm/README` 覆蓋 `/opt/immigration-apis-airport/immigration_apis_airport_collect.py` 即生效 |
-| G014 | P1 | gis-platform migration 301/318/319/320 commit + push | open | 318（live.* RLS 補 authenticated ×48）/319（er 24h all）/320（er 14d trend）皆已 apply production 在跑，僅差 git 收納；301 waste 預算表更早前就 pending |
+| G014 | P1 | gis-platform migration 301/318/319/320 commit + push | **done 2026-07-29** | 318/319/320 以 gis-platform PR #42（merge `6937d2b`，保留兩顆 atomic commits）收納；301 查證早已在 main（`0f2b878` 含於先前 merge）。三支 RPC/policy 自 7/26 起即在 production 運行 |
 | G015 | P3 | feat/monitor-grid-layout 分支（14 commits Monitor v2）復活評估 | open | 2026-07-26 靜態網格（PR #90）只取代了其中 2 個修 bug commit；RGL 可拖曳畫布 + widget registry + 版面持久化 + 會員 gating 未被取代。若要生產環境拖拉版面再議 rebase；沙盒 Artifact + monitorLayout.ts 流程（PB-30）已滿足目前需求 |
 
 ### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
