@@ -448,6 +448,8 @@ export function useMapInteraction(
           { layers: ["police-iso-substation-fill", "police-iso-substation-line"], type: "policeIsoSubstation" },
           { layers: ["police-iso-precinct-fill", "police-iso-precinct-line"], type: "policeIsoPrecinct" },
           { layers: ["police-iso-city-dept-fill", "police-iso-city-dept-line"], type: "policeIsoCityDept" },
+          // 溫度網格 2D：鋪滿全台陸地的大面積 fill → 放最末，不擋任何點/線層
+          { layers: ["temperature-grid-fill"], type: "temperatureGrid" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],
@@ -469,8 +471,9 @@ export function useMapInteraction(
               }
             }
             if (!coords) coords = [e.lngLat.lng, e.lngLat.lat];
-            // roadCongestion 的 level 在 feature-state（非 baked properties）→ 併入
-            const properties = type === "roadCongestion"
+            // roadCongestion 的 level / temperatureGrid 的 temp 在 feature-state
+            //（非 baked properties）→ 併入
+            const properties = type === "roadCongestion" || type === "temperatureGrid"
               ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
               : (f.properties ?? {});
             setFeatureInfo({ layerType: type, properties, coords });

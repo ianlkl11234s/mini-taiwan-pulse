@@ -111,6 +111,7 @@ import { AqiLegend } from "./components/AqiLegend";
 import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
+import { useTemperatureGridLayer } from "./hooks/useTemperatureGridLayer";
 import { useDemographicsH3, useDemographicsYearlyH3 } from "./hooks/useDemographicsH3";
 import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
@@ -282,7 +283,9 @@ export default function App() {
     }
   }, [railData, dataRegistry.register]);
 
-  const { temperatureData, temperatureLoading, temperatureTimeRange } = useTemperatureData(layerVisibility.temperatureWave);
+  // 3D 溫度波與 2D 溫度網格共用同一份資料（任一層開啟就抓）
+  const temperatureEnabled = layerVisibility.temperatureWave || layerVisibility.temperatureGrid;
+  const { temperatureData, temperatureLoading, temperatureTimeRange } = useTemperatureData(temperatureEnabled);
 
   useEffect(() => {
     if (temperatureTimeRange.start > 0) {
@@ -398,12 +401,13 @@ export default function App() {
     if (layerVisibility.flights) enabledIds.push("flights");
     if (layerVisibility.ships) enabledIds.push("ships");
     if (layerVisibility.newsEvents) enabledIds.push("newsEvents");
-    if (layerVisibility.temperatureWave) enabledIds.push("temperatureWave");
+    // registry id 沿用 "temperatureWave"（= 溫度資料源）；2D 網格共用同一份，任一層開啟都要納入 timeline
+    if (layerVisibility.temperatureWave || layerVisibility.temperatureGrid) enabledIds.push("temperatureWave");
     const range = dataRegistry.getTimelineRange(enabledIds);
     // fallback: 如果 registry 還沒資料，用航班的 timeRange
     if (range.start === 0 && range.end === 0) return timeRange;
     return range;
-  }, [dataRegistry.sources, layerVisibility.flights, layerVisibility.ships, layerVisibility.newsEvents, layerVisibility.temperatureWave, timeRange]);
+  }, [dataRegistry.sources, layerVisibility.flights, layerVisibility.ships, layerVisibility.newsEvents, layerVisibility.temperatureWave, layerVisibility.temperatureGrid, timeRange]);
 
   const timeline = useTimeline({
     dataStartTime: dataTimeRange.start,
@@ -1243,6 +1247,14 @@ export default function App() {
     transportParams.overlayParams.roadCongestionOpacity ?? 0.85,
   );
 
+  // ── 溫度網格 2D（Mapbox fill + feature-state 染色，與 3D 溫度波共用資料） ──
+  useTemperatureGridLayer(
+    mapRef,
+    temperatureData,
+    layerVisibility.temperatureGrid,
+    transportParams.tempGridOpacity,
+  );
+
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
   const [mapPrepared, setMapPrepared] = useState(false);
 
@@ -1525,7 +1537,7 @@ export default function App() {
     ...(layerVisibility.flights ? [{ label: "空域 Airspace", done: !loading, count: allFlights.length }] : []),
     ...(layerVisibility.ships ? [{ label: "船舶 Ships", done: !shipsLoading, count: ships.length }] : []),
     ...(layerVisibility.rail ? [{ label: "鐵道 Rail", done: !railLoading, count: railData ? railData.systems.length : 0 }] : []),
-    ...(layerVisibility.temperatureWave ? [{ label: "溫度場 Temperature", done: !temperatureLoading }] : []),
+    ...(temperatureEnabled ? [{ label: "溫度場 Temperature", done: !temperatureLoading }] : []),
     { label: "地圖場景 Map", done: mapPrepared },
   ];
   const allReady = loadingSteps.every((s) => s.done);

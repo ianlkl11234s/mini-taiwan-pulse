@@ -255,6 +255,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'weather', confidence: 'MED' }],
   },
+  // 2D 網格與 3D 溫度波同一份 CWA 0.03° 格點資料
+  temperatureGrid: {
+    status: 'verified',
+    datasets: [{ datasetId: 'weather', confidence: 'MED' }],
+  },
   aqiImagery: {
     status: 'verified',
     datasets: [{ datasetId: 'air_quality', confidence: 'MED' }],
