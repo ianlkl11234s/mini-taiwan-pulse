@@ -21,7 +21,7 @@ import {
 import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 import { URBAN_FORM_GRID_MODES } from "../data/urbanFormGridTypes";
 import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
-import { PROPERTY_VALUE_SCALES } from "../data/propertyValueTypes";
+import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
@@ -46,7 +46,8 @@ export interface SelectConfig {
   type: "select";
   label: string;
   value: string;
-  options: { label: string; value: string }[];
+  /** disabled：該選項當下不可選（如 propertyValueGrid 人均模式在 150m 尺度）；label 自帶原因說明 */
+  options: { label: string; value: string; disabled?: boolean }[];
   onChange: (v: string) => void;
 }
 
@@ -285,6 +286,9 @@ export function useTransportParams() {
   // 三份 PMTiles 各自的斷點與 3D 高度錨見 PROPERTY_VALUE_SCALES；
   // 切尺度不重置 Contrast/Height（正規化各吃各的錨，滑桿語意跨尺度一致）。
   const [propertyValueGridScaleIdx, setPropertyValueGridScaleIdx] = useState(0);
+  // 上色模式：0=總市值（預設）/ 1=人均市值。人均只在帶 pop 的 450m/1.5km 有效；
+  // 150m 時選項 disabled（**不自動跳尺度**），有效模式由 resolvePropertyValueGridMode() 回退。
+  const [propertyValueGridModeIdx, setPropertyValueGridModeIdx] = useState(0);
   const [propertyValueGridOpacity, setPropertyValueGridOpacity] = useState(0.7);
   const [propertyValueGridContrast, setPropertyValueGridContrast] = useState(1.8);
   const [propertyValueGridExtruded, setPropertyValueGridExtruded] = useState(false);
@@ -1045,7 +1049,7 @@ export function useTransportParams() {
     treePitsTaipeiTypeIdx: ["all", ...TREE_PIT_TYPES.map((t) => t.name)].indexOf(treePitsTaipeiType),
     buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
     urbanFormGridModeIdx, urbanFormGridOpacity,
-    propertyValueGridScaleIdx,
+    propertyValueGridScaleIdx, propertyValueGridModeIdx,
     propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridElevationScale,
     propertyValueGridExtruded: propertyValueGridExtruded ? 1 : 0,
     // 🗺️ 土地使用分區：category select 編成 Idx 餵 filter（overlayParams 只收數字，0=全部 1..9 單類）
@@ -1419,7 +1423,7 @@ export function useTransportParams() {
     treePitsTaipeiOpacity, treePitsTaipeiType,
     buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
     urbanFormGridModeIdx, urbanFormGridOpacity,
-    propertyValueGridScaleIdx, propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridExtruded, propertyValueGridElevationScale,
+    propertyValueGridScaleIdx, propertyValueGridModeIdx, propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridExtruded, propertyValueGridElevationScale,
     urbanZoningTaipeiOpacity, urbanZoningTaipeiCategory,
     urbanZoningNewTaipeiOpacity, urbanZoningNewTaipeiCategory,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
@@ -2668,6 +2672,12 @@ export function useTransportParams() {
       // 2D 時常駐會是「拉了沒反應」的死控件。
       case "propertyValueGrid": return [
         { type: "select" as const, label: "網格大小", value: String(propertyValueGridScaleIdx), options: PROPERTY_VALUE_SCALES.map((sc) => ({ label: sc.label, value: sc.value })), onChange: (v: string) => setPropertyValueGridScaleIdx(parseInt(v, 10)) },
+        // 人均市值只有 450m/1.5km 磚帶 pop（150m 沒有）→ 150m 時 disabled 並在 label 講明，
+        // 不自動跳尺度；此時 paint/圖例已由 resolvePropertyValueGridMode() 回退成總市值
+        { type: "select" as const, label: "上色模式", value: String(propertyValueGridModeIdx), options: PROPERTY_VALUE_GRID_MODES.map((m) => {
+          const disabled = m.value === "1" && !(PROPERTY_VALUE_SCALES[propertyValueGridScaleIdx]?.hasPop ?? false);
+          return { label: disabled ? `${m.label}（僅 450m / 1.5km 提供）` : m.label, value: m.value, disabled };
+        }), onChange: (v: string) => setPropertyValueGridModeIdx(parseInt(v, 10)) },
         { label: `填色透明度 ${propertyValueGridOpacity.toFixed(2)}`, value: propertyValueGridOpacity, min: 0, max: 1, step: 0.05, onChange: setPropertyValueGridOpacity },
         { type: "toggle" as const, label: "3D 立體", value: propertyValueGridExtruded, onChange: setPropertyValueGridExtruded },
         ...(propertyValueGridExtruded

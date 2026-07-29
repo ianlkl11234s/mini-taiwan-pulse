@@ -1405,7 +1405,7 @@ function ExpandedControls({
                       }}
                     >
                       {ctrl.options.map((opt) => (
-                        <option key={opt.value} value={opt.value} style={{ background: OPTION_BG }}>
+                        <option key={opt.value} value={opt.value} disabled={opt.disabled} style={{ background: OPTION_BG }}>
                           {opt.label}
                         </option>
                       ))}
@@ -1425,7 +1425,8 @@ function ExpandedControls({
                   {ctrl.options.map((opt) => (
                     <button
                       key={opt.value}
-                      onClick={() => ctrl.onChange(opt.value)}
+                      disabled={opt.disabled}
+                      onClick={() => { if (!opt.disabled) ctrl.onChange(opt.value); }}
                       style={{
                         ...btnBase,
                         fontSize: FONT_SIZE.xs,
@@ -1437,6 +1438,8 @@ function ExpandedControls({
                           ? `1px solid ${CTRL_ACTIVE_BORDER}`
                           : `1px solid ${CTRL_INACTIVE_BORDER}`,
                         color: ctrl.value === opt.value ? TEXT_STRONG : DIM,
+                        // disabled（如人均模式在 150m 尺度）：降不透明度 + 禁用游標，label 已自帶原因
+                        ...(opt.disabled ? { opacity: 0.4, cursor: "not-allowed" } : {}),
                       }}
                     >
                       {opt.label}

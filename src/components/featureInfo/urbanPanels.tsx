@@ -8,6 +8,7 @@ import {
 import { buildingHeightBandColor } from "../../data/buildingsGbaTypes";
 import {
   BUILDING_VALUE_NON_MARKET_COLOR, PROPERTY_VALUE_APPROX_NOTE,
+  PROPERTY_VALUE_PER_CAPITA_MIN_POP,
   formatWanTwd, priceSourceLabel, propertyValueBandColor, scaleFromGridId,
 } from "../../data/propertyValueTypes";
 import { GG_INDEX_BANDS, gridBandColor, URBAN_FORM_GRID_APPROX_NOTE } from "../../data/urbanFormGridTypes";
@@ -309,6 +310,9 @@ export function BuildingsGbaPanel({ props }: { props: Record<string, unknown> })
 /**
  * 總市值網格：v_mkt 主數字 + 棟數 / 總樓地板面積 / 主要價格來源。三尺度共用本 panel，
  * 目前是哪個尺度由 `grid_id` 前綴反推（`G_` / `G450_` / `G1500_`），不必額外傳參。
+ * 450m/1.5km（scale.hasPop）加「人口」「人均市值」兩列——**跟尺度走、不跟上色模式走**，
+ * 總市值模式下點查也看得到人均；150m 磚無 pop，不顯示。
+ * pop < PROPERTY_VALUE_PER_CAPITA_MIN_POP 人均標「樣本不足」（跟地圖灰格同一套門檻）。
  * ⚠️ 不顯示 v_all，也不做 v_mkt − v_all：v_all 未套 GFA 校正係數，可能小於 v_mkt，
  *    相減沒有意義（上游 admin_value.json meta.field_notes 明文警告）。
  */
@@ -316,10 +320,22 @@ export function PropertyValueGridPanel({ props }: { props: Record<string, unknow
   const vMkt = Number(props.v_mkt);
   const scale = scaleFromGridId(props.grid_id);
   const color = propertyValueBandColor(scale.bands, vMkt);
+  const pop = Number(props.pop);
+  const hasPop = scale.hasPop && Number.isFinite(pop);
+  const perCapitaValue = !hasPop ? ""
+    : pop < PROPERTY_VALUE_PER_CAPITA_MIN_POP ? `樣本不足（人口 < ${PROPERTY_VALUE_PER_CAPITA_MIN_POP}）`
+    : vMkt > 0 ? `${formatWanTwd(vMkt / pop)}/人`
+    : "0";
   return (
     <>
-      <Title color={color}>{`總市值網格 ${scale.shortLabel}`}</Title>
+      <Title color={color}>{`不動產總市值網格 ${scale.shortLabel}`}</Title>
       <Row label="總市值" value={Number.isFinite(vMkt) && vMkt > 0 ? formatWanTwd(vMkt) : "0（格內僅非市場建物）"} />
+      {hasPop && (
+        <>
+          <Row label="人口" value={pop > 0 ? `≈ ${Math.round(pop).toLocaleString()} 人` : "0（無人口資料或無人）"} />
+          <Row label="人均市值" value={perCapitaValue} />
+        </>
+      )}
       <Row label="建物棟數" value={numUnit(props.n_bld, "棟")} />
       <Row label="總樓地板面積" value={numUnit(props.gfa, "m²")} />
       <Row label="主要價格來源" value={priceSourceLabel(props.ps_dom)} />

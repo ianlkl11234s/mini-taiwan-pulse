@@ -48,6 +48,8 @@ import {
 import {
   BUILDING_VALUE_BANDS, BUILDING_VALUE_NON_MARKET_COLOR,
   PROPERTY_VALUE_ATTRIBUTION, resolvePropertyValueScale, formatWanTwd,
+  resolvePropertyValueGridMode, PROPERTY_VALUE_PER_CAPITA_BANDS,
+  PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR, PROPERTY_VALUE_PER_CAPITA_MIN_POP,
 } from "../data/propertyValueTypes";
 import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
@@ -234,7 +236,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["treePitsTaipei"], render: () => <TreePitsTaipeiLegend /> },
   { keys: ["buildingsGba"], render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
   { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
-  { keys: ["propertyValueGrid"], render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
+  { keys: ["propertyValueGrid"], render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { keys: ["urbanZoningTaipei", "urbanZoningNewTaipei"], render: () => <UrbanZoningLegend /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["canopyGiants"], render: () => <CanopyGiantsLegend /> },
@@ -1101,15 +1103,47 @@ function BuildingsGbaLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   );
 }
 
-// 🏢 房地產總市值網格圖例：v_mkt 9 級 inferno 色階 + 「總量 ≠ 單價」語意說明 + 雙署名。
-// 級距標籤與 3D 高度錨都**隨手動選的網格大小換**（粗格值域整體右移，共用細格斷點會全部爆頂）。
-function PropertyValueGridLegend({ scaleIdx = 0, extruded = false }: { scaleIdx?: number; extruded?: boolean }) {
+// 🏢 房地產總市值網格圖例：兩種上色模式（SSOT propertyValueTypes.ts）——
+//   0 總市值：v_mkt 9 級 inferno，級距標籤與 3D 高度錨**隨手動選的網格大小換**
+//     （粗格值域整體右移，共用細格斷點會全部爆頂）
+//   1 人均市值：v_mkt/pop 8 級 viridis（僅 450m/1.5km；150m 磚無 pop，
+//     resolvePropertyValueGridMode 會回退成總市值 → 圖例跟 paint 永遠同步）
+function PropertyValueGridLegend({ scaleIdx = 0, modeIdx = 0, extruded = false }: { scaleIdx?: number; modeIdx?: number; extruded?: boolean }) {
   const t = useLegendTheme();
   const scale = resolvePropertyValueScale(scaleIdx);
+  const perCapita = resolvePropertyValueGridMode(scaleIdx, modeIdx) === 1;
+  if (perCapita) {
+    return (
+      <div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+          人均市值網格 PER-CAPITA VALUE · {scale.shortLabel}
+        </div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+          每 {scale.shortLabel} 格總市值 ÷ 人口（萬元/人）
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <UrbanDotRow color={PROPERTY_VALUE_PER_CAPITA_LOW_POP_COLOR} label={`人口 < ${PROPERTY_VALUE_PER_CAPITA_MIN_POP}（統計不可靠，半透明）`} />
+          {PROPERTY_VALUE_PER_CAPITA_BANDS.map((b) => <UrbanDotRow key={b.label} color={b.color} label={b.label} />)}
+        </div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+          越黃 = 平均每人名下壓的房產越多（人少錢多）；越紫 = 人多攤薄。
+          人口為最小統計區面積加權估計。
+        </div>
+        {extruded && (
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+            3D 高度仍是「總市值」（量體）、顏色才是人均（強度）—— 高黃 = 人少錢多、高紫 = 人多攤薄。
+          </div>
+        )}
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+          {PROPERTY_VALUE_ATTRIBUTION}
+        </div>
+      </div>
+    );
+  }
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        總市值網格 PROPERTY VALUE · {scale.shortLabel}
+        不動產總市值網格 PROPERTY VALUE · {scale.shortLabel}
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
         每 {scale.shortLabel} 格總市值（不是單價）{extruded ? " · 3D 高度同步" : ""}
