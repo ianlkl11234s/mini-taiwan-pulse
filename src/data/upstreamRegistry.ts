@@ -260,6 +260,7 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'weather', confidence: 'MED' }],
   },
+  urbanHeat: { status: 'catalog_missing', datasets: [], note: '都市熱島地表溫度 raster PMTiles（Landsat 8/9 C2 L2 ST_B10 2019–2025 暖季合成，經 Microsoft Planetary Computer STAC；public/environment/urban_heat_lst_taiwan.pmtiles），國際衛星資料源非台灣 catalog' },
   aqiImagery: {
     status: 'verified',
     datasets: [{ datasetId: 'air_quality', confidence: 'MED' }],

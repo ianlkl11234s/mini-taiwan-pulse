@@ -44,6 +44,7 @@ import {
 } from "../data/propertyValueTypes";
 import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
+import { resolveUrbanHeatMode, urbanHeatRasterColor } from "../data/urbanHeatTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
@@ -479,6 +480,40 @@ function realEstateGridOverlay(id: OverlayConfig["id"], palette: RePalette, type
 }
 
 export const OVERLAY_REGISTRY: OverlayConfig[] = [
+  // ── 🌡️ 都市熱島 Urban Heat（Landsat 8/9 地表溫度，雙通道值編碼 RGBA PMTiles，z6–11/512px）──
+  // R = ΔT（ΔT = R/5 − 30）、G = 絕對°C（°C = G/4 + 10）、A = 有效遮罩；顏色不預烤，
+  // 前端用 raster-color 動態上色，切 raster-color-mix 就能在兩種模式間切換（色票 SSOT =
+  // data/urbanHeatTypes.ts）。⚠️ mix 係數 = 上游量化參數的硬編契約，上游改 offset/scale
+  // 等同 breaking change（見 taipei-gis-analytics/docs/handoff/urban_heat_lst.md §6.1）。
+  // maxzoom 11（資料 60m，z11 已是 38m/px；設 12 會去要不存在的磚，交給 Mapbox overzoom）。
+  // raster-resampling: nearest —— R/G 是量化數值不是顏色，線性內插會在 nodata 邊界混出假值。
+  // raster layer 不允許 source-layer → pmtiles 不填 sourceLayer。
+  // ⚠️ 放在 registry 最前面是刻意的：addAllOverlays 依陣列順序 addLayer，順序即 z-order；
+  //    全島滿版 raster 排後面會蓋掉所有 POI 圖層。
+  {
+    id: "urbanHeat",
+    sourceUrl: "./environment/urban_heat_lst_taiwan.pmtiles",
+    sourceId: "urban-heat-lst",
+    pmtiles: { minzoom: 6, maxzoom: 11 },
+    layers: [
+      {
+        suffix: "raster", type: "raster",
+        paint: (_isDark, p) => {
+          const mode = resolveUrbanHeatMode(p?.urbanHeatModeIdx ?? 0);
+          return {
+            "raster-opacity": p?.urbanHeatOpacity ?? 0.75,
+            "raster-resampling": "nearest",
+            "raster-fade-duration": 0,
+            // 係數作用在 0–255 原始 DN（mapbox computeRasterColorMix 已含 ×255）→ raster-value = 物理值
+            "raster-color-mix": [...mode.mix],
+            "raster-color-range": [...mode.range],
+            "raster-color": urbanHeatRasterColor(p?.urbanHeatModeIdx ?? 0),
+          };
+        },
+      },
+    ],
+  },
+
   // ── THSR Station Polygon (高鐵站) ──
   {
     id: "stationsTHSR",

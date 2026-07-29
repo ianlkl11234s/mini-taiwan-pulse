@@ -268,6 +268,17 @@ for f in public/climate/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/climate/$name" --region ap-southeast-2
 done
 
+# 環境 raster PMTiles：上傳到 deploy-assets/environment/ 子前綴（鏡像結構，pull 端整夾 sync）。
+# 目前是 urban_heat_lst_taiwan.pmtiles（都市熱島 LST 雙通道值編碼 RGBA，z6–11/512px）。
+# SSOT 在 taipei-gis-analytics（pipelines/environment/urban_heat_lst/tile_lst_pmtiles.sh），
+# 契約與量化參數見 taipei-gis-analytics/docs/handoff/urban_heat_lst.md。
+for f in public/environment/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading environment/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/environment/$name" --region ap-southeast-2
+done
+
 # 房地產 PMTiles：上傳到 deploy-assets/coverage/ 子前綴（鏡像結構，pull 端整夾 sync）。
 # 只上傳 real_estate_*（26+43MB 大檔走 S3）；gas coverage 小檔（5MB）仍進 git/dist，不上傳。
 for f in public/coverage/real_estate_*.pmtiles; do
