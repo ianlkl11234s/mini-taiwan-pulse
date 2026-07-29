@@ -20,6 +20,7 @@ import {
 } from "../data/urbanOpenSpaceTypes";
 import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 import { URBAN_FORM_GRID_MODES } from "../data/urbanFormGridTypes";
+import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
 import { PROPERTY_VALUE_SCALES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
@@ -528,6 +529,8 @@ export function useTransportParams() {
   const [ybResolution, setYbResolution] = useState(7);
   // LASS 微型感測器：cluster on/off
   const [aqiMicroCluster, setAqiMicroCluster] = useState(true);
+  // LASS 微型感測器：點位上色依據（0=PM2.5 / 1=溫度 / 2=濕度，見 microSensorTypes）
+  const [aqiMicroModeIdx, setAqiMicroModeIdx] = useState(0);
   // 淹水最小深度篩選：0 = 全部, 0.5 / 1 / 2 / 3 = 只顯示大於等於該深度的分級
   const [floodMinDepth, setFloodMinDepth] = useState<0 | 0.5 | 1 | 2 | 3>(0);
   // 水庫：僅保留 Three.js 水位計的高度縮放（2026-04-22 砍掉光球 + 靜態 pillar
@@ -1382,6 +1385,8 @@ export function useTransportParams() {
     worldTrashDebrisOpacity,
     realEstateOpacity,
     realEstateExcludeTaipei: realEstateExcludeTaipei ? 1 : 0,
+    // LASS 微感測顯示模式（只供 LegendPanel 選對應圖例；paint 端走 hook 的 setPaintProperty）
+    aqiMicroModeIdx,
     // Base map
     countyBoundaryOpacity, countyBoundaryWidth,
     townshipBoundaryOpacity, townshipBoundaryWidth,
@@ -1435,7 +1440,8 @@ export function useTransportParams() {
     tourFactoriesOpacity, tourFactoriesScale, tourAmusementParksOpacity, tourAmusementParksScale,
     tourCampingOpacity, tourCampingScale,
     tourHotelsOpacity, tourHotelsScale, tourHotelsClass,
-    tourRestaurantsOpacity, tourRestaurantsScale]);
+    tourRestaurantsOpacity, tourRestaurantsScale,
+    aqiMicroModeIdx]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -1857,6 +1863,7 @@ export function useTransportParams() {
       ];
       case "aqiStations": return [];
       case "aqiMicroSensors": return [
+        { type: "select" as const, label: "顯示模式", value: String(aqiMicroModeIdx), options: [...MICRO_SENSOR_MODES], onChange: (v: string) => setAqiMicroModeIdx(parseInt(v, 10)) },
         { type: "toggle" as const, label: "Cluster", value: aqiMicroCluster, onChange: setAqiMicroCluster },
       ];
       case "waterBasins": return [
@@ -2859,6 +2866,7 @@ export function useTransportParams() {
     reOpacity,
     satOpacity,
     aqiMicroCluster,
+    aqiMicroModeIdx,
     aqiImageryOpacity,
     hillshadeOpacity,
     slopeVectorOpacity,

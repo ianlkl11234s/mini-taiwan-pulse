@@ -60,16 +60,20 @@ export function AqiStationPanel({ props }: { props: Record<string, unknown> }) {
 export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const pm25 = numOrNull(props.pm25);
-  const color = String(props.color ?? "#707070");
+  // 標題色點對齊面板主數值（PM2.5），故固定用 colorPm25，不隨圖層顯示模式跑
+  const color = String(props.colorPm25 ?? "#707070");
   const temperature = Number(props.temperature);
   const tempStr = Number.isFinite(temperature) && temperature > -100 ? `${temperature.toFixed(1)} °C` : "";
   const observedAt = String(props.observedAt ?? "");
+  // site_name 是 RPC 升級後才有的欄位 → 空字串/未定義時 fallback deviceId
+  const siteName = String(props.siteName ?? "").trim();
+  const title = siteName || String(props.deviceId ?? "LASS Device");
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
         <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
         <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.deviceId ?? "LASS Device")}
+          {title}
         </div>
       </div>
       <div
@@ -88,6 +92,8 @@ export function MicroSensorPanel({ props }: { props: Record<string, unknown> }) 
         </span>
         <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>PM2.5 µg/m³</span>
       </div>
+      {/* 標題被站名佔走時，device_id 改用一列補回，避免資訊遺失 */}
+      {siteName && <Row label="裝置 ID" value={String(props.deviceId ?? "")} />}
       <Row label="來源" value={String(props.source ?? "")} />
       <Row label="裝置" value={String(props.app ?? "")} />
       <Row label="地區" value={String(props.area ?? "")} />

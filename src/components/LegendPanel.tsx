@@ -11,6 +11,7 @@ import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
+import { resolveMicroSensorMode, MICRO_SENSOR_NO_DATA_COLOR } from "../data/microSensorTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import {
@@ -201,6 +202,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["oceanCurrents"], render: () => <OceanCurrentsLegend /> },
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["temperatureGrid"], render: () => <TemperatureGridLegend /> },
+  { keys: ["aqiMicroSensors"], render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
@@ -2125,6 +2127,37 @@ function TemperatureGridLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
         CWA 0.03° 逐時觀測分析格點
+      </div>
+    </div>
+  );
+}
+
+// LASS 微型感測：三模式共用同一份圖例框，依當前顯示模式換色階列
+// （色票 SSOT = data/microSensorTypes.ts，與 loader 預烤進 properties 的顏色同源；
+//  溫度模式直接吃 TEMPERATURE_GRID_BANDS，與溫度網格 2D 跨圖層一致）。
+function MicroSensorLegend({ modeIdx = 0 }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  const mode = resolveMicroSensorMode(modeIdx);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        微型感測 LASS AIRBOX
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{mode.note}</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        {mode.legend.map((band) => (
+          <div key={band.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: band.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+          </div>
+        ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: MICRO_SENSOR_NO_DATA_COLOR, flexShrink: 0 }} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>無資料</span>
+        </div>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+        LASS AirBox / 環境部微感測 · 最新 15 分鐘快照
       </div>
     </div>
   );

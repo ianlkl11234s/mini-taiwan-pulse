@@ -8,6 +8,11 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce } from "../lib/loaderCache";
+import {
+  microSensorPm25Color,
+  microSensorTemperatureColor,
+  microSensorHumidityColor,
+} from "./microSensorTypes";
 import type { MicroSensor } from "../types";
 
 interface RawRow {
@@ -15,6 +20,8 @@ interface RawRow {
   source: string;
   area: string | null;
   app: string | null;
+  /** 站名。DB live.micro_sensor_readings 有存，但 RPC 升級前不會回傳 → 必須 null-safe */
+  site_name?: string | null;
   lon: number;
   lat: number;
   observed_at: string;
@@ -28,6 +35,7 @@ interface RawRow {
 function toSensor(r: RawRow): MicroSensor {
   return {
     deviceId: r.device_id,
+    siteName: r.site_name ?? null,
     source: r.source,
     area: r.area,
     app: r.app,
@@ -60,19 +68,10 @@ export function fetchMicroSensorsLatest(): Promise<MicroSensor[]> {
 }
 
 /**
- * LASS 色階：以 PM2.5 為主，對應 PM2.5 AQI sub-index 常用分級
- * 0-15 綠 / 15-35 黃 / 35-54 橙 / 54-150 紅 / 150+ 紫
- * 這是針對「PM2.5 濃度」而非 AQI 的近似色；實際供 circle-color 用。
+ * 三種顯示模式的顏色一次全烤進 properties（色階 SSOT = data/microSensorTypes.ts）：
+ * 切模式時 hook 只需 setPaintProperty 換 `["get", colorPm25|colorTemp|colorHum]`，
+ * 不必重建 GeoJSON。缺值一律吃 MICRO_SENSOR_NO_DATA_COLOR 中性灰。
  */
-export function pm25ToColor(pm25: number | null): string {
-  if (pm25 == null || !Number.isFinite(pm25)) return "#707070";
-  if (pm25 <= 15) return "#009966";
-  if (pm25 <= 35) return "#FFDE33";
-  if (pm25 <= 54) return "#FF9933";
-  if (pm25 <= 150) return "#CC0033";
-  return "#660099";
-}
-
 export function buildMicroSensorsGeoJSON(sensors: MicroSensor[]): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
@@ -81,6 +80,7 @@ export function buildMicroSensorsGeoJSON(sensors: MicroSensor[]): GeoJSON.Featur
       geometry: { type: "Point", coordinates: [s.lon, s.lat] },
       properties: {
         deviceId: s.deviceId,
+        siteName: s.siteName ?? "",
         source: s.source,
         area: s.area ?? "",
         app: s.app ?? "",
@@ -90,7 +90,9 @@ export function buildMicroSensorsGeoJSON(sensors: MicroSensor[]): GeoJSON.Featur
         pm1: s.pm1 ?? -1,
         temperature: s.temperature ?? -999,
         humidity: s.humidity ?? -1,
-        color: pm25ToColor(s.pm25),
+        colorPm25: microSensorPm25Color(s.pm25),
+        colorTemp: microSensorTemperatureColor(s.temperature),
+        colorHum: microSensorHumidityColor(s.humidity),
       },
     })),
   };

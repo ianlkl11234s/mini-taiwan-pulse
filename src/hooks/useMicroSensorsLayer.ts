@@ -7,6 +7,11 @@
  *
  * 切換 cluster 時 Mapbox source 必須重建，故 effect 的 deps 帶 cluster。
  *
+ * 顯示模式（modeIdx：0=PM2.5 / 1=溫度 / 2=濕度）：
+ *  三種顏色 loader 已預烤進 properties，切模式只 setPaintProperty 換欄位，
+ *  **不重建 GeoJSON、不進 layer 生命週期 deps**（否則會整層重繪閃爍）。
+ *  聚合圓（cluster 模式的 point_count 圓）維持紫色不受模式影響。
+ *
  * 即時行為：
  *  - 圖層開啟時首次載入，之後每 5 分鐘（對齊 collector 頻率）自動 refetch 最新快照
  *  - 不跟 timeline replay（資料量大，Phase 2 會做 hourly pre-aggregate 再支援）
@@ -20,6 +25,7 @@ import {
   fetchMicroSensorsLatest,
   buildMicroSensorsGeoJSON,
 } from "../data/microSensorsLoader";
+import { microSensorColorExpr } from "../data/microSensorTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { MicroSensor } from "../types";
 
@@ -28,7 +34,7 @@ const LAYER_CLUSTER = "aqi-micro-cluster";
 const LAYER_CLUSTER_COUNT = "aqi-micro-cluster-count";
 const LAYER_POINT = "aqi-micro-circle";
 
-function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean) {
+function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean, modeIdx: number) {
   if (!map.getSource(SOURCE_ID)) {
     map.addSource(SOURCE_ID, {
       type: "geojson",
@@ -84,7 +90,7 @@ function ensureLayers(map: MapboxMap, isDark: boolean, cluster: boolean) {
         "circle-radius": cluster
           ? ["interpolate", ["linear"], ["zoom"], 9, 2, 12, 4, 15, 6, 18, 10]
           : ["interpolate", ["linear"], ["zoom"], 5, 1.5, 8, 2.5, 11, 4, 15, 7, 18, 11],
-        "circle-color": ["get", "color"],
+        "circle-color": microSensorColorExpr(modeIdx) as unknown as mapboxgl.ExpressionSpecification,
         "circle-stroke-width": cluster ? 0.5 : 0.3,
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.3)",
         "circle-opacity": cluster ? 0.9 : 0.85,
@@ -105,10 +111,13 @@ export function useMicroSensorsLayer(
   visible: boolean,
   isDark: boolean,
   cluster: boolean,
+  modeIdx: number,
 ) {
   const loadedRef = useRef(false);
   const dataRef = useRef<MicroSensor[]>([]);
   const loadingRef = useRef(false);
+  // modeIdx 走 ref 餵 ensureLayers：不進 layer 生命週期 deps，避免切模式重建整層
+  const modeIdxRef = useRef(modeIdx);
 
   // ── Loader：首次開啟時載入 + 每 5 分鐘自動 refetch 最新快照 ──
   useEffect(() => {
@@ -162,7 +171,7 @@ export function useMicroSensorsLayer(
       // 不管是關閉或切 cluster 模式都先移除乾淨再重建（Mapbox cluster 設定不能動態改）
       removeLayers(m);
       if (!visible) return;
-      ensureLayers(m, isDark, cluster);
+      ensureLayers(m, isDark, cluster, modeIdxRef.current);
       if (loadedRef.current && dataRef.current.length > 0) {
         const src = m.getSource(SOURCE_ID) as GeoJSONSource | undefined;
         if (src) {
@@ -181,6 +190,20 @@ export function useMicroSensorsLayer(
     }
     apply();
   }, [mapRef, visible, isDark, cluster]);
+
+  // ── 顯示模式切換：只換 circle-color 欄位，不動 source / 不重建 layer ──
+  useEffect(() => {
+    // ref 先更新（layer 尚未建立時 ensureLayers 之後才讀得到正確模式）
+    modeIdxRef.current = modeIdx;
+    const map = mapRef.current;
+    if (!map || !visible) return;
+    if (!map.isStyleLoaded() || !map.getLayer(LAYER_POINT)) return;
+    map.setPaintProperty(
+      LAYER_POINT,
+      "circle-color",
+      microSensorColorExpr(modeIdx) as unknown as mapboxgl.ExpressionSpecification,
+    );
+  }, [mapRef, visible, modeIdx]);
 
   // ── Unmount 清理 ──
   useEffect(() => {
