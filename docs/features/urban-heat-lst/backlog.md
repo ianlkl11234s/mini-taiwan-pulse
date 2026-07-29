@@ -11,10 +11,9 @@
 
 - [ ] **UH-2**：S3 上傳 `deploy-assets/environment/urban_heat_lst_taiwan.pmtiles`
   （`./scripts/deploy/upload-deploy-assets.sh`）— **需 user 拍板**。
-- [ ] **UH-3**：核對 `canopyHeight` 的 `raster-color-mix` 是否也踩到「正規化 vs 原始 DN」誤解
-  （見 [handoff.md](./handoff.md)「已知不對稱」#3）；若確認，另開修正 PR。
-- [ ] **UH-4**：回報上游把 `taipei-gis-analytics/docs/handoff/urban_heat_lst.md` §3.4 的
-  mix 係數改成物理值寫法（51 → 0.2、63.75 → 0.25）。
+- [x] **UH-3**：~~核對 `canopyHeight` 的 mix 係數是否也有誤~~ — 2026-07-30 實測反駁：
+  canopy 漸層正常，其 ×255 寫法即正確範本；本層係數已改回同套寫法（見 handoff「已知不對稱」#1）。
+- [x] **UH-4**：~~回報上游改 §3.4 為物理值寫法~~ — 撤銷：上游 §3.4 原本就是對的，不需修改。
 
 ## 已完成（近期）
 

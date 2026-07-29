@@ -15,12 +15,12 @@
  *   A = 有效遮罩（255 有效 / 0 nodata：海、常年雲、有效觀測 < 5）
  *   ⚠️ nodata 一律靠 A 判斷 —— R=0 是合法的 −30K，不是空值。
  *
- * ── raster-color-mix 的係數作用在「0–255 原始 DN」上（不是正規化 0–1）──
- * mapbox-gl 3.9 `computeRasterColorMix()` 的 factor 帶了 ×255，抵銷 texture 取樣的
- * 正規化，等效於 `V = mix[0]*R_DN + mix[1]*G_DN + mix[2]*B_DN + mix[3]`
- * （同 Mapbox 官方 terrain-rgb 解碼範例的 [6553.6, 25.6, 0.1, -10000] 寫法）。
- * 所以係數直接抄 encoding.json 的 decode 斜率／截距，raster-value 就是物理值，
- * `raster-color` 的 stop 也直接寫物理值 —— 不必再做正規化換算。
+ * ── raster-color-mix 的係數作用在「正規化 0–1」的 texture 取樣值上 ──
+ * 所以物理 decode 斜率要 ×255 補償：mix[R] = 255 × (每 DN 的物理增量)。
+ * 本檔 51 = 255/5（ΔT 每 DN 0.2K）、63.75 = 255/4（°C 每 DN 0.25°C），offset 不變。
+ * 這與既有 canopyHeight 的寫法同一套（6.375 = 255/40），並經瀏覽器實測驗證
+ * （2026-07-30：誤用未 ×255 的物理斜率會讓全島飽和在 range 下限、單色無漸層）。
+ * raster-value 仍是物理值，`raster-color` 的 stop 直接寫物理值。
  *
  * ── 值域策略 ──
  * `range` 用「通道完整值域」讓色帶 tabulate 不失真；顯示值域（stop 首尾）另外收窄到
@@ -44,7 +44,7 @@ export interface UrbanHeatMode {
   /** select value；index 對齊 overlayParams 的 urbanHeatModeIdx */
   value: string;
   label: string;
-  /** raster-color-mix：[R, G, B, offset]，係數作用在 0–255 DN（見檔頭） */
+  /** raster-color-mix：[R, G, B, offset]，係數 = 物理斜率 ×255（見檔頭） */
   mix: readonly [number, number, number, number];
   /** raster-color-range：色帶 tabulate 的物理值域 = 該通道完整值域 */
   range: readonly [number, number];
@@ -68,7 +68,7 @@ export interface UrbanHeatMode {
 const URBAN_HEAT_DT_MODE: UrbanHeatMode = {
   value: "0",
   label: "熱島強度 ΔT",
-  mix: [0.2, 0, 0, -30], // ΔT = R_DN/5 − 30
+  mix: [51, 0, 0, -30], // ΔT = R_DN/5 − 30；51 = 255/5
   range: [-30, 21],
   stops: [
     { value: -10, color: "#2166ac" },
@@ -98,7 +98,7 @@ const URBAN_HEAT_DT_MODE: UrbanHeatMode = {
 const URBAN_HEAT_LST_MODE: UrbanHeatMode = {
   value: "1",
   label: "絕對地表溫度",
-  mix: [0, 0.25, 0, 10], // °C = G_DN/4 + 10
+  mix: [0, 63.75, 0, 10], // °C = G_DN/4 + 10；63.75 = 255/4
   range: [10, 73.75],
   stops: [
     { value: 22, color: "#1b0c41" },
