@@ -456,6 +456,8 @@ export function useTransportParams() {
   const [tempExtruded, setTempExtruded] = useState(true);
   const [tempOpacity, setTempOpacity] = useState(0.85);
   const [tempWireframe, setTempWireframe] = useState(false);
+  // Temperature Grid (溫度網格 2D，與溫度波共用資料源)
+  const [tempGridOpacity, setTempGridOpacity] = useState(0.7);
   // School
   const [schoolScale, setSchoolScale] = useState(1);
   const [schoolLevelColor, setSchoolLevelColor] = useState(false);
@@ -1636,6 +1638,9 @@ export function useTransportParams() {
         { label: `Z Offset ${tempZOffset}`, value: tempZOffset, min: 0, max: 1000, step: 50, onChange: setTempZOffset },
         { label: `Opacity ${tempOpacity.toFixed(2)}`, value: tempOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempOpacity },
         { type: "toggle" as const, label: "Grid", value: tempWireframe, onChange: setTempWireframe },
+      ];
+      case "temperatureGrid": return [
+        { label: `透明度 ${tempGridOpacity.toFixed(2)}`, value: tempGridOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempGridOpacity },
       ];
       case "windPlan": return [];
       case "schools": return [
@@ -2847,6 +2852,7 @@ export function useTransportParams() {
     youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale, heightMode: ybHeightMode }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale, ybHeightMode]),
     cwaCloudOpacity,
     cwaRadarOpacity,
+    tempGridOpacity,
     eqOpacity,
     eqShowHistory,
     daOpacity,

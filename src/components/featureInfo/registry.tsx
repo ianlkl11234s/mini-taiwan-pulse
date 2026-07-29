@@ -22,7 +22,7 @@ import {
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import { NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel } from "./eventPanels";
 import { RoadCongestionPanel } from "./roadPanels";
-import { AqiStationPanel, MicroSensorPanel } from "./airPanels";
+import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
 import { WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel } from "./wastePanels";
 import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
@@ -208,6 +208,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   earthquakeGlobal: EarthquakeGlobalPanel,
   typhoonTrack: TyphoonTrackPanel,
   climateField: ClimateFieldPanel,
+  temperatureGrid: TemperatureGridPanel,
   worldTrashDebris: WorldTrashDebrisPanel,
   // Base map
   countyBoundary: CountyBoundaryPanel,
@@ -460,6 +461,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   earthquakeGlobal: "全球地震 USGS",
   typhoonTrack: "颱風軌跡",
   climateField: "氣候場讀值",
+  temperatureGrid: "溫度網格",
   worldTrashDebris: "全球垃圾殘骸",
   // Base map
   countyBoundary: "縣市界",

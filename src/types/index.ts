@@ -99,7 +99,7 @@ export type ExpandableLayerKey =
   | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
   | "h3Population" | "popCount" | "indicators"
   | "socioeconomic" | "spatialEconomy"
-  | "temperatureWave"
+  | "temperatureWave" | "temperatureGrid"
   | "schools" | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
@@ -716,6 +716,7 @@ export interface FeatureInfo {
     | "evIsland"
     | "lightningStrike" | "nuclearStation"
     | "earthquakeGlobal" | "typhoonTrack" | "climateField"
+    | "temperatureGrid"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
@@ -777,6 +778,8 @@ export interface LayerVisibility {
   socioeconomic: boolean;
   spatialEconomy: boolean;
   temperatureWave: boolean;
+  /** 溫度網格 2D（與 temperatureWave 共用同一份 CWA 0.03° 網格資料，只是改用 fill 色塊呈現） */
+  temperatureGrid: boolean;
   schools: boolean;
   convenienceStores: boolean;
   postOffices: boolean;

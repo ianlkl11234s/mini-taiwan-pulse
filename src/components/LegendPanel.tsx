@@ -10,6 +10,7 @@ import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
+import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import {
@@ -199,6 +200,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["windField"], render: () => <WindFieldLegend /> },
   { keys: ["oceanCurrents"], render: () => <OceanCurrentsLegend /> },
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
+  { keys: ["temperatureGrid"], render: () => <TemperatureGridLegend /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
@@ -2095,6 +2097,35 @@ function DustForecastLegend() {
         gradient={`linear-gradient(to right, ${DUST_BAKE_STOPS.map((s) => `${s.color} ${(s.t * 100).toFixed(0)}%`).join(", ")})`}
         labels={["低 Low", "高 High"]}
       />
+    </div>
+  );
+}
+
+// 溫度網格 2D：11 級 step 色階（色票 SSOT = data/temperatureGridTypes.ts，
+// 與 temperatureGridLayerFactory 的 fill-color step 表達式同源）。
+function TemperatureGridLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        溫度網格 TEMPERATURE GRID
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        {TEMPERATURE_GRID_BANDS.map((band) => (
+          <div key={band.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 14, height: 9, borderRadius: 2, background: band.color,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+        CWA 0.03° 逐時觀測分析格點
+      </div>
     </div>
   );
 }

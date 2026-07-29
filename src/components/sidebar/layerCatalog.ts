@@ -58,6 +58,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   socioeconomic: "#7c4dff",
   spatialEconomy: "#ff6e40",
   temperatureWave: "#ff6b35",
+  temperatureGrid: "#f46d43",
   schools: "#42a5f5",
   convenienceStores: "#26c6da",
   postOffices: "#d32f2f",
@@ -1056,6 +1057,7 @@ export const THEMES: ThemeDef[] = [
           { key: "cwaCloudImagery", label: "衛星雲圖 Cloud Imagery", expandable: true },
           { key: "cwaRadarImagery", label: "雷達回波 Radar Imagery", expandable: true },
           { key: "temperatureWave", label: "溫度波 Temperature Wave", expandable: true },
+          { key: "temperatureGrid", label: "溫度網格 Temperature Grid", expandable: true },
         ],
       },
       {
