@@ -1229,7 +1229,7 @@ export default function App() {
     opacity: transportParams.aqiImageryOpacity,
   });
   useAqiStationsLayer(mapRef, layerVisibility.aqiStations, isDarkTheme);
-  useMicroSensorsLayer(mapRef, layerVisibility.aqiMicroSensors, isDarkTheme, transportParams.aqiMicroCluster);
+  useMicroSensorsLayer(mapRef, layerVisibility.aqiMicroSensors, isDarkTheme, transportParams.aqiMicroCluster, transportParams.aqiMicroModeIdx);
 
   // ── Freeway congestion (動態 timeline 回放) ──
   useFreewayLayer(
@@ -2876,7 +2876,9 @@ export default function App() {
             />
           </div>
         )}
-        {(layerVisibility.aqiImagery || layerVisibility.aqiStations || layerVisibility.aqiMicroSensors) && (
+        {/* LASS 微感測改走 LegendPanel 的 MicroSensorLegend（三模式各自色階），
+            不再借 AqiLegend + caption 說明配色 */}
+        {(layerVisibility.aqiImagery || layerVisibility.aqiStations) && (
           <>
             {layerVisibility.aqiImagery && (
               <div style={{ pointerEvents: "auto" }}>
@@ -2888,10 +2890,7 @@ export default function App() {
               </div>
             )}
             <div style={{ pointerEvents: "auto" }}>
-              <AqiLegend
-                isDark={isDarkTheme}
-                caption={layerVisibility.aqiMicroSensors ? "LASS 點位以 PM2.5 濃度配色" : undefined}
-              />
+              <AqiLegend isDark={isDarkTheme} />
             </div>
           </>
         )}

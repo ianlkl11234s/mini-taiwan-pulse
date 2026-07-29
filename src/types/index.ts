@@ -1133,6 +1133,8 @@ export interface AqiStation {
 /** LASS AirBox / 環境部微感測 */
 export interface MicroSensor {
   deviceId: string;
+  /** 站名（RPC 升級前為 null；popup 標題有值優先顯示、否則 fallback deviceId） */
+  siteName: string | null;
   source: string;
   area: string | null;
   app: string | null;
