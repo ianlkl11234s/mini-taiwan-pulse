@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-07-24（+觀光 12 檔靜態快照）
+**最後更新**：2026-07-31（+衛星 LST raster PMTiles / micro sensor RPC +site_name）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -542,3 +542,14 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 - C 類 9 檔進 git；D 類 3 檔（attractions 6,070 / hotels 15,654 / restaurants 3,688）走 S3 `deploy-assets/tourism/` → `/data/tourism/`（G012 已上傳上線 2026-07-24）
 - 亮點欄位：attractions `annual_visitors_2024`（263/6,070 有值，null=非統計據點非 0）；hotels `hotel_classes` 單碼 1~4；activities `start_time/end_time` ISO 時間戳
 - 更新機制：觀光署家族 4 源上游每日更 → 本站 monthly 手動重跑快照（C 類重 copy 進 git + D 類重傳 S3）
+
+## 環境 — 衛星地表溫度 LST（靜態 raster PMTiles，2026-07-31 上線）
+
+| 資產 | 內容 | 位置 |
+|---|---|---|
+| `urban_heat_lst_taiwan.pmtiles` | 30MB、z6–11@512；R=ΔT（0.2K 精度）/ G=絕對°C（0.25°C）/ B=保留 / A=mask；Landsat 8/9 C2L2、5 path/row 193 景 2019–2025 暖季 median、60m、陸地覆蓋 82.9%；**不含澎湖**（上游 ST 產品對小島不出值） | S3 `deploy-assets/environment/` + pulse `public/environment/`（gitignored）|
+| 上游 pipeline | Planetary Computer STAC/data API 取 ST_B10+QA；**年更**（每年 10 月納入當年暖季重跑） | `taipei-gis-analytics/pipelines/environment/urban_heat_lst/` |
+| 郊區背景遮罩 | WorldCover cropland ∧ 純度≥80% ∧ DEM≤500m，790,854 px（建一次年更不重建） | analytics `data/intermediate/environment/urban_heat_lst/mask/` |
+| 契約 | 量化參數 / raster-color-mix 係數 | analytics `docs/handoff/urban_heat_lst.md` + `output/urban_heat_lst_encoding.json` |
+
+另：`get_micro_sensors_latest()` 自 2026-07-31（migration 322）起多回 `site_name`；LASS AirBox 實測 ~480 台在線（loader 註解寫 ~500，實際 476-482 浮動）。
