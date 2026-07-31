@@ -12,6 +12,10 @@ import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { resolveMicroSensorMode, MICRO_SENSOR_NO_DATA_COLOR } from "../data/microSensorTypes";
+import {
+  resolveUrbanHeatMode, urbanHeatLegendGradient, urbanHeatStopPercent,
+  URBAN_HEAT_CREDIT, URBAN_HEAT_COVERAGE_NOTE,
+} from "../data/urbanHeatTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import {
@@ -205,6 +209,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["temperatureGrid"], render: () => <TemperatureGridLegend /> },
   { keys: ["aqiMicroSensors"], render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
+  { keys: ["urbanHeat"], render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
@@ -2192,6 +2197,56 @@ function MicroSensorLegend({ modeIdx = 0 }: { modeIdx?: number }) {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
         LASS AirBox / 環境部微感測 · 最新 15 分鐘快照
+      </div>
+    </div>
+  );
+}
+
+// 都市熱島：兩模式共用同一份圖例框，依當前模式換漸層條 + 刻度
+// （色票／值域 SSOT = data/urbanHeatTypes.ts，與 overlayRegistry 的 raster-color 同源；
+//  刻度位置照物理值等比換算，所以 ΔT 的 0K 白點會落在正確位置而非視覺置中）。
+function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
+  const t = useLegendTheme();
+  const mode = resolveUrbanHeatMode(modeIdx);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        都市熱島 URBAN HEAT
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        {mode.label}（{mode.unit}）
+      </div>
+      <div style={{ height: 10, borderRadius: 3, background: `linear-gradient(to right, ${urbanHeatLegendGradient(mode)})` }} />
+      <div style={{ position: "relative", height: 12, marginTop: 2 }}>
+        {mode.ticks.map((tick, i) => {
+          const pct = urbanHeatStopPercent(mode, tick.value);
+          const isFirst = i === 0;
+          const isLast = i === mode.ticks.length - 1;
+          return (
+            <span
+              key={tick.label}
+              style={{
+                position: "absolute",
+                left: `${pct}%`,
+                transform: isFirst ? "none" : isLast ? "translateX(-100%)" : "translateX(-50%)",
+                fontSize: FONT_SIZE.xs,
+                color: t.textMuted,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {tick.label}
+            </span>
+          );
+        })}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        {mode.note}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        {URBAN_HEAT_CREDIT}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, lineHeight: 1.4 }}>
+        {URBAN_HEAT_COVERAGE_NOTE}
       </div>
     </div>
   );

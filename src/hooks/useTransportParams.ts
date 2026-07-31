@@ -21,6 +21,7 @@ import {
 import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 import { URBAN_FORM_GRID_MODES } from "../data/urbanFormGridTypes";
 import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
+import { URBAN_HEAT_MODES } from "../data/urbanHeatTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
@@ -535,6 +536,9 @@ export function useTransportParams() {
   const [aqiMicroCluster, setAqiMicroCluster] = useState(true);
   // LASS 微型感測器：點位上色依據（0=PM2.5 / 1=溫度 / 2=濕度，見 microSensorTypes）
   const [aqiMicroModeIdx, setAqiMicroModeIdx] = useState(0);
+  // 都市熱島 raster：顯示模式（0=熱島強度 ΔT / 1=絕對地表溫度，見 urbanHeatTypes）+ 透明度
+  const [urbanHeatModeIdx, setUrbanHeatModeIdx] = useState(0);
+  const [urbanHeatOpacity, setUrbanHeatOpacity] = useState(0.75);
   // 淹水最小深度篩選：0 = 全部, 0.5 / 1 / 2 / 3 = 只顯示大於等於該深度的分級
   const [floodMinDepth, setFloodMinDepth] = useState<0 | 0.5 | 1 | 2 | 3>(0);
   // 水庫：僅保留 Three.js 水位計的高度縮放（2026-04-22 砍掉光球 + 靜態 pillar
@@ -1391,6 +1395,9 @@ export function useTransportParams() {
     realEstateExcludeTaipei: realEstateExcludeTaipei ? 1 : 0,
     // LASS 微感測顯示模式（只供 LegendPanel 選對應圖例；paint 端走 hook 的 setPaintProperty）
     aqiMicroModeIdx,
+    // 都市熱島 raster：模式同時餵 overlayRegistry paint（raster-color-mix/range/color）與圖例
+    urbanHeatModeIdx,
+    urbanHeatOpacity,
     // Base map
     countyBoundaryOpacity, countyBoundaryWidth,
     townshipBoundaryOpacity, townshipBoundaryWidth,
@@ -1445,7 +1452,7 @@ export function useTransportParams() {
     tourCampingOpacity, tourCampingScale,
     tourHotelsOpacity, tourHotelsScale, tourHotelsClass,
     tourRestaurantsOpacity, tourRestaurantsScale,
-    aqiMicroModeIdx]);
+    aqiMicroModeIdx, urbanHeatModeIdx, urbanHeatOpacity]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     switch (layer) {
@@ -1651,6 +1658,11 @@ export function useTransportParams() {
       ];
       case "temperatureGrid": return [
         { label: `透明度 ${tempGridOpacity.toFixed(2)}`, value: tempGridOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempGridOpacity },
+      ];
+      // 都市熱島：2 選項 → ExpandedControls 會渲染成 button row（≥4 才轉原生 dropdown）
+      case "urbanHeat": return [
+        { type: "select" as const, label: "顯示", value: String(urbanHeatModeIdx), options: URBAN_HEAT_MODES.map((m) => ({ label: m.label, value: m.value })), onChange: (v: string) => setUrbanHeatModeIdx(parseInt(v, 10)) },
+        { label: `透明度 ${urbanHeatOpacity.toFixed(2)}`, value: urbanHeatOpacity, min: 0.2, max: 1, step: 0.05, onChange: setUrbanHeatOpacity },
       ];
       case "windPlan": return [];
       case "schools": return [

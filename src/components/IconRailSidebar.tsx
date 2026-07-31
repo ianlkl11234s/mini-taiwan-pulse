@@ -97,6 +97,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   windPlan: Wind,
   temperatureWave: Thermometer,
   temperatureGrid: Grid3x3,
+  urbanHeat: ThermometerSun,
   schools: GraduationCap,
   convenienceStores: Store,
   postOffices: Mail,

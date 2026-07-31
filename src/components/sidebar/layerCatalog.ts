@@ -59,6 +59,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   spatialEconomy: "#ff6e40",
   temperatureWave: "#ff6b35",
   temperatureGrid: "#f46d43",
+  urbanHeat: "#b2182b",
   schools: "#42a5f5",
   convenienceStores: "#26c6da",
   postOffices: "#d32f2f",
@@ -1058,6 +1059,7 @@ export const THEMES: ThemeDef[] = [
           { key: "cwaRadarImagery", label: "雷達回波 Radar Imagery", expandable: true },
           { key: "temperatureWave", label: "溫度波 Temperature Wave", expandable: true },
           { key: "temperatureGrid", label: "溫度網格 Temperature Grid", expandable: true },
+          { key: "urbanHeat", label: "都市熱島 Urban Heat", expandable: true },
         ],
       },
       {

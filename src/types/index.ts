@@ -99,7 +99,7 @@ export type ExpandableLayerKey =
   | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
   | "h3Population" | "popCount" | "indicators"
   | "socioeconomic" | "spatialEconomy"
-  | "temperatureWave" | "temperatureGrid"
+  | "temperatureWave" | "temperatureGrid" | "urbanHeat"
   | "schools" | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
@@ -780,6 +780,8 @@ export interface LayerVisibility {
   temperatureWave: boolean;
   /** 溫度網格 2D（與 temperatureWave 共用同一份 CWA 0.03° 網格資料，只是改用 fill 色塊呈現） */
   temperatureGrid: boolean;
+  /** 都市熱島 Urban Heat：Landsat 8/9 地表溫度 raster PMTiles（雙通道值編碼，ΔT / 絕對°C 兩模式前端上色） */
+  urbanHeat: boolean;
   schools: boolean;
   convenienceStores: boolean;
   postOffices: boolean;
