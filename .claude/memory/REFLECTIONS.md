@@ -1104,3 +1104,14 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 1. **agent 引原始碼推翻既有慣例時，先實測既有慣例再採用**——尤其結論會連帶宣判 working code 也是壞的時（→ 已入 PRINCIPLES）
 2. **raster/shader 類驗收必含像素取樣**：多點 RGB 彼此相異才算有漸層，「看起來有顏色」不夠（→ 已入 PRINCIPLES + PB-31）
 3. **stacked PR 由底往上快速 merge、勿讓 base 先被刪**；發現 PR 莫名 CLOSED 先查 base branch 存亡（→ 已入 PRINCIPLES）
+
+## 2026-07-29/30 人均市值（#95）— 部署時序與平台事實
+
+### What went well
+- 上下游平行派工（upstream pipeline / 前端模式）+ 契約先行（pop 欄定義、灰格門檻），兩 agent 零等待各自完成；圖例斷點用上游實算分位數回填，只改一個陣列
+- 瀏覽器驗收 9/9 含 popup 手算對帳（v_mkt÷pop 逐格核）與 150m disabled 回退
+
+### Next-time rules
+1. **換磚流程固定「先 S3 上傳完成、後 merge/deploy」**：這次 merge 先行，容器啟動 pull 比上傳完成早 21 分鐘，白繞 empty commit + 輪詢 35 分鐘（→ 已入 PB 部署段 + INCIDENTS）
+2. **排查部署先查平台事實再輪詢**：`zeabur deployment list` 一分鐘就能證實「empty commit 沒觸發 build」，比 15 分鐘盲輪詢便宜得多
+3. **stacked PR 要收時先 `gh pr edit <child> --base master` 再 merge+刪 parent branch**——事後 base 被刪的 CLOSED PR 無法重開、也無法改 base，只能重發（#93→#94 的可操作版）
