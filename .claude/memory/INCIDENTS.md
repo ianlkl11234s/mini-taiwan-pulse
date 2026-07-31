@@ -1354,3 +1354,11 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 
 ### 事件 D：weather_change/.env 明文 AWS S3 key（未進 git，僅本機磁碟）
 探索 weather_change 時發現本機 `.env` 含明文 `S3_ACCESS_KEY`/`S3_SECRET_KEY`（`.gitignore` 有擋、未外洩；git 只追蹤 .env.example）。移植過程未複製任何憑證進 pulse。建議輪替該組 key → BACKLOG G016。
+
+## 2026-07-29/30 — 人均市值（#95）部署鏈兩發現（本 session 亦為 #92/#94/#95 依序 squash 的執行方）
+
+### 事件 A：Zeabur empty commit 不觸發 build → 換磚部署 race 白繞 35 分鐘
+S3 換磚上傳完成於 15:25Z，但 #95 merge（15:02Z）觸發的容器已在 15:04Z 啟動並 pull → prod 拿舊磚。推空 commit 想觸發 redeploy、輪詢 15 分鐘無效；`zeabur deployment list` 一查即破案：**empty commit 根本沒產生 deployment**。正解：`zeabur service exec --id <svc> --env-id <env> -i=false -- sh /usr/local/bin/pull-deploy-assets.sh`（CLI 本機已登入；s3 sync 精準只拉變動檔、零停機，實測即列出兩檔 download）。教訓：換磚 SOP 固定「先 S3 上傳完成、後 merge/deploy」；排查部署先查平台事實（deployment list 對時間戳）再輪詢。
+
+### 事件 B：origin 換新後 Cloudflare edge 仍供舊 pmtiles（range request 同吃舊快取）
+service exec pull 完 origin 已新（cache-bust 驗證），但 edge 對無 query URL 仍 HIT 舊物件，且 **PMTiles 的 range request 也從同一舊快取切片**（content-range total = 舊檔大小）。`cache-control: max-age=86400` → 自然過期要 1 天。`purge-cloudflare-cache.sh` 現成但 CF_ZONE_ID/CF_API_TOKEN 全機未設 → G017。過渡期症狀：新前端 + 舊磚 = 人均模式整片灰半透明（pop 缺欄的誠實 fallback，不會壞）。
