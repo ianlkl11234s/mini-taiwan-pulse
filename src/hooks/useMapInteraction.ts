@@ -271,6 +271,11 @@ export function useMapInteraction(
           { layers: ["coverage-ev-island-line"], type: "evIsland" },
           { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
           { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
+          // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；
+          // ripple 動畫圈半徑會瞬時放大到 60~80px+ 且持續變動，納入點擊會蓋過其他層的既有命中範圍，故不收）
+          { layers: ["earthquake-post", "earthquake-pre"], type: "earthquakes" },
+          // 地震回放：測站點層可點；鄉鎮面量圖是大面積 fill → 排到最後段（見下方 GIS_LAYERS 末尾）
+          { layers: ["eq-replay-station-circle"], type: "earthquakeReplayStation" },
           // 全球氣候 GLOBAL CLIMATE
           { layers: ["earthquakes-global-circle"], type: "earthquakeGlobal" },
           // 🌍 世界 WORLD
@@ -448,6 +453,8 @@ export function useMapInteraction(
           { layers: ["police-iso-substation-fill", "police-iso-substation-line"], type: "policeIsoSubstation" },
           { layers: ["police-iso-precinct-fill", "police-iso-precinct-line"], type: "policeIsoPrecinct" },
           { layers: ["police-iso-city-dept-fill", "police-iso-city-dept-line"], type: "policeIsoCityDept" },
+          // 地震回放 鄉鎮面量圖：368 鄉鎮大面積 fill → 排在點/線層之後
+          { layers: ["eq-replay-town-fill"], type: "earthquakeReplayTown" },
           // 溫度網格 2D：鋪滿全台陸地的大面積 fill → 放最末，不擋任何點/線層
           { layers: ["temperature-grid-fill"], type: "temperatureGrid" },
         ];
@@ -471,11 +478,14 @@ export function useMapInteraction(
               }
             }
             if (!coords) coords = [e.lngLat.lng, e.lngLat.lat];
-            // roadCongestion 的 level / temperatureGrid 的 temp 在 feature-state
-            //（非 baked properties）→ 併入
-            const properties = type === "roadCongestion" || type === "temperatureGrid"
-              ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
-              : (f.properties ?? {});
+            // roadCongestion 的 level / temperatureGrid 的 temp / earthquakeReplayTown 的 eqi
+            // 在 feature-state（非 baked properties）→ 併入
+            const properties =
+              type === "roadCongestion" ||
+              type === "temperatureGrid" ||
+              type === "earthquakeReplayTown"
+                ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
+                : (f.properties ?? {});
             setFeatureInfo({ layerType: type, properties, coords });
             sessionTracker.log("feature_click", { layerType: type });
             found = true;

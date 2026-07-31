@@ -389,6 +389,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'earthquake', confidence: 'HIGH' }],
   },
+  earthquakeReplay: {
+    status: 'verified',
+    datasets: [{ datasetId: 'earthquake', confidence: 'HIGH' }],
+    processing: 'CWA/NCDR/中研院五件套（事件 / 逐站 PGA / 368 鄉鎮震度 / 2.5km 等震度網格 / 震源機制解）合成單一事件回放動畫',
+  },
   activeFaults: {
     status: 'verified',
     datasets: [{ datasetId: 'earthquake', confidence: 'LOW' }],

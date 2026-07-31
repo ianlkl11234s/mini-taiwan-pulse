@@ -105,6 +105,7 @@ export type ExpandableLayerKey =
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
   | "submarineCables" | "landingStations"
   | "activeFaults"
+  | "earthquakeReplay"
   | "newsEvents"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -142,6 +143,7 @@ export type ExpandableLayerKey =
   | "aqiStations"
   | "aqiMicroSensors"
   | "earthquakes"
+  | "earthquakeReplay"
   | "earthquakesGlobal"
   | "typhoonTracks"
   | "dustForecast"
@@ -715,7 +717,9 @@ export interface FeatureInfo {
     | "gasCoverageAll" | "gasCoverageCpc" | "gasCoverageFpcc" | "gasCoverageTaisugar"
     | "evIsland"
     | "lightningStrike" | "nuclearStation"
-    | "earthquakeGlobal" | "typhoonTrack" | "climateField"
+    | "earthquakes" | "earthquakeGlobal" | "typhoonTrack" | "climateField"
+    // 地震回放：測站逐顆亮起 / 368 鄉鎮面量圖（皆走 feature-state 上色）
+    | "earthquakeReplayStation" | "earthquakeReplayTown"
     | "temperatureGrid"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
@@ -798,6 +802,8 @@ export interface LayerVisibility {
   newsEvents: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
+  /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
+  earthquakeReplay: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）

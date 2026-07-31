@@ -37,6 +37,7 @@ import { useNewsEventsLayer } from "./hooks/useNewsEventsLayer";
 import { useSelectedFeatureHalo } from "./hooks/useSelectedFeatureHalo";
 import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
 import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
+import { useEarthquakeReplayLayer } from "./hooks/useEarthquakeReplayLayer";
 import { useEarthquakesGlobalLayer } from "./hooks/useEarthquakesGlobalLayer";
 import { useWorldTrashDebrisLayer } from "./hooks/useWorldTrashDebrisLayer";
 import { useTyphoonTracksLayer, type TyphoonSource } from "./hooks/useTyphoonTracksLayer";
@@ -130,6 +131,8 @@ import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { PropertyValuePanel } from "./components/PropertyValuePanel";
+import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
+import { earthquakeReplayClock } from "./state/earthquakeReplayClock";
 import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteConsoleStore";
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
@@ -1039,6 +1042,18 @@ export default function App() {
     layerVisibility.earthquakes,
     transportParams.eqOpacity,
     transportParams.eqShowHistory,
+  );
+
+  // ── 地震回放（scoped 播放器，時鐘在 earthquakeReplayClock，不掛 timeStore）──
+  const [eqReplaySelectedId, setEqReplaySelectedId] = useState<string | null>(null);
+  const [eqReplayPlaying, setEqReplayPlaying] = useState(false);
+  useEarthquakeReplayLayer(
+    mapRef,
+    layerVisibility.earthquakeReplay,
+    transportParams.eqReplayOpacity,
+    eqReplaySelectedId,
+    eqReplayPlaying,
+    useCallback(() => setEqReplayPlaying(false), []),
   );
 
   // ── 全球氣候 GLOBAL CLIMATE（migration 261）──
@@ -2036,6 +2051,24 @@ export default function App() {
           <PropertyValuePanel
             open={propertyValueOpen}
             onClose={() => setPropertyValueOpen(false)}
+          />
+
+          {/* 🌋 地震回放 Earthquake Replay（事件清單 + 播放控制） */}
+          <EarthquakeReplayPanel
+            open={layerVisibility.earthquakeReplay}
+            onClose={() => setLayerVisibility((prev) => ({ ...prev, earthquakeReplay: false }))}
+            selectedId={eqReplaySelectedId}
+            onSelect={(ev) => {
+              setEqReplaySelectedId(ev.event_id);
+              setEqReplayPlaying(true);
+              earthquakeReplayClock.reset();
+            }}
+            playing={eqReplayPlaying}
+            onTogglePlay={() => setEqReplayPlaying((p) => !p)}
+            onReplay={() => {
+              earthquakeReplayClock.reset();
+              setEqReplayPlaying(true);
+            }}
           />
 
           {/* 即時情報 Intel Panel */}

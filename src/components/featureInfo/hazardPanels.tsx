@@ -8,6 +8,7 @@ import {
   classifyNuclearDose, nuclearDoseColor,
   NUCLEAR_LEVEL_LABELS, NUCLEAR_DOSE_THRESHOLDS,
 } from "../../data/nuclearLoader";
+import { intensityColor, intensityLabel } from "../../data/earthquakeReplayTypes";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -27,6 +28,34 @@ function fmtTime(ts: unknown): string {
     hour: "2-digit", minute: "2-digit", second: "2-digit",
     hour12: false,
   });
+}
+
+/** 發生時間強制以台灣時區顯示（不依賴瀏覽器本地時區） */
+function fmtTimeTaipei(ts: unknown): string {
+  if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
+  return new Date(ts * 1000).toLocaleString("zh-TW", {
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Taipei",
+  });
+}
+
+function magBadgeColor(mag: number): string {
+  if (mag >= 7) return "#dc2626";
+  if (mag >= 6) return "#ef4444";
+  if (mag >= 5) return "#f97316";
+  if (mag >= 4) return "#facc15";
+  return "#94a3b8";
+}
+
+// 與 useEarthquakeLayer 的 COLOR_EXPR 同步（依深度分級）
+function depthColor(depth: number): string {
+  if (depth <= 30) return "#ff3b30";
+  if (depth <= 70) return "#ff9500";
+  if (depth <= 150) return "#ffcc00";
+  if (depth <= 300) return "#42a5f5";
+  return "#3949ab";
 }
 
 export function LightningStrikePanel({ props }: { props: Record<string, unknown> }) {
@@ -90,6 +119,73 @@ export function NuclearStationPanel({ props }: { props: Record<string, unknown> 
           ⚠️ 已達 AEC 警戒閾值（&gt; {NUCLEAR_DOSE_THRESHOLDS.warning} µSv/h），建議交叉確認原能會即時頁面。
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * 本土地震（CWA earthquake_events，useEarthquakeLayer 的 pre/post 兩態）。
+ * ripple 動畫圈不接 click（見 useMapInteraction GIS_LAYERS 註解）。
+ */
+export function EarthquakePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const mag = typeof props.magnitude === "number" ? props.magnitude : null;
+  const depth = typeof props.depth_km === "number" ? props.depth_km : null;
+  const magColor = mag != null ? magBadgeColor(mag) : t.textDim;
+  const dColor = depth != null ? depthColor(depth) : t.textDim;
+  return (
+    <div>
+      <Row label="規模 (M)" value={mag != null ? `M ${mag.toFixed(1)}` : "—"} color={magColor} />
+      <Row label="深度" value={depth != null ? `${depth.toFixed(1)} km` : "—"} color={dColor} />
+      <Row label="發生時間" value={fmtTimeTaipei(props.occurred_ts)} />
+      <Row label="震央位置" value={String(props.location_desc || "—")} />
+      <Row label="報告類型" value={String(props.report_type || "—")} />
+    </div>
+  );
+}
+
+/**
+ * 地震回放 — 強震測站（earthquake_station_obs）。
+ * 震度色階與網格 / 鄉鎮面量圖同源（earthquakeReplayTypes.CWA_INTENSITY_BANDS）。
+ */
+export function EarthquakeReplayStationPanel({ props }: { props: Record<string, unknown> }) {
+  const iv = typeof props.intensity_value === "number" ? props.intensity_value : null;
+  const pga = typeof props.pga_int === "number" ? props.pga_int : null;
+  const dist = typeof props.epicenter_distance_km === "number" ? props.epicenter_distance_km : null;
+  return (
+    <div>
+      <Row label="測站" value={String(props.station_id ?? "—")} />
+      <Row
+        label="震度"
+        value={iv != null ? intensityLabel(iv) : "—"}
+        color={iv != null ? intensityColor(iv) : undefined}
+      />
+      <Row label="PGA" value={pga != null ? `${pga.toFixed(1)} gal` : "—"} />
+      <Row label="震央距" value={dist != null ? `${dist.toFixed(1)} km` : "—"} />
+      <Row
+        label="S 波抵達"
+        value={dist != null ? `震後 ${(dist / 3.5).toFixed(1)} 秒` : "—"}
+      />
+    </div>
+  );
+}
+
+/**
+ * 地震回放 — 鄉鎮震度（earthquake_town_intensity join 鄉鎮 polygon）。
+ * 震度值來自 feature-state `eqi`（PMTiles 幾何本身沒有震度屬性）。
+ */
+export function EarthquakeReplayTownPanel({ props }: { props: Record<string, unknown> }) {
+  const iv = typeof props.eqi === "number" ? props.eqi : null;
+  return (
+    <div>
+      <Row label="鄉鎮市區" value={String(props.TOWNNAME ?? "—")} />
+      <Row label="縣市" value={String(props.COUNTYNAME ?? "—")} />
+      <Row
+        label="震度"
+        value={iv != null ? intensityLabel(iv) : "—"}
+        color={iv != null ? intensityColor(iv) : undefined}
+      />
+      <Row label="來源" value="CWA 鄉鎮震度報告" />
     </div>
   );
 }

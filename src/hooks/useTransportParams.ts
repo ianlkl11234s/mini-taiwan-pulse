@@ -519,6 +519,8 @@ export function useTransportParams() {
   // Earthquake
   const [eqOpacity, setEqOpacity] = useState(1.0);
   const [eqShowHistory, setEqShowHistory] = useState(false);
+  // 地震回放（earthquakeReplay）
+  const [eqReplayOpacity, setEqReplayOpacity] = useState(0.95);
   // Disaster Alerts
   const [daOpacity, setDaOpacity] = useState(1.0);
   // Road Events
@@ -1799,6 +1801,10 @@ export function useTransportParams() {
         { label: `Opacity ${eqOpacity.toFixed(2)}`, value: eqOpacity, min: 0, max: 1, step: 0.05, onChange: setEqOpacity },
         { type: "select" as const, label: "Mode", value: eqShowHistory ? "history" : "timeline", options: [{ label: "Timeline", value: "timeline" }, { label: "History", value: "history" }], onChange: (v: string) => setEqShowHistory(v === "history") },
       ];
+      // 事件選擇 / 播放控制在 EarthquakeReplayPanel（清單 + scrub 塞不進 240px sidebar，鐵則 4）
+      case "earthquakeReplay": return [
+        { label: `透明度 ${eqReplayOpacity.toFixed(2)}`, value: eqReplayOpacity, min: 0, max: 1, step: 0.05, onChange: setEqReplayOpacity },
+      ];
       // ── 全球氣候 GLOBAL CLIMATE ──
       case "earthquakesGlobal": return [
         { label: `透明度 ${earthquakesGlobalOpacity.toFixed(2)}`, value: earthquakesGlobalOpacity, min: 0, max: 1, step: 0.05, onChange: setEarthquakesGlobalOpacity },
@@ -2884,6 +2890,7 @@ export function useTransportParams() {
     tempGridOpacity,
     eqOpacity,
     eqShowHistory,
+    eqReplayOpacity,
     daOpacity,
     reOpacity,
     satOpacity,
