@@ -923,3 +923,27 @@ Python `json` 與 `jq` 都接受 `Infinity` / `-Infinity` / `NaN` 非標準 lite
 - 確定失效（如直播下播）→ 先補查替代，找到才換、找不到才清
 - 配 TTL（如 48h 未驗證才清）防殭屍殘留
 反例：舊 yt resolver 失敗即整列清空，在 0.3% 成功率下等於每天只有 5 分鐘有資料（TVBS 三年沒換的 ID 也活不過下一輪）。寫入層 transform 是無條件整列覆寫時，sticky 要做在 collector 層。
+
+## raster 值編碼圖層的 raster-color-mix 係數（⚠ P0，2026-07-31 實測定案）
+
+mapbox-gl 3.x 的 `raster-color-mix` 係數作用在「正規化 0–1 的 texture 取樣值」上：
+**mix = 物理 decode 斜率 ×255**（canopy `6.375=255/40`、urbanHeat `51=255/5` / `63.75=255/4`），
+offset 不變；`["raster-value"]` 與 `raster-color` stop 一律寫物理值。
+
+- **禁止**依 mapbox-gl 原始碼片段推導改用未 ×255 的物理斜率——2026-07-30 實測會讓整層飽和在
+  range 下限、單色無漸層（shader 換算鏈太長，片段推導必翻車）。
+- **驗收鐵則**：raster / shader 類實作一律以「畫面像素取樣」定案——多點 RGB 彼此相異＝有漸層、
+  nodata 區透明見底圖；不信原始碼推導、不信 code review。既有 working 圖層（canopyHeight）
+  就是現成對照組，**推翻它之前先實測它**。
+- nodata 一律靠 source alpha（mapbox 會把 A 乘進上色結果），不要加透明 stop、不要用哨兵值判斷
+  （量化後 DN=0 是合法物理值）。
+
+## Stacked PR merge 順序（2026-07-31 教訓）
+
+GitHub squash merge + **刪除 base branch** 時，以該 branch 為 base 的 stacked PR 會被
+**自動 CLOSED**（不會 retarget 到 master），內容不會進 master——#93 因此蒸發、靠手動重發 #94 補回。
+
+- Stacked PR 一律**由底往上依序 merge**；每 merge 一層，立刻把上層
+  `git rebase --onto origin/master <舊 base 尖>` 落到最新 master 再更新/重發 PR。
+- 或 merge base PR 時**先不刪 branch**，等整條鏈 merge 完再清。
+- 看到 PR 莫名 CLOSED + CONFLICTING：先查 base branch 是否已被刪，不要急著解衝突。
