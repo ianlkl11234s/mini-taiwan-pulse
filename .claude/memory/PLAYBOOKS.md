@@ -741,6 +741,9 @@ curl -sI https://<domain>/<path>                                  # 線上逐層
 nginx `/geo /h3 /bus` 帶 `@dist` fallback；Cloudflare Cache Rule 配 404/5xx no-cache。
 容器內補抓單檔（免重啟）：`npx zeabur@latest service exec --id <id> -i=false -- /usr/local/bin/pull-deploy-assets.sh`。
 flag 是 `--id` 不是 `--service-id`。
+⚠️ **empty commit 不會觸發 Zeabur build**（2026-07-30 deployment list 實證無新部署）——換資料磚別推空 commit，直接 service exec pull。
+換磚時序：**S3 上傳完成要早於 merge/deploy**（merge 後容器 ~2min 內就啟動 pull，上傳沒完成就拿舊檔）；錯過用 service exec 補拉，`curl -I "<url>?cb=<ts>"` cache-bust 驗 origin。
+origin 換新後 Cloudflare edge 仍可能 HIT 舊檔至多 1d（PMTiles range request 同吃舊快取）；要立即生效跑 `purge-cloudflare-cache.sh`（需 .env CF_ZONE_ID/CF_API_TOKEN → BACKLOG G017）。
 
 ---
 
