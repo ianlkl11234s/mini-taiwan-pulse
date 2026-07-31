@@ -331,3 +331,14 @@
 - **lock_type**：`gated_layers.lock_type`（`'ui'`|`'full'`）。`full`=乾淨鎖（DB REVOKE anon、資料真鎖，機密用）；`ui`=UI 鎖（不 REVOKE、資料公開，未登入顯示鎖頭引導登入、登入即開，非機密引導註冊用）。純宣告欄位，後台改它不動 DB grant（防誤公開）。
 - **gated_layers**：`public.gated_layers` 治理表，圖層鎖定的 DB SSOT（layer_key/category/required_tier/enabled/lock_type）。公開 RPC `get_layer_gates()` 回前 3+lock_type 供前端動態 gating（不含地理資料）。
 - **enforce_layer_access**：鎖定 RPC 的守門 helper，查 profiles.tier vs gated_layers.required_tier，granted 寫 access_audit_log、denied RAISE 42501 + server log。SECURITY DEFINER，故被它守的 RPC 必 VOLATILE。
+
+## 衛星遙測 LST（2026-07-31 加）
+
+- **LST**（Land Surface Temperature）：地表「皮膚」溫度，≠ 氣溫 ≠ 體感；Landsat C2 L2 ST_B10 產品，`°C = DN×0.00341802 + 149 − 273.15`（DN=0 為 nodata）
+- **ΔT（熱島強度）**：像元 LST − 郊區背景中位數（WorldCover cropland 遮罩）；跨日期可比，絕對溫度不可比
+- **STAC**：衛星影像統一目錄 API；Planetary Computer 免帳號可讀 bytes（earth-search 只有 metadata 免費，bytes 在 requester-pays bucket）
+- **COG**：Cloud-Optimized GeoTIFF，支援 HTTP Range 窗格讀取 + 內建 overview 金字塔
+- **WRS-2 path/row**：Landsat 軌道網格；台灣本島 5 景（117/043-045、118/043-044），L8+L9 合併重訪 8 天、過境當地 ~10:20
+- **QA_PIXEL**：逐像元 16-bit 品質旗標；熱島應用剔 bit 0-4（fill/雲系/雲影）+ bit 7（水體，避免拉偏背景）
+- **ST_QA**：逐像元溫度不確定度（存 ×0.01 K）；門檻用 per-path/row 分位數（P75），不用絕對常數（北台暖季中位數就 3.76K）
+- **raster-color-mix**：mapbox raster 動態上色的通道係數 = 物理斜率 ×255（詳 PRINCIPLES）
