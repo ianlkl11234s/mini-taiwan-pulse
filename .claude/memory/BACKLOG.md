@@ -120,6 +120,19 @@
 | TY-2 | P3 | JMA 強度資料缺（氣壓/風速） | open | bosai 端點只有位置；需另接 JMA 強度來源（data-collectors） |
 | TY-4/5/6 | P1 | 現在位置圈 + 跳點斷線 + 預測/實際差異 + 資料源選擇器 + 同時刻去重 | **done** | PR #42 |
 
+### 微氣候 / 衛星遙測（MC 系列，2026-07-31 加 — 溫度三部曲後續）
+
+> 已上線：溫度網格 2D（#92）/ LASS 三模式（#94）/ 都市熱島 LST（#96，年更靜態）。
+> 方法論 SSOT：`taipei-gis-analytics/docs/topic-research/remote_sensing/urban-heat-lst-methodology.md`。
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| MC-1 | P2 | 接環境部 IoT 微感測（10,983 點 = LASS 22 倍） | open | 端點已遷 `sta.colife.org.tw`（2026-07-29 實測可通；collector 註解的 sta.ci.taiwan.gov.tw 已死）。SensorThings OData；每站 PM2.5+溫濕 ~1min/筆；上游只留 2.5h rolling window 須自落庫；`areaType` 部署情境分類（工業/交通/社區/敏感，部分縣市未填）。三 repo 8 步 SOP + **落庫聚合設計必先做**（10,983 點高頻勿無腦全存）；collector TODO `fetch_moenv_iot()` 現在可解 |
+| MC-2 | P3 | ECOSTRESS 夜間熱島（70m，含夜間/午後過境） | open | 補 Landsat 只有上午 10:20 的缺口；日/夜熱島對比是敘事最有力部分。需用戶註冊免費 NASA Earthdata 帳號 |
+| MC-3 | P3 | LST valid-count 診斷模式 | open | PMTiles B 通道還空著，可編每像元有效觀測數；回應「坑洞成因」FAQ（方法論 §8a）；前端多一個 mix 通道 + 色帶即可 |
+| MC-4 | P3 | LASS collector 補 `SiteAddr` 完整地址 | open | 原始 feed 有、`_normalize()` 沒抓 + DB 缺欄；popup 細節用。死欄位（hcho/model/gps_alt/c_d0）已盤清不做 |
+| MC-5 | P3 | LST 年更（2026-10 後） | open | 納入 2026 暖季重跑 median；檔名不帶日期 → 重跑 pipeline + S3 覆蓋 + redeploy 即可零程式改動；順手核對 P2–P98 色階值域有無漂移 |
+
 ### 一般待辦
 
 | ID | 優先級 | 項目 | 狀態 | 備註 |
@@ -137,6 +150,7 @@
 | G013 | P1 | KHH collector 檔 SCP 上 HiCloud VM | open | 2026-07-26 KHH1/KHH5 端點修正已 push（data-collectors `a2f158a`），但生產實跑的是 VM（210.61.15.74）cron 版、手動 SCP 不接 git；未更新前 KHH 資料停在 7/26 一次性回填。照 `external/immigration_apis_airport_vm/README` 覆蓋 `/opt/immigration-apis-airport/immigration_apis_airport_collect.py` 即生效 |
 | G014 | P1 | gis-platform migration 301/318/319/320 commit + push | **done 2026-07-29** | 318/319/320 以 gis-platform PR #42（merge `6937d2b`，保留兩顆 atomic commits）收納；301 查證早已在 main（`0f2b878` 含於先前 merge）。三支 RPC/policy 自 7/26 起即在 production 運行 |
 | G015 | P3 | feat/monitor-grid-layout 分支（14 commits Monitor v2）復活評估 | open | 2026-07-26 靜態網格（PR #90）只取代了其中 2 個修 bug commit；RGL 可拖曳畫布 + widget registry + 版面持久化 + 會員 gating 未被取代。若要生產環境拖拉版面再議 rebase；沙盒 Artifact + monitorLayout.ts 流程（PB-30）已滿足目前需求 |
+| G016 | P2 | weather_change/.env 明文 AWS S3 key 輪替 | open | 2026-07-29 探索時發現（未進 git、僅本機磁碟，.gitignore 有擋）。輪替該組 key + 清 .env；該 repo 的 S3 舊流程 2026-02 已廢，可能可直接註銷憑證。詳 INCIDENTS 2026-07-29/31 事件 D |
 
 ### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
 
