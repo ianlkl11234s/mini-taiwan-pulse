@@ -151,6 +151,7 @@
 | G014 | P1 | gis-platform migration 301/318/319/320 commit + push | **done 2026-07-29** | 318/319/320 以 gis-platform PR #42（merge `6937d2b`，保留兩顆 atomic commits）收納；301 查證早已在 main（`0f2b878` 含於先前 merge）。三支 RPC/policy 自 7/26 起即在 production 運行 |
 | G015 | P3 | feat/monitor-grid-layout 分支（14 commits Monitor v2）復活評估 | open | 2026-07-26 靜態網格（PR #90）只取代了其中 2 個修 bug commit；RGL 可拖曳畫布 + widget registry + 版面持久化 + 會員 gating 未被取代。若要生產環境拖拉版面再議 rebase；沙盒 Artifact + monitorLayout.ts 流程（PB-30）已滿足目前需求 |
 | G016 | P2 | weather_change/.env 明文 AWS S3 key 輪替 | open | 2026-07-29 探索時發現（未進 git、僅本機磁碟，.gitignore 有擋）。輪替該組 key + 清 .env；該 repo 的 S3 舊流程 2026-02 已廢，可能可直接註銷憑證。詳 INCIDENTS 2026-07-29/31 事件 D |
+| G017 | P3 | CF purge 憑證入 .env（CF_ZONE_ID + Cache Purge 權限 API token） | open | 2026-07-30 人均磚換新後 edge 快取供舊 pmtiles（range request 同吃），1d TTL 才自然過期；`purge-cloudflare-cache.sh` 現成但全機無憑證。設定後換磚 SOP 尾端補跑即可立即生效。詳 INCIDENTS 2026-07-29/30 事件 B |
 
 ### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
 
