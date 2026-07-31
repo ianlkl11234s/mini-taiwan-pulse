@@ -1,6 +1,26 @@
 # Status
 
-**最後更新**：2026-07-27（monitor 三部曲 PR #89/#90/#91 全 merged + migration 318-320 apply + yt resolver Data API 重寫部署）
+**最後更新**：2026-07-31（溫度三部曲 PR #92/#94/#96 全 merged + LST pipeline 上線 + migration 322 + S3 上傳；prod 差一次 redeploy）
+**mini-taiwan-pulse head**：`master` = `4e50116`（#96 urbanHeat 疊 #95 市值 `3a55e46`〔他 session〕疊 #94 微感測 `c302f4c` 疊 #92 溫度網格 `8fbcdd7`）
+**gis-platform head**：`main` = `eca0b83`（migration 322 site_name，已 apply production + push）
+**taipei-gis-analytics head**：`master` = `8b36a19`（LST pipeline + 方法論 + handoff，已 push）；**未 commit 殘留（他 session）**：部署 SOP 12 步治理 5 檔 + street_trees_4epoch `_manifest.json`
+**data-collectors head**：不變（G013 KHH VM SCP 仍 open）
+
+> ⚠️ **prod 上線最後一哩**：master + S3（`deploy-assets/environment/urban_heat_lst_taiwan.pmtiles` 30MB 已驗證存在）都就緒，**差一次 Zeabur redeploy**（pull 端 environment/ sync 早已存在）。
+> 工作樹既有未提交（他 session，勿動）：AGENTS.md / CLAUDE.md / public/climate/* / docs/git-workflow.md。
+
+## 本 session 完成（2026-07-29~31）— 溫度三部曲（溫度網格 2D / 微感測三模式 / 都市熱島 LST）
+
+- **PR #92 溫度網格 2D**（`8fbcdd7`）：CWA 0.03° 溫度網格用原生 fill layer 平面呈現（可疊圖），與 3D 溫度波**共用同一組 RPC**（任一層開啟才抓一次）；11 級固定色階移植 weather_change——偵察發現該站資料源頭就是 pulse 既有 `get_temperature_*`，零 pipeline 移植；幾何一次建成 + feature-state 染色 + timeStore lerp 三道節流；四鐵則全接、無白名單豁免
+- **PR #94 LASS 微感測三模式**（`c302f4c`）：點位上色 PM2.5/溫度/濕度 select（溫度色階直接 import `temperatureGridTypes`，跨層同源）+ 三套圖例（把 aqiMicroSensors 移出 BASELINE_NO_LEGEND）+ popup 站名（gis-platform migration 322 補 `site_name`，已 apply + push `eca0b83`）。#93 被 GitHub 自動關閉事故 → INCIDENTS 事件 B
+- **PR #96 都市熱島 Urban Heat**（`4e50116`）：Landsat 8/9 C2L2 ST_B10、5 path/row 193 景 2019–2025 暖季 median（60m 全島、WorldCover cropland 統一郊區背景、ST_QA per-path/row P75）→ 雙通道值編碼 raster PMTiles 30MB（z6–11@512，R=ΔT/G=絕對°C/A=mask）→ 前端 raster-color 雙模式切換。**mix 係數 ×255 bug 由瀏覽器像素取樣攔下**（INCIDENTS 事件 A）；澎湖上游無資料（圖例已註）；接 #95 後 rebase 解 import 衝突再 merge
+- **研究與文件**：LST 方法論教學版落地 analytics（`8b36a19`，含 §8a 坑洞成因 FAQ）+ handoff + pulse feature docs；微感測上游盤點——EPA IoT 端點已遷移 `sta.colife.org.tw` 且實測復活（10,983 點 = LASS 22 倍，→ MC-1）、LASS 死欄位盤清（hcho/model/gps_alt 不做）；魚塭遙測確認早已完整歸檔（4 個待拍板懸案留用戶）
+- **編排**：12+ agents（探索 4 / 實作 4 / 瀏覽器驗收 4），三段驗收全程（tsc/tests 獨立重跑 + diff 親審 + browser 像素取樣）；LST POC quicklook 親驗通過才放行全島版
+- 待辦：**MC-1~5**（微氣候系列，見 BACKLOG）/ **G016**（weather_change S3 key 輪替）/ prod redeploy（用戶按一下）
+
+---
+
+**前次更新**：2026-07-27（monitor 三部曲 PR #89/#90/#91 全 merged + migration 318-320 apply + yt resolver Data API 重寫部署）
 **mini-taiwan-pulse head**：`master` = `015a8b0`（#91 ER 網格+直播牆 疊 #90 靜態網格 `3888014` 疊 #89 修復 `919f695`）+ 本批 memory/docs commits 未 push
 **gis-platform head**：`main` + **未 commit：migration 318/319/320（皆已 apply production 在跑）+ 更早的 301**（BACKLOG G014）
 **data-collectors head**：`main` = `d8b6f10`（yt resolver Data API v3 + sticky，已部署 Zeabur + YOUTUBE_API_KEY）；`a2f158a`（KHH 端點）已 push 但 **生產 VM 未 SCP**（G013）
