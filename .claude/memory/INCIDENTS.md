@@ -1336,3 +1336,21 @@ drive 5min radius 2739m，榮興偏移 5306m > radius → polygon 完全不在 s
 ### 事件 D：KHH 機場無資料 = collector ENDPOINTS 漏收 + VM 手動部署陷阱
 高雄 KHH1（入境）/KHH5（出境）端點從未列入 ENDPOINTS（前端/RPC 都正確；curl 驗證端點活著格式一致）。補上後本地跑一輪 1,289 筆進 DB、commit `a2f158a` 已 push。⚠ 生產實跑的是 HiCloud VM（210.61.15.74）cron 版，檔案手動 SCP 不接 git——**git push 不會生效**；Zeabur 版因移民署 API 擋國際雲商 IP 而 enabled=false。VM 更新待用戶執行（G013），未更新前 KHH 只有 7/26 一次性資料。
 **教訓**：`external/` 目錄的 collector 先讀部署說明再談上線；「push 了」≠「部署了」。
+
+---
+
+## 2026-07-29/31 — 溫度三部曲（溫度網格 / 微感測模式 / 都市熱島 LST）
+
+### 事件 A：raster-color-mix 係數 shader 推導翻車 → 像素取樣定案
+實作 agent 讀 mapbox-gl 3.9 原始碼（`computeRasterColorMix` 帶 ×255 factor）推導出「mix 係數作用在 0–255 原始 DN」，據此推翻上游 handoff 的 ×255 寫法、連帶宣判既有 canopyHeight 也是壞的；主 agent code review + tsc + 197 tests 全放行。瀏覽器驗收像素取樣戳破：全島單色飽和在 range 下限（(35,86,139) 無漸層），而 canopy 對照組漸層正常 → 正確模型是「texture 取樣正規化 0–1，係數 = 物理斜率 ×255」（51=255/5、63.75=255/4）。修正後複驗：三都會 RGB 各異、山脈藍系、海面/澎湖透明。
+- 教訓：shader 換算鏈太長（style→computeRasterColorMix→uniform→GLSL），單看原始碼片段推導必翻車；係數對錯以畫面像素實測為準；**推翻 working 範本前先實測 working 範本**。→ PRINCIPLES 新增。
+- 附帶小修：popup 溫度是點擊快照但「時間」欄讀 module 層 live 值 → 開著面板拖時間軸出現時溫錯配，改 `useMemo(..., [props])` 凍結同刻。
+
+### 事件 B：#92 squash merge 刪 base branch → stacked PR #93 被 GitHub 自動關閉
+#93（base=feat/temperature-grid-2d）在 #92 merge + branch 刪除後被**自動 CLOSED**（GitHub 不 retarget 到 master、直接關），內容未進 master；用戶手動重發 #94 才補上。#96 記取教訓：`git rebase --onto origin/master <舊base尖>` 落到最新 master 再發 PR（過程解掉與 #95 的 import 衝突）。→ PRINCIPLES 新增。
+
+### 事件 C：LST pipeline 三個資料層教訓（SSOT：analytics 方法論文件）
+① 直讀 COG 實測 30–50KB/s + GDAL 27 reader 並行壅塞崩潰 → 改 Planetary Computer server-side crop API（快 10 倍；限流表現為「收下連線永不回應」→ timeout 150s + 退避；並行 6→16 實測 0 失敗，監看要看耗時分布不是 error log）。② ST_QA 絕對門檻 3K 在北台暖季丟 85% 像元 → 改 per-path/row P75 相對分位數（南部 5.1–5.2K vs 北部 4.4K，實證必要）。③ 逐景背景中位數被雲遮罩取樣偏差綁架（35 景背景散布 21K）→ 全島版用 WorldCover cropland 統一背景遮罩 + 景級樣本守門。詳：`taipei-gis-analytics/docs/topic-research/remote_sensing/urban-heat-lst-methodology.md`。
+
+### 事件 D：weather_change/.env 明文 AWS S3 key（未進 git，僅本機磁碟）
+探索 weather_change 時發現本機 `.env` 含明文 `S3_ACCESS_KEY`/`S3_SECRET_KEY`（`.gitignore` 有擋、未外洩；git 只追蹤 .env.example）。移植過程未複製任何憑證進 pulse。建議輪替該組 key → BACKLOG G016。
