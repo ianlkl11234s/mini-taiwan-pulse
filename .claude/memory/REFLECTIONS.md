@@ -1090,3 +1090,17 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 1. **agent 回報裡的異常描述詞要追**（「密集顯示」「意外插曲」）——自驗通過 ≠ 視覺正確，截圖必親看
 2. **登入態 bug 第一反應想「兩種身分的權限路徑差異」**：anon vs authenticated 的 GRANT/RLS 靜默分歧，SET ROLE 實測最快（→ 已入 PRINCIPLES）
 3. **寫死外部資源 ID 前先 oembed 驗身分**（常設直播 vs 單場），三秒避免殭屍（→ 已入 INCIDENTS C）
+
+## 2026-07-29/31 溫度三部曲（三圖層 + LST 衛星 pipeline 全鏈）
+
+### What went well
+- **探索先行省掉整條移植**：weather_change 兩個 agent 平行偵察發現其溫度資料源頭 = pulse 既有 `get_temperature_*` RPC → 「移植」縮成「只搬色階與呈現方式」；同一輪偵察順帶挖出 EPA IoT 端點復活（→ MC-1）與 .env 金鑰問題（→ G016）——好的偵察 prompt 產出遠超任務本身
+- **雙層驗收第三次立功**：mix 係數 bug 通過了實作 agent 的原始碼推導 + 主 agent code review + tsc/197 tests，只有瀏覽器像素取樣攔下（前兩次：Infinity JSON、tourism 0 點）
+- **對照組思維**：canopy（working 範本）被 agent 推導宣判「也是壞的」，瀏覽器一驗反殺——一個在 production 正常運作的範本，證據力高於任何原始碼推導
+- **方法論落地成教學文件**：LST 全鏈寫成可遷移方法論（STAC→位元遮罩→分位數門檻→多年 median→相對正規化→值編碼），用戶點名要學；上線後的「坑洞為什麼」問答直接回收成 §8a FAQ——被問的問題就是文件的缺口
+- **agent 有憑據的偏離值得鼓勵**：A2a 自主換傳輸方式（實測四種吞吐）、放寬 ST_QA（附分布統計）、加景級守門（接邊差 11.45K→0.79K）都對；反例是 A2b 的 mix 推導——差別在**有沒有拿實測當證據**
+
+### Next-time rules
+1. **agent 引原始碼推翻既有慣例時，先實測既有慣例再採用**——尤其結論會連帶宣判 working code 也是壞的時（→ 已入 PRINCIPLES）
+2. **raster/shader 類驗收必含像素取樣**：多點 RGB 彼此相異才算有漸層，「看起來有顏色」不夠（→ 已入 PRINCIPLES + PB-31）
+3. **stacked PR 由底往上快速 merge、勿讓 base 先被刪**；發現 PR 莫名 CLOSED 先查 base branch 存亡（→ 已入 PRINCIPLES）
