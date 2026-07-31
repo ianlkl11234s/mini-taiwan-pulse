@@ -1499,3 +1499,16 @@ SOP：
 5. 常數：ROW_HEIGHT 40 / GAP 10 / 堆疊斷點 1100px（容器實寬非視窗寬）；cell 高 = h×40+(h-1)×10；**堆疊模式 cell 必設 flexShrink:0**（flex column 子元素不設會被壓縮塞進容器而非溢出捲動）
 
 成效：v1→v5 每輪 <10 分鐘，用戶自助拖版、工程端只換一個檔。
+
+## PB-31 raster PMTiles 值編碼圖層（2026-07-31 定型：canopyHeight + urbanHeat 兩例）
+
+單/雙分量連續值 raster 上地圖的標準流程（完整方法論：analytics `docs/topic-research/remote_sensing/urban-heat-lst-methodology.md` §7）：
+
+1. **上游烤磚**（taipei-gis-analytics）：GeoTIFF → 值編碼 RGBA（R=量化數值、G 可放第二通道、A=nodata mask）
+   → `gdal_translate -of MBTILES TILE_FORMAT=PNG BLOCKSIZE=512` → `gdaladdo -r nearest`
+   （⚠ 值磚金字塔必 **nearest**——average 會把 nodata 的 DN=0 平均進來，海岸/雲洞長出假值邊）
+   → `pmtiles convert`。範本：`pipelines/environment/urban_heat_lst/tile_lst_pmtiles.sh`、`pipelines/forestry/canopy_height_meta/tile_canopy_pmtiles.sh`
+2. **量化參數**：`DN = round((值 − offset) × scale)`，值域用**該資料實際分布** P2–P98 訂（勿沿用試作版——POC 值域拿到全島 69% 像元貼地板）；寫進 `encoding.json` + handoff（前端硬編 mix 的契約源）
+3. **前端接線**（pulse）：overlayRegistry raster config（`pmtiles.minzoom/maxzoom` 對齊實際磚層級，z 超過 = 討不存在的磚）+ `raster-color-mix = [物理斜率×255, …, offset]`（見 PRINCIPLES）+ stop 寫物理值 + `raster-color-range` 用通道完整值域；nodata 靠 source alpha 自動透明
+4. **多模式切換** = 換 mix 通道 + 色帶 + range（零重載）；色票/值域抽 `src/data/xxxTypes.ts` SSOT，layer 與 legend 同源
+5. **驗收**：像素取樣（多點 RGB 彼此相異 + nodata 透明見底圖）+ 拿 canopy 當對照組；大檔 gitignore 走 S3 deploy-assets 三處接線 + upload script glob
