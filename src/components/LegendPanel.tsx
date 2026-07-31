@@ -11,6 +11,7 @@ import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
+import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
 import { resolveMicroSensorMode, MICRO_SENSOR_NO_DATA_COLOR } from "../data/microSensorTypes";
 import {
   resolveUrbanHeatMode, urbanHeatLegendGradient, urbanHeatStopPercent,
@@ -201,6 +202,7 @@ export interface LegendEntry {
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
+  { keys: ["earthquakeReplay"], render: () => <EarthquakeReplayLegend /> },
   { keys: ["earthquakesGlobal"], render: () => <EarthquakeGlobalLegend /> },
   { keys: ["worldTrashDebris"], render: () => <WorldTrashDebrisLegend /> },
   { keys: ["typhoonTracks"], render: () => <TyphoonTrackLegend /> },
@@ -1930,6 +1932,32 @@ function EarthquakeLegend() {
             );
           })}
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── 地震回放：CWA 震度色階（測站 circle / 等震度網格 / 鄉鎮面量圖三處同色）──
+
+function EarthquakeReplayLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        震度 CWA INTENSITY
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        {CWA_INTENSITY_BANDS.map((band) => (
+          <div key={band.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 14, height: 9, borderRadius: 2, background: band.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+        圓點 = 測站（大小依 PGA）· 方格 = 2.5km 等震度網格 · 面 = 鄉鎮震度
+        <br />
+        波前依 S 波 3.5 km/s 由震央外擴
       </div>
     </div>
   );

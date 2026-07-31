@@ -64,7 +64,10 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
   GasCoverageAllPanel, GasCoverageCpcPanel, GasCoverageFpccPanel, GasCoverageTaisugarPanel,
   EvIslandPanel,
 } from "./energyPanels";
-import { LightningStrikePanel, NuclearStationPanel } from "./hazardPanels";
+import {
+  LightningStrikePanel, NuclearStationPanel, EarthquakePanel,
+  EarthquakeReplayStationPanel, EarthquakeReplayTownPanel,
+} from "./hazardPanels";
 import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
@@ -205,6 +208,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   evIsland: EvIslandPanel,
   lightningStrike: LightningStrikePanel,
   nuclearStation: NuclearStationPanel,
+  earthquakes: EarthquakePanel,
+  earthquakeReplayStation: EarthquakeReplayStationPanel,
+  earthquakeReplayTown: EarthquakeReplayTownPanel,
   earthquakeGlobal: EarthquakeGlobalPanel,
   typhoonTrack: TyphoonTrackPanel,
   climateField: ClimateFieldPanel,
@@ -458,6 +464,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   evIsland: "充電站 30km 孤島",
   lightningStrike: "落雷",
   nuclearStation: "核安觀測站",
+  earthquakes: "地震",
+  earthquakeReplayStation: "地震回放 強震測站",
+  earthquakeReplayTown: "地震回放 鄉鎮震度",
   earthquakeGlobal: "全球地震 USGS",
   typhoonTrack: "颱風軌跡",
   climateField: "氣候場讀值",

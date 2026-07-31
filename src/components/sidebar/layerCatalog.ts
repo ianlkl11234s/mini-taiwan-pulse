@@ -76,6 +76,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   newsEvents: "#ff9800",
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
+  earthquakeReplay: "#e11d48",
   // 全球氣候 GLOBAL CLIMATE
   earthquakesGlobal: "#dc2626",
   typhoonTracks: "#a855f7",
@@ -956,6 +957,7 @@ export const THEMES: ThemeDef[] = [
         title: "地震 / 斷層",
         layers: [
           { key: "earthquakes", label: "地震 Earthquake", expandable: true },
+          { key: "earthquakeReplay", label: "地震回放 EQ Replay", expandable: true },
           { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
         ],
       },

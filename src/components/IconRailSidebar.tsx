@@ -24,7 +24,7 @@ import {
   // ENERGY icons
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel, LayoutGrid,
   // HAZARD icons
-  CloudLightning, Atom,
+  CloudLightning, Atom, Rewind,
   // GLOBAL CLIMATE icons
   Tornado,
   // POLICE / JUSTICE / CIVIL DEFENSE icons（新增；既有 Shield/Search/MapPinned/PlaneTakeoff/Anchor/AlertTriangle/AlertCircle 已 import 復用）
@@ -114,6 +114,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   newsEvents: Radio,
   youbikeFullness: Bike,
   earthquakes: Activity,
+  earthquakeReplay: Rewind,
   lifelineAlerts: Lightbulb,
   floodAlerts: Waves,
   weatherAlerts: CloudRain,
