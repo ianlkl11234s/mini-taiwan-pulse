@@ -301,9 +301,10 @@
 | ID | 優先級 | 項目 | 狀態 | 備註 |
 |---|---|---|---|---|
 | MO-13 | P2 | 補 3 家 YT live handle | open | 鏡新聞 @MnewsTw / 非凡 @ustvnews 目前 /live 404；中天移除。找到正確 @handle 後改 `data-collectors/collectors/yt_live_video_resolver.py` HANDLES + `LiveWall.tsx` LIVE_CHANNELS |
-| MO-14 | P3 | TWSE turnover 格式漂亮化 | open | migration 210 RPC 目前回「12215293 千」，應顯示「1.22 兆」。改 `get_market_index_now()` 的 turnover CASE |
+| MO-14 | P3 | TWSE turnover 格式漂亮化 | **done 2026-08-01** | 查證推翻原假設：`value_thousands`（上游 MIS `m` 欄）**根本不是金額而是成交股數**（千股=張；對官方 FMTQIK 四交易日 98-99% 吻合），原「應顯示 1.22 兆」是誤解，7/31 官方成交金額實為 8,877 億無任何整數單位可對上。migration 325 改為成交量顯示「1365.1 萬張」+ 前端 label「額」→「量」。`volume_lots`（`r` 欄）語意不明（vs 官方筆數比值 0.50-0.69 浮動）兩支 RPC 均不採用 |
 | MO-15 | P3 | LiveWall 被擋頻道 fallback | open | 部分台後台可能關 embed（TVBS / 三立 / 東森常見），iframe 仍會跳「無法播放」。candidates：(a) 拿掉、(b) 改「另開分頁觀看」占位卡片 |
-| MO-16 | P3 | 加權指數 turnover 修 + 匯率接入 | open | TWSE 已上、匯率（央行）未接 |
+| MO-16 | P3 | 加權指數 turnover 修 + 匯率接入 | **partial** | turnover 已由 MO-14/migration 325 修畢（2026-08-01）；匯率（央行）仍未接 |
+| MO-17 | P2 | 台股加權指數卡加「近 30 交易日走勢」sparkline | **done 2026-08-01（未 commit）** | 2026-08-01 盤點：資料**已夠且免新 collector** — `live.market_index_tick` 自 2026-06-16 累積 32 交易日（11,437 筆、無 retention、~400 筆/交易日雙 code）。**後端**：gis-platform 新薄 RPC `get_market_index_daily(p_days int DEFAULT 30, p_code text DEFAULT 't00.tw')` — `DISTINCT ON (台北日) … ORDER BY observed_at DESC` 取每日最後一筆當收盤（`t00.tw` 有 13:33 正式收盤 tick，勿用 IX0001.tw 停在 13:30；每列自帶 open/high/low/prev_close 可直接出日 K）。EXPLAIN 實測 7.1ms/3,816 rows 走 index → **不需 pre-aggregate**；比照 210/316 慣例 GRANT anon+authenticated + pin search_path（live.* 禁前端直打）。**前端**：`intelLoaders.ts` 加 `fetchMarketIndexHistory`（withLoading + 長 TTL，比照 power 10min 慢速 tick 勿掛 60s tick）→ `TwseTicker`（`PressureRing.tsx:91-158`）複用同檔 `Sparkline`(:160) 或 `TimeseriesSparkline` → `SituationOverview`/`MonitorPanel` 傳線 → `monitorLayout.ts:55` situationOverview 高度可能 +1。⚠️ X 軸用**交易日序列**非日曆日（週末無資料列；06-19/07-10 兩缺日容忍 gap）；歷史上限 = 2026-06-16 資料起點。順手修 MO-14 turnover 格式。**已落地 2026-08-01**：gis-platform migration 325（已 apply prod；anon 30 列 / EXPLAIN 19.9ms；close+change 對官方 FMTQIK 吻合）+ 前端 4 檔（intelLoaders 加 fetchMarketIndexHistory 10min TTL / TwseTicker open-gate 自抓 + 30D Sparkline 150×24 / SituationOverview+MonitorPanel 傳 panelOpen）。tsc 綠 + 212 test 過 + agent-browser 驗收（30 點、06-18～07-31、30 日跌綠著色正確、版面未撐壞）。程式**未 commit** 待用戶拍板 |
 
 ### AI 警訊整合（AI 系列，2026-06-17 加 — 規劃完整在 `docs/proposal/alerts-integration-impl.md`）
 
