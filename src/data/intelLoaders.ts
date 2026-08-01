@@ -201,7 +201,7 @@ export interface MarketIndex {
   low: number;
   change: number;
   change_pct: number;
-  turnover: string | null;  // 顯示用「1.22 兆」
+  turnover: string | null;  // 顯示用成交量「1365.1 萬張」（migration 325 起；上游欄位實為成交股數）
   time: string | null;      // "13:33"
   status: string | null;    // 盤中 / 收盤 / 休市
 }
@@ -243,6 +243,35 @@ async function _fetchMarketIndexRaw(): Promise<MarketIndex> {
   };
 }
 export const fetchMarketIndex = cachedOnce(_fetchMarketIndexRaw, TTL_FAST);
+
+/** 加權指數近 30 交易日日線 — public.get_market_index_daily（migration 325） */
+export interface MarketIndexDailyPoint {
+  trade_date: string;   // "2026-07-31"；週末/缺日無列，畫圖請用交易日序列而非日曆軸
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  prev_close: number;
+  change: number;
+  change_pct: number;
+  volume_lots: number;  // 張
+}
+
+async function _fetchMarketIndexHistoryRaw(): Promise<MarketIndexDailyPoint[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    "intel:market-history",
+    "加權指數 30 日",
+    supabase.rpc("get_market_index_daily", { p_days: 30 }),
+  );
+  if (error) {
+    console.warn("[Intel] get_market_index_daily failed:", error.message);
+    return [];
+  }
+  return (data ?? []) as MarketIndexDailyPoint[];
+}
+// 日線一天只長一筆（盤中最後一點為當日即時值），10 min TTL 比照 power 24h 慢輪詢
+export const fetchMarketIndexHistory = cachedOnce(_fetchMarketIndexHistoryRaw, 10 * 60_000);
 
 /** 共機動態 — realtime.pla_activity_daily（最新一日） */
 export interface PlaAdizZone {

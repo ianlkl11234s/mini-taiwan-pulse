@@ -1,6 +1,11 @@
+import { useEffect, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, type PressureLevelDef } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
-import type { MarketIndex } from "../../../data/intelLoaders";
+import {
+  fetchMarketIndexHistory,
+  type MarketIndex,
+  type MarketIndexDailyPoint,
+} from "../../../data/intelLoaders";
 
 /** 270° SVG gauge — 主環 + 動畫，中央留洞給數字（caller 負責疊上 score 文字） */
 export function PressureRing({
@@ -88,12 +93,33 @@ export function CompareLine({ delta, label }: { delta: number; label: string }) 
   );
 }
 
-export function TwseTicker({ data }: { data: MarketIndex }) {
+export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean }) {
+  // 近 30 交易日日線（panel 開啟才抓；cachedOnce 10min TTL 蓋住 interval）
+  const [history, setHistory] = useState<MarketIndexDailyPoint[]>([]);
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    const load = () =>
+      fetchMarketIndexHistory().then((rows) => {
+        if (!cancelled) setHistory(rows);
+      });
+    load();
+    const id = window.setInterval(load, 10 * 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [open]);
+
   const up = data.change >= 0;
   // 台股慣例：漲紅跌綠
   const mk = up ? "#ff4d4f" : "#16c784";
   const closed = (data.status ?? "") !== "盤中";
   const has = data.index > 0;
+  const closes = history.map((p) => p.close);
+  const histFirst = history[0];
+  const histLast = history[history.length - 1];
+  const histUp = (histLast?.close ?? 0) >= (histFirst?.close ?? 0);
   return (
     <div
       style={{
@@ -151,8 +177,24 @@ export function TwseTicker({ data }: { data: MarketIndex }) {
       >
         <span>H <b style={{ color: COLORS.textDefault }}>{data.high.toLocaleString()}</b></span>
         <span>L <b style={{ color: COLORS.textDefault }}>{data.low.toLocaleString()}</b></span>
-        <span>額 <b style={{ color: COLORS.textDefault }}>{data.turnover ?? "—"}</b></span>
+        <span>量 <b style={{ color: COLORS.textDefault }}>{data.turnover ?? "—"}</b></span>
       </div>
+      {closes.length >= 2 && histFirst && histLast && (
+        <div
+          style={{ display: "flex", alignItems: "center", gap: 7 }}
+          title={`${histFirst.trade_date} ～ ${histLast.trade_date} 收盤（交易日序列）`}
+        >
+          <span
+            style={{
+              fontFamily: FONT_DATA, fontSize: 7.5, letterSpacing: "1.5px",
+              color: COLORS.textFaint, whiteSpace: "nowrap",
+            }}
+          >
+            30D
+          </span>
+          <Sparkline data={closes} color={histUp ? "#ff4d4f" : "#16c784"} w={150} h={24} />
+        </div>
+      )}
     </div>
   );
 }

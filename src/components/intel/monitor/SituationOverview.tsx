@@ -160,10 +160,12 @@ interface Props {
   sourceHealth: SourceHealthSummary;
   totalEvents: number;
   severeCount: number;
+  /** Monitor panel 是否開啟（gate TwseTicker 的 30 日日線抓取） */
+  panelOpen: boolean;
 }
 
 export function SituationOverview({
-  pressure, smoothedScore, market, sourceHealth, totalEvents, severeCount,
+  pressure, smoothedScore, market, sourceHealth, totalEvents, severeCount, panelOpen,
 }: Props) {
   const [open, setOpen] = useState(false);
   const level = pressureLevel(smoothedScore);
@@ -254,7 +256,7 @@ export function SituationOverview({
         </div>
 
         <div style={{ flex: 1 }} />
-        <TwseTicker data={market} />
+        <TwseTicker data={market} open={panelOpen} />
       </div>
 
       {open && <PressureDrawer signals={pressure.per_signal} />}

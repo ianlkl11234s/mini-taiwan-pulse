@@ -541,6 +541,7 @@ export function MonitorPanel({
         sourceHealth={sourceHealth}
         totalEvents={allEventsToday.length}
         severeCount={severeCount}
+        panelOpen={open}
       />
     ),
     liveWall: <LiveWall />,
