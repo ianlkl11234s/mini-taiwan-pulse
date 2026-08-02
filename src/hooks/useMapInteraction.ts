@@ -327,6 +327,8 @@ export function useMapInteraction(
           { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
           { layers: ["urban-zoning-taipei-fill"], type: "urbanZoningTaipei" },
           { layers: ["urban-zoning-newtaipei-fill"], type: "urbanZoningNewTaipei" },
+          // 非都市分區覆蓋全台山區與農地（68,220 面）→ 排在兩層都計分區之後，免得擋掉都市內的點選
+          { layers: ["non-urban-zoning-fill"], type: "nonUrbanZoning" },
           { layers: ["sports-venues-school", "sports-venues-public-other", "sports-venues-private", "sports-venues-park", "sports-venues-center"], type: "sportsVenue" },
           { layers: ["culture-facilities-circle"], type: "culturalFacilities" },
           { layers: ["culture-museums-circle"], type: "culturalMuseums" },
@@ -387,6 +389,9 @@ export function useMapInteraction(
           { layers: ["farm-roads-line", "farm-roads-glow"], type: "farmRoads" },
           { layers: ["hiking-trails-line", "hiking-trails-glow"], type: "hikingTrails" },
           { layers: ["eco-network-zones-fill"], type: "ecoNetworkZones" },
+          // 登山安全：山屋 / 山域事故（小目標，排在林業大面積前）
+          { layers: ["mountain-huts-circle"], type: "mountainHut" },
+          { layers: ["mountain-rescue-incidents-circle"], type: "mountainRescueIncident" },
           // FORESTRY — points / lines 先（小目標優先）
           { layers: ["forest-education-centers-circle"], type: "forestryPOI" },
           { layers: ["forest-trail-signs-circle"], type: "forestryPOI" },

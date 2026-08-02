@@ -46,6 +46,11 @@ import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { resolveUrbanHeatMode, urbanHeatRasterColor } from "../data/urbanHeatTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
+import { nonUrbanZoningColorExpr, nonUrbanZoningCodeFilter } from "../data/nonUrbanZoningTypes";
+import {
+  mountainRescueColorExpr, mountainRescueYearFilter, rescueScaleByPersonsExpr,
+  mountainHutColorExpr,
+} from "../data/mountainSafetyTypes";
 import {
   deityFamilyColorExpr, ancestralHallColorExpr, registryModeFilter, templeFilter,
   RELIGION_LAYER_COLORS,
@@ -4162,6 +4167,40 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // 非都市土地使用分區（68,220 面，18 縣市；臺北市・嘉義市全境都市計畫故無資料，正常）。
+  // zone_code 11 碼分色（SSOT = nonUrbanZoningTypes.ts），與上面兩層都計分區同色系對齊。
+  // 面積遠大於都計分區（山坡地保育區 20,246 面覆蓋全台山區）→ fill-opacity 預設壓到 0.35，
+  // 免得疊在都計分區上互相糊掉。分類篩選同 urbanZoning 走 per-layer filter 函式，
+  // 故 rebuildOnParamChange 收 ["fill","line"] 兩 suffix。
+  {
+    id: "nonUrbanZoning",
+    sourceUrl: "./urban/non_urban_zoning.pmtiles",
+    sourceId: "non-urban-zoning",
+    pmtiles: { sourceLayer: "non_urban_zoning", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        paint: (_isDark, p) => ({
+          "fill-color": nonUrbanZoningColorExpr(),
+          "fill-opacity": p?.nonUrbanZoningOpacity ?? 0.35,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        paint: (_isDark, p) => ({
+          "line-color": nonUrbanZoningColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
+          "line-opacity": (p?.nonUrbanZoningOpacity ?? 0.35) * 0.6,
+        }),
+      },
+    ],
+  },
+
   // ── 🏟️ 運動場館 Sports（靜態 CDN geojson，走 ./sports/）──
   // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。
   // circle：category 27 類 match 分色 + area_sqm log 點大小（NULL fallback 固定半徑）+ open_status="不對外" 淡化。
@@ -4751,6 +4790,34 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-color": "#14532d",
             "circle-stroke-width": 0.6,
             "circle-opacity": params?.forestSignalPointsOpacity ?? 0.85,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 🏔️ 全台山屋與高山營地（GeoJSON 136 點）──
+  // facility_type 4 類分色（SSOT = mountainSafetyTypes.ts）。<1k 點 → UX baseline 半徑 4→8px、
+  // opacity 0.9。⚠️ OSM 來源部分為 ODbL，圖例已標 © OpenStreetMap contributors。
+  {
+    id: "mountainHuts",
+    sourceUrl: "./forestry/mountain_huts.geojson",
+    sourceId: "mountain-huts",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.mountainHutsScale ?? 1;
+          const opacity = params?.mountainHutsOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": mountainHutColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1.2],
+            "circle-stroke-opacity": opacity * 0.8,
           };
         },
       },
@@ -5549,6 +5616,70 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-opacity": [
               "*", o, ["coalesce", ["get", "alpha"], 1],
             ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── ⛰️ 山域意外事故救援案件（GeoJSON 2,465 點，2019-2024）──
+  // cause 17 個原始值 → 9 族分色（SSOT = mountainSafetyTypes.ts）；半徑 ×「出動總人次」4 級倍率；
+  // 有死亡的案件用紅描邊突出。年份篩選走 per-layer filter 函式（同 urbanZoning；idx 0=全部 1..6=單年
+  // → 未選中的點被濾除而非淡化），故 rebuildOnParamChange 收 ["glow","circle"] 兩 suffix
+  // （收參數名會靜默失效，見 .claude/pitfalls/2026-07-16-rebuildonparamchange-suffix-not-param.md）。
+  {
+    id: "mountainRescueIncidents",
+    sourceUrl: "./hazards/mountain_rescue_incidents.geojson",
+    sourceId: "mountain-rescue-incidents",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
+        paint: (_isDark, p) => {
+          const scale = p?.mountainRescueIncidentsScale ?? 1;
+          return {
+            // ⚠️ 人次倍率必須乘在 interpolate 的 stop *內*：["*", interpolate, step] 會讓 ["zoom"]
+            // 不在最外層 → Mapbox 直接拒收整個 layer（2026-08-02 驗收踩到，整層不出現）
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", 6 * scale, rescueScaleByPersonsExpr()],
+              12, ["*", 12 * scale, rescueScaleByPersonsExpr()],
+            ],
+            "circle-blur": 1,
+            "circle-color": mountainRescueColorExpr(),
+            "circle-opacity": (p?.mountainRescueIncidentsOpacity ?? 0.85) * 0.16,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.mountainRescueIncidentsScale ?? 1;
+          const opacity = p?.mountainRescueIncidentsOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", 3 * scale, rescueScaleByPersonsExpr()],
+              12, ["*", 6 * scale, rescueScaleByPersonsExpr()],
+            ],
+            "circle-color": mountainRescueColorExpr(),
+            "circle-opacity": opacity,
+            // 有死亡 → 紅描邊（其餘沿用深/淺底圖對比描邊）
+            "circle-stroke-color": [
+              "case", [">", ["coalesce", ["get", "deaths"], 0], 0], "#ff2d2d",
+              isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            ],
+            // 同上：case 要放進 interpolate 的 stop 內，不能包在 interpolate 外
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["case", [">", ["coalesce", ["get", "deaths"], 0], 0], 0.8, 0.3],
+              14, ["case", [">", ["coalesce", ["get", "deaths"], 0], 0], 1.8, 1],
+            ],
+            "circle-stroke-opacity": opacity * 0.85,
           };
         },
       },

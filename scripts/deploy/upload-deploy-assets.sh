@@ -186,6 +186,7 @@ FOREST_FILES=(
   "public/forestry/mountain_trail_signs.geojson"
   "public/forestry/mountain_signal_points.geojson"
   "public/forestry/forest_education_centers.geojson"
+  "public/forestry/mountain_huts.geojson"
   "public/forestry/wildlife_distribution_3rd.geojson"
   "public/forestry/dam_lakes_in_forest.geojson"
   "public/forestry/wildlife_distribution_3rd_alt.geojson"

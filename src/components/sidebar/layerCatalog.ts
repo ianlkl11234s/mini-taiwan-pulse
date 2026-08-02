@@ -79,6 +79,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
   earthquakeReplay: "#e11d48",
+  mountainRescueIncidents: "#f2c94c",
   // 全球氣候 GLOBAL CLIMATE
   earthquakesGlobal: "#dc2626",
   typhoonTracks: "#a855f7",
@@ -176,6 +177,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   urbanFormGrid: "#8d9c6b",
   urbanZoningTaipei: "#f2c94c",
   urbanZoningNewTaipei: "#eb5757",
+  nonUrbanZoning: "#a2c14e",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -214,6 +216,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   forestDamLakes: "#06B6D4",
   forestFlatParks: "#A3E635",
   forestAlishanRail: "#92400E",
+  mountainHuts: "#ec4899",
   hikingTrails: "#d62728",
   canopyHeight: "#33691e",
   canopyGiants: "#a50026",
@@ -453,6 +456,8 @@ export const THEMES: ThemeDef[] = [
         layers: [
           { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
           { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
+          // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
+          { key: "nonUrbanZoning", label: "非都市土地使用分區 Non-Urban Zoning", labelMobile: "非都市分區 (68,220)", expandable: true },
         ],
       },
       {
@@ -998,6 +1003,13 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
+        // 山域事故：與「🌲 林業」的步道 / 通訊點 / 山屋 疊圖 = 登山安全敘事
+        title: "山域事故 Mountain Rescue",
+        layers: [
+          { key: "mountainRescueIncidents", label: "山域事故 Mountain Rescue", labelMobile: "山域事故 (2,465)", expandable: true },
+        ],
+      },
+      {
         title: "核安",
         layers: [
           { key: "nuclearRadiation", label: "核安輻射 Radiation", expandable: true },
@@ -1293,6 +1305,7 @@ export const THEMES: ThemeDef[] = [
           { key: "forestTrailSigns", label: "步道路標 Trail Signs", expandable: true },
           { key: "forestSignalPoints", label: "通訊點 Signal Points", expandable: true },
           { key: "forestEducationCenters", label: "自然教育中心 Education", expandable: true },
+          { key: "mountainHuts", label: "山屋・高山營地 Mountain Huts", labelMobile: "山屋・營地 (136)", expandable: true },
           { key: "forestDamLakes", label: "堰塞湖 Dam Lakes", expandable: true },
         ],
       },

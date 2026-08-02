@@ -28,7 +28,7 @@ import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
 } from "./agriPanels";
-import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel } from "./forestryPanels";
+import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel, MountainHutPanel } from "./forestryPanels";
 import {
   TemplePanel, ChurchPanel, AncestralHallPanel, FoundationPanel,
   OtherWorshipPanel, ReligionTop100Panel,
@@ -44,7 +44,7 @@ import {
   StreetTreesTaipeiDiffPanel, ProtectedTreesNationalPanel,
   RiversideTreesTaipeiPanel, ParksTaipeiPanel, StreetTrees3epochPanel,
   StreetTreesNationalPanel, TreePitsTaipeiPanel, BuildingsGbaPanel, UrbanFormGridPanel,
-  UrbanZoningPanel, PropertyValueGridPanel,
+  UrbanZoningPanel, NonUrbanZoningPanel, PropertyValueGridPanel,
 } from "./urbanPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import {
@@ -70,7 +70,7 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
 } from "./energyPanels";
 import {
   LightningStrikePanel, NuclearStationPanel, EarthquakePanel,
-  EarthquakeReplayStationPanel, EarthquakeReplayTownPanel,
+  EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel,
 } from "./hazardPanels";
 import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
 import {
@@ -159,6 +159,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   forestryPolygon: ForestryGenericPanel,
   forestryLine: ForestryGenericPanel,
   forestryPOI: ForestryGenericPanel,
+  mountainHut: MountainHutPanel,
+  mountainRescueIncident: MountainRescuePanel,
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
@@ -288,6 +290,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   propertyValueGrid: PropertyValueGridPanel,
   urbanZoningTaipei: UrbanZoningPanel,
   urbanZoningNewTaipei: UrbanZoningPanel,
+  nonUrbanZoning: NonUrbanZoningPanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
   // 🎭 文化
@@ -383,6 +386,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   forestryPolygon: "林業面 (polygon)",
   forestryLine: "林業線 (line)",
   forestryPOI: "林業點位 (POI)",
+  mountainHut: "山屋・高山營地",
+  mountainRescueIncident: "山域事故",
   hikingTrails: "步道",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
@@ -412,6 +417,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   propertyValueGrid: "不動產總市值網格",
   urbanZoningTaipei: "土地使用分區",
   urbanZoningNewTaipei: "土地使用分區",
+  nonUrbanZoning: "非都市土地使用分區",
   sportsVenue: "運動場館",
   culturalFacilities: "文化設施",
   culturalMuseums: "地方文化館",

@@ -115,6 +115,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   youbikeFullness: Bike,
   earthquakes: Activity,
   earthquakeReplay: Rewind,
+  mountainRescueIncidents: Mountain,
   lifelineAlerts: Lightbulb,
   floodAlerts: Waves,
   weatherAlerts: CloudRain,
@@ -207,6 +208,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   urbanFormGrid: LayoutGrid,
   urbanZoningTaipei: LandPlot,
   urbanZoningNewTaipei: Map,
+  nonUrbanZoning: Sprout,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,
@@ -253,6 +255,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   forestDamLakes: Waves,
   forestFlatParks: Sprout,
   forestAlishanRail: TrainFront,
+  mountainHuts: Tent,
   hikingTrails: Footprints,
   canopyHeight: Ruler,
   canopyGiants: TreePine,
