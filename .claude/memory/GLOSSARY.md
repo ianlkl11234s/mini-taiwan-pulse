@@ -351,3 +351,8 @@
   官方走廊是空心線框，單一走廊像素應全部貼邊；達標 0.03–0.07、多形狀黏連 0.36–0.49
 - **活動走廊 vs 活動區**：共機示意圖上的紅色形狀有兩類 —— 細長矩形走廊（`rect`）
   與沿 ADIZ 邊界的大型不規則多邊形（`poly`）；後者強制成矩形必然失真
+- **地震四件套**：一起地震的四層回放素材——逐站 PGA（station_obs）/ 368 鄉鎮震度（town_intensity）
+  / 4,377 格等震度網格（shakemap_grid）/ 震源機制解（moment_tensor）。Tier A = 有 town+grid
+  （完整五步回放）、Tier B = 僅測站（三步）。官方源只留最新一次 → 我們的庫是唯一歷史
+- **resolved key**：清單 RPC 在 DB 端做完跨表時間窗配對後回傳的「對方表實際自然鍵」
+  （grid_event_time / town_origin_time / tensor_origin_utc），前端拿它等值查明細即可；詳 PRINCIPLES
