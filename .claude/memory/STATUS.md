@@ -1,6 +1,39 @@
 # Status
 
-**最後更新**：2026-07-31（溫度三部曲 PR #92/#94/#96 全 merged + LST pipeline 上線 + migration 322 + S3 上傳；prod 差一次 redeploy）
+**最後更新**：2026-08-02（台股 30 日趨勢上線 + 共機通報 729 天零缺日回填 + 航跡圖向量化方法驗證；**全部未 push**）
+**mini-taiwan-pulse head**：`feat/market-index-30d`（相對 master +10 commits，含 memory）；⚠️ 平行 branch `verify/batch-20260801` / `feat/religion-layers` 為他 session
+**gis-platform head**：`feat/market-index-30d`（migration **325/326/327 皆已 apply production**，程式碼未 push）；⚠️ 該 branch 夾帶他 session 的 religion migration 328/329，出 PR 前需處理
+**data-collectors head**：`feat/pla-parse-fix-backfill`（+4 commits，**未部署**）
+**taipei-gis-analytics head**：`master`（+11 pla 相關 commits，未 push；其餘未 commit 殘留為他 session）
+
+> ⚠️ **最優先**：線上 pla collector 仍是舊版，**每 30 分鐘覆蓋修好的資料**（INCIDENTS 2026-08-02 事件 A）。
+> 回填成果在部署前實質為零。需 owner 操作部署。
+
+## 本 session 完成（2026-08-01/02）
+
+- **台股 30 日趨勢**（MO-17）：Monitor TAIEX 卡片加近 30 交易日走勢（migration 325）。
+  順修 MO-14 —— 查證發現 `value_thousands` **不是成交金額而是成交股數**（對官方 FMTQIK 四交易日 98–99% 吻合），改「萬張」顯示
+- **共機通報回填**（MO-19）：`live.pla_activity_daily` **729 天零缺日**（2024-08-02~2026-07-31），
+  架次覆蓋 100%（原「逾越中線」51 天全空、「中部空域」0 命中）。修 **11 個 bug**（原盤點 3 個）+ 11 單元測試。
+  migration 326/327 加統計窗、航跡圖 URL、圖片版表格圖 URL
+- **圖片版轉錄**（MO-20 前置）：2025-02-02 以前 185 天網頁無文字、數值只在 JPG →
+  8 個 subagent 讀圖抄字（**走訂閱額度不打 API**）→ 既有 regex 解析器算值 → 中英交叉驗證 **0 筆不符**（PB-31）
+- **航跡圖向量化**（PT-0 Phase 0-2）：588 天圖上 S3；配準已驗證；形狀抽取混合法
+  最近 5 天 5/5、2026 全年 **116/181 (69.9%)** 未達上線水準。方法演進與**失敗紀錄**全部落地 analytics
+- **PlaCard 30 天 sparkline**（MO-18）+ 三份檢視頁（資料品質稽核 / 5 天原圖對比 / 2026 逐月逐日）
+- **文件**：`docs/features/pla-activity/handoff.md`（接手入口）、`docs/proposal/pla-activity-layer.md`（圖層規劃）、
+  analytics `docs/topic-research/defense_pla/`（`_status` + 計畫 + 方法論）
+
+## 下一步
+
+1. **部署 pla collector**（止血，需 owner）
+2. 向量化改進：表格項次依類型分流（排除空飄氣球等非多邊形項）→ 用已知目標數引導分割
+3. PL-1 圖層上線（4 項待拍板：群組名稱 / 資料範圍 / needs_review 是否入表 / 災害示警是否搬家）
+4. 既有：G013 KHH VM SCP、G016 weather_change key 輪替、MC-1~5 微氣候
+
+---
+
+**前次更新**：2026-07-31（溫度三部曲 PR #92/#94/#96 全 merged + LST pipeline 上線 + migration 322 + S3 上傳；prod 差一次 redeploy）
 **mini-taiwan-pulse head**：`master` = `4e50116`（#96 urbanHeat 疊 #95 市值 `3a55e46`〔他 session〕疊 #94 微感測 `c302f4c` 疊 #92 溫度網格 `8fbcdd7`）
 **gis-platform head**：`main` = `eca0b83`（migration 322 site_name，已 apply production + push）
 **taipei-gis-analytics head**：`master` = `8b36a19`（LST pipeline + 方法論 + handoff，已 push）；**未 commit 殘留（他 session）**：部署 SOP 12 步治理 5 檔 + street_trees_4epoch `_manifest.json`
@@ -9,7 +42,7 @@
 > ⚠️ **prod 上線最後一哩**：master + S3（`deploy-assets/environment/urban_heat_lst_taiwan.pmtiles` 30MB 已驗證存在）都就緒，**差一次 Zeabur redeploy**（pull 端 environment/ sync 早已存在）。
 > 工作樹既有未提交（他 session，勿動）：AGENTS.md / CLAUDE.md / public/climate/* / docs/git-workflow.md。
 
-## 本 session 完成（2026-07-29~31）— 溫度三部曲（溫度網格 2D / 微感測三模式 / 都市熱島 LST）
+## 前次 session（2026-07-29~31）— 溫度三部曲（溫度網格 2D / 微感測三模式 / 都市熱島 LST）
 
 - **PR #92 溫度網格 2D**（`8fbcdd7`）：CWA 0.03° 溫度網格用原生 fill layer 平面呈現（可疊圖），與 3D 溫度波**共用同一組 RPC**（任一層開啟才抓一次）；11 級固定色階移植 weather_change——偵察發現該站資料源頭就是 pulse 既有 `get_temperature_*`，零 pipeline 移植；幾何一次建成 + feature-state 染色 + timeStore lerp 三道節流；四鐵則全接、無白名單豁免
 - **PR #94 LASS 微感測三模式**（`c302f4c`）：點位上色 PM2.5/溫度/濕度 select（溫度色階直接 import `temperatureGridTypes`，跨層同源）+ 三套圖例（把 aqiMicroSensors 移出 BASELINE_NO_LEGEND）+ popup 站名（gis-platform migration 322 補 `site_name`，已 apply + push `eca0b83`）。#93 被 GitHub 自動關閉事故 → INCIDENTS 事件 B
