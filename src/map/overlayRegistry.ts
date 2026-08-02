@@ -52,6 +52,10 @@ import {
   mountainHutColorExpr,
 } from "../data/mountainSafetyTypes";
 import {
+  deityFamilyColorExpr, ancestralHallColorExpr, registryModeFilter, templeFilter,
+  RELIGION_LAYER_COLORS,
+} from "../data/religionTypes";
+import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -8234,21 +8238,154 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // 6. 宗教百景 Religious Sites（100 點，單色，<1k 半徑 4→8）
+  // ── 🛕 宗教 Religion（第 36 主題，2026-08-02）──
+  // temples 走 PMTiles（19,201 點、4.1MB；GeoJSON 版 25MB 太重），其餘 4 層 + 百景走 GeoJSON。
+  // 分色/篩選 SSOT = religionTypes.ts。三層（temples/churches/ancestralHalls）有 in_moi_registry
+  // 雙態 filter；temples 另有 deity_family 9 族 filter（兩個 select 取交集）。
+  // ⚠️ deity_family 是上游 pipeline 算好的欄位——Mapbox match 沒 regex，
+  //    1,950 種 main_deity 不可能在前端歸併（見 taipei-gis-analytics deity_family.py）。
   {
-    id: "tourReligion",
-    sourceUrl: "./tourism/religion_national.geojson",
-    sourceId: "tour-religion",
+    id: "religionTemples",
+    sourceUrl: "./religion/temples.pmtiles",
+    sourceId: "religion-temples",
+    pmtiles: { sourceLayer: "temples", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.religionTemplesScale ?? 1;
+          const opacity = p?.religionTemplesOpacity ?? 0.8;
+          return {
+            // 1k~10k 級距的密度 baseline（19k 點）：z6 2.5px → z12 5.5px
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.5 * scale, 12, 5.5 * scale],
+            "circle-color": deityFamilyColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.2, 14, 0.8],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionChurches",
+    sourceUrl: "./religion/churches.geojson",
+    sourceId: "religion-churches",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => registryModeFilter(p?.religionChurchesRegistryIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.religionChurchesScale ?? 1;
+          const opacity = p?.religionChurchesOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": RELIGION_LAYER_COLORS.religionChurches,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionAncestralHalls",
+    sourceUrl: "./religion/ancestral_halls.geojson",
+    sourceId: "religion-ancestral-halls",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        // ⚠️ 本層 in_moi_registry=false 的 96 筆語意是「文資祠堂」不是 OSM（選項標籤另寫）
+        filter: (p) => registryModeFilter(p?.religionAncestralHallsRegistryIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.religionAncestralHallsScale ?? 1;
+          const opacity = p?.religionAncestralHallsOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": ancestralHallColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1.2],
+            "circle-stroke-opacity": opacity * 0.75,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionFoundations",
+    sourceUrl: "./religion/foundations.geojson",
+    sourceId: "religion-foundations",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.religionFoundationsScale ?? 1;
+          const opacity = p?.religionFoundationsOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": RELIGION_LAYER_COLORS.religionFoundations,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1.2],
+            "circle-stroke-opacity": opacity * 0.75,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionOtherWorship",
+    sourceUrl: "./religion/other_worship.geojson",
+    sourceId: "religion-other-worship",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.religionOtherWorshipScale ?? 1;
+          const opacity = p?.religionOtherWorshipOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": RELIGION_LAYER_COLORS.religionOtherWorship,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  // 宗教百景（100 點，單色，<1k 半徑 4→8）——2026-08-02 自觀光群搬來並更名（原 tourReligion），
+  // 資料路徑同步改到 ./religion/top100.geojson（上游 religion.top100）
+  {
+    id: "religionTop100",
+    sourceUrl: "./religion/top100.geojson",
+    sourceId: "religion-top100",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
         suffix: "glow", type: "circle",
         paint: (_isDark, p) => {
-          const scale = p?.tourReligionScale ?? 1;
+          const scale = p?.religionTop100Scale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 7 * scale, 12, 14 * scale],
             "circle-blur": 1,
-            "circle-color": "#7b1fa2",
+            "circle-color": RELIGION_LAYER_COLORS.religionTop100,
             "circle-opacity": 0.12,
           };
         },
@@ -8256,11 +8393,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const scale = p?.tourReligionScale ?? 1;
-          const opacity = p?.tourReligionOpacity ?? 0.85;
+          const scale = p?.religionTop100Scale ?? 1;
+          const opacity = p?.religionTop100Opacity ?? 0.85;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
-            "circle-color": "#7b1fa2",
+            "circle-color": RELIGION_LAYER_COLORS.religionTop100,
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],

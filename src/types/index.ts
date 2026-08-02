@@ -134,9 +134,12 @@ export type ExpandableLayerKey =
   | "librarySeats"
   // 🧳 觀光 Tourism（靜態 overlay GeoJSON 點/面，12 layer）
   | "tourAttractions" | "tourHotSprings" | "tourHotSpringZones" | "tourScenicAreas"
-  | "tourHeritage" | "tourReligion"
+  | "tourHeritage"
   | "tourEvents" | "tourFactories" | "tourAmusementParks" | "tourCamping"
   | "tourHotels" | "tourRestaurants"
+  // 🛕 宗教 Religion（靜態 overlay；temples 走 PMTiles，其餘 GeoJSON 點）
+  | "religionTemples" | "religionChurches" | "religionAncestralHalls"
+  | "religionFoundations" | "religionOtherWorship" | "religionTop100"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -680,9 +683,12 @@ export interface FeatureInfo {
     | "librarySeats"
     // 🧳 觀光 Tourism（layerType = layer key 同名，12 個）
     | "tourAttractions" | "tourHotSprings" | "tourHotSpringZones" | "tourScenicAreas"
-    | "tourHeritage" | "tourReligion"
+    | "tourHeritage"
     | "tourEvents" | "tourFactories" | "tourAmusementParks" | "tourCamping"
     | "tourHotels" | "tourRestaurants"
+    // 🛕 宗教 Religion（layerType = layer key 同名，6 個）
+    | "religionTemples" | "religionChurches" | "religionAncestralHalls"
+    | "religionFoundations" | "religionOtherWorship" | "religionTop100"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -911,7 +917,13 @@ export interface LayerVisibility {
   tourHotSpringZones: boolean;    // 溫泉露頭區（16 面，Polygon，全國僅北市有公告範圍圖）
   tourScenicAreas: boolean;       // 國家風景區（12 面，Polygon）
   tourHeritage: boolean;          // 文化資產全國（2,894 點，category 三類 古蹟/歷史建築/文化景觀 同色系分色）
-  tourReligion: boolean;          // 宗教百景（100 點，單色）
+  // 🛕 宗教 Religion（第 36 主題；2026-08-02 上游 religion 批次）
+  religionTemples: boolean;        // 寺廟 19,201（PMTiles；deity_family 9 族分色 + 雙態 filter）
+  religionChurches: boolean;       // 教會 2,116（雙態 filter）
+  religionAncestralHalls: boolean; // 宗祠 173（facility_type 3 類分色）
+  religionFoundations: boolean;    // 宗教基金會 165
+  religionOtherWorship: boolean;   // 其他宗教場所 1,319（清真寺/神社遺構/風獅爺…；OSM 源 ODbL）
+  religionTop100: boolean;         // 宗教百景 100（2026-08-02 自 tourReligion 更名搬群）
   tourEvents: boolean;            // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
   tourFactories: boolean;         // 觀光工廠（158 點，單色）
   tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）
