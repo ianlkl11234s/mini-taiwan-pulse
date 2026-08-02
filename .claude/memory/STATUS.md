@@ -1,10 +1,10 @@
 # Status
 
-**最後更新**：2026-08-02（台股 30 日趨勢上線 + 共機通報 729 天零缺日回填 + 航跡圖向量化方法驗證；**全部未 push**）
-**mini-taiwan-pulse head**：`feat/market-index-30d`（相對 master +10 commits，含 memory）；⚠️ 平行 branch `verify/batch-20260801` / `feat/religion-layers` 為他 session
-**gis-platform head**：`feat/market-index-30d`（migration **325/326/327 皆已 apply production**，程式碼未 push）；⚠️ 該 branch 夾帶他 session 的 religion migration 328/329，出 PR 前需處理
-**data-collectors head**：`feat/pla-parse-fix-backfill`（+4 commits，**未部署**）
-**taipei-gis-analytics head**：`master`（+11 pla 相關 commits，未 push；其餘未 commit 殘留為他 session）
+**最後更新**：2026-08-02（三 repo 分支整理完成：全部已 push、遠端本地一致）
+**mini-taiwan-pulse head**：`feat/market-index-30d`；**5 個 PR 開出待 merge** —— #99 登山安全 / #100 非都市分區 / #101 宗教群 / #102 守門測試（請最後 merge）/ #103 本 branch
+**gis-platform head**：`main`（migration 325-329 **已 merge 進 main 並 push**，`cb24b39`；325/326/327 已 apply production）
+**data-collectors head**：`main`（pla 修復已 merge `1d9e9a3` / PR #41 並 push；**Zeabur 部署狀態待確認**）
+**taipei-gis-analytics head**：`master`（已 push，含兩個座標 bug 修復 `0b52f36`）
 
 > ⚠️ **最優先**：線上 pla collector 仍是舊版，**每 30 分鐘覆蓋修好的資料**（INCIDENTS 2026-08-02 事件 A）。
 > 回填成果在部署前實質為零。需 owner 操作部署。
@@ -23,6 +23,14 @@
 - **PlaCard 30 天 sparkline**（MO-18）+ 三份檢視頁（資料品質稽核 / 5 天原圖對比 / 2026 逐月逐日）
 - **文件**：`docs/features/pla-activity/handoff.md`（接手入口）、`docs/proposal/pla-activity-layer.md`（圖層規劃）、
   analytics `docs/topic-research/defense_pla/`（`_status` + 計畫 + 方法論）
+
+## 分支整理（2026-08-02）
+
+三 repo 全部收斂：本地未 commit 清零、主幹與遠端一致、已合併分支清除。
+- 刪除已合併分支：本地 21 個（pulse 11 含 4 個 agent worktree / analytics 7 / gis-platform 3）、遠端 17 個
+- pulse 剩 8 個未合併舊分支（byok-chat / monitor-* ×3 / terrain-vector / pmtiles-deploy-routing / drone-a1 / member-auth），
+  抽查確認功能多已在 master（`src/chat/` 15 檔、slope/aspect、CSP header、monitor 19 檔皆在），**待逐一確認後刪除**
+- ⚠️ 例外：`fix-drone-a1` 的 `fossilFuelLoader` lianfeng 那行 master 沒有，需確認是否漏接
 
 ## 下一步
 
