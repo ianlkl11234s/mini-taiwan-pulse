@@ -334,6 +334,41 @@ async function _fetchPlaActivityRaw(): Promise<PlaActivity> {
 }
 export const fetchPlaActivity = cachedOnce(_fetchPlaActivityRaw, TTL_DAILY);
 
+/** 共機近 N 日趨勢 — public.get_pla_activity_range（migration 326）
+ *  ⚠ sorties/crossed 可能為 null（該日通報解析失敗），與「0 架次」語意不同，
+ *  畫圖務必當斷點處理，勿 ?? 0。 */
+export interface PlaActivityDayPoint {
+  report_date: string;
+  sorties: number | null;
+  crossed_median: number | null;
+  plan_vessels: number | null;
+  official_ships: number | null;
+  chart_url: string | null;
+}
+
+async function _fetchPlaActivityHistoryRaw(): Promise<PlaActivityDayPoint[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    "intel:pla-history",
+    "共機 30 日",
+    supabase.rpc("get_pla_activity_range", { p_days: 30 }),
+  );
+  if (error) {
+    console.warn("[Intel] get_pla_activity_range failed:", error.message);
+    return [];
+  }
+  const num = (v: unknown) => (v === null || v === undefined ? null : Number(v));
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    report_date: String(r.report_date),
+    sorties: num(r.sorties),
+    crossed_median: num(r.crossed_median),
+    plan_vessels: num(r.plan_vessels),
+    official_ships: num(r.official_ships),
+    chart_url: (r.chart_url as string | null) ?? null,
+  }));
+}
+export const fetchPlaActivityHistory = cachedOnce(_fetchPlaActivityHistoryRaw, TTL_DAILY);
+
 /** CDC 公衛週報 — realtime.public_health_weekly（最新 ISO 週的 3 個指標） */
 export interface CdcDisease {
   id: "flu" | "dengue" | "entero";

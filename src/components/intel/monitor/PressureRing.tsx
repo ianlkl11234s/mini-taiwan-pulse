@@ -199,22 +199,45 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
   );
 }
 
+/** 迷你折線。`null` = 該點無資料（非 0），會斷線分段畫，不會被當 0 拉到底。 */
 export function Sparkline({
   data, color, w = 64, h = 20,
-}: { data: number[]; color: string; w?: number; h?: number }) {
-  if (data.length < 2) return <svg width={w} height={h} />;
-  const max = Math.max(...data);
-  const min = Math.min(...data);
+}: { data: (number | null)[]; color: string; w?: number; h?: number }) {
+  const vals = data.filter((v): v is number => v !== null);
+  if (vals.length < 2) return <svg width={w} height={h} />;
+  const max = Math.max(...vals);
+  const min = Math.min(...vals);
   const rng = max - min || 1;
-  const pts = data
-    .map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / rng) * (h - 2) - 1}`)
-    .join(" ");
+  const xy = (v: number, i: number) =>
+    `${(i / (data.length - 1)) * w},${h - ((v - min) / rng) * (h - 2) - 1}`;
+  // 依 null 切段：每段各自一條 polyline，孤立點（前後皆 null）畫成小圓點
+  const segments: string[][] = [];
+  const dots: string[] = [];
+  let cur: string[] = [];
+  data.forEach((v, i) => {
+    if (v === null) {
+      if (cur.length) segments.push(cur);
+      cur = [];
+      return;
+    }
+    cur.push(xy(v, i));
+  });
+  if (cur.length) segments.push(cur);
+  for (const seg of segments) if (seg.length === 1) dots.push(seg[0]!);
   return (
     <svg width={w} height={h} style={{ flexShrink: 0, overflow: "visible" }}>
-      <polyline
-        points={pts} fill="none" stroke={color}
-        strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.85"
-      />
+      {segments
+        .filter((s) => s.length >= 2)
+        .map((s, i) => (
+          <polyline
+            key={i} points={s.join(" ")} fill="none" stroke={color}
+            strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" opacity="0.85"
+          />
+        ))}
+      {dots.map((d, i) => {
+        const [cx, cy] = d.split(",");
+        return <circle key={`d${i}`} cx={cx} cy={cy} r="1.2" fill={color} opacity="0.85" />;
+      })}
     </svg>
   );
 }

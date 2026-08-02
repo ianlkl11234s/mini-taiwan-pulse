@@ -545,7 +545,7 @@ export function MonitorPanel({
       />
     ),
     liveWall: <LiveWall />,
-    situationCards: <SituationCards pla={pla} health={health} />,
+    situationCards: <SituationCards pla={pla} health={health} panelOpen={open} />,
     hazardStrip: <HazardWatchStrip />,
     powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} />,
     erCongestion: <ERCard open={open} />,
