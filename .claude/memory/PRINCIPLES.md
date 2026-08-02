@@ -948,6 +948,29 @@ GitHub squash merge + **刪除 base branch** 時，以該 branch 為 base 的 st
 - 或 merge base PR 時**先不刪 branch**，等整條鏈 merge 完再清。
 - 看到 PR 莫名 CLOSED + CONFLICTING：先查 base branch 是否已被刪，不要急著解衝突。
 
+## Resolved key 模式：跨表時間窗 join 封裝在 DB 端（2026-07-31 地震回放）
+
+多來源表沒有統一 FK、時間戳有系統性差異（NCDR 取整分 / CWA 初報修訂漂移）時：
+
+- **清單 RPC 在 DB 端做完時間窗配對，回傳「配對成功的對方實際 key」**（grid_event_time /
+  town_origin_time / tensor_origin_utc），契約：`has_x = true ⟺ x_key 非 NULL ⟺ 用該 key
+  等值查一定撈得到列`
+- 前端**一律等值查詢，禁止自己做時間窗**——每個消費者自算窗 = 每個都可能算錯一次
+- 窗寬按**觀測到的漂移量級**開（town ±5s 吸秒級漂移；grid ±90s 吸取整分），不要「反正開大點」
+  ——地震序列 90 秒內兩起有感不罕見，大窗會誤配鄰近事件
+- 寫法：LATERAL + 索引範圍條件 + 內層 DISTINCT，成本與全表列數脫鉤（範本 gis-platform mig 324）
+
+## 事件級回放用 scoped 時鐘，不掛全域 timeStore（2026-07-31 地震回放）
+
+「選一起事件重播它的過程」（秒級尺度）與全域 timeline（日級尺度）是兩種時間模型，不要硬併：
+
+- scoped 播放器自帶 RAF + external clock store（比照 timeStore 慣例、通知節流 10Hz），
+  時鐘存 ref/store 不進 React state deps——回放期間 App 零 re-render
+- 所有視覺寫成「當前時鐘的純函數」（feature-state 每幀重算 + 量化去抖）→ **scrub = set 時鐘**
+  即完成，不需額外狀態機
+- 既有先例：earthquakes ripple 自帶 RAF；本原則是其一般化（範本 `useEarthquakeReplayLayer` +
+  `earthquakeReplayClock`）。§動態圖層時間訂閱鐵則仍適用於「掛全域時間軸」的圖層，兩者不衝突
+
 ## NULL 與 0 語意分離（2026-08-02 共機資料教訓）
 
 **「沒抓到」和「真的是零」在資料層必須分得開**，前端才能誠實呈現。
