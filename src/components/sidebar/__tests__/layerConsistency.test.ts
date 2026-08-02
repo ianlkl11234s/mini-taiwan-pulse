@@ -109,7 +109,9 @@ const BASELINE_NO_LEGEND = new Set([
   // 🧳 觀光 Tourism：單色 POI / 單色面層（分類 < 2）→ 鐵則 2 不適用。
   // 有分類/雙模式圖例的 4 層（tourAttractions 五類+熱度 / tourHotels 四類 /
   // tourHeritage 三類 / tourEvents 二色）已接 LEGEND_REGISTRY，不列入 baseline。
-  "tourHotSprings", "tourHotSpringZones", "tourScenicAreas", "tourReligion",
+  // 2026-08-02：tourReligion 更名為 religionTop100 搬入宗教群，且宗教群 6 層共用
+  // ReligionLegend（已接 LEGEND_REGISTRY），故不再列入本 baseline。
+  "tourHotSprings", "tourHotSpringZones", "tourScenicAreas",
   "tourFactories", "tourAmusementParks", "tourCamping", "tourRestaurants",
 ]);
 

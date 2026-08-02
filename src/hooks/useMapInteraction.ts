@@ -334,11 +334,17 @@ export function useMapInteraction(
           { layers: ["culture-museums-circle"], type: "culturalMuseums" },
           { layers: ["culture-events-circle"], type: "artsEvents" },
           { layers: ["culture-venues-circle"], type: "performingVenues" },
+          // 🛕 宗教 Religion 6 layer（小集合優先；temples 19,201 最密排最後）
+          { layers: ["religion-top100-circle", "religion-top100-glow"], type: "religionTop100" },
+          { layers: ["religion-foundations-circle"], type: "religionFoundations" },
+          { layers: ["religion-ancestral-halls-circle"], type: "religionAncestralHalls" },
+          { layers: ["religion-other-worship-circle"], type: "religionOtherWorship" },
+          { layers: ["religion-churches-circle"], type: "religionChurches" },
+          { layers: ["religion-temples-circle"], type: "religionTemples" },
           // 🧳 觀光 Tourism 12 layer（點層優先；面層 hot-spring-zones / scenic-areas 置末避免大面積擋點）
           { layers: ["tour-attractions-circle", "tour-attractions-glow"], type: "tourAttractions" },
           { layers: ["tour-hot-springs-circle", "tour-hot-springs-glow"], type: "tourHotSprings" },
           { layers: ["tour-heritage-circle", "tour-heritage-glow"], type: "tourHeritage" },
-          { layers: ["tour-religion-circle", "tour-religion-glow"], type: "tourReligion" },
           { layers: ["tour-events-circle"], type: "tourEvents" },
           { layers: ["tour-factories-circle", "tour-factories-glow"], type: "tourFactories" },
           { layers: ["tour-amusement-parks-circle", "tour-amusement-parks-glow"], type: "tourAmusementParks" },

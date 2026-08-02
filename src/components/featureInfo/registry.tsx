@@ -29,6 +29,10 @@ import {
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
 } from "./agriPanels";
 import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel, MountainHutPanel } from "./forestryPanels";
+import {
+  TemplePanel, ChurchPanel, AncestralHallPanel, FoundationPanel,
+  OtherWorshipPanel, ReligionTop100Panel,
+} from "./religionPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -49,7 +53,7 @@ import {
 } from "./culturePanels";
 import {
   AttractionsPanel, HotSpringsPanel, HotSpringZonesPanel, ScenicAreasPanel,
-  HeritagePanel, ReligionPanel, EventsPanel, FactoriesPanel,
+  HeritagePanel, EventsPanel, FactoriesPanel,
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
@@ -301,7 +305,12 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   tourHotSpringZones: HotSpringZonesPanel,
   tourScenicAreas: ScenicAreasPanel,
   tourHeritage: HeritagePanel,
-  tourReligion: ReligionPanel,
+  religionTemples: TemplePanel,
+  religionChurches: ChurchPanel,
+  religionAncestralHalls: AncestralHallPanel,
+  religionFoundations: FoundationPanel,
+  religionOtherWorship: OtherWorshipPanel,
+  religionTop100: ReligionTop100Panel,
   tourEvents: EventsPanel,
   tourFactories: FactoriesPanel,
   tourAmusementParks: AmusementParksPanel,
@@ -421,7 +430,12 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   tourHotSpringZones: "溫泉露頭區",
   tourScenicAreas: "國家風景區",
   tourHeritage: "文化資產",
-  tourReligion: "宗教百景",
+  religionTemples: "寺廟",
+  religionChurches: "教會",
+  religionAncestralHalls: "宗祠",
+  religionFoundations: "宗教基金會",
+  religionOtherWorship: "其他宗教場所",
+  religionTop100: "宗教百景",
   tourEvents: "觀光活動",
   tourFactories: "觀光工廠",
   tourAmusementParks: "民營遊樂園",

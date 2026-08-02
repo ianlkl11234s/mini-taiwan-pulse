@@ -62,6 +62,7 @@ import {
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
+import { DEITY_FAMILIES, ANCESTRAL_HALL_TYPES, RELIGION_LAYER_COLORS } from "../data/religionTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -261,6 +262,13 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["tourHotels"], render: () => <TourHotelsLegend /> },
   { keys: ["tourHeritage"], render: () => <TourHeritageLegend /> },
   { keys: ["tourEvents"], render: () => <TourEventsLegend /> },
+  {
+    keys: [
+      "religionTemples", "religionChurches", "religionAncestralHalls",
+      "religionFoundations", "religionOtherWorship", "religionTop100",
+    ],
+    render: ({ visibility }) => <ReligionLegend visibility={visibility} />,
+  },
   { keys: ["govServiceOffices"], render: () => <GovServiceOfficeLegend /> },
   { keys: ["publicToilets"], render: () => <PublicToiletLegend /> },
   { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
@@ -1657,6 +1665,82 @@ function MountainRescueLegend() {
           點大小 = 出動總人次（消防・警察・國家公園・林業・民間）
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── 🛕 Religion Legend ──
+// temples 走 deity_family 9 族分色；其餘 5 層單色。宗祠另有 facility_type 3 類子圖例。
+// ODbL：temples / churches / other_worship 都含 OSM 來源，圖面必須標示。
+
+const RELIGION_SINGLE_ROWS: { key: keyof LayerVisibility; color: string; label: string }[] = [
+  { key: "religionChurches", color: RELIGION_LAYER_COLORS.religionChurches, label: "教會 Churches" },
+  { key: "religionAncestralHalls", color: RELIGION_LAYER_COLORS.religionAncestralHalls, label: "宗祠 Ancestral Halls" },
+  { key: "religionFoundations", color: RELIGION_LAYER_COLORS.religionFoundations, label: "宗教基金會 Foundations" },
+  { key: "religionOtherWorship", color: RELIGION_LAYER_COLORS.religionOtherWorship, label: "其他宗教場所 Other Worship" },
+  { key: "religionTop100", color: RELIGION_LAYER_COLORS.religionTop100, label: "宗教百景 Top 100" },
+];
+
+function ReligionLegend({ visibility }: { visibility: LayerVisibility }) {
+  const t = useLegendTheme();
+  const singles = RELIGION_SINGLE_ROWS.filter((r) => visibility[r.key]);
+  // OSM 來源的三層任一開啟就要標 ODbL
+  const needsOdbl = visibility.religionTemples || visibility.religionChurches || visibility.religionOtherWorship;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        RELIGION 宗教
+      </div>
+      {visibility.religionTemples && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>寺廟・主祀神祇</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+            {DEITY_FAMILIES.map((d) => (
+              <div key={d.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: d.color, flexShrink: 0 }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>{d.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            「未標示」6,855 筆幾乎都是登記制度外的民間宮壇（用「登記」切換可只看官方登記版）
+          </div>
+        </>
+      )}
+      {singles.length > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: visibility.religionTemples ? 5 : 0 }}>
+          {singles.map((r) => (
+            <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div
+                style={{
+                  width: 10, height: 10, borderRadius: RADIUS.full, background: r.color,
+                  opacity: 0.9, flexShrink: 0,
+                  border: "1px solid rgba(255,255,255,0.4)", boxSizing: "border-box",
+                }}
+              />
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{r.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {visibility.religionAncestralHalls && (
+        <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>宗祠類型 facility_type</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {ANCESTRAL_HALL_TYPES.map((it) => (
+              <div key={it.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: it.color, flexShrink: 0 }} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {needsOdbl && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+          含 OSM 來源 © OpenStreetMap contributors（ODbL）
+        </div>
+      )}
     </div>
   );
 }
