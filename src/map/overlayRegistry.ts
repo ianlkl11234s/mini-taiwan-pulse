@@ -46,6 +46,7 @@ import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { resolveUrbanHeatMode, urbanHeatRasterColor } from "../data/urbanHeatTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
+import { nonUrbanZoningColorExpr, nonUrbanZoningCodeFilter } from "../data/nonUrbanZoningTypes";
 import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
@@ -4153,6 +4154,40 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "line-color": urbanZoningColorExpr(),
           "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
           "line-opacity": (p?.urbanZoningNewTaipeiOpacity ?? 0.5) * 0.6,
+        }),
+      },
+    ],
+  },
+
+  // 非都市土地使用分區（68,220 面，18 縣市；臺北市・嘉義市全境都市計畫故無資料，正常）。
+  // zone_code 11 碼分色（SSOT = nonUrbanZoningTypes.ts），與上面兩層都計分區同色系對齊。
+  // 面積遠大於都計分區（山坡地保育區 20,246 面覆蓋全台山區）→ fill-opacity 預設壓到 0.35，
+  // 免得疊在都計分區上互相糊掉。分類篩選同 urbanZoning 走 per-layer filter 函式，
+  // 故 rebuildOnParamChange 收 ["fill","line"] 兩 suffix。
+  {
+    id: "nonUrbanZoning",
+    sourceUrl: "./urban/non_urban_zoning.pmtiles",
+    sourceId: "non-urban-zoning",
+    pmtiles: { sourceLayer: "non_urban_zoning", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        paint: (_isDark, p) => ({
+          "fill-color": nonUrbanZoningColorExpr(),
+          "fill-opacity": p?.nonUrbanZoningOpacity ?? 0.35,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        paint: (_isDark, p) => ({
+          "line-color": nonUrbanZoningColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
+          "line-opacity": (p?.nonUrbanZoningOpacity ?? 0.35) * 0.6,
         }),
       },
     ],

@@ -125,7 +125,7 @@ export type ExpandableLayerKey =
   | "urbanFormGrid"
   | "propertyValueGrid"
   // 🗺️ 都市計畫土地使用分區（PMTiles polygon，zone_category 9 類分色 + 分類篩選）
-  | "urbanZoningTaipei" | "urbanZoningNewTaipei"
+  | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   // 🎭 文化 Culture（靜態 overlay GeoJSON 點）
@@ -672,7 +672,7 @@ export interface FeatureInfo {
     | "buildingsGba"
     | "urbanFormGrid"
     | "propertyValueGrid"
-    | "urbanZoningTaipei" | "urbanZoningNewTaipei"
+    | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
     | "sportsVenue"
     | "culturalFacilities" | "culturalMuseums" | "artsEvents" | "performingVenues"
     | "librarySeats"
@@ -887,6 +887,7 @@ export interface LayerVisibility {
   // 🗺️ 都市計畫土地使用分區（靜態 PMTiles polygon；zone_category 9 類統一分色 + 分類篩選；OGDL-Taiwan-1.0）
   urbanZoningTaipei: boolean;     // 臺北市都市計畫土地使用分區（15,518 面，z6-15）
   urbanZoningNewTaipei: boolean;  // 新北市都市計畫土地使用分區（34,190 面，z6-15）
+  nonUrbanZoning: boolean;        // 非都市土地使用分區（68,220 面 18 縣市，zone_code 11 碼，z5-14）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）

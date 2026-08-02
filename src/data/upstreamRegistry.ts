@@ -556,6 +556,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   urbanFormGrid: { status: 'catalog_missing', datasets: [], note: '都市紋理網格 500m 145,119 格（GBA+Meta 樹冠合成，public/urban/urban_form_grid_500m.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/urban-form-grid.md' },
   // 🗺️ 都市計畫土地使用分區（上游 handoff: taipei-gis-analytics/docs/handoff/urban-zoning.md；catalog: docs/data-catalog/urban_composite/）
   urbanZoningTaipei: { status: 'verified', datasets: [{ datasetId: 'urban_zoning_taipei', confidence: 'HIGH' }], note: '臺北市都市計畫土地使用分區 15,518 面（data.taipei SHP，docs/data-catalog/urban_composite/urban_zoning_taipei.md）' },
+  nonUrbanZoning: {
+    status: 'verified',
+    datasets: [{ datasetId: 'non_urban_zoning', confidence: 'HIGH' }],
+    processing: '內政部區域計畫法非都市土地使用分區 68,220 面 / 18 縣市（北市・嘉義市全境都市計畫故無），z5-14 PMTiles',
+  },
   urbanZoningNewTaipei: { status: 'verified', datasets: [{ datasetId: 'urban_zoning_newtaipei', confidence: 'HIGH' }], note: '新北市都市計畫土地使用分區 34,190 面（urban.planning.ntpc.gov.tw opendata，docs/data-catalog/urban_composite/urban_zoning_newtaipei.md）' },
   // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
   sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
