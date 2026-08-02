@@ -1142,12 +1142,14 @@ export default function App() {
     transportParams.daOpacity,
   );
 
-  // ── 共機活動區（航跡示意圖向量化，依日期回放；無 intraday 變化）──
+  // ── 共機活動區（航跡示意圖向量化；依日期回放 + 30/60/90/120 天疊加）──
   usePlaActivityLayer(
     mapRef,
     layerVisibility.plaActivity,
     transportParams.plaOpacity,
     transportParams.plaShowReview,
+    transportParams.plaTrailDays,
+    transportParams.plaReplay,
   );
 
   // ── 衛星圖層（Supabase satellite_classified + SGP4 即時計算） ──

@@ -2638,6 +2638,9 @@ function PlaActivityLegend() {
         </div>
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        多日疊加時舊的較淡、新的較亮；重疊處越深＝該區出現越頻繁
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         依國防部示意圖描繪，非精確航跡
       </div>
     </div>

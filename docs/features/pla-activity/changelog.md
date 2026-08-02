@@ -1,5 +1,15 @@
 # PLA Activity — Changelog
 
+## 2026-08-02 · 多日疊加 + 累積回放
+
+- gis-platform migration **331**：`get_pla_tracks_range(p_end_date, p_days, p_include_review)`，
+  回傳 `days_ago`（0=最新）供前端做新舊淡化與逐日累積。已 apply production
+- 疊加：單日 / 30 / 60 / 90 / 120 天，視窗結束日＝時間軸選定日
+- 累積回放：從最舊一天往前播、形狀逐日長出來，18 秒一輪 + 停留 2.5 秒後 loop。
+  走圖層自己的 clock（全域時間軸最多 7 天視窗），且只改 Mapbox filter 不重打 RPC
+- 單日與疊加合併成同一條 loader 路徑（`fetchPlaTracksRange`，days=1 即單日）
+- 依疊加天數壓低單層 alpha —— 不壓的話 120 天會糊成不透明一片（見 README「設計決策」）
+
 ## 2026-08-02 · A~D 期全上（PT-0 Phase 5）
 
 **後端**

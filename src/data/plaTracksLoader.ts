@@ -23,6 +23,10 @@ export interface PlaTrackDateInfo {
 }
 
 export interface PlaTrack {
+  /** YYYY-MM-DD，該形狀所屬的通報日 */
+  reportDate: string;
+  /** 視窗結束日 − reportDate 的天數。0=最新、trailDays-1=最舊 */
+  daysAgo: number;
   shapeNo: number;
   geometry: GeoJSON.Polygon;
   /** rect=細長矩形走廊 / poly=大型不規則活動區 */
@@ -81,22 +85,31 @@ export function fetchPlaTrackDates(includeReview = false): Promise<PlaTrackDateI
   return fetchDatesCached(includeReview ? "all" : "ok");
 }
 
-// ── 當日形狀 ────────────────────────────────────────────────
+// ── 區間形狀（單日 = p_days:1，走同一條路徑）─────────────────
 
-async function fetchDayUncached(key: string): Promise<PlaTrack[]> {
+/**
+ * key = `${endDate}|${days}|${mode}`
+ *
+ * 單日與疊加共用 get_pla_tracks_range（migration 331）—— 疊 120 天若逐日打
+ * RPC 要 120 次，且回放每換一天就要再打；一次抓整個視窗後，回放只改
+ * Mapbox filter、不重打 RPC。
+ */
+async function fetchRangeUncached(key: string): Promise<PlaTrack[]> {
   if (!supabaseConfigured) return [];
-  const [date, mode] = key.split("|");
+  const [endDate, daysStr, mode] = key.split("|");
+  const days = Number(daysStr) || 1;
   const includeReview = mode === "all";
   const { data, error } = await withLoading(
     `pla-tracks:${key}`,
-    `共機活動區 ${date}`,
-    supabase.rpc("get_pla_tracks_day", {
-      p_date: date,
+    days > 1 ? `共機活動區 ${endDate} 起算 ${days} 天` : `共機活動區 ${endDate}`,
+    supabase.rpc("get_pla_tracks_range", {
+      p_end_date: endDate,
+      p_days: days,
       p_include_review: includeReview,
     }),
   );
   if (error) {
-    console.warn(`[PlaTracks] get_pla_tracks_day(${date}) failed:`, error.message);
+    console.warn(`[PlaTracks] get_pla_tracks_range(${endDate},${days}) failed:`, error.message);
     return [];
   }
   const out: PlaTrack[] = [];
@@ -115,6 +128,8 @@ async function fetchDayUncached(key: string): Promise<PlaTrack[]> {
     }
     if (!geometry || geometry.type !== "Polygon") continue;
     out.push({
+      reportDate: String(r.report_date),
+      daysAgo: Number(r.days_ago ?? 0),
       shapeNo: Number(r.shape_no ?? 0),
       geometry,
       shapeKind: r.shape_kind === "poly" ? "poly" : "rect",
@@ -130,11 +145,18 @@ async function fetchDayUncached(key: string): Promise<PlaTrack[]> {
   return out;
 }
 
-const fetchDayCached = cachedByKey(fetchDayUncached, TTL);
+const fetchRangeCached = cachedByKey(fetchRangeUncached, TTL);
 
-/** 取指定日期的活動區形狀。10min TTL，toggle 不重抓 */
-export function fetchPlaTracksDay(date: string, includeReview = false): Promise<PlaTrack[]> {
-  return fetchDayCached(`${date}|${includeReview ? "all" : "ok"}`);
+/**
+ * 取 endDate 往前 days 天的活動區形狀（days=1 即單日）。10min TTL，toggle 不重抓。
+ * 回傳已依 report_date 由舊到新排序（RPC 端 ORDER BY）。
+ */
+export function fetchPlaTracksRange(
+  endDate: string,
+  days = 1,
+  includeReview = false,
+): Promise<PlaTrack[]> {
+  return fetchRangeCached(`${endDate}|${days}|${includeReview ? "all" : "ok"}`);
 }
 
 // ── 當日通報數值（popup 用）─────────────────────────────────
@@ -185,16 +207,18 @@ export const PLA_KIND_LABELS: Record<PlaTrack["shapeKind"], string> = {
 
 export function tracksToGeoJSON(
   tracks: PlaTrack[],
-  date: string,
-  stat?: PlaDailyStat,
+  stats?: Map<string, PlaDailyStat>,
 ): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
-    features: tracks.map((t) => ({
+    features: tracks.map((t) => {
+      const stat = stats?.get(t.reportDate);
+      return {
       type: "Feature" as const,
       geometry: t.geometry,
       properties: {
-        report_date: date,
+        report_date: t.reportDate,
+        days_ago: t.daysAgo,
         shape_no: t.shapeNo,
         shape_kind: t.shapeKind,
         kind_label: PLA_KIND_LABELS[t.shapeKind],
@@ -211,6 +235,7 @@ export function tracksToGeoJSON(
         plan_vessels: stat?.planVessels ?? null,
         official_ships: stat?.officialShips ?? null,
       },
-    })),
+      };
+    }),
   };
 }

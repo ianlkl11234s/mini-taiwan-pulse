@@ -547,6 +547,10 @@ export function useTransportParams() {
   // 共機活動區：showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
   const [plaOpacity, setPlaOpacity] = useState(1.0);
   const [plaShowReview, setPlaShowReview] = useState(false);
+  // 疊加天數（1=單日）與累積回放。回放走圖層自己的 clock —— 全域時間軸最多
+  // 7 天視窗，表達不了 30~120 天的掃描
+  const [plaTrailDays, setPlaTrailDays] = useState<number>(1);
+  const [plaReplay, setPlaReplay] = useState(false);
   // Road Events
   const [reOpacity, setReOpacity] = useState(1.0);
   // Satellites (3 cats share one opacity)
@@ -1900,6 +1904,15 @@ export function useTransportParams() {
         { label: `Opacity ${daOpacity.toFixed(2)}`, value: daOpacity, min: 0, max: 1, step: 0.05, onChange: setDaOpacity },
       ];
       case "plaActivity": return [
+        { type: "select" as const, label: "疊加", value: String(plaTrailDays), options: [
+          { label: "單日", value: "1" },
+          { label: "30 天", value: "30" },
+          { label: "60 天", value: "60" },
+          { label: "90 天", value: "90" },
+          { label: "120 天", value: "120" },
+        ], onChange: (v: string) => setPlaTrailDays(Number(v)) },
+        // 單日沒有東西可掃 → 回放只在疊加 > 單日時有意義
+        { type: "toggle" as const, label: "回放", value: plaReplay, onChange: setPlaReplay },
         { label: `Opacity ${plaOpacity.toFixed(2)}`, value: plaOpacity, min: 0, max: 1, step: 0.05, onChange: setPlaOpacity },
         { type: "toggle" as const, label: "待核實", value: plaShowReview, onChange: setPlaShowReview },
       ];
@@ -2994,6 +3007,8 @@ export function useTransportParams() {
     daOpacity,
     plaOpacity,
     plaShowReview,
+    plaTrailDays,
+    plaReplay,
     reOpacity,
     satOpacity,
     aqiMicroCluster,

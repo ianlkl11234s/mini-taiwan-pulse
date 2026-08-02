@@ -19,7 +19,7 @@
 
 | 名稱 | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
-| plaActivity | fill + line（單一 source） | Supabase RPC `get_pla_tracks_day(p_date, p_include_review)` | ✅ |
+| plaActivity | fill + line（單一 source） | Supabase RPC `get_pla_tracks_range(p_end_date, p_days, p_include_review)` | ✅ |
 
 兩類形狀依 `shape_kind` 分色：
 
@@ -30,20 +30,32 @@
 
 未通過守門的形狀畫**虛線**且透明度減半，預設不顯示（參數「待核實」可開）。
 
+### 疊加與回放
+
+| 參數 | 值 | 行為 |
+|---|---|---|
+| 疊加 | 單日 / 30 / 60 / 90 / 120 天 | 視窗結束日＝時間軸選定日，往前 N 天的形狀全部疊上去；舊的淡、新的亮，重疊處自然累積成熱點 |
+| 回放 | on / off | 從最舊一天往前播，形狀一天一天長出來，播完＝完整疊圖；18 秒一輪、停留 2.5 秒後 loop |
+
+回放**走圖層自己的 clock**（比照 earthquakeReplay）—— 全域時間軸最多 7 天視窗，
+表達不了 30~120 天的掃描。實作上只改 Mapbox filter（`days_ago >= thresh`），
+**不重打 RPC、不 setData**，所以 120 天掃描沒有載入延遲。
+
 ## 關鍵檔案
 
 ### 前端（mini-taiwan-pulse）
 
 - Loader：`src/data/plaTracksLoader.ts`（withLoading + cachedByKey；含 `PLA_KIND_COLORS/LABELS` SSOT）
+  單日與疊加共用 `fetchPlaTracksRange`（days=1 即單日），只有一條路徑
 - Hook：`src/hooks/usePlaActivityLayer.ts`（**只掛 `subscribeDate`**，見下方「為什麼不用 subscribeThrottled」）
 - Popup：`src/components/featureInfo/eventPanels.tsx` → `PlaActivityPanel`
 - Legend：`LegendPanel.tsx` → `PlaActivityLegend`
-- 參數：`useTransportParams.ts` → `plaOpacity` / `plaShowReview`
+- 參數：`useTransportParams.ts` → `plaTrailDays` / `plaReplay` / `plaOpacity` / `plaShowReview`
 - 群組：`layerCatalog.ts` 主題「情勢 Situation」→ 子群「軍事」
 
 ### 後端
 
-- 表 + RPC：`gis-platform/migrations/330_pla_tracks.sql`
+- 表 + RPC：`gis-platform/migrations/330_pla_tracks.sql`、區間 RPC `331_pla_tracks_range.sql`
 - 通報數值：`live.pla_activity_daily`（migration 326/327）＋ `data-collectors/collectors/pla_activity_daily.py`
 - 向量化：`taipei-gis-analytics/scripts/pla_tracks/`
   （`shape_extract` 形狀 / `table_items` 表格項次判讀 / `build_geojson` 串接 / `load_tracks` 入庫）
@@ -72,6 +84,14 @@
 共機資料**一天一組形狀、無 intraday 變化**。災害示警要 `subscribeThrottled` 是因為它得依
 `currentTime` 過濾出當下 active 的示警；共機沒有這個維度，掛上去只是每 500ms 做白工。
 
+### 疊加為什麼要依天數壓低單層 alpha
+
+alpha 疊加是 `1-(1-a)^n`。單層 0.22 疊 20 層就已經 0.99 接近不透明 ——
+實測 120 天整塊紫到蓋掉台灣本島，底圖與密度差異全部看不見。
+所以單層 alpha 依 `pow(trailDays, -0.6)` 縮放（30 天≈0.028、120 天≈0.012），
+讓熱區的典型重疊層數落在 0.3~0.6 的可讀區間。線框衰減得慢一些（`-0.35`）並收細到 0.9px
+—— 輪廓才是「軌跡感」的來源，但 200 條粗線會蓋過密度本身。
+
 ### needs_review 為什麼進表而不是擋在門外
 
 拍板為「進表但以旗標區分」：讓前端能選擇顯示與否，但**兩支 RPC 預設排除**，
@@ -86,3 +106,6 @@
 - 圖例：走廊、活動區、待核實（虛線）三項 + 標註
 - 透明度 slider：`fill-opacity` 乘數 1 → 0.35、`line-opacity` → 0.3325
 - 待核實 toggle：7/22 由 0 個形狀 → 2 個（皆 `needs_review=1`）
+- 疊加 120 天：208 個形狀 / 95 個相異日期，`days_ago` 2~119，fill-opacity 帶新舊淡化 interpolate
+- 回放：filter threshold 由 99→77→56→35→12 遞減後 loop 回 103；關閉後 filter 清空
+- 疊加模式 popup 讀的是**該形狀自己那天**的數值（2026-05-19 → 24 架次 / 逾越 13 / 共艦 6 / 公務船 3，與 DB 一致）
