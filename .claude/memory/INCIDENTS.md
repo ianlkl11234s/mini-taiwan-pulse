@@ -1362,3 +1362,32 @@ S3 換磚上傳完成於 15:25Z，但 #95 merge（15:02Z）觸發的容器已在
 
 ### 事件 B：origin 換新後 Cloudflare edge 仍供舊 pmtiles（range request 同吃舊快取）
 service exec pull 完 origin 已新（cache-bust 驗證），但 edge 對無 query URL 仍 HIT 舊物件，且 **PMTiles 的 range request 也從同一舊快取切片**（content-range total = 舊檔大小）。`cache-control: max-age=86400` → 自然過期要 1 天。`purge-cloudflare-cache.sh` 現成但 CF_ZONE_ID/CF_API_TOKEN 全機未設 → G017。過渡期症狀：新前端 + 舊磚 = 人均模式整片灰半透明（pop 缺欄的誠實 fallback，不會壞）。
+
+## 2026-08-01/02 — 共機資料回填與航跡圖向量化（四事件）
+
+### 事件 A：線上 collector 舊版持續覆蓋修好的資料 ⚠️ 未解
+回填完成後查最近幾天，發現 7/30 原本抓到的「逾越中線 22、四區全進」又變回空值與 false。
+證據：`raw_text` 長度剛好卡 **2000**（舊版 `text[:2000]` 特徵；新版存內文上限 4000）。
+線上 collector 每 30 分鐘抓最新 5 則並 UPSERT → 用舊解析器覆蓋。
+程式已修並 commit（`data-collectors` `feat/pla-parse-fix-backfill`），
+但**要部署到線上跑的環境才生效**（需 owner 操作）。在那之前資料持續劣化。
+→ 教訓：改了 collector 解析邏輯就等於改了資料契約，**部署前回填的成果都是暫時的**；
+回填與部署要當成同一件事排程，不可只做前者。
+
+### 事件 B：maincontent 被巢狀結構截斷 → 80/729 天存到頁面 chrome
+`<div class="maincontent">(.*?)</div>` 非貪婪，遇到內文含 base64 內嵌圖或巢狀 div
+會在第一個 `</div>` 提早結束 → 內文不完整 → 退回全頁 fallback → `raw_text` 存成導覽列雜訊。
+數值仍解析得出（全頁也含內文），所以**表面正常、實則喪失未來重解析能力**，
+靠「raw_text 含『全球資訊網』」才掃出來。
+另一同源問題：gate 要求標題含「中共解放軍臺海周邊」，但部分日期 maincontent 直接由
+「一、日期」起頭 → 被擋下走 fallback（即上述 80 天的觸發原因）。
+修法：終點改抓「keyword／page-share／footer 區塊」；gate 放寬。
+
+### 事件 C：mnd.gov.tw 圖片下載全部 406
+爬蟲 session 的 `Accept: text/html,...` 不含 `image/*`，伺服器直接拒絕。
+症狀是整批圖 0 成功但 HTML 抓得到，容易誤判成防爬。實測 `Accept: image/*,*/*` 即 200。
+
+### 事件 D：版型不一致致共用配準偏移（守門攔下）
+2026 年 181 張中有 3 張為 794×1115（其餘 720×1040）。原本全部取中位數作共用配準，
+會讓少數派整組錯位。改為**依圖片尺寸分組**各自建立配準；該尺寸全數配準失敗時整組跳過並印警告。
+→ 通則：任何「同版型底圖一致」的假設，都要先驗證尺寸/版型分布再套用。
