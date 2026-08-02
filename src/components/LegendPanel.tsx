@@ -60,6 +60,7 @@ import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
 } from "../data/urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
+import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -266,10 +267,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
       "forestCompartments", "forestReserve", "forestRecreation", "forestRoads",
       "forestTreatmentWorks", "forestTrailSigns", "forestSignalPoints",
       "forestEducationCenters", "forestWildlife", "forestDamLakes",
-      "forestFlatParks", "forestAlishanRail", "hikingTrails",
+      "forestFlatParks", "forestAlishanRail", "mountainHuts", "hikingTrails",
     ],
     render: ({ visibility }) => <ForestryLegend visibility={visibility} />,
   },
+  { keys: ["mountainRescueIncidents"], render: () => <MountainRescueLegend /> },
   { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan", "satellitesUSA", "satellitesJapan", "satellitesRussia", "satellitesIndia", "satellitesKorea", "satellitesFrance", "satellitesGermany", "satellitesItaly", "satellitesIsrael"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["lakesPondsOsm"], render: () => <LakesPondsLegend /> },
@@ -1592,6 +1594,47 @@ function RealEstateLegend({ visibility, overlayParams }: { visibility: LayerVisi
   );
 }
 
+// ── 山域事故 Legend（cause 9 族 + 點大小/紅描邊語意）──
+
+function MountainRescueLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        山域事故 事故原因
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {MOUNTAIN_RESCUE_CAUSES.map((c) => (
+          <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: RADIUS.full, background: c.color,
+                opacity: 0.9, flexShrink: 0,
+                border: "1px solid rgba(255,255,255,0.4)", boxSizing: "border-box",
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
+          <div
+            style={{
+              width: 10, height: 10, borderRadius: RADIUS.full, background: "transparent",
+              border: "1.5px solid #ff2d2d", flexShrink: 0, boxSizing: "border-box",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>紅框 = 有死亡</span>
+        </div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
+          點大小 = 出動總人次（消防・警察・國家公園・林業・民間）
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Forestry Legend (15 layer 顏色/圖示) ──
 
 const FORESTRY_LEGEND_ROWS: { key: keyof LayerVisibility; color: string; label: string; shape: "circle" | "square" | "line" }[] = [
@@ -1607,6 +1650,7 @@ const FORESTRY_LEGEND_ROWS: { key: keyof LayerVisibility; color: string; label: 
   { key: "forestDamLakes", color: "#06B6D4", label: "堰塞湖 Dam Lakes", shape: "circle" },
   { key: "forestFlatParks", color: "#A3E635", label: "平地森林 Flat Parks", shape: "circle" },
   { key: "forestAlishanRail", color: "#92400E", label: "阿里山鐵路 Alishan Rail (車站)", shape: "circle" },
+  { key: "mountainHuts", color: "#ec4899", label: "山屋・高山營地 Mountain Huts", shape: "circle" },
   { key: "hikingTrails", color: "#d62728", label: "全台步道 Hiking Trails", shape: "line" },
 ];
 
@@ -1631,6 +1675,27 @@ function HikingTrailsSourcesLegend() {
             <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+// 山屋 facility_type 4 類子圖例 + ODbL 標示（OSM 126 / 官方玉山 30 trust chain 合併）
+function MountainHutTypesLegend() {
+  const t = useLegendTheme();
+  return (
+    <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 2 }}>設施類型 facility_type</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        {MOUNTAIN_HUT_TYPES.map((it) => (
+          <div key={it.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: RADIUS.full, background: it.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+        含 OSM 來源 © OpenStreetMap contributors（ODbL）
       </div>
     </div>
   );
@@ -1682,6 +1747,7 @@ function ForestryLegend({ visibility }: { visibility: LayerVisibility }) {
         ))}
       </div>
       {visibility.forestReserve && <ForestReserveTypesLegend />}
+      {visibility.mountainHuts && <MountainHutTypesLegend />}
       {visibility.hikingTrails && <HikingTrailsSourcesLegend />}
     </div>
   );
