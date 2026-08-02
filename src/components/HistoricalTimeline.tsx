@@ -15,6 +15,8 @@ interface Props {
   isMobile?: boolean;
   leftOffset?: number;
   onTogglePlay: () => void;
+  /** 共機活動區是否開著（決定資料範圍提示） */
+  plaActive?: boolean;
   onSpeedChange: (s: number) => void;
   onYearChange: (y: number) => void;
   onMonthChange: (m: number) => void;
@@ -94,6 +96,7 @@ export function HistoricalTimeline({
   isMobile = false,
   leftOffset = 16,
   onTogglePlay,
+  plaActive = false,
   onSpeedChange,
   onYearChange,
   onMonthChange,
@@ -116,7 +119,12 @@ export function HistoricalTimeline({
   const showMonth = granularity === "month" || granularity === "day";
   const showDay = granularity === "day";
   const headLabel = reActive ? reCursorLabel : formatLabel(year, month, day, granularity);
-  const dataNote = reActive ? "房地產：2024Q3~2026Q1" : "火災資料：111~113";
+  // 提示該模式下「現在開著的圖層」實際有資料的區間，避免使用者在空年份亂撥
+  const dataNote = reActive
+    ? "房地產：2024Q3~2026Q1"
+    : plaActive
+      ? "共機活動區：115/01~115/07"
+      : "火災資料：111~113";
   const playStepLabel = reActive ? reGranLabel[reGran] : granLabel[granularity];
 
   const wrapStyle: React.CSSProperties = isMobile

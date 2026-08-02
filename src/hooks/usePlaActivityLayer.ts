@@ -151,6 +151,12 @@ export function usePlaActivityLayer(
   includeReview: boolean = false,
   trailDays: number = 1,
   replay: boolean = false,
+  /**
+   * 視窗結束日的外部覆寫（YYYY-MM-DD）。
+   * 歷史模式用 —— 那邊走 HistoricalTimeline 的 年/月/日，**不寫 timeStore**，
+   * 所以不能靠 subscribeDate。傳值時改吃這個並停掉訂閱。
+   */
+  dateOverride: string | null = null,
 ) {
   const cacheRef = useRef<Map<string, CachedWindow>>(new Map());
   const activeRef = useRef<PlaTrack[] | null>(null);
@@ -259,15 +265,19 @@ export function usePlaActivityLayer(
     [ensureLayers, refreshSource, writeCache, mapRef, includeReview, trailDays],
   );
 
-  // ── 訂閱 timeStore 日期變化載入視窗（視窗結束日 = 時間軸選定日）──
+  // ── 視窗結束日：即時模式訂閱 timeStore；歷史模式吃 dateOverride ──
   useEffect(() => {
     if (!visible) return;
+    if (dateOverride) {
+      loadWindow(dateOverride);
+      return;
+    }
     const handler = (dateStr: string) => {
       if (dateStr) loadWindow(dateStr);
     };
     handler(timeStore.getDateKey());
     return timeStore.subscribeDate(handler);
-  }, [visible, loadWindow]);
+  }, [visible, loadWindow, dateOverride]);
 
   // ── 可見性 + style.load 後重建圖層 ──
   useEffect(() => {

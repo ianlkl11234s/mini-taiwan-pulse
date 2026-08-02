@@ -1,5 +1,18 @@
 # PLA Activity — Changelog
 
+## 2026-08-02 · 歷史模式支援
+
+- 圖層在「歷史」模式可用：hook 加 `dateOverride`，由 `HistoricalTimeline` 的年/月/日
+  換算成視窗結束日（歷史模式不寫 `timeStore`）
+- 切進歷史模式時不再被「全部關掉只留人口」波及
+- 歷史時間軸的 ▶ 負責推進，圖層自己的回放在歷史模式自動停用
+- 年份清單延伸到民國 115；月/日推進上限在本圖層開著時放寬到 115
+- 時間軸資料範圍提示支援本圖層（「共機活動區：115/01~115/07」）
+
+**順手修掉一個既有 bug**：`useRealEstateTimeline` 的播放引擎只要 `historical + playing`
+就跑，不管房地產圖層有沒有開；游標預設停在區間尾端 → 第一個 tick 就 `onStop()`。
+症狀是**歷史模式按 ▶ 永遠只前進一格**，火災／人口一直都中招。加上 `active` guard 修正。
+
 ## 2026-08-02 · 多日疊加 + 累積回放
 
 - gis-platform migration **331**：`get_pla_tracks_range(p_end_date, p_days, p_include_review)`，

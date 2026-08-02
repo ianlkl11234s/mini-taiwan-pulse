@@ -41,6 +41,23 @@
 表達不了 30~120 天的掃描。實作上只改 Mapbox filter（`days_ago >= thresh`），
 **不重打 RPC、不 setData**，所以 120 天掃描沒有載入延遲。
 
+### 歷史模式
+
+本圖層在「歷史」模式同樣可用（2026-08-02 加）。三件事要知道：
+
+1. **歷史模式不寫 `timeStore`** —— 它走 `HistoricalTimeline` 的年/月/日 React state。
+   所以 hook 收一個 `dateOverride`，有值時改吃它、停掉 `subscribeDate`。
+   年/月粒度取該區間最後一天（未來日期夾到今天），視窗才涵蓋整段。
+2. **切進歷史模式時 plaActivity 不被強制關閉**。原本的邏輯是「全部關掉只留人口」，
+   用意是避免看到大量無法解讀的即時圖層；共機是逐日回顧型資料，在歷史模式完全可解讀。
+3. **歷史時間軸的 ▶ 負責推進**，圖層自己的「回放」在歷史模式自動停用 ——
+   兩個 clock 同時跑會互相打架。歷史 ▶ 推進日期 = 疊加視窗往前滑，本身就是一種回放。
+
+年份清單因此延伸到民國 115（原本 104~113）。人口／火災在 114/115 沒有資料，
+但「該年該圖層沒東西」本來就是常態（火災在 104~110 也是空的），
+不需要為此拆成 per-layer 年份清單。月/日推進上限在 plaActivity 開著時放寬到 115，
+沒開就維持火災的 113，不改變既有行為。
+
 ## 關鍵檔案
 
 ### 前端（mini-taiwan-pulse）
@@ -51,6 +68,7 @@
 - Popup：`src/components/featureInfo/eventPanels.tsx` → `PlaActivityPanel`
 - Legend：`LegendPanel.tsx` → `PlaActivityLegend`
 - 參數：`useTransportParams.ts` → `plaTrailDays` / `plaReplay` / `plaOpacity` / `plaShowReview`
+- 歷史模式接線：`App.tsx` 的 `plaHistoricalDate`（年/月/日 → 視窗結束日）
 - 群組：`layerCatalog.ts` 主題「情勢 Situation」→ 子群「軍事」
 
 ### 後端
@@ -109,3 +127,6 @@ alpha 疊加是 `1-(1-a)^n`。單層 0.22 疊 20 層就已經 0.99 接近不透�
 - 疊加 120 天：208 個形狀 / 95 個相異日期，`days_ago` 2~119，fill-opacity 帶新舊淡化 interpolate
 - 回放：filter threshold 由 99→77→56→35→12 遞減後 loop 回 103；關閉後 filter 清空
 - 疊加模式 popup 讀的是**該形狀自己那天**的數值（2026-05-19 → 24 架次 / 逾越 13 / 共艦 6 / 公務船 3，與 DB 一致）
+- 歷史模式：切過去圖層不被關掉；民國 115 + 疊加 120 天 → 208 個形狀（2026-04-05 ~ 07-31）；
+  月粒度按 ▶ 由 115/04 → 06 → 08 連續推進，60 天視窗跟著滑（資料末日 3/31 → 6/30 → 7/31）；
+  時間軸提示顯示「共機活動區：115/01~115/07」
