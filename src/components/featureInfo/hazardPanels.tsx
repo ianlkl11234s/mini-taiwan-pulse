@@ -9,6 +9,8 @@ import {
   NUCLEAR_LEVEL_LABELS, NUCLEAR_DOSE_THRESHOLDS,
 } from "../../data/nuclearLoader";
 import { intensityColor, intensityLabel } from "../../data/earthquakeReplayTypes";
+import { mountainRescueCauseColor, mountainRescueCauseLabel } from "../../data/mountainSafetyTypes";
+import { FONT_SIZE } from "../../styles/designTokens";
 
 function fmtAge(ts: unknown): string {
   if (typeof ts !== "number" || !Number.isFinite(ts)) return "—";
@@ -56,6 +58,57 @@ function depthColor(depth: number): string {
   if (depth <= 150) return "#ffcc00";
   if (depth <= 300) return "#42a5f5";
   return "#3949ab";
+}
+
+/**
+ * 山域意外事故救援案件 popup。
+ * 出動人次分 6 欄（消防在地／消防支援／警察／國家公園／林業／民間），
+ * 直升機・搜救犬・無人機是「架次／次數」跟人次分開列，不要加總。
+ */
+export function MountainRescuePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const cause = props.cause == null ? null : String(props.cause);
+  const color = mountainRescueCauseColor(cause);
+  const int0 = (v: unknown) => (typeof v === "number" ? v : 0);
+  const persons =
+    int0(props.fire_local_persons) + int0(props.fire_support_persons) + int0(props.police_persons) +
+    int0(props.npark_persons) + int0(props.forestry_persons) + int0(props.civilian_persons);
+  const sorties = int0(props.mnd_heli_sorties) + int0(props.nasc_heli_sorties);
+  const str = (v: unknown) => (v == null || v === "" ? null : String(v));
+  const area = str(props.mountain_area);
+  const entry = str(props.entry_point);
+  const dest = str(props.destination);
+  const deaths = int0(props.deaths);
+  const missing = int0(props.missing);
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 5, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {mountainRescueCauseLabel(cause)}
+        </div>
+      </div>
+      <Row label="案件編號" value={String(props.case_id ?? "—")} />
+      <Row label="年份" value={props.year == null ? "—" : String(props.year)} />
+      <Row label="縣市" value={String(props.city ?? "—")} />
+      {area ? <Row label="山域" value={area} /> : null}
+      {entry ? <Row label="入山口" value={entry} /> : null}
+      {dest ? <Row label="目的地" value={dest} /> : null}
+      <Row label="報案時間" value={String(props.reported_at ?? "—")} />
+      <Row label="結案時間" value={String(props.closed_at ?? "—")} />
+      {props.over_48hr ? <Row label="逾 48 小時" value={String(props.over_48hr)} color={props.over_48hr === "是" ? "#f97316" : undefined} /> : null}
+      <Row label="出動人次" value={`${persons} 人`} />
+      {sorties > 0 ? <Row label="直升機" value={`${sorties} 架次`} /> : null}
+      {int0(props.sar_dog_times) > 0 ? <Row label="搜救犬" value={`${int0(props.sar_dog_times)} 次`} /> : null}
+      {int0(props.drone_sorties) > 0 ? <Row label="無人機" value={`${int0(props.drone_sorties)} 架次`} /> : null}
+      <Row label="獲救" value={`${int0(props.rescued)} 人`} />
+      {deaths > 0 ? <Row label="死亡" value={`${deaths} 人`} color="#ff2d2d" /> : null}
+      {missing > 0 ? <Row label="失蹤" value={`${missing} 人`} color="#f97316" /> : null}
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        消防署山域意外事故救援案件（2019-2024）
+      </div>
+    </div>
+  );
 }
 
 export function LightningStrikePanel({ props }: { props: Record<string, unknown> }) {

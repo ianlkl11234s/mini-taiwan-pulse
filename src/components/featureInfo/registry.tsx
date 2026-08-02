@@ -28,7 +28,7 @@ import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
 } from "./agriPanels";
-import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel } from "./forestryPanels";
+import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel, MountainHutPanel } from "./forestryPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -66,7 +66,7 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
 } from "./energyPanels";
 import {
   LightningStrikePanel, NuclearStationPanel, EarthquakePanel,
-  EarthquakeReplayStationPanel, EarthquakeReplayTownPanel,
+  EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel,
 } from "./hazardPanels";
 import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
 import {
@@ -155,6 +155,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   forestryPolygon: ForestryGenericPanel,
   forestryLine: ForestryGenericPanel,
   forestryPOI: ForestryGenericPanel,
+  mountainHut: MountainHutPanel,
+  mountainRescueIncident: MountainRescuePanel,
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
@@ -375,6 +377,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   forestryPolygon: "林業面 (polygon)",
   forestryLine: "林業線 (line)",
   forestryPOI: "林業點位 (POI)",
+  mountainHut: "山屋・高山營地",
+  mountainRescueIncident: "山域事故",
   hikingTrails: "步道",
   fireEvent: "火災事件",
   fireStation: "消防分隊",

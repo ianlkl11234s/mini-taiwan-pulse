@@ -48,6 +48,10 @@ import { resolveUrbanHeatMode, urbanHeatRasterColor } from "../data/urbanHeatTyp
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { nonUrbanZoningColorExpr, nonUrbanZoningCodeFilter } from "../data/nonUrbanZoningTypes";
 import {
+  mountainRescueColorExpr, mountainRescueYearFilter, rescueScaleByPersonsExpr,
+  mountainHutColorExpr,
+} from "../data/mountainSafetyTypes";
+import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -4788,6 +4792,34 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 🏔️ 全台山屋與高山營地（GeoJSON 136 點）──
+  // facility_type 4 類分色（SSOT = mountainSafetyTypes.ts）。<1k 點 → UX baseline 半徑 4→8px、
+  // opacity 0.9。⚠️ OSM 來源部分為 ODbL，圖例已標 © OpenStreetMap contributors。
+  {
+    id: "mountainHuts",
+    sourceUrl: "./forestry/mountain_huts.geojson",
+    sourceId: "mountain-huts",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.mountainHutsScale ?? 1;
+          const opacity = params?.mountainHutsOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": mountainHutColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1.2],
+            "circle-stroke-opacity": opacity * 0.8,
+          };
+        },
+      },
+    ],
+  },
+
   // ── 自然教育中心（Point）──
   {
     id: "forestEducationCenters",
@@ -5580,6 +5612,70 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-opacity": [
               "*", o, ["coalesce", ["get", "alpha"], 1],
             ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── ⛰️ 山域意外事故救援案件（GeoJSON 2,465 點，2019-2024）──
+  // cause 17 個原始值 → 9 族分色（SSOT = mountainSafetyTypes.ts）；半徑 ×「出動總人次」4 級倍率；
+  // 有死亡的案件用紅描邊突出。年份篩選走 per-layer filter 函式（同 urbanZoning；idx 0=全部 1..6=單年
+  // → 未選中的點被濾除而非淡化），故 rebuildOnParamChange 收 ["glow","circle"] 兩 suffix
+  // （收參數名會靜默失效，見 .claude/pitfalls/2026-07-16-rebuildonparamchange-suffix-not-param.md）。
+  {
+    id: "mountainRescueIncidents",
+    sourceUrl: "./hazards/mountain_rescue_incidents.geojson",
+    sourceId: "mountain-rescue-incidents",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
+        paint: (_isDark, p) => {
+          const scale = p?.mountainRescueIncidentsScale ?? 1;
+          return {
+            // ⚠️ 人次倍率必須乘在 interpolate 的 stop *內*：["*", interpolate, step] 會讓 ["zoom"]
+            // 不在最外層 → Mapbox 直接拒收整個 layer（2026-08-02 驗收踩到，整層不出現）
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", 6 * scale, rescueScaleByPersonsExpr()],
+              12, ["*", 12 * scale, rescueScaleByPersonsExpr()],
+            ],
+            "circle-blur": 1,
+            "circle-color": mountainRescueColorExpr(),
+            "circle-opacity": (p?.mountainRescueIncidentsOpacity ?? 0.85) * 0.16,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.mountainRescueIncidentsScale ?? 1;
+          const opacity = p?.mountainRescueIncidentsOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", 3 * scale, rescueScaleByPersonsExpr()],
+              12, ["*", 6 * scale, rescueScaleByPersonsExpr()],
+            ],
+            "circle-color": mountainRescueColorExpr(),
+            "circle-opacity": opacity,
+            // 有死亡 → 紅描邊（其餘沿用深/淺底圖對比描邊）
+            "circle-stroke-color": [
+              "case", [">", ["coalesce", ["get", "deaths"], 0], 0], "#ff2d2d",
+              isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            ],
+            // 同上：case 要放進 interpolate 的 stop 內，不能包在 interpolate 外
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["case", [">", ["coalesce", ["get", "deaths"], 0], 0], 0.8, 0.3],
+              14, ["case", [">", ["coalesce", ["get", "deaths"], 0], 0], 1.8, 1],
+            ],
+            "circle-stroke-opacity": opacity * 0.85,
           };
         },
       },

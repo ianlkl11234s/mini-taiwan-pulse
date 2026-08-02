@@ -106,6 +106,7 @@ export type ExpandableLayerKey =
   | "submarineCables" | "landingStations"
   | "activeFaults"
   | "earthquakeReplay"
+  | "mountainRescueIncidents"
   | "newsEvents"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -220,6 +221,7 @@ export type ExpandableLayerKey =
   | "forestDamLakes"
   | "forestFlatParks"
   | "forestAlishanRail"
+  | "mountainHuts"
   | "hikingTrails"
   | "canopyHeight"
   | "canopyGiants"
@@ -697,6 +699,7 @@ export interface FeatureInfo {
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
+    | "mountainHut" | "mountainRescueIncident"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -804,6 +807,8 @@ export interface LayerVisibility {
   earthquakes: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
   earthquakeReplay: boolean;
+  /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */
+  mountainRescueIncidents: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
@@ -953,6 +958,7 @@ export interface LayerVisibility {
   forestDamLakes: boolean;
   forestFlatParks: boolean;
   forestAlishanRail: boolean;
+  mountainHuts: boolean;           // 全台山屋與高山營地 136 點（官方玉山 30 × OSM 126 trust chain；ODbL）
   hikingTrails: boolean;           // 全台步道 2,818 條（A 林業署 + B OSM + C 國家公園）
   canopyHeight: boolean;           // 全台樹冠高度 raster PNG PMTiles（Meta/WRI 2020 10m，z7-12 預烤 Greens 色帶）
   canopyGiants: boolean;           // 樹冠 45m+ 巨木 7,823 點（GeoJSON；依 dist_access_m 離道路距離分級）

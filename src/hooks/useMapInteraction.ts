@@ -383,6 +383,9 @@ export function useMapInteraction(
           { layers: ["farm-roads-line", "farm-roads-glow"], type: "farmRoads" },
           { layers: ["hiking-trails-line", "hiking-trails-glow"], type: "hikingTrails" },
           { layers: ["eco-network-zones-fill"], type: "ecoNetworkZones" },
+          // 登山安全：山屋 / 山域事故（小目標，排在林業大面積前）
+          { layers: ["mountain-huts-circle"], type: "mountainHut" },
+          { layers: ["mountain-rescue-incidents-circle"], type: "mountainRescueIncident" },
           // FORESTRY — points / lines 先（小目標優先）
           { layers: ["forest-education-centers-circle"], type: "forestryPOI" },
           { layers: ["forest-trail-signs-circle"], type: "forestryPOI" },

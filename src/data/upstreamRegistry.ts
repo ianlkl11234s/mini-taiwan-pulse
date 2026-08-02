@@ -398,6 +398,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'earthquake', confidence: 'LOW' }],
   },
+  mountainRescueIncidents: {
+    status: 'verified',
+    datasets: [{ datasetId: 'mountain_rescue_incidents', confidence: 'HIGH' }],
+    processing: '消防署 2019-2024 山域意外事故救援案件 2,465 點（上游 CSV X/Y 欄名對調已修正）',
+  },
   lightning: {
     status: 'verified',
     datasets: [{ datasetId: 'lightning_taipower', confidence: 'HIGH' }],
@@ -654,6 +659,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   forestEducationCenters: {
     status: 'verified',
     datasets: [{ datasetId: 'forest_education_centers', confidence: 'HIGH' }],
+  },
+  mountainHuts: {
+    status: 'verified',
+    datasets: [{ datasetId: 'mountain_huts', confidence: 'HIGH' }],
+    processing: '官方玉山國家公園 30 × OSM 126 走 trust chain（250m + 名稱 0.55）跨源命中 20，合成 136 實體；OSM 部分 ODbL',
   },
   forestDamLakes: {
     status: 'verified',
