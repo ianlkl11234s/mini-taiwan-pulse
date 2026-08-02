@@ -1,5 +1,20 @@
 # 共機活動區圖層 + 情報群組改組（PL 系列）
 
+> **2026-08-02 更新：本規劃已全數執行完畢，保留作為決策軌跡。**
+> 實作結果與驗收見 [`../features/pla-activity/README.md`](../features/pla-activity/README.md)。
+>
+> §6 四項待決事項的拍板結果：
+> 1. 群組名稱 → **情勢 Situation**
+> 2. 資料範圍 → **先上 2026**（規劃時通過 116 天，實際上線時已提升到 152 天）
+> 3. needs_review → **進表但以旗標區分**（兩支 RPC 預設排除，顯示時 popup 標「待核實」＋虛線）
+> 4. 災害示警 → **暫不搬**
+>
+> 與規劃的差異：
+> - 群組多了「軍事」子群（規劃只寫放進群組，未指定子群）
+> - 表多了 `guided` / `edge_precision` / `red_recall` / `balloon_items` 四欄（向量化改進後才有的資訊）
+> - 兩支 RPC 都多了 `p_include_review` 參數（因為第 3 項拍板為「進表」）
+> - 實際 migration 編號為 **330**
+
 > 2026-08-02 規劃 · 對應 BACKLOG `PT-0` Phase 5
 > 上游：`taipei-gis-analytics/docs/topic-research/defense_pla/`（向量化方法與失敗紀錄）
 > 資料現況：`live.pla_activity_daily` 729 天零缺日；航跡圖 588 天（2024-08 起）；

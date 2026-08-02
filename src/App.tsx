@@ -68,6 +68,7 @@ import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
 import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
 import { useWasteCleaningSquadLayer } from "./hooks/useWasteCleaningSquadLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
+import { usePlaActivityLayer } from "./hooks/usePlaActivityLayer";
 // Energy MVP
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { useFossilFuelLayers } from "./hooks/useFossilFuelLayers";
@@ -1139,6 +1140,14 @@ export default function App() {
       safetyAlerts: layerVisibility.safetyAlerts,
     },
     transportParams.daOpacity,
+  );
+
+  // ── 共機活動區（航跡示意圖向量化，依日期回放；無 intraday 變化）──
+  usePlaActivityLayer(
+    mapRef,
+    layerVisibility.plaActivity,
+    transportParams.plaOpacity,
+    transportParams.plaShowReview,
   );
 
   // ── 衛星圖層（Supabase satellite_classified + SGP4 即時計算） ──

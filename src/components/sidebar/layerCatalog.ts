@@ -76,6 +76,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
   newsEvents: "#ff9800",
+  // 走廊藍；不規則活動區在圖層內另用紫（見 plaTracksLoader.PLA_KIND_COLORS）
+  plaActivity: "#38bdf8",
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
   earthquakeReplay: "#e11d48",
@@ -1368,16 +1370,22 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
-  // 📰 NEWS 新聞
+  // 🛰 SITUATION 情勢 — 每日回顧型的情勢內容（非秒級即時）
   // ───────────────────────────────────────────────────────────────
   {
-    title: "新聞 News",
+    title: "情勢 Situation",
     defaultCollapsed: true,
     groups: [
       {
         title: "事件",
         layers: [
           { key: "newsEvents", label: "新聞事件 News Events", expandable: true },
+        ],
+      },
+      {
+        title: "軍事",
+        layers: [
+          { key: "plaActivity", label: "共機活動區 PLA Activity", expandable: true },
         ],
       },
     ],

@@ -112,6 +112,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   landingStations: Radio,
   activeFaults: Mountain,
   newsEvents: Radio,
+  plaActivity: PlaneTakeoff,
   youbikeFullness: Bike,
   earthquakes: Activity,
   earthquakeReplay: Rewind,

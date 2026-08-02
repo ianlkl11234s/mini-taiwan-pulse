@@ -20,7 +20,9 @@ import {
   WaterReservoirPolyPanel, LakesPondsPanel,
 } from "./waterPanels";
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
-import { NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel } from "./eventPanels";
+import {
+  NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel, PlaActivityPanel,
+} from "./eventPanels";
 import { RoadCongestionPanel } from "./roadPanels";
 import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
 import { WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel } from "./wastePanels";
@@ -130,6 +132,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   activeFault: ActiveFaultPanel,
   newsEvent: NewsEventPanel,
   disasterAlert: DisasterAlertPanel,
+  plaActivity: PlaActivityPanel,
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
   aqiStation: AqiStationPanel,
@@ -348,6 +351,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   activeFault: "活動斷層",
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
+  plaActivity: "共機活動區",
   roadEvent: "即時路況",
   roadCongestion: "省道路況",
   aqiStation: "空氣品質測站",

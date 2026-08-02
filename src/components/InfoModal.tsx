@@ -359,14 +359,21 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
         </Card>
       </div>
 
-      {/* NEWS */}
-      <SectionTitle>NEWS — {L ? "新聞" : "News"}</SectionTitle>
+      {/* SITUATION */}
+      <SectionTitle>SITUATION — {L ? "情勢" : "Situation"}</SectionTitle>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <Card title={L ? "新聞事件 News" : "News Events"} accentColor="#ff9800">
           <div style={{ color: c.text, fontSize: FONT_SIZE.md }}>
             {L
               ? "預設關閉。顯示中央通訊社 CNA RSS 新聞事件的地理標記，透過 Gemini API 自動地理編碼。主要新聞以較大橘色圓點顯示，次要新聞以較小灰色圓點顯示。點擊可查看新聞標題、摘要、分類與連結。"
               : "Off by default. Shows CNA RSS news events as geographic markers, auto-geocoded via Gemini API. Primary news shown as larger orange dots, secondary as smaller gray dots. Click to view title, summary, category, and link."}
+          </div>
+        </Card>
+        <Card title={L ? "共機活動區 PLA Activity" : "PLA Activity"} accentColor="#38bdf8">
+          <div style={{ color: c.text, fontSize: FONT_SIZE.md }}>
+            {L
+              ? "預設關閉。國防部每日「臺海周邊海、空域活動示意圖」上的紅色活動區，經影像向量化成多邊形，依時間軸換日回放。藍色為細長活動走廊、紫色為大型不規則活動區；虛線代表未通過自動守門、尚待人工核實（預設不顯示，可於參數開啟）。點擊可看當日架次、逾越中線數與國防部原圖連結。⚠️ 這是依示意圖描繪之活動區域，非精確航跡 —— 官方來源本身即為示意圖，精度以其為上限。"
+              : "Off by default. Red activity areas from the MND daily \"PLA activities in the vicinity of Taiwan\" chart, vectorized into polygons and replayed by date. Blue = narrow corridors, purple = large irregular activity areas; dashed outlines are shapes that failed the automatic gate and await manual review (hidden by default, toggleable). Click for that day's sortie count, median-line crossings, and a link to the original MND chart. ⚠️ These are areas traced from a schematic chart, not precise flight tracks — the official source is itself a schematic."}
           </div>
         </Card>
       </div>
@@ -727,6 +734,15 @@ function DataSourcesPage({ lang }: { lang: Lang }) {
       source: "CNA RSS + Google Gemini API",
       desc: { zh: "中央通訊社 RSS 新聞摘要，透過 Google Gemini API 自動萃取地理座標，標記新聞事件發生地點。區分主要新聞（is_primary）與一般新聞。", en: "CNA RSS news summaries, auto-geocoded via Google Gemini API to mark event locations. Differentiates primary (is_primary) and regular news events." },
       color: "#ff9800",
+    },
+    {
+      name: { zh: "共機活動區", en: "PLA Activity" },
+      source: L ? "國防部每日通報 + 航跡示意圖向量化" : "MND daily report + chart vectorization",
+      desc: {
+        zh: "國防部每日「中共解放軍臺海周邊海、空域動態」通報數值存入 `live.pla_activity_daily`；隨附的活動示意圖經影像向量化成多邊形存入 `spatial.pla_tracks`，依日期回放。⚠️ 依示意圖描繪之活動區域，非精確航跡。",
+        en: "Daily MND reports on PLA activities around Taiwan are stored in `live.pla_activity_daily`; the accompanying schematic chart is vectorized into polygons in `spatial.pla_tracks` and replayed by date. ⚠️ Areas traced from a schematic, not precise flight tracks.",
+      },
+      color: "#38bdf8",
     },
     {
       name: { zh: "人流模擬", en: "Pop. Flow" },

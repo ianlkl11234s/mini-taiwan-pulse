@@ -1075,6 +1075,14 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'layer2_polygon', confidence: 'LOW' }],
   },
+  plaActivity: {
+    status: 'verified',
+    datasets: [{ datasetId: 'pla_activity', confidence: 'HIGH' }],
+    note: '共機活動區多邊形（spatial.pla_tracks，migration 330）。幾何由國防部每日航跡示意圖'
+      + '向量化而來 — 依示意圖描繪之活動區域、非精確航跡；方法見 '
+      + 'taipei-gis-analytics/docs/topic-research/defense_pla/shape-extraction-methodology.md。'
+      + 'popup 的架次／逾越中線數值另讀 live.pla_activity_daily（同一 catalog dataset）',
+  },
   policeStation: {
     status: 'verified',
     datasets: [{ datasetId: 'police_stations', confidence: 'MED' }],
