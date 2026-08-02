@@ -24,9 +24,9 @@ import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
 import { URBAN_HEAT_MODES } from "../data/urbanHeatTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
-import { MOUNTAIN_RESCUE_YEARS } from "../data/mountainSafetyTypes";
-import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { DEITY_FAMILIES, REGISTRY_MODES, REGISTRY_MODES_ANCESTRAL } from "../data/religionTypes";
+import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
+import { MOUNTAIN_RESCUE_YEARS } from "../data/mountainSafetyTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
 export interface SliderConfig {

@@ -60,9 +60,9 @@ import {
   URBAN_FORM_GRID_MODES, URBAN_FORM_GRID_ATTRIBUTION_GBA, URBAN_FORM_GRID_ATTRIBUTION_META,
 } from "../data/urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
-import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
-import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { DEITY_FAMILIES, ANCESTRAL_HALL_TYPES, RELIGION_LAYER_COLORS } from "../data/religionTypes";
+import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
+import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -1628,47 +1628,6 @@ function RealEstateLegend({ visibility, overlayParams }: { visibility: LayerVisi
   );
 }
 
-// ── 山域事故 Legend（cause 9 族 + 點大小/紅描邊語意）──
-
-function MountainRescueLegend() {
-  const t = useLegendTheme();
-  return (
-    <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        山域事故 事故原因
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {MOUNTAIN_RESCUE_CAUSES.map((c) => (
-          <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div
-              style={{
-                width: 10, height: 10, borderRadius: RADIUS.full, background: c.color,
-                opacity: 0.9, flexShrink: 0,
-                border: "1px solid rgba(255,255,255,0.4)", boxSizing: "border-box",
-              }}
-            />
-            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
-          </div>
-        ))}
-      </div>
-      <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
-          <div
-            style={{
-              width: 10, height: 10, borderRadius: RADIUS.full, background: "transparent",
-              border: "1.5px solid #ff2d2d", flexShrink: 0, boxSizing: "border-box",
-            }}
-          />
-          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>紅框 = 有死亡</span>
-        </div>
-        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
-          點大小 = 出動總人次（消防・警察・國家公園・林業・民間）
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── 🛕 Religion Legend ──
 // temples 走 deity_family 9 族分色；其餘 5 層單色。宗祠另有 facility_type 3 類子圖例。
 // ODbL：temples / churches / other_worship 都含 OSM 來源，圖面必須標示。
@@ -1741,6 +1700,47 @@ function ReligionLegend({ visibility }: { visibility: LayerVisibility }) {
           含 OSM 來源 © OpenStreetMap contributors（ODbL）
         </div>
       )}
+    </div>
+  );
+}
+
+// ── 山域事故 Legend（cause 9 族 + 點大小/紅描邊語意）──
+
+function MountainRescueLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        山域事故 事故原因
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {MOUNTAIN_RESCUE_CAUSES.map((c) => (
+          <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 10, height: 10, borderRadius: RADIUS.full, background: c.color,
+                opacity: 0.9, flexShrink: 0,
+                border: "1px solid rgba(255,255,255,0.4)", boxSizing: "border-box",
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: 4, paddingLeft: 8, borderLeft: `1px solid ${t.border}` }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 2 }}>
+          <div
+            style={{
+              width: 10, height: 10, borderRadius: RADIUS.full, background: "transparent",
+              border: "1.5px solid #ff2d2d", flexShrink: 0, boxSizing: "border-box",
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>紅框 = 有死亡</span>
+        </div>
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
+          點大小 = 出動總人次（消防・警察・國家公園・林業・民間）
+        </div>
+      </div>
     </div>
   );
 }

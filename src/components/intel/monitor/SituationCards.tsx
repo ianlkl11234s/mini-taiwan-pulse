@@ -1,11 +1,42 @@
+import { useEffect, useState } from "react";
 import { IntelIcon } from "../IntelIcon";
 import { COLORS, FONT_CJK, FONT_DATA, MICON } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { Sparkline } from "./PressureRing";
-import type { PlaActivity, PublicHealthWeek, CdcDisease } from "../../../data/intelLoaders";
+import {
+  fetchPlaActivityHistory,
+  type PlaActivity,
+  type PlaActivityDayPoint,
+  type PublicHealthWeek,
+  type CdcDisease,
+} from "../../../data/intelLoaders";
 
-function PlaCard({ data }: { data: PlaActivity }) {
+function PlaCard({ data, open }: { data: PlaActivity; open: boolean }) {
   const adizActive = data.adiz.some((z) => z.active);
+  // 近 30 天架次趨勢（panel 開啟才抓；每日一筆，TTL_DAILY 蓋住輪詢）
+  const [history, setHistory] = useState<PlaActivityDayPoint[]>([]);
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    const load = () =>
+      fetchPlaActivityHistory().then((rows) => {
+        if (!cancelled) setHistory(rows);
+      });
+    load();
+    const id = window.setInterval(load, 30 * 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [open]);
+
+  // null = 該日通報解析失敗 → Sparkline 斷點，切勿補 0（會謊報「零架次」）
+  const sorties = history.map((p) => p.sorties);
+  const known = sorties.filter((v): v is number => v !== null);
+  const avg30 = known.length ? known.reduce((a, b) => a + b, 0) / known.length : null;
+  const today = data.sorties;
+  const vsAvg = avg30 !== null && avg30 > 0 ? Math.round(((today - avg30) / avg30) * 100) : null;
+  const busier = (vsAvg ?? 0) >= 0;
   return (
     <div
       style={{
@@ -108,6 +139,30 @@ function PlaCard({ data }: { data: PlaActivity }) {
         )}
       </div>
 
+      {known.length >= 2 && (
+        <div
+          style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 8 }}
+          title={`${history[0]?.report_date} ～ ${history[history.length - 1]?.report_date} 每日架次（缺口 = 該日通報未解析）`}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {vsAvg !== null && (
+              <span
+                style={{
+                  fontFamily: FONT_DATA, fontSize: FONT_SIZE.md, fontWeight: 700,
+                  color: busier ? COLORS.statusWarn : COLORS.statusLive, lineHeight: 1,
+                }}
+              >
+                {busier ? "↑" : "↓"}{busier ? "+" : ""}{vsAvg}%
+              </span>
+            )}
+            <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint, whiteSpace: "nowrap" }}>
+              vs 30 日均 {avg30 !== null ? avg30.toFixed(1) : "—"}
+            </span>
+          </div>
+          <Sparkline data={sorties} color="#ff6b6b" w={62} h={20} />
+        </div>
+      )}
+
       <div style={{ marginTop: "auto", paddingTop: 7, borderTop: `1px solid ${COLORS.borderSoft}` }}>
         <div style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textMuted, lineHeight: 1.4 }}>
           {data.title}
@@ -199,9 +254,11 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
 interface Props {
   pla: PlaActivity;
   health: PublicHealthWeek;
+  /** Monitor panel 是否開啟（gate PlaCard 的 30 日趨勢抓取） */
+  panelOpen: boolean;
 }
 
-export function SituationCards({ pla, health }: Props) {
+export function SituationCards({ pla, health, panelOpen }: Props) {
   return (
     <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -219,7 +276,7 @@ export function SituationCards({ pla, health }: Props) {
         </span>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 10 }}>
-        <PlaCard data={pla} />
+        <PlaCard data={pla} open={panelOpen} />
         {health.diseases.map((d) => (
           <DiseaseCard key={d.id} d={d} week={health.week} />
         ))}

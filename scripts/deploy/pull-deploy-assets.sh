@@ -88,14 +88,14 @@ aws s3 sync "$S3/urban/" "$DATA_DIR/urban/" --no-progress
 echo "[pull] sync culture → $DATA_DIR/culture/"
 aws s3 sync "$S3/culture/" "$DATA_DIR/culture/" --no-progress
 
-# 災害：鏡像子前綴 deploy-assets/hazards/ → /data/hazards/（山域事故 geojson 全 git 管理走 dist
-# fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 civic_facilities 慣例）
-echo "[pull] sync hazards → $DATA_DIR/hazards/"
-aws s3 sync "$S3/hazards/" "$DATA_DIR/hazards/" --no-progress
 # 宗教：鏡像子前綴 deploy-assets/religion/ → /data/religion/（temples PMTiles + 4 GeoJSON
 # 目前全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync religion → $DATA_DIR/religion/"
 aws s3 sync "$S3/religion/" "$DATA_DIR/religion/" --no-progress
+# 災害：鏡像子前綴 deploy-assets/hazards/ → /data/hazards/（山域事故 geojson 全 git 管理走 dist
+# fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 civic_facilities 慣例）
+echo "[pull] sync hazards → $DATA_DIR/hazards/"
+aws s3 sync "$S3/hazards/" "$DATA_DIR/hazards/" --no-progress
 
 # 公共設施：鏡像子前綴 deploy-assets/civic_facilities/ → /data/civic_facilities/（geojson 全 git 管理走 dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔）
 echo "[pull] sync civic_facilities → $DATA_DIR/civic_facilities/"
