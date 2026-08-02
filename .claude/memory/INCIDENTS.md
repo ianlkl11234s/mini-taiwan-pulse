@@ -1363,6 +1363,24 @@ S3 換磚上傳完成於 15:25Z，但 #95 merge（15:02Z）觸發的容器已在
 ### 事件 B：origin 換新後 Cloudflare edge 仍供舊 pmtiles（range request 同吃舊快取）
 service exec pull 完 origin 已新（cache-bust 驗證），但 edge 對無 query URL 仍 HIT 舊物件，且 **PMTiles 的 range request 也從同一舊快取切片**（content-range total = 舊檔大小）。`cache-control: max-age=86400` → 自然過期要 1 天。`purge-cloudflare-cache.sh` 現成但 CF_ZONE_ID/CF_API_TOKEN 全機未設 → G017。過渡期症狀：新前端 + 舊磚 = 人均模式整片灰半透明（pop 缺欄的誠實 fallback，不會壞）。
 
+## 2026-07-31 — 地震回放：handoff 兩處與資料實況不符（開工前實查救回）
+
+### 事件 A：town_intensity「可與 occurred_at 等值 join」不成立（1 秒漂移）
+handoff §4 原寫 town 的 `origin_time` 與 `events.occurred_at` 可等值。實查 115053（07-30 台東成功）：
+town 端 16:58:35 vs events 16:58:36 **差 1 秒**（CWA 初報 vs 修訂報，該筆 magnitude/depth/epicenter
+也與 events 不同）。等值 join 會讓這起地震 has_town=false、素材憑空消失。
+解法：mig 324 RPC 改 **±5 秒窗取最近者**，並回傳 resolved key `town_origin_time` 讓契約自洽
+（has_x ⟺ key 非 NULL ⟺ 等值查得到）。窗只開 5 秒不開 90 秒：地震序列 90 秒內出現另一起
+有感並非罕見，大窗會誤配餘震。handoff 已回填修正（analytics `f935e95`）。
+
+### 事件 B：「之後每起有感自動累積」寫成事實，當時實據只有一起
+handoff 上線時只有楠西一起完整四件套，而 07-26 M5.6（比楠西大）卻缺 town+grid——不查證的話
+「清單會自己長大」的設計假設就是裸奔。派 agent 讀 collector 判定：CWA/NCDR 源頭是
+「只留最新一次」的無狀態快照 → **上線（07-29）前的事件被覆寫、永久不可回補**（非深源限制、
+非 bug）；07-30 115053 零人工自動進庫實證 pipeline 活著。
+→ 教訓：**handoff 的「現況」段有時效性，開工前必對 DB 實查一輪**——兩天前寫的數字（32 起）
+到開工日已變（34 起），且新進資料（115053）正好暴露了事件 A 的設計缺陷。
+
 ## 2026-08-01/02 — 共機資料回填與航跡圖向量化（四事件）
 
 ### 事件 A：線上 collector 舊版持續覆蓋修好的資料 ⚠️ 未解
