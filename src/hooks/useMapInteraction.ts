@@ -327,6 +327,8 @@ export function useMapInteraction(
           { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
           { layers: ["urban-zoning-taipei-fill"], type: "urbanZoningTaipei" },
           { layers: ["urban-zoning-newtaipei-fill"], type: "urbanZoningNewTaipei" },
+          // 非都市分區覆蓋全台山區與農地（68,220 面）→ 排在兩層都計分區之後，免得擋掉都市內的點選
+          { layers: ["non-urban-zoning-fill"], type: "nonUrbanZoning" },
           { layers: ["sports-venues-school", "sports-venues-public-other", "sports-venues-private", "sports-venues-park", "sports-venues-center"], type: "sportsVenue" },
           { layers: ["culture-facilities-circle"], type: "culturalFacilities" },
           { layers: ["culture-museums-circle"], type: "culturalMuseums" },

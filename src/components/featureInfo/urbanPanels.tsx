@@ -13,6 +13,7 @@ import {
 } from "../../data/propertyValueTypes";
 import { GG_INDEX_BANDS, gridBandColor, URBAN_FORM_GRID_APPROX_NOTE } from "../../data/urbanFormGridTypes";
 import { urbanZoningCategoryLabel, urbanZoningCategoryColor } from "../../data/urbanZoningTypes";
+import { nonUrbanZoningCodeLabel, nonUrbanZoningCodeColor } from "../../data/nonUrbanZoningTypes";
 
 // 本檔 Title 為極簡本地版（同 fisheryPanels 慣例）：shared.tsx 未 export Title，故不去改動它。
 function Title({ color, children }: { color: string; children: string }) {
@@ -386,6 +387,29 @@ const zoneText = (v: unknown): string => {
   const s = String(v ?? "").trim();
   return s && s !== "nan" && s !== "null" ? s : "";
 };
+
+/**
+ * 非都市土地使用分區 popup（區域計畫法 11 種法定分區）。
+ * 與 UrbanZoningPanel 分開寫：本層欄位是 zone_code/zone_name/county/town，
+ * 沒有都計分區的 zone_short / plan_level / city。
+ */
+export function NonUrbanZoningPanel({ props }: { props: Record<string, unknown> }) {
+  const code = zoneText(props.zone_code);
+  const color = nonUrbanZoningCodeColor(code);
+  const title = zoneText(props.zone_name) || nonUrbanZoningCodeLabel(code) || "非都市土地使用分區";
+  const town = zoneText(props.town);
+  return (
+    <>
+      <Title color={color}>{title}</Title>
+      <Row label="代碼" value={code} color={color} />
+      <Row label="縣市" value={zoneText(props.county)} />
+      {town ? <Row label="鄉鎮" value={town} /> : null}
+      {/* zone_category（agricultural / slope_conservation…）是英文粗分類，跟 zone_name 資訊重複
+          且未中文化，不入 popup —— 11 碼的中文名本身就是分類 */}
+      <SourceFooter props={props} />
+    </>
+  );
+}
 
 export function UrbanZoningPanel({ props }: { props: Record<string, unknown> }) {
   const category = String(props.zone_category ?? "");
