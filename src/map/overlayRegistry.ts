@@ -6877,7 +6877,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "townshipBoundary",
     sourceUrl: "./base_map/township_boundary.pmtiles",
     sourceId: "base-township-boundary",
-    pmtiles: { sourceLayer: "township_boundary", minzoom: 0, maxzoom: 14 },
+    pmtiles: { sourceLayer: "township_boundary", minzoom: 6, maxzoom: 14 },
     rebuildOnParamChange: ["line", "fill"],
     layers: [
       {
@@ -6910,7 +6910,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "villageBoundary",
     sourceUrl: "./base_map/village_boundary.pmtiles",
     sourceId: "base-village-boundary",
-    pmtiles: { sourceLayer: "village_boundary", minzoom: 0, maxzoom: 14 },
+    pmtiles: { sourceLayer: "village_boundary", minzoom: 8, maxzoom: 14 },
     rebuildOnParamChange: ["line", "fill"],
     layers: [
       {
@@ -6977,7 +6977,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "contourDtm20",
     sourceUrl: "./base_map/contour_dtm20.pmtiles",
     sourceId: "base-contour-dtm20",
-    pmtiles: { sourceLayer: "contour_dtm20", minzoom: 0, maxzoom: 14 },
+    pmtiles: { sourceLayer: "contour_dtm20", minzoom: 7, maxzoom: 14 },
     rebuildOnParamChange: ["line"],
     layers: [
       {
@@ -7011,7 +7011,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "osmExpressway",
     sourceUrl: "./base_map/osm_expressway.pmtiles",
     sourceId: "base-osm-expressway",
-    pmtiles: { sourceLayer: "osm_expressway", minzoom: 0, maxzoom: 14 },
+    pmtiles: { sourceLayer: "osm_expressway", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["line"],
     layers: [
       {
@@ -7042,7 +7042,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "osmRoadDrive",
     sourceUrl: "./base_map/osm_road_drive.pmtiles",
     sourceId: "base-osm-road",
-    pmtiles: { sourceLayer: "osm_road_drive", minzoom: 0, maxzoom: 14 },
+    pmtiles: { sourceLayer: "osm_road_drive", minzoom: 6, maxzoom: 14 },
     rebuildOnParamChange: ["line"],
     layers: [
       {
@@ -7391,7 +7391,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "courtJurisdiction",
     sourceUrl: "./police_justice/court_jurisdictions/court_jurisdictions.pmtiles",
     sourceId: "court-jurisdiction",
-    pmtiles: { sourceLayer: "court_jurisdictions", minzoom: 0, maxzoom: 10 },
+    pmtiles: { sourceLayer: "court_jurisdictions", minzoom: 6, maxzoom: 10 },
     rebuildOnParamChange: ["courtJurisdictionOpacity"],
     layers: [
       {
@@ -7417,7 +7417,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "crimeAreaMonthly",
     sourceUrl: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
     sourceId: "crime-area-monthly",
-    pmtiles: { sourceLayer: "crime_area_monthly", minzoom: 0, maxzoom: 12 },
+    pmtiles: { sourceLayer: "crime_area_monthly", minzoom: 8, maxzoom: 12 },
     rebuildOnParamChange: ["crimeAreaMonthlyOpacity"],
     layers: [
       {
@@ -7774,7 +7774,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       id,
       sourceUrl: `./police_justice/isochrone/police_iso_${tier}_combined.pmtiles`,
       sourceId,
-      pmtiles: { sourceLayer, minzoom: 0, maxzoom: 14 },
+      pmtiles: { sourceLayer, minzoom: 4, maxzoom: 14 },
       // paint 內讀 p?.${id}Mode_drive / Minutes_num，select 改了 params → paint diff → rebuild
       rebuildOnParamChange: ["fill", "line"],
       layers: [
@@ -7842,7 +7842,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     id: "civilDefenseShelter",
     sourceUrl: "./police_justice/civil_defense_shelters/civil_defense_shelters.pmtiles",
     sourceId: "civil-defense-shelter",
-    pmtiles: { sourceLayer: "civil_defense_shelters", minzoom: 0, maxzoom: 14 },
+    pmtiles: { sourceLayer: "civil_defense_shelters", minzoom: 10, maxzoom: 14 },
     rebuildOnParamChange: ["civilDefenseShelterOpacity", "civilDefenseShelterScale"],
     layers: [{
       suffix: "circle", type: "circle", minzoom: 7,
