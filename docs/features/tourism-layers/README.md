@@ -8,7 +8,7 @@
 
 ## 一句話說明
 
-新開「觀光 Tourism」主題分組，一次接上觀光署/文資局/地調所等 12 個全國靜態圖層：景點（含 2024 遊客人次熱度模式）、旅宿（四類篩選 + 全 zoom 常駐）、觀光活動（三態時間篩選）、餐飲、文化資產、宗教百景、露營場、觀光工廠、遊樂園、溫泉露頭（點+面）、國家風景區。
+新開「觀光 Tourism」主題分組，一次接上觀光署/文資局/地調所等 12 個全國靜態圖層：景點（含 2024 遊客人次熱度模式）、旅宿（四類篩選 + 全 zoom 常駐）、觀光活動（三態時間篩選）、餐飲、文化資產、宗教百景（2026-08-02 已搬出，見下）、露營場、觀光工廠、遊樂園、溫泉露頭（點+面）、國家風景區。
 
 ## 圖層 / 元件
 
@@ -19,7 +19,7 @@
 | tourHotSpringZones | polygon | GeoJSON（C git, 16 面，僅北市） | ✅ |
 | tourScenicAreas | polygon | GeoJSON（C git, 12 面） | ✅ |
 | tourHeritage | point | GeoJSON（C git, 2,894） | ✅ |
-| tourReligion | point | GeoJSON（C git, 100） | ✅ |
+| ~~tourReligion~~ | point | — | **2026-08-02 更名 `religionTop100` 搬到「宗教 Religion」主題群**（上游同步自 tourism.religion 搬移歸位為 religion.top100）→ 見 `docs/features/religion/` |
 | tourEvents | point | GeoJSON（C git, 828，三態時間篩選） | ✅ |
 | tourFactories | point | GeoJSON（C git, 158） | ✅ |
 | tourAmusementParks | point | GeoJSON（C git, 26） | ✅ |

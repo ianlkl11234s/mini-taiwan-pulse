@@ -114,18 +114,6 @@ export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
-// ── 6. 宗教百景 ──
-export function ReligionPanel({ props }: { props: Record<string, unknown> }) {
-  return (
-    <>
-      <Title color="#7b1fa2">{String(props.name ?? "宗教景點")}</Title>
-      <Row label="縣市" value={String(props.county ?? "")} />
-      <Row label="鄉鎮" value={String(props.town ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-    </>
-  );
-}
-
 // ── 7. 觀光活動・節慶：EventCancelled → 已取消；否則以 start/end 對今日判斷三態 ──
 export function EventsPanel({ props }: { props: Record<string, unknown> }) {
   const start = String(props.start_time ?? "").slice(0, 10);

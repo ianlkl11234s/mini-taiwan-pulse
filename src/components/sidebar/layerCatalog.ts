@@ -27,6 +27,8 @@ import type { LayerVisibility, TransportType } from "../../types";
 
 // ── Color Config ──
 
+import { RELIGION_LAYER_COLORS } from "../../data/religionTypes";
+
 export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   flights: "#64aaff",
   ships: "#1ad9e5",
@@ -190,13 +192,14 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   tourHotSpringZones: "#880e4f",
   tourScenicAreas: "#00695c",
   tourHeritage: "#6d4c41",
-  tourReligion: "#7b1fa2",
   tourEvents: "#f9a825",
   tourFactories: "#546e7a",
   tourAmusementParks: "#00acc1",
   tourCamping: "#7cb342",
   tourHotels: "#1976d2",
   tourRestaurants: "#c62828",
+  // 🛕 宗教 Religion（色票 SSOT = religionTypes.ts RELIGION_LAYER_COLORS）
+  ...RELIGION_LAYER_COLORS,
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -789,6 +792,34 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🛕 RELIGION 宗教（2026-08-02 第 36 主題；上游 religion 批次 23,074 點）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "宗教 Religion",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "點位",
+        layers: [
+          { key: "religionTemples", label: "寺廟 Temples", labelMobile: "寺廟 (19,201)", expandable: true },
+          { key: "religionChurches", label: "教會 Churches", labelMobile: "教會 (2,116)", expandable: true },
+          { key: "religionAncestralHalls", label: "宗祠 Ancestral Halls", labelMobile: "宗祠 (173)", expandable: true },
+          { key: "religionFoundations", label: "宗教基金會 Foundations", labelMobile: "宗教基金會 (165)", expandable: true },
+          { key: "religionOtherWorship", label: "其他宗教場所 Other Worship", labelMobile: "其他宗教場所 (1,319)", expandable: true },
+        ],
+      },
+      {
+        title: "精選",
+        layers: [
+          // 2026-08-02 自「觀光 → 玩・人文」搬來並更名（原 key tourReligion），
+          // 對應上游 religion.top100（自 tourism.religion 搬移歸位）
+          { key: "religionTop100", label: "宗教百景 Top 100", labelMobile: "宗教百景", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🧳 TOURISM 觀光
   // ───────────────────────────────────────────────────────────────
   {
@@ -808,7 +839,6 @@ export const THEMES: ThemeDef[] = [
         title: "玩・人文 Heritage",
         layers: [
           { key: "tourHeritage", label: "文化資產 Heritage", labelMobile: "文化資產", expandable: true },
-          { key: "tourReligion", label: "宗教百景 Religious Sites", labelMobile: "宗教百景", expandable: true },
         ],
       },
       {

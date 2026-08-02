@@ -24,6 +24,7 @@ import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
 import { URBAN_HEAT_MODES } from "../data/urbanHeatTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
+import { DEITY_FAMILIES, REGISTRY_MODES, REGISTRY_MODES_ANCESTRAL } from "../data/religionTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
 export interface SliderConfig {
@@ -238,8 +239,23 @@ export function useTransportParams() {
   const [tourScenicAreasOpacity, setTourScenicAreasOpacity] = useState(0.5);
   const [tourHeritageOpacity, setTourHeritageOpacity] = useState(0.85);
   const [tourHeritageScale, setTourHeritageScale] = useState(1);
-  const [tourReligionOpacity, setTourReligionOpacity] = useState(0.85);
-  const [tourReligionScale, setTourReligionScale] = useState(1);
+  // 🛕 宗教 Religion 6 層（百景由 tourReligion 更名而來，預設值沿用）
+  const [religionTemplesOpacity, setReligionTemplesOpacity] = useState(0.8);
+  const [religionTemplesScale, setReligionTemplesScale] = useState(1);
+  const [religionTemplesRegistry, setReligionTemplesRegistry] = useState<string>("all");
+  const [religionTemplesDeity, setReligionTemplesDeity] = useState<string>("all");
+  const [religionChurchesOpacity, setReligionChurchesOpacity] = useState(0.85);
+  const [religionChurchesScale, setReligionChurchesScale] = useState(1);
+  const [religionChurchesRegistry, setReligionChurchesRegistry] = useState<string>("all");
+  const [religionAncestralHallsOpacity, setReligionAncestralHallsOpacity] = useState(0.9);
+  const [religionAncestralHallsScale, setReligionAncestralHallsScale] = useState(1);
+  const [religionAncestralHallsRegistry, setReligionAncestralHallsRegistry] = useState<string>("all");
+  const [religionFoundationsOpacity, setReligionFoundationsOpacity] = useState(0.9);
+  const [religionFoundationsScale, setReligionFoundationsScale] = useState(1);
+  const [religionOtherWorshipOpacity, setReligionOtherWorshipOpacity] = useState(0.85);
+  const [religionOtherWorshipScale, setReligionOtherWorshipScale] = useState(1);
+  const [religionTop100Opacity, setReligionTop100Opacity] = useState(0.85);
+  const [religionTop100Scale, setReligionTop100Scale] = useState(1);
   const [tourEventsOpacity, setTourEventsOpacity] = useState(0.85);
   const [tourEventsScale, setTourEventsScale] = useState(1);
   const [tourEventsStatus, setTourEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
@@ -1036,7 +1052,16 @@ export function useTransportParams() {
     tourHotSpringZonesOpacity,
     tourScenicAreasOpacity,
     tourHeritageOpacity, tourHeritageScale,
-    tourReligionOpacity, tourReligionScale,
+    religionTemplesOpacity, religionTemplesScale,
+    religionTemplesRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionTemplesRegistry),
+    religionTemplesDeityIdx: ["all", ...DEITY_FAMILIES.map((d) => d.value)].indexOf(religionTemplesDeity),
+    religionChurchesOpacity, religionChurchesScale,
+    religionChurchesRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionChurchesRegistry),
+    religionAncestralHallsOpacity, religionAncestralHallsScale,
+    religionAncestralHallsRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionAncestralHallsRegistry),
+    religionFoundationsOpacity, religionFoundationsScale,
+    religionOtherWorshipOpacity, religionOtherWorshipScale,
+    religionTop100Opacity, religionTop100Scale,
     tourEventsOpacity, tourEventsScale,
     tourEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(tourEventsStatus),
     tourFactoriesOpacity, tourFactoriesScale,
@@ -1448,7 +1473,13 @@ export function useTransportParams() {
     pollutionSiteOpacity, pollutionSiteScale,
     tourAttractionsOpacity, tourAttractionsScale, tourAttractionsMode,
     tourHotSpringsOpacity, tourHotSpringsScale, tourHotSpringZonesOpacity, tourScenicAreasOpacity,
-    tourHeritageOpacity, tourHeritageScale, tourReligionOpacity, tourReligionScale,
+    tourHeritageOpacity, tourHeritageScale,
+    religionTemplesOpacity, religionTemplesScale, religionTemplesRegistry, religionTemplesDeity,
+    religionChurchesOpacity, religionChurchesScale, religionChurchesRegistry,
+    religionAncestralHallsOpacity, religionAncestralHallsScale, religionAncestralHallsRegistry,
+    religionFoundationsOpacity, religionFoundationsScale,
+    religionOtherWorshipOpacity, religionOtherWorshipScale,
+    religionTop100Opacity, religionTop100Scale,
     tourEventsOpacity, tourEventsScale, tourEventsStatus,
     tourFactoriesOpacity, tourFactoriesScale, tourAmusementParksOpacity, tourAmusementParksScale,
     tourCampingOpacity, tourCampingScale,
@@ -2626,9 +2657,35 @@ export function useTransportParams() {
         { label: `透明度 ${tourHeritageOpacity.toFixed(2)}`, value: tourHeritageOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHeritageOpacity },
         { label: `大小 ${tourHeritageScale.toFixed(1)}`, value: tourHeritageScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHeritageScale },
       ];
-      case "tourReligion": return [
-        { label: `透明度 ${tourReligionOpacity.toFixed(2)}`, value: tourReligionOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourReligionOpacity },
-        { label: `大小 ${tourReligionScale.toFixed(1)}`, value: tourReligionScale, min: 0.3, max: 3, step: 0.1, onChange: setTourReligionScale },
+      case "religionTemples": return [
+        // 10 選項（全部 + 9 族）與 3 選項登記態；前者 > 3 自動走原生 select（四鐵則 #4）
+        { type: "select" as const, label: "主祀", value: religionTemplesDeity, options: [{ label: "全部", value: "all" }, ...DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value }))], onChange: setReligionTemplesDeity },
+        { type: "select" as const, label: "登記", value: religionTemplesRegistry, options: REGISTRY_MODES, onChange: setReligionTemplesRegistry },
+        { label: `透明度 ${religionTemplesOpacity.toFixed(2)}`, value: religionTemplesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionTemplesOpacity },
+        { label: `大小 ${religionTemplesScale.toFixed(1)}`, value: religionTemplesScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionTemplesScale },
+      ];
+      case "religionChurches": return [
+        { type: "select" as const, label: "登記", value: religionChurchesRegistry, options: REGISTRY_MODES, onChange: setReligionChurchesRegistry },
+        { label: `透明度 ${religionChurchesOpacity.toFixed(2)}`, value: religionChurchesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionChurchesOpacity },
+        { label: `大小 ${religionChurchesScale.toFixed(1)}`, value: religionChurchesScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionChurchesScale },
+      ];
+      case "religionAncestralHalls": return [
+        // ⚠️ 本層 false 是「文資祠堂」不是 OSM，故用 REGISTRY_MODES_ANCESTRAL 的標籤
+        { type: "select" as const, label: "類型", value: religionAncestralHallsRegistry, options: REGISTRY_MODES_ANCESTRAL, onChange: setReligionAncestralHallsRegistry },
+        { label: `透明度 ${religionAncestralHallsOpacity.toFixed(2)}`, value: religionAncestralHallsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionAncestralHallsOpacity },
+        { label: `大小 ${religionAncestralHallsScale.toFixed(1)}`, value: religionAncestralHallsScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionAncestralHallsScale },
+      ];
+      case "religionFoundations": return [
+        { label: `透明度 ${religionFoundationsOpacity.toFixed(2)}`, value: religionFoundationsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionFoundationsOpacity },
+        { label: `大小 ${religionFoundationsScale.toFixed(1)}`, value: religionFoundationsScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionFoundationsScale },
+      ];
+      case "religionOtherWorship": return [
+        { label: `透明度 ${religionOtherWorshipOpacity.toFixed(2)}`, value: religionOtherWorshipOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionOtherWorshipOpacity },
+        { label: `大小 ${religionOtherWorshipScale.toFixed(1)}`, value: religionOtherWorshipScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionOtherWorshipScale },
+      ];
+      case "religionTop100": return [
+        { label: `透明度 ${religionTop100Opacity.toFixed(2)}`, value: religionTop100Opacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionTop100Opacity },
+        { label: `大小 ${religionTop100Scale.toFixed(1)}`, value: religionTop100Scale, min: 0.3, max: 3, step: 0.1, onChange: setReligionTop100Scale },
       ];
       case "tourEvents": return [
         { type: "select" as const, label: "狀態", value: tourEventsStatus, options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }], onChange: setTourEventsStatus },

@@ -579,12 +579,23 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   tourHotSpringZones: { status: 'verified', datasets: [{ datasetId: 'hot_spring_zone', confidence: 'HIGH' }], note: '溫泉露頭區 16 面（docs/data-catalog/tourism/hot_spring_zone.md）' },
   tourScenicAreas: { status: 'verified', datasets: [{ datasetId: 'scenic_area', confidence: 'HIGH' }], note: '國家風景區 12 面（docs/data-catalog/tourism/scenic_area.md）' },
   tourHeritage: { status: 'verified', datasets: [{ datasetId: 'heritage', confidence: 'HIGH' }], note: '文化資產全國 2,894 點（docs/data-catalog/tourism/heritage.md）' },
-  tourReligion: { status: 'verified', datasets: [{ datasetId: 'religion', confidence: 'HIGH' }], note: '宗教百景 100 點（docs/data-catalog/tourism/religion.md）' },
   tourEvents: { status: 'verified', datasets: [{ datasetId: 'activity', confidence: 'HIGH' }], note: '觀光活動・節慶全國 ~828 點（docs/data-catalog/tourism/activity.md）' },
   tourFactories: { status: 'verified', datasets: [{ datasetId: 'tourism_factory', confidence: 'HIGH' }], note: '觀光工廠全國 158 點（docs/data-catalog/tourism/tourism_factory.md）' },
   tourAmusementParks: { status: 'verified', datasets: [{ datasetId: 'amusement_park', confidence: 'HIGH' }], note: '民營遊樂園全國 26 點（docs/data-catalog/tourism/amusement_park.md）' },
   tourCamping: { status: 'verified', datasets: [{ datasetId: 'camping', confidence: 'HIGH' }], note: '露營場全國 1,737 點（docs/data-catalog/tourism/camping.md）' },
   tourHotels: { status: 'verified', datasets: [{ datasetId: 'hotel', confidence: 'HIGH' }], note: '旅宿全國 ~15,654 點（docs/data-catalog/tourism/hotel.md）' },
+  // 🛕 宗教 Religion 6 layer（docs/data-catalog/religion/）
+  religionTemples: {
+    status: 'verified',
+    datasets: [{ datasetId: 'temples', confidence: 'HIGH' }],
+    processing: '內政部宗教資訊系統 XML × 文資 × 百景 × OSM trust chain（religious_site 120m + 名稱 0.85）；deity_family 9 族為上游衍生欄',
+  },
+  religionChurches: { status: 'verified', datasets: [{ datasetId: 'churches', confidence: 'HIGH' }], note: '教會 2,116（OSM 補 1,066 聚會點；ODbL）' },
+  religionAncestralHalls: { status: 'verified', datasets: [{ datasetId: 'ancestral_halls', confidence: 'HIGH' }], note: '宗祠 173（登記宗祠 69 / 基金會 8 / 文資祠堂 96）' },
+  religionFoundations: { status: 'verified', datasets: [{ datasetId: 'foundations', confidence: 'HIGH' }], note: '宗教基金會 165（單一源）' },
+  religionOtherWorship: { status: 'verified', datasets: [{ datasetId: 'other_worship', confidence: 'HIGH' }], note: '其他宗教場所 1,319（清真寺/神社遺構/風獅爺…；全 OSM 源 ODbL）' },
+  // 2026-08-02 上游自 tourism.religion 搬移歸位為 religion.top100，key 同步由 tourReligion 更名
+  religionTop100: { status: 'verified', datasets: [{ datasetId: 'top100', confidence: 'HIGH' }], note: '宗教百景 100 點（docs/data-catalog/religion/top100.md）' },
   tourRestaurants: { status: 'verified', datasets: [{ datasetId: 'restaurant', confidence: 'HIGH' }], note: '觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）' },
   agriculture: {
     status: 'verified',
