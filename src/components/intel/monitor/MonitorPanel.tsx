@@ -10,9 +10,9 @@ import { type IntelCardEvent } from "../IntelCard";
 import { type TimeRange } from "../IntelFilters";
 import {
   fetchSourceHealth, fetchNewsTrending, trendingKeys as buildTrendingKeys,
-  fetchPressureIndex, fetchMarketIndex, fetchPlaActivity, fetchPublicHealthWeekly,
+  fetchPressureIndex, fetchMarketIndex, fetchPublicHealthWeekly,
   type SourceHealthSummary, type TrendingRow,
-  type PressureIndexNow, type MarketIndex, type PlaActivity, type PublicHealthWeek,
+  type PressureIndexNow, type MarketIndex, type PublicHealthWeek,
 } from "../../../data/intelLoaders";
 import {
   fetchNewsEventsDayClusters, type NewsFilter,
@@ -38,6 +38,7 @@ import { TriageWidget } from "./TriageWidget";
 import { PrisonCard, type PrisonDay } from "./PrisonCard";
 import { AirportPaxCard } from "./AirportPaxCard";
 import { ERCard } from "./ERCard";
+import { PlaBoard } from "./PlaBoard";
 import {
   MONITOR_VISIBLE_LAYOUT, MONITOR_GRID_COLS,
   MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP,
@@ -59,18 +60,6 @@ const EMPTY_PRESSURE: PressureIndexNow = {
 const EMPTY_MARKET: MarketIndex = {
   index: 0, prev_close: 0, open: 0, high: 0, low: 0, change: 0, change_pct: 0,
   turnover: null, time: null, status: null,
-};
-const EMPTY_PLA: PlaActivity = {
-  sorties: 0, crossed_median: 0, plan_vessels: 0, official_ships: 0,
-  adiz: [
-    { key: "north", label: "北", active: false },
-    { key: "central", label: "中", active: false },
-    { key: "southwest", label: "西南", active: false },
-    { key: "east", label: "東", active: false },
-  ],
-  as_of: "今日 06:00",
-  source: "中華民國國防部 @MoNDefense · 每日 06:00 (UTC+8) 截止",
-  title: "中共解放軍臺海周邊海、空域動態",
 };
 const EMPTY_HEALTH_WEEK: PublicHealthWeek = { week: 0, diseases: [] };
 
@@ -143,7 +132,6 @@ export function MonitorPanel({
   const [pressure, setPressure] = useState<PressureIndexNow>(EMPTY_PRESSURE);
   const [smoothed, setSmoothed] = useState<number>(0);
   const [market, setMarket] = useState<MarketIndex>(EMPTY_MARKET);
-  const [pla, setPla] = useState<PlaActivity>(EMPTY_PLA);
   const [health, setHealth] = useState<PublicHealthWeek>(EMPTY_HEALTH_WEEK);
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [alertSummaryRows, setAlertSummaryRows] = useState<AlertSummary[]>([]);
@@ -223,15 +211,14 @@ export function MonitorPanel({
     return () => { alive = false; window.clearInterval(id); };
   }, [open]);
 
-  // 30min PLA + week-once Health
+  // week-once Health（共機的輪詢 2026-08-03 起由 PlaBoard 自己負責）
   useEffect(() => {
     if (!open) return;
     let alive = true;
-    fetchPlaActivity().then((p) => alive && setPla(p));
     fetchPublicHealthWeekly().then((h) => alive && setHealth(h));
     const id = window.setInterval(() => {
       if (!alive) return;
-      fetchPlaActivity().then((p) => alive && setPla(p));
+      fetchPublicHealthWeekly().then((h) => alive && setHealth(h));
     }, 30 * 60 * 1000);
     return () => {
       alive = false;
@@ -545,7 +532,8 @@ export function MonitorPanel({
       />
     ),
     liveWall: <LiveWall />,
-    situationCards: <SituationCards pla={pla} health={health} panelOpen={open} />,
+    situationCards: <SituationCards health={health} />,
+    plaBoard: <PlaBoard open={open} />,
     hazardStrip: <HazardWatchStrip />,
     powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} />,
     erCongestion: <ERCard open={open} />,

@@ -1,0 +1,317 @@
+import { useEffect, useMemo, useState } from "react";
+import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
+import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { SectionLabel } from "./PressureRing";
+import {
+  fetchPlaSeverityDaily, fetchPlaSituationSummary, fetchPlaKindSummary,
+  PLA_LEVEL_LABELS, PLA_LEVEL_COLORS, PLA_KIND_LABELS,
+  type PlaSeverityDay, type PlaSituationSummary, type PlaKindStat, type PlaLevel,
+} from "../../../data/intelLoaders";
+
+/**
+ * 共機擾台戰情板（migration 332/333）
+ *
+ * 取代原 SituationCards 裡的小 PlaCard。核心要回答的是「昨天到底嚴不嚴重」——
+ * 用近 120 天滾動百分位而非平均（實測架次中位數只有 5、越線中位數 0，
+ * 但長尾到 32/26；平均會系統性低估平靜日）。
+ *
+ * ⚠️ 畫面上三件不可省的誠實標註：
+ *  1. 分級是**相對**的 → 一定要同時給絕對數字與該級距門檻
+ *  2. `sorties === null` 是解析失敗，`0` 是真的零架次 → 趨勢圖畫斷點不補 0
+ *  3. 機型的混合項次拆不開 → 主指標用「出現天數」，架次要標明是否精確
+ */
+
+const WINDOW = 120;
+
+interface Props { open: boolean }
+
+export function PlaBoard({ open }: Props) {
+  const [days, setDays] = useState<PlaSeverityDay[]>([]);
+  const [summary, setSummary] = useState<PlaSituationSummary | null>(null);
+  const [kinds, setKinds] = useState<PlaKindStat[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    const tick = () => {
+      fetchPlaSeverityDaily(WINDOW)
+        .then((r) => { if (!cancelled) setDays(r); })
+        .catch((e) => console.warn("[PlaBoard] severity", e));
+      fetchPlaSituationSummary(WINDOW)
+        .then((r) => { if (!cancelled) setSummary(r); })
+        .catch((e) => console.warn("[PlaBoard] summary", e));
+      fetchPlaKindSummary(WINDOW)
+        .then((r) => { if (!cancelled) setKinds(r); })
+        .catch((e) => console.warn("[PlaBoard] kinds", e));
+    };
+    tick();
+    const id = window.setInterval(tick, 30 * 60_000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [open]);
+
+  const latest = days.length ? days[days.length - 1]! : null;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <SectionLabel color="#ff6b6b">共機擾台 · PLA SITUATION BOARD</SectionLabel>
+      <div
+        style={{
+          borderRadius: RADIUS.xl,
+          border: `1px solid ${COLORS.panelBorder}`,
+          background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
+          padding: "12px 14px",
+          display: "flex", flexDirection: "column", gap: 11,
+        }}
+      >
+        {!latest || !summary ? (
+          <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "10px 0" }}>
+            資料載入中…
+          </div>
+        ) : (
+          <>
+            <SeverityHead day={latest} summary={summary} />
+            <TrendRow days={days} summary={summary} />
+            <ZoneRow days={days} summary={summary} />
+            <KindRow kinds={kinds} summary={summary} />
+            <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim, lineHeight: 1.5 }}>
+              中共解放軍臺海周邊海、空域動態 · @MoNDefense · 每日 0600 (UTC+8) 截止 ·
+              分級為近 {summary.windowDays} 天滾動百分位（相對值，非絕對威脅評估）
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ── 嚴重度頭部 ─────────────────────────────────────────── */
+
+function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSituationSummary }) {
+  const lv = (day.level ?? 1) as PlaLevel;
+  const color = day.level === null ? COLORS.textFaint : PLA_LEVEL_COLORS[lv];
+  const label = day.level === null ? "資料未解析" : PLA_LEVEL_LABELS[lv];
+  // 分級門檻對應的絕對值 —— 只給「偏高」不給數字等於沒說
+  const band =
+    lv >= 5 ? `≥ ${summary.sorties.p97} 架次 / ${summary.crossed.p97} 越線`
+    : lv === 4 ? `≥ ${summary.sorties.p90} 架次 / ${summary.crossed.p90} 越線`
+    : lv === 3 ? `≥ ${summary.sorties.p75} 架次 / ${summary.crossed.p75} 越線`
+    : lv === 2 ? `≥ ${summary.sorties.p50} 架次` : `< ${summary.sorties.p50} 架次`;
+
+  return (
+    <div style={{ display: "flex", gap: 12, alignItems: "stretch" }}>
+      <div
+        style={{
+          flex: "0 0 128px", borderRadius: RADIUS.lg,
+          border: `1px solid ${color}66`, background: `${color}14`,
+          padding: "8px 10px", display: "flex", flexDirection: "column", gap: 3,
+        }}
+      >
+        <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.5px", color: COLORS.textDim }}>
+          SEVERITY
+        </span>
+        <span style={{ fontFamily: FONT_CJK, fontSize: 22, fontWeight: 700, lineHeight: 1.1, color }}>
+          {label}
+        </span>
+        <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint }}>{band}</span>
+        {day.resonance && (
+          <span
+            style={{
+              marginTop: 1, alignSelf: "flex-start", fontFamily: FONT_CJK, fontSize: 9,
+              padding: "1px 5px", borderRadius: RADIUS.md,
+              background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.55)", color: "#ff8080",
+            }}
+          >
+            雙軸共振 ↑
+          </span>
+        )}
+      </div>
+
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 }}>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontFamily: FONT_DATA, fontSize: 30, fontWeight: 700, lineHeight: 1, color: "#fff" }}>
+            {day.sorties ?? "—"}
+          </span>
+          <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>架次</span>
+          <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textFaint }}>
+            {day.reportDate} 0600 ~ {day.periodEnd ?? "—"} 0600
+          </span>
+        </div>
+        <AxisBar label="規模 架次" pct={day.pctSorties} value={day.sorties} unit="架次" />
+        <AxisBar label="強度 越中線" pct={day.pctCrossed} value={day.crossedMedian} unit="架次" />
+        <div style={{ display: "flex", gap: 14, fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textDim }}>
+          <span>共艦 <b style={{ color: COLORS.textDefault }}>{day.planVessels ?? "—"}</b> 艘</span>
+          <span>公務船 <b style={{ color: COLORS.textDefault }}>{day.officialShips ?? "—"}</b> 艘</span>
+          <span>近 {summary.windowDays} 天 <b style={{ color: COLORS.textDefault }}>{summary.daysCrossed}</b> 天有越線</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** 單軸百分位條：同時給百分位與絕對值，避免只看到相對標籤 */
+function AxisBar({ label, pct, value, unit }: {
+  label: string; pct: number | null; value: number | null; unit: string;
+}) {
+  const p = pct ?? 0;
+  const color = p >= 97 ? "#ef4444" : p >= 90 ? "#fb923c" : p >= 75 ? "#fbbf24" : p >= 50 ? "#94a3b8" : "#34d399";
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textDim, width: 62, flex: "none" }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: 7, borderRadius: 3, background: "rgba(255,255,255,0.06)", position: "relative", minWidth: 0 }}>
+        <div style={{ width: `${p}%`, height: "100%", borderRadius: 3, background: color }} />
+        {/* p75 / p90 刻度 */}
+        {[75, 90].map((t) => (
+          <div key={t} style={{ position: "absolute", left: `${t}%`, top: -1, bottom: -1, width: 1, background: "rgba(255,255,255,0.25)" }} />
+        ))}
+      </div>
+      <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDefault, width: 66, flex: "none", textAlign: "right" }}>
+        {value ?? "—"} {unit} · p{pct ?? "—"}
+      </span>
+    </div>
+  );
+}
+
+/* ── 120 天趨勢 ─────────────────────────────────────────── */
+
+function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+  const max = Math.max(summary.sorties.max, 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <RowLabel>
+        {summary.windowDays}D TREND · 架次（柱）／越中線（疊色）· 灰=解析失敗
+      </RowLabel>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height: 54 }}>
+        {days.map((d) => {
+          // ⚠️ null = 解析失敗，畫成灰色短樁；0 = 真的零架次，畫成 1px 底線
+          if (d.sorties === null) {
+            return <div key={d.reportDate} title={`${d.reportDate} 解析失敗`}
+              style={{ flex: 1, minWidth: 0, height: "100%", background: "rgba(255,255,255,0.07)", borderRadius: 1 }} />;
+          }
+          const h = (d.sorties / max) * 100;
+          const ch = d.crossedMedian ? (d.crossedMedian / max) * 100 : 0;
+          const lv = (d.level ?? 1) as PlaLevel;
+          return (
+            <div
+              key={d.reportDate}
+              title={`${d.reportDate}｜${d.sorties} 架次 (p${d.pctSorties})｜越中線 ${d.crossedMedian ?? "—"} (p${d.pctCrossed})｜${PLA_LEVEL_LABELS[lv]}`}
+              style={{ flex: 1, minWidth: 0, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
+            >
+              <div style={{ height: `${Math.max(h, d.sorties === 0 ? 1.5 : 3)}%`, background: PLA_LEVEL_COLORS[lv], borderRadius: "1px 1px 0 0", position: "relative" }}>
+                {ch > 0 && (
+                  <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: `${(ch / Math.max(h, 0.01)) * 100}%`, background: "rgba(0,0,0,0.42)" }} />
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>
+        <span>{summary.dateFrom}</span>
+        <span>
+          中位 {summary.sorties.p50} · p75 {summary.sorties.p75} · p90 {summary.sorties.p90} · 最高 {summary.sorties.max} 架次
+        </span>
+        <span>{summary.dateTo}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ── 空域方位 ───────────────────────────────────────────── */
+
+const ZONES = [
+  { key: "southwest", label: "西南" },
+  { key: "north", label: "北部" },
+  { key: "east", label: "東部" },
+  { key: "central", label: "中部" },
+] as const;
+
+function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+  const latest = days.length ? days[days.length - 1]! : null;
+  const maxDays = Math.max(...ZONES.map((z) => summary.zones[z.key]), 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <RowLabel>
+        空域方位 · 近 {summary.windowDays} 天進入天數（● = 昨日進入）
+      </RowLabel>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "4px 14px" }}>
+        {ZONES.map((z) => {
+          const n = summary.zones[z.key];
+          const pct = Math.round((n / summary.daysTotal) * 100);
+          const on = latest?.adiz[z.key] ?? false;
+          // 少見 = 異常訊號（實測中部只有 19/120 天）
+          const rare = pct <= 20;
+          return (
+            <div key={z.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontFamily: FONT_CJK, fontSize: 10, width: 30, flex: "none", color: on ? "#ff8080" : COLORS.textDim, fontWeight: on ? 700 : 400 }}>
+                {on ? "●" : "○"}{z.label}
+              </span>
+              <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", minWidth: 0 }}>
+                <div style={{ width: `${(n / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: rare ? "#a78bfa" : "#60a5fa" }} />
+              </div>
+              <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, width: 54, flex: "none", textAlign: "right" }}>
+                {n} 天 {pct}%
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* ── 侵擾方式（機型）────────────────────────────────────── */
+
+function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituationSummary }) {
+  const shown = useMemo(() => kinds.filter((k) => k.days > 0).slice(0, 6), [kinds]);
+  if (!shown.length) return null;
+  const maxDays = Math.max(...shown.map((k) => k.days), 1);
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <RowLabel>
+        侵擾方式 · 近 {summary.windowDays} 天出動天數（機型僅存在於航跡圖表格）
+      </RowLabel>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "4px 14px" }}>
+        {shown.map((k) => {
+          const rare = k.days / summary.daysTotal <= 0.15;
+          // 混合項次拆不開 → 只有 sortiesExact 是精確的，標一個記號說明
+          const mixed = k.itemsTotal > k.itemsSingle;
+          return (
+            <div key={k.kind} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontFamily: FONT_CJK, fontSize: 10, width: 44, flex: "none", color: rare ? "#c4b5fd" : COLORS.textDim }}>
+                {PLA_KIND_LABELS[k.kind] ?? k.kind}
+              </span>
+              <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", minWidth: 0 }}>
+                <div style={{ width: `${(k.days / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: rare ? "#a78bfa" : "#34d399" }} />
+              </div>
+              <span
+                title={mixed
+                  ? `${k.itemsSingle}/${k.itemsTotal} 個項次是單一機型（架次精確 ${k.sortiesExact}）；` +
+                    `其餘為多機型合併計數，各自架次不可拆`
+                  : `全部 ${k.itemsTotal} 個項次皆單一機型，架次精確`}
+                style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, width: 62, flex: "none", textAlign: "right" }}
+              >
+                {k.days} 天{mixed ? " *" : ""}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      <span style={{ fontSize: 8.5, color: COLORS.textFaint }}>
+        * 該機型有部分項次與其他機型合併計數，架次不可拆；「出動天數」不受影響、為精確值
+      </span>
+    </div>
+  );
+}
+
+function RowLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+      <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.1px", color: COLORS.textDim, whiteSpace: "nowrap" }}>
+        {children}
+      </span>
+      <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
+    </div>
+  );
+}
