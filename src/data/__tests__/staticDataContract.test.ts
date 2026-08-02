@@ -17,16 +17,16 @@ import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 
 // ── 已知壞掉、待上游修（ratchet：修好後要從這裡移除，否則測試會提醒）──
 //
-// 2026-08-02 全盤掃描發現，兩者皆為**上游產製問題**，非前端接線問題：
-const KNOWN_BROKEN_CRS: Record<string, string> = {
-  "forestry/forestry_treatment_works.geojson":
-    "6,275 點全部座標錯：properties 有 x1/y1（TWD97 TM2 字串），但 geometry 被寫成 " +
-    "[x1, planyear] —— 第二個值是民國年（113）不是 Y 座標。整層在地圖上不存在。" +
-    "修法：上游用 x1/y1 重建 geometry 並轉 WGS84（taipei-gis-analytics forestry pipeline）",
-  "geo/active_faults.geojson":
-    "22 條斷層中 8 條是 TWD97 TM2 沒轉 WGS84（六甲/米崙/小崗山/嶺頂/梅山/F0023/屯子腳/獅潭），" +
-    "這 8 條畫不出來。混合 CRS 表示上游是多來源合併時漏轉其中一批",
-};
+// 2026-08-02 首掃抓到兩個上游產製 bug，同日皆已修復並清空本名單：
+//   - forestry_treatment_works：夜跑通用 pipeline 的 parse_lat_lon_fields() 用單字母 'Y'
+//     模糊比對欄名，`'y' in 'planyear'` 成立 → 把民國年當緯度。6,275 點全錯。
+//     修法：pipelines/forestry/forestry_treatment_works/01_rebuild_geometry.py 由 x1/y1 重建
+//   - geo/active_faults：02_fetch_active_faults.py 寫 `if gdf.crs and ...`，
+//     shapefile 沒有 .prj 時 crs is None → 整段轉換被跳過（22 個來源有 8 個沒 .prj）。
+//     修法：crs is None 時依座標量級推定 EPSG:3826 再轉
+//
+// 兩者的共同特徵：**壞掉不會叫**。要新增條目請一併寫清楚成因與修法。
+const KNOWN_BROKEN_CRS: Record<string, string> = {};
 
 /** dynamicData 圖層的 sourceUrl 只是 placeholder（資料由 loader setData 餵入） */
 function staticGeojsonUrls(): string[] {
@@ -146,6 +146,13 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "name", type: "string", nullable: true },       // 12 筆無名工寮
     { field: "ele", type: "string", nullable: true, minCoverage: 0.2 },      // ⚠️ 字串！OSM tag 原樣
     { field: "capacity", type: "string", nullable: true, minCoverage: 0 },   // ⚠️ 同上，覆蓋率極低
+  ],
+  "forestry/forestry_treatment_works.geojson": [
+    // 2026-08-02 重建後新增：標記該筆座標是用哪條規則救回來的
+    { field: "coord_rule", type: "string" },
+    { field: "x1", type: "string" },   // ⚠️ 字串！重建 geometry 的來源欄，勿刪
+    { field: "y1", type: "string" },
+    { field: "eng_name", type: "string" },
   ],
   "religion/churches.geojson": [
     { field: "in_moi_registry", type: "boolean" },           // 雙態 filter

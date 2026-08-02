@@ -63,14 +63,16 @@ describe("PMTiles 契約", () => {
       }
     }
 
-    // 低 zoom 多打不存在的磚屬效能衛生問題（畫面行為不變）→ 只提示不擋
-    if (zoomHygiene.length) {
-      console.log(
-        `ℹ️ ${zoomHygiene.length} 個 layer 的 registry minzoom 低於切片實際 minzoom，` +
-        `會在低 zoom 送出必然落空的 tile request（不影響畫面）：\n  ${zoomHygiene.join("\n  ")}`,
-      );
-    }
     console.log(`✓ 驗了 ${checked.length}/${entries.length} 個 PMTiles（其餘本機無檔，由 S3 管理）`);
+
+    // 2026-08-02 一次清完 11 個後轉為硬性守門（ratchet 只進不退）：
+    // registry minzoom 低於切片實際值 → 低 zoom 會送出必然落空的 tile request。
+    // 畫面行為不變，但是白花的網路往返，且代表 registry 與切片認知不一致。
+    expect(
+      zoomHygiene,
+      `registry 的 minzoom 低於切片實際 minzoom —— 低 zoom 會打不存在的磚：\n  ${zoomHygiene.join("\n  ")}\n` +
+      `→ 把 registry 的 pmtiles.minzoom 改成切片實際值`,
+    ).toEqual([]);
 
     expect(
       broken,
