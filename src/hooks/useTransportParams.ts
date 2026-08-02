@@ -24,6 +24,9 @@ import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
 import { URBAN_HEAT_MODES } from "../data/urbanHeatTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
+import { DEITY_FAMILIES, REGISTRY_MODES, REGISTRY_MODES_ANCESTRAL } from "../data/religionTypes";
+import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
+import { MOUNTAIN_RESCUE_YEARS } from "../data/mountainSafetyTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
 export interface SliderConfig {
@@ -238,8 +241,23 @@ export function useTransportParams() {
   const [tourScenicAreasOpacity, setTourScenicAreasOpacity] = useState(0.5);
   const [tourHeritageOpacity, setTourHeritageOpacity] = useState(0.85);
   const [tourHeritageScale, setTourHeritageScale] = useState(1);
-  const [tourReligionOpacity, setTourReligionOpacity] = useState(0.85);
-  const [tourReligionScale, setTourReligionScale] = useState(1);
+  // 🛕 宗教 Religion 6 層（百景由 tourReligion 更名而來，預設值沿用）
+  const [religionTemplesOpacity, setReligionTemplesOpacity] = useState(0.8);
+  const [religionTemplesScale, setReligionTemplesScale] = useState(1);
+  const [religionTemplesRegistry, setReligionTemplesRegistry] = useState<string>("all");
+  const [religionTemplesDeity, setReligionTemplesDeity] = useState<string>("all");
+  const [religionChurchesOpacity, setReligionChurchesOpacity] = useState(0.85);
+  const [religionChurchesScale, setReligionChurchesScale] = useState(1);
+  const [religionChurchesRegistry, setReligionChurchesRegistry] = useState<string>("all");
+  const [religionAncestralHallsOpacity, setReligionAncestralHallsOpacity] = useState(0.9);
+  const [religionAncestralHallsScale, setReligionAncestralHallsScale] = useState(1);
+  const [religionAncestralHallsRegistry, setReligionAncestralHallsRegistry] = useState<string>("all");
+  const [religionFoundationsOpacity, setReligionFoundationsOpacity] = useState(0.9);
+  const [religionFoundationsScale, setReligionFoundationsScale] = useState(1);
+  const [religionOtherWorshipOpacity, setReligionOtherWorshipOpacity] = useState(0.85);
+  const [religionOtherWorshipScale, setReligionOtherWorshipScale] = useState(1);
+  const [religionTop100Opacity, setReligionTop100Opacity] = useState(0.85);
+  const [religionTop100Scale, setReligionTop100Scale] = useState(1);
   const [tourEventsOpacity, setTourEventsOpacity] = useState(0.85);
   const [tourEventsScale, setTourEventsScale] = useState(1);
   const [tourEventsStatus, setTourEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
@@ -297,6 +315,9 @@ export function useTransportParams() {
   // 🗺️ 都市計畫土地使用分區（北市 + 新北）：category select（all / 9 類）+ 透明度
   const [urbanZoningTaipeiOpacity, setUrbanZoningTaipeiOpacity] = useState(0.5);
   const [urbanZoningTaipeiCategory, setUrbanZoningTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
+  // 非都市分區：面積大 → 預設透明度 0.35（都計分區是 0.5）；篩選走 zone_code 11 碼
+  const [nonUrbanZoningOpacity, setNonUrbanZoningOpacity] = useState(0.35);
+  const [nonUrbanZoningCode, setNonUrbanZoningCode] = useState<string>("all");
   const [urbanZoningNewTaipeiOpacity, setUrbanZoningNewTaipeiOpacity] = useState(0.5);
   const [urbanZoningNewTaipeiCategory, setUrbanZoningNewTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
@@ -856,6 +877,12 @@ export function useTransportParams() {
   const [forestTrailSignsScale, setForestTrailSignsScale] = useState(1.0);
   const [forestSignalPointsOpacity, setForestSignalPointsOpacity] = useState(0.85);
   const [forestSignalPointsScale, setForestSignalPointsScale] = useState(1.0);
+  // 登山安全：山屋（<1k 點 UX baseline 0.9）／山域事故（1k~10k baseline 0.85 + 年份三態以上篩選）
+  const [mountainHutsOpacity, setMountainHutsOpacity] = useState(0.9);
+  const [mountainHutsScale, setMountainHutsScale] = useState(1.0);
+  const [mountainRescueIncidentsOpacity, setMountainRescueIncidentsOpacity] = useState(0.85);
+  const [mountainRescueIncidentsScale, setMountainRescueIncidentsScale] = useState(1.0);
+  const [mountainRescueIncidentsYear, setMountainRescueIncidentsYear] = useState<string>("all"); // all / 2019..2024
   const [forestEducationCentersOpacity, setForestEducationCentersOpacity] = useState(0.9);
   const [forestEducationCentersScale, setForestEducationCentersScale] = useState(1.2);
   const [forestWildlifeOpacity, setForestWildlifeOpacity] = useState(0.85);
@@ -1036,7 +1063,16 @@ export function useTransportParams() {
     tourHotSpringZonesOpacity,
     tourScenicAreasOpacity,
     tourHeritageOpacity, tourHeritageScale,
-    tourReligionOpacity, tourReligionScale,
+    religionTemplesOpacity, religionTemplesScale,
+    religionTemplesRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionTemplesRegistry),
+    religionTemplesDeityIdx: ["all", ...DEITY_FAMILIES.map((d) => d.value)].indexOf(religionTemplesDeity),
+    religionChurchesOpacity, religionChurchesScale,
+    religionChurchesRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionChurchesRegistry),
+    religionAncestralHallsOpacity, religionAncestralHallsScale,
+    religionAncestralHallsRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionAncestralHallsRegistry),
+    religionFoundationsOpacity, religionFoundationsScale,
+    religionOtherWorshipOpacity, religionOtherWorshipScale,
+    religionTop100Opacity, religionTop100Scale,
     tourEventsOpacity, tourEventsScale,
     tourEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(tourEventsStatus),
     tourFactoriesOpacity, tourFactoriesScale,
@@ -1063,6 +1099,9 @@ export function useTransportParams() {
     urbanZoningTaipeiCategoryIdx: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)].indexOf(urbanZoningTaipeiCategory),
     urbanZoningNewTaipeiOpacity,
     urbanZoningNewTaipeiCategoryIdx: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)].indexOf(urbanZoningNewTaipeiCategory),
+    nonUrbanZoningOpacity,
+    // idx 0=全部，1..11 對應 NON_URBAN_ZONING_CODES（同 urbanZoning*CategoryIdx 慣例）
+    nonUrbanZoningCodeIdx: ["all", ...NON_URBAN_ZONING_CODES.map((c) => c.code)].indexOf(nonUrbanZoningCode),
     crimeAreaMonthlyOpacity,
     theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
@@ -1294,6 +1333,12 @@ export function useTransportParams() {
     forestTrailSignsScale,
     forestSignalPointsOpacity,
     forestSignalPointsScale,
+    mountainHutsOpacity,
+    mountainHutsScale,
+    mountainRescueIncidentsOpacity,
+    mountainRescueIncidentsScale,
+    // idx 0=全部，1..6 對應 MOUNTAIN_RESCUE_YEARS（同 urbanZoning*CategoryIdx 慣例）
+    mountainRescueIncidentsYearIdx: ["all", ...MOUNTAIN_RESCUE_YEARS.map(String)].indexOf(mountainRescueIncidentsYear),
     forestEducationCentersOpacity,
     forestEducationCentersScale,
     forestWildlifeOpacity,
@@ -1410,7 +1455,7 @@ export function useTransportParams() {
     osmExpresswayOpacity, osmExpresswayWidth,
     hillshadeOpacity,
     slopeVectorOpacity, aspectVectorOpacity,
-  }), [realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, roadCongestionWidth, roadCongestionOpacity, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, erHospitalOpacity, librarySeatsOpacity, parkingOnstreetOpacity, parkingOffstreetOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, postOfficesOpacity, postOfficesScale, iPostBoxesOpacity, iPostBoxesScale, communityCentersOpacity, communityCentersScale, govServiceOfficesOpacity, govServiceOfficesScale, publicLibrariesOpacity, publicLibrariesScale, welfareCentersOpacity, welfareCentersScale, retailMarketsOpacity, retailMarketsScale, publicToiletsOpacity, publicToiletsScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockSlaughterOpacity, livestockSlaughterScale, livestockFeedOpacity, livestockFeedScale, livestockMarketOpacity, livestockMarketScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, sportsSchoolOpacity, sportsSchoolScale, sportsPublicOtherOpacity, sportsPublicOtherScale, sportsPrivateOpacity, sportsPrivateScale, sportsParkOpacity, sportsParkScale, sportsCenterOpacity, sportsCenterScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, canopyHeightOpacity, canopyGiantsOpacity, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, worldTrashDebrisOpacity,
+  }), [realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, roadCongestionWidth, roadCongestionOpacity, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, erHospitalOpacity, librarySeatsOpacity, parkingOnstreetOpacity, parkingOffstreetOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, postOfficesOpacity, postOfficesScale, iPostBoxesOpacity, iPostBoxesScale, communityCentersOpacity, communityCentersScale, govServiceOfficesOpacity, govServiceOfficesScale, publicLibrariesOpacity, publicLibrariesScale, welfareCentersOpacity, welfareCentersScale, retailMarketsOpacity, retailMarketsScale, publicToiletsOpacity, publicToiletsScale, schoolLevelColor, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockSlaughterOpacity, livestockSlaughterScale, livestockFeedOpacity, livestockFeedScale, livestockMarketOpacity, livestockMarketScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, sportsSchoolOpacity, sportsSchoolScale, sportsPublicOtherOpacity, sportsPublicOtherScale, sportsPrivateOpacity, sportsPrivateScale, sportsParkOpacity, sportsParkScale, sportsCenterOpacity, sportsCenterScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, mountainHutsOpacity, mountainHutsScale, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, canopyHeightOpacity, canopyGiantsOpacity, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, worldTrashDebrisOpacity,
     policeStationOpacity, policeStationScale, womenChildWarningOpacity, womenChildWarningScale,
     speedCameraOpacity, speedCameraScale, speedZoneSegmentOpacity, speedZoneSegmentWidth,
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
@@ -1435,6 +1480,7 @@ export function useTransportParams() {
     propertyValueGridScaleIdx, propertyValueGridModeIdx, propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridExtruded, propertyValueGridElevationScale,
     urbanZoningTaipeiOpacity, urbanZoningTaipeiCategory,
     urbanZoningNewTaipeiOpacity, urbanZoningNewTaipeiCategory,
+    nonUrbanZoningOpacity, nonUrbanZoningCode,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -1448,7 +1494,13 @@ export function useTransportParams() {
     pollutionSiteOpacity, pollutionSiteScale,
     tourAttractionsOpacity, tourAttractionsScale, tourAttractionsMode,
     tourHotSpringsOpacity, tourHotSpringsScale, tourHotSpringZonesOpacity, tourScenicAreasOpacity,
-    tourHeritageOpacity, tourHeritageScale, tourReligionOpacity, tourReligionScale,
+    tourHeritageOpacity, tourHeritageScale,
+    religionTemplesOpacity, religionTemplesScale, religionTemplesRegistry, religionTemplesDeity,
+    religionChurchesOpacity, religionChurchesScale, religionChurchesRegistry,
+    religionAncestralHallsOpacity, religionAncestralHallsScale, religionAncestralHallsRegistry,
+    religionFoundationsOpacity, religionFoundationsScale,
+    religionOtherWorshipOpacity, religionOtherWorshipScale,
+    religionTop100Opacity, religionTop100Scale,
     tourEventsOpacity, tourEventsScale, tourEventsStatus,
     tourFactoriesOpacity, tourFactoriesScale, tourAmusementParksOpacity, tourAmusementParksScale,
     tourCampingOpacity, tourCampingScale,
@@ -2444,6 +2496,16 @@ export function useTransportParams() {
         { label: `透明度 ${forestTrailSignsOpacity.toFixed(2)}`, value: forestTrailSignsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestTrailSignsOpacity },
         { label: `大小 ${forestTrailSignsScale.toFixed(2)}`, value: forestTrailSignsScale, min: 0.3, max: 3, step: 0.1, onChange: setForestTrailSignsScale },
       ];
+      case "mountainHuts": return [
+        { label: `透明度 ${mountainHutsOpacity.toFixed(2)}`, value: mountainHutsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMountainHutsOpacity },
+        { label: `大小 ${mountainHutsScale.toFixed(2)}`, value: mountainHutsScale, min: 0.3, max: 3, step: 0.1, onChange: setMountainHutsScale },
+      ];
+      case "mountainRescueIncidents": return [
+        // 7 個選項（全部 + 6 年）> 3 → 自動走原生 select（四鐵則 #4）
+        { type: "select" as const, label: "年份", value: mountainRescueIncidentsYear, options: [{ label: "全部", value: "all" }, ...MOUNTAIN_RESCUE_YEARS.map((y) => ({ label: String(y), value: String(y) }))], onChange: setMountainRescueIncidentsYear },
+        { label: `透明度 ${mountainRescueIncidentsOpacity.toFixed(2)}`, value: mountainRescueIncidentsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMountainRescueIncidentsOpacity },
+        { label: `大小 ${mountainRescueIncidentsScale.toFixed(2)}`, value: mountainRescueIncidentsScale, min: 0.3, max: 3, step: 0.1, onChange: setMountainRescueIncidentsScale },
+      ];
       case "forestSignalPoints": return [
         { label: `透明度 ${forestSignalPointsOpacity.toFixed(2)}`, value: forestSignalPointsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestSignalPointsOpacity },
         { label: `大小 ${forestSignalPointsScale.toFixed(2)}`, value: forestSignalPointsScale, min: 0.3, max: 3, step: 0.1, onChange: setForestSignalPointsScale },
@@ -2626,9 +2688,35 @@ export function useTransportParams() {
         { label: `透明度 ${tourHeritageOpacity.toFixed(2)}`, value: tourHeritageOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHeritageOpacity },
         { label: `大小 ${tourHeritageScale.toFixed(1)}`, value: tourHeritageScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHeritageScale },
       ];
-      case "tourReligion": return [
-        { label: `透明度 ${tourReligionOpacity.toFixed(2)}`, value: tourReligionOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourReligionOpacity },
-        { label: `大小 ${tourReligionScale.toFixed(1)}`, value: tourReligionScale, min: 0.3, max: 3, step: 0.1, onChange: setTourReligionScale },
+      case "religionTemples": return [
+        // 10 選項（全部 + 9 族）與 3 選項登記態；前者 > 3 自動走原生 select（四鐵則 #4）
+        { type: "select" as const, label: "主祀", value: religionTemplesDeity, options: [{ label: "全部", value: "all" }, ...DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value }))], onChange: setReligionTemplesDeity },
+        { type: "select" as const, label: "登記", value: religionTemplesRegistry, options: REGISTRY_MODES, onChange: setReligionTemplesRegistry },
+        { label: `透明度 ${religionTemplesOpacity.toFixed(2)}`, value: religionTemplesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionTemplesOpacity },
+        { label: `大小 ${religionTemplesScale.toFixed(1)}`, value: religionTemplesScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionTemplesScale },
+      ];
+      case "religionChurches": return [
+        { type: "select" as const, label: "登記", value: religionChurchesRegistry, options: REGISTRY_MODES, onChange: setReligionChurchesRegistry },
+        { label: `透明度 ${religionChurchesOpacity.toFixed(2)}`, value: religionChurchesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionChurchesOpacity },
+        { label: `大小 ${religionChurchesScale.toFixed(1)}`, value: religionChurchesScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionChurchesScale },
+      ];
+      case "religionAncestralHalls": return [
+        // ⚠️ 本層 false 是「文資祠堂」不是 OSM，故用 REGISTRY_MODES_ANCESTRAL 的標籤
+        { type: "select" as const, label: "類型", value: religionAncestralHallsRegistry, options: REGISTRY_MODES_ANCESTRAL, onChange: setReligionAncestralHallsRegistry },
+        { label: `透明度 ${religionAncestralHallsOpacity.toFixed(2)}`, value: religionAncestralHallsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionAncestralHallsOpacity },
+        { label: `大小 ${religionAncestralHallsScale.toFixed(1)}`, value: religionAncestralHallsScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionAncestralHallsScale },
+      ];
+      case "religionFoundations": return [
+        { label: `透明度 ${religionFoundationsOpacity.toFixed(2)}`, value: religionFoundationsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionFoundationsOpacity },
+        { label: `大小 ${religionFoundationsScale.toFixed(1)}`, value: religionFoundationsScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionFoundationsScale },
+      ];
+      case "religionOtherWorship": return [
+        { label: `透明度 ${religionOtherWorshipOpacity.toFixed(2)}`, value: religionOtherWorshipOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionOtherWorshipOpacity },
+        { label: `大小 ${religionOtherWorshipScale.toFixed(1)}`, value: religionOtherWorshipScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionOtherWorshipScale },
+      ];
+      case "religionTop100": return [
+        { label: `透明度 ${religionTop100Opacity.toFixed(2)}`, value: religionTop100Opacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionTop100Opacity },
+        { label: `大小 ${religionTop100Scale.toFixed(1)}`, value: religionTop100Scale, min: 0.3, max: 3, step: 0.1, onChange: setReligionTop100Scale },
       ];
       case "tourEvents": return [
         { type: "select" as const, label: "狀態", value: tourEventsStatus, options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }], onChange: setTourEventsStatus },
@@ -2708,6 +2796,11 @@ export function useTransportParams() {
       case "urbanZoningTaipei": return [
         { type: "select" as const, label: "分區", value: urbanZoningTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningTaipeiCategory },
         { label: `填色透明度 ${urbanZoningTaipeiOpacity.toFixed(2)}`, value: urbanZoningTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setUrbanZoningTaipeiOpacity },
+      ];
+      case "nonUrbanZoning": return [
+        // 12 個選項（全部 + 11 碼）> 3 → 自動走原生 select（四鐵則 #4）
+        { type: "select" as const, label: "分區", value: nonUrbanZoningCode, options: [{ label: "全部", value: "all" }, ...NON_URBAN_ZONING_CODES.map((c) => ({ label: c.label, value: c.code }))], onChange: setNonUrbanZoningCode },
+        { label: `填色透明度 ${nonUrbanZoningOpacity.toFixed(2)}`, value: nonUrbanZoningOpacity, min: 0, max: 1, step: 0.05, onChange: setNonUrbanZoningOpacity },
       ];
       case "urbanZoningNewTaipei": return [
         { type: "select" as const, label: "分區", value: urbanZoningNewTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningNewTaipeiCategory },

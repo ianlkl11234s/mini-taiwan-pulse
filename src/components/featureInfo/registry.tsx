@@ -28,7 +28,11 @@ import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
 } from "./agriPanels";
-import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel } from "./forestryPanels";
+import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel, MountainHutPanel } from "./forestryPanels";
+import {
+  TemplePanel, ChurchPanel, AncestralHallPanel, FoundationPanel,
+  OtherWorshipPanel, ReligionTop100Panel,
+} from "./religionPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -40,7 +44,7 @@ import {
   StreetTreesTaipeiDiffPanel, ProtectedTreesNationalPanel,
   RiversideTreesTaipeiPanel, ParksTaipeiPanel, StreetTrees3epochPanel,
   StreetTreesNationalPanel, TreePitsTaipeiPanel, BuildingsGbaPanel, UrbanFormGridPanel,
-  UrbanZoningPanel, PropertyValueGridPanel,
+  UrbanZoningPanel, NonUrbanZoningPanel, PropertyValueGridPanel,
 } from "./urbanPanels";
 import { SportsVenuePanel } from "./sportsPanels";
 import {
@@ -49,7 +53,7 @@ import {
 } from "./culturePanels";
 import {
   AttractionsPanel, HotSpringsPanel, HotSpringZonesPanel, ScenicAreasPanel,
-  HeritagePanel, ReligionPanel, EventsPanel, FactoriesPanel,
+  HeritagePanel, EventsPanel, FactoriesPanel,
   AmusementParksPanel, CampingPanel, HotelsPanel, RestaurantsPanel,
 } from "./tourismPanels";
 import { MedicalPOIPanel, MedicalIsochronePanel, EmergencyHospitalPanel } from "./medicalPanels";
@@ -66,7 +70,7 @@ import { PowerPlantPanel, OsmSubstationPanel, OsmPowerLinePanel, OsmPowerTowerPa
 } from "./energyPanels";
 import {
   LightningStrikePanel, NuclearStationPanel, EarthquakePanel,
-  EarthquakeReplayStationPanel, EarthquakeReplayTownPanel,
+  EarthquakeReplayStationPanel, EarthquakeReplayTownPanel, MountainRescuePanel,
 } from "./hazardPanels";
 import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
 import {
@@ -155,6 +159,8 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   forestryPolygon: ForestryGenericPanel,
   forestryLine: ForestryGenericPanel,
   forestryPOI: ForestryGenericPanel,
+  mountainHut: MountainHutPanel,
+  mountainRescueIncident: MountainRescuePanel,
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
@@ -284,6 +290,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   propertyValueGrid: PropertyValueGridPanel,
   urbanZoningTaipei: UrbanZoningPanel,
   urbanZoningNewTaipei: UrbanZoningPanel,
+  nonUrbanZoning: NonUrbanZoningPanel,
   // 🏟️ 運動場館
   sportsVenue: SportsVenuePanel,
   // 🎭 文化
@@ -298,7 +305,12 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   tourHotSpringZones: HotSpringZonesPanel,
   tourScenicAreas: ScenicAreasPanel,
   tourHeritage: HeritagePanel,
-  tourReligion: ReligionPanel,
+  religionTemples: TemplePanel,
+  religionChurches: ChurchPanel,
+  religionAncestralHalls: AncestralHallPanel,
+  religionFoundations: FoundationPanel,
+  religionOtherWorship: OtherWorshipPanel,
+  religionTop100: ReligionTop100Panel,
   tourEvents: EventsPanel,
   tourFactories: FactoriesPanel,
   tourAmusementParks: AmusementParksPanel,
@@ -374,6 +386,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   forestryPolygon: "林業面 (polygon)",
   forestryLine: "林業線 (line)",
   forestryPOI: "林業點位 (POI)",
+  mountainHut: "山屋・高山營地",
+  mountainRescueIncident: "山域事故",
   hikingTrails: "步道",
   fireEvent: "火災事件",
   fireStation: "消防分隊",
@@ -403,6 +417,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   propertyValueGrid: "不動產總市值網格",
   urbanZoningTaipei: "土地使用分區",
   urbanZoningNewTaipei: "土地使用分區",
+  nonUrbanZoning: "非都市土地使用分區",
   sportsVenue: "運動場館",
   culturalFacilities: "文化設施",
   culturalMuseums: "地方文化館",
@@ -415,7 +430,12 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   tourHotSpringZones: "溫泉露頭區",
   tourScenicAreas: "國家風景區",
   tourHeritage: "文化資產",
-  tourReligion: "宗教百景",
+  religionTemples: "寺廟",
+  religionChurches: "教會",
+  religionAncestralHalls: "宗祠",
+  religionFoundations: "宗教基金會",
+  religionOtherWorship: "其他宗教場所",
+  religionTop100: "宗教百景",
   tourEvents: "觀光活動",
   tourFactories: "觀光工廠",
   tourAmusementParks: "民營遊樂園",

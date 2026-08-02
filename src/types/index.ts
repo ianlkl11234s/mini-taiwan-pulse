@@ -106,6 +106,7 @@ export type ExpandableLayerKey =
   | "submarineCables" | "landingStations"
   | "activeFaults"
   | "earthquakeReplay"
+  | "mountainRescueIncidents"
   | "newsEvents"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
@@ -125,7 +126,7 @@ export type ExpandableLayerKey =
   | "urbanFormGrid"
   | "propertyValueGrid"
   // 🗺️ 都市計畫土地使用分區（PMTiles polygon，zone_category 9 類分色 + 分類篩選）
-  | "urbanZoningTaipei" | "urbanZoningNewTaipei"
+  | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
   // 運動場館 SPORTS（5 sublayer 共用 sports-venues source + layer filter）
   | "sportsSchool" | "sportsPublicOther" | "sportsPrivate" | "sportsPark" | "sportsCenter"
   // 🎭 文化 Culture（靜態 overlay GeoJSON 點）
@@ -133,9 +134,12 @@ export type ExpandableLayerKey =
   | "librarySeats"
   // 🧳 觀光 Tourism（靜態 overlay GeoJSON 點/面，12 layer）
   | "tourAttractions" | "tourHotSprings" | "tourHotSpringZones" | "tourScenicAreas"
-  | "tourHeritage" | "tourReligion"
+  | "tourHeritage"
   | "tourEvents" | "tourFactories" | "tourAmusementParks" | "tourCamping"
   | "tourHotels" | "tourRestaurants"
+  // 🛕 宗教 Religion（靜態 overlay；temples 走 PMTiles，其餘 GeoJSON 點）
+  | "religionTemples" | "religionChurches" | "religionAncestralHalls"
+  | "religionFoundations" | "religionOtherWorship" | "religionTop100"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -220,6 +224,7 @@ export type ExpandableLayerKey =
   | "forestDamLakes"
   | "forestFlatParks"
   | "forestAlishanRail"
+  | "mountainHuts"
   | "hikingTrails"
   | "canopyHeight"
   | "canopyGiants"
@@ -672,15 +677,18 @@ export interface FeatureInfo {
     | "buildingsGba"
     | "urbanFormGrid"
     | "propertyValueGrid"
-    | "urbanZoningTaipei" | "urbanZoningNewTaipei"
+    | "urbanZoningTaipei" | "urbanZoningNewTaipei" | "nonUrbanZoning"
     | "sportsVenue"
     | "culturalFacilities" | "culturalMuseums" | "artsEvents" | "performingVenues"
     | "librarySeats"
     // 🧳 觀光 Tourism（layerType = layer key 同名，12 個）
     | "tourAttractions" | "tourHotSprings" | "tourHotSpringZones" | "tourScenicAreas"
-    | "tourHeritage" | "tourReligion"
+    | "tourHeritage"
     | "tourEvents" | "tourFactories" | "tourAmusementParks" | "tourCamping"
     | "tourHotels" | "tourRestaurants"
+    // 🛕 宗教 Religion（layerType = layer key 同名，6 個）
+    | "religionTemples" | "religionChurches" | "religionAncestralHalls"
+    | "religionFoundations" | "religionOtherWorship" | "religionTop100"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -697,6 +705,7 @@ export interface FeatureInfo {
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"
+    | "mountainHut" | "mountainRescueIncident"
     | "hikingTrails"
     | "canopyGiants"
     | "satellite"
@@ -804,6 +813,8 @@ export interface LayerVisibility {
   earthquakes: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
   earthquakeReplay: boolean;
+  /** 山域意外事故救援案件 2,465 點（2019-2024，cause 9 族分色 + 年份篩選） */
+  mountainRescueIncidents: boolean;
   // ── 全球氣候 GLOBAL CLIMATE（USGS / JMA / JTWC / CMEMS / CAMS / NOAA GFS）──
   earthquakesGlobal: boolean;    // USGS 全球地震（hourly）
   typhoonTracks: boolean;        // JMA / JTWC 颱風軌跡（observed + forecast）
@@ -887,6 +898,7 @@ export interface LayerVisibility {
   // 🗺️ 都市計畫土地使用分區（靜態 PMTiles polygon；zone_category 9 類統一分色 + 分類篩選；OGDL-Taiwan-1.0）
   urbanZoningTaipei: boolean;     // 臺北市都市計畫土地使用分區（15,518 面，z6-15）
   urbanZoningNewTaipei: boolean;  // 新北市都市計畫土地使用分區（34,190 面，z6-15）
+  nonUrbanZoning: boolean;        // 非都市土地使用分區（68,220 面 18 縣市，zone_code 11 碼，z5-14）
   // 🏟️ 運動場館 SPORTS（全國 15,000 點靜態 GeoJSON；5 sublayer 共用 sports-venues source + layer filter）
   sportsSchool: boolean;          // 學校場館（12,221）
   sportsPublicOther: boolean;     // 其他公共場館（1,135）
@@ -905,7 +917,13 @@ export interface LayerVisibility {
   tourHotSpringZones: boolean;    // 溫泉露頭區（16 面，Polygon，全國僅北市有公告範圍圖）
   tourScenicAreas: boolean;       // 國家風景區（12 面，Polygon）
   tourHeritage: boolean;          // 文化資產全國（2,894 點，category 三類 古蹟/歷史建築/文化景觀 同色系分色）
-  tourReligion: boolean;          // 宗教百景（100 點，單色）
+  // 🛕 宗教 Religion（第 36 主題；2026-08-02 上游 religion 批次）
+  religionTemples: boolean;        // 寺廟 19,201（PMTiles；deity_family 9 族分色 + 雙態 filter）
+  religionChurches: boolean;       // 教會 2,116（雙態 filter）
+  religionAncestralHalls: boolean; // 宗祠 173（facility_type 3 類分色）
+  religionFoundations: boolean;    // 宗教基金會 165
+  religionOtherWorship: boolean;   // 其他宗教場所 1,319（清真寺/神社遺構/風獅爺…；OSM 源 ODbL）
+  religionTop100: boolean;         // 宗教百景 100（2026-08-02 自 tourReligion 更名搬群）
   tourEvents: boolean;            // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
   tourFactories: boolean;         // 觀光工廠（158 點，單色）
   tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）
@@ -952,6 +970,7 @@ export interface LayerVisibility {
   forestDamLakes: boolean;
   forestFlatParks: boolean;
   forestAlishanRail: boolean;
+  mountainHuts: boolean;           // 全台山屋與高山營地 136 點（官方玉山 30 × OSM 126 trust chain；ODbL）
   hikingTrails: boolean;           // 全台步道 2,818 條（A 林業署 + B OSM + C 國家公園）
   canopyHeight: boolean;           // 全台樹冠高度 raster PNG PMTiles（Meta/WRI 2020 10m，z7-12 預烤 Greens 色帶）
   canopyGiants: boolean;           // 樹冠 45m+ 巨木 7,823 點（GeoJSON；依 dist_access_m 離道路距離分級）

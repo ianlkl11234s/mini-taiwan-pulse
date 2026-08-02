@@ -1,6 +1,7 @@
 import { Row } from "./shared";
 import { FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
+import { mountainHutTypeColor, mountainHutTypeLabel } from "../../data/mountainSafetyTypes";
 
 const HIKING_TRAIL_SOURCE_INFO: Record<string, { color: string; label: string }> = {
   A_forest: { color: "#d62728", label: "A 林業署國家步道（KML）" },
@@ -56,6 +57,41 @@ export function CanopyGiantsPanel({ props }: { props: Record<string, unknown> })
       <Row label="海拔" value={fmt(props.elev_m)} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
         Meta/WRI 樹冠高度 10m × 可及性分析（≥ 45m）
+      </div>
+    </>
+  );
+}
+
+/**
+ * 山屋・高山營地 popup。
+ * name 可為 null（12 筆無名工寮，上游誠實保留）→ 顯示「無名山屋」。
+ * ele / capacity / name_en 多來自 OSM 抬升 → 面板底部標 ODbL。
+ */
+export function MountainHutPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const type = props.facility_type == null ? null : String(props.facility_type);
+  const color = mountainHutTypeColor(type);
+  const str = (v: unknown) => (v == null || v === "" ? null : String(v));
+  const name = str(props.name) ?? "無名山屋";
+  const nameEn = str(props.name_en);
+  // ⚠️ ele / capacity 上游是 OSM tag 原樣的**字串**（"2588"），不是 number —— 別用 typeof 判
+  const ele = str(props.ele);
+  const capacity = str(props.capacity);
+  const manager = str(props.managed_by) ?? str(props.operator);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: 5, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>{name}</div>
+      </div>
+      <Row label="類型" value={mountainHutTypeLabel(type)} color={color} />
+      {nameEn ? <Row label="英文名" value={nameEn} /> : null}
+      {ele ? <Row label="海拔" value={`${ele} m`} /> : null}
+      {capacity ? <Row label="容量" value={`${capacity} 人`} /> : null}
+      {manager ? <Row label="管理單位" value={manager} /> : null}
+      {props.in_yushan_official === true ? <Row label="來源" value="玉山國家公園官方 + OSM" /> : null}
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.4 }}>
+        ⓘ 含 OpenStreetMap 群眾標註，© OpenStreetMap contributors（ODbL）
       </div>
     </>
   );

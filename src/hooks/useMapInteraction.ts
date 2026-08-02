@@ -327,16 +327,24 @@ export function useMapInteraction(
           { layers: ["urban-form-grid-fill"], type: "urbanFormGrid" },
           { layers: ["urban-zoning-taipei-fill"], type: "urbanZoningTaipei" },
           { layers: ["urban-zoning-newtaipei-fill"], type: "urbanZoningNewTaipei" },
+          // 非都市分區覆蓋全台山區與農地（68,220 面）→ 排在兩層都計分區之後，免得擋掉都市內的點選
+          { layers: ["non-urban-zoning-fill"], type: "nonUrbanZoning" },
           { layers: ["sports-venues-school", "sports-venues-public-other", "sports-venues-private", "sports-venues-park", "sports-venues-center"], type: "sportsVenue" },
           { layers: ["culture-facilities-circle"], type: "culturalFacilities" },
           { layers: ["culture-museums-circle"], type: "culturalMuseums" },
           { layers: ["culture-events-circle"], type: "artsEvents" },
           { layers: ["culture-venues-circle"], type: "performingVenues" },
+          // 🛕 宗教 Religion 6 layer（小集合優先；temples 19,201 最密排最後）
+          { layers: ["religion-top100-circle", "religion-top100-glow"], type: "religionTop100" },
+          { layers: ["religion-foundations-circle"], type: "religionFoundations" },
+          { layers: ["religion-ancestral-halls-circle"], type: "religionAncestralHalls" },
+          { layers: ["religion-other-worship-circle"], type: "religionOtherWorship" },
+          { layers: ["religion-churches-circle"], type: "religionChurches" },
+          { layers: ["religion-temples-circle"], type: "religionTemples" },
           // 🧳 觀光 Tourism 12 layer（點層優先；面層 hot-spring-zones / scenic-areas 置末避免大面積擋點）
           { layers: ["tour-attractions-circle", "tour-attractions-glow"], type: "tourAttractions" },
           { layers: ["tour-hot-springs-circle", "tour-hot-springs-glow"], type: "tourHotSprings" },
           { layers: ["tour-heritage-circle", "tour-heritage-glow"], type: "tourHeritage" },
-          { layers: ["tour-religion-circle", "tour-religion-glow"], type: "tourReligion" },
           { layers: ["tour-events-circle"], type: "tourEvents" },
           { layers: ["tour-factories-circle", "tour-factories-glow"], type: "tourFactories" },
           { layers: ["tour-amusement-parks-circle", "tour-amusement-parks-glow"], type: "tourAmusementParks" },
@@ -381,6 +389,9 @@ export function useMapInteraction(
           { layers: ["farm-roads-line", "farm-roads-glow"], type: "farmRoads" },
           { layers: ["hiking-trails-line", "hiking-trails-glow"], type: "hikingTrails" },
           { layers: ["eco-network-zones-fill"], type: "ecoNetworkZones" },
+          // 登山安全：山屋 / 山域事故（小目標，排在林業大面積前）
+          { layers: ["mountain-huts-circle"], type: "mountainHut" },
+          { layers: ["mountain-rescue-incidents-circle"], type: "mountainRescueIncident" },
           // FORESTRY — points / lines 先（小目標優先）
           { layers: ["forest-education-centers-circle"], type: "forestryPOI" },
           { layers: ["forest-trail-signs-circle"], type: "forestryPOI" },

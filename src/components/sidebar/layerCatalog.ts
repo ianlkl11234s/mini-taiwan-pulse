@@ -27,6 +27,8 @@ import type { LayerVisibility, TransportType } from "../../types";
 
 // ── Color Config ──
 
+import { RELIGION_LAYER_COLORS } from "../../data/religionTypes";
+
 export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   flights: "#64aaff",
   ships: "#1ad9e5",
@@ -77,6 +79,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
   earthquakeReplay: "#e11d48",
+  mountainRescueIncidents: "#f2c94c",
   // 全球氣候 GLOBAL CLIMATE
   earthquakesGlobal: "#dc2626",
   typhoonTracks: "#a855f7",
@@ -174,6 +177,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   urbanFormGrid: "#8d9c6b",
   urbanZoningTaipei: "#f2c94c",
   urbanZoningNewTaipei: "#eb5757",
+  nonUrbanZoning: "#a2c14e",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -190,13 +194,14 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   tourHotSpringZones: "#880e4f",
   tourScenicAreas: "#00695c",
   tourHeritage: "#6d4c41",
-  tourReligion: "#7b1fa2",
   tourEvents: "#f9a825",
   tourFactories: "#546e7a",
   tourAmusementParks: "#00acc1",
   tourCamping: "#7cb342",
   tourHotels: "#1976d2",
   tourRestaurants: "#c62828",
+  // 🛕 宗教 Religion（色票 SSOT = religionTypes.ts RELIGION_LAYER_COLORS）
+  ...RELIGION_LAYER_COLORS,
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -211,6 +216,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   forestDamLakes: "#06B6D4",
   forestFlatParks: "#A3E635",
   forestAlishanRail: "#92400E",
+  mountainHuts: "#ec4899",
   hikingTrails: "#d62728",
   canopyHeight: "#33691e",
   canopyGiants: "#a50026",
@@ -450,6 +456,8 @@ export const THEMES: ThemeDef[] = [
         layers: [
           { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
           { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
+          // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
+          { key: "nonUrbanZoning", label: "非都市土地使用分區 Non-Urban Zoning", labelMobile: "非都市分區 (68,220)", expandable: true },
         ],
       },
       {
@@ -789,6 +797,34 @@ export const THEMES: ThemeDef[] = [
   },
 
   // ───────────────────────────────────────────────────────────────
+  // 🛕 RELIGION 宗教（2026-08-02 第 36 主題；上游 religion 批次 23,074 點）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "宗教 Religion",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "點位",
+        layers: [
+          { key: "religionTemples", label: "寺廟 Temples", labelMobile: "寺廟 (19,201)", expandable: true },
+          { key: "religionChurches", label: "教會 Churches", labelMobile: "教會 (2,116)", expandable: true },
+          { key: "religionAncestralHalls", label: "宗祠 Ancestral Halls", labelMobile: "宗祠 (173)", expandable: true },
+          { key: "religionFoundations", label: "宗教基金會 Foundations", labelMobile: "宗教基金會 (165)", expandable: true },
+          { key: "religionOtherWorship", label: "其他宗教場所 Other Worship", labelMobile: "其他宗教場所 (1,319)", expandable: true },
+        ],
+      },
+      {
+        title: "精選",
+        layers: [
+          // 2026-08-02 自「觀光 → 玩・人文」搬來並更名（原 key tourReligion），
+          // 對應上游 religion.top100（自 tourism.religion 搬移歸位）
+          { key: "religionTop100", label: "宗教百景 Top 100", labelMobile: "宗教百景", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
   // 🧳 TOURISM 觀光
   // ───────────────────────────────────────────────────────────────
   {
@@ -808,7 +844,6 @@ export const THEMES: ThemeDef[] = [
         title: "玩・人文 Heritage",
         layers: [
           { key: "tourHeritage", label: "文化資產 Heritage", labelMobile: "文化資產", expandable: true },
-          { key: "tourReligion", label: "宗教百景 Religious Sites", labelMobile: "宗教百景", expandable: true },
         ],
       },
       {
@@ -965,6 +1000,13 @@ export const THEMES: ThemeDef[] = [
         title: "雷暴",
         layers: [
           { key: "lightning", label: "落雷 Lightning 60min", expandable: true },
+        ],
+      },
+      {
+        // 山域事故：與「🌲 林業」的步道 / 通訊點 / 山屋 疊圖 = 登山安全敘事
+        title: "山域事故 Mountain Rescue",
+        layers: [
+          { key: "mountainRescueIncidents", label: "山域事故 Mountain Rescue", labelMobile: "山域事故 (2,465)", expandable: true },
         ],
       },
       {
@@ -1263,6 +1305,7 @@ export const THEMES: ThemeDef[] = [
           { key: "forestTrailSigns", label: "步道路標 Trail Signs", expandable: true },
           { key: "forestSignalPoints", label: "通訊點 Signal Points", expandable: true },
           { key: "forestEducationCenters", label: "自然教育中心 Education", expandable: true },
+          { key: "mountainHuts", label: "山屋・高山營地 Mountain Huts", labelMobile: "山屋・營地 (136)", expandable: true },
           { key: "forestDamLakes", label: "堰塞湖 Dam Lakes", expandable: true },
         ],
       },

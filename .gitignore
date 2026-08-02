@@ -98,6 +98,10 @@ public/base_map/*.pmtiles
 public/road/*.pmtiles
 # 都市開放空間 PMTiles（台北行道樹變化 3.1MB，走 S3 deploy-assets/urban/）
 public/urban/*.pmtiles
+
+# 宗教寺廟 PMTiles（19,201 點 -r1 全保留 12.2MB，走 S3 deploy-assets/religion/；
+# 同夾 4 個 GeoJSON + top100 都 <3MB 仍進 git）
+public/religion/temples.pmtiles
 # 環境 raster PMTiles（都市熱島 LST 雙通道值編碼，走 S3 deploy-assets/environment/）
 public/environment/*.pmtiles
 # 警政司法民防 19 dataset（172MB，dev 用 symlink → taipei-gis-analytics/data/processed/police_justice/）

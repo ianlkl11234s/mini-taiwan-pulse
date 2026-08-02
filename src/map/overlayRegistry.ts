@@ -46,6 +46,15 @@ import { canopyGiantDistColorExpr } from "../data/canopyGiantsTypes";
 import { urbanFormGridColorExpr, urbanFormGridOpacityExpr } from "../data/urbanFormGridTypes";
 import { resolveUrbanHeatMode, urbanHeatRasterColor } from "../data/urbanHeatTypes";
 import { urbanZoningColorExpr, URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
+import { nonUrbanZoningColorExpr, nonUrbanZoningCodeFilter } from "../data/nonUrbanZoningTypes";
+import {
+  mountainRescueColorExpr, mountainRescueYearFilter, rescueScaleByPersonsExpr,
+  mountainHutColorExpr,
+} from "../data/mountainSafetyTypes";
+import {
+  deityFamilyColorExpr, ancestralHallColorExpr, registryModeFilter, templeFilter,
+  RELIGION_LAYER_COLORS,
+} from "../data/religionTypes";
 import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
@@ -4158,6 +4167,40 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // 非都市土地使用分區（68,220 面，18 縣市；臺北市・嘉義市全境都市計畫故無資料，正常）。
+  // zone_code 11 碼分色（SSOT = nonUrbanZoningTypes.ts），與上面兩層都計分區同色系對齊。
+  // 面積遠大於都計分區（山坡地保育區 20,246 面覆蓋全台山區）→ fill-opacity 預設壓到 0.35，
+  // 免得疊在都計分區上互相糊掉。分類篩選同 urbanZoning 走 per-layer filter 函式，
+  // 故 rebuildOnParamChange 收 ["fill","line"] 兩 suffix。
+  {
+    id: "nonUrbanZoning",
+    sourceUrl: "./urban/non_urban_zoning.pmtiles",
+    sourceId: "non-urban-zoning",
+    pmtiles: { sourceLayer: "non_urban_zoning", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        paint: (_isDark, p) => ({
+          "fill-color": nonUrbanZoningColorExpr(),
+          "fill-opacity": p?.nonUrbanZoningOpacity ?? 0.35,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        filter: (p) => nonUrbanZoningCodeFilter(p?.nonUrbanZoningCodeIdx ?? 0),
+        paint: (_isDark, p) => ({
+          "line-color": nonUrbanZoningColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 10, 0.3, 15, 1],
+          "line-opacity": (p?.nonUrbanZoningOpacity ?? 0.35) * 0.6,
+        }),
+      },
+    ],
+  },
+
   // ── 🏟️ 運動場館 Sports（靜態 CDN geojson，走 ./sports/）──
   // 5 sublayer 共用 sports-venues source（sourceId 相同 → 只 fetch 一次），靠 config.filter 分 layer 隸屬類。
   // circle：category 27 類 match 分色 + area_sqm log 點大小（NULL fallback 固定半徑）+ open_status="不對外" 淡化。
@@ -4747,6 +4790,34 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-color": "#14532d",
             "circle-stroke-width": 0.6,
             "circle-opacity": params?.forestSignalPointsOpacity ?? 0.85,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 🏔️ 全台山屋與高山營地（GeoJSON 136 點）──
+  // facility_type 4 類分色（SSOT = mountainSafetyTypes.ts）。<1k 點 → UX baseline 半徑 4→8px、
+  // opacity 0.9。⚠️ OSM 來源部分為 ODbL，圖例已標 © OpenStreetMap contributors。
+  {
+    id: "mountainHuts",
+    sourceUrl: "./forestry/mountain_huts.geojson",
+    sourceId: "mountain-huts",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => {
+          const scale = params?.mountainHutsScale ?? 1;
+          const opacity = params?.mountainHutsOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": mountainHutColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1.2],
+            "circle-stroke-opacity": opacity * 0.8,
           };
         },
       },
@@ -5545,6 +5616,70 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-opacity": [
               "*", o, ["coalesce", ["get", "alpha"], 1],
             ],
+          };
+        },
+      },
+    ],
+  },
+
+  // ── ⛰️ 山域意外事故救援案件（GeoJSON 2,465 點，2019-2024）──
+  // cause 17 個原始值 → 9 族分色（SSOT = mountainSafetyTypes.ts）；半徑 ×「出動總人次」4 級倍率；
+  // 有死亡的案件用紅描邊突出。年份篩選走 per-layer filter 函式（同 urbanZoning；idx 0=全部 1..6=單年
+  // → 未選中的點被濾除而非淡化），故 rebuildOnParamChange 收 ["glow","circle"] 兩 suffix
+  // （收參數名會靜默失效，見 .claude/pitfalls/2026-07-16-rebuildonparamchange-suffix-not-param.md）。
+  {
+    id: "mountainRescueIncidents",
+    sourceUrl: "./hazards/mountain_rescue_incidents.geojson",
+    sourceId: "mountain-rescue-incidents",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
+        paint: (_isDark, p) => {
+          const scale = p?.mountainRescueIncidentsScale ?? 1;
+          return {
+            // ⚠️ 人次倍率必須乘在 interpolate 的 stop *內*：["*", interpolate, step] 會讓 ["zoom"]
+            // 不在最外層 → Mapbox 直接拒收整個 layer（2026-08-02 驗收踩到，整層不出現）
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", 6 * scale, rescueScaleByPersonsExpr()],
+              12, ["*", 12 * scale, rescueScaleByPersonsExpr()],
+            ],
+            "circle-blur": 1,
+            "circle-color": mountainRescueColorExpr(),
+            "circle-opacity": (p?.mountainRescueIncidentsOpacity ?? 0.85) * 0.16,
+          };
+        },
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => mountainRescueYearFilter(p?.mountainRescueIncidentsYearIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.mountainRescueIncidentsScale ?? 1;
+          const opacity = p?.mountainRescueIncidentsOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["*", 3 * scale, rescueScaleByPersonsExpr()],
+              12, ["*", 6 * scale, rescueScaleByPersonsExpr()],
+            ],
+            "circle-color": mountainRescueColorExpr(),
+            "circle-opacity": opacity,
+            // 有死亡 → 紅描邊（其餘沿用深/淺底圖對比描邊）
+            "circle-stroke-color": [
+              "case", [">", ["coalesce", ["get", "deaths"], 0], 0], "#ff2d2d",
+              isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
+            ],
+            // 同上：case 要放進 interpolate 的 stop 內，不能包在 interpolate 外
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, ["case", [">", ["coalesce", ["get", "deaths"], 0], 0], 0.8, 0.3],
+              14, ["case", [">", ["coalesce", ["get", "deaths"], 0], 0], 1.8, 1],
+            ],
+            "circle-stroke-opacity": opacity * 0.85,
           };
         },
       },
@@ -8103,21 +8238,154 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // 6. 宗教百景 Religious Sites（100 點，單色，<1k 半徑 4→8）
+  // ── 🛕 宗教 Religion（第 36 主題，2026-08-02）──
+  // temples 走 PMTiles（19,201 點、4.1MB；GeoJSON 版 25MB 太重），其餘 4 層 + 百景走 GeoJSON。
+  // 分色/篩選 SSOT = religionTypes.ts。三層（temples/churches/ancestralHalls）有 in_moi_registry
+  // 雙態 filter；temples 另有 deity_family 9 族 filter（兩個 select 取交集）。
+  // ⚠️ deity_family 是上游 pipeline 算好的欄位——Mapbox match 沒 regex，
+  //    1,950 種 main_deity 不可能在前端歸併（見 taipei-gis-analytics deity_family.py）。
   {
-    id: "tourReligion",
-    sourceUrl: "./tourism/religion_national.geojson",
-    sourceId: "tour-religion",
+    id: "religionTemples",
+    sourceUrl: "./religion/temples.pmtiles",
+    sourceId: "religion-temples",
+    pmtiles: { sourceLayer: "temples", minzoom: 5, maxzoom: 14 },
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => templeFilter(p?.religionTemplesRegistryIdx ?? 0, p?.religionTemplesDeityIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.religionTemplesScale ?? 1;
+          const opacity = p?.religionTemplesOpacity ?? 0.8;
+          return {
+            // 1k~10k 級距的密度 baseline（19k 點）：z6 2.5px → z12 5.5px
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.5 * scale, 12, 5.5 * scale],
+            "circle-color": deityFamilyColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.2, 14, 0.8],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionChurches",
+    sourceUrl: "./religion/churches.geojson",
+    sourceId: "religion-churches",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => registryModeFilter(p?.religionChurchesRegistryIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.religionChurchesScale ?? 1;
+          const opacity = p?.religionChurchesOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": RELIGION_LAYER_COLORS.religionChurches,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionAncestralHalls",
+    sourceUrl: "./religion/ancestral_halls.geojson",
+    sourceId: "religion-ancestral-halls",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        // ⚠️ 本層 in_moi_registry=false 的 96 筆語意是「文資祠堂」不是 OSM（選項標籤另寫）
+        filter: (p) => registryModeFilter(p?.religionAncestralHallsRegistryIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.religionAncestralHallsScale ?? 1;
+          const opacity = p?.religionAncestralHallsOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": ancestralHallColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1.2],
+            "circle-stroke-opacity": opacity * 0.75,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionFoundations",
+    sourceUrl: "./religion/foundations.geojson",
+    sourceId: "religion-foundations",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.religionFoundationsScale ?? 1;
+          const opacity = p?.religionFoundationsOpacity ?? 0.9;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": RELIGION_LAYER_COLORS.religionFoundations,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.4, 14, 1.2],
+            "circle-stroke-opacity": opacity * 0.75,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "religionOtherWorship",
+    sourceUrl: "./religion/other_worship.geojson",
+    sourceId: "religion-other-worship",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, p) => {
+          const scale = p?.religionOtherWorshipScale ?? 1;
+          const opacity = p?.religionOtherWorshipOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": RELIGION_LAYER_COLORS.religionOtherWorship,
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  // 宗教百景（100 點，單色，<1k 半徑 4→8）——2026-08-02 自觀光群搬來並更名（原 tourReligion），
+  // 資料路徑同步改到 ./religion/top100.geojson（上游 religion.top100）
+  {
+    id: "religionTop100",
+    sourceUrl: "./religion/top100.geojson",
+    sourceId: "religion-top100",
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
         suffix: "glow", type: "circle",
         paint: (_isDark, p) => {
-          const scale = p?.tourReligionScale ?? 1;
+          const scale = p?.religionTop100Scale ?? 1;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 7 * scale, 12, 14 * scale],
             "circle-blur": 1,
-            "circle-color": "#7b1fa2",
+            "circle-color": RELIGION_LAYER_COLORS.religionTop100,
             "circle-opacity": 0.12,
           };
         },
@@ -8125,11 +8393,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle", type: "circle",
         paint: (isDark, p) => {
-          const scale = p?.tourReligionScale ?? 1;
-          const opacity = p?.tourReligionOpacity ?? 0.85;
+          const scale = p?.religionTop100Scale ?? 1;
+          const opacity = p?.religionTop100Opacity ?? 0.85;
           return {
             "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
-            "circle-color": "#7b1fa2",
+            "circle-color": RELIGION_LAYER_COLORS.religionTop100,
             "circle-opacity": opacity,
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.55)" : "rgba(255,255,255,0.75)",
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
