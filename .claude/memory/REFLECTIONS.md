@@ -1116,6 +1116,25 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 2. **排查部署先查平台事實再輪詢**：`zeabur deployment list` 一分鐘就能證實「empty commit 沒觸發 build」，比 15 分鐘盲輪詢便宜得多
 3. **stacked PR 要收時先 `gh pr edit <child> --base master` 再 merge+刪 parent branch**——事後 base 被刪的 CLOSED PR 無法重開、也無法改 base，只能重發（#93→#94 的可操作版）
 
+## 2026-07-29~31 地震回放（planning → 3 repo merged）
+
+### What went well
+- **開工前三查全部有回報**：DB 實查（查出 34≠32 起、115053 新事件暴露 town 1 秒漂移 →
+  改寫 RPC 設計）、PMTiles join 鍵驗證（TOWNCODE 7↔8 碼轉換規則 368/368 逐筆驗證後才進工單）、
+  collector 查證（「自動累積」拿到實證與邊界）——三個都是不查就會變 bug 的
+- **契約先鎖再派工**：RPC signature、轉換規則、檔案結構、五步編排全寫進 opus 工單，
+  核心一次到位且 5 條偏離決策全數合理（external clock store / 浮動面板 / popup 拆型）——
+  工單給足脈絡，agent 才做得出「對的偏離」
+- **AskUserQuestion 四題一次拍板**（分層回放/RPC 時機/查上游/圖層歸屬），零來回猜測
+
+### Next-time rules
+1. **handoff「現況」段落開工前必實查**——資料每 15 分鐘在動，兩天前的快照已過期；
+   而且新進的資料往往就是最好的測試案例（115053 一筆就暴露等值 join 缺陷）
+2. **跨表無 FK 時，join 智慧放 DB 端一次做完（resolved key），不讓每個前端消費者
+   自己重算時間窗**（→ 已入 PRINCIPLES）
+3. **同 repo 多 agent 按共用檔分波**：popup 補洞與回放核心都動 types/registry/
+   useMapInteraction → 串行發（等前者落地）；真獨立檔（beachball 純模組）才平行
+
 ## 2026-08-01/02 共機資料 + 航跡圖向量化
 
 ### What went well
