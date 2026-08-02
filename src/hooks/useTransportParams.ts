@@ -25,6 +25,7 @@ import { URBAN_HEAT_MODES } from "../data/urbanHeatTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { MOUNTAIN_RESCUE_YEARS } from "../data/mountainSafetyTypes";
+import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
 export interface SliderConfig {
@@ -298,6 +299,9 @@ export function useTransportParams() {
   // 🗺️ 都市計畫土地使用分區（北市 + 新北）：category select（all / 9 類）+ 透明度
   const [urbanZoningTaipeiOpacity, setUrbanZoningTaipeiOpacity] = useState(0.5);
   const [urbanZoningTaipeiCategory, setUrbanZoningTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
+  // 非都市分區：面積大 → 預設透明度 0.35（都計分區是 0.5）；篩選走 zone_code 11 碼
+  const [nonUrbanZoningOpacity, setNonUrbanZoningOpacity] = useState(0.35);
+  const [nonUrbanZoningCode, setNonUrbanZoningCode] = useState<string>("all");
   const [urbanZoningNewTaipeiOpacity, setUrbanZoningNewTaipeiOpacity] = useState(0.5);
   const [urbanZoningNewTaipeiCategory, setUrbanZoningNewTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
   const [lakesPondsOsmOpacity, setLakesPondsOsmOpacity] = useState(0.5);
@@ -1070,6 +1074,9 @@ export function useTransportParams() {
     urbanZoningTaipeiCategoryIdx: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)].indexOf(urbanZoningTaipeiCategory),
     urbanZoningNewTaipeiOpacity,
     urbanZoningNewTaipeiCategoryIdx: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)].indexOf(urbanZoningNewTaipeiCategory),
+    nonUrbanZoningOpacity,
+    // idx 0=全部，1..11 對應 NON_URBAN_ZONING_CODES（同 urbanZoning*CategoryIdx 慣例）
+    nonUrbanZoningCodeIdx: ["all", ...NON_URBAN_ZONING_CODES.map((c) => c.code)].indexOf(nonUrbanZoningCode),
     crimeAreaMonthlyOpacity,
     theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
@@ -1448,6 +1455,7 @@ export function useTransportParams() {
     propertyValueGridScaleIdx, propertyValueGridModeIdx, propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridExtruded, propertyValueGridElevationScale,
     urbanZoningTaipeiOpacity, urbanZoningTaipeiCategory,
     urbanZoningNewTaipeiOpacity, urbanZoningNewTaipeiCategory,
+    nonUrbanZoningOpacity, nonUrbanZoningCode,
     crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
     trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
     a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
@@ -2731,6 +2739,11 @@ export function useTransportParams() {
       case "urbanZoningTaipei": return [
         { type: "select" as const, label: "分區", value: urbanZoningTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningTaipeiCategory },
         { label: `填色透明度 ${urbanZoningTaipeiOpacity.toFixed(2)}`, value: urbanZoningTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setUrbanZoningTaipeiOpacity },
+      ];
+      case "nonUrbanZoning": return [
+        // 12 個選項（全部 + 11 碼）> 3 → 自動走原生 select（四鐵則 #4）
+        { type: "select" as const, label: "分區", value: nonUrbanZoningCode, options: [{ label: "全部", value: "all" }, ...NON_URBAN_ZONING_CODES.map((c) => ({ label: c.label, value: c.code }))], onChange: setNonUrbanZoningCode },
+        { label: `填色透明度 ${nonUrbanZoningOpacity.toFixed(2)}`, value: nonUrbanZoningOpacity, min: 0, max: 1, step: 0.05, onChange: setNonUrbanZoningOpacity },
       ];
       case "urbanZoningNewTaipei": return [
         { type: "select" as const, label: "分區", value: urbanZoningNewTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningNewTaipeiCategory },

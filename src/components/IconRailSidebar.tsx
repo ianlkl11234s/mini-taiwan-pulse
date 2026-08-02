@@ -208,6 +208,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   urbanFormGrid: LayoutGrid,
   urbanZoningTaipei: LandPlot,
   urbanZoningNewTaipei: Map,
+  nonUrbanZoning: Sprout,
   // 🏟️ 運動場館 Sports
   sportsSchool: GraduationCap,
   sportsPublicOther: Activity,

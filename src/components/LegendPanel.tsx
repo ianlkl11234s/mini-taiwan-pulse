@@ -61,6 +61,7 @@ import {
 } from "../data/urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
+import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
 import {
   SOIL_FERTILITY_METRICS,
@@ -246,6 +247,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
   { keys: ["propertyValueGrid"], render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
   { keys: ["urbanZoningTaipei", "urbanZoningNewTaipei"], render: () => <UrbanZoningLegend /> },
+  { keys: ["nonUrbanZoning"], render: () => <NonUrbanZoningLegend /> },
   { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
   { keys: ["canopyGiants"], render: () => <CanopyGiantsLegend /> },
   { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
@@ -1220,6 +1222,30 @@ function UrbanZoningLegend() {
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>分類 CATEGORY</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {URBAN_ZONING_CATEGORIES.map((c) => <UrbanDotRow key={c.value} color={c.color} label={c.label} />)}
+      </div>
+    </div>
+  );
+}
+
+// 非都市土地使用分區圖例：zone_code 11 碼（色票 SSOT = nonUrbanZoningTypes.ts）。
+// 11 列單欄太長 → 兩欄排版；與都計分區同色系（農業黃綠 / 工業紫 / 保育綠 / 公設藍）。
+function NonUrbanZoningLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        非都市土地使用分區 NON-URBAN
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+        {NON_URBAN_ZONING_CODES.map((c) => (
+          <div key={c.code} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{ width: 8, height: 8, borderRadius: RADIUS.sm, background: c.color, flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+        18 縣市（北市・嘉義市全境都市計畫故無）；與都計分區互補成全國拼圖
       </div>
     </div>
   );

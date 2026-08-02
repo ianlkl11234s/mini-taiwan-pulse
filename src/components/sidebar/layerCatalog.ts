@@ -175,6 +175,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   urbanFormGrid: "#8d9c6b",
   urbanZoningTaipei: "#f2c94c",
   urbanZoningNewTaipei: "#eb5757",
+  nonUrbanZoning: "#a2c14e",
   sportsSchool: "#5c6bc0",
   sportsPublicOther: "#26a69a",
   sportsPrivate: "#ef6c00",
@@ -452,6 +453,8 @@ export const THEMES: ThemeDef[] = [
         layers: [
           { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
           { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
+          // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
+          { key: "nonUrbanZoning", label: "非都市土地使用分區 Non-Urban Zoning", labelMobile: "非都市分區 (68,220)", expandable: true },
         ],
       },
       {
