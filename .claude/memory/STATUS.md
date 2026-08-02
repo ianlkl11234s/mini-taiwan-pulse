@@ -33,6 +33,23 @@
 
 ---
 
+**前次更新**：2026-08-02（收尾 2026-07-29~31 地震回放 session；3 repo 全 merged）
+**mini-taiwan-pulse**：`master` 含地震回放 #98 merge `3498f23`（未 push；後續他 session 共機/monitor commits 疊上）
+**gis-platform**：`main` = `fcfffcb`（#45 mig 324 `earthquake_replay_events` merged；RPC 已 apply production 並以 anon 實打驗證 34 列）
+**taipei-gis-analytics**：`f935e95`（earthquake-replay handoff 修正**已 push**）
+**data-collectors**：地震鏈 collectors 健康零錯誤（本 session 無變更）
+
+## 前次 session（2026-07-29~31）— 地震回放 earthquakeReplay（3 repo 全 merged）
+
+- **pulse PR #98**（merge `3498f23`）：`earthquakeReplay` 圖層——事件清單（34 起，**Tier A 完整五步 / Tier B 測站三步**分層回放）+ scoped 播放器（`earthquakeReplayClock` external store + 自帶 RAF，秒級時鐘不掛全域 timeStore；視覺全是時鐘純函數 → scrub = set 時鐘）；**專案首個行政區 choropleth**（township PMTiles 自建 promoteId source + feature-state，CWA 7 碼→TOWNCODE 8 碼轉換 368/368 逐筆驗證）；沙灘球 strike/dip/rake 自繪 SVG（對 tecdc 官方圖 4/4 方位驗證）；順手補本土 earthquakes click popup（四鐵則現存違規，ripple 圈刻意不做點擊目標）
+- **gis-platform PR #45**（mig 324，先 apply prod 後 merge）：`earthquake_replay_events()` 清單 RPC——**resolved key 模式**（town ±5s / grid ±90s 時間窗封裝 DB 端，前端全等值查詢，詳 PRINCIPLES）；EXPLAIN 全 Index Only Scan 2.7ms / 34 列
+- **analytics `f935e95`（已 push）**：handoff 修正——town origin_time 1 秒漂移（INCIDENTS 2026-07-31）+ 現況兩起完整四件套 + RPC 契約補記
+- **上游查證**（collector 程式碼 + DB 實查）：pipeline 自動累積**已實證**（115053 台東成功零人工、發震後 10~24 分鐘進庫）；上線前事件（115051 雙溪 M5.6）因官方源只留最新快照**永久不可回補**（非深源限制、非 bug）
+- 驗收：tsc 0 / 212 tests 綠（layerConsistency + registry ratchet）/ agent-browser 端到端（楠西五步動畫、scrub 定格、popup、dispose 無殘影）；編排三波 8 agents（調查 3 → 獨立模組 2 平行 → 核心 opus 1，共用檔任務串行防互踩）
+- 待辦：**EQ-1**（7 項，SSOT `docs/features/earthquake-replay/backlog.md`）
+
+---
+
 **前次更新**：2026-07-31（溫度三部曲 PR #92/#94/#96 全 merged + LST pipeline 上線 + migration 322 + S3 上傳；prod 差一次 redeploy）
 **mini-taiwan-pulse head**：`master` = `4e50116`（#96 urbanHeat 疊 #95 市值 `3a55e46`〔他 session〕疊 #94 微感測 `c302f4c` 疊 #92 溫度網格 `8fbcdd7`）
 **gis-platform head**：`main` = `eca0b83`（migration 322 site_name，已 apply production + push）
