@@ -553,3 +553,41 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 | 契約 | 量化參數 / raster-color-mix 係數 | analytics `docs/handoff/urban_heat_lst.md` + `output/urban_heat_lst_encoding.json` |
 
 另：`get_micro_sensors_latest()` 自 2026-07-31（migration 322）起多回 `site_name`；LASS AirBox 實測 ~480 台在線（loader 註解寫 ~500，實際 476-482 浮動）。
+
+## 地震回放 SEISMIC（Supabase live.* → public view，2026-07-31 前端上線 PR #98）
+
+來源：CWA（顯著有感/小區域 + E-A0015-005 鄉鎮震度）+ NCDR EQ1（shakemap）+ 中研院 tecdc
+（moment tensor）；data-collectors 15min cycle（PR #40，2026-07-29 上線）。
+**官方源只留最新一次快照 → 本庫為唯一歷史**；上線前事件的 town/grid 永久缺（不可回補）。
+
+| public view | 量級（2026-07-31 實查） |
+|---|---|
+| `earthquake_events` | 1,083 起（2026-01 起，含 catalog 無感） |
+| `earthquake_station_obs` | 1,172 列 / 34 起（event_id 等值 join） |
+| `earthquake_town_intensity` | 736 列（368 鄉鎮 × 2 起） |
+| `earthquake_shakemap_grid` | 4,377 格/起 × 2 起（有感 partial index `intensity > 0` ~3,300） |
+| `earthquake_moment_tensor` | 5 列（全 R 快解；A 修訂解尚未見過） |
+| `tsunami_alerts` | 80 則（2023 起，**未接前端** → EQ-1） |
+
+RPC：`earthquake_replay_events()`（mig 324）＝ station_count>0 事件清單 + 素材旗標 +
+resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢，
+契約見 `docs/features/earthquake-replay/README.md` §資料契約。
+
+## 共機動態（live schema + S3，2026-08-02 回填完成）
+
+| 資產 | 內容 |
+|---|---|
+| `live.pla_activity_daily` | **729 天零缺日**（2024-08-02 ~ 2026-07-31）。架次 729/729、逾越中線 728、共艦 722、統計窗 728；`raw_text` 全數為乾淨內文（可重解析） |
+| S3 `pla/track_charts/YYYY/MM/{date}.jpg` | 航跡示意圖 **588 天**（向量化原料） |
+| S3 `pla/activity_charts/YYYY/MM/{date}.jpg` | 數字表格圖 **185 天**（僅圖片版時代；該時代數值唯一來源） |
+| RPC | `get_pla_activity_latest()`（最新一筆，⚠️ 無差別 COALESCE 0）／`get_pla_activity_range(p_days)`（近 N 天趨勢，**保留 NULL**，migration 326） |
+| 欄位語意 | `report_date` = 統計窗**起算日**（非發布日）；`crossed_median_line_cnt` = 官方合併語意「逾越中線**及**進入我空域」架次 |
+
+近兩年統計：日均 12.9 架次、總計 9,405 架次、66 天零架次；
+單日最高 **2024-10-14 的 153 架次**（聯合利劍-2024B）、次高 2025-12-29 的 130 架次。
+西南空域最常被進入（527 天）、中部最少（115 天）。
+
+**未接維度**：空飄氣球（2026-02 起通報獨立段落「三、中共空飄氣球活動」，DB 無欄位；
+原文已入庫，加欄位可直接重解析）。
+
+⚠️ **線上 collector 仍是舊版**，每 30 分鐘覆蓋修好的資料（需部署，詳 INCIDENTS 2026-08-02）。

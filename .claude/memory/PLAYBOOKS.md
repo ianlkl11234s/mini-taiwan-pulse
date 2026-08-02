@@ -1515,3 +1515,24 @@ SOP：
 3. **前端接線**（pulse）：overlayRegistry raster config（`pmtiles.minzoom/maxzoom` 對齊實際磚層級，z 超過 = 討不存在的磚）+ `raster-color-mix = [物理斜率×255, …, offset]`（見 PRINCIPLES）+ stop 寫物理值 + `raster-color-range` 用通道完整值域；nodata 靠 source alpha 自動透明
 4. **多模式切換** = 換 mix 通道 + 色帶 + range（零重載）；色票/值域抽 `src/data/xxxTypes.ts` SSOT，layer 與 legend 同源
 5. **驗收**：像素取樣（多點 RGB 彼此相異 + nodata 透明見底圖）+ 拿 canopy 當對照組；大檔 gitignore 走 S3 deploy-assets 三處接線 + upload script glob
+
+## PB-31 圖片型公文轉錄（走訂閱額度、不打 API）
+
+適用：來源機關把內容做成圖片（掃描件 / 版面圖 / 表格圖），網頁無文字可解析。
+2026-08-02 共機通報圖片版時代（~2025-02-02 以前 185 天）實證，185 份全數解析成功、
+中英交叉驗證 0 筆不符。
+
+**核心設計：讓 LLM 只抄字，不判讀數字。**
+LLM 抄寫穩、算數與判斷易錯；把數值交給既有的確定性解析器產生，語意才與文字版一致。
+
+1. **備料**（`scripts/*_ocr_prepare.py`）：從 DB 撈待轉錄清單 → 下載圖到本地
+   （已存在則跳過）→ 切成每批 20–25 張的 JSON 清單
+2. **轉錄**（Claude Code subagent，走訂閱額度）：每個 agent 認領一批，用 Read 看圖，
+   **逐字照抄**成 txt。提示詞要明寫：不改寫、不換算、不推測；看不清寫 `[?]` 不猜
+3. **套用**（`scripts/*_ocr_apply.py`）：轉錄文字 → **既有 regex 解析器** → UPDATE DB
+4. **交叉驗證**：若原件有雙語或重複敘述（如中英對照），比對兩邊數字，
+   不一致標記待複核（`source_lang='zh?'`）而非靜默採用；檔名日期 vs 內文日期不符則跳過（防轉錯圖）
+5. **原文入庫**：轉錄結果寫進 `raw_text`，未來加欄位可直接重解析，不必再看一次圖
+
+**成本**：純轉錄用不到高階模型；主 context 不受影響（subagent 只回一行摘要）。
+**前提**：原件需為印刷體、版型固定；手寫或低品質掃描不適用。

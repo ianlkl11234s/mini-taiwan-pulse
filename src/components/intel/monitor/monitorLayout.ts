@@ -54,12 +54,14 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "triage", x: 7, y: 9, w: 5, h: 3 },
   { i: "situationOverview", x: 0, y: 12, w: 5, h: 5 },
   { i: "liveWall", x: 5, y: 12, w: 7, h: 14 },
-  { i: "situationCards", x: 0, y: 17, w: 5, h: 5 },
-  { i: "erCongestion", x: 0, y: 22, w: 5, h: 15 },
+  // situationCards h 5→6：PlaCard 加 30 日架次趨勢列（2026-08-01 MO-18），
+  // 下方同欄 widget（erCongestion / prison / airportPax）y 各 +1 避免 grid 重疊
+  { i: "situationCards", x: 0, y: 17, w: 5, h: 6 },
+  { i: "erCongestion", x: 0, y: 23, w: 5, h: 15 },
   { i: "hazardStrip", x: 5, y: 26, w: 7, h: 8 },
   { i: "powerCard", x: 5, y: 34, w: 7, h: 14 },
-  { i: "prison", x: 0, y: 37, w: 2, h: 4 },
-  { i: "airportPax", x: 2, y: 37, w: 3, h: 6 },
+  { i: "prison", x: 0, y: 38, w: 2, h: 4 },
+  { i: "airportPax", x: 2, y: 38, w: 3, h: 6 },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */
