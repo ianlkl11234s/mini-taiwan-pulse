@@ -48,6 +48,8 @@ function quarterBounds(ts: number): { start: number; end: number } {
 
 export interface ReTimelineOpts {
   appMode: AppMode;
+  /** 是否有任一房地產 layer 開著。false 時本 hook 不接管歷史播放 */
+  active: boolean;
   gran: ReGran;
   cursorTs: number;
   excludeTaipei: boolean;
@@ -62,7 +64,7 @@ export function useRealEstateTimeline(
   mapRef: React.RefObject<MapboxMap | null>,
   opts: ReTimelineOpts,
 ) {
-  const { appMode, gran, cursorTs, excludeTaipei, baseOpacity, playing, speed, onCursorChange, onStop } = opts;
+  const { appMode, active, gran, cursorTs, excludeTaipei, baseOpacity, playing, speed, onCursorChange, onStop } = opts;
   const cursorRef = useRef(cursorTs);
   if (!playing) cursorRef.current = cursorTs;
 
@@ -112,9 +114,15 @@ export function useRealEstateTimeline(
   }, [mapRef, appMode, gran, cursorTs, excludeTaipei, baseOpacity, playing]);
 
   // 播放引擎（不 depend cursorTs → 不會被自己的 onCursorChange 重啟）
+  //
+  // ⚠️ `active` 這道 guard 不可省：App 那邊的歷史播放 effect 在 realEstateActive
+  // 時會讓位給本引擎，但本引擎過去沒有對應的守門 —— 只要 historical+playing 就跑，
+  // 而游標預設停在 RANGE_END，第一個 tick 就 `nx <= cur` → onStop() 把
+  // historicalPlaying 關掉。症狀是「歷史模式按 ▶ 永遠只前進一格」，
+  // 火災 / 人口 / 共機活動區都中招。
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !playing || appMode !== "historical") return;
+    if (!map || !active || !playing || appMode !== "historical") return;
 
     // 季：interval 逐季 snap
     if (gran === "quarter") {
@@ -169,5 +177,5 @@ export function useRealEstateTimeline(
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef, appMode, gran, excludeTaipei, baseOpacity, playing, speed, onCursorChange, onStop]);
+  }, [mapRef, appMode, active, gran, excludeTaipei, baseOpacity, playing, speed, onCursorChange, onStop]);
 }

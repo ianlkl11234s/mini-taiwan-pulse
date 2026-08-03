@@ -68,6 +68,8 @@ import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
 import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
 import { useWasteCleaningSquadLayer } from "./hooks/useWasteCleaningSquadLayer";
 import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
+import { usePlaActivityLayer } from "./hooks/usePlaActivityLayer";
+import { todayTaiwan } from "./lib/supabase";
 // Energy MVP
 import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
 import { useFossilFuelLayers } from "./hooks/useFossilFuelLayers";
@@ -609,12 +611,18 @@ export default function App() {
     layerVisibility.realEstateRentalGrid || layerVisibility.realEstateRentalPoint ||
     layerVisibility.realEstateSaleGrid || layerVisibility.realEstateSalePoint ||
     layerVisibility.realEstatePresaleGrid || layerVisibility.realEstatePresalePoint;
+  // 民國年。114/115（2025/2026）是為共機活動區加的 —— 人口 104~113、
+  // 火災 111~113 在那兩年沒有資料，但「該年該圖層沒東西」本來就是常態
+  //（例如火災在 104~110 也是空的），不需要為此拆成 per-layer 年份清單。
   const HISTORICAL_YEARS = useMemo(
-    () => [104, 105, 106, 107, 108, 109, 110, 111, 112, 113],
+    () => [104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115],
     [],
   );
   // 火災資料覆蓋範圍（民國 111~113）— 月/日推進的上限
   const FIRE_MAX_YEAR = 113;
+  // 共機活動區已向量化到 115 年（2026）。開著它時月/日推進要能走到 115，
+  // 沒開就維持火災的 113 上限，不改變既有行為。
+  const monthDayMaxYear = layerVisibility.plaActivity ? 115 : FIRE_MAX_YEAR;
 
   // 歷史模式自動播放：依粒度推進年/月/日，到頂暫停
   // （房地產的播放交給 useRealEstateTimeline 的 RAF 引擎，這裡略過）
@@ -638,7 +646,7 @@ export default function App() {
           // roll over to next year, month 1
           let stop = false;
           setHistoricalYear((y) => {
-            if (y >= FIRE_MAX_YEAR) {
+            if (y >= monthDayMaxYear) {
               stop = true;
               return y;
             }
@@ -658,7 +666,7 @@ export default function App() {
           const ny = ad.getFullYear() - 1911;
           const nm = ad.getMonth() + 1;
           const nd = ad.getDate();
-          if (ny > FIRE_MAX_YEAR) {
+          if (ny > monthDayMaxYear) {
             setHistoricalPlaying(false);
             return d;
           }
@@ -669,7 +677,7 @@ export default function App() {
       }
     }, interval);
     return () => window.clearInterval(id);
-  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS, realEstateActive]);
+  }, [appMode, historicalPlaying, historicalSpeed, historicalGranularity, historicalYear, historicalMonth, HISTORICAL_YEARS, monthDayMaxYear, realEstateActive]);
 
   // 切到 historical mode 時，記住既有 layerVisibility 並切到「歷史專屬」可見集合；
   // 切回 realtime 時還原。避免使用者在歷史模式看到大量無法解讀的即時圖層。
@@ -679,13 +687,14 @@ export default function App() {
       if (layerVisBeforeHistoricalRef.current === null) {
         layerVisBeforeHistoricalRef.current = layerVisibilityRef.current;
       }
-      // 全部關掉、預設打開人口
+      // 全部關掉、預設打開人口。共機活動區例外 —— 它本來就是逐日回顧型資料，
+      // 在歷史模式完全可解讀，關掉反而是把使用者剛開的圖層吃掉
       const current = layerVisibilityRef.current;
       const allOff = { ...current };
       for (const k of Object.keys(allOff) as (keyof LayerVisibility)[]) {
         allOff[k] = false;
       }
-      setLayerVisibility({ ...allOff, popCount: true });
+      setLayerVisibility({ ...allOff, popCount: true, plaActivity: current.plaActivity });
     } else {
       const snapshot = layerVisBeforeHistoricalRef.current;
       if (snapshot) {
@@ -701,6 +710,7 @@ export default function App() {
   const stopHistorical = useCallback(() => setHistoricalPlaying(false), []);
   useRealEstateTimeline(mapRef, {
     appMode,
+    active: realEstateActive,
     gran: reGran,
     cursorTs: reCursorTs,
     excludeTaipei: !!transportParams.overlayParams.realEstateExcludeTaipei,
@@ -1139,6 +1149,40 @@ export default function App() {
       safetyAlerts: layerVisibility.safetyAlerts,
     },
     transportParams.daOpacity,
+  );
+
+  // ── 共機活動區（航跡示意圖向量化；依日期回放 + 30/60/90/120 天疊加）──
+  //
+  // 歷史模式走 HistoricalTimeline 的 年/月/日（它不寫 timeStore），所以要把日期
+  // 算成視窗結束日交給圖層；同時停掉圖層自己的回放，避免兩個 clock 互相打架
+  //（歷史時間軸的 ▶ 推進日期 = 疊加視窗往前滑，本身就是一種回放）。
+  const plaHistoricalDate = useMemo(() => {
+    if (appMode !== "historical") return null;
+    const y = historicalYear + 1911;
+    const today = todayTaiwan();
+    const clamp = (d: string) => (d > today ? today : d);
+    const pad = (n: number) => String(n).padStart(2, "0");
+    if (historicalGranularity === "day") {
+      return clamp(`${y}-${pad(historicalMonth)}-${pad(historicalDay)}`);
+    }
+    // 年/月粒度取該區間最後一天（未來日期夾到今天），視窗才涵蓋整段
+    const end =
+      historicalGranularity === "month"
+        ? new Date(y, historicalMonth, 0)
+        : new Date(y, 11, 31);
+    return clamp(
+      `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`,
+    );
+  }, [appMode, historicalYear, historicalMonth, historicalDay, historicalGranularity]);
+
+  usePlaActivityLayer(
+    mapRef,
+    layerVisibility.plaActivity,
+    transportParams.plaOpacity,
+    transportParams.plaShowReview,
+    transportParams.plaTrailDays,
+    appMode === "realtime" && transportParams.plaReplay,
+    plaHistoricalDate,
   );
 
   // ── 衛星圖層（Supabase satellite_classified + SGP4 即時計算） ──
@@ -2141,6 +2185,7 @@ export default function App() {
               onMonthChange={setHistoricalMonth}
               onDayChange={setHistoricalDay}
               onGranularityChange={setHistoricalGranularity}
+              plaActive={layerVisibility.plaActivity}
               reActive={realEstateActive}
               reGran={reGran}
               onReGranChange={(g) => { setReGran(g); if (g === "quarter") setReCursorTs((t) => snapQuarterStart(t)); }}
@@ -2532,6 +2577,7 @@ export default function App() {
                 onMonthChange={setHistoricalMonth}
                 onDayChange={setHistoricalDay}
                 onGranularityChange={setHistoricalGranularity}
+                plaActive={layerVisibility.plaActivity}
               />
             )}
           </div>

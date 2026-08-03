@@ -107,7 +107,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
-  | "newsEvents"
+  | "newsEvents" | "plaActivity"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -662,7 +662,8 @@ export interface FeatureInfo {
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
-    | "activeFault" | "newsEvent" | "disasterAlert" | "roadEvent" | "roadCongestion"
+    | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity"
+    | "roadEvent" | "roadCongestion"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
     | "livestockFarm" | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
     | "aquaculturePonds" | "aquacultureZone" | "aquacultureCageNet"
@@ -809,6 +810,8 @@ export interface LayerVisibility {
   landingStations: boolean;
   activeFaults: boolean;
   newsEvents: boolean;
+  /** 共機活動區（國防部每日航跡示意圖向量化，spatial.pla_tracks · 依日期回放） */
+  plaActivity: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */

@@ -240,3 +240,71 @@ export function ActiveFaultPanel({ props }: { props: Record<string, unknown> }) 
     </>
   );
 }
+
+/**
+ * 共機活動區 popup
+ *
+ * ⚠️ 必標「依國防部示意圖描繪之活動區域，非精確航跡」—— 官方來源本身即為
+ * 示意圖，精度以其為上限。needs_review 的形狀另標「待核實」，不可混為已核實資料。
+ */
+export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const color = String(props.kind_color ?? "#38bdf8");
+  const kindLabel = String(props.kind_label ?? "活動區");
+  const shapeNo = Number(props.shape_no ?? 0);
+  const reportDate = String(props.report_date ?? "");
+  const needsReview = Number(props.needs_review ?? 0) === 1;
+  const balloons = Number(props.balloon_items ?? 0);
+  const chartUrl = String(props.chart_url ?? "");
+  const num = (v: unknown) =>
+    v === null || v === undefined || v === "" ? null : Number(v);
+  // ⚠ null = 該日通報解析失敗，與「0 架次」語意不同 → 顯示「—」而非 0
+  const show = (v: number | null, unit: string) => (v === null ? "—" : `${v} ${unit}`);
+  const sorties = num(props.sorties);
+  const crossed = num(props.crossed_median);
+  const vessels = num(props.plan_vessels);
+  const ships = num(props.official_ships);
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {kindLabel} #{shapeNo}
+        </div>
+        {needsReview && (
+          <div style={{
+            marginLeft: "auto", fontSize: FONT_SIZE.sm, padding: "1px 6px", borderRadius: RADIUS.md,
+            background: "#b45309", color: "#fff", fontWeight: 600,
+          }}>
+            待核實
+          </div>
+        )}
+      </div>
+      <Row label="日期" value={reportDate} />
+      <Row label="共機架次" value={show(sorties, "架次")} />
+      <Row label="逾越中線" value={show(crossed, "架次")} />
+      <Row label="共艦" value={show(vessels, "艘")} />
+      <Row label="公務船" value={show(ships, "艘")} />
+      {balloons > 0 && <Row label="空飄氣球" value={`${balloons} 顆（不繪成活動區）`} />}
+      {chartUrl && (
+        <div style={{ marginTop: 6, fontSize: FONT_SIZE.base }}>
+          <a
+            href={chartUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color, textDecoration: "underline" }}
+          >
+            國防部原始航跡示意圖 ↗
+          </a>
+        </div>
+      )}
+      <div style={{
+        marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textMuted, lineHeight: 1.5,
+      }}>
+        依國防部示意圖描繪之活動區域，非精確航跡。
+        {needsReview && "此形狀未通過自動守門，尚未人工核實。"}
+      </div>
+    </>
+  );
+}

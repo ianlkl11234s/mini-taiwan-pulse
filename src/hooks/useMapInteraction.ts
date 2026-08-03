@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { DISASTER_ALERT_CLICK_LAYERS } from "./useDisasterAlertLayer";
+import { PLA_ACTIVITY_CLICK_LAYERS } from "./usePlaActivityLayer";
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
@@ -365,6 +366,7 @@ export function useMapInteraction(
           { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
           { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
           { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
+          { layers: PLA_ACTIVITY_CLICK_LAYERS, type: "plaActivity" },
           { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
           { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
           { layers: ["aqi-micro-circle"], type: "microSensor" },

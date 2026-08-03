@@ -5,7 +5,7 @@
  */
 import { supabase, supabaseConfigured } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
+import { cachedOnce, cachedByKey, keyedThunkCache } from "../lib/loaderCache";
 
 // TTL：對齊 60s polling interval，讓 IntelPanel + MonitorPanel 同 tick 共享一次 fetch、減輕連線池。
 const TTL_FAST = 55_000;   // 即時值（pressure / market / alertSummary）— 約每次輪詢實打一次
@@ -467,3 +467,171 @@ async function _fetchPublicHealthWeeklyRaw(): Promise<PublicHealthWeek> {
   return { week, diseases };
 }
 export const fetchPublicHealthWeekly = cachedOnce(_fetchPublicHealthWeeklyRaw, TTL_WEEKLY);
+
+/* ────────────────────────────────────────────────────────────
+ * 共機擾台戰情板（migration 332/333）
+ *
+ * ⚠️ 三個一定要照做的語意，違反了畫面就會說謊：
+ *  1. `sorties` / `level` 為 null = 該日通報解析失敗，與「0 架次」完全不同
+ *     （近 120 天有 18 天是真的 0）。圖上必須畫斷點，不可補 0。
+ *  2. 百分位是**相對**的 —— 連續平靜的 120 天會讓中等日子排到高分位。
+ *     顯示分級時必須同時給絕對數字與該級距門檻（summary 提供）。
+ *  3. 機型的 `sortiesExact` 與 `sortiesShared` **不可相加**。混合項次
+ *     「(3 sorties of fighter / UAV)」是兩種合計，拆不開。主指標用 `days`。
+ * ──────────────────────────────────────────────────────────── */
+
+/** 1 平靜 / 2 一般 / 3 偏高 / 4 高 / 5 顯著 */
+export type PlaLevel = 1 | 2 | 3 | 4 | 5;
+
+export const PLA_LEVEL_LABELS: Record<PlaLevel, string> = {
+  1: "平靜", 2: "一般", 3: "偏高", 4: "高", 5: "顯著",
+};
+export const PLA_LEVEL_COLORS: Record<PlaLevel, string> = {
+  1: "#34d399", 2: "#94a3b8", 3: "#fbbf24", 4: "#fb923c", 5: "#ef4444",
+};
+
+export interface PlaSeverityDay {
+  reportDate: string;
+  periodEnd: string | null;
+  sorties: number | null;
+  crossedMedian: number | null;
+  planVessels: number | null;
+  officialShips: number | null;
+  adiz: { north: boolean; central: boolean; southwest: boolean; east: boolean };
+  pctSorties: number | null;
+  pctCrossed: number | null;
+  /** 兩軸皆 ≥ p90 → 分級再升一級 */
+  resonance: boolean;
+  /** null = 該日解析失敗 */
+  level: PlaLevel | null;
+  chartUrl: string | null;
+}
+
+export interface PlaSituationSummary {
+  windowDays: number;
+  dateFrom: string;
+  dateTo: string;
+  daysTotal: number;
+  daysZero: number;
+  daysUnknown: number;
+  daysCrossed: number;
+  sorties: { p50: number; p75: number; p90: number; p97: number; max: number };
+  crossed: { p50: number; p75: number; p90: number; p97: number; max: number };
+  zones: { north: number; central: number; southwest: number; east: number };
+}
+
+export interface PlaKindStat {
+  kind: string;
+  /** 出現天數 —— 唯一精確的彙總指標 */
+  days: number;
+  /** 單一機型項次的架次總和（精確） */
+  sortiesExact: number;
+  /** 混合項次架次（與其他機型共享，**不可**與 exact 相加） */
+  sortiesShared: number;
+  itemsTotal: number;
+  itemsSingle: number;
+}
+
+export const PLA_KIND_LABELS: Record<string, string> = {
+  fighter: "戰機", bomber: "轟炸機", support: "輔戰機",
+  uav: "無人機", helicopter: "直升機", balloon: "空飄氣球",
+};
+
+const num = (v: unknown) => (v === null || v === undefined ? null : Number(v));
+
+async function _fetchPlaSeverityDaily(windowDays: number): Promise<PlaSeverityDay[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    `pla:severity:${windowDays}`,
+    "共機嚴重度",
+    supabase.rpc("get_pla_severity_daily", { p_window: windowDays }),
+  );
+  if (error) {
+    console.warn("[Intel] get_pla_severity_daily failed:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    reportDate: String(r.report_date),
+    periodEnd: (r.period_end as string | null) ?? null,
+    sorties: num(r.sorties),
+    crossedMedian: num(r.crossed_median),
+    planVessels: num(r.plan_vessels),
+    officialShips: num(r.official_ships),
+    adiz: {
+      north: Boolean(r.adiz_north), central: Boolean(r.adiz_central),
+      southwest: Boolean(r.adiz_southwest), east: Boolean(r.adiz_east),
+    },
+    pctSorties: num(r.pct_sorties),
+    pctCrossed: num(r.pct_crossed),
+    resonance: Boolean(r.resonance),
+    level: (num(r.level) as PlaLevel | null) ?? null,
+    chartUrl: (r.chart_url as string | null) ?? null,
+  }));
+}
+
+const severityCache = cachedByKey(
+  (k: string) => _fetchPlaSeverityDaily(Number(k)),
+  TTL_DAILY,
+);
+export function fetchPlaSeverityDaily(windowDays = 120): Promise<PlaSeverityDay[]> {
+  return severityCache(String(windowDays));
+}
+
+async function _fetchPlaSituationSummary(windowDays: number): Promise<PlaSituationSummary | null> {
+  if (!supabaseConfigured) return null;
+  const { data, error } = await withLoading(
+    `pla:summary:${windowDays}`,
+    "共機視窗統計",
+    supabase.rpc("get_pla_situation_summary", { p_window: windowDays }),
+  );
+  if (error) {
+    console.warn("[Intel] get_pla_situation_summary failed:", error.message);
+    return null;
+  }
+  const r = (Array.isArray(data) ? data[0] : data) as Record<string, unknown> | undefined;
+  if (!r) return null;
+  const n = (k: string) => Number(r[k] ?? 0);
+  return {
+    windowDays: n("window_days"),
+    dateFrom: String(r.date_from), dateTo: String(r.date_to),
+    daysTotal: n("days_total"), daysZero: n("days_zero"),
+    daysUnknown: n("days_unknown"), daysCrossed: n("days_crossed"),
+    sorties: { p50: n("sorties_p50"), p75: n("sorties_p75"), p90: n("sorties_p90"), p97: n("sorties_p97"), max: n("sorties_max") },
+    crossed: { p50: n("crossed_p50"), p75: n("crossed_p75"), p90: n("crossed_p90"), p97: n("crossed_p97"), max: n("crossed_max") },
+    zones: { north: n("zone_north"), central: n("zone_central"), southwest: n("zone_southwest"), east: n("zone_east") },
+  };
+}
+
+const summaryCache = cachedByKey(
+  (k: string) => _fetchPlaSituationSummary(Number(k)),
+  TTL_DAILY,
+);
+export function fetchPlaSituationSummary(windowDays = 120): Promise<PlaSituationSummary | null> {
+  return summaryCache(String(windowDays));
+}
+
+async function _fetchPlaKindSummary(windowDays: number): Promise<PlaKindStat[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    `pla:kinds:${windowDays}`,
+    "共機機型",
+    supabase.rpc("get_pla_kind_summary", { p_window: windowDays }),
+  );
+  if (error) {
+    console.warn("[Intel] get_pla_kind_summary failed:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+    kind: String(r.kind),
+    days: Number(r.days ?? 0),
+    sortiesExact: Number(r.sorties_exact ?? 0),
+    sortiesShared: Number(r.sorties_shared ?? 0),
+    itemsTotal: Number(r.items_total ?? 0),
+    itemsSingle: Number(r.items_single ?? 0),
+  }));
+}
+
+const kindCache = cachedByKey((k: string) => _fetchPlaKindSummary(Number(k)), TTL_DAILY);
+export function fetchPlaKindSummary(windowDays = 120): Promise<PlaKindStat[]> {
+  return kindCache(String(windowDays));
+}

@@ -9,6 +9,7 @@ import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
 import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
+import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
@@ -220,6 +221,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
   { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
+  { keys: ["plaActivity"], render: () => <PlaActivityLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
   { keys: ["iotWraStructure"], render: () => <IotStructureLegend /> },
   { keys: ["agriCropSuitability"], render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
@@ -2587,6 +2589,59 @@ function NewsEventsLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         座標 = 鄉鎮代表點（非事件位置）
+      </div>
+    </div>
+  );
+}
+
+// ── PLA Activity Legend（走廊 / 不規則活動區 + 待核實）──
+
+function PlaActivityLegend() {
+  const t = useLegendTheme();
+  const items: { color: string; label: string; dashed?: boolean }[] = [
+    { color: PLA_KIND_COLORS.rect, label: PLA_KIND_LABELS.rect },
+    { color: PLA_KIND_COLORS.poly, label: PLA_KIND_LABELS.poly },
+  ];
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        PLA ACTIVITY
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {items.map((it) => (
+          <div key={it.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 14,
+                height: 9,
+                borderRadius: RADIUS.sm,
+                background: `${it.color}44`,
+                border: `1.5px solid ${it.color}`,
+                flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{it.label}</span>
+          </div>
+        ))}
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <div
+            style={{
+              width: 14,
+              height: 9,
+              borderRadius: RADIUS.sm,
+              background: `${PLA_KIND_COLORS.rect}22`,
+              border: `1.5px dashed ${PLA_KIND_COLORS.rect}`,
+              flexShrink: 0,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>待核實（虛線）</span>
+        </div>
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        多日疊加時舊的較淡、新的較亮；重疊處越深＝該區出現越頻繁
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
+        依國防部示意圖描繪，非精確航跡
       </div>
     </div>
   );
