@@ -1,43 +1,52 @@
 # Status
 
-**最後更新**：2026-08-02（三 repo 分支整理完成：全部已 push、遠端本地一致）
-**mini-taiwan-pulse head**：`feat/market-index-30d`；**5 個 PR 開出待 merge** —— #99 登山安全 / #100 非都市分區 / #101 宗教群 / #102 守門測試（請最後 merge）/ #103 本 branch
-**gis-platform head**：`main`（migration 325-329 **已 merge 進 main 並 push**，`cb24b39`；325/326/327 已 apply production）
-**data-collectors head**：`main`（pla 修復已 merge `1d9e9a3` / PR #41 並 push；**Zeabur 部署狀態待確認**）
-**taipei-gis-analytics head**：`master`（已 push，含兩個座標 bug 修復 `0b52f36`）
+**最後更新**：2026-08-03（共機全鏈上線；**四個 repo 全部 merged 並 push，工作樹乾淨**）
+**mini-taiwan-pulse**：`master` = `b1901fc`（PR #104 merged）
+**gis-platform**：`main`（PR #46 merged；migration **330~333 皆已 apply production**）
+**taipei-gis-analytics**：`master`（PR #33 merged）
+**data-collectors**：`main`（PR #42 merged；pla collector 新版 **2026-08-02 已部署 Zeabur**）
 
-> ⚠️ **最優先**：線上 pla collector 仍是舊版，**每 30 分鐘覆蓋修好的資料**（INCIDENTS 2026-08-02 事件 A）。
-> 回填成果在部署前實質為零。需 owner 操作部署。
+> ✅ 上一個 session 的「最優先待辦」已解決：線上 collector 部署後資料**自行修復**、不需回填
+> （730 天 0 筆舊版截斷）。⚠️ 驗證是否生效不能看 `updated_at`（只在 INSERT 寫入），
+> 要看 `raw_text` 長度 —— INCIDENTS 2026-08-03 事件 A。
 
-## 本 session 完成（2026-08-01/02）
+## 本 session 完成（2026-08-02/03）— 接手 handoff → 四 repo 全 merged
 
-- **台股 30 日趨勢**（MO-17）：Monitor TAIEX 卡片加近 30 交易日走勢（migration 325）。
-  順修 MO-14 —— 查證發現 `value_thousands` **不是成交金額而是成交股數**（對官方 FMTQIK 四交易日 98–99% 吻合），改「萬張」顯示
-- **共機通報回填**（MO-19）：`live.pla_activity_daily` **729 天零缺日**（2024-08-02~2026-07-31），
-  架次覆蓋 100%（原「逾越中線」51 天全空、「中部空域」0 命中）。修 **11 個 bug**（原盤點 3 個）+ 11 單元測試。
-  migration 326/327 加統計窗、航跡圖 URL、圖片版表格圖 URL
-- **圖片版轉錄**（MO-20 前置）：2025-02-02 以前 185 天網頁無文字、數值只在 JPG →
-  8 個 subagent 讀圖抄字（**走訂閱額度不打 API**）→ 既有 regex 解析器算值 → 中英交叉驗證 **0 筆不符**（PB-31）
-- **航跡圖向量化**（PT-0 Phase 0-2）：588 天圖上 S3；配準已驗證；形狀抽取混合法
-  最近 5 天 5/5、2026 全年 **116/181 (69.9%)** 未達上線水準。方法演進與**失敗紀錄**全部落地 analytics
-- **PlaCard 30 天 sparkline**（MO-18）+ 三份檢視頁（資料品質稽核 / 5 天原圖對比 / 2026 逐月逐日）
-- **文件**：`docs/features/pla-activity/handoff.md`（接手入口）、`docs/proposal/pla-activity-layer.md`（圖層規劃）、
-  analytics `docs/topic-research/defense_pla/`（`_status` + 計畫 + 方法論）
+- **collector 部署止血**（MO-19 收尾）：data-collectors PR #41 merge → Zeabur 自動部署。
+  資料自行修復，近 21 天無缺漏
+- **向量化通過率 69.9% → 85.4%**（152/178）：三個改進 ——
+  (a) 表格項次依類型分流（`table_items.py`，tesseract `-l eng`，表格是中英雙語）；
+  (b) **氣球圖徽抑制**（只扣期望數會把「抽太少」換成「抽太多」，兩邊要一起處理）；
+  (c) 已知目標數引導重試（把表格數字當**選擇器**而非調參，加品質門檻擋掉湊數字的方案）
+- **後端 migration 330~333**（皆 apply production + anon 實測）：
+  `spatial.pla_tracks`（348 形狀/164 天）／區間 RPC（疊加＋回放）／嚴重度分級／
+  `live.pla_activity_items`（399 項次/178 天，機型）
+- **pulse 圖層 `plaActivity`**（PR #104）：10 個註冊點；主題「新聞 News」→「**情勢 Situation**」
+  分事件／軍事兩子群；疊加 30/60/90/120 天（舊淡新亮）＋累積回放（只改 Mapbox filter，
+  不重打 RPC）＋歷史模式支援
+- **Monitor 共機戰情板**（`PlaBoard.tsx`，w5 h15 比照 erCongestion）：嚴重度五級（**雙軸百分位
+  ＋共振**）／120 天趨勢／空域方位／侵擾方式四段。`SituationCards` 縮成「公衛 HEALTH BOARD」
+- **順手修掉既有 bug**：`useRealEstateTimeline` 缺 `active` guard →
+  **整個歷史模式的 ▶ 一直只能前進一格**（火災／人口都中招，非本次引入）
+- **排版沙盒 v6** 同步更新（同一 artifact URL）：加 `plaBoard` widget、
+  「現況」preset 逐格對齊 repo 的 `MONITOR_LAYOUT`
 
-## 分支整理（2026-08-02）
+## 資料本質限制（會限制後續能做什麼，先知道）
 
-三 repo 全部收斂：本地未 commit 清零、主幹與遠端一致、已合併分支清除。
-- 刪除已合併分支：本地 21 個（pulse 11 含 4 個 agent worktree / analytics 7 / gis-platform 3）、遠端 17 個
-- pulse 剩 8 個未合併舊分支（byok-chat / monitor-* ×3 / terrain-vector / pmtiles-deploy-routing / drone-a1 / member-auth），
-  抽查確認功能多已在 master（`src/chat/` 15 檔、slope/aspect、CSP header、monitor 19 檔皆在），**待逐一確認後刪除**
-- ⚠️ 例外：`fix-drone-a1` 的 `fossilFuelLoader` lianfeng 那行 master 沒有，需確認是否漏接
+1. **通報原文完全不含機型** —— 只在航跡圖表格裡須 OCR，且**多機型項次是合併計數拆不開**
+   （399 項次中單一機型僅 205）→ 機型主指標只能用「出現天數」
+2. **活動區是依示意圖描繪、非精確航跡** —— 圖層說明／popup／圖例三處標註不得移除
+3. **`pla_tracks` / `pla_activity_items` 都只有 2026 年** → 歷史模式僅民國 115 年有東西
 
 ## 下一步
 
-1. **部署 pla collector**（止血，需 owner）
-2. 向量化改進：表格項次依類型分流（排除空飄氣球等非多邊形項）→ 用已知目標數引導分割
-3. PL-1 圖層上線（4 項待拍板：群組名稱 / 資料範圍 / needs_review 是否入表 / 災害示警是否搬家）
-4. 既有：G013 KHH VM SCP、G016 weather_change key 輪替、MC-1~5 微氣候
+1. **PA-1 全量向量化**（2024-08 起 588 天，~20-30 分鐘）—— 跑完歷史模式才有 113/114 年、
+   機型才能往前延伸。⚠️ 2025 以前版型未驗證，可能要再調
+2. PA-8 兩個解析缺口（演習日 `0600` 硬編碼／「未偵獲共機、艦」漏記 0）—— **owner 已決定先不改**
+3. 戰情板後續：PA-5 時間軸標示有資料的日期、PA-6 回放速度/暫停、PA-7 疊加時 popup 取捨
+4. 既有：G013 KHH VM SCP、G016 weather_change key 輪替、MC-1~5 微氣候、EQ-1
+
+> 全部後續一律看 `docs/features/pla-activity/backlog.md`（PA-1~PA-8），BACKLOG.md 的 PT-0 不再更新。
 
 ---
 
