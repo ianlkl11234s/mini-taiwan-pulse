@@ -1536,3 +1536,33 @@ LLM 抄寫穩、算數與判斷易錯；把數值交給既有的確定性解析�
 
 **成本**：純轉錄用不到高階模型；主 context 不受影響（subagent 只回一行摘要）。
 **前提**：原件需為印刷體、版型固定；手寫或低品質掃描不適用。
+
+## PB-32 跨 repo 四包依序開 PR 並 merge（2026-08-03 定型）
+
+CLAUDE.md 的鐵則是「上游先動、下游後動」，但實務上常見的狀況是**工作已經 commit
+在各 repo 的預設分支上**（開工時就在 main/master）。此時不要直接 push 主幹，
+拉回 feature branch 再開 PR，保留可審核紀錄 —— migration 尤其需要。
+
+**順序**：`taipei-gis-analytics`（pipeline）→ `gis-platform`（migration）
+→ `data-collectors`（collector）→ `mini-taiwan-pulse`（前端 PR）
+
+**已在主幹的 commit 拉回 branch**：
+```bash
+git fetch origin -q
+git switch -c feat/<slug>            # branch 建在目前 HEAD
+git push -u origin feat/<slug>
+gh pr create --base <main|master> --head feat/<slug> --title … --body …
+gh pr checks <n> --watch --interval 20     # 有 CI 的 repo 一定要等
+gh pr merge <n> --rebase --delete-branch   # 多 commit 想保留顆粒度用 rebase
+git switch <main|master> && git pull --ff-only
+git branch -D feat/<slug>
+```
+
+**兩個實測踩到的細節**：
+1. `gh pr merge` 之後 gh 會嘗試更新本地主幹，因為本地主幹仍指著 rebase 前的舊 commit，
+   會噴「無法快轉，中止」。**不是失敗** —— 接 `git switch <main> && git pull --ff-only` 即可。
+2. `git switch <main> -q 2>/dev/null` 若失敗會被吞掉，後面的 `git reset --hard origin/<main>`
+   就落在**錯的 branch** 上。切分支不要吞錯誤訊息。
+
+**merge 策略**：多個獨立 commit（如 migration 一支一個）用 `--rebase` 保留顆粒度；
+單一 feature 的連續演進（圖層 → 疊加 → 歷史模式 → 戰情板）用 `--merge` 保留整段脈絡。
