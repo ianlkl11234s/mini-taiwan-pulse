@@ -573,21 +573,34 @@ RPC：`earthquake_replay_events()`（mig 324）＝ station_count>0 事件清單 
 resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢，
 契約見 `docs/features/earthquake-replay/README.md` §資料契約。
 
-## 共機動態（live schema + S3，2026-08-02 回填完成）
+## 共機動態（live + spatial schema + S3，2026-08-03 前端全上）
 
 | 資產 | 內容 |
 |---|---|
-| `live.pla_activity_daily` | **729 天零缺日**（2024-08-02 ~ 2026-07-31）。架次 729/729、逾越中線 728、共艦 722、統計窗 728；`raw_text` 全數為乾淨內文（可重解析） |
+| `live.pla_activity_daily` | **731 天零缺日**（2024-08-02 起，每日累加）。**架次 0 缺**；逾越中線缺 1、共艦缺 7、統計窗缺 1（成因見 `docs/features/pla-activity/backlog.md` PA-8）。`raw_text` 全數為乾淨內文（可重解析） |
+| `spatial.pla_tracks` | 活動區多邊形 **348 個 / 164 天**（僅 2026）。`shape_kind` rect 走廊／poly 不規則活動區；43 個 `needs_review=true`（守門未過）。migration 330 |
+| `live.pla_activity_items` | 航跡圖表格逐項 **399 項次 / 178 天**（僅 2026）。機型／架次／時段／氣球顆數，OCR 抽取。migration 333 |
 | S3 `pla/track_charts/YYYY/MM/{date}.jpg` | 航跡示意圖 **588 天**（向量化原料） |
 | S3 `pla/activity_charts/YYYY/MM/{date}.jpg` | 數字表格圖 **185 天**（僅圖片版時代；該時代數值唯一來源） |
-| RPC | `get_pla_activity_latest()`（最新一筆，⚠️ 無差別 COALESCE 0）／`get_pla_activity_range(p_days)`（近 N 天趨勢，**保留 NULL**，migration 326） |
+| RPC（8 支） | `get_pla_activity_latest()`（⚠️ 無差別 COALESCE 0）／`_range(p_days)`（趨勢，保留 NULL，mig 326）／`get_pla_tracks_day` `_dates`（mig 330）／`get_pla_tracks_range`（疊加＋回放，回 `days_ago`，mig 331）／`get_pla_severity_daily` `get_pla_situation_summary`（嚴重度，mig 332）／`get_pla_kind_summary`（機型，mig 333） |
 | 欄位語意 | `report_date` = 統計窗**起算日**（非發布日）；`crossed_median_line_cnt` = 官方合併語意「逾越中線**及**進入我空域」架次 |
 
-近兩年統計：日均 12.9 架次、總計 9,405 架次、66 天零架次；
-單日最高 **2024-10-14 的 153 架次**（聯合利劍-2024B）、次高 2025-12-29 的 130 架次。
-西南空域最常被進入（527 天）、中部最少（115 天）。
+近 120 天統計（戰情板基準窗）：架次中位 **5**、p75 10、p90 22、最高 32；
+逾越中線中位 **0**（62 天完全沒越線、18 天真的零架次）。
+空域進入天數：西南 78 / 北 53 / 東 34 / 中 19 —— 西南是常態、中部一動即異常。
+機型出動天數：戰機 73 / 輔戰機 60 / 無人機 57 / 直升機 53 / **轟炸機僅 10**。
 
-**未接維度**：空飄氣球（2026-02 起通報獨立段落「三、中共空飄氣球活動」，DB 無欄位；
-原文已入庫，加欄位可直接重解析）。
+**兩個資料本質限制（不可繞過）**：
+1. **通報原文完全不含機型** —— 只在航跡圖表格裡，須 OCR。且**多機型項次是合併計數拆不開**
+   （`(3 sorties of fighter / UAV)` 是合計 3 架次），399 項次中單一機型僅 205（51%）
+   → 機型的可信主指標是「出現天數」，架次只有單一機型項次可信
+2. **活動區是依示意圖描繪、非精確航跡** —— 官方來源本身即為示意圖，精度以其為上限。
+   圖層說明／popup／圖例三處都標明，改動時不得移除
 
-⚠️ **線上 collector 仍是舊版**，每 30 分鐘覆蓋修好的資料（需部署，詳 INCIDENTS 2026-08-02）。
+**已接維度**：空飄氣球（`pla_activity_items.balloon_count`；2026 年 27 天 52 顆，
+全落在 1~2 月，3 月後為 0）。但 `pla_activity_daily` 仍無氣球欄位。
+
+**覆蓋缺口**：`pla_tracks` / `pla_activity_items` 都只有 2026 年 —— 2024-08~2025 需先跑
+588 天全量向量化（feature backlog PA-1）。歷史模式因此只有民國 115 年有東西。
+
+✅ 線上 collector 已於 2026-08-02 部署新版（data-collectors PR #41），資料自行修復、不需回填。
