@@ -1409,3 +1409,43 @@ handoff 上線時只有楠西一起完整四件套，而 07-26 M5.6（比楠西�
 2026 年 181 張中有 3 張為 794×1115（其餘 720×1040）。原本全部取中位數作共用配準，
 會讓少數派整組錯位。改為**依圖片尺寸分組**各自建立配準；該尺寸全數配準失敗時整組跳過並印警告。
 → 通則：任何「同版型底圖一致」的假設，都要先驗證尺寸/版型分布再套用。
+
+## 2026-08-03 — 共機圖層／戰情板（四事件）
+
+### 事件 A：判斷 collector 部署是否生效，看 `updated_at` 會被騙
+PR #41 merge 觸發 Zeabur 部署後，DB 的 `updated_at` **完全沒變**（仍是部署前的時間戳），
+但 `raw_text` 長度從卡 2000 變成 ~150、`crossed_median_line_cnt` 從 NULL 變成 22 —— 值改了、時間戳沒改。
+
+根因：`updated_at` 欄位只有 `DEFAULT now()`（INSERT 時寫入），UPSERT 的 UPDATE 分支
+沒有更新它。差點據此誤判「部署沒生效」。
+
+→ **驗證部署是否生效，要看「只有新版才會產生的內容特徵」**（此處是 raw_text 長度與
+新欄位是否被填），不要看時間戳。時間戳只證明「有人寫過」，不證明「誰寫的」。
+
+### 事件 B：Supavisor pool 被 `SET ROLE` 毒到（同類第二次）
+驗完 migration 330 的 anon 權限（`psql -c "SET ROLE anon; …"` 沒有 RESET），
+接著 apply 331 直接 `ERROR: permission denied for schema public`。
+
+同類事故 2026-07-24 已寫成 `data-collectors/.claude/pitfalls/2026-07-24-supavisor-session-set-poisoning.md`
+（當時是 `set_session(readonly=True)` 毒到 collector 寫入），**這次換個入口又踩一次**。
+
+解毒：24 條併發連線送 `RESET ROLE`，直到 `SELECT current_user` 全回 postgres。
+根治：一律 `BEGIN; SET LOCAL ROLE anon; …; ROLLBACK;`（→ 已入 PRINCIPLES）。
+
+### 事件 C：`useRealEstateTimeline` 缺 guard → 歷史模式 ▶ 永遠只前進一格
+接共機圖層到歷史模式時發現按播放只跳一格就停。追下去**不是本次引入的 bug**：
+
+`useRealEstateTimeline` 的播放引擎守門只有 `playing && appMode === "historical"`，
+**沒有檢查房地產圖層是否開著**。App 那邊的歷史播放 effect 反而有 `realEstateActive` 讓位邏輯，
+兩邊不對稱。RE 游標預設停在 `RANGE_END`，第一個 interval tick 就 `nx <= cur` → `onStop()`
+→ 把 `historicalPlaying` 關掉。
+
+影響範圍是**整個歷史模式**：火災、人口都中招，只是沒人回報。加 `active` guard 修正。
+→ 通則：兩處程式碼互相「讓位」時，讓位條件必須寫在**兩邊**；只寫一邊 = 另一邊無條件搶走。
+
+### 事件 D：alpha 疊加把 120 天疊圖糊成不透明
+疊 120 天活動區時整塊紫到蓋掉台灣本島。原因是 alpha 疊加為 `1-(1-a)^n`：
+單層 0.22 疊 20 層已達 0.99。第一版直接把單日的 0.22 套上去就爆掉。
+
+修法見 PRINCIPLES「疊圖的單層 alpha 要依疊加層數縮放」。
+→ 這類問題**先算再做**只要 30 秒，先做完再用眼睛調要來回好幾輪。
