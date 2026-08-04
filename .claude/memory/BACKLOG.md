@@ -26,9 +26,11 @@
 | EM-06 | P1 | `/embed` 正式版 | **done** | 145 靜態圖層全可嵌；bundle embed 1.1MB + LegendPanel 787KB（gzip 505KB）vs 主站 4.4MB；**`pk.eyJ` 在 embed chunk 出現 0 次**；底圖落 `public/base_map/`，部署三處零額外接線 |
 | EM-11 | P2 | 底圖改放 R2（選配）+ 每月重抽排程 | open | **目前走 public/base_map/ 已可運作**（沿用既有 S3→容器管線）。改 R2 只需設 `VITE_EMBED_BASEMAP_URL`；R2 egress 免費，高流量時較划算 |
 | EM-12 | P3 | Protomaps 字型／sprite 自託管 | open | 目前指向 `protomaps.github.io`（已加進 CSP）。自託管可去掉最後一個外部依賴 |
-| EM-14 | P2 | **A 類設施圖層走 static-to-cdn**（12 個「其實不會動」的動態層：光電/風機/加油站/充電站…） | open | 做完拿掉 `dynamicData` → **自動進 embed 白名單，embed 端零改動**；主站也順便脫離 DB 併發排隊。⚠️ 會改變主站行為需回歸測試 |
-| EM-15 | P2 | **按需歷史快照** pilot（建議 `plaActivity` 共機） | open | 「文章要哪天就凍結哪天」，**不做** AR-14~16 的全量 per-day 匯出。產 `/embed-snapshots/<layer>/<date>.geojson` 走 CDN → 讀者端 $0 |
-| EM-16 | — | Three.js 圖層（船舶/班機/鐵路/公車）嵌入 | **建議不做** | embed 刻意不掛 Three.js；即時感圖層嵌進靜態文章敘事價值低、移植成本最高。改用「截圖 + 連結」 |
+| EM-14 | P2 | A 類設施圖層可嵌（風機/光電/離岸風場/地熱/充電站/離島電網/北市再生 7 層） | **done** | 發現快照**早就做完了**（`public/static-rpc/` 25 檔），缺的只是 embed 怎麼吃 → `EMBED_CDN_LAYERS` 明確清單 + 通用 `rowsToGeoJSON`。**零主站改動**（不動 `dynamicData` 旗標）。實測 supabase 請求 0 |
+| EM-15 | P2 | 按需歷史快照 pilot（`plaActivity` 共機） | **done** | `scripts/export/export-embed-snapshot.sh <layer> <date>`（psql 直出 GeoJSON）+ `src/embed/snapshotLayers.ts` 單日靜態版 spec + 部署三處接線。實測 2026-07-30 正常、supabase 0 |
+| EM-16 | — | Three.js 圖層（船舶/班機/鐵路/公車）嵌入 | **待討論**（owner 2026-08-04：C 之後再談） | embed 刻意不掛 Three.js；即時感圖層嵌進靜態文章敘事價值低、移植成本最高。替代：截圖 + 連結 |
+| EM-17 | P3 | 補 `get_gas_station_layers` 快照（加油站 5 層才能嵌） | open | loader 已用 `staticRpc` 但 `public/static-rpc/` 無此檔 → 一直靜默 fallback 打 RPC。export 腳本已列該 RPC，需確認 migration 已套用後重跑 |
+| EM-18 | P3 | 更多歷史快照圖層（B 類：`earthquakeReplay` 等） | open | 樣板已成形（EM-15），照 `snapshotLayers.ts` + export 腳本 case 加即可 |
 | EM-13 | P2 | `/embed` 上線驗收：實機 iframe + 行動裝置 + Cloudflare 快取規則 | open | 部署後才能做；底圖 283MB 首次 pull 需留意 Zeabur 啟動時間 |
 | EM-07 | P3 | facade 模式（先縮圖、點擊才載入） | open | 走 MapLibre 後成本已歸零 → **降級為純效能優化** |
 | EM-08 | P3 | 嵌入碼防腐：`layerAliases.ts` + 守門測試 | open | layer key 改名會讓既有文章的地圖全壞且無通知 |
