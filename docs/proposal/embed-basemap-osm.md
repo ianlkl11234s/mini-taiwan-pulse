@@ -85,8 +85,8 @@ Protomaps 的模型是：**整張底圖就是一個靜態檔**，瀏覽器用 HT
 
 | 模組 | 行數 | 對 mapbox-gl 的依賴 | 遷移成本 |
 |---|---|---|---|
-| **`overlayManager.ts`**（199 個圖層的裝載邏輯） | 367 | **只有 3 處，全是 TypeScript 型別**（`overlayManager.ts:1, 134, 197`） | 🟢 換型別即可，執行期零改動 |
-| `overlayRegistry.ts`（199 個圖層定義） | — | 純設定物件 + Mapbox expression | 🟢 MapLibre 相容 |
+| **`overlayManager.ts`**（189 個圖層的裝載邏輯） | 367 | **只有 3 處，全是 TypeScript 型別**（`overlayManager.ts:1, 134, 197`） | 🟢 換型別即可，執行期零改動 |
+| `overlayRegistry.ts`（189 個圖層定義） | — | 純設定物件 + Mapbox expression | 🟢 MapLibre 相容 |
 | `LegendPanel.tsx` | — | 不碰地圖 API | 🟢 直接複用 |
 
 MapLibre 是 mapbox-gl v1 的分支，API **約 95% 相同**，`addSource` / `addLayer` / expression 幾乎照搬。
@@ -110,7 +110,7 @@ MapLibre 是 mapbox-gl v1 的分支，API **約 95% 相同**，`addSource` / `ad
 | | 能否共用 | 說明 |
 |---|---|---|
 | `overlayManager`（367 行，圖層裝載） | ✅ | 只有 3 處型別要泛化 |
-| `overlayRegistry`（199 個圖層定義） | ✅ | 純資料 |
+| `overlayRegistry`（189 個圖層定義） | ✅ | 純資料 |
 | `LegendPanel`（圖例） | ✅ | 不碰地圖 API |
 | `MapView` 那層薄殼（初始化、style 切換、Three.js / isochrone factory 接線） | ❌ | embed 另寫約 150–200 行，且**不需要** Three.js 與各 factory |
 

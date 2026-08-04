@@ -85,7 +85,7 @@ describe("parseUrlState — 圖層安全過濾", () => {
     expect(s.layers).toEqual(["aquaculturePonds"]);
   });
 
-  it("🔒 全部 32 個 gated key 逐一驗證都被擋", () => {
+  it("🔒 每一個 gated key 逐一驗證都被擋（數量隨 GATED_LAYERS 自動增減）", () => {
     for (const key of GATED_LAYERS) {
       const s = parseUrlState(`?${V}&layers=${key}`);
       expect(s.layers, `${key} 不該通過`).toBeUndefined();

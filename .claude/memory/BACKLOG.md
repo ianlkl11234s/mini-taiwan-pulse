@@ -19,10 +19,10 @@
 | EM-10 | **P0** | 🔴 **nginx `location /religion/` 缺閉合括號**（master 既有，非本次引入） | **已修待 merge** | `nginx -t` emerg → **一 redeploy 就整站起不來**。修在 `feat/embeddable-map`；**建議獨立 hotfix 進 master**，不要等本 feature |
 | EM-01 | P1 | 底圖 spike：抽台灣 extract + MapLibre 驗證 | **done** | 台灣 z0–15 = **283 MB**（原估 500MB 偏高）；中文地名完整到「里」層級；owner 驗收通過 |
 | EM-02 | P1 | 解除 iframe 封鎖（nginx.conf） | **done** | 刪 `X-Frame-Options` + 加 enforcing CSP `frame-ancestors *`；Report-Only 那條同步改（否則未來轉正式又擋住）；`nginx -t` 通過 |
-| EM-03 | P1 | `src/lib/urlState.ts` + 接進 App（相機／layers／date） | **done** | 35 測試綠；端到端驗證相機精準命中 + gated 32 層全擋；主站**不支援** `p.*`（見 impl §2） |
+| EM-03 | P1 | `src/lib/urlState.ts` + 接進 App（相機／layers／date） | **done** | 35 測試綠；端到端驗證相機精準命中 + gated 35 層全擋；主站**不支援** `p.*`（見 impl §2） |
 | EM-09 | P1 | 嵌入原型 + 示範文章頁 | **done** | `docs/proposal/embed-prototype/` — 已驗證 iframe 嵌入效果、魚塭疊圖、開關對比 |
 | EM-05 | P1 | `overlayManager` 型別泛化（支援雙引擎） | **done** | 改結構介面（union 會讓每個呼叫點 TS2349）+ `pmtilesSource` 注入點；主站行為零改動；加編譯期斷言守門 |
-| EM-06 | P1 | `/embed` 正式版 | **done** | 154 靜態圖層全可嵌；bundle embed 1.1MB + LegendPanel 787KB（gzip 505KB）vs 主站 4.4MB；**`pk.eyJ` 在 embed chunk 出現 0 次**；底圖落 `public/base_map/`，部署三處零額外接線 |
+| EM-06 | P1 | `/embed` 正式版 | **done** | 145 靜態圖層全可嵌；bundle embed 1.1MB + LegendPanel 787KB（gzip 505KB）vs 主站 4.4MB；**`pk.eyJ` 在 embed chunk 出現 0 次**；底圖落 `public/base_map/`，部署三處零額外接線 |
 | EM-11 | P2 | 底圖改放 R2（選配）+ 每月重抽排程 | open | **目前走 public/base_map/ 已可運作**（沿用既有 S3→容器管線）。改 R2 只需設 `VITE_EMBED_BASEMAP_URL`；R2 egress 免費，高流量時較划算 |
 | EM-12 | P3 | Protomaps 字型／sprite 自託管 | open | 目前指向 `protomaps.github.io`（已加進 CSP）。自託管可去掉最後一個外部依賴 |
 | EM-13 | P2 | `/embed` 上線驗收：實機 iframe + 行動裝置 + Cloudflare 快取規則 | open | 部署後才能做；底圖 283MB 首次 pull 需留意 Zeabur 啟動時間 |

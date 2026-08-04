@@ -61,7 +61,7 @@ lsof -ti:8899,8900 | xargs kill
 
 1. **圖層開關是 demo 專用**：正式 `/embed` 的圖層由網址參數決定，不提供 UI 開關
 2. 原型的樣式是手寫的；正式版要接 `overlayRegistry` + `overlayManager`（見 impl §4-3，`overlayManager` 只有 3 處型別碰 mapbox-gl）
-3. 原型只有魚塭一層；正式版白名單為 154 個靜態圖層扣掉 gated
+3. 原型只有魚塭一層；正式版白名單為 145 個圖層（189 unique id − 44 dynamicData − 35 gated）
 4. 底圖尚未上 R2（等 owner 決定後上傳，見 EM-01 收尾）
 
 ## 踩到的坑

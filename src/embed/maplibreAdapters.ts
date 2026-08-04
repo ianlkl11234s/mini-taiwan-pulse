@@ -5,7 +5,7 @@
  * Mapbox 專有 API，MapLibre 沒有）。MapLibre 這邊改走官方 `pmtiles` 套件的
  * `addProtocol("pmtiles", …)`，source 則是普通的 vector/raster + `pmtiles://` URL。
  *
- * 這是兩個引擎唯一的**實質**差異；其餘圖層邏輯（199 個 overlay 的 source/layer/paint）
+ * 這是兩個引擎唯一的**實質**差異；其餘圖層邏輯（189 個 overlay 的 source/layer/paint）
  * 完全共用 `overlayManager`。
  */
 import maplibregl from "maplibre-gl";

@@ -2,7 +2,7 @@
  * `/embed` — 給文章嵌入用的極簡地圖（EM-06）
  *
  * 與主站的關係：**共用資料與圖層邏輯，不共用地圖引擎與 UI**。
- * - 共用：`overlayRegistry`（199 個圖層定義）、`overlayManager`（source/layer/paint）、`LegendPanel`
+ * - 共用：`overlayRegistry`（189 個圖層定義）、`overlayManager`（source/layer/paint）、`LegendPanel`
  * - 不共用：地圖引擎（這裡是 MapLibre，主站是 mapbox-gl）、`App.tsx` 的 3000 行狀態機
  *
  * 刻意不做的事：
@@ -63,7 +63,7 @@ export function EmbedApp() {
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
 
     const onStyleLoad = () => {
-      // 只註冊「這次真的要顯示」的圖層 —— 不必為 150 個白名單圖層都建 source
+      // 只註冊「這次真的要顯示」的圖層 —— 不必為 145 個白名單圖層都建 source
       const configs = configsFor(layerKeys);
       addAllOverlays(map, configs, isDark, visibility, params, {
         pmtilesSource: maplibrePmtilesSource,
