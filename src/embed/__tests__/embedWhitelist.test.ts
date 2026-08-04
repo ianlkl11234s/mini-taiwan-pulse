@@ -12,7 +12,8 @@ import { describe, it, expect } from "vitest";
 import { existsSync } from "node:fs";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { EMBED_CDN_LAYERS, rowsToGeoJSON } from "../dynamicCdnLayers";
-import { GATED_LAYERS } from "../../components/sidebar/layerCatalog";
+import { SNAPSHOT_KEYS, snapshotUrl } from "../snapshotLayers";
+import { GATED_LAYERS, LAYER_COLORS } from "../../components/sidebar/layerCatalog";
 import { EMBED_ALLOWED, EMBED_ALLOWED_CONFIGS, buildEmbedVisibility, configsFor } from "../embedWhitelist";
 import type { LayerVisibility } from "../../types";
 
@@ -47,15 +48,27 @@ describe("EMBED_ALLOWED 白名單", () => {
     expect(EMBED_ALLOWED.has("aquaculturePonds")).toBe(true);
   });
 
-  it("白名單 = registry 扣掉 gated，動態層僅留 CDN 例外（派生規則本身）", () => {
+  it("白名單 = registry（扣 gated、動態僅留 CDN 例外）+ 快照圖層", () => {
     // 去重：registry 存在「一個 layer id ↔ 多個 config」（propertyValueGrid 的
     // 150m/450m/1.5km 三份 PMTiles 共用同一個 id），EMBED_ALLOWED 是 Set。
-    const expected = new Set(
-      OVERLAY_REGISTRY
+    const expected = new Set<string>([
+      ...OVERLAY_REGISTRY
         .filter((o) => (!o.dynamicData || o.id in EMBED_CDN_LAYERS) && !GATED_LAYERS.has(o.id))
         .map((o) => o.id),
-    );
+      // EM-15：快照圖層不在 registry（主站是專屬 hook 畫的）
+      ...SNAPSHOT_KEYS,
+    ]);
     expect([...EMBED_ALLOWED].sort()).toEqual([...expected].sort());
+  });
+
+  it("🔒 快照圖層清單不得含 gated", () => {
+    const bad = SNAPSHOT_KEYS.filter((k) => GATED_LAYERS.has(k));
+    expect(bad, `快照清單混入 gated：${bad.join(", ")}`).toEqual([]);
+  });
+
+  it("快照圖層都是有效的 layer key（urlState 會依 LAYER_COLORS 驗）", () => {
+    const unknown = SNAPSHOT_KEYS.filter((k) => !(k in LAYER_COLORS));
+    expect(unknown, `不存在於 LAYER_COLORS：${unknown.join(", ")}`).toEqual([]);
   });
 
   it("每個白名單 config 都有 sourceUrl（靜態檔一定要有來源）", () => {
@@ -128,5 +141,11 @@ describe("rowsToGeoJSON（通用 row → GeoJSON）", () => {
   it("undefined 欄位正規化為 null（Mapbox filter 不吃 undefined）", () => {
     const fc = rowsToGeoJSON([{ lon: 121, lat: 25, name: undefined }]);
     expect(fc.features[0]!.properties!.name).toBeNull();
+  });
+});
+
+describe("snapshotUrl", () => {
+  it("組出 /embed-snapshots/<layer>/<date>.geojson", () => {
+    expect(snapshotUrl("plaActivity", "2026-07-30")).toBe("/embed-snapshots/plaActivity/2026-07-30.geojson");
   });
 });

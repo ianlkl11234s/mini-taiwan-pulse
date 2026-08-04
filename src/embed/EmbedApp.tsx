@@ -18,6 +18,7 @@ import { parseUrlState } from "../lib/urlState";
 import { EMBED_ALLOWED, buildEmbedVisibility, configsFor } from "./embedWhitelist";
 import { registerPmtilesProtocolOnce, maplibrePmtilesSource } from "./maplibreAdapters";
 import { EMBED_CDN_LAYERS, fetchCdnLayer } from "./dynamicCdnLayers";
+import { SNAPSHOT_LAYERS, fetchSnapshot } from "./snapshotLayers";
 import { buildBasemapStyle } from "./basemapStyle";
 import {
   addAllOverlays, hydrateOverlayIfNeeded, updateAllOverlayThemes,
@@ -83,6 +84,22 @@ export function EmbedApp() {
           const src = map.getSource(config.sourceId);
           if (src && "setData" in src) (src as maplibregl.GeoJSONSource).setData(fc);
         });
+      }
+
+      // EM-15：歷史快照圖層（主站是專屬 hook 畫的，不在 registry）。
+      // 需要 date= 指定哪一天；沒有 date 或快照不存在都靜默略過。
+      if (url.date) {
+        for (const key of layerKeys) {
+          const spec = SNAPSHOT_LAYERS[key];
+          if (!spec) continue;
+          void fetchSnapshot(key, url.date).then((fc) => {
+            if (!fc || !mapRef.current || map.getSource(spec.sourceId)) return;
+            map.addSource(spec.sourceId, { type: "geojson", data: fc });
+            for (const layer of spec.layers) {
+              if (!map.getLayer(layer.id)) map.addLayer(layer);
+            }
+          });
+        }
       }
 
       updateAllOverlayThemes(map, configs, isDark, params);
