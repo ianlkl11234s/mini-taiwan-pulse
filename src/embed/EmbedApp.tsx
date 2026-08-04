@@ -17,6 +17,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { parseUrlState } from "../lib/urlState";
 import { EMBED_ALLOWED, buildEmbedVisibility, configsFor } from "./embedWhitelist";
 import { registerPmtilesProtocolOnce, maplibrePmtilesSource } from "./maplibreAdapters";
+import { EMBED_CDN_LAYERS, fetchCdnLayer } from "./dynamicCdnLayers";
 import { buildBasemapStyle } from "./basemapStyle";
 import {
   addAllOverlays, hydrateOverlayIfNeeded, updateAllOverlayThemes,
@@ -71,6 +72,19 @@ export function EmbedApp() {
       for (const config of configs) {
         void hydrateOverlayIfNeeded(map, config);   // 靜態 GeoJSON 才會真的 fetch
       }
+
+      // EM-14：`dynamicData` 但已 CDN 化的圖層 —— addOverlay 已用空 FeatureCollection
+      // 建好 source，這裡讀 /static-rpc 快照補上資料（不碰 Supabase）。
+      for (const config of configs) {
+        const rpcName = EMBED_CDN_LAYERS[config.id];
+        if (!rpcName) continue;
+        void fetchCdnLayer(rpcName).then((fc) => {
+          if (!fc || !mapRef.current) return;      // 快照缺失 → 該層靜默留空，不 fallback 打 DB
+          const src = map.getSource(config.sourceId);
+          if (src && "setData" in src) (src as maplibregl.GeoJSONSource).setData(fc);
+        });
+      }
+
       updateAllOverlayThemes(map, configs, isDark, params);
       setReady(true);
     };

@@ -11,10 +11,19 @@
  */
 import { OVERLAY_REGISTRY } from "../map/overlayRegistry";
 import { GATED_LAYERS } from "../components/sidebar/layerCatalog";
+import { EMBED_CDN_LAYERS } from "./dynamicCdnLayers";
 import type { OverlayConfig, LayerVisibility } from "../types";
 
+/**
+ * 例外（EM-14）：標成 `dynamicData` 但資料其實不會動、且已有 CDN 快照的圖層。
+ * 這些走 `/static-rpc/*.json`，同樣不碰 Supabase。**gated 仍然一律排除**。
+ */
+function hasCdnSnapshot(id: keyof LayerVisibility): boolean {
+  return id in EMBED_CDN_LAYERS;
+}
+
 export const EMBED_ALLOWED_CONFIGS: OverlayConfig[] = OVERLAY_REGISTRY.filter(
-  (o) => !o.dynamicData && !GATED_LAYERS.has(o.id),
+  (o) => (!o.dynamicData || hasCdnSnapshot(o.id)) && !GATED_LAYERS.has(o.id),
 );
 
 export const EMBED_ALLOWED: ReadonlySet<string> = new Set(
