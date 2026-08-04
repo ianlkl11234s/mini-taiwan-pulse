@@ -19,6 +19,9 @@ import { EMBED_ALLOWED, buildEmbedVisibility, configsFor } from "./embedWhitelis
 import { registerPmtilesProtocolOnce, maplibrePmtilesSource } from "./maplibreAdapters";
 import { EMBED_CDN_LAYERS, fetchCdnLayer } from "./dynamicCdnLayers";
 import { SNAPSHOT_LAYERS, fetchSnapshot } from "./snapshotLayers";
+import { buildPopupHtml, POPUP_CSS, POPUP_CSS_LIGHT } from "./embedPopup";
+import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
+import type { LayerVisibility } from "../types";
 import { buildBasemapStyle } from "./basemapStyle";
 import {
   addAllOverlays, hydrateOverlayIfNeeded, updateAllOverlayThemes,
@@ -70,12 +73,20 @@ export function EmbedApp() {
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
 
+    // EM-20 popup：layer id → layer key。snapshot 層是非同步加入的，故用外層 Map 累加。
+    const layerIdToKey = new Map<string, keyof LayerVisibility>();
+
     const onStyleLoad = () => {
       // 只註冊「這次真的要顯示」的圖層 —— 不必為 145 個白名單圖層都建 source
       const configs = configsFor(layerKeys);
       addAllOverlays(map, configs, isDark, visibility, params, {
         pmtilesSource: maplibrePmtilesSource,
       });
+      for (const config of configs) {
+        for (const spec of config.layers) {
+          layerIdToKey.set(`${config.sourceId}-${spec.suffix}`, config.id);
+        }
+      }
       for (const config of configs) {
         void hydrateOverlayIfNeeded(map, config);   // 靜態 GeoJSON 才會真的 fetch
       }
@@ -103,6 +114,7 @@ export function EmbedApp() {
             map.addSource(spec.sourceId, { type: "geojson", data: fc });
             for (const layer of spec.layers) {
               if (!map.getLayer(layer.id)) map.addLayer(layer);
+              layerIdToKey.set(layer.id, key);
             }
           });
         }
@@ -112,12 +124,45 @@ export function EmbedApp() {
       setReady(true);
     };
 
+    // EM-20：點擊彈出 popup。主站那套 30 檔／7379 行的客製面板不適合嵌入版
+    // （體積 + 只覆蓋 38 種 layerType），改為通用欄位列表，所有圖層皆可點。
+    const hitLayers = () => [...layerIdToKey.keys()].filter((id) => map.getLayer(id));
+
+    const onClick = (e: maplibregl.MapMouseEvent) => {
+      const ids = hitLayers();
+      if (!ids.length) return;
+      const feats = map.queryRenderedFeatures(e.point, { layers: ids });
+      const f = feats[0];
+      if (!f) return;
+      const key = layerIdToKey.get(f.layer.id);
+      const label = (key ? LAYER_LABELS[key] : undefined) ?? key ?? "";
+      new maplibregl.Popup({ closeButton: true, maxWidth: "280px", offset: 8 })
+        .setLngLat(e.lngLat)
+        .setHTML(buildPopupHtml(label, (f.properties ?? {}) as Record<string, unknown>, isDark))
+        .addTo(map);
+    };
+
+    // 游標提示「這裡可以點」
+    const onMove = (e: maplibregl.MapMouseEvent) => {
+      const ids = hitLayers();
+      const hit = ids.length > 0 && map.queryRenderedFeatures(e.point, { layers: ids }).length > 0;
+      map.getCanvas().style.cursor = hit ? "pointer" : "";
+    };
+
+    map.on("click", onClick);
+    map.on("mousemove", onMove);
+
+    // 診斷用把手（同主站 window.__map 慣例）：方便在 console 查圖層與圖徵
+    (window as unknown as { __embedMap?: maplibregl.Map }).__embedMap = map;
+
     if (map.isStyleLoaded()) onStyleLoad();
     else map.once("style.load", onStyleLoad);
 
     map.on("error", (e) => console.error("[embed]", e?.error ?? e));
 
     return () => {
+      map.off("click", onClick);
+      map.off("mousemove", onMove);
       mapRef.current = null;
       map.remove();
     };
@@ -141,6 +186,7 @@ export function EmbedApp() {
 
   return (
     <div style={{ position: "absolute", inset: 0, background: isDark ? "#0d0f12" : "#f2f4f6" }}>
+      <style>{POPUP_CSS}{isDark ? "" : POPUP_CSS_LIGHT}</style>
       <div ref={containerRef} style={{ position: "absolute", inset: 0 }} />
 
       {/* 連回完整站台 */}
