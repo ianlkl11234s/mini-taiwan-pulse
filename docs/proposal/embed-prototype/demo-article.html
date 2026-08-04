@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>示範：一篇嵌了 Mini Taiwan Pulse 的文章</title>
+<style>
+  :root { --ink:#1a1d21; --dim:#5b636b; --line:#e3e6ea; --accent:#0f7c8a; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:#fbfbfc; color:var(--ink);
+    font-family: -apple-system, "Noto Serif TC", Georgia, serif;
+    line-height:1.85; font-size:17px;
+  }
+  .wrap { max-width:720px; margin:0 auto; padding:56px 20px 96px; }
+  .kicker { font-family:system-ui, sans-serif; font-size:12px; letter-spacing:2px;
+            color:var(--accent); font-weight:700; }
+  h1 { font-size:34px; line-height:1.3; margin:10px 0 14px; letter-spacing:-.4px; }
+  .byline { font-family:system-ui, sans-serif; font-size:13px; color:var(--dim);
+            padding-bottom:22px; border-bottom:1px solid var(--line); margin-bottom:30px; }
+  p { margin:0 0 20px; }
+
+  /* ── 這就是「嵌入區塊」，等同你在文章 CMS 貼一段 iframe ── */
+  figure.embed { margin:34px 0; }
+  figure.embed .frame {
+    position:relative; width:100%; aspect-ratio: 16/10;
+    border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    box-shadow:0 2px 14px rgba(20,25,32,.08); background:#0d0f12;
+  }
+  @media (max-width:640px) { figure.embed .frame { aspect-ratio: 4/5; } }
+  figure.embed iframe { width:100%; height:100%; border:0; display:block; }
+  figcaption { font-family:system-ui, sans-serif; font-size:13px; color:var(--dim);
+               margin-top:9px; line-height:1.6; }
+
+  .note { font-family:system-ui, sans-serif; font-size:13.5px; background:#f2f7f8;
+          border-left:3px solid var(--accent); padding:14px 16px; border-radius:0 6px 6px 0;
+          color:#2c3338; margin:30px 0; }
+  .note b { color:var(--accent); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px;
+         background:#eef1f4; padding:1.5px 5px; border-radius:4px; }
+  pre { background:#1e2228; color:#dfe6ee; padding:14px 16px; border-radius:8px;
+        overflow-x:auto; font-size:12.5px; line-height:1.7;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  pre .a { color:#7ee0ef; }
+  h2 { font-size:22px; margin:38px 0 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">示範文章</div>
+  <h1>七股的魚塭，是怎麼把海岸線畫成一格一格的</h1>
+  <div class="byline">2026-08-04 · 這是一篇假文章，用來示範地圖嵌入的效果</div>
+
+  <p>
+    從空中看臺南七股，最先認出來的不是聚落也不是道路，而是那一格一格、邊界筆直的水面。
+    那是魚塭——把潟湖與鹽田的舊地景重新切割之後留下的形狀。
+  </p>
+
+  <p>
+    下面這張地圖不是截圖，是<strong>活的</strong>：你可以拖曳、縮放，
+    左上角的開關可以把魚塭圖層關掉，直接對比「有疊圖層」和「只有底圖」的差別。
+  </p>
+
+  <figure class="embed">
+    <div class="frame">
+      <iframe
+        src="http://localhost:8900/embed-proto.html?v=1&lng=120.13&lat=23.09&z=11.2&layers=aquaculturePonds"
+        title="臺南七股魚塭分布 — Mini Taiwan Pulse"
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        allowfullscreen></iframe>
+    </div>
+    <figcaption>
+      臺南七股一帶的養殖魚塭分布（青色）。底圖 © OpenStreetMap，
+      魚塭範圍取自 OSM 養殖池標註。拖曳可移動，右上角可開啟完整站台。
+    </figcaption>
+  </figure>
+
+  <p>
+    關掉圖層之後會發現，底圖本身其實已經把水域畫出來了，但它不區分「這片水是潟湖還是魚塭」。
+    疊上養殖池的範圍，那種人為切割的規則感才會浮出來——這正是把資料疊在底圖上的意義。
+  </p>
+
+  <h2>這篇文章實際上只貼了這段</h2>
+
+  <p>
+    嵌入一張特化地圖需要的全部程式碼就是下面這段，其中<span class="a"></span>
+    <code>lng</code> / <code>lat</code> / <code>z</code> 決定鏡頭，
+    <code>layers</code> 決定開哪些圖層：
+  </p>
+
+<pre>&lt;iframe
+  src="https://mini-taiwan-pulse.itsmigu.com/embed<span class="a">?v=1&amp;lng=120.13&amp;lat=23.09&amp;z=11.2&amp;layers=aquaculturePonds</span>"
+  width="100%" height="480" style="border:0;border-radius:10px"
+  loading="lazy" title="臺南七股魚塭分布"&gt;&lt;/iframe&gt;</pre>
+
+  <div class="note">
+    <b>目前是原型</b>：地圖與圖磚都跑在你本機（<code>localhost:8900</code> / <code>8899</code>）。
+    正式版會換成 <code>mini-taiwan-pulse.itsmigu.com/embed</code>，底圖檔放 Cloudflare R2。
+    這個原型用的是 <b>MapLibre + Protomaps 底圖</b>，完全不經過 Mapbox，
+    所以不論這篇文章被讀幾次都<b>不產生 Mapbox 費用</b>。
+  </div>
+
+  <p>
+    下面再放一段文字，只是為了讓你看到嵌入區塊夾在段落之間的排版效果，
+    以及捲動時 iframe 的行為是否自然。
+  </p>
+
+  <p>
+    七股潟湖俗稱「內海仔」，是台江內海遺留的最後一段。魚塭的分布緊貼著潟湖外緣，
+    形成一條寬度不一的帶狀養殖區——在上面的地圖裡放大到 z13 以上，可以看清楚每一口塭的形狀。
+  </p>
+
+</div>
+</body>
+</html>

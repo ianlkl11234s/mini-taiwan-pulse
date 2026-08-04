@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mini Taiwan Pulse — 嵌入版原型</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" />
+<style>
+  html,body { margin:0; height:100%; background:#0d0f12; font-family: system-ui, -apple-system, "Noto Sans TC", sans-serif; }
+  #map { position:absolute; inset:0; }
+
+  /* 出處標示：法律義務，不可被參數關閉 */
+  #attrib {
+    position:absolute; right:0; bottom:0; z-index:5;
+    background:rgba(0,0,0,.62); color:#c9d1d9; font-size:11px;
+    padding:3px 7px; border-top-left-radius:5px; letter-spacing:.2px;
+  }
+  #attrib a { color:#8ab4f8; text-decoration:none; }
+
+  /* 連回主站 */
+  #openfull {
+    position:absolute; right:8px; top:8px; z-index:5;
+    background:rgba(12,16,22,.82); color:#e6edf3; border:1px solid rgba(255,255,255,.16);
+    border-radius:6px; padding:5px 10px; font-size:12px; text-decoration:none;
+    backdrop-filter: blur(6px);
+  }
+  #openfull:hover { background:rgba(30,40,52,.92); }
+
+  /* 圖例（四鐵則之一） */
+  #legend {
+    position:absolute; left:8px; bottom:8px; z-index:5;
+    background:rgba(12,16,22,.82); color:#e6edf3; border:1px solid rgba(255,255,255,.14);
+    border-radius:6px; padding:7px 10px; font-size:12px; backdrop-filter: blur(6px);
+  }
+  #legend .row { display:flex; align-items:center; gap:7px; }
+  #legend .sw { width:13px; height:13px; border-radius:3px; background:#26c6da; opacity:.75;
+                border:1px solid #26c6da; }
+
+  /* ⚠️ demo 專用：正式 /embed 沒有這顆，圖層由網址參數決定 */
+  #demoToggle {
+    position:absolute; left:8px; top:8px; z-index:6;
+    background:rgba(12,16,22,.86); border:1px solid rgba(255,255,255,.18);
+    border-radius:6px; padding:7px 9px; font-size:12px; color:#e6edf3;
+    backdrop-filter: blur(6px);
+  }
+  #demoToggle label { display:flex; align-items:center; gap:7px; cursor:pointer; }
+  #demoToggle .tag { display:block; margin-top:5px; font-size:10px; color:#7d8590; }
+  #demoToggle input { accent-color:#26c6da; width:15px; height:15px; cursor:pointer; }
+  #count { color:#26c6da; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="demoToggle">
+  <label><input type="checkbox" id="pondsChk" checked /> 魚塭圖層 <span id="count"></span></label>
+  <span class="tag">▲ 對比用開關（正式嵌入版由網址參數決定，不會有這顆）</span>
+</div>
+
+<a id="openfull" href="#" target="_blank" rel="noopener">在 Mini Taiwan Pulse 開啟 ↗</a>
+
+<div id="legend">
+  <div class="row"><span class="sw"></span><span>養殖魚塭（OSM）</span></div>
+</div>
+
+<div id="attrib">
+  © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> ·
+  資料：OSM 養殖池 · Mini Taiwan Pulse
+</div>
+
+<script type="module">
+import maplibregl from "https://esm.sh/maplibre-gl@5.6.0";
+import { layers, namedFlavor } from "https://esm.sh/@protomaps/basemaps@5.7.2";
+
+window.__errs = [];
+window.addEventListener("error", (e) => window.__errs.push(`window: ${e.message}`));
+window.addEventListener("unhandledrejection", (e) => window.__errs.push(`promise: ${e.reason}`));
+
+const TILES_BASE = "http://localhost:8899";
+const q = new URLSearchParams(location.search);
+// ⚠️ Number(null) === 0 且 isFinite(0) 為真 —— 缺參數時會回 0 而不是預設值，必須先判 null
+const num = (k, d) => {
+  const raw = q.get(k);
+  if (raw == null || raw.trim() === "") return d;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : d;
+};
+
+const isDark  = q.get("theme") !== "light";
+const wantPonds = (q.get("layers") ?? "aquaculturePonds").split(",").includes("aquaculturePonds");
+
+const style = {
+  version: 8,
+  glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+  sprite: `https://protomaps.github.io/basemaps-assets/sprites/v4/${isDark ? "dark" : "light"}`,
+  sources: {
+    protomaps: {
+      type: "vector", minzoom: 0, maxzoom: 15,
+      tiles: [`${TILES_BASE}/taiwan-basemap-z15/{z}/{x}/{y}.mvt`],
+    },
+    ponds: {
+      // 與正式站同一份資料：public/fishery/aquaculture_ponds_osm.pmtiles
+      type: "vector", minzoom: 5, maxzoom: 14,
+      tiles: [`${TILES_BASE}/aquaculture_ponds_osm/{z}/{x}/{y}.mvt`],
+    },
+  },
+  layers: [
+    ...layers("protomaps", namedFlavor(isDark ? "dark" : "light"), { lang: "zh-Hant" }),
+    // 樣式與 overlayRegistry.ts:3479 的 aquaculturePonds 一致（#26c6da / fill+line / minzoom 9）
+    {
+      id: "aquaculture-ponds-fill", type: "fill", source: "ponds",
+      "source-layer": "aquaculture_ponds_osm", minzoom: 9,
+      layout: { visibility: wantPonds ? "visible" : "none" },
+      paint: { "fill-color": "#26c6da", "fill-opacity": num("p.aquaculturePondsOpacity", 0.5) },
+    },
+    {
+      id: "aquaculture-ponds-line", type: "line", source: "ponds",
+      "source-layer": "aquaculture_ponds_osm", minzoom: 9,
+      layout: { visibility: wantPonds ? "visible" : "none" },
+      paint: { "line-color": "#26c6da", "line-width": 0.5, "line-opacity": 0.6 },
+    },
+  ],
+};
+
+const map = new maplibregl.Map({
+  container: "map",
+  style,
+  center: [num("lng", 120.13), num("lat", 23.09)],
+  zoom: num("z", 11.2),
+  pitch: num("pitch", 0),
+  bearing: num("bearing", 0),
+  attributionControl: false,
+});
+map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+
+// 連回主站（帶同一組參數）
+const full = new URL("https://mini-taiwan-pulse.itsmigu.com/");
+full.search = new URLSearchParams({
+  v: "1", lng: String(num("lng", 120.13)), lat: String(num("lat", 23.09)),
+  z: String(num("z", 11.2)), layers: "aquaculturePonds",
+}).toString();
+document.getElementById("openfull").href = full.toString();
+
+// demo 開關 + 計數（讓「有沒有疊上去」一眼可辨）
+const chk = document.getElementById("pondsChk");
+const countEl = document.getElementById("count");
+chk.checked = wantPonds;
+
+function setPonds(on) {
+  for (const id of ["aquaculture-ponds-fill", "aquaculture-ponds-line"]) {
+    map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+  }
+  updateCount();
+}
+function updateCount() {
+  if (!map.isStyleLoaded()) return;
+  if (!chk.checked) { countEl.textContent = "（已關閉）"; return; }
+  if (map.getZoom() < 9) { countEl.textContent = "（放大到 z9 以上才顯示）"; return; }
+  const n = map.queryRenderedFeatures({ layers: ["aquaculture-ponds-fill"] }).length;
+  countEl.textContent = `畫面內 ${n} 口`;
+}
+
+chk.addEventListener("change", () => setPonds(chk.checked));
+map.on("idle", updateCount);
+map.on("error", (e) => {
+  const msg = (e && e.error && e.error.message) || String(e);
+  window.__errs.push(`maplibre: ${msg}`);
+  console.error("[maplibre]", e && e.error);
+});
+window.__m = map;   // 診斷用
+</script>
+</body>
+</html>

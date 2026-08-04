@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Protomaps 台灣底圖 spike</title>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.6.0/dist/maplibre-gl.css" />
+<style>
+  body { margin:0; font-family: system-ui, sans-serif; background:#111; }
+  #map { position:absolute; inset:0; }
+  #hud { position:absolute; z-index:10; top:8px; left:8px; background:rgba(0,0,0,.72);
+         color:#eee; padding:8px 12px; border-radius:6px; font-size:13px; line-height:1.7; }
+  #hud b { color:#4fc3f7; }
+  button { background:#222; color:#eee; border:1px solid #555; border-radius:4px;
+           padding:3px 8px; margin-right:4px; cursor:pointer; font-size:12px; }
+  button:hover { background:#333; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="hud">
+  <div><b>Protomaps 台灣底圖</b> — z0-15 / 283 MB / OSM</div>
+  <div id="pos"></div>
+  <div style="margin-top:6px">
+    <button onclick="go(121.5654,25.0330,13)">台北</button>
+    <button onclick="go(120.2013,22.9908,12)">臺南魚塭</button>
+    <button onclick="go(120.6736,24.1477,13)">臺中</button>
+    <button onclick="go(121.0,23.7,8)">全台</button>
+    <button onclick="toggleTheme()">明/暗</button>
+  </div>
+</div>
+
+<script type="module">
+import maplibregl from "https://esm.sh/maplibre-gl@5.6.0";
+import * as pmtiles from "https://esm.sh/pmtiles@4.4.1";
+import { layers, namedFlavor } from "https://esm.sh/@protomaps/basemaps@5.7.2";
+
+const protocol = new pmtiles.Protocol();
+maplibregl.addProtocol("pmtiles", protocol.tile);
+
+// pmtiles serve 提供 z/x/y proxy，直接當一般 vector source 用
+const TILES = "http://localhost:8899/taiwan-basemap-z15/{z}/{x}/{y}.mvt";
+let dark = true;
+
+function styleOf(isDark) {
+  return {
+    version: 8,
+    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    sprite: `https://protomaps.github.io/basemaps-assets/sprites/v4/${isDark ? "dark" : "light"}`,
+    sources: {
+      protomaps: {
+        type: "vector", tiles: [TILES], minzoom: 0, maxzoom: 15,
+        attribution: "© OpenStreetMap",
+      },
+    },
+    layers: layers("protomaps", namedFlavor(isDark ? "dark" : "light"), { lang: "zh-Hant" }),
+  };
+}
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: styleOf(dark),
+  center: [120.2013, 22.9908],
+  zoom: 12,
+  hash: true,
+});
+map.addControl(new maplibregl.NavigationControl());
+
+window.go = (lng, lat, z) => map.flyTo({ center: [lng, lat], zoom: z, duration: 900 });
+window.toggleTheme = () => { dark = !dark; map.setStyle(styleOf(dark)); };
+
+const pos = document.getElementById("pos");
+const upd = () => {
+  const c = map.getCenter();
+  pos.textContent = `${c.lng.toFixed(4)}, ${c.lat.toFixed(4)} @ z${map.getZoom().toFixed(1)}`;
+};
+map.on("move", upd); map.on("load", upd);
+map.on("error", (e) => console.error("[maplibre]", e && e.error));
+</script>
+</body>
+</html>
