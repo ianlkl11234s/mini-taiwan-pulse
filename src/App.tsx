@@ -144,6 +144,7 @@ import { useRealEstatePointsLayer } from "./hooks/useRealEstatePointsLayer";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
+import { parseUrlState, type UrlState } from "./lib/urlState";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { UserAvatar } from "./components/auth/UserAvatar";
@@ -174,6 +175,11 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
 }
 
 export default function App() {
+  // EM-03 深連結：mount 時解析一次即凍結。**刻意用 ref 不用 state** ——
+  // URL 只是「初始畫面」，之後使用者的操作才是真實狀態；若讓它進 deps
+  // 會在每次操作後把鏡頭拉回網址指定的位置。
+  const urlStateRef = useRef<UrlState>(parseUrlState(window.location.search));
+
   // layer visibility 必須早於動態資料 hook 宣告：供 boot lazy gating（圖層關 → 不抓資料）
   const { layerVisibility, layerVisibilityRef, setLayerVisibility, toggleVisibility } = useLayerVisibility();
 
@@ -1360,10 +1366,20 @@ export default function App() {
 
   // ── Derived values ──
 
-  const preset = useMemo(
-    () => getPresetById(selectedAirport) ?? DEFAULT_CAMERA,
-    [selectedAirport],
-  );
+  const preset = useMemo(() => {
+    // EM-03：網址帶相機時作為「初始視角」。selectedAirport 一旦被選（地點選單／chat 跳點）
+    // 就交還既有邏輯，因此使用者操作永遠優先於網址。
+    const urlCam = urlStateRef.current.camera;
+    if (urlCam && !selectedAirport) {
+      return {
+        ...DEFAULT_CAMERA,
+        id: "url", name: "URL", category: "city" as const,
+        center: urlCam.center, zoom: urlCam.zoom,
+        pitch: urlCam.pitch, bearing: urlCam.bearing,
+      };
+    }
+    return getPresetById(selectedAirport) ?? DEFAULT_CAMERA;
+  }, [selectedAirport]);
 
   const styleUrl = useMemo(() => getStyleUrl(mapStyleId), [mapStyleId]);
 
@@ -1740,6 +1756,22 @@ export default function App() {
       }
     }
   }, [timelineSeek, timelineSetSpeed, timelinePlay, setLayerVisibility]);
+
+  // EM-03 深連結：套用網址指定的圖層與日期。**只跑一次**（deps 空陣列）——
+  // 相機走 preset 那條路，這裡只處理 setter 型的狀態。
+  // 走 handleBulkSetVisibility 而非直接 setLayerVisibility，是為了沿用其 gated 攔截與 session 記錄。
+  const urlStateAppliedRef = useRef(false);
+  useEffect(() => {
+    if (urlStateAppliedRef.current) return;
+    urlStateAppliedRef.current = true;
+    const { layers, date } = urlStateRef.current;
+    if (layers?.length) handleBulkSetVisibility(layers, true);
+    if (date) {
+      // 台北時區當日 00:00（timelineSeek 收 unix 秒，同 handleLocationJump 的 p.time）
+      const ts = Date.parse(`${date}T00:00:00+08:00`);
+      if (Number.isFinite(ts)) timelineSeek(Math.floor(ts / 1000));
+    }
+  }, [handleBulkSetVisibility, timelineSeek]);
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
