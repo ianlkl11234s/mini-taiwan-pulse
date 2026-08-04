@@ -152,6 +152,33 @@ describe("parseUrlState — 其他欄位", () => {
   });
 });
 
+describe("parseUrlState — style / hour（分享主站畫面用）", () => {
+  it("style 接受合法 id", () => {
+    expect(parseUrlState(`?${V}&style=satellite`).style).toBe("satellite");
+    expect(parseUrlState(`?${V}&style=satellite-streets`).style).toBe("satellite-streets");
+    expect(parseUrlState(`?${V}&style=nav-night`).style).toBe("nav-night");
+  });
+
+  it("style 格式不合被 drop（消費端 getStyleUrl 另有 fallback）", () => {
+    expect(parseUrlState(`?${V}&style=../../etc/passwd`).style).toBeUndefined();
+    expect(parseUrlState(`?${V}&style=<script>`).style).toBeUndefined();
+    expect(parseUrlState(`?${V}&style=` + "x".repeat(40)).style).toBeUndefined();
+  });
+
+  it("h 只收 0–23 整數", () => {
+    expect(parseUrlState(`?${V}&h=14`).hour).toBe(14);
+    expect(parseUrlState(`?${V}&h=0`).hour).toBe(0);
+    expect(parseUrlState(`?${V}&h=23`).hour).toBe(23);
+    expect(parseUrlState(`?${V}&h=24`).hour).toBeUndefined();
+    expect(parseUrlState(`?${V}&h=-1`).hour).toBeUndefined();
+    expect(parseUrlState(`?${V}&h=abc`).hour).toBeUndefined();
+  });
+
+  it("h 小數無條件捨去（12.9 → 12）", () => {
+    expect(parseUrlState(`?${V}&h=12.9`).hour).toBe(12);
+  });
+});
+
 describe("buildUrl", () => {
   it("空 state 產出乾淨的版本化網址", () => {
     expect(buildUrl({}, "https://example.com/embed")).toBe(`https://example.com/embed?${V}`);
@@ -176,6 +203,8 @@ describe("buildUrl", () => {
       layers: ["aquaculturePonds", "aquacultureZone"] as (keyof LayerVisibility)[],
       params: { aquaculturePondsOpacity: 0.85 },
       date: "2026-07-15",
+      hour: 14,
+      style: "satellite",
       theme: "dark" as const,
       ui: ["legend"],
     };
@@ -192,5 +221,24 @@ describe("buildUrl", () => {
     const c = parseUrlState(new URL(url).search).camera!;
     expect(c.center).toEqual([120.1235, 23.9877]);
     expect(c.zoom).toBe(11.23);
+  });
+});
+
+describe("網址長度（十幾個圖層會不會太長）", () => {
+  it("20 個最長 layer key 仍遠低於 2000 字元的實務安全線", () => {
+    const longest = Object.keys(LAYER_COLORS)
+      .sort((a, b) => b.length - a.length)
+      .slice(0, 20) as (keyof LayerVisibility)[];
+    const url = buildUrl(
+      {
+        camera: { center: [120.13, 23.09], zoom: 11.2, pitch: 0, bearing: 0 },
+        layers: longest,
+        date: "2026-07-30",
+        hour: 14,
+        style: "satellite",
+      },
+      "https://mini-taiwan-pulse.itsmigu.com/",
+    );
+    expect(url.length).toBeLessThan(1000);
   });
 });

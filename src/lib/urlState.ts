@@ -31,6 +31,15 @@ export interface UrlState {
   params?: Record<string, number>;
   /** 凍結歷史畫面的日期 YYYY-MM-DD */
   date?: string;
+  /** 搭配 date 的小時 0–23（台北時區）。embed 快照是日級，這只影響主站時間軸 */
+  hour?: number;
+  /**
+   * 底圖樣式 id（對應 StyleSelector 的 MAP_STYLES：dark / light / satellite /
+   * satellite-streets / nav-night / streets / black）。
+   * 這裡只做格式驗證不查表 —— 消費端 `getStyleUrl()` 本身對未知 id 就會 fallback 到預設，
+   * 且 urlState 要能被 `/embed` 使用，不該相依於主站的 StyleSelector 元件。
+   */
+  style?: string;
   theme?: "dark" | "light";
   /** UI 元件白名單（attribution 永遠存在、不可移除） */
   ui?: string[];
@@ -46,6 +55,8 @@ export interface ParseOptions {
 
 const ALL_LAYER_KEYS = new Set(Object.keys(LAYER_COLORS));
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+/** 底圖 id 格式（不查表，見 UrlState.style 註解） */
+const STYLE_ID_RE = /^[a-z0-9-]{1,32}$/;
 
 /** 有限數字才收；NaN / Infinity / 非數字字串一律回 undefined。 */
 function finiteNum(raw: string | null): number | undefined {
@@ -142,6 +153,12 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
   const date = q.get("date");
   if (date && DATE_RE.test(date) && !Number.isNaN(Date.parse(date))) state.date = date;
 
+  const hour = inRange(finiteNum(q.get("h")), 0, 23);
+  if (hour != null) state.hour = Math.floor(hour);
+
+  const style = q.get("style");
+  if (style && STYLE_ID_RE.test(style)) state.style = style;
+
   const theme = q.get("theme");
   if (theme === "dark" || theme === "light") state.theme = theme;
 
@@ -183,6 +200,9 @@ export function buildUrl(state: UrlState, base: string): string {
     }
   }
   if (state.date) q.set("date", state.date);
+  // 0 時是有效值但等同預設，省略以保持網址精簡
+  if (state.hour) q.set("h", String(Math.floor(state.hour)));
+  if (state.style) q.set("style", state.style);
   if (state.theme) q.set("theme", state.theme);
   if (state.ui?.length) q.set("ui", state.ui.join(","));
 

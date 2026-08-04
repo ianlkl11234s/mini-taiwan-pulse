@@ -144,7 +144,8 @@ import { useRealEstatePointsLayer } from "./hooks/useRealEstatePointsLayer";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
-import { parseUrlState, type UrlState } from "./lib/urlState";
+import { parseUrlState, buildUrl, type UrlState } from "./lib/urlState";
+import { ShareModal } from "./components/ShareModal";
 import { MobileBottomSheet } from "./components/MobileBottomSheet";
 import { InfoModal } from "./components/InfoModal";
 import { UserAvatar } from "./components/auth/UserAvatar";
@@ -396,10 +397,12 @@ export default function App() {
 
   const [viewMode, setViewMode] = useState<ViewMode>("all-taiwan");
   const [expandedLayer, setExpandedLayer] = useState<ExpandableLayerKey | null>(null);
-  const [mapStyleId, setMapStyleId] = useState("dark");
+  // EM-19：底圖樣式吃網址的 style=（未知 id 由 getStyleUrl 自行 fallback 到預設）
+  const [mapStyleId, setMapStyleId] = useState(() => urlStateRef.current.style ?? "dark");
   const [renderMode, setRenderMode] = useState<RenderMode>("3d");
   const [displayMode, setDisplayMode] = useState<DisplayMode>("status");
   const [captureMode, setCaptureMode] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(56); // rail only by default
@@ -1764,14 +1767,78 @@ export default function App() {
   useEffect(() => {
     if (urlStateAppliedRef.current) return;
     urlStateAppliedRef.current = true;
-    const { layers, date } = urlStateRef.current;
+    const { layers, date, hour } = urlStateRef.current;
     if (layers?.length) handleBulkSetVisibility(layers, true);
     if (date) {
-      // 台北時區當日 00:00（timelineSeek 收 unix 秒，同 handleLocationJump 的 p.time）
-      const ts = Date.parse(`${date}T00:00:00+08:00`);
+      // 台北時區當日 hh:00（timelineSeek 收 unix 秒，同 handleLocationJump 的 p.time）
+      const hh = String(hour ?? 0).padStart(2, "0");
+      const ts = Date.parse(`${date}T${hh}:00:00+08:00`);
       if (Number.isFinite(ts)) timelineSeek(Math.floor(ts / 1000));
     }
   }, [handleBulkSetVisibility, timelineSeek]);
+
+  // ── EM-19 網址雙向同步（分享用）────────────────────────────────────────
+  //
+  // 三個必守的點（見 docs/proposal/embed-dynamic-layers.md 討論）：
+  // 1. **replaceState 不是 pushState** —— pushState 會讓拖曳地圖塞爆上一頁歷史，
+  //    使用者要按上千次才能離開。
+  // 2. **綁 moveend 不綁 move** —— move 是每幀觸發（60fps），瀏覽器對 history API
+  //    有頻率保護（Safari 特別嚴），會直接拋錯或忽略。
+  // 3. **不寫進任何 React state** —— 只改網址列，不觸發 re-render，故成本趨近於零、
+  //    不產生任何網路請求（Mapbox map load 只在 Map 初始化時計費，與此無關）。
+  const syncUrlRef = useRef<() => void>(() => {});
+  syncUrlRef.current = () => {
+    const map = mapRef.current;
+    if (!map) return;
+    const c = map.getCenter();
+    const keys = (Object.entries(layerVisibilityRef.current) as [keyof LayerVisibility, boolean][])
+      .filter(([, on]) => on)
+      .map(([k]) => k);
+    // 只有「使用者刻意看過去某一天」才把日期寫進網址。
+    // ⚠️ 不能用 timeMode 判斷 —— TimeMode 只有 "replay" | "live" 且**預設就是 replay**，
+    //    拿它當條件會讓每條分享連結都被凍上今天的日期，明天別人打開就變成看昨天。
+    //    改為直接比對「時間軸所在日期 vs 今天（台北時區）」，不同才寫。
+    const tpeParts = (ms: number) => {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit",
+        hour: "2-digit", hour12: false,
+      }).formatToParts(new Date(ms));
+      const get = (t: string) => parts.find((x) => x.type === t)?.value ?? "";
+      return { date: `${get("year")}-${get("month")}-${get("day")}`, hour: Number(get("hour")) };
+    };
+    const cur = tpeParts(timeStore.getTime() * 1000);
+    const today = tpeParts(Date.now()).date;
+    const isPastDay = cur.date !== today;
+    const date = isPastDay ? cur.date : undefined;
+    const hour = isPastDay && Number.isFinite(cur.hour) ? cur.hour % 24 : undefined;
+    const next = buildUrl(
+      {
+        camera: {
+          center: [c.lng, c.lat],
+          zoom: map.getZoom(),
+          pitch: map.getPitch(),
+          bearing: map.getBearing(),
+        },
+        layers: keys,
+        style: mapStyleId,
+        date,
+        hour,
+      },
+      window.location.pathname,
+    );
+    if (next !== window.location.pathname + window.location.search) {
+      window.history.replaceState(null, "", next);
+    }
+  };
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapPrepared) return;
+    const onMoveEnd = () => syncUrlRef.current();
+    map.on("moveend", onMoveEnd);
+    syncUrlRef.current();   // 圖層/底圖變動時也立即反映（本 effect 的 deps）
+    return () => { map.off("moveend", onMoveEnd); };
+  }, [mapPrepared, layerVisibility, mapStyleId]);
 
   // BYOK 對話 agent 的地圖操作橋接：把既有 handler 注入白名單 tool（無新增地圖邏輯）。
   const chatBridge = useMemo<MapBridge>(() => ({
@@ -1821,6 +1888,7 @@ export default function App() {
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
       {showLoadingScreen && <LoadingScreen steps={loadingSteps} />}
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} isDarkTheme={isDarkTheme} />
       {/* owner-only 私人圖層：已登入非 owner 點鎖層時的提示（未登入則直接導 Google 登入，不走這裡） */}
       {gatedNotice && (
         <div
@@ -2251,6 +2319,24 @@ export default function App() {
               }}
             />
             <button
+              onClick={() => { syncUrlRef.current(); setShareOpen(true); }}
+              title="分享目前畫面 / 取得嵌入碼"
+              style={{
+                padding: "6px 14px",
+                background: isDarkTheme ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.06)",
+                border: `1px solid ${isDarkTheme ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.12)"}`,
+                borderRadius: RADIUS.lg,
+                color: isDarkTheme ? "#fff" : "#333",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
+                cursor: "pointer",
+                backdropFilter: "blur(8px)",
+                letterSpacing: 1,
+              }}
+            >
+              Share
+            </button>
+            <button
               onClick={() => setCaptureMode(true)}
               style={{
                 padding: "6px 14px",
@@ -2495,6 +2581,24 @@ export default function App() {
               }}
             >
               Info
+            </button>
+
+            <button
+              onClick={() => { syncUrlRef.current(); setShareOpen(true); }}
+              title="分享目前畫面 / 取得嵌入碼"
+              style={{
+                height: 36,
+                padding: "0 10px",
+                borderRadius: RADIUS.xl,
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                color: "#fff",
+                fontSize: FONT_SIZE.md,
+                fontFamily: FONT_DATA,
+                cursor: "pointer",
+              }}
+            >
+              Share
             </button>
 
             <button
