@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Mini Taiwan Pulse — 嵌入地圖</title>
+    <!-- 嵌入頁不該被搜尋引擎當成獨立內容收錄（正文在嵌入它的文章那邊） -->
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='15' fill='%230a0a14'/><path d='M8 22 Q16 6 24 20' stroke='%2364aaff' stroke-width='1.5' fill='none' opacity='0.7'/><path d='M10 24 Q16 10 22 22' stroke='%231ad9e5' stroke-width='1.2' fill='none' opacity='0.6'/><circle cx='16' cy='14' r='2' fill='%23ffd54f' opacity='0.8'/></svg>">
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body, #root { width: 100%; height: 100%; overflow: hidden; background: #0d0f12; }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/embed/main.tsx"></script>
+  </body>
+</html>

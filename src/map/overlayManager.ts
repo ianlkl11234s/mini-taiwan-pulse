@@ -1,4 +1,5 @@
 import type { Map as MapboxMap } from "mapbox-gl";
+import type { Map as MaplibreMap } from "maplibre-gl";
 import type { OverlayConfig, LayerVisibility } from "../types";
 import {
   diffPaint,
@@ -10,6 +11,54 @@ import { PMTILES_SOURCE_TYPE } from "./pmtilesConstants";
 import { loadingRegistry } from "../lib/loadingRegistry";
 import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 import { resolvePropertyValueScale } from "../data/propertyValueTypes";
+
+/**
+ * EM-05：本模組同時服務兩個地圖引擎 —— 主站 mapbox-gl、`/embed` MapLibre。
+ *
+ * 只用到兩者共有的 `addSource` / `addLayer` / `setLayoutProperty` / `setPaintProperty`
+ * 等 API，執行期行為完全相同；差異僅在 TypeScript 型別，以及 PMTiles 的 source 規格
+ * （Mapbox 走 mapbox-pmtiles 的自訂 source type，MapLibre 走 `pmtiles://` protocol）——
+ * 後者由 `OverlayEngineOptions.pmtilesSource` 注入，見 `src/embed/maplibrePmtiles.ts`。
+ */
+/*
+ * 刻意用「結構介面」而非 `MapboxMap | MaplibreMap` union：兩者的 getSource/addLayer
+ * 泛型簽名互不相容（filter/layer spec 型別分家），union 會讓每個呼叫點都 TS2349。
+ * 這裡只宣告本模組實際用到的 8 個方法，兩個引擎的 Map 都結構相容 —— 參數型別放寬到
+ * any 是這層 adapter 的代價，真正的型別安全由 overlayRegistry 的 OverlayConfig 把關。
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface OverlayMap {
+  getSource(id: string): any;
+  addSource(id: string, source: any): void;
+  getLayer(id: string): any;
+  addLayer(layer: any, before?: string): void;
+  removeLayer(id: string): void;
+  getLayoutProperty(id: string, name: string): any;
+  setLayoutProperty(id: string, name: string, value: any): void;
+  setPaintProperty(id: string, name: string, value: any): void;
+}
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// 兩個引擎的 Map 必須都滿足上面的結構 —— 任一方改了簽名，這兩行會在編譯期就紅。
+const _mapboxSatisfies: (m: MapboxMap) => OverlayMap = (m) => m;
+const _maplibreSatisfies: (m: MaplibreMap) => OverlayMap = (m) => m;
+void _mapboxSatisfies; void _maplibreSatisfies;
+
+/** 引擎差異注入點。不傳則為主站（mapbox-gl）行為。 */
+export interface OverlayEngineOptions {
+  /** 產生 PMTiles source 規格；預設為 mapbox-pmtiles 的自訂 source type */
+  pmtilesSource?: (config: OverlayConfig) => Record<string, unknown>;
+}
+
+function defaultPmtilesSource(config: OverlayConfig): Record<string, unknown> {
+  // 呼叫端（MapView）須先 registerPmtilesSourceTypeOnce()
+  return {
+    type: PMTILES_SOURCE_TYPE,
+    url: config.sourceUrl,
+    minzoom: config.pmtiles?.minzoom,
+    maxzoom: config.pmtiles?.maxzoom,
+  };
+}
 
 function layerId(config: OverlayConfig, suffix: string) {
   return `${config.sourceId}-${suffix}`;
@@ -53,9 +102,9 @@ function resolveFilter(
 
 // 每個 map instance 一份「上次套用的 paint 快照」（layer id → serialized paint）。
 // style 切換時 layer 會被清掉重建，addOverlay 會重設對應快照，所以不會殘留髒值。
-const paintCacheByMap = new WeakMap<MapboxMap, Map<string, SerializedPaint>>();
+const paintCacheByMap = new WeakMap<OverlayMap, Map<string, SerializedPaint>>();
 
-function paintCacheOf(map: MapboxMap): Map<string, SerializedPaint> {
+function paintCacheOf(map: OverlayMap): Map<string, SerializedPaint> {
   let cache = paintCacheByMap.get(map);
   if (!cache) {
     cache = new Map();
@@ -85,21 +134,19 @@ export function geojsonSourceOptions(config: OverlayConfig): {
 
 /** 新增單一 overlay（source + 所有 layers） */
 export function addOverlay(
-  map: MapboxMap,
+  map: OverlayMap,
   config: OverlayConfig,
   isDark: boolean,
   params?: Record<string, number>,
+  opts?: OverlayEngineOptions,
 ) {
   if (!map.getSource(config.sourceId)) {
     if (config.pmtiles) {
-      // PMTiles 向量切片：呼叫端（MapView）須先 registerPmtilesSourceTypeOnce()
-      map.addSource(config.sourceId, {
-        type: PMTILES_SOURCE_TYPE,
-        url: config.sourceUrl,
-        minzoom: config.pmtiles.minzoom,
-        maxzoom: config.pmtiles.maxzoom,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any);
+      // PMTiles 向量切片。預設走 mapbox-pmtiles 自訂 source type（呼叫端 MapView 須先
+      // registerPmtilesSourceTypeOnce()）；/embed 注入 pmtiles:// protocol 版本。
+      const source = (opts?.pmtilesSource ?? defaultPmtilesSource)(config);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map.addSource(config.sourceId, source as any);
     } else {
       // 全部用空 FC 起手，避免 mount 時 Mapbox 自動 fetch sourceUrl。
       // 靜態 GeoJSON 改由 hydrateOverlayIfNeeded（toggle on 觸發）setData。
@@ -139,7 +186,7 @@ export function addOverlay(
 
 /** 更新單一 overlay 主題（深淺色 + params）— diff 式，只動真正改變的 paint key */
 export function updateOverlayTheme(
-  map: MapboxMap,
+  map: OverlayMap,
   config: OverlayConfig,
   isDark: boolean,
   params?: Record<string, number>,
@@ -226,8 +273,8 @@ export function updateOverlayTheme(
   }
 }
 
-const layoutCacheByMap = new WeakMap<MapboxMap, Map<string, Record<string, string>>>();
-function layoutCacheOf(map: MapboxMap): Map<string, Record<string, string>> {
+const layoutCacheByMap = new WeakMap<OverlayMap, Map<string, Record<string, string>>>();
+function layoutCacheOf(map: OverlayMap): Map<string, Record<string, string>> {
   let cache = layoutCacheByMap.get(map);
   if (!cache) {
     cache = new Map();
@@ -237,7 +284,7 @@ function layoutCacheOf(map: MapboxMap): Map<string, Record<string, string>> {
 }
 
 function applyLayoutDiff(
-  map: MapboxMap,
+  map: OverlayMap,
   id: string,
   layout: Record<string, unknown>,
 ) {
@@ -261,7 +308,7 @@ function applyLayoutDiff(
 }
 
 function applyPaintDiff(
-  map: MapboxMap,
+  map: OverlayMap,
   cache: Map<string, SerializedPaint>,
   id: string,
   paint: Record<string, unknown>,
@@ -291,7 +338,7 @@ const hydratedSources = new Set<string>();
  * - 先標記 hydrated 防同一 toggle 內重複觸發 race
  */
 export async function hydrateOverlayIfNeeded(
-  map: MapboxMap,
+  map: OverlayMap,
   config: OverlayConfig,
 ): Promise<void> {
   if (config.pmtiles || config.dynamicData) return;
@@ -325,7 +372,7 @@ export function resetOverlayHydration(): void {
 
 /** 設定單一 overlay 可見性 */
 export function setOverlayVisible(
-  map: MapboxMap,
+  map: OverlayMap,
   config: OverlayConfig,
   visible: boolean,
 ) {
@@ -340,14 +387,15 @@ export function setOverlayVisible(
 
 /** 批量新增所有 overlays + 設定初始可見性 */
 export function addAllOverlays(
-  map: MapboxMap,
+  map: OverlayMap,
   registry: OverlayConfig[],
   isDark: boolean,
   visibility: LayerVisibility,
   params?: Record<string, number>,
+  opts?: OverlayEngineOptions,
 ) {
   for (const config of registry) {
-    addOverlay(map, config, isDark, params);
+    addOverlay(map, config, isDark, params, opts);
     if (!isOverlayVisible(config, visibility, params)) {
       setOverlayVisible(map, config, false);
     }
@@ -356,7 +404,7 @@ export function addAllOverlays(
 
 /** 批量更新所有 overlay 主題 */
 export function updateAllOverlayThemes(
-  map: MapboxMap,
+  map: OverlayMap,
   registry: OverlayConfig[],
   isDark: boolean,
   params?: Record<string, number>,
