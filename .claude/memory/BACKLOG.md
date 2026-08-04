@@ -7,7 +7,8 @@
 ### 可嵌入地圖（EM 系列，2026-08-03 規劃 / 08-04 Phase 1 完成，branch `feat/embeddable-map` 未 commit）
 
 > SSOT 四份：`docs/proposal/embeddable-map.md`（目標／費用／風險）· `embeddable-map-impl.md`（逐檔工作項）·
-> `embed-basemap-osm.md`（免費底圖路線）· `embed-prototype/`（可跑的原型 + README）。
+> `embed-basemap-osm.md`（免費底圖路線）· `embed-prototype/`（可跑的原型 + README）·
+> `embed-dynamic-layers.md`（動態／歷史圖層規劃）。
 > **成本關鍵**：Mapbox 計費單位是 map load（=`Map` 初始化一次）= 文章 PV 數，**與 tile 來源無關** →
 > 只換 OSM 圖磚省不到錢，必須連函式庫換成 MapLibre。
 >
@@ -25,6 +26,9 @@
 | EM-06 | P1 | `/embed` 正式版 | **done** | 145 靜態圖層全可嵌；bundle embed 1.1MB + LegendPanel 787KB（gzip 505KB）vs 主站 4.4MB；**`pk.eyJ` 在 embed chunk 出現 0 次**；底圖落 `public/base_map/`，部署三處零額外接線 |
 | EM-11 | P2 | 底圖改放 R2（選配）+ 每月重抽排程 | open | **目前走 public/base_map/ 已可運作**（沿用既有 S3→容器管線）。改 R2 只需設 `VITE_EMBED_BASEMAP_URL`；R2 egress 免費，高流量時較划算 |
 | EM-12 | P3 | Protomaps 字型／sprite 自託管 | open | 目前指向 `protomaps.github.io`（已加進 CSP）。自託管可去掉最後一個外部依賴 |
+| EM-14 | P2 | **A 類設施圖層走 static-to-cdn**（12 個「其實不會動」的動態層：光電/風機/加油站/充電站…） | open | 做完拿掉 `dynamicData` → **自動進 embed 白名單，embed 端零改動**；主站也順便脫離 DB 併發排隊。⚠️ 會改變主站行為需回歸測試 |
+| EM-15 | P2 | **按需歷史快照** pilot（建議 `plaActivity` 共機） | open | 「文章要哪天就凍結哪天」，**不做** AR-14~16 的全量 per-day 匯出。產 `/embed-snapshots/<layer>/<date>.geojson` 走 CDN → 讀者端 $0 |
+| EM-16 | — | Three.js 圖層（船舶/班機/鐵路/公車）嵌入 | **建議不做** | embed 刻意不掛 Three.js；即時感圖層嵌進靜態文章敘事價值低、移植成本最高。改用「截圖 + 連結」 |
 | EM-13 | P2 | `/embed` 上線驗收：實機 iframe + 行動裝置 + Cloudflare 快取規則 | open | 部署後才能做；底圖 283MB 首次 pull 需留意 Zeabur 啟動時間 |
 | EM-07 | P3 | facade 模式（先縮圖、點擊才載入） | open | 走 MapLibre 後成本已歸零 → **降級為純效能優化** |
 | EM-08 | P3 | 嵌入碼防腐：`layerAliases.ts` + 守門測試 | open | layer key 改名會讓既有文章的地圖全壞且無通知 |
