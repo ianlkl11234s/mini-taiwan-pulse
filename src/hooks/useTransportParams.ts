@@ -545,7 +545,8 @@ export function useTransportParams() {
   // Disaster Alerts
   const [daOpacity, setDaOpacity] = useState(1.0);
   // 共機活動區：showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
-  const [plaOpacity, setPlaOpacity] = useState(1.0);
+  // 0.6 = 校準過的預設亮度（見 usePlaActivityLayer BASE_*），往上還能拉亮
+  const [plaOpacity, setPlaOpacity] = useState(0.6);
   const [plaShowReview, setPlaShowReview] = useState(false);
   // 疊加天數（1=單日）與累積回放。回放走圖層自己的 clock —— 全域時間軸最多
   // 7 天視窗，表達不了 30~120 天的掃描
