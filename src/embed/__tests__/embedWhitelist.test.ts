@@ -9,7 +9,7 @@
  * 但若有人放寬派生規則，下面的斷言會立刻紅。
  */
 import { describe, it, expect } from "vitest";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { EMBED_CDN_LAYERS, rowsToGeoJSON } from "../dynamicCdnLayers";
 import { SNAPSHOT_KEYS, snapshotUrl } from "../snapshotLayers";
@@ -29,13 +29,30 @@ describe("EMBED_ALLOWED 白名單", () => {
     expect(leaked, `未經 CDN 化的動態圖層外流：${leaked.join(", ")}`).toEqual([]);
   });
 
-  it("💰 每個 EMBED_CDN_LAYERS 都必須有實際的快照檔（否則會靜默留空）", () => {
-    // 這道守門是為了擋掉 gasStation 那種坑：loader 改用了 staticRpc，
-    // 但 public/static-rpc/ 沒產出對應檔案 → 主站靜默 fallback 打 RPC、embed 則整層空白。
+  // 這兩道守門擋的是同一個坑（gasStation）：loader 改用了 staticRpc，但
+  // public/static-rpc/ 沒產出對應檔案 → 主站靜默 fallback 打 RPC、embed 則整層空白。
+  // 分兩支是因為 `public/static-rpc/` 整夾走 S3 部署資產（.gitignore），
+  // CI checkout 沒有這些檔 —— 「檔真的在」只驗得了有資產的環境（本機 / 部署前），
+  // CI 則驗等價的上游條件：該 RPC 有沒有被排進匯出腳本清單（漏排正是那個坑的根源）。
+  it.skipIf(!existsSync("public/static-rpc"))(
+    "💰 每個 EMBED_CDN_LAYERS 都必須有實際的快照檔（否則會靜默留空）",
+    () => {
+      const missing = Object.entries(EMBED_CDN_LAYERS)
+        .filter(([, rpc]) => !existsSync(`public/static-rpc/${rpc}.json`))
+        .map(([key, rpc]) => `${key} → ${rpc}.json`);
+      expect(missing, `快照檔不存在：${missing.join(", ")}`).toEqual([]);
+    },
+  );
+
+  it("💰 每個 EMBED_CDN_LAYERS 的 RPC 都排在匯出腳本的 RPCS 清單裡", () => {
+    const script = readFileSync("scripts/export/export-static-rpc-snapshots.sh", "utf8");
+    const listed = new Set(
+      [...script.matchAll(/^\s*"([a-z0-9_]+):(?:table|jsonb)"/gm)].map((m) => m[1]),
+    );
     const missing = Object.entries(EMBED_CDN_LAYERS)
-      .filter(([, rpc]) => !existsSync(`public/static-rpc/${rpc}.json`))
-      .map(([key, rpc]) => `${key} → ${rpc}.json`);
-    expect(missing, `快照檔不存在：${missing.join(", ")}`).toEqual([]);
+      .filter(([, rpc]) => !listed.has(rpc))
+      .map(([key, rpc]) => `${key} → ${rpc}`);
+    expect(missing, `未排進 export-static-rpc-snapshots.sh：${missing.join(", ")}`).toEqual([]);
   });
 
   it("🔒 CDN 例外清單本身不得含 gated 圖層", () => {
