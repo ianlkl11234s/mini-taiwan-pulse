@@ -4,6 +4,31 @@
 
 ## 進行中 / 待辦
 
+### 可嵌入地圖（EM 系列，2026-08-03 規劃 / 08-04 Phase 1 完成，branch `feat/embeddable-map` 未 commit）
+
+> SSOT 四份：`docs/proposal/embeddable-map.md`（目標／費用／風險）· `embeddable-map-impl.md`（逐檔工作項）·
+> `embed-basemap-osm.md`（免費底圖路線）· `embed-prototype/`（可跑的原型 + README）。
+> **成本關鍵**：Mapbox 計費單位是 map load（=`Map` 初始化一次）= 文章 PV 數，**與 tile 來源無關** →
+> 只換 OSM 圖磚省不到錢，必須連函式庫換成 MapLibre。
+>
+> **2026-08-04 owner 拍板**：底圖美觀度驗收通過 → Phase 2 走 **MapLibre + Protomaps**；
+> frame-ancestors 採「全開」；分享按鈕**不做**；Mapbox 月用量因走 MapLibre 不再是阻塞項。
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| EM-10 | **P0** | 🔴 **nginx `location /religion/` 缺閉合括號**（master 既有，非本次引入） | **已修待 merge** | `nginx -t` emerg → **一 redeploy 就整站起不來**。修在 `feat/embeddable-map`；**建議獨立 hotfix 進 master**，不要等本 feature |
+| EM-01 | P1 | 底圖 spike：抽台灣 extract + MapLibre 驗證 | **done** | 台灣 z0–15 = **283 MB**（原估 500MB 偏高）；中文地名完整到「里」層級；owner 驗收通過 |
+| EM-02 | P1 | 解除 iframe 封鎖（nginx.conf） | **done** | 刪 `X-Frame-Options` + 加 enforcing CSP `frame-ancestors *`；Report-Only 那條同步改（否則未來轉正式又擋住）；`nginx -t` 通過 |
+| EM-03 | P1 | `src/lib/urlState.ts` + 接進 App（相機／layers／date） | **done** | 35 測試綠；端到端驗證相機精準命中 + gated 32 層全擋；主站**不支援** `p.*`（見 impl §2） |
+| EM-09 | P1 | 嵌入原型 + 示範文章頁 | **done** | `docs/proposal/embed-prototype/` — 已驗證 iframe 嵌入效果、魚塭疊圖、開關對比 |
+| EM-05 | P1 | `overlayManager` 型別泛化（3 處，支援雙引擎） | open | overlayManager.ts:1/134/197，執行期零改動 → EM-06 的前置 |
+| EM-06 | P1 | `/embed` 正式版（Vite 多入口 + MapLibre 薄殼 + 接真實 overlayRegistry + LegendPanel） | open | 依賴 EM-05；原型已證可行，差「接真實 registry」；bundle 目標 < 1.5 MB（主站 5.1 MB） |
+| EM-11 | P1 | 底圖上 R2 + 每月更新排程 | open | EM-01 收尾；R2 憑證已在 `.env`；egress 免費、10 GB 免費額度 → 儲存成本實質 $0 |
+| EM-07 | P3 | facade 模式（先縮圖、點擊才載入） | open | 走 MapLibre 後成本已歸零 → **降級為純效能優化** |
+| EM-08 | P3 | 嵌入碼防腐：`layerAliases.ts` + 守門測試 | open | layer key 改名會讓既有文章的地圖全壞且無通知 |
+| EM-04 | — | 分享／嵌入按鈕（吐 iframe 代碼） | **不做**（2026-08-04 owner 決定） | 日後要撈：複用既有 `getCamera()`/`getVisibleLayerKeys()`（App.tsx:1763-1774） |
+| — | — | **不做**：oEmbed / 動態 OG / 第三方 JS SDK / embed 會員功能 / 全站改 MapLibre | — | 見 impl §9 |
+
 ### 架構改造（AR 系列，2026-07-03 — 全系統審計後五階段計畫）
 
 > SSOT：`docs/proposal/architecture-overhaul-plan.md`（審計報告 `docs/research/architecture-audit-2026-07-02.md`）。核心洞察：站上 9 成「動態」資料是共享快照，不該 per-user 打 DB，該走 CDN。目標數百人規模：讀取 QPS O(N)→O(1)。
