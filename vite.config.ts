@@ -27,6 +27,16 @@ export default defineConfig({
     ]),
   ],
   assetsInclude: ["**/*.vert", "**/*.frag"],
+  build: {
+    rollupOptions: {
+      input: {
+        // 主站（mapbox-gl + Three.js）
+        main: resolve(process.cwd(), "index.html"),
+        // EM-06 嵌入版（MapLibre + Protomaps 底圖，不載入 mapbox-gl / Three.js）
+        embed: resolve(process.cwd(), "embed.html"),
+      },
+    },
+  },
   server: {
     port: 3721,
     strictPort: true,

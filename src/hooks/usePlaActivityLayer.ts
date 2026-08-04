@@ -43,10 +43,15 @@ export const PLA_ACTIVITY_CLICK_LAYERS = [FILL_ID, LINE_ID];
 export const PLA_TRAIL_DAYS = [1, 30, 60, 90, 120] as const;
 export type PlaTrailDays = (typeof PLA_TRAIL_DAYS)[number];
 
-const BASE_FILL_OPACITY = 0.22;
-const BASE_LINE_OPACITY = 0.95;
+/**
+ * 基準值校準在「滑桿 = 0.6」而非 1.0 —— 這樣預設看到的亮度就是調校過的樣子，
+ * 使用者還留有 0.6→1.0 的往上拉亮空間（0.6 × 0.5 = 舊的 1.0 × 0.3）。
+ * line 在低 trailDays 時 o=1 會算超過 1，故 expr 外層 clamp。
+ */
+const BASE_FILL_OPACITY = 0.5;
+const BASE_LINE_OPACITY = 1 / 0.6;
 /** 最舊那天保留的亮度比例 —— 太低會整片看不見，太高則新舊分不出來 */
-const OLDEST_FADE = 0.28;
+const OLDEST_FADE = 0.35;
 /** 一輪回放的秒數（與 trailDays 無關，維持一致的節奏感）＋ 播完停留秒數 */
 const SWEEP_SECONDS = 18;
 const HOLD_SECONDS = 2.5;
@@ -65,7 +70,8 @@ const LINE_DASH: ExpressionSpecification = [
  * ⚠️ 不縮放的話 120 天會糊成一片：alpha 疊加是 1-(1-a)^n，a=0.22 疊 20 層就
  * 已經 0.99 接近不透明，底圖與密度差異全部看不見（實測 120 天整塊紫到蓋掉台灣）。
  * 目標是讓「熱區的典型重疊層數」落在 0.3~0.6 的可讀區間 —— pow(-0.6) 實測合適：
- * 30 天 ≈ 0.028、120 天 ≈ 0.012。線框衰減得慢一點（-0.35），輪廓才是「軌跡感」的來源。
+ * 單層 alpha 30 天 ≈ 0.039、120 天 ≈ 0.017（疊 20~40 層後約 0.5，區間上緣）。
+ * 線框衰減得慢一點（-0.35），輪廓才是「軌跡感」的來源。
  */
 const fillScale = (trailDays: number) =>
   trailDays <= 1 ? 1 : Math.pow(trailDays, -0.6);
@@ -94,9 +100,9 @@ const fillOpacityExpr = (o: number, trailDays: number): ExpressionSpecification 
 
 const lineOpacityExpr = (o: number, trailDays: number): ExpressionSpecification =>
   [
-    "*",
-    o * BASE_LINE_OPACITY * lineScale(trailDays),
-    ageFade(trailDays),
+    "min",
+    1,
+    ["*", o * BASE_LINE_OPACITY * lineScale(trailDays), ageFade(trailDays)],
   ] as unknown as ExpressionSpecification;
 
 /** 疊加時線變細，否則 200 條輪廓會蓋過密度本身 */

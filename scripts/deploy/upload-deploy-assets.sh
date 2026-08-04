@@ -249,6 +249,12 @@ for f in public/urban/*.pmtiles public/urban/*.geojson; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/urban/$name" --region ap-southeast-2
 done
 
+# EM-15 嵌入用歷史快照：整夾鏡像 deploy-assets/embed-snapshots/<layer>/<date>.geojson
+if [ -d public/embed-snapshots ]; then
+  echo "Uploading embed-snapshots/..."
+  aws s3 sync public/embed-snapshots/ "s3://$BUCKET/$PREFIX/embed-snapshots/" --region ap-southeast-2 --no-progress
+fi
+
 # Base map PMTiles：上傳到 deploy-assets/base_map/ 子前綴（鏡像結構，pull 端整夾 sync）。
 # 6 檔合計 ~406MB（行政邊界 3 + 等高線 2 + OSM 路網 1）。SSOT 在 taipei-gis-analytics。
 for f in public/base_map/*.pmtiles; do

@@ -10,7 +10,7 @@
 
 | # | 發現 | 位置 | 對計畫的影響 |
 |---|---|---|---|
-| ① | **`MapView` 只有 10 個 props、431 行，且自足處理全部 199 個 2D overlay** | `src/map/MapView.tsx:86-98` | `/embed` 不需要 `App.tsx` 的 3003 行 → Phase 2 從「大工程」降為「小工程」 |
+| ① | **`MapView` 只有 10 個 props、431 行，且自足處理全部 189 個 2D overlay** | `src/map/MapView.tsx:86-98` | `/embed` 不需要 `App.tsx` 的 3003 行 → Phase 2 從「大工程」降為「小工程」 |
 | ② | **`CameraPreset` 已含 `layers` + `time`，且 App 已在套用** | `src/types/index.ts:22-39`、`src/App.tsx:1735-1740` | 「場景 = 相機＋圖層＋時間」機制**是活的**，URL 只是新的觸發來源，不是新機制 |
 | ③ | **`MapBridge` 已提供雙向能力** | `src/App.tsx:1745-1776` | `bulkSetVisibility` / `flyTo` / `getCamera` / `getVisibleLayerKeys` 全都有 → §5 分享按鈕幾乎白撿 |
 | ④ | **`OverlayConfig.dynamicData` 是現成的動態／靜態判準** | `src/types/index.ts:646` | embed 白名單可**自動派生**，不用手維護清單 |
@@ -28,7 +28,7 @@
 | └ **靜態（GeoJSON / PMTiles）** | **154**（其中 59 個 PMTiles） | 同上 |
 | owner-gated（須排除） | **32** | `GATED_LAYERS`（`layerCatalog.ts:1435`） |
 
-→ **embed 預設白名單 = 154 靜態 − gated ≈ 150 個圖層**，且完全不打 Supabase。
+→ **embed 預設白名單 = 145 個圖層**（189 unique id − 44 dynamicData − 35 gated），且完全不打 Supabase。
 魚塭（`aquaculturePonds` / `aquacultureZone` / `aquacultureCageNet`）都在靜態池內。
 
 ## 1. 架構決策
@@ -68,7 +68,7 @@ export const EMBED_ALLOWED = new Set(
   OVERLAY_REGISTRY
     .filter((o) => !o.dynamicData)           // 靜態檔才收 → Supabase egress 歸零
     .map((o) => o.id)
-    .filter((id) => !GATED_LAYERS.has(id)),  // 硬排除 32 個私人圖層
+    .filter((id) => !GATED_LAYERS.has(id)),  // 硬排除 35 個私人圖層
 );
 ```
 
@@ -255,7 +255,7 @@ oEmbed / 動態 OG **不做**（proposal §8 決策 4）。
 | `layerConsistency.test.ts` | 掃 `useTransportParams.ts` 原始碼文字 | 本計畫不改該檔 → **不受影響** |
 | `deployContract.test.ts` | 掃 `overlayRegistry` sourceUrl vs nginx location | 只改 header 不改 location → **不受影響**；但 2.2 新增 `location = /embed` 後要重跑確認 |
 | **新增** `urlState.test.ts` | gated / 未知 key / 範圍檢查 | §3.4 |
-| **新增** embed 白名單測試 | 確保 45 個 `dynamicData` 與 32 個 gated 都不在 `EMBED_ALLOWED` | §4.3 |
+| **新增** embed 白名單測試 | 確保 44 個 `dynamicData` 與 35 個 gated 都不在 `EMBED_ALLOWED` | §4.3 |
 
 ### 嵌入碼防腐（proposal §7-1）
 

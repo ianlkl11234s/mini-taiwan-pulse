@@ -120,7 +120,7 @@ https://mini-taiwan-pulse.itsmigu.com/embed?v=1
 
 ### 4-4. 硬性排除：owner-gated 圖層 🔒
 
-`GATED_LAYERS`（`layerCatalog.ts:1435`，**32 個 key**：畜牧場／石化油氣／電網／電廠）
+`GATED_LAYERS`（`layerCatalog.ts:1435`，**35 個 key**：畜牧場／石化油氣／電網／電廠）
 **必須在 embed 端硬性拒絕**，且不能只依賴登入態——見 §7-3（iframe 內第三方 cookie 被瀏覽器封鎖，
 登入態根本不會存在，但這是「剛好安全」不是「設計安全」）。
 
@@ -259,7 +259,7 @@ Phase 1 結束後：主站已可用 URL 深連結，且能被 iframe 嵌入（�
 瀏覽器已預設封鎖第三方 cookie，所以 **iframe 內不會有你的 Google 登入態**。
 影響兩面：
 
-- ✅ 好處：`GATED_LAYERS`（32 個私人圖層）天然不會在嵌入版出現
+- ✅ 好處：`GATED_LAYERS`（35 個私人圖層）天然不會在嵌入版出現
 - ⚠️ 但這是「剛好安全」。仍要在 embed 端**主動 drop** gated key（§4-4），
   否則哪天 cookie 政策變動或你加了別的登入機制，就會裸奔
 - ❌ 限制：嵌入版不能有任何會員功能（BYOK chat 等），設計時直接排除
