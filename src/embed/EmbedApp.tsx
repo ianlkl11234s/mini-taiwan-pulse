@@ -26,6 +26,9 @@ import {
 import { LegendPanel } from "../components/LegendPanel";
 
 const SITE = "https://mini-taiwan-pulse.itsmigu.com/";
+/** 主站底圖 id 中屬於「淺色」的（與 App.tsx 的 isDarkTheme 判準一致） */
+const LIGHT_STYLE_IDS = new Set(["light", "streets"]);
+
 /** 預設視角：全台 */
 const FALLBACK_CAMERA = { center: [120.9, 23.7] as [number, number], zoom: 6.9, pitch: 0, bearing: 0 };
 
@@ -37,7 +40,10 @@ export function EmbedApp() {
   // 網址只在 mount 時解析一次（嵌入頁沒有會改變它的互動）
   const urlRef = useRef(parseUrlState(window.location.search, { allowedLayers: EMBED_ALLOWED }));
   const url = urlRef.current;
-  const isDark = url.theme !== "light";
+  // 明暗來源有兩個：`theme=`（embed 專用）與 `style=`（主站底圖 id，分享按鈕會帶）。
+  // 主站的判準是 `!["light","streets"].includes(mapStyleId)`（App.tsx），這裡對齊 ——
+  // 否則使用者在主站選了淺色底圖、分享出去的嵌入版卻仍是暗的。
+  const isDark = url.style ? !LIGHT_STYLE_IDS.has(url.style) : url.theme !== "light";
   const layerKeys = url.layers ?? [];
   const visibility = useRef(buildEmbedVisibility(layerKeys)).current;
   const params = url.params ?? {};
