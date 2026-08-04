@@ -21,9 +21,11 @@
 | EM-02 | P1 | 解除 iframe 封鎖（nginx.conf） | **done** | 刪 `X-Frame-Options` + 加 enforcing CSP `frame-ancestors *`；Report-Only 那條同步改（否則未來轉正式又擋住）；`nginx -t` 通過 |
 | EM-03 | P1 | `src/lib/urlState.ts` + 接進 App（相機／layers／date） | **done** | 35 測試綠；端到端驗證相機精準命中 + gated 32 層全擋；主站**不支援** `p.*`（見 impl §2） |
 | EM-09 | P1 | 嵌入原型 + 示範文章頁 | **done** | `docs/proposal/embed-prototype/` — 已驗證 iframe 嵌入效果、魚塭疊圖、開關對比 |
-| EM-05 | P1 | `overlayManager` 型別泛化（3 處，支援雙引擎） | open | overlayManager.ts:1/134/197，執行期零改動 → EM-06 的前置 |
-| EM-06 | P1 | `/embed` 正式版（Vite 多入口 + MapLibre 薄殼 + 接真實 overlayRegistry + LegendPanel） | open | 依賴 EM-05；原型已證可行，差「接真實 registry」；bundle 目標 < 1.5 MB（主站 5.1 MB） |
-| EM-11 | P1 | 底圖上 R2 + 每月更新排程 | open | EM-01 收尾；R2 憑證已在 `.env`；egress 免費、10 GB 免費額度 → 儲存成本實質 $0 |
+| EM-05 | P1 | `overlayManager` 型別泛化（支援雙引擎） | **done** | 改結構介面（union 會讓每個呼叫點 TS2349）+ `pmtilesSource` 注入點；主站行為零改動；加編譯期斷言守門 |
+| EM-06 | P1 | `/embed` 正式版 | **done** | 154 靜態圖層全可嵌；bundle embed 1.1MB + LegendPanel 787KB（gzip 505KB）vs 主站 4.4MB；**`pk.eyJ` 在 embed chunk 出現 0 次**；底圖落 `public/base_map/`，部署三處零額外接線 |
+| EM-11 | P2 | 底圖改放 R2（選配）+ 每月重抽排程 | open | **目前走 public/base_map/ 已可運作**（沿用既有 S3→容器管線）。改 R2 只需設 `VITE_EMBED_BASEMAP_URL`；R2 egress 免費，高流量時較划算 |
+| EM-12 | P3 | Protomaps 字型／sprite 自託管 | open | 目前指向 `protomaps.github.io`（已加進 CSP）。自託管可去掉最後一個外部依賴 |
+| EM-13 | P2 | `/embed` 上線驗收：實機 iframe + 行動裝置 + Cloudflare 快取規則 | open | 部署後才能做；底圖 283MB 首次 pull 需留意 Zeabur 啟動時間 |
 | EM-07 | P3 | facade 模式（先縮圖、點擊才載入） | open | 走 MapLibre 後成本已歸零 → **降級為純效能優化** |
 | EM-08 | P3 | 嵌入碼防腐：`layerAliases.ts` + 守門測試 | open | layer key 改名會讓既有文章的地圖全壞且無通知 |
 | EM-04 | — | 分享／嵌入按鈕（吐 iframe 代碼） | **不做**（2026-08-04 owner 決定） | 日後要撈：複用既有 `getCamera()`/`getVisibleLayerKeys()`（App.tsx:1763-1774） |
