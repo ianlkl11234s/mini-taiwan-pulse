@@ -1,7 +1,14 @@
 # Status
 
-**最後更新**：2026-08-03（共機全鏈上線；**四個 repo 全部 merged 並 push，工作樹乾淨**）
-**mini-taiwan-pulse**：`master` = `b1901fc`（PR #104 merged）
+**最後更新**：2026-08-05（可嵌入地圖 EM 系列上線；**PR #105 + #106 已 merged 並 push**）
+**mini-taiwan-pulse**：`master` = `81e8993`（PR #106 merged；前 `d36d787` = PR #105）
+
+> 🔴 **最優先**：EM-21 —— 底圖 `public/base_map/taiwan_basemap.pmtiles`（283 MB）與
+> `public/embed-snapshots/` **尚未上 S3**，所以正式站的 `/embed` 目前是壞的（載不到底圖）。
+> 跑 `./scripts/deploy/upload-deploy-assets.sh` 即可（三處接線已就緒）。
+> 步驟見 `docs/features/embeddable-map/handoff.md` §0。
+
+**前次**：2026-08-03 共機全鏈上線（四 repo 全 merged）—— `b1901fc` / PR #104
 **gis-platform**：`main`（PR #46 merged；migration **330~333 皆已 apply production**）
 **taipei-gis-analytics**：`master`（PR #33 merged）
 **data-collectors**：`main`（PR #42 merged；pla collector 新版 **2026-08-02 已部署 Zeabur**）
@@ -9,6 +16,31 @@
 > ✅ 上一個 session 的「最優先待辦」已解決：線上 collector 部署後資料**自行修復**、不需回填
 > （730 天 0 筆舊版截斷）。⚠️ 驗證是否生效不能看 `updated_at`（只在 INSERT 寫入），
 > 要看 `raw_text` 長度 —— INCIDENTS 2026-08-03 事件 A。
+
+## 本 session 完成（2026-08-03~05）— 可嵌入地圖 EM 系列（PR #105 + #106）
+
+**一句話**：一條網址重現畫面（相機／圖層／底圖／日期）+ `/embed` 供文章 iframe 嵌入；
+嵌入版走 MapLibre + 自託管 Protomaps 底圖 → **不論被讀幾次都不產生 Mapbox 費用**。
+
+> 📁 **完整脈絡全部在 `docs/features/embeddable-map/`**（README／backlog／changelog／handoff）。
+> 下面只留「跨 session 最該先知道」的幾條，細節不雙寫。
+
+- 💰 **最反直覺的一條**：Mapbox 計費 = `Map` 物件初始化 = **文章 PV 數，與圖磚來源無關**
+  → 只換 OSM tile **省不到錢**，必須連地圖函式庫一起換成 MapLibre。
+  （查不到 Mapbox 明文禁止搭第三方圖磚，走 MapLibre 是為了繞開灰色地帶，不是被禁止）
+- **台灣 Protomaps 底圖 z0–15 = 283 MB**（原估 500MB 偏高），中文地名完整到「里」層級；
+  落在 `public/base_map/`（已 gitignore）→ 既有 upload/pull/nginx **三處零額外接線**
+- **雙引擎共用**：`overlayManager` 只用兩者共有的 8 個 map 方法。型別用**結構介面**不用
+  union（union 會讓每個呼叫點 TS2349），PMTiles source 用注入點。主站行為零改動
+- **白名單三層**：靜態 145 + 已 CDN 化的動態 7 + 歷史快照 1；**35 個 gated 硬排除**且
+  實測「連 byte 都不會下載」
+- **順手修掉 master 上會讓整站掛掉的 bug**：`nginx.conf` 的 `location /religion/` 缺閉合括號
+  → `nginx -t` emerg，**一 redeploy 容器就起不來**（非本次引入，已 cherry-pick 進 master）
+- **發現既有問題（非本功能引入）**：`get_gas_station_layers` 的 loader 已改用 `staticRpc`，
+  但 `public/static-rpc/` 沒有該檔 → 主站一直靜默 fallback 打 RPC（EM-17）
+- 兩個自己犯的錯，已修並記在 changelog：(a) 用 `timeMode !== "live"` 判斷是否寫日期，
+  但 TimeMode 只有 `"replay" | "live"` 且**預設就是 replay** → 每條分享連結都被凍上今天；
+  (b) 圖層數量先前用粗略 grep 估算（199/45/32/154），實際是 **189/44/35/145**
 
 ## 本 session 完成（2026-08-02/03）— 接手 handoff → 四 repo 全 merged
 
