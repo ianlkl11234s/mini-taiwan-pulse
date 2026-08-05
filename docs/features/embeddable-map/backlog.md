@@ -8,12 +8,13 @@
 | ID | 項目 | 結果 |
 |---|---|---|
 | EM-21 | 底圖 + 快照上 S3 並部署 | ✅ 2026-08-05。297 MB 底圖 + 共機快照上 S3；Zeabur 自動部署；正式站驗證 **Mapbox 0 / Supabase 0** |
+| EM-13 | Cloudflare 快取規則 | ✅ 2026-08-05。Cache Rule `Static map data`（設定內容記於 handoff §0b）。實測快照/PMTiles/底圖 range 全部 HIT |
 
 ## 待辦
 
 | ID | 優先級 | 項目 | 備註 |
 |---|---|---|---|
-| EM-13 | P1 | Cloudflare 對 `/base_map/`、`/embed-snapshots/` 的快取規則 + 行動裝置實機 | 部署本身已完成；快取規則未設，目前每次都回源 |
+| EM-23 | P2 | 行動裝置實機驗收 | 桌機與模擬器已驗；真機（尤其低階 Android）的 MapLibre 效能未測 |
 
 ## 功能待辦
 

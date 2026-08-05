@@ -27,6 +27,56 @@ aws s3 cp public/base_map/taiwan_basemap.pmtiles "s3://$S3_BUCKET/deploy-assets/
 ⚠️ 容器**啟動時**才 pull S3，光上傳不會生效。要 push 觸發部署（empty commit 無效，
 Zeabur webhook 看 file diff）或用 Zeabur dashboard redeploy。
 
+## 0b. Cloudflare 快取設定（EM-13，2026-08-05 已設定）
+
+⚠️ **這是 dashboard 設定、不在程式碼裡**，故完整記於此。要重建或除錯時照抄。
+
+**Rules → Cache Rules → `Static map data`**
+
+條件（Custom filter expression）：
+
+```
+(ends_with(http.request.uri.path, ".pmtiles")) or
+(ends_with(http.request.uri.path, ".geojson")) or
+(starts_with(http.request.uri.path, "/static-rpc/")) or
+(starts_with(http.request.uri.path, "/embed-snapshots/"))
+```
+
+| 設定 | 值 |
+|---|---|
+| Cache eligibility | **Eligible for cache** |
+| Edge TTL | **Use cache-control header if present, bypass cache if not** |
+| Browser TTL | **Respect origin TTL** |
+| Status code TTL | **不設**（見下） |
+
+**為什麼要建這條規則**：Cloudflare 預設只快取特定副檔名清單（`.js`/`.css`/`.jpg`…），
+`.pmtiles` 與 `.geojson` **不在內** → 設定前全部是 `cf-cache-status: DYNAMIC`，每次都回源。
+
+**為什麼不設 Status code TTL**：Edge TTL 選的是「沒有 cache-control 就 bypass」，
+而 nginx 的 `add_header Cache-Control "public"` **沒有 `always`** → 404 回應不帶該 header
+→ Cloudflare 直接 bypass。PRINCIPLES 2026-06-02 那個「404 被釘住整個 TTL」的坑天然避開。
+**若日後把 `add_header` 改成 `always`，就必須回來補 Status code TTL（404/5xx → No cache）。**
+
+### ⚠️ 驗證快取時不要用 `curl -I`
+
+`-I` 是 HEAD 請求，Cloudflare 對 HEAD 的快取行為與 GET 不同 —— 會回 `DYNAMIC`
+讓人誤以為規則沒生效。**一律用 GET**：
+
+```bash
+curl -s -o /dev/null -D - <url> | grep -i cf-cache-status
+```
+
+2026-08-05 實測（設定後）：
+
+| 目標 | 結果 |
+|---|---|
+| 快照 GeoJSON，GET ×3 | HIT / HIT / HIT |
+| `temples.pmtiles`（12 MB） | MISS → HIT（age: 4） |
+| 底圖 297 MB，**純 Range Request** ×3 | MISS → HIT → HIT |
+
+最後一項確認了 Cloudflare 會自行處理大檔案的分段快取 —— PMTiles 的 range request
+不需要先有完整 GET 就能吃到邊緣快取。
+
 ## 1. 架構一句話
 
 **共用資料與圖層邏輯，不共用地圖引擎與 UI。**
