@@ -12,6 +12,7 @@ import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../mountainSafetyTypes";
 import { ANCESTRAL_HALL_TYPES, DEITY_FAMILIES } from "../religionTypes";
+import { FUNERAL_FACILITY_TYPES, CEMETERY_ZONING_CLASSES } from "../funeralTypes";
 
 function distinctValues(rel: string, field: string): string[] {
   const data = JSON.parse(readFileSync(`public/${rel}`, "utf8")) as GeoJSON.FeatureCollection;
@@ -51,6 +52,19 @@ const CASES: Case[] = [
     field: "facility_type",
     covered: ANCESTRAL_HALL_TYPES.map((t) => t.value),
     ssot: "src/data/religionTypes.ts ANCESTRAL_HALL_TYPES",
+  },
+  {
+    file: "funeral/funeral_facilities.geojson",
+    field: "facility_type",
+    covered: FUNERAL_FACILITY_TYPES.map((t) => t.value),
+    ssot: "src/data/funeralTypes.ts FUNERAL_FACILITY_TYPES",
+  },
+  {
+    // zone_label 是原始中文（9 種），前端歸成 3 群 —— 上游新增用地名稱會被這裡擋下
+    file: "funeral/cemetery_zoning.geojson",
+    field: "zone_label",
+    covered: CEMETERY_ZONING_CLASSES.flatMap((c) => c.raw),
+    ssot: "src/data/funeralTypes.ts CEMETERY_ZONING_CLASSES[].raw",
   },
 ];
 

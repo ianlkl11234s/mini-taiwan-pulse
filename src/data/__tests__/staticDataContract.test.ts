@@ -175,6 +175,25 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "name", type: "string" },
     { field: "county", type: "string" },
   ],
+  "funeral/funeral_facilities.geojson": [
+    { field: "facility_uid", type: "string" },            // 前端 key（跨批次穩定）
+    { field: "facility_type", type: "string" },           // 6 類分色 + 篩選的唯一依據
+    { field: "precision", type: "string" },               // 概略座標警示 + 精度篩選
+    { field: "operator_type", type: "string" },
+  ],
+  "funeral/funeral_operators.geojson": [
+    { field: "operator_id", type: "string" },
+    { field: "entity_type", type: "string" },             // 2 類分色
+    // ⚠️ boolean！預設 filter 只畫 true —— 型別若漂成字串，`== true` 全不成立 → 整層空白
+    { field: "is_active", type: "boolean" },
+    { field: "precision", type: "string" },
+  ],
+  "funeral/cemetery_zoning.geojson": [
+    { field: "zoning_id", type: "string" },
+    { field: "zone_label", type: "string" },              // 3 群分色（raw 9 值）
+    { field: "county", type: "string" },
+    { field: "area_ha", type: "number" },
+  ],
 };
 
 describe("前端硬依賴欄位契約", () => {
