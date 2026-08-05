@@ -9,7 +9,7 @@ import {
 } from "../../../data/intelLoaders";
 
 /**
- * 食品價格監測（migration 334/335）
+ * 食品價格監測（migration 334/336）
  *
  * 四個指數 2×2：VPI 菜 / FPI 魚 / MPI 豬雞肉 / EPI 蛋，各看近 180 天。
  *
