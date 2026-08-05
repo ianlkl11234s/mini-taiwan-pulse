@@ -606,6 +606,14 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   religionOtherWorship: { status: 'verified', datasets: [{ datasetId: 'other_worship', confidence: 'HIGH' }], note: '其他宗教場所 1,319（清真寺/神社遺構/風獅爺…；全 OSM 源 ODbL）' },
   // 2026-08-02 上游自 tourism.religion 搬移歸位為 religion.top100，key 同步由 tourReligion 更名
   religionTop100: { status: 'verified', datasets: [{ datasetId: 'top100', confidence: 'HIGH' }], note: '宗教百景 100 點（docs/data-catalog/religion/top100.md）' },
+
+  // ⚰️ 殯葬 Funeral 5 layer（docs/data-catalog/funeral/）
+  // 🔴 A/B/C 三源分開不整合（2026-08-05 拍板）：A 官方名冊 OGDL、B OSM ODbL、C 都計 OGDL
+  funeralFacilities: { status: 'verified', datasets: [{ datasetId: 'funeral_facilities_moi', confidence: 'HIGH' }], note: 'A 源 設施 3,707 點（母體 4,145，438 筆無座標）' },
+  funeralOperators: { status: 'verified', datasets: [{ datasetId: 'funeral_operators_biz', confidence: 'HIGH' }], note: 'A 源 禮儀業者 6,233 點（前端預設只畫 is_active=true 的 4,595）' },
+  funeralOperatorDensity: { status: 'verified', datasets: [{ datasetId: 'funeral_operators_district', confidence: 'HIGH' }], note: 'A 源 區級密度 325 區（無幾何，join base_map/township_boundary.pmtiles）' },
+  cemeteryOsm: { status: 'verified', datasets: [{ datasetId: 'cemetery_osm', confidence: 'HIGH' }], note: 'B 源 OSM 墓區 3,229 面（ODbL，僅 34.5% 有 name）' },
+  cemeteryZoning: { status: 'verified', datasets: [{ datasetId: 'cemetery_zoning_urban', confidence: 'HIGH' }], note: 'C 源 都計墓葬類法定用地 114 面（僅臺北 12＋新北 102）' },
   tourRestaurants: { status: 'verified', datasets: [{ datasetId: 'restaurant', confidence: 'HIGH' }], note: '觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）' },
   agriculture: {
     status: 'verified',

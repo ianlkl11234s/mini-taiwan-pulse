@@ -62,6 +62,11 @@ import {
 } from "../data/urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { DEITY_FAMILIES, ANCESTRAL_HALL_TYPES, RELIGION_LAYER_COLORS } from "../data/religionTypes";
+import {
+  FUNERAL_FACILITY_TYPES, FUNERAL_OPERATOR_ENTITY_TYPES,
+  FUNERAL_DENSITY_BUCKETS, CEMETERY_ZONING_CLASSES,
+  CEMETERY_OSM_ODBL_NOTE, FUNERAL_LAYER_COLORS,
+} from "../data/funeralTypes";
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
@@ -270,6 +275,13 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
       "religionFoundations", "religionOtherWorship", "religionTop100",
     ],
     render: ({ visibility }) => <ReligionLegend visibility={visibility} />,
+  },
+  {
+    keys: [
+      "funeralFacilities", "funeralOperators", "funeralOperatorDensity",
+      "cemeteryOsm", "cemeteryZoning",
+    ],
+    render: ({ visibility }) => <FuneralLegend visibility={visibility} />,
   },
   { keys: ["govServiceOffices"], render: () => <GovServiceOfficeLegend /> },
   { keys: ["publicToilets"], render: () => <PublicToiletLegend /> },
@@ -1700,6 +1712,126 @@ function ReligionLegend({ visibility }: { visibility: LayerVisibility }) {
       {needsOdbl && (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
           含 OSM 來源 © OpenStreetMap contributors（ODbL）
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── ⚰️ Funeral Legend ──
+//
+// 🔴 三源分開的視覺約定，圖例必須把差異講清楚：
+//    B（OSM 墓區，綠）= 實際使用範圍；C（都計用地，暖棕）= 法定劃設。同時開啟時色系不同。
+// 🔴 cemeteryOsm 是 ODbL → 開啟時一定要出現 © OpenStreetMap contributors。
+
+function Swatch({ color, round }: { color: string; round: boolean }) {
+  return (
+    <div
+      style={{
+        width: 10, height: 10, borderRadius: round ? RADIUS.full : 2, background: color,
+        opacity: 0.9, flexShrink: 0,
+        border: "1px solid rgba(255,255,255,0.4)", boxSizing: "border-box",
+      }}
+    />
+  );
+}
+
+function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        FUNERAL 殯葬
+      </div>
+
+      {visibility.funeralFacilities && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>殯葬設施・類型</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+            {FUNERAL_FACILITY_TYPES.map((f) => (
+              <div key={f.value} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <Swatch color={f.color} round />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>{f.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            42% 的點是地籍／鄉鎮中心的概略座標（popup 會標示）—— 做距離分析請切「僅精確定位」
+          </div>
+        </>
+      )}
+
+      {visibility.funeralOperators && (
+        <div style={{ marginTop: visibility.funeralFacilities ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>禮儀業者・登記別</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {FUNERAL_OPERATOR_ENTITY_TYPES.map((o) => (
+              <div key={o.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={o.color} round />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{o.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            預設只畫仍營業的 4,595 家（另有 1,638 家已歇業，可用「營業狀態」切換）
+          </div>
+        </div>
+      )}
+
+      {visibility.cemeteryOsm && (
+        <div style={{ marginTop: 5, display: "flex", alignItems: "center", gap: 6 }}>
+          <Swatch color={FUNERAL_LAYER_COLORS.cemeteryOsm} round={false} />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>墓區範圍 OSM（實際使用）</span>
+        </div>
+      )}
+
+      {visibility.cemeteryZoning && (
+        <div style={{ marginTop: 5 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            都計墓葬用地（法定劃設）
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {CEMETERY_ZONING_CLASSES.map((c) => (
+              <div key={c.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={c.color} round={false} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            僅臺北 12 ＋新北 102 面 —— 其他 20 縣市空白是正常的（都計分區只做了這兩市）
+          </div>
+        </div>
+      )}
+
+      {visibility.cemeteryOsm && visibility.cemeteryZoning && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+          兩層語意不同：綠＝OSM 標註的實際墓區、棕＝都市計畫法定用地。刻意不合併，差異本身就是資訊。
+        </div>
+      )}
+
+      {visibility.funeralOperatorDensity && (
+        <div style={{ marginTop: 5 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            業者密度（鄉鎮市區・登記家數）
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            {FUNERAL_DENSITY_BUCKETS.map((b) => (
+              <div key={b.min} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={b.color} round={false} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{b.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            是業者「登記地」家數，不是服務涵蓋率 —— 業者常跨區服務
+          </div>
+        </div>
+      )}
+
+      {visibility.cemeteryOsm && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+          墓區範圍資料來自 OpenStreetMap，{CEMETERY_OSM_ODBL_NOTE}
         </div>
       )}
     </div>

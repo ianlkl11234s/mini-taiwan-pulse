@@ -36,6 +36,8 @@ import {
   Landmark, Theater, Library,
   // 🧳 TOURISM icons（Mountain / Factory 已 import 復用）
   Camera, ThermometerSun, Castle, Church, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
+  // ⚰️ FUNERAL icons（LandPlot / Grid3x3 已 import 復用）
+  Cross, Flower, Briefcase,
   // 🗺️ 土地使用分區 icons
   LandPlot, Map,
   // 🌍 世界 World icon（複合 rail icon 用）
@@ -241,6 +243,12 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   religionFoundations: HeartHandshake,
   religionOtherWorship: Sparkles,
   religionTop100: Camera,
+  // ⚰️ 殯葬 Funeral
+  funeralFacilities: Cross,
+  funeralOperators: Briefcase,
+  funeralOperatorDensity: Grid3x3,
+  cemeteryOsm: Flower,
+  cemeteryZoning: LandPlot,
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // FORESTRY 12 base

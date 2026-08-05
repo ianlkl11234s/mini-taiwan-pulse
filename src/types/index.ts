@@ -140,6 +140,9 @@ export type ExpandableLayerKey =
   // 🛕 宗教 Religion（靜態 overlay；temples 走 PMTiles，其餘 GeoJSON 點）
   | "religionTemples" | "religionChurches" | "religionAncestralHalls"
   | "religionFoundations" | "religionOtherWorship" | "religionTop100"
+  // ⚰️ 殯葬 Funeral（靜態 overlay；A/B/C 三源分開，density 走專屬 hook 不在 registry）
+  | "funeralFacilities" | "funeralOperators" | "funeralOperatorDensity"
+  | "cemeteryOsm" | "cemeteryZoning"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -690,6 +693,9 @@ export interface FeatureInfo {
     // 🛕 宗教 Religion（layerType = layer key 同名，6 個）
     | "religionTemples" | "religionChurches" | "religionAncestralHalls"
     | "religionFoundations" | "religionOtherWorship" | "religionTop100"
+    // ⚰️ 殯葬 Funeral（layerType = layer key 同名，5 個）
+    | "funeralFacilities" | "funeralOperators" | "funeralOperatorDensity"
+    | "cemeteryOsm" | "cemeteryZoning"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -927,7 +933,13 @@ export interface LayerVisibility {
   religionFoundations: boolean;    // 宗教基金會 165
   religionOtherWorship: boolean;   // 其他宗教場所 1,319（清真寺/神社遺構/風獅爺…；OSM 源 ODbL）
   religionTop100: boolean;         // 宗教百景 100（2026-08-02 自 tourReligion 更名搬群）
-  tourEvents: boolean;            // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
+  // ⚰️ 殯葬 Funeral（第 37 主題；2026-08-05 上游 funeral 批次；A/B/C 三源分開不整合）
+  funeralFacilities: boolean;      // A 源 設施 3,707 點（facility_type 6 類分色 + precision 篩選）
+  funeralOperators: boolean;       // A 源 禮儀業者 6,233 點（⚠️ 預設只畫 is_active=true 的 4,595）
+  funeralOperatorDensity: boolean; // A 源 區級業者密度 325 區（無幾何，feature-state join 鄉鎮界 PMTiles）
+  cemeteryOsm: boolean;            // B 源 OSM 墓區面 3,229（PMTiles；🔴 ODbL 必須標示；僅 34.5% 有 name）
+  cemeteryZoning: boolean;         // C 源 都計墓葬類法定用地 114 面（⚠️ 僅臺北 12＋新北 102）
+  tourEvents: boolean;           // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
   tourFactories: boolean;         // 觀光工廠（158 點，單色）
   tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）
   tourCamping: boolean;           // 露營場（1,737 點，單色）

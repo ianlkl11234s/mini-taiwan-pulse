@@ -56,6 +56,12 @@ import {
   RELIGION_LAYER_COLORS,
 } from "../data/religionTypes";
 import {
+  facilityTypeColorExpr, facilityFilter,
+  operatorEntityColorExpr, operatorFilter,
+  cemeteryZoningColorExpr,
+  FUNERAL_LAYER_COLORS,
+} from "../data/funeralTypes";
+import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -8404,6 +8410,128 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-opacity": opacity * 0.7,
           };
         },
+      },
+    ],
+  },
+
+  // ── ⚰️ 殯葬 Funeral（第 37 主題，2026-08-05）──
+  //
+  // 🔴 A／B／C 三源**分開不合併**（用戶拍板）：A 官方名冊點、B OSM 墓區面（ODbL）、
+  //    C 都計法定用地面。三組各自獨立 toggle，讓使用者自己看見「實際使用 vs 法定劃設」的差異。
+  // 分色/篩選 SSOT = funeralTypes.ts。第 5 層 funeralOperatorDensity 無幾何
+  // （join 鄉鎮界 PMTiles + feature-state），通用 registry 路徑不支援 promoteId
+  // → 走專屬 hook useFuneralDensityLayer（同 useRoadCongestionLayer 慣例）。
+  {
+    id: "funeralFacilities",
+    sourceUrl: "./funeral/funeral_facilities.geojson",
+    sourceId: "funeral-facilities",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => facilityFilter(
+          p?.funeralFacilitiesTypeIdx ?? 0,
+          p?.funeralFacilitiesPrecisionIdx ?? 0,
+        ),
+        paint: (isDark, p) => {
+          const scale = p?.funeralFacilitiesScale ?? 1;
+          const opacity = p?.funeralFacilitiesOpacity ?? 0.85;
+          return {
+            // 1k~10k 級距的密度 baseline（3.7k 點）：z6 3px → z12 6px
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": facilityTypeColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 14, 1],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  {
+    id: "funeralOperators",
+    sourceUrl: "./funeral/funeral_operators.geojson",
+    sourceId: "funeral-operators",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        // ⚠️ statusIdx 0（預設）= 仍營業 —— 不濾會多畫 1,638 個已歇業業者（見 funeralTypes）
+        filter: (p) => operatorFilter(
+          p?.funeralOperatorsStatusIdx ?? 0,
+          p?.funeralOperatorsPrecisionIdx ?? 0,
+        ),
+        paint: (isDark, p) => {
+          const scale = p?.funeralOperatorsScale ?? 1;
+          const opacity = p?.funeralOperatorsOpacity ?? 0.8;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.5 * scale, 12, 5.5 * scale],
+            "circle-color": operatorEntityColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.2, 14, 0.8],
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+  // B 源：OSM 墓區面（3,229 面，中位數 1.10 ha）。單色 + 描邊；小面在低 zoom 幾乎看不見，
+  // 故 line 給到 1.4px。🔴 ODbL → LegendPanel + popup 都標 © OpenStreetMap contributors。
+  {
+    id: "cemeteryOsm",
+    sourceUrl: "./funeral/cemetery_osm.pmtiles",
+    sourceId: "cemetery-osm",
+    pmtiles: { sourceLayer: "cemetery_osm", minzoom: 6, maxzoom: 14 },
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": FUNERAL_LAYER_COLORS.cemeteryOsm,
+          "fill-opacity": p?.cemeteryOsmOpacity ?? 0.45,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, p) => ({
+          "line-color": FUNERAL_LAYER_COLORS.cemeteryOsm,
+          "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.4, 15, 1.4],
+          "line-opacity": (p?.cemeteryOsmOpacity ?? 0.45) * 0.9,
+        }),
+      },
+    ],
+  },
+  // C 源：都市計畫墓葬類法定用地（114 面 / 702.6 ha）。
+  // ⚠️ 只有臺北（12）＋新北（102）—— 其他 20 縣市空白是正常的，不是資料壞掉。
+  // 與 B 源刻意用**不同色系**（暖棕 vs 綠）：同時開啟時要看得出「法定劃設 ≠ 實際使用」。
+  {
+    id: "cemeteryZoning",
+    sourceUrl: "./funeral/cemetery_zoning.geojson",
+    sourceId: "cemetery-zoning",
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": cemeteryZoningColorExpr(),
+          "fill-opacity": p?.cemeteryZoningOpacity ?? 0.55,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (_isDark, p) => ({
+          "line-color": cemeteryZoningColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5, 15, 1.6],
+          "line-opacity": (p?.cemeteryZoningOpacity ?? 0.55) * 0.9,
+        }),
       },
     ],
   },
