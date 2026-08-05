@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>示範：嵌入宗教場所地圖</title>
+<style>
+  :root { --ink:#1a1d21; --dim:#5b636b; --line:#e3e6ea; --accent:#9a5b2c; }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:#fbfbfc; color:var(--ink);
+    font-family:-apple-system, "Noto Serif TC", Georgia, serif;
+    line-height:1.85; font-size:17px;
+  }
+  .wrap { max-width:720px; margin:0 auto; padding:52px 20px 90px; }
+  .kicker { font-family:system-ui, sans-serif; font-size:12px; letter-spacing:2px;
+            color:var(--accent); font-weight:700; }
+  h1 { font-size:33px; line-height:1.32; margin:10px 0 14px; letter-spacing:-.3px; }
+  .byline { font-family:system-ui, sans-serif; font-size:13px; color:var(--dim);
+            padding-bottom:20px; border-bottom:1px solid var(--line); margin-bottom:28px; }
+  p { margin:0 0 20px; }
+  h2 { font-size:21px; margin:36px 0 12px; }
+
+  figure.embed { margin:32px 0; }
+  figure.embed .frame {
+    position:relative; width:100%; aspect-ratio:16/10;
+    border:1px solid var(--line); border-radius:10px; overflow:hidden;
+    box-shadow:0 2px 14px rgba(20,25,32,.08); background:#0d0f12;
+  }
+  @media (max-width:640px){ figure.embed .frame { aspect-ratio:4/5; } }
+  figure.embed iframe { width:100%; height:100%; border:0; display:block; }
+  figcaption { font-family:system-ui, sans-serif; font-size:13px; color:var(--dim);
+               margin-top:9px; line-height:1.6; }
+
+  .note { font-family:system-ui, sans-serif; font-size:13.5px; background:#faf3ec;
+          border-left:3px solid var(--accent); padding:14px 16px; border-radius:0 6px 6px 0;
+          color:#2c3338; margin:28px 0; }
+  .note b { color:var(--accent); }
+  .note code { background:rgba(0,0,0,.06); }
+  code { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px;
+         background:#eef1f4; padding:1.5px 5px; border-radius:4px; }
+  pre { background:#1e2228; color:#dfe6ee; padding:14px 16px; border-radius:8px;
+        overflow-x:auto; font-size:12.5px; line-height:1.7;
+        font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .hl { color:#7ee0ef; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kicker">示範文章</div>
+  <h1>廟宇與教堂，在台灣畫出兩張不一樣的分布圖</h1>
+  <div class="byline">2026-08-05 · 假文章，用來檢視 Share 按鈕產出的嵌入效果</div>
+
+  <p>
+    如果把全台的廟宇和教堂同時標在一張圖上，兩者的疏密會呈現明顯不同的紋理——
+    一種沿著西部平原的聚落密集分布，另一種在都會區與東部原鄉各自成群。
+  </p>
+
+  <p>
+    下面這張地圖是<strong>活的</strong>：可以拖曳、縮放，右上角能開啟完整站台。
+    它是用主站的 Share 按鈕直接產生的，參數原封不動。
+  </p>
+
+  <figure class="embed">
+    <div class="frame">
+      <!-- ⚠️ 本機預覽版：src 指向 localhost:3721。正式代碼見文末 -->
+      <iframe
+        src="http://localhost:3721/embed.html?v=1&lng=120.3689&lat=23.6141&z=8.89&layers=religionTemples%2CreligionChurches&style=dark"
+        width="100%" height="480"
+        loading="lazy"
+        title="全台廟宇與教堂分布 — Mini Taiwan Pulse"
+        allowfullscreen></iframe>
+    </div>
+    <figcaption>
+      全台廟宇（PMTiles，含數萬點）與教堂分布。底圖 © OpenStreetMap；
+      資料來自內政部宗教場所登記。拖曳可移動，右上角開啟完整站台。
+    </figcaption>
+  </figure>
+
+  <p>
+    放大到城市尺度時，廟宇的密度會沿著老市街的軸線排開；切到東部，
+    教堂的比例則明顯上升。這種「同一張圖上兩種分布」的對照，是靜態截圖做不到的。
+  </p>
+
+  <h2>這篇文章實際貼的代碼</h2>
+
+  <p>
+    上面用的是本機預覽網址。等 <code>/embed</code> 部署到正式站之後，
+    你從 Share 按鈕複製到的就是這一段，可以直接貼進任何文章：
+  </p>
+
+<pre>&lt;iframe
+  src="https://mini-taiwan-pulse.itsmigu.com/embed<span class="hl">?v=1&amp;lng=120.3689&amp;lat=23.6141&amp;z=8.89&amp;layers=religionTemples%2CreligionChurches&amp;style=dark</span>"
+  width="100%" height="480" style="border:0;border-radius:10px"
+  loading="lazy" title="Mini Taiwan Pulse"&gt;&lt;/iframe&gt;</pre>
+
+  <div class="note">
+    <b>目前狀態</b>：<code>/embed</code> 尚未部署到正式站，所以上面那段正式代碼現在還打不開。
+    本頁的地圖走 <code>localhost:3721</code>，需要 dev server 開著。
+    嵌入版使用 <b>MapLibre + Protomaps 免費底圖</b>，不論這篇文章被讀幾次都<b>不產生 Mapbox 費用</b>。
+  </div>
+
+  <p>
+    最後放一段文字，讓你看到嵌入區塊夾在段落之間的排版效果，
+    以及捲動時 iframe 的行為是否自然。宗教場所的分布往往比行政區界更能反映
+    早期移民的路線與族群邊界，這也是把它疊在地圖上而不是做成表格的理由。
+  </p>
+
+</div>
+</body>
+</html>
