@@ -39,6 +39,7 @@ import { PrisonCard, type PrisonDay } from "./PrisonCard";
 import { AirportPaxCard } from "./AirportPaxCard";
 import { ERCard } from "./ERCard";
 import { PlaBoard } from "./PlaBoard";
+import { FoodPriceBoard } from "./FoodPriceBoard";
 import {
   MONITOR_VISIBLE_LAYOUT, MONITOR_GRID_COLS,
   MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP,
@@ -534,6 +535,7 @@ export function MonitorPanel({
     liveWall: <LiveWall />,
     situationCards: <SituationCards health={health} />,
     plaBoard: <PlaBoard open={open} />,
+    foodPriceBoard: <FoodPriceBoard open={open} />,
     hazardStrip: <HazardWatchStrip />,
     powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} />,
     erCongestion: <ERCard open={open} />,
