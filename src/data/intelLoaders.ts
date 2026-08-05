@@ -635,3 +635,137 @@ const kindCache = cachedByKey((k: string) => _fetchPlaKindSummary(Number(k)), TT
 export function fetchPlaKindSummary(windowDays = 120): Promise<PlaKindStat[]> {
   return kindCache(String(windowDays));
 }
+
+/* ──────────────────────────────────────────────────────────
+ * 食品價格監測（migration 334/335）
+ *
+ * 四個指數：VPI 菜 / FPI 魚 / MPI 豬雞肉（⚠️ 不含牛，台灣無牛肉交易行情）/ EPI 蛋
+ *
+ * ⚠️ 兩件呼叫端必須知道的事：
+ *  1. **異常有方向性**：light='red' 且 dev>0 是價格異常偏高（民生壓力），
+ *     dev<0 是異常偏低（供給過剩／產地崩盤）。兩者都是紅燈但意義相反，不可混用同一顏色。
+ *  2. `low_coverage` 是「當日資料未齊」不是低點 —— 畫圖要跳過，不可當 0 或當正常值。
+ * ────────────────────────────────────────────────────────── */
+
+export type FoodIndicator = "VPI" | "FPI" | "MPI" | "EPI";
+export type FoodLight = "green" | "amber" | "red" | "low_coverage";
+
+export interface FoodPriceDay {
+  tradeDate: string;
+  indicator: FoodIndicator;
+  indexVal: number;
+  indexSa: number | null;
+  z: number | null;
+  devPct: number | null;
+  light: FoodLight;
+}
+
+export interface FoodPriceSummary {
+  indicator: FoodIndicator;
+  latestDate: string;
+  latestVal: number;
+  latestLight: FoodLight;
+  latestDev: number | null;
+  latestZ: number | null;
+  yoyPct: number | null;
+  minVal: number;
+  maxVal: number;
+  highAlertDays: number;
+  lowAlertDays: number;
+  warnDays: number;
+  spanFrom: string;
+  spanTo: string;
+  nDays: number;
+}
+
+export const FOOD_LABELS: Record<FoodIndicator, string> = {
+  VPI: "菜價", FPI: "魚價", MPI: "豬雞肉價", EPI: "蛋價",
+};
+
+/** 各指數主色 —— 取自品類本身（葉綠／冰藍／肉褐／蛋黃），非隨機配色 */
+export const FOOD_COLORS: Record<FoodIndicator, string> = {
+  VPI: "#5fbf6d", FPI: "#4aa3c7", MPI: "#cc7a6d", EPI: "#d9a845",
+};
+
+/** 涵蓋範圍註腳（避免畫面上只有代碼、看不出來源是什麼） */
+export const FOOD_SCOPE: Record<FoodIndicator, string> = {
+  VPI: "19 市場 · 307 品項",
+  FPI: "22 魚市場 · 507 魚種",
+  MPI: "毛豬拍賣 + 白肉雞",
+  EPI: "雞蛋 + 鴨蛋產地價",
+};
+
+/** 異常方向色 —— 偏高＝民生壓力，偏低＝供給過剩，兩者必須可區分 */
+export const FOOD_ALERT_HIGH = "#ef4444";
+export const FOOD_ALERT_LOW = "#38bdf8";
+
+const FOOD_ORDER: FoodIndicator[] = ["VPI", "FPI", "MPI", "EPI"];
+const isFoodIndicator = (v: unknown): v is FoodIndicator =>
+  typeof v === "string" && (FOOD_ORDER as string[]).includes(v);
+
+async function _fetchFoodPriceDaily(days: number): Promise<FoodPriceDay[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    `food:daily:${days}`,
+    "食品價格指數",
+    supabase.rpc("get_food_price_daily", { p_days: days }),
+  );
+  if (error) {
+    console.warn("[Intel] get_food_price_daily failed:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, unknown>[])
+    .filter((r) => isFoodIndicator(r.indicator))
+    .map((r) => ({
+      tradeDate: String(r.trade_date),
+      indicator: r.indicator as FoodIndicator,
+      indexVal: Number(r.index_val),
+      indexSa: num(r.index_sa),
+      z: num(r.z_score),
+      devPct: num(r.dev_pct),
+      light: (String(r.light ?? "green") as FoodLight),
+    }));
+}
+
+async function _fetchFoodPriceSummary(days: number): Promise<FoodPriceSummary[]> {
+  if (!supabaseConfigured) return [];
+  const { data, error } = await withLoading(
+    `food:summary:${days}`,
+    "食品價格摘要",
+    supabase.rpc("get_food_price_summary", { p_days: days }),
+  );
+  if (error) {
+    console.warn("[Intel] get_food_price_summary failed:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, unknown>[])
+    .filter((r) => isFoodIndicator(r.indicator))
+    .map((r) => ({
+      indicator: r.indicator as FoodIndicator,
+      latestDate: String(r.latest_date),
+      latestVal: Number(r.latest_val),
+      latestLight: String(r.latest_light ?? "green") as FoodLight,
+      latestDev: num(r.latest_dev),
+      latestZ: num(r.latest_z),
+      yoyPct: num(r.yoy_pct),
+      minVal: Number(r.min_val),
+      maxVal: Number(r.max_val),
+      highAlertDays: Number(r.high_alert_days ?? 0),
+      lowAlertDays: Number(r.low_alert_days ?? 0),
+      warnDays: Number(r.warn_days ?? 0),
+      spanFrom: String(r.span_from),
+      spanTo: String(r.span_to),
+      nDays: Number(r.n_days ?? 0),
+    }))
+    .sort((a, b) => FOOD_ORDER.indexOf(a.indicator) - FOOD_ORDER.indexOf(b.indicator));
+}
+
+const foodDailyCache = cachedByKey((k: string) => _fetchFoodPriceDaily(Number(k)), TTL_DAILY);
+export function fetchFoodPriceDaily(days = 180): Promise<FoodPriceDay[]> {
+  return foodDailyCache(String(days));
+}
+
+const foodSummaryCache = cachedByKey((k: string) => _fetchFoodPriceSummary(Number(k)), TTL_DAILY);
+export function fetchFoodPriceSummary(days = 180): Promise<FoodPriceSummary[]> {
+  return foodSummaryCache(String(days));
+}

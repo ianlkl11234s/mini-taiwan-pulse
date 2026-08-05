@@ -20,6 +20,7 @@ export type MonitorWidgetId =
   | "liveWall"
   | "situationCards"
   | "plaBoard"
+  | "foodPriceBoard"
   | "hazardStrip"
   | "powerCard"
   | "erCongestion"
@@ -46,7 +47,11 @@ export const MONITOR_GRID_ROW_HEIGHT = 40;
 /** 格線間距 px（沙盒 margin） */
 export const MONITOR_GRID_GAP = 10;
 
-/** 沙盒定稿佈局（2026-08-03 六版 — PLA 拆出獨立戰情板，與 ER 同寬同高 w5 h15） */
+/**
+ * 沙盒定稿佈局
+ * - 2026-08-03 六版 — PLA 拆出獨立戰情板，與 ER 同寬同高 w5 h15
+ * - 2026-08-05 七版 — 新增 foodPriceBoard（食品價格監測）
+ */
 export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "newsFeed", x: 0, y: 0, w: 4, h: 12 },
   { i: "alertBoard", x: 4, y: 0, w: 3, h: 7 },
@@ -65,6 +70,11 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "powerCard", x: 5, y: 34, w: 7, h: 14 },
   { i: "prison", x: 0, y: 50, w: 2, h: 4 },
   { i: "airportPax", x: 2, y: 50, w: 3, h: 6 },
+  // 食品價格監測（2026-08-05）：四指數 2×2 × 180 天。
+  // 走右欄 w7 而非比照 PLA 的 w5 —— 2×2 在 w5 每格只剩 ~190px，
+  // 迷你走勢圖會擠到看不出形狀；w7 每格約 280px 才讀得出趨勢。
+  // 接在 powerCard（y34 h14 → 佔到 y48）之後，不推移任何既有 widget。
+  { i: "foodPriceBoard", x: 5, y: 48, w: 7, h: 9 },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */
