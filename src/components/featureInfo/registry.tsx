@@ -35,6 +35,10 @@ import {
   TemplePanel, ChurchPanel, AncestralHallPanel, FoundationPanel,
   OtherWorshipPanel, ReligionTop100Panel,
 } from "./religionPanels";
+import {
+  FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
+  CemeteryOsmPanel, CemeteryZoningPanel,
+} from "./funeralPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -314,6 +318,12 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   religionFoundations: FoundationPanel,
   religionOtherWorship: OtherWorshipPanel,
   religionTop100: ReligionTop100Panel,
+  // ⚰️ 殯葬 Funeral 5 layer（A/B/C 三源分開）
+  funeralFacilities: FuneralFacilityPanel,
+  funeralOperators: FuneralOperatorPanel,
+  funeralOperatorDensity: FuneralOperatorDensityPanel,
+  cemeteryOsm: CemeteryOsmPanel,
+  cemeteryZoning: CemeteryZoningPanel,
   tourEvents: EventsPanel,
   tourFactories: FactoriesPanel,
   tourAmusementParks: AmusementParksPanel,
@@ -440,6 +450,12 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   religionFoundations: "宗教基金會",
   religionOtherWorship: "其他宗教場所",
   religionTop100: "宗教百景",
+  // ⚰️ 殯葬 Funeral
+  funeralFacilities: "殯葬設施",
+  funeralOperators: "禮儀業者",
+  funeralOperatorDensity: "業者密度",
+  cemeteryOsm: "墓區範圍 (OSM)",
+  cemeteryZoning: "都計墓葬用地",
   tourEvents: "觀光活動",
   tourFactories: "觀光工廠",
   tourAmusementParks: "民營遊樂園",

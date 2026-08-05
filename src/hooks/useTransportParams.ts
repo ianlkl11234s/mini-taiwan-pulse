@@ -25,6 +25,9 @@ import { URBAN_HEAT_MODES } from "../data/urbanHeatTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 import { DEITY_FAMILIES, REGISTRY_MODES, REGISTRY_MODES_ANCESTRAL } from "../data/religionTypes";
+import {
+  FUNERAL_FACILITY_TYPES, OPERATOR_STATUS_MODES, PRECISION_MODES,
+} from "../data/funeralTypes";
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { MOUNTAIN_RESCUE_YEARS } from "../data/mountainSafetyTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
@@ -258,6 +261,19 @@ export function useTransportParams() {
   const [religionOtherWorshipScale, setReligionOtherWorshipScale] = useState(1);
   const [religionTop100Opacity, setReligionTop100Opacity] = useState(0.85);
   const [religionTop100Scale, setReligionTop100Scale] = useState(1);
+  // ⚰️ 殯葬 Funeral（5 層）
+  const [funeralFacilitiesOpacity, setFuneralFacilitiesOpacity] = useState(0.85);
+  const [funeralFacilitiesScale, setFuneralFacilitiesScale] = useState(1);
+  const [funeralFacilitiesType, setFuneralFacilitiesType] = useState<string>("all");
+  const [funeralFacilitiesPrecision, setFuneralFacilitiesPrecision] = useState<string>("all");
+  const [funeralOperatorsOpacity, setFuneralOperatorsOpacity] = useState(0.8);
+  const [funeralOperatorsScale, setFuneralOperatorsScale] = useState(1);
+  // ⚠️ 預設 "active" 不是 "all" —— 不濾會多畫 1,638 個已歇業業者（handoff §6）
+  const [funeralOperatorsStatus, setFuneralOperatorsStatus] = useState<string>("active");
+  const [funeralOperatorsPrecision, setFuneralOperatorsPrecision] = useState<string>("all");
+  const [funeralOperatorDensityOpacity, setFuneralOperatorDensityOpacity] = useState(0.6);
+  const [cemeteryOsmOpacity, setCemeteryOsmOpacity] = useState(0.45);
+  const [cemeteryZoningOpacity, setCemeteryZoningOpacity] = useState(0.55);
   const [tourEventsOpacity, setTourEventsOpacity] = useState(0.85);
   const [tourEventsScale, setTourEventsScale] = useState(1);
   const [tourEventsStatus, setTourEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
@@ -1081,6 +1097,15 @@ export function useTransportParams() {
     religionFoundationsOpacity, religionFoundationsScale,
     religionOtherWorshipOpacity, religionOtherWorshipScale,
     religionTop100Opacity, religionTop100Scale,
+    funeralFacilitiesOpacity, funeralFacilitiesScale,
+    funeralFacilitiesTypeIdx: ["all", ...FUNERAL_FACILITY_TYPES.map((t) => t.value)].indexOf(funeralFacilitiesType),
+    funeralFacilitiesPrecisionIdx: PRECISION_MODES.map((m) => m.value).indexOf(funeralFacilitiesPrecision),
+    funeralOperatorsOpacity, funeralOperatorsScale,
+    funeralOperatorsStatusIdx: OPERATOR_STATUS_MODES.map((m) => m.value).indexOf(funeralOperatorsStatus),
+    funeralOperatorsPrecisionIdx: PRECISION_MODES.map((m) => m.value).indexOf(funeralOperatorsPrecision),
+    funeralOperatorDensityOpacity,
+    cemeteryOsmOpacity,
+    cemeteryZoningOpacity,
     tourEventsOpacity, tourEventsScale,
     tourEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(tourEventsStatus),
     tourFactoriesOpacity, tourFactoriesScale,
@@ -1509,6 +1534,9 @@ export function useTransportParams() {
     religionFoundationsOpacity, religionFoundationsScale,
     religionOtherWorshipOpacity, religionOtherWorshipScale,
     religionTop100Opacity, religionTop100Scale,
+    funeralFacilitiesOpacity, funeralFacilitiesScale, funeralFacilitiesType, funeralFacilitiesPrecision,
+    funeralOperatorsOpacity, funeralOperatorsScale, funeralOperatorsStatus, funeralOperatorsPrecision,
+    funeralOperatorDensityOpacity, cemeteryOsmOpacity, cemeteryZoningOpacity,
     tourEventsOpacity, tourEventsScale, tourEventsStatus,
     tourFactoriesOpacity, tourFactoriesScale, tourAmusementParksOpacity, tourAmusementParksScale,
     tourCampingOpacity, tourCampingScale,
@@ -2738,6 +2766,30 @@ export function useTransportParams() {
       case "religionTop100": return [
         { label: `透明度 ${religionTop100Opacity.toFixed(2)}`, value: religionTop100Opacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionTop100Opacity },
         { label: `大小 ${religionTop100Scale.toFixed(1)}`, value: religionTop100Scale, min: 0.3, max: 3, step: 0.1, onChange: setReligionTop100Scale },
+      ];
+      // ⚰️ 殯葬 Funeral（5 層）
+      case "funeralFacilities": return [
+        { type: "select" as const, label: "類型", value: funeralFacilitiesType, options: [{ label: "全部", value: "all" }, ...FUNERAL_FACILITY_TYPES.map((t) => ({ label: `${t.label} (${t.count.toLocaleString()})`, value: t.value }))], onChange: setFuneralFacilitiesType },
+        // ⚠️ 42% 是地籍/鄉鎮中心的概略座標 → 做距離分析前先切「僅精確定位」（handoff §3.5）
+        { type: "select" as const, label: "定位精度", value: funeralFacilitiesPrecision, options: PRECISION_MODES, onChange: setFuneralFacilitiesPrecision },
+        { label: `透明度 ${funeralFacilitiesOpacity.toFixed(2)}`, value: funeralFacilitiesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFuneralFacilitiesOpacity },
+        { label: `大小 ${funeralFacilitiesScale.toFixed(1)}`, value: funeralFacilitiesScale, min: 0.3, max: 3, step: 0.1, onChange: setFuneralFacilitiesScale },
+      ];
+      case "funeralOperators": return [
+        // ⚠️ 預設「仍營業」—— 切到「全部」會多出 1,638 個已歇業業者（產業消長分析用）
+        { type: "select" as const, label: "營業狀態", value: funeralOperatorsStatus, options: OPERATOR_STATUS_MODES, onChange: setFuneralOperatorsStatus },
+        { type: "select" as const, label: "定位精度", value: funeralOperatorsPrecision, options: PRECISION_MODES, onChange: setFuneralOperatorsPrecision },
+        { label: `透明度 ${funeralOperatorsOpacity.toFixed(2)}`, value: funeralOperatorsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFuneralOperatorsOpacity },
+        { label: `大小 ${funeralOperatorsScale.toFixed(1)}`, value: funeralOperatorsScale, min: 0.3, max: 3, step: 0.1, onChange: setFuneralOperatorsScale },
+      ];
+      case "funeralOperatorDensity": return [
+        { label: `透明度 ${funeralOperatorDensityOpacity.toFixed(2)}`, value: funeralOperatorDensityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFuneralOperatorDensityOpacity },
+      ];
+      case "cemeteryOsm": return [
+        { label: `透明度 ${cemeteryOsmOpacity.toFixed(2)}`, value: cemeteryOsmOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCemeteryOsmOpacity },
+      ];
+      case "cemeteryZoning": return [
+        { label: `透明度 ${cemeteryZoningOpacity.toFixed(2)}`, value: cemeteryZoningOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCemeteryZoningOpacity },
       ];
       case "tourEvents": return [
         { type: "select" as const, label: "狀態", value: tourEventsStatus, options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }], onChange: setTourEventsStatus },

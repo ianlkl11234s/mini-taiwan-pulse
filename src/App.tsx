@@ -48,6 +48,7 @@ import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
 import { WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX } from "./map/climateRamps";
 import { useFreewayLayer } from "./hooks/useFreewayLayer";
 import { useRoadCongestionLayer } from "./hooks/useRoadCongestionLayer";
+import { useFuneralDensityLayer } from "./hooks/useFuneralDensityLayer";
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
 import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
 import type { ReservoirScene } from "./three/ReservoirScene";
@@ -1313,6 +1314,13 @@ export default function App() {
     layerVisibility.roadCongestion,
     transportParams.overlayParams.roadCongestionWidth ?? 1,
     transportParams.overlayParams.roadCongestionOpacity ?? 0.85,
+  );
+
+  // ── 殯葬業者區級密度（無幾何 → join 鄉鎮界 PMTiles + feature-state 染色） ──
+  useFuneralDensityLayer(
+    mapRef,
+    layerVisibility.funeralOperatorDensity,
+    transportParams.overlayParams.funeralOperatorDensityOpacity ?? 0.6,
   );
 
   // ── 溫度網格 2D（Mapbox fill + feature-state 染色，與 3D 溫度波共用資料） ──

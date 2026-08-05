@@ -342,6 +342,11 @@ export function useMapInteraction(
           { layers: ["religion-other-worship-circle"], type: "religionOtherWorship" },
           { layers: ["religion-churches-circle"], type: "religionChurches" },
           { layers: ["religion-temples-circle"], type: "religionTemples" },
+          // ⚰️ 殯葬 Funeral 5 layer（點層優先；三個面層置末，density 覆蓋全台故排最後）
+          { layers: ["funeral-facilities-circle"], type: "funeralFacilities" },
+          { layers: ["funeral-operators-circle"], type: "funeralOperators" },
+          { layers: ["cemetery-zoning-fill"], type: "cemeteryZoning" },
+          { layers: ["cemetery-osm-fill"], type: "cemeteryOsm" },
           // 🧳 觀光 Tourism 12 layer（點層優先；面層 hot-spring-zones / scenic-areas 置末避免大面積擋點）
           { layers: ["tour-attractions-circle", "tour-attractions-glow"], type: "tourAttractions" },
           { layers: ["tour-hot-springs-circle", "tour-hot-springs-glow"], type: "tourHotSprings" },
@@ -470,6 +475,8 @@ export function useMapInteraction(
           { layers: ["eq-replay-town-fill"], type: "earthquakeReplayTown" },
           // 溫度網格 2D：鋪滿全台陸地的大面積 fill → 放最末，不擋任何點/線層
           { layers: ["temperature-grid-fill"], type: "temperatureGrid" },
+          // 殯葬業者密度：368 鄉鎮全台鋪滿的 fill → 同樣放最末
+          { layers: ["funeral-density-fill"], type: "funeralOperatorDensity" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],
@@ -492,11 +499,12 @@ export function useMapInteraction(
             }
             if (!coords) coords = [e.lngLat.lng, e.lngLat.lat];
             // roadCongestion 的 level / temperatureGrid 的 temp / earthquakeReplayTown 的 eqi
-            // 在 feature-state（非 baked properties）→ 併入
+            // / funeralOperatorDensity 的 operatorCount 在 feature-state（非 baked properties）→ 併入
             const properties =
               type === "roadCongestion" ||
               type === "temperatureGrid" ||
-              type === "earthquakeReplayTown"
+              type === "earthquakeReplayTown" ||
+              type === "funeralOperatorDensity"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : (f.properties ?? {});
             setFeatureInfo({ layerType: type, properties, coords });

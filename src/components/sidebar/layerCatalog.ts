@@ -28,6 +28,7 @@ import type { LayerVisibility, TransportType } from "../../types";
 // ── Color Config ──
 
 import { RELIGION_LAYER_COLORS } from "../../data/religionTypes";
+import { FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
 
 export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   flights: "#64aaff",
@@ -204,6 +205,8 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   tourRestaurants: "#c62828",
   // 🛕 宗教 Religion（色票 SSOT = religionTypes.ts RELIGION_LAYER_COLORS）
   ...RELIGION_LAYER_COLORS,
+  // ⚰️ 殯葬 Funeral（色票 SSOT = funeralTypes.ts FUNERAL_LAYER_COLORS）
+  ...FUNERAL_LAYER_COLORS,
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -821,6 +824,38 @@ export const THEMES: ThemeDef[] = [
           // 2026-08-02 自「觀光 → 玩・人文」搬來並更名（原 key tourReligion），
           // 對應上游 religion.top100（自 tourism.religion 搬移歸位）
           { key: "religionTop100", label: "宗教百景 Top 100", labelMobile: "宗教百景", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // ⚰️ FUNERAL 殯葬（2026-08-05 第 37 主題；上游 funeral 批次）
+  // 🔴 A／B／C 三源分開不整合 —— 點位（A 官方名冊）／墓區範圍（B OSM 實際使用
+  //    + C 都計法定劃設）／密度分析（A 區級）三個子群，讓使用者自行疊圖比對。
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "殯葬 Funeral",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "點位",
+        layers: [
+          { key: "funeralFacilities", label: "殯葬設施 Facilities", labelMobile: "殯葬設施 (3,707)", expandable: true },
+          { key: "funeralOperators", label: "禮儀業者 Operators", labelMobile: "禮儀業者 (4,595 營業中)", expandable: true },
+        ],
+      },
+      {
+        title: "墓區範圍",
+        layers: [
+          { key: "cemeteryOsm", label: "墓區範圍 OSM Cemeteries", labelMobile: "墓區範圍 OSM (3,229)", expandable: true },
+          { key: "cemeteryZoning", label: "都計墓葬用地 Zoning（北北）", labelMobile: "都計墓葬用地 (114・僅北北)", expandable: true },
+        ],
+      },
+      {
+        title: "分析",
+        layers: [
+          { key: "funeralOperatorDensity", label: "業者密度 Operator Density", labelMobile: "業者密度 (325 區)", expandable: true },
         ],
       },
     ],
