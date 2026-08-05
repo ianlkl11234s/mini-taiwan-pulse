@@ -111,8 +111,16 @@ export function precisionModeFilter(idx: number, idField: string): unknown[] {
 
 // ── A 源 · 禮儀業者 entity_type 2 類 + is_active 三態 ──────────────────
 //
-// 🔴 `is_active` 不過濾會多畫 1,638 個已歇業業者 —— 資料層刻意保留（產業消長分析用），
-//    但圖層**預設只畫 true**（4,595 筆仍營業）。故 idx 0 = 仍營業，不是「全部」。
+// 🔴 `is_active` 不過濾會多畫 1,664 個已失效業者 —— 資料層刻意保留（產業消長分析用），
+//    但圖層**預設只畫 true**（4,569 筆仍營業）。故 idx 0 = 仍營業，不是「全部」。
+//
+// ⚠️ 這三個數字是**上游規則的函數**，不是固定值。2026-08-06 上游把「遷他縣市」
+//    26 筆改判為失效（原本算 active），4,595/1,638 → 4,569/1,664。
+//    語意是「業者遷走後留在舊址的舊登記」，不濾掉會在舊縣市畫出幽靈點
+//    （同一統編同時出現在新舊兩地，看起來像兩家在營業）。
+//    「申覆（辯）期」4 筆維持 active —— 還沒確定廢止。
+//    → 上游動 is_active 規則時，這裡的 label 與註解要一起改；**沒有測試會擋**
+//      （契約 ratchet 只守欄位型別與分類值，不守筆數）。
 
 export const OPERATOR_ENTITY_MISSING_COLOR = "#8a8a8a";
 
@@ -139,10 +147,12 @@ export function operatorEntityColor(value: string | null | undefined): string {
   return FUNERAL_OPERATOR_ENTITY_TYPES.find((t) => t.value === value)?.color ?? OPERATOR_ENTITY_MISSING_COLOR;
 }
 
-/** ⚠️ idx 0（預設）= 仍營業 —— 順序不可調換，調換等於預設多畫 1,638 個已歇業業者 */
+/** ⚠️ idx 0（預設）= 仍營業 —— 順序不可調換，調換等於預設多畫 1,664 個已失效業者 */
 export const OPERATOR_STATUS_MODES: { value: string; label: string }[] = [
-  { value: "active",   label: "仍營業 (4,595)" },
-  { value: "inactive", label: "已歇業 (1,638)" },
+  { value: "active",   label: "仍營業 (4,569)" },
+  // 「已失效」不寫「已歇業」：這桶含 歇業／撤銷／解散／廢止／停業／遷他縣市 六種狀態，
+  // 遷他縣市那 26 筆是「遷走了」不是「收了」，講成歇業會誤導
+  { value: "inactive", label: "已失效 (1,664)" },
   { value: "all",      label: "全部 (6,233)" },
 ];
 

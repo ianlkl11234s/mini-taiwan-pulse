@@ -8459,7 +8459,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       {
         suffix: "circle",
         type: "circle",
-        // ⚠️ statusIdx 0（預設）= 仍營業 —— 不濾會多畫 1,638 個已歇業業者（見 funeralTypes）
+        // ⚠️ statusIdx 0（預設）= 仍營業 —— 不濾會多畫 1,664 個已失效業者（見 funeralTypes）
         filter: (p) => operatorFilter(
           p?.funeralOperatorsStatusIdx ?? 0,
           p?.funeralOperatorsPrecisionIdx ?? 0,

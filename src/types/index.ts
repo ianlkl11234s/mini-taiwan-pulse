@@ -935,7 +935,7 @@ export interface LayerVisibility {
   religionTop100: boolean;         // 宗教百景 100（2026-08-02 自 tourReligion 更名搬群）
   // ⚰️ 殯葬 Funeral（第 37 主題；2026-08-05 上游 funeral 批次；A/B/C 三源分開不整合）
   funeralFacilities: boolean;      // A 源 設施 3,707 點（facility_type 6 類分色 + precision 篩選）
-  funeralOperators: boolean;       // A 源 禮儀業者 6,233 點（⚠️ 預設只畫 is_active=true 的 4,595）
+  funeralOperators: boolean;       // A 源 禮儀業者 6,233 點（⚠️ 預設只畫 is_active=true 的 4,569）
   funeralOperatorDensity: boolean; // A 源 區級業者密度 325 區（無幾何，feature-state join 鄉鎮界 PMTiles）
   cemeteryOsm: boolean;            // B 源 OSM 墓區面 3,229（PMTiles；🔴 ODbL 必須標示；僅 34.5% 有 name）
   cemeteryZoning: boolean;         // C 源 都計墓葬類法定用地 114 面（⚠️ 僅臺北 12＋新北 102）

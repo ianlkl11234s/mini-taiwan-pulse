@@ -1773,7 +1773,7 @@ function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
             ))}
           </div>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
-            預設只畫仍營業的 4,595 家（另有 1,638 家已歇業，可用「營業狀態」切換）
+            預設只畫仍營業的 4,569 家（另有 1,664 家已失效——含歇業、撤銷、解散、遷他縣市）
           </div>
         </div>
       )}
