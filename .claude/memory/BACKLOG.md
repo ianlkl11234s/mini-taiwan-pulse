@@ -4,7 +4,7 @@
 
 ## 進行中 / 待辦
 
-### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**尚未部署**）
+### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**已部署驗證**）
 
 > **SSOT 全部移到 [`docs/features/embeddable-map/`](../../docs/features/embeddable-map/)**
 > （README／backlog／changelog／handoff 四件套）。本區只留索引，**不再更新細節**。
@@ -17,8 +17,8 @@
 
 | ID | 優先級 | 項目 | 狀態 |
 |---|---|---|---|
-| EM-21 | **P0** | **底圖（283MB）+ 快照上 S3 並部署** —— 沒做的話正式站 `/embed` 是壞的 | open |
-| EM-13 | P1 | 部署後驗收（實機 iframe / 行動裝置 / Cloudflare 快取規則） | open |
+| EM-21 | — | 底圖（297MB）+ 快照上 S3 並部署 | **done**（2026-08-05；正式站驗證 Mapbox 0 / Supabase 0） |
+| EM-13 | P1 | Cloudflare `/base_map/`、`/embed-snapshots/` 快取規則 + 行動裝置實機 | open |
 | EM-01~06, 09, 10, 14, 15, 19, 20 | — | 規劃／底圖／URL／`/embed`／CDN 層／歷史快照／分享面板／popup | **done** |
 | EM-16 | — | Three.js 圖層（船舶/班機/鐵路/公車）嵌入 | **待討論**（owner 2026-08-04：之後再談） |
 | EM-07/08/11/12/17/18/22 | P2–P3 | 加油站快照補檔、更多歷史快照層、底圖改 R2、字型自託管、facade、嵌入碼防腐、popup 標籤 | open |

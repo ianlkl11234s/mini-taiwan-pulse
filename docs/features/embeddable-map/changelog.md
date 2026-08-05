@@ -1,5 +1,15 @@
 # Embeddable Map — Changelog
 
+## 2026-08-05 — 🚀 部署上線（EM-21）
+
+- 底圖 `taiwan_basemap.pmtiles`（297 MB）+ 共機快照上 S3 `deploy-assets/`
+- Zeabur 由 push master 自動觸發部署，容器 entrypoint 拉取成功（**未手動 redeploy**）
+- **正式站端到端驗證**：`/embed` 200、底圖 Range Request 206、
+  `temples.pmtiles`×7 tiles + `churches.geojson` 正常，
+  **`mapboxCalls: 0`、`supabaseCalls: 0`** —— 成本模型實證成立
+- 踩雷：上傳**不要**跑整個 `upload-deploy-assets.sh`，base_map 那段是逐檔 `cp`，
+  會把既有 400 MB+ 全部重傳
+
 ## 2026-08-05 — popup + 分享面板收尾（`feat/embed-popup-share`）
 
 - **通用 popup**（EM-20）：所有圖層可點。不複用主站 `useMapInteraction` + 30 檔／7379 行

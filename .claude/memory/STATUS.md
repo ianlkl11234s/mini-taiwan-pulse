@@ -3,10 +3,13 @@
 **最後更新**：2026-08-05（可嵌入地圖 EM 系列上線；**PR #105 + #106 已 merged 並 push**）
 **mini-taiwan-pulse**：`master` = `81e8993`（PR #106 merged；前 `d36d787` = PR #105）
 
-> 🔴 **最優先**：EM-21 —— 底圖 `public/base_map/taiwan_basemap.pmtiles`（283 MB）與
-> `public/embed-snapshots/` **尚未上 S3**，所以正式站的 `/embed` 目前是壞的（載不到底圖）。
-> 跑 `./scripts/deploy/upload-deploy-assets.sh` 即可（三處接線已就緒）。
-> 步驟見 `docs/features/embeddable-map/handoff.md` §0。
+> ✅ **EM-21 已完成（2026-08-05）**：底圖（297 MB）+ 共機快照已上 S3，Zeabur 自動部署後
+> 容器 entrypoint 拉取成功。**正式站 `/embed` 端到端驗證通過** ——
+> Range Request 206、**Mapbox 請求數 0、Supabase 請求數 0**。
+> 嵌入碼可直接貼進文章：`https://mini-taiwan-pulse.itsmigu.com/embed?v=1&…`
+>
+> ⚠️ 現在 `frame-ancestors *` = **任何網站都能嵌**（當初拍板的「先全開」）。
+> 要收斂改 `nginx.conf` 一行為 `frame-ancestors 'self' https://<網域>`。
 
 **前次**：2026-08-03 共機全鏈上線（四 repo 全 merged）—— `b1901fc` / PR #104
 **gis-platform**：`main`（PR #46 merged；migration **330~333 皆已 apply production**）

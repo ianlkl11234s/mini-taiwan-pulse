@@ -3,12 +3,17 @@
 > SSOT。`.claude/memory/BACKLOG.md` 的 EM 系列只留索引，細節看這裡。
 > 優先級：**P0** 阻塞 / **P1** 規劃期內 / **P2** 穩定後 / **P3** nice-to-have
 
-## 上線前必做
+## 已完成
+
+| ID | 項目 | 結果 |
+|---|---|---|
+| EM-21 | 底圖 + 快照上 S3 並部署 | ✅ 2026-08-05。297 MB 底圖 + 共機快照上 S3；Zeabur 自動部署；正式站驗證 **Mapbox 0 / Supabase 0** |
+
+## 待辦
 
 | ID | 優先級 | 項目 | 備註 |
 |---|---|---|---|
-| EM-21 | **P0** | **底圖 + 快照上 S3 並部署** | `public/base_map/taiwan_basemap.pmtiles`（283 MB）與 `public/embed-snapshots/`。跑 `scripts/deploy/upload-deploy-assets.sh`；三處接線已就緒無需改腳本 |
-| EM-13 | P1 | 部署後驗收：實機 iframe（非 localhost）+ 行動裝置 + Cloudflare 快取規則 | 283 MB 首拉留意 Zeabur 健康檢查逾時 |
+| EM-13 | P1 | Cloudflare 對 `/base_map/`、`/embed-snapshots/` 的快取規則 + 行動裝置實機 | 部署本身已完成；快取規則未設，目前每次都回源 |
 
 ## 功能待辦
 

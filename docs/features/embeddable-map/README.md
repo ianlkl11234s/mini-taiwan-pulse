@@ -1,7 +1,7 @@
 # Embeddable Map（可嵌入地圖 / EM 系列）
 
 > **Slug**：`embeddable-map`
-> **狀態**：✅ shipped（2026-08-04/05；**尚未部署到正式站**，見 §部署需求）
+> **狀態**：✅ shipped **且已部署**（2026-08-05 端到端驗證通過）
 > **Owner**：migu
 > **上線時分支**：`feat/embeddable-map`（PR #105）+ `feat/embed-popup-share`
 > **規劃文件**：[`../../proposal/embeddable-map.md`](../../proposal/embeddable-map.md)（目標／費用／風險）·
@@ -99,20 +99,33 @@ embed 刻意不掛 Three.js。詳見 [`embed-dynamic-layers.md`](../../proposal/
 驗證方式：搜尋 build 產物中的 Mapbox token 特徵字串 `pk.eyJ` —— **embed chunk 出現 0 次**、
 主站 1 次，確認嵌入版完全不載入 mapbox-gl。
 
-## ⚠️ 部署需求（尚未完成）
+## 部署（✅ 2026-08-05 完成）
 
-1. **底圖檔**：`public/base_map/taiwan_basemap.pmtiles`（283 MB，已 gitignore）
-   需上 S3 → 容器。既有 `upload/pull/nginx` 三處**零額外接線**（放對目錄的結果）。
-   產法見 [`../../proposal/embed-prototype/README.md`](../../proposal/embed-prototype/README.md)。
-2. **歷史快照**：`public/embed-snapshots/`（同上，走既有管線）
-3. **Zeabur 首次啟動**：283 MB 首拉需留意健康檢查時間（EM-13）
-4. **Cloudflare**：`/embed-snapshots/` 與 `/base_map/` 的快取規則
+| 項目 | 狀態 |
+|---|---|
+| 底圖 `deploy-assets/base_map/taiwan_basemap.pmtiles` | ✅ 297 MB 已上 S3 |
+| 快照 `deploy-assets/embed-snapshots/plaActivity/2026-07-30.geojson` | ✅ 已上 S3 |
+| Zeabur 部署 | ✅ push master 自動觸發，entrypoint 拉取成功 |
+| 正式站驗證 | ✅ `/embed` 200、底圖 Range 206、**Mapbox 0 / Supabase 0** |
+
+> 上傳時**不要**跑整個 `upload-deploy-assets.sh` —— base_map 那段用 `aws s3 cp` 逐檔重傳，
+> 會把既有 400 MB+ 全部再上傳一次。針對新增檔案 `aws s3 cp` / `sync` 即可。
+
+**日後新增快照後**：
+```bash
+aws s3 sync public/embed-snapshots/ "s3://$S3_BUCKET/deploy-assets/embed-snapshots/" --region ap-southeast-2
+# 容器需重啟才會 pull（entrypoint 執行）→ 改檔 + push 觸發，或 Zeabur dashboard redeploy
+```
+
+⚠️ 尚待處理：Cloudflare 對 `/base_map/` 與 `/embed-snapshots/` 的快取規則（EM-13）。
 
 ## 驗收紀錄
 
 - `npx tsc -b` 綠 / **311 tests** 綠（EM 系列新增 ~60）
 - `nginx -t` 通過
-- 端到端（agent-browser 實測）：
+- **正式站端到端**（2026-08-05，agent-browser 實測 `https://mini-taiwan-pulse.itsmigu.com/embed`）：
+  `mapboxCalls: 0` / `supabaseCalls: 0` / 底圖與 `temples.pmtiles`×7 tiles + `churches.geojson` 正常載入
+- 開發期端到端（localhost）：
   - 相機參數精準命中、只開指定圖層（6 個兄弟層維持 none）
   - gated 圖層零下載
   - 嵌入版三種資料源（PMTiles / CDN 快照 / 歷史快照）皆正常渲染

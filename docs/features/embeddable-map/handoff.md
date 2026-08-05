@@ -3,22 +3,29 @@
 > 給「另一個 session／另一個人」接手用。目標是**不用回問**就能繼續做。
 > 全貌看 [`README.md`](./README.md)，剩餘工作看 [`backlog.md`](./backlog.md)。
 
-## 0. 現在最該做的一件事
+## 0. 現況：已上線
 
-**底圖與快照還沒上 S3，所以正式站的 `/embed` 是壞的**（會載不到底圖）。
+正式站可用，嵌入碼可直接貼進文章：
+
+```
+https://mini-taiwan-pulse.itsmigu.com/embed?v=1&lng=120.13&lat=23.09&z=11.2&layers=aquaculturePonds
+```
+
+底圖（297 MB）與快照已在 S3，Zeabur 由 push 自動部署。**日後只有兩種情況要再動部署**：
 
 ```bash
-# 1. 確認本機有底圖（283 MB，gitignore；沒有的話照 docs/proposal/embed-prototype/README.md 重抽）
-ls -lh public/base_map/taiwan_basemap.pmtiles
+# (a) 新增歷史快照後 —— 上傳 + 讓容器重啟（entrypoint 才會 pull）
+aws s3 sync public/embed-snapshots/ "s3://$S3_BUCKET/deploy-assets/embed-snapshots/" --region ap-southeast-2
 
-# 2. 上傳（三處接線已就緒，不必改腳本）
-./scripts/deploy/upload-deploy-assets.sh
-
-# 3. 部署後驗收
-#    - https://mini-taiwan-pulse.itsmigu.com/embed?v=1&lng=120.13&lat=23.09&z=11.2&layers=aquaculturePonds
-#    - 外站 iframe 實測（非 localhost）
-#    - Network 應只見 /base_map/ 與圖層檔，**不得出現 api.mapbox.com**
+# (b) 重抽底圖後（Protomaps 每月更新）
+aws s3 cp public/base_map/taiwan_basemap.pmtiles "s3://$S3_BUCKET/deploy-assets/base_map/" --region ap-southeast-2
 ```
+
+⚠️ **不要跑整個 `upload-deploy-assets.sh`** —— base_map 那段是逐檔 `aws s3 cp`，
+會把既有 400 MB+ 全部重傳。針對新增檔案上傳即可。
+
+⚠️ 容器**啟動時**才 pull S3，光上傳不會生效。要 push 觸發部署（empty commit 無效，
+Zeabur webhook 看 file diff）或用 Zeabur dashboard redeploy。
 
 ## 1. 架構一句話
 
