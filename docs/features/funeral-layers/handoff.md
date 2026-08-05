@@ -28,7 +28,7 @@
 | `precision` | facilities / operators | **概略座標警示 + 精度 filter**；`parcel_centroid` / `approximate` 視為概略 |
 | `operator_id` | operators | filter 的 `["has", ...]` 全量判斷用 |
 | `entity_type` | operators | 2 類分色（`business` / `company`） |
-| **`is_active`** | operators | **boolean**，預設 filter `== true`。⚠️ 型別若漂成字串（`"true"`），`== true` 全不成立 → **整層空白** |
+| **`is_active`** | operators | **boolean**，預設 filter `== true`。⚠️ 型別若漂成字串（`"true"`），`== true` 全不成立 → **整層空白**。⚠️ 值本身是**上游規則的函數**（2026-08-06 起「遷他縣市」判為 false），改規則要同步改 UI label |
 | `zone_label` | cemetery_zoning | 3 群分色（raw 9 種中文值，見 `CEMETERY_ZONING_CLASSES[].raw`） |
 | `area_ha` | cemetery_zoning / cemetery_osm | popup 面積（**number**） |
 | `osm_id` | cemetery_osm | popup 標題兜底（65.5% 無 name） |
@@ -47,6 +47,8 @@
 | `zone_label` 新增用地名稱 | 同上 → 補 `CEMETERY_ZONING_CLASSES[].raw` |
 | `precision` 新增段位 | 補 `FUNERAL_PRECISION_LABELS`；若屬「概略」還要加進 `FUNERAL_APPROX_PRECISIONS` |
 | `is_active` 改型別 | **立刻爆**（整層空白）→ 契約測試會擋 |
+| **`is_active` 改判定規則**（哪些 status 算失效） | ⚠️ **測試擋不到** —— 換檔後要手動同步 9 處寫死數字：`funeralTypes.ts` 的 `OPERATOR_STATUS_MODES` label + 檔頭註解、`types/index.ts`、`LegendPanel`、`layerCatalog` labelMobile、`funeralPanels`、`overlayRegistry`、`useTransportParams` ×2、`upstreamRegistry`。2026-08-06 首次踩到（「遷他縣市」26 筆由 active 改判失效） |
+| 業者總筆數變動（新增/移除登記） | 同上一列 —— 三個 label 的括號數字都要跟 |
 | 密度 `join_key` 換掉 | hook 印 warn 並中止 join（面全落最淺色），需改 `useFuneralDensityLayer` |
 | `township_boundary.pmtiles` 換 key 或重切 | density join 全失效 → 同步改 `SOURCE_LAYER` / `promoteId` |
 | 無座標尾巴 geocode 回填（438 筆） | 點數變多，前端無需改碼（重新複製檔案即可） |

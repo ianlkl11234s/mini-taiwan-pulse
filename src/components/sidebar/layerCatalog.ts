@@ -842,7 +842,7 @@ export const THEMES: ThemeDef[] = [
         title: "點位",
         layers: [
           { key: "funeralFacilities", label: "殯葬設施 Facilities", labelMobile: "殯葬設施 (3,707)", expandable: true },
-          { key: "funeralOperators", label: "禮儀業者 Operators", labelMobile: "禮儀業者 (4,595 營業中)", expandable: true },
+          { key: "funeralOperators", label: "禮儀業者 Operators", labelMobile: "禮儀業者 (4,569 營業中)", expandable: true },
         ],
       },
       {

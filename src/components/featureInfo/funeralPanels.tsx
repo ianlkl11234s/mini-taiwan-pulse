@@ -64,7 +64,7 @@ export function FuneralFacilityPanel({ props }: { props: Record<string, unknown>
 }
 
 /**
- * A 源 · 禮儀業者（6,233 點，圖層預設只畫仍營業的 4,595）：entity_type 2 類分色。
+ * A 源 · 禮儀業者（6,233 點，圖層預設只畫仍營業的 4,569）：entity_type 2 類分色。
  * capital 僅公司登記有值（獨資合夥為 null）。
  */
 export function FuneralOperatorPanel({ props }: { props: Record<string, unknown> }) {
@@ -78,7 +78,8 @@ export function FuneralOperatorPanel({ props }: { props: Record<string, unknown>
       <Row label="登記別" value={operatorEntityLabel(entity)} color={color} />
       <Row
         label="營業狀態"
-        value={str(props.status) || (active ? "核准設立" : "已歇業")}
+        // status 幾乎必有值；fallback 用「已失效」不用「已歇業」——這桶含遷他縣市
+        value={str(props.status) || (active ? "核准設立" : "已失效")}
         color={active ? undefined : "#9e9e9e"}
       />
       {capital != null ? <Row label="資本額" value={`${capital.toLocaleString()} 元`} /> : null}

@@ -20,7 +20,7 @@
 | 名稱（layer key） | 源 | 類型 | 資料源 | 特色 |
 |---|:---:|---|---|---|
 | `funeralFacilities` | A | point (3,707) | GeoJSON `public/funeral/funeral_facilities.geojson` | `facility_type` 6 類分色 + 類型/精度雙 filter |
-| `funeralOperators` | A | point (6,233) | GeoJSON `public/funeral/funeral_operators.geojson` | `entity_type` 2 類分色；**預設只畫仍營業的 4,595** |
+| `funeralOperators` | A | point (6,233) | GeoJSON `public/funeral/funeral_operators.geojson` | `entity_type` 2 類分色；**預設只畫仍營業的 4,569** |
 | `funeralOperatorDensity` | A | fill (325 區) | JSON `public/funeral/funeral_operators_density.json` × 鄉鎮界 PMTiles | **無幾何**，feature-state join |
 | `cemeteryOsm` | B | fill+line (3,229) | PMTiles `public/funeral/cemetery_osm.pmtiles` | **ODbL，圖例＋popup 都標示** |
 | `cemeteryZoning` | C | fill+line (114) | GeoJSON `public/funeral/cemetery_zoning.geojson` | `zone_label` 9 值歸 3 群；**僅臺北＋新北** |
@@ -120,6 +120,16 @@ Embed 的 ODbL 標示由共用 LegendPanel ＋ 右下不可關閉的 OSM attribu
 - density join：視野內 69/71 鄉鎮有 feature-state；缺的石碇區、平溪區經對照確為 0 家（正確落最淺色）✅
 - popup 4 種皆通過，含概略座標警示、ODbL 標示、「登記地不是服務涵蓋率」註記 ✅
 - 圖例含 6 類設施 / 2 類業者 / 3 群都計用地 / 7 級密度 + ODbL ✅
+
+## 驗收紀錄（2026-08-06 `is_active` 修正後，agent-browser localhost:6002）
+
+全台 z8 視野，只開 `funeralOperators`：
+
+- 渲染 2,744 點，`by_is_active` 全數 `true`（零筆 false）✅
+- **「遷他縣市」在圖上 = 0 筆** —— 26 個幽靈點確認消失 ✅
+- 「申覆（辯）期」3 筆仍在圖上（全台 4 筆，視野內 3）—— 符合上游「未確定廢止故保留 active」✅
+- 圖例文案：「預設只畫仍營業的 4,569 家（另有 1,664 家已失效——含歇業、撤銷、解散、遷他縣市）」✅
+- 其餘 4 個資料檔 byte 相同（density / facilities / cemetery ×2），不需回歸
 
 ## 相關
 

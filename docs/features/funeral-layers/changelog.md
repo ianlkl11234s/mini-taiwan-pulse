@@ -4,6 +4,32 @@
 
 ---
 
+## 2026-08-06 — PR #（待補） `（待補 squash hash）`
+
+**上游 `is_active` 規則修正 → 同步靜態檔與所有寫死的數字。**
+
+上游寫匯入腳本時發現 29 筆 `operator_uid` 撞號，追下去不是重複資料，是**同一家業者遷址的
+新舊兩筆登記**（例：統編 45442023 天昕禮儀社，苗栗「遷他縣市」＋新竹「核准設立」）。
+連帶揭露 `is_active` 漏判「遷他縣市」：那 26 筆舊登記被當成營業中，前端會在**舊縣市的舊地址
+畫出幽靈點**，同一統編同時出現在新舊兩地，看起來像兩家在營業。
+
+- `public/funeral/funeral_operators.geojson` 換新版：仍營業 4,595 → **4,569**、
+  已失效 1,638 → **1,664**（「申覆（辯）期」4 筆維持 active，還沒確定廢止）
+- 三個 label 改字：`已歇業` → **`已失效`** —— 這桶含 歇業／撤銷／解散／廢止／停業／遷他縣市
+  六種狀態，遷他縣市是「遷走了」不是「收了」，講成歇業會誤導
+- 同步 9 處寫死數字：`funeralTypes.ts`（label + 檔頭）、`types/index.ts`、`LegendPanel`、
+  `layerCatalog`（labelMobile）、`funeralPanels`、`overlayRegistry`、`useTransportParams` ×2、
+  `upstreamRegistry`
+- `handoff.md` 觸發點表補一條「`is_active` 規則變動 → 同步改 UI label」——
+  原表只想到「欄位/值變動」，沒想到**規則本身會變**
+- **不受影響已驗證**：`funeral_operators_density.json`（source 是 `moi_7053`，與商工登記不同源）、
+  設施與兩個墓區面檔皆 byte 相同
+
+⚠️ 這類漂移**沒有測試會擋**：契約 ratchet 只守欄位型別與分類值，不守筆數，
+label 寫錯畫面照樣正常。只能靠上游改規則時人工同步。
+
+---
+
 ## 2026-08-05 — PR #（待補） `（待補 squash hash）`
 
 - 新增「殯葬 Funeral」主題群（第 37 主題，插在 宗教 Religion 與 觀光 Tourism 之間），5 層：
@@ -12,7 +38,7 @@
   各自獨立 toggle；圖例在 B+C 同開時說明「實際使用 vs 法定劃設」的差異
 - `funeralFacilities`：`facility_type` 6 類分色 + 類型 select（7 選項，走原生 dropdown）
 - `funeralOperators`：`entity_type` 2 類分色；**營業狀態預設「仍營業」**（idx 0），
-  切「全部」才含 1,638 筆已歇業
+  切「全部」才含 1,638 筆已歇業（2026-08-06 上游修正 is_active 後改為 4,569 / 1,664）
 - **`precision` 誠實處理**：概略座標（`parcel_centroid` 1,576 + `approximate` 429，佔設施 42%）
   popup 加註「位置為概略值」+ 新增「定位精度」三態 filter（全部／僅精確定位／僅概略座標）
 - `funeralOperatorDensity`：**無幾何**（5.1 KB 數值表換掉 48.9 MB 附幾何版），
