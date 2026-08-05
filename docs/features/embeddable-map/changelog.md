@@ -1,5 +1,16 @@
 # Embeddable Map — Changelog
 
+## 2026-08-05 — Cloudflare 邊緣快取（EM-13）
+
+- 建 Cache Rule `Static map data`（設定內容記於 [`handoff.md`](./handoff.md) §0b）——
+  Cloudflare 預設不快取 `.pmtiles` / `.geojson` 副檔名，設定前全是 `DYNAMIC`
+- nginx `/embed-snapshots/` 改 `immutable` + 1y（檔名含日期、內容永不變 = 天然 cache busting）
+- 不設 Status code TTL：Edge TTL 選「沒有 cache-control 就 bypass」+ nginx 的
+  `add_header` 無 `always` → 404 天然不被快取
+- ⚠️ **驗證踩雷**：`curl -I`（HEAD）會回 `DYNAMIC` 讓人誤判規則沒生效，一律用 GET
+- 實測：快照 HIT×3、`temples.pmtiles` MISS→HIT、**底圖 297 MB 純 range request 也 HIT**
+  （Cloudflare 自行處理大檔案分段快取，不需先完整 GET）
+
 ## 2026-08-05 — 🚀 部署上線（EM-21）
 
 - 底圖 `taiwan_basemap.pmtiles`（297 MB）+ 共機快照上 S3 `deploy-assets/`
