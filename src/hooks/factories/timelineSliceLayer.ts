@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { keepLoadingUntilMapIdle } from "../../lib/loadingRegistry";
 import { timeStore as realTimeStore } from "../../state/timeStore";
+import { useMapReadyTick } from "../useMapReadyTick";
 
 export interface TimelineSliceLayerConfig<D> {
   sourceId: string;
@@ -156,6 +157,9 @@ export function useTimelineSliceLayer<D>(
   scale = 1,
   opacity = 1,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   useEffect(() => {
     if (!visible) return;
     const map = mapRef.current;
@@ -163,5 +167,5 @@ export function useTimelineSliceLayer<D>(
     return startTimelineSliceController(map, config, isDark, scale, opacity);
     // config 為模組層常數，不進 deps
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef, visible, isDark, scale, opacity]);
+  }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

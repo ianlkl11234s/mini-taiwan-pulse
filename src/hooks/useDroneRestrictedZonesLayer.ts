@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 無人機禁/限航區（民航局 dronegis）— 5,741 polygon 共用 PMTiles，filter 拆兩 layer
@@ -74,6 +75,9 @@ export function useDroneZonesLayer(
   nfzOpacity: number,
   restrictedOpacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   useEffect(() => {
     const anyVisible = nfzVisible || restrictedVisible;
     let cancelled = false;
@@ -188,5 +192,5 @@ export function useDroneZonesLayer(
         setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
       }
     };
-  }, [mapRef, nfzVisible, restrictedVisible, nfzOpacity, restrictedOpacity]);
+  }, [mapRef, nfzVisible, restrictedVisible, nfzOpacity, restrictedOpacity, mapTick]);
 }

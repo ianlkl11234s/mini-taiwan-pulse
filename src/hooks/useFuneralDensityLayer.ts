@@ -4,6 +4,7 @@ import { fetchFuneralDensity, type FuneralDensityData } from "../data/funeralDen
 import { funeralDensityColorExpr, FUNERAL_LAYER_COLORS } from "../data/funeralTypes";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 殯葬禮儀業者「區級密度」面量圖（funeralOperatorDensity）。
@@ -46,6 +47,9 @@ export function useFuneralDensityLayer(
   visible: boolean,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const dataRef = useRef<FuneralDensityData | null>(null);
   const [dataTick, setDataTick] = useState(0);
   /** mapRef 還沒填時的重試 tick（production 首載 map "load" 可能晚於資料就緒） */
@@ -180,7 +184,7 @@ export function useFuneralDensityLayer(
       map.off("sourcedata", onSourceData);
       map.off("style.load", onStyleLoad);
     };
-  }, [mapRef, visible, dataTick, mapRetry]);
+  }, [mapRef, visible, dataTick, mapRetry, mapTick]);
 
   // ── 透明度 slider ──
   useEffect(() => {
@@ -188,5 +192,5 @@ export function useFuneralDensityLayer(
     if (!map || !visible) return;
     if (map.getLayer(LAYER_FILL)) map.setPaintProperty(LAYER_FILL, "fill-opacity", opacity);
     if (map.getLayer(LAYER_LINE)) map.setPaintProperty(LAYER_LINE, "line-opacity", opacity * 0.5);
-  }, [mapRef, visible, opacity]);
+  }, [mapRef, visible, opacity, mapTick]);
 }

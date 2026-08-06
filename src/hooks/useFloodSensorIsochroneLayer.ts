@@ -4,6 +4,7 @@ import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
 import { fetchFloodSensorLatest, type FloodSensorRow } from "../data/floodSensorLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 雙北 USWG 3-min 步行等時圈
@@ -77,6 +78,9 @@ export function useFloodSensorIsochroneLayer(
   visible: boolean,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const latestRowsRef = useRef<FloodSensorRow[]>([]);
 
   useEffect(() => {
@@ -168,5 +172,5 @@ export function useFloodSensorIsochroneLayer(
       if (map.getLayer(FILL_ID)) map.setLayoutProperty(FILL_ID, "visibility", "none");
       if (map.getLayer(LINE_ID)) map.setLayoutProperty(LINE_ID, "visibility", "none");
     };
-  }, [mapRef, visible, opacity]);
+  }, [mapRef, visible, opacity, mapTick]);
 }

@@ -11,6 +11,7 @@ import { ReservoirScene } from "../three/ReservoirScene";
 import { createReservoirLayer } from "../map/reservoirCustomLayer";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 水庫 3D 水位計 hook — Timeline 驅動
@@ -126,6 +127,9 @@ export function useReservoirStatusLayer(
   statusesRef: React.RefObject<ReservoirStatus[]>,
   activeReservoirId: number | null,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const visibleRef = useRef(visible);
   const isDarkRef = useRef(isDark);
   const heightScaleRef = useRef(heightScale);
@@ -199,7 +203,7 @@ export function useReservoirStatusLayer(
       cancelled = true;
       if (pollTimer) clearInterval(pollTimer);
     };
-  }, [mapRef, visible, sceneRef, statusesRef]);
+  }, [mapRef, visible, sceneRef, statusesRef, mapTick]);
 
   // ── visible=true：fetch day + 訂閱 date/time ──
   useEffect(() => {
@@ -257,14 +261,14 @@ export function useReservoirStatusLayer(
       unsubDate();
       unsubTime();
     };
-  }, [mapRef, sceneRef, statusesRef, visible]);
+  }, [mapRef, sceneRef, statusesRef, visible, mapTick]);
 
   // ── heightScale / isDark / visible 變化：觸發 repaint
   // （移除 per-frame triggerRepaint 後，需要確保 state 變動能反映到畫面）
   useEffect(() => {
     const map = mapRef.current;
     if (map) map.triggerRepaint();
-  }, [heightScale, isDark, visible, mapRef]);
+  }, [heightScale, isDark, visible, mapRef, mapTick]);
 
   // ── activeReservoirId：點選水庫後撈近 3 日進/出流量，推給 scene 畫雙柱 ──
   useEffect(() => {
@@ -313,5 +317,5 @@ export function useReservoirStatusLayer(
     return () => {
       cancelled = true;
     };
-  }, [activeReservoirId, sceneRef, statusesRef, mapRef]);
+  }, [activeReservoirId, sceneRef, statusesRef, mapRef, mapTick]);
 }

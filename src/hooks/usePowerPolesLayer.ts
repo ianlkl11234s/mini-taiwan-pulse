@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 台電全國電桿 PMTiles 圖層 — 2,959,326 點
@@ -59,6 +60,9 @@ export function usePowerPolesLayer(
   heatStrength: number,
   z5Reveal: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -198,5 +202,5 @@ export function usePowerPolesLayer(
       if (map.getLayer(HEAT_ID)) map.setLayoutProperty(HEAT_ID, "visibility", "none");
       if (map.getLayer(CIRCLE_ID)) map.setLayoutProperty(CIRCLE_ID, "visibility", "none");
     };
-  }, [mapRef, visible, opacity, size, heatStrength, z5Reveal]);
+  }, [mapRef, visible, opacity, size, heatStrength, z5Reveal, mapTick]);
 }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, MapSourceDataEvent } from "mapbox-gl";
 import type { TemperatureGridData } from "../data/temperatureLoader";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   TEMPERATURE_GRID_SOURCE_ID,
   TEMPERATURE_GRID_FILL_LAYER_ID,
@@ -51,6 +52,9 @@ export function useTemperatureGridLayer(
   visible: boolean,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
 
@@ -196,12 +200,12 @@ export function useTemperatureGridLayer(
       unsubscribe();
       if (map.getLayer(TEMPERATURE_GRID_FILL_LAYER_ID)) setTemperatureGridVisible(map, false);
     };
-  }, [mapRef, data, visible, mapRetry]);
+  }, [mapRef, data, visible, mapRetry, mapTick]);
 
   // ── 透明度 slider ──
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !visible) return;
     setTemperatureGridOpacity(map, opacity);
-  }, [mapRef, opacity, visible]);
+  }, [mapRef, opacity, visible, mapTick]);
 }

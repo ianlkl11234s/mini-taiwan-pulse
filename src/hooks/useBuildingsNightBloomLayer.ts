@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   createBuildingsNightBloomLayer,
   BUILDINGS_NIGHT_BLOOM_LAYER_ID,
@@ -18,6 +19,9 @@ export function useBuildingsNightBloomLayer(
   opacity: number,
   minHeight: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
   const opacityRef = useRef(opacity);
@@ -51,5 +55,5 @@ export function useBuildingsNightBloomLayer(
     return () => {
       map.off("style.load", tryMount);
     };
-  }, [mapRef, visible]);
+  }, [mapRef, visible, mapTick]);
 }

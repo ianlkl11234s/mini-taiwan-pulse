@@ -23,6 +23,7 @@ import {
 } from "../data/satelliteTypes";
 import { propagate, splitAtDateline } from "../data/satelliteSGP4";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 衛星圖層 — 三個 toggle（中國軍事 / 中國遙測 / 台灣），共用 SGP4 計算
@@ -126,6 +127,9 @@ export function useSatellitesLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   opts: UseSatellitesLayerOpts,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const { visibility, opacity = 1, trackMinutes = DEFAULT_TRACK_MIN, consoleFilter = null } = opts;
   const consoleFilterRef = useRef(consoleFilter);
   consoleFilterRef.current = consoleFilter;
@@ -453,7 +457,7 @@ export function useSatellitesLayer(
       map.off("style.load", onSetupStyleLoad);
       map.off("idle", onSetupIdle);
     };
-  }, [dataReady, anyVisible, ensureLayers, recompute, recomputeLight, recomputeTrack, mapRef]);
+  }, [dataReady, anyVisible, ensureLayers, recompute, recomputeLight, recomputeTrack, mapRef, mapTick]);
 
   // ── toggle 變動即刻 force recompute ──
   // visibility 物件 identity 每 render 都新；用 JSON 字串穩定化 deps，
@@ -471,7 +475,7 @@ export function useSatellitesLayer(
     if (!map) return;
     if (!layersReadyRef.current && !ensureLayers(map)) return;
     recompute(map, timeStore.getTime());
-  }, [visKey, dataReady, ensureLayers, recompute, mapRef]);
+  }, [visKey, dataReady, ensureLayers, recompute, mapRef, mapTick]);
 
   // ── visibility toggle（用 layer visibility，避免 source 反覆重設） ──
   useEffect(() => {
@@ -487,7 +491,7 @@ export function useSatellitesLayer(
     ]) {
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", v);
     }
-  }, [anyVisible, mapRef, dataReady]);
+  }, [anyVisible, mapRef, dataReady, mapTick]);
 
   // ── opacity ──
   useEffect(() => {
@@ -506,5 +510,5 @@ export function useSatellitesLayer(
     if (map.getLayer(SAT_LAYER_POINT)) {
       map.setPaintProperty(SAT_LAYER_POINT, "circle-opacity", 1 * o);
     }
-  }, [opacity, mapRef, dataReady]);
+  }, [opacity, mapRef, dataReady, mapTick]);
 }

@@ -15,6 +15,7 @@ import {
 import { ALERT_GROUP_KEYS, type AlertGroupKey } from "../data/disasterAlertTypes";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * NCDR 災害示警 timeline 圖層（5 主題群組）
@@ -129,6 +130,9 @@ export function useDisasterAlertLayer(
   visibility: Record<AlertGroupKey, boolean>,
   opacity: number = 1,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const cacheRef = useRef<Map<string, CachedDay>>(new Map());
   const activeDayRef = useRef<DisasterAlert[] | null>(null);
   const activeDateRef = useRef<string>("");
@@ -272,7 +276,7 @@ export function useDisasterAlertLayer(
 
     tick(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(500, tick);
-  }, [anyVisible, visKey, ensureLayers, refreshSource, mapRef]);
+  }, [anyVisible, visKey, ensureLayers, refreshSource, mapRef, mapTick]);
 
   // 套用 opacity（乘以各 layer 的 base opacity，5 群組共用）
   useEffect(() => {
@@ -297,5 +301,5 @@ export function useDisasterAlertLayer(
         map.setPaintProperty(ids.point, "circle-stroke-opacity", o);
       }
     }
-  }, [opacity, visKey, mapRef]);
+  }, [opacity, visKey, mapRef, mapTick]);
 }

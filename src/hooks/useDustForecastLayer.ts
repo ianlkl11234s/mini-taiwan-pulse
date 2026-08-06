@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 interface DustMeta {
   width: number;
@@ -19,6 +20,9 @@ export function useDustForecastLayer(
   visible: boolean,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const opacityRef = useRef(opacity);
   opacityRef.current = opacity;
 
@@ -87,7 +91,7 @@ export function useDustForecastLayer(
         if (map.getSource(SOURCE_ID)) map.removeSource(SOURCE_ID);
       } catch { /* style 已沒 */ }
     };
-  }, [mapRef, visible]);
+  }, [mapRef, visible, mapTick]);
 
   // visibility / opacity 即時切
   useEffect(() => {
@@ -101,5 +105,5 @@ export function useDustForecastLayer(
     apply();
     map.on("style.load", apply);
     return () => { map.off("style.load", apply); };
-  }, [mapRef, visible, opacity]);
+  }, [mapRef, visible, opacity, mapTick]);
 }

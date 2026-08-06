@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, ExpressionSpecification, CircleLayer } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   fetchEarthquakesGlobal,
   earthquakesGlobalToGeoJSON,
@@ -36,6 +37,9 @@ export function useEarthquakesGlobalLayer(
   visible: boolean,
   opacity: number = 0.9,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const eventsRef = useRef<EarthquakeGlobalEvent[]>([]);
   const dataReadyRef = useRef(false);
   const layerReadyRef = useRef(false);
@@ -95,5 +99,5 @@ export function useEarthquakesGlobalLayer(
       map.setPaintProperty(LAYER_ID, "circle-opacity", 0.55 * o);
       map.setPaintProperty(LAYER_ID, "circle-stroke-opacity", 0.8 * o);
     }
-  }, [visible, opacity, ensureSource, mapRef]);
+  }, [visible, opacity, ensureSource, mapRef, mapTick]);
 }

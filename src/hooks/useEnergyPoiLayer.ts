@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   fetchPowerPlants,
   invalidatePowerPlants,
@@ -317,13 +318,16 @@ function useSourceFeed(
   sourceId: string,
   fcRef: React.MutableRefObject<GeoJSON.FeatureCollection | null>,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const feed = useCallback(() => {
     const map = mapRef.current;
     if (!map) return;
     const src = map.getSource(sourceId) as GeoJSONSource | undefined;
     if (!src) return;
     src.setData(fcRef.current ?? EMPTY_FC);
-  }, [mapRef, sourceId, fcRef]);
+  }, [mapRef, sourceId, fcRef, mapTick]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -334,7 +338,7 @@ function useSourceFeed(
     return () => {
       map.off("style.load", onStyleLoad);
     };
-  }, [mapRef, visible, feed]);
+  }, [mapRef, visible, feed, mapTick]);
 
   return feed;
 }

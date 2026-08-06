@@ -36,6 +36,7 @@ import {
 } from "../map/cwaImageryLayer";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 const CLOUD_DATASET = "O-C0042-004";
 const RADAR_DATASET = "O-A0058-005";
@@ -139,6 +140,9 @@ export function useCwaImageryLayer({
   cloudOpacity,
   radarOpacity,
 }: UseCwaImageryLayerOptions) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const cloudRef = useRef<LayerState>(createEmptyState());
   const radarRef = useRef<LayerState>(createEmptyState());
   // 最新可見性（給 subscribeDate / 背景預載 callback 避免閉包過期）
@@ -362,7 +366,7 @@ export function useCwaImageryLayer({
       if (unsubTime) unsubTime();
       if (runRef.current === run) runRef.current = null;
     };
-  }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity]);
+  }, [mapRef, cloudVisible, radarVisible, cloudOpacity, radarOpacity, mapTick]);
 
   // 注：原本獨立的 preloadDays effect 已不需要 — window 變動會由 subscribeWindowDateKeys
   // 觸發 ensureFresh，evict 邏輯在那裡執行（保護視窗內所有日）。

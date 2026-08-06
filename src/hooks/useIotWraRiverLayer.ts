@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useMapReadyTick } from "./useMapReadyTick";
 import type {
   Map as MapboxMap,
   CircleLayer,
@@ -201,6 +202,9 @@ export function useIotWraRiverLayer(
   showMeasured = true,
   showForecast = true,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   // showMeasured / showForecast 會進 loadDay 的 filter（且在 deps 內觸發重載），
   // CONFIG 無法是純模組常數 → 在 effect 內組 config，編排仍走 factory controller
   useEffect(() => {
@@ -213,5 +217,5 @@ export function useIotWraRiverLayer(
         buildSeriesMap(await fetchIotWraRiverDay(dateKey), showMeasured, showForecast),
     };
     return startTimelineSliceController(map, config, isDark, scale, opacity);
-  }, [mapRef, visible, isDark, scale, opacity, showMeasured, showForecast]);
+  }, [mapRef, visible, isDark, scale, opacity, showMeasured, showForecast, mapTick]);
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { fetchA1AccidentsRealtime } from "../data/a1AccidentRealtimeLoader";
 import { wallClock } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 const SRC_ID = "a1-accident-realtime";
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -56,6 +57,9 @@ export function useA1AccidentRealtimeLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const dataRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
   const feed = useCallback(() => {
@@ -67,7 +71,7 @@ export function useA1AccidentRealtimeLayer(
     if (!fc) { src.setData(EMPTY_FC); return; }
     const nowSec = Math.floor(Date.now() / 1000);
     src.setData(annotateAge(fc, nowSec));
-  }, [mapRef]);
+  }, [mapRef, mapTick]);
 
   // 拉資料
   useEffect(() => {
@@ -101,5 +105,5 @@ export function useA1AccidentRealtimeLayer(
     return () => {
       map.off("style.load", onStyleLoad);
     };
-  }, [mapRef, visible, feed]);
+  }, [mapRef, visible, feed, mapTick]);
 }

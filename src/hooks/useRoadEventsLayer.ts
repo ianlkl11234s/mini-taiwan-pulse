@@ -14,6 +14,7 @@ import {
 } from "../data/roadEventsLoader";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * TDX 即時路況事件 timeline 圖層
@@ -110,6 +111,9 @@ export function useRoadEventsLayer(
   visible: boolean,
   opacity: number = 1,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const cacheRef = useRef<Map<string, CachedDay>>(new Map());
   const activeDayRef = useRef<RoadEvent[] | null>(null);
   const activeDateRef = useRef<string>("");
@@ -240,7 +244,7 @@ export function useRoadEventsLayer(
 
     tick(timeStore.getTime());
     return timeStore.subscribeThrottled(500, tick);
-  }, [visible, ensureLayers, refreshSource, mapRef]);
+  }, [visible, ensureLayers, refreshSource, mapRef, mapTick]);
 
   // ── 套用 opacity ──
   useEffect(() => {
@@ -258,5 +262,5 @@ export function useRoadEventsLayer(
       map.setPaintProperty(LAYER_POINT, "circle-opacity", 0.9 * o);
       map.setPaintProperty(LAYER_POINT, "circle-stroke-opacity", o);
     }
-  }, [opacity, visible, mapRef]);
+  }, [opacity, visible, mapRef, mapTick]);
 }

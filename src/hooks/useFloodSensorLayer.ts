@@ -11,6 +11,7 @@ import {
 } from "../data/floodSensorLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * USWG 都市淹水感測器 — Timeline-driven 點圖層
@@ -263,6 +264,9 @@ export function useFloodSensorLayer(
   scale = 1,
   opacity = 1,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const byStationRef = useRef<Map<string, StationSeries>>(new Map());
   const currentDateRef = useRef<string>("");
 
@@ -326,5 +330,5 @@ export function useFloodSensorLayer(
       unsubTime();
       if (map.getLayer(LAYER_DOT)) setLayerVisibility(map, false);
     };
-  }, [mapRef, visible, isDark, scale, opacity]);
+  }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

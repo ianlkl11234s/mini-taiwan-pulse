@@ -5,6 +5,7 @@ import {
   POWER_REGION_BARS_LAYER_ID,
 } from "../map/powerRegionBarsCustomLayer";
 import type { PowerDashboard } from "../data/energyLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * Layer 3：區域用電 3D bars。掛 CustomLayer，資料源由
@@ -16,6 +17,9 @@ export function usePowerRegionBarsLayer(
   opacity: number,
   dashboardRef: React.RefObject<PowerDashboard | null>,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
   const opacityRef = useRef(opacity);
@@ -42,5 +46,5 @@ export function usePowerRegionBarsLayer(
       map.off("style.load", mount);
       // toggle 切 OFF 不 removeLayer，只靠 scene.setVisible 控制
     };
-  }, [mapRef, visible, dashboardRef]);
+  }, [mapRef, visible, dashboardRef, mapTick]);
 }

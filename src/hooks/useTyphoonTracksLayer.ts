@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, LineLayer, CircleLayer, ExpressionSpecification } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   fetchTyphoonPoints,
   typhoonPointsToGeoJSON,
@@ -31,6 +32,9 @@ export function useTyphoonTracksLayer(
   opacity: number = 0.9,
   sourceFilter: TyphoonSource = "all",
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const dataRef = useRef<TyphoonPoint[]>([]);
   const dataReadyRef = useRef(false);
   const layersReadyRef = useRef(false);
@@ -178,5 +182,5 @@ export function useTyphoonTracksLayer(
     if (map.getLayer(LAYER_CURRENT_HALO)) map.setPaintProperty(LAYER_CURRENT_HALO, "circle-opacity", 0.16 * o);
     if (map.getLayer(LAYER_CURRENT_RING)) map.setPaintProperty(LAYER_CURRENT_RING, "circle-stroke-opacity", 0.95 * o);
     if (map.getLayer(LAYER_CURRENT_DOT)) map.setPaintProperty(LAYER_CURRENT_DOT, "circle-opacity", 1 * o);
-  }, [visible, opacity, sourceFilter, ensureSource, mapRef]);
+  }, [visible, opacity, sourceFilter, ensureSource, mapRef, mapTick]);
 }

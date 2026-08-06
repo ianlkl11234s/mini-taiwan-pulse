@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { fetchErHospitalFC, invalidateErHospitalLatest } from "../data/erHospitalLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 急診壅塞 er_hospital 圖層 — 當下快照（比照核安 LIVE，不接 timeStore）。
@@ -18,6 +19,9 @@ export function useErHospitalLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   visible: boolean,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
   const feed = useCallback(() => {
@@ -26,7 +30,7 @@ export function useErHospitalLayer(
     const src = map.getSource(SRC) as GeoJSONSource | undefined;
     if (!src) return;
     src.setData(fcRef.current ?? EMPTY_FC);
-  }, [mapRef]);
+  }, [mapRef, mapTick]);
 
   useEffect(() => {
     if (!visible) return;
@@ -57,5 +61,5 @@ export function useErHospitalLayer(
       map?.off("style.load", onStyleLoad);
       window.clearInterval(id);
     };
-  }, [visible, feed, mapRef]);
+  }, [visible, feed, mapRef, mapTick]);
 }

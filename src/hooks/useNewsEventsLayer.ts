@@ -3,6 +3,7 @@ import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { fetchNewsEventsDay, DEFAULT_NEWS_FILTER, type NewsFilter } from "../data/newsEventsLoader";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 新聞事件資料載入（Supabase 按日）
@@ -27,6 +28,9 @@ export function useNewsEventsLayer(
   visible: boolean,
   filter: NewsFilter = DEFAULT_NEWS_FILTER,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const activeFcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const activeKeyRef = useRef<string>(""); // "date|gr|ev|sv" 組合 key
   const fetchingRef = useRef<string>("");
@@ -37,7 +41,7 @@ export function useNewsEventsLayer(
     const src = map.getSource(SOURCE_ID) as GeoJSONSource | undefined;
     if (!src) return;
     src.setData(activeFcRef.current ?? EMPTY_FC);
-  }, [mapRef]);
+  }, [mapRef, mapTick]);
 
   const loadDay = useCallback(
     (dateStr: string, f: NewsFilter) => {
@@ -89,5 +93,5 @@ export function useNewsEventsLayer(
     return () => {
       map.off("style.load", onStyleLoad);
     };
-  }, [visible, feed, mapRef]);
+  }, [visible, feed, mapRef, mapTick]);
 }

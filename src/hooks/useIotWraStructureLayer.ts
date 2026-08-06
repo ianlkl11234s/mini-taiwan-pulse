@@ -11,6 +11,7 @@ import {
 } from "../data/iotWraStructureLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * IoT 水工結構/環境圖層（5 in 1）
@@ -163,6 +164,9 @@ export function useIotWraStructureLayer(
   showErosion = true,
   showDust = true,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const rowsRef = useRef<IotWraLatestRow[]>([]);
 
   useEffect(() => {
@@ -233,5 +237,5 @@ export function useIotWraStructureLayer(
         setLayerVisibility(map, false);
       }
     };
-  }, [mapRef, visible, isDark, scale, opacity, showFlow, showGate, showDam, showErosion, showDust]);
+  }, [mapRef, visible, isDark, scale, opacity, showFlow, showGate, showDam, showErosion, showDust, mapTick]);
 }

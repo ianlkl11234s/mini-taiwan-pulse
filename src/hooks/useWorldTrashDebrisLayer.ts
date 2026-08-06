@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, ExpressionSpecification, CircleLayer } from "mapbox-gl";
 import { fetchWorldTrashDebris } from "../data/worldTrashDebrisLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 // 全球垃圾殘骸（Outerview，CC-BY-4.0）— 靜態載一次，Mapbox 原生 circle。
 // 單色小點，radius 依 zoom 內插；不接 timeline（比照 useEarthquakesGlobalLayer）。
@@ -23,6 +24,9 @@ export function useWorldTrashDebrisLayer(
   visible: boolean,
   opacity: number = 0.85,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const dataReadyRef = useRef(false);
 
@@ -75,5 +79,5 @@ export function useWorldTrashDebrisLayer(
       const o = Math.max(0, Math.min(1, opacity));
       map.setPaintProperty(LAYER_ID, "circle-opacity", o);
     }
-  }, [visible, opacity, ensureSource, mapRef]);
+  }, [visible, opacity, ensureSource, mapRef, mapTick]);
 }

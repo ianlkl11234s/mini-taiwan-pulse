@@ -7,6 +7,7 @@ import {
   parkingSlotIndexAt, rateFromChar, type ParkingDayData,
 } from "../data/parkingLoader";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 停車 parking 圖層 — Live（當下快照）+ Replay（15 分鐘 timeline 回放）雙模式。
@@ -38,6 +39,9 @@ function useParkingSource(
   sourceId: string,
   cfg: ParkingSourceCfg,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   // fcRef 永遠是「當前該貼到 source 的 FC」（live 快照 or replay 當前 slot 已染色的 day fc）
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
   const dayRef = useRef<ParkingDayData | null>(null);
@@ -48,7 +52,7 @@ function useParkingSource(
   const feed = useCallback(() => {
     const src = mapRef.current?.getSource(sourceId) as GeoJSONSource | undefined;
     src?.setData(fcRef.current ?? EMPTY_FC);
-  }, [mapRef, sourceId]);
+  }, [mapRef, sourceId, mapTick]);
 
   // ── Live：當下快照 poll ──
   useEffect(() => {
@@ -78,7 +82,7 @@ function useParkingSource(
       window.clearInterval(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, isLive, sourceId, feed, mapRef]);
+  }, [visible, isLive, sourceId, feed, mapRef, mapTick]);
 
   // ── Replay：day timeline scrub ──
   useEffect(() => {
@@ -135,7 +139,7 @@ function useParkingSource(
       unsubTick();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visible, isLive, sourceId, feed, mapRef]);
+  }, [visible, isLive, sourceId, feed, mapRef, mapTick]);
 }
 
 export function useParkingLayer(

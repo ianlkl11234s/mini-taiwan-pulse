@@ -23,6 +23,7 @@ import {
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { AqiProduct } from "../types";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 const SINCE_HOURS = 24;
 const SOURCE_ID = "aqi-imagery-src";
@@ -75,6 +76,9 @@ export function useAqiImageryLayer({
   product,
   opacity,
 }: UseAqiImageryLayerOptions) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const stateRef = useRef<LayerState>(createEmptyState());
 
   // ── Loader：visible 開啟 / 產品切換時觸發 ──
@@ -188,7 +192,7 @@ export function useAqiImageryLayer({
     return () => {
       if (unsubTime) unsubTime();
     };
-  }, [mapRef, visible, product, opacity]);
+  }, [mapRef, visible, product, opacity, mapTick]);
 
   // ── Unmount 清理 ──
   useEffect(() => {

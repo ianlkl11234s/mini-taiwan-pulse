@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { fetchWasteCleaningSquads, type WasteCleaningSquadRow } from "../data/wasteLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 全國 清潔隊辦公點 layer — spatial.waste_cleaning_squads（359 / 23 縣市）。
@@ -87,6 +88,9 @@ export function useWasteCleaningSquadLayer(
   visible: boolean,
   isDarkTheme: boolean,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const loadedRef = useRef(false);
 
   useEffect(() => {
@@ -117,5 +121,5 @@ export function useWasteCleaningSquadLayer(
     else map.once("style.load", run);
 
     return () => { cancelled = true; };
-  }, [mapRef, visible, isDarkTheme]);
+  }, [mapRef, visible, isDarkTheme, mapTick]);
 }

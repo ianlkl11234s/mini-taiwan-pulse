@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, ExpressionSpecification } from "mapbox-gl";
 import { fetchTaipeiEvacuateLatest, type EvacuateLatestRow } from "../data/wicTaipeiLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 北市疏散門 latest layer
@@ -105,6 +106,9 @@ export function useTaipeiEvacuateLayer(
   scale: number,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const dataRef = useRef<EvacuateLatestRow[]>([]);
 
   useEffect(() => {
@@ -136,5 +140,5 @@ export function useTaipeiEvacuateLayer(
       return () => { cancelled = true; window.clearInterval(t); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, scale, opacity]);
+  }, [mapRef, visible, scale, opacity, mapTick]);
 }

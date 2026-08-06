@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, ExpressionSpecification } from "mapbox-gl";
 import { fetchTaipeiSewerLatest, type SewerLatestRow } from "../data/wicTaipeiLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 北市雨水下水道水位 latest layer
@@ -98,6 +99,9 @@ export function useTaipeiSewerLayer(
   scale: number,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const dataRef = useRef<SewerLatestRow[]>([]);
 
   useEffect(() => {
@@ -129,5 +133,5 @@ export function useTaipeiSewerLayer(
       return () => { cancelled = true; window.clearInterval(t); };
     }
     return () => { cancelled = true; };
-  }, [mapRef, visible, scale, opacity]);
+  }, [mapRef, visible, scale, opacity, mapTick]);
 }
