@@ -1,7 +1,63 @@
 # Status
 
-**最後更新**：2026-08-05（可嵌入地圖 EM 系列上線；**PR #105 + #106 已 merged 並 push**）
-**mini-taiwan-pulse**：`master` = `81e8993`（PR #106 merged；前 `d36d787` = PR #105）
+**最後更新**：2026-08-06（殯葬 5 層＋食品價格看板上線；分支全整合完畢，四 repo 與 origin 同步）
+**mini-taiwan-pulse**：`master` = `28df1a8`
+
+## 現況一句話
+
+**四個近期功能全部在 master 上、打開就看得到**：嵌入 `/embed`、食品價格監測板、
+共機活動區、殯葬 5 層。`npx tsc -b` 綠 / 316 tests 過 / `npm run build` 正常。
+
+| repo | 分支 | 與 origin |
+|---|---|---|
+| mini-taiwan-pulse | `master` = `28df1a8` | ✅ 同步 |
+| gis-platform | `main`（migration **336 已 apply production**） | ✅ 同步 |
+| taipei-gis-analytics | `master` | ✅ 同步 |
+| data-collectors | `main` | ✅ 同步 |
+| **tw-address-geocoder** | `master`（**2026-08-06 新建 private repo**） | ✅ 同步 |
+
+## 本 session 完成（2026-08-05/06）
+
+### 1. 殯葬 Funeral 5 層（PR #107 + #110）
+
+📁 完整脈絡在 `docs/features/funeral-layers/`。跨 session 只需知道：
+
+- **A／B／C 三源分開不整合**（拍板）：官方名冊點／OSM 墓區面（**ODbL 必須標示**）／
+  都計法定用地面（**僅北北**）各自獨立 toggle，落差本身就是資訊
+- **密度層無幾何**：5.1 KB 數值表換掉 48.9 MB 附幾何版，join 既有鄉鎮界 PMTiles
+  走 `promoteId` + feature-state → 通用 registry 路徑不支援 → 專屬 hook
+- **`precision` 誠實處理**：42% 是概略座標 → popup 標註 + 三態 filter
+- **PR #110 修資料**：上游 `is_active` 漏判「遷他縣市」26 筆 → 圖上有幽靈業者點。
+  仍營業 4,595 → **4,569**；label「已歇業」→「已失效」（桶內含遷他縣市，不是收了）
+
+### 2. 食品價格監測板（pulse #109 + gis-platform #48）
+
+Monitor 面板四指數 2×2 × 180 天（VPI 菜／FPI 魚／MPI 豬雞肉／EPI 蛋），
+依賴 migration 336 的兩個 public RPC。**336 早已手動 apply production**，merge 後直接有資料。
+
+### 3. 分支整合 + 收孤兒 repo
+
+- 掃了 40+ repo；只收「現役」的：gis-platform #48 → pulse #109 → pulse #110（rebase 保線性）
+- **`tw-address-geocoder` 從零 commit 收進 git 並開 private repo** ——
+  2,349 行 / 17 支 pipeline 寫完一個多月零版控。`.gitignore` 補洞後只收 35 檔 109 KB，
+  擋掉 93 MB 產物。🔒 必須 private：ground_truth 含 TGOS 真實門牌（26/100 含樓層戶別）
+
+## ⚠️ 最優先待辦
+
+1. **PA-9（P0）**：共機 `spatial.pla_tracks` 最新停在 **2026-07-31**（斷 6 天）→
+   查 data-collectors 排程。圖層預設「單日」→ 打開是空的，會被誤認為功能壞掉
+   （切「30 天疊加」有 73 個活動區，程式本身沒問題）
+2. **DL-1（P1）**：deep-link `?layers=` 對 **20+ 個 hook-based 圖層無效**（分享連結會少圖層）。
+   registry 層不受影響。修法是抽共用 `mapRetry` pattern
+
+## 未收的分支（有意識地留著）
+
+- pulse `feat/monitor-*` 4 條（33 commits，behind 144，monitor v2 另一條線，堆疊關係）
+- gis-platform `medical/t3b-aed`、`medical/t3c-long-term-care`；data-collectors `medical/er-transformer-fix`
+
+---
+
+**前次**：2026-08-05（可嵌入地圖 EM 系列上線；PR #105 + #106 + #108）
 
 > ✅ **EM-21 已完成（2026-08-05）**：底圖（297 MB）+ 共機快照已上 S3，Zeabur 自動部署後
 > 容器 entrypoint 拉取成功。**正式站 `/embed` 端到端驗證通過** ——
