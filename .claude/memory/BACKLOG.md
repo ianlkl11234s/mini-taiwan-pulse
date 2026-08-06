@@ -45,8 +45,9 @@ deep-link 時 `visible` 在 map `load` 之前就變 true，effect 跑一次就 b
 
 | ID | 優先級 | 項目 | 狀態 |
 |---|---|---|---|
-| PA-9 | **P0** | `spatial.pla_tracks` 最新停在 2026-07-31（斷 6 天）→ 查 data-collectors 排程 | open |
+| PA-9 | **P0** | `spatial.pla_tracks` 停在 2026-07-31 → **根因是 analytics 的手動向量化批次沒人再跑**（collector 本身正常，`pla_activity_daily` 寫到 08-05）。平行 session 正在轉成每日 collector `pla_tracks_vectorize` + ledger migration 337 | **處理中**（另一 session） |
 | PA-10 | P2 | 圖層預設「單日」遇資料斷層 = 空白，使用者會以為壞掉 → 考慮 fallback 到最近有資料日 | open |
+| PA-11 | P1 | 「共機 0 架次」是合法的 0 形狀 → `pla_tracks` 沒 row 時**分不出「沒共機」與「沒跑」**，這是斷 5 天沒告警的主因。ledger `spatial.pla_tracks_runs`（mig 337）解此 | 隨 PA-9 |
 
 ### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**已部署驗證**）
 

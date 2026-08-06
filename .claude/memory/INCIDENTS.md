@@ -1485,12 +1485,27 @@ PR #41 merge 觸發 Zeabur 部署後，DB 的 `updated_at` **完全沒變**（�
 → 用 Resource Timing 當證據前先看 `entries.length` 是不是剛好卡在 250；
    要可靠就先 `performance.setResourceTimingBufferSize(N)` 或改用 CDP network 攔截。
 
-### 事件 E：共機圖層看似壞掉，實為 collector 停擺
-`plaActivity` 開了但圖上 0 筆。逐層排查後確認：**程式沒問題**，是
-`spatial.pla_tracks` 最新資料停在 2026-07-31（查詢當日 08-06，斷 6 天），
-而圖層預設「單日」→ 查當天 → 空。切「30 天疊加」立刻出現 73 個活動區。
+### 事件 E：共機圖層看似壞掉，實為上游手動批次沒人再跑（我的初判是錯的）
+`plaActivity` 開了但圖上 0 筆。逐層排查後確認：**前端沒問題**，
+`spatial.pla_tracks` 停在 2026-07-31（查詢當日 08-06），圖層預設「單日」→ 查當天 → 空。
+切「30 天疊加」立刻出現 73 個活動區。
 
-→ 動態圖層「看起來壞掉」時，**先查資料最新日期**再查程式。
+⚠️ **我當時判成「collector 停擺」，是錯的。** 平行 session 當天查清楚：
+`live.pla_activity_daily`（數值）一路正常寫到 08-05，連 `track_chart_url` 都抓到了 ——
+**collector 是好的**。斷掉的是 **taipei-gis-analytics 的手動向量化批次腳本**：
+08-02 跑完 07-31 之後就沒人再跑，`spatial.pla_tracks` / `live.pla_activity_items` 停在那天。
+修法是轉成 data-collectors 的每日 collector（`pla_tracks_vectorize`）。
+
+**最值得記的一條**（來自平行 session 的分析）：斷了 5 天沒有任何告警，
+因為「共機 0 架次」是**合法的 0 形狀** —— 那天在 `pla_tracks` 就是沒有任何 row，
+**分不出「沒共機」與「沒跑」**。修法是加 ledger 表 `spatial.pla_tracks_runs`（migration 337），
+每個處理過的日子必有一列。
+
+→ 動態圖層「看起來壞掉」時，**先查資料最新日期**再查程式（這條我做對了）。
+→ 但「資料停了」之後還要再問一次**是哪一段停了** —— 寫入鏈有多段時，
+  最末端沒資料不代表最前端掛了。我跳過這一步直接歸咎 collector。
+→ 通則：**用「有沒有 row」當健康指標，遇到「合法的空」就會失效** ——
+  要區分「沒事件」與「沒執行」必須有獨立的執行 ledger。
 → 產品面問題：預設單日 + 資料有斷層 = 使用者看到空白會以為功能壞了。
 
 ### 事件 F：deep-link `?layers=` 對 hook-based 圖層無效（既有問題，非本次引入）

@@ -44,9 +44,11 @@ Monitor 面板四指數 2×2 × 180 天（VPI 菜／FPI 魚／MPI 豬雞肉／EP
 
 ## ⚠️ 最優先待辦
 
-1. **PA-9（P0）**：共機 `spatial.pla_tracks` 最新停在 **2026-07-31**（斷 6 天）→
-   查 data-collectors 排程。圖層預設「單日」→ 打開是空的，會被誤認為功能壞掉
-   （切「30 天疊加」有 73 個活動區，程式本身沒問題）
+1. **PA-9（P0，另一 session 處理中）**：共機 `spatial.pla_tracks` 停在 **2026-07-31** →
+   圖層預設「單日」打開是空的（切「30 天疊加」有 73 個活動區，**前端沒問題**）。
+   ⚠️ **根因不是 collector 停擺**（我初判錯）—— `live.pla_activity_daily` 一路寫到 08-05，
+   斷的是 analytics 的**手動向量化批次腳本**。平行 session 正轉成每日 collector
+   `pla_tracks_vectorize` + ledger `spatial.pla_tracks_runs`（migration 337）
 2. **DL-1（P1）**：deep-link `?layers=` 對 **20+ 個 hook-based 圖層無效**（分享連結會少圖層）。
    registry 層不受影響。修法是抽共用 `mapRetry` pattern
 
