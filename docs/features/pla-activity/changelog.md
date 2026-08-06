@@ -1,5 +1,33 @@
 # PLA Activity — Changelog
 
+## 2026-08-06 · 航跡向量化全自動化（前端無改動）
+
+**症狀**：圖層預設「單日」是空的，資料停在 2026-07-31。
+
+**根因不是 collector 掛掉** —— `live.pla_activity_daily`（數值）一路正常寫到 08-05，
+連 08-01~08-05 的 `track_chart_url` 都抓到了。斷掉的是**航跡向量化**：那是
+taipei-gis-analytics 的**手動批次腳本**，08-02 跑完 07-31 之後沒人再跑，
+`spatial.pla_tracks` 與 `live.pla_activity_items` 就停在那天。
+
+**修法**：轉成 data-collectors 的每日 collector `pla_tracks_vectorize`（1440 min）。
+
+| 缺口 | 處理 |
+|---|---|
+| 原圖沒被保存（daily collector 只寫 URL，S3 上 588 張是一次性回填腳本傳的） | collector 下載原圖並備份 `pla/track_charts/` |
+| 每日單張無法沿用「整批取中位數」的配準保護 | 固化配準常數，當張解只作一致性檢查 |
+| 斷了 5 天沒有任何告警 | 新增 ledger `spatial.pla_tracks_runs`（migration **337**）並進 `realtime_tables.yaml` |
+
+**為什麼需要 ledger 而不是直接監控 `pla_tracks`**：「共機 0 架次」是合法的 0 形狀，
+那天在 `pla_tracks` 沒有任何 row —— 分不出「沒共機」與「沒跑」。這正是斷 5 天沒被
+發現的原因。ledger 每個處理過的日子必有一列。
+
+**為什麼配準要固化**（2026-05~07 實測 75 張）：`solve_georef` 有 **16% 會「成功但
+錯誤」**（網格線 off-by-N，整幅平移最多 3 度 ≈ 300 km），而 `needs_review` 抓不到
+（它只比對形狀數量，不驗位置）。批次流程靠中位數擋掉，單張跑就沒保護。
+實測 08-01~08-05 這 5 天裡，08-04 與 08-05 的偏差正好都是 3.006°。
+
+前端完全沒改 —— 兩支 RPC、`needs_review` 語意、popup 都不變。
+
 ## 2026-08-02 · 歷史模式支援
 
 - 圖層在「歷史」模式可用：hook 加 `dateOverride`，由 `HistoricalTimeline` 的年/月/日
