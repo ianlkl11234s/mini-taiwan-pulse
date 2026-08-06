@@ -1526,3 +1526,32 @@ registry 層不受影響（MapView 在 map `load` 時統一補做）。
 
 → 文件裡**寫死的驗證期望值**是會過期的資產。已改成 4569 並加註
 「跑出 4595 = 手上是舊產物，要重跑 build_web_assets」，讓數字本身帶診斷資訊。
+
+### 事件 H：`git reset --hard` 清掉平行 session 的未提交檔案（我造成的）
+把 9 個 memory commit 從 master 搬到分支時跑 `git reset --hard origin/master`，
+連帶清掉平行 session 未提交的 `docs/features/pla-activity/changelog.md`（28 行）。
+
+**我在動手前就知道它存在** —— 跑過 `git status` 看到 `dirty:1`、讀過那段 diff、
+甚至根據它修正了自己對 PA-9 的誤判。然後還是打了 `--hard`。
+
+還原成功純屬僥倖：稍早剛好把整段 diff 印在對話裡，才有東西可以逐行重建
+（28 insertions 對得上）。**這不是防護，是運氣。**
+
+實測三種做法（scratchpad 重現當時情境）：
+
+| 做法 | 平行 session 的檔案 |
+|---|---|
+| `git reset --hard <target>` | ❌ 清成 base |
+| `git reset --keep <target>` | ✅ 保留 |
+| `git switch -c <新> ` → `git branch -f <舊> <target>` | ✅ 保留 |
+
+- `--keep` 只更新「HEAD 與目標之間有差異」的檔案 → 沒被本次 commit 碰過的檔案不在範圍內。
+  且**衝突時 exit 128 拒絕執行並保留現場**，不像 `--hard` 靜默吃掉
+- `branch -f` 動的是沒被 checkout 的指標，**完全不碰工作區** —— 連判斷都省了
+- 原則：**不要重置你正站著的那條分支；先站到別條去，再回頭移指標**
+
+→ **`git reflog` 只救 commit，救不了未 staged 的改動**。曾 `git add` 過的還能
+`git fsck --lost-found` 撈回（blob 在 object store），從未 staged 的沒有任何副本。
+→ 已寫進 `GIS/CLAUDE.md` 鐵則與全域 `~/.claude/CLAUDE.md` 開發行為準則。
+→ 更根本的一條：**工作區出現「不是我的」未提交改動時，那是平行 session 在跑** ——
+  破壞性操作前先停，也不要替它 commit（不知道跑不跑得起來 = 替沒驗證的東西背書）。
