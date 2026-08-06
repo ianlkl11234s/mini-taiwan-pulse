@@ -4,6 +4,50 @@
 
 ## 進行中 / 待辦
 
+### 全站級：deep-link `?layers=` 對 hook-based 圖層無效（2026-08-06 發現）
+
+| ID | 優先級 | 項目 | 狀態 |
+|---|---|---|---|
+| DL-1 | P1 | 把 `mapRetry` 輪詢 pattern 抽成共用 hook，套上 20+ 個 hook-based 圖層 | open |
+
+`?v=1&layers=plaActivity` 直接開 → 圖層完全不建；手動 toggle → 正常。
+成因：這類 hook 寫 `if (!map) return` 且 deps 只有**穩定的 `mapRef` 物件**，
+deep-link 時 `visible` 在 map `load` 之前就變 true，effect 跑一次就 bail 後永不重跑。
+
+- **波及 20+ hook**：`useNewsEventsLayer`／`useEarthquakeLayer`／`useFireEventsLayer`／
+  `useFossilFuelLayers`／`usePlaActivityLayer`／`useAqiStationsLayer`… 
+- **已有防護的只有 3 個**：`useEarthquakeReplayLayer`、`useTemperatureGridLayer`、
+  `useFuneralDensityLayer`（皆用 `setInterval` 輪詢 `mapRef.current` + `mapRetry` state）
+- **registry 層不受影響**（MapView 在 map `load` 時統一補做一次）
+- 影響範圍是**分享連結**，不影響一般操作 → 所以一直沒被發現。詳見 INCIDENTS 2026-08-05/06 事件 F
+
+### ⚰️ 殯葬 Funeral（FN 系列，2026-08-05 上線 PR #107；08-06 資料修正 PR #110）
+
+> **SSOT 全部在 [`docs/features/funeral-layers/`](../../docs/features/funeral-layers/)**
+> （README／backlog／changelog／handoff 四件套）。本區只留索引，**不再更新細節**。
+>
+> 一句話：A／B／C **三源分開不整合** —— 官方名冊點、OSM 墓區面（ODbL）、
+> 都計法定用地面（僅北北）各自獨立 toggle，落差本身就是要讓使用者看見的資訊。
+
+| ID | 優先級 | 項目 | 狀態 |
+|---|---|---|---|
+| FN-0 | — | 5 層上線（A/B/C 三源分開） | **done**（2026-08-05・PR #107） |
+| FN-8 | — | 同步上游 `is_active` 修正（遷他縣市 26 筆） | **done**（2026-08-06・PR #110） |
+| FN-1 | P2 | deploy 前跑 `upload-deploy-assets.sh` 上傳 `public/funeral/`（同構備援，不上傳不會 404） | open |
+| FN-2 | P2 | 設施 438 筆無座標尾巴回填（上游） | open |
+| FN-3 | P2 | C 源擴充到其他 20 縣市 + 非都市土地「墳墓用地」 | open |
+| FN-4 | P3 | migration 335 apply（前端不依賴） | open |
+| FN-5 | P2 | 「最近的火化場」距離分析（全台僅 41 座；**必須先濾 precision**） | open |
+| FN-6 | P3 | 業者密度改人均（但要想清楚「登記地 ≠ 服務範圍」會不會被放大誤導） | open |
+| FN-7 | P3 | B 源 vs C 源空間差集（踩到「先不整合」界線，要再拍板） | open |
+
+### 🛰 共機 PLA — 資料斷層（2026-08-06 發現）
+
+| ID | 優先級 | 項目 | 狀態 |
+|---|---|---|---|
+| PA-9 | **P0** | `spatial.pla_tracks` 最新停在 2026-07-31（斷 6 天）→ 查 data-collectors 排程 | open |
+| PA-10 | P2 | 圖層預設「單日」遇資料斷層 = 空白，使用者會以為壞掉 → 考慮 fallback 到最近有資料日 | open |
+
 ### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**已部署驗證**）
 
 > **SSOT 全部移到 [`docs/features/embeddable-map/`](../../docs/features/embeddable-map/)**
