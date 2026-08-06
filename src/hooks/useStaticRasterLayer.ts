@@ -9,6 +9,7 @@
 
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   createCwaImageryLayer,
   type CwaImageryBBox,
@@ -37,6 +38,9 @@ export function useStaticRasterLayer({
   opacity,
   beforeId,
 }: UseStaticRasterLayerOptions) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const handleRef = useRef<CwaImageryLayerHandle | null>(null);
 
   useEffect(() => {
@@ -71,7 +75,7 @@ export function useStaticRasterLayer({
       };
     }
     ensure();
-  }, [mapRef, sourceId, layerId, url, bbox, visible, opacity, beforeId]);
+  }, [mapRef, sourceId, layerId, url, bbox, visible, opacity, beforeId, mapTick]);
 
   useEffect(() => {
     return () => {

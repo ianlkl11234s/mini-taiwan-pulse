@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 航空器空域 eAIP — 共用 1 份 PMTiles，filter 拆兩個 toggle：
@@ -95,6 +96,9 @@ export function useAviationAirspaceLayer(
   controlOpacity: number,
   restrictedOpacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   useEffect(() => {
     const anyVisible = controlVisible || restrictedVisible;
     let cancelled = false;
@@ -244,5 +248,5 @@ export function useAviationAirspaceLayer(
         setVis(map, RESTRICTED_FILL, false); setVis(map, RESTRICTED_LINE, false);
       }
     };
-  }, [mapRef, controlVisible, restrictedVisible, controlOpacity, restrictedOpacity]);
+  }, [mapRef, controlVisible, restrictedVisible, controlOpacity, restrictedOpacity, mapTick]);
 }

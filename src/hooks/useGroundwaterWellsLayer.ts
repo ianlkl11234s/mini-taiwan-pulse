@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, CircleLayer, GeoJSONSource } from "mapbox-gl";
 import { fetchGroundwaterLatest, type GroundwaterLatestRow } from "../data/groundwaterLoader";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 地下水井靜態點位層（backdrop，48h 內有讀值的 ~733 站）
@@ -81,6 +82,9 @@ export function useGroundwaterWellsLayer(
   scale = 1,
   opacity = 1,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const dataLoadedRef = useRef(false);
 
   useEffect(() => {
@@ -126,5 +130,5 @@ export function useGroundwaterWellsLayer(
       if (pollTimer) clearInterval(pollTimer);
       if (map.getLayer(LAYER_CIRCLE)) setLayerVisibility(map, false);
     };
-  }, [mapRef, visible, isDark, scale, opacity]);
+  }, [mapRef, visible, isDark, scale, opacity, mapTick]);
 }

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
 import { createRealEstatePointsLayer, RE_POINTS_LAYER_ID } from "../map/realEstatePointsCustomLayer";
 import { rePointsStore } from "../state/realEstatePointsStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 掛載房地產「點」CustomLayer，並把控制欄位（show / excludeTaipei / baseOpacity）寫進 rePointsStore。
@@ -19,6 +20,9 @@ export function useRealEstatePointsLayer(
     baseOpacity: number;
   },
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const { showRental, showSale, showPresale, excludeTaipei, baseOpacity } = opts;
   const anyShown = showRental || showSale || showPresale;
 
@@ -42,7 +46,7 @@ export function useRealEstatePointsLayer(
       map.off("style.load", tryMount);
       if (map.getLayer(RE_POINTS_LAYER_ID)) map.removeLayer(RE_POINTS_LAYER_ID);
     };
-  }, [mapRef, anyShown]);
+  }, [mapRef, anyShown, mapTick]);
 
   // 控制欄位 → store + 重繪（暫停/切換時的唯一重繪觸發；播放中由 timeline RAF 帶動）
   useEffect(() => {
@@ -50,5 +54,5 @@ export function useRealEstatePointsLayer(
     rePointsStore.excludeTaipei = excludeTaipei;
     rePointsStore.baseOpacity = baseOpacity;
     mapRef.current?.triggerRepaint();
-  }, [mapRef, showRental, showSale, showPresale, excludeTaipei, baseOpacity]);
+  }, [mapRef, showRental, showSale, showPresale, excludeTaipei, baseOpacity, mapTick]);
 }

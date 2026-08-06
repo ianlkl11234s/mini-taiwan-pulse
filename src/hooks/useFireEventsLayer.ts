@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, type FireEvent } from "../data/fireLoader";
 import type { HistoricalGranularity } from "../components/HistoricalTimeline";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "fire-events-src";
 const LAYER_ID = "fire-events-layer";
@@ -115,6 +116,9 @@ export function useFireEventsLayer(
   isDarkTheme: boolean,
   opacity = 1,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const lastYearRef = useRef<number | null>(null);
   const yearEventsRef = useRef<FireEvent[]>([]);
 
@@ -149,5 +153,5 @@ export function useFireEventsLayer(
     return () => {
       cancelled = true;
     };
-  }, [mapRef, visible, year, month, day, granularity, isDarkTheme, opacity]);
+  }, [mapRef, visible, year, month, day, granularity, isDarkTheme, opacity, mapTick]);
 }

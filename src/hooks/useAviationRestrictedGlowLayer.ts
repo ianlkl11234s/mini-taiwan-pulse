@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import type { Map as MapboxMap, FilterSpecification } from "mapbox-gl";
 // @ts-expect-error 套件未提供 ESM build 的型別宣告
 import { PmTilesSource } from "mapbox-pmtiles/dist/mapbox-pmtiles.js";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 機場管制/限航/危險 rim-glow 測試 —— 純 Mapbox 疊層版
@@ -75,6 +76,9 @@ export function useAviationRestrictedGlowLayer(
   visible: boolean,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   useEffect(() => {
     let cancelled = false;
     let map: MapboxMap | null = null;
@@ -183,5 +187,5 @@ export function useAviationRestrictedGlowLayer(
       map?.off("style.load", onStyleLoad);
       if (map) for (const id of LAYER_IDS) setVis(map, id, false);
     };
-  }, [mapRef, visible, opacity]);
+  }, [mapRef, visible, opacity, mapTick]);
 }

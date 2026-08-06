@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, ExpressionSpecification, FilterSpecification, CircleLayer } from "mapbox-gl";
 import { fetchEarthquakes, earthquakesToGeoJSON, type EarthquakeEvent } from "../data/earthquakeLoader";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 地震事件 timeline 動態顯示
@@ -120,6 +121,9 @@ export function useEarthquakeLayer(
   opacity: number = 1,
   showHistory: boolean = false,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const eventsRef = useRef<EarthquakeEvent[]>([]);
   const dataReadyRef = useRef(false);
   const layersReadyRef = useRef(false);
@@ -215,7 +219,7 @@ export function useEarthquakeLayer(
 
     applyFilter(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(500, applyFilter);
-  }, [visible, showHistory, ensureSource, mapRef]);
+  }, [visible, showHistory, ensureSource, mapRef, mapTick]);
 
   // 套用 opacity（乘以各 layer 的 base opacity）
   useEffect(() => {
@@ -230,7 +234,7 @@ export function useEarthquakeLayer(
     if (map.getLayer(LAYER_PRE)) {
       map.setPaintProperty(LAYER_PRE, "circle-stroke-opacity", 0.25 * o);
     }
-  }, [opacity, visible, mapRef]);
+  }, [opacity, visible, mapRef, mapTick]);
 
   // ripple 動畫
   useEffect(() => {
@@ -280,5 +284,5 @@ export function useEarthquakeLayer(
 
     rafRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(rafRef.current);
-  }, [visible, ensureSource, mapRef]);
+  }, [visible, ensureSource, mapRef, mapTick]);
 }

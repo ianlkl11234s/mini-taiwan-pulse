@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMapReadyTick } from "./useMapReadyTick";
 import type {
   Map as MapboxMap,
   FillLayer,
@@ -240,6 +241,9 @@ export function useReservoirContextLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   activeCompareId: number | null,
 ): ReservoirContext | null {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const [context, setContext] = useState<ReservoirContext | null>(null);
 
   useEffect(() => {
@@ -254,7 +258,7 @@ export function useReservoirContextLayer(
     };
     if (map.isStyleLoaded()) init();
     else map.once("load", init);
-  }, [mapRef]);
+  }, [mapRef, mapTick]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -299,7 +303,7 @@ export function useReservoirContextLayer(
     return () => {
       stale = true;
     };
-  }, [activeCompareId, mapRef]);
+  }, [activeCompareId, mapRef, mapTick]);
 
   // ── 依 activeCompareId 調整其他水庫圖層 opacity（突顯當前、淡化其他） ──
   useEffect(() => {
@@ -307,7 +311,7 @@ export function useReservoirContextLayer(
     if (!map) return;
     // 若 layer 還沒建（overlayManager 還沒 load），下次 effect trigger 再試
     applyReservoirDim(map, activeCompareId);
-  }, [activeCompareId, mapRef]);
+  }, [activeCompareId, mapRef, mapTick]);
 
   return context;
 }

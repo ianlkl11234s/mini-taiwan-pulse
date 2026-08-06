@@ -17,6 +17,7 @@ import { buildAqiStepExpression } from "../map/aqiColorScale";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { AqiStation } from "../types";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "aqi-stations-src";
 const LAYER_GLOW = "aqi-stations-glow";
@@ -78,6 +79,9 @@ export function useAqiStationsLayer(
   visible: boolean,
   isDark: boolean,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const stationsRef = useRef<AqiStation[]>([]);
   const fetchingKeyRef = useRef<string>("");
   const lastKeyRef = useRef<string>("");
@@ -154,7 +158,7 @@ export function useAqiStationsLayer(
       cancelled = true;
       if (unsub) unsub();
     };
-  }, [mapRef, visible, isDark]);
+  }, [mapRef, visible, isDark, mapTick]);
 
   // ── 主題變更時刷新 paint ──
   useEffect(() => {
@@ -171,5 +175,5 @@ export function useAqiStationsLayer(
         isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.5)",
       );
     }
-  }, [mapRef, isDark, visible]);
+  }, [mapRef, isDark, visible, mapTick]);
 }

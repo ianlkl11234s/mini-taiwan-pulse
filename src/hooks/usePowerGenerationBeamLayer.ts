@@ -14,6 +14,7 @@ import {
   type PowerGenerationRow,
 } from "../data/energyLoader";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /** 透明 hit-test source — 提供「點 beam 也會出 PowerPlantPanel」 */
 const HIT_SOURCE_ID = "energy-power-generation-hit";
@@ -56,6 +57,9 @@ export function usePowerGenerationBeamLayer(
   opacity: number,
   heightScale: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
   const opacityRef = useRef(opacity);
@@ -101,7 +105,7 @@ export function usePowerGenerationBeamLayer(
     return () => {
       map.off("style.load", tryMount);
     };
-  }, [mapRef, visible]);
+  }, [mapRef, visible, mapTick]);
 
   // 24h preload + 跟隨 timeStore（client binary search 解析）
   useEffect(() => {
@@ -152,5 +156,5 @@ export function usePowerGenerationBeamLayer(
       unsub();
       window.clearInterval(poll);
     };
-  }, [visible, mapRef]);
+  }, [visible, mapRef, mapTick]);
 }

@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import type { Map as MapboxMap, ExpressionSpecification } from "mapbox-gl";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 坡度分級（建管六級坡）靜態向量圖層 — slope_vector.pmtiles polygon。
@@ -44,6 +45,9 @@ export function useSlopeVectorLayer(
   opacity: number,
   styleId: string,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   useEffect(() => {
     let cancelled = false;
     let map: MapboxMap | null = null;
@@ -122,5 +126,5 @@ export function useSlopeVectorLayer(
     };
     // styleId 進 deps：底圖 style 切換時 effect 重跑 → 重新 ensureLayer（走與手動 re-toggle
     // 相同的成功路徑）。diff setStyle 會移除自訂圖層且 event listener 重掛不可靠，改靠 React 重跑。
-  }, [mapRef, visible, opacity, styleId]);
+  }, [mapRef, visible, opacity, styleId, mapTick]);
 }

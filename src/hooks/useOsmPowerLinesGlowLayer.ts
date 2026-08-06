@@ -6,6 +6,7 @@ import {
 } from "../map/osmPowerLinesGlowCustomLayer";
 import type { PowerLineFeature } from "../three/OsmPowerLinesGlowScene";
 import { fetchOsmPowerLines, powerLineTierKv } from "../data/energyLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * Three.js bloom glow layer 取代 Mapbox 4-line stacking 的視覺方案。
@@ -17,6 +18,9 @@ export function useOsmPowerLinesGlowLayer(
   opacity: number,
   widthMul: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const featuresRef = useRef<PowerLineFeature[] | null>(null);
   const visibleRef = useRef(visible);
   const opacityRef = useRef(opacity);
@@ -58,7 +62,7 @@ export function useOsmPowerLinesGlowLayer(
         map.removeLayer(OSM_POWER_LINES_GLOW_LAYER_ID);
       }
     };
-  }, [mapRef, visible]);
+  }, [mapRef, visible, mapTick]);
 
   // Lazy fetch lines when first visible
   useEffect(() => {
@@ -91,10 +95,10 @@ export function useOsmPowerLinesGlowLayer(
       })
       .catch((err) => console.warn("[osmPowerLinesGlow] fetch failed:", err));
     return () => { cancelled = true; };
-  }, [visible, mapRef]);
+  }, [visible, mapRef, mapTick]);
 
   // Param change → repaint
   useEffect(() => {
     mapRef.current?.triggerRepaint();
-  }, [visible, opacity, widthMul, mapRef]);
+  }, [visible, opacity, widthMul, mapRef, mapTick]);
 }

@@ -3,6 +3,7 @@ import type { Map as MapboxMap } from "mapbox-gl";
 import { fetchPrecipRasterFrames, type PrecipRasterFrame } from "../data/precipRasterLoader";
 import { createCwaImageryLayer, type CwaImageryLayerHandle } from "../map/cwaImageryLayer";
 import { timeStore } from "../state/timeStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 累積雨量柵格 — Mapbox image source + raster layer
@@ -47,6 +48,9 @@ export function usePrecipRasterLayer(
   cumulativeHours: 1 | 3 | 6 | 24,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const handleRef = useRef<CwaImageryLayerHandle | null>(null);
   const framesRef = useRef<PrecipRasterFrame[]>([]);
   const currentIsoRef = useRef<string | null>(null);
@@ -160,7 +164,7 @@ export function usePrecipRasterLayer(
       if (refreshTimer) clearInterval(refreshTimer);
       handleRef.current?.setVisible(false);
     };
-  }, [mapRef, visible, cumulativeHours]);
+  }, [mapRef, visible, cumulativeHours, mapTick]);
 
   // cleanup object URLs on full unmount
   useEffect(() => () => {

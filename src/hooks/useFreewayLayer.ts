@@ -7,6 +7,7 @@ import {
 } from "../data/freewayLoader";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 國道壅塞動態圖層
@@ -77,6 +78,9 @@ export function useFreewayLayer(
   width: number,
   isDark: boolean,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const cacheRef = useRef<Map<string, CachedDay>>(new Map());
   const activeDayRef = useRef<FreewayDayData | null>(null);
   const activeDateRef = useRef<string>("");
@@ -228,7 +232,7 @@ export function useFreewayLayer(
     tick(timeStore.getTime()); // 初始化
     // 1s 節流足夠（資料本身 10min 粒度）
     return timeStore.subscribeThrottled(1000, tick);
-  }, [visible, ensureLayers, refreshSource, mapRef]);
+  }, [visible, ensureLayers, refreshSource, mapRef, mapTick]);
 
   // ── 寬度 / 主題變更時重建 paint ──
   useEffect(() => {
@@ -250,5 +254,5 @@ export function useFreewayLayer(
       ] as unknown as mapboxgl.ExpressionSpecification);
       map.setPaintProperty(LAYER_LINE, "line-opacity", isDark ? 0.75 : 0.65);
     }
-  }, [width, isDark, mapRef]);
+  }, [width, isDark, mapRef, mapTick]);
 }

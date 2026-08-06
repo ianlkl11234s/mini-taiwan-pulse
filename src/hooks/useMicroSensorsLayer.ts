@@ -28,6 +28,7 @@ import {
 import { microSensorColorExpr } from "../data/microSensorTypes";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import type { MicroSensor } from "../types";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "aqi-micro-src";
 const LAYER_CLUSTER = "aqi-micro-cluster";
@@ -113,6 +114,9 @@ export function useMicroSensorsLayer(
   cluster: boolean,
   modeIdx: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const loadedRef = useRef(false);
   const dataRef = useRef<MicroSensor[]>([]);
   const loadingRef = useRef(false);
@@ -158,7 +162,7 @@ export function useMicroSensorsLayer(
       cancelled = true;
       if (intervalId !== null) window.clearInterval(intervalId);
     };
-  }, [visible, mapRef]);
+  }, [visible, mapRef, mapTick]);
 
   // ── Layer 生命週期（visible / cluster 模式變動都會重建 source） ──
   useEffect(() => {
@@ -189,7 +193,7 @@ export function useMicroSensorsLayer(
       };
     }
     apply();
-  }, [mapRef, visible, isDark, cluster]);
+  }, [mapRef, visible, isDark, cluster, mapTick]);
 
   // ── 顯示模式切換：只換 circle-color 欄位，不動 source / 不重建 layer ──
   useEffect(() => {
@@ -203,7 +207,7 @@ export function useMicroSensorsLayer(
       "circle-color",
       microSensorColorExpr(modeIdx) as unknown as mapboxgl.ExpressionSpecification,
     );
-  }, [mapRef, visible, modeIdx]);
+  }, [mapRef, visible, modeIdx, mapTick]);
 
   // ── Unmount 清理 ──
   useEffect(() => {
@@ -213,5 +217,5 @@ export function useMicroSensorsLayer(
         try { removeLayers(map); } catch { /* map 已銷毀 */ }
       }
     };
-  }, [mapRef]);
+  }, [mapRef, mapTick]);
 }

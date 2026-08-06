@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource, ExpressionSpecification } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   fetchOsmPowerLines,
   powerLineTierKv,
@@ -81,6 +82,9 @@ export function usePowerLinesGlowTestLayer(
   opacity: number,
   widthMul: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
 
   // 拉一次資料
@@ -101,7 +105,7 @@ export function usePowerLinesGlowTestLayer(
       })
       .catch((err) => console.warn("[PowerLinesGlowTest] fetch failed:", err));
     return () => { cancelled = true; };
-  }, [visible, mapRef]);
+  }, [visible, mapRef, mapTick]);
 
   useEffect(() => {
     let cancelled = false;
@@ -190,5 +194,5 @@ export function usePowerLinesGlowTestLayer(
       map?.off("style.load", onStyleLoad);
       if (map) for (const id of LAYER_IDS) setVis(map, id, false);
     };
-  }, [mapRef, visible, opacity, widthMul]);
+  }, [mapRef, visible, opacity, widthMul, mapTick]);
 }

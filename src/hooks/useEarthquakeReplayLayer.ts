@@ -6,6 +6,7 @@ import {
   type EqReplayDetail,
 } from "../data/earthquakeReplayTypes";
 import { earthquakeReplayClock } from "../state/earthquakeReplayClock";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   EQ_REPLAY_EPICENTER_LAYER,
   EQ_REPLAY_GRID_SOURCE,
@@ -127,6 +128,9 @@ export function useEarthquakeReplayLayer(
   playing: boolean,
   onEnded?: () => void,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const [detail, setDetail] = useState<EqReplayDetail | null>(null);
   /** mapRef 還沒填時的重試 tick（production 首載 map "load" 可能晚於資料就緒） */
   const [mapRetry, setMapRetry] = useState(0);
@@ -334,7 +338,7 @@ export function useEarthquakeReplayLayer(
       beachballRef.current = null;
       if (map.getLayer(EQ_REPLAY_EPICENTER_LAYER)) setEarthquakeReplayVisible(map, false);
     };
-  }, [mapRef, visible, detail, mapRetry]);
+  }, [mapRef, visible, detail, mapRetry, mapTick]);
 
   // ── 圖層關閉：source / layer 一併拆掉，dispose 乾淨 ──
   useEffect(() => {
@@ -343,7 +347,7 @@ export function useEarthquakeReplayLayer(
     if (!map) return;
     removeEarthquakeReplayLayers(map);
     earthquakeReplayClock.clear();
-  }, [mapRef, visible]);
+  }, [mapRef, visible, mapTick]);
 
   // ── 透明度 slider ──
   useEffect(() => {
@@ -351,5 +355,5 @@ export function useEarthquakeReplayLayer(
     if (!map || !visible) return;
     setReplayStationOpacity(map, opacity);
     setReplayGridOpacity(map, opacity, 1 - 0.55 * clamp01(lastTownBucketRef.current / 40));
-  }, [mapRef, opacity, visible, detail]);
+  }, [mapRef, opacity, visible, detail, mapTick]);
 }

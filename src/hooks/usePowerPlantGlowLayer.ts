@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap } from "mapbox-gl";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   createPowerPlantGlowLayer,
   POWER_PLANT_GLOW_LAYER_ID,
@@ -24,6 +25,9 @@ export function usePowerPlantGlowLayer(
   opacity: number,
   sizeMul: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const visibleRef = useRef(visible);
   visibleRef.current = visible;
   const opacityRef = useRef(opacity);
@@ -59,7 +63,7 @@ export function usePowerPlantGlowLayer(
     return () => {
       map.off("style.load", tryMount);
     };
-  }, [mapRef, visible]);
+  }, [mapRef, visible, mapTick]);
 
   // Fetch plants once when toggled on (5 min cache in loader)
   useEffect(() => {
@@ -79,5 +83,5 @@ export function usePowerPlantGlowLayer(
     return () => {
       cancelled = true;
     };
-  }, [visible, mapRef]);
+  }, [visible, mapRef, mapTick]);
 }

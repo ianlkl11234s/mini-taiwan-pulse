@@ -15,6 +15,7 @@ import {
 } from "../data/plaTracksLoader";
 import { timeStore } from "../state/timeStore";
 import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 共機活動區 timeline 圖層（依日期回放 + 多日疊加）
@@ -164,6 +165,9 @@ export function usePlaActivityLayer(
    */
   dateOverride: string | null = null,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const cacheRef = useRef<Map<string, CachedWindow>>(new Map());
   const activeRef = useRef<PlaTrack[] | null>(null);
   const activeKeyRef = useRef<string>("");
@@ -317,7 +321,7 @@ export function usePlaActivityLayer(
     return () => {
       map.off("style.load", onStyleLoad);
     };
-  }, [visible, ensureLayers, refreshSource, mapRef]);
+  }, [visible, ensureLayers, refreshSource, mapRef, mapTick]);
 
   // ── 累積回放：自己的 clock，只改 filter 不重打 RPC ──
   useEffect(() => {
@@ -349,7 +353,7 @@ export function usePlaActivityLayer(
       // 停止回放後不要留在半截狀態
       if (map.getLayer(FILL_ID)) applyThresh(map, 0);
     };
-  }, [visible, replay, trailDays, applyThresh, mapRef]);
+  }, [visible, replay, trailDays, applyThresh, mapRef, mapTick]);
 
   // ── 透明度 / 疊加天數（新舊淡化的斜率隨 trailDays 變）──
   useEffect(() => {
@@ -363,5 +367,5 @@ export function usePlaActivityLayer(
       map.setPaintProperty(LINE_ID, "line-opacity", lineOpacityExpr(o, trailDays));
       map.setPaintProperty(LINE_ID, "line-width", lineWidth(trailDays));
     }
-  }, [opacity, trailDays, visible, mapRef]);
+  }, [opacity, trailDays, visible, mapRef, mapTick]);
 }

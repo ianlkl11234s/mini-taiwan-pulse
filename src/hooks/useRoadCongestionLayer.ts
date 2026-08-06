@@ -9,6 +9,7 @@ import {
 import { timeStore } from "../state/timeStore";
 import { registerPmtilesSourceTypeOnce } from "../map/pmtilesSourceType";
 import { PMTILES_SOURCE_TYPE } from "../map/pmtilesConstants";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 省道路況（TDX live_highway）動態圖層 — v1 highway only。
@@ -57,6 +58,9 @@ export function useRoadCongestionLayer(
   width: number,
   opacity: number,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const dayRef = useRef<RoadCongestionDayData | null>(null);
   const activeDateRef = useRef<string>("");
   const fetchingRef = useRef<string>("");
@@ -212,7 +216,7 @@ export function useRoadCongestionLayer(
       map.off("sourcedata", onSourceData);
       unsub();
     };
-  }, [visible, ensureLayers, flush, mapRef]);
+  }, [visible, ensureLayers, flush, mapRef, mapTick]);
 
   // ── 寬度 / 透明度變更 ──
   useEffect(() => {
@@ -222,5 +226,5 @@ export function useRoadCongestionLayer(
       map.setPaintProperty(LAYER_LINE, "line-width", widthExpr(width));
       map.setPaintProperty(LAYER_LINE, "line-opacity", opacity);
     }
-  }, [width, opacity, mapRef]);
+  }, [width, opacity, mapRef, mapTick]);
 }

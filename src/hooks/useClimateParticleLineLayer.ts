@@ -7,6 +7,7 @@ import {
 } from "../map/climateParticleLineLayer";
 import { timeStore } from "../state/timeStore";
 import { climateFrameStore, type ClimateFrameStatusKey } from "../state/climateFrameStore";
+import { useMapReadyTick } from "./useMapReadyTick";
 import {
   loadClimateManifest,
   fetchClimateBaseMeta,
@@ -47,6 +48,9 @@ export function useClimateParticleLineLayer(
   mapRef: React.RefObject<MapboxMap | null>,
   o: HookOptions,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef);
+
   const visibleRef = useRef(o.visible);
   const opacityRef = useRef(o.opacity);
   const speedRef = useRef(o.animationSpeed);
@@ -145,13 +149,13 @@ export function useClimateParticleLineLayer(
     };
     // rampColors 只在建立時消費；visible 放 deps 讓 toggle ON 時重試 mapRef.current。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapRef, o.layerId, o.pngUrl, o.metaUrl, o.visible]);
+  }, [mapRef, o.layerId, o.pngUrl, o.metaUrl, o.visible, mapTick]);
 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     map.triggerRepaint();
-  }, [mapRef, o.visible, o.opacity, o.animationSpeed, o.particleCount, o.lineWidth]);
+  }, [mapRef, o.visible, o.opacity, o.animationSpeed, o.particleCount, o.lineWidth, mapTick]);
 
   // ── Time-aware 換幀（timeStore 訂閱；遵守鐵則：currentTime 不進 React deps）──
   // 依 timeline 當前時間選最近幀，換 UV 場保留粒子。manifest 404 / 解析失敗 → 不動作，
@@ -226,5 +230,5 @@ export function useClimateParticleLineLayer(
       unsubThrottled?.();
       if (statusKey) climateFrameStore.clear(statusKey);
     };
-  }, [mapRef, o.visible, o.frameDataset, o.metaUrl, statusKey]);
+  }, [mapRef, o.visible, o.frameDataset, o.metaUrl, statusKey, mapTick]);
 }

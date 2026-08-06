@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import { loadFireEventsByYear, loadFireEventYears, type FireEvent } from "../data/fireLoader";
+import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
  * 火災「最新年度」layer — 直接顯示資料庫最新一年（民國 113 / 2024）的火災點位，
@@ -75,6 +76,9 @@ export function useFireLatestLayer(
   isDarkTheme: boolean,
   opacity = 1,
 ) {
+  /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
+  const mapTick = useMapReadyTick(mapRef, visible);
+
   const loadedRef = useRef(false);
 
   useEffect(() => {
@@ -108,5 +112,5 @@ export function useFireLatestLayer(
     };
     run();
     return () => { cancelled = true; };
-  }, [mapRef, visible, isDarkTheme, opacity]);
+  }, [mapRef, visible, isDarkTheme, opacity, mapTick]);
 }
