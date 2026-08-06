@@ -604,3 +604,32 @@ resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢�
 588 天全量向量化（feature backlog PA-1）。歷史模式因此只有民國 115 年有東西。
 
 ✅ 線上 collector 已於 2026-08-02 部署新版（data-collectors PR #41），資料自行修復、不需回填。
+
+## 殯葬 Funeral（純靜態檔，2026-08-05 上線 PR #107；08-06 資料修正 PR #110）
+
+**5 檔全進 git，合計 5.77 MB**（走 dist 供檔；`/data/funeral/` 保留同構以備日後大檔）。
+**不走 Supabase** —— `gis-platform/migrations/335_funeral.sql`（6 表）已 merge 但
+**前端零依賴**，335 是 SSOT／跨主題 SQL 分析用。
+
+| 檔案 | 量 | 源 | 授權 |
+|---|---|:---:|---|
+| `funeral_facilities.geojson` | 3,707 點（母體 4,145，438 筆無座標） | A 內政部 | OGDL |
+| `funeral_operators.geojson` | 6,233 筆・**仍營業 4,569** | A 經濟部商工登記 | OGDL |
+| `funeral_operators_density.json` | 325 區・max 218・total 4,977 | A `moi_7053` | OGDL |
+| `cemetery_osm.pmtiles` | 3,229 面（z6-14，layer `cemetery_osm`） | B OpenStreetMap | **ODbL（必須標示）** |
+| `cemetery_zoning.geojson` | 114 面 / 702.6 ha | C 都計分區 | OGDL |
+
+**三個要記住的**：
+
+1. **密度層無幾何**：原始附鄉鎮面是 48.9 MB，改成純數值表只有 **5.1 KB**，
+   前端 join 既有的 `base_map/township_boundary.pmtiles`（key `TOWNCODE`，325/325 全對）。
+   走 `promoteId` + feature-state，通用 overlayRegistry 路徑不支援 → 專屬 hook
+   `useFuneralDensityLayer`。⚠️ 語意是業者**登記地**家數，**不是服務涵蓋率**
+2. **`cemeteryZoning` 只有臺北（12）＋新北（102）**，其他 20 縣市空白**是正常的** ——
+   都計分區只做了這兩市且只含都市土地；山區大型公墓在非都市土地的「墳墓用地」編定，未取得
+3. **`cemetery_osm` 僅 34.5% 有 name** → 不做以名稱為主的 popup／搜尋。
+   另外 `landuse` 不是只有 cemetery（另有 farmland/forest/orchard 等 17 筆複合案例），
+   **不可用 `landuse == 'cemetery'` 當過濾條件**
+
+**上游重跑**：`taipei-gis-analytics` → `./venv/bin/python3 pipelines/funeral/_shared/build_web_assets.py --deploy`
+（只 `shutil.copy2` 到 pulse public/，不碰 S3）。檔名固定、內容會變；`facility_uid` 穩定可當前端 key。
