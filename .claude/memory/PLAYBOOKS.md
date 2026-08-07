@@ -1566,3 +1566,41 @@ git branch -D feat/<slug>
 
 **merge 策略**：多個獨立 commit（如 migration 一支一個）用 `--rebase` 保留顆粒度；
 單一 feature 的連續演進（圖層 → 疊加 → 歷史模式 → 戰情板）用 `--merge` 保留整段脈絡。
+
+## PB-33 Zeabur collector 上線與「證明它真的在跑」（2026-08-07 定型：pla_tracks_vectorize + lightning_cwa 兩例）
+
+新 collector merge 後不是「等它自己跑」就好 —— 兩次實戰都在這裡卡過。四步：
+
+**1. 設環境變數**
+```bash
+zeabur variable create --id <service-id> -k XXX_ENABLED=true --yes --interactive=false
+```
+
+**2. 確認生效（關鍵，會騙人）**
+```bash
+zeabur service exec --id <service-id> -- sh -c "python -c \"import config; print(config.XXX_ENABLED)\""
+```
+- 若變數是在**運行中的容器**設的 → 回 `False`，**必須 `zeabur service restart`**
+- 若變數是在**新部署 build 開始之前**設的 → 部署完直接生效，不用 restart
+
+差別在時序不在指令。**永遠用 exec 進容器讀 config 驗證**，不要看 dashboard 猜。
+
+**3. 確認是新 code 而非舊 image**
+```bash
+zeabur service exec --id <svc> -- sh -c "python -c \"
+from collectors.registry import COLLECTOR_REGISTRY
+print(len(COLLECTOR_REGISTRY), any(x.config_prefix=='XXX' for x in COLLECTOR_REGISTRY))\""
+```
+順便驗重依賴（`import skimage, scipy` / `tesseract --version`）。
+
+**4. 證明它真的產出**（`main.py:99` 啟動時會立即跑一輪，不必等第一個 interval）
+- 有事可做時：直接查 DB 看資料有沒有進來
+- **沒事可做時（pending=0）heartbeat 不會更新** → 看起來像沒跑。
+  這時**故意製造一個缺口**（刪掉 ledger 某一列）再看它會不會自動補回 ——
+  這同時驗證了「偵測 → 補跑」的完整迴路，比看 log 有說服力得多
+- 或直接 `zeabur service exec` 在容器內跑一次 `collect()`（不寫 DB，安全）
+
+⚠️ 別忘了 `config/cross_layer_map.yaml` 與 `config/realtime_tables.yaml` ——
+漏加會讓 CI 紅（`tests/test_cross_layer_sync.py` 三個 ratchet），
+且 daily_report 完全不會掃這個 collector。有 `scripts/sync_cross_layer_map.py` 可自動補，
+但它填的 `enabled`/`deployment` 是 config 預設值，要依 production 實況人工改。
