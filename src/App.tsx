@@ -1044,6 +1044,13 @@ export default function App() {
     layerVisibility.lightning,
     transportParams.overlayParams.lightningMinutes ?? 60,
   );
+  // 氣象署源（migration 338 雙源）—— 獨立 source / cache，可與台電源同時開著對照
+  useLightningLayer(
+    mapRef,
+    layerVisibility.lightningCwa,
+    transportParams.overlayParams.lightningCwaMinutes ?? 60,
+    "cwa",
+  );
   useNuclearLayer(mapRef, layerVisibility.nuclearRadiation);
 
   // ── 急診壅塞（當下快照，比照核安 LIVE）──

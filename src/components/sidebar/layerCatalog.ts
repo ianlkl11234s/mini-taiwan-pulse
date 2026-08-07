@@ -309,6 +309,7 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   gasCoverageTaisugar: "#F2522E",
   evIsland: "#F23535",
   lightning: "#fb923c",
+  lightningCwa: "#a78bfa",
   nuclearRadiation: "#22c55e",
   realEstateRentalGrid: "#41919A",
   realEstateRentalPoint: "#41919A",
@@ -1036,7 +1037,8 @@ export const THEMES: ThemeDef[] = [
       {
         title: "雷暴",
         layers: [
-          { key: "lightning", label: "落雷 Lightning 60min", expandable: true },
+          { key: "lightning", label: "落雷 Lightning 60min（台電）", expandable: true },
+          { key: "lightningCwa", label: "落雷 Lightning 60min（氣象署）", expandable: true },
         ],
       },
       {

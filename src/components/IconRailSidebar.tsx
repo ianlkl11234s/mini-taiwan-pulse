@@ -356,6 +356,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   gasCoverageTaisugar: Fuel,
   evIsland: PlugZap,
   lightning: CloudLightning,
+  lightningCwa: CloudLightning,
   nuclearRadiation: Atom,
   // 全球氣候 GLOBAL CLIMATE
   earthquakesGlobal: AlertTriangle,

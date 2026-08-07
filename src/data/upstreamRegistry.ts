@@ -407,6 +407,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'lightning_taipower', confidence: 'HIGH' }],
   },
+  lightningCwa: {
+    status: 'verified',
+    datasets: [{ datasetId: 'lightning_cwa', confidence: 'HIGH' }],
+    processing: '氣象署閃電落雷即時觀測（KMZ，滾動 1 小時視窗每 5 分更新）；只到分鐘級、無電流強度。台電源自 2026-07-10 起端點活著但永遠回空檔，本源為替代兼交叉驗證',
+  },
   nuclearRadiation: {
     status: 'verified',
     datasets: [{ datasetId: 'nuclear_radiation_taipower', confidence: 'HIGH' }],

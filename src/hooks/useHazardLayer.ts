@@ -2,8 +2,8 @@ import { useEffect, useRef, useCallback } from "react";
 import type { Map as MapboxMap, GeoJSONSource } from "mapbox-gl";
 import {
   fetchLightningDay, prefetchLightningDay, invalidateLightningDay,
-  toLightningFCAt,
-  type LightningStrike,
+  toLightningFCAt, DEFAULT_LIGHTNING_SOURCE,
+  type LightningStrike, type LightningSource,
 } from "../data/lightningLoader";
 import {
   fetchNuclearDay, prefetchNuclearDay,
@@ -34,6 +34,8 @@ import { useMapReadyTick } from "./useMapReadyTick";
  */
 
 const SRC_LIGHTNING = "hazard-lightning";
+/** 氣象署源用獨立 source（migration 338 雙源）—— 兩個圖層可同時開著互相對照 */
+const SRC_LIGHTNING_CWA = "hazard-lightning-cwa";
 const SRC_NUCLEAR = "hazard-nuclear";
 
 const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
@@ -79,9 +81,12 @@ export function useLightningLayer(
   visible: boolean,
   /** slider 給的「視覺壽命 N min」— 每筆 strike 從擊發起持續 N 分鐘 */
   minutes: number,
+  /** 資料來源（migration 338 雙源）；兩源各自獨立 source / cache / 圖層 */
+  source: LightningSource = DEFAULT_LIGHTNING_SOURCE,
 ) {
   const fcRef = useRef<GeoJSON.FeatureCollection | null>(null);
-  const feed = useSourceFeed(mapRef, visible, SRC_LIGHTNING, fcRef);
+  const srcId = source === "cwa" ? SRC_LIGHTNING_CWA : SRC_LIGHTNING;
+  const feed = useSourceFeed(mapRef, visible, srcId, fcRef);
   // 整天 events buffer，scrub / minutes 變動只在這份上 client-side filter
   const dayBufferRef = useRef<LightningStrike[]>([]);
   const minutesRef = useRef(minutes);
@@ -98,13 +103,13 @@ export function useLightningLayer(
     };
 
     const loadDay = (dateKey: string, alsoYesterday: boolean = true) => {
-      const todayP = fetchLightningDay(dateKey);
+      const todayP = fetchLightningDay(dateKey, source);
       const yKey = alsoYesterday
         ? new Date(`${dateKey}T00:00:00+08:00`)
         : null;
       if (yKey) yKey.setDate(yKey.getDate() - 1);
       const yPromise = yKey
-        ? fetchLightningDay(yKey.toISOString().slice(0, 10))
+        ? fetchLightningDay(yKey.toISOString().slice(0, 10), source)
         : Promise.resolve<LightningStrike[]>([]);
       Promise.all([todayP, yPromise])
         .then(([today, yesterday]) => {
@@ -117,13 +122,17 @@ export function useLightningLayer(
 
     loadDay(timeStore.getDateKey());
     // 視窗內其他日 → silent prefetch（共用 cachedByKey，不灌 LOADING panel）
-    const unsubPrefetch = subscribePrefetchWindow(prefetchLightningDay, "[HAZARD/lightning]");
+    const unsubPrefetch = subscribePrefetchWindow(
+      (key) => prefetchLightningDay(key, source),
+      `[HAZARD/lightning:${source}]`,
+    );
 
     const unsubDate = timeStore.subscribeDate((key) => loadDay(key));
     const unsubTime = timeStore.subscribeThrottled(SCRUB_THROTTLE_LIGHTNING, recompute);
 
     const id = window.setInterval(() => {
-      invalidateLightningDay();
+      // 只清「這一源的當前日」—— 不帶參數會連另一源的快取一起清掉
+      invalidateLightningDay(timeStore.getDateKey(), source);
       loadDay(timeStore.getDateKey());
     }, LIGHTNING_RELOAD_MS);
 
@@ -134,7 +143,7 @@ export function useLightningLayer(
       unsubTime();
       window.clearInterval(id);
     };
-  }, [visible, feed]);
+  }, [visible, feed, source]);
 
   // minutes 變動立即重算（不靠 throttle）
   useEffect(() => {

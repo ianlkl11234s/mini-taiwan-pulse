@@ -80,24 +80,48 @@ export const invalidateLightningWindow = (): void => fetchLightningWindowCached.
 // ── day preload（v2 Phase B++，RPC 226）─────────────────────
 // 整天落雷一次抓，前端 client-side filter + fade，scrub 不再打 server。
 // 2026-06-26：分 raw + wrapped — prefetch 走 raw（背景靜默不灌 LOADING panel）。
-async function fetchLightningDayRaw(dateKey: string): Promise<LightningStrike[]> {
-  const { data, error } = await supabase.rpc("get_lightning_day", { date_key: dateKey });
-  if (error) throw new Error(`get_lightning_day: ${error.message}`);
+// 2026-08-07：加 source 維度（gis-platform migration 338）。台電自 2026-07-10 起
+// 端點活著但永遠回空檔，氣象署源（cwa）並行後兩者可互為對照。
+// cache key 是 `${source}|${dateKey}` —— 兩源分開快取，不可共用。
+export type LightningSource = "taipower" | "cwa";
+export const DEFAULT_LIGHTNING_SOURCE: LightningSource = "taipower";
+
+async function fetchLightningDayRaw(cacheKey: string): Promise<LightningStrike[]> {
+  const [source, dateKey] = cacheKey.split("|");
+  const { data, error } = await supabase.rpc("get_lightning_day", {
+    date_key: dateKey,
+    p_source: source,
+  });
+  if (error) throw new Error(`get_lightning_day(${source}): ${error.message}`);
   return (data ?? []) as LightningStrike[];
 }
 const fetchLightningDayCached = cachedByKey<LightningStrike[]>(
   fetchLightningDayRaw,
   10 * 60_000,
-  8, // 配合 timeline rangeDays 最高 7 + 1 spare
+  16, // 兩源 × (timeline rangeDays 最高 7 + 1 spare)
 );
+const dayCacheKey = (dateKey: string, source: LightningSource) => `${source}|${dateKey}`;
+
 /** Foreground — 顯示 LOADING tracker。Hook 應該用這個載當前日。 */
-export const fetchLightningDay = (dateKey: string): Promise<LightningStrike[]> =>
-  withLoading(`lightning:day:${dateKey}`, `落雷 ${dateKey} 整日`, fetchLightningDayCached(dateKey));
+export const fetchLightningDay = (
+  dateKey: string,
+  source: LightningSource = DEFAULT_LIGHTNING_SOURCE,
+): Promise<LightningStrike[]> =>
+  withLoading(
+    `lightning:day:${source}:${dateKey}`,
+    `落雷 ${dateKey} 整日${source === "cwa" ? "（氣象署）" : ""}`,
+    fetchLightningDayCached(dayCacheKey(dateKey, source)),
+  );
 /** Prefetch — 靜默，不灌 LOADING panel。與 fetchLightningDay 共用 cache。 */
-export const prefetchLightningDay = (dateKey: string): Promise<LightningStrike[]> =>
-  fetchLightningDayCached(dateKey);
-export const invalidateLightningDay = (dateKey?: string): void =>
-  fetchLightningDayCached.invalidate(dateKey);
+export const prefetchLightningDay = (
+  dateKey: string,
+  source: LightningSource = DEFAULT_LIGHTNING_SOURCE,
+): Promise<LightningStrike[]> => fetchLightningDayCached(dayCacheKey(dateKey, source));
+/** 不帶 dateKey = 清掉該來源全部快取日；兩個參數都不帶才是清全部。 */
+export const invalidateLightningDay = (dateKey?: string, source?: LightningSource): void => {
+  if (dateKey && source) return fetchLightningDayCached.invalidate(dayCacheKey(dateKey, source));
+  fetchLightningDayCached.invalidate();
+};
 
 /**
  * 計算落雷在 currentTs 看到的 alpha（0~1）：

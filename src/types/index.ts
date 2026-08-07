@@ -275,6 +275,7 @@ export type ExpandableLayerKey =
   | "evIsland"
   // HAZARD（v2 Phase B）
   | "lightning"
+  | "lightningCwa"
   | "nuclearRadiation"
   | "wasteTruck"
   | "wasteSchedule"
@@ -1081,7 +1082,8 @@ export interface LayerVisibility {
   gasCoverageTaisugar: boolean;  // 台糖 1 站 30km union polygon
   evIsland: boolean;             // H3 z8 hex × ev_count（充電站孤島）
   // 災害 HAZARD（v2 Phase B）
-  lightning: boolean;            // 落雷最近 60min（cluster + zoom-gate）
+  lightning: boolean;            // 落雷（台電源，有電流強度）
+  lightningCwa: boolean;         // 落雷（氣象署源，無電流強度；台電 2026-07-10 起斷供後的替代兼對照）
   nuclearRadiation: boolean;     // 核安 51 站即時劑量（is_stale 標離線）
   // 房地產 REAL ESTATE（3 類 × {grid 150m, point}；PMTiles 靜態，period filter 切季）
   realEstateRentalGrid: boolean;   // 租賃 150m 格（price_per_sqm_median 上色）
