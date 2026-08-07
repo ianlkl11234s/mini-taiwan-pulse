@@ -4,6 +4,24 @@
 
 ## 進行中 / 待辦
 
+### 資料源健康（DS 系列，2026-08-07 斷供調查後開）
+
+> 背景見 [`.claude/pitfalls/2026-08-07-silent-upstream-outage.md`](../pitfalls/2026-08-07-silent-upstream-outage.md)。
+
+| ID | 優先級 | 項目 | 狀態 |
+|---|---|---|---|
+| DS-01 | **P1** | **台電落雷恢復後把 `LIGHTNING_EVENTS_INTERVAL` 調回 `1`** —— 端點是 1 分鐘整檔覆寫，目前 30 分鐘會漏 29/30。collector 偵測到恢復會發 Telegram 提醒，收到就做 | open（等上游） |
+| DS-02 | P1 | 警政署 A1 事故上游停更 6 週（`資料提供日期` 停在 115/06/22、最新事故 06-15）。要向來源反映或找替代資料集 | open |
+| DS-03 | P2 | 台電落雷向來源反映斷供（data.gov.tw nid 61139，端點 200 但永遠空檔） | open |
+| DS-04 | P2 | `public.taiwan_counties` 等縣市 polygon 表**都不存在** → `refresh_lightning_daily_summary` 一直走「全國一列 county=NULL」分支，落雷彙總沒有縣市維度（既有狀況，非本次引入） | open |
+| DS-05 | P3 | 共機航跡 2024-08 起 588 天全量回填（目前只驗過 2026 年 181 天）。走 analytics 的批次腳本（中位數配準），不是每日 collector（回看窗只有 30 天） | open |
+
+### 前端小坑（2026-08-07 發現）
+
+| ID | 優先級 | 項目 | 狀態 |
+|---|---|---|---|
+| FE-01 | P2 | URL 的 `p.*` 參數 `parseUrlState` 有解析（`parseParams`）但**App 端沒有任何地方套用** → 分享連結帶不了 slider 值。要嘛接上、要嘛移除死碼 | open |
+
 ### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**已部署驗證**）
 
 > **SSOT 全部移到 [`docs/features/embeddable-map/`](../../docs/features/embeddable-map/)**
