@@ -335,8 +335,8 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 | 縣市生質統計 | `public.county_biomass_stats` | 188 | 沒接（E-F KPI）|
 | 縣市小水力 | `public.county_small_hydro_stats` | 188 | 沒接（E-F KPI）|
 | 光電月發電（站時序）| `analytics.solar_daily_generation` | 3,992 | 沒接（E-F 月趨勢）|
-| 落雷即時 | `realtime.lightning_events` | 32,912 / 24h | **已接** v2 Phase B（feat/energy-v2-A b7d6154，5~360 min slider）|
-| 落雷日聚合 | `analytics.lightning_daily_summary` | 動態 | 沒接（E-F KPI）|
+| 落雷即時 | `live.lightning_events` | **雙源**（mig 338 加 `source`）| **已接 2 個圖層**：`lightning`（台電，橘/青）+ `lightningCwa`（氣象署，紫/綠）。⚠️ **台電源自 2026-07-10 起端點 200 但永遠回空檔**，氣象署源 2026-08-07 上線接手 |
+| 落雷日聚合 | `analytics.lightning_daily_summary` | 動態 | 沒接（E-F KPI）。mig 338 加 `source` 分組 —— 兩源混算會把同一場雷雨計兩次 |
 | **三本柱燈號** | `realtime.power_system_status` | 1,843 (10min × 約 13 天) | ✅ HUD（v1.1 留 hooks 給 monitor E-A）|
 | **區域用電** | `realtime.power_region_demand` | 7,352 | ✅ region bars（v1.1 留 hooks 給 monitor E-A）|
 | **機組即時** | `realtime.power_generation_unit` | 376,790 (7 天 retention) | ✅ 3D beam layer 4 |
@@ -580,7 +580,8 @@ resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢�
 | `live.pla_activity_daily` | **731 天零缺日**（2024-08-02 起，每日累加）。**架次 0 缺**；逾越中線缺 1、共艦缺 7、統計窗缺 1（成因見 `docs/features/pla-activity/backlog.md` PA-8）。`raw_text` 全數為乾淨內文（可重解析） |
 | `spatial.pla_tracks` | 活動區多邊形 **348 個 / 164 天**（僅 2026）。`shape_kind` rect 走廊／poly 不規則活動區；43 個 `needs_review=true`（守門未過）。migration 330 |
 | `live.pla_activity_items` | 航跡圖表格逐項 **399 項次 / 178 天**（僅 2026）。機型／架次／時段／氣球顆數，OCR 抽取。migration 333 |
-| S3 `pla/track_charts/YYYY/MM/{date}.jpg` | 航跡示意圖 **588 天**（向量化原料） |
+| `spatial.pla_tracks_runs` | **ledger**（migration 337，2026-08-07 加）。1 row/通報日，記守門結果／配準偏差／版型／S3 key／error。**這是向量化 pipeline 唯一可靠的心跳** —— 「0 架次」那天 `pla_tracks` 本來就沒有 row，分不出「沒共機」與「沒跑」。已進 `realtime_tables.yaml`；`pla_tracks` / `pla_activity_items` 則列入測試的 EXEMPT（由本表代監控） |
+| S3 `pla/track_charts/YYYY/MM/{date}.jpg` | 航跡示意圖 **588 天**（向量化原料）。⚠️ 這 588 張是**一次性回填腳本**傳的；每日 collector 原本只寫 URL 不存圖，2026-08-07 起才由 `pla_tracks_vectorize` 每日下載備份 |
 | S3 `pla/activity_charts/YYYY/MM/{date}.jpg` | 數字表格圖 **185 天**（僅圖片版時代；該時代數值唯一來源） |
 | RPC（8 支） | `get_pla_activity_latest()`（⚠️ 無差別 COALESCE 0）／`_range(p_days)`（趨勢，保留 NULL，mig 326）／`get_pla_tracks_day` `_dates`（mig 330）／`get_pla_tracks_range`（疊加＋回放，回 `days_ago`，mig 331）／`get_pla_severity_daily` `get_pla_situation_summary`（嚴重度，mig 332）／`get_pla_kind_summary`（機型，mig 333） |
 | 欄位語意 | `report_date` = 統計窗**起算日**（非發布日）；`crossed_median_line_cnt` = 官方合併語意「逾越中線**及**進入我空域」架次 |
