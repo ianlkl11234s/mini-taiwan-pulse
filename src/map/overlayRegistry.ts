@@ -5628,6 +5628,66 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
+  // ── 落雷（氣象署源）── 與台電源同結構、獨立 source，可同時開著互相對照。
+  // 兩源不是等價替代：氣象署只到分鐘級、座標 2~3 位小數、**沒有電流強度**，
+  // 但供應是滾動 1 小時視窗（台電是 1 分鐘 snapshot 整檔覆寫，錯過就永久遺失）。
+  // 台電自 2026-07-10 起端點活著卻永遠回空檔 —— 本圖層同時是替代與交叉驗證。
+  // 色相刻意與台電源不同（紫／綠 vs 橘／青），兩層疊著也分得出誰是誰。
+  {
+    id: "lightningCwa",
+    sourceUrl: "./geo/_empty.geojson",
+    sourceId: "hazard-lightning-cwa",
+    dynamicData: true,
+    rebuildOnParamChange: ["lightningCwaOpacity"],
+    layers: [
+      {
+        suffix: "halo",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.lightningCwaOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 4, 9, 7, 12, 12,
+            ],
+            "circle-color": [
+              "match", ["get", "strike_type"],
+              0, "#a78bfa",
+              1, "#4ade80",
+              "#9ca3af",
+            ],
+            "circle-blur": 0.85,
+            "circle-opacity": [
+              "*", o * 0.45, ["coalesce", ["get", "alpha"], 1],
+            ],
+          };
+        },
+      },
+      {
+        suffix: "core",
+        type: "circle",
+        paint: (_isDark, params) => {
+          const o = params?.lightningCwaOpacity ?? 0.85;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              5, 1.2, 10, 2.2, 14, 3.5,
+            ],
+            "circle-color": [
+              "match", ["get", "strike_type"],
+              0, "#a78bfa",
+              1, "#4ade80",
+              "#9ca3af",
+            ],
+            "circle-opacity": [
+              "*", o, ["coalesce", ["get", "alpha"], 1],
+            ],
+          };
+        },
+      },
+    ],
+  },
+
   // ── ⛰️ 山域意外事故救援案件（GeoJSON 2,465 點，2019-2024）──
   // cause 17 個原始值 → 9 族分色（SSOT = mountainSafetyTypes.ts）；半徑 ×「出動總人次」4 級倍率；
   // 有死亡的案件用紅描邊突出。年份篩選走 per-layer filter 函式（同 urbanZoning；idx 0=全部 1..6=單年

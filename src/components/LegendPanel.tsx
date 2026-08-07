@@ -335,6 +335,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     render: ({ visibility }) => <CoverageLegend visibility={visibility} />,
   },
   { keys: ["lightning"], render: () => <LightningLegend /> },
+  { keys: ["lightningCwa"], render: () => <LightningCwaLegend /> },
   { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
   // Base map：OSM 道路 highway 分級分色（其他 base layer 單色，依鐵則 2 不需圖例）
   { keys: ["osmRoadDrive"], render: () => <OsmRoadDriveLegend /> },
@@ -3692,6 +3693,38 @@ function LightningLegend() {
       <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: t.textDim }}>
         ● zoom &lt; 10 自動 cluster<br />
         ● 預設 60 min 視窗
+      </div>
+    </div>
+  );
+}
+
+/** 氣象署源：同樣分雲對地／雲中，但色相與台電源錯開，兩層疊著仍分得出誰是誰。 */
+function LightningCwaLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        HAZARD · 落雷類型（氣象署）
+      </div>
+      {[
+        { label: "對地 CG（高傷害）", color: "#a78bfa" },
+        { label: "雲間 IC", color: "#4ade80" },
+      ].map((row) => (
+        <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 3 }}>
+          <span
+            style={{
+              width: 10, height: 10, borderRadius: RADIUS.full,
+              background: row.color, display: "inline-block",
+              boxShadow: `0 0 5px ${row.color}aa`,
+            }}
+          />
+          <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{row.label}</span>
+        </div>
+      ))}
+      <div style={{ marginTop: 6, fontSize: FONT_SIZE.xs, lineHeight: 1.35, color: t.textDim }}>
+        ● 來源 O-A0039-001，每 5 分更新<br />
+        ● 時間僅到分鐘、無電流強度<br />
+        ● 與台電源並行，可互相對照
       </div>
     </div>
   );

@@ -271,6 +271,7 @@ export function useMapInteraction(
           { layers: ["coverage-gas-taisugar-line"], type: "gasCoverageTaisugar" },
           { layers: ["coverage-ev-island-line"], type: "evIsland" },
           { layers: ["hazard-lightning-core", "hazard-lightning-halo"], type: "lightningStrike" },
+          { layers: ["hazard-lightning-cwa-core", "hazard-lightning-cwa-halo"], type: "lightningStrike" },
           { layers: ["hazard-nuclear-core", "hazard-nuclear-halo"], type: "nuclearStation" },
           // 本土地震（useEarthquakeLayer 的 pre/post 兩態，穩定半徑可點；
           // ripple 動畫圈半徑會瞬時放大到 60~80px+ 且持續變動，納入點擊會蓋過其他層的既有命中範圍，故不收）
