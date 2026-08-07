@@ -1,7 +1,66 @@
 # Status
 
-**最後更新**：2026-08-05（可嵌入地圖 EM 系列上線；**PR #105 + #106 已 merged 並 push**）
-**mini-taiwan-pulse**：`master` = `81e8993`（PR #106 merged；前 `d36d787` = PR #105）
+**最後更新**：2026-08-06/07（資料源健康三連查 + 落雷雙源；**10 個 PR 全 merged**）
+**mini-taiwan-pulse**：`master` = `e99541f`（PR #113/#114/#115 merged）
+**gis-platform**：`main`（PR #49 mig 337 / #50 mig 338，**皆已 apply production**）
+**data-collectors**：`main`（PR #43/#44/#45/#46 merged；**CI 已回綠**，Zeabur 部署 RUNNING）
+**taipei-gis-analytics**：`master`（PR #38/#39 merged）
+
+> ⚠️ **本 session 最該記住的一件事**：三個資料源都是「程序每次都成功、產出永遠是空的」——
+> 共機航跡斷 5 天、台電落雷斷 **28 天**、警政署 A1 停更 **6 週**，都沒有任何告警。
+> `metadata.collector_status` 還會給誤導性的舊 `last_error`。
+> 完整診斷法 → [`.claude/pitfalls/2026-08-07-silent-upstream-outage.md`](../pitfalls/2026-08-07-silent-upstream-outage.md)
+
+## 本 session 完成（2026-08-06/07）— 資料源健康三連查 + 落雷雙源
+
+### 1. 共機航跡向量化自動化（PR pulse#113 / collectors#43 / platform#49 / analytics#38）
+
+**症狀是圖層空的，但根因不在前端也不在 collector** —— 數值 `live.pla_activity_daily`
+一路正常寫到 08-05，斷的是**航跡向量化**：那是 analytics 的手動批次腳本，
+08-02 跑完 07-31 後沒人再跑。轉成 data-collectors 的每日 collector `pla_tracks_vectorize`。
+
+- **ledger `spatial.pla_tracks_runs`（mig 337）** —— 非有不可：「0 架次」那天
+  `pla_tracks` 本來就沒有 row，分不出「沒共機」與「沒跑」。它同時是補跑判定與心跳
+- **固化配準常數** —— 批次原本靠「整批取中位數」保護，單張跑就沒了。實測 75 張，
+  `solve_georef` 有 **16% 會「成功但錯誤」**（平移最多 3 度 ≈ 300 km），
+  而 `needs_review` 抓不到（只驗形狀數不驗位置）。08-04/08-05 兩天偏差正好都是 3.006°
+- 原圖之前根本沒被保存（S3 那 588 張是一次性回填腳本傳的），collector 現在每日備份
+- 順手修掉 `shape_extract.py` 的硬編碼 `/Users/migu/...` 絕對路徑（Docker 必爆）、
+  skimage 改 lazy import（頂層 import 會讓**整個 registry 掛掉、所有 collector 一起死**）
+
+### 2. map-ready 競態（PR pulse#114）
+
+`mapRef.current` 要等 `map.on("load")` 才被填，**production 首載可能晚達 ~30 秒**。
+在那之前 layer hook 的建層 effect 提早 return，而 ref 變動**不觸發 re-render** →
+effect 永不重跑 → 圖層永遠不會被建出來。deep-link 與「首載期間手動 toggle」都會中招。
+`OVERLAY_REGISTRY` 不受影響是因為 MapView 的 load handler 本來就有補發機制。
+
+抽出 `useMapReadyTick`，**55 個 layer hook 全部套上** + `factories/timelineSliceLayer`
+補一次；新增 `mapReadyTickCoverage` ratchet 測試守門（實測拆掉任一個會紅並指出檔名）。
+
+### 3. 落雷雙源（PR platform#50 / collectors#44 / analytics#39 / pulse#115）
+
+台電端點 HTTP 200 但**自 2026-07-10 起永遠只有 BOM + 標題行**。三條獨立證據定罪：
+S3 archive 大小從「52KB~53MB 劇烈變化」變成「固定 52KB」、10 分鐘監看 24 次全 0、
+同時段氣象署偵測到 179 次閃電且 CWA 發了 9 則雷雨特報。
+
+- mig 338 加 `source`，UNIQUE 改 `(source, event_id)`；**彙總表也要加** ——
+  `refresh_lightning_daily_summary` 是 GROUP BY 縣市，兩源混入會把同一場雷雨算兩次
+- 新 collector `lightning_cwa`（氣象署 `O-A0039-001`）+ 前端 `lightningCwa` 圖層（紫/綠）
+- **兩源不是等價替代**：氣象署只到分鐘級、無電流強度，但供應是滾動 1 小時視窗
+  （台電是 1 分鐘整檔覆寫，錯過就永久遺失）
+- 台電 interval 1→30 分鐘 + **上游恢復 Telegram 告警**（PR collectors#46）。
+  告警判準是「DB 上一筆距今 > 3 天」而非「這輪有資料」——後者每場雷雨都會誤報
+
+**端對端驗證**：雲端 collector 自動抓到 08-07 的落雷（179 → 203 筆），前端圖層實測有點。
+
+### 4. 自己造成的 CI 紅（PR collectors#45）
+
+data-collectors 的 CI 在我這輪之前**就已經紅了**（08-03 food_prices 漏加 cross_layer_map），
+我的兩個 PR 又各加新漏項。三個 ratchet 測試設計得很好、確實抓到了 ——
+是我只跑了 pulse 的 vitest，沒在 data-collectors 跑 pytest。已修，CI 四天來第一次回綠。
+
+## 本 session 完成（2026-08-03~05）— 可嵌入地圖 EM 系列（PR #105 + #106）
 
 > ✅ **EM-21 已完成（2026-08-05）**：底圖（297 MB）+ 共機快照已上 S3，Zeabur 自動部署後
 > 容器 entrypoint 拉取成功。**正式站 `/embed` 端到端驗證通過** ——
@@ -75,8 +134,12 @@
 
 ## 下一步
 
+0. **DS-01（等上游）**：台電落雷恢復時把 `LIGHTNING_EVENTS_INTERVAL` 調回 `1` ——
+   端點是 1 分鐘整檔覆寫，目前 30 分鐘會漏 29/30。**collector 會發 Telegram 提醒**。
+   其餘資料源健康待辦見 BACKLOG 的 DS-02~05（A1 停更、縣市 polygon 表缺、588 天回填）
 1. **PA-1 全量向量化**（2024-08 起 588 天，~20-30 分鐘）—— 跑完歷史模式才有 113/114 年、
-   機型才能往前延伸。⚠️ 2025 以前版型未驗證，可能要再調
+   機型才能往前延伸。⚠️ 2025 以前版型未驗證，可能要再調。
+   ⚠️ 走 analytics 的批次腳本（中位數配準），**不是**每日 collector（回看窗只有 30 天）
 2. PA-8 兩個解析缺口（演習日 `0600` 硬編碼／「未偵獲共機、艦」漏記 0）—— **owner 已決定先不改**
 3. 戰情板後續：PA-5 時間軸標示有資料的日期、PA-6 回放速度/暫停、PA-7 疊加時 popup 取捨
 4. 既有：G013 KHH VM SCP、G016 weather_change key 輪替、MC-1~5 微氣候、EQ-1
