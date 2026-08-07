@@ -1449,3 +1449,50 @@ PR #41 merge 觸發 Zeabur 部署後，DB 的 `updated_at` **完全沒變**（�
 
 修法見 PRINCIPLES「疊圖的單層 alpha 要依疊加層數縮放」。
 → 這類問題**先算再做**只要 30 秒，先做完再用眼睛調要來回好幾輪。
+
+## 2026-08-07 — 上游靜默斷供三連 + 自己造成的 CI 紅
+
+### 事件 A：三個資料源都是「程序成功但產出永遠是空的」
+一天內查出共機航跡向量化斷 5 天、台電落雷斷 **28 天**、警政署 A1 停更 **6 週**，
+三者的 collector 都在跑、HTTP 都 200、都沒有 exception、沒有告警。
+
+完整診斷過程與三種判準（ledger／第二資料源／第三方訊號反證）已獨立成篇：
+→ [`.claude/pitfalls/2026-08-07-silent-upstream-outage.md`](../pitfalls/2026-08-07-silent-upstream-outage.md)
+
+這裡只留最該記住的兩條：
+- **`metadata.collector_status` 會騙你**：`last_success_at` 只在有 records 寫入時更新，
+  上游回空檔時它停在最後一次有資料的時刻，看起來像 collector 掛了；
+  `last_error` 更糟，停留在很久以前的一次失敗（台電落雷顯示 `borrow timeout`，
+  害人往連線池方向查，真正原因是上游空檔）
+- **S3 archive 的檔案 Size 就是免費的時間軸**：連續區間大小完全一致（52,0xx bytes）
+  = 內容一模一樣 = 上游停供起點，不必下載任何檔案就定出 2026-07-10
+
+### 事件 B：我 merge 前沒跑該 repo 的測試 → main CI 紅
+data-collectors 的 CI 在我這輪之前**就已經紅了**（2026-08-03 `feat/food-prices-collector`
+merge 時漏加 `cross_layer_map.yaml`），而我的兩個 PR 又各加了新漏項：
+#43 在 cross_layer_map 列了 3 張表但只有 ledger 進 realtime_tables、#44 整個沒進 cross_layer_map。
+
+三個 `test_cross_layer_sync` ratchet 測試設計得很好、確實抓到了 —— **是我只跑了 pulse 的
+vitest，沒在 data-collectors 跑 pytest**。跨 repo 工作時「測試要在改動所在的 repo 跑」
+這件事很容易漏。修法見 PR #45（順手把 food_prices 一起補掉，CI 四天來第一次回綠）。
+
+### 事件 C：`zeabur variable create` 不 restart 就不生效
+設完 `PLA_TRACKS_VECTORIZE_ENABLED=true` 後，容器內 `config.PLA_TRACKS_VECTORIZE_ENABLED`
+仍是 `False` —— 運行中的容器不會重讀環境變數。`zeabur service restart` 後才變 True。
+
+**驗證法**（比看 dashboard 可靠）：
+```bash
+zeabur service exec --id <svc> -- sh -c "python -c \"import config; print(config.XXX)\""
+```
+⚠️ 但如果變數是在**新部署 build 開始之前**設的，部署完就直接生效、不必 restart
+（後來設 `LIGHTNING_CWA_ENABLED` 就是這種情況）。差別在時序，不在指令。
+
+### 事件 D：KML 收尾標籤多一個空格 → 靜默解出 0 筆
+接氣象署落雷 KMZ 時，第一版 regex 寫 `</when>`，解析結果 179 筆變 **0 筆且不報錯**。
+上游實際輸出是 `</when >`（多一個空格）。
+
+同一支 API 還有第二個坑：**端點回 302 重導**，`requests` 預設跟隨所以程式沒事，
+但手動 `curl` 測試時不加 `-L` 會拿到 0 bytes，**看起來就像「這個源也沒資料」**。
+兩個坑疊在一起差點讓我判定氣象署源不可用。
+
+→ 通則：解析外部 XML/KML 時，收尾標籤一律寫成 `</tag\s*>`；curl 測任何陌生端點先加 `-L`。
