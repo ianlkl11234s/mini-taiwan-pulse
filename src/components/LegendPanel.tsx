@@ -13,6 +13,7 @@ import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
+import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
@@ -231,6 +232,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { keys: ["ships"], render: () => <ShipsLegend /> },
   { keys: ["flights"], render: () => <FlightsLegend /> },
+  { keys: ["rail"], render: () => <RailLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
   { keys: ["plaActivity"], render: () => <PlaActivityLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
@@ -547,6 +549,48 @@ function FlightsLegend() {
       <FireCatRows cats={[{ color: LAYER_COLORS.flights, label: "航跡 Trail" }]} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>
         軌跡為輪替配色，不代表分類
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 台鐵車種色票 —— 直接由 `TRA_TRAIN_TYPES` 推導，**不重抄一份**：
+ * `TraTrainEngine` 的光球顏色就是 `getTrainColor(train_type_code)`，同一份資料。
+ * 同色的車種合併成一列（普悠瑪／太魯閣共用 #E53935），依 priority 排序。
+ */
+const TRA_TRAIN_TYPE_ROWS = (() => {
+  const byColor = new Map<string, string[]>();
+  for (const info of Object.values(TRA_TRAIN_TYPES).sort((a, b) => a.priority - b.priority)) {
+    const names = byColor.get(info.color);
+    if (names) names.push(info.name);
+    else byColor.set(info.color, [info.name]);
+  }
+  return [...byColor].map(([color, names]) => ({ color, label: names.join(" / ") }));
+})();
+
+/**
+ * 鐵路 —— 分色維度是**車種（台鐵）與路線（高鐵／捷運）**，不是「系統」。
+ *
+ * 台鐵佔畫面上絕大多數的車，且引擎確實照車種上色（`getTrainColor`），所以那是主圖例。
+ * 高鐵全線同色（時刻表無 `train_color`、軌道無 `color` → 落到系統預設 #ee6c00）。
+ * 捷運則是**每條路線各自的官方線色**（北捷 96 條路線各有 color），數量太多不逐條列，
+ * 也不硬編一個「捷運＝某色」的假分類 —— 用一行說明帶過（同 FlightsLegend 的原則）。
+ */
+function RailLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        鐵路 RAIL・台鐵車種
+      </div>
+      <FireCatRows cats={TRA_TRAIN_TYPE_ROWS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, margin: "6px 0 4px" }}>
+        高鐵・捷運
+      </div>
+      <FireCatRows cats={[{ color: LAYER_COLORS.rail, label: "高鐵 THSR" }]} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>
+        捷運依各路線官方線色｜灰線為軌道
       </div>
     </div>
   );

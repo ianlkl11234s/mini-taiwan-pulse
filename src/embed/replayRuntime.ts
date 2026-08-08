@@ -10,7 +10,10 @@
  *   時間範圍取**聯集**、設定回放時鐘**一次** → 各層 Scene 掛上 MapLibre CustomLayer →
  *   自動播放、整日 loop
  *
- * ⚠️ **多層共用同一個 `replayClock`**（singleton）。`layers=flights,ships` 時兩層必須
+ * 三層各自的時間範圍來源不同：flights / ships 取軌跡資料的實際跨度；
+ * **rail 是時刻表推算型**，取該日台北 00:00–24:00 整天（理由見 `railReplayData.ts` 檔頭）。
+ *
+ * ⚠️ **多層共用同一個 `replayClock`**（singleton）。`layers=rail,flights` 時各層必須
  * 走同一把時鐘，否則後啟動者的 `setRange()` 會蓋掉前者、時間軸互相打架。因此
  * `setRange` 只在所有層都載完、算出聯集區間後呼叫一次 —— 這也讓兩種載具在同一
  * 時刻軸上對齊（船在港、飛機在空中，是同一分鐘的台灣）。
@@ -18,22 +21,29 @@
  * 任何一層失敗（404 / 空檔 / 時間跨度為 0）→ 該層靜默略過；全部都失敗才回 `null`。
  */
 import type { Map as MaplibreMap } from "maplibre-gl";
-import type { Flight, LayerVisibility, Ship } from "../types";
+import type { Flight, LayerVisibility, RailData, Ship } from "../types";
 import { FlightScene } from "../three/FlightScene";
 import { ShipScene } from "../three/ShipScene";
+import { RailScene } from "../three/RailScene";
+import { RailEngine } from "../engines/RailEngine";
+import { TraTrainEngine } from "../engines/TraTrainEngine";
 import { flightRowsToFlights, type FlightTrailRow } from "../data/flightTrails";
 import { shipRowsToShips, type ShipTrailRow } from "../data/shipTrails";
 import { createThreeReplayLayer, type ReplayScene } from "./threeReplayLayer";
 import { REPLAY_LAYERS, fetchReplaySnapshot } from "./replayLayers";
+import { loadRailReplayData, railReplayRange } from "./railReplayData";
 import { replayClock, resolveReplaySpeed, resolveReplayStart } from "./replayClock";
 
 /**
  * 主站 `useTransportParams` 的預設值（embed 沒有調參 UI，直接沿用同一組數字）。
- * flights 與 ships 在主站是**各自獨立**的 slider，預設值不同 —— 別合併成一個常數。
+ * 三種載具在主站是**各自獨立**的 slider，預設值不同 —— 別合併成一個常數。
  */
 const DEFAULT_FLIGHT_ORB_SCALE = 0.000005;
 const DEFAULT_SHIP_ORB_SCALE = 0.000003;
 const DEFAULT_SHIP_TRAIL_OPACITY = 0.15;
+const DEFAULT_RAIL_ORB_SCALE = 0.00001;
+const DEFAULT_RAIL_TRACK_OPACITY = 0.35;
+const DEFAULT_RAIL_ALT_OFFSET = 110;
 
 export interface StartReplayOptions {
   map: MaplibreMap;
@@ -54,7 +64,7 @@ export interface ReplayHandle {
   stop: () => void;
   /** 實際啟動的層（快照缺失者不在內） */
   startedKeys: (keyof LayerVisibility)[];
-  /** 各層的 domain 物件數（flights = 航班數、ships = 船數） */
+  /** 各層的 domain 物件數（flights = 航班數、ships = 船數、rail = 全日班次數） */
   counts: Record<string, number>;
   /** 所有層的聯集時間範圍 */
   timeRange: [number, number];
@@ -150,6 +160,55 @@ function createShipReplayScene(ships: Ship[], isDark: boolean): ReplayScene {
   };
 }
 
+/**
+ * RailScene → ReplayScene 轉接（Phase 3）。
+ *
+ * 與 flights / ships **根本不同**：那兩者的快照就是位置本身（Scene 吃 domain 物件），
+ * rail 吃的是時刻表，位置得每幀由引擎現算 —— 所以這裡 `update()` 內含
+ * `engine.update(t)`。這正是主站 `useRailEngine` 的做法（訂閱 timeStore 後每次
+ * 通知都重算兩顆引擎），回放版只是把時間源換成 `replayClock`。
+ *
+ * 靜態軌道**要畫**（與 flights 的「不畫全路徑」相反）：軌道是固定的細線
+ * （golden 37 條 + 5 系統，合計約 9.4k 點），既不會像整日航跡那樣糊成一片，
+ * 又是「列車確實貼在軌道上」的視覺驗收依據。
+ *
+ * 每幀重設 orbScale / trackOpacity / altOffset 是照抄主站 `createRailLayer` 的
+ * render loop —— 不是多餘：靜態軌道是 `update()` 內才 lazy build 的，
+ * `setTrackOpacity` 在 mesh 建好前呼叫會沒效果。
+ */
+function createRailReplayScene(data: RailData, isDark: boolean): ReplayScene {
+  const scene = new RailScene();
+  const railEngine = new RailEngine(data.systems);
+  const traEngine = data.traData ? new TraTrainEngine(data.traData) : null;
+
+  return {
+    init(gl) {
+      scene.init(gl as WebGLRenderingContext);
+      // setTheme 會標記靜態軌道重建，故必須排在 setStaticTracks 之前才不會白做一次。
+      if (!isDark) scene.setTheme(false);
+      scene.setStaticTracks(data.allTracks);
+    },
+    update(timeSec) {
+      const trains = railEngine.update(timeSec);
+      if (traEngine) {
+        const traTrains = traEngine.update(timeSec);
+        for (let i = 0; i < traTrains.length; i++) trains.push(traTrains[i]!);
+      }
+      scene.setOrbScale(DEFAULT_RAIL_ORB_SCALE);
+      scene.setAltitudeOffset(DEFAULT_RAIL_ALT_OFFSET);
+      scene.update(trains, timeSec);
+      // 必須在 update() 之後：靜態軌道 mesh 在 update() 內才建好。
+      scene.setTrackOpacity(DEFAULT_RAIL_TRACK_OPACITY);
+    },
+    render(matrix) {
+      scene.render(matrix as unknown as number[]);
+    },
+    dispose() {
+      scene.dispose();
+    },
+  };
+}
+
 /** 讀單層快照並轉成 domain 物件。失敗（含快照 404 / 空檔）一律回 null。 */
 async function loadLayer(
   key: keyof LayerVisibility,
@@ -158,6 +217,25 @@ async function loadLayer(
 ): Promise<LoadedLayer | null> {
   const spec = REPLAY_LAYERS[key];
   if (!spec) return null;
+
+  if (key === "rail") {
+    // 時刻表推算型：時間範圍是**該日整天**而非資料跨度，理由見 railReplayData 檔頭。
+    const range = railReplayRange(date);
+    if (!range) return null;
+    const data = await loadRailReplayData(date);
+    if (!data) return null;
+    const total = Object.values(data.departureCounts).reduce((a, b) => a + b, 0);
+    if (total === 0) return null;
+    console.log(
+      `[embed/replay] rail ${date}: ${total} departures ` +
+        `(${Object.entries(data.departureCounts).map(([k, v]) => `${k} ${v}`).join(", ")}), ` +
+        `${data.allTracks.features.length} tracks`,
+    );
+    return {
+      key, layerId: spec.layerId, count: total, timeRange: range,
+      makeScene: () => createRailReplayScene(data, isDark),
+    };
+  }
 
   if (key === "ships") {
     const rows = await fetchReplaySnapshot<ShipTrailRow>(spec.snapshotDir, date);

@@ -5,12 +5,15 @@
 #   ./scripts/export/export-embed-snapshot.sh plaActivity 2026-03-01
 #   ./scripts/export/export-embed-snapshot.sh flights     2026-08-06
 #   ./scripts/export/export-embed-snapshot.sh ships       2026-08-06
+#   ./scripts/export/export-embed-snapshot.sh rail        2026-08-06
 #
 # 兩種產物格式（依 layer 而定）：
 #   plaActivity     → GeoJSON     （靜態幾何，MapLibre 原生 fill/line 畫）
 #   flights / ships → gzip JSON   （EM-16 回放；body = **匯出鏡像列**陣列，
 #                                   形狀同 get_flight_trails / get_ship_trails 與
 #                                   data-collectors 的 export_daily_trails.py write_gzip_json）
+#   rail            → gzip JSON   （EM-16 Phase 3；body = reference.daily_schedules 的
+#                                   **時刻表列**陣列。與前兩者的根本差異見下方 rail) case）
 #
 # 設計（見 docs/proposal/embed-dynamic-layers.md §3）：
 #   嵌入不需要「所有歷史日期」，只需要**文章引用的那一天**。所以不做 AR-14~16 的
@@ -32,7 +35,7 @@ DATE="${2:-}"
 
 if [[ -z "$LAYER" || -z "$DATE" ]]; then
   echo "用法：$0 <layer> <YYYY-MM-DD>" >&2
-  echo "目前支援的 layer：plaActivity | flights" >&2
+  echo "目前支援的 layer：plaActivity | flights | ships | rail" >&2
   exit 1
 fi
 
@@ -140,8 +143,58 @@ FROM public.get_ship_trails('__DATE__'::date) t;
 EOSQL
 )
     ;;
+  rail)
+    # EM-16 回放 Phase 3 —— **與 flights / ships 是不同物種**。
+    #
+    #   flights / ships = 軌跡插值型：快照 = 一整天的歷史 GPS 點串，前端只做內插。
+    #   rail            = 時刻表推算型：快照 = 「那一天的時刻表」，列車位置由
+    #                     TraTrainEngine / RailEngine 在前端**即時算**。
+    #
+    # 所以 rail 的資料被拆成兩塊，只有前者每天變：
+    #   1. 時刻表（本檔產出）      → public/embed-snapshots/rail/<date>.json.gz
+    #   2. 幾何（日期無關共用資產）→ public/embed-rail/rail_slim.json.gz
+    #      （由 scripts/preprocess/build-rail-slim-bundle.py 產出，不在本腳本範圍）
+    #
+    # 資料來源 = reference.daily_schedules，**不是** public/rail/tra/master_schedule.json
+    # ——後者是 TDX 通用時刻表（週期性班表），不是某一天真正開的車（§9-4 調查結論）。
+    # 這張表**永久累積不會過期**，所以 rail 不需要 flights/ships 那套 nightly 保存
+    #（§9 D-2「rail 免」）；任何一天都能事後重做快照。
+    #
+    # 六個系統、兩種語意，一次查出來（body 每列 = 一個系統）：
+    #   tra_daily / thsr_daily  → schedule_date = 指定日，**那一天的真實時刻表**
+    #   trtc/krtc/klrt/tmrt_fixed → schedule_date 恆為 2025-01-01 的**週期性班表**。
+    #     捷運在 Supabase 沒有每日表（TDX 也不發），班表本來就與日期無關；
+    #     這份 _fixed 就是主站現在顯示的內容（railLoader 走 `_daily → _fixed` fallback，
+    #     捷運永遠落到 _fixed），且與 public/rail/<sys>/schedules/ 的本地散檔逐位元組相同
+    #     （已比對 trtc BL-1-0）。列本身帶 system/schedule_date，語意差異自我標示。
+    OUT_FILE="$OUT_DIR/$DATE.json.gz"
+    FORMAT="rows.gz"
+    # 該日沒有 tra_daily → 往回找最近有資料的一天（並改寫輸出檔名，不留假日期）。
+    RAIL_DATE=$(psql "$SUPABASE_DB_URL" -qAt \
+      -c "SELECT max(schedule_date) FROM reference.daily_schedules
+          WHERE system = 'tra_daily' AND schedule_date <= '$DATE'::date;")
+    if [[ -z "$RAIL_DATE" ]]; then
+      echo "❌ reference.daily_schedules 在 $DATE 之前查無 tra_daily 資料" >&2
+      exit 1
+    fi
+    if [[ "$RAIL_DATE" != "$DATE" ]]; then
+      echo "[export] ⚠️  $DATE 無 tra_daily，回退到最近有資料的 $RAIL_DATE" >&2
+      DATE="$RAIL_DATE"
+      OUT_FILE="$OUT_DIR/$DATE.json.gz"
+    fi
+    SQL=$(cat <<'EOSQL'
+SELECT coalesce(json_agg(row_to_json(t) ORDER BY t.system), '[]'::json)
+FROM (
+  SELECT system, schedule_date, train_count, data
+  FROM reference.daily_schedules
+  WHERE (system IN ('tra_daily', 'thsr_daily') AND schedule_date = '__DATE__'::date)
+     OR system IN ('trtc_fixed', 'krtc_fixed', 'klrt_fixed', 'tmrt_fixed')
+) t;
+EOSQL
+)
+    ;;
   *)
-    echo "❌ 尚未支援的 layer：$LAYER（目前支援 plaActivity / flights / ships）" >&2
+    echo "❌ 尚未支援的 layer：$LAYER（目前支援 plaActivity / flights / ships / rail）" >&2
     exit 1
     ;;
 esac
@@ -175,6 +228,26 @@ except Exception as e:
     print('INVALID', e, file=sys.stderr); sys.exit(2)
 print(len(d) if os.environ['SNAPSHOT_FORMAT'] == 'rows.gz' else len(d.get('features', [])))
 ")
+
+# rail 專屬驗收：rows>0 不夠 —— 少了 tra_daily 仍會有 5 列，看起來「成功」但主角不見了。
+# 逐系統點名，缺 TRA/THSR 直接 exit 1，缺捷運只告警（部分系統缺席仍是可用的快照）。
+if [[ "$LAYER" == "rail" ]]; then
+  python3 -c "
+import json, sys
+rows = json.load(open('$RAW_JSON'))
+by = {r['system']: r for r in rows}
+missing = [s for s in ('tra_daily', 'thsr_daily') if s not in by]
+if missing:
+    print('❌ rail 快照缺少必要系統：' + ', '.join(missing), file=sys.stderr)
+    sys.exit(1)
+for s in ('tra_daily', 'thsr_daily', 'trtc_fixed', 'krtc_fixed', 'klrt_fixed', 'tmrt_fixed'):
+    r = by.get(s)
+    if r is None:
+        print('[export] ⚠️  缺少 ' + s + '（該系統的列車不會出現）', file=sys.stderr)
+        continue
+    print('[export]   %-11s %s  train_count=%s' % (s, r['schedule_date'], r['train_count']))
+"
+fi
 
 # 座標精度瘦身（僅 trail 型 layer）。TRAIL_PRECISION 空字串 = 不動原始資料。
 # 只改 `trail` 欄位的**座標**小數位；時間戳與其他欄位一律原樣。

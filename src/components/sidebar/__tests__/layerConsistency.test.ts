@@ -69,9 +69,10 @@ const BASELINE_NO_PARAMS = new Set([
  * 若有多色分類 → 去 LegendPanel.tsx 補 sub-component。
  */
 const BASELINE_NO_LEGEND = new Set([
-  // flights / ships 已於 EM-16 接 LEGEND_REGISTRY（ShipsLegend 6 類船種 /
-  // FlightsLegend 單條航跡）→ 移出 baseline，不再視為「合法無圖例」。
-  "rail", "stationsTHSR", "stationsTRA", "stationsMetro",
+  // flights / ships / rail 已於 EM-16 接 LEGEND_REGISTRY（ShipsLegend 6 類船種 /
+  // FlightsLegend 單條航跡 / RailLegend 台鐵車種分色）→ 移出 baseline，
+  // 不再視為「合法無圖例」。
+  "stationsTHSR", "stationsTRA", "stationsMetro",
   "ports", "lighthouses", "airports", "highways", "provincialRoads", "cctv",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
   "busStationsCity", "busStationsIntercity", "bikeStations", "cyclingRoutes",

@@ -41,6 +41,11 @@ export const REPLAY_LAYERS: Readonly<Partial<Record<keyof LayerVisibility, Repla
     snapshotDir: "ships",
     label: "船舶 Ship",
   },
+  rail: {
+    layerId: "embed-rail-replay",
+    snapshotDir: "rail",
+    label: "鐵路 Rail",
+  },
 };
 
 export const REPLAY_KEYS = Object.keys(REPLAY_LAYERS) as (keyof LayerVisibility)[];
@@ -55,17 +60,20 @@ export function replaySnapshotUrl(layer: string, date: string): string {
 }
 
 /**
- * 讀 gzip JSON 快照。回傳 row 陣列；任何失敗一律 null（呼叫端靜默略過該層）。
+ * 讀 `.json.gz`，回傳解析後的 JSON；任何失敗一律 null（呼叫端靜默略過該層）。
  *
  * gzip 有兩種到達方式，都必須吃得下：
  * - **dev / 直接靜態服務**：`.json.gz` 是普通檔案，`Content-Type: application/gzip`，
  *   瀏覽器不會自動解壓 → 要自己用 `DecompressionStream("gzip")`
  * - **CDN / nginx 設了 `Content-Encoding: gzip`**：fetch 已經自動解壓 → 拿到的就是純 JSON
  * 所以用 magic byte（0x1f 0x8b）判斷，而不是相信 header。
+ *
+ * 不限於 `embed-snapshots/` —— rail 的幾何 bundle（`/embed-rail/rail_slim.json.gz`，
+ * 日期無關的共用資產）也走這裡，故回傳型別不假設是陣列。
  */
-export async function fetchReplaySnapshot<T>(layer: string, date: string): Promise<T[] | null> {
+export async function fetchMaybeGzipJson<T>(url: string): Promise<T | null> {
   try {
-    const res = await fetch(replaySnapshotUrl(layer, date));
+    const res = await fetch(url);
     if (!res.ok) return null;
     const buf = await res.arrayBuffer();
     const bytes = new Uint8Array(buf);
@@ -79,10 +87,15 @@ export async function fetchReplaySnapshot<T>(layer: string, date: string): Promi
       text = new TextDecoder().decode(bytes);
     }
 
-    const json = JSON.parse(text) as unknown;
-    if (!Array.isArray(json)) return null;
-    return json as T[];
+    return JSON.parse(text) as T;
   } catch {
     return null;
   }
+}
+
+/** 讀單日 gzip 快照。body 必須是 row 陣列，否則視同失敗。 */
+export async function fetchReplaySnapshot<T>(layer: string, date: string): Promise<T[] | null> {
+  const json = await fetchMaybeGzipJson<unknown>(replaySnapshotUrl(layer, date));
+  if (!Array.isArray(json)) return null;
+  return json as T[];
 }
