@@ -211,4 +211,21 @@ Pro plan 250 GB 額度撐 25 篇同級文章就見底（超出 $0.09/GB）。
 - **前端共用件**：`coordinates.ts` 引擎注入（side-effect 模組，未注入即 throw）；`replayClock`（play/pause/speed/loop，28 tests）；`threeReplayLayer`（maplibre wrapper，mainMatrix）；three 全走 dynamic import——實測未帶回放圖層時 embed 不載 three/mapbox chunk（build grep 雙重驗證）。
 - **flights pilot 上線（dev）**：`layers=flights&date=` → gzip JSON 快照 → FlightScene 回放，預設一天 ~90s loop，`h=` 起始、`p.speed` 倍速，404 靜默略過。淺色主題走 `setTheme(false)` 防 additive 洗白。tsc 過、全套測試 352/353（唯一紅為 pre-existing upstreamRegistry catalog ref，屬落雷雙源平行工作）。
 - **視覺決策（owner 已接受預設）**：回放版**不畫整日靜態全軌跡**——5,718 班全路徑 additive 疊加整片白糊、同步建 mesh 阻塞數秒；只留動態尾跡（=主站 Live 模式）。若要全路徑背景，走預先烘焙的靜態 GeoJSON 疊層。
-- **上生產前的兩個缺口**：(1) `embed-snapshots/flights/` 尚未接 deploy-assets/S3/nginx（快照目前僅本機、gitignored，正式站會 404 靜默跳過）；(2) flights 在 embed 無圖例 entry。另 follow-up：scrubber（`seek()` 已備好）。
+- **上生產前的兩個缺口**：(1) `embed-snapshots/flights/` 尚未接 deploy-assets/S3/nginx（快照目前僅本機、gitignored，正式站會 404 靜默跳過）；(2) flights 在 embed 無圖例 entry（Phase 2 已補）。另 follow-up：scrubber（`seek()` 已備好）。
+
+### 9-6. Phase 2–3 結果（2026-08-08 完成，D-3 順序走完 flights→ships→rail）
+
+| 圖層 | 快照（2026-08-06） | 型態 | 備註 |
+|---|---|---|---|
+| flights | 522 KB gzip JSON | 軌跡插值 | Phase 1 pilot |
+| ships | **4.78 MiB** gzip JSON（12,305 列 / 738k 點） | 軌跡插值 | 座標量化 5 位（≈1.1m）為**無損**——實測量化前後 `filterGpsAnomalies` 保留/丟棄數完全相同。D-B 的 Arrow 是保存層格式；成品包以讀者下載體積與單一解析路徑為先，維持 gzip JSON |
+| rail | **229 KB** gzip JSON（tra_daily 907 班 + thsr_daily 160 班 + 捷運 4 家 `*_fixed`） | **時刻表推算** | 幾何走日期無關共用資產 `public/embed-rail/rail_slim.json.gz`（358 KB）。捷運改吃 Supabase `*_fixed` 而非本地散檔：主站 fallback 實際顯示者，且實測與本地檔逐位元組相同 |
+
+- **多層共時鐘**（Phase 2 修掉的 Phase 1 結構缺陷）：原 `startReplay` 只取第一個回放層且每次重設時鐘，`layers=flights,ships` 會讓第二層不啟動並互蓋。改為多層平行 fetch、時間範圍取**聯集**、`setRange` 只呼叫一次。實測三層共存 `speed 1038x`。
+- **rail 時鐘語意**：取台北整日 00:00–24:00，**不取時刻表 min/max**——引擎是延長日制（05:50 分界，時間軸不連續），取 min/max 會漏掉整段凌晨。實測 00:30 有 52 車、08:00 有 417、18:00 有 472。
+- **已知瑕疵（沿用主站，刻意不修）**：05:50 營運日分界瞬間，跨界仍在行駛的列車會閃一下消失（05:30 剩 62 車、06:00 回 99）。主站即此行為。
+- **圖例**：ShipsLegend（6 類船種）、RailLegend（TRA 車種由 `TRA_TRAIN_TYPES` 推導）、FlightsLegend（單條——FlightScene 是 `idx % colors` 輪替配色無分類語意，不憑空發明分類）。三者同步移出 `layerConsistency` 的 `BASELINE_NO_LEGEND`。
+- **色票單一出處**：ship 色票從 `ShipScene.ts` 移至 `src/data/shipTrails.ts`——LegendPanel 是 base bundle 的 static import，圖例若向 Scene 取色會把 three 拖進純靜態嵌入。
+- **bundle 不變量持續成立**：build 後 `dist/assets/embed-*.js` 內 `WebGLRenderer`/`InstancedMesh` 出現 0 次，three 全在 lazy chunk。
+- **示範頁** `demo-embed.html`：9 張卡（班機 3 變化／船舶／鐵路／兩兩與三層共存／共機快照／充電站）。rail 卡帶 `h=8`（凌晨僅 ~50–130 車，白天 400+，避免第一眼偏空）。
+- **剩餘上生產缺口（三層共通，唯一阻擋文章實用）**：`embed-snapshots/{flights,ships,rail}/` 與 `public/embed-rail/` 皆未接 deploy-assets → S3 → nginx。需注意 `.json.gz` 的 `Content-Encoding: gzip` 設定，以及 `/embed-rail/` 需要自己的 nginx location。
