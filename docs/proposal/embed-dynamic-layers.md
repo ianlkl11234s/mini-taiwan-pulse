@@ -162,6 +162,45 @@ Pro plan 250 GB 額度撐 25 篇同級文章就見底（超出 $0.09/GB）。
 
 ## 8. 不做
 
-- 全量 per-day 匯出管線（AR-14~16 是主站效能的事，與嵌入不同目標，不要混做）
+- ~~全量 per-day 匯出管線（AR-14~16 是主站效能的事，與嵌入不同目標，不要混做）~~ → **2026-08-08 翻案，見 §9 D-2**
 - 讓 `/embed` 直接打任何 Supabase RPC（違反本功能的成本前提）
-- 即時類圖層的嵌入（閃電／停車位／急診壅塞 —— 文章永久性與即時資料語意衝突）
+- 即時類圖層的嵌入（閃電／停車位／急診壅塞 —— 文章永久性與即時資料語意衝突；「凍結某日的回放」不在此限，見 §9）
+
+## 9. 2026-08-08 增補：Phase C 翻案與定案
+
+> Owner 拍板：重啟 Phase C（= EM-16），目標是「文章嵌入**凍結某一天**的動畫回放」。
+> 依據：三份逐檔調查（本次 session），證實 §2 把 C 類標 🔴 的前提高估了成本。
+
+### 9-1. 翻案證據（更正 §2 / §6-1）
+
+- **計算層零成本**：`RailEngine`(171 行) + `TraTrainEngine`(314 行) + `BusEngine`(741 行) 皆純 TS，零 three / mapbox-gl / React 依賴，`update(unixSec) → 位置陣列` 可直接搬進 embed 或 Node 匯出腳本。
+- **渲染層的 mapbox 執行期綁定只有一支檔案**：`src/utils/coordinates.ts`（`mapboxgl.MercatorCoordinate`）；maplibre-gl 有同名同簽名 API（`fromLngLat` / `meterInMercatorCoordinateUnits`）。`customLayer.ts` 對 mapbox-gl 是 type-only import。
+- **時鐘有樣板**：`earthquakeReplayClock`（70 行 scoped external store）即「不掛全域 timeStore 的回放時鐘」先例，補 play/pause/speed 即可。
+- **ships / flights 無獨立引擎**（插值寫在 Scene 檔內）→ 整套搬 Scene 反而**免去**抽取重構；2D 替代路線才需要動手術。
+- Three.js bundle 成本：`three.module.min.js` 332 KB（gzip 估 ~100KB，未實測）；走 dynamic import 讓純靜態嵌入不受影響。
+- ⚠️ 唯一未驗證項：本 repo 從未在 MapLibre 上實測 Three.js CustomLayer → 見 D-1 的 spike 前置。
+
+### 9-2. 決議
+
+| # | 決議 | 內容 |
+|---|---|---|
+| D-1 | 渲染器 = **Three.js 移植** | 前置 spike：MapLibre + InstancedMesh 最小 CustomLayer 實測（matrix / triggerRepaint / gl state）。FAIL 才退 2D setData 路線（`railTracks.ts` + `useRoadEventsLayer` 先例；留意「幾千 feature 逐幀 setData 卡死」前車之鑑） |
+| D-2 | **啟動 nightly trails 匯出**（推翻 §8 第一條） | retention（bus ~3 天 / ships ~7 / flights ~7-9）讓「寫文章時再凍結」窗口過窄，每天不匯出都在永久流失。依 AR-14/D-B：collector 端直連 DB、`trails/<dataset>/<YYYY-MM-DD>.<arrow\|json.gz>`（大檔 Arrow、小檔 gzip JSON）、rows=0 硬性防呆。**rail 免**（`reference.daily_schedules` 永久累積）。nightly 存的是「原料鏡像」；§3-1 按需凍結原則不變，只是原料來源改為永久保存的鏡像，embed 成品包可日後隨時重做 |
+| D-3 | 順序 | 共用件（時鐘/loader/白名單）→ **flights pilot**（單日 ~2MB 最簡）→ ships（Arrow + manifest 先例）→ **rail**（owner 第一篇文章目標；幾何 68MB 瘦身待量測，已平行調查）→ bus **暫緩**（渲染不做，資料照樣由 D-2 保存） |
+| D-4 | 不變的鐵則 | embed 絕不打 Supabase；快照凍結原則（§3-4）；快照缺失靜默降級不白屏 |
+
+### 9-3. 每日資料塊 vs 日期無關塊（bundle 設計原則）
+
+軌跡/時刻表 = 每日一檔；**幾何（rail O-D 68MB、bus routes 187MB）= 日期無關的共用資產，抓一次、不進每日檔**。
+
+### 9-4. Phase 0 結果（2026-08-08 完成）
+
+| 項 | 結果 |
+|---|---|
+| **Spike：MapLibre × Three.js** | ✅ **PASS**，與 `map.project()` 數值比對誤差 ≤0.01px（z7–z10 / pitch 60 / bearing / altitude 全過）。關鍵差異：maplibre `render(gl, options)` 第二參數是物件，**必須取 `options.defaultProjectionData.mainMatrix`**（拿 `modelViewProjectionMatrix` 會靜默飛出畫面外）；`gl.canvas === map.getCanvas()` 成立，`WebGLRenderer` 掛法不變；blend 約定相同，`RailScene` 零修改。兩家 `MercatorCoordinate` 實測 bit-identical → `coordinates.ts` 改「顯式注入建構子」約 15 行（embed 不得 static import mapbox-gl；`toMercator` 手算 x 那行保留，換日線展開語意）。淺色底圖下 `AdditiveBlending` 會洗白，需換 NormalBlending。spike 檔：`spike-three-maplibre.html` + `src/spike/threeMaplibreSpike.ts` |
+| **Rail 幾何瘦身量測** | 肥大主因 = 座標小數 14 位。量化 5 位 + RDP(≈11m) + 併單檔 gzip：**267 檔 68MB → 216KB；golden tracks 4.25MB → 18KB；合計 ~234KB**。採**一次性共用資產**（非每日子集：daily/master 引用的 od_track 高度重疊 177/184 檔，子集僅再省 ~60KB，CP 值低）。⚠️ **硬性約束：簡化後必須對新折線重算 `station_progress.json`**，否則列車位置系統性偏移。另：267 檔中 83 檔無任何時刻表引用（部署冗餘可清）；master_schedule 是 TDX 通用時刻表非單日真實表，凍結某日應改吃 `reference.daily_schedules` |
+| **Nightly 匯出腳本** | `data-collectors/scripts/export_daily_trails.py` 完成 + dry-run 實測（2026-08-07）：ships 10,737 rows/22MB arrow、flights 4,059/0.47MB json.gz、bus 16,991/36MB arrow、intercity 4,865/12MB arrow ≈ **76MB/日、2.3GB/月**（滿一年 ~US$0.69/月，首年合計 ~US$4.5）。直連 `live.*_trails_daily`、keyset 分頁、rows=0 exit 1、today-guard、Arrow 不壓縮（arrow-js 限制）。排程建議 02:00 Taipei（依 `refreshed_at` 實測定版時間 01:00–01:20）。**未部署**（cron/requirements 待 owner 拍板） |
+
+**Serving 鐵則（新增）**：`trails/` 前綴是**保存層**，不在 `deploy-assets/` 下、不經容器→nginx→Cloudflare。embed 只准讀「成品包」走既有 immutable CDN 路徑；**任何前端直讀 `s3://…/trails/` 都是錯的**（S3 egress $0.114/GB，一個 bus 日檔 36MB × 1,000 次載入 ≈ $4/月，超過一整年儲存費）。
+
+**觀察項（待查）**：ships 日筆數 8 天內 17,500 → 10,737（−39%）單調下滑，可能 AIS collector 退化 → 建議開 DS-* 追蹤。
