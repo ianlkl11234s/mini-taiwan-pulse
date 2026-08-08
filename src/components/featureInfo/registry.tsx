@@ -5,7 +5,7 @@
 import type { FC } from "react";
 import type { FeatureInfo } from "../../types";
 import {
-  SubmarineCablePanel, LandingStationPanel, SchoolPanel, ConvenienceStorePanel,
+  SubmarineCablePanel, LandingStationPanel, ConvenienceStorePanel,
   PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel,
   PublicLibraryPanel, WelfareCenterPanel, RetailMarketPanel, PublicToiletPanel,
   LighthousePanel, PortPanel, AirportPanel, CctvPanel, EtcGantryPanel,
@@ -39,6 +39,7 @@ import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
 } from "./funeralPanels";
+import { SchoolPanel, EduCampusPanel } from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -110,7 +111,9 @@ export interface PanelProps {
 export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = {
   submarineCable: SubmarineCablePanel,
   landingStation: LandingStationPanel,
+  // 🎓 教育：6 個學校點層共用 school，校地面獨立 eduCampus
   school: SchoolPanel,
+  eduCampus: EduCampusPanel,
   convenienceStore: ConvenienceStorePanel,
   postOffice: PostOfficePanel,
   iPostBox: IPostBoxPanel,
@@ -336,6 +339,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   submarineCable: "通訊海纜",
   landingStation: "海纜登陸站",
   school: "學校",
+  eduCampus: "校地範圍",
   convenienceStore: "超商",
   postOffice: "郵局",
   iPostBox: "i郵箱",

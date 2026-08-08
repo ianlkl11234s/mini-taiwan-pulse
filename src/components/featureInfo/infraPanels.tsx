@@ -21,20 +21,6 @@ const STATION_TYPE_COLORS: Record<string, string> = {
   "區域節點": "#26c6da",
 };
 
-/** 學校分級對應色 */
-const SCHOOL_LEVEL_COLORS: Record<string, string> = {
-  "國民小學": "#66bb6a",
-  "附設國民小學": "#66bb6a",
-  "國民中學": "#ffa726",
-  "附設國民中學": "#ffa726",
-  "高級中等學校": "#ef5350",
-  "大專校院": "#ab47bc",
-  "宗教研修學院": "#ab47bc",
-  "空中大學": "#ab47bc",
-  "專科學校": "#ab47bc",
-  "特殊教育學校": "#78909c",
-};
-
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
   "7-ELEVEN": "#00843D",
@@ -121,29 +107,6 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
       <Row label="樞紐等級" value={stationType} color={accentColor} />
       <Row label="電纜數" value={String(props.cable_count ?? "")} />
       <Row label="電纜清單" value={String(props.cable_names_str ?? "")} />
-    </>
-  );
-}
-
-export function SchoolPanel({ props }: { props: Record<string, unknown> }) {
-  const t = useFeatureTheme();
-  const level = String(props.school_level ?? "");
-  const accentColor = SCHOOL_LEVEL_COLORS[level] ?? "#42a5f5";
-
-  return (
-    <>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
-        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
-          {String(props.school_name ?? "Unknown School")}
-        </div>
-      </div>
-      <Row label="分級" value={level} color={accentColor} />
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="區域" value={String(props.district ?? "")} />
-      <Row label="地址" value={String(props.address ?? "")} />
-      <Row label="電話" value={String(props.phone ?? "")} />
-      <Row label="網站" value={String(props.website ?? "")} />
     </>
   );
 }

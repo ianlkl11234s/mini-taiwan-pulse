@@ -67,6 +67,10 @@ import {
   FUNERAL_DENSITY_BUCKETS, CEMETERY_ZONING_CLASSES,
   CEMETERY_OSM_ODBL_NOTE, FUNERAL_LAYER_COLORS,
 } from "../data/funeralTypes";
+import {
+  SCHOOL_LEVEL_ORDER, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS, SCHOOL_LEVEL_COUNTS,
+  REGION_TYPES, REGION_TYPE_COLORS, REGION_TYPE_COUNTS, CAMPUS_LEGEND_ROWS,
+} from "../data/educationTypes";
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
@@ -363,6 +367,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   {
     keys: ["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"],
     render: ({ visibility }) => <PollutionPenaltyLegend visibility={visibility} />,
+  },
+  // 🎓 教育 8 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
+  {
+    keys: [
+      "schools", "eduSchoolElementary", "eduSchoolJunior", "eduSchoolSenior",
+      "eduSchoolUniversity", "eduSchoolSpecial", "eduRemoteSchools", "eduCampusPolygon",
+    ],
+    render: ({ visibility }) => <EducationLegend visibility={visibility} />,
   },
 ];
 
@@ -1835,6 +1847,88 @@ function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
           墓區範圍資料來自 OpenStreetMap，{CEMETERY_OSM_ODBL_NOTE}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── 🎓 教育 Legend（學制 5 級 / 偏遠 3 級 / 校地面 6 組）──
+// 色票與筆數一律取自 educationTypes.ts（分色 SSOT），本檔不重寫任何色碼或數字。
+// 🔴 分級色塊只在「依學制上色」的 6 層裡的點層開；eduRemoteSchools 是照 region_type 上色，
+//    它的圖例是偏遠 3 級那段，混在一起會與畫面上的顏色對不起來。
+
+const EDU_LEVEL_KEYS: (keyof LayerVisibility)[] = [
+  "schools", "eduSchoolElementary", "eduSchoolJunior",
+  "eduSchoolSenior", "eduSchoolUniversity", "eduSchoolSpecial",
+];
+
+function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
+  const t = useLegendTheme();
+  const showLevels = EDU_LEVEL_KEYS.some((k) => visibility[k]);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        EDUCATION 教育
+      </div>
+
+      {showLevels && (
+        <>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>學制分級</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+            {SCHOOL_LEVEL_ORDER.map((g) => (
+              <div key={g} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <Swatch color={SCHOOL_LEVEL_COLORS[g]} round />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>
+                  {SCHOOL_LEVEL_LABELS[g]} {SCHOOL_LEVEL_COUNTS[g].toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            國小／國中含附設班（附設國小 42、附設國中 228）；大專含空大進修 10、宗教研修 9
+          </div>
+        </>
+      )}
+
+      {visibility.eduRemoteSchools && (
+        <div style={{ marginTop: showLevels ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            偏遠地區學校・偏遠程度
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {REGION_TYPES.map((r) => (
+              <div key={r} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={REGION_TYPE_COLORS[r]} round />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+                  {r} {REGION_TYPE_COUNTS[r].toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {visibility.eduCampusPolygon && (
+        <div style={{ marginTop: showLevels || visibility.eduRemoteSchools ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            校地面（校園範圍）
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {CAMPUS_LEGEND_ROWS.map((row) => (
+              <div key={row.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={row.color} round={false} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{row.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            低倍率（約 zoom 7.5 以下）不顯示；澎湖、金門 0 筆（來源圖資死鏈），空白不代表當地沒有學校
+          </div>
+        </div>
+      )}
+
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+        學校點位為 113 學年度
+      </div>
     </div>
   );
 }

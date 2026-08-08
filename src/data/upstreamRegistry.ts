@@ -619,6 +619,18 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   funeralOperatorDensity: { status: 'verified', datasets: [{ datasetId: 'funeral_operators_district', confidence: 'HIGH' }], note: 'A 源 區級密度 325 區（無幾何，join base_map/township_boundary.pmtiles）' },
   cemeteryOsm: { status: 'verified', datasets: [{ datasetId: 'cemetery_osm', confidence: 'HIGH' }], note: 'B 源 OSM 墓區 3,229 面（ODbL，僅 34.5% 有 name）' },
   cemeteryZoning: { status: 'verified', datasets: [{ datasetId: 'cemetery_zoning_urban', confidence: 'HIGH' }], note: 'C 源 都計墓葬類法定用地 114 面（僅臺北 12＋新北 102）' },
+
+  // 🎓 教育 Education（第 38 主題，docs/data-catalog/education/）
+  // 總覽層 `schools` 在本檔上方（保留原 z-order）；以下 5 個學制層 + 偏遠層與它共用
+  // 同一份 public/education/schools.geojson，差別只在 Mapbox filter（見 educationTypes.ts）。
+  // 🔴 datasetId 是無點號的 `schools` / `campus_polygon`（catalog frontmatter 實測值）。
+  eduSchoolElementary: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 國小 2,656（含附設國小 42）' },
+  eduSchoolJunior: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 國中 964（含附設國中 228）' },
+  eduSchoolSenior: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 高中職 508' },
+  eduSchoolUniversity: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 大專 159（含空大進修 10／宗教研修 9）' },
+  eduSchoolSpecial: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 特教 28' },
+  eduRemoteSchools: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — region_type 非 null 的 1,152 校（偏遠 830／特偏 192／極偏 130）' },
+  eduCampusPolygon: { status: 'verified', datasets: [{ datasetId: 'campus_polygon', confidence: 'HIGH' }], note: '第 38 主題 education；校地面 4,336 → 前端濾掉 non_school 12 筆後渲染 4,324（PMTiles z8-15）' },
   tourRestaurants: { status: 'verified', datasets: [{ datasetId: 'restaurant', confidence: 'HIGH' }], note: '觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）' },
   agriculture: {
     status: 'verified',
@@ -947,9 +959,11 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'submarine_cable', confidence: 'LOW' }],
   },
+  // 🎓 教育 Education（第 38 主題）總覽層 — 保留原 z-order 位置，資產已搬至 public/education/
   schools: {
     status: 'verified',
-    datasets: [{ datasetId: 'layer2_polygon', confidence: 'LOW' }],
+    datasets: [{ datasetId: 'schools', confidence: 'HIGH' }],
+    note: '第 38 主題 education；6 個點層共用同一份 schools.geojson（4,315 點）',
   },
   convenienceStores: {
     status: 'verified',

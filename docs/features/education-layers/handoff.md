@@ -1,0 +1,82 @@
+# Handoff — education-layers（下游視角）
+
+> **上游 SSOT**：`../../../taipei-gis-analytics/docs/handoff/education-layers.md`
+> （上游 commit `9ec823e`，contract 細節看那份，本檔只放接線簡表 + **與上游文件的差異點**）
+
+## 上游 handoff 摘要
+
+- 產物路徑（本次取用 2 個）：
+  - `data/processed/education/schools/taiwan_schools_2024.geojson` → `public/education/schools.geojson`
+  - `data/processed/education/campus_polygon/pmtiles/campus_polygon_20260807.pmtiles` → `public/education/campus_polygon.pmtiles`
+- 部署：S3 `deploy-assets/education/`（鏡像子前綴，非扁平根）
+- 更新頻率：`schools` yearly（113 學年度）／`campus_polygon` 官方圖資不定期
+- 座標系統：WGS84
+- 資料量：2.50 MB + 4.36 MB = 6.86 MB（`public/education/` 整夾 gitignore，純走 S3）
+
+## ⚠️ 與上游 handoff 文件的三處差異（實測後修正）
+
+| # | 上游文件說法 | 實測 | 本次採用 |
+|---|---|---|---|
+| 1 | 「`public/geo/schools.geojson` 是搬移前快照，接線時請重新從上游同步」 | md5 完全相同（`380b2336…`，2,504,719 bytes） | 不需同步，直接 cp |
+| 2 | `upstreamRegistry` 的 `schools` 「應為 `education.schools`」 | `upstreamRegistry.test.ts` 把 catalog 的 `dataset_id` frontmatter 收成**扁平 Set**；`education/schools.md` 是 `dataset_id: schools` | 用無點號的 **`schools`** / `campus_polygon`。寫 `education.schools` 測試會紅 |
+| 3 | 5 分層筆數 2614/736/508/140/28 | 加總 4,026，**少 289 校** | fold 後 2656/964/508/159/28 = **4,315**（見下） |
+
+### 差異 3 的細節（最容易踩）
+
+`school_level` 有 **9 種**原始值，上游表列的只是「主類別」。9 種值必須全部落到某一級，
+否則附設國小 42、附設國中 228、空大進修 10、宗教研修 9 共 **289 校會靜默消失**，
+且 `classificationCoverage.test.ts` 會擋。fold 表在 `src/data/educationTypes.ts` 的 `SCHOOL_LEVEL_GROUPS`。
+
+## 硬依賴欄位表
+
+### `public/education/schools.geojson`（4,315 點）
+
+| 欄位 | 型別 | nullable | 用途 | 漏了會怎樣 |
+|---|---|---|---|---|
+| `school_level` | string | ✗ | 5 分級 filter + 分色 | 分級層全空 |
+| `school_name` | string | ✗ | popup 標題 | popup 無標題 |
+| `region_type` | string | **✓** | 偏遠層 filter + popup | 偏遠層全空 |
+| `city` / `district` | string | ✗ | popup 行政區 | popup 缺列 |
+| `address` / `phone` / `website` | string | ✓ | popup | popup 缺列 |
+| `system_type` | string | ✓（僅大專有值） | popup | popup 缺列 |
+
+🔴 **`region_type` 的 key 在全部 4,315 筆都存在**，非偏遠的 3,163 筆值是 JSON `null`。
+filter **必須用 `match`**（`REMOTE_SCHOOL_FILTER`）；寫 `["has","region_type"]` 會全數命中。
+
+### `public/education/campus_polygon.pmtiles`（4,336 面 → 渲染 4,324）
+
+layer name `campus_polygon`，切片 **minzoom 8 / maxzoom 15**（`pmtiles show` 實測，
+`pmtilesContract.test.ts` 會擋比切片更小的 registry.minzoom）。
+
+| 欄位 | 型別 | 用途 |
+|---|---|---|
+| `school_level` | string（英文代碼 10 類） | 分色 + `non_school` 濾除 |
+| `school_level_zh` | string | popup 學制（**中文，與 schools.geojson 的欄位不同一套**） |
+| `school_name` | string | popup 標題 |
+| `area_ha` | number | popup 校地面積 |
+| `county` | string | popup 縣市 |
+| `is_branch` | boolean | popup（true 才顯示「分校／分部」） |
+
+⚠️ campus 的 `school_level` 是**英文代碼**，餵進 `schoolLevelGroupOf()` 會每筆都回 `null`。
+取色一律用 `CAMPUS_LEVEL_COLORS[school_level] ?? "#90a4ae"`（與圖層 `campusLevelColorExpr` 同一份表）。
+
+## 前端接線點（17 檔）
+
+`types/index.ts`(3 處) → `data/educationTypes.ts`(新) → `map/overlayRegistry.ts`(8 config) →
+`sidebar/layerCatalog.ts`(LAYER_COLORS + THEMES) → `hooks/useTransportParams.ts`(4 處含 deps) →
+`components/LegendPanel.tsx` → `featureInfo/educationPanels.tsx`(新) + `featureInfo/registry.tsx` +
+`featureInfo/infraPanels.tsx`(移出 SchoolPanel) → `hooks/useMapInteraction.ts` →
+`components/IconRailSidebar.tsx` → `data/upstreamRegistry.ts`(8 筆) →
+4 支契約測試 → `nginx.conf` + `scripts/deploy/{pull,upload}-deploy-assets.sh`
+
+**零新 hook、零新 loader、不碰 `App.tsx`** —— 全走 overlayRegistry 宣告式路徑。
+
+## Mapbox layer id（改 sourceId 要同步這些字串）
+
+`edu-schools-{glow,circle,elementary,junior,senior,university,special,remote-halo,remote-dot}`
+`edu-campus-{fill,line}`
+
+## 回填上游（待辦）
+
+接線完成後要回填 `taipei-gis-analytics/docs/data-catalog/education/{schools,campus_polygon}.md`
+的 `used_by_pulse_layers` 欄與本次 commit hash。

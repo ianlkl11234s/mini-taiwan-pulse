@@ -194,6 +194,15 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "county", type: "string" },
     { field: "area_ha", type: "number" },
   ],
+  // 🎓 教育（第 38 主題）：6 個點層共用此檔，全靠 school_level / region_type 做 filter
+  "education/schools.geojson": [
+    { field: "school_level", type: "string" },            // 9 種原始值 → fold 成 5 級（educationTypes）；null 會讓該點從 5 個學制層全數消失
+    { field: "school_name", type: "string" },
+    // ⚠️ nullable！4,315 筆中 3,163 筆是 JSON null（非偏遠）→ 前端不能用 ["has"] 判斷
+    { field: "region_type", type: "string", nullable: true },
+    { field: "city", type: "string" },
+    { field: "district", type: "string" },
+  ],
 };
 
 describe("前端硬依賴欄位契約", () => {

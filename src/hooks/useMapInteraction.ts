@@ -212,7 +212,17 @@ export function useMapInteraction(
           { layers: ["road-congestion-hit"], type: "roadCongestion" },
           { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
           { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
-          { layers: ["schools-circle", "schools-glow"], type: "school" },
+          // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
+          // 全部走同一個 SchoolPanel。校地面 `edu-campus-fill` 是大面積 fill → 排在陣列最末。
+          {
+            layers: [
+              "edu-schools-glow", "edu-schools-circle",
+              "edu-schools-elementary", "edu-schools-junior", "edu-schools-senior",
+              "edu-schools-university", "edu-schools-special",
+              "edu-schools-remote-halo", "edu-schools-remote-dot",
+            ],
+            type: "school",
+          },
           { layers: ["convenience-stores-circle", "convenience-stores-glow"], type: "convenienceStore" },
           { layers: ["post-offices-circle", "post-offices-glow"], type: "postOffice" },
           { layers: ["ipost-boxes-circle", "ipost-boxes-glow"], type: "iPostBox" },
@@ -478,6 +488,8 @@ export function useMapInteraction(
           { layers: ["temperature-grid-fill"], type: "temperatureGrid" },
           // 殯葬業者密度：368 鄉鎮全台鋪滿的 fill → 同樣放最末
           { layers: ["funeral-density-fill"], type: "funeralOperatorDensity" },
+          // 🎓 校地範圍：4,324 面大面積 fill，會蓋住其上的學校點 → 必須排最末
+          { layers: ["edu-campus-fill"], type: "eduCampus" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

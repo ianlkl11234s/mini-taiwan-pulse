@@ -38,6 +38,8 @@ import {
   Camera, ThermometerSun, Castle, Church, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
   // ⚰️ FUNERAL icons（LandPlot / Grid3x3 已 import 復用）
   Cross, Flower, Briefcase,
+  // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot 已 import 復用）
+  School, University,
   // 🗺️ 土地使用分區 icons
   LandPlot, Map,
   // 🌍 世界 World icon（複合 rail icon 用）
@@ -249,6 +251,14 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   funeralOperatorDensity: Grid3x3,
   cemeteryOsm: Flower,
   cemeteryZoning: LandPlot,
+  // 🎓 教育 Education（總覽層 schools: GraduationCap 在上方，隨主題搬移但 key 不變）
+  eduSchoolElementary: School,
+  eduSchoolJunior: School,
+  eduSchoolSenior: School,
+  eduSchoolUniversity: University,
+  eduSchoolSpecial: Accessibility,
+  eduRemoteSchools: Mountain,
+  eduCampusPolygon: LandPlot,
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // FORESTRY 12 base
