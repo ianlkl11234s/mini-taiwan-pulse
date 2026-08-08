@@ -13,6 +13,7 @@ import { OVERLAY_REGISTRY } from "../map/overlayRegistry";
 import { GATED_LAYERS } from "../components/sidebar/layerCatalog";
 import { EMBED_CDN_LAYERS } from "./dynamicCdnLayers";
 import { SNAPSHOT_KEYS } from "./snapshotLayers";
+import { REPLAY_KEYS } from "./replayLayers";
 import type { OverlayConfig, LayerVisibility } from "../types";
 
 /**
@@ -32,6 +33,9 @@ export const EMBED_ALLOWED: ReadonlySet<string> = new Set([
   // EM-15：歷史快照圖層不在 overlayRegistry（主站是專屬 hook 畫的），
   // 由 embed 自行 addSource/addLayer。**需帶 `date=` 才有資料**，否則靜默略過。
   ...SNAPSHOT_KEYS,
+  // EM-16：回放圖層（Three.js CustomLayer + 回放時鐘）。同樣**需帶 `date=`**，
+  // 資料來自 gzip 快照，一樣不碰 Supabase —— 派生方式比照 SNAPSHOT_KEYS。
+  ...REPLAY_KEYS,
 ]);
 
 /** 全 false 的 LayerVisibility，再把指定的 key 打開。 */
@@ -39,6 +43,7 @@ export function buildEmbedVisibility(keys: readonly (keyof LayerVisibility)[] = 
   const out = {} as LayerVisibility;
   for (const config of OVERLAY_REGISTRY) out[config.id] = false;
   for (const k of SNAPSHOT_KEYS) out[k] = false;
+  for (const k of REPLAY_KEYS) out[k] = false;
   for (const k of keys) {
     if (EMBED_ALLOWED.has(k)) out[k] = true;
   }

@@ -8,10 +8,12 @@
  * 刻意不做的事：
  * - 不呼叫 `useTransportParams`（3028 行）—— 參數全部由網址帶入，未指定者落到各 paint 的
  *   `?? fallback` 預設值
- * - 不掛 Three.js / 各 layerFactory —— 嵌入版只要 2D overlay
  * - 沒有圖層開關 UI —— 顯示什麼由網址決定，讀者不該能改
+ *
+ * EM-16 例外：**回放圖層**（`layers=flights&date=…`）會 `import()` 進 Three.js。
+ * 只有這種網址才載，純靜態嵌入的基礎 bundle 依然不含 three。
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { parseUrlState } from "../lib/urlState";
@@ -19,6 +21,8 @@ import { EMBED_ALLOWED, buildEmbedVisibility, configsFor } from "./embedWhitelis
 import { registerPmtilesProtocolOnce, maplibrePmtilesSource } from "./maplibreAdapters";
 import { EMBED_CDN_LAYERS, fetchCdnLayer } from "./dynamicCdnLayers";
 import { SNAPSHOT_LAYERS, fetchSnapshot } from "./snapshotLayers";
+import { isReplayLayer } from "./replayLayers";
+import { replayClock, formatReplayClock } from "./replayClock";
 import { buildPopupHtml, POPUP_CSS, POPUP_CSS_LIGHT } from "./embedPopup";
 import { LAYER_LABELS } from "../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../types";
@@ -27,6 +31,49 @@ import {
   addAllOverlays, hydrateOverlayIfNeeded, updateAllOverlayThemes,
 } from "../map/overlayManager";
 import { LegendPanel } from "../components/LegendPanel";
+
+/**
+ * 回放播放列（EM-16）。極簡：一顆播放/暫停 + `HH:MM`（台北時區）。
+ *
+ * 刻意**不做 scrubber** —— 嵌入版的定位是「文章裡的一格畫面」，拖曳互動屬於主站。
+ * （follow-up：真的需要時再加，`replayClock.seek()` 已經備好。）
+ */
+function ReplayControls({ isDark }: { isDark: boolean }) {
+  const snap = useSyncExternalStore(replayClock.subscribe, replayClock.getSnapshot);
+  const fg = isDark ? "#e6edf3" : "#1a1d21";
+  return (
+    <div
+      style={{
+        position: "absolute", left: 8, bottom: 8, zIndex: 5,
+        display: "flex", alignItems: "center", gap: 8,
+        background: isDark ? "rgba(12,16,22,.82)" : "rgba(255,255,255,.9)",
+        border: `1px solid ${isDark ? "rgba(255,255,255,.16)" : "rgba(0,0,0,.12)"}`,
+        borderRadius: 6, padding: "4px 9px",
+        backdropFilter: "blur(6px)", fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => replayClock.toggle()}
+        aria-label={snap.playing ? "暫停 Pause" : "播放 Play"}
+        style={{
+          background: "none", border: "none", cursor: "pointer",
+          color: fg, fontSize: 13, lineHeight: 1, padding: 0,
+        }}
+      >
+        {snap.playing ? "❚❚" : "▶"}
+      </button>
+      <span
+        style={{
+          color: fg, fontSize: 12, letterSpacing: ".04em",
+          fontVariantNumeric: "tabular-nums", minWidth: 40,
+        }}
+      >
+        {formatReplayClock(snap.time)}
+      </span>
+    </div>
+  );
+}
 
 const SITE = "https://mini-taiwan-pulse.itsmigu.com/";
 /** 主站底圖 id 中屬於「淺色」的（與 App.tsx 的 isDarkTheme 判準一致） */
@@ -39,6 +86,8 @@ export function EmbedApp() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [ready, setReady] = useState(false);
+  // 回放真的跑起來才顯示播放列 —— 快照 404 時不該留一顆按不動的孤兒按鈕
+  const [replayOn, setReplayOn] = useState(false);
 
   // 網址只在 mount 時解析一次（嵌入頁沒有會改變它的互動）
   const urlRef = useRef(parseUrlState(window.location.search, { allowedLayers: EMBED_ALLOWED }));
@@ -54,6 +103,12 @@ export function EmbedApp() {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    // StrictMode 會把 effect 掛兩次；dynamic import + fetch 都是 async，
+    // 第一輪 cleanup 之後才 resolve 的 callback 必須自己認得「我已經作廢了」，
+    // 否則會對已 remove 的 map addLayer、把回放時鐘開兩次。
+    let cancelled = false;
+    let stopReplay: (() => void) | null = null;
 
     registerPmtilesProtocolOnce();
 
@@ -120,6 +175,31 @@ export function EmbedApp() {
         }
       }
 
+      // EM-16：回放圖層（Three.js CustomLayer + 回放時鐘）。
+      // three 與 Scene 全部走 dynamic import —— 網址沒帶回放圖層就完全不下載。
+      const replayKey = url.date ? layerKeys.find((k) => isReplayLayer(k)) : undefined;
+      if (replayKey && url.date) {
+        const date = url.date;
+        void import("./replayRuntime")
+          .then(async ({ startReplay }) => {
+            if (cancelled) return;
+            const handle = await startReplay({
+              map,
+              layerKey: replayKey,
+              date,
+              isDark,
+              speedParam: params.speed,
+              hour: url.hour,
+              isCancelled: () => cancelled,
+            });
+            if (!handle) return;              // 快照缺失 → 靜默略過該層
+            if (cancelled) { handle.stop(); return; }
+            stopReplay = handle.stop;
+            setReplayOn(true);
+          })
+          .catch((err) => console.warn("[embed] replay 載入失敗，略過該層", err));
+      }
+
       updateAllOverlayThemes(map, configs, isDark, params);
       setReady(true);
     };
@@ -161,6 +241,8 @@ export function EmbedApp() {
     map.on("error", (e) => console.error("[embed]", e?.error ?? e));
 
     return () => {
+      cancelled = true;
+      stopReplay?.();          // 停時鐘 RAF + 移除 custom layer（→ scene.dispose）
       map.off("click", onClick);
       map.off("mousemove", onMove);
       mapRef.current = null;
@@ -206,6 +288,9 @@ export function EmbedApp() {
       >
         在 Mini Taiwan Pulse 開啟 ↗
       </a>
+
+      {/* 回放控制（EM-16）—— 播放/暫停 + 時刻，刻意極簡不做 scrubber */}
+      {replayOn && <ReplayControls isDark={isDark} />}
 
       {/* 圖例（圖層 UX 四鐵則之一）—— 有開圖層才顯示 */}
       {ready && layerKeys.length > 0 && (
