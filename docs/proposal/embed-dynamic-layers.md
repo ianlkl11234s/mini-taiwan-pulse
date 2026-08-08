@@ -204,3 +204,11 @@ Pro plan 250 GB 額度撐 25 篇同級文章就見底（超出 $0.09/GB）。
 **Serving 鐵則（新增）**：`trails/` 前綴是**保存層**，不在 `deploy-assets/` 下、不經容器→nginx→Cloudflare。embed 只准讀「成品包」走既有 immutable CDN 路徑；**任何前端直讀 `s3://…/trails/` 都是錯的**（S3 egress $0.114/GB，一個 bus 日檔 36MB × 1,000 次載入 ≈ $4/月，超過一整年儲存費）。
 
 **觀察項（待查）**：ships 日筆數 8 天內 17,500 → 10,737（−39%）單調下滑，可能 AIS collector 退化 → 建議開 DS-* 追蹤。
+
+### 9-5. Phase 1 結果（2026-08-08 完成，`feat/embed-replay` 5 commits 未 push）
+
+- **nightly 已部署**（data-collectors PR #47 squash merged）：每日 02:00 Taipei 匯出昨日 4 datasets 至 `trails/`，Telegram 🧊/🚨 告警。回補完成：ships/flights 各 8 天（07-31~08-07）、bus 系 3 天（08-05~08-07）；bus 08-04、ships/flights 07-30 已被 retention 吃掉救不回。漏跑晚上**不會自動補**，靠 Telegram 偵測 + 手動 `--backfill`。
+- **前端共用件**：`coordinates.ts` 引擎注入（side-effect 模組，未注入即 throw）；`replayClock`（play/pause/speed/loop，28 tests）；`threeReplayLayer`（maplibre wrapper，mainMatrix）；three 全走 dynamic import——實測未帶回放圖層時 embed 不載 three/mapbox chunk（build grep 雙重驗證）。
+- **flights pilot 上線（dev）**：`layers=flights&date=` → gzip JSON 快照 → FlightScene 回放，預設一天 ~90s loop，`h=` 起始、`p.speed` 倍速，404 靜默略過。淺色主題走 `setTheme(false)` 防 additive 洗白。tsc 過、全套測試 352/353（唯一紅為 pre-existing upstreamRegistry catalog ref，屬落雷雙源平行工作）。
+- **視覺決策（owner 已接受預設）**：回放版**不畫整日靜態全軌跡**——5,718 班全路徑 additive 疊加整片白糊、同步建 mesh 阻塞數秒；只留動態尾跡（=主站 Live 模式）。若要全路徑背景，走預先烘焙的靜態 GeoJSON 疊層。
+- **上生產前的兩個缺口**：(1) `embed-snapshots/flights/` 尚未接 deploy-assets/S3/nginx（快照目前僅本機、gitignored，正式站會 404 靜默跳過）；(2) flights 在 embed 無圖例 entry。另 follow-up：scrubber（`seek()` 已備好）。
