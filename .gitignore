@@ -137,3 +137,5 @@ public/tourism/restaurants_national.geojson
 
 # EM-15 嵌入用歷史快照（產生物，走 S3 deploy-assets/embed-snapshots/）
 public/embed-snapshots/
+# embed 回放用鐵路瘦身 bundle（build-rail-slim-bundle.py 產生物，可重產）
+public/embed-rail/
