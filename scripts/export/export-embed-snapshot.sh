@@ -4,12 +4,13 @@
 #   ./scripts/export/export-embed-snapshot.sh <layer> <YYYY-MM-DD>
 #   ./scripts/export/export-embed-snapshot.sh plaActivity 2026-03-01
 #   ./scripts/export/export-embed-snapshot.sh flights     2026-08-06
+#   ./scripts/export/export-embed-snapshot.sh ships       2026-08-06
 #
 # 兩種產物格式（依 layer 而定）：
-#   plaActivity → GeoJSON       （靜態幾何，MapLibre 原生 fill/line 畫）
-#   flights     → gzip JSON     （EM-16 回放；body = **匯出鏡像列**陣列，
-#                                 形狀同 get_flight_trails / data-collectors 的
-#                                 export_daily_trails.py write_gzip_json）
+#   plaActivity     → GeoJSON     （靜態幾何，MapLibre 原生 fill/line 畫）
+#   flights / ships → gzip JSON   （EM-16 回放；body = **匯出鏡像列**陣列，
+#                                   形狀同 get_flight_trails / get_ship_trails 與
+#                                   data-collectors 的 export_daily_trails.py write_gzip_json）
 #
 # 設計（見 docs/proposal/embed-dynamic-layers.md §3）：
 #   嵌入不需要「所有歷史日期」，只需要**文章引用的那一天**。所以不做 AR-14~16 的
@@ -53,6 +54,14 @@ fi
 
 OUT_DIR="public/embed-snapshots/$LAYER"
 mkdir -p "$OUT_DIR"
+
+# trail 座標量化（各 layer 於 case 內設定預設）。空字串 = 原樣輸出，不做後處理。
+# 呼叫端可用環境變數覆寫，含「顯式設空字串以關閉」——量測對照組就是這樣跑的：
+#   TRAIL_PRECISION= ./scripts/export/export-embed-snapshot.sh ships 2026-08-06
+TRAIL_PRECISION_SET="${TRAIL_PRECISION+yes}"   # 有沒有被呼叫端指定（含空字串）
+TRAIL_PRECISION_ARG="${TRAIL_PRECISION:-}"
+TRAIL_PRECISION=""
+TRAIL_FIELDS=0
 
 case "$LAYER" in
   plaActivity)
@@ -103,8 +112,36 @@ FROM public.get_flight_trails('__DATE__'::date) t;
 EOSQL
 )
     ;;
+  ships)
+    OUT_FILE="$OUT_DIR/$DATE.json.gz"
+    FORMAT="rows.gz"
+    TRAIL_FIELDS=3
+    TRAIL_PRECISION=$([[ -n "$TRAIL_PRECISION_SET" ]] && printf '%s' "$TRAIL_PRECISION_ARG" || printf '5')
+    # EM-16 回放 Phase 2：鏡像 get_ship_trails 的三個欄位（mmsi / ship_type / trail）。
+    # trail = "lat,lng,ts;..."（**三欄**，與 flights 的四欄不同 —— 沒有高度）。
+    # 前端解析走 src/data/shipTrails.ts，與主站 shipLoader 同一條路徑（含 >40 節
+    # GPS 異常過濾與 ship_type 中文→AIS 碼映射）。
+    #
+    # ⚠️ 座標精度：RPC 原樣是 6 位小數；單日 ~74 萬點時尾數其實是 AIS 噪音
+    # （5 位小數 ≈ 1.1m，遠小於 AIS 本身定位誤差）。量化到 5 位由 TRAIL_PRECISION
+    # 控制（本 layer 預設 5），見下方後處理段。
+    #
+    # 2026-08-06 實測（12,305 列 / 738,062 點）：
+    #   6 位（原樣）raw 22.8 MiB → gzip 5.48 MiB
+    #   5 位        raw 21.6 MiB → gzip 4.78 MiB（−12.8%）  ← 採用
+    #   4 位        raw 20.2 MiB → gzip 3.75 MiB（−31.5%，≈11m 精度，放大後會看到階梯）
+    # 且 5 位量化後 filterGpsAnomalies 的結果與原樣**逐點相同**
+    # （保留 737,280 / 丟棄 782 兩者一致），故確定是無損於行為的瘦身。
+    #
+    # ⚠️ get_ship_trails 的 retention 與 flights 同量級（BACKLOG BL-25），更早的日期查不到。
+    SQL=$(cat <<'EOSQL'
+SELECT coalesce(json_agg(row_to_json(t)), '[]'::json)
+FROM public.get_ship_trails('__DATE__'::date) t;
+EOSQL
+)
+    ;;
   *)
-    echo "❌ 尚未支援的 layer：$LAYER（目前支援 plaActivity / flights）" >&2
+    echo "❌ 尚未支援的 layer：$LAYER（目前支援 plaActivity / flights / ships）" >&2
     exit 1
     ;;
 esac
@@ -117,7 +154,11 @@ SQL="${SQL//__DATE__/$DATE}"
 # 先寫未壓縮暫存檔 → 驗完再視格式壓縮／搬正。
 # （驗證要讀純 JSON；gzip 版本若中途失敗也不會留下半截的 .json.gz）
 RAW_JSON=$(mktemp)
-trap 'rm -f "$RAW_JSON"' EXIT
+# 量化後 OUT_JSON 會改指向另一個暫存檔；trap 必須同時記得兩個，
+# 否則原始（ships 單日 ~24MB）那份每跑一次就漏一個在 /tmp。
+OUT_JSON="$RAW_JSON"
+QUANTIZED=""
+trap 'rm -f "$RAW_JSON" ${QUANTIZED:+"$QUANTIZED"}' EXIT
 
 psql "$SUPABASE_DB_URL" \
   -v ON_ERROR_STOP=1 \
@@ -135,10 +176,45 @@ except Exception as e:
 print(len(d) if os.environ['SNAPSHOT_FORMAT'] == 'rows.gz' else len(d.get('features', [])))
 ")
 
+# 座標精度瘦身（僅 trail 型 layer）。TRAIL_PRECISION 空字串 = 不動原始資料。
+# 只改 `trail` 欄位的**座標**小數位；時間戳與其他欄位一律原樣。
+if [[ -n "${TRAIL_PRECISION:-}" ]]; then
+  QUANTIZED=$(mktemp)
+  TRAIL_PRECISION="$TRAIL_PRECISION" TRAIL_FIELDS="$TRAIL_FIELDS" python3 -c "
+import json, os, sys
+prec = int(os.environ['TRAIL_PRECISION'])
+nfields = int(os.environ['TRAIL_FIELDS'])   # 3 = lat,lng,ts（ships）/ 4 = lat,lng,alt,ts（flights）
+rows = json.load(open('$RAW_JSON'))
+
+def q(trail):
+    out = []
+    for pt in trail.split(';'):
+        if not pt:
+            continue
+        parts = pt.split(',')
+        if len(parts) != nfields:
+            out.append(pt)          # 形狀不符 → 原樣保留，不猜
+            continue
+        # 前兩欄是 lat/lng → 量化；其餘（alt / ts）原樣
+        head = [('%.*f' % (prec, float(v))).rstrip('0').rstrip('.') for v in parts[:2]]
+        out.append(','.join(head + parts[2:]))
+    return ';'.join(out)
+
+for r in rows:
+    if isinstance(r.get('trail'), str):
+        r['trail'] = q(r['trail'])
+json.dump(rows, open('$QUANTIZED', 'w'), separators=(',', ':'), ensure_ascii=False)
+"
+  BEFORE=$(wc -c < "$RAW_JSON" | tr -d ' ')
+  AFTER=$(wc -c < "$QUANTIZED" | tr -d ' ')
+  echo "[export] 座標量化至 $TRAIL_PRECISION 位小數：raw ${BEFORE} → ${AFTER} bytes"
+  OUT_JSON="$QUANTIZED"
+fi
+
 if [[ "$FORMAT" == "rows.gz" ]]; then
-  gzip -9 -c "$RAW_JSON" > "$OUT_FILE"
+  gzip -9 -c "$OUT_JSON" > "$OUT_FILE"
 else
-  cp "$RAW_JSON" "$OUT_FILE"
+  cp "$OUT_JSON" "$OUT_FILE"
 fi
 
 SIZE=$(du -h "$OUT_FILE" | cut -f1)

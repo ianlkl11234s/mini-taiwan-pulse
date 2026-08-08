@@ -10,6 +10,9 @@ import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
+// 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
+import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
+import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
@@ -225,6 +228,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
   { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
+  // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
+  { keys: ["ships"], render: () => <ShipsLegend /> },
+  { keys: ["flights"], render: () => <FlightsLegend /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
   { keys: ["plaActivity"], render: () => <PlaActivityLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
@@ -499,6 +505,53 @@ function PollutionPenaltyLegend({ visibility }: { visibility: LayerVisibility })
 
 // ── 台灣好行 Tourist Shuttle：配色模式圖例（route / speed / density 三模式）──
 // 色階與 BusScene 的 SPEED_STOPS / DENSITY_STOPS 對齊
+/**
+ * 船舶 —— AIS 船種 6 桶分色。
+ *
+ * 色票來自 `data/shipTrails.ts`（three-free 的單一出處），**不是**從 `ShipScene`
+ * 拿 —— LegendPanel 是 `/embed` 基礎 bundle 的 static import，若在此 import Scene
+ * 就會把整包 three 拖進純靜態嵌入（EM-16 的 bundle 不變量）。
+ *
+ * 用暗色票：本面板慣例是「色票資料兩主題共用，只有外殼 chrome 換色」。
+ * ShipScene 在淺色底圖會換成深飽和版（防 additive 洗白），色相對應相同。
+ */
+function ShipsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        船舶 SHIP・AIS 船種
+      </div>
+      <FireCatRows
+        cats={SHIP_TYPE_LEGEND.map((s) => ({ color: SHIP_TYPE_COLORS_DARK[s.bucket], label: s.label }))}
+      />
+    </div>
+  );
+}
+
+/**
+ * 航班 —— **刻意只有一條**。
+ *
+ * FlightScene 的動態軌跡配色是 `idx % colors.length` 的輪替（純粹讓相鄰航班分得開），
+ * 沒有任何分類語意 —— 硬編一份「顏色=某類」的圖例會是憑空發明的假資訊。
+ * （主站「全路徑靜態軌跡」另有高度漸層配色，但那是 Live 模式限定、embed 不畫，
+ *   要補的話是另一條 entry + 顯示條件，見 follow-up。）
+ */
+function FlightsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        航班 FLIGHT
+      </div>
+      <FireCatRows cats={[{ color: LAYER_COLORS.flights, label: "航跡 Trail" }]} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>
+        軌跡為輪替配色，不代表分類
+      </div>
+    </div>
+  );
+}
+
 function TouristShuttleLegend() {
   return (
     <div>

@@ -6,25 +6,39 @@
  * 純靜態嵌入因此完全不下載 three（交付 D 的驗收點：build 後 embed 基礎 chunk 無 three）。
  *
  * 流程：
- *   讀 gzip 快照（絕不打 Supabase）→ 鏡像列轉 Flight[] → 設定回放時鐘 →
- *   FlightScene 掛上 MapLibre CustomLayer → 自動播放、整日 loop
+ *   平行讀各層 gzip 快照（絕不打 Supabase）→ 鏡像列轉 domain 物件 →
+ *   時間範圍取**聯集**、設定回放時鐘**一次** → 各層 Scene 掛上 MapLibre CustomLayer →
+ *   自動播放、整日 loop
  *
- * 任何一步失敗（404 / 空檔 / 時間跨度為 0）→ 回 `null`，呼叫端靜默略過該層。
+ * ⚠️ **多層共用同一個 `replayClock`**（singleton）。`layers=flights,ships` 時兩層必須
+ * 走同一把時鐘，否則後啟動者的 `setRange()` 會蓋掉前者、時間軸互相打架。因此
+ * `setRange` 只在所有層都載完、算出聯集區間後呼叫一次 —— 這也讓兩種載具在同一
+ * 時刻軸上對齊（船在港、飛機在空中，是同一分鐘的台灣）。
+ *
+ * 任何一層失敗（404 / 空檔 / 時間跨度為 0）→ 該層靜默略過；全部都失敗才回 `null`。
  */
 import type { Map as MaplibreMap } from "maplibre-gl";
-import type { Flight, LayerVisibility } from "../types";
+import type { Flight, LayerVisibility, Ship } from "../types";
 import { FlightScene } from "../three/FlightScene";
+import { ShipScene } from "../three/ShipScene";
 import { flightRowsToFlights, type FlightTrailRow } from "../data/flightTrails";
+import { shipRowsToShips, type ShipTrailRow } from "../data/shipTrails";
 import { createThreeReplayLayer, type ReplayScene } from "./threeReplayLayer";
 import { REPLAY_LAYERS, fetchReplaySnapshot } from "./replayLayers";
 import { replayClock, resolveReplaySpeed, resolveReplayStart } from "./replayClock";
 
-/** 主站 useTransportParams 的預設值（embed 沒有調參 UI，直接沿用同一組數字） */
-const DEFAULT_ORB_SCALE = 0.000005;
+/**
+ * 主站 `useTransportParams` 的預設值（embed 沒有調參 UI，直接沿用同一組數字）。
+ * flights 與 ships 在主站是**各自獨立**的 slider，預設值不同 —— 別合併成一個常數。
+ */
+const DEFAULT_FLIGHT_ORB_SCALE = 0.000005;
+const DEFAULT_SHIP_ORB_SCALE = 0.000003;
+const DEFAULT_SHIP_TRAIL_OPACITY = 0.15;
 
 export interface StartReplayOptions {
   map: MaplibreMap;
-  layerKey: keyof LayerVisibility;
+  /** 網址指定、且確實是回放層的 key（順序 = 疊放順序） */
+  layerKeys: readonly (keyof LayerVisibility)[];
   /** YYYY-MM-DD（urlState 已驗格式） */
   date: string;
   isDark: boolean;
@@ -38,8 +52,22 @@ export interface StartReplayOptions {
 
 export interface ReplayHandle {
   stop: () => void;
-  flightCount: number;
+  /** 實際啟動的層（快照缺失者不在內） */
+  startedKeys: (keyof LayerVisibility)[];
+  /** 各層的 domain 物件數（flights = 航班數、ships = 船數） */
+  counts: Record<string, number>;
+  /** 所有層的聯集時間範圍 */
   timeRange: [number, number];
+}
+
+/** 單層載入結果：已可直接建 Scene 的 domain 物件 + 自身時間範圍。 */
+interface LoadedLayer {
+  key: keyof LayerVisibility;
+  layerId: string;
+  count: number;
+  timeRange: [number, number];
+  /** 延到「聯集時間範圍算完」之後才建 Scene —— 建 Scene 會配置 GL 資源 */
+  makeScene: () => ReplayScene;
 }
 
 /**
@@ -64,7 +92,7 @@ function createFlightReplayScene(flights: Flight[], isDark: boolean): ReplayScen
       // FlightScene.setTheme(false) 原生就切成 NormalBlending + 深飽和 palette，
       // 不必另外發明一套 —— 這也是主站淺色底圖的既有行為。
       if (!isDark) scene.setTheme(false);
-      scene.setOrbScale(DEFAULT_ORB_SCALE);
+      scene.setOrbScale(DEFAULT_FLIGHT_ORB_SCALE);
     },
     update(timeSec) {
       scene.update(flights, timeSec);
@@ -80,44 +108,156 @@ function createFlightReplayScene(flights: Flight[], isDark: boolean): ReplayScen
   };
 }
 
-export async function startReplay(opts: StartReplayOptions): Promise<ReplayHandle | null> {
-  const spec = REPLAY_LAYERS[opts.layerKey];
+/**
+ * ShipScene → ReplayScene 轉接（Phase 2）。
+ *
+ * ShipScene 的介面與 FlightScene 同形（`init/update(ships,t)/render/dispose`），
+ * 泛化後的 `ReplayScene` 直接吃得下，不需要適配層以外的任何改動。
+ *
+ * 兩點與 flights 不同：
+ * - **orb scale 走船舶自己的預設**（0.000003，主站 slider 預設值）；沿用航班的
+ *   0.000005 會讓船明顯過大。
+ * - `setTrailOpacity(0.15)`：ShipScene 的 trail 預設 opacity 是 0.8，主站船舶
+ *   slider 預設卻是 0.15 —— 整日 12,000 艘的尾跡用 0.8 會糊成一片。
+ *
+ * 淺色主題同樣走原生 `setTheme(false)`（NormalBlending + 深飽和色票），
+ * 與 flights 同一招防 additive 洗白。⚠️ 呼叫順序：`setTheme` 內部會覆寫
+ * trail material 的 opacity，故 `setTrailOpacity` 必須排在它**之後**。
+ *
+ * **不呼叫 `setViewBounds`**：embed 沒有主站那套隨鏡頭更新 bounds 的 effect，
+ * 傳 null（預設值）＝ 不做視口剔除、整片海都畫。z6.5 全景本來就要全畫，
+ * 且同時在場船數遠低於 `maxInstances`（12,000）。
+ */
+function createShipReplayScene(ships: Ship[], isDark: boolean): ReplayScene {
+  const scene = new ShipScene();
+
+  return {
+    init(gl) {
+      scene.init(gl as WebGLRenderingContext);
+      if (!isDark) scene.setTheme(false);
+      scene.setOrbScale(DEFAULT_SHIP_ORB_SCALE);
+      scene.setTrailOpacity(DEFAULT_SHIP_TRAIL_OPACITY);
+    },
+    update(timeSec) {
+      scene.update(ships, timeSec);
+    },
+    render(matrix) {
+      scene.render(matrix as unknown as number[]);
+    },
+    dispose() {
+      scene.dispose();
+    },
+  };
+}
+
+/** 讀單層快照並轉成 domain 物件。失敗（含快照 404 / 空檔）一律回 null。 */
+async function loadLayer(
+  key: keyof LayerVisibility,
+  date: string,
+  isDark: boolean,
+): Promise<LoadedLayer | null> {
+  const spec = REPLAY_LAYERS[key];
   if (!spec) return null;
 
-  const rows = await fetchReplaySnapshot<FlightTrailRow>(spec.snapshotDir, opts.date);
-  if (!rows || rows.length === 0 || opts.isCancelled()) return null;
+  if (key === "ships") {
+    const rows = await fetchReplaySnapshot<ShipTrailRow>(spec.snapshotDir, date);
+    if (!rows || rows.length === 0) return null;
+    const { ships, timeRange, filteredPoints } = shipRowsToShips(rows);
+    const [t0, t1] = timeRange;
+    if (ships.length === 0 || t1 <= t0) return null;
+    console.log(
+      `[embed/replay] ships ${date}: ${ships.length} ships from ${rows.length} rows` +
+        (filteredPoints > 0 ? `, filtered ${filteredPoints} anomalous points` : ""),
+    );
+    return {
+      key, layerId: spec.layerId, count: ships.length, timeRange: [t0, t1],
+      makeScene: () => createShipReplayScene(ships, isDark),
+    };
+  }
 
+  const rows = await fetchReplaySnapshot<FlightTrailRow>(spec.snapshotDir, date);
+  if (!rows || rows.length === 0) return null;
   const { flights, timeRange, splitCount } = flightRowsToFlights(rows);
   const [t0, t1] = timeRange;
   if (flights.length === 0 || t1 <= t0) return null;
+  console.log(
+    `[embed/replay] flights ${date}: ${flights.length} flights from ${rows.length} rows (split ${splitCount})`,
+  );
+  return {
+    key, layerId: spec.layerId, count: flights.length, timeRange: [t0, t1],
+    makeScene: () => createFlightReplayScene(flights, isDark),
+  };
+}
+
+export async function startReplay(opts: StartReplayOptions): Promise<ReplayHandle | null> {
+  const keys = opts.layerKeys.filter((k) => k in REPLAY_LAYERS);
+  if (keys.length === 0) return null;
+
+  // 平行載入：兩層各自 fetch，慢的那層不該卡住快的那層開始解析。
+  const settled = await Promise.all(
+    keys.map((k) =>
+      loadLayer(k, opts.date, opts.isDark).catch((err) => {
+        console.warn(`[embed/replay] ${k} 載入失敗，略過該層`, err);
+        return null;
+      }),
+    ),
+  );
+  if (opts.isCancelled()) return null;
+
+  const loaded = settled.filter((x): x is LoadedLayer => x !== null);
+  if (loaded.length === 0) return null;
+
+  // 聯集時間範圍 —— 多層共用一把時鐘的關鍵（見檔頭）。
+  let t0 = Infinity;
+  let t1 = -Infinity;
+  for (const l of loaded) {
+    if (l.timeRange[0] < t0) t0 = l.timeRange[0];
+    if (l.timeRange[1] > t1) t1 = l.timeRange[1];
+  }
+  if (!(t1 > t0)) return null;
 
   const speed = resolveReplaySpeed(opts.speedParam, t0, t1);
   const start = resolveReplayStart(opts.date, opts.hour, t0, t1);
   replayClock.setRange(t0, t1, speed, start);
 
-  const scene = createFlightReplayScene(flights, opts.isDark);
-  const layer = createThreeReplayLayer({
-    id: spec.layerId,
-    scene,
-    getTime: () => replayClock.get(),
-  });
+  const addedIds: string[] = [];
+  for (const l of loaded) {
+    const layer = createThreeReplayLayer({
+      id: l.layerId,
+      scene: l.makeScene(),
+      getTime: () => replayClock.get(),
+    });
+    opts.map.addLayer(layer);
+    addedIds.push(l.layerId);
+  }
 
-  if (opts.isCancelled()) return null;
-  opts.map.addLayer(layer);
+  if (opts.isCancelled()) {
+    replayClock.clear();
+    for (const id of addedIds) {
+      if (opts.map.getLayer(id)) opts.map.removeLayer(id);
+    }
+    return null;
+  }
+
   replayClock.play();
 
+  const counts: Record<string, number> = {};
+  for (const l of loaded) counts[l.key] = l.count;
   console.log(
-    `[embed/replay] ${spec.snapshotDir} ${opts.date}: ${flights.length} flights ` +
-      `from ${rows.length} rows (split ${splitCount}), speed ${speed.toFixed(0)}x`,
+    `[embed/replay] ${opts.date} 啟動 ${loaded.map((l) => l.key).join(", ")}，` +
+      `speed ${speed.toFixed(0)}x`,
   );
 
   return {
-    flightCount: flights.length,
+    startedKeys: loaded.map((l) => l.key),
+    counts,
     timeRange: [t0, t1],
     stop() {
       replayClock.clear();
       // map.remove() 已經跑過的話 layer 早被拆掉（onRemove → dispose），別重複拆
-      if (opts.map.getLayer(spec.layerId)) opts.map.removeLayer(spec.layerId);
+      for (const id of addedIds) {
+        if (opts.map.getLayer(id)) opts.map.removeLayer(id);
+      }
     },
   };
 }

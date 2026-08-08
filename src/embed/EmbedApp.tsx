@@ -177,15 +177,17 @@ export function EmbedApp() {
 
       // EM-16：回放圖層（Three.js CustomLayer + 回放時鐘）。
       // three 與 Scene 全部走 dynamic import —— 網址沒帶回放圖層就完全不下載。
-      const replayKey = url.date ? layerKeys.find((k) => isReplayLayer(k)) : undefined;
-      if (replayKey && url.date) {
+      // 多個回放層可同時開（`layers=flights,ships`）—— 共用同一把 replayClock，
+      // 時間範圍取聯集，由 startReplay 內部統一處理。
+      const replayKeys = url.date ? layerKeys.filter((k) => isReplayLayer(k)) : [];
+      if (replayKeys.length > 0 && url.date) {
         const date = url.date;
         void import("./replayRuntime")
           .then(async ({ startReplay }) => {
             if (cancelled) return;
             const handle = await startReplay({
               map,
-              layerKey: replayKey,
+              layerKeys: replayKeys,
               date,
               isDark,
               speedParam: params.speed,

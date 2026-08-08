@@ -1,62 +1,15 @@
-import type { Ship, ShipData, TrailPoint } from "../types";
+import type { ShipData } from "../types";
 import { supabase, todayTaiwan } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
+// trail 解析 / GPS 異常過濾 / ship_type 映射已抽成純函數共用件（EM-16 Phase 2）：
+// `/embed` 回放讀靜態快照鏡像，走的是同一條解析路徑。見 src/data/shipTrails.ts。
+import { shipRowsToShips, type ShipTrailRow } from "./shipTrails";
 
 export interface ShipDateInfo {
   date: string;
   frames?: number;
   records: number;
   ships?: number;
-}
-
-// ── GPS 異常過濾 ──
-
-const MAX_SPEED_KNOTS = 40;
-const KM_PER_DEG_LAT = 111.0;
-const KM_PER_DEG_LNG = 101.0; // ~25°N 近似值
-
-function filterGpsAnomalies(path: TrailPoint[]): TrailPoint[] {
-  if (path.length < 2) return path;
-  const filtered: TrailPoint[] = [path[0]!];
-  for (let i = 1; i < path.length; i++) {
-    const prev = filtered[filtered.length - 1]!;
-    const cur = path[i]!;
-    const dtHours = (cur[3] - prev[3]) / 3600;
-    if (dtHours > 0) {
-      const dLat = (cur[0] - prev[0]) * KM_PER_DEG_LAT;
-      const dLon = (cur[1] - prev[1]) * KM_PER_DEG_LNG;
-      const distKm = Math.sqrt(dLat * dLat + dLon * dLon);
-      const speedKnots = distKm / dtHours / 1.852;
-      if (speedKnots > MAX_SPEED_KNOTS) continue;
-    }
-    filtered.push(cur);
-  }
-  return filtered;
-}
-
-// ── ship_type 中文 → AIS 數字碼映射 ──
-
-const SHIP_TYPE_MAP: Record<string, number> = {
-  "漁船": 30, "貨船": 70, "油輪": 80, "客輪": 60,
-  "高速船": 40, "拖船": 52, "疏浚船": 33, "遊艇": 36,
-  "帆船": 36, "引水船": 50, "執法船": 55, "港口小艇": 50,
-  "未指定": 0,
-};
-
-function parseShipType(t: string | null): number {
-  if (!t) return 0;
-  return SHIP_TYPE_MAP[t] ?? 0;
-}
-
-/** 解析 "lat,lng,ts;lat,lng,ts;..." → TrailPoint[] */
-function parseTrail(trail: string): TrailPoint[] {
-  const points = trail.split(";");
-  const result: TrailPoint[] = new Array(points.length);
-  for (let i = 0; i < points.length; i++) {
-    const parts = points[i]!.split(",");
-    result[i] = [+parts[0]!, +parts[1]!, 0, +parts[2]!];
-  }
-  return result;
 }
 
 // ── Supabase loaders ──
@@ -86,36 +39,20 @@ export async function fetchShipDayArrow(date: string): Promise<ShipData> {
   );
   if (error) throw new Error(`Supabase get_ship_trails: ${error.message}`);
 
-  const rows = data as { mmsi: string; ship_type: string | null; trail: string }[];
-  let tsMin = Infinity;
-  let tsMax = -Infinity;
-  let totalFiltered = 0;
-
-  const ships: Ship[] = rows.map((row) => {
-    const rawPath = parseTrail(row.trail);
-    const path = filterGpsAnomalies(rawPath);
-    totalFiltered += rawPath.length - path.length;
-    for (const pt of path) {
-      if (pt[3] < tsMin) tsMin = pt[3];
-      if (pt[3] > tsMax) tsMax = pt[3];
-    }
-    return { mmsi: row.mmsi, vessel_type: parseShipType(row.ship_type), path };
-  });
+  const rows = data as ShipTrailRow[];
+  const { ships, timeRange, filteredPoints } = shipRowsToShips(rows);
 
   const elapsed = (performance.now() - t0).toFixed(0);
   console.log(
     `[Ship] ${date}: ${ships.length} ships, ${elapsed}ms` +
-    (totalFiltered > 0 ? `, filtered ${totalFiltered} anomalous points` : "")
+    (filteredPoints > 0 ? `, filtered ${filteredPoints} anomalous points` : "")
   );
 
   return {
     metadata: {
       date,
       ship_count: ships.length,
-      time_range: [
-        tsMin === Infinity ? 0 : tsMin,
-        tsMax === -Infinity ? 0 : tsMax,
-      ] as [number, number],
+      time_range: timeRange,
     },
     ships,
   };

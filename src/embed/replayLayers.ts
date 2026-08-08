@@ -36,6 +36,11 @@ export const REPLAY_LAYERS: Readonly<Partial<Record<keyof LayerVisibility, Repla
     snapshotDir: "flights",
     label: "航班 Flight",
   },
+  ships: {
+    layerId: "embed-ships-replay",
+    snapshotDir: "ships",
+    label: "船舶 Ship",
+  },
 };
 
 export const REPLAY_KEYS = Object.keys(REPLAY_LAYERS) as (keyof LayerVisibility)[];
