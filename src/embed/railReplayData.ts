@@ -179,8 +179,22 @@ export interface RailReplayData extends RailData {
 /**
  * 讀時刻表快照 + 幾何 bundle，組成引擎輸入。
  * 任一塊缺失（404 / 壞檔 / 沒有 TRA 也沒有任何系統）一律回 null，呼叫端靜默略過該層。
+ *
+ * @param wantedSystems `rsys=` 指定只組哪幾個系統（urlState 已濾過未知 id，且保證非空陣列）；
+ *   `undefined` ＝ 未指定 ＝ 六系統全上。
+ *
+ *   過濾發生在**組裝階段**而非渲染階段：沒被選到的系統連時刻表都不解析、軌道也不進
+ *   `allTracks`，所以單選捷運時畫面上不會殘留台鐵的灰色軌道，載入也更快
+ *   （TRA 是最大宗 —— 900+ 班車 × 每班數十站的時刻表）。
  */
-export async function loadRailReplayData(date: string): Promise<RailReplayData | null> {
+export async function loadRailReplayData(
+  date: string,
+  wantedSystems?: readonly string[],
+): Promise<RailReplayData | null> {
+  // 空陣列不該出現（urlState 全 drop 時給的是 undefined），但真的來了就當作未指定 ——
+  // 「一個系統都不顯示」的空白畫面永遠不是讀者想要的結果。
+  const wanted = wantedSystems && wantedSystems.length > 0 ? new Set(wantedSystems) : null;
+  const isWanted = (id: string) => wanted == null || wanted.has(id);
   // 兩塊平行抓：幾何是共用資產（多半已在快取），不該被時刻表卡住。
   const [rows, bundle] = await Promise.all([
     fetchReplaySnapshot<RailScheduleRow>("rail", date),
@@ -197,10 +211,12 @@ export async function loadRailReplayData(date: string): Promise<RailReplayData |
   // ── TRA（TraTrainEngine）──
   // 位置用 267 條 O-D 軌道算，**顯示**只畫 37 條 golden —— 與主站一致：
   // O-D 軌道彼此高度重疊，全畫會糊成一團粗線。
+  // 未選到 tra 時 traData 維持 null —— `createRailReplayScene` 本來就允許沒有 TraTrainEngine
+  // （`data.traData ? new TraTrainEngine(...) : null`），不必另立分支。
   let traData: TraData | null = null;
   const traBundle = bundle.systems.tra;
   const traRow = rowBySystem.get("tra");
-  if (traBundle && traRow) {
+  if (isWanted("tra") && traBundle && traRow) {
     const schedules = parseTraSchedules(traRow.data);
     if (schedules.size > 0) {
       const odTracks = new Map<string, GeoJSON.Feature>();
@@ -226,6 +242,7 @@ export async function loadRailReplayData(date: string): Promise<RailReplayData |
   // ── THSR + 4 捷運（RailEngine）──
   const systems: RailSystem[] = [];
   for (const id of RAIL_ENGINE_SYSTEMS) {
+    if (!isWanted(id)) continue;
     const sysBundle = bundle.systems[id];
     const row = rowBySystem.get(id);
     if (!sysBundle || !row) continue;

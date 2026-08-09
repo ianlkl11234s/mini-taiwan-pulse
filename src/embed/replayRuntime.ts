@@ -56,6 +56,8 @@ export interface StartReplayOptions {
   speedParam?: number;
   /** `h=` 起始時刻 0–23（台北時區） */
   hour?: number;
+  /** `rsys=` 鐵路只顯示這幾個系統；未指定 = 全部（只對 rail 層有意義） */
+  railSystems?: readonly string[];
   /** effect 已被 cleanup（StrictMode 會掛兩次）—— 每個 await 後都要再查一次 */
   isCancelled: () => boolean;
 }
@@ -214,6 +216,7 @@ async function loadLayer(
   key: keyof LayerVisibility,
   date: string,
   isDark: boolean,
+  railSystems?: readonly string[],
 ): Promise<LoadedLayer | null> {
   const spec = REPLAY_LAYERS[key];
   if (!spec) return null;
@@ -222,7 +225,7 @@ async function loadLayer(
     // 時刻表推算型：時間範圍是**該日整天**而非資料跨度，理由見 railReplayData 檔頭。
     const range = railReplayRange(date);
     if (!range) return null;
-    const data = await loadRailReplayData(date);
+    const data = await loadRailReplayData(date, railSystems);
     if (!data) return null;
     const total = Object.values(data.departureCounts).reduce((a, b) => a + b, 0);
     if (total === 0) return null;
@@ -274,7 +277,7 @@ export async function startReplay(opts: StartReplayOptions): Promise<ReplayHandl
   // 平行載入：兩層各自 fetch，慢的那層不該卡住快的那層開始解析。
   const settled = await Promise.all(
     keys.map((k) =>
-      loadLayer(k, opts.date, opts.isDark).catch((err) => {
+      loadLayer(k, opts.date, opts.isDark, opts.railSystems).catch((err) => {
         console.warn(`[embed/replay] ${k} 載入失敗，略過該層`, err);
         return null;
       }),

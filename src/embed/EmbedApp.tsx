@@ -192,6 +192,7 @@ export function EmbedApp() {
               isDark,
               speedParam: params.speed,
               hour: url.hour,
+              railSystems: url.railSystems,
               isCancelled: () => cancelled,
             });
             if (!handle) return;              // 快照缺失 → 靜默略過該層
@@ -296,7 +297,12 @@ export function EmbedApp() {
 
       {/* 圖例（圖層 UX 四鐵則之一）—— 有開圖層才顯示 */}
       {ready && layerKeys.length > 0 && (
-        <LegendPanel visibility={visibility} overlayParams={params} isDarkTheme={isDark} />
+        <LegendPanel
+          visibility={visibility}
+          overlayParams={params}
+          isDarkTheme={isDark}
+          railSystems={url.railSystems}
+        />
       )}
 
       {/*

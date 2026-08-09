@@ -195,11 +195,18 @@ interface LegendPanelProps {
   overlayParams: Record<string, number>;
   /** 淺色底圖時傳 false 讓面板外殼切成淺色 chrome（色票資料兩主題共用，不受影響）*/
   isDarkTheme?: boolean;
+  /**
+   * `/embed` 的 `rsys=`：鐵路只顯示這幾個系統。主站不傳（六系統恆全開），
+   * undefined ＝ 全部，圖例維持原樣。
+   */
+  railSystems?: readonly string[];
 }
 
 export interface LegendContext {
   visibility: LayerVisibility;
   overlayParams: Record<string, number>;
+  /** 見 LegendPanelProps.railSystems。只有 RailLegend 消費。 */
+  railSystems?: readonly string[];
 }
 
 export interface LegendEntry {
@@ -232,7 +239,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { keys: ["ships"], render: () => <ShipsLegend /> },
   { keys: ["flights"], render: () => <FlightsLegend /> },
-  { keys: ["rail"], render: () => <RailLegend /> },
+  { keys: ["rail"], render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
   { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
   { keys: ["plaActivity"], render: () => <PlaActivityLegend /> },
   { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
@@ -374,7 +381,9 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   },
 ];
 
-export function LegendPanel({ visibility, overlayParams, isDarkTheme = true }: LegendPanelProps) {
+export function LegendPanel({
+  visibility, overlayParams, isDarkTheme = true, railSystems,
+}: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
   // 面板外殼 chrome（僅容器與標題文字，色票資料兩主題共用）
@@ -443,7 +452,7 @@ export function LegendPanel({ visibility, overlayParams, isDarkTheme = true }: L
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
           {active.map((entry, i) => (
             <Fragment key={entry.keys[0] ?? i}>
-              {entry.render({ visibility, overlayParams })}
+              {entry.render({ visibility, overlayParams, railSystems })}
             </Fragment>
           ))}
         </div>
@@ -569,6 +578,14 @@ const TRA_TRAIN_TYPE_ROWS = (() => {
   return [...byColor].map(([color, names]) => ({ color, label: names.join(" / ") }));
 })();
 
+/** 走 RailEngine 的四座捷運／輕軌（label 同 `railLoader.RAIL_SYSTEMS`）。 */
+const METRO_SYSTEMS = [
+  { id: "trtc", label: "台北捷運" },
+  { id: "krtc", label: "高雄捷運" },
+  { id: "klrt", label: "高雄輕軌" },
+  { id: "tmrt", label: "台中捷運" },
+] as const;
+
 /**
  * 鐵路 —— 分色維度是**車種（台鐵）與路線（高鐵／捷運）**，不是「系統」。
  *
@@ -576,22 +593,51 @@ const TRA_TRAIN_TYPE_ROWS = (() => {
  * 高鐵全線同色（時刻表無 `train_color`、軌道無 `color` → 落到系統預設 #ee6c00）。
  * 捷運則是**每條路線各自的官方線色**（北捷 96 條路線各有 color），數量太多不逐條列，
  * 也不硬編一個「捷運＝某色」的假分類 —— 用一行說明帶過（同 FlightsLegend 的原則）。
+ *
+ * `railSystems`（`/embed` 的 `rsys=`）指定單一系統時**整段收斂**：沒被選到的系統
+ * 連軌道都沒進場（過濾在 `railReplayData` 的組裝階段），圖例還列著就是誤導。
+ * 特別是「灰線為軌道」——灰色是台鐵 golden track 專屬，沒選台鐵時畫面上根本沒有灰線。
+ * 未傳（主站）＝ undefined ＝ 全部顯示，輸出與加這個參數之前逐字相同。
  */
-function RailLegend() {
+function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
   const t = useLegendTheme();
+  const has = (id: string) => railSystems == null || railSystems.includes(id);
+
+  const showTra = has("tra");
+  const showThsr = has("thsr");
+  const metros = METRO_SYSTEMS.filter((m) => has(m.id));
+  // 全選時用泛稱「捷運」（同原本的措辭）；部分選取才逐一點名
+  const metroLabel =
+    metros.length === METRO_SYSTEMS.length ? "捷運" : metros.map((m) => m.label).join("／");
+
+  const heading = { fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1 };
+  const secondTitle = [showThsr ? "高鐵" : null, metros.length ? metroLabel : null]
+    .filter(Boolean)
+    .join("・");
+  const note = [
+    metros.length ? "捷運依各路線官方線色" : null,
+    showTra ? "灰線為軌道" : null,
+  ].filter(Boolean).join("｜");
+
   return (
     <div>
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
-        鐵路 RAIL・台鐵車種
-      </div>
-      <FireCatRows cats={TRA_TRAIN_TYPE_ROWS} />
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, margin: "6px 0 4px" }}>
-        高鐵・捷運
-      </div>
-      <FireCatRows cats={[{ color: LAYER_COLORS.rail, label: "高鐵 THSR" }]} />
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>
-        捷運依各路線官方線色｜灰線為軌道
-      </div>
+      {showTra && (
+        <>
+          <div style={{ ...heading, marginBottom: 4 }}>鐵路 RAIL・台鐵車種</div>
+          <FireCatRows cats={TRA_TRAIN_TYPE_ROWS} />
+        </>
+      )}
+      {secondTitle && (
+        <>
+          <div style={{ ...heading, margin: showTra ? "6px 0 4px" : "0 0 4px" }}>
+            {showTra ? secondTitle : `鐵路 RAIL・${secondTitle}`}
+          </div>
+          {showThsr && <FireCatRows cats={[{ color: LAYER_COLORS.rail, label: "高鐵 THSR" }]} />}
+        </>
+      )}
+      {note && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3 }}>{note}</div>
+      )}
     </div>
   );
 }

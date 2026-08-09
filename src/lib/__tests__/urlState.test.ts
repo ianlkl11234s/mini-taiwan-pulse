@@ -5,7 +5,7 @@
  * 圖層改名/下架/上鎖之後，舊網址必須安靜降級而不是炸掉整個 iframe。
  */
 import { describe, it, expect } from "vitest";
-import { parseUrlState, buildUrl, URL_STATE_VERSION } from "../urlState";
+import { parseUrlState, buildUrl, URL_STATE_VERSION, RAIL_SYSTEM_IDS } from "../urlState";
 import { LAYER_COLORS, GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../../types";
 
@@ -179,6 +179,55 @@ describe("parseUrlState — style / hour（分享主站畫面用）", () => {
   });
 });
 
+describe("parseUrlState — rsys（鐵路系統過濾）", () => {
+  it("單一系統", () => {
+    expect(parseUrlState(`?${V}&rsys=trtc`).railSystems).toEqual(["trtc"]);
+  });
+
+  it("多系統以逗號分隔，保留書寫順序", () => {
+    expect(parseUrlState(`?${V}&rsys=trtc,tmrt`).railSystems).toEqual(["trtc", "tmrt"]);
+    expect(parseUrlState(`?${V}&rsys=tmrt,trtc`).railSystems).toEqual(["tmrt", "trtc"]);
+  });
+
+  it("六個系統 id 都收得下", () => {
+    for (const id of RAIL_SYSTEM_IDS) {
+      expect(parseUrlState(`?${V}&rsys=${id}`).railSystems).toEqual([id]);
+    }
+  });
+
+  it("空白與重複值不影響結果", () => {
+    expect(parseUrlState(`?${V}&rsys= trtc , trtc ,tmrt`).railSystems).toEqual(["trtc", "tmrt"]);
+  });
+
+  it("未知 id 只 drop 該項，合法的留著（不是整包作廢）", () => {
+    expect(parseUrlState(`?${V}&rsys=trtc,nonsense`).railSystems).toEqual(["trtc"]);
+  });
+
+  it.each([
+    ["全部未知", "rsys=nonsense"],
+    ["多個未知", "rsys=foo,bar"],
+    ["大寫（網址契約一律小寫）", "rsys=TRTC"],
+    ["只有分隔符", "rsys=,,,"],
+    ["空值", "rsys="],
+  ])("%s → undefined（＝未指定＝顯示全部，不是空白畫面）", (_label, qs) => {
+    expect(parseUrlState(`?${V}&${qs}`).railSystems).toBeUndefined();
+  });
+
+  it("不帶 rsys 時欄位不存在", () => {
+    expect(parseUrlState(`?${V}&layers=rail&date=2026-08-06`).railSystems).toBeUndefined();
+  });
+
+  it("向後相容：加了 rsys 之後，舊網址的解析結果不變", () => {
+    const legacy = `?${V}&layers=rail&date=2026-08-06&h=8&lng=120.9&lat=23.7&z=7`;
+    expect(parseUrlState(legacy)).toEqual({
+      camera: { center: [120.9, 23.7], zoom: 7, pitch: 0, bearing: 0 },
+      layers: ["rail"],
+      date: "2026-08-06",
+      hour: 8,
+    });
+  });
+});
+
 describe("buildUrl", () => {
   it("空 state 產出乾淨的版本化網址", () => {
     expect(buildUrl({}, "https://example.com/embed")).toBe(`https://example.com/embed?${V}`);
@@ -207,10 +256,16 @@ describe("buildUrl", () => {
       style: "satellite",
       theme: "dark" as const,
       ui: ["legend"],
+      railSystems: ["trtc", "tmrt"],
     };
     const url = buildUrl(original, "https://example.com/embed");
     const parsed = parseUrlState(new URL(url).search);
     expect(parsed).toEqual(original);
+  });
+
+  it("railSystems 對稱輸出成 rsys=（空陣列不寫入）", () => {
+    expect(buildUrl({ railSystems: ["trtc"] }, "https://e.com")).toContain("rsys=trtc");
+    expect(buildUrl({ railSystems: [] }, "https://e.com")).not.toContain("rsys");
   });
 
   it("round-trip 座標精度：4 位小數（~11m）足夠且不放大浮點雜訊", () => {
