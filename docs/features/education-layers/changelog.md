@@ -2,7 +2,7 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
-## 2026-08-09 — 未 PR（branch `feat/education-layers`，接續 W2）
+## 2026-08-09 — PR #116 `f402147`（W3）
 
 **W3：幼托補習 + 大專學生數 5 個圖層 —— 上游 9 個 dataset 全部接完**
 
@@ -53,7 +53,7 @@
 
 ---
 
-## 2026-08-09 — 未 PR（branch `feat/education-layers`，接續 W1）
+## 2026-08-09 — PR #116 `f402147`（W2）
 
 **W2：學區面 3 個圖層**
 
@@ -97,7 +97,7 @@ Mapbox 算術運算子對字串做 number assertion 會 evaluation error → `ma
 
 ---
 
-## 2026-08-08 — 未 PR（branch `feat/education-layers`）
+## 2026-08-08 — PR #116 `f402147`（W1）
 
 **W1：教育主題上線，8 個圖層**
 

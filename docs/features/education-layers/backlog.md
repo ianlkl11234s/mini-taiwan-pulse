@@ -3,12 +3,23 @@
 > 本 feature 的待辦。上游 **9 個 dataset 全部接完**（W1 2 個 ＋ W2 2 個 ＋ W3 5 個），
 > 共 16 個圖層。剩下的只有分析層、技術債與待拍板事項。
 
-## 待用戶拍板（本輪產出，不自己動）
+## 🔴 阻塞中（部署前必做）
 
-- [ ] **EDU-0a**：S3 上傳 `deploy-assets/education/`（`bash scripts/deploy/upload-deploy-assets.sh`）
-- [ ] **EDU-0b**：push `feat/education-layers` + 開 PR
-- [ ] **EDU-0c**：上游 `taipei-gis-analytics` 的 education 批次也**尚未 push**，需一併處理
-      （跨 repo 順序：上游先、下游後）
+- [ ] **EDU-0a**：**S3 上傳** `deploy-assets/education/`（16.86 MB，11 個檔）
+      ```bash
+      bash scripts/deploy/upload-deploy-assets.sh
+      ```
+      本機三個 AWS profile（`fsd-spike` / `fsd-cloudwatch` / `ctx-reader`）對
+      `migu-gis-data-collector` 都是 **AccessDenied**，`default` profile 無憑證，
+      需要有權限的憑證才能跑。**沒有自動部署 workflow，所以 merge 不會造成 prod 404，
+      但實際部署前必須先完成上傳**，否則 11 個圖層全 404。
+
+## ✅ 已完成
+
+- [x] **EDU-0b**：PR [#116](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/116)
+      已 squash merge 進 master（`f402147`），CI test + review 全綠
+- [x] **EDU-0c**：上游 `taipei-gis-analytics` 已 push（`03d66d7`，含 25 個 commit）。
+      順帶 merge 進來的 `lightning_cwa.md` 修掉了 EDU-12 → `pnpm test` 現在 **326/326 全綠**
 
 ## ✅ 已完成 — W2（學區面，2026-08-09）
 
@@ -64,9 +75,10 @@
 - **教育主題的即時資料**：上游實打 12 個端點確認 `realtime=0`，最高頻只到「每日更新的名冊」。
   停班停課即時已在 `src/data/disasterAlertTypes.ts:44` 的 NCDR 鏈上，**不要在教育 tab 重做**。
 
-## 既有問題（非本次引入，但驗收時撞到）
+## ✅ 既有問題（非本次引入，驗收時撞到，已解決）
 
-- [ ] **EDU-12**：`pnpm test` 的 `upstreamRegistry.test.ts` 有一筆 `lightningCwa → lightning_cwa` 紅燈，
-      HEAD 上就存在。上游 catalog 只有 `lightning_taipower.md`，缺 `lightning_cwa.md`。
-      修法是**上游補 catalog doc**，不該把 datasetId 改成 `lightning_taipower`
-      （不同資料源，且台電源自 2026-07-10 起永遠回空）
+- [x] **EDU-12**：`upstreamRegistry.test.ts` 的 `lightningCwa → lightning_cwa` 紅燈。
+      判斷正確——修法確實是**上游補 catalog doc**，而不是把 datasetId 改成 `lightning_taipower`
+      （不同資料源，且台電源自 2026-07-10 起永遠回空）。
+      2026-08-09 上游 pull 時 merge 進 `docs/data-catalog/weather/lightning_cwa.md`（PR #39），
+      `pnpm test` 從 325/326 變成 **326/326 全綠**
