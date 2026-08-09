@@ -1,7 +1,7 @@
 # education-layers
 
 > **Slug**：`education-layers`（與 taipei-gis-analytics handoff 一致）
-> **狀態**：merged — PR #116 已進 master；⚠️ **S3 資產尚未上傳**（部署前必做）
+> **狀態**：**shipped** — PR #116 已進 master、S3 資產已上傳（9 檔 17.35 MB）
 > **Owner**：migu
 > **上線日期**：2026-08-09（merge）
 > **相關 PR**：[#116](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/116)（squash `f402147`）

@@ -3,18 +3,18 @@
 > 本 feature 的待辦。上游 **9 個 dataset 全部接完**（W1 2 個 ＋ W2 2 個 ＋ W3 5 個），
 > 共 16 個圖層。剩下的只有分析層、技術債與待拍板事項。
 
-## 🔴 阻塞中（部署前必做）
-
-- [ ] **EDU-0a**：**S3 上傳** `deploy-assets/education/`（16.86 MB，11 個檔）
-      ```bash
-      bash scripts/deploy/upload-deploy-assets.sh
-      ```
-      本機三個 AWS profile（`fsd-spike` / `fsd-cloudwatch` / `ctx-reader`）對
-      `migu-gis-data-collector` 都是 **AccessDenied**，`default` profile 無憑證，
-      需要有權限的憑證才能跑。**沒有自動部署 workflow，所以 merge 不會造成 prod 404，
-      但實際部署前必須先完成上傳**，否則 11 個圖層全 404。
-
 ## ✅ 已完成
+
+- [x] **EDU-0a**：**S3 上傳完成**（2026-08-09）。`deploy-assets/education/` 9 個檔、
+      合計 **17,350,525 bytes**，逐檔大小與本地比對全部吻合。
+
+      ⚠️ 踩到一個假警報值得記錄：本專案的 S3 憑證在 **`mini-taiwan-pulse/.env`**
+      的 `S3_ACCESS_KEY` / `S3_SECRET_KEY`，**不在 `~/.aws/credentials`**。
+      `~/.aws/` 裡那幾個 profile 是別的用途、對本 bucket 沒權限。
+      `scripts/deploy/upload-deploy-assets.sh` 第 4-8 行**本來就會**從 `.env`
+      export 成 `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY`，腳本沒有問題 ——
+      直接跑 `aws sts get-caller-identity` 或 `aws s3 ls` 測連線會失敗是正常的，
+      **測之前要先 `set -a; . ./.env; set +a`**，別誤判成沒有憑證。
 
 - [x] **EDU-0b**：PR [#116](https://github.com/ianlkl11234s/mini-taiwan-pulse/pull/116)
       已 squash merge 進 master（`f402147`），CI test + review 全綠
