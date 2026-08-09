@@ -5,7 +5,8 @@
  * 圖層改名/下架/上鎖之後，舊網址必須安靜降級而不是炸掉整個 iframe。
  */
 import { describe, it, expect } from "vitest";
-import { parseUrlState, buildUrl, URL_STATE_VERSION, RAIL_SYSTEM_IDS } from "../urlState";
+import { parseUrlState, buildUrl, URL_STATE_VERSION } from "../urlState";
+import { RAIL_CODES, resolveRailCodes } from "../../constants/railLines";
 import { LAYER_COLORS, GATED_LAYERS } from "../../components/sidebar/layerCatalog";
 import type { LayerVisibility } from "../../types";
 
@@ -179,34 +180,45 @@ describe("parseUrlState — style / hour（分享主站畫面用）", () => {
   });
 });
 
-describe("parseUrlState — rsys（鐵路系統過濾）", () => {
-  it("單一系統", () => {
+describe("parseUrlState — rsys（鐵路營運者／線路過濾）", () => {
+  it("單一營運者", () => {
     expect(parseUrlState(`?${V}&rsys=trtc`).railSystems).toEqual(["trtc"]);
   });
 
-  it("多系統以逗號分隔，保留書寫順序", () => {
+  it("多代碼以逗號分隔，保留書寫順序", () => {
     expect(parseUrlState(`?${V}&rsys=trtc,tmrt`).railSystems).toEqual(["trtc", "tmrt"]);
     expect(parseUrlState(`?${V}&rsys=tmrt,trtc`).railSystems).toEqual(["tmrt", "trtc"]);
   });
 
-  it("六個系統 id 都收得下", () => {
-    for (const id of RAIL_SYSTEM_IDS) {
+  it("代碼表裡每個代碼都收得下（營運者級 + 線路級）", () => {
+    for (const id of RAIL_CODES) {
       expect(parseUrlState(`?${V}&rsys=${id}`).railSystems).toEqual([id]);
     }
+  });
+
+  it("線路級代碼（帶營運者前綴）", () => {
+    expect(parseUrlState(`?${V}&rsys=trtc-bl`).railSystems).toEqual(["trtc-bl"]);
+    expect(parseUrlState(`?${V}&rsys=trtc-bl,tymc`).railSystems).toEqual(["trtc-bl", "tymc"]);
   });
 
   it("空白與重複值不影響結果", () => {
     expect(parseUrlState(`?${V}&rsys= trtc , trtc ,tmrt`).railSystems).toEqual(["trtc", "tmrt"]);
   });
 
-  it("未知 id 只 drop 該項，合法的留著（不是整包作廢）", () => {
+  it("未知代碼只 drop 該項，合法的留著（不是整包作廢）", () => {
     expect(parseUrlState(`?${V}&rsys=trtc,nonsense`).railSystems).toEqual(["trtc"]);
+    // 未知**線路**同理（trtc-zz 不存在，但 trtc-bl 要活下來）
+    expect(parseUrlState(`?${V}&rsys=trtc-zz,trtc-bl`).railSystems).toEqual(["trtc-bl"]);
   });
 
   it.each([
     ["全部未知", "rsys=nonsense"],
     ["多個未知", "rsys=foo,bar"],
+    ["未知線路", "rsys=trtc-zz"],
+    ["裸線路碼（沒帶營運者前綴，會撞名故不收）", "rsys=bl"],
+    ["貓空纜車（刻意不給代碼）", "rsys=trtc-mk"],
     ["大寫（網址契約一律小寫）", "rsys=TRTC"],
+    ["線路碼大寫", "rsys=trtc-BL"],
     ["只有分隔符", "rsys=,,,"],
     ["空值", "rsys="],
   ])("%s → undefined（＝未指定＝顯示全部，不是空白畫面）", (_label, qs) => {
@@ -225,6 +237,67 @@ describe("parseUrlState — rsys（鐵路系統過濾）", () => {
       date: "2026-08-06",
       hour: 8,
     });
+  });
+
+  it("向後相容：升級成營運者／線路代碼後，`rsys=trtc` 的**解析結果**仍是 ['trtc']", () => {
+    // 語意（涵蓋範圍）縮小了，但 parse 層沒變 —— 所以不升 URL_STATE_VERSION，
+    // 舊嵌入碼不會整組作廢。範圍差異由 resolveRailCodes 表達，見下方 describe。
+    expect(parseUrlState(`?${V}&rsys=trtc`)).toEqual({ railSystems: ["trtc"] });
+    expect(URL_STATE_VERSION).toBe(1);
+  });
+});
+
+/** 代碼的**語意**（parse 只管合不合法，收斂成「哪個系統收哪些線」是這裡） */
+describe("resolveRailCodes — rsys 代碼語意", () => {
+  const lines = (codes: string[], system: string) => {
+    const sel = resolveRailCodes(codes)?.get(system as never);
+    return sel ? { all: sel.all, lines: [...sel.lineIds].sort() } : null;
+  };
+
+  it("未指定 / 空陣列 → null（＝全部，消費端不得當空集合）", () => {
+    expect(resolveRailCodes(undefined)).toBeNull();
+    expect(resolveRailCodes([])).toBeNull();
+  });
+
+  it("撞名：krtc-r（高雄紅線）與 trtc-r（淡水信義線）是不同東西", () => {
+    const kr = resolveRailCodes(["krtc-r"])!;
+    const tr = resolveRailCodes(["trtc-r"])!;
+    expect([...kr.keys()]).toEqual(["krtc"]);
+    expect([...tr.keys()]).toEqual(["trtc"]);
+    // 兩者的 line_id 都叫 "R"，靠系統前綴才分得開 —— 前綴不是裝飾
+    expect(kr.get("krtc")!.lineIds.has("R")).toBe(true);
+    expect(tr.get("trtc")!.lineIds.has("R")).toBe(true);
+    expect(kr.has("trtc")).toBe(false);
+    expect(tr.has("krtc")).toBe(false);
+  });
+
+  it("trtc 只剩北捷本體五線（breaking change：不再含機捷與新北四線）", () => {
+    expect(lines(["trtc"], "trtc")).toEqual({ all: false, lines: ["BL", "BR", "G", "O", "R"] });
+  });
+
+  it("tymc = 機場捷運 A、ntm = 新北四線（都住在 trtc 系統裡）", () => {
+    expect(lines(["tymc"], "trtc")).toEqual({ all: false, lines: ["A"] });
+    expect(lines(["ntm"], "trtc")).toEqual({ all: false, lines: ["K", "LB", "V", "Y"] });
+  });
+
+  it("trtc,tymc,ntm 的聯集 ＝ 舊版 rsys=trtc 的涵蓋範圍（貓空纜車除外）", () => {
+    expect(lines(["trtc", "tymc", "ntm"], "trtc")).toEqual({
+      all: false,
+      lines: ["A", "BL", "BR", "G", "K", "LB", "O", "R", "V", "Y"],
+    });
+  });
+
+  it("營運者與其線路混用取聯集（trtc,trtc-bl ＝ trtc）", () => {
+    expect(lines(["trtc", "trtc-bl"], "trtc")).toEqual(lines(["trtc"], "trtc"));
+    expect(lines(["trtc-bl", "tymc"], "trtc")).toEqual({ all: false, lines: ["A", "BL"] });
+  });
+
+  it("系統即最細粒度者（tra / thsr / klrt / krtc / tmrt）是 all，不做線路過濾", () => {
+    for (const id of ["tra", "thsr", "klrt", "krtc", "tmrt"]) {
+      expect(lines([id], id)).toEqual({ all: true, lines: [] });
+    }
+    // 系統級與其線路混用時，系統級勝出（all 不會被線路收斂回去）
+    expect(lines(["krtc-r", "krtc"], "krtc")!.all).toBe(true);
   });
 });
 
@@ -266,6 +339,12 @@ describe("buildUrl", () => {
   it("railSystems 對稱輸出成 rsys=（空陣列不寫入）", () => {
     expect(buildUrl({ railSystems: ["trtc"] }, "https://e.com")).toContain("rsys=trtc");
     expect(buildUrl({ railSystems: [] }, "https://e.com")).not.toContain("rsys");
+  });
+
+  it("線路級代碼 round-trip（連字號不被編碼成 %2D）", () => {
+    const url = buildUrl({ railSystems: ["trtc-bl", "krtc-r"] }, "https://e.com");
+    expect(url).toContain("rsys=trtc-bl%2Ckrtc-r");
+    expect(parseUrlState(new URL(url).search).railSystems).toEqual(["trtc-bl", "krtc-r"]);
   });
 
   it("round-trip 座標精度：4 位小數（~11m）足夠且不放大浮點雜訊", () => {

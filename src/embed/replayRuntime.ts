@@ -56,7 +56,10 @@ export interface StartReplayOptions {
   speedParam?: number;
   /** `h=` 起始時刻 0–23（台北時區） */
   hour?: number;
-  /** `rsys=` 鐵路只顯示這幾個系統；未指定 = 全部（只對 rail 層有意義） */
+  /**
+   * `rsys=` 鐵路只顯示這幾個**代碼**（營運者級 `trtc` 或線路級 `trtc-bl`，可混用）；
+   * 未指定 = 全部（只對 rail 層有意義）。代碼表見 `constants/railLines.ts`
+   */
   railSystems?: readonly string[];
   /** effect 已被 cleanup（StrictMode 會掛兩次）—— 每個 await 後都要再查一次 */
   isCancelled: () => boolean;

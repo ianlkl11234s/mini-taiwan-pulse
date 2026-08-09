@@ -54,9 +54,83 @@
 | `date` / `h` | 凍結日期（YYYY-MM-DD）+ 小時 0–23 | ✅ | ✅（需有快照） |
 | `p.<key>` | overlayParams 覆寫 | ❌ | ✅ |
 | `theme` | `dark`\|`light`（style 未給時的回退） | — | ✅ |
+| `rsys` | 鐵路只顯示哪幾個營運者／線路（見下節代碼表） | — | ✅ |
 
 **主站不支援 `p.*` 是刻意的**：主站有 sidebar，URL override 會與使用者拉 slider 打架
 （`useTransportParams` 3028 行、數百個 hardcode `useState`，無法注入初始值）。
+
+## `rsys=` 鐵路代碼表（營運者級 + 線路級）
+
+一個參數吃三種粒度，可混用取聯集（`rsys=trtc-bl,tymc`）。代碼一律小寫、線路碼**必帶
+營運者前綴**（北捷與高捷都有 `R`／`O`，裸碼會撞名）。未知代碼逐一 drop、全 drop 後
+＝ 未指定 ＝ 顯示全部（不會白畫面）。SSOT：[`src/constants/railLines.ts`](../../../src/constants/railLines.ts)。
+
+### ⚠️ Breaking change（2026-08-09，owner 拍板）
+
+`trtc` 在資料裡是「台北都會區軌道」的大雜燴，不只北捷：
+
+| | 舊語意（PR #118） | 新語意 |
+|---|---|---|
+| `rsys=trtc` | 整個 trtc 系統 = 北捷 5 線 **+ 機場捷運 + 新北 4 線**（94 軌道／4,516 班次） | **只有北捷本體 5 線**（76 軌道／3,017 班次） |
+| 要回到舊範圍 | — | 寫 `rsys=trtc,tymc,ntm` |
+
+**沒有升 `URL_STATE_VERSION`**：升版會讓所有舊嵌入碼（含與 rail 無關的）整組作廢，
+代價遠大於這欄的語意修正；而且解析結果本身沒變（仍是 `["trtc"]`），變的是下游詮釋。
+理由與例外紀錄同時寫在 `src/lib/urlState.ts` 檔頭第 3 點。
+
+### 營運者／系統級
+
+| 代碼 | 中文名 | 涵蓋 line_id | 軌道數 | 班次（2026-08-06） |
+|---|---|---|---|---|
+| `tra` | 台鐵 | —（無線路概念） | 267 O-D（畫 37 golden） | 907 |
+| `thsr` | 高鐵 | — | 2 | 160 |
+| `trtc` | 台北捷運 | BR / R / G / O / BL | 76 | 3,017 |
+| `tymc` | 桃園捷運（機場線） | A | 8 | 329 |
+| `ntm` | 新北捷運 | Y / V / K / LB | 10 | 1,170 |
+| `krtc` | 高雄捷運 | 整個系統 | 4 | 620 |
+| `klrt` | 高雄輕軌 | 整個系統 | 2 | 154 |
+| `tmrt` | 台中捷運 | 整個系統 | 2 | 306 |
+
+> `tymc` 與 `ntm` 的線路在資料裡都住在 `trtc` **系統**底下（快照與幾何 bundle 的 key），
+> 代碼是營運者視角、系統是引擎視角，兩者刻意分開。
+
+### 線路級
+
+| 代碼 | 中文名 | line_id | 軌道數 | 班次 | 官方線色 |
+|---|---|---|---|---|---|
+| `trtc-br` | 文湖線 | BR | 2 | 402 | `#c48c31` |
+| `trtc-r` | 淡水信義線 | R | 19 | 768 | `#d90023` |
+| `trtc-g` | 松山新店線 | G | 15 | 689 | `#008659` |
+| `trtc-o` | 中和新蘆線 | O | 25 | 562 | `#f8b61c` |
+| `trtc-bl` | 板南線 | BL | 15 | 596 | `#0070c0` |
+| `tymc-a` | 機場捷運 | A | 8 | 329 | `#8246af` |
+| `ntm-y` | 環狀線 | Y | 2 | 332 | `#fedb00` |
+| `ntm-v` | 淡海輕軌 | V | 4 | 494 | `#a4ce4e` |
+| `ntm-k` | 安坑輕軌 | K | 2 | 177 | `#8cc540` |
+| `ntm-lb` | 三鶯線 | LB | 2 | 167 | `#6db7d0` |
+| `krtc-r` | 高雄紅線 | R | 2 | 319 | `#e2211c` |
+| `krtc-o` | 高雄橘線 | O | 2 | 301 | `#f8981d` |
+| `tmrt-g` | 台中捷運綠線 | G | 2 | 306 | `#0cab2c` |
+
+**沒有線路碼的三個系統**：`tra` / `thsr` / `klrt` —— 資料裡的軌道沒有 `line_id`
+（klrt 只有一條環狀線），系統級即最細粒度，刻意不發明 `klrt-c` 這種「查得到卻沒東西」的代碼。
+
+**貓空纜車（`MK-*`）刻意沒有代碼**：它掛在 trtc 底下但不是軌道運輸，主站與嵌入版都排除，
+所以 `rsys=trtc` 是 94→76 而不是 96→76。打 `rsys=trtc-mk` 會被當未知代碼 drop。
+
+### ⚠️ 資料的坑：`line_id` 並非每條軌道都有
+
+`rail_slim.json.gz` 裡 trtc 的 96 條軌道中，**13 條淡水信義線變體**（`R-4-*`～`R-15-*`，
+如「大安 → 象山」「北投 → 淡水」）只有 `track_id` / `route_id` / `name` / `color`，
+**沒有 `line_id`**；時刻表快照更是整份都沒有 `line_id`（只有 `track_id`）。
+所以線路歸屬是 `properties.line_id` 優先、缺了才退回 **trtc 專用**的 `track_id` 前綴解析
+（`railLineIdOf()`）。上游 `build-rail-slim-bundle.py` 補齊後可刪掉這個 fallback。
+
+### 圖例
+
+`RailLegend` 跟著代碼收斂到同一粒度：`rsys=trtc` 列五線、`rsys=trtc-bl` 只列板南線
+（用上表的官方線色，與地圖上那條線同色）；未指定（主站）維持泛稱一行「捷運依各路線官方線色」，
+輸出逐字不變。
 
 ## 嵌入版可用的圖層（三層白名單）
 
@@ -69,8 +143,10 @@
 🔒 **35 個 owner-gated 圖層一律排除**，且不只是「不顯示」——實測 URL 硬塞 gated key 時，
 對應的資料檔**連一個 byte 都不會下載**（source 根本不建立）。
 
-**不支援**：Three.js CustomLayer（`ships` / `flights` / `rail` / `busLive`），
-embed 刻意不掛 Three.js。詳見 [`embed-dynamic-layers.md`](../../proposal/embed-dynamic-layers.md) §2。
+**回放層（EM-16，2026-08-09 上線）**：`ships` / `flights` / `rail` 三層 Three.js 回放，
+只在網址真的帶了這些 key + `date=` 時才 `import()` three（純靜態嵌入完全不下載）。
+`busLive` 仍不支援（EM-24）。原「Three.js 圖層不做」的結論已翻案，詳見
+[`embed-dynamic-layers.md`](../../proposal/embed-dynamic-layers.md) §2 與 [`changelog.md`](./changelog.md)。
 
 ## 檔案地圖
 

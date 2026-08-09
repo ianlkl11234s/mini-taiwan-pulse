@@ -35,6 +35,9 @@
 import type {
   RailData, RailSchedule, RailStationTime, RailSystem, TraData, TraDeparture, TraSchedule,
 } from "../types";
+import {
+  isLineWanted, railLineIdOf, resolveRailCodes, type RailSystemId,
+} from "../constants/railLines";
 import { fetchMaybeGzipJson, fetchReplaySnapshot } from "./replayLayers";
 
 /** 幾何 bundle：日期無關，整站共用一個 URL（見檔頭）。 */
@@ -57,7 +60,9 @@ const SYSTEM_COLORS: Record<string, string> = {
 const TRA_TRACK_COLOR = "#7B7B7B";
 
 /** 走 RailEngine 的 5 系統（TRA 由 TraTrainEngine 獨立處理）。 */
-const RAIL_ENGINE_SYSTEMS = ["thsr", "trtc", "krtc", "klrt", "tmrt"] as const;
+const RAIL_ENGINE_SYSTEMS = [
+  "thsr", "trtc", "krtc", "klrt", "tmrt",
+] as const satisfies readonly RailSystemId[];
 
 /** 快照列 → 系統 id 的對照（`tra_daily` / `trtc_fixed` 都要還原成 `tra` / `trtc`）。 */
 function systemIdOf(rowSystem: string): string {
@@ -180,21 +185,22 @@ export interface RailReplayData extends RailData {
  * 讀時刻表快照 + 幾何 bundle，組成引擎輸入。
  * 任一塊缺失（404 / 壞檔 / 沒有 TRA 也沒有任何系統）一律回 null，呼叫端靜默略過該層。
  *
- * @param wantedSystems `rsys=` 指定只組哪幾個系統（urlState 已濾過未知 id，且保證非空陣列）；
- *   `undefined` ＝ 未指定 ＝ 六系統全上。
+ * @param wantedCodes `rsys=` 代碼（urlState 已濾過未知代碼，且保證非空陣列）：
+ *   營運者級 `trtc` / 線路級 `trtc-bl` 混用皆可，語意由 `resolveRailCodes` 收斂成
+ *   「哪個系統收哪些 line_id」；`undefined` ＝ 未指定 ＝ 全上。
  *
- *   過濾發生在**組裝階段**而非渲染階段：沒被選到的系統連時刻表都不解析、軌道也不進
- *   `allTracks`，所以單選捷運時畫面上不會殘留台鐵的灰色軌道，載入也更快
- *   （TRA 是最大宗 —— 900+ 班車 × 每班數十站的時刻表）。
+ *   過濾發生在**組裝階段**而非渲染階段：沒被選到的系統／線路連時刻表都不進 Map、
+ *   軌道也不進 `allTracks`，所以單選板南線時畫面上不會殘留台鐵的灰色軌道或其他線，
+ *   載入也更快（TRA 是最大宗 —— 900+ 班車 × 每班數十站的時刻表）。
  */
 export async function loadRailReplayData(
   date: string,
-  wantedSystems?: readonly string[],
+  wantedCodes?: readonly string[],
 ): Promise<RailReplayData | null> {
-  // 空陣列不該出現（urlState 全 drop 時給的是 undefined），但真的來了就當作未指定 ——
-  // 「一個系統都不顯示」的空白畫面永遠不是讀者想要的結果。
-  const wanted = wantedSystems && wantedSystems.length > 0 ? new Set(wantedSystems) : null;
-  const isWanted = (id: string) => wanted == null || wanted.has(id);
+  // 空陣列不該出現（urlState 全 drop 時給的是 undefined），但真的來了 resolveRailCodes
+  // 也會回 null 當「未指定」——「一條線都不顯示」的空白畫面永遠不是讀者想要的結果。
+  const selection = resolveRailCodes(wantedCodes);
+  const isWanted = (id: RailSystemId) => selection == null || selection.has(id);
   // 兩塊平行抓：幾何是共用資產（多半已在快取），不該被時刻表卡住。
   const [rows, bundle] = await Promise.all([
     fetchReplaySnapshot<RailScheduleRow>("rail", date),
@@ -250,15 +256,22 @@ export async function loadRailReplayData(
     const schedules = parseRailSchedules(row.data);
     const tracks = new Map<string, GeoJSON.Feature>();
     const defaultColor = SYSTEM_COLORS[id] ?? "#ffffff";
+    // `all` 的系統（krtc/klrt/tmrt，或未指定 rsys）不必逐條看 line_id
+    const sel = selection?.get(id);
+    const byLine = sel != null && !sel.all;
     for (const [trackId, track] of Object.entries(sysBundle.tracks)) {
-      // 貓空纜車（MK-*）掛在 trtc 底下但不是捷運，主站 postProcess 也剔除。
+      // 貓空纜車（MK-*）掛在 trtc 底下但不是軌道運輸，主站 postProcess 也剔除。
+      // 它沒有任何 rsys 代碼（見 constants/railLines.ts），故線路過濾時本來就不會中，
+      // 但「未指定 rsys ＝ 全上」那條路徑要靠這行才排得掉。
       if (id === "trtc" && trackId.startsWith("MK-")) continue;
+      if (byLine && !isLineWanted(sel, railLineIdOf(id, trackId, track.properties))) continue;
       tracks.set(trackId, toFeature(track, defaultColor));
     }
-    if (id === "trtc") {
-      for (const key of [...schedules.keys()]) {
-        if (key.startsWith("MK-")) schedules.delete(key);
-      }
+    // 時刻表整份沒有 line_id（只有 track_id），所以線路歸屬一律以軌道那邊算好的為準：
+    // 留不下軌道的班表也一起丟掉 —— 引擎本來就會跳過孤兒班表，但 departureCounts
+    // 是從班表數出來的，不丟會報出「有 329 班卻只有 8 條軌道」這種對不上的數字。
+    for (const key of [...schedules.keys()]) {
+      if (!tracks.has(key)) schedules.delete(key);
     }
     if (schedules.size === 0 || tracks.size === 0) continue;
 

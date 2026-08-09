@@ -14,6 +14,7 @@ import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
+import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
@@ -602,44 +603,39 @@ const TRA_TRAIN_TYPE_ROWS = (() => {
   return [...byColor].map(([color, names]) => ({ color, label: names.join(" / ") }));
 })();
 
-/** 走 RailEngine 的四座捷運／輕軌（label 同 `railLoader.RAIL_SYSTEMS`）。 */
-const METRO_SYSTEMS = [
-  { id: "trtc", label: "台北捷運" },
-  { id: "krtc", label: "高雄捷運" },
-  { id: "klrt", label: "高雄輕軌" },
-  { id: "tmrt", label: "台中捷運" },
-] as const;
-
 /**
  * 鐵路 —— 分色維度是**車種（台鐵）與路線（高鐵／捷運）**，不是「系統」。
  *
  * 台鐵佔畫面上絕大多數的車，且引擎確實照車種上色（`getTrainColor`），所以那是主圖例。
  * 高鐵全線同色（時刻表無 `train_color`、軌道無 `color` → 落到系統預設 #ee6c00）。
- * 捷運則是**每條路線各自的官方線色**（北捷 96 條路線各有 color），數量太多不逐條列，
- * 也不硬編一個「捷運＝某色」的假分類 —— 用一行說明帶過（同 FlightsLegend 的原則）。
+ * 捷運則是**每條路線各自的官方線色**。
  *
- * `railSystems`（`/embed` 的 `rsys=`）指定單一系統時**整段收斂**：沒被選到的系統
+ * `railSystems`（`/embed` 的 `rsys=`）指定時**整段收斂**：沒被選到的系統／線路
  * 連軌道都沒進場（過濾在 `railReplayData` 的組裝階段），圖例還列著就是誤導。
+ * 收斂粒度跟著代碼走 —— `rsys=trtc` 列北捷五線、`rsys=trtc-bl` 只列板南線，
+ * 用的是 `constants/railLines.ts` 抄自資料的官方線色（與地圖上那條線同色）。
  * 特別是「灰線為軌道」——灰色是台鐵 golden track 專屬，沒選台鐵時畫面上根本沒有灰線。
- * 未傳（主站）＝ undefined ＝ 全部顯示，輸出與加這個參數之前逐字相同。
+ *
+ * 未傳（主站）＝ undefined ＝ 全部顯示：**不逐條列**（六系統上百條路線列不完），
+ * 用一行「捷運依各路線官方線色」帶過，輸出與加這個參數之前逐字相同。
  */
 function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
   const t = useLegendTheme();
-  const has = (id: string) => railSystems == null || railSystems.includes(id);
-
-  const showTra = has("tra");
-  const showThsr = has("thsr");
-  const metros = METRO_SYSTEMS.filter((m) => has(m.id));
-  // 全選時用泛稱「捷運」（同原本的措辭）；部分選取才逐一點名
-  const metroLabel =
-    metros.length === METRO_SYSTEMS.length ? "捷運" : metros.map((m) => m.label).join("／");
+  // null ＝ 未指定 ＝ 全部（主站恆走這條）
+  const selection = resolveRailCodes(railSystems);
+  const showTra = selection == null || selection.has("tra");
+  const showThsr = selection == null || selection.has("thsr");
+  const lineRows = selection ? railLegendLines(selection) : [];
+  const metroNames = selection ? railMetroOperatorNames(railSystems ?? []) : ["捷運"];
+  const hasMetro = selection ? lineRows.length > 0 : true;
 
   const heading = { fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1 };
-  const secondTitle = [showThsr ? "高鐵" : null, metros.length ? metroLabel : null]
+  const secondTitle = [showThsr ? "高鐵" : null, hasMetro ? metroNames.join("／") : null]
     .filter(Boolean)
     .join("・");
   const note = [
-    metros.length ? "捷運依各路線官方線色" : null,
+    // 有逐條列出線色時這句就多餘了，只在「未指定＝不逐條列」時保留
+    hasMetro && selection == null ? "捷運依各路線官方線色" : null,
     showTra ? "灰線為軌道" : null,
   ].filter(Boolean).join("｜");
 
@@ -657,6 +653,9 @@ function RailLegend({ railSystems }: { railSystems?: readonly string[] }) {
             {showTra ? secondTitle : `鐵路 RAIL・${secondTitle}`}
           </div>
           {showThsr && <FireCatRows cats={[{ color: LAYER_COLORS.rail, label: "高鐵 THSR" }]} />}
+          {lineRows.length > 0 && (
+            <FireCatRows cats={lineRows.map((l) => ({ color: l.color, label: l.name }))} />
+          )}
         </>
       )}
       {note && (

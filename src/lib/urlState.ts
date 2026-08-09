@@ -10,11 +10,19 @@
  * 3. **版本化**：`v=1`。缺版本或版本不符一律回空物件，避免舊嵌入碼被新解析器誤讀。
  *    新增**可選**欄位（如 `rsys=`）不升版 —— 舊網址少那一欄，解析結果與升版前完全相同；
  *    要升版的是「同一個 key 的語意改了」或「必要欄位變了」。
+ *
+ *    ⚠️ **2026-08 的例外（owner 拍板）**：`rsys=trtc` 的**涵蓋範圍縮小**了
+ *    （原本連機場捷運與新北四線一起收，現在只有北捷本體五線），照上面那條規則本該升版，
+ *    但沒有升 —— 理由是升版會讓**所有**舊嵌入碼（含與 rail 無關的）整組作廢、變成預設畫面，
+ *    代價遠大於這一欄的語意修正；且舊網址的**解析結果**其實沒變（仍是 `["trtc"]`），
+ *    變的是下游怎麼詮釋它。差異記錄在 `docs/features/embeddable-map/README.md`
+ *    「rsys= 代碼表」，要回到舊範圍寫 `rsys=trtc,tymc,ntm`。
  * 4. **靜默降級**：未知 key／越界數值／上鎖圖層一律 drop，絕不 throw ——
  *    別人的文章裡出現白屏是最糟的失敗模式，寧可少一層。
  */
 import type { LayerVisibility } from "../types";
 import { LAYER_COLORS, GATED_LAYERS } from "../components/sidebar/layerCatalog";
+import { isRailCode } from "../constants/railLines";
 
 export const URL_STATE_VERSION = 1;
 
@@ -46,12 +54,18 @@ export interface UrlState {
   /** UI 元件白名單（attribution 永遠存在、不可移除） */
   ui?: string[];
   /**
-   * 鐵路只顯示哪幾個系統（`rsys=trtc` / `rsys=trtc,tmrt`）。
-   * **未指定 = 全部六系統**（不是空集合）—— 全部 id 都不合法時本欄位為 undefined，
+   * 鐵路只顯示哪幾個**代碼**（`rsys=trtc` / `rsys=trtc-bl,tymc`）。
+   *
+   * 一個參數吃三種粒度（代碼表 = `src/constants/railLines.ts`）：
+   * 營運者級 `trtc` `tymc` `ntm` `krtc` `klrt` `tmrt`、系統級 `tra` `thsr`、
+   * 線路級 `trtc-bl` `krtc-r` …（線路碼**必帶營運者前綴**，因為北捷與高捷都有 R/O）。
+   * 欄位名沿用 `railSystems`（歷史名，也仍是 `rsys=` 的對稱欄位），值已不只是系統。
+   *
+   * **未指定 = 全部**（不是空集合）—— 全部代碼都不合法時本欄位為 undefined，
    * 消費端因此自動回到「顯示全部」，而不是變成空白畫面。
    *
    * 為什麼不是 `p.railSystems`：`p.*` 的契約只收數字（見 parseParams），
-   * 系統 id 是字串塞不進去，故立為一等公民欄位（比照 `h=` / `style=`）。
+   * 代碼是字串塞不進去，故立為一等公民欄位（比照 `h=` / `style=`）。
    */
   railSystems?: string[];
 }
@@ -68,19 +82,14 @@ const ALL_LAYER_KEYS = new Set(Object.keys(LAYER_COLORS));
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /**
- * `rsys=` 收得下的鐵路系統 id（tra=台鐵、thsr=高鐵，其餘四座捷運／輕軌）。
- *
- * **刻意在此重列而非 import**：canonical 的組裝端是 `src/embed/railReplayData.ts`
- * （`RAIL_ENGINE_SYSTEMS` + tra），但那是回放 chunk 的東西，urlState 在 embed
- * 基礎 bundle 裡、也給主站用，不該為了一張字串表把它拉進來
- * （同 railReplayData 的 `SYSTEM_COLORS` 對 railLoader 的處理）。改動時兩邊要一起改。
- *
- * 白名單擺在 parse 而非消費端，是因為「未知 id → 顯示全部」這條降級規則必須
+ * `rsys=` 白名單擺在 parse 而非消費端，是因為「未知代碼 → 顯示全部」這條降級規則必須
  * 在同一處收斂：全部 drop 後 `railSystems` 為 undefined，下游看到的永遠是
- * 「未指定」或「至少一個合法 id」，不會出現空陣列導致的空白畫面。
+ * 「未指定」或「至少一個合法代碼」，不會出現空陣列導致的空白畫面。
+ *
+ * 代碼表本身住在 `src/constants/railLines.ts`（純資料模組、零相依，主站與 embed
+ * 基礎 bundle 都吃得下），組裝端 `embed/railReplayData.ts` 與圖例 `LegendPanel`
+ * 共用同一份 —— 三處都不准自己重寫一套。
  */
-export const RAIL_SYSTEM_IDS = ["tra", "thsr", "trtc", "krtc", "klrt", "tmrt"] as const;
-const RAIL_SYSTEM_ID_SET = new Set<string>(RAIL_SYSTEM_IDS);
 /** 底圖 id 格式（不查表，見 UrlState.style 註解） */
 const STYLE_ID_RE = /^[a-z0-9-]{1,32}$/;
 
@@ -136,9 +145,13 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
 }
 
 /**
- * `rsys=trtc,tmrt` → `["trtc","tmrt"]`。未知 id 逐一 drop（不整包作廢），
+ * `rsys=trtc,tmrt` → `["trtc","tmrt"]`。未知代碼逐一 drop（不整包作廢），
  * 全部 drop 後回 undefined ＝ 視同未指定 ＝ 顯示全部（同 parseLayers 的收尾）。
  * 大小寫敏感（同 `style=` 的格式契約，網址一律小寫）。
+ *
+ * 三種粒度同吃一個參數（見 constants/railLines.ts）：`trtc`（營運者）、
+ * `trtc-bl`（線路）、`tra`（系統即最細）。混用取聯集，解析階段不做收斂 ——
+ * 這裡只負責「這串代碼合不合法」，語意交給 resolveRailCodes。
  */
 function parseRailSystems(q: URLSearchParams): string[] | undefined {
   const raw = q.get("rsys");
@@ -148,7 +161,7 @@ function parseRailSystems(q: URLSearchParams): string[] | undefined {
     .split(",")
     .map((s) => s.trim())
     .filter((id) => {
-      if (!id || seen.has(id) || !RAIL_SYSTEM_ID_SET.has(id)) return false;
+      if (!id || seen.has(id) || !isRailCode(id)) return false;
       seen.add(id);
       return true;
     });

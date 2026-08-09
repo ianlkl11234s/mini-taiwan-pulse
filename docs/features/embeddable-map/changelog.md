@@ -1,5 +1,19 @@
 # Embeddable Map — Changelog
 
+## 2026-08-09 — `rsys=` 擴充到營運者級 + 線路級（`feat/rail-line-codes`）
+
+- 一個參數吃三種粒度：`trtc`（營運者）／`trtc-bl`（線路，必帶前綴避免北捷高捷 R/O 撞名）／
+  `tra`（系統即最細）。混用取聯集，代碼表 SSOT = `src/constants/railLines.ts`
+- ⚠️ **breaking**：`rsys=trtc` 從「整個 trtc 系統」（含機捷 + 新北四線，94 軌道／4,516 班次）
+  縮成「北捷本體五線」（76／3,017）。舊範圍寫 `rsys=trtc,tymc,ntm`。
+  **不升 `URL_STATE_VERSION`**（升版會讓所有舊嵌入碼作廢，代價遠大於此；解析結果本身沒變）
+- 過濾仍在**組裝階段**（`railReplayData`），沒選到的線連時刻表都不進 Map；
+  時刻表沒有 `line_id` → 留不下軌道的班表一起丟，避免 departureCounts 與軌道數對不上
+- 圖例跟著收斂到線路級（`rsys=trtc-bl` 只列板南線，用資料裡的官方線色）
+- 🕳 **資料坑**：trtc 96 條軌道有 13 條（淡水信義線變體 `R-4-*`～`R-15-*`）**沒有 `line_id`**，
+  快照時刻表更是整份都沒有 → `railLineIdOf()` 以 properties 優先、缺了才退回 trtc 專用的
+  `track_id` 前綴解析。follow-up：上游 bundle 補齊後刪掉 fallback
+
 ## 2026-08-05 — Cloudflare 邊緣快取（EM-13）
 
 - 建 Cache Rule `Static map data`（設定內容記於 [`handoff.md`](./handoff.md) §0b）——
