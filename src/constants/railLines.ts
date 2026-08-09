@@ -35,7 +35,7 @@ export interface RailLineInfo {
   lineId: string;
   name: string;
   /**
-   * 官方線色 —— 抄自 `public/embed-rail/rail_slim.json.gz` 各線 **direction 0 主軌道**
+   * 官方線色 —— 抄自 `public/embed-rail/rail_slim.<hash>.json.gz` 各線 **direction 0 主軌道**
    * 的 `properties.color`（例：`BL-1-0` → #0070c0）。
    * 為什麼不是從 bundle 現讀：圖例是靜態元件、手上沒有那份幾何資料；
    * 且同一條線的反向／區間車軌道帶的是變體色（`R-1-1` 是 #ff6b6b、`R-2-0` 是 #e63946），
@@ -175,7 +175,7 @@ export function isLineWanted(sel: RailSelection | undefined, lineId: string | nu
 /**
  * 取得一條軌道的 `line_id`。
  *
- * ⚠️ **`properties.line_id` 不是每條都有**：`rail_slim.json.gz` 裡 trtc 的 96 條軌道中，
+ * ⚠️ **`properties.line_id` 不是每條都有**：幾何 bundle 裡 trtc 的 96 條軌道中，
  * 13 條淡水信義線的變體（`R-4-*` ~ `R-15-*`，如「大安 → 象山」「北投 → 淡水」）
  * 只有 `track_id` / `route_id` / `name` / `color`，**沒有 `line_id`**；
  * 時刻表快照（`departures` 那份）更是整份都沒有 `line_id`，只有 `track_id`。

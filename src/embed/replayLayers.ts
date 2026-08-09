@@ -68,8 +68,9 @@ export function replaySnapshotUrl(layer: string, date: string): string {
  * - **CDN / nginx 設了 `Content-Encoding: gzip`**：fetch 已經自動解壓 → 拿到的就是純 JSON
  * 所以用 magic byte（0x1f 0x8b）判斷，而不是相信 header。
  *
- * 不限於 `embed-snapshots/` —— rail 的幾何 bundle（`/embed-rail/rail_slim.json.gz`，
- * 日期無關的共用資產）也走這裡，故回傳型別不假設是陣列。
+ * 不限於 `embed-snapshots/` —— rail 的幾何 bundle（`/embed-rail/rail_slim.<hash>.json.gz`，
+ * 日期無關的共用資產）與它的指標檔 `rail-manifest.json`（未壓縮的純 JSON，走 else 分支）
+ * 也走這裡，故回傳型別不假設是陣列。
  */
 export async function fetchMaybeGzipJson<T>(url: string): Promise<T | null> {
   try {

@@ -211,6 +211,21 @@ sh /usr/local/bin/pull-deploy-assets.sh  # 從 S3 拉到 /data/
 4. **pull 腳本路徑**：`/usr/local/bin/pull-deploy-assets.sh`（不是舊 README 寫的 nginx html 路徑）
 5. **腳本更新**：改 `pull-deploy-assets.sh` 後需要 commit + push + **重部署**（Dockerfile COPY 到 image 內），只跑 pull 不會更新腳本
 
+### 6g. rail 幾何更新（2026-08-09 起走**內容雜湊檔名**）
+
+```bash
+python3 scripts/preprocess/build-rail-slim-bundle.py   # 產 rail_slim.<hash>.json.gz + rail-manifest.json
+npx tsx scripts/preprocess/verify-rail-slim.ts         # 位置偏差 p95<30m / max<100m（自動讀 manifest）
+aws s3 sync public/embed-rail/ "s3://$S3_BUCKET/deploy-assets/embed-rail/" --region ap-southeast-2
+```
+
+- 第 3 步一次上傳新 bundle 與新 manifest，**不加 `--delete`**（遠端留舊 hash 供回滾 + 避開部署競態）
+- 容器 pull 後 **60 秒**內讀者收斂到新幾何：**不必 purge、不必改 nginx、不必改前端**
+  （檔名帶 hash ⇒ 新 URL；purge_everything 會連 297MB 底圖一起清，這裡完全用不到）
+- 內容沒變 ⇒ hash 不變 ⇒ 整條是 no-op（冪等，已實測連跑同 hash、gz 逐位元組相同）
+- **回滾**：把 manifest 的 `bundle` 改回上一份 hash 再 sync 一次即可（bundle 本體還在 S3）
+- 本機 `--keep 3` 只清本機舊檔，不傳染遠端
+
 **Long-form**：`~/.claude/projects/.../memory/_archive/deploy-checklist.md`
 
 ---
@@ -744,6 +759,9 @@ flag 是 `--id` 不是 `--service-id`。
 ⚠️ **empty commit 不會觸發 Zeabur build**（2026-07-30 deployment list 實證無新部署）——換資料磚別推空 commit，直接 service exec pull。
 換磚時序：**S3 上傳完成要早於 merge/deploy**（merge 後容器 ~2min 內就啟動 pull，上傳沒完成就拿舊檔）；錯過用 service exec 補拉，`curl -I "<url>?cb=<ts>"` cache-bust 驗 origin。
 origin 換新後 Cloudflare edge 仍可能 HIT 舊檔至多 1d（PMTiles range request 同吃舊快取）；要立即生效跑 `purge-cloudflare-cache.sh`（需 .env CF_ZONE_ID/CF_API_TOKEN → BACKLOG G017）。
+⚠️ 但 **`/embed-snapshots/`（檔名含日期）與 `/embed-rail/`（檔名含內容雜湊）不在此列**：
+內容變 ⇒ 檔名變 ⇒ 新 URL，本來就不會 HIT 到舊檔，**永遠不需要 purge**
+（purge-cloudflare-cache.sh 是 purge_everything，會連 297MB 底圖一起清，能不用就不用）→ 見 PB-06g。
 
 ---
 

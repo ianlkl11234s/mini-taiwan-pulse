@@ -8,9 +8,10 @@
  *
  * 所以載入的是**兩塊**資料，只有第一塊每天變：
  *   1. 時刻表 `/embed-snapshots/rail/<date>.json.gz`（6 列 = 6 系統，見 export 腳本）
- *   2. 幾何   `/embed-rail/rail_slim.json.gz`（**日期無關的共用資產** —— 267 條 TRA
- *      O-D 軌道 + 37 條 golden + 5 系統路線，68MB 瘦身成 358KB，且對簡化後的折線
+ *   2. 幾何   `/embed-rail/rail_slim.<hash>.json.gz`（**日期無關的共用資產** —— 267 條 TRA
+ *      O-D 軌道 + 37 條 golden + 5 系統路線，68MB 瘦身成 367KB，且對簡化後的折線
  *      重算過 `station_progress`。整站共用一個 URL ⇒ CDN 快取友善，讀者換日期不重下載）
+ *      檔名帶內容雜湊，實際檔名由指標檔 `/embed-rail/rail-manifest.json` 指出，見下。
  *
  * 本檔只負責把這兩塊拼成引擎吃的形狀（`TraData` / `RailSystem[]`），
  * 渲染與 Scene 接線在 `replayRuntime.ts`。
@@ -40,8 +41,44 @@ import {
 } from "../constants/railLines";
 import { fetchMaybeGzipJson, fetchReplaySnapshot } from "./replayLayers";
 
-/** 幾何 bundle：日期無關，整站共用一個 URL（見檔頭）。 */
-export const RAIL_GEOMETRY_URL = "/embed-rail/rail_slim.json.gz";
+/** 幾何 bundle 所在目錄（日期無關的共用資產，見檔頭）。 */
+const RAIL_GEOMETRY_DIR = "/embed-rail";
+
+/**
+ * 幾何 bundle 的**指標檔**。真正的 bundle 檔名帶內容雜湊
+ * （`rail_slim.<hash>.json.gz`，由 `scripts/preprocess/build-rail-slim-bundle.py` 產）
+ * ⇒ 內容一變檔名就變 ⇒ URL 唯一對應一份永不改變的內容 ⇒ nginx 可安全 `1y immutable`、
+ * 幾何更新後**完全不需要清 CDN 快取**（原理同檔名含日期的 `/embed-snapshots/`）。
+ *
+ * 代價是多一跳：manifest（很小，nginx 給 `max-age=60`）→ bundle。
+ */
+export const RAIL_MANIFEST_URL = `${RAIL_GEOMETRY_DIR}/rail-manifest.json`;
+
+/**
+ * 過渡期安全網：雜湊化之前的固定檔名。manifest 或雜湊 bundle 任一抓不到就退回它。
+ *
+ * 為什麼**兩種失敗都要退**：部署是 `aws s3 sync` 一次上傳兩檔，順序不保證，
+ * 而 `rail-manifest.json` 字典序排在 `rail_slim.*` 前面（`-` 0x2D < `_` 0x5F），
+ * 很可能 manifest 先落地 → 短暫的窗內讀者拿到新 manifest 但 bundle 還沒到（404）。
+ *
+ * TODO(EM-16 收尾)：上線一輪、確認正式站 network 面板抓的是雜湊檔名之後，
+ *   把這條與 `fetchRailGeometry()` 的 fallback 分支一起移除，並從 S3 刪掉舊的固定檔名檔。
+ *   移除前提是「S3 上那份固定檔名檔不再被任何人讀」—— 它已凍結不再更新（產生器只寫雜湊檔名）。
+ */
+export const RAIL_GEOMETRY_LEGACY_URL = `${RAIL_GEOMETRY_DIR}/rail_slim.json.gz`;
+
+/**
+ * 只接受產生器那個形狀的檔名 —— manifest 是外部檔案，直接把字串串進 URL 等於讓它
+ * 決定要打哪裡（`../` traversal / 跨網域）。純函式，方便單測。
+ * @returns bundle 的完整路徑；manifest 缺欄位／格式不對 → null（呼叫端據此降級）
+ */
+const BUNDLE_NAME_RE = /^rail_slim\.[0-9a-f]{8,10}\.json\.gz$/;
+
+export function parseRailManifest(json: unknown): string | null {
+  const name = (json as { bundle?: unknown } | null)?.bundle;
+  if (typeof name !== "string" || !BUNDLE_NAME_RE.test(name)) return null;
+  return `${RAIL_GEOMETRY_DIR}/${name}`;
+}
 
 /**
  * 系統預設色 —— 與 `src/data/railLoader.ts` 的 `RAIL_SYSTEMS` 同一組數字。
@@ -96,6 +133,20 @@ interface SlimSystem {
 interface RailSlimBundle {
   metadata?: unknown;
   systems: Record<string, SlimSystem>;
+}
+
+/**
+ * manifest → 雜湊 bundle，任一步失敗就退回固定檔名（理由見 `RAIL_GEOMETRY_LEGACY_URL`）。
+ * 全程沿用「絕不 throw、失敗回 null 讓呼叫端靜默略過該層」——
+ * `fetchMaybeGzipJson` 本身已把所有例外吃掉，這裡只做路徑選擇。
+ */
+export async function fetchRailGeometry(): Promise<RailSlimBundle | null> {
+  const url = parseRailManifest(await fetchMaybeGzipJson<unknown>(RAIL_MANIFEST_URL));
+  if (url) {
+    const bundle = await fetchMaybeGzipJson<RailSlimBundle>(url);
+    if (bundle?.systems) return bundle;
+  }
+  return await fetchMaybeGzipJson<RailSlimBundle>(RAIL_GEOMETRY_LEGACY_URL);
 }
 
 /**
@@ -202,9 +253,10 @@ export async function loadRailReplayData(
   const selection = resolveRailCodes(wantedCodes);
   const isWanted = (id: RailSystemId) => selection == null || selection.has(id);
   // 兩塊平行抓：幾何是共用資產（多半已在快取），不該被時刻表卡住。
+  // 幾何那邊自己是 manifest → bundle 兩跳，但整串仍與時刻表平行。
   const [rows, bundle] = await Promise.all([
     fetchReplaySnapshot<RailScheduleRow>("rail", date),
-    fetchMaybeGzipJson<RailSlimBundle>(RAIL_GEOMETRY_URL),
+    fetchRailGeometry(),
   ]);
   if (!rows || rows.length === 0 || !bundle?.systems) return null;
 

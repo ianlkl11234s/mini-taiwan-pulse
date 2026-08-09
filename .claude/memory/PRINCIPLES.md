@@ -1108,20 +1108,42 @@ Telegram 訊息要直接寫「請把 X 調回 Y 並 restart」，不要只說「
 
 切 bundle 的判準是「**明天重跑會不會變**」，不是「大不大」。
 
-- rail 回放的軌道幾何不隨日期變 → 抽成單一共用資產 `public/embed-rail/rail_slim.json.gz`；
+- rail 回放的軌道幾何不隨日期變 → 抽成單一共用資產 `public/embed-rail/rail_slim.<hash>.json.gz`；
   每日檔只剩時刻表 → **229KB**，而幾何本身 367KB 只需下載一次
 - 對照：flights/ships 是軌跡插值型，資料**本身**就是每日變動塊，切不出共用資產
   （ships 日檔 4.78MiB 是不可壓縮的本質成本）
-- 反面代價：共用資產是固定檔名、會隨管線重跑而更新 → **不能用 immutable 快取**（見下條）
+- 共用資產「會隨管線重跑而更新」本來是 immutable 的阻礙，但那是**固定檔名**的問題，
+  不是共用資產的問題 → 改成內容雜湊檔名就解掉了（見下條）
 
-## immutable 快取只給「檔名含日期」的檔（2026-08-08）
+## immutable 快取只給「檔名含日期**或內容雜湊**」的檔（2026-08-08 立、2026-08-09 擴充）
 
-`/embed-snapshots/` 維持 `1y immutable`（檔名含日期 → 內容永不改變，安全）。
-但 `/embed-rail/` 是**固定檔名 + 會隨管線重跑更新** → 刻意設 `expires 1d` + public，
-鎖 1 年會讓人長期看到舊幾何而且無從察覺。
+**判準**：URL 是否唯一對應一份永不改變的內容。是 → `1y immutable`；否 → 短 TTL。
+拿到這個資格有兩條路，缺一不可地都要讓「內容變 ⇒ URL 變」：
 
-**判準**：URL 是否唯一對應一份永不改變的內容。是 → immutable；否 → 短 TTL。
-檔名沒帶版本／日期就沒有資格 immutable，不管它「應該很少改」。
+| 路徑 | 例 | 誰在用 |
+|---|---|---|
+| 檔名含**日期**（天然凍結） | `/embed-snapshots/rail/2026-08-06.json.gz` | EM-15/16 快照 |
+| 檔名含**內容雜湊**（sha256 前 10 碼） | `/embed-rail/rail_slim.4e0dc14093.json.gz` | rail 幾何 bundle |
+
+檔名沒帶日期／雜湊就沒有資格 immutable，不管它「應該很少改」——
+`/embed-rail/` 初版就是固定檔名，只敢給 `expires 1d`，代價是幾何更新後讀者最慘要
+**兩天**（CDN 1d + 瀏覽器 1d）才看得到新軌道，而唯一的補救 `purge-cloudflare-cache.sh`
+是 purge_everything（會連 297MB 底圖一起清）。
+
+**雜湊化的三個必要條件**（少一個就不是真冪等，等於每次重跑都換 URL、快取全失效）：
+1. hash 算在**實際寫出的 canonical bytes** 上（`sort_keys` + 固定分隔符），外部
+   `gunzip -c x.json.gz | shasum -a 256` 要對得上
+2. 內容裡**不可有時間戳**（`generated_at` 只放 manifest）
+3. gzip 寫入用 `mtime=0`（預設埋當下時間 → 同內容也產出不同 bytes）
+
+**指標檔（manifest）模式**：雜湊檔名讀者猜不到 → 加一層 `rail-manifest.json` 指出檔名
+（同 `trails/<dataset>/manifest.json`、ship-data manifest 的形狀）。manifest 自己給
+`max-age=60`（**不是 no-cache**：它在串行 critical path 上，no-cache 等於每次載入多付一個
+RTT；60s 陳舊窗因為產生器 `--keep 3` 保留舊檔而無害 —— 拿到舊 manifest 只會抓到能用的舊幾何）。
+前端必須對「manifest 失敗」與「bundle 失敗」**兩者都降級**：部署是整夾 `aws s3 sync`，
+`rail-manifest.json` 字典序在 `rail_slim.*` 之前（`-` < `_`），manifest 先落地的窗內 bundle 會 404。
+
+**收益**：幾何更新後**完全不需要清 CDN 快取**。舊 URL 的快取放著爛掉也無妨。
 
 順帶一條：**`Content-Encoding` 決定不設**，改由前端讀 magic byte（`0x1f 0x8b`）判斷是否解壓。
 正式站 nginx 服務的是 volume 本地檔，S3 object metadata 根本到不了瀏覽器；

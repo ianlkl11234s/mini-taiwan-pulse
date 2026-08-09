@@ -120,7 +120,7 @@
 
 ### ⚠️ 資料的坑：`line_id` 並非每條軌道都有
 
-`rail_slim.json.gz` 裡 trtc 的 96 條軌道中，**13 條淡水信義線變體**（`R-4-*`～`R-15-*`，
+幾何 bundle 裡 trtc 的 96 條軌道中，**13 條淡水信義線變體**（`R-4-*`～`R-15-*`，
 如「大安 → 象山」「北投 → 淡水」）只有 `track_id` / `route_id` / `name` / `color`，
 **沒有 `line_id`**；時刻表快照更是整份都沒有 `line_id`（只有 `track_id`）。
 所以線路歸屬是 `properties.line_id` 優先、缺了才退回 **trtc 專用**的 `track_id` 前綴解析
@@ -131,6 +131,41 @@
 `RailLegend` 跟著代碼收斂到同一粒度：`rsys=trtc` 列五線、`rsys=trtc-bl` 只列板南線
 （用上表的官方線色，與地圖上那條線同色）；未指定（主站）維持泛稱一行「捷運依各路線官方線色」，
 輸出逐字不變。
+
+### rail 幾何 bundle：內容雜湊檔名（2026-08-09）
+
+鐵路回放的幾何是**日期無關的共用資產**（68 MB → 367 KB），與每日時刻表分開放。
+檔名帶內容雜湊，**內容一變檔名就變**：
+
+```
+public/embed-rail/
+  rail-manifest.json              指標檔 → {"bundle":"rail_slim.4e0dc14093.json.gz", "sha256":…}
+  rail_slim.4e0dc14093.json.gz    幾何本體（hash = canonical bytes 的 sha256 前 10 碼）
+```
+
+前端先抓 manifest 拿檔名、再抓 bundle（`src/embed/railReplayData.ts` 的 `fetchRailGeometry()`）。
+
+| | 快取 | 為什麼 |
+|---|---|---|
+| `rail_slim.<hash>.json.gz` | `1y` + **immutable** | URL 唯一對應一份永不改變的內容（同「檔名含日期」的快照） |
+| `rail-manifest.json` | `max-age=60` | 它在**串行 critical path** 上，`no-cache` 等於每次載入多一個 RTT；60s 陳舊窗因 `--keep 3` 保留舊檔而無害 |
+
+**這個設計換到的是：更新幾何完全不需要清 CDN 快取。**
+（舊版固定檔名只敢給 `expires 1d`，幾何更新後讀者最慘要等兩天；唯一補救
+`scripts/deploy/purge-cloudflare-cache.sh` 是 purge_everything，會連 297 MB 底圖一起清。
+現在那支腳本對幾何**不再必要** —— 腳本本身保留，供其他固定檔名資產使用。）
+
+#### 更新幾何的正確流程（三行）
+
+```bash
+python3 scripts/preprocess/build-rail-slim-bundle.py   # 產新 hash bundle + 更新 manifest（--keep 3）
+npx tsx scripts/preprocess/verify-rail-slim.ts         # 位置偏差護欄 p95<30m / max<100m（自動讀 manifest）
+aws s3 sync public/embed-rail/ "s3://$S3_BUCKET/deploy-assets/embed-rail/" --region ap-southeast-2
+```
+
+- 不必 purge、不必改 nginx、不必改前端；容器 pull 後 60 秒內讀者收斂到新幾何
+- **不加 `--delete`**：遠端保留舊 hash（回滾 = 把 manifest 的 `bundle` 指回上一份再 sync）
+- 內容沒變 ⇒ hash 不變 ⇒ 整條 no-op（產生器冪等）
 
 ## 嵌入版可用的圖層（三層白名單）
 

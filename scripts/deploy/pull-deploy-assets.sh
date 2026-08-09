@@ -137,7 +137,10 @@ aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress
 echo "[pull] sync embed-snapshots → $DATA_DIR/embed-snapshots/"
 aws s3 sync "$S3/embed-snapshots/" "$DATA_DIR/embed-snapshots/" --no-progress
 
-# EM-16 嵌入用鐵路幾何 bundle：日期無關共用資產（rail_slim.json.gz），整夾 sync
+# EM-16 嵌入用鐵路幾何 bundle：日期無關共用資產，整夾 sync
+# 夾內是 rail_slim.<hash>.json.gz（內容雜湊檔名，nginx 給 immutable）+ rail-manifest.json
+# （指標檔，nginx 給 max-age=60）。雜湊檔名對整夾 sync 零影響：新 hash 就是新 key。
+# 同樣**不加 `--delete`**：volume 上留著舊 hash 檔，短快取期間拿著舊 manifest 的讀者才不會 404。
 echo "[pull] sync embed-rail → $DATA_DIR/embed-rail/"
 aws s3 sync "$S3/embed-rail/" "$DATA_DIR/embed-rail/" --no-progress
 
