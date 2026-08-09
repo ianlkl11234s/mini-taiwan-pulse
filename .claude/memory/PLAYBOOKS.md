@@ -203,13 +203,15 @@ bash scripts/upload-deploy-assets.sh     # 上 S3 deploy-assets/
 sh /usr/local/bin/pull-deploy-assets.sh  # 從 S3 拉到 /data/
 ```
 
-### 6f. 5 個易錯提醒
+### 6f. 7 個易錯提醒
 
 1. **S3 路徑**：部署一律用 `upload-deploy-assets.sh`（`deploy-assets/`），不是 `npm run s3:upload:rail`（`rail-data/`，前端 fallback 用）
 2. **rail 格式**：前端請求個別 `.json` / S3 存 `rail.tar.gz` / pull 腳本自動解壓，**不是**單一 `rail_bundle.json`
 3. **S3 ACL**：bucket 不支援 ACL（`--acl public-read` 會 fail），改用私密 + 環境變數認證
 4. **pull 腳本路徑**：`/usr/local/bin/pull-deploy-assets.sh`（不是舊 README 寫的 nginx html 路徑）
 5. **腳本更新**：改 `pull-deploy-assets.sh` 後需要 commit + push + **重部署**（Dockerfile COPY 到 image 內），只跑 pull 不會更新腳本
+6. **判 cutover 不看 `zeabur deployment list` 的 RUNNING 標籤**（會滯後，舊 deployment 數小時後仍標 RUNNING）。改認三條 runtime 證據：runtime log 出現**新 pod started** → log 出現 `[pull] all assets synced` → **自己發一個可辨識的請求**（帶 token 的 query string）確認它出現在**新 pod 的** access log。前兩條只證明新 pod 起來了，第三條才證明流量切過去了
+7. **deploy 落地前不要裸探測新檔名**：`curl -I "<url>?cb=$(date +%s)"`。CF 預設會 negative-cache 404 最長 4hr（`.gz` 中招、`.json` 不會），而本專案唯一的 purge 是 `purge_everything`
 
 ### 6g. rail 幾何更新（2026-08-09 起走**內容雜湊檔名**）
 
