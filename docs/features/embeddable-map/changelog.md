@@ -1,5 +1,25 @@
 # Embeddable Map — Changelog
 
+## 2026-08-09 — rail 幾何 bundle 改內容雜湊檔名（`feat/rail-bundle-hash`）
+
+- `rail_slim.json.gz`（固定檔名）→ **`rail_slim.<hash>.json.gz`**，hash = 實際寫出的
+  canonical bytes 的 sha256 前 10 碼（`gunzip -c … | shasum -a 256` 可外部重現）。
+  實測 `4e0dc14093`，367 KB（**大小與前後零變化** —— 只換檔名，內容管線一行沒動）
+- nginx `/embed-rail/` 從 `expires 1d` 升為 **`1y immutable`**；指標檔
+  `rail-manifest.json` 另立 `location =` 給 `max-age=60`。
+  **收益：幾何更新後完全不需要清 CDN 快取**（原本最慘要兩天才生效，且唯一補救
+  `purge-cloudflare-cache.sh` 是 purge_everything，會連 297MB 底圖一起清）
+- 為什麼 manifest 是 `max-age=60` 而不是 `no-cache`：它在**串行 critical path** 上
+  （讀它才知道抓哪個 bundle），`no-cache` 等於每個讀者每次載入多付一個 RTT；
+  而 60s 陳舊窗因為產生器 `--keep 3` 保留舊檔而無害（拿到舊 manifest = 抓到能用的舊幾何）
+- 冪等三條件（缺一就每次重跑都換 URL、快取全失效）：canonical bytes（`sort_keys`）／
+  **`generated_at` 移出 bundle 只放 manifest**／`gzip.compress(..., mtime=0)`。
+  實測連跑三次同 hash、gz 逐位元組相同
+- 前端對 **manifest 失敗與 bundle 失敗都降級**回舊固定檔名：部署是整夾 `aws s3 sync`，
+  `rail-manifest.json` 字典序在 `rail_slim.*` 之前（`-` < `_`），manifest 先落地的窗內 bundle 會 404
+- deploy 腳本**零改動**（整夾 sync，新 hash = 新 key；不加 `--delete` 故遠端留舊檔供回滾）
+- 位置偏差不受影響（同一份幾何）：p95 **7.31 m** / max **20.80 m**（線 30 m / 100 m）
+
 ## 2026-08-09 — `rsys=` 擴充到營運者級 + 線路級（`feat/rail-line-codes`）
 
 - 一個參數吃三種粒度：`trtc`（營運者）／`trtc-bl`（線路，必帶前綴避免北捷高捷 R/O 撞名）／

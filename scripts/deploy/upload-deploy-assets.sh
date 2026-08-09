@@ -293,10 +293,17 @@ if [ -d public/embed-snapshots ]; then
   aws s3 sync public/embed-snapshots/ "s3://$BUCKET/$PREFIX/embed-snapshots/" --region ap-southeast-2 --no-progress
 fi
 
-# EM-16 嵌入用鐵路幾何 bundle：整夾鏡像 deploy-assets/embed-rail/（rail_slim.json.gz，358KB）
-# 與 embed-snapshots 分開的原因：這是**日期無關的共用資產**（固定檔名、會隨幾何管線重跑更新），
-# 快取策略因此不同（nginx 給 1d 而非 immutable，見 nginx.conf `location /embed-rail/`）。
-# Content-Encoding 處理同上：不設。
+# EM-16 嵌入用鐵路幾何 bundle：整夾鏡像 deploy-assets/embed-rail/
+# 夾內兩種檔（見 nginx.conf `location /embed-rail/`）：
+#   rail_slim.<hash>.json.gz  幾何本體 367KB，**檔名帶內容雜湊** → nginx 給 1y immutable
+#   rail-manifest.json        指標檔，前端先讀它才知道 bundle 檔名 → nginx 給 max-age=60
+# 整夾 sync 對雜湊檔名**零改動即可運作**：新 hash = 新 key，直接新增上去。
+#
+# ⚠ 刻意**不加 `--delete`**：本機產生器 `--keep 3` 會清掉舊 bundle，但遠端要留著 ——
+#   1. manifest 短快取期間仍有讀者拿著舊 manifest，舊檔還在才不會 404；
+#   2. 回滾只要把 manifest 的 `bundle` 指回上一份，不必重跑管線；
+#   3. 一份 367KB，成本可忽略。真要清 → 人工 `aws s3 rm` 指名刪。
+# Content-Encoding 處理同上：不設（`.json` 的 manifest 本來就沒這問題）。
 if [ -d public/embed-rail ]; then
   echo "Uploading embed-rail/..."
   aws s3 sync public/embed-rail/ "s3://$BUCKET/$PREFIX/embed-rail/" --region ap-southeast-2 --no-progress

@@ -1,5 +1,5 @@
 /**
- * 驗證 rail_slim.json.gz 的列車位置與原始幾何一致
+ * 驗證 rail_slim.<hash>.json.gz 的列車位置與原始幾何一致
  *
  * 做法：用「原始幾何」與「瘦身幾何」各建一套引擎輸入（時刻表共用同一份物件），
  * 在一天中多個時間點各跑一次 TraTrainEngine / RailEngine，逐車比對 Haversine 偏差。
@@ -33,7 +33,23 @@ import type {
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const RAIL_DIR = path.join(ROOT, "public", "rail");
-const DEFAULT_BUNDLE = path.join(ROOT, "public", "embed-rail", "rail_slim.json.gz");
+const EMBED_RAIL_DIR = path.join(ROOT, "public", "embed-rail");
+const MANIFEST = path.join(EMBED_RAIL_DIR, "rail-manifest.json");
+
+/**
+ * bundle 檔名帶內容雜湊 → 沒有固定路徑可寫死，一律先讀指標檔（前端也是這個順序）。
+ * `--bundle <path>` 仍可 override（比較兩組參數產出的 bundle 時好用）。
+ */
+function resolveDefaultBundle(): string | null {
+  if (!existsSync(MANIFEST)) return null;
+  try {
+    const name = (JSON.parse(readFileSync(MANIFEST, "utf-8")) as { bundle?: unknown }).bundle;
+    if (typeof name !== "string") return null;
+    return path.join(EMBED_RAIL_DIR, name);
+  } catch {
+    return null;
+  }
+}
 
 /** 非 TRA 的 5 系統（比照 railLoader.RAIL_SYSTEMS） */
 const RAIL_SYSTEMS = [
@@ -243,12 +259,17 @@ function main(): number {
   const MAX_LIMIT = argNum("--max", 100);
   const TOP_N = argNum("--top", 10);
   const bundleIdx = argv.indexOf("--bundle");
-  const BUNDLE = bundleIdx >= 0 && argv[bundleIdx + 1] ? path.resolve(argv[bundleIdx + 1]!) : DEFAULT_BUNDLE;
+  const BUNDLE =
+    bundleIdx >= 0 && argv[bundleIdx + 1] ? path.resolve(argv[bundleIdx + 1]!) : resolveDefaultBundle();
 
-  if (!existsSync(BUNDLE)) {
-    console.error(`✗ 找不到 bundle：${BUNDLE}\n  先跑 python3 scripts/preprocess/build-rail-slim-bundle.py`);
+  if (!BUNDLE || !existsSync(BUNDLE)) {
+    console.error(
+      `✗ 找不到 bundle（${BUNDLE ?? `讀不到指標檔 ${MANIFEST}`}）\n` +
+        "  先跑 python3 scripts/preprocess/build-rail-slim-bundle.py",
+    );
     return 1;
   }
+  console.log(`bundle：${path.basename(BUNDLE)}`);
 
   console.log("載入時刻表…");
   const traSchedules = parseTraSchedules(readJSON(path.join(RAIL_DIR, "tra", "master_schedule.json")));

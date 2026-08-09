@@ -650,7 +650,7 @@ bus 系 **3 天**（08-05~08-07）。
 
 | 資產 | 大小 | 說明 |
 |---|---|---|
-| `public/embed-rail/rail_slim.json.gz` | **367 KB** | 鐵道幾何，原始 **68MB → 縮 190x**。量化 5 位 + RDP(1e-4°) + `--max-arc-loss 5m` 弧長保護 + 併單檔 gzip。⚠️ **固定檔名 → nginx 走 `expires 1d` 不可 immutable** |
+| `public/embed-rail/rail_slim.<hash>.json.gz` | **367 KB** | 鐵道幾何，原始 **68MB → 縮 190x**。量化 5 位 + RDP(1e-4°) + `--max-arc-loss 5m` 弧長保護 + 併單檔 gzip。**檔名帶內容雜湊**（canonical bytes 的 sha256 前 10 碼）→ nginx 可 `1y immutable`、更新不需清快取；實際檔名寫在同夾 `rail-manifest.json`（`max-age=60`），前端先讀它 |
 
 - 座標量化 5 位**實測無損**（量化前後 `filterGpsAnomalies` 保留／丟棄數完全相同）
 - rail 幾何管線 `scripts/preprocess/build-rail-slim-bundle.py`；

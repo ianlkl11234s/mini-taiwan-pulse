@@ -15,18 +15,37 @@
 用法：
   python3 scripts/preprocess/build-rail-slim-bundle.py
   python3 scripts/preprocess/build-rail-slim-bundle.py --tolerance 0.00005 --decimals 6
-  python3 scripts/preprocess/build-rail-slim-bundle.py --output /tmp/test.json.gz
+  python3 scripts/preprocess/build-rail-slim-bundle.py --out-dir /tmp/railtest --keep 1
 
-輸出：
-  public/embed-rail/rail_slim.json.gz
+輸出（**內容雜湊檔名**，見下）：
+  public/embed-rail/rail_slim.<hash>.json.gz   幾何 bundle
+  public/embed-rail/rail-manifest.json         指標檔（前端先讀它才知道檔名）
+
+── 為什麼檔名帶 hash ─────────────────────────────────────────────
+舊版是固定檔名 `rail_slim.json.gz`，nginx 只敢給 `expires 1d`（給 immutable 會把讀者
+鎖在舊幾何最長一年）→ 幾何更新後最慘要兩天（CDN 1d + 瀏覽器 1d）才看得到新軌道。
+改成「內容一變、檔名就變」之後，URL 唯一對應一份永不改變的內容 ⇒ 可安全 `1y immutable`、
+**完全不需要清 CDN 快取**。與 `/embed-snapshots/<date>.json.gz`（檔名含日期）同一個原理。
+
+hash 的定義（要能被外部重現）：
+  sha256(**實際寫進 .gz 裡的那份未壓縮 bytes**) 取前 10 hex
+  那份 bytes 是 canonical JSON —— `sort_keys=True` + `separators=(",",":")` + UTF-8，
+  故 `gunzip -c rail_slim.<hash>.json.gz | shasum -a 256` 直接對得上。
+
+冪等：同一份 `public/rail/` + 同參數重跑 ⇒ 同 hash、同檔名、gz bytes 逐位元組相同。
+  兩個必要條件：
+  1. bundle 內容**不含時間戳**（`generated_at` 只放 manifest，不放 bundle）
+  2. gzip 寫入用 `mtime=0`（預設會埋當下時間，同內容也會產出不同 bytes）
 """
 
 from __future__ import annotations
 
 import argparse
 import gzip
+import hashlib
 import json
 import math
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -34,7 +53,14 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 RAIL_DIR = ROOT / "public" / "rail"
-DEFAULT_OUTPUT = ROOT / "public" / "embed-rail" / "rail_slim.json.gz"
+DEFAULT_OUT_DIR = ROOT / "public" / "embed-rail"
+MANIFEST_NAME = "rail-manifest.json"
+HASH_LEN = 10
+
+# 清理舊 bundle 時用的檔名樣式。**刻意要求中間那個點 + 純 hex**：
+# 寬鬆的 `rail_slim*.json.gz` 會 match 到過渡期的 legacy 固定檔名 `rail_slim.json.gz`，
+# 那份是給舊快取讀者的安全網，誤刪會讓過渡期讀者直接沒有幾何。
+BUNDLE_RE = re.compile(r"^rail_slim\.[0-9a-f]{8,10}\.json\.gz$")
 
 SYSTEMS = ["tra", "thsr", "trtc", "krtc", "klrt", "tmrt"]
 
@@ -489,6 +515,36 @@ def build_system(
     return system_obj, stats
 
 
+def prune_old_bundles(out_dir: Path, current_name: str, keep: int) -> None:
+    """本機只保留最近 `keep` 份雜湊 bundle（含這次），更舊的刪掉並印出來。
+
+    為什麼要留不只一份：manifest 短快取（60s）期間，仍有讀者手上拿著舊 manifest，
+    舊檔還在才不會 404；出事要回滾也只需把 manifest 的 `bundle` 指回上一份。
+
+    ⚠ **S3 端不主動刪**：`upload-deploy-assets.sh` 用的是 `aws s3 sync`（無 `--delete`），
+    本機刪檔不會傳染到遠端，這是刻意的 ——
+      1. 一份 367KB，留著幾乎沒有成本；
+      2. 遠端的舊檔正是「回滾只改 manifest 就好」的前提；
+      3. `--delete` 一旦誤用會連別人剛上傳的東西一起清掉，風險遠大於省下的儲存費。
+    真要清遠端 → 人工 `aws s3 rm` 指名刪，屬需 owner 拍板的部署動作。
+    """
+    keep = max(1, keep)
+    others = [
+        p
+        for p in out_dir.glob("rail_slim.*.json.gz")
+        if BUNDLE_RE.match(p.name) and p.name != current_name
+    ]
+    # 新的留、舊的刪；mtime 由新到舊（hash 本身沒有時序資訊）
+    others.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    doomed = others[keep - 1 :]
+    for p in doomed:
+        p.unlink()
+    if doomed:
+        print(f"\n清掉 {len(doomed)} 份舊 bundle（--keep {keep}，S3 端不動）：")
+        for p in doomed:
+            print(f"  - {p.name}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="產生 embed 回放用的鐵路瘦身 bundle")
     ap.add_argument("--decimals", type=int, default=5, help="座標量化小數位（預設 5，≈1.1m）")
@@ -500,7 +556,13 @@ def main() -> int:
         help="單一 RDP span 允許縮掉的弧長上限（公尺，預設 5）；防折返段被壓扁造成參數化位移",
     )
     ap.add_argument("--progress-decimals", type=int, default=6, help="station_progress 小數位（預設 6）")
-    ap.add_argument("--output", type=Path, default=DEFAULT_OUTPUT, help="輸出 .json.gz 路徑")
+    ap.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR, help="輸出目錄（bundle + manifest）")
+    ap.add_argument(
+        "--keep",
+        type=int,
+        default=3,
+        help="保留最近 N 份雜湊 bundle（含這次，預設 3）；更舊的刪除。留幾份是為了回滾",
+    )
     args = ap.parse_args()
 
     warnings: list[str] = []
@@ -522,7 +584,8 @@ def main() -> int:
 
     bundle = {
         "metadata": {
-            "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            # ⚠ 這裡**刻意沒有 generated_at** —— 它會讓同內容重跑產出不同 hash、
+            #   進而產出不同檔名，整個「內容雜湊」機制就失效了。時間戳只放 manifest。
             "source": "public/rail/",
             "params": {
                 "quantize_decimals": args.decimals,
@@ -540,14 +603,47 @@ def main() -> int:
         "systems": systems,
     }
 
-    payload = json.dumps(bundle, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_bytes(gzip.compress(payload, 9))
+    # canonical bytes：sort_keys 讓「同內容 ⇒ 同 bytes ⇒ 同 hash」不受 dict 插入順序影響。
+    # 排序對消費端無副作用 —— tracks / stationProgress 兩邊都只當查表用（engines 與前端皆是）。
+    payload = json.dumps(bundle, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    sha256 = hashlib.sha256(payload).hexdigest()
+    short = sha256[:HASH_LEN]
 
-    gz_size = args.output.stat().st_size
-    print(f"\n✓ 輸出 {args.output}")
+    out_dir: Path = args.out_dir
+    out_dir.mkdir(parents=True, exist_ok=True)
+    bundle_name = f"rail_slim.{short}.json.gz"
+    bundle_path = out_dir / bundle_name
+    # mtime=0：gzip header 預設埋當下時間 → 同內容也會產出不同 bytes，冪等就假了。
+    bundle_path.write_bytes(gzip.compress(payload, 9, mtime=0))
+
+    gz_size = bundle_path.stat().st_size
+
+    manifest_path = out_dir / MANIFEST_NAME
+    manifest = {
+        "bundle": bundle_name,
+        "hash": short,
+        "sha256": sha256,
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "gzip_bytes": gz_size,
+        "params": {
+            "quantize_decimals": args.decimals,
+            "rdp_tolerance_deg": args.tolerance,
+            "max_arc_loss_m": args.max_arc_loss,
+            "progress_decimals": args.progress_decimals,
+        },
+        "systems": {sid: stats[sid]["tracks"] for sid in SYSTEMS},
+    }
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+    prune_old_bundles(out_dir, bundle_name, args.keep)
+
+    print(f"\n✓ 輸出 {bundle_path}")
+    print(f"  hash {short}  (sha256 {sha256})")
     print(f"  raw  {len(payload) / 1e6:.3f} MB")
     print(f"  gzip {gz_size / 1e6:.3f} MB ({gz_size:,} bytes)")
+    print(f"✓ 指標 {manifest_path}")
 
     # 各系統 gzip 分列（獨立壓縮，加總會略大於整包）
     print("\n各系統（獨立 gzip，僅供比例參考）：")

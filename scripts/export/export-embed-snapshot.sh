@@ -152,8 +152,9 @@ EOSQL
     #
     # 所以 rail 的資料被拆成兩塊，只有前者每天變：
     #   1. 時刻表（本檔產出）      → public/embed-snapshots/rail/<date>.json.gz
-    #   2. 幾何（日期無關共用資產）→ public/embed-rail/rail_slim.json.gz
-    #      （由 scripts/preprocess/build-rail-slim-bundle.py 產出，不在本腳本範圍）
+    #   2. 幾何（日期無關共用資產）→ public/embed-rail/rail_slim.<hash>.json.gz
+    #      （由 scripts/preprocess/build-rail-slim-bundle.py 產出，不在本腳本範圍；
+    #        檔名帶內容雜湊，實際檔名寫在同夾 rail-manifest.json）
     #
     # 資料來源 = reference.daily_schedules，**不是** public/rail/tra/master_schedule.json
     # ——後者是 TDX 通用時刻表（週期性班表），不是某一天真正開的車（§9-4 調查結論）。
