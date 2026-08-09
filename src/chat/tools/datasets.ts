@@ -58,10 +58,12 @@ export const DATASET_WHITELIST: Record<string, DatasetMeta> = {
 
   // ── 教育 ──
   schools: {
-    url: "./geo/schools.geojson",
+    url: "./education/schools.geojson",
     label: "學校",
     description:
-      "全國各級學校點位。欄位 school_level（國民小學 / 國民中學 / 高級中等學校 / 大專校院 / 特殊教育學校 等）。",
+      "全國各級學校點位 4,315 筆。欄位 school_level（9 種：國民小學 / 附設國民小學 / 國民中學 / " +
+      "附設國民中學 / 高級中等學校 / 大專校院 / 空大及大專校院附設進修學校 / 宗教研修學院 / 特殊教育學校）、" +
+      "city、district、region_type（偏遠 / 特偏 / 極偏，共 1,152 校，其餘為 null）。",
   },
 
   // ── 醫療 ──

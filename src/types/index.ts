@@ -100,7 +100,7 @@ export type ExpandableLayerKey =
   | "h3Population" | "popCount" | "indicators"
   | "socioeconomic" | "spatialEconomy"
   | "temperatureWave" | "temperatureGrid" | "urbanHeat"
-  | "schools" | "convenienceStores"
+  | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
   | "submarineCables" | "landingStations"
@@ -143,6 +143,12 @@ export type ExpandableLayerKey =
   // ⚰️ 殯葬 Funeral（靜態 overlay；A/B/C 三源分開，density 走專屬 hook 不在 registry）
   | "funeralFacilities" | "funeralOperators" | "funeralOperatorDensity"
   | "cemeteryOsm" | "cemeteryZoning"
+  // 🎓 教育 Education（第 38 主題；6 個點層共用同一份 schools.geojson，sourceId edu-schools）
+  | "schools" | "eduSchoolElementary" | "eduSchoolJunior" | "eduSchoolSenior"
+  | "eduSchoolUniversity" | "eduSchoolSpecial" | "eduRemoteSchools" | "eduCampusPolygon"
+  | "eduDistrictElementary" | "eduDistrictJunior" | "eduDistrictSenior"
+  | "eduKindergarten" | "eduCramSchool" | "eduAfterschoolCare" | "eduMutualCare"
+  | "eduUniversityStudents"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -697,6 +703,12 @@ export interface FeatureInfo {
     // ⚰️ 殯葬 Funeral（layerType = layer key 同名，5 個）
     | "funeralFacilities" | "funeralOperators" | "funeralOperatorDensity"
     | "cemeteryOsm" | "cemeteryZoning"
+    // 🎓 教育 Education：6 個學校點層共用既有 "school"，面層各自成型
+    // （k12 兩級共用一型：欄位契約相同，popup 只有標題色與級別標籤不同）
+    | "eduCampus" | "eduDistrictK12" | "eduDistrictSenior"
+    // 幼托補習（⚠️ 原始中文欄位名）＋ 大專學生數（英文欄位）
+    | "eduKindergarten" | "eduCramSchool" | "eduAfterschoolCare" | "eduMutualCare"
+    | "eduUniversityStudents"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -803,7 +815,6 @@ export interface LayerVisibility {
   temperatureGrid: boolean;
   /** 都市熱島 Urban Heat：Landsat 8/9 地表溫度 raster PMTiles（雙通道值編碼，ΔT / 絕對°C 兩模式前端上色） */
   urbanHeat: boolean;
-  schools: boolean;
   convenienceStores: boolean;
   postOffices: boolean;
   iPostBoxes: boolean;
@@ -940,6 +951,26 @@ export interface LayerVisibility {
   funeralOperatorDensity: boolean; // A 源 區級業者密度 325 區（無幾何，feature-state join 鄉鎮界 PMTiles）
   cemeteryOsm: boolean;            // B 源 OSM 墓區面 3,229（PMTiles；🔴 ODbL 必須標示；僅 34.5% 有 name）
   cemeteryZoning: boolean;         // C 源 都計墓葬類法定用地 114 面（⚠️ 僅臺北 12＋新北 102）
+  // 🎓 教育 Education（第 38 主題；2026-08-08 上游 education 批次）
+  // 6 個點層共用 sourceId `edu-schools` / 同一份 schools.geojson（4,315 點，只 fetch 一次）
+  schools: boolean;                // 總覽層（2026-08-08 自公共設施搬入教育；schoolLevelColor 可切分色）
+  eduSchoolElementary: boolean;    // 國小 2,656（含附設國小 42）
+  eduSchoolJunior: boolean;        // 國中 964（含附設國中 228）
+  eduSchoolSenior: boolean;        // 高中職 508
+  eduSchoolUniversity: boolean;    // 大專 159（含空大進修 10、宗教研修 9）
+  eduSchoolSpecial: boolean;       // 特教 28
+  eduRemoteSchools: boolean;       // 偏遠標記 1,152（偏遠 830／特偏 192／極偏 130；⚠️ 非偏遠是 JSON null）
+  eduCampusPolygon: boolean;       // 校地面 4,324（4,336 濾除 non_school 12；⚠️ zoom<8 不顯示、澎金無資料）
+  // 學區面（⚠️ 不是精確邊界、面與面本來就重疊；僅臺北/新北/臺中/新竹市 4 縣市有公告）
+  eduDistrictElementary: boolean;  // 國小學區 621 面（precision 分色：整里 206／部分鄰 654）
+  eduDistrictJunior: boolean;      // 國中學區 239 面（同上，與國小學區完全疊合故拆兩個 toggle）
+  eduDistrictSenior: boolean;      // 高中就學區 15 面（⚠️ 縣市級，與上面兩層粒度完全不同）
+  // 幼托與補習（⚠️ 保留上游原始中文欄位名；四者都有 geocode precision，interpolated 已淡化）
+  eduKindergarten: boolean;        // 幼兒園 6,689（公立 2,392／私立 4,297 二色）
+  eduCramSchool: boolean;          // 短期補習班 17,137（PMTiles；14 類 fold 成 5 組；⚠️ 每日更新）
+  eduAfterschoolCare: boolean;     // 兒童課後照顧中心 782
+  eduMutualCare: boolean;          // 互助教保服務中心 148（全數私立）
+  eduUniversityStudents: boolean;  // 大專校別學生數 159 bubble（⚠️ 21 筆 null 畫灰點，不可當 0）
   tourEvents: boolean;           // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
   tourFactories: boolean;         // 觀光工廠（158 點，單色）
   tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）

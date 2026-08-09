@@ -13,6 +13,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../mountainSafetyTypes";
 import { ANCESTRAL_HALL_TYPES, DEITY_FAMILIES } from "../religionTypes";
 import { FUNERAL_FACILITY_TYPES, CEMETERY_ZONING_CLASSES } from "../funeralTypes";
+import {
+  SCHOOL_LEVEL_GROUPS, SCHOOL_LEVEL_ORDER, KINDERGARTEN_OWNERSHIP_COLORS,
+} from "../educationTypes";
 
 function distinctValues(rel: string, field: string): string[] {
   const data = JSON.parse(readFileSync(`public/${rel}`, "utf8")) as GeoJSON.FeatureCollection;
@@ -66,6 +69,31 @@ const CASES: Case[] = [
     covered: CEMETERY_ZONING_CLASSES.flatMap((c) => c.raw),
     ssot: "src/data/funeralTypes.ts CEMETERY_ZONING_CLASSES[].raw",
   },
+  {
+    // 🎓 school_level 是原始中文（9 種），前端 fold 成 5 級。上游多一種學制（例如新設
+    // 「XX 附設進修學校」）而沒補進 SCHOOL_LEVEL_GROUPS → 那批校從 5 個學制層全數消失，
+    // 且總覽層落 fallback 色 —— 正是 handoff 只列 5 個主類別（漏 289 校）的那個坑。
+    file: "education/schools.geojson",
+    field: "school_level",
+    covered: SCHOOL_LEVEL_ORDER.flatMap((g) => [...SCHOOL_LEVEL_GROUPS[g]]),
+    ssot: "src/data/educationTypes.ts SCHOOL_LEVEL_GROUPS",
+  },
+  {
+    // 🎓 幼兒園 `公/私立` 實測只有 2 值（公立 2,392／私立 4,297）—— 分色表就是這 2 個 key，
+    // 沒有 fallback 以外的第三種歸屬。上游若冒出第三值（例如「準公共」「非營利」），
+    // 那批點會靜默落成 EDUCATION_LAYER_COLORS.eduKindergarten 的粉色 fallback，
+    // 看起來跟私立一模一樣 —— 圖例上完全看不出多了一類。
+    // 分色表直接從 KINDERGARTEN_OWNERSHIP_COLORS 推導，不在此手寫第二份清單。
+    file: "education/kindergartens.geojson",
+    field: "公/私立",
+    covered: Object.keys(KINDERGARTEN_OWNERSHIP_COLORS),
+    ssot: "src/data/educationTypes.ts KINDERGARTEN_OWNERSHIP_COLORS",
+  },
+  // campus_polygon 走 PMTiles（本測試只讀 GeoJSON，不解切片）→ 其 school_level 10 類的
+  // 覆蓋率無法在此守；改由 educationTypes.CAMPUS_LEVEL_COLORS 的 match fallback 兜底。
+  // cram_schools 同理走 PMTiles → `短期補習班類別` 14 類的覆蓋率在此守不到；
+  // 靠 cramCategoryColorExpr() 的 CRAM_CATEGORY_COLORS.other fallback 兜底（不會消失，但會被
+  // 誤歸「其他」）。上游是 daily 更新的源，新類別要靠上游 pipeline 或重跑快照時人工比對。
 ];
 
 describe("分類表覆蓋資料實際值", () => {

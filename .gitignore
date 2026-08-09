@@ -137,3 +137,6 @@ public/tourism/restaurants_national.geojson
 
 # EM-15 嵌入用歷史快照（產生物，走 S3 deploy-assets/embed-snapshots/）
 public/embed-snapshots/
+
+# 教育 Education（第 38 主題；全走 S3 deploy-assets/education/）
+public/education/

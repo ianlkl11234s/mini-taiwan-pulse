@@ -29,6 +29,7 @@ import type { LayerVisibility, TransportType } from "../../types";
 
 import { RELIGION_LAYER_COLORS } from "../../data/religionTypes";
 import { FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
+import { EDUCATION_LAYER_COLORS } from "../../data/educationTypes";
 
 export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   flights: "#64aaff",
@@ -207,6 +208,9 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   ...RELIGION_LAYER_COLORS,
   // ⚰️ 殯葬 Funeral（色票 SSOT = funeralTypes.ts FUNERAL_LAYER_COLORS）
   ...FUNERAL_LAYER_COLORS,
+  // 🎓 教育 Education（色票 SSOT = educationTypes.ts EDUCATION_LAYER_COLORS；
+  //    總覽層 schools 沿用既有 #42a5f5，仍列在上方不搬）
+  ...EDUCATION_LAYER_COLORS,
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -650,7 +654,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "公共設施",
         layers: [
-          { key: "schools", label: "學校 School", expandable: true },
+          // 2026-08-08：schools 搬到「教育 Education」主題（第 38 主題），此處不再列出
           { key: "convenienceStores", label: "超商 Convenience Store", expandable: true },
           { key: "postOffices", label: "郵局 Post Office", expandable: true },
           { key: "iPostBoxes", label: "i郵箱 iPost Box", expandable: true },
@@ -741,6 +745,61 @@ export const THEMES: ThemeDef[] = [
           { key: "gasCoverageFpcc", label: "台塑 最近距離 Coverage FPCC", expandable: true },
           { key: "gasCoverageTaisugar", label: "台糖 最近距離 Coverage Taisugar", expandable: true },
           { key: "evIsland", label: "充電站 最近距離 EV Island", expandable: true },
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🎓 EDUCATION 教育（2026-08-08 第 38 主題；上游 education 批次）
+  // 🔴 6 個學校點層共用同一份 schools.geojson（4,315 點）：
+  //    schools 為總覽（依學制上色），5 個 eduSchool* 為分級篩選，
+  //    eduRemoteSchools 走 region_type 標記（非偏遠是 JSON null，見 educationTypes.ts）。
+  //    schools 於本日自「基礎建設 → 公共設施」搬入本主題。
+  //    eduUniversityStudents 雖在「學校」群，但讀自己的 university_students.geojson（159 筆，英文欄位）。
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "教育 Education",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "學校 Schools",
+        layers: [
+          { key: "schools", label: "學校總覽 All Schools", labelMobile: "學校總覽 (4,315)", expandable: true },
+          { key: "eduSchoolElementary", label: "國小 Elementary", labelMobile: "國小 (2,656)", expandable: true },
+          { key: "eduSchoolJunior", label: "國中 Junior High", labelMobile: "國中 (964)", expandable: true },
+          { key: "eduSchoolSenior", label: "高中職 Senior High", labelMobile: "高中職 (508)", expandable: true },
+          { key: "eduSchoolUniversity", label: "大專 University", labelMobile: "大專 (159)", expandable: true },
+          { key: "eduSchoolSpecial", label: "特教 Special Education", labelMobile: "特教 (28)", expandable: true },
+          { key: "eduRemoteSchools", label: "偏遠地區學校 Remote Schools", labelMobile: "偏遠地區學校 (1,152)", expandable: true },
+          { key: "eduUniversityStudents", label: "大專學生數 University Students", labelMobile: "大專學生數 (159)", expandable: true },
+        ],
+      },
+      {
+        title: "校地 Campus",
+        layers: [
+          { key: "eduCampusPolygon", label: "校地範圍 Campus Area", labelMobile: "校地範圍 (4,324)", expandable: true },
+        ],
+      },
+      // 🔴 高中就學區是**縣市級**，與前兩者的里級完全不同粒度 —— 三者各自獨立 toggle，
+      //    且標籤直接寫明「（縣市級）」，避免使用者誤以為三層是同一套邊界的三個學制。
+      {
+        title: "學區 District",
+        layers: [
+          { key: "eduDistrictElementary", label: "國小學區 Elementary District", labelMobile: "國小學區 (621)", expandable: true },
+          { key: "eduDistrictJunior", label: "國中學區 Junior High District", labelMobile: "國中學區 (239)", expandable: true },
+          { key: "eduDistrictSenior", label: "高中就學區（縣市級）Senior High District", labelMobile: "高中就學區・縣市級 (15)", expandable: true },
+        ],
+      },
+      // 🔴 補習班是**每日更新**的資料源（此為快照），且點數 17,137 為四層之最 → 切片走 PMTiles，
+      //    透明度／大小 slider 與其餘三層分開（見 useTransportParams 的 eduCramSchool* param）。
+      {
+        title: "幼托補習 Childcare & Cram",
+        layers: [
+          { key: "eduKindergarten", label: "幼兒園 Kindergarten", labelMobile: "幼兒園 (6,689)", expandable: true },
+          { key: "eduCramSchool", label: "短期補習班 Cram School", labelMobile: "短期補習班 (17,137)", expandable: true },
+          { key: "eduAfterschoolCare", label: "兒童課後照顧中心 Afterschool Care", labelMobile: "兒童課後照顧 (782)", expandable: true },
+          { key: "eduMutualCare", label: "互助教保服務中心 Mutual Care", labelMobile: "互助教保 (148)", expandable: true },
         ],
       },
     ],
