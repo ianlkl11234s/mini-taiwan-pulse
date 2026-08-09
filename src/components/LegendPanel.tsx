@@ -70,6 +70,8 @@ import {
 import {
   SCHOOL_LEVEL_ORDER, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS, SCHOOL_LEVEL_COUNTS,
   REGION_TYPES, REGION_TYPE_COLORS, REGION_TYPE_COUNTS, CAMPUS_LEGEND_ROWS,
+  DISTRICT_COLORS, DISTRICT_PRECISION_COUNTS, DISTRICT_DISCLAIMER,
+  type DistrictK12Level,
 } from "../data/educationTypes";
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
@@ -368,11 +370,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     keys: ["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"],
     render: ({ visibility }) => <PollutionPenaltyLegend visibility={visibility} />,
   },
-  // 🎓 教育 8 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
+  // 🎓 教育 11 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
   {
     keys: [
       "schools", "eduSchoolElementary", "eduSchoolJunior", "eduSchoolSenior",
       "eduSchoolUniversity", "eduSchoolSpecial", "eduRemoteSchools", "eduCampusPolygon",
+      "eduDistrictElementary", "eduDistrictJunior", "eduDistrictSenior",
     ],
     render: ({ visibility }) => <EducationLegend visibility={visibility} />,
   },
@@ -1861,9 +1864,26 @@ const EDU_LEVEL_KEYS: (keyof LayerVisibility)[] = [
   "eduSchoolSenior", "eduSchoolUniversity", "eduSchoolSpecial",
 ];
 
+// 學區面（k12）圖例列定義 —— 色票取自 DISTRICT_COLORS，本檔不重寫任何 hex。
+// 🔴 只列「實際開啟那一級」：國小／國中的面完全疊合，兩級都列會與畫面上的顏色對不起來。
+const EDU_DISTRICT_K12_ROWS: { key: keyof LayerVisibility; label: string; level: DistrictK12Level }[] = [
+  { key: "eduDistrictElementary", label: "國小學區", level: "elementary" },
+  { key: "eduDistrictJunior", label: "國中學區", level: "junior" },
+];
+
 function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
   const showLevels = EDU_LEVEL_KEYS.some((k) => visibility[k]);
+  const k12DistrictRows = EDU_DISTRICT_K12_ROWS
+    .filter((r) => visibility[r.key])
+    .flatMap((r) => [
+      { id: `${r.key}-full`, color: DISTRICT_COLORS[r.level].full, label: `${r.label}：整里皆屬` },
+      { id: `${r.key}-partial`, color: DISTRICT_COLORS[r.level].partial, label: `${r.label}：部分鄰屬` },
+    ]);
+  const showK12District = k12DistrictRows.length > 0;
+  // W1 的 8 個學校／校地層有沒有開 —— 同時決定 (a) 學區段的 marginTop 要不要留間距、
+  // (b) 🔴 頁尾「學校點位為 113 學年度」要不要出現（單開學區面時它會敘述一個沒開的圖層）
+  const showSchoolSections = showLevels || !!visibility.eduRemoteSchools || !!visibility.eduCampusPolygon;
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
@@ -1926,9 +1946,51 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
         </div>
       )}
 
-      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
-        學校點位為 113 學年度
-      </div>
+      {showK12District && (
+        <div style={{ marginTop: showSchoolSections ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            國中小學區・面的精確度
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {k12DistrictRows.map((row) => (
+              <div key={row.id} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={row.color} round={false} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{row.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            <div>{DISTRICT_DISCLAIMER}</div>
+            <div>僅臺北、新北、臺中、新竹市 4 縣市有公告；其餘 11 縣市空白是「無資料」不是「無學區」</div>
+            <div>面與面重疊是制度事實：共同學區 292 面，一個里可同時屬 2-3 校，未去重</div>
+            <div>
+              淡色 = 該里只有部分「鄰」屬本校（{DISTRICT_PRECISION_COUNTS.village_partial} 面），實際歸屬見 popup 的鄰別
+            </div>
+            <div>臺北為 110 學年度，其餘三縣市較新</div>
+          </div>
+        </div>
+      )}
+
+      {visibility.eduDistrictSenior && (
+        <div style={{ marginTop: showSchoolSections || showK12District ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            高中就學區（縣市級・15 區）
+          </div>
+          {/* 🔴 15 色列不完也沒語意 → 不列色塊，改一行說明顏色的用途 */}
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.4 }}>
+            顏色為 5 色循環，只用來區分相鄰區域，本身沒有語意
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            {DISTRICT_DISCLAIMER}
+          </div>
+        </div>
+      )}
+
+      {showSchoolSections && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+          學校點位為 113 學年度
+        </div>
+      )}
     </div>
   );
 }

@@ -203,6 +203,17 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "city", type: "string" },
     { field: "district", type: "string" },
   ],
+  // 🎓 教育 學區面（W2）：高中就學區 15 面（縣市級）
+  // ⚠️ 國中小學區 school_district_k12 是 PMTiles，本測試只吃 GeoJSON → 不在此列。
+  //    那層的欄位守門（lin_specs 空字串比例、is_shared、level 分布）該做在上游 pipeline。
+  "education/school_district_senior.geojson": [
+    { field: "district", type: "string" },               // popup 標題（如「基北區」）
+    { field: "counties", type: "string" },               // 涵蓋縣市字串
+    { field: "cross_district_rules", type: "string" },   // 跨區就讀規則，最長 685 字
+    // ⚠️ 字串！15 筆實測全是 str（上游 06_enrich.py 排序時還要 .astype(int)）。
+    //    分色 districtSeniorColorExpr 因此必須 to-number 再取模，前端也不能用 typeof === "number"。
+    { field: "district_no", type: "string" },
+  ],
 };
 
 describe("前端硬依賴欄位契約", () => {

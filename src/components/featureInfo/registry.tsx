@@ -39,7 +39,7 @@ import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
 } from "./funeralPanels";
-import { SchoolPanel, EduCampusPanel } from "./educationPanels";
+import { SchoolPanel, EduCampusPanel, EduDistrictK12Panel, EduDistrictSeniorPanel } from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -112,8 +112,11 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   submarineCable: SubmarineCablePanel,
   landingStation: LandingStationPanel,
   // 🎓 教育：6 個學校點層共用 school，校地面獨立 eduCampus
+  // 學區面：國小／國中共用 eduDistrictK12（欄位契約完全相同），高中就學區另立（縣市級）
   school: SchoolPanel,
   eduCampus: EduCampusPanel,
+  eduDistrictK12: EduDistrictK12Panel,
+  eduDistrictSenior: EduDistrictSeniorPanel,
   convenienceStore: ConvenienceStorePanel,
   postOffice: PostOfficePanel,
   iPostBox: IPostBoxPanel,
@@ -340,6 +343,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   landingStation: "海纜登陸站",
   school: "學校",
   eduCampus: "校地範圍",
+  eduDistrictK12: "學區",
+  eduDistrictSenior: "高中就學區",
   convenienceStore: "超商",
   postOffice: "郵局",
   iPostBox: "i郵箱",

@@ -779,6 +779,16 @@ export const THEMES: ThemeDef[] = [
           { key: "eduCampusPolygon", label: "校地範圍 Campus Area", labelMobile: "校地範圍 (4,324)", expandable: true },
         ],
       },
+      // 🔴 高中就學區是**縣市級**，與前兩者的里級完全不同粒度 —— 三者各自獨立 toggle，
+      //    且標籤直接寫明「（縣市級）」，避免使用者誤以為三層是同一套邊界的三個學制。
+      {
+        title: "學區 District",
+        layers: [
+          { key: "eduDistrictElementary", label: "國小學區 Elementary District", labelMobile: "國小學區 (621)", expandable: true },
+          { key: "eduDistrictJunior", label: "國中學區 Junior High District", labelMobile: "國中學區 (239)", expandable: true },
+          { key: "eduDistrictSenior", label: "高中就學區（縣市級）Senior High District", labelMobile: "高中就學區・縣市級 (15)", expandable: true },
+        ],
+      },
     ],
   },
 

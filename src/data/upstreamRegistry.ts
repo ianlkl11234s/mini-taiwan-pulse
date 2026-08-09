@@ -631,6 +631,10 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   eduSchoolSpecial: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 特教 28' },
   eduRemoteSchools: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — region_type 非 null 的 1,152 校（偏遠 830／特偏 192／極偏 130）' },
   eduCampusPolygon: { status: 'verified', datasets: [{ datasetId: 'campus_polygon', confidence: 'HIGH' }], note: '第 38 主題 education；校地面 4,336 → 前端濾掉 non_school 12 筆後渲染 4,324（PMTiles z8-15）' },
+  // 學區面：k12 兩層共用同一份 school_district_k12.pmtiles，差別只在 level filter
+  eduDistrictElementary: { status: 'verified', datasets: [{ datasetId: 'school_district_k12', confidence: 'HIGH' }], note: '第 38 主題 education；國小學區 621 面（PMTiles z6-13）— 僅臺北／新北／臺中／新竹市 4 縣市有公告，另 11 縣市無資料 ≠ 無學區；臺北為 110 學年度' },
+  eduDistrictJunior: { status: 'verified', datasets: [{ datasetId: 'school_district_k12', confidence: 'HIGH' }], note: '第 38 主題 education；國中學區 239 面，與國小層共用同一份 PMTiles — 僅 4 縣市有公告；precision=village_partial 654 面為整里近似（實際看 popup 的 lin_specs）' },
+  eduDistrictSenior: { status: 'verified', datasets: [{ datasetId: 'school_district_senior', confidence: 'HIGH' }], note: '第 38 主題 education；高中就學區 15 面 —— **縣市級**，與國中小學區的**里級**粒度不同，不可互相比較或合併' },
   tourRestaurants: { status: 'verified', datasets: [{ datasetId: 'restaurant', confidence: 'HIGH' }], note: '觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）' },
   agriculture: {
     status: 'verified',

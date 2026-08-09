@@ -1,6 +1,7 @@
 # Backlog — education-layers
 
-> 本 feature 的待辦。上游 9 個 dataset 本輪只接了 2 個。
+> 本 feature 的待辦。上游 9 個 dataset 已接 **4 個**（W1 的 schools／campus_polygon
+> ＋ W2 的 school_district_k12／school_district_senior），剩 5 個點層。
 
 ## 待用戶拍板（本輪產出，不自己動）
 
@@ -9,18 +10,16 @@
 - [ ] **EDU-0c**：上游 `taipei-gis-analytics` 的 education 批次也**尚未 push**，需一併處理
       （跨 repo 順序：上游先、下游後）
 
-## 待辦 — W2（學區面，最需要仔細設計圖例與 popup）
+## ✅ 已完成 — W2（學區面，2026-08-09）
 
-- [ ] **EDU-1**：`school_district_k12`（國中小學區 860 面，PMTiles 1.40 MB）
-      - 🔴 **面與面本來就重疊**，1,115 組「一里多校」是制度事實，**不要 dedup**
-      - popup **必須顯示 `lin_specs`**（鄰級文字），圖層說明要寫「實際學區以各校公告為準」
-      - 🔴 只有 4 縣市有資料（臺北 226／臺中 302／新北 286／新竹市 46），另 11 縣市完全無公告
-        → 圖例必須區分「無資料」與「無學區」
-      - 臺北是 **110 學年度**，比其他三縣市舊，popup 或圖例宜註明學年度
-      - ⚠️ 務必用 `web/` 的 simplified 版（1.40 MB），不要用 processed 根目錄的 21.71 MB 原精度檔
-- [ ] **EDU-2**：`school_district_senior`（高中就學區 15 面，GeoJSON 0.70 MB）
-      - 這是**縣市級**，與 EDU-1 的里級完全不同粒度，**不要放同一個 toggle 群組**
-      - 同樣要用 `web/` 版（0.70 MB），非 12.24 MB 原精度檔
+- [x] **EDU-1**：`school_district_k12`（860 面，PMTiles 1.40 MB）→ 拆成
+      `eduDistrictElementary` 621／`eduDistrictJunior` 239 兩個 toggle（兩級的面完全疊合，
+      合成一個會糊成一片）。`precision` 分色（淡色 = 部分鄰屬 654 面）、popup 顯示 `lin_specs`、
+      圖例五句誠實性標示、共同學區 292 面未去重
+- [x] **EDU-2**：`school_district_senior`（15 面，GeoJSON 0.70 MB）→ `eduDistrictSenior`，
+      5 色循環、popup 含跨區就讀規則（最長 685 字，捲動顯示）
+      - 踩到一個上游契約錯誤：`district_no` 實際是**字串**（handoff §3.4 寫 number），
+        表達式必須包 `["to-number", …]`，否則 15 個面全黑。已回報上游
 
 ## 待辦 — W3（其餘點層）
 

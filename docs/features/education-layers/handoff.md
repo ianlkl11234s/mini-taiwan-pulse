@@ -20,6 +20,7 @@
 | 1 | 「`public/geo/schools.geojson` 是搬移前快照，接線時請重新從上游同步」 | md5 完全相同（`380b2336…`，2,504,719 bytes） | 不需同步，直接 cp |
 | 2 | `upstreamRegistry` 的 `schools` 「應為 `education.schools`」 | `upstreamRegistry.test.ts` 把 catalog 的 `dataset_id` frontmatter 收成**扁平 Set**；`education/schools.md` 是 `dataset_id: schools` | 用無點號的 **`schools`** / `campus_polygon`。寫 `education.schools` 測試會紅 |
 | 3 | 5 分層筆數 2614/736/508/140/28 | 加總 4,026，**少 289 校** | fold 後 2656/964/508/159/28 = **4,315**（見下） |
+| 4 | §3.4 `school_district_senior` 契約列 `"district_no": 6`（數字） | 15 筆**全是字串** `"6"`；同檔的 `county_count`／`area_km2`／`rule_row_count` 都是 number | 前端表達式必須包 `["to-number", …]`。不包的話 Mapbox 算術對字串 evaluation error → match 回 null → **15 個面全黑** |
 
 ### 差異 3 的細節（最容易踩）
 
@@ -60,6 +61,34 @@ layer name `campus_polygon`，切片 **minzoom 8 / maxzoom 15**（`pmtiles show`
 ⚠️ campus 的 `school_level` 是**英文代碼**，餵進 `schoolLevelGroupOf()` 會每筆都回 `null`。
 取色一律用 `CAMPUS_LEVEL_COLORS[school_level] ?? "#90a4ae"`（與圖層 `campusLevelColorExpr` 同一份表）。
 
+### `public/education/school_district_k12.pmtiles`（860 面）
+
+layer name `school_district_k12`，切片 **minzoom 6 / maxzoom 13**（實測）。
+`level`：`elementary` 621 ／ `junior` 239。`county`：僅臺北市／新北市／臺中市／新竹市。
+
+| 欄位 | 型別 | 用途 |
+|---|---|---|
+| `school` | string | popup 標題（校名） |
+| `level` | string | 拆 2 個 sublayer + 分色主色 |
+| `precision` | string | `village_full` 206 ／ `village_partial` 654 → **分色**（淡色 = 部分鄰屬） |
+| `lin_specs` | string | popup **鄰別**（上游明確要求必顯示） |
+| `is_shared` | boolean | true 292 → popup 共同學區警告 |
+| `county` / `village_count` / `villages` / `n_full` / `n_partial` / `area_km2` | — | popup |
+
+🔴 **`lin_specs` 只有 `village_partial` 的 654 筆有值，`village_full` 的 206 筆是空字串（不是 null）**。
+popup 不能直接印，一律走 `linSpecsLabel(lin_specs, precision)` —— 有值回原文、`village_full`
+回「整里皆屬本校」、其餘回「—」。這條 handoff 沒寫，是實測發現的。
+
+### `public/education/school_district_senior.geojson`（15 面）
+
+| 欄位 | 型別 | 用途 |
+|---|---|---|
+| `district` | string | popup 標題（如「基北區」） |
+| `district_no` | **string**（⚠️ 非 number） | 5 色循環分色 → 表達式**必須** `["to-number", …]` |
+| `counties` / `county_count` | string / number | popup 涵蓋縣市 |
+| `cross_district_rules` | string | popup 跨區就讀規則，**最長 685 字**，需 `maxHeight` + `overflowY:auto` |
+| `area_km2` / `rule_row_count` | number | popup |
+
 ## 前端接線點（17 檔）
 
 `types/index.ts`(3 處) → `data/educationTypes.ts`(新) → `map/overlayRegistry.ts`(8 config) →
@@ -75,6 +104,8 @@ layer name `campus_polygon`，切片 **minzoom 8 / maxzoom 15**（`pmtiles show`
 
 `edu-schools-{glow,circle,elementary,junior,senior,university,special,remote-halo,remote-dot}`
 `edu-campus-{fill,line}`
+`edu-district-k12-{elementary-fill,elementary-line,junior-fill,junior-line}`
+`edu-district-senior-{fill,line}`
 
 ## 回填上游（待辦）
 

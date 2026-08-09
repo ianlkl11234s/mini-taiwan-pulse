@@ -71,6 +71,8 @@ import {
   REMOTE_SCHOOL_FILTER, regionTypeColorExpr,
   CAMPUS_NON_SCHOOL_FILTER, campusLevelColorExpr,
   CAMPUS_PMTILES_MINZOOM, CAMPUS_PMTILES_MAXZOOM,
+  districtLevelFilter, districtPrecisionColorExpr, districtSeniorColorExpr,
+  DISTRICT_K12_PMTILES_MINZOOM, DISTRICT_K12_PMTILES_MAXZOOM,
 } from "../data/educationTypes";
 
 /**
@@ -8667,7 +8669,98 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // 2-6. 學校點位 5 分級 —— 同一份 schools.geojson，用 school_level fold 後 filter。
+  // 2-3. 國中小學區面 —— 860 面拆兩個 toggle（國小 621／國中 239）。
+  // 兩級的面**完全疊合**（同一個里同時有國小與國中學區），合成一個 toggle 會糊成一片，
+  // 故拆開讓使用者獨立開關；兩者共用 sourceId 與 opacity param，切片只下載一次。
+  // 🔴 這層不是精確邊界：淡色 = village_partial（該里只有部分鄰屬本校，654 面），
+  //    面與面重疊是制度事實（共同學區 292 面），**不要 dedup**。詳見 educationTypes。
+  // 🔴 僅臺北／新北／臺中／新竹市 4 縣市有公告，另 11 縣市無資料 ≠ 無學區（圖例已標）。
+  {
+    id: "eduDistrictElementary",
+    sourceUrl: "./education/school_district_k12.pmtiles",
+    sourceId: "edu-district-k12",
+    pmtiles: {
+      sourceLayer: "school_district_k12",
+      minzoom: DISTRICT_K12_PMTILES_MINZOOM,
+      maxzoom: DISTRICT_K12_PMTILES_MAXZOOM,
+    },
+    layers: [
+      {
+        suffix: "elementary-fill", type: "fill",
+        filter: districtLevelFilter("elementary"),
+        paint: (_isDark, p) => ({
+          "fill-color": districtPrecisionColorExpr("elementary"),
+          "fill-opacity": p?.eduDistrictK12Opacity ?? 0.3,
+        }),
+      },
+      {
+        suffix: "elementary-line", type: "line",
+        filter: districtLevelFilter("elementary"),
+        paint: (_isDark, p) => ({
+          "line-color": districtPrecisionColorExpr("elementary"),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 13, 1.0],
+          "line-opacity": (p?.eduDistrictK12Opacity ?? 0.3) * 0.9,
+        }),
+      },
+    ],
+  },
+  {
+    id: "eduDistrictJunior",
+    sourceUrl: "./education/school_district_k12.pmtiles",
+    sourceId: "edu-district-k12",
+    pmtiles: {
+      sourceLayer: "school_district_k12",
+      minzoom: DISTRICT_K12_PMTILES_MINZOOM,
+      maxzoom: DISTRICT_K12_PMTILES_MAXZOOM,
+    },
+    layers: [
+      {
+        suffix: "junior-fill", type: "fill",
+        filter: districtLevelFilter("junior"),
+        paint: (_isDark, p) => ({
+          "fill-color": districtPrecisionColorExpr("junior"),
+          "fill-opacity": p?.eduDistrictK12Opacity ?? 0.3,
+        }),
+      },
+      {
+        suffix: "junior-line", type: "line",
+        filter: districtLevelFilter("junior"),
+        paint: (_isDark, p) => ({
+          "line-color": districtPrecisionColorExpr("junior"),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 13, 1.0],
+          "line-opacity": (p?.eduDistrictK12Opacity ?? 0.3) * 0.9,
+        }),
+      },
+    ],
+  },
+
+  // 4. 高中就學區 15 面 —— ⚠️ **縣市級**，與上面兩層的里級完全不同粒度。
+  // 15 色圖例列不完也沒語意 → 5 色循環，顏色只為區分相鄰區域。
+  // 覆蓋全台的大面，opacity 預設壓到 0.18（照 UX baseline 的「行政區」級距）。
+  {
+    id: "eduDistrictSenior",
+    sourceUrl: "./education/school_district_senior.geojson",
+    sourceId: "edu-district-senior",
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": districtSeniorColorExpr(),
+          "fill-opacity": p?.eduDistrictSeniorOpacity ?? 0.18,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: (_isDark, p) => ({
+          "line-color": districtSeniorColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 10, 2.0],
+          "line-opacity": Math.min(1, (p?.eduDistrictSeniorOpacity ?? 0.18) * 3),
+        }),
+      },
+    ],
+  },
+
+  // 5-9. 學校點位 5 分級 —— 同一份 schools.geojson，用 school_level fold 後 filter。
   // 2,656 + 964 + 508 + 159 + 28 = 4,315 = GeoJSON 總點數（9 種原始值全覆蓋，見 educationTypes）。
   {
     id: "eduSchoolElementary",
@@ -8726,7 +8819,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     }],
   },
 
-  // 7. 偏遠地區學校 —— 1,152 點（偏遠 830／特偏 192／極偏 130），三級由淺黃到深橘。
+  // 10. 偏遠地區學校 —— 1,152 點（偏遠 830／特偏 192／極偏 130），三級由淺黃到深橘。
   // ⚠️ `region_type` 這個 key 在全部 4,315 筆都存在、非偏遠的 3,163 筆值是 JSON null，
   //    所以 filter 必須用 match（REMOTE_SCHOOL_FILTER），寫 ["has","region_type"] 會全數命中。
   {

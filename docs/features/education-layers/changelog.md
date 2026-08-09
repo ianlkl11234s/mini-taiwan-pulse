@@ -2,6 +2,50 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-08-09 — 未 PR（branch `feat/education-layers`，接續 W1）
+
+**W2：學區面 3 個圖層**
+
+- `eduDistrictElementary` 國小學區 621 面／`eduDistrictJunior` 國中學區 239 面
+  （同一份 `school_district_k12.pmtiles`，z6-13，共用 sourceId `edu-district-k12` 與 opacity param）
+- `eduDistrictSenior` 高中就學區 15 面（GeoJSON，5 色循環）
+- 教育主題新增第三個 group「學區 District」
+
+**設計決策**
+
+- **k12 拆兩個 toggle 而非上游規劃的一個**：國小與國中學區的面**完全疊合**
+  （同一個里同時有兩級學區），合成單一 toggle 會糊成一片。拆開讓使用者獨立開關。
+- **依 `precision` 分色**（整里皆屬 = 飽和色／部分鄰屬 = 淡色）：把「這個面的邊界是模糊的」
+  直接畫進視覺，不必等使用者點開 popup 才知道。
+- **高中就學區用 5 色循環不列 15 色圖例**：顏色只為區分相鄰區域，沒有語意。
+- **重疊未去重**：共同學區 292 面、1,115 組一里多校是制度事實。
+
+**踩到的上游契約錯誤**
+
+`school_district_senior.geojson` 的 `district_no` handoff §3.4 寫 `6`（number），
+實際 15 筆**全是字串** `"6"`（同檔的 `county_count`／`area_km2`／`rule_row_count` 都是 number）。
+Mapbox 算術運算子對字串做 number assertion 會 evaluation error → `match` 回 null →
+**15 個面會全黑**。已在 `districtSeniorColorExpr()` 包 `["to-number", …]` 並回報上游。
+
+**另一個上游沒寫的欄位細節**
+
+`lin_specs`（鄰別）只有 `village_partial` 的 654 筆有值，`village_full` 的 206 筆是**空字串**
+（不是 null）。popup 走 `linSpecsLabel()` 三態處理，`village_full` 顯示「整里皆屬本校」。
+
+**部署**：`public/education/` 在 W1 已設好 nginx location / pull sync / upload glob，
+兩個新檔（1.40 MB + 0.70 MB）自動涵蓋，**無需改部署**。累計 8.96 MB。
+
+**驗收**
+
+- `npx tsc -b` exit 0；`pnpm test` **320/321**（唯一紅燈 `lightningCwa` 為 HEAD 既有）
+- 資產確認用的是 simplified 版（避開 handoff 坑 #7）：k12 PMTiles 的 `generator_options`
+  顯示來源是 `web/school_district_k12_web.geojson`（**非** processed 根目錄的 21.71 MB 原精度）；
+  senior 本地 736,788 bytes = 0.70 MB（**非** 12.24 MB）
+- 資料層複驗：`level` 621／239 = 860 ✅、`precision` 206／654 = 860 ✅
+- 瀏覽器驗收：見下方追記
+
+---
+
 ## 2026-08-08 — 未 PR（branch `feat/education-layers`）
 
 **W1：教育主題上線，8 個圖層**

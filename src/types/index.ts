@@ -146,6 +146,7 @@ export type ExpandableLayerKey =
   // 🎓 教育 Education（第 38 主題；6 個點層共用同一份 schools.geojson，sourceId edu-schools）
   | "schools" | "eduSchoolElementary" | "eduSchoolJunior" | "eduSchoolSenior"
   | "eduSchoolUniversity" | "eduSchoolSpecial" | "eduRemoteSchools" | "eduCampusPolygon"
+  | "eduDistrictElementary" | "eduDistrictJunior" | "eduDistrictSenior"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -700,8 +701,9 @@ export interface FeatureInfo {
     // ⚰️ 殯葬 Funeral（layerType = layer key 同名，5 個）
     | "funeralFacilities" | "funeralOperators" | "funeralOperatorDensity"
     | "cemeteryOsm" | "cemeteryZoning"
-    // 🎓 教育 Education：6 個學校點層共用既有 "school"，只有校地面自成一型
-    | "eduCampus"
+    // 🎓 教育 Education：6 個學校點層共用既有 "school"，面層各自成型
+    // （k12 兩級共用一型：欄位契約相同，popup 只有標題色與級別標籤不同）
+    | "eduCampus" | "eduDistrictK12" | "eduDistrictSenior"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -954,6 +956,10 @@ export interface LayerVisibility {
   eduSchoolSpecial: boolean;       // 特教 28
   eduRemoteSchools: boolean;       // 偏遠標記 1,152（偏遠 830／特偏 192／極偏 130；⚠️ 非偏遠是 JSON null）
   eduCampusPolygon: boolean;       // 校地面 4,324（4,336 濾除 non_school 12；⚠️ zoom<8 不顯示、澎金無資料）
+  // 學區面（⚠️ 不是精確邊界、面與面本來就重疊；僅臺北/新北/臺中/新竹市 4 縣市有公告）
+  eduDistrictElementary: boolean;  // 國小學區 621 面（precision 分色：整里 206／部分鄰 654）
+  eduDistrictJunior: boolean;      // 國中學區 239 面（同上，與國小學區完全疊合故拆兩個 toggle）
+  eduDistrictSenior: boolean;      // 高中就學區 15 面（⚠️ 縣市級，與上面兩層粒度完全不同）
   tourEvents: boolean;           // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
   tourFactories: boolean;         // 觀光工廠（158 點，單色）
   tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）
