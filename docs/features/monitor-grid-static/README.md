@@ -28,36 +28,61 @@
 
 ## 佈局來源
 
-座標**由排版沙盒拖曳定稿後匯出**（2026-07-26），不是手算的。
+座標**由排版沙盒拖曳定稿後匯出**，不是手算的。
 要改版面 → 回沙盒拖完重新匯出、覆蓋 `MONITOR_LAYOUT`，**不要**在 `MonitorPanel.tsx` 裡手調。
 
-畫布規格：`cols=12` / `rowHeight=40px` / `gap=10px`。
+沙盒原始碼就在本目錄：[`sandbox.html`](./sandbox.html)（= artifact
+<https://claude.ai/code/artifact/f5d75312-41b8-4480-9458-e9e2bf98738e> 的來源）。
+**改沙盒一律改這份再發布**——2026-08-02～08-10 期間沙盒只活在 artifact 上、repo 沒有副本，
+結果漂掉兩個版本（缺 `foodPriceBoard`、rowHeight 用浮動值）。
+
+畫布規格：`cols=12` / `rowHeight=40px` / `gap=10px`（沙盒 `ROW_H` 與 `MONITOR_GRID_ROW_HEIGHT` 綁死）。
+
+八版（2026-08-10）座標：
 
 | id | 元件 | x,y | w×h |
 |---|---|---|---|
-| `newsFeed` | `NewsFeedPanel` | 0,0 | 4×9 |
-| `alertBoard` | `alerts/AlertBoard` | 4,0 | 3×9 |
-| `histogram` | `HourlyHistogramWidget` | 7,0 | 5×6 |
-| `timeline` | `TimelineDock`（含內嵌 AlertsTrack） | 7,6 | 5×7 |
-| `triage` | `TriageWidget` | 0,9 | 4×4 |
-| `hotZones` | `HotspotsWidget` | 4,9 | 3×4 |
-| `situationOverview` | `SituationOverview` | 0,13 | 5×6 |
-| `liveWall` | `LiveWall` | 5,13 | 7×10 |
-| `situationCards` | `SituationCards` | 0,19 | 5×4 |
-| `hazardStrip` | `HazardWatchStrip` | 0,23 | 5×4 |
-| `powerCard` | `PowerCard` | 5,23 | 7×6 |
-| `erCongestion` | `ERCard` | 0,27 | 5×6 |
-| `prison` | `PrisonCard` | 0,33 | 2×4 |
-| `airportPax` | `AirportPaxCard` | 2,33 | 3×6 |
+| `newsFeed` | `NewsFeedPanel` | 0,0 | 4×12 |
+| `alertBoard` | `alerts/AlertBoard` | 4,0 | 3×7 |
+| `timeline` | `TimelineDock`（含內嵌 AlertsTrack） | 7,0 | 5×9 |
+| `hotZones` | `HotspotsWidget` | 4,7 | 3×5 |
+| `triage` | `TriageWidget` | 7,9 | 5×3 |
+| `situationOverview` | `SituationOverview` | 0,12 | 5×5 |
+| `liveWall` | `LiveWall` | 5,12 | 7×14 |
+| `taiex` | `PressureRing` 的 `TwseTicker` | 0,17 | 5×3 |
+| `situationCards` | `SituationCards` | 0,20 | 5×3 |
+| `plaBoard` | `PlaBoard` | 0,23 | 5×13 |
+| `hazardStrip` | `HazardWatchStrip` | 5,26 | 7×8 |
+| `powerCard` | `PowerCard` | 5,34 | 7×14 |
+| `erCongestion` | `ERCard` | 0,36 | 5×15 |
+| `foodPriceBoard` | `FoodPriceBoard` | 5,48 | 7×12 |
+| `prison` | `PrisonCard` | 0,51 | 2×4 |
+| `airportPax` | `AirportPaxCard` | 2,51 | 3×6 |
+
+`histogram`（`HourlyHistogramWidget`）在 `MONITOR_HIDDEN`，不渲染。
+
+改完座標後跑一次逐格比對（沙盒 restored preset vs `MONITOR_LAYOUT`），避免兩邊再漂：
+把 `<script>` 區塊抽出成 `.js`，比對 `L("id", x, y, w, h)` 與 `{ i: "id", x, y, w, h }` 兩組值。
 
 ## 關鍵檔案
 
 - 佈局 SSOT：`src/components/intel/monitor/monitorLayout.ts`
+- 排版沙盒（本目錄）：[`sandbox.html`](./sandbox.html)
 - 網格容器 + widget 接線：`src/components/intel/monitor/MonitorPanel.tsx`
 - 新抽離元件：`NewsFeedPanel.tsx` / `HotspotsWidget.tsx` / `HourlyHistogramWidget.tsx` / `TriageWidget.tsx`
 - 已刪除：`IndicatorPanel.tsx`（widget 全部上網格後成為 orphan）
 
 ## 已知取捨
+
+- **格高由「圖表吸收剩餘高度」決定，不是估的**。`plaBoard` / `foodPriceBoard` 的內部
+  圖表區塊掛 `flex:1 + minHeight`，格子給多少就撐多少 → 決定 `h` 的唯一正確方式是
+  **開實機量**（`document.querySelectorAll('.mtp-monitor-cell')` 逐格比 `scrollHeight`
+  與 `clientHeight`），不要照行高估算。
+- **帶 `viewBox` 的 `<svg>` 在 flex 容器裡會自己算高度**（寬 × 內建長寬比），
+  實測把食品價格卡撐到 253px 爆格。走勢圖的 svg 一律 `position:absolute` 退出高度計算，
+  高度只吃 wrapper 由 flex 分到的值。
+- `erCongestion` 內容約 1163px、格高 740px → **格內捲動約 423px**（既有行為，非本次造成）。
+  要一次看完得把 `h` 拉到 24 左右，會把左欄推得很長，暫不動。
 
 - **格子會自己捲動**。`gridAutoRows` 固定 40px，但 `LiveWall` 是 2×2 的 16:9 磚，
   實際高度隨欄寬變動，固定 row span 無法在所有視窗寬度下剛好裝下。

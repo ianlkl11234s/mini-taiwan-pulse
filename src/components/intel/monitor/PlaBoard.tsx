@@ -52,7 +52,7 @@ export function PlaBoard({ open }: Props) {
   const latest = days.length ? days[days.length - 1]! : null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
       <SectionLabel color="#ff6b6b">共機擾台 · PLA SITUATION BOARD</SectionLabel>
       <div
         style={{
@@ -61,6 +61,8 @@ export function PlaBoard({ open }: Props) {
           background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
           padding: "12px 14px",
           display: "flex", flexDirection: "column", gap: 11,
+          // 格高有剩就讓趨勢柱狀圖吃掉（見 TrendRow 的 flex:1），不要留死白
+          flex: 1, minHeight: 0,
         }}
       >
         {!latest || !summary ? (
@@ -178,11 +180,12 @@ function AxisBar({ label, pct, value, unit }: {
 function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
   const max = Math.max(summary.sorties.max, 1);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+    // 柱狀圖是本板唯一「越高越好讀」的區塊 → 由它吸收整格剩餘高度（下限 110px）
+    <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minHeight: 0 }}>
       <RowLabel>
         {summary.windowDays}D TREND · 架次（柱）／越中線（疊色）· 灰=解析失敗
       </RowLabel>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height: 54 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, flex: 1, minHeight: 110 }}>
         {days.map((d) => {
           // ⚠️ null = 解析失敗，畫成灰色短樁；0 = 真的零架次，畫成 1px 底線
           if (d.sorties === null) {
@@ -235,7 +238,8 @@ function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituat
       <RowLabel>
         空域方位 · 近 {summary.windowDays} 天進入天數（● = 昨日進入）
       </RowLabel>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "4px 14px" }}>
+      {/* 單欄：條長度是這裡唯一的比較基準，兩欄會把條腰斬到看不出差距 */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "5px" }}>
         {ZONES.map((z) => {
           const n = summary.zones[z.key];
           const pct = Math.round((n / summary.daysTotal) * 100);
@@ -272,7 +276,8 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
       <RowLabel>
         侵擾方式 · 近 {summary.windowDays} 天出動天數（機型僅存在於航跡圖表格）
       </RowLabel>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "4px 14px" }}>
+      {/* 單欄，理由同 ZoneRow */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "5px" }}>
         {shown.map((k) => {
           const rare = k.days / summary.daysTotal <= 0.15;
           // 混合項次拆不開 → 只有 sortiesExact 是精確的，標一個記號說明

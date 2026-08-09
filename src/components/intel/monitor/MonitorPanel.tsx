@@ -28,6 +28,7 @@ import { TimelineDock } from "./TimelineDock";
 import { NewsFeedPanel } from "./NewsFeedPanel";
 import { AlertBoard } from "../alerts/AlertBoard";
 import { SituationOverview } from "./SituationOverview";
+import { TwseTicker } from "./PressureRing";
 import { SituationCards } from "./SituationCards";
 import { LiveWall } from "./LiveWall";
 import { HazardWatchStrip } from "./HazardWatchStrip";
@@ -525,13 +526,12 @@ export function MonitorPanel({
       <SituationOverview
         pressure={pressure}
         smoothedScore={smoothed}
-        market={market}
         sourceHealth={sourceHealth}
         totalEvents={allEventsToday.length}
         severeCount={severeCount}
-        panelOpen={open}
       />
     ),
+    taiex: <TwseTicker data={market} open={open} />,
     liveWall: <LiveWall />,
     situationCards: <SituationCards health={health} />,
     plaBoard: <PlaBoard open={open} />,

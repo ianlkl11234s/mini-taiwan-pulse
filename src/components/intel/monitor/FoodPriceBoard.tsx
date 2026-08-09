@@ -68,6 +68,8 @@ export function FoodPriceBoard({ open }: Props) {
           background: "linear-gradient(160deg, rgba(95,191,109,0.06), rgba(255,255,255,0.012))",
           padding: "12px 14px",
           display: "flex", flexDirection: "column", gap: 11,
+          // 格高有剩就讓四張卡的走勢圖吃掉（見下方 2×2 grid 的 flex:1），不要留死白
+          flex: 1, minHeight: 0,
         }}
       >
         {!summary.length ? (
@@ -76,7 +78,7 @@ export function FoodPriceBoard({ open }: Props) {
           </div>
         ) : (
           <>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9, flex: 1, minHeight: 0 }}>
               {ORDER.map((key) => {
                 const s = summary.find((x) => x.indicator === key);
                 if (!s) return null;
@@ -113,7 +115,7 @@ function IndexCell({ s, series }: { s: FoodPriceSummary; series: FoodPriceDay[] 
         border: `1px solid ${color}33`,
         background: `${color}0d`,
         padding: "8px 9px 7px",
-        display: "flex", flexDirection: "column", gap: 5, minWidth: 0,
+        display: "flex", flexDirection: "column", gap: 5, minWidth: 0, minHeight: 0,
       }}
     >
       {/* 標題列 */}
@@ -209,7 +211,8 @@ function StatusDot({ light, dev }: { light: FoodPriceSummary["latestLight"]; dev
 
 /* ── 180 天迷你走勢 ─────────────────────────────────────── */
 
-const SPARK_H = 34;
+/** viewBox 高度基準；實際渲染高度由 flex 撐開（下限即此值），180 天要看得出形狀 */
+const SPARK_H = 52;
 
 function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string }) {
   const geom = useMemo(() => {
@@ -251,14 +254,18 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
   }, [series]);
 
   if (!geom) {
-    return <div style={{ height: SPARK_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textGhost }}>資料不足</div>;
+    return <div style={{ flex: 1, minHeight: SPARK_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textGhost }}>資料不足</div>;
   }
 
   return (
+    // ⚠️ svg 必須絕對定位：帶 viewBox 的 svg 有「內建長寬比」，在 flex 裡會用
+    //    寬度×比例算出自己的高度（實測 253px）把整格撐爆。absolute 讓它退出高度計算，
+    //    只吃 wrapper 由 flex 分到的高度。
+    <div style={{ flex: 1, minHeight: SPARK_H, position: "relative" }}>
     <svg
       viewBox={`0 0 100 ${SPARK_H}`}
       preserveAspectRatio="none"
-      style={{ width: "100%", height: SPARK_H, display: "block", overflow: "visible" }}
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", overflow: "visible" }}
       role="img"
       aria-label={`近 180 天走勢，區間 ${geom.mn.toFixed(0)} 至 ${geom.mx.toFixed(0)}`}
     >
@@ -277,6 +284,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
       <path d={geom.d} fill="none" stroke={color} strokeWidth={1.4} vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
       <circle cx={geom.lastX} cy={geom.lastY} r={1.6} fill={color} vectorEffect="non-scaling-stroke" />
     </svg>
+    </div>
   );
 }
 

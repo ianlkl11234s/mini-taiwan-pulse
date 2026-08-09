@@ -192,7 +192,10 @@ export function TwseTicker({ data, open }: { data: MarketIndex; open: boolean })
           >
             30D
           </span>
-          <Sparkline data={closes} color={histUp ? "#ff4d4f" : "#16c784"} w={150} h={24} />
+          {/* 2026-08-10 起 TAIEX 是獨立 widget（不再擠在戰情概覽右側），日線給得起 360×48。
+              上限抓 360 是因為 Sparkline 固定寬 + flexShrink:0：grid 模式最窄（容器 1100px）
+              時 w5 格內可用寬約 380px，再大就會溢出讓格子橫向捲動。 */}
+          <Sparkline data={closes} color={histUp ? "#ff4d4f" : "#16c784"} w={360} h={48} />
         </div>
       )}
     </div>
