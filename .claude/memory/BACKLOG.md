@@ -15,6 +15,7 @@
 | DS-03 | P2 | 台電落雷向來源反映斷供（data.gov.tw nid 61139，端點 200 但永遠空檔） | open |
 | DS-04 | P2 | `public.taiwan_counties` 等縣市 polygon 表**都不存在** → `refresh_lightning_daily_summary` 一直走「全國一列 county=NULL」分支，落雷彙總沒有縣市維度（既有狀況，非本次引入） | open |
 | DS-05 | P3 | 共機航跡 2024-08 起 588 天全量回填（目前只驗過 2026 年 181 天）。走 analytics 的批次腳本（中位數配準），不是每日 collector（回看窗只有 30 天） | open |
+| DS-06 | **P1** | **ships 日筆數 8 天內 17,500 → 7,224 單調下滑（−39%）**，疑 AIS collector 退化。2026-08-08 做 nightly trails 匯出時發現（每天的檔案越來越小）。要查 collector 端（航港局 AIS 來源／解析／寫入）還是真的船變少 | open |
 
 ### 前端小坑（2026-08-07 發現）
 
@@ -39,11 +40,18 @@
 | EM-13 | — | Cloudflare 快取規則 | **done**（2026-08-05；規則內容記於 feature handoff §0b） |
 | EM-23 | P2 | 行動裝置實機驗收 | open |
 | EM-01~06, 09, 10, 14, 15, 19, 20 | — | 規劃／底圖／URL／`/embed`／CDN 層／歷史快照／分享面板／popup | **done** |
-| EM-16 | — | Three.js 圖層（船舶/班機/鐵路/公車）嵌入 | **待討論**（owner 2026-08-04：之後再談） |
+| EM-16 | — | Three.js 圖層嵌入（**原結論「不做」已翻案**）：flights / ships / rail 三層動態回放 + `rsys=` 系統單選 + 多層共時鐘 + 三份圖例 + 上生產供檔 | **實作完成、PR #118 待審**（2026-08-09；bus 渲染 owner 拍板暫緩 → EM-24） |
 | EM-07/08/11/12/17/18/22 | P2–P3 | 加油站快照補檔、更多歷史快照層、底圖改 R2、字型自託管、facade、嵌入碼防腐、popup 標籤 | open |
+| EM-24 | P2 | **bus 回放渲染**（owner 2026-08-08 拍板暫緩）。資料已由 nightly trails 每日保存，未來要做隨時有料；引擎 `BusEngine`（741 行純 TS）可直接復用 | open（暫緩，非阻塞） |
+| EM-25 | P2 | 回放 scrubber（拖曳時間軸）。`replayClock.seek()` 已備好，UI 加一條 range input 即可 | open |
+| EM-26 | P3 | 回放版不畫整日靜態全軌跡 —— 5,718 班全路徑 additive 疊加會**整片白糊**淹沒動畫，且同步建 mesh 阻塞主執行緒數秒。要補得改走**預先烘焙的靜態 GeoJSON 疊層**，不是把主站那套搬過來 | open |
+| EM-27 | P3 | 主站「全路徑靜態軌跡」的高度漸層配色（暖橘低空→冷藍高空）是**真語意但 Live 限定**，embed 不畫。要補得另開帶顯示條件的 legend entry | open |
+| EM-28 | P3 | `UrlState.hour` 註解已過時（仍寫「只影響主站時間軸」，但 EM-16 後 `h=` 會影響 embed 起播時間） | open（純註解） |
+| EM-29 | P3 | `fullUrl`（「在 Mini Taiwan Pulse 開啟」）**刻意不帶 `rsys`**（主站無單系統概念）。日後主站若要支援單系統篩選，需**兩處一起補** | open（現況正確，留紀錄） |
 
 > ⚠️ EM-17 順帶發現的既有問題：`get_gas_station_layers` 的 loader 已改用 `staticRpc`，
 > 但 `public/static-rpc/` **沒有該檔** → 主站一直靜默 fallback 打 RPC（非本功能引入）。
+> **2026-08-09 覆核：仍未解，現在就在付 egress。** EM 系列裡優先級最高的一項。
 
 ### 架構改造（AR 系列，2026-07-03 — 全系統審計後五階段計畫）
 
@@ -61,7 +69,7 @@
 | AR-11e | P1 | 影像收尾（穩定一週後）：清 DB 3.2GB bytea + 補 pg_cron cleanup | open | 不可逆，刻意延後至 CDN 穩定 |
 | AR-11f | P2 | AQI + precip raster imagery 同套 CDN 化 | open | 同構於 AR-11，aqiImageryLoader/precipRasterLoader |
 | AR-12/13 | P1 | C 類即時快照（bus current/news/alerts…）snapshot-to-CDN | open | 需 R2 + collector snapshot_writer；讀取去 DB 化主體 |
-| AR-14~16 | P1 | B 類歷史 trails（ship/bus/flight）per-day 靜態檔（Arrow） | open | nightly export，避 pooler 2min timeout |
+| AR-14~16 | P1 | B 類歷史 trails（ship/bus/flight）per-day 靜態檔（Arrow） | **匯出端 done 2026-08-08 / 供檔端仍 open** | 匯出：data-collectors PR #47 `scripts/export_daily_trails.py`，每日 02:00 寫 `s3://…/trails/`（見 DATA_SCOPE + PB-35）。⚠️ **但那是保存層，不是供檔層** —— 本 session 明確定調「前端直讀 `trails/` 是錯的」（egress $0.114/GB）。要完成 AR-14~16 的讀取去 DB 化，仍需把日檔加工成成品包放進 CDN 供檔路徑 |
 | AR-21~26 | P2 | 圖層架構：細粒度 visibility/params store + Layer Manifest（消滅 5 靜默失敗點 + 對話介面地基） | open | 翻倍到 100+ layer 的結構解 |
 | AR-31~36 | P2 | 渲染效能：renderer 合併 + FlightScene 重構 + GPU 時間過濾 + worker | open | 多層同開順暢 |
 | AR-41~44 | P2 | D3 schema 收窄 → Auth 會員 → 對話介面（吃 manifest + 分析 RPC 白名單） | 部分已由 BC 系列先行 | 會員/BYOK 已上線，manifest 地基待 AR-21 |
@@ -192,6 +200,8 @@
 | G014 | P1 | gis-platform migration 301/318/319/320 commit + push | **done 2026-07-29** | 318/319/320 以 gis-platform PR #42（merge `6937d2b`，保留兩顆 atomic commits）收納；301 查證早已在 main（`0f2b878` 含於先前 merge）。三支 RPC/policy 自 7/26 起即在 production 運行 |
 | G015 | P3 | feat/monitor-grid-layout 分支（14 commits Monitor v2）復活評估 | open | 2026-07-26 靜態網格（PR #90）只取代了其中 2 個修 bug commit；RGL 可拖曳畫布 + widget registry + 版面持久化 + 會員 gating 未被取代。若要生產環境拖拉版面再議 rebase；沙盒 Artifact + monitorLayout.ts 流程（PB-30）已滿足目前需求 |
 | G016 | P2 | weather_change/.env 明文 AWS S3 key 輪替 | open | 2026-07-29 探索時發現（未進 git、僅本機磁碟，.gitignore 有擋）。輪替該組 key + 清 .env；該 repo 的 S3 舊流程 2026-02 已廢，可能可直接註銷憑證。詳 INCIDENTS 2026-07-29/31 事件 D |
+| G018 | P2 | **回饋軌道資料上游：折返幾何 artifact** | open | 2026-08-08 做 rail 幾何瘦身時發現原始軌道有「來回走同一段」的折返子路徑（RDP 會壓垮、弧長系統性縮短）。具體案例：`SK-TT-ZY-0` rawIdx 1822–1828（989m→683m）、`YL-SL-ZY-0`、**`trtc/LB-1-0` rawIdx 443–448（182.7→93.9m）**。最後這條是**單一系統來源軌道**，代表問題不只出在多來源 merge 接縫 → 值得回饋 `od-batch-generator` / 軌道資料上游。另：原始 TRA 幾何含 ~0.15–0.2% 次公尺級數位化雜訊長度，簡化後折線長度反而更接近真值 |
+| G019 | P3 | 267 個 `od_track` 檔中 **83 個（31%）無任何時刻表引用** | open | 2026-08-08 盤點發現。是**部署冗餘**不是使用者頻寬浪費（loader 只抓 schedule 出現的）。清理前要先確認不是「時刻表缺班次」而非「軌道多餘」 |
 | G017 | P3 | CF purge 憑證入 .env（CF_ZONE_ID + Cache Purge 權限 API token） | open | 2026-07-30 人均磚換新後 edge 快取供舊 pmtiles（range request 同吃），1d TTL 才自然過期；`purge-cloudflare-cache.sh` 現成但全機無憑證。設定後換磚 SOP 尾端補跑即可立即生效。詳 INCIDENTS 2026-07-29/30 事件 B |
 
 ### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
@@ -234,6 +244,9 @@
 | AG-5 | P2 | 分支重命名 feat/water-extensions → feat/agriculture | open | 本 session 主要做的是農業，但分支名仍寫水資源。建議重新命名或新開 feat/agriculture-batch-1 |
 
 ## 已完成（近期 10 筆）
+
+- 2026-08-08 ✅ **nightly trails 保存層上線**（data-collectors PR #47 merged + 已部署）：四 dataset（ships/flights/bus/bus_intercity）每日 02:00 Asia/Taipei 匯出到 `s3://…/trails/`。日總量 ~76MB、首年 ~US$4.5。`rows=0` 硬性 exit 1（因 dates matview 會謊報）、today-guard、HEAD 驗證。回補 ships/flights 各 8 天、bus 系 3 天；bus 08-04 與 ships/flights 07-30 已永久救不回。詳 DATA_SCOPE §保存層 + PB-35
+- 2026-08-09 ⏳ **EM-16 embed 動態回放**（PR #118 **待審**，14 commits）：翻掉 proposal §6-1「Three.js 圖層不做」的舊結論 —— 實測三顆引擎皆純 TS 零渲染依賴、MapLibre × Three.js spike 與 `map.project()` 誤差 ≤0.01px。上線 flights / ships / rail 三層回放（快照皆 2026-08-06：522KB / 4.78MiB / 229KB）+ rail 幾何 68MB→367KB（縮 190x）+ `rsys=` 系統單選 + 多層共時鐘 + 三份圖例。驗收 `tsc -b` 過、vitest **399 passed / 1 skipped / 0 failed**、bundle 內 `WebGLRenderer`/`InstancedMesh` 出現 **0** 次
 
 - 2026-05-25 ✅ **農企業登記 3 layer 接線**（AG-1）：retail 37,430 / produce_wholesale 22,843 / wholesale_market 53（共 60,326 點 / ~34MB）。**走 `overlayRegistry`（宣告式，MapView 不用改）非 agricultureLayerFactory** — 大型 geojson 散點比照 fireHydrants。3 獨立 toggle 進 AGRICULTURE 區；色 #e91e63/#3f51b5/#ffd600；新建 `src/data/agriCompanyTypes.ts`（色/標籤 SSOT）；UX 四鐵則：opacity+scale slider / 合併圖例 AgriCompanyLegend / click popup AgriCompanyPanel（公司名稱/統編/負責人/地址/資本額/狀態，bracket notation 讀中文欄位）。`npx tsc -b` 綠（補了 IconRailSidebar LAYER_ICONS 隱藏 Record）；dev server 3 資產 HTTP 200。⏳ 驗收/S3/Supabase import/commit 見 AG-6
 - 2026-05-23 ✅ **農業 Phase 3 Batch 1 完整上線**（6 PMTiles + 1 GeoJSON POI 部署到 public/agriculture/ ~215MB / FTW 既有 + agriSoil/agriSoilFertility/agriLeisureFarmZones/agriRuralRegen/agriCropSuitability/agriPOI 共 7 layer / 132 種作物 dropdown 切換 / 6 個可選取 layer 全部接 click popup [FTW 田區除外，僅 confidence 屬性無意義] / agriPOI 三類 + agriCropSuitability 4 級配色雙圖例 / 土壤肥力 6 metric 著色切換 [health/pH/OM/CEC/M3_P/M3_K] + 健康度綜合算法 + 數值分級註解 / sidebar select dropdown 門檻 > 6 → > 3 解橫向溢出 / 圖層 UX 鐵則升級 3 → 4 條完整寫進 docs/CLAUDE.md/memory）
