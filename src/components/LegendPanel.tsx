@@ -70,6 +70,7 @@ import {
 import {
   SCHOOL_LEVEL_ORDER, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS, SCHOOL_LEVEL_COUNTS,
   REGION_TYPES, REGION_TYPE_COLORS, REGION_TYPE_COUNTS, CAMPUS_LEGEND_ROWS,
+  CAMPUS_AREA_BUCKETS,
   DISTRICT_COLORS, DISTRICT_PRECISION_COUNTS, DISTRICT_DISCLAIMER,
   KINDERGARTEN_OWNERSHIP_COLORS, KINDERGARTEN_OWNERSHIP_COUNTS,
   CRAM_CATEGORY_ORDER, CRAM_CATEGORY_COLORS, CRAM_CATEGORY_LABELS, CRAM_CATEGORY_COUNTS,
@@ -375,11 +376,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     keys: ["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"],
     render: ({ visibility }) => <PollutionPenaltyLegend visibility={visibility} />,
   },
-  // 🎓 教育 16 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
+  // 🎓 教育 17 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
   {
     keys: [
       "schools", "eduSchoolElementary", "eduSchoolJunior", "eduSchoolSenior",
-      "eduSchoolUniversity", "eduSchoolSpecial", "eduRemoteSchools", "eduCampusPolygon",
+      "eduSchoolUniversity", "eduSchoolSpecial", "eduRemoteSchools",
+      "eduCampusPolygon", "eduCampusArea",
       "eduDistrictElementary", "eduDistrictJunior", "eduDistrictSenior",
       "eduKindergarten", "eduCramSchool", "eduAfterschoolCare", "eduMutualCare",
       "eduUniversityStudents",
@@ -1898,7 +1900,8 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
   const showK12District = k12DistrictRows.length > 0;
   // W1 的 8 個學校／校地層有沒有開 —— 同時決定 (a) 學區段的 marginTop 要不要留間距、
   // (b) 🔴 頁尾「學校點位為 113 學年度」要不要出現（單開學區面時它會敘述一個沒開的圖層）
-  const showSchoolSections = showLevels || !!visibility.eduRemoteSchools || !!visibility.eduCampusPolygon;
+  const showSchoolSections = showLevels || !!visibility.eduRemoteSchools
+    || !!visibility.eduCampusPolygon || !!visibility.eduCampusArea;
   // W1+W2（學校／校地／學區）有沒有任一段落 —— 純粹決定 W3 段落的 marginTop
   const showW1W2 = showSchoolSections || showK12District || !!visibility.eduDistrictSenior;
   const careRows = EDU_CARE_ROWS.filter((r) => visibility[r.key]);
@@ -1961,6 +1964,30 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
               </div>
             ))}
           </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            低倍率（約 zoom 7.5 以下）不顯示；澎湖、金門 0 筆（來源圖資死鏈），空白不代表當地沒有學校
+          </div>
+        </div>
+      )}
+
+      {/* 校地面積面量圖 —— 與上一段同一份切片，色階與筆數一律取自 CAMPUS_AREA_BUCKETS */}
+      {visibility.eduCampusArea && (
+        <div style={{ marginTop: showLevels || visibility.eduRemoteSchools || visibility.eduCampusPolygon ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            校地面積分級
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {CAMPUS_AREA_BUCKETS.map((b) => (
+              <div key={b.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={b.color} round={false} />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{b.label}</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            與「校地範圍」是同一份資料的兩種讀法：那層按學制分色，本層按面積分級
+          </div>
+          {/* 🔴 切片層級的限制跟著這份 PMTiles 走 —— 單開本層時上一段的註記不會出現，故必須重述 */}
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
             低倍率（約 zoom 7.5 以下）不顯示；澎湖、金門 0 筆（來源圖資死鏈），空白不代表當地沒有學校
           </div>

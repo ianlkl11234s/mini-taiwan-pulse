@@ -26,7 +26,8 @@ FILES=(
   "public/temperature_grid.json"
   "public/h3/h3_demographics_res8.json"
   "public/h3/h3_population_res8.json"
-  "public/geo/schools.geojson"
+  # geo/schools.geojson 已於 2026-08-09 退役 —— schools 圖層搬進教育主題後
+  # sourceUrl 改指 ./education/schools.geojson，走 deploy-assets/education/ 鏡像子前綴
   "public/geo/convenience_stores.geojson"
   "public/geo/active_faults.geojson"
 )

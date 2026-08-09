@@ -180,6 +180,33 @@ export function campusLevelColorExpr(fallback: string): unknown[] {
 export const CAMPUS_PMTILES_MINZOOM = 8;
 export const CAMPUS_PMTILES_MAXZOOM = 15;
 
+/**
+ * 校地**面積**分級（面量圖 `eduCampusArea`）——與 `eduCampusPolygon` 同一份切片、
+ * 同一個 sourceId，差別只在讀法：前者按學制分色，後者按 `area_ha` 分級。
+ *
+ * 門檻取 1/2/5/10 ha（實測濾除 non_school 後 4,324 面：
+ * median 2.08、p90 4.80、p99 24.86、max 293.48），各級筆數見 label。
+ * 色階用 YlGnBu 5 階（sequential，與主題其他圖層的類別色不衝突）。
+ */
+export const CAMPUS_AREA_BUCKETS: { min: number; color: string; label: string }[] = [
+  { min: 0, color: "#ffffcc", label: "< 1 公頃 708" },
+  { min: 1, color: "#a1dab4", label: "1 ~ 2 公頃 1,337" },
+  { min: 2, color: "#41b6c4", label: "2 ~ 5 公頃 1,883" },
+  { min: 5, color: "#2c7fb8", label: "5 ~ 10 公頃 260" },
+  { min: 10, color: "#253494", label: "≥ 10 公頃 136" },
+];
+
+/** `step` 的第一個值是「小於第一個門檻」的顏色，故 buckets[0].min 不進表達式 */
+export function campusAreaColorExpr(): unknown[] {
+  const rest = CAMPUS_AREA_BUCKETS.slice(1).flatMap((b) => [b.min, b.color]);
+  return [
+    "step",
+    ["coalesce", ["to-number", ["get", "area_ha"], 0], 0],
+    CAMPUS_AREA_BUCKETS[0]!.color,
+    ...rest,
+  ];
+}
+
 // ─────────────────────────────────────────────────────────────
 // 學區面（school_district_k12 / school_district_senior）
 // ─────────────────────────────────────────────────────────────
@@ -453,6 +480,8 @@ export const EDUCATION_LAYER_COLORS = {
   eduRemoteSchools: REGION_TYPE_COLORS.特偏,
   // 校地面：與 CAMPUS_LEVEL_COLORS 的「實驗／國際」同色系靛藍，代表整層
   eduCampusPolygon: "#7986cb",
+  // 校地面積面量圖：取色階中段代表整層
+  eduCampusArea: "#41b6c4",
   // 學區面：沿用該級距的「整里皆屬」飽和色代表整層
   eduDistrictElementary: DISTRICT_COLORS.elementary.full,
   eduDistrictJunior: DISTRICT_COLORS.junior.full,

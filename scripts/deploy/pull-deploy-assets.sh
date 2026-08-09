@@ -30,7 +30,7 @@ aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
   --include "bus_stations_city.geojson" --include "bus_stations_intercity.geojson" \
   --include "bike_stations.geojson" --include "cycling_routes.geojson" \
   --include "freeway_congestion.geojson" --include "weather_stations.geojson" \
-  --include "schools.geojson" --include "convenience_stores.geojson" \
+  --include "convenience_stores.geojson" \
   --include "active_faults.geojson" \
   --include "water_*.geojson" --include "water_*.pmtiles" --include "fire_*.geojson" \
   --include "medical_*.geojson"

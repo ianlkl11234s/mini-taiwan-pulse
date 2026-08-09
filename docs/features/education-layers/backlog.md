@@ -47,28 +47,38 @@
   踩到三個 handoff 沒寫的顯示層陷阱（已記在 handoff.md）：`[NN]` 方括號前綴、
   `地區縣市` 其實是機關名、`立案時間` 兩份紀年不同
 
-## 待辦 — 分析層（上游 layer-plan 規劃但未做）
+## ✅ 已完成 — 分析層與技術債（2026-08-09）
 
-- [ ] **EDU-9**：`eduCampusArea` — 同一份 campus PMTiles 用 `area_ha` 分級著色（面量圖）
-
-## 技術債 / 清理（低優先，需確認無引用後才動）
-
-- [ ] **EDU-10**：舊資產 `public/geo/schools.geojson` 與 S3 扁平根 `deploy-assets/schools.geojson`
-      已成孤兒（registry 全指 `./education/`）。要清的是：
-      `upload-deploy-assets.sh` 第 29 行、`pull-deploy-assets.sh` geo 段的 `--include "schools.geojson"`
-- [ ] **EDU-11**：`classificationCoverage.test.ts` 的 CASES 機制只吃 GeoJSON，
-      `campus_polygon` 的 10 類 `school_level`、`cram_schools` 的 14 類 `短期補習班類別`、
-      `school_district_k12` 的 `precision` 都是 PMTiles，目前靠各自 color expr 的 fallback 兜底，
-      沒有測試守門。若之後有 PMTiles 解析能力再補
+- [x] **EDU-9**：`eduCampusArea` 校地面積面量圖 —— 教育主題第 **17 個圖層**。
+      與 `eduCampusPolygon` **同一份切片、同一個 sourceId**（4.36 MB 只下載一次），
+      差別只在讀法：那層按學制分色、本層按 `area_ha` 分 5 級（YlGnBu 色階）。
+      門檻 1/2/5/10 ha 取自實測分布（median 2.08／p90 4.80／p99 24.86／max 293.48），
+      各級 708／1,337／1,883／260／136 = 4,324。popup 共用既有 `eduCampus` panel，
+      未新增 layerType。
+- [x] **EDU-10**：舊資產退役。`upload-deploy-assets.sh` 的 `public/geo/schools.geojson`
+      與 `pull-deploy-assets.sh` 的 `--include "schools.geojson"` 已移除（各留一行註解說明原因）。
+      全 `src/` 掃過確認無引用。**S3 上的 `deploy-assets/schools.geojson` 物件保留未刪**
+      （刪除不可逆，且留著只佔空間不影響任何行為）。
+- [x] **EDU-11**：新增 `src/data/__tests__/pmtilesClassificationCoverage.test.ts`。
+      `pmtiles` 套件的 `FileSource` 只吃瀏覽器 File 物件，Node 端自己實作了 Source 介面
+      （只需 `getKey`／`getBytes`），從 PMTiles 檔頭的 `tilestats` 取每個屬性的 distinct values
+      比對分色表。守住三個先前無人看管的分類：`campus_polygon.school_level`（10 類）、
+      `cram_schools.短期補習班類別`（14 類）、`school_district_k12.precision`（2 類），
+      並順帶對帳 feature 總數 4,336／17,137／860。
+      **做過負向驗證**：暫時從分色表移除 `kindergarten` 後測試確實轉紅，不是假綠。
 - [ ] **EDU-14**：上游 `cram_schools` PMTiles 用 `--drop-densest-as-needed` 切片，
       **z8~z14 每層都大量丟點，只有 z15 完整**（實測台北同一 bbox：z12 只有 15 筆、
       z13 35、z14 84、z15 204）。前端已在圖例誠實標示抽稀，但根治要上游重切：
       `-r1 --no-feature-limit --no-tile-size-limit`（代價是檔案變大）。
       要不要重切由 owner 拍板 —— 17,137 點在 z10-12 全畫出來也可能糊成一片，
       現況「抽稀 + 標示」未必比較差
-- [ ] **EDU-13**：上游 `school_district_k12` 的 `lin_specs` 有 **Excel 日期污染**
-      （富安國小 `11月12日` 應為 `11-12` 鄰；雙蓮 `1月19日` 應為 `1-19`）。
-      前端忠實渲染，修法在上游 pipeline 讀 Excel 時該欄位強制 `str` dtype。已回報
+- [x] **EDU-13**：`lin_specs` 的 Excel 日期污染 **上游已修**（B163，PR #40）並重出資產，
+      下游 2026-08-09 已同步 `school_district_k12.pmtiles`（1,466,615 → 1,461,763 bytes）並重傳 S3。
+      驗證：含「月」字的 `lin_specs` **歸零**；富安國小 → `11-12`、
+      雙蓮 → `16；19-21；1-19；21-24；27-32`；面數 860 與 precision 206/654 完全不變。
+      成因確認是**上游原始 CSV 就已污染**（臺北 476 筆），非讀取造成。
+      上游連帶修掉一個更危險的問題：`build_web_assets.py` 原本用 `sorted(...)[0]` 取
+      processed geojson，重跑後會拿到**最舊**那份，等於默默交付舊資料，已改 `[-1]`
 
 ## 非本 feature 範圍（明確不做）
 

@@ -779,6 +779,9 @@ export const THEMES: ThemeDef[] = [
         title: "校地 Campus",
         layers: [
           { key: "eduCampusPolygon", label: "校地範圍 Campus Area", labelMobile: "校地範圍 (4,324)", expandable: true },
+          // 與上一層同一份切片、同一個 sourceId（只下載一次），差別只在讀法：
+          // 上層按學制分色，本層按 area_ha 分 5 級 —— 兩者可獨立開關也可疊看。
+          { key: "eduCampusArea", label: "校地面積 Campus Size", labelMobile: "校地面積 (4,324)", expandable: true },
         ],
       },
       // 🔴 高中就學區是**縣市級**，與前兩者的里級完全不同粒度 —— 三者各自獨立 toggle，
