@@ -2041,7 +2041,8 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
             ))}
           </div>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
-            短期補習班為每日更新的資料源，此為 2026-08-07 快照；低倍率（約 zoom 7.5 以下）不顯示
+            短期補習班為每日更新的資料源，此為 2026-08-07 快照；低倍率（約 zoom 7.5 以下）不顯示，
+            且切片在 zoom 15 以下有抽稀（放大才看得到完整密度，點少不代表該區補習班少）
           </div>
         </div>
       )}
@@ -2085,7 +2086,7 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
             </div>
           </div>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
-            圓面積正比於學生數（368 ~ 34,941 人）
+            圓大小反映學生數（368 ~ 34,941 人），最小尺寸另有下限
           </div>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
             灰點 21 所無學生數統計（進修學院／空大歸母校、宗教研修不在統計範圍），不是 0 人

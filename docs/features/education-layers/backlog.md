@@ -49,6 +49,12 @@
       `campus_polygon` 的 10 類 `school_level`、`cram_schools` 的 14 類 `短期補習班類別`、
       `school_district_k12` 的 `precision` 都是 PMTiles，目前靠各自 color expr 的 fallback 兜底，
       沒有測試守門。若之後有 PMTiles 解析能力再補
+- [ ] **EDU-14**：上游 `cram_schools` PMTiles 用 `--drop-densest-as-needed` 切片，
+      **z8~z14 每層都大量丟點，只有 z15 完整**（實測台北同一 bbox：z12 只有 15 筆、
+      z13 35、z14 84、z15 204）。前端已在圖例誠實標示抽稀，但根治要上游重切：
+      `-r1 --no-feature-limit --no-tile-size-limit`（代價是檔案變大）。
+      要不要重切由 owner 拍板 —— 17,137 點在 z10-12 全畫出來也可能糊成一片，
+      現況「抽稀 + 標示」未必比較差
 - [ ] **EDU-13**：上游 `school_district_k12` 的 `lin_specs` 有 **Excel 日期污染**
       （富安國小 `11月12日` 應為 `11-12` 鄰；雙蓮 `1月19日` 應為 `1-19`）。
       前端忠實渲染，修法在上游 pipeline 讀 Excel 時該欄位強制 `str` dtype。已回報
