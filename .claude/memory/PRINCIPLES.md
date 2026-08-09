@@ -970,6 +970,12 @@ GitHub squash merge + **刪除 base branch** 時，以該 branch 為 base 的 st
   即完成，不需額外狀態機
 - 既有先例：earthquakes ripple 自帶 RAF；本原則是其一般化（範本 `useEarthquakeReplayLayer` +
   `earthquakeReplayClock`）。§動態圖層時間訂閱鐵則仍適用於「掛全域時間軸」的圖層，兩者不衝突
+- **第二個實例（2026-08-08 embed 回放）**：`src/embed/replayClock.ts` —— 嵌入頁根本沒有全域
+  timeStore，一整天的回放（play/pause/speed/loop）全掛 scoped 時鐘。同一個模型在
+  「秒級事件」與「一整天多圖層」兩種尺度都成立，可以當預設選項而非特例
+- ⚠️ **多層共用一個 scoped 時鐘時，時間範圍要取聯集、`setRange` 只能呼叫一次**。
+  第一版 `startReplay` 只取第一個回放層、且每層各自重設時鐘 → `layers=flights,ships`
+  第二層不啟動且互蓋。正解：多層平行 fetch → 算聯集 → 設一次範圍 → 一起播
 
 ## NULL 與 0 語意分離（2026-08-02 共機資料教訓）
 
@@ -1069,3 +1075,68 @@ transaction pool 下會**殘留在後端連線上**，被別的 client 抽到就
 
 Telegram 訊息要直接寫「請把 X 調回 Y 並 restart」，不要只說「上游恢復了」——
 收到通知的人（可能是幾個月後的自己）不該還要回頭翻文件才知道要做什麼。
+
+## Embed 頁絕不打 Supabase／Mapbox —— 已有的不變量要補測試守住（⚠ P0，2026-08-08）
+
+嵌入頁的整個價值前提是「被讀幾次都不產生費用」。這個前提**每加一個新圖層就可能被打破一次**，
+而且打破的方式很隱蔽：一個 `import` 就夠了。
+
+- **實測到的破口**：LegendPanel 是 base bundle 的 **static import**，圖例若向 Scene 檔取色
+  （`ShipScene.ts`）就會把整個 three 拖進純靜態嵌入。修法是把色票下沉到
+  `src/data/shipTrails.ts` 這種無渲染依賴的模組
+- **守法是 bundle 不變量而非人工檢查**：build 後掃 `dist/assets/embed-*.js`，
+  `WebGLRenderer` / `InstancedMesh` 出現次數必須是 **0**（three 只能走 dynamic import 進 runtime chunk）
+- 同理，`public/static-rpc/` 缺檔會讓 loader **靜默 fallback 打 RPC**（EM-17 現在就在付 egress）——
+  「有 fallback」不等於「安全」，它只是把破口變得沒有症狀
+
+→ 通則：只要一個功能是靠「某件事不會發生」定義的，就要有一條會紅的檢查盯著它，
+不能靠記得。
+
+## 保存層 vs 成品包分離（⚠ P0，2026-08-08 nightly trails 教訓）
+
+`s3://…/trails/` 是**保存層**：為了不被 retention 吃掉而每晚匯出的原始日檔。
+它**不在 `deploy-assets/` 下、不經 nginx／Cloudflare、前端一律不直讀**。
+
+- 前端直讀 S3 的代價是 egress **$0.114/GB**：一個 36MB 的 bus 日檔被讀 1,000 次 ≈ $4/月，
+  **超過它整整一年的儲存費**。存起來很便宜，直接送出去很貴
+- 要拿保存層的資料畫圖，必須先加工成「成品包」（欄位與體積都為這張圖裁切過）放進供檔路徑。
+  例：`trails/` → 量化＋簡化 → `public/embed-snapshots/<layer>/<date>.json.gz`
+- 兩層的最佳化方向天生相反：保存層求**完整**（欄位不刪、精度不降，因為救不回來了），
+  成品包求**小**。混在一起 = 兩邊都做不好
+
+## 每日變動塊 vs 日期無關共用資產（2026-08-08 rail bundle 設計）
+
+切 bundle 的判準是「**明天重跑會不會變**」，不是「大不大」。
+
+- rail 回放的軌道幾何不隨日期變 → 抽成單一共用資產 `public/embed-rail/rail_slim.json.gz`；
+  每日檔只剩時刻表 → **229KB**，而幾何本身 367KB 只需下載一次
+- 對照：flights/ships 是軌跡插值型，資料**本身**就是每日變動塊，切不出共用資產
+  （ships 日檔 4.78MiB 是不可壓縮的本質成本）
+- 反面代價：共用資產是固定檔名、會隨管線重跑而更新 → **不能用 immutable 快取**（見下條）
+
+## immutable 快取只給「檔名含日期」的檔（2026-08-08）
+
+`/embed-snapshots/` 維持 `1y immutable`（檔名含日期 → 內容永不改變，安全）。
+但 `/embed-rail/` 是**固定檔名 + 會隨管線重跑更新** → 刻意設 `expires 1d` + public，
+鎖 1 年會讓人長期看到舊幾何而且無從察覺。
+
+**判準**：URL 是否唯一對應一份永不改變的內容。是 → immutable；否 → 短 TTL。
+檔名沒帶版本／日期就沒有資格 immutable，不管它「應該很少改」。
+
+順帶一條：**`Content-Encoding` 決定不設**，改由前端讀 magic byte（`0x1f 0x8b`）判斷是否解壓。
+正式站 nginx 服務的是 volume 本地檔，S3 object metadata 根本到不了瀏覽器；
+設了只會製造「S3 上有、線上沒有」的矛盾狀態。
+
+## 圖例不憑空發明分類（2026-08-08）
+
+圖例必須忠實反映**渲染端真正的語意**，沒有語意就不要編一個。
+
+- `FlightScene` 是 `idx % colors` **輪替配色**，顏色與機型／高度無關 → 圖例只給單條，
+  不因為「多色看起來比較專業」就編出分類
+- `RailLegend` 的 TRA 車種由 `TRA_TRAIN_TYPES` 推導，且**隨 `rsys=` 收斂**：
+  沒選台鐵就不列台鐵車種，也拿掉「灰線為軌道」這句（那條線這時不存在）
+- 反例是真語意但**條件限定**：主站「全路徑靜態軌跡」的高度漸層（暖橘低空→冷藍高空）
+  是真的，但 Live 限定、embed 不畫 → 要補得另開帶顯示條件的 legend entry，
+  不能直接把主站圖例整份搬過去
+
+→ 通則：圖例是對渲染的**描述**不是對資料的**宣稱**。畫面上分不出來的東西，圖例不該分。
