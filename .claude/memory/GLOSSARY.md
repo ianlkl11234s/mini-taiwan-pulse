@@ -396,7 +396,10 @@
 | **時刻表推算型** | rail 的回放型別：快照只存**時刻表**（誰幾點在哪站），位置由引擎依幾何推算。幾何是**日期無關共用資產**（`public/embed-rail/rail_slim.<hash>.json.gz`，檔名帶內容雜湊，經 `rail-manifest.json` 指路），所以每日變動的部分只有時刻表 → 檔案小兩個數量級 |
 | **每日變動塊 vs 共用資產** | bundle 切法：只有「隨日期變」的資料放進日檔；不隨日期變的（軌道幾何、色票、站點）抽成單一共用檔。判準是「明天重跑會不會變」，不是「大不大」 |
 | **延長日制** | 鐵路營運日跨午夜的表示法：一天的秒數上限拉到 107,400（29h50m）而非 86,400，讓 00:00–05:50 的班次仍歸前一營運日。**已知瑕疵**：05:50 分界瞬間跨界仍在行駛的列車會閃一下消失（主站既有行為，embed 刻意沿用不修） |
-| **`rsys=`** | embed URL 的鐵路系統單選欄位（新增的一等公民）。`rsys=trtc` 只看北捷，可複選；白名單在 parse 端、未知值全 drop 後回 `undefined` = 顯示全部（**不會白畫面**）。不升 `URL_STATE_VERSION`（向後相容有測試守） |
+| **`rsys=`** | embed URL 的鐵路系統篩選欄位（新增的一等公民），可複選、**混用取聯集**。白名單在 parse 端、未知值全 drop 後回 `undefined` = 顯示全部（**不會白畫面**）。2026-08-09 由系統級擴充到**兩種粒度**（見下兩列）。不升 `URL_STATE_VERSION`（向後相容有測試守逐欄不變） |
+| **營運者級代碼** | `rsys=` 的粗粒度：`trtc`(BR/R/G/O/BL) `tymc`(A) `ntm`(Y/V/K/LB) `krtc` `klrt` `tmrt` `tra` `thsr`。⚠️ `trtc` 語意在 #119 收窄（原本把整個北北基桃的軌道都算進去）：**94 軌道/4,516 班 → 76/3,017** |
+| **線路級代碼** | `rsys=` 的細粒度，**一律帶營運者前綴**（`trtc-bl`／`krtc-r`）—— 北捷與高捷都有 R/O 線，不帶前綴會撞名。**刻意不給線路碼**的三家：`tra`／`thsr`／`klrt`（資料本身無線路概念，不發明「查得到卻沒東西」的代碼）；`trtc-mk` 貓空纜車也刻意不入白名單 |
+| **`resolveRailCodes`** | `rsys=` 代碼 → 實際軌道/班表的解析函式，SSOT 是 `src/constants/railLines.ts`；urlState／railReplayData／LegendPanel **共用同一支**，避免三處各自維護白名單而漂移 |
 | **`mainMatrix`** | MapLibre CustomLayer `render(gl, options)` 第二參數裡的投影矩陣：`options.defaultProjectionData.mainMatrix`。⚠️ maplibre 的第二參數是**物件**不是矩陣；誤取 `modelViewProjectionMatrix` 會**靜默**把物件投到畫面外約 −54,000px，不報錯 |
 | **弧長保護（`--max-arc-loss`）** | RDP 簡化時的補丁：某段 collapse 前若**弧長**縮太多（>5m）就強制從弧長中點切開保留一點。存在理由是折返幾何（來回走同一段）垂直距離趨近 0，RDP 會盲目壓成短弦 → 弧長一縮整段參數化位移。實測 max 偏差 245.4m → 20.8m，只多 5% 點數 |
 | **`station_progress` 重算** | 幾何簡化後**必做**的一步：站錨點在新（更短）折線上的弧長比例要重算，否則列車系統性偏離軌道。弧長定義須照抄 `railUtils.calculateTotalLength()`（平面歐氏、**不做 cos(lat) 修正**） |
