@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spike: Three.js CustomLayer on MapLibre</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #0b1220; }
+      #map { position: absolute; inset: 0; }
+      #hud {
+        position: absolute; top: 8px; left: 8px; z-index: 10;
+        font: 12px/1.5 ui-monospace, Menlo, monospace;
+        color: #cfe6ff; background: rgba(6, 12, 24, 0.78);
+        padding: 8px 10px; border: 1px solid #24415f; border-radius: 6px;
+        pointer-events: none; white-space: pre;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="hud">SPIKE · Three.js × MapLibre
+白線/青點 = MapLibre 2D 地面真值
+彩色球 = Three.js InstancedMesh</div>
+    <script type="module" src="/src/spike/threeMaplibreSpike.ts"></script>
+  </body>
+</html>

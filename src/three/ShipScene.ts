@@ -2,6 +2,11 @@ import * as THREE from "three";
 import type { Ship } from "../types";
 import { toMercator } from "../utils/coordinates";
 import { interpolatePosition, getTrailUpToTime } from "../utils/interpolation";
+// 色票與分桶規則的單一出處（three-free，故 LegendPanel 也能吃 —— 見 shipTrails.ts 檔頭）
+import {
+  shipTypeBucket, SHIP_TYPE_COLORS_DARK, SHIP_TYPE_COLORS_LIGHT,
+  type ShipTypeBucket,
+} from "../data/shipTrails";
 
 const SHIP_COLOR_DARK = new THREE.Color(0.1, 0.85, 0.9); // fallback 青藍
 const SHIP_COLOR_LIGHT = new THREE.Color(0.0, 0.3, 0.45); // fallback 深青
@@ -16,36 +21,19 @@ export function shipTypeLabel(vesselType: number): string {
   return "未知 Unknown";
 }
 
-const SHIP_TYPE_COLORS_DARK = {
-  passenger: new THREE.Color("#a78bfa"),
-  cargo: new THREE.Color("#38bdf8"),
-  tanker: new THREE.Color("#f97316"),
-  fishing: new THREE.Color("#22c55e"),
-  special: new THREE.Color("#facc15"),
-  other: new THREE.Color("#67e8f9"),
-};
-
-const SHIP_TYPE_COLORS_LIGHT = {
-  passenger: new THREE.Color("#6d28d9"),
-  cargo: new THREE.Color("#0369a1"),
-  tanker: new THREE.Color("#c2410c"),
-  fishing: new THREE.Color("#15803d"),
-  special: new THREE.Color("#a16207"),
-  other: new THREE.Color("#0e7490"),
-};
-
-function shipTypeBucket(vesselType: number): keyof typeof SHIP_TYPE_COLORS_DARK {
-  if (vesselType >= 60 && vesselType <= 69) return "passenger";
-  if (vesselType >= 70 && vesselType <= 79) return "cargo";
-  if (vesselType >= 80 && vesselType <= 89) return "tanker";
-  if (vesselType >= 30 && vesselType <= 39) return "fishing";
-  if (vesselType >= 50 && vesselType <= 59) return "special";
-  return "other";
+/** hex 色票 → THREE.Color，建一次快取（每幀每船都會查）。 */
+function toThreeColors(hex: Record<ShipTypeBucket, string>): Record<ShipTypeBucket, THREE.Color> {
+  const out = {} as Record<ShipTypeBucket, THREE.Color>;
+  for (const k of Object.keys(hex) as ShipTypeBucket[]) out[k] = new THREE.Color(hex[k]);
+  return out;
 }
+
+const SHIP_COLORS_DARK = toThreeColors(SHIP_TYPE_COLORS_DARK);
+const SHIP_COLORS_LIGHT = toThreeColors(SHIP_TYPE_COLORS_LIGHT);
 
 function shipTypeColor(vesselType: number, isDark: boolean): THREE.Color {
   const bucket = shipTypeBucket(vesselType);
-  return (isDark ? SHIP_TYPE_COLORS_DARK : SHIP_TYPE_COLORS_LIGHT)[bucket];
+  return (isDark ? SHIP_COLORS_DARK : SHIP_COLORS_LIGHT)[bucket];
 }
 
 const TRAIL_DURATION = 1800; // 0.5 小時 = 1800 秒

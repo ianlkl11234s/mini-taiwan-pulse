@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -132,8 +132,14 @@ echo "[pull] sync coverage → $DATA_DIR/coverage/"
 aws s3 sync "$S3/coverage/" "$DATA_DIR/coverage/" --no-progress
 
 # EM-15 嵌入用歷史快照：整夾 sync（之後加新日期/新圖層零改腳本）
+# EM-16 起本夾含 flights/ships/rail 的 `.json.gz`：S3 端**沒有** Content-Encoding metadata，
+# 所以 sync 落地的就是原樣 gzip bytes（位元組保真），nginx 原封不動送給瀏覽器，前端自解。
 echo "[pull] sync embed-snapshots → $DATA_DIR/embed-snapshots/"
 aws s3 sync "$S3/embed-snapshots/" "$DATA_DIR/embed-snapshots/" --no-progress
+
+# EM-16 嵌入用鐵路幾何 bundle：日期無關共用資產（rail_slim.json.gz），整夾 sync
+echo "[pull] sync embed-rail → $DATA_DIR/embed-rail/"
+aws s3 sync "$S3/embed-rail/" "$DATA_DIR/embed-rail/" --no-progress
 
 # Base map：鏡像子前綴 deploy-assets/base_map/ → /data/base_map/（行政邊界 + 等高線 + OSM 路網 PMTiles ~406MB）
 echo "[pull] sync base_map → $DATA_DIR/base_map/"

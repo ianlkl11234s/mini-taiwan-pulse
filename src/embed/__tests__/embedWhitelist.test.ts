@@ -13,6 +13,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { EMBED_CDN_LAYERS, rowsToGeoJSON } from "../dynamicCdnLayers";
 import { SNAPSHOT_KEYS, snapshotUrl } from "../snapshotLayers";
+import { REPLAY_KEYS, REPLAY_LAYERS, replaySnapshotUrl, isReplayLayer } from "../replayLayers";
 import { GATED_LAYERS, LAYER_COLORS } from "../../components/sidebar/layerCatalog";
 import { EMBED_ALLOWED, EMBED_ALLOWED_CONFIGS, buildEmbedVisibility, configsFor } from "../embedWhitelist";
 import type { LayerVisibility } from "../../types";
@@ -65,7 +66,7 @@ describe("EMBED_ALLOWED 白名單", () => {
     expect(EMBED_ALLOWED.has("aquaculturePonds")).toBe(true);
   });
 
-  it("白名單 = registry（扣 gated、動態僅留 CDN 例外）+ 快照圖層", () => {
+  it("白名單 = registry（扣 gated、動態僅留 CDN 例外）+ 快照圖層 + 回放圖層", () => {
     // 去重：registry 存在「一個 layer id ↔ 多個 config」（propertyValueGrid 的
     // 150m/450m/1.5km 三份 PMTiles 共用同一個 id），EMBED_ALLOWED 是 Set。
     const expected = new Set<string>([
@@ -74,6 +75,8 @@ describe("EMBED_ALLOWED 白名單", () => {
         .map((o) => o.id),
       // EM-15：快照圖層不在 registry（主站是專屬 hook 畫的）
       ...SNAPSHOT_KEYS,
+      // EM-16：回放圖層不在 registry（主站是 Three.js CustomLayer 畫的）
+      ...REPLAY_KEYS,
     ]);
     expect([...EMBED_ALLOWED].sort()).toEqual([...expected].sort());
   });
@@ -86,6 +89,26 @@ describe("EMBED_ALLOWED 白名單", () => {
   it("快照圖層都是有效的 layer key（urlState 會依 LAYER_COLORS 驗）", () => {
     const unknown = SNAPSHOT_KEYS.filter((k) => !(k in LAYER_COLORS));
     expect(unknown, `不存在於 LAYER_COLORS：${unknown.join(", ")}`).toEqual([]);
+  });
+
+  it("🔒 回放圖層清單不得含 gated", () => {
+    const bad = REPLAY_KEYS.filter((k) => GATED_LAYERS.has(k));
+    expect(bad, `回放清單混入 gated：${bad.join(", ")}`).toEqual([]);
+  });
+
+  it("回放圖層都是有效的 layer key（urlState 會依 LAYER_COLORS 驗）", () => {
+    const unknown = REPLAY_KEYS.filter((k) => !(k in LAYER_COLORS));
+    expect(unknown, `不存在於 LAYER_COLORS：${unknown.join(", ")}`).toEqual([]);
+  });
+
+  it("回放圖層與快照圖層不得重疊（同一 key 兩套渲染路徑會互撞）", () => {
+    const dup = REPLAY_KEYS.filter((k) => SNAPSHOT_KEYS.includes(k));
+    expect(dup, `同時登記為 snapshot 與 replay：${dup.join(", ")}`).toEqual([]);
+  });
+
+  it("回放圖層的 custom layer id 唯一", () => {
+    const ids = REPLAY_KEYS.map((k) => REPLAY_LAYERS[k]!.layerId);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
   it("每個白名單 config 都有 sourceUrl（靜態檔一定要有來源）", () => {
@@ -164,5 +187,25 @@ describe("rowsToGeoJSON（通用 row → GeoJSON）", () => {
 describe("snapshotUrl", () => {
   it("組出 /embed-snapshots/<layer>/<date>.geojson", () => {
     expect(snapshotUrl("plaActivity", "2026-07-30")).toBe("/embed-snapshots/plaActivity/2026-07-30.geojson");
+  });
+});
+
+describe("replaySnapshotUrl（EM-16）", () => {
+  it("組出 /embed-snapshots/<layer>/<date>.json.gz（gzip 鏡像列，非 GeoJSON）", () => {
+    expect(replaySnapshotUrl("flights", "2026-08-06")).toBe("/embed-snapshots/flights/2026-08-06.json.gz");
+  });
+
+  it("isReplayLayer 只認得登記過的 key", () => {
+    expect(isReplayLayer("flights")).toBe(true);
+    expect(isReplayLayer("aquaculturePonds")).toBe(false);
+    expect(isReplayLayer("")).toBe(false);
+  });
+
+  it("匯出腳本支援每個回放圖層的 snapshotDir", () => {
+    const script = readFileSync("scripts/export/export-embed-snapshot.sh", "utf8");
+    const missing = REPLAY_KEYS
+      .map((k) => REPLAY_LAYERS[k]!.snapshotDir)
+      .filter((dir) => !new RegExp(`^\\s*${dir}\\)`, "m").test(script));
+    expect(missing, `匯出腳本沒有對應 case：${missing.join(", ")}`).toEqual([]);
   });
 });

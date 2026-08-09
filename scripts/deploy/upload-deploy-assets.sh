@@ -269,10 +269,37 @@ for f in public/urban/*.pmtiles public/urban/*.geojson; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/urban/$name" --region ap-southeast-2
 done
 
-# EM-15 嵌入用歷史快照：整夾鏡像 deploy-assets/embed-snapshots/<layer>/<date>.geojson
+# EM-15/EM-16 嵌入用歷史快照：整夾鏡像 deploy-assets/embed-snapshots/<layer>/<date>.{geojson,json.gz}
+#   plaActivity → `.geojson`（純文字）；flights/ships/rail → `.json.gz`（已 gzip 的 JSON）
+#
+# ⚠️ `.json.gz` **刻意不帶 `--content-encoding gzip`**（EM-16 決定，兩條路二選一的理由）：
+#   1. S3 的 metadata 到不了瀏覽器 —— 正式站是 nginx 從 volume 上的**本地檔**服務的
+#      （pull-deploy-assets.sh 用 `aws s3 sync` 把物件落地），S3 header 不會被轉發。
+#      設 Content-Encoding 對線上行為零幫助，只會在下載環節多一個「可能被中途解壓」的變數，
+#      造出「宣告 gzip 但 body 已解壓」的矛盾狀態（實測 sync 下來 md5 與來源一致，
+#      正是因為沒有這個 metadata）。
+#   2. 前端 `src/embed/replayLayers.ts` 的 `fetchMaybeGzipJson()` 用 magic byte(0x1f 0x8b)
+#      判斷、兩種都吃得下 → 不設才能讓 dev（vite 直接送檔）與 prod 行為**完全一致**。
+#   3. nginx 端 `.gz` 的 MIME 不在 `gzip_types` 內 → 不會被二次壓縮（見 nginx.conf 同段註解）。
+#   結論：當成不透明二進位原樣上傳，解壓責任單一地留在前端。
+# 附記：AWS CLI 會依副檔名猜 metadata，把 `.gz` 當成 encoding suffix 剝掉後給
+#   `Content-Type: application/json`（但**不會**設 Content-Encoding，已 head-object 確認）。
+#   線上不受影響——nginx 是從本地檔重新判 MIME 的，S3 的 Content-Type 只在有人直接打
+#   S3/CDN 時才看得到。`aws s3 sync` 的 `--content-type` 是整批套用，會誤傷同夾的
+#   plaActivity `.geojson`，故不加。
+# 整夾 sync ⇒ 之後加新日期/新圖層零改腳本；重跑對未變更物件是 no-op（冪等）。
 if [ -d public/embed-snapshots ]; then
   echo "Uploading embed-snapshots/..."
   aws s3 sync public/embed-snapshots/ "s3://$BUCKET/$PREFIX/embed-snapshots/" --region ap-southeast-2 --no-progress
+fi
+
+# EM-16 嵌入用鐵路幾何 bundle：整夾鏡像 deploy-assets/embed-rail/（rail_slim.json.gz，358KB）
+# 與 embed-snapshots 分開的原因：這是**日期無關的共用資產**（固定檔名、會隨幾何管線重跑更新），
+# 快取策略因此不同（nginx 給 1d 而非 immutable，見 nginx.conf `location /embed-rail/`）。
+# Content-Encoding 處理同上：不設。
+if [ -d public/embed-rail ]; then
+  echo "Uploading embed-rail/..."
+  aws s3 sync public/embed-rail/ "s3://$BUCKET/$PREFIX/embed-rail/" --region ap-southeast-2 --no-progress
 fi
 
 # Base map PMTiles：上傳到 deploy-assets/base_map/ 子前綴（鏡像結構，pull 端整夾 sync）。

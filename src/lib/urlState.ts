@@ -8,6 +8,8 @@
  * 1. **Diff-based**：只序列化與預設不同的項目。預設幾乎全關，故 `layers=` 就是「要開的清單」。
  * 2. **Human-readable**：寫文章時要手打／手改，不做 base64 壓縮。
  * 3. **版本化**：`v=1`。缺版本或版本不符一律回空物件，避免舊嵌入碼被新解析器誤讀。
+ *    新增**可選**欄位（如 `rsys=`）不升版 —— 舊網址少那一欄，解析結果與升版前完全相同；
+ *    要升版的是「同一個 key 的語意改了」或「必要欄位變了」。
  * 4. **靜默降級**：未知 key／越界數值／上鎖圖層一律 drop，絕不 throw ——
  *    別人的文章裡出現白屏是最糟的失敗模式，寧可少一層。
  */
@@ -43,6 +45,15 @@ export interface UrlState {
   theme?: "dark" | "light";
   /** UI 元件白名單（attribution 永遠存在、不可移除） */
   ui?: string[];
+  /**
+   * 鐵路只顯示哪幾個系統（`rsys=trtc` / `rsys=trtc,tmrt`）。
+   * **未指定 = 全部六系統**（不是空集合）—— 全部 id 都不合法時本欄位為 undefined，
+   * 消費端因此自動回到「顯示全部」，而不是變成空白畫面。
+   *
+   * 為什麼不是 `p.railSystems`：`p.*` 的契約只收數字（見 parseParams），
+   * 系統 id 是字串塞不進去，故立為一等公民欄位（比照 `h=` / `style=`）。
+   */
+  railSystems?: string[];
 }
 
 export interface ParseOptions {
@@ -55,6 +66,21 @@ export interface ParseOptions {
 
 const ALL_LAYER_KEYS = new Set(Object.keys(LAYER_COLORS));
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/**
+ * `rsys=` 收得下的鐵路系統 id（tra=台鐵、thsr=高鐵，其餘四座捷運／輕軌）。
+ *
+ * **刻意在此重列而非 import**：canonical 的組裝端是 `src/embed/railReplayData.ts`
+ * （`RAIL_ENGINE_SYSTEMS` + tra），但那是回放 chunk 的東西，urlState 在 embed
+ * 基礎 bundle 裡、也給主站用，不該為了一張字串表把它拉進來
+ * （同 railReplayData 的 `SYSTEM_COLORS` 對 railLoader 的處理）。改動時兩邊要一起改。
+ *
+ * 白名單擺在 parse 而非消費端，是因為「未知 id → 顯示全部」這條降級規則必須
+ * 在同一處收斂：全部 drop 後 `railSystems` 為 undefined，下游看到的永遠是
+ * 「未指定」或「至少一個合法 id」，不會出現空陣列導致的空白畫面。
+ */
+export const RAIL_SYSTEM_IDS = ["tra", "thsr", "trtc", "krtc", "klrt", "tmrt"] as const;
+const RAIL_SYSTEM_ID_SET = new Set<string>(RAIL_SYSTEM_IDS);
 /** 底圖 id 格式（不查表，見 UrlState.style 註解） */
 const STYLE_ID_RE = /^[a-z0-9-]{1,32}$/;
 
@@ -106,6 +132,26 @@ function parseLayers(q: URLSearchParams, opts: ParseOptions): (keyof LayerVisibi
       seen.add(k);
       return true;
     }) as (keyof LayerVisibility)[];
+  return out.length > 0 ? out : undefined;
+}
+
+/**
+ * `rsys=trtc,tmrt` → `["trtc","tmrt"]`。未知 id 逐一 drop（不整包作廢），
+ * 全部 drop 後回 undefined ＝ 視同未指定 ＝ 顯示全部（同 parseLayers 的收尾）。
+ * 大小寫敏感（同 `style=` 的格式契約，網址一律小寫）。
+ */
+function parseRailSystems(q: URLSearchParams): string[] | undefined {
+  const raw = q.get("rsys");
+  if (!raw) return undefined;
+  const seen = new Set<string>();
+  const out = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((id) => {
+      if (!id || seen.has(id) || !RAIL_SYSTEM_ID_SET.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
   return out.length > 0 ? out : undefined;
 }
 
@@ -162,6 +208,9 @@ export function parseUrlState(search: string, opts: ParseOptions = {}): UrlState
   const theme = q.get("theme");
   if (theme === "dark" || theme === "light") state.theme = theme;
 
+  const railSystems = parseRailSystems(q);
+  if (railSystems) state.railSystems = railSystems;
+
   const ui = q.get("ui");
   if (ui) {
     const items = ui.split(",").map((s) => s.trim()).filter(Boolean);
@@ -202,6 +251,7 @@ export function buildUrl(state: UrlState, base: string): string {
   if (state.date) q.set("date", state.date);
   // 0 時是有效值但等同預設，省略以保持網址精簡
   if (state.hour) q.set("h", String(Math.floor(state.hour)));
+  if (state.railSystems?.length) q.set("rsys", state.railSystems.join(","));
   if (state.style) q.set("style", state.style);
   if (state.theme) q.set("theme", state.theme);
   if (state.ui?.length) q.set("ui", state.ui.join(","));

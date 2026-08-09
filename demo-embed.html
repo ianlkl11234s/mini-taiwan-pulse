@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mini Taiwan Pulse — 嵌入回放示範</title>
+<style>
+  :root {
+    --bg: #0d1117; --card: #161b22; --border: #30363d;
+    --text: #e6edf3; --dim: #8b949e; --accent: #58a6ff;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, "PingFang TC", sans-serif; padding: 32px 24px 64px; }
+  header { max-width: 1280px; margin: 0 auto 28px; }
+  h1 { font-size: 22px; letter-spacing: .5px; }
+  header p { color: var(--dim); margin-top: 8px; font-size: 14px; line-height: 1.7; }
+  header code { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 2px 7px; font-size: 12.5px; color: var(--accent); }
+  .grid { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+  .card h2 { font-size: 15px; padding: 14px 16px 4px; }
+  .card .desc { color: var(--dim); font-size: 12.5px; padding: 0 16px 10px; line-height: 1.6; }
+  .card iframe { width: 100%; aspect-ratio: 16 / 10; border: 0; background: #000; }
+  .card .url { font-family: ui-monospace, monospace; font-size: 11px; color: var(--dim); padding: 10px 16px 14px; word-break: break-all; user-select: all; }
+  .pending { display: flex; align-items: center; justify-content: center; aspect-ratio: 16 / 10; background: repeating-linear-gradient(45deg, #10151c, #10151c 12px, #131923 12px, #131923 24px); color: var(--dim); font-size: 14px; letter-spacing: 1px; }
+  .badge { display: inline-block; font-size: 11px; border: 1px solid var(--border); border-radius: 99px; padding: 2px 10px; margin-left: 8px; color: var(--accent); vertical-align: 2px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Mini Taiwan Pulse — 嵌入回放示範頁</h1>
+  <p>
+    啟動方式：repo 根目錄跑 <code>npx vite --port 3801</code>，開 <code>http://localhost:3801/demo-embed.html</code>。<br />
+    每張卡片就是一個獨立 iframe 嵌入（跟未來文章裡的用法一模一樣），底下灰字是可直接複製的嵌入網址。
+    回放圖層全走預先凍結的快照檔，<strong>不打 Supabase</strong>；快照不存在的圖層會靜默略過。
+  </p>
+</header>
+<div class="grid">
+
+  <div class="card">
+    <h2>✈️ 班機・整日回放<span class="badge">2026-08-06</span></h2>
+    <div class="desc">凍結 8/6 一整天的航跡，約 90 秒播完一輪後循環。左下角是回放時刻，可播放／暫停。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=flights&date=2026-08-06&lng=121&lat=23.8&z=6.5"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=flights&amp;date=2026-08-06&amp;lng=121&amp;lat=23.8&amp;z=6.5</div>
+  </div>
+
+  <div class="card">
+    <h2>✈️ 班機・早晨尖峰慢速<span class="badge">h=7 · 120x</span></h2>
+    <div class="desc">同一天，從 07:00 開始、每秒約播 2 分鐘——文章可以用參數鎖定想講的時段與節奏。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=flights&date=2026-08-06&h=7&p.speed=120&lng=121&lat=23.8&z=6.5"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=flights&amp;date=2026-08-06&amp;h=7&amp;p.speed=120&amp;lng=121&amp;lat=23.8&amp;z=6.5</div>
+  </div>
+
+  <div class="card">
+    <h2>✈️ 班機・淺色主題<span class="badge">style=light</span></h2>
+    <div class="desc">淺色文章版面用。自動切換不洗白的深色軌跡配色。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&style=light&layers=flights&date=2026-08-06&lng=121&lat=23.8&z=6.5"></iframe>
+    <div class="url">/embed.html?v=1&amp;style=light&amp;layers=flights&amp;date=2026-08-06&amp;lng=121&amp;lat=23.8&amp;z=6.5</div>
+  </div>
+
+  <div class="card">
+    <h2>🛦 共機活動・歷史快照<span class="badge">2026-07-30</span></h2>
+    <div class="desc">EM-15 既有的靜態單日快照（不是動畫）——「凍結某一天」路線的第一個 pilot。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=plaActivity&date=2026-07-30&lng=119.8&lat=23.3&z=6.3"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=plaActivity&amp;date=2026-07-30&amp;lng=119.8&amp;lat=23.3&amp;z=6.3</div>
+  </div>
+
+  <div class="card">
+    <h2>⚡ 充電站・靜態圖層</h2>
+    <div class="desc">一般靜態圖層的嵌入（145 個可選）。這類嵌入完全不載入 Three.js，最輕量。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=evChargingStations&lng=121&lat=23.8&z=7"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=evChargingStations&amp;lng=121&amp;lat=23.8&amp;z=7</div>
+  </div>
+
+  <div class="card">
+    <h2>🚢 船舶・整日回放<span class="badge">2026-08-06</span></h2>
+    <div class="desc">同一天的 12,305 艘船（AIS）。視角拉到台灣海峽，看得到航道分流與漁場聚集；顏色是船種。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=ships&date=2026-08-06&lng=120.8&lat=23.8&z=6.5"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=ships&amp;date=2026-08-06&amp;lng=120.8&amp;lat=23.8&amp;z=6.5</div>
+  </div>
+
+  <div class="card">
+    <h2>🚢✈️ 船舶 × 班機・同一時刻軸<span class="badge">共存</span></h2>
+    <div class="desc">兩個回放層共用同一把時鐘（時間範圍取聯集）——同一分鐘的海上與空中一起看。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=flights,ships&date=2026-08-06&lng=120.8&lat=23.8&z=6.5"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=flights,ships&amp;date=2026-08-06&amp;lng=120.8&amp;lat=23.8&amp;z=6.5</div>
+  </div>
+
+  <div class="card">
+    <h2>🚄 鐵路・整日回放<span class="badge">2026-08-06</span></h2>
+    <div class="desc">台鐵 907 班＋高鐵 160 班＋四座捷運，跑的是那一天的<strong>真實時刻表</strong>——位置由時刻表在瀏覽器即時推算，不是錄下來的軌跡。顏色是台鐵車種。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=rail&date=2026-08-06&h=8&lng=120.9&lat=23.7&z=7"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=rail&amp;date=2026-08-06&amp;h=8&amp;lng=120.9&amp;lat=23.7&amp;z=7</div>
+  </div>
+
+  <div class="card">
+    <h2>🚇 台北捷運・早上 8:00<span class="badge">rsys=trtc · 180x</span></h2>
+    <div class="desc">
+      <strong>只顯示台北捷運</strong>一個系統——加上 <strong>rsys=trtc</strong> 之後，台鐵的灰色軌道與高鐵都不會進場
+      （過濾發生在組裝階段，沒被選到的系統連時刻表都不解析）。從 08:00 通勤尖峰起播，
+      放慢到每秒約 3 分鐘，六條線的班距疏密才看得出來。
+    </div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=rail&date=2026-08-06&h=8&rsys=trtc&p.speed=180&lng=121.52&lat=25.06&z=10.3"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=rail&amp;date=2026-08-06&amp;h=8&amp;rsys=trtc&amp;p.speed=180&amp;lng=121.52&amp;lat=25.06&amp;z=10.3</div>
+  </div>
+
+  <div class="card">
+    <h2>🚊 高雄輕軌・下午 5:00<span class="badge">rsys=klrt · 180x</span></h2>
+    <div class="desc">
+      同一個參數換成 <strong>rsys=klrt</strong>：<strong>只顯示高雄輕軌</strong>，環狀線整圈入鏡。
+      從 17:00 下班尖峰起播、每秒約 3 分鐘——全天 154 班次、繞一圈約 70 分鐘，
+      這個倍速下一圈約 23 秒，看得清楚每台車的行進與交會。
+    </div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=rail&date=2026-08-06&h=17&rsys=klrt&p.speed=180&lng=120.302&lat=22.626&z=11.4"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=rail&amp;date=2026-08-06&amp;h=17&amp;rsys=klrt&amp;p.speed=180&amp;lng=120.302&amp;lat=22.626&amp;z=11.4</div>
+  </div>
+
+  <div class="card">
+    <h2>🚄🚢✈️ 鐵路 × 船舶 × 班機<span class="badge">三層共存</span></h2>
+    <div class="desc">三個回放層共用同一把時鐘（時間範圍取聯集）——同一分鐘的鐵軌上、海上與空中。</div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=rail,ships,flights&date=2026-08-06&lng=120.9&lat=23.7&z=6.6"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=rail,ships,flights&amp;date=2026-08-06&amp;lng=120.9&amp;lat=23.7&amp;z=6.6</div>
+  </div>
+
+  <div class="card">
+    <h2>🚌 公車</h2>
+    <div class="desc">渲染暫緩（owner 決策），但資料已每日自動凍結保存——未來想做隨時有料。</div>
+    <div class="pending">🚌 資料保存中・渲染暫緩</div>
+  </div>
+
+</div>
+</body>
+</html>
