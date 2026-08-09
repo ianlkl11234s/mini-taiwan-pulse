@@ -1604,3 +1604,90 @@ print(len(COLLECTOR_REGISTRY), any(x.config_prefix=='XXX' for x in COLLECTOR_REG
 漏加會讓 CI 紅（`tests/test_cross_layer_sync.py` 三個 ratchet），
 且 daily_report 完全不會掃這個 collector。有 `scripts/sync_cross_layer_map.py` 可自動補，
 但它填的 `enabled`/`deployment` 是 config 預設值，要依 production 實況人工改。
+
+## PB-34 新增一個 embed 回放圖層（2026-08-08 定型：flights → ships → rail 三次成型）
+
+**前提**：嵌入頁的不變量是「零 Supabase、零 Mapbox 請求」。每一步都在保護它。
+
+**0. 先判型別**（決定後面所有事）
+- **軌跡插值型**（flights / ships）：快照存逐點軌跡，引擎插值。日檔隨載具數線性長
+- **時刻表推算型**（rail）：快照只存時刻表，位置由幾何推算 →
+  幾何抽成**日期無關共用資產**，日檔小兩個數量級
+
+**1. 匯出 case**（`scripts/export/export-embed-snapshot.sh` 加一個 case）
+- 量化座標 5 位小數。⚠️ **量化是否無損要實測**，不要假設：
+  ships 的驗法是「量化前後 `filterGpsAnomalies` 保留／丟棄數完全相同」
+- 產物落 `public/embed-snapshots/<layer>/<YYYY-MM-DD>.json.gz`（檔名含日期 → 可 immutable）
+
+**2. 共用解析模組**（`src/embed/<layer>ReplayData.ts`）
+純 TS、零渲染依賴。引擎（`RailEngine` / `TraTrainEngine` / `BusEngine`）本來就不 import
+three / mapbox-gl / React，可直接複用；**沒有獨立引擎的（ships/flights，插值寫在 Scene 檔內）
+整套搬 Scene 反而免去抽取重構**。
+
+**3. 註冊到 `REPLAY_LAYERS`**（`src/embed/replayLayers.ts`）
+這是 base bundle 的 metadata（名稱、資產路徑、是否需共用資產），**不可 import 任何 three 的東西**。
+
+**4. 走 lazy runtime**（`src/embed/replayRuntime.ts`）
+three 的**唯一入口**，只能被 dynamic import 觸及。Scene 掛上 `threeReplayLayer.ts`
+（maplibre CustomLayer 泛化包裝）。
+⚠️ maplibre 的 `render(gl, options)` 第二參數是**物件** →
+取 `options.defaultProjectionData.mainMatrix`；取 `modelViewProjectionMatrix` 會**靜默**
+把東西投到畫面外約 −54,000px，不報錯。
+⚠️ 座標走 `coordinates.ts` 的**顯式引擎注入**（`setMercatorEngine()`），
+side-effect 模組要確保求值早於 import graph；未注入即 throw（不 silent fallback）。
+
+**5. 圖例**（`src/embed/…Legend`）
+忠實反映渲染語意（見 PRINCIPLES §圖例不憑空發明分類）。
+⚠️ 色票放 `src/data/*.ts`，**不要向 Scene 檔取色** —— LegendPanel 是 static import，
+會把 three 拖進純靜態 bundle。做完把該層從 `layerConsistency` 的 `BASELINE_NO_LEGEND` 移出。
+
+**6. demo 卡**（`demo-embed.html` 加一張）
+挑一個「看得出東西在動」的時間窗。⚠️ **預設 960x 對密集班距太快**：
+北捷尖峰班距只剩 0.2 牆鐘秒、高雄輕軌 4.3 秒繞完一圈 → 糊成一團看不出疏密，
+這類卡片要帶 `p.speed=180`。
+
+**7. 實測四項**（缺一不可）
+```bash
+npx tsc -b                         # ① 型別
+pnpm test                          # ② 含 layerConsistency（漏圖例會紅）
+pnpm build && grep -c "WebGLRenderer\|InstancedMesh" dist/assets/embed-*.js   # ③ 必須 0
+# ④ 瀏覽器近景實測（rail 用 z13.5 確認列車貼軌）
+```
+
+**8. 上生產供檔**（S3 → pull → nginx 三處，照 PB-06）
+- 含日期的快照 → `expires 1y` + immutable
+- 固定檔名的共用資產 → `expires 1d` + public（**不可 immutable**，見 PRINCIPLES）
+- **`Content-Encoding` 不要設** —— 線上服務的是 volume 本地檔，S3 metadata 到不了瀏覽器，
+  改由前端讀 magic byte（`0x1f 0x8b`）判斷
+
+## PB-35 Retention 搶救：把「快被吃掉的」動態資料轉成保存層（2026-08-08 定型）
+
+**觸發時機**：任何「之後再做」的功能若依賴滾動視窗的動態資料 —— 現在不存，
+每過一天就永久少一天。實測 retention：bus / bus_intercity **3 天**、ships / flights **7 天**。
+
+**1. 先算清楚成本再開**
+日總量 ≈ 76MB → 月增 2.3GB → 滿一年約 **US$0.69/月**、首年合計 **~US$4.5**。
+（對照：讓前端直讀這批檔的 egress 一個月就超過整年儲存費 → 見 PRINCIPLES §保存層 vs 成品包）
+
+**2. 腳本三道防呆**（`data-collectors/scripts/export_daily_trails.py`）
+- **`rows=0` 硬性 exit 1** —— 最重要的一條。`get_*_dates` 這類 dates matview 會**謊報**
+  （flights 顯示 117 天但 trails 實際只剩 ~9 天，BL-25）→ 不能信「有這天」就當匯出成功
+- **today-guard**：當天資料還在寫，只匯昨天以前
+- **上傳後 HEAD 驗證** ContentLength，不要 put 完就當成功
+- 直連 `live.*_trails_daily` + keyset 分頁（不走 RPC，避 pooler timeout）；
+  Arrow **不壓縮**（arrow-js 限制）
+
+**3. 排程時間要看資料何時定版**
+排 **02:00 Asia/Taipei** —— 依 summary 表 `refreshed_at` 實測，資料在 **D+1 01:00–01:20** 才定版。
+排太早會匯到半成品。
+
+**4. 預設關閉，明確開啟**
+`TRAILS_EXPORT_ENABLED` 預設 false：manifest 是 get→merge→put **非原子**，多實例會互蓋。
+
+**5. 立刻回補能救的**
+`--backfill N`。⚠️ **只能救 retention 窗內的**，窗外的永久沒了 ——
+本次救回 ships/flights 各 8 天、bus 系 3 天；**bus/bus_intercity 08-04、ships/flights 07-30 已救不回**。
+
+**6. 漏跑不會自動補**
+`backfill=1` 表示只做昨天。漏掉的一晚**不會自己回頭補** →
+偵測靠 Telegram 🧊/🚨、恢復靠手動 `--backfill N`。
