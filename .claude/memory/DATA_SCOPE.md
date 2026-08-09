@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-07-31（+衛星 LST raster PMTiles / micro sensor RPC +site_name）
+**最後更新**：2026-08-09（+`trails/` 保存層 nightly 匯出 / +embed 回放快照三層與 rail 共用幾何）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -487,7 +487,8 @@ civil_defense_shelters(3.4M) / crime_area_monthly(2.3M) / court_jurisdictions(29
 ├── youbike/             # YouBike 車位
 ├── weather/             # 氣象觀測
 ├── temperature/         # 溫度網格
-└── freeway/             # 國道壅塞
+├── freeway/             # 國道壅塞
+└── trails/              # 🆕 保存層（nightly 匯出，2026-08-08 起）—— ⚠️ 不供前端直讀
 ```
 
 **S3 base URL**：`https://migu-gis-data-collector.s3.ap-southeast-2.amazonaws.com`
@@ -605,3 +606,56 @@ resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢�
 588 天全量向量化（feature backlog PA-1）。歷史模式因此只有民國 115 年有東西。
 
 ✅ 線上 collector 已於 2026-08-02 部署新版（data-collectors PR #41），資料自行修復、不需回填。
+
+## 保存層 `trails/`（S3 nightly 匯出，2026-08-08 上線；data-collectors PR #47）
+
+⚠️ **這是保存層不是供檔層** —— 不在 `deploy-assets/` 下、不經 nginx／Cloudflare、
+**前端一律不直讀**（egress $0.114/GB，36MB 的 bus 日檔讀 1,000 次 ≈ $4/月，
+超過它一整年的儲存費）。要畫圖必須先加工成成品包。詳 PRINCIPLES §保存層 vs 成品包。
+
+**存在理由**：DB retention 正在吃資料，每天不匯出就永久流失一天。
+
+| dataset | 來源表 | 格式 | DB retention | 備註 |
+|---|---|---|---|---|
+| `ships` | `live.ship_trails_daily` | Arrow（不壓縮） | **7 天** | mmsi / ship_type / trail |
+| `flights` | `live.flight_trails_daily` | json.gz | **7 天** | flight_id / callsign / aircraft_type / origin / destination / trail |
+| `bus` | `live.bus_trails_daily` | Arrow | **3 天** | 直連底層表一次撈完，保留 `city` 欄讓下游仍能按縣市切 |
+| `bus_intercity` | `live.bus_intercity_trails_daily` | Arrow | **3 天** | 此處 `city` 是 SubAuthorityID（業者代號） |
+
+- **路徑**：`s3://migu-gis-data-collector/trails/<dataset>/<YYYY-MM-DD>.<arrow|json.gz>`
+  ＋ 同層 `manifest.json`
+- **排程**：每日 **02:00 Asia/Taipei**（依 summary 表 `refreshed_at` 實測，資料 D+1 01:00–01:20 才定版）
+- **開關**：`TRAILS_EXPORT_ENABLED` **預設 false**（manifest 是 get→merge→put 非原子，多實例互蓋）
+- **腳本**：`data-collectors/scripts/export_daily_trails.py` —— 直連 `live.*` 表（不走 RPC）、
+  keyset 分頁、**`rows=0` 硬性 exit 1**、today-guard、上傳後 HEAD 驗證。SOP 見 PLAYBOOKS PB-35
+- **量體**：日總量 ≈ **76MB** → 月增 2.3GB；滿一年 ~US$0.69/月、首年合計 ~US$4.5
+
+**回補結果（2026-08-08 一次性）**：ships / flights 各 **8 天**（07-31~08-07）、
+bus 系 **3 天**（08-05~08-07）。
+🔴 **已永久救不回**：`bus` / `bus_intercity` 的 **08-04**、`ships` / `flights` 的 **07-30**。
+⚠️ 漏跑的一晚**不會自動補**（`backfill=1`）→ 偵測靠 Telegram 🧊/🚨、恢復靠手動 `--backfill N`。
+
+## Embed 回放快照（成品包，2026-08-06 凍結日；PR #118 待審）
+
+供 `/embed` 在**零 Supabase 請求**下播完整天。檔名含日期 → `/embed-snapshots/` 走 1y immutable。
+
+| 層 | 路徑 | 大小 | 型別 | 來源 |
+|---|---|---|---|---|
+| flights | `public/embed-snapshots/flights/2026-08-06.json.gz` | **522 KB** | 軌跡插值型 | `live.flight_trails_daily` |
+| ships | `public/embed-snapshots/ships/2026-08-06.json.gz` | **4.78 MiB**（12,305 列） | 軌跡插值型 | `live.ship_trails_daily` |
+| rail | `public/embed-snapshots/rail/2026-08-06.json.gz` | **229 KB** | **時刻表推算型** | Supabase `reference.daily_schedules`（tra_daily 907 班 + thsr_daily 160 班，**永久累積不過期**）；捷運四家吃 `*_fixed` |
+| plaActivity | `public/embed-snapshots/plaActivity/2026-07-30.geojson` | 2 KB | 靜態快照（EM 既有） | `spatial.pla_tracks` |
+
+**日期無關共用資產**（不隨日期變 → 抽出來只下載一次）：
+
+| 資產 | 大小 | 說明 |
+|---|---|---|
+| `public/embed-rail/rail_slim.json.gz` | **367 KB** | 鐵道幾何，原始 **68MB → 縮 190x**。量化 5 位 + RDP(1e-4°) + `--max-arc-loss 5m` 弧長保護 + 併單檔 gzip。⚠️ **固定檔名 → nginx 走 `expires 1d` 不可 immutable** |
+
+- 座標量化 5 位**實測無損**（量化前後 `filterGpsAnomalies` 保留／丟棄數完全相同）
+- rail 幾何管線 `scripts/preprocess/build-rail-slim-bundle.py`；
+  驗證 `verify-rail-slim.ts`（雙幾何跑同引擎逐車比對 2,975 次：p50 1.66m / p95 7.31m / max 20.80m，
+  驗收線 p95<30 / max<100，可當 gate）
+- `Content-Encoding` **刻意不設**，前端讀 magic byte（`0x1f 0x8b`）判斷解壓
+- ⚠️ `public/embed-rail/` 在 master 上**還沒有 gitignore 行**（那行隨 PR #118 一起進來）→
+  目前是未追蹤產物目錄，**不要 commit 它**
