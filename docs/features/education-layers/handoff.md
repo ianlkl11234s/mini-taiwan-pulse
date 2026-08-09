@@ -128,7 +128,7 @@ popup 不能直接印，一律走 `linSpecsLabel(lin_specs, precision)` —— �
 全部可解釋：進修學院/空大 10（學生數歸母校）／宗教研修學院 9（不在統計範圍）／停辦改名 2。
 bubble 半徑走 `case` 給固定小灰點，**不能落進 interpolate**（會被當成 0）。
 
-## 前端接線點（17 檔）
+## 前端接線點（20 檔，W1+W2+W3 合計）
 
 `types/index.ts`(3 處) → `data/educationTypes.ts`(新) → `map/overlayRegistry.ts`(8 config) →
 `sidebar/layerCatalog.ts`(LAYER_COLORS + THEMES) → `hooks/useTransportParams.ts`(4 處含 deps) →
@@ -148,7 +148,19 @@ bubble 半徑走 `case` 給固定小灰點，**不能落進 interpolate**（會�
 `edu-kindergarten-circle`／`edu-cram-circle`／`edu-afterschool-circle`
 `edu-mutual-care-circle`／`edu-university-students-bubble`
 
-## 回填上游（待辦）
+## ✅ 回填上游（已完成，4 個 commit）
 
-接線完成後要回填 `taipei-gis-analytics/docs/data-catalog/education/{schools,campus_polygon}.md`
-的 `used_by_pulse_layers` 欄與本次 commit hash。
+`taipei-gis-analytics` 的 9 份 `docs/data-catalog/education/*.md` 都已填 `used_by_pulse_layers`，
+handoff 累計 **8 條實測勘誤** ＋ 2 個回報給上游的問題：
+
+| commit | 內容 |
+|---|---|
+| `2e96443` | W1 回填 ＋ 勘誤 1-3（md5／datasetId 無點號／289 校 fold） |
+| `0ee6ffe` | W2 回填 ＋ 勘誤 4-5（`district_no` 是字串／`lin_specs` 空字串） |
+| `b9b63f4` | W3 回填 ＋ 勘誤 6-8（`[NN]` 前綴／`地區縣市` 是機關名／紀年不同）＋ 回報 `lin_specs` Excel 日期污染 |
+| `1b1963e` | 回報 `cram_schools` 切片抽稀（z8-14 大量丟點） |
+
+下游對應 commit：`cff1b3d`（W1）／`690c305`／`b513310`（W2）／`2cf18ca`（W3）／`6076e0e`（抽稀圖例）。
+
+**兩個留給上游修的**：`lin_specs` 的 Excel 日期污染（讀 Excel 時強制 `dtype=str`）；
+`cram_schools` 是否重切以取消抽稀（待 owner 拍板，見下游 backlog EDU-14）。
