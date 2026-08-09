@@ -93,14 +93,29 @@
   </div>
 
   <div class="card">
-    <h2>🚇 台北捷運・早上 8:00<span class="badge">rsys=trtc · 180x</span></h2>
+    <h2>🚇 台北捷運本體・早上 8:00<span class="badge">rsys=trtc · 180x</span></h2>
     <div class="desc">
-      <strong>只顯示台北捷運</strong>一個系統——加上 <strong>rsys=trtc</strong> 之後，台鐵的灰色軌道與高鐵都不會進場
-      （過濾發生在組裝階段，沒被選到的系統連時刻表都不解析）。從 08:00 通勤尖峰起播，
-      放慢到每秒約 3 分鐘，六條線的班距疏密才看得出來。
+      <strong>只顯示台北捷運本體五線</strong>（文湖／淡水信義／松山新店／中和新蘆／板南）——加上
+      <strong>rsys=trtc</strong> 之後，台鐵的灰色軌道與高鐵都不會進場（過濾發生在組裝階段，
+      沒被選到的線連時刻表都不解析）。<strong>2026-08 起 trtc 不再包含機場捷運與新北各線</strong>——
+      那些改用 <strong>rsys=tymc</strong> / <strong>rsys=ntm</strong>，要三家一起看就寫 <strong>rsys=trtc,tymc,ntm</strong>。
+      從 08:00 通勤尖峰起播，放慢到每秒約 3 分鐘，五條線的班距疏密才看得出來。
     </div>
     <iframe loading="lazy" src="/embed.html?v=1&layers=rail&date=2026-08-06&h=8&rsys=trtc&p.speed=180&lng=121.52&lat=25.06&z=10.3"></iframe>
     <div class="url">/embed.html?v=1&amp;layers=rail&amp;date=2026-08-06&amp;h=8&amp;rsys=trtc&amp;p.speed=180&amp;lng=121.52&amp;lat=25.06&amp;z=10.3</div>
+  </div>
+
+  <div class="card">
+    <h2>🔵 板南線一條線・早上 8:00<span class="badge">rsys=trtc-bl · 180x</span></h2>
+    <div class="desc">
+      同一個參數再往下切一級：<strong>rsys=trtc-bl</strong> 只留<strong>板南線</strong>一條——
+      頂埔／南港展覽館之間，全天 596 班次、15 條軌道。線路代碼一律帶營運者前綴
+      （北捷與高捷都有 R 與 O，<strong>krtc-r</strong> 是高雄紅線、<strong>trtc-r</strong> 才是淡水信義線），
+      混用也可以：<strong>rsys=trtc-bl,tymc</strong> ＝ 板南線 + 機場捷運。圖例跟著收斂到線路級，
+      只列板南線那一格官方藍。
+    </div>
+    <iframe loading="lazy" src="/embed.html?v=1&layers=rail&date=2026-08-06&h=8&rsys=trtc-bl&p.speed=180&lng=121.522&lat=25.036&z=11.2"></iframe>
+    <div class="url">/embed.html?v=1&amp;layers=rail&amp;date=2026-08-06&amp;h=8&amp;rsys=trtc-bl&amp;p.speed=180&amp;lng=121.522&amp;lat=25.036&amp;z=11.2</div>
   </div>
 
   <div class="card">
