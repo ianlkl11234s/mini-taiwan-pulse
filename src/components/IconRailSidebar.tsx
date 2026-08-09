@@ -261,6 +261,7 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   eduSchoolSpecial: Accessibility,
   eduRemoteSchools: Mountain,
   eduCampusPolygon: LandPlot,
+  eduCampusArea: Grid3x3,
   eduDistrictElementary: Map,
   eduDistrictJunior: Map,
   eduDistrictSenior: Shapes,

@@ -2,6 +2,39 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-08-09 — backlog 清償（EDU-9 / 10 / 11 / 13）
+
+**新增第 17 個圖層 `eduCampusArea`（EDU-9）**
+
+校地面積面量圖，與 `eduCampusPolygon` 同一份切片、同一個 sourceId（4.36 MB 只下載一次），
+差別只在讀法：那層按學制分色、本層按 `area_ha` 分 5 級（YlGnBu）。
+門檻 1/2/5/10 ha 取自實測分布，各級 708／1,337／1,883／260／136 = 4,324。
+popup 共用既有 `eduCampus` panel，未新增 layerType。
+
+**`lin_specs` Excel 日期污染修復同步（EDU-13）**
+
+上游 B163（PR #40）已修並重出資產，下游同步 `school_district_k12.pmtiles` 並重傳 S3。
+驗證：含「月」字的 `lin_specs` 歸零、富安國小 → `11-12`、雙蓮 → `1-19`，
+面數 860 與 precision 206/654 完全不變。上游連帶修掉 `build_web_assets.py`
+用 `sorted(...)[0]` 取到**最舊** geojson 的問題（等於默默交付舊資料）。
+
+**PMTiles 分類覆蓋守門（EDU-11）**
+
+新增 `pmtilesClassificationCoverage.test.ts`。`pmtiles` 套件的 `FileSource` 只吃瀏覽器
+File 物件，Node 端自己實作 Source 介面（`getKey`／`getBytes`），從檔頭 `tilestats`
+取 distinct values 比對分色表。守住三個先前無人看管的分類（campus 10 類／cram 14 類／
+k12 precision 2 類）並對帳 feature 總數。**做過負向驗證**：移除 `kindergarten` 後測試確實轉紅。
+
+**舊資產退役（EDU-10）**
+
+`upload-deploy-assets.sh` 的 `public/geo/schools.geojson` 與 `pull-deploy-assets.sh` 的
+`--include "schools.geojson"` 已移除（全 `src/` 掃過確認無引用）。
+S3 上的舊物件保留未刪（不可逆，且留著不影響行為）。
+
+**驗收**：`npx tsc -b` exit 0；`pnpm test` **332/332 全綠**（31 files，含新增 6 個 PMTiles 測試）
+
+---
+
 ## 2026-08-09 — PR #116 `f402147`（W3）
 
 **W3：幼托補習 + 大專學生數 5 個圖層 —— 上游 9 個 dataset 全部接完**

@@ -69,7 +69,7 @@ import {
 import {
   SCHOOL_LEVEL_COLORS, schoolLevelFilter, schoolLevelColorExpr,
   REMOTE_SCHOOL_FILTER, regionTypeColorExpr,
-  CAMPUS_NON_SCHOOL_FILTER, campusLevelColorExpr,
+  CAMPUS_NON_SCHOOL_FILTER, campusLevelColorExpr, campusAreaColorExpr,
   CAMPUS_PMTILES_MINZOOM, CAMPUS_PMTILES_MAXZOOM,
   districtLevelFilter, districtPrecisionColorExpr, districtSeniorColorExpr,
   DISTRICT_K12_PMTILES_MINZOOM, DISTRICT_K12_PMTILES_MAXZOOM,
@@ -8668,6 +8668,30 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "line-color": campusLevelColorExpr("#90a4ae"),
           "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.3, 15, 1.2],
           "line-opacity": (p?.eduCampusPolygonOpacity ?? 0.35) * 0.9,
+        }),
+      },
+    ],
+  },
+
+  // 1b. 校地**面積**面量圖 —— 與上面 eduCampusPolygon **同一份切片、同一個 sourceId**
+  // （4.36 MB 只下載一次），差別只在讀法：那層按學制分色，這層按 area_ha 分 5 級。
+  // 面量圖不畫描邊（UX baseline：熱區/密度圖 outline 0），避免干擾色階閱讀。
+  {
+    id: "eduCampusArea",
+    sourceUrl: "./education/campus_polygon.pmtiles",
+    sourceId: "edu-campus",
+    pmtiles: {
+      sourceLayer: "campus_polygon",
+      minzoom: CAMPUS_PMTILES_MINZOOM,
+      maxzoom: CAMPUS_PMTILES_MAXZOOM,
+    },
+    filter: CAMPUS_NON_SCHOOL_FILTER,
+    layers: [
+      {
+        suffix: "area-fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": campusAreaColorExpr(),
+          "fill-opacity": p?.eduCampusAreaOpacity ?? 0.55,
         }),
       },
     ],

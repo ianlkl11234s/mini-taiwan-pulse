@@ -16,7 +16,7 @@
 上游 **9 個 dataset 全部接完**，合計 16.86 MB（全走 S3 `deploy-assets/education/`）。
 剩餘待辦只有分析層與技術債，見 [backlog](./backlog.md)。
 
-## 16 個圖層
+## 17 個圖層
 
 | layer key | 內容 | 筆數 | 型態 |
 |---|---|---:|---|
@@ -27,7 +27,8 @@
 | `eduSchoolUniversity` | 大專（含空大進修 10、宗教研修 9） | 159 | 同源 filter |
 | `eduSchoolSpecial` | 特教 | 28 | 同源 filter |
 | `eduRemoteSchools` | 偏遠地區學校（偏遠 830／特偏 192／極偏 130） | 1,152 | 同源 filter |
-| `eduCampusPolygon` | 校地範圍（濾除 non_school 12） | 4,324 | PMTiles 面 |
+| `eduCampusPolygon` | 校地範圍（按**學制**分色，濾除 non_school 12） | 4,324 | PMTiles 面 |
+| `eduCampusArea` | 校地面積面量圖（同一份切片，按 **`area_ha`** 分 5 級） | 4,324 | 同源 filter |
 | `eduDistrictElementary` | 國小學區（**里級**） | 621 | PMTiles 面 |
 | `eduDistrictJunior` | 國中學區（**里級**） | 239 | 同源 filter |
 | `eduDistrictSenior` | 高中就學區（**縣市級**） | 15 | GeoJSON 面 |

@@ -499,7 +499,9 @@ export function useMapInteraction(
           // 殯葬業者密度：368 鄉鎮全台鋪滿的 fill → 同樣放最末
           { layers: ["funeral-density-fill"], type: "funeralOperatorDensity" },
           // 🎓 校地範圍：4,324 面大面積 fill，會蓋住其上的學校點 → 必須排最末
-          { layers: ["edu-campus-fill"], type: "eduCampus" },
+          //    面積面量圖 `edu-campus-area-fill` 是同一份切片的另一種讀法，欄位契約完全相同
+          //    → 併進同一個 entry 共用 EduCampusPanel，不另開 layerType。
+          { layers: ["edu-campus-fill", "edu-campus-area-fill"], type: "eduCampus" },
           // 🎓 國中小學區：里級面，比校地面更大 → 排在 edu-campus-fill 之後。
           //    國小／國中共用一個 type（欄位契約相同，panel 靠 level 自行分辨）。
           { layers: ["edu-district-k12-elementary-fill", "edu-district-k12-junior-fill"], type: "eduDistrictK12" },

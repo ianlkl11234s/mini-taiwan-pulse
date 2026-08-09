@@ -148,7 +148,7 @@ export type ExpandableLayerKey =
   | "eduSchoolUniversity" | "eduSchoolSpecial" | "eduRemoteSchools" | "eduCampusPolygon"
   | "eduDistrictElementary" | "eduDistrictJunior" | "eduDistrictSenior"
   | "eduKindergarten" | "eduCramSchool" | "eduAfterschoolCare" | "eduMutualCare"
-  | "eduUniversityStudents"
+  | "eduUniversityStudents" | "eduCampusArea"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -961,6 +961,7 @@ export interface LayerVisibility {
   eduSchoolSpecial: boolean;       // 特教 28
   eduRemoteSchools: boolean;       // 偏遠標記 1,152（偏遠 830／特偏 192／極偏 130；⚠️ 非偏遠是 JSON null）
   eduCampusPolygon: boolean;       // 校地面 4,324（4,336 濾除 non_school 12；⚠️ zoom<8 不顯示、澎金無資料）
+  eduCampusArea: boolean;          // 校地面積面量圖（同一份切片，改按 area_ha 分 5 級著色）
   // 學區面（⚠️ 不是精確邊界、面與面本來就重疊；僅臺北/新北/臺中/新竹市 4 縣市有公告）
   eduDistrictElementary: boolean;  // 國小學區 621 面（precision 分色：整里 206／部分鄰 654）
   eduDistrictJunior: boolean;      // 國中學區 239 面（同上，與國小學區完全疊合故拆兩個 toggle）
