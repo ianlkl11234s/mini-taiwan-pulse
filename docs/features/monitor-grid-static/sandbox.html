@@ -263,6 +263,19 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  /* AUTO = 實機高度跟內容走（fit:"content"），這裡的縱向尺寸只是排序佔位 */
+  .w-auto, .d-auto {
+    font-family: var(--data);
+    font-size: 7.5px;
+    letter-spacing: 1.2px;
+    color: #7ee9c4;
+    border: 1px solid rgba(16,185,129,0.45);
+    border-radius: 2px;
+    padding: 0 3px;
+    flex: none;
+  }
+  .d-auto { margin-left: 6px; }
+
   .w-en {
     font-family: var(--data);
     font-size: 8.5px;
@@ -602,7 +615,7 @@
 <header class="topbar">
   <div class="brand">
     <h1>監看模式 排版沙盒</h1>
-    <span class="sub">Monitor Layout Sandbox · v8</span>
+    <span class="sub">Monitor Layout Sandbox · v9</span>
   </div>
   <div class="topbar-actions">
     <label class="sub mono" for="presetSel" style="color:var(--dim);font-size:9.5px;">PRESET</label>
@@ -670,6 +683,11 @@
     <div class="box">
       <h2>Widget 抽屜</h2>
       <div class="drawer" id="drawer"></div>
+      <p class="hint" style="margin-top:0;margin-bottom:8px">
+        標 <span class="d-auto" style="margin-left:0">AUTO</span> 的 widget 實機高度<b>跟著內容走</b>
+        （<span class="mono">fit:"content"</span>）：不留白、不格內捲、下方順勢下移。
+        這裡拖出來的縱向尺寸對它們只是排序佔位，不是實際高度。
+      </p>
       <div class="drawer-foot">
         <span id="drawerCount">17 / 17 顯示中</span>
         <button class="btn" type="button" id="btnAllOn" style="padding:3px 9px;font-size:10px;">全部顯示</button>
@@ -1068,21 +1086,21 @@
   var WIDGETS = [
     { i: "timeline",          cn: "時間軸",     en: "TIMELINE DOCK",  sig: "var(--blue)",   w: 12, h: 2, minW: 4, minH: 2 },
     { i: "newsFeed",          cn: "新聞 Feed",  en: "NEWS FEED",      sig: "var(--accent)", w: 5,  h: 8, minW: 3, minH: 3 },
-    { i: "situationOverview", cn: "戰情概覽",   en: "PRESSURE INDEX", sig: "var(--amber)",  w: 7,  h: 4, minW: 3, minH: 3 },
-    { i: "situationCards",    cn: "公衛版",     en: "HEALTH BOARD",   sig: "var(--amber)",  w: 5,  h: 3, minW: 3, minH: 2 },
-    { i: "powerCard",         cn: "能源",       en: "POWER",          sig: "var(--amber)",  w: 4,  h: 4, minW: 3, minH: 3 },
-    { i: "liveWall",          cn: "直播牆",     en: "LIVE WALL",      sig: "var(--purple)", w: 4,  h: 5, minW: 3, minH: 3 },
-    { i: "hazardStrip",       cn: "災防觀測",   en: "HAZARD",         sig: "var(--amber)",  w: 12, h: 2, minW: 4, minH: 2 },
+    { i: "situationOverview", cn: "戰情概覽",   en: "PRESSURE INDEX", sig: "var(--amber)",  w: 7,  h: 4, minW: 3, minH: 3, fit: 1 },
+    { i: "situationCards",    cn: "公衛版",     en: "HEALTH BOARD",   sig: "var(--amber)",  w: 5,  h: 3, minW: 3, minH: 2, fit: 1 },
+    { i: "powerCard",         cn: "能源",       en: "POWER",          sig: "var(--amber)",  w: 4,  h: 4, minW: 3, minH: 3, fit: 1 },
+    { i: "liveWall",          cn: "直播牆",     en: "LIVE WALL",      sig: "var(--purple)", w: 4,  h: 5, minW: 3, minH: 3, fit: 1 },
+    { i: "hazardStrip",       cn: "災防觀測",   en: "HAZARD",         sig: "var(--amber)",  w: 12, h: 2, minW: 4, minH: 2, fit: 1 },
     { i: "alertBoard",        cn: "警報面板",   en: "ALERTS",         sig: "var(--red)",    w: 6,  h: 4, minW: 3, minH: 2 },
     { i: "hotZones",          cn: "熱區",       en: "TOP 5 ZONES",    sig: "var(--red)",    w: 6,  h: 4, minW: 3, minH: 3 },
     { i: "histogram",         cn: "24H 分佈",   en: "HISTOGRAM 24H",  sig: "var(--blue)",   w: 12, h: 3, minW: 3, minH: 2 },
     { i: "triage",            cn: "信號分級",   en: "TRIAGE",         sig: "var(--purple)", w: 4,  h: 4, minW: 3, minH: 2 },
-    { i: "prison",            cn: "司法矯正",   en: "INMATES",        sig: "var(--blue)",   w: 6,  h: 4, minW: 2, minH: 3 },
-    { i: "airportPax",        cn: "機場入出境", en: "BORDER PAX",     sig: "var(--accent)", w: 6,  h: 4, minW: 3, minH: 3 },
-    { i: "erCongestion",      cn: "急診壅塞",   en: "ER 24H",         sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6 },
-    { i: "plaBoard",          cn: "共機戰情板", en: "PLA SITUATION",  sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6 },
-    { i: "foodPriceBoard",    cn: "食品價格",   en: "FOOD PRICE",     sig: "#5fbf6d",       w: 7,  h: 12, minW: 4, minH: 8 },
-    { i: "taiex",             cn: "台股",       en: "TAIEX",          sig: "#ff4d4f",       w: 5,  h: 3,  minW: 3, minH: 3 }
+    { i: "prison",            cn: "司法矯正",   en: "INMATES",        sig: "var(--blue)",   w: 6,  h: 4, minW: 2, minH: 3, fit: 1 },
+    { i: "airportPax",        cn: "機場入出境", en: "BORDER PAX",     sig: "var(--accent)", w: 6,  h: 4, minW: 3, minH: 3, fit: 1 },
+    { i: "erCongestion",      cn: "急診壅塞",   en: "ER 24H",         sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6, fit: 1 },
+    { i: "plaBoard",          cn: "共機戰情板", en: "PLA SITUATION",  sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6, fit: 1 },
+    { i: "foodPriceBoard",    cn: "食品價格",   en: "FOOD PRICE",     sig: "#5fbf6d",       w: 7,  h: 12, minW: 4, minH: 8, fit: 1 },
+    { i: "taiex",             cn: "台股",       en: "TAIEX",          sig: "#ff4d4f",       w: 5,  h: 3,  minW: 3, minH: 3, fit: 1 }
   ];
 
   var DEF = {};
@@ -1112,8 +1130,9 @@
 
   var PRESETS = {
     restored: {
-      // ⚠️ 與 repo 的 monitorLayout.ts MONITOR_LAYOUT 逐格對齊（2026-08-10 八版）。
+      // ⚠️ 與 repo 的 monitorLayout.ts MONITOR_LAYOUT 逐格對齊（2026-08-10 九版）。
       // 改完拖曳 → 複製 JSON → 覆蓋 MONITOR_LAYOUT。兩邊漂掉就失去沙盒的意義。
+      // 註：標 AUTO（fit:"content"）的 widget 實機高度跟內容走，這裡的 h 只是排序佔位。
       name: "現況（對齊 repo）",
       hidden: ["histogram"],
       layout: [
@@ -1272,6 +1291,7 @@
     el.innerHTML =
       '<div class="w-head" data-handle="drag">' +
         '<span class="w-name">' + def.cn + "</span>" +
+        (def.fit ? '<span class="w-auto">AUTO</span>' : "") +
         '<span class="w-en">' + def.en + "</span>" +
       "</div>" +
       '<div class="w-body">' + CONTENT[def.i] + "</div>" +
@@ -1463,7 +1483,8 @@
         '<input type="checkbox" />' +
         '<span class="sig" style="background:' + def.sig + '"></span>' +
         '<span class="cn">' + def.cn + "</span>" +
-        '<span class="en">' + def.en + "</span>";
+        '<span class="en">' + def.en + "</span>" +
+        (def.fit ? '<span class="d-auto">AUTO</span>' : "");
       var cb = row.querySelector("input");
       cb.checked = !state.hidden[def.i];
       row.classList.toggle("off", !cb.checked);

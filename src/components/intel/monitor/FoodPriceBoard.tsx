@@ -211,8 +211,11 @@ function StatusDot({ light, dev }: { light: FoodPriceSummary["latestLight"]; dev
 
 /* ── 180 天迷你走勢 ─────────────────────────────────────── */
 
-/** viewBox 高度基準；實際渲染高度由 flex 撐開（下限即此值），180 天要看得出形狀 */
+/** viewBox 高度基準（座標系用，非像素） */
 const SPARK_H = 52;
+/** 走勢圖實際高度。本板是 fit:"content"（父層無固定高）→ flex:1 分不到東西，靠這個值決定。
+ *  140px 是實機量過的：180 天資料在這個高度才看得出形狀。 */
+const SPARK_MIN_H = 140;
 
 function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string }) {
   const geom = useMemo(() => {
@@ -254,14 +257,14 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
   }, [series]);
 
   if (!geom) {
-    return <div style={{ flex: 1, minHeight: SPARK_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textGhost }}>資料不足</div>;
+    return <div style={{ flex: 1, minHeight: SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textGhost }}>資料不足</div>;
   }
 
   return (
     // ⚠️ svg 必須絕對定位：帶 viewBox 的 svg 有「內建長寬比」，在 flex 裡會用
     //    寬度×比例算出自己的高度（實測 253px）把整格撐爆。absolute 讓它退出高度計算，
     //    只吃 wrapper 由 flex 分到的高度。
-    <div style={{ flex: 1, minHeight: SPARK_H, position: "relative" }}>
+    <div style={{ flex: 1, minHeight: SPARK_MIN_H, position: "relative" }}>
     <svg
       viewBox={`0 0 100 ${SPARK_H}`}
       preserveAspectRatio="none"

@@ -1,6 +1,6 @@
 import {
   useEffect, useLayoutEffect, useMemo, useRef, useState,
-  type CSSProperties, type ReactNode,
+  type ReactNode,
 } from "react";
 import { useWallClock } from "../../../hooks/useWallClock";
 import { IntelIcon, ICON } from "../IntelIcon";
@@ -42,10 +42,11 @@ import { ERCard } from "./ERCard";
 import { PlaBoard } from "./PlaBoard";
 import { FoodPriceBoard } from "./FoodPriceBoard";
 import {
-  MONITOR_VISIBLE_LAYOUT, MONITOR_GRID_COLS,
+  MONITOR_VISIBLE_LAYOUT,
   MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP,
   type MonitorWidgetId, type MonitorGridItem,
 } from "./monitorLayout";
+import { buildMonitorTree, nodeWidth, type MonitorNode } from "./monitorPacking";
 import { supabase } from "../../../lib/supabase";
 import {
   fetchPowerDashboard, invalidatePowerDashboard,
@@ -70,7 +71,7 @@ const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 8
 // ── 窄螢幕堆疊模式 ──
 /** grid 容器實寬 < 此值 → 切換單欄堆疊（量容器寬，非 window 寬） */
 const STACK_BREAKPOINT_PX = 1100;
-/** 堆疊模式 cell 高度 px：與 grid 模式視覺同高（h 個 row + (h-1) 個 gap），
+/** 非 fit 的 cell 高度 px：h 個 row + (h-1) 個 gap（沿用原本固定列高的視覺尺寸），
  *  避免 height:auto 讓內部 flex:1 區塊（例如 TimelineDock 密度圖）塌陷 */
 function stackCellHeightPx(h: number): number {
   return h * MONITOR_GRID_ROW_HEIGHT + (h - 1) * MONITOR_GRID_GAP;
@@ -79,6 +80,96 @@ function stackCellHeightPx(h: number): number {
 const MONITOR_STACK_ORDER: MonitorGridItem[] = [...MONITOR_VISIBLE_LAYOUT].sort(
   (a, b) => a.y - b.y || a.x - b.x,
 );
+/** 座標 → 欄/列樹。佈局是模組常數，拆一次就好 */
+const monitorTree: MonitorNode = buildMonitorTree(MONITOR_VISIBLE_LAYOUT);
+
+/**
+ * 欄/列樹 → DOM。
+ * - `cols` 用 grid：`repeat(w, 1fr)` + `span` 保住原本 12 欄的欄寬算式（x/w 不變），
+ *   `alignItems:start` 讓各欄各自長高、不互相拉平。
+ * - `rows` 用 flex 直向堆疊：上面的 widget 長高，下面的順勢下移。
+ * - `fit: "content"` 的 widget 高度 auto（不留白、不格內捲）；其餘吃 h 當固定高。
+ */
+function renderMonitorNode(
+  node: MonitorNode, widgets: Record<MonitorWidgetId, ReactNode>, key?: string,
+): ReactNode {
+  if (node.t === "widget") {
+    const fit = node.item.fit === "content";
+    return (
+      <div
+        key={node.item.i}
+        className="mtp-scroll mtp-monitor-cell"
+        data-widget={node.item.i}
+        style={{
+          minWidth: 0, minHeight: 0,
+          height: fit ? "auto" : stackCellHeightPx(node.item.h),
+          display: "flex", flexDirection: "column",
+          overflow: fit ? "visible" : "auto",
+        }}
+      >
+        {widgets[node.item.i]}
+      </div>
+    );
+  }
+  if (node.t === "cols") {
+    return (
+      <div
+        key={key}
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${node.w}, minmax(0, 1fr))`,
+          gap: MONITOR_GRID_GAP,
+          alignItems: "start",
+          minWidth: 0,
+        }}
+      >
+        {node.children.map((c, k) => (
+          <div key={k} style={{ gridColumn: `span ${nodeWidth(c)}`, minWidth: 0 }}>
+            {renderMonitorNode(c, widgets, `c${k}`)}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (node.t === "rows") {
+    return (
+      <div
+        key={key}
+        style={{ display: "flex", flexDirection: "column", gap: MONITOR_GRID_GAP, minWidth: 0 }}
+      >
+        {node.children.map((c, k) => renderMonitorNode(c, widgets, `r${k}`))}
+      </div>
+    );
+  }
+  // 互卡區塊：照原本固定列高網格畫
+  return (
+    <div
+      key={key}
+      style={{
+        display: "grid",
+        gridTemplateColumns: `repeat(${node.w}, minmax(0, 1fr))`,
+        gridAutoRows: `${MONITOR_GRID_ROW_HEIGHT}px`,
+        gap: MONITOR_GRID_GAP, alignContent: "start", minWidth: 0,
+      }}
+    >
+      {node.items.map((item) => (
+        <div
+          key={item.i}
+          className="mtp-scroll mtp-monitor-cell"
+          data-widget={item.i}
+          style={{
+            gridColumn: `${item.x - node.x0 + 1} / span ${item.w}`,
+            gridRow: `${item.y - node.y0 + 1} / span ${item.h}`,
+            minWidth: 0, minHeight: 0,
+            display: "flex", flexDirection: "column", overflow: "auto",
+          }}
+        >
+          {widgets[item.i]}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /** Taipei 00:00 of a YYYY-MM-DD string → unix seconds */
 function dayKeyToStartTs(key: string): number {
@@ -675,50 +766,38 @@ export function MonitorPanel({
         </button>
       </div>
 
-      {/* header 以下：單一可捲動容器。寬 >= STACK_BREAKPOINT_PX 用 12 欄靜態網格
-         （座標見 monitorLayout.ts），窄於此改單欄堆疊（依 y,x 排序，見 MONITOR_STACK_ORDER） */}
+      {/* header 以下：單一可捲動容器。寬 >= STACK_BREAKPOINT_PX 走 monitorPacking 拆出的
+         欄/列樹（x/w 與前後順序照 monitorLayout.ts，高度視 fit 決定），
+         窄於此改單欄堆疊（依 y,x 排序，見 MONITOR_STACK_ORDER） */}
       <div
         ref={gridRef}
         className="mtp-scroll"
-        style={
-          isStacked
-            ? {
-                flex: 1, minHeight: 0, overflowY: "auto",
-                padding: "14px 16px 18px",
-                display: "flex", flexDirection: "column", gap: MONITOR_GRID_GAP,
-              }
-            : {
-                flex: 1, minHeight: 0, overflowY: "auto",
-                padding: "14px 16px 18px",
-                display: "grid",
-                gridTemplateColumns: `repeat(${MONITOR_GRID_COLS}, minmax(0, 1fr))`,
-                gridAutoRows: `${MONITOR_GRID_ROW_HEIGHT}px`,
-                gap: MONITOR_GRID_GAP,
-                alignContent: "start",
-              }
-        }
+        style={{
+          flex: 1, minHeight: 0, overflowY: "auto",
+          padding: "14px 16px 18px",
+          display: "flex", flexDirection: "column", gap: MONITOR_GRID_GAP,
+        }}
       >
-        {(isStacked ? MONITOR_STACK_ORDER : MONITOR_VISIBLE_LAYOUT).map((item) => {
-          const cellStyle: CSSProperties = isStacked
-            ? {
-                width: "100%",
-                height: stackCellHeightPx(item.h),
-                flexShrink: 0, // flex column 子元素不設會被壓縮塞進容器高度而非溢出捲動
-                minWidth: 0, minHeight: 0,
-                display: "flex", flexDirection: "column", overflow: "auto",
-              }
-            : {
-                gridColumn: `${item.x + 1} / span ${item.w}`,
-                gridRow: `${item.y + 1} / span ${item.h}`,
-                minWidth: 0, minHeight: 0,
-                display: "flex", flexDirection: "column", overflow: "auto",
-              };
-          return (
-            <div key={item.i} className="mtp-scroll mtp-monitor-cell" style={cellStyle}>
-              {widgets[item.i]}
-            </div>
-          );
-        })}
+        {isStacked
+          ? MONITOR_STACK_ORDER.map((item) => (
+              <div
+                key={item.i}
+                className="mtp-scroll mtp-monitor-cell"
+                data-widget={item.i}
+                style={{
+                  width: "100%",
+                  // fit 的 widget 高度跟內容；其餘吃 h 當固定高
+                  height: item.fit === "content" ? "auto" : stackCellHeightPx(item.h),
+                  flexShrink: 0, // flex column 子元素不設會被壓縮塞進容器高度而非溢出捲動
+                  minWidth: 0, minHeight: 0,
+                  display: "flex", flexDirection: "column",
+                  overflow: item.fit === "content" ? "visible" : "auto",
+                }}
+              >
+                {widgets[item.i]}
+              </div>
+            ))
+          : renderMonitorNode(monitorTree, widgets)}
       </div>
 
       <style>{`

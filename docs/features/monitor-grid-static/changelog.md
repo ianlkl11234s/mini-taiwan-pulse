@@ -12,6 +12,27 @@
 
 ---
 
+## 2026-08-10 — 九版：高度改跟內容走（待 PR）
+
+- 新增 `monitorPacking.ts`：把 12 欄座標**拆成欄／列巢狀結構**（guillotine 切割），
+  欄內改用 flex 直向流 → 上面的 widget 長高、下面的順勢下移。
+  CSS grid 的列跨欄共用，做不到這件事；拆不開的區塊（風車形互卡）退回固定列高網格，
+  `monitorPacking.test.ts` 5 條守著（實際佈局可完整拆解、不重不漏、欄寬總和、互卡退路、空佈局）。
+- `MonitorGridItem` 新增 `fit?: "content"`：11 個資訊卡（戰情概覽／TAIEX／公衛／共機／
+  災防／能源／急診／食品價格／司法矯正／機場／直播牆）高度跟內容走；
+  清單類（新聞 Feed／警報／時間軸／熱區／信號分級）維持 `h` 固定高＋格內捲。
+- `fit` widget 內的圖表改寫死高度（父層無固定高，`flex:1` 分不到東西）：
+  PLA 趨勢 `minHeight 110 → 190`、食品走勢新增 `SPARK_MIN_H = 140`。
+- 每個 cell 加 `data-widget="<id>"`，量測／除錯可直接選取。
+- 實測（1920×1200）：`erCongestion` 1163px 完整展開（原格內捲 423px）、
+  `powerCard` 690→241px、`hazardStrip` 390→338px、`liveWall` 690→659px、
+  `situationOverview` 240→191px；除刻意固定高的 `alertBoard` 外全無格內捲。
+- 座標未動（仍是八版的值），沙盒同步為 v9：`fit` widget 標 AUTO 徽章 + 說明
+  「這裡的縱向尺寸只是排序佔位」。
+- Breaking：無。
+
+---
+
 ## 2026-08-10 — 八版：TAIEX 拆板 + 圖表加高（待 PR）
 
 - **沙盒原始碼進 repo**：`docs/features/monitor-grid-static/sandbox.html`

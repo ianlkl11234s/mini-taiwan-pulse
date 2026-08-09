@@ -180,12 +180,13 @@ function AxisBar({ label, pct, value, unit }: {
 function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
   const max = Math.max(summary.sorties.max, 1);
   return (
-    // 柱狀圖是本板唯一「越高越好讀」的區塊 → 由它吸收整格剩餘高度（下限 110px）
+    // 柱狀圖是本板唯一「越高越好讀」的區塊。本板是 fit:"content"（父層沒有固定高），
+    // 所以 flex:1 分不到東西，高度由 minHeight 決定 —— 190px 是實機量過的值。
     <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minHeight: 0 }}>
       <RowLabel>
         {summary.windowDays}D TREND · 架次（柱）／越中線（疊色）· 灰=解析失敗
       </RowLabel>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, flex: 1, minHeight: 110 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, flex: 1, minHeight: 190 }}>
         {days.map((d) => {
           // ⚠️ null = 解析失敗，畫成灰色短樁；0 = 真的零架次，畫成 1px 底線
           if (d.sorties === null) {
