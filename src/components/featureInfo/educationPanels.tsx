@@ -6,6 +6,10 @@ import {
   REGION_TYPE_COLORS, type RegionType, CAMPUS_LEVEL_COLORS,
   DISTRICT_COLORS, DISTRICT_SENIOR_CYCLE_COLORS, DISTRICT_DISCLAIMER,
   linSpecsLabel, type DistrictK12Level,
+  KINDERGARTEN_OWNERSHIP_COLORS, cramCategoryGroupOf,
+  CRAM_CATEGORY_COLORS, CRAM_CATEGORY_LABELS,
+  GEOCODE_PRECISION_LABELS, UNIVERSITY_BUBBLE_COLOR, UNIVERSITY_NO_DATA_COLOR,
+  EDUCATION_LAYER_COLORS,
 } from "../../data/educationTypes";
 
 // 本檔 Title 為極簡本地版（同 funeralPanels / religionPanels 慣例）。
@@ -29,6 +33,43 @@ function Note({ children }: { children: React.ReactNode }) {
 }
 
 const str = (v: unknown): string => (v == null || v === "" ? "" : String(v));
+
+/**
+ * 去掉教育部名冊欄位開頭的 `[NN]` / `[237]` 方括號代碼前綴（縣市代碼／郵遞區號）。
+ *
+ * ⚠️ **只用於顯示**。上游 geocode 刻意保留這個前綴（拿掉 offline 命中率掉到 0%，
+ * 見 `pipelines/education/_shared/normalize_address.py`）—— 別去動資料本身。
+ *
+ * 實測：kindergartens 的 `縣市名稱`／`地址` 6,689 筆**全部**帶前綴（「[01]新北市」），
+ * mutual_care 的 `縣市名稱` 則完全沒有 → 兩層共用 panel 時本函式對後者是 no-op。
+ */
+function stripBracketPrefix(v: unknown): string {
+  return str(v).replace(/^\[[^\]]*\]\s*/, "");
+}
+
+/**
+ * `立案時間` 是**純數字**，而且兩份資料的紀年不同 —— 直接印會變成無意義的「1020812」。
+ *
+ * - cram_schools：8 位**西元** YYYYMMDD（實測 17,137 筆全 8 位，19530701 ~ 20260807）
+ * - afterschool_care：6-7 位**民國** YYYMMDD（實測 880427 ~ 1140908；6 位 5 筆、7 位 777 筆）
+ *
+ * 位數以外的值原樣回傳（上游若改格式，寧可印原始值也不要算出錯的日期）。
+ */
+function licenseDateLabel(v: unknown): string {
+  const s = str(v);
+  if (!/^\d{6,8}$/.test(s)) return s;
+  const [y, md] =
+    s.length === 8
+      ? [Number(s.slice(0, 4)), s.slice(4)]
+      : [Number(s.slice(0, s.length - 4)) + 1911, s.slice(-4)];
+  return `${y}-${md.slice(0, 2)}-${md.slice(2)}`;
+}
+
+/** 四份中文欄位資料共用的 geocode 精度列（`interpolated` 那句本身已含 ⚠️） */
+function GeocodeRow({ precision }: { precision: unknown }) {
+  const p = str(precision);
+  return <Row label="定位精度" value={GEOCODE_PRECISION_LABELS[p] ?? p} />;
+}
 
 /**
  * 學校點位（4,315 點，6 個 layer 共用）。
@@ -183,6 +224,133 @@ export function EduDistrictSeniorPanel({ props }: { props: Record<string, unknow
       ) : null}
       <Note>{DISTRICT_DISCLAIMER}</Note>
       <Note>本層為 <b>縣市級</b>就學區（全國 15 區），與國中小學區的<b>里級</b>粒度不同。</Note>
+    </>
+  );
+}
+
+/**
+ * 幼兒園（6,689 點）與互助教保服務中心（148 點）**共用** —— 兩份欄位幾乎相同
+ * （`學校名稱`／`公/私立`／`縣市名稱`／`鄉鎮市區名稱`／`地址`／`電話`／`學年度`／`precision`）。
+ *
+ * ⚠️ 這兩份保留上游**原始中文欄位名**，popup 直接取中文 key（別跟 university_students 的英文欄位搞混）。
+ * ⚠️ 兩份唯一的差異在代碼欄：kindergartens 是 `代碼`、mutual_care 是 `學校代碼` → `??` 容錯。
+ * ⚠️ kindergartens 的 `縣市名稱`／`地址` 全數帶 `[NN]` 前綴 → 顯示前走 stripBracketPrefix()。
+ */
+export function EduKindergartenPanel({ props }: { props: Record<string, unknown> }) {
+  const ownership = str(props["公/私立"]);
+  const isOwnership = (v: string): v is keyof typeof KINDERGARTEN_OWNERSHIP_COLORS =>
+    v in KINDERGARTEN_OWNERSHIP_COLORS;
+  const accentColor = isOwnership(ownership)
+    ? KINDERGARTEN_OWNERSHIP_COLORS[ownership]
+    : EDUCATION_LAYER_COLORS.eduKindergarten;
+  const city = stripBracketPrefix(props["縣市名稱"]);
+  const district = str(props["鄉鎮市區名稱"]);
+  const academicYear = str(props["學年度"]);
+
+  return (
+    <>
+      <Title color={accentColor}>{str(props["學校名稱"]) || "幼兒園"}</Title>
+      {ownership ? <Row label="公私立" value={ownership} color={accentColor} /> : null}
+      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
+      <Row label="地址" value={stripBracketPrefix(props["地址"])} />
+      <Row label="電話" value={str(props["電話"])} />
+      <Row label="代碼" value={str(props["代碼"] ?? props["學校代碼"])} />
+      {academicYear ? <Row label="學年度" value={`${academicYear} 學年度`} /> : null}
+      <GeocodeRow precision={props.precision} />
+    </>
+  );
+}
+
+/**
+ * 兒童課後照顧服務中心（782 點）。
+ * ⚠️ schema 與幼兒園**不同**：名稱欄是 `名稱`（非「學校名稱」）、縣市欄是 `縣市`（非「縣市名稱」），
+ *    所以不能共用 EduKindergartenPanel。
+ * ⚠️ `立案時間` 是 6-7 位**民國** YYYMMDD 數字 → 走 licenseDateLabel()。
+ */
+export function EduAfterschoolCarePanel({ props }: { props: Record<string, unknown> }) {
+  const accentColor = EDUCATION_LAYER_COLORS.eduAfterschoolCare;
+
+  return (
+    <>
+      <Title color={accentColor}>{str(props["名稱"]) || "課後照顧中心"}</Title>
+      <Row label="縣市" value={str(props["縣市"])} />
+      <Row label="地址" value={stripBracketPrefix(props["地址"])} />
+      <Row label="電話" value={str(props["電話"])} />
+      <Row label="立案時間" value={licenseDateLabel(props["立案時間"])} />
+      <GeocodeRow precision={props.precision} />
+    </>
+  );
+}
+
+/**
+ * 短期補習班（17,137 點，PMTiles）。
+ *
+ * 🔴 **絕對不要顯示 `各地短期補習班數量`**（= educationTypes.CRAM_FORBIDDEN_POPUP_FIELD）：
+ *    那欄每一列的值都是全國總數 17772，不是該縣市數量，印出來會直接誤導。
+ *    本 panel 逐欄列舉、不 iterate props，故不會外洩該欄。
+ * ⚠️ `地區縣市` 的值是**機關名**（「臺南市政府」）→ 顯示改用上游清洗好的 `county`，機關名當 fallback。
+ * ⚠️ `立案時間` 是 8 位**西元** YYYYMMDD（與課後照顧的民國紀年不同）→ 走 licenseDateLabel()。
+ */
+export function EduCramSchoolPanel({ props }: { props: Record<string, unknown> }) {
+  const category = str(props["短期補習班類別"]);
+  const group = cramCategoryGroupOf(category);
+  const accentColor = group ? CRAM_CATEGORY_COLORS[group] : CRAM_CATEGORY_COLORS.other;
+
+  return (
+    <>
+      <Title color={accentColor}>{str(props["短期補習班名稱"]) || "短期補習班"}</Title>
+      <Row
+        label="類別"
+        value={group ? `${CRAM_CATEGORY_LABELS[group]}｜${category}` : category}
+        color={accentColor}
+      />
+      <Row label="縣市" value={str(props.county) || str(props["地區縣市"])} />
+      <Row label="地址" value={stripBracketPrefix(props["地址"])} />
+      <Row label="立案時間" value={licenseDateLabel(props["立案時間"])} />
+      <Row label="電子郵件" value={str(props["電子郵件"])} />
+      <GeocodeRow precision={props.precision} />
+      <Note>短期補習班為每日更新的資料源，此為 2026-08-07 快照</Note>
+    </>
+  );
+}
+
+/**
+ * 大專校別學生數（159 點 bubble）。
+ * ⚠️ 這份是**英文欄位**（`school_name`／`students_total`…），與上面四份中文欄位不是同一套。
+ * ⚠️ 沒有 `precision` 欄（座標來自 schools 名冊而非 geocode）→ 不放定位精度列。
+ *
+ * 🔴 21 筆 `students_total` 是 null，**不能印 null 也不能當 0** —— 改顯示「無學生數統計」
+ *    並說明三種成因（進修學院／空大 10 歸母校、宗教研修學院 9 不在統計、停辦改名 2）。
+ */
+export function EduUniversityStudentsPanel({ props }: { props: Record<string, unknown> }) {
+  const total = typeof props.students_total === "number" ? props.students_total : null;
+  const male = typeof props.students_male === "number" ? props.students_male : null;
+  const female = typeof props.students_female === "number" ? props.students_female : null;
+  const accentColor = total == null ? UNIVERSITY_NO_DATA_COLOR : UNIVERSITY_BUBBLE_COLOR;
+  const city = str(props.city);
+  const district = str(props.district);
+  const academicYear = str(props.academic_year);
+  // 上游是 float（16784.0）→ 四捨五入再千分位，避免印出「16784.0 人」
+  const totalLabel =
+    total == null
+      ? "無學生數統計"
+      : male != null && female != null
+        ? `${Math.round(total).toLocaleString()} 人（男 ${Math.round(male).toLocaleString()}／女 ${Math.round(female).toLocaleString()}）`
+        : `${Math.round(total).toLocaleString()} 人`;
+
+  return (
+    <>
+      <Title color={accentColor}>{str(props.school_name) || "大專校院"}</Title>
+      <Row label="學制" value={str(props.school_level)} />
+      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
+      <Row label="學生數" value={totalLabel} color={accentColor} />
+      {academicYear ? <Row label="學年度" value={`${academicYear} 學年度`} /> : null}
+      {total == null ? (
+        <Note>
+          全國 159 校中有 <b>21 校無學生數</b>：進修學院／空大 10 校（學生數歸母校統計）、
+          宗教研修學院 9 校（不在教育部統計範圍）、停辦或改名 2 校。<b>不是 0 人。</b>
+        </Note>
+      ) : null}
     </>
   );
 }

@@ -39,7 +39,10 @@ import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
 } from "./funeralPanels";
-import { SchoolPanel, EduCampusPanel, EduDistrictK12Panel, EduDistrictSeniorPanel } from "./educationPanels";
+import {
+  SchoolPanel, EduCampusPanel, EduDistrictK12Panel, EduDistrictSeniorPanel,
+  EduKindergartenPanel, EduAfterschoolCarePanel, EduCramSchoolPanel, EduUniversityStudentsPanel,
+} from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
@@ -117,6 +120,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   eduCampus: EduCampusPanel,
   eduDistrictK12: EduDistrictK12Panel,
   eduDistrictSenior: EduDistrictSeniorPanel,
+  // 幼托：幼兒園與互助教保中心欄位幾乎相同（差別只有代碼欄名）→ 共用同一個 panel。
+  // 課後照顧的 schema 不同（`名稱`／`縣市`）故獨立；補習班為 PMTiles 且欄位另一套。
+  eduKindergarten: EduKindergartenPanel,
+  eduMutualCare: EduKindergartenPanel,
+  eduAfterschoolCare: EduAfterschoolCarePanel,
+  eduCramSchool: EduCramSchoolPanel,
+  eduUniversityStudents: EduUniversityStudentsPanel,
   convenienceStore: ConvenienceStorePanel,
   postOffice: PostOfficePanel,
   iPostBox: IPostBoxPanel,
@@ -345,6 +355,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   eduCampus: "校地範圍",
   eduDistrictK12: "學區",
   eduDistrictSenior: "高中就學區",
+  eduKindergarten: "幼兒園",
+  eduMutualCare: "互助教保中心",
+  eduAfterschoolCare: "課後照顧中心",
+  eduCramSchool: "短期補習班",
+  eduUniversityStudents: "大專學生數",
   convenienceStore: "超商",
   postOffice: "郵局",
   iPostBox: "i郵箱",

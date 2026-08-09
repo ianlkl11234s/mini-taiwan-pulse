@@ -89,6 +89,45 @@ popup 不能直接印，一律走 `linSpecsLabel(lin_specs, precision)` —— �
 | `cross_district_rules` | string | popup 跨區就讀規則，**最長 685 字**，需 `maxHeight` + `overflowY:auto` |
 | `area_km2` / `rule_row_count` | number | popup |
 
+### 幼托四份（⚠️ 原始中文欄位名）
+
+`kindergartens.geojson` 6,689 ／ `cram_schools.pmtiles` 17,137（layer `cram_schools`，z8-15）
+／ `afterschool_care.geojson` 782 ／ `mutual_care.geojson` 148
+
+| dataset | popup 欄位 | 分色 |
+|---|---|---|
+| kindergartens | `學校名稱`／`公/私立`／`地址`／`縣市名稱`／`鄉鎮市區名稱`／`電話`／`學年度`／`代碼` | `公/私立` 二色 |
+| mutual_care | 同上（代碼欄是 `學校代碼`）→ **共用同一個 panel** | 單色（全數私立） |
+| afterschool_care | **schema 不同**：`名稱`（非「學校名稱」）／`縣市`（非「縣市名稱」）／`地址`／`電話`／`立案時間` | 單色 |
+| cram_schools | `短期補習班名稱`／`短期補習班類別`／`地址`／`county`／`立案時間`／`電子郵件` | 類別 14 種 fold 成 5 組 |
+
+四者都有 geocode `precision`（`exact`／`cached`／`tgos`／`interpolated`）。
+`interpolated` 全體僅 84 筆，用 `geocodeFadeOpacity()` 降到 45%。
+
+🔴 **三個顯示層陷阱（handoff 都沒寫，實測發現）**：
+
+1. kindergartens 的 `縣市名稱`／`地址` **全 6,689 筆帶 `[NN]` 方括號前綴**（`[01]新北市`、`[237]新北市三峽區…`）。
+   只在**顯示層** strip，**不要動資料**——上游 geocode 刻意保留，拿掉命中率歸零。
+2. cram 的 `地區縣市` 其實是**機關名**（「臺南市政府」「南投縣政府」），要用 `county` 才是清洗後的縣市名。
+3. `立案時間` 兩份**紀年不同**：cram 是西元 8 位（`20041103`）、afterschool 是民國 6-7 位（`1020812`）。
+   兩份都要正規化成 `YYYY-MM-DD`，直接印會出現「1020-08-12」這種鬼日期。
+
+🔴 **`各地短期補習班數量` 絕對不可顯示** —— 全國總數 17772，每列值都一樣，
+顯示出來會被讀成「該縣市有 17772 家」。`educationTypes.ts` 有 `CRAM_FORBIDDEN_POPUP_FIELD` 標記。
+
+### `public/education/university_students.geojson`（159 點，⚠️ **英文欄位**）
+
+| 欄位 | 型別 | 用途 |
+|---|---|---|
+| `school_name` | string | popup 標題 |
+| `students_total` | number **nullable** | bubble 半徑（sqrt → 面積正比） |
+| `students_male` / `students_female` | number | popup |
+| `school_level` / `city` / `district` / `academic_year` / `code` | — | popup |
+
+🔴 **21 筆 `students_total` 是 null**（有值 138 筆，368 ~ 34,941）。
+全部可解釋：進修學院/空大 10（學生數歸母校）／宗教研修學院 9（不在統計範圍）／停辦改名 2。
+bubble 半徑走 `case` 給固定小灰點，**不能落進 interpolate**（會被當成 0）。
+
 ## 前端接線點（17 檔）
 
 `types/index.ts`(3 處) → `data/educationTypes.ts`(新) → `map/overlayRegistry.ts`(8 config) →
@@ -106,6 +145,8 @@ popup 不能直接印，一律走 `linSpecsLabel(lin_specs, precision)` —— �
 `edu-campus-{fill,line}`
 `edu-district-k12-{elementary-fill,elementary-line,junior-fill,junior-line}`
 `edu-district-senior-{fill,line}`
+`edu-kindergarten-circle`／`edu-cram-circle`／`edu-afterschool-circle`
+`edu-mutual-care-circle`／`edu-university-students-bubble`
 
 ## 回填上游（待辦）
 

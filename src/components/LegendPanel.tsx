@@ -71,6 +71,11 @@ import {
   SCHOOL_LEVEL_ORDER, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS, SCHOOL_LEVEL_COUNTS,
   REGION_TYPES, REGION_TYPE_COLORS, REGION_TYPE_COUNTS, CAMPUS_LEGEND_ROWS,
   DISTRICT_COLORS, DISTRICT_PRECISION_COUNTS, DISTRICT_DISCLAIMER,
+  KINDERGARTEN_OWNERSHIP_COLORS, KINDERGARTEN_OWNERSHIP_COUNTS,
+  CRAM_CATEGORY_ORDER, CRAM_CATEGORY_COLORS, CRAM_CATEGORY_LABELS, CRAM_CATEGORY_COUNTS,
+  UNIVERSITY_BUBBLE_COLOR, UNIVERSITY_NO_DATA_COLOR, UNIVERSITY_STUDENTS_COUNTS,
+  AFTERSCHOOL_CARE_COUNT, MUTUAL_CARE_COUNT,
+  EDUCATION_LAYER_COLORS,
   type DistrictK12Level,
 } from "../data/educationTypes";
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
@@ -370,12 +375,14 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
     keys: ["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"],
     render: ({ visibility }) => <PollutionPenaltyLegend visibility={visibility} />,
   },
-  // 🎓 教育 11 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
+  // 🎓 教育 16 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
   {
     keys: [
       "schools", "eduSchoolElementary", "eduSchoolJunior", "eduSchoolSenior",
       "eduSchoolUniversity", "eduSchoolSpecial", "eduRemoteSchools", "eduCampusPolygon",
       "eduDistrictElementary", "eduDistrictJunior", "eduDistrictSenior",
+      "eduKindergarten", "eduCramSchool", "eduAfterschoolCare", "eduMutualCare",
+      "eduUniversityStudents",
     ],
     render: ({ visibility }) => <EducationLegend visibility={visibility} />,
   },
@@ -1854,7 +1861,7 @@ function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
   );
 }
 
-// ── 🎓 教育 Legend（學制 5 級 / 偏遠 3 級 / 校地面 6 組）──
+// ── 🎓 教育 Legend（學制 5 級 / 偏遠 3 級 / 校地面 6 組 / 幼兒園公私立 / 補習班 5 組 / 大專學生數）──
 // 色票與筆數一律取自 educationTypes.ts（分色 SSOT），本檔不重寫任何色碼或數字。
 // 🔴 分級色塊只在「依學制上色」的 6 層裡的點層開；eduRemoteSchools 是照 region_type 上色，
 //    它的圖例是偏遠 3 級那段，混在一起會與畫面上的顏色對不起來。
@@ -1871,6 +1878,14 @@ const EDU_DISTRICT_K12_ROWS: { key: keyof LayerVisibility; label: string; level:
   { key: "eduDistrictJunior", label: "國中學區", level: "junior" },
 ];
 
+const EDU_KINDERGARTEN_OWNERSHIPS = ["公立", "私立"] as const;
+
+// 單色 POI 兩層：只有「開了哪層就列哪列」一種語意，色票取自 EDUCATION_LAYER_COLORS
+const EDU_CARE_ROWS: { key: keyof LayerVisibility; color: string; label: string }[] = [
+  { key: "eduAfterschoolCare", color: EDUCATION_LAYER_COLORS.eduAfterschoolCare, label: `兒童課後照顧中心 ${AFTERSCHOOL_CARE_COUNT.toLocaleString()}` },
+  { key: "eduMutualCare", color: EDUCATION_LAYER_COLORS.eduMutualCare, label: `互助教保服務中心 ${MUTUAL_CARE_COUNT.toLocaleString()}（全數私立）` },
+];
+
 function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
   const showLevels = EDU_LEVEL_KEYS.some((k) => visibility[k]);
@@ -1884,6 +1899,12 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
   // W1 的 8 個學校／校地層有沒有開 —— 同時決定 (a) 學區段的 marginTop 要不要留間距、
   // (b) 🔴 頁尾「學校點位為 113 學年度」要不要出現（單開學區面時它會敘述一個沒開的圖層）
   const showSchoolSections = showLevels || !!visibility.eduRemoteSchools || !!visibility.eduCampusPolygon;
+  // W1+W2（學校／校地／學區）有沒有任一段落 —— 純粹決定 W3 段落的 marginTop
+  const showW1W2 = showSchoolSections || showK12District || !!visibility.eduDistrictSenior;
+  const careRows = EDU_CARE_ROWS.filter((r) => visibility[r.key]);
+  // 🔴 幼托四層共用同一套 geocode precision → interpolated 說明只出現一次，不逐層重複
+  const showChildcare = !!visibility.eduKindergarten || !!visibility.eduCramSchool
+    || careRows.length > 0;
   return (
     <div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
@@ -1982,6 +2003,92 @@ function EducationLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
           <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
             {DISTRICT_DISCLAIMER}
+          </div>
+        </div>
+      )}
+
+      {visibility.eduKindergarten && (
+        <div style={{ marginTop: showW1W2 ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            幼兒園・公私立
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {EDU_KINDERGARTEN_OWNERSHIPS.map((o) => (
+              <div key={o} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={KINDERGARTEN_OWNERSHIP_COLORS[o]} round />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+                  {o} {KINDERGARTEN_OWNERSHIP_COUNTS[o].toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {visibility.eduCramSchool && (
+        <div style={{ marginTop: showW1W2 || visibility.eduKindergarten ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            短期補習班・類別（14 種原始值歸為 5 組）
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: 8, rowGap: 2 }}>
+            {CRAM_CATEGORY_ORDER.map((g) => (
+              <div key={g} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <Swatch color={CRAM_CATEGORY_COLORS[g]} round />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, whiteSpace: "nowrap" }}>
+                  {CRAM_CATEGORY_LABELS[g]} {CRAM_CATEGORY_COUNTS[g].toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            短期補習班為每日更新的資料源，此為 2026-08-07 快照；低倍率（約 zoom 7.5 以下）不顯示
+          </div>
+        </div>
+      )}
+
+      {careRows.length > 0 && (
+        <div style={{ marginTop: showW1W2 || visibility.eduKindergarten || visibility.eduCramSchool ? 5 : 0 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {careRows.map((row) => (
+              <div key={row.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <Swatch color={row.color} round />
+                <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{row.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showChildcare && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+          半透明的點 = 位置為同路段內插的估計值（全體 84 筆），其餘為門牌精確或官方座標
+        </div>
+      )}
+
+      {visibility.eduUniversityStudents && (
+        <div style={{ marginTop: showW1W2 || showChildcare ? 5 : 0 }}>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+            大專校別學生數（{UNIVERSITY_STUDENTS_COUNTS.total} 校）
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Swatch color={UNIVERSITY_BUBBLE_COLOR} round />
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+                有學生數統計 {UNIVERSITY_STUDENTS_COUNTS.withValue}
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <Swatch color={UNIVERSITY_NO_DATA_COLOR} round />
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+                無學生數統計 {UNIVERSITY_STUDENTS_COUNTS.nullValue}
+              </span>
+            </div>
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            圓面積正比於學生數（368 ~ 34,941 人）
+          </div>
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
+            灰點 21 所無學生數統計（進修學院／空大歸母校、宗教研修不在統計範圍），不是 0 人
           </div>
         </div>
       )}

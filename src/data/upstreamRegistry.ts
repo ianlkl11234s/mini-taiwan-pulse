@@ -635,6 +635,12 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   eduDistrictElementary: { status: 'verified', datasets: [{ datasetId: 'school_district_k12', confidence: 'HIGH' }], note: '第 38 主題 education；國小學區 621 面（PMTiles z6-13）— 僅臺北／新北／臺中／新竹市 4 縣市有公告，另 11 縣市無資料 ≠ 無學區；臺北為 110 學年度' },
   eduDistrictJunior: { status: 'verified', datasets: [{ datasetId: 'school_district_k12', confidence: 'HIGH' }], note: '第 38 主題 education；國中學區 239 面，與國小層共用同一份 PMTiles — 僅 4 縣市有公告；precision=village_partial 654 面為整里近似（實際看 popup 的 lin_specs）' },
   eduDistrictSenior: { status: 'verified', datasets: [{ datasetId: 'school_district_senior', confidence: 'HIGH' }], note: '第 38 主題 education；高中就學區 15 面 —— **縣市級**，與國中小學區的**里級**粒度不同，不可互相比較或合併' },
+  // 幼托補習 4 層（W3）：各自獨立的 dataset，皆經 geocode（precision 欄；interpolated 為估計位置）
+  eduKindergarten: { status: 'verified', datasets: [{ datasetId: 'kindergartens', confidence: 'HIGH' }], note: '第 38 主題 education；幼兒園 6,689 點（公立 2,392／私立 4,297）— 原始中文欄位名；`縣市名稱`／`地址` 全數帶 [NN] 代碼前綴（geocode 需要，顯示端才去掉）' },
+  eduCramSchool: { status: 'verified', datasets: [{ datasetId: 'cram_schools', confidence: 'HIGH' }], note: '第 38 主題 education；短期補習班 17,137 點（PMTiles z8-15）— ⚠️ 上游 daily 更新，前端是 2026-08-07 快照；🔴 `各地短期補習班數量` 欄是全國總數 17772 不是縣市數，popup 禁顯示' },
+  eduAfterschoolCare: { status: 'verified', datasets: [{ datasetId: 'afterschool_care', confidence: 'HIGH' }], note: '第 38 主題 education；兒童課後照顧服務中心 782 點 — schema 與幼兒園不同（`名稱`／`縣市`）；`立案時間` 是民國 YYYMMDD' },
+  eduMutualCare: { status: 'verified', datasets: [{ datasetId: 'mutual_care', confidence: 'HIGH' }], note: '第 38 主題 education；職場／社區互助教保服務中心 148 點 — 欄位與幼兒園幾乎相同（代碼欄名為 `學校代碼`），popup 共用同一個 panel' },
+  eduUniversityStudents: { status: 'verified', datasets: [{ datasetId: 'university_students', confidence: 'HIGH' }], note: '第 38 主題 education；大專校別學生數 159 點 bubble — ⚠️ **英文欄位**；🔴 21 筆 students_total 為 null（進修學院/空大 10 歸母校、宗教研修 9 不在統計、停辦改名 2），不可當 0' },
   tourRestaurants: { status: 'verified', datasets: [{ datasetId: 'restaurant', confidence: 'HIGH' }], note: '觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）' },
   agriculture: {
     status: 'verified',

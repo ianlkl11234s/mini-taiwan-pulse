@@ -38,9 +38,10 @@ import {
   Camera, ThermometerSun, Castle, Church, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
   // ⚰️ FUNERAL icons（LandPlot / Grid3x3 已 import 復用）
   Cross, Flower, Briefcase,
-  // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot / Map 已 import 復用）
+  // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot / Map 已 import 復用；
+  // 幼托補習用已 import 的 BookOpen / Users / HeartHandshake，大專學生數 bubble 用 BarChart3）
   // Shapes 專給「高中就學區」—— 縣市級大面，與里級 k12 學區（Map）刻意用不同 icon 區隔粒度
-  School, University, Shapes,
+  School, University, Shapes, Baby,
   // 🗺️ 土地使用分區 icons
   LandPlot, Map,
   // 🌍 世界 World icon（複合 rail icon 用）
@@ -263,6 +264,11 @@ const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   eduDistrictElementary: Map,
   eduDistrictJunior: Map,
   eduDistrictSenior: Shapes,
+  eduKindergarten: Baby,
+  eduCramSchool: BookOpen,
+  eduAfterschoolCare: Users,
+  eduMutualCare: HeartHandshake,
+  eduUniversityStudents: BarChart3,
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // FORESTRY 12 base

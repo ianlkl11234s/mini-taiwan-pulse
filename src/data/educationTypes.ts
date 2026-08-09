@@ -273,6 +273,168 @@ export function linSpecsLabel(linSpecs: unknown, precision: unknown): string {
 }
 
 // ─────────────────────────────────────────────────────────────
+// 幼托與補習（kindergartens / cram_schools / afterschool_care / mutual_care）
+// ─────────────────────────────────────────────────────────────
+
+/**
+ * ⚠️ 這四個 dataset 保留**原始中文欄位名**（`學校名稱`／`短期補習班名稱`／`地址`…），
+ * popup 直接取中文 key。只有 `university_students` 是英文欄位，別搞混。
+ *
+ * 四者都有 geocode 的 `precision` 欄（`exact` / `cached` / `tgos` / `interpolated`）。
+ * `interpolated` 是同路段內插出來的**估計位置**，全體僅 84 筆，
+ * 我們用降低 opacity 表示「別把它當成跟 exact 一樣可信」（見 GEOCODE_FADE_INTERPOLATED）。
+ */
+
+/** 幼兒園公私立（合計 6,689） */
+export const KINDERGARTEN_OWNERSHIP_COLORS = {
+  公立: "#26a69a",
+  私立: "#ec407a",
+} as const;
+
+/** 接線後自檢用 baseline */
+export const KINDERGARTEN_OWNERSHIP_COUNTS = { 公立: 2392, 私立: 4297 } as const;
+
+/** 課後照顧／互助教保無分色維度（互助教保 148 筆全數私立），只需總數供圖例用 */
+export const AFTERSCHOOL_CARE_COUNT = 782;
+export const MUTUAL_CARE_COUNT = 148;
+
+export function kindergartenOwnershipColorExpr(fallback: string): unknown[] {
+  const arms = Object.entries(KINDERGARTEN_OWNERSHIP_COLORS).flatMap(([k, c]) => [k, c]);
+  return ["match", ["get", "公/私立"], ...arms, fallback];
+}
+
+/**
+ * 短期補習班 `短期補習班類別` 的 **14 種**原始值 → 5 組。
+ * 文理類一家獨大（12,554 / 73%），其餘長尾若逐一列圖例會有 14 列且多數 < 250 筆。
+ * 🔴 14 種值必須全部落到某一組，否則那批點會靜默落 fallback 色。fold 後合計 = 17,137。
+ */
+export const CRAM_CATEGORY_GROUPS = {
+  academic: ["文理類"],
+  language: ["外語類"],
+  arts: ["音樂、舞蹈類", "美術、書法、攝影、美工設計、圍棋類"],
+  vocational: [
+    "商類：珠算、心算、會計", "資訊類", "美容、美髮理髮類",
+    "電機、汽車修護、建築、工藝、製圖類", "家政、插花、烹飪類", "縫紉類",
+  ],
+  other: ["法政類", "其他類", "瑜珈類", "速讀類"],
+} as const;
+
+export type CramCategoryGroup = keyof typeof CRAM_CATEGORY_GROUPS;
+
+export const CRAM_CATEGORY_ORDER: CramCategoryGroup[] = [
+  "academic", "language", "arts", "vocational", "other",
+];
+
+export const CRAM_CATEGORY_COLORS: Record<CramCategoryGroup, string> = {
+  academic: "#5c6bc0",
+  language: "#26a69a",
+  arts: "#ec407a",
+  vocational: "#ffa726",
+  other: "#90a4ae",
+};
+
+export const CRAM_CATEGORY_LABELS: Record<CramCategoryGroup, string> = {
+  academic: "文理",
+  language: "外語",
+  arts: "藝術",
+  vocational: "技職",
+  other: "其他",
+};
+
+/** 接線後自檢用 baseline（fold 後，合計 17,137） */
+export const CRAM_CATEGORY_COUNTS: Record<CramCategoryGroup, number> = {
+  academic: 12554,
+  language: 2585,
+  arts: 1401,
+  vocational: 490,
+  other: 107,
+};
+
+const CRAM_TO_GROUP: Record<string, CramCategoryGroup> = Object.fromEntries(
+  CRAM_CATEGORY_ORDER.flatMap((g) => CRAM_CATEGORY_GROUPS[g].map((v) => [v, g])),
+) as Record<string, CramCategoryGroup>;
+
+/** 原始類別字串 → 5 組之一；未知值回 null（popup 用） */
+export function cramCategoryGroupOf(cat: unknown): CramCategoryGroup | null {
+  return typeof cat === "string" ? CRAM_TO_GROUP[cat] ?? null : null;
+}
+
+export function cramCategoryColorExpr(): unknown[] {
+  const arms = CRAM_CATEGORY_ORDER.flatMap((g) => [
+    [...CRAM_CATEGORY_GROUPS[g]],
+    CRAM_CATEGORY_COLORS[g],
+  ]);
+  return ["match", ["get", "短期補習班類別"], ...arms, CRAM_CATEGORY_COLORS.other];
+}
+
+/** cram_schools 切片實測 zoom 範圍 */
+export const CRAM_PMTILES_MINZOOM = 8;
+export const CRAM_PMTILES_MAXZOOM = 15;
+
+/**
+ * 🔴 `各地短期補習班數量` 欄是**全國總數 17772**（每一列的值都一樣），
+ * 不是該縣市的數量 —— popup **絕對不要顯示這個欄位**。
+ */
+export const CRAM_FORBIDDEN_POPUP_FIELD = "各地短期補習班數量";
+
+/**
+ * geocode 精度淡化：`interpolated` 是同路段內插的估計位置（全體 84 筆），
+ * 用 45% opacity 與其他精度區隔，popup 也會標示。
+ */
+export function geocodeFadeOpacity(base: number): unknown[] {
+  return [
+    "case",
+    ["==", ["get", "precision"], "interpolated"], base * 0.45,
+    base,
+  ];
+}
+
+export const GEOCODE_PRECISION_LABELS: Record<string, string> = {
+  exact: "門牌精確命中",
+  cached: "官方座標（快取）",
+  tgos: "TGOS 批次解析",
+  interpolated: "⚠️ 同路段內插（位置是估計值）",
+};
+
+// ─────────────────────────────────────────────────────────────
+// 大專校別學生數（university_students；⚠️ 英文欄位）
+// ─────────────────────────────────────────────────────────────
+
+export const UNIVERSITY_BUBBLE_COLOR = "#ab47bc";
+
+/** 🔴 21 筆 `students_total` 是 null，用灰色小點畫出來而非當成 0 或整筆丟掉 */
+export const UNIVERSITY_NO_DATA_COLOR = "#90a4ae";
+
+/** 接線後自檢用 baseline：159 筆＝有值 138 ＋ null 21（368 ~ 34,941 人） */
+export const UNIVERSITY_STUDENTS_COUNTS = { total: 159, withValue: 138, nullValue: 21 } as const;
+
+/**
+ * bubble 半徑：面積正比於人數 → 對 `students_total` 開根號後線性內插。
+ * null 的 21 筆走 `case` 分支給固定小半徑，**不能落進 interpolate**（會被當成 0）。
+ * null 全部可解釋：進修學院/空大 10（學生數歸母校）／宗教研修學院 9（不在統計範圍）／停辦改名 2。
+ */
+export function universityBubbleRadius(scale: number): unknown[] {
+  return [
+    "case",
+    ["==", ["get", "students_total"], null], 3 * scale,
+    [
+      "interpolate", ["linear"],
+      ["sqrt", ["to-number", ["get", "students_total"], 0]],
+      0, 3 * scale,
+      190, 22 * scale,
+    ],
+  ];
+}
+
+export function universityBubbleColorExpr(): unknown[] {
+  return [
+    "case",
+    ["==", ["get", "students_total"], null], UNIVERSITY_NO_DATA_COLOR,
+    UNIVERSITY_BUBBLE_COLOR,
+  ];
+}
+
+// ─────────────────────────────────────────────────────────────
 // Sidebar 色票（layerCatalog.LAYER_COLORS 展開用）
 // ─────────────────────────────────────────────────────────────
 
@@ -295,4 +457,10 @@ export const EDUCATION_LAYER_COLORS = {
   eduDistrictElementary: DISTRICT_COLORS.elementary.full,
   eduDistrictJunior: DISTRICT_COLORS.junior.full,
   eduDistrictSenior: DISTRICT_SENIOR_CYCLE_COLORS[0],
+  // 幼托補習：各以該層的主色代表
+  eduKindergarten: KINDERGARTEN_OWNERSHIP_COLORS.私立,
+  eduCramSchool: CRAM_CATEGORY_COLORS.academic,
+  eduAfterschoolCare: "#8d6e63",
+  eduMutualCare: "#4dd0e1",
+  eduUniversityStudents: UNIVERSITY_BUBBLE_COLOR,
 } as const;

@@ -223,6 +223,16 @@ export function useMapInteraction(
             ],
             type: "school",
           },
+          // 🎓 幼托補習 4 個點層（W3）—— 各自獨立的 source，欄位契約也各不相同
+          //    （幼兒園／互助教保中心欄位幾乎相同 → panel 共用，但 layerType 分開以便 header 標對）。
+          //    ⚠️ 全部是**點層**，必須排在陣列末端的 4 個教育面層（campus / k12 / senior）之前。
+          { layers: ["edu-cram-circle"], type: "eduCramSchool" },
+          { layers: ["edu-kindergarten-circle"], type: "eduKindergarten" },
+          { layers: ["edu-afterschool-circle"], type: "eduAfterschoolCare" },
+          { layers: ["edu-mutual-care-circle"], type: "eduMutualCare" },
+          // 🎓 大專學生數 bubble：半徑最大可達 22px → 排在上面 4 個小點層**之後**，
+          //    否則落在 bubble 內的補習班/幼兒園小點會被整個蓋掉而點不到。
+          { layers: ["edu-university-students-bubble"], type: "eduUniversityStudents" },
           { layers: ["convenience-stores-circle", "convenience-stores-glow"], type: "convenienceStore" },
           { layers: ["post-offices-circle", "post-offices-glow"], type: "postOffice" },
           { layers: ["ipost-boxes-circle", "ipost-boxes-glow"], type: "iPostBox" },

@@ -214,6 +214,35 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     //    分色 districtSeniorColorExpr 因此必須 to-number 再取模，前端也不能用 typeof === "number"。
     { field: "district_no", type: "string" },
   ],
+  // 🎓 教育 幼托補習（W3）：⚠️ 這幾份保留上游**原始中文欄位名**，popup 直接取中文 key
+  //    → 上游一改欄名，popup 不會報錯只會整片空白，這裡是唯一守門。
+  // ⚠️ cram_schools 是 PMTiles（17,137 點），本測試只吃 GeoJSON → 不在此列。
+  //    那層的欄位守門（`短期補習班類別` 14 值、`各地短期補習班數量` 禁用欄）該做在上游 pipeline。
+  "education/kindergartens.geojson": [
+    { field: "學校名稱", type: "string" },
+    { field: "公/私立", type: "string" },              // 公立/私立 二色分色的唯一依據
+    { field: "地址", type: "string" },
+    { field: "precision", type: "string" },            // interpolated → opacity 降 45% + popup 標示
+  ],
+  "education/afterschool_care.geojson": [
+    // ⚠️ 名稱欄是 `名稱` 不是「學校名稱」、縣市欄是 `縣市` 不是「縣市名稱」 —— 與幼兒園不同套
+    { field: "名稱", type: "string" },
+    { field: "地址", type: "string" },
+    { field: "precision", type: "string" },
+  ],
+  "education/mutual_care.geojson": [
+    { field: "學校名稱", type: "string" },             // 與幼兒園同名（故 popup 共用 panel）
+    { field: "地址", type: "string" },
+    { field: "precision", type: "string" },
+  ],
+  // 🎓 大專校別學生數：⚠️ 這份是**英文欄位**（與上面三份中文欄位不同套）
+  "education/university_students.geojson": [
+    { field: "school_name", type: "string" },
+    // ⚠️ nullable！159 筆中 21 筆是 null（進修學院/空大 10 歸母校、宗教研修 9 不在統計、
+    //    停辦改名 2）→ bubble 半徑走 case 分支給固定小灰點，popup 顯示「無學生數統計」。
+    //    契約若漏寫 nullable，minCoverage 預設 1 會直接紅燈提醒（也提醒別把 null 當 0）。
+    { field: "students_total", type: "number", nullable: true },
+  ],
 };
 
 describe("前端硬依賴欄位契約", () => {

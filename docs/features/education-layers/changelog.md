@@ -2,6 +2,42 @@
 
 > 逐 PR 變更紀錄。最新在上。
 
+## 2026-08-09 — 未 PR（branch `feat/education-layers`，接續 W2）
+
+**W3：幼托補習 + 大專學生數 5 個圖層 —— 上游 9 個 dataset 全部接完**
+
+- `eduKindergarten` 幼兒園 6,689（公立 2,392／私立 4,297 二色）
+- `eduCramSchool` 短期補習班 17,137（PMTiles z8-15，14 類 fold 成 5 組）
+- `eduAfterschoolCare` 兒童課後照顧 782／`eduMutualCare` 互助教保 148（單色）
+- `eduUniversityStudents` 大專校別學生數 159（bubble，面積正比於學生數）
+- 教育主題新增第四個 group「幼托補習 Childcare & Cram」；大專學生數併入既有「學校 Schools」group
+
+**設計決策**
+
+- **補習班 14 類 fold 成 5 組**（文理 12,554／外語 2,585／藝術 1,401／技職 490／其他 107）：
+  文理類一家獨大 73%，其餘長尾若逐一列圖例會有 14 列且多數 < 250 筆。
+- **`interpolated` 精度淡化到 45% opacity**：同路段內插的估計位置全體 84 筆，
+  上游要求「別把它當成跟 exact 一樣可信」，用視覺區隔而非隱藏。
+- **null 學生數畫成固定小灰點**：21 筆全部可解釋，畫出來 + popup 說明原因，
+  比當成 0（誤導）或從圖上抹掉（不誠實）都好。半徑走 `case` 分支，不能落進 interpolate。
+
+**三個 handoff 沒寫、實測才發現的顯示層陷阱**
+
+1. `kindergartens` 的 `縣市名稱`／`地址` **全 6,689 筆帶 `[NN]` 方括號前綴**（`[01]新北市`）。
+   只在顯示層 strip，不動資料——上游 geocode 刻意保留，拿掉命中率歸零。
+2. `cram_schools` 的 `地區縣市` 其實是**機關名**（「臺南市政府」），要用 `county`。
+3. `立案時間` 兩份**紀年不同**：cram 西元 8 位（`20041103`）、afterschool 民國 6-7 位（`1020812`），
+   都要正規化成 `YYYY-MM-DD`，直接印會出現「1020-08-12」這種鬼日期。
+
+**驗收**
+
+- `npx tsc -b` exit 0；`pnpm test` **325/326**（唯一紅燈 `lightningCwa` 為 HEAD 既有）
+- 資料層複驗：6,689／17,137／782／148／159 全對；`公/私立` 2,392+4,297；
+  補習班 5 組 fold 後合計 17,137；`students_total` null 恰 21 筆（有值 138，368~34,941）
+- 部署無需改動（`public/education/` 的 glob 自動涵蓋 5 個新檔）。累計 16.86 MB
+
+---
+
 ## 2026-08-09 — 未 PR（branch `feat/education-layers`，接續 W1）
 
 **W2：學區面 3 個圖層**

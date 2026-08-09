@@ -73,6 +73,10 @@ import {
   CAMPUS_PMTILES_MINZOOM, CAMPUS_PMTILES_MAXZOOM,
   districtLevelFilter, districtPrecisionColorExpr, districtSeniorColorExpr,
   DISTRICT_K12_PMTILES_MINZOOM, DISTRICT_K12_PMTILES_MAXZOOM,
+  kindergartenOwnershipColorExpr, cramCategoryColorExpr,
+  CRAM_PMTILES_MINZOOM, CRAM_PMTILES_MAXZOOM,
+  geocodeFadeOpacity, universityBubbleRadius, universityBubbleColorExpr,
+  EDUCATION_LAYER_COLORS,
 } from "../data/educationTypes";
 
 /**
@@ -8850,6 +8854,128 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: eduSchoolCirclePaint(regionTypeColorExpr("#ffd54f")),
       },
     ],
+  },
+
+  // 11-14. 幼托與補習 —— ⚠️ 這四份保留上游**原始中文欄位名**（`學校名稱`／`短期補習班名稱`…）。
+  // 四者都有 geocode `precision`；`interpolated`（同路段內插的估計位置，全體 84 筆）
+  // 一律用 geocodeFadeOpacity 降到 45%，別讓它看起來跟 exact 一樣可信。
+  {
+    id: "eduKindergarten",
+    sourceUrl: "./education/kindergartens.geojson",
+    sourceId: "edu-kindergarten",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduChildcareScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, 2.2 * scale, 10, 4 * scale, 14, 6.5 * scale, 17, 10 * scale,
+          ],
+          "circle-color": kindergartenOwnershipColorExpr(EDUCATION_LAYER_COLORS.eduKindergarten),
+          "circle-opacity": geocodeFadeOpacity(p?.eduChildcareOpacity ?? 0.85),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 10, 0.4, 14, 0.8],
+        };
+      },
+    }],
+  },
+  {
+    // 🔴 每日更新的資料源；切片 minzoom=8。17,137 點屬 UX baseline 的 10k~100k 級距，
+    // 半徑比其他點層小一階，避免低倍率糊成一團。
+    id: "eduCramSchool",
+    sourceUrl: "./education/cram_schools.pmtiles",
+    sourceId: "edu-cram",
+    pmtiles: {
+      sourceLayer: "cram_schools",
+      minzoom: CRAM_PMTILES_MINZOOM,
+      maxzoom: CRAM_PMTILES_MAXZOOM,
+    },
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduCramSchoolScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            8, 1.6 * scale, 12, 3.2 * scale, 15, 6 * scale, 17, 9 * scale,
+          ],
+          "circle-color": cramCategoryColorExpr(),
+          "circle-opacity": geocodeFadeOpacity(p?.eduCramSchoolOpacity ?? 0.75),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 8, 0, 13, 0.3, 16, 0.6],
+        };
+      },
+    }],
+  },
+  {
+    id: "eduAfterschoolCare",
+    sourceUrl: "./education/afterschool_care.geojson",
+    sourceId: "edu-afterschool",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduChildcareScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, 3 * scale, 10, 5 * scale, 14, 8 * scale, 17, 12 * scale,
+          ],
+          "circle-color": EDUCATION_LAYER_COLORS.eduAfterschoolCare,
+          "circle-opacity": geocodeFadeOpacity(p?.eduChildcareOpacity ?? 0.85),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 10, 0.4, 14, 0.8],
+        };
+      },
+    }],
+  },
+  {
+    id: "eduMutualCare",
+    sourceUrl: "./education/mutual_care.geojson",
+    sourceId: "edu-mutual-care",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduChildcareScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, 3 * scale, 10, 5 * scale, 14, 8 * scale, 17, 12 * scale,
+          ],
+          "circle-color": EDUCATION_LAYER_COLORS.eduMutualCare,
+          "circle-opacity": geocodeFadeOpacity(p?.eduChildcareOpacity ?? 0.85),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 10, 0.4, 14, 0.8],
+        };
+      },
+    }],
+  },
+
+  // 15. 大專校別學生數 bubble —— ⚠️ 這份是**英文欄位**（與上面四份中文欄位不同一套）。
+  // 🔴 21 筆 students_total 為 null（進修學院/空大 10 歸母校、宗教研修 9 不在統計、停辦改名 2），
+  //    畫成固定小灰點而非當成 0，也不從圖上抹掉。半徑走 sqrt 使**面積**正比於人數。
+  {
+    id: "eduUniversityStudents",
+    sourceUrl: "./education/university_students.geojson",
+    sourceId: "edu-university-students",
+    rebuildOnParamChange: ["bubble"],
+    layers: [{
+      suffix: "bubble", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduUniversityStudentsScale ?? 1;
+        return {
+          "circle-radius": universityBubbleRadius(scale),
+          "circle-color": universityBubbleColorExpr(),
+          "circle-opacity": p?.eduUniversityStudentsOpacity ?? 0.6,
+          "circle-stroke-color": isDark ? "#e1bee7" : "#6a1b9a",
+          "circle-stroke-width": 0.8,
+        };
+      },
+    }],
   },
 
   // 7. 觀光活動・節慶 Tourism Events（~828 點，circle only，三態日期篩選 + 進行中/未開始二色）

@@ -147,6 +147,8 @@ export type ExpandableLayerKey =
   | "schools" | "eduSchoolElementary" | "eduSchoolJunior" | "eduSchoolSenior"
   | "eduSchoolUniversity" | "eduSchoolSpecial" | "eduRemoteSchools" | "eduCampusPolygon"
   | "eduDistrictElementary" | "eduDistrictJunior" | "eduDistrictSenior"
+  | "eduKindergarten" | "eduCramSchool" | "eduAfterschoolCare" | "eduMutualCare"
+  | "eduUniversityStudents"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -704,6 +706,9 @@ export interface FeatureInfo {
     // 🎓 教育 Education：6 個學校點層共用既有 "school"，面層各自成型
     // （k12 兩級共用一型：欄位契約相同，popup 只有標題色與級別標籤不同）
     | "eduCampus" | "eduDistrictK12" | "eduDistrictSenior"
+    // 幼托補習（⚠️ 原始中文欄位名）＋ 大專學生數（英文欄位）
+    | "eduKindergarten" | "eduCramSchool" | "eduAfterschoolCare" | "eduMutualCare"
+    | "eduUniversityStudents"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -960,6 +965,12 @@ export interface LayerVisibility {
   eduDistrictElementary: boolean;  // 國小學區 621 面（precision 分色：整里 206／部分鄰 654）
   eduDistrictJunior: boolean;      // 國中學區 239 面（同上，與國小學區完全疊合故拆兩個 toggle）
   eduDistrictSenior: boolean;      // 高中就學區 15 面（⚠️ 縣市級，與上面兩層粒度完全不同）
+  // 幼托與補習（⚠️ 保留上游原始中文欄位名；四者都有 geocode precision，interpolated 已淡化）
+  eduKindergarten: boolean;        // 幼兒園 6,689（公立 2,392／私立 4,297 二色）
+  eduCramSchool: boolean;          // 短期補習班 17,137（PMTiles；14 類 fold 成 5 組；⚠️ 每日更新）
+  eduAfterschoolCare: boolean;     // 兒童課後照顧中心 782
+  eduMutualCare: boolean;          // 互助教保服務中心 148（全數私立）
+  eduUniversityStudents: boolean;  // 大專校別學生數 159 bubble（⚠️ 21 筆 null 畫灰點，不可當 0）
   tourEvents: boolean;           // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
   tourFactories: boolean;         // 觀光工廠（158 點，單色）
   tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）

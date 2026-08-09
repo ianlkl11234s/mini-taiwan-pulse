@@ -756,6 +756,7 @@ export const THEMES: ThemeDef[] = [
   //    schools 為總覽（依學制上色），5 個 eduSchool* 為分級篩選，
   //    eduRemoteSchools 走 region_type 標記（非偏遠是 JSON null，見 educationTypes.ts）。
   //    schools 於本日自「基礎建設 → 公共設施」搬入本主題。
+  //    eduUniversityStudents 雖在「學校」群，但讀自己的 university_students.geojson（159 筆，英文欄位）。
   // ───────────────────────────────────────────────────────────────
   {
     title: "教育 Education",
@@ -771,6 +772,7 @@ export const THEMES: ThemeDef[] = [
           { key: "eduSchoolUniversity", label: "大專 University", labelMobile: "大專 (159)", expandable: true },
           { key: "eduSchoolSpecial", label: "特教 Special Education", labelMobile: "特教 (28)", expandable: true },
           { key: "eduRemoteSchools", label: "偏遠地區學校 Remote Schools", labelMobile: "偏遠地區學校 (1,152)", expandable: true },
+          { key: "eduUniversityStudents", label: "大專學生數 University Students", labelMobile: "大專學生數 (159)", expandable: true },
         ],
       },
       {
@@ -787,6 +789,17 @@ export const THEMES: ThemeDef[] = [
           { key: "eduDistrictElementary", label: "國小學區 Elementary District", labelMobile: "國小學區 (621)", expandable: true },
           { key: "eduDistrictJunior", label: "國中學區 Junior High District", labelMobile: "國中學區 (239)", expandable: true },
           { key: "eduDistrictSenior", label: "高中就學區（縣市級）Senior High District", labelMobile: "高中就學區・縣市級 (15)", expandable: true },
+        ],
+      },
+      // 🔴 補習班是**每日更新**的資料源（此為快照），且點數 17,137 為四層之最 → 切片走 PMTiles，
+      //    透明度／大小 slider 與其餘三層分開（見 useTransportParams 的 eduCramSchool* param）。
+      {
+        title: "幼托補習 Childcare & Cram",
+        layers: [
+          { key: "eduKindergarten", label: "幼兒園 Kindergarten", labelMobile: "幼兒園 (6,689)", expandable: true },
+          { key: "eduCramSchool", label: "短期補習班 Cram School", labelMobile: "短期補習班 (17,137)", expandable: true },
+          { key: "eduAfterschoolCare", label: "兒童課後照顧中心 Afterschool Care", labelMobile: "兒童課後照顧 (782)", expandable: true },
+          { key: "eduMutualCare", label: "互助教保服務中心 Mutual Care", labelMobile: "互助教保 (148)", expandable: true },
         ],
       },
     ],
