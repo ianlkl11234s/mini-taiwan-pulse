@@ -26,7 +26,8 @@ FILES=(
   "public/temperature_grid.json"
   "public/h3/h3_demographics_res8.json"
   "public/h3/h3_population_res8.json"
-  "public/geo/schools.geojson"
+  # geo/schools.geojson 已於 2026-08-09 退役 —— schools 圖層搬進教育主題後
+  # sourceUrl 改指 ./education/schools.geojson，走 deploy-assets/education/ 鏡像子前綴
   "public/geo/convenience_stores.geojson"
   "public/geo/active_faults.geojson"
 )
@@ -179,6 +180,16 @@ for f in public/sports/*.geojson public/sports/*.json; do
   name=$(basename "$f")
   echo "Uploading sports/$name..."
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/sports/$name" --region ap-southeast-2
+done
+
+# 🎓 教育 Education（第 38 主題）：上傳到 deploy-assets/education/ 子前綴（鏡像結構，pull 端整夾 sync）
+# schools.geojson 2.5MB（6 個點層共用 + layer filter）＋ campus_polygon.pmtiles 4.4MB，
+# 兩者皆 gitignore 純走 S3。⚠️ 不沿用舊的 geo/schools.geojson 扁平根寫法（新主題一律鏡像子前綴）。
+for f in public/education/*.geojson public/education/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading education/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/education/$name" --region ap-southeast-2
 done
 
 # 林業圖層：上傳到 deploy-assets/forestry/ 子前綴（鏡像結構，pull 端整夾 sync）

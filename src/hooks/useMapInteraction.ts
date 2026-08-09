@@ -212,7 +212,27 @@ export function useMapInteraction(
           { layers: ["road-congestion-hit"], type: "roadCongestion" },
           { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
           { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
-          { layers: ["schools-circle", "schools-glow"], type: "school" },
+          // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
+          // 全部走同一個 SchoolPanel。校地面 `edu-campus-fill` 是大面積 fill → 排在陣列最末。
+          {
+            layers: [
+              "edu-schools-glow", "edu-schools-circle",
+              "edu-schools-elementary", "edu-schools-junior", "edu-schools-senior",
+              "edu-schools-university", "edu-schools-special",
+              "edu-schools-remote-halo", "edu-schools-remote-dot",
+            ],
+            type: "school",
+          },
+          // 🎓 幼托補習 4 個點層（W3）—— 各自獨立的 source，欄位契約也各不相同
+          //    （幼兒園／互助教保中心欄位幾乎相同 → panel 共用，但 layerType 分開以便 header 標對）。
+          //    ⚠️ 全部是**點層**，必須排在陣列末端的 4 個教育面層（campus / k12 / senior）之前。
+          { layers: ["edu-cram-circle"], type: "eduCramSchool" },
+          { layers: ["edu-kindergarten-circle"], type: "eduKindergarten" },
+          { layers: ["edu-afterschool-circle"], type: "eduAfterschoolCare" },
+          { layers: ["edu-mutual-care-circle"], type: "eduMutualCare" },
+          // 🎓 大專學生數 bubble：半徑最大可達 22px → 排在上面 4 個小點層**之後**，
+          //    否則落在 bubble 內的補習班/幼兒園小點會被整個蓋掉而點不到。
+          { layers: ["edu-university-students-bubble"], type: "eduUniversityStudents" },
           { layers: ["convenience-stores-circle", "convenience-stores-glow"], type: "convenienceStore" },
           { layers: ["post-offices-circle", "post-offices-glow"], type: "postOffice" },
           { layers: ["ipost-boxes-circle", "ipost-boxes-glow"], type: "iPostBox" },
@@ -478,6 +498,15 @@ export function useMapInteraction(
           { layers: ["temperature-grid-fill"], type: "temperatureGrid" },
           // 殯葬業者密度：368 鄉鎮全台鋪滿的 fill → 同樣放最末
           { layers: ["funeral-density-fill"], type: "funeralOperatorDensity" },
+          // 🎓 校地範圍：4,324 面大面積 fill，會蓋住其上的學校點 → 必須排最末
+          //    面積面量圖 `edu-campus-area-fill` 是同一份切片的另一種讀法，欄位契約完全相同
+          //    → 併進同一個 entry 共用 EduCampusPanel，不另開 layerType。
+          { layers: ["edu-campus-fill", "edu-campus-area-fill"], type: "eduCampus" },
+          // 🎓 國中小學區：里級面，比校地面更大 → 排在 edu-campus-fill 之後。
+          //    國小／國中共用一個 type（欄位契約相同，panel 靠 level 自行分辨）。
+          { layers: ["edu-district-k12-elementary-fill", "edu-district-k12-junior-fill"], type: "eduDistrictK12" },
+          // 🎓 高中就學區：15 個面覆蓋全台，最不該搶點擊 → 整個陣列的最末
+          { layers: ["edu-district-senior-fill"], type: "eduDistrictSenior" },
         ];
         const bbox: [PointLike, PointLike] = [
           [e.point.x - 5, e.point.y - 5],

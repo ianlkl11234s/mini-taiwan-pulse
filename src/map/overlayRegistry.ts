@@ -66,6 +66,48 @@ import {
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
 } from "../data/cultureTypes";
+import {
+  SCHOOL_LEVEL_COLORS, schoolLevelFilter, schoolLevelColorExpr,
+  REMOTE_SCHOOL_FILTER, regionTypeColorExpr,
+  CAMPUS_NON_SCHOOL_FILTER, campusLevelColorExpr, campusAreaColorExpr,
+  CAMPUS_PMTILES_MINZOOM, CAMPUS_PMTILES_MAXZOOM,
+  districtLevelFilter, districtPrecisionColorExpr, districtSeniorColorExpr,
+  DISTRICT_K12_PMTILES_MINZOOM, DISTRICT_K12_PMTILES_MAXZOOM,
+  kindergartenOwnershipColorExpr, cramCategoryColorExpr,
+  CRAM_PMTILES_MINZOOM, CRAM_PMTILES_MAXZOOM,
+  geocodeFadeOpacity, universityBubbleRadius, universityBubbleColorExpr,
+  EDUCATION_LAYER_COLORS,
+} from "../data/educationTypes";
+
+/**
+ * 🎓 教育：總覽層 schools ＋ 5 個分級 ＋ 偏遠層，六者共用同一個 sourceId。
+ * hydrateOverlayIfNeeded 以 sourceId 去重，所以 2.5MB 的 schools.geojson 只 fetch 一次，
+ * 而 addOverlay 有 `if (!map.getSource(...))` 守衛、關層走 visibility:"none" 不拔 source，
+ * 因此任一層開關都不會影響其他層。
+ * ⚠️ 改這個常數要同步 useMapInteraction.ts 的 layer id 字串（`${sourceId}-${suffix}`）。
+ */
+const EDU_SCHOOLS_SOURCE = "edu-schools";
+
+/**
+ * 教育點層共用 paint（5 個分級層 + 偏遠層）。
+ * 尺寸走 UX baseline 的「1k~10k 點」級距；`sizeBoost` 給筆數極少的分級（特教 28 點）放大，
+ * 否則全台視野下根本找不到。opacity / scale 由六層共用的一組 param 控制。
+ */
+function eduSchoolCirclePaint(color: unknown, sizeBoost = 1) {
+  return (isDark: boolean, p?: Record<string, number>) => {
+    const scale = (p?.schoolScale ?? 1) * sizeBoost;
+    return {
+      "circle-radius": [
+        "interpolate", ["linear"], ["zoom"],
+        6, 2.2 * scale, 10, 4 * scale, 14, 6.5 * scale, 17, 10 * scale,
+      ],
+      "circle-color": color,
+      "circle-opacity": p?.eduSchoolsOpacity ?? 0.85,
+      "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+      "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 10, 0.4, 14, 0.8],
+    };
+  };
+}
 
 /** 台北時區今日 YYYY/MM/DD（sv-SE 慣例見 useTimeline.ts:82；藝文活動進行中/未開始判斷用） */
 function cultureTodayStr(): string {
@@ -1769,11 +1811,14 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── Schools (學校) ──
+  // ── Schools 學校總覽 (🎓 教育) ──
+  // 2026-08-08：自「基礎建設→公共設施」搬入教育主題，資產改指 public/education/。
+  // 保留在此處而非搬到下方教育段，是為了不動 z-order（陣列順序 = deep-link 初次載入的疊放序）。
+  // 5 個 eduSchool* 分級層與 eduRemoteSchools 見檔案下方「教育 Education」段，共用 EDU_SCHOOLS_SOURCE。
   {
     id: "schools",
-    sourceUrl: "./geo/schools.geojson",
-    sourceId: "schools",
+    sourceUrl: "./education/schools.geojson",
+    sourceId: EDU_SCHOOLS_SOURCE,
     rebuildOnParamChange: ["glow", "circle"],
     layers: [
       {
@@ -1788,7 +1833,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             ],
             "circle-blur": 1,
             "circle-color": isDark ? "#42a5f5" : "#1565c0",
-            "circle-opacity": isDark ? 0.12 : 0.15,
+            "circle-opacity": (params?.eduSchoolsOpacity ?? 0.85) * (isDark ? 0.14 : 0.18),
           };
         },
       },
@@ -1798,17 +1843,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         paint: (isDark, params) => {
           const scale = params?.schoolScale ?? 1;
           const useLevelColor = (params?.schoolLevelColor ?? 0) > 0;
+          // 2026-08-08：舊的手寫 match 表列了「空中大學」「專科學校」兩個資料裡不存在的幽靈值，
+          // 而真實存在的「空大及大專校院附設進修學校」10 校落 fallback 藍。改走 educationTypes SSOT，
+          // 與 5 個 eduSchool* 分級層同色（9 種 school_level 全覆蓋，共 4,315 點）。
           const color = useLevelColor
-            ? [
-                "match", ["get", "school_level"],
-                "國民小學", "#66bb6a", "附設國民小學", "#66bb6a",
-                "國民中學", "#ffa726", "附設國民中學", "#ffa726",
-                "高級中等學校", "#ef5350",
-                "大專校院", "#ab47bc", "宗教研修學院", "#ab47bc",
-                "空中大學", "#ab47bc", "專科學校", "#ab47bc",
-                "特殊教育學校", "#78909c",
-                isDark ? "#42a5f5" : "#1565c0",
-              ] as unknown as string
+            ? (schoolLevelColorExpr(isDark ? "#42a5f5" : "#1565c0") as unknown as string)
             : (isDark ? "#42a5f5" : "#1565c0");
           return {
             "circle-radius": [
@@ -1821,7 +1860,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
               "interpolate", ["linear"], ["zoom"],
               6, 0, 10, 0.3, 14, 0.5,
             ],
-            "circle-opacity": isDark ? 0.7 : 0.6,
+            "circle-opacity": params?.eduSchoolsOpacity ?? 0.85,
           };
         },
       },
@@ -8594,6 +8633,373 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         }),
       },
     ],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // 🎓 教育 Education（第 38 主題）
+  // 上游契約：taipei-gis-analytics/docs/handoff/education-layers.md
+  // 總覽層 `schools` 在本檔上方（保留原 z-order）；分色/篩選 SSOT = educationTypes.ts
+  // ══════════════════════════════════════════════════════════════
+
+  // 1. 校地面 campus_polygon —— 4,336 面，config 層濾除 non_school 12 筆後渲染 4,324。
+  // 🔴 切片 minzoom=8，zoom 8 以下完全不顯示；澎湖/金門 0 筆（來源 119 分帶死鏈）。兩者圖例已註明。
+  {
+    id: "eduCampusPolygon",
+    sourceUrl: "./education/campus_polygon.pmtiles",
+    sourceId: "edu-campus",
+    pmtiles: {
+      sourceLayer: "campus_polygon",
+      minzoom: CAMPUS_PMTILES_MINZOOM,
+      maxzoom: CAMPUS_PMTILES_MAXZOOM,
+    },
+    // config 層 filter → fill / line 兩層都吃到（上游刻意保留標記，濾除是前端責任）
+    filter: CAMPUS_NON_SCHOOL_FILTER,
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": campusLevelColorExpr("#90a4ae"),
+          "fill-opacity": p?.eduCampusPolygonOpacity ?? 0.35,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: (_isDark, p) => ({
+          "line-color": campusLevelColorExpr("#90a4ae"),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.3, 15, 1.2],
+          "line-opacity": (p?.eduCampusPolygonOpacity ?? 0.35) * 0.9,
+        }),
+      },
+    ],
+  },
+
+  // 1b. 校地**面積**面量圖 —— 與上面 eduCampusPolygon **同一份切片、同一個 sourceId**
+  // （4.36 MB 只下載一次），差別只在讀法：那層按學制分色，這層按 area_ha 分 5 級。
+  // 面量圖不畫描邊（UX baseline：熱區/密度圖 outline 0），避免干擾色階閱讀。
+  {
+    id: "eduCampusArea",
+    sourceUrl: "./education/campus_polygon.pmtiles",
+    sourceId: "edu-campus",
+    pmtiles: {
+      sourceLayer: "campus_polygon",
+      minzoom: CAMPUS_PMTILES_MINZOOM,
+      maxzoom: CAMPUS_PMTILES_MAXZOOM,
+    },
+    filter: CAMPUS_NON_SCHOOL_FILTER,
+    layers: [
+      {
+        suffix: "area-fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": campusAreaColorExpr(),
+          "fill-opacity": p?.eduCampusAreaOpacity ?? 0.55,
+        }),
+      },
+    ],
+  },
+
+  // 2-3. 國中小學區面 —— 860 面拆兩個 toggle（國小 621／國中 239）。
+  // 兩級的面**完全疊合**（同一個里同時有國小與國中學區），合成一個 toggle 會糊成一片，
+  // 故拆開讓使用者獨立開關；兩者共用 sourceId 與 opacity param，切片只下載一次。
+  // 🔴 這層不是精確邊界：淡色 = village_partial（該里只有部分鄰屬本校，654 面），
+  //    面與面重疊是制度事實（共同學區 292 面），**不要 dedup**。詳見 educationTypes。
+  // 🔴 僅臺北／新北／臺中／新竹市 4 縣市有公告，另 11 縣市無資料 ≠ 無學區（圖例已標）。
+  {
+    id: "eduDistrictElementary",
+    sourceUrl: "./education/school_district_k12.pmtiles",
+    sourceId: "edu-district-k12",
+    pmtiles: {
+      sourceLayer: "school_district_k12",
+      minzoom: DISTRICT_K12_PMTILES_MINZOOM,
+      maxzoom: DISTRICT_K12_PMTILES_MAXZOOM,
+    },
+    layers: [
+      {
+        suffix: "elementary-fill", type: "fill",
+        filter: districtLevelFilter("elementary"),
+        paint: (_isDark, p) => ({
+          "fill-color": districtPrecisionColorExpr("elementary"),
+          "fill-opacity": p?.eduDistrictK12Opacity ?? 0.3,
+        }),
+      },
+      {
+        suffix: "elementary-line", type: "line",
+        filter: districtLevelFilter("elementary"),
+        paint: (_isDark, p) => ({
+          "line-color": districtPrecisionColorExpr("elementary"),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 13, 1.0],
+          "line-opacity": (p?.eduDistrictK12Opacity ?? 0.3) * 0.9,
+        }),
+      },
+    ],
+  },
+  {
+    id: "eduDistrictJunior",
+    sourceUrl: "./education/school_district_k12.pmtiles",
+    sourceId: "edu-district-k12",
+    pmtiles: {
+      sourceLayer: "school_district_k12",
+      minzoom: DISTRICT_K12_PMTILES_MINZOOM,
+      maxzoom: DISTRICT_K12_PMTILES_MAXZOOM,
+    },
+    layers: [
+      {
+        suffix: "junior-fill", type: "fill",
+        filter: districtLevelFilter("junior"),
+        paint: (_isDark, p) => ({
+          "fill-color": districtPrecisionColorExpr("junior"),
+          "fill-opacity": p?.eduDistrictK12Opacity ?? 0.3,
+        }),
+      },
+      {
+        suffix: "junior-line", type: "line",
+        filter: districtLevelFilter("junior"),
+        paint: (_isDark, p) => ({
+          "line-color": districtPrecisionColorExpr("junior"),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 6, 0.3, 13, 1.0],
+          "line-opacity": (p?.eduDistrictK12Opacity ?? 0.3) * 0.9,
+        }),
+      },
+    ],
+  },
+
+  // 4. 高中就學區 15 面 —— ⚠️ **縣市級**，與上面兩層的里級完全不同粒度。
+  // 15 色圖例列不完也沒語意 → 5 色循環，顏色只為區分相鄰區域。
+  // 覆蓋全台的大面，opacity 預設壓到 0.18（照 UX baseline 的「行政區」級距）。
+  {
+    id: "eduDistrictSenior",
+    sourceUrl: "./education/school_district_senior.geojson",
+    sourceId: "edu-district-senior",
+    layers: [
+      {
+        suffix: "fill", type: "fill",
+        paint: (_isDark, p) => ({
+          "fill-color": districtSeniorColorExpr(),
+          "fill-opacity": p?.eduDistrictSeniorOpacity ?? 0.18,
+        }),
+      },
+      {
+        suffix: "line", type: "line",
+        paint: (_isDark, p) => ({
+          "line-color": districtSeniorColorExpr(),
+          "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.6, 10, 2.0],
+          "line-opacity": Math.min(1, (p?.eduDistrictSeniorOpacity ?? 0.18) * 3),
+        }),
+      },
+    ],
+  },
+
+  // 5-9. 學校點位 5 分級 —— 同一份 schools.geojson，用 school_level fold 後 filter。
+  // 2,656 + 964 + 508 + 159 + 28 = 4,315 = GeoJSON 總點數（9 種原始值全覆蓋，見 educationTypes）。
+  {
+    id: "eduSchoolElementary",
+    sourceUrl: "./education/schools.geojson",
+    sourceId: EDU_SCHOOLS_SOURCE,
+    rebuildOnParamChange: ["elementary"],
+    layers: [{
+      suffix: "elementary", type: "circle",
+      filter: schoolLevelFilter("elementary"),
+      paint: eduSchoolCirclePaint(SCHOOL_LEVEL_COLORS.elementary),
+    }],
+  },
+  {
+    id: "eduSchoolJunior",
+    sourceUrl: "./education/schools.geojson",
+    sourceId: EDU_SCHOOLS_SOURCE,
+    rebuildOnParamChange: ["junior"],
+    layers: [{
+      suffix: "junior", type: "circle",
+      filter: schoolLevelFilter("junior"),
+      paint: eduSchoolCirclePaint(SCHOOL_LEVEL_COLORS.junior),
+    }],
+  },
+  {
+    id: "eduSchoolSenior",
+    sourceUrl: "./education/schools.geojson",
+    sourceId: EDU_SCHOOLS_SOURCE,
+    rebuildOnParamChange: ["senior"],
+    layers: [{
+      suffix: "senior", type: "circle",
+      filter: schoolLevelFilter("senior"),
+      paint: eduSchoolCirclePaint(SCHOOL_LEVEL_COLORS.senior),
+    }],
+  },
+  {
+    id: "eduSchoolUniversity",
+    sourceUrl: "./education/schools.geojson",
+    sourceId: EDU_SCHOOLS_SOURCE,
+    rebuildOnParamChange: ["university"],
+    layers: [{
+      suffix: "university", type: "circle",
+      filter: schoolLevelFilter("university"),
+      paint: eduSchoolCirclePaint(SCHOOL_LEVEL_COLORS.university, 1.15),
+    }],
+  },
+  {
+    id: "eduSchoolSpecial",
+    sourceUrl: "./education/schools.geojson",
+    sourceId: EDU_SCHOOLS_SOURCE,
+    rebuildOnParamChange: ["special"],
+    layers: [{
+      suffix: "special", type: "circle",
+      filter: schoolLevelFilter("special"),
+      // 只有 28 點，不放大在全台視野下找不到
+      paint: eduSchoolCirclePaint(SCHOOL_LEVEL_COLORS.special, 1.35),
+    }],
+  },
+
+  // 10. 偏遠地區學校 —— 1,152 點（偏遠 830／特偏 192／極偏 130），三級由淺黃到深橘。
+  // ⚠️ `region_type` 這個 key 在全部 4,315 筆都存在、非偏遠的 3,163 筆值是 JSON null，
+  //    所以 filter 必須用 match（REMOTE_SCHOOL_FILTER），寫 ["has","region_type"] 會全數命中。
+  {
+    id: "eduRemoteSchools",
+    sourceUrl: "./education/schools.geojson",
+    sourceId: EDU_SCHOOLS_SOURCE,
+    rebuildOnParamChange: ["remote-halo", "remote-dot"],
+    layers: [
+      {
+        suffix: "remote-halo", type: "circle",
+        filter: REMOTE_SCHOOL_FILTER,
+        paint: (_isDark, p) => {
+          const scale = p?.schoolScale ?? 1;
+          return {
+            "circle-radius": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 4.5 * scale, 10, 8 * scale, 14, 13 * scale, 17, 20 * scale,
+            ],
+            "circle-blur": 0.7,
+            "circle-color": regionTypeColorExpr("#ffd54f"),
+            "circle-opacity": (p?.eduSchoolsOpacity ?? 0.85) * 0.35,
+          };
+        },
+      },
+      {
+        suffix: "remote-dot", type: "circle",
+        filter: REMOTE_SCHOOL_FILTER,
+        paint: eduSchoolCirclePaint(regionTypeColorExpr("#ffd54f")),
+      },
+    ],
+  },
+
+  // 11-14. 幼托與補習 —— ⚠️ 這四份保留上游**原始中文欄位名**（`學校名稱`／`短期補習班名稱`…）。
+  // 四者都有 geocode `precision`；`interpolated`（同路段內插的估計位置，全體 84 筆）
+  // 一律用 geocodeFadeOpacity 降到 45%，別讓它看起來跟 exact 一樣可信。
+  {
+    id: "eduKindergarten",
+    sourceUrl: "./education/kindergartens.geojson",
+    sourceId: "edu-kindergarten",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduChildcareScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, 2.2 * scale, 10, 4 * scale, 14, 6.5 * scale, 17, 10 * scale,
+          ],
+          "circle-color": kindergartenOwnershipColorExpr(EDUCATION_LAYER_COLORS.eduKindergarten),
+          "circle-opacity": geocodeFadeOpacity(p?.eduChildcareOpacity ?? 0.85),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 10, 0.4, 14, 0.8],
+        };
+      },
+    }],
+  },
+  {
+    // 🔴 每日更新的資料源；切片 minzoom=8。17,137 點屬 UX baseline 的 10k~100k 級距，
+    // 半徑比其他點層小一階，避免低倍率糊成一團。
+    id: "eduCramSchool",
+    sourceUrl: "./education/cram_schools.pmtiles",
+    sourceId: "edu-cram",
+    pmtiles: {
+      sourceLayer: "cram_schools",
+      minzoom: CRAM_PMTILES_MINZOOM,
+      maxzoom: CRAM_PMTILES_MAXZOOM,
+    },
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduCramSchoolScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            8, 1.6 * scale, 12, 3.2 * scale, 15, 6 * scale, 17, 9 * scale,
+          ],
+          "circle-color": cramCategoryColorExpr(),
+          "circle-opacity": geocodeFadeOpacity(p?.eduCramSchoolOpacity ?? 0.75),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 8, 0, 13, 0.3, 16, 0.6],
+        };
+      },
+    }],
+  },
+  {
+    id: "eduAfterschoolCare",
+    sourceUrl: "./education/afterschool_care.geojson",
+    sourceId: "edu-afterschool",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduChildcareScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, 3 * scale, 10, 5 * scale, 14, 8 * scale, 17, 12 * scale,
+          ],
+          "circle-color": EDUCATION_LAYER_COLORS.eduAfterschoolCare,
+          "circle-opacity": geocodeFadeOpacity(p?.eduChildcareOpacity ?? 0.85),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 10, 0.4, 14, 0.8],
+        };
+      },
+    }],
+  },
+  {
+    id: "eduMutualCare",
+    sourceUrl: "./education/mutual_care.geojson",
+    sourceId: "edu-mutual-care",
+    rebuildOnParamChange: ["circle"],
+    layers: [{
+      suffix: "circle", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduChildcareScale ?? 1;
+        return {
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            6, 3 * scale, 10, 5 * scale, 14, 8 * scale, 17, 12 * scale,
+          ],
+          "circle-color": EDUCATION_LAYER_COLORS.eduMutualCare,
+          "circle-opacity": geocodeFadeOpacity(p?.eduChildcareOpacity ?? 0.85),
+          "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0, 10, 0.4, 14, 0.8],
+        };
+      },
+    }],
+  },
+
+  // 15. 大專校別學生數 bubble —— ⚠️ 這份是**英文欄位**（與上面四份中文欄位不同一套）。
+  // 🔴 21 筆 students_total 為 null（進修學院/空大 10 歸母校、宗教研修 9 不在統計、停辦改名 2），
+  //    畫成固定小灰點而非當成 0，也不從圖上抹掉。半徑走 sqrt 使**面積**正比於人數。
+  {
+    id: "eduUniversityStudents",
+    sourceUrl: "./education/university_students.geojson",
+    sourceId: "edu-university-students",
+    rebuildOnParamChange: ["bubble"],
+    layers: [{
+      suffix: "bubble", type: "circle",
+      paint: (isDark, p) => {
+        const scale = p?.eduUniversityStudentsScale ?? 1;
+        return {
+          "circle-radius": universityBubbleRadius(scale),
+          "circle-color": universityBubbleColorExpr(),
+          "circle-opacity": p?.eduUniversityStudentsOpacity ?? 0.6,
+          "circle-stroke-color": isDark ? "#e1bee7" : "#6a1b9a",
+          "circle-stroke-width": 0.8,
+        };
+      },
+    }],
   },
 
   // 7. 觀光活動・節慶 Tourism Events（~828 點，circle only，三態日期篩選 + 進行中/未開始二色）

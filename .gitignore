@@ -139,3 +139,6 @@ public/tourism/restaurants_national.geojson
 public/embed-snapshots/
 # embed 回放用鐵路瘦身 bundle（build-rail-slim-bundle.py 產生物，可重產）
 public/embed-rail/
+
+# 教育 Education（第 38 主題；全走 S3 deploy-assets/education/）
+public/education/

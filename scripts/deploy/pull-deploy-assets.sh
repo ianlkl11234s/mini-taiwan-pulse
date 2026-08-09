@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -30,7 +30,7 @@ aws s3 sync "$S3/" "$DATA_DIR/geo/" --no-progress --exclude "*" \
   --include "bus_stations_city.geojson" --include "bus_stations_intercity.geojson" \
   --include "bike_stations.geojson" --include "cycling_routes.geojson" \
   --include "freeway_congestion.geojson" --include "weather_stations.geojson" \
-  --include "schools.geojson" --include "convenience_stores.geojson" \
+  --include "convenience_stores.geojson" \
   --include "active_faults.geojson" \
   --include "water_*.geojson" --include "water_*.pmtiles" --include "fire_*.geojson" \
   --include "medical_*.geojson"
@@ -66,6 +66,11 @@ rm -f "$DATA_DIR/agriculture/livestock_farms.geojson" "$DATA_DIR/agriculture/sla
 # 🏟️ 運動場館：鏡像子前綴 deploy-assets/sports/ → /data/sports/（整夾 sync，加新檔免改腳本）
 echo "[pull] sync sports → $DATA_DIR/sports/"
 aws s3 sync "$S3/sports/" "$DATA_DIR/sports/" --no-progress
+
+# 🎓 教育：鏡像子前綴 deploy-assets/education/ → /data/education/（整夾 sync，加新檔免改腳本）
+# schools.geojson 2.5MB（6 個點層共用）＋ campus_polygon.pmtiles 4.4MB，兩者皆 gitignore 純走 S3
+echo "[pull] sync education → $DATA_DIR/education/"
+aws s3 sync "$S3/education/" "$DATA_DIR/education/" --no-progress
 
 # 林業：鏡像子前綴 deploy-assets/forestry/ → /data/forestry/（整夾 sync，加新檔免改腳本）
 # 2026-06-10 補：FOREST_FILES 上傳端 6/7 就有、pull 端漏寫 → 容器 /forestry/ 大檔 404
