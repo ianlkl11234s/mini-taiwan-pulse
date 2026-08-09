@@ -1,6 +1,6 @@
 # Data Scope
 
-**最後更新**：2026-08-09（+`trails/` 保存層 nightly 匯出 / +embed 回放快照三層與 rail 共用幾何）
+**最後更新**：2026-08-10（embed 回放快照三層**已上生產驗證**；rail 幾何現行 hash `4e0dc14093`）
 
 盤點專案持有的資料範圍：Supabase DB、前端靜態 GeoJSON、S3 deploy-assets。
 更新時機：新 collector 上線 / 新 seed 跑完 / 新前端圖層接入後。
@@ -635,7 +635,7 @@ bus 系 **3 天**（08-05~08-07）。
 🔴 **已永久救不回**：`bus` / `bus_intercity` 的 **08-04**、`ships` / `flights` 的 **07-30**。
 ⚠️ 漏跑的一晚**不會自動補**（`backfill=1`）→ 偵測靠 Telegram 🧊/🚨、恢復靠手動 `--backfill N`。
 
-## Embed 回放快照（成品包，2026-08-06 凍結日；PR #118 待審）
+## Embed 回放快照（成品包，2026-08-06 凍結日；**已上生產並驗證**）
 
 供 `/embed` 在**零 Supabase 請求**下播完整天。檔名含日期 → `/embed-snapshots/` 走 1y immutable。
 
@@ -650,12 +650,13 @@ bus 系 **3 天**（08-05~08-07）。
 
 | 資產 | 大小 | 說明 |
 |---|---|---|
-| `public/embed-rail/rail_slim.<hash>.json.gz` | **367 KB** | 鐵道幾何，原始 **68MB → 縮 190x**。量化 5 位 + RDP(1e-4°) + `--max-arc-loss 5m` 弧長保護 + 併單檔 gzip。**檔名帶內容雜湊**（canonical bytes 的 sha256 前 10 碼）→ nginx 可 `1y immutable`、更新不需清快取；實際檔名寫在同夾 `rail-manifest.json`（`max-age=60`），前端先讀它 |
+| `public/embed-rail/rail_slim.<hash>.json.gz` | **366,819 B**（現行 hash `4e0dc14093`） | 鐵道幾何，原始 **68MB → 縮 190x**。量化 5 位 + RDP(1e-4°) + `--max-arc-loss 5m` 弧長保護 + 併單檔 gzip。**檔名帶內容雜湊**（canonical bytes 的 sha256 前 10 碼）→ nginx 可 `1y immutable`、更新不需清快取；實際檔名寫在同夾 `rail-manifest.json`（`max-age=60`），前端先讀它 |
 
 - 座標量化 5 位**實測無損**（量化前後 `filterGpsAnomalies` 保留／丟棄數完全相同）
 - rail 幾何管線 `scripts/preprocess/build-rail-slim-bundle.py`；
   驗證 `verify-rail-slim.ts`（雙幾何跑同引擎逐車比對 2,975 次：p50 1.66m / p95 7.31m / max 20.80m，
   驗收線 p95<30 / max<100，可當 gate）
 - `Content-Encoding` **刻意不設**，前端讀 magic byte（`0x1f 0x8b`）判斷解壓
-- ⚠️ `public/embed-rail/` 在 master 上**還沒有 gitignore 行**（那行隨 PR #118 一起進來）→
-  目前是未追蹤產物目錄，**不要 commit 它**
+- ✅ `public/embed-rail/` 已由 `.gitignore:141` 涵蓋（隨 #118 進 master）→ 純本機產物，不進 git
+- 舊固定檔 `rail_slim.json.gz`（366,717 B）**本機與 S3 都刻意留著**當降級後路 / 回滾前提；
+  移除是 BACKLOG **EM-30**（觀察數日後連同前端 fallback 一起拆）
