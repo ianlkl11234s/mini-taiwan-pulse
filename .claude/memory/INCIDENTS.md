@@ -1541,3 +1541,58 @@ ships 移植的背景 agent 一啟動就斷線，實際工作**尚未開始**。
 用 `SendMessage` 帶著 transcript 讓它重跑即恢復，零損失。
 → 背景 agent 回報異常時先分辨「工作做到一半斷」還是「根本沒開始」——
 後者直接重來最省事，不必去猜它做了什麼。
+
+## 2026-08-09/10 — embed 三 PR 上生產與 `rsys=` 擴充（四事件）
+
+背景：#118（三層回放上生產）／#119（`rsys=` 擴到營運者級 + 線路級）／#120（rail 幾何改內容雜湊）
+三個 PR 全部 merged 並在正式站 `https://mini-taiwan-pulse.itsmigu.com` 驗證通過。
+
+### 事件 A：交辦指示與資料實況衝突 —— `line_id` 資料層有缺口
+交辦時明確要求「用 `properties.line_id`，不要 parse track id 字串」。方向是對的
+（字串前綴是脆弱耦合），但**實測資料撐不住**：trtc 96 條軌道裡有 **13 條沒有 `line_id`**
+（全是淡水信義線的變體 `R-4-*`~`R-15-*`），而**時刻表整份都沒有 `line_id`**。
+照原指示直做，`rsys=trtc` 會少掉那 13 條軌道。
+
+解法是兩層而不是二選一：**properties 優先、缺了才退回 track_id 前綴**；
+時刻表側則改成「留不下軌道的班表一起丟」——否則班次數與軌道數對不上，
+畫面會出現有班次卻沒有軌道可跑的幽靈列車。
+
+→ 通則：**指示講的是「該用哪個欄位」，但能不能用得先量一次欄位覆蓋率**。
+覆蓋不到 100% 時不要在「照做」與「不照做」之間選，寫成 fallback 並把
+「上游補齊後刪掉這段」記進 backlog（→ EM-31），讓臨時解有到期日。
+
+### 事件 B：Cloudflare negative cache —— deploy 前探測雜湊 URL，把 404 快取了最長 4 小時
+驗證者在 deploy 完成**之前**就去 curl 新的雜湊 URL 想確認有沒有上去，拿到 404。
+該 404 被 Cloudflare 邊緣快取住，最長 **4 小時**：`.gz` 落在 CF **預設可快取副檔名清單**內，
+所以 bundle 中招；`.json` 不在清單內，所以 `rail-manifest.json` 一路 DYNAMIC、不受影響。
+新版上線後狀態轉 EXPIRED→200 自癒，沒有真的壞掉，但白等了一段。
+
+⚠️ 與既有那條「Cloudflare **Cache Rule** 用固定 TTL 會連 404/5xx 一起快取」
+（PRINCIPLES 2026-08-05）**是不同機制**：那條是自訂規則覆寫 cache-control，
+這條是 CF **預設**對特定副檔名的 negative cache，沒設任何規則也會發生。兩條互補。
+
+→ 規則：**deploy 完成前探測任何新 URL，一律加 cache-buster**（`?cb=$(date +%s)`）。
+本專案唯一的 purge 腳本是 `purge_everything`（會連 297MB 底圖一起清），
+**沒有 scoped purge** → 一旦快取到壞值，代價不對稱（→ G020）。
+
+### 事件 C：Zeabur `deployment list` 的 RUNNING 標籤會滯後 → 不能用來判 cutover
+舊 deployment 在數小時後仍被標成 RUNNING，照它判斷會以為新版沒上去（或反之）。
+
+→ 判準改成三條 runtime 證據，不看控制台標籤：
+1. runtime log 出現**新 pod started**
+2. log 出現 `[pull] all assets synced`
+3. **自己發一個可辨識的 HTTP 請求**（帶 token 的 query string），確認它出現在**新 pod 的** access log
+
+第 3 條是關鍵——前兩條只證明新 pod 起來了，不證明**流量已經切過去**。
+（同一條紀律的另一個版本見 PB-33「證明它真的在跑」：永遠用容器內證據，不看 dashboard 猜。）
+
+### 事件 D：gis-wiki push 被拒 —— 遠端早有另一個 checkout 的 commit
+push 被拒，遠端有 8/2 的 commit 不在本地。來源是**另一個 checkout**：
+`gis-platform/.gitmodules` 把 gis-wiki 登記為 submodule，那份 checkout 也在推東西。
+用 rebase 疊上去，零衝突。
+
+⚠️ 副作用：`gis-platform` 記錄的 gis-wiki submodule SHA 現在**落後** gis-wiki main（→ G021）。
+
+→ 通則：同一個 repo 被 submodule 登記時就有**兩個以上的寫入點**。push 被拒先查
+「是不是我自己在別處推過」，而不是預設遠端壞掉；rebase 疊上去之後記得**回頭 bump
+上游的 submodule 指標**，否則 superproject 會一直指向舊版本。
