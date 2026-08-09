@@ -40,7 +40,7 @@
 | EM-13 | — | Cloudflare 快取規則 | **done**（2026-08-05；規則內容記於 feature handoff §0b） |
 | EM-23 | P2 | 行動裝置實機驗收 | open |
 | EM-01~06, 09, 10, 14, 15, 19, 20 | — | 規劃／底圖／URL／`/embed`／CDN 層／歷史快照／分享面板／popup | **done** |
-| EM-16 | — | Three.js 圖層嵌入（**原結論「不做」已翻案**）：flights / ships / rail 三層動態回放 + `rsys=` 系統單選 + 多層共時鐘 + 三份圖例 + 上生產供檔 | **實作完成、PR #118 待審**（2026-08-09；bus 渲染 owner 拍板暫緩 → EM-24） |
+| EM-16 | — | Three.js 圖層嵌入（**原結論「不做」已翻案**）：flights / ships / rail 三層動態回放 + `rsys=` + 多層共時鐘 + 三份圖例 + 上生產供檔 | **done**（2026-08-10；PR #118/#119/#120 全 merged，正式站驗證通過。bus 渲染 owner 拍板暫緩 → EM-24） |
 | EM-07/08/11/12/17/18/22 | P2–P3 | 加油站快照補檔、更多歷史快照層、底圖改 R2、字型自託管、facade、嵌入碼防腐、popup 標籤 | open |
 | EM-24 | P2 | **bus 回放渲染**（owner 2026-08-08 拍板暫緩）。資料已由 nightly trails 每日保存，未來要做隨時有料；引擎 `BusEngine`（741 行純 TS）可直接復用 | open（暫緩，非阻塞） |
 | EM-25 | P2 | 回放 scrubber（拖曳時間軸）。`replayClock.seek()` 已備好，UI 加一條 range input 即可 | open |
@@ -48,10 +48,13 @@
 | EM-27 | P3 | 主站「全路徑靜態軌跡」的高度漸層配色（暖橘低空→冷藍高空）是**真語意但 Live 限定**，embed 不畫。要補得另開帶顯示條件的 legend entry | open |
 | EM-28 | P3 | `UrlState.hour` 註解已過時（仍寫「只影響主站時間軸」，但 EM-16 後 `h=` 會影響 embed 起播時間） | open（純註解） |
 | EM-29 | P3 | `fullUrl`（「在 Mini Taiwan Pulse 開啟」）**刻意不帶 `rsys`**（主站無單系統概念）。日後主站若要支援單系統篩選，需**兩處一起補** | open（現況正確，留紀錄） |
+| EM-30 | P2 | **移除 rail 幾何的降級安全網**（條件已達成：#120 線上驗證雜湊檔抓 1 次、舊固定檔 0 次，降級未觸發）。建議**再觀察數日**後做，三件一起：移掉 `fetchRailGeometry()` 的 fallback 分支、刪 `RAIL_GEOMETRY_LEGACY_URL`、刪 S3 上的舊固定檔 `rail_slim.json.gz` | open（等觀察期） |
+| EM-31 | P2 | 上游 `build-rail-slim-bundle.py` 補齊 `line_id`（trtc 96 條軌道有 13 條缺，全是 `R-4-*`~`R-15-*`；**時刻表整份都沒有**）→ 補完即可刪掉前端 `railLineIdOf()` 的 track_id 前綴 fallback。詳 INCIDENTS 2026-08-09/10 事件 A | open（等上游） |
 
 > ⚠️ EM-17 順帶發現的既有問題：`get_gas_station_layers` 的 loader 已改用 `staticRpc`，
 > 但 `public/static-rpc/` **沒有該檔** → 主站一直靜默 fallback 打 RPC（非本功能引入）。
-> **2026-08-09 覆核：仍未解，現在就在付 egress。** EM 系列裡優先級最高的一項。
+> **2026-08-10 再覆核：`ls public/static-rpc/ | grep -i gas` 仍為空，現在就在付 egress。**
+> EM 系列裡優先級最高的一項。
 
 ### 架構改造（AR 系列，2026-07-03 — 全系統審計後五階段計畫）
 
@@ -203,6 +206,8 @@
 | G018 | P2 | **回饋軌道資料上游：折返幾何 artifact** | open | 2026-08-08 做 rail 幾何瘦身時發現原始軌道有「來回走同一段」的折返子路徑（RDP 會壓垮、弧長系統性縮短）。具體案例：`SK-TT-ZY-0` rawIdx 1822–1828（989m→683m）、`YL-SL-ZY-0`、**`trtc/LB-1-0` rawIdx 443–448（182.7→93.9m）**。最後這條是**單一系統來源軌道**，代表問題不只出在多來源 merge 接縫 → 值得回饋 `od-batch-generator` / 軌道資料上游。另：原始 TRA 幾何含 ~0.15–0.2% 次公尺級數位化雜訊長度，簡化後折線長度反而更接近真值 |
 | G019 | P3 | 267 個 `od_track` 檔中 **83 個（31%）無任何時刻表引用** | open | 2026-08-08 盤點發現。是**部署冗餘**不是使用者頻寬浪費（loader 只抓 schedule 出現的）。清理前要先確認不是「時刻表缺班次」而非「軌道多餘」 |
 | G017 | P3 | CF purge 憑證入 .env（CF_ZONE_ID + Cache Purge 權限 API token） | open | 2026-07-30 人均磚換新後 edge 快取供舊 pmtiles（range request 同吃），1d TTL 才自然過期；`purge-cloudflare-cache.sh` 現成但全機無憑證。設定後換磚 SOP 尾端補跑即可立即生效。詳 INCIDENTS 2026-07-29/30 事件 B |
+| G020 | P2 | **Cloudflare scoped purge**（現在唯一的 purge 是 `purge_everything`，會連 297MB 底圖一起清）。兩條路擇一：`purge-cloudflare-cache.sh` 加 purge-by-prefix/by-url 模式，或把 `/embed-rail/` 納入 Cache Rule 好控制。**與 G017 不同**：G017 是「有腳本沒憑證」，本項是「有憑證也只能全清」 | open | 2026-08-10 CF negative-cache 404 事件暴露：一旦快取到壞值，補救代價不對稱。詳 INCIDENTS 2026-08-09/10 事件 B |
+| G021 | P3 | **`gis-platform` 的 gis-wiki submodule SHA 落後**，需 bump 到 gis-wiki main | open | 2026-08-10 gis-wiki push 被拒 → rebase 疊上另一個 checkout 的 8/2 commit 後產生的副作用。superproject 現在指向舊版本。詳 INCIDENTS 2026-08-09/10 事件 D |
 
 ### 結構 / 部署 Review（2026-05-25 全專案結構審查 — G004~G010）
 
@@ -246,7 +251,11 @@
 ## 已完成（近期 10 筆）
 
 - 2026-08-08 ✅ **nightly trails 保存層上線**（data-collectors PR #47 merged + 已部署）：四 dataset（ships/flights/bus/bus_intercity）每日 02:00 Asia/Taipei 匯出到 `s3://…/trails/`。日總量 ~76MB、首年 ~US$4.5。`rows=0` 硬性 exit 1（因 dates matview 會謊報）、today-guard、HEAD 驗證。回補 ships/flights 各 8 天、bus 系 3 天；bus 08-04 與 ships/flights 07-30 已永久救不回。詳 DATA_SCOPE §保存層 + PB-35
-- 2026-08-09 ⏳ **EM-16 embed 動態回放**（PR #118 **待審**，14 commits）：翻掉 proposal §6-1「Three.js 圖層不做」的舊結論 —— 實測三顆引擎皆純 TS 零渲染依賴、MapLibre × Three.js spike 與 `map.project()` 誤差 ≤0.01px。上線 flights / ships / rail 三層回放（快照皆 2026-08-06：522KB / 4.78MiB / 229KB）+ rail 幾何 68MB→367KB（縮 190x）+ `rsys=` 系統單選 + 多層共時鐘 + 三份圖例。驗收 `tsc -b` 過、vitest **399 passed / 1 skipped / 0 failed**、bundle 內 `WebGLRenderer`/`InstancedMesh` 出現 **0** 次
+- 2026-08-10 ✅ **EM-16 embed 動態回放全鏈上線**（PR **#118 + #119 + #120 全 merged**，正式站 `mini-taiwan-pulse.itsmigu.com` 驗證通過）：翻掉 proposal §6-1「Three.js 圖層不做」的舊結論 —— 實測三顆引擎皆純 TS 零渲染依賴、MapLibre × Three.js spike 與 `map.project()` 誤差 ≤0.01px。
+  - **#118**（`54bd865`）三層回放 + 上生產接線。線上 6/6 PASS：flights 快照 522,150 B + `immutable`、ships 5,014,213 B `gunzip -t` 完整、幾何 366,717 B + `max-age=86400`、三層瀏覽器冒煙 **Supabase 請求數 0**
+  - **#119**（`5345128`）`rsys=` 擴到營運者級 + 線路級。線上 6/6 PASS：`trtc` 76 軌道/3,017 班、`tymc` 8/329、`ntm` 10/1,170、`trtc-bl` 15/596、`krtc-r` 2/319（幾何落在高雄，撞名解析正確）、`trtc-zz` 降級 141/6,663 不白畫面；**主站 RailLegend 輸出逐字未變**（零回歸）
+  - **#120**（`2dd11e6`）rail 幾何改內容雜湊 + manifest。端到端指紋 `gunzip -c | shasum -a 256` 與 manifest 記載的 `4e0dc14093…` **逐字元相符**；瀏覽器 network 抓雜湊檔 1 次、舊固定檔 0 次；同 session 二次取用 transfer=0（immutable 當場生效）。體積 366,717 → 366,819 B（+0.03%）
+  - 後續：EM-24 bus 渲染（暫緩）／EM-25 scrubber／**EM-30 移除降級安全網**（觀察數日後）／**EM-31 上游補 `line_id`**
 
 - 2026-05-25 ✅ **農企業登記 3 layer 接線**（AG-1）：retail 37,430 / produce_wholesale 22,843 / wholesale_market 53（共 60,326 點 / ~34MB）。**走 `overlayRegistry`（宣告式，MapView 不用改）非 agricultureLayerFactory** — 大型 geojson 散點比照 fireHydrants。3 獨立 toggle 進 AGRICULTURE 區；色 #e91e63/#3f51b5/#ffd600；新建 `src/data/agriCompanyTypes.ts`（色/標籤 SSOT）；UX 四鐵則：opacity+scale slider / 合併圖例 AgriCompanyLegend / click popup AgriCompanyPanel（公司名稱/統編/負責人/地址/資本額/狀態，bracket notation 讀中文欄位）。`npx tsc -b` 綠（補了 IconRailSidebar LAYER_ICONS 隱藏 Record）；dev server 3 資產 HTTP 200。⏳ 驗收/S3/Supabase import/commit 見 AG-6
 - 2026-05-23 ✅ **農業 Phase 3 Batch 1 完整上線**（6 PMTiles + 1 GeoJSON POI 部署到 public/agriculture/ ~215MB / FTW 既有 + agriSoil/agriSoilFertility/agriLeisureFarmZones/agriRuralRegen/agriCropSuitability/agriPOI 共 7 layer / 132 種作物 dropdown 切換 / 6 個可選取 layer 全部接 click popup [FTW 田區除外，僅 confidence 屬性無意義] / agriPOI 三類 + agriCropSuitability 4 級配色雙圖例 / 土壤肥力 6 metric 著色切換 [health/pH/OM/CEC/M3_P/M3_K] + 健康度綜合算法 + 數值分級註解 / sidebar select dropdown 門檻 > 6 → > 3 解橫向溢出 / 圖層 UX 鐵則升級 3 → 4 條完整寫進 docs/CLAUDE.md/memory）
