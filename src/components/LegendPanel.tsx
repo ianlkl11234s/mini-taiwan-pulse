@@ -2,6 +2,7 @@ import { Fragment, useState, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
+import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -25,6 +26,8 @@ import {
 } from "../data/urbanHeatTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
+import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLayerFactory";
+import { DIVERGING_STOPS } from "../three/TemperatureWaveScene";
 import {
   WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX,
   DUST_BAKE_STOPS, rampToGradient,
@@ -249,12 +252,19 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["oceanCurrents"], render: () => <OceanCurrentsLegend /> },
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["temperatureGrid"], render: () => <TemperatureGridLegend /> },
+  { keys: ["temperatureWave"], render: () => <TemperatureWaveLegend /> },
   { keys: ["aqiMicroSensors"], render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
   { keys: ["urbanHeat"], render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
+  { keys: ["freewayCongestion"], render: () => <FreewayCongestionLegend /> },
   { keys: ["cctv"], render: () => <CctvLegend /> },
+  // 人口 / 社經 H3 網格：色階由 demographicsLayerFactory 預烤進 properties.color
+  { keys: ["popCount"], render: () => <H3RampLegend title="人口數 POPULATION" ramp={INFERNO} note="每格人口數（log 正規化）" /> },
+  { keys: ["indicators"], render: () => <H3RampLegend title="人口指標 INDICATORS" ramp={INFERNO} note="所選指標值" /> },
+  { keys: ["socioeconomic"], render: () => <H3RampLegend title="社經面貌 SOCIO-ECON" ramp={VIRIDIS} note="所選社經指標值" /> },
+  { keys: ["spatialEconomy"], render: () => <H3RampLegend title="空間經濟 SPATIAL-ECON" ramp={MAGMA} note="所選房市指標值" /> },
   { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { keys: ["ships"], render: () => <ShipsLegend /> },
@@ -341,6 +351,12 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["waterProtectionZones"], render: ({ isDark }) => <WaterProtectionZoneLegend isDark={isDark} /> },
   { keys: ["waterMonitorStations"], render: () => <WaterMonitorStationLegend /> },
   { keys: ["waterFacilities"], render: () => <WaterFacilityLegend /> },
+  { keys: ["rainGauge"], render: () => <RainGaugeLegend /> },
+  { keys: ["riverLevel"], render: () => <RiverLevelLegend /> },
+  { keys: ["groundwater"], render: () => <GroundwaterLegend /> },
+  { keys: ["taipeiSewer"], render: () => <TaipeiSewerLegend /> },
+  { keys: ["taipeiPumb"], render: () => <TaipeiPumbLegend /> },
+  { keys: ["taipeiEvacuate"], render: () => <TaipeiEvacuateLegend /> },
   { keys: ["waterFloodExtreme"], render: ({ overlayParams }) => <WaterFloodExtremeLegend minDepth={overlayParams.floodMinDepth ?? 0} /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
@@ -3039,6 +3055,55 @@ function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   );
 }
 
+// ── 溫度波 3D：RdBu 發散色盤（TemperatureWaveScene 的 DIVERGING_STOPS）──
+// ⚠️ 與 2D 溫度網格（TemperatureGridLegend 的 11 級絕對 °C）不同：3D 波的顏色是
+//    (temp - tempMin) / (tempMax - tempMin)，**以當日資料範圍拉伸**，
+//    所以沒有固定的 °C 刻度，只能標兩端。硬標 -10/35°C 會在多數日子跟地圖對不上。
+function TemperatureWaveLegend() {
+  const t = useLegendTheme();
+  const gradient = `linear-gradient(to right, ${DIVERGING_STOPS.map(
+    (s) => `rgb(${Math.round(s.r * 255)},${Math.round(s.g * 255)},${Math.round(s.b * 255)}) ${(s.t * 100).toFixed(1)}%`,
+  ).join(", ")})`;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        溫度波 TEMPERATURE WAVE
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
+        氣溫（拉伸至當日觀測範圍）
+      </div>
+      <ClimateGradientBar gradient={gradient} labels={["當日最低", "當日最高"]} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        波高同步溫度｜要看絕對 °C 分級請開溫度網格 2D
+      </div>
+    </div>
+  );
+}
+
+// ── H3 網格（人口 / 社經 / 空間經濟）連續色階 ──
+// 顏色不寫在 paint 裡：demographicsLayerFactory 以 interpolateColor(色階, norm) 預烤進
+// feature.properties.color，paint 只有 ["get","color"]（demographicsLayerFactory.ts:152）。
+// 因此圖例直接吃 factory 匯出的同一組色階陣列，不複製 RGB。
+// ⚠️ norm 是「相對當前資料最大值」（count 類走 log、其餘線性，再套 contrast gamma），
+//    沒有固定的絕對刻度 → 只標低/高兩端，不編造數值。
+function H3RampLegend({
+  title, ramp, note,
+}: { title: string; ramp: [number, number, number][]; note: string }) {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        {title}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>{note}</div>
+      <ClimateGradientBar gradient={h3RampGradient(ramp)} labels={["低 Low", "高 High"]} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        相對色階（以畫面資料最大值為 100%）｜對比滑桿會改變分布
+      </div>
+    </div>
+  );
+}
+
 // ── Disaster Alert Legend ──
 
 function RoadEventsLegend() {
@@ -3122,6 +3187,36 @@ function CctvLegend() {
       <FireCatRows cats={CCTV_SOURCE_CATS} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         z≥7 才顯示｜點選看即時畫面
+      </div>
+    </div>
+  );
+}
+
+// ── 國道壅塞 level 1~5 + 0 無資料 ──
+// 顏色不在 paint 裡：freewayLoader.buildFreewayGeoJSON 把 CONGESTION_COLORS[level]
+// 預烤進 feature.properties.color，paint 只是 ["get","color"]（useFreewayLayer.ts:42/58）。
+// 因此直接吃同一份 SSOT，不複製 hex。
+const FREEWAY_CONGESTION_LEVELS = [1, 2, 3, 4, 5, 0];
+
+function FreewayCongestionLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        國道壅塞 FREEWAY
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {FREEWAY_CONGESTION_LEVELS.map((lv) => (
+          <div key={lv} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 14, height: 4, borderRadius: 2, background: CONGESTION_COLORS[lv], flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+              {lv > 0 ? `${lv} ${CONGESTION_LABELS[lv]}` : CONGESTION_LABELS[lv]}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        TDX 路段壅塞等級，隨時間軸播放
       </div>
     </div>
   );
@@ -3341,6 +3436,207 @@ function LakesPondsLegend() {
       <FireCatRows cats={LAKES_PONDS_CATS} square />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         已濾掉與魚塭圖層重疊者（39.1%）｜OSM ODbL
+      </div>
+    </div>
+  );
+}
+
+/**
+ * interpolate 的 stop 清單 → CSS linear-gradient。
+ * 把 domain（第一個 ~ 最後一個 stop 值）線性映射到 0~100%，色帶上任一點的顏色
+ * 因此與 Mapbox interpolate 在同一個值算出來的顏色一致（等距 stop 會失真，故不用等分）。
+ */
+function deltaStopsToGradient(stops: { v: number; color: string }[]): string {
+  const min = stops[0]!.v;
+  const max = stops[stops.length - 1]!.v;
+  const span = max - min || 1;
+  return `linear-gradient(to right, ${stops
+    .map((s) => `${s.color} ${(((s.v - min) / span) * 100).toFixed(1)}%`)
+    .join(", ")})`;
+}
+
+// ── 河川水位：delta_m 色階（useRiverLevelLayer.ts colorExpression 的 interpolate stops）──
+// 紅＝下降 / 灰＝持平 / 藍＝上升；check_result=0 由外層 case 覆寫成橙。
+const RIVER_LEVEL_DELTA_STOPS = [
+  { v: -1.00, color: "#b91c1c" },
+  { v: -0.30, color: "#ef4444" },
+  { v: -0.10, color: "#fca5a5" },
+  { v: -0.02, color: "#94a3b8" },
+  { v: 0.02, color: "#94a3b8" },
+  { v: 0.10, color: "#93c5fd" },
+  { v: 0.30, color: "#3b82f6" },
+  { v: 1.00, color: "#1d4ed8" },
+];
+const RIVER_LEVEL_ABNORMAL_COLOR = "#f97316";
+
+function RiverLevelLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        河川水位 RIVER LEVEL
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
+        當日水位變化 Δ（vs 當日起始）
+      </div>
+      <ClimateGradientBar
+        gradient={deltaStopsToGradient(RIVER_LEVEL_DELTA_STOPS)}
+        labels={["-1m 下降", "0", "+1m 上升"]}
+      />
+      <div style={{ marginTop: 4 }}>
+        <FireCatRows cats={[{ color: RIVER_LEVEL_ABNORMAL_COLOR, label: "測值異常 Abnormal" }]} />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        圈大小 = |Δ| 幅度（跨站可比）
+      </div>
+    </div>
+  );
+}
+
+// ── 北市雨水下水道：ground_far step 分級（useTaipeiSewerLayer.ts depthColorExpression）──
+// ground_far = 水面距地面的深度（m），越小越接近溢出，所以色序是「小＝紅、大＝藍」。
+const TAIPEI_SEWER_CATS = [
+  { color: "#7f1d1d", label: "< 0.5 m 逼近地面" },
+  { color: "#ef4444", label: "0.5–1 m" },
+  { color: "#fb923c", label: "1–2 m" },
+  { color: "#fde047", label: "2–3 m" },
+  { color: "#3b82f6", label: "≥ 3 m 安全" },
+];
+
+function TaipeiSewerLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市下水道水位 SEWER
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        水面距地面深度
+      </div>
+      <FireCatRows cats={TAIPEI_SEWER_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        每 60 秒更新（北市水利處）
+      </div>
+    </div>
+  );
+}
+
+// ── 北市抽水站：risk_ratio step 分級（useTaipeiPumbLayer.ts riskColorExpression）──
+// risk_ratio = 內池水位 / 最高容許水位；白邊來自 circle-stroke（pumb_running=true → 2px 白）。
+const TAIPEI_PUMB_CATS = [
+  { color: "#7f1d1d", label: "≥ 0.9 逼近上限" },
+  { color: "#ef4444", label: "0.8–0.9" },
+  { color: "#fb923c", label: "0.6–0.8" },
+  { color: "#fde047", label: "0.4–0.6" },
+  { color: "#06b6d4", label: "< 0.4 正常" },
+];
+
+function TaipeiPumbLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市抽水站 PUMB STATION
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        內池水位 / 最高容許水位
+      </div>
+      <FireCatRows cats={TAIPEI_PUMB_CATS} />
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+        <div
+          style={{
+            width: 10, height: 10, borderRadius: RADIUS.full,
+            background: "transparent", border: "2px solid #ffffff",
+            boxSizing: "border-box", flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>白邊 = 運轉中</span>
+      </div>
+    </div>
+  );
+}
+
+// ── 北市疏散門：gate_state match（useTaipeiEvacuateLayer.ts stateColorExpression）──
+// gate_state 由 fo/fc/flt 三個旗標推導，見該檔頂註解。
+const TAIPEI_EVACUATE_CATS = [
+  { color: "#22c55e", label: "全開 Open" },
+  { color: "#ef4444", label: "關閉 Closed（防護啟動）" },
+  { color: "#fbbf24", label: "故障 Faulted" },
+  { color: "#6b7280", label: "狀態不明 Unknown" },
+];
+
+function TaipeiEvacuateLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市疏散門 EVACUATE GATE
+      </div>
+      <FireCatRows cats={TAIPEI_EVACUATE_CATS} />
+    </div>
+  );
+}
+
+// ── 即時雨量：precipitation_1hr step 分級（useRainGaugeLayer.ts rainColorExpression）──
+// 級距數字逐字取自 step 的 stop；中文級名沿用同檔 heatmapColorExpression 註解裡
+// 對同一組色碼的稱呼（小雨/中雨/大雨/豪雨/大豪雨/超大豪雨），遠景熱區與近景圓點同色系。
+// coalesce(…, 0)：缺值會落進最低級 → 灰色列註明「無雨 / 無資料」。
+const RAIN_GAUGE_CATS = [
+  { color: "#6b7280", label: "< 0.1 mm 無雨 / 無資料" },
+  { color: "#93c5fd", label: "0.1–2.5 mm 小雨" },
+  { color: "#3b82f6", label: "2.5–15 mm 中雨" },
+  { color: "#22c55e", label: "15–40 mm 大雨" },
+  { color: "#fbbf24", label: "40–80 mm 豪雨" },
+  { color: "#f97316", label: "80–200 mm 大豪雨" },
+  { color: "#ef4444", label: "≥ 200 mm 超大豪雨" },
+];
+
+function RainGaugeLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        即時雨量 RAIN GAUGE
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        時雨量 1hr (mm)
+      </div>
+      <FireCatRows cats={RAIN_GAUGE_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        圈大小 = 10 分鐘雨量｜z&lt;12 改用同色系熱區
+      </div>
+    </div>
+  );
+}
+
+// ── 地下水井：delta_m 色階（useGroundwaterLayer.ts colorExpression 的 interpolate stops）──
+// 值域比河川窄（覆蓋 p10~p90 的 ±30cm），色序同樣是 紅(-) → 灰(0) → 藍(+)。
+const GROUNDWATER_DELTA_STOPS = [
+  { v: -0.30, color: "#b91c1c" },
+  { v: -0.10, color: "#ef4444" },
+  { v: -0.02, color: "#fca5a5" },
+  { v: 0.00, color: "#94a3b8" },
+  { v: 0.02, color: "#93c5fd" },
+  { v: 0.10, color: "#3b82f6" },
+  { v: 0.30, color: "#1d4ed8" },
+];
+
+function GroundwaterLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        地下水井 GROUNDWATER
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
+        當日水位變化 Δ（vs 當日起始）
+      </div>
+      <ClimateGradientBar
+        gradient={deltaStopsToGradient(GROUNDWATER_DELTA_STOPS)}
+        labels={["-30cm 下降", "0", "+30cm 上升"]}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        圈大小 = |Δ| 幅度（±30cm 封頂）
       </div>
     </div>
   );

@@ -76,8 +76,11 @@ const BASELINE_NO_LEGEND = new Set([
   "ports", "lighthouses", "airports", "highways", "provincialRoads",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
   "busStationsCity", "busStationsIntercity", "bikeStations", "cyclingRoutes",
-  "freewayCongestion", "weatherStations", "h3Population", "popCount",
-  "indicators", "socioeconomic", "spatialEconomy", "temperatureWave",
+  "weatherStations",
+  // h3Population：同屬預烤 properties.color 的連續色階（h3LayerFactory 的 DAY/NIGHT
+  // 兩套色階），但「現在顯示哪一套」存在 transportParams.h3Params、沒進 overlayParams，
+  // 圖例拿不到 → 硬畫會有一半機率跟地圖對不上。待把 metric 併進 overlayParams 再補。
+  "h3Population",
   // 2026-08-08：schools 併入教育主題（第 38），已接 SchoolLevelLegend（學制 5 色）→ 移出 baseline
   "convenienceStores",
   // 公共設施：郵局 / i郵箱 / 活動中心 皆單色 POI（鐵則 2 不適用）；govServiceOffices 3 類分色 → 接 GovServiceOfficeLegend
@@ -92,8 +95,11 @@ const BASELINE_NO_LEGEND = new Set([
   // 同組的 waterProtectionZones / waterFacilities / waterMonitorStations / waterFloodExtreme
   // 皆為屬性驅動多色，已接 LEGEND_REGISTRY。
   "waterReservoirs", "waterDetentionBasins",
-  "rainGauge", "riverLevel", "groundwater", "groundwaterWells",
-  "taipeiSewer", "taipeiEvacuate", "taipeiPumb", "precipRaster",
+  // groundwaterWells（靜態井位 backdrop，單色灰點）／precipRaster（IoW 上游已把色階燒進
+  // PNG 的 image source，前端沒有自己的色票可派生）→ 鐵則 2 不適用。
+  // 同組的 rainGauge / riverLevel / groundwater / taipeiSewer / taipeiPumb / taipeiEvacuate
+  // 皆為 step / interpolate / match 上色，已接 LEGEND_REGISTRY。
+  "groundwaterWells", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
   "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
   "wasteScheduleNote", "wasteStopsStatic", "wasteCleaningSquads", "wasteRoute", "wasteStop",

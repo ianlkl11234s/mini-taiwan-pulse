@@ -22,7 +22,7 @@ const SPATIAL_EXT = "h3-spatial-ext";
 
 // ── Inferno color scale ──
 
-const INFERNO: [number, number, number][] = [
+export const INFERNO: [number, number, number][] = [
   [0, 0, 4],
   [120, 28, 109],
   [226, 88, 34],
@@ -247,7 +247,7 @@ export function updateIndicatorsLayer(
 // ── Socioeconomic layers ──
 
 /** Viridis-like color scale for socioeconomic data */
-const VIRIDIS: [number, number, number][] = [
+export const VIRIDIS: [number, number, number][] = [
   [68, 1, 84],
   [59, 82, 139],
   [33, 145, 140],
@@ -256,13 +256,22 @@ const VIRIDIS: [number, number, number][] = [
 ];
 
 /** Magma color scale for spatial economy (housing) */
-const MAGMA: [number, number, number][] = [
+export const MAGMA: [number, number, number][] = [
   [0, 0, 4],
   [81, 18, 124],
   [183, 55, 121],
   [252, 137, 97],
   [252, 253, 191],
 ];
+
+/**
+ * 圖例用：色階 → CSS linear-gradient。
+ * interpolateColor 的 idx = t × (n-1)，即 stop 在 0~1 上等距，
+ * 所以 CSS 的等距 stop 與地圖端算出來的顏色一致（兩者皆在 RGB 空間線性內插）。
+ */
+export function h3RampGradient(colors: [number, number, number][]): string {
+  return `linear-gradient(to right, ${colors.map((c) => `rgb(${c[0]},${c[1]},${c[2]})`).join(", ")})`;
+}
 
 function genericToGeoJSON<T extends { h: string }>(
   cells: T[],
