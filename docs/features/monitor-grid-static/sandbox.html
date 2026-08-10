@@ -1,0 +1,1789 @@
+
+<title>監看模式排版沙盒</title>
+
+<style>
+  :root {
+    color-scheme: dark;
+
+    --bg: #0a0e14;
+    --panel: #131a24;
+    --panel-edge: #1e2836;
+    --text: #e6edf3;
+    --dim: #7d8590;
+
+    --accent: #10b981;
+    --red: #fb7185;
+    --amber: #f59e0b;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+
+    --rail: #0d131b;
+    --sunken: #080c11;
+
+    --cjk: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC",
+           "Microsoft JhengHei", sans-serif;
+    --data: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+    --gap: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--cjk);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .mono {
+    font-family: var(--data);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1.5px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  /* ============ 頂欄 ============ */
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--panel-edge);
+    background: var(--rail);
+  }
+
+  .brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+
+  .brand h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .brand .sub {
+    font-family: var(--data);
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--dim);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 120ms ease, background 120ms ease;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: #33455c; background: #18212e; }
+  .btn:active { background: #101822; }
+
+  .btn-accent { border-color: rgba(16,185,129,0.45); color: #7ee9c4; }
+  .btn-accent:hover { border-color: var(--accent); background: rgba(16,185,129,0.10); }
+
+  select.btn { padding-right: 8px; }
+
+  /* ============ 主體 ============ */
+
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 14px;
+    padding: 14px 18px 8px;
+    align-items: start;
+  }
+
+  /* ============ 舞台（模擬畫布） ============ */
+
+  .stage { min-width: 0; }
+
+  .stage-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    font-family: var(--data);
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    color: var(--dim);
+  }
+  .stage-meta b { color: var(--text); font-weight: 500; }
+  .stage-meta .sep { color: #2e3b4d; }
+
+  .canvas-wrap { overflow-x: auto; overflow-y: hidden; }
+
+  .canvas {
+    transform-origin: 0 0;
+    background: var(--sunken);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    position: relative;
+  }
+
+  .canvas-head {
+    height: 34px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 12px;
+    border-bottom: 1px solid var(--panel-edge);
+    font-family: var(--data);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--dim);
+  }
+  .canvas-head .live {
+    display: inline-flex; align-items: center; gap: 5px; color: var(--accent);
+  }
+  .canvas-head .live i {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+  .canvas-head .right { margin-left: auto; }
+
+  .grid {
+    position: relative;
+    padding: 12px;
+  }
+
+  .fold {
+    position: absolute;
+    left: 0; right: 0;
+    border-top: 1px dashed rgba(245,158,11,0.5);
+    pointer-events: none;
+    z-index: 5;
+  }
+  .fold span {
+    position: absolute;
+    right: 10px; top: 4px;
+    font-family: var(--data);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--amber);
+    background: var(--sunken);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  .placeholder {
+    position: absolute;
+    top: 0; left: 0;
+    border: 1px dashed var(--accent);
+    background: rgba(16,185,129,0.08);
+    border-radius: 4px;
+    z-index: 1;
+    display: none;
+    pointer-events: none;
+  }
+
+  /* ============ Widget ============ */
+
+  .w {
+    position: absolute;
+    top: 0; left: 0;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    transition: transform 120ms ease, width 120ms ease, height 120ms ease, opacity 120ms ease;
+  }
+
+  .w.below-fold { opacity: 0.42; }
+
+  .w.dragging {
+    z-index: 30;
+    opacity: 0.88;
+    transition: none;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.6);
+    border-color: var(--accent);
+    cursor: grabbing;
+  }
+  .w.resizing { transition: none; z-index: 30; border-color: var(--accent); }
+
+  .w-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 14px;
+    border-bottom: 1px solid var(--panel-edge);
+    background: #16202c;
+    cursor: grab;
+    touch-action: none;
+    flex: none;
+    min-width: 0;
+  }
+  .w-head::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--sig);
+  }
+  .w-head:active { cursor: grabbing; }
+
+  .w-name {
+    font-size: 11.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* AUTO = 實機高度跟內容走（fit:"content"），這裡的縱向尺寸只是排序佔位 */
+  .w-auto, .d-auto {
+    font-family: var(--data);
+    font-size: 7.5px;
+    letter-spacing: 1.2px;
+    color: #7ee9c4;
+    border: 1px solid rgba(16,185,129,0.45);
+    border-radius: 2px;
+    padding: 0 3px;
+    flex: none;
+  }
+  .d-auto { margin-left: 6px; }
+
+  .w-en {
+    font-family: var(--data);
+    font-size: 8.5px;
+    letter-spacing: 1.8px;
+    color: var(--dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: auto;
+    flex: none;
+    max-width: 55%;
+  }
+
+  .w-body {
+    flex: 1;
+    min-height: 0;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .w-rz {
+    position: absolute;
+    right: 0; bottom: 0;
+    width: 16px; height: 16px;
+    cursor: nwse-resize;
+    touch-action: none;
+    z-index: 4;
+  }
+  .w-rz::after {
+    content: "";
+    position: absolute;
+    right: 3px; bottom: 3px;
+    width: 7px; height: 7px;
+    border-right: 2px solid #3a4d66;
+    border-bottom: 2px solid #3a4d66;
+  }
+  .w:hover .w-rz::after { border-color: var(--accent); }
+
+  /* ============ Widget 迷你內容 ============ */
+
+  .num {
+    font-family: var(--data);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
+  .lbl {
+    font-family: var(--data);
+    font-size: 8.5px;
+    letter-spacing: 1.8px;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  /* timeline */
+  .w-tl { display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; }
+  .w-tlbars { flex: 1; min-height: 0; display: flex; align-items: stretch; gap: 2px; }
+  .w-tlbar {
+    flex: 1; height: 100%; min-width: 0;
+    display: flex; flex-direction: column-reverse; justify-content: flex-start; gap: 1px;
+  }
+  .w-tlbar i { display: block; width: 100%; border-radius: 1px; }
+  .w-tlalert { flex: none; height: 4px; display: flex; gap: 2px; }
+  .w-tlalert i { flex: 1; background: #1b2634; border-radius: 1px; }
+  .w-tlaxis { flex: none; display: flex; justify-content: space-between; }
+  .w-tlaxis span { font-size: 8px; letter-spacing: 1.2px; color: #4b5a6d; }
+
+  /* news feed */
+  .w-live { display: flex; align-items: center; gap: 5px; flex: none; }
+  .w-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .w-live b { font-family: var(--data); font-size: 8.5px; letter-spacing: 2px; color: var(--accent); font-weight: 500; }
+  .w-rows { display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0; overflow: hidden; }
+  .w-row { display: flex; align-items: center; gap: 6px; flex: 1 1 0; min-height: 0; max-height: 26px; }
+  .w-row .t { font-size: 8.5px; letter-spacing: 1px; color: #5b6b7f; flex: none; }
+  .w-row .dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+  .w-row .bar { height: 6px; border-radius: 2px; background: #26333f; }
+
+  /* pressure / overview */
+  .w-ov { display: flex; align-items: center; gap: 10px; flex: 1; min-height: 0; }
+  .w-ov .left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .w-ov .big { font-size: 30px; color: var(--amber); }
+  .w-ring { width: 54px; height: 54px; flex: none; margin-left: auto; }
+  .w-foot {
+    flex: none; margin-top: auto;
+    display: flex; align-items: baseline; gap: 6px;
+    padding-top: 5px; border-top: 1px solid var(--panel-edge);
+  }
+  .w-foot .v { font-size: 12px; color: var(--red); }
+
+  /* situation cards */
+  .w-two { display: flex; gap: 6px; flex: 1; min-height: 0; }
+  .w-card {
+    flex: 1; min-width: 0;
+    border: 1px solid var(--panel-edge);
+    border-radius: 3px;
+    padding: 6px 7px;
+    display: flex; flex-direction: column; justify-content: center; gap: 3px;
+    background: #0f1720;
+  }
+  .w-card .big { font-size: 22px; }
+
+  /* power */
+  .w-stack { display: flex; height: 16px; border-radius: 2px; overflow: hidden; flex: none; }
+  .w-stack i { display: block; height: 100%; }
+  .w-keys { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px 10px; flex: none; }
+  .w-key { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--dim); }
+  .w-key i { width: 6px; height: 6px; border-radius: 1px; flex: none; }
+
+  /* live wall */
+  .w-wall { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5px; }
+  .w-cell { position: relative; background: #0b1219; border: 1px solid #1a2430; border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .w-cell .play {
+    width: 0; height: 0;
+    border-left: 9px solid rgba(255,255,255,0.28);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+  .w-cell .tag {
+    position: absolute; top: 3px; left: 3px;
+    font-family: var(--data); font-size: 7px; letter-spacing: 1.2px;
+    color: #fff; background: var(--red);
+    padding: 0 3px; border-radius: 2px;
+  }
+
+  /* hazard chips */
+  .w-chips { display: flex; gap: 5px; flex: 1; min-height: 0; align-items: stretch; }
+  .w-chip {
+    flex: 1; min-width: 0;
+    border: 1px solid var(--panel-edge);
+    border-left-width: 3px;
+    border-radius: 3px;
+    padding: 4px 6px;
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
+    background: #0f1720;
+    overflow: hidden;
+  }
+  .w-chip .v { font-size: 13px; }
+  .w-chip .n { font-size: 9.5px; color: var(--dim); white-space: nowrap; }
+
+  /* hot zones */
+  .w-hz { display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0; overflow: hidden; }
+  .w-hzrow { display: flex; align-items: center; gap: 6px; flex: 1 1 0; min-height: 0; max-height: 24px; }
+  .w-hzrow .n { font-size: 9.5px; width: 44px; flex: none; white-space: nowrap; overflow: hidden; }
+  .w-hzrow .track { flex: 1; height: 7px; background: #1a2531; border-radius: 2px; overflow: hidden; min-width: 0; }
+  .w-hzrow .fill { height: 100%; border-radius: 2px; }
+  .w-hzrow .v { font-size: 9px; color: var(--dim); flex: none; }
+
+  /* histogram */
+  .w-hist { flex: 1; min-height: 0; display: flex; align-items: flex-end; gap: 2px; }
+  .w-hist i { flex: 1; background: var(--blue); border-radius: 1px 1px 0 0; min-width: 0; }
+
+  /* triage */
+  .w-tri { flex: 1; min-height: 0; display: flex; gap: 6px; }
+  .w-tricol {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; gap: 3px; justify-content: center;
+    border-top: 2px solid var(--c);
+    padding-top: 6px;
+  }
+  .w-tricol .big { font-size: 20px; }
+
+  /* prison */
+  .w-mid { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .w-mid .big { font-size: 28px; }
+  .w-lines { display: flex; flex-direction: column; gap: 2px; flex: none; }
+  .w-lines div { font-size: 9.5px; color: var(--dim); display: flex; justify-content: space-between; gap: 8px; }
+  .w-lines b { font-family: var(--data); font-weight: 400; color: var(--text); font-variant-numeric: tabular-nums; }
+
+  /* charts */
+  .w-chart { flex: 1; min-height: 0; }
+  .w-chart svg { display: block; width: 100%; height: 100%; }
+
+  .w-tags { display: flex; gap: 4px; flex: none; flex-wrap: wrap; overflow: hidden; height: 17px; }
+  .w-tag {
+    font-size: 9px; padding: 1px 5px;
+    border: 1px solid var(--panel-edge); border-radius: 2px;
+    color: var(--dim); white-space: nowrap;
+    background: #0f1720;
+  }
+  .w-tag.hot { color: var(--red); border-color: rgba(251,113,133,0.4); }
+
+  /* ============ 控制欄 ============ */
+
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .box {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    padding: 11px 12px;
+  }
+
+  .box h2 {
+    margin: 0 0 9px;
+    font-family: var(--data);
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 2.2px;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  .seg { display: flex; border: 1px solid var(--panel-edge); border-radius: 4px; overflow: hidden; }
+  .seg button {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--panel-edge);
+    padding: 6px 2px;
+    font-family: var(--data);
+    font-size: 10.5px;
+    letter-spacing: 1px;
+    color: var(--dim);
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
+  }
+  .seg button:last-child { border-right: 0; }
+  .seg button:hover { background: #18212e; color: var(--text); }
+  .seg button[aria-pressed="true"] {
+    background: rgba(16,185,129,0.14);
+    color: var(--accent);
+  }
+
+  .slider-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .slider-head .v { font-family: var(--data); font-size: 12px; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--panel-edge);
+    border-radius: 2px;
+    outline-offset: 4px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--panel);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--panel);
+  }
+
+  .hint { font-size: 10.5px; color: var(--dim); margin-top: 7px; line-height: 1.45; }
+
+  .drawer { display: flex; flex-direction: column; gap: 1px; max-height: 420px; overflow-y: auto; }
+
+  .drow {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+  .drow:hover { background: #18212e; }
+  .drow input { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; flex: none; }
+  .drow .sig { width: 3px; height: 13px; border-radius: 1px; flex: none; }
+  .drow .cn { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .drow .en {
+    margin-left: auto; flex: none;
+    font-family: var(--data); font-size: 8px; letter-spacing: 1.2px; color: #4d5c6e;
+  }
+  .drow.off .cn { color: var(--dim); }
+  .drow.off .sig { opacity: 0.3; }
+
+  .drawer-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid var(--panel-edge);
+    font-family: var(--data); font-size: 9.5px; letter-spacing: 1.5px; color: var(--dim);
+  }
+
+  textarea {
+    width: 100%;
+    height: 128px;
+    background: var(--sunken);
+    border: 1px solid var(--panel-edge);
+    border-radius: 3px;
+    padding: 7px 8px;
+    font-family: var(--data);
+    font-size: 10px;
+    line-height: 1.5;
+    letter-spacing: 0.3px;
+    resize: vertical;
+    color: var(--text);
+  }
+  textarea:focus { border-color: var(--accent); outline: none; }
+
+  .io-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .io-actions .btn { flex: 1; text-align: center; }
+
+  .msg { margin-top: 7px; font-size: 10.5px; line-height: 1.45; display: none; }
+  .msg.err { display: block; color: var(--red); }
+  .msg.ok { display: block; color: var(--accent); }
+
+  .foot {
+    padding: 10px 18px 20px;
+    font-family: var(--data);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: #4d5c6e;
+  }
+
+  @media (max-width: 900px) {
+    .main { grid-template-columns: minmax(0, 1fr); }
+    .rail { order: 2; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
+
+<header class="topbar">
+  <div class="brand">
+    <h1>監看模式 排版沙盒</h1>
+    <span class="sub">Monitor Layout Sandbox · v9</span>
+  </div>
+  <div class="topbar-actions">
+    <label class="sub mono" for="presetSel" style="color:var(--dim);font-size:9.5px;">PRESET</label>
+    <select class="btn" id="presetSel">
+      <option value="restored">現況修復版</option>
+      <option value="wall">牆面模式</option>
+      <option value="compact">緊湊</option>
+    </select>
+    <button class="btn" id="btnReset" type="button">重設此 preset</button>
+    <button class="btn btn-accent" id="btnExport" type="button">複製 JSON</button>
+  </div>
+</header>
+
+<div class="main">
+  <section class="stage">
+    <div class="stage-meta">
+      <span>模擬視寬 <b id="mSimW">1920</b>px</span>
+      <span class="sep">·</span>
+      <span>縮放 <b id="mScale">72</b>%</span>
+      <span class="sep">·</span>
+      <span>ROWHEIGHT <b id="mRow">40</b>px</span>
+      <span class="sep">·</span>
+      <span>12 COLS · GAP 10</span>
+      <span class="sep">·</span>
+      <span>顯示 <b id="mCount">17</b>/17</span>
+    </div>
+
+    <div class="canvas-wrap" id="canvasWrap">
+      <div class="canvas" id="canvas">
+        <div class="canvas-head">
+          <span class="live"><i></i>LIVE</span>
+          <span>MINI TAIWAN PULSE — MONITOR</span>
+          <span class="right" id="canvasClock">2026-07-26 14:32:08</span>
+        </div>
+        <div class="grid" id="grid">
+          <div class="placeholder" id="placeholder"></div>
+          <div class="fold" id="fold"><span>面板下緣 · 以下需捲動</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="rail">
+    <div class="box">
+      <h2>模擬視寬</h2>
+      <div class="seg" id="segWidth" role="group" aria-label="模擬視寬">
+        <button type="button" data-w="1280">1280</button>
+        <button type="button" data-w="1440">1440</button>
+        <button type="button" data-w="1920" aria-pressed="true">1920</button>
+        <button type="button" data-w="2560">2560</button>
+      </div>
+      <p class="hint">畫布依此寬度等比縮放塞進可視區；欄寬隨之重算，rowHeight 固定 40px 與實機一致。</p>
+    </div>
+
+    <div class="box">
+      <h2>面板高度</h2>
+      <div class="slider-head">
+        <span style="font-size:11.5px;color:var(--dim);">佔視高比例</span>
+        <span class="v" id="pctVal">70%</span>
+      </div>
+      <input type="range" id="pctRange" min="30" max="92" value="70" step="1" aria-label="面板高度佔視高比例" />
+      <p class="hint">虛線為面板下緣。<span id="foldCount">0</span> 個 widget 落在摺頁下，實機需捲動才看得到。</p>
+    </div>
+
+    <div class="box">
+      <h2>Widget 抽屜</h2>
+      <div class="drawer" id="drawer"></div>
+      <p class="hint" style="margin-top:0;margin-bottom:8px">
+        標 <span class="d-auto" style="margin-left:0">AUTO</span> 的 widget 實機高度<b>跟著內容走</b>
+        （<span class="mono">fit:"content"</span>）：不留白、不格內捲、下方順勢下移。
+        這裡拖出來的縱向尺寸對它們只是排序佔位，不是實際高度。
+      </p>
+      <div class="drawer-foot">
+        <span id="drawerCount">17 / 17 顯示中</span>
+        <button class="btn" type="button" id="btnAllOn" style="padding:3px 9px;font-size:10px;">全部顯示</button>
+      </div>
+    </div>
+
+    <div class="box">
+      <h2>匯出 / 匯入</h2>
+      <textarea id="io" spellcheck="false" aria-label="版面 JSON"></textarea>
+      <div class="io-actions">
+        <button class="btn btn-accent" type="button" id="btnCopy">複製 JSON</button>
+        <button class="btn" type="button" id="btnImport">套用貼上的 JSON</button>
+      </div>
+      <p class="msg" id="ioMsg"></p>
+    </div>
+  </aside>
+</div>
+
+<footer class="foot">匯出 JSON 相容 react-grid-layout · feat/monitor-grid-layout 分支 preset 格式</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= 常數 ================= */
+
+  var COLS = 12;
+  var GAP = 10;
+  // 與 repo 的 MONITOR_GRID_ROW_HEIGHT 綁死。實機是 `gridAutoRows: 40px` 的固定值，
+  // 沙盒早期會依模擬視高在 36–44 之間重算 → 同一組座標在兩邊長得不一樣高，失去對照意義。
+  var ROW_H = 40;
+  var PAD = 12;          // grid 內距
+  var HEAD_H = 34;       // canvas 頂欄
+  // 每次 widget 清單有變就要換 key：舊快照沒有新 id，還原後會被塞到 (0,0)
+  // 疊在 newsFeed 上。v2 = 七版 foodPriceBoard，v3 = 八版 taiex。
+  var STORE_KEY = "mtp-monitor-sandbox-v3";
+
+  /* ================= 種子亂數（固定，重繪不跳動） ================= */
+
+  function seedOf(str) {
+    var h = 2166136261, i;
+    for (i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function rng(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (s + 0x6D2B79F5) | 0;
+      var t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ================= 迷你內容 ================= */
+
+  function svgArea(vals, color, fill) {
+    var n = vals.length, i, x, y, d = "", area = "";
+    for (i = 0; i < n; i++) {
+      x = (i / (n - 1)) * 100;
+      y = 40 - vals[i] * 36;
+      d += (i === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
+    }
+    area = d + "L100,40 L0,40 Z";
+    return '<path d="' + area + '" fill="' + fill + '" stroke="none"></path>' +
+           '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="1.2" ' +
+           'vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>';
+  }
+
+  function series(r, n, base, amp) {
+    var out = [], v = base, i;
+    for (i = 0; i < n; i++) {
+      v = Math.max(0.08, Math.min(0.95, v + (r() - 0.5) * amp));
+      out.push(v);
+    }
+    return out;
+  }
+
+  var C = {
+    red: "var(--red)", amber: "var(--amber)", blue: "var(--blue)",
+    purple: "var(--purple)", accent: "var(--accent)", dim: "var(--dim)"
+  };
+
+  var RENDER = {
+    timeline: function (r) {
+      var pal = [C.red, C.amber, C.purple, C.accent], bars = "", i, k, n, segs, hs;
+      for (i = 0; i < 24; i++) {
+        n = 2 + Math.floor(r() * 3); segs = "";
+        for (k = 0; k < n; k++) {
+          hs = 7 + Math.floor(r() * 26);
+          segs += '<i style="height:' + hs + '%;background:' + pal[(i + k) % 4] + '"></i>';
+        }
+        bars += '<div class="w-tlbar">' + segs + "</div>";
+      }
+      var ticks = "";
+      for (i = 0; i < 24; i++) {
+        ticks += r() > 0.79 ? '<i style="background:var(--red)"></i>' : "<i></i>";
+      }
+      return '<div class="w-tl">' +
+        '<div class="w-tlbars">' + bars + "</div>" +
+        '<div class="w-tlalert">' + ticks + "</div>" +
+        '<div class="w-tlaxis"><span class="mono">00</span><span class="mono">06</span>' +
+        '<span class="mono">12</span><span class="mono">18</span><span class="mono">24</span></div>' +
+        "</div>";
+    },
+
+    newsFeed: function (r) {
+      var times = ["14:32", "14:28", "14:11", "13:57", "13:40", "13:22", "12:58"];
+      var sev = [C.red, C.amber, C.blue, C.dim, C.dim, C.amber, C.dim];
+      var rows = "", i;
+      for (i = 0; i < 7; i++) {
+        rows += '<div class="w-row">' +
+          '<span class="t mono">' + times[i] + "</span>" +
+          '<span class="dot" style="background:' + sev[i] + '"></span>' +
+          '<span class="bar" style="width:' + (46 + Math.floor(r() * 48)) + '%"></span>' +
+          "</div>";
+      }
+      return '<div class="w-live"><i></i><b>LIVE</b></div>' +
+             '<div class="w-rows">' + rows + "</div>";
+    },
+
+    situationOverview: function () {
+      var circ = 2 * Math.PI * 15, on = circ * 0.32;
+      return '<div class="w-ov">' +
+        '<div class="left"><span class="num big">32</span>' +
+        '<span class="lbl">Pressure Index</span></div>' +
+        '<svg class="w-ring" viewBox="0 0 36 36" aria-hidden="true">' +
+        '<circle cx="18" cy="18" r="15" fill="none" stroke="#22303f" stroke-width="3"></circle>' +
+        '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--amber)" stroke-width="3" ' +
+        'stroke-linecap="round" stroke-dasharray="' + on.toFixed(1) + " " + circ.toFixed(1) + '" ' +
+        'transform="rotate(-90 18 18)"></circle></svg></div>' +
+        // TAIEX 2026-08-10 拆成獨立 widget，這裡不再有市場 footer
+        '<div class="w-foot"><span class="lbl">EVENTS</span>' +
+        '<span class="num v" style="color:var(--text)">3</span>' +
+        '<span class="lbl">SEVERE 0 · SOURCES 28/29</span></div>';
+    },
+
+    taiex: function (r) {
+      // 從戰情概覽拆出的獨立台股卡（2026-08-10）：報價 + 30 日日線
+      var v = series(r, 30, 0.6, 0.14);
+      return '<div style="display:flex;align-items:center;gap:7;flex:none">' +
+        '<span class="lbl">TAIEX 加權指數</span>' +
+        '<span class="lbl" style="margin-left:auto;letter-spacing:1px">收盤 13:33</span></div>' +
+        '<div style="display:flex;align-items:baseline;gap:8;flex:none">' +
+        '<span class="num" style="font-size:22px">44,225.91</span>' +
+        '<span class="num" style="font-size:13px;color:#16c784">▼ -170.79</span>' +
+        '<span class="num" style="font-size:11px;color:#16c784">-0.38%</span></div>' +
+        '<div class="mono" style="display:flex;gap:12;font-size:9px;color:var(--dim);flex:none">' +
+        '<span>H 44,827</span><span>L 43,941</span><span>量 925.6 萬張</span></div>' +
+        '<div style="display:flex;align-items:center;gap:7;flex:1;min-height:0">' +
+        '<span class="lbl" style="letter-spacing:1.5px">30D</span>' +
+        '<div class="w-chart"><svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+        svgArea(v, "#16c784", "rgba(22,199,132,0.14)") + "</svg></div></div>";
+    },
+
+    situationCards: function () {
+      // 共機 2026-08-03 拆成獨立的 plaBoard，這裡只剩 CDC 三張健康卡
+      return '<div class="w-two">' +
+        '<div class="w-card"><span class="lbl">CDC WEEK</span>' +
+        '<span class="num big" style="color:var(--amber)">3.1K</span>' +
+        '<span class="lbl" style="letter-spacing:1.2px">類流感</span></div>' +
+        '<div class="w-card"><span class="lbl">DENGUE</span>' +
+        '<span class="num big" style="color:var(--amber)">1</span>' +
+        '<span class="lbl" style="letter-spacing:1.2px">本週確診</span></div>' +
+        '<div class="w-card"><span class="lbl">ENTERO</span>' +
+        '<span class="num big" style="color:var(--accent)">412</span>' +
+        '<span class="lbl" style="letter-spacing:1.2px">腸病毒</span></div>' +
+        "</div>";
+    },
+
+    powerCard: function () {
+      var segs = [
+        { n: "燃氣", c: C.blue, v: 42 }, { n: "燃煤", c: "#64748b", v: 24 },
+        { n: "核能", c: C.purple, v: 9 }, { n: "再生", c: C.accent, v: 18 },
+        { n: "其他", c: C.amber, v: 7 }
+      ];
+      var bar = "", keys = "", i;
+      for (i = 0; i < segs.length; i++) {
+        bar += '<i style="width:' + segs[i].v + "%;background:" + segs[i].c + '"></i>';
+        keys += '<span class="w-key"><i style="background:' + segs[i].c + '"></i>' +
+                segs[i].n + " " + segs[i].v + "%</span>";
+      }
+      return '<div class="w-stack">' + bar + "</div>" +
+        '<div class="w-keys">' + keys + "</div>" +
+        '<div class="w-foot"><span class="lbl">備轉容量率</span>' +
+        '<span class="num v" style="color:var(--accent)">12.4%</span></div>';
+    },
+
+    liveWall: function () {
+      var cells = "", i;
+      for (i = 0; i < 4; i++) {
+        cells += '<div class="w-cell"><span class="tag">LIVE</span><span class="play"></span></div>';
+      }
+      return '<div class="w-wall">' + cells + "</div>";
+    },
+
+    hazardStrip: function () {
+      var chips = [
+        { n: "地震", e: "SEIS", v: "M2.1", c: C.accent },
+        { n: "降雨", e: "RAIN", v: "38mm", c: C.amber },
+        { n: "風速", e: "WIND", v: "7 級", c: C.amber },
+        { n: "水位", e: "LEVEL", v: "正常", c: C.accent }
+      ];
+      var out = "", i;
+      for (i = 0; i < chips.length; i++) {
+        out += '<div class="w-chip" style="border-left-color:' + chips[i].c + '">' +
+          '<span class="num v" style="color:' + chips[i].c + '">' + chips[i].v + "</span>" +
+          '<span class="n">' + chips[i].n + ' <span class="lbl">' + chips[i].e + "</span></span></div>";
+      }
+      return '<div class="w-chips">' + out + "</div>";
+    },
+
+    alertBoard: function (r) {
+      var sev = [C.red, C.amber, C.blue];
+      var t = ["14:30", "13:58", "12:44"];
+      var rows = "", i;
+      for (i = 0; i < 3; i++) {
+        rows += '<div class="w-row">' +
+          '<span class="dot" style="background:' + sev[i] + '"></span>' +
+          '<span class="bar" style="width:' + (52 + Math.floor(r() * 40)) + '%"></span>' +
+          '<span class="t mono" style="margin-left:auto">' + t[i] + "</span></div>";
+      }
+      return '<div class="w-rows">' + rows + "</div>";
+    },
+
+    hotZones: function () {
+      var z = [
+        { n: "中正區", v: 128 }, { n: "信義區", v: 96 }, { n: "板橋區", v: 74 },
+        { n: "三重區", v: 51 }, { n: "中壢區", v: 33 }
+      ];
+      var out = "", i, pct;
+      for (i = 0; i < z.length; i++) {
+        pct = Math.round((z[i].v / 128) * 100);
+        out += '<div class="w-hzrow"><span class="n">' + z[i].n + "</span>" +
+          '<span class="track"><span class="fill" style="width:' + pct +
+          "%;background:" + (i === 0 ? C.red : i < 3 ? C.amber : "#3f5570") + '"></span></span>' +
+          '<span class="v mono">' + z[i].v + "</span></div>";
+      }
+      return '<div class="w-hz">' + out + "</div>";
+    },
+
+    histogram: function (r) {
+      var bars = "", i;
+      for (i = 0; i < 24; i++) {
+        bars += '<i style="height:' + (14 + Math.floor(r() * 82)) + '%"></i>';
+      }
+      return '<div class="w-hist">' + bars + "</div>";
+    },
+
+    triage: function () {
+      var cols = [
+        { n: "高", e: "HIGH", v: 6, c: C.red },
+        { n: "中", e: "MED", v: 23, c: C.amber },
+        { n: "低", e: "LOW", v: 91, c: "#3f5570" }
+      ];
+      var out = "", i;
+      for (i = 0; i < cols.length; i++) {
+        out += '<div class="w-tricol" style="--c:' + cols[i].c + '">' +
+          '<span class="num big" style="color:' + cols[i].c + '">' + cols[i].v + "</span>" +
+          '<span class="lbl">' + cols[i].e + "</span></div>";
+      }
+      return '<div class="w-tri">' + out + "</div>";
+    },
+
+    prison: function () {
+      return '<div class="w-mid"><span class="num big">64,005</span>' +
+        '<span class="lbl">在監人數</span></div>' +
+        '<div class="w-lines"><div><span>核定容額</span><b>57,320</b></div>' +
+        '<div><span>超收率</span><b style="color:var(--amber)">+11.7%</b></div></div>';
+    },
+
+    airportPax: function (r) {
+      var a = series(r, 24, 0.55, 0.22), b = series(r, 24, 0.42, 0.2);
+      return '<div class="w-chart"><svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+        '<line x1="0" y1="20" x2="100" y2="20" stroke="#1c2733" stroke-width="0.5"></line>' +
+        svgArea(a, "var(--accent)", "rgba(16,185,129,0.16)") +
+        svgArea(b, "var(--red)", "rgba(251,113,133,0.13)") +
+        "</svg></div>" +
+        '<div class="w-keys"><span class="w-key"><i style="background:var(--accent)"></i>入境 42,180</span>' +
+        '<span class="w-key"><i style="background:var(--red)"></i>出境 39,554</span></div>';
+    },
+
+    plaBoard: function (r) {
+      var bars = "", i, h, lv, pal = ["#34d399", "#94a3b8", "#fbbf24", "#fb923c", "#ef4444"];
+      for (i = 0; i < 40; i++) {
+        h = Math.floor(r() * 88) + 6;
+        lv = h > 78 ? 4 : h > 60 ? 3 : h > 38 ? 2 : h > 18 ? 1 : 0;
+        bars += '<i style="flex:1;min-width:0;height:' + h + '%;background:' + pal[lv] +
+                ';border-radius:1px 1px 0 0"></i>';
+      }
+      var zones = [["西南", 68], ["北部", 43], ["東部", 29], ["中部", 18]], zs = "";
+      for (i = 0; i < zones.length; i++) {
+        zs += '<div class="w-hzrow" style="max-height:14px"><span class="n" style="width:30px">' +
+          zones[i][0] + '</span><span class="track"><span class="fill" style="width:' +
+          zones[i][1] + '%;background:' + (zones[i][1] <= 20 ? "#a78bfa" : "#60a5fa") +
+          '"></span></span><span class="v mono">' + zones[i][1] + "%</span></div>";
+      }
+      var kinds = [["戰機", 74], ["無人機", 64], ["輔戰機", 63], ["直升機", 56], ["轟炸機", 10]], ks = "";
+      for (i = 0; i < kinds.length; i++) {
+        ks += '<div class="w-hzrow" style="max-height:14px"><span class="n" style="width:38px">' +
+          kinds[i][0] + '</span><span class="track"><span class="fill" style="width:' +
+          kinds[i][1] + '%;background:' + (kinds[i][1] <= 15 ? "#a78bfa" : "#34d399") +
+          '"></span></span><span class="v mono">' + kinds[i][1] + "d</span></div>";
+      }
+      return '<div style="display:flex;gap:8px;flex:none">' +
+        '<div style="flex:0 0 84px;border:1px solid rgba(251,146,60,0.5);background:rgba(251,146,60,0.10);' +
+        'border-radius:3px;padding:5px 7px;display:flex;flex-direction:column;gap:2px">' +
+        '<span class="lbl">SEVERITY</span><span style="font-size:17px;font-weight:700;color:#fb923c">偏高</span>' +
+        '<span class="lbl" style="letter-spacing:1px">≥10 架次</span></div>' +
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center">' +
+        '<div style="display:flex;align-items:baseline;gap:5px"><span class="num" style="font-size:24px">12</span>' +
+        '<span class="lbl">架次</span></div>' +
+        '<div class="w-hzrow" style="max-height:12px"><span class="n" style="width:30px">規模</span>' +
+        '<span class="track"><span class="fill" style="width:77%;background:#fbbf24"></span></span>' +
+        '<span class="v mono">p77</span></div>' +
+        '<div class="w-hzrow" style="max-height:12px"><span class="n" style="width:30px">強度</span>' +
+        '<span class="track"><span class="fill" style="width:81%;background:#fb923c"></span></span>' +
+        '<span class="v mono">p81</span></div></div></div>' +
+        '<div style="display:flex;align-items:flex-end;gap:1px;flex:1;min-height:0">' + bars + "</div>" +
+        // 2026-08-10：空域方位／侵擾方式改單欄（條長度是唯一比較基準，兩欄會腰斬）
+        '<div style="display:grid;grid-template-columns:1fr;gap:2px;flex:none">' +
+        zs + ks + "</div>";
+    },
+
+    erCongestion: function (r) {
+      var v = series(r, 20, 0.5, 0.26);
+      return '<div class="w-tags"><span class="w-tag hot">台大 壅塞</span>' +
+        '<span class="w-tag">北榮 正常</span><span class="w-tag hot">長庚 壅塞</span>' +
+        '<span class="w-tag">馬偕 正常</span></div>' +
+        '<div class="w-chart"><svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+        '<line x1="0" y1="12" x2="100" y2="12" stroke="#1c2733" stroke-width="0.5" ' +
+        'stroke-dasharray="2 2"></line>' +
+        svgArea(v, "var(--red)", "rgba(251,113,133,0.14)") + "</svg></div>";
+    },
+
+    foodPriceBoard: function (r) {
+      // 四指數 2×2 × 近 180 天。主指標刻意是「偏離常態 %」而非價位 ——
+      // 10 月青蔥貴是季節常態，5 月青蔥貴才是事件。
+      // 異常方向分色：偏高（紅）＝民生壓力，偏低（青）＝供給過剩／產地崩盤。
+      var HIGH = "#ef4444", LOW = "#38bdf8";
+      var IDX = [
+        { cn: "菜價", en: "VPI", c: "#5fbf6d", f: "rgba(95,191,109,0.16)",
+          scope: "19 市場 · 307 品項", val: "112.4", dev: 11.8, flag: "▲6", warn: "·4 注意", yoy: "+9.1%" },
+        { cn: "魚價", en: "FPI", c: "#4aa3c7", f: "rgba(74,163,199,0.16)",
+          scope: "22 魚市場 · 507 魚種", val: "103.1", dev: 2.4, flag: "無異常日", warn: "", yoy: "+3.6%" },
+        { cn: "豬雞肉價", en: "MPI", c: "#cc7a6d", f: "rgba(204,122,109,0.16)",
+          scope: "毛豬拍賣 + 白肉雞", val: "96.8", dev: -3.5, flag: "無異常日", warn: "·2 注意", yoy: "-1.8%" },
+        { cn: "蛋價", en: "EPI", c: "#d9a845", f: "rgba(217,168,69,0.16)",
+          scope: "雞蛋 + 鴨蛋產地價", val: "88.2", dev: -12.6, flag: "▼9", warn: "", yoy: "-14.2%" }
+      ];
+      var cells = "", i, d, dc, fc;
+      for (i = 0; i < IDX.length; i++) {
+        d = IDX[i];
+        dc = d.dev >= 10 ? HIGH : d.dev <= -10 ? LOW : "var(--text)";
+        fc = d.flag.charAt(0) === "▲" ? HIGH : d.flag.charAt(0) === "▼" ? LOW : "var(--dim)";
+        cells +=
+          '<div style="border:1px solid ' + d.c + '55;background:' + d.c + '14;border-radius:3px;' +
+          'padding:5px 7px;display:flex;flex-direction:column;gap:3px;min-width:0;overflow:hidden">' +
+            '<div style="display:flex;align-items:baseline;gap:5px;min-width:0">' +
+              '<span style="font-size:12px;font-weight:700">' + d.cn + "</span>" +
+              '<span class="lbl" style="color:' + d.c + '">' + d.en + "</span>" +
+              '<span style="width:6px;height:6px;border-radius:50%;background:' + dc +
+              ';margin-left:auto;flex:none"></span>' +
+            "</div>" +
+            '<div class="lbl" style="letter-spacing:1px;white-space:nowrap;overflow:hidden;' +
+            'text-overflow:ellipsis">' + d.scope + "</div>" +
+            '<div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap">' +
+              '<span class="num" style="font-size:18px">' + d.val + "</span>" +
+              '<span class="num" style="font-size:11px;color:' + dc + '">' +
+                (d.dev > 0 ? "+" : "") + d.dev.toFixed(1) + "%</span>" +
+              '<span class="lbl" style="letter-spacing:1px">vs 常態</span>' +
+            "</div>" +
+            '<div class="w-chart" style="min-height:20px">' +
+            '<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+            svgArea(series(r, 60, 0.5, 0.16), d.c, d.f) + "</svg></div>" +
+            '<div class="mono" style="display:flex;justify-content:space-between;gap:6px;' +
+            'font-size:8.5px;flex:none">' +
+              '<span style="color:' + fc + '">' + d.flag +
+              (d.warn ? ' <span style="color:var(--dim)">' + d.warn + "</span>" : "") + "</span>" +
+              '<span style="color:var(--dim)">年增 ' + d.yoy + "</span>" +
+            "</div>" +
+          "</div>";
+      }
+      return '<div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;' +
+        'gap:6px;flex:1;min-height:0">' + cells + "</div>" +
+        '<div class="lbl" style="letter-spacing:1px;text-transform:none;flex:none">' +
+        "農業部批發拍賣 · T+1 · 基期 2024-2025=100 · 近 180 天 · ⚠️ 不含牛</div>";
+    }
+  };
+
+  /* ================= Widget 定義 ================= */
+
+  var WIDGETS = [
+    { i: "timeline",          cn: "時間軸",     en: "TIMELINE DOCK",  sig: "var(--blue)",   w: 12, h: 2, minW: 4, minH: 2 },
+    { i: "newsFeed",          cn: "新聞 Feed",  en: "NEWS FEED",      sig: "var(--accent)", w: 5,  h: 8, minW: 3, minH: 3 },
+    { i: "situationOverview", cn: "戰情概覽",   en: "PRESSURE INDEX", sig: "var(--amber)",  w: 7,  h: 4, minW: 3, minH: 3, fit: 1 },
+    { i: "situationCards",    cn: "公衛版",     en: "HEALTH BOARD",   sig: "var(--amber)",  w: 5,  h: 3, minW: 3, minH: 2, fit: 1 },
+    { i: "powerCard",         cn: "能源",       en: "POWER",          sig: "var(--amber)",  w: 4,  h: 4, minW: 3, minH: 3, fit: 1 },
+    { i: "liveWall",          cn: "直播牆",     en: "LIVE WALL",      sig: "var(--purple)", w: 4,  h: 5, minW: 3, minH: 3, fit: 1 },
+    { i: "hazardStrip",       cn: "災防觀測",   en: "HAZARD",         sig: "var(--amber)",  w: 12, h: 2, minW: 4, minH: 2, fit: 1 },
+    { i: "alertBoard",        cn: "警報面板",   en: "ALERTS",         sig: "var(--red)",    w: 6,  h: 4, minW: 3, minH: 2 },
+    { i: "hotZones",          cn: "熱區",       en: "TOP 5 ZONES",    sig: "var(--red)",    w: 6,  h: 4, minW: 3, minH: 3 },
+    { i: "histogram",         cn: "24H 分佈",   en: "HISTOGRAM 24H",  sig: "var(--blue)",   w: 12, h: 3, minW: 3, minH: 2 },
+    { i: "triage",            cn: "信號分級",   en: "TRIAGE",         sig: "var(--purple)", w: 4,  h: 4, minW: 3, minH: 2 },
+    { i: "prison",            cn: "司法矯正",   en: "INMATES",        sig: "var(--blue)",   w: 6,  h: 4, minW: 2, minH: 3, fit: 1 },
+    { i: "airportPax",        cn: "機場入出境", en: "BORDER PAX",     sig: "var(--accent)", w: 6,  h: 4, minW: 3, minH: 3, fit: 1 },
+    { i: "erCongestion",      cn: "急診壅塞",   en: "ER 24H",         sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6, fit: 1 },
+    { i: "plaBoard",          cn: "共機戰情板", en: "PLA SITUATION",  sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6, fit: 1 },
+    { i: "foodPriceBoard",    cn: "食品價格",   en: "FOOD PRICE",     sig: "#5fbf6d",       w: 7,  h: 12, minW: 4, minH: 8, fit: 1 },
+    { i: "taiex",             cn: "台股",       en: "TAIEX",          sig: "#ff4d4f",       w: 5,  h: 3,  minW: 3, minH: 3, fit: 1 }
+  ];
+
+  var DEF = {};
+  WIDGETS.forEach(function (w) { DEF[w.i] = w; });
+
+  var CONTENT = {};
+  WIDGETS.forEach(function (w) {
+    CONTENT[w.i] = RENDER[w.i](rng(seedOf(w.i)));
+  });
+
+  /* ================= Preset ================= */
+
+  function L(i, x, y, w, h) { return { i: i, x: x, y: y, w: w, h: h }; }
+
+  function packCompact() {
+    // 緊湊：每個 widget 用自己的最小尺寸，左到右逐列填
+    var out = [], x = 0, y = 0, rowH = 0;
+    WIDGETS.forEach(function (d) {
+      var w = d.minW, h = d.minH;
+      if (x + w > COLS) { x = 0; y += rowH; rowH = 0; }
+      out.push(L(d.i, x, y, w, h));
+      x += w;
+      if (h > rowH) rowH = h;
+    });
+    return out;
+  }
+
+  var PRESETS = {
+    restored: {
+      // ⚠️ 與 repo 的 monitorLayout.ts MONITOR_LAYOUT 逐格對齊（2026-08-10 九版）。
+      // 改完拖曳 → 複製 JSON → 覆蓋 MONITOR_LAYOUT。兩邊漂掉就失去沙盒的意義。
+      // 註：標 AUTO（fit:"content"）的 widget 實機高度跟內容走，這裡的 h 只是排序佔位。
+      name: "現況（對齊 repo）",
+      hidden: ["histogram"],
+      layout: [
+        L("newsFeed", 0, 0, 4, 12),
+        L("alertBoard", 4, 0, 3, 7),
+        L("timeline", 7, 0, 5, 9),
+        L("hotZones", 4, 7, 3, 5),
+        L("triage", 7, 9, 5, 3),
+        L("situationOverview", 0, 12, 5, 5),
+        L("liveWall", 5, 12, 7, 14),
+        // TAIEX 從戰情概覽右側拆出成獨立 widget（2026-08-10），其下同欄各 +3
+        L("taiex", 0, 17, 5, 3),
+        L("situationCards", 0, 20, 5, 3),
+        // h 15→13：空域方位／侵擾方式改單欄後其餘固定高約 450px，
+        // 剩下的全歸 120 天趨勢柱狀圖（實機量到 h13 → 柱狀圖約 190px）
+        L("plaBoard", 0, 23, 5, 13),
+        L("erCongestion", 0, 36, 5, 15),
+        L("hazardStrip", 5, 26, 7, 8),
+        L("powerCard", 5, 34, 7, 14),
+        L("prison", 0, 51, 2, 4),
+        L("airportPax", 2, 51, 3, 6),
+        // 食品價格監測（2026-08-05）：接在 powerCard（y34 h14 → 佔到 y48）之後，
+        // 走右欄 w7 而非比照 PLA 的 w5 —— 2×2 在 w5 每格只剩 ~190px，迷你走勢圖擠到看不出形狀。
+        // h 9→12（2026-08-10）：多出的高度全灌進四張卡的走勢圖。
+        L("foodPriceBoard", 5, 48, 7, 12)
+      ]
+    },
+    wall: {
+      name: "牆面模式",
+      hidden: ["newsFeed"],
+      layout: [
+        L("timeline", 0, 0, 12, 2),
+        L("situationOverview", 0, 2, 3, 5),
+        L("situationCards", 3, 2, 3, 5),
+        L("powerCard", 6, 2, 3, 5),
+        L("triage", 9, 2, 3, 5),
+        L("liveWall", 0, 7, 4, 6),
+        L("airportPax", 4, 7, 4, 6),
+        L("erCongestion", 8, 7, 4, 6),
+        L("plaBoard", 0, 13, 4, 6),
+        L("hotZones", 4, 13, 2, 4),
+        L("histogram", 6, 13, 2, 4),
+        L("prison", 8, 13, 2, 4),
+        L("alertBoard", 10, 13, 2, 4),
+        L("hazardStrip", 0, 19, 12, 2),
+        L("foodPriceBoard", 0, 21, 12, 6),
+        L("taiex", 0, 27, 4, 3)
+      ]
+    },
+    compact: { name: "緊湊", hidden: [], layout: null }
+  };
+
+  function presetLayout(key) {
+    var p = PRESETS[key];
+    var base = key === "compact" ? packCompact() : p.layout;
+    return base.map(function (it) { return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }; });
+  }
+
+  /* ================= 網格引擎（react-grid-layout 行為子集） ================= */
+
+  function collides(a, b) {
+    if (a.i === b.i) return false;
+    if (a.x + a.w <= b.x) return false;
+    if (b.x + b.w <= a.x) return false;
+    if (a.y + a.h <= b.y) return false;
+    if (b.y + b.h <= a.y) return false;
+    return true;
+  }
+
+  function firstCollision(list, item) {
+    for (var i = 0; i < list.length; i++) {
+      if (collides(list[i], item)) return list[i];
+    }
+    return null;
+  }
+
+  /** 遞迴往下推：與 item 重疊者一律落到 item 下緣 */
+  function pushDown(layout, item, seen) {
+    for (var i = 0; i < layout.length; i++) {
+      var other = layout[i];
+      if (seen[other.i]) continue;
+      if (!collides(other, item)) continue;
+      seen[other.i] = true;
+      other.y = item.y + item.h;
+      pushDown(layout, other, seen);
+    }
+  }
+
+  /** 全域向上壓實：依 y,x 排序逐一上移到不碰撞為止 */
+  function compact(layout) {
+    var sorted = layout.slice().sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
+    var placed = [];
+    for (var i = 0; i < sorted.length; i++) {
+      var it = { i: sorted[i].i, x: sorted[i].x, y: sorted[i].y, w: sorted[i].w, h: sorted[i].h };
+      // 先解掉當前位置的重疊
+      while (firstCollision(placed, it)) it.y++;
+      // 再一路上浮
+      while (it.y > 0 && !firstCollision(placed, { i: it.i, x: it.x, y: it.y - 1, w: it.w, h: it.h })) {
+        it.y--;
+      }
+      placed.push(it);
+    }
+    return placed;
+  }
+
+  /** 把 id 移到 (x,y)（或改 w,h），推擠 + 壓實後回傳新 layout */
+  function applyChange(layout, id, patch) {
+    var next = layout.map(function (it) {
+      if (it.i !== id) return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h };
+      return {
+        i: it.i,
+        x: patch.x !== undefined ? patch.x : it.x,
+        y: patch.y !== undefined ? patch.y : it.y,
+        w: patch.w !== undefined ? patch.w : it.w,
+        h: patch.h !== undefined ? patch.h : it.h
+      };
+    });
+    var moving = null, i;
+    for (i = 0; i < next.length; i++) { if (next[i].i === id) moving = next[i]; }
+    var seen = {};
+    seen[id] = true;
+    pushDown(next, moving, seen);
+    return compact(next);
+  }
+
+  function maxRows(layout) {
+    var m = 0;
+    layout.forEach(function (it) { if (it.y + it.h > m) m = it.y + it.h; });
+    return m;
+  }
+
+  /* ================= 狀態 ================= */
+
+  var state = {
+    preset: "restored",
+    simW: 1920,
+    pct: 70,
+    hidden: {},
+    layout: presetLayout("restored")
+  };
+
+  var metrics = { colW: 0, rowH: ROW_H, scale: 1, simH: 1080, foldY: 0, canvasH: 0 };
+
+  /* ================= DOM ================= */
+
+  var $ = function (id) { return document.getElementById(id); };
+  var grid = $("grid"), canvas = $("canvas"), canvasWrap = $("canvasWrap");
+  var placeholder = $("placeholder"), foldEl = $("fold");
+  var els = {};
+
+  function buildWidget(def) {
+    var el = document.createElement("div");
+    el.className = "w";
+    el.dataset.id = def.i;
+    el.style.setProperty("--sig", def.sig);
+    el.innerHTML =
+      '<div class="w-head" data-handle="drag">' +
+        '<span class="w-name">' + def.cn + "</span>" +
+        (def.fit ? '<span class="w-auto">AUTO</span>' : "") +
+        '<span class="w-en">' + def.en + "</span>" +
+      "</div>" +
+      '<div class="w-body">' + CONTENT[def.i] + "</div>" +
+      '<div class="w-rz" data-handle="resize" title="拖拉調整大小"></div>';
+    return el;
+  }
+
+  function syncWidgetEls() {
+    WIDGETS.forEach(function (def) {
+      var shown = !state.hidden[def.i];
+      if (shown && !els[def.i]) {
+        els[def.i] = buildWidget(def);
+        grid.appendChild(els[def.i]);
+      } else if (!shown && els[def.i]) {
+        grid.removeChild(els[def.i]);
+        delete els[def.i];
+      }
+    });
+  }
+
+  /* ================= 度量 + 繪製 ================= */
+
+  function computeMetrics() {
+    var simH = Math.round(state.simW * 9 / 16);
+    var foldY = Math.round(simH * state.pct / 100);
+    var inner = state.simW - PAD * 2;
+    metrics.colW = (inner - GAP * (COLS - 1)) / COLS;
+    metrics.rowH = ROW_H;   // 固定值，不隨模擬視高浮動（見 ROW_H 註解）
+    metrics.simH = simH;
+    metrics.foldY = foldY;
+
+    var rows = maxRows(state.layout.filter(function (it) { return !state.hidden[it.i]; }));
+    var gridH = rows > 0 ? rows * metrics.rowH + (rows - 1) * GAP : 0;
+    metrics.canvasH = Math.max(simH, HEAD_H + PAD * 2 + gridH);
+
+    var avail = canvasWrap.clientWidth || state.simW;
+    metrics.scale = Math.min(1, avail / state.simW);
+  }
+
+  function pxX(x) { return x * (metrics.colW + GAP); }
+  function pxY(y) { return y * (metrics.rowH + GAP); }
+  function pxW(w) { return w * metrics.colW + (w - 1) * GAP; }
+  function pxH(h) { return h * metrics.rowH + (h - 1) * GAP; }
+
+  function paint(skipId) {
+    computeMetrics();
+
+    canvas.style.width = state.simW + "px";
+    canvas.style.height = metrics.canvasH + "px";
+    canvas.style.transform = "scale(" + metrics.scale + ")";
+    canvasWrap.style.height = Math.ceil(metrics.canvasH * metrics.scale) + "px";
+    grid.style.height = (metrics.canvasH - HEAD_H) + "px";
+
+    foldEl.style.top = (metrics.foldY - HEAD_H) + "px";
+
+    var below = 0;
+    state.layout.forEach(function (it) {
+      var el = els[it.i];
+      if (!el) return;
+      if (it.i !== skipId) {
+        el.style.transform = "translate(" + pxX(it.x) + "px," + pxY(it.y) + "px)";
+        el.style.width = pxW(it.w) + "px";
+        el.style.height = pxH(it.h) + "px";
+      }
+      var topAbs = HEAD_H + PAD + pxY(it.y);
+      var isBelow = topAbs >= metrics.foldY;
+      if (isBelow) below++;
+      el.classList.toggle("below-fold", isBelow);
+    });
+
+    var shown = WIDGETS.filter(function (d) { return !state.hidden[d.i]; }).length;
+    $("mSimW").textContent = state.simW;
+    $("mScale").textContent = Math.round(metrics.scale * 100);
+    $("mRow").textContent = metrics.rowH;
+    $("mCount").textContent = shown;
+    $("foldCount").textContent = below;
+    $("drawerCount").textContent = shown + " / " + WIDGETS.length + " 顯示中";
+  }
+
+  /* ================= 拖移 / 縮放 ================= */
+
+  var drag = null;
+
+  function onPointerDown(e) {
+    var handle = e.target.closest("[data-handle]");
+    if (!handle) return;
+    var el = e.target.closest(".w");
+    if (!el) return;
+    if (e.button !== undefined && e.button !== 0) return;
+
+    var id = el.dataset.id;
+    var item = null;
+    state.layout.forEach(function (it) { if (it.i === id) item = it; });
+    if (!item) return;
+
+    e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+
+    drag = {
+      id: id,
+      mode: handle.dataset.handle,
+      el: el,
+      handle: handle,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: item.x, origY: item.y, origW: item.w, origH: item.h,
+      lastX: item.x, lastY: item.y, lastW: item.w, lastH: item.h,
+      base: state.layout.map(function (it) {
+        return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h };
+      })
+    };
+
+    el.classList.add(drag.mode === "drag" ? "dragging" : "resizing");
+    placeholder.style.display = "block";
+    movePlaceholder(item);
+  }
+
+  function movePlaceholder(it) {
+    placeholder.style.transform = "translate(" + pxX(it.x) + "px," + pxY(it.y) + "px)";
+    placeholder.style.width = pxW(it.w) + "px";
+    placeholder.style.height = pxH(it.h) + "px";
+  }
+
+  function onPointerMove(e) {
+    if (!drag) return;
+    var s = metrics.scale || 1;
+    var dx = (e.clientX - drag.startX) / s;
+    var dy = (e.clientY - drag.startY) / s;
+    var def = DEF[drag.id];
+    var unitX = metrics.colW + GAP, unitY = metrics.rowH + GAP;
+
+    if (drag.mode === "drag") {
+      // 浮起的元素直接跟著指標走（像素級），格位另算
+      drag.el.style.transform =
+        "translate(" + (pxX(drag.origX) + dx) + "px," + (pxY(drag.origY) + dy) + "px)";
+
+      var nx = Math.round((pxX(drag.origX) + dx) / unitX);
+      var ny = Math.round((pxY(drag.origY) + dy) / unitY);
+      nx = Math.max(0, Math.min(COLS - drag.origW, nx));
+      ny = Math.max(0, ny);
+      if (nx === drag.lastX && ny === drag.lastY) return;   // 只有格位變化才重排
+      drag.lastX = nx; drag.lastY = ny;
+
+      state.layout = applyChange(drag.base, drag.id, { x: nx, y: ny });
+      var moved = null;
+      state.layout.forEach(function (it) { if (it.i === drag.id) moved = it; });
+      paint(drag.id);
+      movePlaceholder(moved);
+    } else {
+      var nw = Math.round((pxW(drag.origW) + dx) / unitX);
+      var nh = Math.round((pxH(drag.origH) + dy) / unitY);
+      nw = Math.max(def.minW, Math.min(COLS - drag.origX, nw));
+      nh = Math.max(def.minH, nh);
+      if (nw === drag.lastW && nh === drag.lastH) return;
+      drag.lastW = nw; drag.lastH = nh;
+
+      state.layout = applyChange(drag.base, drag.id, { w: nw, h: nh });
+      var rz = null;
+      state.layout.forEach(function (it) { if (it.i === drag.id) rz = it; });
+      paint();
+      movePlaceholder(rz);
+    }
+  }
+
+  function onPointerUp() {
+    if (!drag) return;
+    drag.el.classList.remove("dragging", "resizing");
+    placeholder.style.display = "none";
+    drag = null;
+    paint();
+    save();
+    refreshIO();
+  }
+
+  grid.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+
+  /* ================= 控制欄 ================= */
+
+  function buildDrawer() {
+    var box = $("drawer");
+    box.innerHTML = "";
+    WIDGETS.forEach(function (def) {
+      var row = document.createElement("label");
+      row.className = "drow";
+      row.innerHTML =
+        '<input type="checkbox" />' +
+        '<span class="sig" style="background:' + def.sig + '"></span>' +
+        '<span class="cn">' + def.cn + "</span>" +
+        '<span class="en">' + def.en + "</span>" +
+        (def.fit ? '<span class="d-auto">AUTO</span>' : "");
+      var cb = row.querySelector("input");
+      cb.checked = !state.hidden[def.i];
+      row.classList.toggle("off", !cb.checked);
+      cb.addEventListener("change", function () {
+        setHidden(def.i, !cb.checked);
+        row.classList.toggle("off", !cb.checked);
+      });
+      box.appendChild(row);
+    });
+  }
+
+  function syncDrawer() {
+    var rows = $("drawer").querySelectorAll(".drow");
+    WIDGETS.forEach(function (def, idx) {
+      var row = rows[idx];
+      if (!row) return;
+      var cb = row.querySelector("input");
+      cb.checked = !state.hidden[def.i];
+      row.classList.toggle("off", !cb.checked);
+    });
+  }
+
+  function setHidden(id, hide) {
+    if (hide) {
+      state.hidden[id] = true;
+    } else {
+      delete state.hidden[id];
+      // 重勾 → 回到最下方
+      var visible = state.layout.filter(function (it) { return !state.hidden[it.i]; });
+      var y = maxRows(visible.filter(function (it) { return it.i !== id; }));
+      var def = DEF[id];
+      var found = false;
+      state.layout.forEach(function (it) {
+        if (it.i === id) { it.x = 0; it.y = y; it.w = def.w; it.h = def.h; found = true; }
+      });
+      if (!found) state.layout.push(L(id, 0, y, def.w, def.h));
+    }
+    state.layout = compact(state.layout.filter(function (it) { return !state.hidden[it.i]; }))
+      .concat(state.layout.filter(function (it) { return state.hidden[it.i]; }));
+    syncWidgetEls();
+    paint();
+    save();
+    refreshIO();
+  }
+
+  $("segWidth").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-w]");
+    if (!b) return;
+    state.simW = parseInt(b.dataset.w, 10);
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) {
+      x.setAttribute("aria-pressed", x === b ? "true" : "false");
+    });
+    paint();
+    save();
+  });
+
+  $("pctRange").addEventListener("input", function () {
+    state.pct = parseInt(this.value, 10);
+    $("pctVal").textContent = state.pct + "%";
+    paint();
+    save();
+  });
+
+  $("presetSel").addEventListener("change", function () {
+    loadPreset(this.value);
+  });
+
+  $("btnReset").addEventListener("click", function () {
+    loadPreset(state.preset);
+    flash($("ioMsg"), "已重設為「" + PRESETS[state.preset].name + "」。", "ok");
+  });
+
+  $("btnAllOn").addEventListener("click", function () {
+    WIDGETS.forEach(function (d) {
+      if (state.hidden[d.i]) setHidden(d.i, false);
+    });
+    syncDrawer();
+  });
+
+  function loadPreset(key) {
+    state.preset = key;
+    state.hidden = {};
+    PRESETS[key].hidden.forEach(function (id) { state.hidden[id] = true; });
+    state.layout = presetLayout(key);
+    // 隱藏的 widget 也保留一筆記錄，重勾時才有預設尺寸
+    WIDGETS.forEach(function (d) {
+      var has = state.layout.some(function (it) { return it.i === d.i; });
+      if (!has) state.layout.push(L(d.i, 0, 0, d.w, d.h));
+    });
+    $("presetSel").value = key;
+    syncWidgetEls();
+    syncDrawer();
+    paint();
+    save();
+    refreshIO();
+  }
+
+  /* ================= 匯出 / 匯入 ================= */
+
+  function exportObj() {
+    var hidden = WIDGETS.filter(function (d) { return state.hidden[d.i]; })
+                        .map(function (d) { return d.i; });
+    var layout = state.layout
+      .filter(function (it) { return !state.hidden[it.i]; })
+      .slice()
+      .sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); })
+      .map(function (it) { return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }; });
+    return { cols: COLS, hidden: hidden, layout: layout };
+  }
+
+  function refreshIO() {
+    var o = exportObj();
+    var lines = o.layout.map(function (it) {
+      return '    {"i":"' + it.i + '","x":' + it.x + ',"y":' + it.y +
+             ',"w":' + it.w + ',"h":' + it.h + "}";
+    });
+    $("io").value =
+      "{\n" +
+      '  "cols": ' + o.cols + ",\n" +
+      '  "hidden": ' + JSON.stringify(o.hidden) + ",\n" +
+      '  "layout": [\n' + lines.join(",\n") + "\n  ]\n}";
+  }
+
+  function flash(el, text, kind) {
+    el.textContent = text;
+    el.className = "msg " + kind;
+    if (kind === "ok") {
+      window.clearTimeout(flash._t);
+      flash._t = window.setTimeout(function () { el.className = "msg"; }, 2600);
+    }
+  }
+
+  function copyJSON(btn, label) {
+    refreshIO();
+    var ta = $("io"), done = function () {
+      var old = label;
+      $("ioMsg").className = "msg";   // 清掉先前的匯入錯誤，避免誤讀
+      btn.textContent = "已複製";
+      window.setTimeout(function () { btn.textContent = old; }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ta.value).then(done, function () {
+        ta.select();
+        try { document.execCommand("copy"); done(); }
+        catch (err) { flash($("ioMsg"), "瀏覽器擋下了複製，請手動全選文字框內容。", "err"); }
+      });
+    } else {
+      ta.select();
+      try { document.execCommand("copy"); done(); }
+      catch (err2) { flash($("ioMsg"), "瀏覽器擋下了複製，請手動全選文字框內容。", "err"); }
+    }
+  }
+
+  $("btnCopy").addEventListener("click", function () { copyJSON(this, "複製 JSON"); });
+  $("btnExport").addEventListener("click", function () { copyJSON(this, "複製 JSON"); });
+
+  $("btnImport").addEventListener("click", function () {
+    var raw = $("io").value, data;
+    try {
+      data = JSON.parse(raw);
+    } catch (err) {
+      flash($("ioMsg"), "JSON 解析失敗：" + err.message, "err");
+      return;
+    }
+    var err2 = validate(data);
+    if (err2) { flash($("ioMsg"), err2, "err"); return; }
+
+    state.hidden = {};
+    (data.hidden || []).forEach(function (id) { state.hidden[id] = true; });
+    state.layout = data.layout.map(function (it) {
+      return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h };
+    });
+    WIDGETS.forEach(function (d) {
+      var has = state.layout.some(function (it) { return it.i === d.i; });
+      if (!has) state.layout.push(L(d.i, 0, 0, d.w, d.h));
+    });
+    state.layout = compact(state.layout.filter(function (it) { return !state.hidden[it.i]; }))
+      .concat(state.layout.filter(function (it) { return state.hidden[it.i]; }));
+    syncWidgetEls();
+    syncDrawer();
+    paint();
+    save();
+    refreshIO();
+    flash($("ioMsg"), "已套用：" + data.layout.length + " 個 widget 上版。", "ok");
+  });
+
+  function validate(d) {
+    if (!d || typeof d !== "object") return "最外層必須是物件 { cols, hidden, layout }。";
+    if (!Array.isArray(d.layout)) return "缺少 layout 陣列。";
+    if (d.cols !== undefined && d.cols !== COLS) return "cols 必須是 12，收到 " + d.cols + "。";
+    if (d.hidden !== undefined && !Array.isArray(d.hidden)) return "hidden 必須是字串陣列。";
+
+    var seen = {}, i, it, keys = ["x", "y", "w", "h"], k;
+    var ids = (d.hidden || []);
+    for (i = 0; i < ids.length; i++) {
+      if (!DEF[ids[i]]) return "hidden 內有未知的 widget id：" + ids[i] + "。";
+    }
+    for (i = 0; i < d.layout.length; i++) {
+      it = d.layout[i];
+      if (!it || typeof it !== "object") return "第 " + (i + 1) + " 筆不是物件。";
+      if (typeof it.i !== "string") return "第 " + (i + 1) + " 筆缺少 i 欄位（widget id）。";
+      if (!DEF[it.i]) return "第 " + (i + 1) + " 筆是未知的 widget id：" + it.i + "。";
+      if (seen[it.i]) return "widget id 重複：" + it.i + "。";
+      seen[it.i] = true;
+      for (k = 0; k < 4; k++) {
+        if (typeof it[keys[k]] !== "number" || !isFinite(it[keys[k]])) {
+          return it.i + " 的 " + keys[k] + " 必須是數字。";
+        }
+      }
+      if (it.x < 0 || it.y < 0) return it.i + " 的 x / y 不可為負數。";
+      if (it.w < 1 || it.h < 1) return it.i + " 的 w / h 至少為 1。";
+      if (it.x + it.w > COLS) {
+        return it.i + " 超出 12 欄：x=" + it.x + " + w=" + it.w + " = " + (it.x + it.w) + "。";
+      }
+    }
+    return null;
+  }
+
+  /* ================= localStorage ================= */
+
+  function save() {
+    try {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify({
+        preset: state.preset,
+        simW: state.simW,
+        pct: state.pct,
+        hidden: Object.keys(state.hidden),
+        layout: state.layout
+      }));
+    } catch (e) { /* 隱私模式 / 配額滿：沙盒照常運作，只是不留存 */ }
+  }
+
+  function restore() {
+    var raw;
+    try { raw = window.localStorage.getItem(STORE_KEY); } catch (e) { return false; }
+    if (!raw) return false;
+    var d;
+    try { d = JSON.parse(raw); } catch (e2) { return false; }
+    if (!d || !Array.isArray(d.layout)) return false;
+    if (validate({ cols: COLS, hidden: d.hidden, layout: d.layout.filter(function (it) {
+      return (d.hidden || []).indexOf(it.i) === -1;
+    }) })) return false;
+
+    state.preset = PRESETS[d.preset] ? d.preset : "restored";
+    state.simW = [1280, 1440, 1920, 2560].indexOf(d.simW) >= 0 ? d.simW : 1920;
+    state.pct = (typeof d.pct === "number" && d.pct >= 30 && d.pct <= 92) ? d.pct : 70;
+    state.hidden = {};
+    (d.hidden || []).forEach(function (id) { if (DEF[id]) state.hidden[id] = true; });
+    state.layout = d.layout.filter(function (it) { return DEF[it.i]; })
+      .map(function (it) { return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }; });
+    WIDGETS.forEach(function (def) {
+      var has = state.layout.some(function (it) { return it.i === def.i; });
+      if (!has) state.layout.push(L(def.i, 0, 0, def.w, def.h));
+    });
+    return true;
+  }
+
+  /* ================= 啟動 ================= */
+
+  function boot() {
+    if (!restore()) {
+      state.layout = presetLayout("restored");
+      WIDGETS.forEach(function (d) {
+        var has = state.layout.some(function (it) { return it.i === d.i; });
+        if (!has) state.layout.push(L(d.i, 0, 0, d.w, d.h));
+      });
+    }
+
+    $("presetSel").value = state.preset;
+    $("pctRange").value = state.pct;
+    $("pctVal").textContent = state.pct + "%";
+    Array.prototype.forEach.call($("segWidth").querySelectorAll("button"), function (b) {
+      b.setAttribute("aria-pressed", parseInt(b.dataset.w, 10) === state.simW ? "true" : "false");
+    });
+
+    buildDrawer();
+    syncWidgetEls();
+    paint();
+    refreshIO();
+
+    if (window.ResizeObserver) {
+      new window.ResizeObserver(function () { paint(); }).observe(canvasWrap);
+    } else {
+      window.addEventListener("resize", function () { paint(); });
+    }
+
+    // 畫布頂欄時鐘（純裝飾，讓模擬更像實機）
+    var clock = $("canvasClock");
+    function tick() {
+      var d = new Date();
+      function p(n) { return (n < 10 ? "0" : "") + n; }
+      clock.textContent = d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) +
+        " " + p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+    }
+    tick();
+    window.setInterval(tick, 1000);
+  }
+
+  boot();
+})();
+</script>
+

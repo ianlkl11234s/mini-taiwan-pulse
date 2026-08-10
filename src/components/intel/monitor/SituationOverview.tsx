@@ -3,10 +3,10 @@ import { IntelIcon, ICON } from "../IntelIcon";
 import {
   COLORS, FONT_CJK, FONT_DATA, PRESSURE_LEVELS, pressureLevel,
 } from "../intelTokens";
-import { PressureRing, CompareLine, TwseTicker, Widget } from "./PressureRing";
+import { PressureRing, CompareLine, Widget } from "./PressureRing";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type {
-  PressureIndexNow, PressureSignal, MarketIndex, SourceHealthSummary,
+  PressureIndexNow, PressureSignal, SourceHealthSummary,
 } from "../../../data/intelLoaders";
 
 function MiniStat({
@@ -156,16 +156,13 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
 interface Props {
   pressure: PressureIndexNow;
   smoothedScore: number;
-  market: MarketIndex;
   sourceHealth: SourceHealthSummary;
   totalEvents: number;
   severeCount: number;
-  /** Monitor panel 是否開啟（gate TwseTicker 的 30 日日線抓取） */
-  panelOpen: boolean;
 }
 
 export function SituationOverview({
-  pressure, smoothedScore, market, sourceHealth, totalEvents, severeCount, panelOpen,
+  pressure, smoothedScore, sourceHealth, totalEvents, severeCount,
 }: Props) {
   const [open, setOpen] = useState(false);
   const level = pressureLevel(smoothedScore);
@@ -238,11 +235,12 @@ export function SituationOverview({
           </span>
         </button>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 9, minWidth: 150 }}>
+        {/* TAIEX 2026-08-10 拆成獨立 widget 後這裡多出橫向空間 → 讓本欄吃滿，不留右側空洞 */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 9, flex: 1, minWidth: 150 }}>
           <CompareLine delta={pressure.vs_baseline} label="vs 平常週日同時段" />
           <CompareLine delta={pressure.vs_1h_ago} label="vs 1 小時前" />
           <div style={{ height: 1, background: COLORS.borderSoft, margin: "1px 0" }} />
-          <div style={{ display: "flex", gap: 18 }}>
+          <div style={{ display: "flex", gap: 18, justifyContent: "space-between", maxWidth: 420 }}>
             <MiniStat en="EVENTS" label="事件" value={totalEvents} />
             <MiniStat
               en="SEVERE ≥3" label="嚴重" value={severeCount}
@@ -254,9 +252,6 @@ export function SituationOverview({
             />
           </div>
         </div>
-
-        <div style={{ flex: 1 }} />
-        <TwseTicker data={market} open={panelOpen} />
       </div>
 
       {open && <PressureDrawer signals={pressure.per_signal} />}

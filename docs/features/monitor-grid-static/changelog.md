@@ -12,6 +12,70 @@
 
 ---
 
+## 2026-08-10 — PLA 趨勢圖加區間 pills（待 PR）
+
+- `TrendRow` 加 120D / 90D / 30D / 7D 切換（預設 120D）。120 根柱子在 w5 欄裡每根只有 5px，
+  看不出單日形狀；30D → 23px、7D → 102px（實機量）。
+- **只換趨勢圖的顯示區間，不動嚴重度分級** —— 分級仍是「近 120 天滾動百分位」，
+  那是這塊板的核心語意，跟著 pills 變會讓「偏高」的意思浮動。柱色照舊由 120 天分級決定（跨區間可比）。
+- 柱高比例改用**所選區間自己的最大值**：否則選 7D 還是照 120 天最高 32 架次縮放，
+  平靜的一週全是幾像素的殘渣，等於沒切。代價是換區間會換 y 軸尺度 →
+  圖下必印「本區間 中位 X · 最高 Y 架次（柱高比例）」，非 120D 時再補印分級基準值。
+- 不需要額外 RPC：`fetchPlaSeverityDaily(120)` 的結果在前端切尾段。
+
+---
+
+## 2026-08-10 — 九版 hotfix：PLA 柱狀圖消失（待 PR）
+
+- 九版把 PLA 趨勢柱狀圖容器寫成 `flex:1 + minHeight:190`，但柱子高度是 `height: X%`——
+  **百分比高度只認父層的確定高度**，fit 這條鏈上沒有任何固定高 → 百分比當 `auto`，
+  120 根柱子全塌成 0，圖區變全白（容器還在，所以不會被 overflow 量測抓到）。
+- 改回確定高度 `height: 190, flex: "none"`。實測：容器 190px、120 根柱、最高柱 190px、零高度柱 0 根。
+- 同類風險已掃過：其餘百分比高度都在 `height: 4/6/7` 這種固定高的條狀父層內，
+  或是 `position:absolute + inset:0`（食品走勢圖 / 直播牆 / 災防 iframe），不受影響。
+
+---
+
+## 2026-08-10 — 九版：高度改跟內容走（待 PR）
+
+- 新增 `monitorPacking.ts`：把 12 欄座標**拆成欄／列巢狀結構**（guillotine 切割），
+  欄內改用 flex 直向流 → 上面的 widget 長高、下面的順勢下移。
+  CSS grid 的列跨欄共用，做不到這件事；拆不開的區塊（風車形互卡）退回固定列高網格，
+  `monitorPacking.test.ts` 5 條守著（實際佈局可完整拆解、不重不漏、欄寬總和、互卡退路、空佈局）。
+- `MonitorGridItem` 新增 `fit?: "content"`：11 個資訊卡（戰情概覽／TAIEX／公衛／共機／
+  災防／能源／急診／食品價格／司法矯正／機場／直播牆）高度跟內容走；
+  清單類（新聞 Feed／警報／時間軸／熱區／信號分級）維持 `h` 固定高＋格內捲。
+- `fit` widget 內的圖表改寫死高度（父層無固定高，`flex:1` 分不到東西）：
+  PLA 趨勢 `minHeight 110 → 190`、食品走勢新增 `SPARK_MIN_H = 140`。
+- 每個 cell 加 `data-widget="<id>"`，量測／除錯可直接選取。
+- 實測（1920×1200）：`erCongestion` 1163px 完整展開（原格內捲 423px）、
+  `powerCard` 690→241px、`hazardStrip` 390→338px、`liveWall` 690→659px、
+  `situationOverview` 240→191px；除刻意固定高的 `alertBoard` 外全無格內捲。
+- 座標未動（仍是八版的值），沙盒同步為 v9：`fit` widget 標 AUTO 徽章 + 說明
+  「這裡的縱向尺寸只是排序佔位」。
+- Breaking：無。
+
+---
+
+## 2026-08-10 — 八版：TAIEX 拆板 + 圖表加高（待 PR）
+
+- **沙盒原始碼進 repo**：`docs/features/monitor-grid-static/sandbox.html`
+  （原本只活在 artifact 上，兩個版本沒同步 → 缺 `foodPriceBoard`、rowHeight 用 36–44 浮動值
+  而非實機固定 40px）。沙盒改為 v8 / `STORE_KEY` v3，restored preset 與 `MONITOR_LAYOUT` 逐格對齊。
+- **TAIEX 拆成獨立 widget `taiex`**（`0,17,5×3`）：`SituationOverview` 移除 `market` / `panelOpen`
+  兩個 prop 與內嵌的 `TwseTicker`，改由 `MonitorPanel` 直接掛；日線 sparkline `150×24 → 360×48`
+  （上限 360 是 grid 模式最窄容器 1100px 時 w5 格內可用寬）。概覽左欄改 `flex:1` 吃滿騰出的橫向空間。
+- **`PlaBoard`**：120 天趨勢柱狀圖由固定 54px 改 `flex:1 / minHeight 110`（實機量到約 190px）；
+  空域方位（4 列）與侵擾方式（5 列）由兩欄改單欄——條長度是唯一比較基準，兩欄會腰斬。
+  `h 15 → 13`（其餘區塊固定高約 450px，剩下全歸柱狀圖）。
+- **`FoodPriceBoard`**：`SPARK_H 34 → 52` 且走勢圖改 `flex:1` 吃剩餘高度（實機約 141px）；
+  `h 9 → 12`。修掉一個 flex 陷阱：帶 `viewBox` 的 svg 會用「寬 × 內建長寬比」自算高度
+  （實測 253px 撐爆格子）→ 改 `position:absolute` 退出高度計算。
+- 左欄 y 全面下移（`taiex` +3、`plaBoard` 起點 20→23）；右欄未動。
+- Breaking：無（純前端版面 + 元件內部樣式，無資料契約變動）。
+
+---
+
 ## 2026-07-26 — PR #90 `3888014`
 
 > 同 PR 後續三 commit：沙盒佈局 v2-v4 迭代（histogram 因與時間軸資料重複進 MONITOR_HIDDEN）、
