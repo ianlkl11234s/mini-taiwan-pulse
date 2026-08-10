@@ -61,7 +61,7 @@ export function PlaBoard({ open }: Props) {
           background: "linear-gradient(160deg, rgba(239,68,68,0.06), rgba(255,255,255,0.012))",
           padding: "12px 14px",
           display: "flex", flexDirection: "column", gap: 11,
-          // 格高有剩就讓趨勢柱狀圖吃掉（見 TrendRow 的 flex:1），不要留死白
+          // 本板走 fit:"content"（見 monitorLayout）：高度由內容決定，不留死白也不格內捲
           flex: 1, minHeight: 0,
         }}
       >
@@ -180,13 +180,15 @@ function AxisBar({ label, pct, value, unit }: {
 function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
   const max = Math.max(summary.sorties.max, 1);
   return (
-    // 柱狀圖是本板唯一「越高越好讀」的區塊。本板是 fit:"content"（父層沒有固定高），
-    // 所以 flex:1 分不到東西，高度由 minHeight 決定 —— 190px 是實機量過的值。
-    <div style={{ display: "flex", flexDirection: "column", gap: 4, flex: 1, minHeight: 0 }}>
+    // 柱狀圖是本板唯一「越高越好讀」的區塊。190px 是實機量過的值。
+    // ⚠️ 必須是 **確定高度**（不能用 flex:1 + minHeight）：柱子高度是 `height: X%`，
+    //    百分比只認父層的確定高度。本板是 fit:"content"（整條鏈都沒有固定高），
+    //    寫成 flex 的話百分比解不出來 → 柱子全部塌成 0，圖區變全白。
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <RowLabel>
         {summary.windowDays}D TREND · 架次（柱）／越中線（疊色）· 灰=解析失敗
       </RowLabel>
-      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, flex: 1, minHeight: 190 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height: 190, flex: "none" }}>
         {days.map((d) => {
           // ⚠️ null = 解析失敗，畫成灰色短樁；0 = 真的零架次，畫成 1px 底線
           if (d.sorties === null) {
