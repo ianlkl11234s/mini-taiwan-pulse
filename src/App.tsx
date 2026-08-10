@@ -1961,6 +1961,7 @@ export default function App() {
           </div>
         </div>
       )}
+      {/* AR-21：layerVisibility 不再經由 prop —— MapView 直接訂閱 layerVisibilityStore */}
       <MapView
         preset={preset}
         styleUrl={styleUrl}
@@ -1969,7 +1970,6 @@ export default function App() {
         renderMode={renderMode}
         isDarkTheme={isDarkTheme}
         showTrails={showTrails}
-        layerVisibility={layerVisibility}
         overlayParams={transportParams.overlayParams}
         onMapReady={handleMapReady}
       />
