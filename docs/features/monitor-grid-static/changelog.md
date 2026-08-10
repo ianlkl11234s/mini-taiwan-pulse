@@ -12,7 +12,7 @@
 
 ---
 
-## 2026-08-10 — PLA 趨勢圖加區間 pills（待 PR）
+## 2026-08-10 — PLA 趨勢圖加區間 pills — PR #121 `da054f0`
 
 - `TrendRow` 加 120D / 90D / 30D / 7D 切換（預設 120D）。120 根柱子在 w5 欄裡每根只有 5px，
   看不出單日形狀；30D → 23px、7D → 102px（實機量）。
@@ -25,7 +25,7 @@
 
 ---
 
-## 2026-08-10 — 九版 hotfix：PLA 柱狀圖消失（待 PR）
+## 2026-08-10 — 九版 hotfix：PLA 柱狀圖消失 — PR #121 `da054f0`
 
 - 九版把 PLA 趨勢柱狀圖容器寫成 `flex:1 + minHeight:190`，但柱子高度是 `height: X%`——
   **百分比高度只認父層的確定高度**，fit 這條鏈上沒有任何固定高 → 百分比當 `auto`，
@@ -36,7 +36,7 @@
 
 ---
 
-## 2026-08-10 — 九版：高度改跟內容走（待 PR）
+## 2026-08-10 — 九版：高度改跟內容走 — PR #121 `da054f0`
 
 - 新增 `monitorPacking.ts`：把 12 欄座標**拆成欄／列巢狀結構**（guillotine 切割），
   欄內改用 flex 直向流 → 上面的 widget 長高、下面的順勢下移。
@@ -57,7 +57,7 @@
 
 ---
 
-## 2026-08-10 — 八版：TAIEX 拆板 + 圖表加高（待 PR）
+## 2026-08-10 — 八版：TAIEX 拆板 + 圖表加高 — PR #121 `da054f0`
 
 - **沙盒原始碼進 repo**：`docs/features/monitor-grid-static/sandbox.html`
   （原本只活在 artifact 上，兩個版本沒同步 → 缺 `foodPriceBoard`、rowHeight 用 36–44 浮動值
