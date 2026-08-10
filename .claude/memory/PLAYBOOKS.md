@@ -1741,3 +1741,33 @@ pnpm build && grep -c "WebGLRenderer\|InstancedMesh" dist/assets/embed-*.js   # 
 **6. 漏跑不會自動補**
 `backfill=1` 表示只做昨天。漏掉的一晚**不會自己回頭補** →
 偵測靠 Telegram 🧊/🚨、恢復靠手動 `--backfill N`。
+
+## PB-36 合併「依賴 migration 的下游 PR」前，先驗 migration 是否已 apply（2026-08-06 定型）
+
+> ⚠️ 本篇原在孤兒分支上編號為 PB-33，與 master 既有的
+> 「PB-33 Zeabur collector 上線與『證明它真的在跑』」撞號，2026-08-10 搬入時改編為 PB-36。
+> 兩者無關（INCIDENTS 內既有的 PB-33 引用指的是 Zeabur 那篇）。
+
+食品價格看板（pulse）硬依賴 gis-platform migration 336 的兩個 RPC。
+merge 順序照 PB-32（上游先）沒問題，但**「merge 上游 PR」≠「migration 已 apply 到 DB」**——
+SQL 檔進了 repo 不代表跑過。若只看 PR 狀態就 merge 下游，使用者打開會看到空看板。
+
+**驗證只要一行 curl**（不必連 psql，用前端同一把 anon key 才是真實路徑）：
+
+```bash
+URL=$(grep -E "^VITE_SUPABASE_URL" .env | cut -d= -f2- | tr -d '"'"'"' ')
+KEY=$(grep -E "^VITE_SUPABASE_ANON_KEY" .env | cut -d= -f2- | tr -d '"'"'"' ')
+curl -s -o /tmp/o.json -w "%{http_code}\n" -X POST "$URL/rest/v1/rpc/<fn>" \
+  -H "apikey: $KEY" -H "Authorization: Bearer $KEY" \
+  -H "Content-Type: application/json" -d '{"p_days":180}'
+head -c 200 /tmp/o.json
+```
+
+- **200 + 有資料** → 已 apply，下游可 merge
+- **404 `PGRST202`** → 兩種可能：(a) 真的沒 apply；(b) **函式存在但參數名不符**。
+  錯誤訊息 `Searched for the function … without parameters or with a single unnamed json`
+  就是 (b) —— 改用程式碼實際傳的具名參數重打再判，不要直接當成沒 apply
+- 用 anon key 打還順便驗了 `GRANT` 有沒有給對（SECURITY DEFINER 函式常漏 grant anon）
+
+**本次實例**：336 在 PR 還沒 merge 前就已被手動 apply 到 production（DB 比 repo 快），
+所以 merge 完立刻就有資料。若沒先驗，會誤以為要等 apply 而白等。
