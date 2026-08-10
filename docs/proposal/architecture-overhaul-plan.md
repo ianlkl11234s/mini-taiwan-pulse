@@ -3,6 +3,7 @@
 > 依據：`docs/research/architecture-audit-2026-07-02.md`（5 面向審計）
 > 目標：把系統從「數十人」撐到「數百人」，同時讓圖層翻倍不炸、預留會員與對話介面。
 > 建立：2026-07-02。狀態欄由各 session 更新。
+> **2026-08-10 稽核對帳**：見 `docs/research/architecture-audit-2026-08-10.md`，**AR-21~26 為當前最高優先結構工程**（07-02 藥方還沒吃，`useTransportParams` 病灶又長了 60%：2,104→3,161 行）。
 
 ---
 
@@ -53,10 +54,10 @@ P0 止血 ──────────────┐
 | # | 內容 | Repo / Branch | 驗證 | 狀態 |
 |---|---|---|---|---|
 | AR-01 | `lib/supabase.ts` 加 fetch wrapper：timeout（30s）+ 指數退避 retry（最多 2 次，僅冪等讀取）+ 全域併發上限（~8）。失敗回 loadingRegistry 錯誤態，禁止靜默 | pulse `fix/supabase-client-resilience` | 模擬慢 RPC（devtools throttle）：不雪崩、UI 有錯誤態 | ✅ PR #46 merged 2026-07-02 |
-| AR-02 | 23 個無快取 loader 套 `loaderCache`（第一批：audit 標紅 freeway / temperature / youbikeH3；第二批：其餘機械式） | pulse `perf/loader-cache-batch1`、`-batch2` | Network tab：toggle off→on、重切同日期零重複請求 | ✅ batch1 PR #47 merged 2026-07-02；batch2 ☐ |
-| AR-03 | G009：16 處 Supabase RPC 補 loadingRegistry（busLoader 3 處優先） | pulse `fix/loading-registry-gaps` | `pnpm test` + 手動開層看 loading UI | 🔃 PR #48 待驗收（實測 17 處非 16） |
+| AR-02 | 23 個無快取 loader 套 `loaderCache`（第一批：audit 標紅 freeway / temperature / youbikeH3；第二批：其餘機械式） | pulse `perf/loader-cache-batch1`、`-batch2` | Network tab：toggle off→on、重切同日期零重複請求 | ✅ batch1 PR #47 + batch2 PR #49，均 merged |
+| AR-03 | G009：16 處 Supabase RPC 補 loadingRegistry（busLoader 3 處優先） | pulse `fix/loading-registry-gaps` | `pnpm test` + 手動開層看 loading UI | ✅ PR #48 merged（實測 17 處非 16） |
 | AR-04 | VM collectors 補韌性：把主 repo buffer/retry 抽成單檔可攜模組（或最小內嵌版），ship_ais / waste / cdc 三隻套上：DB 失敗 → 本地 buffer → 下輪補寫 | data-collectors `fix/vm-collector-buffer` | VM 上模擬 DB 斷線一輪：buffer 檔生成、恢復後補寫成功、無資料洞 | ✅ PR #28 merged + VM 部署驗證完成 2026-07-02（ship 三步驗證過、waste 一輪過、cdc smoke 過） |
-| AR-05 | `cross_layer_map.yaml` 改由 `config.py` 自動生成（腳本 + CI/pre-commit 檢查 drift），消滅 22 個 collector 監控盲區；README 數字同步修正 | data-collectors `chore/collector-registry-sync` | 生成結果 diff 人工過目一次；daily report 跑通含新 collector | 🔃 PR 待驗收（DB 實測校正 19 個 enabled + realtime_tables 補 16 表；correctional + npa_a1 於 2026-06-27 同時停寫，待用戶確認） |
+| AR-05 | `cross_layer_map.yaml` 改由 `config.py` 自動生成（腳本 + CI/pre-commit 檢查 drift），消滅 22 個 collector 監控盲區；README 數字同步修正 | data-collectors `chore/collector-registry-sync` | 生成結果 diff 人工過目一次；daily report 跑通含新 collector | ✅ PR #30 merged（DB 實測校正 19 個 enabled + realtime_tables 補 16 表；correctional + npa_a1 於 2026-06-27 同時停寫，已用戶確認） |
 | AR-06 | 驗證 `statement_timeout` 經 transaction pooler 是否生效；不生效則改 per-transaction `SET LOCAL` | data-collectors `fix/pooler-statement-timeout` | psql 實測：故意跑 35s query 確認被砍 | 🔃 PR #29 待驗收（實測原保護在 pooler 下無效——SHOW=0、pg_sleep(35) 不被砍；改 16 處寫入走 SET LOCAL，live 驗證通過）+ 後續小項：with_conn() 自訂 SQL 與長任務仍無保護 |
 
 ---
@@ -67,11 +68,13 @@ P0 止血 ──────────────┐
 
 ### Track A：衛星影像 → CDN（最大單項收益）
 
+> **AR-11 全鏈 done**（2026-08-10 對帳 BACKLOG AR-11：`pulse #50 + data-collectors #32`，`data.itsmigu.com`，browser 驗收過）。AR-11e 刻意延後，見下方。
+
 | # | 內容 | Repo | 驗證 | 狀態 |
 |---|---|---|---|---|
 | AR-11a | 契約：handoff doc 定義 frame 檔案路徑規則（`imagery/<dataset>/<yyyymmdd>/<hhmm>.png`）、manifest RPC schema、保留天數 | taipei-gis-analytics | handoff 三要素齊 | ✅ 2026-07-03 `docs/handoff/read-path-cdn-imagery.md`（R2 bucket mini-tw-pulse + r2.dev 開發網址已實測） |
-| AR-11b | `cwa_satellite` collector 改雙寫：PNG 上 R2/S3 + DB 只寫 metadata（時間、URL、bbox）；歷史 bytea 回填腳本（DB 匯出 → 上傳 → 驗證筆數） | data-collectors `feat/imagery-cdn` | 新 frame 出現在 CDN、URL 可拉；回填後抽查 10 frames 像素一致 | ✅ PR #32 merged；backfill 21,548 張跑批中；⏳ 待用戶設 Zeabur R2_* env |
-| AR-11c | migration：新 RPC `get_cwa_imagery_manifest`（薄 SELECT metadata）；舊 batch RPC 保留一版過渡 | gis-platform | `/check-rpc` < 100ms | ✅ 2026-07-03 直接 apply（image_key 欄 + RPC + GRANT）；SQL 留檔 data-collectors `docs/sql/cwa_imagery_cdn.sql`，⏳ 待同步 gis-platform migration 編號 |
+| AR-11b | `cwa_satellite` collector 改雙寫：PNG 上 R2/S3 + DB 只寫 metadata（時間、URL、bbox）；歷史 bytea 回填腳本（DB 匯出 → 上傳 → 驗證筆數） | data-collectors `feat/imagery-cdn` | 新 frame 出現在 CDN、URL 可拉；回填後抽查 10 frames 像素一致 | ✅ PR #32 merged；backfill 21,548 張完成；Zeabur R2_* env 設定已完成（AR-11d 端到端驗收通過，實質前提成立） |
+| AR-11c | migration：新 RPC `get_cwa_imagery_manifest`（薄 SELECT metadata）；舊 batch RPC 保留一版過渡 | gis-platform | `/check-rpc` < 100ms | ✅ 2026-07-03 直接 apply（image_key 欄 + RPC + GRANT）；SQL 留檔 data-collectors `docs/sql/cwa_imagery_cdn.sql`（migration 編號同步狀態以 BACKLOG AR-11 標 done 為準） |
 | AR-11d | 前端 `cwaImageryLoader` 改吃 manifest + URL 直餵 `updateImage()`；LRU/prefetch 邏輯保留改 preload `<img>`；確認 loading UI | pulse `feat/imagery-cdn` | Network：全部 cache HIT、零 RPC 大 payload；timeline 播放順暢 | ✅ **完整上線 2026-07-03**：custom domain `data.itsmigu.com`（CF edge cache HIT）+ Zeabur 前端設 `VITE_IMAGERY_CDN_BASE` rebuild + browser 端到端驗收：影像走 CDN、走 `get_cwa_imagery_manifest`、舊 `get_cwa_imagery_frames_batch` 0 呼叫 |
 | AR-11e | 收尾：舊 RPC 下架 + DB bytea 欄位清理（確認前端全量切換一週後） | gis-platform | egress 圖歸零 | ☐ |
 
@@ -87,11 +90,13 @@ P0 止血 ──────────────┐
 
 ### Track C：B 類歷史 per-day → 靜態檔
 
+> **2026-08-10 對帳**：AR-14 匯出端 **done 2026-08-08**（data-collectors PR #47 `scripts/export_daily_trails.py`，每日 02:00 寫 `s3://…/trails/`，見 DATA_SCOPE + PB-35）。AR-15/16 供檔端**仍 open**。⚠️ **保存層 ≠ 供檔層** —— 2026-08-08 session 已明確定調「前端直讀 `trails/` 是錯的」（egress $0.114/GB）；要完成 AR-14~16 的讀取去 DB 化，仍需把日檔加工成成品包放進 CDN 供檔路徑，不是讓前端直接打保存層。
+
 | # | 內容 | Repo | 驗證 | 狀態 |
 |---|---|---|---|---|
-| AR-14 | 契約：per-day 檔路徑（`trails/<dataset>/<yyyy-mm-dd>.arrow`）+ nightly export job（**collector 端直連跑**，避開 pooler 2min timeout；跑完上傳 + 校驗筆數）；回填近 30 天 | taipei-gis-analytics + data-collectors `feat/trails-static-export` | 抽 3 天：Arrow 檔筆數 = RPC 回傳筆數 | ☐ |
-| AR-15 | 前端：ship / bus / flight trails loader 改「歷史日走靜態檔（Arrow parse 進 worker，見 AR-35 可先同步 parse）、今日走 RPC」；hook LRU 保留 | pulse `feat/trails-static-load` | 切歷史日期：零 RPC、體積 < 原 payload 1/3；今日行為不變 | ☐ |
-| AR-16 | 順手收割：youbikeH3 / freeway / temperature 歷史日同模式（audit 標紅的即時聚合就此免除） | 兩端 | `/check-rpc` 確認殘餘 RPC 只服務今日 | ☐ |
+| AR-14 | 契約：per-day 檔路徑（`trails/<dataset>/<yyyy-mm-dd>.arrow`）+ nightly export job（**collector 端直連跑**，避開 pooler 2min timeout；跑完上傳 + 校驗筆數）；回填近 30 天 | taipei-gis-analytics + data-collectors `feat/trails-static-export` | 抽 3 天：Arrow 檔筆數 = RPC 回傳筆數 | ✅ **匯出端 done 2026-08-08**（PR #47，四 dataset ships/flights/bus/bus_intercity；ships/flights 各回補 8 天、bus 系 3 天） |
+| AR-15 | 前端：ship / bus / flight trails loader 改「歷史日走靜態檔（Arrow parse 進 worker，見 AR-35 可先同步 parse）、今日走 RPC」；hook LRU 保留 | pulse `feat/trails-static-load` | 切歷史日期：零 RPC、體積 < 原 payload 1/3；今日行為不變 | ☐ **供檔端未動**——`trails/` 只是保存層，前端仍不可直讀，需先補「日檔加工成 CDN 成品包」這一步 |
+| AR-16 | 順手收割：youbikeH3 / freeway / temperature 歷史日同模式（audit 標紅的即時聚合就此免除） | 兩端 | `/check-rpc` 確認殘餘 RPC 只服務今日 | ☐ 依賴 AR-15 供檔層落地後才有範本可抄 |
 
 **P1 完成定義**：模擬 50 個併發 tab 開「衛星 + 船舶 + 公車 + 新聞」，Supabase Reports 讀取 QPS < 5、egress 曲線平坦、Cloudflare HIT ≥ 95%。
 
@@ -132,8 +137,8 @@ P0 止血 ──────────────┐
 | # | 內容 | 依賴 | 驗證 | 狀態 |
 |---|---|---|---|---|
 | AR-41 | D3 收窄 Exposed schemas：先盤點確認無其他站直讀 reference/spatial → Supabase 設定收窄為 `public` only | P1（讀取已走 CDN，收窄無痛） | 前端全功能回歸；anon REST 直讀 404 | ☐ |
-| AR-42 | Supabase Auth 會員：email/OAuth 登入、`user_profiles` 表（RLS）、偏好 = manifest keys 序列化（自選圖層組、預設視圖）；sessionTracker 掛 user id | AR-41、P2 manifest | 登入/登出/偏好還原 e2e 手動流程 | ☐ |
-| AR-43 | 對話介面 MVP：獨立後端（Supabase Edge Function 或擴充 pulse-api）——manifest 生成 tool schema（`show_layers` / `set_view` / `query_layer`）+ 分析 RPC 白名單（Monitor Mode pre-aggregate 表為底座）；LLM key 不進 bundle | P2 manifest、AR-42（可選登入牆） | 「最近哪裡地震多」→ 自動開層 + 文字分析；白名單外 RPC 不可達 | ☐ |
+| AR-42 | Supabase Auth 會員：email/OAuth 登入、`user_profiles` 表（RLS）、偏好 = manifest keys 序列化（自選圖層組、預設視圖）；sessionTracker 掛 user id | AR-41、P2 manifest | 登入/登出/偏好還原 e2e 手動流程 | ☐ **已由 BC 系列先行交付大半**——會員 P0（Google OAuth + profiles + UserAvatar，BC-1 `done`，pulse PR #52）已上線；本項未完成部分是「偏好 = manifest keys 序列化」，卡在 P2 manifest（AR-21）地基尚未落地 |
+| AR-43 | 對話介面 MVP：獨立後端（Supabase Edge Function 或擴充 pulse-api）——manifest 生成 tool schema（`show_layers` / `set_view` / `query_layer`）+ 分析 RPC 白名單（Monitor Mode pre-aggregate 表為底座）；LLM key 不進 bundle | P2 manifest、AR-42（可選登入牆） | 「最近哪裡地震多」→ 自動開層 + 文字分析；白名單外 RPC 不可達 | ☐ **已由 BC 系列先行交付大半**——BYOK 對話 MVP + 資料問答（`done`，pulse PR #51；三家直連 + 白名單 tools + 13 dataset/RPC）已上線；本項未完成部分是「manifest 生成 tool schema」這條路徑，同樣卡在 AR-21 manifest 依賴 |
 | AR-44 | 對話 × Monitor Mode 整合：提問結果可 pin 成 monitor 面板 | AR-43 + Monitor Mode Phase 1 | — | ☐ |
 
 ---
