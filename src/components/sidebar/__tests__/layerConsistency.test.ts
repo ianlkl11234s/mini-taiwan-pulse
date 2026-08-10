@@ -88,8 +88,12 @@ const BASELINE_NO_LEGEND = new Set([
   // 公共設施 Batch 2：圖書館 / 社福 / 市場 皆單色 POI（鐵則 2 不適用）；publicToilets grade 4 級分色 → 接 PublicToiletLegend
   "publicLibraries", "welfareCenters", "retailMarkets",
   "activeFaults", "youbikeFullness", "cwaCloudImagery",
-  // aqiMicroSensors 已升級三模式上色（PM2.5/溫度/濕度）→ 接 MicroSensorLegend，不再列 baseline
-  "cwaRadarImagery", "aqiImagery", "aqiStations",
+  // aqiMicroSensors 已升級三模式上色（PM2.5/溫度/濕度）→ 接 MicroSensorLegend，不再列 baseline。
+  // aqiImagery / aqiStations 曾因「AqiLegend 手掛在 App.tsx、繞過 LEGEND_REGISTRY」被
+  // 誤記為合法無圖例；2026-08-10 收編進 registry 後移出 baseline。
+  // cwaCloudImagery / cwaRadarImagery：CWA 上游直接給已上色的雲圖／雷達 PNG，
+  // 前端只是 raster image source，沒有自己的色階可派生 → 鐵則 2 不適用。
+  "cwaRadarImagery",
   "busLive", "busIntercityLive", "waterBasins", "waterRivers", "waterLevees",
   // 水庫（單色青面）／滯洪池（單色 #0284c7 點）：paint 無 match/step 分類 → 鐵則 2 不適用。
   // 同組的 waterProtectionZones / waterFacilities / waterMonitorStations / waterFloodExtreme

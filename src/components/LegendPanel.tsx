@@ -28,6 +28,8 @@ import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
 import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLayerFactory";
 import { DIVERGING_STOPS } from "../three/TemperatureWaveScene";
+import { AQI_LEVELS } from "../map/aqiColorScale";
+import { useLoadingTasks } from "../hooks/useLoadingTasks";
 import {
   WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX,
   DUST_BAKE_STOPS, rampToGradient,
@@ -254,6 +256,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["temperatureGrid"], render: () => <TemperatureGridLegend /> },
   { keys: ["temperatureWave"], render: () => <TemperatureWaveLegend /> },
   { keys: ["aqiMicroSensors"], render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
+  { keys: ["aqiImagery", "aqiStations"], render: () => <AqiLegend /> },
   { keys: ["urbanHeat"], render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
@@ -2969,6 +2972,84 @@ function TemperatureGridLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
         CWA 0.03° 逐時觀測分析格點
+      </div>
+    </div>
+  );
+}
+
+/**
+ * AQI 6 級色階（環境部官方配色，SSOT = map/aqiColorScale.ts 的 AQI_LEVELS，
+ * 與 useAqiStationsLayer 的 buildAqiStepExpression 同源）。
+ *
+ * 2026-08-10：本元件原本是 components/AqiLegend.tsx、由 App.tsx 手動掛在畫面右下角，
+ * 繞過 LEGEND_REGISTRY，導致 aqiImagery / aqiStations 被 layerConsistency 當成
+ * 「合法無圖例」凍進 baseline。收編進 registry 後刪除該檔；色階與刻度原封不動，
+ * 只拔掉自己的面板外殼（背景/模糊/圓角）改用 LegendPanel 的容器。
+ * header 的 loading 狀態沿用（aqi-* / micro-sensors 任務）。
+ */
+function AqiLegend() {
+  const t = useLegendTheme();
+  const allTasks = useLoadingTasks();
+  const aqiTasks = allTasks.filter(
+    (task) =>
+      task.id.startsWith("aqi-") ||
+      task.id.startsWith("micro-sensors") ||
+      task.id.startsWith("aqi-imagery-batch"),
+  );
+  const loadingLabel = aqiTasks[0]?.label ?? null;
+  const boundaries = AQI_LEVELS.map((lv) =>
+    Number.isFinite(lv.max) ? lv.max.toString() : "301+",
+  );
+  // 6 級 → 顯示 5 個邊界（0 / 50 / 100 / 150 / 200 / 300 / 301+）
+  const ticks = ["0", ...boundaries];
+
+  return (
+    <div>
+      <style>{`
+        @keyframes aqi-spin { to { transform: rotate(360deg); } }
+        .aqi-spin {
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          border: 2px solid rgba(147, 197, 253, 0.25);
+          border-top-color: #93c5fd;
+          border-radius: 50%;
+          animation: aqi-spin 0.8s linear infinite;
+          vertical-align: -1px;
+        }
+      `}</style>
+      <div
+        style={{
+          fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4,
+          display: "flex", alignItems: "center", gap: 6,
+        }}
+      >
+        <span>AQI 空氣品質指標</span>
+        {loadingLabel && (
+          <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#93c5fd" }}>
+            <span className="aqi-spin" />
+            <span style={{ fontSize: FONT_SIZE.xs }}>載入中…</span>
+          </span>
+        )}
+      </div>
+      <div style={{ display: "flex", height: 12, borderRadius: RADIUS.sm, overflow: "hidden" }}>
+        {AQI_LEVELS.map((lv) => (
+          <div
+            key={lv.label}
+            title={`${lv.label} — ${lv.description}`}
+            style={{ flex: 1, background: lv.color }}
+          />
+        ))}
+      </div>
+      <div
+        style={{
+          display: "flex", justifyContent: "space-between",
+          fontSize: FONT_SIZE.xs, marginTop: 2, color: t.textDim,
+        }}
+      >
+        {ticks.map((tick) => (
+          <span key={tick}>{tick}</span>
+        ))}
       </div>
     </div>
   );
