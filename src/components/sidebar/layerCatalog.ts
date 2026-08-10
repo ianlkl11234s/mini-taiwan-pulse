@@ -30,11 +30,22 @@ import type { LayerVisibility, TransportType } from "../../types";
 import { RELIGION_LAYER_COLORS } from "../../data/religionTypes";
 import { FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
 import { EDUCATION_LAYER_COLORS } from "../../data/educationTypes";
+import {
+  LAYER_MANIFEST, manifestColors,
+  type ManifestKey, type LayerManifestEntry,
+} from "../../data/layerManifest";
 
-export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
+/**
+ * 尚未搬進 layerManifest 的手寫色票（AR-22 雙軌過渡）。
+ *
+ * 型別是 `Omit<Record<全集>, ManifestKey>` —— tsc 雙向把關：
+ *   - 漏掉任一「還沒搬」的 key → TS2739 缺屬性
+ *   - 已搬進 manifest 的 key 還留在這裡 → excess property 報錯
+ * 所以「搬走了但手寫值沒刪」這種「改 manifest 畫面沒反應」的暗雷不可能存在。
+ */
+const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, ManifestKey> = {
   flights: "#64aaff",
   ships: "#1ad9e5",
-  rail: "#ee6c00",
   stationsTHSR: "#ff8c00",
   stationsTRA: "#b8a080",
   stationsMetro: "#00bcd4",
@@ -43,7 +54,6 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   airports: "#daa520",
   highways: "#ff6b6b",
   provincialRoads: "#ffa94d",
-  cctv: "#26c6da",
   etcGantry: "#f06292",
   serviceArea: "#4db6ac",
   serviceAreaPolygon: "#4db6ac",
@@ -77,7 +87,6 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   submarineCables: "#2196F3",
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
-  newsEvents: "#ff9800",
   // 走廊藍；不規則活動區在圖層內另用紫（見 plaTracksLoader.PLA_KIND_COLORS）
   plaActivity: "#38bdf8",
   youbikeFullness: "#f57c00",
@@ -179,7 +188,6 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   treePitsTaipei: "#8d6e63",
   buildingsGba: "#78909c",
   urbanFormGrid: "#8d9c6b",
-  urbanZoningTaipei: "#f2c94c",
   urbanZoningNewTaipei: "#eb5757",
   nonUrbanZoning: "#a2c14e",
   sportsSchool: "#5c6bc0",
@@ -360,13 +368,21 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
   policeIsoPrecinct: "#3b82f6",
   policeIsoCityDept: "#60a5fa",
   // 環境污染 POLLUTION
-  pollutionFacility: "#f97316",
   pollutionPenaltyCritical: "#ef4444",
   pollutionPenaltyGeneral: "#94a3b8",
   pollutionPenaltyMobile: "#22c55e",
   pollutionSite: "#111827",
   // 🌍 世界 WORLD
   worldTrashDebris: "#f59e0b",
+};
+
+/**
+ * 色票全集 —— 手寫殘量 + manifest 派生。
+ * 型別維持 `Record<keyof LayerVisibility, string>`（tsc 護欄不因引入 manifest 而弱化）。
+ */
+export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
+  ...HANDWRITTEN_LAYER_COLORS,
+  ...manifestColors(),
 };
 
 // ── Transport Labels ──
@@ -414,6 +430,29 @@ export interface ThemeDef {
 export interface SectionDef {
   title: string;
   layers: LayerDef[];
+}
+
+/**
+ * 從 layerManifest 取出一筆 LayerDef（AR-22 雙軌過渡）。
+ *
+ * ⚠️ 用法是**就地替換**：把原本 `{ key: "cctv", label: "…", expandable: true }`
+ * 這一行換成 `fromManifest("cctv")`，**位置不動**。THEMES 是有序巢狀結構，
+ * 順序就是 UI 顯示順序 —— 若改成「派生的 append 在最後」，圖層會整批換位置，
+ * 黃金快照的 themes/sidebarSections section 立刻紅。
+ *
+ * 選填欄位用條件展開而非 `labelMobile: m.labelMobile`：後者會產生一個值為
+ * undefined 的**存在的 key**，跟「這個 key 不存在」在序列化/比對上是兩回事。
+ */
+function fromManifest(key: ManifestKey): LayerDef {
+  // 顯式標成 LayerManifestEntry：LAYER_MANIFEST 走 `satisfies`，逐筆型別只含
+  // 該筆真的寫了的欄位 —— 直接讀 m.gated 會被 TS 判成不存在。這裡要的是
+  // 「介面上宣告過的選填欄位」語意，widen 到介面才對。
+  const m: LayerManifestEntry = LAYER_MANIFEST[key];
+  const def: LayerDef = { key: m.key, label: m.label };
+  if (m.labelMobile !== undefined) def.labelMobile = m.labelMobile;
+  if (m.expandable !== undefined) def.expandable = m.expandable;
+  if (m.gated !== undefined) def.gated = m.gated;
+  return def;
 }
 
 // ── THEMES（新 SSOT）──
@@ -464,7 +503,7 @@ export const THEMES: ThemeDef[] = [
         // 官方參考底圖（非分析產物）——上游 topic-research 原始目標即「pulse 底圖層」
         title: "土地使用分區 Zoning",
         layers: [
-          { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
+          fromManifest("urbanZoningTaipei"),
           { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
           // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
           { key: "nonUrbanZoning", label: "非都市土地使用分區 Non-Urban Zoning", labelMobile: "非都市分區 (68,220)", expandable: true },
@@ -491,7 +530,7 @@ export const THEMES: ThemeDef[] = [
         layers: [
           { key: "flights", label: "航班 Flight", expandable: true },
           { key: "ships", label: "船舶 Ship", expandable: true },
-          { key: "rail", label: "鐵道 Rail", expandable: true },
+          fromManifest("rail"),
           { key: "busLive", label: "公車 Bus", expandable: true },
           { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
           { key: "touristShuttleLive", label: "台灣好行 Tourist Shuttle", labelMobile: "台灣好行", expandable: true },
@@ -515,7 +554,7 @@ export const THEMES: ThemeDef[] = [
           { key: "osmExpressway", label: "快速道路 Expressway", expandable: true },
           { key: "provincialRoads", label: "省道 Provincial Road", expandable: true },
           { key: "cyclingRoutes", label: "自行車道 Cycling Route", expandable: true },
-          { key: "cctv", label: "道路攝影機 CCTV", expandable: true },
+          fromManifest("cctv"),
           { key: "etcGantry", label: "ETC 收費門架 Gantry", expandable: true },
           { key: "serviceArea", label: "國道服務區 Service Area", expandable: true },
           { key: "serviceAreaPolygon", label: "國道服務區範圍 SA Area", expandable: true },
@@ -1218,7 +1257,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "環境污染",
         layers: [
-          { key: "pollutionFacility", label: "污染潛勢設施 Facility", labelMobile: "污染潛勢設施 Facility (152k)", expandable: true },
+          fromManifest("pollutionFacility"),
           { key: "pollutionPenaltyCritical", label: "重大裁處 Critical Penalty", labelMobile: "重大裁處 Critical", expandable: true },
           { key: "pollutionPenaltyGeneral", label: "一般裁處 General Penalty", labelMobile: "一般裁處 General", expandable: true },
           { key: "pollutionPenaltyMobile", label: "移動污染 Mobile Penalty", labelMobile: "移動污染 Mobile", expandable: true },
@@ -1478,7 +1517,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "事件",
         layers: [
-          { key: "newsEvents", label: "新聞事件 News Events", expandable: true },
+          fromManifest("newsEvents"),
         ],
       },
       {

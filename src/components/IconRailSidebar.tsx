@@ -15,7 +15,7 @@ import {
   Timer,
   Hospital, Stethoscope, Pill, HeartPulse, Accessibility, Clock, AlertCircle, Bed,
   Sprout,
-  Video, Receipt, Coffee, Car, SquareParking, CircleParking,
+  Receipt, Coffee, Car, SquareParking, CircleParking,
   ShoppingCart, Warehouse, Fish,
   // FORESTRY icons
   Trees, TreePine, TreeDeciduous, TreePalm, Flower2, Hammer, Signal, PawPrint, Footprints,
@@ -58,6 +58,7 @@ import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, type ThemeDef } from "./sidebar/layerCatalog";
+import { manifestIcons, type ManifestKey } from "../data/layerManifest";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
@@ -68,11 +69,14 @@ const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.titl
 
 // ── Color Config ──
 
-// export：AR-22 黃金快照（layerGoldenSnapshot.test.ts）要逐 key 讀 icon 名稱做護欄比對。
-export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
+/**
+ * 尚未搬進 layerManifest 的手寫 icon（AR-22 雙軌過渡）。
+ * 型別 `Omit<…, ManifestKey>` 的雙向 tsc 護欄說明見 layerCatalog 的
+ * HANDWRITTEN_LAYER_COLORS。
+ */
+const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, ManifestKey> = {
   flights: Plane,
   ships: Ship,
-  rail: TrainFront,
   stationsTHSR: TrainFront,
   stationsTRA: RailSymbol,
   stationsMetro: CircleDot,
@@ -82,7 +86,6 @@ export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   highways: Route,
   provincialRoads: Route,
   cyclingRoutes: Bike,
-  cctv: Video,
   etcGantry: Receipt,
   serviceArea: Coffee,
   serviceAreaPolygon: Coffee,
@@ -118,7 +121,6 @@ export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   submarineCables: Cable,
   landingStations: Radio,
   activeFaults: Mountain,
-  newsEvents: Radio,
   plaActivity: PlaneTakeoff,
   youbikeFullness: Bike,
   earthquakes: Activity,
@@ -214,7 +216,6 @@ export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   treePitsTaipei: Flower2,
   buildingsGba: Building2,
   urbanFormGrid: LayoutGrid,
-  urbanZoningTaipei: LandPlot,
   urbanZoningNewTaipei: Map,
   nonUrbanZoning: Sprout,
   // 🏟️ 運動場館 Sports
@@ -429,13 +430,22 @@ export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   policeIsoPrecinct: Hexagon,
   policeIsoCityDept: Hexagon,
   // 環境污染
-  pollutionFacility: Factory,
   pollutionPenaltyCritical: AlertTriangle,
   pollutionPenaltyGeneral: AlertCircle,
   pollutionPenaltyMobile: Car,
   pollutionSite: Biohazard,
   // 🌍 世界 World
   worldTrashDebris: Trash2,
+};
+
+/**
+ * icon 全集 —— 手寫殘量 + manifest 派生。型別維持
+ * `Record<keyof LayerVisibility, LucideIcon>`（tsc 護欄不弱化）。
+ * export：AR-22 黃金快照（layerGoldenSnapshot.test.ts）要逐 key 讀 icon 名稱比對。
+ */
+export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
+  ...HANDWRITTEN_LAYER_ICONS,
+  ...manifestIcons(),
 };
 
 // ── IATA Map for Locations Panel ──

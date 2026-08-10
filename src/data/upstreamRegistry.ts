@@ -12,6 +12,7 @@
 //   catalog_missing  — needs new entry in catalog before bridging
 
 import type { LayerVisibility } from '../types';
+import { manifestUpstream, type ManifestKey } from './layerManifest';
 
 export type UpstreamStatus = 'verified' | 'pulse_only' | 'catalog_missing';
 export type UpstreamConfidence = 'HIGH' | 'MED' | 'LOW';
@@ -54,7 +55,12 @@ export interface UpstreamRef {
   note?: string;
 }
 
-export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
+/**
+ * 尚未搬進 layerManifest 的手寫血緣條目（AR-22 雙軌過渡）。
+ * 型別 `Omit<…, ManifestKey>` 的雙向 tsc 護欄說明見 layerCatalog 的
+ * HANDWRITTEN_LAYER_COLORS。
+ */
+const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, ManifestKey> = {
   countyBoundary: {
     status: 'verified',
     datasets: [{ datasetId: 'county_boundary', confidence: 'MED' }],
@@ -98,10 +104,6 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   ships: {
     status: 'verified',
     datasets: [{ datasetId: 'ship', confidence: 'HIGH' }],
-  },
-  rail: {
-    status: 'verified',
-    datasets: [{ datasetId: 'rail', confidence: 'MED' }],
   },
   busLive: {
     status: 'verified',
@@ -154,10 +156,6 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   cyclingRoutes: {
     status: 'verified',
     datasets: [{ datasetId: 'bike', confidence: 'MED' }],
-  },
-  cctv: {
-    status: 'verified',
-    datasets: [{ datasetId: 'cctv', confidence: 'MED' }],
   },
   etcGantry: {
     status: 'verified',
@@ -565,7 +563,6 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   buildingsGba: { status: 'catalog_missing', datasets: [], note: '全台 3D 建物輪廓 152 萬棟（GBA/OSM 融合，public/urban/buildings_3d_taiwan.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md' },
   urbanFormGrid: { status: 'catalog_missing', datasets: [], note: '都市紋理網格 500m 145,119 格（GBA+Meta 樹冠合成，public/urban/urban_form_grid_500m.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/urban-form-grid.md' },
   // 🗺️ 都市計畫土地使用分區（上游 handoff: taipei-gis-analytics/docs/handoff/urban-zoning.md；catalog: docs/data-catalog/urban_composite/）
-  urbanZoningTaipei: { status: 'verified', datasets: [{ datasetId: 'urban_zoning_taipei', confidence: 'HIGH' }], note: '臺北市都市計畫土地使用分區 15,518 面（data.taipei SHP，docs/data-catalog/urban_composite/urban_zoning_taipei.md）' },
   nonUrbanZoning: {
     status: 'verified',
     datasets: [{ datasetId: 'non_urban_zoning', confidence: 'HIGH' }],
@@ -1109,10 +1106,6 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     status: 'verified',
     datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
   },
-  newsEvents: {
-    status: 'verified',
-    datasets: [{ datasetId: 'layer2_polygon', confidence: 'LOW' }],
-  },
   plaActivity: {
     status: 'verified',
     datasets: [{ datasetId: 'pla_activity', confidence: 'HIGH' }],
@@ -1221,11 +1214,7 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
   islandPowerGrid: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   facOffshore: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   // 環境污染（來源 taipei-gis-analytics environment/pollution_source；PMTiles）
-  pollutionFacility: {
-    status: 'verified',
-    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
-    processing: 'EMS_S_01 列管對象 × EMS_P_46 裁處 → 介質×嚴重度 PMTiles（列管≠污染）',
-  },
+  // pollutionFacility 已搬進 layerManifest（AR-22 試點）
   pollutionPenaltyCritical: {
     status: 'verified',
     datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
@@ -1253,6 +1242,15 @@ export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
     processing: 'Outerview 全球垃圾殘骸 ~25k Point（區域名 + id）；點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈',
     note: '外部資料源 Outerview（CC-BY-4.0）— 非台灣開放資料 catalog，尚無 dataset_id',
   },
+};
+
+/**
+ * 血緣全集 —— 手寫殘量 + manifest 派生。
+ * 型別維持 `Record<keyof LayerVisibility, UpstreamRef>`（tsc 護欄不弱化）。
+ */
+export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {
+  ...HANDWRITTEN_UPSTREAM,
+  ...manifestUpstream(),
 };
 
 // ── Convenience helpers ──
