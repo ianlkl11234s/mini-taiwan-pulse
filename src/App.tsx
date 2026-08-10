@@ -3117,7 +3117,9 @@ export default function App() {
           </div>
         )}
         <div style={{ pointerEvents: "auto" }}>
-          <LegendPanel visibility={layerVisibility} overlayParams={transportParams.overlayParams} isDarkTheme={isDarkTheme} />
+          {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
+              App 因無關狀態重繪時 memo 可整個跳過本面板 */}
+          <LegendPanel overlayParams={transportParams.overlayParams} isDarkTheme={isDarkTheme} />
         </div>
       </div>
 
