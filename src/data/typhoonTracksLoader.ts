@@ -231,3 +231,171 @@ export function typhoonPointsToGeoJSON(
     current: { type: "FeatureCollection", features: currentFeatures },
   };
 }
+
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 颱風卡摘要（查 public.typhoons_active view；無活躍颱風回 null）
+// ══════════════════════════════════════════════════════════════════
+//
+// view（migration 261）＝ DISTINCT ON (storm_id, source) 的最新觀測點
+// + valid_at ≥ now()-24h：活躍判定以**牆鐘**為基準 —— typhoon_positions 無 retention，
+// 若改以「資料內最新點」當基準，颱風季後 collector 停寫時舊颱風會永遠滿足窗（幽靈卡）。
+// DISTINCT ON 也天然解掉 JMA 同 valid_ts 多點時代表點不定的問題。
+
+export interface TyphoonSummary {
+  storm_id: string;
+  name_local: string;
+  name_en: string;
+  center_lat: number;
+  center_lon: number;
+  center_pressure: number | null;
+  max_wind_kt: number | null;
+  /** 中心至台灣本島最近錨點距離（km） */
+  distance_km: number;
+  /** 回報此颱風的來源（大寫，如 JMA / JTWC） */
+  sources: string[];
+  /** 最新觀測時刻 unix 秒 */
+  valid_ts: number;
+}
+
+/** `public.typhoons_active` 的一列 */
+export interface TyphoonActiveRow {
+  storm_id: string;
+  source: string;
+  valid_at: string;
+  name_local: string | null;
+  name_en: string | null;
+  center_lat: number | null;
+  center_lon: number | null;
+  center_pressure_hpa: number | null;
+  max_wind_kt: number | null;
+}
+
+// 台灣本島四極 + 中心錨點，取最近距離當「距台灣」
+const TW_ANCHORS: [number, number][] = [
+  [121.5, 25.15], // 北 · 基隆
+  [120.9, 23.9],  // 中
+  [120.7, 22.0],  // 南 · 恆春
+  [121.6, 23.9],  // 東 · 花蓮
+  [120.2, 23.5],  // 西 · 雲嘉海岸
+];
+
+function distToTaiwanKm(lon: number, lat: number): number {
+  let min = Infinity;
+  for (const [alon, alat] of TW_ANCHORS) {
+    const d = haversineKm([lon, lat], [alon, alat]);
+    if (d < min) min = d;
+  }
+  return min;
+}
+
+/**
+ * view 只濾了 valid_at 的**下界**（now-24h），沒有上界 —— 上游 JTWC 實測有 valid_at
+ * 落在三週後的壞列（2026-08 觀察到 valid_at=2026-08-31 的殘列）。這種列每天都滿足
+ * 「近 24h」，會變成永遠不消失的幽靈來源，故在前端補上界。
+ */
+const FUTURE_TOLERANCE_SEC = 6 * 3600;
+
+/**
+ * 跨來源補值（氣壓 / 風速 / 名稱 / 來源徽章）只吃「離代表點夠近」的列。
+ * 同一個名字在不同來源可能對到**不同的**低壓系統（實測 JTWC 有同名 storm 落在
+ * 3000km 外），無條件取 min(氣壓) / max(風速) 會把別的風暴數值貼到這張卡上。
+ */
+const CROSS_SOURCE_RADIUS_KM = 500;
+
+/**
+ * 挑目前最靠近台灣的活躍颱風（純函式，給測試用）。
+ * JMA / JTWC 同一颱風 storm_id 不同、名稱相同 → 依名稱聚合來源。
+ */
+export function pickActiveTyphoon(
+  rawRows: TyphoonActiveRow[],
+  nowTs: number,
+): TyphoonSummary | null {
+  const rows = rawRows.filter(
+    (r) =>
+      r.center_lat != null && r.center_lon != null &&
+      Math.floor(new Date(r.valid_at).getTime() / 1000) <= nowTs + FUTURE_TOLERANCE_SEC,
+  );
+  if (rows.length === 0) return null;
+
+  // 依名稱聚合（同颱風不同來源）
+  const groups = new Map<string, TyphoonActiveRow[]>();
+  for (const r of rows) {
+    const k = (r.name_en || r.name_local || r.storm_id).toLowerCase();
+    const arr = groups.get(k);
+    if (arr) arr.push(r);
+    else groups.set(k, [r]);
+  }
+
+  // 每組取離台灣最近的來源列為代表，再挑整體最近的一組
+  let best: { rep: TyphoonActiveRow; group: TyphoonActiveRow[]; dist: number } | null = null;
+  for (const group of groups.values()) {
+    let rep = group[0]!;
+    let repDist = distToTaiwanKm(Number(rep.center_lon), Number(rep.center_lat));
+    for (const r of group) {
+      const d = distToTaiwanKm(Number(r.center_lon), Number(r.center_lat));
+      if (d < repDist) { rep = r; repDist = d; }
+    }
+    if (!best || repDist < best.dist) best = { rep, group, dist: repDist };
+  }
+  if (!best) return null;
+
+  // 只留「與代表點同一個系統」的列（見 CROSS_SOURCE_RADIUS_KM）
+  const repCoord: [number, number] = [Number(best.rep.center_lon), Number(best.rep.center_lat)];
+  const sameStorm = best.group.filter(
+    (r) => haversineKm(repCoord, [Number(r.center_lon), Number(r.center_lat)]) <= CROSS_SOURCE_RADIUS_KM,
+  );
+
+  // 名稱 / 氣壓 / 風速跨來源補齊（單一來源最新觀測點常缺值：氣壓取最低、風速取最大）
+  let nameEn = "";
+  let nameLocal = "";
+  let pressure: number | null = null;
+  let wind: number | null = null;
+  for (const r of sameStorm) {
+    if (!nameEn && r.name_en) nameEn = r.name_en;
+    if (!nameLocal && r.name_local) nameLocal = r.name_local;
+    if (r.center_pressure_hpa != null) {
+      const p = Number(r.center_pressure_hpa);
+      pressure = pressure == null ? p : Math.min(pressure, p);
+    }
+    if (r.max_wind_kt != null) {
+      const w = Number(r.max_wind_kt);
+      wind = wind == null ? w : Math.max(wind, w);
+    }
+  }
+
+  return {
+    storm_id: best.rep.storm_id,
+    name_local: nameLocal,
+    name_en: nameEn,
+    center_lat: Number(best.rep.center_lat),
+    center_lon: Number(best.rep.center_lon),
+    center_pressure: pressure,
+    max_wind_kt: wind,
+    distance_km: Math.round(best.dist),
+    sources: [...new Set(sameStorm.map((r) => r.source.toUpperCase()))].sort(),
+    valid_ts: Math.floor(new Date(best.rep.valid_at).getTime() / 1000),
+  };
+}
+
+// 刻意不包 withLoading：這是 Monitor 面板的背景輪詢（30min 一次），
+// 不是圖層載入 —— 灌 LOADING 面板會讓牆面每半小時閃一次。
+// 比照 loadingRegistryContract.test.ts 對 airportPaxLoader 的豁免理由；
+// 該 ratchet 只掃 supabase.rpc/staticRpc，`.from()` 不在掃描範圍，故無需登記。
+async function fetchTyphoonSummaryUncached(): Promise<TyphoonSummary | null> {
+  const { data, error } = await supabase
+    .from("typhoons_active")
+    .select(
+      "storm_id,source,valid_at,name_local,name_en,center_lat,center_lon,center_pressure_hpa,max_wind_kt",
+    );
+  if (error) throw new Error(`Supabase typhoons_active: ${error.message}`);
+  return pickActiveTyphoon((data ?? []) as TyphoonActiveRow[], Math.floor(Date.now() / 1000));
+}
+
+const fetchTyphoonSummaryCached = cachedOnce(fetchTyphoonSummaryUncached, 10 * 60_000);
+
+/** 給 Monitor 颱風卡：最靠近台灣的活躍颱風；無活躍颱風回 null */
+export function fetchTyphoonSummary(): Promise<TyphoonSummary | null> {
+  return fetchTyphoonSummaryCached();
+}
+
+export const invalidateTyphoonSummary = (): void => fetchTyphoonSummaryCached.invalidate();

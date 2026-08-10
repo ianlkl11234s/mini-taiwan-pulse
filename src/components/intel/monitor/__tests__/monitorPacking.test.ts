@@ -28,6 +28,22 @@ describe("monitorPacking", () => {
     walk(buildMonitorTree(MONITOR_VISIBLE_LAYOUT));
   });
 
+  // 這條守的是「新增 widget 時最容易踩、但畫面上要開起來才看得到」的坑：
+  // 左欄止於某個 y 之後，右欄若還有任何一條格線，那條線就是**貫穿全寬**的橫切線，
+  // guillotine 會先在那裡把版面切成上下兩段 —— 右欄底部那塊於是從「右欄」變成
+  // 撐滿 12 欄的獨立區塊（寬度爆掉、與上方右欄對不齊）。
+  // 新 widget 要接在右欄下方時，左欄必須有格子跨過那條線，或改插進右欄中段。
+  it("頂層拆成「上方三欄」+「下方左右兩欄（5 + 7）」", () => {
+    const tree = buildMonitorTree(MONITOR_VISIBLE_LAYOUT);
+    expect(tree.t).toBe("rows");
+    if (tree.t !== "rows") return;
+    expect(tree.children).toHaveLength(2);
+    const bottom = tree.children[1]!;
+    expect(bottom.t).toBe("cols");
+    if (bottom.t !== "cols") return;
+    expect(bottom.children.map(nodeWidth)).toEqual([5, 7]);
+  });
+
   it("互卡佈局（風車形）退回固定網格而不是掉 widget", () => {
     // 四塊繞著中心互卡，找不到任何一條完整切線
     const pinwheel = [

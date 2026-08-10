@@ -38,7 +38,7 @@
 
 畫布規格：`cols=12` / `rowHeight=40px` / `gap=10px`（沙盒 `ROW_H` 與 `MONITOR_GRID_ROW_HEIGHT` 綁死）。
 
-九版（2026-08-10）座標。`fit` 欄見下方「高度怎麼決定」：
+十版（2026-08-10）座標。`fit` 欄見下方「高度怎麼決定」：
 
 | id | 元件 | x,y | w×h | fit |
 |---|---|---|---|---|
@@ -53,9 +53,13 @@
 | `situationCards` | `SituationCards` | 0,20 | 5×3 | ✅ |
 | `plaBoard` | `PlaBoard` | 0,23 | 5×13 | ✅ |
 | `hazardStrip` | `HazardWatchStrip` | 5,26 | 7×8 | ✅ |
-| `powerCard` | `PowerCard` | 5,34 | 7×14 | ✅ |
+| `typhoon` | `HazardCards/TyphoonCard` | 5,34 | 4×4 | ✅ |
+| `earthquake` | `HazardCards/EarthquakeCard` | 9,34 | 3×4 | ✅ |
+| `radiation` | `HazardCards/RadiationCard` | 5,38 | 4×4 | ✅ |
+| `lightning` | `HazardCards/LightningCard` | 9,38 | 3×4 | ✅ |
+| `powerCard` | `PowerCard` | 5,42 | 7×14 | ✅ |
 | `erCongestion` | `ERCard` | 0,36 | 5×15 | ✅ |
-| `foodPriceBoard` | `FoodPriceBoard` | 5,48 | 7×12 | ✅ |
+| `foodPriceBoard` | `FoodPriceBoard` | 5,56 | 7×12 | ✅ |
 | `prison` | `PrisonCard` | 0,51 | 2×4 | ✅ |
 | `airportPax` | `AirportPaxCard` | 2,51 | 3×6 | ✅ |
 
@@ -88,6 +92,7 @@ x / w / 前後順序仍然由座標決定，**高度分兩種**：
 - 排版沙盒（本目錄）：[`sandbox.html`](./sandbox.html)
 - 網格容器 + widget 接線：`src/components/intel/monitor/MonitorPanel.tsx`
 - 新抽離元件：`NewsFeedPanel.tsx` / `HotspotsWidget.tsx` / `HourlyHistogramWidget.tsx` / `TriageWidget.tsx`
+- 災害監看四卡（十版）：`HazardCards.tsx`（颱風 / 地震 / 輻射 / 落雷共用一個外殼）
 - 已刪除：`IndicatorPanel.tsx`（widget 全部上網格後成為 orphan）
 
 ## 已知取捨
@@ -103,6 +108,13 @@ x / w / 前後順序仍然由座標決定，**高度分兩種**：
   fit 這條鏈上沒有任何固定高 → 百分比解不出來就當 `auto`，元素塌成 0。
   實際踩過：PLA 的 120 天柱狀圖整區變全白（容器在、120 根柱子高度全 0）。
   水平的 `width: X%`（各種進度條）不受影響 —— 寬度那條鏈一直是確定的。
+- 🔴 **新 widget 不可接在「較短那一欄結束之後」**。左欄止於 y57、右欄較長；
+  右欄若在 57 之後還有任何一條格線，那條線就成為**貫穿全寬**的橫切線 ——
+  guillotine 會先在那裡把版面切成上下兩段，右欄底部那塊於是不再是「右欄」，
+  而是撐滿 12 欄的獨立區塊（寬度爆掉、與上方右欄對不齊）。
+  所以右欄在 57 之後只能留**一個**跨過 57 的格子（現為 `foodPriceBoard` 56–68），
+  十版的四張災害卡才插在中段（34–42）而非接在最下面。
+  `monitorPacking.test.ts`「頂層拆成上方三欄 + 下方左右兩欄（5 + 7）」會擋。
 - **`y` 對 `fit` widget 只是同欄排序**。`erCongestion` 實際渲染 1163px 而非 `h15` 的 740px，
   其下的 `prison` / `airportPax` 實際位置與宣告的 `y=51` 不同 —— 這是預期行為，
   沙盒匯出的座標仍以宣告值為準（兩邊逐格比對照樣過）。

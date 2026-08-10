@@ -39,6 +39,10 @@ const EXEMPT: Record<string, string> = {
   "dataCatalogLoader.ts:results": "popup『資料來源』面板 lazy",
   "dataCatalogLoader.ts:fetchDataCatalogByTheme": "popup『資料來源』面板 lazy",
   "airportPaxLoader.ts:fetchAirportHourlyPax": "monitor 面板 widget，非圖層載入",
+  // monitor 落雷卡的摘要查詢（5min 背景輪詢的 head/count 與 latest 1 筆）——
+  // 同 airportPax：monitor 面板 widget，非圖層載入，灌 LOADING 面板會讓牆面定期閃
+  "lightningLoader.ts:lightningCountQuery": "monitor 落雷卡計數（head count），非圖層載入",
+  "lightningLoader.ts:lightningLatestQuery": "monitor 落雷卡最新一筆，非圖層載入",
   // 背景 prefetch：刻意不灌 LOADING panel（檔內註解有寫）
   "lightningLoader.ts:fetchLightningDayRaw": "raw 版供背景 prefetch；wrapped 版才包 withLoading",
   "nuclearLoader.ts:fetchNuclearDayRaw": "同上",

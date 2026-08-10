@@ -1078,6 +1078,36 @@
         'gap:6px;flex:1;min-height:0">' + cells + "</div>" +
         '<div class="lbl" style="letter-spacing:1px;text-transform:none;flex:none">' +
         "農業部批發拍賣 · T+1 · 基期 2024-2025=100 · 近 180 天 · ⚠️ 不含牛</div>";
+    },
+
+    /* ── 災害監看四卡（十版）：實機每張都另有「沒事」與「拿不到」兩種畫面 ── */
+
+    typhoon: function () {
+      return '<div class="w-mid"><span class="num big" style="color:var(--amber)">642</span>' +
+        '<span class="lbl">KM 距台灣 · JMA / JTWC</span></div>' +
+        '<div class="w-lines"><div><span>Dolphin 中心氣壓</span><b>— hPa</b></div>' +
+        '<div><span>最大風速</span><b>80 kt · 41 m/s</b></div></div>';
+    },
+
+    earthquake: function () {
+      return '<div class="w-mid"><span class="num big" style="color:var(--amber)">M 3.8</span>' +
+        '<span class="lbl">最新有感 · 深度 16.7 km</span></div>' +
+        '<div class="w-lines"><div><span>南投縣仁愛鄉</span><b>2 天前</b></div>' +
+        '<div><span>24h 內</span><b>0 次</b></div></div>';
+    },
+
+    radiation: function () {
+      return '<div class="w-mid"><span class="num big">0.071</span>' +
+        '<span class="lbl">µSv/h 平均 · 51/51 站</span></div>' +
+        '<div class="w-lines"><div><span>最高 · 金美國小</span><b>0.073</b></div>' +
+        '<div><span>狀態</span><b style="color:#22c55e">全部正常</b></div></div>';
+    },
+
+    lightning: function () {
+      return '<div class="w-mid"><span class="num big" style="color:#fb923c">41</span>' +
+        '<span class="lbl">次 / 近 1h · 今日 827 次</span></div>' +
+        '<div class="w-lines"><div><span>最新 · 雲中</span><b>3 分鐘前</b></div>' +
+        '<div><span>台電源</span><b style="color:var(--dim)">上游斷供中</b></div></div>';
     }
   };
 
@@ -1100,7 +1130,11 @@
     { i: "erCongestion",      cn: "急診壅塞",   en: "ER 24H",         sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6, fit: 1 },
     { i: "plaBoard",          cn: "共機戰情板", en: "PLA SITUATION",  sig: "var(--red)",    w: 5,  h: 15, minW: 3, minH: 6, fit: 1 },
     { i: "foodPriceBoard",    cn: "食品價格",   en: "FOOD PRICE",     sig: "#5fbf6d",       w: 7,  h: 12, minW: 4, minH: 8, fit: 1 },
-    { i: "taiex",             cn: "台股",       en: "TAIEX",          sig: "#ff4d4f",       w: 5,  h: 3,  minW: 3, minH: 3, fit: 1 }
+    { i: "taiex",             cn: "台股",       en: "TAIEX",          sig: "#ff4d4f",       w: 5,  h: 3,  minW: 3, minH: 3, fit: 1 },
+    { i: "typhoon",           cn: "颱風",       en: "TYPHOON",        sig: "#38bdf8",       w: 4,  h: 4,  minW: 3, minH: 3, fit: 1 },
+    { i: "earthquake",        cn: "地震",       en: "SEISMIC",        sig: "var(--amber)",  w: 3,  h: 4,  minW: 3, minH: 3, fit: 1 },
+    { i: "radiation",         cn: "輻射",       en: "RADIATION",      sig: "#22c55e",       w: 4,  h: 4,  minW: 3, minH: 3, fit: 1 },
+    { i: "lightning",         cn: "落雷",       en: "LIGHTNING",      sig: "#fb923c",       w: 3,  h: 4,  minW: 3, minH: 3, fit: 1 }
   ];
 
   var DEF = {};
@@ -1130,7 +1164,7 @@
 
   var PRESETS = {
     restored: {
-      // ⚠️ 與 repo 的 monitorLayout.ts MONITOR_LAYOUT 逐格對齊（2026-08-10 九版）。
+      // ⚠️ 與 repo 的 monitorLayout.ts MONITOR_LAYOUT 逐格對齊（2026-08-10 十版）。
       // 改完拖曳 → 複製 JSON → 覆蓋 MONITOR_LAYOUT。兩邊漂掉就失去沙盒的意義。
       // 註：標 AUTO（fit:"content"）的 widget 實機高度跟內容走，這裡的 h 只是排序佔位。
       name: "現況（對齊 repo）",
@@ -1151,13 +1185,21 @@
         L("plaBoard", 0, 23, 5, 13),
         L("erCongestion", 0, 36, 5, 15),
         L("hazardStrip", 5, 26, 7, 8),
-        L("powerCard", 5, 34, 7, 14),
+        // 災害監看四卡（2026-08-10 十版）：接在災防直播下方成「影像 + 數據」區塊。
+        // 🔴 不可改放到最下面 —— 左欄止於 y57，右欄若在那之後還有格線，
+        // 那條線會變成貫穿全寬的橫切線，右欄底部那塊會被切成撐滿 12 欄的獨立區塊
+        //（monitorPacking.test.ts 有守）。右欄在 57 之後只能留 foodPriceBoard 一格。
+        L("typhoon", 5, 34, 4, 4),
+        L("earthquake", 9, 34, 3, 4),
+        L("radiation", 5, 38, 4, 4),
+        L("lightning", 9, 38, 3, 4),
+        L("powerCard", 5, 42, 7, 14),
         L("prison", 0, 51, 2, 4),
         L("airportPax", 2, 51, 3, 6),
-        // 食品價格監測（2026-08-05）：接在 powerCard（y34 h14 → 佔到 y48）之後，
+        // 食品價格監測（2026-08-05）：接在 powerCard（y42 h14 → 佔到 y56）之後，
         // 走右欄 w7 而非比照 PLA 的 w5 —— 2×2 在 w5 每格只剩 ~190px，迷你走勢圖擠到看不出形狀。
         // h 9→12（2026-08-10）：多出的高度全灌進四張卡的走勢圖。
-        L("foodPriceBoard", 5, 48, 7, 12)
+        L("foodPriceBoard", 5, 56, 7, 12)
       ]
     },
     wall: {

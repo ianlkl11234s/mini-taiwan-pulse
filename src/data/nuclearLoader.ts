@@ -214,6 +214,62 @@ export function nuclearDoseColor(
   return NUCLEAR_LEVEL_COLORS[classifyNuclearDose(dose, isStale)];
 }
 
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 輻射卡摘要（純聚合，複用 fetchNuclearStatus 的 5min 快取，不另打 DB）
+// ══════════════════════════════════════════════════════════════════
+
+export interface NuclearSummary {
+  /** 有回報站的平均劑量率（µSv/h） */
+  avg_usvh: number | null;
+  /** 最大劑量率 + 站名 */
+  max_usvh: number | null;
+  max_station: string | null;
+  /** 非離線且有值的站數 */
+  reporting: number;
+  /** 站總數 */
+  total: number;
+  /** 觀察站數（0.2–0.5 µSv/h，classifyNuclearDose 的 warning 級） */
+  warning_count: number;
+  /** 警戒站數（> 0.5 µSv/h，AEC 警示值，classifyNuclearDose 的 alarm 級） */
+  alarm_count: number;
+  /** 異常站列名（觀察 + 警戒，劑量降序，最多 3 站） */
+  anomalies: { name: string; dose: number; level: "warning" | "alarm" }[];
+}
+
+/** 站列表 → 卡片摘要（純函式，給測試用） */
+export function summariseNuclear(rows: NuclearStation[]): NuclearSummary {
+  const valid = rows.filter((r) => !r.is_stale && r.dose_usvh != null);
+  let sum = 0;
+  let max = -Infinity;
+  let maxStation: string | null = null;
+  const anomalies: { name: string; dose: number; level: "warning" | "alarm" }[] = [];
+  for (const r of valid) {
+    const d = Number(r.dose_usvh);
+    sum += d;
+    if (d > max) { max = d; maxStation = r.station_name; }
+    const level = classifyNuclearDose(d, false);
+    if (level === "warning" || level === "alarm") {
+      anomalies.push({ name: r.station_name, dose: d, level });
+    }
+  }
+  anomalies.sort((a, b) => b.dose - a.dose);
+  return {
+    avg_usvh: valid.length ? sum / valid.length : null,
+    max_usvh: valid.length ? max : null,
+    max_station: maxStation,
+    reporting: valid.length,
+    total: rows.length,
+    warning_count: anomalies.filter((a) => a.level === "warning").length,
+    alarm_count: anomalies.filter((a) => a.level === "alarm").length,
+    anomalies: anomalies.slice(0, 3),
+  };
+}
+
+/** 給 Monitor 輻射卡：全國站平均 / 最大劑量率 + 異常站（沿用 classifyNuclearDose 分級） */
+export async function fetchNuclearSummary(): Promise<NuclearSummary> {
+  return summariseNuclear(await fetchNuclearStatus());
+}
+
 export function toNuclearFC(rows: NuclearStation[]): GeoJSON.FeatureCollection<GeoJSON.Point> {
   return {
     type: "FeatureCollection",

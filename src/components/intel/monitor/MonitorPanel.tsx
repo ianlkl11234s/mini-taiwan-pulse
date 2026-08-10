@@ -42,6 +42,9 @@ import { ERCard } from "./ERCard";
 import { PlaBoard } from "./PlaBoard";
 import { FoodPriceBoard } from "./FoodPriceBoard";
 import {
+  TyphoonCard, EarthquakeCard, RadiationCard, LightningCard,
+} from "./HazardCards";
+import {
   MONITOR_VISIBLE_LAYOUT,
   MONITOR_GRID_ROW_HEIGHT, MONITOR_GRID_GAP,
   type MonitorWidgetId, type MonitorGridItem,
@@ -632,6 +635,12 @@ export function MonitorPanel({
     erCongestion: <ERCard open={open} />,
     prison: <PrisonCard latest={prisonLatest} />,
     airportPax: <AirportPaxCard open={open} />,
+    // 災害監看四卡：各自向 src/data 的 summary loader 輪詢（30/15/5/5 min），
+    // nowTs 吃 MonitorPanel 的 5s wallClock 讓相對時間跟著跳
+    typhoon: <TyphoonCard open={open} nowTs={now} />,
+    earthquake: <EarthquakeCard open={open} nowTs={now} />,
+    radiation: <RadiationCard open={open} nowTs={now} />,
+    lightning: <LightningCard open={open} nowTs={now} />,
   };
 
   return (
