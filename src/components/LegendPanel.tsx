@@ -87,6 +87,7 @@ import {
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../data/mountainSafetyTypes";
 import { MEDICAL_ISOCHRONE_BANDS, MEDICAL_ISOCHRONE_NOTE } from "../data/medicalIsochroneTypes";
+import { TOUR_ATTRACTION_CATS, TOUR_HOTEL_CATS, TOUR_HERITAGE_CATS } from "../data/tourTypes";
 import {
   SOIL_FERTILITY_METRICS,
   SOIL_FERTILITY_METRIC_OPTIONS,
@@ -1616,16 +1617,10 @@ function LibrarySeatsLegend() {
 }
 
 // ── 🧳 觀光 Tourism 圖例 ──
+// 三組配色表（分類 / 旅宿等級 / 文化資產類別）SSOT 在 data/tourTypes.ts，與
+// map/overlayRegistry.ts 的 Mapbox paint expression 共用同一份，避免兩邊 hex 漂移。
 
 // 觀光景點：分類著色（五類）↔ 熱度著色（年遊客量 log 色帶 + 灰=無統計）雙模式。
-const TOUR_ATTRACTION_CATS = [
-  { color: "#2e7d32", label: "自然 Nature" },
-  { color: "#6d4c41", label: "文化 Culture" },
-  { color: "#ab47bc", label: "休閒藝術 Leisure & Arts" },
-  { color: "#0288d1", label: "都會社區 Urban Community" },
-  { color: "#9e9e9e", label: "其他 Other" },
-];
-
 function TourAttractionsLegend({ modeIdx }: { modeIdx: number }) {
   const t = useLegendTheme();
   const heat = modeIdx === 1;
@@ -1659,13 +1654,6 @@ function TourAttractionsLegend({ modeIdx }: { modeIdx: number }) {
 }
 
 // 旅宿：hotel_classes 四類分色。
-const TOUR_HOTEL_CATS = [
-  { color: "#d32f2f", label: "國際觀光旅館 Intl. Tourist Hotel" },
-  { color: "#f57c00", label: "一般觀光旅館 Std. Tourist Hotel" },
-  { color: "#1976d2", label: "旅館 Hotel" },
-  { color: "#43a047", label: "民宿 B&B" },
-];
-
 function TourHotelsLegend() {
   const t = useLegendTheme();
   return (
@@ -1682,12 +1670,6 @@ function TourHotelsLegend() {
 }
 
 // 文化資產：category 三值分色。
-const TOUR_HERITAGE_CATS = [
-  { color: "#5d4037", label: "古蹟 Monument" },
-  { color: "#8d6e63", label: "歷史建築 Historic Building" },
-  { color: "#a1887f", label: "文化景觀 Cultural Landscape" },
-];
-
 function TourHeritageLegend() {
   const t = useLegendTheme();
   return (
