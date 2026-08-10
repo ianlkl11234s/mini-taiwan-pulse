@@ -1,9 +1,10 @@
-import { Fragment, useState, createContext, useContext } from "react";
+import { Fragment, memo, useState, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
+import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
@@ -210,7 +211,14 @@ const CROP_KIND_ITEMS = [
 ];
 
 interface LegendPanelProps {
-  visibility: LayerVisibility;
+  /**
+   * 圖層開關。**主站不傳** —— 改由本元件自己訂閱 `layerVisibilityStore`
+   * （AR-21 試點），這樣 App 因無關狀態重繪時 memo 能整個跳過本面板。
+   *
+   * `/embed` 仍要傳：embed 的 visibility 是 mount 時從網址參數凍結的 ref，
+   * 完全不進 store（embed 從不寫 store）。有 prop 就以 prop 為準。
+   */
+  visibility?: LayerVisibility;
   overlayParams: Record<string, number>;
   /** 淺色底圖時傳 false 讓面板外殼切成淺色 chrome（色票資料兩主題共用，不受影響）*/
   isDarkTheme?: boolean;
@@ -441,10 +449,15 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   },
 ];
 
-export function LegendPanel({
-  visibility, overlayParams, isDarkTheme = true, railSystems,
+export const LegendPanel = memo(function LegendPanel({
+  visibility: visibilityProp, overlayParams, isDarkTheme = true, railSystems,
 }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
+
+  // AR-21：主站走 store 訂閱、embed 走 prop。hook 無條件呼叫（embed 情境下
+  // 這份訂閱是惰性的 —— embed 從不寫 store，永遠拿到預設全關的快照）。
+  const storeVisibility = useLayerVisibilityAll();
+  const visibility = visibilityProp ?? storeVisibility;
 
   // 面板外殼 chrome（僅容器與標題文字，色票資料兩主題共用）
   const c = isDarkTheme
@@ -520,7 +533,7 @@ export function LegendPanel({
     </div>
     </LegendThemeCtx.Provider>
   );
-}
+});
 
 // ── 環境污染：嚴重度（設施 + 場址共用）──
 function PollutionSeverityLegend({ visibility }: { visibility: LayerVisibility }) {

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
+import { layerVisibilityStore } from "../state/layerVisibilityStore";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible } from "./overlayManager";
@@ -92,7 +93,10 @@ interface MapViewProps {
   renderMode: RenderMode;
   isDarkTheme?: boolean;
   showTrails?: boolean;
-  layerVisibility: LayerVisibility;
+  /**
+   * ⚠️ AR-21：`layerVisibility` 已不是 prop —— 改直接讀 `layerVisibilityStore`。
+   * overlay 的顯示/隱藏是純命令式的地圖操作，不需要先經過一次 React re-render。
+   */
   overlayParams: Record<string, number>;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
@@ -163,7 +167,7 @@ function applyPureBlackTheme(map: mapboxgl.Map): void {
   }
 }
 
-export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMode, isDarkTheme = true, showTrails = true, layerVisibility, overlayParams, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMode, isDarkTheme = true, showTrails = true, overlayParams, onMapReady }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);
@@ -175,7 +179,6 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   const isDarkThemeRef = useRef(isDarkTheme);
   const pureBlackRef = useRef(pureBlack);
   const showTrailsRef = useRef(showTrails);
-  const layerVisibilityRef = useRef(layerVisibility);
   const overlayParamsRef = useRef(overlayParams);
 
   onMapReadyRef.current = onMapReady;
@@ -185,7 +188,6 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   isDarkThemeRef.current = isDarkTheme;
   pureBlackRef.current = pureBlack;
   showTrailsRef.current = showTrails;
-  layerVisibilityRef.current = layerVisibility;
   overlayParamsRef.current = overlayParams;
 
   useEffect(() => {
@@ -216,18 +218,22 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       // 否則 hydratedSources 殘留會讓下方 re-hydrate 被跳過 → 靜態 GeoJSON 圖層切底圖後變空白。
       resetOverlayHydration();
 
+      // AR-21：visibility 讀 store（原本讀 layerVisibilityRef.current，語意相同 ——
+      // 都是「此刻的最新值」，只是家從 prop 搬到了 store）
+      const vis = layerVisibilityStore.getAll();
+
       // 批量新增所有 overlays + 設定初始可見性
       addAllOverlays(
         map,
         OVERLAY_REGISTRY,
         isDarkThemeRef.current,
-        layerVisibilityRef.current,
+        vis,
         overlayParamsRef.current,
       );
 
       // 重建後：把目前可見的靜態 GeoJSON 圖層重新 fetch + setData（切底圖不再消失）
       for (const config of OVERLAY_REGISTRY) {
-        if (isOverlayVisible(config, layerVisibilityRef.current, overlayParamsRef.current)) {
+        if (isOverlayVisible(config, vis, overlayParamsRef.current)) {
           void hydrateOverlayIfNeeded(map, config);
         }
       }
@@ -251,13 +257,13 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
       ensureAllAgricultureLayers(map);
-      updateAllAgricultureLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
       // 等時圈 PMTiles 層（須排在 agriculture 之後 → 共用 PMTiles SourceType 已註冊）
       ensureFireIsochroneLayer(map);
-      updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
+      updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       // 醫療等時圈 + 醫療沙漠（PMTiles fill，共用 SourceType）
       ensureMedicalIsochroneLayers(map);
-      updateMedicalIsochroneLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      updateMedicalIsochroneLayers(map, vis, overlayParamsRef.current);
 
       // 初次載入後，每次樣式切換都重建 flight layer
       if (readyRef.current) {
@@ -278,19 +284,21 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
       ensureIndicatorsLayers(map);
       ensureYoubikeLayers(map);
       ensureAllAgricultureLayers(map);
-      updateAllAgricultureLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      // AR-21：同 style.load —— visibility 讀 store 的最新值
+      const vis = layerVisibilityStore.getAll();
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
       ensureFireIsochroneLayer(map);
-      updateFireIsochroneLayer(map, layerVisibilityRef.current.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
+      updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
       ensureMedicalIsochroneLayers(map);
-      updateMedicalIsochroneLayers(map, layerVisibilityRef.current, overlayParamsRef.current);
+      updateMedicalIsochroneLayers(map, vis, overlayParamsRef.current);
       // 補發 load 之前用戶已切的 toggle / slider：
       // mapRef 在 load 才設定，而 production 首載 load 事件可能晚達 ~30s，
       // 期間 visibility / params effect 全部 no-op（mapRef null）。
-      // 這裡用 ref 的最新值重放一次，避免「toggle 開了但圖層沒出現」。
+      // 這裡用 store 的最新值重放一次，避免「toggle 開了但圖層沒出現」。
       for (const config of OVERLAY_REGISTRY) {
-        const vis = isOverlayVisible(config, layerVisibilityRef.current, overlayParamsRef.current);
-        if (vis) void hydrateOverlayIfNeeded(map, config);
-        setOverlayVisible(map, config, vis);
+        const v = isOverlayVisible(config, vis, overlayParamsRef.current);
+        if (v) void hydrateOverlayIfNeeded(map, config);
+        setOverlayVisible(map, config, v);
       }
       updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkThemeRef.current, overlayParamsRef.current);
       onMapReadyRef.current?.(map);
@@ -383,44 +391,49 @@ export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMo
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !readyRef.current) return;
+    const vis = layerVisibilityStore.getAll();
     updateAllOverlayThemes(map, OVERLAY_REGISTRY, isDarkTheme, overlayParams);
     // OVERLAY_REGISTRY 之外的專屬圖層：params 變動也要 re-apply
-    updateAllAgricultureLayers(map, layerVisibility, overlayParams);
+    updateAllAgricultureLayers(map, vis, overlayParams);
     // 等時圈：透明度 / 縣市下拉變動 → 更新
-    updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParams));
+    updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParams));
     // 醫療等時圈 + 醫療沙漠
-    updateMedicalIsochroneLayers(map, layerVisibility, overlayParams);
-  }, [
-    isDarkTheme, overlayParams,
-    layerVisibility.agriculture,
-    layerVisibility.agriSoil,
-    layerVisibility.agriSoilFertility,
-    layerVisibility.agriLeisureFarmZones,
-    layerVisibility.agriRuralRegen,
-    layerVisibility.agriCropSuitability,
-    layerVisibility.agriPOI,
-  ]);
+    updateMedicalIsochroneLayers(map, vis, overlayParams);
+    // ⚠️ AR-21：這裡原本還掛著 7 個 agriculture 的 visibility key 當 deps。
+    //    visibility 改由下方 store 訂閱驅動後那些 dep 是多餘的 —— 訂閱路徑
+    //    (applyOverlayVisibility) 會呼叫同樣這三個 update 函式，故 agriculture
+    //    的開/關依舊會即時反映；此處只保留主題 / params 這兩個觸發源。
+  }, [isDarkTheme, overlayParams]);
 
   // Overlay 可見性（一個 useEffect 取代原本 7 個）
+  // AR-21：visibility 不再是 prop，改訂閱 layerVisibilityStore —— toggle 直接跑
+  // 這段命令式更新，不必先等 MapView re-render（也讓 MapView 之後可被 memo）。
   // guard 不加 isStyleLoaded()，理由同上 — busy 期間 toggle 會被丟棄
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !readyRef.current) return;
-    for (const config of OVERLAY_REGISTRY) {
-      const vis = isOverlayVisible(config, layerVisibility, overlayParamsRef.current);
-      if (vis) void hydrateOverlayIfNeeded(map, config);
-      setOverlayVisible(map, config, vis);
-    }
-    // OVERLAY_REGISTRY 之外的專屬圖層
-    updateAllAgricultureLayers(map, layerVisibility, overlayParamsRef.current);
-    // 等時圈開/關層
-    updateFireIsochroneLayer(map, layerVisibility.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
-    // 醫療等時圈 + 醫療沙漠開/關
-    updateMedicalIsochroneLayers(map, layerVisibility, overlayParamsRef.current);
-    // ⚠️ deps 除了 layerVisibility 還要收 propertyValueGridScaleIdx：
+    const applyOverlayVisibility = () => {
+      const map = mapRef.current;
+      if (!map || !readyRef.current) return;
+      const vis = layerVisibilityStore.getAll();
+      for (const config of OVERLAY_REGISTRY) {
+        const v = isOverlayVisible(config, vis, overlayParamsRef.current);
+        if (v) void hydrateOverlayIfNeeded(map, config);
+        setOverlayVisible(map, config, v);
+      }
+      // OVERLAY_REGISTRY 之外的專屬圖層
+      updateAllAgricultureLayers(map, vis, overlayParamsRef.current);
+      // 等時圈開/關層
+      updateFireIsochroneLayer(map, vis.fireIsochrone, fireIsochroneParamsOf(overlayParamsRef.current));
+      // 醫療等時圈 + 醫療沙漠開/關
+      updateMedicalIsochroneLayers(map, vis, overlayParamsRef.current);
+    };
+    // mount / scaleIdx 變動時跑一次（等同原本 effect 的 mount + dep 觸發），
+    // 之後任何 visibility 變動由 store 訂閱驅動。
+    applyOverlayVisibility();
+    return layerVisibilityStore.subscribe(applyOverlayVisibility);
+    // ⚠️ deps 除了 visibility（已改訂閱）還要收 propertyValueGridScaleIdx：
     //    總市值網格的三個尺度共用同一個 layer key，切尺度是 param 變動而非 toggle 變動，
     //    不收這個 dep 會「選了 450m 但畫面還是 150m」（見 overlayManager.isOverlayVisible）。
-  }, [layerVisibility, overlayParams.propertyValueGridScaleIdx]);
+  }, [overlayParams.propertyValueGridScaleIdx]);
 
   return (
     <div

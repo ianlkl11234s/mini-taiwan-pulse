@@ -106,7 +106,7 @@ P0 止血 ──────────────┐
 
 | # | 內容 | Branch | 驗證 | 狀態 |
 |---|---|---|---|---|
-| AR-21 | `layerVisibilityStore`：照 `timeStore.ts` 模式建細粒度訂閱 store（`getVisibility(key)` / `subscribeKey(key, cb)` / `useLayerVisible(key)`）。過渡期與現有 App state 雙向 bridge，元件逐步改訂閱 | `perf/visibility-store` | React Profiler：toggle 單層 commit 不含無關元件；行為零變化（All Off → 逐層開抽查） | ☐ |
+| AR-21 | `layerVisibilityStore`：照 `timeStore.ts` 模式建細粒度訂閱 store（`getVisibility(key)` / `subscribeKey(key, cb)` / `useLayerVisible(key)`）。過渡期與現有 App state 雙向 bridge，元件逐步改訂閱 | `perf/visibility-store` | React Profiler：toggle 單層 commit 不含無關元件；行為零變化（All Off → 逐層開抽查） | 🔃 試點分支 `perf/visibility-store`（store + bridge + 2 consumer），全量遷移待 AR-22/23 |
 | AR-22 | Layer Manifest schema 定義（key/section/color/dataClass/source/polling/legend/popup/params/description/topics）+ 試點 5 層（挑近期熟悉的：real-estate、fire、bloom 系） | `feat/layer-manifest-pilot` | 試點層全部行為不變；layerConsistency 測試新增 manifest 完整性檢查 | ☐ |
 | AR-23 | 全量遷移（按 sidebar section 分批，每批一 PR）：App.tsx 55 個手寫 hook 呼叫改 manifest 驅動迴圈；LAYER_COLORS / SECTIONS 從 manifest 派生，消滅三處平行清單 | `feat/layer-manifest-s1..sN` | 每批：tsc + test + browser 抽查；批間可暫停 | ☐ |
 | AR-24 | params 遷移：per-layer param spec 進 manifest，`useTransportParams` 退役為 generic param store + renderer（同 AR-21 訂閱模式） | `perf/params-store` | slider 拖動只 render 該層控件 + 地圖 diff；2104 行檔刪除 | ☐ |
