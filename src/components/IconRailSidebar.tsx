@@ -570,7 +570,11 @@ export function IconRailSidebar({
     onWidthChange?.(RAIL_WIDTH);
   }, [onWidthChange]);
 
+  // Layers 入口紅點：每次進站顯示，第一次點開 Layers 後本 session 消失（引導訪客發現圖層）
+  const [layersBadgeSeen, setLayersBadgeSeen] = useState(false);
+
   const togglePanel = (panel: PanelId) => {
+    if (panel === "layers") setLayersBadgeSeen(true);
     // 是否為「開啟」動作（切到別的 panel 或開啟目前關閉的）。activePanel === panel 才是關閉。
     const willOpen = activePanel !== panel;
     // 開啟 Layers/Locations 時，關掉 Intel / Satellite（左側 panel 互斥）。
@@ -663,6 +667,7 @@ export function IconRailSidebar({
           active={activePanel === "layers"}
           onClick={() => togglePanel("layers")}
           tooltip="Layers"
+          badge={!layersBadgeSeen}
         />
 
         {/* Locations */}
@@ -863,9 +868,11 @@ function WorldGlyph({ size = 20 }: { size?: number }) {
 }
 
 function RailIcon({
-  icon: Icon, active, onClick, tooltip,
+  icon: Icon, active, onClick, tooltip, badge,
 }: {
   icon: ComponentType<{ size?: number }>; active: boolean; onClick: () => void; tooltip: string;
+  /** 右上角紅底白字「!」提示圓點（引導點擊；點開後由呼叫端關閉） */
+  badge?: boolean;
 }) {
   const { ACCENT, DIM, RAIL_ICON_ACTIVE } = useRailTheme();
   return (
@@ -873,6 +880,7 @@ function RailIcon({
       onClick={onClick}
       title={tooltip}
       style={{
+        position: "relative",
         width: 40,
         height: 40,
         borderRadius: RADIUS.xl,
@@ -889,6 +897,27 @@ function RailIcon({
       }}
     >
       <Icon size={20} />
+      {badge && (
+        <span
+          style={{
+            position: "absolute",
+            top: 2,
+            right: 2,
+            width: 14,
+            height: 14,
+            borderRadius: "50%",
+            background: "#dc2626",
+            color: "#fff",
+            fontSize: 10,
+            fontWeight: 700,
+            lineHeight: "14px",
+            textAlign: "center",
+            pointerEvents: "none",
+          }}
+        >
+          !
+        </span>
+      )}
     </button>
   );
 }
