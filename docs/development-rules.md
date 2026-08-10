@@ -107,17 +107,38 @@ useEffect(() => {
 - ❌ 前端自己做 N+1 query 拼資料
 - ❌ 假設 Supabase pooler statement_timeout 可以繞過
 
-## 4. 新增 Layer 流程（強制順序）
+## 4. 新增 Layer 流程（完整觸點表）
 
-| 順序 | 檔案 | 動作 |
-|---|---|---|
-| 1 | `src/types/index.ts` | `LayerVisibility` interface 加 key |
-| 2 | `src/data/xxxLoader.ts` | 寫 loader（loadingRegistry + Supabase RPC） |
-| 3 | `src/hooks/useXxxLayer.ts` | React hook：state + 觸發 loader + cleanup |
-| 4 | `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts` | 靜態 → registry；動態 → CustomLayer |
-| 5 | `src/components/sidebar/layerCatalog.ts` | **`LAYER_COLORS` 加 key（⚠️ 漏了會 tsc error TS2739）** + `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用）。UI toggle 渲染仍在 `IconRailSidebar.tsx` / `LayerSidebar.tsx` |
-| 6 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView |
-| 7 | `src/hooks/useLayerVisibility.ts` | （僅預設開啟才需要）加進 `DEFAULT_ON`；預設 false 自動派生，免改 |
+> 2026-08-10 稽核（`docs/research/architecture-audit-2026-08-10.md` C-2）用 3 個真實 commit 實測
+> （落雷單層 11 檔 29 hunk／殯葬 5 層 14 檔／教育 16 層同 14 檔＝規模經濟），發現舊版「7 步」漏了
+> 7 個觸點——新人照舊表做必漏。下表是完整版，🔒 = tsc 或測試強制擋漏接，⚠️ = 只能靠人工 review。
+
+| # | 檔案 | 動作 | 守門 |
+|---|---|---|---|
+| 1 | `src/types/index.ts` | `LayerVisibility` interface 加 key | 🔒 tsc（下游多處 `Record<keyof LayerVisibility,T>` 全部強制） |
+| 2 | `src/types/index.ts` | 若可點選：`FeatureInfo["layerType"]` union 加 key | 🔒 tsc（`HEADER_LABELS` 是 Record，見 #15） |
+| 3 | `src/data/xxxLoader.ts` | 寫 loader，Supabase RPC / 靜態 fetch 包 `withLoading` | 🔒 `loadingRegistryContract.test.ts`（檔名需符合 `/Loaders?\.ts$/`；`intelLoaders.ts` 複數檔名曾逃過舊版 filter，已修） |
+| 4 | `src/data/xxxTypes.ts` | 若分類 ≥2 種：色/標籤 SSOT，供 factory / featureInfo / legend 三邊 import | ⚠️ 人工（漏建會導致三邊各自 inline hex，見 PRINCIPLES 三邊色彩一致性段） |
+| 5 | `src/hooks/useXxxLayer.ts` | React hook：state + 觸發 loader + cleanup | ⚠️ 人工 |
+| 6 | `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts` | 靜態 → registry entry；動態 → CustomLayer | ⚠️ 人工 |
+| 7 | `src/components/sidebar/layerCatalog.ts` | `LAYER_COLORS` 加 key | 🔒 tsc（`Record<keyof LayerVisibility,string>`，漏了 TS2739） |
+| 8 | `src/components/sidebar/layerCatalog.ts` | `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用；UI toggle 渲染在 `IconRailSidebar.tsx` / `LayerSidebar.tsx`） | 🔒 `layerConsistency.test.ts`（`BASELINE_NOT_IN_SIDEBAR` ratchet） |
+| 9 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView | ⚠️ 人工 |
+| 10 | `src/hooks/useLayerVisibility.ts` | 僅預設開啟才需要：加進 `DEFAULT_ON`；預設 false 自動派生免改 | ⚠️ 人工（`Set`，非 `Record`，tsc 不強制） |
+| 11 | `src/hooks/useTransportParams.ts` | opacity slider（規則 1 強制）+ 其他 params；實測 4-5 個 hunk（state／setter／`overlayParams` useMemo／deps） | 🔒 `layerConsistency.test.ts`（`BASELINE_NO_PARAMS` ratchet）+ `overlayParamsDeps.test.ts`（deps 完整性） |
+| 12 | `src/components/LegendPanel.tsx` | 若規則 2 觸發：寫圖例 sub-component | ⚠️ 人工（元件內容本身無格式測試） |
+| 13 | `src/components/LegendPanel.tsx` | 同檔 `LEGEND_REGISTRY` 加一行 | 🔒 `layerConsistency.test.ts`——但只擋**新**漏接，`BASELINE_NO_LEGEND` 批次凍結的舊漂移不會被抓（見 A-1）；`AqiLegend` 目前繞過本 registry，勿沿用此例 |
+| 14 | `src/components/featureInfo/<domain>Panels.tsx` | 若規則 3 觸發：寫 popup panel 元件 | ⚠️ 人工 |
+| 15 | `src/components/featureInfo/registry.tsx` | `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 | 🔒 `registry.test.ts`（ratchet，`HEADER_LABELS` 是 Record 定全集） |
+| 16 | `src/hooks/useMapInteraction.ts` | `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`（**first-hit-wins**：細節豐富的小範圍排前面，大面積背景排後面） | ⚠️ `mapInteractionLayers.test.ts` **只驗證已存在條目的 layer id 是否真實**，**不驗證新圖層是否漏加條目**——2026-08-10 稽核標為守門盲點 |
+| 17 | `src/components/IconRailSidebar.tsx` | `LAYER_ICONS` 加 key | 🔒 tsc（`Record<keyof LayerVisibility,LucideIcon>`） |
+| 18 | `src/data/upstreamRegistry.ts` | 加資料血緣條目（對應 taipei-gis-analytics catalog dataset） | 🔒 `upstreamRegistry.test.ts`（涵蓋所有 `LAYER_COLORS` keys） |
+| 19 | `src/chat/tools/datasets.ts` | 選配：若是點狀＋有分類欄位的靜態 GeoJSON，想讓 BYOK 對話查詢，加進 `DATASET_WHITELIST` | ⚠️ 人工（非強制） |
+| 20 | `nginx.conf` + `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` | 僅 PMTiles／大型靜態檔層：nginx location 對應 + deploy 腳本清單加檔名 | ⚠️ 人工——PT-1 曾因漏此步，13 層全站 404 |
+
+**條件觸發（並非每層都要）**：#4（無多色分類可省）、#10（非預設開可省）、#12-15（無可 popup 屬性可省）、#19（不想開放對話查詢可省）、#20（非 PMTiles/純 Supabase 動態層可省）。
+
+**規模經濟**：殯葬 5 層與教育 16 層兩次實測都落在同一 14 個檔案——多層共用同一批基礎設施檔案（layerCatalog／App.tsx／useMapInteraction 等）只需改一次，per-layer 邊際成本主要落在 #1-6、#11-15（型別／loader／hook／registry／params／legend／popup）。
 
 ### 檢查清單
 - [ ] `tsc -b` pass
