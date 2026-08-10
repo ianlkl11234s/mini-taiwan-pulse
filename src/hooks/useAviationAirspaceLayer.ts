@@ -227,21 +227,26 @@ export function useAviationAirspaceLayer(
     const onStyleLoad = () => {
       if (!cancelled) setTimeout(retry, 0);
     };
-    const bindTimer = setInterval(() => {
-      const nextMap = mapRef.current;
-      if (!nextMap || nextMap === map) return;
-      map?.off("style.load", onStyleLoad);
-      map = nextMap;
-      map.on("style.load", onStyleLoad);
-      retry();
-    }, 200);
+    // bindTimer 只在圖層可見時建立：偵測 mapRef 換新實例好重綁 style.load，
+    // 不可見時沒有畫面需求，等 anyVisible 轉真 effect 會重跑自然重建
+    let bindTimer: ReturnType<typeof setInterval> | null = null;
+    if (anyVisible) {
+      bindTimer = setInterval(() => {
+        const nextMap = mapRef.current;
+        if (!nextMap || nextMap === map) return;
+        map?.off("style.load", onStyleLoad);
+        map = nextMap;
+        map.on("style.load", onStyleLoad);
+        retry();
+      }, 200);
+    }
     const initialMap = map as MapboxMap | null;
     if (initialMap) initialMap.on("style.load", onStyleLoad);
 
     return () => {
       cancelled = true;
       if (retryTimer) clearInterval(retryTimer);
-      clearInterval(bindTimer);
+      if (bindTimer) clearInterval(bindTimer);
       map?.off("style.load", onStyleLoad);
       if (map) {
         setVis(map, CONTROL_FILL, false); setVis(map, CONTROL_LINE, false);
