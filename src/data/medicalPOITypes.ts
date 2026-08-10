@@ -1,7 +1,7 @@
 // 醫療基礎點位 5 類 — 配色 / 標籤 / med_cat 對應的單一資料源
 //
 // 共享給：
-//   - src/map/medicalPOILayerFactory.ts — 5 個 circle layer 的 filter / 配色 / 開關
+//   - src/map/overlayRegistry.ts         — 5 個 medical-* circle layer 的 filter / 配色 / 開關
 //   - src/components/LegendPanel.tsx     — MedicalLegend 圖例
 //   - src/components/FeatureInfoPanel.tsx — MedicalPOIPanel 類型標籤 + 配色
 //
