@@ -1771,3 +1771,25 @@ head -c 200 /tmp/o.json
 
 **本次實例**：336 在 PR 還沒 merge 前就已被手動 apply 到 production（DB 比 repo 快），
 所以 merge 完立刻就有資料。若沒先驗，會誤以為要等 apply 而白等。
+
+## PB-37 多 agent worktree 平行開發 wave（2026-08-10 定型：稽核執行 8 批 7 PR 一次成型）
+
+適用：一次要動多個互不重疊的改動面（各自成 PR），主 agent 只做拆解/派工/驗收。
+
+1. **派工前**：主樹先把未提交改動 commit 成分支固化；每個 code agent 用 worktree 隔離
+   （`Agent isolation: worktree`），memory/docs agent 走主樹（同時最多一個，嚴禁 switch/checkout）。
+2. **worktree 三鐵則**（寫進每個 agent prompt）：
+   - `ln -s <主repo>/node_modules ./node_modules`（借用，唯讀）
+   - **嚴禁任何 install**（symlink 指向正在跑 dev server 的主 repo）；lockfile 更新只准
+     `--lockfile-only`／`--package-lock-only`；需要 `.env` 用 `cp`，絕不 git add
+   - 第一次 tsc -b 慢是沒有 .tsbuildinfo，正常，別「修」
+3. **agent 斷線**：SendMessage 原 context 續跑（零重工）；長任務指示「每階段先 commit」。
+4. **驗收**：主樹開 `integration/<wave>-test` 分支把全部分支 merge 進去 →
+   一次驗衝突 + tsc + 全測試 + dev server 熱載入做瀏覽器驗收（免逐分支 switch）。
+   該分支**永不 push**，rebase 用完即刪。
+5. **疊層分支**（基於整合分支的後續工程，如 AR-21）：等前面的 PR 全 squash-merge 後
+   `git rebase --onto master integration/<wave>-test <branch>` 只重放自己的 commits，再 push 開 PR。
+   直接 push 會出現重複 diff。
+6. **收尾**：`git worktree remove --force` 逐一移除 → `git worktree prune` →
+   刪 `worktree-agent-*` 與已 merge 分支（gh pr merge --delete-branch 會因 worktree 佔用而刪不掉本地分支，
+   worktree 移除後再補刪）。刪任何「內容不在 master」的分支前先 `merge-base --is-ancestor` 驗證。
