@@ -1511,17 +1511,47 @@ SOP：
 
 成效：觀光 12 層一天 spec→merged（PR #82），3 包零檔案衝突、ratchet 全綠；browser 驗收揪出 Infinity 資料 bug（tsc/vitest 抓不到的類型）。
 
-## PB-30 排版沙盒 → monitorLayout.ts 換版流程（2026-07-26 定型：一日五版實戰）
+## PB-30 排版沙盒 → monitorLayout.ts 換版流程（2026-07-26 定型；2026-08-10 九版大改）
 
-監看模式版面 = 資料驅動，`monitorLayout.ts` 為 SSOT（相容 react-grid-layout `layout` 格式）：
+監看模式版面 = 資料驅動，`monitorLayout.ts` 為 SSOT（相容 react-grid-layout `layout` 格式）。
 
-1. 開排版沙盒 Artifact 拖拉 / 縮放 / 勾隱藏 → 「複製 JSON」
-2. 用戶貼 JSON → **只換** `MONITOR_LAYOUT` 陣列 + `MONITOR_HIDDEN`，JSX 零改動；hidden 的 widget 保留在對照表可隨時勾回（histogram 案例）
-3. HMR 即時生效 → agent-browser 截圖驗證（cell 座標、內容填滿、900px 堆疊模式）
-4. widget 內容不隨格高展開時套統一模式：根節點 flex column + height:100%、圖表區 flex:1 + minHeight:0、固定列 flexShrink:0（TimelineDock / 直方圖 / AlertBoard 皆此修法；TREND 類加 maxHeight 上限防失義）
-5. 常數：ROW_HEIGHT 40 / GAP 10 / 堆疊斷點 1100px（容器實寬非視窗寬）；cell 高 = h×40+(h-1)×10；**堆疊模式 cell 必設 flexShrink:0**（flex column 子元素不設會被壓縮塞進容器而非溢出捲動）
+⚠️ **沙盒原始碼在 repo：`docs/features/monitor-grid-static/sandbox.html`**
+（= artifact `f5d75312-…` 的來源）。**改沙盒一律改這份再重新發布**，
+發布時帶 `url` 參數更新同一個 artifact，別在對話裡重寫一份 —— 2026-08-02~10
+就是因為它只活在 artifact 上而漂掉兩個版本（見 INCIDENTS 2026-08-10 事件 A）。
 
-成效：v1→v5 每輪 <10 分鐘，用戶自助拖版、工程端只換一個檔。
+1. 改 repo 的 `sandbox.html` → 用 `url` 重新發布 → 用戶拖拉 / 縮放 / 勾隱藏 → 「複製 JSON」
+2. 貼回 → **只換** `MONITOR_LAYOUT` + `MONITOR_HIDDEN`，JSX 零改動；
+   hidden 的 widget 保留在對照表可隨時勾回（histogram 案例）
+3. **逐格比對**（換版必跑）：抽出沙盒 `<script>` 成 `.js`，比對 restored preset 的
+   `L("id",x,y,w,h)` 與 `MONITOR_LAYOUT` 的 `{ i,x,y,w,h }`，全對齊 + 無重疊 + 未超 12 欄才算過。
+   widget 清單有變 → **沙盒 `STORE_KEY` 必須換版號**，否則舊 localStorage 快照缺新 id，
+   還原時會被塞到 (0,0) 疊在別人身上
+4. HMR 即時生效 → agent-browser 量測 + 截圖（見下方第 6 點）
+5. **高度政策二選一**（九版起，欄位是 `fit?: "content"`）：
+   - **資訊卡** → `fit: "content"`：高度跟內容走、不留白不格內捲，下方 widget 順勢下移。
+     這類 widget 的 `h` **不再是高度**，只是拆解與同欄排序的佔位值
+   - **清單／影音類**（新聞 Feed／警報／時間軸／熱區／信號分級）→ 不標，吃 `h` 當固定高 +
+     格內捲。**必須固定**，否則會被幾百筆內容拉成無限長
+   - 機制在 `monitorPacking.ts`：座標先 guillotine 切成欄／列巢狀結構，欄內用 flex 直向流。
+     CSS grid 的列跨欄共用，做不到「這格長高、下面的推下去」
+6. **格高與圖表高度一律開實機量，不要估**：
+   `document.querySelectorAll('[data-widget]')` 逐格比 `scrollHeight` vs `clientHeight`。
+   ⚠️ 這只抓得到「溢出」，**抓不到「塌陷」** —— auto 高度容器裡另外量關鍵子元素
+   （例：柱狀圖量「120 根柱子有幾根高度 0」）。截圖要確認**真的拍到目標區塊**，
+   不是只拍到它的標題（見 REFLECTIONS 2026-08-10）
+7. widget 內容不隨格高展開時（非 fit 的固定高 widget）套統一模式：
+   根節點 flex column + height:100%、圖表區 flex:1 + minHeight:0、固定列 flexShrink:0
+   （TimelineDock / 直方圖 / AlertBoard 皆此修法）。
+   ⚠️ **`fit` widget 不適用這條** —— 父層無確定高時 `flex:1` 分不到東西，
+   圖表要寫確定像素高（PLA 趨勢 190 / 食品走勢 140，皆實機量過），
+   且百分比高度會塌成 0（見 PRINCIPLES「auto 高度容器的兩個尺寸陷阱」）
+8. 常數：ROW_HEIGHT 40 / GAP 10 / 堆疊斷點 1100px（容器實寬非視窗寬）；
+   非 fit 的 cell 高 = h×40+(h-1)×10；**堆疊模式 cell 必設 flexShrink:0**
+   （flex column 子元素不設會被壓縮塞進容器而非溢出捲動），
+   fit widget 在堆疊模式也要 `height:auto` 否則窄螢幕退回死白
+
+成效：v1→v5 每輪 <10 分鐘（七版前）；八/九版含機制重寫仍在同一 session 內完成並上線（PR #121）。
 
 ## PB-31 raster PMTiles 值編碼圖層（2026-07-31 定型：canopyHeight + urbanHeat 兩例）
 
