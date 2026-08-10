@@ -1,5 +1,7 @@
 # Supabase RPC 盤點報告 (2026-04-09)
 
+> ⚠️ **本文件是 2026-04-09 時點快照，此後 130+ 支新 RPC 未納入**（2026-08-10 稽核 `docs/research/architecture-audit-2026-08-10.md` A-5 實測：149 支現役 RPC 中僅 20 支在冊）。**現行效能判斷一律用 `/check-rpc` skill（跑 EXPLAIN ANALYZE 即時判定），本檔不再逐支維護。** 下方兩處歷史誤導已於 2026-08-10 標注修正，其餘內容僅供歷史參考，不代表現況。
+
 > 目的：在 `get_ship_trails` / `get_flight_trails` 解掉 60s timeout 後，系統性盤點其他 RPC，找出下一個可能爆 timeout 的對象，套用同樣的 pre-aggregate + statement_timeout 防禦 pattern。
 >
 > 方法：只讀 `pg_proc` metadata + function definition，搭配 CLAUDE.md 的資料量估算，**未跑任何聚合 query**。
@@ -24,8 +26,8 @@
 |---|-----|---------|-----------|------|------|---------------|-------------------|----------|------|------|------|
 | 1 | `get_ship_trails` | shipLoader.ts:81 | `realtime.ship_trails_daily` | `target_date` | 無（已 pre-agg） | 無 | ✅ 60s | ~27MB | ② 現況 OK | 🟢 | 已完成修復 |
 | 2 | `get_flight_trails` | airspaceLoader.ts:75 | `realtime.flight_trails_daily` | `target_date` | 無（已 pre-agg） | 無 | ✅ 60s | ~2MB | ② 現況 OK | 🟢 | 已完成修復 |
-| 3 | `get_youbike_h3_snapshots` | youbikeH3Loader.ts:49 | `realtime.youbike_snapshots` + `reference.station_h3_mapping` | `target_date,h3_resolution` | `SUM`+`AVG`+`jsonb_agg` 兩層 GROUP BY + JOIN | 有隱含排序 | ✅ 30s | 中（96 × N cells jsonb） | ① **matview 候選** | 🔴 | Pre-aggregate 成 `realtime.youbike_h3_daily(day, resolution, time_key, cells)` + pg_cron refresh |
-| 4 | `get_freeway_congestion_day` | freewayLoader.ts:84 | `realtime.freeway_sections` + `freeway_sections_current` | `target_date` | `string_agg(... ORDER BY collected_at)` + GROUP BY section_id | 是（per-group sort） | ✅ 60s | 中～大（依日 sections×snapshots） | ① **matview 候選** | 🔴 | Pre-aggregate 成 `realtime.freeway_congestion_daily(day, section_id, timeline, geom, ...)` + 每 10 分 refresh today |
+| 3 | `get_youbike_h3_snapshots` | youbikeH3Loader.ts:49 | `realtime.youbike_snapshots` + `reference.station_h3_mapping` | `target_date,h3_resolution` | `SUM`+`AVG`+`jsonb_agg` 兩層 GROUP BY + JOIN | 有隱含排序 | ✅ 30s | 中（96 × N cells jsonb） | ① **matview 候選** | 🔴→**已修** | Pre-aggregate 成 `realtime.youbike_h3_daily(day, resolution, time_key, cells)` + pg_cron refresh。**2026-08-10 補註：已修**——data-collectors `docs/sql/matview_youbike_h3.sql` + `cron_throttle.sql` 錯峰排程 |
+| 4 | `get_freeway_congestion_day` | freewayLoader.ts:84 | `realtime.freeway_sections` + `freeway_sections_current` | `target_date` | `string_agg(... ORDER BY collected_at)` + GROUP BY section_id | 是（per-group sort） | ✅ 60s | 中～大（依日 sections×snapshots） | ① **matview 候選** | 🔴→**已修** | Pre-aggregate 成 `realtime.freeway_congestion_daily(day, section_id, timeline, geom, ...)` + 每 10 分 refresh today。**2026-08-10 補註：已修**——data-collectors `docs/sql/matview_freeway_congestion.sql` + `cron_throttle.sql` 錯峰排程 |
 | 5 | `get_temperature_frames` | temperatureLoader.ts:68 | `realtime.temperature_grids` (~61 萬/月) | `target_date` | `string_agg(round(temp) ORDER BY grid_lat, grid_lng)` + GROUP BY observed_at | 有（per-frame lat,lng 排序） | ✅ 30s | 中（每 frame ~1000 cells text） | ① matview 候選 | 🟡 | 先確認 `(observed_at, grid_lat, grid_lng)` index 存在；若 planner 走 global sort 就 pre-agg 成 `temperature_frames_daily` |
 | 6 | `get_disaster_alerts_day` | disasterAlertLoader.ts:73 | `realtime.disaster_alerts` + `spatial.township_boundaries`/`boundaries` | `target_date` | `ST_Union` GROUP BY identifier + `ST_SimplifyPreserveTopology` | 有 ORDER BY effective/sent | ✅ 30s | 小～中 | ② 現況 OK，但 | 🟡 | 若 alert 量變大，township/county union 會是 hotspot；加 `(msg_type, effective, expires)` 複合 index，或 materialise 成 daily |
 | 7 | `get_temperature_grid_info` | temperatureLoader.ts:67 | `realtime.temperature_grids` | `target_date` | `DISTINCT` + ORDER BY | 有 | ✅ 10s | 小 (~1000 rows) | ② 現況 OK | 🟡 | 超短 timeout (10s)，若 planner 不佳會直接失敗；建議改查 `reference.temperature_grid_cells` 靜態表（grid 基本不變） |
@@ -39,7 +41,7 @@
 | 15 | `get_temperature_dates` | temperatureLoader.ts:51 | `realtime.temperature_grids` | — | `COUNT(DISTINCT) + GROUP BY to_char(...)` **全表掃描** | 無 | ✅ 30s | 小 | ② 現況 OK，但 | 🟡 | **不是 matview**！隨 temperature_grids 成長會越來越慢，建議改 `mv_temperature_dates` 比照 ship/flight |
 | 16 | `get_h3_demographics_yearly` | h3Loader.ts:207 | `spatial.h3_demographics_yearly` | `target_year, target_resolution` | 無 | 無 | ❌ 無 | 中（~6.5 萬 rows/year 之內） | ④ 小查表 | 🟢 | 確認 `(year, resolution)` index 存在 |
 | 17 | `get_h3_demographics_years` | h3Loader.ts:228 | `spatial.h3_demographics_yearly` | — | `COUNT(*) GROUP BY year,resolution` | 無 | ❌ 無 | <1KB | ④ 小查表 | 🟢 | 資料小，OK |
-| 18 | `get_bus_current_taipei` | busLoader.ts:42 | `realtime.bus_current` | — | 無（直讀 upsert 表） | 無 | ❌ 無 | ~100KB（~5700 rows） | ② 現況 OK | 🟢 | Live polling 每 30s，直讀小表 |
+| 18 | `get_bus_current_taipei`（**2026-08-10 補註：已改名 `get_bus_current`**，本文件未再更新） | busLoader.ts:42 | `realtime.bus_current` | — | 無（直讀 upsert 表） | 無 | ❌ 無 | ~100KB（~5700 rows） | ② 現況 OK | 🟢 | Live polling 每 30s，直讀小表 |
 | 19 | `get_bus_trails` | busLoader.ts:97 | `realtime.bus_trails_daily` | `target_date` | 無（已 pre-agg） | 無 | ✅ 60s | ~8-15MB（~5200 buses） | ② 現況 OK | 🟢 | 5 分鐘降采樣 pre-aggregate，32s refresh |
 | 20 | `get_bus_dates` | busLoader.ts:84 | `realtime.bus_trails_days_summary` | — | 無（summary 表） | 無 | ✅ 60s | <1KB | ② 現況 OK | 🟢 | — |
 
