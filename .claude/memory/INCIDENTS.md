@@ -1757,3 +1757,40 @@ fit 這條鏈上（cell auto → 面板 flex → 圖區 `flex:1 + minHeight:190`
 
 → 規則：測試指令一律**保留完整輸出**再判讀，不要 `tail` 掉失敗行。
 「重跑就好了」在沒看到失敗內容之前不是結論，是猜測。本條未結案，再現時要查。
+
+## 2026-08-10 — 結構稽核 + 多 agent 執行 wave（7 PR，四事件）
+
+背景：4 平行 agent 稽核（報告 `docs/research/architecture-audit-2026-08-10.md`）→ 8 批執行
+（6 worktree agent + 2 主樹 agent）→ 整合分支驗衝突 → 7 PR 全 squash merge（#123~#129）。
+
+### 事件 A：雙 lockfile 險斷部署（稽核 agent 只更新了 pnpm-lock）
+
+移除 `@deck.gl/*` 時 agent 依指示跑 `pnpm install --lockfile-only`——但 **Dockerfile 用的是
+`npm ci`，權威 lockfile 是 `package-lock.json`**。若照原樣 merge，npm ci 會因 lockfile 與
+package.json 不同步直接報錯，**生產建置必炸**。主 agent 驗收時查 Dockerfile 才攔下，
+補跑 `npm install --package-lock-only`（+`npm ci --dry-run` 驗證）。
+→ 教訓：**改依賴時，先查部署鏈實際用哪份 lockfile**，不是本地慣用哪份。單一 lockfile 政策 → AU-6。
+
+### 事件 B：稽核 agent 的兩個前提錯誤，都在破壞性操作前被 git 現場驗證擋下
+
+1. 稽核稱 `public/geo/schools.geojson`「git 追蹤中需 git rm」→ 實際 `git log --all
+   --diff-filter=A` 全史查無：**該路徑從未進 git**（.gitignore:27 一直擋著），是本機孤兒檔，
+   `rm` 即可。報告已勘誤（B-4）。
+2. 死碼稽核稱 monitor 4 分支為疊層 stack（airport ⊂ registry ⊂ batch1 ⊂ grid-layout）→
+   刪除前 `git merge-base --is-ancestor` 逐一驗證：**batch1 ⊄ grid-layout**。
+   照原報告刪 batch1 會真丟 commit。實刪 2 支（全包含）、保留 batch1 + grid-layout（G015）。
+→ 教訓：agent 稽核聲明（分支包含關係／檔案追蹤狀態）**在破壞性操作前必須 git 指令現場驗證**。
+
+### 事件 C：API 連線不穩，3 次 agent 中斷；SendMessage 原 context 續跑全數復原
+
+架構稽核、死碼稽核、AR-21 各斷一次（stream 停滯 ×1、connection closed ×2）。
+都用 SendMessage 從原 transcript 續跑成功，**零重工**。AR-21 斷第二次後改指示
+「每完成一個階段就 commit」——斷線不丟進度的正解是把 durability 下放給 agent。
+
+### 事件 D：staticDataContract timeout flake 再現（08-10 早前那條的續集，本次留了完整輸出）
+
+主樹全套測試 `1 failed`：`每個檔案都是非空的 FeatureCollection` **Test timed out in 5000ms**。
+當時機器同時跑 dev server + headless 瀏覽器 + 6 個 worktree（I/O 競爭）；單獨重跑 3.2s 全綠、
+之後全套 473/473 也綠。→ 確認前條猜測：**資源競爭型逾時，非資料問題**。
+基準參考：該測試正常 2.2~2.9s，5s timeout 在高負載下餘裕不足。若再頻繁出現，
+解法是對該測試放寬 timeout 而不是砍資產掃描範圍。
