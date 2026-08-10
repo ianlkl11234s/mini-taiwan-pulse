@@ -68,7 +68,8 @@ const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.titl
 
 // ── Color Config ──
 
-const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
+// export：AR-22 黃金快照（layerGoldenSnapshot.test.ts）要逐 key 讀 icon 名稱做護欄比對。
+export const LAYER_ICONS: Record<keyof LayerVisibility, LucideIcon> = {
   flights: Plane,
   ships: Ship,
   rail: TrainFront,
