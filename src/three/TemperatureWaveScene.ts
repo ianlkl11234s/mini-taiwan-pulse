@@ -4,7 +4,7 @@ import type { TemperatureGridData } from "../data/temperatureLoader";
 
 // ── 溫度發散色盤（藍→白→紅，RdBu diverging） ──
 // 中心點 ~15°C（台灣冬季均溫），冷色往藍、暖色往紅
-const DIVERGING_STOPS: { t: number; r: number; g: number; b: number }[] = [
+export const DIVERGING_STOPS: { t: number; r: number; g: number; b: number }[] = [
   { t: 0.000, r: 0x21 / 255, g: 0x66 / 255, b: 0xac / 255 }, // #2166ac  -10°C  深藍
   { t: 0.222, r: 0x67 / 255, g: 0xa9 / 255, b: 0xcf / 255 }, // #67a9cf    0°C  中藍
   { t: 0.389, r: 0xd1 / 255, g: 0xe5 / 255, b: 0xf0 / 255 }, // #d1e5f0  7.5°C  淺藍

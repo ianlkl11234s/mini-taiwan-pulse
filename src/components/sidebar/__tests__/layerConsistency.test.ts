@@ -73,25 +73,37 @@ const BASELINE_NO_LEGEND = new Set([
   // FlightsLegend 單條航跡 / RailLegend 台鐵車種分色）→ 移出 baseline，
   // 不再視為「合法無圖例」。
   "stationsTHSR", "stationsTRA", "stationsMetro",
-  "ports", "lighthouses", "airports", "highways", "provincialRoads", "cctv",
+  "ports", "lighthouses", "airports", "highways", "provincialRoads",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
   "busStationsCity", "busStationsIntercity", "bikeStations", "cyclingRoutes",
-  "freewayCongestion", "weatherStations", "h3Population", "popCount",
-  "indicators", "socioeconomic", "spatialEconomy", "temperatureWave",
+  "weatherStations",
+  // h3Population：同屬預烤 properties.color 的連續色階（h3LayerFactory 的 DAY/NIGHT
+  // 兩套色階），但「現在顯示哪一套」存在 transportParams.h3Params、沒進 overlayParams，
+  // 圖例拿不到 → 硬畫會有一半機率跟地圖對不上。待把 metric 併進 overlayParams 再補。
+  "h3Population",
   // 2026-08-08：schools 併入教育主題（第 38），已接 SchoolLevelLegend（學制 5 色）→ 移出 baseline
-  "convenienceStores", "submarineCables", "landingStations",
+  "convenienceStores",
   // 公共設施：郵局 / i郵箱 / 活動中心 皆單色 POI（鐵則 2 不適用）；govServiceOffices 3 類分色 → 接 GovServiceOfficeLegend
   "postOffices", "iPostBoxes", "communityCenters",
   // 公共設施 Batch 2：圖書館 / 社福 / 市場 皆單色 POI（鐵則 2 不適用）；publicToilets grade 4 級分色 → 接 PublicToiletLegend
   "publicLibraries", "welfareCenters", "retailMarkets",
   "activeFaults", "youbikeFullness", "cwaCloudImagery",
-  // aqiMicroSensors 已升級三模式上色（PM2.5/溫度/濕度）→ 接 MicroSensorLegend，不再列 baseline
-  "cwaRadarImagery", "aqiImagery", "aqiStations",
+  // aqiMicroSensors 已升級三模式上色（PM2.5/溫度/濕度）→ 接 MicroSensorLegend，不再列 baseline。
+  // aqiImagery / aqiStations 曾因「AqiLegend 手掛在 App.tsx、繞過 LEGEND_REGISTRY」被
+  // 誤記為合法無圖例；2026-08-10 收編進 registry 後移出 baseline。
+  // cwaCloudImagery / cwaRadarImagery：CWA 上游直接給已上色的雲圖／雷達 PNG，
+  // 前端只是 raster image source，沒有自己的色階可派生 → 鐵則 2 不適用。
+  "cwaRadarImagery",
   "busLive", "busIntercityLive", "waterBasins", "waterRivers", "waterLevees",
-  "waterProtectionZones", "waterReservoirs", "waterFacilities",
-  "waterMonitorStations", "waterFloodExtreme", "waterDetentionBasins",
-  "rainGauge", "riverLevel", "groundwater", "groundwaterWells",
-  "taipeiSewer", "taipeiEvacuate", "taipeiPumb", "precipRaster",
+  // 水庫（單色青面）／滯洪池（單色 #0284c7 點）：paint 無 match/step 分類 → 鐵則 2 不適用。
+  // 同組的 waterProtectionZones / waterFacilities / waterMonitorStations / waterFloodExtreme
+  // 皆為屬性驅動多色，已接 LEGEND_REGISTRY。
+  "waterReservoirs", "waterDetentionBasins",
+  // groundwaterWells（靜態井位 backdrop，單色灰點）／precipRaster（IoW 上游已把色階燒進
+  // PNG 的 image source，前端沒有自己的色票可派生）→ 鐵則 2 不適用。
+  // 同組的 rainGauge / riverLevel / groundwater / taipeiSewer / taipeiPumb / taipeiEvacuate
+  // 皆為 step / interpolate / match 上色，已接 LEGEND_REGISTRY。
+  "groundwaterWells", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
   "agriRuralRegen", "farmRoads", "wasteTruck", "wasteSchedule",
   "wasteScheduleNote", "wasteStopsStatic", "wasteCleaningSquads", "wasteRoute", "wasteStop",

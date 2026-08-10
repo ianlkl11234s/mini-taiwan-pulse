@@ -110,7 +110,6 @@ import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
 import { useAqiStationsLayer } from "./hooks/useAqiStationsLayer";
 import { useMicroSensorsLayer } from "./hooks/useMicroSensorsLayer";
 import { AqiProductSwitcher } from "./components/AqiProductSwitcher";
-import { AqiLegend } from "./components/AqiLegend";
 import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
@@ -3105,23 +3104,17 @@ export default function App() {
             />
           </div>
         )}
-        {/* LASS 微感測改走 LegendPanel 的 MicroSensorLegend（三模式各自色階），
-            不再借 AqiLegend + caption 說明配色 */}
-        {(layerVisibility.aqiImagery || layerVisibility.aqiStations) && (
-          <>
-            {layerVisibility.aqiImagery && (
-              <div style={{ pointerEvents: "auto" }}>
-                <AqiProductSwitcher
-                  current={aqiProduct}
-                  onChange={setAqiProduct}
-                  isDark={isDarkTheme}
-                />
-              </div>
-            )}
-            <div style={{ pointerEvents: "auto" }}>
-              <AqiLegend isDark={isDarkTheme} />
-            </div>
-          </>
+        {/* AQI 色階圖例已收編進 LegendPanel 的 LEGEND_REGISTRY（AqiLegend），
+            這裡只留產品切換器這個「控制項」。
+            LASS 微感測則走 MicroSensorLegend（三模式各自色階）。 */}
+        {layerVisibility.aqiImagery && (
+          <div style={{ pointerEvents: "auto" }}>
+            <AqiProductSwitcher
+              current={aqiProduct}
+              onChange={setAqiProduct}
+              isDark={isDarkTheme}
+            />
+          </div>
         )}
         <div style={{ pointerEvents: "auto" }}>
           <LegendPanel visibility={layerVisibility} overlayParams={transportParams.overlayParams} isDarkTheme={isDarkTheme} />

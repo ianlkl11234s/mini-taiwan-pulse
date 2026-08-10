@@ -2,6 +2,7 @@ import { Fragment, useState, createContext, useContext } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { COLORS, SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
+import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
@@ -25,6 +26,10 @@ import {
 } from "../data/urbanHeatTypes";
 import { FOREST_RESERVE_TYPES } from "../data/forestReserveTypes";
 import { RE_PALETTES } from "../map/overlayRegistry";
+import { INFERNO, VIRIDIS, MAGMA, h3RampGradient } from "../map/demographicsLayerFactory";
+import { DIVERGING_STOPS } from "../three/TemperatureWaveScene";
+import { AQI_LEVELS } from "../map/aqiColorScale";
+import { useLoadingTasks } from "../hooks/useLoadingTasks";
 import {
   WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX,
   DUST_BAKE_STOPS, rampToGradient,
@@ -219,6 +224,12 @@ interface LegendPanelProps {
 export interface LegendContext {
   visibility: LayerVisibility;
   overlayParams: Record<string, number>;
+  /**
+   * 與 overlayRegistry paint 的 `isDark` 同一個值（App.tsx 的 isDarkTheme → MapView →
+   * updateAllOverlayThemes）。paint 有明暗雙色的圖層，圖例必須用同一邊的 hex，
+   * 否則色票會跟地圖對不上。
+   */
+  isDark: boolean;
   /** 見 LegendPanelProps.railSystems。只有 RailLegend 消費。 */
   railSystems?: readonly string[];
 }
@@ -244,11 +255,20 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["oceanCurrents"], render: () => <OceanCurrentsLegend /> },
   { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
   { keys: ["temperatureGrid"], render: () => <TemperatureGridLegend /> },
+  { keys: ["temperatureWave"], render: () => <TemperatureWaveLegend /> },
   { keys: ["aqiMicroSensors"], render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
+  { keys: ["aqiImagery", "aqiStations"], render: () => <AqiLegend /> },
   { keys: ["urbanHeat"], render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
+  { keys: ["freewayCongestion"], render: () => <FreewayCongestionLegend /> },
+  { keys: ["cctv"], render: () => <CctvLegend /> },
+  // 人口 / 社經 H3 網格：色階由 demographicsLayerFactory 預烤進 properties.color
+  { keys: ["popCount"], render: () => <H3RampLegend title="人口數 POPULATION" ramp={INFERNO} note="每格人口數（log 正規化）" /> },
+  { keys: ["indicators"], render: () => <H3RampLegend title="人口指標 INDICATORS" ramp={INFERNO} note="所選指標值" /> },
+  { keys: ["socioeconomic"], render: () => <H3RampLegend title="社經面貌 SOCIO-ECON" ramp={VIRIDIS} note="所選社經指標值" /> },
+  { keys: ["spatialEconomy"], render: () => <H3RampLegend title="空間經濟 SPATIAL-ECON" ramp={MAGMA} note="所選房市指標值" /> },
   { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { keys: ["ships"], render: () => <ShipsLegend /> },
@@ -326,8 +346,22 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   },
   { keys: ["mountainRescueIncidents"], render: () => <MountainRescueLegend /> },
   { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan", "satellitesUSA", "satellitesJapan", "satellitesRussia", "satellitesIndia", "satellitesKorea", "satellitesFrance", "satellitesGermany", "satellitesItaly", "satellitesIsrael"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
+  // 通訊基礎設施：海纜（線）+ 登陸站（點）
+  { keys: ["submarineCables"], render: () => <SubmarineCableLegend /> },
+  { keys: ["landingStations"], render: () => <LandingStationLegend /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["lakesPondsOsm"], render: () => <LakesPondsLegend /> },
+  // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
+  { keys: ["waterProtectionZones"], render: ({ isDark }) => <WaterProtectionZoneLegend isDark={isDark} /> },
+  { keys: ["waterMonitorStations"], render: () => <WaterMonitorStationLegend /> },
+  { keys: ["waterFacilities"], render: () => <WaterFacilityLegend /> },
+  { keys: ["rainGauge"], render: () => <RainGaugeLegend /> },
+  { keys: ["riverLevel"], render: () => <RiverLevelLegend /> },
+  { keys: ["groundwater"], render: () => <GroundwaterLegend /> },
+  { keys: ["taipeiSewer"], render: () => <TaipeiSewerLegend /> },
+  { keys: ["taipeiPumb"], render: () => <TaipeiPumbLegend /> },
+  { keys: ["taipeiEvacuate"], render: () => <TaipeiEvacuateLegend /> },
+  { keys: ["waterFloodExtreme"], render: ({ overlayParams }) => <WaterFloodExtremeLegend minDepth={overlayParams.floodMinDepth ?? 0} /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
   { keys: ["erHospital"], render: () => <ErCongestionLegend /> },
@@ -478,7 +512,7 @@ export function LegendPanel({
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
           {active.map((entry, i) => (
             <Fragment key={entry.keys[0] ?? i}>
-              {entry.render({ visibility, overlayParams, railSystems })}
+              {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems })}
             </Fragment>
           ))}
         </div>
@@ -2925,6 +2959,84 @@ function TemperatureGridLegend() {
   );
 }
 
+/**
+ * AQI 6 級色階（環境部官方配色，SSOT = map/aqiColorScale.ts 的 AQI_LEVELS，
+ * 與 useAqiStationsLayer 的 buildAqiStepExpression 同源）。
+ *
+ * 2026-08-10：本元件原本是 components/AqiLegend.tsx、由 App.tsx 手動掛在畫面右下角，
+ * 繞過 LEGEND_REGISTRY，導致 aqiImagery / aqiStations 被 layerConsistency 當成
+ * 「合法無圖例」凍進 baseline。收編進 registry 後刪除該檔；色階與刻度原封不動，
+ * 只拔掉自己的面板外殼（背景/模糊/圓角）改用 LegendPanel 的容器。
+ * header 的 loading 狀態沿用（aqi-* / micro-sensors 任務）。
+ */
+function AqiLegend() {
+  const t = useLegendTheme();
+  const allTasks = useLoadingTasks();
+  const aqiTasks = allTasks.filter(
+    (task) =>
+      task.id.startsWith("aqi-") ||
+      task.id.startsWith("micro-sensors") ||
+      task.id.startsWith("aqi-imagery-batch"),
+  );
+  const loadingLabel = aqiTasks[0]?.label ?? null;
+  const boundaries = AQI_LEVELS.map((lv) =>
+    Number.isFinite(lv.max) ? lv.max.toString() : "301+",
+  );
+  // 6 級 → 顯示 5 個邊界（0 / 50 / 100 / 150 / 200 / 300 / 301+）
+  const ticks = ["0", ...boundaries];
+
+  return (
+    <div>
+      <style>{`
+        @keyframes aqi-spin { to { transform: rotate(360deg); } }
+        .aqi-spin {
+          display: inline-block;
+          width: 10px;
+          height: 10px;
+          border: 2px solid rgba(147, 197, 253, 0.25);
+          border-top-color: #93c5fd;
+          border-radius: 50%;
+          animation: aqi-spin 0.8s linear infinite;
+          vertical-align: -1px;
+        }
+      `}</style>
+      <div
+        style={{
+          fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4,
+          display: "flex", alignItems: "center", gap: 6,
+        }}
+      >
+        <span>AQI 空氣品質指標</span>
+        {loadingLabel && (
+          <span style={{ marginLeft: "auto", display: "inline-flex", alignItems: "center", gap: 4, color: "#93c5fd" }}>
+            <span className="aqi-spin" />
+            <span style={{ fontSize: FONT_SIZE.xs }}>載入中…</span>
+          </span>
+        )}
+      </div>
+      <div style={{ display: "flex", height: 12, borderRadius: RADIUS.sm, overflow: "hidden" }}>
+        {AQI_LEVELS.map((lv) => (
+          <div
+            key={lv.label}
+            title={`${lv.label} — ${lv.description}`}
+            style={{ flex: 1, background: lv.color }}
+          />
+        ))}
+      </div>
+      <div
+        style={{
+          display: "flex", justifyContent: "space-between",
+          fontSize: FONT_SIZE.xs, marginTop: 2, color: t.textDim,
+        }}
+      >
+        {ticks.map((tick) => (
+          <span key={tick}>{tick}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // LASS 微型感測：三模式共用同一份圖例框，依當前顯示模式換色階列
 // （色票 SSOT = data/microSensorTypes.ts，與 loader 預烤進 properties 的顏色同源；
 //  溫度模式直接吃 TEMPERATURE_GRID_BANDS，與溫度網格 2D 跨圖層一致）。
@@ -3006,6 +3118,55 @@ function UrbanHeatLegend({ modeIdx = 0 }: { modeIdx?: number }) {
   );
 }
 
+// ── 溫度波 3D：RdBu 發散色盤（TemperatureWaveScene 的 DIVERGING_STOPS）──
+// ⚠️ 與 2D 溫度網格（TemperatureGridLegend 的 11 級絕對 °C）不同：3D 波的顏色是
+//    (temp - tempMin) / (tempMax - tempMin)，**以當日資料範圍拉伸**，
+//    所以沒有固定的 °C 刻度，只能標兩端。硬標 -10/35°C 會在多數日子跟地圖對不上。
+function TemperatureWaveLegend() {
+  const t = useLegendTheme();
+  const gradient = `linear-gradient(to right, ${DIVERGING_STOPS.map(
+    (s) => `rgb(${Math.round(s.r * 255)},${Math.round(s.g * 255)},${Math.round(s.b * 255)}) ${(s.t * 100).toFixed(1)}%`,
+  ).join(", ")})`;
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        溫度波 TEMPERATURE WAVE
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
+        氣溫（拉伸至當日觀測範圍）
+      </div>
+      <ClimateGradientBar gradient={gradient} labels={["當日最低", "當日最高"]} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        波高同步溫度｜要看絕對 °C 分級請開溫度網格 2D
+      </div>
+    </div>
+  );
+}
+
+// ── H3 網格（人口 / 社經 / 空間經濟）連續色階 ──
+// 顏色不寫在 paint 裡：demographicsLayerFactory 以 interpolateColor(色階, norm) 預烤進
+// feature.properties.color，paint 只有 ["get","color"]（demographicsLayerFactory.ts:152）。
+// 因此圖例直接吃 factory 匯出的同一組色階陣列，不複製 RGB。
+// ⚠️ norm 是「相對當前資料最大值」（count 類走 log、其餘線性，再套 contrast gamma），
+//    沒有固定的絕對刻度 → 只標低/高兩端，不編造數值。
+function H3RampLegend({
+  title, ramp, note,
+}: { title: string; ramp: [number, number, number][]; note: string }) {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        {title}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>{note}</div>
+      <ClimateGradientBar gradient={h3RampGradient(ramp)} labels={["低 Low", "高 High"]} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        相對色階（以畫面資料最大值為 100%）｜對比滑桿會改變分布
+      </div>
+    </div>
+  );
+}
+
 // ── Disaster Alert Legend ──
 
 function RoadEventsLegend() {
@@ -3065,6 +3226,60 @@ function RoadCongestionLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
         v1 僅省道 highway
+      </div>
+    </div>
+  );
+}
+
+// ── CCTV source 3 類（overlayRegistry `cctv` 的 circle-color match；glow / core 同色）──
+// 標籤與 featureInfo/infraPanels.tsx 的 CCTV_SOURCE 同字串。
+// match 的 default 就是 city 的 #26c6da，所以未分類會併入「市區道路」列，圖例不另立一列。
+const CCTV_SOURCE_CATS = [
+  { color: "#ff9800", label: "國道 Freeway" },
+  { color: "#ffd54f", label: "省道快速道路 Highway" },
+  { color: "#26c6da", label: "市區道路 City（含未分類）" },
+];
+
+function CctvLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        道路攝影機 CCTV
+      </div>
+      <FireCatRows cats={CCTV_SOURCE_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        z≥7 才顯示｜點選看即時畫面
+      </div>
+    </div>
+  );
+}
+
+// ── 國道壅塞 level 1~5 + 0 無資料 ──
+// 顏色不在 paint 裡：freewayLoader.buildFreewayGeoJSON 把 CONGESTION_COLORS[level]
+// 預烤進 feature.properties.color，paint 只是 ["get","color"]（useFreewayLayer.ts:42/58）。
+// 因此直接吃同一份 SSOT，不複製 hex。
+const FREEWAY_CONGESTION_LEVELS = [1, 2, 3, 4, 5, 0];
+
+function FreewayCongestionLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        國道壅塞 FREEWAY
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {FREEWAY_CONGESTION_LEVELS.map((lv) => (
+          <div key={lv} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{ width: 14, height: 4, borderRadius: 2, background: CONGESTION_COLORS[lv], flexShrink: 0 }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+              {lv > 0 ? `${lv} ${CONGESTION_LABELS[lv]}` : CONGESTION_LABELS[lv]}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        TDX 路段壅塞等級，隨時間軸播放
       </div>
     </div>
   );
@@ -3289,6 +3504,315 @@ function LakesPondsLegend() {
   );
 }
 
+/**
+ * interpolate 的 stop 清單 → CSS linear-gradient。
+ * 把 domain（第一個 ~ 最後一個 stop 值）線性映射到 0~100%，色帶上任一點的顏色
+ * 因此與 Mapbox interpolate 在同一個值算出來的顏色一致（等距 stop 會失真，故不用等分）。
+ */
+function deltaStopsToGradient(stops: { v: number; color: string }[]): string {
+  const min = stops[0]!.v;
+  const max = stops[stops.length - 1]!.v;
+  const span = max - min || 1;
+  return `linear-gradient(to right, ${stops
+    .map((s) => `${s.color} ${(((s.v - min) / span) * 100).toFixed(1)}%`)
+    .join(", ")})`;
+}
+
+// ── 河川水位：delta_m 色階（useRiverLevelLayer.ts colorExpression 的 interpolate stops）──
+// 紅＝下降 / 灰＝持平 / 藍＝上升；check_result=0 由外層 case 覆寫成橙。
+const RIVER_LEVEL_DELTA_STOPS = [
+  { v: -1.00, color: "#b91c1c" },
+  { v: -0.30, color: "#ef4444" },
+  { v: -0.10, color: "#fca5a5" },
+  { v: -0.02, color: "#94a3b8" },
+  { v: 0.02, color: "#94a3b8" },
+  { v: 0.10, color: "#93c5fd" },
+  { v: 0.30, color: "#3b82f6" },
+  { v: 1.00, color: "#1d4ed8" },
+];
+const RIVER_LEVEL_ABNORMAL_COLOR = "#f97316";
+
+function RiverLevelLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        河川水位 RIVER LEVEL
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
+        當日水位變化 Δ（vs 當日起始）
+      </div>
+      <ClimateGradientBar
+        gradient={deltaStopsToGradient(RIVER_LEVEL_DELTA_STOPS)}
+        labels={["-1m 下降", "0", "+1m 上升"]}
+      />
+      <div style={{ marginTop: 4 }}>
+        <FireCatRows cats={[{ color: RIVER_LEVEL_ABNORMAL_COLOR, label: "測值異常 Abnormal" }]} />
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        圈大小 = |Δ| 幅度（跨站可比）
+      </div>
+    </div>
+  );
+}
+
+// ── 北市雨水下水道：ground_far step 分級（useTaipeiSewerLayer.ts depthColorExpression）──
+// ground_far = 水面距地面的深度（m），越小越接近溢出，所以色序是「小＝紅、大＝藍」。
+const TAIPEI_SEWER_CATS = [
+  { color: "#7f1d1d", label: "< 0.5 m 逼近地面" },
+  { color: "#ef4444", label: "0.5–1 m" },
+  { color: "#fb923c", label: "1–2 m" },
+  { color: "#fde047", label: "2–3 m" },
+  { color: "#3b82f6", label: "≥ 3 m 安全" },
+];
+
+function TaipeiSewerLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市下水道水位 SEWER
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        水面距地面深度
+      </div>
+      <FireCatRows cats={TAIPEI_SEWER_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        每 60 秒更新（北市水利處）
+      </div>
+    </div>
+  );
+}
+
+// ── 北市抽水站：risk_ratio step 分級（useTaipeiPumbLayer.ts riskColorExpression）──
+// risk_ratio = 內池水位 / 最高容許水位；白邊來自 circle-stroke（pumb_running=true → 2px 白）。
+const TAIPEI_PUMB_CATS = [
+  { color: "#7f1d1d", label: "≥ 0.9 逼近上限" },
+  { color: "#ef4444", label: "0.8–0.9" },
+  { color: "#fb923c", label: "0.6–0.8" },
+  { color: "#fde047", label: "0.4–0.6" },
+  { color: "#06b6d4", label: "< 0.4 正常" },
+];
+
+function TaipeiPumbLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市抽水站 PUMB STATION
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        內池水位 / 最高容許水位
+      </div>
+      <FireCatRows cats={TAIPEI_PUMB_CATS} />
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+        <div
+          style={{
+            width: 10, height: 10, borderRadius: RADIUS.full,
+            background: "transparent", border: "2px solid #ffffff",
+            boxSizing: "border-box", flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>白邊 = 運轉中</span>
+      </div>
+    </div>
+  );
+}
+
+// ── 北市疏散門：gate_state match（useTaipeiEvacuateLayer.ts stateColorExpression）──
+// gate_state 由 fo/fc/flt 三個旗標推導，見該檔頂註解。
+const TAIPEI_EVACUATE_CATS = [
+  { color: "#22c55e", label: "全開 Open" },
+  { color: "#ef4444", label: "關閉 Closed（防護啟動）" },
+  { color: "#fbbf24", label: "故障 Faulted" },
+  { color: "#6b7280", label: "狀態不明 Unknown" },
+];
+
+function TaipeiEvacuateLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        北市疏散門 EVACUATE GATE
+      </div>
+      <FireCatRows cats={TAIPEI_EVACUATE_CATS} />
+    </div>
+  );
+}
+
+// ── 即時雨量：precipitation_1hr step 分級（useRainGaugeLayer.ts rainColorExpression）──
+// 級距數字逐字取自 step 的 stop；中文級名沿用同檔 heatmapColorExpression 註解裡
+// 對同一組色碼的稱呼（小雨/中雨/大雨/豪雨/大豪雨/超大豪雨），遠景熱區與近景圓點同色系。
+// coalesce(…, 0)：缺值會落進最低級 → 灰色列註明「無雨 / 無資料」。
+const RAIN_GAUGE_CATS = [
+  { color: "#6b7280", label: "< 0.1 mm 無雨 / 無資料" },
+  { color: "#93c5fd", label: "0.1–2.5 mm 小雨" },
+  { color: "#3b82f6", label: "2.5–15 mm 中雨" },
+  { color: "#22c55e", label: "15–40 mm 大雨" },
+  { color: "#fbbf24", label: "40–80 mm 豪雨" },
+  { color: "#f97316", label: "80–200 mm 大豪雨" },
+  { color: "#ef4444", label: "≥ 200 mm 超大豪雨" },
+];
+
+function RainGaugeLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        即時雨量 RAIN GAUGE
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        時雨量 1hr (mm)
+      </div>
+      <FireCatRows cats={RAIN_GAUGE_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        圈大小 = 10 分鐘雨量｜z&lt;12 改用同色系熱區
+      </div>
+    </div>
+  );
+}
+
+// ── 地下水井：delta_m 色階（useGroundwaterLayer.ts colorExpression 的 interpolate stops）──
+// 值域比河川窄（覆蓋 p10~p90 的 ±30cm），色序同樣是 紅(-) → 灰(0) → 藍(+)。
+const GROUNDWATER_DELTA_STOPS = [
+  { v: -0.30, color: "#b91c1c" },
+  { v: -0.10, color: "#ef4444" },
+  { v: -0.02, color: "#fca5a5" },
+  { v: 0.00, color: "#94a3b8" },
+  { v: 0.02, color: "#93c5fd" },
+  { v: 0.10, color: "#3b82f6" },
+  { v: 0.30, color: "#1d4ed8" },
+];
+
+function GroundwaterLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        地下水井 GROUNDWATER
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
+        當日水位變化 Δ（vs 當日起始）
+      </div>
+      <ClimateGradientBar
+        gradient={deltaStopsToGradient(GROUNDWATER_DELTA_STOPS)}
+        labels={["-30cm 下降", "0", "+30cm 上升"]}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        圈大小 = |Δ| 幅度（±30cm 封頂）
+      </div>
+    </div>
+  );
+}
+
+// ── 💧 水資源管制區 zone_kind 4 類（明暗雙主題）──
+// 色票逐字取自 overlayRegistry.ts `waterProtectionZones` 的 **fill-color** match
+// （outline 用的是更亮的一組，圖例以面色為準，因為使用者看到的主要是面）。
+const WATER_PROTECTION_ZONE_CATS: { dark: string; light: string; label: string }[] = [
+  { dark: "#10b981", light: "#047857", label: "飲用水水源保護區 Protection" },
+  { dark: "#ef4444", light: "#b91c1c", label: "地下水禁止超抽 Ban" },
+  { dark: "#f97316", light: "#c2410c", label: "地下水限制超抽 Restricted" },
+  { dark: "#94a3b8", light: "#64748b", label: "地下水分區 Region" },
+];
+
+function WaterProtectionZoneLegend({ isDark }: { isDark: boolean }) {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        水資源管制區 PROTECTION ZONE
+      </div>
+      <FireCatRows
+        square
+        cats={WATER_PROTECTION_ZONE_CATS.map((c) => ({
+          color: isDark ? c.dark : c.light,
+          label: c.label,
+        }))}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        地下水分區面只畫薄輪廓（fill 8%）
+      </div>
+    </div>
+  );
+}
+
+// ── 💧 監測站 station_type（overlayRegistry `waterMonitorStations` 的 glow circle-color match）──
+// paint 只分 3 種 + default 灰（core 圈是同色系亮版 #93c5fd / #67e8f9 / #f9a8d4，
+// 圖例以外暈的飽和版為準，與 featureInfo/waterPanels.tsx 的 WATER_MONITOR_TYPE 同色）。
+const WATER_MONITOR_STATION_CATS = [
+  { color: "#60a5fa", label: "雨量站 Rain gauge" },
+  { color: "#22d3ee", label: "河川水位站 River level" },
+  { color: "#f472b6", label: "地下水觀測井 Groundwater well" },
+  { color: "#9ca3af", label: "其他 / 未分類 Other" },
+];
+
+function WaterMonitorStationLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        監測站 MONITOR STATION
+      </div>
+      <FireCatRows cats={WATER_MONITOR_STATION_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        站位分布（不含讀值）｜讀值看即時雨量／河川水位／地下水井
+      </div>
+    </div>
+  );
+}
+
+// ── 💧 淹水潛勢 depth_class 5 級（overlayRegistry `waterFloodExtreme` 的 fill-color match）──
+// classMin 與該處 CLASS_MIN 同表：paint 用 floodMinDepth 把低於門檻的級距 fill-opacity 打成 0，
+// 圖例照同一條件過濾，才不會列出地圖上根本看不到的級距。
+// （match 的 default #fca5a5 永遠不會顯示 —— opacity 的 ["in", depth_class, visible]
+//   對未列舉的值一律 0，所以圖例不列 default。）
+const WATER_FLOOD_DEPTH_CATS = [
+  { classMin: 0.3, color: "#fee2e2", label: "0.3–0.5 m" },
+  { classMin: 0.5, color: "#fca5a5", label: "0.5–1.0 m" },
+  { classMin: 1.0, color: "#f87171", label: "1.0–2.0 m" },
+  { classMin: 2.0, color: "#dc2626", label: "2.0–3.0 m" },
+  { classMin: 3.0, color: "#7f1d1d", label: "> 3.0 m" },
+];
+
+function WaterFloodExtremeLegend({ minDepth = 0 }: { minDepth?: number }) {
+  const t = useLegendTheme();
+  const cats = WATER_FLOOD_DEPTH_CATS.filter((c) => c.classMin >= minDepth);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        淹水潛勢 FLOOD DEPTH
+      </div>
+      <FireCatRows cats={cats} square />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        情境：日雨量 650mm / 24hr
+        {minDepth > 0 && `｜已篩 ≥ ${minDepth} m`}
+      </div>
+    </div>
+  );
+}
+
+// ── 💧 水利設施 facility_type 4 類 + default（overlayRegistry `waterFacilities` circle-color match）──
+// 標籤與 featureInfo/waterPanels.tsx 的 WATER_FACILITY_TYPE 同字串（popup ↔ 圖例一致）。
+const WATER_FACILITY_CATS = [
+  { color: "#60a5fa", label: "抽水站 (OSM)" },
+  { color: "#2563eb", label: "官方抽水站 (WRA)" },
+  { color: "#34d399", label: "自來水廠 / 淨水場" },
+  { color: "#fbbf24", label: "水塔" },
+  { color: "#9ca3af", label: "其他 / 未分類" },
+];
+
+function WaterFacilityLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        水利設施 FACILITY
+      </div>
+      <FireCatRows cats={WATER_FACILITY_CATS} />
+    </div>
+  );
+}
+
 function WorldTrashDebrisLegend() {
   const t = useLegendTheme();
   return (
@@ -3347,6 +3871,60 @@ function IotStructureLegend() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── 通訊海纜 cable_type 5 類（overlayRegistry `submarineCables` 的 line-color match；
+//    glow / line 同一份色票）。與 featureInfo/infraPanels.tsx 的 CABLE_TYPE_COLORS 同色。──
+const SUBMARINE_CABLE_CATS = [
+  { color: "#2196F3", label: "國際幹線 International" },
+  { color: "#F44336", label: "海峽專線 Strait" },
+  { color: "#4CAF50", label: "離島連接 Island link" },
+  { color: "#FF9800", label: "中國境內 China domestic" },
+  { color: "#9E9E9E", label: "規劃中 Planned（含未分類）" },
+];
+
+function SubmarineCableLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        通訊海纜 SUBMARINE CABLE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {SUBMARINE_CABLE_CATS.map((c) => (
+          <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 16, height: 3, borderRadius: RADIUS.sm,
+                background: c.color, opacity: 0.9, flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 海纜登陸站 station_type（overlayRegistry `landingStations` circle-color match：
+//    2 條 match + default 灰＝端點；與 infraPanels.tsx 的 STATION_TYPE_COLORS 同色）──
+const LANDING_STATION_CATS = [
+  { color: "#2196F3", label: "國際樞紐 International hub" },
+  { color: "#26c6da", label: "區域節點 Regional node" },
+  { color: "#9E9E9E", label: "端點 Endpoint" },
+];
+
+function LandingStationLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        海纜登陸站 LANDING STATION
+      </div>
+      <FireCatRows cats={LANDING_STATION_CATS} />
     </div>
   );
 }
