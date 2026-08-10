@@ -2,6 +2,7 @@ import type { RailSystem, RailSchedule, RailData, RailStationTime, TraData, TraD
 import { fetchSupabaseSchedule } from "./railScheduleLoader";
 import { todayTaiwan } from "../lib/supabase";
 import { cachedOnce } from "../lib/loaderCache";
+import { withLoading } from "../lib/loadingRegistry";
 
 // 系統定義：5 系統（不含 TRA，TRA 由 TraTrainEngine 獨立處理）
 const RAIL_SYSTEMS = [
@@ -353,8 +354,17 @@ async function loadFromLocalFiles(): Promise<{ systems: RailSystem[]; traData: T
 /**
  * 載入所有軌道系統資料（本地散檔 + Supabase 時刻表）。
  * 10min TTL 快取：重新 toggle on 不重載數百個本地 geojson（含 StrictMode 雙跑去重）。
+ *
+ * withLoading 包在 cachedOnce 的 fetcher 外層：只在真正發起載入（cache miss）
+ * 時才註冊 loadingRegistry，cache hit 直接回傳不會誤閃 loading 指示。
+ * boot 首載由 App.tsx 的 loadingSteps（用 useRailData 的 loading state）蓋；
+ * boot 後才開啟 rail 圖層時 LoadingScreen 已 dismiss，改由這裡的 registry
+ * 驅動 LoadingIndicator 小型 pill 顯示「軌道路網資料」。
  */
-export const loadAllRail = cachedOnce(loadAllRailImpl, 10 * 60_000);
+export const loadAllRail = cachedOnce(
+  () => withLoading("rail-static-load", "軌道路網資料", loadAllRailImpl()),
+  10 * 60_000,
+);
 
 async function loadAllRailImpl(): Promise<RailData> {
   const local = await loadFromLocalFiles();
