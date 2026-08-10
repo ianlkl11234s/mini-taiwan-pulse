@@ -218,6 +218,12 @@ interface LegendPanelProps {
 export interface LegendContext {
   visibility: LayerVisibility;
   overlayParams: Record<string, number>;
+  /**
+   * 與 overlayRegistry paint 的 `isDark` 同一個值（App.tsx 的 isDarkTheme → MapView →
+   * updateAllOverlayThemes）。paint 有明暗雙色的圖層，圖例必須用同一邊的 hex，
+   * 否則色票會跟地圖對不上。
+   */
+  isDark: boolean;
   /** 見 LegendPanelProps.railSystems。只有 RailLegend 消費。 */
   railSystems?: readonly string[];
 }
@@ -248,6 +254,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
   { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
   { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
+  { keys: ["cctv"], render: () => <CctvLegend /> },
   { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
   { keys: ["ships"], render: () => <ShipsLegend /> },
@@ -325,8 +332,16 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   },
   { keys: ["mountainRescueIncidents"], render: () => <MountainRescueLegend /> },
   { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan", "satellitesUSA", "satellitesJapan", "satellitesRussia", "satellitesIndia", "satellitesKorea", "satellitesFrance", "satellitesGermany", "satellitesItaly", "satellitesIsrael"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
+  // 通訊基礎設施：海纜（線）+ 登陸站（點）
+  { keys: ["submarineCables"], render: () => <SubmarineCableLegend /> },
+  { keys: ["landingStations"], render: () => <LandingStationLegend /> },
   { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
   { keys: ["lakesPondsOsm"], render: () => <LakesPondsLegend /> },
+  // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
+  { keys: ["waterProtectionZones"], render: ({ isDark }) => <WaterProtectionZoneLegend isDark={isDark} /> },
+  { keys: ["waterMonitorStations"], render: () => <WaterMonitorStationLegend /> },
+  { keys: ["waterFacilities"], render: () => <WaterFacilityLegend /> },
+  { keys: ["waterFloodExtreme"], render: ({ overlayParams }) => <WaterFloodExtremeLegend minDepth={overlayParams.floodMinDepth ?? 0} /> },
   { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
   { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
   { keys: ["erHospital"], render: () => <ErCongestionLegend /> },
@@ -477,7 +492,7 @@ export function LegendPanel({
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
           {active.map((entry, i) => (
             <Fragment key={entry.keys[0] ?? i}>
-              {entry.render({ visibility, overlayParams, railSystems })}
+              {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems })}
             </Fragment>
           ))}
         </div>
@@ -3088,6 +3103,30 @@ function RoadCongestionLegend() {
   );
 }
 
+// ── CCTV source 3 類（overlayRegistry `cctv` 的 circle-color match；glow / core 同色）──
+// 標籤與 featureInfo/infraPanels.tsx 的 CCTV_SOURCE 同字串。
+// match 的 default 就是 city 的 #26c6da，所以未分類會併入「市區道路」列，圖例不另立一列。
+const CCTV_SOURCE_CATS = [
+  { color: "#ff9800", label: "國道 Freeway" },
+  { color: "#ffd54f", label: "省道快速道路 Highway" },
+  { color: "#26c6da", label: "市區道路 City（含未分類）" },
+];
+
+function CctvLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        道路攝影機 CCTV
+      </div>
+      <FireCatRows cats={CCTV_SOURCE_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        z≥7 才顯示｜點選看即時畫面
+      </div>
+    </div>
+  );
+}
+
 function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
   const t = useLegendTheme();
   const groups = ALERT_GROUP_KEYS.filter((k) => visibility[k]);
@@ -3307,6 +3346,114 @@ function LakesPondsLegend() {
   );
 }
 
+// ── 💧 水資源管制區 zone_kind 4 類（明暗雙主題）──
+// 色票逐字取自 overlayRegistry.ts `waterProtectionZones` 的 **fill-color** match
+// （outline 用的是更亮的一組，圖例以面色為準，因為使用者看到的主要是面）。
+const WATER_PROTECTION_ZONE_CATS: { dark: string; light: string; label: string }[] = [
+  { dark: "#10b981", light: "#047857", label: "飲用水水源保護區 Protection" },
+  { dark: "#ef4444", light: "#b91c1c", label: "地下水禁止超抽 Ban" },
+  { dark: "#f97316", light: "#c2410c", label: "地下水限制超抽 Restricted" },
+  { dark: "#94a3b8", light: "#64748b", label: "地下水分區 Region" },
+];
+
+function WaterProtectionZoneLegend({ isDark }: { isDark: boolean }) {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        水資源管制區 PROTECTION ZONE
+      </div>
+      <FireCatRows
+        square
+        cats={WATER_PROTECTION_ZONE_CATS.map((c) => ({
+          color: isDark ? c.dark : c.light,
+          label: c.label,
+        }))}
+      />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        地下水分區面只畫薄輪廓（fill 8%）
+      </div>
+    </div>
+  );
+}
+
+// ── 💧 監測站 station_type（overlayRegistry `waterMonitorStations` 的 glow circle-color match）──
+// paint 只分 3 種 + default 灰（core 圈是同色系亮版 #93c5fd / #67e8f9 / #f9a8d4，
+// 圖例以外暈的飽和版為準，與 featureInfo/waterPanels.tsx 的 WATER_MONITOR_TYPE 同色）。
+const WATER_MONITOR_STATION_CATS = [
+  { color: "#60a5fa", label: "雨量站 Rain gauge" },
+  { color: "#22d3ee", label: "河川水位站 River level" },
+  { color: "#f472b6", label: "地下水觀測井 Groundwater well" },
+  { color: "#9ca3af", label: "其他 / 未分類 Other" },
+];
+
+function WaterMonitorStationLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        監測站 MONITOR STATION
+      </div>
+      <FireCatRows cats={WATER_MONITOR_STATION_CATS} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        站位分布（不含讀值）｜讀值看即時雨量／河川水位／地下水井
+      </div>
+    </div>
+  );
+}
+
+// ── 💧 淹水潛勢 depth_class 5 級（overlayRegistry `waterFloodExtreme` 的 fill-color match）──
+// classMin 與該處 CLASS_MIN 同表：paint 用 floodMinDepth 把低於門檻的級距 fill-opacity 打成 0，
+// 圖例照同一條件過濾，才不會列出地圖上根本看不到的級距。
+// （match 的 default #fca5a5 永遠不會顯示 —— opacity 的 ["in", depth_class, visible]
+//   對未列舉的值一律 0，所以圖例不列 default。）
+const WATER_FLOOD_DEPTH_CATS = [
+  { classMin: 0.3, color: "#fee2e2", label: "0.3–0.5 m" },
+  { classMin: 0.5, color: "#fca5a5", label: "0.5–1.0 m" },
+  { classMin: 1.0, color: "#f87171", label: "1.0–2.0 m" },
+  { classMin: 2.0, color: "#dc2626", label: "2.0–3.0 m" },
+  { classMin: 3.0, color: "#7f1d1d", label: "> 3.0 m" },
+];
+
+function WaterFloodExtremeLegend({ minDepth = 0 }: { minDepth?: number }) {
+  const t = useLegendTheme();
+  const cats = WATER_FLOOD_DEPTH_CATS.filter((c) => c.classMin >= minDepth);
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        淹水潛勢 FLOOD DEPTH
+      </div>
+      <FireCatRows cats={cats} square />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        情境：日雨量 650mm / 24hr
+        {minDepth > 0 && `｜已篩 ≥ ${minDepth} m`}
+      </div>
+    </div>
+  );
+}
+
+// ── 💧 水利設施 facility_type 4 類 + default（overlayRegistry `waterFacilities` circle-color match）──
+// 標籤與 featureInfo/waterPanels.tsx 的 WATER_FACILITY_TYPE 同字串（popup ↔ 圖例一致）。
+const WATER_FACILITY_CATS = [
+  { color: "#60a5fa", label: "抽水站 (OSM)" },
+  { color: "#2563eb", label: "官方抽水站 (WRA)" },
+  { color: "#34d399", label: "自來水廠 / 淨水場" },
+  { color: "#fbbf24", label: "水塔" },
+  { color: "#9ca3af", label: "其他 / 未分類" },
+];
+
+function WaterFacilityLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        水利設施 FACILITY
+      </div>
+      <FireCatRows cats={WATER_FACILITY_CATS} />
+    </div>
+  );
+}
+
 function WorldTrashDebrisLegend() {
   const t = useLegendTheme();
   return (
@@ -3365,6 +3512,60 @@ function IotStructureLegend() {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── 通訊海纜 cable_type 5 類（overlayRegistry `submarineCables` 的 line-color match；
+//    glow / line 同一份色票）。與 featureInfo/infraPanels.tsx 的 CABLE_TYPE_COLORS 同色。──
+const SUBMARINE_CABLE_CATS = [
+  { color: "#2196F3", label: "國際幹線 International" },
+  { color: "#F44336", label: "海峽專線 Strait" },
+  { color: "#4CAF50", label: "離島連接 Island link" },
+  { color: "#FF9800", label: "中國境內 China domestic" },
+  { color: "#9E9E9E", label: "規劃中 Planned（含未分類）" },
+];
+
+function SubmarineCableLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        通訊海纜 SUBMARINE CABLE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {SUBMARINE_CABLE_CATS.map((c) => (
+          <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              style={{
+                width: 16, height: 3, borderRadius: RADIUS.sm,
+                background: c.color, opacity: 0.9, flexShrink: 0,
+              }}
+            />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{c.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── 海纜登陸站 station_type（overlayRegistry `landingStations` circle-color match：
+//    2 條 match + default 灰＝端點；與 infraPanels.tsx 的 STATION_TYPE_COLORS 同色）──
+const LANDING_STATION_CATS = [
+  { color: "#2196F3", label: "國際樞紐 International hub" },
+  { color: "#26c6da", label: "區域節點 Regional node" },
+  { color: "#9E9E9E", label: "端點 Endpoint" },
+];
+
+function LandingStationLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        海纜登陸站 LANDING STATION
+      </div>
+      <FireCatRows cats={LANDING_STATION_CATS} />
     </div>
   );
 }

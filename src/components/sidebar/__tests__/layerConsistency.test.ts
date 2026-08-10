@@ -73,13 +73,13 @@ const BASELINE_NO_LEGEND = new Set([
   // FlightsLegend 單條航跡 / RailLegend 台鐵車種分色）→ 移出 baseline，
   // 不再視為「合法無圖例」。
   "stationsTHSR", "stationsTRA", "stationsMetro",
-  "ports", "lighthouses", "airports", "highways", "provincialRoads", "cctv",
+  "ports", "lighthouses", "airports", "highways", "provincialRoads",
   "etcGantry", "serviceArea", "serviceAreaPolygon", "taxiStand", "windPlan",
   "busStationsCity", "busStationsIntercity", "bikeStations", "cyclingRoutes",
   "freewayCongestion", "weatherStations", "h3Population", "popCount",
   "indicators", "socioeconomic", "spatialEconomy", "temperatureWave",
   // 2026-08-08：schools 併入教育主題（第 38），已接 SchoolLevelLegend（學制 5 色）→ 移出 baseline
-  "convenienceStores", "submarineCables", "landingStations",
+  "convenienceStores",
   // 公共設施：郵局 / i郵箱 / 活動中心 皆單色 POI（鐵則 2 不適用）；govServiceOffices 3 類分色 → 接 GovServiceOfficeLegend
   "postOffices", "iPostBoxes", "communityCenters",
   // 公共設施 Batch 2：圖書館 / 社福 / 市場 皆單色 POI（鐵則 2 不適用）；publicToilets grade 4 級分色 → 接 PublicToiletLegend
@@ -88,8 +88,10 @@ const BASELINE_NO_LEGEND = new Set([
   // aqiMicroSensors 已升級三模式上色（PM2.5/溫度/濕度）→ 接 MicroSensorLegend，不再列 baseline
   "cwaRadarImagery", "aqiImagery", "aqiStations",
   "busLive", "busIntercityLive", "waterBasins", "waterRivers", "waterLevees",
-  "waterProtectionZones", "waterReservoirs", "waterFacilities",
-  "waterMonitorStations", "waterFloodExtreme", "waterDetentionBasins",
+  // 水庫（單色青面）／滯洪池（單色 #0284c7 點）：paint 無 match/step 分類 → 鐵則 2 不適用。
+  // 同組的 waterProtectionZones / waterFacilities / waterMonitorStations / waterFloodExtreme
+  // 皆為屬性驅動多色，已接 LEGEND_REGISTRY。
+  "waterReservoirs", "waterDetentionBasins",
   "rainGauge", "riverLevel", "groundwater", "groundwaterWells",
   "taipeiSewer", "taipeiEvacuate", "taipeiPumb", "precipRaster",
   "medICUBeds", "agriculture", "agriSoil", "agriLeisureFarmZones",
