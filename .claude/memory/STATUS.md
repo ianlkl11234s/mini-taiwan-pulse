@@ -78,6 +78,7 @@ PB-06g。**EM-30 的觀察期從 08-10 起算。**
 | 2026-08-06~09 | EM-16 翻案 → embed 三層動態回放（推翻 proposal §6-1「Three.js 圖層不做」；三顆引擎皆純 TS、MapLibre×Three.js spike 誤差 ≤0.01px） | INCIDENTS 2026-08-06~08 + REFLECTIONS 同期 + PB-34 |
 | 2026-08-08 | nightly trails 保存層（data-collectors PR #47，每日 02:00；日 ~76MB、首年 ~US$4.5。bus 08-04 與 ships/flights 07-30 **已永久救不回**） | DATA_SCOPE §保存層 + PB-35 |
 | 2026-08-06/07 | 資料源健康三連查 + 落雷雙源（10 PR 全 merged；共機航跡斷 5 天／台電落雷斷 28 天／警政署 A1 停更 6 週，皆無告警） | `.claude/pitfalls/2026-08-07-silent-upstream-outage.md` + INCIDENTS 2026-08-07 |
+| 2026-08-05/06 | 殯葬 Funeral 5 層（PR #107，A/B/C 三源分開）＋ `is_active` 遷他縣市修正（PR #110）＋ 食品價格監測板（PR #109）＋ 收孤兒 repo `tw-address-geocoder` | `docs/features/funeral-layers/` + INCIDENTS/REFLECTIONS 2026-08-05/06 + DATA_SCOPE §殯葬 + PB-36 |
 | 2026-08-03~05 | 可嵌入地圖 EM 系列（PR #105/#106；MapLibre + 自託管 Protomaps → Mapbox 費用 0） | `docs/features/embeddable-map/` |
 | 2026-08-02/03 | 共機全鏈上線（四 repo 全 merged，PR #104 + mig 330~333） | `docs/features/pla-activity/` |
 | 2026-07-29~31 | 地震回放 earthquakeReplay（PR #98 + mig 324） | `docs/features/earthquake-replay/` |
@@ -96,3 +97,8 @@ PB-06g。**EM-30 的觀察期從 08-10 起算。**
 _本輪 memory commits_：INCIDENTS / PRINCIPLES / PLAYBOOKS(PB-30 改寫) / REFLECTIONS / BACKLOG + 本檔。
 DATA_SCOPE 本輪無變動（純前端排版，無資料／表結構異動）；
 GLOSSARY 刻意不加（`fit:"content"`／guillotine 拆解在程式碼註解、feature README、PB-30 三處已有 canonical 出處）。
+
+_2026-08-10 補_：孤兒分支 `memory/wrap-up-funeral-integration`（2026-08-06 分岔，10 個 memory commit
+從未合回）的知識沉澱已增量搬入 INCIDENTS／PRINCIPLES／DATA_SCOPE／GLOSSARY／PLAYBOOKS(PB-36)／
+REFLECTIONS／BACKLOG ＋ `docs/features/funeral-layers/{backlog,changelog}.md`。
+分支本體的 STATUS 內文已被之後 44 個 commit 追過，**不搬**，只補上表這一列索引。
