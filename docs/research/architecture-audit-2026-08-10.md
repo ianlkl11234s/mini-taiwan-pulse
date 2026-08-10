@@ -92,6 +92,8 @@ git-based deploy + `Dockerfile COPY . .` + `.dockerignore` 未排除 public/ + n
 
 EDU-10 已完成退役（deploy 腳本移除 + src 零引用 + S3 物件刻意保留），但 `git ls-files` 證實 **repo 內的檔案本體仍被追蹤**——是 EDU-10 清單的漏項，`git rm` 即可。
 
+> **2026-08-10 事後勘誤**：前提有誤。`git log --all --diff-filter=A -- public/geo/schools.geojson` 全史查無任何 commit——**這個確切路徑從未進過 git**（`.gitignore:27` 一直擋著）。真正進過 git 的是改版前的舊路徑 `public/schools.geojson`（`73af13a` 新增 → `a4ebc50` 移除改走 S3，早於 `22b1bd7` 把 `public/` 拆出 `geo/` 子目錄的重構，兩者路徑不同）。稽核當下看到的檔案是**本機工作樹孤兒檔**（已 `rm`，不是 `git rm`）。結論：**EDU-10 實際無漏項**，退役是完整的。
+
 ---
 
 ## C. 結構債（疊床架屋判定）
@@ -155,7 +157,7 @@ sidebar 色點（LAYER_COLORS）/ 地圖 paint（overlayRegistry）/ 圖例色�
 1. gas station static-rpc 補檔（A-3，正在付錢）
 2. `loadingRegistryContract` filter 改 `/Loaders?\.ts$/`（A-4.1）
 3. bindTimer 2 處加 `anyVisible` gate（B-3）
-4. `@deck.gl/*` 移除 + 4 孤兒檔刪除 + schools.geojson 清（D-1/2、B-4）
+4. `@deck.gl/*` 移除 + 4 孤兒檔刪除（D-1/2）；schools.geojson 本機孤兒檔清除，非 `git rm`（B-4 勘誤：EDU-10 實際無漏項）
 5. tour 三組色表抽 `data/tourTypes.ts`（C-4）
 
 **分批專項（建議開 PR 系列）**
