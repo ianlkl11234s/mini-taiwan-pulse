@@ -20,7 +20,7 @@
 
 | ID | 優先級 | 項目 | 備註 |
 |---|---|---|---|
-| EM-17 | P2 | 補 `get_gas_station_layers` 快照 → 加油站 5 層可嵌 | loader 已用 `staticRpc` 但 `public/static-rpc/` 無此檔 → **主站一直靜默 fallback 打 RPC**。export 腳本已列該 RPC，需確認 migration 已套用後重跑。補完把 key 加進 `EMBED_CDN_LAYERS`（有測試守門擋「加了 key 但沒檔」） |
+| EM-17 | P2 | 補 `get_gas_station_layers` 快照 → 加油站 5 層可嵌 | 🔃 2026-08-10 進度：**快照已產出驗證**（6,210 筆 7.9MB），embed 5 層接線已在 `fix/gas-static-rpc` 分支完成，**待 S3 上傳後才結案**。上傳前 loader 仍靜默 fallback 打 RPC（主站正在付 egress）。加 key 進 `EMBED_CDN_LAYERS` 前需過守門測試（擋「加了 key 但沒檔」） |
 | EM-18 | P2 | 更多歷史快照圖層（`earthquakeReplay` 等） | 樣板已成形：`snapshotLayers.ts` 加 spec + export 腳本加 case |
 | EM-11 | P2 | 底圖改放 Cloudflare R2（選配） | 目前走 `public/base_map/` 既有管線已可運作。改 R2 只需設 `VITE_EMBED_BASEMAP_URL`；R2 egress 免費，高流量時較划算 |
 | EM-12 | P3 | Protomaps 字型／sprite 自託管 | 目前指向 `protomaps.github.io`（已加進 CSP）。自託管可去掉最後一個外部依賴 |
