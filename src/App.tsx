@@ -95,7 +95,6 @@ import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
 import { useErHospitalLayer } from "./hooks/useErHospitalLayer";
 import { useLibrarySeatsLayer } from "./hooks/useLibrarySeatsLayer";
 import { useParkingLayer } from "./hooks/useParkingLayer";
-// PowerStatusHud 已暫離地圖（搬 monitor），import 待整合時加回
 import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
 import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
 import { useStaticRasterLayer } from "./hooks/useStaticRasterLayer";

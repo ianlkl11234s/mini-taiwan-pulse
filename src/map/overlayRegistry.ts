@@ -78,6 +78,9 @@ import {
   geocodeFadeOpacity, universityBubbleRadius, universityBubbleColorExpr,
   EDUCATION_LAYER_COLORS,
 } from "../data/educationTypes";
+import {
+  TOUR_ATTRACTIONS_CATEGORY_COLOR, TOUR_HOTELS_CLASS_COLOR, TOUR_HERITAGE_CATEGORY_COLOR,
+} from "../data/tourTypes";
 
 /**
  * 🎓 教育：總覽層 schools ＋ 5 個分級 ＋ 偏遠層，六者共用同一個 sourceId。
@@ -129,15 +132,6 @@ function tourHotelsClassFilter(p?: Record<string, number>): unknown[] {
   return ["has", "hotel_classes"];
 }
 
-// tourAttractions 分類著色（category 五類；fallback=Other 灰）
-const TOUR_ATTRACTIONS_CATEGORY_COLOR: unknown[] = [
-  "match", ["get", "category"],
-  "Nature", "#2e7d32",
-  "Culture", "#6d4c41",
-  "Leisure_Arts", "#ab47bc",
-  "Urban_Comm", "#0288d1",
-  "#9e9e9e",
-];
 // tourAttractions 熱度著色（annual_visitors_2024 log10 色帶；非 number（含 null）= 灰「無統計」，絕不當 0）
 const TOUR_ATTRACTIONS_HEAT_COLOR: unknown[] = [
   "case",
@@ -146,23 +140,6 @@ const TOUR_ATTRACTIONS_HEAT_COLOR: unknown[] = [
     ["log10", ["max", ["get", "annual_visitors_2024"], 1]],
     4, "#ffe082", 5, "#ffb300", 6, "#f4511e", 7.5, "#b71c1c"],
   "#616161",
-];
-// tourHotels hotel_classes 四類分色（fallback 灰）
-const TOUR_HOTELS_CLASS_COLOR: unknown[] = [
-  "match", ["get", "hotel_classes"],
-  "1", "#d32f2f",
-  "2", "#f57c00",
-  "3", "#1976d2",
-  "4", "#43a047",
-  "#9e9e9e",
-];
-// tourHeritage category 三類同色系分色（fallback 基底 #6d4c41）
-const TOUR_HERITAGE_CATEGORY_COLOR: unknown[] = [
-  "match", ["get", "category"],
-  "古蹟", "#5d4037",
-  "歷史建築", "#8d6e63",
-  "文化景觀", "#a1887f",
-  "#6d4c41",
 ];
 
 /**

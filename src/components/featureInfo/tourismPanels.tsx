@@ -1,6 +1,9 @@
 import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { Row } from "./shared";
 import { useFeatureTheme } from "./featureTheme";
+import {
+  TOUR_ATTRACTION_CATEGORY_INFO, TOUR_HERITAGE_CATEGORY_COLOR_MAP, TOUR_HOTEL_CLASS_INFO,
+} from "../../data/tourTypes";
 
 // 本檔 Title 為極簡本地版（同 culturePanels / sportsPanels 慣例）：shared.tsx 未 export Title。
 function Title({ color, children }: { color: string; children: string }) {
@@ -27,18 +30,10 @@ function visitorsRow(props: Record<string, unknown>): string {
   return `${visitors.toLocaleString()} 人次${yoyStr}`;
 }
 
-// ── 1. 觀光景點：category 五類分色 + 中文化 ──
-const ATTRACTION_CATEGORY: Record<string, { label: string; color: string }> = {
-  Nature: { label: "自然", color: "#2e7d32" },
-  Culture: { label: "文化", color: "#6d4c41" },
-  Leisure_Arts: { label: "休閒藝術", color: "#ab47bc" },
-  Urban_Comm: { label: "都會社區", color: "#0288d1" },
-  Other: { label: "其他", color: "#9e9e9e" },
-};
-
+// ── 1. 觀光景點：category 五類分色 + 中文化（色表 SSOT = data/tourTypes.ts） ──
 export function AttractionsPanel({ props }: { props: Record<string, unknown> }) {
   const cat = String(props.category ?? "");
-  const info = ATTRACTION_CATEGORY[cat] ?? { label: cat, color: "#e65100" };
+  const info = TOUR_ATTRACTION_CATEGORY_INFO[cat] ?? { label: cat, color: "#e65100" };
   const desc = String(props.description ?? "");
   const descShown = desc.length > 150 ? `${desc.slice(0, 150)}…` : desc;
   return (
@@ -93,16 +88,10 @@ export function ScenicAreasPanel({ props }: { props: Record<string, unknown> }) 
   );
 }
 
-// ── 5. 文化資產：category 三值分色 ──
-const HERITAGE_CATEGORY_COLOR: Record<string, string> = {
-  古蹟: "#5d4037",
-  歷史建築: "#8d6e63",
-  文化景觀: "#a1887f",
-};
-
+// ── 5. 文化資產：category 三值分色（色表 SSOT = data/tourTypes.ts） ──
 export function HeritagePanel({ props }: { props: Record<string, unknown> }) {
   const cat = String(props.category ?? "");
-  const color = HERITAGE_CATEGORY_COLOR[cat] ?? "#6d4c41";
+  const color = TOUR_HERITAGE_CATEGORY_COLOR_MAP[cat] ?? "#6d4c41";
   return (
     <>
       <Title color={color}>{String(props.name ?? "文化資產")}</Title>
@@ -226,17 +215,10 @@ export function CampingPanel({ props }: { props: Record<string, unknown> }) {
   );
 }
 
-// ── 11. 旅宿：hotel_classes 代碼轉中文 + 分色 ──
-const HOTEL_CLASS: Record<string, { label: string; color: string }> = {
-  "1": { label: "國際觀光旅館", color: "#d32f2f" },
-  "2": { label: "一般觀光旅館", color: "#f57c00" },
-  "3": { label: "旅館", color: "#1976d2" },
-  "4": { label: "民宿", color: "#43a047" },
-};
-
+// ── 11. 旅宿：hotel_classes 代碼轉中文 + 分色（色表 SSOT = data/tourTypes.ts） ──
 export function HotelsPanel({ props }: { props: Record<string, unknown> }) {
   const code = String(props.hotel_classes ?? "");
-  const info = HOTEL_CLASS[code] ?? { label: code, color: "#9e9e9e" };
+  const info = TOUR_HOTEL_CLASS_INFO[code] ?? { label: code, color: "#9e9e9e" };
   const cityTown = `${String(props.city ?? "")}${String(props.town ?? "")}`;
   const stars = Number(props.hotel_stars);
   const rooms = Number(props.total_rooms);

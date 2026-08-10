@@ -50,7 +50,7 @@ interface Finding { key: string; file: string; line: number }
 
 function scan(): Finding[] {
   const found: Finding[] = [];
-  for (const file of readdirSync(LOADER_DIR).filter((f) => f.endsWith("Loader.ts"))) {
+  for (const file of readdirSync(LOADER_DIR).filter((f) => /Loaders?\.ts$/.test(f))) {
     const lines = readFileSync(`${LOADER_DIR}/${file}`, "utf8").split("\n");
     lines.forEach((line, i) => {
       if (!/\b(supabase\.rpc|staticRpc)\(/.test(line)) return;
