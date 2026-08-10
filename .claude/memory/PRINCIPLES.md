@@ -1246,3 +1246,23 @@ Cloudflare **預設**就會 negative-cache 404，最長 **4 小時**，且只對
 
 → 通則：把高度交給內容決定，等於把整條鏈的「確定性」拿掉；
 凡是依賴父層高度的寫法（百分比、內建長寬比）都要重新檢查一次，不能沿用舊模式。
+
+## 改依賴必同步「部署鏈實際用的那份 lockfile」（2026-08-10）
+
+本 repo 同時存在 `pnpm-lock.yaml`（本地開發）與 `package-lock.json`（**Dockerfile `npm ci` 用
+——這才是生產權威**）。任何 package.json 變動：
+1. 先 `grep -n "npm\|pnpm" Dockerfile` 確認部署用哪份
+2. 兩份都要更新（`pnpm install --lockfile-only` + `npm install --package-lock-only`）
+3. `npm ci --dry-run` 驗不同步錯誤
+
+npm ci 對 lockfile/package.json 不同步是**直接報錯拒建**，不是警告——漏更 = 下次部署必炸。
+單一 lockfile 政策待決（AU-6），在那之前雙更新是鐵則。
+
+## Agent 產出的 git 事實聲明，破壞性操作前必現場驗證（2026-08-10）
+
+稽核/執行 agent 回報的「檔案在 git 追蹤中」「分支 A 包含於分支 B」這類聲明，
+在 rm / git rm / branch -D 之前一律用指令現場驗證：
+- 追蹤狀態：`git ls-files <path>`＋`git log --all --diff-filter=A -- <path>`（後者才能分辨「曾進過 vs 從未進過」）
+- 分支包含：`git merge-base --is-ancestor A B`
+本日兩次靠這個擋下錯誤（schools.geojson 從未進 git／monitor batch1 ⊄ grid-layout）。
+成本是一行指令，錯刪的代價是 reflog 過期後永久丟失。
