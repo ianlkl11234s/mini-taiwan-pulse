@@ -20,7 +20,7 @@
 
 | ID | 優先級 | 項目 | 備註 |
 |---|---|---|---|
-| EM-17 | P2 | 補 `get_gas_station_layers` 快照 → 加油站 5 層可嵌 | 🔃 2026-08-10 進度：**快照已產出驗證**（6,210 筆 7.9MB），embed 5 層接線已在 `fix/gas-static-rpc` 分支完成，**待 S3 上傳後才結案**。上傳前 loader 仍靜默 fallback 打 RPC（主站正在付 egress）。加 key 進 `EMBED_CDN_LAYERS` 前需過守門測試（擋「加了 key 但沒檔」） |
+| EM-17 | P2 | 補 `get_gas_station_layers` 快照 → 加油站 5 層可嵌 | 🔃 2026-08-10 當晚：**S3 已上傳**（22:40，`deploy-assets/static-rpc/get_gas_station_layers.json` 8.3MB 驗證在位）＋embed 5 層接線 **merged（PR #125**，`EMBED_CDN_LAYER_FILTER` 按 row.layer 拆 5 品牌）。**剩最後一哩**：等 merge 觸發的 Zeabur 重建完成、新容器 pull 後，帶 cache-buster 探測 prod 該檔 200 → 結案（主站 fallback egress 同時停止）。上傳當下舊容器仍 404 屬預期 |
 | EM-18 | P2 | 更多歷史快照圖層（`earthquakeReplay` 等） | 樣板已成形：`snapshotLayers.ts` 加 spec + export 腳本加 case |
 | EM-11 | P2 | 底圖改放 Cloudflare R2（選配） | 目前走 `public/base_map/` 既有管線已可運作。改 R2 只需設 `VITE_EMBED_BASEMAP_URL`；R2 egress 免費，高流量時較划算 |
 | EM-12 | P3 | Protomaps 字型／sprite 自託管 | 目前指向 `protomaps.github.io`（已加進 CSP）。自託管可去掉最後一個外部依賴 |

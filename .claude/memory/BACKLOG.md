@@ -40,20 +40,22 @@
 | AU-3 | P2 | dayPrefetch 建了沒推廣 | open | `dayPrefetch.ts` 自稱「所有 layer 共用」實際僅 1 個呼叫者；`useCwaImageryLayer.ts:238-244` 手刻第二份同邏輯，兩份各自演化中（稽核 D-4）。處置：推廣或收斂，別留兩份 |
 | AU-4 | P2 | 3 個 Three scene 繞過 `toMercator()` | open | `TemperatureWaveScene:109`／`OsmPowerLinesGlowScene:156`／`RealEstatePointsScene:190` 寫死 Mapbox 座標轉換（稽核 D-6）。主站目前無實害，**搬進 embed（MapLibre）即踩雷**，屬預防性項目，改走 `coordinates.ts` |
 | AU-5 | P3 | loader 死 export 批次清理 | open | 31/56 loader 檔含死 export：`wasteLoader` 15、`energyLoader` 9、`intelLoaders` 9（檔案層孤兒率 0%，export 層 55%，稽核 D-3）。tsc 會抓連帶孤兒，批次清即可 |
-| AU-6 | **P1** | **雙 lockfile 債** | open | repo 同時有 `package-lock.json`（Dockerfile `npm ci` 用）與 `pnpm-lock.yaml`，兩者容易漏更新導致部署斷裂——2026-08-10 稽核當天實際差點發生。需決定單一 lockfile 政策並清掉另一份 |
+| AU-6 | **P1** | **雙 lockfile 債** | open | repo 同時有 `package-lock.json`（Dockerfile `npm ci` 用）與 `pnpm-lock.yaml`，兩者容易漏更新導致部署斷裂——2026-08-10 稽核當天實際差點發生（PR #124 已把兩份同步、npm ci --dry-run 驗過；PRINCIPLES 已立雙更新鐵則）。本項剩「決定單一 lockfile 政策並清掉另一份」 |
 | AU-7 | P3 | knip 無 config 誤報 | open | `embed`／`spike`／`showcase` 三個獨立 entry 被誤報死碼（稽核 D-7）。補 `knip.json` 宣告即可 |
 | AU-8 | P2 | 食品價格看板（PR #109）缺 docs/features 四件套 | open | `feat(monitor): 食品價格監測板`（四指數 2×2 × 180 天）已 merge master（`6f966f7`），但未建立對應 `docs/features/<slug>/`（README／backlog／changelog／handoff）四件套，違反本專案文件路由慣例 |
 | AU-9 | P3 | `GIS_LAYERS` 反向覆蓋無守門 | open | `useMapInteraction.ts` 的 `GIS_LAYERS` 陣列是 first-hit-wins 手動排序，細節豐富的小範圍要排大面積背景前面，目前無守門測試防呆。本次稽核**未查獲**實際漂移，屬風險點記錄（稽核附錄「未驗證」段） |
 
-**正在處理中**（🔃 平行分支，稽核當下已有 session 在動，本檔不重複展開細節）：
+**執行 wave 已收官**（2026-08-10 當晚，7 PR 全 squash merged，分支已清）：
 
-| 項目 | 分支 | 對應稽核發現 |
+| 項目 | PR | 對應稽核發現 |
 |---|---|---|
-| 🔃 16 圖層圖例補齊 / 有意識降單色 + baseline 補豁免註解 | `fix/legend-drift` | A-1 |
-| 🔃 rail 圖層 loading 接線 | `fix/rail-loading-ui` | A-2 |
-| 🔃 立即修批次（5 項，見上方引言） | `chore/audit-quick-fixes` | §E「立即修」 |
-| 🔃 監看 hazard 4 卡（颱風/地震/輻射/落雷） | `feat/monitor-hazard-widgets` | D-8（`feat/monitor-widgets-batch1` 4 個 hazard widget 去留） |
-| 🔃 圖層預設全關 + 入口紅點 | `feat/layers-entry-badge` | — |
+| ✅ 圖層預設全關 + 入口紅點 | #123 | — |
+| ✅ 立即修批次（7 項：filter／bindTimer／deck.gl＋package-lock 同步／孤兒檔／tour 三邊收斂） | #124 | §E「立即修」＋G007 |
+| ✅ gas embed 5 品牌拆層（快照已上 S3 22:40，EM-17 待部署驗證後結案） | #125 | A-3／EM-07 部分 |
+| ✅ rail 圖層 loading 接線 | #126 | A-2 |
+| ✅ 19 圖層圖例補齊＋AqiLegend 收編（比稽核多 3 個同因、7 個補豁免註解） | #127 | A-1／A-4.2 |
+| ✅ 監看 hazard 4 卡（以 monitorPacking 新架構重寫） | #128 | D-8 |
+| ✅ AR-21 visibility store 試點（store＋bridge＋2 consumer；re-render 收益待 AR-23 兌現） | #129 | C-1 起手 |
 
 ### ⚰️ 殯葬 Funeral（FN 系列，2026-08-05 上線 PR #107；08-06 資料修正 PR #110）
 
@@ -105,10 +107,10 @@
 | EM-30 | P2 | **移除 rail 幾何的降級安全網**（條件已達成：#120 線上驗證雜湊檔抓 1 次、舊固定檔 0 次，降級未觸發）。建議**再觀察數日**後做，三件一起：移掉 `fetchRailGeometry()` 的 fallback 分支、刪 `RAIL_GEOMETRY_LEGACY_URL`、刪 S3 上的舊固定檔 `rail_slim.json.gz` | open（等觀察期） |
 | EM-31 | P2 | 上游 `build-rail-slim-bundle.py` 補齊 `line_id`（trtc 96 條軌道有 13 條缺，全是 `R-4-*`~`R-15-*`；**時刻表整份都沒有**）→ 補完即可刪掉前端 `railLineIdOf()` 的 track_id 前綴 fallback。詳 INCIDENTS 2026-08-09/10 事件 A | open（等上游） |
 
-> ⚠️ EM-17 順帶發現的既有問題：`get_gas_station_layers` 的 loader 已改用 `staticRpc`，
-> 但 `public/static-rpc/` **沒有該檔** → 主站一直靜默 fallback 打 RPC（非本功能引入）。
-> **2026-08-10 進度**：快照已產出驗證（6,210 筆 7.9MB）、`fix/gas-static-rpc` 分支含
-> embed 5 層接線，**待 S3 上傳後才結案**——現在仍在付 egress。細節見
+> ⚠️ EM-17：`get_gas_station_layers` 快照缺檔（主站靜默 fallback 打 RPC 付 egress）。
+> **2026-08-10 當晚**：快照已上 S3（22:40，8.3MB 驗證在位）＋embed 5 層接線 merged（PR #125）。
+> **剩最後一哩：等 Zeabur 新容器 pull 後探測 prod `/static-rpc/get_gas_station_layers.json` 200
+> 即結案**（探測帶 cache-buster，防 CF negative cache）。細節見
 > `docs/features/embeddable-map/backlog.md` EM-17。
 
 ### 架構改造（AR 系列，2026-07-03 — 全系統審計後五階段計畫）
@@ -256,7 +258,7 @@
 | G012 | P1 | tourism D 類 3 檔 + canopy 高度 pmtiles（80MB）上 S3 | done | 2026-07-24 部署 blocker → **已解**：canopy rgb + tourism D 類 3 檔上 S3 `deploy-assets/`、FOREST_FILES 對齊 rgb 檔名（#86）、Zeabur redeploy 開機 pull 進 /data，prod 4 層實測 206/200 上線；舊 canopy_height_taiwan.pmtiles S3 物件已清 |
 | G013 | P1 | KHH collector 檔 SCP 上 HiCloud VM | open | 2026-07-26 KHH1/KHH5 端點修正已 push（data-collectors `a2f158a`），但生產實跑的是 VM（210.61.15.74）cron 版、手動 SCP 不接 git；未更新前 KHH 資料停在 7/26 一次性回填。照 `external/immigration_apis_airport_vm/README` 覆蓋 `/opt/immigration-apis-airport/immigration_apis_airport_collect.py` 即生效 |
 | G014 | P1 | gis-platform migration 301/318/319/320 commit + push | **done 2026-07-29** | 318/319/320 以 gis-platform PR #42（merge `6937d2b`，保留兩顆 atomic commits）收納；301 查證早已在 main（`0f2b878` 含於先前 merge）。三支 RPC/policy 自 7/26 起即在 production 運行 |
-| G015 | P3 | feat/monitor-grid-layout 分支（14 commits Monitor v2）復活評估 | open | 2026-07-26 靜態網格（PR #90）只取代了其中 2 個修 bug commit；RGL 可拖曳畫布 + widget registry + 版面持久化 + 會員 gating 未被取代。若要生產環境拖拉版面再議 rebase；沙盒 Artifact + monitorLayout.ts 流程（PB-30）已滿足目前需求 |
+| G015 | P3 | feat/monitor-grid-layout 分支（14 commits Monitor v2）復活評估 | open | 2026-07-26 靜態網格（PR #90）只取代了其中 2 個修 bug commit；RGL 可拖曳畫布 + widget registry + 版面持久化 + 會員 gating 未被取代。若要生產環境拖拉版面再議 rebase。**2026-08-10 更新**：4 支 monitor 殘枝清剩 2——`fix/monitor-airport-card`／`feat/monitor-widget-registry` 已刪（merge-base 驗證全包含於 grid-layout）；`feat/monitor-widgets-batch1` **保留**（實測 ⊄ grid-layout，含獨立 commit）；其 4 個 hazard widget 意圖已由 PR #128 以 monitorPacking 新架構交付 |
 | G016 | P2 | weather_change/.env 明文 AWS S3 key 輪替 | open | 2026-07-29 探索時發現（未進 git、僅本機磁碟，.gitignore 有擋）。輪替該組 key + 清 .env；該 repo 的 S3 舊流程 2026-02 已廢，可能可直接註銷憑證。詳 INCIDENTS 2026-07-29/31 事件 D |
 | G018 | P2 | **回饋軌道資料上游：折返幾何 artifact** | open | 2026-08-08 做 rail 幾何瘦身時發現原始軌道有「來回走同一段」的折返子路徑（RDP 會壓垮、弧長系統性縮短）。具體案例：`SK-TT-ZY-0` rawIdx 1822–1828（989m→683m）、`YL-SL-ZY-0`、**`trtc/LB-1-0` rawIdx 443–448（182.7→93.9m）**。最後這條是**單一系統來源軌道**，代表問題不只出在多來源 merge 接縫 → 值得回饋 `od-batch-generator` / 軌道資料上游。另：原始 TRA 幾何含 ~0.15–0.2% 次公尺級數位化雜訊長度，簡化後折線長度反而更接近真值 |
 | G019 | P3 | 267 個 `od_track` 檔中 **83 個（31%）無任何時刻表引用** | open | 2026-08-08 盤點發現。是**部署冗餘**不是使用者頻寬浪費（loader 只抓 schedule 出現的）。清理前要先確認不是「時刻表缺班次」而非「軌道多餘」 |
@@ -271,7 +273,7 @@
 | G004 | P1 | Docker image 瘦身：`.dockerignore` 排除 nginx 已走 /data volume 的 dist 目錄 | open | nginx.conf 把 `/geo`(280M)/`/h3`(22M)/`/rail`(101M)+根層 aviation/ship/temperature json 指向 `/data` persistent volume（`pull-deploy-assets.sh` 從 S3 拉），**dist 內這些目錄線上永遠不被讀** = 死重量，但 `.dockerignore` 沒排 `public/` → Docker image 白扛 ~400MB。安全做法：`.dockerignore` 加 `public/geo public/h3 public/rail`。⚠️ `agriculture`(254M)/`bus`(196M) **無** /data location、是從 dist 載的，要排除需先改 nginx 走 volume + S3 deploy-assets。**未動因影響部署正確性，需用戶確認** |
 | G005 | P2 | waste 圖層底圖切換 (dark/light) 後消失 | open | `MapView` styledata 重建段落（~181-187）重建了 H3/pop/youbike/agriculture，但**沒重建 waste source/layer**，又被 `wasteMapboxSetupRef` flag 擋住不重跑 → 切底圖後垃圾清運圖層消失。2026-05-25 修 waste listener 洩漏時附帶發現 |
 | G006 | P3 | 手機版 sidebar 多顯示項產品取捨 | open | 2026-05-25 統一 `sidebar/layerCatalog.ts` 後，手機版補上原本只桌機有的 FACILITY(學校/超商)/NEWS/海纜/雲圖雷達（修漏的副作用）。確認手機是否要全顯示，否則用 `labelMobile`/SECTIONS 過濾隱藏 |
-| G007 | P3 | 移除 `@deck.gl/*` 4 套件死依賴 | open | `deckOverlay.ts` 刪除後 `@deck.gl/core,geo-layers,layers,mapbox` 已無任何 import。沒 import 不進 bundle，只影響 node_modules 大小。2026-05-25 發現 |
+| G007 | P3 | 移除 `@deck.gl/*` 4 套件死依賴 | **done 2026-08-10** | PR #124（含 pnpm-lock + package-lock 雙同步）。2026-05-25 發現 |
 | G008 | P2 | 巨型檔案按 domain 拆分 | open | `App.tsx`(1945)/`overlayRegistry.ts`(1992)/`FeatureInfoPanel.tsx`(1703)/`useTransportParams.ts`(1031)/`InfoModal.tsx`(1111)。建議順序：先拆 FeatureInfoPanel（最規律低風險，按 domain 切子檔+色票進 `data/*Types.ts`）→ App.tsx（抽 `useAllLayers`/`useAppUiState`/map lifecycle hook）→ overlayRegistry（domain 片段+circle/line/fill paint 工廠）。2026-05-25 架構 review |
 | G009 | P2 | 16 處 Supabase RPC 補 `loadingRegistry`（違反規則 B）| open | 優先 `busLoader.ts:69/121/211`（公車核心動態層初次/切日無 loading UI）；其餘 `*_dates`/`*_years`/`*_counts` 13 個 metadata RPC 危害低但字面違規；`railScheduleLoader.ts:26/62` 裸 fetch 同樣無 loading。2026-05-25 效能 review（規則 A time store + 規則 C realtime schema 全合規）|
 | G010 | P3 | `FireStationScene.ts:180` 每幀 `new THREE.Matrix4()` | open | `animate()` 每幀分配 Matrix4，其他 Scene 都用 `this.lastMatrix` 快取；提升為 instance field 重用。2026-05-25 效能 review |
