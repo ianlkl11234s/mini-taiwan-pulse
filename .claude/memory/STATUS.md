@@ -1,70 +1,53 @@
 # Status
 
-**最後更新**：2026-08-10（監看模式排版八/九版 **PR #121 merged 並 push**；沙盒原始碼進 repo）
+**最後更新**：2026-08-10 深夜（**結構稽核 → 8 批執行 wave，7 PR 一日全 merged**（#123~#129）；gas 快照上 S3；AR-21 試點上線）
 
 | repo | 狀態 |
 |---|---|
-| **mini-taiwan-pulse** | `master` = `84a0275`（＋本批 memory commits 未 push）。**PR #121 merged**，分支已刪，工作區乾淨 |
-| **data-collectors** | `main` = `0ceacd7`（PR #47 merged 且已部署：nightly trails 匯出，每日 02:00） |
-| **gis-platform** | `main`（近兩 session 無變更、無新 migration；⚠️ 記錄的 gis-wiki submodule SHA 落後 → G021） |
-| **taipei-gis-analytics** | `master`（近兩 session 無變更） |
-| 其餘 7 repo | 2026-08-10 上一輪已全面收尾，**11 個 repo 全部零未提交、零未推送** |
+| **mini-taiwan-pulse** | `master` = `d34497f`＋wrap-up memory commits（未 push）。**PR #123~#129 全 squash merged**，工作區乾淨；本地分支僅剩 master + 2 支刻意保留的 monitor 分支（見 G015） |
+| **data-collectors** | `main` = `0ceacd7`（無變更） |
+| **gis-platform** | `main`（無變更；⚠️ gis-wiki submodule SHA 落後 → G021） |
+| **taipei-gis-analytics** | `master`（無變更） |
+| 其餘 7 repo | 2026-08-10 上一輪已全面收尾 |
 
 **正式站**：`https://mini-taiwan-pulse.itsmigu.com`
 （Zeabur project `mini-tw-pulse`，service `69a3b5f307e6de1869be6e2c`）
 
-## 1. 監看模式排版八/九版（PR #121 `da054f0`，11 檔 +2348/−108）
+## 1. 結構稽核（報告：`docs/research/architecture-audit-2026-08-10.md`）
 
-起點是「這個沙盒 artifact 跟實機一致嗎」，做到排版機制重寫。
+4 平行 agent（規則違反／效能資產／架構／死碼）＋主 agent 逐項 spot-check。四句話結論：
+**壞損全在測試蓋不到的縫**（最大條 16 圖層無圖例）；**閒置成本 ≈ 0**（boot-lazy 系統性成立）；
+**疊床架屋直覺大多不成立**（overlayRegistry／LegendPanel／三 registry 判「不是債」，
+唯一主嫌 `useTransportParams` 644 useState）；**過度設計幾乎不存在**（反而是抽象沒推廣）。
+新發現 → BACKLOG AU-1~9；07-02 審計對帳 → `docs/proposal/architecture-overhaul-plan.md` 檔頭。
 
-**九版：高度改跟內容走。** 新增 `monitorPacking.ts` —— 把 12 欄座標 guillotine 切成欄／列
-巢狀結構（找沒有 widget 跨過的切線：縱向切＝並排的欄、橫向切＝上下堆疊），欄內用 flex 直向流。
-CSS grid 的列跨欄共用，做不到「這格長高、下面的推下去」，所以才要拆。
-切不開的形狀（風車形互卡）退回固定列高網格，`monitorPacking.test.ts` 5 條守著。
+## 2. 執行 wave（8 批，7 PR 全 merged + 2 波 master 直 commits）
 
-`MonitorGridItem` 加 `fit?: "content"`：**11 個資訊卡**高度跟內容走；
-**5 個清單／影音類**（新聞 Feed／警報／時間軸／熱區／信號分級）維持 `h` 固定高＋格內捲
-—— 放開會被幾百筆內容拉成無限長。fit widget 的 `h` 從此只是拆解與同欄排序的佔位值。
+- **#123** 圖層預設全關（DEFAULT_ON 清空）＋ Layers 入口紅點導引
+- **#124** 機械修七項（ratchet filter 漏洞／bindTimer gate／deck.gl＋**雙 lockfile 同步**／4 孤兒檔／tour 色表三邊收斂）
+- **#125** gas embed 5 品牌拆層；**快照已上 S3（22:40）**，EM-17 剩 prod 探測結案
+- **#126** rail boot 後開啟補 loading pill
+- **#127** 19 圖層圖例補齊＋AqiLegend 收編（逐 key 紅→綠；7 個真單色補豁免註解）
+- **#128** 監看 hazard 4 卡（颱風/地震/輻射/落雷，monitorPacking 新架構；落雷誠實標斷供）
+- **#129** **AR-21 visibility store 試點**（單一 state 來源 bridge＋2 consumer＋22 測試；行為零變化已驗證、re-render 收益待 AR-23）
+- master 直 commits：殯葬孤兒分支記憶救援（10 commits）＋文件帳本同步（7 commits：AU 登記／AR 對帳／dev-rules §4 觸點表 7→14 檔／rpc_audit 標歷史快照）
 
-實測（1920×1200）：`erCongestion` 740（捲 423）→ **1163 完整展開**、`powerCard` 690→241、
-`hazardStrip` 390→338、`liveWall` 690→659、`situationOverview` 240→191；死白全消，
-除刻意固定高的 `alertBoard` 外無格內捲。1000×1200 堆疊模式另量一輪，零重疊。
-
-**八版：版面。** TAIEX 從 `SituationOverview` 拆出成獨立 widget `taiex`（`0,17,5×3`），
-日線 sparkline 150×24→360×48；PLA 趨勢柱狀圖 54→190px、空域方位（4 列）與侵擾方式（5 列）
-由兩欄改單欄；食品價格走勢圖 34→140px。
-
-**PLA 趨勢圖區間 pills**：120D/90D/30D/7D。**只換顯示區間，不動嚴重度分級**
-（分級仍是近 120 天滾動百分位，是這塊板的核心語意）；柱高比例改用所選區間的最大值，
-圖下同時印本區間統計與 120 天分級基準。無額外 RPC（前端切尾段）。
-
-**沙盒原始碼進 repo**：`docs/features/monitor-grid-static/sandbox.html`
-（= artifact `f5d75312-…` 的來源）。先前只活在 artifact 上，已漂掉兩版
-（缺 `foodPriceBoard`、rowHeight 用浮動值）。換版 SOP 見 PB-30，**改 repo 那份再發布**。
-
-⚠️ 兩個 flex 陷阱寫進 PRINCIPLES：帶 `viewBox` 的 svg 會用「寬×內建長寬比」自算高度撐爆格子；
-`height: X%` 在 auto 高度鏈上塌成 0（PLA 柱狀圖全白，`2720b72` 修）。
-**後者是我的溢出量測抓不到的失敗模式**，見 REFLECTIONS。
-
-## 2. 上一輪 embed 三 PR（#118/#119/#120，2026-08-09/10）
-
-三個 PR 全 merged 並在正式站驗證通過（6/6、6/6、PASS）。細節見 INCIDENTS 2026-08-09/10、
-PRINCIPLES（版本閘門代價比範圍／immutable 只給含雜湊的檔名／deploy 前探測加 cache-buster）、
-PB-06g。**EM-30 的觀察期從 08-10 起算。**
+驗收：整合分支零衝突、tsc ✅、451→473 測試全綠、agent-browser 逐項截圖（badge／圖例／4 卡／loading pill／AR-21 行為抽查）。
+四個踩雷事件（lockfile 險爆／稽核前提錯誤×2／agent 斷線×3／flake 結案）→ INCIDENTS 2026-08-10 稽核執行 wave 段。
+多 agent worktree 開發 SOP 定型 → **PB-37**。
 
 ## 3. 下一步
 
-1. **EM-17（P2，現在就在付錢）**：`public/static-rpc/` 缺 `get_gas_station_layers.json`
-   → 主站 loader 一路靜默 fallback 打 Supabase RPC。**08-10 覆核仍未解**，EM 系列裡優先級最高
-2. **DS-06（P1）**：ships 日筆數 8 天內 17,500 → 7,224 **單調下滑 −39%**，疑 AIS collector 退化 → 要查
-3. **EM-30（P2）**：rail 降級安全網移除 —— 條件已達成，**建議觀察數日再做**；
-   三件一起：`fetchRailGeometry()` fallback、`RAIL_GEOMETRY_LEGACY_URL`、S3 舊固定檔
-4. **EM-31（等上游）**：`build-rail-slim-bundle.py` 補齊 `line_id` 後刪 `railLineIdOf()` fallback
-5. **G020（P2）**：Cloudflare scoped purge（現在只有 `purge_everything`，會連 297MB 底圖一起清）
-6. **G021（P3）**：gis-platform 的 gis-wiki submodule SHA bump
-7. **DS-01（等上游）**：台電落雷恢復時把 `LIGHTNING_EVENTS_INTERVAL` 調回 `1`
-8. embed 後續：EM-24 bus 渲染（owner 拍板暫緩，資料已保存）／EM-25 scrubber／EM-26~29
-9. 既有：DS-02~05、FE-01、MG-1~3（皆 P3）、PA-1/5~8、G013/G016/G017/G018/G019、MC-1~5、EQ-1
+1. **EM-17 最後一哩**：等 Zeabur 重建完成（#123~#129 連環 push 已觸發），帶 cache-buster 探測
+   `prod /static-rpc/get_gas_station_layers.json` → 200 即結案（fallback egress 同時停止）。
+   上傳當下舊容器 404 屬預期，**勿探測裸 URL 以免 CF negative cache**
+2. **AR-22/23（結構工程主線下一步）**：Layer Manifest 試點 → 全量遷移（AR-21 的 per-key 收益在此兌現）→ AR-24 退役 useTransportParams
+3. **DS-06（P1）**：ships 日筆數 −39% 單調下滑，疑 AIS collector 退化 → 要查
+4. **AU-6（P1）**：單一 lockfile 政策拍板（兩份已同步、鐵則已立，剩決策）
+5. **EM-30**：rail 降級安全網移除（觀察期中）；**EM-31**（等上游）
+6. **G020**（CF scoped purge）／**G021**（submodule bump）／**DS-01**（台電落雷恢復調 interval）
+7. 稽核衍生 P2/P3：AU-1~5、AU-7~9（三邊色彩測試／glow 收斂[併 BE-2]／dayPrefetch／toMercator／死 export／knip config／食品價格四件套／GIS_LAYERS 反向守門）
+8. 既有：DS-02~05、FE-01、MG-1~3、PA-1/5~8/10、G013/G016/G017/G018/G019、MC-1~5、EQ-1
 
 > 各系列細節一律看 BACKLOG.md 與對應的 `docs/features/<slug>/backlog.md`，本檔不重述。
 
@@ -74,6 +57,7 @@ PB-06g。**EM-30 的觀察期從 08-10 起算。**
 
 | 日期 | 主題 | 細節在哪 |
 |---|---|---|
+| 2026-08-10 深夜 | 結構稽核 → 8 批執行 wave（7 PR #123~#129；圖例補齊／hazard 4 卡／AR-21 試點／gas 上 S3） | `docs/research/architecture-audit-2026-08-10.md` + INCIDENTS/REFLECTIONS 同日 + PB-37 |
 | 2026-08-10 | 監看模式排版八/九版（PR #121；高度改跟內容走、TAIEX 拆板、沙盒進 repo） | `docs/features/monitor-grid-static/` + INCIDENTS/REFLECTIONS 2026-08-10 + PB-30 |
 | 2026-08-06~09 | EM-16 翻案 → embed 三層動態回放（推翻 proposal §6-1「Three.js 圖層不做」；三顆引擎皆純 TS、MapLibre×Three.js spike 誤差 ≤0.01px） | INCIDENTS 2026-08-06~08 + REFLECTIONS 同期 + PB-34 |
 | 2026-08-08 | nightly trails 保存層（data-collectors PR #47，每日 02:00；日 ~76MB、首年 ~US$4.5。bus 08-04 與 ships/flights 07-30 **已永久救不回**） | DATA_SCOPE §保存層 + PB-35 |
@@ -94,11 +78,6 @@ PB-06g。**EM-30 的觀察期從 08-10 起算。**
 
 ---
 
-_本輪 memory commits_：INCIDENTS / PRINCIPLES / PLAYBOOKS(PB-30 改寫) / REFLECTIONS / BACKLOG + 本檔。
-DATA_SCOPE 本輪無變動（純前端排版，無資料／表結構異動）；
-GLOSSARY 刻意不加（`fit:"content"`／guillotine 拆解在程式碼註解、feature README、PB-30 三處已有 canonical 出處）。
-
-_2026-08-10 補_：孤兒分支 `memory/wrap-up-funeral-integration`（2026-08-06 分岔，10 個 memory commit
-從未合回）的知識沉澱已增量搬入 INCIDENTS／PRINCIPLES／DATA_SCOPE／GLOSSARY／PLAYBOOKS(PB-36)／
-REFLECTIONS／BACKLOG ＋ `docs/features/funeral-layers/{backlog,changelog}.md`。
-分支本體的 STATUS 內文已被之後 44 個 commit 追過，**不搬**，只補上表這一列索引。
+_本輪 memory commits_：INCIDENTS / PRINCIPLES ×2 / PLAYBOOKS(PB-37) / REFLECTIONS / BACKLOG（wave 對帳）+ docs(embeddable-map backlog / proposal AR-21) + 本檔。
+DATA_SCOPE 刻意不動（gas 快照屬供檔 artifact，canonical 在 EM feature backlog）；
+GLOSSARY 刻意不加（visibility store／AU 系列在 code 註解、plan、BACKLOG 已有 canonical 出處）。
