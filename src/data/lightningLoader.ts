@@ -1,6 +1,6 @@
-import { supabase } from "../lib/supabase";
+import { supabase, todayTaiwan } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedByKey } from "../lib/loaderCache";
+import { cachedByKey, cachedOnce } from "../lib/loaderCache";
 
 /**
  * 落雷 loader（RPC 214 get_lightning_recent(minutes)）
@@ -122,6 +122,116 @@ export const invalidateLightningDay = (dateKey?: string, source?: LightningSourc
   if (dateKey && source) return fetchLightningDayCached.invalidate(dayCacheKey(dateKey, source));
   fetchLightningDayCached.invalidate();
 };
+
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 落雷卡摘要（複用 get_lightning_day，不新增 RPC）
+// ══════════════════════════════════════════════════════════════════
+//
+// 為什麼不整包抓回來自己數：雷雨季單日可達數萬筆，卡片只要三個數字。
+// PostgREST 對「回 setof 的 function」支援對輸出欄再下 filter / order / limit，
+// 所以計數走 `head + count=exact`（不傳 body）、最新一筆走 `order desc + limit 1`。
+//
+// ⚠️ **台電源自 2026-07-10 起端點活著但永遠回空**（BACKLOG DS-01/03，
+// upstreamRegistry lightningCwa 註解亦有記）。因此卡片主來源固定氣象署（cwa），
+// 台電只查當日計數當「斷供偵測」，畫面明說狀態而不是假裝 0 次落雷。
+//
+// 刻意不包 withLoading：Monitor 面板背景輪詢（5min），非圖層載入 —— 理由同
+// loadingRegistryContract.test.ts 對 airportPaxLoader 的豁免（本檔兩支已登記其中）。
+
+/** 卡片主來源：氣象署（台電斷供中） */
+export const MONITOR_LIGHTNING_SOURCE: LightningSource = "cwa";
+/** 對照來源：台電（用於顯示上游斷供狀態） */
+export const MONITOR_LIGHTNING_FALLBACK_SOURCE: LightningSource = "taipower";
+
+export interface LightningSummary {
+  /** 查詢的台北日 YYYY-MM-DD */
+  dateKey: string;
+  source: LightningSource;
+  /** 主來源近 1 小時落雷數 */
+  count1h: number;
+  /** 主來源當日累計 */
+  countDay: number;
+  /** 主來源最新一筆（無則 null） */
+  latest: { ts: number; lon: number; lat: number; strikeType: number } | null;
+  fallbackSource: LightningSource;
+  /** 對照來源當日累計 —— 0 代表上游持續斷供 */
+  fallbackCountDay: number;
+  /** 任一查詢失敗 → 卡片顯示「資料暫時無法取得」而不是把失敗畫成 0 次 */
+  failed: boolean;
+}
+
+async function fetchLightningDayCount(
+  source: LightningSource, dateKey: string, sinceTs: number | null,
+): Promise<number> {
+  const lightningCountQuery = supabase.rpc(
+    "get_lightning_day",
+    { date_key: dateKey, p_source: source },
+    { head: true, count: "exact" },
+  );
+  const { count, error } = await (
+    sinceTs == null ? lightningCountQuery : lightningCountQuery.gte("strike_ts", sinceTs)
+  );
+  if (error) throw new Error(`get_lightning_day count(${source}): ${error.message}`);
+  return count ?? 0;
+}
+
+async function fetchLightningLatest(
+  source: LightningSource, dateKey: string,
+): Promise<LightningStrike | null> {
+  const lightningLatestQuery = supabase.rpc("get_lightning_day", {
+    date_key: dateKey,
+    p_source: source,
+  });
+  const { data, error } = await lightningLatestQuery
+    .order("strike_ts", { ascending: false })
+    .limit(1);
+  if (error) throw new Error(`get_lightning_day latest(${source}): ${error.message}`);
+  return ((data ?? []) as LightningStrike[])[0] ?? null;
+}
+
+async function fetchLightningSummaryUncached(): Promise<LightningSummary> {
+  const dateKey = todayTaiwan();
+  const base: LightningSummary = {
+    dateKey,
+    source: MONITOR_LIGHTNING_SOURCE,
+    count1h: 0,
+    countDay: 0,
+    latest: null,
+    fallbackSource: MONITOR_LIGHTNING_FALLBACK_SOURCE,
+    fallbackCountDay: 0,
+    failed: false,
+  };
+  try {
+    const sinceTs = Math.floor(Date.now() / 1000) - 3600;
+    const [countDay, count1h, latest, fallbackCountDay] = await Promise.all([
+      fetchLightningDayCount(MONITOR_LIGHTNING_SOURCE, dateKey, null),
+      fetchLightningDayCount(MONITOR_LIGHTNING_SOURCE, dateKey, sinceTs),
+      fetchLightningLatest(MONITOR_LIGHTNING_SOURCE, dateKey),
+      fetchLightningDayCount(MONITOR_LIGHTNING_FALLBACK_SOURCE, dateKey, null),
+    ]);
+    return {
+      ...base,
+      countDay,
+      count1h,
+      fallbackCountDay,
+      latest: latest
+        ? { ts: latest.strike_ts, lon: latest.lon, lat: latest.lat, strikeType: latest.strike_type }
+        : null,
+    };
+  } catch (e) {
+    console.warn("[LightningSummary]", e);
+    return { ...base, failed: true };
+  }
+}
+
+const fetchLightningSummaryCached = cachedOnce(fetchLightningSummaryUncached, 5 * 60_000);
+
+/** 給 Monitor 落雷卡：近 1h / 當日落雷數 + 最新一筆 + 台電源斷供狀態 */
+export function fetchLightningSummary(): Promise<LightningSummary> {
+  return fetchLightningSummaryCached();
+}
+
+export const invalidateLightningSummary = (): void => fetchLightningSummaryCached.invalidate();
 
 /**
  * 計算落雷在 currentTs 看到的 alpha（0~1）：

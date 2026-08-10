@@ -7,10 +7,11 @@ import {
 } from "../lightningLoader";
 import {
   classifyNuclearDose, nuclearDoseColor, toNuclearFC,
-  buildNuclearFCAt,
+  buildNuclearFCAt, summariseNuclear,
   NUCLEAR_DOSE_THRESHOLDS, NUCLEAR_LEVEL_COLORS,
   type NuclearStation, type NuclearDay,
 } from "../nuclearLoader";
+import { pickActiveTyphoon, type TyphoonActiveRow } from "../typhoonTracksLoader";
 
 describe("lightningLoader pure helpers", () => {
   describe("clampMinutes", () => {
@@ -216,6 +217,44 @@ describe("nuclearLoader pure helpers", () => {
     });
   });
 
+  describe("summariseNuclear（Monitor 輻射卡）", () => {
+    const st = (
+      name: string, dose: number | null, is_stale = false,
+    ): NuclearStation => ({
+      station_id: name, station_name: name, dose_usvh: dose,
+      is_stale, observed_ts: 100, lon: 121, lat: 25,
+    });
+
+    it("離線站與 null 劑量不進平均，但仍計入總站數", () => {
+      const s = summariseNuclear([st("A", 0.05), st("B", 0.07), st("C", 9.9, true), st("D", null)]);
+      expect(s.total).toBe(4);
+      expect(s.reporting).toBe(2);
+      expect(s.avg_usvh).toBeCloseTo(0.06, 5);
+      expect(s.max_usvh).toBe(0.07);
+      expect(s.max_station).toBe("B");
+    });
+
+    it("分級沿用 classifyNuclearDose：0.2–0.5 觀察、>0.5 警戒", () => {
+      const s = summariseNuclear([st("正常", 0.05), st("觀察", 0.3), st("警戒", 0.8)]);
+      expect(s.warning_count).toBe(1);
+      expect(s.alarm_count).toBe(1);
+      expect(s.anomalies.map((a) => a.name)).toEqual(["警戒", "觀察"]); // 劑量降序
+    });
+
+    it("異常站最多列 3 個", () => {
+      const s = summariseNuclear([st("a", 0.9), st("b", 0.8), st("c", 0.7), st("d", 0.6)]);
+      expect(s.alarm_count).toBe(4);
+      expect(s.anomalies).toHaveLength(3);
+    });
+
+    it("全空 → 平均/最大為 null（不是 0，避免畫成『0 µSv/h 正常』）", () => {
+      const s = summariseNuclear([]);
+      expect(s.avg_usvh).toBeNull();
+      expect(s.max_usvh).toBeNull();
+      expect(s.total).toBe(0);
+    });
+  });
+
   describe("toNuclearFC", () => {
     const rows: NuclearStation[] = [
       {
@@ -241,5 +280,73 @@ describe("nuclearLoader pure helpers", () => {
       expect(fc.features[0]!.geometry.coordinates).toEqual([121.6, 25.2]);
       expect(fc.features[0]!.properties?.station_id).toBe("S01");
     });
+  });
+});
+
+describe("pickActiveTyphoon（Monitor 颱風卡）", () => {
+  const NOW = 1_786_000_000; // 固定牆鐘，避免測試隨時間漂
+  const iso = (offsetSec: number) => new Date((NOW + offsetSec) * 1000).toISOString();
+
+  const row = (o: Partial<TyphoonActiveRow> & { source: string }): TyphoonActiveRow => ({
+    storm_id: "S1",
+    valid_at: iso(-3 * 3600),
+    name_local: null,
+    name_en: "Dolphin",
+    center_lat: 24.0,
+    center_lon: 122.5, // 花蓮東方約 90km
+    center_pressure_hpa: null,
+    max_wind_kt: null,
+    ...o,
+  });
+
+  it("沒有活躍颱風 → null", () => {
+    expect(pickActiveTyphoon([], NOW)).toBeNull();
+  });
+
+  it("挑距台灣最近的一組（遠方颱風不佔卡片）", () => {
+    const near = row({ source: "jma", storm_id: "TC01", name_en: "Dolphin" });
+    const far = row({
+      source: "jma", storm_id: "TC02", name_en: "Chan-hom",
+      center_lat: 35.1, center_lon: 148.4,
+    });
+    const s = pickActiveTyphoon([far, near], NOW)!;
+    expect(s.name_en).toBe("Dolphin");
+    expect(s.distance_km).toBeLessThan(200);
+  });
+
+  it("鄰近的另一來源會補齊氣壓/風速並列出來源徽章", () => {
+    const jma = row({ source: "jma", storm_id: "TC01" });
+    const jtwc = row({
+      source: "jtwc", storm_id: "wp01",
+      center_lat: 24.2, center_lon: 122.8,
+      center_pressure_hpa: 960, max_wind_kt: 80,
+    });
+    const s = pickActiveTyphoon([jma, jtwc], NOW)!;
+    expect(s.center_pressure).toBe(960);
+    expect(s.max_wind_kt).toBe(80);
+    expect(s.sources).toEqual(["JMA", "JTWC"]);
+  });
+
+  // ⚠️ 這兩條守的是實測踩到的上游髒資料（2026-08 的 typhoons_active）：
+  // view 只濾 valid_at 下界，殘留未來日期的列；且 JTWC 有同名但差 3000km 的別的系統。
+  it("未來日期的殘列不算活躍（view 只濾下界）", () => {
+    const ghost = row({
+      source: "jtwc", storm_id: "wp99",
+      valid_at: iso(21 * 86400), max_wind_kt: 125,
+    });
+    expect(pickActiveTyphoon([ghost], NOW)).toBeNull();
+  });
+
+  it("同名但遠在天邊的來源不參與補值（不會把別的風暴風速貼過來）", () => {
+    const jma = row({ source: "jma", storm_id: "TC01" });
+    const impostor = row({
+      source: "jtwc", storm_id: "wp99",
+      center_lat: 19.8, center_lon: 159.1, // 距代表點 ~3700km
+      max_wind_kt: 125, center_pressure_hpa: 930,
+    });
+    const s = pickActiveTyphoon([jma, impostor], NOW)!;
+    expect(s.max_wind_kt).toBeNull();
+    expect(s.center_pressure).toBeNull();
+    expect(s.sources).toEqual(["JMA"]);
   });
 });
