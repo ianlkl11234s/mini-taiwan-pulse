@@ -239,9 +239,11 @@ export function TyphoonCard({ open, nowTs }: Props) {
           中心氣壓 {data.center_pressure ?? "—"} hPa
         </div>
       </MetricRow>
+      {/* 右側刻意放 storm_id 而非 name_local —— JMA 的 name_local 是日文片假名
+          （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}
       <MetaRow
         left={`最大風速 ${data.max_wind_kt ?? "—"} kt${windMs != null ? ` · ${windMs} m/s` : ""}`}
-        right={`${data.name_local || data.storm_id} · ${relTime(data.valid_ts, nowTs)}`}
+        right={`${data.storm_id} · ${relTime(data.valid_ts, nowTs)}`}
       />
     </HazardShell>
   );
