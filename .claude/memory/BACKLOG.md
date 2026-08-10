@@ -29,6 +29,34 @@
 > 三項全是 P3：MG-1 沙盒不模擬流式高度（要不要補第二份實作待評估）／
 > MG-2 兩個既有微幅溢出（5px、11px，畫面無感）／MG-3 測試 flake 未結案（再現時留完整輸出查）。
 
+### ⚰️ 殯葬 Funeral（FN 系列，2026-08-05 上線 PR #107；08-06 資料修正 PR #110）
+
+> **SSOT 在 [`docs/features/funeral-layers/backlog.md`](../../docs/features/funeral-layers/backlog.md)**
+> （README／backlog／changelog／handoff 四件套），本區只留索引，**不再更新細節**。
+>
+> 一句話：A／B／C **三源分開不整合** —— 官方名冊點、OSM 墓區面（ODbL）、
+> 都計法定用地面（僅北北）各自獨立 toggle，落差本身就是要讓使用者看見的資訊。
+>
+> FN-0（5 層上線）／FN-8（`is_active` 遷他縣市修正）**已完成**；
+> 待辦 7 項：FN-1 上傳 S3 同構備援（P2）／FN-2 設施 438 筆無座標回填（P2・等上游）／
+> FN-3 C 源擴充其他 20 縣市 + 非都市土地「墳墓用地」（P2）／FN-4 migration 335 apply（P3・前端不依賴）／
+> FN-5「最近的火化場」距離分析（P2・**必須先濾 precision**）／FN-6 業者密度改人均（P3）／
+> FN-7 B 源 vs C 源空間差集（P3・踩到「先不整合」界線要再拍板）。
+
+### 共機 PLA — 產品面待辦（2026-08-06 發現）
+
+> ⚠️ 本項的 SSOT 應在 [`docs/features/pla-activity/backlog.md`](../../docs/features/pla-activity/backlog.md)（PA-1~PA-8 在該檔），
+> 2026-08-10 從孤兒分支救援時該檔不在編輯範圍內，**待下次搬過去後本區改留索引**。
+
+| ID | 優先級 | 項目 | 狀態 |
+|---|---|---|---|
+| PA-10 | P2 | 圖層預設「單日」遇資料斷層 = 整片空白，使用者會以為功能壞了 → 考慮 fallback 到最近有資料的日期（或在 UI 明示「該日無資料」） | open |
+
+> 同批發現的 PA-9（`spatial.pla_tracks` 斷 5 天）與 PA-11（「0 架次」是合法的 0，
+> 分不出「沒共機」與「沒跑」）**已於 2026-08-07 結案** ——
+> 轉成每日 collector `pla_tracks_vectorize` ＋ ledger `spatial.pla_tracks_runs`（mig 337），
+> 見 PB-33 與 `.claude/pitfalls/2026-08-07-silent-upstream-outage.md`。故不重複列入。
+
 ### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**已部署驗證**）
 
 > **SSOT 全部移到 [`docs/features/embeddable-map/`](../../docs/features/embeddable-map/)**
