@@ -1450,6 +1450,120 @@ PR #41 merge 觸發 Zeabur 部署後，DB 的 `updated_at` **完全沒變**（�
 修法見 PRINCIPLES「疊圖的單層 alpha 要依疊加層數縮放」。
 → 這類問題**先算再做**只要 30 秒，先做完再用眼睛調要來回好幾輪。
 
+## 2026-08-05/06 — 殯葬圖層 + 跨 repo 分支整合（八事件）
+
+> 2026-08-10 補記：本段原寫在孤兒分支 `memory/wrap-up-funeral-integration` 上未合回，
+> 事後增量搬入。程式碼本身早已隨 PR #107／#110 進 master，不受影響。
+
+### 事件 A：上游 `is_active` 漏判「遷他縣市」→ 圖上出現幽靈業者
+上游寫 Supabase 匯入腳本時 `operator_uid` 撞號 29 筆，本以為是重複資料，查下去不是：
+同一家業者**遷址的新舊兩筆登記**（統編 45442023 天昕禮儀社：苗栗「遷他縣市」＋新竹「核准設立」）。
+連帶揭露 `is_active` 把「遷他縣市」26 筆判成營業中 → 前端在**舊縣市的舊地址畫出點**，
+同一統編同時出現在新舊兩地，看起來像兩家在營業。
+
+→ 這個錯誤前端完全看不出來：點畫得出來、popup 有資料、測試全綠。
+**只有從資料端反查 PK 撞號才會發現。**
+
+### 事件 B：契約 ratchet 守型別不守筆數 —— 規則變動測試擋不到
+本 session 為殯葬加了兩支 ratchet（`staticDataContract` 驗欄位型別、`classificationCoverage`
+驗分類值覆蓋）。事件 A 的修正換掉資料檔後，**兩支測試全綠**，但 UI 上 9 處寫死的
+「仍營業 (4,595)／已歇業 (1,638)」全部變成錯的。
+
+→ 契約測試防的是「欄位改名/改型別/新增分類值」，防不了「判定規則改變導致筆數位移」。
+已把「`is_active` 改判定規則」與「總筆數變動」兩列補進 feature handoff 的觸發點表當人工同步點。
+通則見 PRINCIPLES「資料契約 ratchet 守不到筆數位移」。
+
+### 事件 C：`.gitignore` 不支援行內註解 → 白名單靜默失效
+收 `tw-address-geocoder` 時寫 `!data/processed/*.md   # 實測報告要留`，結果該檔仍被忽略。
+`git check-ignore -v` 才看出整串（含 `#` 後面）被當成 pattern。
+
+→ `.gitignore` 的註解**必須獨立成行**。失敗方式是靜默的（檔案就是沒進 git，不報錯）。
+→ 通則：任何「規則檔」加註解前先確認該格式支不支援行內註解（`.gitignore` / `.dockerignore` 不支援）。
+
+### 事件 D：`performance.getEntriesByType('resource')` 有 250 筆上限 → 誤判「RPC 沒發出」
+查共機圖層為何空白時，用 Resource Timing 撈不到任何 supabase 請求，據此推論「RPC 根本沒發」。
+實際上該 buffer **預設上限就是 250 筆**，當時 `total: 250` 已經滿了，新請求全被丟棄。
+
+→ 差點把「資料過期」誤診成「程式沒發請求」。
+→ 用 Resource Timing 當證據前先看 `entries.length` 是不是剛好卡在 250；
+   要可靠就先 `performance.setResourceTimingBufferSize(N)` 或改用 CDP network 攔截。
+
+### 事件 E：共機圖層看似壞掉，實為上游手動批次沒人再跑（我的初判是錯的）
+`plaActivity` 開了但圖上 0 筆。逐層排查後確認：**前端沒問題**，
+`spatial.pla_tracks` 停在 2026-07-31（查詢當日 08-06），圖層預設「單日」→ 查當天 → 空。
+切「30 天疊加」立刻出現 73 個活動區。
+
+⚠️ **我當時判成「collector 停擺」，是錯的。** 平行 session 當天查清楚：
+`live.pla_activity_daily`（數值）一路正常寫到 08-05，連 `track_chart_url` 都抓到了 ——
+**collector 是好的**。斷掉的是 **taipei-gis-analytics 的手動向量化批次腳本**：
+08-02 跑完 07-31 之後就沒人再跑，`spatial.pla_tracks` / `live.pla_activity_items` 停在那天。
+
+**最值得記的一條**（來自平行 session 的分析）：斷了 5 天沒有任何告警，
+因為「共機 0 架次」是**合法的 0 形狀** —— 那天在 `pla_tracks` 就是沒有任何 row，
+**分不出「沒共機」與「沒跑」**。
+
+→ 動態圖層「看起來壞掉」時，**先查資料最新日期**再查程式（這條我做對了）。
+→ 但「資料停了」之後還要再問一次**是哪一段停了** —— 寫入鏈有多段時，
+  最末端沒資料不代表最前端掛了。我跳過這一步直接歸咎 collector。
+→ 通則：**用「有沒有 row」當健康指標，遇到「合法的空」就會失效** ——
+  要區分「沒事件」與「沒執行」必須有獨立的執行 ledger。
+→ 產品面問題：預設單日 + 資料有斷層 = 使用者看到空白會以為功能壞了。
+
+✅ **2026-08-07 結案**：轉成 data-collectors 的每日 collector `pla_tracks_vectorize`
+＋ ledger 表 `spatial.pla_tracks_runs`（migration 337，每個處理過的日子必有一列）。
+詳見 PB-33 與 [`.claude/pitfalls/2026-08-07-silent-upstream-outage.md`](../pitfalls/2026-08-07-silent-upstream-outage.md)。
+
+### 事件 F：deep-link `?layers=` 對 hook-based 圖層無效（既有問題，非本次引入）
+`?v=1&layers=plaActivity` 直接開 → 圖層完全不建立；手動點 toggle → 正常。
+原因是這類 hook 寫 `if (!map) return` 且 deps 只有**穩定的 `mapRef` 物件**：
+deep-link 時 `visible` 在 map `load` 之前就變 true，effect 跑一次就 bail，之後再也不會重跑。
+
+掃描結果**波及 20+ 個 hook**（`useNewsEventsLayer`／`useEarthquakeLayer`／`useFireEventsLayer`／
+`useFossilFuelLayers`…）。只有 3 個有輪詢防護：`useEarthquakeReplayLayer`、
+`useTemperatureGridLayer`、本次新寫的 `useFuneralDensityLayer`。
+registry 層不受影響（MapView 在 map `load` 時統一補做）。
+
+→ 影響範圍是**分享連結**，不影響一般操作，所以一直沒被發現。
+✅ **已修：2026-08-06 PR #114（`65f3da9`）** 抽出 `useMapReadyTick(mapRef, enabled)`（未就緒每 200ms 輪詢），
+套上 **55 個 layer hook** ＋ `factories/timelineSliceLayer`。實際成因比原判更廣：
+production 首載 `map.on("load")` 可能晚達 ~30 秒，**首載期間手動 toggle 也會中招**，不只 deep-link。
+
+### 事件 G：handoff 的「預期數字」會腐敗
+上游 handoff §4 的驗收指令註明「預期：業者 6233（仍營業 4595）」。事件 A 修正後實際是 4569，
+但那行沒改 → 下次照著跑的人會以為產物壞了。
+
+→ 文件裡**寫死的驗證期望值**是會過期的資產。已改成 4569 並加註
+「跑出 4595 = 手上是舊產物，要重跑 build_web_assets」，讓數字本身帶診斷資訊。
+
+### 事件 H：`git reset --hard` 清掉平行 session 的未提交檔案（我造成的）
+把 9 個 memory commit 從 master 搬到分支時跑 `git reset --hard origin/master`，
+連帶清掉平行 session 未提交的 `docs/features/pla-activity/changelog.md`（28 行）。
+
+**我在動手前就知道它存在** —— 跑過 `git status` 看到 `dirty:1`、讀過那段 diff、
+甚至根據它修正了自己對共機根因的誤判。然後還是打了 `--hard`。
+
+還原成功純屬僥倖：稍早剛好把整段 diff 印在對話裡，才有東西可以逐行重建
+（28 insertions 對得上）。**這不是防護，是運氣。**
+
+實測三種做法（scratchpad 重現當時情境）：
+
+| 做法 | 平行 session 的檔案 |
+|---|---|
+| `git reset --hard <target>` | ❌ 清成 base |
+| `git reset --keep <target>` | ✅ 保留 |
+| `git switch -c <新>` → `git branch -f <舊> <target>` | ✅ 保留 |
+
+- `--keep` 只更新「HEAD 與目標之間有差異」的檔案 → 沒被本次 commit 碰過的檔案不在範圍內。
+  且**衝突時 exit 128 拒絕執行並保留現場**，不像 `--hard` 靜默吃掉
+- `branch -f` 動的是沒被 checkout 的指標，**完全不碰工作區** —— 連判斷都省了
+- 原則：**不要重置你正站著的那條分支；先站到別條去，再回頭移指標**
+
+→ **`git reflog` 只救 commit，救不了未 staged 的改動**。曾 `git add` 過的還能
+`git fsck --lost-found` 撈回（blob 在 object store），從未 staged 的沒有任何副本。
+→ 已寫進 `GIS/CLAUDE.md` 鐵則與全域 `~/.claude/CLAUDE.md` 開發行為準則。
+→ 更根本的一條：**工作區出現「不是我的」未提交改動時，那是平行 session 在跑** ——
+  破壞性操作前先停，也不要替它 commit（不知道跑不跑得起來 = 替沒驗證的東西背書）。
+
 ## 2026-08-07 — 上游靜默斷供三連 + 自己造成的 CI 紅
 
 ### 事件 A：三個資料源都是「程序成功但產出永遠是空的」
