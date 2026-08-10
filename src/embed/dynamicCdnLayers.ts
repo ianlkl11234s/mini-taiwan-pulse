@@ -21,11 +21,28 @@ export const EMBED_CDN_LAYERS: Readonly<Partial<Record<keyof LayerVisibility, st
   evChargingStations: "get_ev_charging_stations",
   islandPowerGrid: "get_island_power_grid",
   renewablePermitsTaipei: "get_renewable_permits_taipei",
-  // gasStation* 5 層待補：loader 已用 staticRpc("get_gas_station_layers")，
-  // 但 public/static-rpc/ 尚無該檔（一直靜默 fallback 打 RPC）。補產快照後再加進來。
+  // EM-17：加油站 5 層共用同一支 RPC（get_gas_station_layers），靠 row 的 `layer`
+  // 欄位區分品牌 —— 見下方 EMBED_CDN_LAYER_FILTER，否則 5 層會各自畫出全部 6,210 點。
+  gasStationCpc: "get_gas_station_layers",
+  gasStationFpcc: "get_gas_station_layers",
+  gasStationTaisugar: "get_gas_station_layers",
+  gasStationOther: "get_gas_station_layers",
+  gasStationCanonical: "get_gas_station_layers",
 };
 
 export const EMBED_CDN_KEYS = Object.keys(EMBED_CDN_LAYERS) as (keyof LayerVisibility)[];
+
+/**
+ * layer key → 快照 row 的 `layer` 欄位期望值。只有「一支 RPC 混多層」的 key 需要進來
+ * （目前只有加油站）；沒進來的 key 維持預設行為：整份快照本來就只有那一層。
+ */
+export const EMBED_CDN_LAYER_FILTER: Readonly<Partial<Record<keyof LayerVisibility, string>>> = {
+  gasStationCpc: "gas_station_cpc",
+  gasStationFpcc: "gas_station_fpcc",
+  gasStationTaisugar: "gas_station_taisugar",
+  gasStationOther: "gas_station_other",
+  gasStationCanonical: "gas_station_canonical",
+};
 
 type Row = Record<string, unknown>;
 
@@ -73,12 +90,22 @@ export function rowsToGeoJSON(rows: unknown): GeoJSON.FeatureCollection {
  * 載入一層的 CDN 快照。**只讀靜態檔，任何情況都不 fallback 到 Supabase**
  * —— 主站的 `staticRpc()` 會 fallback（rollout 安全網），但 embed 不行：
  * 那會讓別人文章的流量變成你的 DB egress。快照不存在就視同該層不可用。
+ *
+ * `layerFilter`：一支 RPC 混多層時（見 EMBED_CDN_LAYER_FILTER），只留下
+ * `row.layer === layerFilter` 的列再轉 GeoJSON；不帶則整份快照照原樣轉換。
  */
-export async function fetchCdnLayer(rpcName: string): Promise<GeoJSON.FeatureCollection | null> {
+export async function fetchCdnLayer(
+  rpcName: string,
+  layerFilter?: string,
+): Promise<GeoJSON.FeatureCollection | null> {
   try {
     const res = await fetch(`/static-rpc/${rpcName}.json`);
     if (!res.ok) return null;
-    return rowsToGeoJSON(await res.json());
+    const rows: unknown = await res.json();
+    const filtered = layerFilter && Array.isArray(rows)
+      ? (rows as Row[]).filter((r) => r && typeof r === "object" && r.layer === layerFilter)
+      : rows;
+    return rowsToGeoJSON(filtered);
   } catch {
     return null;
   }

@@ -19,7 +19,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { parseUrlState } from "../lib/urlState";
 import { EMBED_ALLOWED, buildEmbedVisibility, configsFor } from "./embedWhitelist";
 import { registerPmtilesProtocolOnce, maplibrePmtilesSource } from "./maplibreAdapters";
-import { EMBED_CDN_LAYERS, fetchCdnLayer } from "./dynamicCdnLayers";
+import { EMBED_CDN_LAYERS, EMBED_CDN_LAYER_FILTER, fetchCdnLayer } from "./dynamicCdnLayers";
 import { SNAPSHOT_LAYERS, fetchSnapshot } from "./snapshotLayers";
 import { isReplayLayer } from "./replayLayers";
 import { replayClock, formatReplayClock } from "./replayClock";
@@ -151,7 +151,7 @@ export function EmbedApp() {
       for (const config of configs) {
         const rpcName = EMBED_CDN_LAYERS[config.id];
         if (!rpcName) continue;
-        void fetchCdnLayer(rpcName).then((fc) => {
+        void fetchCdnLayer(rpcName, EMBED_CDN_LAYER_FILTER[config.id]).then((fc) => {
           if (!fc || !mapRef.current) return;      // 快照缺失 → 該層靜默留空，不 fallback 打 DB
           const src = map.getSource(config.sourceId);
           if (src && "setData" in src) (src as maplibregl.GeoJSONSource).setData(fc);
