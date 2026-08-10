@@ -1385,3 +1385,18 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 - **不擴大戰線**：`erCongestion` 格內捲 423px 在八版就發現了，當時照實記進 README
   「已知取捨」並向用戶說明選項，沒有自己決定把 h 拉到 24。九版的機制改動剛好把它解掉，
   這時才回頭 close 那個懸而未決的問題。
+
+## 2026-08-10 — 結構稽核 → 8 批執行 wave（7 PR 一日全 merged）
+
+- **「稽核員的報告」和「事實」是兩回事**：本日兩個 agent 前提錯誤（schools.geojson 追蹤狀態、
+  monitor 分支疊層）都不是 agent 亂講——是它們引用了「上一手稽核」的結論沒重驗。
+  主 agent 對 top 發現逐一 spot-check 的成本 ≈ 7 條指令，擋下的是一次部署炸裂＋一次真丟 commit。
+  驗收不是重做，是**抽最貴的那幾條重做**。
+- **稽核最有價值的產出不是抓錯，是「正面判定」**：overlayRegistry 9.2k 行、三 registry、
+  LegendPanel 全部判「不是債」，這讓後續執行 wave 敢完全不碰它們——省下的工比修掉的債大。
+- **advisor 在派工前的兩次介入都值回票價**：按證據型態重切稽核維度（避免兩 agent 互踩）、
+  預先點名 stacked-branch squash-merge 陷阱（後來真的需要 rebase --onto）。
+- **API 不穩的日子，把 durability 下放**：agent 斷三次全靠原 context 續跑復原，
+  但真正的保險是「每階段先 commit」——第二次斷線後才想到補這條指示，應該一開始就寫進 prompt 模板。
+- **下次改進**：(1) worktree agent 的 prompt 模板應內建 PB-37 三鐵則，不要每次手寫；
+  (2) 稽核報告的「處置建議」欄應標注「已現場驗證/僅靜態推斷」，讓執行 agent 知道哪些前提要重驗。
