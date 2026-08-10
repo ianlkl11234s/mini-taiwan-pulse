@@ -29,6 +29,32 @@
 > 三項全是 P3：MG-1 沙盒不模擬流式高度（要不要補第二份實作待評估）／
 > MG-2 兩個既有微幅溢出（5px、11px，畫面無感）／MG-3 測試 flake 未結案（再現時留完整輸出查）。
 
+### 結構稽核 AU 系列（2026-08-10 全系統稽核後開）
+
+> 稽核報告：[`docs/research/architecture-audit-2026-08-10.md`](../../docs/research/architecture-audit-2026-08-10.md)（§E 行動清單）。以下只登記**尚未有人處理**的新發現；「立即修」批次（gas static-rpc 補檔／`loadingRegistryContract` filter／`bindTimer` 2 處加 gate／`@deck.gl/*` 移除＋4 孤兒檔刪除／tour 色表抽 `tourTypes.ts`）已在 `chore/audit-quick-fixes` 分支處理中，見下方「正在處理中」。
+
+| ID | 優先級 | 項目 | 狀態 | 備註 |
+|---|---|---|---|---|
+| AU-1 | P2 | 三邊色彩一致性測試缺守門 | open | sidebar 色點（`LAYER_COLORS`）／地圖 paint（`overlayRegistry`）／圖例色塊（`LegendPanel`）三處獨立 hex，兩檔重複 hex 上界 138 個，目前**無任何自動化測試守門**（稽核 C-4）。實證手抄 2 則：`#2e7d32`／`#d32f2f`（tour 主題，色表 inline 在 registry 違反 development-rules 自家規定）。tour 三組色表抽 `data/tourTypes.ts` 屬「立即修」已在處理，本項是「後續補測試」 |
+| AU-2 | P2 | glow 家族 3 hook 73% 重複 | open | `usePowerPlantGlowLayer` vs `useSubstationEhvGlowLayer`（48/66 行逐字同）＋ `useOsmPowerLinesGlowLayer`，底層 CustomLayer 同樣重複（稽核 C-5）。與 [`docs/features/bloom-experiments/backlog.md`](../../docs/features/bloom-experiments/backlog.md) **BE-2「抽 GlowLinesScene 通用 primitive」方向天然合流**——做 BE-2 可一併收斂，勿分頭各自重工 |
+| AU-3 | P2 | dayPrefetch 建了沒推廣 | open | `dayPrefetch.ts` 自稱「所有 layer 共用」實際僅 1 個呼叫者；`useCwaImageryLayer.ts:238-244` 手刻第二份同邏輯，兩份各自演化中（稽核 D-4）。處置：推廣或收斂，別留兩份 |
+| AU-4 | P2 | 3 個 Three scene 繞過 `toMercator()` | open | `TemperatureWaveScene:109`／`OsmPowerLinesGlowScene:156`／`RealEstatePointsScene:190` 寫死 Mapbox 座標轉換（稽核 D-6）。主站目前無實害，**搬進 embed（MapLibre）即踩雷**，屬預防性項目，改走 `coordinates.ts` |
+| AU-5 | P3 | loader 死 export 批次清理 | open | 31/56 loader 檔含死 export：`wasteLoader` 15、`energyLoader` 9、`intelLoaders` 9（檔案層孤兒率 0%，export 層 55%，稽核 D-3）。tsc 會抓連帶孤兒，批次清即可 |
+| AU-6 | **P1** | **雙 lockfile 債** | open | repo 同時有 `package-lock.json`（Dockerfile `npm ci` 用）與 `pnpm-lock.yaml`，兩者容易漏更新導致部署斷裂——2026-08-10 稽核當天實際差點發生。需決定單一 lockfile 政策並清掉另一份 |
+| AU-7 | P3 | knip 無 config 誤報 | open | `embed`／`spike`／`showcase` 三個獨立 entry 被誤報死碼（稽核 D-7）。補 `knip.json` 宣告即可 |
+| AU-8 | P2 | 食品價格看板（PR #109）缺 docs/features 四件套 | open | `feat(monitor): 食品價格監測板`（四指數 2×2 × 180 天）已 merge master（`6f966f7`），但未建立對應 `docs/features/<slug>/`（README／backlog／changelog／handoff）四件套，違反本專案文件路由慣例 |
+| AU-9 | P3 | `GIS_LAYERS` 反向覆蓋無守門 | open | `useMapInteraction.ts` 的 `GIS_LAYERS` 陣列是 first-hit-wins 手動排序，細節豐富的小範圍要排大面積背景前面，目前無守門測試防呆。本次稽核**未查獲**實際漂移，屬風險點記錄（稽核附錄「未驗證」段） |
+
+**正在處理中**（🔃 平行分支，稽核當下已有 session 在動，本檔不重複展開細節）：
+
+| 項目 | 分支 | 對應稽核發現 |
+|---|---|---|
+| 🔃 16 圖層圖例補齊 / 有意識降單色 + baseline 補豁免註解 | `fix/legend-drift` | A-1 |
+| 🔃 rail 圖層 loading 接線 | `fix/rail-loading-ui` | A-2 |
+| 🔃 立即修批次（5 項，見上方引言） | `chore/audit-quick-fixes` | §E「立即修」 |
+| 🔃 監看 hazard 4 卡（颱風/地震/輻射/落雷） | `feat/monitor-hazard-widgets` | D-8（`feat/monitor-widgets-batch1` 4 個 hazard widget 去留） |
+| 🔃 圖層預設全關 + 入口紅點 | `feat/layers-entry-badge` | — |
+
 ### ⚰️ 殯葬 Funeral（FN 系列，2026-08-05 上線 PR #107；08-06 資料修正 PR #110）
 
 > **SSOT 在 [`docs/features/funeral-layers/backlog.md`](../../docs/features/funeral-layers/backlog.md)**
@@ -43,19 +69,13 @@
 > FN-5「最近的火化場」距離分析（P2・**必須先濾 precision**）／FN-6 業者密度改人均（P3）／
 > FN-7 B 源 vs C 源空間差集（P3・踩到「先不整合」界線要再拍板）。
 
-### 共機 PLA — 產品面待辦（2026-08-06 發現）
+### 共機 PLA — 產品面待辦（2026-08-06 發現；2026-08-10 PA-10 已搬入 SSOT）
 
-> ⚠️ 本項的 SSOT 應在 [`docs/features/pla-activity/backlog.md`](../../docs/features/pla-activity/backlog.md)（PA-1~PA-8 在該檔），
-> 2026-08-10 從孤兒分支救援時該檔不在編輯範圍內，**待下次搬過去後本區改留索引**。
-
-| ID | 優先級 | 項目 | 狀態 |
-|---|---|---|---|
-| PA-10 | P2 | 圖層預設「單日」遇資料斷層 = 整片空白，使用者會以為功能壞了 → 考慮 fallback 到最近有資料的日期（或在 UI 明示「該日無資料」） | open |
-
-> 同批發現的 PA-9（`spatial.pla_tracks` 斷 5 天）與 PA-11（「0 架次」是合法的 0，
-> 分不出「沒共機」與「沒跑」）**已於 2026-08-07 結案** ——
-> 轉成每日 collector `pla_tracks_vectorize` ＋ ledger `spatial.pla_tracks_runs`（mig 337），
-> 見 PB-33 與 `.claude/pitfalls/2026-08-07-silent-upstream-outage.md`。故不重複列入。
+> **SSOT 在 [`docs/features/pla-activity/backlog.md`](../../docs/features/pla-activity/backlog.md)**（PA-1~PA-10 在該檔），本區只留索引，**不再更新細節**。
+>
+> PA-10：圖層預設「單日」遇資料斷層 = 整片空白，使用者會以為功能壞了，考慮 fallback 到最近有資料的日期或在 UI 明示「該日無資料」。
+>
+> 同批發現的 PA-9（`spatial.pla_tracks` 斷 5 天）與 PA-11（「0 架次」是合法的 0，分不出「沒共機」與「沒跑」）**已於 2026-08-07 結案** —— 轉成每日 collector `pla_tracks_vectorize` ＋ ledger `spatial.pla_tracks_runs`（mig 337），見 PB-33 與 `.claude/pitfalls/2026-08-07-silent-upstream-outage.md`。
 
 ### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**已部署驗證**）
 
@@ -87,8 +107,9 @@
 
 > ⚠️ EM-17 順帶發現的既有問題：`get_gas_station_layers` 的 loader 已改用 `staticRpc`，
 > 但 `public/static-rpc/` **沒有該檔** → 主站一直靜默 fallback 打 RPC（非本功能引入）。
-> **2026-08-10 再覆核：`ls public/static-rpc/ | grep -i gas` 仍為空，現在就在付 egress。**
-> EM 系列裡優先級最高的一項。
+> **2026-08-10 進度**：快照已產出驗證（6,210 筆 7.9MB）、`fix/gas-static-rpc` 分支含
+> embed 5 層接線，**待 S3 上傳後才結案**——現在仍在付 egress。細節見
+> `docs/features/embeddable-map/backlog.md` EM-17。
 
 ### 架構改造（AR 系列，2026-07-03 — 全系統審計後五階段計畫）
 
