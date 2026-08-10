@@ -177,19 +177,66 @@ function AxisBar({ label, pct, value, unit }: {
 
 /* ── 120 天趨勢 ─────────────────────────────────────────── */
 
+/** 趨勢圖可選區間。120 根柱子在 w5 欄裡每根只有 ~5px，看不出單日形狀 → 給短區間選項 */
+const TREND_WINDOWS = [120, 90, 30, 7] as const;
+type TrendWindow = (typeof TREND_WINDOWS)[number];
+
 function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
-  const max = Math.max(summary.sorties.max, 1);
+  const [win, setWin] = useState<TrendWindow>(120);
+  const shown = useMemo(() => (win >= days.length ? days : days.slice(-win)), [days, win]);
+
+  // ⚠️ 柱高比例用「本區間最大值」而非 120 天最大值 —— 否則選 7D 還是照 32 架次縮放，
+  //    平靜的一週全是幾像素高的殘渣，等於沒切。代價是換區間會換 y 軸尺度，
+  //    所以下方一定要印出本區間的中位／最高，柱色則維持 120 天分級（跨區間可比）。
+  const stats = useMemo(() => {
+    const vals = shown
+      .map((d) => d.sorties)
+      .filter((v): v is number => v !== null)
+      .sort((a, b) => a - b);
+    return {
+      max: vals.length ? vals[vals.length - 1]! : 0,
+      p50: vals.length ? vals[Math.floor((vals.length - 1) / 2)]! : 0,
+    };
+  }, [shown]);
+  const max = Math.max(stats.max, 1);
+
   return (
     // 柱狀圖是本板唯一「越高越好讀」的區塊。190px 是實機量過的值。
     // ⚠️ 必須是 **確定高度**（不能用 flex:1 + minHeight）：柱子高度是 `height: X%`，
     //    百分比只認父層的確定高度。本板是 fit:"content"（整條鏈都沒有固定高），
     //    寫成 flex 的話百分比解不出來 → 柱子全部塌成 0，圖區變全白。
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <RowLabel>
-        {summary.windowDays}D TREND · 架次（柱）／越中線（疊色）· 灰=解析失敗
+      <RowLabel
+        right={
+          <div style={{ display: "flex", gap: 3, flex: "none" }}>
+            {TREND_WINDOWS.map((w) => {
+              const on = w === win;
+              return (
+                <button
+                  key={w}
+                  type="button"
+                  onClick={() => setWin(w)}
+                  aria-pressed={on}
+                  title={`趨勢圖看近 ${w} 天（分級仍以近 ${summary.windowDays} 天為基準）`}
+                  style={{
+                    fontFamily: FONT_DATA, fontSize: 9, letterSpacing: "0.6px",
+                    padding: "1px 6px", borderRadius: RADIUS.md, cursor: "pointer",
+                    background: on ? "rgba(239,68,68,0.18)" : "transparent",
+                    border: `1px solid ${on ? "rgba(239,68,68,0.55)" : COLORS.borderSoft}`,
+                    color: on ? "#ff8080" : COLORS.textDim,
+                  }}
+                >
+                  {w}D
+                </button>
+              );
+            })}
+          </div>
+        }
+      >
+        {win}D TREND · 架次（柱）／越中線（疊色）· 灰=解析失敗
       </RowLabel>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height: 190, flex: "none" }}>
-        {days.map((d) => {
+        {shown.map((d) => {
           // ⚠️ null = 解析失敗，畫成灰色短樁；0 = 真的零架次，畫成 1px 底線
           if (d.sorties === null) {
             return <div key={d.reportDate} title={`${d.reportDate} 解析失敗`}
@@ -213,12 +260,17 @@ function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSitua
           );
         })}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>
-        <span>{summary.dateFrom}</span>
-        <span>
-          中位 {summary.sorties.p50} · p75 {summary.sorties.p75} · p90 {summary.sorties.p90} · 最高 {summary.sorties.max} 架次
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>
+        <span>{shown[0]?.reportDate ?? summary.dateFrom}</span>
+        <span style={{ textAlign: "center" }}>
+          本區間 中位 {stats.p50} · 最高 {stats.max} 架次（柱高比例）
+          {win !== summary.windowDays && (
+            <>
+              {" · "}分級基準 {summary.windowDays} 天 p90 {summary.sorties.p90} / 最高 {summary.sorties.max}
+            </>
+          )}
         </span>
-        <span>{summary.dateTo}</span>
+        <span>{shown[shown.length - 1]?.reportDate ?? summary.dateTo}</span>
       </div>
     </div>
   );
@@ -313,13 +365,14 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
   );
 }
 
-function RowLabel({ children }: { children: React.ReactNode }) {
+function RowLabel({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
       <span style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.xs, letterSpacing: "1.1px", color: COLORS.textDim, whiteSpace: "nowrap" }}>
         {children}
       </span>
       <div style={{ flex: 1, height: 1, background: COLORS.borderSoft }} />
+      {right}
     </div>
   );
 }
