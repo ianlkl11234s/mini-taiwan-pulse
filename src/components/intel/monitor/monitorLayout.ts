@@ -26,7 +26,11 @@ export type MonitorWidgetId =
   | "powerCard"
   | "erCongestion"
   | "prison"
-  | "airportPax";
+  | "airportPax"
+  | "typhoon"
+  | "earthquake"
+  | "radiation"
+  | "lightning";
 
 export interface MonitorGridItem {
   /** widget id（對應 MonitorPanel 的 widget 對照表） */
@@ -90,14 +94,28 @@ export const MONITOR_LAYOUT: MonitorGridItem[] = [
   { i: "plaBoard", x: 0, y: 23, w: 5, h: 13, fit: "content" },
   { i: "erCongestion", x: 0, y: 36, w: 5, h: 15, fit: "content" },
   { i: "hazardStrip", x: 5, y: 26, w: 7, h: 8, fit: "content" },
-  { i: "powerCard", x: 5, y: 34, w: 7, h: 14, fit: "content" },
+  // 災害監看四卡（2026-08-10 十版）：颱風／地震／輻射／落雷，接在災防直播下方
+  // 形成「影像 + 數據」的災害區塊。右欄 w7 拆 4+3，每格仍有 ~280px 以上。
+  //
+  // ⚠️ 位置不能改放到最下面（試過會壞）：左欄止於 y57，右欄若在那之後還有格線，
+  // 那條格線就成為**貫穿全寬**的橫切線 —— guillotine 會先在那裡把版面切成上下兩段，
+  // 右欄那塊就不再是「右欄」而是撐滿 12 欄的獨立區塊（monitorPacking.test.ts
+  // 的「rows 子節點寬度 = 自身寬度」會抓到）。右欄在 y57 之後只能留一個
+  // 跨過 57 的格子（現為 foodPriceBoard 56–68）。
+  { i: "typhoon", x: 5, y: 34, w: 4, h: 4, fit: "content" },
+  { i: "earthquake", x: 9, y: 34, w: 3, h: 4, fit: "content" },
+  { i: "radiation", x: 5, y: 38, w: 4, h: 4, fit: "content" },
+  { i: "lightning", x: 9, y: 38, w: 3, h: 4, fit: "content" },
+  // y 34→42（四卡插隊 8 列）
+  { i: "powerCard", x: 5, y: 42, w: 7, h: 14, fit: "content" },
   { i: "prison", x: 0, y: 51, w: 2, h: 4, fit: "content" },
   { i: "airportPax", x: 2, y: 51, w: 3, h: 6, fit: "content" },
   // 食品價格監測（2026-08-05）：四指數 2×2 × 180 天。
   // 走右欄 w7 而非比照 PLA 的 w5 —— 2×2 在 w5 每格只剩 ~190px，
   // 迷你走勢圖會擠到看不出形狀；w7 每格約 280px 才讀得出趨勢。
   // h 9→12（2026-08-10）：多出的高度全部灌進四張卡的走勢圖（SPARK_H 34→52 + flex:1）。
-  { i: "foodPriceBoard", x: 5, y: 48, w: 7, h: 12, fit: "content" },
+  // y 48→56（同上，跟著 powerCard 下移）
+  { i: "foodPriceBoard", x: 5, y: 56, w: 7, h: 12, fit: "content" },
 ];
 
 /** 沙盒 hidden 清單 — 列在這裡的 widget 不渲染（histogram 與時間軸新聞密度重複，2026-07-26 移除） */
