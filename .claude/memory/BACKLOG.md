@@ -107,11 +107,9 @@
 | EM-30 | P2 | **移除 rail 幾何的降級安全網**（條件已達成：#120 線上驗證雜湊檔抓 1 次、舊固定檔 0 次，降級未觸發）。建議**再觀察數日**後做，三件一起：移掉 `fetchRailGeometry()` 的 fallback 分支、刪 `RAIL_GEOMETRY_LEGACY_URL`、刪 S3 上的舊固定檔 `rail_slim.json.gz` | open（等觀察期） |
 | EM-31 | P2 | 上游 `build-rail-slim-bundle.py` 補齊 `line_id`（trtc 96 條軌道有 13 條缺，全是 `R-4-*`~`R-15-*`；**時刻表整份都沒有**）→ 補完即可刪掉前端 `railLineIdOf()` 的 track_id 前綴 fallback。詳 INCIDENTS 2026-08-09/10 事件 A | open（等上游） |
 
-> ⚠️ EM-17：`get_gas_station_layers` 快照缺檔（主站靜默 fallback 打 RPC 付 egress）。
-> **2026-08-10 當晚**：快照已上 S3（22:40，8.3MB 驗證在位）＋embed 5 層接線 merged（PR #125）。
-> **剩最後一哩：等 Zeabur 新容器 pull 後探測 prod `/static-rpc/get_gas_station_layers.json` 200
-> 即結案**（探測帶 cache-buster，防 CF negative cache）。細節見
-> `docs/features/embeddable-map/backlog.md` EM-17。
+> ✅ EM-17 **done 2026-08-10**：gas 快照上 S3＋embed 接線（PR #125）＋新容器部署後
+> prod 探測 200（8.3MB 逐位元一致）。**主站 fallback egress 已停止**。
+> 細節見 `docs/features/embeddable-map/backlog.md` EM-17。
 
 ### 架構改造（AR 系列，2026-07-03 — 全系統審計後五階段計畫）
 

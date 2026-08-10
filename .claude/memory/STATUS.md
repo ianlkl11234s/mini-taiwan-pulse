@@ -38,7 +38,7 @@
 
 ## 3. 下一步
 
-1. **EM-17 最後一哩**：等 Zeabur 重建完成（#123~#129 連環 push 已觸發），帶 cache-buster 探測
+1. ~~EM-17~~ ✅ **已結案**（prod 探測 200、8.3MB 逐位元一致，fallback egress 已停止）。原文：等 Zeabur 重建完成後探測
    `prod /static-rpc/get_gas_station_layers.json` → 200 即結案（fallback egress 同時停止）。
    上傳當下舊容器 404 屬預期，**勿探測裸 URL 以免 CF negative cache**
 2. **AR-22/23（結構工程主線下一步）**：Layer Manifest 試點 → 全量遷移（AR-21 的 per-key 收益在此兌現）→ AR-24 退役 useTransportParams
