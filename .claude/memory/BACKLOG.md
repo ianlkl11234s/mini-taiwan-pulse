@@ -23,6 +23,12 @@
 |---|---|---|---|
 | FE-01 | P2 | URL 的 `p.*` 參數 `parseUrlState` 有解析（`parseParams`）但**App 端沒有任何地方套用** → 分享連結帶不了 slider 值。要嘛接上、要嘛移除死碼 | open |
 
+### 監看模式網格（MG 系列，2026-08-10 八/九版後開）
+
+> **SSOT 在 [`docs/features/monitor-grid-static/backlog.md`](../../docs/features/monitor-grid-static/backlog.md)**，本區只留索引。
+> 三項全是 P3：MG-1 沙盒不模擬流式高度（要不要補第二份實作待評估）／
+> MG-2 兩個既有微幅溢出（5px、11px，畫面無感）／MG-3 測試 flake 未結案（再現時留完整輸出查）。
+
 ### 可嵌入地圖（EM 系列，2026-08-03~05 上線；**已部署驗證**）
 
 > **SSOT 全部移到 [`docs/features/embeddable-map/`](../../docs/features/embeddable-map/)**
