@@ -4,7 +4,7 @@
 
 ---
 
-## 2026-08-06 — PR #（待補） `（待補 squash hash）`
+## 2026-08-06 — PR #110 `28df1a8`（rebase merge，直接進 master）
 
 **上游 `is_active` 規則修正 → 同步靜態檔與所有寫死的數字。**
 
@@ -30,7 +30,7 @@ label 寫錯畫面照樣正常。只能靠上游改規則時人工同步。
 
 ---
 
-## 2026-08-05 — PR #（待補） `（待補 squash hash）`
+## 2026-08-05 — PR #107 `29a2664`（merge commit，保留 5 個分項 commit）
 
 - 新增「殯葬 Funeral」主題群（第 37 主題，插在 宗教 Religion 與 觀光 Tourism 之間），5 層：
   `funeralFacilities` / `funeralOperators` / `funeralOperatorDensity` / `cemeteryOsm` / `cemeteryZoning`
