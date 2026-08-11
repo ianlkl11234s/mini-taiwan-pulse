@@ -53,6 +53,9 @@ import {
   // 🎓 教育（GraduationCap / Mountain / LandPlot / Grid3x3 / BookOpen / Users /
   //    HeartHandshake 已在上方 import 復用）
   School, University, Accessibility, Map, Shapes, Baby, BarChart3,
+  // 🌲 林業（Trees / GraduationCap / Tent / TrainFront 已在上方 import 復用）
+  Shield, TreePine, Sprout, Ruler, Hammer, MapPin, Signal, Waves, Route,
+  Footprints, PawPrint,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -2014,6 +2017,433 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "職場／社區互助教保服務中心 148 點（全數私立）",
     topics: ["教育", "幼托", "互助教保"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 3 —— 林業 Forestry 16 層
+  //  與同批教育**幾乎每個維度都相反**，一批之內就撞完兩極：
+  //    labelMobile 教育 17/17，林業只有 mountainHuts / hikingTrails 2/16；
+  //    popup 教育是「多個 key 擠進一個 layerType」，林業是**依幾何型別分類**——
+  //    `forestryPolygon`(3) / `forestryPOI`(8) / `forestryLine`(1) 三個泛型
+  //    layerType 吃掉 12 層，另外 3 層各有專屬（canopyGiants / mountainHut /
+  //    hikingTrails），canopyHeight 是 raster **完全沒有 popup**（本批唯一 null）。
+  //
+  //  legend：14 層共用 `forestCompartments`（LEGEND_REGISTRY 一筆 entry 覆蓋
+  //  整個林業主題），canopyHeight / canopyGiants 各自獨佔。本批 0 層 legend: null。
+  //
+  //  ⚠️ 色票：本主題**沒有**餵 LAYER_COLORS 的 `*_LAYER_COLORS` 常數
+  //  （forestReserveTypes 的 FOREST_RESERVE_TYPE_MATCH 依保安林類別、
+  //  canopyGiantsTypes 依距離帶，都是 category-keyed 的表達式，LAYER_COLORS
+  //  從未 import）→ 照批 2 判準寫字面 hex，不引用。
+  //
+  //  dataClass A 11 / B 5。B 的 5 層（forestCompartments・forestReserve・
+  //  forestRoads・hikingTrails・canopyHeight）已核對 scripts/deploy 的
+  //  upload-deploy-assets.sh 清單（觸點 #20）全數在列。canopyHeight 是 raster
+  //  PMTiles，**沒有 sourceLayer**（其餘 4 層有）—— source 欄位的 optional
+  //  sourceLayer 正是為這種形狀留的。
+  // ══════════════════════════════════════════════════════════════
+  forestCompartments: {
+    key: "forestCompartments",
+    section: { theme: "林業 Forestry", group: "分區" },
+    label: "林班 Compartments",
+    expandable: true,
+    color: "#15803D",
+    icon: Trees,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "national_forest_compartments", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "forest-compartments",
+      url: "./forestry/national_forest_compartments.pmtiles",
+      sourceLayer: "national_forest_compartments",
+      minzoom: 0,
+      maxzoom: 13,
+    },
+    legend: "forestCompartments",
+    popup: "forestryPolygon",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "國有林事業區林班界（面層切片）",
+    topics: ["林業", "林班", "土地使用"],
+  },
+
+  forestReserve: {
+    key: "forestReserve",
+    section: { theme: "林業 Forestry", group: "分區" },
+    label: "保安林 Reserve",
+    expandable: true,
+    color: "#0F766E",
+    icon: Shield,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "forest_reserve", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "forest-reserve",
+      url: "./forestry/forest_reserve.pmtiles",
+      sourceLayer: "forest_reserve",
+      minzoom: 0,
+      maxzoom: 13,
+    },
+    legend: "forestCompartments",
+    popup: "forestryPolygon",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "保安林編號區（依保安林種類分色，見 forestReserveTypes.ts）",
+    topics: ["林業", "保安林", "土地使用"],
+  },
+
+  forestRecreation: {
+    key: "forestRecreation",
+    section: { theme: "林業 Forestry", group: "分區" },
+    label: "森林遊樂區 Recreation",
+    expandable: true,
+    color: "#65A30D",
+    icon: TreePine,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "forest_recreation_areas", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-recreation",
+      url: "./forestry/forest_recreation_areas.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPolygon",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "國家森林遊樂區範圍（面層）",
+    topics: ["林業", "遊樂區", "觀光"],
+  },
+
+  forestFlatParks: {
+    key: "forestFlatParks",
+    section: { theme: "林業 Forestry", group: "分區" },
+    label: "平地森林 Flat Parks",
+    expandable: true,
+    color: "#A3E635",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "flat_forest_parks", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-flat-parks",
+      url: "./forestry/flat_forest_parks.geojson",
+    },
+    legend: "forestCompartments",
+    // 雖列在「分區」子群，資料實為點位 → popup 走 forestryPOI 而非 forestryPolygon
+    popup: "forestryPOI",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "平地森林園區點位",
+    topics: ["林業", "平地森林", "公共設施"],
+  },
+
+  canopyHeight: {
+    key: "canopyHeight",
+    section: { theme: "林業 Forestry", group: "分區" },
+    label: "樹冠高度 Canopy Height",
+    expandable: true,
+    color: "#33691e",
+    icon: Ruler,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "全台樹冠高度 raster PMTiles（Meta/WRI 2020 10m，public/forestry/canopy_height_taiwan.pmtiles），catalog 待建",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "canopy-height",
+      url: "./forestry/canopy_height_rgb_taiwan.pmtiles",
+      // raster 切片沒有 vector sourceLayer —— 本批唯一一筆
+      minzoom: 6,
+      maxzoom: 12,
+    },
+    legend: "canopyHeight",
+    // 本批唯一沒有可點選物件的層（raster，GIS_LAYERS 無條目）
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "全台樹冠高度 raster（Meta/WRI 2020 10m，RGB 編碼切片）",
+    topics: ["林業", "樹冠", "遙測"],
+  },
+
+  canopyGiants: {
+    key: "canopyGiants",
+    section: { theme: "林業 Forestry", group: "分區" },
+    label: "樹冠巨木 Canopy Giants",
+    expandable: true,
+    color: "#a50026",
+    icon: TreePine,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "樹冠 45m+ 巨木 GeoJSON（Meta/WRI 樹冠高度 10m × 可及性分析衍生，public/forestry/canopy_giants_taiwan.geojson），衍生資料無 catalog 來源",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "canopy-giants",
+      url: "./forestry/canopy_giants_taiwan.geojson",
+    },
+    legend: "canopyGiants",
+    popup: "canopyGiants",
+    params: { count: 1, kinds: ["slider"] },
+    description: "樹冠 45m 以上巨木點位（依離步道距離帶分色，見 canopyGiantsTypes.ts）",
+    topics: ["林業", "巨木", "衍生分析"],
+  },
+
+  forestTreatmentWorks: {
+    key: "forestTreatmentWorks",
+    section: { theme: "林業 Forestry", group: "點位" },
+    label: "治理工程 Treatment Works",
+    expandable: true,
+    color: "#F59E0B",
+    icon: Hammer,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "forestry_treatment_works", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-treatment-works",
+      url: "./forestry/forestry_treatment_works.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPOI",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "林業治理工程點位（崩塌地治理／野溪整治等）",
+    topics: ["林業", "治理工程", "防災"],
+  },
+
+  forestTrailSigns: {
+    key: "forestTrailSigns",
+    section: { theme: "林業 Forestry", group: "點位" },
+    label: "步道路標 Trail Signs",
+    expandable: true,
+    color: "#84CC16",
+    icon: MapPin,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mountain_trail_signs", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-trail-signs",
+      url: "./forestry/mountain_trail_signs.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "山區步道路標點位（與山屋／通訊點疊圖 = 登山安全敘事）",
+    topics: ["林業", "步道", "登山"],
+  },
+
+  forestSignalPoints: {
+    key: "forestSignalPoints",
+    section: { theme: "林業 Forestry", group: "點位" },
+    label: "通訊點 Signal Points",
+    expandable: true,
+    color: "#22C55E",
+    icon: Signal,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mountain_signal_points", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-signal-points",
+      url: "./forestry/mountain_signal_points.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "山區手機通訊可用點位（登山安全用）",
+    topics: ["林業", "通訊", "登山"],
+  },
+
+  forestEducationCenters: {
+    key: "forestEducationCenters",
+    section: { theme: "林業 Forestry", group: "點位" },
+    label: "自然教育中心 Education",
+    expandable: true,
+    color: "#0EA5E9",
+    icon: GraduationCap,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "forest_education_centers", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-education-centers",
+      url: "./forestry/forest_education_centers.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "林業保育署自然教育中心點位",
+    topics: ["林業", "環境教育", "公共設施"],
+  },
+
+  mountainHuts: {
+    key: "mountainHuts",
+    section: { theme: "林業 Forestry", group: "點位" },
+    label: "山屋・高山營地 Mountain Huts",
+    labelMobile: "山屋・營地 (136)",
+    expandable: true,
+    color: "#ec4899",
+    icon: Tent,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mountain_huts", confidence: "HIGH" }],
+      processing: "官方玉山國家公園 30 × OSM 126 走 trust chain（250m + 名稱 0.55）跨源命中 20，合成 136 實體；OSM 部分 ODbL",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "mountain-huts", url: "./forestry/mountain_huts.geojson" },
+    legend: "forestCompartments",
+    popup: "mountainHut",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "山屋・高山營地 136 處（官方 30 × OSM 126 跨源合成）",
+    topics: ["林業", "山屋", "登山"],
+  },
+
+  forestDamLakes: {
+    key: "forestDamLakes",
+    section: { theme: "林業 Forestry", group: "點位" },
+    label: "堰塞湖 Dam Lakes",
+    expandable: true,
+    color: "#06B6D4",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "dam_lakes_in_forest", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-dam-lakes",
+      url: "./forestry/dam_lakes_in_forest.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPOI",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "林區內堰塞湖點位（崩塌堵塞形成，土砂災害關聯）",
+    topics: ["林業", "堰塞湖", "防災"],
+  },
+
+  forestRoads: {
+    key: "forestRoads",
+    section: { theme: "林業 Forestry", group: "線" },
+    label: "林道 Forest Roads",
+    expandable: true,
+    color: "#A16207",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "forest_roads", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "forest-roads",
+      url: "./forestry/forest_roads.pmtiles",
+      sourceLayer: "forest_roads",
+      minzoom: 0,
+      maxzoom: 14,
+    },
+    legend: "forestCompartments",
+    // 本批唯一的 forestryLine（線層專屬 layerType）
+    popup: "forestryLine",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台林道線形（切片，z0-14）",
+    topics: ["林業", "林道", "路網"],
+  },
+
+  forestAlishanRail: {
+    key: "forestAlishanRail",
+    section: { theme: "林業 Forestry", group: "線" },
+    label: "阿里山鐵路 Alishan Rail",
+    expandable: true,
+    color: "#92400E",
+    icon: TrainFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "wildlife_distribution_3rd_alt", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    // ⚠️ 檔名與 datasetId 都是 wildlife_distribution_3rd_alt（與圖層標題不符），
+    //    且渲染成 circle 走 forestryPOI —— 照現況登記，上游對應待另案釐清
+    source: {
+      kind: "geojson",
+      sourceId: "forest-alishan-rail",
+      url: "./forestry/wildlife_distribution_3rd_alt.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "阿里山林業鐵路相關點位（資料檔為 wildlife_distribution_3rd_alt，上游對應待釐清）",
+    topics: ["林業", "鐵道", "文化資產"],
+  },
+
+  hikingTrails: {
+    key: "hikingTrails",
+    section: { theme: "林業 Forestry", group: "線" },
+    label: "全台步道 Hiking Trails",
+    labelMobile: "全台步道 Hiking Trails (7,339)",
+    expandable: true,
+    color: "#d62728",
+    icon: Footprints,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mountain_trail_signs", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "hiking-trails",
+      url: "./forestry/hiking_trails.pmtiles",
+      sourceLayer: "hiking_trails",
+      minzoom: 0,
+      maxzoom: 13,
+    },
+    legend: "forestCompartments",
+    popup: "hikingTrails",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台步道 7,339 條線形（glow + line 兩個 layer）",
+    topics: ["林業", "步道", "登山"],
+  },
+
+  forestWildlife: {
+    key: "forestWildlife",
+    section: { theme: "林業 Forestry", group: "生態" },
+    label: "野生動物分布 Wildlife",
+    expandable: true,
+    color: "#A855F7",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "wildlife_distribution_3rd", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "forest-wildlife",
+      url: "./forestry/wildlife_distribution_3rd.geojson",
+    },
+    legend: "forestCompartments",
+    popup: "forestryPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "第三次野生動物分布調查點位",
+    topics: ["林業", "生態", "野生動物"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

@@ -593,65 +593,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'farm_roads', confidence: 'HIGH' }],
   },
-  forestCompartments: {
-    status: 'verified',
-    datasets: [{ datasetId: 'national_forest_compartments', confidence: 'HIGH' }],
-  },
-  forestReserve: {
-    status: 'verified',
-    datasets: [{ datasetId: 'forest_reserve', confidence: 'HIGH' }],
-  },
-  forestRecreation: {
-    status: 'verified',
-    datasets: [{ datasetId: 'forest_recreation_areas', confidence: 'HIGH' }],
-  },
-  forestFlatParks: {
-    status: 'verified',
-    datasets: [{ datasetId: 'flat_forest_parks', confidence: 'HIGH' }],
-  },
-  forestTreatmentWorks: {
-    status: 'verified',
-    datasets: [{ datasetId: 'forestry_treatment_works', confidence: 'HIGH' }],
-  },
-  forestTrailSigns: {
-    status: 'verified',
-    datasets: [{ datasetId: 'mountain_trail_signs', confidence: 'HIGH' }],
-  },
-  forestSignalPoints: {
-    status: 'verified',
-    datasets: [{ datasetId: 'mountain_signal_points', confidence: 'HIGH' }],
-  },
-  forestEducationCenters: {
-    status: 'verified',
-    datasets: [{ datasetId: 'forest_education_centers', confidence: 'HIGH' }],
-  },
-  mountainHuts: {
-    status: 'verified',
-    datasets: [{ datasetId: 'mountain_huts', confidence: 'HIGH' }],
-    processing: '官方玉山國家公園 30 × OSM 126 走 trust chain（250m + 名稱 0.55）跨源命中 20，合成 136 實體；OSM 部分 ODbL',
-  },
-  forestDamLakes: {
-    status: 'verified',
-    datasets: [{ datasetId: 'dam_lakes_in_forest', confidence: 'HIGH' }],
-  },
-  forestRoads: {
-    status: 'verified',
-    datasets: [{ datasetId: 'forest_roads', confidence: 'HIGH' }],
-  },
-  forestAlishanRail: {
-    status: 'verified',
-    datasets: [{ datasetId: 'wildlife_distribution_3rd_alt', confidence: 'HIGH' }],
-  },
-  hikingTrails: {
-    status: 'verified',
-    datasets: [{ datasetId: 'mountain_trail_signs', confidence: 'MED' }],
-  },
-  forestWildlife: {
-    status: 'verified',
-    datasets: [{ datasetId: 'wildlife_distribution_3rd', confidence: 'HIGH' }],
-  },
-  canopyHeight: { status: 'catalog_missing', datasets: [], note: '全台樹冠高度 raster PMTiles（Meta/WRI 2020 10m，public/forestry/canopy_height_taiwan.pmtiles），catalog 待建' },
-  canopyGiants: { status: 'catalog_missing', datasets: [], note: '樹冠 45m+ 巨木 GeoJSON（Meta/WRI 樹冠高度 10m × 可及性分析衍生，public/forestry/canopy_giants_taiwan.geojson），衍生資料無 catalog 來源' },
+  // 🌲 林業 Forestry 16 layer 已搬進 layerManifest（AR-22 Phase 2 批 3）——
+  //    含 canopyHeight / canopyGiants 兩筆 catalog_missing（Meta/WRI 衍生資料）
   wasteTruck: {
     status: 'verified',
     datasets: [{ datasetId: 'garbage_collection', confidence: 'MED' }],

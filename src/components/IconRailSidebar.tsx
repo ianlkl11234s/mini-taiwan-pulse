@@ -6,7 +6,7 @@ import {
   BarChart3, Users, AlertTriangle, CloudSun, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol, Thermometer, Grid3x3,
-  GraduationCap, Store, Play, Cable, Radio, Mountain,
+  Store, Play, Cable, Radio, Mountain,
   Cloud, CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck, Container,
   Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt, Brush,
@@ -15,9 +15,8 @@ import {
   Sprout,
   Receipt, Coffee, Car, SquareParking, CircleParking,
   ShoppingCart, Warehouse, Fish,
-  // FORESTRY icons
-  Trees, TreePine, TreeDeciduous, TreePalm, Flower2, Hammer, Signal, PawPrint, Footprints,
-  Ruler,
+  // FORESTRY icons（林業 16 層搬進 layerManifest 後，只剩農業／保育層仍在用）
+  TreePine, TreeDeciduous, TreePalm, Flower2, PawPrint,
   Satellite,
   // ENERGY icons
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
@@ -30,8 +29,8 @@ import {
   Ban,
   // 環境污染 icons
   Biohazard,
-  ThermometerSun, Tent,
-  // 🎓 EDUCATION icons 隨 17 層一起搬進 layerManifest（AR-22 Phase 2 批 3）
+  ThermometerSun,
+  // 🎓 EDUCATION / 🌲 FORESTRY icons 隨 17 + 16 層一起搬進 layerManifest（AR-22 Phase 2 批 3）
   // 🗺️ 土地使用分區 icons
   Map,
   // 🌍 世界 World icon（複合 rail icon 用）
@@ -198,23 +197,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   // 🎓 教育 Education 17 層已搬進 layerManifest（AR-22 Phase 2 批 3；含總覽層 schools）
   farmRoads: Route,
   ecoNetworkZones: Mountain,
-  // FORESTRY 12 base
-  forestCompartments: Trees,
-  forestReserve: Shield,
-  forestRecreation: TreePine,
-  forestRoads: Route,
-  forestTreatmentWorks: Hammer,
-  forestTrailSigns: MapPin,
-  forestSignalPoints: Signal,
-  forestEducationCenters: GraduationCap,
-  forestWildlife: PawPrint,
-  forestDamLakes: Waves,
-  forestFlatParks: Sprout,
-  forestAlishanRail: TrainFront,
-  mountainHuts: Tent,
-  hikingTrails: Footprints,
-  canopyHeight: Ruler,
-  canopyGiants: TreePine,
+  // 🌲 林業 Forestry 16 層已搬進 layerManifest（AR-22 Phase 2 批 3）
   wasteTruck: Truck,
   wasteSchedule: CalendarDays,
   wasteScheduleNote: CalendarDays,
