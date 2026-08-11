@@ -6841,8 +6841,16 @@ export const LAYER_MANIFEST = {
     topics: ["農業", "漁業", "官方圖資"],
   },
 
-  // ⚠️ key 是 `aquacultureWaterUnion`，但 sourceId / 檔名 / sourceLayer 都是
-  //    `aquaculture_water_satellite_union`（多一個 satellite）—— 照現況登記不夾帶改名。
+  // ⚠️ 本層是**新舊名並存**的狀態，三個欄位刻意不一致，改動前先讀完這段（B170 / master c016f15）：
+  //    上游 analytics 2026-08-11 把 dataset_id 由 `aquaculture_water_satellite_union`
+  //    改名為 `aquaculture_water_sat_union`（少一個 satellite）。
+  //      · upstream.datasetId → **新名**（跟著上游 catalog 走）
+  //      · source.url         → **新名**（c016f15 已 git mv public/fishery/ 的實體檔）
+  //      · source.sourceId    → **舊名**（純前端 Mapbox source 識別字，改它等於無謂的全域改名）
+  //      · source.sourceLayer → **舊名，且不要改**：MVT 內部層名烙在 2026-07 版 pmtiles
+  //        二進位裡（tippecanoe --layer aquaculture_water_satellite_union），不隨外部檔名/
+  //        dataset_id 改名而變。要等上游重產 pmtiles 才會變成新名，屆時此處與
+  //        overlayRegistry 同一處註解需一起同步。
   aquacultureWaterUnion: {
     key: "aquacultureWaterUnion",
     section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
@@ -6852,13 +6860,13 @@ export const LAYER_MANIFEST = {
     icon: Layers,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "aquaculture_water_satellite_union", confidence: "HIGH" }],
+      datasets: [{ datasetId: "aquaculture_water_sat_union", confidence: "HIGH" }],
     },
     dataClass: "B",
     source: {
       kind: "pmtiles",
       sourceId: "aquaculture-water-satellite-union",
-      url: "./fishery/aquaculture_water_satellite_union.pmtiles",
+      url: "./fishery/aquaculture_water_sat_union.pmtiles",
       sourceLayer: "aquaculture_water_satellite_union",
       minzoom: 5,
       maxzoom: 14,

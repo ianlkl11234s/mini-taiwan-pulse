@@ -5911,7 +5911,7 @@
       "datasets": [
         {
           "confidence": "HIGH",
-          "datasetId": "aquaculture_water_satellite_union"
+          "datasetId": "aquaculture_water_sat_union"
         }
       ],
       "status": "verified"
@@ -23002,7 +23002,7 @@
         "line"
       ],
       "sourceId": "aquaculture-water-satellite-union",
-      "sourceUrl": "./fishery/aquaculture_water_satellite_union.pmtiles"
+      "sourceUrl": "./fishery/aquaculture_water_sat_union.pmtiles"
     },
     {
       "dynamicData": null,
