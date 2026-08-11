@@ -44,6 +44,14 @@ import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
 import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
+import {
+  PROTECTED_TREE_CITIES, RIVERSIDE_PARKS, TAIPEI_PARK_CATEGORIES,
+  STREET_TREE_3EPOCH_TRAJ_FILTERS, STREET_TREE_NATIONAL_CITIES, TREE_PIT_TYPES,
+} from "./urbanOpenSpaceTypes";
+import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
+import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
+import { URBAN_ZONING_CATEGORIES } from "./urbanZoningTypes";
+import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -964,6 +972,196 @@ export const LAYER_PARAMS_SPEC = {
   realEstatePresalePoint: [
     { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
     { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
+  ],
+
+  // ══════════ 養殖水域・樹木公園・文化觀光・都市分區 20 層 ══════════
+  aquacultureWaterSatellite: [
+    {
+      kind: "select", name: "aquacultureWaterSatelliteConfidence", label: "信心", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "含蓄水池", value: "reservoir" }, { label: "只確定", value: "certain" }],
+      out: "aquacultureWaterSatelliteConfidenceIdx", encode: ["all", "reservoir", "certain"],
+    },
+    { kind: "slider", name: "aquacultureWaterSatelliteOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 0.85, step: 0.05 },
+  ],
+  aquacultureWaterSatelliteMoa: [
+    { kind: "slider", name: "aquacultureWaterSatelliteMoaOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowConfirmed", label: "確認 Confirmed", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowSolar", label: "漁電共生 Solar", default: true },
+    { kind: "toggle", name: "aquacultureWaterSatelliteMoaShowOther", label: "其他 Other", default: true },
+  ],
+  aquacultureWaterUnion: [
+    { kind: "slider", name: "aquacultureWaterUnionOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
+    { kind: "toggle", name: "aquacultureWaterUnionShowBoth", label: "兩版都有 Both", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowMoaOnly", label: "只官方 MOA", default: true },
+    { kind: "toggle", name: "aquacultureWaterUnionShowOsmOnly", label: "只舊版 OSM", default: true },
+  ],
+  streetTreesTaipeiDiff: [
+    {
+      kind: "select", name: "streetTreesTaipeiDiffColorMode", label: "染色模式", default: "status",
+      options: [{ label: "依狀態", value: "status" }, { label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }],
+      out: "streetTreesTaipeiDiffColorModeIdx", encode: ["status", "species", "diameter", "height"],
+    },
+    {
+      kind: "select", name: "streetTreesTaipeiDiffStatus", label: "狀態", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "只看消失", value: "disappeared" }, { label: "只看變動", value: "changed" }],
+      out: "streetTreesTaipeiDiffStatusIdx", encode: ["all", "disappeared", "changed"],
+    },
+    { kind: "slider", name: "streetTreesTaipeiDiffOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "streetTreesTaipeiDiffRadius", labelPrefix: "點位大小", digits: 2, default: 0.5, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  protectedTreesNational: [
+    {
+      kind: "select", name: "protectedTreesNationalColorMode", label: "染色模式", default: "age",
+      options: [{ label: "依樹齡", value: "age" }, { label: "依城市", value: "city" }],
+      out: "protectedTreesNationalColorModeIdx", encode: ["age", "city"],
+    },
+    {
+      kind: "select", name: "protectedTreesNationalCity", label: "城市", default: "all",
+      options: [{ label: "全部", value: "all" }, ...PROTECTED_TREE_CITIES.map((c) => ({ label: c.name, value: c.name }))],
+      out: "protectedTreesNationalCityIdx", encode: ["all", ...PROTECTED_TREE_CITIES.map((c) => c.name)],
+    },
+    { kind: "slider", name: "protectedTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "protectedTreesNationalRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  riversideTreesTaipei: [
+    {
+      kind: "select", name: "riversideTreesTaipeiPark", label: "河濱公園", default: "all",
+      options: [{ label: "全部", value: "all" }, ...RIVERSIDE_PARKS.map((n) => ({ label: n, value: n }))],
+      out: "riversideTreesTaipeiParkIdx", encode: ["all", ...RIVERSIDE_PARKS],
+    },
+    { kind: "slider", name: "riversideTreesTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "riversideTreesTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  parksTaipei: [
+    {
+      kind: "select", name: "parksTaipeiCategory", label: "分類", default: "all",
+      options: [{ label: "全部", value: "all" }, ...TAIPEI_PARK_CATEGORIES.map((c) => ({ label: c.name, value: c.name }))],
+      out: "parksTaipeiCategoryIdx", encode: ["all", ...TAIPEI_PARK_CATEGORIES.map((c) => c.name)],
+    },
+    { kind: "slider", name: "parksTaipeiOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "parksTaipeiRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  culturalFacilities: [
+    {
+      kind: "select", name: "culturalFacilitiesType", label: "類型", default: "all",
+      options: [{ label: "全部", value: "all" }, ...CULTURAL_FACILITY_TYPES.map((c) => ({ label: c.name, value: c.name }))],
+      out: "culturalFacilitiesTypeIdx", encode: ["all", ...CULTURAL_FACILITY_TYPES.map((c) => c.name)],
+    },
+    { kind: "slider", name: "culturalFacilitiesOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "culturalFacilitiesRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  culturalMuseums: [
+    {
+      kind: "select", name: "culturalMuseumsType", label: "類型", default: "all",
+      options: [{ label: "全部", value: "all" }, ...CULTURAL_MUSEUM_TYPES.map((c) => ({ label: c.name, value: c.name }))],
+      out: "culturalMuseumsTypeIdx", encode: ["all", ...CULTURAL_MUSEUM_TYPES.map((c) => c.name)],
+    },
+    { kind: "slider", name: "culturalMuseumsOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "culturalMuseumsRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  artsEvents: [
+    {
+      kind: "select", name: "artsEventsStatus", label: "狀態", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }],
+      out: "artsEventsStatusIdx", encode: ["all", "ongoing", "upcoming"],
+    },
+    { kind: "slider", name: "artsEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "artsEventsRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  tourAttractions: [
+    {
+      kind: "select", name: "tourAttractionsMode", label: "著色模式", default: "category",
+      options: [{ label: "分類", value: "category" }, { label: "熱度", value: "heat" }],
+      out: "tourAttractionsModeIdx", encode: ["category", "heat"],
+    },
+    { kind: "slider", name: "tourAttractionsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "tourAttractionsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  tourEvents: [
+    {
+      kind: "select", name: "tourEventsStatus", label: "狀態", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }],
+      out: "tourEventsStatusIdx", encode: ["all", "ongoing", "upcoming"],
+    },
+    { kind: "slider", name: "tourEventsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "tourEventsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  tourHotels: [
+    {
+      kind: "select", name: "tourHotelsClass", label: "類別", default: "all",
+      options: [{ label: "全部", value: "all" }, { label: "國際觀光旅館", value: "1" }, { label: "一般觀光旅館", value: "2" }, { label: "旅館", value: "3" }, { label: "民宿", value: "4" }],
+      out: "tourHotelsClassIdx", encode: ["all", "1", "2", "3", "4"],
+    },
+    { kind: "slider", name: "tourHotelsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "tourHotelsScale", labelPrefix: "大小", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  streetTreesTaipei3epoch: [
+    {
+      kind: "select", name: "streetTreesTaipei3epochColorMode", label: "染色模式", default: "traj",
+      options: [{ label: "依軌跡", value: "traj" }, { label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }],
+      out: "streetTreesTaipei3epochColorModeIdx", encode: ["traj", "species", "diameter", "height"],
+    },
+    {
+      kind: "select", name: "streetTreesTaipei3epochTrajFilter", label: "軌跡篩選", default: "all",
+      options: STREET_TREE_3EPOCH_TRAJ_FILTERS.map((f) => ({ label: f.label, value: f.value })),
+      out: "streetTreesTaipei3epochTrajFilterIdx", encode: STREET_TREE_3EPOCH_TRAJ_FILTERS.map((o) => o.value),
+    },
+    { kind: "slider", name: "streetTreesTaipei3epochOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "streetTreesTaipei3epochRadius", labelPrefix: "點位大小", digits: 2, default: 0.5, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  streetTreesNational: [
+    {
+      kind: "select", name: "streetTreesNationalColorMode", label: "染色模式", default: "species",
+      options: [{ label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }, { label: "依城市", value: "city" }],
+      out: "streetTreesNationalColorModeIdx", encode: ["species", "diameter", "height", "city"],
+    },
+    {
+      kind: "select", name: "streetTreesNationalCity", label: "城市", default: "all",
+      options: [{ label: "全部", value: "all" }, ...STREET_TREE_NATIONAL_CITIES.map((c) => ({ label: c.label, value: c.value }))],
+      out: "streetTreesNationalCityIdx", encode: ["all", ...STREET_TREE_NATIONAL_CITIES.map((c) => c.value)],
+    },
+    { kind: "slider", name: "streetTreesNationalOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "streetTreesNationalRadius", labelPrefix: "點位大小", digits: 2, default: 0.5, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  treePitsTaipei: [
+    {
+      kind: "select", name: "treePitsTaipeiType", label: "類型", default: "all",
+      options: [{ label: "全部", value: "all" }, ...TREE_PIT_TYPES.map((t) => ({ label: t.name, value: t.name }))],
+      out: "treePitsTaipeiTypeIdx", encode: ["all", ...TREE_PIT_TYPES.map((t) => t.name)],
+    },
+    { kind: "slider", name: "treePitsTaipeiOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 0.85, step: 0.05 },
+  ],
+  urbanFormGrid: [
+    {
+      kind: "select", name: "urbanFormGridModeIdx", label: "顯示模式", default: "5",
+      options: [...URBAN_FORM_GRID_MODES],
+      out: "urbanFormGridModeIdx", encode: URBAN_FORM_GRID_MODES.map((o) => o.value),
+    },
+    { kind: "slider", name: "urbanFormGridOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0, max: 1, step: 0.05 },
+  ],
+  urbanZoningTaipei: [
+    {
+      kind: "select", name: "urbanZoningTaipeiCategory", label: "分區", default: "all",
+      options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))],
+      out: "urbanZoningTaipeiCategoryIdx", encode: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)],
+    },
+    { kind: "slider", name: "urbanZoningTaipeiOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 1, step: 0.05 },
+  ],
+  nonUrbanZoning: [
+    {
+      kind: "select", name: "nonUrbanZoningCode", label: "分區", default: "all",
+      options: [{ label: "全部", value: "all" }, ...NON_URBAN_ZONING_CODES.map((c) => ({ label: c.label, value: c.code }))],
+      out: "nonUrbanZoningCodeIdx", encode: ["all", ...NON_URBAN_ZONING_CODES.map((c) => c.code)],
+    },
+    { kind: "slider", name: "nonUrbanZoningOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.35, min: 0, max: 1, step: 0.05 },
+  ],
+  urbanZoningNewTaipei: [
+    {
+      kind: "select", name: "urbanZoningNewTaipeiCategory", label: "分區", default: "all",
+      options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))],
+      out: "urbanZoningNewTaipeiCategoryIdx", encode: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)],
+    },
+    { kind: "slider", name: "urbanZoningNewTaipeiOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 1, step: 0.05 },
   ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
