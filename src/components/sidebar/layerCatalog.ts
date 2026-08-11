@@ -27,7 +27,6 @@ import type { LayerVisibility, TransportType } from "../../types";
 
 // ── Color Config ──
 
-import { EDUCATION_LAYER_COLORS } from "../../data/educationTypes";
 import {
   LAYER_MANIFEST, manifestColors,
   type ManifestKey, type LayerManifestEntry,
@@ -72,7 +71,8 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   temperatureWave: "#ff6b35",
   temperatureGrid: "#f46d43",
   urbanHeat: "#b2182b",
-  schools: "#42a5f5",
+  // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
+  //    它不在 EDUCATION_LAYER_COLORS 裡，色票是本表自己的字面值，隨 entry 一起搬走
   activeFaults: "#ef5350",
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
@@ -177,10 +177,10 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   //    ⚠️ spread **不觸發 excess property check**，所以這裡若留著
   //    `...RELIGION_LAYER_COLORS` / `...FUNERAL_LAYER_COLORS`，tsc / 黃金快照 /
   //    契約測試會全綠但登記沒真搬走（manifest 後蓋、值又相同）→ 必須整行刪掉。
-  //    這是雙軌護欄唯一擋不到的漏法，後續批次搬 EDUCATION_LAYER_COLORS 時同理。
-  // 🎓 教育 Education（色票 SSOT = educationTypes.ts EDUCATION_LAYER_COLORS；
-  //    總覽層 schools 沿用既有 #42a5f5，仍列在上方不搬）
-  ...EDUCATION_LAYER_COLORS,
+  //    這是雙軌護欄唯一擋不到的漏法。
+  // 🎓 教育 Education 17 層已搬進 layerManifest（AR-22 Phase 2 批 3）——
+  //    `...EDUCATION_LAYER_COLORS` spread 已依上述理由整行刪除（連同本檔的 import）；
+  //    色票 SSOT 仍是 educationTypes.ts，manifest 的 color 欄逐 key 引用它。
   farmRoads: "#7a8670",
   ecoNetworkZones: "#4caf50",
   forestCompartments: "#15803D",
@@ -763,23 +763,23 @@ export const THEMES: ThemeDef[] = [
       {
         title: "學校 Schools",
         layers: [
-          { key: "schools", label: "學校總覽 All Schools", labelMobile: "學校總覽 (4,315)", expandable: true },
-          { key: "eduSchoolElementary", label: "國小 Elementary", labelMobile: "國小 (2,656)", expandable: true },
-          { key: "eduSchoolJunior", label: "國中 Junior High", labelMobile: "國中 (964)", expandable: true },
-          { key: "eduSchoolSenior", label: "高中職 Senior High", labelMobile: "高中職 (508)", expandable: true },
-          { key: "eduSchoolUniversity", label: "大專 University", labelMobile: "大專 (159)", expandable: true },
-          { key: "eduSchoolSpecial", label: "特教 Special Education", labelMobile: "特教 (28)", expandable: true },
-          { key: "eduRemoteSchools", label: "偏遠地區學校 Remote Schools", labelMobile: "偏遠地區學校 (1,152)", expandable: true },
-          { key: "eduUniversityStudents", label: "大專學生數 University Students", labelMobile: "大專學生數 (159)", expandable: true },
+          fromManifest("schools"),
+          fromManifest("eduSchoolElementary"),
+          fromManifest("eduSchoolJunior"),
+          fromManifest("eduSchoolSenior"),
+          fromManifest("eduSchoolUniversity"),
+          fromManifest("eduSchoolSpecial"),
+          fromManifest("eduRemoteSchools"),
+          fromManifest("eduUniversityStudents"),
         ],
       },
       {
         title: "校地 Campus",
         layers: [
-          { key: "eduCampusPolygon", label: "校地範圍 Campus Area", labelMobile: "校地範圍 (4,324)", expandable: true },
+          fromManifest("eduCampusPolygon"),
           // 與上一層同一份切片、同一個 sourceId（只下載一次），差別只在讀法：
           // 上層按學制分色，本層按 area_ha 分 5 級 —— 兩者可獨立開關也可疊看。
-          { key: "eduCampusArea", label: "校地面積 Campus Size", labelMobile: "校地面積 (4,324)", expandable: true },
+          fromManifest("eduCampusArea"),
         ],
       },
       // 🔴 高中就學區是**縣市級**，與前兩者的里級完全不同粒度 —— 三者各自獨立 toggle，
@@ -787,9 +787,9 @@ export const THEMES: ThemeDef[] = [
       {
         title: "學區 District",
         layers: [
-          { key: "eduDistrictElementary", label: "國小學區 Elementary District", labelMobile: "國小學區 (621)", expandable: true },
-          { key: "eduDistrictJunior", label: "國中學區 Junior High District", labelMobile: "國中學區 (239)", expandable: true },
-          { key: "eduDistrictSenior", label: "高中就學區（縣市級）Senior High District", labelMobile: "高中就學區・縣市級 (15)", expandable: true },
+          fromManifest("eduDistrictElementary"),
+          fromManifest("eduDistrictJunior"),
+          fromManifest("eduDistrictSenior"),
         ],
       },
       // 🔴 補習班是**每日更新**的資料源（此為快照），且點數 17,137 為四層之最 → 切片走 PMTiles，
@@ -797,10 +797,10 @@ export const THEMES: ThemeDef[] = [
       {
         title: "幼托補習 Childcare & Cram",
         layers: [
-          { key: "eduKindergarten", label: "幼兒園 Kindergarten", labelMobile: "幼兒園 (6,689)", expandable: true },
-          { key: "eduCramSchool", label: "短期補習班 Cram School", labelMobile: "短期補習班 (17,137)", expandable: true },
-          { key: "eduAfterschoolCare", label: "兒童課後照顧中心 Afterschool Care", labelMobile: "兒童課後照顧 (782)", expandable: true },
-          { key: "eduMutualCare", label: "互助教保服務中心 Mutual Care", labelMobile: "互助教保 (148)", expandable: true },
+          fromManifest("eduKindergarten"),
+          fromManifest("eduCramSchool"),
+          fromManifest("eduAfterschoolCare"),
+          fromManifest("eduMutualCare"),
         ],
       },
     ],

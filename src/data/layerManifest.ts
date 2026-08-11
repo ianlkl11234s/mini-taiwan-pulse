@@ -50,11 +50,15 @@ import {
   GraduationCap, Activity, Trees,
   Droplets, ThermometerSun, Mountain, Castle, PartyPopper, FerrisWheel, Tent,
   BedDouble, UtensilsCrossed,
+  // 🎓 教育（GraduationCap / Mountain / LandPlot / Grid3x3 / BookOpen / Users /
+  //    HeartHandshake 已在上方 import 復用）
+  School, University, Accessibility, Map, Shapes, Baby, BarChart3,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
+import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -1566,6 +1570,450 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "觀光署收錄餐飲店家全國 ~3,688 家（非全國餐飲母體）",
     topics: ["觀光", "餐飲", "美食"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 3 —— 教育 Education 17 層
+  //  **17/17 都有 labelMobile**（桌機 `中文 English`、手機改成「中文 (筆數)」——
+  //  與觀光的「手機只留中文」不同款：這裡手機版反而多帶一個數量）。
+  //
+  //  ⚠️ 色票走拍板①「引用不複製」：EDUCATION_LAYER_COLORS 是 layer-key-keyed 且
+  //  **正在餵 LAYER_COLORS**（layerCatalog 原本是 `...EDUCATION_LAYER_COLORS` 一行
+  //  spread），同時也餵 overlayRegistry 的 paint 與 LegendPanel —— 三邊共用的 SSOT。
+  //  唯一例外是總覽層 `schools`：它不在該常數裡（色票在 layerCatalog 上方的字面
+  //  `#42a5f5`，與 6 個學制層的分色體系無關）→ 寫字面 hex。
+  //
+  //  popup 是目前最密集的**多對一**：`school` 一個 layerType 對 7 個 layer
+  //  （schools + 5 個 eduSchool* + eduRemoteSchools，同一份 schools.geojson 的
+  //  filter 切分）、`eduCampus` 對 2、`eduDistrictK12` 對 2。批 1 消防的
+  //  fireEvents/fireLatest 已證明 schema 不用改，這裡只是規模更大。
+  //
+  //  legend **17/17 全部是同一個 id `schools`** —— LEGEND_REGISTRY 只有一筆
+  //  entry 覆蓋整個教育主題（首個 key = schools），批 1 拍板④的「家族共用」形狀。
+  //
+  //  dataClass A 12 / B 5（eduCampusPolygon・eduCampusArea・eduDistrictElementary・
+  //  eduDistrictJunior・eduCramSchool）。三組共用 sourceId 只下載一次
+  //  （edu-schools ×7、edu-campus ×2、edu-district-k12 ×2）—— 同批 2 運動場館的形狀，
+  //  契約測試按 `id` 過濾不受影響。
+  // ══════════════════════════════════════════════════════════════
+  schools: {
+    key: "schools",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "學校總覽 All Schools",
+    labelMobile: "學校總覽 (4,315)",
+    expandable: true,
+    // ⚠️ 不在 EDUCATION_LAYER_COLORS 裡：總覽層沿用搬進教育主題前的舊色
+    color: "#42a5f5",
+    icon: GraduationCap,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；6 個點層共用同一份 schools.geojson（4,315 點）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-schools", url: "./education/schools.geojson" },
+    legend: "schools",
+    popup: "school",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "全國各級學校 4,315 點總覽（依學制上色，可切「分級配色」）",
+    topics: ["教育", "學校", "公共設施"],
+  },
+
+  eduSchoolElementary: {
+    key: "eduSchoolElementary",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "國小 Elementary",
+    labelMobile: "國小 (2,656)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduSchoolElementary,
+    icon: School,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；6 個點層共用同一份 schools.geojson — 國小 2,656（含附設國小 42）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-schools", url: "./education/schools.geojson" },
+    legend: "schools",
+    popup: "school",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國小 2,656 校（含附設國小 42；schools.geojson 依學制 filter 切出）",
+    topics: ["教育", "學校", "國小"],
+  },
+
+  eduSchoolJunior: {
+    key: "eduSchoolJunior",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "國中 Junior High",
+    labelMobile: "國中 (964)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduSchoolJunior,
+    icon: School,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；6 個點層共用同一份 schools.geojson — 國中 964（含附設國中 228）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-schools", url: "./education/schools.geojson" },
+    legend: "schools",
+    popup: "school",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國中 964 校（含附設國中 228）",
+    topics: ["教育", "學校", "國中"],
+  },
+
+  eduSchoolSenior: {
+    key: "eduSchoolSenior",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "高中職 Senior High",
+    labelMobile: "高中職 (508)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduSchoolSenior,
+    icon: School,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；6 個點層共用同一份 schools.geojson — 高中職 508",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-schools", url: "./education/schools.geojson" },
+    legend: "schools",
+    popup: "school",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "高中職 508 校",
+    topics: ["教育", "學校", "高中職"],
+  },
+
+  eduSchoolUniversity: {
+    key: "eduSchoolUniversity",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "大專 University",
+    labelMobile: "大專 (159)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduSchoolUniversity,
+    icon: University,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；6 個點層共用同一份 schools.geojson — 大專 159（含空大進修 10／宗教研修 9）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-schools", url: "./education/schools.geojson" },
+    legend: "schools",
+    popup: "school",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "大專校院 159 校（含空大進修 10／宗教研修 9）",
+    topics: ["教育", "學校", "大專"],
+  },
+
+  eduSchoolSpecial: {
+    key: "eduSchoolSpecial",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "特教 Special Education",
+    labelMobile: "特教 (28)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduSchoolSpecial,
+    icon: Accessibility,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；6 個點層共用同一份 schools.geojson — 特教 28",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-schools", url: "./education/schools.geojson" },
+    legend: "schools",
+    popup: "school",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "特殊教育學校 28 校",
+    topics: ["教育", "學校", "特教"],
+  },
+
+  eduRemoteSchools: {
+    key: "eduRemoteSchools",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "偏遠地區學校 Remote Schools",
+    labelMobile: "偏遠地區學校 (1,152)",
+    expandable: true,
+    // 偏遠三級（偏遠／特偏／極偏）的中間色代表整層，見 educationTypes.ts
+    color: EDUCATION_LAYER_COLORS.eduRemoteSchools,
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；6 個點層共用同一份 schools.geojson — region_type 非 null 的 1,152 校（偏遠 830／特偏 192／極偏 130）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-schools", url: "./education/schools.geojson" },
+    legend: "schools",
+    popup: "school",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "偏遠地區學校 1,152 校（偏遠 830／特偏 192／極偏 130；非偏遠是 JSON null 不是 0）",
+    topics: ["教育", "學校", "偏鄉"],
+  },
+
+  eduUniversityStudents: {
+    key: "eduUniversityStudents",
+    section: { theme: "教育 Education", group: "學校 Schools" },
+    label: "大專學生數 University Students",
+    labelMobile: "大專學生數 (159)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduUniversityStudents,
+    icon: BarChart3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "university_students", confidence: "HIGH" }],
+      note: "第 38 主題 education；大專校別學生數 159 點 bubble — ⚠️ **英文欄位**；🔴 21 筆 students_total 為 null（進修學院/空大 10 歸母校、宗教研修 9 不在統計、停辦改名 2），不可當 0",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "edu-university-students",
+      url: "./education/university_students.geojson",
+    },
+    legend: "schools",
+    popup: "eduUniversityStudents",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "大專校別學生數 159 點 bubble（半徑隨學生數；21 筆為 null 不可當 0）",
+    topics: ["教育", "大專", "統計"],
+  },
+
+  eduCampusPolygon: {
+    key: "eduCampusPolygon",
+    section: { theme: "教育 Education", group: "校地 Campus" },
+    label: "校地範圍 Campus Area",
+    labelMobile: "校地範圍 (4,324)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduCampusPolygon,
+    icon: LandPlot,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "campus_polygon", confidence: "HIGH" }],
+      note: "第 38 主題 education；校地面 4,336 → 前端濾掉 non_school 12 筆後渲染 4,324（PMTiles z8-15）",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "edu-campus",
+      url: "./education/campus_polygon.pmtiles",
+      sourceLayer: "campus_polygon",
+      minzoom: 8,
+      maxzoom: 15,
+    },
+    legend: "schools",
+    popup: "eduCampus",
+    params: { count: 1, kinds: ["slider"] },
+    description: "校地範圍面 4,324（依學制分色；與 eduCampusArea 同一份切片的兩種讀法）",
+    topics: ["教育", "校地", "土地使用"],
+  },
+
+  eduCampusArea: {
+    key: "eduCampusArea",
+    section: { theme: "教育 Education", group: "校地 Campus" },
+    label: "校地面積 Campus Size",
+    labelMobile: "校地面積 (4,324)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduCampusArea,
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "campus_polygon", confidence: "HIGH" }],
+      note: "第 38 主題 education；與 eduCampusPolygon **同源同切片**（campus_polygon.pmtiles，同一個 sourceId 只下載一次），按 area_ha 分 5 級的另一種讀法 —— 那層按學制分色，本層是面積面量圖（< 1 / 1~2 / 2~5 / 5~10 / ≥ 10 公頃，合計 4,324）",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "edu-campus",
+      url: "./education/campus_polygon.pmtiles",
+      sourceLayer: "campus_polygon",
+      minzoom: 8,
+      maxzoom: 15,
+    },
+    legend: "schools",
+    popup: "eduCampus",
+    params: { count: 1, kinds: ["slider"] },
+    description: "校地面積面量圖（< 1 / 1~2 / 2~5 / 5~10 / ≥ 10 公頃，合計 4,324）",
+    topics: ["教育", "校地", "面量圖"],
+  },
+
+  eduDistrictElementary: {
+    key: "eduDistrictElementary",
+    section: { theme: "教育 Education", group: "學區 District" },
+    label: "國小學區 Elementary District",
+    labelMobile: "國小學區 (621)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduDistrictElementary,
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "school_district_k12", confidence: "HIGH" }],
+      note: "第 38 主題 education；國小學區 621 面（PMTiles z6-13）— 僅臺北／新北／臺中／新竹市 4 縣市有公告，另 11 縣市無資料 ≠ 無學區；臺北為 110 學年度",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "edu-district-k12",
+      url: "./education/school_district_k12.pmtiles",
+      sourceLayer: "school_district_k12",
+      minzoom: 6,
+      maxzoom: 13,
+    },
+    legend: "schools",
+    // ⚠️ 與 eduDistrictJunior 共用同一個 layerType（一份切片、level filter 切分）
+    popup: "eduDistrictK12",
+    params: { count: 1, kinds: ["slider"] },
+    description: "國小學區 621 面（僅 4 縣市有公告，無資料 ≠ 無學區）",
+    topics: ["教育", "學區", "里界"],
+  },
+
+  eduDistrictJunior: {
+    key: "eduDistrictJunior",
+    section: { theme: "教育 Education", group: "學區 District" },
+    label: "國中學區 Junior High District",
+    labelMobile: "國中學區 (239)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduDistrictJunior,
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "school_district_k12", confidence: "HIGH" }],
+      note: "第 38 主題 education；國中學區 239 面，與國小層共用同一份 PMTiles — 僅 4 縣市有公告；precision=village_partial 654 面為整里近似（實際看 popup 的 lin_specs）",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "edu-district-k12",
+      url: "./education/school_district_k12.pmtiles",
+      sourceLayer: "school_district_k12",
+      minzoom: 6,
+      maxzoom: 13,
+    },
+    legend: "schools",
+    popup: "eduDistrictK12",
+    params: { count: 1, kinds: ["slider"] },
+    description: "國中學區 239 面（village_partial 654 面為整里近似）",
+    topics: ["教育", "學區", "里界"],
+  },
+
+  eduDistrictSenior: {
+    key: "eduDistrictSenior",
+    section: { theme: "教育 Education", group: "學區 District" },
+    label: "高中就學區（縣市級）Senior High District",
+    labelMobile: "高中就學區・縣市級 (15)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduDistrictSenior,
+    icon: Shapes,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "school_district_senior", confidence: "HIGH" }],
+      note: "第 38 主題 education；高中就學區 15 面 —— **縣市級**，與國中小學區的**里級**粒度不同，不可互相比較或合併",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "edu-district-senior",
+      url: "./education/school_district_senior.geojson",
+    },
+    legend: "schools",
+    popup: "eduDistrictSenior",
+    params: { count: 1, kinds: ["slider"] },
+    description: "高中就學區 15 面（縣市級，與國中小學區的里級粒度不可混用）",
+    topics: ["教育", "學區", "縣市界"],
+  },
+
+  eduKindergarten: {
+    key: "eduKindergarten",
+    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    label: "幼兒園 Kindergarten",
+    labelMobile: "幼兒園 (6,689)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduKindergarten,
+    icon: Baby,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "kindergartens", confidence: "HIGH" }],
+      note: "第 38 主題 education；幼兒園 6,689 點（公立 2,392／私立 4,297）— 原始中文欄位名；`縣市名稱`／`地址` 全數帶 [NN] 代碼前綴（geocode 需要，顯示端才去掉）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-kindergarten", url: "./education/kindergartens.geojson" },
+    legend: "schools",
+    popup: "eduKindergarten",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "幼兒園 6,689 點（公立 2,392／私立 4,297，依公私立分色）",
+    topics: ["教育", "幼托", "學前"],
+  },
+
+  eduCramSchool: {
+    key: "eduCramSchool",
+    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    label: "短期補習班 Cram School",
+    labelMobile: "短期補習班 (17,137)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduCramSchool,
+    icon: BookOpen,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cram_schools", confidence: "HIGH" }],
+      note: "第 38 主題 education；短期補習班 17,137 點（PMTiles z8-15）— ⚠️ 上游 daily 更新，前端是 2026-08-07 快照；🔴 `各地短期補習班數量` 欄是全國總數 17772 不是縣市數，popup 禁顯示",
+    },
+    // 本主題點數之最（17,137）→ 切 PMTiles，透明度／大小 slider 與其餘幼托三層分開
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "edu-cram",
+      url: "./education/cram_schools.pmtiles",
+      sourceLayer: "cram_schools",
+      minzoom: 8,
+      maxzoom: 15,
+    },
+    legend: "schools",
+    popup: "eduCramSchool",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "短期補習班 17,137 點（依類別分色；上游 daily 更新，前端為快照）",
+    topics: ["教育", "補習", "幼托"],
+  },
+
+  eduAfterschoolCare: {
+    key: "eduAfterschoolCare",
+    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    label: "兒童課後照顧中心 Afterschool Care",
+    labelMobile: "兒童課後照顧 (782)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduAfterschoolCare,
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "afterschool_care", confidence: "HIGH" }],
+      note: "第 38 主題 education；兒童課後照顧服務中心 782 點 — schema 與幼兒園不同（`名稱`／`縣市`）；`立案時間` 是民國 YYYMMDD",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-afterschool", url: "./education/afterschool_care.geojson" },
+    legend: "schools",
+    popup: "eduAfterschoolCare",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "兒童課後照顧服務中心 782 點（單色 POI）",
+    topics: ["教育", "幼托", "課後照顧"],
+  },
+
+  eduMutualCare: {
+    key: "eduMutualCare",
+    section: { theme: "教育 Education", group: "幼托補習 Childcare & Cram" },
+    label: "互助教保服務中心 Mutual Care",
+    labelMobile: "互助教保 (148)",
+    expandable: true,
+    color: EDUCATION_LAYER_COLORS.eduMutualCare,
+    icon: HeartHandshake,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mutual_care", confidence: "HIGH" }],
+      note: "第 38 主題 education；職場／社區互助教保服務中心 148 點 — 欄位與幼兒園幾乎相同（代碼欄名為 `學校代碼`），popup 共用同一個 panel",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "edu-mutual-care", url: "./education/mutual_care.geojson" },
+    legend: "schools",
+    popup: "eduMutualCare",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "職場／社區互助教保服務中心 148 點（全數私立）",
+    topics: ["教育", "幼托", "互助教保"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

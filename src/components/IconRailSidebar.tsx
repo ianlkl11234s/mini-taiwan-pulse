@@ -7,7 +7,6 @@ import {
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol, Thermometer, Grid3x3,
   GraduationCap, Store, Play, Cable, Radio, Mountain,
-  BookOpen, HeartHandshake,
   Cloud, CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck, Container,
   Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt, Brush,
@@ -32,12 +31,9 @@ import {
   // 環境污染 icons
   Biohazard,
   ThermometerSun, Tent,
-  // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot / Map 已 import 復用；
-  // 幼托補習用已 import 的 BookOpen / Users / HeartHandshake，大專學生數 bubble 用 BarChart3）
-  // Shapes 專給「高中就學區」—— 縣市級大面，與里級 k12 學區（Map）刻意用不同 icon 區隔粒度
-  School, University, Shapes, Baby,
+  // 🎓 EDUCATION icons 隨 17 層一起搬進 layerManifest（AR-22 Phase 2 批 3）
   // 🗺️ 土地使用分區 icons
-  LandPlot, Map,
+  Map,
   // 🌍 世界 World icon（複合 rail icon 用）
   Globe,
   // 🏢 房地產總市值 icons（layer toggle 用 Coins、rail panel 用 PiggyBank）
@@ -102,7 +98,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   temperatureWave: Thermometer,
   temperatureGrid: Grid3x3,
   urbanHeat: ThermometerSun,
-  schools: GraduationCap,
+  // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
   activeFaults: Mountain,
   youbikeFullness: Bike,
   earthquakes: Activity,
@@ -199,23 +195,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）
   // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // 🎓 教育 Education（總覽層 schools: GraduationCap 在上方，隨主題搬移但 key 不變）
-  eduSchoolElementary: School,
-  eduSchoolJunior: School,
-  eduSchoolSenior: School,
-  eduSchoolUniversity: University,
-  eduSchoolSpecial: Accessibility,
-  eduRemoteSchools: Mountain,
-  eduCampusPolygon: LandPlot,
-  eduCampusArea: Grid3x3,
-  eduDistrictElementary: Map,
-  eduDistrictJunior: Map,
-  eduDistrictSenior: Shapes,
-  eduKindergarten: Baby,
-  eduCramSchool: BookOpen,
-  eduAfterschoolCare: Users,
-  eduMutualCare: HeartHandshake,
-  eduUniversityStudents: BarChart3,
+  // 🎓 教育 Education 17 層已搬進 layerManifest（AR-22 Phase 2 批 3；含總覽層 schools）
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // FORESTRY 12 base

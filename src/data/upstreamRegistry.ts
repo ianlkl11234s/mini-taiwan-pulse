@@ -558,28 +558,9 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   // ⚰️ 殯葬 Funeral 5 layer（docs/data-catalog/funeral/）已搬進 layerManifest
   //    （AR-22 Phase 2 批 1）—— A/B/C 三源分開不整合的拍板脈絡隨 entry 一起搬過去
 
-  // 🎓 教育 Education（第 38 主題，docs/data-catalog/education/）
-  // 總覽層 `schools` 在本檔上方（保留原 z-order）；以下 5 個學制層 + 偏遠層與它共用
-  // 同一份 public/education/schools.geojson，差別只在 Mapbox filter（見 educationTypes.ts）。
-  // 🔴 datasetId 是無點號的 `schools` / `campus_polygon`（catalog frontmatter 實測值）。
-  eduSchoolElementary: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 國小 2,656（含附設國小 42）' },
-  eduSchoolJunior: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 國中 964（含附設國中 228）' },
-  eduSchoolSenior: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 高中職 508' },
-  eduSchoolUniversity: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 大專 159（含空大進修 10／宗教研修 9）' },
-  eduSchoolSpecial: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — 特教 28' },
-  eduRemoteSchools: { status: 'verified', datasets: [{ datasetId: 'schools', confidence: 'HIGH' }], note: '第 38 主題 education；6 個點層共用同一份 schools.geojson — region_type 非 null 的 1,152 校（偏遠 830／特偏 192／極偏 130）' },
-  eduCampusPolygon: { status: 'verified', datasets: [{ datasetId: 'campus_polygon', confidence: 'HIGH' }], note: '第 38 主題 education；校地面 4,336 → 前端濾掉 non_school 12 筆後渲染 4,324（PMTiles z8-15）' },
-  eduCampusArea: { status: 'verified', datasets: [{ datasetId: 'campus_polygon', confidence: 'HIGH' }], note: '第 38 主題 education；與 eduCampusPolygon **同源同切片**（campus_polygon.pmtiles，同一個 sourceId 只下載一次），按 area_ha 分 5 級的另一種讀法 —— 那層按學制分色，本層是面積面量圖（< 1 / 1~2 / 2~5 / 5~10 / ≥ 10 公頃，合計 4,324）' },
-  // 學區面：k12 兩層共用同一份 school_district_k12.pmtiles，差別只在 level filter
-  eduDistrictElementary: { status: 'verified', datasets: [{ datasetId: 'school_district_k12', confidence: 'HIGH' }], note: '第 38 主題 education；國小學區 621 面（PMTiles z6-13）— 僅臺北／新北／臺中／新竹市 4 縣市有公告，另 11 縣市無資料 ≠ 無學區；臺北為 110 學年度' },
-  eduDistrictJunior: { status: 'verified', datasets: [{ datasetId: 'school_district_k12', confidence: 'HIGH' }], note: '第 38 主題 education；國中學區 239 面，與國小層共用同一份 PMTiles — 僅 4 縣市有公告；precision=village_partial 654 面為整里近似（實際看 popup 的 lin_specs）' },
-  eduDistrictSenior: { status: 'verified', datasets: [{ datasetId: 'school_district_senior', confidence: 'HIGH' }], note: '第 38 主題 education；高中就學區 15 面 —— **縣市級**，與國中小學區的**里級**粒度不同，不可互相比較或合併' },
-  // 幼托補習 4 層（W3）：各自獨立的 dataset，皆經 geocode（precision 欄；interpolated 為估計位置）
-  eduKindergarten: { status: 'verified', datasets: [{ datasetId: 'kindergartens', confidence: 'HIGH' }], note: '第 38 主題 education；幼兒園 6,689 點（公立 2,392／私立 4,297）— 原始中文欄位名；`縣市名稱`／`地址` 全數帶 [NN] 代碼前綴（geocode 需要，顯示端才去掉）' },
-  eduCramSchool: { status: 'verified', datasets: [{ datasetId: 'cram_schools', confidence: 'HIGH' }], note: '第 38 主題 education；短期補習班 17,137 點（PMTiles z8-15）— ⚠️ 上游 daily 更新，前端是 2026-08-07 快照；🔴 `各地短期補習班數量` 欄是全國總數 17772 不是縣市數，popup 禁顯示' },
-  eduAfterschoolCare: { status: 'verified', datasets: [{ datasetId: 'afterschool_care', confidence: 'HIGH' }], note: '第 38 主題 education；兒童課後照顧服務中心 782 點 — schema 與幼兒園不同（`名稱`／`縣市`）；`立案時間` 是民國 YYYMMDD' },
-  eduMutualCare: { status: 'verified', datasets: [{ datasetId: 'mutual_care', confidence: 'HIGH' }], note: '第 38 主題 education；職場／社區互助教保服務中心 148 點 — 欄位與幼兒園幾乎相同（代碼欄名為 `學校代碼`），popup 共用同一個 panel' },
-  eduUniversityStudents: { status: 'verified', datasets: [{ datasetId: 'university_students', confidence: 'HIGH' }], note: '第 38 主題 education；大專校別學生數 159 點 bubble — ⚠️ **英文欄位**；🔴 21 筆 students_total 為 null（進修學院/空大 10 歸母校、宗教研修 9 不在統計、停辦改名 2），不可當 0' },
+  // 🎓 教育 Education 17 layer（第 38 主題，docs/data-catalog/education/）已搬進
+  //    layerManifest（AR-22 Phase 2 批 3）—— 含總覽層 `schools`，它原本**不在本區塊**
+  //    而在本檔下方（保留原 z-order 的歷史位置），逐 key grep 才找得到。
   agriculture: {
     status: 'verified',
     datasets: [{ datasetId: 'ftw_fields', confidence: 'MED' }],
@@ -899,12 +880,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     processing: '全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles',
     note: 'DERIVED: pulse-derived island analysis (PMTiles from EV chargers + road network)',
   },
-  // 🎓 教育 Education（第 38 主題）總覽層 — 保留原 z-order 位置，資產已搬至 public/education/
-  schools: {
-    status: 'verified',
-    datasets: [{ datasetId: 'schools', confidence: 'HIGH' }],
-    note: '第 38 主題 education；6 個點層共用同一份 schools.geojson（4,315 點）',
-  },
+  // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
+  //    它原本落在這裡而非上方的教育區塊（保留原 z-order 的歷史位置）
   realEstateRentalGrid: {
     status: 'verified',
     datasets: [{ datasetId: 'real_estate', confidence: 'LOW' }],
