@@ -306,57 +306,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'water.precipitation_raster_frames', confidence: 'HIGH' }],
   },
-  lifelineAlerts: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ncdr_alerts', confidence: 'HIGH' }],
-  },
-  floodAlerts: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ncdr_alerts', confidence: 'HIGH' }],
-  },
-  weatherAlerts: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ncdr_alerts', confidence: 'HIGH' }],
-  },
-  transitAlerts: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ncdr_alerts', confidence: 'HIGH' }],
-  },
-  safetyAlerts: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ncdr_alerts', confidence: 'HIGH' }],
-  },
-  earthquakes: {
-    status: 'verified',
-    datasets: [{ datasetId: 'earthquake', confidence: 'HIGH' }],
-  },
-  earthquakeReplay: {
-    status: 'verified',
-    datasets: [{ datasetId: 'earthquake', confidence: 'HIGH' }],
-    processing: 'CWA/NCDR/中研院五件套（事件 / 逐站 PGA / 368 鄉鎮震度 / 2.5km 等震度網格 / 震源機制解）合成單一事件回放動畫',
-  },
-  activeFaults: {
-    status: 'verified',
-    datasets: [{ datasetId: 'earthquake', confidence: 'LOW' }],
-  },
-  mountainRescueIncidents: {
-    status: 'verified',
-    datasets: [{ datasetId: 'mountain_rescue_incidents', confidence: 'HIGH' }],
-    processing: '消防署 2019-2024 山域意外事故救援案件 2,465 點（上游 CSV X/Y 欄名對調已修正）',
-  },
-  lightning: {
-    status: 'verified',
-    datasets: [{ datasetId: 'lightning_taipower', confidence: 'HIGH' }],
-  },
-  lightningCwa: {
-    status: 'verified',
-    datasets: [{ datasetId: 'lightning_cwa', confidence: 'HIGH' }],
-    processing: '氣象署閃電落雷即時觀測（KMZ，滾動 1 小時視窗每 5 分更新）；只到分鐘級、無電流強度。台電源自 2026-07-10 起端點活著但永遠回空檔，本源為替代兼交叉驗證',
-  },
-  nuclearRadiation: {
-    status: 'verified',
-    datasets: [{ datasetId: 'nuclear_radiation_taipower', confidence: 'HIGH' }],
-  },
+  // ⚠️ 災害 Hazard 12 layer（NCDR 示警 5 / 地震・斷層 3 / 雷暴 2 / 山域 1 / 核安 1）
+  //    已搬進 layerManifest（AR-22 Phase 2 批 5）
   // 🚒 消防 Fire & Rescue 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
   parkingOnstreet: {
     status: 'pulse_only',

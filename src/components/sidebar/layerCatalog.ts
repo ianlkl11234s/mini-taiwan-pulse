@@ -68,16 +68,11 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   urbanHeat: "#b2182b",
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    它不在 EDUCATION_LAYER_COLORS 裡，色票是本表自己的字面值，隨 entry 一起搬走
-  activeFaults: "#ef5350",
-  earthquakes: "#ff3b30",
-  earthquakeReplay: "#e11d48",
-  mountainRescueIncidents: "#f2c94c",
-  // 全球氣候 GLOBAL CLIMATE
-  lifelineAlerts: "#facc15",
-  floodAlerts: "#2563eb",
-  weatherAlerts: "#7c3aed",
-  transitAlerts: "#f97316",
-  safetyAlerts: "#ef4444",
+  // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
+  //    本處原有 9 層（斷層/地震 3 + 山域 1 + NCDR 示警 5），另 3 層在下方雷暴/核安處。
+  //    12 個色票原本就是字面 hex（disasterAlertTypes 的 ALERT_GROUPS 是 event_term-keyed
+  //    分色表、從未餵本表），照拍板①判準寫字面。
+  //    ⚠️ 「全球氣候 GLOBAL CLIMATE」註解原本夾在中間，其 5 層已於批 4 搬走
   roadEvents: "#ef4444",
   cwaCloudImagery: "#b0c4de",
   cwaRadarImagery: "#4fc3f7",
@@ -250,9 +245,8 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   gasCoverageFpcc: "#22C55E",
   gasCoverageTaisugar: "#F2522E",
   evIsland: "#F23535",
-  lightning: "#fb923c",
-  lightningCwa: "#a78bfa",
-  nuclearRadiation: "#22c55e",
+  // ⚠️ 災害 lightning / lightningCwa / nuclearRadiation 已搬進 layerManifest
+  //    （AR-22 Phase 2 批 5，與上方災害 9 層同批）
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
   //    7 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面
   // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
@@ -1016,39 +1010,39 @@ export const THEMES: ThemeDef[] = [
       {
         title: "即時警示",
         layers: [
-          { key: "lifelineAlerts", label: "民生中斷 Lifeline", expandable: true },
-          { key: "floodAlerts", label: "水文防汛 Flood Alerts", expandable: true },
-          { key: "weatherAlerts", label: "氣象特報 Weather Alerts", expandable: true },
-          { key: "transitAlerts", label: "交通阻斷 Transit Alerts", expandable: true },
-          { key: "safetyAlerts", label: "安全環境 Safety Alerts", expandable: true },
+          fromManifest("lifelineAlerts"),
+          fromManifest("floodAlerts"),
+          fromManifest("weatherAlerts"),
+          fromManifest("transitAlerts"),
+          fromManifest("safetyAlerts"),
         ],
       },
       {
         title: "地震 / 斷層",
         layers: [
-          { key: "earthquakes", label: "地震 Earthquake", expandable: true },
-          { key: "earthquakeReplay", label: "地震回放 EQ Replay", expandable: true },
-          { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
+          fromManifest("earthquakes"),
+          fromManifest("earthquakeReplay"),
+          fromManifest("activeFaults"),
         ],
       },
       {
         title: "雷暴",
         layers: [
-          { key: "lightning", label: "落雷 Lightning 60min（台電）", expandable: true },
-          { key: "lightningCwa", label: "落雷 Lightning 60min（氣象署）", expandable: true },
+          fromManifest("lightning"),
+          fromManifest("lightningCwa"),
         ],
       },
       {
         // 山域事故：與「🌲 林業」的步道 / 通訊點 / 山屋 疊圖 = 登山安全敘事
         title: "山域事故 Mountain Rescue",
         layers: [
-          { key: "mountainRescueIncidents", label: "山域事故 Mountain Rescue", labelMobile: "山域事故 (2,465)", expandable: true },
+          fromManifest("mountainRescueIncidents"),
         ],
       },
       {
         title: "核安",
         layers: [
-          { key: "nuclearRadiation", label: "核安輻射 Radiation", expandable: true },
+          fromManifest("nuclearRadiation"),
         ],
       },
     ],

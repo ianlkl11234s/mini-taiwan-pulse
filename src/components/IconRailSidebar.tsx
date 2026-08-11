@@ -23,8 +23,8 @@ import {
   Satellite,
   // ENERGY icons
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
-  // HAZARD icons
-  CloudLightning, Atom, Rewind,
+  // HAZARD icons 隨災害 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）——
+  //    Lightbulb / CloudRain 仍被 rail tab 與別層用，留在本檔
   // 🌍 全球氣候 5 層已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 👮 執法治安 20 層搬進 layerManifest（AR-22 Phase 2 批 4）後，
   //    ShieldAlert / Gavel / Scale / Crosshair 已無用；Lock / Hexagon 仍被別層用
@@ -96,15 +96,8 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   temperatureGrid: Grid3x3,
   urbanHeat: ThermometerSun,
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
-  activeFaults: Mountain,
-  earthquakes: Activity,
-  earthquakeReplay: Rewind,
-  mountainRescueIncidents: Mountain,
-  lifelineAlerts: Lightbulb,
-  floodAlerts: Waves,
-  weatherAlerts: CloudRain,
-  transitAlerts: TrainFront,
-  safetyAlerts: AlertTriangle,
+  // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
+  //    本處原有 9 層，另 3 層（lightning / lightningCwa / nuclearRadiation）在下方
   roadEvents: AlertTriangle,
   roadCongestion: AlertTriangle,
   cwaCloudImagery: Cloud,
@@ -273,9 +266,8 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   gasCoverageFpcc: Fuel,
   gasCoverageTaisugar: Fuel,
   evIsland: PlugZap,
-  lightning: CloudLightning,
-  lightningCwa: CloudLightning,
-  nuclearRadiation: Atom,
+  // ⚠️ 災害 lightning / lightningCwa / nuclearRadiation 已搬進 layerManifest
+  //    （AR-22 Phase 2 批 5，與上方災害 9 層同批）
   // 全球氣候 GLOBAL CLIMATE
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）

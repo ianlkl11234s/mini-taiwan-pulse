@@ -67,6 +67,9 @@ import {
   Bike,
   // 🌍 全球氣候（Waves / AlertTriangle 已在上方 import 復用）
   Tornado, Wind, Cloud,
+  // 📍 底圖（MapPinned / Mountain / Building2 / Map / Sprout / Route 已在上方 import 復用）
+  // ⚠️ 災害（Waves / TrainFront / AlertTriangle / Activity / Mountain 已在上方 import 復用）
+  Lightbulb, CloudRain, Rewind, CloudLightning, Atom,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -3979,6 +3982,328 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "OSM 可行車道路網（依 highway 分級著色，含 z5 揭露門檻）",
     topics: ["底圖", "道路", "OSM"],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // ⚠️ 災害 Hazard 12 層（AR-22 Phase 2 批 5）
+  // ══════════════════════════════════════════════════════════════
+  // dataClass **7 D / 4 C / 1 A**（backlog 預估「3 C + 7 D」漏數了 A 與 C 各一）。
+  // 7 個 D 全部**不是自繪**：NCDR 示警 5 層與地震 2 層都是 hook 自建 source
+  // （動態餵 Supabase），只是沒有 OVERLAY_REGISTRY entry → 派生機制不適用。
+  //
+  // ⚠️ `earthquakes`（CWA 國內）與批 4 已搬的 `earthquakesGlobal`（USGS 全球）
+  // **差一個 Global，grep 會互相命中**，且兩者的 popup layerType 一單一複
+  // （`earthquakes` / `earthquakeGlobal`）。逐 key 精確錨定，別用前綴。
+  //
+  // 色票：12 個原本就是字面 hex。`disasterAlertTypes` 的 `ALERT_GROUPS[].types`
+  // 是 event_term-keyed 的分色表（餵 paint 與 LegendPanel），**沒有在餵
+  // `LAYER_COLORS`** → 照拍板①的批 2 反向判準寫字面，不引用。
+
+  // ── NCDR 災害示警 5 群組：共用單一 source + 單一 popup ──
+  // 5 層共用 `disaster-alerts` source（一次載入一整天全部 alert，各層以
+  // properties.group filter 切分），layer id 是 `${group}-fill/-line/-point`。
+  // 5 層的 popup 全是 `disasterAlert` —— 其 layer id 陣列在 GIS_LAYERS 寫成
+  // **常數引用** `DISASTER_ALERT_CLICK_LAYERS`，字面陣列解析器抓不到，
+  // 靠批 1 補的 `extractGisConstRefTypes` 才驗得出（同 `plaActivity`）。
+  // legend 也是 5 層共用一筆（首個 key `lifelineAlerts`，拍板④）。
+  lifelineAlerts: {
+    key: "lifelineAlerts",
+    section: { theme: "災害 Hazard", group: "即時警示" },
+    label: "民生中斷 Lifeline",
+    expandable: true,
+    color: "#facc15",
+    icon: Lightbulb,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ncdr_alerts", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useDisasterAlertLayer 自建 geojson source `disaster-alerts`（Supabase RPC get_disaster_alerts_day 按日載入 + LRU 7 天），5 群組共用，layer id `lifelineAlerts-fill/-line/-point` —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "lifelineAlerts",
+    popup: "disasterAlert",
+    params: { count: 1, kinds: ["slider"] },
+    description: "NCDR 民生中斷示警（停水停電停氣等，依 event_term 分色）",
+    topics: ["災害", "示警", "民生"],
+  },
+
+  floodAlerts: {
+    key: "floodAlerts",
+    section: { theme: "災害 Hazard", group: "即時警示" },
+    label: "水文防汛 Flood Alerts",
+    expandable: true,
+    color: "#2563eb",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ncdr_alerts", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 lifelineAlerts 的 `disaster-alerts` source，layer id `floodAlerts-fill/-line/-point` —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "lifelineAlerts",
+    popup: "disasterAlert",
+    params: { count: 1, kinds: ["slider"] },
+    description: "NCDR 水文防汛示警（淹水/水庫放流/河川高水位）",
+    topics: ["災害", "示警", "水文"],
+  },
+
+  weatherAlerts: {
+    key: "weatherAlerts",
+    section: { theme: "災害 Hazard", group: "即時警示" },
+    label: "氣象特報 Weather Alerts",
+    expandable: true,
+    color: "#7c3aed",
+    icon: CloudRain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ncdr_alerts", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 lifelineAlerts 的 `disaster-alerts` source，layer id `weatherAlerts-fill/-line/-point`（大面積特報，唯一不補 centroid 點的群組）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "lifelineAlerts",
+    popup: "disasterAlert",
+    params: { count: 1, kinds: ["slider"] },
+    description: "NCDR 氣象特報（豪雨/強風/低溫等大面積警戒範圍）",
+    topics: ["災害", "示警", "氣象"],
+  },
+
+  transitAlerts: {
+    key: "transitAlerts",
+    section: { theme: "災害 Hazard", group: "即時警示" },
+    label: "交通阻斷 Transit Alerts",
+    expandable: true,
+    color: "#f97316",
+    icon: TrainFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ncdr_alerts", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 lifelineAlerts 的 `disaster-alerts` source，layer id `transitAlerts-fill/-line/-point` —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "lifelineAlerts",
+    popup: "disasterAlert",
+    params: { count: 1, kinds: ["slider"] },
+    description: "NCDR 交通阻斷示警（道路封閉/鐵路中斷/航班異常）",
+    topics: ["災害", "示警", "交通"],
+  },
+
+  safetyAlerts: {
+    key: "safetyAlerts",
+    section: { theme: "災害 Hazard", group: "即時警示" },
+    label: "安全環境 Safety Alerts",
+    expandable: true,
+    color: "#ef4444",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ncdr_alerts", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 lifelineAlerts 的 `disaster-alerts` source，layer id `safetyAlerts-fill/-line/-point` —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "lifelineAlerts",
+    popup: "disasterAlert",
+    params: { count: 1, kinds: ["slider"] },
+    description: "NCDR 安全環境示警（毒災/輻射/公共安全事件）",
+    topics: ["災害", "示警", "公共安全"],
+  },
+
+  // ⚠️ popup `earthquakes` 是**複數形、與 key 同名**；批 4 的 `earthquakesGlobal`
+  //    是**單數形 `earthquakeGlobal`**。兩者相鄰又只差一個 Global，別互抄。
+  earthquakes: {
+    key: "earthquakes",
+    section: { theme: "災害 Hazard", group: "地震 / 斷層" },
+    label: "地震 Earthquake",
+    expandable: true,
+    color: "#ff3b30",
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "earthquake", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useEarthquakeLayer 自建 geojson source `earthquakes`（Supabase table earthquake_events 按時間窗載入），4 個 layer：earthquake-pre / -post / -ripple-0 / -ripple-1（後兩者是擴散動畫，不可點）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "earthquakes",
+    popup: "earthquakes",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "CWA 國內地震事件（依 timeline 分 pre/post/ripple 三態，圓徑依規模、色依深度）",
+    topics: ["災害", "地震", "即時"],
+  },
+
+  // ⚠️ 本工程首例「**一個 key 對兩個 popup layerType**」（batch 5 schema commit
+  //    為它把 `popup` 擴成陣列）。5 個 layer 裡兩個各自有 GIS_LAYERS 條目與 panel：
+  //    測站點 `eq-replay-station-circle` → `earthquakeReplayStation`（GIS_LAYERS 第 90 列）
+  //    鄉鎮面 `eq-replay-town-fill` → `earthquakeReplayTown`（第 286 列，大面積置末）
+  //    陣列順序＝GIS_LAYERS 出現順序（first-hit-wins，重排會改掉點擊命中哪一層）。
+  earthquakeReplay: {
+    key: "earthquakeReplay",
+    section: { theme: "災害 Hazard", group: "地震 / 斷層" },
+    label: "地震回放 EQ Replay",
+    expandable: true,
+    color: "#e11d48",
+    icon: Rewind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "earthquake", confidence: "HIGH" }],
+      processing: "CWA/NCDR/中研院五件套（事件 / 逐站 PGA / 368 鄉鎮震度 / 2.5km 等震度網格 / 震源機制解）合成單一事件回放動畫",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "earthquakeReplayLayerFactory 自建 4 個 source（eq-replay-epicenter / -stations / -grid / -township）× 5 個 layer；鄉鎮面走 PMTiles `./base_map/township_boundary.pmtiles` + promoteId TOWNCODE + feature-state 染色（通用路徑不支援故不進 OVERLAY_REGISTRY），資料本身走 Supabase RPC earthquake_replay_events + 4 張表",
+    },
+    legend: "earthquakeReplay",
+    popup: ["earthquakeReplayStation", "earthquakeReplayTown"],
+    params: { count: 1, kinds: ["slider"] },
+    description: "單一地震事件回放（震央→P/S 波前→逐站 PGA→鄉鎮震度面→沙灘球）",
+    topics: ["災害", "地震", "回放"],
+  },
+
+  // 本批唯一 dataClass A，也是唯一 `params: null`（useTransportParams 寫死
+  // `case "activeFaults": return [];`，屬 emptyByDesign 5 key 之一，非抽取器漏掃）。
+  // popup `activeFault` 是**去複數 s 的單數形**（同批 2 基礎建設 11/11 的形狀）。
+  activeFaults: {
+    key: "activeFaults",
+    section: { theme: "災害 Hazard", group: "地震 / 斷層" },
+    label: "活動斷層 Fault Zone",
+    expandable: true,
+    color: "#ef5350",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "earthquake", confidence: "LOW" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "active-faults",
+      url: "./geo/active_faults.geojson",
+    },
+    legend: null,
+    popup: "activeFault",
+    params: null,
+    description: "經濟部地調所活動斷層帶（glow + fill + line 三層）",
+    topics: ["災害", "地震", "斷層"],
+  },
+
+  // 落雷家族 2 → 1：兩層各自一筆 config、各自獨佔一個 legend，
+  // 但 **popup 共用 `lightningStrike`**（多對一，同批 1 fireEvents/fireLatest）。
+  lightning: {
+    key: "lightning",
+    section: { theme: "災害 Hazard", group: "雷暴" },
+    label: "落雷 Lightning 60min（台電）",
+    expandable: true,
+    color: "#fb923c",
+    icon: CloudLightning,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "lightning_taipower", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "hazard-lightning",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "lightning",
+    popup: "lightningStrike",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台電落雷偵測（滾動 60 分鐘視窗，halo + core 雙層，含電流強度）",
+    topics: ["災害", "雷擊", "即時"],
+  },
+
+  lightningCwa: {
+    key: "lightningCwa",
+    section: { theme: "災害 Hazard", group: "雷暴" },
+    label: "落雷 Lightning 60min（氣象署）",
+    expandable: true,
+    color: "#a78bfa",
+    icon: CloudLightning,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "lightning_cwa", confidence: "HIGH" }],
+      processing: "氣象署閃電落雷即時觀測（KMZ，滾動 1 小時視窗每 5 分更新）；只到分鐘級、無電流強度。台電源自 2026-07-10 起端點活著但永遠回空檔，本源為替代兼交叉驗證",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "hazard-lightning-cwa",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "lightningCwa",
+    popup: "lightningStrike",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "氣象署落雷偵測（滾動 60 分鐘視窗，台電源枯竭後的替代兼交叉驗證）",
+    topics: ["災害", "雷擊", "即時"],
+  },
+
+  mountainRescueIncidents: {
+    key: "mountainRescueIncidents",
+    section: { theme: "災害 Hazard", group: "山域事故 Mountain Rescue" },
+    label: "山域事故 Mountain Rescue",
+    labelMobile: "山域事故 (2,465)",
+    expandable: true,
+    color: "#f2c94c",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mountain_rescue_incidents", confidence: "HIGH" }],
+      processing: "消防署 2019-2024 山域意外事故救援案件 2,465 點（上游 CSV X/Y 欄名對調已修正）",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "mountain-rescue-incidents",
+      url: "./hazards/mountain_rescue_incidents.geojson",
+    },
+    legend: "mountainRescueIncidents",
+    popup: "mountainRescueIncident",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "山域意外事故救援案件點（可依年份篩選，圓徑依受困人數）",
+    topics: ["災害", "山域", "救援"],
+  },
+
+  // popup `nuclearStation` 與 key **完全無關**（不是單複數差異）——
+  // 同批 1 legend 的 `civilDefenseShelter → policeStation`，只有逐 key 反查 layer id
+  // （hazard-nuclear-core / -halo）才看得出來。
+  nuclearRadiation: {
+    key: "nuclearRadiation",
+    section: { theme: "災害 Hazard", group: "核安" },
+    label: "核安輻射 Radiation",
+    expandable: true,
+    color: "#22c55e",
+    icon: Atom,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "nuclear_radiation_taipower", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "hazard-nuclear",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "nuclearRadiation",
+    popup: "nuclearStation",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "核能電廠周界環境輻射監測即時值（halo + core 雙層）",
+    topics: ["災害", "核安", "輻射"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
