@@ -2,11 +2,14 @@ import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, 
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, Settings, X,
-  Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
+  // 🚦 交通 即時運具 / 場站 / 樞紐節點 18 層搬進 layerManifest（AR-22 Phase 2 批 8）後，
+  //    Plane / Ship / TrainFront / Bus / PlaneTakeoff / Lightbulb / RailSymbol /
+  //    Hexagon / Ban 已無用；Bike / Route / Anchor / CircleDot 仍被別層或 orphan 用
+  Bike, Route, Anchor,
   // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
   BarChart3, AlertTriangle, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
-  Lightbulb, CircleDot, RailSymbol,
+  CircleDot,
   Play, Cable, Radio,
   // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
   //    Droplet / GitBranch / Dam / Shield / Timer 已無用；
@@ -32,9 +35,9 @@ import {
   //    Lightbulb / CloudRain 仍被 rail tab 與別層用，留在本檔
   // 🌍 全球氣候 5 層已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 👮 執法治安 20 層搬進 layerManifest（AR-22 Phase 2 批 4）後，
-  //    ShieldAlert / Gavel / Scale / Crosshair 已無用；Lock / Hexagon 仍被別層用
-  Lock, Hexagon,
-  Ban,
+  //    ShieldAlert / Gavel / Scale / Crosshair 已無用；Lock 仍被別層用
+  //    （Hexagon 隨交通 aviationRestricted 搬走，批 8）
+  Lock,
   // 🌤️ 環境氣候 19 層搬進 layerManifest（AR-22 Phase 2 批 6）後，
   //    CloudSun / Thermometer / Grid3x3 / ThermometerSun / Cloud / Biohazard 已無用；
   //    Wind / CloudRain / CircleDot / Activity / AlertTriangle / AlertCircle / Car /
@@ -73,14 +76,6 @@ const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.titl
  * HANDWRITTEN_LAYER_COLORS。
  */
 const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, ManifestKey> = {
-  flights: Plane,
-  ships: Ship,
-  stationsTHSR: TrainFront,
-  stationsTRA: RailSymbol,
-  stationsMetro: CircleDot,
-  busStationsCity: Bus,
-  busStationsIntercity: Bus,
-  bikeStations: Bike,
   highways: Route,
   provincialRoads: Route,
   cyclingRoutes: Bike,
@@ -88,13 +83,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   serviceArea: Coffee,
   serviceAreaPolygon: Coffee,
   taxiStand: Car,
-  ports: Anchor,
-  airports: PlaneTakeoff,
-  lighthouses: Lightbulb,
-  aviationControl: Plane,
-  aviationRestricted: Hexagon,
-  droneNoFlyZone: Ban,
-  droneRestrictedZone: AlertTriangle,
   freewayCongestion: AlertTriangle,
   windPlan: Wind,
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
@@ -102,9 +90,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   //    本處原有 9 層，另 3 層（lightning / lightningCwa / nuclearRadiation）在下方
   roadEvents: AlertTriangle,
   roadCongestion: AlertTriangle,
-  busLive: Bus,
-  busIntercityLive: Bus,
-  touristShuttleLive: Bus,
   // 🚒 消防 Fire & Rescue 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   parkingOnstreet: SquareParking,
   parkingOffstreet: CircleParking,

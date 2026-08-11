@@ -64,50 +64,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    本區塊原本的 9 層（行政邊界 3 / 地形 5 / 道路 1）＋ 下方 urban 區塊的
   //    buildingsGba / nonUrbanZoning / urbanZoningNewTaipei
-  flights: {
-    status: 'verified',
-    datasets: [{ datasetId: 'opensky_flights', confidence: 'HIGH' }],
-  },
-  ships: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ship', confidence: 'HIGH' }],
-  },
-  busLive: {
-    status: 'verified',
-    datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
-  },
-  busIntercityLive: {
-    status: 'verified',
-    datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
-  },
-  touristShuttleLive: {
-    status: 'verified',
-    datasets: [{ datasetId: 'bus_realtime', confidence: 'HIGH' }],
-  },
-  stationsTHSR: {
-    status: 'verified',
-    datasets: [{ datasetId: 'rail_stations', confidence: 'MED' }],
-  },
-  stationsTRA: {
-    status: 'verified',
-    datasets: [{ datasetId: 'rail_stations', confidence: 'MED' }],
-  },
-  stationsMetro: {
-    status: 'verified',
-    datasets: [{ datasetId: 'rail_stations', confidence: 'MED' }],
-  },
-  busStationsCity: {
-    status: 'verified',
-    datasets: [{ datasetId: 'bus', confidence: 'LOW' }],
-  },
-  busStationsIntercity: {
-    status: 'verified',
-    datasets: [{ datasetId: 'bus', confidence: 'LOW' }],
-  },
-  bikeStations: {
-    status: 'verified',
-    datasets: [{ datasetId: 'bike', confidence: 'MED' }],
-  },
   highways: {
     status: 'verified',
     datasets: [{ datasetId: 'freeway', confidence: 'MED' }],
@@ -139,34 +95,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   taxiStand: {
     status: 'verified',
     datasets: [{ datasetId: 'taxi_stand', confidence: 'MED' }],
-  },
-  ports: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ports', confidence: 'MED' }],
-  },
-  airports: {
-    status: 'verified',
-    datasets: [{ datasetId: 'airport', confidence: 'HIGH' }],
-  },
-  lighthouses: {
-    status: 'verified',
-    datasets: [{ datasetId: 'light_house', confidence: 'HIGH' }],
-  },
-  aviationControl: {
-    status: 'verified',
-    datasets: [{ datasetId: 'airspace_aip', confidence: 'LOW' }],
-  },
-  aviationRestricted: {
-    status: 'verified',
-    datasets: [{ datasetId: 'airport_safety_zones', confidence: 'LOW' }],
-  },
-  droneNoFlyZone: {
-    status: 'verified',
-    datasets: [{ datasetId: 'airport_safety_zones', confidence: 'LOW' }],
-  },
-  droneRestrictedZone: {
-    status: 'verified',
-    datasets: [{ datasetId: 'drone_restricted_zones', confidence: 'HIGH' }],
   },
   freewayCongestion: {
     status: 'verified',

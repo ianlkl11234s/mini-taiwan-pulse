@@ -41,14 +41,6 @@ import {
  * 所以「搬走了但手寫值沒刪」這種「改 manifest 畫面沒反應」的暗雷不可能存在。
  */
 const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, ManifestKey> = {
-  flights: "#64aaff",
-  ships: "#1ad9e5",
-  stationsTHSR: "#ff8c00",
-  stationsTRA: "#b8a080",
-  stationsMetro: "#00bcd4",
-  ports: "#4a90d9",
-  lighthouses: "#ffd700",
-  airports: "#daa520",
   highways: "#ff6b6b",
   provincialRoads: "#ffa94d",
   etcGantry: "#f06292",
@@ -56,9 +48,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   serviceAreaPolygon: "#4db6ac",
   taxiStand: "#f9a825",
   windPlan: "#7efcb0",
-  busStationsCity: "#66bb6a",
-  busStationsIntercity: "#ab47bc",
-  bikeStations: "#ffca28",
   cyclingRoutes: "#66bb6a",
   freewayCongestion: "#ef5350",
   roadCongestion: "#fb923c",
@@ -70,9 +59,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   //    分色表、從未餵本表），照拍板①判準寫字面。
   //    ⚠️ 「全球氣候 GLOBAL CLIMATE」註解原本夾在中間，其 5 層已於批 4 搬走
   roadEvents: "#ef4444",
-  busLive: "#4fc3f7",
-  busIntercityLive: "#ba68c8",
-  touristShuttleLive: "#26a69a",
   medICUBeds: "#ff1744",
   parkingOnstreet: "#64748b",
   parkingOffstreet: "#22c55e",
@@ -173,10 +159,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   osmExpressway: "#FF8C00",
   // 👮 執法治安 20 層（含警察覆蓋分析 isochrone 3 層）已搬進 layerManifest
   //    （AR-22 Phase 2 批 4）—— 20 個色票原本就是字面 hex，無 spread 可刪
-  aviationControl: "#4682B4",        // ✈️ 飛航情報 / 終端管制（TMA 深藍代表色）
-  aviationRestricted: "#DC3545",     // ⛔ 機場管制 / 限航 / 危險（RCR 紅代表色）
-  droneNoFlyZone: "#DC3545",         // 🚫 無人機禁航區（紅+未分類）
-  droneRestrictedZone: "#FFC107",    // ⚠️ 無人機限航區（黃，需申請）
   // 環境污染 POLLUTION
 };
 
@@ -191,6 +173,13 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
 
 // ── Transport Labels ──
 
+/**
+ * ⚠️ **第五張手寫表，不在 AR-22 派生的四張裡**（同 `GATED_LAYERS`，批 7 已有前例）。
+ * 這 6 個值與 manifest 的 `label` 逐字重複（`rail` 自 Phase 1 試點起就是如此、
+ * 其餘 5 個自批 8 起），是真的漂移風險 —— 但它的 key 空間是 `TransportType`
+ * 不是 `keyof LayerVisibility`，硬套 `Omit<…, ManifestKey>` 會把型別意義弄壞。
+ * 留給 Phase 3 連同 `LEGEND_REGISTRY` / `GIS_LAYERS` 一起派生化，**本批不動**。
+ */
 export const TRANSPORT_LABELS: Record<TransportType, string> = {
   flights: "航班 Flight",
   ships: "船舶 Ship",
@@ -338,23 +327,23 @@ export const THEMES: ThemeDef[] = [
       {
         title: "即時運具",
         layers: [
-          { key: "flights", label: "航班 Flight", expandable: true },
-          { key: "ships", label: "船舶 Ship", expandable: true },
+          fromManifest("flights"),
+          fromManifest("ships"),
           fromManifest("rail"),
-          { key: "busLive", label: "公車 Bus", expandable: true },
-          { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
-          { key: "touristShuttleLive", label: "台灣好行 Tourist Shuttle", labelMobile: "台灣好行", expandable: true },
+          fromManifest("busLive"),
+          fromManifest("busIntercityLive"),
+          fromManifest("touristShuttleLive"),
         ],
       },
       {
         title: "場站",
         layers: [
-          { key: "stationsTHSR", label: "高鐵站 THSR Station", expandable: true },
-          { key: "stationsTRA", label: "台鐵站 TRA Station", expandable: true },
-          { key: "stationsMetro", label: "捷運站 Metro Station", expandable: true },
-          { key: "busStationsCity", label: "市區公車站 City Bus", expandable: true },
-          { key: "busStationsIntercity", label: "公路客運站 Intercity", expandable: true },
-          { key: "bikeStations", label: "公共自行車 Bike Station", expandable: true },
+          fromManifest("stationsTHSR"),
+          fromManifest("stationsTRA"),
+          fromManifest("stationsMetro"),
+          fromManifest("busStationsCity"),
+          fromManifest("busStationsIntercity"),
+          fromManifest("bikeStations"),
         ],
       },
       {
@@ -374,13 +363,13 @@ export const THEMES: ThemeDef[] = [
       {
         title: "樞紐節點",
         layers: [
-          { key: "ports", label: "港口 Port", expandable: true },
-          { key: "airports", label: "機場 Airport", expandable: true },
-          { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
-          { key: "aviationControl", label: "飛航情報/終端管制 ✈️ FIR + TMA", expandable: true },
-          { key: "aviationRestricted", label: "機場管制/限航/危險 ⛔ CTR+RCR+DANGER", expandable: true },
-          { key: "droneNoFlyZone", label: "無人機禁航區 🚫 Drone NFZ", expandable: true },
-          { key: "droneRestrictedZone", label: "無人機限航區 ⚠️ Drone Restricted", expandable: true },
+          fromManifest("ports"),
+          fromManifest("airports"),
+          fromManifest("lighthouses"),
+          fromManifest("aviationControl"),
+          fromManifest("aviationRestricted"),
+          fromManifest("droneNoFlyZone"),
+          fromManifest("droneRestrictedZone"),
         ],
       },
       {

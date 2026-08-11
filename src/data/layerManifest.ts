@@ -84,6 +84,9 @@ import {
   // 🌾 農業（Store / Truck / PawPrint / Factory / Satellite / ShieldCheck / Sprout /
   //    Mountain / MapPinned / Route 已在上方 import 復用）
   ShoppingCart, Warehouse, Fish, Layers,
+  // 🚦 交通（PlaneTakeoff / Anchor / Lightbulb / Hexagon / AlertTriangle / TrainFront /
+  //    CircleDot / Bike / Route / MapPin / Car / Timer / Video 已在上方 import 復用）
+  Plane, Ban, Bus, RailSymbol, Ship,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7089,6 +7092,469 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "農路線形（含 glow 底線與主線兩層）",
     topics: ["農業", "路網", "線"],
+  },
+  // ══════════════════════════════════════════════════════════════════
+  // 🚦 交通 Move —— 樞紐節點 7 ＋ 場站 6 ＋ 即時運具 5（AR-22 Phase 2 批 8-1）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 交通主題共 33 層，其中 `rail`（Phase 1 試點）與 `cctv`（試點）已搬，本批搬剩下 31 層，
+  // 分兩個 commit：本段 18 層（樞紐節點 / 場站 / 即時運具），下一段 13 層（路網 / 即時監控 / 停車）。
+  //
+  // ⚠️ **本段是「popup 判準第五層修正（有點選互動 ≠ 有 popup）」規模最大的一次**：
+  // 即時運具 5 層裡有 4 層走**獨立 tooltip 狀態**而不是 `setFeatureInfo` ——
+  //   busLive / touristShuttleLive → `setBusTooltipInfo`（兩者共用同一個 bus tooltip）
+  //   flights                      → `setTooltipInfo`（flight tooltip）
+  //   busIntercityLive             → 連 picking 都沒有（useMapInteraction 完全沒提到它）
+  // 只有 `ships` 是真的 `setFeatureInfo({ layerType: "ship" })`（批 4 的
+  // `extractNonGisFeatureTypes` 已涵蓋）。照「Three.js 一定有 popup」推會四層全填錯。
+  //
+  // ⚠️ **`stationsTHSR` 是本段唯一的「有 registry entry 卻沒有 popup」**：
+  // `GIS_LAYERS` 的 `railStation` 只收 `station-points-{tra,metro}-pt-*`，
+  // 高鐵那組是 `station-polygons-thsr-poly-*`、一個都不在裡面。三個車站層長得極像，
+  // 只有逐 layer id 反查才看得出來（同批 2 基礎建設的單複數陷阱，只是這次差在「有沒有」）。
+  //
+  // dataClass：A 6 ／ B 1（busStationsCity 是 PMTiles）／ D 11。
+  // 11 個 D 沒有一個是「自繪 = 沒資料」：航空 4 層自建 PmTilesSource（同批 5 slopeVector /
+  // 批 6 floodSensorIsochrone），即時運具 5 層是 Three.js scene 餵 Supabase RPC。
+  // 檔路徑一律記進 `source.note`（觸點 #20 掃 dataClass B 會全漏）。
+
+  // ── 樞紐節點 ───────────────────────────────────────────────────────
+  ports: {
+    key: "ports",
+    section: { theme: "交通 Move", group: "樞紐節點" },
+    label: "港口 Port",
+    expandable: true,
+    color: "#4a90d9",
+    icon: Anchor,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ports", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "port-polygons", url: "./geo/port_polygons.geojson" },
+    legend: null,
+    popup: "port",
+    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    description: "商港／工業港範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
+    topics: ["交通", "港口", "樞紐"],
+  },
+
+  airports: {
+    key: "airports",
+    section: { theme: "交通 Move", group: "樞紐節點" },
+    label: "機場 Airport",
+    expandable: true,
+    color: "#daa520",
+    icon: PlaneTakeoff,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "airport", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "airport-boundaries", url: "./geo/airports.geojson" },
+    legend: null,
+    popup: "airport",
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
+    description: "機場範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
+    topics: ["交通", "航空", "樞紐"],
+  },
+
+  lighthouses: {
+    key: "lighthouses",
+    section: { theme: "交通 Move", group: "樞紐節點" },
+    label: "燈塔 Lighthouse",
+    expandable: true,
+    color: "#ffd700",
+    icon: Lightbulb,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "light_house", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "lighthouses", url: "./geo/lighthouse.geojson" },
+    legend: null,
+    popup: "lighthouse",
+    params: { count: 4, kinds: ["slider", "toggle", "slider", "slider"] },
+    // ⚠️ 有 registry entry（→ A）但**同時**有 Three.js `LighthouseScene` 的旋轉光束
+    //    （Beam toggle 控制它）。兩套渲染並存不改變體質判準：有 entry 就派生得動。
+    //    同批 6 `waterDam`（GIS_LAYERS 條目與 raycast 並存）的鏡像。
+    description: "燈塔點位（雙圓 glow ＋ 可切 Three.js 旋轉光束與照射距離）",
+    topics: ["交通", "航海", "樞紐"],
+  },
+
+  aviationControl: {
+    key: "aviationControl",
+    section: { theme: "交通 Move", group: "樞紐節點" },
+    label: "飛航情報/終端管制 ✈️ FIR + TMA",
+    expandable: true,
+    color: "#4682B4",
+    icon: Plane,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "airspace_aip", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAviationAirspaceLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/aviation_airspace.pmtiles（z4-12，source-layer aviation_airspace）—— 與 aviationRestricted **共用同一份切片**，以 `layer` 欄位 filter 拆兩個 toggle（本層 = FIR 3 + TMA 6；FIR 範圍極大只畫邊框，TMA 才有淡 fill）",
+    },
+    legend: "aviationControl",
+    popup: "aviationControl",
+    params: { count: 1, kinds: ["slider"] },
+    description: "飛航情報區 FIR ＋ 終端管制區 TMA（航管區域，非禁航）",
+    topics: ["交通", "航空", "空域"],
+  },
+
+  aviationRestricted: {
+    key: "aviationRestricted",
+    section: { theme: "交通 Move", group: "樞紐節點" },
+    label: "機場管制/限航/危險 ⛔ CTR+RCR+DANGER",
+    expandable: true,
+    color: "#DC3545",
+    icon: Hexagon,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "airport_safety_zones", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 aviationControl 的 ./coverage/aviation_airspace.pmtiles（useAviationAirspaceLayer），本層 filter = CTR + CONTROL + SURFACE + RCR + DANGER + ULZ + CIRCUIT 共 72 區，按類別走 ICAO 色",
+    },
+    // 與 aviationControl 共用同一筆 LEGEND_REGISTRY entry（機械規則取其首 key）
+    legend: "aviationControl",
+    popup: "aviationRestricted",
+    params: { count: 1, kinds: ["slider"] },
+    description: "對航空器有限制的具體區域（機場管制／軍方限航／危險／起降航線）",
+    topics: ["交通", "航空", "空域", "管制"],
+  },
+
+  droneNoFlyZone: {
+    key: "droneNoFlyZone",
+    section: { theme: "交通 Move", group: "樞紐節點" },
+    label: "無人機禁航區 🚫 Drone NFZ",
+    expandable: true,
+    color: "#DC3545",
+    icon: Ban,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "airport_safety_zones", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useDroneRestrictedZonesLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/drone_restricted_zones.pmtiles（11MB，z5-14，source-layer drone_restricted_zones）—— 與 droneRestrictedZone **共用同一份切片**，以「空域顏色」欄位 filter 拆兩個 toggle（本層 = 紅區 4,311 ＋ 無該欄位的未分類 1,322，保守視為禁飛）",
+    },
+    legend: "droneNoFlyZone",
+    popup: "droneNoFlyZone",
+    params: { count: 1, kinds: ["slider"] },
+    description: "民航局 dronegis 無人機禁航區（紅區＋未分類，共 5,633 面）",
+    topics: ["交通", "航空", "無人機", "管制"],
+  },
+
+  droneRestrictedZone: {
+    key: "droneRestrictedZone",
+    section: { theme: "交通 Move", group: "樞紐節點" },
+    label: "無人機限航區 ⚠️ Drone Restricted",
+    expandable: true,
+    color: "#FFC107",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "drone_restricted_zones", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 droneNoFlyZone 的 ./coverage/drone_restricted_zones.pmtiles（useDroneRestrictedZonesLayer），本層 filter = 空域顏色「黃區」108 面",
+    },
+    // 與 droneNoFlyZone 共用同一筆 LEGEND_REGISTRY entry（機械規則取其首 key）
+    legend: "droneNoFlyZone",
+    popup: "droneRestrictedZone",
+    params: { count: 1, kinds: ["slider"] },
+    description: "縣市政府公告的無人機限航區（需申請，黃區 108 面）",
+    topics: ["交通", "航空", "無人機", "管制"],
+  },
+
+  // ── 場站 ───────────────────────────────────────────────────────────
+  stationsTHSR: {
+    key: "stationsTHSR",
+    section: { theme: "交通 Move", group: "場站" },
+    label: "高鐵站 THSR Station",
+    expandable: true,
+    color: "#ff8c00",
+    icon: TrainFront,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rail_stations", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
+    legend: null,
+    // ⚠️ **唯一有 registry entry 卻 popup: null 的車站層**：本層 4 個 layer id 全是
+    //    `station-polygons-thsr-poly-*`，而 GIS_LAYERS 的 `railStation` 兩筆條目收的是
+    //    `station-points-tra-pt-*` 與 `station-points-metro-pt-*`。三層長得極像，
+    //    憑「都是車站」推會把 railStation 掛上去，Phase 3 派生就會多出一組假接線。
+    popup: null,
+    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    description: "高鐵站體範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
+    topics: ["交通", "軌道", "場站"],
+  },
+
+  stationsTRA: {
+    key: "stationsTRA",
+    section: { theme: "交通 Move", group: "場站" },
+    label: "台鐵站 TRA Station",
+    expandable: true,
+    color: "#b8a080",
+    icon: RailSymbol,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rail_stations", confidence: "MED" }],
+    },
+    dataClass: "A",
+    // 拍板②的第五個「同 key 多 config」（前四個 propertyValueGrid×3 / waterRivers×2 /
+    // waterReservoirs×2 已搬）。⚠️ 順序 = OVERLAY_REGISTRY 出現序：面在前、點在後，
+    // 決定疊放，測試逐位對齊。兩筆 kind 同質（都是 geojson）→ dataClass 直接是 A。
+    // popup 只由第二筆（點）貢獻：面那組的 layer id 不在 GIS_LAYERS，同 stationsTHSR。
+    source: [
+      { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
+      { kind: "geojson", sourceId: "station-points", url: "./geo/station_points.geojson" },
+    ],
+    legend: null,
+    popup: "railStation",
+    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    description: "台鐵站：大站畫站體面、小站畫點（同一個 toggle 兩份資料）",
+    topics: ["交通", "軌道", "場站"],
+  },
+
+  stationsMetro: {
+    key: "stationsMetro",
+    section: { theme: "交通 Move", group: "場站" },
+    label: "捷運站 Metro Station",
+    expandable: true,
+    color: "#00bcd4",
+    icon: CircleDot,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rail_stations", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "station-points", url: "./geo/station_points.geojson" },
+    legend: null,
+    // 與 stationsTRA **共用同一個 layerType**（各自的 GIS_LAYERS 條目 → 同一個 railStation
+    // panel）。批 4 的「兩個 key 一個 layer」是共用 layer id，這裡是兩組 layer id 共用 type。
+    popup: "railStation",
+    params: { count: 3, kinds: ["slider", "toggle", "slider"] },
+    description: "捷運站點（三層 glow ＋ 命中範圍圈，可切 3D 光柱）",
+    topics: ["交通", "軌道", "場站"],
+  },
+
+  busStationsCity: {
+    key: "busStationsCity",
+    section: { theme: "交通 Move", group: "場站" },
+    label: "市區公車站 City Bus",
+    expandable: true,
+    color: "#66bb6a",
+    icon: Bus,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "bus", confidence: "LOW" }],
+    },
+    // ⚠️ 本段唯一的 B：市區公車站點數量大，切了 PMTiles；公路客運站仍是 geojson。
+    //    同一個子群兩種載入路徑，掃主題判體質會錯。
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "bus-stations-city",
+      url: "./geo/bus_stations_city.pmtiles",
+      sourceLayer: "bus_stations_city",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: null,
+    popup: "busStation",
+    params: { count: 1, kinds: ["slider"] },
+    description: "市區公車站牌點位（PMTiles 切片，雙圓 glow）",
+    topics: ["交通", "公車", "場站"],
+  },
+
+  busStationsIntercity: {
+    key: "busStationsIntercity",
+    section: { theme: "交通 Move", group: "場站" },
+    label: "公路客運站 Intercity",
+    expandable: true,
+    color: "#ab47bc",
+    icon: Bus,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "bus", confidence: "LOW" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "bus-stations-intercity",
+      url: "./geo/bus_stations_intercity.geojson",
+    },
+    legend: null,
+    // 與 busStationsCity 共用同一個 layerType（兩組 layer id → 同一個 busStation panel）
+    popup: "busStation",
+    params: { count: 1, kinds: ["slider"] },
+    description: "公路客運站牌點位（雙圓 glow）",
+    topics: ["交通", "公車", "場站"],
+  },
+
+  bikeStations: {
+    key: "bikeStations",
+    section: { theme: "交通 Move", group: "場站" },
+    label: "公共自行車 Bike Station",
+    expandable: true,
+    color: "#ffca28",
+    icon: Bike,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "bike", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "bike-stations", url: "./geo/bike_stations.geojson" },
+    legend: null,
+    popup: "bikeStation",
+    params: { count: 1, kinds: ["slider"] },
+    description: "YouBike／公共自行車站點位（雙圓 glow）",
+    topics: ["交通", "自行車", "場站"],
+  },
+
+  // ── 即時運具 ───────────────────────────────────────────────────────
+  // ⚠️ 五層裡只有 ships 走 setFeatureInfo。其餘四層的點選命中另有去處
+  //    （bus tooltip / flight tooltip），不構成 FeatureInfo 接線 → popup: null。
+  flights: {
+    key: "flights",
+    section: { theme: "交通 Move", group: "即時運具" },
+    label: "航班 Flight",
+    expandable: true,
+    color: "#64aaff",
+    icon: Plane,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "opensky_flights", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js FlightScene（無 OVERLAY_REGISTRY entry）：airspaceLoader 的 get_flight_dates / get_flight_trails RPC 取當日軌跡 → flightTrails.ts 純函數解析（/embed 讀同欄位的靜態快照鏡像，共用這條解析路徑）→ 逐格插值畫光弧",
+    },
+    legend: "flights",
+    // 點中飛機走 setTooltipInfo（flight tooltip，含高度計算），**不是 setFeatureInfo**
+    // —— 同批 7 `wasteSchedule` 的形狀（有點選互動 ≠ 有 popup）。
+    popup: null,
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
+    description: "即時／回放航班軌跡（高度誇張倍率 ＋ 光暈球）",
+    topics: ["交通", "航空", "即時"],
+  },
+
+  ships: {
+    key: "ships",
+    section: { theme: "交通 Move", group: "即時運具" },
+    label: "船舶 Ship",
+    expandable: true,
+    color: "#1ad9e5",
+    icon: Ship,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ship", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js ShipScene（無 OVERLAY_REGISTRY entry）：shipLoader 的 get_ship_dates / 軌跡 RPC → shipTrails.ts 純函數解析（GPS 異常過濾 + ship_type 映射，/embed 快照共用）→ 船頭圓點 ＋ 拖尾",
+    },
+    legend: "ships",
+    // 本段唯一真的 setFeatureInfo：ShipScene.pickShip 命中 → layerType "ship"。
+    // 不經 GIS_LAYERS，由批 4 的 extractNonGisFeatureTypes 涵蓋。
+    popup: "ship",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "AIS 即時／回放船舶位置（依船種分色 ＋ 拖尾）",
+    topics: ["交通", "海運", "即時"],
+  },
+
+  busLive: {
+    key: "busLive",
+    section: { theme: "交通 Move", group: "即時運具" },
+    label: "公車 Bus",
+    expandable: true,
+    color: "#4fc3f7",
+    icon: Bus,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "bus_realtime", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js BusScene ＋ BusEngine（無 OVERLAY_REGISTRY entry）：busLoader 按縣市 lazy 載靜態路線幾何 JSON（per-city 快取）＋ Supabase 即時位置 RPC 30s 輪詢，以路線 progress 插值定位",
+    },
+    legend: null,
+    // BusScene.pickBus 命中 → setBusTooltipInfo（獨立 bus tooltip 狀態），非 setFeatureInfo
+    popup: null,
+    // 全 manifest 控件數最多的一層（11 個：8 個縣市群 toggle ＋ 配色 select ＋ 2 slider）
+    params: {
+      count: 11,
+      kinds: [
+        "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle",
+        "select", "slider", "slider",
+      ],
+    },
+    description: "市區公車即時／回放位置（八大區域分組開關，依路線 progress 插值）",
+    topics: ["交通", "公車", "即時"],
+  },
+
+  busIntercityLive: {
+    key: "busIntercityLive",
+    section: { theme: "交通 Move", group: "即時運具" },
+    label: "公路客運 InterCity",
+    expandable: true,
+    color: "#ba68c8",
+    icon: Bus,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "bus_realtime", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js BusScene ＋ BusEngine（無 OVERLAY_REGISTRY entry）：useBusIntercityLayer 走 busLoader 的 loadBusIntercityRoutes / fetchBusIntercityCurrent / fetchBusIntercityTrails，Engine 內以 \"Intercity\" 虛擬 city key 管理路線（全國單一資料源，無縣市切換）",
+    },
+    legend: null,
+    // ⚠️ 唯一**連 picking 都沒有**的即時運具：useMapInteraction 完全沒有它的分支。
+    popup: null,
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "公路客運即時／回放位置（全國單一資料源）",
+    topics: ["交通", "公車", "即時"],
+  },
+
+  touristShuttleLive: {
+    key: "touristShuttleLive",
+    section: { theme: "交通 Move", group: "即時運具" },
+    label: "台灣好行 Tourist Shuttle",
+    labelMobile: "台灣好行",
+    expandable: true,
+    color: "#26a69a",
+    icon: Bus,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "bus_realtime", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js BusScene ＋ BusEngine（無 OVERLAY_REGISTRY entry）：touristShuttleLoader 的 get_tourist_shuttle_current（無參數）/ get_tourist_shuttle_dates / trails RPC，Engine 內以 \"TouristShuttle\" 虛擬 city key 管理路線",
+    },
+    legend: "touristShuttleLive",
+    // 與 busLive **共用同一個 bus tooltip 狀態**（setBusTooltipInfo），非 setFeatureInfo
+    popup: null,
+    params: { count: 4, kinds: ["select", "slider", "slider", "slider"] },
+    description: "台灣好行觀光巴士即時／回放位置",
+    topics: ["交通", "公車", "觀光", "即時"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
