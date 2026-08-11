@@ -12,7 +12,10 @@
  */
 
 import type { ParamControl } from "../hooks/useTransportParams";
-import { getParamsSpec, type LayerParamValues } from "../data/layerParamsSpec";
+import {
+  getParamsSpec, resolveParamValues, resolveSelectOptions, visibleParamsSpec,
+  type LayerParamValues,
+} from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
 
 /**
@@ -28,7 +31,10 @@ export function buildParamControls(
 ): ParamControl[] | null {
   const spec = getParamsSpec(key);
   if (!spec) return null;
-  return spec.map((s) => {
+  // `showWhen` 的控件在條件不成立時整個不渲染（等價於手寫版的 `...(cond ? [x] : [])`）；
+  // `resolved` 讓 showWhen / disableRule 一定查得到值（傳入的快照可能只有部分欄位）。
+  const resolved = resolveParamValues(spec, values);
+  return visibleParamsSpec(spec, values).map((s) => {
     switch (s.kind) {
       case "slider": {
         const v = values[s.name];
@@ -64,7 +70,8 @@ export function buildParamControls(
           // 與手寫 case 的 `OPTIONS[idx] ?? "全部"` 同語意。
           label: s.labelByValue?.[value] ?? s.label,
           value,
-          options: s.options,
+          // `disableRule` 會依別的參數當下的值算出每個選項的 disabled ＋ 原因後綴
+          options: resolveSelectOptions(s, resolved),
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };
       }

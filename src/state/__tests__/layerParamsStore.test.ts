@@ -12,7 +12,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 
 import {
   LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, getParamsSpec, isMigratedParamsKey,
-  specOutKey, type LayerParamSpec,
+  specOutKey, visibleParamsSpec, type LayerParamSpec,
 } from "../../data/layerParamsSpec";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
 import { layerParamsStore, encodeParamsToOverlay, buildDefaultParams } from "../layerParamsStore";
@@ -24,13 +24,40 @@ const specs = MIGRATED_PARAMS_KEYS.map(
 beforeEach(() => layerParamsStore.reset());
 
 describe("spec ⇄ manifest 焊接", () => {
-  it("每個已遷移 key 的 count / kinds ＝ manifest 宣告", () => {
+  // ⚠️ 比的是「**預設值下**渲染得出來的控件」而不是 `spec.length` ——
+  //    manifest 的 count 是 Phase 1 從實跑 getControls 抽的，本來就只看得到
+  //    預設分支（`propertyValueGrid` 記 4，它的 6 個宣告有 2 個掛 `showWhen`）。
+  //    判斷邏輯與渲染器共用 `visibleParamsSpec`，各寫一份必漂移。
+  it("每個已遷移 key 的 count / kinds ＝ manifest 宣告（預設值下可見的控件）", () => {
+    const defaults = buildDefaultParams();
     for (const [key, spec] of specs) {
       const declared = LAYER_MANIFEST[key].params;
       expect(declared, `${key} 在 manifest 的 params 是 null，但已遷移進 spec`).not.toBeNull();
-      expect(spec.length, `${key} 控件數`).toBe(declared?.count);
-      expect(spec.map((s) => s.kind), `${key} 控件型別序列`).toEqual(declared?.kinds);
+      const visible = visibleParamsSpec(spec, defaults[key] ?? {});
+      expect(visible.length, `${key} 控件數`).toBe(declared?.count);
+      expect(visible.map((s) => s.kind), `${key} 控件型別序列`).toEqual(declared?.kinds);
     }
+  });
+
+  it("showWhen 只准參照同一個 key 自己的參數（跨 key 條件會讓焊接失效）", () => {
+    for (const [key, spec] of specs) {
+      const own = new Set(spec.map((s) => s.name));
+      for (const s of spec) {
+        if (!s.showWhen) continue;
+        expect(own.has(s.showWhen.param), `${key}.${s.name} 的 showWhen 指向外部參數 "${s.showWhen.param}"`)
+          .toBe(true);
+      }
+    }
+  });
+
+  it("條件式控件的值照樣進 overlayParams（隱藏 ≠ 不編碼）", () => {
+    const out = encodeParamsToOverlay(layerParamsStore.getAll());
+    // 預設 propertyValueGridExtruded=false → 兩個控件收合，但手寫版無條件把值
+    // 寫進 overlayParams 字面 —— 少了它們 overlays section 的 paint 求值會缺欄位
+    expect(out["propertyValueGridContrast"]).toBe(1.8);
+    expect(out["propertyValueGridElevationScale"]).toBe(40);
+    // 預設 buildingsGbaModeIdx="0"（非夜景）→ Bloom 門檻收合，值仍在
+    expect(out["buildingsGbaBloomMinHeight"]).toBe(100);
   });
 
   it("參數名與 overlayParams out key 全域唯一（共用 slot 先收斂成一份）", () => {

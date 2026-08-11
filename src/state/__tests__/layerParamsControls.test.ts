@@ -152,6 +152,55 @@ describe("buildParamControls", () => {
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["agriCropSuitabilityCropId"]).toBe(11);
   });
 
+  // ── P3-2C 補：showWhen ／ disableRule 的「展開後」分支 ──────────────
+  // 黃金快照只跑預設值 → 條件式控件在快照裡**永遠是收合的**。
+  // 少了這幾條，`showWhen` 寫錯條件（永遠展不開）不會有任何閘紅。
+  it("showWhen：條件成立時控件才出現，且順序不變", () => {
+    const before = buildParamControls("propertyValueGrid") ?? [];
+    expect(before).toHaveLength(4);
+
+    (before[3] as ToggleConfig).onChange(true);
+    const after = buildParamControls("propertyValueGrid") ?? [];
+    expect(after, "3D 打開後對比／高度兩個控件要出現").toHaveLength(6);
+    expect(after[4]).toMatchObject({ label: "對比 Contrast 1.8" });
+    expect(after[5]).toMatchObject({ label: "整體高度 Height 40" });
+
+    (after[3] as ToggleConfig).onChange(false);
+    expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(4);
+  });
+
+  it("showWhen：select 值觸發的條件（buildingsGba 夜景模式才有 Bloom 門檻）", () => {
+    expect(buildParamControls("buildingsGba") ?? []).toHaveLength(3);
+    ((buildParamControls("buildingsGba") ?? [])[0] as SelectConfig).onChange("3");
+    const after = buildParamControls("buildingsGba") ?? [];
+    expect(after).toHaveLength(4);
+    expect(after[3]).toMatchObject({ label: "Bloom 高樓門檻 ≥ 100 m" });
+    // 非夜景模式（"4" 估值）就要收回去
+    (after[0] as SelectConfig).onChange("4");
+    expect(buildParamControls("buildingsGba") ?? []).toHaveLength(3);
+  });
+
+  it("showWhen：收合中的控件其值照樣進 overlayParams", () => {
+    // 預設 3D 關閉 → 對比／高度收合，但 paint 端仍讀得到（手寫版是無條件寫入字面）
+    expect(buildParamControls("propertyValueGrid") ?? []).toHaveLength(4);
+    const out = encodeParamsToOverlay(layerParamsStore.getAll());
+    expect(out["propertyValueGridContrast"]).toBe(1.8);
+    expect(out["propertyValueGridElevationScale"]).toBe(40);
+  });
+
+  it("disableRule：150m 尺度停用人均市值並在 label 講明，換尺度就解除", () => {
+    const mode = () => (buildParamControls("propertyValueGrid") ?? [])[1] as SelectConfig;
+    // 預設 scaleIdx "0"（150m，無 pop）→ 人均選項停用 ＋ 原因後綴
+    expect(mode().options[0]).toMatchObject({ label: "總市值", value: "0", disabled: false });
+    expect(mode().options[1]).toMatchObject({
+      label: "人均市值（僅 450m / 1.5km 提供）", value: "1", disabled: true,
+    });
+
+    // 換到 450m（hasPop）→ 解除停用、label 回到原字串（快照看不到這一面）
+    ((buildParamControls("propertyValueGrid") ?? [])[0] as SelectConfig).onChange("1");
+    expect(mode().options[1]).toMatchObject({ label: "人均市值", value: "1", disabled: false });
+  });
+
   // ── P3-2B 補：共用 slot 的端對端行為（面板 A 拖動，面板 B 跟著動）──
   it("共用 slot：一個 key 的 onChange 會同步到同群其他 key 的控件與 overlayParams", () => {
     const a = (buildParamControls("eduKindergarten") ?? [])[0] as SliderConfig;

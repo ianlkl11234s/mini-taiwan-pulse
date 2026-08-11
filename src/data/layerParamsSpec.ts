@@ -54,6 +54,8 @@ import { URBAN_ZONING_CATEGORIES } from "./urbanZoningTypes";
 import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
 import { CROP_SUITABILITY_CROPS } from "./cropSuitabilityCrops";
 import { FARM_HIGHLIGHT_OPTIONS } from "./livestockTypes";
+import { BUILDINGS_GBA_MODES } from "./buildingsGbaTypes";
+import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "./propertyValueTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -88,6 +90,31 @@ interface SharedSlotField {
 }
 
 /**
+ * ⚠️ 條件式顯示（`showWhen`）—— 三種 spec 共通的選填欄位。
+ *
+ * `useTransportParams` 有一種形狀是 **控件清單本身隨值伸縮**：
+ * ```ts
+ * ...(propertyValueGridExtruded ? [對比 slider, 高度 slider] : []),
+ * ...(buildingsGbaModeIdx === 3 ? [Bloom 門檻 slider] : []),
+ * ```
+ * 「拉了沒反應的死控件不要常駐」——2D 時對比只驅動 extrusion 高度、
+ * 夜景門檻只有夜景模式吃得到。
+ *
+ * ⚠️ **只影響控件渲染，不影響 `encodeParamsToOverlay`**：
+ * `propertyValueGridContrast` / `buildingsGbaBloomMinHeight` 這些值
+ * 在收合狀態下**照樣**進 overlayParams（手寫版就是這樣 —— 它們是無條件寫進
+ * 那個 useMemo 字面的）。跟著隱藏一起不編碼的話，`overlays` section 的
+ * paint 求值會少欄位 → 黃金快照立刻紅。
+ *
+ * ⚠️ 只准參照**同一個 key**的參數。跨 key 條件會讓「一個 key 的 spec 自足」
+ * 這個前提破功，`count`/`kinds` 也不再對得回 manifest。
+ */
+interface ConditionalField {
+  /** 只有同 key 的 `param` 等於 `equals` 時才渲染本控件；省略 = 常駐 */
+  showWhen?: { param: string; equals: ParamValue };
+}
+
+/**
  * 數值滑桿。
  *
  * ⚠️ label 是**模板**不是字面：現行手寫 case 一律寫成
@@ -95,7 +122,7 @@ interface SharedSlotField {
  * 小數位數逐控件不同（透明度 2 位、大小 1 位），漏掉就會產生
  * 「編得過但字串悄悄不一樣」的漂移，正是本工程要消滅的那一類。
  */
-export interface SliderParamSpec extends SharedSlotField {
+export interface SliderParamSpec extends SharedSlotField, ConditionalField {
   kind: "slider";
   /** 參數名。慣例沿用舊 useState 變數名 —— 它同時是 overlayParams 的預設 key */
   name: string;
@@ -147,7 +174,7 @@ export interface SliderParamSpec extends SharedSlotField {
  * 才餵得進 paint expression。編碼由 `encodeParamsToOverlay` 統一做，
  * 規格端只宣告 `out`（省略 = 用 `name`）。
  */
-export interface ToggleParamSpec extends SharedSlotField {
+export interface ToggleParamSpec extends SharedSlotField, ConditionalField {
   kind: "toggle";
   name: string;
   label: string;
@@ -164,7 +191,7 @@ export interface ToggleParamSpec extends SharedSlotField {
  *   - `["all", ...OPTIONS.map((o) => o.value)]`（「全部」是控件端才 prepend 的）
  * 兩者的 idx 會整體位移 1，抄錯不會編譯錯、只會讓篩選整個錯位。
  */
-interface SelectParamSpecBase extends SharedSlotField {
+interface SelectParamSpecBase extends SharedSlotField, ConditionalField {
   kind: "select";
   name: string;
   /** 控件 label；宣告了 `labelByValue` 時，本欄退化成「查無對應時的兜底」 */
@@ -184,6 +211,31 @@ interface SelectParamSpecBase extends SharedSlotField {
   labelByValue?: Record<string, string>;
   default: string;
   options: ParamSelectOption[];
+  /**
+   * 某個選項在**別的參數**取特定值時不可選（`SelectConfig.disabled`）。
+   * 全 repo 只有一處：`propertyValueGrid` 的「人均市值」在 150m 尺度沒有 `pop`
+   * 屬性可算 —— 不自動跳尺度，而是停用該選項並在 label 講明原因。
+   *
+   * 為什麼不能用現有欄位：`options` 是靜態陣列，這裡的 `disabled` 與 label
+   * 都取決於**另一個參數當下的值**，靜態表達不了。
+   *
+   * 為什麼不做成 `optionsFrom: (values) => …` 函式：規格檔至今零函式、
+   * 整份是可讀可序列化的資料，這是它能被黃金快照與焊接測試當成「第二意見」
+   * 的前提。真出現第二個形狀不同的 case，那才是該一般化的訊號。
+   *
+   * ⚠️ `enabledWhenIn` 請從上游 SSOT 推導（`PROPERTY_VALUE_SCALES.filter(hasPop)`），
+   * 不要手抄 `["1","2"]` —— 上游改 `hasPop` 時才不會靜默不同步。
+   */
+  disableRule?: {
+    /** 受規則管的選項 value */
+    option: string;
+    /** 依據同 key 的哪個參數 */
+    param: string;
+    /** `param` 的值落在這裡面時該選項可用，否則停用 */
+    enabledWhenIn: string[];
+    /** 停用時補在該選項 label 後面的原因 */
+    reason: string;
+  };
   /** overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` 多半**不同名**，故必填 */
   out: string;
 }
@@ -1484,6 +1536,66 @@ export const LAYER_PARAMS_SPEC = {
   livestockFarmGoose: livestockFarm("livestockFarmGoose"),
   livestockFarmSheep: livestockFarm("livestockFarmSheep"),
   livestockFarmOther: livestockFarm("livestockFarmOther"),
+
+  // ══════════ P3-2C 群3：條件式顯示 ＋ 選項停用 2 層 ══════════
+  //
+  // C 桶最後兩個，也是唯二「控件清單本身隨值伸縮」的 key。
+  // ⚠️ manifest 的 count 記的是**預設值下**看得到幾個（3 / 4），不是宣告數（4 / 6）——
+  //    焊接測試因此改比 `visibleParamsSpec(spec, defaults)`，見該測試的說明。
+
+  buildingsGba: [
+    {
+      kind: "select", name: "buildingsGbaModeIdx", label: "顯示模式", default: "0",
+      options: [...BUILDINGS_GBA_MODES],
+      // 存的是模式編號本身（手寫版是 `parseInt(v, 10)` 直接進 overlayParams）
+      out: "buildingsGbaModeIdx", encodeNumeric: true,
+    },
+    { kind: "slider", name: "buildingsGbaMinHeight", labelPrefix: "高度門檻 ≥", digits: 0, labelSuffix: " m", default: 0, min: 0, max: 100, step: 5 },
+    { kind: "slider", name: "buildingsGbaOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0, max: 1, step: 0.05 },
+    // 夜景燈光模式（第 3 個選項）專屬：其他模式下這個門檻沒有東西吃
+    {
+      kind: "slider", name: "buildingsGbaBloomMinHeight", labelPrefix: "Bloom 高樓門檻 ≥", digits: 0, labelSuffix: " m",
+      default: 100, min: 40, max: 200, step: 10,
+      showWhen: { param: "buildingsGbaModeIdx", equals: "3" },
+    },
+  ],
+
+  // 控件組沿用人口網格（h3Population / popCount）：Opacity → Contrast → 3D → Height。
+  // 對比／高度只在 3D 開啟時出現 —— 本層 contrast 只驅動 extrusion 高度、不影響 2D 配色，
+  // 2D 時常駐會是「拉了沒反應」的死控件。
+  propertyValueGrid: [
+    {
+      kind: "select", name: "propertyValueGridScaleIdx", label: "網格大小", default: "0",
+      options: PROPERTY_VALUE_SCALES.map((sc) => ({ label: sc.label, value: sc.value })),
+      out: "propertyValueGridScaleIdx", encodeNumeric: true,
+    },
+    {
+      kind: "select", name: "propertyValueGridModeIdx", label: "上色模式", default: "0",
+      options: PROPERTY_VALUE_GRID_MODES.map((m) => ({ label: m.label, value: m.value })),
+      // 人均市值只有帶 pop 的 450m / 1.5km 磚算得出來（150m 沒有 pop 屬性）→ 停用而非
+      // 自動跳尺度；paint／圖例那側由 resolvePropertyValueGridMode() 回退成總市值。
+      // ⚠️ 可用尺度從 PROPERTY_VALUE_SCALES 的 hasPop 推導，不手抄 ["1","2"]
+      disableRule: {
+        option: "1",
+        param: "propertyValueGridScaleIdx",
+        enabledWhenIn: PROPERTY_VALUE_SCALES.filter((sc) => sc.hasPop).map((sc) => sc.value),
+        reason: "（僅 450m / 1.5km 提供）",
+      },
+      out: "propertyValueGridModeIdx", encodeNumeric: true,
+    },
+    { kind: "slider", name: "propertyValueGridOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+    { kind: "toggle", name: "propertyValueGridExtruded", label: "3D 立體", default: false },
+    {
+      kind: "slider", name: "propertyValueGridContrast", labelPrefix: "對比 Contrast", digits: 1,
+      default: 1.8, min: 0.5, max: 4, step: 0.1,
+      showWhen: { param: "propertyValueGridExtruded", equals: true },
+    },
+    {
+      kind: "slider", name: "propertyValueGridElevationScale", labelPrefix: "整體高度 Height", digits: 0,
+      default: 40, min: 10, max: 400, step: 10,
+      showWhen: { param: "propertyValueGridExtruded", equals: true },
+    },
+  ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**
@@ -1511,6 +1623,54 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
 /** overlayParams 的 key（slider / toggle 省略 `out` 時等於 `name`） */
 export function specOutKey(spec: LayerParamSpec): string {
   return spec.kind === "select" ? spec.out : (spec.out ?? spec.name);
+}
+
+// ── 條件式顯示 ────────────────────────────────────────────────────
+
+/** 補上 spec 的 default，讓 `showWhen` / `disableRule` 一定查得到值 */
+export function resolveParamValues(
+  spec: readonly LayerParamSpec[],
+  values: LayerParamValues,
+): LayerParamValues {
+  const out: Record<string, ParamValue> = {};
+  for (const s of spec) out[s.name] = values[s.name] ?? s.default;
+  return out;
+}
+
+/**
+ * 這份值之下，實際會渲染出來的控件。
+ *
+ * ⚠️ 渲染器（`buildParamControls`）與焊接測試（spec 的 count/kinds ＝ manifest）
+ * **共用本函式**。manifest 的 `count` 記的是 Phase 1 抽取當下、也就是
+ * **預設值下**看得到幾個控件（`propertyValueGrid` 記 4 而不是全部 6 個）——
+ * 兩邊各寫一份判斷必漂移，而漂移的後果是「條件式控件永遠展不開」這種
+ * 只有手動操作才看得出來的失效。
+ *
+ * ⚠️ **不要**拿本函式去篩 `encodeParamsToOverlay`：收合中的控件其值照樣要
+ * 進 overlayParams（見 `ConditionalField` 的說明）。
+ */
+export function visibleParamsSpec(
+  spec: readonly LayerParamSpec[],
+  values: LayerParamValues,
+): LayerParamSpec[] {
+  const resolved = resolveParamValues(spec, values);
+  return spec.filter((s) => !s.showWhen || resolved[s.showWhen.param] === s.showWhen.equals);
+}
+
+/** `disableRule` 求值後的選項表；沒宣告規則就原封不動回傳 */
+export function resolveSelectOptions(
+  spec: SelectParamSpec,
+  resolved: LayerParamValues,
+): ParamSelectOption[] {
+  const rule = spec.disableRule;
+  if (!rule) return spec.options;
+  const enabled = rule.enabledWhenIn.includes(String(resolved[rule.param] ?? ""));
+  // ⚠️ 每個選項都要帶 `disabled`（含 false）—— 手寫版是無條件 `return { …, disabled }`，
+  //    只在停用時才加這個 key 會讓黃金快照的 params section 紅。
+  return spec.options.map((o) => {
+    const disabled = o.value === rule.option && !enabled;
+    return { label: disabled ? `${o.label}${rule.reason}` : o.label, value: o.value, disabled };
+  });
 }
 
 // ── 共用 slot ─────────────────────────────────────────────────────

@@ -8,11 +8,9 @@ import {
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
   type PollutionMedium,
 } from "../data/pollutionTypes";
-import { BUILDINGS_GBA_MODES } from "../data/buildingsGbaTypes";
 import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
-import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
-// religionTypes / funeralTypes 的 select 選項常數已隨 11 個試點 key 遷出本檔
-// （現由 src/data/layerParamsSpec.ts 引用）。
+// religionTypes / funeralTypes / buildingsGbaTypes / propertyValueTypes 等
+// select 選項常數已隨對應的 key 遷出本檔（現由 src/data/layerParamsSpec.ts 引用）。
 
 export interface SliderConfig {
   type?: "slider";
@@ -120,43 +118,6 @@ export function useTransportParams() {
   // 消防分隊兩種呈現各自開關：散點 (Mapbox circle) / 3D 光柱+漣漪 (Three.js)
   const [fireStationsDots, setFireStationsDots] = useState(true);
   const [fireStations3D, setFireStations3D] = useState(true);
-  // ── 警政司法民防 17 layer（每個 opacity + scale；polygon/line 走 fill/line-width）──
-  // display_class 三組類別篩選 checkbox：確認 / 漁電共生 / 其他（unverified+ambiguous+mountain_suspect）。預設全開。
-  // union_class 三組類別篩選 checkbox：兩版都有 / 只官方 MOA / 只舊版 OSM。預設全開。
-  // 都市開放空間三層（受保護樹木 / 河濱喬木 / 台北公園）
-  // 🎭 文化 Culture 四層
-  // 🧳 觀光 Tourism 12 層（點層 opacity 0.85 + scale 1；面層 opacity 0.5；select 存字串，overlayParams 轉 Idx）
-  // 🛕 宗教 Religion 6 層 ＋ ⚰️ 殯葬 Funeral 5 層：**已遷出本檔**（AR-22 P3-1 試點）
-  //    值 → src/state/layerParamsStore.ts；控件規格（含 "active" 這類非 "all" 的預設、
-  //    select 的 encode 順序）→ src/data/layerParamsSpec.ts。
-  // 行道樹三時點（traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
-  // 行道樹全國（樹種/胸徑/樹高/城市四染色模式 + 城市篩選）
-  // 台北人行道樹穴（pit_type 樹穴/花圃二色 fill + 類型篩選）
-  // GBA 全台建物輪廓（0=高度分級 1=資料來源 2=3D 立體 3=夜景燈光 4=估值；高度門檻篩選 + 透明度）
-  const [buildingsGbaModeIdx, setBuildingsGbaModeIdx] = useState(0);
-  const [buildingsGbaMinHeight, setBuildingsGbaMinHeight] = useState(0);
-  const [buildingsGbaOpacity, setBuildingsGbaOpacity] = useState(0.75);
-  // 夜景燈光 mode 3 專用：≥N m 高樓額外給 Three.js additive bloom 光暈（視野內取最高前 4096 棟）
-  const [buildingsGbaBloomMinHeight, setBuildingsGbaBloomMinHeight] = useState(100);
-  // 都市紋理網格（0-5：棟數/平均高度/總量體/建蔽率/樹冠覆蓋/灰綠指數；預設 5=灰綠指數）
-  // 🏢 房地產總市值網格（150m 格，v_mkt 總市值 6 級染色）
-  // 控件組照人口網格（h3Population / popCount）慣例：Opacity → Contrast → 3D → Height。
-  // Contrast 0.5–4 預設 1.8 完全沿用；Height step 10 沿用但上限 200 → **400**
-  // （2026-07-27 高度映射改用資料真實 max 當上錨、不再 100 億封頂後，對數範圍變寬 42%，
-  //   同一 scale 下整體變矮 → 拉高上限讓「要誇張可以更誇張」）。
-  // Height 預設 40（滿格 4,000m）：新映射下 p50 ≈ 245m、p99 ≈ 2,040m、max 4,000m，
-  // 中段觀感與舊版（CAP 封頂 / scale 20）相當，但頂端不再撞平頂。
-  // 尺度：0=150m 細格 / 1=450m 中格 / 2=1.5km 粗格（**手動選，不隨 zoom 自動切**）。
-  // 三份 PMTiles 各自的斷點與 3D 高度錨見 PROPERTY_VALUE_SCALES；
-  // 切尺度不重置 Contrast/Height（正規化各吃各的錨，滑桿語意跨尺度一致）。
-  const [propertyValueGridScaleIdx, setPropertyValueGridScaleIdx] = useState(0);
-  // 上色模式：0=總市值（預設）/ 1=人均市值。人均只在帶 pop 的 450m/1.5km 有效；
-  // 150m 時選項 disabled（**不自動跳尺度**），有效模式由 resolvePropertyValueGridMode() 回退。
-  const [propertyValueGridModeIdx, setPropertyValueGridModeIdx] = useState(0);
-  const [propertyValueGridOpacity, setPropertyValueGridOpacity] = useState(0.7);
-  const [propertyValueGridContrast, setPropertyValueGridContrast] = useState(1.8);
-  const [propertyValueGridExtruded, setPropertyValueGridExtruded] = useState(false);
-  const [propertyValueGridElevationScale, setPropertyValueGridElevationScale] = useState(40);
   // ── 環境污染 POLLUTION ──
   // 設施：opacity + scale + 5 介質 filter（勾選 → 只顯示登記該介質的設施）+ 最低嚴重度門檻
   const [pollutionFacilityOpacity, setPollutionFacilityOpacity] = useState(0.8);
@@ -469,10 +430,6 @@ export function useTransportParams() {
   );
 
   const overlayParams = useMemo<Record<string, number>>(() => ({
-    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
-    propertyValueGridScaleIdx, propertyValueGridModeIdx,
-    propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridElevationScale,
-    propertyValueGridExtruded: propertyValueGridExtruded ? 1 : 0,
     // 警察覆蓋分析（數字化 mode/minutes 餵 paint expression）
     // 環境污染（paint 用；filter 值另由 return 物件傳給 usePollutionLayers）
     pollutionFacilityOpacity, pollutionFacilityScale,
@@ -501,8 +458,6 @@ export function useTransportParams() {
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
   }), [migratedOverlayParams, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, lighthouseScale, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, portGlow, newsScale, metroPillarVisible,
-    buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
-    propertyValueGridScaleIdx, propertyValueGridModeIdx, propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridExtruded, propertyValueGridElevationScale,
     
     
     
@@ -854,40 +809,6 @@ export function useTransportParams() {
       ];
       case "aspectVector": return [
         { label: `透明度 ${aspectVectorOpacity.toFixed(2)}`, value: aspectVectorOpacity, min: 0.3, max: 1, step: 0.05, onChange: setAspectVectorOpacity },
-      ];
-      // ── 房地產（6 layer 共用透明度）──
-      // ── 警政司法民防 17 layer ──
-      // 🧳 觀光 Tourism 12 層
-      // 🛕 宗教 6 層 ＋ ⚰️ 殯葬 5 層的 case 已遷出（AR-22 P3-1 試點）——
-      //    上方的 buildParamControls 分岔會在進到 switch 之前就接手。
-      case "buildingsGba": return [
-        { type: "select" as const, label: "顯示模式", value: String(buildingsGbaModeIdx), options: [...BUILDINGS_GBA_MODES], onChange: (v: string) => setBuildingsGbaModeIdx(parseInt(v, 10)) },
-        { label: `高度門檻 ≥ ${buildingsGbaMinHeight} m`, value: buildingsGbaMinHeight, min: 0, max: 100, step: 5, onChange: setBuildingsGbaMinHeight },
-        { label: `透明度 ${buildingsGbaOpacity.toFixed(2)}`, value: buildingsGbaOpacity, min: 0, max: 1, step: 0.05, onChange: setBuildingsGbaOpacity },
-        ...(buildingsGbaModeIdx === 3
-          ? [{ label: `Bloom 高樓門檻 ≥ ${buildingsGbaBloomMinHeight} m`, value: buildingsGbaBloomMinHeight, min: 40, max: 200, step: 10, onChange: setBuildingsGbaBloomMinHeight }]
-          : []),
-      ];
-      // 控件組沿用人口網格（h3Population / popCount）：Opacity → Contrast → 3D → Height，
-      // 滑桿範圍與 step 完全相同。對比/高度只在 3D 開啟時出現（同 buildingsGba 的
-      // Bloom 門檻只在夜景模式出現）—— 本層 contrast 只驅動 extrusion 高度、不影響 2D 配色，
-      // 2D 時常駐會是「拉了沒反應」的死控件。
-      case "propertyValueGrid": return [
-        { type: "select" as const, label: "網格大小", value: String(propertyValueGridScaleIdx), options: PROPERTY_VALUE_SCALES.map((sc) => ({ label: sc.label, value: sc.value })), onChange: (v: string) => setPropertyValueGridScaleIdx(parseInt(v, 10)) },
-        // 人均市值只有 450m/1.5km 磚帶 pop（150m 沒有）→ 150m 時 disabled 並在 label 講明，
-        // 不自動跳尺度；此時 paint/圖例已由 resolvePropertyValueGridMode() 回退成總市值
-        { type: "select" as const, label: "上色模式", value: String(propertyValueGridModeIdx), options: PROPERTY_VALUE_GRID_MODES.map((m) => {
-          const disabled = m.value === "1" && !(PROPERTY_VALUE_SCALES[propertyValueGridScaleIdx]?.hasPop ?? false);
-          return { label: disabled ? `${m.label}（僅 450m / 1.5km 提供）` : m.label, value: m.value, disabled };
-        }), onChange: (v: string) => setPropertyValueGridModeIdx(parseInt(v, 10)) },
-        { label: `填色透明度 ${propertyValueGridOpacity.toFixed(2)}`, value: propertyValueGridOpacity, min: 0, max: 1, step: 0.05, onChange: setPropertyValueGridOpacity },
-        { type: "toggle" as const, label: "3D 立體", value: propertyValueGridExtruded, onChange: setPropertyValueGridExtruded },
-        ...(propertyValueGridExtruded
-          ? [
-              { label: `對比 Contrast ${propertyValueGridContrast.toFixed(1)}`, value: propertyValueGridContrast, min: 0.5, max: 4, step: 0.1, onChange: setPropertyValueGridContrast },
-              { label: `整體高度 Height ${propertyValueGridElevationScale}`, value: propertyValueGridElevationScale, min: 10, max: 400, step: 10, onChange: setPropertyValueGridElevationScale },
-            ]
-          : []),
       ];
       // ── 環境污染 POLLUTION ──
       case "pollutionFacility": return [
