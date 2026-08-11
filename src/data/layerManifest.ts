@@ -45,6 +45,7 @@ import {
   Cross, Briefcase, Flower, Grid3x3,
   Building2, CalendarDays, Theater, Library,
   Truck, Droplet, Flame, Timer,
+  LayoutGrid, ShieldCheck, Trash2, PlaneTakeoff,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -805,6 +806,121 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["select", "slider"] },
     description: "消防分隊路網救援等時圈（5／10／15 分鐘環差，21 縣市＋全國聚合）",
     topics: ["消防", "可達性", "派生分析"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 1 —— 微型主題 4 層（都市分析 1 / 民防避難 1 / 世界 1 / 情勢剩 1）
+  //  各自是所屬主題的唯一（或最後一個）成員，搬完這 4 層那 4 個主題就 100% manifest 化。
+  // ══════════════════════════════════════════════════════════════
+  urbanFormGrid: {
+    key: "urbanFormGrid",
+    section: { theme: "都市分析 Urban Analysis", group: "都市紋理" },
+    label: "都市紋理網格 Urban Form",
+    expandable: true,
+    color: "#8d9c6b",
+    icon: LayoutGrid,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "都市紋理網格 500m 145,119 格（GBA+Meta 樹冠合成，public/urban/urban_form_grid_500m.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/urban-form-grid.md",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "urban-form-grid",
+      url: "./urban/urban_form_grid_500m.pmtiles",
+      sourceLayer: "urban_form",
+      minzoom: 5,
+      maxzoom: 12,
+    },
+    legend: "urbanFormGrid",
+    popup: "urbanFormGrid",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "全台 500m 都市紋理網格 145,119 格（建物密度 × 樹冠覆蓋合成指標）",
+    topics: ["都市", "網格", "建物"],
+  },
+
+  // legend id 是 "policeStation" 而非自己的 key —— 它掛在警政司法民防 18 key 共用的
+  // PoliceJusticeLegend 上，依拍板④取該 entry 的首個 key。批 4 搬執法治安時同一組 id。
+  civilDefenseShelter: {
+    key: "civilDefenseShelter",
+    section: { theme: "民防避難 Civil Defense", group: "避難設施" },
+    label: "防空避難 Civil Defense Shelters",
+    expandable: true,
+    color: "#64748b",
+    icon: ShieldCheck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "civil_defense_shelters", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "civil-defense-shelter",
+      url: "./police_justice/civil_defense_shelters/civil_defense_shelters.pmtiles",
+      sourceLayer: "civil_defense_shelters",
+      minzoom: 10,
+      maxzoom: 14,
+    },
+    legend: "policeStation",
+    popup: "civilDefenseShelter",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台防空避難處所（量體大且僅高倍率可見，z10 起載入）",
+    topics: ["民防", "避難", "防災"],
+  },
+
+  worldTrashDebris: {
+    key: "worldTrashDebris",
+    section: { theme: "世界 World", group: "環境" },
+    label: "全球垃圾殘骸 Trash & Debris",
+    labelMobile: "全球垃圾殘骸",
+    expandable: true,
+    color: "#f59e0b",
+    icon: Trash2,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      processing: "Outerview 全球垃圾殘骸 ~25k Point（區域名 + id）；點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈",
+      note: "外部資料源 Outerview（CC-BY-4.0）— 非台灣開放資料 catalog，尚無 dataset_id",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useWorldTrashDebrisLayer 自行接線：靜態 public/world/trash_debris.geojson（~25k Point）自建 world-trash-debris source，未走 OVERLAY_REGISTRY",
+    },
+    legend: "worldTrashDebris",
+    popup: "worldTrashDebris",
+    params: { count: 1, kinds: ["slider"] },
+    description: "Outerview 全球垃圾殘骸 ~25k 點（⚠️ 點密度是街景覆蓋度，不是垃圾分佈）",
+    topics: ["世界", "環境", "垃圾"],
+  },
+
+  // ⚠️ GIS_LAYERS 裡它的 layer id 陣列是**常數引用**（PLA_ACTIVITY_CLICK_LAYERS），
+  //    字面陣列解析器抓不到 → 需 extractGisConstRefTypes 才驗得出 popup 宣告為真。
+  plaActivity: {
+    key: "plaActivity",
+    section: { theme: "情勢 Situation", group: "軍事" },
+    label: "共機活動區 PLA Activity",
+    expandable: true,
+    color: "#38bdf8",
+    icon: PlaneTakeoff,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "pla_activity", confidence: "HIGH" }],
+      note: "共機活動區多邊形（spatial.pla_tracks，migration 330）。幾何由國防部每日航跡示意圖"
+        + "向量化而來 — 依示意圖描繪之活動區域、非精確航跡；方法見 "
+        + "taipei-gis-analytics/docs/topic-research/defense_pla/shape-extraction-methodology.md。"
+        + "popup 的架次／逾越中線數值另讀 live.pla_activity_daily（同一 catalog dataset）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePlaActivityLayer 自行接線：Supabase RPC get_pla_tracks_range / get_pla_activity_range 餵自建的 pla-activity source（走廊藍為 LAYER_COLORS，不規則活動區另用紫，見 plaTracksLoader.PLA_KIND_COLORS）",
+    },
+    legend: "plaActivity",
+    popup: "plaActivity",
+    params: { count: 4, kinds: ["select", "toggle", "slider", "toggle"] },
+    description: "國防部每日航跡示意圖向量化的共機活動區（⚠️ 是活動區域非精確航跡）",
+    topics: ["情勢", "軍事", "國防"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

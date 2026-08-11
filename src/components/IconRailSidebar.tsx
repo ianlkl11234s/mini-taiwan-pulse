@@ -22,7 +22,7 @@ import {
   Ruler,
   Satellite,
   // ENERGY icons
-  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel, LayoutGrid,
+  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
   // HAZARD icons
   CloudLightning, Atom, Rewind,
   // GLOBAL CLIMATE icons
@@ -118,7 +118,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   submarineCables: Cable,
   landingStations: Radio,
   activeFaults: Mountain,
-  plaActivity: PlaneTakeoff,
   youbikeFullness: Bike,
   earthquakes: Activity,
   earthquakeReplay: Rewind,
@@ -208,7 +207,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   streetTreesNational: TreePalm,
   treePitsTaipei: Flower2,
   buildingsGba: Building2,
-  urbanFormGrid: LayoutGrid,
   urbanZoningNewTaipei: Map,
   nonUrbanZoning: Sprout,
   // 🏟️ 運動場館 Sports
@@ -401,7 +399,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   antiCorruptionOffice: Sparkles,
   immigrationOffice: PlaneTakeoff,
   coastGuardStation: Anchor,
-  civilDefenseShelter: ShieldCheck,
   // 警察覆蓋分析
   policeIsoSubstation: Hexagon,
   policeIsoPrecinct: Hexagon,
@@ -411,8 +408,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   pollutionPenaltyGeneral: AlertCircle,
   pollutionPenaltyMobile: Car,
   pollutionSite: Biohazard,
-  // 🌍 世界 World
-  worldTrashDebris: Trash2,
 };
 
 /**

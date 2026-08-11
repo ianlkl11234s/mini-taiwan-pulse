@@ -538,7 +538,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   streetTreesNational: { status: 'catalog_missing', datasets: [], note: '行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles），catalog 待建' },
   treePitsTaipei: { status: 'catalog_missing', datasets: [], note: '台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles），catalog 待建' },
   buildingsGba: { status: 'catalog_missing', datasets: [], note: '全台 3D 建物輪廓 152 萬棟（GBA/OSM 融合，public/urban/buildings_3d_taiwan.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md' },
-  urbanFormGrid: { status: 'catalog_missing', datasets: [], note: '都市紋理網格 500m 145,119 格（GBA+Meta 樹冠合成，public/urban/urban_form_grid_500m.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/urban-form-grid.md' },
   // 🗺️ 都市計畫土地使用分區（上游 handoff: taipei-gis-analytics/docs/handoff/urban-zoning.md；catalog: docs/data-catalog/urban_composite/）
   nonUrbanZoning: {
     status: 'verified',
@@ -1061,14 +1060,7 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
   },
-  plaActivity: {
-    status: 'verified',
-    datasets: [{ datasetId: 'pla_activity', confidence: 'HIGH' }],
-    note: '共機活動區多邊形（spatial.pla_tracks，migration 330）。幾何由國防部每日航跡示意圖'
-      + '向量化而來 — 依示意圖描繪之活動區域、非精確航跡；方法見 '
-      + 'taipei-gis-analytics/docs/topic-research/defense_pla/shape-extraction-methodology.md。'
-      + 'popup 的架次／逾越中線數值另讀 live.pla_activity_daily（同一 catalog dataset）',
-  },
+  // plaActivity 已搬進 layerManifest（AR-22 Phase 2 批 1）
   policeStation: {
     status: 'verified',
     datasets: [{ datasetId: 'police_stations', confidence: 'MED' }],
@@ -1137,10 +1129,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'coast_guard_stations', confidence: 'MED' }],
   },
-  civilDefenseShelter: {
-    status: 'verified',
-    datasets: [{ datasetId: 'civil_defense_shelters', confidence: 'MED' }],
-  },
   policeIsoSubstation: {
     status: 'verified',
     datasets: [{ datasetId: 'police_stations', confidence: 'LOW' }],
@@ -1191,12 +1179,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     processing: 'EMS_S_07 確認污染場址（S4）PMTiles',
   },
   // 🌍 世界 World
-  worldTrashDebris: {
-    status: 'catalog_missing',
-    datasets: [],
-    processing: 'Outerview 全球垃圾殘骸 ~25k Point（區域名 + id）；點密度反映 Mapillary 街景覆蓋，非真實垃圾分佈',
-    note: '外部資料源 Outerview（CC-BY-4.0）— 非台灣開放資料 catalog，尚無 dataset_id',
-  },
 };
 
 /**

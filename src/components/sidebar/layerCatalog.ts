@@ -85,8 +85,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   submarineCables: "#2196F3",
   landingStations: "#26c6da",
   activeFaults: "#ef5350",
-  // 走廊藍；不規則活動區在圖層內另用紫（見 plaTracksLoader.PLA_KIND_COLORS）
-  plaActivity: "#38bdf8",
   youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
   earthquakeReplay: "#e11d48",
@@ -180,7 +178,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   streetTreesNational: "#43a047",
   treePitsTaipei: "#8d6e63",
   buildingsGba: "#78909c",
-  urbanFormGrid: "#8d9c6b",
   urbanZoningNewTaipei: "#eb5757",
   nonUrbanZoning: "#a2c14e",
   sportsSchool: "#5c6bc0",
@@ -349,7 +346,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   antiCorruptionOffice: "#14b8a6",   // 廉政 — 青
   immigrationOffice: "#0ea5e9",      // 移民 — 天藍
   coastGuardStation: "#0284c7",      // 海巡 — 海藍
-  civilDefenseShelter: "#64748b",    // 防空避難 — 鋼灰
   aviationControl: "#4682B4",        // ✈️ 飛航情報 / 終端管制（TMA 深藍代表色）
   aviationRestricted: "#DC3545",     // ⛔ 機場管制 / 限航 / 危險（RCR 紅代表色）
   droneNoFlyZone: "#DC3545",         // 🚫 無人機禁航區（紅+未分類）
@@ -363,8 +359,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   pollutionPenaltyGeneral: "#94a3b8",
   pollutionPenaltyMobile: "#22c55e",
   pollutionSite: "#111827",
-  // 🌍 世界 WORLD
-  worldTrashDebris: "#f59e0b",
 };
 
 /**
@@ -623,7 +617,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "都市紋理",
         layers: [
-          { key: "urbanFormGrid", label: "都市紋理網格 Urban Form", expandable: true },
+          fromManifest("urbanFormGrid"),
         ],
       },
     ],
@@ -1159,7 +1153,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "避難設施",
         layers: [
-          { key: "civilDefenseShelter", label: "防空避難 Civil Defense Shelters", expandable: true },
+          fromManifest("civilDefenseShelter"),
         ],
       },
     ],
@@ -1514,7 +1508,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "軍事",
         layers: [
-          { key: "plaActivity", label: "共機活動區 PLA Activity", expandable: true },
+          fromManifest("plaActivity"),
         ],
       },
     ],
@@ -1529,7 +1523,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "環境",
         layers: [
-          { key: "worldTrashDebris", label: "全球垃圾殘骸 Trash & Debris", labelMobile: "全球垃圾殘骸", expandable: true },
+          fromManifest("worldTrashDebris"),
         ],
       },
     ],
