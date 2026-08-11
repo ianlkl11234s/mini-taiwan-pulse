@@ -55,10 +55,12 @@ export function buildParamControls(
       }
       case "toggle": {
         const v = values[s.name];
+        const value = typeof v === "boolean" ? v : s.default;
         return {
           type: "toggle" as const,
-          label: s.label,
-          value: typeof v === "boolean" ? v : s.default,
+          // 值相依 label（播放鍵的 ⏸/▶）；查無對應回 `label` 兜底，同 select 的慣例
+          label: s.labelByValue?.[String(value)] ?? s.label,
+          value,
           onChange: (next: boolean) => layerParamsStore.setParam(key, s.name, next),
         };
       }

@@ -15,6 +15,7 @@ import {
   specOutKey, visibleParamsSpec, type LayerParamSpec,
 } from "../../data/layerParamsSpec";
 import { LAYER_MANIFEST } from "../../data/layerManifest";
+import { PENALTY_YEAR_MIN, PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
 import { layerParamsStore, encodeParamsToOverlay, buildDefaultParams } from "../layerParamsStore";
 
 const specs = MIGRATED_PARAMS_KEYS.map(
@@ -170,6 +171,79 @@ describe("store identity 紀律", () => {
     layerParamsStore.setParam("cemeteryOsm", "cemeteryOsmOpacity", 0.9);
     layerParamsStore.reset();
     expect(layerParamsStore.getAll()).toEqual(buildDefaultParams());
+  });
+});
+
+describe("級聯寫入 cascade（P3-2D 群4）", () => {
+  const PENALTY = "pollutionPenaltyCritical";
+
+  it("換大類 → 細項重設成新表的第一項（三兄弟同一個機制）", () => {
+    layerParamsStore.setParam("indicators", "indCategory", "burden");
+    expect(layerParamsStore.getParam("indicators", "indMetric")).toBe("dr");
+    layerParamsStore.setParam("socioeconomic", "socioCat", "social");
+    expect(layerParamsStore.getParam("socioeconomic", "socioMetric")).toBe("vs");
+  });
+
+  it("級聯目標會展開共用 slot（裁處事件三層都要被寫到）", () => {
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyPlaying", true);
+    for (const k of ["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"]) {
+      expect(layerParamsStore.getParam(k, "pollutionPenaltyYear"), `${k} 沒被級聯寫到`)
+        .toBe(String(PENALTY_YEAR_MIN));
+    }
+  });
+
+  // ⚠️ 這一條擋的是「cascade 遞迴」：按播放（年份在最後一年）→ 倒帶回起始年，
+  //    若倒帶那一寫又觸發**年份自己的** cascade（一動就停播放），播放鍵直接壞掉
+  //    ——按下去會立刻彈回停止。手寫版是直接呼叫 state setter，不經 onChange。
+  it("級聯只展開一層：倒帶不會反過來把播放關掉", () => {
+    expect(layerParamsStore.getParam(PENALTY, "pollutionPenaltyYear")).toBe(String(PENALTY_YEAR_MAX));
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyPlaying", true);
+    expect(layerParamsStore.getParam(PENALTY, "pollutionPenaltyYear")).toBe(String(PENALTY_YEAR_MIN));
+    expect(layerParamsStore.getParam(PENALTY, "pollutionPenaltyPlaying"), "被自己的級聯關掉了").toBe(true);
+  });
+
+  // ⚠️ 條件式級聯的**另一半**：年份不在端點時按播放**不該**倒帶。
+  //    預設年份剛好是端點 → 逐參數擾動閘只驗得到會倒帶那一半，這半邊沒有別的閘。
+  it("年份不在端點時按播放不倒帶（onlyWhenTargetIn 的另一半）", () => {
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyYear", "2015");
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyPlaying", true);
+    expect(layerParamsStore.getParam(PENALTY, "pollutionPenaltyYear")).toBe("2015");
+    expect(layerParamsStore.getParam(PENALTY, "pollutionPenaltyPlaying")).toBe(true);
+  });
+
+  it("選年份會連帶停止播放（無條件級聯）", () => {
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyYear", "2015");
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyPlaying", true);
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyYear", "2018");
+    expect(layerParamsStore.getParam(PENALTY, "pollutionPenaltyPlaying")).toBe(false);
+  });
+
+  it("setParamDirect 不觸發級聯（播放引擎逐年推進走這條）", () => {
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyYear", "2015");
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyPlaying", true);
+    layerParamsStore.setParamDirect(PENALTY, "pollutionPenaltyYear", "2016");
+    expect(layerParamsStore.getParam(PENALTY, "pollutionPenaltyPlaying"), "推進一年就自己停了").toBe(true);
+  });
+
+  it("一次級聯只換一次 snapshot、每個 key 只通知一次", () => {
+    let hits = 0;
+    const off = layerParamsStore.subscribeKey("indicators", () => { hits += 1; });
+    layerParamsStore.setParam("indicators", "indCategory", "struct");
+    expect(hits, "大類＋細項兩個寫入應該合成一次通知").toBe(1);
+    expect(layerParamsStore.getParam("indicators", "indMetric")).toBe("sr");
+    off();
+  });
+
+  it("cascade 的 target 只准指向同一個 key 自己的參數", () => {
+    for (const [key, spec] of specs) {
+      const own = new Set(spec.map((s) => s.name));
+      for (const s of spec) {
+        for (const rule of s.cascade ?? []) {
+          expect(own.has(rule.target), `${key}.${s.name} 的 cascade 指向外部參數 "${rule.target}"`)
+            .toBe(true);
+        }
+      }
+    }
   });
 });
 

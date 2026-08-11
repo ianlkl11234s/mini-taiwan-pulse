@@ -52,6 +52,10 @@ import {
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
 import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
 import { MICRO_SENSOR_MODES } from "./microSensorTypes";
+import {
+  FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
+  pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
+} from "./pollutionTypes";
 import { URBAN_ZONING_CATEGORIES } from "./urbanZoningTypes";
 import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
 import { CROP_SUITABILITY_CROPS } from "./cropSuitabilityCrops";
@@ -117,6 +121,38 @@ interface ConditionalField {
 }
 
 /**
+ * ⚠️ 級聯寫入（`cascade`）—— 三種 spec 共通的選填欄位（P3-2D 群4）。
+ *
+ * `useTransportParams` 有一種形狀是 **onChange 裡不只設自己**：
+ * ```ts
+ * onChange: (v) => { setIndCategory(v); setIndMetric(第一個 metric); }   // 換大類 → 重設細項
+ * onChange: (v) => { setYear(Number(v)); setPlaying(false); }            // 選年份 → 停播放
+ * onChange: (v) => { if (v && 年份到底) setYear(起始年); setPlaying(v); } // 按播放 → 必要時倒帶
+ * ```
+ * 那是**寫入時的副作用**，不是控件長相，所以既不是 `showWhen` 也不是 `optionsByParam`。
+ *
+ * ⚠️ **只展開一層**：目標被寫入時**不會**再觸發目標自己的 cascade。
+ * 手寫版正是這個語意（`setYear(MIN)` 是直接呼叫 state setter，不經 year select 的
+ * onChange）—— 遞迴的話「按播放 → 倒帶 → 年份的 cascade 又把播放關掉」，播放鍵直接壞掉。
+ *
+ * ⚠️ **只有控件的 onChange 走 cascade**。程式內部改值（裁處事件的播放引擎逐年推進）
+ * 走 `layerParamsStore.setParamDirect`，等價手寫版直接呼叫 `setPollutionPenaltyYear`
+ * —— 不然播放引擎每推進一年就會被年份的 cascade 自己關掉。
+ */
+interface CascadeField {
+  cascade?: readonly {
+    /** 只有本參數的**新值**等於這個時才觸發；省略 = 不論新值 */
+    whenSelfIs?: ParamValue;
+    /** 目標參數（限**同一個 key**，同 `showWhen` 的理由） */
+    target: string;
+    /** 目標要被設成的值 */
+    set: ParamValue;
+    /** 只有目標**當下的值**落在這裡才觸發；省略 = 不看目標現值 */
+    onlyWhenTargetIn?: readonly ParamValue[];
+  }[];
+}
+
+/**
  * ⚠️ 第二條輸出通道（`out: null`）—— AR-22 P3-2D。
  *
  * P3-1~2C 搬的 key 有一個共同前提：**參數的唯一去處是 `overlayParams`**
@@ -148,7 +184,7 @@ export type OverlayOutKey = string | null;
  * 小數位數逐控件不同（透明度 2 位、大小 1 位），漏掉就會產生
  * 「編得過但字串悄悄不一樣」的漂移，正是本工程要消滅的那一類。
  */
-export interface SliderParamSpec extends SharedSlotField, ConditionalField {
+export interface SliderParamSpec extends SharedSlotField, ConditionalField, CascadeField {
   kind: "slider";
   /** 參數名。慣例沿用舊 useState 變數名 —— 它同時是 overlayParams 的預設 key */
   name: string;
@@ -217,10 +253,16 @@ export interface SliderParamSpec extends SharedSlotField, ConditionalField {
  * 才餵得進 paint expression。編碼由 `encodeParamsToOverlay` 統一做，
  * 規格端只宣告 `out`（省略 = 用 `name`）。
  */
-export interface ToggleParamSpec extends SharedSlotField, ConditionalField {
+export interface ToggleParamSpec extends SharedSlotField, ConditionalField, CascadeField {
   kind: "toggle";
   name: string;
   label: string;
+  /**
+   * label 隨**自己當下的值**變（P3-2D 群4，唯一使用者：裁處事件的播放鍵
+   * `` playing ? "⏸ 停止播放" : "▶ 歷史播放" ``）。key 是 `String(value)`，
+   * 與 select 的 `labelByValue` 同一個慣例；查無對應退回 `label`。
+   */
+  labelByValue?: Record<string, string>;
   default: boolean;
   /** 同 `SliderParamSpec.out`：省略 = 用 `name`；`null` = 不進 overlayParams */
   out?: OverlayOutKey;
@@ -235,7 +277,7 @@ export interface ToggleParamSpec extends SharedSlotField, ConditionalField {
  *   - `["all", ...OPTIONS.map((o) => o.value)]`（「全部」是控件端才 prepend 的）
  * 兩者的 idx 會整體位移 1，抄錯不會編譯錯、只會讓篩選整個錯位。
  */
-interface SelectParamSpecBase extends SharedSlotField, ConditionalField {
+interface SelectParamSpecBase extends SharedSlotField, ConditionalField, CascadeField {
   kind: "select";
   name: string;
   /** 控件 label；宣告了 `labelByValue` 時，本欄退化成「查無對應時的兜底」 */
@@ -254,7 +296,27 @@ interface SelectParamSpecBase extends SharedSlotField, ConditionalField {
    */
   labelByValue?: Record<string, string>;
   default: string;
+  /**
+   * 選項表。宣告了 `optionsByParam` 時，本欄是「依據參數取預設值時」的那一份 ——
+   * **請由同一份表推導、不要手抄**（見 `metricSelect` 建構子）。
+   */
   options: ParamSelectOption[];
+  /**
+   * ⚠️ 選項表隨**另一個參數**的值而變（P3-2D 群4：`indicators` / `socioeconomic` /
+   * `spatialEconomy` 的「大類 → 細項」）。
+   *
+   * 手寫版是 case body 裡的 `metricMap[indCategory] ?? metricMap.count`。
+   * 換大類時細項要一起重設 —— 那是**寫入時的副作用**，由 `cascade` 表達（兩者
+   * 都從同一份 `byValue` 推導，不手抄）。
+   */
+  optionsByParam?: {
+    /** 依據同 key 的哪個參數 */
+    param: string;
+    /** 該參數的值 → 選項表 */
+    byValue: Record<string, ParamSelectOption[]>;
+    /** 查無對應時用哪個值的表（等價手寫版的 `?? metricMap.count`） */
+    fallback: string;
+  };
   /**
    * 某個選項在**別的參數**取特定值時不可選（`SelectConfig.disabled`）。
    * 全 repo 只有一處：`propertyValueGrid` 的「人均市值」在 150m 尺度沒有 `pop`
@@ -517,6 +579,146 @@ function wasteSubSliders(key: string, size: number, opacity: number): SliderPara
     {
       kind: "slider", name: `${key}Altitude`, labelPrefix: "Z 軸", digits: 0,
       labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
+    },
+  ];
+}
+
+// ── 網格類（H3 / SEGIS / YouBike）四支同構 slider ──────────────────
+// 控件組慣例：Opacity → Contrast → 3D → Height，六個子物件層共用同一組形狀。
+function gridOpacitySlider(name: string, def: number): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "Opacity", digits: 1,
+    default: def, min: 0.1, max: 1, step: 0.1, out: null,
+  };
+}
+function gridContrastSlider(name: string): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "Contrast", digits: 1,
+    default: 1.8, min: 0.5, max: 4, step: 0.1, out: null,
+  };
+}
+function gridHeightSlider(name: string, def: number): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "Height", digits: 0,
+    default: def, min: 10, max: 200, step: 10, out: null,
+  };
+}
+
+// ── 大類 → 細項 的級聯 select（三兄弟共用）────────────────────────
+const IND_CATEGORY_OPTIONS: ParamSelectOption[] = [
+  { label: "Count", value: "count" },
+  { label: "Struct", value: "struct" },
+  { label: "Burden", value: "burden" },
+];
+const IND_METRIC_MAP: Record<string, ParamSelectOption[]> = {
+  count: [{ label: "HH", value: "hh" }, { label: "M", value: "m" }, { label: "F", value: "f" }],
+  struct: [{ label: "Sex", value: "sr" }, { label: "PPH", value: "pph" }],
+  burden: [
+    { label: "Dep", value: "dr" }, { label: "Child", value: "cd" },
+    { label: "Elder", value: "ed" }, { label: "Aging", value: "ai" },
+  ],
+};
+const SOCIO_CATEGORY_OPTIONS: ParamSelectOption[] = [
+  { label: "Income", value: "income" },
+  { label: "Social", value: "social" },
+];
+const SOCIO_METRIC_MAP: Record<string, ParamSelectOption[]> = {
+  income: [{ label: "Med", value: "im" }, { label: "IQR", value: "iq" }, { label: "Sal%", value: "sr" }],
+  social: [{ label: "Vital", value: "vs" }, { label: "Vuln", value: "vl" }],
+};
+const SPATIAL_CATEGORY_OPTIONS: ParamSelectOption[] = [
+  { label: "Housing", value: "housing" },
+  { label: "Land", value: "land" },
+];
+const SPATIAL_METRIC_MAP: Record<string, ParamSelectOption[]> = {
+  housing: [
+    { label: "Price", value: "hp" }, { label: "Unit", value: "hu" }, { label: "P/I", value: "hpr" },
+  ],
+  land: [{ label: "Amty", value: "ad" }, { label: "Mix", value: "lm" }],
+};
+
+/**
+ * 「大類 select ＋ 細項 select」這一對（`indicators` / `socioeconomic` / `spatialEconomy`）。
+ *
+ * 三件事全部從同一份 `metricMap` 推導、**一處都不手抄**：
+ *   1. 細項的 `options`（預設大類那一份）
+ *   2. 細項的 `optionsByParam`（換大類 → 換選項表）
+ *   3. 大類的 `cascade`（換大類 → 細項重設成新表的第一項）
+ * 手寫版的 `(metricMap[v] ?? metricMap.count)[0]` 就是第 3 條。
+ */
+function categoryMetricPair(
+  categoryName: string,
+  metricName: string,
+  categoryOptions: ParamSelectOption[],
+  metricMap: Record<string, ParamSelectOption[]>,
+  defaultCategory: string,
+): SelectNoOverlayParamSpec[] {
+  const firstOf = (cat: string) =>
+    (metricMap[cat] ?? metricMap[defaultCategory] as ParamSelectOption[])[0]!.value;
+  return [
+    {
+      kind: "select", name: categoryName, label: "Category", default: defaultCategory,
+      options: categoryOptions,
+      cascade: categoryOptions.map((o) => ({
+        whenSelfIs: o.value, target: metricName, set: firstOf(o.value),
+      })),
+      out: null,
+    },
+    {
+      kind: "select", name: metricName, label: "Metric", default: firstOf(defaultCategory),
+      options: metricMap[defaultCategory] as ParamSelectOption[],
+      optionsByParam: { param: categoryName, byValue: metricMap, fallback: defaultCategory },
+      out: null,
+    },
+  ];
+}
+
+/**
+ * 裁處事件三層（重大／一般／移動污染源）fall-through 的 6 個控件 —— 整組共用同一份值。
+ *
+ * 兩條 cascade 是手寫版 onChange 的第二句：
+ *   - 年份一動就停播放（無條件）
+ *   - 按下播放且年份已到底（"0" 全部年份 ／ 最後一年）→ 倒帶回起始年
+ * ⚠️ 播放引擎逐年推進走 `setParamDirect`（不觸發 cascade），否則推進一年就自己停。
+ */
+function penaltyControls(): LayerParamSpec[] {
+  return [
+    { ...opacitySlider("pollutionPenaltyOpacity", 0.75), sharedGroup: "pollutionPenaltyOpacity" },
+    {
+      kind: "slider", name: "pollutionPenaltyScale", labelPrefix: "大小", digits: 2,
+      default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "pollutionPenaltyScale",
+    },
+    {
+      kind: "select", name: "pollutionPenaltyMediumIdx", label: "介質", default: "0",
+      options: [
+        { label: "全部介質", value: "0" },
+        ...PENALTY_MEDIA.map((m, i) => ({ label: POLLUTION_MEDIUM_LABELS[m], value: String(i + 1) })),
+      ],
+      sharedGroup: "pollutionPenaltyMediumIdx", out: null,
+    },
+    {
+      kind: "select", name: "pollutionPenaltyYear", label: "年份",
+      // 預設「只有今年」：今年 clamp 到資料年份範圍（現況被上限夾住而穩定）
+      default: String(Math.min(PENALTY_YEAR_MAX, Math.max(PENALTY_YEAR_MIN, new Date().getFullYear()))),
+      options: pollutionYearOptions(),
+      cascade: [{ target: "pollutionPenaltyPlaying", set: false }],
+      sharedGroup: "pollutionPenaltyYear", out: null,
+    },
+    {
+      kind: "select", name: "pollutionPenaltyMode", label: "模式", default: "1",
+      options: PENALTY_MODE_OPTIONS,
+      sharedGroup: "pollutionPenaltyMode", out: null,
+    },
+    {
+      kind: "toggle", name: "pollutionPenaltyPlaying", label: "▶ 歷史播放", default: false,
+      labelByValue: { true: "⏸ 停止播放", false: "▶ 歷史播放" },
+      cascade: [{
+        whenSelfIs: true,
+        target: "pollutionPenaltyYear",
+        set: String(PENALTY_YEAR_MIN),
+        onlyWhenTargetIn: ["0", String(PENALTY_YEAR_MAX)],
+      }],
+      sharedGroup: "pollutionPenaltyPlaying", out: null,
     },
   ];
 }
@@ -2131,6 +2333,100 @@ export const LAYER_PARAMS_SPEC = {
     },
   ],
 
+  // ══════════ D 桶群4：獨立子物件 ＋ 級聯寫入（P3-2D）══════════
+  // 值進 hook 的 `h3Params` / `popCountParams` / `indicatorsParams` / `socioParams` /
+  // `spatialParams` / `youbikeParams` 六個獨立回傳物件（全部 `out: null`）。
+
+  h3Population: [
+    gridOpacitySlider("h3Opacity", 0.6),
+    gridContrastSlider("h3Contrast"),
+    { kind: "toggle", name: "h3Extruded", label: "3D", default: false, out: null },
+    gridHeightSlider("h3ElevationScale", 50),
+    {
+      kind: "select", name: "h3Metric", label: "Metric", default: "day",
+      options: [{ label: "Day", value: "day" }, { label: "Night", value: "night" }],
+      out: null,
+    },
+  ],
+  popCount: [
+    gridOpacitySlider("pcOpacity", 0.6),
+    gridContrastSlider("pcContrast"),
+    { kind: "toggle", name: "pcExtruded", label: "3D", default: false, out: null },
+    gridHeightSlider("pcElevationScale", 50),
+  ],
+  // 三兄弟（人口指標／村里社經／空間經濟）：大類 select → 細項 select 的選項表與值都連動
+  indicators: [
+    ...categoryMetricPair("indCategory", "indMetric", IND_CATEGORY_OPTIONS, IND_METRIC_MAP, "count"),
+    gridOpacitySlider("indOpacity", 0.6),
+    gridContrastSlider("indContrast"),
+    { kind: "toggle", name: "indExtruded", label: "3D", default: false, out: null },
+    gridHeightSlider("indElevationScale", 50),
+  ],
+  socioeconomic: [
+    ...categoryMetricPair("socioCat", "socioMetric", SOCIO_CATEGORY_OPTIONS, SOCIO_METRIC_MAP, "income"),
+    gridOpacitySlider("socioOpacity", 0.6),
+    gridContrastSlider("socioContrast"),
+    { kind: "toggle", name: "socioExtruded", label: "3D", default: false, out: null },
+    gridHeightSlider("socioElevation", 50),
+  ],
+  spatialEconomy: [
+    ...categoryMetricPair("spatialCat", "spatialMetric", SPATIAL_CATEGORY_OPTIONS, SPATIAL_METRIC_MAP, "housing"),
+    gridOpacitySlider("spatialOpacity", 0.6),
+    gridContrastSlider("spatialContrast"),
+    { kind: "toggle", name: "spatialExtruded", label: "3D", default: false, out: null },
+    gridHeightSlider("spatialElevation", 50),
+  ],
+  youbikeFullness: [
+    {
+      kind: "select", name: "ybResolution", label: "Grid", default: "7",
+      options: [{ label: "大", value: "7" }, { label: "中", value: "8" }, { label: "小", value: "9" }],
+      out: null,
+    },
+    {
+      kind: "select", name: "ybHeightMode", label: "Height", default: "mixed",
+      options: [
+        { label: "有車×容量", value: "mixed" },
+        { label: "有車率", value: "fullness" },
+        { label: "容量", value: "capacity" },
+      ],
+      out: null,
+    },
+    gridOpacitySlider("ybOpacity", 0.65),
+    {
+      kind: "slider", name: "ybContrast", labelPrefix: "Contrast", digits: 1,
+      default: 1, min: 0.3, max: 3, step: 0.1, out: null,
+    },
+    { kind: "toggle", name: "ybExtruded", label: "3D", default: true, out: null },
+    gridHeightSlider("ybElevationScale", 80),
+  ],
+
+  // ── 環境污染：opacity / scale 走 paint，filter 狀態走 hook return ──
+  pollutionFacility: [
+    opacitySlider("pollutionFacilityOpacity", 0.8),
+    {
+      kind: "slider", name: "pollutionFacilityScale", labelPrefix: "大小", digits: 2,
+      default: 1, min: 0.3, max: 3, step: 0.1,
+    },
+    {
+      kind: "select", name: "pollutionFacilityMinSev", label: "最低嚴重度", default: "0",
+      options: SEVERITY_BANDS.slice(0, 4).map((b) => ({ label: `S${b.sev}+`, value: String(b.sev) })),
+      out: null,
+    },
+    // 5 個介質 checkbox（`FACILITY_MEDIA`）。⚠️ 回傳的 media Record 是 **7 個 key**：
+    // noise / other 沒有控件、恆為 false，hook 端補常數。
+    ...FACILITY_MEDIA.map((m) => ({
+      kind: "toggle" as const,
+      name: `pollutionFacilityMedia_${m}`,
+      label: POLLUTION_MEDIUM_LABELS[m],
+      default: true,
+      out: null,
+    })),
+  ],
+  // 裁處事件三層 fall-through：6 個控件全部共用同一份值
+  pollutionPenaltyCritical: penaltyControls(),
+  pollutionPenaltyGeneral: penaltyControls(),
+  pollutionPenaltyMobile: penaltyControls(),
+
   // ══════════ D 桶群3：廢棄物（巢狀 Record ＋ 分組 checkbox）══════════
   // 垃圾車 GPS（wasteTruck）與表定路線（wasteSchedule）視覺風格統一 → 共用 3 支 slider；
   // 8 區分組 checkbox 只有表定那層有（GPS 固定高雄＋台南）。
@@ -2251,17 +2547,26 @@ export function visibleParamsSpec(
   return spec.filter((s) => !s.showWhen || resolved[s.showWhen.param] === s.showWhen.equals);
 }
 
-/** `disableRule` 求值後的選項表；沒宣告規則就原封不動回傳 */
+/**
+ * `optionsByParam` ＋ `disableRule` 求值後的選項表；兩者都沒宣告就原封不動回傳。
+ *
+ * 順序：先依「別的參數的值」挑出這一份表（大類 → 細項），再套停用規則。
+ * 目前沒有同時用到兩者的 case，但順序寫死才不會有人日後踩到不確定行為。
+ */
 export function resolveSelectOptions(
   spec: SelectParamSpec,
   resolved: LayerParamValues,
 ): ParamSelectOption[] {
+  const dyn = spec.optionsByParam;
+  const options = dyn
+    ? (dyn.byValue[String(resolved[dyn.param] ?? "")] ?? dyn.byValue[dyn.fallback] ?? spec.options)
+    : spec.options;
   const rule = spec.disableRule;
-  if (!rule) return spec.options;
+  if (!rule) return options;
   const enabled = rule.enabledWhenIn.includes(String(resolved[rule.param] ?? ""));
   // ⚠️ 每個選項都要帶 `disabled`（含 false）—— 手寫版是無條件 `return { …, disabled }`，
   //    只在停用時才加這個 key 會讓黃金快照的 params section 紅。
-  return spec.options.map((o) => {
+  return options.map((o) => {
     const disabled = o.value === rule.option && !enabled;
     return { label: disabled ? `${o.label}${rule.reason}` : o.label, value: o.value, disabled };
   });

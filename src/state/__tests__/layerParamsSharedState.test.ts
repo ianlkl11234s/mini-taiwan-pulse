@@ -127,10 +127,17 @@ describe("已遷移參數與 useTransportParams 的交叉檢查", () => {
   });
 
   it("(b) 已遷移的 out key 不得還是 overlayParams 物件字面的屬性", () => {
-    const props = overlayLiteralProps(stripped);
+    const { props, body } = overlayLiteralProps(stripped);
     // 哨兵：解析器被改壞（抓到 0 個屬性）時上面那條會永遠綠。
-    // ⚠️ 門檻會隨手寫字面縮小而過時 —— 搬到低於門檻時**調降**，不要刪。
-    expect(props.size, "overlayParams 字面屬性解析出 0 個 —— 解析器需同步更新").toBeGreaterThan(0);
+    // ⚠️ P3-2D 群4 起手寫字面**已全部清空**（0 個屬性是正解）→ 哨兵語意升級成
+    //    「memo body 真的只剩 ...migratedOverlayParams 這個 spread」。
+    //    日後若有人往回加一個手寫屬性，這條與下面那條會同時盯著。
+    if (props.size === 0) {
+      expect(
+        body.replace(/\s+/g, ""),
+        "overlayParams 字面解析出 0 個屬性，但 body 也不是只剩 spread —— 解析器需同步更新",
+      ).toBe("...migratedOverlayParams,");
+    }
     for (const { key, spec } of entries) {
       const out = specOutKey(spec);
       if (out === null) continue;
@@ -171,11 +178,14 @@ describe("useTransportParams 剩餘 case 的耦合群組", () => {
 
   // ⚠️ 這條是**哨兵**不是規格：它防的是「解析器被改壞、一個群組都抓不到，
   //    於是上面那條永遠綠」。門檻會隨 switch 縮小而過時 —— 後棒把 case 數搬到
-  //    低於門檻時，**調降門檻**即可（不要刪掉這條）。P3-2D 群2 後 switch 剩 15 組。
-  it("解析器有抓到 case 群組與 fall-through（護欄本身沒被改壞的哨兵）", () => {
-    expect(groups.length).toBeGreaterThan(10);
-    expect(groups.some((g) => g.keys.length > 1)).toBe(true);
-    expect(groups.some((g) => g.vars.length > 0)).toBe(true);
+  //    低於門檻時，**調降門檻**即可（不要刪掉這條）。
+  //    ⚠️ P3-2D 收工後 switch 只剩 5 個 `emptyByDesign` case，全部是 `return []`：
+  //    既沒有 fall-through group 也沒有 state 變數 —— 原本那兩條「解析得出耦合」的
+  //    哨兵已無對象可驗（不是壞掉，是母體空了），改成盯 case 數本身。
+  //    終局刪檔（P3-3）時本 describe 整段會跟著 switch 一起消失。
+  it("解析器有抓到 case 群組（護欄本身沒被改壞的哨兵）", () => {
+    expect(groups.length).toBeGreaterThan(3);
+    expect(groups.every((g) => g.keys.length >= 1)).toBe(true);
   });
 });
 
@@ -187,16 +197,16 @@ describe("useTransportParams 剩餘 case 的耦合群組", () => {
  * 值運算式裡的識別字（`x ? 1 : 0` 的 `x`）前面是空白或 `?`，不會被收進來。
  * 邊界沿用 `overlayParamsDeps.test.ts` 已在用的同一組錨（各寫一份必漂移）。
  */
-function overlayLiteralProps(strippedSrc: string): Set<string> {
+function overlayLiteralProps(strippedSrc: string): { props: Set<string>; body: string } {
   const MEMO_START = "const overlayParams = useMemo<Record<string, number>>(() => ({";
   const start = strippedSrc.indexOf(MEMO_START);
   if (start < 0) throw new Error("找不到 overlayParams useMemo 起點 —— 解析器需同步更新");
   const end = strippedSrc.indexOf("}), [", start);
   if (end < 0) throw new Error("找不到 overlayParams useMemo 的 deps 邊界 —— 解析器需同步更新");
   const body = strippedSrc.slice(start + MEMO_START.length, end);
-  const out = new Set<string>();
-  for (const m of body.matchAll(/(?:^|[,{])\s*([A-Za-z_$][\w$]*)\s*[:,]/gm)) out.add(m[1] as string);
-  return out;
+  const props = new Set<string>();
+  for (const m of body.matchAll(/(?:^|[,{])\s*([A-Za-z_$][\w$]*)\s*[:,]/gm)) props.add(m[1] as string);
+  return { props, body };
 }
 
 /** 把註解換成等長空白（保留 offset）；字串／模板感知 */

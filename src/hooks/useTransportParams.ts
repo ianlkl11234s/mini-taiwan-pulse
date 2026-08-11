@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import type { ExpandableLayerKey, BusCity } from "../types";
 import {
   layerParamsStore, encodeParamsToOverlay, buildDefaultParams,
@@ -8,9 +8,7 @@ import { BUS_GROUP_ORDER, paramDefault } from "../data/layerParamsSpec";
 import { buildParamControls } from "../state/layerParamsControls";
 import { BUS_GROUP_CITIES, WASTE_GROUP_CITIES } from "../types";
 import {
-  FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
-  pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
-  type PollutionMedium,
+  FACILITY_MEDIA, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX, type PollutionMedium,
 } from "../data/pollutionTypes";
 // religionTypes / funeralTypes / buildingsGbaTypes / propertyValueTypes 等
 // select 選項常數已隨對應的 key 遷出本檔（現由 src/data/layerParamsSpec.ts 引用）。
@@ -96,6 +94,37 @@ const RAIL_TRACK_MODES = ["2d", "3d"] as const;
 const BUS_COLOR_MODES = ["route", "speed", "density"] as const;
 const NEWS_RELEVANCE_LEVELS = [0, 2, 3] as const;
 const NEWS_SEVERITY_LEVELS = [0, 1, 2] as const;
+const H3_METRICS = ["day", "night"] as const;
+const YB_HEIGHT_MODES = ["mixed", "fullness", "capacity"] as const;
+
+/**
+ * 裁處事件三層 fall-through 共用同一份值 —— 讀寫取第一個成員當代表
+ * （`sharedGroup` 保證三者恆等）。
+ */
+const PENALTY_KEY = "pollutionPenaltyCritical";
+
+/**
+ * 裁處事件歷史播放的**一次推進**（純函式：吃 store、寫 store，不碰 React）。
+ *
+ * 抽出來的理由：`useEffect` 在 `renderToStaticMarkup` 下根本不執行，
+ * 播放引擎在等值閘的 harness 裡不可測 —— 純函式才驗得到三條分支
+ * （逐年推進 ／ 到最後一年停 ／「全部年份」起手跳到起始年）。
+ *
+ * ⚠️ 一律走 `setParamDirect`（不觸發 cascade）：年份的 cascade 是「一動就停播放」，
+ * 那是**控件 onChange** 的語意；引擎自己推進若也觸發，播放推進一年就會自己關掉。
+ * ⚠️ 年份是 select、store 存**字串** —— 寫回去要 `String(...)`，寫數字會讓控件
+ * 讀不到型別相符的值而退回預設（靜默壞掉，且 effect 不執行的閘都看不到）。
+ */
+export function advancePenaltyYear(): void {
+  const raw = Number(layerParamsStore.getParam(PENALTY_KEY, "pollutionPenaltyYear"));
+  const cur = raw === 0 ? PENALTY_YEAR_MIN : raw;
+  if (cur >= PENALTY_YEAR_MAX) {
+    layerParamsStore.setParamDirect(PENALTY_KEY, "pollutionPenaltyPlaying", false);
+    layerParamsStore.setParamDirect(PENALTY_KEY, "pollutionPenaltyYear", String(PENALTY_YEAR_MAX));
+    return;
+  }
+  layerParamsStore.setParamDirect(PENALTY_KEY, "pollutionPenaltyYear", String(cur + 1));
+}
 
 // ── 鏡像 ref（Three.js render loop 逐幀讀 `.current`，不走 React 樹）─────
 //
@@ -157,96 +186,6 @@ function useParamRefEnum<T extends string>(
 }
 
 export function useTransportParams() {
-  // ── 環境污染 POLLUTION ──
-  // 設施：opacity + scale + 5 介質 filter（勾選 → 只顯示登記該介質的設施）+ 最低嚴重度門檻
-  const [pollutionFacilityOpacity, setPollutionFacilityOpacity] = useState(0.8);
-  const [pollutionFacilityScale, setPollutionFacilityScale] = useState(1);
-  const [pollutionFacilityMedia, setPollutionFacilityMedia] = useState<Record<PollutionMedium, boolean>>({
-    air: true, water: true, waste: true, toxic: true, soil: true, noise: false, other: false,
-  });
-  const [pollutionFacilityMinSev, setPollutionFacilityMinSev] = useState(0);
-  // 裁處事件：opacity + scale + medium select + 年份 + 模式（累積/單年）+ 播放
-  const [pollutionPenaltyOpacity, setPollutionPenaltyOpacity] = useState(0.75);
-  const [pollutionPenaltyScale, setPollutionPenaltyScale] = useState(1);
-  const [pollutionPenaltyMediumIdx, setPollutionPenaltyMediumIdx] = useState(0); // 0 = 全部
-  // 預設「只有今年」：今年（clamp 到資料年份範圍）+ 僅該年模式。
-  const [pollutionPenaltyYear, setPollutionPenaltyYear] = useState(
-    Math.min(PENALTY_YEAR_MAX, Math.max(PENALTY_YEAR_MIN, new Date().getFullYear())),
-  );
-  const [pollutionPenaltyMode, setPollutionPenaltyMode] = useState(1);           // 0 = 累積、1 = 僅該年（預設僅今年）
-  const [pollutionPenaltyPlaying, setPollutionPenaltyPlaying] = useState(false);
-
-  const setPollutionFacilityMedium = (m: PollutionMedium, v: boolean) =>
-    setPollutionFacilityMedia((p) => ({ ...p, [m]: v }));
-
-  // 裁處事件歷史播放引擎：從起始年逐年推進到 2026 後停（比照火災事件的自動播放）。
-  useEffect(() => {
-    if (!pollutionPenaltyPlaying) return;
-    const id = setInterval(() => {
-      setPollutionPenaltyYear((y) => {
-        const cur = y === 0 ? PENALTY_YEAR_MIN : y;
-        if (cur >= PENALTY_YEAR_MAX) {
-          setPollutionPenaltyPlaying(false);
-          return PENALTY_YEAR_MAX;
-        }
-        return cur + 1;
-      });
-    }, 1100);
-    return () => clearInterval(id);
-  }, [pollutionPenaltyPlaying]);
-  // Population Flow (H3)
-  const [h3Opacity, setH3Opacity] = useState(0.6);
-  const [h3Extruded, setH3Extruded] = useState(false);
-  const [h3ElevationScale, setH3ElevationScale] = useState(50);
-  const [h3Metric, setH3Metric] = useState<"day" | "night">("day");
-  const [h3Contrast, setH3Contrast] = useState(1.8);
-  // Population Count (SEGIS)
-  const [pcOpacity, setPcOpacity] = useState(0.6);
-  const [pcContrast, setPcContrast] = useState(1.8);
-  const [pcExtruded, setPcExtruded] = useState(false);
-  const [pcElevationScale, setPcElevationScale] = useState(50);
-  // Population Indicators (SEGIS)
-  const [indCategory, setIndCategory] = useState("count");
-  const [indMetric, setIndMetric] = useState("hh");
-  const [indOpacity, setIndOpacity] = useState(0.6);
-  const [indContrast, setIndContrast] = useState(1.8);
-  const [indExtruded, setIndExtruded] = useState(false);
-  const [indElevationScale, setIndElevationScale] = useState(50);
-  // School（🎓 教育 Education 第 38 主題）
-  // schoolScale / schoolLevelColor 是原公共設施 schools 層的既有 param，
-  // 搬入教育主題後 schoolScale 擴大為 6 個點層共用；schoolLevelColor 仍只作用於總覽層。
-  // 學區面：國小／國中兩層的面完全疊合，共用一支 slider（分開調會互相遮蓋難以對齊）；
-  // 高中就學區是覆蓋全台的縣市級大面，預設更透明。
-  // 幼托三層（幼兒園／課後照顧／互助教保）密度相近且常疊看，共用一組 slider；
-  // 補習班 17,137 點密度高一階，獨立一組（預設更透明），見 overlayRegistry 的 eduCramSchool*。
-  // Socioeconomic (村里社經)
-  const [socioCat, setSocioCat] = useState("income");
-  const [socioMetric, setSocioMetric] = useState("im");
-  const [socioOpacity, setSocioOpacity] = useState(0.6);
-  const [socioContrast, setSocioContrast] = useState(1.8);
-  const [socioExtruded, setSocioExtruded] = useState(false);
-  const [socioElevation, setSocioElevation] = useState(50);
-  // Spatial Economy (空間經濟)
-  const [spatialCat, setSpatialCat] = useState("housing");
-  const [spatialMetric, setSpatialMetric] = useState("hp");
-  const [spatialOpacity, setSpatialOpacity] = useState(0.6);
-  const [spatialContrast, setSpatialContrast] = useState(1.8);
-  const [spatialExtruded, setSpatialExtruded] = useState(false);
-  const [spatialElevation, setSpatialElevation] = useState(50);
-  // YouBike Fullness (H3)
-  const [ybOpacity, setYbOpacity] = useState(0.65);
-  const [ybContrast, setYbContrast] = useState(1);
-  const [ybExtruded, setYbExtruded] = useState(true);
-  const [ybElevationScale, setYbElevationScale] = useState(80);
-  const [ybHeightMode, setYbHeightMode] = useState<"mixed" | "fullness" | "capacity">("mixed");
-  const [ybResolution, setYbResolution] = useState(7);
-
-
-
-
-  // 衍生（H3 / polygon）：opacity + outlineWidth + showOutline
-
-
   // ══════════════════════════════════════════════════════════════════
   //  雙軌（AR-22 P3-1）：已遷移進 layerParamsStore 的 key 走規格派生，
   //  其餘維持本檔既有的 per-layer useState + switch。分岔只有兩處 ——
@@ -364,6 +303,97 @@ export function useTransportParams() {
     [wasteScheduleParams],
   );
 
+  // ── 第二通道：已遷移參數 → 六個獨立子物件（P3-2D 群4）──────────────
+  //    identity 用 useMemo 釘住，deps 取該 key 的整包參數物件 ——
+  //    store 保證「只有這個 key 真的變動時才換 identity」，與手寫版逐項列 deps 等價。
+  const h3Values = migratedParams["h3Population"];
+  const h3Params = useMemo(() => ({
+    opacity: pNum(migratedParams, "h3Population", "h3Opacity"),
+    extruded: pBool(migratedParams, "h3Population", "h3Extruded"),
+    elevationScale: pNum(migratedParams, "h3Population", "h3ElevationScale"),
+    metric: oneOf(pStr(migratedParams, "h3Population", "h3Metric"), H3_METRICS, "day"),
+    contrast: pNum(migratedParams, "h3Population", "h3Contrast"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [h3Values]);
+
+  const pcValues = migratedParams["popCount"];
+  const popCountParams = useMemo(() => ({
+    opacity: pNum(migratedParams, "popCount", "pcOpacity"),
+    contrast: pNum(migratedParams, "popCount", "pcContrast"),
+    extruded: pBool(migratedParams, "popCount", "pcExtruded"),
+    elevationScale: pNum(migratedParams, "popCount", "pcElevationScale"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [pcValues]);
+
+  const indValues = migratedParams["indicators"];
+  const indicatorsParams = useMemo(() => ({
+    category: pStr(migratedParams, "indicators", "indCategory"),
+    metric: pStr(migratedParams, "indicators", "indMetric"),
+    opacity: pNum(migratedParams, "indicators", "indOpacity"),
+    contrast: pNum(migratedParams, "indicators", "indContrast"),
+    extruded: pBool(migratedParams, "indicators", "indExtruded"),
+    elevationScale: pNum(migratedParams, "indicators", "indElevationScale"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [indValues]);
+
+  const socioValues = migratedParams["socioeconomic"];
+  const socioParams = useMemo(() => ({
+    metric: pStr(migratedParams, "socioeconomic", "socioMetric"),
+    opacity: pNum(migratedParams, "socioeconomic", "socioOpacity"),
+    contrast: pNum(migratedParams, "socioeconomic", "socioContrast"),
+    extruded: pBool(migratedParams, "socioeconomic", "socioExtruded"),
+    elevationScale: pNum(migratedParams, "socioeconomic", "socioElevation"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [socioValues]);
+
+  const spatialValues = migratedParams["spatialEconomy"];
+  const spatialParams = useMemo(() => ({
+    metric: pStr(migratedParams, "spatialEconomy", "spatialMetric"),
+    opacity: pNum(migratedParams, "spatialEconomy", "spatialOpacity"),
+    contrast: pNum(migratedParams, "spatialEconomy", "spatialContrast"),
+    extruded: pBool(migratedParams, "spatialEconomy", "spatialExtruded"),
+    elevationScale: pNum(migratedParams, "spatialEconomy", "spatialElevation"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [spatialValues]);
+
+  const ybValues = migratedParams["youbikeFullness"];
+  const youbikeParams = useMemo(() => ({
+    opacity: pNum(migratedParams, "youbikeFullness", "ybOpacity"),
+    contrast: pNum(migratedParams, "youbikeFullness", "ybContrast"),
+    extruded: pBool(migratedParams, "youbikeFullness", "ybExtruded"),
+    elevationScale: pNum(migratedParams, "youbikeFullness", "ybElevationScale"),
+    heightMode: oneOf(pStr(migratedParams, "youbikeFullness", "ybHeightMode"), YB_HEIGHT_MODES, "mixed"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [ybValues]);
+  const ybResolution = pNum(migratedParams, "youbikeFullness", "ybResolution");
+
+  // ── 第二通道：環境污染的 filter 狀態（餵 usePollutionLayers 的 setFilter）──
+  //    ⚠️ media 是 **7 個 key** 的 Record，但只有 5 個有控件（`FACILITY_MEDIA`）——
+  //    noise / other 沒有控件、恆為 false，這裡補常數。
+  const facilityValues = migratedParams["pollutionFacility"];
+  const pollutionFacilityMedia = useMemo<Record<PollutionMedium, boolean>>(() => {
+    const out = { noise: false, other: false } as Record<PollutionMedium, boolean>;
+    for (const m of FACILITY_MEDIA) {
+      out[m] = pBool(migratedParams, "pollutionFacility", `pollutionFacilityMedia_${m}`);
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [facilityValues]);
+  const pollutionFacilityMinSev = pNum(migratedParams, "pollutionFacility", "pollutionFacilityMinSev");
+  const pollutionPenaltyMediumIdx = pNum(migratedParams, PENALTY_KEY, "pollutionPenaltyMediumIdx");
+  const pollutionPenaltyYear = pNum(migratedParams, PENALTY_KEY, "pollutionPenaltyYear");
+  const pollutionPenaltyMode = pNum(migratedParams, PENALTY_KEY, "pollutionPenaltyMode");
+
+  // 裁處事件歷史播放引擎：從起始年逐年推進到最後一年後停（比照火災事件的自動播放）。
+  // 推進邏輯抽成純函式（`advancePenaltyYear`）—— effect 在 server render 下不執行，
+  // 測試碰不到它；純函式才驗得到「推進 / 到頂停 / 全部年份起手」三條分支。
+  const pollutionPenaltyPlaying = pBool(migratedParams, PENALTY_KEY, "pollutionPenaltyPlaying");
+  useEffect(() => {
+    if (!pollutionPenaltyPlaying) return;
+    const id = setInterval(advancePenaltyYear, 1100);
+    return () => clearInterval(id);
+  }, [pollutionPenaltyPlaying]);
+
   // ── 第二通道：群2 裡另外還要回傳純值的三處 ───────────────────────
   const stationScale = pNum(migratedParams, "stationsTHSR", "stationScale");
   const railTrackMode = oneOf(pStr(migratedParams, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d");
@@ -404,24 +434,13 @@ export function useTransportParams() {
 
   const overlayParams = useMemo<Record<string, number>>(() => ({
     // 警察覆蓋分析（數字化 mode/minutes 餵 paint expression）
-    // 環境污染（paint 用；filter 值另由 return 物件傳給 usePollutionLayers）
-    pollutionFacilityOpacity, pollutionFacilityScale,
-    pollutionPenaltyOpacity, pollutionPenaltyScale,
     // ENERGY
     // 雲林 POC 覆蓋分析
     // HAZARD
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams,
-    
-    
-    
-    
-    
-    pollutionFacilityOpacity, pollutionFacilityScale,
-    pollutionPenaltyOpacity, pollutionPenaltyScale,
-    ]);
+  }), [migratedOverlayParams]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     // ── 雙軌分岔（AR-22 P3-1）──────────────────────────────────────
@@ -439,113 +458,9 @@ export function useTransportParams() {
       case "submarineCables": return [];
       case "landingStations": return [];
       case "activeFaults": return [];
-      case "h3Population": return [
-        { label: `Opacity ${h3Opacity.toFixed(1)}`, value: h3Opacity, min: 0.1, max: 1, step: 0.1, onChange: setH3Opacity },
-        { label: `Contrast ${h3Contrast.toFixed(1)}`, value: h3Contrast, min: 0.5, max: 4, step: 0.1, onChange: setH3Contrast },
-        { type: "toggle" as const, label: "3D", value: h3Extruded, onChange: setH3Extruded },
-        { label: `Height ${h3ElevationScale}`, value: h3ElevationScale, min: 10, max: 200, step: 10, onChange: setH3ElevationScale },
-        { type: "select" as const, label: "Metric", value: h3Metric, options: [{ label: "Day", value: "day" }, { label: "Night", value: "night" }], onChange: (v: string) => setH3Metric(v as "day" | "night") },
-      ];
-      case "popCount": return [
-        { label: `Opacity ${pcOpacity.toFixed(1)}`, value: pcOpacity, min: 0.1, max: 1, step: 0.1, onChange: setPcOpacity },
-        { label: `Contrast ${pcContrast.toFixed(1)}`, value: pcContrast, min: 0.5, max: 4, step: 0.1, onChange: setPcContrast },
-        { type: "toggle" as const, label: "3D", value: pcExtruded, onChange: setPcExtruded },
-        { label: `Height ${pcElevationScale}`, value: pcElevationScale, min: 10, max: 200, step: 10, onChange: setPcElevationScale },
-      ];
-      case "indicators": {
-        const categoryOptions = [
-          { label: "Count", value: "count" },
-          { label: "Struct", value: "struct" },
-          { label: "Burden", value: "burden" },
-        ];
-        const metricMap: Record<string, { label: string; value: string }[]> = {
-          count: [{ label: "HH", value: "hh" }, { label: "M", value: "m" }, { label: "F", value: "f" }],
-          struct: [{ label: "Sex", value: "sr" }, { label: "PPH", value: "pph" }],
-          burden: [{ label: "Dep", value: "dr" }, { label: "Child", value: "cd" }, { label: "Elder", value: "ed" }, { label: "Aging", value: "ai" }],
-        };
-        const currentMetrics = metricMap[indCategory] ?? metricMap.count!;
-        return [
-          { type: "select" as const, label: "Category", value: indCategory, options: categoryOptions, onChange: (v: string) => { setIndCategory(v); const first = (metricMap[v] ?? metricMap.count!)[0]!; setIndMetric(first.value); } },
-          { type: "select" as const, label: "Metric", value: indMetric, options: currentMetrics, onChange: setIndMetric },
-          { label: `Opacity ${indOpacity.toFixed(1)}`, value: indOpacity, min: 0.1, max: 1, step: 0.1, onChange: setIndOpacity },
-          { label: `Contrast ${indContrast.toFixed(1)}`, value: indContrast, min: 0.5, max: 4, step: 0.1, onChange: setIndContrast },
-          { type: "toggle" as const, label: "3D", value: indExtruded, onChange: setIndExtruded },
-          { label: `Height ${indElevationScale}`, value: indElevationScale, min: 10, max: 200, step: 10, onChange: setIndElevationScale },
-        ];
-      }
-      case "socioeconomic": {
-        const socioCatOpts = [
-          { label: "Income", value: "income" },
-          { label: "Social", value: "social" },
-        ];
-        const socioMetricMap: Record<string, { label: string; value: string }[]> = {
-          income: [{ label: "Med", value: "im" }, { label: "IQR", value: "iq" }, { label: "Sal%", value: "sr" }],
-          social: [{ label: "Vital", value: "vs" }, { label: "Vuln", value: "vl" }],
-        };
-        const socioMetrics = socioMetricMap[socioCat] ?? socioMetricMap.income!;
-        return [
-          { type: "select" as const, label: "Category", value: socioCat, options: socioCatOpts, onChange: (v: string) => { setSocioCat(v); const first = (socioMetricMap[v] ?? socioMetricMap.income!)[0]!; setSocioMetric(first.value); } },
-          { type: "select" as const, label: "Metric", value: socioMetric, options: socioMetrics, onChange: setSocioMetric },
-          { label: `Opacity ${socioOpacity.toFixed(1)}`, value: socioOpacity, min: 0.1, max: 1, step: 0.1, onChange: setSocioOpacity },
-          { label: `Contrast ${socioContrast.toFixed(1)}`, value: socioContrast, min: 0.5, max: 4, step: 0.1, onChange: setSocioContrast },
-          { type: "toggle" as const, label: "3D", value: socioExtruded, onChange: setSocioExtruded },
-          { label: `Height ${socioElevation}`, value: socioElevation, min: 10, max: 200, step: 10, onChange: setSocioElevation },
-        ];
-      }
-      case "spatialEconomy": {
-        const spatialCatOpts = [
-          { label: "Housing", value: "housing" },
-          { label: "Land", value: "land" },
-        ];
-        const spatialMetricMap: Record<string, { label: string; value: string }[]> = {
-          housing: [{ label: "Price", value: "hp" }, { label: "Unit", value: "hu" }, { label: "P/I", value: "hpr" }],
-          land: [{ label: "Amty", value: "ad" }, { label: "Mix", value: "lm" }],
-        };
-        const spatialMetrics = spatialMetricMap[spatialCat] ?? spatialMetricMap.housing!;
-        return [
-          { type: "select" as const, label: "Category", value: spatialCat, options: spatialCatOpts, onChange: (v: string) => { setSpatialCat(v); const first = (spatialMetricMap[v] ?? spatialMetricMap.housing!)[0]!; setSpatialMetric(first.value); } },
-          { type: "select" as const, label: "Metric", value: spatialMetric, options: spatialMetrics, onChange: setSpatialMetric },
-          { label: `Opacity ${spatialOpacity.toFixed(1)}`, value: spatialOpacity, min: 0.1, max: 1, step: 0.1, onChange: setSpatialOpacity },
-          { label: `Contrast ${spatialContrast.toFixed(1)}`, value: spatialContrast, min: 0.5, max: 4, step: 0.1, onChange: setSpatialContrast },
-          { type: "toggle" as const, label: "3D", value: spatialExtruded, onChange: setSpatialExtruded },
-          { label: `Height ${spatialElevation}`, value: spatialElevation, min: 10, max: 200, step: 10, onChange: setSpatialElevation },
-        ];
-      }
-      case "youbikeFullness": return [
-        { type: "select" as const, label: "Grid", value: String(ybResolution), options: [{ label: "大", value: "7" }, { label: "中", value: "8" }, { label: "小", value: "9" }], onChange: (v: string) => setYbResolution(Number(v)) },
-        { type: "select" as const, label: "Height", value: ybHeightMode, options: [{ label: "有車×容量", value: "mixed" }, { label: "有車率", value: "fullness" }, { label: "容量", value: "capacity" }], onChange: (v: string) => setYbHeightMode(v as "mixed" | "fullness" | "capacity") },
-        { label: `Opacity ${ybOpacity.toFixed(1)}`, value: ybOpacity, min: 0.1, max: 1, step: 0.1, onChange: setYbOpacity },
-        { label: `Contrast ${ybContrast.toFixed(1)}`, value: ybContrast, min: 0.3, max: 3, step: 0.1, onChange: setYbContrast },
-        { type: "toggle" as const, label: "3D", value: ybExtruded, onChange: setYbExtruded },
-        { label: `Height ${ybElevationScale}`, value: ybElevationScale, min: 10, max: 200, step: 10, onChange: setYbElevationScale },
-      ];
       case "aqiStations": return [];
       // 🏟️ 運動場館 Sports（5 sublayer，opacity + scale；大小另由 area_sqm log 內插驅動）
       // ── 環境污染 POLLUTION ──
-      case "pollutionFacility": return [
-        { label: `透明度 ${pollutionFacilityOpacity.toFixed(2)}`, value: pollutionFacilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionFacilityOpacity },
-        { label: `大小 ${pollutionFacilityScale.toFixed(2)}`, value: pollutionFacilityScale, min: 0.3, max: 3, step: 0.1, onChange: setPollutionFacilityScale },
-        { type: "select" as const, label: "最低嚴重度", value: String(pollutionFacilityMinSev), options: SEVERITY_BANDS.slice(0, 4).map((b) => ({ label: `S${b.sev}+`, value: String(b.sev) })), onChange: (v: string) => setPollutionFacilityMinSev(Number(v)) },
-        ...FACILITY_MEDIA.map((m) => ({
-          type: "toggle" as const,
-          label: POLLUTION_MEDIUM_LABELS[m],
-          value: pollutionFacilityMedia[m],
-          onChange: (v: boolean) => setPollutionFacilityMedium(m, v),
-        })),
-      ];
-      case "pollutionPenaltyCritical":
-      case "pollutionPenaltyGeneral":
-      case "pollutionPenaltyMobile": {
-        const medOpts = [{ label: "全部介質", value: "0" }, ...PENALTY_MEDIA.map((m, i) => ({ label: POLLUTION_MEDIUM_LABELS[m], value: String(i + 1) }))];
-        return [
-          { label: `透明度 ${pollutionPenaltyOpacity.toFixed(2)}`, value: pollutionPenaltyOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionPenaltyOpacity },
-          { label: `大小 ${pollutionPenaltyScale.toFixed(2)}`, value: pollutionPenaltyScale, min: 0.3, max: 3, step: 0.1, onChange: setPollutionPenaltyScale },
-          { type: "select" as const, label: "介質", value: String(pollutionPenaltyMediumIdx), options: medOpts, onChange: (v: string) => setPollutionPenaltyMediumIdx(Number(v)) },
-          { type: "select" as const, label: "年份", value: String(pollutionPenaltyYear), options: pollutionYearOptions(), onChange: (v: string) => { setPollutionPenaltyYear(Number(v)); setPollutionPenaltyPlaying(false); } },
-          { type: "select" as const, label: "模式", value: String(pollutionPenaltyMode), options: PENALTY_MODE_OPTIONS, onChange: (v: string) => setPollutionPenaltyMode(Number(v)) },
-          { type: "toggle" as const, label: pollutionPenaltyPlaying ? "⏸ 停止播放" : "▶ 歷史播放", value: pollutionPenaltyPlaying, onChange: (v: boolean) => { if (v && (pollutionPenaltyYear === 0 || pollutionPenaltyYear >= PENALTY_YEAR_MAX)) setPollutionPenaltyYear(PENALTY_YEAR_MIN); setPollutionPenaltyPlaying(v); } },
-        ];
-      }
       default: return [];
     }
   };
@@ -614,13 +529,13 @@ export function useTransportParams() {
     overlayParams,
     getControls,
     wasteSubParams,
-    h3Params: useMemo(() => ({ opacity: h3Opacity, extruded: h3Extruded, elevationScale: h3ElevationScale, metric: h3Metric, contrast: h3Contrast }), [h3Opacity, h3Extruded, h3ElevationScale, h3Metric, h3Contrast]),
-    popCountParams: useMemo(() => ({ opacity: pcOpacity, contrast: pcContrast, extruded: pcExtruded, elevationScale: pcElevationScale }), [pcOpacity, pcContrast, pcExtruded, pcElevationScale]),
-    indicatorsParams: useMemo(() => ({ category: indCategory, metric: indMetric, opacity: indOpacity, contrast: indContrast, extruded: indExtruded, elevationScale: indElevationScale }), [indCategory, indMetric, indOpacity, indContrast, indExtruded, indElevationScale]),
-    socioParams: useMemo(() => ({ metric: socioMetric, opacity: socioOpacity, contrast: socioContrast, extruded: socioExtruded, elevationScale: socioElevation }), [socioMetric, socioOpacity, socioContrast, socioExtruded, socioElevation]),
-    spatialParams: useMemo(() => ({ metric: spatialMetric, opacity: spatialOpacity, contrast: spatialContrast, extruded: spatialExtruded, elevationScale: spatialElevation }), [spatialMetric, spatialOpacity, spatialContrast, spatialExtruded, spatialElevation]),
+    h3Params,
+    popCountParams,
+    indicatorsParams,
+    socioParams,
+    spatialParams,
     ybResolution,
-    youbikeParams: useMemo(() => ({ opacity: ybOpacity, contrast: ybContrast, extruded: ybExtruded, elevationScale: ybElevationScale, heightMode: ybHeightMode }), [ybOpacity, ybContrast, ybExtruded, ybElevationScale, ybHeightMode]),
+    youbikeParams,
     cwaCloudOpacity,
     cwaRadarOpacity,
     tempGridOpacity,

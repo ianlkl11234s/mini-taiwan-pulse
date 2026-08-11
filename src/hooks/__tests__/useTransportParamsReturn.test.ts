@@ -37,7 +37,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createHash } from "node:crypto";
 
-import { useTransportParams } from "../useTransportParams";
+import { useTransportParams, advancePenaltyYear } from "../useTransportParams";
 import { sanitize, canonicalJson } from "../../data/__tests__/layerGoldenExtract";
 import {
   BUS_GROUP_ORDER, LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, encodeParamValue,
@@ -45,7 +45,7 @@ import {
   type LayerParamSpec, type ParamValue,
 } from "../../data/layerParamsSpec";
 import { layerParamsStore } from "../../state/layerParamsStore";
-import { PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
+import { PENALTY_YEAR_MIN, PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
 import { BUS_GROUP_CITIES, WASTE_GROUP_CITIES, type BusGroup } from "../../types";
 
 // ══════════════════════════════════════════════════════════════════
@@ -286,6 +286,132 @@ const RETURN_CHANNEL: ReturnChannel[] = [
     wasteSubChannel(k, "Altitude", 100),
   ]),
   wasteSubChannel("wfIncinerator", "RingSize", 3),
+
+  // ── 群4：六個獨立子物件 ＋ 級聯寫入 ─────────────────────────────
+  { key: "h3Population", param: "h3Opacity", to: 0.9, paths: { "h3Params.opacity": 0.9 } },
+  { key: "h3Population", param: "h3Contrast", to: 3, paths: { "h3Params.contrast": 3 } },
+  { key: "h3Population", param: "h3Extruded", to: true, paths: { "h3Params.extruded": true } },
+  {
+    key: "h3Population", param: "h3ElevationScale", to: 120,
+    paths: { "h3Params.elevationScale": 120 },
+  },
+  { key: "h3Population", param: "h3Metric", to: "night", paths: { "h3Params.metric": "night" } },
+  { key: "popCount", param: "pcOpacity", to: 0.9, paths: { "popCountParams.opacity": 0.9 } },
+  { key: "popCount", param: "pcContrast", to: 3, paths: { "popCountParams.contrast": 3 } },
+  { key: "popCount", param: "pcExtruded", to: true, paths: { "popCountParams.extruded": true } },
+  {
+    key: "popCount", param: "pcElevationScale", to: 120,
+    paths: { "popCountParams.elevationScale": 120 },
+  },
+  // ⚠️ 級聯：換大類 → 細項自動重設成新表的第一項（`burden` 的第一項是 `dr`）。
+  //    這一條同時是「cascade 有沒有真的執行」的閘 —— 沒執行的話 metric 不會變。
+  {
+    key: "indicators", param: "indCategory", to: "burden",
+    paths: { "indicatorsParams.category": "burden", "indicatorsParams.metric": "dr" },
+  },
+  { key: "indicators", param: "indMetric", to: "f", paths: { "indicatorsParams.metric": "f" } },
+  { key: "indicators", param: "indOpacity", to: 0.9, paths: { "indicatorsParams.opacity": 0.9 } },
+  { key: "indicators", param: "indContrast", to: 3, paths: { "indicatorsParams.contrast": 3 } },
+  {
+    key: "indicators", param: "indExtruded", to: true,
+    paths: { "indicatorsParams.extruded": true },
+  },
+  {
+    key: "indicators", param: "indElevationScale", to: 120,
+    paths: { "indicatorsParams.elevationScale": 120 },
+  },
+  // ⚠️ `socioCat` / `spatialCat` **本身不進任何回傳欄位**（子物件只有 metric）——
+  //    它的消費者是同 key 那個 metric select 的 `optionsByParam`，
+  //    而它的可觀測效果就是級聯重設 metric。這一條就是它的完整性依據。
+  {
+    key: "socioeconomic", param: "socioCat", to: "social",
+    paths: { "socioParams.metric": "vs" },
+  },
+  {
+    key: "socioeconomic", param: "socioMetric", to: "iq",
+    paths: { "socioParams.metric": "iq" },
+  },
+  { key: "socioeconomic", param: "socioOpacity", to: 0.9, paths: { "socioParams.opacity": 0.9 } },
+  { key: "socioeconomic", param: "socioContrast", to: 3, paths: { "socioParams.contrast": 3 } },
+  {
+    key: "socioeconomic", param: "socioExtruded", to: true,
+    paths: { "socioParams.extruded": true },
+  },
+  {
+    key: "socioeconomic", param: "socioElevation", to: 120,
+    paths: { "socioParams.elevationScale": 120 },
+  },
+  {
+    key: "spatialEconomy", param: "spatialCat", to: "land",
+    paths: { "spatialParams.metric": "ad" },
+  },
+  {
+    key: "spatialEconomy", param: "spatialMetric", to: "hu",
+    paths: { "spatialParams.metric": "hu" },
+  },
+  {
+    key: "spatialEconomy", param: "spatialOpacity", to: 0.9,
+    paths: { "spatialParams.opacity": 0.9 },
+  },
+  {
+    key: "spatialEconomy", param: "spatialContrast", to: 3,
+    paths: { "spatialParams.contrast": 3 },
+  },
+  {
+    key: "spatialEconomy", param: "spatialExtruded", to: true,
+    paths: { "spatialParams.extruded": true },
+  },
+  {
+    key: "spatialEconomy", param: "spatialElevation", to: 120,
+    paths: { "spatialParams.elevationScale": 120 },
+  },
+  // store 存 "9"、回傳仍是 number 9（同 plaTrailDays）
+  { key: "youbikeFullness", param: "ybResolution", to: "9", paths: { ybResolution: 9 } },
+  {
+    key: "youbikeFullness", param: "ybHeightMode", to: "capacity",
+    paths: { "youbikeParams.heightMode": "capacity" },
+  },
+  { key: "youbikeFullness", param: "ybOpacity", to: 0.9, paths: { "youbikeParams.opacity": 0.9 } },
+  { key: "youbikeFullness", param: "ybContrast", to: 2, paths: { "youbikeParams.contrast": 2 } },
+  {
+    key: "youbikeFullness", param: "ybExtruded", to: false,
+    paths: { "youbikeParams.extruded": false },
+  },
+  {
+    key: "youbikeFullness", param: "ybElevationScale", to: 120,
+    paths: { "youbikeParams.elevationScale": 120 },
+  },
+  {
+    key: "pollutionFacility", param: "pollutionFacilityMinSev", to: "2",
+    paths: { pollutionFacilityMinSev: 2 },
+  },
+  // 5 個介質 checkbox → 7 個 key 的 Record 裡對應的那一格（noise / other 恆 false）
+  ...(["air", "water", "waste", "toxic", "soil"] as const).map((m) => ({
+    key: "pollutionFacility",
+    param: `pollutionFacilityMedia_${m}`,
+    to: false,
+    paths: { [`pollutionFacilityMedia.${m}`]: false },
+  })),
+  // 裁處事件三兄弟共用同一份值 → 宣告代表即可
+  {
+    key: "pollutionPenaltyCritical", param: "pollutionPenaltyMediumIdx", to: "3",
+    paths: { pollutionPenaltyMediumIdx: 3 },
+  },
+  {
+    key: "pollutionPenaltyCritical", param: "pollutionPenaltyYear", to: "2015",
+    paths: { pollutionPenaltyYear: 2015 },
+  },
+  {
+    key: "pollutionPenaltyCritical", param: "pollutionPenaltyMode", to: "0",
+    paths: { pollutionPenaltyMode: 0 },
+  },
+  // ⚠️ 播放鍵**自己沒有回傳欄位**（消費者是 hook 內的播放引擎，見 INTERNAL_CONSUMERS）；
+  //    這裡宣告的是它的**級聯**：預設年份就是最後一年 → 按下播放要倒帶回起始年。
+  //    「年份不在端點時不倒帶」那一半沒有閘（預設值下看不出來）→ 另有專屬行為測試。
+  {
+    key: "pollutionPenaltyCritical", param: "pollutionPenaltyPlaying", to: true,
+    paths: { pollutionPenaltyYear: 2010 },
+  },
 ];
 
 /** 一個廢棄物子層參數同時餵兩條路徑：`wasteSubParams` 本體與它的鏡像 ref */
@@ -324,7 +450,13 @@ function busCitiesOf(...groups: BusGroup[]): string[] {
  * 值不進 overlayParams、也不進回傳物件，消費者在 hook **內部**的參數。
  * 每一個都要註明消費者是誰 —— 這是完整性規則唯一的例外口，不寫理由不准加。
  */
-const INTERNAL_CONSUMERS: Record<string, string> = {};
+const INTERNAL_CONSUMERS: Record<string, string> = {
+  // 播放狀態既不進 paint 也不進回傳物件 —— 消費者是 `useTransportParams` 內的
+  // 播放引擎 effect（`advancePenaltyYear` 逐年推進）與控件自己的 ⏸/▶ label。
+  // 三兄弟共用同一份值，這裡列代表。
+  "pollutionPenaltyCritical.pollutionPenaltyPlaying":
+    "useTransportParams 的播放引擎 effect（advancePenaltyYear）",
+};
 
 // ══════════════════════════════════════════════════════════════════
 //  A. 預設值下的凍結字面
@@ -736,5 +868,51 @@ describe("B. 逐參數隔離擾動：每個已遷移參數的值都要流到宣�
     expect(skipped, "這些參數挑不出擾動值 → B 完全沒驗到它們").toEqual([]);
     // 現況 262 key / 547 參數；D 桶搬完只會更多。門檻只防「規格表被清空／載入失敗」。
     expect(specs.length).toBeGreaterThan(500);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  C. 裁處事件歷史播放引擎（純函式）
+// ══════════════════════════════════════════════════════════════════
+/**
+ * ⚠️ 播放引擎住在 `useEffect` 裡，而 `renderToStaticMarkup` **不執行 effect** ——
+ * 上面兩組斷言一條都碰不到它。推進邏輯因此抽成純函式（吃 store、寫 store），
+ * 這一組直接驗它的三條分支。
+ */
+describe("C. 裁處事件播放引擎（advancePenaltyYear）", () => {
+  const PENALTY = "pollutionPenaltyCritical";
+  const year = () => layerParamsStore.getParam(PENALTY, "pollutionPenaltyYear");
+  const playing = () => layerParamsStore.getParam(PENALTY, "pollutionPenaltyPlaying");
+
+  it("逐年推進，且**不會**觸發年份的級聯把自己停掉", () => {
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyYear", "2015");
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyPlaying", true);
+    advancePenaltyYear();
+    expect(year()).toBe("2016");
+    expect(playing(), "推進一年就把播放關掉了（走了 cascade）").toBe(true);
+    advancePenaltyYear();
+    expect(year()).toBe("2017");
+  });
+
+  it("推到最後一年就停（年份留在最後一年）", () => {
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyYear", String(PENALTY_YEAR_MAX));
+    layerParamsStore.setParam(PENALTY, "pollutionPenaltyPlaying", true);
+    // ⚠️ 按下播放時年份在端點 → 級聯已倒帶回起始年，先推回最後一年再驗停止
+    layerParamsStore.setParamDirect(PENALTY, "pollutionPenaltyYear", String(PENALTY_YEAR_MAX));
+    advancePenaltyYear();
+    expect(playing()).toBe(false);
+    expect(year()).toBe(String(PENALTY_YEAR_MAX));
+  });
+
+  it("「全部年份」(0) 起手 → 從起始年開始推", () => {
+    layerParamsStore.setParamDirect(PENALTY, "pollutionPenaltyYear", "0");
+    advancePenaltyYear();
+    expect(year()).toBe(String(PENALTY_YEAR_MIN + 1));
+  });
+
+  it("寫回去的是**字串** —— 寫數字會讓控件讀不到型別相符的值而退回預設", () => {
+    layerParamsStore.setParamDirect(PENALTY, "pollutionPenaltyYear", "2015");
+    advancePenaltyYear();
+    expect(typeof year()).toBe("string");
   });
 });

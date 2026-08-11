@@ -68,6 +68,44 @@ function notify(keys: readonly string[]): void {
   for (const cb of globalListeners) cb();
 }
 
+/** 一次寫入請求（尚未展開共用 slot） */
+interface Write {
+  key: string;
+  name: string;
+  value: ParamValue;
+}
+
+/** 這個參數宣告的 cascade 規則（沒宣告回空陣列） */
+function paramCascade(key: string, name: string) {
+  const spec = (LAYER_PARAMS_SPEC[key as keyof typeof LAYER_PARAMS_SPEC] as
+    LayerParamSpec[] | undefined)?.find((s) => s.name === name);
+  return spec?.cascade ?? [];
+}
+
+/**
+ * 把一批寫入**合成一次** snapshot 置換 ＋ 每個受影響的 key 只通知一次。
+ *
+ * 共用 slot（`sharedGroup`）在這裡展開：一次 cascade 可能同時動到
+ * 「源參數 × N 個成員」與「目標參數 × N 個成員」（裁處事件三兄弟就是 N=3）。
+ * 拆成多次置換的話，中間狀態會被 listener 看見，且 notify 次數也對不上。
+ */
+function applyWrites(writes: readonly Write[]): void {
+  const next = { ...snapshot };
+  const changed = new Set<string>();
+  for (const w of writes) {
+    const targets = sharedSlotMembers(w.key, w.name) ?? [{ key: w.key, name: w.name }];
+    for (const t of targets) {
+      const cur = next[t.key];
+      if (!cur || !(t.name in cur) || cur[t.name] === w.value) continue;
+      next[t.key] = { ...cur, [t.name]: w.value };
+      changed.add(t.key);
+    }
+  }
+  if (changed.size === 0) return;
+  snapshot = next;
+  notify([...changed]);
+}
+
 export const layerParamsStore = {
   /**
    * 單一 layer 的全部參數值。未遷移的 key 回**同一個** frozen 空物件。
@@ -101,23 +139,32 @@ export const layerParamsStore = {
     if (!current || !(name in current)) return;
     if (current[name] === value) return;
 
-    const members = sharedSlotMembers(key, name);
-    if (!members) {
-      snapshot = { ...snapshot, [key]: { ...current, [name]: value } };
-      notify([key]);
-      return;
+    // 級聯（`cascade`）：控件 onChange 的副作用，例如「換大類 → 重設細項」。
+    // ⚠️ **只展開一層** —— 目標被寫入時不再觸發目標自己的 cascade。手寫版
+    //    `setYear(MIN)` 是直接呼叫 state setter、不經 year select 的 onChange；
+    //    遞迴的話「按播放 → 倒帶 → 年份的 cascade 又把播放關掉」，播放鍵直接壞掉。
+    const writes: Write[] = [{ key, name, value }];
+    for (const rule of paramCascade(key, name)) {
+      if (rule.whenSelfIs !== undefined && rule.whenSelfIs !== value) continue;
+      if (rule.onlyWhenTargetIn && !rule.onlyWhenTargetIn.includes(current[rule.target] as ParamValue)) {
+        continue;
+      }
+      writes.push({ key, name: rule.target, value: rule.set });
     }
-    const next = { ...snapshot };
-    const changed: string[] = [];
-    for (const m of members) {
-      const cur = next[m.key];
-      if (!cur || !(m.name in cur) || cur[m.name] === value) continue;
-      next[m.key] = { ...cur, [m.name]: value };
-      changed.push(m.key);
-    }
-    if (changed.length === 0) return;
-    snapshot = next;
-    notify(changed);
+    applyWrites(writes);
+  },
+
+  /**
+   * 不走 cascade 的寫入 —— **程式內部**改值專用（目前唯一使用者：裁處事件的
+   * 歷史播放引擎逐年推進）。等價手寫版直接呼叫 `setPollutionPenaltyYear(...)`：
+   * 那條路徑本來就不經過年份 select 的 onChange，也就不會順帶把播放關掉。
+   * 共用 slot 仍會展開（那不是副作用，是「同一份值」的本質）。
+   */
+  setParamDirect(key: string, name: string, value: ParamValue): void {
+    const current = snapshot[key];
+    if (!current || !(name in current)) return;
+    if (current[name] === value) return;
+    applyWrites([{ key, name, value }]);
   },
 
   /** 訂閱任何 key 的變動（`useTransportParams` 走這條） */
