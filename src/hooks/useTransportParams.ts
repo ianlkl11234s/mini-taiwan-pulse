@@ -3,8 +3,6 @@ import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../typ
 import { layerParamsStore, encodeParamsToOverlay } from "../state/layerParamsStore";
 import { buildParamControls } from "../state/layerParamsControls";
 import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
-import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
-import { FARM_HIGHLIGHT_OPTIONS } from "../data/livestockTypes";
 import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
@@ -43,25 +41,6 @@ export interface SelectConfig {
 }
 
 export type ParamControl = SliderConfig | ToggleConfig | SelectConfig;
-
-// 132 種作物 dropdown helper（給 agriCropSuitability layer 用）
-function buildCropSelector(currentId: number, setId: (v: number) => void): ParamControl[] {
-  const fallback = CROP_SUITABILITY_CROPS[0];
-  if (!fallback) return [];
-  const current = CROP_SUITABILITY_CROPS.find((c) => c.id === currentId) ?? fallback;
-  return [
-    {
-      type: "select" as const,
-      label: `作物 ${current.nameZh}`,
-      value: String(currentId),
-      options: CROP_SUITABILITY_CROPS.map((c) => ({
-        label: `${c.nameZh} (${c.nameEn})`,
-        value: String(c.id),
-      })),
-      onChange: (v: string) => setId(parseInt(v, 10)),
-    },
-  ];
-}
 
 export function useTransportParams() {
   // Flight
@@ -178,18 +157,6 @@ export function useTransportParams() {
   const [propertyValueGridContrast, setPropertyValueGridContrast] = useState(1.8);
   const [propertyValueGridExtruded, setPropertyValueGridExtruded] = useState(false);
   const [propertyValueGridElevationScale, setPropertyValueGridElevationScale] = useState(40);
-  // 🗺️ 都市計畫土地使用分區（北市 + 新北）：category select（all / 9 類）+ 透明度
-  // 非都市分區：面積大 → 預設透明度 0.35（都計分區是 0.5）；篩選走 zone_code 11 碼
-  // 警察覆蓋分析 isochrone × 3 layer（每 layer 含 mode + minutes select）
-  const [policeIsoSubstationOpacity, setPoliceIsoSubstationOpacity] = useState(0.55);
-  const [policeIsoSubstationMode, setPoliceIsoSubstationMode] = useState<"walk" | "drive">("walk");
-  const [policeIsoSubstationMinutes, setPoliceIsoSubstationMinutes] = useState<"5" | "10">("5");
-  const [policeIsoPrecinctOpacity, setPoliceIsoPrecinctOpacity] = useState(0.5);
-  const [policeIsoPrecinctMode, setPoliceIsoPrecinctMode] = useState<"walk" | "drive">("drive");
-  const [policeIsoPrecinctMinutes, setPoliceIsoPrecinctMinutes] = useState<"15" | "30">("15");
-  const [policeIsoCityDeptOpacity, setPoliceIsoCityDeptOpacity] = useState(0.45);
-  const [policeIsoCityDeptMode, setPoliceIsoCityDeptMode] = useState<"walk" | "drive">("drive");
-  const [policeIsoCityDeptMinutes, setPoliceIsoCityDeptMinutes] = useState<"30" | "60">("30");
   // ── 環境污染 POLLUTION ──
   // 設施：opacity + scale + 5 介質 filter（勾選 → 只顯示登記該介質的設施）+ 最低嚴重度門檻
   const [pollutionFacilityOpacity, setPollutionFacilityOpacity] = useState(0.8);
@@ -342,66 +309,17 @@ export function useTransportParams() {
   const [aqiMicroCluster, setAqiMicroCluster] = useState(true);
   // LASS 微型感測器：點位上色依據（0=PM2.5 / 1=溫度 / 2=濕度，見 microSensorTypes）
   const [aqiMicroModeIdx, setAqiMicroModeIdx] = useState(0);
-  // 都市熱島 raster：顯示模式（0=熱島強度 ΔT / 1=絕對地表溫度，見 urbanHeatTypes）+ 透明度
-  // 淹水最小深度篩選：0 = 全部, 0.5 / 1 / 2 / 3 = 只顯示大於等於該深度的分級
-  const [floodMinDepth, setFloodMinDepth] = useState<0 | 0.5 | 1 | 2 | 3>(0);
-  // 其他水資源圖層參數
-  const [waterFloodOpacity, setWaterFloodOpacity] = useState(1.0);
-  // Phase 2 monitoring layers（即時雨量 / 河川水位 / 地下水井 / 水井點位）
-  // 北市水利處三本柱
-  const [precipRasterOpacity, setPrecipRasterOpacity] = useState(0.6);
-  const [precipRasterHours, setPrecipRasterHours] = useState<1 | 3 | 6 | 24>(24);
   // Waste（垃圾車光點 + 音符）
   const [wasteOrbScale, setWasteOrbScale] = useState(0.15);
   const [wasteNoteSize, setWasteNoteSize] = useState(0.7);
   const [wasteNoteZOffset, setWasteNoteZOffset] = useState(70);
   // AQI 色階圖透明度
   const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
-  // Agriculture Phase 3 Batch 1 (5 PMTiles + 1 GeoJSON POI)
-  const [agriCropSuitabilityOpacity, setAgriCropSuitabilityOpacity] = useState(1.0);
-  const [agriCropSuitabilityCropId, setAgriCropSuitabilityCropId] = useState(0);
-
-  // 🐷 畜牧 Livestock（散點，opacity + scale；預設 scale 0.3 = 小點）
-  const [livestockFarmPigOpacity, setLivestockFarmPigOpacity] = useState(0.85);
-  const [livestockFarmPigScale, setLivestockFarmPigScale] = useState(0.3);
-  const [livestockFarmChickenOpacity, setLivestockFarmChickenOpacity] = useState(0.85);
-  const [livestockFarmChickenScale, setLivestockFarmChickenScale] = useState(0.3);
-  const [livestockFarmCattleOpacity, setLivestockFarmCattleOpacity] = useState(0.85);
-  const [livestockFarmCattleScale, setLivestockFarmCattleScale] = useState(0.3);
-  const [livestockFarmDuckOpacity, setLivestockFarmDuckOpacity] = useState(0.85);
-  const [livestockFarmDuckScale, setLivestockFarmDuckScale] = useState(0.3);
-  const [livestockFarmGooseOpacity, setLivestockFarmGooseOpacity] = useState(0.85);
-  const [livestockFarmGooseScale, setLivestockFarmGooseScale] = useState(0.3);
-  const [livestockFarmSheepOpacity, setLivestockFarmSheepOpacity] = useState(0.85);
-  const [livestockFarmSheepScale, setLivestockFarmSheepScale] = useState(0.3);
-  const [livestockFarmOtherOpacity, setLivestockFarmOtherOpacity] = useState(0.85);
-  const [livestockFarmOtherScale, setLivestockFarmOtherScale] = useState(0.3);
-  // 飼養場品項高亮（index into FARM_HIGHLIGHT_OPTIONS；0 = 全部，不高亮）
-  const [livestockFarmPigHighlightIdx, setLivestockFarmPigHighlightIdx] = useState(0);
-  const [livestockFarmChickenHighlightIdx, setLivestockFarmChickenHighlightIdx] = useState(0);
-  const [livestockFarmCattleHighlightIdx, setLivestockFarmCattleHighlightIdx] = useState(0);
-  const [livestockFarmDuckHighlightIdx, setLivestockFarmDuckHighlightIdx] = useState(0);
-  const [livestockFarmGooseHighlightIdx, setLivestockFarmGooseHighlightIdx] = useState(0);
-  const [livestockFarmSheepHighlightIdx, setLivestockFarmSheepHighlightIdx] = useState(0);
-  const [livestockFarmOtherHighlightIdx, setLivestockFarmOtherHighlightIdx] = useState(0);
 
 
 
-  // 變電所（超高壓）— EHV_SWITCH + EHV
-  const [powerPolesOpacity, setPowerPolesOpacity] = useState(0.7);
-  const [powerPolesSize, setPowerPolesSize] = useState(1);
-  const [powerPolesHeat, setPowerPolesHeat] = useState(1); // 0=關熱區、1=全顯
-  const [powerPolesZ5Reveal, setPowerPolesZ5Reveal] = useState(0); // 0=z<8 隱形（預設），1=全 zoom 顯示
-  // Phase 8 SSOT facilities 6-layer
-  const [facPrimaryOpacity, setFacPrimaryOpacity] = useState(0.65);
-  const [facPrimaryScale, setFacPrimaryScale] = useState(0.5);
-  // L1 分級：有即時出力（台電 14 大廠 + 廠級匯總）vs 其他（小廠）
-  const [facPrimaryRtScale, setFacPrimaryRtScale] = useState(1.3);
-  const [facPrimaryNoRtScale, setFacPrimaryNoRtScale] = useState(0.85);
+
   // Base map（行政邊界 + 等高線 + OSM 路網）
-  const [osmRoadDriveOpacity, setOsmRoadDriveOpacity] = useState(0.85);
-  const [osmRoadDriveWidth, setOsmRoadDriveWidth] = useState(1.0);
-  const [osmRoadDriveZ5Reveal, setOsmRoadDriveZ5Reveal] = useState(0); // 0=z<8 隱形（預設），1=全 zoom 顯示
   const [hillshadeOpacity, setHillshadeOpacity] = useState(0.5);
   // 坡度/坡向分級向量（PMTiles polygon，可點選/疊圖分析）
   const [slopeVectorOpacity, setSlopeVectorOpacity] = useState(0.6);
@@ -556,15 +474,6 @@ export function useTransportParams() {
     propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridElevationScale,
     propertyValueGridExtruded: propertyValueGridExtruded ? 1 : 0,
     // 警察覆蓋分析（數字化 mode/minutes 餵 paint expression）
-    policeIsoSubstationOpacity,
-    policeIsoSubstationMode_drive: policeIsoSubstationMode === "drive" ? 1 : 0,
-    policeIsoSubstationMinutes_num: Number(policeIsoSubstationMinutes),
-    policeIsoPrecinctOpacity,
-    policeIsoPrecinctMode_drive: policeIsoPrecinctMode === "drive" ? 1 : 0,
-    policeIsoPrecinctMinutes_num: Number(policeIsoPrecinctMinutes),
-    policeIsoCityDeptOpacity,
-    policeIsoCityDeptMode_drive: policeIsoCityDeptMode === "drive" ? 1 : 0,
-    policeIsoCityDeptMinutes_num: Number(policeIsoCityDeptMinutes),
     // 環境污染（paint 用；filter 值另由 return 物件傳給 usePollutionLayers）
     pollutionFacilityOpacity, pollutionFacilityScale,
     pollutionPenaltyOpacity, pollutionPenaltyScale,
@@ -580,51 +489,18 @@ export function useTransportParams() {
     portGlow,
     newsScale,
     metroPillar3d: metroPillarVisible ? 1 : 0,
-    floodMinDepth,
-    waterFloodOpacity,
-    precipRasterOpacity,
-    precipRasterHours,
-    agriCropSuitabilityOpacity,
-    agriCropSuitabilityCropId,
-    livestockFarmPigOpacity,
-    livestockFarmPigScale,
-    livestockFarmChickenOpacity,
-    livestockFarmChickenScale,
-    livestockFarmCattleOpacity,
-    livestockFarmCattleScale,
-    livestockFarmDuckOpacity,
-    livestockFarmDuckScale,
-    livestockFarmGooseOpacity,
-    livestockFarmGooseScale,
-    livestockFarmSheepOpacity,
-    livestockFarmSheepScale,
-    livestockFarmOtherOpacity,
-    livestockFarmOtherScale,
-    livestockFarmPigHighlightIdx,
-    livestockFarmChickenHighlightIdx,
-    livestockFarmCattleHighlightIdx,
-    livestockFarmDuckHighlightIdx,
-    livestockFarmGooseHighlightIdx,
-    livestockFarmSheepHighlightIdx,
-    livestockFarmOtherHighlightIdx,
     // ENERGY
-    facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale,
     // 雲林 POC 覆蓋分析
-    powerPolesOpacity,
-    powerPolesSize,
-    powerPolesHeat,
-    powerPolesZ5Reveal,
     // HAZARD
     // LASS 微感測顯示模式（只供 LegendPanel 選對應圖例；paint 端走 hook 的 setPaintProperty）
     aqiMicroModeIdx,
     // Base map
-    osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal,
     hillshadeOpacity,
     slopeVectorOpacity, aspectVectorOpacity,
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, lighthouseScale, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, portGlow, newsScale, metroPillarVisible, floodMinDepth, waterFloodOpacity, precipRasterOpacity, precipRasterHours, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale,
+  }), [migratedOverlayParams, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, lighthouseScale, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, portGlow, newsScale, metroPillarVisible,
     buildingsGbaModeIdx, buildingsGbaMinHeight, buildingsGbaOpacity, buildingsGbaBloomMinHeight,
     propertyValueGridScaleIdx, propertyValueGridModeIdx, propertyValueGridOpacity, propertyValueGridContrast, propertyValueGridExtruded, propertyValueGridElevationScale,
     
@@ -632,9 +508,6 @@ export function useTransportParams() {
     
     
     
-    policeIsoSubstationOpacity, policeIsoSubstationMode, policeIsoSubstationMinutes,
-    policeIsoPrecinctOpacity, policeIsoPrecinctMode, policeIsoPrecinctMinutes,
-    policeIsoCityDeptOpacity, policeIsoCityDeptMode, policeIsoCityDeptMinutes,
     pollutionFacilityOpacity, pollutionFacilityScale,
     pollutionPenaltyOpacity, pollutionPenaltyScale,
     pollutionSiteOpacity, pollutionSiteScale,
@@ -915,37 +788,6 @@ export function useTransportParams() {
         { type: "select" as const, label: "顯示模式", value: String(aqiMicroModeIdx), options: [...MICRO_SENSOR_MODES], onChange: (v: string) => setAqiMicroModeIdx(parseInt(v, 10)) },
         { type: "toggle" as const, label: "Cluster", value: aqiMicroCluster, onChange: setAqiMicroCluster },
       ];
-      case "waterFloodExtreme": return [
-        { label: `透明度 ${waterFloodOpacity.toFixed(2)}`, value: waterFloodOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWaterFloodOpacity },
-        {
-          type: "select" as const,
-          label: "深度",
-          value: String(floodMinDepth),
-          options: [
-            { label: "全部", value: "0" },
-            { label: "≥0.5m", value: "0.5" },
-            { label: "≥1m", value: "1" },
-            { label: "≥2m", value: "2" },
-            { label: "≥3m 最嚴重", value: "3" },
-          ],
-          onChange: (v: string) => setFloodMinDepth(Number(v) as 0 | 0.5 | 1 | 2 | 3),
-        },
-      ];
-      case "precipRaster": return [
-        { label: `透明度 ${precipRasterOpacity.toFixed(2)}`, value: precipRasterOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPrecipRasterOpacity },
-        {
-          type: "select" as const,
-          label: "累積時長",
-          value: String(precipRasterHours),
-          options: [
-            { label: "1 小時", value: "1" },
-            { label: "3 小時", value: "3" },
-            { label: "6 小時", value: "6" },
-            { label: "24 小時", value: "24" },
-          ],
-          onChange: (v: string) => setPrecipRasterHours(Number(v) as 1 | 3 | 6 | 24),
-        },
-      ];
       case "wasteTruck":
       case "wasteSchedule": return [
         // 8 區分組 toggle（只有 wasteSchedule 用；wasteTruck GPS 固定高雄+台南）
@@ -968,45 +810,6 @@ export function useTransportParams() {
         { label: `光點大小 ${wasteOrbScale.toFixed(2)}`, value: wasteOrbScale, min: 0.01, max: 0.8, step: 0.01, onChange: setWasteOrbScale },
         { label: `音符大小 ${wasteNoteSize.toFixed(2)}`, value: wasteNoteSize, min: 0.1, max: 2, step: 0.05, onChange: setWasteNoteSize },
         { label: `音符高度 ${wasteNoteZOffset.toFixed(0)}m`, value: wasteNoteZOffset, min: 0, max: 250, step: 5, onChange: setWasteNoteZOffset },
-      ];
-      case "agriCropSuitability": return [
-        { label: `透明度 ${agriCropSuitabilityOpacity.toFixed(2)}`, value: agriCropSuitabilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriCropSuitabilityOpacity },
-        ...buildCropSelector(agriCropSuitabilityCropId, setAgriCropSuitabilityCropId),
-      ];
-      case "livestockFarmPig": return [
-        { label: `透明度 ${livestockFarmPigOpacity.toFixed(2)}`, value: livestockFarmPigOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmPigOpacity },
-        { label: `大小 ${livestockFarmPigScale.toFixed(2)}`, value: livestockFarmPigScale, min: 0.01, max: 0.5, step: 0.01, onChange: setLivestockFarmPigScale },
-        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmPig[livestockFarmPigHighlightIdx] ?? "全部"}`, value: String(livestockFarmPigHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmPig.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmPigHighlightIdx(Number(v)) },
-      ];
-      case "livestockFarmChicken": return [
-        { label: `透明度 ${livestockFarmChickenOpacity.toFixed(2)}`, value: livestockFarmChickenOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmChickenOpacity },
-        { label: `大小 ${livestockFarmChickenScale.toFixed(2)}`, value: livestockFarmChickenScale, min: 0.01, max: 0.5, step: 0.01, onChange: setLivestockFarmChickenScale },
-        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmChicken[livestockFarmChickenHighlightIdx] ?? "全部"}`, value: String(livestockFarmChickenHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmChicken.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmChickenHighlightIdx(Number(v)) },
-      ];
-      case "livestockFarmCattle": return [
-        { label: `透明度 ${livestockFarmCattleOpacity.toFixed(2)}`, value: livestockFarmCattleOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmCattleOpacity },
-        { label: `大小 ${livestockFarmCattleScale.toFixed(2)}`, value: livestockFarmCattleScale, min: 0.01, max: 0.5, step: 0.01, onChange: setLivestockFarmCattleScale },
-        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmCattle[livestockFarmCattleHighlightIdx] ?? "全部"}`, value: String(livestockFarmCattleHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmCattle.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmCattleHighlightIdx(Number(v)) },
-      ];
-      case "livestockFarmDuck": return [
-        { label: `透明度 ${livestockFarmDuckOpacity.toFixed(2)}`, value: livestockFarmDuckOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmDuckOpacity },
-        { label: `大小 ${livestockFarmDuckScale.toFixed(2)}`, value: livestockFarmDuckScale, min: 0.01, max: 0.5, step: 0.01, onChange: setLivestockFarmDuckScale },
-        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmDuck[livestockFarmDuckHighlightIdx] ?? "全部"}`, value: String(livestockFarmDuckHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmDuck.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmDuckHighlightIdx(Number(v)) },
-      ];
-      case "livestockFarmGoose": return [
-        { label: `透明度 ${livestockFarmGooseOpacity.toFixed(2)}`, value: livestockFarmGooseOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmGooseOpacity },
-        { label: `大小 ${livestockFarmGooseScale.toFixed(2)}`, value: livestockFarmGooseScale, min: 0.01, max: 0.5, step: 0.01, onChange: setLivestockFarmGooseScale },
-        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmGoose[livestockFarmGooseHighlightIdx] ?? "全部"}`, value: String(livestockFarmGooseHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmGoose.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmGooseHighlightIdx(Number(v)) },
-      ];
-      case "livestockFarmSheep": return [
-        { label: `透明度 ${livestockFarmSheepOpacity.toFixed(2)}`, value: livestockFarmSheepOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmSheepOpacity },
-        { label: `大小 ${livestockFarmSheepScale.toFixed(2)}`, value: livestockFarmSheepScale, min: 0.01, max: 0.5, step: 0.01, onChange: setLivestockFarmSheepScale },
-        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmSheep[livestockFarmSheepHighlightIdx] ?? "全部"}`, value: String(livestockFarmSheepHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmSheep.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmSheepHighlightIdx(Number(v)) },
-      ];
-      case "livestockFarmOther": return [
-        { label: `透明度 ${livestockFarmOtherOpacity.toFixed(2)}`, value: livestockFarmOtherOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLivestockFarmOtherOpacity },
-        { label: `大小 ${livestockFarmOtherScale.toFixed(2)}`, value: livestockFarmOtherScale, min: 0.01, max: 0.5, step: 0.01, onChange: setLivestockFarmOtherScale },
-        { type: "select" as const, label: `品項 ${FARM_HIGHLIGHT_OPTIONS.livestockFarmOther[livestockFarmOtherHighlightIdx] ?? "全部"}`, value: String(livestockFarmOtherHighlightIdx), options: FARM_HIGHLIGHT_OPTIONS.livestockFarmOther.map((name, i) => ({ label: name, value: String(i) })), onChange: (v: string) => setLivestockFarmOtherHighlightIdx(Number(v)) },
       ];
       // 🏟️ 運動場館 Sports（5 sublayer，opacity + scale；大小另由 area_sqm log 內插驅動）
       case "wfIncinerator":
@@ -1042,27 +845,7 @@ export function useTransportParams() {
         }
         return base;
       }
-      // ── Phase 8 SSOT 6-layer ──
-      case "facPrimary": return [
-        { label: `總大小 ${facPrimaryScale.toFixed(1)}`, value: facPrimaryScale, min: 0.3, max: 3, step: 0.1, onChange: setFacPrimaryScale },
-        { label: `大廠（即時）${facPrimaryRtScale.toFixed(2)}`, value: facPrimaryRtScale, min: 0.2, max: 3, step: 0.05, onChange: setFacPrimaryRtScale },
-        { label: `其他廠 ${facPrimaryNoRtScale.toFixed(2)}`, value: facPrimaryNoRtScale, min: 0.1, max: 2, step: 0.05, onChange: setFacPrimaryNoRtScale },
-        { label: `透明度 ${facPrimaryOpacity.toFixed(2)}`, value: facPrimaryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacPrimaryOpacity },
-      ];
-      // ── 化石燃料 14 layer（Phase B） ──
-      // ── 雲林 POC 覆蓋分析 ──
-      case "powerPoles": return [
-        { label: `全台顯示 ${powerPolesZ5Reveal === 0 ? "關" : powerPolesZ5Reveal.toFixed(2)}`, value: powerPolesZ5Reveal, min: 0, max: 1, step: 0.1, onChange: setPowerPolesZ5Reveal },
-        { label: `熱區 ${powerPolesHeat === 0 ? "關" : powerPolesHeat.toFixed(2)}`, value: powerPolesHeat, min: 0, max: 1, step: 0.05, onChange: setPowerPolesHeat },
-        { label: `大小 ${powerPolesSize.toFixed(1)}`, value: powerPolesSize, min: 0.3, max: 3, step: 0.1, onChange: setPowerPolesSize },
-        { label: `透明度 ${powerPolesOpacity.toFixed(2)}`, value: powerPolesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPowerPolesOpacity },
-      ];
       // ── Base map（6 layer：3 boundary + 2 contour + 1 road）──
-      case "osmRoadDrive": return [
-        { label: `全台顯示 ${osmRoadDriveZ5Reveal === 0 ? "關" : osmRoadDriveZ5Reveal.toFixed(2)}`, value: osmRoadDriveZ5Reveal, min: 0, max: 1, step: 0.1, onChange: setOsmRoadDriveZ5Reveal },
-        { label: `寬度 ${osmRoadDriveWidth.toFixed(1)}`, value: osmRoadDriveWidth, min: 0.3, max: 4, step: 0.1, onChange: setOsmRoadDriveWidth },
-        { label: `透明度 ${osmRoadDriveOpacity.toFixed(2)}`, value: osmRoadDriveOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmRoadDriveOpacity },
-      ];
       case "hillshade": return [
         { label: `透明度 ${hillshadeOpacity.toFixed(2)}`, value: hillshadeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setHillshadeOpacity },
       ];
@@ -1105,34 +888,6 @@ export function useTransportParams() {
               { label: `整體高度 Height ${propertyValueGridElevationScale}`, value: propertyValueGridElevationScale, min: 10, max: 400, step: 10, onChange: setPropertyValueGridElevationScale },
             ]
           : []),
-      ];
-      // ── 警察覆蓋分析 isochrone（每 layer 含 mode + minutes select）──
-      case "policeIsoSubstation": return [
-        { type: "select" as const, label: "模式", value: policeIsoSubstationMode, options: [
-          { label: "步行 Walk", value: "walk" }, { label: "開車 Drive", value: "drive" },
-        ], onChange: (v: string) => setPoliceIsoSubstationMode(v as "walk" | "drive") },
-        { type: "select" as const, label: "分鐘", value: policeIsoSubstationMinutes, options: [
-          { label: "5 分", value: "5" }, { label: "10 分", value: "10" },
-        ], onChange: (v: string) => setPoliceIsoSubstationMinutes(v as "5" | "10") },
-        { label: `透明度 ${policeIsoSubstationOpacity.toFixed(2)}`, value: policeIsoSubstationOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setPoliceIsoSubstationOpacity },
-      ];
-      case "policeIsoPrecinct": return [
-        { type: "select" as const, label: "模式", value: policeIsoPrecinctMode, options: [
-          { label: "步行 Walk", value: "walk" }, { label: "開車 Drive", value: "drive" },
-        ], onChange: (v: string) => setPoliceIsoPrecinctMode(v as "walk" | "drive") },
-        { type: "select" as const, label: "分鐘", value: policeIsoPrecinctMinutes, options: [
-          { label: "15 分", value: "15" }, { label: "30 分", value: "30" },
-        ], onChange: (v: string) => setPoliceIsoPrecinctMinutes(v as "15" | "30") },
-        { label: `透明度 ${policeIsoPrecinctOpacity.toFixed(2)}`, value: policeIsoPrecinctOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setPoliceIsoPrecinctOpacity },
-      ];
-      case "policeIsoCityDept": return [
-        { type: "select" as const, label: "模式", value: policeIsoCityDeptMode, options: [
-          { label: "步行 Walk", value: "walk" }, { label: "開車 Drive", value: "drive" },
-        ], onChange: (v: string) => setPoliceIsoCityDeptMode(v as "walk" | "drive") },
-        { type: "select" as const, label: "分鐘", value: policeIsoCityDeptMinutes, options: [
-          { label: "30 分", value: "30" }, { label: "60 分", value: "60" },
-        ], onChange: (v: string) => setPoliceIsoCityDeptMinutes(v as "30" | "60") },
-        { label: `透明度 ${policeIsoCityDeptOpacity.toFixed(2)}`, value: policeIsoCityDeptOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setPoliceIsoCityDeptOpacity },
       ];
       // ── 環境污染 POLLUTION ──
       case "pollutionFacility": return [

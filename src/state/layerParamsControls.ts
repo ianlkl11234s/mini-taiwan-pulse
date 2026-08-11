@@ -33,10 +33,15 @@ export function buildParamControls(
       case "slider": {
         const v = values[s.name];
         const value = typeof v === "number" ? v : s.default;
+        // 0 有「關掉」語意的滑桿印字不印數（`全台顯示 關`）
+        const shown = s.zeroLabel !== undefined && value === 0
+          ? s.zeroLabel
+          : value.toFixed(s.digits);
         return {
-          // 後綴緊接數字、不補空白（`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）——
-          // 省略 `labelSuffix` 時 `?? ""` 讓既有 230 個 key 的輸出一位元不變。
-          label: `${s.labelPrefix} ${value.toFixed(s.digits)}${s.labelSuffix ?? ""}`,
+          // 前綴側預設補一個空白（`labelSep` 可改成 ""）；後綴側緊接數字不補空白
+          // （`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）。兩欄都省略時，
+          // 輸出與 P3-1 定的 `${labelPrefix} ${toFixed}` 一位元不變。
+          label: `${s.labelPrefix}${s.labelSep ?? " "}${shown}${s.labelSuffix ?? ""}`,
           value, min: s.min, max: s.max, step: s.step,
           onChange: (next: number) => layerParamsStore.setParam(key, s.name, next),
         };
@@ -52,10 +57,13 @@ export function buildParamControls(
       }
       case "select": {
         const v = values[s.name];
+        const value = typeof v === "string" ? v : s.default;
         return {
           type: "select" as const,
-          label: s.label,
-          value: typeof v === "string" ? v : s.default,
+          // label 隨當前值變的 select（品項 / 作物）；查無對應回 `label` 兜底 ——
+          // 與手寫 case 的 `OPTIONS[idx] ?? "全部"` 同語意。
+          label: s.labelByValue?.[value] ?? s.label,
+          value,
           options: s.options,
           onChange: (next: string) => layerParamsStore.setParam(key, s.name, next),
         };

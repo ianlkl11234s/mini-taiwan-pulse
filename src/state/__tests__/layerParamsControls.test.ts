@@ -95,6 +95,63 @@ describe("buildParamControls", () => {
     expect((buildParamControls("cctv") ?? [])[2]).toMatchObject({ label: "Z 漂浮 24px" });
   });
 
+  // ── P3-2C 補：encodeNumeric 在**非預設值**下才與索引編碼分岔 ──────
+  // `floodMinDepth` 預設 "0" 時 `Number("0") === indexOf("0") === 0`，
+  // 黃金快照兩種編碼都過。抄成 `encode` 版的話「≥0.5m」會餵 1（＝ ≥1m 的意思）
+  // 給 paint —— 篩選整個錯掉，畫面照樣有東西、沒有任何錯誤訊息。
+  it("encodeNumeric：out 是值本身而不是選項索引", () => {
+    const sel = (buildParamControls("waterFloodExtreme") ?? [])[1] as SelectConfig;
+    expect(sel.value).toBe("0");
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["floodMinDepth"]).toBe(0);
+
+    sel.onChange("0.5");
+    // 索引版會是 1（"0.5" 是第 1 個選項）—— 這一條就是兩者的分岔點
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["floodMinDepth"]).toBe(0.5);
+
+    // 同一個 key 裡兩種編碼並存：policeIso 的 mode 走 encode、minutes 走 encodeNumeric
+    const mode = (buildParamControls("policeIsoSubstation") ?? [])[0] as SelectConfig;
+    const mins = (buildParamControls("policeIsoSubstation") ?? [])[1] as SelectConfig;
+    mode.onChange("drive");
+    mins.onChange("10");
+    const out = encodeParamsToOverlay(layerParamsStore.getAll());
+    expect(out["policeIsoSubstationMode_drive"]).toBe(1);
+    expect(out["policeIsoSubstationMinutes_num"], "分鐘要是 10 不是索引 1").toBe(10);
+  });
+
+  // ── P3-2C 補：zeroLabel ／ labelSep ／ labelByValue 的非預設分支 ────
+  it("zeroLabel：0 印「關」，離開 0 就恢復印數字", () => {
+    const s = (buildParamControls("powerPoles") ?? [])[0] as SliderConfig;
+    expect(s.label).toBe("全台顯示 關");
+    s.onChange(0.5);
+    expect((buildParamControls("powerPoles") ?? [])[0]).toMatchObject({ label: "全台顯示 0.50" });
+    // 回到 0 要回到「關」（不是停在 "0.00"）
+    ((buildParamControls("powerPoles") ?? [])[0] as SliderConfig).onChange(0);
+    expect((buildParamControls("powerPoles") ?? [])[0]).toMatchObject({ label: "全台顯示 關" });
+  });
+
+  it("labelSep：前綴與數字之間不補空白", () => {
+    const s = (buildParamControls("facPrimary") ?? [])[1] as SliderConfig;
+    expect(s.label).toBe("大廠（即時）1.30");
+    // 對照組：同一個 key 的其他 slider 仍補空白
+    expect((buildParamControls("facPrimary") ?? [])[0]).toMatchObject({ label: "總大小 0.5" });
+  });
+
+  it("labelByValue：select 的 label 隨自己的值變（顯示表 ≠ 選項表）", () => {
+    const sel = (buildParamControls("livestockFarmPig") ?? [])[2] as SelectConfig;
+    expect(sel.label).toBe("品項 全部");
+    sel.onChange("1");
+    expect((buildParamControls("livestockFarmPig") ?? [])[2]).toMatchObject({ label: "品項 肉豬" });
+
+    // 作物層：label 只有 nameZh，選項是 `${nameZh} (${nameEn})` —— 兩者刻意不同
+    const crop = (buildParamControls("agriCropSuitability") ?? [])[1] as SelectConfig;
+    expect(crop.label).toBe("作物 芋");
+    expect(crop.options[1]).toMatchObject({ label: "蘋果 (apple)", value: "1" });
+    crop.onChange("11");
+    const after = (buildParamControls("agriCropSuitability") ?? [])[1] as SelectConfig;
+    expect(after.label).toBe("作物 香蕉");
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["agriCropSuitabilityCropId"]).toBe(11);
+  });
+
   // ── P3-2B 補：共用 slot 的端對端行為（面板 A 拖動，面板 B 跟著動）──
   it("共用 slot：一個 key 的 onChange 會同步到同群其他 key 的控件與 overlayParams", () => {
     const a = (buildParamControls("eduKindergarten") ?? [])[0] as SliderConfig;

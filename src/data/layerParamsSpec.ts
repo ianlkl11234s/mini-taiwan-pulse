@@ -52,6 +52,8 @@ import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
 import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
 import { URBAN_ZONING_CATEGORIES } from "./urbanZoningTypes";
 import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
+import { CROP_SUITABILITY_CROPS } from "./cropSuitabilityCrops";
+import { FARM_HIGHLIGHT_OPTIONS } from "./livestockTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -97,8 +99,26 @@ export interface SliderParamSpec extends SharedSlotField {
   kind: "slider";
   /** 參數名。慣例沿用舊 useState 變數名 —— 它同時是 overlayParams 的預設 key */
   name: string;
-  /** label 前綴；實際 label = `${labelPrefix} ${value.toFixed(digits)}` */
+  /** label 前綴；實際 label = `${labelPrefix}${labelSep}${數字}${labelSuffix}` */
   labelPrefix: string;
+  /**
+   * 前綴與數字之間的分隔（省略 = 單一空白，這是 300+ 個手寫 case 的常態）。
+   *
+   * 唯一的使用者是 `facPrimary` 的 `` `大廠（即時）${x.toFixed(2)}` `` ——
+   * 全形括號結尾**沒有**再空一格。`labelPrefix` 自動補空白補不掉，
+   * `labelSuffix` 又在另一側，只能開這一欄。
+   */
+  labelSep?: string;
+  /**
+   * `value === 0` 時改印這個字（不印數字）。
+   *
+   * `powerPoles` / `osmRoadDrive` 的 `` `全台顯示 ${x === 0 ? "關" : x.toFixed(2)}` ``
+   * ——「0 = 這個效果關掉」的語意，印 `0.00` 會讓人以為只是調到最小。
+   * 這是**值相依**的文字，`labelPrefix` / `labelSuffix` 都是常數字串，表達不了。
+   *
+   * ⚠️ 仍是純字串、不是函式：只有 `=== 0` 這一個分支點，快照照樣逐位比對。
+   */
+  zeroLabel?: string;
   /** `toFixed` 位數 */
   digits: number;
   /**
@@ -147,7 +167,21 @@ export interface ToggleParamSpec extends SharedSlotField {
 interface SelectParamSpecBase extends SharedSlotField {
   kind: "select";
   name: string;
+  /** 控件 label；宣告了 `labelByValue` 時，本欄退化成「查無對應時的兜底」 */
   label: string;
+  /**
+   * label 隨**自己當下的值**變的 select（P3-2C 落地 8 層）。
+   *
+   * `livestockFarm*` 的 `` `品項 ${FARM_HIGHLIGHT_OPTIONS[k][idx] ?? "全部"}` `` 與
+   * `agriCropSuitability` 的 `` `作物 ${current.nameZh}` `` —— 面板寬 240px，
+   * 原生 select 收合時看不到選中項，所以把當前值寫進 label。
+   *
+   * ⚠️ 值 → 顯示文字是**整串**（含前綴），不是「前綴 ＋ 選項 label」：
+   * 作物那層的 label 用 `nameZh`、選項用 `${nameZh} (${nameEn})`，
+   * 兩者本來就不是同一個字串 —— 拆成「前綴 + 選項 label」會靜默改掉顯示文字，
+   * 正是 P3-1 記的「顯示表 ≠ 編碼表」那類漂移的近親。
+   */
+  labelByValue?: Record<string, string>;
   default: string;
   options: ParamSelectOption[];
   /** overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` 多半**不同名**，故必填 */
@@ -215,6 +249,32 @@ function zFloatSlider(name: string): SliderParamSpec {
     kind: "slider", name, labelPrefix: "Z 漂浮", digits: 0, labelSuffix: "px",
     default: 0, min: 0, max: 100, step: 2,
   };
+}
+
+/**
+ * 畜牧場 7 層同構：透明度 ＋ 大小 ＋「品項」select。
+ *
+ * ⚠️ 品項 select 的 label 帶當前選中項（`品項 肉豬`）——面板只有 240px 寬，
+ * 原生 select 收合時看不到選中值。`labelByValue` 存的是**整串**顯示文字。
+ * out 吃 `Number(value)` 而非索引（overlayParams 收的是 `…HighlightIdx` 原值）——
+ * 這裡 index 與值碰巧相同，正因如此才必須寫 `encodeNumeric` 講明意圖：
+ * 選項表哪天前面插一項，`indexOf` 版會整組錯位且沒有任何閘會紅。
+ */
+function livestockFarm(key: keyof typeof FARM_HIGHLIGHT_OPTIONS): LayerParamSpec[] {
+  const names = FARM_HIGHLIGHT_OPTIONS[key];
+  return [
+    opacitySlider(`${key}Opacity`, 0.85),
+    {
+      kind: "slider", name: `${key}Scale`, labelPrefix: "大小", digits: 2,
+      default: 0.3, min: 0.01, max: 0.5, step: 0.01,
+    },
+    {
+      kind: "select", name: `${key}HighlightIdx`, label: "品項 全部", default: "0",
+      labelByValue: Object.fromEntries(names.map((n, i) => [String(i), `品項 ${n}`])),
+      options: names.map((n, i) => ({ label: n, value: String(i) })),
+      out: `${key}HighlightIdx`, encodeNumeric: true,
+    },
+  ];
 }
 
 const REGISTRY_ENCODE = REGISTRY_MODES.map((m) => m.value);
@@ -1298,6 +1358,132 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "lightningMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
     opacitySlider("lightningOpacity", 0.85),
   ],
+  // ══════════ P3-2C 群2：encodeNumeric ／ 條件式 label ／ 動態 select 16 層 ══════════
+
+  // ── 數值型 select（out 吃 `Number(value)` 不是索引）──
+  waterFloodExtreme: [
+    opacitySlider("waterFloodOpacity", 1),
+    {
+      kind: "select", name: "floodMinDepth", label: "深度", default: "0",
+      options: [
+        { label: "全部", value: "0" },
+        { label: "≥0.5m", value: "0.5" },
+        { label: "≥1m", value: "1" },
+        { label: "≥2m", value: "2" },
+        { label: "≥3m 最嚴重", value: "3" },
+      ],
+      // ⚠️ paint 吃的是**公尺數**：`"0.5"` → 0.5（索引版會給 1）。
+      //    預設 "0" 時兩種編碼碰巧都是 0 → 黃金快照分不出來，靠行為測試擋。
+      out: "floodMinDepth", encodeNumeric: true,
+    },
+  ],
+  precipRaster: [
+    opacitySlider("precipRasterOpacity", 0.6),
+    {
+      kind: "select", name: "precipRasterHours", label: "累積時長", default: "24",
+      options: [
+        { label: "1 小時", value: "1" },
+        { label: "3 小時", value: "3" },
+        { label: "6 小時", value: "6" },
+        { label: "24 小時", value: "24" },
+      ],
+      out: "precipRasterHours", encodeNumeric: true,
+    },
+  ],
+
+  // ── 警察覆蓋分析 isochrone 3 層 ──
+  // ⚠️ 同一個 key 裡兩種編碼並存：`Mode` 走 encode（`["walk","drive"].indexOf`
+  //    與原文 `mode === "drive" ? 1 : 0` 恰好等價）、`Minutes` 走 encodeNumeric
+  //    （原文是 `Number(minutes)`）。P3-2B 就是因為 spec 是 per-key 整包宣告、
+  //    `Minutes` 那半搬不動，才把整個 key 退回 C。
+  policeIsoSubstation: [
+    {
+      kind: "select", name: "policeIsoSubstationMode", label: "模式", default: "walk",
+      options: [{ label: "步行 Walk", value: "walk" }, { label: "開車 Drive", value: "drive" }],
+      out: "policeIsoSubstationMode_drive", encode: ["walk", "drive"],
+    },
+    {
+      kind: "select", name: "policeIsoSubstationMinutes", label: "分鐘", default: "5",
+      options: [{ label: "5 分", value: "5" }, { label: "10 分", value: "10" }],
+      out: "policeIsoSubstationMinutes_num", encodeNumeric: true,
+    },
+    { kind: "slider", name: "policeIsoSubstationOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 0.9, step: 0.05 },
+  ],
+  policeIsoPrecinct: [
+    {
+      kind: "select", name: "policeIsoPrecinctMode", label: "模式", default: "drive",
+      options: [{ label: "步行 Walk", value: "walk" }, { label: "開車 Drive", value: "drive" }],
+      out: "policeIsoPrecinctMode_drive", encode: ["walk", "drive"],
+    },
+    {
+      kind: "select", name: "policeIsoPrecinctMinutes", label: "分鐘", default: "15",
+      options: [{ label: "15 分", value: "15" }, { label: "30 分", value: "30" }],
+      out: "policeIsoPrecinctMinutes_num", encodeNumeric: true,
+    },
+    { kind: "slider", name: "policeIsoPrecinctOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 0.9, step: 0.05 },
+  ],
+  policeIsoCityDept: [
+    {
+      kind: "select", name: "policeIsoCityDeptMode", label: "模式", default: "drive",
+      options: [{ label: "步行 Walk", value: "walk" }, { label: "開車 Drive", value: "drive" }],
+      out: "policeIsoCityDeptMode_drive", encode: ["walk", "drive"],
+    },
+    {
+      kind: "select", name: "policeIsoCityDeptMinutes", label: "分鐘", default: "30",
+      options: [{ label: "30 分", value: "30" }, { label: "60 分", value: "60" }],
+      out: "policeIsoCityDeptMinutes_num", encodeNumeric: true,
+    },
+    { kind: "slider", name: "policeIsoCityDeptOpacity", labelPrefix: "透明度", digits: 2, default: 0.45, min: 0.1, max: 0.9, step: 0.05 },
+  ],
+
+  // ── 條件式 label：0 = 關（`zeroLabel`）／前綴不補空白（`labelSep`）──
+  osmRoadDrive: [
+    { kind: "slider", name: "osmRoadDriveZ5Reveal", labelPrefix: "全台顯示", digits: 2, zeroLabel: "關", default: 0, min: 0, max: 1, step: 0.1 },
+    { kind: "slider", name: "osmRoadDriveWidth", labelPrefix: "寬度", digits: 1, default: 1, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("osmRoadDriveOpacity", 0.85),
+  ],
+  powerPoles: [
+    { kind: "slider", name: "powerPolesZ5Reveal", labelPrefix: "全台顯示", digits: 2, zeroLabel: "關", default: 0, min: 0, max: 1, step: 0.1 },
+    { kind: "slider", name: "powerPolesHeat", labelPrefix: "熱區", digits: 2, zeroLabel: "關", default: 1, min: 0, max: 1, step: 0.05 },
+    scaleSlider("powerPolesSize", 1),
+    opacitySlider("powerPolesOpacity", 0.7),
+  ],
+  facPrimary: [
+    { kind: "slider", name: "facPrimaryScale", labelPrefix: "總大小", digits: 1, default: 0.5, min: 0.3, max: 3, step: 0.1 },
+    // ⚠️ 全形括號結尾後**沒有空白**（`大廠（即時）1.30`）→ labelSep ""
+    { kind: "slider", name: "facPrimaryRtScale", labelPrefix: "大廠（即時）", labelSep: "", digits: 2, default: 1.3, min: 0.2, max: 3, step: 0.05 },
+    { kind: "slider", name: "facPrimaryNoRtScale", labelPrefix: "其他廠", digits: 2, default: 0.85, min: 0.1, max: 2, step: 0.05 },
+    opacitySlider("facPrimaryOpacity", 0.65),
+  ],
+
+  // ── label 隨當前值變的 select（`labelByValue`）──
+  agriCropSuitability: [
+    opacitySlider("agriCropSuitabilityOpacity", 1),
+    {
+      kind: "select", name: "agriCropSuitabilityCropId",
+      // 兜底＝手寫版的 `?? CROP_SUITABILITY_CROPS[0]`（查無 id 時顯示第 0 種作物）
+      label: `作物 ${CROP_SUITABILITY_CROPS[0]!.nameZh}`,
+      labelByValue: Object.fromEntries(
+        CROP_SUITABILITY_CROPS.map((c) => [String(c.id), `作物 ${c.nameZh}`]),
+      ),
+      default: "0",
+      // ⚠️ 顯示表 ≠ 選項表：label 只有 nameZh、選項是 `${nameZh} (${nameEn})`
+      options: CROP_SUITABILITY_CROPS.map((c) => ({
+        label: `${c.nameZh} (${c.nameEn})`, value: String(c.id),
+      })),
+      // ⚠️ 132 種作物的 id 現況恰好是 0..131（位置＝id），所以 indexOf 版**現在**
+      //    也算得出同樣的數字 —— 但 overlayParams 要的是 crop id 本身，
+      //    上游哪天插一種作物就會整組錯位。宣告 encodeNumeric 把意圖釘死。
+      out: "agriCropSuitabilityCropId", encodeNumeric: true,
+    },
+  ],
+  livestockFarmPig: livestockFarm("livestockFarmPig"),
+  livestockFarmChicken: livestockFarm("livestockFarmChicken"),
+  livestockFarmCattle: livestockFarm("livestockFarmCattle"),
+  livestockFarmDuck: livestockFarm("livestockFarmDuck"),
+  livestockFarmGoose: livestockFarm("livestockFarmGoose"),
+  livestockFarmSheep: livestockFarm("livestockFarmSheep"),
+  livestockFarmOther: livestockFarm("livestockFarmOther"),
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**
