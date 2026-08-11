@@ -82,7 +82,16 @@ import { EDUCATION_LAYER_COLORS } from "./educationTypes";
  */
 export type LayerDataClass = "A" | "B" | "C" | "D";
 
-/** 資料來源描述。形狀跟著 dataClass 走 —— 測試會驗它與 OVERLAY_REGISTRY 對得上。 */
+/**
+ * 單一 OVERLAY_REGISTRY config 的來源描述。形狀跟著 dataClass 走 ——
+ * 測試會驗它與 OVERLAY_REGISTRY 對得上。
+ *
+ * ⚠️ 少數 key 在 OVERLAY_REGISTRY 有**多筆同 id 的 config**（`propertyValueGrid` 三尺度、
+ *    `stationsTRA` / `waterRivers` / `waterReservoirs` 各 2 筆）——那些 entry 的 `source`
+ *    寫成 `LayerSource[]`，見 `LayerManifestEntry.source`。
+ *    共用 `sourceId`（教育 edu-schools ×7、運動場館 ×5）是**完全不同的事**：
+ *    那是多個 key 各自一筆 config 指向同一份資料，仍寫單數形。
+ */
 export type LayerSource =
   | { kind: "geojson"; sourceId: string; url: string }
   | {
@@ -130,7 +139,15 @@ export interface LayerManifestEntry {
 
   // ── 僅宣告：Phase 3 接線，但已有測試釘住與現況一致 ──
   dataClass: LayerDataClass;
-  source: LayerSource;
+  /**
+   * 單一 config → 寫單數形；**同 key 多 config** → 寫陣列，且**順序必須與
+   * OVERLAY_REGISTRY 內的出現順序相同**（測試逐位對齊比對）。
+   * 順序是 load-bearing：它決定 layer 疊放，Phase 3 由 manifest 派生 `GIS_LAYERS`
+   * 時又是 first-hit-wins，重排會靜默改掉點擊命中的那一層。
+   * 陣列各元素的 `kind` 必須同質（dataClass 只有一個值）；`kind:"custom"` 無 registry
+   * entry 可多配，只能單數形。
+   */
+  source: LayerSource | LayerSource[];
   /**
    * 圖例群組 id —— 同一組 key 共用一份圖例元件時填同一個 id
    * （例：urbanZoningTaipei / urbanZoningNewTaipei 共用 UrbanZoningLegend）。

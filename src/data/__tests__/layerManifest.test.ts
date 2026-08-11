@@ -18,7 +18,7 @@
 import { describe, it, expect } from "vitest";
 
 import {
-  LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry,
+  LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry, type LayerSource,
 } from "../layerManifest";
 import { LAYER_COLORS, THEMES, LAYER_LABELS } from "../../components/sidebar/layerCatalog";
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
@@ -96,39 +96,61 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
     }
   });
 
-  it("source + dataClass 宣告 = OVERLAY_REGISTRY 的實際形狀", () => {
+  it("source + dataClass 宣告 = OVERLAY_REGISTRY 的實際形狀（含同 key 多 config）", () => {
     for (const [k, m] of entries) {
       const configs = OVERLAY_REGISTRY.filter((c) => c.id === k);
+      // 同 key 多 config（propertyValueGrid 三尺度）→ source 寫成陣列。單／複數走同一條
+      // 比對路徑，差別只在筆數與**逐位對齊**。
+      // ⚠️ index 配對不是圖方便：OVERLAY_REGISTRY 的順序決定 layer 疊放，Phase 3 由
+      //    manifest 派生 GIS_LAYERS 時又是 first-hit-wins —— 順序 load-bearing，
+      //    在這裡一併釘住，重排會紅。
+      const sources = Array.isArray(m.source) ? m.source : [m.source];
+      expect(sources, `${k} 的 source 陣列不能是空的`).not.toHaveLength(0);
 
-      if (m.source.kind === "custom") {
+      if (sources.some((s) => s.kind === "custom")) {
+        expect(sources, `${k} 宣告 custom source（無 registry entry）就只能有一筆`)
+          .toHaveLength(1);
         expect(m.dataClass, `${k} 宣告 custom source 就該是 dataClass D`).toBe("D");
         expect(configs, `${k} 宣告沒有 overlay entry，但 OVERLAY_REGISTRY 裡找得到`)
           .toHaveLength(0);
         continue;
       }
 
-      expect(configs, `${k} 宣告有 overlay source，OVERLAY_REGISTRY 卻沒有對應 entry`)
-        .toHaveLength(1);
-      const cfg = configs[0]!;
-      expect(cfg.sourceId, `${k} sourceId 宣告錯`).toBe(m.source.sourceId);
+      // 上面的 guard 已排除 custom，這裡只是把它從型別上也拿掉（三個分支共用 sourceId）
+      const overlaySources = sources.filter(
+        (s): s is Exclude<LayerSource, { kind: "custom" }> => s.kind !== "custom",
+      );
 
-      if (m.source.kind === "geojson") {
-        expect(m.dataClass).toBe("A");
-        expect(cfg.sourceUrl).toBe(m.source.url);
-        expect(cfg.pmtiles, `${k} 宣告 geojson 卻有 pmtiles 設定`).toBeUndefined();
-        expect(cfg.dynamicData, `${k} 宣告 geojson 卻是 dynamicData`).toBeFalsy();
-      } else if (m.source.kind === "pmtiles") {
-        expect(m.dataClass).toBe("B");
-        expect(cfg.sourceUrl).toBe(m.source.url);
-        expect(cfg.pmtiles, `${k} 宣告 pmtiles 但 registry 沒設定`).toBeTruthy();
-        expect(cfg.pmtiles!.sourceLayer).toBe(m.source.sourceLayer);
-        expect(cfg.pmtiles!.minzoom).toBe(m.source.minzoom);
-        expect(cfg.pmtiles!.maxzoom).toBe(m.source.maxzoom);
-      } else {
-        expect(m.dataClass).toBe("C");
-        expect(cfg.dynamicData, `${k} 宣告 supabase 但 registry 沒設 dynamicData`).toBe(true);
-        expect(cfg.sourceUrl, `${k} 的 fallbackUrl 宣告錯`).toBe(m.source.fallbackUrl);
-      }
+      expect(
+        configs,
+        `${k} 宣告 ${overlaySources.length} 筆 overlay source，OVERLAY_REGISTRY 實際 ${configs.length} 筆`,
+      ).toHaveLength(overlaySources.length);
+
+      overlaySources.forEach((src, i) => {
+        // 多 config 時把位置寫進訊息，否則三筆一模一樣的錯誤看不出是哪一筆
+        const at = overlaySources.length > 1 ? `${k}[${i}]` : k;
+        const cfg = configs[i]!;
+        expect(cfg.sourceId, `${at} sourceId 宣告錯`).toBe(src.sourceId);
+
+        // dataClass 只有一個值 → 逐筆斷言等於順帶要求陣列各元素 kind 同質
+        if (src.kind === "geojson") {
+          expect(m.dataClass).toBe("A");
+          expect(cfg.sourceUrl).toBe(src.url);
+          expect(cfg.pmtiles, `${at} 宣告 geojson 卻有 pmtiles 設定`).toBeUndefined();
+          expect(cfg.dynamicData, `${at} 宣告 geojson 卻是 dynamicData`).toBeFalsy();
+        } else if (src.kind === "pmtiles") {
+          expect(m.dataClass).toBe("B");
+          expect(cfg.sourceUrl).toBe(src.url);
+          expect(cfg.pmtiles, `${at} 宣告 pmtiles 但 registry 沒設定`).toBeTruthy();
+          expect(cfg.pmtiles!.sourceLayer).toBe(src.sourceLayer);
+          expect(cfg.pmtiles!.minzoom).toBe(src.minzoom);
+          expect(cfg.pmtiles!.maxzoom).toBe(src.maxzoom);
+        } else {
+          expect(m.dataClass).toBe("C");
+          expect(cfg.dynamicData, `${at} 宣告 supabase 但 registry 沒設 dynamicData`).toBe(true);
+          expect(cfg.sourceUrl, `${at} 的 fallbackUrl 宣告錯`).toBe(src.fallbackUrl);
+        }
+      });
     }
   });
 
