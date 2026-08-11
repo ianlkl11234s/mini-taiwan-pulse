@@ -1376,3 +1376,95 @@ group checkbox state**（`busGroups` 同時餵 `enabledBusCities` memo），
 
 ⚠️ **不建議**在 A 批之前先啃 C/D —— 那會讓 schema 為了 18 個例外提早複雜化，
 而 240 個 easy case 用不到那些欄位。先把量體搬完，例外的形狀也會更清楚。
+
+---
+
+## 2026-08-11 — Phase 3 第二棒（P3-2A）：純 slider 桶 161 key 出 useTransportParams
+
+`403a583` `refactor(params): P3-2A 群1 遷移 33 key（交通・醫療・公共設施・教育）`
+`7e81ac9` `refactor(params): P3-2A 群2 遷移 39 key（天災・水利・農業・運動生態）`
+`0f9fdcf` `refactor(params): P3-2A 群3 遷移 52 key（森林山域・能源電力航空）`
+`5804cdb` `refactor(params): P3-2A 群4 遷移 37 key（邊界地形・執法治安・養殖・觀光）`
+
+A 桶量體棒。**零 schema 變動** —— 161 個 key／278 個參數全部吃得下 P3-1 定的
+`SliderParamSpec`，其中 131 個透明度滑桿與 55 個大小滑桿直接複用
+`opacitySlider` / `scaleSlider` 建構子，其餘 92 個寫成字面物件。
+
+### 驗收（每群都跑，不是只跑最後一次）
+
+| 項 | 結果 |
+|---|---|
+| `layer-golden.json` | 四群**全部零 diff**；sha256 `07972fce…` 從 `eabd1ef` 到 `5804cdb` 一位元未變 |
+| `npx tsc -b` | 0 error（每群） |
+| `npx vitest run` | 41 檔 **523 passed / 1 skipped**（每群，與基準完全相同） |
+| `useTransportParams.ts` | 3,085 → **1,959** 行（−1,126，−36.5%） |
+| `useState` | 619 → **341**（−278） |
+| `case` | 330 → **169**（−161） |
+| overlayParams deps | 512 → **235**（−277） |
+| `LAYER_PARAMS_SPEC` | 11 → **172** key |
+
+### ⚠️ A 桶實際是 161 key，不是盤點寫的 240
+
+P3-1 的分批盤點用目測量級估 240，實跑機械判準後有 **79 個 key 不合格**。
+判準是「能不能用現行 schema 逐字派生出**同一個字串**」，五條全過才算 A：
+
+1. return array 每個元素都是純 slider 字面（無 `type` 欄、欄位恰好 6 個）
+2. label 形如 `` `前綴 ${VAR.toFixed(D)}` `` —— 前綴以**單一空白**結尾、運算式後**無後綴**
+3. `const [VAR, setVAR] = useState(數值字面)`
+4. VAR 的引用點只有四處：宣告／overlayParams 純 shorthand／deps／本 case
+5. VAR 不被任何其他 key 共用
+
+### ⚠️ 第 5 條抓到一個盤點沒列、四道護欄全看不見的形狀
+
+`case "a": case "b": return [...]` 這種 **fall-through 共用 state**。
+跨 case 共用（`stationScale` 三連、`medIsochroneOpacity` 兩連）盤點有記，
+但**同一個 group 內**共用的變體沒有 —— 而它一樣搬不得：
+
+per-key spec 會讓兩個 key 各自宣告同名 `out`，`encodeParamsToOverlay`
+後者覆蓋前者，store 卻各存一份值 → **拖一邊，paint 不動、另一邊面板也不動**。
+
+危險在於**沒有任何一道閘會紅**：快照比的是預設值（兩邊由建構上就相等）、
+tsc 全綠、`layerParamsControls.test.ts` 只覆蓋 P3-1 的 key。
+只搬其中一個 key 也一樣壞（trailing spread 會讓 store 值蓋掉倖存的 useState）。
+本棒因此把 `len(keys) > 1` 的 group 一律退回，實際命中 2 組 5 key。
+
+### 退回清單（按機制分類，交給後棒）
+
+⚠️ 本表是**剩餘 169 key 的全集盤點**，與上一節「79 個不合格」不是同一個母體
+（那是 240 估值減 161 實績的差額）。兩個數字不必也不該對得起來。
+
+| 機制 | key 數 | 去向 |
+|---|---|---|
+| 含 select / toggle | 65 | B |
+| label 有後綴（`Z 漂浮 ${x.toFixed(0)}px` 等 11 層）| 11 | C（加 `labelSuffix` 欄即可，是 C 桶最便宜的一項）|
+| label 前綴無空白（`Alt ×`／`大廠（即時）`）或條件式 | 4 | C（`flights` `facPrimary` `osmRoadDrive` `powerPoles`）|
+| label 無 `toFixed`（整數內插 `${x} min`）| 2 | C（`lightning` `lightningCwa`）|
+| label 含運算式（`${(x * 100000).toFixed(1)}`）| 1 | C（`ships`）|
+| spread / helper 產生器 | 2 | C（`agriCropSuitability` `busLive`）|
+| 共用 state（跨 case）| 5 | 需第二種表達（`stationsTHSR/TRA/Metro`・`medIsochrone/medDesert`）|
+| 共用 state（fall-through group，**本棒新發現**）| 5 | 同上（`busStationsCity/Intercity`・`eduKindergarten/AfterschoolCare/MutualCare`）|
+| 值不進 overlayParams（進 `h3Params` 等獨立回傳物件）| 9 | D |
+| 值從 hook return 外溢 | 3 | D（`hillshade` `slopeVector` `aspectVector`）|
+| **fall-through group（未做形狀分析）** | 38 | **B/C/D 混雜，後棒需自行分桶** |
+| `emptyByDesign` ＋ block-form case（`indicators` 三兄弟・廢棄物 13 層等）| 24 | C/D／不需遷移 |
+| **合計** | **169** | ＝ 330 − 161 已遷移 |
+
+⚠️ 那 38 個 fall-through key 在本棒的分類器裡**在形狀分析之前**就因
+`len(keys) > 1` 被攔掉，所以它們沒有被歸進上面任何一個機制列。
+P3-2B 若照本表估工，會**少算 38 個 key** —— 它們實際上分散在 B/C/D 三桶。
+
+另：盤點把 `pollutionSite` 記在 6 個 `emptyByDesign` 裡，**現況它有真 case**
+（opacity ＋ scale ＋ 一個 toggle）→ 屬 B 桶。`emptyByDesign` 實際是 5 個。
+
+### 給 P3-2B 的三件事
+
+1. **`labelSuffix` 是 C 桶投報率最高的一刀** —— 11 個 key 只差這一欄，
+   且它是純字串串接、不需要 `label(value)` 函式化，快照照樣逐位比對。
+2. **共用 state 的 10 個 key 要先決定表達方式再動手**，不要放進任何「量體批」——
+   它們是唯一「四道閘全綠但畫面壞掉」的形狀，只能靠人工判斷擋。
+   可行方向：spec 支援 `sharedWith`，或把共用參數提成 layer 無關的 group 級 store。
+3. **遷移一律走腳本、不要手改** —— 本棒 161 key × 5 個觸點約 800 處刪改，
+   手改必漏。腳本另外做了一件人工容易忘的事：**孤兒區塊註解**
+   （`// Bike`、`// 醫療基礎點位 5 類` 這種標示宣告群的註解，
+   在它標示的宣告全被刪光時一起刪）—— 判定要用**刪除前**的原文，
+   刪完再回推「這註解還有沒有主人」會誤判多行註解區塊。
