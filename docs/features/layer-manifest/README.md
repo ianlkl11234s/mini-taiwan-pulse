@@ -27,7 +27,7 @@ popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽�
 |---|---|---|
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
-| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema 擴充）✅ `15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）✅ `410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）✅ `45faee8`…`d39edf1`；批 7-8 待派工（Phase 2 已搬 214/343，manifest 共 **219 entry**） |
+| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema 擴充）✅ `15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）✅ `410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）✅ `45faee8`…`d39edf1`；批 7（47 層 ＋ 第四支 popup 解析器，無 schema 改動）✅ `a1d7e3b` `6489881` `7e6e0a1`；批 8 待派工（Phase 2 已搬 261/343，manifest 共 **266 entry**） |
 | **3** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ |
 | **4** | params 派生化（`useTransportParams` 的 case 由 manifest spec 產生）＋ `/new-layer` 改成只寫 manifest | ⬜ |
 
@@ -48,22 +48,32 @@ Phase 4 完成後，新增一層的登記工作 = **只改 manifest 一處**，�
 派生接線落在：`src/components/sidebar/layerCatalog.ts`（colors + THEMES）、
 `src/components/IconRailSidebar.tsx`（icons）、`src/data/upstreamRegistry.ts`（upstream）。
 
-### popup 宣告的三個真值來源（批 4 起）
+### popup 宣告的四個真值來源（批 7 起）
 
-`GIS_LAYERS` 一張表**不足以**判斷一層有沒有 popup，抽取器因此有三支：
+`GIS_LAYERS` 一張表**不足以**判斷一層有沒有 popup，抽取器因此有四支：
 
 | 解析器 | 涵蓋 | 為什麼需要 |
 |---|---|---|
 | `extractGisLayers` | 字面 `{ layers: [...], type }` | 主要來源（也進 fixture） |
 | `extractGisConstRefTypes` | layer id 寫成常數引用那幾筆 | regex 要求字面陣列，抓不到（批 1） |
-| `extractNonGisFeatureTypes` | **完全不經 GIS_LAYERS** 的 `setFeatureInfo` | `climateField` 是「沒命中任何 feature」的 fallback，不對應任何 layer id（批 4） |
+| `extractNonGisFeatureTypes` | `useMapInteraction.ts` 內**不經 GIS_LAYERS** 的 `setFeatureInfo` | `climateField` 是「沒命中任何 feature」的 fallback，不對應任何 layer id（批 4） |
+| `extractCustomHandlerFeatureTypes` | **連 `useMapInteraction` 都不進**：圖層模組自己 `map.on("click", layerId, …)`（wasteMapboxLayers 8 個 circle 子層）／`App.tsx` 對 customLayer 的 raycast | 廢棄物 13 層的接線全在別處，前三支一個都抓不到（批 7） |
 
-**「查不到 → 填 null」是錯的捷徑**：三者聯集才是「這個 layerType 真的有接線」。
+**「查不到 → 填 null」是錯的捷徑**：四者聯集才是「這個 layerType 真的有接線」。
 dataClass D 的層更要逐層打開 hook / factory 看它 `addLayer` 了什麼 id。
 
-⚠️ **反方向也有陷阱（批 5）**：`HEADER_LABELS` 有條目**不代表**有 popup ——
-那張表是 BYOK chat bridge 能標的 layerType 全集，`hillshade` 在裡面卻沒有任何
-`GIS_LAYERS` 條目。兩個方向都只能靠「讀 hook 的 addLayer id 再對 GIS_LAYERS」。
+⚠️ 第四支的 regex 刻意**不做整行掃描**：`wasteMapboxLayers` 的 layerType 是三元運算，
+整行掃 `"..."` 會把 `props["kind"] === "facility"` 的字串一起收進來。
+它的「有沒有抓到」也是**逐檔**判 —— 三支來源檔都產出 `"wasteFacility"`，
+用聯集大小判會誤報。
+
+⚠️ **反方向的兩個陷阱**：
+- `HEADER_LABELS` 有條目**不代表**有 popup（批 5）—— 那張表是 BYOK chat bridge 能標的
+  layerType 全集，`hillshade` 在裡面卻沒有任何 `GIS_LAYERS` 條目。
+- **有點選互動也不代表有 popup**（批 7）—— `wasteSchedule` 的 `pickRoute` 命中後走
+  `setWasteScheduleTooltipInfo`（獨立 tooltip 狀態，同列車／公車），不是 `setFeatureInfo`。
+
+四個方向都只能靠「讀 hook / handler 實際 addLayer 與 set 了什麼」。
 
 `popup` 欄位也支援**一個 key 對多個 layerType**（陣列，批 5 為 `earthquakeReplay`
 擴充、批 6 `waterReservoirs` 是第二例）—— 同一個 toggle 建出的多個 layer 各自有

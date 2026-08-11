@@ -690,3 +690,157 @@ nginx 從來不讀那裡）。目前不會 404（dist 有檔），但 S3 那半�
 前四批撞了五種變形。批 6 兩個主題的四張手寫表區塊**全部名實相符**——
 但這不構成「可以按區塊整段刪」的理由：本批仍是逐 key 定位刪除，
 只是這次逐 key 的結果與區塊剛好一致。**判準不變，變的只是運氣。**
+
+---
+
+## 2026-08-11 — Phase 2 批 7：47 層（廢棄物 18・農業 29）
+
+`a1d7e3b` 前置護欄（第四支解析器）｜`6489881` 廢棄物｜`7e6e0a1` 農業
+
+manifest 219 → **266 entry**（Phase 2 已搬 261/343）。四張手寫表對這 47 key 殘留
+grep 命中 0（`^  key:` 與 `key: "key"` 兩種形狀分開數，各 0）。
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（測試條數自批 1
+起未增減）｜黃金快照 fixture 自 `8abbd97` 起**一位元未動**。
+
+**本批無 schema 改動**（拍板②⑤⑥的三種擴充都夠用，47 層全在 THEMES 內），
+唯一新增的是解析器 —— 那走批 1 / 批 4 的既有前例，不是新拍板。
+
+### 前置護欄：第四種 popup 真值來源 `extractCustomHandlerFeatureTypes`（`a1d7e3b`）
+
+廢棄物 13 層（wf* 9 + wd* 4）的點擊接線**完全不在 `useMapInteraction.ts`**：
+
+| 檔 | 形狀 | 覆蓋 |
+|---|---|---|
+| `map/wasteMapboxLayers.ts` | 8 個 circle 子層各自 `map.on("click", coreLayerId, …)` | wf* 4 + wd* 4 |
+| `map/wasteFacilityCustomLayer.ts` | `facilityRowToFeatureInfo`（目前無呼叫端，留作形狀證據） | — |
+| `App.tsx` | 對 3D scene 的 raycast 結果 inline `setFeatureInfo` | 3D 設施 6 層 |
+
+三支既有解析器一個都抓不到 → 這 13 層只能宣告 `popup: null`（已知為假），
+Phase 3 派生 `GIS_LAYERS` 會靜默丟掉整個廢棄物主題的點擊。做法照批 1 / 批 4：
+只回 type 字串、**不進 fixture**，由 `layerManifest.test.ts` union 進 `gisTypes`。
+
+兩處實作細節值得記：
+
+1. **兩條 regex 精確錨定值位置，不做整行掃描** —— wasteMapboxLayers 的 layerType 是
+   **三元運算**（`props["kind"] === "facility" ? "wasteFacility" : "wasteDisposalPoint"`），
+   整行掃 `"..."` 會把左邊的 `"kind"` / `"facility"` 一起收進 `gisTypes`。
+   ternary 那條用 `[^\n?]*` 把比對範圍夾在該行第一個 `?` 之前。
+2. **「有沒有抓到」逐檔判、不能用聯集大小** —— 三支檔都產出 `"wasteFacility"`，
+   後兩支的**新增數**本來就可能是 0，用聯集判會誤報「接線消失」。
+
+突變自測（臨時腳本，跑完即刪）：只餵三元式那行 → 只得
+`["wasteDisposalPoint","wasteFacility"]`（noise 未被收入）；餵空檔 → throw。
+
+### popup 判準的第五層修正：**有 click handler ≠ 有 popup**
+
+批 4 立「D 體質 → popup null 是錯的捷徑」，批 5 立「HEADER_LABELS 有條目 ≠ 有 popup」。
+批 7 的新反例是 `wasteSchedule`：`WasteScheduleScene.pickRoute` 命中後走
+`setWasteScheduleTooltipInfo`（獨立 tooltip 狀態，同列車／公車 tooltip），
+**不是 `setFeatureInfo`** → 不構成 FeatureInfo 接線，`popup: null`。
+
+至此四個方向都有反例：D 不等於沒 popup；HEADER_LABELS 有不等於有；
+不在 useMapInteraction 不等於沒有；**有點選互動也不等於有 popup**。
+唯一可靠做法仍是逐層讀 hook 的 addLayer id 與 handler 實際 set 了什麼。
+
+### 兩個主題的形狀
+
+| | 廢棄物 18 | 農業 29 |
+|---|---|---|
+| dataClass | **D 17 / A 1** | **A 5 / B 9 / C 8 / D 7**（四種齊） |
+| `legend: null` | **18/18** | 5/29（其餘 10 個 id 照機械規則取首 key） |
+| popup 與 key 同名 | 0（13 → 2 家族 layerType、1 個去複數 s、4 個 null） | 21/29（1 個 7→1、3 個 null） |
+| `labelMobile` | 14/18 | **0/29** |
+
+- **廢棄物 legend 18/18 全 null** 是拍板④「不看圖層感覺該不該有圖例」規約遇過
+  最極端的一次（前紀錄是批 2 的 14/28）。整個主題在 `LEGEND_REGISTRY` 一筆條目都沒有。
+- **廢棄物 17 個 D 沒有一個是自繪**：全走 Supabase RPC（wasteLoader / wasteScheduleLoader），
+  只是渲染各自建 source/layer 或 Three.js scene（同批 5 災害、批 6 水資源）。
+  backlog 預估的「17 層 D」數字對了，理由同樣與預期不同。
+- **`wfMonitoring` 是唯一兩套渲染路徑並存的一層**：既是 wasteFacilityCustomLayer 的
+  6 個 3D sub-scene 之一，也在 wasteMapboxLayers 的 8 個 circle 子層裡。popup 兩邊
+  都是 `wasteFacility`，宣告不受影響 —— 但它證明「一個 key 一種渲染」不是通則。
+- **農業一個主題四種 dataClass 全到齊**（繼批 4 醫療、批 6 環境氣候之後第三次），
+  backlog 預估的「8 C + 9 B」兩個數字都對，A/D 分佈未預估。
+- **農業 D 7 層全是 `agricultureLayerFactory` 的 PMTiles factory**（同批 3 fireIsochrone /
+  批 6 floodSensorIsochrone）—— 又一次證明「掃 dataClass B 去對部署清單會漏」。
+  唯一例外是 `agriPOI`：D 之中唯一的 geojson lazy hydrate（空 FC 起手，visible 才 fetch）。
+- **農業 C 8 層的 `fallbackUrl` 刻意不部署**：飼養場 7 + 屠宰場走 owner-only RPC，
+  `livestock_farms.geojson` / `slaughterhouses.geojson` 在 upload 腳本裡有註解說明
+  不上傳、pull 端還 `rm -f`。**這是斷 prod 供應的設計，不是部署缺口** ——
+  觸點 #20 的機械斷言未來要能區分這兩者。
+- 飼養場 7 層各自一筆 config **共用 `sourceId` `livestock-farms`**（同批 3 教育 ×7），
+  仍寫單數形；popup 也是 7 → 1。⚠️ 它們同時列在 `GATED_LAYERS`，但 THEMES 的
+  LayerDef **沒有** `gated: true` —— GATED_LAYERS 是另一張 runtime 表、不在派生的
+  四張裡，manifest 的 `gated` 對齊 LayerDef 現況不填。
+
+### 色票拍板①：47 個全部「不引用」
+
+- 廢棄物：`wasteLoader` 的 `WASTE_FACILITY_COLORS` / `WASTE_DISPOSAL_COLORS` 是
+  **facility_type / point_type-keyed**（餵 wasteMapboxLayers 的 circle-color）。
+- 農業：`agriPOITypes` 的 `AGRI_POI_TYPES[].color` 是 **poi_type-keyed**（餵 factory 的
+  match 表達式）。
+
+兩者 `LAYER_COLORS` 都從未 import → 寫字面 hex。hex 逐一相同（`wfIncinerator` 的
+`#ef4444` ＝ incinerator、`agriPOI` 的 `#6a1b9a` ＝ agritourism_certified）是巧合，
+同批 5 `SATELLITE_COLORS` 的判準。`HANDWRITTEN_LAYER_COLORS` 自批 3 起無 spread 可刪。
+
+### 區塊註解不可信：第七、八種變形
+
+1. **orphan 夾在本區塊正中間**：`LAYER_COLORS` 的廢棄物區塊裡，`wasteRoute` /
+   `wasteStop` 插在 `wasteCleaningSquads` 與 `wfIncinerator` 之間。它們**不在 THEMES**
+   （由 wasteTruck 子 UI 控制，批 8 才搬），按區塊整段刪會連它們一起刪掉 ——
+   而且刪了 tsc **會**擋（缺屬性），但那是最後一道防線。形似批 5 的 `osmExpressway`，
+   差別在那個是「別主題」、這個是「根本不在 THEMES」。
+2. **同一主題在同一張表裡分成兩段**（批 3「本主題 key 散在別處」的加強版）：
+   三張表都有第二段農業 —— `LAYER_COLORS` / `LAYER_ICONS` 的
+   `farmRoads` + `ecoNetworkZones`、`UPSTREAM_REGISTRY` 的面分區 3 + 土壤 3 + 那兩層，
+   全落在教育註解之後。批 3 的 `schools` 是單一 key 走失，本批是**六到八個 key 一起**。
+
+結論不變：**逐 key grep 定位再刪**。本批兩主題都用只讀腳本逐 key 定位執行。
+
+### 雙生字（本批精確錨定清單）
+
+`wasteSchedule` ≠ `wasteScheduleNote`｜`wasteStopsStatic` ≠ `wasteStop`（orphan）｜
+`agriSoil` ≠ `agriSoilFertility`｜`aquacultureWaterSatellite` ≠
+`aquacultureWaterSatelliteMoa` ≠ `aquacultureWaterUnion`。
+一律用 `^  key:` 與 `key: "key"` 兩種精確錨定分開數。
+
+### 記一筆現況出入（本次不動）
+
+`aquacultureWaterUnion` 的 key 少一個 `satellite`：sourceId / 檔名 / sourceLayer
+全都是 `aquaculture_water_satellite_union`。已在 entry 就地註明（同批 3
+`forestAlishanRail` / 批 4 `medDesert` / 批 5 `buildingsGba` 的慣例）。
+
+### ⚠️ 觸點 #20 逐檔比對：發現一個**新的兩條路都不通**
+
+| 目錄 | nginx location | 結論 |
+|---|---|---|
+| `/geo/`（`waste_stops_static.geojson`，git 管理） | root + dist fallback | ✅ 走 dist |
+| `/agriculture/`（16 檔） | root（**純 S3，刻意無 fallback**，同 `/sports/`） | ✅ 14 檔在 `AGRI_FILES`；2 檔刻意不傳（見下） |
+| `/fishery/`（7 檔） | root + dist fallback | ⚠️ 見下表 |
+
+`/agriculture/` 的兩個「不傳」是**設計**：`livestock_farms.geojson` /
+`slaughterhouses.geojson` 已改走 owner-only RPC，upload 腳本註解在案、pull 端 `rm -f`。
+
+`/fishery/` 逐檔：
+
+| 檔 | git/dist | `FISHERY_FILES`（S3） | 結論 |
+|---|---|---|---|
+| `aquaculture_ponds_osm.pmtiles` | gitignore | ✅ | ✅ |
+| `aquaculture_production_zone.geojson` | ✅ | ✅ | ✅ 雙保險 |
+| `aquaculture_cage_net.geojson` | ✅ | ✅ | ✅ 雙保險 |
+| `aquaculture_water_satellite.pmtiles` | gitignore | ✅ | ✅ |
+| `aquaculture_water_satellite_moa.pmtiles`（10.2MB） | ✅ | ❌ | ⚠️ S3 那半空轉（批 6 `/flood/` 的鏡像） |
+| `aquaculture_water_satellite_union.pmtiles`（3.1MB） | ✅ | ❌ | ⚠️ 同上 |
+| **`aquaculture_integrated.pmtiles`** | **gitignore L126** | **❌** | ❌ **兩條路都不通** |
+
+**`aquaculture_integrated.pmtiles` 是批 5 `base_map/hillshade.png` 之後第二個
+「兩條路都不通」**：gitignore 第 126 行排除（無 git → 無 dist）、不在 `FISHERY_FILES`
+（無 S3 → `/data/fishery/` 沒有）、本地 `public/fishery/` 也沒有這個檔。
+`aquacultureIntegrated` 這層的 `source.url` 指過去會 404。
+
+⚠️ 待 owner 確認：prod 是否曾**手動**上傳過該檔 —— pull 端對 `/fishery/` 是整夾
+`aws s3 sync`，手動傳進 S3 前綴就會流下來，腳本清單漏列不必然等於線上壞掉。
+修法一行：把它加進 `FISHERY_FILES`（moa / union 兩檔同理，讓 S3 那半不再空轉）。
+
+⚠️ **本批只核對記錄，未改任何部署檔。**
