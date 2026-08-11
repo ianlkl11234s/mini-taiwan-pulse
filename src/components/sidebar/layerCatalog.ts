@@ -33,80 +33,30 @@ import {
 } from "../../data/layerManifest";
 
 /**
- * 尚未搬進 layerManifest 的手寫色票（AR-22 雙軌過渡）。
+ * 手寫色票殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
  *
- * 型別是 `Omit<Record<全集>, ManifestKey>` —— tsc 雙向把關：
+ * 型別 `Omit<Record<全集>, ManifestKey>` 的 tsc 雙向護欄維持不變：
  *   - 漏掉任一「還沒搬」的 key → TS2739 缺屬性
  *   - 已搬進 manifest 的 key 還留在這裡 → excess property 報錯
- * 所以「搬走了但手寫值沒刪」這種「改 manifest 畫面沒反應」的暗雷不可能存在。
+ * `ManifestKey` 現在涵蓋全部 348 key，`Omit<…>` 因此退化成 `{}` ——
+ * 空物件字面**仍然合法**（實測 tsc 0 error），護欄語意也還在：
+ * 從 manifest 刪掉任何 key 會立刻讓下方 LAYER_COLORS 的 Record 缺屬性而報錯。
+ *
+ * ⚠️ 保留本表而非直接刪掉，是為了 Phase 3-4：新 key 若一時無法進 manifest
+ * （例如 section 尚未決定），這裡是唯一的合法暫放處。
+ *
+ * ⚠️ **唯一沒有機械護欄的漏法**（批 1 起記在案，Phase 3 仍適用）：
+ * 若這裡放的是 `...SOME_LAYER_COLORS` 這種 spread，**不觸發 excess property check**
+ * —— 搬走 key 後忘了刪 spread 會 tsc 綠、黃金快照綠、契約測試綠，
+ * 但登記沒真搬走，留下「改 manifest 畫面沒反應」的暗雷。
+ * 驗證只能靠 `grep -nE '^\s*\.\.\.'` 限行首（說明註解裡也會出現該字串）。
+ * 目前本表無 spread。
+ *
+ * 各主題的色票判準（哪個常數該引用、哪些只是撞色）逐批記在
+ * docs/features/layer-manifest/changelog.md，不在此重複。
  */
 const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, ManifestKey> = {
-  // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
-  //    它不在 EDUCATION_LAYER_COLORS 裡，色票是本表自己的字面值，隨 entry 一起搬走
-  // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
-  //    本處原有 9 層（斷層/地震 3 + 山域 1 + NCDR 示警 5），另 3 層在下方雷暴/核安處。
-  //    12 個色票原本就是字面 hex（disasterAlertTypes 的 ALERT_GROUPS 是 event_term-keyed
-  //    分色表、從未餵本表），照拍板①判準寫字面。
-  //    ⚠️ 「全球氣候 GLOBAL CLIMATE」註解原本夾在中間，其 5 層已於批 4 搬走
-  medICUBeds: "#ff1744",
-  // 🌾 農業 Agriculture 29 層已搬進 layerManifest（AR-22 Phase 2 批 7）——
-  //    agriPOITypes.ts 的 AGRI_POI_TYPES[].color 是 poi_type-keyed（餵
-  //    agricultureLayerFactory 的 circle-color match 表達式），不是 layer-key-keyed
-  //    的色票記錄，本表從未 import 它 → manifest 寫字面 hex。
-  //    ⚠️ 本主題的 farmRoads / ecoNetworkZones **不在這一段**，落在本表下方教育註解之後
-  //    （歷史位置）—— 按區塊整段刪會漏掉，逐 key grep 定位才對（同批 3 schools）。
-  // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
-  //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
-  // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）——
-  //    tourTypes.ts 的 TOUR_*_COLOR 是 category-keyed 的 match 表達式、不是
-  //    layer-key-keyed 的色票記錄，本表從未 import 它 → manifest 寫字面 hex。
-  // 🛕 宗教 Religion 6 層 / ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest
-  //    （AR-22 Phase 2 批 1）—— 色票 SSOT 仍是 religionTypes.ts / funeralTypes.ts
-  //    的 *_LAYER_COLORS，manifest 的 color 欄直接引用它們。
-  //    ⚠️ spread **不觸發 excess property check**，所以這裡若留著
-  //    `...RELIGION_LAYER_COLORS` / `...FUNERAL_LAYER_COLORS`，tsc / 黃金快照 /
-  //    契約測試會全綠但登記沒真搬走（manifest 後蓋、值又相同）→ 必須整行刪掉。
-  //    這是雙軌護欄唯一擋不到的漏法。
-  // 🎓 教育 Education 17 層已搬進 layerManifest（AR-22 Phase 2 批 3）——
-  //    `...EDUCATION_LAYER_COLORS` spread 已依上述理由整行刪除（連同本檔的 import）；
-  //    色票 SSOT 仍是 educationTypes.ts，manifest 的 color 欄逐 key 引用它。
-  // 🌾 農業的 farmRoads / ecoNetworkZones 原本落在此處（不在上方農業區塊），
-  //    已隨農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）
-  // 🌲 林業 Forestry 16 層已搬進 layerManifest（AR-22 Phase 2 批 3）——
-  //    forestReserveTypes / canopyGiantsTypes 匯出的是 category-keyed 的分色表達式
-  //    （保安林種類／離步道距離帶），不是 layer-key-keyed 的色票記錄，本表從未
-  //    import 它們 → manifest 寫字面 hex（同批 2 觀光的判準）。
-  // 🗑️ 廢棄物 Waste 18 層已搬進 layerManifest（AR-22 Phase 2 批 7）——
-  //    wasteLoader 的 WASTE_FACILITY_COLORS / WASTE_DISPOSAL_COLORS 是
-  //    facility_type / point_type-keyed（餵 wasteMapboxLayers 的 circle-color），
-  //    不是 layer-key-keyed 的色票記錄，本表從未 import 它們 → manifest 寫字面 hex
-  //    （hex 逐一相同是巧合，同批 5 SATELLITE_COLORS 的判準）。
-  //    ⚠️ 下面兩個 orphan **不屬本批**：不在 THEMES（由 wasteTruck 子 UI 控制），
-  //    section 欄位要先允許 null 才搬得動 → 批 8。
-  wasteRoute: "#84cc16",
-  wasteStop: "#65a30d",
-  // 🛰️ 太空 Space 16 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
-  //    satelliteTypes 的 SATELLITE_COLORS 是 category-keyed（`cat` 欄位值 → 色，
-  //    餵 hook 內的 match 表達式），本表從未 import 它 → 照拍板①判準寫字面 hex
-  //    （兩表 hex 逐一相同是巧合，不構成引用理由）
-  powerPlants: "#facc15",
-  powerStatusHud: "#22c55e",
-  powerRegionDemand: "#3b82f6",
-  osmSolarFarms: "#fbbf24",
-  osmPowerPlantsStatic: "#9ca3af",
-  islandPowerGrid: "#a78bfa",
-  facOffshore: "#1F4373",
-  // ⚠️ 災害 lightning / lightningCwa / nuclearRadiation 已搬進 layerManifest
-  //    （AR-22 Phase 2 批 5，與上方災害 9 層同批）
-  // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
-  //    7 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面
-  // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
-  //    12 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面。
-  //    ⚠️ 夾在中間的 osmExpressway **不屬底圖**（THEMES 位置是「交通 Move / 路網」），
-  //    已隨交通主題搬進 layerManifest（AR-22 Phase 2 批 8）
-  // 👮 執法治安 20 層（含警察覆蓋分析 isochrone 3 層）已搬進 layerManifest
-  //    （AR-22 Phase 2 批 4）—— 20 個色票原本就是字面 hex，無 spread 可刪
-  // 環境污染 POLLUTION
+  // （空 —— Phase 2 全數搬完）
 };
 
 /**

@@ -1,61 +1,17 @@
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
+  // ✅ AR-22 Phase 2 完成（批 8）：348 個 layer 的 icon **全部**由 layerManifest 派生，
+  //    `HANDWRITTEN_LAYER_ICONS` 已空。以下 import 沒有一顆是餵圖層的 ——
+  //    全是本元件自己的 UI（rail 按鈕 / panel 標頭 / 展開箭頭 / 搜尋框…）。
+  //    新增圖層請改 layerManifest 的 `icon` 欄，不要往這裡加。
   Activity, Layers, MapPin, Settings, X,
-  // 🚦 交通 Move 31 層搬進 layerManifest（AR-22 Phase 2 批 8）後，Plane / Ship /
-  //    TrainFront / Bus / PlaneTakeoff / Lightbulb / RailSymbol / Hexagon / Ban /
-  //    Bike / Receipt / Coffee / Car / SquareParking / CircleParking / AlertTriangle
-  //    已無用；Route（orphan wasteRoute）／Anchor（orphan islandPowerGrid）／
-  //    CircleDot 仍被別層或 orphan 用
-  Route, Anchor,
-  // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
-  //（Wind 隨能源再生能源 osmWindTurbines / windPlan 搬走，批 8）
-  BarChart3,
   ChevronDown, ChevronRight, Search, Navigation,
   Play, Radio,
-  // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
-  //    Droplet / GitBranch / Dam / Shield / Timer 已無用；
-  //    Waves / Factory 仍被別層或 orphan 用
-  //    （Gauge 隨廢棄物 wfMonitoring、ShieldCheck 隨農業 aquacultureWaterSatelliteMoa 搬走，批 7；
-  //      Container 隨能源化石燃料搬走，批 8）
-  Waves, Factory,
-  // 🗑️ 廢棄物 18 層搬進 layerManifest（AR-22 Phase 2 批 7）後，CalendarDays / Trash2 /
-  //    Battery / Recycle / Shirt / Brush 已無用；MapPinned 仍餵 orphan wasteStop
-  //    （Truck 隨農業 agriProduceWholesale 搬走；Flame 隨能源 lpgRetailers 搬走，批 8）
-  MapPinned,
-  // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
-  //    Pill / HeartPulse / Accessibility 已無用；Bed 仍被 orphan medICUBeds 用
-  //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6；
-  //      Clock 隨能源 facPlanned 搬走，批 8）
-  Bed,
-  // 🌾 農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）後，Store / Mountain / Sprout /
-  //    ShoppingCart / Warehouse / Fish / PawPrint / Truck / ShieldCheck 已無用
-  //    （Route 仍被 orphan wasteRoute 與別層用、Layers 是 sidebar UI 自己在用）
-  Satellite,
-  // ENERGY icons —— 電力 15 層搬進 layerManifest（AR-22 Phase 2 批 8）後，
-  //    Cable / Power / TowerControl / CircleDot / Clock 已無用；化石燃料 15 層搬走後
-  //    Spline / Container / Flame 也無用；再生能源 6 ＋ 覆蓋分析 5 搬走後
-  //    PlugZap / Sparkles / Building2 / Fuel / Wind 也無用。
-  //    只剩 Zap / Sun / Factory / Anchor / Waves 五顆，全是餵 orphan 的
-  Zap, Sun,
-  // HAZARD icons 隨災害 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）——
-  //    Lightbulb / CloudRain 仍被 rail tab 與別層用，留在本檔
-  // 🌍 全球氣候 5 層已搬進 layerManifest（AR-22 Phase 2 批 4）
-  // 👮 執法治安 20 層搬進 layerManifest（AR-22 Phase 2 批 4）後，
-  //    ShieldAlert / Gavel / Scale / Crosshair 已無用；Lock 仍被別層用
-  //    （Hexagon 隨交通 aviationRestricted 搬走，批 8）
-  Lock,
-  // 🌤️ 環境氣候 19 層搬進 layerManifest（AR-22 Phase 2 批 6）後，
-  //    CloudSun / Thermometer / Grid3x3 / ThermometerSun / Cloud / Biohazard 已無用；
-  //    Wind / CloudRain / CircleDot / Activity / AlertTriangle / AlertCircle / Car /
-  //    Sprout / Waves 仍被別層用
-  // 🎓 EDUCATION / 🌲 FORESTRY icons 隨 17 + 16 層一起搬進 layerManifest（AR-22 Phase 2 批 3）
-  // 🗺️ 土地使用分區 icons 隨底圖 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）
-  // 🌍 世界 World icon（複合 rail icon 用）
-  Globe,
-  // 🏢 房地產總市值：layer toggle 的 Coins 隨 7 層搬進 layerManifest（AR-22 Phase 2 批 4），
-  //    rail panel 自己的 PiggyBank 仍留在本檔
-  PiggyBank,
+  Satellite,   // 衛星情報 Console 的 rail 按鈕
+  Lock,        // gated 圖層鎖頭
+  Globe,       // 「世界」rail tab（複合 icon）
+  PiggyBank,   // 房地產總市值 rail panel（layer toggle 的 Coins 在 manifest）
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -78,55 +34,12 @@ const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.titl
 // ── Color Config ──
 
 /**
- * 尚未搬進 layerManifest 的手寫 icon（AR-22 雙軌過渡）。
- * 型別 `Omit<…, ManifestKey>` 的雙向 tsc 護欄說明見 layerCatalog 的
- * HANDWRITTEN_LAYER_COLORS。
+ * 手寫 icon 殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
+ * `Omit<…, ManifestKey>` 退化成 `{}` 的護欄語意說明見 layerCatalog 的
+ * HANDWRITTEN_LAYER_COLORS（含「spread 不觸發 excess property check」那條）。
  */
 const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, ManifestKey> = {
-  // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
-  // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
-  //    本處原有 9 層，另 3 層（lightning / lightningCwa / nuclearRadiation）在下方
-  // 🚒 消防 Fire & Rescue 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  medICUBeds: Bed,
-  // 🌾 農業 Agriculture 29 層已搬進 layerManifest（AR-22 Phase 2 批 7）
-  //    ⚠️ farmRoads / ecoNetworkZones **不在這一段**，在本表下方林業註解之前（歷史位置）
-  // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
-  //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
-  // 🏟️ 運動休閒 Sports & Leisure 6 層已搬進 layerManifest（AR-22 Phase 2 批 2）
-  // 🎭 文化 Culture 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）
-  // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // 🎓 教育 Education 17 層已搬進 layerManifest（AR-22 Phase 2 批 3；含總覽層 schools）
-  // 🌾 農業的 farmRoads / ecoNetworkZones 原本落在此處，已隨農業 29 層搬進
-  //    layerManifest（AR-22 Phase 2 批 7）
-  // 🌲 林業 Forestry 16 層已搬進 layerManifest（AR-22 Phase 2 批 3）
-  // 🗑️ 廢棄物 Waste 18 層已搬進 layerManifest（AR-22 Phase 2 批 7）
-  //    ⚠️ 下面兩個 orphan 不在 THEMES（wasteTruck 子 UI 控制）→ 批 8
-  wasteRoute: Route,
-  wasteStop: MapPinned,
-  // 🛰️ 太空 Space 16 層已搬進 layerManifest（AR-22 Phase 2 批 5，16 層共用同一顆 icon）
-  // 能源 ENERGY MVP
-  powerPlants: Zap,
-  powerStatusHud: Activity,
-  powerRegionDemand: BarChart3,
-  osmSolarFarms: Sun,
-  osmPowerPlantsStatic: Factory,
-  islandPowerGrid: Anchor,
-  // Phase 8 SSOT 6-layer（重用既有 icons）——5 層已隨能源電力搬進 layerManifest
-  //（AR-22 Phase 2 批 8），只剩 orphan facOffshore
-  facOffshore: Waves,        // 離岸風場 polygon
-  // 化石燃料 15 layer（含 legacy fossilFuelInfra）／再生能源 6 層／
-  // 雲林 POC 覆蓋分析 5 層（30km isochrone）已搬進 layerManifest（AR-22 Phase 2 批 8）
-  // ⚠️ 災害 lightning / lightningCwa / nuclearRadiation 已搬進 layerManifest
-  //    （AR-22 Phase 2 批 5，與上方災害 9 層同批）
-  // 全球氣候 GLOBAL CLIMATE
-  // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）
-  // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）
-  //    ⚠️ 夾在中間的 osmExpressway **不屬底圖**（THEMES 位置是「交通 Move / 路網」），
-  //    已隨交通主題搬進 layerManifest（AR-22 Phase 2 批 8）
-  // 👮 執法治安 20 層（含警察覆蓋分析 3 層）已搬進 layerManifest（AR-22 Phase 2 批 4）
-  // 環境污染
+  // （空 —— Phase 2 全數搬完）
 };
 
 /**

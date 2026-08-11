@@ -56,90 +56,17 @@ export interface UpstreamRef {
 }
 
 /**
- * 尚未搬進 layerManifest 的手寫血緣條目（AR-22 雙軌過渡）。
- * 型別 `Omit<…, ManifestKey>` 的雙向 tsc 護欄說明見 layerCatalog 的
+ * 手寫血緣殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
+ * `Omit<…, ManifestKey>` 退化成 `{}` 的護欄語意說明見 layerCatalog 的
  * HANDWRITTEN_LAYER_COLORS。
+ *
+ * ⚠️ 衍生型血緣（`derivedFromLayers` / `derivationType` / `processing`）在 manifest
+ * 的 `upstream` 欄位是**整包照抄**的，不是只有 status + datasets ——
+ * 只抄前兩欄會靜默丟掉「這層是本站自己從別的 layer 算出來的」這件事
+ * （gasCoverageAll / evIsland / 各 isochrone 覆蓋層）。
  */
 const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, ManifestKey> = {
-  // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
-  //    本區塊原本的 9 層（行政邊界 3 / 地形 5 / 道路 1）＋ 下方 urban 區塊的
-  //    buildingsGba / nonUrbanZoning / urbanZoningNewTaipei
-  // 🚦 交通 Move 31 層已搬進 layerManifest（AR-22 Phase 2 批 8）——
-  //    即時運具 5 / 場站 6 / 樞紐節點 7 / 路網 8 / 即時監控 3 / 停車 2
-  //    （rail 與 cctv 更早，Phase 1 試點）
-  // 🌤️ 環境氣候「氣象」6 層與「空品」3 層已搬進 layerManifest（AR-22 Phase 2 批 6）
-  // 💧 水資源 Water 23 層已搬進 layerManifest（AR-22 Phase 2 批 6）
-  // ⚠️ 災害 Hazard 12 layer（NCDR 示警 5 / 地震・斷層 3 / 雷暴 2 / 山域 1 / 核安 1）
-  //    已搬進 layerManifest（AR-22 Phase 2 批 5）
-  // 🚒 消防 Fire & Rescue 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // 🅿️ 停車 2 層隨交通主題搬進 layerManifest（AR-22 Phase 2 批 8，見上方交通註解）
-  // 🌾 農業 Agriculture 29 layer 已搬進 layerManifest（AR-22 Phase 2 批 7）——
-  //    含畜牧 10 / 養殖漁業 7；⚠️ 面分區 3 層 + 土壤 3 層 + farmRoads + ecoNetworkZones
-  //    原本**不在本區塊**而在本檔下方教育註解之後，逐 key grep 才找得到（同批 3 schools）。
-  //    ⚠️ rebase 衝突解法（master c016f15 / B170 上游改名）：本區塊在 master 上仍是手寫，
-  //    c016f15 把 aquacultureWaterUnion 的 datasetId 改成 `aquaculture_water_sat_union`。
-  //    衝突以「分支的刪除」為準（值已活在 manifest），該改名同步到 layerManifest 的對應 entry。
-  // 🌳 都市開放空間 Urban Open Space（都市樹木 6 層）已搬進 layerManifest（AR-22 Phase 2 批 6）
-  // 🗺️ 都市計畫土地使用分區（上游 handoff: taipei-gis-analytics/docs/handoff/urban-zoning.md；
-  //    catalog: docs/data-catalog/urban_composite/）—— buildingsGba / nonUrbanZoning /
-  //    urbanZoningNewTaipei 三層已搬進 layerManifest（AR-22 Phase 2 批 5，底圖主題）
-  // 🏟️ 運動休閒 Sports & Leisure 6 layer（運動場館 5＋parksTaipei）已搬進 layerManifest
-  //    （AR-22 Phase 2 批 2）—— 場館 5 層共用 catalog dataset sports/all_venues
-  //    （全國 15,000 點，運動部 22849）
-  // 🎭 文化 Culture 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
-  //    上游 handoff: taipei-gis-analytics/docs/handoff/culture-layers.md；catalog: docs/data-catalog/culture/
-  // 🧳 觀光 Tourism 11 layer（docs/data-catalog/tourism/）已搬進 layerManifest
-  //    （AR-22 Phase 2 批 2）—— 含 tourRestaurants（原本落在本表尾端另一區）
-  // 🛕 宗教 Religion 6 layer（docs/data-catalog/religion/）已搬進 layerManifest
-  //    （AR-22 Phase 2 批 1；含 religionTop100 —— 2026-08-02 上游自 tourism.religion
-  //     搬移歸位為 religion.top100，key 同步由 tourReligion 更名）
-
-  // ⚰️ 殯葬 Funeral 5 layer（docs/data-catalog/funeral/）已搬進 layerManifest
-  //    （AR-22 Phase 2 批 1）—— A/B/C 三源分開不整合的拍板脈絡隨 entry 一起搬過去
-
-  // 🎓 教育 Education 17 layer（第 38 主題，docs/data-catalog/education/）已搬進
-  //    layerManifest（AR-22 Phase 2 批 3）—— 含總覽層 `schools`，它原本**不在本區塊**
-  //    而在本檔下方（保留原 z-order 的歷史位置），逐 key grep 才找得到。
-  // 🌾 農業的面分區 3 層 + 土壤 3 層 + ecoNetworkZones + farmRoads 原本落在此處
-  //    （不在上方農業區塊），已隨農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）
-  // 🌲 林業 Forestry 16 layer 已搬進 layerManifest（AR-22 Phase 2 批 3）——
-  //    含 canopyHeight / canopyGiants 兩筆 catalog_missing（Meta/WRI 衍生資料）
-  // 🗑️ 廢棄物 Waste 18 layer 已搬進 layerManifest（AR-22 Phase 2 批 7）——
-  //    wasteRoute / wasteStop 兩個 orphan 不在 THEMES，仍留在本表下方原位置（批 8）
-  // ⚡ 能源「電力 · 廠」8 層與「電力 · 電網」7 層已搬進 layerManifest
-  //    （AR-22 Phase 2 批 8）—— 含 4 個 Bloom/Glow 視覺實驗層，
-  //    它們的 pulse_only entry 原本在本表下方另一段（逐 key grep 才找得到）
-  // ⛽ 能源「石化 · 加油站」5 層與「石化 · 油氣」10 層已搬進 layerManifest（同批 8）
-  // ♻️ 能源「再生能源」6 層與「覆蓋分析」5 層已搬進 layerManifest
-  //    （AR-22 Phase 2 批 8）—— 覆蓋分析的 gasCoverageAll / evIsland 是衍生型 upstream
-  //    （derivedFromLayers + derivationType + processing），manifest 照抄整包
-  // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
-  //    它原本落在這裡而非上方的教育區塊（保留原 z-order 的歷史位置）
-  // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
-  //    原本 realEstatePresalePoint 排在 propertyValueGrid **後面**（同主題內順序也不可信），
-  //    所以是逐 key 定位刪除，不是整段刪
-  // 🛰️ 太空 Space 16 layer 已搬進 layerManifest（AR-22 Phase 2 批 5）——
-  //    16 層共用同一筆 celestrak_satellites dataset
-  // plaActivity 已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // ── Stub entries for LayerVisibility keys not in THEMES (stale, unused, or pending wiring) ──
-  medICUBeds: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  wasteRoute: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  wasteStop: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  powerPlants: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  // ⚠️ 本段標題寫「not in THEMES」，但夾在中間的 4 個 Bloom/Glow 視覺實驗層
-  //    （powerPlantGlow / substationEhvGlow / powerLinesGlow / aviationRestrictedGlow）
-  //    **是在 THEMES 裡的**（能源 / 電力 · 廠與電網），只是同樣掛 pulse_only。
-  //    它們已隨能源電力 15 層搬進 layerManifest（AR-22 Phase 2 批 8）。
-  powerStatusHud: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  powerRegionDemand: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  osmSolarFarms: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  osmPowerPlantsStatic: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  islandPowerGrid: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  facOffshore: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  // 環境污染（來源 taipei-gis-analytics environment/pollution_source；PMTiles）
-  // pollutionFacility 已搬進 layerManifest（AR-22 試點），
-  // 裁處 3 層 + pollutionSite 隨環境氣候主題搬進 layerManifest（AR-22 Phase 2 批 6）
-  // 🌍 世界 World
+  // （空 —— Phase 2 全數搬完）
 };
 
 /**

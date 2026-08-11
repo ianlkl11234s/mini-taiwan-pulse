@@ -90,6 +90,9 @@ import {
   Receipt, Coffee, SquareParking, CircleParking,
   // ⚡ 能源（Cable / CircleDot / Clock / MapPin 已在上方 import 復用）
   Zap, Power, Spline, TowerControl, Fuel, PlugZap,
+  // 👻 orphan 10（Waves / Anchor / Factory / Zap / BarChart3 / Activity / Route /
+  //    MapPinned 已在上方 import 復用）
+  Sun, Bed,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -9013,6 +9016,276 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "充電站服務孤島（距任一充電站超過門檻的區域）",
     topics: ["能源", "覆蓋分析", "電動車"],
+  },
+  // ══════════════════════════════════════════════════════════════════
+  // 👻 orphan key 10 個 —— section: null（AR-22 Phase 2 批 8-6，Phase 2 收尾）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 這 10 個 key 在 `LayerVisibility` 有、在 `LAYER_COLORS` / `LAYER_ICONS` /
+  // `UPSTREAM_REGISTRY` 三張 348-key 全量表也有，但 **THEMES 沒有** ——
+  // 沒有 sidebar toggle，因此沒有 LayerDef，也就沒有 `label` 那一組欄位。
+  // 拍板③ 的 schema 改動（`1eb4911`）就是為了讓它們能登記：`section: null`，
+  // label / labelMobile / expandable / gated 在型別上是 `never`（寫了 tsc 直接紅）。
+  //
+  // **「orphan」只描述「不在 THEMES」，不等於「死碼」** —— 三種體質混在一起：
+  //
+  //   ① 有 registry entry ＋ 有真實 consumer（5）：facOffshore / islandPowerGrid /
+  //      osmPowerPlantsStatic / osmSolarFarms / powerPlants ——
+  //      App.tsx 照樣把 layerVisibility.<key> 餵進 useEnergyPoiLayer，
+  //      只是使用者無法從 sidebar 打開（`layerConsistency` 的
+  //      BASELINE_NOT_IN_SIDEBAR 有記：被 SSOT 6-layer 取代後移出 sidebar，key 保留）。
+  //   ② 無 registry entry 但**有真實 consumer**（2）：powerStatusHud /
+  //      powerRegionDemand —— monitor 面板的供電燈號 HUD 與北中南東 4 區 3D bars，
+  //      App.tsx 909 行以 `||` 合成 energyDashboardActive 驅動 usePowerDashboard。
+  //      ⚠️ 它們的 `UPSTREAM_REGISTRY` note 寫 "stale/unused color" 是**過時的**，
+  //      manifest 照抄（搬移零失真）但在 entry 就地註明實況。
+  //   ③ 真的沒有渲染（3）：medICUBeds / wasteRoute / wasteStop。
+  //
+  // ⚠️ **legend 有 6 個非 null**，而且 3 個的家族首 key 在 THEMES 裡
+  // （islandPowerGrid → offshoreWindZones、osmSolarFarms / osmPowerPlantsStatic →
+  // osmWindTurbines）；反過來 `powerPlants` 自己是首 key，THEMES 裡的
+  // `powerGenerationUnit` 得沿用它。**legend 家族跨越「在不在 THEMES」這條線**，
+  // Phase 3 依 legend 分組派生 `LEGEND_REGISTRY` 時不能只掃有 section 的 entry。
+
+  facOffshore: {
+    key: "facOffshore",
+    section: null,
+    color: "#1F4373",
+    icon: Waves,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-fac-offshore",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "facOffshore",
+    // powerPlant 家族的第 8 個成員（批 8-3 的 6 個 ＋ powerPlants ＋ 本層）
+    popup: "powerPlant",
+    params: { count: 1, kinds: ["slider"] },
+    description: "SSOT 離岸風電場址 polygon 8 處（大彰化／Formosa／Hai Long）—— 被 OSM offshoreWindZones 36 面取代後移出 sidebar，key 與渲染保留",
+    topics: ["能源", "再生能源", "風力", "orphan"],
+  },
+
+  islandPowerGrid: {
+    key: "islandPowerGrid",
+    section: null,
+    color: "#a78bfa",
+    icon: Anchor,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-island-grid",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // 家族首 key 在 THEMES 裡（offshoreWindZones，批 8-5）
+    legend: "offshoreWindZones",
+    popup: "islandPowerFacility",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "離島電網設施 14 處（澎湖／金門／馬祖／蘭嶼／綠島／琉球）—— facPrimary 的 is_island 已涵蓋後移出 sidebar",
+    topics: ["能源", "電網", "離島", "orphan"],
+  },
+
+  osmSolarFarms: {
+    key: "osmSolarFarms",
+    section: null,
+    color: "#fbbf24",
+    icon: Sun,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-solar-farms",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // 家族首 key 在 THEMES 裡（osmWindTurbines，批 8-5）
+    legend: "osmWindTurbines",
+    popup: "osmSolarFarm",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 光電廠 734 處（POI centroid）—— 與 SSOT facilities 重疊後移出 sidebar",
+    topics: ["能源", "再生能源", "太陽能", "orphan"],
+  },
+
+  osmPowerPlantsStatic: {
+    key: "osmPowerPlantsStatic",
+    section: null,
+    color: "#9ca3af",
+    icon: Factory,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-osm-power-plants-static",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "osmWindTurbines",
+    // ⚠️ 雙生字：popup 是單數 `osmPowerPlantStatic`（key 是複數 Plants）
+    popup: "osmPowerPlantStatic",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 電廠 513 處（補 IPP／小型，與 all_power_plants_v 可能重疊）—— 與 SSOT facilities 重疊後移出 sidebar",
+    topics: ["能源", "電力", "發電廠", "orphan"],
+  },
+
+  powerPlants: {
+    key: "powerPlants",
+    section: null,
+    color: "#facc15",
+    icon: Zap,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-power-plants",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // ⚠️ **反向**：本層自己是家族首 key，THEMES 裡的 powerGenerationUnit（批 8-3）
+    //    得沿用它。legend 家族跨越「在不在 THEMES」這條線，兩個方向都出現了。
+    legend: "powerPlants",
+    popup: "powerPlant",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "legacy 單一發電廠層 all_power_plants_v 10,665 設施（fuel_type 分色 + capacity_mw 分大小）—— 已被 facPrimary 等 6 層取代後移出 sidebar",
+    topics: ["能源", "電力", "發電廠", "orphan", "legacy"],
+  },
+
+  powerStatusHud: {
+    key: "powerStatusHud",
+    section: null,
+    color: "#22c55e",
+    icon: Activity,
+    // ⚠️ 現況出入（照抄不夾帶修正，同批 3 forestAlishanRail / 批 4 medDesert）：
+    //    note 寫 "stale/unused color"，實際上**這層有真實 consumer** ——
+    //    App.tsx 以 `powerStatusHud || powerRegionDemand` 合成 energyDashboardActive
+    //    驅動 usePowerDashboard（5 分鐘 poll）。它不在 sidebar 是因為 KPI 性質、
+    //    預定整合到 monitor 面板（layerConsistency 的 BASELINE_NOT_IN_SIDEBAR 有記）。
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "無 OVERLAY_REGISTRY entry：usePowerDashboard 的 fetchPowerDashboard RPC（5 分鐘 poll，cron 寫入頻率 10 分鐘）→ 渲染成 top-left 供電燈號 KPI 卡片，不是地圖圖層。與 powerRegionDemand **共用同一份 dashboard 資料**（不重複拉 RPC）。",
+    },
+    // 與 powerRegionDemand 共用一筆 EnergyReserveLegend entry；首 key 是 powerRegionDemand
+    legend: "powerRegionDemand",
+    popup: null,
+    params: null,
+    description: "供電燈號 KPI HUD（備轉容量率燈號，top-left 卡片；非地圖圖層）",
+    topics: ["能源", "電力", "即時", "orphan"],
+  },
+
+  powerRegionDemand: {
+    key: "powerRegionDemand",
+    section: null,
+    color: "#3b82f6",
+    icon: BarChart3,
+    // ⚠️ 同 powerStatusHud：note 的 "stale/unused" 與實況不符，照抄不夾帶。
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "無 OVERLAY_REGISTRY entry：usePowerRegionBarsLayer 掛 map/powerRegionBarsCustomLayer 的 WebGL CustomLayer，資料由 usePowerDashboard 的 dashboardRef 提供（與 HUD 共用，不重複拉 RPC）—— 北中南東 4 區質心柱，高 ∝ consumption_mw、色 = reserve_indicator。",
+    },
+    legend: "powerRegionDemand",
+    popup: null,
+    params: null,
+    description: "北中南東 4 區用電 3D bars（高 ∝ 用電量、色 = 備轉指標）",
+    topics: ["能源", "電力", "即時", "orphan"],
+  },
+
+  medICUBeds: {
+    key: "medICUBeds",
+    section: null,
+    color: "#ff1744",
+    icon: Bed,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "**尚無任何渲染實作**：全 repo 只有 types/index.ts 的 key 宣告、三張全量表的值、以及 layerConsistency 的 baseline 記載（幽靈 toggle 已於 2026-06-10 自 sidebar 移除）。不是「hook 沒接線」，是根本沒有 hook。",
+    },
+    legend: null,
+    popup: null,
+    params: null,
+    description: "急重症床位壓力（規劃中，尚未實作渲染）",
+    topics: ["醫療", "即時", "orphan", "未實作"],
+  },
+
+  wasteRoute: {
+    key: "wasteRoute",
+    section: null,
+    color: "#84cc16",
+    icon: Route,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      // ⚠️ 現況出入（本次不動）：layerConsistency 的註解寫「由 wasteTruck 子 UI 控制」，
+      //    但逐檔 grep 全 repo，除了 types 宣告與三張全量表之外**沒有任何 consumer**
+      //    —— 沒有 wasteTruck 子 UI 讀它。照現況登記並註明，修對應是另一件事。
+      note: "無 consumer：layerConsistency 註解稱「由 wasteTruck 子 UI 控制」，但實際 grep 不到任何讀取端（僅 types 宣告 + 三張全量表）。廢棄物主題真正在用的是 wasteStopsStatic（批 7 已搬）。",
+    },
+    legend: null,
+    popup: null,
+    params: null,
+    description: "清運路線（宣稱由 wasteTruck 子 UI 控制，實際無 consumer）",
+    topics: ["廢棄物", "orphan", "未實作"],
+  },
+
+  wasteStop: {
+    key: "wasteStop",
+    section: null,
+    color: "#65a30d",
+    icon: MapPinned,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "not in active THEMES (stale/unused color)",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "無 consumer，同 wasteRoute。⚠️ 雙生字：與批 7 已搬的 `wasteStopsStatic`（有 OVERLAY_REGISTRY entry、3 個控件、真的在渲染）只差幾個字，一律用精確錨定分開數。",
+    },
+    legend: null,
+    popup: null,
+    params: null,
+    description: "清運點位（宣稱由 wasteTruck 子 UI 控制，實際無 consumer；真正在用的是 wasteStopsStatic）",
+    topics: ["廢棄物", "orphan", "未實作"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
