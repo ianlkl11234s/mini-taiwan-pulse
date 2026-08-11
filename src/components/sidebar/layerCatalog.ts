@@ -146,9 +146,8 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   streetTreesTaipei3epoch: "#558b2f",
   streetTreesNational: "#43a047",
   treePitsTaipei: "#8d6e63",
-  buildingsGba: "#78909c",
-  urbanZoningNewTaipei: "#eb5757",
-  nonUrbanZoning: "#a2c14e",
+  // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
+  //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
   // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）——
   //    tourTypes.ts 的 TOUR_*_COLOR 是 category-keyed 的 match 表達式、不是
   //    layer-key-keyed 的色票記錄，本表從未 import 它 → manifest 寫字面 hex。
@@ -256,16 +255,10 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   nuclearRadiation: "#22c55e",
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
   //    7 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面
-  countyBoundary: "#4b5563",
-  townshipBoundary: "#6b7280",
-  villageBoundary: "#9ca3af",
-  contour25k: "#8B4513",
-  contourDtm20: "#a16207",
-  osmRoadDrive: "#fb923c",
+  // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
+  //    12 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面。
+  //    ⚠️ osmExpressway 夾在中間但**不屬底圖**（THEMES 位置是「交通 Move / 路網」，批 8）→ 留在本表
   osmExpressway: "#FF8C00",
-  hillshade: "#6b7280",
-  slopeVector: "#fc8d59",
-  aspectVector: "#ff7f00",
   // 👮 執法治安 20 層（含警察覆蓋分析 isochrone 3 層）已搬進 layerManifest
   //    （AR-22 Phase 2 批 4）—— 20 個色票原本就是字面 hex，無 spread 可刪
   aviationControl: "#4682B4",        // ✈️ 飛航情報 / 終端管制（TMA 深藍代表色）
@@ -381,25 +374,25 @@ export const THEMES: ThemeDef[] = [
       {
         title: "行政邊界",
         layers: [
-          { key: "countyBoundary", label: "縣市界 County", expandable: true },
-          { key: "townshipBoundary", label: "鄉鎮市區界 Township", expandable: true },
-          { key: "villageBoundary", label: "村里界 Village", expandable: true },
+          fromManifest("countyBoundary"),
+          fromManifest("townshipBoundary"),
+          fromManifest("villageBoundary"),
         ],
       },
       {
         title: "地形",
         layers: [
-          { key: "contour25k", label: "等高線 Contour 25k (10m)", labelMobile: "等高線 25k 10m", expandable: true },
-          { key: "contourDtm20", label: "等高線 Contour DTM20 (20m)", labelMobile: "等高線 DTM 20m", expandable: true },
-          { key: "hillshade", label: "山體陰影 Hillshade", expandable: true },
-          { key: "slopeVector", label: "坡度分級 Slope 6級", labelMobile: "坡度分級", expandable: true },
-          { key: "aspectVector", label: "坡向分級 Aspect 8向", labelMobile: "坡向分級", expandable: true },
+          fromManifest("contour25k"),
+          fromManifest("contourDtm20"),
+          fromManifest("hillshade"),
+          fromManifest("slopeVector"),
+          fromManifest("aspectVector"),
         ],
       },
       {
         title: "建成環境",
         layers: [
-          { key: "buildingsGba", label: "建物輪廓 Buildings", expandable: true },
+          fromManifest("buildingsGba"),
         ],
       },
       {
@@ -407,15 +400,15 @@ export const THEMES: ThemeDef[] = [
         title: "土地使用分區 Zoning",
         layers: [
           fromManifest("urbanZoningTaipei"),
-          { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
+          fromManifest("urbanZoningNewTaipei"),
           // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
-          { key: "nonUrbanZoning", label: "非都市土地使用分區 Non-Urban Zoning", labelMobile: "非都市分區 (68,220)", expandable: true },
+          fromManifest("nonUrbanZoning"),
         ],
       },
       {
         title: "道路底圖",
         layers: [
-          { key: "osmRoadDrive", label: "OSM 道路 OSM Roads", expandable: true },
+          fromManifest("osmRoadDrive"),
         ],
       },
     ],

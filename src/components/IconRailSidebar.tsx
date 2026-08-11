@@ -34,8 +34,7 @@ import {
   Biohazard,
   ThermometerSun,
   // 🎓 EDUCATION / 🌲 FORESTRY icons 隨 17 + 16 層一起搬進 layerManifest（AR-22 Phase 2 批 3）
-  // 🗺️ 土地使用分區 icons
-  Map,
+  // 🗺️ 土地使用分區 icons 隨底圖 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）
   // 🌍 世界 World icon（複合 rail icon 用）
   Globe,
   // 🏢 房地產總市值：layer toggle 的 Coins 隨 7 層搬進 layerManifest（AR-22 Phase 2 批 4），
@@ -176,9 +175,8 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   streetTreesTaipei3epoch: Sprout,
   streetTreesNational: TreePalm,
   treePitsTaipei: Flower2,
-  buildingsGba: Building2,
-  urbanZoningNewTaipei: Map,
-  nonUrbanZoning: Sprout,
+  // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
+  //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
   // 🏟️ 運動休閒 Sports & Leisure 6 層已搬進 layerManifest（AR-22 Phase 2 批 2）
   // 🎭 文化 Culture 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）
@@ -280,17 +278,9 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   nuclearRadiation: Atom,
   // 全球氣候 GLOBAL CLIMATE
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）
-  // Base map
-  countyBoundary: MapPinned,
-  townshipBoundary: MapPinned,
-  villageBoundary: MapPinned,
-  contour25k: Mountain,
-  contourDtm20: Mountain,
-  osmRoadDrive: Route,
+  // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）
+  //    ⚠️ osmExpressway 夾在中間但**不屬底圖**（THEMES 位置是「交通 Move / 路網」，批 8）
   osmExpressway: Route,
-  hillshade: Mountain,
-  slopeVector: Mountain,
-  aspectVector: Mountain,
   // 👮 執法治安 20 層（含警察覆蓋分析 3 層）已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 環境污染
   pollutionPenaltyCritical: AlertTriangle,

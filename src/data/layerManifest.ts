@@ -3628,6 +3628,358 @@ export const LAYER_MANIFEST = {
     description: "CAMS 沙塵預報濃度場（raster 疊圖）",
     topics: ["全球氣候", "沙塵", "預報"],
   },
+
+  // ══════════════════════════════════════════════════════════════
+  // 📍 底圖 Base Map 12 層（AR-22 Phase 2 批 5）
+  // ══════════════════════════════════════════════════════════════
+  // 全批 popup 12/12 與 key 同名（本工程搬過的主題裡第二個 100% 同名者，
+  // 前一個是批 4 執法治安 20/20）。hillshade 唯一 popup: null ——
+  // 它**有 HEADER_LABELS 條目**卻沒有 GIS_LAYERS 條目，見該 entry 就地說明。
+  //
+  // 色票：12 個在 HANDWRITTEN_LAYER_COLORS 原本就是字面 hex，沒有任何
+  // `*_LAYER_COLORS` 常數在餵這張表（`nonUrbanZoningTypes` / `buildingsGbaTypes` /
+  // `urbanZoningTypes` 匯出的是 category-keyed 的 match 表達式）→ 照拍板①判準寫字面。
+  //
+  // ⚠️ dataClass 別照「檔案長相」猜：hillshade / slopeVector / aspectVector 三層
+  // **沒有 OVERLAY_REGISTRY entry**（hook 自建 source）→ D，但 slope/aspect 實際上
+  // 是不折不扣的 PMTiles，**部署清單照樣要涵蓋**（見 changelog 觸點 #20 核對）。
+
+  countyBoundary: {
+    key: "countyBoundary",
+    section: { theme: "底圖 Base Map", group: "行政邊界" },
+    label: "縣市界 County",
+    expandable: true,
+    color: "#4b5563",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "county_boundary", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-county-boundary",
+      url: "./base_map/county_boundary.pmtiles",
+      sourceLayer: "county_boundary",
+      minzoom: 0,
+      maxzoom: 14,
+    },
+    legend: null,
+    popup: "countyBoundary",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "內政部縣市行政區界（22 縣市，fill + line 雙層）",
+    topics: ["底圖", "行政區", "邊界"],
+  },
+
+  townshipBoundary: {
+    key: "townshipBoundary",
+    section: { theme: "底圖 Base Map", group: "行政邊界" },
+    label: "鄉鎮市區界 Township",
+    expandable: true,
+    color: "#6b7280",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "township_boundary", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-township-boundary",
+      url: "./base_map/township_boundary.pmtiles",
+      sourceLayer: "township_boundary",
+      minzoom: 6,
+      maxzoom: 14,
+    },
+    legend: null,
+    popup: "townshipBoundary",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    // ⚠️ 同一份切片被 earthquakeReplay 的鄉鎮震度面另建一個 source（`eq-replay-township`，
+    //    promoteId + feature-state 染色，通用路徑不支援）——刪這個檔會連帶弄壞地震回放。
+    description: "內政部鄉鎮市區界（368 區，fill + line 雙層）",
+    topics: ["底圖", "行政區", "邊界"],
+  },
+
+  villageBoundary: {
+    key: "villageBoundary",
+    section: { theme: "底圖 Base Map", group: "行政邊界" },
+    label: "村里界 Village",
+    expandable: true,
+    color: "#9ca3af",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "village_boundary", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-village-boundary",
+      url: "./base_map/village_boundary.pmtiles",
+      sourceLayer: "village_boundary",
+      minzoom: 8,
+      maxzoom: 14,
+    },
+    legend: null,
+    popup: "villageBoundary",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "內政部村里界（最細一級行政區，z8 以上才切片）",
+    topics: ["底圖", "行政區", "邊界"],
+  },
+
+  contour25k: {
+    key: "contour25k",
+    section: { theme: "底圖 Base Map", group: "地形" },
+    label: "等高線 Contour 25k (10m)",
+    labelMobile: "等高線 25k 10m",
+    expandable: true,
+    color: "#8B4513",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "contour_25k", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-contour-25k",
+      url: "./base_map/contour_25k.pmtiles",
+      sourceLayer: "contour_25k",
+      minzoom: 8,
+      maxzoom: 14,
+    },
+    legend: null,
+    popup: "contour25k",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "經建版 2.5 萬分之一地形圖等高線（間距 10m）",
+    topics: ["底圖", "地形", "等高線"],
+  },
+
+  contourDtm20: {
+    key: "contourDtm20",
+    section: { theme: "底圖 Base Map", group: "地形" },
+    label: "等高線 Contour DTM20 (20m)",
+    labelMobile: "等高線 DTM 20m",
+    expandable: true,
+    color: "#a16207",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "contour_dtm20", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-contour-dtm20",
+      url: "./base_map/contour_dtm20.pmtiles",
+      sourceLayer: "contour_dtm20",
+      minzoom: 7,
+      maxzoom: 14,
+    },
+    legend: null,
+    popup: "contourDtm20",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "DTM 20m 網格推導等高線（比 25k 稀疏、涵蓋較廣）",
+    topics: ["底圖", "地形", "等高線"],
+  },
+
+  // ⚠️ dataClass D 但**不是自繪**：單張預烤 PNG（App.tsx 直呼 useStaticRasterLayer），
+  //    沒有 OVERLAY_REGISTRY entry → 派生機制不適用，真實來源記在 source.note。
+  //    popup: null 是**真的沒有點擊接線**（GIS_LAYERS 無條目）—— 它在 HEADER_LABELS
+  //    有一條 `hillshade: "山體陰影"`，但那只是 BYOK chat bridge 能標的 layerType 全集，
+  //    不構成 popup 接線。批 4 立的是「D 不等於 popup null」，這裡是反向的另一半：
+  //    **HEADER_LABELS 有條目也不等於有 popup**（osmExpressway 批 8 同款）。
+  hillshade: {
+    key: "hillshade",
+    section: { theme: "底圖 Base Map", group: "地形" },
+    label: "山體陰影 Hillshade",
+    expandable: true,
+    color: "#6b7280",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "hillshade", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useStaticRasterLayer（App.tsx 直呼；source `base-hillshade-src` / layer `base-hillshade-layer`）把單張預烤 colormap PNG `./base_map/hillshade.png` 貼到 TERRAIN_BBOX —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "全臺山體陰影灰階圖（單張 PNG 預烤，單色無分類故無圖例）",
+    topics: ["底圖", "地形", "陰影"],
+  },
+
+  slopeVector: {
+    key: "slopeVector",
+    section: { theme: "底圖 Base Map", group: "地形" },
+    label: "坡度分級 Slope 6級",
+    labelMobile: "坡度分級",
+    expandable: true,
+    color: "#fc8d59",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "slope", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useSlopeVectorLayer 自建 PMTiles source（`slope-vector` ← ./base_map/slope_vector.pmtiles，source-layer `slope`，z5-12）→ layer `slope-vector-fill` —— 非 OVERLAY_REGISTRY，但**檔案照樣要進 nginx /base_map/ 與 deploy 清單**",
+    },
+    legend: "slopeVector",
+    popup: "slopeVector",
+    params: { count: 1, kinds: ["slider"] },
+    description: "建管六級坡分級面（slope_class 1-6 分色）",
+    topics: ["底圖", "地形", "坡度"],
+  },
+
+  aspectVector: {
+    key: "aspectVector",
+    section: { theme: "底圖 Base Map", group: "地形" },
+    label: "坡向分級 Aspect 8向",
+    labelMobile: "坡向分級",
+    expandable: true,
+    color: "#ff7f00",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aspect", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAspectVectorLayer 自建 PMTiles source（`aspect-vector` ← ./base_map/aspect_vector.pmtiles，source-layer `aspect`，z5-12）→ layer `aspect-vector-fill` —— 非 OVERLAY_REGISTRY，但**檔案照樣要進 nginx /base_map/ 與 deploy 清單**",
+    },
+    legend: "aspectVector",
+    popup: "aspectVector",
+    params: { count: 1, kinds: ["slider"] },
+    description: "坡向八方位分級面（N/NE/E/…/NW 分色）",
+    topics: ["底圖", "地形", "坡向"],
+  },
+
+  buildingsGba: {
+    key: "buildingsGba",
+    section: { theme: "底圖 Base Map", group: "建成環境" },
+    label: "建物輪廓 Buildings",
+    expandable: true,
+    color: "#78909c",
+    icon: Building2,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "全台 3D 建物輪廓 152 萬棟（GBA/OSM 融合，public/urban/buildings_3d_taiwan.pmtiles），catalog 待建；上游 handoff 見 taipei-gis-analytics/docs/handoff/gba_canopy_frontend.md",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "buildings-gba",
+      url: "./urban/buildings_value_taiwan.pmtiles",
+      sourceLayer: "buildings",
+      minzoom: 8,
+      maxzoom: 16,
+    },
+    legend: "buildingsGba",
+    popup: "buildingsGba",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    // ⚠️ 現況出入（照抄不夾帶修正）：upstream.note 寫的檔名是 `buildings_3d_taiwan.pmtiles`，
+    //    OVERLAY_REGISTRY 實際載的是 `buildings_value_taiwan.pmtiles`（含房價欄位的後續版本）。
+    //    同批 3 forestAlishanRail / 批 4 medDesert 的處理方式：就地註明，修對應是另一件事。
+    description: "全台建物輪廓（高度 / 來源 / 夜光三種著色模式，z14 起 fill-extrusion）",
+    topics: ["底圖", "建物", "都市"],
+  },
+
+  // legend 填 `"urbanZoning"` 而非 LEGEND_REGISTRY 首個 key `"urbanZoningTaipei"` ——
+  // 拍板④的機械規則背後 load-bearing 的性質是「共用元件 ⇔ 共用 id」（Phase 3 依 id
+  // 分組派生 LEGEND_REGISTRY，兩個 id 對一個元件會派生出兩筆）。試點
+  // urbanZoningTaipei 早於拍板④、已寫 `"urbanZoning"` → **家族已有 manifest 成員時
+  // 沿用其既有 id**，不回頭改試點（搬移階段不夾帶）。批 6 的 pollution 家族同款。
+  urbanZoningNewTaipei: {
+    key: "urbanZoningNewTaipei",
+    section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
+    label: "新北土地使用分區 New Taipei Zoning",
+    labelMobile: "新北土地使用分區",
+    expandable: true,
+    color: "#eb5757",
+    icon: Map,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "urban_zoning_newtaipei", confidence: "HIGH" }],
+      note: "新北市都市計畫土地使用分區 34,190 面（urban.planning.ntpc.gov.tw opendata，docs/data-catalog/urban_composite/urban_zoning_newtaipei.md）",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "urban-zoning-newtaipei",
+      url: "./urban/urban_zoning_newtaipei.pmtiles",
+      sourceLayer: "urban_zoning_newtaipei",
+      minzoom: 6,
+      maxzoom: 15,
+    },
+    legend: "urbanZoning",
+    popup: "urbanZoningNewTaipei",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "新北市都市計畫土地使用分區（與北市同一組 zone_category 分色）",
+    topics: ["土地使用", "都市計畫", "底圖"],
+  },
+
+  nonUrbanZoning: {
+    key: "nonUrbanZoning",
+    section: { theme: "底圖 Base Map", group: "土地使用分區 Zoning" },
+    label: "非都市土地使用分區 Non-Urban Zoning",
+    labelMobile: "非都市分區 (68,220)",
+    expandable: true,
+    color: "#a2c14e",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "non_urban_zoning", confidence: "HIGH" }],
+      processing: "內政部區域計畫法非都市土地使用分區 68,220 面 / 18 縣市（北市・嘉義市全境都市計畫故無），z5-14 PMTiles",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "non-urban-zoning",
+      url: "./urban/non_urban_zoning.pmtiles",
+      sourceLayer: "non_urban_zoning",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "nonUrbanZoning",
+    popup: "nonUrbanZoning",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "非都市土地使用分區（與北市/新北兩層互補，合起來是全國拼圖）",
+    topics: ["土地使用", "區域計畫", "底圖"],
+  },
+
+  osmRoadDrive: {
+    key: "osmRoadDrive",
+    section: { theme: "底圖 Base Map", group: "道路底圖" },
+    label: "OSM 道路 OSM Roads",
+    expandable: true,
+    color: "#fb923c",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_road_drive", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-osm-road",
+      url: "./base_map/osm_road_drive.pmtiles",
+      sourceLayer: "osm_road_drive",
+      minzoom: 6,
+      maxzoom: 14,
+    },
+    legend: "osmRoadDrive",
+    popup: "osmRoadDrive",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "OSM 可行車道路網（依 highway 分級著色，含 z5 揭露門檻）",
+    topics: ["底圖", "道路", "OSM"],
+  },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
 /** 已收進 manifest 的 key（literal union）—— 下游手寫表用它 Omit 出「還沒搬的」 */
