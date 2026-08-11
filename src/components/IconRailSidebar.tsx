@@ -8,10 +8,11 @@ import {
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol,
   Store, Play, Cable, Radio, Mountain,
-  CloudRain,
-  Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck, Container,
+  // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
+  //    Droplet / GitBranch / Dam / Shield / Timer 已無用；
+  //    Waves / Factory / Gauge / ShieldCheck / Container 仍被別層用
+  Waves, Factory, Gauge, ShieldCheck, Container,
   Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt, Brush,
-  Timer,
   // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
   //    Pill / HeartPulse / Accessibility 已無用；Clock / Bed 仍被別層用
   //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6）
@@ -102,29 +103,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   busLive: Bus,
   busIntercityLive: Bus,
   touristShuttleLive: Bus,
-  waterBasins: Waves,
-  waterRivers: GitBranch,
-  waterLevees: Shield,
-  waterCanals: Droplets,
-  waterProtectionZones: ShieldCheck,
-  waterReservoirs: Dam,
-  waterFacilities: Factory,
-  waterMonitorStations: Gauge,
-  waterFloodExtreme: AlertTriangle,
-  waterDetentionBasins: Container,
-  rainGauge: CloudRain,
-  riverLevel: Waves,
-  groundwater: Droplet,
-  groundwaterWells: Droplet,
-  iotWraRiver: Waves,
-  iotWraStructure: Gauge,
-  lakesPondsOsm: Waves,
-  floodSensor: Droplets,
-  floodSensorIsochrone: Timer,
-  taipeiSewer: Waves,
-  taipeiEvacuate: Gauge,
-  taipeiPumb: Droplets,
-  precipRaster: CloudRain,
   // 🚒 消防 Fire & Rescue 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   parkingOnstreet: SquareParking,
   parkingOffstreet: CircleParking,

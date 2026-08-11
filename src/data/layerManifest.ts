@@ -75,6 +75,9 @@ import {
   // 🌤️ 環境氣候（Cloud / CloudRain / Grid3x3 / ThermometerSun / Wind / Activity /
   //    AlertTriangle / AlertCircle / TreePine / Sprout / Waves 已在上方 import 復用）
   CloudSun, Thermometer, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
+  // 💧 水資源（Droplet / Droplets / Waves / Shield / ShieldCheck / Factory / Timer /
+  //    CloudRain / AlertTriangle 已在上方 import 復用）
+  GitBranch, Dam, Gauge, Container,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -5192,6 +5195,619 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["select", "slider"] },
     description: "台北人行道樹穴 56,720 面（面狀，含空穴 / 已植）",
     topics: ["環境", "都市樹木", "台北"],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  //  💧 水資源 Water（Phase 2 批 6・23 層）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 三個子群：點位 12（D 10 / A 2 / B 1）、面 / 線 8（B 4 / A 3 / D 1）、
+  // 分析 3（B 1 / D 2）。**12 個 D 沒有一個是「自繪」** —— 全是 hook 自建
+  // source 餵 Supabase RPC（即時水情），只是不走 OVERLAY_REGISTRY。
+  //
+  // ⚠️ `waterReservoirs` 是本工程首個**混合 kind 的 source 陣列**：
+  //    水庫面走 PMTiles、壩體點走 GeoJSON。dataClass 依「最重路徑」precedence
+  //    取 B（見 `LayerManifestEntry.source` 的 docstring 與批 6 schema commit）。
+  //    它同時也是 popup 陣列的第二例（waterDam 壩體 + waterReservoirPoly 面）。
+  //
+  // ⚠️ 雙生字密集區，逐 key 對照過（前綴包含關係一律以精確錨定驗證）：
+  //    `groundwater`（面 / 線・時間驅動彩色）≠ `groundwaterWells`（點位・靜態灰點
+  //    backdrop）—— 兩層同一支 loader 不同 RPC，且 **只有 groundwater 有 popup**
+  //    （GIS_LAYERS 是 `groundwater-circle`，不是 `groundwater-wells-circle`）；
+  //    `floodSensor` ≠ `floodSensorIsochrone`（各有自己的 GIS_LAYERS 條目，
+  //    但**共用同一筆 legend entry**）；`riverLevel` / `iotWraRiver` / `waterRivers` 三者無關。
+  //
+  // ⚠️ 色票拍板①：23 層在 `HANDWRITTEN_LAYER_COLORS` 原本就是字面 hex，
+  //    本主題沒有任何 `*_LAYER_COLORS` 常數在餵那張表 → 一律字面，無 spread 可刪。
+
+  waterFacilities: {
+    key: "waterFacilities",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "水利設施 Facility",
+    expandable: true,
+    color: "#fbbf24",
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "water_facilities_osm", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "water-facilities",
+      url: "./geo/water_facilities.geojson",
+    },
+    legend: "waterFacilities",
+    popup: "waterFacility",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "水利設施點位（OSM 取水口 / 水處理 / 閘門等）",
+    topics: ["水資源", "設施"],
+  },
+
+  waterMonitorStations: {
+    key: "waterMonitorStations",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "監測站 Monitor",
+    expandable: true,
+    color: "#f472b6",
+    icon: Gauge,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rain_gauge_stations", confidence: "LOW" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "water-monitor-stations",
+      url: "./geo/water_monitor_stations.geojson",
+    },
+    legend: "waterMonitorStations",
+    popup: "waterMonitor",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "水利署各類監測站靜態點位（雨量 / 水位 / 水質）",
+    topics: ["水資源", "監測"],
+  },
+
+  // ⚠️ 本工程首個**混合 kind** 的 source 陣列（pmtiles 面 + geojson 壩體點），
+  //    順序＝OVERLAY_REGISTRY 出現序（面在前、點在後 = 疊放由下而上）。
+  //    popup 也是陣列，順序＝GIS_LAYERS 出現序（waterDam 在 waterReservoirPoly 前）。
+  waterReservoirs: {
+    key: "waterReservoirs",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "水庫 Reservoir",
+    expandable: true,
+    color: "#06b6d4",
+    icon: Dam,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "reservoir_storage_wra", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: [
+      {
+        kind: "pmtiles",
+        sourceId: "water-reservoir-poly",
+        url: "./geo/water_reservoirs.pmtiles",
+        sourceLayer: "reservoirs",
+        minzoom: 5,
+        maxzoom: 13,
+      },
+      {
+        kind: "geojson",
+        sourceId: "water-reservoir-dams",
+        url: "./geo/water_dams.geojson",
+      },
+    ],
+    legend: null,
+    popup: ["waterDam", "waterReservoirPoly"],
+    params: { count: 1, kinds: ["slider"] },
+    description: "全台水庫蓄水範圍面 + 壩體點位（點擊看即時蓄水率）",
+    topics: ["水資源", "水庫"],
+  },
+
+  // ⚠️ 與 `groundwater` 是不同層：這層是**靜態 backdrop**（48h 內有讀值的 ~733 站，
+  //    灰色小點、不受 timeline 影響），且 layer id `groundwater-wells-circle`
+  //    **不在** GIS_LAYERS（GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）→ popup: null。
+  groundwaterWells: {
+    key: "groundwaterWells",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "水井點位 Wells",
+    expandable: true,
+    color: "#64748b",
+    icon: Droplet,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "groundwater_wells", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGroundwaterWellsLayer：Supabase RPC get_groundwater_latest（5min TTL 快取）→ 自建 source groundwater-wells + 1 layer groundwater-wells-circle，作為動態層的靜態站位 backdrop —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "地下水井監測網站位 backdrop（灰點，呈現監測密度）",
+    topics: ["水資源", "地下水", "監測"],
+  },
+
+  rainGauge: {
+    key: "rainGauge",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "即時雨量 Rain Gauge",
+    expandable: true,
+    color: "#3b82f6",
+    icon: CloudRain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rain_gauge_stations", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useRainGaugeLayer（走 timelineSliceLayer factory）：Supabase RPC get_rain_gauge_day 取當日全時序 → 自建 source rain-gauge + 3 layer（heatmap / glow / rain-gauge-circle），timeStore 訂閱切片 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "rainGauge",
+    popup: "rainGauge",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台雨量站 10 分鐘 / 1 小時累積雨量（CWA 分級色階 + 熱區）",
+    topics: ["水資源", "雨量", "即時"],
+  },
+
+  riverLevel: {
+    key: "riverLevel",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "河川水位 River Level",
+    expandable: true,
+    color: "#22d3ee",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "river_level_stations_wra", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useRiverLevelLayer（走 timelineSliceLayer factory）：Supabase RPC get_river_water_level_day → 自建 source river-level + 2 layer（glow / river-level-circle）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "riverLevel",
+    popup: "riverLevel",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "水利署河川水位站即時水位（對警戒水位的相對高度）",
+    topics: ["水資源", "河川", "即時"],
+  },
+
+  floodSensor: {
+    key: "floodSensor",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "都市淹水感測 USWG",
+    expandable: true,
+    color: "#ef4444",
+    icon: Droplets,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "water.uswg_measurements", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFloodSensorLayer：Supabase RPC get_uswg_latest / get_uswg_day → 自建 source flood-sensor + 4 layer（1km / 500m 影響範圍 buffer 2 層 + glow + flood-sensor-dot）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "floodSensor",
+    popup: "floodSensor",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "水利署都市淹水感測器（USWG）即時積水深度",
+    topics: ["水資源", "淹水", "即時"],
+  },
+
+  iotWraRiver: {
+    key: "iotWraRiver",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "IoT 河川 IoT River",
+    expandable: true,
+    color: "#06b6d4",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "river_water_level_realtime", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useIotWraRiverLayer：Supabase RPC get_iot_wra_day（p_station_type=\"river\"）→ 自建 source iot-wra-river + 2 layer（glow / iot-wra-river-circle）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "iotWraRiver",
+    popup: null,
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "toggle"] },
+    description: "水利署 IoT 河川水位感測器（民間協力布建的密網）",
+    topics: ["水資源", "河川", "IoT", "即時"],
+  },
+
+  iotWraStructure: {
+    key: "iotWraStructure",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "IoT 水工結構 IoT Structure",
+    expandable: true,
+    color: "#a855f7",
+    icon: Gauge,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "dam_weirs_wra", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useIotWraStructureLayer：Supabase RPC get_iot_wra_latest（p_station_type=null 取全類別）→ 自建 source iot-wra-structure + 2 layer（glow / iot-wra-structure-circle）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "iotWraStructure",
+    popup: null,
+    params: { count: 7, kinds: ["slider", "slider", "toggle", "toggle", "toggle", "toggle", "toggle"] },
+    description: "水利署 IoT 水工結構物感測（堰壩 / 閘門 / 抽水站等，5 類可篩）",
+    topics: ["水資源", "水工結構", "IoT", "即時"],
+  },
+
+  // 北市三層走同一支 wicTaipeiLoader 的三個 RPC（get_taipei_{sewer,evacuate,pumb}_latest）。
+  taipeiSewer: {
+    key: "taipeiSewer",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "北市下水道水位 Sewer (TP)",
+    expandable: true,
+    color: "#3b82f6",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "storm_drainage_pipes", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useTaipeiSewerLayer：Supabase RPC get_taipei_sewer_latest(p_hours:1) → 自建 source taipei-sewer-src + 1 layer taipei-sewer-dot —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "taipeiSewer",
+    popup: "taipeiSewer",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台北市下水道水位監測（WIC，防汛期即時水情）",
+    topics: ["水資源", "下水道", "台北", "即時"],
+  },
+
+  taipeiEvacuate: {
+    key: "taipeiEvacuate",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "北市疏散門 Evacuate Gate (TP)",
+    expandable: true,
+    color: "#22c55e",
+    icon: Gauge,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "civil_defense_shelters", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useTaipeiEvacuateLayer：Supabase RPC get_taipei_evacuate_latest(p_hours:1) → 自建 source taipei-evac-src + 1 layer taipei-evac-dot —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "taipeiEvacuate",
+    popup: "taipeiEvacuate",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台北市堤防疏散門開關狀態（WIC，颱風豪雨時的封閉狀況）",
+    topics: ["水資源", "防汛", "台北", "即時"],
+  },
+
+  // ⚠️ label 的「Pumb」是現況拼字（正字為 Pump）—— 黃金快照釘住，搬移不夾帶修正。
+  taipeiPumb: {
+    key: "taipeiPumb",
+    section: { theme: "水資源 Water", group: "點位" },
+    label: "北市抽水站 Pumb Station (TP)",
+    expandable: true,
+    color: "#06b6d4",
+    icon: Droplets,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "pump_stations_wra", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useTaipeiPumbLayer：Supabase RPC get_taipei_pumb_latest(p_hours:1) → 自建 source taipei-pumb-src + 2 layer（taipei-pumb-glow / taipei-pumb-dot）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "taipeiPumb",
+    popup: "taipeiPumb",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台北市抽水站即時運轉狀態（WIC，機組啟動台數 / 前池水位）",
+    topics: ["水資源", "防汛", "台北", "即時"],
+  },
+
+  waterBasins: {
+    key: "waterBasins",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "流域 Basin",
+    expandable: true,
+    color: "#4dd0e1",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "river_basins_wra", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "water-basins",
+      url: "./geo/water_basins.geojson",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "中央管河川流域界（純輪廓線，不分色故無圖例）",
+    topics: ["水資源", "流域"],
+  },
+
+  // ⚠️ 同 key 2 config（拍板②），兩筆**皆 pmtiles**（與 waterReservoirs 的混合形不同）：
+  //    河川面在前、河川中心線在後，順序＝OVERLAY_REGISTRY 出現序。
+  waterRivers: {
+    key: "waterRivers",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "河川 River",
+    expandable: true,
+    color: "#38bdf8",
+    icon: GitBranch,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "river_polygons_wra", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: [
+      {
+        kind: "pmtiles",
+        sourceId: "water-river-polygons",
+        url: "./geo/water_river_polygons.pmtiles",
+        sourceLayer: "river_polygons",
+        minzoom: 4,
+        maxzoom: 13,
+      },
+      {
+        kind: "pmtiles",
+        sourceId: "water-rivers",
+        url: "./geo/water_rivers.pmtiles",
+        sourceLayer: "rivers",
+        minzoom: 4,
+        maxzoom: 13,
+      },
+    ],
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "河川水域面 + 中心線（同一個 toggle 疊兩份切片）",
+    topics: ["水資源", "河川"],
+  },
+
+  waterLevees: {
+    key: "waterLevees",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "堤防 Levee",
+    expandable: true,
+    color: "#f59e0b",
+    icon: Shield,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "river_levees_wra", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "water-levees",
+      url: "./geo/water_levees.pmtiles",
+      sourceLayer: "levees",
+      minzoom: 5,
+      maxzoom: 13,
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "水利署堤防線（單色，無分類維度故無圖例）",
+    topics: ["水資源", "防洪"],
+  },
+
+  waterCanals: {
+    key: "waterCanals",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "灌排渠道 Canal",
+    expandable: true,
+    color: "#a78bfa",
+    icon: Droplets,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "irrigation_canals", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "water-canals",
+      url: "./geo/water_canals.pmtiles",
+      sourceLayer: "canals",
+      minzoom: 5,
+      maxzoom: 13,
+    },
+    legend: "waterCanals",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "農田水利署灌溉排水渠道（依渠道等級分色）",
+    topics: ["水資源", "灌溉", "農業"],
+  },
+
+  waterProtectionZones: {
+    key: "waterProtectionZones",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "管制區 Protection",
+    expandable: true,
+    color: "#10b981",
+    icon: ShieldCheck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "water_zones_wra", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "water-protection-zones",
+      url: "./geo/water_protection_zones.geojson",
+    },
+    legend: "waterProtectionZones",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
+    topics: ["水資源", "管制", "保護區"],
+  },
+
+  waterDetentionBasins: {
+    key: "waterDetentionBasins",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "滯洪池 Detention",
+    expandable: true,
+    color: "#0284c7",
+    icon: Container,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "detention_basins", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "water-detention-basins",
+      url: "./geo/water_detention_basins.geojson",
+    },
+    legend: null,
+    popup: "waterDetentionBasin",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "滯洪池點位與容量（點擊看設計滯洪量）",
+    topics: ["水資源", "防洪"],
+  },
+
+  // ⚠️ 與 `groundwaterWells`（靜態 backdrop）是不同層：這層才是 timeline 驅動的
+  //    彩色動態層，也才是 GIS_LAYERS `groundwater-circle` 的擁有者。
+  groundwater: {
+    key: "groundwater",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "地下水井 Groundwater",
+    expandable: true,
+    color: "#0ea5e9",
+    icon: Droplet,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "groundwater_wells", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useGroundwaterLayer（走 timelineSliceLayer factory）：Supabase RPC get_groundwater_day → 自建 source groundwater + 2 layer（groundwater-glow / groundwater-circle），顏色＝當日累積水位變化 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "groundwater",
+    popup: "groundwater",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "地下水井日內水位變化（紅降藍升，半徑＝變化強度）",
+    topics: ["水資源", "地下水", "即時"],
+  },
+
+  lakesPondsOsm: {
+    key: "lakesPondsOsm",
+    section: { theme: "水資源 Water", group: "面 / 線" },
+    label: "湖泊 / 埤塘 Lakes & Ponds",
+    expandable: true,
+    color: "#4fc3f7",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "lakes_ponds_osm", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "lakes-ponds-osm",
+      url: "./water_resources/lakes_ponds_osm.pmtiles",
+      sourceLayer: "lakes_ponds_osm",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "lakesPondsOsm",
+    popup: "lakesPondsOsm",
+    params: { count: 1, kinds: ["slider"] },
+    description: "全台湖泊與埤塘水體面（OSM，含桃園埤塘群）",
+    topics: ["水資源", "湖泊", "埤塘"],
+  },
+
+  waterFloodExtreme: {
+    key: "waterFloodExtreme",
+    section: { theme: "水資源 Water", group: "分析" },
+    label: "淹水潛勢 Flood 650mm/24h",
+    expandable: true,
+    color: "#fb7185",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "flood_hazard_wra", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "water-flood-extreme",
+      url: "./geo/water_flood_extreme.pmtiles",
+      sourceLayer: "flood_extreme",
+      minzoom: 5,
+      maxzoom: 13,
+    },
+    legend: "waterFloodExtreme",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "水利署淹水潛勢圖（650mm/24h 極端降雨情境，依淹水深度分級）",
+    topics: ["水資源", "淹水", "災害潛勢"],
+  },
+
+  // ⚠️ dataClass D 但**是不折不扣的 PMTiles**（同批 5 的 slopeVector / aspectVector）：
+  //    hook 自己建 PmTilesSource，不走 OVERLAY_REGISTRY → 觸點 #20 的部署清單
+  //    只掃 dataClass === "B" 會漏掉這支，檔路徑記在 note 裡。
+  floodSensorIsochrone: {
+    key: "floodSensorIsochrone",
+    section: { theme: "水資源 Water", group: "分析" },
+    label: "淹水 3 分步行圈 Isochrone (雙北)",
+    expandable: true,
+    color: "#ef4444",
+    icon: Timer,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "water.uswg_measurements", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFloodSensorIsochroneLayer 自建 PmTilesSource（public/flood/uswg_isochrone_3min.pmtiles，source-layer isochrone）+ 2 layer（flood-sensor-isochrone-fill / -line），並以 Supabase RPC get_uswg_latest 的即時值染色 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "floodSensor",
+    popup: "floodSensorIsochrone",
+    params: { count: 1, kinds: ["slider"] },
+    description: "雙北淹水感測器 3 分鐘步行可達範圍（沿路網等時圈）",
+    topics: ["水資源", "淹水", "可達性"],
+  },
+
+  precipRaster: {
+    key: "precipRaster",
+    section: { theme: "水資源 Water", group: "分析" },
+    label: "累積雨量柵格 Precip Raster",
+    expandable: true,
+    color: "#60a5fa",
+    icon: CloudRain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "water.precipitation_raster_frames", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePrecipRasterLayer：Supabase RPC get_latest_precipitation_raster / get_precipitation_raster_frames 取柵格影像 frames → image source + raster layer（precip-raster / precip-raster-layer），依 timeStore 換 frame —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "累積雨量柵格圖（多時距累積，隨時間軸播放）",
+    topics: ["水資源", "雨量", "即時"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
