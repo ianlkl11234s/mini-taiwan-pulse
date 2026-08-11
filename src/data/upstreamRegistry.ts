@@ -825,39 +825,9 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   },
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    它原本落在這裡而非上方的教育區塊（保留原 z-order 的歷史位置）
-  realEstateRentalGrid: {
-    status: 'verified',
-    datasets: [{ datasetId: 'real_estate', confidence: 'LOW' }],
-  },
-  realEstateRentalPoint: {
-    status: 'verified',
-    datasets: [{ datasetId: 'real_estate', confidence: 'HIGH' }],
-  },
-  realEstateSaleGrid: {
-    status: 'verified',
-    datasets: [{ datasetId: 'real_estate', confidence: 'LOW' }],
-  },
-  realEstateSalePoint: {
-    status: 'verified',
-    datasets: [{ datasetId: 'real_estate', confidence: 'HIGH' }],
-  },
-  realEstatePresaleGrid: {
-    status: 'verified',
-    datasets: [{ datasetId: 'real_estate', confidence: 'LOW' }],
-  },
-  propertyValueGrid: {
-    status: 'pulse_only',
-    datasets: [],
-    derivedFromLayers: ['buildingsGba', 'realEstateSaleGrid'],
-    derivedFromDatasets: ['property_value'],
-    derivationType: 'custom',
-    processing: '每棟 GBA 建物 footprint × 樓層(h÷3.2) × 所在 150m 網格實價買賣中位單價 × per-county GFA 校正係數 → 聚合回 150m 格（v_mkt 萬元，市場only）；全台 204.1 兆',
-    note: '上游 pipeline taipei-gis-analytics/pipelines/urban_composite/property_value/；handoff 見 docs/handoff/property-value.md',
-  },
-  realEstatePresalePoint: {
-    status: 'verified',
-    datasets: [{ datasetId: 'real_estate', confidence: 'HIGH' }],
-  },
+  // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
+  //    原本 realEstatePresalePoint 排在 propertyValueGrid **後面**（同主題內順序也不可信），
+  //    所以是逐 key 定位刪除，不是整段刪
   satellitesTaiwan: {
     status: 'verified',
     datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],

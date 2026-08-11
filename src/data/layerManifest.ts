@@ -56,6 +56,8 @@ import {
   // 🌲 林業（Trees / GraduationCap / Tent / TrainFront 已在上方 import 復用）
   Shield, TreePine, Sprout, Ruler, Hammer, MapPin, Signal, Waves, Route,
   Footprints, PawPrint,
+  // 🏢 房地產（Building2 / MapPin 已在上方 import 復用）
+  Coins,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -2461,6 +2463,215 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "第三次野生動物分布調查點位",
     topics: ["林業", "生態", "野生動物"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 4 —— 房地產 Real Estate 7 層
+  //  拍板②（同 key 多 config）的**唯一實例**：`propertyValueGrid` 的 source 是
+  //  三筆 pmtiles 陣列（150m / 450m / 1.5km），順序 = OVERLAY_REGISTRY 順序。
+  //  租賃／買賣／預售 6 層是「一 key 一 config」的老形狀，別跟上面混為一談：
+  //  三張 Grid 共用 sourceId `re-grid`（同一份切片以 type filter 切分），
+  //  三張 Point 共用同一個 Three.js CustomLayer。
+  //  legend 一個 id `realEstateRentalGrid` 吃掉全部 7 層裡的 6 層＋自己一層。
+  // ══════════════════════════════════════════════════════════════
+  realEstateRentalGrid: {
+    key: "realEstateRentalGrid",
+    section: { theme: "房地產 Real Estate", group: "租賃" },
+    label: "租賃熱力圖 Rental Grid",
+    expandable: true,
+    color: "#41919A",
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "real_estate", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "re-grid",
+      url: "./coverage/real_estate_grid.pmtiles",
+      sourceLayer: "real_estate_grid",
+      minzoom: 6,
+      maxzoom: 14,
+    },
+    legend: "realEstateRentalGrid",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "實價登錄租賃案件 150m 網格中位單價",
+    topics: ["房地產", "租賃", "網格"],
+  },
+
+  realEstateRentalPoint: {
+    key: "realEstateRentalPoint",
+    section: { theme: "房地產 Real Estate", group: "租賃" },
+    label: "租賃交易點 Rental Point",
+    expandable: true,
+    color: "#41919A",
+    icon: MapPin,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "real_estate", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js CustomLayer `re-points-three`（RealEstatePointsScene 讀 ./coverage/real_estate_points_buffer.bin，三種交易型別共用同一份 buffer 與同一個 layer，由 rePointsStore 的型別 filter 切分）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "realEstateRentalGrid",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "實價登錄租賃交易點位（時間軸播放，GPU fade）",
+    topics: ["房地產", "租賃", "交易點"],
+  },
+
+  realEstateSaleGrid: {
+    key: "realEstateSaleGrid",
+    section: { theme: "房地產 Real Estate", group: "買賣" },
+    label: "買賣熱力圖 Sale Grid",
+    expandable: true,
+    color: "#d73027",
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "real_estate", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "re-grid",
+      url: "./coverage/real_estate_grid.pmtiles",
+      sourceLayer: "real_estate_grid",
+      minzoom: 6,
+      maxzoom: 14,
+    },
+    legend: "realEstateRentalGrid",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "實價登錄買賣案件 150m 網格中位單價",
+    topics: ["房地產", "買賣", "網格"],
+  },
+
+  realEstateSalePoint: {
+    key: "realEstateSalePoint",
+    section: { theme: "房地產 Real Estate", group: "買賣" },
+    label: "買賣交易點 Sale Point",
+    expandable: true,
+    color: "#d73027",
+    icon: MapPin,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "real_estate", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js CustomLayer `re-points-three`（RealEstatePointsScene 讀 ./coverage/real_estate_points_buffer.bin，三種交易型別共用同一份 buffer 與同一個 layer，由 rePointsStore 的型別 filter 切分）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "realEstateRentalGrid",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "實價登錄買賣交易點位（時間軸播放，GPU fade）",
+    topics: ["房地產", "買賣", "交易點"],
+  },
+
+  realEstatePresaleGrid: {
+    key: "realEstatePresaleGrid",
+    section: { theme: "房地產 Real Estate", group: "預售" },
+    label: "預售熱力圖 Presale Grid",
+    expandable: true,
+    color: "#fd8d3c",
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "real_estate", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "re-grid",
+      url: "./coverage/real_estate_grid.pmtiles",
+      sourceLayer: "real_estate_grid",
+      minzoom: 6,
+      maxzoom: 14,
+    },
+    legend: "realEstateRentalGrid",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "實價登錄預售屋 150m 網格中位單價",
+    topics: ["房地產", "預售", "網格"],
+  },
+
+  realEstatePresalePoint: {
+    key: "realEstatePresalePoint",
+    section: { theme: "房地產 Real Estate", group: "預售" },
+    label: "預售交易點 Presale Point",
+    expandable: true,
+    color: "#fd8d3c",
+    icon: MapPin,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "real_estate", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js CustomLayer `re-points-three`（RealEstatePointsScene 讀 ./coverage/real_estate_points_buffer.bin，三種交易型別共用同一份 buffer 與同一個 layer，由 rePointsStore 的型別 filter 切分）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "realEstateRentalGrid",
+    popup: null,
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "實價登錄預售屋交易點位（時間軸播放，GPU fade）",
+    topics: ["房地產", "預售", "交易點"],
+  },
+
+  propertyValueGrid: {
+    key: "propertyValueGrid",
+    section: { theme: "房地產 Real Estate", group: "總市值" },
+    label: "不動產總市值網格 Value Grid",
+    labelMobile: "不動產總市值網格",
+    expandable: true,
+    color: "#ed6925",
+    icon: Coins,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["buildingsGba", "realEstateSaleGrid"],
+      derivedFromDatasets: ["property_value"],
+      derivationType: "custom",
+      processing: "每棟 GBA 建物 footprint × 樓層(h÷3.2) × 所在 150m 網格實價買賣中位單價 × per-county GFA 校正係數 → 聚合回 150m 格（v_mkt 萬元，市場only）；全台 204.1 兆",
+      note: "上游 pipeline taipei-gis-analytics/pipelines/urban_composite/property_value/；handoff 見 docs/handoff/property-value.md",
+    },
+    dataClass: "B",
+    source: [
+      {
+        kind: "pmtiles",
+        sourceId: "property-value-grid-150",
+        url: "./urban/property_value_grid_150m.pmtiles",
+        sourceLayer: "grid_value_150m",
+        minzoom: 4,
+        maxzoom: 14,
+      },
+      {
+        kind: "pmtiles",
+        sourceId: "property-value-grid-450",
+        url: "./urban/property_value_grid_450m.pmtiles",
+        sourceLayer: "grid_value_450m",
+        minzoom: 4,
+        maxzoom: 13,
+      },
+      {
+        kind: "pmtiles",
+        sourceId: "property-value-grid-1500",
+        url: "./urban/property_value_grid_1500m.pmtiles",
+        sourceLayer: "grid_value_1500m",
+        minzoom: 4,
+        maxzoom: 12,
+      },
+    ],
+    legend: "propertyValueGrid",
+    popup: "propertyValueGrid",
+    params: { count: 4, kinds: ["select", "select", "slider", "toggle"] },
+    description: "全台不動產總市值網格，150m / 450m / 1.5km 三尺度（v_mkt 萬元，全台 204.1 兆）",
+    topics: ["房地產", "總市值", "網格", "3D"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

@@ -273,13 +273,8 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   lightning: "#fb923c",
   lightningCwa: "#a78bfa",
   nuclearRadiation: "#22c55e",
-  realEstateRentalGrid: "#41919A",
-  realEstateRentalPoint: "#41919A",
-  realEstateSaleGrid: "#d73027",
-  realEstateSalePoint: "#d73027",
-  realEstatePresaleGrid: "#fd8d3c",
-  realEstatePresalePoint: "#fd8d3c",
-  propertyValueGrid: "#ed6925",
+  // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
+  //    7 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面
   countyBoundary: "#4b5563",
   townshipBoundary: "#6b7280",
   villageBoundary: "#9ca3af",
@@ -595,29 +590,29 @@ export const THEMES: ThemeDef[] = [
       {
         title: "租賃",
         layers: [
-          { key: "realEstateRentalGrid", label: "租賃熱力圖 Rental Grid", expandable: true },
-          { key: "realEstateRentalPoint", label: "租賃交易點 Rental Point", expandable: true },
+          fromManifest("realEstateRentalGrid"),
+          fromManifest("realEstateRentalPoint"),
         ],
       },
       {
         title: "買賣",
         layers: [
-          { key: "realEstateSaleGrid", label: "買賣熱力圖 Sale Grid", expandable: true },
-          { key: "realEstateSalePoint", label: "買賣交易點 Sale Point", expandable: true },
+          fromManifest("realEstateSaleGrid"),
+          fromManifest("realEstateSalePoint"),
         ],
       },
       {
         title: "預售",
         layers: [
-          { key: "realEstatePresaleGrid", label: "預售熱力圖 Presale Grid", expandable: true },
-          { key: "realEstatePresalePoint", label: "預售交易點 Presale Point", expandable: true },
+          fromManifest("realEstatePresaleGrid"),
+          fromManifest("realEstatePresalePoint"),
         ],
       },
       {
         // 上三組是「單價」（每 m² 多貴），本組是「總量」（這格壓了多少錢）——語意不同，見圖例
         title: "總市值",
         layers: [
-          { key: "propertyValueGrid", label: "不動產總市值網格 Value Grid", labelMobile: "不動產總市值網格", expandable: true },
+          fromManifest("propertyValueGrid"),
         ],
       },
     ],

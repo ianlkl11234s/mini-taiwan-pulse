@@ -35,8 +35,9 @@ import {
   Map,
   // 🌍 世界 World icon（複合 rail icon 用）
   Globe,
-  // 🏢 房地產總市值 icons（layer toggle 用 Coins、rail panel 用 PiggyBank）
-  Coins, PiggyBank,
+  // 🏢 房地產總市值：layer toggle 的 Coins 隨 7 層搬進 layerManifest（AR-22 Phase 2 批 4），
+  //    rail panel 自己的 PiggyBank 仍留在本檔
+  PiggyBank,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -294,14 +295,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   dustForecast: Cloud,
   oceanCurrents: Waves,
   windField: Wind,
-  // 房地產（格用 Building2、點用 MapPin）
-  realEstateRentalGrid: Building2,
-  realEstateRentalPoint: MapPin,
-  realEstateSaleGrid: Building2,
-  realEstateSalePoint: MapPin,
-  realEstatePresaleGrid: Building2,
-  realEstatePresalePoint: MapPin,
-  propertyValueGrid: Coins,
+  // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）
   // Base map
   countyBoundary: MapPinned,
   townshipBoundary: MapPinned,
