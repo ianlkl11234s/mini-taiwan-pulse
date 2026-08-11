@@ -125,7 +125,8 @@ useEffect(() => {
 | 8 | `src/components/sidebar/layerCatalog.ts` | `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用；UI toggle 渲染在 `IconRailSidebar.tsx` / `LayerSidebar.tsx`） | 🔒 `layerConsistency.test.ts`（`BASELINE_NOT_IN_SIDEBAR` ratchet） |
 | 9 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView | ⚠️ 人工 |
 | 10 | `src/hooks/useLayerVisibility.ts` | 僅預設開啟才需要：加進 `DEFAULT_ON`；預設 false 自動派生免改 | ⚠️ 人工（`Set`，非 `Record`，tsc 不強制） |
-| 11 | `src/hooks/useTransportParams.ts` | opacity slider（規則 1 強制）+ 其他 params；實測 4-5 個 hunk（state／setter／`overlayParams` useMemo／deps） | 🔒 `layerConsistency.test.ts`（`BASELINE_NO_PARAMS` ratchet）+ `overlayParamsDeps.test.ts`（deps 完整性） |
+| 11 | `src/data/layerParamsSpec.ts` | 在 `LAYER_PARAMS_SPEC` 加**一筆** `key: [ …控件… ]`（opacity slider 由規則 1 強制）。控件長相／預設值／`overlayParams` 編碼三者全由這筆規格派生 —— **不要**再去 hook 加 `useState`／`case`／deps，見下方「§4 params 新流程」 | 🔒 `layerConsistency.test.ts`（`BASELINE_NO_PARAMS` ratchet，判準走 `isMigratedParamsKey`）+ `layerParamsSharedState.test.ts`（共用 slot / 殘影）+ 黃金快照 `params` section |
+| 11a | `src/data/layerManifest.ts` | 同一筆 entry 的 `params: { count, kinds }`（沒有控件寫 `null`） | 🔒 `layerManifest.test.ts`「params 宣告 = 實際回傳的控件數與型別序列」 |
 | 12 | `src/components/LegendPanel.tsx` | 若規則 2 觸發：寫圖例 sub-component | ⚠️ 人工（元件內容本身無格式測試） |
 | 13 | `src/components/LegendPanel.tsx` | 同檔 `LEGEND_REGISTRY` 加一行 | 🔒 `layerConsistency.test.ts`——但只擋**新**漏接，`BASELINE_NO_LEGEND` 批次凍結的舊漂移不會被抓（見 A-1）；`AqiLegend` 目前繞過本 registry，勿沿用此例 |
 | 14 | `src/components/featureInfo/<domain>Panels.tsx` | 若規則 3 觸發：寫 popup panel 元件 | ⚠️ 人工 |
@@ -137,6 +138,51 @@ useEffect(() => {
 | 20 | `nginx.conf` + `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` | 僅 PMTiles／大型靜態檔層：nginx location 對應 + deploy 腳本清單加檔名 | ⚠️ 人工——PT-1 曾因漏此步，13 層全站 404 |
 
 **條件觸發（並非每層都要）**：#4（無多色分類可省）、#10（非預設開可省）、#12-15（無可 popup 屬性可省）、#19（不想開放對話查詢可省）、#20（非 PMTiles/純 Supabase 動態層可省）。
+
+### §4 params 新流程：**規格一筆 + 控件自動生成**（AR-22 Phase 3 完成後）
+
+> 2026-08-12 起 `useTransportParams.ts` 已更名 `src/hooks/useLayerParamsRuntime.ts`，
+> 且**不再持有任何參數**（`useState` 645 → 0，348 key 中 336 個走規格）。
+> 舊流程「加 state ＋ 加 `case` ＋ 加 `overlayParams` 一行 ＋ 加 deps 一項」共 4-5 個 hunk，
+> 現在是**一個檔一筆宣告**。
+
+**做法**——在 `src/data/layerParamsSpec.ts` 的 `LAYER_PARAMS_SPEC` 加一筆：
+
+```ts
+myNewLayer: [
+  // slider：label 印成 `透明度 0.80`；`out` 省略 = 用參數名當 overlayParams key
+  opacitySlider("myNewLayerOpacity", 0.8),
+  scaleSlider("myNewLayerScale", 1),
+  // select：store 存字串，`encode` 宣告字串 → 數字的對照，paint 讀到的是 index
+  {
+    kind: "select", name: "myNewLayerMode", label: "模式", default: "all",
+    options: MY_MODES, out: "myNewLayerModeIdx", encode: ["all", "a", "b"],
+  },
+],
+```
+
+自動發生的三件事（都**不用**再手寫）：
+
+| 你不用做 | 誰做的 |
+|---|---|
+| `getControls` 的 `case` | `state/layerParamsControls.ts` 的 `buildParamControls()` 從規格派生 |
+| 值的 state ＋ 預設值 | `state/layerParamsStore.ts`（`buildDefaultParams()` 從規格的 `default` 起手） |
+| `overlayParams` 的一行 ＋ deps 的一項 | `encodeParamsToOverlay()` 從規格的 `out` / `encode` 派生 |
+
+**只有這幾種情況才需要碰 `useLayerParamsRuntime.ts`**：
+
+1. 這個參數的消費者**不是 paint**，而是 React／Three.js（`refs.current`、子物件、平鋪欄位）
+   → 規格寫 `out: null`，並在 hook 的 `return {}` 接一條線；
+   同時**必須**在 `__tests__/useLayerParamsRuntimeReturn.test.ts` 的 `RETURN_CHANNEL`
+   宣告它的回傳路徑（活文件，漏了等值閘 B 立刻紅）。
+2. 這層**有意沒有控件**（純靜態展示層）→ 兩種寫法擇一：manifest 寫 `params: null`
+   ＋ hook 留一個 `emptyByDesign` 分支（現存 5 個），或列進 `BASELINE_NO_PARAMS`。
+3. 鏡像 ref：一律用 `useParamRefNum` / `useParamRefBool` / `useParamRefEnum`，
+   ⚠️ **initial 吃規格常數、current 才吃 store 現值** —— 兩者同源會讓「刪掉同步賦值」
+   這個突變在測試裡驗不出來（每次 capture 都是全新 mount）。
+
+**驗收**：`npx tsc -b` ＋ `npx vitest run`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
+**必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
 
 **規模經濟**：殯葬 5 層與教育 16 層兩次實測都落在同一 14 個檔案——多層共用同一批基礎設施檔案（layerCatalog／App.tsx／useMapInteraction 等）只需改一次，per-layer 邊際成本主要落在 #1-6、#11-15（型別／loader／hook／registry／params／legend／popup）。
 
@@ -157,8 +203,12 @@ useEffect(() => {
 新 layer 必須同時通過下列四條，缺一不可。違反時 reviewer 應退件。
 
 ### 規則 1：透明度 slider 必備
-所有 layer（不論 fill / line / circle / 3D）都要在 `useTransportParams.ts` 提供
-opacity slider，使用者得以與底圖混合 / 跟其他 layer 疊看不致互卡。
+所有 layer（不論 fill / line / circle / 3D）都要有 opacity slider，
+使用者得以與底圖混合 / 跟其他 layer 疊看不致互卡。
+
+寫法是在 `src/data/layerParamsSpec.ts` 的 `LAYER_PARAMS_SPEC` 該 key 底下放一筆
+`opacitySlider("<key>Opacity", 0.8)`（控件與 `overlayParams` 編碼自動生成，
+見 §4「params 新流程」）。**不要**再去 `useLayerParamsRuntime.ts` 加 `useState`。
 
 ### 規則 2：分類 ≥ 2 種 → 必寫圖例
 **只要 layer 內的 feature 用顏色區分出 2 種以上類別／級別，不論點位 / polygon / line，
