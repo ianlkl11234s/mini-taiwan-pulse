@@ -1,5 +1,5 @@
 /**
- * Layer 黃金快照護欄（AR-22 Phase 0）
+ * Layer 黃金快照護欄（AR-22 Phase 0，Phase 4 縮編）
  * ══════════════════════════════════════════════════════════════════
  *
  * 為什麼要有這支：Layer Manifest 工程要把 14 個接觸點裡的「登記簿類」逐批改成
@@ -8,39 +8,53 @@
  * 走到另一條、GIS_LAYERS 順序被 append 打亂（first-hit-wins 語意直接改變）。
  * 這些全部不會報錯，只會在瀏覽器上「看起來怪怪的」。
  *
- * 本測試把「搬移前」的全部登記資料凍結成 committed fixture，之後每一批搬移都必須
- * 逐位元對得起來 —— **等價證明**。
+ * ── ⚠️ Phase 4 縮編：12 section → 3（`FIXTURE_SECTIONS`）────────────
+ *   搬移收官後，12 個 section 裡有 9 個已被 `layerManifest.test.ts` 逐 key
+ *   **雙向**焊死（manifest 宣告 ⇔ 下游登記簿實際值）。同一件事凍兩份的後果是
+ *   **每加一層就要重跑 REGEN 改一份 1.35MB 的 fixture，而那份 diff 沒有保護價值**
+ *   —— 純 churn 訓練出「無腦重跑」的習慣，那正是本檔開頭警告的拆護欄行為。
+ *
+ *   留下的 3 個是「沒有別的護欄在守、而且由共用機制 fan-out」的：
+ *   `overlays`（factory 改 5 行可靜默改掉 28 層 paint）／
+ *   `params`（改一個 spec builder 可靜默改掉 336 層控件的 default）／
+ *   `gisLayers`（跨 key 的 first-hit-wins 全域順序）。判準完整版見
+ *   `layerGoldenExtract.ts` 的 `FIXTURE_SECTIONS` 註解。
+ *
+ *   ⚠️ 抽取器**沒有**跟著縮：`layerManifest.test.ts` 仍吃全 12 section，
+ *   下方的覆蓋度與決定性測試也仍看全貌。縮的只有「凍進 repo 的那份」。
  *
  * ── fixture 紅了怎麼辦 ────────────────────────────────────────────
  *   1. 先看失敗訊息指的是哪個 section 與哪個字元位置。
- *   2. 若是**非預期**的差異 → 是搬移搬壞了，回去修程式，不要動 fixture。
- *   3. 若是**有意**的變更（真的新增/修改了 layer 登記資料）→
+ *   2. 若是**非預期**的差異 → 是搬移／重構把值改壞了，回去修程式，不要動 fixture。
+ *   3. 若是**有意**的變更（真的新增/修改了 layer 的 paint / 控件 / 點擊順序）→
  *        npx vite-node scripts/preprocess/dump-layer-golden.ts
  *      然後 `git diff` 逐行 review 再 commit。無腦重跑 = 把護欄拆掉。
  *
  * ── 護欄的護欄 ────────────────────────────────────────────────────
- *   最後一條 test 是**突變自測**：把抽取結果的記憶體副本改掉一個顏色值，
+ *   最後三條 test 是**突變自測**：把抽取結果的記憶體副本改掉一個值，
  *   斷言比對函式真的會回報差異。證明「這個護欄會叫」，而不是一個永遠綠的裝飾。
+ *   ⚠️ 三條都只打**留在 fixture 裡的 section** —— 拿一個已經不受保護的 section
+ *   去證明「護欄會叫」，證出來的是假的。
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 
 import {
   extractGolden, canonicalJson, diffGolden, allLayerKeys, paramsCaseKeys,
-  FIXTURE_PATH, SECTION_NAMES,
-  type GoldenSnapshot,
+  pickFixture, FIXTURE_PATH, FIXTURE_SECTIONS, SECTION_NAMES,
 } from "./layerGoldenExtract";
 import { PENALTY_YEAR_MAX } from "../pollutionTypes";
 
 const REGEN = "npx vite-node scripts/preprocess/dump-layer-golden.ts";
 
 // 抽取一次共用（重跑一次 hook + 求值全 registry 的成本不低）
-const actual = extractGolden();
+const full = extractGolden();
+const actual = pickFixture(full);
 const actualJson = canonicalJson(actual);
 
 const fixtureExists = existsSync(FIXTURE_PATH);
-const expected: GoldenSnapshot | null = fixtureExists
-  ? (JSON.parse(readFileSync(FIXTURE_PATH, "utf8")) as GoldenSnapshot)
+const expected: Record<string, unknown> | null = fixtureExists
+  ? (JSON.parse(readFileSync(FIXTURE_PATH, "utf8")) as Record<string, unknown>)
   : null;
 
 describe("layer 黃金快照", () => {
@@ -48,18 +62,24 @@ describe("layer 黃金快照", () => {
     expect(fixtureExists, `找不到 ${FIXTURE_PATH} → 跑 ${REGEN}`).toBe(true);
   });
 
-  // 逐 section 比對 —— 整檔 byte-diff 在 1.3MB 規模下沒法用人眼收斂，
+  it("fixture 自我描述的 section 清單與 FIXTURE_SECTIONS 一致", () => {
+    // 防「縮編後有人手改 fixture 或跑了舊版 dump 腳本」——
+    // 少一個 section 的 fixture 會讓下方逐 section 比對整段靜默略過。
+    const meta = expected?.meta as { sections?: string[] } | undefined;
+    expect(meta?.sections, `fixture 的 meta.sections 與程式碼不符 → ${REGEN}`)
+      .toEqual(FIXTURE_SECTIONS);
+  });
+
+  // 逐 section 比對 —— 整檔 byte-diff 在數十萬字元規模下沒法用人眼收斂，
   // 先讓失敗訊息指到「是哪一張登記簿變了」。
-  for (const section of SECTION_NAMES) {
+  for (const section of FIXTURE_SECTIONS) {
     it(`section「${section}」與 fixture 一致`, () => {
       expect(expected, `fixture 缺失 → ${REGEN}`).not.toBeNull();
-      const a = (actual as unknown as Record<string, unknown>)[section];
-      const b = (expected as unknown as Record<string, unknown>)[section];
       expect(
-        a,
+        actual[section],
         `登記簿「${section}」與黃金快照不一致。\n` +
-        `→ 非預期 = 搬移把值改掉了，回去修程式；有意變更 = 跑 ${REGEN} 並逐行 review diff`,
-      ).toEqual(b);
+        `→ 非預期 = 重構把值改掉了，回去修程式；有意變更 = 跑 ${REGEN} 並逐行 review diff`,
+      ).toEqual(expected![section]);
     });
   }
 
@@ -67,7 +87,7 @@ describe("layer 黃金快照", () => {
     expect(fixtureExists).toBe(true);
     const expectedJson = readFileSync(FIXTURE_PATH, "utf8");
     // 先用 diffGolden 給出人類可讀的定位，再做全字串斷言
-    const diffs = diffGolden(actual, expected);
+    const diffs = diffGolden(actual, expected, FIXTURE_SECTIONS);
     expect(
       diffs.map((d) => `${d.section}: ${d.reason}`),
       `黃金快照有差異（逐 section 定位如上）→ ${REGEN} 或回去修程式`,
@@ -78,9 +98,11 @@ describe("layer 黃金快照", () => {
   });
 
   it("抽取是決定性的（同一次進程跑兩遍結果相同）", () => {
-    // 抓「迭代順序不穩／隨機值／時間相依」——這類 bug 會讓護欄變成每天亂叫的狼來了
+    // 抓「迭代順序不穩／隨機值／時間相依」——這類 bug 會讓護欄變成每天亂叫的狼來了。
+    // ⚠️ 比的是**全 12 section**（不只入檔的 3 個）：`layerManifest.test.ts` 吃的是
+    //    全份抽取，非決定性出現在任何一個 section 都會讓契約測試變成擲骰子。
     const second = extractGolden();
-    expect(diffGolden(second, actual), "兩次抽取結果不同 → 抽取器有非決定性來源")
+    expect(diffGolden(second, full, SECTION_NAMES), "兩次抽取結果不同 → 抽取器有非決定性來源")
       .toEqual([]);
   });
 });
@@ -89,14 +111,14 @@ describe("黃金快照覆蓋度", () => {
   it("涵蓋全部 348 個 layer key", () => {
     const keys = allLayerKeys();
     expect(keys.length).toBe(348);
-    expect(Object.keys(actual.colors as object)).toHaveLength(keys.length);
-    expect(Object.keys(actual.icons as object)).toHaveLength(keys.length);
-    expect(Object.keys(actual.upstream as object)).toHaveLength(keys.length);
-    expect(Object.keys(actual.params as object)).toHaveLength(keys.length);
+    expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
+    expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
+    expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);
+    expect(Object.keys(full.params as object)).toHaveLength(keys.length);
   });
 
   it("每個 key 都拿得到真實的 icon 名稱（拿不到就是 displayName 機制壞了）", () => {
-    const broken = Object.entries(actual.icons as Record<string, string>)
+    const broken = Object.entries(full.icons as Record<string, string>)
       .filter(([, v]) => !v || v.startsWith("__"))
       .map(([k, v]) => `${k}=${v}`);
     expect(broken, "這些 key 的 lucide icon 讀不到 displayName → 抽取器需改用其他識別方式")
@@ -110,7 +132,7 @@ describe("黃金快照覆蓋度", () => {
     const { all, emptyByDesign } = paramsCaseKeys();
     const cases = all.filter((k) => layerKeys.has(k));
     const byDesign = new Set(emptyByDesign);
-    const controls = actual.params as Record<string, unknown[]>;
+    const controls = full.params as Record<string, unknown[]>;
 
     const shouldHave = cases.filter((k) => !byDesign.has(k));
     const missing = shouldHave.filter((k) => !Array.isArray(controls[k]) || controls[k].length === 0);
@@ -129,8 +151,11 @@ describe("黃金快照覆蓋度", () => {
   });
 
   it("沒有函式殘留在快照裡（有 = 某個函式型欄位漏求值）", () => {
-    expect(actualJson.includes("__FN__"), "快照含 __FN__ → 有函式型欄位沒被求值").toBe(false);
-    expect(actualJson.includes("__EVAL_ERROR__"), "快照含求值錯誤 → 某層 paint/layout/filter 會 throw").toBe(false);
+    // ⚠️ 掃**全份**（不只入檔的 3 個 section）—— 漏求值的欄位若落在
+    //    已移出 fixture 的 section，`layerManifest.test.ts` 會拿到一個字串 marker 去對帳。
+    const fullJson = canonicalJson(full);
+    expect(fullJson.includes("__FN__"), "快照含 __FN__ → 有函式型欄位沒被求值").toBe(false);
+    expect(fullJson.includes("__EVAL_ERROR__"), "快照含求值錯誤 → 某層 paint/layout/filter 會 throw").toBe(false);
   });
 
   it("pollutionPenaltyYear 的今年預設仍被 PENALTY_YEAR_MAX 夾住（防 fixture 跨年爆掉）", () => {
@@ -146,46 +171,47 @@ describe("黃金快照覆蓋度", () => {
 });
 
 describe("突變自測（護欄的護欄）", () => {
-  it("改掉一個顏色值 → 比對函式必須回報 colors section 有差異", () => {
-    const mutated = structuredClone(actual) as GoldenSnapshot;
-    const colors = mutated.colors as Record<string, string>;
-    const victim = allLayerKeys()[0] as string;
-    const before = colors[victim];
-    colors[victim] = "#000000-MUTATED";
-    expect(colors[victim]).not.toBe(before);
+  it("改掉一個控件的 default → 比對函式必須回報 params section 有差異", () => {
+    // Phase 4 前這條打的是 colors；colors 已移出 fixture（由 layerManifest.test.ts
+    // 逐 key 焊死），改打 params —— 它正是「改一個 spec builder 靜默改掉 336 層」的那條路。
+    const mutated = structuredClone(actual) as Record<string, unknown>;
+    const params = mutated.params as Record<string, { value?: unknown }[]>;
+    const victim = Object.keys(params).find((k) => (params[k]?.length ?? 0) > 0);
+    expect(victim, "params fixture 形狀變了 → 突變自測需同步更新").toBeTruthy();
+    params[victim!]![0]!.value = "__MUTATED__";
 
-    const diffs = diffGolden(mutated, actual);
+    const diffs = diffGolden(mutated, actual, FIXTURE_SECTIONS);
     expect(
       diffs.map((d) => d.section),
-      "改了顏色但比對函式沒回報差異 → 這個護欄是假的（永遠不會叫）",
-    ).toEqual(["colors"]);
-    // 訊息要真的把改掉的值指出來，否則凌晨三點看到「colors 不一致」等於沒說
-    expect(diffs[0]?.reason).toContain("#000000-MUTATED");
+      "改了控件值但比對函式沒回報差異 → 這個護欄是假的（永遠不會叫）",
+    ).toEqual(["params"]);
+    // 訊息要真的把改掉的值指出來，否則凌晨三點看到「params 不一致」等於沒說
+    expect(diffs[0]?.reason).toContain("__MUTATED__");
   });
 
   it("刪掉一個 GIS_LAYERS 條目 / 打亂順序 → 都必須被抓到", () => {
     // GIS_LAYERS 是 first-hit-wins，順序改變 = 點擊行為改變，但值的集合沒變
     // → 專門驗一條「集合相同、順序不同」也會紅。
-    const dropped = structuredClone(actual) as GoldenSnapshot;
+    const dropped = structuredClone(actual) as Record<string, unknown>;
     (dropped.gisLayers as unknown[]).splice(0, 1);
-    expect(diffGolden(dropped, actual).map((d) => d.section)).toEqual(["gisLayers"]);
+    expect(diffGolden(dropped, actual, FIXTURE_SECTIONS).map((d) => d.section)).toEqual(["gisLayers"]);
 
-    const reordered = structuredClone(actual) as GoldenSnapshot;
+    const reordered = structuredClone(actual) as Record<string, unknown>;
     const arr = reordered.gisLayers as unknown[];
     const head = arr.shift();
     arr.push(head);
     expect(
-      diffGolden(reordered, actual).map((d) => d.section),
+      diffGolden(reordered, actual, FIXTURE_SECTIONS).map((d) => d.section),
       "GIS_LAYERS 順序被打亂卻沒紅 → first-hit-wins 語意失去保護",
     ).toEqual(["gisLayers"]);
   });
 
   it("改掉一個 overlay paint 的 dark 分支 → overlays section 必須紅", () => {
-    const mutated = structuredClone(actual) as GoldenSnapshot;
+    const mutated = structuredClone(actual) as Record<string, unknown>;
     const overlays = mutated.overlays as { layers: { paint: { dark: unknown } }[] }[];
     const first = overlays[0]?.layers?.[0];
     expect(first, "overlays fixture 形狀變了 → 突變自測需同步更新").toBeTruthy();
     first!.paint.dark = { mutated: true };
-    expect(diffGolden(mutated, actual).map((d) => d.section)).toEqual(["overlays"]);
+    expect(diffGolden(mutated, actual, FIXTURE_SECTIONS).map((d) => d.section)).toEqual(["overlays"]);
   });
 });

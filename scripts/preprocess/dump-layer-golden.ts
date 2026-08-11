@@ -15,11 +15,15 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import {
-  extractGolden, canonicalJson, FIXTURE_PATH,
+  extractGolden, canonicalJson, pickFixture, FIXTURE_PATH, FIXTURE_SECTIONS,
 } from "../../src/data/__tests__/layerGoldenExtract";
 
+// ⚠️ Phase 4 起只有 FIXTURE_SECTIONS 那 3 個 section 入檔（其餘 9 個已被
+//    layerManifest.test.ts 逐 key 焊死，凍第二份只是 churn）——判準見
+//    layerGoldenExtract.ts 的 FIXTURE_SECTIONS 註解。
 const snapshot = extractGolden();
-const json = canonicalJson(snapshot);
+const fixture = pickFixture(snapshot);
+const json = canonicalJson(fixture);
 
 mkdirSync(dirname(FIXTURE_PATH), { recursive: true });
 writeFileSync(FIXTURE_PATH, json, "utf8");
@@ -27,5 +31,5 @@ writeFileSync(FIXTURE_PATH, json, "utf8");
 const bytes = Buffer.byteLength(json, "utf8");
 console.log(`✅ ${FIXTURE_PATH}`);
 console.log(`   layer keys : ${snapshot.meta.keyCount}`);
-console.log(`   sections   : ${snapshot.meta.sections.join(", ")}`);
+console.log(`   sections   : ${FIXTURE_SECTIONS.join(", ")}（抽取器仍抽全 ${snapshot.meta.sections.length} 個）`);
 console.log(`   size       : ${(bytes / 1024).toFixed(1)} KB`);

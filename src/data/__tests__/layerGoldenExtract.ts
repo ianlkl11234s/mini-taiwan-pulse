@@ -6,8 +6,12 @@
  * 用途：Layer Manifest 工程要把登記簿類觸點逐批改成由 manifest 派生，
  * 每一批搬完都必須證明「畫面上的登記資料一位元都沒變」——本檔就是那把尺。
  *
- * 使用者有兩個，**共用同一份抽取邏輯**（各寫一份必漂移）：
+ * ⚠️ **搬移已收官（Phase 2/3），但本檔沒有退役** —— 它現在有三個使用者：
+ *   - `layerManifest.test.ts` —— 契約測試的地基（`golden.params` 對帳 manifest 的
+ *     `{count, kinds}`、四支 featureType 抽取器餵 popup 對帳）。**這是最重要的一個**：
+ *     本檔壞掉 = manifest 契約測試整組失去意義。
  *   - `layerGoldenSnapshot.test.ts` —— 重抽 vs committed fixture 逐位元比對
+ *     （Phase 4 起 fixture 只留 3 個 section，見下方 `FIXTURE_SECTIONS`）
  *   - `scripts/preprocess/dump-layer-golden.ts` —— 重新產生 fixture（只在有意識地
  *     接受變更時才跑，跑完務必 review diff）
  *
@@ -386,6 +390,43 @@ const SECTION_NAMES = [
   "upstream", "legend", "featureInfo", "gisLayers", "overlays", "params",
 ];
 
+/**
+ * **進 committed fixture 的 section**（AR-22 Phase 4 縮編，12 → 3）。
+ *
+ * 抽取器仍抽全部 12 個 section —— `layerManifest.test.ts` 要拿 `params` 與
+ * `gisLayers` 做對帳、突變自測與決定性測試也要看全貌。縮的只有「凍進 repo 的那份」。
+ *
+ * 判準是**這個 section 有沒有別的永久護欄在守**：
+ *
+ *   已被 `layerManifest.test.ts` 逐 key 雙向焊死（→ 移出 fixture，留著是重複護欄）：
+ *     colors / icons / labels / gated / themes / sidebarSections /
+ *     upstream / legend / featureInfo
+ *     —— 這 9 個同時也是「每加一層必動」的 section，churn 最高、保護價值卻是 0。
+ *
+ *   沒有別的護欄、且**由共用機制 fan-out**（→ 留在 fixture）：
+ *     - `overlays`：paint / layout / filter 的**求值結果**。`overlayRegistry` 有 6 個
+ *       entry factory 產 28+ entry，改 factory 5 行可以靜默改掉 28 層的 dark 分支。
+ *       manifest 的 `source` 只驗來源形狀，**完全不碰 paint**。
+ *     - `params`：336 個 key 的控件全由 `layerParamsSpec` 的 builder ＋
+ *       `buildParamControls` 派生。manifest 只釘 `{ count, kinds }`，
+ *       改一個 builder 的 default/min/max 不會動到 count 也不會動到 kinds。
+ *     - `gisLayers`：first-hit-wins 的**全域順序**。manifest 的 popup 陣列只釘
+ *       「同一個 key 的多個 layerType 相對先後」，跨 key 的排序沒人守。
+ */
+export const FIXTURE_SECTIONS = ["gisLayers", "overlays", "params"];
+
+/**
+ * 取出要凍進 fixture 的那幾個 section。`meta.sections` 一併改寫成實際入檔的清單，
+ * 讓 fixture 自我描述（讀檔的人不必回頭查本檔才知道它涵蓋什麼）。
+ */
+export function pickFixture(snapshot: GoldenSnapshot): Record<string, unknown> {
+  const src = snapshot as unknown as Record<string, unknown>;
+  return {
+    meta: { keyCount: snapshot.meta.keyCount, sections: FIXTURE_SECTIONS },
+    ...Object.fromEntries(FIXTURE_SECTIONS.map((s) => [s, src[s]])),
+  };
+}
+
 export function extractGolden(): GoldenSnapshot {
   const keys = allLayerKeys();
   const { controls, overlayParams } = probeTransportParams();
@@ -427,11 +468,15 @@ export interface SectionDiff {
  * 逐 section 比對兩份快照，回傳有差異的 section 清單。
  * 突變自測走的就是本函式 —— 「護欄的護欄」必須驗證真正在用的那把尺。
  */
-export function diffGolden(actual: unknown, expected: unknown): SectionDiff[] {
+export function diffGolden(
+  actual: unknown,
+  expected: unknown,
+  sections: string[] = SECTION_NAMES,
+): SectionDiff[] {
   const a = actual as Record<string, unknown>;
   const b = expected as Record<string, unknown>;
   const out: SectionDiff[] = [];
-  for (const name of ["meta", ...SECTION_NAMES]) {
+  for (const name of ["meta", ...sections]) {
     const av = JSON.stringify(a?.[name]);
     const bv = JSON.stringify(b?.[name]);
     if (av !== bv) out.push({ section: name, reason: firstDiffHint(av, bv) });

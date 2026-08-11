@@ -182,7 +182,10 @@ myNewLayer: [
    這個突變在測試裡驗不出來（每次 capture 都是全新 mount）。
 
 **驗收**：`npx tsc -b` ＋ `npx vitest run`，且 `src/data/__tests__/__fixtures__/layer-golden.json`
-**必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
+的**既有層那幾行必須逐位元不變**（新層是新增 key，只有新 key 那幾行會動；既有層的任何 diff 都是回歸）。
+⚠️ AR-22 Phase 4 起該 fixture 只凍 3 個 section（`overlays` / `params` / `gisLayers`）——
+另外 9 個已被 `layerManifest.test.ts` 逐 key 焊死，凍第二份只是 churn。
+新層要更新 fixture：`npx vite-node scripts/preprocess/dump-layer-golden.ts` 後 `git diff` 逐行 review。
 
 **規模經濟**：殯葬 5 層與教育 16 層兩次實測都落在同一 14 個檔案——多層共用同一批基礎設施檔案（layerCatalog／App.tsx／useMapInteraction 等）只需改一次，per-layer 邊際成本主要落在 #1-6、#11-15（型別／loader／hook／registry／params／legend／popup）。
 

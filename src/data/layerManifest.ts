@@ -22,8 +22,10 @@
 //     expandable / gated / upstream
 //   僅宣告（Phase 3 才接線，但已有測試釘住宣告與現況一致）：
 //     section / dataClass / source / legend / popup / params
-//   等價證明：src/data/__tests__/layerGoldenSnapshot.test.ts 必須全綠
-//     —— 搬移零失真才算數。
+//   等價證明（搬移期）：src/data/__tests__/layerGoldenSnapshot.test.ts 必須全綠
+//     —— 搬移零失真才算數。⚠️ Phase 4 起該 fixture 只凍 3 個 section
+//     （overlays / params / gisLayers）；已派生欄位改由 layerManifest.test.ts
+//     逐 key 焊死，理由見 layerGoldenExtract.ts 的 FIXTURE_SECTIONS。
 //
 // ⚠️ import 方向：本檔只能 import `../types`、lucide-react，以及**零 import 的純色票
 //    常數檔**（religionTypes / funeralTypes 等，見下方色票規約）。

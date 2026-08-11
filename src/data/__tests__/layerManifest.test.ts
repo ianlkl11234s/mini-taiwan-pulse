@@ -5,7 +5,13 @@
  * manifest 有兩種欄位，各需要不同的保護：
  *
  *   已派生（color / icon / label / labelMobile / expandable / gated / upstream）
- *     → 由 layerGoldenSnapshot 保護：改壞了快照立刻紅。
+ *     → 由**本檔下方「已派生欄位真的在驅動下游表」那組斷言**保護：
+ *       manifest 的值與 LAYER_COLORS / LAYER_ICONS / THEMES / UPSTREAM_REGISTRY
+ *       逐 key 相等，改壞任一邊立刻紅。
+ *       ⚠️ AR-22 Phase 4 前這句寫的是「由 layerGoldenSnapshot 保護」——
+ *       那 9 個 section 已於 Phase 4 移出 fixture，理由正是「本檔已經逐 key 焊死，
+ *       凍第二份只是每加一層就得重跑 REGEN 的 churn」（見 layerGoldenExtract.ts
+ *       的 FIXTURE_SECTIONS）。**保護沒有減少，是去掉了重複的那一份。**
  *
  *   僅宣告（section / dataClass / source / legend / popup / params）
  *     → Phase 3-4 才接線。**在接線之前它們就只是註解** —— 沒人驗證的宣告會在
