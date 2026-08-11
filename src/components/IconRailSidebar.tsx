@@ -32,8 +32,7 @@ import {
   Ban,
   // 環境污染 icons
   Biohazard,
-  // 🎭 CULTURE icons（Building2 / CalendarDays 已 import 復用）
-  Landmark, Theater, Library,
+  Landmark,
   // 🧳 TOURISM icons（Mountain / Factory 已 import 復用）
   Camera, ThermometerSun, Castle, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
   // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot / Map 已 import 復用；
@@ -222,12 +221,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   sportsPrivate: Activity,
   sportsPark: Trees,
   sportsCenter: Building2,
-  // 🎭 文化 Culture
-  culturalFacilities: Landmark,
-  culturalMuseums: Building2,
-  artsEvents: CalendarDays,
-  performingVenues: Theater,
-  librarySeats: Library,
+  // 🎭 文化 Culture 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // 🧳 觀光 Tourism
   tourAttractions: Camera,
   tourHotSprings: Droplets,

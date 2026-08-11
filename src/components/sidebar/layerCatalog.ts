@@ -193,11 +193,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   sportsPrivate: "#ef6c00",
   sportsPark: "#66bb6a",
   sportsCenter: "#ec407a",
-  culturalFacilities: "#ef8a3c",
-  culturalMuseums: "#b5651d",
-  artsEvents: "#4d9de0",
-  performingVenues: "#7c4dff",
-  librarySeats: "#22c55e",
   // 🧳 觀光 Tourism
   tourAttractions: "#e65100",
   tourHotSprings: "#d81b60",
@@ -884,21 +879,21 @@ export const THEMES: ThemeDef[] = [
       {
         title: "設施 Facilities",
         layers: [
-          { key: "culturalFacilities", label: "文化設施 Cultural Facilities", labelMobile: "文化設施", expandable: true },
-          { key: "culturalMuseums", label: "地方文化館 Local Museums", labelMobile: "地方文化館", expandable: true },
+          fromManifest("culturalFacilities"),
+          fromManifest("culturalMuseums"),
         ],
       },
       {
         title: "藝文活動 Arts & Events",
         layers: [
-          { key: "artsEvents", label: "藝文活動 Arts Events", labelMobile: "藝文活動", expandable: true },
-          { key: "performingVenues", label: "表演場館 Performing Venues", labelMobile: "表演場館", expandable: true },
+          fromManifest("artsEvents"),
+          fromManifest("performingVenues"),
         ],
       },
       {
         title: "即時 Realtime",
         layers: [
-          { key: "librarySeats", label: "圖書館即時座位 Library Seats", labelMobile: "圖書館座位", expandable: true },
+          fromManifest("librarySeats"),
         ],
       },
     ],

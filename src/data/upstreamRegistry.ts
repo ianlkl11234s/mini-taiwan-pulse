@@ -575,16 +575,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   sportsPrivate: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsPark: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
   sportsCenter: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
-  // 🎭 文化 Culture（上游 handoff: taipei-gis-analytics/docs/handoff/culture-layers.md；catalog: docs/data-catalog/culture/）
-  culturalFacilities: { status: 'verified', datasets: [{ datasetId: 'cultural_facilities_moc', confidence: 'HIGH' }], note: '文化設施全國 787 點（MOC 文化資料開放平台，docs/data-catalog/culture/cultural_facilities_moc.md）' },
-  culturalMuseums: { status: 'verified', datasets: [{ datasetId: 'local_cultural_museums_moc', confidence: 'HIGH' }], note: '地方文化館全國 252 點（MOC，docs/data-catalog/culture/local_cultural_museums_moc.md）' },
-  artsEvents: { status: 'verified', datasets: [{ datasetId: 'arts_events_moc', confidence: 'HIGH' }], note: '藝文活動全國 6,121 點（MOC，docs/data-catalog/culture/arts_events_moc.md）' },
-  performingVenues: { status: 'verified', datasets: [{ datasetId: 'performing_venues_moc', confidence: 'HIGH' }], note: '表演場館全國 857 點（MOC，docs/data-catalog/culture/performing_venues_moc.md）' },
-  librarySeats: {
-    status: 'pulse_only',
-    datasets: [],
-    note: '北市圖 6 分館即時座位 RPC（get_tpml_seat_current / 24h，realtime）已 apply 到 production（gis-platform migration 290/291）；29 閱覽區聚合成 6 marker，10min 資料/5min 輪詢。catalog dataset 條目待補（handoff pending，見 taipei-gis-analytics/docs/handoff/culture-layers.md）',
-  },
+  // 🎭 文化 Culture 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
+  //    上游 handoff: taipei-gis-analytics/docs/handoff/culture-layers.md；catalog: docs/data-catalog/culture/
   // 🧳 觀光 Tourism（12 layer，docs/data-catalog/tourism/）
   tourAttractions: { status: 'verified', datasets: [{ datasetId: 'attraction', confidence: 'HIGH' }], note: '觀光景點全國 ~6,070 點（docs/data-catalog/tourism/attraction.md）' },
   tourHotSprings: { status: 'verified', datasets: [{ datasetId: 'hot_spring', confidence: 'HIGH' }], note: '溫泉露頭全國 150 點（docs/data-catalog/tourism/hot_spring.md）' },

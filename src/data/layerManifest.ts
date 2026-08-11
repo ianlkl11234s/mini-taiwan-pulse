@@ -43,6 +43,7 @@ import {
   Video, Radio, LandPlot, TrainFront, Factory,
   Church, Landmark, HeartHandshake, Sparkles, Camera,
   Cross, Briefcase, Flower, Grid3x3,
+  Building2, CalendarDays, Theater, Library,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -557,6 +558,123 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "禮儀業者區級密度面量圖 325 區（⚠️ 是登記地家數，非服務涵蓋率）",
     topics: ["殯葬", "密度分析"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 1 —— 文化 Culture 5 層
+  //  與宗教/殯葬相反的形狀：5 個 key **各自獨佔**一份圖例（legend id = 自己的 key），
+  //  color 是 layerCatalog 的字面 hex（沒有外部色票常數）。
+  //  批 1 唯一的 dataClass C：librarySeats 走 Supabase RPC 動態餵資料。
+  //  上游 handoff: taipei-gis-analytics/docs/handoff/culture-layers.md
+  // ══════════════════════════════════════════════════════════════
+  culturalFacilities: {
+    key: "culturalFacilities",
+    section: { theme: "文化 Culture", group: "設施 Facilities" },
+    label: "文化設施 Cultural Facilities",
+    labelMobile: "文化設施",
+    expandable: true,
+    color: "#ef8a3c",
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cultural_facilities_moc", confidence: "HIGH" }],
+      note: "文化設施全國 787 點（MOC 文化資料開放平台，docs/data-catalog/culture/cultural_facilities_moc.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "culture-facilities", url: "./culture/cultural_facilities_national.geojson" },
+    legend: "culturalFacilities",
+    popup: "culturalFacilities",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "文化部文化設施全國 787 點（類型分色）",
+    topics: ["文化", "公共設施"],
+  },
+
+  culturalMuseums: {
+    key: "culturalMuseums",
+    section: { theme: "文化 Culture", group: "設施 Facilities" },
+    label: "地方文化館 Local Museums",
+    labelMobile: "地方文化館",
+    expandable: true,
+    color: "#b5651d",
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "local_cultural_museums_moc", confidence: "HIGH" }],
+      note: "地方文化館全國 252 點（MOC，docs/data-catalog/culture/local_cultural_museums_moc.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "culture-museums", url: "./culture/local_cultural_museums_national.geojson" },
+    legend: "culturalMuseums",
+    popup: "culturalMuseums",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "地方文化館全國 252 點（社區型小型館舍，與文化設施分開計）",
+    topics: ["文化", "館舍"],
+  },
+
+  artsEvents: {
+    key: "artsEvents",
+    section: { theme: "文化 Culture", group: "藝文活動 Arts & Events" },
+    label: "藝文活動 Arts Events",
+    labelMobile: "藝文活動",
+    expandable: true,
+    color: "#4d9de0",
+    icon: CalendarDays,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "arts_events_moc", confidence: "HIGH" }],
+      note: "藝文活動全國 6,121 點（MOC，docs/data-catalog/culture/arts_events_moc.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "culture-events", url: "./culture/arts_events_national.geojson" },
+    legend: "artsEvents",
+    popup: "artsEvents",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "文化部藝文活動全國 6,121 場（含展演期間，overlay filter 依當日篩選）",
+    topics: ["文化", "活動", "展演"],
+  },
+
+  performingVenues: {
+    key: "performingVenues",
+    section: { theme: "文化 Culture", group: "藝文活動 Arts & Events" },
+    label: "表演場館 Performing Venues",
+    labelMobile: "表演場館",
+    expandable: true,
+    color: "#7c4dff",
+    icon: Theater,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "performing_venues_moc", confidence: "HIGH" }],
+      note: "表演場館全國 857 點（MOC，docs/data-catalog/culture/performing_venues_moc.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "culture-venues", url: "./culture/performing_venues_national.geojson" },
+    legend: "performingVenues",
+    popup: "performingVenues",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "表演場館全國 857 點（劇場／音樂廳／展演空間）",
+    topics: ["文化", "展演", "場館"],
+  },
+
+  // 批 1 唯一 dataClass C：dynamicData 空 FeatureCollection 起手，loader 輪詢 RPC 餵入
+  librarySeats: {
+    key: "librarySeats",
+    section: { theme: "文化 Culture", group: "即時 Realtime" },
+    label: "圖書館即時座位 Library Seats",
+    labelMobile: "圖書館座位",
+    expandable: true,
+    color: "#22c55e",
+    icon: Library,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "北市圖 6 分館即時座位 RPC（get_tpml_seat_current / 24h，realtime）已 apply 到 production（gis-platform migration 290/291）；29 閱覽區聚合成 6 marker，10min 資料/5min 輪詢。catalog dataset 條目待補（handoff pending，見 taipei-gis-analytics/docs/handoff/culture-layers.md）",
+    },
+    dataClass: "C",
+    source: { kind: "supabase", sourceId: "library-seats", fallbackUrl: "./geo/_empty.geojson" },
+    legend: "librarySeats",
+    popup: "librarySeats",
+    params: { count: 1, kinds: ["slider"] },
+    description: "北市圖 6 分館即時空位率（29 閱覽區聚合，10 分鐘資料／5 分鐘輪詢）",
+    topics: ["文化", "圖書館", "即時"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
