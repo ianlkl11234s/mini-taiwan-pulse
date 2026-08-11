@@ -1723,3 +1723,171 @@ deps 項 ／ 孤兒區塊註解與孤兒 import。
 4. **共用 slot 的護欄已經完整**：閘 2（已遷移的 name/out 不得留在舊檔）
    會在你只搬一半時立刻紅，不必再靠人工判斷。新增 fall-through 群組時
    只要照 `sharedGroup` 宣告即可，閘 1 會檢查同群規格逐欄位相同。
+
+---
+
+## 2026-08-12 — Phase 3 第四棒（P3-2C）：C 桶 32 key 出 useTransportParams（C 桶清空）
+
+`aa84bc3` `feat(params): C 桶兩個 schema 欄 labelSuffix ＋ encodeNumeric（P3-2C 第 1 步）`
+`4893b9b` `refactor(params): P3-2C 群1 遷移 14 key（labelSuffix ／ 整數內插）`
+`e082b67` `refactor(params): P3-2C 群2 遷移 16 key（encodeNumeric／條件式 label／動態 select）`
+`1f360a7` `refactor(params): P3-2C 群3 遷移 2 key（條件式顯示 ＋ 選項停用）＝ C 桶清空`
+
+形狀例外棒。P3-2B 盤的 **C 桶 32 key 全部搬完，一個未退**。
+剩下的 79 個 case ＝ **D 74 ＋ emptyByDesign 5**，恰好對得上 P3-2B 的分桶表。
+
+### 驗收（每群都跑）
+
+| 項 | 結果 |
+|---|---|
+| `layer-golden.json` | 三群**全部零 diff**；sha256 `07972fce…` 從 `eabd1ef` 到 `1f360a7` 一位元未變 |
+| `npx tsc -b` | 0 error（每群） |
+| `npx vitest run` | 42 檔 **546 passed / 1 skipped**（534 基準 ＋ 12） |
+| `useTransportParams.ts` | 1,438 → **945** 行（−493，−34.3%） |
+| `useState` | 223 → **126**（−97） |
+| `case` | 111 → **79**（−32） |
+| overlayParams deps | 119 → **22**（−97） |
+| `LAYER_PARAMS_SPEC` | 230 → **262** key |
+
+### 新增的 schema 欄（7 個，全部選填、全部是資料不是函式）
+
+前兩欄是任務書指定的獨立第一步（`aa84bc3`，既有 230 key 零波及、快照零 diff
+證明）；後五欄各自落在**第一個用到它的** commit 群裡。
+
+| 欄 | 解幾個 key | 為什麼現有欄位不夠 |
+|---|---|---|
+| `SliderParamSpec.labelSuffix` | 14 | 數字**後面**還有字（`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）。硬塞進 `labelPrefix` 會產生「編得過但少了 px」的漂移 |
+| `SelectParamSpec.encodeNumeric` | 8 | overlayParams 吃 `Number(value)` 而非索引。宣告後 `encode` 型別上**互斥**（留著死的 encode 正是本專案反覆記錄的那類漂移）|
+| `SliderParamSpec.labelSep` | 1（`facPrimary` 的 1 個參數）| `大廠（即時）1.30` 全形括號後**沒有空白**；`labelPrefix` 一律補一格、`labelSuffix` 在另一側 |
+| `SliderParamSpec.zeroLabel` | 2（`powerPoles` `osmRoadDrive` 共 3 個參數）| `${x === 0 ? "關" : x.toFixed(2)}` 是**值相依**文字，前後綴都是常數字串 |
+| `SelectParamSpecBase.labelByValue` | 8 | label 隨自己的值變（240px 面板收合時看不到選中項）|
+| `ConditionalField.showWhen` | 2 | 手寫版 `...(cond ? [控件] : [])` —— 控件**在不在**取決於值，靜態陣列表達不了 |
+| `SelectParamSpecBase.disableRule` | 1 | `SelectConfig.disabled` 全 repo 唯一用例：可用與否 ＋ label 原因後綴取決於**另一個參數**的值 |
+
+⚠️ **一個都不是函式**。規格檔至今零函式，那是它能被黃金快照與焊接測試當成
+「獨立第二意見」的前提。`disableRule` 刻意沒做成 `optionsFrom: (values) => …`
+—— 真出現第二個形狀不同的 case，那才是該一般化的訊號。
+
+⚠️ `disableRule.enabledWhenIn` 從上游 SSOT 推導
+（`PROPERTY_VALUE_SCALES.filter((sc) => sc.hasPop)`）而不是手抄 `["1","2"]`
+—— 上游改 `hasPop` 時才不會靜默不同步。
+
+### ⚠️ 焊接測試改比「預設值下可見的控件」，不是 `spec.length`
+
+`propertyValueGrid` 宣告 6 個控件、manifest 記 `count: 4`；`buildingsGba` 宣告 4、
+manifest 記 3。**manifest 沒錯** —— 它的 count 是 Phase 1 **實跑 getControls**
+抽出來的，本來就只看得到預設分支。所以焊接改比
+`visibleParamsSpec(spec, defaults)`：**不是放寬，是同一個語意算對**。
+
+渲染器與焊接測試**共用同一支** `visibleParamsSpec`（各寫一份必漂移）。
+另加一條「`showWhen` 只准參照同 key 自己的參數」—— 跨 key 條件會讓
+「一個 key 的 spec 自足」破功，`count`/`kinds` 也不再對得回 manifest。
+
+### ⚠️ `showWhen` 只擋渲染、**不擋編碼**（突變自測抓到快照的新盲區）
+
+收合中的 `propertyValueGridContrast` / `buildingsGbaBloomMinHeight` 照樣要進
+overlayParams —— 手寫版是**無條件**寫進那個 useMemo 字面的。
+
+突變 (i)「`encodeParamsToOverlay` 也吃 `showWhen`」**黃金快照沒紅**，
+只有本棒新增的兩條專屬斷言紅。paint 求值在缺欄位時沒有產生可見差異 ——
+這與「D 桶目前沒有任何閘」是同一個道理：**快照涵蓋不到的通道必須有專屬斷言**。
+
+### 三個「預設值下看不出來」的等價陷阱（本棒新增行為測試擋）
+
+1. **`encodeNumeric` vs 索引編碼在預設值碰巧相等**：`floodMinDepth` 預設 `"0"`
+   → `Number("0") === indexOf("0") === 0`。抄成 `encode` 版的話「≥0.5m」會餵
+   **1**（＝「≥1m」的意思）給 paint —— 篩選整個錯掉、畫面照樣有東西、無錯誤訊息。
+   → 補「換到 `"0.5"` 要得到 0.5」的斷言。
+2. **條件式控件在快照裡永遠是收合的**：`showWhen` 寫錯條件（永遠展不開）
+   不會有任何閘紅。→ 補「3D 打開後 6 個控件且順序不變」「夜景模式展開 Bloom 門檻」。
+3. **`disableRule` 的解除那一面**：預設 150m 尺度**就是**停用狀態（快照涵蓋），
+   反而是「換到 450m 要解除停用、label 原因後綴消失」沒人驗。→ 補一條。
+
+突變自測共四輪，全部還原後綠：
+
+| 突變 | 結果 |
+|---|---|
+| 群2：同時打三個（encodeNumeric 退化成索引 ／ 忽略 `labelSep` ／ 忽略 `labelByValue`）| 6 條紅（快照 params ＋ overlays ＋ 逐位元，加對應 3 條行為）|
+| (i) `encodeParamsToOverlay` 也吃 `showWhen` | 2 條紅（**黃金快照沒紅**，見上）|
+| (ii) 拿掉 `propertyValueGridElevationScale` 的 `showWhen` | 6 條紅（快照 params ＋ 逐位元、`layerManifest` params 宣告、焊接 count、2 條行為）|
+| (iii) `disableRule.enabledWhenIn` 改成全部可用 | 3 條紅（快照 params ＋ 逐位元、disableRule 行為）|
+
+### 「整數內插」寫成 `digits: 0` 的等價論證
+
+原文 `` `保留 ${x} min` `` / `` `粒子數 ${x}` `` / `` `高度門檻 ≥ ${x} m` ``
+都沒有 `.toFixed`。這幾個控件的 min/max/step/default **全是整數**
+（保留 5→360 step 5、粒子數 2000→50000 step 1000、高度門檻 0→100 step 5），
+滑桿產不出小數 → `x.toFixed(0)` 與 `${x}` 對**所有可達值**逐字相同。
+日後有人把 step 改成小數會讓字串從 `"7.5"` 變 `"8"` —— 那是行為變更、
+黃金快照會紅，不是靜默漂移。
+
+### ⚠️ 退回 D 的 4 個 key（P3-2A 的清單已過時，P3-2B 的分桶表才對）
+
+任務書引用的是 P3-2A 那份「退回 20」的清單，其中 4 個經機械觸點複驗屬 **D**：
+
+| key | 觸點 |
+|---|---|
+| `flights` | `altExagRef` / `altOffsetRef` / `staticOpacityRef` / `orbScaleRef` |
+| `ships` | `shipOrbScaleRef` / `shipTrailOpacityRef` ＋ hook return |
+| `busLive` | `busColorModeRef` / `busAltOffsetRef` / `busOrbScaleRef` ＋ `Record<BusGroup, boolean>` |
+| `fireStations` | `fireStationsScaleRef` / `fireStationsOpacityRef` / `fireStations3DRef` |
+
+⚠️ 這 4 個在 P3-2B 的重新分桶裡**早就記在 D**，所以總數對得起來
+（C 32 ＝ 本棒實搬 32）。**之後一律以 P3-2B 的分桶表為準，別再引用 P3-2A 的清單。**
+
+⚠️ 觸點腳本踩到的坑：只用「行號分區」判 `decl` / `case` / `overlay-*` 會把
+ref-sync 那幾行（`altExagRef.current = altExaggeration`，位置在 overlayParams
+**之前**）誤判成 `decl` → `flights` 一度被判成乾淨的 C。**ref 名與變數名還不一定
+同名**（`altExaggeration` → `altExagRef`），所以要另外錨定 `\bRef\.current\s*=`
+與 `= useRef(` 兩種行，不能只掃變數名。
+
+### 遷移腳本（不手改）與它的兩個坑
+
+case 群組 ／ useState 宣告 ／ overlayParams 屬性 ／ deps 項 ／ 孤兒區塊註解
+五處嚴格解析，對不上就 abort。實際被 abort 擋下兩次：
+
+1. **行尾註解**：`const [osmRoadDriveZ5Reveal, …] = useState(0); // 0=z<8 隱形`
+   —— 「單行宣告必須以 `;` 結尾」的檢查誤判。剝掉行尾註解後放行（那段註解
+   本來就是這個宣告的，一起走）。
+2. **out key 與變數不同名**：`policeIsoSubstationMode_drive:
+   policeIsoSubstationMode === "drive" ? 1 : 0` —— 只掃變數名刪不掉這個**屬性**。
+   殘留檢查攔住了但不會自己修 → 腳本改成同時吃「變數名」與「overlayParams 屬性名」
+   兩份清單。
+
+⚠️ **孤兒註解的判準（第一版寫錯，誤刪 40+ 行）**：
+正解是「這段連續註解**擁有**的宣告（它後面到空行／下一段註解為止的連續非註解行）
+是否全被刪」。第一版寫成「下一個非空行也是註解就刪」，會把
+「標題註解 ＋ 說明註解」這種多行區塊、以及純粹標示下一節的區段標題一起殺掉。
+擁有 0 行的（後面直接是空行或另一段註解）一律**保留**（保守側）。
+
+### ⚠️ 三條測試改了「未遷移 key」的例子：`cctv` → `aqiStations`
+
+`layerParamsControls` / `layerParamsStore` 各有斷言拿 `cctv` 當「未遷移」的代表，
+本棒把它搬走就紅了。改用 `aqiStations`（`case "x": return []` 的 emptyByDesign 層）
+—— 規格檔沒有「宣告了但空陣列」這種形狀，它**永遠**不會被遷走。
+（同 `sharedGroup` 哨兵門檻那條的精神：斷言不該隨遷移進度過時。）
+
+### 剩餘 79 個 case 的現況分佈（給 P3-2D）
+
+| 桶 | key | 內容 |
+|---|---|---|
+| **D** | 74 | 觸點含 `ref` ／ `return-obj`。建議切 **D1 hook return 導出**（便宜、量大）與 **D2 Three.js ref／子物件**（貴）|
+| `emptyByDesign` | 5 | `windPlan` `submarineCables` `landingStations` `activeFaults` `aqiStations` |
+| **合計** | **79** | ＝ 111 − 32 |
+
+### 給 P3-2D 的四件事
+
+1. **先補「hook return 物件逐欄位等值」的行為測試再動手** —— 這是 P3-2B 就交代、
+   本棒再次**實測證實**的一條：突變 (i) 證明**黃金快照對「值有沒有進第二條通道」
+   是瞎的**。D 桶整桶走的就是那條通道，沒有這道閘就搬，會重演 P3-2A 的「全綠但壞掉」。
+2. **`indicators` / `socioeconomic` / `spatialEconomy` 三兄弟仍是 D，不是 C**
+   —— 它們的 category/metric 同時進 overlayParams **與** `indicatorsParams` /
+   `socioParams` / `spatialParams` 三個獨立回傳物件。級聯 onChange（改 category
+   要重設 metric）是**寫入時的副作用**，規格要新增「set 這個參數時連帶重設哪些」
+   的宣告 —— 那一欄本棒**刻意沒開**，因為第 1 點那道閘還不存在。
+3. **`showWhen` 的機制可以直接複用**，但注意它只擋渲染不擋編碼。D 桶若出現
+   「隱藏時連值都不該外溢」的形狀，那是**另一件事**，別把 `showWhen` 擴義 ——
+   照 P3-2B 對 `sharedGroup` 的告誡：別為了複用而放寬語意。
+4. **`labelSep` / `zeroLabel` / `labelByValue` / `disableRule` 各只有 1-8 個使用者**，
+   刻意做得窄。D 桶若遇到形狀相近但不完全一樣的 label，先問「是不是同一件事」
+   再決定複用或新增 —— 窄欄位就是為了讓「不一樣」在型別上顯性化。
