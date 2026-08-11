@@ -40,6 +40,8 @@ import {
 import {
   FUNERAL_FACILITY_TYPES, OPERATOR_STATUS_MODES, PRECISION_MODES,
 } from "./funeralTypes";
+import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
+import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -775,6 +777,83 @@ export const LAYER_PARAMS_SPEC = {
   tourRestaurants: [
     opacitySlider("tourRestaurantsOpacity", 0.85),
     scaleSlider("tourRestaurantsScale", 1),
+  ],
+
+  // ══════════ 交通站點・等時圈・都市熱島・教育 18 層（fall-through 共用 slot 首批） ══════════
+  busStationsCity: [
+    { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+  ],
+  busStationsIntercity: [
+    { kind: "slider", name: "busScale", labelPrefix: "Bus", digits: 1, default: 0.4, min: 0.3, max: 3, step: 0.1, sharedGroup: "busScale" },
+  ],
+  fireIsochrone: [
+    {
+      kind: "select", name: "fireIsochroneCounty", label: "縣市", default: "all",
+      options: FIRE_ISOCHRONE_COUNTY_OPTIONS,
+      out: "fireIsochroneCountyIdx", encode: FIRE_ISOCHRONE_COUNTY_OPTIONS.map((o) => o.value),
+    },
+    { kind: "slider", name: "fireIsochroneOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 0.9, step: 0.05 },
+  ],
+  medIsochrone: [
+    { kind: "slider", name: "medIsochroneOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 0.9, step: 0.05, sharedGroup: "medIsochroneOpacity" },
+  ],
+  medDesert: [
+    { kind: "slider", name: "medIsochroneOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 0.9, step: 0.05, sharedGroup: "medIsochroneOpacity" },
+  ],
+  urbanHeat: [
+    {
+      kind: "select", name: "urbanHeatModeIdx", label: "顯示", default: "0",
+      options: URBAN_HEAT_MODES.map((m) => ({ label: m.label, value: m.value })),
+      out: "urbanHeatModeIdx", encode: URBAN_HEAT_MODES.map((o) => o.value),
+    },
+    { kind: "slider", name: "urbanHeatOpacity", labelPrefix: "透明度", digits: 2, default: 0.75, min: 0.2, max: 1, step: 0.05 },
+  ],
+  schools: [
+    { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+    { kind: "toggle", name: "schoolLevelColor", label: "分級配色", default: false },
+  ],
+  eduSchoolElementary: [
+    { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+  ],
+  eduSchoolJunior: [
+    { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+  ],
+  eduSchoolSenior: [
+    { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+  ],
+  eduSchoolUniversity: [
+    { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+  ],
+  eduSchoolSpecial: [
+    { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+  ],
+  eduRemoteSchools: [
+    { kind: "slider", name: "eduSchoolsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduSchoolsOpacity" },
+    { kind: "slider", name: "schoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "schoolScale" },
+  ],
+  eduDistrictElementary: [
+    { kind: "slider", name: "eduDistrictK12Opacity", labelPrefix: "透明度", digits: 2, default: 0.3, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduDistrictK12Opacity" },
+  ],
+  eduDistrictJunior: [
+    { kind: "slider", name: "eduDistrictK12Opacity", labelPrefix: "透明度", digits: 2, default: 0.3, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduDistrictK12Opacity" },
+  ],
+  eduKindergarten: [
+    { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+  ],
+  eduAfterschoolCare: [
+    { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+  ],
+  eduMutualCare: [
+    { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
+    { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
   ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
