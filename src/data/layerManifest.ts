@@ -42,10 +42,12 @@ import type { LucideIcon } from "lucide-react";
 import {
   Video, Radio, LandPlot, TrainFront, Factory,
   Church, Landmark, HeartHandshake, Sparkles, Camera,
+  Cross, Briefcase, Flower, Grid3x3,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
+import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -427,6 +429,134 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "內政部宗教百景 100 處精選（2026-08 由 tourReligion 更名歸位）",
     topics: ["宗教", "觀光", "精選"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 1 —— 殯葬 Funeral 5 層
+  //  同構家族：一個 legend 元件涵蓋 5 個 key（id 取首個 key "funeralFacilities"），
+  //  color 全部引用 FUNERAL_LAYER_COLORS。
+  //  🔴 A/B/C 三源刻意不整合（2026-08-05 拍板）：A 官方名冊 OGDL、B OSM ODbL、
+  //     C 都計 OGDL —— 授權與母體都不同，合併會產生一份誰也無法追溯的東西。
+  // ══════════════════════════════════════════════════════════════
+  funeralFacilities: {
+    key: "funeralFacilities",
+    section: { theme: "殯葬 Funeral", group: "點位" },
+    label: "殯葬設施 Facilities",
+    labelMobile: "殯葬設施 (3,707)",
+    expandable: true,
+    color: FUNERAL_LAYER_COLORS.funeralFacilities,
+    icon: Cross,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "funeral_facilities_moi", confidence: "HIGH" }],
+      note: "A 源 設施 3,707 點（母體 4,145，438 筆無座標）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "funeral-facilities", url: "./funeral/funeral_facilities.geojson" },
+    legend: "funeralFacilities",
+    popup: "funeralFacilities",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "內政部殯葬設施名冊 3,707 點（殯儀館／火化場／納骨塔／公墓分類）",
+    topics: ["殯葬", "公共設施"],
+  },
+
+  funeralOperators: {
+    key: "funeralOperators",
+    section: { theme: "殯葬 Funeral", group: "點位" },
+    label: "禮儀業者 Operators",
+    labelMobile: "禮儀業者 (4,569 營業中)",
+    expandable: true,
+    color: FUNERAL_LAYER_COLORS.funeralOperators,
+    icon: Briefcase,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "funeral_operators_biz", confidence: "HIGH" }],
+      note: "A 源 禮儀業者 6,233 點（前端預設只畫 is_active=true 的 4,569）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "funeral-operators", url: "./funeral/funeral_operators.geojson" },
+    legend: "funeralFacilities",
+    popup: "funeralOperators",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "殯葬禮儀服務業 6,233 家登記地（預設只畫營業中 4,569）",
+    topics: ["殯葬", "商業登記"],
+  },
+
+  cemeteryOsm: {
+    key: "cemeteryOsm",
+    section: { theme: "殯葬 Funeral", group: "墓區範圍" },
+    label: "墓區範圍 OSM Cemeteries",
+    labelMobile: "墓區範圍 OSM (3,229)",
+    expandable: true,
+    color: FUNERAL_LAYER_COLORS.cemeteryOsm,
+    icon: Flower,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cemetery_osm", confidence: "HIGH" }],
+      note: "B 源 OSM 墓區 3,229 面（ODbL，僅 34.5% 有 name）",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "cemetery-osm",
+      url: "./funeral/cemetery_osm.pmtiles",
+      sourceLayer: "cemetery_osm",
+      minzoom: 6,
+      maxzoom: 14,
+    },
+    legend: "funeralFacilities",
+    popup: "cemeteryOsm",
+    params: { count: 1, kinds: ["slider"] },
+    description: "OSM 實地測繪墓區範圍 3,229 面（ODbL；僅 34.5% 有名稱）",
+    topics: ["殯葬", "OSM", "土地使用"],
+  },
+
+  cemeteryZoning: {
+    key: "cemeteryZoning",
+    section: { theme: "殯葬 Funeral", group: "墓區範圍" },
+    label: "都計墓葬用地 Zoning（北北）",
+    labelMobile: "都計墓葬用地 (114・僅北北)",
+    expandable: true,
+    color: FUNERAL_LAYER_COLORS.cemeteryZoning,
+    icon: LandPlot,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cemetery_zoning_urban", confidence: "HIGH" }],
+      note: "C 源 都計墓葬類法定用地 114 面（僅臺北 12＋新北 102）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "cemetery-zoning", url: "./funeral/cemetery_zoning.geojson" },
+    legend: "funeralFacilities",
+    popup: "cemeteryZoning",
+    params: { count: 1, kinds: ["slider"] },
+    description: "都市計畫墓葬類法定用地 114 面（僅臺北 12＋新北 102，非全國）",
+    topics: ["殯葬", "都市計畫", "土地使用"],
+  },
+
+  // 無 OVERLAY_REGISTRY entry → dataClass D：上游刻意不帶幾何（附面 48.9MB → 純數值 5.1KB），
+  // 由 hook 自行 join 既有的鄉鎮界 PMTiles。派生機制不適用，真實來源記在 source.note。
+  funeralOperatorDensity: {
+    key: "funeralOperatorDensity",
+    section: { theme: "殯葬 Funeral", group: "分析" },
+    label: "業者密度 Operator Density",
+    labelMobile: "業者密度 (325 區)",
+    expandable: true,
+    color: FUNERAL_LAYER_COLORS.funeralOperatorDensity,
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "funeral_operators_district", confidence: "HIGH" }],
+      note: "A 源 區級密度 325 區（無幾何，join base_map/township_boundary.pmtiles）",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFuneralDensityLayer 自行接線：純數值 JSON（TOWNCODE → 家數）join public/base_map/township_boundary.pmtiles，無自身幾何故無 OVERLAY_REGISTRY entry",
+    },
+    legend: "funeralFacilities",
+    popup: "funeralOperatorDensity",
+    params: { count: 1, kinds: ["slider"] },
+    description: "禮儀業者區級密度面量圖 325 區（⚠️ 是登記地家數，非服務涵蓋率）",
+    topics: ["殯葬", "密度分析"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

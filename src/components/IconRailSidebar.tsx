@@ -36,8 +36,6 @@ import {
   Landmark, Theater, Library,
   // 🧳 TOURISM icons（Mountain / Factory 已 import 復用）
   Camera, ThermometerSun, Castle, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
-  // ⚰️ FUNERAL icons（LandPlot / Grid3x3 已 import 復用）
-  Cross, Flower, Briefcase,
   // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot / Map 已 import 復用；
   // 幼托補習用已 import 的 BookOpen / Users / HeartHandshake，大專學生數 bubble 用 BarChart3）
   // Shapes 專給「高中就學區」—— 縣市級大面，與里級 k12 學區（Map）刻意用不同 icon 區隔粒度
@@ -243,12 +241,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   tourHotels: BedDouble,
   tourRestaurants: UtensilsCrossed,
   // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // ⚰️ 殯葬 Funeral
-  funeralFacilities: Cross,
-  funeralOperators: Briefcase,
-  funeralOperatorDensity: Grid3x3,
-  cemeteryOsm: Flower,
-  cemeteryZoning: LandPlot,
+  // ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // 🎓 教育 Education（總覽層 schools: GraduationCap 在上方，隨主題搬移但 key 不變）
   eduSchoolElementary: School,
   eduSchoolJunior: School,

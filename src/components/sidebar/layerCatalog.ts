@@ -27,7 +27,6 @@ import type { LayerVisibility, TransportType } from "../../types";
 
 // ── Color Config ──
 
-import { FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
 import { EDUCATION_LAYER_COLORS } from "../../data/educationTypes";
 import {
   LAYER_MANIFEST, manifestColors,
@@ -211,13 +210,13 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   tourCamping: "#7cb342",
   tourHotels: "#1976d2",
   tourRestaurants: "#c62828",
-  // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）——
-  //    色票 SSOT 仍是 religionTypes.ts RELIGION_LAYER_COLORS，manifest 的 color 欄
-  //    直接引用它。⚠️ spread **不觸發 excess property check**，所以這裡若留著
-  //    `...RELIGION_LAYER_COLORS`，tsc / 黃金快照 / 契約測試會全綠但登記沒真搬走
-  //    （manifest 後蓋、值又相同）→ 必須整行刪掉，這是雙軌護欄唯一擋不到的漏法。
-  // ⚰️ 殯葬 Funeral（色票 SSOT = funeralTypes.ts FUNERAL_LAYER_COLORS）
-  ...FUNERAL_LAYER_COLORS,
+  // 🛕 宗教 Religion 6 層 / ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest
+  //    （AR-22 Phase 2 批 1）—— 色票 SSOT 仍是 religionTypes.ts / funeralTypes.ts
+  //    的 *_LAYER_COLORS，manifest 的 color 欄直接引用它們。
+  //    ⚠️ spread **不觸發 excess property check**，所以這裡若留著
+  //    `...RELIGION_LAYER_COLORS` / `...FUNERAL_LAYER_COLORS`，tsc / 黃金快照 /
+  //    契約測試會全綠但登記沒真搬走（manifest 後蓋、值又相同）→ 必須整行刪掉。
+  //    這是雙軌護欄唯一擋不到的漏法，後續批次搬 EDUCATION_LAYER_COLORS 時同理。
   // 🎓 教育 Education（色票 SSOT = educationTypes.ts EDUCATION_LAYER_COLORS；
   //    總覽層 schools 沿用既有 #42a5f5，仍列在上方不搬）
   ...EDUCATION_LAYER_COLORS,
@@ -945,21 +944,21 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "funeralFacilities", label: "殯葬設施 Facilities", labelMobile: "殯葬設施 (3,707)", expandable: true },
-          { key: "funeralOperators", label: "禮儀業者 Operators", labelMobile: "禮儀業者 (4,569 營業中)", expandable: true },
+          fromManifest("funeralFacilities"),
+          fromManifest("funeralOperators"),
         ],
       },
       {
         title: "墓區範圍",
         layers: [
-          { key: "cemeteryOsm", label: "墓區範圍 OSM Cemeteries", labelMobile: "墓區範圍 OSM (3,229)", expandable: true },
-          { key: "cemeteryZoning", label: "都計墓葬用地 Zoning（北北）", labelMobile: "都計墓葬用地 (114・僅北北)", expandable: true },
+          fromManifest("cemeteryOsm"),
+          fromManifest("cemeteryZoning"),
         ],
       },
       {
         title: "分析",
         layers: [
-          { key: "funeralOperatorDensity", label: "業者密度 Operator Density", labelMobile: "業者密度 (325 區)", expandable: true },
+          fromManifest("funeralOperatorDensity"),
         ],
       },
     ],

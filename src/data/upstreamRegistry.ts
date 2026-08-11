@@ -600,13 +600,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   //    （AR-22 Phase 2 批 1；含 religionTop100 —— 2026-08-02 上游自 tourism.religion
   //     搬移歸位為 religion.top100，key 同步由 tourReligion 更名）
 
-  // ⚰️ 殯葬 Funeral 5 layer（docs/data-catalog/funeral/）
-  // 🔴 A/B/C 三源分開不整合（2026-08-05 拍板）：A 官方名冊 OGDL、B OSM ODbL、C 都計 OGDL
-  funeralFacilities: { status: 'verified', datasets: [{ datasetId: 'funeral_facilities_moi', confidence: 'HIGH' }], note: 'A 源 設施 3,707 點（母體 4,145，438 筆無座標）' },
-  funeralOperators: { status: 'verified', datasets: [{ datasetId: 'funeral_operators_biz', confidence: 'HIGH' }], note: 'A 源 禮儀業者 6,233 點（前端預設只畫 is_active=true 的 4,569）' },
-  funeralOperatorDensity: { status: 'verified', datasets: [{ datasetId: 'funeral_operators_district', confidence: 'HIGH' }], note: 'A 源 區級密度 325 區（無幾何，join base_map/township_boundary.pmtiles）' },
-  cemeteryOsm: { status: 'verified', datasets: [{ datasetId: 'cemetery_osm', confidence: 'HIGH' }], note: 'B 源 OSM 墓區 3,229 面（ODbL，僅 34.5% 有 name）' },
-  cemeteryZoning: { status: 'verified', datasets: [{ datasetId: 'cemetery_zoning_urban', confidence: 'HIGH' }], note: 'C 源 都計墓葬類法定用地 114 面（僅臺北 12＋新北 102）' },
+  // ⚰️ 殯葬 Funeral 5 layer（docs/data-catalog/funeral/）已搬進 layerManifest
+  //    （AR-22 Phase 2 批 1）—— A/B/C 三源分開不整合的拍板脈絡隨 entry 一起搬過去
 
   // 🎓 教育 Education（第 38 主題，docs/data-catalog/education/）
   // 總覽層 `schools` 在本檔上方（保留原 z-order）；以下 5 個學制層 + 偏遠層與它共用
