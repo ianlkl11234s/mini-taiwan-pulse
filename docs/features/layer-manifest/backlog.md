@@ -15,7 +15,7 @@
 | 批 | 主題 | 層數 | 預估難點 |
 |---|---|---|---|
 | **1** ✅ | 暖身微型 + 同構家族：都市分析(1) 民防避難(1) 世界(1) 情勢(1 剩) 宗教(6) 殯葬(5) 文化(5) 消防(5) | 25 | 已完成（`cc64857`…`1aa3d6b`，見 changelog）。拍板①④落地；額外撞到：消防 4/5 層 `key ≠ popup layerType` 且 fireEvents/fireLatest 多對一（原以為批 3 才會遇到）；`plaActivity` 在 GIS_LAYERS 是**常數引用**，需前置補 `extractGisConstRefTypes` 才驗得出 popup 宣告為真（批 5 `disasterAlert` 同形狀）；D 體質實際 6 層而非 3 層，定義已澄清為「無 OVERLAY_REGISTRY entry」與資料長相無關。 |
-| **2** | 純靜態 POI：基礎建設(11) 運動休閒(6) 觀光(11) | 28 | 最單純的一批（幾乎全 A 體質），適合用來驗證批次搬移的**機械化流程**能不能自動產生 manifest entry。觀光 11 層全部有 `labelMobile` 且全部有 popup；基礎建設多數層合法無 legend（`legend: null`），別誤填。 |
+| **2** ✅ | 純靜態 POI：基礎建設(11) 運動休閒(6) 觀光(11) | 28 | 已完成（`5d33117` `40f038e` `b292d21`，見 changelog）。預估全對：28/28 都是 dataClass A、觀光 11 層全有 `labelMobile` 且全有 popup、基礎建設 7 層合法無 legend（全批 14 層 `legend: null`）。**機械化流程已驗證**：除 `description` / `topics` 兩個人讀欄位外，其餘 12 欄可由既有登記簿逐 key 機械讀出（判準寫在 changelog）。額外撞到：基礎建設 popup **11/11 全是 key 的單數形**（比批 1 消防 4/5 更整齊也更難用肉眼看出）；運動場館 5 層 **5 → 1** 共用 popup `sportsVenue` 且共用 `sourceId`（⚠️ 與批 4/6 的「同 key 多 config」是不同問題，契約測試按 `id` 過濾不受影響）；`tourRestaurants` 在 UPSTREAM_REGISTRY 不在觀光區塊。 |
 | **3** | 教育(17) 林業(16) | 33 | 教育 17 層**全部**有 `labelMobile`；popup layerType 大量與 key 不同名，且 `eduDistrictK12` 一個 layerType 對兩個 layer（國小/國中共用）→ manifest 的 `popup` 欄位會出現「多對一」，legend 共用測試要確認不誤判。林業 5 層 PMTiles → 連帶檢查 nginx/deploy 清單（觸點 #20）。 |
 | **4** | 執法治安(20) 醫療(8) 房地產(7) 人口社經(6) 全球氣候(5) | 46 | ⚠️ **`propertyValueGrid` 有 3 個 OVERLAY_REGISTRY config**（同 key 多 entry）→ 現行 `LayerSource` 是單數形，**必須先擴充成陣列或 union**，否則 `layerManifest.test.ts` 的 `toHaveLength(1)` 會擋下來。執法治安 20 層 popup 100% 覆蓋。人口社經/全球氣候全 D 體質（H3 factory / 氣候 frame）。 |
 | **5** | 底圖(剩 12) 災害(12) 太空(16) | 40 | 底圖 10 層 PMTiles → dataClass B 連帶 nginx + deploy 腳本清單（PT-1 曾因漏此步 13 層全站 404）。太空 16 層全 D（satellite.js 算軌道，無 overlay entry），`source.kind: "custom"` 的 note 要寫得有資訊量。災害 3 層 C + 7 層 D 混合。 |
@@ -29,6 +29,9 @@
    manifest 的 import 白名單放寬到「零 import 的純色票常數檔」。宗教／殯葬已搬，
    教育（批 3）沿用；搬走後**務必整行刪掉手寫表的 `...*_LAYER_COLORS` spread**
    —— spread 不觸發 excess property check，留著會全綠但沒真搬（見 changelog 批 1 末節）。
+   ⚠️ 批 2 補充了反向判準：適用條件是「**該常數有在餵 `LAYER_COLORS`**」，
+   不是「該主題有色票檔」。`tourTypes` / `sportsTypes` 匯出的是 category-keyed
+   分色資料、`LAYER_COLORS` 從未 import → 不引用，寫字面 hex（hex 撞色是巧合）。
 2. **`LayerSource` 支援同 key 多 config**（批 4 卡住）：4 個 key 受影響
    （`stationsTRA`×2 `waterRivers`×2 `waterReservoirs`×2 `propertyValueGrid`×3）。
    批 1 的 25 層全是單 config，未觸及。

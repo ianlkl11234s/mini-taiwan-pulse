@@ -147,3 +147,76 @@ tsc 綠、黃金快照綠、契約測試綠（manifest 在後面蓋、值又相�
 
 同理，**THEMES 的舊 literal 若忘了換成 `fromManifest(...)`** 也是全綠。
 機械驗證只能靠 grep：`grep -cE 'key: "(本批全部 key)"' layerCatalog.ts` 必須是 0。
+
+---
+
+## 2026-08-11 — Phase 2 批 2：28 層（基礎建設 11・運動休閒 6・觀光 11）
+
+`5d33117` 基礎建設｜`40f038e` 運動休閒｜`b292d21` 觀光
+
+manifest 30 → **58 entry**。四張手寫表對這 28 key 殘留 grep 命中 0
+（`^  key:` 與 `key: "key"` 兩種形狀分開數，各 0）。
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（與批 1 後相同，
+本批未增減任何測試）｜黃金快照 fixture 自 Phase 0 起**一位元未動**。
+
+### 本批的價值：驗證「機械化流程」
+
+backlog 對批 2 的期待是「驗證批次搬移的機械化流程能不能自動產生 manifest entry」。
+做法是先寫一支**只讀**的抽取腳本（跑完即刪，不進 repo），對 28 key 逐一從
+`LAYER_COLORS` / `THEMES` / `LAYER_ICONS` / `UPSTREAM_REGISTRY` / `OVERLAY_REGISTRY` /
+`LEGEND_REGISTRY` / `GIS_LAYERS` / `extractGolden().params` 讀出 12 個欄位，
+再照抄進 manifest。結論：**除 `description` / `topics` 兩個人讀欄位外全部可機械產生**。
+
+其中兩個欄位的機械判準值得寫死給後續批次：
+
+- **`legend`**：`key` 不在 `LEGEND_REGISTRY` 任何 entry 的 `keys` 裡 → `null`；
+  在的話取**該 entry 的首個 key**（拍板④）。**不看圖層「感覺該不該有圖例」** ——
+  本批 28 層有 14 層合法無 legend，憑感覺補一定會發明出不存在的圖例 id，
+  Phase 3 依 `legend` 派生時就會指向一個沒有的元件。
+- **`popup`**：拿該 key 的 `OVERLAY_REGISTRY` config 的 layer id
+  （`${sourceId}-${suffix}`）去反查 `GIS_LAYERS` 命中的那筆 `type`。
+  本批 28 層全部剛好命中 1 筆，且全部存在於 `HEADER_LABELS`。
+
+### 三個主題的形狀是互補的（一次撞完三種極端）
+
+| | 基礎建設 11 | 運動休閒 6 | 觀光 11 |
+|---|---|---|---|
+| `labelMobile` | 0/11 | 0/6 | **11/11** |
+| `popup` 與 key 同名 | **0/11**（全是單數形） | 場館 5 層 **5 → 1** `sportsVenue` | **11/11 同名** |
+| `legend: null` | 7/11 | 0/6 | 7/11 |
+| `dataClass` | 全 A | 全 A | 全 A |
+
+- **基礎建設的 popup 全數漂移**（`postOffices`→`postOffice`、`iPostBoxes`→`iPostBox`…）
+  比批 1 消防的 4/5 更危險：整齊到肉眼掃過去像同名，只有逐 key 反查才看得出差一個 s。
+- **運動場館 5 層是目前最徹底的多對一**，四個維度同時共用：同一份
+  `./sports/all_venues.geojson` **同一個 `sourceId`**（5 個 OverlayConfig 的 `id` 各異、
+  `sourceId` 相同 → hydrate 只 fetch 一次，各層以「場館類別」filter 切分）、
+  同一筆 legend entry、同一個 popup layerType、同一個 catalog dataset。
+  ⚠️ 契約測試的 `OVERLAY_REGISTRY.filter(c => c.id === k).toHaveLength(1)` 是**按 `id`**
+  不是按 `sourceId`，共用 sourceId 不會踩到它 —— 這與 backlog 批 4/6 的
+  「同 key 多 config」是**完全不同的問題**，別混為一談。
+- **觀光的 legend 與 select 控件同源**：有圖例的 4 層（`tourAttractions` /
+  `tourHeritage` / `tourEvents` / `tourHotels`）恰好就是有分類下拉的那 4 層。
+  有分色維度才需要圖例，反之單色 POI 就是 `legend: null`。
+
+### 色票拍板①的第二種答案：「核對後不引用」
+
+批 1 立的規約是「外部色票常數用引用不複製」。批 2 三個主題**逐一核對後都不適用**，
+理由一致且值得記下來當判準：
+
+`tourTypes.ts` / `sportsTypes.ts` 匯出的是 **category-keyed** 的分色資料
+（`TOUR_ATTRACTIONS_CATEGORY_COLOR` 依 `category` 欄位值、`SPORTS_CATEGORY_COLOR`
+依「場館類別」欄位值），**不是 layer-key-keyed 的 `*_LAYER_COLORS` 記錄**，
+而且 `LAYER_COLORS` 從未 import 它們 —— 兩者從來就不是同一份 SSOT。
+
+判準：**看的是「這個常數有沒有在餵 LAYER_COLORS」，不是「這個主題有沒有色票檔」。**
+hex 撞色是巧合（`tourHeritage` 的 `#6d4c41` 同時是該表 Culture 類色兼 fallback 基底、
+`tourHotels` 的 `#1976d2` 是「旅館」類色），引用它們反而會建立一條假的依賴。
+已在 `layerManifest.ts` 觀光/運動兩個 section header 與 `layerCatalog.ts` 原處
+就地註記，免得批 3-8 重新爭論。
+
+### 一個差點漏掉的形狀
+
+`tourRestaurants` 在 `UPSTREAM_REGISTRY` **不在觀光區塊**，落在教育區塊後面
+（歷史原因）。按主題「整段刪」會漏掉它 —— tsc 的 excess property 會擋下來，
+但那是最後一道防線；後續批次刪手寫表請**逐 key grep 定位**再刪，不要靠區塊註解。
