@@ -456,6 +456,178 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("farmRoadsOpacity", 0.8),
   ],
   ecoNetworkZones: [opacitySlider("ecoNetworkZonesOpacity", 0.5)],
+
+  // ══════════ 森林山域・能源電力航空 ══════════
+  forestRoads: [
+    { kind: "slider", name: "forestRoadsWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("forestRoadsOpacity", 0.8),
+  ],
+  forestAlishanRail: [
+    { kind: "slider", name: "forestAlishanRailWidth", labelPrefix: "寬度", digits: 1, default: 1.5, min: 0.5, max: 5, step: 0.1 },
+    opacitySlider("forestAlishanRailOpacity", 0.9),
+  ],
+  hikingTrails: [
+    { kind: "slider", name: "hikingTrailsWidth", labelPrefix: "寬度", digits: 1, default: 1.2, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("hikingTrailsOpacity", 0.85),
+  ],
+  canopyHeight: [
+    { kind: "slider", name: "canopyHeightOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.3, max: 1, step: 0.05 },
+  ],
+  canopyGiants: [
+    { kind: "slider", name: "canopyGiantsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.3, max: 1, step: 0.05 },
+  ],
+  forestTrailSigns: [
+    opacitySlider("forestTrailSignsOpacity", 0.85),
+    { kind: "slider", name: "forestTrailSignsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  mountainHuts: [
+    opacitySlider("mountainHutsOpacity", 0.9),
+    { kind: "slider", name: "mountainHutsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  forestSignalPoints: [
+    opacitySlider("forestSignalPointsOpacity", 0.85),
+    { kind: "slider", name: "forestSignalPointsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  forestEducationCenters: [
+    opacitySlider("forestEducationCentersOpacity", 0.9),
+    { kind: "slider", name: "forestEducationCentersScale", labelPrefix: "大小", digits: 2, default: 1.2, min: 0.3, max: 3, step: 0.1 },
+  ],
+  forestWildlife: [
+    opacitySlider("forestWildlifeOpacity", 0.85),
+    { kind: "slider", name: "forestWildlifeScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  powerPlants: [scaleSlider("powerPlantsScale", 0.5), opacitySlider("powerPlantsOpacity", 0.95)],
+  aviationRestrictedGlow: [opacitySlider("aviationRestrictedGlowOpacity", 0.85)],
+  powerGenerationUnit: [
+    { kind: "slider", name: "powerGenerationHeight", labelPrefix: "柱高", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("powerGenerationOpacity", 0.7),
+  ],
+  facOffshore: [opacitySlider("facOffshoreOpacity", 0.45)],
+  facPlanned: [scaleSlider("facPlannedScale", 0.5), opacitySlider("facPlannedOpacity", 0.7)],
+  facHistorical: [
+    scaleSlider("facHistoricalScale", 0.5),
+    opacitySlider("facHistoricalOpacity", 0.5),
+  ],
+  facSecondary: [scaleSlider("facSecondaryScale", 0.5), opacitySlider("facSecondaryOpacity", 0.85)],
+  facOsmSupplement: [
+    scaleSlider("facOsmSupplementScale", 0.5),
+    opacitySlider("facOsmSupplementOpacity", 0.7),
+  ],
+  gasStationCpc: [
+    scaleSlider("gasStationCpcScale", 1.7),
+    opacitySlider("gasStationCpcOpacity", 0.85),
+  ],
+  gasStationFpcc: [
+    scaleSlider("gasStationFpccScale", 1.7),
+    opacitySlider("gasStationFpccOpacity", 0.85),
+  ],
+  gasStationTaisugar: [
+    scaleSlider("gasStationTaisugarScale", 1.7),
+    opacitySlider("gasStationTaisugarOpacity", 0.85),
+  ],
+  gasStationOther: [
+    scaleSlider("gasStationOtherScale", 2.2),
+    opacitySlider("gasStationOtherOpacity", 0.7),
+  ],
+  gasStationCanonical: [
+    scaleSlider("gasStationCanonicalScale", 1.7),
+    opacitySlider("gasStationCanonicalOpacity", 0.9),
+  ],
+  lpgSubpackaging: [
+    scaleSlider("lpgSubpackagingScale", 1.1),
+    opacitySlider("lpgSubpackagingOpacity", 0.85),
+  ],
+  lpgRetailers: [scaleSlider("lpgRetailersScale", 1.3), opacitySlider("lpgRetailersOpacity", 0.75)],
+  lngTerminal: [
+    { kind: "slider", name: "lngTerminalScale", labelPrefix: "大小", digits: 1, default: 1.6, min: 0.5, max: 4, step: 0.1 },
+    opacitySlider("lngTerminalOpacity", 0.95),
+  ],
+  pipelineGas: [
+    { kind: "slider", name: "pipelineGasWidth", labelPrefix: "寬度", digits: 1, default: 2.0, min: 0.5, max: 5, step: 0.1 },
+    opacitySlider("pipelineGasOpacity", 0.8),
+  ],
+  pipelineOilGas: [
+    { kind: "slider", name: "pipelineOilGasWidth", labelPrefix: "寬度", digits: 1, default: 1.5, min: 0.5, max: 5, step: 0.1 },
+    opacitySlider("pipelineOilGasOpacity", 0.7),
+  ],
+  coalTerminal: [
+    { kind: "slider", name: "coalTerminalScale", labelPrefix: "大小", digits: 1, default: 1.4, min: 0.5, max: 4, step: 0.1 },
+    opacitySlider("coalTerminalOpacity", 0.95),
+  ],
+  gasCoverageAll: [
+    opacitySlider("gasCoverageAllOpacity", 0.85),
+    { kind: "slider", name: "gasCoverageAllLineWidth", labelPrefix: "線寬", digits: 2, default: 0.5, min: 0.1, max: 2, step: 0.1 },
+  ],
+  gasCoverageCpc: [
+    opacitySlider("gasCoverageCpcOpacity", 0.85),
+    { kind: "slider", name: "gasCoverageCpcLineWidth", labelPrefix: "線寬", digits: 2, default: 0.5, min: 0.1, max: 2, step: 0.1 },
+  ],
+  gasCoverageFpcc: [
+    opacitySlider("gasCoverageFpccOpacity", 0.85),
+    { kind: "slider", name: "gasCoverageFpccLineWidth", labelPrefix: "線寬", digits: 2, default: 0.5, min: 0.1, max: 2, step: 0.1 },
+  ],
+  gasCoverageTaisugar: [
+    opacitySlider("gasCoverageTaisugarOpacity", 0.85),
+    { kind: "slider", name: "gasCoverageTaisugarLineWidth", labelPrefix: "線寬", digits: 2, default: 0.5, min: 0.1, max: 2, step: 0.1 },
+  ],
+  evIsland: [
+    opacitySlider("evIslandOpacity", 0.6),
+    { kind: "slider", name: "evIslandLineWidth", labelPrefix: "線寬", digits: 2, default: 0.5, min: 0.1, max: 2, step: 0.1 },
+  ],
+  osmSubstationsEhv: [
+    { kind: "slider", name: "osmSubstationsEhvSize", labelPrefix: "大小", digits: 2, default: 0.5, min: 0.2, max: 3, step: 0.05 },
+    opacitySlider("osmSubstationsEhvOpacity", 0.85),
+  ],
+  osmSubstations: [
+    { kind: "slider", name: "osmSubstationsSize", labelPrefix: "大小", digits: 2, default: 0.3, min: 0.1, max: 3, step: 0.05 },
+    opacitySlider("osmSubstationsOpacity", 0.85),
+  ],
+  osmPowerLines: [
+    { kind: "slider", name: "osmPowerLinesWidth", labelPrefix: "寬度", digits: 1, default: 0.7, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("osmPowerLinesOpacity", 0.4),
+  ],
+  osmPowerTowers: [
+    scaleSlider("osmPowerTowersSize", 1),
+    opacitySlider("osmPowerTowersOpacity", 0.75),
+  ],
+  aviationControl: [opacitySlider("aviationControlOpacity", 0.7)],
+  aviationRestricted: [opacitySlider("aviationRestrictedOpacity", 0.7)],
+  droneNoFlyZone: [
+    { kind: "slider", name: "droneNfzOpacity", labelPrefix: "透明度", digits: 2, default: 0.45, min: 0.05, max: 1, step: 0.05 },
+  ],
+  droneRestrictedZone: [
+    { kind: "slider", name: "droneRestrictedOpacity", labelPrefix: "透明度", digits: 2, default: 0.45, min: 0.05, max: 1, step: 0.05 },
+  ],
+  osmWindTurbines: [
+    scaleSlider("osmWindTurbinesSize", 1),
+    opacitySlider("osmWindTurbinesOpacity", 0.85),
+  ],
+  osmSolarFarms: [scaleSlider("osmSolarFarmsSize", 1), opacitySlider("osmSolarFarmsOpacity", 0.85)],
+  osmPowerPlantsStatic: [
+    scaleSlider("osmPowerPlantsStaticSize", 1),
+    opacitySlider("osmPowerPlantsStaticOpacity", 0.85),
+  ],
+  offshoreWindZones: [
+    { kind: "slider", name: "offshoreWindZonesOpacity", labelPrefix: "透明度", digits: 2, default: 0.35, min: 0.05, max: 1, step: 0.05 },
+  ],
+  islandPowerGrid: [
+    scaleSlider("islandPowerGridSize", 1),
+    opacitySlider("islandPowerGridOpacity", 0.9),
+  ],
+  fossilFuelInfra: [
+    scaleSlider("fossilFuelInfraSize", 1.2),
+    opacitySlider("fossilFuelInfraOpacity", 0.85),
+  ],
+  geothermalWells: [
+    scaleSlider("geothermalWellsSize", 1),
+    opacitySlider("geothermalWellsOpacity", 0.85),
+  ],
+  renewablePermitsTaipei: [
+    scaleSlider("renewablePermitsTaipeiSize", 1),
+    opacitySlider("renewablePermitsTaipeiOpacity", 0.85),
+  ],
+  evChargingStations: [opacitySlider("evChargingOpacity", 0.8)],
+  nuclearRadiation: [scaleSlider("nuclearScale", 1.0), opacitySlider("nuclearOpacity", 0.9)],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**

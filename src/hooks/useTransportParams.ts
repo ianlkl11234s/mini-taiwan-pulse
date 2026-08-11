@@ -593,124 +593,36 @@ export function useTransportParams() {
   const [forestDamLakesOpacity, setForestDamLakesOpacity] = useState(0.7);
   const [forestDamLakesOutlineWidth, setForestDamLakesOutlineWidth] = useState(0.5);
   const [forestDamLakesShowOutline, setForestDamLakesShowOutline] = useState(true);
-  // line：opacity + width
-  const [forestRoadsOpacity, setForestRoadsOpacity] = useState(0.8);
-  const [forestRoadsWidth, setForestRoadsWidth] = useState(1.0);
-  const [forestAlishanRailOpacity, setForestAlishanRailOpacity] = useState(0.9);
-  const [forestAlishanRailWidth, setForestAlishanRailWidth] = useState(1.5);
-  const [hikingTrailsOpacity, setHikingTrailsOpacity] = useState(0.85);
-  const [hikingTrailsWidth, setHikingTrailsWidth] = useState(1.2);
-  // raster：樹冠高度（PNG 預烤色帶，僅 opacity）
-  const [canopyHeightOpacity, setCanopyHeightOpacity] = useState(0.7);
-  const [canopyGiantsOpacity, setCanopyGiantsOpacity] = useState(0.85);
   // ENERGY MVP — 4 layer opacity + 2 scale/height
-  const [powerPlantsOpacity, setPowerPlantsOpacity] = useState(0.95);
-  const [powerPlantsScale, setPowerPlantsScale] = useState(0.5);
-  const [powerGenerationOpacity, setPowerGenerationOpacity] = useState(0.7);
-  const [powerGenerationHeight, setPowerGenerationHeight] = useState(1);
   const [powerPlantGlowOpacity, setPowerPlantGlowOpacity] = useState(0.9);
   const [powerPlantGlowSize, setPowerPlantGlowSize] = useState(1);
   const [substationEhvGlowOpacity, setSubstationEhvGlowOpacity] = useState(0.9);
   const [substationEhvGlowSize, setSubstationEhvGlowSize] = useState(1);
   const [powerLinesGlowOpacity, setPowerLinesGlowOpacity] = useState(0.7);
   const [powerLinesGlowWidth, setPowerLinesGlowWidth] = useState(2);
-  const [aviationRestrictedGlowOpacity, setAviationRestrictedGlowOpacity] = useState(0.85);
-  // 變電所（區域）— PS/DPS/SS/TRACTION/OTHER
-  const [osmSubstationsOpacity, setOsmSubstationsOpacity] = useState(0.85);
-  const [osmSubstationsSize, setOsmSubstationsSize] = useState(0.3);
   // 變電所（超高壓）— EHV_SWITCH + EHV
-  const [osmSubstationsEhvOpacity, setOsmSubstationsEhvOpacity] = useState(0.85);
-  const [osmSubstationsEhvSize, setOsmSubstationsEhvSize] = useState(0.5);
-  const [osmPowerLinesOpacity, setOsmPowerLinesOpacity] = useState(0.4);
-  const [osmPowerLinesWidth, setOsmPowerLinesWidth] = useState(0.7);
-  const [osmPowerTowersOpacity, setOsmPowerTowersOpacity] = useState(0.75);
-  const [osmPowerTowersSize, setOsmPowerTowersSize] = useState(1);
-  const [aviationControlOpacity, setAviationControlOpacity] = useState(0.7);
-  const [aviationRestrictedOpacity, setAviationRestrictedOpacity] = useState(0.7);
-  const [droneNfzOpacity, setDroneNfzOpacity] = useState(0.45);
-  const [droneRestrictedOpacity, setDroneRestrictedOpacity] = useState(0.45);
   const [powerPolesOpacity, setPowerPolesOpacity] = useState(0.7);
   const [powerPolesSize, setPowerPolesSize] = useState(1);
   const [powerPolesHeat, setPowerPolesHeat] = useState(1); // 0=關熱區、1=全顯
   const [powerPolesZ5Reveal, setPowerPolesZ5Reveal] = useState(0); // 0=z<8 隱形（預設），1=全 zoom 顯示
-  const [osmWindTurbinesOpacity, setOsmWindTurbinesOpacity] = useState(0.85);
-  const [osmWindTurbinesSize, setOsmWindTurbinesSize] = useState(1);
-  const [osmSolarFarmsOpacity, setOsmSolarFarmsOpacity] = useState(0.85);
-  const [osmSolarFarmsSize, setOsmSolarFarmsSize] = useState(1);
-  const [osmPowerPlantsStaticOpacity, setOsmPowerPlantsStaticOpacity] = useState(0.85);
-  const [osmPowerPlantsStaticSize, setOsmPowerPlantsStaticSize] = useState(1);
-  const [offshoreWindZonesOpacity, setOffshoreWindZonesOpacity] = useState(0.35);
-  const [islandPowerGridOpacity, setIslandPowerGridOpacity] = useState(0.9);
-  const [islandPowerGridSize, setIslandPowerGridSize] = useState(1);
-  const [fossilFuelInfraOpacity, setFossilFuelInfraOpacity] = useState(0.85);
-  const [fossilFuelInfraSize, setFossilFuelInfraSize] = useState(1.2);
-  const [geothermalWellsOpacity, setGeothermalWellsOpacity] = useState(0.85);
-  const [geothermalWellsSize, setGeothermalWellsSize] = useState(1);
-  const [renewablePermitsTaipeiOpacity, setRenewablePermitsTaipeiOpacity] = useState(0.85);
-  const [renewablePermitsTaipeiSize, setRenewablePermitsTaipeiSize] = useState(1);
-  const [evChargingOpacity, setEvChargingOpacity] = useState(0.8);
   // Phase 8 SSOT facilities 6-layer
   const [facPrimaryOpacity, setFacPrimaryOpacity] = useState(0.65);
   const [facPrimaryScale, setFacPrimaryScale] = useState(0.5);
   // L1 分級：有即時出力（台電 14 大廠 + 廠級匯總）vs 其他（小廠）
   const [facPrimaryRtScale, setFacPrimaryRtScale] = useState(1.3);
   const [facPrimaryNoRtScale, setFacPrimaryNoRtScale] = useState(0.85);
-  const [facOffshoreOpacity, setFacOffshoreOpacity] = useState(0.45);
-  const [facPlannedOpacity, setFacPlannedOpacity] = useState(0.7);
-  const [facPlannedScale, setFacPlannedScale] = useState(0.5);
-  const [facHistoricalOpacity, setFacHistoricalOpacity] = useState(0.5);
-  const [facHistoricalScale, setFacHistoricalScale] = useState(0.5);
-  const [facSecondaryOpacity, setFacSecondaryOpacity] = useState(0.85);
-  const [facSecondaryScale, setFacSecondaryScale] = useState(0.5);
-  const [facOsmSupplementOpacity, setFacOsmSupplementOpacity] = useState(0.7);
-  const [facOsmSupplementScale, setFacOsmSupplementScale] = useState(0.5);
   // ── 化石燃料 14 layer params（Phase B） ──
-  const [gasStationCpcOpacity, setGasStationCpcOpacity] = useState(0.85);
-  const [gasStationCpcScale, setGasStationCpcScale] = useState(1.7);
-  const [gasStationFpccOpacity, setGasStationFpccOpacity] = useState(0.85);
-  const [gasStationFpccScale, setGasStationFpccScale] = useState(1.7);
-  const [gasStationTaisugarOpacity, setGasStationTaisugarOpacity] = useState(0.85);
-  const [gasStationTaisugarScale, setGasStationTaisugarScale] = useState(1.7);
-  const [gasStationOtherOpacity, setGasStationOtherOpacity] = useState(0.7);
-  const [gasStationOtherScale, setGasStationOtherScale] = useState(2.2);
-  const [gasStationCanonicalOpacity, setGasStationCanonicalOpacity] = useState(0.9);
-  const [gasStationCanonicalScale, setGasStationCanonicalScale] = useState(1.7);
-  const [lpgSubpackagingOpacity, setLpgSubpackagingOpacity] = useState(0.85);
-  const [lpgSubpackagingScale, setLpgSubpackagingScale] = useState(1.1);
-  const [lpgRetailersOpacity, setLpgRetailersOpacity] = useState(0.75);
-  const [lpgRetailersScale, setLpgRetailersScale] = useState(1.3);
-  const [lngTerminalOpacity, setLngTerminalOpacity] = useState(0.95);
-  const [lngTerminalScale, setLngTerminalScale] = useState(1.6);
-  const [pipelineGasOpacity, setPipelineGasOpacity] = useState(0.8);
-  const [pipelineGasWidth, setPipelineGasWidth] = useState(2.0);
-  const [pipelineOilGasOpacity, setPipelineOilGasOpacity] = useState(0.7);
-  const [pipelineOilGasWidth, setPipelineOilGasWidth] = useState(1.5);
   const [industrialRefineryOpacity, setIndustrialRefineryOpacity] = useState(0.55);
   const [industrialRefineryOutline, setIndustrialRefineryOutline] = useState(true);
   const [industrialStorageTankOpacity, setIndustrialStorageTankOpacity] = useState(0.55);
   const [industrialStorageTankOutline, setIndustrialStorageTankOutline] = useState(true);
   const [industrialPowerPlantOpacity, setIndustrialPowerPlantOpacity] = useState(0.5);
   const [industrialPowerPlantOutline, setIndustrialPowerPlantOutline] = useState(true);
-  const [coalTerminalOpacity, setCoalTerminalOpacity] = useState(0.95);
-  const [coalTerminalScale, setCoalTerminalScale] = useState(1.4);
-  // ── 雲林 POC 覆蓋分析 5 layer params（PMTiles 沿 OSM edge nearest distance 染色）──
-  const [gasCoverageAllOpacity, setGasCoverageAllOpacity] = useState(0.85);
-  const [gasCoverageAllLineWidth, setGasCoverageAllLineWidth] = useState(0.5);
-  const [gasCoverageCpcOpacity, setGasCoverageCpcOpacity] = useState(0.85);
-  const [gasCoverageCpcLineWidth, setGasCoverageCpcLineWidth] = useState(0.5);
-  const [gasCoverageFpccOpacity, setGasCoverageFpccOpacity] = useState(0.85);
-  const [gasCoverageFpccLineWidth, setGasCoverageFpccLineWidth] = useState(0.5);
-  const [gasCoverageTaisugarOpacity, setGasCoverageTaisugarOpacity] = useState(0.85);
-  const [gasCoverageTaisugarLineWidth, setGasCoverageTaisugarLineWidth] = useState(0.5);
-  const [evIslandOpacity, setEvIslandOpacity] = useState(0.6);
-  const [evIslandLineWidth, setEvIslandLineWidth] = useState(0.5);
   // HAZARD（v2 Phase B）
   const [lightningOpacity, setLightningOpacity] = useState(0.85);
   const [lightningMinutes, setLightningMinutes] = useState(10);
   const [lightningCwaOpacity, setLightningCwaOpacity] = useState(0.85);
   const [lightningCwaMinutes, setLightningCwaMinutes] = useState(10);
-  const [nuclearOpacity, setNuclearOpacity] = useState(0.9);
-  const [nuclearScale, setNuclearScale] = useState(1.0);
   // 全球氣候 GLOBAL CLIMATE
   const [typhoonTracksOpacity, setTyphoonTracksOpacity] = useState(0.9);
   // 🌍 世界 WORLD
@@ -748,21 +660,10 @@ export function useTransportParams() {
   const [realEstateOpacity, setRealEstateOpacity] = useState(0.7);
   // 排除雙北（taipei+newtaipei）重繪：濾掉雙北 + 色階壓縮到非雙北 domain。預設 false=包含
   const [realEstateExcludeTaipei, setRealEstateExcludeTaipei] = useState(false);
-  // point：opacity + scale
-  const [forestTrailSignsOpacity, setForestTrailSignsOpacity] = useState(0.85);
-  const [forestTrailSignsScale, setForestTrailSignsScale] = useState(1.0);
-  const [forestSignalPointsOpacity, setForestSignalPointsOpacity] = useState(0.85);
-  const [forestSignalPointsScale, setForestSignalPointsScale] = useState(1.0);
   // 登山安全：山屋（<1k 點 UX baseline 0.9）／山域事故（1k~10k baseline 0.85 + 年份三態以上篩選）
-  const [mountainHutsOpacity, setMountainHutsOpacity] = useState(0.9);
-  const [mountainHutsScale, setMountainHutsScale] = useState(1.0);
   const [mountainRescueIncidentsOpacity, setMountainRescueIncidentsOpacity] = useState(0.85);
   const [mountainRescueIncidentsScale, setMountainRescueIncidentsScale] = useState(1.0);
   const [mountainRescueIncidentsYear, setMountainRescueIncidentsYear] = useState<string>("all"); // all / 2019..2024
-  const [forestEducationCentersOpacity, setForestEducationCentersOpacity] = useState(0.9);
-  const [forestEducationCentersScale, setForestEducationCentersScale] = useState(1.2);
-  const [forestWildlifeOpacity, setForestWildlifeOpacity] = useState(0.85);
-  const [forestWildlifeScale, setForestWildlifeScale] = useState(1.0);
   // 衍生（H3 / polygon）：opacity + outlineWidth + showOutline
 
   // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
@@ -1117,106 +1018,32 @@ export function useTransportParams() {
     forestDamLakesOpacity,
     forestDamLakesOutlineWidth,
     forestDamLakesShowOutline: forestDamLakesShowOutline ? 1 : 0,
-    forestRoadsOpacity,
-    forestRoadsWidth,
-    forestAlishanRailOpacity,
-    forestAlishanRailWidth,
-    forestTrailSignsOpacity,
-    forestTrailSignsScale,
-    forestSignalPointsOpacity,
-    forestSignalPointsScale,
-    mountainHutsOpacity,
-    mountainHutsScale,
     mountainRescueIncidentsOpacity,
     mountainRescueIncidentsScale,
     // idx 0=全部，1..6 對應 MOUNTAIN_RESCUE_YEARS（同 urbanZoning*CategoryIdx 慣例）
     mountainRescueIncidentsYearIdx: ["all", ...MOUNTAIN_RESCUE_YEARS.map(String)].indexOf(mountainRescueIncidentsYear),
-    forestEducationCentersOpacity,
-    forestEducationCentersScale,
-    forestWildlifeOpacity,
-    forestWildlifeScale,
-    hikingTrailsOpacity,
-    hikingTrailsWidth,
-    canopyHeightOpacity,
-    canopyGiantsOpacity,
     // ENERGY
-    powerPlantsOpacity,
-    powerPlantsScale,
     powerPlantGlowOpacity,
     powerPlantGlowSize,
     substationEhvGlowOpacity,
     substationEhvGlowSize,
     powerLinesGlowOpacity,
     powerLinesGlowWidth,
-    aviationRestrictedGlowOpacity,
     facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale,
-    facOffshoreOpacity,
-    facPlannedOpacity, facPlannedScale,
-    facHistoricalOpacity, facHistoricalScale,
-    facSecondaryOpacity, facSecondaryScale,
-    facOsmSupplementOpacity, facOsmSupplementScale,
     // 化石燃料 14 layer
-    gasStationCpcOpacity, gasStationCpcScale,
-    gasStationFpccOpacity, gasStationFpccScale,
-    gasStationTaisugarOpacity, gasStationTaisugarScale,
-    gasStationOtherOpacity, gasStationOtherScale,
-    gasStationCanonicalOpacity, gasStationCanonicalScale,
-    lpgSubpackagingOpacity, lpgSubpackagingScale,
-    lpgRetailersOpacity, lpgRetailersScale,
-    lngTerminalOpacity, lngTerminalScale,
-    pipelineGasOpacity, pipelineGasWidth,
-    pipelineOilGasOpacity, pipelineOilGasWidth,
     industrialRefineryOpacity, industrialRefineryOutline: industrialRefineryOutline ? 1 : 0,
     industrialStorageTankOpacity, industrialStorageTankOutline: industrialStorageTankOutline ? 1 : 0,
     industrialPowerPlantOpacity, industrialPowerPlantOutline: industrialPowerPlantOutline ? 1 : 0,
-    coalTerminalOpacity, coalTerminalScale,
     // 雲林 POC 覆蓋分析
-    gasCoverageAllOpacity, gasCoverageAllLineWidth,
-    gasCoverageCpcOpacity, gasCoverageCpcLineWidth,
-    gasCoverageFpccOpacity, gasCoverageFpccLineWidth,
-    gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth,
-    evIslandOpacity, evIslandLineWidth,
-    powerGenerationOpacity,
-    powerGenerationHeight,
-    osmSubstationsOpacity,
-    osmSubstationsSize,
-    osmSubstationsEhvOpacity,
-    osmSubstationsEhvSize,
-    osmPowerLinesOpacity,
-    osmPowerLinesWidth,
-    osmPowerTowersOpacity,
-    osmPowerTowersSize,
-    aviationControlOpacity,
-    aviationRestrictedOpacity,
-    droneNfzOpacity,
-    droneRestrictedOpacity,
     powerPolesOpacity,
     powerPolesSize,
     powerPolesHeat,
     powerPolesZ5Reveal,
-    osmWindTurbinesOpacity,
-    osmWindTurbinesSize,
-    osmSolarFarmsOpacity,
-    osmSolarFarmsSize,
-    osmPowerPlantsStaticOpacity,
-    osmPowerPlantsStaticSize,
-    offshoreWindZonesOpacity,
-    islandPowerGridOpacity,
-    islandPowerGridSize,
-    fossilFuelInfraOpacity,
-    fossilFuelInfraSize,
-    geothermalWellsOpacity,
-    geothermalWellsSize,
-    renewablePermitsTaipeiOpacity,
-    renewablePermitsTaipeiSize,
-    evChargingOpacity,
     // HAZARD
     lightningOpacity,
     lightningMinutes,
     lightningCwaOpacity,
     lightningCwaMinutes,
-    nuclearOpacity,
-    nuclearScale,
     // 全球氣候 GLOBAL CLIMATE
     typhoonTracksOpacity,
     typhoonSourceIdx: ["all", "jma", "jtwc"].indexOf(typhoonSource),
@@ -1249,7 +1076,7 @@ export function useTransportParams() {
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams, realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, lighthouseScale, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, taxiStandScale, taxiStandOpacity, taxiStandZ, portGlow, schoolScale, schoolLevelColor, eduSchoolsOpacity, eduDistrictK12Opacity, eduChildcareOpacity, eduChildcareScale, newsScale, metroPillarVisible, floodMinDepth, waterFloodOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, mountainHutsOpacity, mountainHutsScale, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, canopyHeightOpacity, canopyGiantsOpacity, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, typhoonTracksOpacity, typhoonSource, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, 
+  }), [migratedOverlayParams, realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, lighthouseScale, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, taxiStandScale, taxiStandOpacity, taxiStandZ, portGlow, schoolScale, schoolLevelColor, eduSchoolsOpacity, eduDistrictK12Opacity, eduChildcareOpacity, eduChildcareScale, newsScale, metroPillarVisible, floodMinDepth, waterFloodOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, typhoonTracksOpacity, typhoonSource, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, 
     policeStationOpacity, policeStationScale, womenChildWarningOpacity, womenChildWarningScale,
     speedCameraOpacity, speedCameraScale, speedZoneSegmentOpacity, speedZoneSegmentWidth,
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
@@ -1855,29 +1682,7 @@ export function useTransportParams() {
         { label: `邊框寬 ${forestDamLakesOutlineWidth.toFixed(1)}`, value: forestDamLakesOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestDamLakesOutlineWidth },
         { type: "toggle" as const, label: "邊框 Outline", value: forestDamLakesShowOutline, onChange: setForestDamLakesShowOutline },
       ];
-      case "forestRoads": return [
-        { label: `寬度 ${forestRoadsWidth.toFixed(1)}`, value: forestRoadsWidth, min: 0.3, max: 4, step: 0.1, onChange: setForestRoadsWidth },
-        { label: `透明度 ${forestRoadsOpacity.toFixed(2)}`, value: forestRoadsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestRoadsOpacity },
-      ];
-      case "forestAlishanRail": return [
-        { label: `寬度 ${forestAlishanRailWidth.toFixed(1)}`, value: forestAlishanRailWidth, min: 0.5, max: 5, step: 0.1, onChange: setForestAlishanRailWidth },
-        { label: `透明度 ${forestAlishanRailOpacity.toFixed(2)}`, value: forestAlishanRailOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestAlishanRailOpacity },
-      ];
-      case "hikingTrails": return [
-        { label: `寬度 ${hikingTrailsWidth.toFixed(1)}`, value: hikingTrailsWidth, min: 0.3, max: 4, step: 0.1, onChange: setHikingTrailsWidth },
-        { label: `透明度 ${hikingTrailsOpacity.toFixed(2)}`, value: hikingTrailsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setHikingTrailsOpacity },
-      ];
-      case "canopyHeight": return [
-        { label: `透明度 ${canopyHeightOpacity.toFixed(2)}`, value: canopyHeightOpacity, min: 0.3, max: 1, step: 0.05, onChange: setCanopyHeightOpacity },
-      ];
-      case "canopyGiants": return [
-        { label: `透明度 ${canopyGiantsOpacity.toFixed(2)}`, value: canopyGiantsOpacity, min: 0.3, max: 1, step: 0.05, onChange: setCanopyGiantsOpacity },
-      ];
       // ── ENERGY MVP ──
-      case "powerPlants": return [
-        { label: `大小 ${powerPlantsScale.toFixed(1)}`, value: powerPlantsScale, min: 0.3, max: 3, step: 0.1, onChange: setPowerPlantsScale },
-        { label: `透明度 ${powerPlantsOpacity.toFixed(2)}`, value: powerPlantsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPowerPlantsOpacity },
-      ];
       case "powerPlantGlow": return [
         { label: `透明度 ${powerPlantGlowOpacity.toFixed(2)}`, value: powerPlantGlowOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPowerPlantGlowOpacity },
         { label: `大小 ${powerPlantGlowSize.toFixed(2)}×`, value: powerPlantGlowSize, min: 0.2, max: 3, step: 0.05, onChange: setPowerPlantGlowSize },
@@ -1890,9 +1695,6 @@ export function useTransportParams() {
         { label: `透明度 ${powerLinesGlowOpacity.toFixed(2)}`, value: powerLinesGlowOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPowerLinesGlowOpacity },
         { label: `寬度 ${powerLinesGlowWidth.toFixed(1)}×`, value: powerLinesGlowWidth, min: 0.5, max: 5, step: 0.1, onChange: setPowerLinesGlowWidth },
       ];
-      case "aviationRestrictedGlow": return [
-        { label: `透明度 ${aviationRestrictedGlowOpacity.toFixed(2)}`, value: aviationRestrictedGlowOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAviationRestrictedGlowOpacity },
-      ];
       // ── Phase 8 SSOT 6-layer ──
       case "facPrimary": return [
         { label: `總大小 ${facPrimaryScale.toFixed(1)}`, value: facPrimaryScale, min: 0.3, max: 3, step: 0.1, onChange: setFacPrimaryScale },
@@ -1900,66 +1702,7 @@ export function useTransportParams() {
         { label: `其他廠 ${facPrimaryNoRtScale.toFixed(2)}`, value: facPrimaryNoRtScale, min: 0.1, max: 2, step: 0.05, onChange: setFacPrimaryNoRtScale },
         { label: `透明度 ${facPrimaryOpacity.toFixed(2)}`, value: facPrimaryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacPrimaryOpacity },
       ];
-      case "facOffshore": return [
-        { label: `透明度 ${facOffshoreOpacity.toFixed(2)}`, value: facOffshoreOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacOffshoreOpacity },
-      ];
-      case "facPlanned": return [
-        { label: `大小 ${facPlannedScale.toFixed(1)}`, value: facPlannedScale, min: 0.3, max: 3, step: 0.1, onChange: setFacPlannedScale },
-        { label: `透明度 ${facPlannedOpacity.toFixed(2)}`, value: facPlannedOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacPlannedOpacity },
-      ];
-      case "facHistorical": return [
-        { label: `大小 ${facHistoricalScale.toFixed(1)}`, value: facHistoricalScale, min: 0.3, max: 3, step: 0.1, onChange: setFacHistoricalScale },
-        { label: `透明度 ${facHistoricalOpacity.toFixed(2)}`, value: facHistoricalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacHistoricalOpacity },
-      ];
-      case "facSecondary": return [
-        { label: `大小 ${facSecondaryScale.toFixed(1)}`, value: facSecondaryScale, min: 0.3, max: 3, step: 0.1, onChange: setFacSecondaryScale },
-        { label: `透明度 ${facSecondaryOpacity.toFixed(2)}`, value: facSecondaryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacSecondaryOpacity },
-      ];
-      case "facOsmSupplement": return [
-        { label: `大小 ${facOsmSupplementScale.toFixed(1)}`, value: facOsmSupplementScale, min: 0.3, max: 3, step: 0.1, onChange: setFacOsmSupplementScale },
-        { label: `透明度 ${facOsmSupplementOpacity.toFixed(2)}`, value: facOsmSupplementOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacOsmSupplementOpacity },
-      ];
       // ── 化石燃料 14 layer（Phase B） ──
-      case "gasStationCpc": return [
-        { label: `大小 ${gasStationCpcScale.toFixed(1)}`, value: gasStationCpcScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationCpcScale },
-        { label: `透明度 ${gasStationCpcOpacity.toFixed(2)}`, value: gasStationCpcOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationCpcOpacity },
-      ];
-      case "gasStationFpcc": return [
-        { label: `大小 ${gasStationFpccScale.toFixed(1)}`, value: gasStationFpccScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationFpccScale },
-        { label: `透明度 ${gasStationFpccOpacity.toFixed(2)}`, value: gasStationFpccOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationFpccOpacity },
-      ];
-      case "gasStationTaisugar": return [
-        { label: `大小 ${gasStationTaisugarScale.toFixed(1)}`, value: gasStationTaisugarScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationTaisugarScale },
-        { label: `透明度 ${gasStationTaisugarOpacity.toFixed(2)}`, value: gasStationTaisugarOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationTaisugarOpacity },
-      ];
-      case "gasStationOther": return [
-        { label: `大小 ${gasStationOtherScale.toFixed(1)}`, value: gasStationOtherScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationOtherScale },
-        { label: `透明度 ${gasStationOtherOpacity.toFixed(2)}`, value: gasStationOtherOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationOtherOpacity },
-      ];
-      case "gasStationCanonical": return [
-        { label: `大小 ${gasStationCanonicalScale.toFixed(1)}`, value: gasStationCanonicalScale, min: 0.3, max: 3, step: 0.1, onChange: setGasStationCanonicalScale },
-        { label: `透明度 ${gasStationCanonicalOpacity.toFixed(2)}`, value: gasStationCanonicalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasStationCanonicalOpacity },
-      ];
-      case "lpgSubpackaging": return [
-        { label: `大小 ${lpgSubpackagingScale.toFixed(1)}`, value: lpgSubpackagingScale, min: 0.3, max: 3, step: 0.1, onChange: setLpgSubpackagingScale },
-        { label: `透明度 ${lpgSubpackagingOpacity.toFixed(2)}`, value: lpgSubpackagingOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLpgSubpackagingOpacity },
-      ];
-      case "lpgRetailers": return [
-        { label: `大小 ${lpgRetailersScale.toFixed(1)}`, value: lpgRetailersScale, min: 0.3, max: 3, step: 0.1, onChange: setLpgRetailersScale },
-        { label: `透明度 ${lpgRetailersOpacity.toFixed(2)}`, value: lpgRetailersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLpgRetailersOpacity },
-      ];
-      case "lngTerminal": return [
-        { label: `大小 ${lngTerminalScale.toFixed(1)}`, value: lngTerminalScale, min: 0.5, max: 4, step: 0.1, onChange: setLngTerminalScale },
-        { label: `透明度 ${lngTerminalOpacity.toFixed(2)}`, value: lngTerminalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLngTerminalOpacity },
-      ];
-      case "pipelineGas": return [
-        { label: `寬度 ${pipelineGasWidth.toFixed(1)}`, value: pipelineGasWidth, min: 0.5, max: 5, step: 0.1, onChange: setPipelineGasWidth },
-        { label: `透明度 ${pipelineGasOpacity.toFixed(2)}`, value: pipelineGasOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPipelineGasOpacity },
-      ];
-      case "pipelineOilGas": return [
-        { label: `寬度 ${pipelineOilGasWidth.toFixed(1)}`, value: pipelineOilGasWidth, min: 0.5, max: 5, step: 0.1, onChange: setPipelineOilGasWidth },
-        { label: `透明度 ${pipelineOilGasOpacity.toFixed(2)}`, value: pipelineOilGasOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPipelineOilGasOpacity },
-      ];
       case "industrialRefinery": return [
         { label: `透明度 ${industrialRefineryOpacity.toFixed(2)}`, value: industrialRefineryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialRefineryOpacity },
         { type: "toggle" as const, label: "顯示外框線", value: industrialRefineryOutline, onChange: setIndustrialRefineryOutline },
@@ -1972,102 +1715,12 @@ export function useTransportParams() {
         { label: `透明度 ${industrialPowerPlantOpacity.toFixed(2)}`, value: industrialPowerPlantOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialPowerPlantOpacity },
         { type: "toggle" as const, label: "顯示外框線", value: industrialPowerPlantOutline, onChange: setIndustrialPowerPlantOutline },
       ];
-      case "coalTerminal": return [
-        { label: `大小 ${coalTerminalScale.toFixed(1)}`, value: coalTerminalScale, min: 0.5, max: 4, step: 0.1, onChange: setCoalTerminalScale },
-        { label: `透明度 ${coalTerminalOpacity.toFixed(2)}`, value: coalTerminalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCoalTerminalOpacity },
-      ];
       // ── 雲林 POC 覆蓋分析 ──
-      case "gasCoverageAll": return [
-        { label: `透明度 ${gasCoverageAllOpacity.toFixed(2)}`, value: gasCoverageAllOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageAllOpacity },
-        { label: `線寬 ${gasCoverageAllLineWidth.toFixed(2)}`, value: gasCoverageAllLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageAllLineWidth },
-      ];
-      case "gasCoverageCpc": return [
-        { label: `透明度 ${gasCoverageCpcOpacity.toFixed(2)}`, value: gasCoverageCpcOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageCpcOpacity },
-        { label: `線寬 ${gasCoverageCpcLineWidth.toFixed(2)}`, value: gasCoverageCpcLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageCpcLineWidth },
-      ];
-      case "gasCoverageFpcc": return [
-        { label: `透明度 ${gasCoverageFpccOpacity.toFixed(2)}`, value: gasCoverageFpccOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageFpccOpacity },
-        { label: `線寬 ${gasCoverageFpccLineWidth.toFixed(2)}`, value: gasCoverageFpccLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageFpccLineWidth },
-      ];
-      case "gasCoverageTaisugar": return [
-        { label: `透明度 ${gasCoverageTaisugarOpacity.toFixed(2)}`, value: gasCoverageTaisugarOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGasCoverageTaisugarOpacity },
-        { label: `線寬 ${gasCoverageTaisugarLineWidth.toFixed(2)}`, value: gasCoverageTaisugarLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setGasCoverageTaisugarLineWidth },
-      ];
-      case "evIsland": return [
-        { label: `透明度 ${evIslandOpacity.toFixed(2)}`, value: evIslandOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEvIslandOpacity },
-        { label: `線寬 ${evIslandLineWidth.toFixed(2)}`, value: evIslandLineWidth, min: 0.1, max: 2, step: 0.1, onChange: setEvIslandLineWidth },
-      ];
-      case "powerGenerationUnit": return [
-        { label: `柱高 ${powerGenerationHeight.toFixed(1)}`, value: powerGenerationHeight, min: 0.3, max: 3, step: 0.1, onChange: setPowerGenerationHeight },
-        { label: `透明度 ${powerGenerationOpacity.toFixed(2)}`, value: powerGenerationOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPowerGenerationOpacity },
-      ];
-      case "osmSubstationsEhv": return [
-        { label: `大小 ${osmSubstationsEhvSize.toFixed(2)}`, value: osmSubstationsEhvSize, min: 0.2, max: 3, step: 0.05, onChange: setOsmSubstationsEhvSize },
-        { label: `透明度 ${osmSubstationsEhvOpacity.toFixed(2)}`, value: osmSubstationsEhvOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmSubstationsEhvOpacity },
-      ];
-      case "osmSubstations": return [
-        { label: `大小 ${osmSubstationsSize.toFixed(2)}`, value: osmSubstationsSize, min: 0.1, max: 3, step: 0.05, onChange: setOsmSubstationsSize },
-        { label: `透明度 ${osmSubstationsOpacity.toFixed(2)}`, value: osmSubstationsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmSubstationsOpacity },
-      ];
-      case "osmPowerLines": return [
-        { label: `寬度 ${osmPowerLinesWidth.toFixed(1)}`, value: osmPowerLinesWidth, min: 0.3, max: 3, step: 0.1, onChange: setOsmPowerLinesWidth },
-        { label: `透明度 ${osmPowerLinesOpacity.toFixed(2)}`, value: osmPowerLinesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmPowerLinesOpacity },
-      ];
-      case "osmPowerTowers": return [
-        { label: `大小 ${osmPowerTowersSize.toFixed(1)}`, value: osmPowerTowersSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmPowerTowersSize },
-        { label: `透明度 ${osmPowerTowersOpacity.toFixed(2)}`, value: osmPowerTowersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmPowerTowersOpacity },
-      ];
-      case "aviationControl": return [
-        { label: `透明度 ${aviationControlOpacity.toFixed(2)}`, value: aviationControlOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAviationControlOpacity },
-      ];
-      case "aviationRestricted": return [
-        { label: `透明度 ${aviationRestrictedOpacity.toFixed(2)}`, value: aviationRestrictedOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAviationRestrictedOpacity },
-      ];
-      case "droneNoFlyZone": return [
-        { label: `透明度 ${droneNfzOpacity.toFixed(2)}`, value: droneNfzOpacity, min: 0.05, max: 1, step: 0.05, onChange: setDroneNfzOpacity },
-      ];
-      case "droneRestrictedZone": return [
-        { label: `透明度 ${droneRestrictedOpacity.toFixed(2)}`, value: droneRestrictedOpacity, min: 0.05, max: 1, step: 0.05, onChange: setDroneRestrictedOpacity },
-      ];
       case "powerPoles": return [
         { label: `全台顯示 ${powerPolesZ5Reveal === 0 ? "關" : powerPolesZ5Reveal.toFixed(2)}`, value: powerPolesZ5Reveal, min: 0, max: 1, step: 0.1, onChange: setPowerPolesZ5Reveal },
         { label: `熱區 ${powerPolesHeat === 0 ? "關" : powerPolesHeat.toFixed(2)}`, value: powerPolesHeat, min: 0, max: 1, step: 0.05, onChange: setPowerPolesHeat },
         { label: `大小 ${powerPolesSize.toFixed(1)}`, value: powerPolesSize, min: 0.3, max: 3, step: 0.1, onChange: setPowerPolesSize },
         { label: `透明度 ${powerPolesOpacity.toFixed(2)}`, value: powerPolesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPowerPolesOpacity },
-      ];
-      case "osmWindTurbines": return [
-        { label: `大小 ${osmWindTurbinesSize.toFixed(1)}`, value: osmWindTurbinesSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmWindTurbinesSize },
-        { label: `透明度 ${osmWindTurbinesOpacity.toFixed(2)}`, value: osmWindTurbinesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmWindTurbinesOpacity },
-      ];
-      case "osmSolarFarms": return [
-        { label: `大小 ${osmSolarFarmsSize.toFixed(1)}`, value: osmSolarFarmsSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmSolarFarmsSize },
-        { label: `透明度 ${osmSolarFarmsOpacity.toFixed(2)}`, value: osmSolarFarmsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmSolarFarmsOpacity },
-      ];
-      case "osmPowerPlantsStatic": return [
-        { label: `大小 ${osmPowerPlantsStaticSize.toFixed(1)}`, value: osmPowerPlantsStaticSize, min: 0.3, max: 3, step: 0.1, onChange: setOsmPowerPlantsStaticSize },
-        { label: `透明度 ${osmPowerPlantsStaticOpacity.toFixed(2)}`, value: osmPowerPlantsStaticOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmPowerPlantsStaticOpacity },
-      ];
-      case "offshoreWindZones": return [
-        { label: `透明度 ${offshoreWindZonesOpacity.toFixed(2)}`, value: offshoreWindZonesOpacity, min: 0.05, max: 1, step: 0.05, onChange: setOffshoreWindZonesOpacity },
-      ];
-      case "islandPowerGrid": return [
-        { label: `大小 ${islandPowerGridSize.toFixed(1)}`, value: islandPowerGridSize, min: 0.3, max: 3, step: 0.1, onChange: setIslandPowerGridSize },
-        { label: `透明度 ${islandPowerGridOpacity.toFixed(2)}`, value: islandPowerGridOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIslandPowerGridOpacity },
-      ];
-      case "fossilFuelInfra": return [
-        { label: `大小 ${fossilFuelInfraSize.toFixed(1)}`, value: fossilFuelInfraSize, min: 0.3, max: 3, step: 0.1, onChange: setFossilFuelInfraSize },
-        { label: `透明度 ${fossilFuelInfraOpacity.toFixed(2)}`, value: fossilFuelInfraOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFossilFuelInfraOpacity },
-      ];
-      case "geothermalWells": return [
-        { label: `大小 ${geothermalWellsSize.toFixed(1)}`, value: geothermalWellsSize, min: 0.3, max: 3, step: 0.1, onChange: setGeothermalWellsSize },
-        { label: `透明度 ${geothermalWellsOpacity.toFixed(2)}`, value: geothermalWellsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGeothermalWellsOpacity },
-      ];
-      case "renewablePermitsTaipei": return [
-        { label: `大小 ${renewablePermitsTaipeiSize.toFixed(1)}`, value: renewablePermitsTaipeiSize, min: 0.3, max: 3, step: 0.1, onChange: setRenewablePermitsTaipeiSize },
-        { label: `透明度 ${renewablePermitsTaipeiOpacity.toFixed(2)}`, value: renewablePermitsTaipeiOpacity, min: 0.1, max: 1, step: 0.05, onChange: setRenewablePermitsTaipeiOpacity },
-      ];
-      case "evChargingStations": return [
-        { label: `透明度 ${evChargingOpacity.toFixed(2)}`, value: evChargingOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEvChargingOpacity },
       ];
       // ── HAZARD ──
       case "lightningCwa": return [
@@ -2078,35 +1731,11 @@ export function useTransportParams() {
         { label: `保留 ${lightningMinutes} min`, value: lightningMinutes, min: 5, max: 360, step: 5, onChange: setLightningMinutes },
         { label: `透明度 ${lightningOpacity.toFixed(2)}`, value: lightningOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLightningOpacity },
       ];
-      case "nuclearRadiation": return [
-        { label: `大小 ${nuclearScale.toFixed(1)}`, value: nuclearScale, min: 0.3, max: 3, step: 0.1, onChange: setNuclearScale },
-        { label: `透明度 ${nuclearOpacity.toFixed(2)}`, value: nuclearOpacity, min: 0.1, max: 1, step: 0.05, onChange: setNuclearOpacity },
-      ];
-      case "forestTrailSigns": return [
-        { label: `透明度 ${forestTrailSignsOpacity.toFixed(2)}`, value: forestTrailSignsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestTrailSignsOpacity },
-        { label: `大小 ${forestTrailSignsScale.toFixed(2)}`, value: forestTrailSignsScale, min: 0.3, max: 3, step: 0.1, onChange: setForestTrailSignsScale },
-      ];
-      case "mountainHuts": return [
-        { label: `透明度 ${mountainHutsOpacity.toFixed(2)}`, value: mountainHutsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMountainHutsOpacity },
-        { label: `大小 ${mountainHutsScale.toFixed(2)}`, value: mountainHutsScale, min: 0.3, max: 3, step: 0.1, onChange: setMountainHutsScale },
-      ];
       case "mountainRescueIncidents": return [
         // 7 個選項（全部 + 6 年）> 3 → 自動走原生 select（四鐵則 #4）
         { type: "select" as const, label: "年份", value: mountainRescueIncidentsYear, options: [{ label: "全部", value: "all" }, ...MOUNTAIN_RESCUE_YEARS.map((y) => ({ label: String(y), value: String(y) }))], onChange: setMountainRescueIncidentsYear },
         { label: `透明度 ${mountainRescueIncidentsOpacity.toFixed(2)}`, value: mountainRescueIncidentsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMountainRescueIncidentsOpacity },
         { label: `大小 ${mountainRescueIncidentsScale.toFixed(2)}`, value: mountainRescueIncidentsScale, min: 0.3, max: 3, step: 0.1, onChange: setMountainRescueIncidentsScale },
-      ];
-      case "forestSignalPoints": return [
-        { label: `透明度 ${forestSignalPointsOpacity.toFixed(2)}`, value: forestSignalPointsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestSignalPointsOpacity },
-        { label: `大小 ${forestSignalPointsScale.toFixed(2)}`, value: forestSignalPointsScale, min: 0.3, max: 3, step: 0.1, onChange: setForestSignalPointsScale },
-      ];
-      case "forestEducationCenters": return [
-        { label: `透明度 ${forestEducationCentersOpacity.toFixed(2)}`, value: forestEducationCentersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestEducationCentersOpacity },
-        { label: `大小 ${forestEducationCentersScale.toFixed(2)}`, value: forestEducationCentersScale, min: 0.3, max: 3, step: 0.1, onChange: setForestEducationCentersScale },
-      ];
-      case "forestWildlife": return [
-        { label: `透明度 ${forestWildlifeOpacity.toFixed(2)}`, value: forestWildlifeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestWildlifeOpacity },
-        { label: `大小 ${forestWildlifeScale.toFixed(2)}`, value: forestWildlifeScale, min: 0.3, max: 3, step: 0.1, onChange: setForestWildlifeScale },
       ];
       // ── Base map（6 layer：3 boundary + 2 contour + 1 road）──
       case "countyBoundary": return [
