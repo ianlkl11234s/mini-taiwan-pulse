@@ -549,17 +549,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   //    （全國 15,000 點，運動部 22849）
   // 🎭 文化 Culture 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
   //    上游 handoff: taipei-gis-analytics/docs/handoff/culture-layers.md；catalog: docs/data-catalog/culture/
-  // 🧳 觀光 Tourism（12 layer，docs/data-catalog/tourism/）
-  tourAttractions: { status: 'verified', datasets: [{ datasetId: 'attraction', confidence: 'HIGH' }], note: '觀光景點全國 ~6,070 點（docs/data-catalog/tourism/attraction.md）' },
-  tourHotSprings: { status: 'verified', datasets: [{ datasetId: 'hot_spring', confidence: 'HIGH' }], note: '溫泉露頭全國 150 點（docs/data-catalog/tourism/hot_spring.md）' },
-  tourHotSpringZones: { status: 'verified', datasets: [{ datasetId: 'hot_spring_zone', confidence: 'HIGH' }], note: '溫泉露頭區 16 面（docs/data-catalog/tourism/hot_spring_zone.md）' },
-  tourScenicAreas: { status: 'verified', datasets: [{ datasetId: 'scenic_area', confidence: 'HIGH' }], note: '國家風景區 12 面（docs/data-catalog/tourism/scenic_area.md）' },
-  tourHeritage: { status: 'verified', datasets: [{ datasetId: 'heritage', confidence: 'HIGH' }], note: '文化資產全國 2,894 點（docs/data-catalog/tourism/heritage.md）' },
-  tourEvents: { status: 'verified', datasets: [{ datasetId: 'activity', confidence: 'HIGH' }], note: '觀光活動・節慶全國 ~828 點（docs/data-catalog/tourism/activity.md）' },
-  tourFactories: { status: 'verified', datasets: [{ datasetId: 'tourism_factory', confidence: 'HIGH' }], note: '觀光工廠全國 158 點（docs/data-catalog/tourism/tourism_factory.md）' },
-  tourAmusementParks: { status: 'verified', datasets: [{ datasetId: 'amusement_park', confidence: 'HIGH' }], note: '民營遊樂園全國 26 點（docs/data-catalog/tourism/amusement_park.md）' },
-  tourCamping: { status: 'verified', datasets: [{ datasetId: 'camping', confidence: 'HIGH' }], note: '露營場全國 1,737 點（docs/data-catalog/tourism/camping.md）' },
-  tourHotels: { status: 'verified', datasets: [{ datasetId: 'hotel', confidence: 'HIGH' }], note: '旅宿全國 ~15,654 點（docs/data-catalog/tourism/hotel.md）' },
+  // 🧳 觀光 Tourism 11 layer（docs/data-catalog/tourism/）已搬進 layerManifest
+  //    （AR-22 Phase 2 批 2）—— 含 tourRestaurants（原本落在本表尾端另一區）
   // 🛕 宗教 Religion 6 layer（docs/data-catalog/religion/）已搬進 layerManifest
   //    （AR-22 Phase 2 批 1；含 religionTop100 —— 2026-08-02 上游自 tourism.religion
   //     搬移歸位為 religion.top100，key 同步由 tourReligion 更名）
@@ -589,7 +580,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   eduAfterschoolCare: { status: 'verified', datasets: [{ datasetId: 'afterschool_care', confidence: 'HIGH' }], note: '第 38 主題 education；兒童課後照顧服務中心 782 點 — schema 與幼兒園不同（`名稱`／`縣市`）；`立案時間` 是民國 YYYMMDD' },
   eduMutualCare: { status: 'verified', datasets: [{ datasetId: 'mutual_care', confidence: 'HIGH' }], note: '第 38 主題 education；職場／社區互助教保服務中心 148 點 — 欄位與幼兒園幾乎相同（代碼欄名為 `學校代碼`），popup 共用同一個 panel' },
   eduUniversityStudents: { status: 'verified', datasets: [{ datasetId: 'university_students', confidence: 'HIGH' }], note: '第 38 主題 education；大專校別學生數 159 點 bubble — ⚠️ **英文欄位**；🔴 21 筆 students_total 為 null（進修學院/空大 10 歸母校、宗教研修 9 不在統計、停辦改名 2），不可當 0' },
-  tourRestaurants: { status: 'verified', datasets: [{ datasetId: 'restaurant', confidence: 'HIGH' }], note: '觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）' },
   agriculture: {
     status: 'verified',
     datasets: [{ datasetId: 'ftw_fields', confidence: 'MED' }],

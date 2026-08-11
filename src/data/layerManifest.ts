@@ -48,6 +48,8 @@ import {
   LayoutGrid, ShieldCheck, Trash2, PlaneTakeoff,
   Cable, Store, Mail, PackageCheck, Users, BookOpen, ShoppingBasket, Toilet,
   GraduationCap, Activity, Trees,
+  Droplets, ThermometerSun, Mountain, Castle, PartyPopper, FerrisWheel, Tent,
+  BedDouble, UtensilsCrossed,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -1300,6 +1302,270 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["select", "slider", "slider"] },
     description: "臺北市公園點位 2,917 處（公園／兒童遊戲場／綠地／鄰里公園等 7 類分色）",
     topics: ["運動", "公園", "都市綠地"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 2 —— 觀光 Tourism 11 層
+  //  與基礎建設／運動休閒相反的形狀：**11/11 都有 labelMobile**（桌機標籤是
+  //  `中文 English` 全稱、手機只留中文），也**11/11 popup 與 key 同名**——
+  //  批 2 唯一完全沒有 popup 漂移的主題。體質仍是全 A（單一 geojson）。
+  //
+  //  legend 7/11 為 null（依然是機械判準：key 不在 LEGEND_REGISTRY 就是 null）。
+  //  有圖例的 4 層 —— tourAttractions / tourHeritage / tourEvents / tourHotels ——
+  //  恰好就是有 select 控件（分類／狀態／類別下拉）的那幾層，兩者同源：
+  //  有分色維度才需要圖例。
+  //
+  //  ⚠️ 色票：overlayRegistry 確實從 data/tourTypes.ts 取 TOUR_*_COLOR，但那些是
+  //  **category-keyed 的 match 表達式**（依 `category` / `class` 欄位值分色），
+  //  不是 layer-key-keyed 的 *_LAYER_COLORS 記錄，LAYER_COLORS 也從未 import 它。
+  //  hex 撞色（tourHeritage #6d4c41 = 該表「Culture」類色兼 fallback 基底、
+  //  tourHotels #1976d2 = 「旅館」類色）是巧合而非同一份 SSOT ——
+  //  已逐一核對過，拍板①「引用不複製」不適用，寫字面 hex。
+  //
+  //  tourHotSpringZones / tourScenicAreas 是本批僅有的**面層**（fill + line +
+  //  glow 三個 layer），因此只有 1 個 slider（透明度預設 0.50，其餘點層是 0.85），
+  //  沒有「大小」控件 —— 面沒有點半徑可調。
+  // ══════════════════════════════════════════════════════════════
+  tourAttractions: {
+    key: "tourAttractions",
+    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    label: "觀光景點 Attractions",
+    labelMobile: "觀光景點",
+    expandable: true,
+    color: "#e65100",
+    icon: Camera,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "attraction", confidence: "HIGH" }],
+      note: "觀光景點全國 ~6,070 點（docs/data-catalog/tourism/attraction.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-attractions", url: "./tourism/attractions_national.geojson" },
+    legend: "tourAttractions",
+    popup: "tourAttractions",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "交通部觀光署觀光景點全國 ~6,070 點（可切「分類／熱度」兩種著色模式）",
+    topics: ["觀光", "景點", "旅遊"],
+  },
+
+  tourHotSprings: {
+    key: "tourHotSprings",
+    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    label: "溫泉露頭 Hot Springs",
+    labelMobile: "溫泉露頭",
+    expandable: true,
+    color: "#d81b60",
+    icon: Droplets,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "hot_spring", confidence: "HIGH" }],
+      note: "溫泉露頭全國 150 點（docs/data-catalog/tourism/hot_spring.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-hot-springs", url: "./tourism/hot_springs_national.geojson" },
+    legend: null,
+    popup: "tourHotSprings",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "溫泉露頭全國 150 點（單色 POI，無圖例）",
+    topics: ["觀光", "溫泉", "自然"],
+  },
+
+  tourHotSpringZones: {
+    key: "tourHotSpringZones",
+    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    label: "溫泉露頭區 Hot Spring Zones",
+    labelMobile: "溫泉露頭區",
+    expandable: true,
+    color: "#880e4f",
+    icon: ThermometerSun,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "hot_spring_zone", confidence: "HIGH" }],
+      note: "溫泉露頭區 16 面（docs/data-catalog/tourism/hot_spring_zone.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-hot-spring-zones", url: "./tourism/hot_spring_zones_national.geojson" },
+    legend: null,
+    popup: "tourHotSpringZones",
+    // 面層：fill + line + glow 三個 layer，只有透明度可調（預設 0.50），無「大小」
+    params: { count: 1, kinds: ["slider"] },
+    description: "溫泉露頭區 16 面（面層；與點狀的 tourHotSprings 是兩份資料）",
+    topics: ["觀光", "溫泉", "土地使用"],
+  },
+
+  tourScenicAreas: {
+    key: "tourScenicAreas",
+    section: { theme: "觀光 Tourism", group: "玩・自然 Nature" },
+    label: "國家風景區 Scenic Areas",
+    labelMobile: "國家風景區",
+    expandable: true,
+    color: "#00695c",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "scenic_area", confidence: "HIGH" }],
+      note: "國家風景區 12 面（docs/data-catalog/tourism/scenic_area.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-scenic-areas", url: "./tourism/national_scenic_areas_national.geojson" },
+    legend: null,
+    popup: "tourScenicAreas",
+    params: { count: 1, kinds: ["slider"] },
+    description: "國家風景區 12 處管理處轄區範圍（面層）",
+    topics: ["觀光", "風景區", "土地使用"],
+  },
+
+  tourHeritage: {
+    key: "tourHeritage",
+    section: { theme: "觀光 Tourism", group: "玩・人文 Heritage" },
+    label: "文化資產 Heritage",
+    labelMobile: "文化資產",
+    expandable: true,
+    color: "#6d4c41",
+    icon: Castle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "heritage", confidence: "HIGH" }],
+      note: "文化資產全國 2,894 點（docs/data-catalog/tourism/heritage.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-heritage", url: "./tourism/heritage_national.geojson" },
+    legend: "tourHeritage",
+    popup: "tourHeritage",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "文化資產全國 2,894 點（category 三類同色系分色，基底 #6d4c41）",
+    topics: ["觀光", "文資", "人文"],
+  },
+
+  tourEvents: {
+    key: "tourEvents",
+    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    label: "觀光活動・節慶 Tourism Events",
+    labelMobile: "觀光活動",
+    expandable: true,
+    color: "#f9a825",
+    icon: PartyPopper,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "activity", confidence: "HIGH" }],
+      note: "觀光活動・節慶全國 ~828 點（docs/data-catalog/tourism/activity.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-events", url: "./tourism/activities_national.geojson" },
+    legend: "tourEvents",
+    popup: "tourEvents",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "觀光活動・節慶全國 ~828 場（狀態下拉：全部／進行中／未開始，依當日判定）",
+    topics: ["觀光", "活動", "節慶"],
+  },
+
+  tourFactories: {
+    key: "tourFactories",
+    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    label: "觀光工廠 Tourism Factories",
+    labelMobile: "觀光工廠",
+    expandable: true,
+    color: "#546e7a",
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "tourism_factory", confidence: "HIGH" }],
+      note: "觀光工廠全國 158 點（docs/data-catalog/tourism/tourism_factory.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-factories", url: "./tourism/tourism_factories_national.geojson" },
+    legend: null,
+    popup: "tourFactories",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "經濟部認證觀光工廠全國 158 家",
+    topics: ["觀光", "工廠", "體驗"],
+  },
+
+  tourAmusementParks: {
+    key: "tourAmusementParks",
+    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    label: "民營遊樂園 Amusement Parks",
+    labelMobile: "民營遊樂園",
+    expandable: true,
+    color: "#00acc1",
+    icon: FerrisWheel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "amusement_park", confidence: "HIGH" }],
+      note: "民營遊樂園全國 26 點（docs/data-catalog/tourism/amusement_park.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-amusement-parks", url: "./tourism/amusement_parks_national.geojson" },
+    legend: null,
+    popup: "tourAmusementParks",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "民營觀光遊樂業全國 26 家",
+    topics: ["觀光", "遊樂園", "體驗"],
+  },
+
+  tourCamping: {
+    key: "tourCamping",
+    section: { theme: "觀光 Tourism", group: "玩・體驗 Experience" },
+    label: "露營場 Campgrounds",
+    labelMobile: "露營場",
+    expandable: true,
+    color: "#7cb342",
+    icon: Tent,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "camping", confidence: "HIGH" }],
+      note: "露營場全國 1,737 點（docs/data-catalog/tourism/camping.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-camping", url: "./tourism/camping_national.geojson" },
+    legend: null,
+    popup: "tourCamping",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "露營場全國 1,737 處",
+    topics: ["觀光", "露營", "戶外"],
+  },
+
+  tourHotels: {
+    key: "tourHotels",
+    section: { theme: "觀光 Tourism", group: "住・食 Stay & Eat" },
+    label: "旅宿 Hotels & B&Bs",
+    labelMobile: "旅宿",
+    expandable: true,
+    color: "#1976d2",
+    icon: BedDouble,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "hotel", confidence: "HIGH" }],
+      note: "旅宿全國 ~15,654 點（docs/data-catalog/tourism/hotel.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-hotels", url: "./tourism/hotels_national.geojson" },
+    legend: "tourHotels",
+    popup: "tourHotels",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "旅宿全國 ~15,654 家（國際觀光旅館／一般觀光旅館／旅館／民宿 4 類分色）",
+    topics: ["觀光", "旅宿", "住宿"],
+  },
+
+  tourRestaurants: {
+    key: "tourRestaurants",
+    section: { theme: "觀光 Tourism", group: "住・食 Stay & Eat" },
+    label: "觀光餐飲 Restaurants",
+    labelMobile: "觀光餐飲",
+    expandable: true,
+    color: "#c62828",
+    icon: UtensilsCrossed,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "restaurant", confidence: "HIGH" }],
+      note: "觀光餐飲全國 ~3,688 點（docs/data-catalog/tourism/restaurant.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "tour-restaurants", url: "./tourism/restaurants_national.geojson" },
+    legend: null,
+    popup: "tourRestaurants",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "觀光署收錄餐飲店家全國 ~3,688 家（非全國餐飲母體）",
+    topics: ["觀光", "餐飲", "美食"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

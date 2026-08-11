@@ -168,18 +168,9 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   buildingsGba: "#78909c",
   urbanZoningNewTaipei: "#eb5757",
   nonUrbanZoning: "#a2c14e",
-  // 🧳 觀光 Tourism
-  tourAttractions: "#e65100",
-  tourHotSprings: "#d81b60",
-  tourHotSpringZones: "#880e4f",
-  tourScenicAreas: "#00695c",
-  tourHeritage: "#6d4c41",
-  tourEvents: "#f9a825",
-  tourFactories: "#546e7a",
-  tourAmusementParks: "#00acc1",
-  tourCamping: "#7cb342",
-  tourHotels: "#1976d2",
-  tourRestaurants: "#c62828",
+  // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）——
+  //    tourTypes.ts 的 TOUR_*_COLOR 是 category-keyed 的 match 表達式、不是
+  //    layer-key-keyed 的色票記錄，本表從未 import 它 → manifest 寫字面 hex。
   // 🛕 宗教 Religion 6 層 / ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest
   //    （AR-22 Phase 2 批 1）—— 色票 SSOT 仍是 religionTypes.ts / funeralTypes.ts
   //    的 *_LAYER_COLORS，manifest 的 color 欄直接引用它們。
@@ -941,32 +932,32 @@ export const THEMES: ThemeDef[] = [
       {
         title: "玩・自然 Nature",
         layers: [
-          { key: "tourAttractions", label: "觀光景點 Attractions", labelMobile: "觀光景點", expandable: true },
-          { key: "tourHotSprings", label: "溫泉露頭 Hot Springs", labelMobile: "溫泉露頭", expandable: true },
-          { key: "tourHotSpringZones", label: "溫泉露頭區 Hot Spring Zones", labelMobile: "溫泉露頭區", expandable: true },
-          { key: "tourScenicAreas", label: "國家風景區 Scenic Areas", labelMobile: "國家風景區", expandable: true },
+          fromManifest("tourAttractions"),
+          fromManifest("tourHotSprings"),
+          fromManifest("tourHotSpringZones"),
+          fromManifest("tourScenicAreas"),
         ],
       },
       {
         title: "玩・人文 Heritage",
         layers: [
-          { key: "tourHeritage", label: "文化資產 Heritage", labelMobile: "文化資產", expandable: true },
+          fromManifest("tourHeritage"),
         ],
       },
       {
         title: "玩・體驗 Experience",
         layers: [
-          { key: "tourEvents", label: "觀光活動・節慶 Tourism Events", labelMobile: "觀光活動", expandable: true },
-          { key: "tourFactories", label: "觀光工廠 Tourism Factories", labelMobile: "觀光工廠", expandable: true },
-          { key: "tourAmusementParks", label: "民營遊樂園 Amusement Parks", labelMobile: "民營遊樂園", expandable: true },
-          { key: "tourCamping", label: "露營場 Campgrounds", labelMobile: "露營場", expandable: true },
+          fromManifest("tourEvents"),
+          fromManifest("tourFactories"),
+          fromManifest("tourAmusementParks"),
+          fromManifest("tourCamping"),
         ],
       },
       {
         title: "住・食 Stay & Eat",
         layers: [
-          { key: "tourHotels", label: "旅宿 Hotels & B&Bs", labelMobile: "旅宿", expandable: true },
-          { key: "tourRestaurants", label: "觀光餐飲 Restaurants", labelMobile: "觀光餐飲", expandable: true },
+          fromManifest("tourHotels"),
+          fromManifest("tourRestaurants"),
         ],
       },
     ],

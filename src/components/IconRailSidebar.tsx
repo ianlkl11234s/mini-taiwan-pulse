@@ -31,8 +31,7 @@ import {
   Ban,
   // 環境污染 icons
   Biohazard,
-  // 🧳 TOURISM icons（Mountain / Factory 已 import 復用）
-  Camera, ThermometerSun, Castle, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
+  ThermometerSun, Tent,
   // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot / Map 已 import 復用；
   // 幼托補習用已 import 的 BookOpen / Users / HeartHandshake，大專學生數 bubble 用 BarChart3）
   // Shapes 專給「高中就學區」—— 縣市級大面，與里級 k12 學區（Map）刻意用不同 icon 區隔粒度
@@ -197,18 +196,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   nonUrbanZoning: Sprout,
   // 🏟️ 運動休閒 Sports & Leisure 6 層已搬進 layerManifest（AR-22 Phase 2 批 2）
   // 🎭 文化 Culture 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  // 🧳 觀光 Tourism
-  tourAttractions: Camera,
-  tourHotSprings: Droplets,
-  tourHotSpringZones: ThermometerSun,
-  tourScenicAreas: Mountain,
-  tourHeritage: Castle,
-  tourEvents: PartyPopper,
-  tourFactories: Factory,
-  tourAmusementParks: FerrisWheel,
-  tourCamping: Tent,
-  tourHotels: BedDouble,
-  tourRestaurants: UtensilsCrossed,
+  // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）
   // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // 🎓 教育 Education（總覽層 schools: GraduationCap 在上方，隨主題搬移但 key 不變）
