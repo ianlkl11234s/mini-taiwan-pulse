@@ -142,22 +142,18 @@ export interface LayerSection {
   group: string;
 }
 
-export interface LayerManifestEntry {
+/**
+ * 全部 entry 共同的欄位 —— **刻意不含 THEMES LayerDef 那一組**
+ * （`section` / `label` / `labelMobile` / `expandable` / `gated`）。
+ * 那一組的真值來源是 THEMES 的 LayerDef，而 10 個 orphan key 根本沒有 LayerDef，
+ * 所以它們整組一起消失，見下方 `LayerManifestEntry` 的兩個變體。
+ */
+interface LayerManifestBase {
   // ── 身分 ──
   /** LayerVisibility 的 key，與 record 的 key 相同（冗餘但讓單筆 entry 可獨立閱讀） */
   key: keyof LayerVisibility;
-  /** sidebar 座標（觸點 #8 的位置資訊） */
-  section: LayerSection;
 
-  // ── 已派生：改這裡畫面就會變 ──
-  /** 桌機 IconRailSidebar 顯示文字。格式慣例 `中文 English` */
-  label: string;
-  /** 手機 LayerSidebar 顯示文字（多為較長全稱）；未填則沿用 label */
-  labelMobile?: string;
-  /** sidebar toggle 是否可展開參數面板 */
-  expandable?: boolean;
-  /** owner-only 私人圖層（非 owner 顯示鎖頭、禁 toggle） */
-  gated?: boolean;
+  // ── 已派生：改這裡畫面就會變（三張 348-key 全量表，orphan 也在裡面）──
   /** 代表色 hex（sidebar 圓點 / 部分 paint 的 fallback） */
   color: string;
   /** lucide icon **元件參照**（不是字串——字串→元件需要一張 name map，
@@ -219,6 +215,51 @@ export interface LayerManifestEntry {
   /** 主題標籤（跨主題檢索用，非 sidebar 分區） */
   topics: string[];
 }
+
+/**
+ * 在 THEMES 裡的 key（338 個）—— 有 sidebar 座標，也就有一筆 LayerDef 可派生。
+ */
+export interface LayerManifestThemedEntry extends LayerManifestBase {
+  /** sidebar 座標（觸點 #8 的位置資訊） */
+  section: LayerSection;
+  /** 桌機 IconRailSidebar 顯示文字。格式慣例 `中文 English` */
+  label: string;
+  /** 手機 LayerSidebar 顯示文字（多為較長全稱）；未填則沿用 label */
+  labelMobile?: string;
+  /** sidebar toggle 是否可展開參數面板 */
+  expandable?: boolean;
+  /** owner-only 私人圖層（非 owner 顯示鎖頭、禁 toggle） */
+  gated?: boolean;
+}
+
+/**
+ * **orphan key**（10 個，批 8）—— `LayerVisibility` 有這個 key、`LAYER_COLORS` /
+ * `LAYER_ICONS` / `UPSTREAM_REGISTRY` 三張 348-key 全量表也有，但 **THEMES 沒有**：
+ * 沒有 sidebar toggle，因此沒有 LayerDef。
+ *
+ * ⚠️ `label` 一族在這裡是 `never` 而不是「選填」，這是**刻意**的：
+ * 它們的唯一真值來源就是 LayerDef，orphan 沒有 LayerDef ⇒ 沒有真值可搬。
+ * 填一個「看起來合理」的 label 等於在 SSOT 裡發明一個沒人能驗證的事實 ——
+ * 正是 `layerManifest.test.ts` 開頭那段（沒人驗證的宣告會悄悄爛掉）要防的東西。
+ * 同 `legend` / `popup` 用 null 表達「有意識地沒有」，這裡用型別表達「不存在」。
+ */
+export interface LayerManifestOrphanEntry extends LayerManifestBase {
+  /** null = 不在 THEMES。這是本 union 的判別欄位。 */
+  section: null;
+  label?: never;
+  labelMobile?: never;
+  expandable?: never;
+  gated?: never;
+}
+
+/**
+ * 判別聯集，判別欄位是 `section`：
+ * 非 null ⇒ 在 THEMES、有 LayerDef 那一組欄位；null ⇒ orphan、那組欄位不存在。
+ *
+ * 型別本身就是護欄：orphan 若手癢寫了 `label`，兩個變體都不接受（變體一的
+ * `section` 型別對不上、變體二的 `label` 是 `never`）→ tsc 直接紅。
+ */
+export type LayerManifestEntry = LayerManifestThemedEntry | LayerManifestOrphanEntry;
 
 /**
  * 🛰️ 太空 16 層**共用同一份 source.note**（不是為了省字：它們真的是同一套實作 ——

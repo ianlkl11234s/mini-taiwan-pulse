@@ -89,6 +89,13 @@ describe("layerManifest 已派生欄位真的在驅動下游表", () => {
   it("THEMES 的 LayerDef 來自 manifest（label / labelMobile / expandable / gated）", () => {
     for (const [k, m] of entries) {
       const def = THEMES.flatMap((t) => t.groups).flatMap((g) => g.layers).find((l) => l.key === k);
+      if (m.section === null) {
+        // orphan：沒有 LayerDef 可派生。label 一族在型別上就是 never（寫了 tsc 紅），
+        // 這裡釘的是**反方向** —— THEMES 真的查無此 key，派生鏈也沒偷偷生出 label 來。
+        expect(def, `${k} 宣告 section: null（orphan），THEMES 裡卻有它的 LayerDef`).toBeUndefined();
+        expect(LAYER_LABELS[k], `${k} 宣告 orphan，LAYER_LABELS 卻有它`).toBeUndefined();
+        continue;
+      }
       expect(def, `${k} 不在 THEMES 裡`).toBeTruthy();
       expect(def!.label).toBe(m.label);
       expect(def!.labelMobile).toBe(m.labelMobile);
@@ -105,8 +112,16 @@ describe("layerManifest 已派生欄位真的在驅動下游表", () => {
 });
 
 describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的防腐）", () => {
-  it("section 宣告 = THEMES 裡的實際位置", () => {
+  it("section 宣告 = THEMES 裡的實際位置（null ⇔ orphan，THEMES 查無此 key）", () => {
     for (const [k, m] of entries) {
+      // 雙向：宣告 null 就必須真的不在 THEMES，宣告座標就必須座標一致。
+      // 只驗單邊的話，「把還在 THEMES 的層宣告成 orphan」會靜默過關 —— 那等於
+      // 讓它從 sidebar 派生鏈裡消失（Phase 3 依 section 派生 THEMES 時整層不見）。
+      if (m.section === null) {
+        expect(themeLocation(k), `${k} 宣告 section: null（orphan），THEMES 裡卻找得到它`)
+          .toBeNull();
+        continue;
+      }
       expect(themeLocation(k), `${k} 的 section 宣告與 THEMES 實際位置不符`)
         .toEqual({ theme: m.section.theme, group: m.section.group });
     }

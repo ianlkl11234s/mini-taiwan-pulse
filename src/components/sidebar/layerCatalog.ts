@@ -252,6 +252,12 @@ function fromManifest(key: ManifestKey): LayerDef {
   // 該筆真的寫了的欄位 —— 直接讀 m.gated 會被 TS 判成不存在。這裡要的是
   // 「介面上宣告過的選填欄位」語意，widen 到介面才對。
   const m: LayerManifestEntry = LAYER_MANIFEST[key];
+  // orphan（section: null）沒有 LayerDef 可派生 —— 連 label 都不存在（型別是 never）。
+  // 走到這裡代表有人把 orphan key 寫進了 THEMES，那是接線錯誤不是資料錯誤，
+  // 早炸勝過渲染出一顆沒有文字的 toggle。同時也把 union 收斂成 themed 變體。
+  if (m.section === null) {
+    throw new Error(`[layerManifest] ${key} 是 orphan（不在 THEMES），不該被 fromManifest 引用`);
+  }
   const def: LayerDef = { key: m.key, label: m.label };
   if (m.labelMobile !== undefined) def.labelMobile = m.labelMobile;
   if (m.expandable !== undefined) def.expandable = m.expandable;
