@@ -42,6 +42,8 @@ import {
 } from "./funeralTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
+import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
+import { MOUNTAIN_RESCUE_YEARS } from "./mountainSafetyTypes";
 
 /** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
 export interface ParamSelectOption {
@@ -854,6 +856,114 @@ export const LAYER_PARAMS_SPEC = {
   eduMutualCare: [
     { kind: "slider", name: "eduChildcareOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05, sharedGroup: "eduChildcareOpacity" },
     { kind: "slider", name: "eduChildcareScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1, sharedGroup: "eduChildcareScale" },
+  ],
+
+  // ══════════ 天災水利・農林・工業・不動產 20 層 ══════════
+  typhoonTracks: [
+    {
+      kind: "select", name: "typhoonSource", label: "資料源", default: "all",
+      options: [ { label: "全部", value: "all" }, { label: "JMA 日本", value: "jma" }, { label: "JTWC 美軍", value: "jtwc" }, ],
+      out: "typhoonSourceIdx", encode: ["all", "jma", "jtwc"],
+    },
+    { kind: "slider", name: "typhoonTracksOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+  ],
+  iotWraRiver: [
+    { kind: "slider", name: "iotWraRiverScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    { kind: "slider", name: "iotWraRiverOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0.1, max: 1, step: 0.05 },
+    { kind: "toggle", name: "iotWraRiverShowMeasured", label: "即時水位", default: true },
+    { kind: "toggle", name: "iotWraRiverShowForecast", label: "預測水位 (12-19h)", default: true },
+  ],
+  iotWraStructure: [
+    { kind: "slider", name: "iotWraStructureScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    { kind: "slider", name: "iotWraStructureOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0.1, max: 1, step: 0.05 },
+    { kind: "toggle", name: "iotWraStructureFlow", label: "累計流量 Flow", default: true },
+    { kind: "toggle", name: "iotWraStructureGate", label: "閘門 Watergate", default: true },
+    { kind: "toggle", name: "iotWraStructureDam", label: "堤防安全 Dam", default: true },
+    { kind: "toggle", name: "iotWraStructureErosion", label: "河床沖刷 Erosion", default: true },
+    { kind: "toggle", name: "iotWraStructureDust", label: "揚塵 Dust", default: true },
+  ],
+  agriSoilFertility: [
+    { kind: "slider", name: "agriSoilFertilityOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0.1, max: 1, step: 0.05 },
+    {
+      kind: "select", name: "agriSoilFertilityMetric", label: "著色", default: "health",
+      options: SOIL_FERTILITY_METRIC_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+      out: "agriSoilFertilityMetricIdx", encode: SOIL_FERTILITY_METRIC_OPTIONS.map((o) => o.value),
+    },
+  ],
+  forestCompartments: [
+    { kind: "slider", name: "forestCompartmentsOpacity", labelPrefix: "透明度", digits: 2, default: 0.45, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "forestCompartmentsOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "forestCompartmentsShowOutline", label: "邊框 Outline", default: true },
+  ],
+  forestReserve: [
+    { kind: "slider", name: "forestReserveOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "forestReserveOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "forestReserveShowOutline", label: "邊框 Outline", default: true },
+  ],
+  forestRecreation: [
+    { kind: "slider", name: "forestRecreationOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "forestRecreationOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "forestRecreationShowOutline", label: "邊框 Outline", default: true },
+  ],
+  forestTreatmentWorks: [
+    { kind: "slider", name: "forestTreatmentWorksOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "forestTreatmentWorksOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "forestTreatmentWorksShowOutline", label: "邊框 Outline", default: true },
+  ],
+  forestFlatParks: [
+    { kind: "slider", name: "forestFlatParksOpacity", labelPrefix: "透明度", digits: 2, default: 0.6, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "forestFlatParksOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "forestFlatParksShowOutline", label: "邊框 Outline", default: true },
+  ],
+  forestDamLakes: [
+    { kind: "slider", name: "forestDamLakesOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "forestDamLakesOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 0.5, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "forestDamLakesShowOutline", label: "邊框 Outline", default: true },
+  ],
+  industrialRefinery: [
+    { kind: "slider", name: "industrialRefineryOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 1, step: 0.05 },
+    { kind: "toggle", name: "industrialRefineryOutline", label: "顯示外框線", default: true },
+  ],
+  industrialStorageTank: [
+    { kind: "slider", name: "industrialStorageTankOpacity", labelPrefix: "透明度", digits: 2, default: 0.55, min: 0.1, max: 1, step: 0.05 },
+    { kind: "toggle", name: "industrialStorageTankOutline", label: "顯示外框線", default: true },
+  ],
+  industrialPowerPlant: [
+    { kind: "slider", name: "industrialPowerPlantOpacity", labelPrefix: "透明度", digits: 2, default: 0.5, min: 0.1, max: 1, step: 0.05 },
+    { kind: "toggle", name: "industrialPowerPlantOutline", label: "顯示外框線", default: true },
+  ],
+  mountainRescueIncidents: [
+    {
+      kind: "select", name: "mountainRescueIncidentsYear", label: "年份", default: "all",
+      options: [{ label: "全部", value: "all" }, ...MOUNTAIN_RESCUE_YEARS.map((y) => ({ label: String(y), value: String(y) }))],
+      out: "mountainRescueIncidentsYearIdx", encode: ["all", ...MOUNTAIN_RESCUE_YEARS.map(String)],
+    },
+    { kind: "slider", name: "mountainRescueIncidentsOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0.1, max: 1, step: 0.05 },
+    { kind: "slider", name: "mountainRescueIncidentsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  realEstateRentalGrid: [
+    { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
+    { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
+  ],
+  realEstateRentalPoint: [
+    { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
+    { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
+  ],
+  realEstateSaleGrid: [
+    { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
+    { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
+  ],
+  realEstateSalePoint: [
+    { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
+    { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
+  ],
+  realEstatePresaleGrid: [
+    { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
+    { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
+  ],
+  realEstatePresalePoint: [
+    { kind: "slider", name: "realEstateOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0.1, max: 1, step: 0.05, sharedGroup: "realEstateOpacity" },
+    { kind: "toggle", name: "realEstateExcludeTaipei", label: "排除雙北重繪", default: false, sharedGroup: "realEstateExcludeTaipei" },
   ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 

@@ -6,10 +6,6 @@ import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { FARM_HIGHLIGHT_OPTIONS } from "../data/livestockTypes";
 import {
-  SOIL_FERTILITY_METRIC_OPTIONS,
-  type SoilFertilityMetric,
-} from "../data/agriSoilFertilityMetrics";
-import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
   type PollutionMedium,
@@ -27,7 +23,6 @@ import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
 // religionTypes / funeralTypes 的 select 選項常數已隨 11 個試點 key 遷出本檔
 // （現由 src/data/layerParamsSpec.ts 引用）。
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
-import { MOUNTAIN_RESCUE_YEARS } from "../data/mountainSafetyTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
 
 export interface SliderConfig {
@@ -444,11 +439,6 @@ export function useTransportParams() {
   // 其他水資源圖層參數
   const [waterFloodOpacity, setWaterFloodOpacity] = useState(1.0);
   // Phase 2 monitoring layers（即時雨量 / 河川水位 / 地下水井 / 水井點位）
-  const [iotWraRiverScale, setIotWraRiverScale] = useState(1.0);
-  const [iotWraRiverOpacity, setIotWraRiverOpacity] = useState(1.0);
-  const [iotWraRiverShowMeasured, setIotWraRiverShowMeasured] = useState(true);
-  const [iotWraRiverShowForecast, setIotWraRiverShowForecast] = useState(true);
-  const [iotWraStructureScale, setIotWraStructureScale] = useState(1.0);
   // 北市水利處三本柱
   const [precipRasterOpacity, setPrecipRasterOpacity] = useState(0.6);
   const [precipRasterHours, setPrecipRasterHours] = useState<1 | 3 | 6 | 24>(24);
@@ -460,12 +450,6 @@ export function useTransportParams() {
   const [wasteStopsStaticScale, setWasteStopsStaticScale] = useState(1.0);
   const [wasteStopsStaticGlow, setWasteStopsStaticGlow] = useState(0.10);
   const [wasteStopsStaticZ, setWasteStopsStaticZ] = useState(0);
-  const [iotWraStructureOpacity, setIotWraStructureOpacity] = useState(1.0);
-  const [iotWraStructureFlow, setIotWraStructureFlow] = useState(true);
-  const [iotWraStructureGate, setIotWraStructureGate] = useState(true);
-  const [iotWraStructureDam, setIotWraStructureDam] = useState(true);
-  const [iotWraStructureErosion, setIotWraStructureErosion] = useState(true);
-  const [iotWraStructureDust, setIotWraStructureDust] = useState(true);
   // AQI 色階圖透明度
   const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
   // Agriculture FTW 農田 (PMTiles)
@@ -474,8 +458,6 @@ export function useTransportParams() {
   const [agricultureShowOutline, setAgricultureShowOutline] = useState(true);
   const [agricultureZ, setAgricultureZ] = useState(0);
   // Agriculture Phase 3 Batch 1 (5 PMTiles + 1 GeoJSON POI)
-  const [agriSoilFertilityOpacity, setAgriSoilFertilityOpacity] = useState(1.0);
-  const [agriSoilFertilityMetric, setAgriSoilFertilityMetric] = useState<SoilFertilityMetric>("health");
   const [agriCropSuitabilityOpacity, setAgriCropSuitabilityOpacity] = useState(1.0);
   const [agriCropSuitabilityCropId, setAgriCropSuitabilityCropId] = useState(0);
 
@@ -507,24 +489,6 @@ export function useTransportParams() {
 
   // ── FORESTRY（12 base + 3 衍生）──
   // polygon：opacity + outlineWidth + showOutline
-  const [forestCompartmentsOpacity, setForestCompartmentsOpacity] = useState(0.45);
-  const [forestCompartmentsOutlineWidth, setForestCompartmentsOutlineWidth] = useState(0.5);
-  const [forestCompartmentsShowOutline, setForestCompartmentsShowOutline] = useState(true);
-  const [forestReserveOpacity, setForestReserveOpacity] = useState(0.5);
-  const [forestReserveOutlineWidth, setForestReserveOutlineWidth] = useState(0.5);
-  const [forestReserveShowOutline, setForestReserveShowOutline] = useState(true);
-  const [forestRecreationOpacity, setForestRecreationOpacity] = useState(0.6);
-  const [forestRecreationOutlineWidth, setForestRecreationOutlineWidth] = useState(0.5);
-  const [forestRecreationShowOutline, setForestRecreationShowOutline] = useState(true);
-  const [forestTreatmentWorksOpacity, setForestTreatmentWorksOpacity] = useState(0.7);
-  const [forestTreatmentWorksOutlineWidth, setForestTreatmentWorksOutlineWidth] = useState(0.5);
-  const [forestTreatmentWorksShowOutline, setForestTreatmentWorksShowOutline] = useState(true);
-  const [forestFlatParksOpacity, setForestFlatParksOpacity] = useState(0.6);
-  const [forestFlatParksOutlineWidth, setForestFlatParksOutlineWidth] = useState(0.5);
-  const [forestFlatParksShowOutline, setForestFlatParksShowOutline] = useState(true);
-  const [forestDamLakesOpacity, setForestDamLakesOpacity] = useState(0.7);
-  const [forestDamLakesOutlineWidth, setForestDamLakesOutlineWidth] = useState(0.5);
-  const [forestDamLakesShowOutline, setForestDamLakesShowOutline] = useState(true);
   // ENERGY MVP — 4 layer opacity + 2 scale/height
   const [powerPlantGlowOpacity, setPowerPlantGlowOpacity] = useState(0.9);
   const [powerPlantGlowSize, setPowerPlantGlowSize] = useState(1);
@@ -544,21 +508,13 @@ export function useTransportParams() {
   const [facPrimaryRtScale, setFacPrimaryRtScale] = useState(1.3);
   const [facPrimaryNoRtScale, setFacPrimaryNoRtScale] = useState(0.85);
   // ── 化石燃料 14 layer params（Phase B） ──
-  const [industrialRefineryOpacity, setIndustrialRefineryOpacity] = useState(0.55);
-  const [industrialRefineryOutline, setIndustrialRefineryOutline] = useState(true);
-  const [industrialStorageTankOpacity, setIndustrialStorageTankOpacity] = useState(0.55);
-  const [industrialStorageTankOutline, setIndustrialStorageTankOutline] = useState(true);
-  const [industrialPowerPlantOpacity, setIndustrialPowerPlantOpacity] = useState(0.5);
-  const [industrialPowerPlantOutline, setIndustrialPowerPlantOutline] = useState(true);
   // HAZARD（v2 Phase B）
   const [lightningOpacity, setLightningOpacity] = useState(0.85);
   const [lightningMinutes, setLightningMinutes] = useState(10);
   const [lightningCwaOpacity, setLightningCwaOpacity] = useState(0.85);
   const [lightningCwaMinutes, setLightningCwaMinutes] = useState(10);
   // 全球氣候 GLOBAL CLIMATE
-  const [typhoonTracksOpacity, setTyphoonTracksOpacity] = useState(0.9);
   // 🌍 世界 WORLD
-  const [typhoonSource, setTyphoonSource] = useState("all"); // all / jma / jtwc
   const [oceanCurrentsOpacity, setOceanCurrentsOpacity] = useState(0.65);
   const [windFieldOpacity, setWindFieldOpacity] = useState(0.8);
   // 全球氣候粒子：風場 / 海流尺度不同，參數分開避免互相污染。
@@ -576,14 +532,6 @@ export function useTransportParams() {
   // 坡度/坡向分級向量（PMTiles polygon，可點選/疊圖分析）
   const [slopeVectorOpacity, setSlopeVectorOpacity] = useState(0.6);
   const [aspectVectorOpacity, setAspectVectorOpacity] = useState(0.6);
-  // 房地產（6 layer 共用一個透明度）
-  const [realEstateOpacity, setRealEstateOpacity] = useState(0.7);
-  // 排除雙北（taipei+newtaipei）重繪：濾掉雙北 + 色階壓縮到非雙北 domain。預設 false=包含
-  const [realEstateExcludeTaipei, setRealEstateExcludeTaipei] = useState(false);
-  // 登山安全：山屋（<1k 點 UX baseline 0.9）／山域事故（1k~10k baseline 0.85 + 年份三態以上篩選）
-  const [mountainRescueIncidentsOpacity, setMountainRescueIncidentsOpacity] = useState(0.85);
-  const [mountainRescueIncidentsScale, setMountainRescueIncidentsScale] = useState(1.0);
-  const [mountainRescueIncidentsYear, setMountainRescueIncidentsYear] = useState<string>("all"); // all / 2019..2024
   // 衍生（H3 / polygon）：opacity + outlineWidth + showOutline
 
   // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
@@ -834,17 +782,6 @@ export function useTransportParams() {
     metroPillar3d: metroPillarVisible ? 1 : 0,
     floodMinDepth,
     waterFloodOpacity,
-    iotWraRiverScale,
-    iotWraRiverOpacity,
-    iotWraRiverShowMeasured: iotWraRiverShowMeasured ? 1 : 0,
-    iotWraRiverShowForecast: iotWraRiverShowForecast ? 1 : 0,
-    iotWraStructureScale,
-    iotWraStructureOpacity,
-    iotWraStructureFlow: iotWraStructureFlow ? 1 : 0,
-    iotWraStructureGate: iotWraStructureGate ? 1 : 0,
-    iotWraStructureDam: iotWraStructureDam ? 1 : 0,
-    iotWraStructureErosion: iotWraStructureErosion ? 1 : 0,
-    iotWraStructureDust: iotWraStructureDust ? 1 : 0,
     precipRasterOpacity,
     precipRasterHours,
     wasteStopsStaticScale,
@@ -854,9 +791,6 @@ export function useTransportParams() {
     agricultureOutlineWidth,
     agricultureShowOutline: agricultureShowOutline ? 1 : 0,
     agricultureZ,
-    agriSoilFertilityOpacity,
-    // metric 字串轉 index 編進 overlayParams (Record<string,number>)；MapView 端再 decode 回 string
-    agriSoilFertilityMetricIdx: SOIL_FERTILITY_METRIC_OPTIONS.findIndex((o) => o.value === agriSoilFertilityMetric),
     agriCropSuitabilityOpacity,
     agriCropSuitabilityCropId,
     livestockFarmPigOpacity,
@@ -880,30 +814,6 @@ export function useTransportParams() {
     livestockFarmGooseHighlightIdx,
     livestockFarmSheepHighlightIdx,
     livestockFarmOtherHighlightIdx,
-    // 🏟️ 運動場館 Sports
-    // FORESTRY
-    forestCompartmentsOpacity,
-    forestCompartmentsOutlineWidth,
-    forestCompartmentsShowOutline: forestCompartmentsShowOutline ? 1 : 0,
-    forestReserveOpacity,
-    forestReserveOutlineWidth,
-    forestReserveShowOutline: forestReserveShowOutline ? 1 : 0,
-    forestRecreationOpacity,
-    forestRecreationOutlineWidth,
-    forestRecreationShowOutline: forestRecreationShowOutline ? 1 : 0,
-    forestTreatmentWorksOpacity,
-    forestTreatmentWorksOutlineWidth,
-    forestTreatmentWorksShowOutline: forestTreatmentWorksShowOutline ? 1 : 0,
-    forestFlatParksOpacity,
-    forestFlatParksOutlineWidth,
-    forestFlatParksShowOutline: forestFlatParksShowOutline ? 1 : 0,
-    forestDamLakesOpacity,
-    forestDamLakesOutlineWidth,
-    forestDamLakesShowOutline: forestDamLakesShowOutline ? 1 : 0,
-    mountainRescueIncidentsOpacity,
-    mountainRescueIncidentsScale,
-    // idx 0=全部，1..6 對應 MOUNTAIN_RESCUE_YEARS（同 urbanZoning*CategoryIdx 慣例）
-    mountainRescueIncidentsYearIdx: ["all", ...MOUNTAIN_RESCUE_YEARS.map(String)].indexOf(mountainRescueIncidentsYear),
     // ENERGY
     powerPlantGlowOpacity,
     powerPlantGlowSize,
@@ -912,10 +822,6 @@ export function useTransportParams() {
     powerLinesGlowOpacity,
     powerLinesGlowWidth,
     facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale,
-    // 化石燃料 14 layer
-    industrialRefineryOpacity, industrialRefineryOutline: industrialRefineryOutline ? 1 : 0,
-    industrialStorageTankOpacity, industrialStorageTankOutline: industrialStorageTankOutline ? 1 : 0,
-    industrialPowerPlantOpacity, industrialPowerPlantOutline: industrialPowerPlantOutline ? 1 : 0,
     // 雲林 POC 覆蓋分析
     powerPolesOpacity,
     powerPolesSize,
@@ -926,9 +832,6 @@ export function useTransportParams() {
     lightningMinutes,
     lightningCwaOpacity,
     lightningCwaMinutes,
-    // 全球氣候 GLOBAL CLIMATE
-    typhoonTracksOpacity,
-    typhoonSourceIdx: ["all", "jma", "jtwc"].indexOf(typhoonSource),
     oceanCurrentsOpacity,
     windFieldOpacity,
     windAnimationSpeed,
@@ -937,9 +840,6 @@ export function useTransportParams() {
     oceanAnimationSpeed,
     oceanParticleCount,
     oceanLineWidth,
-    // 🌍 世界 WORLD
-    realEstateOpacity,
-    realEstateExcludeTaipei: realEstateExcludeTaipei ? 1 : 0,
     // LASS 微感測顯示模式（只供 LegendPanel 選對應圖例；paint 端走 hook 的 setPaintProperty）
     aqiMicroModeIdx,
     // Base map
@@ -949,7 +849,7 @@ export function useTransportParams() {
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams, realEstateOpacity, realEstateExcludeTaipei, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, lighthouseScale, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, taxiStandScale, taxiStandOpacity, taxiStandZ, portGlow, newsScale, metroPillarVisible, floodMinDepth, waterFloodOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, typhoonTracksOpacity, typhoonSource, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, 
+  }), [migratedOverlayParams, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, lighthouseScale, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, taxiStandScale, taxiStandOpacity, taxiStandZ, portGlow, newsScale, metroPillarVisible, floodMinDepth, waterFloodOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, 
     
     
     
@@ -1232,14 +1132,6 @@ export function useTransportParams() {
         { label: `透明度 ${eqReplayOpacity.toFixed(2)}`, value: eqReplayOpacity, min: 0, max: 1, step: 0.05, onChange: setEqReplayOpacity },
       ];
       // ── 🌍 世界 WORLD ──
-      case "typhoonTracks": return [
-        { type: "select" as const, label: "資料源", value: typhoonSource, options: [
-          { label: "全部", value: "all" },
-          { label: "JMA 日本", value: "jma" },
-          { label: "JTWC 美軍", value: "jtwc" },
-        ], onChange: setTyphoonSource },
-        { label: `透明度 ${typhoonTracksOpacity.toFixed(2)}`, value: typhoonTracksOpacity, min: 0, max: 1, step: 0.05, onChange: setTyphoonTracksOpacity },
-      ];
       case "oceanCurrents": return [
         { label: `透明度 ${oceanCurrentsOpacity.toFixed(2)}`, value: oceanCurrentsOpacity, min: 0, max: 1, step: 0.05, onChange: setOceanCurrentsOpacity },
         { label: `動畫速度 ${oceanAnimationSpeed.toFixed(1)}×`, value: oceanAnimationSpeed, min: 0.2, max: 3, step: 0.1, onChange: setOceanAnimationSpeed },
@@ -1333,21 +1225,6 @@ export function useTransportParams() {
           onChange: (v: string) => setFloodMinDepth(Number(v) as 0 | 0.5 | 1 | 2 | 3),
         },
       ];
-      case "iotWraRiver": return [
-        { label: `大小 ${iotWraRiverScale.toFixed(2)}`, value: iotWraRiverScale, min: 0.5, max: 3, step: 0.1, onChange: setIotWraRiverScale },
-        { label: `透明度 ${iotWraRiverOpacity.toFixed(2)}`, value: iotWraRiverOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIotWraRiverOpacity },
-        { type: "toggle", label: "即時水位", value: iotWraRiverShowMeasured, onChange: setIotWraRiverShowMeasured },
-        { type: "toggle", label: "預測水位 (12-19h)", value: iotWraRiverShowForecast, onChange: setIotWraRiverShowForecast },
-      ];
-      case "iotWraStructure": return [
-        { label: `大小 ${iotWraStructureScale.toFixed(2)}`, value: iotWraStructureScale, min: 0.5, max: 3, step: 0.1, onChange: setIotWraStructureScale },
-        { label: `透明度 ${iotWraStructureOpacity.toFixed(2)}`, value: iotWraStructureOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIotWraStructureOpacity },
-        { type: "toggle", label: "累計流量 Flow", value: iotWraStructureFlow, onChange: setIotWraStructureFlow },
-        { type: "toggle", label: "閘門 Watergate", value: iotWraStructureGate, onChange: setIotWraStructureGate },
-        { type: "toggle", label: "堤防安全 Dam", value: iotWraStructureDam, onChange: setIotWraStructureDam },
-        { type: "toggle", label: "河床沖刷 Erosion", value: iotWraStructureErosion, onChange: setIotWraStructureErosion },
-        { type: "toggle", label: "揚塵 Dust", value: iotWraStructureDust, onChange: setIotWraStructureDust },
-      ];
       case "precipRaster": return [
         { label: `透明度 ${precipRasterOpacity.toFixed(2)}`, value: precipRasterOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPrecipRasterOpacity },
         {
@@ -1396,16 +1273,6 @@ export function useTransportParams() {
         { label: `邊框寬 ${agricultureOutlineWidth.toFixed(1)}`, value: agricultureOutlineWidth, min: 0, max: 5, step: 0.1, onChange: setAgricultureOutlineWidth },
         { type: "toggle" as const, label: "邊框 Outline", value: agricultureShowOutline, onChange: setAgricultureShowOutline },
         { label: `Z 漂浮 ${agricultureZ.toFixed(0)}px`, value: agricultureZ, min: 0, max: 100, step: 2, onChange: setAgricultureZ },
-      ];
-      case "agriSoilFertility": return [
-        { label: `透明度 ${agriSoilFertilityOpacity.toFixed(2)}`, value: agriSoilFertilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriSoilFertilityOpacity },
-        {
-          type: "select" as const,
-          label: "著色",
-          value: agriSoilFertilityMetric,
-          options: SOIL_FERTILITY_METRIC_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
-          onChange: (v: string) => setAgriSoilFertilityMetric(v as SoilFertilityMetric),
-        },
       ];
       case "agriCropSuitability": return [
         { label: `透明度 ${agriCropSuitabilityOpacity.toFixed(2)}`, value: agriCropSuitabilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAgriCropSuitabilityOpacity },
@@ -1481,36 +1348,6 @@ export function useTransportParams() {
         return base;
       }
       // ── FORESTRY ─────────────────────────────────────────
-      case "forestCompartments": return [
-        { label: `透明度 ${forestCompartmentsOpacity.toFixed(2)}`, value: forestCompartmentsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestCompartmentsOpacity },
-        { label: `邊框寬 ${forestCompartmentsOutlineWidth.toFixed(1)}`, value: forestCompartmentsOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestCompartmentsOutlineWidth },
-        { type: "toggle" as const, label: "邊框 Outline", value: forestCompartmentsShowOutline, onChange: setForestCompartmentsShowOutline },
-      ];
-      case "forestReserve": return [
-        { label: `透明度 ${forestReserveOpacity.toFixed(2)}`, value: forestReserveOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestReserveOpacity },
-        { label: `邊框寬 ${forestReserveOutlineWidth.toFixed(1)}`, value: forestReserveOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestReserveOutlineWidth },
-        { type: "toggle" as const, label: "邊框 Outline", value: forestReserveShowOutline, onChange: setForestReserveShowOutline },
-      ];
-      case "forestRecreation": return [
-        { label: `透明度 ${forestRecreationOpacity.toFixed(2)}`, value: forestRecreationOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestRecreationOpacity },
-        { label: `邊框寬 ${forestRecreationOutlineWidth.toFixed(1)}`, value: forestRecreationOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestRecreationOutlineWidth },
-        { type: "toggle" as const, label: "邊框 Outline", value: forestRecreationShowOutline, onChange: setForestRecreationShowOutline },
-      ];
-      case "forestTreatmentWorks": return [
-        { label: `透明度 ${forestTreatmentWorksOpacity.toFixed(2)}`, value: forestTreatmentWorksOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestTreatmentWorksOpacity },
-        { label: `邊框寬 ${forestTreatmentWorksOutlineWidth.toFixed(1)}`, value: forestTreatmentWorksOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestTreatmentWorksOutlineWidth },
-        { type: "toggle" as const, label: "邊框 Outline", value: forestTreatmentWorksShowOutline, onChange: setForestTreatmentWorksShowOutline },
-      ];
-      case "forestFlatParks": return [
-        { label: `透明度 ${forestFlatParksOpacity.toFixed(2)}`, value: forestFlatParksOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestFlatParksOpacity },
-        { label: `邊框寬 ${forestFlatParksOutlineWidth.toFixed(1)}`, value: forestFlatParksOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestFlatParksOutlineWidth },
-        { type: "toggle" as const, label: "邊框 Outline", value: forestFlatParksShowOutline, onChange: setForestFlatParksShowOutline },
-      ];
-      case "forestDamLakes": return [
-        { label: `透明度 ${forestDamLakesOpacity.toFixed(2)}`, value: forestDamLakesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setForestDamLakesOpacity },
-        { label: `邊框寬 ${forestDamLakesOutlineWidth.toFixed(1)}`, value: forestDamLakesOutlineWidth, min: 0, max: 3, step: 0.1, onChange: setForestDamLakesOutlineWidth },
-        { type: "toggle" as const, label: "邊框 Outline", value: forestDamLakesShowOutline, onChange: setForestDamLakesShowOutline },
-      ];
       // ── ENERGY MVP ──
       case "powerPlantGlow": return [
         { label: `透明度 ${powerPlantGlowOpacity.toFixed(2)}`, value: powerPlantGlowOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPowerPlantGlowOpacity },
@@ -1532,18 +1369,6 @@ export function useTransportParams() {
         { label: `透明度 ${facPrimaryOpacity.toFixed(2)}`, value: facPrimaryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFacPrimaryOpacity },
       ];
       // ── 化石燃料 14 layer（Phase B） ──
-      case "industrialRefinery": return [
-        { label: `透明度 ${industrialRefineryOpacity.toFixed(2)}`, value: industrialRefineryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialRefineryOpacity },
-        { type: "toggle" as const, label: "顯示外框線", value: industrialRefineryOutline, onChange: setIndustrialRefineryOutline },
-      ];
-      case "industrialStorageTank": return [
-        { label: `透明度 ${industrialStorageTankOpacity.toFixed(2)}`, value: industrialStorageTankOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialStorageTankOpacity },
-        { type: "toggle" as const, label: "顯示外框線", value: industrialStorageTankOutline, onChange: setIndustrialStorageTankOutline },
-      ];
-      case "industrialPowerPlant": return [
-        { label: `透明度 ${industrialPowerPlantOpacity.toFixed(2)}`, value: industrialPowerPlantOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIndustrialPowerPlantOpacity },
-        { type: "toggle" as const, label: "顯示外框線", value: industrialPowerPlantOutline, onChange: setIndustrialPowerPlantOutline },
-      ];
       // ── 雲林 POC 覆蓋分析 ──
       case "powerPoles": return [
         { label: `全台顯示 ${powerPolesZ5Reveal === 0 ? "關" : powerPolesZ5Reveal.toFixed(2)}`, value: powerPolesZ5Reveal, min: 0, max: 1, step: 0.1, onChange: setPowerPolesZ5Reveal },
@@ -1559,12 +1384,6 @@ export function useTransportParams() {
       case "lightning": return [
         { label: `保留 ${lightningMinutes} min`, value: lightningMinutes, min: 5, max: 360, step: 5, onChange: setLightningMinutes },
         { label: `透明度 ${lightningOpacity.toFixed(2)}`, value: lightningOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLightningOpacity },
-      ];
-      case "mountainRescueIncidents": return [
-        // 7 個選項（全部 + 6 年）> 3 → 自動走原生 select（四鐵則 #4）
-        { type: "select" as const, label: "年份", value: mountainRescueIncidentsYear, options: [{ label: "全部", value: "all" }, ...MOUNTAIN_RESCUE_YEARS.map((y) => ({ label: String(y), value: String(y) }))], onChange: setMountainRescueIncidentsYear },
-        { label: `透明度 ${mountainRescueIncidentsOpacity.toFixed(2)}`, value: mountainRescueIncidentsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMountainRescueIncidentsOpacity },
-        { label: `大小 ${mountainRescueIncidentsScale.toFixed(2)}`, value: mountainRescueIncidentsScale, min: 0.3, max: 3, step: 0.1, onChange: setMountainRescueIncidentsScale },
       ];
       // ── Base map（6 layer：3 boundary + 2 contour + 1 road）──
       case "osmRoadDrive": return [
@@ -1582,15 +1401,6 @@ export function useTransportParams() {
         { label: `透明度 ${aspectVectorOpacity.toFixed(2)}`, value: aspectVectorOpacity, min: 0.3, max: 1, step: 0.05, onChange: setAspectVectorOpacity },
       ];
       // ── 房地產（6 layer 共用透明度）──
-      case "realEstateRentalGrid":
-      case "realEstateRentalPoint":
-      case "realEstateSaleGrid":
-      case "realEstateSalePoint":
-      case "realEstatePresaleGrid":
-      case "realEstatePresalePoint": return [
-        { label: `透明度 ${realEstateOpacity.toFixed(2)}`, value: realEstateOpacity, min: 0.1, max: 1, step: 0.05, onChange: setRealEstateOpacity },
-        { type: "toggle" as const, label: "排除雙北重繪", value: realEstateExcludeTaipei, onChange: setRealEstateExcludeTaipei },
-      ];
       // ── 警政司法民防 17 layer ──
       case "aquacultureWaterSatellite": return [
         { type: "select" as const, label: "信心", value: aquacultureWaterSatelliteConfidence, options: [{ label: "全部", value: "all" }, { label: "含蓄水池", value: "reservoir" }, { label: "只確定", value: "certain" }], onChange: setAquacultureWaterSatelliteConfidence },
