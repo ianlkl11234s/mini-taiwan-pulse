@@ -1585,7 +1585,7 @@ P3-2A 的分類器在形狀分析**之前**就用 `len(keys) > 1` 把 fall-throu
 
 | 桶 | 群組 | key | 說明 |
 |---|---|---|---|
-| **B** 現行 schema ＋ `sharedGroup` 可直接搬 | 48 | **63** | 含 select 28／含 toggle 26／純 slider 9（那 9 個純 slider 正是 P3-2A 因 fall-through 退回的） |
+| **B** 現行 schema ＋ `sharedGroup` 可直接搬 | 48 | **63** | 含 select 的 28／含 toggle 的 26／純 slider 9（那 9 個正是 P3-2A 因 fall-through 退回的）。⚠️ 第 2 步嚴格解析後**實搬 58**，5 個退 C |
 | **C** 需 schema 擴充 | 27 | **27** | `labelSuffix`（`Z 漂浮 …px` ×7、`…×` ×5）／條件式 label（`powerPoles` `osmRoadDrive` `facPrimary`）／整數內插（`lightning` ×2）／helper 產生器（`agriCropSuitability`）／`livestockFarm*` 7 層的動態 select label ／`propertyValueGrid` 的 `disabled` ／`buildingsGba` |
 | **D** 需第二條輸出通道 | 40 | **74** | 觸點含 `ref` ／ `return-obj` ／其他區域 |
 | `emptyByDesign` | 5 | **5** | `windPlan` `submarineCables` `landingStations` `activeFaults` `aqiStations` |
@@ -1609,3 +1609,117 @@ P3-2A 的分類器在形狀分析**之前**就用 `len(keys) > 1` 把 fall-throu
 3. **`sharedGroup` 的成員規格必須逐欄位相同**（閘 1 已強制）。
    若之後遇到「共用值但 label 不同」的形狀，那不是共用 slot，是兩個參數 ——
    別為了複用而放寬這條，它正是「顯示表 ≠ 編碼表」那類漂移的近親。
+
+---
+
+## 2026-08-11 — Phase 3 第三棒（P3-2B）第 2 步：B 桶 58 key 出 useTransportParams
+
+`fc30c83` `refactor(params): P3-2B 群1 遷移 18 key（交通站點・等時圈・都市熱島・教育）`
+`30d69da` `refactor(params): P3-2B 群2 遷移 20 key（天災水利・農林・工業・不動產）`
+`89ba510` `refactor(params): P3-2B 群3 遷移 20 key（養殖水域・樹木公園・文化觀光・都市分區）＋ 4 條行為測試`
+
+**零 schema 變動**（除第 1 步已加的 `sharedGroup`）—— 58 個 key／145 個參數
+全部吃得下 P3-1 定的三種 spec。新增 **27 個 select**（8 → 35）
+與 **29 個 toggle**（0 → 29）—— toggle 的 0/1 中介從 P3-1 寫好到現在，
+本棒是它第一批真實使用者。
+
+### 驗收
+
+| 項 | 結果 |
+|---|---|
+| `layer-golden.json` | 三群**全部零 diff**；sha256 `07972fce…` 從 `eabd1ef` 到 `89ba510` 一位元未變 |
+| `npx tsc -b` | 0 error（每群） |
+| `npx vitest run` | 42 檔 **534 passed / 1 skipped**（523 基準 ＋ 7 護欄 ＋ 4 行為） |
+| `useTransportParams.ts` | 1,959 → **1,438** 行（−521，−26.6%） |
+| `useState` | 341 → **223**（−118） |
+| `case` | 169 → **111**（−58） |
+| overlayParams deps | 235 → **119**（−116） |
+| `LAYER_PARAMS_SPEC` | 172 → **230** key |
+| `sharedGroup` | **9 群 / 38 個宣告** |
+
+### 9 個共用 slot（全部在本棒落地）
+
+| id | 成員 | 種類 |
+|---|---|---|
+| `busScale` | `busStationsCity/Intercity` | fall-through |
+| `eduSchoolsOpacity` `schoolScale` | `schools` ＋ 5 個分級層 ＋ `eduRemoteSchools`（7） | fall-through |
+| `eduDistrictK12Opacity` | `eduDistrictElementary/Junior` | fall-through |
+| `eduChildcareOpacity` `eduChildcareScale` | 幼托三層 | fall-through |
+| `realEstateOpacity` `realEstateExcludeTaipei` | 租／售／預售 × 格／點 6 層 | fall-through |
+| `medIsochroneOpacity` | `medIsochrone` `medDesert` | **跨 case**（各有自己的 `case`，共用同一個 `useState`） |
+
+### `schools` 那組：條件式 spread 在 per-key spec 下自己消失
+
+原本是 `...(layer === "schools" ? [分級配色 toggle] : [])` ——
+7 個 key fall-through 到同一個 body，靠 `layer` 變數在 runtime 分岔。
+per-key spec 一搬就變成「`schools` 宣告 3 個控件、其餘 6 個宣告 2 個」，
+**不需要任何 schema 擴充**。且 manifest 早就逐 key 記對（`schools` count 3、
+其餘 count 2），焊接測試一次就過 —— Phase 1 那份 `{ count, kinds }` 佔位
+在這裡第一次發揮「獨立第二意見」的作用。
+
+### 兩條「預設值下看不出來」的等價陷阱（本棒新增行為測試擋）
+
+1. **prepend 型 select 的整體位移 1**：`["all", ...OPTIONS.map(…)]` 與
+   `OPTIONS.map(…)` 在**預設值**下 idx 都是 0，黃金快照分不出來。
+   → 補一條「換到非預設值」的斷言（`mountainRescueIncidents` "2021" → 3）。
+2. **共用 slot 的連帶寫入**：沒有連帶寫入時，`encodeParamsToOverlay` 會取到
+   同群中**最後被寫的那一份**（多半不是使用者剛拖的那份）。
+   → 補兩條端對端斷言（面板同步 ＋ 通知扇出）。
+
+突變自測：把 store 的共用連帶寫入關掉 → 4 條新行為測試紅其 3，
+其中包含 toggle 那條（`realEstateExcludeTaipei` 由 6 層共用）。
+
+### 遷移腳本做的五件事（不手改）
+
+case 群組 ／ 觸點 ／ overlayParams 字面三處各自解析，然後刪五個位置：
+`case` 標籤與 body ／ `useState` 宣告 ／ overlayParams 的**屬性**（不是整行 ——
+`industrialRefineryOpacity, industrialRefineryOutline: … ? 1 : 0,` 同一行有兩個屬性）／
+deps 項 ／ 孤兒區塊註解與孤兒 import。
+
+⚠️ 腳本是**嚴格解析**：任何無法逐字表達的形狀直接 abort，不猜。
+這一條擋下了 5 個原本被目測歸在 B 的 key（見下）。
+
+### ⚠️ B 桶實際是 58 key，不是重新分桶寫的 63 —— 5 個退回 C
+
+嚴格解析器把「數值型 select」再切成兩種，只有第一種是 B：
+
+| 形狀 | 判準 | 去向 |
+|---|---|---|
+| state 存**索引**（`urbanHeatModeIdx` `urbanFormGridModeIdx`） | option value 是 `"0"`/`"1"`/… → `encode.indexOf(String(idx)) === idx` **逐位等價** | ✅ B（已搬） |
+| state 存**值**（`floodMinDepth` `precipRasterHours` `policeIso*Minutes`） | option value 是 `"0.5"`/`"24"`/`"10"`，overlayParams 吃的是 `Number(v)` 而非索引 | ❌ C |
+
+退回的 5 key：`waterFloodExtreme` `precipRaster` ＋ `policeIsoSubstation`
+`policeIsoPrecinct` `policeIsoCityDept`。
+⚠️ `policeIso*` 的 `Mode` 那個 select **是**可搬的
+（`mode === "drive" ? 1 : 0` 與 `["walk","drive"].indexOf(mode)` 恰好等價），
+但同一個 key 的 `Minutes` 不行 —— 而 spec 是 per-key 整包宣告
+（`count`/`kinds` 要對得回 manifest），所以整個 key 一起退。
+
+**C 桶因此從 27 變 32 key**，且多出一項最便宜的擴充：
+`encodeNumeric`（select 的 out 直接吃 `Number(value)` 而非索引），
+5 個 key 只差這一欄 —— 與 `labelSuffix` 並列 C 桶投報率最高的兩刀。
+
+### 剩餘 111 個 case 的現況分佈（給 P3-2C）
+
+| 桶 | key | 內容 |
+|---|---|---|
+| **C** | 32 | `labelSuffix` 12（`Z 漂浮 …px` ×7、`…×` ×5）／`encodeNumeric` 5（本棒退回）／條件式 label 3／整數內插 2／helper 產生器 1／`livestockFarm*` 動態 select label 7／`propertyValueGrid` 的 `disabled` 1／`buildingsGba` 1 |
+| **D** | 74 | 觸點含 `ref` ／ `return-obj`。建議切 **D1 hook return 導出**（便宜、量大）與 **D2 Three.js ref／子物件**（貴） |
+| `emptyByDesign` | 5 | `windPlan` `submarineCables` `landingStations` `activeFaults` `aqiStations` |
+| **合計** | **111** | ＝ 169 − 58 |
+
+### 給 P3-2C 的四件事
+
+1. **先做 `labelSuffix` ＋ `encodeNumeric` 兩欄**，一次解 17 個 key，
+   兩者都是純字串／純數值轉換，快照照樣逐位比對，等價證明不受影響。
+2. **`indicators` / `socioeconomic` / `spatialEconomy` 三兄弟不是 C 是 D**：
+   機械判準顯示它們的 metric/category 同時進 overlayParams **與**
+   `indicatorsParams` / `socioParams` / `spatialParams` 三個獨立回傳物件。
+   級聯 onChange（改 category 要重設 metric）是**寫入時的副作用**，
+   規格要新增「set 這個參數時連帶重設哪些」的宣告 —— 但**先別動**，
+   因為 hook `return {}` 那條通道目前沒有任何閘。
+3. **動 D 之前先補「hook return 物件逐欄位等值」的行為測試**（P3-2B 沒補，
+   因為 B 桶一個 D 都沒碰）。沒有這道閘就動 D，會重演 P3-2A 那種「全綠但壞掉」。
+4. **共用 slot 的護欄已經完整**：閘 2（已遷移的 name/out 不得留在舊檔）
+   會在你只搬一半時立刻紅，不必再靠人工判斷。新增 fall-through 群組時
+   只要照 `sharedGroup` 宣告即可，閘 1 會檢查同群規格逐欄位相同。
