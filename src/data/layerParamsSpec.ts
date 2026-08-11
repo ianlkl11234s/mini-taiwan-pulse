@@ -33,6 +33,28 @@
 // 黃金快照的 `params` section（348 key × getControls 輸出，onChange 已剔除）
 // 是這份規格的機械等價目標。搬一個 key 進本檔、從 switch 刪掉它的 case，
 // fixture 必須**一位元不變**。
+//
+// ── ⚠️ 為什麼本檔 2,640 行卻**不按主題切檔**（P3-3 實測，TS 5.7.3）─────
+// 唯一自然的切法是「每個主題一檔、再 spread 合併回 `LAYER_PARAMS_SPEC`」。
+// 用獨立 probe 實測過，spread 合併會**同時**丟掉兩道 tsc 護欄：
+//
+//   1. `satisfies Partial<Record<keyof LayerVisibility, …>>` 的 excess property
+//      check（TS2353）**只對 fresh object literal 生效**。單一字面裡打錯一個 key
+//      立刻紅；spread 進來的 key 一聲不吭 —— 而且它會**混進 `MigratedParamsKey`**
+//      （`keyof typeof` 對 spread 仍推 literal key，實測確認），
+//      於是雙軌判別式開始認得一個沒有任何圖層的幽靈 key。
+//   2. 重複 key 在單一字面是 **TS1117 編譯錯**；spread 合併變成靜默 last-wins ——
+//      兩個主題檔不小心都宣告了同一個 layer key，其中一份的整串控件會無聲消失，
+//      而 `isMigratedParamsKey` 仍回 true（雙軌不會 fallthrough 去補救），
+//      面板就這樣長出「別的主題的控件」。
+//
+// ⚠️ 修正 P3-2D 交接寫的理由：**判別式本身不會退化**（spread 後仍是 literal key），
+//    真正致命的是上面這兩道護欄。結論不變：**不切**。
+//
+// 唯一能同時保住兩道護欄的切法是「字面留在本檔、只把各 key 的**值**移到主題檔」
+// （`flights: FLIGHT_PARAMS,`）—— 336 個 key 換成 336 個 import、每次查一個參數
+// 要跳兩個檔，可讀性比現在差。要縮檔的話，先切上半段的型別與 builder
+// （L1–L736，不碰字面）才是零風險的那一刀；本棒不做（最小方案）。
 
 import type { BusGroup, LayerVisibility } from "../types";
 import { BUS_GROUP_LABELS } from "../types";
