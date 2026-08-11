@@ -1102,3 +1102,100 @@ backlog 批 8 欄已同步改寫。
 教訓：`final_audit.py` 當時只驗了「身分／覆蓋／殘留」（348 三方相等、手寫表歸零），
 **沒有驗分佈**，所以散文數字漂了也全綠。分佈是「宣告的一部分」，
 下一批（Phase 3）的驗收腳本要一併 tally，不要留給人腦。
+
+## 2026-08-11 — 護欄平反 ＋ 上游改名吸收（rebase 到 master `c016f15`）
+
+### 起因：一則「黃金快照有盲區」的指控
+
+現場觀察到三件事，被組合成「批 7 搬移失真 ＋ 抽取器對 upstream datasetId 是盲的」：
+
+1. master 手寫 `upstreamRegistry.ts` 的 `aquacultureWaterUnion` datasetId 是
+   `aquaculture_water_sat_union`
+2. 分支 manifest 同一個 key 寫的是 `aquaculture_water_satellite_union`
+3. 黃金快照**全程綠**，卻是主樹的 cross-repo `upstreamRegistry.test.ts` 抓到差異
+
+### 結論：三個觀察都屬實，但推論是錯的 —— 批 7 零失真、抽取器零盲區
+
+**(a) 抽取器本來就記整包。** `layerGoldenExtract.ts` 的 upstream section 是
+`sanitize(Object.fromEntries(keys.map((k) => [k, UPSTREAM_REGISTRY[k]])))`
+—— 整個 `UpstreamRef` 物件，不是挑欄位。fixture 裡 `datasetId` 逐字存在。
+本次改掉 manifest 的 datasetId，fixture 立刻跟著變 —— 直接反證「盲」。
+
+**(b) 差異不是失真，是分支還沒吸收 master 的新 commit。** 分歧點：
+`git merge-base` = `889cf96`，master 上多出 `c016f15`（2026-08-11 14:39，B170：
+上游 analytics 當天改了 3 個 fishery dataset_id）。在 `889cf96` 上，手寫
+`upstreamRegistry.ts` 第 547 行寫的**正是** `aquaculture_water_satellite_union`
+—— 批 7 的註解「照現況登記不夾帶改名」是**準確**的，它忠實登記了當下的值。
+`c016f15` 的 commit message 自己也寫明「feat/layer-manifest 分支 merge 時需自行
+rebase 這個改名」。
+
+**(c) 快照綠是正確行為，不是失靈。** fixture 由分支自身狀態產生，分支內部自洽 →
+本來就該綠。會紅的是 cross-repo 那條（比對 analytics catalog 的**當前**內容），
+它紅得完全正確。**護欄沒有漏接，是兩把尺量的東西不同。**
+
+### 全欄位對帳（拋棄式腳本，逐 key 深度比對）
+
+把手寫 `UPSTREAM_REGISTRY` 字面 eval 出來，與分支 runtime（= fixture 的 upstream
+section）348 key × 全欄位 canonical 比對：
+
+| 比對對象 | 差異 |
+|---|---|
+| merge-base `889cf96` 手寫 vs 分支 runtime（rebase 前） | **0 筆** ← 批 7 零失真的證明 |
+| master `c016f15` 手寫 vs 分支 runtime（rebase 前） | 1 筆（僅 `aquacultureWaterUnion`）|
+| master `c016f15` 手寫 vs 分支 runtime（**本次修正後**）| **0 筆** ← 收斂證明 |
+
+欄位覆蓋兩端一致，無欄位在搬移中被吃掉：
+top = `status` `datasets` `derivedFromLayers` `derivedFromDatasets` `derivationType`
+`processing` `note`；`datasets[]` = `datasetId` `confidence`。
+
+### 動作：rebase ＋ 改名同步
+
+`git rebase master`（47 commit 重放到 `c016f15`）。兩處衝突都在
+`upstreamRegistry.ts`，都是「master 仍手寫 vs 分支已刪除搬進 manifest」，
+一律**以分支的刪除為準**（值已活在 manifest）：
+
+- 批 7 `7e6e0a1`（rebase 後 `c36f719`）—— 農業區塊含被改名的那行
+- 批 8-6 `462c05a`（rebase 後 `04d059a`）—— `HANDWRITTEN_UPSTREAM` 清空
+
+⚠️ **本檔與 backlog / README 引用的分支 commit hash 全部因這次 rebase 失效**
+（47 個 commit 都被重寫）。上方批 8 段落當時已預告「rebase 會讓引用全斷」，
+現在成真了。本段只補了衝突相關的兩筆新舊對照；其餘引用是否要整批補 mapping，
+留給 owner 決定 —— 反正 merge 進 master 前還可能再 rebase 一次。
+
+改名同步進 manifest（`97a793b`）：`upstream.datasetId` 與 `source.url` 改新名；
+`source.sourceId` 與 `source.sourceLayer` **刻意保留舊名** —— MVT 內部層名烙在
+2026-07 版 pmtiles 二進位裡（`tippecanoe --layer aquaculture_water_satellite_union`），
+要等上游重產 pmtiles 才會變（依 `c016f15` 於 `overlayRegistry.ts` 的註記）。
+
+另兩筆改名（`fishery_port_zones_class1` / `aquaculture_release_survey_g70`）
+全 repo grep 只命中 `public/fishery/` 的檔案本身，**無任何程式引用** → 不進 manifest。
+
+### fixture 變動 —— 合法變動第一例
+
+`layer-golden.json` 自 Phase 0 凍結以來**第一次**變更，diff 恰為 2 個值：
+
+| section | 欄位 | 誰改的 |
+|---|---|---|
+| `upstream` | `aquacultureWaterUnion.datasets[0].datasetId` | 本次 manifest 同步 |
+| `overlays` | 對應 entry 的 `sourceUrl` | `c016f15` 改 `overlayRegistry.ts`，rebase 帶進來 |
+
+依據 = 上游 B170 改名（`c016f15`），非搬移失真。同 entry 的 `sourceId` /
+`sourceLayer` 在 fixture 中維持舊名 —— 「刻意不改」這件事有被凍結保護住。
+
+⚠️ 這次的合法性建立在**先對帳、後重生**：先證明「除該筆上游改名外，分支 runtime
+與 master 手寫逐位元相同」，才動 fixture。順序反過來（先重生再說服自己）
+等於把護欄拆掉。
+
+### 副產品：`layerManifest.test.ts` 當場證明自己有用
+
+rebase 完成、manifest 還沒同步的那個中間狀態，`source + dataClass 宣告 =
+OVERLAY_REGISTRY 的實際形狀` 這條**立刻紅**，訊息直接指出
+`'./fishery/aquaculture_water_sat_union…' vs './fishery/aquaculture_water_satellite…'`
+—— manifest 與 overlayRegistry 的一致性契約確實擋得住「上游改名只改了一半」。
+
+### 驗收
+
+`npx tsc -b` 0 error；`npx vitest run` 39 檔 507 passed / 1 skipped。
+skipped 的是 cross-repo `upstreamRegistry.test.ts`（worktree 沒有 sibling
+`taipei-gis-analytics` 會自動跳過）—— 在主樹跑該測試，預期只剩
+`fireHydrants → fire_hydrants` 一筆紅，那是 catalog 端缺口，**pre-existing 且屬另案**。
