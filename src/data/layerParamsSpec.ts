@@ -1,0 +1,289 @@
+// ══════════════════════════════════════════════════════════════════
+//  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
+// ══════════════════════════════════════════════════════════════════
+//
+// `useTransportParams.ts` 是本專案唯一認定的大型結構債：單一函式 3,079 行、
+// 644 個 useState、539 項手寫 deps。它把三件事焊死在一起：
+//
+//   (1) 參數的**值**（per-layer useState）
+//   (2) 參數的**控件長相**（getControls 的巨型 switch）
+//   (3) 參數餵給 paint 的**編碼**（overlayParams useMemo + 手寫 deps）
+//
+// 三者其實是同一份事實的三種投影。本檔把那份事實宣告成資料，讓
+// `state/layerParamsStore.ts` 從 (1) 派生值、`buildParamControls` 從 (2) 派生控件、
+// `encodeParamsToOverlay` 從 (3) 派生 overlayParams 分片。
+//
+// ── 為什麼不寫進 `layerManifest.ts` ────────────────────────────────
+// manifest 的 `params` 欄位是 `{ count, kinds }` 佔位（Phase 1 定的），只記形狀
+// 不記內容 —— 它**沒有** default / min / max / step / label / options，
+// 所以「從 manifest 的 default 起手」在現況是做不到的。
+//
+// 而把完整規格塞進 manifest 會直接撞上它自己的 import 鐵則
+// （「只能 import ../types、lucide-react、零 import 的純色票常數檔」）：
+// select 的 options 來自 `pollutionTypes` / `cropSuitabilityCrops` /
+// `fireIsochroneCounties` 等一二十個資料模組，其中有些自帶函式與相依，
+// 全拉進 manifest 會製造 import cycle，也讓一個 9,330 行的檔繼續膨脹。
+//
+// 因此規格獨立成本檔，並用契約測試**焊回 manifest**：
+// `layerParamsSpec.test.ts` 斷言「spec 派生的 count / kinds ＝ manifest 宣告的
+// count / kinds」。manifest 仍是形狀的 SSOT，本檔是內容的 SSOT，兩者對不上會紅。
+//
+// ── 等價證明 ───────────────────────────────────────────────────────
+// 黃金快照的 `params` section（348 key × getControls 輸出，onChange 已剔除）
+// 是這份規格的機械等價目標。搬一個 key 進本檔、從 switch 刪掉它的 case，
+// fixture 必須**一位元不變**。
+
+import type { LayerVisibility } from "../types";
+import {
+  DEITY_FAMILIES, REGISTRY_MODES, REGISTRY_MODES_ANCESTRAL,
+} from "./religionTypes";
+import {
+  FUNERAL_FACILITY_TYPES, OPERATOR_STATUS_MODES, PRECISION_MODES,
+} from "./funeralTypes";
+
+/** select 的選項；形狀與 `SelectConfig["options"]` 相同（disabled 由控件端消費） */
+export interface ParamSelectOption {
+  label: string;
+  value: string;
+  disabled?: boolean;
+}
+
+/**
+ * 數值滑桿。
+ *
+ * ⚠️ label 是**模板**不是字面：現行手寫 case 一律寫成
+ * `` `透明度 ${x.toFixed(2)}` `` / `` `大小 ${x.toFixed(1)}` `` ——
+ * 小數位數逐控件不同（透明度 2 位、大小 1 位），漏掉就會產生
+ * 「編得過但字串悄悄不一樣」的漂移，正是本工程要消滅的那一類。
+ */
+export interface SliderParamSpec {
+  kind: "slider";
+  /** 參數名。慣例沿用舊 useState 變數名 —— 它同時是 overlayParams 的預設 key */
+  name: string;
+  /** label 前綴；實際 label = `${labelPrefix} ${value.toFixed(digits)}` */
+  labelPrefix: string;
+  /** `toFixed` 位數 */
+  digits: number;
+  default: number;
+  min: number;
+  max: number;
+  step: number;
+  /** overlayParams 的 key（省略 = 用 `name`，這是 slider 的常態） */
+  out?: string;
+}
+
+/**
+ * 布林開關。
+ *
+ * ⚠️ overlayParams 的契約是 `Record<string, number>` —— boolean **必須**編成 0/1
+ * 才餵得進 paint expression。編碼由 `encodeParamsToOverlay` 統一做，
+ * 規格端只宣告 `out`（省略 = 用 `name`）。
+ */
+export interface ToggleParamSpec {
+  kind: "toggle";
+  name: string;
+  label: string;
+  default: boolean;
+  out?: string;
+}
+
+/**
+ * 下拉選單。**值是字串、餵進 paint 的是 index** —— 這是全檔最容易漂移的一環。
+ *
+ * `encode` 必須與現行 overlayParams 裡那條 `.indexOf(...)` 的陣列**逐位相同**。
+ * 常見兩種形狀：
+ *   - `OPTIONS.map((o) => o.value)`（選項陣列自己就含「全部」）
+ *   - `["all", ...OPTIONS.map((o) => o.value)]`（「全部」是控件端才 prepend 的）
+ * 兩者的 idx 會整體位移 1，抄錯不會編譯錯、只會讓篩選整個錯位。
+ */
+export interface SelectParamSpec {
+  kind: "select";
+  name: string;
+  label: string;
+  default: string;
+  options: ParamSelectOption[];
+  /** overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` **不同名**，故必填 */
+  out: string;
+  /** value → index 的編碼順序 */
+  encode: string[];
+}
+
+export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec;
+
+/** 控件值的三種形狀（與三種 spec 一一對應） */
+export type ParamValue = number | string | boolean;
+
+/** 單一 layer 的全部參數值 */
+export type LayerParamValues = Readonly<Record<string, ParamValue>>;
+
+// ── 共用建構子：同構家族避免逐層複製字面 ──────────────────────────
+
+/** 「透明度 x.xx」滑桿 —— 宗教／殯葬兩組全部都有，只有 default 不同 */
+function opacitySlider(name: string, def: number): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "透明度", digits: 2,
+    default: def, min: 0.1, max: 1, step: 0.05,
+  };
+}
+
+/** 「大小 x.x」滑桿 —— 點層專用（面層沒有） */
+function scaleSlider(name: string, def: number): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "大小", digits: 1,
+    default: def, min: 0.3, max: 3, step: 0.1,
+  };
+}
+
+const REGISTRY_ENCODE = REGISTRY_MODES.map((m) => m.value);
+const PRECISION_ENCODE = PRECISION_MODES.map((m) => m.value);
+
+// ── 規格表 ────────────────────────────────────────────────────────
+
+/**
+ * 已遷移到 store 的 key。**沒列在這裡的 key 一律走 `useTransportParams` 既有的
+ * switch/useState**（雙軌）—— 這張表就是雙軌的判別式。
+ *
+ * ⚠️ 陣列順序 = 控件在面板上的顯示順序，也是黃金快照比對的順序。
+ */
+export const LAYER_PARAMS_SPEC = {
+  // ══════════ 宗教 Religion 6 層 ══════════
+  religionTemples: [
+    // 10 選項（全部 + 9 族）與 3 選項登記態；前者 > 3 自動走原生 select（四鐵則 #4）
+    {
+      kind: "select", name: "religionTemplesDeity", label: "主祀", default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        ...DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value })),
+      ],
+      out: "religionTemplesDeityIdx",
+      encode: ["all", ...DEITY_FAMILIES.map((d) => d.value)],
+    },
+    {
+      kind: "select", name: "religionTemplesRegistry", label: "登記", default: "all",
+      options: REGISTRY_MODES,
+      out: "religionTemplesRegistryIdx", encode: REGISTRY_ENCODE,
+    },
+    opacitySlider("religionTemplesOpacity", 0.8),
+    scaleSlider("religionTemplesScale", 1),
+  ],
+  religionChurches: [
+    {
+      kind: "select", name: "religionChurchesRegistry", label: "登記", default: "all",
+      options: REGISTRY_MODES,
+      out: "religionChurchesRegistryIdx", encode: REGISTRY_ENCODE,
+    },
+    opacitySlider("religionChurchesOpacity", 0.85),
+    scaleSlider("religionChurchesScale", 1),
+  ],
+  religionAncestralHalls: [
+    // ⚠️ 本層 false 是「文資祠堂」不是 OSM，故**顯示**用 REGISTRY_MODES_ANCESTRAL 的標籤；
+    //    但 **編碼**沿用 REGISTRY_MODES（現行 overlayParams 就是這樣寫的）。
+    //    兩張表的 value 序列相同（all/registered/unregistered），差別只在 label —— 但
+    //    「顯示表」與「編碼表」是兩件事，寫成同一個會在其中一張改動時靜默錯位。
+    {
+      kind: "select", name: "religionAncestralHallsRegistry", label: "類型", default: "all",
+      options: REGISTRY_MODES_ANCESTRAL,
+      out: "religionAncestralHallsRegistryIdx", encode: REGISTRY_ENCODE,
+    },
+    opacitySlider("religionAncestralHallsOpacity", 0.9),
+    scaleSlider("religionAncestralHallsScale", 1),
+  ],
+  religionFoundations: [
+    opacitySlider("religionFoundationsOpacity", 0.9),
+    scaleSlider("religionFoundationsScale", 1),
+  ],
+  religionOtherWorship: [
+    opacitySlider("religionOtherWorshipOpacity", 0.85),
+    scaleSlider("religionOtherWorshipScale", 1),
+  ],
+  religionTop100: [
+    opacitySlider("religionTop100Opacity", 0.85),
+    scaleSlider("religionTop100Scale", 1),
+  ],
+
+  // ══════════ 殯葬 Funeral 5 層 ══════════
+  funeralFacilities: [
+    {
+      kind: "select", name: "funeralFacilitiesType", label: "類型", default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        ...FUNERAL_FACILITY_TYPES.map((t) => ({
+          label: `${t.label} (${t.count.toLocaleString()})`, value: t.value,
+        })),
+      ],
+      out: "funeralFacilitiesTypeIdx",
+      encode: ["all", ...FUNERAL_FACILITY_TYPES.map((t) => t.value)],
+    },
+    // ⚠️ 42% 是地籍/鄉鎮中心的概略座標 → 做距離分析前先切「僅精確定位」（handoff §3.5）
+    {
+      kind: "select", name: "funeralFacilitiesPrecision", label: "定位精度", default: "all",
+      options: PRECISION_MODES,
+      out: "funeralFacilitiesPrecisionIdx", encode: PRECISION_ENCODE,
+    },
+    opacitySlider("funeralFacilitiesOpacity", 0.85),
+    scaleSlider("funeralFacilitiesScale", 1),
+  ],
+  funeralOperators: [
+    // ⚠️ 預設「仍營業」—— 切到「全部」會多出 1,664 個已失效業者（產業消長分析用）
+    {
+      kind: "select", name: "funeralOperatorsStatus", label: "營業狀態", default: "active",
+      options: OPERATOR_STATUS_MODES,
+      out: "funeralOperatorsStatusIdx",
+      encode: OPERATOR_STATUS_MODES.map((m) => m.value),
+    },
+    {
+      kind: "select", name: "funeralOperatorsPrecision", label: "定位精度", default: "all",
+      options: PRECISION_MODES,
+      out: "funeralOperatorsPrecisionIdx", encode: PRECISION_ENCODE,
+    },
+    opacitySlider("funeralOperatorsOpacity", 0.8),
+    scaleSlider("funeralOperatorsScale", 1),
+  ],
+  funeralOperatorDensity: [opacitySlider("funeralOperatorDensityOpacity", 0.6)],
+  cemeteryOsm: [opacitySlider("cemeteryOsmOpacity", 0.45)],
+  cemeteryZoning: [opacitySlider("cemeteryZoningOpacity", 0.55)],
+} satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
+
+/**
+ * 已遷移的 key 集合。
+ * 用 `satisfies` 而非型別標註 —— 標註會把 key 的 literal 型別打平成
+ * `keyof LayerVisibility` 全集，`MigratedParamsKey` 就退化成 348 key，
+ * 雙軌判別式跟著失效（同 `LAYER_MANIFEST` 的 `ManifestKey` 那道護欄）。
+ */
+export type MigratedParamsKey = keyof typeof LAYER_PARAMS_SPEC;
+
+export const MIGRATED_PARAMS_KEYS = Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[];
+
+const SPEC_BY_KEY: Record<string, LayerParamSpec[]> = LAYER_PARAMS_SPEC;
+
+/** 這個 key 的參數是否已經走 store（＝雙軌的那道分岔） */
+export function isMigratedParamsKey(key: string): key is MigratedParamsKey {
+  return key in SPEC_BY_KEY;
+}
+
+/** 取單一 key 的規格；未遷移回 null（呼叫端據此走既有 switch） */
+export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
+  return SPEC_BY_KEY[key] ?? null;
+}
+
+/** overlayParams 的 key（slider / toggle 省略 `out` 時等於 `name`） */
+export function specOutKey(spec: LayerParamSpec): string {
+  return spec.kind === "select" ? spec.out : (spec.out ?? spec.name);
+}
+
+/**
+ * 把一個值編成 overlayParams 收得下的數字。
+ *   slider → 原值
+ *   toggle → 0/1
+ *   select → `encode.indexOf(value)`（找不到回 -1，與現行 `.indexOf` 同語意）
+ */
+export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): number {
+  switch (spec.kind) {
+    case "slider":
+      return typeof value === "number" ? value : spec.default;
+    case "toggle":
+      return value ? 1 : 0;
+    case "select":
+      return spec.encode.indexOf(String(value));
+  }
+}
