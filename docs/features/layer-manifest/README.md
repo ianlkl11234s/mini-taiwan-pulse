@@ -28,11 +28,30 @@ popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽�
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
 | **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | ✅ **全量完成 348/348**（`462c05a`）。批 1（25 層）`cc64857`…`1aa3d6b`；批 2（28 層）`5d33117`…`b292d21`；批 3（33 層）`b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema）`15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）`410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）`45faee8`…`d39edf1`；批 7（47 層 ＋ 第四支 popup 解析器）`a1d7e3b`…`7e6e0a1`；批 8（82 層 ＋ 拍板③ section null schema）`1eb4911`…`462c05a` |
-| **3** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ ← **下一步** |
-| **4** | params 派生化（`useTransportParams` 的 case 由 manifest spec 產生）＋ `/new-layer` 改成只寫 manifest | ⬜ |
+| **3** | **params 派生化**（退役 `useTransportParams`）| 🔶 P3-1 完成（`43386d6`…`6fff4e3`）：通用 store ＋ 渲染器 ＋ 雙軌 ＋ 11 層試點。P3-2 起分批搬剩下 324 個 case，盤點見 [changelog](./changelog.md) 末節 |
+| **4** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ |
+| **5** | `/new-layer` 改成只寫 manifest ＋ `development-rules.md` §4 觸點表改寫 | ⬜ |
 
-Phase 4 完成後，新增一層的登記工作 = **只改 manifest 一處**，其餘由派生產生；
+⚠️ **Phase 3/4 的內容與本表原始版本對調**（2026-08-11 任務書拍板）：
+原排程是「3 = legend/popup、4 = params」，改成 params 先做。
+本檔與 [backlog.md](./backlog.md) 已同步；changelog 裡批 1-8 時期寫的
+「Phase 3 派生 GIS_LAYERS」等敘述指的是**現在的 Phase 4**。
+
+Phase 5 完成後，新增一層的登記工作 = **只改 manifest 一處**，其餘由派生產生；
 剩下的觸點都是實質邏輯（loader / hook / paint / legend 元件 / popup 元件）。
+
+### Phase 3 的檔案（params）
+
+| 用途 | 路徑 |
+|---|---|
+| 控件規格 SSOT（內容）| `src/data/layerParamsSpec.ts` |
+| 參數值 store ＋ overlayParams 編碼 | `src/state/layerParamsStore.ts` |
+| spec → `ParamControl[]` 渲染器 | `src/state/layerParamsControls.ts` |
+
+形狀的 SSOT 仍是 manifest 的 `params: { count, kinds }`，由
+`src/state/__tests__/layerParamsStore.test.ts` 焊死（對不上就紅）。
+**完整規格刻意不進 manifest** —— manifest 的 import 鐵則只允許 types / lucide /
+零 import 色票檔，而 select 的 options 來自一二十個自帶相依的資料模組。
 
 ## 關鍵檔案
 

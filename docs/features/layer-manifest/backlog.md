@@ -111,11 +111,16 @@
      走獨立 tooltip 狀態（bus・flight・wasteSchedule）／`HEADER_LABELS` 有但
      `GIS_LAYERS` 沒有（`hillshade`・`osmExpressway`）／有 registry entry 但 layer id
      不在 `GIS_LAYERS`（`stationsTHSR`）。Phase 3 若要「補齊缺的 popup」會全撞上。
-- **Phase 4**｜params 派生：`useTransportParams` 的 `case` 由 manifest 的 params spec
-  產生。難點是控件的 `onChange` 綁的是 hook 內的 setState，manifest 只能宣告 spec，
-  state 仍得留在 hook → 需要一層 spec→控件的組裝器。
 - **Phase 5**｜`/new-layer` 改成只寫 manifest；`docs/development-rules.md` §4 觸點表
   改寫（登記簿類觸點併成 1 行）。
+
+> ⚠️ **上面兩條的 Phase 編號已改**（2026-08-11 拍板）：params 提前成 Phase 3、
+> legend/popup 順延成 Phase 4。原「Phase 4｜params 派生」那條的預測
+> （「state 仍得留在 hook → 需要 spec→控件組裝器」）**已被 P3-1 證偽的一半**：
+> state 不必留在 hook —— 走 `layerParamsStore`（模組級 store）比留在 hook 更乾淨，
+> 也順帶消滅那 539 項手寫 deps。組裝器的部分則成真，就是
+> `src/state/layerParamsControls.ts`。剩餘 324 個 case 的分批盤點見
+> [changelog.md](./changelog.md) 末節「給 P3-2 的分批盤點」。
 
 ## 護欄本身的待辦
 

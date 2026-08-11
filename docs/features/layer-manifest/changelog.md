@@ -1199,3 +1199,180 @@ OVERLAY_REGISTRY 的實際形狀` 這條**立刻紅**，訊息直接指出
 skipped 的是 cross-repo `upstreamRegistry.test.ts`（worktree 沒有 sibling
 `taipei-gis-analytics` 會自動跳過）—— 在主樹跑該測試，預期只剩
 `fireHydrants → fire_hydrants` 一筆紅，那是 catalog 端缺口，**pre-existing 且屬另案**。
+
+---
+
+## 2026-08-11 — Phase 3 第一棒（P3-1）：params 通用 store ＋ 渲染器 ＋ 11 層試點
+
+`43386d6` `feat(params): 通用 param store + 宣告式規格（AR-22 P3-1 第 1 步）`
+`96db21d` `feat(params): 通用 getControls 渲染器 + useTransportParams 雙軌接線`
+`1343ae9` `refactor(params): 試點遷移 11 key（宗教 6 ＋ 殯葬 5）出 useTransportParams`
+`6fff4e3` `test(params): 補渲染器行為測試（黃金快照的結構性盲區）`
+
+開始退役 `useTransportParams`（3,160 行單檔／645 個 `useState`／539 項手寫 deps ——
+本專案唯一認定的大型結構債）。本棒做地基與試點，不做全量。
+
+### ⚠️ Phase 編號與本檔先前排程不同
+
+README 原本寫「Phase 3 = legend/popup 派生、Phase 4 = params 派生」。
+本次任務書把 params 排成 **Phase 3 第一棒（P3-1）**，legend/popup 順延。
+下方一律以任務書的編號為準，README 的表已同步。
+
+### ⚠️ 拍板：完整規格**不進 manifest**，另立 `layerParamsSpec.ts` 並用測試焊回
+
+任務書寫「初始值來自 manifest params spec 的 default」—— **那個欄位不存在**。
+manifest 的 `params` 是 Phase 1 定的佔位 `{ count, kinds }`，只記形狀不記內容：
+沒有 default / min / max / step / label / options。
+
+而把完整規格塞進 manifest 會直接撞上它自己寫在檔頭的 import 鐵則
+（「只能 import `../types`、lucide-react，以及**零 import 的純色票常數檔**」）：
+select 的 options 來自 `pollutionTypes`（自帶函式）／`cropSuitabilityCrops`（132 筆）／
+`fireIsochroneCounties`／`agriSoilFertilityMetrics` 等一二十個資料模組，
+全量遷移時會把它們整批拉進 manifest —— 製造 cycle，也讓一個 9,330 行的檔繼續膨脹。
+
+所以：**形狀的 SSOT 仍是 manifest，內容的 SSOT 是 `src/data/layerParamsSpec.ts`**，
+兩者由 `layerParamsStore.test.ts` 的第一條斷言焊死 ——
+「spec 派生的 count / kinds ＝ manifest 宣告的 count / kinds」，對不上就紅。
+本棒因此**一行都沒動 `layerManifest.ts`**。
+
+### 三個檔的分工（相依單向，不回頭）
+
+| 檔 | 職責 | 不知道的事 |
+|---|---|---|
+| `src/data/layerParamsSpec.ts` | 規格 SSOT：label 模板 ＋ toFixed 位數 ／ default ／ min-max-step ／ select options ＋ `encode` ＋ overlayParams `out` key | React、store、`ParamControl` |
+| `src/state/layerParamsStore.ts` | **值**：get/set/subscribe/reset ＋ `useLayerParams` ＋ `encodeParamsToOverlay` | UI 型別 `ParamControl` |
+| `src/state/layerParamsControls.ts` | spec ＋ 值 → `ParamControl[]`（未遷移回 `null`） | — |
+
+store 模式完全比照 AR-21 的 `layerVisibilityStore`（再往上是 `timeStore`）：
+模組級 state ＋ subscribe，同值不通知；**per-key 內層物件 identity 只在該 key
+真的變動時才換新**（`useSyncExternalStore` 的硬性要求，回新物件會無限迴圈）。
+未遷移 key 的 `getParams` 回**同一個 frozen 空物件**，同理由。
+
+### 雙軌只有兩處分岔
+
+```
+getControls(layer)  → buildParamControls(layer, snapshot[layer]) ?? 既有 switch
+overlayParams       → { …既有 500+ 行字面, ...migratedOverlayParams }   ← spread 放最末
+```
+
+deps 陣列對未遷移 key 一項未動；遷移的 27 項整組收斂成首項 `migratedOverlayParams`。
+
+spread 刻意放**最末**：遷移途中若某 key 的手寫字面還沒刪，以規格派生為準。
+`96db21d` 就是這個中間狀態 —— 11 個 case 已成死碼但尚未刪除，黃金快照全綠，
+等於在「還能一鍵回退」的狀態下先證明渲染器與手寫 case 逐位等價。
+
+### ⚠️ 那一行 `useSyncExternalStore` 是行為等價的關鍵（黃金快照的結構性盲區）
+
+快照凍結的是「**預設值下跑一次** `getControls` 得到什麼」。
+它驗不到「拖了之後畫面有沒有更新」——
+手寫 case 的 onChange 是 `setXxx`（React state，會觸發本 hook 重跑），
+遷移後是 `store.setParam`（本 hook 預設不知情）。少了 hook 內那一行訂閱，
+slider 拖動時 store 有變、`overlayParams` 不重算 → **畫面毫無反應，
+且無錯誤、無警告、快照全綠**。
+
+因此另立 `layerParamsControls.test.ts` 5 條補這個盲區（onChange 回寫 ／
+label 依 toFixed 位數重算 ／ select 連動 overlayParams 的 Idx ／
+傳入快照優先於 store 現值）。
+
+### 三個「編得過但值悄悄不一樣」的陷阱（都被快照擋在第一次）
+
+1. **slider 不帶 `type` 欄位** —— `SliderConfig.type` 是選填，330 個手寫 case
+   一律省略。渲染器若補一個 `type: "slider"`，tsc 全綠、畫面照跑，只有快照會紅。
+2. **label 是模板不是字面**，且位數逐控件不同：`透明度 ${v.toFixed(2)}` ／
+   `大小 ${v.toFixed(1)}`。規格因此拆成 `labelPrefix` ＋ `digits`。
+3. **`religionAncestralHalls` 的顯示表與編碼表不是同一張**：
+   options 用 `REGISTRY_MODES_ANCESTRAL`（false 是「文資祠堂」不是 OSM），
+   但 overlayParams 的 `.indexOf` 用的是 `REGISTRY_MODES`。
+   兩張 value 序列碰巧相同、只有 label 不同 —— 寫成同一個現在不會紅，
+   將來任一張改動就靜默錯位。規格把 `options` 與 `encode` 分成兩欄正是為此。
+
+另有一個非陷阱但要照抄的：`funeralOperators` 的 default 是 `"active"` 不是 `"all"`
+（不濾會多畫 1,664 個已失效業者）。
+
+### 兩條 ratchet 需要就地調整 —— 都是「參數的家從一處變成兩處」
+
+兩者原本都以「原始碼含 `case "key"`」當作「這層有參數」的**唯一**判準：
+
+| 檔 | 改法 | 不改的後果 |
+|---|---|---|
+| `layerGoldenExtract.paramsCaseKeys()` | `all` 改成 case ∪ `MIGRATED_PARAMS_KEYS` | 已遷移 key 變成「抽到控件卻查無來源」的幽靈，反向斷言誤報 |
+| `layerConsistency` 的 `hasParamsCase` | `\|\| isMigratedParamsKey(key)` | 每遷一批就有一批被誤判成「漏接透明度 slider」 |
+
+兩處都是**擴大真值來源**而非放寬判準 —— 被擋的行為一項未減。
+反向斷言（「抽到控件的 key 一定查得到宣告來源」）要保留，它擋的是「控件憑空出現」。
+
+`overlayParamsDeps.test.ts` **不需要改**：它只驗「進了 overlayParams 物件的 state
+有沒有進 deps」，而宣告與引用是一起刪的 → 539 → 512，自動收斂。
+
+### 試點 11 key（宗教 6 ＋ 殯葬 5）與挑選理由
+
+`religionTemples` `religionChurches` `religionAncestralHalls` `religionFoundations`
+`religionOtherWorship` `religionTop100` ／ `funeralFacilities` `funeralOperators`
+`funeralOperatorDensity` `cemeteryOsm` `cemeteryZoning`
+
+控件單純（opacity / size slider ＋ select），但**三種 select 形狀齊全**：
+`OPTIONS` 直用（`REGISTRY_MODES`）／`["all", ...OPTIONS.map(v)]` prepend
+（`DEITY_FAMILIES`・`FUNERAL_FACILITY_TYPES`）／顯示表 ≠ 編碼表（宗祠）。
+且 27 個 state 的引用點恰好只有四處（宣告／memo 字面／deps／case），
+沒有外溢到 ref 或其他回傳物件 —— 刪得乾淨，適合當第一棒。
+
+### 驗收（硬證據）
+
+| 項 | 結果 |
+|---|---|
+| `layer-golden.json` | **零 diff** —— 348 key 的 `params` section 與 `overlays` 的 paint 求值（吃 overlayParams 全集）逐位元不變 |
+| `npx tsc -b` | 0 error |
+| `npx vitest run` | 40 檔 **518 passed / 1 skipped**（507 基準 ＋ 11 store 契約；`layerParamsControls` 的 5 條在下一 commit 為 523） |
+| `useTransportParams.ts` | 3,160 → **3,085** 行；`useState` 645 → 619；`case` 341 → 330 |
+| overlayParams deps | 539 → **512** |
+
+fixture 零 diff 是本棒唯一算數的等價證明 —— 它同時涵蓋控件（params section）
+與編碼（overlays section 的 paint 是拿 overlayParams 求值出來的）。
+
+### 給 P3-2 的分批盤點（機械統計，非目測）
+
+剩下 330 個 case，扣掉 6 個 `emptyByDesign`（`windPlan` `submarineCables`
+`landingStations` `activeFaults` `aqiStations` `pollutionSite`）後：
+
+| 桶 | 數量 | 說明 |
+|---|---|---|
+| **A 純 slider** | 240 | 現行 schema 直接吃得下，可大批走 |
+| **B select/toggle 但形狀規則** | 51 | 同試點的三種 select 形狀；toggle 的 0/1 中介已在 `encodeParamValue` 實作但**尚未有真實使用者** |
+| **C 形狀例外** | 18 | 需要 schema 擴充，見下 |
+| **D state 外溢** | 15 | 值不只餵 overlayParams，換軌要連帶處理 |
+
+**C 形狀例外（18）**：
+- 條件式 label：`earthquakes`（`eqShowHistory ? "history" : "timeline"` —— boolean 存
+  state、select 顯示）、`powerPoles` `osmRoadDrive`（`x === 0 ? "關" : x.toFixed(2)`）
+- 局部常數 ＋ 多語句 onChange：`indicators` `socioeconomic` `spatialEconomy`
+  （category → metric 級聯，改 category 要同步重設 metric）、`pollutionPenaltyMobile`
+  （另有 `pollutionPenaltyPlaying` 播放狀態）、`wdBattery`
+- helper 產生器：`agriCropSuitability`（`buildCropSelector`，132 選項且 label 隨當前值變）
+- 條件式 label ＋ 共用選項表：`livestockFarm{Pig,Chicken,Cattle,Duck,Goose,Sheep,Other}` 7 層
+- `SelectConfig.disabled`：`propertyValueGrid`（人均模式在 150m 尺度不可選，
+  label 自帶原因）—— **全 repo 唯一用到 `disabled` 的地方**，規格需要 options 動態求值
+
+**D state 外溢（15）**：`flights` `ships` `rail` `busLive` `busIntercityLive`
+`touristShuttleLive` `lighthouses` `stations{THSR,TRA,Metro}` `ports` `airports`
+`fireStations` `temperatureWave` `eduRemoteSchools` `wasteSchedule`。
+這些是 Three.js／CustomLayer 層：值透過 `xxxRef.current = xxx`（全檔 46 處）
+餵 scene，或進 `h3Params` / `popCountParams` / `indicatorsParams` / `socioParams` /
+`spatialParams` / `youbikeParams` 六個獨立回傳物件，**不走 overlayParams**。
+`busLive` / `wasteSchedule` 另有 `Record<BusGroup, boolean>` 這種**跨 key 共用的
+group checkbox state**（`busGroups` 同時餵 `enabledBusCities` memo），
+換軌時 store 的 value 型別要能裝巢狀物件，或改成把每個 group 拆成獨立 boolean 參數。
+
+**建議批次順序**（每批一個主題、跑完必驗 fixture 零 diff）：
+1. **批 A1-A4**｜240 個純 slider 依主題切 4 批（每批 50-70 層）。零 schema 變動，
+   純搬。先做這批的收益最大：`useTransportParams` 會掉一半以上行數。
+2. **批 B**｜51 個規則 select/toggle。此批會出現第一個真實 toggle → 順手驗證
+   `encodeParamValue` 的 0/1 分支（現行 28 個 `? 1 : 0` 都在這桶與 D 桶）。
+3. **批 C1**｜條件式 label（`labelPrefix` 擴充成 `label(value)` 函式或加 `zeroLabel` 欄）
+   ＋ helper 產生器。⚠️ 若改成函式，快照仍逐位比對輸出字串，等價證明不受影響。
+4. **批 C2**｜`disabled` ＋ 級聯 onChange（`indicators` 三兄弟）。
+   級聯是**寫入時的副作用**，規格要新增「set 這個參數時連帶重設哪些」的宣告。
+5. **批 D**｜最後做。它要的不是 params schema 擴充，而是**第二條輸出通道**
+   （ref / 子物件），與 overlayParams 分屬兩種消費者，設計上宜獨立一棒。
+
+⚠️ **不建議**在 A 批之前先啃 C/D —— 那會讓 schema 為了 18 個例外提早複雜化，
+而 240 個 easy case 用不到那些欄位。先把量體搬完，例外的形狀也會更清楚。
