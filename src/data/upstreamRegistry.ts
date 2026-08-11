@@ -913,55 +913,11 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     processing: '全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles',
     note: 'DERIVED: pulse-derived island analysis (PMTiles from EV chargers + road network)',
   },
-  submarineCables: {
-    status: 'verified',
-    datasets: [{ datasetId: 'submarine_cable', confidence: 'HIGH' }],
-  },
-  landingStations: {
-    status: 'verified',
-    datasets: [{ datasetId: 'submarine_cable', confidence: 'LOW' }],
-  },
   // 🎓 教育 Education（第 38 主題）總覽層 — 保留原 z-order 位置，資產已搬至 public/education/
   schools: {
     status: 'verified',
     datasets: [{ datasetId: 'schools', confidence: 'HIGH' }],
     note: '第 38 主題 education；6 個點層共用同一份 schools.geojson（4,315 點）',
-  },
-  convenienceStores: {
-    status: 'verified',
-    datasets: [{ datasetId: 'convenience_store', confidence: 'MED' }],
-  },
-  postOffices: {
-    status: 'verified',
-    datasets: [{ datasetId: 'post_offices', confidence: 'HIGH' }],
-  },
-  iPostBoxes: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ibox', confidence: 'HIGH' }],
-  },
-  communityCenters: {
-    status: 'verified',
-    datasets: [{ datasetId: 'community_centers', confidence: 'HIGH' }],
-  },
-  govServiceOffices: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gov_service_offices', confidence: 'HIGH' }],
-  },
-  publicLibraries: {
-    status: 'verified',
-    datasets: [{ datasetId: 'public_libraries', confidence: 'HIGH' }],
-  },
-  welfareCenters: {
-    status: 'verified',
-    datasets: [{ datasetId: 'welfare_centers', confidence: 'HIGH' }],
-  },
-  retailMarkets: {
-    status: 'verified',
-    datasets: [{ datasetId: 'public_retail_markets', confidence: 'HIGH' }],
-  },
-  publicToilets: {
-    status: 'verified',
-    datasets: [{ datasetId: 'public_toilets', confidence: 'HIGH' }],
   },
   realEstateRentalGrid: {
     status: 'verified',

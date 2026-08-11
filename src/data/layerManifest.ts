@@ -46,6 +46,7 @@ import {
   Building2, CalendarDays, Theater, Library,
   Truck, Droplet, Flame, Timer,
   LayoutGrid, ShieldCheck, Trash2, PlaneTakeoff,
+  Cable, Store, Mail, PackageCheck, Users, BookOpen, ShoppingBasket, Toilet,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -921,6 +922,246 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["select", "toggle", "slider", "toggle"] },
     description: "國防部每日航跡示意圖向量化的共機活動區（⚠️ 是活動區域非精確航跡）",
     topics: ["情勢", "軍事", "國防"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 2 —— 基礎建設 Infrastructure 11 層
+  //  批次搬移的機械化基準線：**11/11 都是 dataClass A**（單一 geojson +
+  //  OVERLAY_REGISTRY 驅動，無 pmtiles、無 dynamicData），形狀完全同構。
+  //
+  //  ⚠️ 兩個容易寫錯的地方：
+  //  1. **合法無 legend**：11 層裡 7 層 LEGEND_REGISTRY 根本沒覆蓋（單色 POI，
+  //     UX 鐵則 2 的圖例要求不適用）→ legend 照實填 `null`。判準是機械的：
+  //     **key 不在 LEGEND_REGISTRY 任何 entry 的 keys 裡就是 null**，不要看圖層
+  //     「感覺該有圖例」就發明一個 id —— 那會讓 Phase 3 派生出一個不存在的圖例。
+  //     真的有圖例的只有 submarineCables / landingStations / govServiceOffices /
+  //     publicToilets 4 層，且各自獨佔（依拍板④ legend id 退化成同名）。
+  //  2. **popup 11/11 都是 key 的單數形**（postOffices→postOffice、
+  //     iPostBoxes→iPostBox…）。比批 1 消防的 4/5 更整齊，也因此更危險 ——
+  //     肉眼掃過去像同名，只有逐 key 反查 GIS_LAYERS 才看得出差一個 s。
+  //
+  //  submarineCables / landingStations 的 `params: null` 是 Phase 0 記錄的
+  //  emptyByDesign（useTransportParams 寫死 `return []`），不是抽取器沒掃到。
+  // ══════════════════════════════════════════════════════════════
+  submarineCables: {
+    key: "submarineCables",
+    section: { theme: "基礎建設 Infrastructure", group: "通訊" },
+    label: "通訊海纜 Submarine Cable",
+    expandable: true,
+    color: "#2196F3",
+    icon: Cable,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "submarine_cable", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "submarine-cables", url: "./geo/submarine_cables.geojson" },
+    legend: "submarineCables",
+    popup: "submarineCable",
+    params: null,
+    description: "台灣周邊國際／國內通訊海纜路由 35 條（線層，含 glow 光暈）",
+    topics: ["基礎建設", "通訊", "海纜"],
+  },
+
+  landingStations: {
+    key: "landingStations",
+    section: { theme: "基礎建設 Infrastructure", group: "通訊" },
+    label: "海纜登陸站 Landing Station",
+    expandable: true,
+    color: "#26c6da",
+    icon: Radio,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "submarine_cable", confidence: "LOW" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "landing-stations", url: "./geo/landing_stations.geojson" },
+    legend: "landingStations",
+    popup: "landingStation",
+    params: null,
+    description: "海纜登陸站 45 處（與海纜同一 catalog dataset，confidence LOW）",
+    topics: ["基礎建設", "通訊", "海纜"],
+  },
+
+  convenienceStores: {
+    key: "convenienceStores",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "超商 Convenience Store",
+    expandable: true,
+    color: "#26c6da",
+    icon: Store,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "convenience_store", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "convenience-stores", url: "./geo/convenience_stores.geojson" },
+    legend: null,
+    popup: "convenienceStore",
+    // ⚠️ 只有 1 個控件（Scale），沒有 Opacity —— 與同群其餘 9 層的「透明度 + 大小」
+    //    兩件組不同。是實況，不要照鄰居補齊。
+    params: { count: 1, kinds: ["slider"] },
+    description: "全台便利商店點位（單色 POI，無圖例）",
+    topics: ["基礎建設", "零售", "生活機能"],
+  },
+
+  postOffices: {
+    key: "postOffices",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "郵局 Post Office",
+    expandable: true,
+    color: "#d32f2f",
+    icon: Mail,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "post_offices", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "post-offices", url: "./civic_facilities/post_offices_national.geojson" },
+    legend: null,
+    popup: "postOffice",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "中華郵政郵局據點全國 1,278 處",
+    topics: ["基礎建設", "郵政", "公共服務"],
+  },
+
+  iPostBoxes: {
+    key: "iPostBoxes",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "i郵箱 iPost Box",
+    expandable: true,
+    color: "#ef6c00",
+    icon: PackageCheck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ibox", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "ipost-boxes", url: "./civic_facilities/ibox_national.geojson" },
+    legend: null,
+    popup: "iPostBox",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "中華郵政 i郵箱智慧包裹櫃全國 2,345 處",
+    topics: ["基礎建設", "郵政", "物流"],
+  },
+
+  communityCenters: {
+    key: "communityCenters",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "活動中心（部分縣市）Community Center",
+    expandable: true,
+    color: "#26a69a",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "community_centers", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "community-centers", url: "./civic_facilities/community_centers_national.geojson" },
+    legend: null,
+    popup: "communityCenter",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "村里活動中心 1,794 處（⚠️ 非全國，僅有開放資料的縣市）",
+    topics: ["基礎建設", "社區", "公共服務"],
+  },
+
+  govServiceOffices: {
+    key: "govServiceOffices",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "機關便民據點 Gov Service Office",
+    expandable: true,
+    color: "#8d6e63",
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gov_service_offices", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "gov-service-offices", url: "./civic_facilities/gov_service_offices_national.geojson" },
+    legend: "govServiceOffices",
+    popup: "govServiceOffice",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "各級機關便民服務據點全國 702 處",
+    topics: ["基礎建設", "行政", "公共服務"],
+  },
+
+  publicLibraries: {
+    key: "publicLibraries",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "公共圖書館 Public Library",
+    expandable: true,
+    color: "#5c6bc0",
+    icon: BookOpen,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "public_libraries", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "public-libraries", url: "./culture/public_libraries_national.geojson" },
+    legend: null,
+    popup: "publicLibrary",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "公共圖書館全國 634 處（含分館；與文化主題的 librarySeats 即時座位不同層）",
+    topics: ["基礎建設", "圖書館", "公共服務"],
+  },
+
+  welfareCenters: {
+    key: "welfareCenters",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "社福中心 Welfare Center",
+    expandable: true,
+    color: "#ec407a",
+    icon: HeartHandshake,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "welfare_centers", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-centers", url: "./civic_facilities/welfare_centers_national.geojson" },
+    legend: null,
+    popup: "welfareCenter",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "社會福利服務中心全國 157 處",
+    topics: ["基礎建設", "社福", "公共服務"],
+  },
+
+  retailMarkets: {
+    key: "retailMarkets",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "公有市場 Public Market",
+    expandable: true,
+    color: "#66bb6a",
+    icon: ShoppingBasket,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "public_retail_markets", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "retail-markets", url: "./poi/public_retail_markets_national.geojson" },
+    legend: null,
+    popup: "retailMarket",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "公有零售市場全國 731 處",
+    topics: ["基礎建設", "市場", "民生"],
+  },
+
+  publicToilets: {
+    key: "publicToilets",
+    section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
+    label: "公廁 Public Toilet",
+    expandable: true,
+    color: "#7e57c2",
+    icon: Toilet,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "public_toilets", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "public-toilets", url: "./environment/public_toilets_national.geojson" },
+    legend: "publicToilets",
+    popup: "publicToilet",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "環境部列管公廁全國 13,281 座（本主題量體最大的一層）",
+    topics: ["基礎建設", "公廁", "公共服務"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
