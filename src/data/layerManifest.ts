@@ -1073,8 +1073,10 @@ export const LAYER_MANIFEST = {
   //     iPostBoxes→iPostBox…）。比批 1 消防的 4/5 更整齊，也因此更危險 ——
   //     肉眼掃過去像同名，只有逐 key 反查 GIS_LAYERS 才看得出差一個 s。
   //
-  //  submarineCables / landingStations 的 `params: null` 是 Phase 0 記錄的
-  //  emptyByDesign（useLayerParamsRuntime 寫死 `return []`），不是抽取器沒掃到。
+  //  submarineCables / landingStations 的 `params: null` 是**有意沒有控件**
+  //  （純靜態線位／點位），不是抽取器沒掃到。⚠️ Phase 0~3 這件事寄生在
+  //  useLayerParamsRuntime 的 `return []` 字面上（emptyByDesign）；Phase 4 起
+  //  本欄位就是唯一表達，由 layerConsistency.test.ts 的 NO_PARAMS_LEDGER 凍結。
   // ══════════════════════════════════════════════════════════════
   submarineCables: {
     key: "submarineCables",
@@ -4257,8 +4259,8 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "地震", "回放"],
   },
 
-  // 本批唯一 dataClass A，也是唯一 `params: null`（useLayerParamsRuntime 寫死
-  // `case "activeFaults": return [];`，屬 emptyByDesign 5 key 之一，非抽取器漏掃）。
+  // 本批唯一 dataClass A，也是唯一 `params: null`（地調所固定線位，有意沒有控件，
+  // 非抽取器漏掃；Phase 4 起本欄位即唯一表達，見 NO_PARAMS_LEDGER）。
   // popup `activeFault` 是**去複數 s 的單數形**（同批 2 基礎建設 11/11 的形狀）。
   activeFaults: {
     key: "activeFaults",
@@ -4924,9 +4926,10 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "空品", "AQI"],
   },
 
-  // ⚠️ params: null —— useLayerParamsRuntime 寫死 `case "aqiStations": return []`
-  //    （Phase 0 記錄的 emptyByDesign 5 key 之一）。THEMES 仍是 expandable: true，
-  //    兩者的不一致是現況，搬移不夾帶修正。
+  // ⚠️ params: null —— 測站點位本身有意沒有控件（數值圖層是 aqiImagery /
+  //    aqiMicroSensors）。THEMES 仍是 expandable: true，兩者的不一致是現況，
+  //    搬移不夾帶修正。（Phase 4 前這件事寫在 useLayerParamsRuntime 的
+  //    `return []` 字面上，現已收束到本欄位。）
   aqiStations: {
     key: "aqiStations",
     section: { theme: "環境氣候 Environment", group: "空品" },
@@ -8718,9 +8721,10 @@ export const LAYER_MANIFEST = {
   // （`derivedFromLayers` ＋ `derivationType: "coverage"` ＋ `processing`）——
   // manifest 照抄整包，不是只抄 status/datasets。
   //
-  // ⚠️ **`windPlan` 的 `params` 是 null**：`useLayerParamsRuntime` 寫死 `return []`，
-  // 是 Phase 0 記錄的 emptyByDesign 5 key 之一（另 4 個是 activeFaults / aqiStations /
-  // landingStations / submarineCables）。**不是抽取器沒掃到**，照抄不夾帶修正。
+  // ⚠️ **`windPlan` 的 `params` 是 null**：單一潛力區面，有意沒有控件
+  // （同類另 4 個：activeFaults / aqiStations / landingStations / submarineCables）。
+  // **不是抽取器沒掃到**，照抄不夾帶修正。Phase 4 起本欄位即唯一表達
+  // （P3-3 之前寄生在 useLayerParamsRuntime 的 `return []` 字面）。
   //
   // ⚠️ 再生能源子群同樣橫跨兩筆 LEGEND_REGISTRY entry ＋ 2 個 null：
   //   EnergySpecialtyLegend（首 key offshoreWindZones）→ offshoreWindZones /
@@ -8798,8 +8802,8 @@ export const LAYER_MANIFEST = {
     legend: null,
     // 3 個 layer id（glow / fill / line）全不在 GIS_LAYERS → 無點擊接線
     popup: null,
-    // ⚠️ 這個 null 是**有意的**：useLayerParamsRuntime 寫死 `case "windPlan": return [];`，
-    //    Phase 0 已把它記進 emptyByDesign 5 key。不是抽取器漏掃。
+    // ⚠️ 這個 null 是**有意的**（單一潛力區面，無可調視覺維度），不是抽取器漏掃。
+    //    Phase 4 起由 layerConsistency 的 NO_PARAMS_LEDGER 雙向凍結。
     params: null,
     description: "離岸風電場規劃區位（glow ＋ fill ＋ 邊框，無控件）",
     topics: ["能源", "再生能源", "風力", "規劃"],
@@ -8871,7 +8875,7 @@ export const LAYER_MANIFEST = {
       sourceId: "energy-ev-charging",
       fallbackUrl: "./geo/_empty.geojson",
     },
-    // 單色 POI，鐵則 2 不適用（layerConsistency 的 BASELINE_NO_LEGEND 已在案）
+    // 單色 POI，鐵則 2 不適用（layerConsistency 的 NO_LEGEND_LEDGER 已在案）
     legend: null,
     // ⚠️ key 是複數 Stations、layerType 連 Station 都沒有（→ evCharging）
     popup: "evCharging",
@@ -9045,7 +9049,7 @@ export const LAYER_MANIFEST = {
   //      osmPowerPlantsStatic / osmSolarFarms / powerPlants ——
   //      App.tsx 照樣把 layerVisibility.<key> 餵進 useEnergyPoiLayer，
   //      只是使用者無法從 sidebar 打開（`layerConsistency` 的
-  //      BASELINE_NOT_IN_SIDEBAR 有記：被 SSOT 6-layer 取代後移出 sidebar，key 保留）。
+  //      ORPHAN_LEDGER 有記：被 SSOT 6-layer 取代後移出 sidebar，key 保留）。
   //   ② 無 registry entry 但**有真實 consumer**（2）：powerStatusHud /
   //      powerRegionDemand —— monitor 面板的供電燈號 HUD 與北中南東 4 區 3D bars，
   //      App.tsx 909 行以 `||` 合成 energyDashboardActive 驅動 usePowerDashboard。
@@ -9190,7 +9194,7 @@ export const LAYER_MANIFEST = {
     //    note 寫 "stale/unused color"，實際上**這層有真實 consumer** ——
     //    App.tsx 以 `powerStatusHud || powerRegionDemand` 合成 energyDashboardActive
     //    驅動 usePowerDashboard（5 分鐘 poll）。它不在 sidebar 是因為 KPI 性質、
-    //    預定整合到 monitor 面板（layerConsistency 的 BASELINE_NOT_IN_SIDEBAR 有記）。
+    //    預定整合到 monitor 面板（layerConsistency 的 ORPHAN_LEDGER 有記）。
     upstream: {
       status: "pulse_only",
       datasets: [],

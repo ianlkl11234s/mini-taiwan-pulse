@@ -15,10 +15,10 @@ import type { SelectConfig, SliderConfig, ToggleConfig } from "../layerParamsCon
 beforeEach(() => layerParamsStore.reset());
 
 describe("buildParamControls", () => {
-  // ⚠️ 這裡的「未遷移 key」刻意取 `aqiStations`（`case "x": return []` 的
-  //    emptyByDesign 層）—— 規格檔沒有「宣告了但空陣列」這種形狀，所以它**永遠**
+  // ⚠️ 這裡的「未遷移 key」刻意取 `aqiStations`（manifest 宣告 `params: null`
+  //    的 12 個之一）—— 規格檔沒有「宣告了但空陣列」這種形狀，所以它**永遠**
   //    不會被遷走。原本寫的是 `cctv`，P3-2C 把它搬走後這三條就紅了。
-  it("未遷移的 key 回 null（呼叫端據此 fallthrough 到既有 switch）", () => {
+  it("未遷移的 key 回 null（呼叫端 `?? []`，等同 Phase 4 前的 switch default）", () => {
     expect(buildParamControls("aqiStations")).toBeNull();
     expect(buildParamControls("religionTemples")).not.toBeNull();
   });

@@ -10,7 +10,7 @@
 //   讀取器（`pNum`/`pBool`/`pStr`）· 窄化（`oneOf`/`oneOfNum`）·
 //   鏡像 ref 三支（Three.js render loop 逐幀讀 `.current`）·
 //   `buildWasteSubParams`（巢狀 Record 組裝）· `advancePenaltyYear`（播放引擎）·
-//   `getControls` 的雙軌 dispatcher ＋ 5 個 `emptyByDesign` case ·
+//   `getControls` 的單行 dispatcher（P4 起 switch 已清空）·
 //   `overlayParams` 薄 memo · 46 個 ref ／ 6 個子物件的 `return {}` 組裝
 //
 // ⚠️ **舊檔名 `useTransportParams` 已完全退場，沒有相容薄殼**：
@@ -22,13 +22,16 @@
 // 否則等值閘 B 立刻紅。整支退役（消費端改吃 `useLayerParams(key)`）是 AR-22
 // 的終點，**不是等價重構**，要另立驗收標準。
 //
-// ⚠️ 下方 5 個 `emptyByDesign` 分支（windPlan / submarineCables / landingStations
-// / activeFaults / aqiStations）**不能順手刪**：`paramsCaseKeys()` 靠「分支字面
-// 直接 return 空陣列」判定「有意沒有控件」，刪了會被 `layerConsistency` 的覆蓋
-// 斷言誤判成漏接。要刪得先給 manifest 一個等價的表達。
+// ✅ **P4 已根治**：P3-3 之前這裡寫著「下方 5 個 `emptyByDesign` 分支不能順手刪」
+// —— 因為 `paramsCaseKeys()` 靠「分支字面直接 return 空陣列」判定「有意沒有控件」。
+// 那是把一個**語意事實**寄生在**原始碼字面**上。P4 改由 manifest 的
+// `params: null` 顯式表達（12 個 key，`layerConsistency.test.ts` 的
+// `NO_PARAMS_LEDGER` 雙向凍結），5 個空分支與 `paramsCaseKeys()` 一併退役。
 //
-// ⚠️ 同理，本檔的**註解也會被文字解析器掃到**（`paramsCaseKeys` 不剝註解）——
-// 註解裡不要出現 `case` 加雙引號 key 的字面，會憑空多出一個幽靈 key。
+// ⚠️ 連帶消失的還有「本檔註解不能寫出 `case` 加雙引號 key 的字面」那條禁忌
+// （P3-3 實際被幽靈 key 咬過一次）。文字護欄還在的只剩兩道，兩道都**不掃註解**：
+// `overlayParamsDeps` 的 `MEMO_START` 哨兵與 `layerParamsSharedState` 的
+// `stripComments()`。在本檔寫註解不再需要繞開任何字面。
 
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import type { ExpandableLayerKey, BusCity } from "../types";
@@ -446,28 +449,23 @@ export function useLayerParamsRuntime() {
     ...migratedOverlayParams,
   }), [migratedOverlayParams]);
 
-  const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
-    // ── 雙軌分岔（AR-22 P3-1）──────────────────────────────────────
-    // 已遷移的 key 由規格派生控件；未遷移回 null → fallthrough 到下方 switch。
-    // 值取自本次 render 訂閱到的 snapshot（不直接 getParams()）—— 讓控件的 value
-    // 與觸發本次 render 的那份快照同源，避免 useSyncExternalStore 的 tearing。
-    const migrated = buildParamControls(layer, migratedParams[layer]);
-    if (migrated) return migrated;
-
-    switch (layer) {
-      // 都市熱島：2 選項 → ExpandedControls 會渲染成 button row（≥4 才轉原生 dropdown）
-      case "windPlan": return [];
-      // 🎓 教育 Education — 6 個點層共用 eduSchoolsOpacity / schoolScale（同一份 schools.geojson）
-      // 只有總覽層 schools 額外給「分級配色」開關；5 個分級層與偏遠層本來就固定分色。
-      case "submarineCables": return [];
-      case "landingStations": return [];
-      case "activeFaults": return [];
-      case "aqiStations": return [];
-      // 🏟️ 運動場館 Sports（5 sublayer，opacity + scale；大小另由 area_sqm log 內插驅動）
-      // ── 環境污染 POLLUTION ──
-      default: return [];
-    }
-  };
+  /**
+   * ⚠️ **雙軌已收束成單軌**（AR-22 P4）：336 個有控件的 key 全部由
+   * `LAYER_PARAMS_SPEC` 派生，剩下 12 個 key 在 manifest 宣告 `params: null`
+   * ——「有意識地沒有控件」現在是 manifest 的**顯式表達**，不再是本檔
+   * `case "x": return [];` 的**字面**（P4 前那 5 個空分支唯一的作用就是餵
+   * `paramsCaseKeys()` 的正則，該函式已退役）。所以 `?? []` 逐字等價於原本的
+   * `default: return []`。
+   *
+   * 值取自本次 render 訂閱到的 snapshot（不直接 `getParams()`）—— 讓控件的 value
+   * 與觸發本次 render 的那份快照同源，避免 `useSyncExternalStore` 的 tearing。
+   *
+   * ⚠️ 要新增控件請去 `data/layerParamsSpec.ts` 加規格，**不要**在這裡加回 switch：
+   * `layerParamsSharedState.test.ts` 有兩道閘盯著（已遷移 key 不得有 case ／
+   * switch 必須維持清空）。
+   */
+  const getControls = (layer: ExpandableLayerKey): ParamControl[] =>
+    buildParamControls(layer, migratedParams[layer]) ?? [];
 
   return {
     stationScale,

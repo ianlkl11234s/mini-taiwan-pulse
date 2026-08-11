@@ -32,6 +32,7 @@ import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
 import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { isMigratedParamsKey } from "../layerParamsSpec";
 import {
   extractGolden, extractGisLayers, extractGisConstRefTypes, extractNonGisFeatureTypes,
   extractCustomHandlerFeatureTypes,
@@ -250,6 +251,26 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
           `${k} 的 popup 陣列順序與 GIS_LAYERS 出現順序不符（實際位置 ${at.join(",")}）`,
         ).toBe(true);
       }
+    }
+  });
+
+  /**
+   * ⚠️ AR-22 Phase 4 新增 —— 「有意識地沒有控件」的**唯一表達**是 manifest 的
+   * `params: null`（P4 前它同時寄生在 `useLayerParamsRuntime` 的
+   * `case "x": return []` 字面上，由 `paramsCaseKeys()` 正則掃出來，那條路已退役）。
+   *
+   * 這條把兩份 SSOT 焊起來：**形狀**在 manifest、**內容**在 `LAYER_PARAMS_SPEC`。
+   * 新層只寫了規格沒進 manifest（或反之）→ 立刻紅，不必等控件數對不上才發現。
+   */
+  it("params 是否為 null ⇔ LAYER_PARAMS_SPEC 有沒有宣告（雙軌收束後的單一表達）", () => {
+    for (const [k, m] of entries) {
+      expect(
+        isMigratedParamsKey(k),
+        m.params === null
+          ? `${k} 的 manifest 宣告 params: null（有意沒有控件），LAYER_PARAMS_SPEC 卻宣告了規格`
+          : `${k} 的 manifest 宣告了 params，LAYER_PARAMS_SPEC 卻查無規格 —— ` +
+            "控件不會出現在面板上（規則 §4a 鐵則 1）",
+      ).toBe(m.params !== null);
     }
   });
 

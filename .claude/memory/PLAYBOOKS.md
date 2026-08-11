@@ -1689,7 +1689,7 @@ side-effect 模組要確保求值早於 import graph；未注入即 throw（不 
 **5. 圖例**（`src/embed/…Legend`）
 忠實反映渲染語意（見 PRINCIPLES §圖例不憑空發明分類）。
 ⚠️ 色票放 `src/data/*.ts`，**不要向 Scene 檔取色** —— LegendPanel 是 static import，
-會把 three 拖進純靜態 bundle。做完把該層從 `layerConsistency` 的 `BASELINE_NO_LEGEND` 移出。
+會把 three 拖進純靜態 bundle。做完把該層從 `layerConsistency` 的 `NO_LEGEND_LEDGER` 移出（並把 manifest 的 `legend` 從 null 改成圖例 id）。
 
 **6. demo 卡**（`demo-embed.html` 加一張）
 挑一個「看得出東西在動」的時間窗。⚠️ **預設 960x 對密集班距太快**：

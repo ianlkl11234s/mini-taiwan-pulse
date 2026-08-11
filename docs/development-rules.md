@@ -122,13 +122,13 @@ useEffect(() => {
 | 5 | `src/hooks/useXxxLayer.ts` | React hook：state + 觸發 loader + cleanup | ⚠️ 人工 |
 | 6 | `src/map/overlayRegistry.ts` 或 `src/map/xxxCustomLayer.ts` | 靜態 → registry entry；動態 → CustomLayer | ⚠️ 人工 |
 | 7 | `src/components/sidebar/layerCatalog.ts` | `LAYER_COLORS` 加 key | 🔒 tsc（`Record<keyof LayerVisibility,string>`，漏了 TS2739） |
-| 8 | `src/components/sidebar/layerCatalog.ts` | `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用；UI toggle 渲染在 `IconRailSidebar.tsx` / `LayerSidebar.tsx`） | 🔒 `layerConsistency.test.ts`（`BASELINE_NOT_IN_SIDEBAR` ratchet） |
+| 8 | `src/components/sidebar/layerCatalog.ts` | `SECTIONS` 對應分區加 key（單一真實來源，桌機/手機兩側欄共用；UI toggle 渲染在 `IconRailSidebar.tsx` / `LayerSidebar.tsx`） | 🔒 `layerConsistency.test.ts`（manifest `section` ⇔ `ORPHAN_LEDGER` 雙向凍結）＋ `layerManifest.test.ts`（`section` 宣告 ⇔ THEMES 實際位置） |
 | 9 | `src/App.tsx` | 接線：引入 hook、傳 props 到 MapView | ⚠️ 人工 |
 | 10 | `src/hooks/useLayerVisibility.ts` | 僅預設開啟才需要：加進 `DEFAULT_ON`；預設 false 自動派生免改 | ⚠️ 人工（`Set`，非 `Record`，tsc 不強制） |
-| 11 | `src/data/layerParamsSpec.ts` | 在 `LAYER_PARAMS_SPEC` 加**一筆** `key: [ …控件… ]`（opacity slider 由規則 1 強制）。控件長相／預設值／`overlayParams` 編碼三者全由這筆規格派生 —— **不要**再去 hook 加 `useState`／`case`／deps，見下方「§4 params 新流程」 | 🔒 `layerConsistency.test.ts`（`BASELINE_NO_PARAMS` ratchet，判準走 `isMigratedParamsKey`）+ `layerParamsSharedState.test.ts`（共用 slot / 殘影）+ 黃金快照 `params` section |
+| 11 | `src/data/layerParamsSpec.ts` | 在 `LAYER_PARAMS_SPEC` 加**一筆** `key: [ …控件… ]`（opacity slider 由規則 1 強制）。控件長相／預設值／`overlayParams` 編碼三者全由這筆規格派生 —— **不要**再去 hook 加 `useState`／`case`／deps，見下方「§4 params 新流程」 | 🔒 `layerConsistency.test.ts`（`NO_PARAMS_LEDGER` 雙向凍結，判準走 manifest 的 `params: null`）+ `layerManifest.test.ts`（`params` 是否為 null ⇔ spec 有無宣告）+ `layerParamsSharedState.test.ts`（共用 slot / 殘影 / switch 維持清空）+ 黃金快照 `params` section |
 | 11a | `src/data/layerManifest.ts` | 同一筆 entry 的 `params: { count, kinds }`（沒有控件寫 `null`） | 🔒 `layerManifest.test.ts`「params 宣告 = 實際回傳的控件數與型別序列」 |
 | 12 | `src/components/LegendPanel.tsx` | 若規則 2 觸發：寫圖例 sub-component | ⚠️ 人工（元件內容本身無格式測試） |
-| 13 | `src/components/LegendPanel.tsx` | 同檔 `LEGEND_REGISTRY` 加一行 | 🔒 `layerConsistency.test.ts`——但只擋**新**漏接，`BASELINE_NO_LEGEND` 批次凍結的舊漂移不會被抓（見 A-1）；`AqiLegend` 目前繞過本 registry，勿沿用此例 |
+| 13 | `src/components/LegendPanel.tsx` | 同檔 `LEGEND_REGISTRY` 加一行 | 🔒 `layerConsistency.test.ts`（manifest `legend` ⇔ `NO_LEGEND_LEDGER` 雙向凍結）＋ `layerManifest.test.ts`（`legend` 宣告 ⇔ LEGEND_REGISTRY 實際覆蓋）——ledger 裡批次凍結的 84 個舊判定不會被重新檢討，但**新**層一定會被問「為什麼沒有圖例」；`AqiLegend` 已於 2026-08-10 收編進 registry |
 | 14 | `src/components/featureInfo/<domain>Panels.tsx` | 若規則 3 觸發：寫 popup panel 元件 | ⚠️ 人工 |
 | 15 | `src/components/featureInfo/registry.tsx` | `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 | 🔒 `registry.test.ts`（ratchet，`HEADER_LABELS` 是 Record 定全集） |
 | 16 | `src/hooks/useMapInteraction.ts` | `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`（**first-hit-wins**：細節豐富的小範圍排前面，大面積背景排後面） | ⚠️ `mapInteractionLayers.test.ts` **只驗證已存在條目的 layer id 是否真實**，**不驗證新圖層是否漏加條目**——2026-08-10 稽核標為守門盲點 |
@@ -175,8 +175,11 @@ myNewLayer: [
    → 規格寫 `out: null`，並在 hook 的 `return {}` 接一條線；
    同時**必須**在 `__tests__/useLayerParamsRuntimeReturn.test.ts` 的 `RETURN_CHANNEL`
    宣告它的回傳路徑（活文件，漏了等值閘 B 立刻紅）。
-2. 這層**有意沒有控件**（純靜態展示層）→ 兩種寫法擇一：manifest 寫 `params: null`
-   ＋ hook 留一個 `emptyByDesign` 分支（現存 5 個），或列進 `BASELINE_NO_PARAMS`。
+2. 這層**有意沒有控件**（純靜態展示層）→ **只有一種寫法**：manifest 寫 `params: null`
+   ＋ 把 key 加進 `layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER` 並寫下理由。
+   ⚠️ AR-22 Phase 4 前還有第二種（在 hook 留一個 `case "x": return []` 的
+   `emptyByDesign` 分支）—— 那 5 個分支與掃它的 `paramsCaseKeys()` 都已退役，
+   **不要**在 `useLayerParamsRuntime.ts` 加回任何 `case`（有測試擋）。
 3. 鏡像 ref：一律用 `useParamRefNum` / `useParamRefBool` / `useParamRefEnum`，
    ⚠️ **initial 吃規格常數、current 才吃 store 現值** —— 兩者同源會讓「刪掉同步賦值」
    這個突變在測試裡驗不出來（每次 capture 都是全新 mount）。

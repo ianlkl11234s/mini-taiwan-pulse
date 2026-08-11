@@ -117,7 +117,7 @@ describe("spec ⇄ manifest 焊接", () => {
     }
   });
 
-  // ⚠️ 取 `aqiStations`（emptyByDesign，`case "x": return []`）當「未遷移」的例子：
+  // ⚠️ 取 `aqiStations`（manifest 宣告 params: null 的 12 個之一）當「未遷移」的例子：
   //    規格檔沒有「宣告了但空陣列」這種形狀 → 它永遠不會被遷走，本斷言不會隨
   //    遷移進度過時。原本用的 `cctv` 已於 P3-2C 遷出。
   it("isMigratedParamsKey / getParamsSpec 對未遷移 key 回 false / null", () => {

@@ -40,9 +40,10 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
 
 import {
-  extractGolden, canonicalJson, diffGolden, allLayerKeys, paramsCaseKeys,
+  extractGolden, canonicalJson, diffGolden, allLayerKeys,
   pickFixture, FIXTURE_PATH, FIXTURE_SECTIONS, SECTION_NAMES,
 } from "./layerGoldenExtract";
+import { MIGRATED_PARAMS_KEYS } from "../layerParamsSpec";
 import { PENALTY_YEAR_MAX } from "../pollutionTypes";
 
 const REGEN = "npx vite-node scripts/preprocess/dump-layer-golden.ts";
@@ -125,29 +126,36 @@ describe("黃金快照覆蓋度", () => {
       .toEqual([]);
   });
 
-  it("useLayerParamsRuntime 每個 case key 都真的被抽到控件（證明 getControls 全掃有效）", () => {
+  it("抽到控件的 key 集合 ＝ LAYER_PARAMS_SPEC 的 key 集合（證明 getControls 全掃有效）", () => {
     // ExpandableLayerKey 是 type-only、runtime 無法迭代 → 抽取器改對 348 key 全掃。
-    // 這兩條雙向斷言證明「全掃」確實等價於「照 case 清單逐一呼叫」。
+    // 本條雙向斷言證明「全掃」確實等價於「照規格清單逐一呼叫」。
+    //
+    // ⚠️ Phase 4 前這裡比的是 `paramsCaseKeys()`（掃 hook 原始碼的 `case "key"` 字面
+    //    ＋ `emptyByDesign` 的 `return []` 字面）。那個判準寄生在字面上，
+    //    連註解都會被掃到（P3-3 憑空生出幽靈 key）。現在兩邊都是 runtime 真值：
+    //      左＝實跑 hook 抽到的控件、右＝`LAYER_PARAMS_SPEC` 的 key。
+    //    「有意沒有控件」的表達搬到 manifest 的 `params: null`
+    //    （見 layerConsistency.test.ts 的 NO_PARAMS_LEDGER）。
     const layerKeys = new Set(allLayerKeys() as string[]);
-    const { all, emptyByDesign } = paramsCaseKeys();
-    const cases = all.filter((k) => layerKeys.has(k));
-    const byDesign = new Set(emptyByDesign);
     const controls = full.params as Record<string, unknown[]>;
 
-    const shouldHave = cases.filter((k) => !byDesign.has(k));
-    const missing = shouldHave.filter((k) => !Array.isArray(controls[k]) || controls[k].length === 0);
+    const withControls = Object.keys(controls)
+      .filter((k) => Array.isArray(controls[k]) && controls[k]!.length > 0)
+      .sort();
+    const declared = ([...MIGRATED_PARAMS_KEYS] as string[])
+      .filter((k) => layerKeys.has(k)).sort();
+
+    const missing = declared.filter((k) => !withControls.includes(k));
     expect(
       missing,
-      "這些 key 在 useLayerParamsRuntime 有 case 但抽不到控件 → getControls 入口或抽取器對不上",
+      "這些 key 在 LAYER_PARAMS_SPEC 有規格但抽不到控件 → getControls 入口或 buildParamControls 對不上",
     ).toEqual([]);
 
-    // 反向：抽到控件的 key 一定在 case 清單裡（防抽取器從別的來源撿到幽靈控件）
-    const phantom = Object.entries(controls)
-      .filter(([k, v]) => Array.isArray(v) && v.length > 0 && !cases.includes(k))
-      .map(([k]) => k);
-    expect(phantom, "這些 key 抽到控件但原始碼沒有對應 case → 抽取來源不對").toEqual([]);
+    // 反向：抽到控件的 key 一定在規格裡（防抽取器從別的來源撿到幽靈控件）
+    const phantom = withControls.filter((k) => !declared.includes(k));
+    expect(phantom, "這些 key 抽到控件但 LAYER_PARAMS_SPEC 沒有宣告 → 抽取來源不對").toEqual([]);
 
-    expect(cases.length).toBeGreaterThan(100);
+    expect(declared.length).toBeGreaterThan(100);
   });
 
   it("沒有函式殘留在快照裡（有 = 某個函式型欄位漏求值）", () => {

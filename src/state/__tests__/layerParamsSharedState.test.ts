@@ -16,11 +16,15 @@
  *
  * 三道斷言分別擋三種搬法錯誤：
  *   1. **spec 側**：撞名的 `name` / `out` 必須宣告同一個 `sharedGroup`
- *      → 擋「整組搬了但沒用共用表達」
+ *      → 擋「整組搬了但沒用共用表達」。⚠️ AR-22 Phase 4 起這是**唯一**還有母體的一道
+ *      —— hook 的 switch 已清空，共用值的形狀只可能出現在規格檔裡。
  *   2. **來源交叉**：已遷移的 `name` / `out` 不得再出現在 `useLayerParamsRuntime.ts`
  *      → 擋「fall-through group 只搬一半」（倖存的 `useState` 會被尾端 spread 蓋掉）
- *   3. **fall-through 完整性**：來源裡還在的 case 群組（fall-through ／ 跨 case 共用
- *      state）中，任一 key 已遷移即紅 → 擋「拆組遷移」與「遷了卻沒刪 case」
+ *   3. ~~**fall-through 完整性**~~ → Phase 4 換成**「switch 不准回來」**：
+ *      最後 5 個 `emptyByDesign` case 已刪（改由 manifest 的 `params: null` 表達），
+ *      沒有 case 就長不出 fall-through 群組。舊的 `parseCaseGroups` 解析器（~90 行）
+ *      與「已遷移 key 不得留 case」那條（被新條完全涵蓋，且它掃的是含註解的原文）
+ *      一併退役。
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
@@ -28,7 +32,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, SHARED_PARAM_GROUPS,
-  isMigratedParamsKey, sharedSlotMembers, specOutKey,
+  sharedSlotMembers, specOutKey,
   type LayerParamSpec,
 } from "../../data/layerParamsSpec";
 
@@ -148,44 +152,47 @@ describe("已遷移參數與 useLayerParamsRuntime 的交叉檢查", () => {
       ).toBe(false);
     }
   });
-
-  it("已遷移的 key 不得還留著 getControls 的 case", () => {
-    for (const key of MIGRATED_PARAMS_KEYS) {
-      expect(
-        new RegExp(`case\\s+"${key}"`).test(source),
-        `${key} 已遷移但 case 還在（死碼；若它與別的 key fall-through 更是壞的）`,
-      ).toBe(false);
-    }
-  });
 });
 
-// ── 3. fall-through 完整性：耦合的 key 必須整組進退 ────────────────
+// ── 3. switch 已清空：耦合群組不可能再從 hook 長出來 ────────────────
 
-describe("useLayerParamsRuntime 剩餘 case 的耦合群組", () => {
-  const groups = parseCaseGroups(stripComments(source));
-
-  it("耦合群組（fall-through ／ 跨 case 共用 state）不得有成員已遷移", () => {
-    for (const g of coupledComponents(groups)) {
-      const migrated = g.filter((k) => isMigratedParamsKey(k));
-      expect(
-        migrated,
-        `耦合群組 [${g.join(", ")}] 中 ${migrated.join(" / ")} 已遷移，` +
-        "其餘還在 switch —— 共用的值會被拆成兩份，拖任一邊都不會生效。" +
-        "整組一起搬並宣告 sharedGroup，或整組都別搬",
-      ).toEqual([]);
-    }
+describe("useLayerParamsRuntime 的 getControls switch", () => {
+  /**
+   * ⚠️ **本 describe 於 AR-22 Phase 4 換了守備對象**（依 P3-2D 留下的指示：
+   * 「終局刪檔時本段會跟著 switch 一起消失」——switch 沒了，但護欄不必跟著消失）。
+   *
+   * 原本這裡有兩條：`parseCaseGroups` 切出 fall-through 群組、驗「耦合群組不得有
+   * 成員已遷移」，外加一條「解析得出群組」的哨兵。Phase 4 把最後 5 個
+   * `emptyByDesign` case 刪光（改由 manifest 的 `params: null` 表達），
+   * switch 整個收成 `buildParamControls(...) ?? []` ——
+   * **母體歸零，那兩條與那 ~90 行解析器一起變成沒有對象的死碼。**
+   *
+   * 換上的這一條比它們更強也更簡單：**switch 不准回來**。
+   * 只要沒有 case，就不可能出現「fall-through 共用一個 useState」那個形狀
+   * （P3-2A 唯一「四道閘全綠、畫面卻壞掉」的形狀）。
+   * 共用值的保護因此完全落在**規格側**：上方第 1 節的 `sharedGroup` 三條。
+   */
+  it("switch 維持清空（新控件一律走 LAYER_PARAMS_SPEC，不准加回 case）", () => {
+    const cases = [...stripComments(source).matchAll(/case\s+"([A-Za-z0-9_]+)"/g)]
+      .map((m) => m[1] as string);
+    expect(
+      cases,
+      `useLayerParamsRuntime.ts 又長出 getControls case：${cases.join(", ")}\n` +
+      "→ 參數規格的家是 src/data/layerParamsSpec.ts。加回 switch 會同時帶回兩個已消滅的" +
+      "失敗模式：(1) fall-through 共用 useState（拖一邊 paint 不動，四道閘全綠）、" +
+      "(2) 「有意沒有控件」寄生在 `case \"x\": return []` 的字面上（連註解都會被掃到）。",
+    ).toEqual([]);
   });
 
-  // ⚠️ 這條是**哨兵**不是規格：它防的是「解析器被改壞、一個群組都抓不到，
-  //    於是上面那條永遠綠」。門檻會隨 switch 縮小而過時 —— 後棒把 case 數搬到
-  //    低於門檻時，**調降門檻**即可（不要刪掉這條）。
-  //    ⚠️ P3-2D 收工後 switch 只剩 5 個 `emptyByDesign` case，全部是 `return []`：
-  //    既沒有 fall-through group 也沒有 state 變數 —— 原本那兩條「解析得出耦合」的
-  //    哨兵已無對象可驗（不是壞掉，是母體空了），改成盯 case 數本身。
-  //    終局刪檔（P3-3）時本 describe 整段會跟著 switch 一起消失。
-  it("解析器有抓到 case 群組（護欄本身沒被改壞的哨兵）", () => {
-    expect(groups.length).toBeGreaterThan(3);
-    expect(groups.every((g) => g.keys.length >= 1)).toBe(true);
+  /**
+   * 哨兵：上面那條在「解析器抓不到任何東西」時也會綠。錨定一個**必定存在**的字面，
+   * 證明我們真的讀到了 getControls 而不是一個空字串。
+   */
+  it("讀得到 getControls 本體（護欄本身沒被改壞的哨兵）", () => {
+    expect(
+      stripComments(source).includes("const getControls ="),
+      "找不到 getControls —— hook 結構變了，請同步更新本測試的錨點",
+    ).toBe(true);
   });
 });
 
@@ -235,106 +242,3 @@ function stripComments(src: string): string {
   return out.join("");
 }
 
-interface CaseGroup {
-  /** fall-through 共用同一個 body 的全部 case key */
-  keys: string[];
-  /** body 裡讀寫的 useState 變數（由 `value:` / `onChange: setX` / `${X.` 錨定） */
-  vars: string[];
-}
-
-/**
- * 從 `getControls` 的 switch 切出 case 群組。
- * 連續的 `case "K":`（冒號後無內容）視為 fall-through，與下一個帶 body 的 case 同組。
- *
- * ⚠️ `vars` 只收**真的是 `useState` 宣告出來的變數**（P3-2D 修）。原版把
- * `value: String(x)` 的 `String`、`${p.size}` 的區域常數 `p` 也收進去 ——
- * 於是所有寫 `value: String(…)` 的 case 全被 `String` 串成同一個「耦合群組」，
- * 8 個毫不相干的 key 被判成必須整組進退。判準沒有放寬：耦合講的就是共用 state，
- * 非 state 的識別字本來就不可能是共用的那份值。
- */
-function parseCaseGroups(stripped: string): CaseGroup[] {
-  const stateVars = new Set(
-    [...stripped.matchAll(/const \[(\w+),\s*set\w+\]\s*=\s*useState/g)].map((m) => m[1] as string),
-  );
-  const body = switchBody(stripped);
-  const lines = body.split("\n");
-  const groups: CaseGroup[] = [];
-  let pending: string[] = [];
-  let cur: { keys: string[]; body: string[] } | null = null;
-  for (const line of lines) {
-    const m = /^\s*case\s+"([A-Za-z0-9_]+)"\s*:(.*)$/.exec(line);
-    if (m) {
-      if (cur) { groups.push(toGroup(cur, stateVars)); cur = null; }
-      pending.push(m[1] as string);
-      if ((m[2] as string).trim()) {
-        cur = { keys: pending, body: [m[2] as string] };
-        pending = [];
-      }
-      continue;
-    }
-    if (cur) cur.body.push(line);
-  }
-  if (cur) groups.push(toGroup(cur, stateVars));
-  return groups;
-}
-
-function toGroup(c: { keys: string[]; body: string[] }, stateVars: Set<string>): CaseGroup {
-  const text = c.body.join("\n");
-  const vars = new Set<string>();
-  for (const m of text.matchAll(/value:\s*([A-Za-z_$][A-Za-z0-9_$]*)/g)) vars.add(m[1] as string);
-  for (const m of text.matchAll(/onChange:\s*set([A-Za-z0-9_$]+)/g)) {
-    const n = m[1] as string;
-    vars.add(n.charAt(0).toLowerCase() + n.slice(1));
-  }
-  for (const m of text.matchAll(/\$\{([A-Za-z_$][A-Za-z0-9_$]*)[.}]/g)) vars.add(m[1] as string);
-  return { keys: c.keys, vars: [...vars].filter((v) => stateVars.has(v)) };
-}
-
-/** `switch (layer) { … }` 的內文 */
-function switchBody(src: string): string {
-  const gc = src.indexOf("const getControls =");
-  const sw = src.indexOf("{", src.indexOf("switch (layer)", gc));
-  let depth = 0;
-  for (let i = sw; i < src.length; i += 1) {
-    if (src[i] === "{") depth += 1;
-    else if (src[i] === "}") {
-      depth -= 1;
-      if (depth === 0) return src.slice(sw + 1, i);
-    }
-  }
-  throw new Error("找不到 getControls 的 switch 主體");
-}
-
-/**
- * 連通分量：同一 case 群組的 key 互相耦合；共用同一個 state 變數的群組也耦合。
- * 只回傳 ≥2 key 的分量。
- */
-function coupledComponents(groups: CaseGroup[]): string[][] {
-  const parent = new Map<string, string>();
-  const find = (x: string): string => {
-    const p = parent.get(x);
-    if (p === undefined || p === x) { parent.set(x, x); return x; }
-    const r = find(p);
-    parent.set(x, r);
-    return r;
-  };
-  const union = (a: string, b: string) => { parent.set(find(a), find(b)); };
-
-  const byVar = new Map<string, string[]>();
-  for (const g of groups) {
-    for (const k of g.keys) { find(k); union(k, g.keys[0] as string); }
-    for (const v of g.vars) byVar.set(v, [...(byVar.get(v) ?? []), g.keys[0] as string]);
-  }
-  for (const heads of byVar.values()) {
-    for (const h of heads) union(h, heads[0] as string);
-  }
-
-  const comps = new Map<string, string[]>();
-  for (const g of groups) {
-    for (const k of g.keys) {
-      const r = find(k);
-      comps.set(r, [...(comps.get(r) ?? []), k]);
-    }
-  }
-  return [...comps.values()].filter((c) => c.length > 1);
-}

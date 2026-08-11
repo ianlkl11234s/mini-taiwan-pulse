@@ -20,8 +20,9 @@
  *     LAYER_LABELS / GATED_LAYERS / UPSTREAM_REGISTRY / LEGEND_REGISTRY keys /
  *     HEADER_LABELS / PANEL_REGISTRY keys / OVERLAY_REGISTRY（含函式欄位求值）/
  *     transportParams 控件（用 react-dom/server 實際跑 hook，等價 renderHook）
- *   原始碼文字解析：GIS_LAYERS（是函式內的區域常數，runtime 取不到）、
- *     useLayerParamsRuntime 的 `case "key"` 清單（僅用來當覆蓋斷言，不進 fixture）
+ *   原始碼文字解析：GIS_LAYERS（是函式內的區域常數，runtime 取不到）——
+ *     ⚠️ Phase 4 起**只剩這一項**：`useLayerParamsRuntime` 的 `case "key"` 掃描
+ *     （`paramsCaseKeys`）已隨 switch 清空一併退役，覆蓋斷言改比 runtime 集合。
  *
  * ── 非決定性防治 ──────────────────────────────────────────────────
  *   overlayRegistry 的 cultureTodayStr() / tourTodayStr() 會把「今天」烤進 filter
@@ -45,12 +46,10 @@ import { LEGEND_REGISTRY } from "../../components/LegendPanel";
 import { HEADER_LABELS, PANEL_REGISTRY } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { useLayerParamsRuntime } from "../../hooks/useLayerParamsRuntime";
-import { MIGRATED_PARAMS_KEYS } from "../layerParamsSpec";
 import type { ExpandableLayerKey } from "../../types";
 
 export const FIXTURE_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 const INTERACTION_FILE = "src/hooks/useMapInteraction.ts";
-const PARAMS_FILE = "src/hooks/useLayerParamsRuntime.ts";
 
 /**
  * 圖層模組自己掛 click handler、**完全不經 useMapInteraction** 的那幾支檔（批 7 廢棄物）。
@@ -149,7 +148,7 @@ function extractIcons(): Record<string, string> {
 
 /**
  * transportParams 控件定義：用 react-dom/server 實跑 hook 拿預設 state，
- * 再對全部 348 key 呼叫 getControls（switch default 回 []，非 Expandable 的 key 安全）。
+ * 再對全部 348 key 呼叫 getControls（規格查無此 key 回 []，非 Expandable 的 key 安全）。
  * ExpandableLayerKey 是 type-only、runtime 無法迭代 → 全掃是唯一完整做法。
  */
 function probeTransportParams(): {
@@ -338,34 +337,20 @@ export function extractCustomHandlerFeatureTypes(
   return [...out].sort();
 }
 
-/**
- * 「這個 key 的參數控件在哪裡宣告」的清單（覆蓋斷言用，不進 fixture）。
- *
- * ⚠️ AR-22 P3-1 起是**兩個來源的聯集**：
- *   - `useLayerParamsRuntime` 的 `case "key"`（未遷移的 key，原始碼文字解析）
- *   - `LAYER_PARAMS_SPEC` 的 key（已遷移到 layerParamsStore 的 key，runtime 真值）
- *
- * 只掃 case 會讓已遷移的 key 變成「抽到控件卻沒有來源」的幽靈，
- * 反向斷言（防抽取器從別處撿到控件）會誤報 —— 但那條斷言本身要保留，
- * 它擋的是「控件憑空出現」這種真問題。
- *
- * `emptyByDesign` = 原始碼寫死 `case "x": return [];` 的 key —— 這些**有意**沒有控件
- * （如 activeFaults / aqiStations 等純靜態層），不能跟「抽取器沒掃到」混為一談。
- * 已遷移的 key 不會出現在這裡：規格檔沒有「宣告了但空陣列」這種形狀。
- */
-export function paramsCaseKeys(source = readFileSync(PARAMS_FILE, "utf8")): {
-  all: string[];
-  emptyByDesign: string[];
-} {
-  const all = [...new Set([
-    ...[...source.matchAll(/case\s+"([A-Za-z0-9_]+)"/g)].map((m) => m[1] as string),
-    ...MIGRATED_PARAMS_KEYS,
-  ])].sort();
-  const emptyByDesign = [...new Set(
-    [...source.matchAll(/case\s+"([A-Za-z0-9_]+)":\s*return\s*\[\s*\]/g)].map((m) => m[1] as string),
-  )].sort();
-  return { all, emptyByDesign };
-}
+// ⚠️ **`paramsCaseKeys()` 已於 AR-22 Phase 4 退役**（不留薄殼）。
+//
+// 它做的事是掃 `useLayerParamsRuntime.ts` 的原始碼找 `case "key"` 字面，湊出
+// 「哪些 key 宣告了控件」＋「哪些 key `return []` 是有意沒有控件（emptyByDesign）」。
+// 兩個判準都寄生在字面上，代價實際發生過：
+//   - **正則不剝註解** —— P3-3 在檔頭註解寫出那個字面，憑空生出一個幽靈 key
+//     同時混進 `all` 與 `emptyByDesign`，讓覆蓋斷言誤報。
+//   - 「有意沒有控件」是**語意事實**，它的家應該在 manifest，不是某支 hook 的
+//     switch 長相。
+//
+// 現在的表達：`LAYER_MANIFEST[key].params === null`（12 個 key，由
+// `components/sidebar/__tests__/layerConsistency.test.ts` 的 `NO_PARAMS_LEDGER`
+// 雙向凍結）＋ `MIGRATED_PARAMS_KEYS`（336 個，runtime 真值）。
+// 覆蓋斷言改在 `layerGoldenSnapshot.test.ts` 直接比這兩個集合，零文字解析。
 
 // ── 主入口 ────────────────────────────────────────────────────────
 
