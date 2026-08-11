@@ -124,26 +124,15 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   //    forestReserveTypes / canopyGiantsTypes 匯出的是 category-keyed 的分色表達式
   //    （保安林種類／離步道距離帶），不是 layer-key-keyed 的色票記錄，本表從未
   //    import 它們 → manifest 寫字面 hex（同批 2 觀光的判準）。
-  wasteTruck: "#fbbf24",
-  wasteSchedule: "#fbbf24",
-  wasteScheduleNote: "#fff8d6",
-  wasteStopsStatic: "#d97706",
-  wasteCleaningSquads: "#22c55e",
+  // 🗑️ 廢棄物 Waste 18 層已搬進 layerManifest（AR-22 Phase 2 批 7）——
+  //    wasteLoader 的 WASTE_FACILITY_COLORS / WASTE_DISPOSAL_COLORS 是
+  //    facility_type / point_type-keyed（餵 wasteMapboxLayers 的 circle-color），
+  //    不是 layer-key-keyed 的色票記錄，本表從未 import 它們 → manifest 寫字面 hex
+  //    （hex 逐一相同是巧合，同批 5 SATELLITE_COLORS 的判準）。
+  //    ⚠️ 下面兩個 orphan **不屬本批**：不在 THEMES（由 wasteTruck 子 UI 控制），
+  //    section 欄位要先允許 null 才搬得動 → 批 8。
   wasteRoute: "#84cc16",
   wasteStop: "#65a30d",
-  wfIncinerator: "#ef4444",
-  wfLandfill: "#92400e",
-  wfLandfillCoastal: "#0891b2",
-  wfTransfer: "#a855f7",
-  wfMedical: "#ec4899",
-  wfMonitoring: "#3b82f6",
-  wfRecycling: "#22c55e",
-  wfScrapYard: "#737373",
-  wfOther: "#6b7280",
-  wdClothes: "#f97316",
-  wdMixed: "#14b8a6",
-  wdRecyclingContainer: "#84cc16",
-  wdBattery: "#fbbf24",
   // 🛰️ 太空 Space 16 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    satelliteTypes 的 SATELLITE_COLORS 是 category-keyed（`cat` 欄位值 → 色，
   //    餵 hook 內的 match 表達式），本表從未 import 它 → 照拍板①判準寫字面 hex
@@ -850,34 +839,34 @@ export const THEMES: ThemeDef[] = [
       {
         title: "即時",
         layers: [
-          { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
-          { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
-          { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
-          { key: "wasteCleaningSquads", label: "清潔隊 Squads", labelMobile: "清潔隊 Squads (359) 🧹" },
+          fromManifest("wasteTruck"),
+          fromManifest("wasteSchedule"),
+          fromManifest("wasteScheduleNote"),
+          fromManifest("wasteCleaningSquads"),
         ],
       },
       {
         title: "投放點",
         layers: [
-          { key: "wasteStopsStatic", label: "全台清運點位 Stops (靜態)", expandable: true },
-          { key: "wdClothes", label: "衣物回收箱 Clothes", labelMobile: "衣物回收箱 Clothes Box (7,236)", expandable: true },
-          { key: "wdMixed", label: "混合投放點 Mixed", labelMobile: "混合投放點 Mixed (6,368)", expandable: true },
-          { key: "wdRecyclingContainer", label: "街頭資收桶 Container", labelMobile: "街頭資收桶 Container (145)", expandable: true },
-          { key: "wdBattery", label: "電池回收 Battery", labelMobile: "電池回收 Battery (2)", expandable: true },
+          fromManifest("wasteStopsStatic"),
+          fromManifest("wdClothes"),
+          fromManifest("wdMixed"),
+          fromManifest("wdRecyclingContainer"),
+          fromManifest("wdBattery"),
         ],
       },
       {
         title: "處理設施",
         layers: [
-          { key: "wfIncinerator", label: "焚化爐 Incinerator", labelMobile: "焚化爐 Incinerator (30) 🔥", expandable: true },
-          { key: "wfLandfill", label: "衛生掩埋場 Landfill", labelMobile: "衛生掩埋場 Landfill (154) 🟫", expandable: true },
-          { key: "wfLandfillCoastal", label: "濱海掩埋場 Coastal", labelMobile: "濱海掩埋場 Coastal (23) 🌊", expandable: true },
-          { key: "wfTransfer", label: "轉運站 Transfer", labelMobile: "轉運站 Transfer (28) 🚛", expandable: true },
-          { key: "wfMedical", label: "醫療廢棄物 Medical", labelMobile: "醫療廢棄物 Medical (40) ⚕️", expandable: true },
-          { key: "wfMonitoring", label: "地下水監測井 Monitor", labelMobile: "地下水監測井 Monitor (574) 🩸", expandable: true },
-          { key: "wfRecycling", label: "資源回收廠 Recycling", labelMobile: "資源回收廠 Recycling (653) ♻️", expandable: true },
-          { key: "wfScrapYard", label: "廢車 / 廢金屬 Scrap", labelMobile: "廢車 / 廢金屬 Scrap (3)", expandable: true },
-          { key: "wfOther", label: "其他事廢設施 Other", labelMobile: "其他事廢設施 Other (3,164)", expandable: true },
+          fromManifest("wfIncinerator"),
+          fromManifest("wfLandfill"),
+          fromManifest("wfLandfillCoastal"),
+          fromManifest("wfTransfer"),
+          fromManifest("wfMedical"),
+          fromManifest("wfMonitoring"),
+          fromManifest("wfRecycling"),
+          fromManifest("wfScrapYard"),
+          fromManifest("wfOther"),
         ],
       },
     ],

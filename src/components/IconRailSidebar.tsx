@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, type CSSProperties, type ComponentType } from "react";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
-  Activity, Layers, MapPin, CalendarDays, Settings, X,
+  Activity, Layers, MapPin, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
   // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
   BarChart3, AlertTriangle, Wind,
@@ -10,9 +10,13 @@ import {
   Store, Play, Cable, Radio, Mountain,
   // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
   //    Droplet / GitBranch / Dam / Shield / Timer 已無用；
-  //    Waves / Factory / Gauge / ShieldCheck / Container 仍被別層用
-  Waves, Factory, Gauge, ShieldCheck, Container,
-  Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt, Brush,
+  //    Waves / Factory / ShieldCheck / Container 仍被別層用
+  //    （Gauge 隨廢棄物 wfMonitoring 搬走，批 7）
+  Waves, Factory, ShieldCheck, Container,
+  // 🗑️ 廢棄物 18 層搬進 layerManifest（AR-22 Phase 2 批 7）後，CalendarDays / Trash2 /
+  //    Battery / Recycle / Shirt / Brush 已無用；Flame / Truck / MapPinned 仍被別層用
+  //    （MapPinned 還餵 orphan wasteStop，批 8）
+  Flame, Truck, MapPinned,
   // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
   //    Pill / HeartPulse / Accessibility 已無用；Clock / Bed 仍被別層用
   //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6）
@@ -145,26 +149,10 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   farmRoads: Route,
   ecoNetworkZones: Mountain,
   // 🌲 林業 Forestry 16 層已搬進 layerManifest（AR-22 Phase 2 批 3）
-  wasteTruck: Truck,
-  wasteSchedule: CalendarDays,
-  wasteScheduleNote: CalendarDays,
-  wasteStopsStatic: MapPinned,
-  wasteCleaningSquads: Brush,
+  // 🗑️ 廢棄物 Waste 18 層已搬進 layerManifest（AR-22 Phase 2 批 7）
+  //    ⚠️ 下面兩個 orphan 不在 THEMES（wasteTruck 子 UI 控制）→ 批 8
   wasteRoute: Route,
   wasteStop: MapPinned,
-  wfIncinerator: Flame,
-  wfLandfill: Mountain,
-  wfLandfillCoastal: Waves,
-  wfTransfer: Truck,
-  wfMedical: AlertTriangle,
-  wfMonitoring: Gauge,
-  wfRecycling: Recycle,
-  wfScrapYard: Trash2,
-  wfOther: MapPinned,
-  wdClothes: Shirt,
-  wdMixed: Trash2,
-  wdRecyclingContainer: Recycle,
-  wdBattery: Battery,
   // 🛰️ 太空 Space 16 層已搬進 layerManifest（AR-22 Phase 2 批 5，16 層共用同一顆 icon）
   // 能源 ENERGY MVP
   powerPlants: Zap,

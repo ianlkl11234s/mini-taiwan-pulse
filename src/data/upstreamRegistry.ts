@@ -292,78 +292,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   },
   // 🌲 林業 Forestry 16 layer 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    含 canopyHeight / canopyGiants 兩筆 catalog_missing（Meta/WRI 衍生資料）
-  wasteTruck: {
-    status: 'verified',
-    datasets: [{ datasetId: 'garbage_collection', confidence: 'MED' }],
-  },
-  wasteSchedule: {
-    status: 'verified',
-    datasets: [{ datasetId: 'garbage_collection', confidence: 'MED' }],
-  },
-  wasteScheduleNote: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_collection_routes', confidence: 'LOW' }],
-  },
-  wasteCleaningSquads: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_cleaning_squads', confidence: 'MED' }],
-  },
-  wasteStopsStatic: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_collection_stops', confidence: 'HIGH' }],
-  },
-  wdClothes: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_positions_realtime', confidence: 'LOW' }],
-  },
-  wdMixed: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_positions_realtime', confidence: 'LOW' }],
-  },
-  wdRecyclingContainer: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_positions_realtime', confidence: 'LOW' }],
-  },
-  wdBattery: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_positions_realtime', confidence: 'LOW' }],
-  },
-  wfIncinerator: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
-  wfLandfill: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
-  wfLandfillCoastal: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
-  wfTransfer: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
-  wfMedical: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
-  wfMonitoring: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'MED' }],
-  },
-  wfRecycling: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
-  wfScrapYard: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
-  wfOther: {
-    status: 'verified',
-    datasets: [{ datasetId: 'waste_facilities', confidence: 'HIGH' }],
-  },
+  // 🗑️ 廢棄物 Waste 18 layer 已搬進 layerManifest（AR-22 Phase 2 批 7）——
+  //    wasteRoute / wasteStop 兩個 orphan 不在 THEMES，仍留在本表下方原位置（批 8）
   facPrimary: {
     status: 'verified',
     datasets: [{ datasetId: 'power_plants', confidence: 'MED' }],

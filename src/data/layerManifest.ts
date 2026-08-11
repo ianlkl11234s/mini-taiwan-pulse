@@ -78,6 +78,9 @@ import {
   // 💧 水資源（Droplet / Droplets / Waves / Shield / ShieldCheck / Factory / Timer /
   //    CloudRain / AlertTriangle 已在上方 import 復用）
   GitBranch, Dam, Gauge, Container,
+  // 🗑️ 廢棄物（Truck / CalendarDays / MapPinned / Flame / Mountain / Waves /
+  //    AlertTriangle / Gauge / Trash2 已在上方 import 復用）
+  Brush, Recycle, Shirt, Battery,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -5808,6 +5811,479 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "select"] },
     description: "累積雨量柵格圖（多時距累積，隨時間軸播放）",
     topics: ["水資源", "雨量", "即時"],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  // 🗑️ 廢棄物 Waste 18 層（AR-22 Phase 2 批 7）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 本主題的三個特徵，逐一與前六批不同：
+  //
+  // 1. **legend 18/18 全是 null** —— 整個主題在 LEGEND_REGISTRY 一筆條目都沒有。
+  //    這是拍板④「不看圖層感覺該不該有圖例」規約遇過最極端的一次（批 2 是 14/28）。
+  //    憑感覺補會發明出不存在的圖例 id。
+  //
+  // 2. **17/18 是 dataClass D**（唯一有 OVERLAY_REGISTRY entry 的是 wasteStopsStatic）。
+  //    但**沒有一層是自繪**：全部走 Supabase RPC（wasteLoader / wasteScheduleLoader），
+  //    只是渲染路徑各自建 source/layer 或 Three.js scene（同批 5 災害 / 批 6 水資源）。
+  //
+  // 3. **popup 走第四種真值來源**：wf* 9 層與 wd* 4 層的點擊接線
+  //    **完全不在 useMapInteraction.ts** —— wasteMapboxLayers.ts 的 8 個 circle 子層
+  //    各自 `map.on("click", coreLayerId, …)`、App.tsx 對 3D scene 的 raycast inline
+  //    setFeatureInfo。前置 commit 補了 `extractCustomHandlerFeatureTypes` 才驗得出來。
+  //    ⚠️ 反過來，`wasteSchedule` **有點選互動卻沒有 popup**：它走
+  //    `setWasteScheduleTooltipInfo` 這個獨立 tooltip 狀態（同列車／公車），
+  //    不是 FeatureInfo → popup: null。「有 click handler」不蘊含「有 popup」。
+  //
+  // 色票拍板①：`wasteLoader` 的 WASTE_FACILITY_COLORS / WASTE_DISPOSAL_COLORS 是
+  // **facility_type / point_type-keyed**（餵 wasteMapboxLayers 的 circle-color），
+  // 不是 layer-key-keyed，`LAYER_COLORS` 從未 import 它們 → 寫字面 hex。
+  // hex 逐一相同是巧合（同批 5 SATELLITE_COLORS 的判準）。
+
+  wasteTruck: {
+    key: "wasteTruck",
+    section: { theme: "廢棄物 Waste", group: "即時" },
+    label: "垃圾車 Truck (含音符)",
+    expandable: true,
+    color: "#fbbf24",
+    icon: Truck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "garbage_collection", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useWasteLayer：Supabase RPC get_waste_trails（live 近 60 分鐘、60s 輪詢）/ get_waste_trails_day / get_waste_trails_matched_day（replay 整日）→ wasteTruckCustomLayer 的 Three.js scene 逐幀插值，另掛 WasteMusicNoteScene 音符 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "高雄／台南垃圾車即時軌跡（含音符動畫，可回放整日）",
+    topics: ["廢棄物", "清運", "即時"],
+  },
+
+  // ⚠️ **有點選互動但 popup: null**：`pickRoute` 命中後走 `setWasteScheduleTooltipInfo`
+  //    （獨立 tooltip 狀態，同列車／公車），不是 setFeatureInfo → 不構成 FeatureInfo 接線。
+  wasteSchedule: {
+    key: "wasteSchedule",
+    section: { theme: "廢棄物 Waste", group: "即時" },
+    label: "垃圾車（表定）Schedule",
+    expandable: true,
+    color: "#fbbf24",
+    icon: CalendarDays,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "garbage_collection", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useWasteScheduleLayer：Supabase RPC get_waste_schedule_day（day-of-week 驅動，訂閱 timeStore.subscribeDate 取 dow，不進 currentTime deps）→ wasteScheduleCustomLayer 的 WasteScheduleScene 依表定時刻推算車輛位置 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: {
+      count: 11,
+      kinds: [
+        "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle", "toggle",
+        "slider", "slider", "slider",
+      ],
+    },
+    description: "全台 22 縣市垃圾車表定路線（依星期幾推算，與 GPS 實跡並行）",
+    topics: ["廢棄物", "清運", "時刻表"],
+  },
+
+  // ⚠️ label 開頭是**全形空白 + └**（sidebar 縮排成 wasteSchedule 的子項），逐字元照抄
+  wasteScheduleNote: {
+    key: "wasteScheduleNote",
+    section: { theme: "廢棄物 Waste", group: "即時" },
+    label: "　└ 表定音符 Notes 🎵",
+    color: "#fff8d6",
+    icon: CalendarDays,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_collection_routes", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "與 wasteSchedule 共用同一份表定資料：wasteScheduleCustomLayer 另掛一個 WasteMusicNoteScene（Three.js），只受本 toggle 控制顯隱 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: null,
+    description: "表定垃圾車的音符動畫（獨立開關，與 GPS 版音符分開）",
+    topics: ["廢棄物", "清運", "視覺"],
+  },
+
+  wasteCleaningSquads: {
+    key: "wasteCleaningSquads",
+    section: { theme: "廢棄物 Waste", group: "即時" },
+    label: "清潔隊 Squads",
+    labelMobile: "清潔隊 Squads (359) 🧹",
+    color: "#22c55e",
+    icon: Brush,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_cleaning_squads", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useWasteCleaningSquadLayer：Supabase RPC（fetchWasteCleaningSquads，spatial.waste_cleaning_squads 359 點）→ 自建 geojson source waste-cleaning-squads-src + 2 layer（-glow / -core），toggle 開才抓、之後永久 cache —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteCleaningSquad",
+    params: null,
+    description: "全國清潔隊辦公點（23 縣市 359 處，綠色雙圓與橘色清運點區隔）",
+    topics: ["廢棄物", "公部門", "點位"],
+  },
+
+  wasteStopsStatic: {
+    key: "wasteStopsStatic",
+    section: { theme: "廢棄物 Waste", group: "投放點" },
+    label: "全台清運點位 Stops (靜態)",
+    expandable: true,
+    color: "#d97706",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_collection_stops", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "waste-stops-static",
+      url: "./geo/waste_stops_static.geojson",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "全台垃圾車停靠點位（靜態快照，非即時）",
+    topics: ["廢棄物", "清運", "點位"],
+  },
+
+  // ── 投放點 wd* 4 層：wasteMapboxLayers 的 circle 子層，popup 全走 wasteDisposalPoint ──
+  //    4 層共用 useWasteDisposalPointLayer 的一次全量抓取（13,751 筆），
+  //    各自以 point_type 切分成自己的 source（**不是**共用 sourceId —— 是 4 份 setData）。
+  wdClothes: {
+    key: "wdClothes",
+    section: { theme: "廢棄物 Waste", group: "投放點" },
+    label: "衣物回收箱 Clothes",
+    labelMobile: "衣物回收箱 Clothes Box (7,236)",
+    expandable: true,
+    color: "#f97316",
+    icon: Shirt,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_positions_realtime", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "wasteMapboxLayers.setupWasteMapboxLayers：自建 source waste-wdClothes-src + 2 circle layer（-glow / -core），資料來自 useWasteDisposalPointLayer 的 Supabase RPC 全量投放點（13,751 筆）依 point_type=clothes_box 切分 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteDisposalPoint",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "全台舊衣回收箱點位（7,236 處）",
+    topics: ["廢棄物", "回收", "投放點"],
+  },
+
+  wdMixed: {
+    key: "wdMixed",
+    section: { theme: "廢棄物 Waste", group: "投放點" },
+    label: "混合投放點 Mixed",
+    labelMobile: "混合投放點 Mixed (6,368)",
+    expandable: true,
+    color: "#14b8a6",
+    icon: Trash2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_positions_realtime", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "wasteMapboxLayers：自建 source waste-wdMixed-src + 2 circle layer，point_type ∈ {mixed, community_station, food_waste_dropoff, huge_waste_dropoff} 切分 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteDisposalPoint",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "社區資收站／廚餘／大型廢棄物等混合投放點（6,368 處）",
+    topics: ["廢棄物", "回收", "投放點"],
+  },
+
+  wdRecyclingContainer: {
+    key: "wdRecyclingContainer",
+    section: { theme: "廢棄物 Waste", group: "投放點" },
+    label: "街頭資收桶 Container",
+    labelMobile: "街頭資收桶 Container (145)",
+    expandable: true,
+    color: "#84cc16",
+    icon: Recycle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_positions_realtime", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "wasteMapboxLayers：自建 source waste-wdRecyclingContainer-src + 2 circle layer，point_type=recycling_container 切分 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteDisposalPoint",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "街頭資源回收桶點位（145 處）",
+    topics: ["廢棄物", "回收", "投放點"],
+  },
+
+  wdBattery: {
+    key: "wdBattery",
+    section: { theme: "廢棄物 Waste", group: "投放點" },
+    label: "電池回收 Battery",
+    labelMobile: "電池回收 Battery (2)",
+    expandable: true,
+    color: "#fbbf24",
+    icon: Battery,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_positions_realtime", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "wasteMapboxLayers：自建 source waste-wdBattery-src + 2 circle layer，point_type=battery 切分 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteDisposalPoint",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "電池回收點位（僅 2 處，資料涵蓋度低）",
+    topics: ["廢棄物", "回收", "投放點"],
+  },
+
+  // ── 處理設施 wf* 9 層：popup 全走 wasteFacility，但**渲染路徑分兩套** ──
+  //    3D scene（wasteFacilityCustomLayer 的 6 個 sub-scene，App.tsx raycast 出 popup）
+  //    與 Mapbox circle（wasteMapboxLayers 的 4 個 wf* 子層）。
+  //    ⚠️ `wfMonitoring` **兩套都在**（6 個 3D scene 之一，同時也在 8 個 circle 子層裡）。
+  wfIncinerator: {
+    key: "wfIncinerator",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "焚化爐 Incinerator",
+    labelMobile: "焚化爐 Incinerator (30) 🔥",
+    expandable: true,
+    color: "#ef4444",
+    icon: Flame,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useWasteFacilityLayer 一次抓全量 4,609 筆（Supabase RPC）依 facility_type 分群 → wasteFacilityCustomLayer 的 WasteIncineratorScene（Three.js，含底圈標示）；popup 由 App.tsx 的 map click raycast 產生 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
+    description: "全台焚化爐（30 座，3D 煙囪＋地面底圈）",
+    topics: ["廢棄物", "處理設施", "3D"],
+  },
+
+  wfLandfill: {
+    key: "wfLandfill",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "衛生掩埋場 Landfill",
+    labelMobile: "衛生掩埋場 Landfill (154) 🟫",
+    expandable: true,
+    color: "#92400e",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill）→ WasteLandfillScene（Three.js）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "全台衛生掩埋場（154 處）",
+    topics: ["廢棄物", "處理設施", "3D"],
+  },
+
+  wfLandfillCoastal: {
+    key: "wfLandfillCoastal",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "濱海掩埋場 Coastal",
+    labelMobile: "濱海掩埋場 Coastal (23) 🌊",
+    expandable: true,
+    color: "#0891b2",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=landfill_coastal）→ WasteLandfillCoastalScene（Three.js，同 Landfill 換深青）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "臨海掩埋場（23 處，含離海距離欄位）",
+    topics: ["廢棄物", "處理設施", "海岸"],
+  },
+
+  wfTransfer: {
+    key: "wfTransfer",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "轉運站 Transfer",
+    labelMobile: "轉運站 Transfer (28) 🚛",
+    expandable: true,
+    color: "#a855f7",
+    icon: Truck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=transfer_station）→ WasteTransferScene（Three.js）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "垃圾轉運站（28 處）",
+    topics: ["廢棄物", "處理設施", "3D"],
+  },
+
+  wfMedical: {
+    key: "wfMedical",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "醫療廢棄物 Medical",
+    labelMobile: "醫療廢棄物 Medical (40) ⚕️",
+    expandable: true,
+    color: "#ec4899",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 wfIncinerator 的 useWasteFacilityLayer 全量抓取（facility_type=medical_waste）→ WasteMedicalScene（Three.js）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "醫療廢棄物處理設施（40 處）",
+    topics: ["廢棄物", "處理設施", "醫療"],
+  },
+
+  // ⚠️ 唯一**兩套渲染路徑都在**的一層：既是 wasteFacilityCustomLayer 的 6 個 3D scene 之一
+  //    （WasteMonitoringWellScene），也在 wasteMapboxLayers 的 8 個 circle 子層裡。
+  //    popup 兩邊都是 wasteFacility，宣告不受影響。
+  wfMonitoring: {
+    key: "wfMonitoring",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "地下水監測井 Monitor",
+    labelMobile: "地下水監測井 Monitor (574) 🩸",
+    expandable: true,
+    color: "#3b82f6",
+    icon: Gauge,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useWasteFacilityLayer 全量抓取（facility_type=monitoring_well）→ **兩套渲染同時存在**：wasteFacilityCustomLayer 的 WasteMonitoringWellScene（Three.js）＋ wasteMapboxLayers 的 waste-wfMonitoring-src circle 子層 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "掩埋場周邊地下水監測井（574 口）",
+    topics: ["廢棄物", "監測", "地下水"],
+  },
+
+  wfRecycling: {
+    key: "wfRecycling",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "資源回收廠 Recycling",
+    labelMobile: "資源回收廠 Recycling (653) ♻️",
+    expandable: true,
+    color: "#22c55e",
+    icon: Recycle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "wasteMapboxLayers（量級大改走 Mapbox 原生 circle 而非 Three.js）：自建 source waste-wfRecycling-src + 2 circle layer，資料來自 useWasteFacilityLayer 依 facility_type=recycling_plant 切分 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "資源回收廠（653 處）",
+    topics: ["廢棄物", "回收", "處理設施"],
+  },
+
+  wfScrapYard: {
+    key: "wfScrapYard",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "廢車 / 廢金屬 Scrap",
+    labelMobile: "廢車 / 廢金屬 Scrap (3)",
+    expandable: true,
+    color: "#737373",
+    icon: Trash2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "wasteMapboxLayers：自建 source waste-wfScrapYard-src + 2 circle layer，facility_type=scrap_yard 切分 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "廢車／廢金屬處理場（僅 3 處，資料涵蓋度低）",
+    topics: ["廢棄物", "回收", "處理設施"],
+  },
+
+  wfOther: {
+    key: "wfOther",
+    section: { theme: "廢棄物 Waste", group: "處理設施" },
+    label: "其他事廢設施 Other",
+    labelMobile: "其他事廢設施 Other (3,164)",
+    expandable: true,
+    color: "#6b7280",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "waste_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "wasteMapboxLayers：自建 source waste-wfOther-src + 2 circle layer，facility_type ∈ {other, food_waste_processing, repair_shop} 切分（本主題量級最大的一層）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "wasteFacility",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "其他事業廢棄物處理設施（3,164 處，含廚餘處理與維修廠）",
+    topics: ["廢棄物", "處理設施", "事業廢棄物"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
