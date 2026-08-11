@@ -71,19 +71,29 @@ export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
 // ── Transport Labels ──
 
 /**
- * ⚠️ **第五張手寫表，不在 AR-22 派生的四張裡**（同 `GATED_LAYERS`，批 7 已有前例）。
- * 這 6 個值與 manifest 的 `label` 逐字重複（`rail` 自 Phase 1 試點起就是如此、
- * 其餘 5 個自批 8 起），是真的漂移風險 —— 但它的 key 空間是 `TransportType`
- * 不是 `keyof LayerVisibility`，硬套 `Omit<…, ManifestKey>` 會把型別意義弄壞。
- * 留給 Phase 3 連同 `LEGEND_REGISTRY` / `GIS_LAYERS` 一起派生化，**本批不動**。
+ * 運具 6 層的顯示文字 —— **值自 P3-3 起直讀 manifest，字串字面已消滅**。
+ *
+ * 收編前這 6 個值與 manifest 的 `label` 逐字重複（`rail` 自 Phase 1 試點起、
+ * 其餘 5 個自批 8 起），改一邊忘另一邊 sidebar 文字就靜默分岔。
+ * 動手前機械比對過 6/6 一位元相同（見 P3-3 changelog）。
+ *
+ * ⚠️ **只收編值、不改 key 空間**：兩個 sidebar 用 `key in TRANSPORT_LABELS`
+ * 當**集合測試**（`isTransport`），key 空間是 `TransportType` 而非
+ * `keyof LayerVisibility` —— 硬套 `Omit<…, ManifestKey>` 會把型別意義弄壞，
+ * 也會讓那個集合測試多出 340 個成員。這張表因此不是「第五張待派生的手寫表」，
+ * 而是 `TransportType → manifest` 的**最小 keyed 對照**。
+ *
+ * 兩道 tsc 護欄（不需要額外測試）：
+ * - 漏掉任一 `TransportType` → `Record<TransportType, string>` 缺屬性（TS2739）
+ * - 某 key 從 THEMES 掉出去、退化成沒有 `label` 的 orphan entry → 該行立刻紅
  */
 export const TRANSPORT_LABELS: Record<TransportType, string> = {
-  flights: "航班 Flight",
-  ships: "船舶 Ship",
-  rail: "鐵道 Rail",
-  busLive: "公車 Bus",
-  busIntercityLive: "公路客運 InterCity",
-  touristShuttleLive: "台灣好行 Tourist Shuttle",
+  flights: LAYER_MANIFEST.flights.label,
+  ships: LAYER_MANIFEST.ships.label,
+  rail: LAYER_MANIFEST.rail.label,
+  busLive: LAYER_MANIFEST.busLive.label,
+  busIntercityLive: LAYER_MANIFEST.busIntercityLive.label,
+  touristShuttleLive: LAYER_MANIFEST.touristShuttleLive.label,
 };
 
 // ── Type Defs ──
@@ -1266,6 +1276,17 @@ export const LAYER_LABELS: Partial<Record<keyof LayerVisibility, string>> = (() 
 // 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：sidebar 顯示鎖頭 + toggle no-op。
 // DB 端由 migration 275 同步：對應 RPC 加 owner 檢查 + REVOKE anon。
 // ⚠️ 明確排除（保持公開）：waterCanals（灌排渠道）、powerPoles（電桿 2.96M）。
+//
+// ⚠️ **P3-3 評估過收編進 manifest，結論是不收**（與 TRANSPORT_LABELS 不同類），
+//    三條硬理由（機械查證，非目測）：
+//    1. **沒有值重複可消滅**：manifest 裡 `gated: true` 的 entry 是 **0 個**，
+//       本表 35 個 key 全部只存在於這裡。收編＝**新增** 35 筆宣告，不是去重。
+//    2. **型別上表達不了**：`gated` 只存在於 `LayerManifestThemedEntry`，而本表有
+//       3 個 key（facOffshore / osmPowerPlantsStatic / powerPlants）是 orphan entry
+//       ——「已從 sidebar 下架但 API 敏感」正是它們要被鎖的理由，卻沒有 LayerDef 可載。
+//    3. **這是安全清單不是登記簿**：embedWhitelist / urlState / layerGates 三套測試
+//       以本表為錨（gated 外流＝私人資料洩漏）。搬 SSOT 是安全變更，要獨立驗收標準，
+//       不該搭在一次去重重構裡。
 export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
   // 畜牧 Livestock（改走 owner-only RPC；不含 livestockFeed / livestockMarket）
   "livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck",
