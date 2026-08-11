@@ -73,11 +73,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   earthquakeReplay: "#e11d48",
   mountainRescueIncidents: "#f2c94c",
   // 全球氣候 GLOBAL CLIMATE
-  earthquakesGlobal: "#dc2626",
-  typhoonTracks: "#a855f7",
-  dustForecast: "#b45309",
-  oceanCurrents: "#0ea5e9",
-  windField: "#94a3b8",
   lifelineAlerts: "#facc15",
   floodAlerts: "#2563eb",
   weatherAlerts: "#7c3aed",
@@ -1244,16 +1239,16 @@ export const THEMES: ThemeDef[] = [
       {
         title: "事件",
         layers: [
-          { key: "earthquakesGlobal", label: "全球地震 USGS Earthquake", expandable: true },
-          { key: "typhoonTracks", label: "颱風軌跡 Typhoon Track", expandable: true },
+          fromManifest("earthquakesGlobal"),
+          fromManifest("typhoonTracks"),
         ],
       },
       {
         title: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）",
         layers: [
-          { key: "windField", label: "風場 Wind Field 10m", expandable: true },
-          { key: "oceanCurrents", label: "海流 Ocean Currents", expandable: true },
-          { key: "dustForecast", label: "沙塵預報 Dust Forecast", expandable: true },
+          fromManifest("windField"),
+          fromManifest("oceanCurrents"),
+          fromManifest("dustForecast"),
         ],
       },
     ],

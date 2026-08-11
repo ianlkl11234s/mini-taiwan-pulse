@@ -25,8 +25,7 @@ import {
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
   // HAZARD icons
   CloudLightning, Atom, Rewind,
-  // GLOBAL CLIMATE icons
-  Tornado,
+  // 🌍 全球氣候 5 層已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 👮 執法治安 20 層搬進 layerManifest（AR-22 Phase 2 批 4）後，
   //    ShieldAlert / Gavel / Scale / Crosshair 已無用；Lock / Hexagon 仍被別層用
   Lock, Hexagon,
@@ -280,11 +279,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   lightningCwa: CloudLightning,
   nuclearRadiation: Atom,
   // 全球氣候 GLOBAL CLIMATE
-  earthquakesGlobal: AlertTriangle,
-  typhoonTracks: Tornado,
-  dustForecast: Cloud,
-  oceanCurrents: Waves,
-  windField: Wind,
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）
   // Base map
   countyBoundary: MapPinned,

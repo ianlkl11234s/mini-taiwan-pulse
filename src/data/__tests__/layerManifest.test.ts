@@ -26,7 +26,9 @@ import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
 import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
-import { extractGolden, extractGisLayers, extractGisConstRefTypes } from "./layerGoldenExtract";
+import {
+  extractGolden, extractGisLayers, extractGisConstRefTypes, extractNonGisFeatureTypes,
+} from "./layerGoldenExtract";
 
 const entries = MANIFEST_KEYS.map(
   (k) => [k, LAYER_MANIFEST[k] as LayerManifestEntry] as const,
@@ -38,7 +40,15 @@ const gisRows = extractGisLayers() as { layers: string[]; type: string }[];
 // GIS_LAYERS 有兩筆 layer id 寫成常數引用（disasterAlert / plaActivity），字面陣列的
 // 解析器抓不到 —— 但它們有真的點擊接線。不 union 進來的話，manifest 只能把這兩層
 // 宣告成 popup: null（已知為假），Phase 3 派生時會靜默丟掉接線。
-const gisTypes = new Set([...gisRows.map((r) => r.type), ...extractGisConstRefTypes()]);
+//
+// 同理還有**完全不經 GIS_LAYERS** 的第三類（`ship` / `waterDam` / `climateField`）：
+// 直接 setFeatureInfo。風場／海流的 `climateField` 尤其極端 —— 它是「向量 feature 全部
+// 沒命中」時的 fallback，點哪都能讀值，本來就不對應任何 layer id。
+const gisTypes = new Set([
+  ...gisRows.map((r) => r.type),
+  ...extractGisConstRefTypes(),
+  ...extractNonGisFeatureTypes(),
+]);
 
 function themeLocation(key: string): { theme: string; group: string } | null {
   for (const t of THEMES) {

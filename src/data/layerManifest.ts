@@ -65,6 +65,8 @@ import {
   Search, Anchor,
   // 👥 人口社經（Users / Activity / BarChart3 / Store 已在上方 import 復用）
   Bike,
+  // 🌍 全球氣候（Waves / AlertTriangle 已在上方 import 復用）
+  Tornado, Wind, Cloud,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -3490,6 +3492,130 @@ export const LAYER_MANIFEST = {
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "YouBike 站點有車率的 H3 聚合（共享運具供給熱區）",
     topics: ["共享運具", "H3", "即時"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 4 —— 全球氣候 Global Climate 5 層（**全部 dataClass D**）
+  //  兩種 popup 陷阱在這裡同時出現，兩個都是「照抽取器填 null 就會是已知為假」：
+  //   ① key ≠ layerType：earthquakesGlobal → `earthquakeGlobal`、
+  //      typhoonTracks → `typhoonTrack`（都是單數形，肉眼掃過去像同名）
+  //   ② **完全不經 GIS_LAYERS**：windField / oceanCurrents → `climateField`，
+  //      它是「向量 feature 全部沒命中」時的 fallback（點哪都能讀值），
+  //      本來就不對應任何 layer id → 需要 extractNonGisFeatureTypes 才驗得出來。
+  //  dustForecast 是 raster image source，真的沒有 popup（同批 3 canopyHeight）。
+  // ══════════════════════════════════════════════════════════════
+  earthquakesGlobal: {
+    key: "earthquakesGlobal",
+    section: { theme: "全球氣候 Global Climate", group: "事件" },
+    label: "全球地震 USGS Earthquake",
+    expandable: true,
+    color: "#dc2626",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "usgs_earthquakes_global", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "hook 自建 source/layer（earthquakes-global / earthquakes-global-circle），資料走 earthquakesGlobalLoader 打 USGS feed —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "earthquakesGlobal",
+    popup: "earthquakeGlobal",
+    params: { count: 1, kinds: ["slider"] },
+    description: "USGS 全球地震（規模分大小、深度分色，最近 2000 筆）",
+    topics: ["全球氣候", "地震", "即時"],
+  },
+
+  typhoonTracks: {
+    key: "typhoonTracks",
+    section: { theme: "全球氣候 Global Climate", group: "事件" },
+    label: "颱風軌跡 Typhoon Track",
+    expandable: true,
+    color: "#a855f7",
+    icon: Tornado,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "jma_typhoon_positions", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "hook 自建 3 個 source（typhoon-tracks-lines / -points / -current）與線／點 layer，資料走 typhoonTracksLoader —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "typhoonTracks",
+    popup: "typhoonTrack",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "颱風軌跡（實測實線＋預報虛線＋軌跡點）",
+    topics: ["全球氣候", "颱風", "即時"],
+  },
+
+  windField: {
+    key: "windField",
+    section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
+    label: "風場 Wind Field 10m",
+    expandable: true,
+    color: "#94a3b8",
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "noaa_gfs_wind_forecast", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "climateParticleLineLayer（WebGL 粒子線，layer id `climate-windfield`）逐幀讀 climate frame raster（climateFrames + climateFrameStore）—— 沒有 mapbox source，非 OVERLAY_REGISTRY",
+    },
+    legend: "windField",
+    popup: "climateField",
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
+    description: "GFS 10m 風場（粒子流線動畫，點擊讀值）",
+    topics: ["全球氣候", "風場", "預報"],
+  },
+
+  oceanCurrents: {
+    key: "oceanCurrents",
+    section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
+    label: "海流 Ocean Currents",
+    expandable: true,
+    color: "#0ea5e9",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cmems_ocean_forecast", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "climateParticleLineLayer（WebGL 粒子線，layer id `climate-ocean-currents`）逐幀讀 climate frame raster（climateFrames + climateFrameStore）—— 沒有 mapbox source，非 OVERLAY_REGISTRY",
+    },
+    legend: "oceanCurrents",
+    popup: "climateField",
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
+    description: "CMEMS 表層海流（粒子流線動畫，點擊讀值）",
+    topics: ["全球氣候", "海流", "預報"],
+  },
+
+  dustForecast: {
+    key: "dustForecast",
+    section: { theme: "全球氣候 Global Climate", group: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）" },
+    label: "沙塵預報 Dust Forecast",
+    expandable: true,
+    color: "#b45309",
+    icon: Cloud,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cams_atmosphere_forecast", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "hook 自建 raster image source（dust-forecast-img / dust-forecast-raster），逐幀 PNG ＋ meta JSON —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "dustForecast",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "CAMS 沙塵預報濃度場（raster 疊圖）",
+    topics: ["全球氣候", "沙塵", "預報"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

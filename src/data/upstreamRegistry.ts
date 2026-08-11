@@ -390,26 +390,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'nuclear_radiation_taipower', confidence: 'HIGH' }],
   },
-  earthquakesGlobal: {
-    status: 'verified',
-    datasets: [{ datasetId: 'usgs_earthquakes_global', confidence: 'HIGH' }],
-  },
-  typhoonTracks: {
-    status: 'verified',
-    datasets: [{ datasetId: 'jma_typhoon_positions', confidence: 'HIGH' }],
-  },
-  windField: {
-    status: 'verified',
-    datasets: [{ datasetId: 'noaa_gfs_wind_forecast', confidence: 'MED' }],
-  },
-  oceanCurrents: {
-    status: 'verified',
-    datasets: [{ datasetId: 'cmems_ocean_forecast', confidence: 'LOW' }],
-  },
-  dustForecast: {
-    status: 'verified',
-    datasets: [{ datasetId: 'cams_atmosphere_forecast', confidence: 'LOW' }],
-  },
   // 🚒 消防 Fire & Rescue 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
   parkingOnstreet: {
     status: 'pulse_only',

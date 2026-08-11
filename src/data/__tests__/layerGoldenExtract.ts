@@ -251,6 +251,32 @@ export function extractGisConstRefTypes(source = readFileSync(INTERACTION_FILE, 
 }
 
 /**
+ * **不經 GIS_LAYERS** 的 popup 接線 layerType —— useMapInteraction 裡直接
+ * `setFeatureInfo({ layerType: "x", … })` 的那幾處。目前 3 種：
+ * `ship` / `waterDam`（Three.js scene 自己 raycast）、`climateField`
+ * （風場／海流：向量 feature 全部沒命中時的 fallback，點哪都能讀值，
+ * 本來就不對應任何 layer id）。
+ *
+ * ⚠️ 與 `extractGisConstRefTypes` 同一個理由存在：這些是**真的有點擊接線**的，
+ * manifest 的 popup 若只拿 GIS_LAYERS 當真值，`windField` / `oceanCurrents` 只能宣告
+ * 成 `popup: null`（已知為假），Phase 3 派生時會靜默丟掉「點地圖讀氣候場」這個功能。
+ *
+ * 只回 type 字串、不進 fixture（同 extractGisConstRefTypes）。
+ * GIS_LAYERS 的條目寫的是 `type:` 不是 `layerType:` → 全檔掃描不會誤收。
+ */
+export function extractNonGisFeatureTypes(
+  source = readFileSync(INTERACTION_FILE, "utf8"),
+): string[] {
+  const out = [...new Set(
+    [...source.matchAll(/layerType:\s*"([^"]+)"/g)].map((m) => m[1] as string),
+  )].sort();
+  if (out.length === 0) {
+    throw new Error(`${INTERACTION_FILE} 找不到 setFeatureInfo 的 layerType 字面 —— 抽取器需同步更新`);
+  }
+  return out;
+}
+
+/**
  * useTransportParams 的 `case "key"` 清單（覆蓋斷言用，不進 fixture）。
  * `emptyByDesign` = 原始碼寫死 `case "x": return [];` 的 key —— 這些**有意**沒有控件
  * （如 activeFaults / aqiStations 等純靜態層），不能跟「抽取器沒掃到」混為一談。
