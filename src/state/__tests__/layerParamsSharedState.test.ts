@@ -3,7 +3,7 @@
  *
  * ⚠️ 這是 P3-2A 唯一「四道閘全綠、畫面卻壞掉」那個形狀的專屬閘。
  *
- * `useTransportParams` 有一種形狀是**多個 layer key 共用同一個 `useState`**：
+ * `useLayerParamsRuntime` 有一種形狀是**多個 layer key 共用同一個 `useState`**：
  * ```ts
  * case "eduKindergarten":
  * case "eduAfterschoolCare":
@@ -17,7 +17,7 @@
  * 三道斷言分別擋三種搬法錯誤：
  *   1. **spec 側**：撞名的 `name` / `out` 必須宣告同一個 `sharedGroup`
  *      → 擋「整組搬了但沒用共用表達」
- *   2. **來源交叉**：已遷移的 `name` / `out` 不得再出現在 `useTransportParams.ts`
+ *   2. **來源交叉**：已遷移的 `name` / `out` 不得再出現在 `useLayerParamsRuntime.ts`
  *      → 擋「fall-through group 只搬一半」（倖存的 `useState` 會被尾端 spread 蓋掉）
  *   3. **fall-through 完整性**：來源裡還在的 case 群組（fall-through ／ 跨 case 共用
  *      state）中，任一 key 已遷移即紅 → 擋「拆組遷移」與「遷了卻沒刪 case」
@@ -33,7 +33,7 @@ import {
 } from "../../data/layerParamsSpec";
 
 const PARAMS_FILE = fileURLToPath(
-  new URL("../../hooks/useTransportParams.ts", import.meta.url),
+  new URL("../../hooks/useLayerParamsRuntime.ts", import.meta.url),
 );
 const source = readFileSync(PARAMS_FILE, "utf8");
 
@@ -91,9 +91,9 @@ describe("共用 slot 的宣告", () => {
   });
 });
 
-// ── 2. 來源交叉：已遷移的參數不得在 useTransportParams 留有殘影 ────
+// ── 2. 來源交叉：已遷移的參數不得在 useLayerParamsRuntime 留有殘影 ────
 
-describe("已遷移參數與 useTransportParams 的交叉檢查", () => {
+describe("已遷移參數與 useLayerParamsRuntime 的交叉檢查", () => {
   /**
    * ⚠️ P3-2D 起判準從「識別字整個不准出現」改成**兩個精確位置**。
    *
@@ -110,7 +110,7 @@ describe("已遷移參數與 useTransportParams 的交叉檢查", () => {
    *       → `out: null` 的參數會被手寫字面繼續餵舊值進 overlayParams
    * 其餘位置（deps 陣列項、ref sync 行）引用已刪的變數一律是 tsc 編譯錯，
    * 不需要文字判準；而「值有沒有真的從 store 流到回傳欄位」由
-   * `hooks/__tests__/useTransportParamsReturn.test.ts` 的逐參數隔離擾動直接驗，
+   * `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts` 的逐參數隔離擾動直接驗，
    * 那比文字代理強得多。
    */
   const stripped = stripComments(source);
@@ -119,7 +119,7 @@ describe("已遷移參數與 useTransportParams 的交叉檢查", () => {
     for (const { key, spec } of entries) {
       expect(
         new RegExp(`const\\s*\\[\\s*${spec.name}\\s*[,\\]]`).test(stripped),
-        `${key} 已遷移，但 useTransportParams.ts 還留著 "${spec.name}" 的 useState 宣告 —— ` +
+        `${key} 已遷移，但 useLayerParamsRuntime.ts 還留著 "${spec.name}" 的 useState 宣告 —— ` +
         "共用 state 只搬一半的典型現場（或單純漏刪）：尾端 ...migratedOverlayParams " +
         "會蓋掉這份手寫值，拖了 paint 不動",
       ).toBe(false);
@@ -161,7 +161,7 @@ describe("已遷移參數與 useTransportParams 的交叉檢查", () => {
 
 // ── 3. fall-through 完整性：耦合的 key 必須整組進退 ────────────────
 
-describe("useTransportParams 剩餘 case 的耦合群組", () => {
+describe("useLayerParamsRuntime 剩餘 case 的耦合群組", () => {
   const groups = parseCaseGroups(stripComments(source));
 
   it("耦合群組（fall-through ／ 跨 case 共用 state）不得有成員已遷移", () => {

@@ -1,6 +1,6 @@
 /**
  * 救援等時圈縣市下拉選單選項（單一真實來源）。
- * 給 useTransportParams 的 select 控制與 fireIsochroneLayerFactory 的 setFilter 共用，
+ * 給 useLayerParamsRuntime 的 select 控制與 fireIsochroneLayerFactory 的 setFilter 共用，
  * 避免下拉標籤與篩選邏輯漂移。
  *
  * - index 0 = 「全台」(value "all")：不套 filter，顯示所有縣市。

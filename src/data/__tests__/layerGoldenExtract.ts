@@ -17,12 +17,12 @@
  *     HEADER_LABELS / PANEL_REGISTRY keys / OVERLAY_REGISTRY（含函式欄位求值）/
  *     transportParams 控件（用 react-dom/server 實際跑 hook，等價 renderHook）
  *   原始碼文字解析：GIS_LAYERS（是函式內的區域常數，runtime 取不到）、
- *     useTransportParams 的 `case "key"` 清單（僅用來當覆蓋斷言，不進 fixture）
+ *     useLayerParamsRuntime 的 `case "key"` 清單（僅用來當覆蓋斷言，不進 fixture）
  *
  * ── 非決定性防治 ──────────────────────────────────────────────────
  *   overlayRegistry 的 cultureTodayStr() / tourTodayStr() 會把「今天」烤進 filter
  *   literal → 抽取時正規化成 __TODAY_DASH__ / __TODAY_SLASH__，否則 fixture 每天爆。
- *   useTransportParams 的 pollutionPenaltyYear 預設 = clamp(今年, 2010, 2026)，
+ *   useLayerParamsRuntime 的 pollutionPenaltyYear 預設 = clamp(今年, 2010, 2026)，
  *   目前被 PENALTY_YEAR_MAX 夾住而穩定；測試另有一條 guard 斷言防它未來鬆脫。
  */
 
@@ -40,13 +40,13 @@ import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
 import { HEADER_LABELS, PANEL_REGISTRY } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
-import { useTransportParams } from "../../hooks/useTransportParams";
+import { useLayerParamsRuntime } from "../../hooks/useLayerParamsRuntime";
 import { MIGRATED_PARAMS_KEYS } from "../layerParamsSpec";
 import type { ExpandableLayerKey } from "../../types";
 
 export const FIXTURE_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 const INTERACTION_FILE = "src/hooks/useMapInteraction.ts";
-const PARAMS_FILE = "src/hooks/useTransportParams.ts";
+const PARAMS_FILE = "src/hooks/useLayerParamsRuntime.ts";
 
 /**
  * 圖層模組自己掛 click handler、**完全不經 useMapInteraction** 的那幾支檔（批 7 廢棄物）。
@@ -77,7 +77,7 @@ function normalizeString(s: string): string {
  * - NaN / ±Infinity → 顯性 marker（JSON.stringify 會轉成 null，同樣會糊掉資訊）
  * - 物件 key 排序（canonical）；陣列保序
  *
- * ⚠️ 也被 `hooks/__tests__/useTransportParamsReturn.test.ts`（hook return 等值閘）
+ * ⚠️ 也被 `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts`（hook return 等值閘）
  * 直接引用 —— -0 / undefined / 函式 的處理各寫一份必漂移。
  */
 export function sanitize(value: unknown): unknown {
@@ -152,15 +152,15 @@ function probeTransportParams(): {
   controls: Record<string, unknown>;
   overlayParams: Record<string, number>;
 } {
-  let captured: ReturnType<typeof useTransportParams> | null = null;
+  let captured: ReturnType<typeof useLayerParamsRuntime> | null = null;
   function Probe() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    captured = useTransportParams();
+    captured = useLayerParamsRuntime();
     return null;
   }
   renderToStaticMarkup(createElement(Probe));
-  const api = captured as unknown as ReturnType<typeof useTransportParams> | null;
-  if (!api) throw new Error("useTransportParams probe 沒有捕捉到回傳值");
+  const api = captured as unknown as ReturnType<typeof useLayerParamsRuntime> | null;
+  if (!api) throw new Error("useLayerParamsRuntime probe 沒有捕捉到回傳值");
 
   const controls: Record<string, unknown> = {};
   for (const key of allLayerKeys()) {
@@ -338,7 +338,7 @@ export function extractCustomHandlerFeatureTypes(
  * 「這個 key 的參數控件在哪裡宣告」的清單（覆蓋斷言用，不進 fixture）。
  *
  * ⚠️ AR-22 P3-1 起是**兩個來源的聯集**：
- *   - `useTransportParams` 的 `case "key"`（未遷移的 key，原始碼文字解析）
+ *   - `useLayerParamsRuntime` 的 `case "key"`（未遷移的 key，原始碼文字解析）
  *   - `LAYER_PARAMS_SPEC` 的 key（已遷移到 layerParamsStore 的 key，runtime 真值）
  *
  * 只掃 case 會讓已遷移的 key 變成「抽到控件卻沒有來源」的幽靈，

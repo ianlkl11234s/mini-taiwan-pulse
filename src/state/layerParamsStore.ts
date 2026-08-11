@@ -11,8 +11,8 @@
  * 否則 `useLayerParams(key)` 的 `useSyncExternalStore` 會每次拿到新物件而無限迴圈。
  *
  * ── 雙軌過渡（P3-1 → 全量）────────────────────────────────────────
- * 只有 `LAYER_PARAMS_SPEC` 列出的 key 走本 store；其餘仍由 `useTransportParams`
- * 的 per-layer `useState` + 巨型 switch 提供。`useTransportParams` 訂閱本 store 一次，
+ * 只有 `LAYER_PARAMS_SPEC` 列出的 key 走本 store；其餘仍由 `useLayerParamsRuntime`
+ * 的 per-layer `useState` + 巨型 switch 提供。`useLayerParamsRuntime` 訂閱本 store 一次，
  * 於 `getControls` 與 `overlayParams` 兩處分岔 —— 見該檔的「雙軌」段。
  *
  * 寫入者：`buildParamControls` 產生的控件 onChange（＝面板上的 slider / select）。
@@ -57,7 +57,7 @@ const keyListeners = new Map<string, Set<Listener>>();
  *
  * ⚠️ 收的是**陣列**不是單一 key —— 共用 slot（`sharedGroup`）一次寫入會動到
  * 多個 key，每個都得通知自己的訂閱者。只通知寫入端那個 key 的話，
- * 現況（消費者只有 `useTransportParams` 的整包訂閱）看不出差別，
+ * 現況（消費者只有 `useLayerParamsRuntime` 的整包訂閱）看不出差別，
  * 但未來 `useLayerParams(夥伴 key)` 的元件會拿到過期值 —— 靜默的那一類。
  */
 function notify(keys: readonly string[]): void {
@@ -120,7 +120,7 @@ export const layerParamsStore = {
     return snapshot[key]?.[name];
   },
 
-  /** 整包快照（`useTransportParams` 這種需要全部已遷移 key 的消費者用） */
+  /** 整包快照（`useLayerParamsRuntime` 這種需要全部已遷移 key 的消費者用） */
   getAll(): LayerParamsSnapshot {
     return snapshot;
   },
@@ -167,7 +167,7 @@ export const layerParamsStore = {
     applyWrites([{ key, name, value }]);
   },
 
-  /** 訂閱任何 key 的變動（`useTransportParams` 走這條） */
+  /** 訂閱任何 key 的變動（`useLayerParamsRuntime` 走這條） */
   subscribe(cb: Listener): () => void {
     globalListeners.add(cb);
     return () => globalListeners.delete(cb);
@@ -213,7 +213,7 @@ export type LayerParamsStore = typeof layerParamsStore;
 
 /**
  * 已遷移 key 的 overlayParams 分片。**這是 paint 真正吃到的東西**——
- * `useTransportParams` 把它 spread 進 overlayParams 物件，取代原本逐行手寫的
+ * `useLayerParamsRuntime` 把它 spread 進 overlayParams 物件，取代原本逐行手寫的
  * `xxxOpacity, xxxScale, xxxRegistryIdx: A.map(…).indexOf(…)`。
  *
  * 契約：`Record<string, number>` —— boolean 編 0/1、select 編 idx（見 spec 的 encode）。
@@ -222,7 +222,7 @@ export type LayerParamsStore = typeof layerParamsStore;
  * 所以結果與順序無關（等價於原本那一份共用 useState 只寫一次）。
  *
  * ⚠️ `out: null` 的參數**整個跳過**（P3-2D 的第二條輸出通道）：它們的值走
- * `useTransportParams` 的 `return {}`（refs / 子物件 / 平鋪欄位），本來就不在
+ * `useLayerParamsRuntime` 的 `return {}`（refs / 子物件 / 平鋪欄位），本來就不在
  * overlayParams 裡。塞進來等於憑空多一個 paint 求值輸入。
  */
 export function encodeParamsToOverlay(all: LayerParamsSnapshot): Record<string, number> {
@@ -243,7 +243,7 @@ export function encodeParamsToOverlay(all: LayerParamsSnapshot): Record<string, 
 
 /**
  * 訂閱單一 layer 的參數。**只有這個 key 的參數變動時才 re-render。**
- * （P3-1 的消費者仍是 `useTransportParams` 的整包訂閱；本 hook 是給
+ * （P3-1 的消費者仍是 `useLayerParamsRuntime` 的整包訂閱；本 hook 是給
  * 未來直接吃參數的元件用 —— 那才是拆掉「一個 slider 動、整棵樹 reconcile」的終點。）
  */
 export function useLayerParams(key: string): LayerParamValues {
@@ -258,7 +258,7 @@ export function useLayerParams(key: string): LayerParamValues {
   );
 }
 
-/** 訂閱整包（`useTransportParams` 的雙軌橋接走這條） */
+/** 訂閱整包（`useLayerParamsRuntime` 的雙軌橋接走這條） */
 export function useAllLayerParams(): LayerParamsSnapshot {
   return useSyncExternalStore(
     layerParamsStore.subscribe,

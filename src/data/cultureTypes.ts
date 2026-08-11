@@ -2,7 +2,7 @@
  * 文化 Culture 四層（文化設施 / 地方文化館 / 藝文活動 / 表演場館）的
  * 顏色與分類單一真實來源。
  * 給 overlayRegistry 配色（circle-color 表達式）、LegendPanel 圖例、
- * useTransportParams select options 三處共用（同 urbanOpenSpaceTypes.ts 慣例）。
+ * useLayerParamsRuntime select options 三處共用（同 urbanOpenSpaceTypes.ts 慣例）。
  *
  * 分類由 public/culture/*.geojson 全量統計決定（2026-07）：
  * - 文化設施 787 點（facility_type 6 類 count desc）

@@ -6,7 +6,7 @@
  * - 不共用：地圖引擎（這裡是 MapLibre，主站是 mapbox-gl）、`App.tsx` 的 3000 行狀態機
  *
  * 刻意不做的事：
- * - 不呼叫 `useTransportParams`（3028 行）—— 參數全部由網址帶入，未指定者落到各 paint 的
+ * - 不呼叫 `useLayerParamsRuntime`（3028 行）—— 參數全部由網址帶入，未指定者落到各 paint 的
  *   `?? fallback` 預設值
  * - 沒有圖層開關 UI —— 顯示什麼由網址決定，讀者不該能改
  *

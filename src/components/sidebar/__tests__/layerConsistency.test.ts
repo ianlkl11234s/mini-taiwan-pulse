@@ -9,7 +9,7 @@
  *   - 接好線的 layer 還留在 baseline → 測試 fail，提示從 baseline 移除
  *
  * 兩個方向都會 fail = ratchet 只進不退。檢查方式是掃描原始碼文字
- * （case "key" / visibility.key），是 heuristic — 若未來改寫 useTransportParams
+ * （case "key" / visibility.key），是 heuristic — 若未來改寫 useLayerParamsRuntime
  * 或 LegendPanel 的結構，請同步更新比對邏輯。
  */
 import { describe, it, expect } from "vitest";
@@ -21,7 +21,7 @@ import { isMigratedParamsKey } from "../../../data/layerParamsSpec";
 const allKeys = Object.keys(LAYER_COLORS);
 const sidebarKeys = new Set<string>(SECTIONS.flatMap((s) => s.layers.map((l) => l.key)));
 
-const paramsSource = readFileSync("src/hooks/useTransportParams.ts", "utf8");
+const paramsSource = readFileSync("src/hooks/useLayerParamsRuntime.ts", "utf8");
 const legendCoveredKeys = new Set<string>(LEGEND_REGISTRY.flatMap((e) => e.keys));
 
 /**
@@ -134,7 +134,7 @@ const BASELINE_NO_LEGEND = new Set([
 
 /**
  * 「這層有沒有參數控件」。AR-22 P3-1 起有兩個合法歸宿（雙軌）：
- *   - `useTransportParams` 的 `case "key"`（未遷移）
+ *   - `useLayerParamsRuntime` 的 `case "key"`（未遷移）
  *   - `LAYER_PARAMS_SPEC` 的宣告式規格（已遷移到 layerParamsStore）
  * 只認前者的話，每遷一批就會有一批 layer 被誤判成「漏接 slider」。
  */
@@ -185,13 +185,13 @@ describe("layer 一致性 ratchet", () => {
     expect(unknown).toEqual([]);
   });
 
-  it("每個 layer 都有 useTransportParams 參數 case（或在 baseline）", () => {
+  it("每個 layer 都有 useLayerParamsRuntime 參數 case（或在 baseline）", () => {
     ratchet(
       "透明度/參數 slider",
       allKeys,
       hasParamsCase,
       BASELINE_NO_PARAMS,
-      "在 useTransportParams.ts 的 getParamsFor 加 case + useState + deps（鐵則 1）",
+      "在 useLayerParamsRuntime.ts 的 getParamsFor 加 case + useState + deps（鐵則 1）",
     );
   });
 

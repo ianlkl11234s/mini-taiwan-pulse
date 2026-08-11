@@ -2,8 +2,9 @@
 //  Layer Params Spec — 參數控件的宣告式規格（AR-22 Phase 3 / P3-1）
 // ══════════════════════════════════════════════════════════════════
 //
-// `useTransportParams.ts` 是本專案唯一認定的大型結構債：單一函式 3,079 行、
-// 644 個 useState、539 項手寫 deps。它把三件事焊死在一起：
+// `useLayerParamsRuntime.ts`（P3-3 之前叫 `useTransportParams.ts`）**曾是**本專案
+// 唯一認定的大型結構債：單一函式 3,079 行、644 個 useState、539 項手寫 deps。
+// 它把三件事焊死在一起：
 //
 //   (1) 參數的**值**（per-layer useState）
 //   (2) 參數的**控件長相**（getControls 的巨型 switch）
@@ -73,7 +74,7 @@ export interface ParamSelectOption {
 /**
  * ⚠️ 共用 slot（`sharedGroup`）—— 三種 spec 共通的選填欄位。
  *
- * `useTransportParams` 有一種形狀是 **多個 layer key 共用同一個 `useState`**：
+ * `useLayerParamsRuntime` 有一種形狀是 **多個 layer key 共用同一個 `useState`**：
  * ```ts
  * case "eduKindergarten":
  * case "eduAfterschoolCare":
@@ -98,7 +99,7 @@ interface SharedSlotField {
 /**
  * ⚠️ 條件式顯示（`showWhen`）—— 三種 spec 共通的選填欄位。
  *
- * `useTransportParams` 有一種形狀是 **控件清單本身隨值伸縮**：
+ * `useLayerParamsRuntime` 有一種形狀是 **控件清單本身隨值伸縮**：
  * ```ts
  * ...(propertyValueGridExtruded ? [對比 slider, 高度 slider] : []),
  * ...(buildingsGbaModeIdx === 3 ? [Bloom 門檻 slider] : []),
@@ -123,7 +124,7 @@ interface ConditionalField {
 /**
  * ⚠️ 級聯寫入（`cascade`）—— 三種 spec 共通的選填欄位（P3-2D 群4）。
  *
- * `useTransportParams` 有一種形狀是 **onChange 裡不只設自己**：
+ * `useLayerParamsRuntime` 有一種形狀是 **onChange 裡不只設自己**：
  * ```ts
  * onChange: (v) => { setIndCategory(v); setIndMetric(第一個 metric); }   // 換大類 → 重設細項
  * onChange: (v) => { setYear(Number(v)); setPlaying(false); }            // 選年份 → 停播放
@@ -157,7 +158,7 @@ interface CascadeField {
  *
  * P3-1~2C 搬的 key 有一個共同前提：**參數的唯一去處是 `overlayParams`**
  * （paint expression 吃得到的那個 `Record<string, number>`）。D 桶不是 ——
- * 它們的值走 `useTransportParams` 的 `return {}`：
+ * 它們的值走 `useLayerParamsRuntime` 的 `return {}`：
  *   - `refs.xxx.current`（Three.js / CustomLayer 的 render loop 逐幀讀）
  *   - `h3Params` / `popCountParams` / `indicatorsParams` / `socioParams` /
  *     `spatialParams` / `youbikeParams` 六個獨立子物件
@@ -169,7 +170,7 @@ interface CascadeField {
  * 所以規格端用 `out: null` 講明「本參數不走 overlay 通道」，
  * `encodeParamsToOverlay` 直接跳過。
  *
- * ⚠️ 這一欄**不表示值可以沒有去處**：`useTransportParamsReturn.test.ts` 的
+ * ⚠️ 這一欄**不表示值可以沒有去處**：`useLayerParamsRuntimeReturn.test.ts` 的
  * 完整性規則要求每個 `out: null` 的參數都必須在 `RETURN_CHANNEL` 表裡宣告
  * 至少一條回傳路徑（或列進 `INTERNAL_CONSUMERS`），否則就是「搬進 store
  * 但沒接回去」——那正是 D 桶最危險、四道舊閘全綠的失效形狀。
@@ -483,7 +484,7 @@ function satelliteOpacity(): SliderParamSpec {
 
 /**
  * 公車／垃圾車 8 區分組的**顯示順序**（＝控件順序，也是 `enabledBusCities` 的展開順序）。
- * 原本硬寫在 `useTransportParams` 的 case 裡；規格與 hook 兩邊都要用同一份，
+ * 原本硬寫在 `useLayerParamsRuntime` 的 case 裡；規格與 hook 兩邊都要用同一份，
  * 各寫一份必漂移（順序不同 → 傳給 RPC 的城市陣列順序不同）。
  */
 export const BUS_GROUP_ORDER = [
@@ -729,7 +730,7 @@ const PRECISION_ENCODE = PRECISION_MODES.map((m) => m.value);
 // ── 規格表 ────────────────────────────────────────────────────────
 
 /**
- * 已遷移到 store 的 key。**沒列在這裡的 key 一律走 `useTransportParams` 既有的
+ * 已遷移到 store 的 key。**沒列在這裡的 key 一律走 `useLayerParamsRuntime` 既有的
  * switch/useState**（雙軌）—— 這張表就是雙軌的判別式。
  *
  * ⚠️ 陣列順序 = 控件在面板上的顯示順序，也是黃金快照比對的順序。
@@ -1993,7 +1994,7 @@ export const LAYER_PARAMS_SPEC = {
 
   // ══════════ D 桶群1：值走 hook return 的平鋪欄位（P3-2D）══════════
   // 以下 34 個 key 的參數**不進 overlayParams**（`out: null`）或同時走兩條通道；
-  // 回傳路徑逐一宣告在 `hooks/__tests__/useTransportParamsReturn.test.ts`
+  // 回傳路徑逐一宣告在 `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts`
   // 的 `RETURN_CHANNEL`，那張表就是第二通道的文件。
 
   // ── NCDR 示警 5 群組：單一 source、共用一支 opacity（分開調沒有意義）──
@@ -2127,7 +2128,7 @@ export const LAYER_PARAMS_SPEC = {
   ],
   // ══════════ D 桶群2：值走 refs.current（Three.js render loop）══════════
   // 這一批的 `useRef` initial 一律吃**規格常數**（`paramDefault`）而不是 store 現值 ——
-  // 見 `hooks/__tests__/useTransportParamsReturn.test.ts` 的盲區說明：
+  // 見 `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts` 的盲區說明：
   // 前者才讓「刪掉 ref 同步行」這個突變驗得出來。
 
   flights: [

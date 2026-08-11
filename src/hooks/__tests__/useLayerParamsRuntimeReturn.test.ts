@@ -1,10 +1,10 @@
 /**
- * useTransportParams 回傳物件的逐欄位等值閘（AR-22 Phase 3 / P3-2D 第 1 步）
+ * useLayerParamsRuntime 回傳物件的逐欄位等值閘（AR-22 Phase 3 / P3-2D 第 1 步）
  * ══════════════════════════════════════════════════════════════════
  *
  * ⚠️ **為什麼非有這道閘不可**：黃金快照（`layerGoldenSnapshot.test.ts`）凍結的是
  * 兩件事 —— `getControls(key)` 的輸出，與「拿 `overlayParams` 去求值 paint」的結果。
- * 它**沒有**凍結 `useTransportParams` 回傳物件的其他欄位，也沒有凍結 `overlayParams`
+ * 它**沒有**凍結 `useLayerParamsRuntime` 回傳物件的其他欄位，也沒有凍結 `overlayParams`
  * 物件本身。P3-2C 的突變 (i)（讓 `encodeParamsToOverlay` 跟著 `showWhen` 少編兩個欄位）
  * 就是實證：**快照全綠**，只有專屬斷言會紅。
  *
@@ -37,7 +37,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createHash } from "node:crypto";
 
-import { useTransportParams, advancePenaltyYear } from "../useTransportParams";
+import { useLayerParamsRuntime, advancePenaltyYear } from "../useLayerParamsRuntime";
 import { sanitize, canonicalJson } from "../../data/__tests__/layerGoldenExtract";
 import {
   BUS_GROUP_ORDER, LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, encodeParamValue,
@@ -451,18 +451,18 @@ function busCitiesOf(...groups: BusGroup[]): string[] {
  * 每一個都要註明消費者是誰 —— 這是完整性規則唯一的例外口，不寫理由不准加。
  */
 const INTERNAL_CONSUMERS: Record<string, string> = {
-  // 播放狀態既不進 paint 也不進回傳物件 —— 消費者是 `useTransportParams` 內的
+  // 播放狀態既不進 paint 也不進回傳物件 —— 消費者是 `useLayerParamsRuntime` 內的
   // 播放引擎 effect（`advancePenaltyYear` 逐年推進）與控件自己的 ⏸/▶ label。
   // 三兄弟共用同一份值，這裡列代表。
   "pollutionPenaltyCritical.pollutionPenaltyPlaying":
-    "useTransportParams 的播放引擎 effect（advancePenaltyYear）",
+    "useLayerParamsRuntime 的播放引擎 effect（advancePenaltyYear）",
 };
 
 // ══════════════════════════════════════════════════════════════════
 //  A. 預設值下的凍結字面
 // ══════════════════════════════════════════════════════════════════
 /**
- * 預設值下 `useTransportParams()` 的回傳物件（扣掉 `overlayParams`，它另有兩條）。
+ * 預設值下 `useLayerParamsRuntime()` 的回傳物件（扣掉 `overlayParams`，它另有兩條）。
  * 函式欄位一律 `"__FN__"`（`sanitize` 的慣例）；`refs.x` 已攤平成 `x.current` 的值。
  *
  * ⚠️ 更新這份字面 = 宣告「回傳給整個 app 的預設值有意識地改了」。遷移**不該**改到它，
@@ -635,12 +635,12 @@ function capture(): Captured {
   let captured: unknown = null;
   function Probe() {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    captured = useTransportParams();
+    captured = useLayerParamsRuntime();
     return null;
   }
   renderToStaticMarkup(createElement(Probe));
-  if (!captured) throw new Error("useTransportParams probe 沒有捕捉到回傳值");
-  const api = captured as ReturnType<typeof useTransportParams>;
+  if (!captured) throw new Error("useLayerParamsRuntime probe 沒有捕捉到回傳值");
+  const api = captured as ReturnType<typeof useLayerParamsRuntime>;
   const snapshot = sanitize(api) as Record<string, unknown>;
   // refs 攤平：`{ altExag: { current: 3 } }` → `{ altExag: 3 }`。
   // 路徑因此是 `refs.altExag`，RETURN_CHANNEL 的宣告也照這個寫法。

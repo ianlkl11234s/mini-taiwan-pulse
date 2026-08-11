@@ -2,7 +2,7 @@
  * 通用 getControls 渲染器（AR-22 P3-1）
  *
  * 從 `LAYER_PARAMS_SPEC` + store 當下值產生 `ParamControl[]`，形狀與
- * `useTransportParams` 巨型 switch 裡的手寫 case **完全相同**。
+ * `useLayerParamsRuntime` 巨型 switch 裡的手寫 case **完全相同**。
  * 黃金快照的 `params` section（348 key × getControls 輸出，onChange 已剔除）
  * 就是這件事的機械證明：搬一個 key 進規格、從 switch 刪掉它的 case，
  * fixture 必須一位元不變。
@@ -23,7 +23,7 @@ import { layerParamsStore } from "./layerParamsStore";
 //
 //  這三個型別描述的是**面板控件的形狀**，本檔是它們唯一的生產者
 //  （`buildParamControls` 是唯一的建構點），消費者是兩個 sidebar 元件。
-//  P3-3 之前它們宣告在 `hooks/useTransportParams.ts`，本檔得反過來
+//  P3-3 之前它們宣告在 `hooks/useLayerParamsRuntime.ts`，本檔得反過來
 //  `import type ... from "../hooks/…"` —— `hooks → state` 的相依方向是倒的。
 //  搬到這裡之後相依單向：`data/layerParamsSpec → state/* → hooks/* ＋ components/*`。
 

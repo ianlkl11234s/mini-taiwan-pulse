@@ -247,7 +247,7 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
     }
   });
 
-  it("params 宣告 = useTransportParams 實際回傳的控件數與型別序列", () => {
+  it("params 宣告 = useLayerParamsRuntime 實際回傳的控件數與型別序列", () => {
     for (const [k, m] of entries) {
       const actual = controls[k] ?? [];
       if (m.params === null) {

@@ -103,7 +103,7 @@ describe("黃金快照覆蓋度", () => {
       .toEqual([]);
   });
 
-  it("useTransportParams 每個 case key 都真的被抽到控件（證明 getControls 全掃有效）", () => {
+  it("useLayerParamsRuntime 每個 case key 都真的被抽到控件（證明 getControls 全掃有效）", () => {
     // ExpandableLayerKey 是 type-only、runtime 無法迭代 → 抽取器改對 348 key 全掃。
     // 這兩條雙向斷言證明「全掃」確實等價於「照 case 清單逐一呼叫」。
     const layerKeys = new Set(allLayerKeys() as string[]);
@@ -116,7 +116,7 @@ describe("黃金快照覆蓋度", () => {
     const missing = shouldHave.filter((k) => !Array.isArray(controls[k]) || controls[k].length === 0);
     expect(
       missing,
-      "這些 key 在 useTransportParams 有 case 但抽不到控件 → getControls 入口或抽取器對不上",
+      "這些 key 在 useLayerParamsRuntime 有 case 但抽不到控件 → getControls 入口或抽取器對不上",
     ).toEqual([]);
 
     // 反向：抽到控件的 key 一定在 case 清單裡（防抽取器從別的來源撿到幽靈控件）
@@ -134,7 +134,7 @@ describe("黃金快照覆蓋度", () => {
   });
 
   it("pollutionPenaltyYear 的今年預設仍被 PENALTY_YEAR_MAX 夾住（防 fixture 跨年爆掉）", () => {
-    // useTransportParams: useState(min(MAX, max(MIN, new Date().getFullYear())))
+    // useLayerParamsRuntime: useState(min(MAX, max(MIN, new Date().getFullYear())))
     // 只要 MAX ≤ 今年，這個預設值就恆等於 MAX = 決定性。MAX 被調高到未來年份時
     // 這條會先紅，提醒去抽取器補正規化，而不是等 fixture 在跨年那天無預警爆掉。
     expect(

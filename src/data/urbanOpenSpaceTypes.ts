@@ -2,7 +2,7 @@
  * 都市開放空間 Urban Open Space 三層（受保護樹木 / 河濱喬木 / 台北公園）的
  * 顏色、分級與 select 選項單一真實來源。
  * 給 overlayRegistry 配色（circle-color 表達式）、LegendPanel 圖例、
- * useTransportParams select options 三處共用（同 streetTreeColors.ts 慣例）。
+ * useLayerParamsRuntime select options 三處共用（同 streetTreeColors.ts 慣例）。
  *
  * 分級 / 分類由 public/urban/*.geojson 全量統計決定（2026-07 jq 抽樣）：
  * - 受保護樹木 6,544 點（8 城市 count desc；city 實際值是「嘉義縣」非嘉義市）

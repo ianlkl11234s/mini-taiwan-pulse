@@ -35,7 +35,7 @@ import { loadRailReplayData, railReplayRange } from "./railReplayData";
 import { replayClock, resolveReplaySpeed, resolveReplayStart } from "./replayClock";
 
 /**
- * 主站 `useTransportParams` 的預設值（embed 沒有調參 UI，直接沿用同一組數字）。
+ * 主站 `useLayerParamsRuntime` 的預設值（embed 沒有調參 UI，直接沿用同一組數字）。
  * 三種載具在主站是**各自獨立**的 slider，預設值不同 —— 別合併成一個常數。
  */
 const DEFAULT_FLIGHT_ORB_SCALE = 0.000005;

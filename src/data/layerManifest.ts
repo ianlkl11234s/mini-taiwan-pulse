@@ -213,7 +213,7 @@ interface LayerManifestBase {
    */
   popup: FeatureInfo["layerType"] | FeatureInfo["layerType"][] | null;
   /**
-   * 參數控件規格佔位（Phase 4 才把 useTransportParams 的 case 派生掉）。
+   * 參數控件規格佔位（Phase 4 才把 useLayerParamsRuntime 的 case 派生掉）。
    * 現在只記「有幾個控件、各是什麼型別」，讓測試能釘住宣告不漂移。
    */
   params: { count: number; kinds: ("slider" | "toggle" | "select")[] } | null;
@@ -1072,7 +1072,7 @@ export const LAYER_MANIFEST = {
   //     肉眼掃過去像同名，只有逐 key 反查 GIS_LAYERS 才看得出差一個 s。
   //
   //  submarineCables / landingStations 的 `params: null` 是 Phase 0 記錄的
-  //  emptyByDesign（useTransportParams 寫死 `return []`），不是抽取器沒掃到。
+  //  emptyByDesign（useLayerParamsRuntime 寫死 `return []`），不是抽取器沒掃到。
   // ══════════════════════════════════════════════════════════════
   submarineCables: {
     key: "submarineCables",
@@ -4255,7 +4255,7 @@ export const LAYER_MANIFEST = {
     topics: ["災害", "地震", "回放"],
   },
 
-  // 本批唯一 dataClass A，也是唯一 `params: null`（useTransportParams 寫死
+  // 本批唯一 dataClass A，也是唯一 `params: null`（useLayerParamsRuntime 寫死
   // `case "activeFaults": return [];`，屬 emptyByDesign 5 key 之一，非抽取器漏掃）。
   // popup `activeFault` 是**去複數 s 的單數形**（同批 2 基礎建設 11/11 的形狀）。
   activeFaults: {
@@ -4922,7 +4922,7 @@ export const LAYER_MANIFEST = {
     topics: ["環境", "空品", "AQI"],
   },
 
-  // ⚠️ params: null —— useTransportParams 寫死 `case "aqiStations": return []`
+  // ⚠️ params: null —— useLayerParamsRuntime 寫死 `case "aqiStations": return []`
   //    （Phase 0 記錄的 emptyByDesign 5 key 之一）。THEMES 仍是 expandable: true，
   //    兩者的不一致是現況，搬移不夾帶修正。
   aqiStations: {
@@ -8716,7 +8716,7 @@ export const LAYER_MANIFEST = {
   // （`derivedFromLayers` ＋ `derivationType: "coverage"` ＋ `processing`）——
   // manifest 照抄整包，不是只抄 status/datasets。
   //
-  // ⚠️ **`windPlan` 的 `params` 是 null**：`useTransportParams` 寫死 `return []`，
+  // ⚠️ **`windPlan` 的 `params` 是 null**：`useLayerParamsRuntime` 寫死 `return []`，
   // 是 Phase 0 記錄的 emptyByDesign 5 key 之一（另 4 個是 activeFaults / aqiStations /
   // landingStations / submarineCables）。**不是抽取器沒掃到**，照抄不夾帶修正。
   //
@@ -8796,7 +8796,7 @@ export const LAYER_MANIFEST = {
     legend: null,
     // 3 個 layer id（glow / fill / line）全不在 GIS_LAYERS → 無點擊接線
     popup: null,
-    // ⚠️ 這個 null 是**有意的**：useTransportParams 寫死 `case "windPlan": return [];`，
+    // ⚠️ 這個 null 是**有意的**：useLayerParamsRuntime 寫死 `case "windPlan": return [];`，
     //    Phase 0 已把它記進 emptyByDesign 5 key。不是抽取器漏掃。
     params: null,
     description: "離岸風電場規劃區位（glow ＋ fill ＋ 邊框，無控件）",

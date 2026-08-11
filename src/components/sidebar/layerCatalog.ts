@@ -530,7 +530,7 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       // 🔴 補習班是**每日更新**的資料源（此為快照），且點數 17,137 為四層之最 → 切片走 PMTiles，
-      //    透明度／大小 slider 與其餘三層分開（見 useTransportParams 的 eduCramSchool* param）。
+      //    透明度／大小 slider 與其餘三層分開（見 useLayerParamsRuntime 的 eduCramSchool* param）。
       {
         title: "幼托補習 Childcare & Cram",
         layers: [

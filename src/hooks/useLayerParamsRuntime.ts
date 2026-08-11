@@ -1,3 +1,35 @@
+// ══════════════════════════════════════════════════════════════════
+//  Layer Params Runtime — store 快照 → 消費端既有回傳 API 的轉接層
+//  （AR-22 Phase 3 / P3-3；P3-2D 之前叫 `useTransportParams.ts`）
+// ══════════════════════════════════════════════════════════════════
+//
+// 本檔**不再持有任何參數**：348 個 layer 的 336 個 key 全部宣告在
+// `data/layerParamsSpec.ts`、值全部住在 `state/layerParamsStore.ts`
+// （`useState` 645 → 0）。剩下的是純機制 ——
+//
+//   讀取器（`pNum`/`pBool`/`pStr`）· 窄化（`oneOf`/`oneOfNum`）·
+//   鏡像 ref 三支（Three.js render loop 逐幀讀 `.current`）·
+//   `buildWasteSubParams`（巢狀 Record 組裝）· `advancePenaltyYear`（播放引擎）·
+//   `getControls` 的雙軌 dispatcher ＋ 5 個 `emptyByDesign` case ·
+//   `overlayParams` 薄 memo · 46 個 ref ／ 6 個子物件的 `return {}` 組裝
+//
+// ⚠️ **舊檔名 `useTransportParams` 已完全退場，沒有相容薄殼**：
+// 一個模組兩個名字正是本專案在獵殺的那類漂移。P3-3 之前的 changelog 與
+// docs/features/* 仍寫舊名（歷史紀錄不回改），對照點就是本段。
+//
+// ⚠️ **回傳形狀是 348 個圖層真正的耦合面**：改任何欄位都要同步
+// `__tests__/useLayerParamsRuntimeReturn.test.ts` 的 `RETURN_CHANNEL`（活文件），
+// 否則等值閘 B 立刻紅。整支退役（消費端改吃 `useLayerParams(key)`）是 AR-22
+// 的終點，**不是等價重構**，要另立驗收標準。
+//
+// ⚠️ 下方 5 個 `emptyByDesign` 分支（windPlan / submarineCables / landingStations
+// / activeFaults / aqiStations）**不能順手刪**：`paramsCaseKeys()` 靠「分支字面
+// 直接 return 空陣列」判定「有意沒有控件」，刪了會被 `layerConsistency` 的覆蓋
+// 斷言誤判成漏接。要刪得先給 manifest 一個等價的表達。
+//
+// ⚠️ 同理，本檔的**註解也會被文字解析器掃到**（`paramsCaseKeys` 不剝註解）——
+// 註解裡不要出現 `case` 加雙引號 key 的字面，會憑空多出一個幽靈 key。
+
 import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import type { ExpandableLayerKey, BusCity } from "../types";
 import {
@@ -23,7 +55,7 @@ import {
 //
 //  ⚠️ 查無值時退回規格 `default`：正常路徑上不會發生（store 的 slot 就是規格宣告的），
 //  但這條路徑在 render 期間，throw 等於整頁白畫面 —— 回退比炸掉安全，
-//  而「值真的有流過來」由 `__tests__/useTransportParamsReturn.test.ts` 的
+//  而「值真的有流過來」由 `__tests__/useLayerParamsRuntimeReturn.test.ts` 的
 //  逐參數隔離擾動直接驗（回退兜底不會讓那道閘變綠：它比的是擾動後的值）。
 
 /** slider ／ 數值型 select（store 存字串、消費端要數字，等價手寫版 onChange 的 `Number(v)`） */
@@ -104,7 +136,7 @@ export function advancePenaltyYear(): void {
 // initial 若也讀 store，等值閘（每次 capture 都是全新 mount）就再也驗不出
 // 「同步賦值那一行被刪掉」：mount 當下 `useRef(現值)` 已經是對的。
 // 這條慣例是 ref 通道有閘可守的前提，改動前先看
-// `__tests__/useTransportParamsReturn.test.ts` 的盲區說明。
+// `__tests__/useLayerParamsRuntimeReturn.test.ts` 的盲區說明。
 
 function useParamRefNum(all: LayerParamsSnapshot, key: string, name: string) {
   const ref = useRef(dNum(key, name));
@@ -157,7 +189,7 @@ function useParamRefEnum<T extends string>(
   return ref;
 }
 
-export function useTransportParams() {
+export function useLayerParamsRuntime() {
   // ══════════════════════════════════════════════════════════════════
   //  雙軌（AR-22 P3-1）：已遷移進 layerParamsStore 的 key 走規格派生，
   //  其餘維持本檔既有的 per-layer useState + switch。分岔只有兩處 ——

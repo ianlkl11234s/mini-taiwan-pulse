@@ -1,5 +1,5 @@
 // 環境污染主題共用常數（介質 / 嚴重度 / 年份）。
-// overlayRegistry / LegendPanel / featureInfo panels / useTransportParams 共用單一真實來源。
+// overlayRegistry / LegendPanel / featureInfo panels / useLayerParamsRuntime 共用單一真實來源。
 //
 // 語意紅線（P0）：EMS_S_01 列管對象 ≠ 污染源。前端一律用：
 //   - 污染潛勢設施（regulated facility × 介質 × 嚴重度）
