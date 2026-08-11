@@ -167,24 +167,6 @@ export function useTransportParams() {
   const [fireHydrantsOpacity, setFireHydrantsOpacity] = useState(0.7);
   const [fireHydrantsZ, setFireHydrantsZ] = useState(0);
   // ── 警政司法民防 17 layer（每個 opacity + scale；polygon/line 走 fill/line-width）──
-  const [policeStationOpacity, setPoliceStationOpacity] = useState(0.85);
-  const [policeStationScale, setPoliceStationScale] = useState(1);
-  const [womenChildWarningOpacity, setWomenChildWarningOpacity] = useState(0.9);
-  const [womenChildWarningScale, setWomenChildWarningScale] = useState(1);
-  const [speedCameraOpacity, setSpeedCameraOpacity] = useState(0.85);
-  const [speedCameraScale, setSpeedCameraScale] = useState(1);
-  const [speedZoneSegmentOpacity, setSpeedZoneSegmentOpacity] = useState(0.85);
-  const [speedZoneSegmentWidth, setSpeedZoneSegmentWidth] = useState(1);
-  const [courtOpacity, setCourtOpacity] = useState(0.9);
-  const [courtScale, setCourtScale] = useState(1);
-  const [prosecutorsOfficeOpacity, setProsecutorsOfficeOpacity] = useState(0.9);
-  const [prosecutorsOfficeScale, setProsecutorsOfficeScale] = useState(1);
-  const [correctionalFacilityOpacity, setCorrectionalFacilityOpacity] = useState(0.9);
-  const [correctionalFacilityScale, setCorrectionalFacilityScale] = useState(1);
-  const [courtJurisdictionOpacity, setCourtJurisdictionOpacity] = useState(0.18);
-  const [aquaculturePondsOpacity, setAquaculturePondsOpacity] = useState(0.5);
-  const [aquacultureZoneOpacity, setAquacultureZoneOpacity] = useState(0.35);
-  const [aquacultureCageNetOpacity, setAquacultureCageNetOpacity] = useState(0.4);
   const [aquacultureWaterSatelliteOpacity, setAquacultureWaterSatelliteOpacity] = useState(0.5);
   const [aquacultureWaterSatelliteConfidence, setAquacultureWaterSatelliteConfidence] = useState<string>("all"); // all / reservoir / certain（累積式信心篩選）
   const [aquacultureWaterSatelliteMoaOpacity, setAquacultureWaterSatelliteMoaOpacity] = useState(0.55);
@@ -197,7 +179,6 @@ export function useTransportParams() {
   const [aquacultureWaterUnionShowBoth, setAquacultureWaterUnionShowBoth] = useState(true);
   const [aquacultureWaterUnionShowMoaOnly, setAquacultureWaterUnionShowMoaOnly] = useState(true);
   const [aquacultureWaterUnionShowOsmOnly, setAquacultureWaterUnionShowOsmOnly] = useState(true);
-  const [aquacultureIntegratedOpacity, setAquacultureIntegratedOpacity] = useState(0.6);
   const [streetTreesTaipeiDiffOpacity, setStreetTreesTaipeiDiffOpacity] = useState(0.7);
   const [streetTreesTaipeiDiffStatus, setStreetTreesTaipeiDiffStatus] = useState<string>("all"); // all / disappeared / changed
   const [streetTreesTaipeiDiffRadius, setStreetTreesTaipeiDiffRadius] = useState(0.5); // 點位大小縮放倍率
@@ -223,35 +204,19 @@ export function useTransportParams() {
   const [artsEventsOpacity, setArtsEventsOpacity] = useState(0.85);
   const [artsEventsRadius, setArtsEventsRadius] = useState(1);
   const [artsEventsStatus, setArtsEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
-  const [performingVenuesOpacity, setPerformingVenuesOpacity] = useState(0.85);
-  const [performingVenuesRadius, setPerformingVenuesRadius] = useState(1);
   // 🧳 觀光 Tourism 12 層（點層 opacity 0.85 + scale 1；面層 opacity 0.5；select 存字串，overlayParams 轉 Idx）
   const [tourAttractionsOpacity, setTourAttractionsOpacity] = useState(0.85);
   const [tourAttractionsScale, setTourAttractionsScale] = useState(1);
   const [tourAttractionsMode, setTourAttractionsMode] = useState<string>("category"); // category / heat
-  const [tourHotSpringsOpacity, setTourHotSpringsOpacity] = useState(0.85);
-  const [tourHotSpringsScale, setTourHotSpringsScale] = useState(1);
-  const [tourHotSpringZonesOpacity, setTourHotSpringZonesOpacity] = useState(0.5);
-  const [tourScenicAreasOpacity, setTourScenicAreasOpacity] = useState(0.5);
-  const [tourHeritageOpacity, setTourHeritageOpacity] = useState(0.85);
-  const [tourHeritageScale, setTourHeritageScale] = useState(1);
   // 🛕 宗教 Religion 6 層 ＋ ⚰️ 殯葬 Funeral 5 層：**已遷出本檔**（AR-22 P3-1 試點）
   //    值 → src/state/layerParamsStore.ts；控件規格（含 "active" 這類非 "all" 的預設、
   //    select 的 encode 順序）→ src/data/layerParamsSpec.ts。
   const [tourEventsOpacity, setTourEventsOpacity] = useState(0.85);
   const [tourEventsScale, setTourEventsScale] = useState(1);
   const [tourEventsStatus, setTourEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
-  const [tourFactoriesOpacity, setTourFactoriesOpacity] = useState(0.85);
-  const [tourFactoriesScale, setTourFactoriesScale] = useState(1);
-  const [tourAmusementParksOpacity, setTourAmusementParksOpacity] = useState(0.85);
-  const [tourAmusementParksScale, setTourAmusementParksScale] = useState(1);
-  const [tourCampingOpacity, setTourCampingOpacity] = useState(0.85);
-  const [tourCampingScale, setTourCampingScale] = useState(1);
   const [tourHotelsOpacity, setTourHotelsOpacity] = useState(0.85);
   const [tourHotelsScale, setTourHotelsScale] = useState(1);
   const [tourHotelsClass, setTourHotelsClass] = useState<string>("all"); // all / 1 / 2 / 3 / 4
-  const [tourRestaurantsOpacity, setTourRestaurantsOpacity] = useState(0.85);
-  const [tourRestaurantsScale, setTourRestaurantsScale] = useState(1);
   // 行道樹三時點（traj 7 類/樹種/胸徑/樹高四染色模式 + 軌跡篩選）
   const [streetTreesTaipei3epochOpacity, setStreetTreesTaipei3epochOpacity] = useState(0.7);
   const [streetTreesTaipei3epochRadius, setStreetTreesTaipei3epochRadius] = useState(0.5); // 點位大小縮放倍率
@@ -300,25 +265,6 @@ export function useTransportParams() {
   const [nonUrbanZoningCode, setNonUrbanZoningCode] = useState<string>("all");
   const [urbanZoningNewTaipeiOpacity, setUrbanZoningNewTaipeiOpacity] = useState(0.5);
   const [urbanZoningNewTaipeiCategory, setUrbanZoningNewTaipeiCategory] = useState<string>("all"); // all / 9 類 zone_category
-  const [crimeAreaMonthlyOpacity, setCrimeAreaMonthlyOpacity] = useState(0.55);
-  const [theftTaoyuanOpacity, setTheftTaoyuanOpacity] = useState(0.8);
-  const [theftTaoyuanScale, setTheftTaoyuanScale] = useState(1);
-  const [trafficAccidentYearlyOpacity, setTrafficAccidentYearlyOpacity] = useState(0.85);
-  const [trafficAccidentYearlyScale, setTrafficAccidentYearlyScale] = useState(1);
-  const [accidentTaipeiOpacity, setAccidentTaipeiOpacity] = useState(0.7);
-  const [accidentTaipeiScale, setAccidentTaipeiScale] = useState(1);
-  const [a1AccidentRealtimeOpacity, setA1AccidentRealtimeOpacity] = useState(0.95);
-  const [a1AccidentRealtimeScale, setA1AccidentRealtimeScale] = useState(1);
-  const [investigationBureauOpacity, setInvestigationBureauOpacity] = useState(0.9);
-  const [investigationBureauScale, setInvestigationBureauScale] = useState(1);
-  const [antiCorruptionOfficeOpacity, setAntiCorruptionOfficeOpacity] = useState(0.9);
-  const [antiCorruptionOfficeScale, setAntiCorruptionOfficeScale] = useState(1);
-  const [immigrationOfficeOpacity, setImmigrationOfficeOpacity] = useState(0.9);
-  const [immigrationOfficeScale, setImmigrationOfficeScale] = useState(1);
-  const [coastGuardStationOpacity, setCoastGuardStationOpacity] = useState(0.85);
-  const [coastGuardStationScale, setCoastGuardStationScale] = useState(1);
-  const [civilDefenseShelterOpacity, setCivilDefenseShelterOpacity] = useState(0.7);
-  const [civilDefenseShelterScale, setCivilDefenseShelterScale] = useState(1);
   // 警察覆蓋分析 isochrone × 3 layer（每 layer 含 mode + minutes select）
   const [policeIsoSubstationOpacity, setPoliceIsoSubstationOpacity] = useState(0.55);
   const [policeIsoSubstationMode, setPoliceIsoSubstationMode] = useState<"walk" | "drive">("walk");
@@ -637,21 +583,9 @@ export function useTransportParams() {
   const [oceanParticleCount, setOceanParticleCount] = useState(12000);
   const [oceanLineWidth, setOceanLineWidth] = useState(1.05);
   // Base map（行政邊界 + 等高線 + OSM 路網）
-  const [countyBoundaryOpacity, setCountyBoundaryOpacity] = useState(0.85);
-  const [countyBoundaryWidth, setCountyBoundaryWidth] = useState(1.0);
-  const [townshipBoundaryOpacity, setTownshipBoundaryOpacity] = useState(0.75);
-  const [townshipBoundaryWidth, setTownshipBoundaryWidth] = useState(1.0);
-  const [villageBoundaryOpacity, setVillageBoundaryOpacity] = useState(0.65);
-  const [villageBoundaryWidth, setVillageBoundaryWidth] = useState(1.0);
-  const [contour25kOpacity, setContour25kOpacity] = useState(0.7);
-  const [contour25kWidth, setContour25kWidth] = useState(1.0);
-  const [contourDtm20Opacity, setContourDtm20Opacity] = useState(0.55);
-  const [contourDtm20Width, setContourDtm20Width] = useState(1.0);
   const [osmRoadDriveOpacity, setOsmRoadDriveOpacity] = useState(0.85);
   const [osmRoadDriveWidth, setOsmRoadDriveWidth] = useState(1.0);
   const [osmRoadDriveZ5Reveal, setOsmRoadDriveZ5Reveal] = useState(0); // 0=z<8 隱形（預設），1=全 zoom 顯示
-  const [osmExpresswayOpacity, setOsmExpresswayOpacity] = useState(0.9);
-  const [osmExpresswayWidth, setOsmExpresswayWidth] = useState(1.0);
   const [hillshadeOpacity, setHillshadeOpacity] = useState(0.5);
   // 坡度/坡向分級向量（PMTiles polygon，可點選/疊圖分析）
   const [slopeVectorOpacity, setSlopeVectorOpacity] = useState(0.6);
@@ -810,16 +744,7 @@ export function useTransportParams() {
 
   const overlayParams = useMemo<Record<string, number>>(() => ({
     // 警政司法民防 17 layer
-    policeStationOpacity, policeStationScale,
-    womenChildWarningOpacity, womenChildWarningScale,
-    speedCameraOpacity, speedCameraScale,
-    speedZoneSegmentOpacity, speedZoneSegmentWidth,
-    courtOpacity, courtScale,
-    prosecutorsOfficeOpacity, prosecutorsOfficeScale,
-    correctionalFacilityOpacity, correctionalFacilityScale,
-    courtJurisdictionOpacity,
-    aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
-    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteMoaOpacity, aquacultureIntegratedOpacity, 
+    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteMoaOpacity, 
     aquacultureWaterUnionOpacity,
     // 信心層級 select（all/reservoir/certain）編成 idx（0/1/2）；paint 端 decode 做 opacity 篩選
     aquacultureWaterSatelliteConfidenceIdx: ["all", "reservoir", "certain"].indexOf(aquacultureWaterSatelliteConfidence),
@@ -851,24 +776,15 @@ export function useTransportParams() {
     culturalMuseumsTypeIdx: ["all", ...CULTURAL_MUSEUM_TYPES.map((c) => c.name)].indexOf(culturalMuseumsType),
     artsEventsOpacity, artsEventsRadius,
     artsEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(artsEventsStatus),
-    performingVenuesOpacity, performingVenuesRadius,
     // 🧳 觀光 Tourism：select 編成 Idx 餵 paint/filter（overlayParams 只收數字）
     tourAttractionsOpacity, tourAttractionsScale,
     tourAttractionsModeIdx: ["category", "heat"].indexOf(tourAttractionsMode),
-    tourHotSpringsOpacity, tourHotSpringsScale,
-    tourHotSpringZonesOpacity,
-    tourScenicAreasOpacity,
-    tourHeritageOpacity, tourHeritageScale,
     // 🛕 宗教 6 層 ＋ ⚰️ 殯葬 5 層的 27 個 overlayParams key（含 6 個 select 的 Idx）
     // 已遷出：由末尾 `...migratedOverlayParams` 從 layerParamsSpec 的 encode 派生。
     tourEventsOpacity, tourEventsScale,
     tourEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(tourEventsStatus),
-    tourFactoriesOpacity, tourFactoriesScale,
-    tourAmusementParksOpacity, tourAmusementParksScale,
-    tourCampingOpacity, tourCampingScale,
     tourHotelsOpacity, tourHotelsScale,
     tourHotelsClassIdx: ["all", "1", "2", "3", "4"].indexOf(tourHotelsClass),
-    tourRestaurantsOpacity, tourRestaurantsScale,
     streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius,
     streetTreesTaipei3epochColorModeIdx: ["traj", "species", "diameter", "height"].indexOf(streetTreesTaipei3epochColorMode),
     streetTreesTaipei3epochTrajFilterIdx: STREET_TREE_3EPOCH_TRAJ_FILTERS.findIndex((f) => f.value === streetTreesTaipei3epochTrajFilter),
@@ -890,16 +806,6 @@ export function useTransportParams() {
     nonUrbanZoningOpacity,
     // idx 0=全部，1..11 對應 NON_URBAN_ZONING_CODES（同 urbanZoning*CategoryIdx 慣例）
     nonUrbanZoningCodeIdx: ["all", ...NON_URBAN_ZONING_CODES.map((c) => c.code)].indexOf(nonUrbanZoningCode),
-    crimeAreaMonthlyOpacity,
-    theftTaoyuanOpacity, theftTaoyuanScale,
-    trafficAccidentYearlyOpacity, trafficAccidentYearlyScale,
-    accidentTaipeiOpacity, accidentTaipeiScale,
-    a1AccidentRealtimeOpacity, a1AccidentRealtimeScale,
-    investigationBureauOpacity, investigationBureauScale,
-    antiCorruptionOfficeOpacity, antiCorruptionOfficeScale,
-    immigrationOfficeOpacity, immigrationOfficeScale,
-    coastGuardStationOpacity, coastGuardStationScale,
-    civilDefenseShelterOpacity, civilDefenseShelterScale,
     // 警察覆蓋分析（數字化 mode/minutes 餵 paint expression）
     policeIsoSubstationOpacity,
     policeIsoSubstationMode_drive: policeIsoSubstationMode === "drive" ? 1 : 0,
@@ -1064,25 +970,19 @@ export function useTransportParams() {
     urbanHeatModeIdx,
     urbanHeatOpacity,
     // Base map
-    countyBoundaryOpacity, countyBoundaryWidth,
-    townshipBoundaryOpacity, townshipBoundaryWidth,
-    villageBoundaryOpacity, villageBoundaryWidth,
-    contour25kOpacity, contour25kWidth,
-    contourDtm20Opacity, contourDtm20Width,
     osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal,
-    osmExpresswayOpacity, osmExpresswayWidth,
     hillshadeOpacity,
     slopeVectorOpacity, aspectVectorOpacity,
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams, realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, lighthouseScale, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, taxiStandScale, taxiStandOpacity, taxiStandZ, portGlow, schoolScale, schoolLevelColor, eduSchoolsOpacity, eduDistrictK12Opacity, eduChildcareOpacity, eduChildcareScale, newsScale, metroPillarVisible, floodMinDepth, waterFloodOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, typhoonTracksOpacity, typhoonSource, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, 
-    policeStationOpacity, policeStationScale, womenChildWarningOpacity, womenChildWarningScale,
-    speedCameraOpacity, speedCameraScale, speedZoneSegmentOpacity, speedZoneSegmentWidth,
-    courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
-    correctionalFacilityOpacity, correctionalFacilityScale, courtJurisdictionOpacity,
-    aquaculturePondsOpacity, aquacultureZoneOpacity, aquacultureCageNetOpacity,
-    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, aquacultureWaterSatelliteMoaOpacity, aquacultureIntegratedOpacity, 
+  }), [migratedOverlayParams, realEstateOpacity, realEstateExcludeTaipei, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, lighthouseScale, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, taxiStandScale, taxiStandOpacity, taxiStandZ, portGlow, schoolScale, schoolLevelColor, eduSchoolsOpacity, eduDistrictK12Opacity, eduChildcareOpacity, eduChildcareScale, newsScale, metroPillarVisible, floodMinDepth, waterFloodOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, typhoonTracksOpacity, typhoonSource, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, 
+    
+    
+    
+    
+    
+    aquacultureWaterSatelliteOpacity, aquacultureWaterSatelliteConfidence, aquacultureWaterSatelliteMoaOpacity, 
     aquacultureWaterSatelliteMoaShowConfirmed, aquacultureWaterSatelliteMoaShowSolar, aquacultureWaterSatelliteMoaShowOther,
     aquacultureWaterUnionOpacity, aquacultureWaterUnionShowBoth, aquacultureWaterUnionShowMoaOnly, aquacultureWaterUnionShowOsmOnly,
     streetTreesTaipeiDiffOpacity, streetTreesTaipeiDiffStatus, streetTreesTaipeiDiffRadius, streetTreesTaipeiDiffColorMode,
@@ -1092,7 +992,7 @@ export function useTransportParams() {
     culturalFacilitiesOpacity, culturalFacilitiesRadius, culturalFacilitiesType,
     culturalMuseumsOpacity, culturalMuseumsRadius, culturalMuseumsType,
     artsEventsOpacity, artsEventsRadius, artsEventsStatus,
-    performingVenuesOpacity, performingVenuesRadius,
+    
     streetTreesTaipei3epochOpacity, streetTreesTaipei3epochRadius, streetTreesTaipei3epochColorMode, streetTreesTaipei3epochTrajFilter,
     streetTreesNationalOpacity, streetTreesNationalRadius, streetTreesNationalColorMode, streetTreesNationalCity,
     treePitsTaipeiOpacity, treePitsTaipeiType,
@@ -1102,11 +1002,11 @@ export function useTransportParams() {
     urbanZoningTaipeiOpacity, urbanZoningTaipeiCategory,
     urbanZoningNewTaipeiOpacity, urbanZoningNewTaipeiCategory,
     nonUrbanZoningOpacity, nonUrbanZoningCode,
-    crimeAreaMonthlyOpacity, theftTaoyuanOpacity, theftTaoyuanScale,
-    trafficAccidentYearlyOpacity, trafficAccidentYearlyScale, accidentTaipeiOpacity, accidentTaipeiScale,
-    a1AccidentRealtimeOpacity, a1AccidentRealtimeScale, investigationBureauOpacity, investigationBureauScale,
-    antiCorruptionOfficeOpacity, antiCorruptionOfficeScale, immigrationOfficeOpacity, immigrationOfficeScale,
-    coastGuardStationOpacity, coastGuardStationScale, civilDefenseShelterOpacity, civilDefenseShelterScale,
+    
+    
+    
+    
+    
     policeIsoSubstationOpacity, policeIsoSubstationMode, policeIsoSubstationMinutes,
     policeIsoPrecinctOpacity, policeIsoPrecinctMode, policeIsoPrecinctMinutes,
     policeIsoCityDeptOpacity, policeIsoCityDeptMode, policeIsoCityDeptMinutes,
@@ -1114,14 +1014,14 @@ export function useTransportParams() {
     pollutionPenaltyOpacity, pollutionPenaltyScale,
     pollutionSiteOpacity, pollutionSiteScale,
     tourAttractionsOpacity, tourAttractionsScale, tourAttractionsMode,
-    tourHotSpringsOpacity, tourHotSpringsScale, tourHotSpringZonesOpacity, tourScenicAreasOpacity,
-    tourHeritageOpacity, tourHeritageScale,
+    
+    
     // 宗教 6 ＋ 殯葬 5 的 27 項 deps 已遷出 —— 整組收斂成首項的 migratedOverlayParams
     tourEventsOpacity, tourEventsScale, tourEventsStatus,
-    tourFactoriesOpacity, tourFactoriesScale, tourAmusementParksOpacity, tourAmusementParksScale,
-    tourCampingOpacity, tourCampingScale,
+    
+    
     tourHotelsOpacity, tourHotelsScale, tourHotelsClass,
-    tourRestaurantsOpacity, tourRestaurantsScale,
+    
     aqiMicroModeIdx, urbanHeatModeIdx, urbanHeatOpacity]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
@@ -1738,34 +1638,10 @@ export function useTransportParams() {
         { label: `大小 ${mountainRescueIncidentsScale.toFixed(2)}`, value: mountainRescueIncidentsScale, min: 0.3, max: 3, step: 0.1, onChange: setMountainRescueIncidentsScale },
       ];
       // ── Base map（6 layer：3 boundary + 2 contour + 1 road）──
-      case "countyBoundary": return [
-        { label: `寬度 ${countyBoundaryWidth.toFixed(1)}`, value: countyBoundaryWidth, min: 0.3, max: 4, step: 0.1, onChange: setCountyBoundaryWidth },
-        { label: `透明度 ${countyBoundaryOpacity.toFixed(2)}`, value: countyBoundaryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCountyBoundaryOpacity },
-      ];
-      case "townshipBoundary": return [
-        { label: `寬度 ${townshipBoundaryWidth.toFixed(1)}`, value: townshipBoundaryWidth, min: 0.3, max: 4, step: 0.1, onChange: setTownshipBoundaryWidth },
-        { label: `透明度 ${townshipBoundaryOpacity.toFixed(2)}`, value: townshipBoundaryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTownshipBoundaryOpacity },
-      ];
-      case "villageBoundary": return [
-        { label: `寬度 ${villageBoundaryWidth.toFixed(1)}`, value: villageBoundaryWidth, min: 0.3, max: 4, step: 0.1, onChange: setVillageBoundaryWidth },
-        { label: `透明度 ${villageBoundaryOpacity.toFixed(2)}`, value: villageBoundaryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setVillageBoundaryOpacity },
-      ];
-      case "contour25k": return [
-        { label: `寬度 ${contour25kWidth.toFixed(1)}`, value: contour25kWidth, min: 0.3, max: 3, step: 0.1, onChange: setContour25kWidth },
-        { label: `透明度 ${contour25kOpacity.toFixed(2)}`, value: contour25kOpacity, min: 0.1, max: 1, step: 0.05, onChange: setContour25kOpacity },
-      ];
-      case "contourDtm20": return [
-        { label: `寬度 ${contourDtm20Width.toFixed(1)}`, value: contourDtm20Width, min: 0.3, max: 3, step: 0.1, onChange: setContourDtm20Width },
-        { label: `透明度 ${contourDtm20Opacity.toFixed(2)}`, value: contourDtm20Opacity, min: 0.1, max: 1, step: 0.05, onChange: setContourDtm20Opacity },
-      ];
       case "osmRoadDrive": return [
         { label: `全台顯示 ${osmRoadDriveZ5Reveal === 0 ? "關" : osmRoadDriveZ5Reveal.toFixed(2)}`, value: osmRoadDriveZ5Reveal, min: 0, max: 1, step: 0.1, onChange: setOsmRoadDriveZ5Reveal },
         { label: `寬度 ${osmRoadDriveWidth.toFixed(1)}`, value: osmRoadDriveWidth, min: 0.3, max: 4, step: 0.1, onChange: setOsmRoadDriveWidth },
         { label: `透明度 ${osmRoadDriveOpacity.toFixed(2)}`, value: osmRoadDriveOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmRoadDriveOpacity },
-      ];
-      case "osmExpressway": return [
-        { label: `寬度 ${osmExpresswayWidth.toFixed(1)}`, value: osmExpresswayWidth, min: 0.5, max: 5, step: 0.1, onChange: setOsmExpresswayWidth },
-        { label: `透明度 ${osmExpresswayOpacity.toFixed(2)}`, value: osmExpresswayOpacity, min: 0.1, max: 1, step: 0.05, onChange: setOsmExpresswayOpacity },
       ];
       case "hillshade": return [
         { label: `透明度 ${hillshadeOpacity.toFixed(2)}`, value: hillshadeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setHillshadeOpacity },
@@ -1787,46 +1663,6 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "排除雙北重繪", value: realEstateExcludeTaipei, onChange: setRealEstateExcludeTaipei },
       ];
       // ── 警政司法民防 17 layer ──
-      case "policeStation": return [
-        { label: `大小 ${policeStationScale.toFixed(1)}`, value: policeStationScale, min: 0.3, max: 3, step: 0.1, onChange: setPoliceStationScale },
-        { label: `透明度 ${policeStationOpacity.toFixed(2)}`, value: policeStationOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPoliceStationOpacity },
-      ];
-      case "womenChildWarning": return [
-        { label: `大小 ${womenChildWarningScale.toFixed(1)}`, value: womenChildWarningScale, min: 0.3, max: 3, step: 0.1, onChange: setWomenChildWarningScale },
-        { label: `透明度 ${womenChildWarningOpacity.toFixed(2)}`, value: womenChildWarningOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWomenChildWarningOpacity },
-      ];
-      case "speedCamera": return [
-        { label: `大小 ${speedCameraScale.toFixed(1)}`, value: speedCameraScale, min: 0.3, max: 3, step: 0.1, onChange: setSpeedCameraScale },
-        { label: `透明度 ${speedCameraOpacity.toFixed(2)}`, value: speedCameraOpacity, min: 0.1, max: 1, step: 0.05, onChange: setSpeedCameraOpacity },
-      ];
-      case "speedZoneSegment": return [
-        { label: `線寬 ${speedZoneSegmentWidth.toFixed(1)}`, value: speedZoneSegmentWidth, min: 0.3, max: 5, step: 0.1, onChange: setSpeedZoneSegmentWidth },
-        { label: `透明度 ${speedZoneSegmentOpacity.toFixed(2)}`, value: speedZoneSegmentOpacity, min: 0.1, max: 1, step: 0.05, onChange: setSpeedZoneSegmentOpacity },
-      ];
-      case "court": return [
-        { label: `大小 ${courtScale.toFixed(1)}`, value: courtScale, min: 0.3, max: 3, step: 0.1, onChange: setCourtScale },
-        { label: `透明度 ${courtOpacity.toFixed(2)}`, value: courtOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCourtOpacity },
-      ];
-      case "prosecutorsOffice": return [
-        { label: `大小 ${prosecutorsOfficeScale.toFixed(1)}`, value: prosecutorsOfficeScale, min: 0.3, max: 3, step: 0.1, onChange: setProsecutorsOfficeScale },
-        { label: `透明度 ${prosecutorsOfficeOpacity.toFixed(2)}`, value: prosecutorsOfficeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setProsecutorsOfficeOpacity },
-      ];
-      case "correctionalFacility": return [
-        { label: `大小 ${correctionalFacilityScale.toFixed(1)}`, value: correctionalFacilityScale, min: 0.3, max: 3, step: 0.1, onChange: setCorrectionalFacilityScale },
-        { label: `透明度 ${correctionalFacilityOpacity.toFixed(2)}`, value: correctionalFacilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCorrectionalFacilityOpacity },
-      ];
-      case "courtJurisdiction": return [
-        { label: `填色透明度 ${courtJurisdictionOpacity.toFixed(2)}`, value: courtJurisdictionOpacity, min: 0, max: 0.6, step: 0.02, onChange: setCourtJurisdictionOpacity },
-      ];
-      case "aquaculturePonds": return [
-        { label: `填色透明度 ${aquaculturePondsOpacity.toFixed(2)}`, value: aquaculturePondsOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquaculturePondsOpacity },
-      ];
-      case "aquacultureZone": return [
-        { label: `填色透明度 ${aquacultureZoneOpacity.toFixed(2)}`, value: aquacultureZoneOpacity, min: 0, max: 0.7, step: 0.05, onChange: setAquacultureZoneOpacity },
-      ];
-      case "aquacultureCageNet": return [
-        { label: `填色透明度 ${aquacultureCageNetOpacity.toFixed(2)}`, value: aquacultureCageNetOpacity, min: 0, max: 0.7, step: 0.05, onChange: setAquacultureCageNetOpacity },
-      ];
       case "aquacultureWaterSatellite": return [
         { type: "select" as const, label: "信心", value: aquacultureWaterSatelliteConfidence, options: [{ label: "全部", value: "all" }, { label: "含蓄水池", value: "reservoir" }, { label: "只確定", value: "certain" }], onChange: setAquacultureWaterSatelliteConfidence },
         { label: `填色透明度 ${aquacultureWaterSatelliteOpacity.toFixed(2)}`, value: aquacultureWaterSatelliteOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureWaterSatelliteOpacity },
@@ -1842,9 +1678,6 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "兩版都有 Both", value: aquacultureWaterUnionShowBoth, onChange: setAquacultureWaterUnionShowBoth },
         { type: "toggle" as const, label: "只官方 MOA", value: aquacultureWaterUnionShowMoaOnly, onChange: setAquacultureWaterUnionShowMoaOnly },
         { type: "toggle" as const, label: "只舊版 OSM", value: aquacultureWaterUnionShowOsmOnly, onChange: setAquacultureWaterUnionShowOsmOnly },
-      ];
-      case "aquacultureIntegrated": return [
-        { label: `填色透明度 ${aquacultureIntegratedOpacity.toFixed(2)}`, value: aquacultureIntegratedOpacity, min: 0, max: 0.85, step: 0.05, onChange: setAquacultureIntegratedOpacity },
       ];
       case "streetTreesTaipeiDiff": return [
         { type: "select" as const, label: "染色模式", value: streetTreesTaipeiDiffColorMode, options: [{ label: "依狀態", value: "status" }, { label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }], onChange: setStreetTreesTaipeiDiffColorMode },
@@ -1883,29 +1716,11 @@ export function useTransportParams() {
         { label: `透明度 ${artsEventsOpacity.toFixed(2)}`, value: artsEventsOpacity, min: 0, max: 1, step: 0.05, onChange: setArtsEventsOpacity },
         { label: `點位大小 ${artsEventsRadius.toFixed(2)}`, value: artsEventsRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setArtsEventsRadius },
       ];
-      case "performingVenues": return [
-        { label: `透明度 ${performingVenuesOpacity.toFixed(2)}`, value: performingVenuesOpacity, min: 0, max: 1, step: 0.05, onChange: setPerformingVenuesOpacity },
-        { label: `點位大小 ${performingVenuesRadius.toFixed(2)}`, value: performingVenuesRadius, min: 0.5, max: 3.0, step: 0.25, onChange: setPerformingVenuesRadius },
-      ];
       // 🧳 觀光 Tourism 12 層
       case "tourAttractions": return [
         { type: "select" as const, label: "著色模式", value: tourAttractionsMode, options: [{ label: "分類", value: "category" }, { label: "熱度", value: "heat" }], onChange: setTourAttractionsMode },
         { label: `透明度 ${tourAttractionsOpacity.toFixed(2)}`, value: tourAttractionsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourAttractionsOpacity },
         { label: `大小 ${tourAttractionsScale.toFixed(1)}`, value: tourAttractionsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourAttractionsScale },
-      ];
-      case "tourHotSprings": return [
-        { label: `透明度 ${tourHotSpringsOpacity.toFixed(2)}`, value: tourHotSpringsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHotSpringsOpacity },
-        { label: `大小 ${tourHotSpringsScale.toFixed(1)}`, value: tourHotSpringsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHotSpringsScale },
-      ];
-      case "tourHotSpringZones": return [
-        { label: `透明度 ${tourHotSpringZonesOpacity.toFixed(2)}`, value: tourHotSpringZonesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHotSpringZonesOpacity },
-      ];
-      case "tourScenicAreas": return [
-        { label: `透明度 ${tourScenicAreasOpacity.toFixed(2)}`, value: tourScenicAreasOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourScenicAreasOpacity },
-      ];
-      case "tourHeritage": return [
-        { label: `透明度 ${tourHeritageOpacity.toFixed(2)}`, value: tourHeritageOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHeritageOpacity },
-        { label: `大小 ${tourHeritageScale.toFixed(1)}`, value: tourHeritageScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHeritageScale },
       ];
       // 🛕 宗教 6 層 ＋ ⚰️ 殯葬 5 層的 case 已遷出（AR-22 P3-1 試點）——
       //    上方的 buildParamControls 分岔會在進到 switch 之前就接手。
@@ -1914,26 +1729,10 @@ export function useTransportParams() {
         { label: `透明度 ${tourEventsOpacity.toFixed(2)}`, value: tourEventsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourEventsOpacity },
         { label: `大小 ${tourEventsScale.toFixed(1)}`, value: tourEventsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourEventsScale },
       ];
-      case "tourFactories": return [
-        { label: `透明度 ${tourFactoriesOpacity.toFixed(2)}`, value: tourFactoriesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourFactoriesOpacity },
-        { label: `大小 ${tourFactoriesScale.toFixed(1)}`, value: tourFactoriesScale, min: 0.3, max: 3, step: 0.1, onChange: setTourFactoriesScale },
-      ];
-      case "tourAmusementParks": return [
-        { label: `透明度 ${tourAmusementParksOpacity.toFixed(2)}`, value: tourAmusementParksOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourAmusementParksOpacity },
-        { label: `大小 ${tourAmusementParksScale.toFixed(1)}`, value: tourAmusementParksScale, min: 0.3, max: 3, step: 0.1, onChange: setTourAmusementParksScale },
-      ];
-      case "tourCamping": return [
-        { label: `透明度 ${tourCampingOpacity.toFixed(2)}`, value: tourCampingOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourCampingOpacity },
-        { label: `大小 ${tourCampingScale.toFixed(1)}`, value: tourCampingScale, min: 0.3, max: 3, step: 0.1, onChange: setTourCampingScale },
-      ];
       case "tourHotels": return [
         { type: "select" as const, label: "類別", value: tourHotelsClass, options: [{ label: "全部", value: "all" }, { label: "國際觀光旅館", value: "1" }, { label: "一般觀光旅館", value: "2" }, { label: "旅館", value: "3" }, { label: "民宿", value: "4" }], onChange: setTourHotelsClass },
         { label: `透明度 ${tourHotelsOpacity.toFixed(2)}`, value: tourHotelsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHotelsOpacity },
         { label: `大小 ${tourHotelsScale.toFixed(1)}`, value: tourHotelsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHotelsScale },
-      ];
-      case "tourRestaurants": return [
-        { label: `透明度 ${tourRestaurantsOpacity.toFixed(2)}`, value: tourRestaurantsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourRestaurantsOpacity },
-        { label: `大小 ${tourRestaurantsScale.toFixed(1)}`, value: tourRestaurantsScale, min: 0.3, max: 3, step: 0.1, onChange: setTourRestaurantsScale },
       ];
       case "streetTreesTaipei3epoch": return [
         { type: "select" as const, label: "染色模式", value: streetTreesTaipei3epochColorMode, options: [{ label: "依軌跡", value: "traj" }, { label: "依樹種", value: "species" }, { label: "依胸徑", value: "diameter" }, { label: "依樹高", value: "height" }], onChange: setStreetTreesTaipei3epochColorMode },
@@ -1996,45 +1795,6 @@ export function useTransportParams() {
       case "urbanZoningNewTaipei": return [
         { type: "select" as const, label: "分區", value: urbanZoningNewTaipeiCategory, options: [{ label: "全部", value: "all" }, ...URBAN_ZONING_CATEGORIES.map((c) => ({ label: c.label, value: c.value }))], onChange: setUrbanZoningNewTaipeiCategory },
         { label: `填色透明度 ${urbanZoningNewTaipeiOpacity.toFixed(2)}`, value: urbanZoningNewTaipeiOpacity, min: 0, max: 1, step: 0.05, onChange: setUrbanZoningNewTaipeiOpacity },
-      ];
-      case "crimeAreaMonthly": return [
-        { label: `填色透明度 ${crimeAreaMonthlyOpacity.toFixed(2)}`, value: crimeAreaMonthlyOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setCrimeAreaMonthlyOpacity },
-      ];
-      case "theftTaoyuan": return [
-        { label: `大小 ${theftTaoyuanScale.toFixed(1)}`, value: theftTaoyuanScale, min: 0.3, max: 3, step: 0.1, onChange: setTheftTaoyuanScale },
-        { label: `透明度 ${theftTaoyuanOpacity.toFixed(2)}`, value: theftTaoyuanOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTheftTaoyuanOpacity },
-      ];
-      case "trafficAccidentYearly": return [
-        { label: `大小 ${trafficAccidentYearlyScale.toFixed(1)}`, value: trafficAccidentYearlyScale, min: 0.3, max: 3, step: 0.1, onChange: setTrafficAccidentYearlyScale },
-        { label: `透明度 ${trafficAccidentYearlyOpacity.toFixed(2)}`, value: trafficAccidentYearlyOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTrafficAccidentYearlyOpacity },
-      ];
-      case "accidentTaipei": return [
-        { label: `大小 ${accidentTaipeiScale.toFixed(1)}`, value: accidentTaipeiScale, min: 0.3, max: 3, step: 0.1, onChange: setAccidentTaipeiScale },
-        { label: `透明度 ${accidentTaipeiOpacity.toFixed(2)}`, value: accidentTaipeiOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAccidentTaipeiOpacity },
-      ];
-      case "a1AccidentRealtime": return [
-        { label: `大小 ${a1AccidentRealtimeScale.toFixed(1)}`, value: a1AccidentRealtimeScale, min: 0.3, max: 3, step: 0.1, onChange: setA1AccidentRealtimeScale },
-        { label: `透明度 ${a1AccidentRealtimeOpacity.toFixed(2)}`, value: a1AccidentRealtimeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setA1AccidentRealtimeOpacity },
-      ];
-      case "investigationBureau": return [
-        { label: `大小 ${investigationBureauScale.toFixed(1)}`, value: investigationBureauScale, min: 0.3, max: 3, step: 0.1, onChange: setInvestigationBureauScale },
-        { label: `透明度 ${investigationBureauOpacity.toFixed(2)}`, value: investigationBureauOpacity, min: 0.1, max: 1, step: 0.05, onChange: setInvestigationBureauOpacity },
-      ];
-      case "antiCorruptionOffice": return [
-        { label: `大小 ${antiCorruptionOfficeScale.toFixed(1)}`, value: antiCorruptionOfficeScale, min: 0.3, max: 3, step: 0.1, onChange: setAntiCorruptionOfficeScale },
-        { label: `透明度 ${antiCorruptionOfficeOpacity.toFixed(2)}`, value: antiCorruptionOfficeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAntiCorruptionOfficeOpacity },
-      ];
-      case "immigrationOffice": return [
-        { label: `大小 ${immigrationOfficeScale.toFixed(1)}`, value: immigrationOfficeScale, min: 0.3, max: 3, step: 0.1, onChange: setImmigrationOfficeScale },
-        { label: `透明度 ${immigrationOfficeOpacity.toFixed(2)}`, value: immigrationOfficeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setImmigrationOfficeOpacity },
-      ];
-      case "coastGuardStation": return [
-        { label: `大小 ${coastGuardStationScale.toFixed(1)}`, value: coastGuardStationScale, min: 0.3, max: 3, step: 0.1, onChange: setCoastGuardStationScale },
-        { label: `透明度 ${coastGuardStationOpacity.toFixed(2)}`, value: coastGuardStationOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCoastGuardStationOpacity },
-      ];
-      case "civilDefenseShelter": return [
-        { label: `大小 ${civilDefenseShelterScale.toFixed(1)}`, value: civilDefenseShelterScale, min: 0.3, max: 3, step: 0.1, onChange: setCivilDefenseShelterScale },
-        { label: `透明度 ${civilDefenseShelterOpacity.toFixed(2)}`, value: civilDefenseShelterOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCivilDefenseShelterOpacity },
       ];
       // ── 警察覆蓋分析 isochrone（每 layer 含 mode + minutes select）──
       case "policeIsoSubstation": return [

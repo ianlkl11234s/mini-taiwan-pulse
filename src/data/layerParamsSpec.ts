@@ -628,6 +628,129 @@ export const LAYER_PARAMS_SPEC = {
   ],
   evChargingStations: [opacitySlider("evChargingOpacity", 0.8)],
   nuclearRadiation: [scaleSlider("nuclearScale", 1.0), opacitySlider("nuclearOpacity", 0.9)],
+
+  // ══════════ 邊界地形・執法治安・養殖・觀光 ══════════
+  countyBoundary: [
+    { kind: "slider", name: "countyBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("countyBoundaryOpacity", 0.85),
+  ],
+  townshipBoundary: [
+    { kind: "slider", name: "townshipBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("townshipBoundaryOpacity", 0.75),
+  ],
+  villageBoundary: [
+    { kind: "slider", name: "villageBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("villageBoundaryOpacity", 0.65),
+  ],
+  contour25k: [
+    { kind: "slider", name: "contour25kWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("contour25kOpacity", 0.7),
+  ],
+  contourDtm20: [
+    { kind: "slider", name: "contourDtm20Width", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("contourDtm20Opacity", 0.55),
+  ],
+  osmExpressway: [
+    { kind: "slider", name: "osmExpresswayWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.5, max: 5, step: 0.1 },
+    opacitySlider("osmExpresswayOpacity", 0.9),
+  ],
+  policeStation: [
+    scaleSlider("policeStationScale", 1),
+    opacitySlider("policeStationOpacity", 0.85),
+  ],
+  womenChildWarning: [
+    scaleSlider("womenChildWarningScale", 1),
+    opacitySlider("womenChildWarningOpacity", 0.9),
+  ],
+  speedCamera: [scaleSlider("speedCameraScale", 1), opacitySlider("speedCameraOpacity", 0.85)],
+  speedZoneSegment: [
+    { kind: "slider", name: "speedZoneSegmentWidth", labelPrefix: "線寬", digits: 1, default: 1, min: 0.3, max: 5, step: 0.1 },
+    opacitySlider("speedZoneSegmentOpacity", 0.85),
+  ],
+  court: [scaleSlider("courtScale", 1), opacitySlider("courtOpacity", 0.9)],
+  prosecutorsOffice: [
+    scaleSlider("prosecutorsOfficeScale", 1),
+    opacitySlider("prosecutorsOfficeOpacity", 0.9),
+  ],
+  correctionalFacility: [
+    scaleSlider("correctionalFacilityScale", 1),
+    opacitySlider("correctionalFacilityOpacity", 0.9),
+  ],
+  courtJurisdiction: [
+    { kind: "slider", name: "courtJurisdictionOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.18, min: 0, max: 0.6, step: 0.02 },
+  ],
+  crimeAreaMonthly: [
+    { kind: "slider", name: "crimeAreaMonthlyOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.55, min: 0.1, max: 0.9, step: 0.05 },
+  ],
+  theftTaoyuan: [scaleSlider("theftTaoyuanScale", 1), opacitySlider("theftTaoyuanOpacity", 0.8)],
+  trafficAccidentYearly: [
+    scaleSlider("trafficAccidentYearlyScale", 1),
+    opacitySlider("trafficAccidentYearlyOpacity", 0.85),
+  ],
+  accidentTaipei: [
+    scaleSlider("accidentTaipeiScale", 1),
+    opacitySlider("accidentTaipeiOpacity", 0.7),
+  ],
+  a1AccidentRealtime: [
+    scaleSlider("a1AccidentRealtimeScale", 1),
+    opacitySlider("a1AccidentRealtimeOpacity", 0.95),
+  ],
+  investigationBureau: [
+    scaleSlider("investigationBureauScale", 1),
+    opacitySlider("investigationBureauOpacity", 0.9),
+  ],
+  antiCorruptionOffice: [
+    scaleSlider("antiCorruptionOfficeScale", 1),
+    opacitySlider("antiCorruptionOfficeOpacity", 0.9),
+  ],
+  immigrationOffice: [
+    scaleSlider("immigrationOfficeScale", 1),
+    opacitySlider("immigrationOfficeOpacity", 0.9),
+  ],
+  coastGuardStation: [
+    scaleSlider("coastGuardStationScale", 1),
+    opacitySlider("coastGuardStationOpacity", 0.85),
+  ],
+  civilDefenseShelter: [
+    scaleSlider("civilDefenseShelterScale", 1),
+    opacitySlider("civilDefenseShelterOpacity", 0.7),
+  ],
+  aquaculturePonds: [
+    { kind: "slider", name: "aquaculturePondsOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 0.85, step: 0.05 },
+  ],
+  aquacultureZone: [
+    { kind: "slider", name: "aquacultureZoneOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.35, min: 0, max: 0.7, step: 0.05 },
+  ],
+  aquacultureCageNet: [
+    { kind: "slider", name: "aquacultureCageNetOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.4, min: 0, max: 0.7, step: 0.05 },
+  ],
+  aquacultureIntegrated: [
+    { kind: "slider", name: "aquacultureIntegratedOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.6, min: 0, max: 0.85, step: 0.05 },
+  ],
+  performingVenues: [
+    { kind: "slider", name: "performingVenuesOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "performingVenuesRadius", labelPrefix: "點位大小", digits: 2, default: 1, min: 0.5, max: 3.0, step: 0.25 },
+  ],
+  tourHotSprings: [
+    opacitySlider("tourHotSpringsOpacity", 0.85),
+    scaleSlider("tourHotSpringsScale", 1),
+  ],
+  tourHotSpringZones: [opacitySlider("tourHotSpringZonesOpacity", 0.5)],
+  tourScenicAreas: [opacitySlider("tourScenicAreasOpacity", 0.5)],
+  tourHeritage: [opacitySlider("tourHeritageOpacity", 0.85), scaleSlider("tourHeritageScale", 1)],
+  tourFactories: [
+    opacitySlider("tourFactoriesOpacity", 0.85),
+    scaleSlider("tourFactoriesScale", 1),
+  ],
+  tourAmusementParks: [
+    opacitySlider("tourAmusementParksOpacity", 0.85),
+    scaleSlider("tourAmusementParksScale", 1),
+  ],
+  tourCamping: [opacitySlider("tourCampingOpacity", 0.85), scaleSlider("tourCampingScale", 1)],
+  tourRestaurants: [
+    opacitySlider("tourRestaurantsOpacity", 0.85),
+    scaleSlider("tourRestaurantsScale", 1),
+  ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**
