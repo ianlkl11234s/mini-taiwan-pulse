@@ -3,7 +3,8 @@ import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
-  BarChart3, Users, AlertTriangle, CloudSun, Wind,
+  // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
+  BarChart3, AlertTriangle, CloudSun, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol, Thermometer, Grid3x3,
   Store, Play, Cable, Radio, Mountain,
@@ -90,11 +91,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   aviationRestricted: Hexagon,
   droneNoFlyZone: Ban,
   droneRestrictedZone: AlertTriangle,
-  h3Population: Activity,
-  popCount: Users,
-  indicators: BarChart3,
-  socioeconomic: BarChart3,
-  spatialEconomy: Store,
   freewayCongestion: AlertTriangle,
   weatherStations: CloudSun,
   windPlan: Wind,
@@ -103,7 +99,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   urbanHeat: ThermometerSun,
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
   activeFaults: Mountain,
-  youbikeFullness: Bike,
   earthquakes: Activity,
   earthquakeReplay: Rewind,
   mountainRescueIncidents: Mountain,

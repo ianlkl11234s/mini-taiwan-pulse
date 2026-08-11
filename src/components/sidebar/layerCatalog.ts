@@ -63,18 +63,12 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   freewayCongestion: "#ef5350",
   roadCongestion: "#fb923c",
   weatherStations: "#4dd0e1",
-  h3Population: "#ff6b6b",
-  popCount: "#f9bd31",
-  indicators: "#e25822",
-  socioeconomic: "#7c4dff",
-  spatialEconomy: "#ff6e40",
   temperatureWave: "#ff6b35",
   temperatureGrid: "#f46d43",
   urbanHeat: "#b2182b",
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    它不在 EDUCATION_LAYER_COLORS 裡，色票是本表自己的字面值，隨 entry 一起搬走
   activeFaults: "#ef5350",
-  youbikeFullness: "#f57c00",
   earthquakes: "#ff3b30",
   earthquakeReplay: "#e11d48",
   mountainRescueIncidents: "#f2c94c",
@@ -515,22 +509,22 @@ export const THEMES: ThemeDef[] = [
       {
         title: "人口分布",
         layers: [
-          { key: "popCount", label: "人口數 Population", expandable: true },
-          { key: "h3Population", label: "人流模擬 Pop. Flow", expandable: true },
-          { key: "indicators", label: "人口指標 Indicators", expandable: true },
+          fromManifest("popCount"),
+          fromManifest("h3Population"),
+          fromManifest("indicators"),
         ],
       },
       {
         title: "社經",
         layers: [
-          { key: "socioeconomic", label: "社經面貌 Socio-Econ", expandable: true },
-          { key: "spatialEconomy", label: "空間經濟 Spatial-Econ", expandable: true },
+          fromManifest("socioeconomic"),
+          fromManifest("spatialEconomy"),
         ],
       },
       {
         title: "共享運具",
         layers: [
-          { key: "youbikeFullness", label: "YouBike 有車率 Fullness", expandable: true },
+          fromManifest("youbikeFullness"),
         ],
       },
     ],

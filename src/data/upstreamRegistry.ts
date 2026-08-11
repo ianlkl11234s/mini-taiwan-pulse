@@ -213,30 +213,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'road_event', confidence: 'HIGH' }],
   },
-  popCount: {
-    status: 'verified',
-    datasets: [{ datasetId: 'population', confidence: 'MED' }],
-  },
-  h3Population: {
-    status: 'verified',
-    datasets: [{ datasetId: 'population', confidence: 'MED' }],
-  },
-  indicators: {
-    status: 'verified',
-    datasets: [{ datasetId: 'county_indicators_yearly', confidence: 'MED' }],
-  },
-  socioeconomic: {
-    status: 'verified',
-    datasets: [{ datasetId: 'village_comprehensive_extended', confidence: 'LOW' }],
-  },
-  spatialEconomy: {
-    status: 'verified',
-    datasets: [{ datasetId: 'village_comprehensive_extended', confidence: 'LOW' }],
-  },
-  youbikeFullness: {
-    status: 'verified',
-    datasets: [{ datasetId: 'youbike_baselines', confidence: 'HIGH' }],
-  },
   weatherStations: {
     status: 'verified',
     datasets: [{ datasetId: 'weather', confidence: 'HIGH' }],

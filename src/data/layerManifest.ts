@@ -63,6 +63,8 @@ import {
   // 👮 執法治安（Timer / Sparkles / PlaneTakeoff / AlertCircle 已在上方 import 復用）
   ShieldAlert, AlertTriangle, Crosshair, Hexagon, Gavel, Scale, Lock, MapPinned,
   Search, Anchor,
+  // 👥 人口社經（Users / Activity / BarChart3 / Store 已在上方 import 復用）
+  Bike,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -3342,6 +3344,152 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "海洋委員會海巡署各級單位點位",
     topics: ["治安", "海巡", "POI"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 4 —— 人口社經 People 6 層（**全部 dataClass D**）
+  //  六層都走 H3 factory（demographicsLayerFactory / h3LayerFactory /
+  //  youbikeLayerFactory）：h3-js 把 H3 cell 現算成多邊形後手動
+  //  addSource/addLayer —— 沒有 OVERLAY_REGISTRY entry，所以 source 一律
+  //  `kind: "custom"`，真實來源記在 note（同批 1 已澄清的 D 定義）。
+  //  ⚠️ 不要因為「它們看起來像 polygon 圖層」就硬套 geojson/pmtiles 形狀。
+  //  全部無 popup（H3 格子沒有點擊接線），legend 2 層合法為 null。
+  // ══════════════════════════════════════════════════════════════
+  popCount: {
+    key: "popCount",
+    section: { theme: "人口社經 People", group: "人口分布" },
+    label: "人口數 Population",
+    expandable: true,
+    color: "#f9bd31",
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "population", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "demographicsLayerFactory 以 h3-js cellToBoundary 把 H3 cell 轉成多邊形後手動 addSource/addLayer（h3-pop-count-src / -fill / -ext）；資料走 h3Loader 的 Supabase RPC ＋本地 JSON fallback —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "popCount",
+    popup: null,
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
+    description: "H3 網格人口數（日間／夜間，可依年份回放）",
+    topics: ["人口", "H3", "統計"],
+  },
+
+  h3Population: {
+    key: "h3Population",
+    section: { theme: "人口社經 People", group: "人口分布" },
+    label: "人流模擬 Pop. Flow",
+    expandable: true,
+    color: "#ff6b6b",
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "population", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "h3LayerFactory 手動 addSource/addLayer（h3-population-fill / -ext），同樣是 H3 cell → polygon 現算 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 5, kinds: ["slider", "slider", "toggle", "slider", "select"] },
+    description: "H3 人流模擬（日夜人口差推估的移動量）",
+    topics: ["人口", "H3", "人流"],
+  },
+
+  indicators: {
+    key: "indicators",
+    section: { theme: "人口社經 People", group: "人口分布" },
+    label: "人口指標 Indicators",
+    expandable: true,
+    color: "#e25822",
+    icon: BarChart3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "county_indicators_yearly", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "demographicsLayerFactory（h3-indicators-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "indicators",
+    popup: null,
+    params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
+    description: "縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）",
+    topics: ["人口", "H3", "指標"],
+  },
+
+  socioeconomic: {
+    key: "socioeconomic",
+    section: { theme: "人口社經 People", group: "社經" },
+    label: "社經面貌 Socio-Econ",
+    expandable: true,
+    color: "#7c4dff",
+    icon: BarChart3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "village_comprehensive_extended", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "demographicsLayerFactory（h3-socio-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "socioeconomic",
+    popup: null,
+    params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
+    description: "村里社經面貌綜合指標（所得／教育／年齡結構）",
+    topics: ["社經", "H3", "村里"],
+  },
+
+  spatialEconomy: {
+    key: "spatialEconomy",
+    section: { theme: "人口社經 People", group: "社經" },
+    label: "空間經濟 Spatial-Econ",
+    expandable: true,
+    color: "#ff6e40",
+    icon: Store,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "village_comprehensive_extended", confidence: "LOW" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "demographicsLayerFactory（h3-spatial-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "spatialEconomy",
+    popup: null,
+    params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
+    description: "村里空間經濟指標（產業家數／營業額分布）",
+    topics: ["社經", "H3", "產業"],
+  },
+
+  youbikeFullness: {
+    key: "youbikeFullness",
+    section: { theme: "人口社經 People", group: "共享運具" },
+    label: "YouBike 有車率 Fullness",
+    expandable: true,
+    color: "#f57c00",
+    icon: Bike,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "youbike_baselines", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "youbikeLayerFactory 手動 addSource/addLayer（h3-youbike-fill / -ext）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
+    description: "YouBike 站點有車率的 H3 聚合（共享運具供給熱區）",
+    topics: ["共享運具", "H3", "即時"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
