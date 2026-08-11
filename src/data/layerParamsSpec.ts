@@ -206,6 +206,17 @@ function scaleSlider(name: string, def: number): SliderParamSpec {
   };
 }
 
+/**
+ * 「Z 漂浮 NNpx」滑桿 —— 交通/設施點層把符號抬離地面的共同控件（P3-2C 落地 7 層）。
+ * 七層的 min/max/step/default 逐字相同，只有參數名不同。
+ */
+function zFloatSlider(name: string): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "Z 漂浮", digits: 0, labelSuffix: "px",
+    default: 0, min: 0, max: 100, step: 2,
+  };
+}
+
 const REGISTRY_ENCODE = REGISTRY_MODES.map((m) => m.value);
 const PRECISION_ENCODE = PRECISION_MODES.map((m) => m.value);
 
@@ -1197,6 +1208,95 @@ export const LAYER_PARAMS_SPEC = {
       out: "urbanZoningNewTaipeiCategoryIdx", encode: ["all", ...URBAN_ZONING_CATEGORIES.map((c) => c.value)],
     },
     { kind: "slider", name: "urbanZoningNewTaipeiOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 1, step: 0.05 },
+  ],
+  // ══════════ P3-2C 群1：labelSuffix ／ 整數內插 14 層 ══════════
+  //
+  // 這批退回 C 的唯一理由是 label 的**尾巴**：`…px` / `…×` / `… min`。
+  // 加了 `labelSuffix` 之後形狀就與 A 桶純 slider 沒有差別。
+  //
+  // ⚠️ 「整數內插」（`粒子數 ${x}` / `保留 ${x} min` —— 原文沒有 `.toFixed`）
+  //    一律寫成 `digits: 0`：這三個控件的 min/max/step/default 全是整數
+  //    （粒子數 2000→50000 step 1000、保留 5→360 step 5），
+  //    滑桿產不出小數，`x.toFixed(0)` 與 `${x}` 逐字等價。
+  //    ——若日後有人把 step 改成小數，字串會從 "7.5" 變 "8"，屬於行為變更、
+  //    黃金快照會紅（它比的是預設值下的字串），不是靜默漂移。
+
+  // ── 交通/設施點層：大小 ＋ 透明度 ＋ Z 漂浮 ──
+  cctv: [
+    scaleSlider("cctvScale", 1),
+    opacitySlider("cctvOpacity", 0.7),
+    zFloatSlider("cctvZ"),
+  ],
+  fireHydrants: [
+    scaleSlider("fireHydrantsScale", 1),
+    opacitySlider("fireHydrantsOpacity", 0.7),
+    zFloatSlider("fireHydrantsZ"),
+  ],
+  etcGantry: [
+    scaleSlider("etcGantryScale", 1),
+    opacitySlider("etcGantryOpacity", 0.8),
+    zFloatSlider("etcGantryZ"),
+  ],
+  serviceArea: [
+    scaleSlider("serviceAreaScale", 1.4),
+    opacitySlider("serviceAreaOpacity", 0.85),
+    zFloatSlider("serviceAreaZ"),
+  ],
+  taxiStand: [
+    scaleSlider("taxiStandScale", 1),
+    opacitySlider("taxiStandOpacity", 0.8),
+    zFloatSlider("taxiStandZ"),
+  ],
+  agriculture: [
+    opacitySlider("agricultureOpacity", 1),
+    { kind: "slider", name: "agricultureOutlineWidth", labelPrefix: "邊框寬", digits: 1, default: 1, min: 0, max: 5, step: 0.1 },
+    { kind: "toggle", name: "agricultureShowOutline", label: "邊框 Outline", default: true },
+    zFloatSlider("agricultureZ"),
+  ],
+  wasteStopsStatic: [
+    // ⚠️ 大小是 2 位小數（不是 scaleSlider 的 1 位）—— 同名不同形，不可複用建構子
+    { kind: "slider", name: "wasteStopsStaticScale", labelPrefix: "大小", digits: 2, default: 1, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "wasteStopsStaticGlow", labelPrefix: "光暈", digits: 2, default: 0.1, min: 0, max: 0.5, step: 0.02 },
+    zFloatSlider("wasteStopsStaticZ"),
+  ],
+
+  // ── 能源 glow 三層：透明度 ＋ 倍率（label 尾巴是「×」）──
+  powerPlantGlow: [
+    opacitySlider("powerPlantGlowOpacity", 0.9),
+    { kind: "slider", name: "powerPlantGlowSize", labelPrefix: "大小", digits: 2, labelSuffix: "×", default: 1, min: 0.2, max: 3, step: 0.05 },
+  ],
+  substationEhvGlow: [
+    opacitySlider("substationEhvGlowOpacity", 0.9),
+    { kind: "slider", name: "substationEhvGlowSize", labelPrefix: "大小", digits: 2, labelSuffix: "×", default: 1, min: 0.2, max: 3, step: 0.05 },
+  ],
+  powerLinesGlow: [
+    opacitySlider("powerLinesGlowOpacity", 0.7),
+    { kind: "slider", name: "powerLinesGlowWidth", labelPrefix: "寬度", digits: 1, labelSuffix: "×", default: 2, min: 0.5, max: 5, step: 0.1 },
+  ],
+
+  // ── 氣候場兩層：透明度 min 是 0（不是 opacitySlider 的 0.1）→ 寫字面 ──
+  oceanCurrents: [
+    { kind: "slider", name: "oceanCurrentsOpacity", labelPrefix: "透明度", digits: 2, default: 0.65, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "oceanAnimationSpeed", labelPrefix: "動畫速度", digits: 1, labelSuffix: "×", default: 1, min: 0.2, max: 3, step: 0.1 },
+    { kind: "slider", name: "oceanParticleCount", labelPrefix: "粒子數", digits: 0, default: 12000, min: 2000, max: 50000, step: 1000 },
+    { kind: "slider", name: "oceanLineWidth", labelPrefix: "線寬", digits: 2, labelSuffix: "px", default: 1.05, min: 0.5, max: 1.5, step: 0.05 },
+  ],
+  windField: [
+    { kind: "slider", name: "windFieldOpacity", labelPrefix: "透明度", digits: 2, default: 0.8, min: 0, max: 1, step: 0.05 },
+    { kind: "slider", name: "windAnimationSpeed", labelPrefix: "動畫速度", digits: 1, labelSuffix: "×", default: 1, min: 0.2, max: 3, step: 0.1 },
+    // ⚠️ 粒子數上限 80000（海流是 50000）—— 兩層同構但不同值，別互相複製
+    { kind: "slider", name: "windParticleCount", labelPrefix: "粒子數", digits: 0, default: 12000, min: 2000, max: 80000, step: 1000 },
+    { kind: "slider", name: "windLineWidth", labelPrefix: "線寬", digits: 2, labelSuffix: "px", default: 1.15, min: 0.5, max: 1.5, step: 0.05 },
+  ],
+
+  // ── 落雷兩層：保留分鐘（整數內插 ＋ 後綴）在前、透明度在後 ──
+  lightningCwa: [
+    { kind: "slider", name: "lightningCwaMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
+    opacitySlider("lightningCwaOpacity", 0.85),
+  ],
+  lightning: [
+    { kind: "slider", name: "lightningMinutes", labelPrefix: "保留", digits: 0, labelSuffix: " min", default: 10, min: 5, max: 360, step: 5 },
+    opacitySlider("lightningOpacity", 0.85),
   ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 

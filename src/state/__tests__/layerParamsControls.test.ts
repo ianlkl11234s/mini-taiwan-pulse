@@ -15,8 +15,11 @@ import type { SelectConfig, SliderConfig, ToggleConfig } from "../../hooks/useTr
 beforeEach(() => layerParamsStore.reset());
 
 describe("buildParamControls", () => {
+  // ⚠️ 這裡的「未遷移 key」刻意取 `aqiStations`（`case "x": return []` 的
+  //    emptyByDesign 層）—— 規格檔沒有「宣告了但空陣列」這種形狀，所以它**永遠**
+  //    不會被遷走。原本寫的是 `cctv`，P3-2C 把它搬走後這三條就紅了。
   it("未遷移的 key 回 null（呼叫端據此 fallthrough 到既有 switch）", () => {
-    expect(buildParamControls("cctv")).toBeNull();
+    expect(buildParamControls("aqiStations")).toBeNull();
     expect(buildParamControls("religionTemples")).not.toBeNull();
   });
 
@@ -73,6 +76,23 @@ describe("buildParamControls", () => {
     sel.onChange("2021");
     // encode = ["all", 2019, 2020, 2021, …] → "2021" 是第 3 位
     expect(encodeParamsToOverlay(layerParamsStore.getAll())["mountainRescueIncidentsYearIdx"]).toBe(3);
+  });
+
+  // ── P3-2C 補：labelSuffix ＋ 整數內插（digits 0）在**非預設值**下的字串 ──
+  // 快照凍結的是預設值那一格（`保留 10 min` / `Z 漂浮 0px`），驗不到
+  // 「`digits: 0` 是不是真的等於原文的 `${x}`（無 toFixed）」。
+  it("labelSuffix 與整數內插：拖到非預設值時字串仍逐字相同", () => {
+    const min = (buildParamControls("lightning") ?? [])[0] as SliderConfig;
+    expect(min.label).toBe("保留 10 min");
+    min.onChange(45);
+    expect((buildParamControls("lightning") ?? [])[0]).toMatchObject({ label: "保留 45 min" });
+    // overlayParams 拿到的是原值（不是字串、也沒有被 toFixed 影響）
+    expect(encodeParamsToOverlay(layerParamsStore.getAll())["lightningMinutes"]).toBe(45);
+
+    const z = (buildParamControls("cctv") ?? [])[2] as SliderConfig;
+    expect(z.label).toBe("Z 漂浮 0px");
+    z.onChange(24);
+    expect((buildParamControls("cctv") ?? [])[2]).toMatchObject({ label: "Z 漂浮 24px" });
   });
 
   // ── P3-2B 補：共用 slot 的端對端行為（面板 A 拖動，面板 B 跟著動）──
