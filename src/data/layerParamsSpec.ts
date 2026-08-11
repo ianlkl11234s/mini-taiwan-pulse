@@ -50,6 +50,7 @@ import {
 } from "./urbanOpenSpaceTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "./cultureTypes";
 import { URBAN_FORM_GRID_MODES } from "./urbanFormGridTypes";
+import { MICRO_SENSOR_MODES } from "./microSensorTypes";
 import { URBAN_ZONING_CATEGORIES } from "./urbanZoningTypes";
 import { NON_URBAN_ZONING_CODES } from "./nonUrbanZoningTypes";
 import { CROP_SUITABILITY_CROPS } from "./cropSuitabilityCrops";
@@ -266,15 +267,12 @@ interface SelectParamSpecBase extends SharedSlotField, ConditionalField {
     /** 停用時補在該選項 label 後面的原因 */
     reason: string;
   };
-  /**
-   * overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` 多半**不同名**，故必填。
-   * `null` = 不進 overlayParams（見 `OverlayOutKey` 說明）。
-   */
-  out: OverlayOutKey;
 }
 
 /** 常態：state 存的是「第幾個選項」，paint 吃 index。 */
 export interface SelectIndexParamSpec extends SelectParamSpecBase {
+  /** overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` 多半**不同名**，故必填 */
+  out: string;
   /** value → index 的編碼順序 */
   encode: string[];
   encodeNumeric?: undefined;
@@ -293,11 +291,31 @@ export interface SelectIndexParamSpec extends SelectParamSpecBase {
  * `layerParamsControls.test.ts`。
  */
 export interface SelectNumericParamSpec extends SelectParamSpecBase {
+  out: string;
   encodeNumeric: true;
   encode?: undefined;
 }
 
-export type SelectParamSpec = SelectIndexParamSpec | SelectNumericParamSpec;
+/**
+ * ⚠️ 第二通道 select（`out: null`，P3-2D）：值走 hook 的 `return {}`，**不進 overlayParams**
+ * → 沒有「編碼」這件事，`encode` / `encodeNumeric` 兩欄型別上都不准宣告。
+ *
+ * 為什麼不讓它宣告一份「反正用不到」的 `encode`：留著死的編碼表正是本專案反覆記錄的
+ * 那類漂移 —— 哪天有人把這個參數改成也進 overlayParams，會直接沿用那張沒人驗過的表。
+ *
+ * 例：`earthquakes` 的 Mode（`"timeline"` / `"history"`，hook 端還原成 boolean
+ * `eqShowHistory`）、`plaActivity` 的疊加天數（hook 端 `Number(value)`）。
+ */
+export interface SelectNoOverlayParamSpec extends SelectParamSpecBase {
+  out: null;
+  encode?: undefined;
+  encodeNumeric?: undefined;
+}
+
+export type SelectParamSpec =
+  | SelectIndexParamSpec
+  | SelectNumericParamSpec
+  | SelectNoOverlayParamSpec;
 
 export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec;
 
@@ -360,6 +378,32 @@ function livestockFarm(key: keyof typeof FARM_HIGHLIGHT_OPTIONS): LayerParamSpec
       out: `${key}HighlightIdx`, encodeNumeric: true,
     },
   ];
+}
+
+/**
+ * 「Opacity x.xx」滑桿 ＋ 共用 slot ＋ 第二通道（P3-2D 群1）。
+ *
+ * NCDR 示警 5 群組與衛星 16 層各自**共用同一份值**（原本是一個 `useState` 被
+ * 5 / 16 個 `case` fall-through 共用），且值不進 overlayParams —— 兩層都是
+ * Three.js / CustomLayer 直接吃 hook 回傳的欄位。
+ *
+ * ⚠️ 每次呼叫回**新物件**：`sharedGroup` 的成員規格必須逐欄位相同（閘 1 用 toEqual 驗），
+ * 共用同一個物件 reference 反而會讓「誰改到誰」變得看不出來。
+ */
+function sharedReturnOpacity(name: string, group: string, def: number): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "Opacity", digits: 2,
+    default: def, min: 0, max: 1, step: 0.05,
+    sharedGroup: group, out: null,
+  };
+}
+/** NCDR 示警 5 群組共用的 `daOpacity` */
+function alertOpacity(): SliderParamSpec {
+  return sharedReturnOpacity("daOpacity", "daOpacity", 1.0);
+}
+/** 衛星 16 層共用的 `satOpacity` */
+function satelliteOpacity(): SliderParamSpec {
+  return sharedReturnOpacity("satOpacity", "satOpacity", 1.0);
 }
 
 const REGISTRY_ENCODE = REGISTRY_MODES.map((m) => m.value);
@@ -1629,6 +1673,153 @@ export const LAYER_PARAMS_SPEC = {
       showWhen: { param: "propertyValueGridExtruded", equals: true },
     },
   ],
+
+  // ══════════ D 桶群1：值走 hook return 的平鋪欄位（P3-2D）══════════
+  // 以下 34 個 key 的參數**不進 overlayParams**（`out: null`）或同時走兩條通道；
+  // 回傳路徑逐一宣告在 `hooks/__tests__/useTransportParamsReturn.test.ts`
+  // 的 `RETURN_CHANNEL`，那張表就是第二通道的文件。
+
+  // ── NCDR 示警 5 群組：單一 source、共用一支 opacity（分開調沒有意義）──
+  lifelineAlerts: [alertOpacity()],
+  floodAlerts: [alertOpacity()],
+  weatherAlerts: [alertOpacity()],
+  transitAlerts: [alertOpacity()],
+  safetyAlerts: [alertOpacity()],
+
+  // ── 衛星 16 個國別／系列層：同上，共用一支 opacity ──
+  satellitesYaogan: [satelliteOpacity()],
+  satellitesJilin: [satelliteOpacity()],
+  satellitesGaofen: [satelliteOpacity()],
+  satellitesTJS: [satelliteOpacity()],
+  satellitesBeidou: [satelliteOpacity()],
+  satellitesShiyan: [satelliteOpacity()],
+  satellitesTaiwan: [satelliteOpacity()],
+  satellitesUSA: [satelliteOpacity()],
+  satellitesJapan: [satelliteOpacity()],
+  satellitesRussia: [satelliteOpacity()],
+  satellitesIndia: [satelliteOpacity()],
+  satellitesKorea: [satelliteOpacity()],
+  satellitesFrance: [satelliteOpacity()],
+  satellitesGermany: [satelliteOpacity()],
+  satellitesItaly: [satelliteOpacity()],
+  satellitesIsrael: [satelliteOpacity()],
+
+  earthquakes: [
+    {
+      kind: "slider", name: "eqOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 1.0, min: 0, max: 1, step: 0.05, out: null,
+    },
+    // ⚠️ 參數名**不**沿用舊 useState 的 `eqShowHistory` —— 那是 boolean，
+    //    而控件本體是 select（`"timeline"` / `"history"`）。hook 端還原成
+    //    `eqShowHistory = value === "history"` 再回傳，回傳 API 一字未動。
+    {
+      kind: "select", name: "eqMode", label: "Mode", default: "timeline",
+      options: [{ label: "Timeline", value: "timeline" }, { label: "History", value: "history" }],
+      out: null,
+    },
+  ],
+  // 事件選擇 / 播放控制在 EarthquakeReplayPanel（清單 + scrub 塞不進 240px sidebar，鐵則 4）
+  earthquakeReplay: [
+    {
+      kind: "slider", name: "eqReplayOpacity", labelPrefix: "透明度", digits: 2,
+      default: 0.95, min: 0, max: 1, step: 0.05, out: null,
+    },
+  ],
+  roadEvents: [
+    {
+      kind: "slider", name: "reOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 1.0, min: 0, max: 1, step: 0.05, out: null,
+    },
+  ],
+  plaActivity: [
+    // 疊加天數（1=單日）走圖層自己的 clock —— 全域時間軸最多 7 天視窗，
+    // 表達不了 30~120 天的掃描。hook 端 `Number(value)` 還原成數字回傳。
+    {
+      kind: "select", name: "plaTrailDays", label: "疊加", default: "1",
+      options: [
+        { label: "單日", value: "1" },
+        { label: "30 天", value: "30" },
+        { label: "60 天", value: "60" },
+        { label: "90 天", value: "90" },
+        { label: "120 天", value: "120" },
+      ],
+      out: null,
+    },
+    // 單日沒有東西可掃 → 回放只在疊加 > 單日時有意義
+    { kind: "toggle", name: "plaReplay", label: "回放", default: false, out: null },
+    {
+      kind: "slider", name: "plaOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 0.6, min: 0, max: 1, step: 0.05, out: null,
+    },
+    // showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
+    { kind: "toggle", name: "plaShowReview", label: "待核實", default: false, out: null },
+  ],
+
+  // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──
+  cwaCloudImagery: [
+    {
+      kind: "slider", name: "cwaCloudOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 1.0, min: 0, max: 1, step: 0.05, out: null,
+    },
+  ],
+  cwaRadarImagery: [
+    {
+      kind: "slider", name: "cwaRadarOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 0.85, min: 0, max: 1, step: 0.05, out: null,
+    },
+  ],
+  aqiImagery: [
+    {
+      kind: "slider", name: "aqiImageryOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 0.7, min: 0.1, max: 1, step: 0.05, out: null,
+    },
+  ],
+  aqiMicroSensors: [
+    // ⚠️ **兩條通道都走**：paint 端由 hook 的 setPaintProperty 換色欄，
+    //    overlayParams 的 `aqiMicroModeIdx` 只供 LegendPanel 選對應圖例。
+    //    options 直接吃 SSOT 常數（帶 colorField / legend / note 等額外欄位，
+    //    手寫版也是整包丟給控件的 —— 拆成 label/value 會讓黃金快照紅）。
+    {
+      kind: "select", name: "aqiMicroModeIdx", label: "顯示模式", default: "0",
+      options: MICRO_SENSOR_MODES,
+      out: "aqiMicroModeIdx", encodeNumeric: true,
+    },
+    { kind: "toggle", name: "aqiMicroCluster", label: "Cluster", default: true, out: null },
+  ],
+
+  // ── 底圖 Base map：opacity 同時進 overlayParams（paint）與 hook return ──
+  hillshade: [opacitySlider("hillshadeOpacity", 0.5)],
+  slopeVector: [
+    {
+      kind: "slider", name: "slopeVectorOpacity", labelPrefix: "透明度", digits: 2,
+      default: 0.6, min: 0.3, max: 1, step: 0.05,
+    },
+  ],
+  aspectVector: [
+    {
+      kind: "slider", name: "aspectVectorOpacity", labelPrefix: "透明度", digits: 2,
+      default: 0.6, min: 0.3, max: 1, step: 0.05,
+    },
+  ],
+  // 溫度網格 2D（與溫度波共用資料源）——值走 hook return 餵 useTemperatureGridLayer
+  temperatureGrid: [
+    {
+      kind: "slider", name: "tempGridOpacity", labelPrefix: "透明度", digits: 2,
+      default: 0.7, min: 0.1, max: 1, step: 0.05, out: null,
+    },
+  ],
+  // 污染場址：opacity / scale 走 paint，「只看列管中」是 filter → hook return
+  pollutionSite: [
+    opacitySlider("pollutionSiteOpacity", 0.9),
+    {
+      kind: "slider", name: "pollutionSiteScale", labelPrefix: "大小", digits: 2,
+      default: 1, min: 0.3, max: 3, step: 0.1,
+    },
+    {
+      kind: "toggle", name: "pollutionSiteActiveOnly", label: "只看列管中 Active",
+      default: true, out: null,
+    },
+  ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**
@@ -1777,6 +1968,10 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
     case "toggle":
       return value ? 1 : 0;
     case "select":
-      return spec.encodeNumeric ? Number(value) : spec.encode.indexOf(String(value));
+      if (spec.encodeNumeric) return Number(value);
+      if (spec.encode) return spec.encode.indexOf(String(value));
+      // 第二通道 select（out: null）沒有編碼可言 —— 唯一的呼叫端
+      // `encodeParamsToOverlay` 在 outKey === null 時就 continue 了，走到這裡是程式錯誤。
+      throw new Error(`select "${spec.name}" 宣告 out: null（第二通道），不該被編碼`);
   }
 }

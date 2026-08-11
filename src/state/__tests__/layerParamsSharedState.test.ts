@@ -155,7 +155,7 @@ describe("已遷移參數與 useTransportParams 的交叉檢查", () => {
 // ── 3. fall-through 完整性：耦合的 key 必須整組進退 ────────────────
 
 describe("useTransportParams 剩餘 case 的耦合群組", () => {
-  const groups = parseCaseGroups(source);
+  const groups = parseCaseGroups(stripComments(source));
 
   it("耦合群組（fall-through ／ 跨 case 共用 state）不得有成員已遷移", () => {
     for (const g of coupledComponents(groups)) {
@@ -235,9 +235,18 @@ interface CaseGroup {
 /**
  * 從 `getControls` 的 switch 切出 case 群組。
  * 連續的 `case "K":`（冒號後無內容）視為 fall-through，與下一個帶 body 的 case 同組。
+ *
+ * ⚠️ `vars` 只收**真的是 `useState` 宣告出來的變數**（P3-2D 修）。原版把
+ * `value: String(x)` 的 `String`、`${p.size}` 的區域常數 `p` 也收進去 ——
+ * 於是所有寫 `value: String(…)` 的 case 全被 `String` 串成同一個「耦合群組」，
+ * 8 個毫不相干的 key 被判成必須整組進退。判準沒有放寬：耦合講的就是共用 state，
+ * 非 state 的識別字本來就不可能是共用的那份值。
  */
-function parseCaseGroups(src: string): CaseGroup[] {
-  const body = switchBody(stripComments(src));
+function parseCaseGroups(stripped: string): CaseGroup[] {
+  const stateVars = new Set(
+    [...stripped.matchAll(/const \[(\w+),\s*set\w+\]\s*=\s*useState/g)].map((m) => m[1] as string),
+  );
+  const body = switchBody(stripped);
   const lines = body.split("\n");
   const groups: CaseGroup[] = [];
   let pending: string[] = [];
@@ -245,7 +254,7 @@ function parseCaseGroups(src: string): CaseGroup[] {
   for (const line of lines) {
     const m = /^\s*case\s+"([A-Za-z0-9_]+)"\s*:(.*)$/.exec(line);
     if (m) {
-      if (cur) { groups.push(toGroup(cur)); cur = null; }
+      if (cur) { groups.push(toGroup(cur, stateVars)); cur = null; }
       pending.push(m[1] as string);
       if ((m[2] as string).trim()) {
         cur = { keys: pending, body: [m[2] as string] };
@@ -255,11 +264,11 @@ function parseCaseGroups(src: string): CaseGroup[] {
     }
     if (cur) cur.body.push(line);
   }
-  if (cur) groups.push(toGroup(cur));
+  if (cur) groups.push(toGroup(cur, stateVars));
   return groups;
 }
 
-function toGroup(c: { keys: string[]; body: string[] }): CaseGroup {
+function toGroup(c: { keys: string[]; body: string[] }, stateVars: Set<string>): CaseGroup {
   const text = c.body.join("\n");
   const vars = new Set<string>();
   for (const m of text.matchAll(/value:\s*([A-Za-z_$][A-Za-z0-9_$]*)/g)) vars.add(m[1] as string);
@@ -268,7 +277,7 @@ function toGroup(c: { keys: string[]; body: string[] }): CaseGroup {
     vars.add(n.charAt(0).toLowerCase() + n.slice(1));
   }
   for (const m of text.matchAll(/\$\{([A-Za-z_$][A-Za-z0-9_$]*)[.}]/g)) vars.add(m[1] as string);
-  return { keys: c.keys, vars: [...vars] };
+  return { keys: c.keys, vars: [...vars].filter((v) => stateVars.has(v)) };
 }
 
 /** `switch (layer) { … }` 的內文 */

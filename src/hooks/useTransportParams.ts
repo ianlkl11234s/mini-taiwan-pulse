@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
-import { layerParamsStore, encodeParamsToOverlay } from "../state/layerParamsStore";
+import {
+  layerParamsStore, encodeParamsToOverlay, type LayerParamsSnapshot,
+} from "../state/layerParamsStore";
+import { paramDefault } from "../data/layerParamsSpec";
 import { buildParamControls } from "../state/layerParamsControls";
 import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 import {
@@ -8,7 +11,6 @@ import {
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
   type PollutionMedium,
 } from "../data/pollutionTypes";
-import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
 // religionTypes / funeralTypes / buildingsGbaTypes / propertyValueTypes 等
 // select 選項常數已隨對應的 key 遷出本檔（現由 src/data/layerParamsSpec.ts 引用）。
 
@@ -39,6 +41,37 @@ export interface SelectConfig {
 }
 
 export type ParamControl = SliderConfig | ToggleConfig | SelectConfig;
+
+// ══════════════════════════════════════════════════════════════════
+//  第二輸出通道的讀取器（AR-22 P3-2D）
+// ══════════════════════════════════════════════════════════════════
+//
+//  D 桶的參數搬進 `layerParamsStore` 之後，值仍必須回到本 hook 的 `return {}`
+//  —— 消費端（App.tsx、各 layer hook、Three.js scene）的介面**一字未動**，
+//  它們完全不知道底下換了軌。下面三支就是「store 快照 → 原本那個回傳欄位」的橋。
+//
+//  ⚠️ 查無值時退回規格 `default`：正常路徑上不會發生（store 的 slot 就是規格宣告的），
+//  但這條路徑在 render 期間，throw 等於整頁白畫面 —— 回退比炸掉安全，
+//  而「值真的有流過來」由 `__tests__/useTransportParamsReturn.test.ts` 的
+//  逐參數隔離擾動直接驗（回退兜底不會讓那道閘變綠：它比的是擾動後的值）。
+
+/** slider ／ 數值型 select（store 存字串、消費端要數字，等價手寫版 onChange 的 `Number(v)`） */
+function pNum(all: LayerParamsSnapshot, key: string, name: string): number {
+  const v = all[key]?.[name] ?? paramDefault(key, name);
+  return typeof v === "number" ? v : Number(v);
+}
+
+/** toggle */
+function pBool(all: LayerParamsSnapshot, key: string, name: string): boolean {
+  const v = all[key]?.[name] ?? paramDefault(key, name);
+  return typeof v === "boolean" ? v : Boolean(v);
+}
+
+/** select（字串原值；要窄化成字面聯集時在呼叫端比對，不做無憑據的 `as`） */
+function pStr(all: LayerParamsSnapshot, key: string, name: string): string {
+  const v = all[key]?.[name] ?? paramDefault(key, name);
+  return typeof v === "string" ? v : String(v);
+}
 
 export function useTransportParams() {
   // Flight
@@ -136,10 +169,6 @@ export function useTransportParams() {
   );
   const [pollutionPenaltyMode, setPollutionPenaltyMode] = useState(1);           // 0 = 累積、1 = 僅該年（預設僅今年）
   const [pollutionPenaltyPlaying, setPollutionPenaltyPlaying] = useState(false);
-  // 場址：opacity + scale + 只看列管中
-  const [pollutionSiteOpacity, setPollutionSiteOpacity] = useState(0.9);
-  const [pollutionSiteScale, setPollutionSiteScale] = useState(1);
-  const [pollutionSiteActiveOnly, setPollutionSiteActiveOnly] = useState(true);
 
   const setPollutionFacilityMedium = (m: PollutionMedium, v: boolean) =>
     setPollutionFacilityMedia((p) => ({ ...p, [m]: v }));
@@ -202,8 +231,6 @@ export function useTransportParams() {
   const [tempExtruded, setTempExtruded] = useState(true);
   const [tempOpacity, setTempOpacity] = useState(0.85);
   const [tempWireframe, setTempWireframe] = useState(false);
-  // Temperature Grid (溫度網格 2D，與溫度波共用資料源)
-  const [tempGridOpacity, setTempGridOpacity] = useState(0.7);
   // School（🎓 教育 Education 第 38 主題）
   // schoolScale / schoolLevelColor 是原公共設施 schools 層的既有 param，
   // 搬入教育主題後 schoolScale 擴大為 6 個點層共用；schoolLevelColor 仍只作用於總覽層。
@@ -237,28 +264,6 @@ export function useTransportParams() {
   const [spatialContrast, setSpatialContrast] = useState(1.8);
   const [spatialExtruded, setSpatialExtruded] = useState(false);
   const [spatialElevation, setSpatialElevation] = useState(50);
-  // CWA Imagery (衛星雲圖 / 雷達)
-  const [cwaCloudOpacity, setCwaCloudOpacity] = useState(1.0);
-  const [cwaRadarOpacity, setCwaRadarOpacity] = useState(0.85);
-  // Earthquake
-  const [eqOpacity, setEqOpacity] = useState(1.0);
-  const [eqShowHistory, setEqShowHistory] = useState(false);
-  // 地震回放（earthquakeReplay）
-  const [eqReplayOpacity, setEqReplayOpacity] = useState(0.95);
-  // Disaster Alerts
-  const [daOpacity, setDaOpacity] = useState(1.0);
-  // 共機活動區：showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
-  // 0.6 = 校準過的預設亮度（見 usePlaActivityLayer BASE_*），往上還能拉亮
-  const [plaOpacity, setPlaOpacity] = useState(0.6);
-  const [plaShowReview, setPlaShowReview] = useState(false);
-  // 疊加天數（1=單日）與累積回放。回放走圖層自己的 clock —— 全域時間軸最多
-  // 7 天視窗，表達不了 30~120 天的掃描
-  const [plaTrailDays, setPlaTrailDays] = useState<number>(1);
-  const [plaReplay, setPlaReplay] = useState(false);
-  // Road Events
-  const [reOpacity, setReOpacity] = useState(1.0);
-  // Satellites (3 cats share one opacity)
-  const [satOpacity, setSatOpacity] = useState(1.0);
   // YouBike Fullness (H3)
   const [ybOpacity, setYbOpacity] = useState(0.65);
   const [ybContrast, setYbContrast] = useState(1);
@@ -266,25 +271,14 @@ export function useTransportParams() {
   const [ybElevationScale, setYbElevationScale] = useState(80);
   const [ybHeightMode, setYbHeightMode] = useState<"mixed" | "fullness" | "capacity">("mixed");
   const [ybResolution, setYbResolution] = useState(7);
-  // LASS 微型感測器：cluster on/off
-  const [aqiMicroCluster, setAqiMicroCluster] = useState(true);
-  // LASS 微型感測器：點位上色依據（0=PM2.5 / 1=溫度 / 2=濕度，見 microSensorTypes）
-  const [aqiMicroModeIdx, setAqiMicroModeIdx] = useState(0);
   // Waste（垃圾車光點 + 音符）
   const [wasteOrbScale, setWasteOrbScale] = useState(0.15);
   const [wasteNoteSize, setWasteNoteSize] = useState(0.7);
   const [wasteNoteZOffset, setWasteNoteZOffset] = useState(70);
-  // AQI 色階圖透明度
-  const [aqiImageryOpacity, setAqiImageryOpacity] = useState(0.7);
 
 
 
 
-  // Base map（行政邊界 + 等高線 + OSM 路網）
-  const [hillshadeOpacity, setHillshadeOpacity] = useState(0.5);
-  // 坡度/坡向分級向量（PMTiles polygon，可點選/疊圖分析）
-  const [slopeVectorOpacity, setSlopeVectorOpacity] = useState(0.6);
-  const [aspectVectorOpacity, setAspectVectorOpacity] = useState(0.6);
   // 衍生（H3 / polygon）：opacity + outlineWidth + showOutline
 
   // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
@@ -429,12 +423,36 @@ export function useTransportParams() {
     [migratedParams],
   );
 
+  // ── 第二通道：已遷移參數 → 本 hook 的 return {}（P3-2D 群1）────────
+  //    只是把值從 store 快照讀出來、原樣塞回原本那個回傳欄位；
+  //    回傳 API 與消費端一字未動。逐條的等值證明見 RETURN_CHANNEL。
+  const daOpacity = pNum(migratedParams, "lifelineAlerts", "daOpacity");
+  const satOpacity = pNum(migratedParams, "satellitesYaogan", "satOpacity");
+  const eqOpacity = pNum(migratedParams, "earthquakes", "eqOpacity");
+  // 控件是 select（timeline / history），回傳仍是原本的 boolean
+  const eqShowHistory = pStr(migratedParams, "earthquakes", "eqMode") === "history";
+  const eqReplayOpacity = pNum(migratedParams, "earthquakeReplay", "eqReplayOpacity");
+  const reOpacity = pNum(migratedParams, "roadEvents", "reOpacity");
+  const plaTrailDays = pNum(migratedParams, "plaActivity", "plaTrailDays");
+  const plaReplay = pBool(migratedParams, "plaActivity", "plaReplay");
+  const plaOpacity = pNum(migratedParams, "plaActivity", "plaOpacity");
+  const plaShowReview = pBool(migratedParams, "plaActivity", "plaShowReview");
+  const cwaCloudOpacity = pNum(migratedParams, "cwaCloudImagery", "cwaCloudOpacity");
+  const cwaRadarOpacity = pNum(migratedParams, "cwaRadarImagery", "cwaRadarOpacity");
+  const aqiImageryOpacity = pNum(migratedParams, "aqiImagery", "aqiImageryOpacity");
+  const aqiMicroModeIdx = pNum(migratedParams, "aqiMicroSensors", "aqiMicroModeIdx");
+  const aqiMicroCluster = pBool(migratedParams, "aqiMicroSensors", "aqiMicroCluster");
+  const hillshadeOpacity = pNum(migratedParams, "hillshade", "hillshadeOpacity");
+  const slopeVectorOpacity = pNum(migratedParams, "slopeVector", "slopeVectorOpacity");
+  const aspectVectorOpacity = pNum(migratedParams, "aspectVector", "aspectVectorOpacity");
+  const tempGridOpacity = pNum(migratedParams, "temperatureGrid", "tempGridOpacity");
+  const pollutionSiteActiveOnly = pBool(migratedParams, "pollutionSite", "pollutionSiteActiveOnly");
+
   const overlayParams = useMemo<Record<string, number>>(() => ({
     // 警察覆蓋分析（數字化 mode/minutes 餵 paint expression）
     // 環境污染（paint 用；filter 值另由 return 物件傳給 usePollutionLayers）
     pollutionFacilityOpacity, pollutionFacilityScale,
     pollutionPenaltyOpacity, pollutionPenaltyScale,
-    pollutionSiteOpacity, pollutionSiteScale,
     stationScale,
     airportOpacity,
     airportGlow,
@@ -449,15 +467,10 @@ export function useTransportParams() {
     // ENERGY
     // 雲林 POC 覆蓋分析
     // HAZARD
-    // LASS 微感測顯示模式（只供 LegendPanel 選對應圖例；paint 端走 hook 的 setPaintProperty）
-    aqiMicroModeIdx,
-    // Base map
-    hillshadeOpacity,
-    slopeVectorOpacity, aspectVectorOpacity,
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, lighthouseScale, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, portGlow, newsScale, metroPillarVisible,
+  }), [migratedOverlayParams, stationScale, airportOpacity, airportGlow, lighthouseScale, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, portGlow, newsScale, metroPillarVisible,
     
     
     
@@ -465,9 +478,7 @@ export function useTransportParams() {
     
     pollutionFacilityOpacity, pollutionFacilityScale,
     pollutionPenaltyOpacity, pollutionPenaltyScale,
-    pollutionSiteOpacity, pollutionSiteScale,
-    
-    aqiMicroModeIdx,]);
+    ]);
 
   const getControls = (layer: ExpandableLayerKey): ParamControl[] => {
     // ── 雙軌分岔（AR-22 P3-1）──────────────────────────────────────
@@ -572,9 +583,6 @@ export function useTransportParams() {
         { label: `Opacity ${tempOpacity.toFixed(2)}`, value: tempOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempOpacity },
         { type: "toggle" as const, label: "Grid", value: tempWireframe, onChange: setTempWireframe },
       ];
-      case "temperatureGrid": return [
-        { label: `透明度 ${tempGridOpacity.toFixed(2)}`, value: tempGridOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempGridOpacity },
-      ];
       // 都市熱島：2 選項 → ExpandedControls 會渲染成 button row（≥4 才轉原生 dropdown）
       case "windPlan": return [];
       // 🎓 教育 Education — 6 個點層共用 eduSchoolsOpacity / schoolScale（同一份 schools.geojson）
@@ -670,63 +678,6 @@ export function useTransportParams() {
           { label: `Height ${spatialElevation}`, value: spatialElevation, min: 10, max: 200, step: 10, onChange: setSpatialElevation },
         ];
       }
-      case "earthquakes": return [
-        { label: `Opacity ${eqOpacity.toFixed(2)}`, value: eqOpacity, min: 0, max: 1, step: 0.05, onChange: setEqOpacity },
-        { type: "select" as const, label: "Mode", value: eqShowHistory ? "history" : "timeline", options: [{ label: "Timeline", value: "timeline" }, { label: "History", value: "history" }], onChange: (v: string) => setEqShowHistory(v === "history") },
-      ];
-      // 事件選擇 / 播放控制在 EarthquakeReplayPanel（清單 + scrub 塞不進 240px sidebar，鐵則 4）
-      case "earthquakeReplay": return [
-        { label: `透明度 ${eqReplayOpacity.toFixed(2)}`, value: eqReplayOpacity, min: 0, max: 1, step: 0.05, onChange: setEqReplayOpacity },
-      ];
-      // NCDR 示警 5 群組共用同一個 opacity（單一 source）
-      case "lifelineAlerts":
-      case "floodAlerts":
-      case "weatherAlerts":
-      case "transitAlerts":
-      case "safetyAlerts": return [
-        { label: `Opacity ${daOpacity.toFixed(2)}`, value: daOpacity, min: 0, max: 1, step: 0.05, onChange: setDaOpacity },
-      ];
-      case "plaActivity": return [
-        { type: "select" as const, label: "疊加", value: String(plaTrailDays), options: [
-          { label: "單日", value: "1" },
-          { label: "30 天", value: "30" },
-          { label: "60 天", value: "60" },
-          { label: "90 天", value: "90" },
-          { label: "120 天", value: "120" },
-        ], onChange: (v: string) => setPlaTrailDays(Number(v)) },
-        // 單日沒有東西可掃 → 回放只在疊加 > 單日時有意義
-        { type: "toggle" as const, label: "回放", value: plaReplay, onChange: setPlaReplay },
-        { label: `Opacity ${plaOpacity.toFixed(2)}`, value: plaOpacity, min: 0, max: 1, step: 0.05, onChange: setPlaOpacity },
-        { type: "toggle" as const, label: "待核實", value: plaShowReview, onChange: setPlaShowReview },
-      ];
-      case "roadEvents": return [
-        { label: `Opacity ${reOpacity.toFixed(2)}`, value: reOpacity, min: 0, max: 1, step: 0.05, onChange: setReOpacity },
-      ];
-      case "satellitesYaogan":
-      case "satellitesJilin":
-      case "satellitesGaofen":
-      case "satellitesTJS":
-      case "satellitesBeidou":
-      case "satellitesShiyan":
-      case "satellitesTaiwan":
-      case "satellitesUSA":
-      case "satellitesJapan":
-      case "satellitesRussia":
-      case "satellitesIndia":
-      case "satellitesKorea":
-      case "satellitesFrance":
-      case "satellitesGermany":
-      case "satellitesItaly":
-      case "satellitesIsrael": return [
-        { label: `Opacity ${satOpacity.toFixed(2)}`, value: satOpacity, min: 0, max: 1, step: 0.05, onChange: setSatOpacity },
-      ];
-      // 預載 1~7d 共用 timeline rangeDays（TimelineControls 下拉），這裡不重覆出 slider
-      case "cwaCloudImagery": return [
-        { label: `Opacity ${cwaCloudOpacity.toFixed(2)}`, value: cwaCloudOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaCloudOpacity },
-      ];
-      case "cwaRadarImagery": return [
-        { label: `Opacity ${cwaRadarOpacity.toFixed(2)}`, value: cwaRadarOpacity, min: 0, max: 1, step: 0.05, onChange: setCwaRadarOpacity },
-      ];
       case "youbikeFullness": return [
         { type: "select" as const, label: "Grid", value: String(ybResolution), options: [{ label: "大", value: "7" }, { label: "中", value: "8" }, { label: "小", value: "9" }], onChange: (v: string) => setYbResolution(Number(v)) },
         { type: "select" as const, label: "Height", value: ybHeightMode, options: [{ label: "有車×容量", value: "mixed" }, { label: "有車率", value: "fullness" }, { label: "容量", value: "capacity" }], onChange: (v: string) => setYbHeightMode(v as "mixed" | "fullness" | "capacity") },
@@ -735,14 +686,7 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "3D", value: ybExtruded, onChange: setYbExtruded },
         { label: `Height ${ybElevationScale}`, value: ybElevationScale, min: 10, max: 200, step: 10, onChange: setYbElevationScale },
       ];
-      case "aqiImagery": return [
-        { label: `Opacity ${aqiImageryOpacity.toFixed(2)}`, value: aqiImageryOpacity, min: 0.1, max: 1, step: 0.05, onChange: setAqiImageryOpacity },
-      ];
       case "aqiStations": return [];
-      case "aqiMicroSensors": return [
-        { type: "select" as const, label: "顯示模式", value: String(aqiMicroModeIdx), options: [...MICRO_SENSOR_MODES], onChange: (v: string) => setAqiMicroModeIdx(parseInt(v, 10)) },
-        { type: "toggle" as const, label: "Cluster", value: aqiMicroCluster, onChange: setAqiMicroCluster },
-      ];
       case "wasteTruck":
       case "wasteSchedule": return [
         // 8 區分組 toggle（只有 wasteSchedule 用；wasteTruck GPS 固定高雄+台南）
@@ -800,16 +744,6 @@ export function useTransportParams() {
         }
         return base;
       }
-      // ── Base map（6 layer：3 boundary + 2 contour + 1 road）──
-      case "hillshade": return [
-        { label: `透明度 ${hillshadeOpacity.toFixed(2)}`, value: hillshadeOpacity, min: 0.1, max: 1, step: 0.05, onChange: setHillshadeOpacity },
-      ];
-      case "slopeVector": return [
-        { label: `透明度 ${slopeVectorOpacity.toFixed(2)}`, value: slopeVectorOpacity, min: 0.3, max: 1, step: 0.05, onChange: setSlopeVectorOpacity },
-      ];
-      case "aspectVector": return [
-        { label: `透明度 ${aspectVectorOpacity.toFixed(2)}`, value: aspectVectorOpacity, min: 0.3, max: 1, step: 0.05, onChange: setAspectVectorOpacity },
-      ];
       // ── 環境污染 POLLUTION ──
       case "pollutionFacility": return [
         { label: `透明度 ${pollutionFacilityOpacity.toFixed(2)}`, value: pollutionFacilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionFacilityOpacity },
@@ -835,11 +769,6 @@ export function useTransportParams() {
           { type: "toggle" as const, label: pollutionPenaltyPlaying ? "⏸ 停止播放" : "▶ 歷史播放", value: pollutionPenaltyPlaying, onChange: (v: boolean) => { if (v && (pollutionPenaltyYear === 0 || pollutionPenaltyYear >= PENALTY_YEAR_MAX)) setPollutionPenaltyYear(PENALTY_YEAR_MIN); setPollutionPenaltyPlaying(v); } },
         ];
       }
-      case "pollutionSite": return [
-        { label: `透明度 ${pollutionSiteOpacity.toFixed(2)}`, value: pollutionSiteOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionSiteOpacity },
-        { label: `大小 ${pollutionSiteScale.toFixed(2)}`, value: pollutionSiteScale, min: 0.3, max: 3, step: 0.1, onChange: setPollutionSiteScale },
-        { type: "toggle" as const, label: "只看列管中 Active", value: pollutionSiteActiveOnly, onChange: setPollutionSiteActiveOnly },
-      ];
       default: return [];
     }
   };

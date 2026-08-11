@@ -62,7 +62,6 @@ import { PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
  * 出現（或列進 `INTERNAL_CONSUMERS`），否則 B 的完整性規則會紅 ——
  * 那代表值搬進了 store 卻沒有任何消費者，是 D 桶最典型的靜默失效。
  *
- * 目前是空的：P3-2D 第 1 步只立閘不搬 key，D 桶還沒有任何參數進 store。
  * 每一個遷移群組會往這裡加對應的條目。
  */
 interface ReturnChannel {
@@ -71,7 +70,38 @@ interface ReturnChannel {
   to: ParamValue;
   paths: Record<string, unknown>;
 }
-const RETURN_CHANNEL: ReturnChannel[] = [];
+const RETURN_CHANNEL: ReturnChannel[] = [
+  // ── 群1：平鋪欄位（P3-2D）────────────────────────────────────────
+  // 共用 slot 只宣告代表：`daOpacity` 5 個示警層、`satOpacity` 16 個衛星層，
+  // 其餘成員由 sharedSlotMembers 展開後套用同一條。
+  { key: "lifelineAlerts", param: "daOpacity", to: 0.55, paths: { daOpacity: 0.55 } },
+  { key: "satellitesYaogan", param: "satOpacity", to: 0.55, paths: { satOpacity: 0.55 } },
+  { key: "earthquakes", param: "eqOpacity", to: 0.5, paths: { eqOpacity: 0.5 } },
+  // select（字串）→ 回傳仍是 boolean：這條同時驗「還原邏輯沒接反」
+  { key: "earthquakes", param: "eqMode", to: "history", paths: { eqShowHistory: true } },
+  { key: "earthquakeReplay", param: "eqReplayOpacity", to: 0.5, paths: { eqReplayOpacity: 0.5 } },
+  { key: "roadEvents", param: "reOpacity", to: 0.5, paths: { reOpacity: 0.5 } },
+  // 數值型 select（store 存 "30"）→ 回傳 number 30：驗 hook 端的 Number() 還原
+  { key: "plaActivity", param: "plaTrailDays", to: "30", paths: { plaTrailDays: 30 } },
+  { key: "plaActivity", param: "plaReplay", to: true, paths: { plaReplay: true } },
+  { key: "plaActivity", param: "plaOpacity", to: 0.9, paths: { plaOpacity: 0.9 } },
+  { key: "plaActivity", param: "plaShowReview", to: true, paths: { plaShowReview: true } },
+  { key: "cwaCloudImagery", param: "cwaCloudOpacity", to: 0.5, paths: { cwaCloudOpacity: 0.5 } },
+  { key: "cwaRadarImagery", param: "cwaRadarOpacity", to: 0.5, paths: { cwaRadarOpacity: 0.5 } },
+  { key: "aqiImagery", param: "aqiImageryOpacity", to: 0.5, paths: { aqiImageryOpacity: 0.5 } },
+  // ⚠️ 兩條通道都走：overlayParams.aqiMicroModeIdx（圖例）由 spec 的 out 自動推導，
+  //    這裡宣告的是 hook return 那一條（hook 的 setPaintProperty 吃它）。
+  { key: "aqiMicroSensors", param: "aqiMicroModeIdx", to: "2", paths: { aqiMicroModeIdx: 2 } },
+  { key: "aqiMicroSensors", param: "aqiMicroCluster", to: false, paths: { aqiMicroCluster: false } },
+  { key: "hillshade", param: "hillshadeOpacity", to: 0.8, paths: { hillshadeOpacity: 0.8 } },
+  { key: "slopeVector", param: "slopeVectorOpacity", to: 0.8, paths: { slopeVectorOpacity: 0.8 } },
+  { key: "aspectVector", param: "aspectVectorOpacity", to: 0.8, paths: { aspectVectorOpacity: 0.8 } },
+  { key: "temperatureGrid", param: "tempGridOpacity", to: 0.5, paths: { tempGridOpacity: 0.5 } },
+  {
+    key: "pollutionSite", param: "pollutionSiteActiveOnly", to: false,
+    paths: { pollutionSiteActiveOnly: false },
+  },
+];
 
 /**
  * 值不進 overlayParams、也不進回傳物件，消費者在 hook **內部**的參數。

@@ -83,6 +83,8 @@ describe("spec ⇄ manifest 焊接", () => {
     for (const [key, spec] of specs) {
       for (const s of spec) {
         if (s.kind !== "select") continue;
+        // 第二通道 select（`out: null`）不進 overlayParams → 沒有編碼可言，兩欄都沒宣告。
+        if (s.out === null) continue;
         // 數值型 select（`encodeNumeric`）沒有 encode 表 —— 它的等價要求是
         // 「default 轉得成數字」，轉不成會讓 overlayParams 收到 NaN，
         // paint 端不會報錯、只會整層畫不出來（同一類靜默失效）。
@@ -103,6 +105,7 @@ describe("spec ⇄ manifest 焊接", () => {
     for (const [key, spec] of specs) {
       for (const s of spec) {
         if (s.kind !== "select") continue;
+        if (s.out === null) continue;   // 第二通道 select：不編碼
         for (const o of s.options) {
           const ok = s.encodeNumeric
             ? Number.isFinite(Number(o.value))
