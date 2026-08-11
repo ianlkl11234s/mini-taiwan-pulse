@@ -171,9 +171,9 @@ describe("useTransportParams 剩餘 case 的耦合群組", () => {
 
   // ⚠️ 這條是**哨兵**不是規格：它防的是「解析器被改壞、一個群組都抓不到，
   //    於是上面那條永遠綠」。門檻會隨 switch 縮小而過時 —— 後棒把 case 數搬到
-  //    低於門檻時，**調降門檻**即可（不要刪掉這條）。現況 switch 剩 78 組。
+  //    低於門檻時，**調降門檻**即可（不要刪掉這條）。P3-2D 群2 後 switch 剩 15 組。
   it("解析器有抓到 case 群組與 fall-through（護欄本身沒被改壞的哨兵）", () => {
-    expect(groups.length).toBeGreaterThan(20);
+    expect(groups.length).toBeGreaterThan(10);
     expect(groups.some((g) => g.keys.length > 1)).toBe(true);
     expect(groups.some((g) => g.vars.length > 0)).toBe(true);
   });

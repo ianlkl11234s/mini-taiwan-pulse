@@ -39,10 +39,11 @@ export function buildParamControls(
       case "slider": {
         const v = values[s.name];
         const value = typeof v === "number" ? v : s.default;
-        // 0 有「關掉」語意的滑桿印字不印數（`全台顯示 關`）
+        // 0 有「關掉」語意的滑桿印字不印數（`全台顯示 關`）；
+        // `displayScale` 是「印之前先乘一個倍率」（極小數的軌道球半徑），只動 label。
         const shown = s.zeroLabel !== undefined && value === 0
           ? s.zeroLabel
-          : value.toFixed(s.digits);
+          : (s.displayScale === undefined ? value : value * s.displayScale).toFixed(s.digits);
         return {
           // 前綴側預設補一個空白（`labelSep` 可改成 ""）；後綴側緊接數字不補空白
           // （`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）。兩欄都省略時，

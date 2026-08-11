@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import type { ExpandableLayerKey, BusCity, BusColorMode, BusGroup } from "../types";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import type { ExpandableLayerKey, BusCity, BusGroup } from "../types";
 import {
   layerParamsStore, encodeParamsToOverlay, type LayerParamsSnapshot,
 } from "../state/layerParamsStore";
-import { paramDefault } from "../data/layerParamsSpec";
+import { BUS_GROUP_ORDER, paramDefault } from "../data/layerParamsSpec";
 import { buildParamControls } from "../state/layerParamsControls";
 import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
 import {
@@ -73,47 +73,57 @@ function pStr(all: LayerParamsSnapshot, key: string, name: string): string {
   return typeof v === "string" ? v : String(v);
 }
 
-export function useTransportParams() {
-  // Flight
-  const [altExaggeration, setAltExaggeration] = useState(3);
-  const [altOffset, setAltOffset] = useState(50);
-  const [staticOpacity, setStaticOpacity] = useState(0.1);
-  const [orbScale, setOrbScale] = useState(0.000005);
-  const [airportOpacity, setAirportOpacity] = useState(0.12);
-  const [airportGlow, setAirportGlow] = useState(0.8);
-  // Ship
-  const [shipOrbScale, setShipOrbScale] = useState(0.000003);
-  const [shipTrailOpacity, setShipTrailOpacity] = useState(0.15);
-  // Rail
-  const [railAltOffset, setRailAltOffset] = useState(110);
-  const [railOrbScale, setRailOrbScale] = useState(0.00001);
-  const [railTrackOpacity, setRailTrackOpacity] = useState(0.35);
-  const [railTrainVisible, setRailTrainVisible] = useState(true);
-  const [railTrackMode, setRailTrackMode] = useState<"2d" | "3d">("3d");
-  const [stationScale, setStationScale] = useState(1);
-  // Bus
-  const [busOrbScale, setBusOrbScale] = useState(0.000004);
-  // Bus groups（UI 層的 8 區域分組，全台）
-  const [busGroups, setBusGroups] = useState<Record<BusGroup, boolean>>({
-    TaipeiMetro:          true,
-    KeelungYilan:         false,
-    TaoyuanHsinchuMiaoli: false,
-    CentralTaiwan:        false,
-    YunChiaNan:           false,
-    Kaoping:              false,
-    HualienTaitung:       false,
-    OffshoreIslands:      false,
-  });
-  // busCities 實際傳給 RPC 的展開值（BusGroup → BusCity[]）
-  const enabledBusCities = useMemo<BusCity[]>(
-    () => (Object.entries(busGroups) as [BusGroup, boolean][])
-      .filter(([, v]) => v)
-      .flatMap(([g]) => BUS_GROUP_CITIES[g]),
-    [busGroups],
-  );
-  const setBusGroup = (group: BusGroup, v: boolean) =>
-    setBusGroups((p) => ({ ...p, [group]: v }));
+/** 規格宣告的預設值（**不看 store**）—— 鏡像 ref 的 initial 專用，見下方說明 */
+function dNum(key: string, name: string): number {
+  const v = paramDefault(key, name);
+  return typeof v === "number" ? v : Number(v);
+}
+function dBool(key: string, name: string): boolean {
+  return paramDefault(key, name) === true;
+}
 
+/** 從允許清單窄化字串（不在清單內回 fallback）—— 不做無憑據的 `as` */
+function oneOf<T extends string>(v: string, allowed: readonly T[], fallback: T): T {
+  return (allowed as readonly string[]).includes(v) ? (v as T) : fallback;
+}
+/** 同上，數值版（新聞三軸的 `0 | 2 | 3` 這種字面聯集） */
+function oneOfNum<T extends number>(v: number, allowed: readonly T[], fallback: T): T {
+  return (allowed as readonly number[]).includes(v) ? (v as T) : fallback;
+}
+
+const RAIL_TRACK_MODES = ["2d", "3d"] as const;
+const BUS_COLOR_MODES = ["route", "speed", "density"] as const;
+const NEWS_RELEVANCE_LEVELS = [0, 2, 3] as const;
+const NEWS_SEVERITY_LEVELS = [0, 1, 2] as const;
+
+// ── 鏡像 ref（Three.js render loop 逐幀讀 `.current`，不走 React 樹）─────
+//
+// ⚠️ **initial 吃規格常數、current 吃 store 現值** —— 兩者刻意不同源。
+// initial 若也讀 store，等值閘（每次 capture 都是全新 mount）就再也驗不出
+// 「同步賦值那一行被刪掉」：mount 當下 `useRef(現值)` 已經是對的。
+// 這條慣例是 ref 通道有閘可守的前提，改動前先看
+// `__tests__/useTransportParamsReturn.test.ts` 的盲區說明。
+
+function useParamRefNum(all: LayerParamsSnapshot, key: string, name: string) {
+  const ref = useRef(dNum(key, name));
+  ref.current = pNum(all, key, name);
+  return ref;
+}
+function useParamRefBool(all: LayerParamsSnapshot, key: string, name: string) {
+  const ref = useRef(dBool(key, name));
+  ref.current = pBool(all, key, name);
+  return ref;
+}
+function useParamRefEnum<T extends string>(
+  all: LayerParamsSnapshot, key: string, name: string,
+  allowed: readonly T[], fallback: T,
+) {
+  const ref = useRef(oneOf(String(paramDefault(key, name) ?? fallback), allowed, fallback));
+  ref.current = oneOf(pStr(all, key, name), allowed, fallback);
+  return ref;
+}
+
+export function useTransportParams() {
   // 垃圾車表定 schedule groups（8 區，預設全 ON = 22 城）
   const [wasteScheduleGroups, setWasteScheduleGroups] = useState<Record<BusGroup, boolean>>({
     TaipeiMetro:          true,
@@ -133,24 +143,6 @@ export function useTransportParams() {
   );
   const setWasteScheduleGroup = (group: BusGroup, v: boolean) =>
     setWasteScheduleGroups((p) => ({ ...p, [group]: v }));
-  const [busColorMode, setBusColorMode] = useState<BusColorMode>("route");
-  const [busAltOffset, setBusAltOffset] = useState(0);
-  // Bus InterCity（獨立參數，預設沿用市區公車初值）
-  const [busIntercityOrbScale, setBusIntercityOrbScale] = useState(0.000004);
-  const [busIntercityColorMode, setBusIntercityColorMode] = useState<BusColorMode>("route");
-  const [busIntercityAltOffset, setBusIntercityAltOffset] = useState(0);
-  // 台灣好行 Tourist Shuttle（獨立參數，含 opacity slider）
-  const [touristShuttleOrbScale, setTouristShuttleOrbScale] = useState(0.000004);
-  const [touristShuttleColorMode, setTouristShuttleColorMode] = useState<BusColorMode>("route");
-  const [touristShuttleAltOffset, setTouristShuttleAltOffset] = useState(0);
-  const [touristShuttleOpacity, setTouristShuttleOpacity] = useState(0.85);
-  // 消防分隊（靜態點）
-  const [fireStationsScale, setFireStationsScale] = useState(1);
-  const [fireStationsOpacity, setFireStationsOpacity] = useState(0.85);
-  const [fireStationsZ, setFireStationsZ] = useState(0);
-  // 消防分隊兩種呈現各自開關：散點 (Mapbox circle) / 3D 光柱+漣漪 (Three.js)
-  const [fireStationsDots, setFireStationsDots] = useState(true);
-  const [fireStations3D, setFireStations3D] = useState(true);
   // ── 環境污染 POLLUTION ──
   // 設施：opacity + scale + 5 介質 filter（勾選 → 只顯示登記該介質的設施）+ 最低嚴重度門檻
   const [pollutionFacilityOpacity, setPollutionFacilityOpacity] = useState(0.8);
@@ -206,31 +198,6 @@ export function useTransportParams() {
   const [indContrast, setIndContrast] = useState(1.8);
   const [indExtruded, setIndExtruded] = useState(false);
   const [indElevationScale, setIndElevationScale] = useState(50);
-  // Lighthouse
-  const [lighthouseScale, setLighthouseScale] = useState(0.6);
-  const [beamVisible, setBeamVisible] = useState(true);
-  const [beamDistance, setBeamDistance] = useState(0.9);
-  const [beamOpacity, setBeamOpacity] = useState(0.1);
-  // Station pillar — 3 systems
-  const [thsrPillarVisible, setThsrPillarVisible] = useState(true);
-  const [thsrPillarHeight, setThsrPillarHeight] = useState(0.6);
-  const [traPillarVisible, setTraPillarVisible] = useState(true);
-  const [traPillarHeight, setTraPillarHeight] = useState(0.5);
-  const [metroPillarVisible, setMetroPillarVisible] = useState(false);
-  const [metroPillarHeight, setMetroPillarHeight] = useState(0.2);
-  // Port pillar (碼頭)
-  const [portGlow, setPortGlow] = useState(1);
-  const [portPillarVisible, setPortPillarVisible] = useState(false);
-  const [portPillarHeight, setPortPillarHeight] = useState(0.3);
-  // Airport pillar (機場)
-  const [airportPillarVisible, setAirportPillarVisible] = useState(false);
-  const [airportPillarHeight, setAirportPillarHeight] = useState(0.6);
-  // Temperature Wave (溫度波浪)
-  const [tempHeight, setTempHeight] = useState(200);
-  const [tempZOffset, setTempZOffset] = useState(300);
-  const [tempExtruded, setTempExtruded] = useState(true);
-  const [tempOpacity, setTempOpacity] = useState(0.85);
-  const [tempWireframe, setTempWireframe] = useState(false);
   // School（🎓 教育 Education 第 38 主題）
   // schoolScale / schoolLevelColor 是原公共設施 schools 層的既有 param，
   // 搬入教育主題後 schoolScale 擴大為 6 個點層共用；schoolLevelColor 仍只作用於總覽層。
@@ -238,18 +205,6 @@ export function useTransportParams() {
   // 高中就學區是覆蓋全台的縣市級大面，預設更透明。
   // 幼托三層（幼兒園／課後照顧／互助教保）密度相近且常疊看，共用一組 slider；
   // 補習班 17,137 點密度高一階，獨立一組（預設更透明），見 overlayRegistry 的 eduCramSchool*。
-  // News Events
-  const [newsScale, setNewsScale] = useState(1);
-  const [newsTimeBased, setNewsTimeBased] = useState(true);
-  const [newsRipple, setNewsRipple] = useState(true);
-  // 新聞 filter（三軸，照 Intel Panel 設計）
-  //   minRelevance: 0 全部 / 2 地方+ / 3 重大（對應 RPC p_min_gis_relevance）
-  //   eventsOnly:   true 只看事件（對應 RPC p_require_event）
-  //   minSeverity:  0 全部 / 1 個案+ / 2 區域+（對應 RPC p_min_severity）
-  // 預設 (3, true, 1) ≈「重大」級 — 新聞 / 全部 tab 進來只看重大
-  const [newsMinRelevance, setNewsMinRelevance] = useState<0 | 2 | 3>(3);
-  const [newsEventsOnly, setNewsEventsOnly] = useState<boolean>(true);
-  const [newsMinSeverity, setNewsMinSeverity] = useState<0 | 1 | 2>(1);
   // Socioeconomic (村里社經)
   const [socioCat, setSocioCat] = useState("income");
   const [socioMetric, setSocioMetric] = useState("im");
@@ -311,98 +266,13 @@ export function useTransportParams() {
   const setWasteSubParam = (key: WasteSubKey, field: keyof WasteSubParams, v: number) =>
     setWasteSubParams((prev) => ({ ...prev, [key]: { ...prev[key], [field]: v } }));
 
-  // Mirror refs for Three.js render loops
-  const altExagRef = useRef(altExaggeration);
-  const altOffsetRef = useRef(altOffset);
-  const staticOpacityRef = useRef(staticOpacity);
-  const orbScaleRef = useRef(orbScale);
-  const shipOrbScaleRef = useRef(shipOrbScale);
-  const shipTrailOpacityRef = useRef(shipTrailOpacity);
-  const railAltOffsetRef = useRef(railAltOffset);
-  const railOrbScaleRef = useRef(railOrbScale);
-  const railTrackOpacityRef = useRef(railTrackOpacity);
-  const railTrainVisibleRef = useRef(railTrainVisible);
-  const railTrackModeRef = useRef(railTrackMode);
-  const beamVisibleRef = useRef(beamVisible);
-  const beamDistanceRef = useRef(beamDistance);
-  const beamOpacityRef = useRef(beamOpacity);
-  const thsrPillarVisibleRef = useRef(thsrPillarVisible);
-  const thsrPillarHeightRef = useRef(thsrPillarHeight);
-  const traPillarVisibleRef = useRef(traPillarVisible);
-  const traPillarHeightRef = useRef(traPillarHeight);
-  const metroPillarVisibleRef = useRef(metroPillarVisible);
-  const metroPillarHeightRef = useRef(metroPillarHeight);
-  const portPillarVisibleRef = useRef(portPillarVisible);
-  const portPillarHeightRef = useRef(portPillarHeight);
-  const airportPillarVisibleRef = useRef(airportPillarVisible);
-  const airportPillarHeightRef = useRef(airportPillarHeight);
-  const busOrbScaleRef = useRef(busOrbScale);
-  const tempHeightRef = useRef(tempHeight);
-  const tempZOffsetRef = useRef(tempZOffset);
-  const tempExtrudedRef = useRef(tempExtruded);
-  const tempOpacityRef = useRef(tempOpacity);
-  const tempWireframeRef = useRef(tempWireframe);
-  const busColorModeRef = useRef(busColorMode);
-  const busAltOffsetRef = useRef(busAltOffset);
-  const busIntercityOrbScaleRef = useRef(busIntercityOrbScale);
-  const busIntercityColorModeRef = useRef(busIntercityColorMode);
-  const busIntercityAltOffsetRef = useRef(busIntercityAltOffset);
-  const touristShuttleOrbScaleRef = useRef(touristShuttleOrbScale);
-  const touristShuttleColorModeRef = useRef(touristShuttleColorMode);
-  const touristShuttleAltOffsetRef = useRef(touristShuttleAltOffset);
-  const touristShuttleOpacityRef = useRef(touristShuttleOpacity);
+  // ── 群3 尚未遷移的鏡像 ref（廢棄物；仍由本檔 useState 供值）──────────
   const wasteOrbScaleRef = useRef(wasteOrbScale);
   const wasteNoteSizeRef = useRef(wasteNoteSize);
   const wasteNoteZOffsetRef = useRef(wasteNoteZOffset);
-  const fireStationsScaleRef = useRef(fireStationsScale);
-  const fireStationsOpacityRef = useRef(fireStationsOpacity);
-  const fireStations3DRef = useRef(fireStations3D);
-
-  busColorModeRef.current = busColorMode;
-  busAltOffsetRef.current = busAltOffset;
-  busOrbScaleRef.current = busOrbScale;
-  busIntercityOrbScaleRef.current = busIntercityOrbScale;
-  busIntercityColorModeRef.current = busIntercityColorMode;
-  busIntercityAltOffsetRef.current = busIntercityAltOffset;
-  touristShuttleOrbScaleRef.current = touristShuttleOrbScale;
-  touristShuttleColorModeRef.current = touristShuttleColorMode;
-  touristShuttleAltOffsetRef.current = touristShuttleAltOffset;
-  touristShuttleOpacityRef.current = touristShuttleOpacity;
   wasteOrbScaleRef.current = wasteOrbScale;
   wasteNoteSizeRef.current = wasteNoteSize;
   wasteNoteZOffsetRef.current = wasteNoteZOffset;
-  fireStationsScaleRef.current = fireStationsScale;
-  fireStationsOpacityRef.current = fireStationsOpacity;
-  fireStations3DRef.current = fireStations3D;
-  altExagRef.current = altExaggeration;
-  altOffsetRef.current = altOffset;
-  staticOpacityRef.current = staticOpacity;
-  orbScaleRef.current = orbScale;
-  shipOrbScaleRef.current = shipOrbScale;
-  shipTrailOpacityRef.current = shipTrailOpacity;
-  railAltOffsetRef.current = railAltOffset;
-  railOrbScaleRef.current = railOrbScale;
-  railTrackOpacityRef.current = railTrackOpacity;
-  railTrainVisibleRef.current = railTrainVisible;
-  railTrackModeRef.current = railTrackMode;
-  beamVisibleRef.current = beamVisible;
-  beamDistanceRef.current = beamDistance;
-  beamOpacityRef.current = beamOpacity;
-  thsrPillarVisibleRef.current = thsrPillarVisible;
-  thsrPillarHeightRef.current = thsrPillarHeight;
-  traPillarVisibleRef.current = traPillarVisible;
-  traPillarHeightRef.current = traPillarHeight;
-  metroPillarVisibleRef.current = metroPillarVisible;
-  metroPillarHeightRef.current = metroPillarHeight;
-  portPillarVisibleRef.current = portPillarVisible;
-  portPillarHeightRef.current = portPillarHeight;
-  airportPillarVisibleRef.current = airportPillarVisible;
-  airportPillarHeightRef.current = airportPillarHeight;
-  tempHeightRef.current = tempHeight;
-  tempZOffsetRef.current = tempZOffset;
-  tempExtrudedRef.current = tempExtruded;
-  tempOpacityRef.current = tempOpacity;
-  tempWireframeRef.current = tempWireframe;
 
   // ══════════════════════════════════════════════════════════════════
   //  雙軌（AR-22 P3-1）：已遷移進 layerParamsStore 的 key 走規格派生，
@@ -448,29 +318,104 @@ export function useTransportParams() {
   const tempGridOpacity = pNum(migratedParams, "temperatureGrid", "tempGridOpacity");
   const pollutionSiteActiveOnly = pBool(migratedParams, "pollutionSite", "pollutionSiteActiveOnly");
 
+  // ── 第二通道：已遷移參數 → refs.current（P3-2D 群2）────────────────
+  //    Three.js / CustomLayer 的 render loop 逐幀讀 `.current`，不走 React 樹。
+  //    ⚠️ `useParamRef*` 的 initial 吃**規格常數**、current 吃 store 現值 ——
+  //    兩者刻意不同源：initial 若也讀 store，「刪掉同步賦值」這個突變在測試
+  //    （每次 capture 都是全新 mount）裡會驗不出來。見等值閘的盲區說明。
+  const altExagRef = useParamRefNum(migratedParams, "flights", "altExaggeration");
+  const altOffsetRef = useParamRefNum(migratedParams, "flights", "altOffset");
+  const staticOpacityRef = useParamRefNum(migratedParams, "flights", "staticOpacity");
+  const orbScaleRef = useParamRefNum(migratedParams, "flights", "orbScale");
+  const shipOrbScaleRef = useParamRefNum(migratedParams, "ships", "shipOrbScale");
+  const shipTrailOpacityRef = useParamRefNum(migratedParams, "ships", "shipTrailOpacity");
+  const railAltOffsetRef = useParamRefNum(migratedParams, "rail", "railAltOffset");
+  const railOrbScaleRef = useParamRefNum(migratedParams, "rail", "railOrbScale");
+  const railTrackOpacityRef = useParamRefNum(migratedParams, "rail", "railTrackOpacity");
+  const railTrainVisibleRef = useParamRefBool(migratedParams, "rail", "railTrainVisible");
+  const railTrackModeRef = useParamRefEnum(migratedParams, "rail", "railTrackMode", RAIL_TRACK_MODES, "3d");
+  const beamVisibleRef = useParamRefBool(migratedParams, "lighthouses", "beamVisible");
+  const beamDistanceRef = useParamRefNum(migratedParams, "lighthouses", "beamDistance");
+  const beamOpacityRef = useParamRefNum(migratedParams, "lighthouses", "beamOpacity");
+  const thsrPillarVisibleRef = useParamRefBool(migratedParams, "stationsTHSR", "thsrPillarVisible");
+  const thsrPillarHeightRef = useParamRefNum(migratedParams, "stationsTHSR", "thsrPillarHeight");
+  const traPillarVisibleRef = useParamRefBool(migratedParams, "stationsTRA", "traPillarVisible");
+  const traPillarHeightRef = useParamRefNum(migratedParams, "stationsTRA", "traPillarHeight");
+  const metroPillarVisibleRef = useParamRefBool(migratedParams, "stationsMetro", "metroPillarVisible");
+  const metroPillarHeightRef = useParamRefNum(migratedParams, "stationsMetro", "metroPillarHeight");
+  const portPillarVisibleRef = useParamRefBool(migratedParams, "ports", "portPillarVisible");
+  const portPillarHeightRef = useParamRefNum(migratedParams, "ports", "portPillarHeight");
+  const airportPillarVisibleRef = useParamRefBool(migratedParams, "airports", "airportPillarVisible");
+  const airportPillarHeightRef = useParamRefNum(migratedParams, "airports", "airportPillarHeight");
+  const busOrbScaleRef = useParamRefNum(migratedParams, "busLive", "busOrbScale");
+  const busAltOffsetRef = useParamRefNum(migratedParams, "busLive", "busAltOffset");
+  const busColorModeRef = useParamRefEnum(migratedParams, "busLive", "busColorMode", BUS_COLOR_MODES, "route");
+  const busIntercityOrbScaleRef = useParamRefNum(migratedParams, "busIntercityLive", "busIntercityOrbScale");
+  const busIntercityAltOffsetRef = useParamRefNum(migratedParams, "busIntercityLive", "busIntercityAltOffset");
+  const busIntercityColorModeRef = useParamRefEnum(migratedParams, "busIntercityLive", "busIntercityColorMode", BUS_COLOR_MODES, "route");
+  const touristShuttleOrbScaleRef = useParamRefNum(migratedParams, "touristShuttleLive", "touristShuttleOrbScale");
+  const touristShuttleAltOffsetRef = useParamRefNum(migratedParams, "touristShuttleLive", "touristShuttleAltOffset");
+  const touristShuttleOpacityRef = useParamRefNum(migratedParams, "touristShuttleLive", "touristShuttleOpacity");
+  const touristShuttleColorModeRef = useParamRefEnum(migratedParams, "touristShuttleLive", "touristShuttleColorMode", BUS_COLOR_MODES, "route");
+  const fireStationsScaleRef = useParamRefNum(migratedParams, "fireStations", "fireStationsScale");
+  const fireStationsOpacityRef = useParamRefNum(migratedParams, "fireStations", "fireStationsOpacity");
+  const fireStations3DRef = useParamRefBool(migratedParams, "fireStations", "fireStations3D");
+  const tempHeightRef = useParamRefNum(migratedParams, "temperatureWave", "tempHeight");
+  const tempZOffsetRef = useParamRefNum(migratedParams, "temperatureWave", "tempZOffset");
+  const tempExtrudedRef = useParamRefBool(migratedParams, "temperatureWave", "tempExtruded");
+  const tempOpacityRef = useParamRefNum(migratedParams, "temperatureWave", "tempOpacity");
+  const tempWireframeRef = useParamRefBool(migratedParams, "temperatureWave", "tempWireframe");
+
+  // ── 第二通道：群2 裡另外還要回傳純值的三處 ───────────────────────
+  const stationScale = pNum(migratedParams, "stationsTHSR", "stationScale");
+  const railTrackMode = oneOf(pStr(migratedParams, "rail", "railTrackMode"), RAIL_TRACK_MODES, "3d");
+  const newsTimeBased = pBool(migratedParams, "newsEvents", "newsTimeBased");
+  const newsRipple = pBool(migratedParams, "newsEvents", "newsRipple");
+  const newsMinRelevance = oneOfNum(
+    pNum(migratedParams, "newsEvents", "newsMinRelevance"), NEWS_RELEVANCE_LEVELS, 3,
+  );
+  const newsMinSeverity = oneOfNum(
+    pNum(migratedParams, "newsEvents", "newsMinSeverity"), NEWS_SEVERITY_LEVELS, 1,
+  );
+  const newsEventsOnly = pBool(migratedParams, "newsEvents", "newsEventsOnly");
+  // 三個 setter 是 IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫的 ——
+  // 換軌後改寫 store（identity 由 useCallback 釘住，與原本 useState setter 同樣穩定）。
+  const setNewsMinRelevance = useCallback(
+    (v: 0 | 2 | 3) => layerParamsStore.setParam("newsEvents", "newsMinRelevance", String(v)),
+    [],
+  );
+  const setNewsMinSeverity = useCallback(
+    (v: 0 | 1 | 2) => layerParamsStore.setParam("newsEvents", "newsMinSeverity", String(v)),
+    [],
+  );
+  const setNewsEventsOnly = useCallback(
+    (v: boolean) => layerParamsStore.setParam("newsEvents", "newsEventsOnly", v),
+    [],
+  );
+
+  // busCities 實際傳給 RPC 的展開值（BusGroup → BusCity[]）。
+  // 8 個分組 checkbox 已拆成 8 個獨立 boolean 參數 → 這裡照 BUS_GROUP_ORDER 重新聚合，
+  // 展開順序與手寫版（硬寫在 case 裡的那個陣列）逐字相同。
+  const busLiveParams = migratedParams["busLive"];
+  const enabledBusCities = useMemo<BusCity[]>(
+    () => BUS_GROUP_ORDER
+      .filter((g) => busLiveParams?.[`busGroup${g}`] === true)
+      .flatMap((g) => BUS_GROUP_CITIES[g]),
+    [busLiveParams],
+  );
+
   const overlayParams = useMemo<Record<string, number>>(() => ({
     // 警察覆蓋分析（數字化 mode/minutes 餵 paint expression）
     // 環境污染（paint 用；filter 值另由 return 物件傳給 usePollutionLayers）
     pollutionFacilityOpacity, pollutionFacilityScale,
     pollutionPenaltyOpacity, pollutionPenaltyScale,
-    stationScale,
-    airportOpacity,
-    airportGlow,
-    lighthouseScale,
-    fireStationsScale,
-    fireStationsOpacity,
-    fireStationsZ,
-    fireStationsDots: fireStationsDots ? 1 : 0,
-    portGlow,
-    newsScale,
-    metroPillar3d: metroPillarVisible ? 1 : 0,
     // ENERGY
     // 雲林 POC 覆蓋分析
     // HAZARD
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams, stationScale, airportOpacity, airportGlow, lighthouseScale, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, portGlow, newsScale, metroPillarVisible,
+  }), [migratedOverlayParams,
     
     
     
@@ -489,100 +434,6 @@ export function useTransportParams() {
     if (migrated) return migrated;
 
     switch (layer) {
-      case "flights": return [
-        { label: `Alt ×${altExaggeration.toFixed(1)}`, value: altExaggeration, min: 1, max: 5, step: 0.5, onChange: setAltExaggeration },
-        { label: `Z +${altOffset}m`, value: altOffset, min: 0, max: 200, step: 50, onChange: setAltOffset },
-        { label: `Opacity ${staticOpacity.toFixed(2)}`, value: staticOpacity, min: 0.02, max: 0.5, step: 0.02, onChange: setStaticOpacity },
-        { label: `Orb ${(orbScale * 100000).toFixed(1)}`, value: orbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setOrbScale },
-      ];
-      case "ships": return [
-        { label: `Ship Orb ${(shipOrbScale * 100000).toFixed(1)}`, value: shipOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setShipOrbScale },
-        { label: `Ship Trail ${shipTrailOpacity.toFixed(2)}`, value: shipTrailOpacity, min: 0.05, max: 1, step: 0.05, onChange: setShipTrailOpacity },
-      ];
-      case "rail": return [
-        { type: "toggle" as const, label: "Train", value: railTrainVisible, onChange: setRailTrainVisible },
-        { type: "select" as const, label: "Track", value: railTrackMode, options: [{ label: "2D", value: "2d" }, { label: "3D", value: "3d" }], onChange: (v: string) => setRailTrackMode(v as "2d" | "3d") },
-        { label: `Rail Z +${railAltOffset}m`, value: railAltOffset, min: 0, max: 500, step: 10, onChange: setRailAltOffset },
-        { label: `Rail Orb ${(railOrbScale * 100000).toFixed(1)}`, value: railOrbScale, min: 0.000001, max: 0.00002, step: 0.000001, onChange: setRailOrbScale },
-        { label: `Rail Trk ${railTrackOpacity.toFixed(2)}`, value: railTrackOpacity, min: 0.05, max: 1, step: 0.05, onChange: setRailTrackOpacity },
-      ];
-      case "busLive": return [
-        ...([
-          "TaipeiMetro",
-          "KeelungYilan",
-          "TaoyuanHsinchuMiaoli",
-          "CentralTaiwan",
-          "YunChiaNan",
-          "Kaoping",
-          "HualienTaitung",
-          "OffshoreIslands",
-        ] as BusGroup[]).map((g) => ({
-          type: "toggle" as const,
-          label: BUS_GROUP_LABELS[g],
-          value: busGroups[g],
-          onChange: (v: boolean) => setBusGroup(g, v),
-        })),
-        { type: "select" as const, label: "Color", value: busColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusColorMode(v as BusColorMode) },
-        { label: `Bus Z +${busAltOffset}m`, value: busAltOffset, min: 0, max: 500, step: 10, onChange: setBusAltOffset },
-        { label: `Bus Orb ${(busOrbScale * 1000000).toFixed(0)}`, value: busOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusOrbScale },
-      ];
-      case "busIntercityLive": return [
-        { type: "select" as const, label: "Color", value: busIntercityColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setBusIntercityColorMode(v as BusColorMode) },
-        { label: `InterCity Z +${busIntercityAltOffset}m`, value: busIntercityAltOffset, min: 0, max: 500, step: 10, onChange: setBusIntercityAltOffset },
-        { label: `InterCity Orb ${(busIntercityOrbScale * 1000000).toFixed(0)}`, value: busIntercityOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setBusIntercityOrbScale },
-      ];
-      case "touristShuttleLive": return [
-        { type: "select" as const, label: "Color", value: touristShuttleColorMode, options: [{ label: "路線", value: "route" }, { label: "速度", value: "speed" }, { label: "密度", value: "density" }], onChange: (v: string) => setTouristShuttleColorMode(v as BusColorMode) },
-        { label: `Opacity ${touristShuttleOpacity.toFixed(2)}`, value: touristShuttleOpacity, min: 0.2, max: 1, step: 0.05, onChange: setTouristShuttleOpacity },
-        { label: `Shuttle Z +${touristShuttleAltOffset}m`, value: touristShuttleAltOffset, min: 0, max: 500, step: 10, onChange: setTouristShuttleAltOffset },
-        { label: `Shuttle Orb ${(touristShuttleOrbScale * 1000000).toFixed(0)}`, value: touristShuttleOrbScale, min: 0.000001, max: 0.00001, step: 0.000001, onChange: setTouristShuttleOrbScale },
-      ];
-      case "lighthouses": return [
-        { label: `LH ${lighthouseScale.toFixed(1)}`, value: lighthouseScale, min: 0.3, max: 3, step: 0.1, onChange: setLighthouseScale },
-        { type: "toggle", label: "Beam", value: beamVisible, onChange: setBeamVisible },
-        { label: `Dist ${beamDistance.toFixed(1)}`, value: beamDistance, min: 0.2, max: 3, step: 0.1, onChange: setBeamDistance },
-        { label: `Opa ${beamOpacity.toFixed(2)}`, value: beamOpacity, min: 0.05, max: 0.8, step: 0.05, onChange: setBeamOpacity },
-      ];
-      case "stationsTHSR": return [
-        { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
-        { type: "toggle" as const, label: "Pillar", value: thsrPillarVisible, onChange: setThsrPillarVisible },
-        { label: `Height ${thsrPillarHeight.toFixed(1)}`, value: thsrPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setThsrPillarHeight },
-      ];
-      case "stationsTRA": return [
-        { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
-        { type: "toggle" as const, label: "Pillar", value: traPillarVisible, onChange: setTraPillarVisible },
-        { label: `Height ${traPillarHeight.toFixed(1)}`, value: traPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setTraPillarHeight },
-      ];
-      case "stationsMetro": return [
-        { label: `Stn ${stationScale.toFixed(1)}`, value: stationScale, min: 0.3, max: 3, step: 0.1, onChange: setStationScale },
-        { type: "toggle" as const, label: "Pillar", value: metroPillarVisible, onChange: setMetroPillarVisible },
-        { label: `Height ${metroPillarHeight.toFixed(1)}`, value: metroPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setMetroPillarHeight },
-      ];
-      case "ports": return [
-        { label: `Glow ${portGlow.toFixed(1)}`, value: portGlow, min: 0, max: 3, step: 0.1, onChange: setPortGlow },
-        { type: "toggle" as const, label: "Pillar", value: portPillarVisible, onChange: setPortPillarVisible },
-        { label: `Height ${portPillarHeight.toFixed(1)}`, value: portPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setPortPillarHeight },
-      ];
-      case "airports": return [
-        { label: `APT ${airportOpacity.toFixed(2)}`, value: airportOpacity, min: 0, max: 0.3, step: 0.01, onChange: setAirportOpacity },
-        { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
-        { type: "toggle" as const, label: "Pillar", value: airportPillarVisible, onChange: setAirportPillarVisible },
-        { label: `Height ${airportPillarHeight.toFixed(1)}`, value: airportPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setAirportPillarHeight },
-      ];
-      case "fireStations": return [
-        { type: "toggle" as const, label: "散點", value: fireStationsDots, onChange: setFireStationsDots },
-        { type: "toggle" as const, label: "3D 光柱波動", value: fireStations3D, onChange: setFireStations3D },
-        { label: `大小 ${fireStationsScale.toFixed(1)}`, value: fireStationsScale, min: 0.3, max: 3, step: 0.1, onChange: setFireStationsScale },
-        { label: `透明度 ${fireStationsOpacity.toFixed(2)}`, value: fireStationsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFireStationsOpacity },
-        { label: `Z 漂浮 ${fireStationsZ.toFixed(0)}px`, value: fireStationsZ, min: 0, max: 100, step: 2, onChange: setFireStationsZ },
-      ];
-      case "temperatureWave": return [
-        { type: "toggle" as const, label: "3D", value: tempExtruded, onChange: setTempExtruded },
-        { label: `Height ${tempHeight}`, value: tempHeight, min: 0, max: 400, step: 20, onChange: setTempHeight },
-        { label: `Z Offset ${tempZOffset}`, value: tempZOffset, min: 0, max: 1000, step: 50, onChange: setTempZOffset },
-        { label: `Opacity ${tempOpacity.toFixed(2)}`, value: tempOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTempOpacity },
-        { type: "toggle" as const, label: "Grid", value: tempWireframe, onChange: setTempWireframe },
-      ];
       // 都市熱島：2 選項 → ExpandedControls 會渲染成 button row（≥4 才轉原生 dropdown）
       case "windPlan": return [];
       // 🎓 教育 Education — 6 個點層共用 eduSchoolsOpacity / schoolScale（同一份 schools.geojson）
@@ -590,22 +441,6 @@ export function useTransportParams() {
       case "submarineCables": return [];
       case "landingStations": return [];
       case "activeFaults": return [];
-      case "newsEvents": return [
-        { type: "select" as const, label: "相關度", value: String(newsMinRelevance), options: [
-          { label: "全部", value: "0" },
-          { label: "地方+", value: "2" },
-          { label: "重大", value: "3" },
-        ], onChange: (v: string) => setNewsMinRelevance(Number(v) as 0 | 2 | 3) },
-        { type: "select" as const, label: "嚴重", value: String(newsMinSeverity), options: [
-          { label: "全部", value: "0" },
-          { label: "個案+", value: "1" },
-          { label: "區域+", value: "2" },
-        ], onChange: (v: string) => setNewsMinSeverity(Number(v) as 0 | 1 | 2) },
-        { type: "toggle" as const, label: "只看事件", value: newsEventsOnly, onChange: setNewsEventsOnly },
-        { type: "toggle" as const, label: "Time", value: newsTimeBased, onChange: setNewsTimeBased },
-        { type: "toggle" as const, label: "Ripple", value: newsRipple, onChange: setNewsRipple },
-        { label: `Scale ${newsScale.toFixed(1)}`, value: newsScale, min: 0.3, max: 3, step: 0.1, onChange: setNewsScale },
-      ];
       case "h3Population": return [
         { label: `Opacity ${h3Opacity.toFixed(1)}`, value: h3Opacity, min: 0.1, max: 1, step: 0.1, onChange: setH3Opacity },
         { label: `Contrast ${h3Contrast.toFixed(1)}`, value: h3Contrast, min: 0.5, max: 4, step: 0.1, onChange: setH3Contrast },

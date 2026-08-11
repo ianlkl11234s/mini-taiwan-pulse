@@ -45,6 +45,7 @@ import {
 } from "../../data/layerParamsSpec";
 import { layerParamsStore } from "../../state/layerParamsStore";
 import { PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
+import { BUS_GROUP_CITIES, type BusGroup } from "../../types";
 
 // ══════════════════════════════════════════════════════════════════
 //  第二通道宣告表（RETURN_CHANNEL）
@@ -101,7 +102,165 @@ const RETURN_CHANNEL: ReturnChannel[] = [
     key: "pollutionSite", param: "pollutionSiteActiveOnly", to: false,
     paths: { pollutionSiteActiveOnly: false },
   },
+
+  // ── 群2：refs.current（Three.js render loop）────────────────────
+  // `refs.x` 指的是 `refs.x.current`（capture 已攤平）。同時走 overlayParams 的
+  // 參數只宣告這裡的第二條，overlay 那條由 spec 的 out 自動推導。
+  { key: "flights", param: "altExaggeration", to: 4, paths: { "refs.altExag": 4 } },
+  { key: "flights", param: "altOffset", to: 100, paths: { "refs.altOffset": 100 } },
+  { key: "flights", param: "staticOpacity", to: 0.3, paths: { "refs.staticOpacity": 0.3 } },
+  { key: "flights", param: "orbScale", to: 0.000008, paths: { "refs.orbScale": 0.000008 } },
+  { key: "ships", param: "shipOrbScale", to: 0.00001, paths: { "refs.shipOrbScale": 0.00001 } },
+  { key: "ships", param: "shipTrailOpacity", to: 0.5, paths: { "refs.shipTrailOpacity": 0.5 } },
+  { key: "rail", param: "railTrainVisible", to: false, paths: { "refs.railTrainVisible": false } },
+  // 一個參數餵兩條回傳路徑（ref 給 Three.js、平鋪欄位給 App 的 2D/3D 切換 effect）
+  {
+    key: "rail", param: "railTrackMode", to: "2d",
+    paths: { railTrackMode: "2d", "refs.railTrackMode": "2d" },
+  },
+  { key: "rail", param: "railAltOffset", to: 200, paths: { "refs.railAltOffset": 200 } },
+  { key: "rail", param: "railOrbScale", to: 0.000015, paths: { "refs.railOrbScale": 0.000015 } },
+  { key: "rail", param: "railTrackOpacity", to: 0.6, paths: { "refs.railTrackOpacity": 0.6 } },
+  // 8 個分組 checkbox → 派生欄位 `enabledBusCities`（展開順序 = BUS_GROUP_ORDER）
+  {
+    key: "busLive", param: "busGroupTaipeiMetro", to: false,
+    paths: { enabledBusCities: [] },
+  },
+  {
+    key: "busLive", param: "busGroupKeelungYilan", to: true,
+    paths: { enabledBusCities: busCitiesOf("TaipeiMetro", "KeelungYilan") },
+  },
+  {
+    key: "busLive", param: "busGroupTaoyuanHsinchuMiaoli", to: true,
+    paths: { enabledBusCities: busCitiesOf("TaipeiMetro", "TaoyuanHsinchuMiaoli") },
+  },
+  {
+    key: "busLive", param: "busGroupCentralTaiwan", to: true,
+    paths: { enabledBusCities: busCitiesOf("TaipeiMetro", "CentralTaiwan") },
+  },
+  {
+    key: "busLive", param: "busGroupYunChiaNan", to: true,
+    paths: { enabledBusCities: busCitiesOf("TaipeiMetro", "YunChiaNan") },
+  },
+  {
+    key: "busLive", param: "busGroupKaoping", to: true,
+    paths: { enabledBusCities: busCitiesOf("TaipeiMetro", "Kaoping") },
+  },
+  {
+    key: "busLive", param: "busGroupHualienTaitung", to: true,
+    paths: { enabledBusCities: busCitiesOf("TaipeiMetro", "HualienTaitung") },
+  },
+  {
+    key: "busLive", param: "busGroupOffshoreIslands", to: true,
+    paths: { enabledBusCities: busCitiesOf("TaipeiMetro", "OffshoreIslands") },
+  },
+  { key: "busLive", param: "busColorMode", to: "speed", paths: { "refs.busColorMode": "speed" } },
+  { key: "busLive", param: "busAltOffset", to: 100, paths: { "refs.busAltOffset": 100 } },
+  { key: "busLive", param: "busOrbScale", to: 0.000008, paths: { "refs.busOrbScale": 0.000008 } },
+  {
+    key: "busIntercityLive", param: "busIntercityColorMode", to: "density",
+    paths: { "refs.busIntercityColorMode": "density" },
+  },
+  {
+    key: "busIntercityLive", param: "busIntercityAltOffset", to: 50,
+    paths: { "refs.busIntercityAltOffset": 50 },
+  },
+  {
+    key: "busIntercityLive", param: "busIntercityOrbScale", to: 0.000007,
+    paths: { "refs.busIntercityOrbScale": 0.000007 },
+  },
+  {
+    key: "touristShuttleLive", param: "touristShuttleColorMode", to: "speed",
+    paths: { "refs.touristShuttleColorMode": "speed" },
+  },
+  {
+    key: "touristShuttleLive", param: "touristShuttleOpacity", to: 0.5,
+    paths: { "refs.touristShuttleOpacity": 0.5 },
+  },
+  {
+    key: "touristShuttleLive", param: "touristShuttleAltOffset", to: 60,
+    paths: { "refs.touristShuttleAltOffset": 60 },
+  },
+  {
+    key: "touristShuttleLive", param: "touristShuttleOrbScale", to: 0.000006,
+    paths: { "refs.touristShuttleOrbScale": 0.000006 },
+  },
+  { key: "lighthouses", param: "beamVisible", to: false, paths: { "refs.beamVisible": false } },
+  { key: "lighthouses", param: "beamDistance", to: 2, paths: { "refs.beamDistance": 2 } },
+  { key: "lighthouses", param: "beamOpacity", to: 0.5, paths: { "refs.beamOpacity": 0.5 } },
+  // stationScale 是 3 個車站層的共用 slot：宣告一次，其餘成員自動展開
+  { key: "stationsTHSR", param: "stationScale", to: 2, paths: { stationScale: 2 } },
+  {
+    key: "stationsTHSR", param: "thsrPillarVisible", to: false,
+    paths: { "refs.thsrPillarVisible": false },
+  },
+  {
+    key: "stationsTHSR", param: "thsrPillarHeight", to: 1.5,
+    paths: { "refs.thsrPillarHeight": 1.5 },
+  },
+  {
+    key: "stationsTRA", param: "traPillarVisible", to: false,
+    paths: { "refs.traPillarVisible": false },
+  },
+  { key: "stationsTRA", param: "traPillarHeight", to: 1.5, paths: { "refs.traPillarHeight": 1.5 } },
+  // 兩條通道都走：overlayParams.metroPillar3d（paint）＋ ref（Three.js）
+  {
+    key: "stationsMetro", param: "metroPillarVisible", to: true,
+    paths: { "refs.metroPillarVisible": true },
+  },
+  {
+    key: "stationsMetro", param: "metroPillarHeight", to: 1.5,
+    paths: { "refs.metroPillarHeight": 1.5 },
+  },
+  { key: "ports", param: "portPillarVisible", to: true, paths: { "refs.portPillarVisible": true } },
+  { key: "ports", param: "portPillarHeight", to: 1.5, paths: { "refs.portPillarHeight": 1.5 } },
+  {
+    key: "airports", param: "airportPillarVisible", to: true,
+    paths: { "refs.airportPillarVisible": true },
+  },
+  {
+    key: "airports", param: "airportPillarHeight", to: 1.5,
+    paths: { "refs.airportPillarHeight": 1.5 },
+  },
+  {
+    key: "fireStations", param: "fireStations3D", to: false,
+    paths: { "refs.fireStations3D": false },
+  },
+  {
+    key: "fireStations", param: "fireStationsScale", to: 2,
+    paths: { "refs.fireStationsScale": 2 },
+  },
+  {
+    key: "fireStations", param: "fireStationsOpacity", to: 0.5,
+    paths: { "refs.fireStationsOpacity": 0.5 },
+  },
+  {
+    key: "temperatureWave", param: "tempExtruded", to: false,
+    paths: { "refs.tempExtruded": false },
+  },
+  { key: "temperatureWave", param: "tempHeight", to: 300, paths: { "refs.tempHeight": 300 } },
+  { key: "temperatureWave", param: "tempZOffset", to: 500, paths: { "refs.tempZOffset": 500 } },
+  { key: "temperatureWave", param: "tempOpacity", to: 0.5, paths: { "refs.tempOpacity": 0.5 } },
+  {
+    key: "temperatureWave", param: "tempWireframe", to: true,
+    paths: { "refs.tempWireframe": true },
+  },
+  // 新聞三軸：store 存字串、回傳仍是原本的 0|2|3 / 0|1|2 數字
+  { key: "newsEvents", param: "newsMinRelevance", to: "0", paths: { newsMinRelevance: 0 } },
+  { key: "newsEvents", param: "newsMinSeverity", to: "2", paths: { newsMinSeverity: 2 } },
+  { key: "newsEvents", param: "newsEventsOnly", to: false, paths: { newsEventsOnly: false } },
+  { key: "newsEvents", param: "newsTimeBased", to: false, paths: { newsTimeBased: false } },
+  { key: "newsEvents", param: "newsRipple", to: false, paths: { newsRipple: false } },
 ];
+
+/**
+ * 分組 → 城市清單（`enabledBusCities` 的期望值）。
+ * 城市名取自與 hook 同一份 SSOT（`BUS_GROUP_CITIES`），但**展開順序**是本表寫死的 ——
+ * 順序錯（hook 沒照 BUS_GROUP_ORDER 展開）照樣會紅。
+ */
+function busCitiesOf(...groups: BusGroup[]): string[] {
+  return groups.flatMap((g) => BUS_GROUP_CITIES[g]);
+}
 
 /**
  * 值不進 overlayParams、也不進回傳物件，消費者在 hook **內部**的參數。

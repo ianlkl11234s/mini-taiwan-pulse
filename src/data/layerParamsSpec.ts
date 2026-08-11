@@ -33,7 +33,8 @@
 // 是這份規格的機械等價目標。搬一個 key 進本檔、從 switch 刪掉它的 case，
 // fixture 必須**一位元不變**。
 
-import type { LayerVisibility } from "../types";
+import type { BusGroup, LayerVisibility } from "../types";
+import { BUS_GROUP_LABELS } from "../types";
 import {
   DEITY_FAMILIES, REGISTRY_MODES, REGISTRY_MODES_ANCESTRAL,
 } from "./religionTypes";
@@ -173,6 +174,18 @@ export interface SliderParamSpec extends SharedSlotField, ConditionalField {
   zeroLabel?: string;
   /** `toFixed` 位數 */
   digits: number;
+  /**
+   * 顯示倍率：label 印的是 `(value * displayScale).toFixed(digits)`（P3-2D 群2）。
+   *
+   * Three.js 的軌道球半徑是經緯度尺度的極小數（`0.000005`），面板直接印會變成
+   * `0.00` 全都一樣 —— 手寫版一律乘一個倍率再印：
+   * `` `Orb ${(orbScale * 100000).toFixed(1)}` `` ／ `` `Bus Orb ${(x * 1000000).toFixed(0)}` ``。
+   *
+   * ⚠️ **只影響 label**，不影響 `value` / `min` / `max` / `step`，更不影響編碼 ——
+   * 那些仍是原尺度的真值（滑桿拖的是真值，paint / scene 吃的也是真值）。
+   * ⚠️ 乘法與 `toFixed` 的順序與手寫版逐字相同，浮點結果因此逐位元一致。
+   */
+  displayScale?: number;
   /**
    * label 後綴 —— 緊接在數字之後、**不補空白**（前綴那一側才自動補）。
    *
@@ -404,6 +417,66 @@ function alertOpacity(): SliderParamSpec {
 /** 衛星 16 層共用的 `satOpacity` */
 function satelliteOpacity(): SliderParamSpec {
   return sharedReturnOpacity("satOpacity", "satOpacity", 1.0);
+}
+
+/**
+ * 公車／垃圾車 8 區分組的**顯示順序**（＝控件順序，也是 `enabledBusCities` 的展開順序）。
+ * 原本硬寫在 `useTransportParams` 的 case 裡；規格與 hook 兩邊都要用同一份，
+ * 各寫一份必漂移（順序不同 → 傳給 RPC 的城市陣列順序不同）。
+ */
+export const BUS_GROUP_ORDER = [
+  "TaipeiMetro", "KeelungYilan", "TaoyuanHsinchuMiaoli", "CentralTaiwan",
+  "YunChiaNan", "Kaoping", "HualienTaitung", "OffshoreIslands",
+] as const satisfies readonly BusGroup[];
+
+/**
+ * 8 區分組 checkbox → 8 個獨立 boolean 參數（P3-2D 群2/3）。
+ *
+ * 手寫版是一個 `Record<BusGroup, boolean>` 的 useState ＋ `.map()` 出 8 個 toggle。
+ * 拆平成獨立參數，store 的 value 型別因此不必支援巢狀物件；
+ * hook 端再聚合回 `enabledBusCities` / `enabledWasteScheduleCities`。
+ */
+function busGroupToggles(
+  prefix: string,
+  defaults: Record<BusGroup, boolean>,
+): ToggleParamSpec[] {
+  return BUS_GROUP_ORDER.map((g) => ({
+    kind: "toggle" as const,
+    name: `${prefix}${g}`,
+    label: BUS_GROUP_LABELS[g],
+    default: defaults[g],
+    out: null,
+  }));
+}
+
+/** 三種公車圖層共用的「Color」染色模式 select（路線 / 速度 / 密度；值走 Three.js ref） */
+function busColorSelect(name: string): SelectNoOverlayParamSpec {
+  return {
+    kind: "select", name, label: "Color", default: "route",
+    options: [
+      { label: "路線", value: "route" },
+      { label: "速度", value: "speed" },
+      { label: "密度", value: "density" },
+    ],
+    out: null,
+  };
+}
+
+/** 高鐵／台鐵／捷運三層共用的站點大小（跨 case 共用同一個 useState 的等價表達） */
+function stationScaleSlider(): SliderParamSpec {
+  return {
+    kind: "slider", name: "stationScale", labelPrefix: "Stn", digits: 1,
+    default: 1, min: 0.3, max: 3, step: 0.1,
+    sharedGroup: "stationScale",
+  };
+}
+
+/** 站點／碼頭／機場的月台柱高度（五處同構，只有參數名與 default 不同） */
+function pillarHeightSlider(name: string, def: number): SliderParamSpec {
+  return {
+    kind: "slider", name, labelPrefix: "Height", digits: 1,
+    default: def, min: 0.2, max: 3, step: 0.1, out: null,
+  };
 }
 
 const REGISTRY_ENCODE = REGISTRY_MODES.map((m) => m.value);
@@ -1808,6 +1881,214 @@ export const LAYER_PARAMS_SPEC = {
       default: 0.7, min: 0.1, max: 1, step: 0.05, out: null,
     },
   ],
+  // ══════════ D 桶群2：值走 refs.current（Three.js render loop）══════════
+  // 這一批的 `useRef` initial 一律吃**規格常數**（`paramDefault`）而不是 store 現值 ——
+  // 見 `hooks/__tests__/useTransportParamsReturn.test.ts` 的盲區說明：
+  // 前者才讓「刪掉 ref 同步行」這個突變驗得出來。
+
+  flights: [
+    // Alt ×3.0：前綴自帶 `×`、與數字之間沒有空白 → labelSep ""
+    {
+      kind: "slider", name: "altExaggeration", labelPrefix: "Alt ×", labelSep: "", digits: 1,
+      default: 3, min: 1, max: 5, step: 0.5, out: null,
+    },
+    {
+      kind: "slider", name: "altOffset", labelPrefix: "Z +", labelSep: "", digits: 0,
+      labelSuffix: "m", default: 50, min: 0, max: 200, step: 50, out: null,
+    },
+    {
+      kind: "slider", name: "staticOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 0.1, min: 0.02, max: 0.5, step: 0.02, out: null,
+    },
+    {
+      kind: "slider", name: "orbScale", labelPrefix: "Orb", digits: 1, displayScale: 100000,
+      default: 0.000005, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
+    },
+  ],
+  ships: [
+    {
+      kind: "slider", name: "shipOrbScale", labelPrefix: "Ship Orb", digits: 1, displayScale: 100000,
+      default: 0.000003, min: 0.000001, max: 0.00002, step: 0.000001, out: null,
+    },
+    {
+      kind: "slider", name: "shipTrailOpacity", labelPrefix: "Ship Trail", digits: 2,
+      default: 0.15, min: 0.05, max: 1, step: 0.05, out: null,
+    },
+  ],
+  rail: [
+    { kind: "toggle", name: "railTrainVisible", label: "Train", default: true, out: null },
+    {
+      kind: "select", name: "railTrackMode", label: "Track", default: "3d",
+      options: [{ label: "2D", value: "2d" }, { label: "3D", value: "3d" }],
+      out: null,
+    },
+    {
+      kind: "slider", name: "railAltOffset", labelPrefix: "Rail Z +", labelSep: "", digits: 0,
+      labelSuffix: "m", default: 110, min: 0, max: 500, step: 10, out: null,
+    },
+    {
+      kind: "slider", name: "railOrbScale", labelPrefix: "Rail Orb", digits: 1, displayScale: 100000,
+      default: 0.00001, min: 0.000001, max: 0.00002, step: 0.000001, out: null,
+    },
+    {
+      kind: "slider", name: "railTrackOpacity", labelPrefix: "Rail Trk", digits: 2,
+      default: 0.35, min: 0.05, max: 1, step: 0.05, out: null,
+    },
+  ],
+  busLive: [
+    // 8 區分組 checkbox：原本是一個 `Record<BusGroup, boolean>` 的 useState，
+    // 拆成 8 個獨立 boolean 參數（store 的 value 不必支援巢狀物件）。
+    // hook 端重新聚合成 `enabledBusCities`（BusGroup → BusCity[] 展開）。
+    ...busGroupToggles("busGroup", {
+      TaipeiMetro: true, KeelungYilan: false, TaoyuanHsinchuMiaoli: false, CentralTaiwan: false,
+      YunChiaNan: false, Kaoping: false, HualienTaitung: false, OffshoreIslands: false,
+    }),
+    busColorSelect("busColorMode"),
+    {
+      kind: "slider", name: "busAltOffset", labelPrefix: "Bus Z +", labelSep: "", digits: 0,
+      labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
+    },
+    {
+      kind: "slider", name: "busOrbScale", labelPrefix: "Bus Orb", digits: 0, displayScale: 1000000,
+      default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
+    },
+  ],
+  busIntercityLive: [
+    busColorSelect("busIntercityColorMode"),
+    {
+      kind: "slider", name: "busIntercityAltOffset", labelPrefix: "InterCity Z +", labelSep: "",
+      digits: 0, labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
+    },
+    {
+      kind: "slider", name: "busIntercityOrbScale", labelPrefix: "InterCity Orb", digits: 0,
+      displayScale: 1000000,
+      default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
+    },
+  ],
+  touristShuttleLive: [
+    busColorSelect("touristShuttleColorMode"),
+    {
+      kind: "slider", name: "touristShuttleOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 0.85, min: 0.2, max: 1, step: 0.05, out: null,
+    },
+    {
+      kind: "slider", name: "touristShuttleAltOffset", labelPrefix: "Shuttle Z +", labelSep: "",
+      digits: 0, labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
+    },
+    {
+      kind: "slider", name: "touristShuttleOrbScale", labelPrefix: "Shuttle Orb", digits: 0,
+      displayScale: 1000000,
+      default: 0.000004, min: 0.000001, max: 0.00001, step: 0.000001, out: null,
+    },
+  ],
+  lighthouses: [
+    // ⚠️ 只有 lighthouseScale 走 overlayParams（paint 吃），三個光束參數全是 Three.js ref
+    {
+      kind: "slider", name: "lighthouseScale", labelPrefix: "LH", digits: 1,
+      default: 0.6, min: 0.3, max: 3, step: 0.1,
+    },
+    { kind: "toggle", name: "beamVisible", label: "Beam", default: true, out: null },
+    {
+      kind: "slider", name: "beamDistance", labelPrefix: "Dist", digits: 1,
+      default: 0.9, min: 0.2, max: 3, step: 0.1, out: null,
+    },
+    {
+      kind: "slider", name: "beamOpacity", labelPrefix: "Opa", digits: 2,
+      default: 0.1, min: 0.05, max: 0.8, step: 0.05, out: null,
+    },
+  ],
+  // 三個系統的站點大小共用一支 slider（跨 case 共用同一個 useState 的等價表達）
+  stationsTHSR: [
+    stationScaleSlider(),
+    { kind: "toggle", name: "thsrPillarVisible", label: "Pillar", default: true, out: null },
+    pillarHeightSlider("thsrPillarHeight", 0.6),
+  ],
+  stationsTRA: [
+    stationScaleSlider(),
+    { kind: "toggle", name: "traPillarVisible", label: "Pillar", default: true, out: null },
+    pillarHeightSlider("traPillarHeight", 0.5),
+  ],
+  stationsMetro: [
+    stationScaleSlider(),
+    // ⚠️ 唯一**兩條通道都走**的月台柱開關：overlayParams 的 key 是 `metroPillar3d`
+    //    （與參數名不同名），Three.js 那側另外吃 ref。
+    {
+      kind: "toggle", name: "metroPillarVisible", label: "Pillar", default: false,
+      out: "metroPillar3d",
+    },
+    pillarHeightSlider("metroPillarHeight", 0.2),
+  ],
+  ports: [
+    { kind: "slider", name: "portGlow", labelPrefix: "Glow", digits: 1, default: 1, min: 0, max: 3, step: 0.1 },
+    { kind: "toggle", name: "portPillarVisible", label: "Pillar", default: false, out: null },
+    pillarHeightSlider("portPillarHeight", 0.3),
+  ],
+  airports: [
+    {
+      kind: "slider", name: "airportOpacity", labelPrefix: "APT", digits: 2,
+      default: 0.12, min: 0, max: 0.3, step: 0.01,
+    },
+    {
+      kind: "slider", name: "airportGlow", labelPrefix: "Glow", digits: 1,
+      default: 0.8, min: 0, max: 2, step: 0.1,
+    },
+    { kind: "toggle", name: "airportPillarVisible", label: "Pillar", default: false, out: null },
+    pillarHeightSlider("airportPillarHeight", 0.6),
+  ],
+  // 消防分隊：散點（Mapbox circle）與 3D 光柱（Three.js）各自開關 → 前者走 paint、後者走 ref
+  fireStations: [
+    { kind: "toggle", name: "fireStationsDots", label: "散點", default: true },
+    { kind: "toggle", name: "fireStations3D", label: "3D 光柱波動", default: true, out: null },
+    scaleSlider("fireStationsScale", 1),
+    opacitySlider("fireStationsOpacity", 0.85),
+    zFloatSlider("fireStationsZ"),
+  ],
+  temperatureWave: [
+    { kind: "toggle", name: "tempExtruded", label: "3D", default: true, out: null },
+    {
+      kind: "slider", name: "tempHeight", labelPrefix: "Height", digits: 0,
+      default: 200, min: 0, max: 400, step: 20, out: null,
+    },
+    {
+      kind: "slider", name: "tempZOffset", labelPrefix: "Z Offset", digits: 0,
+      default: 300, min: 0, max: 1000, step: 50, out: null,
+    },
+    {
+      kind: "slider", name: "tempOpacity", labelPrefix: "Opacity", digits: 2,
+      default: 0.85, min: 0.1, max: 1, step: 0.05, out: null,
+    },
+    { kind: "toggle", name: "tempWireframe", label: "Grid", default: false, out: null },
+  ],
+  // 新聞三軸 filter 照 Intel Panel 設計；三個值另有 setter 從 hook 導出
+  // （IntelPanel / MonitorPanel 的 onFilterChange 直接呼叫）。
+  newsEvents: [
+    {
+      kind: "select", name: "newsMinRelevance", label: "相關度", default: "3",
+      options: [
+        { label: "全部", value: "0" },
+        { label: "地方+", value: "2" },
+        { label: "重大", value: "3" },
+      ],
+      out: null,
+    },
+    {
+      kind: "select", name: "newsMinSeverity", label: "嚴重", default: "1",
+      options: [
+        { label: "全部", value: "0" },
+        { label: "個案+", value: "1" },
+        { label: "區域+", value: "2" },
+      ],
+      out: null,
+    },
+    { kind: "toggle", name: "newsEventsOnly", label: "只看事件", default: true, out: null },
+    { kind: "toggle", name: "newsTimeBased", label: "Time", default: true, out: null },
+    { kind: "toggle", name: "newsRipple", label: "Ripple", default: true, out: null },
+    {
+      kind: "slider", name: "newsScale", labelPrefix: "Scale", digits: 1,
+      default: 1, min: 0.3, max: 3, step: 0.1,
+    },
+  ],
+
   // 污染場址：opacity / scale 走 paint，「只看列管中」是 filter → hook return
   pollutionSite: [
     opacitySlider("pollutionSiteOpacity", 0.9),
