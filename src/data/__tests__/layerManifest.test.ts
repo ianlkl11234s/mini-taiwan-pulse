@@ -28,6 +28,7 @@ import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import {
   extractGolden, extractGisLayers, extractGisConstRefTypes, extractNonGisFeatureTypes,
+  extractCustomHandlerFeatureTypes,
 } from "./layerGoldenExtract";
 
 const entries = MANIFEST_KEYS.map(
@@ -44,10 +45,15 @@ const gisRows = extractGisLayers() as { layers: string[]; type: string }[];
 // 同理還有**完全不經 GIS_LAYERS** 的第三類（`ship` / `waterDam` / `climateField`）：
 // 直接 setFeatureInfo。風場／海流的 `climateField` 尤其極端 —— 它是「向量 feature 全部
 // 沒命中」時的 fallback，點哪都能讀值，本來就不對應任何 layer id。
+//
+// 第四類（批 7 廢棄物）連 useMapInteraction 都不進：圖層模組自己
+// `map.on("click", layerId, …)`（wasteMapboxLayers 8 個 circle 子層）或 App.tsx 的
+// customLayer raycast（6 個 3D 設施 scene）直接 setFeatureInfo。
 const gisTypes = new Set([
   ...gisRows.map((r) => r.type),
   ...extractGisConstRefTypes(),
   ...extractNonGisFeatureTypes(),
+  ...extractCustomHandlerFeatureTypes(),
 ]);
 
 function themeLocation(key: string): { theme: string; group: string } | null {

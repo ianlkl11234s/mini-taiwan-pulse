@@ -47,6 +47,16 @@ export const FIXTURE_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 const INTERACTION_FILE = "src/hooks/useMapInteraction.ts";
 const PARAMS_FILE = "src/hooks/useTransportParams.ts";
 
+/**
+ * 圖層模組自己掛 click handler、**完全不經 useMapInteraction** 的那幾支檔（批 7 廢棄物）。
+ * 見 `extractCustomHandlerFeatureTypes` 的說明。
+ */
+const CUSTOM_HANDLER_FILES = [
+  "src/map/wasteMapboxLayers.ts",
+  "src/map/wasteFacilityCustomLayer.ts",
+  "src/App.tsx",
+];
+
 // ── 通用：sanitize + canonical JSON ────────────────────────────────
 
 const TODAY_DASH = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
@@ -274,6 +284,50 @@ export function extractNonGisFeatureTypes(
     throw new Error(`${INTERACTION_FILE} 找不到 setFeatureInfo 的 layerType 字面 —— 抽取器需同步更新`);
   }
   return out;
+}
+
+/**
+ * 第四種 popup 真值來源：**圖層模組自己掛 Mapbox click handler / customLayer raycast**
+ * 的 layerType —— 這些接線完全不在 `useMapInteraction.ts` 裡，前三支解析器一個都抓不到。
+ *
+ * 目前 3 支檔（批 7 廢棄物）：
+ *   - `wasteMapboxLayers.ts` —— 8 個 circle 子層各自 `map.on("click", coreLayerId, …)`
+ *     直接 `onFeatureClick`，layerType 還是**三元運算**（facility / disposal 二選一）
+ *   - `wasteFacilityCustomLayer.ts` —— Three.js 6 個 sub-scene 的 `facilityRowToFeatureInfo`
+ *   - `App.tsx` —— 上面那支 pick 的**實際呼叫端**（inline `setFeatureInfo`，
+ *     是 6 個 3D 設施層真正在跑的那條路徑）
+ *
+ * ⚠️ 與 `extractGisConstRefTypes`（批 1）/ `extractNonGisFeatureTypes`（批 4）同一個理由存在：
+ * 這 13 層（wf* 9 + wd* 4）是**真的有點擊接線**的。不補這支，manifest 只能把它們宣告成
+ * `popup: null`（已知為假），Phase 3 依 popup 派生 GIS_LAYERS 時會靜默丟掉全部廢棄物點擊。
+ *
+ * 只回 type 字串、**不進 fixture**（同前兩支）。兩條 regex 精確錨定 `layerType:` 的值位置，
+ * 不做整行掃描 —— 整行掃 `"..."` 會把三元式左邊的 `props["kind"] === "facility"` 一起收進來。
+ */
+export function extractCustomHandlerFeatureTypes(
+  sources: [file: string, source: string][] = CUSTOM_HANDLER_FILES.map(
+    (f) => [f, readFileSync(f, "utf8")] as [string, string],
+  ),
+): string[] {
+  const out = new Set<string>();
+  for (const [file, source] of sources) {
+    // 逐檔各自算「有沒有抓到」——不能用聯集大小有沒有增加來判：三支檔都會產出
+    // "wasteFacility"，後面兩支的貢獻本來就可能是 0 個**新增**，那不代表接線消失。
+    const perFile = new Set<string>();
+    // `layerType: "x"`
+    for (const m of source.matchAll(/layerType:\s*"([^"]+)"/g)) perFile.add(m[1] as string);
+    // `layerType: cond ? "a" : "b"` —— `[^\n?]*` 把比對範圍夾在該行第一個 `?` 之前，
+    // 三元式左邊的字串字面（`props["kind"] === "facility"`）因此不會被收進來。
+    for (const m of source.matchAll(/layerType:[^\n?]*\?\s*"([^"]+)"\s*:\s*"([^"]+)"/g)) {
+      perFile.add(m[1] as string);
+      perFile.add(m[2] as string);
+    }
+    if (perFile.size === 0) {
+      throw new Error(`${file} 解析出 0 個 layerType —— 接線已搬走或改形狀，抽取器需同步更新`);
+    }
+    for (const t of perFile) out.add(t);
+  }
+  return [...out].sort();
 }
 
 /**
