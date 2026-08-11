@@ -27,7 +27,7 @@ popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽�
 |---|---|---|
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
-| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema 擴充）✅ `15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）✅ `410cac7`…`61eb3e9`；批 6-8 待派工（Phase 2 已搬 172/343，manifest 共 **177 entry**） |
+| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema 擴充）✅ `15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）✅ `410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）✅ `45faee8`…`d39edf1`；批 7-8 待派工（Phase 2 已搬 214/343，manifest 共 **219 entry**） |
 | **3** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ |
 | **4** | params 派生化（`useTransportParams` 的 case 由 manifest spec 產生）＋ `/new-layer` 改成只寫 manifest | ⬜ |
 
@@ -66,8 +66,27 @@ dataClass D 的層更要逐層打開 hook / factory 看它 `addLayer` 了什麼 
 `GIS_LAYERS` 條目。兩個方向都只能靠「讀 hook 的 addLayer id 再對 GIS_LAYERS」。
 
 `popup` 欄位也支援**一個 key 對多個 layerType**（陣列，批 5 為 `earthquakeReplay`
-擴充）—— 同一個 toggle 建出的多個 layer 各自有 panel 時用它，順序＝GIS_LAYERS
-出現序，但**不取代** Phase 3 要加的 `clickPriority`（兩者相隔可能很遠）。
+擴充、批 6 `waterReservoirs` 是第二例）—— 同一個 toggle 建出的多個 layer 各自有
+panel 時用它，順序＝GIS_LAYERS 出現序，但**不取代** Phase 3 要加的 `clickPriority`
+（兩者相隔可能很遠）。
+
+⚠️ **第三個方向的反例（批 6）**：`waterDam` 曾被記載成「不經 GIS_LAYERS」
+（批 4 收進 `extractNonGisFeatureTypes` 時的說法），實際上它**同時有** GIS_LAYERS
+字面條目 —— Three.js scene 的 raycast 是**並存的第二條路徑**。
+三支解析器是聯集不是分割，一個 layerType 可以同時被兩支抓到。
+
+### legend id 規約是逐 registry entry 判、不是逐子群判（批 6）
+
+拍板④的例外條款「家族已有 manifest 成員 → 沿用既有 id」load-bearing 的性質是
+**共用元件 ⇔ 共用 id**。批 6 的環境污染子群橫跨**兩筆** `LEGEND_REGISTRY` entry
+（`PollutionSeverityLegend` 與裁處圖例）→ 只有 `pollutionSite` 沿用試點的
+`"pollution"`，裁處 3 層照機械規則取自家首 key。
+**同一個 sidebar 子群不蘊含同一個圖例**，全填同一個 id 會被契約測試擋下。
+
+### `source` 陣列的 kind 不保證同質（批 6）
+
+`waterReservoirs` = pmtiles 水庫面 + geojson 壩體點。`dataClass` 只有一個值，
+混合時取**上線路徑最重**的 kind：`pmtiles(B) ＞ supabase(C) ＞ geojson(A)`。
 
 ## 雙軌派生機制
 

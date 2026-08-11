@@ -576,3 +576,117 @@ backlog 對本批的預估「災害 3 C + 7 D」實際是 **7 D / 4 C / 1 A** �
 另外 Phase 5 改寫 `/new-layer` 時，「manifest 的 `source.url`（含 `source.note` 裡的
 custom 檔路徑）↔ nginx location ↔ deploy 清單」值得做成一條機械斷言 ——
 本批證明**光掃 dataClass B 不夠**，D 的 note 裡也藏著要部署的檔。
+
+---
+
+## 2026-08-11 — Phase 2 批 6：42 層（環境氣候 19・水資源 23）
+
+`45faee8` schema（source 陣列混合 kind）｜`49ff8b8` 環境氣候｜`d39edf1` 水資源
+
+manifest 177 → **219 entry**。四張手寫表對這 42 key 殘留 grep 命中 0
+（`^  key:` 與 `key: "key"` 兩種形狀分開數，各 0）。
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（測試條數自批 1
+起未增減，本批對 `layerManifest.test.ts` 的改動是就地改寫既有 `it`）｜
+黃金快照 fixture 自 `8abbd97` 起**一位元未動**。
+
+### ⚠️ 代拍的 schema 決定（拍板⑥候補，待 owner 追認）：source 陣列允許混合 `kind`
+
+批 4 的拍板②留下一句「陣列各元素的 `kind` 必須同質（dataClass 只有一個值）」。
+批 6 的 `waterReservoirs` 直接證偽：**水庫面走 PMTiles、壩體點走 GeoJSON**，
+同一個 toggle 兩條載入路徑。`propertyValueGrid`×3 / `waterRivers`×2 /
+`stationsTRA`×2 都是同質，所以前五批沒撞到。
+
+型別不用改（`LayerSource[]` 本來就容得下），改的是**判準**：
+`dataClass` 取「上線路徑最重」的那個 kind ——
+
+    pmtiles(B) ＞ supabase(C) ＞ geojson(A)
+
+B 背著 nginx location + deploy 清單的義務（漏了直接 404，PT-1 的教訓），
+A 只是一支 fetch。用 precedence **不用「首元素的 kind」**：precedence 與陣列
+順序無關，而順序服務的是疊放語意（first-hit-wins），不該連帶決定體質。
+
+契約測試就地改寫既有 `it`：per-element 的形狀斷言（`sourceId` / `sourceUrl` /
+`pmtiles` 三欄 / `dynamicData`）原樣留在迴圈內，只把 `dataClass` 斷言移出迴圈
+改由 kind 集合算期望值。**同質 entry 的期望值與逐筆斷言時逐字相同**
+（218 筆強度零損失），混合才走 precedence。`kind:"custom"` 分支不動。
+
+突變自測（混合路徑在 waterReservoirs 進來前跑不到）：`dataClass` 暫改 `"A"` →
+紅在「waterReservoirs 的 source kind 是 {pmtiles,geojson}，dataClass 應為最重路徑
+pmtiles」。
+
+### legend 拍板④的例外條款：本批證明它是**逐 entry** 不是逐子群
+
+backlog 批 6 欄寫「環境污染 4 層 legend 直接沿用 `"pollution"`」。實際照
+`LEGEND_REGISTRY` 逐 key 查，那個子群橫跨**兩筆 entry、兩個元件**：
+
+| entry | keys | 本批填的 legend id |
+|---|---|---|
+| `PollutionSeverityLegend` | `pollutionFacility`（試點）, `pollutionSite` | `"pollution"`（沿用試點的 pre-拍板④ freeform id） |
+| 裁處圖例 | `pollutionPenalty{Critical,General,Mobile}` | `"pollutionPenaltyCritical"`（機械規則取自家首 key） |
+
+4 層全填 `"pollution"` 會被契約測試「同一個 legend id 的 key 必須落在同一筆
+`LEGEND_REGISTRY` entry」擋下——**測試是對的**。批 5 精煉的那句話
+load-bearing 的是「**共用元件 ⇔ 共用 id**」，不是「同一個 sidebar 子群」。
+非首 key 的 legend id 仍只有 `urbanZoning` / `pollution` 兩個（都是試點遺留）。
+
+### 兩個主題的形狀
+
+| | 環境氣候 19 | 水資源 23 |
+|---|---|---|
+| dataClass | A 3 / B 9 / D 7 | A 5 / B 6 / **D 12** |
+| popup 與 key 同名 | 8/19（另 3→1 裁處、2 個單數形、1 個異名 `microSensor`、5 個 null） | 9/23（另 3 個去複數 / 縮短、1 個**陣列**、10 個 null） |
+| `legend: null` | 3 | 7 |
+| `labelMobile` | 4/19（僅環境污染 4 層） | 0/23 |
+
+- **水資源 12 個 D 沒有一個是「自繪」**：全是 hook 自建 source 餵 Supabase RPC
+  的即時水情層（同批 5 災害的形狀）。backlog 的「水資源 12 層 D 體質」預估
+  這次數字對了，但體質的**理由**與預期不同。
+- **環境氣候一個主題四種 dataClass 都有**（繼批 4 醫療之後第二次），
+  且影像類 3 層（`cwaCloudImagery` / `cwaRadarImagery` / `aqiImagery`）
+  是**同一套 image source + raster layer 實作**跨兩個子群共用。
+- **`aqiStations` 的 `params` 是 `null`**（`useTransportParams` 寫死 `return []`，
+  Phase 0 記錄的 emptyByDesign 5 key 之一），而 THEMES 是 `expandable: true` ——
+  兩者不一致是現況，照抄不夾帶修正。同理 `taipeiPumb` 的 label 拼字「Pumb」
+  （正字為 Pump）也照抄，快照會擋任何手癢。
+
+### 雙生字：本批密度最高，`groundwater` 那組是真的會判錯
+
+| 一組 | 差別 | 判錯的後果 |
+|---|---|---|
+| `groundwater` vs `groundwaterWells` | 前者面/線子群、timeline 驅動彩色、**擁有 GIS_LAYERS 的 `groundwater-circle`**；後者點位子群、靜態灰點 backdrop、layer id 是 `groundwater-wells-circle`（**不在** GIS_LAYERS） | 兩層同一支 loader、只差 RPC，憑名字或主題判會把 popup 掛錯層 |
+| `floodSensor` vs `floodSensorIsochrone` | **反過來**：各有自己的 GIS_LAYERS 條目（popup 各自宣告），卻**共用同一筆 legend entry** | 憑「有沒有自己的 popup」推 legend 會推錯 |
+| `riverLevel` / `iotWraRiver` / `waterRivers` | 三者無關（水位站 / IoT 感測 / 河川面線） | 純命名巧合 |
+
+刪手寫表與殘留 grep 一律用 `^  key:` 與 `key: "key"` 兩種精確錨定分開數。
+
+### `waterDam` 的既有記載已過時（任務書沿用了它）
+
+批 4 把 `waterDam` 收進 `extractNonGisFeatureTypes`（Three.js scene 自己 raycast），
+批 6 任務書據此寫「`waterDam` popup 不經 GIS_LAYERS」。實際上 `GIS_LAYERS`
+**有** `["water-reservoir-dams-core", …] → waterDam` 的字面條目 —— raycast 是
+**並存的第二條路徑**，不是唯一路徑。兩個解析器都涵蓋它，`gisRows.findIndex`
+拿得到有效 index，順序斷言直接過，無需特殊處理。
+
+### 觸點 #20 核對：逐檔比對，無新缺口，但記一個鏡像不一致
+
+本批 `source.url`（含 D 層 `source.note` 裡的檔路徑）涉及五個目錄：
+
+| 目錄 | 檔 | nginx location | upload / pull |
+|---|---|---|---|
+| `/geo/` | water_* 12 檔（geojson+pmtiles）、pollution_{penalties,sites}.pmtiles、weather_stations.geojson | ✅ root + dist fallback | ✅ `water_*` glob ＋ `public/geo/*.pmtiles` 鏡像子前綴；pull 端 include filter 有列 |
+| `/urban/` | street_trees ×3、tree_pits、protected_trees、riverside_trees | ✅ root + dist fallback | ✅ 整夾 glob + sync |
+| `/environment/` | urban_heat_lst_taiwan.pmtiles | ✅ root + dist fallback | ✅ 整夾 glob + sync |
+| `/water_resources/` | lakes_ponds_osm.pmtiles | ✅ root（純 S3，刻意無 fallback） | ✅ 整夾 glob + sync |
+| `/flood/`（D 層 `floodSensorIsochrone`） | uswg_isochrone_3min.pmtiles（47KB，**git 管理**） | ⚠️ **沒有 `location /flood/`** | ✅ upload/pull 都有 |
+
+`/flood/` 是批 5 `hillshade.png` 缺口的**鏡像**：那個是兩條路都不通，
+這個是 **git/dist 那條通、S3 那條死**（upload + pull 把檔推到 `/data/flood/`，
+nginx 從來不讀那裡）。目前不會 404（dist 有檔），但 S3 那半是空轉；
+若哪天該檔改成 S3-only（例如切片變大移出 git），就會變成真 404。
+⚠️ **本批只核對記錄，未改任何部署檔。**
+
+### 區塊註解不可信：本批是「註解與內容完全對得上」的對照組
+
+前四批撞了五種變形。批 6 兩個主題的四張手寫表區塊**全部名實相符**——
+但這不構成「可以按區塊整段刪」的理由：本批仍是逐 key 定位刪除，
+只是這次逐 key 的結果與區塊剛好一致。**判準不變，變的只是運氣。**

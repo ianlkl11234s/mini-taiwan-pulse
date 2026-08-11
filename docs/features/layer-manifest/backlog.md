@@ -19,7 +19,7 @@
 | **3** ✅ | 教育(17) 林業(16) | 33 | 已完成（`b506144` `97b6d62`，見 changelog）。預估全對：教育 17/17 有 `labelMobile`、`eduDistrictK12` 多對一、林業 5 層 PMTiles 已核對 deploy 清單。**拍板①的刪 spread 那一步首次實際執行**（`...EDUCATION_LAYER_COLORS` 整行 + 孤兒 import，grep 限行首驗證 0）。額外撞到：popup 多對一規模創新高（`school` **1 對 7**，另 `eduCampus` / `eduDistrictK12` 各對 2）；林業 popup 是**依幾何型別分類**的泛型 layerType（`forestryPolygon`/`forestryPOI`/`forestryLine` 吃掉 12 層，⚠️ 用子群名猜會猜錯 —— `forestFlatParks` 在「分區」子群卻走 POI）；`canopyHeight` 是 raster → 唯一 `popup: null` 且**唯一沒有 `sourceLayer` 的 pmtiles**；共用 sourceId 規模 ×7（`edu-schools`）超越批 2 的 ×5；`schools` 三張表都不在教育區塊裡（批 2 `tourRestaurants` 的鏡像）。 |
 | **4** ✅ | 執法治安(20) 醫療(8) 房地產(7) 人口社經(6) 全球氣候(5) | 46 | 已完成（`15b9756` schema＋`7bf9b82` `59dcf46` `64cf237` `22b451e` `e73f677`，見 changelog）。**拍板②落地**：`source` 擴成 `LayerSource \| LayerSource[]`（陣列比 `kind:"multi"` 侵入小，91 筆既有 entry 零改動），契約測試改逐位對齊、順帶把 config 順序釘住。預估全對：propertyValueGrid×3、執法 popup 100% 覆蓋、人口社經／全球氣候全 D。額外撞到：**批 2 的 popup 機械判準只對 A/B/C 成立** —— D 體質三種例外（`medIsochrone`/`medDesert` 有 popup、`earthquakesGlobal`→`earthquakeGlobal` 單數形、`windField`/`oceanCurrents`→`climateField` **完全不經 GIS_LAYERS**，為此新增 `extractNonGisFeatureTypes`）；新增第三種共用形狀「**兩個 key 一個 layer**」（medIsochrone/medDesert 共用 `medical-isochrone-fill`）；醫療一個主題撞完四種 dataClass；區塊註解不可信的第三種（註解涵蓋範圍從一開始就對不上）。 |
 | **5** ✅ | 底圖(剩 12) 災害(12) 太空(16) | 40 | 已完成（`410cac7` schema＋`529c828` `fc762a5` `61eb3e9`，見 changelog）。**代拍板⑤候補（待 owner 追認）**：`popup` 擴成 `T \| T[] \| null` —— `earthquakeReplay` 一個 toggle 建 5 層，其中測站點與鄉鎮面**各自有 GIS_LAYERS 條目與 panel**，只宣告一個等於已知為假。預估部分對：太空 16 全 D 且 legend/popup 雙雙 16→1（本工程最大共用）、`earthquakes` 與 `earthquakeGlobal` 已用帶冒號的精確錨定隔離。預估錯的：**底圖不是「10 層 PMTiles → 全 B」**（實際 B 9 / D 3，其中 slope/aspect 是 PMTiles 卻無 registry entry → D；hillshade 是單張 PNG），**災害不是「3 C + 7 D」**（實際 7 D / 4 C / 1 A）。額外撞到：popup 判準第四層修正「**HEADER_LABELS 有條目 ≠ 有 popup**」（`hillshade`，批 8 `osmExpressway` 同款）；拍板④精煉「**legend 家族已有 manifest 成員 → 沿用其既有 id**」（`urbanZoningNewTaipei` → `"urbanZoning"`，批 6 pollution 同款）；`SATELLITE_COLORS` 是拍板①判準遇過最像該引用卻不該引用的一組（16 個 hex 逐一撞色仍不引用）。⚠️ **觸點 #20 逐檔比對發現一個真缺口**：`base_map/hillshade.png` git 管理但 nginx `/base_map/` 沒有 dist fallback、upload/pull 只處理 `*.pmtiles` → 兩條路都不通（未改部署檔，見 changelog 末節兩條修法）。 |
-| **6** | 環境氣候(剩 19) 水資源(23) | 42 | ⚠️ `waterRivers` / `waterReservoirs` 各有 2 個 config —— schema 已支援（批 4 拍板②），**照 `propertyValueGrid` 的陣列寫法即可，順序要與 OVERLAY_REGISTRY 一致**。`waterDam` 的 popup 是**不經 GIS_LAYERS 的 setFeatureInfo**（Three.js scene raycast），批 4 的 `extractNonGisFeatureTypes` 已把它收進 gisTypes，可直接宣告。環境污染剩下 4 層與已搬的 `pollutionFacility` 共用 `pollutionTypes` 的表達式常數 → 驗證 legend id 共用規約：**legend 直接沿用試點的 `"pollution"`**，不套「首個 key」機械規則（批 5 對拍板④補的例外條款，`urbanZoningNewTaipei` 已是同款先例）。水資源 12 層 D 體質。 |
+| **6** ✅ | 環境氣候(剩 19) 水資源(23) | 42 | 已完成（`45faee8` schema＋`49ff8b8` `d39edf1`，見 changelog）。**代拍板⑥候補（待 owner 追認）**：source 陣列**允許混合 `kind`** —— `waterReservoirs` 是 pmtiles 水庫面 + geojson 壩體點，證偽了拍板②留下的「陣列各元素 kind 同質」；`dataClass` 改由 kind 集合按「上線路徑最重」precedence 決定（pmtiles ＞ supabase ＞ geojson）。預估對的：`waterRivers`×2 同質陣列、水資源 12 層 D。預估錯的三處：(a) **`waterDam` 的 popup 有 GIS_LAYERS 字面條目**（Three.js raycast 是並存的第二條路徑，不是唯一路徑），無需特殊處理；(b) **「環境污染 4 層沿用 `"pollution"`」只對一半** —— 該子群橫跨兩筆 LEGEND_REGISTRY entry / 兩個元件，只有 `pollutionSite` 與試點同 entry 適用，裁處 3 層照機械規則取 `"pollutionPenaltyCritical"`（4 層全填會被「同 id 必落同一筆 entry」測試擋下）；(c) `waterReservoirs` 不只是「2 個 config」而是**混合 kind**。額外撞到：雙生字密度創新高且 `groundwater`／`groundwaterWells` 是**真的會判錯**的一組（同 loader 不同 RPC，只有前者擁有 GIS_LAYERS 條目）；`floodSensorIsochrone` 是 D 卻自建 PmTilesSource（同批 5 slopeVector）。⚠️ 觸點 #20 逐檔比對：五個目錄無新 404 缺口，但 `/flood/` 是批 5 `hillshade.png` 的**鏡像不一致** —— git/dist 那條通、S3 那條死（upload/pull 推到 `/data/flood/`，nginx 沒有該 location）。 |
 | **7** | 廢棄物(18) 農業(29) | 47 | 廢棄物 14 層有 `labelMobile`、**0 層有 legend**（全部 `legend: null`，別誤填）、17 層 D 體質；`wasteRoute`/`wasteStop` 是 orphan（不在 THEMES，由 wasteTruck 子 UI 控制）→ 見批 8 的 `section` 問題。農業 8 層 C + 9 層 B，6 個子群最多。 |
 | **8** | 交通(剩 31) 能源(41) + 10 個 orphan key | 82 | 最重的一批，**可再拆 3 個 sub-batch**。能源 30 層是 C 體質（Supabase 動態）→ 每層都要確認 loadingRegistry 契約。交通 13 層 D（Three.js）且 `busLive` 有 11 個控件（8 個 toggle）。⚠️ `stationsTRA` 有 2 個 config → 照批 4 的陣列寫法。`ships` 的 popup 是**不經 GIS_LAYERS 的 setFeatureInfo**（`ship`，scene raycast），批 4 的 `extractNonGisFeatureTypes` 已涵蓋。⚠️ **10 個 orphan key 不在 THEMES**（`facOffshore` `islandPowerGrid` `medICUBeds` `osmPowerPlantsStatic` `osmSolarFarms` `powerPlants` `powerRegionDemand` `powerStatusHud` `wasteRoute` `wasteStop`）→ `section` 欄位**必須先允許 null**，且 `layerManifest.test.ts` 的 section 斷言要放行。 |
 
@@ -40,10 +40,11 @@
    契約測試改成「`Array.isArray` 正規化 → 筆數比對 → **逐位對齊**逐欄比」，
    ⚠️ index 配對同時把 config 順序釘住（順序決定 layer 疊放，Phase 3 派生
    `GIS_LAYERS` 又是 first-hit-wins）。`kind:"custom"` 只能單數形。
-   4 個受影響 key 中 `propertyValueGrid`×3 已搬完；**剩 `stationsTRA`×2（批 8）、
-   `waterRivers`×2 / `waterReservoirs`×2（批 6）照樣寫即可**。
+   4 個受影響 key 中 `propertyValueGrid`×3 / `waterRivers`×2 / `waterReservoirs`×2
+   已搬完；**剩 `stationsTRA`×2（批 8）照樣寫即可**。
    ⚠️ 別跟「多個 key 共用同一個 `sourceId`」（教育 ×7、運動場館 ×5、房地產 Grid ×3）
    混為一談 —— 那個仍寫單數形，契約測試按 `id` 過濾不受影響。
+   ⚠️ 批 6 撤銷本項原本附帶的「陣列各元素 kind 同質」假設 → 見拍板⑥。
 3. **`section` 允許 null**（批 8 卡住）：10 個 orphan key。批 1 的 25 層全在 THEMES 內。
 4. ✅ **legend id 命名規約**（批 1 已落地，批 5 精煉）：拍板**取 LEGEND_REGISTRY entry
    的首個 key**。三種形狀都已實測：獨佔（退化成同名）／家族共用／**與自身 key 完全無關**
@@ -52,12 +53,26 @@
    （不套機械規則），因為規則背後 load-bearing 的性質是「共用元件 ⇔ 共用 id」。
    目前僅兩個非首 key 的 id，都是 Phase 1 試點留下的 pre-拍板④ freeform：
    `urbanZoning`（批 5 `urbanZoningNewTaipei` 已沿用）與
-   **`pollution`（批 6 環境污染 4 層照辦）**。
+   `pollution`（批 6 **只有 `pollutionSite`** 沿用）。
+   ⚠️ 批 6 證明例外條款是**逐 LEGEND_REGISTRY entry** 判、不是逐 sidebar 子群判：
+   環境污染子群橫跨兩筆 entry / 兩個元件，裁處 3 層不屬於 pollution 家族，
+   照機械規則取自家首 key。全填同一個 id 會被「同 id 必落同一筆 entry」測試擋下。
 
 5. ⚠️ **`popup` 支援一 key 對多 layerType**（批 5 **代拍，待 owner 追認**）：
    `popup: T | T[] | null`，形狀同拍板②。觸發者是 `earthquakeReplay`
    （測站點 + 鄉鎮面各自有 GIS_LAYERS 條目與 panel）。契約測試比對筆數 + 去重 +
-   **順序**（＝GIS_LAYERS 出現序）。目前只有這 1 個 key 用陣列形。
+   **順序**（＝GIS_LAYERS 出現序）。批 6 新增第二個：`waterReservoirs`
+   （`waterDam` 壩體點 + `waterReservoirPoly` 水庫面）。
+
+6. ⚠️ **source 陣列允許混合 `kind`**（批 6 **代拍，待 owner 追認**）：
+   撤銷拍板②附帶的「陣列各元素 kind 同質」。型別不用改（`LayerSource[]` 本來
+   就容得下），改的是 `dataClass` 的判準 —— 取**上線路徑最重**的那個 kind：
+   `pmtiles(B) ＞ supabase(C) ＞ geojson(A)`（B 背著 nginx location + deploy 清單
+   的義務，A 只是一支 fetch）。用 precedence 不用「首元素的 kind」：precedence
+   與陣列順序無關，順序服務的是疊放語意，不該連帶決定體質。
+   觸發者 `waterReservoirs`（pmtiles 水庫面 + geojson 壩體點）目前是唯一一個。
+   契約測試把 `dataClass` 斷言移出 per-element 迴圈；**同質 entry 的期望值與
+   改寫前逐字相同**，強度零損失。
 
 ## Phase 3-5 展望
 
@@ -82,5 +97,9 @@
 - [ ] **觸點 #20 機械斷言**（批 5 的證據）：「manifest 的靜態檔路徑 ↔ nginx location ↔
       deploy 腳本清單」值得做成測試。⚠️ **光掃 `dataClass === "B"` 不夠** ——
       批 5 的 `slopeVector` / `aspectVector` 是 D 卻是 PMTiles、`hillshade` 是 D 卻有
-      8.7MB PNG，路徑都藏在 `source.note` 裡。批 5 逐檔比對已抓到一個真缺口
-      （`base_map/hillshade.png` 兩條部署路徑都不通，見 changelog 批 5 末節）。
+      8.7MB PNG，批 6 的 `floodSensorIsochrone` 是 D 卻自建 PmTilesSource，
+      路徑都藏在 `source.note` 裡。已抓到的兩個不一致（都**未修**）：
+      批 5 `base_map/hillshade.png` 兩條路都不通；批 6 `/flood/` 是它的鏡像 ——
+      git/dist 那條通、S3 那條死（nginx 沒有 `location /flood/`）。
+      ⚠️ 斷言要**雙向**：不只「宣告的檔有沒有路可走」，也要「deploy 腳本推上去的
+      檔 nginx 讀不讀得到」—— 批 6 的 `/flood/` 只有後者會紅。
