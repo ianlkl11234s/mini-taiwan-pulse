@@ -89,7 +89,7 @@ import {
   Plane, Ban, Bus, RailSymbol, Ship,
   Receipt, Coffee, SquareParking, CircleParking,
   // ⚡ 能源（Cable / CircleDot / Clock / MapPin 已在上方 import 復用）
-  Zap, Power, Spline, TowerControl,
+  Zap, Power, Spline, TowerControl, Fuel,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -8303,6 +8303,393 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "EHV 變電所 additive bloom 視覺實驗層（疊在 osmSubstationsEhv 上）",
     topics: ["能源", "電網", "視覺實驗"],
+  },
+  // ══════════════════════════════════════════════════════════════════
+  // ⛽ 能源 Energy —— 石化 · 油氣 10 ＋ 石化 · 加油站 5（AR-22 Phase 2 批 8-4）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // **15 層全部 dataClass C**（本工程第一個單一體質的大子群）：全走 energyLoader 的
+  // owner-only RPC、`fallbackUrl` 一律 `./geo/_empty.geojson`。無靜態檔要部署。
+  //
+  // ⚠️ **legend 14 → 1 是本工程第二大的共用**（僅次於批 4 執法治安的 18）：
+  // 本段 14 層共用同一筆 `LEGEND_REGISTRY` entry，機械規則取首 key → `"gasStationCpc"`。
+  // 第 15 層 `fossilFuelInfra` **不屬這個家族** —— 它掛在
+  // `EnergySpecialtyLegend`（首 key `offshoreWindZones`，跨到下一段的再生能源子群）。
+  // ⚠️ 這正是批 6 立的「**逐 LEGEND_REGISTRY entry 判、不是逐 sidebar 子群判**」：
+  // 同一個「石化 · 油氣」子群橫跨兩筆 entry，全填 gasStationCpc 會被契約測試擋下。
+  //
+  // ⚠️ **popup 14/15 與 key 同名**，唯一例外也是 `fossilFuelInfra`
+  // （→ `fossilFuelFacility`）—— legend 與 popup 兩個維度的例外**剛好是同一層**，
+  // 那是因為它是 legacy 層、當初就跟能源 MVP 那批一起接的線，不是巧合。
+
+  // ── 石化 · 加油站 ──────────────────────────────────────────────────
+  gasStationCpc: {
+    key: "gasStationCpc",
+    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    label: "加油站 中油 CPC",
+    expandable: true,
+    color: "#41AEF2",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-gas-station-cpc",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "gasStationCpc",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台灣中油直營／加盟加油站",
+    topics: ["能源", "石化", "加油站"],
+  },
+
+  gasStationFpcc: {
+    key: "gasStationFpcc",
+    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    label: "加油站 台塑 FPCC",
+    expandable: true,
+    color: "#22C55E",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-gas-station-fpcc",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "gasStationFpcc",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台塑石化加油站",
+    topics: ["能源", "石化", "加油站"],
+  },
+
+  gasStationTaisugar: {
+    key: "gasStationTaisugar",
+    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    label: "加油站 台糖 Taisugar",
+    expandable: true,
+    color: "#F2522E",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-gas-station-taisugar",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "gasStationTaisugar",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台糖加油站",
+    topics: ["能源", "石化", "加油站"],
+  },
+
+  gasStationOther: {
+    key: "gasStationOther",
+    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    label: "加油站 其他 / 私營 Other",
+    expandable: true,
+    color: "#D1D5DB",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-gas-station-other",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "gasStationOther",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "其他品牌／私營加油站",
+    topics: ["能源", "石化", "加油站"],
+  },
+
+  gasStationCanonical: {
+    key: "gasStationCanonical",
+    section: { theme: "能源 Energy", group: "石化 · 加油站" },
+    label: "加油站 SSOT 合併 Canonical",
+    expandable: true,
+    color: "#0FBFBF",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-gas-station-canonical",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "gasStationCanonical",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "四個品牌去重合併後的加油站 SSOT",
+    topics: ["能源", "石化", "加油站", "SSOT"],
+  },
+
+  // ── 石化 · 油氣 ────────────────────────────────────────────────────
+  lpgSubpackaging: {
+    key: "lpgSubpackaging",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "LPG 分裝 / 儲存場 Subpackaging",
+    expandable: true,
+    color: "#F2622E",
+    icon: Container,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "lpg_facilities_canonical", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-lpg-subpackaging",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "lpgSubpackaging",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "液化石油氣分裝場／儲存場",
+    topics: ["能源", "石化", "LPG"],
+  },
+
+  lpgRetailers: {
+    key: "lpgRetailers",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "LPG 加氣站 / 瓦斯行 Retailer",
+    expandable: true,
+    color: "#D9863D",
+    icon: Flame,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "lpg_facilities_canonical", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-lpg-retailers",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "lpgRetailers",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "液化石油氣加氣站與瓦斯零售商",
+    topics: ["能源", "石化", "LPG"],
+  },
+
+  lngTerminal: {
+    key: "lngTerminal",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "LNG 接收站 Terminal",
+    expandable: true,
+    color: "#F2B84B",
+    icon: Container,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gem_lng_terminals_tw", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-lng-terminal",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "lngTerminal",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "液化天然氣接收站（GEM 全球資料庫台灣段）",
+    topics: ["能源", "石化", "LNG"],
+  },
+
+  pipelineGas: {
+    key: "pipelineGas",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "天然氣主幹線 Gas Pipeline",
+    expandable: true,
+    color: "#F2D64B",
+    icon: Spline,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gem_gas_pipelines_tw", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-pipeline-gas",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "pipelineGas",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "天然氣輸送主幹線（GEM）",
+    topics: ["能源", "石化", "管線"],
+  },
+
+  pipelineOilGas: {
+    key: "pipelineOilGas",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "油氣管線 OSM Oil/Gas Pipeline",
+    expandable: true,
+    color: "#EDF249",
+    icon: Spline,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gem_oil_ngl_pipelines_tw", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-pipeline-oilgas",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "pipelineOilGas",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "原油／NGL 輸送管線（GEM）",
+    topics: ["能源", "石化", "管線"],
+  },
+
+  industrialRefinery: {
+    key: "industrialRefinery",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "煉油 / 化工廠 Refinery",
+    expandable: true,
+    color: "#F97316",
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_refineries", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-industrial-refinery",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "industrialRefinery",
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "OSM 煉油廠／石化工廠面（halo ＋ fill ＋ 可切邊框）",
+    topics: ["能源", "石化", "工業"],
+  },
+
+  industrialStorageTank: {
+    key: "industrialStorageTank",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "油氣儲槽 Storage Tank",
+    expandable: true,
+    color: "#06B6D4",
+    icon: Container,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_storage_tanks_oil_gas", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-industrial-storage-tank",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "industrialStorageTank",
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "OSM 油氣儲槽面（halo ＋ fill ＋ 可切邊框）",
+    topics: ["能源", "石化", "工業"],
+  },
+
+  industrialPowerPlant: {
+    key: "industrialPowerPlant",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "火力廠 polygon Thermal Plant",
+    expandable: true,
+    color: "#D946EF",
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_fossil_power_plants", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-industrial-power-plant",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    // ⚠️ 雙生字：本層 popup 是 "industrialPowerPlant"，與批 8-3 的 "powerPlant"
+    //    （8 個 layer 共用的那個）是**不同的 layerType**。名字像但 panel 不同。
+    popup: "industrialPowerPlant",
+    params: { count: 2, kinds: ["slider", "toggle"] },
+    description: "OSM 火力發電廠廠區面（與 SSOT 的點位 facPrimary 互補）",
+    topics: ["能源", "石化", "工業", "發電廠"],
+  },
+
+  coalTerminal: {
+    key: "coalTerminal",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "煤炭碼頭 Coal Terminal",
+    expandable: true,
+    color: "#3B82F6",
+    icon: Anchor,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gem_coal_terminals", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "fossil-coal-terminal",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "gasStationCpc",
+    popup: "coalTerminal",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "燃煤進口碼頭（GEM）",
+    topics: ["能源", "石化", "煤炭"],
+  },
+
+  fossilFuelInfra: {
+    key: "fossilFuelInfra",
+    section: { theme: "能源 Energy", group: "石化 · 油氣" },
+    label: "石化能源設施 Fossil Fuel (legacy)",
+    expandable: true,
+    color: "#1f2937",
+    icon: Container,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gem_coal_plants", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-fossil-fuel",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // ⚠️ 本段唯一**不屬 gasStationCpc 家族**的一層：它掛在 EnergySpecialtyLegend
+    //    （首 key offshoreWindZones，那些層在下一段的再生能源子群）。
+    //    同一個 sidebar 子群橫跨兩筆 registry entry —— 批 6 環境污染的同款，
+    //    全填 gasStationCpc 會被「同 id 必落同一筆 entry」測試擋下。
+    legend: "offshoreWindZones",
+    // ⚠️ 也是本段唯一 key ≠ layerType（→ fossilFuelFacility）。legend 與 popup
+    //    兩個維度的例外剛好同一層 —— 因為它是 legacy 層、當初跟能源 MVP 一起接的線。
+    popup: "fossilFuelFacility",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "早期能源 MVP 的石化設施合併層（已被上面的分類層取代，保留相容）",
+    topics: ["能源", "石化", "legacy"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

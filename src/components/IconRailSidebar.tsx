@@ -14,13 +14,14 @@ import {
   Play, Radio,
   // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
   //    Droplet / GitBranch / Dam / Shield / Timer 已無用；
-  //    Waves / Factory / Container 仍被別層用
-  //    （Gauge 隨廢棄物 wfMonitoring、ShieldCheck 隨農業 aquacultureWaterSatelliteMoa 搬走，批 7）
-  Waves, Factory, Container,
+  //    Waves / Factory 仍被別層或 orphan 用
+  //    （Gauge 隨廢棄物 wfMonitoring、ShieldCheck 隨農業 aquacultureWaterSatelliteMoa 搬走，批 7；
+  //      Container 隨能源化石燃料搬走，批 8）
+  Waves, Factory,
   // 🗑️ 廢棄物 18 層搬進 layerManifest（AR-22 Phase 2 批 7）後，CalendarDays / Trash2 /
-  //    Battery / Recycle / Shirt / Brush 已無用；Flame / MapPinned 仍被別層用
-  //    （MapPinned 還餵 orphan wasteStop，批 8；Truck 隨農業 agriProduceWholesale 搬走）
-  Flame, MapPinned,
+  //    Battery / Recycle / Shirt / Brush 已無用；MapPinned 仍餵 orphan wasteStop
+  //    （Truck 隨農業 agriProduceWholesale 搬走；Flame 隨能源 lpgRetailers 搬走，批 8）
+  MapPinned,
   // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
   //    Pill / HeartPulse / Accessibility 已無用；Bed 仍被 orphan medICUBeds 用
   //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6；
@@ -31,9 +32,10 @@ import {
   //    （Route 仍被 orphan wasteRoute 與別層用、Layers 是 sidebar UI 自己在用）
   Satellite,
   // ENERGY icons —— 電力 15 層搬進 layerManifest（AR-22 Phase 2 批 8）後，
-  //    Cable / Power / TowerControl / CircleDot / Clock 已無用；
-  //    Zap 仍餵 orphan powerPlants、Spline 仍餵化石燃料 pipeline 2 層
-  Zap, PlugZap, Spline, Sun, Sparkles, Building2, Fuel,
+  //    Cable / Power / TowerControl / CircleDot / Clock 已無用；化石燃料 15 層搬走後
+  //    Spline / Container / Flame 也無用。Zap 仍餵 orphan powerPlants、
+  //    Fuel 仍餵覆蓋分析 4 層、Factory/Sun/Anchor/Waves 仍餵 orphan
+  Zap, PlugZap, Sun, Sparkles, Building2, Fuel,
   // HAZARD icons 隨災害 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    Lightbulb / CloudRain 仍被 rail tab 與別層用，留在本檔
   // 🌍 全球氣候 5 層已搬進 layerManifest（AR-22 Phase 2 批 4）
@@ -112,28 +114,14 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   osmPowerPlantsStatic: Factory,
   offshoreWindZones: Waves,
   islandPowerGrid: Anchor,
-  fossilFuelInfra: Container,
   geothermalWells: Sparkles,
   renewablePermitsTaipei: Building2,
   evChargingStations: PlugZap,
   // Phase 8 SSOT 6-layer（重用既有 icons）——5 層已隨能源電力搬進 layerManifest
   //（AR-22 Phase 2 批 8），只剩 orphan facOffshore
   facOffshore: Waves,        // 離岸風場 polygon
-  // 化石燃料 13 layer（重用既有 icons）
-  gasStationCpc: Fuel,
-  gasStationFpcc: Fuel,
-  gasStationTaisugar: Fuel,
-  gasStationOther: Fuel,
-  gasStationCanonical: Fuel,
-  lpgSubpackaging: Container,
-  lpgRetailers: Flame,
-  lngTerminal: Container,
-  pipelineGas: Spline,
-  pipelineOilGas: Spline,
-  industrialRefinery: Factory,
-  industrialStorageTank: Container,
-  industrialPowerPlant: Factory,
-  coalTerminal: Anchor,
+  // 化石燃料 15 layer（含 legacy fossilFuelInfra）已搬進 layerManifest
+  //（AR-22 Phase 2 批 8）
   // 雲林 POC 覆蓋分析（30km isochrone）
   gasCoverageAll: Fuel,
   gasCoverageCpc: Fuel,

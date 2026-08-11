@@ -133,66 +133,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'ev_charging_stations', confidence: 'HIGH' }],
   },
-  gasStationCpc: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'MED' }],
-  },
-  gasStationFpcc: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'MED' }],
-  },
-  gasStationTaisugar: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'MED' }],
-  },
-  gasStationOther: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'MED' }],
-  },
-  gasStationCanonical: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'HIGH' }],
-  },
-  lpgSubpackaging: {
-    status: 'verified',
-    datasets: [{ datasetId: 'lpg_facilities_canonical', confidence: 'MED' }],
-  },
-  lpgRetailers: {
-    status: 'verified',
-    datasets: [{ datasetId: 'lpg_facilities_canonical', confidence: 'MED' }],
-  },
-  lngTerminal: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gem_lng_terminals_tw', confidence: 'HIGH' }],
-  },
-  pipelineGas: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gem_gas_pipelines_tw', confidence: 'HIGH' }],
-  },
-  pipelineOilGas: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gem_oil_ngl_pipelines_tw', confidence: 'HIGH' }],
-  },
-  industrialRefinery: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_refineries', confidence: 'HIGH' }],
-  },
-  industrialStorageTank: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_storage_tanks_oil_gas', confidence: 'HIGH' }],
-  },
-  industrialPowerPlant: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_fossil_power_plants', confidence: 'MED' }],
-  },
-  coalTerminal: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gem_coal_terminals', confidence: 'HIGH' }],
-  },
-  fossilFuelInfra: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gem_coal_plants', confidence: 'MED' }],
-  },
+  // ⛽ 能源「石化 · 加油站」5 層與「石化 · 油氣」10 層已搬進 layerManifest
+  //    （AR-22 Phase 2 批 8）
   gasCoverageAll: {
     status: 'pulse_only',
     datasets: [],
