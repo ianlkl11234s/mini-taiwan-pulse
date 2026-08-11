@@ -423,3 +423,156 @@ layer id，兩個既有解析器都抓不到。
 （批 3 林業有比對，因為那批是新上的切片）。批 4 全是既有已上線圖層，
 清單若有缺早就 404 了 —— 不過 Phase 5 改寫 `/new-layer` 時，
 「manifest 的 `source.url` ↔ deploy 清單」值得做成一條機械斷言。
+
+---
+
+## 2026-08-11 — Phase 2 批 5：40 層（底圖 12・災害 12・太空 16）
+
+`410cac7` schema（popup 陣列）｜`529c828` 底圖｜`fc762a5` 災害｜`61eb3e9` 太空
+
+manifest 137 → **177 entry**。四張手寫表對這 40 key 殘留 grep 命中 0
+（`^  key:` 與 `key: "key"` 兩種形狀分開數，各 0）。
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（測試條數自批 1
+起未增減，本批對 `layerManifest.test.ts` 的改動是就地改寫既有 `it`）｜
+黃金快照 fixture 自 `8abbd97` 起**一位元未動**。
+
+### ⚠️ 代拍的 schema 決定（拍板⑤候補，待 owner 追認）：`popup` 支援陣列
+
+`LayerManifestEntry.popup` 由 `T | null` 擴成 `T | T[] | null`，形狀與拍板②的
+`source` 同構（陣列而非新變體 → 137 筆既有 entry 零改動、`satisfies` 推導不受影響）。
+
+觸發它的是 `earthquakeReplay`：`ensureEarthquakeReplayLayers` 一次建 5 個 layer，
+其中**兩個各自有 GIS_LAYERS 條目、各自有 panel 元件**——
+`eq-replay-station-circle` → `earthquakeReplayStation`（GIS_LAYERS 第 90 列）、
+`eq-replay-town-fill` → `earthquakeReplayTown`（第 286 列）。
+只宣告一個 = 已知為假，Phase 3 派生時靜默丟掉另一個接線。
+
+契約測試單／複數走同一條正規化路徑，逐一驗 `HEADER_LABELS` + `gisTypes` + 去重 +
+**順序**（`gisRows.findIndex` 比對 GIS_LAYERS 出現序）。
+⚠️ 順序 load-bearing 但**不代表相鄰**：first-hit-wins 下點層排前段、大面積面層
+刻意置末（本例相隔近 200 列）。陣列只保證相對先後，**不取代** README 已登記的
+Phase 3 `clickPriority` 欄位。
+
+兩次突變自測（陣列路徑在 earthquakeReplay 進來前跑不到），拿 `cctv.popup` 暫塞：
+`["newsEvent","cctv"]` → 順序紅；`["cctv","cctv"]` → 去重紅。
+
+### popup 判準的第四層修正：HEADER_LABELS 有條目 ≠ 有 popup
+
+批 4 立的是「D 體質 → popup null 是錯的捷徑」。本批撞到**反向**的另一半：
+`hillshade` 在 `HEADER_LABELS` 有一條 `hillshade: "山體陰影"`，但 `GIS_LAYERS`
+**沒有**它的條目。那條 label 只是 BYOK chat bridge（`App.tsx` 的 `highlightPoint`，
+任何 `layerType in HEADER_LABELS` 都能標）的 layerType 全集，不構成點擊接線。
+`dustForecast` / `canopyHeight`（批 3/4 的 `popup: null`）連 HEADER_LABELS 都沒有，
+所以前幾批沒撞到這種形狀。批 8 的 `osmExpressway` 同款。
+
+**兩個方向現在都有反例了**：D 不等於沒有 popup；有 HEADER_LABELS 也不等於有 popup。
+唯一可靠做法仍是逐層讀 hook 的 `addLayer` id 再對 GIS_LAYERS。
+
+### 三個主題的形狀
+
+| | 底圖 12 | 災害 12 | 太空 16 |
+|---|---|---|---|
+| dataClass | B 9 / D 3 | D 7 / C 4 / A 1 | **D 16** |
+| popup 與 key 同名 | **11/12**（hillshade 為 null） | 1/12 | 0（16 → 1 `satellite`） |
+| `legend: null` | 5 | 1（activeFaults） | 0 |
+| `labelMobile` | 6/12 | 1/12 | 0/16 |
+
+- **底圖是繼批 4 執法治安之後第二個 popup 幾乎全同名的主題**（11/12）；
+  災害則一批撞完五種形狀（同名複數 `earthquakes` / 去複數 s `activeFault`
+  `mountainRescueIncident` / 多對一 `lightningStrike` `disasterAlert` /
+  **完全異名** `nuclearRadiation` → `nuclearStation` / **一對多** earthquakeReplay）。
+- **太空是本工程規模最大的共用**：legend 16 → 1 且 popup 16 → 1 同時發生，
+  雙雙超過批 3 教育 `school` 的 1 對 7。16 個 toggle 只是同一份 `cat` 欄位的
+  layer-level filter，連 `source.note` 都抽成共用常數 `SAT_SOURCE_NOTE`
+  （不是省字：寫 16 份會給人「各自有不同來源」的錯誤印象）。
+- **「satellites 家族可能走自己的 picking」的風險項驗完是否定的**：逐一讀
+  `useSatellitesLayer` 的 5 個 `addLayer`，只有 `sat-current-point` 進 GIS_LAYERS，
+  且是字面陣列 → 本批**不需要補解析器**（批 1 / 批 4 各補過一支）。
+  ⚠️ 這個「不需要」是讀 hook 讀出來的，不是從 D 體質推出來的。
+
+### dataClass 別看檔案長相（本批最容易踩的一步）
+
+`hillshade` / `slopeVector` / `aspectVector` 沒有 OVERLAY_REGISTRY entry → D，
+但 slope/aspect **是不折不扣的 PMTiles**（`./base_map/slope_vector.pmtiles` z5-12）。
+只機械掃 `dataClass === "B"` 去對部署清單會漏掉它們。
+災害的 7 個 D 也全不是自繪（NCDR 示警 5 + 地震 2 都是 hook 自建 source 餵 Supabase）。
+
+backlog 對本批的預估「災害 3 C + 7 D」實際是 **7 D / 4 C / 1 A** ——
+**預估欄不可信，逐 key 判**（批 1 已有同款教訓）。
+
+### legend 家族已有 manifest 成員時沿用其既有 id（拍板④的精煉）
+
+`urbanZoningNewTaipei` 與試點 `urbanZoningTaipei` 共用 `UrbanZoningLegend`。
+機械規則「取 LEGEND_REGISTRY entry 首個 key」會給 `"urbanZoningTaipei"`，
+但試點早於拍板④、已寫 `"urbanZoning"` —— 兩個 id 對一個元件，Phase 3 依 id 分組
+派生 `LEGEND_REGISTRY` 會派生出兩筆。拍板④背後 load-bearing 的性質是
+**共用元件 ⇔ 共用 id**，故填 `"urbanZoning"`，不回頭改試點（搬移不夾帶）。
+
+判準精煉為：**加入的 legend 家族若已有 manifest 成員 → 沿用其既有 id；
+同一筆 registry entry 永不產生第二個 id。**
+⚠️ 批 6 的環境污染 4 層同款（試點 `pollutionFacility` 的 `"pollution"`
+也是 pre-拍板④ 的 freeform id）。這兩個是 manifest 裡**僅有的兩個**非首 key 的 legend id。
+
+### 色票拍板①：40 個全部「不引用」
+
+三個主題各有一個看起來該引用的常數，逐一核對後都不適用：
+`disasterAlertTypes.ALERT_GROUPS[].types`（event_term-keyed）、
+`satelliteTypes.SATELLITE_COLORS`（category-keyed）、
+`nonUrbanZoningTypes` / `buildingsGbaTypes` / `urbanZoningTypes`（match 表達式）
+—— **全部沒有在餵 `LAYER_COLORS`**。
+
+⚠️ `SATELLITE_COLORS` 是判準遇過**最像該引用卻不該引用**的一組：16 個 layer key 與
+16 個 category 一一對應、hex 逐一相同。但判準是「有沒有在餵 `LAYER_COLORS`」，
+撞色是巧合不構成引用理由（同批 2 `tourTypes` 的邏輯，只是這次巧合到 100%）。
+
+無 spread 可刪。`IconRailSidebar` 刪孤兒 `Map` / `CloudLightning` / `Atom` / `Rewind`
+（`Satellite` 保留 —— 衛星情報 Console 的 rail 按鈕仍在用）。
+
+### 區塊註解不可信（第五、六種變形）
+
+前三批分別是「別主題 key 排在本區塊尾」（批 2）、「本主題 key 散在別處」（批 3）、
+「註解涵蓋範圍對不上」（批 4）。本批兩種新的：
+
+1. **別主題 key 夾在本區塊正中間**：`osmExpressway` 在 `LAYER_COLORS` / `LAYER_ICONS`
+   都夾在 `osmRoadDrive` 與 `hillshade` 之間，THEMES 位置卻是「交通 Move / 路網」（批 8）。
+   按區塊整段刪會連它一起刪掉。
+2. **註解指向的是下一段的別主題**：`LAYER_COLORS` 災害區塊中間的
+   `// 全球氣候 GLOBAL CLIMATE` 底下緊接的是 NCDR 示警 5 層（全球氣候 5 層已於批 4 搬走）。
+
+結論不變：**逐 key grep 定位再刪**。
+
+### 記兩筆現況出入（本次不動）
+
+1. `buildingsGba` 的 `upstream.note` 寫檔名 `buildings_3d_taiwan.pmtiles`，
+   `OVERLAY_REGISTRY` 實際載 `buildings_value_taiwan.pmtiles`。
+2. `./base_map/township_boundary.pmtiles` 被 `earthquakeReplay` 的鄉鎮震度面
+   **另建一個 source**（`eq-replay-township` + promoteId + feature-state，通用路徑
+   不支援 → 不進 OVERLAY_REGISTRY）：同一個檔跨兩個 layer key，刪檔會連帶弄壞地震回放。
+
+兩者都已在對應 entry 就地註明（同批 3 `forestAlishanRail` / 批 4 `medDesert` 的慣例）。
+
+### 觸點 #20 核對：本批**有**逐檔比對，發現一個真缺口
+
+本批 `source.url` 涉及的靜態檔目錄：`/base_map/`、`/urban/`、`/hazards/`、`/geo/`
+—— nginx 四個 location 區塊都存在。逐檔比對 `upload-deploy-assets.sh`：
+
+| 檔 | 部署路徑 | 結論 |
+|---|---|---|
+| base_map 6 個 PMTiles（行政界 3 / 等高線 2 / OSM 路網 1） | glob `public/base_map/*.pmtiles` → S3 → pull sync | ✅ |
+| `slope_vector.pmtiles` / `aspect_vector.pmtiles`（dataClass **D** 卻是 PMTiles） | 同上 glob 涵蓋 | ✅ 但腳本註解寫「6 檔」，實際是 **8 檔** |
+| urban 3 個 PMTiles | glob `public/urban/*.pmtiles`＋`/urban/` 有 dist fallback | ✅ |
+| `hazards/mountain_rescue_incidents.geojson` | git 管理＋`/hazards/` 有 dist fallback | ✅ |
+| `geo/active_faults.geojson` | upload 逐檔清單有列、pull `--include` 有列 | ✅ |
+| **`base_map/hillshade.png`（8.7MB，git 管理）** | ⚠️ **無路徑**（見下） | ❌ 待 owner 確認 |
+
+**`hillshade.png` 的缺口**：它 git 管理 → build 後在 `dist/base_map/`，但
+`nginx.conf` 的 `location /base_map/` 只有 `root /data;`、**沒有 `try_files $uri @dist;`**
+（`/urban/` `/hazards/` `/geo/` 都有）；而 upload/pull 兩支腳本對 base_map 都只處理
+`*.pmtiles`，PNG 不在其中。兩條路都不通 = 正是 PT-1 那類「宣告在、檔案上不去」。
+`slope.png` / `aspect.png` 同樣情形（但那兩張已被 PMTiles 版取代，不確定是否仍在用）。
+
+⚠️ **本批只核對記錄，未改任何部署檔**（任務書要求）。修法有兩條（給 owner 選）：
+給 `/base_map/` 補 dist fallback，或把 PNG 加進 upload glob。
+另外 Phase 5 改寫 `/new-layer` 時，「manifest 的 `source.url`（含 `source.note` 裡的
+custom 檔路徑）↔ nginx location ↔ deploy 清單」值得做成一條機械斷言 ——
+本批證明**光掃 dataClass B 不夠**，D 的 note 裡也藏著要部署的檔。

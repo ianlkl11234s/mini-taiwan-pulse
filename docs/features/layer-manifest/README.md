@@ -27,7 +27,7 @@ popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽�
 |---|---|---|
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
-| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema 擴充）✅ `15b9756`…`e73f677`；批 5-8 待派工（Phase 2 已搬 132/343，manifest 共 **137 entry**） |
+| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema 擴充）✅ `15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）✅ `410cac7`…`61eb3e9`；批 6-8 待派工（Phase 2 已搬 172/343，manifest 共 **177 entry**） |
 | **3** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ |
 | **4** | params 派生化（`useTransportParams` 的 case 由 manifest spec 產生）＋ `/new-layer` 改成只寫 manifest | ⬜ |
 
@@ -60,6 +60,14 @@ Phase 4 完成後，新增一層的登記工作 = **只改 manifest 一處**，�
 
 **「查不到 → 填 null」是錯的捷徑**：三者聯集才是「這個 layerType 真的有接線」。
 dataClass D 的層更要逐層打開 hook / factory 看它 `addLayer` 了什麼 id。
+
+⚠️ **反方向也有陷阱（批 5）**：`HEADER_LABELS` 有條目**不代表**有 popup ——
+那張表是 BYOK chat bridge 能標的 layerType 全集，`hillshade` 在裡面卻沒有任何
+`GIS_LAYERS` 條目。兩個方向都只能靠「讀 hook 的 addLayer id 再對 GIS_LAYERS」。
+
+`popup` 欄位也支援**一個 key 對多個 layerType**（陣列，批 5 為 `earthquakeReplay`
+擴充）—— 同一個 toggle 建出的多個 layer 各自有 panel 時用它，順序＝GIS_LAYERS
+出現序，但**不取代** Phase 3 要加的 `clickPriority`（兩者相隔可能很遠）。
 
 ## 雙軌派生機制
 
