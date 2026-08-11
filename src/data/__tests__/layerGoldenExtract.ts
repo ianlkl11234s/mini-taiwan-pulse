@@ -41,6 +41,7 @@ import { LEGEND_REGISTRY } from "../../components/LegendPanel";
 import { HEADER_LABELS, PANEL_REGISTRY } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { useTransportParams } from "../../hooks/useTransportParams";
+import { MIGRATED_PARAMS_KEYS } from "../layerParamsSpec";
 import type { ExpandableLayerKey } from "../../types";
 
 export const FIXTURE_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
@@ -331,17 +332,28 @@ export function extractCustomHandlerFeatureTypes(
 }
 
 /**
- * useTransportParams 的 `case "key"` 清單（覆蓋斷言用，不進 fixture）。
+ * 「這個 key 的參數控件在哪裡宣告」的清單（覆蓋斷言用，不進 fixture）。
+ *
+ * ⚠️ AR-22 P3-1 起是**兩個來源的聯集**：
+ *   - `useTransportParams` 的 `case "key"`（未遷移的 key，原始碼文字解析）
+ *   - `LAYER_PARAMS_SPEC` 的 key（已遷移到 layerParamsStore 的 key，runtime 真值）
+ *
+ * 只掃 case 會讓已遷移的 key 變成「抽到控件卻沒有來源」的幽靈，
+ * 反向斷言（防抽取器從別處撿到控件）會誤報 —— 但那條斷言本身要保留，
+ * 它擋的是「控件憑空出現」這種真問題。
+ *
  * `emptyByDesign` = 原始碼寫死 `case "x": return [];` 的 key —— 這些**有意**沒有控件
  * （如 activeFaults / aqiStations 等純靜態層），不能跟「抽取器沒掃到」混為一談。
+ * 已遷移的 key 不會出現在這裡：規格檔沒有「宣告了但空陣列」這種形狀。
  */
 export function paramsCaseKeys(source = readFileSync(PARAMS_FILE, "utf8")): {
   all: string[];
   emptyByDesign: string[];
 } {
-  const all = [...new Set(
-    [...source.matchAll(/case\s+"([A-Za-z0-9_]+)"/g)].map((m) => m[1] as string),
-  )].sort();
+  const all = [...new Set([
+    ...[...source.matchAll(/case\s+"([A-Za-z0-9_]+)"/g)].map((m) => m[1] as string),
+    ...MIGRATED_PARAMS_KEYS,
+  ])].sort();
   const emptyByDesign = [...new Set(
     [...source.matchAll(/case\s+"([A-Za-z0-9_]+)":\s*return\s*\[\s*\]/g)].map((m) => m[1] as string),
   )].sort();

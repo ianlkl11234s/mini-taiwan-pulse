@@ -26,10 +26,8 @@ import { MICRO_SENSOR_MODES } from "../data/microSensorTypes";
 import { URBAN_HEAT_MODES } from "../data/urbanHeatTypes";
 import { PROPERTY_VALUE_SCALES, PROPERTY_VALUE_GRID_MODES } from "../data/propertyValueTypes";
 import { URBAN_ZONING_CATEGORIES } from "../data/urbanZoningTypes";
-import { DEITY_FAMILIES, REGISTRY_MODES, REGISTRY_MODES_ANCESTRAL } from "../data/religionTypes";
-import {
-  FUNERAL_FACILITY_TYPES, OPERATOR_STATUS_MODES, PRECISION_MODES,
-} from "../data/funeralTypes";
+// religionTypes / funeralTypes 的 select 選項常數已隨 11 個試點 key 遷出本檔
+// （現由 src/data/layerParamsSpec.ts 引用）。
 import { NON_URBAN_ZONING_CODES } from "../data/nonUrbanZoningTypes";
 import { MOUNTAIN_RESCUE_YEARS } from "../data/mountainSafetyTypes";
 import { CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES } from "../data/cultureTypes";
@@ -246,36 +244,9 @@ export function useTransportParams() {
   const [tourScenicAreasOpacity, setTourScenicAreasOpacity] = useState(0.5);
   const [tourHeritageOpacity, setTourHeritageOpacity] = useState(0.85);
   const [tourHeritageScale, setTourHeritageScale] = useState(1);
-  // 🛕 宗教 Religion 6 層（百景由 tourReligion 更名而來，預設值沿用）
-  const [religionTemplesOpacity, setReligionTemplesOpacity] = useState(0.8);
-  const [religionTemplesScale, setReligionTemplesScale] = useState(1);
-  const [religionTemplesRegistry, setReligionTemplesRegistry] = useState<string>("all");
-  const [religionTemplesDeity, setReligionTemplesDeity] = useState<string>("all");
-  const [religionChurchesOpacity, setReligionChurchesOpacity] = useState(0.85);
-  const [religionChurchesScale, setReligionChurchesScale] = useState(1);
-  const [religionChurchesRegistry, setReligionChurchesRegistry] = useState<string>("all");
-  const [religionAncestralHallsOpacity, setReligionAncestralHallsOpacity] = useState(0.9);
-  const [religionAncestralHallsScale, setReligionAncestralHallsScale] = useState(1);
-  const [religionAncestralHallsRegistry, setReligionAncestralHallsRegistry] = useState<string>("all");
-  const [religionFoundationsOpacity, setReligionFoundationsOpacity] = useState(0.9);
-  const [religionFoundationsScale, setReligionFoundationsScale] = useState(1);
-  const [religionOtherWorshipOpacity, setReligionOtherWorshipOpacity] = useState(0.85);
-  const [religionOtherWorshipScale, setReligionOtherWorshipScale] = useState(1);
-  const [religionTop100Opacity, setReligionTop100Opacity] = useState(0.85);
-  const [religionTop100Scale, setReligionTop100Scale] = useState(1);
-  // ⚰️ 殯葬 Funeral（5 層）
-  const [funeralFacilitiesOpacity, setFuneralFacilitiesOpacity] = useState(0.85);
-  const [funeralFacilitiesScale, setFuneralFacilitiesScale] = useState(1);
-  const [funeralFacilitiesType, setFuneralFacilitiesType] = useState<string>("all");
-  const [funeralFacilitiesPrecision, setFuneralFacilitiesPrecision] = useState<string>("all");
-  const [funeralOperatorsOpacity, setFuneralOperatorsOpacity] = useState(0.8);
-  const [funeralOperatorsScale, setFuneralOperatorsScale] = useState(1);
-  // ⚠️ 預設 "active" 不是 "all" —— 不濾會多畫 1,664 個已失效業者（handoff §6）
-  const [funeralOperatorsStatus, setFuneralOperatorsStatus] = useState<string>("active");
-  const [funeralOperatorsPrecision, setFuneralOperatorsPrecision] = useState<string>("all");
-  const [funeralOperatorDensityOpacity, setFuneralOperatorDensityOpacity] = useState(0.6);
-  const [cemeteryOsmOpacity, setCemeteryOsmOpacity] = useState(0.45);
-  const [cemeteryZoningOpacity, setCemeteryZoningOpacity] = useState(0.55);
+  // 🛕 宗教 Religion 6 層 ＋ ⚰️ 殯葬 Funeral 5 層：**已遷出本檔**（AR-22 P3-1 試點）
+  //    值 → src/state/layerParamsStore.ts；控件規格（含 "active" 這類非 "all" 的預設、
+  //    select 的 encode 順序）→ src/data/layerParamsSpec.ts。
   const [tourEventsOpacity, setTourEventsOpacity] = useState(0.85);
   const [tourEventsScale, setTourEventsScale] = useState(1);
   const [tourEventsStatus, setTourEventsStatus] = useState<string>("all"); // all / ongoing / upcoming
@@ -1128,25 +1099,8 @@ export function useTransportParams() {
     tourHotSpringZonesOpacity,
     tourScenicAreasOpacity,
     tourHeritageOpacity, tourHeritageScale,
-    religionTemplesOpacity, religionTemplesScale,
-    religionTemplesRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionTemplesRegistry),
-    religionTemplesDeityIdx: ["all", ...DEITY_FAMILIES.map((d) => d.value)].indexOf(religionTemplesDeity),
-    religionChurchesOpacity, religionChurchesScale,
-    religionChurchesRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionChurchesRegistry),
-    religionAncestralHallsOpacity, religionAncestralHallsScale,
-    religionAncestralHallsRegistryIdx: REGISTRY_MODES.map((m) => m.value).indexOf(religionAncestralHallsRegistry),
-    religionFoundationsOpacity, religionFoundationsScale,
-    religionOtherWorshipOpacity, religionOtherWorshipScale,
-    religionTop100Opacity, religionTop100Scale,
-    funeralFacilitiesOpacity, funeralFacilitiesScale,
-    funeralFacilitiesTypeIdx: ["all", ...FUNERAL_FACILITY_TYPES.map((t) => t.value)].indexOf(funeralFacilitiesType),
-    funeralFacilitiesPrecisionIdx: PRECISION_MODES.map((m) => m.value).indexOf(funeralFacilitiesPrecision),
-    funeralOperatorsOpacity, funeralOperatorsScale,
-    funeralOperatorsStatusIdx: OPERATOR_STATUS_MODES.map((m) => m.value).indexOf(funeralOperatorsStatus),
-    funeralOperatorsPrecisionIdx: PRECISION_MODES.map((m) => m.value).indexOf(funeralOperatorsPrecision),
-    funeralOperatorDensityOpacity,
-    cemeteryOsmOpacity,
-    cemeteryZoningOpacity,
+    // 🛕 宗教 6 層 ＋ ⚰️ 殯葬 5 層的 27 個 overlayParams key（含 6 個 select 的 Idx）
+    // 已遷出：由末尾 `...migratedOverlayParams` 從 layerParamsSpec 的 encode 派生。
     tourEventsOpacity, tourEventsScale,
     tourEventsStatusIdx: ["all", "ongoing", "upcoming"].indexOf(tourEventsStatus),
     tourFactoriesOpacity, tourFactoriesScale,
@@ -1585,15 +1539,7 @@ export function useTransportParams() {
     tourAttractionsOpacity, tourAttractionsScale, tourAttractionsMode,
     tourHotSpringsOpacity, tourHotSpringsScale, tourHotSpringZonesOpacity, tourScenicAreasOpacity,
     tourHeritageOpacity, tourHeritageScale,
-    religionTemplesOpacity, religionTemplesScale, religionTemplesRegistry, religionTemplesDeity,
-    religionChurchesOpacity, religionChurchesScale, religionChurchesRegistry,
-    religionAncestralHallsOpacity, religionAncestralHallsScale, religionAncestralHallsRegistry,
-    religionFoundationsOpacity, religionFoundationsScale,
-    religionOtherWorshipOpacity, religionOtherWorshipScale,
-    religionTop100Opacity, religionTop100Scale,
-    funeralFacilitiesOpacity, funeralFacilitiesScale, funeralFacilitiesType, funeralFacilitiesPrecision,
-    funeralOperatorsOpacity, funeralOperatorsScale, funeralOperatorsStatus, funeralOperatorsPrecision,
-    funeralOperatorDensityOpacity, cemeteryOsmOpacity, cemeteryZoningOpacity,
+    // 宗教 6 ＋ 殯葬 5 的 27 項 deps 已遷出 —— 整組收斂成首項的 migratedOverlayParams
     tourEventsOpacity, tourEventsScale, tourEventsStatus,
     tourFactoriesOpacity, tourFactoriesScale, tourAmusementParksOpacity, tourAmusementParksScale,
     tourCampingOpacity, tourCampingScale,
@@ -2847,60 +2793,8 @@ export function useTransportParams() {
         { label: `透明度 ${tourHeritageOpacity.toFixed(2)}`, value: tourHeritageOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourHeritageOpacity },
         { label: `大小 ${tourHeritageScale.toFixed(1)}`, value: tourHeritageScale, min: 0.3, max: 3, step: 0.1, onChange: setTourHeritageScale },
       ];
-      case "religionTemples": return [
-        // 10 選項（全部 + 9 族）與 3 選項登記態；前者 > 3 自動走原生 select（四鐵則 #4）
-        { type: "select" as const, label: "主祀", value: religionTemplesDeity, options: [{ label: "全部", value: "all" }, ...DEITY_FAMILIES.map((d) => ({ label: d.label, value: d.value }))], onChange: setReligionTemplesDeity },
-        { type: "select" as const, label: "登記", value: religionTemplesRegistry, options: REGISTRY_MODES, onChange: setReligionTemplesRegistry },
-        { label: `透明度 ${religionTemplesOpacity.toFixed(2)}`, value: religionTemplesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionTemplesOpacity },
-        { label: `大小 ${religionTemplesScale.toFixed(1)}`, value: religionTemplesScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionTemplesScale },
-      ];
-      case "religionChurches": return [
-        { type: "select" as const, label: "登記", value: religionChurchesRegistry, options: REGISTRY_MODES, onChange: setReligionChurchesRegistry },
-        { label: `透明度 ${religionChurchesOpacity.toFixed(2)}`, value: religionChurchesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionChurchesOpacity },
-        { label: `大小 ${religionChurchesScale.toFixed(1)}`, value: religionChurchesScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionChurchesScale },
-      ];
-      case "religionAncestralHalls": return [
-        // ⚠️ 本層 false 是「文資祠堂」不是 OSM，故用 REGISTRY_MODES_ANCESTRAL 的標籤
-        { type: "select" as const, label: "類型", value: religionAncestralHallsRegistry, options: REGISTRY_MODES_ANCESTRAL, onChange: setReligionAncestralHallsRegistry },
-        { label: `透明度 ${religionAncestralHallsOpacity.toFixed(2)}`, value: religionAncestralHallsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionAncestralHallsOpacity },
-        { label: `大小 ${religionAncestralHallsScale.toFixed(1)}`, value: religionAncestralHallsScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionAncestralHallsScale },
-      ];
-      case "religionFoundations": return [
-        { label: `透明度 ${religionFoundationsOpacity.toFixed(2)}`, value: religionFoundationsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionFoundationsOpacity },
-        { label: `大小 ${religionFoundationsScale.toFixed(1)}`, value: religionFoundationsScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionFoundationsScale },
-      ];
-      case "religionOtherWorship": return [
-        { label: `透明度 ${religionOtherWorshipOpacity.toFixed(2)}`, value: religionOtherWorshipOpacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionOtherWorshipOpacity },
-        { label: `大小 ${religionOtherWorshipScale.toFixed(1)}`, value: religionOtherWorshipScale, min: 0.3, max: 3, step: 0.1, onChange: setReligionOtherWorshipScale },
-      ];
-      case "religionTop100": return [
-        { label: `透明度 ${religionTop100Opacity.toFixed(2)}`, value: religionTop100Opacity, min: 0.1, max: 1, step: 0.05, onChange: setReligionTop100Opacity },
-        { label: `大小 ${religionTop100Scale.toFixed(1)}`, value: religionTop100Scale, min: 0.3, max: 3, step: 0.1, onChange: setReligionTop100Scale },
-      ];
-      // ⚰️ 殯葬 Funeral（5 層）
-      case "funeralFacilities": return [
-        { type: "select" as const, label: "類型", value: funeralFacilitiesType, options: [{ label: "全部", value: "all" }, ...FUNERAL_FACILITY_TYPES.map((t) => ({ label: `${t.label} (${t.count.toLocaleString()})`, value: t.value }))], onChange: setFuneralFacilitiesType },
-        // ⚠️ 42% 是地籍/鄉鎮中心的概略座標 → 做距離分析前先切「僅精確定位」（handoff §3.5）
-        { type: "select" as const, label: "定位精度", value: funeralFacilitiesPrecision, options: PRECISION_MODES, onChange: setFuneralFacilitiesPrecision },
-        { label: `透明度 ${funeralFacilitiesOpacity.toFixed(2)}`, value: funeralFacilitiesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFuneralFacilitiesOpacity },
-        { label: `大小 ${funeralFacilitiesScale.toFixed(1)}`, value: funeralFacilitiesScale, min: 0.3, max: 3, step: 0.1, onChange: setFuneralFacilitiesScale },
-      ];
-      case "funeralOperators": return [
-        // ⚠️ 預設「仍營業」—— 切到「全部」會多出 1,664 個已失效業者（產業消長分析用）
-        { type: "select" as const, label: "營業狀態", value: funeralOperatorsStatus, options: OPERATOR_STATUS_MODES, onChange: setFuneralOperatorsStatus },
-        { type: "select" as const, label: "定位精度", value: funeralOperatorsPrecision, options: PRECISION_MODES, onChange: setFuneralOperatorsPrecision },
-        { label: `透明度 ${funeralOperatorsOpacity.toFixed(2)}`, value: funeralOperatorsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFuneralOperatorsOpacity },
-        { label: `大小 ${funeralOperatorsScale.toFixed(1)}`, value: funeralOperatorsScale, min: 0.3, max: 3, step: 0.1, onChange: setFuneralOperatorsScale },
-      ];
-      case "funeralOperatorDensity": return [
-        { label: `透明度 ${funeralOperatorDensityOpacity.toFixed(2)}`, value: funeralOperatorDensityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFuneralOperatorDensityOpacity },
-      ];
-      case "cemeteryOsm": return [
-        { label: `透明度 ${cemeteryOsmOpacity.toFixed(2)}`, value: cemeteryOsmOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCemeteryOsmOpacity },
-      ];
-      case "cemeteryZoning": return [
-        { label: `透明度 ${cemeteryZoningOpacity.toFixed(2)}`, value: cemeteryZoningOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCemeteryZoningOpacity },
-      ];
+      // 🛕 宗教 6 層 ＋ ⚰️ 殯葬 5 層的 case 已遷出（AR-22 P3-1 試點）——
+      //    上方的 buildParamControls 分岔會在進到 switch 之前就接手。
       case "tourEvents": return [
         { type: "select" as const, label: "狀態", value: tourEventsStatus, options: [{ label: "全部", value: "all" }, { label: "進行中", value: "ongoing" }, { label: "未開始", value: "upcoming" }], onChange: setTourEventsStatus },
         { label: `透明度 ${tourEventsOpacity.toFixed(2)}`, value: tourEventsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setTourEventsOpacity },

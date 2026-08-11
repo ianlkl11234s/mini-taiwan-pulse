@@ -16,6 +16,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { LAYER_COLORS, SECTIONS } from "../layerCatalog";
 import { LEGEND_REGISTRY } from "../../LegendPanel";
+import { isMigratedParamsKey } from "../../../data/layerParamsSpec";
 
 const allKeys = Object.keys(LAYER_COLORS);
 const sidebarKeys = new Set<string>(SECTIONS.flatMap((s) => s.layers.map((l) => l.key)));
@@ -131,8 +132,14 @@ const BASELINE_NO_LEGEND = new Set([
   "tourFactories", "tourAmusementParks", "tourCamping", "tourRestaurants",
 ]);
 
+/**
+ * 「這層有沒有參數控件」。AR-22 P3-1 起有兩個合法歸宿（雙軌）：
+ *   - `useTransportParams` 的 `case "key"`（未遷移）
+ *   - `LAYER_PARAMS_SPEC` 的宣告式規格（已遷移到 layerParamsStore）
+ * 只認前者的話，每遷一批就會有一批 layer 被誤判成「漏接 slider」。
+ */
 function hasParamsCase(key: string): boolean {
-  return paramsSource.includes(`case "${key}"`);
+  return paramsSource.includes(`case "${key}"`) || isMigratedParamsKey(key);
 }
 
 function hasLegendRef(key: string): boolean {
