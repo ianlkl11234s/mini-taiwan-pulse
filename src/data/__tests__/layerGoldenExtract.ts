@@ -210,12 +210,7 @@ function extractOverlays(params: Record<string, number>): unknown[] {
  * 沿用 mapInteractionLayers.test.ts 已在用的前例。
  */
 export function extractGisLayers(source = readFileSync(INTERACTION_FILE, "utf8")): unknown[] {
-  const start = source.indexOf("const GIS_LAYERS");
-  if (start < 0) throw new Error(`${INTERACTION_FILE} 找不到 GIS_LAYERS —— 抽取器需同步更新`);
-  const open = source.indexOf("[", start);
-  const end = source.indexOf("\n        ];", open);
-  if (open < 0 || end < 0) throw new Error("GIS_LAYERS 區塊邊界解析失敗 —— 抽取器需同步更新");
-  const block = source.slice(open, end);
+  const block = gisLayersBlock(source);
 
   const out: unknown[] = [];
   for (const m of block.matchAll(/layers:\s*\[([\s\S]*?)\]\s*,\s*type:\s*"([^"]+)"/g)) {
@@ -224,6 +219,35 @@ export function extractGisLayers(source = readFileSync(INTERACTION_FILE, "utf8")
   }
   if (out.length === 0) throw new Error("GIS_LAYERS 解析出 0 筆 —— 抽取器需同步更新");
   return out;
+}
+
+/** GIS_LAYERS 的原始碼區塊（字面陣列與常數引用兩個解析器共用同一段邊界邏輯） */
+function gisLayersBlock(source: string): string {
+  const start = source.indexOf("const GIS_LAYERS");
+  if (start < 0) throw new Error(`${INTERACTION_FILE} 找不到 GIS_LAYERS —— 抽取器需同步更新`);
+  const open = source.indexOf("[", start);
+  const end = source.indexOf("\n        ];", open);
+  if (open < 0 || end < 0) throw new Error("GIS_LAYERS 區塊邊界解析失敗 —— 抽取器需同步更新");
+  return source.slice(open, end);
+}
+
+/**
+ * GIS_LAYERS 裡 layer id 陣列寫成**常數引用**（`{ layers: FOO_CLICK_LAYERS, type: "x" }`）
+ * 那幾筆的 layerType。目前有 2 筆：`disasterAlert`、`plaActivity`。
+ *
+ * ⚠️ `extractGisLayers` 的 regex 要求字面 `[...]`，抓不到這種形狀 —— 但它們是**真的有
+ * 點擊接線**的。manifest 的 popup 宣告若只拿 extractGisLayers 當真值，會把這兩層誤判成
+ * 「沒有 popup」，Phase 3 依 popup 派生 GIS_LAYERS 時就會靜默丟掉它們的接線 ——
+ * 那正是本工程要消滅的暗雷，所以獨立補一支解析。
+ *
+ * 只回 type 字串、**不進 fixture**：fixture 凍結的是「layer id 陣列內容 + 順序」，
+ * 常數引用要展開成 id 需要 runtime 值，那是 Phase 3 把 GIS_LAYERS 提升成模組級 export
+ * 之後才做得到的事（見 backlog「護欄本身的待辦」）。
+ */
+export function extractGisConstRefTypes(source = readFileSync(INTERACTION_FILE, "utf8")): string[] {
+  const block = gisLayersBlock(source);
+  return [...block.matchAll(/layers:\s*([A-Za-z_$][\w$]*)\s*,\s*type:\s*"([^"]+)"/g)]
+    .map((m) => m[2] as string);
 }
 
 /**

@@ -45,9 +45,12 @@ import type { UpstreamRef } from "./upstreamRegistry";
  *                     deploy 腳本清單（觸點 #20，PT-1 曾因漏此步 13 層全站 404）。
  *   C 動態資料 —— Supabase RPC / 即時 API 餵 setData。必須註冊 loadingRegistry
  *                （規則 3），且時間相依一律走 timeStore 訂閱（規則 6）。
- *   D 前端自繪 —— Three.js / WebGL CustomLayer，**沒有 OVERLAY_REGISTRY entry**。
- *                 paint/legend 的派生機制對它不適用，manifest 的 source 欄位
- *                 走 kind:"custom"。
+ *   D 自行接線 —— **沒有 OVERLAY_REGISTRY entry**：Three.js / WebGL CustomLayer，
+ *                 或 hook 自己 addSource/addLayer（fireEvents 走 Supabase RPC、
+ *                 worldTrashDebris 走靜態 geojson、fireIsochrone 走 PMTiles factory）。
+ *                 分級看的是「派生機制適不適用」不是「資料長什麼樣」——沒有 registry
+ *                 entry 就沒得派生，真實來源改記在 source 的 note。
+ *                 manifest 的 source 欄位走 kind:"custom"。
  */
 export type LayerDataClass = "A" | "B" | "C" | "D";
 

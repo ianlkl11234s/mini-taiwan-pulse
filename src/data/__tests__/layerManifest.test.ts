@@ -26,7 +26,7 @@ import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
 import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
-import { extractGolden, extractGisLayers } from "./layerGoldenExtract";
+import { extractGolden, extractGisLayers, extractGisConstRefTypes } from "./layerGoldenExtract";
 
 const entries = MANIFEST_KEYS.map(
   (k) => [k, LAYER_MANIFEST[k] as LayerManifestEntry] as const,
@@ -35,7 +35,10 @@ const entries = MANIFEST_KEYS.map(
 const golden = extractGolden();
 const controls = golden.params as Record<string, { type?: string }[]>;
 const gisRows = extractGisLayers() as { layers: string[]; type: string }[];
-const gisTypes = new Set(gisRows.map((r) => r.type));
+// GIS_LAYERS 有兩筆 layer id 寫成常數引用（disasterAlert / plaActivity），字面陣列的
+// 解析器抓不到 —— 但它們有真的點擊接線。不 union 進來的話，manifest 只能把這兩層
+// 宣告成 popup: null（已知為假），Phase 3 派生時會靜默丟掉接線。
+const gisTypes = new Set([...gisRows.map((r) => r.type), ...extractGisConstRefTypes()]);
 
 function themeLocation(key: string): { theme: string; group: string } | null {
   for (const t of THEMES) {
