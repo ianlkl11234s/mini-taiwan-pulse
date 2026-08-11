@@ -194,10 +194,27 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
         expect(gisTypes.has(k), `${k} 宣告沒有 popup，但 GIS_LAYERS 有它的條目`).toBe(false);
         continue;
       }
-      expect(m.popup in HEADER_LABELS, `${k} 的 popup layerType "${m.popup}" 不在 HEADER_LABELS`)
-        .toBe(true);
-      expect(gisTypes.has(m.popup), `${k} 的 popup layerType "${m.popup}" 在 GIS_LAYERS 找不到條目`)
-        .toBe(true);
+      // 一個 key 對多個 layerType（earthquakeReplay 的測站點 + 鄉鎮面）→ 陣列。
+      // 單／複數走同一條比對路徑，差別只在筆數與下面的順序斷言。
+      const types = Array.isArray(m.popup) ? m.popup : [m.popup];
+      expect(types, `${k} 的 popup 陣列不能是空的`).not.toHaveLength(0);
+      expect(new Set(types).size, `${k} 的 popup 陣列有重複的 layerType`).toBe(types.length);
+
+      for (const t of types) {
+        expect(t in HEADER_LABELS, `${k} 的 popup layerType "${t}" 不在 HEADER_LABELS`).toBe(true);
+        expect(gisTypes.has(t), `${k} 的 popup layerType "${t}" 在 GIS_LAYERS 找不到條目`).toBe(true);
+      }
+
+      // ⚠️ 多 layerType 時順序 load-bearing：GIS_LAYERS 是 first-hit-wins，點層在前、
+      //    大面積面層刻意置末（earthquakeReplay 兩筆相隔近 200 列）。宣告順序必須與
+      //    GIS_LAYERS 的出現順序一致，重排會靜默改掉「點下去命中哪一層」。
+      if (types.length > 1) {
+        const at = types.map((t) => gisRows.findIndex((r) => r.type === t));
+        expect(
+          at.every((i, n) => n === 0 || (i > (at[n - 1] as number) && i >= 0)),
+          `${k} 的 popup 陣列順序與 GIS_LAYERS 出現順序不符（實際位置 ${at.join(",")}）`,
+        ).toBe(true);
+      }
     }
   });
 

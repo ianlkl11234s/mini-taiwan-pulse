@@ -169,8 +169,19 @@ export interface LayerManifestEntry {
    * popup 的 FeatureInfo layerType。**不保證與 key 同名**
    * （newsEvents 的 layerType 是 "newsEvent"）—— 這正是要收進 manifest 的漂移點。
    * null = 沒有可點選物件。
+   *
+   * **一個 key 對多個 layerType** → 寫陣列，且**順序必須與 GIS_LAYERS 的出現順序相同**
+   * （測試逐位對齊比對）。`earthquakeReplay` 是首例：同一個 toggle 建出 5 個 layer，
+   * 其中測站點（`eq-replay-station-circle` → `earthquakeReplayStation`）與鄉鎮面
+   * （`eq-replay-town-fill` → `earthquakeReplayTown`）**各自有 GIS_LAYERS 條目、
+   * 各自有 panel 元件**。只宣告一個 = 已知為假，Phase 3 依 popup 派生 GIS_LAYERS 時
+   * 會靜默丟掉另一個的接線。
+   *
+   * ⚠️ 順序 load-bearing 但**不代表相鄰**：GIS_LAYERS 是 first-hit-wins，
+   * 點層排在前段、大面積面層刻意排在末段（earthquakeReplay 兩筆分別在第 90 / 286 列），
+   * 陣列只保證兩者的相對先後，Phase 3 派生仍需要 README 已登記的 `clickPriority` 欄位。
    */
-  popup: FeatureInfo["layerType"] | null;
+  popup: FeatureInfo["layerType"] | FeatureInfo["layerType"][] | null;
   /**
    * 參數控件規格佔位（Phase 4 才把 useTransportParams 的 case 派生掉）。
    * 現在只記「有幾個控件、各是什麼型別」，讓測試能釘住宣告不漂移。
