@@ -1,0 +1,57 @@
+# Layer Manifest — Backlog
+
+## Phase 2 分批搬移提案（343 層待搬）
+
+每批的驗收條件相同、不可省：**黃金快照 fixture 一位元未動 + `npx tsc -b` 0 error +
+`npx vitest run` 全綠**。fixture 一旦需要重跑 dump，代表搬移改到了值 → 先確認是不是搬壞了。
+
+批次順序 = 簡單到複雜。前面的批次先把 schema 的形狀撞出來，後面的大批才不會返工。
+
+八批層數：25 + 28 + 33 + 46 + 40 + 42 + 47 + 82 = **343**（348 − 5 試點）。
+各主題已扣掉 Phase 1 搬走的層（情勢 −1 底圖 −1 環境 −1 交通 −2）。
+⚠️ THEMES 實際是 **27 主題 338 層 + 10 個不在 THEMES 的 orphan key**
+（`layerCatalog.ts` 檔頭註解寫「22 主題」已過時）。
+
+| 批 | 主題 | 層數 | 預估難點 |
+|---|---|---|---|
+| **1** | 暖身微型 + 同構家族：都市分析(1) 民防避難(1) 世界(1) 情勢(1 剩) 宗教(6) 殯葬(5) 文化(5) 消防(5) | 25 | **色票來自外部常數**：宗教/殯葬的 `LAYER_COLORS` 值是 `RELIGION_LAYER_COLORS` / `FUNERAL_LAYER_COLORS` 展開來的，不是字面 hex → 得先決定 manifest 的 `color` 欄位是「複製字面」還是「引用常數」（**這是 Phase 2 第一個設計拍板點，會影響後面所有批**）。消防 3 層是 D 體質。 |
+| **2** | 純靜態 POI：基礎建設(11) 運動休閒(6) 觀光(11) | 28 | 最單純的一批（幾乎全 A 體質），適合用來驗證批次搬移的**機械化流程**能不能自動產生 manifest entry。觀光 11 層全部有 `labelMobile` 且全部有 popup；基礎建設多數層合法無 legend（`legend: null`），別誤填。 |
+| **3** | 教育(17) 林業(16) | 33 | 教育 17 層**全部**有 `labelMobile`；popup layerType 大量與 key 不同名，且 `eduDistrictK12` 一個 layerType 對兩個 layer（國小/國中共用）→ manifest 的 `popup` 欄位會出現「多對一」，legend 共用測試要確認不誤判。林業 5 層 PMTiles → 連帶檢查 nginx/deploy 清單（觸點 #20）。 |
+| **4** | 執法治安(20) 醫療(8) 房地產(7) 人口社經(6) 全球氣候(5) | 46 | ⚠️ **`propertyValueGrid` 有 3 個 OVERLAY_REGISTRY config**（同 key 多 entry）→ 現行 `LayerSource` 是單數形，**必須先擴充成陣列或 union**，否則 `layerManifest.test.ts` 的 `toHaveLength(1)` 會擋下來。執法治安 20 層 popup 100% 覆蓋。人口社經/全球氣候全 D 體質（H3 factory / 氣候 frame）。 |
+| **5** | 底圖(剩 12) 災害(12) 太空(16) | 40 | 底圖 10 層 PMTiles → dataClass B 連帶 nginx + deploy 腳本清單（PT-1 曾因漏此步 13 層全站 404）。太空 16 層全 D（satellite.js 算軌道，無 overlay entry），`source.kind: "custom"` 的 note 要寫得有資訊量。災害 3 層 C + 7 層 D 混合。 |
+| **6** | 環境氣候(剩 19) 水資源(23) | 42 | ⚠️ `waterRivers` / `waterReservoirs` 各有 2 個 config（同批 4 的問題）。環境污染剩下 4 層與已搬的 `pollutionFacility` 共用 `pollutionTypes` 的表達式常數 → 驗證 legend id 共用規約。水資源 12 層 D 體質。 |
+| **7** | 廢棄物(18) 農業(29) | 47 | 廢棄物 14 層有 `labelMobile`、**0 層有 legend**（全部 `legend: null`，別誤填）、17 層 D 體質；`wasteRoute`/`wasteStop` 是 orphan（不在 THEMES，由 wasteTruck 子 UI 控制）→ 見批 8 的 `section` 問題。農業 8 層 C + 9 層 B，6 個子群最多。 |
+| **8** | 交通(剩 31) 能源(41) + 10 個 orphan key | 82 | 最重的一批，**可再拆 3 個 sub-batch**。能源 30 層是 C 體質（Supabase 動態）→ 每層都要確認 loadingRegistry 契約。交通 13 層 D（Three.js）且 `busLive` 有 11 個控件（8 個 toggle）。⚠️ **10 個 orphan key 不在 THEMES**（`facOffshore` `islandPowerGrid` `medICUBeds` `osmPowerPlantsStatic` `osmSolarFarms` `powerPlants` `powerRegionDemand` `powerStatusHud` `wasteRoute` `wasteStop`）→ `section` 欄位**必須先允許 null**，且 `layerManifest.test.ts` 的 section 斷言要放行。 |
+
+### 開始 Phase 2 之前必須先拍板的 4 件事
+
+1. **`color` 欄位對外部常數的處理**（批 1 卡住）：`RELIGION_LAYER_COLORS` /
+   `FUNERAL_LAYER_COLORS` / `EDUCATION_LAYER_COLORS` 三組。複製字面 = manifest 自足但
+   兩處要同步；引用常數 = 不重複但 manifest 不再是純資料。建議引用常數（那三個檔本來
+   就是「三邊共用色彩 SSOT」，複製回去等於破壞它的存在理由）。
+2. **`LayerSource` 支援同 key 多 config**（批 4 卡住）：4 個 key 受影響
+   （`stationsTRA`×2 `waterRivers`×2 `waterReservoirs`×2 `propertyValueGrid`×3）。
+3. **`section` 允許 null**（批 8 卡住）：10 個 orphan key。
+4. **legend id 命名規約**：目前是自由字串，多層共用時填同一 id。需要一份規約
+   （建議：用 LEGEND_REGISTRY entry 的第一個 key 當 id）避免撞名或同群填不同 id。
+
+## Phase 3-5 展望
+
+- **Phase 3**｜legend / popup 派生：`LEGEND_REGISTRY` 的 `keys` 由 manifest 反查產生；
+  `GIS_LAYERS`（觸點 #16）由 manifest 的 `popup` + `source.sourceId` 組出來。
+  ⚠️ `GIS_LAYERS` 是 **first-hit-wins**（細節豐富的小範圍在前、大面積背景在後）——
+  派生時**必須保序**，manifest 需要一個顯式的 `clickPriority` 欄位，不能靠陣列順序。
+- **Phase 4**｜params 派生：`useTransportParams` 的 `case` 由 manifest 的 params spec
+  產生。難點是控件的 `onChange` 綁的是 hook 內的 setState，manifest 只能宣告 spec，
+  state 仍得留在 hook → 需要一層 spec→控件的組裝器。
+- **Phase 5**｜`/new-layer` 改成只寫 manifest；`docs/development-rules.md` §4 觸點表
+  改寫（登記簿類觸點併成 1 行）。
+
+## 護欄本身的待辦
+
+- [ ] fixture 1.35 MB / 57,589 行 —— 目前可接受，但若 Phase 3 把 legend/popup 的展開
+      也納入快照會再膨脹。屆時考慮把 `overlays` section 拆成獨立 fixture 檔。
+- [ ] `PENALTY_YEAR_MAX` 一旦被調高到未來年份，`pollutionPenaltyYear` 的預設值會隨
+      系統時間漂移 → 已有 guard 斷言會先紅，屆時去 `layerGoldenExtract` 的 sanitize 補正規化。
+- [ ] `GIS_LAYERS` 目前是原始碼文字解析（函式內區域常數，runtime 取不到）。Phase 3
+      把它提升成模組級 export 後，抽取器可改成 runtime 真值，精度提升。
