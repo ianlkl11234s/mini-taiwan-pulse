@@ -111,8 +111,12 @@
      走獨立 tooltip 狀態（bus・flight・wasteSchedule）／`HEADER_LABELS` 有但
      `GIS_LAYERS` 沒有（`hillshade`・`osmExpressway`）／有 registry entry 但 layer id
      不在 `GIS_LAYERS`（`stationsTHSR`）。Phase 3 若要「補齊缺的 popup」會全撞上。
-- **Phase 5**｜`/new-layer` 改成只寫 manifest；`docs/development-rules.md` §4 觸點表
-  改寫（登記簿類觸點併成 1 行）。
+- **Phase 5**｜✅ **完成**（2026-08-12 `8dbfc6e`）：`/new-layer` ＋ `layer-creator` agent
+  ＋ `layer-onboarding` skill ＋ `CLAUDE.md` §5 四份一起改成新三步
+  「manifest 一筆 ＋ `layerParamsSpec` 一筆 ＋ 實質邏輯檔」。
+  ⚠️ **不是「只寫 manifest」** —— 完整參數規格刻意不進 manifest（import 鐵則），
+  所以是**兩筆宣告**。`development-rules.md` §4 觸點表的 params 段於 P3-3 改寫、
+  登記簿段於本次改寫。
 
 > ⚠️ **上面兩條的 Phase 編號已改**（2026-08-11 拍板）：params 提前成 Phase 3、
 > legend/popup 順延成 Phase 4。原「Phase 4｜params 派生」那條的預測
@@ -122,10 +126,70 @@
 > `src/state/layerParamsControls.ts`。剩餘 324 個 case 的分批盤點見
 > [changelog.md](./changelog.md) 末節「給 P3-2 的分批盤點」。
 
+## Phase 4 收尾（2026-08-12）—— 已完成 ／ 未竟
+
+### ✅ 4a 完成（`1b282b5` `3a981db` `94711de` `8dbfc6e` `07101ea`）
+
+- [x] `layerConsistency` 改守 **manifest 完整性**（9 條）：key 空間完整（封 `HANDWRITTEN_*`
+      逃生口）／必要欄有真值（空字串・空陣列・空殼血緣）／四份豁免 ledger 雙向凍結
+      （`ORPHAN` 10・`NO_PARAMS` 12・`NO_LEGEND` 84・**`NO_POPUP` 57 新增**）／
+      鐵則 4 閾值同步／DEFAULT_ON。三份舊 `BASELINE_*` 翻譯前先機械比對，三組**逐 key 全等**。
+- [x] `emptyByDesign` 根治：5 個 `case "x": return []` ＋ `paramsCaseKeys()` 一併退役，
+      語意事實搬回 manifest 的 `params: null`。黃金快照**零 diff** = 逐字等價。
+      抽取器的「原始碼文字解析」來源 2 → **1**（只剩 `GIS_LAYERS`）。
+- [x] 黃金快照鷹架處置：選 **(縮小版 a)**，12 → 3 section（留 `overlays` / `params` /
+      `gisLayers` —— 唯一沒有別的護欄在守、且由共用機制 fan-out 的三個）。
+      **抽取器不縮**（它是 manifest 契約測試的地基）。
+- [x] `/new-layer` 三份文件 ＋ `CLAUDE.md` 改版（見上方 Phase 5）。
+- [x] **紅燈演練 4/4 會叫、還原後全綠**，逐場輸出貼在
+      [changelog.md](./changelog.md) Phase 4 第 5 節。
+
+### ⬜ 4b 未做：legend / popup 接線**派生化**
+
+護欄那半做完了，派生那半沒動。現況 manifest 的 `legend` / `popup` 是
+**宣告 ＋ 雙向對帳**，不是 `LEGEND_REGISTRY` / `GIS_LAYERS` 的產生源。
+要做時，上面「Phase 3-5 展望」裡批 8 交接的五件事仍然有效，另加：
+
+- [ ] `GIS_LAYERS` 派生必須**保序**（first-hit-wins）。manifest 的 popup 陣列只保證
+      「同一個 key 內多個 layerType 的相對先後」，**跨 key 的全域順序需要顯式
+      `clickPriority` 欄位**。⚠️ 那個順序目前**只有黃金快照的 `gisLayers` section 在守**
+      —— 這正是它留在 fixture 的理由，派生完成前不要把它移出。
+- [ ] `NO_POPUP_LEDGER` 的 57 筆理由**未逐筆考證**（「宣告 null ⇔ 真的沒接線」機械對帳過，
+      「是否*應該*有 popup」沒有）。誰要補 popup，那份 ledger 就是待辦清單。
+
+### ⬜ 其餘未竟（完整敘述見 [changelog.md](./changelog.md) 末節「終章」）
+
+- [ ] **AR-22 的終點**：消費端改吃 `useLayerParams(key)`（現在仍拿
+      `useLayerParamsRuntime` 組出來的整包）。⚠️ **不是等價重構**，等值閘 A/B 會擋
+      —— 那是對的，要另立驗收標準（逐消費端 render 次數量測），
+      **不要為了讓閘變綠而放寬它**。
+- [ ] **`App.tsx` 漏 call hook 仍是靜默失敗**（5 個靜默點裡唯一沒解的，現況 4.5/5）。
+      manifest 不記 hook 名，grep `App.tsx` 是會誤報的脆弱護欄 → **刻意不蓋**。
+      正解是「55 個手寫 `use*Layer()` 呼叫改成 manifest 驅動的迴圈」，獨立一棒。
+- [ ] **`fireHydrants` catalog 缺口**（pre-existing・跨 repo・另案）：manifest 宣告
+      `datasetId: "fire_hydrants"` 但 analytics 端沒有該 dataset 文件 →
+      **主樹**跑 `upstreamRegistry.test.ts` 會有這一筆紅（worktree 會整支 skip，
+      就是測試總數裡那個 `1 skipped`）。⚠️ **不要改 manifest 讓它變綠** ——
+      照跨 repo 同步順序，先在 analytics 補 catalog entry。
+- [ ] **`scripts/audit/06_apply_to_pulse.py` 未同步改寫**（跨 repo，見
+      [handoff.md](./handoff.md)）：它原本從 analytics 的 `match_final.csv` 產
+      `upstreamRegistry.ts`，但現在只會覆蓋**已經空掉**的 `HANDWRITTEN_UPSTREAM`
+      → 重跑會產出「看起來什麼都沒改」的 diff。要改成寫入 `layerManifest.ts` 的
+      `upstream` 欄位。⚠️ 原本登記在「Phase 5」，而 Phase 5 已以 `/new-layer`
+      文件改版結案且**不含這一項**，故移到這裡。
+
+- [ ] **`layerParamsSpec.ts` 2,640 行不能按主題切檔**（P3-3 實測，本棒未變）：
+      spread 合併會同時丟掉 TS2353（typo key，且幽靈 key 會混進 `MigratedParamsKey`）
+      與 TS1117（重複 key 變靜默 last-wins）兩道護欄。
+      逃生路線：只切**上半段的型別與 builder**（L1–L736，不碰字面），那一刀零風險。
+      ⚠️ 別因為「證偽了某個理由」就以為可以切 —— P3-3 已修正過一次理由，**結論沒變**。
+
 ## 護欄本身的待辦
 
-- [ ] fixture 1.35 MB / 57,589 行 —— 目前可接受，但若 Phase 3 把 legend/popup 的展開
-      也納入快照會再膨脹。屆時考慮把 `overlays` section 拆成獨立 fixture 檔。
+- [x] ~~fixture 1.35 MB / 57,589 行~~ —— Phase 4 縮編成 3 個 section（1.09 MB）。
+      當初設想的「若把 legend/popup 展開也納入快照會再膨脹、屆時把 `overlays` 拆成
+      獨立 fixture 檔」**不需要了**：legend / popup 已被 `layerManifest.test.ts`
+      逐 key 焊死，本來就不該再進 fixture。
 - [ ] `PENALTY_YEAR_MAX` 一旦被調高到未來年份，`pollutionPenaltyYear` 的預設值會隨
       系統時間漂移 → 已有 guard 斷言會先紅，屆時去 `layerGoldenExtract` 的 sanitize 補正規化。
 - [ ] `GIS_LAYERS` 目前是原始碼文字解析（函式內區域常數，runtime 取不到）。Phase 3

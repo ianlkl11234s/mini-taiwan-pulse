@@ -21,24 +21,36 @@ commit 實測（落雷單層 11 檔 29 hunk／殯葬 5 層 14 檔／教育 16 �
 （tsc 會擋），是**編得過但值悄悄不一樣**——少一個 `labelMobile`、icon 換了一顆、
 popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽器上「看起來怪怪的」。
 
-## 五個 Phase
+## Phase 一覽（0 → 5，Phase 4 於 2026-08-12 拆成 4a／4b）
 
 | Phase | 內容 | 狀態 |
 |---|---|---|
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
 | **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | ✅ **全量完成 348/348**（`462c05a`）。批 1（25 層）`cc64857`…`1aa3d6b`；批 2（28 層）`5d33117`…`b292d21`；批 3（33 層）`b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema）`15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）`410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）`45faee8`…`d39edf1`；批 7（47 層 ＋ 第四支 popup 解析器）`a1d7e3b`…`7e6e0a1`；批 8（82 層 ＋ 拍板③ section null schema）`1eb4911`…`462c05a` |
-| **3** | **params 派生化**（退役 `useTransportParams`）| ✅ **完成**。348 key 中 336 個進 `LAYER_PARAMS_SPEC`、剩 5 個 `emptyByDesign` 分支；`useState` 645 → **0**；hook 3,160 → 539 行並更名 `useLayerParamsRuntime`。P3-1 `43386d6`…`6fff4e3`（store ＋ 渲染器 ＋ 雙軌 ＋ 11 層試點）／P3-2A `403a583`…`5804cdb`（A 桶 161）／P3-2B `fc30c83`…`89ba510`（共用 slot ＋ B 桶 58）／P3-2C `aa84bc3`…`1f360a7`（C 桶 32）／P3-2D `3c99ea9`…`5e73915`（hook return 等值閘 ＋ D 桶 74）／**P3-3 `852dbc7`…`4b2a1e5`（型別搬家 ＋ 改名 ＋ TRANSPORT_LABELS 收編 ＋ 切檔判定 ＋ 規則同步）**。⚠️ 「整支退役」（消費端改吃 `useLayerParams(key)`）**不在 Phase 3 範圍**：那不是等價重構，見 [changelog](./changelog.md) 末節 |
-| **4** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest）＋ 護欄永久化／紅燈演練 | ⬜ |
-| **5** | `/new-layer` 改成只寫 manifest（`development-rules.md` §4 觸點表**已於 P3-3 改寫 params 段**，其餘待 Phase 4/5） | ⬜ |
+| **3** | **params 派生化**（退役 `useTransportParams`）| ✅ **完成**。348 key 中 336 個進 `LAYER_PARAMS_SPEC`、剩 12 個在 manifest 宣告 `params: null`（P3 當時是「7 個 baseline ＋ 5 個 `emptyByDesign` 分支」兩處分記，4a 已收斂成單一表達）；`useState` 645 → **0**；hook 3,160 → 539 行並更名 `useLayerParamsRuntime`。P3-1 `43386d6`…`6fff4e3`（store ＋ 渲染器 ＋ 雙軌 ＋ 11 層試點）／P3-2A `403a583`…`5804cdb`（A 桶 161）／P3-2B `fc30c83`…`89ba510`（共用 slot ＋ B 桶 58）／P3-2C `aa84bc3`…`1f360a7`（C 桶 32）／P3-2D `3c99ea9`…`5e73915`（hook return 等值閘 ＋ D 桶 74）／**P3-3 `852dbc7`…`4b2a1e5`（型別搬家 ＋ 改名 ＋ TRANSPORT_LABELS 收編 ＋ 切檔判定 ＋ 規則同步）**。⚠️ 「整支退役」（消費端改吃 `useLayerParams(key)`）**不在 Phase 3 範圍**：那不是等價重構，見 [changelog](./changelog.md) 末節 |
+| **4a** | **護欄永久化 ＋ 紅燈演練** | ✅ **完成**（`1b282b5`…`07101ea`）。`layerConsistency` 從「掃原始碼字面 ＋ 3 份 `BASELINE_*`」改成 **manifest 完整性驗證**（9 條：key 空間完整 ／ 必要欄有真值 ／ 四份豁免 ledger 雙向凍結 ／ 鐵則 4 閾值同步 ／ DEFAULT_ON）；`emptyByDesign` 根治（5 個空 case ＋ `paramsCaseKeys()` 退役，語意事實搬回 manifest 的 `params: null`）；黃金快照縮編 12 → 3 section。**紅燈演練 4/4 會叫、還原後全綠**（逐場輸出見 [changelog](./changelog.md)）|
+| **4b** | legend / popup 接線**派生化**（觸點 #13 #15 #16 改由 manifest 產生 `LEGEND_REGISTRY` / `GIS_LAYERS`）| ⬜ **未做**。⚠️ 4a 只做了護欄那半 —— 現況 manifest 的 `legend` / `popup` 是**宣告 ＋ 雙向對帳**，不是產生源。最硬的一條：`GIS_LAYERS` 是 first-hit-wins，派生必須保序，需要顯式 `clickPriority` 欄位（跨 key 的全域順序目前**只有黃金快照的 `gisLayers` section 在守**）。批 8 交接的五件事見 [backlog](./backlog.md) |
+| **5** | `/new-layer` 產骨架流程改版 | ✅ **完成**（`8dbfc6e`）。新三步「manifest 一筆 ＋ spec 一筆 ＋ 實質邏輯檔」。⚠️ 不只是文件過期 —— `layer-creator` agent 的舊第 7/9 步（手寫 `LAYER_COLORS`／手改 `DEFAULT_ON`）**照做會被 4a 的完整性閘擋下來**，四個檔（command／agent／`layer-onboarding` skill／`CLAUDE.md`）一起改 |
 
 ⚠️ **Phase 3/4 的內容與本表原始版本對調**（2026-08-11 任務書拍板）：
 原排程是「3 = legend/popup、4 = params」，改成 params 先做。
 本檔與 [backlog.md](./backlog.md) 已同步；changelog 裡批 1-8 時期寫的
-「Phase 3 派生 GIS_LAYERS」等敘述指的是**現在的 Phase 4**。
+「Phase 3 派生 GIS_LAYERS」等敘述指的是**現在的 4b**。
 
-Phase 5 完成後，新增一層的登記工作 = **只改 manifest 一處**，其餘由派生產生；
-剩下的觸點都是實質邏輯（loader / hook / paint / legend 元件 / popup 元件）。
+⚠️ **Phase 4 於 2026-08-12 拆成 4a / 4b**：最終棒的任務書只涵蓋
+「護欄永久化 ＋ 紅燈演練」，legend/popup 的**派生化**從未執行 ——
+拆開記錄是為了不讓一個 ✅ 蓋掉沒做的那半。
+
+現況：新增一層的登記工作 = **manifest 一筆 ＋ `layerParamsSpec` 一筆**
+（原本預期的「只改 manifest 一處」沒有完全兌現 —— 完整參數規格刻意不進 manifest，
+理由見下方「Phase 3 的檔案」）；其餘觸點都是實質邏輯
+（loader / hook / paint / legend 元件 / popup 元件）。
+
+**AR-22 的終點仍未動**：消費端還是拿 `useLayerParamsRuntime` 組出來的整包，
+要改吃 `useLayerParams(key)` 才會兌現「一個 slider 動、只 render 該層控件」——
+**那不是等價重構**，等值閘會擋（那是對的），要另立驗收標準。
+完整未竟清單見 [changelog](./changelog.md) 末節「終章」。
 
 ### Phase 3 的檔案（params）
 
@@ -59,13 +71,26 @@ Phase 5 完成後，新增一層的登記工作 = **只改 manifest 一處**，�
 |---|---|
 | Manifest SSOT | `src/data/layerManifest.ts` |
 | 黃金快照抽取器（測試 + dump 腳本共用） | `src/data/__tests__/layerGoldenExtract.ts` |
-| 黃金快照護欄（23 tests） | `src/data/__tests__/layerGoldenSnapshot.test.ts` |
-| 黃金 fixture（1.35 MB，57,589 行） | `src/data/__tests__/__fixtures__/layer-golden.json` |
-| Manifest 契約測試（12 tests） | `src/data/__tests__/layerManifest.test.ts` |
+| 黃金快照護欄（15 tests，Phase 4 縮編後） | `src/data/__tests__/layerGoldenSnapshot.test.ts` |
+| 黃金 fixture（1.09 MB，只凍 3 個 section） | `src/data/__tests__/__fixtures__/layer-golden.json` |
+| Manifest 契約測試（13 tests，宣告 ⇔ 現況逐欄對帳） | `src/data/__tests__/layerManifest.test.ts` |
+| **Manifest 完整性閘（9 tests，含四份豁免 ledger）** | `src/components/sidebar/__tests__/layerConsistency.test.ts` |
+| hook return 等值閘 A/B（12 tests） | `src/hooks/__tests__/useLayerParamsRuntimeReturn.test.ts` |
+| 共用 slot ／ switch 清空閘 | `src/state/__tests__/layerParamsSharedState.test.ts` |
 | 重新產生 fixture | `scripts/preprocess/dump-layer-golden.ts` |
 
-派生接線落在：`src/components/sidebar/layerCatalog.ts`（colors + THEMES）、
+派生接線落在：`src/components/sidebar/layerCatalog.ts`（colors + THEMES + TRANSPORT_LABELS）、
 `src/components/IconRailSidebar.tsx`（icons）、`src/data/upstreamRegistry.ts`（upstream）。
+
+### 兩份測試的分工（不重複）
+
+| 檔 | 守什麼 |
+|---|---|
+| `layerManifest.test.ts` | 「manifest **宣告** vs **現況**」逐欄對帳（section ⇔ THEMES、source ⇔ OVERLAY_REGISTRY、legend ⇔ LEGEND_REGISTRY、popup ⇔ GIS_LAYERS、params ⇔ 實際控件）。宣告錯 = 紅 |
+| `layerConsistency.test.ts` | 「manifest 本身完不完整、豁免是不是有意識的決定」。不碰任何下游登記簿的值 |
+
+兩者合起來才擋得住「新層漏接線」：對帳擋「宣告與現況不符」，
+完整性擋「**根本沒宣告**」與「**用 `null` 靜默豁免**」。
 
 ### popup 宣告的四個真值來源（批 7 起）
 
@@ -184,8 +209,17 @@ spread merge 成完整的 `Record<keyof LayerVisibility, T>`。tsc 三個方向�
 ## 等價證明
 
 Phase 1 的硬驗收：搬移後**黃金快照 fixture 一位元未動**、23 條測試全綠 = 5 層零失真。
+同一把尺一路用到 Phase 3 收官 —— P3-3 五個 commit 的 sha256 `07972fce…` 逐位元未變。
 
-`npx tsc -b` 0 error｜`npx vitest run` 508 passed（基準 473 → +23 黃金 +12 契約）。
+**Phase 4 現況**：`npx tsc -b` 0 error｜`npx vitest run` 43 檔 **564 passed / 1 skipped**。
+`1 skipped` 是跨 repo 的 `upstreamRegistry.test.ts`（worktree 沒有 sibling
+`taipei-gis-analytics` 時整支自動跳過）。⚠️ 在**主樹**跑它，預期只剩
+`fireHydrants → fire_hydrants` 一筆紅 —— 那是 catalog 端缺口、pre-existing、屬另案，
+**不要靠改 manifest 讓它變綠**（缺的是上游的 dataset 文件）。
+
+fixture 於 4a 縮編成 3 個 section（`overlays` / `params` / `gisLayers`）——
+另外 9 個已被 `layerManifest.test.ts` 逐 key 雙向焊死，凍第二份只是 churn。
+判準寫在 `src/data/__tests__/layerGoldenExtract.ts` 的 `FIXTURE_SECTIONS`。
 
 ## 相關 backlog / 歷次改動 / 資料契約
 

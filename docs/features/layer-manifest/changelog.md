@@ -2495,3 +2495,76 @@ FAIL  layerParamsStore.test.ts > 參數名與 overlayParams out key 全域唯一
 「哪個 key、哪個欄位、該去哪個檔補」）。其中三場證明了 tsc 的縫在哪裡 ——
 (a2) 填空殼、(b2) 走逃生口、(c) 規格與消費端各自為政 —— 三種 tsc 全綠，
 全靠測試層擋下來。
+
+### 6. 終章：AR-22 交出了什麼、沒交出什麼
+
+#### 交出了
+
+| 面向 | 搬移前（2026-07-02 稽核） | 現在 |
+|---|---|---|
+| 登記簿 | 6 張手寫表（`LAYER_COLORS` / `LAYER_ICONS` / THEMES LayerDef / `LAYER_LABELS` / `UPSTREAM_REGISTRY` / `TRANSPORT_LABELS`），348 key 各寫一次 | **全部由 `layerManifest.ts` 派生**；兩個 `HANDWRITTEN_*` 殘表退化成 `{}`，且逃生口已被完整性閘封住 |
+| 參數 | `useTransportParams.ts` 單一函式 3,079 行、**645 個 `useState`**、341 個 switch case、539 項手寫 deps | `layerParamsSpec.ts` 宣告式規格 336 key；`useState` **0**；hook 539 行純機制且 switch 已清空 |
+| 新增一層 | 5–7 檔 ~20 行接線 ＋ **5 個靜默失敗點** | manifest 一筆 ＋ spec 一筆 ＋ 實質邏輯檔；靜默失敗點剩 **0.5 個** |
+| 護欄 | `layerConsistency` 掃原始碼字面 ＋ 3 份 `BASELINE_*` | manifest 完整性閘（9 條）＋ 契約對帳（13 條）＋ 等值閘 A/B ＋ sharedState 3 閘 ＋ 縮編後的黃金快照 |
+| 文字解析護欄 | 3 處（`case "key"` ／ `emptyByDesign` ／ `GIS_LAYERS`）| **1 處**（只剩 `GIS_LAYERS`，因為它是函式內區域常數 runtime 取不到）|
+
+#### 沒交出什麼（⚠️ 給未來的人，按「會不會咬到你」排序）
+
+1. **AR-22 的終點仍未動**（P3-3 交接第 4 點，本棒沿用）：
+   `overlayParams` / `getControls` / `refs` / 六個子物件仍由 `useLayerParamsRuntime`
+   **整包組裝**，消費端還是拿一整包。要兌現「一個 slider 動、只 render 該層控件」
+   必須讓消費端改吃 `useLayerParams(key)`。
+   ⚠️ **那不是等價重構**，`useLayerParamsRuntimeReturn` 的等值閘 A/B 會擋住它 ——
+   **那是對的**。要另立驗收標準（逐消費端的 render 次數量測），不要為了讓閘變綠而放寬它。
+
+2. **legend / popup 的接線「還沒被派生掉」**（原 README 排程裡 Phase 4 的前半，
+   觸點 #13 #15 #16）—— 本棒**沒做**，只做了護欄那半。
+   現況：manifest 的 `legend` / `popup` 是**宣告 ＋ 雙向對帳**，
+   不是 `LEGEND_REGISTRY` / `GIS_LAYERS` 的**產生源**。
+   要做的話，批 8 交接的五件事仍然有效（見 [backlog.md](./backlog.md)「Phase 3-5 展望」），
+   其中最硬的一條：**`GIS_LAYERS` 是 first-hit-wins，派生必須保序**，
+   而 manifest 的 popup 陣列只保證「同一個 key 內多個 layerType 的相對先後」，
+   跨 key 的全域順序需要一個顯式的 `clickPriority` 欄位。
+   ⚠️ 那個順序目前**只有黃金快照的 `gisLayers` section 在守**（也正是它留在 fixture 的理由）。
+
+3. **`App.tsx` 漏 call hook 仍是靜默失敗**（5 個裡唯一沒解掉的）。
+   manifest 不記 hook 名，grep `App.tsx` 是會誤報的脆弱護欄，本棒**刻意不蓋**。
+   真要解，正解是「App.tsx 的 55 個手寫 `use*Layer()` 呼叫改成 manifest 驅動的迴圈」
+   （proposal 的原始構想），那是獨立一棒的工程量。
+
+4. **`fireHydrants` 的 catalog 缺口**（pre-existing，跨 repo，屬另案）：
+   manifest 宣告 `upstream.datasets: [{ datasetId: "fire_hydrants", confidence: "MED" }]`，
+   但 `taipei-gis-analytics/docs/data-catalog/` 沒有對應的 dataset 文件 →
+   在**主樹**跑 `upstreamRegistry.test.ts` 會有這一筆紅
+   （worktree 沒有 sibling repo 時該測試整支自動 skip，就是總數裡那個 `1 skipped`）。
+   ⚠️ **不要靠改 manifest 讓它變綠** —— 缺的是上游的資料文件，
+   照 CLAUDE.md 的跨 repo 同步順序，要先在 analytics 端補 catalog entry。
+
+5. **`layerParamsSpec.ts` 2,640 行不能按主題切檔**（P3-3 實測結論，本棒未變）：
+   唯一自然的切法「主題一檔 ＋ spread 合併」會同時丟掉兩道 tsc 護欄 ——
+   typo key 的 TS2353 excess property（且幽靈 key 會混進 `MigratedParamsKey`）
+   與重複 key 的 TS1117（變成靜默 last-wins）。
+   逃生路線寫在該檔檔頭：真要縮檔就先切**上半段的型別與 builder**（L1–L736，不碰字面），
+   那一刀零風險。⚠️ 別因為「證偽了某個理由」就以為可以切 —— P3-3 已經修正過一次理由
+   （判別式本身不會退化），**結論沒變**。
+
+6. **`NO_POPUP_LEDGER` 的 57 筆理由未逐筆考證**（本棒新增時已在檔內聲明）。
+   「宣告 null ⇔ 真的沒接線」是機械對帳過的；「它是否*應該*有 popup」不是。
+   誰要補 popup，那份 ledger 就是待辦清單。
+
+7. **觸點 #20（靜態檔 ↔ nginx ↔ deploy 腳本）仍無機械斷言**，
+   Phase 2 各批抓到的 **5 個部署不一致全部未修**（清單在 backlog「護欄本身的待辦」）。
+   ⚠️ 斷言要雙向、且要能區分「缺口」與「刻意不部署」（批 7 農業 C 層的 owner-only
+   `fallbackUrl`），否則一律報紅會被無視。
+
+8. **黃金快照仍會 churn**（縮編後只剩 3 section，但新增一層仍會動到
+   `overlays` / `params` / `gisLayers`）。這是**有意保留**的成本：
+   那 3 個 section 沒有別的護欄在守。流程寫進 `/new-layer` Step 2 ——
+   跑 dump 腳本後 `git diff` 逐行 review，**既有層的任何 diff 都是回歸**。
+
+#### 一句話交棒
+
+manifest 現在是 348 層的**登記 SSOT**，也是新層的**唯一入口**；
+它還不是 legend / popup 接線的**產生源**（第 2 點），
+而參數雖已完全宣告化，消費端仍拿整包（第 1 點）。
+這兩件事各自是獨立的一棒，且**都不是等價重構** —— 要動之前先立驗收標準。

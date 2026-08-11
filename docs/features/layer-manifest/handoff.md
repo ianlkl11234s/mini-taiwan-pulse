@@ -17,11 +17,13 @@ manifest，不新增資料表、不改 RPC、不動 PMTiles 產製、不碰 coll
 - **SSOT 仍在 taipei-gis-analytics**，本 repo 只存 bridge（layer_key → dataset_id）。
 - `upstreamRegistry.ts` 原本由 `scripts/audit/06_apply_to_pulse.py` 從 `match_final.csv`
   產生。⚠️ **搬進 manifest 的 key 不再由該腳本管轄** —— 若上游重跑那支腳本，
-  它只會覆蓋 `HANDWRITTEN_UPSTREAM`，manifest 裡的 5 筆（Phase 2 後會是全部）不受影響。
-  這是有意的（manifest 是新 SSOT），但**該腳本需要在 Phase 2 收尾時同步改寫**，
-  否則會出現「腳本產出的 diff 看起來少了很多層」的困惑。
+  它只會覆蓋 `HANDWRITTEN_UPSTREAM` —— 而那張表**現在是空的**（348/348 全在 manifest），
+  所以重跑該腳本會產出一份「看起來什麼都沒改」的 diff。
+  這是有意的（manifest 是新 SSOT），但**該腳本仍需同步改寫成寫入 manifest**。
 
-  → 已登記在 [backlog.md](./backlog.md) Phase 5。
+  → ⚠️ **仍未做**。原本登記在 backlog 的「Phase 5」，但 Phase 5 已於 2026-08-12
+  以 `/new-layer` 文件改版結案、**不含這一項** —— 已改列進
+  [backlog.md](./backlog.md) 的「Phase 4 收尾 → 其餘未竟」，免得跟著 ✅ 一起消失。
 
 ## 消費者（本 repo 內）
 
