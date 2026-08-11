@@ -20,7 +20,7 @@ description: 從資料落地到 Layer 上線的完整驗收 SOP + UX baseline �
 ```
 Step 0  規劃 (feature 資料夾 + upstream handoff)
 Step 1  資料完整性驗收 (count / attrs / 檔名契約)
-Step 2  接線 (走 /new-layer 或手動 7 步)
+Step 2  接線 (走 /new-layer 或手動：manifest 一筆 + spec 一筆 + 邏輯檔)
 Step 3  UX baseline 套用 (radius / opacity / cluster / min-zoom)
 Step 4  四鐵則自檢 (slider / legend / popup / dropdown)
 Step 5  跨 repo 對齊 (handoff 反向引用 + commit hash)
@@ -80,17 +80,26 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.get_xxx(...);
 
 ## Step 2 — 接線
 
-**優先走 `/new-layer <slug>` slash command**（自動產骨架 + 過 7 步 + 跑 tsc）。
+**優先走 `/new-layer <slug>` slash command**（自動產骨架 + 跑 tsc / vitest）。
 
-若手動，強制順序（CLAUDE.md §5）：
+若手動，強制順序（CLAUDE.md §5 / development-rules §4）——
+⚠️ **2026-08-12（AR-22 Phase 4）起登記簿不再手寫**：
 
-1. `src/types/index.ts` → `LayerVisibility` 加 key
-2. `src/data/xxxLoader.ts` → loader + loadingRegistry（⚠️ 禁靜默 rpc().then()）
-3. `src/hooks/useXxxLayer.ts` → React hook（⚠️ 動態圖層禁 currentTime 進 deps）
-4. `src/map/overlayRegistry.ts` 或 CustomLayer
-5. `src/components/sidebar/layerCatalog.ts` — **`LAYER_COLORS` 補 key**（漏了會 TS2739）+ SECTIONS 加 key
-6. `src/App.tsx` → 接線
-7. `src/hooks/useLayerVisibility.ts` → 預設開才加 `DEFAULT_ON`
+1. `src/types/index.ts` → `LayerVisibility` 加 key（可點選再加 `FeatureInfo["layerType"]`）
+2. `src/data/layerManifest.ts` → **一筆完整 entry**。`LAYER_COLORS` / `LAYER_ICONS` /
+   THEMES 的 LayerDef / `LAYER_LABELS` / `UPSTREAM_REGISTRY` 全部由它派生，**不要手寫**
+   - ⚠️ `legend` / `popup` / `params` 寫 `null` = 豁免鐵則 2/3/1 →
+     必須同步 `layerConsistency.test.ts` 的對應 ledger **並寫理由**，否則測試紅
+3. `src/components/sidebar/layerCatalog.ts` → THEMES 對應子群加一行 `fromManifest("key")`
+   （只放位置；SECTIONS / LAYER_LABELS 自動派生）
+4. `src/data/layerParamsSpec.ts` → 一筆 `key: [ opacitySlider("keyOpacity", 0.8), … ]`
+   （⚠️ 禁去 `useLayerParamsRuntime.ts` 加 `useState` / `case` / deps）
+5. `src/data/xxxLoader.ts` → loader + loadingRegistry（⚠️ 禁靜默 rpc().then()）
+6. `src/hooks/useXxxLayer.ts` → React hook（⚠️ 動態圖層禁 currentTime 進 deps）
+7. `src/map/overlayRegistry.ts` 或 CustomLayer（`sourceId` 要與 manifest 的 `source` 逐字相同）
+8. `src/App.tsx` → 接線
+9. 預設開啟的層才需要碰 `src/state/layerVisibilityStore.ts` 的 `DEFAULT_ON`
+   （現為空集合；key 全集自動派生）
 
 ## Step 3 — UX Baseline 表（照類型套，不用猜）
 
@@ -166,9 +175,12 @@ pnpm dev
 ```
 
 **常見驗收失敗**：
-- TS2739 → layerCatalog.ts 的 `LAYER_COLORS` 漏 key
-- layerConsistency fail → LEGEND_REGISTRY 沒加
-- Browser 打不出 popup → useMapInteraction 沒 register
+- TS2739 → `LayerVisibility` 加了 key 但 `layerManifest.ts` 沒補 entry
+- layerConsistency「沒有 manifest entry」→ 同上（別塞 `HANDWRITTEN_LAYER_COLORS` 繞過）
+- layerConsistency「宣告了『沒有 X』但沒登記進 ledger」→ manifest 寫了 `null`，
+  去該測試檔的 `NO_LEGEND_LEDGER` / `NO_POPUP_LEDGER` / `NO_PARAMS_LEDGER` 補一行 + 理由
+- layerManifest「legend 宣告了但 LEGEND_REGISTRY 沒覆蓋」→ LegendPanel 沒加
+- Browser 打不出 popup → useMapInteraction 的 GIS_LAYERS 沒 register
 
 ## Step 7 — 收尾
 
