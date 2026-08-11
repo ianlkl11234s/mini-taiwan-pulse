@@ -115,6 +115,30 @@ interface ConditionalField {
 }
 
 /**
+ * ⚠️ 第二條輸出通道（`out: null`）—— AR-22 P3-2D。
+ *
+ * P3-1~2C 搬的 key 有一個共同前提：**參數的唯一去處是 `overlayParams`**
+ * （paint expression 吃得到的那個 `Record<string, number>`）。D 桶不是 ——
+ * 它們的值走 `useTransportParams` 的 `return {}`：
+ *   - `refs.xxx.current`（Three.js / CustomLayer 的 render loop 逐幀讀）
+ *   - `h3Params` / `popCountParams` / `indicatorsParams` / `socioParams` /
+ *     `spatialParams` / `youbikeParams` 六個獨立子物件
+ *   - `daOpacity` / `satOpacity` / `eqOpacity` … 這種平鋪的單一欄位
+ *   - `enabledBusCities` / `enabledWasteScheduleCities` 這種**派生**欄位
+ *
+ * 這些值**不該**出現在 overlayParams：多塞一個 key 進去等於改變 paint 求值的輸入面，
+ * 也讓 `overlayParams` 不再是「paint 真正吃到的東西」的忠實表述。
+ * 所以規格端用 `out: null` 講明「本參數不走 overlay 通道」，
+ * `encodeParamsToOverlay` 直接跳過。
+ *
+ * ⚠️ 這一欄**不表示值可以沒有去處**：`useTransportParamsReturn.test.ts` 的
+ * 完整性規則要求每個 `out: null` 的參數都必須在 `RETURN_CHANNEL` 表裡宣告
+ * 至少一條回傳路徑（或列進 `INTERNAL_CONSUMERS`），否則就是「搬進 store
+ * 但沒接回去」——那正是 D 桶最危險、四道舊閘全綠的失效形狀。
+ */
+export type OverlayOutKey = string | null;
+
+/**
  * 數值滑桿。
  *
  * ⚠️ label 是**模板**不是字面：現行手寫 case 一律寫成
@@ -163,8 +187,13 @@ export interface SliderParamSpec extends SharedSlotField, ConditionalField {
   min: number;
   max: number;
   step: number;
-  /** overlayParams 的 key（省略 = 用 `name`，這是 slider 的常態） */
-  out?: string;
+  /**
+   * overlayParams 的 key（省略 = 用 `name`，這是 slider 的常態）。
+   *
+   * ⚠️ `null` = **不進 overlayParams**（見 `OverlayOutKey` 說明）。
+   * 注意是 `=== undefined` 才回退到 `name`，不是 `??` —— `null ?? name` 會是 `name`。
+   */
+  out?: OverlayOutKey;
 }
 
 /**
@@ -179,7 +208,8 @@ export interface ToggleParamSpec extends SharedSlotField, ConditionalField {
   name: string;
   label: string;
   default: boolean;
-  out?: string;
+  /** 同 `SliderParamSpec.out`：省略 = 用 `name`；`null` = 不進 overlayParams */
+  out?: OverlayOutKey;
 }
 
 /**
@@ -236,8 +266,11 @@ interface SelectParamSpecBase extends SharedSlotField, ConditionalField {
     /** 停用時補在該選項 label 後面的原因 */
     reason: string;
   };
-  /** overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` 多半**不同名**，故必填 */
-  out: string;
+  /**
+   * overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` 多半**不同名**，故必填。
+   * `null` = 不進 overlayParams（見 `OverlayOutKey` 說明）。
+   */
+  out: OverlayOutKey;
 }
 
 /** 常態：state 存的是「第幾個選項」，paint 吃 index。 */
@@ -1620,9 +1653,21 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
   return SPEC_BY_KEY[key] ?? null;
 }
 
-/** overlayParams 的 key（slider / toggle 省略 `out` 時等於 `name`） */
-export function specOutKey(spec: LayerParamSpec): string {
-  return spec.kind === "select" ? spec.out : (spec.out ?? spec.name);
+/**
+ * overlayParams 的 key（slider / toggle 省略 `out` 時等於 `name`）。
+ * **回 `null` = 本參數不進 overlayParams**（第二通道，見 `OverlayOutKey` 說明）。
+ *
+ * ⚠️ 刻意用 `=== undefined` 而不是 `??`：`null ?? name` 會回 `name`，
+ * 於是 `out: null` 靜默退化成「用參數名當 overlay key」——多一個 paint 輸入。
+ */
+export function specOutKey(spec: LayerParamSpec): OverlayOutKey {
+  if (spec.kind === "select") return spec.out;
+  return spec.out === undefined ? spec.name : spec.out;
+}
+
+/** 規格宣告的預設值；查無回 undefined（呼叫端要顯性處理，不要靜默兜底） */
+export function paramDefault(key: string, name: string): ParamValue | undefined {
+  return SPEC_BY_KEY[key]?.find((s) => s.name === name)?.default;
 }
 
 // ── 條件式顯示 ────────────────────────────────────────────────────

@@ -49,6 +49,9 @@ describe("共用 slot 的宣告", () => {
       const byId = new Map<string, { key: string; group?: string }[]>();
       for (const { key, spec } of entries) {
         const id = field === "name" ? spec.name : specOutKey(spec);
+        // `out: null`（第二通道）不進 overlayParams → 沒有「共用同一個 out key」
+        // 這個失效可言；它們的共用由 name 那一輪負責。
+        if (id === null) continue;
         const list = byId.get(id) ?? [];
         list.push({ key, group: spec.sharedGroup });
         byId.set(id, list);
@@ -91,18 +94,51 @@ describe("共用 slot 的宣告", () => {
 // ── 2. 來源交叉：已遷移的參數不得在 useTransportParams 留有殘影 ────
 
 describe("已遷移參數與 useTransportParams 的交叉檢查", () => {
-  it("已遷移的 name / out 不得再出現在 useTransportParams.ts", () => {
-    // 尾端 `...migratedOverlayParams` 是**最後**才 spread 的：手寫字面若還在，
-    // 它會被規格派生值覆蓋 → 那個未遷移夥伴的 slider 拖了 paint 不動。
-    const stripped = stripComments(source);
+  /**
+   * ⚠️ P3-2D 起判準從「識別字整個不准出現」改成**兩個精確位置**。
+   *
+   * 原版（P3-2B）用「已遷移的 name / out 不得再出現在檔裡」當代理判準，前提是
+   * P3-1~2C 搬的 key **只走 overlayParams 這一條通道**，搬完就再也沒有合法引用。
+   * D 桶不成立：`daOpacity` / `satOpacity` / `stationScale` 這些**同時是 hook
+   * 回傳欄位的名字**，遷移後 hook 仍必須讀出來塞回 `return {}`（回傳 API 一字不動
+   * 是 D 桶的設計前提）。代理判準留著會把「正確的遷移」判成紅。
+   *
+   * 被擋的行為一項未減 —— 原版真正在擋的是兩件事，各自改成錨定實際位置：
+   *   (a) 舊的 `useState` 宣告還在（只搬一半 ／ 漏刪）
+   *       → 倖存者的值被尾端 `...migratedOverlayParams` 蓋掉，拖了 paint 不動
+   *   (b) overlayParams 物件字面裡還留著同名**屬性**
+   *       → `out: null` 的參數會被手寫字面繼續餵舊值進 overlayParams
+   * 其餘位置（deps 陣列項、ref sync 行）引用已刪的變數一律是 tsc 編譯錯，
+   * 不需要文字判準；而「值有沒有真的從 store 流到回傳欄位」由
+   * `hooks/__tests__/useTransportParamsReturn.test.ts` 的逐參數隔離擾動直接驗，
+   * 那比文字代理強得多。
+   */
+  const stripped = stripComments(source);
+
+  it("(a) 已遷移的參數不得還留著 useState 宣告", () => {
     for (const { key, spec } of entries) {
-      for (const id of new Set([spec.name, specOutKey(spec)])) {
-        expect(
-          new RegExp(`(?<![A-Za-z0-9_$])${id}(?![A-Za-z0-9_$])`).test(stripped),
-          `${key} 已遷移，但 "${id}" 還留在 useTransportParams.ts —— ` +
-          "共用 state 只搬一半的典型現場（或單純漏刪）",
-        ).toBe(false);
-      }
+      expect(
+        new RegExp(`const\\s*\\[\\s*${spec.name}\\s*[,\\]]`).test(stripped),
+        `${key} 已遷移，但 useTransportParams.ts 還留著 "${spec.name}" 的 useState 宣告 —— ` +
+        "共用 state 只搬一半的典型現場（或單純漏刪）：尾端 ...migratedOverlayParams " +
+        "會蓋掉這份手寫值，拖了 paint 不動",
+      ).toBe(false);
+    }
+  });
+
+  it("(b) 已遷移的 out key 不得還是 overlayParams 物件字面的屬性", () => {
+    const props = overlayLiteralProps(stripped);
+    // 哨兵：解析器被改壞（抓到 0 個屬性）時上面那條會永遠綠。
+    // ⚠️ 門檻會隨手寫字面縮小而過時 —— 搬到低於門檻時**調降**，不要刪。
+    expect(props.size, "overlayParams 字面屬性解析出 0 個 —— 解析器需同步更新").toBeGreaterThan(0);
+    for (const { key, spec } of entries) {
+      const out = specOutKey(spec);
+      if (out === null) continue;
+      expect(
+        props.has(out),
+        `${key} 已遷移，但 "${out}" 還是 overlayParams 字面的屬性（死碼；` +
+        "若該參數是 out: null 更會持續餵舊值進 overlayParams)",
+      ).toBe(false);
     }
   });
 
@@ -144,6 +180,24 @@ describe("useTransportParams 剩餘 case 的耦合群組", () => {
 });
 
 // ── 解析工具 ──────────────────────────────────────────────────────
+
+/**
+ * `overlayParams` useMemo 物件字面的**屬性名**集合（不含 `...spread`）。
+ * 錨定「行首／`{`／`,` 之後的識別字 ＋ `:` 或 `,`」——
+ * 值運算式裡的識別字（`x ? 1 : 0` 的 `x`）前面是空白或 `?`，不會被收進來。
+ * 邊界沿用 `overlayParamsDeps.test.ts` 已在用的同一組錨（各寫一份必漂移）。
+ */
+function overlayLiteralProps(strippedSrc: string): Set<string> {
+  const MEMO_START = "const overlayParams = useMemo<Record<string, number>>(() => ({";
+  const start = strippedSrc.indexOf(MEMO_START);
+  if (start < 0) throw new Error("找不到 overlayParams useMemo 起點 —— 解析器需同步更新");
+  const end = strippedSrc.indexOf("}), [", start);
+  if (end < 0) throw new Error("找不到 overlayParams useMemo 的 deps 邊界 —— 解析器需同步更新");
+  const body = strippedSrc.slice(start + MEMO_START.length, end);
+  const out = new Set<string>();
+  for (const m of body.matchAll(/(?:^|[,{])\s*([A-Za-z_$][\w$]*)\s*[:,]/gm)) out.add(m[1] as string);
+  return out;
+}
 
 /** 把註解換成等長空白（保留 offset）；字串／模板感知 */
 function stripComments(src: string): string {

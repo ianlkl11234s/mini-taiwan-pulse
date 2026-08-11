@@ -72,7 +72,9 @@ describe("spec ⇄ manifest 焊接", () => {
       }
     }
     const names = [...bySlot.values()].map((s) => s.name);
-    const outs = [...bySlot.values()].map((s) => specOutKey(s));
+    // `out: null` 的參數不進 overlayParams（第二通道）→ 不參與 out key 的唯一性；
+    // 它們的「唯一性」由 name 那一條與 RETURN_CHANNEL 的路徑宣告負責。
+    const outs = [...bySlot.values()].map((s) => specOutKey(s)).filter((o) => o !== null);
     expect(new Set(names).size, "參數名撞名").toBe(names.length);
     expect(new Set(outs).size, "overlayParams key 撞名").toBe(outs.length);
   });

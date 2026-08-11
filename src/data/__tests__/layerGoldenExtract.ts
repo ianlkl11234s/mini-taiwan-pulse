@@ -76,8 +76,11 @@ function normalizeString(s: string): string {
  *   跟「欄位是 undefined」變得無法區分 → 一律顯性化）
  * - NaN / ±Infinity → 顯性 marker（JSON.stringify 會轉成 null，同樣會糊掉資訊）
  * - 物件 key 排序（canonical）；陣列保序
+ *
+ * ⚠️ 也被 `hooks/__tests__/useTransportParamsReturn.test.ts`（hook return 等值閘）
+ * 直接引用 —— -0 / undefined / 函式 的處理各寫一份必漂移。
  */
-function sanitize(value: unknown): unknown {
+export function sanitize(value: unknown): unknown {
   if (value === undefined) return null;
   if (value === null) return null;
   if (typeof value === "function") return "__FN__";

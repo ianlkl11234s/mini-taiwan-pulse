@@ -173,6 +173,10 @@ export type LayerParamsStore = typeof layerParamsStore;
  *
  * 共用 slot 的成員會**重複寫同一個 out key**，但 `setParam` 保證它們的值恆等，
  * 所以結果與順序無關（等價於原本那一份共用 useState 只寫一次）。
+ *
+ * ⚠️ `out: null` 的參數**整個跳過**（P3-2D 的第二條輸出通道）：它們的值走
+ * `useTransportParams` 的 `return {}`（refs / 子物件 / 平鋪欄位），本來就不在
+ * overlayParams 裡。塞進來等於憑空多一個 paint 求值輸入。
  */
 export function encodeParamsToOverlay(all: LayerParamsSnapshot): Record<string, number> {
   const out: Record<string, number> = {};
@@ -180,7 +184,9 @@ export function encodeParamsToOverlay(all: LayerParamsSnapshot): Record<string, 
     const values = all[key];
     if (!values) continue;
     for (const spec of LAYER_PARAMS_SPEC[key] as LayerParamSpec[]) {
-      out[specOutKey(spec)] = encodeParamValue(spec, values[spec.name] ?? spec.default);
+      const outKey = specOutKey(spec);
+      if (outKey === null) continue;
+      out[outKey] = encodeParamValue(spec, values[spec.name] ?? spec.default);
     }
   }
   return out;
