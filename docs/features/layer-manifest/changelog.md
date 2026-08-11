@@ -844,3 +844,230 @@ Phase 3 派生 `GIS_LAYERS` 會靜默丟掉整個廢棄物主題的點擊。做�
 修法一行：把它加進 `FISHERY_FILES`（moa / union 兩檔同理，讓 S3 那半不再空轉）。
 
 ⚠️ **本批只核對記錄，未改任何部署檔。**
+
+---
+
+## 2026-08-11 — Phase 2 批 8：82 層（交通 31・能源 41・orphan 10）→ **348/348 全量完成**
+
+`1eb4911` 拍板③ schema｜`385abae` 交通 18｜`705cf06` 交通 13｜
+`3eedab8` 能源電力 15｜`1763d7a` 能源石化 15｜`97fe82f` 能源再生+覆蓋 11｜
+`462c05a` orphan 10
+
+manifest 266 → **348 entry**。Phase 2 結案。
+
+### 終局斷言（機械核對，不是人工目測）
+
+| 項目 | 結果 |
+|---|---|
+| LayerVisibility key 數（黃金 fixture `colors`） | **348** |
+| `LAYER_MANIFEST` entry 數 | **348** |
+| 三方相等／未搬移／多出／重複 | ✅ ／ 0 ／ 0 ／ 0 |
+| `section: null`（orphan）entry | 10 |
+| `HANDWRITTEN_LAYER_COLORS` 表內非註解行 | **0** |
+| `HANDWRITTEN_LAYER_ICONS` 表內非註解行 | **0** |
+| `HANDWRITTEN_UPSTREAM` 表內非註解行 | **0** |
+| `THEMES` 的 LayerDef 字面殘留 | **0**（338 個全走 `fromManifest`） |
+| 行首色票 spread 殘留 | 0 |
+
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（測試條數自批 1
+起未增減）｜黃金快照 fixture 自 `8abbd97` 起**一位元未動**。
+
+### ⚠️ 拍板③ 落地，且必須擴大（代拍，待 owner 追認）
+
+原始拍板只寫「`section` 允許 null」。實際做下去發現**不夠**：黃金快照的 `labels`
+section 只有 338 筆 —— 10 個 orphan **連 label 都沒有**（`LAYER_LABELS` 由 THEMES
+派生，沒有 LayerDef 就沒有 label），而 `label` 是必填欄位。
+
+**不替 orphan 發明 label**：那會在 SSOT 裡放一個沒有任何登記簿能驗證的事實，
+正是 `layerManifest.test.ts` 開頭那段（沒人驗證的宣告會悄悄爛掉、等 Phase 3 要拿來
+派生時才發現對不上）要防的東西。`legend` / `popup` 用 null 表達「有意識地沒有」，
+這裡改用**型別**表達「不存在」：
+
+```ts
+LayerManifestThemedEntry  section: LayerSection + label/labelMobile/expandable/gated
+LayerManifestOrphanEntry  section: null        + 上述四欄皆 `?: never`
+type LayerManifestEntry = Themed | Orphan      // 判別欄位 = section
+```
+
+共同欄位抽成 `LayerManifestBase`（`color` / `icon` / `upstream` 三張 348-key 全量表
+orphan 也在裡面，照樣派生）。**266 筆既有 entry 一個字元未動。**
+
+⚠️ `?: never` 不是「選填」的花俏寫法：union 的 excess property check 取**所有成員
+屬性的聯集**，單純省略欄位擋不住 orphan 偷寫 `label`（不算 excess，assignability 也過）。
+
+`fromManifest` 加 orphan guard（throw）：走到那裡代表有人把 orphan 寫進 THEMES，
+是接線錯誤不是資料錯誤，早炸勝過渲染一顆沒有文字的 toggle；順帶把 union 收斂成 themed。
+
+契約測試兩處**就地改寫**（未增減條數）：`section` 斷言改**雙向**（null ⇒ themeLocation
+必須也是 null —— 只驗單邊的話「把還在 THEMES 的層宣告成 orphan」會靜默過關，等於讓它
+從派生鏈消失）；LayerDef 斷言對 orphan 走反方向 pin（THEMES 查無此 key ＋
+`LAYER_LABELS[k]` 也是 undefined）。
+
+四次突變自測（暫時 entry，驗完即刪）：
+1. `cctv.section` 改 null（label 還在）→ **tsc 紅**（兩個變體都不接受）
+2. 暫時 orphan entry 寫假 `section` → 契約測試**兩條紅**
+3. 暫時 orphan entry 寫 `label` → **tsc 紅**（label 不可為 never）
+4. 暫時 orphan entry 正確寫 `section: null` → 12 條全綠（正控組）
+
+### 「orphan」只描述「不在 THEMES」，**不等於死碼**
+
+backlog 與 `UPSTREAM_REGISTRY` 都用 "stale/unused color" 稱呼這 10 個 key，
+逐一打開後發現是三種完全不同的東西：
+
+| 體質 | key | 實況 |
+|---|---|---|
+| ① 有 registry entry ＋ 有 consumer（5，全 C） | facOffshore / islandPowerGrid / osmSolarFarms / osmPowerPlantsStatic / powerPlants | App.tsx 照樣把 `layerVisibility.<key>` 餵進 `useEnergyPoiLayer`，只是被 SSOT 6-layer 取代後移出 sidebar（key 與渲染都保留） |
+| ② 無 registry entry 但**有 consumer**（2） | powerStatusHud / powerRegionDemand | monitor 面板的供電燈號 HUD ＋ 北中南東 4 區 3D bars；App.tsx 909 行以 `\|\|` 合成 `energyDashboardActive` 驅動 `usePowerDashboard`（5 分鐘 poll，兩層共用不重複拉） |
+| ③ 真的沒有渲染（3） | medICUBeds / wasteRoute / wasteStop | medICUBeds 全 repo 無 hook；另兩個見下 |
+
+⚠️ ②的 `UPSTREAM_REGISTRY` note 寫 "stale/unused color" 是**過時的**，
+照抄（搬移零失真）但在 entry 就地註明實況。
+
+⚠️ **`wasteRoute` / `wasteStop` 是新的現況出入**：`layerConsistency` 註解稱
+「由 wasteTruck 子 UI 控制」，逐檔 grep 全 repo **找不到任何 consumer**
+（只有 types 宣告 ＋ 三張全量表）。照現況登記並註明，修對應是另一件事
+（同批 3 `forestAlishanRail` / 批 4 `medDesert` / 批 7 `aquacultureWaterUnion`）。
+
+### legend 家族跨越「在不在 THEMES」這條線，**而且是雙向的**
+
+- orphan 沿用 THEMES 成員的 id：`islandPowerGrid` → `"offshoreWindZones"`、
+  `osmSolarFarms` / `osmPowerPlantsStatic` → `"osmWindTurbines"`
+- **反過來**：`powerPlants`（orphan）自己是家族首 key，THEMES 裡的
+  `powerGenerationUnit` 得沿用它 → `legend: "powerPlants"`
+
+10 個 orphan 有 **6 個非 null legend**。⚠️ Phase 3 依 legend 分組派生
+`LEGEND_REGISTRY` 時**不能只掃有 section 的 entry**，兩個方向都會漏。
+
+### popup 判準：第五層修正的最大規模實例（有點選互動 ≠ 有 popup）
+
+交通「即時運具」5 層裡**只有 `ships`** 走 `setFeatureInfo`，其餘四層命中後另有去處：
+
+| key | 命中後去哪 | popup |
+|---|---|---|
+| `busLive` / `touristShuttleLive` | `setBusTooltipInfo`（兩者共用同一個 bus tooltip） | null |
+| `flights` | `setTooltipInfo`（flight tooltip，含高度計算） | null |
+| `busIntercityLive` | `useMapInteraction` **連 picking 分支都沒有** | null |
+| `ships` | `setFeatureInfo({ layerType: "ship" })` | `"ship"` |
+
+照「Three.js scene 一定有 popup」推會四層全填錯（批 7 `wasteSchedule` 的同款，
+一次四個）。`ships` 由批 4 的 `extractNonGisFeatureTypes` 涵蓋。
+
+**第六種「只有反查才看得出來」：有 registry entry 卻 `popup: null`** ——
+`stationsTHSR` 的 4 個 layer id 全是 `station-polygons-thsr-poly-*`，而 `GIS_LAYERS`
+的 `railStation` 兩筆收的是 `station-points-{tra,metro}-pt-*`。三個車站層長得極像，
+憑「都是車站」推會多派生一組假接線。反過來 `stationsTRA` / `stationsMetro` 是
+**兩組 layer id 共用同一個 layerType**（批 4「兩個 key 一個 layer」的鏡像）。
+
+`osmExpressway` 則是批 5 `hillshade` 反例的第二例：`HEADER_LABELS` 有
+`"快速道路 (OSM)"`，`GIS_LAYERS` 沒有條目 → `popup: null`。
+
+### `powerPlant` 是全 manifest 最大的 popup 多對一：**8 個 layer 共用**
+
+`facPrimary` / `facPlanned` / `facHistorical` / `facSecondary` / `facOsmSupplement` /
+`powerGenerationUnit`（批 8-3）＋ orphan `powerPlants` / `facOffshore`。
+超過批 3 教育 `school` 的 1 對 7，且與批 5 太空 16→1 **不同類** ——
+那是 16 個 toggle 對同一份 source 做 filter 切分，這裡是**六份不同 RPC 的結果共用一個
+panel**。Phase 3 依 popup 派生 `GIS_LAYERS` 時 8 筆各自要有自己的條目，不能去重。
+
+### legend 14 → 1：本工程第二大共用（僅次於批 4 執法治安的 18）
+
+石化 14 層共用一筆 entry → 首 key `"gasStationCpc"`。⚠️ 第 15 層 `fossilFuelInfra`
+**不屬這個家族**（掛 `EnergySpecialtyLegend`，首 key `offshoreWindZones`，那些層在
+再生能源子群）。批 6 立的「**逐 registry entry 判、不是逐 sidebar 子群判**」再次生效。
+⚠️ `fossilFuelInfra` 也是石化唯一的 key ≠ layerType（→ `fossilFuelFacility`）——
+**legend 與 popup 兩個維度的例外剛好同一層**，因為它是 legacy 層、當初跟能源 MVP
+一起接的線，兩張表都留在舊家族裡。
+
+### 拍板②第五個「同 key 多 config」：`stationsTRA` ×2
+
+面（`station-polygons`）在前、點（`station-points`）在後，順序＝OVERLAY_REGISTRY
+出現序（決定疊放，測試逐位對齊）。兩筆 kind 同質（geojson）→ `dataClass` 直接是 A，
+不走批 6 的 precedence。popup 只由第二筆貢獻。
+
+### 三張手寫表歸零：degenerate case 已實測
+
+`ManifestKey` 現在涵蓋全部 348 key → `Omit<Record<全集>, ManifestKey>` 退化成 `{}`。
+**空物件字面合法**（tsc 0 error），護欄語意仍在：從 manifest 刪任何 key 會立刻讓合成的
+`Record` 缺屬性而報錯。三張表**保留不刪** —— Phase 3-4 若有新 key 一時無法進 manifest
+（例如 section 未定），這裡是唯一合法暫放處。逐批的「已搬走」roll-call 註解收斂成一段
+說明（歷史在本檔）；批 1 記載的「spread 不觸發 excess property check」警告保留在
+COLORS 表。`IconRailSidebar` 的 lucide import 從 60 行縮到 13 行 ——
+剩下的沒有一顆是餵圖層的，全是本元件自己的 UI。
+
+### ⚠️ 手寫殘留清單（扣除機制性程式碼後**唯一**剩下的一項）
+
+**`TRANSPORT_LABELS`（`layerCatalog.ts`）—— 第五張表，不在派生的四張裡。**
+`Record<TransportType, string>` 6 筆，值與 manifest 的 `label` 逐字重複
+（`rail` 自 Phase 1 試點起即如此，其餘 5 個自批 8 起）。**不搬的理由**：它的 key 空間是
+`TransportType` 不是 `keyof LayerVisibility`，硬套 `Omit<…, ManifestKey>` 會弄壞型別
+意義。已就地註記，留給 Phase 3 連同 `LEGEND_REGISTRY` / `GIS_LAYERS` 一起派生化。
+處置同批 7 的 `GATED_LAYERS`（另一張 runtime 表，同樣不在四張裡）。
+
+### 區塊註解不可信：第九、十種變形
+
+9. **`aviationRestrictedGlow` 名字與資料都是航空**（共用 `aviation_airspace.pmtiles`），
+   THEMES 位置卻在**能源 / 電力 · 廠**（跟其他 Bloom 測試層放一起）。按名字猜主題會猜錯。
+10. `UPSTREAM_REGISTRY` 標著「Stub entries for keys **not in THEMES**」的那一段，
+    中間夾了 4 個 Bloom/Glow —— **它們是在 THEMES 裡的**，只是同樣掛 `pulse_only`。
+    按段落標題判斷會誤以為它們是 orphan。
+
+（另 `osmExpressway` 是批 5 記過的第五種變形實際執行，`wasteRoute`/`wasteStop`
+是批 7 記過的第七種。）
+
+### 雙生字（本批密度最高，一律用 `^  key:` 與 `key: "key"` 兩種精確錨定分開數）
+
+`powerPlants`（orphan）≠ `powerPlantGlow` ≠ `osmPowerPlantsStatic`（orphan）≠
+`industrialPowerPlant`（popup 也不同：後者是 `industrialPowerPlant`，前三個走
+`powerPlant`）｜`osmPowerLines` ≠ `powerLinesGlow`｜`osmSubstations` ≠
+`osmSubstationsEhv` ≠ `substationEhvGlow`｜`gasStation*` 5 ≠ `gasCoverage*` 4｜
+`wasteStop`（orphan，無 consumer）≠ `wasteStopsStatic`（批 7，真的在渲染）｜
+`serviceArea` ≠ `serviceAreaPolygon`（兩個獨立 key/source/popup，色票成對不是共用）。
+
+### 其餘形狀
+
+- **交通 33 層四種 dataClass 全到齊**（第四個這樣的主題）；能源 41 層是 C 26 / D 10 / B 5。
+- **`busStationsCity` 是 PMTiles、`busStationsIntercity` 是 geojson** —— 同一個子群
+  兩種載入路徑，掃主題判體質會錯。
+- `roadCongestion` 的 GIS_LAYERS 條目是 `road-congestion-hit`：**刻意加的透明加寬命中層**
+  （四鐵則③ 細線點擊命中率）。對照組 `freewayCongestion` 沒補這層 → `popup: null`。
+- `powerGenerationUnit` 的 registry config 只有一個 `hit` 層（柱體是 Three.js
+  `PowerGenerationBeamScene`）—— 有 entry → C 不是 D。
+- **`windPlan` 的 `params: null` 是 emptyByDesign**（Phase 0 記錄的 5 key 之一），
+  不是抽取器漏掃。
+- **衍生型 upstream 首次進 manifest**：`gasCoverageAll` / `evIsland` 帶
+  `derivedFromLayers` ＋ `derivationType` ＋ `processing`，manifest **照抄整包**；
+  只抄 status/datasets 會靜默丟掉「本站自己從別的 layer 算出來的」這件事。
+- **能源 C 層的 `fallbackUrl` 是第三種形狀**：一律 `./geo/_empty.geojson`（空殼）。
+  對照批 7 農業 C 層是「真檔但刻意不上傳」。三種都不是部署缺口，觸點 #20 的機械斷言
+  未來要能區分：① 真檔會部署 ② 真檔刻意不部署（owner-only RPC）③ 檔本身是空殼。
+- `powerLinesGlow` 走純 Mapbox 4-pass line-blur 而非 Three.js 是**硬限制**：
+  App.tsx 已為 `OsmPowerLinesGlowScene` 掛了一個 `THREE.WebGLRenderer`，
+  同一個 Mapbox gl context 塞第二個會狀態互污。
+
+### ⚠️ 觸點 #20 逐檔比對：第三個「兩條路都不通」
+
+| 目錄 | 檔 | git/dist | S3 upload | nginx | 結論 |
+|---|---|---|---|---|---|
+| `/coverage/` | `aviation_airspace.pmtiles`（1.3MB）、`drone_restricted_zones.pmtiles`（11.7MB） | ✅ git | ❌ | root ＋ dist fallback | ✅ 走 dist |
+| `/coverage/` | `taiwan_*_nearest.pmtiles` ×5（覆蓋分析） | ✅ git | ❌（**刻意**，gitignore 註解「gas coverage 小檔仍進 git/dist」） | 同上 | ✅ 走 dist |
+| `/coverage/` | **`power_poles.pmtiles`（26MB）** | ❌ **gitignore L82** | ❌ **不在 upload glob** | 同上 | ❌ **兩條路都不通** |
+| `/road/` | `road_congestion_highway.pmtiles`（3.1MB） | ❌ gitignore L97 | ✅ `public/road/*.pmtiles` glob | root（純 S3） | ✅ |
+| `/base_map/` | `osm_expressway.pmtiles` | ❌ gitignore L96 | ✅ `public/base_map/*.pmtiles` glob | root（純 S3） | ✅ |
+| `/geo/` | 批 8 的 11 個 geojson ＋ 3 個 pmtiles | 混合 | 逐檔清單 ＋ pmtiles glob | root ＋ dist fallback | ✅ |
+
+**`power_poles.pmtiles` 是批 5 `base_map/hillshade.png`、批 7
+`fishery/aquaculture_integrated.pmtiles` 之後的第三個。**這個特別值得記，因為
+**兩處註解自相矛盾**：`.gitignore` 第 81-82 行寫「走 S3 deploy-assets/coverage/」，
+但 `upload-deploy-assets.sh` 第 353 行的 coverage 迴圈是 `public/coverage/real_estate_*`
+且註解明寫「只上傳 `real_estate_*`」。本地 `public/coverage/` 也沒有這個檔。
+`powerPoles` 這層的 `source.note` 指過去會 404。
+
+修法一行：把 coverage 迴圈改成也涵蓋 `power_poles.pmtiles`（或加進逐檔清單）。
+⚠️ 同批 7 的提醒：pull 端對 `/coverage/` 是整夾 `aws s3 sync`，
+若 prod 曾**手動**傳進該前綴就會流下來 —— 腳本清單漏列不必然等於線上壞掉，待 owner 確認。
+
+另記一筆（非缺口）：`public/coverage/taiwan_other_nearest.pmtiles` 在 git 裡，
+但 348 個 key 沒有任何一個引用它（`gasStationOther` 有、`gasCoverageOther` **沒有**）
+—— 是 POC 時期的遺留檔。
+
+⚠️ **本批只核對記錄，未改任何部署檔。**

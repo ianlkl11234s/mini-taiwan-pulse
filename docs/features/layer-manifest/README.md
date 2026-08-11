@@ -1,7 +1,7 @@
 # Layer Manifest（AR-22）
 
 > **Slug**：`layer-manifest`
-> **狀態**：dev（Phase 0-1 完成，Phase 2 待派工）
+> **狀態**：dev（Phase 0-2 完成 —— **348/348 全部登記進 manifest**，Phase 3 待派工）
 > **相關 PR**：待開
 > **地基**：AR-21 visibility store（PR #129，`src/state/layerVisibilityStore.ts`）
 
@@ -27,8 +27,8 @@ popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽�
 |---|---|---|
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
-| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema 擴充）✅ `15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）✅ `410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）✅ `45faee8`…`d39edf1`；批 7（47 層 ＋ 第四支 popup 解析器，無 schema 改動）✅ `a1d7e3b` `6489881` `7e6e0a1`；批 8 待派工（Phase 2 已搬 261/343，manifest 共 **266 entry**） |
-| **3** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ |
+| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | ✅ **全量完成 348/348**（`462c05a`）。批 1（25 層）`cc64857`…`1aa3d6b`；批 2（28 層）`5d33117`…`b292d21`；批 3（33 層）`b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema）`15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）`410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）`45faee8`…`d39edf1`；批 7（47 層 ＋ 第四支 popup 解析器）`a1d7e3b`…`7e6e0a1`；批 8（82 層 ＋ 拍板③ section null schema）`1eb4911`…`462c05a` |
+| **3** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ ← **下一步** |
 | **4** | params 派生化（`useTransportParams` 的 case 由 manifest spec 產生）＋ `/new-layer` 改成只寫 manifest | ⬜ |
 
 Phase 4 完成後，新增一層的登記工作 = **只改 manifest 一處**，其餘由派生產生；
@@ -97,6 +97,43 @@ panel 時用它，順序＝GIS_LAYERS 出現序，但**不取代** Phase 3 要�
 
 `waterReservoirs` = pmtiles 水庫面 + geojson 壩體點。`dataClass` 只有一個值，
 混合時取**上線路徑最重**的 kind：`pmtiles(B) ＞ supabase(C) ＞ geojson(A)`。
+
+## Phase 2 收工狀態（批 8 之後）
+
+三張手寫表（`HANDWRITTEN_LAYER_COLORS` / `HANDWRITTEN_LAYER_ICONS` /
+`HANDWRITTEN_UPSTREAM`）**表內非註解行皆為 0**，`THEMES` 的 338 個 LayerDef
+**全部**走 `fromManifest(...)`、字面殘留 0。
+
+`ManifestKey` 現已涵蓋全部 348 key → `Omit<Record<全集>, ManifestKey>` 退化成 `{}`。
+**空物件字面合法**（實測 tsc 0 error），護欄語意不變：從 manifest 刪任何 key 會讓
+合成的 `Record` 缺屬性而報錯。三張表**保留不刪** —— 新 key 若一時無法進 manifest
+（例如 `section` 未定）那裡是唯一合法暫放處。
+
+⚠️ **唯一的手寫殘留是 `TRANSPORT_LABELS`**（`layerCatalog.ts`，6 筆，值與 manifest 的
+`label` 逐字重複）。它**不在派生的四張表裡** —— key 空間是 `TransportType` 不是
+`keyof LayerVisibility`，硬套 `Omit<…, ManifestKey>` 會弄壞型別意義。已就地註記，
+留給 Phase 3。處置同 `GATED_LAYERS`（批 7 記載，另一張 runtime 表）。
+
+### orphan key（`section: null`）—— 拍板③ 與它的必要延伸
+
+10 個 key 在 `LayerVisibility` 有、三張 348-key 全量表也有，但 **THEMES 沒有**。
+schema 因此改成以 `section` 為判別欄位的**聯集**：`section: LayerSection` 那支帶
+`label` / `labelMobile` / `expandable` / `gated`；`section: null` 那支把這四欄宣告成
+`?: never`。
+
+**為什麼 label 不能是「選填」而要是 `never`**：orphan 的 label 沒有任何真值來源
+（`LAYER_LABELS` 由 THEMES 派生），填一個「看起來合理」的等於在 SSOT 裡發明一個
+沒人能驗證的事實。而單純省略欄位擋不住 —— union 的 excess property check 取
+**所有成員屬性的聯集**，`label` 存在於另一支就不算 excess。只有 `never` 會紅。
+
+⚠️ **「orphan」只描述「不在 THEMES」，不等於死碼**：5 個有 registry entry 且
+App.tsx 照樣在餵（被 SSOT 取代後移出 sidebar）、2 個是 monitor 面板的 HUD/3D bars
+（`UPSTREAM_REGISTRY` 標的 "stale/unused" 是過時的）、只有 3 個真的沒有渲染。
+
+⚠️ **legend 家族跨越「在不在 THEMES」這條線，而且是雙向的**：orphan 沿用 THEMES
+成員的 id（`islandPowerGrid` → `offshoreWindZones`），也有 THEMES 成員沿用 orphan 的
+id（`powerGenerationUnit` → `powerPlants`）。Phase 3 依 legend 分組派生
+`LEGEND_REGISTRY` 時**不能只掃有 section 的 entry**。
 
 ## 雙軌派生機制
 

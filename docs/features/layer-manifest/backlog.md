@@ -1,6 +1,6 @@
 # Layer Manifest — Backlog
 
-## Phase 2 分批搬移提案（343 層待搬）
+## Phase 2 分批搬移提案（343 層待搬）—— ✅ **八批全數完成，manifest 348/348**
 
 每批的驗收條件相同、不可省：**黃金快照 fixture 一位元未動 + `npx tsc -b` 0 error +
 `npx vitest run` 全綠**。fixture 一旦需要重跑 dump，代表搬移改到了值 → 先確認是不是搬壞了。
@@ -21,7 +21,7 @@
 | **5** ✅ | 底圖(剩 12) 災害(12) 太空(16) | 40 | 已完成（`410cac7` schema＋`529c828` `fc762a5` `61eb3e9`，見 changelog）。**代拍板⑤候補（待 owner 追認）**：`popup` 擴成 `T \| T[] \| null` —— `earthquakeReplay` 一個 toggle 建 5 層，其中測站點與鄉鎮面**各自有 GIS_LAYERS 條目與 panel**，只宣告一個等於已知為假。預估部分對：太空 16 全 D 且 legend/popup 雙雙 16→1（本工程最大共用）、`earthquakes` 與 `earthquakeGlobal` 已用帶冒號的精確錨定隔離。預估錯的：**底圖不是「10 層 PMTiles → 全 B」**（實際 B 9 / D 3，其中 slope/aspect 是 PMTiles 卻無 registry entry → D；hillshade 是單張 PNG），**災害不是「3 C + 7 D」**（實際 7 D / 4 C / 1 A）。額外撞到：popup 判準第四層修正「**HEADER_LABELS 有條目 ≠ 有 popup**」（`hillshade`，批 8 `osmExpressway` 同款）；拍板④精煉「**legend 家族已有 manifest 成員 → 沿用其既有 id**」（`urbanZoningNewTaipei` → `"urbanZoning"`，批 6 pollution 同款）；`SATELLITE_COLORS` 是拍板①判準遇過最像該引用卻不該引用的一組（16 個 hex 逐一撞色仍不引用）。⚠️ **觸點 #20 逐檔比對發現一個真缺口**：`base_map/hillshade.png` git 管理但 nginx `/base_map/` 沒有 dist fallback、upload/pull 只處理 `*.pmtiles` → 兩條路都不通（未改部署檔，見 changelog 末節兩條修法）。 |
 | **6** ✅ | 環境氣候(剩 19) 水資源(23) | 42 | 已完成（`45faee8` schema＋`49ff8b8` `d39edf1`，見 changelog）。**代拍板⑥候補（待 owner 追認）**：source 陣列**允許混合 `kind`** —— `waterReservoirs` 是 pmtiles 水庫面 + geojson 壩體點，證偽了拍板②留下的「陣列各元素 kind 同質」；`dataClass` 改由 kind 集合按「上線路徑最重」precedence 決定（pmtiles ＞ supabase ＞ geojson）。預估對的：`waterRivers`×2 同質陣列、水資源 12 層 D。預估錯的三處：(a) **`waterDam` 的 popup 有 GIS_LAYERS 字面條目**（Three.js raycast 是並存的第二條路徑，不是唯一路徑），無需特殊處理；(b) **「環境污染 4 層沿用 `"pollution"`」只對一半** —— 該子群橫跨兩筆 LEGEND_REGISTRY entry / 兩個元件，只有 `pollutionSite` 與試點同 entry 適用，裁處 3 層照機械規則取 `"pollutionPenaltyCritical"`（4 層全填會被「同 id 必落同一筆 entry」測試擋下）；(c) `waterReservoirs` 不只是「2 個 config」而是**混合 kind**。額外撞到：雙生字密度創新高且 `groundwater`／`groundwaterWells` 是**真的會判錯**的一組（同 loader 不同 RPC，只有前者擁有 GIS_LAYERS 條目）；`floodSensorIsochrone` 是 D 卻自建 PmTilesSource（同批 5 slopeVector）。⚠️ 觸點 #20 逐檔比對：五個目錄無新 404 缺口，但 `/flood/` 是批 5 `hillshade.png` 的**鏡像不一致** —— git/dist 那條通、S3 那條死（upload/pull 推到 `/data/flood/`，nginx 沒有該 location）。 |
 | **7** ✅ | 廢棄物(18) 農業(29) | 47 | 已完成（`a1d7e3b` 前置解析器＋`6489881` `7e6e0a1`，見 changelog）。**本批無 schema 改動**（拍板②⑤⑥三種擴充都夠用，47 層全在 THEMES 內）。預估全對：廢棄物 14 層 labelMobile、**legend 18/18 全 null**（規約遇過最極端的一次）、17 層 D；農業 8 C + 9 B（A 5 / D 7 未預估，農業是第三個四種 dataClass 全到齊的主題）。額外撞到：**新增第四種 popup 真值來源** `extractCustomHandlerFeatureTypes`（廢棄物 13 層的接線完全不在 useMapInteraction —— wasteMapboxLayers 8 個 circle 子層各自 `map.on("click", …)`、App.tsx 對 3D scene raycast；⚠️ layerType 是**三元運算**，整行掃字串會收進 noise）；**popup 判準第五層修正「有 click handler ≠ 有 popup」**（`wasteSchedule` 走 setWasteScheduleTooltipInfo 這個獨立 tooltip 狀態，不是 setFeatureInfo）；`wfMonitoring` 是唯一**兩套渲染路徑並存**（3D scene ＋ Mapbox circle）；農業 D 7 層全走 `agricultureLayerFactory` 的 PMTiles factory（掃 dataClass B 對部署清單會全漏）；農業 C 8 層的 `fallbackUrl` **刻意不部署**（owner-only RPC，不是缺口）；飼養場 7 層在 `GATED_LAYERS` 但 THEMES LayerDef 沒有 `gated` → manifest 照 LayerDef 不填；區塊註解不可信第七、八種（orphan `wasteRoute`/`wasteStop` 夾在廢棄物區塊正中間、農業在三張表各自分成兩段）。⚠️ **觸點 #20 逐檔比對抓到第二個「兩條路都不通」**：`public/fishery/aquaculture_integrated.pmtiles` 被 gitignore L126 排除且不在 `FISHERY_FILES` → git/dist 與 S3 皆無（未修，見 changelog 末節）。 |
-| **8** | 交通(剩 31) 能源(41) + 10 個 orphan key | 82 | 最重的一批，**可再拆 3 個 sub-batch**。能源 30 層是 C 體質（Supabase 動態）→ 每層都要確認 loadingRegistry 契約。交通 13 層 D（Three.js）且 `busLive` 有 11 個控件（8 個 toggle）。⚠️ `stationsTRA` 有 2 個 config → 照批 4 的陣列寫法。`ships` 的 popup 是**不經 GIS_LAYERS 的 setFeatureInfo**（`ship`，scene raycast），批 4 的 `extractNonGisFeatureTypes` 已涵蓋。⚠️ **10 個 orphan key 不在 THEMES**（`facOffshore` `islandPowerGrid` `medICUBeds` `osmPowerPlantsStatic` `osmSolarFarms` `powerPlants` `powerRegionDemand` `powerStatusHud` `wasteRoute` `wasteStop`）→ `section` 欄位**必須先允許 null**，且 `layerManifest.test.ts` 的 section 斷言要放行。 |
+| **8** ✅ | 交通(剩 31) 能源(41) + 10 個 orphan key | 82 | 已完成（`1eb4911` 拍板③ schema＋`385abae` `705cf06` `3eedab8` `1763d7a` `97fe82f` `462c05a`，見 changelog）→ **manifest 348/348 全量達成，Phase 2 結案**。**拍板③ 落地但必須擴大（代拍待追認）**：原案只寫「section 允許 null」不夠 —— orphan **連 label 都沒有**（fixture `labels` 只有 338 筆），而 label 必填。不替它們發明 label（那是在 SSOT 裡放無法驗證的事實）→ 改成以 `section` 判別的**聯集**，orphan 那支把 label 一族宣告成 `?: never`（單純省略擋不住：union 的 excess property check 取所有成員屬性的聯集）。既有 266 entry 零改動。預估對的：`stationsTRA`×2 陣列、`ships` popup 走 `extractNonGisFeatureTypes`、`busLive` 11 控件、`osmExpressway` 是 HEADER_LABELS 有但無 popup。**預估錯的三處**：(a) 能源不是「30 層 C」而是 **C 26 / D 10 / B 5**；(b) 交通不是「13 層 D」而是 **A 11 / B 4 / C 2 / D 14**（四種齊）；(c) **orphan 不等於死碼** —— 5 個有 registry entry 且 App.tsx 照樣在餵、2 個是 monitor HUD/3D bars（其 "stale/unused" note 已過時）、只有 3 個真沒渲染。額外撞到：**popup 判準第五層修正的最大規模實例**（即時運具 5 層只有 ships 走 setFeatureInfo，其餘走獨立 tooltip 或根本沒 picking）；**第六種「有 registry entry 卻 popup: null」**（`stationsTHSR` 的 layer id 不在 GIS_LAYERS，而 stationsTRA/Metro 是兩組 id 共用一個 layerType）；**`powerPlant` 是全 manifest 最大的 popup 多對一（8 個 layer）**，且與批 5 太空 16→1 不同類（那是同一 source 的 filter 切分，這裡是六份不同 RPC 共用一個 panel）；**legend 家族雙向跨越「在不在 THEMES」**（orphan 沿用 THEMES 的 id，也有 THEMES 沿用 orphan 的 id）；能源 C 層的 `fallbackUrl` 是**第三種形狀**（`_empty.geojson` 空殼，對照批 7 的「真檔刻意不傳」）；**衍生型 upstream 首次進 manifest**（`derivedFromLayers`/`derivationType`/`processing` 照抄整包）；區塊註解不可信第九、十種。⚠️ **觸點 #20 抓到第三個「兩條路都不通」**：`public/coverage/power_poles.pmtiles`（26MB）—— gitignore L82 排除、又不在 upload 的 `real_estate_*` glob 裡，**兩處註解自相矛盾**（未修，見 changelog 末節）。 |
 
 ### 開始 Phase 2 之前必須先拍板的 4 件事
 
@@ -45,7 +45,18 @@
    ⚠️ 別跟「多個 key 共用同一個 `sourceId`」（教育 ×7、運動場館 ×5、房地產 Grid ×3）
    混為一談 —— 那個仍寫單數形，契約測試按 `id` 過濾不受影響。
    ⚠️ 批 6 撤銷本項原本附帶的「陣列各元素 kind 同質」假設 → 見拍板⑥。
-3. **`section` 允許 null**（批 8 卡住）：10 個 orphan key。批 1 的 25 層全在 THEMES 內。
+3. ✅ **`section` 允許 null**（批 8 已落地，**但實作時必須擴大 —— 代拍待 owner 追認**）：
+   10 個 orphan key。原案只寫「section 允許 null」**不夠** —— 黃金快照的 `labels`
+   section 只有 338 筆，orphan **連 label 都沒有**（`LAYER_LABELS` 由 THEMES 派生），
+   而 `label` 是必填欄位。
+   **不替 orphan 發明 label**（那是在 SSOT 裡放一個沒有登記簿能驗證的事實，
+   正是契約測試存在的理由）→ 拍板改成：`LayerManifestEntry` 以 `section` 為判別欄位
+   的**聯集**，`section: null` 那支把 `label` / `labelMobile` / `expandable` / `gated`
+   宣告成 `?: never`。共同欄位抽成 `LayerManifestBase`，**266 筆既有 entry 零改動**。
+   ⚠️ 必須用 `?: never` 而非單純省略：union 的 excess property check 取**所有成員
+   屬性的聯集**，`label` 存在於另一支就不算 excess，assignability 也過。
+   `fromManifest` 加 orphan guard（throw）；契約測試 `section` 斷言改雙向、
+   LayerDef 斷言對 orphan 走反方向 pin。四次突變自測全紅（含正控組）。
 4. ✅ **legend id 命名規約**（批 1 已落地，批 5 精煉）：拍板**取 LEGEND_REGISTRY entry
    的首個 key**。三種形狀都已實測：獨佔（退化成同名）／家族共用／**與自身 key 完全無關**
    （`civilDefenseShelter` → `policeStation`）。批 4 執法治安 20 層是同一組 id。
@@ -80,6 +91,26 @@
   `GIS_LAYERS`（觸點 #16）由 manifest 的 `popup` + `source.sourceId` 組出來。
   ⚠️ `GIS_LAYERS` 是 **first-hit-wins**（細節豐富的小範圍在前、大面積背景在後）——
   派生時**必須保序**，manifest 需要一個顯式的 `clickPriority` 欄位，不能靠陣列順序。
+
+  ### ⚠️ 批 8 交接給 Phase 3 的五件事
+
+  1. **legend 分組不能只掃有 `section` 的 entry**：家族**雙向**跨越「在不在 THEMES」——
+     orphan 沿用 THEMES 成員的 id（`islandPowerGrid` → `offshoreWindZones`、
+     `osmSolarFarms`/`osmPowerPlantsStatic` → `osmWindTurbines`），也有 THEMES 成員
+     沿用 orphan 的 id（`powerGenerationUnit` → `powerPlants`）。10 個 orphan 有
+     6 個非 null legend。
+  2. **popup 派生 `GIS_LAYERS` 時 `powerPlant` 那 8 筆不能去重**：它們是六份不同 RPC
+     的結果共用一個 panel（各自有獨立的 `sourceId` 與 layer id），與批 5 太空 16→1
+     那種「同一 source 的 filter 切分」是不同的東西。
+  3. **`TRANSPORT_LABELS` 一起收掉**：第五張手寫表，6 筆值與 manifest 的 `label`
+     逐字重複。key 空間是 `TransportType`，需要一層 key 映射才派生得動。
+     同一批可一併處理 `GATED_LAYERS`（批 7 記載）。
+  4. **反向派生 THEMES 時 orphan 必須排除**：`fromManifest` 已有 throw guard，
+     但那是防呆不是設計 —— 派生器要主動用 `section !== null` 過濾。
+  5. **`popup: null` 的四種成因要分開**（不能一律當「沒接線」）：沒有可點物件／
+     走獨立 tooltip 狀態（bus・flight・wasteSchedule）／`HEADER_LABELS` 有但
+     `GIS_LAYERS` 沒有（`hillshade`・`osmExpressway`）／有 registry entry 但 layer id
+     不在 `GIS_LAYERS`（`stationsTHSR`）。Phase 3 若要「補齊缺的 popup」會全撞上。
 - **Phase 4**｜params 派生：`useTransportParams` 的 `case` 由 manifest 的 params spec
   產生。難點是控件的 `onChange` 綁的是 hook 內的 setState，manifest 只能宣告 spec，
   state 仍得留在 hook → 需要一層 spec→控件的組裝器。
@@ -107,6 +138,7 @@
       | 6 | `/flood/uswg_isochrone_3min.pmtiles` | 鏡像 —— git/dist 通、S3 死（nginx 無 `location /flood/`）|
       | 7 | **`fishery/aquaculture_integrated.pmtiles`** | **兩條路都不通**（gitignore L126 ＋ 不在 `FISHERY_FILES`）|
       | 7 | `fishery/aquaculture_water_satellite_{moa,union}.pmtiles` | 批 6 的鏡像 —— git/dist 通、S3 那半空轉 |
+      | 8 | **`coverage/power_poles.pmtiles`（26MB）** | **兩條路都不通**（gitignore L82 ＋ upload 的 coverage 迴圈只涵蓋 `real_estate_*`）。⚠️ 特別值得記：**兩處註解自相矛盾** —— gitignore 寫「走 S3 deploy-assets/coverage/」，upload 腳本註解寫「只上傳 `real_estate_*`」 |
 
       ⚠️ 斷言要**雙向**：不只「宣告的檔有沒有路可走」，也要「deploy 腳本推上去的
       檔 nginx 讀不讀得到」—— 批 6 的 `/flood/` 只有後者會紅。
