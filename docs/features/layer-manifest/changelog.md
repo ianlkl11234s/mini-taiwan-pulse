@@ -935,7 +935,8 @@ backlog 與 `UPSTREAM_REGISTRY` 都用 "stale/unused color" 稱呼這 10 個 key
 - **反過來**：`powerPlants`（orphan）自己是家族首 key，THEMES 裡的
   `powerGenerationUnit` 得沿用它 → `legend: "powerPlants"`
 
-10 個 orphan 有 **6 個非 null legend**。⚠️ Phase 3 依 legend 分組派生
+10 個 orphan 有 **7 個非 null legend**（null 的只有 medICUBeds / wasteRoute /
+wasteStop —— 恰好就是「真的沒有渲染」那 3 個）。⚠️ Phase 3 依 legend 分組派生
 `LEGEND_REGISTRY` 時**不能只掃有 section 的 entry**，兩個方向都會漏。
 
 ### popup 判準：第五層修正的最大規模實例（有點選互動 ≠ 有 popup）
@@ -1025,7 +1026,11 @@ COLORS 表。`IconRailSidebar` 的 lucide import 從 60 行縮到 13 行 ——
 
 ### 其餘形狀
 
-- **交通 33 層四種 dataClass 全到齊**（第四個這樣的主題）；能源 41 層是 C 26 / D 10 / B 5。
+- **dataClass 分佈**（機械統計，非人工重數 —— 見下方「⚠️ 數字更正」）：
+  交通批 8 內 31 層 = A 13 / B 4 / C 2 / D 12（加試點 rail/cctv → 主題 33 層
+  A 14 / B 4 / C 2 / D 13，**四種全到齊**，第四個這樣的主題）；
+  能源 41 層 = **A 1 / B 5 / C 30 / D 5**（A 只有 `windPlan`；D 只有 4 個 Bloom/Glow
+  ＋ `powerPoles`）；orphan 10 = C 5 / D 5。
 - **`busStationsCity` 是 PMTiles、`busStationsIntercity` 是 geojson** —— 同一個子群
   兩種載入路徑，掃主題判體質會錯。
 - `roadCongestion` 的 GIS_LAYERS 條目是 `road-congestion-hit`：**刻意加的透明加寬命中層**
@@ -1071,3 +1076,29 @@ COLORS 表。`IconRailSidebar` 的 lucide import 從 60 行縮到 13 行 ——
 —— 是 POC 時期的遺留檔。
 
 ⚠️ **本批只核對記錄，未改任何部署檔。**
+
+### ⚠️ 數字更正（本段所有分佈數字改由腳本統計，不再人工重數）
+
+批 8 收工當下的散文分佈數字是**人工重數**的，事後用一支「逐 entry 解析 manifest
+原始碼、按子群 key 清單 tally `dataClass` / `legend`」的腳本核對，發現四處錯：
+
+| 位置 | 原寫 | 實際 |
+|---|---|---|
+| 能源 41 層體質 | C 26 / D 10 / B 5 | **A 1 / B 5 / C 30 / D 5** |
+| 交通批 8 內 31 層 | A 11 / B 4 / C 2 / D 14 | **A 13 / B 4 / C 2 / D 12** |
+| orphan 非 null legend | 6 | **7** |
+| 批 8-3 段頭（`layerManifest.ts`） | C 9 ／ D 6、「5 個 Bloom/Glow」 | **C 10 ／ D 5、4 個 Bloom/Glow**（第 5 個 D 是 `powerPoles`；`powerPlants` 是 legacy orphan 不是視覺實驗層） |
+| 批 8-1 段頭（`layerManifest.ts`） | A 6 ／ B 1 ／ D 11 | **A 8 ／ B 1 ／ D 9** |
+
+**這推翻了下方 backlog 對批 8「預估錯的三處」中的兩處** —— 原預估
+「能源 30 層是 C 體質」**是對的**（恰好 30），「交通 13 層 D」也**是對的**
+（批 8 內 12 ＋ 試點 `rail` = 13）。真正預估錯的只有「orphan 不等於死碼」那條。
+backlog 批 8 欄已同步改寫。
+
+⚠️ **commit message 裡的分佈數字（`385abae` / `3eedab8` / `705cf06`）未修**
+—— 那些 hash 已被本檔與 backlog / README 引用，rebase 會讓引用全斷。
+**以本檔的數字為準，commit message 的分佈句子作廢。**
+
+教訓：`final_audit.py` 當時只驗了「身分／覆蓋／殘留」（348 三方相等、手寫表歸零），
+**沒有驗分佈**，所以散文數字漂了也全綠。分佈是「宣告的一部分」，
+下一批（Phase 3）的驗收腳本要一併 tally，不要留給人腦。

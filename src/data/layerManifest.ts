@@ -7119,8 +7119,8 @@ export const LAYER_MANIFEST = {
   // 高鐵那組是 `station-polygons-thsr-poly-*`、一個都不在裡面。三個車站層長得極像，
   // 只有逐 layer id 反查才看得出來（同批 2 基礎建設的單複數陷阱，只是這次差在「有沒有」）。
   //
-  // dataClass：A 6 ／ B 1（busStationsCity 是 PMTiles）／ D 11。
-  // 11 個 D 沒有一個是「自繪 = 沒資料」：航空 4 層自建 PmTilesSource（同批 5 slopeVector /
+  // dataClass：A 8 ／ B 1（busStationsCity 是 PMTiles）／ D 9。
+  // 9 個 D 沒有一個是「自繪 = 沒資料」：航空 4 層自建 PmTilesSource（同批 5 slopeVector /
   // 批 6 floodSensorIsochrone），即時運具 5 層是 Three.js scene 餵 Supabase RPC。
   // 檔路徑一律記進 `source.note`（觸點 #20 掃 dataClass B 會全漏）。
 
@@ -7909,7 +7909,7 @@ export const LAYER_MANIFEST = {
   // ⚡ 能源 Energy —— 電力 · 廠 8 ＋ 電力 · 電網 7（AR-22 Phase 2 批 8-3）
   // ══════════════════════════════════════════════════════════════════
   //
-  // 能源共 41 層（＋ 8 個 orphan），本段 15 層。體質：C 9 ／ D 6。
+  // 能源共 41 層（＋ 8 個 orphan），本段 15 層。體質：C 10 ／ D 5。
   //
   // **C 9 層全部走同一個形狀**：`dynamicData` overlay config、`fallbackUrl` 一律指
   // `./geo/_empty.geojson`（空 FeatureCollection 起手，energyLoader 的 owner-only RPC
@@ -7921,10 +7921,12 @@ export const LAYER_MANIFEST = {
   // 超過批 3 教育 `school` 的 1 對 7、與批 5 太空 16→1 不同類（那是 16 個 toggle
   // 同一份 source 的 filter 切分，這裡是**六份不同 RPC 的結果共用一個 panel**）。
   //
-  // ⚠️ **5 個 Bloom/Glow 視覺實驗層**（powerPlantGlow / powerLinesGlow /
-  // substationEhvGlow / aviationRestrictedGlow ＋ 下段沒有）：全是 D、全 `legend: null`、
-  // 全 `popup: null`，`upstream.status` 是 `pulse_only`。它們共用別層的 SSOT 資料，
-  // **不是獨立資料來源** —— note 已寫明共用誰。
+  // ⚠️ **4 個 Bloom/Glow 視覺實驗層**（powerPlantGlow / aviationRestrictedGlow 在「廠」、
+  // powerLinesGlow / substationEhvGlow 在「電網」）：**本段 5 個 D 就是它們再加 powerPoles**。
+  // 四者全 `legend: null`、全 `popup: null`，`upstream.status` 是 `pulse_only`。
+  // 它們共用別層的 SSOT 資料，**不是獨立資料來源** —— note 已寫明共用誰。
+  // ⚠️ 別把 orphan `powerPlants` 算進來：它是 legacy 單一發電廠層（C 體質、有 registry
+  // entry），只是同樣掛 pulse_only 而已。
   //
   // ⚠️ **`aviationRestrictedGlow` 是「區塊註解不可信」的第九種變形**：
   // 名字與資料都是航空（共用 `aviation_airspace.pmtiles`），THEMES 位置卻在
@@ -9041,7 +9043,8 @@ export const LAYER_MANIFEST = {
   //      manifest 照抄（搬移零失真）但在 entry 就地註明實況。
   //   ③ 真的沒有渲染（3）：medICUBeds / wasteRoute / wasteStop。
   //
-  // ⚠️ **legend 有 6 個非 null**，而且 3 個的家族首 key 在 THEMES 裡
+  // ⚠️ **legend 有 7 個非 null**（只有 medICUBeds / wasteRoute / wasteStop 是 null），
+  // 而且 3 個的家族首 key 在 THEMES 裡
   // （islandPowerGrid → offshoreWindZones、osmSolarFarms / osmPowerPlantsStatic →
   // osmWindTurbines）；反過來 `powerPlants` 自己是首 key，THEMES 裡的
   // `powerGenerationUnit` 得沿用它。**legend 家族跨越「在不在 THEMES」這條線**，
