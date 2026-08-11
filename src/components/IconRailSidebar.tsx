@@ -26,8 +26,9 @@ import {
   CloudLightning, Atom, Rewind,
   // GLOBAL CLIMATE icons
   Tornado,
-  // POLICE / JUSTICE / CIVIL DEFENSE icons（新增；既有 Shield/Search/MapPinned/PlaneTakeoff/Anchor/AlertTriangle/AlertCircle 已 import 復用）
-  ShieldAlert, Gavel, Scale, Lock, Hexagon, Crosshair,
+  // 👮 執法治安 20 層搬進 layerManifest（AR-22 Phase 2 批 4）後，
+  //    ShieldAlert / Gavel / Scale / Crosshair 已無用；Lock / Hexagon 仍被別層用
+  Lock, Hexagon,
   Ban,
   // 環境污染 icons
   Biohazard,
@@ -301,28 +302,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   hillshade: Mountain,
   slopeVector: Mountain,
   aspectVector: Mountain,
-  // 警政司法民防 17 layer
-  policeStation: ShieldAlert,
-  womenChildWarning: AlertTriangle,
-  speedCamera: Crosshair,
-  speedZoneSegment: Timer,
-  court: Gavel,
-  prosecutorsOffice: Scale,
-  correctionalFacility: Lock,
-  courtJurisdiction: MapPinned,
-  crimeAreaMonthly: Hexagon,
-  theftTaoyuan: Search,
-  trafficAccidentYearly: AlertTriangle,
-  accidentTaipei: AlertCircle,
-  a1AccidentRealtime: AlertTriangle,
-  investigationBureau: Search,
-  antiCorruptionOffice: Sparkles,
-  immigrationOffice: PlaneTakeoff,
-  coastGuardStation: Anchor,
-  // 警察覆蓋分析
-  policeIsoSubstation: Hexagon,
-  policeIsoPrecinct: Hexagon,
-  policeIsoCityDept: Hexagon,
+  // 👮 執法治安 20 層（含警察覆蓋分析 3 層）已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 環境污染
   pollutionPenaltyCritical: AlertTriangle,
   pollutionPenaltyGeneral: AlertCircle,

@@ -60,6 +60,9 @@ import {
   Coins,
   // 🏥 醫療（Accessibility / Activity 已在上方 import 復用）
   Hospital, Stethoscope, Pill, HeartPulse, Clock, AlertCircle,
+  // 👮 執法治安（Timer / Sparkles / PlaneTakeoff / AlertCircle 已在上方 import 復用）
+  ShieldAlert, AlertTriangle, Crosshair, Hexagon, Gavel, Scale, Lock, MapPinned,
+  Search, Anchor,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -2893,6 +2896,452 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "醫療沙漠：距任一醫療設施駕車 > 15 分鐘的網格（等時圈同層 filter 收窄）",
     topics: ["醫療", "服務缺口", "可達性"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 4 —— 執法治安 Law & Order 20 層
+  //  批 1 立的「legend id 與自身 key 完全無關」規約在這裡是主場：本主題 17 層
+  //  共用 `policeStation` 這個 id —— 該 LEGEND_REGISTRY entry 實際涵蓋 18 key
+  //  （多出的 `civilDefenseShelter` 屬民防主題、批 1 已搬，它就是當初壓測這條規約的那層）。
+  //  另外 3 層覆蓋分析共用 `policeIsoSubstation`。
+  //  popup 100% 覆蓋且 **20/20 與 key 同名** —— 前三批沒出現過的整齊度。
+  // ══════════════════════════════════════════════════════════════
+  policeStation: {
+    key: "policeStation",
+    section: { theme: "執法治安 Law & Order", group: "警政" },
+    label: "警察機關 Police",
+    expandable: true,
+    color: "#1e40af", // 警察 — 深藍
+    icon: ShieldAlert,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "police_stations", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "police-station", url: "./police_justice/police_stations/police_stations_20260626.geojson" },
+    legend: "policeStation",
+    popup: "policeStation",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台警察機關點位（警局／分局／派出所）",
+    topics: ["治安", "警政", "POI"],
+  },
+
+  womenChildWarning: {
+    key: "womenChildWarning",
+    section: { theme: "執法治安 Law & Order", group: "警政" },
+    label: "婦幼警示點 Women/Child Warning",
+    expandable: true,
+    color: "#ec4899", // 婦幼 — 粉
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "women_child_warning", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "women-child-warning", url: "./police_justice/women_child_warning/women_child_warning_20260626.geojson" },
+    legend: "policeStation",
+    popup: "womenChildWarning",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "婦幼安全警示點位",
+    topics: ["治安", "婦幼", "POI"],
+  },
+
+  speedCamera: {
+    key: "speedCamera",
+    section: { theme: "執法治安 Law & Order", group: "警政" },
+    label: "測速照相 Speed Camera",
+    expandable: true,
+    color: "#dc2626", // 測速 — 紅
+    icon: Crosshair,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "speed_cameras", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "speed-camera", url: "./police_justice/speed_cameras/speed_cameras_20260626.geojson" },
+    legend: "policeStation",
+    popup: "speedCamera",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "固定式測速照相點位",
+    topics: ["治安", "交通執法", "POI"],
+  },
+
+  speedZoneSegment: {
+    key: "speedZoneSegment",
+    section: { theme: "執法治安 Law & Order", group: "警政" },
+    label: "區間測速 Speed Zone",
+    expandable: true,
+    color: "#b91c1c", // 區間測速 — 深紅
+    icon: Timer,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "speed_zone_segments", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "speed-zone-segment", url: "./police_justice/speed_zone_segments/speed_zone_segments_20260626.geojson" },
+    legend: "policeStation",
+    popup: "speedZoneSegment",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "區間測速路段起訖點",
+    topics: ["治安", "交通執法", "POI"],
+  },
+
+  policeIsoSubstation: {
+    key: "policeIsoSubstation",
+    section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
+    label: "派出所 5/10 min",
+    expandable: true,
+    color: "#1e40af",
+    icon: Hexagon,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "police_stations", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "police-iso-substation",
+      url: "./police_justice/isochrone/police_iso_substation_combined.pmtiles",
+      sourceLayer: "police_iso_substation",
+      minzoom: 4,
+      maxzoom: 14,
+    },
+    legend: "policeIsoSubstation",
+    popup: "policeIsoSubstation",
+    params: { count: 3, kinds: ["select", "select", "slider"] },
+    description: "派出所 5／10 分鐘路網等時圈",
+    topics: ["治安", "等時圈", "可達性"],
+  },
+
+  policeIsoPrecinct: {
+    key: "policeIsoPrecinct",
+    section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
+    label: "分局 15/30 min",
+    expandable: true,
+    color: "#3b82f6",
+    icon: Hexagon,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "police_stations", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "police-iso-precinct",
+      url: "./police_justice/isochrone/police_iso_precinct_combined.pmtiles",
+      sourceLayer: "police_iso_precinct",
+      minzoom: 4,
+      maxzoom: 14,
+    },
+    legend: "policeIsoSubstation",
+    popup: "policeIsoPrecinct",
+    params: { count: 3, kinds: ["select", "select", "slider"] },
+    description: "分局 15／30 分鐘路網等時圈",
+    topics: ["治安", "等時圈", "可達性"],
+  },
+
+  policeIsoCityDept: {
+    key: "policeIsoCityDept",
+    section: { theme: "執法治安 Law & Order", group: "警察覆蓋分析" },
+    label: "縣市警局 30/60 min",
+    expandable: true,
+    color: "#60a5fa",
+    icon: Hexagon,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "police_stations", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "police-iso-city-dept",
+      url: "./police_justice/isochrone/police_iso_police_dept_combined.pmtiles",
+      sourceLayer: "police_iso_police_dept",
+      minzoom: 4,
+      maxzoom: 14,
+    },
+    legend: "policeIsoSubstation",
+    popup: "policeIsoCityDept",
+    params: { count: 3, kinds: ["select", "select", "slider"] },
+    description: "縣市警察局 30／60 分鐘路網等時圈",
+    topics: ["治安", "等時圈", "可達性"],
+  },
+
+  court: {
+    key: "court",
+    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    label: "法院 Courts",
+    expandable: true,
+    color: "#7c3aed", // 法院 — 紫
+    icon: Gavel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "courts", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "court", url: "./police_justice/courts/courts_20260626.geojson" },
+    legend: "policeStation",
+    popup: "court",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "各級法院點位",
+    topics: ["治安", "司法", "POI"],
+  },
+
+  prosecutorsOffice: {
+    key: "prosecutorsOffice",
+    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    label: "檢察署 Prosecutors",
+    expandable: true,
+    color: "#a855f7", // 檢察署 — 淺紫
+    icon: Scale,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "prosecutors_offices", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "prosecutors-office", url: "./police_justice/prosecutors_offices/prosecutors_offices_20260626.geojson" },
+    legend: "policeStation",
+    popup: "prosecutorsOffice",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "各級檢察署點位",
+    topics: ["治安", "司法", "POI"],
+  },
+
+  correctionalFacility: {
+    key: "correctionalFacility",
+    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    label: "矯正機關 Correctional",
+    expandable: true,
+    color: "#374151", // 矯正 — 鐵灰
+    icon: Lock,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "correctional_facilities", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "correctional-facility", url: "./police_justice/correctional_facilities/correctional_facilities_20260626.geojson" },
+    legend: "policeStation",
+    popup: "correctionalFacility",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "矯正機關點位（監獄／看守所／技訓所）",
+    topics: ["治安", "矯正", "POI"],
+  },
+
+  courtJurisdiction: {
+    key: "courtJurisdiction",
+    section: { theme: "執法治安 Law & Order", group: "司法矯正" },
+    label: "法院管轄區 Jurisdiction",
+    expandable: true,
+    color: "#c4b5fd", // 法院管轄區 — 紫白（polygon fill）
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "court_jurisdictions", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "court-jurisdiction",
+      url: "./police_justice/court_jurisdictions/court_jurisdictions.pmtiles",
+      sourceLayer: "court_jurisdictions",
+      minzoom: 6,
+      maxzoom: 10,
+    },
+    legend: "policeStation",
+    popup: "courtJurisdiction",
+    params: { count: 1, kinds: ["slider"] },
+    description: "地方法院管轄區範圍面",
+    topics: ["治安", "司法", "行政區"],
+  },
+
+  crimeAreaMonthly: {
+    key: "crimeAreaMonthly",
+    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    label: "鄉鎮犯罪統計 Crime Area",
+    expandable: true,
+    color: "#991b1b", // 鄉鎮犯罪 choropleth — 暗紅
+    icon: Hexagon,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "crime_area_monthly", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "crime-area-monthly",
+      url: "./police_justice/crime_area_monthly/crime_area_monthly.pmtiles",
+      sourceLayer: "crime_area_monthly",
+      minzoom: 8,
+      maxzoom: 12,
+    },
+    legend: "policeStation",
+    popup: "crimeAreaMonthly",
+    params: { count: 1, kinds: ["slider"] },
+    description: "鄉鎮市區月別犯罪案件統計 choropleth",
+    topics: ["治安", "犯罪統計", "行政區"],
+  },
+
+  theftTaoyuan: {
+    key: "theftTaoyuan",
+    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    label: "桃園竊盜 Theft Taoyuan",
+    expandable: true,
+    color: "#f59e0b", // 竊盜 — 橙
+    icon: Search,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "theft_points_taoyuan", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "theft-taoyuan", url: "./police_justice/theft_points_taoyuan/theft_points_taoyuan_20260626.geojson" },
+    legend: "policeStation",
+    popup: "theftTaoyuan",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "桃園市竊盜案件發生點位",
+    topics: ["治安", "竊盜", "桃園"],
+  },
+
+  trafficAccidentYearly: {
+    key: "trafficAccidentYearly",
+    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    label: "A1 死亡事故 Fatal Accident",
+    expandable: true,
+    color: "#fb7185", // A1 死亡 — 玫紅
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "traffic_accident_yearly", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "traffic-accident-yearly", url: "./police_justice/traffic_accident_yearly/traffic_accident_yearly_20260626.geojson" },
+    legend: "policeStation",
+    popup: "trafficAccidentYearly",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "A1 類（24 小時內死亡）交通事故年度點位",
+    topics: ["治安", "交通事故", "傷亡"],
+  },
+
+  accidentTaipei: {
+    key: "accidentTaipei",
+    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    label: "北市事故點 Taipei Dots",
+    expandable: true,
+    color: "#fda4af", // 北市事故 — 淡玫
+    icon: AlertCircle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "accident_taipei_dots", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "accident-taipei", url: "./police_justice/accident_taipei_dots/accident_taipei_dots_20260626.geojson" },
+    legend: "policeStation",
+    popup: "accidentTaipei",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "臺北市交通事故點位",
+    topics: ["治安", "交通事故", "臺北"],
+  },
+
+  a1AccidentRealtime: {
+    key: "a1AccidentRealtime",
+    section: { theme: "執法治安 Law & Order", group: "治安態勢" },
+    label: "A1 即時事故 A1 Realtime",
+    expandable: true,
+    color: "#ef4444", // A1 realtime — 鮮紅
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "traffic_accident", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "a1-accident-realtime",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "policeStation",
+    popup: "a1AccidentRealtime",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "A1 死亡交通事故即時通報",
+    topics: ["治安", "交通事故", "即時"],
+  },
+
+  investigationBureau: {
+    key: "investigationBureau",
+    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    label: "調查局 MJIB",
+    expandable: true,
+    color: "#0f766e", // 調查局 — 墨綠
+    icon: Search,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "investigation_bureau", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "investigation-bureau", url: "./police_justice/investigation_bureau/investigation_bureau_20260626.geojson" },
+    legend: "policeStation",
+    popup: "investigationBureau",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "法務部調查局各級機關點位",
+    topics: ["治安", "廉政", "POI"],
+  },
+
+  antiCorruptionOffice: {
+    key: "antiCorruptionOffice",
+    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    label: "廉政署 AAC",
+    expandable: true,
+    color: "#14b8a6", // 廉政 — 青
+    icon: Sparkles,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "anti_corruption_offices", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "anti-corruption-office", url: "./police_justice/anti_corruption_offices/anti_corruption_offices_20260626.geojson" },
+    legend: "policeStation",
+    popup: "antiCorruptionOffice",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "法務部廉政署與各機關政風單位點位",
+    topics: ["治安", "廉政", "POI"],
+  },
+
+  immigrationOffice: {
+    key: "immigrationOffice",
+    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    label: "移民署 Immigration",
+    expandable: true,
+    color: "#0ea5e9", // 移民 — 天藍
+    icon: PlaneTakeoff,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "immigration_offices", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "immigration-office", url: "./police_justice/immigration_offices/immigration_offices_20260626.geojson" },
+    legend: "policeStation",
+    popup: "immigrationOffice",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "內政部移民署各服務站點位",
+    topics: ["治安", "移民", "POI"],
+  },
+
+  coastGuardStation: {
+    key: "coastGuardStation",
+    section: { theme: "執法治安 Law & Order", group: "廉政移民海巡" },
+    label: "海巡 Coast Guard",
+    expandable: true,
+    color: "#0284c7", // 海巡 — 海藍
+    icon: Anchor,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "coast_guard_stations", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "coast-guard-station", url: "./police_justice/coast_guard_stations/coast_guard_stations_20260626.geojson" },
+    legend: "policeStation",
+    popup: "coastGuardStation",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "海洋委員會海巡署各級單位點位",
+    topics: ["治安", "海巡", "POI"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

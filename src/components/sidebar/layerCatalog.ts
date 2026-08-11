@@ -277,32 +277,12 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   hillshade: "#6b7280",
   slopeVector: "#fc8d59",
   aspectVector: "#ff7f00",
-  // 警政司法民防 17 layer
-  policeStation: "#1e40af",          // 警察 — 深藍
-  womenChildWarning: "#ec4899",      // 婦幼 — 粉
-  speedCamera: "#dc2626",            // 測速 — 紅
-  speedZoneSegment: "#b91c1c",       // 區間測速 — 深紅
-  court: "#7c3aed",                  // 法院 — 紫
-  prosecutorsOffice: "#a855f7",      // 檢察署 — 淺紫
-  correctionalFacility: "#374151",   // 矯正 — 鐵灰
-  courtJurisdiction: "#c4b5fd",      // 法院管轄區 — 紫白（polygon fill）
-  crimeAreaMonthly: "#991b1b",       // 鄉鎮犯罪 choropleth — 暗紅
-  theftTaoyuan: "#f59e0b",           // 竊盜 — 橙
-  trafficAccidentYearly: "#fb7185",  // A1 死亡 — 玫紅
-  accidentTaipei: "#fda4af",         // 北市事故 — 淡玫
-  a1AccidentRealtime: "#ef4444",     // A1 realtime — 鮮紅
-  investigationBureau: "#0f766e",    // 調查局 — 墨綠
-  antiCorruptionOffice: "#14b8a6",   // 廉政 — 青
-  immigrationOffice: "#0ea5e9",      // 移民 — 天藍
-  coastGuardStation: "#0284c7",      // 海巡 — 海藍
+  // 👮 執法治安 20 層（含警察覆蓋分析 isochrone 3 層）已搬進 layerManifest
+  //    （AR-22 Phase 2 批 4）—— 20 個色票原本就是字面 hex，無 spread 可刪
   aviationControl: "#4682B4",        // ✈️ 飛航情報 / 終端管制（TMA 深藍代表色）
   aviationRestricted: "#DC3545",     // ⛔ 機場管制 / 限航 / 危險（RCR 紅代表色）
   droneNoFlyZone: "#DC3545",         // 🚫 無人機禁航區（紅+未分類）
   droneRestrictedZone: "#FFC107",    // ⚠️ 無人機限航區（黃，需申請）
-  // 警察覆蓋分析 isochrone（overlap_count step 色階，這裡填代表色給圖例）
-  policeIsoSubstation: "#1e40af",
-  policeIsoPrecinct: "#3b82f6",
-  policeIsoCityDept: "#60a5fa",
   // 環境污染 POLLUTION
   pollutionPenaltyCritical: "#ef4444",
   pollutionPenaltyGeneral: "#94a3b8",
@@ -1118,46 +1098,46 @@ export const THEMES: ThemeDef[] = [
       {
         title: "警政",
         layers: [
-          { key: "policeStation", label: "警察機關 Police", expandable: true },
-          { key: "womenChildWarning", label: "婦幼警示點 Women/Child Warning", expandable: true },
-          { key: "speedCamera", label: "測速照相 Speed Camera", expandable: true },
-          { key: "speedZoneSegment", label: "區間測速 Speed Zone", expandable: true },
+          fromManifest("policeStation"),
+          fromManifest("womenChildWarning"),
+          fromManifest("speedCamera"),
+          fromManifest("speedZoneSegment"),
         ],
       },
       {
         title: "警察覆蓋分析",
         layers: [
-          { key: "policeIsoSubstation", label: "派出所 5/10 min", expandable: true },
-          { key: "policeIsoPrecinct", label: "分局 15/30 min", expandable: true },
-          { key: "policeIsoCityDept", label: "縣市警局 30/60 min", expandable: true },
+          fromManifest("policeIsoSubstation"),
+          fromManifest("policeIsoPrecinct"),
+          fromManifest("policeIsoCityDept"),
         ],
       },
       {
         title: "司法矯正",
         layers: [
-          { key: "court", label: "法院 Courts", expandable: true },
-          { key: "prosecutorsOffice", label: "檢察署 Prosecutors", expandable: true },
-          { key: "correctionalFacility", label: "矯正機關 Correctional", expandable: true },
-          { key: "courtJurisdiction", label: "法院管轄區 Jurisdiction", expandable: true },
+          fromManifest("court"),
+          fromManifest("prosecutorsOffice"),
+          fromManifest("correctionalFacility"),
+          fromManifest("courtJurisdiction"),
         ],
       },
       {
         title: "治安態勢",
         layers: [
-          { key: "crimeAreaMonthly", label: "鄉鎮犯罪統計 Crime Area", expandable: true },
-          { key: "theftTaoyuan", label: "桃園竊盜 Theft Taoyuan", expandable: true },
-          { key: "trafficAccidentYearly", label: "A1 死亡事故 Fatal Accident", expandable: true },
-          { key: "accidentTaipei", label: "北市事故點 Taipei Dots", expandable: true },
-          { key: "a1AccidentRealtime", label: "A1 即時事故 A1 Realtime", expandable: true },
+          fromManifest("crimeAreaMonthly"),
+          fromManifest("theftTaoyuan"),
+          fromManifest("trafficAccidentYearly"),
+          fromManifest("accidentTaipei"),
+          fromManifest("a1AccidentRealtime"),
         ],
       },
       {
         title: "廉政移民海巡",
         layers: [
-          { key: "investigationBureau", label: "調查局 MJIB", expandable: true },
-          { key: "antiCorruptionOffice", label: "廉政署 AAC", expandable: true },
-          { key: "immigrationOffice", label: "移民署 Immigration", expandable: true },
-          { key: "coastGuardStation", label: "海巡 Coast Guard", expandable: true },
+          fromManifest("investigationBureau"),
+          fromManifest("antiCorruptionOffice"),
+          fromManifest("immigrationOffice"),
+          fromManifest("coastGuardStation"),
         ],
       },
     ],
