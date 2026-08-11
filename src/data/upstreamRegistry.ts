@@ -434,30 +434,7 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'cams_atmosphere_forecast', confidence: 'LOW' }],
   },
-  fireStations: {
-    status: 'verified',
-    datasets: [{ datasetId: 'fire_stations', confidence: 'MED' }],
-  },
-  fireHydrants: {
-    status: 'verified',
-    datasets: [{ datasetId: 'fire_hydrants', confidence: 'MED' }],
-  },
-  fireEvents: {
-    status: 'verified',
-    datasets: [{ datasetId: 'fire_incidents', confidence: 'HIGH' }],
-  },
-  fireLatest: {
-    status: 'verified',
-    datasets: [{ datasetId: 'fire_incidents', confidence: 'HIGH' }],
-  },
-  fireIsochrone: {
-    status: 'pulse_only',
-    datasets: [],
-    derivedFromLayers: ['fireStations'],
-    derivationType: 'isochrone',
-    processing: 'OSRM 路網等時圈計算（救援抵達 ≤ 5/8/10 分鐘）— 從消防分隊出發',
-    note: 'FIX: 派生分析：消防分隊 + 路網救援等時圈',
-  },
+  // 🚒 消防 Fire & Rescue 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
   medHospital: {
     status: 'verified',
     datasets: [{ datasetId: 'medical', confidence: 'MED' }],

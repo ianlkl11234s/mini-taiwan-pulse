@@ -134,11 +134,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   taipeiEvacuate: "#22c55e",
   taipeiPumb: "#06b6d4",
   precipRaster: "#60a5fa",
-  fireEvents: "#ff5722",
-  fireLatest: "#ff1744",
-  fireStations: "#e53935",
-  fireHydrants: "#2196f3",
-  fireIsochrone: "#22c55e",
   medHospital: "#d32f2f",
   medClinic: "#1976d2",
   medPharmacy: "#388e3c",
@@ -1086,21 +1081,21 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "fireStations", label: "消防分隊 Fire Station", expandable: true },
-          { key: "fireHydrants", label: "消防栓 Hydrant", expandable: true },
+          fromManifest("fireStations"),
+          fromManifest("fireHydrants"),
         ],
       },
       {
         title: "事件",
         layers: [
-          { key: "fireEvents", label: "火災歷史 Fire History", expandable: true },
-          { key: "fireLatest", label: "火災 最新年度 Latest", expandable: true },
+          fromManifest("fireEvents"),
+          fromManifest("fireLatest"),
         ],
       },
       {
         title: "分析",
         layers: [
-          { key: "fireIsochrone", label: "救援等時圈 Isochrone", expandable: true },
+          fromManifest("fireIsochrone"),
         ],
       },
     ],

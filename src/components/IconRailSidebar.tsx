@@ -161,11 +161,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   taipeiEvacuate: Gauge,
   taipeiPumb: Droplets,
   precipRaster: CloudRain,
-  fireEvents: Flame,
-  fireLatest: Flame,
-  fireStations: Truck,
-  fireHydrants: Droplet,
-  fireIsochrone: Timer,
+  // 🚒 消防 Fire & Rescue 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   medHospital: Hospital,
   medClinic: Stethoscope,
   medPharmacy: Pill,

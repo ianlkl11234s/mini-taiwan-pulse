@@ -44,6 +44,7 @@ import {
   Church, Landmark, HeartHandshake, Sparkles, Camera,
   Cross, Briefcase, Flower, Grid3x3,
   Building2, CalendarDays, Theater, Library,
+  Truck, Droplet, Flame, Timer,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -675,6 +676,135 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "北市圖 6 分館即時空位率（29 閱覽區聚合，10 分鐘資料／5 分鐘輪詢）",
     topics: ["文化", "圖書館", "即時"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 1 —— 消防 Fire & Rescue 5 層
+  //  本批 popup 漂移最密集的一組：**5 層裡 4 層的 layerType 與 key 不同名**
+  //  （fireStations→fireStation / fireHydrants→fireHydrant，單複數差一個 s），
+  //  而且 fireEvents 與 fireLatest **共用同一個 layerType "fireEvent"**（多對一）——
+  //  兩層本來就共用 FireEventPanel。這正是 manifest 要收編的那類漂移。
+  //  體質：3 層 D（無 OVERLAY_REGISTRY entry，各自 hook/factory 自行接線）。
+  // ══════════════════════════════════════════════════════════════
+  fireStations: {
+    key: "fireStations",
+    section: { theme: "消防 Fire & Rescue", group: "點位" },
+    label: "消防分隊 Fire Station",
+    expandable: true,
+    color: "#e53935",
+    icon: Truck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "fire_stations", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "fire-stations", url: "./geo/fire_stations.geojson" },
+    legend: "fireStations",
+    popup: "fireStation",
+    params: { count: 5, kinds: ["toggle", "toggle", "slider", "slider", "slider"] },
+    description: "全台消防分隊據點（fireIsochrone 等時圈的計算起點）",
+    topics: ["消防", "緊急應變"],
+  },
+
+  fireHydrants: {
+    key: "fireHydrants",
+    section: { theme: "消防 Fire & Rescue", group: "點位" },
+    label: "消防栓 Hydrant",
+    expandable: true,
+    color: "#2196f3",
+    icon: Droplet,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "fire_hydrants", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "fire-hydrants",
+      url: "./geo/fire_hydrants.pmtiles",
+      sourceLayer: "fire_hydrants",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "fireHydrants",
+    popup: "fireHydrant",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "全台消防栓點位（量體大走 PMTiles 按需載入）",
+    topics: ["消防", "基礎設施"],
+  },
+
+  // ⬇ 以下 3 層皆無 OVERLAY_REGISTRY entry → dataClass D（派生機制不適用），
+  //   真實來源（Supabase RPC / PMTiles factory）記在 source.note。
+  fireEvents: {
+    key: "fireEvents",
+    section: { theme: "消防 Fire & Rescue", group: "事件" },
+    label: "火災歷史 Fire History",
+    expandable: true,
+    color: "#ff5722",
+    icon: Flame,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "fire_incidents", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFireEventsLayer 自行接線：Supabase RPC get_fire_events_by_year 按年載入，餵進自建的 fire-events-src geojson source",
+    },
+    legend: "fireEvents",
+    popup: "fireEvent",
+    params: { count: 1, kinds: ["slider"] },
+    description: "歷史火災點位（需進歷史模式選年／月／日）",
+    topics: ["消防", "災害", "歷史"],
+  },
+
+  fireLatest: {
+    key: "fireLatest",
+    section: { theme: "消防 Fire & Rescue", group: "事件" },
+    label: "火災 最新年度 Latest",
+    expandable: true,
+    color: "#ff1744",
+    icon: Flame,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "fire_incidents", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFireLatestLayer 自行接線：與 fireEvents 同源（get_fire_event_years 取最新年再 get_fire_events_by_year），另建 fire-latest-src source 讓它不進歷史模式也常駐",
+    },
+    legend: "fireEvents",
+    popup: "fireEvent",
+    params: { count: 1, kinds: ["slider"] },
+    description: "資料庫最新年度火災快照（不需切歷史模式，任何模式都可開）",
+    topics: ["消防", "災害"],
+  },
+
+  fireIsochrone: {
+    key: "fireIsochrone",
+    section: { theme: "消防 Fire & Rescue", group: "分析" },
+    label: "救援等時圈 Isochrone",
+    expandable: true,
+    color: "#22c55e",
+    icon: Timer,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["fireStations"],
+      derivationType: "isochrone",
+      processing: "OSRM 路網等時圈計算（救援抵達 ≤ 5/8/10 分鐘）— 從消防分隊出發",
+      note: "FIX: 派生分析：消防分隊 + 路網救援等時圈",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "fireIsochroneLayerFactory 自行接線：public/fire/*.pmtiles（sourceLayer coverage，全國聚合 + 各縣市環差 5/10/15 分鐘共 69 features），縣市下拉走 setFilter 而非換 source",
+    },
+    legend: "fireIsochrone",
+    popup: "fireIsochrone",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "消防分隊路網救援等時圈（5／10／15 分鐘環差，21 縣市＋全國聚合）",
+    topics: ["消防", "可達性", "派生分析"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
