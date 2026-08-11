@@ -142,25 +142,33 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
         const cfg = configs[i]!;
         expect(cfg.sourceId, `${at} sourceId 宣告錯`).toBe(src.sourceId);
 
-        // dataClass 只有一個值 → 逐筆斷言等於順帶要求陣列各元素 kind 同質
         if (src.kind === "geojson") {
-          expect(m.dataClass).toBe("A");
           expect(cfg.sourceUrl).toBe(src.url);
           expect(cfg.pmtiles, `${at} 宣告 geojson 卻有 pmtiles 設定`).toBeUndefined();
           expect(cfg.dynamicData, `${at} 宣告 geojson 卻是 dynamicData`).toBeFalsy();
         } else if (src.kind === "pmtiles") {
-          expect(m.dataClass).toBe("B");
           expect(cfg.sourceUrl).toBe(src.url);
           expect(cfg.pmtiles, `${at} 宣告 pmtiles 但 registry 沒設定`).toBeTruthy();
           expect(cfg.pmtiles!.sourceLayer).toBe(src.sourceLayer);
           expect(cfg.pmtiles!.minzoom).toBe(src.minzoom);
           expect(cfg.pmtiles!.maxzoom).toBe(src.maxzoom);
         } else {
-          expect(m.dataClass).toBe("C");
           expect(cfg.dynamicData, `${at} 宣告 supabase 但 registry 沒設 dynamicData`).toBe(true);
           expect(cfg.sourceUrl, `${at} 的 fallbackUrl 宣告錯`).toBe(src.fallbackUrl);
         }
       });
+
+      // dataClass 只有一個值，但陣列各元素的 kind **不保證同質**
+      // （`waterReservoirs` = pmtiles 水庫面 + geojson 壩體點）→ 由 kind 集合按
+      // 「上線路徑最重」的 precedence 算期望值：pmtiles(B) ＞ supabase(C) ＞ geojson(A)。
+      // 同質 entry 的期望值與逐筆斷言時逐字相同（強度零損失），混合才走 precedence。
+      const CLASS_PRECEDENCE = ["pmtiles", "supabase", "geojson"] as const;
+      const kinds = new Set(overlaySources.map((s) => s.kind));
+      const heaviest = CLASS_PRECEDENCE.find((kind) => kinds.has(kind))!;
+      expect(
+        m.dataClass,
+        `${k} 的 source kind 是 {${[...kinds].join(",")}}，dataClass 應為最重路徑 ${heaviest}`,
+      ).toBe({ geojson: "A", pmtiles: "B", supabase: "C" }[heaviest]);
     }
   });
 

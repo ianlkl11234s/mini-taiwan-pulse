@@ -105,6 +105,7 @@ export type LayerDataClass = "A" | "B" | "C" | "D";
  * ⚠️ 少數 key 在 OVERLAY_REGISTRY 有**多筆同 id 的 config**（`propertyValueGrid` 三尺度、
  *    `stationsTRA` / `waterRivers` / `waterReservoirs` 各 2 筆）——那些 entry 的 `source`
  *    寫成 `LayerSource[]`，見 `LayerManifestEntry.source`。
+ *    ⚠️ 多筆的 `kind` **不保證同質**（`waterReservoirs` = pmtiles 面 + geojson 壩體點）。
  *    共用 `sourceId`（教育 edu-schools ×7、運動場館 ×5）是**完全不同的事**：
  *    那是多個 key 各自一筆 config 指向同一份資料，仍寫單數形。
  */
@@ -160,8 +161,15 @@ export interface LayerManifestEntry {
    * OVERLAY_REGISTRY 內的出現順序相同**（測試逐位對齊比對）。
    * 順序是 load-bearing：它決定 layer 疊放，Phase 3 由 manifest 派生 `GIS_LAYERS`
    * 時又是 first-hit-wins，重排會靜默改掉點擊命中的那一層。
-   * 陣列各元素的 `kind` 必須同質（dataClass 只有一個值）；`kind:"custom"` 無 registry
-   * entry 可多配，只能單數形。
+   * `kind:"custom"` 無 registry entry 可多配，只能單數形。
+   *
+   * ⚠️ **陣列各元素的 `kind` 不保證同質**（批 6 `waterReservoirs` 證偽了原本的同質假設：
+   * 水庫面是 PMTiles、壩體點是 GeoJSON，同一個 toggle 兩種載入路徑）。
+   * `dataClass` 只有一個值，混合時取**上線路徑最重**的那個：
+   * `pmtiles → B` ＞ `supabase → C` ＞ `geojson → A`
+   * （B 背著 nginx location + deploy 清單的義務，漏了會 404；A 只是一支 fetch）。
+   * 用 precedence 而非「首元素的 kind」是因為 precedence 與陣列順序無關 ——
+   * 順序服務的是疊放語意，不該連帶決定體質。
    */
   source: LayerSource | LayerSource[];
   /**
