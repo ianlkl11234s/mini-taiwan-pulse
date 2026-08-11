@@ -1,6 +1,6 @@
 {
 "type": "FeatureCollection",
-"name": "fishery_port_fishing_zones_class1",
+"name": "fishery_port_zones_class1",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "objectid": "1", "port_name": "烏石漁港", "kind": "第一類", "county": "宜蘭縣" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 121.842087, 24.863425 ], [ 121.842731, 24.862792 ], [ 121.843933, 24.863902 ], [ 121.843289, 24.864476 ], [ 121.842087, 24.863425 ] ] ] } },

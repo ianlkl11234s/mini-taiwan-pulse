@@ -1,6 +1,6 @@
 {
 "type": "FeatureCollection",
-"name": "aquaculture_release_survey_G70",
+"name": "aquaculture_release_survey_g70",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
 "features": [
 { "type": "Feature", "properties": { "魚種別": "吳郭魚", "縣市": "臺南市", "所屬縣市": "67000", "魚塭面積(公頃)-小計": "1275.6404", "已完成調查魚塭口數-小計": "1996", "養殖戶數-小計": "836", "放養量-在池(尾、粒、隻)": "21551260", "新放養量-在池(尾、粒、隻)": "139072100", "魚苗培育-魚塭面積(公頃)": "13.6049", "種魚繁殖-魚塭面積(公頃)": "1.1445", "中間養殖-魚塭面積(公頃)": "138.4705", "成魚養成-魚塭面積(公頃)": "1117.5691" }, "geometry": { "type": "Point", "coordinates": [ 120.227, 23.001 ] } },

@@ -3663,8 +3663,11 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   // buildingsGba pattern，filter 只能靠 rebuildOnParamChange 整層重建）。
   {
     id: "aquacultureWaterUnion",
-    sourceUrl: "./fishery/aquaculture_water_satellite_union.pmtiles",
+    sourceUrl: "./fishery/aquaculture_water_sat_union.pmtiles",
     sourceId: "aquaculture-water-satellite-union",
+    // sourceLayer 刻意保留舊名：內部 MVT 層名烙於 2026-07 版二進位（tippecanoe --layer
+    // aquaculture_water_satellite_union），不隨外部檔名/dataset_id 改名而變。上游重產 pmtiles
+    // 時層名會變成新 dataset_id aquaculture_water_sat_union，屆時此處需同步（B170）。
     pmtiles: { sourceLayer: "aquaculture_water_satellite_union", minzoom: 5, maxzoom: 14 },
     rebuildOnParamChange: ["fill", "line"],
     layers: [
