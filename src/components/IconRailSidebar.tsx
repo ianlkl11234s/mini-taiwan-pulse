@@ -11,8 +11,7 @@ import {
   // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
   BarChart3, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
-  CircleDot,
-  Play, Cable, Radio,
+  Play, Radio,
   // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
   //    Droplet / GitBranch / Dam / Shield / Timer 已無用；
   //    Waves / Factory / Container 仍被別層用
@@ -23,15 +22,18 @@ import {
   //    （MapPinned 還餵 orphan wasteStop，批 8；Truck 隨農業 agriProduceWholesale 搬走）
   Flame, MapPinned,
   // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
-  //    Pill / HeartPulse / Accessibility 已無用；Clock / Bed 仍被別層用
-  //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6）
-  Clock, Bed,
+  //    Pill / HeartPulse / Accessibility 已無用；Bed 仍被 orphan medICUBeds 用
+  //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6；
+  //      Clock 隨能源 facPlanned 搬走，批 8）
+  Bed,
   // 🌾 農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）後，Store / Mountain / Sprout /
   //    ShoppingCart / Warehouse / Fish / PawPrint / Truck / ShieldCheck 已無用
   //    （Route 仍被 orphan wasteRoute 與別層用、Layers 是 sidebar UI 自己在用）
   Satellite,
-  // ENERGY icons
-  Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
+  // ENERGY icons —— 電力 15 層搬進 layerManifest（AR-22 Phase 2 批 8）後，
+  //    Cable / Power / TowerControl / CircleDot / Clock 已無用；
+  //    Zap 仍餵 orphan powerPlants、Spline 仍餵化石燃料 pipeline 2 層
+  Zap, PlugZap, Spline, Sun, Sparkles, Building2, Fuel,
   // HAZARD icons 隨災害 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    Lightbulb / CloudRain 仍被 rail tab 與別層用，留在本檔
   // 🌍 全球氣候 5 層已搬進 layerManifest（AR-22 Phase 2 批 4）
@@ -103,18 +105,8 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   // 🛰️ 太空 Space 16 層已搬進 layerManifest（AR-22 Phase 2 批 5，16 層共用同一顆 icon）
   // 能源 ENERGY MVP
   powerPlants: Zap,
-  powerPlantGlow: Zap,
-  substationEhvGlow: Zap,
-  powerLinesGlow: Zap,
-  aviationRestrictedGlow: Zap,
   powerStatusHud: Activity,
   powerRegionDemand: BarChart3,
-  powerGenerationUnit: Power,
-  osmSubstations: Cable,
-  osmSubstationsEhv: Cable,
-  osmPowerLines: Spline,
-  osmPowerTowers: TowerControl,
-  powerPoles: TowerControl,
   osmWindTurbines: Wind,
   osmSolarFarms: Sun,
   osmPowerPlantsStatic: Factory,
@@ -124,13 +116,9 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   geothermalWells: Sparkles,
   renewablePermitsTaipei: Building2,
   evChargingStations: PlugZap,
-  // Phase 8 SSOT 6-layer（重用既有 icons）
-  facPrimary: Zap,           // 主要電廠（綠閃電）
+  // Phase 8 SSOT 6-layer（重用既有 icons）——5 層已隨能源電力搬進 layerManifest
+  //（AR-22 Phase 2 批 8），只剩 orphan facOffshore
   facOffshore: Waves,        // 離岸風場 polygon
-  facPlanned: Clock,         // 規劃 / 未來
-  facHistorical: Power,      // 歷史退役
-  facSecondary: CircleDot,   // 次要小型
-  facOsmSupplement: MapPin,  // OSM 無名單機
   // 化石燃料 13 layer（重用既有 icons）
   gasStationCpc: Fuel,
   gasStationFpcc: Fuel,

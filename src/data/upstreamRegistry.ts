@@ -106,50 +106,9 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   //    含 canopyHeight / canopyGiants 兩筆 catalog_missing（Meta/WRI 衍生資料）
   // 🗑️ 廢棄物 Waste 18 layer 已搬進 layerManifest（AR-22 Phase 2 批 7）——
   //    wasteRoute / wasteStop 兩個 orphan 不在 THEMES，仍留在本表下方原位置（批 8）
-  facPrimary: {
-    status: 'verified',
-    datasets: [{ datasetId: 'power_plants', confidence: 'MED' }],
-  },
-  facPlanned: {
-    status: 'verified',
-    datasets: [{ datasetId: 'power_plants', confidence: 'LOW' }],
-  },
-  facHistorical: {
-    status: 'verified',
-    datasets: [{ datasetId: 'power_plants', confidence: 'MED' }],
-  },
-  facSecondary: {
-    status: 'verified',
-    datasets: [{ datasetId: 'power_plants', confidence: 'MED' }],
-  },
-  facOsmSupplement: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_power', confidence: 'LOW' }],
-  },
-  powerGenerationUnit: {
-    status: 'verified',
-    datasets: [{ datasetId: 'power_generation', confidence: 'MED' }],
-  },
-  osmSubstationsEhv: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_power', confidence: 'HIGH' }],
-  },
-  osmSubstations: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_power', confidence: 'HIGH' }],
-  },
-  osmPowerLines: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_power', confidence: 'HIGH' }],
-  },
-  osmPowerTowers: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_power', confidence: 'HIGH' }],
-  },
-  powerPoles: {
-    status: 'verified',
-    datasets: [{ datasetId: 'power_poles', confidence: 'HIGH' }],
-  },
+  // ⚡ 能源「電力 · 廠」8 層與「電力 · 電網」7 層已搬進 layerManifest
+  //    （AR-22 Phase 2 批 8）—— 含 4 個 Bloom/Glow 視覺實驗層，
+  //    它們的 pulse_only entry 原本在本表下方另一段（逐 key grep 才找得到）
   offshoreWindZones: {
     status: 'verified',
     datasets: [{ datasetId: 'offshore_wind_zones', confidence: 'HIGH' }],
@@ -275,10 +234,10 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   wasteRoute: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   wasteStop: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   powerPlants: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
-  powerPlantGlow: { status: 'pulse_only', datasets: [], note: '視覺實驗 layer，共用 get_ssot_power_plants_with_output SSOT' },
-  substationEhvGlow: { status: 'pulse_only', datasets: [], note: '視覺實驗 layer，共用 get_osm_substations SSOT，filter EHV' },
-  powerLinesGlow: { status: 'pulse_only', datasets: [], note: '視覺實驗 layer，共用 get_osm_power_lines SSOT，測試爆炸參數' },
-  aviationRestrictedGlow: { status: 'pulse_only', datasets: [], note: '視覺實驗 layer，共用 aviation_airspace PMTiles rim glow 疊層' },
+  // ⚠️ 本段標題寫「not in THEMES」，但夾在中間的 4 個 Bloom/Glow 視覺實驗層
+  //    （powerPlantGlow / substationEhvGlow / powerLinesGlow / aviationRestrictedGlow）
+  //    **是在 THEMES 裡的**（能源 / 電力 · 廠與電網），只是同樣掛 pulse_only。
+  //    它們已隨能源電力 15 層搬進 layerManifest（AR-22 Phase 2 批 8）。
   powerStatusHud: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   powerRegionDemand: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   osmSolarFarms: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },

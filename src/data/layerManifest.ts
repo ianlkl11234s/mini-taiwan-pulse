@@ -88,6 +88,8 @@ import {
   //    CircleDot / Bike / Route / MapPin / Car / Timer / Video 已在上方 import 復用）
   Plane, Ban, Bus, RailSymbol, Ship,
   Receipt, Coffee, SquareParking, CircleParking,
+  // ⚡ 能源（Cable / CircleDot / Clock / MapPin 已在上方 import 復用）
+  Zap, Power, Spline, TowerControl,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7899,6 +7901,408 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "場外停車場點位（市區／觀光／國道服務區三源，含即時空位率）",
     topics: ["交通", "停車", "即時"],
+  },
+  // ══════════════════════════════════════════════════════════════════
+  // ⚡ 能源 Energy —— 電力 · 廠 8 ＋ 電力 · 電網 7（AR-22 Phase 2 批 8-3）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 能源共 41 層（＋ 8 個 orphan），本段 15 層。體質：C 9 ／ D 6。
+  //
+  // **C 9 層全部走同一個形狀**：`dynamicData` overlay config、`fallbackUrl` 一律指
+  // `./geo/_empty.geojson`（空 FeatureCollection 起手，energyLoader 的 owner-only RPC
+  // 餵進來）。批 7 農業 C 層是「fallbackUrl 指真檔但刻意不部署」，這裡連檔都是空殼 ——
+  // **兩者都不是部署缺口**，觸點 #20 的機械斷言未來要能區分三種。
+  //
+  // ⚠️ **`powerPlant` 是全 manifest 最大的 popup 多對一：8 個 layer 共用**
+  // （本段 6 個 fac* ＋ powerGenerationUnit ＋ orphan `powerPlants`），
+  // 超過批 3 教育 `school` 的 1 對 7、與批 5 太空 16→1 不同類（那是 16 個 toggle
+  // 同一份 source 的 filter 切分，這裡是**六份不同 RPC 的結果共用一個 panel**）。
+  //
+  // ⚠️ **5 個 Bloom/Glow 視覺實驗層**（powerPlantGlow / powerLinesGlow /
+  // substationEhvGlow / aviationRestrictedGlow ＋ 下段沒有）：全是 D、全 `legend: null`、
+  // 全 `popup: null`，`upstream.status` 是 `pulse_only`。它們共用別層的 SSOT 資料，
+  // **不是獨立資料來源** —— note 已寫明共用誰。
+  //
+  // ⚠️ **`aviationRestrictedGlow` 是「區塊註解不可信」的第九種變形**：
+  // 名字與資料都是航空（共用 `aviation_airspace.pmtiles`），THEMES 位置卻在
+  // **能源 / 電力 · 廠**（它是跟其他 Bloom 測試層放一起的）。按名字猜主題會猜錯。
+
+  // ── 電力 · 廠 ──────────────────────────────────────────────────────
+  facPrimary: {
+    key: "facPrimary",
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "發電廠 主要・運轉中 Primary",
+    expandable: true,
+    color: "#F2D64B",
+    icon: Zap,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "power_plants", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-fac-primary",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "facPrimary",
+    popup: "powerPlant",
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
+    // ⚠️ 本層在 GATED_LAYERS 裡，但 THEMES 的 LayerDef **沒有** gated: true
+    //    → manifest 對齊 LayerDef 不填（同批 7 飼養場 7 層）。
+    description: "SSOT 運轉中發電廠（大廠與其他廠分別控大小，即時出力資料驅動）",
+    topics: ["能源", "電力", "發電廠"],
+  },
+
+  facSecondary: {
+    key: "facSecondary",
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "發電廠 小型分散 Secondary",
+    expandable: true,
+    color: "#8C7C4A",
+    icon: CircleDot,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "power_plants", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-fac-secondary",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "facPrimary",
+    popup: "powerPlant",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "SSOT 小型分散式發電設施",
+    topics: ["能源", "電力", "發電廠"],
+  },
+
+  facPlanned: {
+    key: "facPlanned",
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "發電廠 未來規劃 Planned",
+    expandable: true,
+    color: "#F2E085",
+    icon: Clock,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "power_plants", confidence: "LOW" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-fac-planned",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "facPrimary",
+    popup: "powerPlant",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "SSOT 規劃中／興建中發電廠",
+    topics: ["能源", "電力", "發電廠", "規劃"],
+  },
+
+  facHistorical: {
+    key: "facHistorical",
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "發電廠 歷史・退役 Historical",
+    expandable: true,
+    color: "#8C5D42",
+    icon: Power,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "power_plants", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-fac-historical",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "facPrimary",
+    popup: "powerPlant",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "SSOT 已除役／停機發電廠",
+    topics: ["能源", "電力", "發電廠", "歷史"],
+  },
+
+  facOsmSupplement: {
+    key: "facOsmSupplement",
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "發電廠 OSM 補充 Supplement",
+    expandable: true,
+    color: "#94a3b8",
+    icon: MapPin,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_power", confidence: "LOW" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-fac-osm-supplement",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "facPrimary",
+    popup: "powerPlant",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 補充的發電設施（SSOT 未收錄的 IPP／小型廠）",
+    topics: ["能源", "電力", "發電廠", "OSM"],
+  },
+
+  powerGenerationUnit: {
+    key: "powerGenerationUnit",
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "機組即時出力 Live Output",
+    expandable: true,
+    color: "#f97316",
+    icon: Power,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "power_generation", confidence: "MED" }],
+    },
+    dataClass: "C",
+    // ⚠️ registry 裡只有一個 `hit` 層：實際的柱體是 Three.js PowerGenerationBeamScene，
+    //    這個 config 存在的理由是**給它一個可點的透明命中層**（同批 8-2 roadCongestion
+    //    的 road-congestion-hit）。有 entry → 體質是 C，不是 D。
+    source: {
+      kind: "supabase",
+      sourceId: "energy-power-generation-hit",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // ⚠️ 家族首 key 是 orphan `powerPlants`（同一筆 EnergyFuelLegend entry）——
+    //    機械規則照樣取首 key，跨「在不在 THEMES」不影響（批 1 civilDefenseShelter
+    //    → policeStation 的同款，只是這次首 key 是 orphan）。
+    legend: "powerPlants",
+    popup: "powerPlant",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台電機組即時出力（高 ∝ MW 的 3D 光柱，透明層負責點擊）",
+    topics: ["能源", "電力", "即時"],
+  },
+
+  powerPlantGlow: {
+    key: "powerPlantGlow",
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "發電廠 Bloom 測試 ✨",
+    expandable: true,
+    color: "#f0abfc",
+    icon: Zap,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "視覺實驗 layer，共用 get_ssot_power_plants_with_output SSOT",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePowerPlantGlowLayer ＋ map/powerPlantGlowCustomLayer 的 WebGL CustomLayer（無 OVERLAY_REGISTRY entry）：資料共用 energyLoader 的 fetchFacPrimary（只讀 status == null 的運轉中廠），pulse 在 shader 內走 uTime。⚠️ 純視覺實驗，無自己的資料來源、無靜態檔。",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "發電廠 additive bloom 視覺實驗層（疊在 facPrimary 上）",
+    topics: ["能源", "電力", "視覺實驗"],
+  },
+
+  aviationRestrictedGlow: {
+    key: "aviationRestrictedGlow",
+    // ⚠️ 名字與資料都是航空，THEMES 位置卻在能源／電力 · 廠（跟其他 Bloom 測試層同組）。
+    //    按名字猜主題會猜錯 —— 區塊註解不可信的第九種變形。
+    section: { theme: "能源 Energy", group: "電力 · 廠" },
+    label: "機場管制/限航 Rim Glow 測試 ⛔✨",
+    expandable: true,
+    color: "#f87171",
+    icon: Zap,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "視覺實驗 layer，共用 aviation_airspace PMTiles rim glow 疊層",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAviationRestrictedGlowLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：共用 aviationRestricted 的 ./coverage/aviation_airspace.pmtiles，疊 4 個 line-blur 層 ＋ 1 個淡 fill 做霓虹管邊框（Path A 純 Mapbox 方案，不用 additive/Three.js）。⚠️ 純視覺實驗，無自己的資料來源。",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "機場管制區 rim glow 視覺實驗層（純 Mapbox line-blur 疊層）",
+    topics: ["能源", "視覺實驗", "航空"],
+  },
+
+  // ── 電力 · 電網 ────────────────────────────────────────────────────
+  osmSubstations: {
+    key: "osmSubstations",
+    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    label: "變電所 區域 Substation",
+    expandable: true,
+    color: "#f97316",
+    icon: Cable,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_power", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-substations",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // ⚠️ 與 osmSubstationsEhv **各自獨佔一筆 LEGEND_REGISTRY entry**（兩個元件），
+    //    但 popup **共用** "osmSubstation"。共用 legend 與共用 popup 是兩個獨立維度，
+    //    這一組正好是反過來的（批 6 floodSensor 那組是共用 legend、各自 popup）。
+    legend: "osmSubstations",
+    popup: "osmSubstation",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 區域變電所（migration 235 電網層級分色）",
+    topics: ["能源", "電網", "變電所"],
+  },
+
+  osmSubstationsEhv: {
+    key: "osmSubstationsEhv",
+    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    label: "變電所 超高壓 EHV",
+    expandable: true,
+    color: "#ef4444",
+    icon: Cable,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_power", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-substations-ehv",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "osmSubstationsEhv",
+    popup: "osmSubstation",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 超高壓變電所（345kV 級，halo ＋ core 兩層）",
+    topics: ["能源", "電網", "變電所"],
+  },
+
+  osmPowerLines: {
+    key: "osmPowerLines",
+    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    label: "高壓輸電線 Power Lines",
+    expandable: true,
+    color: "#62D9AD",
+    icon: Spline,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_power", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-power-lines",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "osmPowerLines",
+    popup: "osmPowerLine",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 高壓輸電線（依電壓層級分色，core ＋ cable 兩層）",
+    topics: ["能源", "電網", "輸電線"],
+  },
+
+  osmPowerTowers: {
+    key: "osmPowerTowers",
+    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    label: "高壓鐵塔 Power Towers",
+    expandable: true,
+    color: "#468BA6",
+    icon: TowerControl,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_power", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-power-towers",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // 與 osmPowerLines 共用同一筆 LEGEND_REGISTRY entry（取首 key），popup 各自獨立
+    legend: "osmPowerLines",
+    popup: "osmPowerTower",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 高壓鐵塔點位",
+    topics: ["能源", "電網", "鐵塔"],
+  },
+
+  powerPoles: {
+    key: "powerPoles",
+    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    label: "電桿 Power Poles (2.96M)",
+    expandable: true,
+    color: "#94a3b8",
+    icon: TowerControl,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "power_poles", confidence: "HIGH" }],
+    },
+    // ⚠️ D 卻是不折不扣的 PMTiles（同批 5 slopeVector / 批 6 floodSensorIsochrone /
+    //    批 7 農業 factory 7 層）。純靜態零 DB 呼叫，體質判準只看有沒有 registry entry。
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePowerPolesLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/power_poles.pmtiles（26MB，source-layer power_poles，tippecanoe -Z8 -z14 --cluster-densest-as-needed）—— 台電全國電桿 2,959,326 點，circle 依 pole_type 5 類分色。純 PMTiles 靜態，零 DB／零 API。",
+    },
+    legend: "powerPoles",
+    // 兩百多萬點刻意不接點擊（GIS_LAYERS 無條目）—— legend 有、popup 沒有，兩者無關。
+    popup: null,
+    params: { count: 4, kinds: ["slider", "slider", "slider", "slider"] },
+    description: "台電全國電桿 296 萬點（pole_type 5 類分色，熱區與全台顯示可切）",
+    topics: ["能源", "電網", "電桿"],
+  },
+
+  powerLinesGlow: {
+    key: "powerLinesGlow",
+    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    label: "高壓輸電線 Bloom 測試 ⚡✨",
+    expandable: true,
+    color: "#22d3ee",
+    icon: Zap,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "視覺實驗 layer，共用 get_osm_power_lines SSOT，測試爆炸參數",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "usePowerLinesGlowTestLayer 自建 geojson source ＋ 4 個 line-blur pass（無 OVERLAY_REGISTRY entry）：資料共用 energyLoader 的 fetchOsmPowerLines。⚠️ 走純 Mapbox 而非 Three.js 是**硬限制**——App.tsx 已為 OsmPowerLinesGlowScene 掛了一個 THREE.WebGLRenderer，同一個 Mapbox gl context 塞第二個會狀態互污、後者渲染不出來。無靜態檔。",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "輸電線 bloom 視覺實驗層（Mapbox 4-pass line-blur，對照 Three.js additive）",
+    topics: ["能源", "電網", "視覺實驗"],
+  },
+
+  substationEhvGlow: {
+    key: "substationEhvGlow",
+    section: { theme: "能源 Energy", group: "電力 · 電網" },
+    label: "變電所 EHV Bloom 測試 ⚡✨",
+    expandable: true,
+    color: "#fb923c",
+    icon: Zap,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "視覺實驗 layer，共用 get_osm_substations SSOT，filter EHV",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useSubstationEhvGlowLayer ＋ map/substationEhvGlowCustomLayer 的 WebGL CustomLayer（無 OVERLAY_REGISTRY entry）：資料共用 energyLoader 的 fetchOsmSubstations 再 filter EHV。⚠️ 純視覺實驗，無自己的資料來源、無靜態檔。",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "EHV 變電所 additive bloom 視覺實驗層（疊在 osmSubstationsEhv 上）",
+    topics: ["能源", "電網", "視覺實驗"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
