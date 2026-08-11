@@ -58,6 +58,8 @@ import {
   Footprints, PawPrint,
   // 🏢 房地產（Building2 / MapPin 已在上方 import 復用）
   Coins,
+  // 🏥 醫療（Accessibility / Activity 已在上方 import 復用）
+  Hospital, Stethoscope, Pill, HeartPulse, Clock, AlertCircle,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -2672,6 +2674,225 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["select", "select", "slider", "toggle"] },
     description: "全台不動產總市值網格，150m / 450m / 1.5km 三尺度（v_mkt 萬元，全台 204.1 兆）",
     topics: ["房地產", "總市值", "網格", "3D"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 4 —— 醫療 Medical 8 層
+  //  POI 5 層共用一個 legend id `medHospital` 與一個 popup `medicalPOI`；
+  //  分析 2 層（medIsochrone / medDesert）共用**同一個 fill layer**，
+  //  是「兩個 toggle 一個 layer」的新形狀 —— 見 medDesert 就地註解。
+  //  體質橫跨 A/B/C/D 四種，一個主題撞完全部。
+  // ══════════════════════════════════════════════════════════════
+  medHospital: {
+    key: "medHospital",
+    section: { theme: "醫療 Medical", group: "點位" },
+    label: "醫院 Hospital",
+    expandable: true,
+    color: "#d32f2f",
+    icon: Hospital,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "medical", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "medical-hospitals", url: "./geo/medical_hospitals.geojson" },
+    legend: "medHospital",
+    popup: "medicalPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台醫院點位（醫療 POI 四層之首，量體最小走 geojson）",
+    topics: ["醫療", "醫院", "POI"],
+  },
+
+  medClinic: {
+    key: "medClinic",
+    section: { theme: "醫療 Medical", group: "點位" },
+    label: "診所 / 其他醫療 Clinic",
+    expandable: true,
+    color: "#1976d2",
+    icon: Stethoscope,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "medical", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "medical-clinics",
+      url: "./geo/medical_clinics.pmtiles",
+      sourceLayer: "medical_clinics",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "medHospital",
+    popup: "medicalPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台診所與其他醫療機構點位",
+    topics: ["醫療", "診所", "POI"],
+  },
+
+  medPharmacy: {
+    key: "medPharmacy",
+    section: { theme: "醫療 Medical", group: "點位" },
+    label: "藥局 Pharmacy",
+    expandable: true,
+    color: "#388e3c",
+    icon: Pill,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "medical", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "medical-pharmacies",
+      url: "./geo/medical_pharmacies.pmtiles",
+      sourceLayer: "medical_pharmacies",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "medHospital",
+    popup: "medicalPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台健保特約藥局點位",
+    topics: ["醫療", "藥局", "POI"],
+  },
+
+  medAED: {
+    key: "medAED",
+    section: { theme: "醫療 Medical", group: "點位" },
+    label: "AED 點位 AED",
+    expandable: true,
+    color: "#fbc02d",
+    icon: HeartPulse,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aed", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "medical-aed",
+      url: "./geo/medical_aed.pmtiles",
+      sourceLayer: "medical_aed",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "medHospital",
+    popup: "medicalPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台公共 AED 設置點位",
+    topics: ["醫療", "AED", "急救"],
+  },
+
+  medLTC: {
+    key: "medLTC",
+    section: { theme: "醫療 Medical", group: "點位" },
+    label: "長照機構 LTC",
+    expandable: true,
+    color: "#8e24aa",
+    icon: Accessibility,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "long_term_care", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "medical-ltc",
+      url: "./geo/medical_ltc.pmtiles",
+      sourceLayer: "medical_ltc",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "medHospital",
+    popup: "medicalPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台長期照顧服務機構點位",
+    topics: ["醫療", "長照", "POI"],
+  },
+
+  erHospital: {
+    key: "erHospital",
+    section: { theme: "醫療 Medical", group: "即時 Emergency" },
+    label: "急診壅塞 ER",
+    expandable: true,
+    color: "#ef4444",
+    icon: Activity,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "即時急診壅塞 RPC（get_er_hospital_latest / 24h，realtime.er_hospital_status）已 apply 到 production；座標 join medical geojson。catalog dataset 條目待補（handoff pending）",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "er-hospital",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "erHospital",
+    popup: "erHospital",
+    params: { count: 1, kinds: ["slider"] },
+    description: "急診壅塞即時狀態（等待推床／滯留人數，座標 join 醫院 POI）",
+    topics: ["醫療", "急診", "即時"],
+  },
+
+  medIsochrone: {
+    key: "medIsochrone",
+    section: { theme: "醫療 Medical", group: "分析" },
+    label: "醫療等時圈 Isochrone",
+    expandable: true,
+    color: "#22c55e",
+    icon: Clock,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["medHospital", "medClinic"],
+      derivationType: "isochrone",
+      processing: "OSRM 路網等時圈計算（駕車時間 5/10/15/30 分鐘）— 從醫療 POI 出發沿實際路網擴散",
+      note: "FIX: 派生分析：醫療 POI + 路網等時圈計算結果",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "PMTiles factory medicalIsochroneLayerFactory（./medical/medical_isochrone.pmtiles，source medical-isochrone / layer medical-isochrone-fill）—— medIsochrone 與 medDesert **共用同一個 fill layer**，差別只在 level filter；非 OVERLAY_REGISTRY",
+    },
+    legend: "medIsochrone",
+    popup: "medicalIsochrone",
+    params: { count: 1, kinds: ["slider"] },
+    description: "醫療設施 OSRM 路網等時圈（駕車 5/10/15/30 分鐘分級）",
+    topics: ["醫療", "等時圈", "可達性"],
+  },
+
+  // ⚠️ 與 medIsochrone **共用同一個 fill layer**（不是兩層疊在一起）：medIsochrone ON
+  //    顯示 4 個 level，medIsochrone OFF 而本層 ON 就把 filter 收成 over15。
+  //    因此兩者的 source（custom，同一個 factory）與 popup（medicalIsochrone）必然相同 ——
+  //    這是「兩個 toggle 一個 layer」，與批 2 運動場館「多 config 共用 sourceId」不同款。
+  // 📌 記一筆現況出入（本次不動，搬移階段零失真）：upstream.processing 寫「> 30 分鐘」，
+  //    但 factory 實際 filter 的 level 是 `over15`（> 15 分鐘）。description 記渲染實況。
+  medDesert: {
+    key: "medDesert",
+    section: { theme: "醫療 Medical", group: "分析" },
+    label: "醫療沙漠 Desert",
+    expandable: true,
+    color: "#ef4444",
+    icon: AlertCircle,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["medIsochrone"],
+      derivationType: "inverse",
+      processing: "等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠",
+      note: "FIX: 派生分析：等時圈反演的醫療沙漠",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "PMTiles factory medicalIsochroneLayerFactory（./medical/medical_isochrone.pmtiles，source medical-isochrone / layer medical-isochrone-fill）—— medIsochrone 與 medDesert **共用同一個 fill layer**，差別只在 level filter；非 OVERLAY_REGISTRY",
+    },
+    legend: "medIsochrone",
+    popup: "medicalIsochrone",
+    params: { count: 1, kinds: ["slider"] },
+    description: "醫療沙漠：距任一醫療設施駕車 > 15 分鐘的網格（等時圈同層 filter 收窄）",
+    topics: ["醫療", "服務缺口", "可達性"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

@@ -435,47 +435,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     datasets: [{ datasetId: 'cams_atmosphere_forecast', confidence: 'LOW' }],
   },
   // 🚒 消防 Fire & Rescue 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
-  medHospital: {
-    status: 'verified',
-    datasets: [{ datasetId: 'medical', confidence: 'MED' }],
-  },
-  medClinic: {
-    status: 'verified',
-    datasets: [{ datasetId: 'medical', confidence: 'MED' }],
-  },
-  medPharmacy: {
-    status: 'verified',
-    datasets: [{ datasetId: 'medical', confidence: 'MED' }],
-  },
-  medAED: {
-    status: 'verified',
-    datasets: [{ datasetId: 'aed', confidence: 'HIGH' }],
-  },
-  medLTC: {
-    status: 'verified',
-    datasets: [{ datasetId: 'long_term_care', confidence: 'HIGH' }],
-  },
-  medIsochrone: {
-    status: 'pulse_only',
-    datasets: [],
-    derivedFromLayers: ['medHospital', 'medClinic'],
-    derivationType: 'isochrone',
-    processing: 'OSRM 路網等時圈計算（駕車時間 5/10/15/30 分鐘）— 從醫療 POI 出發沿實際路網擴散',
-    note: 'FIX: 派生分析：醫療 POI + 路網等時圈計算結果',
-  },
-  medDesert: {
-    status: 'pulse_only',
-    datasets: [],
-    derivedFromLayers: ['medIsochrone'],
-    derivationType: 'inverse',
-    processing: '等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠',
-    note: 'FIX: 派生分析：等時圈反演的醫療沙漠',
-  },
-  erHospital: {
-    status: 'pulse_only',
-    datasets: [],
-    note: '即時急診壅塞 RPC（get_er_hospital_latest / 24h，realtime.er_hospital_status）已 apply 到 production；座標 join medical geojson。catalog dataset 條目待補（handoff pending）',
-  },
   parkingOnstreet: {
     status: 'pulse_only',
     datasets: [],

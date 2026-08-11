@@ -11,7 +11,9 @@ import {
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck, Container,
   Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt, Brush,
   Timer,
-  Hospital, Stethoscope, Pill, HeartPulse, Accessibility, Clock, AlertCircle, Bed,
+  // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
+  //    Pill / HeartPulse / Accessibility 已無用；Clock / AlertCircle / Bed 仍被別層用
+  Clock, AlertCircle, Bed,
   Sprout,
   Receipt, Coffee, Car, SquareParking, CircleParking,
   ShoppingCart, Warehouse, Fish,
@@ -143,14 +145,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   taipeiPumb: Droplets,
   precipRaster: CloudRain,
   // 🚒 消防 Fire & Rescue 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  medHospital: Hospital,
-  medClinic: Stethoscope,
-  medPharmacy: Pill,
-  medAED: HeartPulse,
-  medLTC: Accessibility,
-  medIsochrone: Clock,
-  medDesert: AlertCircle,
-  erHospital: Activity,
   parkingOnstreet: SquareParking,
   parkingOffstreet: CircleParking,
   medICUBeds: Bed,
