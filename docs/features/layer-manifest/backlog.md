@@ -14,7 +14,7 @@
 
 | 批 | 主題 | 層數 | 預估難點 |
 |---|---|---|---|
-| **1** | 暖身微型 + 同構家族：都市分析(1) 民防避難(1) 世界(1) 情勢(1 剩) 宗教(6) 殯葬(5) 文化(5) 消防(5) | 25 | **色票來自外部常數**：宗教/殯葬的 `LAYER_COLORS` 值是 `RELIGION_LAYER_COLORS` / `FUNERAL_LAYER_COLORS` 展開來的，不是字面 hex → 得先決定 manifest 的 `color` 欄位是「複製字面」還是「引用常數」（**這是 Phase 2 第一個設計拍板點，會影響後面所有批**）。消防 3 層是 D 體質。 |
+| **1** ✅ | 暖身微型 + 同構家族：都市分析(1) 民防避難(1) 世界(1) 情勢(1 剩) 宗教(6) 殯葬(5) 文化(5) 消防(5) | 25 | 已完成（`cc64857`…`1aa3d6b`，見 changelog）。拍板①④落地；額外撞到：消防 4/5 層 `key ≠ popup layerType` 且 fireEvents/fireLatest 多對一（原以為批 3 才會遇到）；`plaActivity` 在 GIS_LAYERS 是**常數引用**，需前置補 `extractGisConstRefTypes` 才驗得出 popup 宣告為真（批 5 `disasterAlert` 同形狀）；D 體質實際 6 層而非 3 層，定義已澄清為「無 OVERLAY_REGISTRY entry」與資料長相無關。 |
 | **2** | 純靜態 POI：基礎建設(11) 運動休閒(6) 觀光(11) | 28 | 最單純的一批（幾乎全 A 體質），適合用來驗證批次搬移的**機械化流程**能不能自動產生 manifest entry。觀光 11 層全部有 `labelMobile` 且全部有 popup；基礎建設多數層合法無 legend（`legend: null`），別誤填。 |
 | **3** | 教育(17) 林業(16) | 33 | 教育 17 層**全部**有 `labelMobile`；popup layerType 大量與 key 不同名，且 `eduDistrictK12` 一個 layerType 對兩個 layer（國小/國中共用）→ manifest 的 `popup` 欄位會出現「多對一」，legend 共用測試要確認不誤判。林業 5 層 PMTiles → 連帶檢查 nginx/deploy 清單（觸點 #20）。 |
 | **4** | 執法治安(20) 醫療(8) 房地產(7) 人口社經(6) 全球氣候(5) | 46 | ⚠️ **`propertyValueGrid` 有 3 個 OVERLAY_REGISTRY config**（同 key 多 entry）→ 現行 `LayerSource` 是單數形，**必須先擴充成陣列或 union**，否則 `layerManifest.test.ts` 的 `toHaveLength(1)` 會擋下來。執法治安 20 層 popup 100% 覆蓋。人口社經/全球氣候全 D 體質（H3 factory / 氣候 frame）。 |
@@ -25,15 +25,17 @@
 
 ### 開始 Phase 2 之前必須先拍板的 4 件事
 
-1. **`color` 欄位對外部常數的處理**（批 1 卡住）：`RELIGION_LAYER_COLORS` /
-   `FUNERAL_LAYER_COLORS` / `EDUCATION_LAYER_COLORS` 三組。複製字面 = manifest 自足但
-   兩處要同步；引用常數 = 不重複但 manifest 不再是純資料。建議引用常數（那三個檔本來
-   就是「三邊共用色彩 SSOT」，複製回去等於破壞它的存在理由）。
+1. ✅ **`color` 欄位對外部常數的處理**（批 1 已落地）：拍板**引用常數**不複製字面。
+   manifest 的 import 白名單放寬到「零 import 的純色票常數檔」。宗教／殯葬已搬，
+   教育（批 3）沿用；搬走後**務必整行刪掉手寫表的 `...*_LAYER_COLORS` spread**
+   —— spread 不觸發 excess property check，留著會全綠但沒真搬（見 changelog 批 1 末節）。
 2. **`LayerSource` 支援同 key 多 config**（批 4 卡住）：4 個 key 受影響
    （`stationsTRA`×2 `waterRivers`×2 `waterReservoirs`×2 `propertyValueGrid`×3）。
-3. **`section` 允許 null**（批 8 卡住）：10 個 orphan key。
-4. **legend id 命名規約**：目前是自由字串，多層共用時填同一 id。需要一份規約
-   （建議：用 LEGEND_REGISTRY entry 的第一個 key 當 id）避免撞名或同群填不同 id。
+   批 1 的 25 層全是單 config，未觸及。
+3. **`section` 允許 null**（批 8 卡住）：10 個 orphan key。批 1 的 25 層全在 THEMES 內。
+4. ✅ **legend id 命名規約**（批 1 已落地）：拍板**取 LEGEND_REGISTRY entry 的首個 key**。
+   三種形狀都已實測：獨佔（退化成同名）／家族共用／**與自身 key 完全無關**
+   （`civilDefenseShelter` → `policeStation`）。批 4 執法治安 20 層是同一組 id。
 
 ## Phase 3-5 展望
 

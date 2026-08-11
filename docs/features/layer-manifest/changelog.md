@@ -83,3 +83,67 @@ A 靜態 GeoJSON / B PMTiles（連帶 nginx + deploy 清單）/ C 動態 Supabas
 
 黃金快照 fixture **一位元未動**、23 條全綠 = 5 層搬移零失真。
 `npx tsc -b` 0 error｜`npx vitest run` **508 passed | 1 skipped**（基準 473 → +23 +12）。
+
+---
+
+## 2026-08-11 — Phase 2 批 1：25 層（宗教 6・殯葬 5・文化 5・消防 5・微型 4）
+
+`cc64857` 前置護欄｜`7f339e5` 宗教｜`3f325bf` 殯葬｜`83ef421` 文化｜`71b31d9` 消防｜`1aa3d6b` 微型 4
+
+manifest 5 → **30 entry**。四張手寫表（`LAYER_COLORS` / `THEMES` LayerDef /
+`LAYER_ICONS` / `UPSTREAM_REGISTRY`）對這 25 key 殘留 grep 命中 0。
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（與批 1 前基準相同，
+本批未增減任何測試）｜黃金快照 fixture 自 Phase 0 起**一位元未動**。
+
+### 三個拍板落地
+
+1. **色票引用外部常數**（backlog 待拍板第 1 項）：宗教／殯葬的 `color` 欄寫
+   `RELIGION_LAYER_COLORS.religionTemples` 這種**引用**，不複製 hex。那兩個常數同時餵
+   `LAYER_COLORS` 與圖層自己的 paint 表達式，是三邊共用的 SSOT。
+   為此 manifest 的 import 白名單放寬到「零 import 的純色票常數檔」（religionTypes /
+   funeralTypes 各自 0 個 import，無 cycle 風險）。教育批 3 沿用同規約。
+2. **legend id = LEGEND_REGISTRY entry 的首個 key**（第 4 項）：三種形狀都撞過了 ——
+   獨佔（退化成同名，文化 5 層）、家族共用（宗教 6 → `religionTemples`、殯葬 5 →
+   `funeralFacilities`）、**與自身 key 完全無關**（`civilDefenseShelter` → `policeStation`，
+   它掛在警政司法民防 18 key 共用的圖例上）。第三種是規約真正的壓力測試，批 4 搬
+   執法治安 20 層時是同一組 id。
+3. **dataClass D 的定義澄清**：本批 6 層無 `OVERLAY_REGISTRY` entry 卻不是自繪 ——
+   `fireEvents`/`fireLatest` 走 Supabase RPC、`worldTrashDebris` 走靜態 geojson、
+   `fireIsochrone` 走 PMTiles factory、`funeralOperatorDensity` 是純數值 JSON join
+   鄉鎮界切片、`plaActivity` 走 RPC。D 的操作性定義本來就是「沒有 registry entry →
+   派生機制不適用」，與資料長相無關；真實來源記進 `source.note`（rail 試點即此模式）。
+   docstring 已就地改寫，批 4-8 還有太空 16 / 水資源 12 / 廢棄物 17 層 D 直接沿用。
+
+### 前置護欄：GIS_LAYERS 的常數引用列（`cc64857`）
+
+`GIS_LAYERS` 有 2 筆 layer id 陣列寫成常數引用（`DISASTER_ALERT_CLICK_LAYERS` /
+`PLA_ACTIVITY_CLICK_LAYERS`），`extractGisLayers` 的 regex 要求字面 `[...]` → 整列被跳過。
+後果不是少一筆快照，是 **manifest 只能把這兩層宣告成 `popup: null`**（已知為假），
+Phase 3 依 `popup` 派生 `GIS_LAYERS` 時會靜默丟掉它們的點擊接線。
+
+修法刻意**不動主 regex**（動了這兩列就進 `gisLayers` section，fixture 得重跑 ——
+等於拿「搬移零失真」的護欄去換一個解析改良）。改成獨立 export
+`extractGisConstRefTypes()`，只回 layerType 字串、不進 fixture，由
+`layerManifest.test.ts` union 進 `gisTypes`。批 5 的 `disasterAlert` 直接受益。
+
+### 本批撞到的形狀（批 3 起可直接沿用）
+
+- **popup 漂移最密集的是消防**：5 層裡 4 層 `key ≠ layerType`
+  （`fireStations`→`fireStation` 單複數差一個 s、`fireHydrants`→`fireHydrant`），
+  且 `fireEvents` / `fireLatest` **共用同一個 `"fireEvent"`**（多對一）。
+  backlog 預期多對一要到批 3 教育才出現，實際批 1 就撞到，schema 無需改動。
+- **`LayerSource` 單數形夠用**：本批 25 層無同 key 多 config。批 4 的
+  `propertyValueGrid`×3 仍是待處理項。
+- **`section` 非 null 夠用**：本批 25 層全在 THEMES 內。批 8 的 10 個 orphan key 仍待處理。
+
+### ⚠️ 交接給後續批次：唯一沒有機械護欄的一步
+
+雙軌 `Omit` + spread 的 tsc 三向護欄有一個**擋不到的漏法**：
+`HANDWRITTEN_LAYER_COLORS` 裡的 `...RELIGION_LAYER_COLORS` 這類 **spread 不觸發
+excess property check**。搬走 key 後若忘了刪 spread ——
+tsc 綠、黃金快照綠、契約測試綠（manifest 在後面蓋、值又相同），
+但登記根本沒真搬走，留下「改 manifest 畫面沒反應」的暗雷。純靠人記得。
+批 3 搬教育時要刪 `...EDUCATION_LAYER_COLORS`（已在原處留註解警告）。
+
+同理，**THEMES 的舊 literal 若忘了換成 `fromManifest(...)`** 也是全綠。
+機械驗證只能靠 grep：`grep -cE 'key: "(本批全部 key)"' layerCatalog.ts` 必須是 0。
