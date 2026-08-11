@@ -9,7 +9,8 @@ import {
   //    CircleDot 仍被別層或 orphan 用
   Route, Anchor,
   // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
-  BarChart3, Wind,
+  //（Wind 隨能源再生能源 osmWindTurbines / windPlan 搬走，批 8）
+  BarChart3,
   ChevronDown, ChevronRight, Search, Navigation,
   Play, Radio,
   // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
@@ -33,9 +34,10 @@ import {
   Satellite,
   // ENERGY icons —— 電力 15 層搬進 layerManifest（AR-22 Phase 2 批 8）後，
   //    Cable / Power / TowerControl / CircleDot / Clock 已無用；化石燃料 15 層搬走後
-  //    Spline / Container / Flame 也無用。Zap 仍餵 orphan powerPlants、
-  //    Fuel 仍餵覆蓋分析 4 層、Factory/Sun/Anchor/Waves 仍餵 orphan
-  Zap, PlugZap, Sun, Sparkles, Building2, Fuel,
+  //    Spline / Container / Flame 也無用；再生能源 6 ＋ 覆蓋分析 5 搬走後
+  //    PlugZap / Sparkles / Building2 / Fuel / Wind 也無用。
+  //    只剩 Zap / Sun / Factory / Anchor / Waves 五顆，全是餵 orphan 的
+  Zap, Sun,
   // HAZARD icons 隨災害 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    Lightbulb / CloudRain 仍被 rail tab 與別層用，留在本檔
   // 🌍 全球氣候 5 層已搬進 layerManifest（AR-22 Phase 2 批 4）
@@ -81,7 +83,6 @@ const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.titl
  * HANDWRITTEN_LAYER_COLORS。
  */
 const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, ManifestKey> = {
-  windPlan: Wind,
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
   // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    本處原有 9 層，另 3 層（lightning / lightningCwa / nuclearRadiation）在下方
@@ -109,25 +110,14 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   powerPlants: Zap,
   powerStatusHud: Activity,
   powerRegionDemand: BarChart3,
-  osmWindTurbines: Wind,
   osmSolarFarms: Sun,
   osmPowerPlantsStatic: Factory,
-  offshoreWindZones: Waves,
   islandPowerGrid: Anchor,
-  geothermalWells: Sparkles,
-  renewablePermitsTaipei: Building2,
-  evChargingStations: PlugZap,
   // Phase 8 SSOT 6-layer（重用既有 icons）——5 層已隨能源電力搬進 layerManifest
   //（AR-22 Phase 2 批 8），只剩 orphan facOffshore
   facOffshore: Waves,        // 離岸風場 polygon
-  // 化石燃料 15 layer（含 legacy fossilFuelInfra）已搬進 layerManifest
-  //（AR-22 Phase 2 批 8）
-  // 雲林 POC 覆蓋分析（30km isochrone）
-  gasCoverageAll: Fuel,
-  gasCoverageCpc: Fuel,
-  gasCoverageFpcc: Fuel,
-  gasCoverageTaisugar: Fuel,
-  evIsland: PlugZap,
+  // 化石燃料 15 layer（含 legacy fossilFuelInfra）／再生能源 6 層／
+  // 雲林 POC 覆蓋分析 5 層（30km isochrone）已搬進 layerManifest（AR-22 Phase 2 批 8）
   // ⚠️ 災害 lightning / lightningCwa / nuclearRadiation 已搬進 layerManifest
   //    （AR-22 Phase 2 批 5，與上方災害 9 層同批）
   // 全球氣候 GLOBAL CLIMATE

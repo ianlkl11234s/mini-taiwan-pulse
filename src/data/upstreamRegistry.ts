@@ -109,60 +109,10 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   // ⚡ 能源「電力 · 廠」8 層與「電力 · 電網」7 層已搬進 layerManifest
   //    （AR-22 Phase 2 批 8）—— 含 4 個 Bloom/Glow 視覺實驗層，
   //    它們的 pulse_only entry 原本在本表下方另一段（逐 key grep 才找得到）
-  offshoreWindZones: {
-    status: 'verified',
-    datasets: [{ datasetId: 'offshore_wind_zones', confidence: 'HIGH' }],
-  },
-  osmWindTurbines: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_power', confidence: 'LOW' }],
-  },
-  windPlan: {
-    status: 'verified',
-    datasets: [{ datasetId: 'renewable', confidence: 'MED' }],
-  },
-  geothermalWells: {
-    status: 'verified',
-    datasets: [{ datasetId: 'geothermal_wells', confidence: 'HIGH' }],
-  },
-  renewablePermitsTaipei: {
-    status: 'verified',
-    datasets: [{ datasetId: 'renewable', confidence: 'HIGH' }],
-  },
-  evChargingStations: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ev_charging_stations', confidence: 'HIGH' }],
-  },
-  // ⛽ 能源「石化 · 加油站」5 層與「石化 · 油氣」10 層已搬進 layerManifest
-  //    （AR-22 Phase 2 批 8）
-  gasCoverageAll: {
-    status: 'pulse_only',
-    datasets: [],
-    derivedFromLayers: ['gasStationCpc', 'gasStationFpcc', 'gasStationTaisugar', 'gasStationOther'],
-    derivationType: 'coverage',
-    processing: '全台加油站聚合 + OSRM 路網最近距離分析 → PMTiles（30km 覆蓋分級：0-5/5-10/10-20/20-30/30km+）',
-    note: 'DERIVED: pulse-derived coverage analysis (PMTiles from gas stations + road netwo',
-  },
-  gasCoverageCpc: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'LOW' }],
-  },
-  gasCoverageFpcc: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'LOW' }],
-  },
-  gasCoverageTaisugar: {
-    status: 'verified',
-    datasets: [{ datasetId: 'gas_stations', confidence: 'LOW' }],
-  },
-  evIsland: {
-    status: 'pulse_only',
-    datasets: [],
-    derivedFromLayers: ['evChargingStations'],
-    derivationType: 'coverage',
-    processing: '全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles',
-    note: 'DERIVED: pulse-derived island analysis (PMTiles from EV chargers + road network)',
-  },
+  // ⛽ 能源「石化 · 加油站」5 層與「石化 · 油氣」10 層已搬進 layerManifest（同批 8）
+  // ♻️ 能源「再生能源」6 層與「覆蓋分析」5 層已搬進 layerManifest
+  //    （AR-22 Phase 2 批 8）—— 覆蓋分析的 gasCoverageAll / evIsland 是衍生型 upstream
+  //    （derivedFromLayers + derivationType + processing），manifest 照抄整包
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    它原本落在這裡而非上方的教育區塊（保留原 z-order 的歷史位置）
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——

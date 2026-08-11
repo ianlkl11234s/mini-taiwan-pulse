@@ -41,7 +41,6 @@ import {
  * 所以「搬走了但手寫值沒刪」這種「改 manifest 畫面沒反應」的暗雷不可能存在。
  */
 const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, ManifestKey> = {
-  windPlan: "#7efcb0",
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    它不在 EDUCATION_LAYER_COLORS 裡，色票是本表自己的字面值，隨 entry 一起搬走
   // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
@@ -93,20 +92,10 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   powerPlants: "#facc15",
   powerStatusHud: "#22c55e",
   powerRegionDemand: "#3b82f6",
-  osmWindTurbines: "#67e8f9",
   osmSolarFarms: "#fbbf24",
   osmPowerPlantsStatic: "#9ca3af",
-  offshoreWindZones: "#22d3ee",
   islandPowerGrid: "#a78bfa",
-  geothermalWells: "#ef4444",
-  renewablePermitsTaipei: "#fbbf24",
-  evChargingStations: "#10b981",
   facOffshore: "#1F4373",
-  gasCoverageAll: "#F2A516",
-  gasCoverageCpc: "#41AEF2",
-  gasCoverageFpcc: "#22C55E",
-  gasCoverageTaisugar: "#F2522E",
-  evIsland: "#F23535",
   // ⚠️ 災害 lightning / lightningCwa / nuclearRadiation 已搬進 layerManifest
   //    （AR-22 Phase 2 批 5，與上方災害 9 層同批）
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
@@ -500,12 +489,12 @@ export const THEMES: ThemeDef[] = [
       {
         title: "再生能源",
         layers: [
-          { key: "offshoreWindZones", label: "離岸風場 Offshore Wind", expandable: true },
-          { key: "osmWindTurbines", label: "風機 Wind Turbines", expandable: true },
-          { key: "windPlan", label: "風電場規劃 Wind Plan", expandable: true },
-          { key: "geothermalWells", label: "地熱井 Geothermal", expandable: true },
-          { key: "renewablePermitsTaipei", label: "北市再生能源許可 Renewable Permits", expandable: true },
-          { key: "evChargingStations", label: "電動車充電站 EV Charging", expandable: true },
+          fromManifest("offshoreWindZones"),
+          fromManifest("osmWindTurbines"),
+          fromManifest("windPlan"),
+          fromManifest("geothermalWells"),
+          fromManifest("renewablePermitsTaipei"),
+          fromManifest("evChargingStations"),
         ],
       },
       {
@@ -536,11 +525,11 @@ export const THEMES: ThemeDef[] = [
       {
         title: "覆蓋分析",
         layers: [
-          { key: "gasCoverageAll", label: "加油站 最近距離 Coverage All", expandable: true },
-          { key: "gasCoverageCpc", label: "中油 最近距離 Coverage CPC", expandable: true },
-          { key: "gasCoverageFpcc", label: "台塑 最近距離 Coverage FPCC", expandable: true },
-          { key: "gasCoverageTaisugar", label: "台糖 最近距離 Coverage Taisugar", expandable: true },
-          { key: "evIsland", label: "充電站 最近距離 EV Island", expandable: true },
+          fromManifest("gasCoverageAll"),
+          fromManifest("gasCoverageCpc"),
+          fromManifest("gasCoverageFpcc"),
+          fromManifest("gasCoverageTaisugar"),
+          fromManifest("evIsland"),
         ],
       },
     ],

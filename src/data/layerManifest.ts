@@ -89,7 +89,7 @@ import {
   Plane, Ban, Bus, RailSymbol, Ship,
   Receipt, Coffee, SquareParking, CircleParking,
   // ⚡ 能源（Cable / CircleDot / Clock / MapPin 已在上方 import 復用）
-  Zap, Power, Spline, TowerControl, Fuel,
+  Zap, Power, Spline, TowerControl, Fuel, PlugZap,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -8690,6 +8690,329 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "早期能源 MVP 的石化設施合併層（已被上面的分類層取代，保留相容）",
     topics: ["能源", "石化", "legacy"],
+  },
+  // ══════════════════════════════════════════════════════════════════
+  // ♻️ 能源 Energy —— 再生能源 6 ＋ 覆蓋分析 5（AR-22 Phase 2 批 8-5）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 能源 41 層至此全數搬完。本段體質 A 1 ／ B 5 ／ C 5。
+  //
+  // ⚠️ **覆蓋分析 5 層是本批唯一有靜態檔要部署的一段**（觸點 #20）：
+  // 全部是 `./coverage/taiwan_*_nearest.pmtiles`（z6-12），沿路網最近距離分析的產物。
+  // 其中 `gasCoverageAll` / `evIsland` 的 upstream 是**衍生型**
+  // （`derivedFromLayers` ＋ `derivationType: "coverage"` ＋ `processing`）——
+  // manifest 照抄整包，不是只抄 status/datasets。
+  //
+  // ⚠️ **`windPlan` 的 `params` 是 null**：`useTransportParams` 寫死 `return []`，
+  // 是 Phase 0 記錄的 emptyByDesign 5 key 之一（另 4 個是 activeFaults / aqiStations /
+  // landingStations / submarineCables）。**不是抽取器沒掃到**，照抄不夾帶修正。
+  //
+  // ⚠️ 再生能源子群同樣橫跨兩筆 LEGEND_REGISTRY entry ＋ 2 個 null：
+  //   EnergySpecialtyLegend（首 key offshoreWindZones）→ offshoreWindZones /
+  //     geothermalWells / renewablePermitsTaipei ＋ 上一段的 fossilFuelInfra
+  //     ＋ orphan islandPowerGrid
+  //   RenewablePoiLegend（首 key osmWindTurbines）→ osmWindTurbines
+  //     ＋ orphan osmSolarFarms / osmPowerPlantsStatic
+  //   windPlan / evChargingStations → null（單色，鐵則 2 不適用）
+  // **兩筆 entry 的成員都跨到 orphan**，Phase 3 依 legend 分組派生時要一起處理。
+
+  // ── 再生能源 ───────────────────────────────────────────────────────
+  offshoreWindZones: {
+    key: "offshoreWindZones",
+    section: { theme: "能源 Energy", group: "再生能源" },
+    label: "離岸風場 Offshore Wind",
+    expandable: true,
+    color: "#22d3ee",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "offshore_wind_zones", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-offshore-wind-zones",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "offshoreWindZones",
+    popup: "offshoreWindZone",
+    params: { count: 1, kinds: ["slider"] },
+    description: "OSM 離岸風場範圍面 36 處（fill ＋ 邊框）",
+    topics: ["能源", "再生能源", "風力"],
+  },
+
+  osmWindTurbines: {
+    key: "osmWindTurbines",
+    section: { theme: "能源 Energy", group: "再生能源" },
+    label: "風機 Wind Turbines",
+    expandable: true,
+    color: "#67e8f9",
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_power", confidence: "LOW" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-wind-turbines",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // ⚠️ 家族另兩個成員（osmSolarFarms / osmPowerPlantsStatic）是 orphan ——
+    //    本層是首 key，所以 id 就是自己；反過來說那兩個 orphan 必須沿用 "osmWindTurbines"。
+    legend: "osmWindTurbines",
+    popup: "osmWindTurbine",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 陸域／離岸風力發電機點位",
+    topics: ["能源", "再生能源", "風力"],
+  },
+
+  windPlan: {
+    key: "windPlan",
+    section: { theme: "能源 Energy", group: "再生能源" },
+    label: "風電場規劃 Wind Plan",
+    expandable: true,
+    color: "#7efcb0",
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "renewable", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "wind-plan", url: "./geo/wind_plan.geojson" },
+    legend: null,
+    // 3 個 layer id（glow / fill / line）全不在 GIS_LAYERS → 無點擊接線
+    popup: null,
+    // ⚠️ 這個 null 是**有意的**：useTransportParams 寫死 `case "windPlan": return [];`，
+    //    Phase 0 已把它記進 emptyByDesign 5 key。不是抽取器漏掃。
+    params: null,
+    description: "離岸風電場規劃區位（glow ＋ fill ＋ 邊框，無控件）",
+    topics: ["能源", "再生能源", "風力", "規劃"],
+  },
+
+  geothermalWells: {
+    key: "geothermalWells",
+    section: { theme: "能源 Energy", group: "再生能源" },
+    label: "地熱井 Geothermal",
+    expandable: true,
+    color: "#ef4444",
+    icon: Sparkles,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "geothermal_wells", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-geothermal-wells",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "offshoreWindZones",
+    popup: "geothermalWell",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "地熱探勘井／生產井點位",
+    topics: ["能源", "再生能源", "地熱"],
+  },
+
+  renewablePermitsTaipei: {
+    key: "renewablePermitsTaipei",
+    section: { theme: "能源 Energy", group: "再生能源" },
+    label: "北市再生能源許可 Renewable Permits",
+    expandable: true,
+    color: "#fbbf24",
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "renewable", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-taipei-re",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "offshoreWindZones",
+    // ⚠️ key 是複數 Permits、layerType 是單數 Permit（批 2 基礎建設同款單複數陷阱）
+    popup: "renewablePermitTaipei",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "臺北市再生能源設備設置許可點位",
+    topics: ["能源", "再生能源", "臺北"],
+  },
+
+  evChargingStations: {
+    key: "evChargingStations",
+    section: { theme: "能源 Energy", group: "再生能源" },
+    label: "電動車充電站 EV Charging",
+    expandable: true,
+    color: "#10b981",
+    icon: PlugZap,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ev_charging_stations", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "energy-ev-charging",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // 單色 POI，鐵則 2 不適用（layerConsistency 的 BASELINE_NO_LEGEND 已在案）
+    legend: null,
+    // ⚠️ key 是複數 Stations、layerType 連 Station 都沒有（→ evCharging）
+    popup: "evCharging",
+    params: { count: 1, kinds: ["slider"] },
+    description: "全台電動車充電站點位",
+    topics: ["能源", "再生能源", "電動車"],
+  },
+
+  // ── 覆蓋分析 ───────────────────────────────────────────────────────
+  // 5 層同構：PMTiles（./coverage/taiwan_*_nearest.pmtiles，z6-12）＋ 單一 line 層
+  // ＋ 共用一筆 legend entry（首 key gasCoverageAll）＋ popup 全與 key 同名。
+  // ⚠️ 與上一段的 gasStation* 5 層前綴極像（gasCoverage* vs gasStation*）——
+  //    刪手寫表時一律用精確錨定，別用前綴 grep。
+  gasCoverageAll: {
+    key: "gasCoverageAll",
+    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    label: "加油站 最近距離 Coverage All",
+    expandable: true,
+    color: "#F2A516",
+    icon: Fuel,
+    // 衍生型 upstream：不是「上游有一份資料」而是「本站自己從別的 layer 算出來的」。
+    // derivedFromLayers / derivationType / processing 三欄照抄，不可只抄 status。
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther"],
+      derivationType: "coverage",
+      processing: "全台加油站聚合 + OSRM 路網最近距離分析 → PMTiles（30km 覆蓋分級：0-5/5-10/10-20/20-30/30km+）",
+      note: "DERIVED: pulse-derived coverage analysis (PMTiles from gas stations + road netwo",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "coverage-gas-all",
+      url: "./coverage/taiwan_all_gas_nearest.pmtiles",
+      sourceLayer: "coverage_all_gas",
+      minzoom: 6,
+      maxzoom: 12,
+    },
+    legend: "gasCoverageAll",
+    popup: "gasCoverageAll",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台各處到最近加油站（四品牌合併）的路網距離分級",
+    topics: ["能源", "覆蓋分析", "加油站"],
+  },
+
+  gasCoverageCpc: {
+    key: "gasCoverageCpc",
+    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    label: "中油 最近距離 Coverage CPC",
+    expandable: true,
+    color: "#41AEF2",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "coverage-gas-cpc",
+      url: "./coverage/taiwan_cpc_nearest.pmtiles",
+      sourceLayer: "coverage_cpc",
+      minzoom: 6,
+      maxzoom: 12,
+    },
+    legend: "gasCoverageAll",
+    popup: "gasCoverageCpc",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台各處到最近中油加油站的路網距離分級",
+    topics: ["能源", "覆蓋分析", "加油站"],
+  },
+
+  gasCoverageFpcc: {
+    key: "gasCoverageFpcc",
+    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    label: "台塑 最近距離 Coverage FPCC",
+    expandable: true,
+    color: "#22C55E",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "coverage-gas-fpcc",
+      url: "./coverage/taiwan_fpcc_nearest.pmtiles",
+      sourceLayer: "coverage_fpcc",
+      minzoom: 6,
+      maxzoom: 12,
+    },
+    legend: "gasCoverageAll",
+    popup: "gasCoverageFpcc",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台各處到最近台塑加油站的路網距離分級",
+    topics: ["能源", "覆蓋分析", "加油站"],
+  },
+
+  gasCoverageTaisugar: {
+    key: "gasCoverageTaisugar",
+    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    label: "台糖 最近距離 Coverage Taisugar",
+    expandable: true,
+    color: "#F2522E",
+    icon: Fuel,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "gas_stations", confidence: "LOW" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "coverage-gas-taisugar",
+      url: "./coverage/taiwan_taisugar_nearest.pmtiles",
+      sourceLayer: "coverage_taisugar",
+      minzoom: 6,
+      maxzoom: 12,
+    },
+    legend: "gasCoverageAll",
+    popup: "gasCoverageTaisugar",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全台各處到最近台糖加油站的路網距離分級",
+    topics: ["能源", "覆蓋分析", "加油站"],
+  },
+
+  evIsland: {
+    key: "evIsland",
+    section: { theme: "能源 Energy", group: "覆蓋分析" },
+    label: "充電站 最近距離 EV Island",
+    expandable: true,
+    color: "#F23535",
+    icon: PlugZap,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["evChargingStations"],
+      derivationType: "coverage",
+      processing: "全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles",
+      note: "DERIVED: pulse-derived island analysis (PMTiles from EV chargers + road network)",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "coverage-ev-island",
+      url: "./coverage/taiwan_ev_nearest.pmtiles",
+      sourceLayer: "coverage_ev",
+      minzoom: 6,
+      maxzoom: 12,
+    },
+    legend: "gasCoverageAll",
+    popup: "evIsland",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "充電站服務孤島（距任一充電站超過門檻的區域）",
+    topics: ["能源", "覆蓋分析", "電動車"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
