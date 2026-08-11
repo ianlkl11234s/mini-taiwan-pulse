@@ -151,15 +151,6 @@ export function useTransportParams() {
   const [touristShuttleColorMode, setTouristShuttleColorMode] = useState<BusColorMode>("route");
   const [touristShuttleAltOffset, setTouristShuttleAltOffset] = useState(0);
   const [touristShuttleOpacity, setTouristShuttleOpacity] = useState(0.85);
-  // Bike
-  const [bikeScale, setBikeScale] = useState(1);
-  // Cycling
-  const [cyclingWidth, setCyclingWidth] = useState(1);
-  // Freeway
-  const [freewayWidth, setFreewayWidth] = useState(1);
-  // 省道路況 v1（PMTiles + feature-state 染色）
-  const [roadCongestionWidth, setRoadCongestionWidth] = useState(1);
-  const [roadCongestionOpacity, setRoadCongestionOpacity] = useState(0.85);
   // CCTV（道路攝影機 靜態點）
   const [cctvScale, setCctvScale] = useState(1);
   const [cctvOpacity, setCctvOpacity] = useState(0.7);
@@ -383,29 +374,8 @@ export function useTransportParams() {
   // 救援等時圈（覆蓋聯集填色透明度 + 縣市篩選，"all" = 全台）
   const [fireIsochroneOpacity, setFireIsochroneOpacity] = useState(0.5);
   const [fireIsochroneCounty, setFireIsochroneCounty] = useState("all");
-  // 火災事件點位（歷史 / 最新年度）
-  const [fireEventsOpacity, setFireEventsOpacity] = useState(1);
-  const [fireLatestOpacity, setFireLatestOpacity] = useState(1);
-  // 醫療基礎點位 5 類（PMTiles 散點，各自 opacity + scale）
-  const [medHospitalOpacity, setMedHospitalOpacity] = useState(0.9);
-  const [medHospitalScale, setMedHospitalScale] = useState(1.0);
-  const [medClinicOpacity, setMedClinicOpacity] = useState(0.85);
-  const [medClinicScale, setMedClinicScale] = useState(1.0);
-  const [medPharmacyOpacity, setMedPharmacyOpacity] = useState(0.85);
-  const [medPharmacyScale, setMedPharmacyScale] = useState(1.0);
-  const [medAEDOpacity, setMedAEDOpacity] = useState(0.9);
-  const [medAEDScale, setMedAEDScale] = useState(1.0);
-  const [medLTCOpacity, setMedLTCOpacity] = useState(0.85);
-  const [medLTCScale, setMedLTCScale] = useState(1.0);
   // 醫療等時圈 + 醫療沙漠（共用 opacity slider）
   const [medIsochroneOpacity, setMedIsochroneOpacity] = useState(0.5);
-  // 急診壅塞（當下快照，僅 opacity slider）
-  const [erHospitalOpacity, setErHospitalOpacity] = useState(0.85);
-  // 北市圖即時座位（當下快照，僅 opacity slider）
-  const [librarySeatsOpacity, setLibrarySeatsOpacity] = useState(0.9);
-  // 停車 Parking（當下快照，各自 opacity slider）
-  const [parkingOnstreetOpacity, setParkingOnstreetOpacity] = useState(0.6);
-  const [parkingOffstreetOpacity, setParkingOffstreetOpacity] = useState(0.9);
   // ETC Gantry（收費門架 靜態點）
   const [etcGantryScale, setEtcGantryScale] = useState(1);
   const [etcGantryOpacity, setEtcGantryOpacity] = useState(0.8);
@@ -414,15 +384,10 @@ export function useTransportParams() {
   const [serviceAreaScale, setServiceAreaScale] = useState(1.4);
   const [serviceAreaOpacity, setServiceAreaOpacity] = useState(0.85);
   const [serviceAreaZ, setServiceAreaZ] = useState(0);
-  // Service Area Polygon（國道服務區範圍 面）
-  const [serviceAreaPolygonOpacity, setServiceAreaPolygonOpacity] = useState(0.2);
-  const [serviceAreaPolygonLineWidth, setServiceAreaPolygonLineWidth] = useState(1.5);
   // Taxi Stand（計程車招呼站 靜態點）
   const [taxiStandScale, setTaxiStandScale] = useState(1);
   const [taxiStandOpacity, setTaxiStandOpacity] = useState(0.8);
   const [taxiStandZ, setTaxiStandZ] = useState(0);
-  // Weather
-  const [weatherScale, setWeatherScale] = useState(1);
   // Population Flow (H3)
   const [h3Opacity, setH3Opacity] = useState(0.6);
   const [h3Extruded, setH3Extruded] = useState(false);
@@ -453,12 +418,6 @@ export function useTransportParams() {
   const [traPillarHeight, setTraPillarHeight] = useState(0.5);
   const [metroPillarVisible, setMetroPillarVisible] = useState(false);
   const [metroPillarHeight, setMetroPillarHeight] = useState(0.2);
-  // Highway (國道)
-  const [highwayWidth, setHighwayWidth] = useState(0.6);
-  const [highwayGlow, setHighwayGlow] = useState(0.3);
-  // Provincial Road (省道)
-  const [provincialWidth, setProvincialWidth] = useState(0.6);
-  const [provincialGlow, setProvincialGlow] = useState(0.2);
   // Port pillar (碼頭)
   const [portGlow, setPortGlow] = useState(1);
   const [portPillarVisible, setPortPillarVisible] = useState(false);
@@ -480,41 +439,13 @@ export function useTransportParams() {
   const [schoolScale, setSchoolScale] = useState(1);
   const [schoolLevelColor, setSchoolLevelColor] = useState(false);
   const [eduSchoolsOpacity, setEduSchoolsOpacity] = useState(0.85);
-  const [eduCampusPolygonOpacity, setEduCampusPolygonOpacity] = useState(0.35);
-  // 校地面積面量圖：同一份切片的另一種讀法，但面量圖要讀出色階差異 → 比學制層更不透明
-  const [eduCampusAreaOpacity, setEduCampusAreaOpacity] = useState(0.55);
   // 學區面：國小／國中兩層的面完全疊合，共用一支 slider（分開調會互相遮蓋難以對齊）；
   // 高中就學區是覆蓋全台的縣市級大面，預設更透明。
   const [eduDistrictK12Opacity, setEduDistrictK12Opacity] = useState(0.3);
-  const [eduDistrictSeniorOpacity, setEduDistrictSeniorOpacity] = useState(0.18);
   // 幼托三層（幼兒園／課後照顧／互助教保）密度相近且常疊看，共用一組 slider；
   // 補習班 17,137 點密度高一階，獨立一組（預設更透明），見 overlayRegistry 的 eduCramSchool*。
   const [eduChildcareOpacity, setEduChildcareOpacity] = useState(0.85);
   const [eduChildcareScale, setEduChildcareScale] = useState(1);
-  const [eduCramSchoolOpacity, setEduCramSchoolOpacity] = useState(0.75);
-  const [eduCramSchoolScale, setEduCramSchoolScale] = useState(1);
-  const [eduUniversityStudentsOpacity, setEduUniversityStudentsOpacity] = useState(0.6);
-  const [eduUniversityStudentsScale, setEduUniversityStudentsScale] = useState(1);
-  // Convenience Store
-  const [convenienceScale, setConvenienceScale] = useState(1);
-  // Civic Facilities（公共設施 4 層）
-  const [postOfficesOpacity, setPostOfficesOpacity] = useState(0.85);
-  const [postOfficesScale, setPostOfficesScale] = useState(1);
-  const [iPostBoxesOpacity, setIPostBoxesOpacity] = useState(0.85);
-  const [iPostBoxesScale, setIPostBoxesScale] = useState(1);
-  const [communityCentersOpacity, setCommunityCentersOpacity] = useState(0.85);
-  const [communityCentersScale, setCommunityCentersScale] = useState(1);
-  const [govServiceOfficesOpacity, setGovServiceOfficesOpacity] = useState(0.9);
-  const [govServiceOfficesScale, setGovServiceOfficesScale] = useState(1);
-  // Civic Facilities Batch 2（圖書館 / 社福 / 市場 / 公廁）
-  const [publicLibrariesOpacity, setPublicLibrariesOpacity] = useState(0.9);
-  const [publicLibrariesScale, setPublicLibrariesScale] = useState(1);
-  const [welfareCentersOpacity, setWelfareCentersOpacity] = useState(0.9);
-  const [welfareCentersScale, setWelfareCentersScale] = useState(1);
-  const [retailMarketsOpacity, setRetailMarketsOpacity] = useState(0.9);
-  const [retailMarketsScale, setRetailMarketsScale] = useState(1);
-  const [publicToiletsOpacity, setPublicToiletsOpacity] = useState(0.75);
-  const [publicToiletsScale, setPublicToiletsScale] = useState(1);
   // News Events
   const [newsScale, setNewsScale] = useState(1);
   const [newsTimeBased, setNewsTimeBased] = useState(true);
@@ -1158,12 +1089,7 @@ export function useTransportParams() {
     airportOpacity,
     airportGlow,
     busScale,
-    bikeScale,
     lighthouseScale,
-    cyclingWidth,
-    freewayWidth,
-    roadCongestionWidth,
-    roadCongestionOpacity,
     cctvScale,
     cctvOpacity,
     cctvZ,
@@ -1176,62 +1102,23 @@ export function useTransportParams() {
     fireHydrantsZ,
     fireIsochroneOpacity,
     fireIsochroneCountyIdx: FIRE_ISOCHRONE_COUNTY_OPTIONS.findIndex((o) => o.value === fireIsochroneCounty),
-    medHospitalOpacity,
-    medHospitalScale,
-    medClinicOpacity,
-    medClinicScale,
-    medPharmacyOpacity,
-    medPharmacyScale,
-    medAEDOpacity,
-    medAEDScale,
-    medLTCOpacity,
-    medLTCScale,
     medIsochroneOpacity,
-    erHospitalOpacity,
-    librarySeatsOpacity,
-    parkingOnstreetOpacity,
-    parkingOffstreetOpacity,
-    fireEventsOpacity,
-    fireLatestOpacity,
     etcGantryScale,
     etcGantryOpacity,
     etcGantryZ,
     serviceAreaScale,
     serviceAreaOpacity,
     serviceAreaZ,
-    serviceAreaPolygonOpacity,
-    serviceAreaPolygonLineWidth,
     taxiStandScale,
     taxiStandOpacity,
     taxiStandZ,
-    weatherScale,
-    highwayWidth,
-    highwayGlow,
-    provincialWidth,
-    provincialGlow,
     portGlow,
     schoolScale,
-    convenienceScale,
-    postOfficesOpacity, postOfficesScale,
-    iPostBoxesOpacity, iPostBoxesScale,
-    communityCentersOpacity, communityCentersScale,
-    govServiceOfficesOpacity, govServiceOfficesScale,
-    publicLibrariesOpacity, publicLibrariesScale,
-    welfareCentersOpacity, welfareCentersScale,
-    retailMarketsOpacity, retailMarketsScale,
-    publicToiletsOpacity, publicToiletsScale,
     schoolLevelColor: schoolLevelColor ? 1 : 0,
     eduSchoolsOpacity,
-    eduCampusPolygonOpacity,
-    eduCampusAreaOpacity,
     eduDistrictK12Opacity,
-    eduDistrictSeniorOpacity,
     eduChildcareOpacity,
     eduChildcareScale,
-    eduCramSchoolOpacity,
-    eduCramSchoolScale,
-    eduUniversityStudentsOpacity,
-    eduUniversityStudentsScale,
     newsScale,
     metroPillar3d: metroPillarVisible ? 1 : 0,
     floodMinDepth,
@@ -1499,7 +1386,7 @@ export function useTransportParams() {
     // ── 雙軌：已遷移進 layerParamsStore 的 key（規格派生，含 select 的 Idx 編碼）──
     //    刻意放在最末 spread：遷移途中若某 key 的手寫字面尚未刪除，以規格派生為準。
     ...migratedOverlayParams,
-  }), [migratedOverlayParams, realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, bikeScale, lighthouseScale, cyclingWidth, freewayWidth, roadCongestionWidth, roadCongestionOpacity, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medHospitalOpacity, medHospitalScale, medClinicOpacity, medClinicScale, medPharmacyOpacity, medPharmacyScale, medAEDOpacity, medAEDScale, medLTCOpacity, medLTCScale, medIsochroneOpacity, erHospitalOpacity, librarySeatsOpacity, parkingOnstreetOpacity, parkingOffstreetOpacity, fireEventsOpacity, fireLatestOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, serviceAreaPolygonOpacity, serviceAreaPolygonLineWidth, taxiStandScale, taxiStandOpacity, taxiStandZ, weatherScale, highwayWidth, highwayGlow, provincialWidth, provincialGlow, portGlow, schoolScale, convenienceScale, postOfficesOpacity, postOfficesScale, iPostBoxesOpacity, iPostBoxesScale, communityCentersOpacity, communityCentersScale, govServiceOfficesOpacity, govServiceOfficesScale, publicLibrariesOpacity, publicLibrariesScale, welfareCentersOpacity, welfareCentersScale, retailMarketsOpacity, retailMarketsScale, publicToiletsOpacity, publicToiletsScale, schoolLevelColor, eduSchoolsOpacity, eduCampusPolygonOpacity, eduCampusAreaOpacity, eduDistrictK12Opacity, eduDistrictSeniorOpacity, eduChildcareOpacity, eduChildcareScale, eduCramSchoolOpacity, eduCramSchoolScale, eduUniversityStudentsOpacity, eduUniversityStudentsScale, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockSlaughterOpacity, livestockSlaughterScale, livestockFeedOpacity, livestockFeedScale, livestockMarketOpacity, livestockMarketScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, sportsSchoolOpacity, sportsSchoolScale, sportsPublicOtherOpacity, sportsPublicOtherScale, sportsPrivateOpacity, sportsPrivateScale, sportsParkOpacity, sportsParkScale, sportsCenterOpacity, sportsCenterScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, mountainHutsOpacity, mountainHutsScale, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, canopyHeightOpacity, canopyGiantsOpacity, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, worldTrashDebrisOpacity,
+  }), [migratedOverlayParams, realEstateOpacity, realEstateExcludeTaipei, countyBoundaryOpacity, countyBoundaryWidth, townshipBoundaryOpacity, townshipBoundaryWidth, villageBoundaryOpacity, villageBoundaryWidth, contour25kOpacity, contour25kWidth, contourDtm20Opacity, contourDtm20Width, osmRoadDriveOpacity, osmRoadDriveWidth, osmRoadDriveZ5Reveal, osmExpresswayOpacity, osmExpresswayWidth, hillshadeOpacity, slopeVectorOpacity, aspectVectorOpacity, stationScale, airportOpacity, airportGlow, busScale, lighthouseScale, cctvScale, cctvOpacity, cctvZ, fireStationsScale, fireStationsOpacity, fireStationsZ, fireStationsDots, fireHydrantsScale, fireHydrantsOpacity, fireHydrantsZ, fireIsochroneOpacity, fireIsochroneCounty, medIsochroneOpacity, etcGantryScale, etcGantryOpacity, etcGantryZ, serviceAreaScale, serviceAreaOpacity, serviceAreaZ, taxiStandScale, taxiStandOpacity, taxiStandZ, portGlow, schoolScale, schoolLevelColor, eduSchoolsOpacity, eduDistrictK12Opacity, eduChildcareOpacity, eduChildcareScale, newsScale, metroPillarVisible, floodMinDepth, reservoirPillarHeight, waterBasinOpacity, waterRiverWidth, waterRiverOpacity, waterCanalWidth, waterCanalOpacity, waterLeveeWidth, waterLeveeOpacity, waterProtectionZoneOpacity, waterFacilityScale, waterFacilityOpacity, waterMonitorScale, waterMonitorOpacity, detentionBasinScale, detentionBasinOpacity, waterFloodOpacity, rainGaugeScale, rainGaugeOpacity, riverLevelScale, riverLevelOpacity, groundwaterScale, groundwaterOpacity, groundwaterWellsScale, groundwaterWellsOpacity, iotWraRiverScale, iotWraRiverOpacity, iotWraRiverShowMeasured, iotWraRiverShowForecast, iotWraStructureScale, iotWraStructureOpacity, iotWraStructureFlow, iotWraStructureGate, iotWraStructureDam, iotWraStructureErosion, iotWraStructureDust, floodSensorScale, floodSensorOpacity, floodSensorIsochroneOpacity, taipeiSewerScale, taipeiSewerOpacity, taipeiEvacuateScale, taipeiEvacuateOpacity, taipeiPumbScale, taipeiPumbOpacity, precipRasterOpacity, precipRasterHours, wasteStopsStaticScale, wasteStopsStaticGlow, wasteStopsStaticZ, agricultureOpacity, agricultureOutlineWidth, agricultureShowOutline, agricultureZ, agriSoilOpacity, agriSoilFertilityOpacity, agriSoilFertilityMetric, agriLeisureFarmZonesOpacity, agriRuralRegenOpacity, agriCropSuitabilityOpacity, agriCropSuitabilityCropId, agriPOIOpacity, agriPOIScale, agriRetailOpacity, agriRetailScale, agriProduceWholesaleOpacity, agriProduceWholesaleScale, agriWholesaleMarketOpacity, agriWholesaleMarketScale, livestockFarmPigOpacity, livestockFarmPigScale, livestockFarmChickenOpacity, livestockFarmChickenScale, livestockFarmCattleOpacity, livestockFarmCattleScale, livestockFarmDuckOpacity, livestockFarmDuckScale, livestockFarmGooseOpacity, livestockFarmGooseScale, livestockFarmSheepOpacity, livestockFarmSheepScale, livestockFarmOtherOpacity, livestockFarmOtherScale, livestockSlaughterOpacity, livestockSlaughterScale, livestockFeedOpacity, livestockFeedScale, livestockMarketOpacity, livestockMarketScale, livestockFarmPigHighlightIdx, livestockFarmChickenHighlightIdx, livestockFarmCattleHighlightIdx, livestockFarmDuckHighlightIdx, livestockFarmGooseHighlightIdx, livestockFarmSheepHighlightIdx, livestockFarmOtherHighlightIdx, sportsSchoolOpacity, sportsSchoolScale, sportsPublicOtherOpacity, sportsPublicOtherScale, sportsPrivateOpacity, sportsPrivateScale, sportsParkOpacity, sportsParkScale, sportsCenterOpacity, sportsCenterScale, farmRoadsWidth, farmRoadsOpacity, ecoNetworkZonesOpacity, forestCompartmentsOpacity, forestCompartmentsOutlineWidth, forestCompartmentsShowOutline, forestReserveOpacity, forestReserveOutlineWidth, forestReserveShowOutline, forestRecreationOpacity, forestRecreationOutlineWidth, forestRecreationShowOutline, forestTreatmentWorksOpacity, forestTreatmentWorksOutlineWidth, forestTreatmentWorksShowOutline, forestFlatParksOpacity, forestFlatParksOutlineWidth, forestFlatParksShowOutline, forestDamLakesOpacity, forestDamLakesOutlineWidth, forestDamLakesShowOutline, forestRoadsOpacity, forestRoadsWidth, forestAlishanRailOpacity, forestAlishanRailWidth, forestTrailSignsOpacity, forestTrailSignsScale, forestSignalPointsOpacity, forestSignalPointsScale, mountainHutsOpacity, mountainHutsScale, mountainRescueIncidentsOpacity, mountainRescueIncidentsScale, mountainRescueIncidentsYear, forestEducationCentersOpacity, forestEducationCentersScale, forestWildlifeOpacity, forestWildlifeScale, hikingTrailsOpacity, hikingTrailsWidth, canopyHeightOpacity, canopyGiantsOpacity, powerPlantsOpacity, powerPlantsScale, powerPlantGlowOpacity, powerPlantGlowSize, substationEhvGlowOpacity, substationEhvGlowSize, powerLinesGlowOpacity, powerLinesGlowWidth, aviationRestrictedGlowOpacity, powerGenerationOpacity, powerGenerationHeight, osmSubstationsOpacity, osmSubstationsSize, osmSubstationsEhvOpacity, osmSubstationsEhvSize, osmPowerLinesOpacity, osmPowerLinesWidth, osmPowerTowersOpacity, osmPowerTowersSize, aviationControlOpacity, aviationRestrictedOpacity, droneNfzOpacity, droneRestrictedOpacity, powerPolesOpacity, powerPolesSize, powerPolesHeat, powerPolesZ5Reveal, osmWindTurbinesOpacity, osmWindTurbinesSize, osmSolarFarmsOpacity, osmSolarFarmsSize, osmPowerPlantsStaticOpacity, osmPowerPlantsStaticSize, offshoreWindZonesOpacity, islandPowerGridOpacity, islandPowerGridSize, fossilFuelInfraOpacity, fossilFuelInfraSize, geothermalWellsOpacity, geothermalWellsSize, renewablePermitsTaipeiOpacity, renewablePermitsTaipeiSize, evChargingOpacity, lightningOpacity, lightningMinutes, lightningCwaOpacity, lightningCwaMinutes, nuclearOpacity, nuclearScale, facPrimaryOpacity, facPrimaryScale, facPrimaryRtScale, facPrimaryNoRtScale, facOffshoreOpacity, facPlannedOpacity, facPlannedScale, facHistoricalOpacity, facHistoricalScale, facSecondaryOpacity, facSecondaryScale, facOsmSupplementOpacity, facOsmSupplementScale, gasStationCpcOpacity, gasStationCpcScale, gasStationFpccOpacity, gasStationFpccScale, gasStationTaisugarOpacity, gasStationTaisugarScale, gasStationOtherOpacity, gasStationOtherScale, gasStationCanonicalOpacity, gasStationCanonicalScale, lpgSubpackagingOpacity, lpgSubpackagingScale, lpgRetailersOpacity, lpgRetailersScale, lngTerminalOpacity, lngTerminalScale, pipelineGasOpacity, pipelineGasWidth, pipelineOilGasOpacity, pipelineOilGasWidth, industrialRefineryOpacity, industrialRefineryOutline, industrialStorageTankOpacity, industrialStorageTankOutline, industrialPowerPlantOpacity, industrialPowerPlantOutline, coalTerminalOpacity, coalTerminalScale, gasCoverageAllOpacity, gasCoverageAllLineWidth, gasCoverageCpcOpacity, gasCoverageCpcLineWidth, gasCoverageFpccOpacity, gasCoverageFpccLineWidth, gasCoverageTaisugarOpacity, gasCoverageTaisugarLineWidth, evIslandOpacity, evIslandLineWidth, earthquakesGlobalOpacity, typhoonTracksOpacity, typhoonSource, dustForecastOpacity, oceanCurrentsOpacity, windFieldOpacity, windAnimationSpeed, windParticleCount, windLineWidth, oceanAnimationSpeed, oceanParticleCount, oceanLineWidth, worldTrashDebrisOpacity,
     policeStationOpacity, policeStationScale, womenChildWarningOpacity, womenChildWarningScale,
     speedCameraOpacity, speedCameraScale, speedZoneSegmentOpacity, speedZoneSegmentWidth,
     courtOpacity, courtScale, prosecutorsOfficeOpacity, prosecutorsOfficeScale,
@@ -1608,9 +1495,6 @@ export function useTransportParams() {
       case "busStationsIntercity": return [
         { label: `Bus ${busScale.toFixed(1)}`, value: busScale, min: 0.3, max: 3, step: 0.1, onChange: setBusScale },
       ];
-      case "bikeStations": return [
-        { label: `Bike ${bikeScale.toFixed(1)}`, value: bikeScale, min: 0.3, max: 3, step: 0.1, onChange: setBikeScale },
-      ];
       case "lighthouses": return [
         { label: `LH ${lighthouseScale.toFixed(1)}`, value: lighthouseScale, min: 0.3, max: 3, step: 0.1, onChange: setLighthouseScale },
         { type: "toggle", label: "Beam", value: beamVisible, onChange: setBeamVisible },
@@ -1632,14 +1516,6 @@ export function useTransportParams() {
         { type: "toggle" as const, label: "Pillar", value: metroPillarVisible, onChange: setMetroPillarVisible },
         { label: `Height ${metroPillarHeight.toFixed(1)}`, value: metroPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setMetroPillarHeight },
       ];
-      case "highways": return [
-        { label: `Width ${highwayWidth.toFixed(1)}`, value: highwayWidth, min: 0.3, max: 3, step: 0.1, onChange: setHighwayWidth },
-        { label: `Glow ${highwayGlow.toFixed(1)}`, value: highwayGlow, min: 0, max: 3, step: 0.1, onChange: setHighwayGlow },
-      ];
-      case "provincialRoads": return [
-        { label: `Width ${provincialWidth.toFixed(1)}`, value: provincialWidth, min: 0.3, max: 3, step: 0.1, onChange: setProvincialWidth },
-        { label: `Glow ${provincialGlow.toFixed(1)}`, value: provincialGlow, min: 0, max: 3, step: 0.1, onChange: setProvincialGlow },
-      ];
       case "ports": return [
         { label: `Glow ${portGlow.toFixed(1)}`, value: portGlow, min: 0, max: 3, step: 0.1, onChange: setPortGlow },
         { type: "toggle" as const, label: "Pillar", value: portPillarVisible, onChange: setPortPillarVisible },
@@ -1650,19 +1526,6 @@ export function useTransportParams() {
         { label: `Glow ${airportGlow.toFixed(1)}`, value: airportGlow, min: 0, max: 2, step: 0.1, onChange: setAirportGlow },
         { type: "toggle" as const, label: "Pillar", value: airportPillarVisible, onChange: setAirportPillarVisible },
         { label: `Height ${airportPillarHeight.toFixed(1)}`, value: airportPillarHeight, min: 0.2, max: 3, step: 0.1, onChange: setAirportPillarHeight },
-      ];
-      case "cyclingRoutes": return [
-        { label: `Cycling ${cyclingWidth.toFixed(1)}`, value: cyclingWidth, min: 0.3, max: 3, step: 0.1, onChange: setCyclingWidth },
-      ];
-      case "freewayCongestion": return [
-        { label: `Freeway ${freewayWidth.toFixed(1)}`, value: freewayWidth, min: 0.3, max: 3, step: 0.1, onChange: setFreewayWidth },
-      ];
-      case "roadCongestion": return [
-        { label: `寬度 ${roadCongestionWidth.toFixed(1)}`, value: roadCongestionWidth, min: 0.3, max: 3, step: 0.1, onChange: setRoadCongestionWidth },
-        { label: `透明度 ${roadCongestionOpacity.toFixed(2)}`, value: roadCongestionOpacity, min: 0.1, max: 1, step: 0.05, onChange: setRoadCongestionOpacity },
-      ];
-      case "weatherStations": return [
-        { label: `Weather ${weatherScale.toFixed(1)}`, value: weatherScale, min: 0.3, max: 3, step: 0.1, onChange: setWeatherScale },
       ];
       case "cctv": return [
         { label: `大小 ${cctvScale.toFixed(1)}`, value: cctvScale, min: 0.3, max: 3, step: 0.1, onChange: setCctvScale },
@@ -1685,44 +1548,6 @@ export function useTransportParams() {
         { type: "select" as const, label: "縣市", value: fireIsochroneCounty, options: FIRE_ISOCHRONE_COUNTY_OPTIONS, onChange: setFireIsochroneCounty },
         { label: `透明度 ${fireIsochroneOpacity.toFixed(2)}`, value: fireIsochroneOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setFireIsochroneOpacity },
       ];
-      case "fireEvents": return [
-        { label: `透明度 ${fireEventsOpacity.toFixed(2)}`, value: fireEventsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFireEventsOpacity },
-      ];
-      case "fireLatest": return [
-        { label: `透明度 ${fireLatestOpacity.toFixed(2)}`, value: fireLatestOpacity, min: 0.1, max: 1, step: 0.05, onChange: setFireLatestOpacity },
-      ];
-      case "erHospital": return [
-        { label: `透明度 ${erHospitalOpacity.toFixed(2)}`, value: erHospitalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setErHospitalOpacity },
-      ];
-      case "librarySeats": return [
-        { label: `透明度 ${librarySeatsOpacity.toFixed(2)}`, value: librarySeatsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setLibrarySeatsOpacity },
-      ];
-      case "parkingOnstreet": return [
-        { label: `透明度 ${parkingOnstreetOpacity.toFixed(2)}`, value: parkingOnstreetOpacity, min: 0.1, max: 1, step: 0.05, onChange: setParkingOnstreetOpacity },
-      ];
-      case "parkingOffstreet": return [
-        { label: `透明度 ${parkingOffstreetOpacity.toFixed(2)}`, value: parkingOffstreetOpacity, min: 0.1, max: 1, step: 0.05, onChange: setParkingOffstreetOpacity },
-      ];
-      case "medHospital": return [
-        { label: `透明度 ${medHospitalOpacity.toFixed(2)}`, value: medHospitalOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedHospitalOpacity },
-        { label: `大小 ${medHospitalScale.toFixed(1)}`, value: medHospitalScale, min: 0.3, max: 3, step: 0.1, onChange: setMedHospitalScale },
-      ];
-      case "medClinic": return [
-        { label: `透明度 ${medClinicOpacity.toFixed(2)}`, value: medClinicOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedClinicOpacity },
-        { label: `大小 ${medClinicScale.toFixed(1)}`, value: medClinicScale, min: 0.3, max: 3, step: 0.1, onChange: setMedClinicScale },
-      ];
-      case "medPharmacy": return [
-        { label: `透明度 ${medPharmacyOpacity.toFixed(2)}`, value: medPharmacyOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedPharmacyOpacity },
-        { label: `大小 ${medPharmacyScale.toFixed(1)}`, value: medPharmacyScale, min: 0.3, max: 3, step: 0.1, onChange: setMedPharmacyScale },
-      ];
-      case "medAED": return [
-        { label: `透明度 ${medAEDOpacity.toFixed(2)}`, value: medAEDOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedAEDOpacity },
-        { label: `大小 ${medAEDScale.toFixed(1)}`, value: medAEDScale, min: 0.3, max: 3, step: 0.1, onChange: setMedAEDScale },
-      ];
-      case "medLTC": return [
-        { label: `透明度 ${medLTCOpacity.toFixed(2)}`, value: medLTCOpacity, min: 0.1, max: 1, step: 0.05, onChange: setMedLTCOpacity },
-        { label: `大小 ${medLTCScale.toFixed(1)}`, value: medLTCScale, min: 0.3, max: 3, step: 0.1, onChange: setMedLTCScale },
-      ];
       case "medIsochrone": return [
         { label: `透明度 ${medIsochroneOpacity.toFixed(2)}`, value: medIsochroneOpacity, min: 0.1, max: 0.9, step: 0.05, onChange: setMedIsochroneOpacity },
       ];
@@ -1739,10 +1564,6 @@ export function useTransportParams() {
         { label: `大小 ${serviceAreaScale.toFixed(1)}`, value: serviceAreaScale, min: 0.3, max: 3, step: 0.1, onChange: setServiceAreaScale },
         { label: `透明度 ${serviceAreaOpacity.toFixed(2)}`, value: serviceAreaOpacity, min: 0.1, max: 1, step: 0.05, onChange: setServiceAreaOpacity },
         { label: `Z 漂浮 ${serviceAreaZ.toFixed(0)}px`, value: serviceAreaZ, min: 0, max: 100, step: 2, onChange: setServiceAreaZ },
-      ];
-      case "serviceAreaPolygon": return [
-        { label: `填色透明度 ${serviceAreaPolygonOpacity.toFixed(2)}`, value: serviceAreaPolygonOpacity, min: 0, max: 0.6, step: 0.02, onChange: setServiceAreaPolygonOpacity },
-        { label: `邊框寬 ${serviceAreaPolygonLineWidth.toFixed(1)}`, value: serviceAreaPolygonLineWidth, min: 0, max: 4, step: 0.5, onChange: setServiceAreaPolygonLineWidth },
       ];
       case "taxiStand": return [
         { label: `大小 ${taxiStandScale.toFixed(1)}`, value: taxiStandScale, min: 0.3, max: 3, step: 0.1, onChange: setTaxiStandScale },
@@ -1780,21 +1601,10 @@ export function useTransportParams() {
           ? [{ type: "toggle" as const, label: "分級配色", value: schoolLevelColor, onChange: setSchoolLevelColor }]
           : []),
       ];
-      case "eduCampusPolygon": return [
-        { label: `透明度 ${eduCampusPolygonOpacity.toFixed(2)}`, value: eduCampusPolygonOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEduCampusPolygonOpacity },
-      ];
-      // 校地面積面量圖：與 eduCampusPolygon 同一份切片，但**各自一支 slider**
-      //（兩層常疊看，共用會連動導致其中一層被另一層蓋掉）
-      case "eduCampusArea": return [
-        { label: `透明度 ${eduCampusAreaOpacity.toFixed(2)}`, value: eduCampusAreaOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEduCampusAreaOpacity },
-      ];
       // 國小／國中學區面完全疊合 → 共用一支 slider（overlayRegistry 兩層都讀 eduDistrictK12Opacity）
       case "eduDistrictElementary":
       case "eduDistrictJunior": return [
         { label: `透明度 ${eduDistrictK12Opacity.toFixed(2)}`, value: eduDistrictK12Opacity, min: 0.1, max: 1, step: 0.05, onChange: setEduDistrictK12Opacity },
-      ];
-      case "eduDistrictSenior": return [
-        { label: `透明度 ${eduDistrictSeniorOpacity.toFixed(2)}`, value: eduDistrictSeniorOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEduDistrictSeniorOpacity },
       ];
       // 幼托三層共用一組 slider（overlayRegistry 三層都讀 eduChildcare*）；補習班點密度高一階，獨立一組
       case "eduKindergarten":
@@ -1802,49 +1612,6 @@ export function useTransportParams() {
       case "eduMutualCare": return [
         { label: `透明度 ${eduChildcareOpacity.toFixed(2)}`, value: eduChildcareOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEduChildcareOpacity },
         { label: `Scale ${eduChildcareScale.toFixed(1)}`, value: eduChildcareScale, min: 0.3, max: 3, step: 0.1, onChange: setEduChildcareScale },
-      ];
-      case "eduCramSchool": return [
-        { label: `透明度 ${eduCramSchoolOpacity.toFixed(2)}`, value: eduCramSchoolOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEduCramSchoolOpacity },
-        { label: `Scale ${eduCramSchoolScale.toFixed(1)}`, value: eduCramSchoolScale, min: 0.3, max: 3, step: 0.1, onChange: setEduCramSchoolScale },
-      ];
-      case "eduUniversityStudents": return [
-        { label: `透明度 ${eduUniversityStudentsOpacity.toFixed(2)}`, value: eduUniversityStudentsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setEduUniversityStudentsOpacity },
-        { label: `Scale ${eduUniversityStudentsScale.toFixed(1)}`, value: eduUniversityStudentsScale, min: 0.3, max: 3, step: 0.1, onChange: setEduUniversityStudentsScale },
-      ];
-      case "convenienceStores": return [
-        { label: `Scale ${convenienceScale.toFixed(1)}`, value: convenienceScale, min: 0.3, max: 3, step: 0.1, onChange: setConvenienceScale },
-      ];
-      case "postOffices": return [
-        { label: `透明度 ${postOfficesOpacity.toFixed(2)}`, value: postOfficesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPostOfficesOpacity },
-        { label: `大小 ${postOfficesScale.toFixed(1)}`, value: postOfficesScale, min: 0.3, max: 3, step: 0.1, onChange: setPostOfficesScale },
-      ];
-      case "iPostBoxes": return [
-        { label: `透明度 ${iPostBoxesOpacity.toFixed(2)}`, value: iPostBoxesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setIPostBoxesOpacity },
-        { label: `大小 ${iPostBoxesScale.toFixed(1)}`, value: iPostBoxesScale, min: 0.3, max: 3, step: 0.1, onChange: setIPostBoxesScale },
-      ];
-      case "communityCenters": return [
-        { label: `透明度 ${communityCentersOpacity.toFixed(2)}`, value: communityCentersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setCommunityCentersOpacity },
-        { label: `大小 ${communityCentersScale.toFixed(1)}`, value: communityCentersScale, min: 0.3, max: 3, step: 0.1, onChange: setCommunityCentersScale },
-      ];
-      case "govServiceOffices": return [
-        { label: `透明度 ${govServiceOfficesOpacity.toFixed(2)}`, value: govServiceOfficesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setGovServiceOfficesOpacity },
-        { label: `大小 ${govServiceOfficesScale.toFixed(1)}`, value: govServiceOfficesScale, min: 0.3, max: 3, step: 0.1, onChange: setGovServiceOfficesScale },
-      ];
-      case "publicLibraries": return [
-        { label: `透明度 ${publicLibrariesOpacity.toFixed(2)}`, value: publicLibrariesOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPublicLibrariesOpacity },
-        { label: `大小 ${publicLibrariesScale.toFixed(1)}`, value: publicLibrariesScale, min: 0.3, max: 3, step: 0.1, onChange: setPublicLibrariesScale },
-      ];
-      case "welfareCenters": return [
-        { label: `透明度 ${welfareCentersOpacity.toFixed(2)}`, value: welfareCentersOpacity, min: 0.1, max: 1, step: 0.05, onChange: setWelfareCentersOpacity },
-        { label: `大小 ${welfareCentersScale.toFixed(1)}`, value: welfareCentersScale, min: 0.3, max: 3, step: 0.1, onChange: setWelfareCentersScale },
-      ];
-      case "retailMarkets": return [
-        { label: `透明度 ${retailMarketsOpacity.toFixed(2)}`, value: retailMarketsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setRetailMarketsOpacity },
-        { label: `大小 ${retailMarketsScale.toFixed(1)}`, value: retailMarketsScale, min: 0.3, max: 3, step: 0.1, onChange: setRetailMarketsScale },
-      ];
-      case "publicToilets": return [
-        { label: `透明度 ${publicToiletsOpacity.toFixed(2)}`, value: publicToiletsOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPublicToiletsOpacity },
-        { label: `大小 ${publicToiletsScale.toFixed(1)}`, value: publicToiletsScale, min: 0.3, max: 3, step: 0.1, onChange: setPublicToiletsScale },
       ];
       case "submarineCables": return [];
       case "landingStations": return [];

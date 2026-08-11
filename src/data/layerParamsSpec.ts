@@ -242,6 +242,84 @@ export const LAYER_PARAMS_SPEC = {
   funeralOperatorDensity: [opacitySlider("funeralOperatorDensityOpacity", 0.6)],
   cemeteryOsm: [opacitySlider("cemeteryOsmOpacity", 0.45)],
   cemeteryZoning: [opacitySlider("cemeteryZoningOpacity", 0.55)],
+
+  // ══════════ 交通・醫療・公共設施・教育 ══════════
+  bikeStations: [
+    { kind: "slider", name: "bikeScale", labelPrefix: "Bike", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  highways: [
+    { kind: "slider", name: "highwayWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "highwayGlow", labelPrefix: "Glow", digits: 1, default: 0.3, min: 0, max: 3, step: 0.1 },
+  ],
+  provincialRoads: [
+    { kind: "slider", name: "provincialWidth", labelPrefix: "Width", digits: 1, default: 0.6, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "provincialGlow", labelPrefix: "Glow", digits: 1, default: 0.2, min: 0, max: 3, step: 0.1 },
+  ],
+  cyclingRoutes: [
+    { kind: "slider", name: "cyclingWidth", labelPrefix: "Cycling", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  freewayCongestion: [
+    { kind: "slider", name: "freewayWidth", labelPrefix: "Freeway", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  roadCongestion: [
+    { kind: "slider", name: "roadCongestionWidth", labelPrefix: "寬度", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("roadCongestionOpacity", 0.85),
+  ],
+  weatherStations: [
+    { kind: "slider", name: "weatherScale", labelPrefix: "Weather", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  fireEvents: [opacitySlider("fireEventsOpacity", 1)],
+  fireLatest: [opacitySlider("fireLatestOpacity", 1)],
+  erHospital: [opacitySlider("erHospitalOpacity", 0.85)],
+  librarySeats: [opacitySlider("librarySeatsOpacity", 0.9)],
+  parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6)],
+  parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", 0.9)],
+  medHospital: [opacitySlider("medHospitalOpacity", 0.9), scaleSlider("medHospitalScale", 1.0)],
+  medClinic: [opacitySlider("medClinicOpacity", 0.85), scaleSlider("medClinicScale", 1.0)],
+  medPharmacy: [opacitySlider("medPharmacyOpacity", 0.85), scaleSlider("medPharmacyScale", 1.0)],
+  medAED: [opacitySlider("medAEDOpacity", 0.9), scaleSlider("medAEDScale", 1.0)],
+  medLTC: [opacitySlider("medLTCOpacity", 0.85), scaleSlider("medLTCScale", 1.0)],
+  serviceAreaPolygon: [
+    { kind: "slider", name: "serviceAreaPolygonOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.2, min: 0, max: 0.6, step: 0.02 },
+    { kind: "slider", name: "serviceAreaPolygonLineWidth", labelPrefix: "邊框寬", digits: 1, default: 1.5, min: 0, max: 4, step: 0.5 },
+  ],
+  eduCampusPolygon: [opacitySlider("eduCampusPolygonOpacity", 0.35)],
+  eduCampusArea: [opacitySlider("eduCampusAreaOpacity", 0.55)],
+  eduDistrictSenior: [opacitySlider("eduDistrictSeniorOpacity", 0.18)],
+  eduCramSchool: [
+    opacitySlider("eduCramSchoolOpacity", 0.75),
+    { kind: "slider", name: "eduCramSchoolScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  eduUniversityStudents: [
+    opacitySlider("eduUniversityStudentsOpacity", 0.6),
+    { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  convenienceStores: [
+    { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
+  ],
+  postOffices: [opacitySlider("postOfficesOpacity", 0.85), scaleSlider("postOfficesScale", 1)],
+  iPostBoxes: [opacitySlider("iPostBoxesOpacity", 0.85), scaleSlider("iPostBoxesScale", 1)],
+  communityCenters: [
+    opacitySlider("communityCentersOpacity", 0.85),
+    scaleSlider("communityCentersScale", 1),
+  ],
+  govServiceOffices: [
+    opacitySlider("govServiceOfficesOpacity", 0.9),
+    scaleSlider("govServiceOfficesScale", 1),
+  ],
+  publicLibraries: [
+    opacitySlider("publicLibrariesOpacity", 0.9),
+    scaleSlider("publicLibrariesScale", 1),
+  ],
+  welfareCenters: [
+    opacitySlider("welfareCentersOpacity", 0.9),
+    scaleSlider("welfareCentersScale", 1),
+  ],
+  retailMarkets: [opacitySlider("retailMarketsOpacity", 0.9), scaleSlider("retailMarketsScale", 1)],
+  publicToilets: [
+    opacitySlider("publicToiletsOpacity", 0.75),
+    scaleSlider("publicToiletsScale", 1),
+  ],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**
