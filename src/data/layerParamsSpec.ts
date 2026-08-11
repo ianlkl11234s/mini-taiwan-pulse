@@ -320,6 +320,142 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("publicToiletsOpacity", 0.75),
     scaleSlider("publicToiletsScale", 1),
   ],
+
+  // ══════════ 天災・水利・農業・運動生態 ══════════
+  earthquakesGlobal: [
+    { kind: "slider", name: "earthquakesGlobalOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
+  ],
+  worldTrashDebris: [
+    { kind: "slider", name: "worldTrashDebrisOpacity", labelPrefix: "透明度", digits: 2, default: 0.85, min: 0, max: 1, step: 0.05 },
+  ],
+  dustForecast: [
+    { kind: "slider", name: "dustForecastOpacity", labelPrefix: "透明度", digits: 2, default: 0.7, min: 0, max: 1, step: 0.05 },
+  ],
+  waterBasins: [
+    { kind: "slider", name: "waterBasinOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
+  ],
+  waterRivers: [
+    { kind: "slider", name: "waterRiverWidth", labelPrefix: "寬度", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "waterRiverOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
+  ],
+  waterCanals: [
+    { kind: "slider", name: "waterCanalWidth", labelPrefix: "寬度", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "waterCanalOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
+  ],
+  waterLevees: [
+    { kind: "slider", name: "waterLeveeWidth", labelPrefix: "寬度", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    { kind: "slider", name: "waterLeveeOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
+  ],
+  waterProtectionZones: [
+    { kind: "slider", name: "waterProtectionZoneOpacity", labelPrefix: "透明度", digits: 2, default: 1.0, min: 0, max: 1, step: 0.05 },
+  ],
+  waterReservoirs: [
+    { kind: "slider", name: "reservoirPillarHeight", labelPrefix: "水位計高度", digits: 2, default: 1.0, min: 0, max: 3, step: 0.1 },
+  ],
+  waterFacilities: [
+    { kind: "slider", name: "waterFacilityScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("waterFacilityOpacity", 1.0),
+  ],
+  waterMonitorStations: [
+    { kind: "slider", name: "waterMonitorScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("waterMonitorOpacity", 1.0),
+  ],
+  waterDetentionBasins: [
+    { kind: "slider", name: "detentionBasinScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("detentionBasinOpacity", 1.0),
+  ],
+  lakesPondsOsm: [
+    { kind: "slider", name: "lakesPondsOsmOpacity", labelPrefix: "填色透明度", digits: 2, default: 0.5, min: 0, max: 0.85, step: 0.05 },
+  ],
+  rainGauge: [
+    { kind: "slider", name: "rainGaugeScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("rainGaugeOpacity", 1.0),
+  ],
+  riverLevel: [
+    { kind: "slider", name: "riverLevelScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("riverLevelOpacity", 1.0),
+  ],
+  groundwater: [
+    { kind: "slider", name: "groundwaterScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("groundwaterOpacity", 1.0),
+  ],
+  groundwaterWells: [
+    { kind: "slider", name: "groundwaterWellsScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("groundwaterWellsOpacity", 1.0),
+  ],
+  floodSensor: [
+    { kind: "slider", name: "floodSensorScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("floodSensorOpacity", 1.0),
+  ],
+  floodSensorIsochrone: [opacitySlider("floodSensorIsochroneOpacity", 0.55)],
+  taipeiSewer: [
+    { kind: "slider", name: "taipeiSewerScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("taipeiSewerOpacity", 0.85),
+  ],
+  taipeiEvacuate: [
+    { kind: "slider", name: "taipeiEvacuateScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("taipeiEvacuateOpacity", 0.9),
+  ],
+  taipeiPumb: [
+    { kind: "slider", name: "taipeiPumbScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
+    opacitySlider("taipeiPumbOpacity", 0.9),
+  ],
+  agriSoil: [opacitySlider("agriSoilOpacity", 1.0)],
+  agriLeisureFarmZones: [opacitySlider("agriLeisureFarmZonesOpacity", 1.0)],
+  agriRuralRegen: [opacitySlider("agriRuralRegenOpacity", 1.0)],
+  agriPOI: [
+    opacitySlider("agriPOIOpacity", 1.0),
+    { kind: "slider", name: "agriPOIScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  agriRetail: [
+    opacitySlider("agriRetailOpacity", 0.85),
+    { kind: "slider", name: "agriRetailScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  agriProduceWholesale: [
+    opacitySlider("agriProduceWholesaleOpacity", 0.85),
+    { kind: "slider", name: "agriProduceWholesaleScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  agriWholesaleMarket: [
+    opacitySlider("agriWholesaleMarketOpacity", 0.9),
+    { kind: "slider", name: "agriWholesaleMarketScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  livestockSlaughter: [
+    opacitySlider("livestockSlaughterOpacity", 0.9),
+    { kind: "slider", name: "livestockSlaughterScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  livestockFeed: [
+    opacitySlider("livestockFeedOpacity", 0.9),
+    { kind: "slider", name: "livestockFeedScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  livestockMarket: [
+    opacitySlider("livestockMarketOpacity", 0.95),
+    { kind: "slider", name: "livestockMarketScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+  ],
+  sportsSchool: [
+    opacitySlider("sportsSchoolOpacity", 0.8),
+    { kind: "slider", name: "sportsSchoolScale", labelPrefix: "大小", digits: 2, default: 0.5, min: 0.3, max: 3, step: 0.1 },
+  ],
+  sportsPublicOther: [
+    opacitySlider("sportsPublicOtherOpacity", 0.8),
+    { kind: "slider", name: "sportsPublicOtherScale", labelPrefix: "大小", digits: 2, default: 0.5, min: 0.3, max: 3, step: 0.1 },
+  ],
+  sportsPrivate: [
+    opacitySlider("sportsPrivateOpacity", 0.8),
+    { kind: "slider", name: "sportsPrivateScale", labelPrefix: "大小", digits: 2, default: 0.5, min: 0.3, max: 3, step: 0.1 },
+  ],
+  sportsPark: [
+    opacitySlider("sportsParkOpacity", 0.8),
+    { kind: "slider", name: "sportsParkScale", labelPrefix: "大小", digits: 2, default: 0.7, min: 0.3, max: 3, step: 0.1 },
+  ],
+  sportsCenter: [
+    opacitySlider("sportsCenterOpacity", 0.85),
+    { kind: "slider", name: "sportsCenterScale", labelPrefix: "大小", digits: 2, default: 0.9, min: 0.3, max: 3, step: 0.1 },
+  ],
+  farmRoads: [
+    { kind: "slider", name: "farmRoadsWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
+    opacitySlider("farmRoadsOpacity", 0.8),
+  ],
+  ecoNetworkZones: [opacitySlider("ecoNetworkZonesOpacity", 0.5)],
 } satisfies Partial<Record<keyof LayerVisibility, LayerParamSpec[]>>;
 
 /**
