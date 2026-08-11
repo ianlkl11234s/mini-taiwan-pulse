@@ -47,6 +47,7 @@ import {
   Truck, Droplet, Flame, Timer,
   LayoutGrid, ShieldCheck, Trash2, PlaneTakeoff,
   Cable, Store, Mail, PackageCheck, Users, BookOpen, ShoppingBasket, Toilet,
+  GraduationCap, Activity, Trees,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -1162,6 +1163,143 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "環境部列管公廁全國 13,281 座（本主題量體最大的一層）",
     topics: ["基礎建設", "公廁", "公共服務"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 2 —— 運動休閒 Sports & Leisure 6 層
+  //  運動場館 5 層是**批 1 至今最徹底的多對一**（母體：運動部全國場館名冊
+  //  約 15,000 點，catalog dataset sports/all_venues）：
+  //    - 同一份 `./sports/all_venues.geojson`、同一個 sourceId `sports-venues`
+  //      （5 個 OverlayConfig 各自 id 不同、sourceId 相同 → hydrate 只 fetch 一次，
+  //      各層以 `場館類別` filter 切分，layer id 後綴見 sportsTypes.SPORTS_LAYERS）
+  //    - 同一個 legend entry（id 取首個 key "sportsSchool"，拍板④家族共用形狀）
+  //    - 同一個 popup layerType `"sportsVenue"` —— **5 → 1**，比批 1 消防的
+  //      fireEvents/fireLatest 2 → 1 更極端。schema 一樣不需要改動。
+  //    - 同一個 catalog dataset `all_venues`
+  //  parksTaipei 則與這 5 層無關（自己的 source / legend / popup），只是同主題。
+  //
+  //  ⚠️ 色票：sportsTypes.ts 匯出的是 **category-keyed** 的 SPORTS_CATEGORY_COLOR
+  //  （依「場館類別」欄位值分色），不是 layer-key-keyed 的 *_LAYER_COLORS 記錄，
+  //  且 LAYER_COLORS 從未 import 它 —— 拍板①的「引用不複製」不適用，寫字面 hex。
+  // ══════════════════════════════════════════════════════════════
+  sportsSchool: {
+    key: "sportsSchool",
+    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    label: "學校場館 School",
+    expandable: true,
+    color: "#5c6bc0",
+    icon: GraduationCap,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "all_venues", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "sports-venues", url: "./sports/all_venues.geojson" },
+    legend: "sportsSchool",
+    popup: "sportsVenue",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "各級學校運動場館（全國場館名冊中「學校場館」類）",
+    topics: ["運動", "場館", "學校"],
+  },
+
+  sportsPublicOther: {
+    key: "sportsPublicOther",
+    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    label: "其他公共場館 Public",
+    expandable: true,
+    color: "#26a69a",
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "all_venues", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "sports-venues", url: "./sports/all_venues.geojson" },
+    legend: "sportsSchool",
+    popup: "sportsVenue",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "學校與國民運動中心以外的公共運動場館",
+    topics: ["運動", "場館", "公共設施"],
+  },
+
+  sportsPrivate: {
+    key: "sportsPrivate",
+    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    label: "民營場館 Private",
+    expandable: true,
+    color: "#ef6c00",
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "all_venues", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "sports-venues", url: "./sports/all_venues.geojson" },
+    legend: "sportsSchool",
+    popup: "sportsVenue",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "民營運動場館（健身房／球館等商業經營場地）",
+    topics: ["運動", "場館", "商業"],
+  },
+
+  sportsPark: {
+    key: "sportsPark",
+    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    label: "運動公園/開放空間 Park",
+    expandable: true,
+    color: "#66bb6a",
+    icon: Trees,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "all_venues", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "sports-venues", url: "./sports/all_venues.geojson" },
+    legend: "sportsSchool",
+    popup: "sportsVenue",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "運動公園與開放空間型場地（免費開放為主）",
+    topics: ["運動", "公園", "開放空間"],
+  },
+
+  sportsCenter: {
+    key: "sportsCenter",
+    section: { theme: "運動休閒 Sports & Leisure", group: "運動場館" },
+    label: "國民運動中心 Sports Center",
+    expandable: true,
+    color: "#ec407a",
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "all_venues", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "sports-venues", url: "./sports/all_venues.geojson" },
+    legend: "sportsSchool",
+    popup: "sportsVenue",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "各縣市國民運動中心（綜合型室內場館）",
+    topics: ["運動", "場館", "公共設施"],
+  },
+
+  parksTaipei: {
+    key: "parksTaipei",
+    section: { theme: "運動休閒 Sports & Leisure", group: "公園 Parks" },
+    label: "公園 Parks",
+    expandable: true,
+    color: "#7cb342",
+    icon: Trees,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "台北公園點位（public/urban/parks_taipei.geojson），catalog 待建",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "parks-taipei", url: "./urban/parks_taipei.geojson" },
+    legend: "parksTaipei",
+    popup: "parksTaipei",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "臺北市公園點位 2,917 處（公園／兒童遊戲場／綠地／鄰里公園等 7 類分色）",
+    topics: ["運動", "公園", "都市綠地"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

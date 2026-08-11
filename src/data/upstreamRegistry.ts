@@ -533,7 +533,6 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   // 都市開放空間新三層（2026-07 上線；catalog dataset 待 taipei-gis-analytics 補建後改 verified）
   protectedTreesNational: { status: 'catalog_missing', datasets: [], note: '受保護樹木全國 8 城彙整（public/urban/protected_trees_national.geojson），catalog 待建' },
   riversideTreesTaipei: { status: 'catalog_missing', datasets: [], note: '台北河濱喬木 30 座河濱公園（public/urban/riverside_trees_taipei.geojson），catalog 待建' },
-  parksTaipei: { status: 'catalog_missing', datasets: [], note: '台北公園點位（public/urban/parks_taipei.geojson），catalog 待建' },
   streetTreesTaipei3epoch: { status: 'catalog_missing', datasets: [], note: '台北行道樹三時點 2022/2024/2026 軌跡（public/urban/street_trees_taipei_3epoch.pmtiles），catalog 待建' },
   streetTreesNational: { status: 'catalog_missing', datasets: [], note: '行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles），catalog 待建' },
   treePitsTaipei: { status: 'catalog_missing', datasets: [], note: '台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles），catalog 待建' },
@@ -545,12 +544,9 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     processing: '內政部區域計畫法非都市土地使用分區 68,220 面 / 18 縣市（北市・嘉義市全境都市計畫故無），z5-14 PMTiles',
   },
   urbanZoningNewTaipei: { status: 'verified', datasets: [{ datasetId: 'urban_zoning_newtaipei', confidence: 'HIGH' }], note: '新北市都市計畫土地使用分區 34,190 面（urban.planning.ntpc.gov.tw opendata，docs/data-catalog/urban_composite/urban_zoning_newtaipei.md）' },
-  // 🏟️ 運動場館 Sports（全國 15,000 點，運動部 22849；catalog: sports/all_venues）
-  sportsSchool: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
-  sportsPublicOther: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
-  sportsPrivate: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
-  sportsPark: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
-  sportsCenter: { status: 'verified', datasets: [{ datasetId: 'all_venues', confidence: 'HIGH' }] },
+  // 🏟️ 運動休閒 Sports & Leisure 6 layer（運動場館 5＋parksTaipei）已搬進 layerManifest
+  //    （AR-22 Phase 2 批 2）—— 場館 5 層共用 catalog dataset sports/all_venues
+  //    （全國 15,000 點，運動部 22849）
   // 🎭 文化 Culture 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
   //    上游 handoff: taipei-gis-analytics/docs/handoff/culture-layers.md；catalog: docs/data-catalog/culture/
   // 🧳 觀光 Tourism（12 layer，docs/data-catalog/tourism/）

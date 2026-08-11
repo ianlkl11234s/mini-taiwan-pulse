@@ -189,19 +189,13 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   streetTreesTaipeiDiff: TreePine,
   protectedTreesNational: TreeDeciduous,
   riversideTreesTaipei: Waves,
-  parksTaipei: Trees,
   streetTreesTaipei3epoch: Sprout,
   streetTreesNational: TreePalm,
   treePitsTaipei: Flower2,
   buildingsGba: Building2,
   urbanZoningNewTaipei: Map,
   nonUrbanZoning: Sprout,
-  // 🏟️ 運動場館 Sports
-  sportsSchool: GraduationCap,
-  sportsPublicOther: Activity,
-  sportsPrivate: Activity,
-  sportsPark: Trees,
-  sportsCenter: Building2,
+  // 🏟️ 運動休閒 Sports & Leisure 6 層已搬進 layerManifest（AR-22 Phase 2 批 2）
   // 🎭 文化 Culture 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // 🧳 觀光 Tourism
   tourAttractions: Camera,
