@@ -304,3 +304,122 @@ paint 與 `LegendPanel` —— 三邊共用的 SSOT。`educationTypes.ts` 0 個 
 `wildlife_distribution_3rd_alt`、渲染成 circle 走 `forestryPOI`，與「阿里山鐵路」
 的圖層標題不符。manifest 照現況登記並在 entry 就地註明 —— 搬移階段的鐵則是
 **零失真**，修資料對應是另一件事，不夾帶。
+
+---
+
+## 2026-08-11 — Phase 2 批 4：46 層（執法治安 20・醫療 8・房地產 7・人口社經 6・全球氣候 5）
+
+`15b9756` schema 擴充（拍板②）｜`7bf9b82` 房地產｜`59dcf46` 醫療｜
+`64cf237` 執法治安｜`22b451e` 人口社經｜`e73f677` 全球氣候
+
+manifest 91 → **137 entry**。四張手寫表對這 46 key 殘留 grep 命中 0
+（`^  key:` 與 `key: "key"` 兩種形狀分開數，各 0）。
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（測試條數自批 1
+起未增減，本批兩處改動都是就地改寫既有 `it` 與既有 Set）｜
+黃金快照 fixture 自 Phase 0 起**一位元未動**。
+
+### 拍板②落地：`LayerSource` 支援同 key 多 config（`15b9756`）
+
+`LayerManifestEntry.source` 由 `LayerSource` 擴成 `LayerSource | LayerSource[]`。
+選陣列而非新增 `kind:"multi"` 變體，理由是**侵入最小**：91 筆既有 entry 一個字元
+都不用改、`satisfies` 的 literal 推導不受影響、Phase 3 派生時展開 sourceId 也最直接。
+
+契約測試改成單／複數走同一條路徑：`Array.isArray` 正規化 → 筆數比對 →
+**逐位對齊**逐欄比。index 配對不是圖方便 —— OVERLAY_REGISTRY 的順序決定 layer 疊放、
+Phase 3 派生 `GIS_LAYERS` 又是 first-hit-wins，順序 load-bearing，順手釘住。
+`kind:"custom"` 維持只能單數形（沒有 registry entry 可以多配）。
+
+兩次突變自測（陣列路徑在 propertyValueGrid 進來前跑不到，不自測等於沒護欄）：
+1. `cctv.source` 暫塞成兩筆 → 「cctv 宣告 2 筆 overlay source，OVERLAY_REGISTRY 實際 1 筆」
+2. propertyValueGrid 陣列裡 150m 與 450m 對調 → 「propertyValueGrid[0] sourceId 宣告錯」
+
+⚠️ **仍有 3 個 key 待用**（`stationsTRA`×2 批 8、`waterRivers`×2 / `waterReservoirs`×2
+批 6）。它們的 config 順序同樣 load-bearing，照 propertyValueGrid 的寫法即可。
+
+### 新增第三種 popup 真值來源：`extractNonGisFeatureTypes`
+
+批 1 為「GIS_LAYERS 的 layer id 寫成常數引用」補了 `extractGisConstRefTypes`。
+批 4 撞到更極端的一種：`windField` / `oceanCurrents` 的 popup **完全不經 GIS_LAYERS**
+—— 向量 feature 全部沒命中時 fallback 去 `sampleClimateFields`，直接
+`setFeatureInfo({ layerType: "climateField" })`。點哪都能讀值，本來就不對應任何
+layer id，兩個既有解析器都抓不到。
+
+不補這支這兩層只能宣告 `popup: null`（已知為假），Phase 3 派生會靜默丟掉
+「點地圖讀氣候場」。做法照批 1：只回 type 字串、**不進 fixture**。
+順帶收進來的 `ship` / `waterDam`（Three.js scene 自己 raycast）讓批 6/8 直接受益。
+突變自測：拿掉 union → windField 那條紅。
+
+### popup 判準的三層修正（本批最重要的交接）
+
+批 2 定的機械判準是「拿 `${sourceId}-${suffix}` 反查 GIS_LAYERS」。批 4 證明
+**它只對 A/B/C 體質成立**，D 體質必須逐層讀 factory 的 layer id 常數：
+
+| 情形 | 例子 | 照抽取器填 null 的後果 |
+|---|---|---|
+| D 但有 popup | `medIsochrone`/`medDesert` → `medicalIsochrone` | 丟掉等時圈點擊 |
+| D 且 key ≠ layerType | `earthquakesGlobal` → `earthquakeGlobal`、`typhoonTracks` → `typhoonTrack` | 丟掉點擊 |
+| D 且不經 GIS_LAYERS | `windField`/`oceanCurrents` → `climateField` | 丟掉氣候場讀值 |
+| D 且真的沒有 | 人口社經 6 層、`dustForecast` | 正確 |
+
+**「D 體質 → popup null」是錯的捷徑，「D 體質 → 一定要找到 popup」也是錯的。**
+唯一做法是逐層打開 hook / factory 看它 addLayer 了什麼 id，再對 GIS_LAYERS。
+
+### 三種「共用」形狀已全部撞完
+
+| 形狀 | 例子 | 契約測試 |
+|---|---|---|
+| 多 key 各自一筆 config，共用 `sourceId` | 教育 `edu-schools`×7、房地產 `re-grid`×3 | 按 `id` 過濾，不受影響 |
+| **同 key 多筆 config**（拍板②） | `propertyValueGrid`×3 | 陣列 + 逐位對齊 |
+| **兩個 key 一個 layer** | `medIsochrone`/`medDesert` 共用 `medical-isochrone-fill` | 兩者 source/popup 必然相同 |
+
+第三種是批 4 新撞到的。Phase 3 依 popup 派生 `GIS_LAYERS` 時要小心別把它當重複條目去重。
+
+### 五個主題的形狀
+
+| | 執法 20 | 醫療 8 | 房地產 7 | 人口社經 6 | 全球氣候 5 |
+|---|---|---|---|---|---|
+| dataClass | A14 B5 C1 | A1 B4 C1 D2 | B4 D3 | **D6** | **D5** |
+| popup 與 key 同名 | **20/20** | 1/8（僅 erHospital；另 5→1 + 2→1） | 1/7 | 0（全 null） | 0（2 單數形 + 2 fallback + 1 null） |
+| `legend: null` | 0 | 0 | 0 | 2 | 0 |
+| `labelMobile` | 0/20 | 0/8 | 1/7 | 0/6 | 0/5 |
+
+- **醫療一個主題撞完四種 dataClass** —— 前三批沒有任何主題做到。
+- **執法 popup 20/20 同名**是前三批沒出現過的整齊度，但整齊是結果不是前提，
+  仍逐 key 反查（20 筆各命中 1）。
+- **legend 大規模共用**：執法 17 層共用 `policeStation`（該 entry 實際 18 key，
+  多出的 `civilDefenseShelter` 是批 1 壓測拍板④的那層）；醫療 POI 5 層共用
+  `medHospital`；房地產 6 層共用 `realEstateRentalGrid`。
+
+### 色票拍板①：本批 46 個全部「不引用」
+
+46 個色票在 `HANDWRITTEN_LAYER_COLORS` 原本就是字面 hex，**沒有任何
+`*_LAYER_COLORS` 常數在餵這張表**（`propertyValueTypes.ts` 匯出的是 bands / scales
+這類 category-keyed 分色資料，同批 2 `tourTypes` 的情形）→ 寫字面。
+本批無 spread 可刪（批 3 之後 `HANDWRITTEN_LAYER_COLORS` 已一個 spread 都不剩）。
+
+### 區塊註解不可信的第三種（前兩種在批 2/3）
+
+批 2 是「別主題 key 混進本區塊」、批 3 是「本主題 key 散在別處」，批 4 是
+**註解涵蓋範圍與內容從一開始就對不上**：`LAYER_COLORS` 的 `// 警政司法民防 17 layer`
+底下刪掉 20 層後接的是**航空管制 4 層**；`LAYER_ICONS` 的 `// 警政司法民防 17 layer`
+與 `// 警察覆蓋分析` 兩行同時變空殼。另外 `realEstatePresalePoint` 在
+`UPSTREAM_REGISTRY` 排在 `propertyValueGrid` **後面**（同主題內順序也不可信）。
+三種都撞過了，結論不變：**逐 key grep 定位再刪**，本批用只讀腳本逐 key 定位執行。
+
+### 記一筆現況出入（本次不動）
+
+`medDesert` 的 `upstream.processing` 寫「> 30 分鐘」，`medicalIsochroneLayerFactory`
+實際 filter 的 level 是 `over15`（> 15 分鐘）。upstream 照抄、description 記渲染實況，
+兩者出入就地註明 —— 同批 3 `forestAlishanRail`，修資料對應不夾帶。
+
+### 觸點 #20 核對（非改動）
+
+本批 dataClass B 共 13 層，`source.url` 的目錄前綴只落在
+`/coverage/`、`/urban/`、`/geo/`、`/medical/`、`/police_justice/` 五個
+—— 全部已有對應的 `nginx.conf` location 區塊（nginx 是**目錄級**規則不是逐檔，
+新增同目錄切片不需要改 nginx）。**本批只核對宣告，未改部署設定。**
+
+⚠️ 但 `scripts/deploy/upload-deploy-assets.sh` 是**逐檔清單**，本批未逐檔比對
+（批 3 林業有比對，因為那批是新上的切片）。批 4 全是既有已上線圖層，
+清單若有缺早就 404 了 —— 不過 Phase 5 改寫 `/new-layer` 時，
+「manifest 的 `source.url` ↔ deploy 清單」值得做成一條機械斷言。
