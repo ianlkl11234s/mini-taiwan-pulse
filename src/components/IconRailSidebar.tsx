@@ -35,7 +35,7 @@ import {
   // 🎭 CULTURE icons（Building2 / CalendarDays 已 import 復用）
   Landmark, Theater, Library,
   // 🧳 TOURISM icons（Mountain / Factory 已 import 復用）
-  Camera, ThermometerSun, Castle, Church, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
+  Camera, ThermometerSun, Castle, PartyPopper, FerrisWheel, Tent, BedDouble, UtensilsCrossed,
   // ⚰️ FUNERAL icons（LandPlot / Grid3x3 已 import 復用）
   Cross, Flower, Briefcase,
   // 🎓 EDUCATION icons（GraduationCap / Accessibility / Mountain / LandPlot / Map 已 import 復用；
@@ -242,13 +242,7 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   tourCamping: Tent,
   tourHotels: BedDouble,
   tourRestaurants: UtensilsCrossed,
-  // 🛕 宗教 Religion
-  religionTemples: Church,
-  religionChurches: Church,
-  religionAncestralHalls: Landmark,
-  religionFoundations: HeartHandshake,
-  religionOtherWorship: Sparkles,
-  religionTop100: Camera,
+  // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // ⚰️ 殯葬 Funeral
   funeralFacilities: Cross,
   funeralOperators: Briefcase,

@@ -25,15 +25,27 @@
 //   等價證明：src/data/__tests__/layerGoldenSnapshot.test.ts 必須全綠
 //     —— 搬移零失真才算數。
 //
-// ⚠️ import 方向：本檔只能 import `../types` 與 lucide-react（純常數可）。
+// ⚠️ import 方向：本檔只能 import `../types`、lucide-react，以及**零 import 的純色票
+//    常數檔**（religionTypes / funeralTypes 等，見下方色票規約）。
 //    layerCatalog / IconRailSidebar / upstreamRegistry 是**下游**，反向 import
 //    會造成 cycle（layerVisibilityStore → layerCatalog → layerManifest 這條鏈上
 //    任何回頭都會炸）。
+//
+// ── 色票規約：外部色票常數用「引用」不用「複製字面」──────────────────
+//    宗教 / 殯葬 / 教育三組的色票 SSOT 是 `RELIGION_LAYER_COLORS` /
+//    `FUNERAL_LAYER_COLORS` / `EDUCATION_LAYER_COLORS` —— 那些檔同時餵
+//    LAYER_COLORS 與圖層自己的 paint 表達式，是**三邊共用**的單一真實來源。
+//    把 hex 複製進 manifest 等於破壞它們的存在理由（改一邊漂移另一邊，
+//    而且 tsc 不會叫）。所以 manifest 的 color 欄寫 `RELIGION_LAYER_COLORS.religionTemples`。
 
 import type { LucideIcon } from "lucide-react";
-import { Video, Radio, LandPlot, TrainFront, Factory } from "lucide-react";
+import {
+  Video, Radio, LandPlot, TrainFront, Factory,
+  Church, Landmark, HeartHandshake, Sparkles, Camera,
+} from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
+import { RELIGION_LAYER_COLORS } from "./religionTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -271,6 +283,150 @@ export const LAYER_MANIFEST = {
     },
     description: "環境部列管污染潛勢設施 152k 點（介質 × 嚴重度分色，列管≠污染）",
     topics: ["環境", "污染", "列管"],
+  },
+  // ══════════════════════════════════════════════════════════════
+  //  Phase 2 批 1 —— 宗教 Religion 6 層
+  //  同構家族：一個 legend 元件涵蓋 6 個 key（id 取該 entry 首個 key
+  //  "religionTemples"），color 全部引用 RELIGION_LAYER_COLORS。
+  //  體質混：temples 量體大走 PMTiles(B)，其餘 5 層 geojson(A)。
+  // ══════════════════════════════════════════════════════════════
+  religionTemples: {
+    key: "religionTemples",
+    section: { theme: "宗教 Religion", group: "點位" },
+    label: "寺廟 Temples",
+    labelMobile: "寺廟 (19,201)",
+    expandable: true,
+    color: RELIGION_LAYER_COLORS.religionTemples,
+    icon: Church,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "temples", confidence: "HIGH" }],
+      processing: "內政部宗教資訊系統 XML × 文資 × 百景 × OSM trust chain（religious_site 120m + 名稱 0.85）；deity_family 9 族為上游衍生欄",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "religion-temples",
+      url: "./religion/temples.pmtiles",
+      sourceLayer: "temples",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "religionTemples",
+    popup: "religionTemples",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "全台登記寺廟 19,201 座（主祀神 deity_family 9 族分色）",
+    topics: ["宗教", "寺廟", "民俗"],
+  },
+
+  religionChurches: {
+    key: "religionChurches",
+    section: { theme: "宗教 Religion", group: "點位" },
+    label: "教會 Churches",
+    labelMobile: "教會 (2,116)",
+    expandable: true,
+    color: RELIGION_LAYER_COLORS.religionChurches,
+    icon: Church,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "churches", confidence: "HIGH" }],
+      note: "教會 2,116（OSM 補 1,066 聚會點；ODbL）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "religion-churches", url: "./religion/churches.geojson" },
+    legend: "religionTemples",
+    popup: "religionChurches",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "全台教會 2,116 處（含 OSM 補入的聚會點）",
+    topics: ["宗教", "基督宗教"],
+  },
+
+  religionAncestralHalls: {
+    key: "religionAncestralHalls",
+    section: { theme: "宗教 Religion", group: "點位" },
+    label: "宗祠 Ancestral Halls",
+    labelMobile: "宗祠 (173)",
+    expandable: true,
+    color: RELIGION_LAYER_COLORS.religionAncestralHalls,
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ancestral_halls", confidence: "HIGH" }],
+      note: "宗祠 173（登記宗祠 69 / 基金會 8 / 文資祠堂 96）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "religion-ancestral-halls", url: "./religion/ancestral_halls.geojson" },
+    legend: "religionTemples",
+    popup: "religionAncestralHalls",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "宗祠家廟 173 處（登記宗祠 / 宗親基金會 / 文資祠堂三類）",
+    topics: ["宗教", "宗族", "文資"],
+  },
+
+  religionFoundations: {
+    key: "religionFoundations",
+    section: { theme: "宗教 Religion", group: "點位" },
+    label: "宗教基金會 Foundations",
+    labelMobile: "宗教基金會 (165)",
+    expandable: true,
+    color: RELIGION_LAYER_COLORS.religionFoundations,
+    icon: HeartHandshake,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "foundations", confidence: "HIGH" }],
+      note: "宗教基金會 165（單一源）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "religion-foundations", url: "./religion/foundations.geojson" },
+    legend: "religionTemples",
+    popup: "religionFoundations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "全國性宗教財團法人 165 處",
+    topics: ["宗教", "法人"],
+  },
+
+  religionOtherWorship: {
+    key: "religionOtherWorship",
+    section: { theme: "宗教 Religion", group: "點位" },
+    label: "其他宗教場所 Other Worship",
+    labelMobile: "其他宗教場所 (1,319)",
+    expandable: true,
+    color: RELIGION_LAYER_COLORS.religionOtherWorship,
+    icon: Sparkles,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "other_worship", confidence: "HIGH" }],
+      note: "其他宗教場所 1,319（清真寺/神社遺構/風獅爺…；全 OSM 源 ODbL）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "religion-other-worship", url: "./religion/other_worship.geojson" },
+    legend: "religionTemples",
+    popup: "religionOtherWorship",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "清真寺／神社遺構／風獅爺等其他信仰場所 1,319 處（全 OSM 源）",
+    topics: ["宗教", "民俗", "OSM"],
+  },
+
+  religionTop100: {
+    key: "religionTop100",
+    section: { theme: "宗教 Religion", group: "精選" },
+    label: "宗教百景 Top 100",
+    labelMobile: "宗教百景",
+    expandable: true,
+    color: RELIGION_LAYER_COLORS.religionTop100,
+    icon: Camera,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "top100", confidence: "HIGH" }],
+      note: "宗教百景 100 點（docs/data-catalog/religion/top100.md）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "religion-top100", url: "./religion/top100.geojson" },
+    legend: "religionTemples",
+    popup: "religionTop100",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "內政部宗教百景 100 處精選（2026-08 由 tourReligion 更名歸位）",
+    topics: ["宗教", "觀光", "精選"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

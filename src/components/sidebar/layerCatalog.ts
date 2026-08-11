@@ -27,7 +27,6 @@ import type { LayerVisibility, TransportType } from "../../types";
 
 // ── Color Config ──
 
-import { RELIGION_LAYER_COLORS } from "../../data/religionTypes";
 import { FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
 import { EDUCATION_LAYER_COLORS } from "../../data/educationTypes";
 import {
@@ -212,8 +211,11 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   tourCamping: "#7cb342",
   tourHotels: "#1976d2",
   tourRestaurants: "#c62828",
-  // 🛕 宗教 Religion（色票 SSOT = religionTypes.ts RELIGION_LAYER_COLORS）
-  ...RELIGION_LAYER_COLORS,
+  // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）——
+  //    色票 SSOT 仍是 religionTypes.ts RELIGION_LAYER_COLORS，manifest 的 color 欄
+  //    直接引用它。⚠️ spread **不觸發 excess property check**，所以這裡若留著
+  //    `...RELIGION_LAYER_COLORS`，tsc / 黃金快照 / 契約測試會全綠但登記沒真搬走
+  //    （manifest 後蓋、值又相同）→ 必須整行刪掉，這是雙軌護欄唯一擋不到的漏法。
   // ⚰️ 殯葬 Funeral（色票 SSOT = funeralTypes.ts FUNERAL_LAYER_COLORS）
   ...FUNERAL_LAYER_COLORS,
   // 🎓 教育 Education（色票 SSOT = educationTypes.ts EDUCATION_LAYER_COLORS；
@@ -913,11 +915,11 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "religionTemples", label: "寺廟 Temples", labelMobile: "寺廟 (19,201)", expandable: true },
-          { key: "religionChurches", label: "教會 Churches", labelMobile: "教會 (2,116)", expandable: true },
-          { key: "religionAncestralHalls", label: "宗祠 Ancestral Halls", labelMobile: "宗祠 (173)", expandable: true },
-          { key: "religionFoundations", label: "宗教基金會 Foundations", labelMobile: "宗教基金會 (165)", expandable: true },
-          { key: "religionOtherWorship", label: "其他宗教場所 Other Worship", labelMobile: "其他宗教場所 (1,319)", expandable: true },
+          fromManifest("religionTemples"),
+          fromManifest("religionChurches"),
+          fromManifest("religionAncestralHalls"),
+          fromManifest("religionFoundations"),
+          fromManifest("religionOtherWorship"),
         ],
       },
       {
@@ -925,7 +927,7 @@ export const THEMES: ThemeDef[] = [
         layers: [
           // 2026-08-02 自「觀光 → 玩・人文」搬來並更名（原 key tourReligion），
           // 對應上游 religion.top100（自 tourism.religion 搬移歸位）
-          { key: "religionTop100", label: "宗教百景 Top 100", labelMobile: "宗教百景", expandable: true },
+          fromManifest("religionTop100"),
         ],
       },
     ],
