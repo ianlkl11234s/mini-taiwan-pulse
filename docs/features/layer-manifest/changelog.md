@@ -2223,3 +2223,275 @@ P3-2D 交接第 5 點。唯一自然的切法是「主題一檔 ＋ spread 合�
    仍由 `useLayerParamsRuntime` 組裝，消費端要改吃 `useLayerParams(key)` 才會兌現
    「一個 slider 動、只 render 該層控件」。**那不是等價重構**，本棒的等值閘會擋住它
    —— 那是對的，要另立驗收標準。
+
+---
+
+## 2026-08-12 — Phase 4（最終棒）：護欄永久化 ＋ 紅燈演練
+
+`1b282b5` `test(manifest): layerConsistency 改守 manifest 完整性（4 → 9 條，封 HANDWRITTEN 逃生口）`
+`3a981db` `test(golden): 黃金快照縮編 12 → 3 section（去掉與 manifest 契約重複的那 9 份）`
+`94711de` `refactor(params): emptyByDesign 根治 —— 5 個空 case 與 paramsCaseKeys() 一併退役`
+`8dbfc6e` `docs(new-layer): 產骨架流程改版 —— 「manifest 一筆 + spec 一筆 + 邏輯檔」取代 7 步`
+
+**工程本體早已完成，本棒做的是「讓漏接線必紅」變成永久體質，然後證明它。**
+唯一的 `src/` 非測試改動是刪掉 5 個 `case "x": return [];`
+（`default: return []` 逐字等價，黃金快照 `params` section **零 diff** 為證）。
+
+### 驗收
+
+| 項 | 結果 |
+|---|---|
+| `npx tsc -b` | 0 error（每個 commit） |
+| `npx vitest run` | 43 檔 **564 passed / 1 skipped**（基準 567 → +5 完整性閘 −9 重複 section 條 +1 fixture meta 條 +1 spec⇄manifest 焊接 −1 被涵蓋的重複條）|
+| `layer-golden.json` | `94711de` 的行為等價證明：**零 diff**；`3a981db` 縮編後 1,380,591 → 1,113,164 bytes |
+| 紅燈演練 | **4/4 會叫**，還原後全綠（逐場輸出見第 5 節）|
+
+### 1. `layerConsistency` 從「文字掃描 ratchet」改成「manifest 完整性驗證」
+
+舊版的守備對象在 348 層搬完之後已經**不存在**了：它掃
+`useLayerParamsRuntime.ts` 的 `case "key"` 字面、比對三份 `BASELINE_*`，
+守的是「接線接了沒」。但接線現在**由 manifest 派生**，真正的失敗模式變成
+**「新層根本沒進 manifest」**。改守三件事：
+
+| # | 守什麼 | 為什麼 tsc 擋不住 |
+|---|---|---|
+| 1 | **key 空間完整**：`keyof LayerVisibility` 每個 key 都要有 manifest entry | `HANDWRITTEN_LAYER_COLORS` / `HANDWRITTEN_UPSTREAM` / `HANDWRITTEN_LAYER_ICONS` 三個 `Omit<…, ManifestKey>` 逃生口**型別上合法**（layerCatalog 註解自承「唯一沒有機械護欄的漏法」）——新 key 塞進去，tsc 全綠、派生鏈整條拿不到它 |
+| 2 | **必要欄有真值** | tsc 擋「欄位不存在」（TS2741），擋不住 `color: ""` / `topics: []` / `description: ""` / `status:"verified"` 但 `datasets: []` 的空殼血緣 |
+| 3 | **豁免必須顯式登記** | `section`/`legend`/`popup`/`params` 都可以寫 `null`。`null` 本身不痛 —— 新層照抄一個 null 就悄悄豁免掉 UX 鐵則，而 `layerManifest.test.ts` 只會確認「宣告 null ⇔ 現況真的沒接線」，那是**一致的謊**，不會紅 |
+
+#### ⚠️ 翻譯豁免集之前先機械比對（三組全等，不是假設）
+
+`BASELINE_NOT_IN_SIDEBAR` 是 `SECTIONS` 派生、manifest 的 orphan 是 `THEMES` 派生
+—— **兩個不同的 key 空間**，不能假設相等。跑一次性 probe 逐 key diff：
+
+| 舊 baseline | manifest 派生集 | diff |
+|---|---|---|
+| `BASELINE_NOT_IN_SIDEBAR`（10）| `section === null`（10）| **雙向皆空** |
+| `BASELINE_NO_LEGEND`（84）| `legend === null`（84）| **雙向皆空** |
+| `BASELINE_NO_PARAMS`（7）＋ `emptyByDesign`（5）| `params === null`（12）| **雙向皆空** |
+
+順帶量到 `MIGRATED_PARAMS_KEYS`（336）⇔ `params !== null`（336）也是雙向全等
+—— 336 ＋ 12 ＝ 348，這個恆等式成了下一節根治方案的前提。
+（`SECTIONS` 與 `THEMES` 的 key 集合今天恰好相同，但那是**現況**不是保證，
+所以 ledger 錨在 manifest 的 `section` 而不是任一張 sidebar 表。）
+
+#### 新增第四份 ledger：`NO_POPUP_LEDGER`（57）
+
+舊版**完全沒有** popup 這道閘（鐵則 3 一直沒有機械守門）。
+⚠️ 誠實聲明寫進檔內：這 57 筆是**就地凍結的現況** ——
+每筆「宣告 null ⇔ 真的沒接線」在 Phase 2 都機械對帳過，
+但「它是否*應該*有 popup」沒有逐筆重新考證。ledger 的作用是 ratchet：
+**新層想宣告 `popup: null` 必須加一行並寫理由**，不是靜默跟著現況走。
+
+已查證的兩大類寫進註解：Three.js scene 自帶 picking（`pickFlight`/`pickTrain`/`pickBus`
+路徑直接 `setFeatureInfo`，**有 tooltip**，不是「點了沒反應」）／ raster・純線・純面背景層。
+
+#### 「5 靜默失敗點」誠實對映：**4.5 / 5**
+
+2026-07-02 稽核列的 5 個（App.tsx 漏 call hook／loader 未接／overlayRegistry 漏 entry／
+click 註冊漏／`DEFAULT_ON` 漏）：
+
+| # | 現況 | 由誰擋 |
+|---|---|---|
+| overlayRegistry 漏 entry | ✅ loud | 完整性閘（必須有 entry）＋ `layerManifest.test.ts` 的 `source` ⇔ `OVERLAY_REGISTRY` 雙向對帳 |
+| click 註冊漏 | ✅ loud | 同上的 `popup` ⇔ `GIS_LAYERS`/`HEADER_LABELS` ＋ `NO_POPUP_LEDGER` |
+| `DEFAULT_ON` 漏 | ✅ **結構性消失** | `buildDefaultVisibility()` 的 key 全集由 `LAYER_COLORS` 派生，新層不必碰該檔；且 `DEFAULT_ON` 現為空集合。保留一條「預設開啟的層必須是 manifest key」 |
+| loader 未接 | 🟡 部分 | `loadingRegistryContract.test.ts` 擋「loader 沒包 `withLoading`」，**不擋「根本沒寫 loader」** |
+| App.tsx 漏 call hook | ❌ **仍是靜默** | 沒有乾淨的機械解 —— manifest 不記 hook 名，grep App.tsx 是會誤報的脆弱護欄。**刻意不蓋** |
+
+⚠️ 最後一項寫進 backlog 而不是硬湊一道閘：一道會誤報的護欄比沒有更糟
+（它會訓練出「紅了就加豁免」的習慣，那正是本工程在獵殺的東西）。
+
+#### 順手補的第 9 條：鐵則 4 的閾值同步
+
+§4a 規則 4（`options.length ≥ 4` 必用原生 `<select>`）**不是 per-layer 觸點**
+（兩個 sidebar 自動依長度切換，新層什麼都不用做），唯一的失敗模式是
+「改了一邊忘了另一邊」→ 桌機 dropdown、手機撐爆的 button row。
+一條文字閘釘住兩檔的 `ctrl.options.length > 3`。
+
+### 2. `emptyByDesign` 根治：語意事實搬回 manifest
+
+P3-3 交接第 3 點。原本的形狀是**語意事實寄生在原始碼字面**：
+hook 留 5 個 `case "x": return [];`，由 `paramsCaseKeys()` 正則掃出來。
+代價實際發生過 —— **該正則不剝註解**，P3-3 在檔頭寫出那個字面就憑空生出一個
+幽靈 key，同時混進 `all` 與 `emptyByDesign`，讓覆蓋斷言誤報。
+
+根治不是「讓正則剝註解」（那只是讓註解不再誤傷），而是**換家**：
+「有意識地沒有控件」＝ manifest 的 `params: null`。連鎖五處：
+
+1. hook 的 5 個空分支刪除 → `getControls` 收成 `buildParamControls(…) ?? []`，
+   雙軌收束成單軌。**fixture 零 diff = 逐字等價**。
+2. `paramsCaseKeys()` ＋ `PARAMS_FILE` 刪除，**不留薄殼**。
+   抽取器的「原始碼文字解析」來源從 2 個降到 1 個（只剩 `GIS_LAYERS`）。
+3. 覆蓋斷言改比 runtime 集合：抽到控件的 key ≡ `MIGRATED_PARAMS_KEYS`，零文字解析。
+4. `layerManifest.test.ts` 新增焊接 `params === null ⇔ !isMigratedParamsKey(k)`
+   —— 形狀 SSOT（manifest）與內容 SSOT（spec）對不上立刻紅。
+5. `layerParamsSharedState.test.ts` 第 3 節**換守備對象**（依 P3-2D 留的指示
+   「終局刪檔時本段會跟著 switch 一起消失」）：switch 清空後
+   `parseCaseGroups` 那 ~90 行解析器與「耦合群組不得有成員已遷移」**母體歸零**，
+   換成更強也更簡單的一條 —— **switch 不准回來**。沒有 case 就長不出
+   「fall-through 共用一個 `useState`」那個形狀（P3-2A 唯一「四道閘全綠、
+   畫面卻壞掉」的形狀），共用值的保護因此完全落在**規格側**的 `sharedGroup` 三條。
+
+⚠️ 連帶消失的還有 P3-3 立的那條禁忌「本檔註解不能寫出 `case` 加雙引號 key 的字面」。
+剩下的兩道文字護欄（`overlayParamsDeps` 的 `MEMO_START` 哨兵、
+`layerParamsSharedState` 的 `stripComments()`）**都不掃註解**。
+順手改掉因此變成假話的註解 8 處（hook 檔頭 2 段、manifest 內 5 處、兩支
+`layerParams*.test` 的 `aqiStations` 例子、development-rules §4 兩處、PLAYBOOKS 1 處）。
+
+### 3. 黃金快照鷹架去留：選 **(縮小版 a)**，12 section → 3
+
+任務書給的三個選項是 (a) 保留為回歸測試 ／ (b) 降級為手動腳本 ／ (c) 完全退役。
+**先量再決定** —— 拆出 fixture 各 section 的體積，對照「這個 section 有沒有別的
+永久護欄在守」：
+
+| section | 佔比 | 別的護欄 | 處置 |
+|---|---|---|---|
+| `overlays` | 54.8% | **無** | 留 |
+| `params` | 14.3% | 只有 `{count, kinds}`（manifest）| 留 |
+| `gisLayers` | 3.3% | 只有「同一 key 內多 layerType 的相對先後」 | 留 |
+| `upstream`/`themes`/`sidebarSections`/`labels`/`icons`/`colors`/`featureInfo`/`legend`/`gated` | 27.6% | `layerManifest.test.ts` **逐 key 雙向焊死** | 移出 |
+
+判準是「**這個 section 有沒有別的護欄在守**」，不是體積：
+
+- 移出的 9 個是**重複護欄**，而且同時是「每加一層必動」的 section ——
+  保護價值 0、churn 最高。留著只會訓練出「無腦跑 REGEN」的習慣，
+  而那正是 fixture 檔頭自己警告的拆護欄行為。
+- 留下的 3 個是**唯一保護來源**，且共同特徵是**由共用機制 fan-out**：
+  `overlayRegistry` 有 6 個 entry factory 產 28+ entry（改 factory 5 行可靜默改掉
+  28 層的 dark 分支，manifest 的 `source` 只驗來源形狀、**完全不碰 paint**）；
+  336 個 key 的控件全由 spec builder ＋ `buildParamControls` 派生（改一個 builder 的
+  default/min/max，manifest 的 `count` 與 `kinds` 兩者都不動）；
+  `gisLayers` 的**跨 key** first-hit-wins 全域順序沒人守。
+
+⚠️ **抽取器不縮**：`layerGoldenExtract.ts` 是 `layerManifest.test.ts` 的地基
+（`golden.params` 對帳 ＋ 四支 featureType 抽取器餵 popup 對帳），
+它壞掉等於 manifest 契約測試整組失去意義。決定性測試與 `__FN__` 掃描也維持看全 12 section。
+
+實作：`FIXTURE_SECTIONS` ＋ `pickFixture()`；`diffGolden` 收第三參數。
+突變自測第 1 條從 `colors` 改打 `params` —— **拿一個已經不受保護的 section 去證明
+「護欄會叫」，證出來的是假的**。新增一條「fixture 的 `meta.sections` 必須等於
+`FIXTURE_SECTIONS`」防手改 ／ 跑到舊版 dump 腳本（否則少一個 section 的 fixture
+會讓逐 section 比對整段靜默略過）。
+
+### 4. `/new-layer` 改版：**不只是文件過期，是產生器與護欄打架**
+
+`layer-creator` agent 的舊第 7 步（手寫 `LAYER_COLORS`）與第 9 步（手改 `DEFAULT_ON`）
+**照做會被新的完整性閘擋下來** —— 前者的自然寫法就是塞
+`HANDWRITTEN_LAYER_COLORS`（tsc 綠、完整性閘紅）。所以四個檔一起改：
+`.claude/commands/new-layer.md`（觸點改成 ①型別 ②manifest 一筆 ③THEMES 一行
+`fromManifest` ④spec 一筆 ⑤實質邏輯檔 ⑥條件觸點）／
+`.claude/agents/layer-creator.md`（10 步 ＋ 三條新禁令）／
+`.claude/skills/layer-onboarding/SKILL.md`（Step 2 ＋「常見驗收失敗」四種新訊息）／
+`CLAUDE.md` §5。
+
+三個 `null`（legend / popup / params）在四份文件裡一律標成**豁免宣告**而非預設值 ——
+這是 Phase 4 最容易被繞過的地方：寫 null 就要進 ledger 並附理由。
+
+### 5. ⚠️ 紅燈演練 4/4（逐場輸出，還原後全綠）
+
+> 演練前工作區乾淨、四項改動全部 commit 完畢；每場結束用
+> `git checkout -- <file>` 逐檔還原並 `git status` 確認乾淨。演練改動**永不 commit**。
+
+#### (a) manifest 漏 color 欄
+
+兩個變體都跑，因為它們證明的是**不同的閘**：
+
+**a1 — 整行刪掉**（`cctv` 的 `color: "#26c6da",`）→ `npx tsc -b` 紅：
+
+```
+src/components/sidebar/layerCatalog.ts(150,9): error TS2322: …
+  Property 'color' is missing in type '{ key: "cctv"; … }'
+  but required in type 'LayerManifestThemedEntry'.
+src/data/layerManifest.ts(293,3): error TS2322: … Property 'color' is missing …
+src/data/layerManifest.ts(9319,52): error TS2339: Property 'color' does not exist …
+```
+
+**a2 — 填空字串**（`color: ""`）→ `npx tsc -b` **0 error**（這就是型別擋不住的縫），
+`layerConsistency` 紅並點名欄位：
+
+```
+FAIL  layerConsistency.test.ts > manifest 完整性：必要欄有真值
+      > 每筆 entry 的必要欄都填了真值（不是空字串／空陣列／空殼血緣）
+AssertionError: 這些 manifest entry 的欄位是空殼：
+  cctv: color（"" 不是 hex 色碼）
+→ 去 src/data/layerManifest.ts 補真值。欄位「不存在」由 tsc 擋（TS2741），
+  本條擋的是「填了但等於沒填」。
+```
+
+#### (b) 新 key 不進 manifest
+
+**b1 — 只在 `LayerVisibility` 加 `p4DrillLayer: boolean`** → tsc 紅（三張 Record 同時缺屬性）：
+
+```
+src/components/IconRailSidebar.tsx(41,7): error TS2741:
+  Property 'p4DrillLayer' is missing in type '{}' but required in type
+  'Omit<Record<keyof LayerVisibility, LucideIcon>, …>'.
+src/components/sidebar/layerCatalog.ts(58,7): error TS2741: …（LAYER_COLORS 同款）
+src/data/upstreamRegistry.ts(68,7): error TS2741: …（UPSTREAM_REGISTRY 同款）
+```
+
+⚠️ **注意錯誤指向的是三個 `HANDWRITTEN_*` 逃生口** —— 開發者最自然的修法就是
+往那裡各補一行，於是 tsc 變綠、圖層卻不在 manifest 裡。這才是要驗的那條路：
+
+**b2 — 三個逃生口各補一行** → `npx tsc -b` **0 error**（逃生口成功繞過型別閘），
+`npx vitest run` **4 條紅**，其中完整性閘直接把逃生口寫進訊息：
+
+```
+FAIL  layerConsistency.test.ts > manifest 完整性：key 空間 > 每個 LayerVisibility key 都有 manifest entry
+AssertionError: 這些 layer key 沒有 manifest entry：p4DrillLayer
+→ 在 src/data/layerManifest.ts 的 LAYER_MANIFEST 補一筆完整 entry
+（section / color / icon / upstream / dataClass / source / legend / popup / params /
+ description / topics，缺一不可；不需要的欄位寫 null 並登記進本檔的 ledger）
+⚠️ 只把 key 塞進 HANDWRITTEN_LAYER_COLORS / HANDWRITTEN_UPSTREAM 是繞過 manifest ——
+tsc 不會紅，但整條派生鏈（sidebar / icon / 血緣 / 圖例 / popup / 參數）都拿不到它。
+```
+
+另 3 條：黃金快照 `params` section ／ canonical JSON 逐位元 ／「涵蓋全部 348 個 layer key」。
+
+#### (c) spec 漏宣告已用的參數
+
+刪掉 `cctv` 的 `opacitySlider("cctvOpacity", 0.7)`，而 `overlayRegistry:1286` 仍寫著
+`p?.cctvOpacity ?? 0.7` —— **典型的靜默失敗**：控件從面板消失、paint 退回常數 0.7，
+畫面「看起來還好」。tsc **0 error**，`npx vitest run` **7 條紅／5 個檔**：
+
+```
+FAIL  layerManifest.test.ts > params 宣告 = useLayerParamsRuntime 實際回傳的控件數與型別序列
+AssertionError: cctv 控件數宣告 3、實際 2: expected 2 to be 3
+
+FAIL  useLayerParamsRuntimeReturn.test.ts > overlayParams 的 key 集合 ⊇ 全部 spec 的 out key
+AssertionError: expected 538 to be 539
+FAIL  useLayerParamsRuntimeReturn.test.ts > overlayParams 逐位元（canonical sha256）＝ 凍結值
+AssertionError: overlayParams 內容變了 —— paint 的輸入面改變，遷移不該做到這件事
+
+FAIL  layerGoldenSnapshot.test.ts > section「params」與 fixture 一致
+FAIL  layerGoldenSnapshot.test.ts > 整份 canonical JSON 逐位元一致
+FAIL  layerParamsStore.test.ts > spec ⇄ manifest 焊接 > 每個已遷移 key 的 count / kinds ＝ manifest 宣告
+FAIL  layerParamsControls.test.ts > labelSuffix 與整數內插：拖到非預設值時字串仍逐字相同
+```
+
+#### (d) fall-through 群漏 `sharedGroup`
+
+⚠️ **這一場的靶必須換位置**：hook 的 switch 已清空，fall-through 群組不可能再從
+hook 長出來 —— 現在唯一有母體的是**規格側**。拿掉 `schools` 那筆
+`eduSchoolsOpacity` 的 `sharedGroup`（另 6 個成員仍宣告），tsc **0 error**，3 條紅：
+
+```
+FAIL  layerParamsSharedState.test.ts > 共用 slot 的宣告 > 撞名的 name / out 必須宣告同一個 sharedGroup
+AssertionError: name "eduSchoolsOpacity" 被 schools / eduSchoolElementary / eduSchoolJunior /
+eduSchoolSenior / eduSchoolUniversity / eduSchoolSpecial / eduRemoteSchools 共用，
+但沒有全部宣告同一個 sharedGroup —— 這正是「拖一邊 paint 不動」的形狀
+
+FAIL  useLayerParamsRuntimeReturn.test.ts > B. 逐參數隔離擾動 > 擾動任一參數後，回傳物件『恰好』只有宣告的路徑改變
+FAIL  layerParamsStore.test.ts > 參數名與 overlayParams out key 全域唯一（共用 slot 先收斂成一份）
+```
+
+#### 演練後
+
+四場全部還原，`git status` 乾淨，`npx tsc -b` 0 error、
+`npx vitest run` 43 檔 **564 passed / 1 skipped**。
+
+**體質結論**：四種漏接線各有至少一道**點名**的閘（a2 / b2 / c 三場的訊息都直接寫出
+「哪個 key、哪個欄位、該去哪個檔補」）。其中三場證明了 tsc 的縫在哪裡 ——
+(a2) 填空殼、(b2) 走逃生口、(c) 規格與消費端各自為政 —— 三種 tsc 全綠，
+全靠測試層擋下來。
