@@ -28,7 +28,7 @@ popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽�
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
 | **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | ✅ **全量完成 348/348**（`462c05a`）。批 1（25 層）`cc64857`…`1aa3d6b`；批 2（28 層）`5d33117`…`b292d21`；批 3（33 層）`b506144` `97b6d62`；批 4（46 層 ＋ 拍板② schema）`15b9756`…`e73f677`；批 5（40 層 ＋ popup 陣列 schema）`410cac7`…`61eb3e9`；批 6（42 層 ＋ source 混合 kind schema）`45faee8`…`d39edf1`；批 7（47 層 ＋ 第四支 popup 解析器）`a1d7e3b`…`7e6e0a1`；批 8（82 層 ＋ 拍板③ section null schema）`1eb4911`…`462c05a` |
-| **3** | **params 派生化**（退役 `useTransportParams`）| 🔶 P3-1 完成（`43386d6`…`6fff4e3`）：通用 store ＋ 渲染器 ＋ 雙軌 ＋ 11 層試點。P3-2 起分批搬剩下 324 個 case，盤點見 [changelog](./changelog.md) 末節 |
+| **3** | **params 派生化**（退役 `useTransportParams`）| 🔶 **A/B/C/D 四桶全部搬完**（348 key 中 336 個進 `LAYER_PARAMS_SPEC`、剩 5 個 `emptyByDesign` case；`useState` 645 → **0**）。P3-1 `43386d6`…`6fff4e3`（store ＋ 渲染器 ＋ 雙軌 ＋ 11 層試點）／P3-2A `403a583`…`5804cdb`（A 桶 161）／P3-2B `fc30c83`…`89ba510`（共用 slot ＋ B 桶 58）／P3-2C `aa84bc3`…`1f360a7`（C 桶 32）／**P3-2D `3c99ea9`…`5e73915`（hook return 等值閘 ＋ D 桶 74）**。剩 P3-3 收尾（刪檔／型別搬家），見 [changelog](./changelog.md) 末節 |
 | **4** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ |
 | **5** | `/new-layer` 改成只寫 manifest ＋ `development-rules.md` §4 觸點表改寫 | ⬜ |
 

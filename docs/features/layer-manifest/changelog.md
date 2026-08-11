@@ -1891,3 +1891,183 @@ case 群組 ／ useState 宣告 ／ overlayParams 屬性 ／ deps 項 ／ 孤兒
 4. **`labelSep` / `zeroLabel` / `labelByValue` / `disableRule` 各只有 1-8 個使用者**，
    刻意做得窄。D 桶若遇到形狀相近但不完全一樣的 label，先問「是不是同一件事」
    再決定複用或新增 —— 窄欄位就是為了讓「不一樣」在型別上顯性化。
+
+---
+
+## 2026-08-12 — Phase 3 第五棒（P3-2D）：D 桶 74 key 出 useTransportParams（D 桶清空）
+
+`3c99ea9` `test(params): hook return 逐欄位等值閘 ＋ out:null 第二輸出通道（P3-2D 第 1 步）`
+`608fa2f` `refactor(params): P3-2D 群1 遷移 34 key（hook return 平鋪欄位）`
+`2c09900` `refactor(params): P3-2D 群2 遷移 15 key（Three.js 鏡像 ref 通道）`
+`0b6aef9` `refactor(params): P3-2D 群3 遷移 15 key（廢棄物：巢狀 Record ＋ 分組 checkbox）`
+`5e73915` `refactor(params): P3-2D 群4 遷移 10 key（六個子物件 ＋ 級聯寫入）＝ D 桶清空`
+
+「hook return 第二通道」深水區。P3-2B 盤的 **D 桶 74 key 全部搬完，一個未退**。
+剩下的 5 個 case 全是 `emptyByDesign`（`return []`）——
+`useTransportParams` 的 `useState` **至此歸零**。
+
+### 驗收（每群都跑）
+
+| 項 | 結果 |
+|---|---|
+| `layer-golden.json` | 四群**全部零 diff**；sha256 `07972fce…` 從 `eabd1ef` 到 `5e73915` 一位元未變 |
+| `npx tsc -b` | 0 error（每群） |
+| `npx vitest run` | 43 檔 **567 passed / 1 skipped**（546 基準 ＋ 8 等值閘 ＋ 1 護欄拆條 ＋ 12 行為） |
+| `useTransportParams.ts` | 945 → **566** 行（−379，−40.1%） |
+| `useState` | 126 → **0** |
+| `case` | 79 → **5**（全是 emptyByDesign） |
+| overlayParams deps | 22 → **1**（只剩 `migratedOverlayParams`） |
+| `LAYER_PARAMS_SPEC` | 262 → **336** key |
+
+### 第 1 步：hook return 等值閘（`hooks/__tests__/useTransportParamsReturn.test.ts`）
+
+P3-2B／2C 交代兩次的那道閘。**動手搬遷前的獨立 commit** —— D 桶整桶走的通道
+（`refs.current` ／ 六個子物件 ／ 平鋪欄位 ／ 派生陣列）黃金快照完全看不見。
+
+| 組 | 斷言 | 擋的失效 |
+|---|---|---|
+| **A** | 回傳物件（扣掉 overlayParams）逐欄位對**凍結字面**；overlayParams 另以「spec 的 out key 全在場」＋ **canonical sha256** 兩條釘死 | 預設值變了 ／ 欄位不見 ／ 多冒欄位 ／ 編碼少欄位 |
+| **B** | 對**每一個**已遷移參數：reset → 只寫這一個 → 重 render → 改變的路徑必須**恰好等於**宣告的通道（`overlayParams.<out>` 由 spec 推導、第二通道由 `RETURN_CHANNEL` 宣告），且逐路徑對期望值 | 值搬進 store 沒接回去 ／ 接錯欄位 ／ 順手改到別人 |
+| **B-完整性** | `out: null` 的參數必須在 `RETURN_CHANNEL`（或 `INTERNAL_CONSUMERS`）出現 | 「面板拖得動、值到不了任何消費者」 |
+
+⚠️ **逐參數隔離**（不是一次全擾動）是 boolean 錯接唯一驗得出來的形式 ——
+只有一個參數在動，路徑集合與值才對得起來。547 → 671 個參數各跑一次 render，
+全套約 1.5 秒（200 renders ≈ 39ms，成本無虞）。
+
+`RETURN_CHANNEL` 那張表**就是第二通道的文件**：一條 = 一個參數擾動後應該改變的
+回傳路徑與值。共用 slot 只宣告代表，其餘成員由 `sharedSlotMembers` 展開。
+
+### 突變自測（四場，每場還原後全綠）
+
+| # | 突變 | 結果 |
+|---|---|---|
+| (i) | **回放 P3-2C 的突變 (i)**：`encodeParamsToOverlay` 跟著 `showWhen` 少編兩欄 | 新閘 **3 條紅**（out key 在場 ／ sha256 ／ B 的路徑集合），**黃金快照 23 條全綠** —— 再次證實快照對這條通道是瞎的 |
+| (b1) | 把回傳欄位寫死成非預設值（`daOpacity: 0.5`） | A1 紅，訊息直接指出是哪個欄位 |
+| (b2) | 刪掉一條 ref 同步賦值（`tempOpacityRef.current = …`） | ⚠️ **全綠** —— 見下方「useRef initial 慣例」 |
+| (c) | 關掉 store 的 `sharedGroup` 連帶寫入 | B 紅 **29 條**，逐條點名哪個參數沒流到 |
+
+(b2) 是這道閘唯一的結構性盲區，也是它反過來規定遷移寫法的原因：
+`renderToStaticMarkup` 每次 capture 都是**全新 mount**，若 ref 寫成
+`useRef(從 store 讀的值)`，initial 本來就已經是擾動後的值 → 刪掉同步行也看不出來。
+**遷移慣例因此明定：`useRef` 的 initial 一律吃規格常數（`paramDefault` / `dNum` /
+`dBool` / `WASTE_SUB_DEFAULTS`），current 才吃 store 現值。**
+慣例落地後（群2）重跑同一個突變：**B 紅、訊息點名
+`temperatureWave.tempOpacity → 改變的路徑 [] ≠ 宣告的 [refs.tempOpacity]`**，
+黃金快照仍全綠 —— ref 通道自此有閘可守。
+
+### ref 遷移設計：**不**引入 subscribe→ref 同步 helper
+
+手寫版是「`useRef(state)` 宣告 ＋ 每次 render 賦值 `ref.current = state`」。
+換軌後**只改值的來源**（store 快照），賦值時機一字不動：
+hook 本來就整包訂閱 store → `setParam` → notify → `useSyncExternalStore` 重繪 →
+同一行賦值。任務書提到的「subscribe→ref 同步 helper」**刻意沒做** ——
+它會讓 ref 在 React 重繪**之前**就更新，那是行為變更（Three.js render loop 會在
+React 還沒重繪時就讀到新值），不是等價。等價才是本棒的唯一目標。
+
+三支 `useParamRefNum` / `useParamRefBool` / `useParamRefEnum` 把慣例焊進型別：
+initial 一定來自規格常數，current 一定來自傳入的 snapshot。
+
+### 新增的 schema 欄（5 個，全部選填、全部是資料）
+
+規格檔至今**零函式** —— 那是它能被黃金快照與焊接測試當成「獨立第二意見」的前提。
+
+| 欄 | 解幾個 | 為什麼現有欄位不夠 |
+|---|---|---|
+| `out: null`（`OverlayOutKey`）| D 桶全體 | 「這個參數**不進** overlayParams」。P3-1~2C 的共同前提是「唯一去處是 paint」，D 桶不是。`specOutKey` 用 `=== undefined` 判回退（`null ?? name` 會靜默變成用參數名當 overlay key）|
+| `SliderParamSpec.displayScale` | 8（航班／船／鐵道／三種公車的軌道球）| label 印的是 `(value * 1e5).toFixed(1)` —— 極小數（`0.000005`）直接印會全變 `0.00`。只動 label，不動值 / min / max / step / 編碼 |
+| `SelectParamSpecBase.optionsByParam` | 3（三兄弟的細項 select）| 選項表隨**另一個參數**的值而變（大類 → 細項）|
+| `CascadeField.cascade` | 5（三兄弟的大類 ＋ 裁處事件的年份與播放）| **寫入時的副作用**（onChange 的第二句 `setXxx`），既不是控件長相也不是編碼 |
+| `ToggleParamSpec.labelByValue` | 1（播放鍵 ⏸/▶）| 值相依 label，與 select 同一個欄位慣例 |
+
+另新增 select 的第三種變體 `SelectNoOverlayParamSpec`（`out: null` ⇒ 型別上**禁止**
+宣告 `encode` / `encodeNumeric`）—— 留一份「反正用不到」的編碼表正是本專案反覆
+記錄的那類漂移：哪天有人改成也進 overlayParams，會沿用那張沒人驗過的表。
+
+### ⚠️ cascade 的兩條鐵則（違反任一條，播放鍵當場壞掉）
+
+1. **只展開一層**：目標被寫入時**不會**再觸發目標自己的 cascade。
+   手寫版 `setYear(MIN)` 是直接呼叫 state setter、不經 year select 的 onChange；
+   遞迴的話「按播放 → 倒帶 → 年份的 cascade 又把播放關掉」，按下去立刻彈回停止。
+2. **只有控件的 onChange 走 cascade**：程式內部改值走 `setParamDirect`。
+   播放引擎逐年推進若也觸發年份的「一動就停播放」，推進一年就自己停。
+
+`applyWrites()` 把「源參數 ＋ 級聯目標」各自展開共用 slot 後**合成一次** snapshot
+置換、每個 key 只通知一次 —— 裁處事件三兄弟一次 cascade 會動到 6 個 slot，
+拆成多次置換的話中間狀態會被 listener 看見、通知次數也對不上。
+
+三兄弟的 `options` / `optionsByParam` / `cascade` **全部從同一份 `metricMap` 推導**
+（`categoryMetricPair` 建構子），一處都不手抄 —— 手寫版的
+`(metricMap[v] ?? metricMap.count)[0]` 就是那條 cascade。
+
+### 「預設值下看不出來」的分支（本棒新增 12 條行為測試擋）
+
+1. **條件式 cascade 的另一半**：預設年份**剛好**是最後一年 → 逐參數擾動閘只驗得到
+   「按播放會倒帶」，「年份在中間不該倒帶」那半邊沒有任何閘。→ 補一條。
+2. **cascade 不遞迴**：倒帶那一寫若又觸發年份的 cascade，`playing` 會被關掉；
+   但「路徑集合」看起來仍然只有 year 變 —— 值對了、狀態壞了。→ 補一條驗 `playing` 仍為 true。
+3. **播放引擎整支測不到**：`useEffect` 在 `renderToStaticMarkup` 下不執行。
+   → 推進邏輯抽成純函式 `advancePenaltyYear`（吃 store、寫 store），
+   直接驗三條分支（逐年推進 ／ 到最後一年停 ／「全部年份」起手）。
+   ⚠️ 年份是 select、store 存**字串** —— 寫回去要 `String(...)`，寫數字會讓控件
+   讀不到型別相符的值而退回預設：**這個 bug 現有所有閘都抓不到**，故另補一條驗型別。
+
+### 兩處護欄調整（判準沒有放寬，是錨定到更精確的位置）
+
+| 閘 | 原判準 | 改法與理由 |
+|---|---|---|
+| sharedState 閘 2 | 「已遷移的 name / out **不得再出現**在 `useTransportParams.ts`」 | 拆成 **(a)** 不得還有 `useState` 宣告 ＋ **(b)** 不得還是 overlayParams 字面的**屬性**。D 桶的參數名**必然**還會出現在 hook —— 它同時是回傳欄位名，代理判準留著會把正確的遷移判成紅。其餘位置（deps 項／ref sync 行）引用已刪變數一律是 tsc 錯；而「值有沒有真的流到回傳欄位」由等值閘 B 直接驗，比文字代理強得多 |
+| 耦合群組解析器 | `vars` 收 `value:` / `onChange: setX` / `${X.` 三種位置的識別字 | 只收**真的是 `useState` 宣告**的變數。原版把 `value: String(x)` 的 `String` 也當共用 state → 8 個毫不相干的 key 被串成同一個耦合群組，擋住正確的分批遷移 |
+
+兩個哨兵跟著現況調整：overlayParams 手寫字面已全部清空 → 「屬性 > 0」改成
+「0 個時 body 必須只剩 `...migratedOverlayParams`」（語意從「解析器活著」升級成
+「手寫字面真的清空了」）；case 群組哨兵改盯 case 數（剩 5 個 `emptyByDesign`
+既沒有 fall-through 也沒有 state 變數，原本那兩條哨兵已無對象可驗）。
+
+`overlayParamsDeps.test.ts` 隨 `useState` 歸零**自然退役**（`stateVars` 成空集，
+斷言恆真）—— 它是 ratchet，任務完成即失效，**不刪**：`MEMO_START` 那個錨還在，
+有人往回加手寫字面時它會重新有效。
+
+### 四個群的分法與各自的形狀
+
+| 群 | key | 形狀 | 關鍵點 |
+|---|---|---|---|
+| 1 | 34 | 平鋪欄位（`daOpacity` `satOpacity` …）| 便宜量大；`earthquakes` 的 Mode 是 select 但舊 state 是 boolean → 參數名改 `eqMode`，hook 端還原 |
+| 2 | 15 | `refs.current`（Three.js）| `useRef` initial 慣例；`busGroups` 拆平成 8 個 boolean；新聞三個 setter 改寫 store（`useCallback` 釘 identity）|
+| 3 | 15 | 巢狀 `Record` ＋ 分組 checkbox | `wasteSubParams` 13×3(+1) 拆平再組回；`ringSize` 只有焚化爐**有這個欄位**（不是 undefined）|
+| 4 | 10 | 六個子物件 ＋ 級聯 | `optionsByParam` / `cascade` / `labelByValue` 三欄落地；播放引擎抽純函式 |
+
+### ⚠️ 殘餘清單：`useTransportParams.ts` 還剩什麼（**本棒不刪檔**）
+
+566 行，全部是「機制」而不是「參數」：
+
+| 段 | 說明 |
+|---|---|
+| 讀取器 `pNum` / `pBool` / `pStr` ＋ 規格常數版 `dNum` / `dBool` | store 快照 → 回傳欄位的橋 |
+| 窄化 `oneOf` / `oneOfNum` ＋ 6 個字面聯集常數 | `"2d"\|"3d"`、`BusColorMode`、`0\|2\|3` … 不做無憑據的 `as` |
+| 鏡像 ref 三支 `useParamRef*` | initial 吃規格常數的慣例 |
+| `buildWasteSubParams` ＋ `WASTE_SUB_DEFAULTS` | 巢狀 Record 的組裝 |
+| `advancePenaltyYear`（播放引擎純函式）＋ 它的 effect | 全檔唯一剩下的 `useEffect` |
+| 雙軌 dispatcher（`useSyncExternalStore` ＋ `getControls` 開頭三行） | 未遷移 key 回 null → fallthrough |
+| `switch` 剩 5 個 `emptyByDesign` case | `windPlan` `submarineCables` `landingStations` `activeFaults` `aqiStations` |
+| overlayParams 薄 memo | body 只剩 `...migratedOverlayParams` |
+| 46 個鏡像 ref ＋ 6 個子物件 ＋ 兩個城市聚合 memo ＋ `return {}` 組裝 | **回傳 API 一字未動**（消費端不知道換了軌）|
+| 型別 `SliderConfig` / `ToggleConfig` / `SelectConfig` / `ParamControl` | 被 `layerParamsControls` 反向 import |
+
+### 給 P3-3（收尾棒）的五件事
+
+1. **終局刪除的順序**：`ParamControl` 那組型別被 `state/layerParamsControls.ts`
+   反向 import（`hooks → state` 的相依是倒的）—— 先把型別搬進 `state/` 或 `types.ts`，
+   再談刪 hook。搬型別時 `SliderConfig.type?: "slider"` 的**選填**性質不能動
+   （P3-1 記過：補一個 `type: "slider"` 會讓黃金快照立刻紅）。
+2. **回傳 API 才是真正的邊界**：`overlayParams` / `getControls` / `refs` / 六個子物件
+   目前仍由這支 hook 組裝。要拆的話，消費端（`App.tsx` 等）要改成直接吃
+   `useLayerParams(key)` —— 那是 AR-22 的終點（消滅「一個 slider 動、整棵樹 reconcile」），
+   但**不是等價重構**，要另立驗收標準（本棒的等值閘會擋住它，那是對的）。
+3. **5 個 `emptyByDesign` case 不要順手刪**：`paramsCaseKeys()` 用
+   `case "x": return []` 這個字面判「有意沒有控件」；刪了會讓 `layerConsistency`
+   的覆蓋斷言把它們誤判成漏接。要刪得先給 manifest 一個等價的表達。
+4. **`RETURN_CHANNEL` 是活文件**：任何人改 hook 的回傳形狀都得同步它，
+   否則 B 立刻紅。這是刻意的 —— 回傳形狀是 348 個圖層真正的耦合面。
+5. **`layerParamsSpec.ts` 已 2,100+ 行**：下一次擴充前先問「是不是該按主題切檔」。
+   切的時候記得 `LAYER_PARAMS_SPEC` 必須維持**單一物件字面**（`satisfies` 推
+   literal key 型別 → `MigratedParamsKey`，拆成多個物件再 merge 會讓雙軌判別式退化）。
