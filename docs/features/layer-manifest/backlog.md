@@ -16,7 +16,7 @@
 |---|---|---|---|
 | **1** ✅ | 暖身微型 + 同構家族：都市分析(1) 民防避難(1) 世界(1) 情勢(1 剩) 宗教(6) 殯葬(5) 文化(5) 消防(5) | 25 | 已完成（`cc64857`…`1aa3d6b`，見 changelog）。拍板①④落地；額外撞到：消防 4/5 層 `key ≠ popup layerType` 且 fireEvents/fireLatest 多對一（原以為批 3 才會遇到）；`plaActivity` 在 GIS_LAYERS 是**常數引用**，需前置補 `extractGisConstRefTypes` 才驗得出 popup 宣告為真（批 5 `disasterAlert` 同形狀）；D 體質實際 6 層而非 3 層，定義已澄清為「無 OVERLAY_REGISTRY entry」與資料長相無關。 |
 | **2** ✅ | 純靜態 POI：基礎建設(11) 運動休閒(6) 觀光(11) | 28 | 已完成（`5d33117` `40f038e` `b292d21`，見 changelog）。預估全對：28/28 都是 dataClass A、觀光 11 層全有 `labelMobile` 且全有 popup、基礎建設 7 層合法無 legend（全批 14 層 `legend: null`）。**機械化流程已驗證**：除 `description` / `topics` 兩個人讀欄位外，其餘 12 欄可由既有登記簿逐 key 機械讀出（判準寫在 changelog）。額外撞到：基礎建設 popup **11/11 全是 key 的單數形**（比批 1 消防 4/5 更整齊也更難用肉眼看出）；運動場館 5 層 **5 → 1** 共用 popup `sportsVenue` 且共用 `sourceId`（⚠️ 與批 4/6 的「同 key 多 config」是不同問題，契約測試按 `id` 過濾不受影響）；`tourRestaurants` 在 UPSTREAM_REGISTRY 不在觀光區塊。 |
-| **3** | 教育(17) 林業(16) | 33 | 教育 17 層**全部**有 `labelMobile`；popup layerType 大量與 key 不同名，且 `eduDistrictK12` 一個 layerType 對兩個 layer（國小/國中共用）→ manifest 的 `popup` 欄位會出現「多對一」，legend 共用測試要確認不誤判。林業 5 層 PMTiles → 連帶檢查 nginx/deploy 清單（觸點 #20）。 |
+| **3** ✅ | 教育(17) 林業(16) | 33 | 已完成（`b506144` `97b6d62`，見 changelog）。預估全對：教育 17/17 有 `labelMobile`、`eduDistrictK12` 多對一、林業 5 層 PMTiles 已核對 deploy 清單。**拍板①的刪 spread 那一步首次實際執行**（`...EDUCATION_LAYER_COLORS` 整行 + 孤兒 import，grep 限行首驗證 0）。額外撞到：popup 多對一規模創新高（`school` **1 對 7**，另 `eduCampus` / `eduDistrictK12` 各對 2）；林業 popup 是**依幾何型別分類**的泛型 layerType（`forestryPolygon`/`forestryPOI`/`forestryLine` 吃掉 12 層，⚠️ 用子群名猜會猜錯 —— `forestFlatParks` 在「分區」子群卻走 POI）；`canopyHeight` 是 raster → 唯一 `popup: null` 且**唯一沒有 `sourceLayer` 的 pmtiles**；共用 sourceId 規模 ×7（`edu-schools`）超越批 2 的 ×5；`schools` 三張表都不在教育區塊裡（批 2 `tourRestaurants` 的鏡像）。 |
 | **4** | 執法治安(20) 醫療(8) 房地產(7) 人口社經(6) 全球氣候(5) | 46 | ⚠️ **`propertyValueGrid` 有 3 個 OVERLAY_REGISTRY config**（同 key 多 entry）→ 現行 `LayerSource` 是單數形，**必須先擴充成陣列或 union**，否則 `layerManifest.test.ts` 的 `toHaveLength(1)` 會擋下來。執法治安 20 層 popup 100% 覆蓋。人口社經/全球氣候全 D 體質（H3 factory / 氣候 frame）。 |
 | **5** | 底圖(剩 12) 災害(12) 太空(16) | 40 | 底圖 10 層 PMTiles → dataClass B 連帶 nginx + deploy 腳本清單（PT-1 曾因漏此步 13 層全站 404）。太空 16 層全 D（satellite.js 算軌道，無 overlay entry），`source.kind: "custom"` 的 note 要寫得有資訊量。災害 3 層 C + 7 層 D 混合。 |
 | **6** | 環境氣候(剩 19) 水資源(23) | 42 | ⚠️ `waterRivers` / `waterReservoirs` 各有 2 個 config（同批 4 的問題）。環境污染剩下 4 層與已搬的 `pollutionFacility` 共用 `pollutionTypes` 的表達式常數 → 驗證 legend id 共用規約。水資源 12 層 D 體質。 |
@@ -25,10 +25,12 @@
 
 ### 開始 Phase 2 之前必須先拍板的 4 件事
 
-1. ✅ **`color` 欄位對外部常數的處理**（批 1 已落地）：拍板**引用常數**不複製字面。
-   manifest 的 import 白名單放寬到「零 import 的純色票常數檔」。宗教／殯葬已搬，
-   教育（批 3）沿用；搬走後**務必整行刪掉手寫表的 `...*_LAYER_COLORS` spread**
+1. ✅ **`color` 欄位對外部常數的處理**（批 1 已落地、批 3 完成刪 spread）：
+   拍板**引用常數**不複製字面。manifest 的 import 白名單放寬到「零 import 的純色票
+   常數檔」。宗教／殯葬／教育三組皆已搬完，`HANDWRITTEN_LAYER_COLORS` 現在**一個
+   `...*_LAYER_COLORS` spread 都不剩**；搬走後**務必整行刪掉手寫表的 spread**
    —— spread 不觸發 excess property check，留著會全綠但沒真搬（見 changelog 批 1 末節）。
+   驗證要用 `grep -nE '^\s*\.\.\.'` 限行首（說明註解裡也會出現該字串，`grep -c` 會誤判）。
    ⚠️ 批 2 補充了反向判準：適用條件是「**該常數有在餵 `LAYER_COLORS`**」，
    不是「該主題有色票檔」。`tourTypes` / `sportsTypes` 匯出的是 category-keyed
    分色資料、`LAYER_COLORS` 從未 import → 不引用，寫字面 hex（hex 撞色是巧合）。

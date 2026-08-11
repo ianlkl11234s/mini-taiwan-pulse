@@ -27,7 +27,7 @@ popup 的 layerType 跟 key 不同名沒對上。這些不報錯，只在瀏覽�
 |---|---|---|
 | **0** | 黃金快照護欄：348 key × 12 張登記簿凍結成 committed fixture ＋ 突變自測 | ✅ `8abbd97` |
 | **1** | manifest schema（`LayerManifestEntry`）＋ 5 試點層搬移 ＋ 4 張表雙軌派生 | ✅ `574c3a6` `5dc9230` |
-| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3-8 待派工 |
+| **2** | 批次搬移剩下 343 層（8 批，見 [backlog.md](./backlog.md)） | 🔄 批 1（25 層）✅ `cc64857`…`1aa3d6b`；批 2（28 層）✅ `5d33117`…`b292d21`；批 3（33 層）✅ `b506144` `97b6d62`；批 4-8 待派工（Phase 2 已搬 86/343，manifest 共 91 entry） |
 | **3** | legend / popup 接線派生化（觸點 #13 #15 #16 改讀 manifest） | ⬜ |
 | **4** | params 派生化（`useTransportParams` 的 case 由 manifest spec 產生）＋ `/new-layer` 改成只寫 manifest | ⬜ |
 

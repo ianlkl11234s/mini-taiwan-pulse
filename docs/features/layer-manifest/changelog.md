@@ -220,3 +220,87 @@ hex 撞色是巧合（`tourHeritage` 的 `#6d4c41` 同時是該表 Culture 類�
 `tourRestaurants` 在 `UPSTREAM_REGISTRY` **不在觀光區塊**，落在教育區塊後面
 （歷史原因）。按主題「整段刪」會漏掉它 —— tsc 的 excess property 會擋下來，
 但那是最後一道防線；後續批次刪手寫表請**逐 key grep 定位**再刪，不要靠區塊註解。
+
+---
+
+## 2026-08-11 — Phase 2 批 3：33 層（教育 17・林業 16）
+
+`b506144` 教育｜`97b6d62` 林業
+
+manifest 58 → **91 entry**。四張手寫表對這 33 key 殘留 grep 命中 0
+（`^  key:` 與 `key: "key"` 兩種形狀分開數，各 0）。
+`npx tsc -b` 0 error｜`npx vitest run` **507 passed | 1 skipped**（與批 1/2 後相同，
+本批未增減任何測試）｜黃金快照 fixture 自 Phase 0 起**一位元未動**。
+
+### ⚠️ 本批唯一沒有機械護欄的一步：`...EDUCATION_LAYER_COLORS` 已整行刪除
+
+批 1 末節交接的那個漏法，批 3 是第一個真的要執行它的批次（批 2 三個主題都沒有
+餵 `LAYER_COLORS` 的色票常數）。做法：刪 `HANDWRITTEN_LAYER_COLORS` 的 spread 行
+＋ `layerCatalog.ts` 對 `educationTypes` 的孤兒 import，然後
+`grep -nE '^\s*\.\.\.EDUCATION_LAYER_COLORS'` 驗證非註解形狀 0 命中
+（原處留的字串出現在說明註解裡，數 `grep -c` 會誤判成 1 —— 要限定行首才是真的）。
+
+拍板①判準逐條對上：`EDUCATION_LAYER_COLORS` 是 **layer-key-keyed** 且
+**正在餵 `LAYER_COLORS`**（原本就是一行 spread），同時餵 `overlayRegistry` 的
+paint 與 `LegendPanel` —— 三邊共用的 SSOT。`educationTypes.ts` 0 個 import，
+白名單成立。**唯一例外是總覽層 `schools`**：它不在該常數裡（色票是手寫表自己的
+字面 `#42a5f5`）→ 寫字面 hex。
+
+林業則走批 2 的反向判準：`forestReserveTypes` 的 `FOREST_RESERVE_TYPE_MATCH`
+（依保安林種類）與 `canopyGiantsTypes` 的距離帶都是 **category-keyed 表達式**、
+`LAYER_COLORS` 從未 import → 不引用，寫字面 hex。兩種答案在同一批出現，
+判準（「有沒有在餵 LAYER_COLORS」）本身也被驗證了一次。
+
+### 同一批撞完兩極：教育與林業幾乎每個維度都相反
+
+| | 教育 17 | 林業 16 |
+|---|---|---|
+| `labelMobile` | **17/17** | **2/16**（mountainHuts / hikingTrails） |
+| popup 形狀 | 多 key 擠進同一個 layerType | **依幾何型別分類**的泛型 layerType |
+| `legend` | 17/17 同一個 id `schools` | 14/16 同一個 id + 2 獨佔 |
+| `legend: null` | 0 | 0 |
+| `dataClass` | A 12 / B 5 | A 11 / B 5 |
+
+- **教育的 labelMobile 與批 2 觀光是不同款**：觀光是「桌機全稱、手機只留中文」，
+  教育是**手機版反而多帶筆數**（`國小 Elementary` → `國小 (2,656)`）。
+  逐 key 抄，不要套主題級假設。
+- **popup 多對一的規模紀錄**：`school` 一個 layerType 對 **7 個 layer**
+  （schools + 5 個 eduSchool* + eduRemoteSchools，同一份 schools.geojson 的 filter
+  切分），`eduCampus` 對 2、`eduDistrictK12` 對 2。backlog 只預期到 k12 這一組。
+  批 1 消防已證明 schema 不用改，這裡只是規模更大。
+- **林業的泛型 layerType 是新形狀**：`forestryPolygon`(3) / `forestryPOI`(8) /
+  `forestryLine`(1) 三個「按幾何型別」而非「按主題」命名的 layerType 吃掉 12 層。
+  ⚠️ 這種形狀**用子群名猜會猜錯** —— `forestFlatParks` 列在「分區」子群但資料是
+  點位，走 `forestryPOI` 不是 `forestryPolygon`。只有反查 layer id 才看得出來。
+- **`canopyHeight` 是本批唯一 `popup: null`**（raster 切片，GIS_LAYERS 無條目），
+  也是唯一**沒有 `sourceLayer` 的 pmtiles**（raster 無 vector layer）。
+  `LayerSource` 的 optional `sourceLayer` 正是為這形狀留的，schema 無需改動。
+
+### 共用 sourceId 的規模也創新高
+
+教育三組共用 sourceId（`edu-schools` ×7、`edu-campus` ×2、`edu-district-k12` ×2），
+比批 2 運動場館的 ×5 更大。再次確認：契約測試的
+`OVERLAY_REGISTRY.filter(c => c.id === k).toHaveLength(1)` 是**按 `id`**，
+共用 `sourceId` 不會踩到它 —— 與批 4/6 的「同 key 多 config」是不同問題。
+
+### 觸點 #20 核對（非改動）
+
+林業 dataClass B 的 5 層 PMTiles（`national_forest_compartments` / `forest_reserve` /
+`forest_roads` / `hiking_trails` / `canopy_height_rgb_taiwan`）全數已在
+`scripts/deploy/upload-deploy-assets.sh` 清單內，manifest 的 `source.url` 與之一致。
+教育的 3 份切片（`campus_polygon` / `school_district_k12` / `cram_schools`）走純 S3，
+`nginx.conf` 與 pull/upload 腳本都已有對應說明。**本批只核對宣告，未改部署設定。**
+
+### 又一個「區塊註解不可信」的實例（這次是鏡像）
+
+批 2 是「別主題的 key 混進本主題區塊」（`tourRestaurants` 落在教育區塊後面）；
+批 3 是**反過來**——`schools` 三張表都不在教育區塊裡：`UPSTREAM_REGISTRY` 落在
+檔案下方 realEstate 前、`LAYER_COLORS` / `LAYER_ICONS` 落在上方（都是為了保留
+原 z-order 的歷史位置）。兩個方向都撞過了，結論不變：**逐 key grep 定位再刪。**
+
+### 記一筆現況異常（本次不動）
+
+`forestAlishanRail` 的 `sourceUrl` 與 `datasetId` 都是
+`wildlife_distribution_3rd_alt`、渲染成 circle 走 `forestryPOI`，與「阿里山鐵路」
+的圖層標題不符。manifest 照現況登記並在 entry 就地註明 —— 搬移階段的鐵則是
+**零失真**，修資料對應是另一件事，不夾帶。
