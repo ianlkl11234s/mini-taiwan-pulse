@@ -54,8 +54,32 @@ describe("spec ⇄ manifest 焊接", () => {
     for (const [key, spec] of specs) {
       for (const s of spec) {
         if (s.kind !== "select") continue;
+        // 數值型 select（`encodeNumeric`）沒有 encode 表 —— 它的等價要求是
+        // 「default 轉得成數字」，轉不成會讓 overlayParams 收到 NaN，
+        // paint 端不會報錯、只會整層畫不出來（同一類靜默失效）。
+        if (s.encodeNumeric) {
+          expect(
+            Number.isFinite(Number(s.default)),
+            `${key}.${s.name} 宣告 encodeNumeric，但 default "${s.default}" 轉不成有限數字`,
+          ).toBe(true);
+          continue;
+        }
         expect(s.encode, `${key}.${s.name} default "${s.default}" 不在 encode`)
           .toContain(s.default);
+      }
+    }
+  });
+
+  it("select 的 options.value 與編碼方式相容（encode 表／可轉數字二選一）", () => {
+    for (const [key, spec] of specs) {
+      for (const s of spec) {
+        if (s.kind !== "select") continue;
+        for (const o of s.options) {
+          const ok = s.encodeNumeric
+            ? Number.isFinite(Number(o.value))
+            : s.encode.includes(o.value);
+          expect(ok, `${key}.${s.name} 的選項 "${o.value}" 編不出有效值`).toBe(true);
+        }
       }
     }
   });

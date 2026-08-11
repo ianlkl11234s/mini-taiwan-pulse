@@ -101,6 +101,17 @@ export interface SliderParamSpec extends SharedSlotField {
   labelPrefix: string;
   /** `toFixed` 位數 */
   digits: number;
+  /**
+   * label 後綴 —— 緊接在數字之後、**不補空白**（前綴那一側才自動補）。
+   *
+   * 現行手寫 case 有一整批「數字後面還有字」的 label：
+   * `` `Z 漂浮 ${x.toFixed(0)}px` `` ／ `` `大小 ${x.toFixed(2)}×` `` ／
+   * `` `保留 ${x} min` ``。沒有本欄就只能把後綴硬塞進 `labelPrefix`，
+   * 產生「編得過但字串少了 px」的漂移 —— 正是本工程要消滅的那一類。
+   *
+   * ⚠️ 純字串串接、不是函式：快照照樣逐位比對，等價證明不受影響。
+   */
+  labelSuffix?: string;
   default: number;
   min: number;
   max: number;
@@ -133,17 +144,41 @@ export interface ToggleParamSpec extends SharedSlotField {
  *   - `["all", ...OPTIONS.map((o) => o.value)]`（「全部」是控件端才 prepend 的）
  * 兩者的 idx 會整體位移 1，抄錯不會編譯錯、只會讓篩選整個錯位。
  */
-export interface SelectParamSpec extends SharedSlotField {
+interface SelectParamSpecBase extends SharedSlotField {
   kind: "select";
   name: string;
   label: string;
   default: string;
   options: ParamSelectOption[];
-  /** overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` **不同名**，故必填 */
+  /** overlayParams 的 key。慣例 `${name}Idx` —— 與 `name` 多半**不同名**，故必填 */
   out: string;
+}
+
+/** 常態：state 存的是「第幾個選項」，paint 吃 index。 */
+export interface SelectIndexParamSpec extends SelectParamSpecBase {
   /** value → index 的編碼順序 */
   encode: string[];
+  encodeNumeric?: undefined;
 }
+
+/**
+ * ⚠️ 數值型 select：overlayParams 吃的是 **`Number(value)` 本身**，不是索引。
+ *
+ * P3-2B 的嚴格解析器把「數值型 select」切成兩種，只有存索引那種搬得動：
+ * | state 存**索引**（`urbanHeatModeIdx`）| option value 是 `"0"`/`"1"`… → `encode.indexOf` 恰好等於索引 | 走 `encode` |
+ * | state 存**值**（`floodMinDepth` `precipRasterHours` `policeIso*Minutes`）| option value 是 `"0.5"`/`"24"`/`"10"` | 走本欄 |
+ *
+ * 硬寫成 `encode` 的後果：`indexOf("0.5")` 回 1、真值是 0.5 —— 而**預設值那一格
+ * 常常碰巧相等**（`floodMinDepth` 預設 "0"：`Number("0") === indexOf("0") === 0`），
+ * 於是黃金快照分不出來，只有非預設值才會錯。行為測試補在
+ * `layerParamsControls.test.ts`。
+ */
+export interface SelectNumericParamSpec extends SelectParamSpecBase {
+  encodeNumeric: true;
+  encode?: undefined;
+}
+
+export type SelectParamSpec = SelectIndexParamSpec | SelectNumericParamSpec;
 
 export type LayerParamSpec = SliderParamSpec | ToggleParamSpec | SelectParamSpec;
 
@@ -1242,6 +1277,7 @@ export function sharedSlotMembers(key: string, name: string): readonly SharedSlo
  *   slider → 原值
  *   toggle → 0/1
  *   select → `encode.indexOf(value)`（找不到回 -1，與現行 `.indexOf` 同語意）
+ *            或 `Number(value)`（`encodeNumeric`，見該欄說明）
  */
 export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): number {
   switch (spec.kind) {
@@ -1250,6 +1286,6 @@ export function encodeParamValue(spec: LayerParamSpec, value: ParamValue): numbe
     case "toggle":
       return value ? 1 : 0;
     case "select":
-      return spec.encode.indexOf(String(value));
+      return spec.encodeNumeric ? Number(value) : spec.encode.indexOf(String(value));
   }
 }

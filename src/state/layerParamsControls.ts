@@ -34,7 +34,9 @@ export function buildParamControls(
         const v = values[s.name];
         const value = typeof v === "number" ? v : s.default;
         return {
-          label: `${s.labelPrefix} ${value.toFixed(s.digits)}`,
+          // 後綴緊接數字、不補空白（`Z 漂浮 12px` / `大小 1.00×` / `保留 10 min`）——
+          // 省略 `labelSuffix` 時 `?? ""` 讓既有 230 個 key 的輸出一位元不變。
+          label: `${s.labelPrefix} ${value.toFixed(s.digits)}${s.labelSuffix ?? ""}`,
           value, min: s.min, max: s.max, step: s.step,
           onChange: (next: number) => layerParamsStore.setParam(key, s.name, next),
         };
