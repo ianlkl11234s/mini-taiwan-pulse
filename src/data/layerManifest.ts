@@ -72,6 +72,9 @@ import {
   Lightbulb, CloudRain, Rewind, CloudLightning, Atom,
   // 🛰️ 太空（16 層共用同一顆 icon）
   Satellite,
+  // 🌤️ 環境氣候（Cloud / CloudRain / Grid3x3 / ThermometerSun / Wind / Activity /
+  //    AlertTriangle / AlertCircle / TreePine / Sprout / Waves 已在上方 import 復用）
+  CloudSun, Thermometer, CircleDot, Car, Biohazard, TreePalm, TreeDeciduous, Flower2,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -4664,6 +4667,531 @@ export const LAYER_MANIFEST = {
     params: { count: 1, kinds: ["slider"] },
     description: "以色列偵察衛星 Ofeq 與商業遙感 EROS",
     topics: ["太空", "以色列", "偵察"],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  //  🌤️ 環境氣候 Environment（Phase 2 批 6・19 層）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 四個子群體質截然不同：
+  //   氣象 6 —— 1 A + 1 B + 4 D（影像/3D/網格全走自建 source）
+  //   空品 3 —— 全 D（兩支 Supabase RPC 點層 + 一支 raster image source）
+  //   環境污染 4 —— 全 B PMTiles，與試點 pollutionFacility 同主題
+  //   都市樹木 6 —— B 4 + A 2
+  //
+  // ⚠️ 色票拍板①：19 層在 `HANDWRITTEN_LAYER_COLORS` 原本就是字面 hex，
+  //    `pollutionTypes` / `temperatureGridTypes` / `microSensorTypes` 匯出的都是
+  //    **表達式 / band 分色資料**（severity-keyed、溫度級距、PM2.5 級距），
+  //    `LAYER_COLORS` 從未 import 它們 → 一律寫字面 hex，無 spread 可刪。
+  //
+  // ⚠️ legend 拍板④的例外條款（批 5 精煉）在本批第二次適用：
+  //    `pollutionSite` 與試點 `pollutionFacility` **同一筆 LEGEND_REGISTRY entry**
+  //    （PollutionSeverityLegend）→ 沿用試點的 freeform id `"pollution"`。
+  //    但**裁處 3 層是另一筆 entry、另一個元件** → 不屬於 pollution 家族，
+  //    照機械規則取自家 entry 首 key `"pollutionPenaltyCritical"`。
+  //    （backlog 批 6 欄寫「環境污染 4 層沿用 pollution」是過度概括，
+  //      4 層裡只有 pollutionSite 適用 —— 規則背後 load-bearing 的是
+  //      「共用元件 ⇔ 共用 id」，不是「同一個子群」。）
+
+  weatherStations: {
+    key: "weatherStations",
+    section: { theme: "環境氣候 Environment", group: "氣象" },
+    label: "氣象站 Weather Station",
+    expandable: true,
+    color: "#4dd0e1",
+    icon: CloudSun,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "weather", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "weather-stations",
+      url: "./geo/weather_stations.geojson",
+    },
+    legend: null,
+    popup: "weatherStation",
+    params: { count: 1, kinds: ["slider"] },
+    description: "中央氣象署地面氣象測站點位（點擊看該站即時觀測）",
+    topics: ["環境", "氣象", "測站"],
+  },
+
+  // 衛星雲圖 / 雷達回波是同一支 hook 的兩個 dataset：Supabase RPC 取 frame 清單 →
+  // createCwaImageryLayer 建 Mapbox image source（非 OVERLAY_REGISTRY）→ 依 timeStore 換圖。
+  cwaCloudImagery: {
+    key: "cwaCloudImagery",
+    section: { theme: "環境氣候 Environment", group: "氣象" },
+    label: "衛星雲圖 Cloud Imagery",
+    expandable: true,
+    color: "#b0c4de",
+    icon: Cloud,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cwa_satellite", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useCwaImageryLayer：Supabase RPC get_cwa_imagery_list / get_cwa_imagery_frame 取 CWA dataset O-C0042-004 的逐時影像 → createCwaImageryLayer 建 image source + raster layer（cwa-cloud-src / cwa-cloud-layer），依 timeStore 切 frame —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "中央氣象署真彩色衛星雲圖（逐時影像疊圖，隨時間軸播放）",
+    topics: ["環境", "氣象", "衛星影像"],
+  },
+
+  cwaRadarImagery: {
+    key: "cwaRadarImagery",
+    section: { theme: "環境氣候 Environment", group: "氣象" },
+    label: "雷達回波 Radar Imagery",
+    expandable: true,
+    color: "#4fc3f7",
+    icon: CloudRain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "cwa_satellite", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "同 cwaCloudImagery 的 useCwaImageryLayer，dataset O-A0058-005，source/layer 為 cwa-radar-src / cwa-radar-layer —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "中央氣象署雷達回波合成圖（降雨強度，隨時間軸播放）",
+    topics: ["環境", "氣象", "雷達"],
+  },
+
+  // 溫度波（3D）與溫度網格（2D fill）**共用同一份 RPC 資料**，差別只在呈現方式。
+  temperatureWave: {
+    key: "temperatureWave",
+    section: { theme: "環境氣候 Environment", group: "氣象" },
+    label: "溫度波 Temperature Wave",
+    expandable: true,
+    color: "#ff6b35",
+    icon: Thermometer,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "weather", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "Three.js CustomLayer（temperatureWaveCustomLayer + TemperatureWaveScene，layer id temperature-wave-3d）：Supabase RPC get_temperature_grid_info / get_temperature_frames 取 0.03° 網格逐時溫度場 → 頂點高度依溫度起伏 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "temperatureWave",
+    popup: null,
+    params: { count: 5, kinds: ["toggle", "slider", "slider", "slider", "toggle"] },
+    description: "全台氣溫場的 3D 起伏波形（高度＝溫度，隨時間軸變形）",
+    topics: ["環境", "氣象", "溫度", "3D"],
+  },
+
+  temperatureGrid: {
+    key: "temperatureGrid",
+    section: { theme: "環境氣候 Environment", group: "氣象" },
+    label: "溫度網格 Temperature Grid",
+    expandable: true,
+    color: "#f46d43",
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "weather", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "temperatureGridLayerFactory 自建 source temperature-grid-src + fill layer temperature-grid-fill：與 temperatureWave 共用同一份 RPC 網格資料，幾何只建一次、時間變化全走 setFeatureState（8k polygon 重建會卡死）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "temperatureGrid",
+    popup: "temperatureGrid",
+    params: { count: 1, kinds: ["slider"] },
+    description: "全台氣溫場的 2D 方格色階（11 級 step 分色，點擊讀該格溫度）",
+    topics: ["環境", "氣象", "溫度"],
+  },
+
+  // ⚠️ raster PMTiles → 無 sourceLayer（同批 3 的 canopyHeight）。
+  urbanHeat: {
+    key: "urbanHeat",
+    section: { theme: "環境氣候 Environment", group: "氣象" },
+    label: "都市熱島 Urban Heat",
+    expandable: true,
+    color: "#b2182b",
+    icon: ThermometerSun,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "都市熱島地表溫度 raster PMTiles（Landsat 8/9 C2 L2 ST_B10 2019–2025 暖季合成，經 Microsoft Planetary Computer STAC；public/environment/urban_heat_lst_taiwan.pmtiles），國際衛星資料源非台灣 catalog",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "urban-heat-lst",
+      url: "./environment/urban_heat_lst_taiwan.pmtiles",
+      minzoom: 6,
+      maxzoom: 11,
+    },
+    legend: "urbanHeat",
+    popup: null,
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "地表溫度熱島強度（Landsat 熱紅外暖季合成，raster 切片）",
+    topics: ["環境", "熱島", "衛星影像"],
+  },
+
+  aqiImagery: {
+    key: "aqiImagery",
+    section: { theme: "環境氣候 Environment", group: "空品" },
+    label: "空氣品質色階 AQI Raster",
+    expandable: true,
+    color: "#8bc34a",
+    icon: Wind,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "air_quality", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAqiImageryLayer：Supabase RPC get_aqi_imagery_frames_batch 取 airtw 色階圖 24h frames → 複用 createCwaImageryLayer 建 image source + raster layer（aqi-imagery-src / aqi-imagery-layer）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "aqiImagery",
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "環境部空氣品質內插色階圖（全台面狀 AQI，隨時間軸播放）",
+    topics: ["環境", "空品", "AQI"],
+  },
+
+  // ⚠️ params: null —— useTransportParams 寫死 `case "aqiStations": return []`
+  //    （Phase 0 記錄的 emptyByDesign 5 key 之一）。THEMES 仍是 expandable: true，
+  //    兩者的不一致是現況，搬移不夾帶修正。
+  aqiStations: {
+    key: "aqiStations",
+    section: { theme: "環境氣候 Environment", group: "空品" },
+    label: "空氣品質測站 AQI Station",
+    expandable: true,
+    color: "#00bcd4",
+    icon: CircleDot,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "air_quality", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useAqiStationsLayer：Supabase RPC get_aqi_stations_at / get_aqi_stations_latest → 自建 source aqi-stations-src + 2 layer（aqi-stations-glow / aqi-stations-circle）—— 非 OVERLAY_REGISTRY",
+    },
+    legend: "aqiImagery",
+    popup: "aqiStation",
+    params: null,
+    description: "環境部空品測站即時 AQI（點擊看該站六項污染物讀值）",
+    topics: ["環境", "空品", "測站"],
+  },
+
+  aqiMicroSensors: {
+    key: "aqiMicroSensors",
+    section: { theme: "環境氣候 Environment", group: "空品" },
+    label: "LASS 微型感測 Micro Sensor",
+    expandable: true,
+    color: "#7e57c2",
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "air_quality", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useMicroSensorsLayer：Supabase RPC get_micro_sensors_latest（5 分鐘 refetch，對齊 LASS collector）→ 自建 source aqi-micro-src + 3 layer（cluster / cluster-count / aqi-micro-circle），cluster 開關會重建 source —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "aqiMicroSensors",
+    popup: "microSensor",
+    params: { count: 2, kinds: ["select", "toggle"] },
+    description: "LASS 民間微型感測器即時 PM2.5 / 溫度 / 濕度（約 500 點，可聚合）",
+    topics: ["環境", "空品", "公民科學"],
+  },
+
+  // 裁處 3 層共用同一份 PMTiles **同一個 sourceId**（pollution-penalty），
+  // 以 severity_event 的 layer-level filter 切分 —— 同批 2 運動場館的形狀。
+  // popup 也是 3 → 1（同一筆 GIS_LAYERS 條目列了 3 個 layer id → pollutionPenalty）。
+  pollutionPenaltyCritical: {
+    key: "pollutionPenaltyCritical",
+    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    label: "重大裁處 Critical Penalty",
+    labelMobile: "重大裁處 Critical",
+    expandable: true,
+    color: "#ef4444",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "pollution_source", confidence: "HIGH" }],
+      processing: "EMS_P_46 裁處事件 geocoded → severity_event=critical 重大裁處 PMTiles filter",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "pollution-penalty",
+      url: "./geo/pollution_penalties.pmtiles",
+      sourceLayer: "pollution_penalties",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "pollutionPenaltyCritical",
+    popup: "pollutionPenalty",
+    params: { count: 6, kinds: ["slider", "slider", "select", "select", "select", "toggle"] },
+    description: "環境部重大裁處事件點位（罰鍰金額 / 違反法規 / 裁處年份可篩）",
+    topics: ["環境", "污染", "裁處"],
+  },
+
+  pollutionPenaltyGeneral: {
+    key: "pollutionPenaltyGeneral",
+    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    label: "一般裁處 General Penalty",
+    labelMobile: "一般裁處 General",
+    expandable: true,
+    color: "#94a3b8",
+    icon: AlertCircle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "pollution_source", confidence: "HIGH" }],
+      processing: "EMS_P_46 裁處事件 geocoded → severity_event=high/normal 一般裁處 PMTiles filter",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "pollution-penalty",
+      url: "./geo/pollution_penalties.pmtiles",
+      sourceLayer: "pollution_penalties",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "pollutionPenaltyCritical",
+    popup: "pollutionPenalty",
+    params: { count: 6, kinds: ["slider", "slider", "select", "select", "select", "toggle"] },
+    description: "環境部一般裁處事件點位（severity high / normal）",
+    topics: ["環境", "污染", "裁處"],
+  },
+
+  pollutionPenaltyMobile: {
+    key: "pollutionPenaltyMobile",
+    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    label: "移動污染 Mobile Penalty",
+    labelMobile: "移動污染 Mobile",
+    expandable: true,
+    color: "#22c55e",
+    icon: Car,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "pollution_source", confidence: "HIGH" }],
+      processing: "EMS_P_46 裁處事件 geocoded → severity_event=mobile 移動污染 PMTiles filter",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "pollution-penalty",
+      url: "./geo/pollution_penalties.pmtiles",
+      sourceLayer: "pollution_penalties",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "pollutionPenaltyCritical",
+    popup: "pollutionPenalty",
+    params: { count: 6, kinds: ["slider", "slider", "select", "select", "select", "toggle"] },
+    description: "移動污染源（車輛）裁處事件點位",
+    topics: ["環境", "污染", "裁處", "交通"],
+  },
+
+  // ⚠️ legend 沿用試點 pollutionFacility 的 `"pollution"`（同一筆 LEGEND_REGISTRY
+  //    entry / 同一個 PollutionSeverityLegend 元件）—— 拍板④例外條款第二例。
+  pollutionSite: {
+    key: "pollutionSite",
+    section: { theme: "環境氣候 Environment", group: "環境污染" },
+    label: "污染場址 Site",
+    labelMobile: "污染場址 Site (8,253)",
+    expandable: true,
+    color: "#111827",
+    icon: Biohazard,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "pollution_source", confidence: "HIGH" }],
+      processing: "EMS_S_07 確認污染場址（S4）PMTiles",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "pollution-site",
+      url: "./geo/pollution_sites.pmtiles",
+      sourceLayer: "pollution_sites",
+      minzoom: 0,
+      maxzoom: 14,
+    },
+    legend: "pollution",
+    popup: "pollutionSite",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "環境部列管確認污染場址 8,253 處（土壤 / 地下水污染整治場址）",
+    topics: ["環境", "污染", "場址"],
+  },
+
+  streetTreesTaipeiDiff: {
+    key: "streetTreesTaipeiDiff",
+    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    label: "行道樹變化 Street Tree Diff",
+    expandable: true,
+    color: "#2e7d32",
+    icon: TreePine,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "street_trees_taipei_diff", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "street-trees-taipei-diff",
+      url: "./urban/street_trees_taipei_diff.pmtiles",
+      sourceLayer: "street_trees_taipei_diff",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "streetTreesTaipeiDiff",
+    popup: "streetTreesTaipeiDiff",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "台北行道樹兩時點比對（新植 / 移除 / 存續，逐株軌跡）",
+    topics: ["環境", "都市樹木", "台北"],
+  },
+
+  streetTreesTaipei3epoch: {
+    key: "streetTreesTaipei3epoch",
+    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    label: "行道樹三時點 Street Tree 3-Epoch",
+    expandable: true,
+    color: "#558b2f",
+    icon: Sprout,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "台北行道樹三時點 2022/2024/2026 軌跡（public/urban/street_trees_taipei_3epoch.pmtiles），catalog 待建",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "street-trees-taipei-3epoch",
+      url: "./urban/street_trees_taipei_3epoch.pmtiles",
+      sourceLayer: "street_trees_taipei_3epoch",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "streetTreesTaipei3epoch",
+    popup: "streetTreesTaipei3epoch",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "台北行道樹 2022 / 2024 / 2026 三時點存續軌跡",
+    topics: ["環境", "都市樹木", "台北"],
+  },
+
+  streetTreesNational: {
+    key: "streetTreesNational",
+    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    label: "行道樹全國 Street Trees TW",
+    expandable: true,
+    color: "#43a047",
+    icon: TreePalm,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles），catalog 待建",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "street-trees-national",
+      url: "./urban/street_trees_national.pmtiles",
+      sourceLayer: "street_trees_national",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "streetTreesNational",
+    popup: "streetTreesNational",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "行道樹全國分佈 210,436 株（目前涵蓋台北 + 台中）",
+    topics: ["環境", "都市樹木"],
+  },
+
+  protectedTreesNational: {
+    key: "protectedTreesNational",
+    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    label: "受保護樹木 Protected Trees",
+    expandable: true,
+    color: "#00695c",
+    icon: TreeDeciduous,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "受保護樹木全國 8 城彙整（public/urban/protected_trees_national.geojson），catalog 待建",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "protected-trees-national",
+      url: "./urban/protected_trees_national.geojson",
+    },
+    legend: "protectedTreesNational",
+    popup: "protectedTreesNational",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "各縣市列管受保護老樹（8 城彙整，樹種 / 樹齡 / 胸徑）",
+    topics: ["環境", "都市樹木", "保護"],
+  },
+
+  riversideTreesTaipei: {
+    key: "riversideTreesTaipei",
+    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    label: "河濱喬木 Riverside Trees",
+    expandable: true,
+    color: "#0288d1",
+    icon: Waves,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "台北河濱喬木 30 座河濱公園（public/urban/riverside_trees_taipei.geojson），catalog 待建",
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "riverside-trees-taipei",
+      url: "./urban/riverside_trees_taipei.geojson",
+    },
+    legend: "riversideTreesTaipei",
+    popup: "riversideTreesTaipei",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "台北 30 座河濱公園喬木清冊",
+    topics: ["環境", "都市樹木", "台北", "河濱"],
+  },
+
+  treePitsTaipei: {
+    key: "treePitsTaipei",
+    section: { theme: "環境氣候 Environment", group: "都市樹木 Urban Trees" },
+    label: "人行道樹穴 Tree Pits",
+    expandable: true,
+    color: "#8d6e63",
+    icon: Flower2,
+    upstream: {
+      status: "catalog_missing",
+      datasets: [],
+      note: "台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles），catalog 待建",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "tree-pits-taipei",
+      url: "./urban/tree_pits_taipei.pmtiles",
+      sourceLayer: "tree_pits_taipei",
+      minzoom: 11,
+      maxzoom: 16,
+    },
+    legend: "treePitsTaipei",
+    popup: "treePitsTaipei",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "台北人行道樹穴 56,720 面（面狀，含空穴 / 已植）",
+    topics: ["環境", "都市樹木", "台北"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

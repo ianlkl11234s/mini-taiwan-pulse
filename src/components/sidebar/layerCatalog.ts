@@ -62,10 +62,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   cyclingRoutes: "#66bb6a",
   freewayCongestion: "#ef5350",
   roadCongestion: "#fb923c",
-  weatherStations: "#4dd0e1",
-  temperatureWave: "#ff6b35",
-  temperatureGrid: "#f46d43",
-  urbanHeat: "#b2182b",
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    它不在 EDUCATION_LAYER_COLORS 裡，色票是本表自己的字面值，隨 entry 一起搬走
   // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
@@ -74,11 +70,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   //    分色表、從未餵本表），照拍板①判準寫字面。
   //    ⚠️ 「全球氣候 GLOBAL CLIMATE」註解原本夾在中間，其 5 層已於批 4 搬走
   roadEvents: "#ef4444",
-  cwaCloudImagery: "#b0c4de",
-  cwaRadarImagery: "#4fc3f7",
-  aqiImagery: "#8bc34a",
-  aqiStations: "#00bcd4",
-  aqiMicroSensors: "#7e57c2",
   busLive: "#4fc3f7",
   busIntercityLive: "#ba68c8",
   touristShuttleLive: "#26a69a",
@@ -135,12 +126,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   aquacultureWaterSatelliteMoa: "#26c6da",
   aquacultureWaterUnion: "#26c6da",
   aquacultureIntegrated: "#26c6da",
-  streetTreesTaipeiDiff: "#2e7d32",
-  protectedTreesNational: "#00695c",
-  riversideTreesTaipei: "#0288d1",
-  streetTreesTaipei3epoch: "#558b2f",
-  streetTreesNational: "#43a047",
-  treePitsTaipei: "#8d6e63",
   // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
   //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
   // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）——
@@ -248,10 +233,6 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   droneNoFlyZone: "#DC3545",         // 🚫 無人機禁航區（紅+未分類）
   droneRestrictedZone: "#FFC107",    // ⚠️ 無人機限航區（黃，需申請）
   // 環境污染 POLLUTION
-  pollutionPenaltyCritical: "#ef4444",
-  pollutionPenaltyGeneral: "#94a3b8",
-  pollutionPenaltyMobile: "#22c55e",
-  pollutionSite: "#111827",
 };
 
 /**
@@ -1116,41 +1097,41 @@ export const THEMES: ThemeDef[] = [
       {
         title: "氣象",
         layers: [
-          { key: "weatherStations", label: "氣象站 Weather Station", expandable: true },
-          { key: "cwaCloudImagery", label: "衛星雲圖 Cloud Imagery", expandable: true },
-          { key: "cwaRadarImagery", label: "雷達回波 Radar Imagery", expandable: true },
-          { key: "temperatureWave", label: "溫度波 Temperature Wave", expandable: true },
-          { key: "temperatureGrid", label: "溫度網格 Temperature Grid", expandable: true },
-          { key: "urbanHeat", label: "都市熱島 Urban Heat", expandable: true },
+          fromManifest("weatherStations"),
+          fromManifest("cwaCloudImagery"),
+          fromManifest("cwaRadarImagery"),
+          fromManifest("temperatureWave"),
+          fromManifest("temperatureGrid"),
+          fromManifest("urbanHeat"),
         ],
       },
       {
         title: "空品",
         layers: [
-          { key: "aqiImagery", label: "空氣品質色階 AQI Raster", expandable: true },
-          { key: "aqiStations", label: "空氣品質測站 AQI Station", expandable: true },
-          { key: "aqiMicroSensors", label: "LASS 微型感測 Micro Sensor", expandable: true },
+          fromManifest("aqiImagery"),
+          fromManifest("aqiStations"),
+          fromManifest("aqiMicroSensors"),
         ],
       },
       {
         title: "環境污染",
         layers: [
           fromManifest("pollutionFacility"),
-          { key: "pollutionPenaltyCritical", label: "重大裁處 Critical Penalty", labelMobile: "重大裁處 Critical", expandable: true },
-          { key: "pollutionPenaltyGeneral", label: "一般裁處 General Penalty", labelMobile: "一般裁處 General", expandable: true },
-          { key: "pollutionPenaltyMobile", label: "移動污染 Mobile Penalty", labelMobile: "移動污染 Mobile", expandable: true },
-          { key: "pollutionSite", label: "污染場址 Site", labelMobile: "污染場址 Site (8,253)", expandable: true },
+          fromManifest("pollutionPenaltyCritical"),
+          fromManifest("pollutionPenaltyGeneral"),
+          fromManifest("pollutionPenaltyMobile"),
+          fromManifest("pollutionSite"),
         ],
       },
       {
         title: "都市樹木 Urban Trees",
         layers: [
-          { key: "streetTreesTaipeiDiff", label: "行道樹變化 Street Tree Diff", expandable: true },
-          { key: "streetTreesTaipei3epoch", label: "行道樹三時點 Street Tree 3-Epoch", expandable: true },
-          { key: "streetTreesNational", label: "行道樹全國 Street Trees TW", expandable: true },
-          { key: "protectedTreesNational", label: "受保護樹木 Protected Trees", expandable: true },
-          { key: "riversideTreesTaipei", label: "河濱喬木 Riverside Trees", expandable: true },
-          { key: "treePitsTaipei", label: "人行道樹穴 Tree Pits", expandable: true },
+          fromManifest("streetTreesTaipeiDiff"),
+          fromManifest("streetTreesTaipei3epoch"),
+          fromManifest("streetTreesNational"),
+          fromManifest("protectedTreesNational"),
+          fromManifest("riversideTreesTaipei"),
+          fromManifest("treePitsTaipei"),
         ],
       },
     ],

@@ -4,22 +4,24 @@ import {
   Activity, Layers, MapPin, CalendarDays, Settings, X,
   Plane, Ship, TrainFront, Bus, Bike, Route, Anchor, PlaneTakeoff,
   // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
-  BarChart3, AlertTriangle, CloudSun, Wind,
+  BarChart3, AlertTriangle, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
-  Lightbulb, CircleDot, RailSymbol, Thermometer, Grid3x3,
+  Lightbulb, CircleDot, RailSymbol,
   Store, Play, Cable, Radio, Mountain,
-  Cloud, CloudRain,
+  CloudRain,
   Droplets, Droplet, Waves, GitBranch, Dam, Factory, Gauge, Shield, ShieldCheck, Container,
   Flame, Trash2, Truck, MapPinned, Battery, Recycle, Shirt, Brush,
   Timer,
   // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
-  //    Pill / HeartPulse / Accessibility 已無用；Clock / AlertCircle / Bed 仍被別層用
-  Clock, AlertCircle, Bed,
+  //    Pill / HeartPulse / Accessibility 已無用；Clock / Bed 仍被別層用
+  //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6）
+  Clock, Bed,
   Sprout,
   Receipt, Coffee, Car, SquareParking, CircleParking,
   ShoppingCart, Warehouse, Fish,
-  // FORESTRY icons（林業 16 層搬進 layerManifest 後，只剩農業／保育層仍在用）
-  TreePine, TreeDeciduous, TreePalm, Flower2, PawPrint,
+  // FORESTRY icons（林業 16 層搬進 layerManifest 後，只剩農業／保育層仍在用；
+  //    TreePine / TreeDeciduous / TreePalm / Flower2 隨都市樹木 6 層搬走，批 6）
+  PawPrint,
   Satellite,
   // ENERGY icons
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
@@ -30,9 +32,10 @@ import {
   //    ShieldAlert / Gavel / Scale / Crosshair 已無用；Lock / Hexagon 仍被別層用
   Lock, Hexagon,
   Ban,
-  // 環境污染 icons
-  Biohazard,
-  ThermometerSun,
+  // 🌤️ 環境氣候 19 層搬進 layerManifest（AR-22 Phase 2 批 6）後，
+  //    CloudSun / Thermometer / Grid3x3 / ThermometerSun / Cloud / Biohazard 已無用；
+  //    Wind / CloudRain / CircleDot / Activity / AlertTriangle / AlertCircle / Car /
+  //    Sprout / Waves 仍被別層用
   // 🎓 EDUCATION / 🌲 FORESTRY icons 隨 17 + 16 層一起搬進 layerManifest（AR-22 Phase 2 批 3）
   // 🗺️ 土地使用分區 icons 隨底圖 12 層一起搬進 layerManifest（AR-22 Phase 2 批 5）
   // 🌍 世界 World icon（複合 rail icon 用）
@@ -90,21 +93,12 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   droneNoFlyZone: Ban,
   droneRestrictedZone: AlertTriangle,
   freewayCongestion: AlertTriangle,
-  weatherStations: CloudSun,
   windPlan: Wind,
-  temperatureWave: Thermometer,
-  temperatureGrid: Grid3x3,
-  urbanHeat: ThermometerSun,
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
   // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    本處原有 9 層，另 3 層（lightning / lightningCwa / nuclearRadiation）在下方
   roadEvents: AlertTriangle,
   roadCongestion: AlertTriangle,
-  cwaCloudImagery: Cloud,
-  cwaRadarImagery: CloudRain,
-  aqiImagery: Wind,
-  aqiStations: CircleDot,
-  aqiMicroSensors: Activity,
   busLive: Bus,
   busIntercityLive: Bus,
   touristShuttleLive: Bus,
@@ -162,12 +156,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   aquacultureWaterSatelliteMoa: ShieldCheck,
   aquacultureWaterUnion: Layers,
   aquacultureIntegrated: Fish,
-  streetTreesTaipeiDiff: TreePine,
-  protectedTreesNational: TreeDeciduous,
-  riversideTreesTaipei: Waves,
-  streetTreesTaipei3epoch: Sprout,
-  streetTreesNational: TreePalm,
-  treePitsTaipei: Flower2,
   // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
   //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
   // 🏟️ 運動休閒 Sports & Leisure 6 層已搬進 layerManifest（AR-22 Phase 2 批 2）
@@ -260,10 +248,6 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   osmExpressway: Route,
   // 👮 執法治安 20 層（含警察覆蓋分析 3 層）已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 環境污染
-  pollutionPenaltyCritical: AlertTriangle,
-  pollutionPenaltyGeneral: AlertCircle,
-  pollutionPenaltyMobile: Car,
-  pollutionSite: Biohazard,
 };
 
 /**

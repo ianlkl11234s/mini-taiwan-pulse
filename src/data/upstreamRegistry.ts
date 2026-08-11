@@ -180,40 +180,7 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     status: 'verified',
     datasets: [{ datasetId: 'road_event', confidence: 'HIGH' }],
   },
-  weatherStations: {
-    status: 'verified',
-    datasets: [{ datasetId: 'weather', confidence: 'HIGH' }],
-  },
-  cwaCloudImagery: {
-    status: 'verified',
-    datasets: [{ datasetId: 'cwa_satellite', confidence: 'HIGH' }],
-  },
-  cwaRadarImagery: {
-    status: 'verified',
-    datasets: [{ datasetId: 'cwa_satellite', confidence: 'HIGH' }],
-  },
-  temperatureWave: {
-    status: 'verified',
-    datasets: [{ datasetId: 'weather', confidence: 'MED' }],
-  },
-  // 2D 網格與 3D 溫度波同一份 CWA 0.03° 格點資料
-  temperatureGrid: {
-    status: 'verified',
-    datasets: [{ datasetId: 'weather', confidence: 'MED' }],
-  },
-  urbanHeat: { status: 'catalog_missing', datasets: [], note: '都市熱島地表溫度 raster PMTiles（Landsat 8/9 C2 L2 ST_B10 2019–2025 暖季合成，經 Microsoft Planetary Computer STAC；public/environment/urban_heat_lst_taiwan.pmtiles），國際衛星資料源非台灣 catalog' },
-  aqiImagery: {
-    status: 'verified',
-    datasets: [{ datasetId: 'air_quality', confidence: 'MED' }],
-  },
-  aqiStations: {
-    status: 'verified',
-    datasets: [{ datasetId: 'air_quality', confidence: 'HIGH' }],
-  },
-  aqiMicroSensors: {
-    status: 'verified',
-    datasets: [{ datasetId: 'air_quality', confidence: 'HIGH' }],
-  },
+  // 🌤️ 環境氣候「氣象」6 層與「空品」3 層已搬進 layerManifest（AR-22 Phase 2 批 6）
   waterFacilities: {
     status: 'verified',
     datasets: [{ datasetId: 'water_facilities_osm', confidence: 'MED' }],
@@ -361,14 +328,7 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     processing: '整合逐口魚塭（OSM）+ 衛星偵測補充 + 生產區為單一 PMTiles（20,212 面），依 source 三色染色',
     note: '派生分析：三來源養殖面聚合',
   },
-  // 🌳 都市開放空間 Urban Open Space（台北行道樹 2024/11 vs 現在 三狀態變化）
-  streetTreesTaipeiDiff: { status: 'verified', datasets: [{ datasetId: 'street_trees_taipei_diff', confidence: 'HIGH' }] },
-  // 都市開放空間新三層（2026-07 上線；catalog dataset 待 taipei-gis-analytics 補建後改 verified）
-  protectedTreesNational: { status: 'catalog_missing', datasets: [], note: '受保護樹木全國 8 城彙整（public/urban/protected_trees_national.geojson），catalog 待建' },
-  riversideTreesTaipei: { status: 'catalog_missing', datasets: [], note: '台北河濱喬木 30 座河濱公園（public/urban/riverside_trees_taipei.geojson），catalog 待建' },
-  streetTreesTaipei3epoch: { status: 'catalog_missing', datasets: [], note: '台北行道樹三時點 2022/2024/2026 軌跡（public/urban/street_trees_taipei_3epoch.pmtiles），catalog 待建' },
-  streetTreesNational: { status: 'catalog_missing', datasets: [], note: '行道樹全國分佈 台北+台中 210,436 點（public/urban/street_trees_national.pmtiles），catalog 待建' },
-  treePitsTaipei: { status: 'catalog_missing', datasets: [], note: '台北人行道樹穴 56,720 面（public/urban/tree_pits_taipei.pmtiles），catalog 待建' },
+  // 🌳 都市開放空間 Urban Open Space（都市樹木 6 層）已搬進 layerManifest（AR-22 Phase 2 批 6）
   // 🗺️ 都市計畫土地使用分區（上游 handoff: taipei-gis-analytics/docs/handoff/urban-zoning.md；
   //    catalog: docs/data-catalog/urban_composite/）—— buildingsGba / nonUrbanZoning /
   //    urbanZoningNewTaipei 三層已搬進 layerManifest（AR-22 Phase 2 批 5，底圖主題）
@@ -675,27 +635,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   islandPowerGrid: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   facOffshore: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },
   // 環境污染（來源 taipei-gis-analytics environment/pollution_source；PMTiles）
-  // pollutionFacility 已搬進 layerManifest（AR-22 試點）
-  pollutionPenaltyCritical: {
-    status: 'verified',
-    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
-    processing: 'EMS_P_46 裁處事件 geocoded → severity_event=critical 重大裁處 PMTiles filter',
-  },
-  pollutionPenaltyGeneral: {
-    status: 'verified',
-    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
-    processing: 'EMS_P_46 裁處事件 geocoded → severity_event=high/normal 一般裁處 PMTiles filter',
-  },
-  pollutionPenaltyMobile: {
-    status: 'verified',
-    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
-    processing: 'EMS_P_46 裁處事件 geocoded → severity_event=mobile 移動污染 PMTiles filter',
-  },
-  pollutionSite: {
-    status: 'verified',
-    datasets: [{ datasetId: 'pollution_source', confidence: 'HIGH' }],
-    processing: 'EMS_S_07 確認污染場址（S4）PMTiles',
-  },
+  // pollutionFacility 已搬進 layerManifest（AR-22 試點），
+  // 裁處 3 層 + pollutionSite 隨環境氣候主題搬進 layerManifest（AR-22 Phase 2 批 6）
   // 🌍 世界 World
 };
 
