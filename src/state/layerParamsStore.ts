@@ -20,7 +20,7 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import {
-  LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, encodeParamValue, specOutKey,
+  LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, encodeParamValue, sharedSlotMembers, specOutKey,
   type LayerParamSpec, type LayerParamValues, type ParamValue,
 } from "../data/layerParamsSpec";
 
@@ -54,10 +54,17 @@ const keyListeners = new Map<string, Set<Listener>>();
 /**
  * 通知順序刻意固定（同 visibility store）：**先換 snapshot 再通知**
  * （listener 讀到的都是已完成的新狀態）；先 per-key 後 global，global 只發一次。
+ *
+ * ⚠️ 收的是**陣列**不是單一 key —— 共用 slot（`sharedGroup`）一次寫入會動到
+ * 多個 key，每個都得通知自己的訂閱者。只通知寫入端那個 key 的話，
+ * 現況（消費者只有 `useTransportParams` 的整包訂閱）看不出差別，
+ * 但未來 `useLayerParams(夥伴 key)` 的元件會拿到過期值 —— 靜默的那一類。
  */
-function notify(key: string): void {
-  const set = keyListeners.get(key);
-  if (set) for (const cb of set) cb();
+function notify(keys: readonly string[]): void {
+  for (const key of keys) {
+    const set = keyListeners.get(key);
+    if (set) for (const cb of set) cb();
+  }
   for (const cb of globalListeners) cb();
 }
 
@@ -84,13 +91,33 @@ export const layerParamsStore = {
    * 設定單一參數。同值 no-op（連 identity 都不換）。
    * 未遷移 / 未宣告的 (key, name) 一律忽略 —— 不靜默長出規格外的參數，
    * 那會讓「spec ＝ 全部參數」這個前提破功。
+   *
+   * ⚠️ 宣告了 `sharedGroup` 的參數會**連帶寫入同群的每個成員**（fall-through
+   * `case "a": case "b":` 共用一個 useState 的等價實作）。少了這段，同群的 N 個
+   * key 各存一份值、卻共用同一個 overlayParams `out` → 拖一邊 paint 不動。
    */
   setParam(key: string, name: string, value: ParamValue): void {
     const current = snapshot[key];
     if (!current || !(name in current)) return;
     if (current[name] === value) return;
-    snapshot = { ...snapshot, [key]: { ...current, [name]: value } };
-    notify(key);
+
+    const members = sharedSlotMembers(key, name);
+    if (!members) {
+      snapshot = { ...snapshot, [key]: { ...current, [name]: value } };
+      notify([key]);
+      return;
+    }
+    const next = { ...snapshot };
+    const changed: string[] = [];
+    for (const m of members) {
+      const cur = next[m.key];
+      if (!cur || !(m.name in cur) || cur[m.name] === value) continue;
+      next[m.key] = { ...cur, [m.name]: value };
+      changed.push(m.key);
+    }
+    if (changed.length === 0) return;
+    snapshot = next;
+    notify(changed);
   },
 
   /** 訂閱任何 key 的變動（`useTransportParams` 走這條） */
@@ -143,6 +170,9 @@ export type LayerParamsStore = typeof layerParamsStore;
  * `xxxOpacity, xxxScale, xxxRegistryIdx: A.map(…).indexOf(…)`。
  *
  * 契約：`Record<string, number>` —— boolean 編 0/1、select 編 idx（見 spec 的 encode）。
+ *
+ * 共用 slot 的成員會**重複寫同一個 out key**，但 `setParam` 保證它們的值恆等，
+ * 所以結果與順序無關（等價於原本那一份共用 useState 只寫一次）。
  */
 export function encodeParamsToOverlay(all: LayerParamsSnapshot): Record<string, number> {
   const out: Record<string, number> = {};

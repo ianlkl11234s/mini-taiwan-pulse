@@ -49,6 +49,31 @@ export interface ParamSelectOption {
 }
 
 /**
+ * ⚠️ 共用 slot（`sharedGroup`）—— 三種 spec 共通的選填欄位。
+ *
+ * `useTransportParams` 有一種形狀是 **多個 layer key 共用同一個 `useState`**：
+ * ```ts
+ * case "eduKindergarten":
+ * case "eduAfterschoolCare":
+ * case "eduMutualCare": return [ slider(eduChildcareOpacity) ];   // 一份值、三個面板
+ * ```
+ * （另有非 fall-through 的變體：`medIsochrone` / `medDesert` 各自 `case`
+ * 但讀寫同一個 `medIsochroneOpacity`。）
+ *
+ * 這種形狀**不能**用 per-key spec 直接搬：三個 key 各存一份值、卻都宣告同一個
+ * `out`，`encodeParamsToOverlay` 後寫者覆蓋前寫者 → **拖其中一個面板，paint 不動、
+ * 其他面板也不動**，而黃金快照（比的是預設值，三份天生相等）與 tsc 都不會紅。
+ *
+ * 表達方式：三個 key 的該參數填**同一個 `sharedGroup` id**（慣例取共用的參數名）。
+ * store 的 `setParam` 會把同群成員一起寫、一起通知 —— 行為與共用一個 `useState`
+ * 逐字等價。護欄見 `state/__tests__/layerParamsSharedState.test.ts`。
+ */
+interface SharedSlotField {
+  /** 共用 slot 的群組 id；省略 = 本 key 獨佔這份值 */
+  sharedGroup?: string;
+}
+
+/**
  * 數值滑桿。
  *
  * ⚠️ label 是**模板**不是字面：現行手寫 case 一律寫成
@@ -56,7 +81,7 @@ export interface ParamSelectOption {
  * 小數位數逐控件不同（透明度 2 位、大小 1 位），漏掉就會產生
  * 「編得過但字串悄悄不一樣」的漂移，正是本工程要消滅的那一類。
  */
-export interface SliderParamSpec {
+export interface SliderParamSpec extends SharedSlotField {
   kind: "slider";
   /** 參數名。慣例沿用舊 useState 變數名 —— 它同時是 overlayParams 的預設 key */
   name: string;
@@ -79,7 +104,7 @@ export interface SliderParamSpec {
  * 才餵得進 paint expression。編碼由 `encodeParamsToOverlay` 統一做，
  * 規格端只宣告 `out`（省略 = 用 `name`）。
  */
-export interface ToggleParamSpec {
+export interface ToggleParamSpec extends SharedSlotField {
   kind: "toggle";
   name: string;
   label: string;
@@ -96,7 +121,7 @@ export interface ToggleParamSpec {
  *   - `["all", ...OPTIONS.map((o) => o.value)]`（「全部」是控件端才 prepend 的）
  * 兩者的 idx 會整體位移 1，抄錯不會編譯錯、只會讓篩選整個錯位。
  */
-export interface SelectParamSpec {
+export interface SelectParamSpec extends SharedSlotField {
   kind: "select";
   name: string;
   label: string;
@@ -778,6 +803,51 @@ export function getParamsSpec(key: string): readonly LayerParamSpec[] | null {
 /** overlayParams 的 key（slider / toggle 省略 `out` 時等於 `name`） */
 export function specOutKey(spec: LayerParamSpec): string {
   return spec.kind === "select" ? spec.out : (spec.out ?? spec.name);
+}
+
+// ── 共用 slot ─────────────────────────────────────────────────────
+
+/** 共用 slot 的一個成員：某個 layer key 的某個參數 */
+export interface SharedSlotMember {
+  key: MigratedParamsKey;
+  name: string;
+}
+
+/**
+ * `sharedGroup` id → 參與的 (key, name) 成員。模組載入時掃一次規格建好。
+ *
+ * 消費者只有一個：`layerParamsStore.setParam` —— 寫入時把同群成員一起改、一起通知，
+ * 讓 N 個 store slot 的行為與「共用一個 useState」逐字等價。
+ */
+export const SHARED_PARAM_GROUPS: ReadonlyMap<string, readonly SharedSlotMember[]> = (() => {
+  const groups = new Map<string, SharedSlotMember[]>();
+  for (const key of Object.keys(LAYER_PARAMS_SPEC) as MigratedParamsKey[]) {
+    for (const spec of LAYER_PARAMS_SPEC[key] as LayerParamSpec[]) {
+      if (!spec.sharedGroup) continue;
+      const list = groups.get(spec.sharedGroup) ?? [];
+      list.push({ key, name: spec.name });
+      groups.set(spec.sharedGroup, list);
+    }
+  }
+  return groups;
+})();
+
+/** (key, name) → 反查所屬共用群組的 id；獨佔回 null */
+const SHARED_GROUP_OF = (() => {
+  const m = new Map<string, string>();
+  for (const [id, members] of SHARED_PARAM_GROUPS) {
+    for (const mem of members) m.set(`${mem.key} ${mem.name}`, id);
+  }
+  return m;
+})();
+
+/**
+ * 與 (key, name) 共用同一份值的全部成員（含自己）。獨佔參數回 null，
+ * 呼叫端據此走「只寫自己」的快路徑。
+ */
+export function sharedSlotMembers(key: string, name: string): readonly SharedSlotMember[] | null {
+  const id = SHARED_GROUP_OF.get(`${key} ${name}`);
+  return id ? (SHARED_PARAM_GROUPS.get(id) ?? null) : null;
 }
 
 /**

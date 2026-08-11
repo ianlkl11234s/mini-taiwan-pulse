@@ -33,9 +33,19 @@ describe("spec ⇄ manifest 焊接", () => {
     }
   });
 
-  it("參數名與 overlayParams out key 全域唯一", () => {
-    const names = specs.flatMap(([, spec]) => spec.map((s) => s.name));
-    const outs = specs.flatMap(([, spec]) => spec.map((s) => specOutKey(s)));
+  it("參數名與 overlayParams out key 全域唯一（共用 slot 先收斂成一份）", () => {
+    // 共用 slot（`sharedGroup`）的成員**刻意**宣告同名 name / out —— 那是
+    // fall-through 共用一個 useState 的表達，先依 slot 收斂成一個代表再驗唯一。
+    // 「撞名但沒宣告 sharedGroup」由 layerParamsSharedState.test.ts 專門擋。
+    const bySlot = new Map<string, LayerParamSpec>();
+    for (const [key, spec] of specs) {
+      for (const s of spec) {
+        const slot = s.sharedGroup ?? `${key}.${s.name}`;
+        if (!bySlot.has(slot)) bySlot.set(slot, s);
+      }
+    }
+    const names = [...bySlot.values()].map((s) => s.name);
+    const outs = [...bySlot.values()].map((s) => specOutKey(s));
     expect(new Set(names).size, "參數名撞名").toBe(names.length);
     expect(new Set(outs).size, "overlayParams key 撞名").toBe(outs.length);
   });

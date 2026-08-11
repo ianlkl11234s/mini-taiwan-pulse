@@ -1468,3 +1468,144 @@ P3-2B 若照本表估工，會**少算 38 個 key** —— 它們實際上分散
    （`// Bike`、`// 醫療基礎點位 5 類` 這種標示宣告群的註解，
    在它標示的宣告全被刪光時一起刪）—— 判定要用**刪除前**的原文，
    刪完再回推「這註解還有沒有主人」會誤判多行註解區塊。
+
+---
+
+## 2026-08-11 — Phase 3 第三棒（P3-2B）第 1 步：fall-through 共用 state 的表達與護欄
+
+`sharedGroup` 欄 ＋ store 連帶寫入 ＋ 三道新閘 ＋ 38 個未分析 key 的形狀分析。
+**動手搬遷前的獨立 commit** —— P3-2A 證實這個形狀「四道閘全綠、畫面卻壞掉」，
+沒有會紅的閘之前不准搬。
+
+### ⚠️ 先更正 P3-2A 的一句話：不是「全攔不住」，是「攔得住一半，而那不是危險的一半」
+
+P3-2A 寫「沒有任何一道閘會紅」。逐條實測後要分成兩種搬法：
+
+| 搬法 | 既有閘 | 實測 |
+|---|---|---|
+| **整組搬、沒用共用表達** | `layerParamsStore.test.ts`「參數名與 out key 全域唯一」 | **會紅**（撞名） |
+| **只搬其中一個 key** | 無 | **全綠、畫面壞掉** ← 真正危險的形狀 |
+
+只搬一半才是無聲失敗：倖存的那個 key 還在 switch 裡用自己的 `useState`，
+而 `overlayParams` 的 `...migratedOverlayParams` 是**最後**才 spread 的 →
+規格派生值蓋掉手寫字面 → 倖存者的 slider 拖了 paint 不動，
+且它的 `case`、`useState`、deps 都還在，tsc 與快照都看不出異常。
+
+### 表達方式：`sharedGroup`（per-param，不是 per-key）
+
+```ts
+eduKindergarten:    [opacitySlider("eduChildcareOpacity", 0.85, "eduChildcare"), …]
+eduAfterschoolCare: [opacitySlider("eduChildcareOpacity", 0.85, "eduChildcare"), …]
+eduMutualCare:      [opacitySlider("eduChildcareOpacity", 0.85, "eduChildcare"), …]
+```
+
+三個 key 各自保有完整 spec（`count` / `kinds` 仍逐 key 對得回 manifest），
+但該參數宣告同一個 `sharedGroup` id → `layerParamsStore.setParam` 寫入時
+**連帶寫同群每個成員、並逐一通知**，行為與共用一個 `useState` 逐字等價。
+
+**為什麼是 per-param 不是 per-key**：`schools` 那組 7 個 key fall-through 到同一個
+body，但 body 裡有 `...(layer === "schools" ? [分級配色 toggle] : [])` ——
+`schools` 是 3 個控件、其餘 6 個是 2 個。per-key 的群組表達裝不下這種不對稱；
+per-param 可以（兩個 slider 共用、toggle 只掛在 `schools`）。
+
+**為什麼是「連帶寫入 N 份」不是「收斂成 1 份」**：收斂成單一 slot 的話，
+`useLayerParams("eduMutualCare")` 這個未來直接吃參數的元件會拿到缺欄位的物件。
+連帶寫入讓 store 對外仍是「每個 key 都有自己完整的一份值」，
+只有 `setParam` 一處知道「共用」這件事。
+
+⚠️ `notify` 因此從收單一 key 改成收**陣列**。只通知寫入端那個 key 的話，
+現況（消費者只有 `useTransportParams` 的整包訂閱）看不出差別 ——
+但未來 `useLayerParams(夥伴 key)` 會拿到過期值，又是一個靜默失效。
+
+### 三道新閘（`src/state/__tests__/layerParamsSharedState.test.ts`）
+
+| # | 斷言 | 擋的搬法錯誤 |
+|---|---|---|
+| 1 | 撞名的 `name` / `out` 必須宣告同一個 `sharedGroup`；同群規格逐欄位相同 | 整組搬了但沒用共用表達 |
+| 2 | 已遷移的 `name` / `out` 不得再出現在 `useTransportParams.ts`（註解已剝除） | **只搬一半**（倖存者被尾端 spread 蓋掉）／漏刪 |
+| 3 | 來源裡的耦合群組（fall-through ／ 跨 case 共用 state）不得有成員已遷移 | 拆組搬、遷了卻沒刪 case |
+
+閘 2 是工作馬：它把判準從「有沒有 fall-through」翻譯成
+「**已遷移的參數名還在不在舊檔裡**」—— 後者在 case 被刪掉之後**依然驗得到**，
+而前者不行（case 一刪，來源就再也看不出這兩個 key 曾經共用過）。
+
+閘 3 的 case 群組解析器只從 `value:` / `onChange: setX` / `` ${X. `` 三種位置錨定
+變數，不掃自由文字 —— 註解裡提到變數名是常態（`// …兩層都讀 eduDistrictK12Opacity`），
+掃全文會把 `windPlan` 這種 `return []` 的空 case 誤判成跟鄰居耦合。
+
+`layerParamsStore.test.ts` 的「全域唯一」跟著改成**先依 slot 收斂再驗唯一** ——
+共用成員刻意同名，收斂後仍撞名才是真漂移。
+
+### 突變自測（護欄自己會不會叫）
+
+| 突變 | 結果 |
+|---|---|
+| (i) 只把 `busStationsCity` 搬進 spec，`busStationsIntercity` 留在 switch | 閘 2 ／ 閘 3 ／「已遷移 key 不得留 case」**三條紅**，訊息直接點名 `busScale` 還留在舊檔 |
+| (ii) 兩個 key 都搬、都不宣告 `sharedGroup` | 閘 1 紅（`name "busScale" 被 busStationsCity / busStationsIntercity 共用`）＋ 收斂後的全域唯一也紅 |
+
+兩個突變都還原後全綠：`npx tsc -b` 0 error、`npx vitest run` 42 檔
+**530 passed / 1 skipped**（523 基準 ＋ 7 條新閘），`layer-golden.json` 零 diff。
+
+### 38 個未分析 fall-through key 的形狀分析（機械腳本）
+
+P3-2A 的分類器在形狀分析**之前**就用 `len(keys) > 1` 把 fall-through 攔掉，
+留下 38 個沒歸桶的 key。本次用兩支腳本補完：
+
+- **case 群組解析**：切出 `getControls` 的 120 個 case 群組（169 key），
+  其中 10 組是 fall-through（59 key）
+- **觸點列舉**（註解剝除後逐變數分類 `decl` / `case` / `overlay-literal` /
+  `overlay-deps` / `ref` / `return-obj` / `other`）—— 判 D 的唯一依據是
+  「觸點超出 `{decl, case, overlay-literal, overlay-deps}`」，
+  也就是 P3-1 說的「值不只餵 overlayParams」
+
+10 組 fall-through 減掉 P3-2A 已列的 2 組（`busStationsCity/Intercity`、
+`eduKindergarten/AfterschoolCare/MutualCare` 共 5 key）與已計入
+「block-form case」那 24 的 2 組（廢棄物 13、`pollutionPenalty*` 3），
+剩下**恰好 38 key**，分佈如下：
+
+| group | key 數 | 桶 | 判準 |
+|---|---|---|---|
+| `realEstate{Rental,Sale,Presale}{Grid,Point}` | 6 | **B** | 共用 `realEstateOpacity` ＋ `realEstateExcludeTaipei`（**本棒第一個真實 toggle**）；觸點全乾淨 |
+| `eduDistrictElementary/Junior` | 2 | **B** | 共用 `eduDistrictK12Opacity`（兩層學區面完全疊合） |
+| `schools` ＋ `eduSchool{Elementary,Junior,Senior,University,Special}` ＋ `eduRemoteSchools` | 7 | **B** | 共用 `eduSchoolsOpacity` / `schoolScale`；`schools` 多一個 `schoolLevelColor` toggle。⚠️ manifest **早就**逐 key 記對了（`schools` count 3、其餘 6 個 count 2），per-key spec 一搬，條件式 spread 自動消失 |
+| `lifelineAlerts` `floodAlerts` `weatherAlerts` `transitAlerts` `safetyAlerts` | 5 | **D** | 共用 `daOpacity`，而它**不進 overlayParams**，是從 hook 的 `return {}` 外溢 |
+| `satellites*` 16 個國別／系列層 | 16 | **D** | 共用 `satOpacity`，同上（hook return 外溢） |
+| `wasteTruck` `wasteSchedule` | 2 | **D** | `wasteOrbScale` / `wasteNoteSize` / `wasteNoteZOffset` 走 `xxxRef.current`，另有 `wasteScheduleGroups` 這個 `Record<Group, boolean>` |
+| **合計** | **38** | B 15 ／ C 0 ／ D 23 | |
+
+⚠️ `eduRemoteSchools` 被 P3-1 列在「D state 外溢 15」裡是**錯的** ——
+它那組三個變數的觸點全在 overlayParams 這條通道上，機械判準是 B。
+
+### ⚠️ 剩餘 169 key 的全量重新分桶：D 遠比 P3-1 估的大（15 → 74）
+
+同一支觸點腳本對全部 120 個群組跑一遍（不只那 38 個），得到的分佈與 P3-1 的
+盤點**差很多**。P3-1 的 15 是目測列舉 Three.js／CustomLayer 那批，
+漏掉了「只是被 hook `return {}` 再導出一次」的一大群（`daOpacity` `satOpacity`
+`eqOpacity` `reOpacity` `hillshadeOpacity` `tempGridOpacity` …）：
+
+| 桶 | 群組 | key | 說明 |
+|---|---|---|---|
+| **B** 現行 schema ＋ `sharedGroup` 可直接搬 | 48 | **63** | 含 select 28／含 toggle 26／純 slider 9（那 9 個純 slider 正是 P3-2A 因 fall-through 退回的） |
+| **C** 需 schema 擴充 | 27 | **27** | `labelSuffix`（`Z 漂浮 …px` ×7、`…×` ×5）／條件式 label（`powerPoles` `osmRoadDrive` `facPrimary`）／整數內插（`lightning` ×2）／helper 產生器（`agriCropSuitability`）／`livestockFarm*` 7 層的動態 select label ／`propertyValueGrid` 的 `disabled` ／`buildingsGba` |
+| **D** 需第二條輸出通道 | 40 | **74** | 觸點含 `ref` ／ `return-obj` ／其他區域 |
+| `emptyByDesign` | 5 | **5** | `windPlan` `submarineCables` `landingStations` `activeFaults` `aqiStations` |
+| **合計** | 120 | **169** | |
+
+⚠️ `pollutionSite` 的更正（P3-2A 記「現況它有真 case → 屬 B 桶」）要再更正一次：
+它的 `pollutionSiteActiveOnly` 從 hook return 外溢 → **D**，不是 B。
+
+⚠️ 本表把「D」定義成**機械可判**的「觸點超出 overlayParams 那條通道」，
+與 P3-1 憑主題目測的 D 不是同一個母體。之後估工一律以本表為準。
+
+### 給後棒的三件事
+
+1. **D 桶 74 key 裡有一大半是便宜的**：純粹「hook `return {}` 再導出一次」
+   （`daOpacity` `satOpacity` `eqOpacity` `reOpacity` `hillshade/slope/aspect` …），
+   只要讓 hook 從 store snapshot 讀值再導出即可，不像 Three.js `ref` 那批要動渲染端。
+   建議把 D 再切成 **D1 return 導出**（便宜、量大）與 **D2 ref／子物件**（貴）。
+2. **D 桶目前沒有任何閘**：黃金快照不涵蓋 hook `return {}` 的其他欄位。
+   動 D 之前要先補一條「hook return 物件逐欄位等值」的行為測試，
+   否則會重演 P3-2A 那種「全綠但壞掉」。
+3. **`sharedGroup` 的成員規格必須逐欄位相同**（閘 1 已強制）。
+   若之後遇到「共用值但 label 不同」的形狀，那不是共用 slot，是兩個參數 ——
+   別為了複用而放寬這條，它正是「顯示表 ≠ 編碼表」那類漂移的近親。
