@@ -11,12 +11,54 @@
  * store 只管「值」（不認識 UI 型別 `ParamControl`），本檔才是 spec → UI 的橋。
  */
 
-import type { ParamControl } from "../hooks/useTransportParams";
 import {
   getParamsSpec, resolveParamValues, resolveSelectOptions, visibleParamsSpec,
   type LayerParamValues,
 } from "../data/layerParamsSpec";
 import { layerParamsStore } from "./layerParamsStore";
+
+// ══════════════════════════════════════════════════════════════════
+//  控件型別（AR-22 P3-3）
+// ══════════════════════════════════════════════════════════════════
+//
+//  這三個型別描述的是**面板控件的形狀**，本檔是它們唯一的生產者
+//  （`buildParamControls` 是唯一的建構點），消費者是兩個 sidebar 元件。
+//  P3-3 之前它們宣告在 `hooks/useTransportParams.ts`，本檔得反過來
+//  `import type ... from "../hooks/…"` —— `hooks → state` 的相依方向是倒的。
+//  搬到這裡之後相依單向：`data/layerParamsSpec → state/* → hooks/* ＋ components/*`。
+
+export interface SliderConfig {
+  /**
+   * ⚠️ **選填，且現行產出一律省略**。補一個 `type: "slider"` 會讓黃金快照的
+   * params section 立刻紅（P3-1 記過一次）—— 消費端靠「沒有 `type` 欄位」
+   * 判定 slider。
+   */
+  type?: "slider";
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (v: number) => void;
+}
+
+export interface ToggleConfig {
+  type: "toggle";
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+}
+
+export interface SelectConfig {
+  type: "select";
+  label: string;
+  value: string;
+  /** disabled：該選項當下不可選（如 propertyValueGrid 人均模式在 150m 尺度）；label 自帶原因說明 */
+  options: { label: string; value: string; disabled?: boolean }[];
+  onChange: (v: string) => void;
+}
+
+export type ParamControl = SliderConfig | ToggleConfig | SelectConfig;
 
 /**
  * ⚠️ slider **不帶 `type` 欄位** —— `SliderConfig.type` 是選填，現行手寫 case

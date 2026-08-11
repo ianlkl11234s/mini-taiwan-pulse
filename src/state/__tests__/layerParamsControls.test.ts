@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 
 import { buildParamControls } from "../layerParamsControls";
 import { layerParamsStore, encodeParamsToOverlay } from "../layerParamsStore";
-import type { SelectConfig, SliderConfig, ToggleConfig } from "../../hooks/useTransportParams";
+import type { SelectConfig, SliderConfig, ToggleConfig } from "../layerParamsControls";
 
 beforeEach(() => layerParamsStore.reset());
 

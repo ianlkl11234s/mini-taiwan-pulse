@@ -17,7 +17,7 @@ import {
 import type {
   LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode,
 } from "../types";
-import type { ParamControl } from "../hooks/useTransportParams";
+import type { ParamControl } from "../state/layerParamsControls";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）

@@ -5,41 +5,13 @@ import {
   type LayerParamsSnapshot,
 } from "../state/layerParamsStore";
 import { BUS_GROUP_ORDER, paramDefault } from "../data/layerParamsSpec";
-import { buildParamControls } from "../state/layerParamsControls";
+import { buildParamControls, type ParamControl } from "../state/layerParamsControls";
 import { BUS_GROUP_CITIES, WASTE_GROUP_CITIES } from "../types";
 import {
   FACILITY_MEDIA, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX, type PollutionMedium,
 } from "../data/pollutionTypes";
 // religionTypes / funeralTypes / buildingsGbaTypes / propertyValueTypes 等
 // select 選項常數已隨對應的 key 遷出本檔（現由 src/data/layerParamsSpec.ts 引用）。
-
-export interface SliderConfig {
-  type?: "slider";
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  onChange: (v: number) => void;
-}
-
-export interface ToggleConfig {
-  type: "toggle";
-  label: string;
-  value: boolean;
-  onChange: (v: boolean) => void;
-}
-
-export interface SelectConfig {
-  type: "select";
-  label: string;
-  value: string;
-  /** disabled：該選項當下不可選（如 propertyValueGrid 人均模式在 150m 尺度）；label 自帶原因說明 */
-  options: { label: string; value: string; disabled?: boolean }[];
-  onChange: (v: string) => void;
-}
-
-export type ParamControl = SliderConfig | ToggleConfig | SelectConfig;
 
 // ══════════════════════════════════════════════════════════════════
 //  第二輸出通道的讀取器（AR-22 P3-2D）
