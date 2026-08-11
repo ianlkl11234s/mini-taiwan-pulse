@@ -2,12 +2,14 @@ import { useState, useEffect, useMemo, useRef, memo, createContext, useContext, 
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
 import {
   Activity, Layers, MapPin, Settings, X,
-  // 🚦 交通 即時運具 / 場站 / 樞紐節點 18 層搬進 layerManifest（AR-22 Phase 2 批 8）後，
-  //    Plane / Ship / TrainFront / Bus / PlaneTakeoff / Lightbulb / RailSymbol /
-  //    Hexagon / Ban 已無用；Bike / Route / Anchor / CircleDot 仍被別層或 orphan 用
-  Bike, Route, Anchor,
+  // 🚦 交通 Move 31 層搬進 layerManifest（AR-22 Phase 2 批 8）後，Plane / Ship /
+  //    TrainFront / Bus / PlaneTakeoff / Lightbulb / RailSymbol / Hexagon / Ban /
+  //    Bike / Receipt / Coffee / Car / SquareParking / CircleParking / AlertTriangle
+  //    已無用；Route（orphan wasteRoute）／Anchor（orphan islandPowerGrid）／
+  //    CircleDot 仍被別層或 orphan 用
+  Route, Anchor,
   // Users 隨人口社經 6 層搬進 layerManifest（AR-22 Phase 2 批 4）
-  BarChart3, AlertTriangle, Wind,
+  BarChart3, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
   CircleDot,
   Play, Cable, Radio,
@@ -24,7 +26,6 @@ import {
   //    Pill / HeartPulse / Accessibility 已無用；Clock / Bed 仍被別層用
   //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6）
   Clock, Bed,
-  Receipt, Coffee, Car, SquareParking, CircleParking,
   // 🌾 農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）後，Store / Mountain / Sprout /
   //    ShoppingCart / Warehouse / Fish / PawPrint / Truck / ShieldCheck 已無用
   //    （Route 仍被 orphan wasteRoute 與別層用、Layers 是 sidebar UI 自己在用）
@@ -76,23 +77,11 @@ const MAIN_THEMES = THEMES.filter((t) => !WORLD_TAB_THEME_TITLES.includes(t.titl
  * HANDWRITTEN_LAYER_COLORS。
  */
 const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, ManifestKey> = {
-  highways: Route,
-  provincialRoads: Route,
-  cyclingRoutes: Bike,
-  etcGantry: Receipt,
-  serviceArea: Coffee,
-  serviceAreaPolygon: Coffee,
-  taxiStand: Car,
-  freewayCongestion: AlertTriangle,
   windPlan: Wind,
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3，隨主題搬移 key 不變）
   // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    本處原有 9 層，另 3 層（lightning / lightningCwa / nuclearRadiation）在下方
-  roadEvents: AlertTriangle,
-  roadCongestion: AlertTriangle,
   // 🚒 消防 Fire & Rescue 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
-  parkingOnstreet: SquareParking,
-  parkingOffstreet: CircleParking,
   medICUBeds: Bed,
   // 🌾 農業 Agriculture 29 層已搬進 layerManifest（AR-22 Phase 2 批 7）
   //    ⚠️ farmRoads / ecoNetworkZones **不在這一段**，在本表下方林業註解之前（歷史位置）
@@ -168,8 +157,8 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   // 全球氣候 GLOBAL CLIMATE
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）
-  //    ⚠️ osmExpressway 夾在中間但**不屬底圖**（THEMES 位置是「交通 Move / 路網」，批 8）
-  osmExpressway: Route,
+  //    ⚠️ 夾在中間的 osmExpressway **不屬底圖**（THEMES 位置是「交通 Move / 路網」），
+  //    已隨交通主題搬進 layerManifest（AR-22 Phase 2 批 8）
   // 👮 執法治安 20 層（含警察覆蓋分析 3 層）已搬進 layerManifest（AR-22 Phase 2 批 4）
   // 環境污染
 };

@@ -64,65 +64,15 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    本區塊原本的 9 層（行政邊界 3 / 地形 5 / 道路 1）＋ 下方 urban 區塊的
   //    buildingsGba / nonUrbanZoning / urbanZoningNewTaipei
-  highways: {
-    status: 'verified',
-    datasets: [{ datasetId: 'freeway', confidence: 'MED' }],
-  },
-  osmExpressway: {
-    status: 'verified',
-    datasets: [{ datasetId: 'osm_expressway', confidence: 'MED' }],
-  },
-  provincialRoads: {
-    status: 'verified',
-    datasets: [{ datasetId: 'road', confidence: 'MED' }],
-  },
-  cyclingRoutes: {
-    status: 'verified',
-    datasets: [{ datasetId: 'bike', confidence: 'MED' }],
-  },
-  etcGantry: {
-    status: 'verified',
-    datasets: [{ datasetId: 'etc_gantry', confidence: 'MED' }],
-  },
-  serviceArea: {
-    status: 'verified',
-    datasets: [{ datasetId: 'service_area', confidence: 'MED' }],
-  },
-  serviceAreaPolygon: {
-    status: 'verified',
-    datasets: [{ datasetId: 'service_area_polygon', confidence: 'MED' }],
-  },
-  taxiStand: {
-    status: 'verified',
-    datasets: [{ datasetId: 'taxi_stand', confidence: 'MED' }],
-  },
-  freewayCongestion: {
-    status: 'verified',
-    datasets: [{ datasetId: 'road_congestion', confidence: 'HIGH' }],
-  },
-  roadCongestion: {
-    status: 'verified',
-    datasets: [{ datasetId: 'road_congestion', confidence: 'HIGH' }],
-  },
-  roadEvents: {
-    status: 'verified',
-    datasets: [{ datasetId: 'road_event', confidence: 'HIGH' }],
-  },
+  // 🚦 交通 Move 31 層已搬進 layerManifest（AR-22 Phase 2 批 8）——
+  //    即時運具 5 / 場站 6 / 樞紐節點 7 / 路網 8 / 即時監控 3 / 停車 2
+  //    （rail 與 cctv 更早，Phase 1 試點）
   // 🌤️ 環境氣候「氣象」6 層與「空品」3 層已搬進 layerManifest（AR-22 Phase 2 批 6）
   // 💧 水資源 Water 23 層已搬進 layerManifest（AR-22 Phase 2 批 6）
   // ⚠️ 災害 Hazard 12 layer（NCDR 示警 5 / 地震・斷層 3 / 雷暴 2 / 山域 1 / 核安 1）
   //    已搬進 layerManifest（AR-22 Phase 2 批 5）
   // 🚒 消防 Fire & Rescue 5 layer 已搬進 layerManifest（AR-22 Phase 2 批 1）
-  parkingOnstreet: {
-    status: 'pulse_only',
-    datasets: [],
-    note: '停車 hybrid v1 路邊 RPC（get_parking_segments_current）已 apply 到 production；台北 POLYGON 有 geom 無即時空位、新北/台中點有空位率。catalog dataset 條目待補（handoff pending）',
-  },
-  parkingOffstreet: {
-    status: 'pulse_only',
-    datasets: [],
-    note: '停車 hybrid v1 場外 RPC（get_parking_lots_current）已 apply 到 production；city/tourism/freeway_service_area 三源全點座標含空位率。catalog dataset 條目待補（handoff pending）',
-  },
+  // 🅿️ 停車 2 層隨交通主題搬進 layerManifest（AR-22 Phase 2 批 8，見上方交通註解）
   // 🌾 農業 Agriculture 29 layer 已搬進 layerManifest（AR-22 Phase 2 批 7）——
   //    含畜牧 10 / 養殖漁業 7；⚠️ 面分區 3 層 + 土壤 3 層 + farmRoads + ecoNetworkZones
   //    原本**不在本區塊**而在本檔下方教育註解之後，逐 key grep 才找得到（同批 3 schools）。

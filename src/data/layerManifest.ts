@@ -87,6 +87,7 @@ import {
   // 🚦 交通（PlaneTakeoff / Anchor / Lightbulb / Hexagon / AlertTriangle / TrainFront /
   //    CircleDot / Bike / Route / MapPin / Car / Timer / Video 已在上方 import 復用）
   Plane, Ban, Bus, RailSymbol, Ship,
+  Receipt, Coffee, SquareParking, CircleParking,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -7555,6 +7556,349 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["select", "slider", "slider", "slider"] },
     description: "台灣好行觀光巴士即時／回放位置",
     topics: ["交通", "公車", "觀光", "即時"],
+  },
+  // ══════════════════════════════════════════════════════════════════
+  // 🚦 交通 Move —— 路網 8 ＋ 即時監控 3 ＋ 停車 2（AR-22 Phase 2 批 8-2）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 交通主題至此全數搬完（33 層 = 試點 rail/cctv 2 ＋ 批 8-1 的 18 ＋ 本段 13）。
+  //
+  // ⚠️ **`osmExpressway` 是批 5 `hillshade` 反例的第二例**：`HEADER_LABELS` 有一條
+  // `osmExpressway: "快速道路 (OSM)"`，但 `GIS_LAYERS` **沒有**它的條目 → `popup: null`。
+  // 那張表是 BYOK chat bridge 能標的 layerType 全集，不構成點擊接線。
+  // 它同時也是批 5 記過的「別主題 key 夾在本區塊正中間」——`LAYER_COLORS` /
+  // `LAYER_ICONS` 都把它排在底圖的 osmRoadDrive 與 hillshade 之間，THEMES 位置卻在這裡。
+  //
+  // ⚠️ **`roadEvents` → `roadEvent` 是本主題唯一的 key ≠ layerType**（去複數 s）。
+  // 路網 4 條線層（highways / osmExpressway / provincialRoads / cyclingRoutes）
+  // 則是合法無 popup —— 純線層沒有 GIS_LAYERS 條目，不是漏抓。
+  //
+  // dataClass：A 5 ／ B 3 ／ C 2 ／ D 3（四種齊，繼批 4 醫療、批 6 環境氣候、
+  // 批 7 農業之後第四次）。⚠️ 3 個 D 有兩個藏著要部署的檔（觸點 #20 掃 B 會漏）：
+  //   roadCongestion → ./road/road_congestion_highway.pmtiles（**新目錄 /road/**）
+  //   freewayCongestion / roadEvents → 純 Supabase RPC，無靜態檔
+
+  // ── 路網 ───────────────────────────────────────────────────────────
+  highways: {
+    key: "highways",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "國道 Highway",
+    expandable: true,
+    color: "#ff6b6b",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "freeway", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "national-highways",
+      url: "./geo/national_highway.pmtiles",
+      sourceLayer: "national_highway",
+      minzoom: 0,
+      maxzoom: 13,
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國道路線（glow 底線 ＋ 主線兩層）",
+    topics: ["交通", "路網", "國道"],
+  },
+
+  osmExpressway: {
+    key: "osmExpressway",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "快速道路 Expressway",
+    expandable: true,
+    color: "#FF8C00",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "osm_expressway", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-osm-expressway",
+      url: "./base_map/osm_expressway.pmtiles",
+      sourceLayer: "osm_expressway",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: null,
+    // ⚠️ HEADER_LABELS 有 `osmExpressway: "快速道路 (OSM)"`，但 GIS_LAYERS 沒有條目
+    //    → 沒有點擊接線（批 5 `hillshade` 的第二例）。填成有 popup 會讓 Phase 3
+    //    派生出一筆指向不存在 layer id 的假條目。
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "OSM 快速道路線形（單色橘線，與國道分開）",
+    topics: ["交通", "路網", "快速道路"],
+  },
+
+  provincialRoads: {
+    key: "provincialRoads",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "省道 Provincial Road",
+    expandable: true,
+    color: "#ffa94d",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "road", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "provincial-roads",
+      url: "./geo/provincial_road.pmtiles",
+      sourceLayer: "provincial_road",
+      minzoom: 0,
+      maxzoom: 13,
+    },
+    legend: null,
+    popup: null,
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "省道路線（glow 底線 ＋ 主線兩層）",
+    topics: ["交通", "路網", "省道"],
+  },
+
+  cyclingRoutes: {
+    key: "cyclingRoutes",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "自行車道 Cycling Route",
+    expandable: true,
+    color: "#66bb6a",
+    icon: Bike,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "bike", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "cycling-routes", url: "./geo/cycling_routes.geojson" },
+    legend: null,
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "自行車道路線（glow 底線 ＋ 主線兩層）",
+    topics: ["交通", "路網", "自行車"],
+  },
+
+  etcGantry: {
+    key: "etcGantry",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "ETC 收費門架 Gantry",
+    expandable: true,
+    color: "#f06292",
+    icon: Receipt,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "etc_gantry", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "etc-gantry", url: "./geo/etc_gantry.geojson" },
+    legend: null,
+    popup: "etcGantry",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "國道 ETC 計程收費門架點位",
+    topics: ["交通", "路網", "國道", "收費"],
+  },
+
+  serviceArea: {
+    key: "serviceArea",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "國道服務區 Service Area",
+    expandable: true,
+    color: "#4db6ac",
+    icon: Coffee,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "service_area", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "service-area", url: "./geo/service_area.geojson" },
+    legend: null,
+    // ⚠️ 與 serviceAreaPolygon 是**兩個獨立的 key / source / popup**（點 vs 面），
+    //    不是批 4 的「兩個 key 一個 layer」。色票同為 #4db6ac 是刻意成對，不是共用。
+    popup: "serviceArea",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "國道服務區點位（雙圓 glow）",
+    topics: ["交通", "路網", "國道", "服務區"],
+  },
+
+  serviceAreaPolygon: {
+    key: "serviceAreaPolygon",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "國道服務區範圍 SA Area",
+    expandable: true,
+    color: "#4db6ac",
+    icon: Coffee,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "service_area_polygon", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "service-area-polygon",
+      url: "./geo/service_area_polygon.geojson",
+    },
+    legend: null,
+    popup: "serviceAreaPolygon",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "國道服務區範圍面（fill ＋ 邊框）",
+    topics: ["交通", "路網", "國道", "服務區"],
+  },
+
+  taxiStand: {
+    key: "taxiStand",
+    section: { theme: "交通 Move", group: "路網" },
+    label: "計程車招呼站 Taxi Stand",
+    expandable: true,
+    color: "#f9a825",
+    icon: Car,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "taxi_stand", confidence: "MED" }],
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "taxi-stand", url: "./geo/taxi_stand.geojson" },
+    legend: null,
+    popup: "taxiStand",
+    params: { count: 3, kinds: ["slider", "slider", "slider"] },
+    description: "計程車招呼站點位（雙圓 glow）",
+    topics: ["交通", "路網", "計程車"],
+  },
+
+  // ── 即時監控 ───────────────────────────────────────────────────────
+  freewayCongestion: {
+    key: "freewayCongestion",
+    section: { theme: "交通 Move", group: "即時監控" },
+    label: "國道壅塞 Congestion",
+    expandable: true,
+    color: "#ef5350",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "road_congestion", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useFreewayLayer 自建 source `freeway-congestion` ＋ 兩個 line layer（無 OVERLAY_REGISTRY entry）：freewayLoader 一次載一整天所有路段 timeline（每 10 分鐘一快照，LRU 7 天），依 timeStore 的 currentTime 找最近快照 setData 重建整包 GeoJSON。無靜態檔要部署。",
+    },
+    legend: "freewayCongestion",
+    // 兩個 line layer（-glow / -line）都不在 GIS_LAYERS → 無點擊接線（與 roadCongestion
+    // 刻意加的透明 hit 層對照：那層是為了細線命中率才補的，這層沒補）
+    popup: null,
+    params: { count: 1, kinds: ["slider"] },
+    description: "國道路段壅塞等級（依時間軸逐快照染色）",
+    topics: ["交通", "即時", "壅塞", "國道"],
+  },
+
+  roadCongestion: {
+    key: "roadCongestion",
+    section: { theme: "交通 Move", group: "即時監控" },
+    label: "省道路況 Provincial v1",
+    expandable: true,
+    color: "#fb923c",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "road_congestion", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useRoadCongestionLayer 自建 PmTilesSource `road-congestion`（無 OVERLAY_REGISTRY entry）：幾何是靜態 ./road/road_congestion_highway.pmtiles（source-layer road_congestion_highway，promoteId = section_uid），染色走 Mapbox feature-state —— 全站首個「PMTiles 幾何 + feature-state」圖層，不每 tick 重建 GeoJSON。⚠️ 目錄 /road/ 只有這一個檔在用。",
+    },
+    legend: "roadCongestion",
+    // layer id `road-congestion-hit` 是**刻意加的透明加寬命中層**（四鐵則③：細線點擊
+    // 命中率極差），GIS_LAYERS 收的就是它 —— 不是渲染層。
+    popup: "roadCongestion",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "省道 TDX live_highway 路況（5 分鐘槽，feature-state 染色）",
+    topics: ["交通", "即時", "壅塞", "省道"],
+  },
+
+  roadEvents: {
+    key: "roadEvents",
+    section: { theme: "交通 Move", group: "即時監控" },
+    label: "即時路況 Road Events",
+    expandable: true,
+    color: "#ef4444",
+    icon: AlertTriangle,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "road_event", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useRoadEventsLayer 自建 source ＋ fill/line/circle 三個 layer（無 OVERLAY_REGISTRY entry，混合幾何）：roadEventsLoader 一次載一整天事件（LRU 7 天），依 timeStore 過濾 start_ts ≤ now < end_ts 的 active 事件。無靜態檔要部署。",
+    },
+    legend: "roadEvents",
+    // ⚠️ 本主題唯一的 key ≠ layerType：roadEvents → "roadEvent"（去複數 s）
+    popup: "roadEvent",
+    params: { count: 1, kinds: ["slider"] },
+    description: "TDX 即時路況事件（事故／施工／壅塞／活動／災害分色，混合幾何）",
+    topics: ["交通", "即時", "事件"],
+  },
+
+  // ── 停車 Parking ───────────────────────────────────────────────────
+  // 兩層共用一筆 LEGEND_REGISTRY entry（機械規則取首 key parkingOnstreet），
+  // 但 popup **各自獨立**（批 6 floodSensor / floodSensorIsochrone 的同款組合：
+  // 共用 legend ≠ 共用 popup，兩個維度要分開查）。
+  parkingOnstreet: {
+    key: "parkingOnstreet",
+    section: { theme: "交通 Move", group: "停車 Parking" },
+    label: "路邊停車 On-street",
+    labelMobile: "路邊停車",
+    expandable: true,
+    color: "#64748b",
+    icon: SquareParking,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "停車 hybrid v1 路邊 RPC（get_parking_segments_current）已 apply 到 production；台北 POLYGON 有 geom 無即時空位、新北/台中點有空位率。catalog dataset 條目待補（handoff pending）",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "parking-onstreet",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    legend: "parkingOnstreet",
+    popup: "parkingOnstreet",
+    params: { count: 1, kinds: ["slider"] },
+    description: "路邊停車格（台北面／新北・台中點含空位率）",
+    topics: ["交通", "停車", "即時"],
+  },
+
+  parkingOffstreet: {
+    key: "parkingOffstreet",
+    section: { theme: "交通 Move", group: "停車 Parking" },
+    label: "場外停車場 Off-street",
+    labelMobile: "場外停車場",
+    expandable: true,
+    color: "#22c55e",
+    icon: CircleParking,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      note: "停車 hybrid v1 場外 RPC（get_parking_lots_current）已 apply 到 production；city/tourism/freeway_service_area 三源全點座標含空位率。catalog dataset 條目待補（handoff pending）",
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "parking-offstreet",
+      fallbackUrl: "./geo/_empty.geojson",
+    },
+    // 與 parkingOnstreet 共用同一筆 LEGEND_REGISTRY entry（取其首 key）
+    legend: "parkingOnstreet",
+    popup: "parkingOffstreet",
+    params: { count: 1, kinds: ["slider"] },
+    description: "場外停車場點位（市區／觀光／國道服務區三源，含即時空位率）",
+    topics: ["交通", "停車", "即時"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

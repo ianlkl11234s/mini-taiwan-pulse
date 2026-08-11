@@ -41,16 +41,7 @@ import {
  * 所以「搬走了但手寫值沒刪」這種「改 manifest 畫面沒反應」的暗雷不可能存在。
  */
 const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, ManifestKey> = {
-  highways: "#ff6b6b",
-  provincialRoads: "#ffa94d",
-  etcGantry: "#f06292",
-  serviceArea: "#4db6ac",
-  serviceAreaPolygon: "#4db6ac",
-  taxiStand: "#f9a825",
   windPlan: "#7efcb0",
-  cyclingRoutes: "#66bb6a",
-  freewayCongestion: "#ef5350",
-  roadCongestion: "#fb923c",
   // 🎓 教育總覽層 schools 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    它不在 EDUCATION_LAYER_COLORS 裡，色票是本表自己的字面值，隨 entry 一起搬走
   // ⚠️ 災害 Hazard 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
@@ -58,10 +49,7 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   //    12 個色票原本就是字面 hex（disasterAlertTypes 的 ALERT_GROUPS 是 event_term-keyed
   //    分色表、從未餵本表），照拍板①判準寫字面。
   //    ⚠️ 「全球氣候 GLOBAL CLIMATE」註解原本夾在中間，其 5 層已於批 4 搬走
-  roadEvents: "#ef4444",
   medICUBeds: "#ff1744",
-  parkingOnstreet: "#64748b",
-  parkingOffstreet: "#22c55e",
   // 🌾 農業 Agriculture 29 層已搬進 layerManifest（AR-22 Phase 2 批 7）——
   //    agriPOITypes.ts 的 AGRI_POI_TYPES[].color 是 poi_type-keyed（餵
   //    agricultureLayerFactory 的 circle-color match 表達式），不是 layer-key-keyed
@@ -155,8 +143,8 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   //    7 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面
   // 📍 底圖 Base Map 12 層已搬進 layerManifest（AR-22 Phase 2 批 5）——
   //    12 個色票原本就是字面 hex（沒有 *_LAYER_COLORS 常數在餵這張表），照拍板①判準寫字面。
-  //    ⚠️ osmExpressway 夾在中間但**不屬底圖**（THEMES 位置是「交通 Move / 路網」，批 8）→ 留在本表
-  osmExpressway: "#FF8C00",
+  //    ⚠️ 夾在中間的 osmExpressway **不屬底圖**（THEMES 位置是「交通 Move / 路網」），
+  //    已隨交通主題搬進 layerManifest（AR-22 Phase 2 批 8）
   // 👮 執法治安 20 層（含警察覆蓋分析 isochrone 3 層）已搬進 layerManifest
   //    （AR-22 Phase 2 批 4）—— 20 個色票原本就是字面 hex，無 spread 可刪
   // 環境污染 POLLUTION
@@ -349,15 +337,15 @@ export const THEMES: ThemeDef[] = [
       {
         title: "路網",
         layers: [
-          { key: "highways", label: "國道 Highway", expandable: true },
-          { key: "osmExpressway", label: "快速道路 Expressway", expandable: true },
-          { key: "provincialRoads", label: "省道 Provincial Road", expandable: true },
-          { key: "cyclingRoutes", label: "自行車道 Cycling Route", expandable: true },
+          fromManifest("highways"),
+          fromManifest("osmExpressway"),
+          fromManifest("provincialRoads"),
+          fromManifest("cyclingRoutes"),
           fromManifest("cctv"),
-          { key: "etcGantry", label: "ETC 收費門架 Gantry", expandable: true },
-          { key: "serviceArea", label: "國道服務區 Service Area", expandable: true },
-          { key: "serviceAreaPolygon", label: "國道服務區範圍 SA Area", expandable: true },
-          { key: "taxiStand", label: "計程車招呼站 Taxi Stand", expandable: true },
+          fromManifest("etcGantry"),
+          fromManifest("serviceArea"),
+          fromManifest("serviceAreaPolygon"),
+          fromManifest("taxiStand"),
         ],
       },
       {
@@ -375,16 +363,16 @@ export const THEMES: ThemeDef[] = [
       {
         title: "即時監控",
         layers: [
-          { key: "freewayCongestion", label: "國道壅塞 Congestion", expandable: true },
-          { key: "roadCongestion", label: "省道路況 Provincial v1", expandable: true },
-          { key: "roadEvents", label: "即時路況 Road Events", expandable: true },
+          fromManifest("freewayCongestion"),
+          fromManifest("roadCongestion"),
+          fromManifest("roadEvents"),
         ],
       },
       {
         title: "停車 Parking",
         layers: [
-          { key: "parkingOnstreet", label: "路邊停車 On-street", labelMobile: "路邊停車", expandable: true },
-          { key: "parkingOffstreet", label: "場外停車場 Off-street", labelMobile: "場外停車場", expandable: true },
+          fromManifest("parkingOnstreet"),
+          fromManifest("parkingOffstreet"),
         ],
       },
     ],
