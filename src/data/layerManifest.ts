@@ -81,6 +81,9 @@ import {
   // 🗑️ 廢棄物（Truck / CalendarDays / MapPinned / Flame / Mountain / Waves /
   //    AlertTriangle / Gauge / Trash2 已在上方 import 復用）
   Brush, Recycle, Shirt, Battery,
+  // 🌾 農業（Store / Truck / PawPrint / Factory / Satellite / ShieldCheck / Sprout /
+  //    Mountain / MapPinned / Route 已在上方 import 復用）
+  ShoppingCart, Warehouse, Fish, Layers,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -6284,6 +6287,767 @@ export const LAYER_MANIFEST = {
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "其他事業廢棄物處理設施（3,164 處，含廚餘處理與維修廠）",
     topics: ["廢棄物", "處理設施", "事業廢棄物"],
+  },
+
+  // ══════════════════════════════════════════════════════════════════
+  // 🌾 農業 Agriculture 29 層（AR-22 Phase 2 批 7）
+  // ══════════════════════════════════════════════════════════════════
+  //
+  // 四種 dataClass 全到齊（A 5 / B 9 / C 8 / D 7，繼批 4 醫療、批 6 環境氣候之後第三次），
+  // 且三種「非 OVERLAY_REGISTRY」形狀在同一主題內並存：
+  //
+  //   - **C 動態 8 層**（畜牧飼養場 7 ＋ 屠宰場）走 `dynamicData` overlay config，
+  //     資料來自 owner-only RPC；`fallbackUrl` 指的那兩個 geojson **刻意不上傳 S3**
+  //     （upload 腳本註解在案、pull 端還 `rm -f`）—— 不是漏，是斷 prod 供應的設計。
+  //   - **D 7 層**全部走 `agricultureLayerFactory`（PMTiles factory，同批 3 fireIsochrone /
+  //     批 6 floodSensorIsochrone 的形狀）：hook 自建 PmTiles source，沒有 registry entry
+  //     可派生 → D，但檔案照樣要進 deploy 清單，路徑記在 `source.note` 裡。
+  //   - `agriPOI` 是 D 之中唯一的 **geojson lazy hydrate**（空 FC 起手，visible 才 fetch）。
+  //
+  // legend 拍板④：本主題**沒有任何一層屬於已有 manifest 成員的圖例家族**
+  // → 例外條款不觸發，10 個 legend id 全數照機械規則取 LEGEND_REGISTRY entry 的首個 key，
+  // 5 層合法無圖例（agriculture / agriLeisureFarmZones / agriRuralRegen / agriSoil / farmRoads）。
+  //
+  // 色票拍板①：`agriPOITypes` 的 `AGRI_POI_TYPES[].color` 是 **poi_type-keyed**
+  //（餵 factory 的 circle-color match 表達式），`LAYER_COLORS` 從未 import → 寫字面 hex
+  //（`agriPOI` 的 #6a1b9a 同時是該表 agritourism_certified 的色，是巧合）。
+
+  agriPOI: {
+    key: "agriPOI",
+    section: { theme: "農業 Agriculture", group: "點位" },
+    label: "休農場 / 田媽媽 / 特色農旅 POI",
+    expandable: true,
+    color: "#6a1b9a",
+    icon: Store,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "agritourism_certified_2024", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "agricultureLayerFactory.ensureAgriPOILayers：自建 geojson source agri-pois（空 FC 起手，toggle 開才 lazy fetch public/agriculture/agriculture_pois.geojson，走 loadingRegistry）+ 1 circle layer agri-pois-circle，依 poi_type match 上色 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "agriPOI",
+    popup: "agriPOI",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "休閒農場／田媽媽／特色農業旅遊場域三合一 POI（840 點）",
+    topics: ["農業", "觀光", "點位"],
+  },
+
+  agriRetail: {
+    key: "agriRetail",
+    section: { theme: "農業 Agriculture", group: "點位" },
+    label: "農產零售商 Retail",
+    expandable: true,
+    color: "#e91e63",
+    icon: ShoppingCart,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "agri_retail_companies", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "agri-retail",
+      url: "./agriculture/agri_retail_companies.pmtiles",
+      sourceLayer: "agri_retail",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "agriRetail",
+    popup: "agriRetail",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "農產零售商登記點位（PT-1 後由 geojson 切成 PMTiles）",
+    topics: ["農業", "商業", "點位"],
+  },
+
+  agriProduceWholesale: {
+    key: "agriProduceWholesale",
+    section: { theme: "農業 Agriculture", group: "點位" },
+    label: "蔬果批發商 Produce Wholesale",
+    expandable: true,
+    color: "#3f51b5",
+    icon: Truck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "produce_wholesale_companies", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "agri-produce-wholesale",
+      url: "./agriculture/produce_wholesale_companies.pmtiles",
+      sourceLayer: "produce_wholesale",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "agriRetail",
+    popup: "agriProduceWholesale",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "蔬果批發商登記點位",
+    topics: ["農業", "商業", "點位"],
+  },
+
+  agriWholesaleMarket: {
+    key: "agriWholesaleMarket",
+    section: { theme: "農業 Agriculture", group: "點位" },
+    label: "農產批發市場 Wholesale Market",
+    expandable: true,
+    color: "#ffd600",
+    icon: Warehouse,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "agri_wholesale_market_companies", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "agri-wholesale-market",
+      url: "./agriculture/agri_wholesale_market_companies.geojson",
+    },
+    legend: "agriRetail",
+    popup: "agriWholesaleMarket",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "農產批發市場（果菜／花卉／魚類等公有批發市場）",
+    topics: ["農業", "商業", "點位"],
+  },
+
+  // ── 🐷 畜牧 Livestock ───────────────────────────────────────────────
+  // ⚠️ 飼養場 7 層是**多個 key 各自一筆 config 共用同一個 `sourceId` `livestock-farms`**
+  //    （同批 3 教育 edu-schools ×7、批 2 運動場館 ×5）——**不是**拍板②的「同 key 多 config」，
+  //    仍寫單數形，契約測試按 `id` 過濾不受影響。7 層以畜種 filter 切分同一份資料，
+  //    popup 也共用一個 `livestockFarm`（7 → 1）。
+  // ⚠️ 它們同時列在 `GATED_LAYERS`（owner-only RPC），但 THEMES 的 LayerDef **沒有**
+  //    `gated: true` —— GATED_LAYERS 是另一張 runtime 表，不在本 manifest 派生的四張裡，
+  //    manifest 的 `gated` 對齊的是 LayerDef → 照現況不填。
+  livestockFarmPig: {
+    key: "livestockFarmPig",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "畜禽飼養場·豬 Pig Farms",
+    expandable: true,
+    color: "#ec6a5e",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_farms", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-farms",
+      fallbackUrl: "./agriculture/livestock_farms.geojson",
+    },
+    legend: "livestockFarmPig",
+    popup: "livestockFarm",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "養豬場登記點位（依飼養規模分級）",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockFarmChicken: {
+    key: "livestockFarmChicken",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "畜禽飼養場·雞 Chicken Farms",
+    expandable: true,
+    color: "#f4b400",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_farms", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-farms",
+      fallbackUrl: "./agriculture/livestock_farms.geojson",
+    },
+    legend: "livestockFarmPig",
+    popup: "livestockFarm",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "養雞場登記點位（蛋雞／肉雞）",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockFarmCattle: {
+    key: "livestockFarmCattle",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "畜禽飼養場·牛 Cattle Farms",
+    expandable: true,
+    color: "#6d4c41",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_farms", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-farms",
+      fallbackUrl: "./agriculture/livestock_farms.geojson",
+    },
+    legend: "livestockFarmPig",
+    popup: "livestockFarm",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "養牛場登記點位（乳牛／肉牛）",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockFarmDuck: {
+    key: "livestockFarmDuck",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "畜禽飼養場·鴨 Duck Farms",
+    expandable: true,
+    color: "#00897b",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_farms", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-farms",
+      fallbackUrl: "./agriculture/livestock_farms.geojson",
+    },
+    legend: "livestockFarmPig",
+    popup: "livestockFarm",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "養鴨場登記點位",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockFarmGoose: {
+    key: "livestockFarmGoose",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "畜禽飼養場·鵝 Goose Farms",
+    expandable: true,
+    color: "#26c6da",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_farms", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-farms",
+      fallbackUrl: "./agriculture/livestock_farms.geojson",
+    },
+    legend: "livestockFarmPig",
+    popup: "livestockFarm",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "養鵝場登記點位",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockFarmSheep: {
+    key: "livestockFarmSheep",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "畜禽飼養場·羊 Sheep/Goat Farms",
+    expandable: true,
+    color: "#ab47bc",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_farms", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-farms",
+      fallbackUrl: "./agriculture/livestock_farms.geojson",
+    },
+    legend: "livestockFarmPig",
+    popup: "livestockFarm",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "養羊場登記點位（綿羊／山羊）",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockFarmOther: {
+    key: "livestockFarmOther",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "畜禽飼養場·其他 Other Farms",
+    expandable: true,
+    color: "#9e9e9e",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_farms", confidence: "MED" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-farms",
+      fallbackUrl: "./agriculture/livestock_farms.geojson",
+    },
+    legend: "livestockFarmPig",
+    popup: "livestockFarm",
+    params: { count: 3, kinds: ["slider", "slider", "select"] },
+    description: "其他畜禽飼養場（鹿／兔／鴕鳥等）",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockSlaughter: {
+    key: "livestockSlaughter",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "屠宰場 Slaughterhouses",
+    expandable: true,
+    color: "#c62828",
+    icon: Factory,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "slaughterhouses", confidence: "HIGH" }],
+    },
+    dataClass: "C",
+    source: {
+      kind: "supabase",
+      sourceId: "livestock-slaughter",
+      fallbackUrl: "./agriculture/slaughterhouses.geojson",
+    },
+    legend: "livestockSlaughter",
+    popup: "livestockSlaughter",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "合法屠宰場（依屠宰畜種與規模）",
+    topics: ["農業", "畜牧", "動態"],
+  },
+
+  livestockFeed: {
+    key: "livestockFeed",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "飼料廠 Feed Factories",
+    expandable: true,
+    color: "#455a64",
+    icon: Warehouse,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "feed_factories", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "livestock-feed",
+      url: "./agriculture/feed_factories.geojson",
+    },
+    legend: "livestockSlaughter",
+    popup: "livestockFeed",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "飼料製造工廠登記點位",
+    topics: ["農業", "畜牧", "點位"],
+  },
+
+  livestockMarket: {
+    key: "livestockMarket",
+    section: { theme: "農業 Agriculture", group: "畜牧 Livestock" },
+    label: "拍賣/批發市場 Markets",
+    expandable: true,
+    color: "#d500f9",
+    icon: ShoppingCart,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "livestock_markets", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "livestock-market",
+      url: "./agriculture/livestock_markets.geojson",
+    },
+    legend: "livestockSlaughter",
+    popup: "livestockMarket",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "家畜禽拍賣／批發市場",
+    topics: ["農業", "畜牧", "點位"],
+  },
+
+  // ── 🐟 養殖漁業 Aquaculture ────────────────────────────────────────
+  aquaculturePonds: {
+    key: "aquaculturePonds",
+    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    label: "逐口魚塭 Aquaculture Ponds",
+    expandable: true,
+    color: "#26c6da",
+    icon: Fish,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aquaculture_ponds_osm", confidence: "MED" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "aquaculture-ponds",
+      url: "./fishery/aquaculture_ponds_osm.pmtiles",
+      sourceLayer: "aquaculture_ponds_osm",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "aquaculturePonds",
+    popup: "aquaculturePonds",
+    params: { count: 1, kinds: ["slider"] },
+    description: "逐口魚塭範圍（OSM 水體標註）",
+    topics: ["農業", "漁業", "養殖"],
+  },
+
+  aquacultureZone: {
+    key: "aquacultureZone",
+    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    label: "養殖漁業生產區 Production Zone",
+    expandable: true,
+    color: "#66bb6a",
+    icon: Fish,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aquaculture_production_zone", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "aquaculture-zone",
+      url: "./fishery/aquaculture_production_zone.geojson",
+    },
+    legend: "aquaculturePonds",
+    popup: "aquacultureZone",
+    params: { count: 1, kinds: ["slider"] },
+    description: "官方劃設的養殖漁業生產區範圍",
+    topics: ["農業", "漁業", "分區"],
+  },
+
+  aquacultureCageNet: {
+    key: "aquacultureCageNet",
+    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    label: "海上箱網 Cage Net",
+    expandable: true,
+    color: "#5c6bc0",
+    icon: Fish,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aquaculture_cage_net", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "aquaculture-cage-net",
+      url: "./fishery/aquaculture_cage_net.geojson",
+    },
+    legend: "aquaculturePonds",
+    popup: "aquacultureCageNet",
+    params: { count: 1, kinds: ["slider"] },
+    description: "海上箱網養殖區範圍",
+    topics: ["農業", "漁業", "海域"],
+  },
+
+  aquacultureWaterSatellite: {
+    key: "aquacultureWaterSatellite",
+    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    label: "衛星偵測養殖水體 Satellite Detected",
+    expandable: true,
+    color: "#26c6da",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aquaculture_water_satellite", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "aquaculture-water-satellite",
+      url: "./fishery/aquaculture_water_satellite.pmtiles",
+      sourceLayer: "aquaculture_water_satellite",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "aquaculturePonds",
+    popup: "aquacultureWaterSatellite",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "衛星影像偵測出的養殖水體（補官方圖資之不足）",
+    topics: ["農業", "漁業", "遙測"],
+  },
+
+  aquacultureWaterSatelliteMoa: {
+    key: "aquacultureWaterSatelliteMoa",
+    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    label: "魚塭·官方標籤版(2026-07) MOA Labeled",
+    expandable: true,
+    color: "#26c6da",
+    icon: ShieldCheck,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aquaculture_water_satellite_moa", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "aquaculture-water-satellite-moa",
+      url: "./fishery/aquaculture_water_satellite_moa.pmtiles",
+      sourceLayer: "aquaculture_water_satellite_moa",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "aquacultureWaterSatelliteMoa",
+    popup: "aquacultureWaterSatelliteMoa",
+    params: { count: 4, kinds: ["slider", "toggle", "toggle", "toggle"] },
+    description: "農業部標籤版魚塭圖資（2026-07 版）",
+    topics: ["農業", "漁業", "官方圖資"],
+  },
+
+  // ⚠️ key 是 `aquacultureWaterUnion`，但 sourceId / 檔名 / sourceLayer 都是
+  //    `aquaculture_water_satellite_union`（多一個 satellite）—— 照現況登記不夾帶改名。
+  aquacultureWaterUnion: {
+    key: "aquacultureWaterUnion",
+    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    label: "魚塭·整合版 (官方∪衛星) Union",
+    expandable: true,
+    color: "#26c6da",
+    icon: Layers,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "aquaculture_water_satellite_union", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "aquaculture-water-satellite-union",
+      url: "./fishery/aquaculture_water_satellite_union.pmtiles",
+      sourceLayer: "aquaculture_water_satellite_union",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "aquacultureWaterUnion",
+    popup: "aquacultureWaterUnion",
+    params: { count: 4, kinds: ["slider", "toggle", "toggle", "toggle"] },
+    description: "官方標籤 ∪ 衛星偵測的魚塭整合圖層",
+    topics: ["農業", "漁業", "整合"],
+  },
+
+  aquacultureIntegrated: {
+    key: "aquacultureIntegrated",
+    section: { theme: "農業 Agriculture", group: "養殖漁業 Aquaculture" },
+    label: "養殖漁業整合 Integrated",
+    expandable: true,
+    color: "#26c6da",
+    icon: Fish,
+    upstream: {
+      status: "pulse_only",
+      datasets: [],
+      derivedFromLayers: ["aquaculturePonds", "aquacultureWaterSatellite", "aquacultureZone"],
+      derivationType: "aggregate",
+      processing: "整合逐口魚塭（OSM）+ 衛星偵測補充 + 生產區為單一 PMTiles（20,212 面），依 source 三色染色",
+      note: "派生分析：三來源養殖面聚合",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "aquaculture-integrated",
+      url: "./fishery/aquaculture_integrated.pmtiles",
+      sourceLayer: "aquaculture_integrated",
+      minzoom: 5,
+      maxzoom: 14,
+    },
+    legend: "aquacultureIntegrated",
+    popup: "aquacultureIntegrated",
+    params: { count: 1, kinds: ["slider"] },
+    description: "三來源養殖面聚合（逐口魚塭 + 衛星偵測 + 生產區，20,212 面依來源三色）",
+    topics: ["農業", "漁業", "派生分析"],
+  },
+
+  // ── 面 / 分區 ──────────────────────────────────────────────────────
+  // ⚠️ 以下 3 層與土壤 3 層都是 dataClass **D 但不折不扣的 PMTiles**
+  //    （同批 5 slopeVector / aspectVector、批 6 floodSensorIsochrone）：
+  //    agricultureLayerFactory 自建 PmTiles source，沒有 registry entry 可派生 →
+  //    觸點 #20 的部署清單只掃 `dataClass === "B"` 會全部漏掉，檔路徑記在 note 裡。
+  agriculture: {
+    key: "agriculture",
+    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    label: "農田範圍 FTW Fields 2025",
+    expandable: true,
+    color: "#2e7d32",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ftw_fields", confidence: "MED" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "agricultureLayerFactory.ensureAgricultureLayers：自建 PmTiles source agri-ftw-fields（public/agriculture/ftw_fields_2025.pmtiles，source-layer fields，z5-14）+ 2 layer（-fill z5 起 / -outline z10 起），fill 透明度依 confidence —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: null,
+    params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
+    description: "全台農田範圍（FTW Fields 2025，38.6 萬田區）",
+    topics: ["農業", "農地", "面"],
+  },
+
+  agriLeisureFarmZones: {
+    key: "agriLeisureFarmZones",
+    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    label: "休閒農業區 Leisure Farm Zones",
+    expandable: true,
+    color: "#66bb6a",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "leisure_farm_zones_2025", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "agricultureLayerFactory.ensureAgriLeisureFarmZonesLayers：自建 PmTiles source agri-leisure-farm-zones（public/agriculture/leisure_farm_zones_2025.pmtiles，source-layer leisure_farm_zones，z6-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "agriLeisureFarmZones",
+    params: { count: 1, kinds: ["slider"] },
+    description: "官方劃設的休閒農業區範圍（2025 版）",
+    topics: ["農業", "觀光", "分區"],
+  },
+
+  agriRuralRegen: {
+    key: "agriRuralRegen",
+    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    label: "農村再生社區 Rural Regen",
+    expandable: true,
+    color: "#ffb74d",
+    icon: MapPinned,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "rural_regen_communities_2025", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "agricultureLayerFactory.ensureAgriRuralRegenLayers：自建 PmTiles source agri-rural-regen（public/agriculture/rural_regen_communities_2025.pmtiles，source-layer rural_regen_communities，z7-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "agriRuralRegen",
+    params: { count: 1, kinds: ["slider"] },
+    description: "農村再生計畫社區範圍（2025 版）",
+    topics: ["農業", "農村", "分區"],
+  },
+
+  ecoNetworkZones: {
+    key: "ecoNetworkZones",
+    section: { theme: "農業 Agriculture", group: "面 / 分區" },
+    label: "國土綠網分區 Eco Network Zones",
+    expandable: true,
+    color: "#4caf50",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "eco_network_zones", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "eco-network-zones",
+      url: "./agriculture/eco_network_zones.pmtiles",
+      sourceLayer: "eco_network_zones",
+      minzoom: 0,
+      maxzoom: 13,
+    },
+    legend: "ecoNetworkZones",
+    popup: "ecoNetworkZones",
+    params: { count: 1, kinds: ["slider"] },
+    description: "國土生態綠網保育軸帶分區",
+    topics: ["農業", "生態", "分區"],
+  },
+
+  // ── 土壤 ───────────────────────────────────────────────────────────
+  agriSoil: {
+    key: "agriSoil",
+    section: { theme: "農業 Agriculture", group: "土壤" },
+    label: "全台土壤分類 Soil Map",
+    expandable: true,
+    color: "#8d6e63",
+    icon: Mountain,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "soil_map_national", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "agricultureLayerFactory.ensureAgriSoilLayers：自建 PmTiles source agri-soil（public/agriculture/soil_map_national.pmtiles，source-layer soil，z6-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+    },
+    legend: null,
+    popup: "agriSoil",
+    params: { count: 1, kinds: ["slider"] },
+    description: "全台土壤分類圖（土綱／土類）",
+    topics: ["農業", "土壤", "面"],
+  },
+
+  agriSoilFertility: {
+    key: "agriSoilFertility",
+    section: { theme: "農業 Agriculture", group: "土壤" },
+    label: "土壤肥力 250m Soil Fertility",
+    expandable: true,
+    color: "#00897b",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "soil_fertility_grid_250m", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "agricultureLayerFactory.ensureAgriSoilFertilityLayers：自建 PmTiles source agri-soil-fertility（public/agriculture/soil_fertility_grid_250m.pmtiles，source-layer soil_fertility，z8-14）+ 1 fill layer，依 select 控件切換 SOIL_FERTILITY_METRICS 指標染色 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "agriSoilFertility",
+    popup: "agriSoilFertility",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "250m 網格土壤肥力（pH／有機質／氮磷鉀等多指標可切換）",
+    topics: ["農業", "土壤", "網格"],
+  },
+
+  agriCropSuitability: {
+    key: "agriCropSuitability",
+    section: { theme: "農業 Agriculture", group: "土壤" },
+    label: "作物適栽 Crop Suitability",
+    expandable: true,
+    color: "#1b5e20",
+    icon: Sprout,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "crop_suitability_132", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "agricultureLayerFactory.ensureAgriCropSuitabilityLayers：自建 PmTiles source agri-crop-suitability（public/agriculture/crop_suitability_132.pmtiles，source-layer crop_suitability，z6-13）+ 1 fill layer，以 select 控件的 crop_layer_id 做 layer-level filter 切換作物 —— 非 OVERLAY_REGISTRY",
+    },
+    legend: "agriCropSuitability",
+    popup: "agriCropSuitability",
+    params: { count: 2, kinds: ["slider", "select"] },
+    description: "132 種作物的適栽分級圖（依 select 切換作物）",
+    topics: ["農業", "土壤", "作物"],
+  },
+
+  // ── 線 ─────────────────────────────────────────────────────────────
+  farmRoads: {
+    key: "farmRoads",
+    section: { theme: "農業 Agriculture", group: "線" },
+    label: "農路 Farm Roads",
+    expandable: true,
+    color: "#7a8670",
+    icon: Route,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "farm_roads", confidence: "HIGH" }],
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "farm-roads",
+      url: "./agriculture/farm_roads.pmtiles",
+      sourceLayer: "farm_roads",
+      minzoom: 0,
+      maxzoom: 13,
+    },
+    legend: null,
+    popup: "farmRoads",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "農路線形（含 glow 底線與主線兩層）",
+    topics: ["農業", "路網", "線"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 

@@ -76,33 +76,12 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   medICUBeds: "#ff1744",
   parkingOnstreet: "#64748b",
   parkingOffstreet: "#22c55e",
-  agriculture: "#2e7d32",
-  agriSoil: "#8d6e63",
-  agriSoilFertility: "#00897b",
-  agriLeisureFarmZones: "#66bb6a",
-  agriRuralRegen: "#ffb74d",
-  agriCropSuitability: "#1b5e20",
-  agriPOI: "#6a1b9a",
-  agriRetail: "#e91e63",
-  agriProduceWholesale: "#3f51b5",
-  agriWholesaleMarket: "#ffd600",
-  livestockFarmPig: "#ec6a5e",
-  livestockFarmChicken: "#f4b400",
-  livestockFarmCattle: "#6d4c41",
-  livestockFarmDuck: "#00897b",
-  livestockFarmGoose: "#26c6da",
-  livestockFarmSheep: "#ab47bc",
-  livestockFarmOther: "#9e9e9e",
-  livestockSlaughter: "#c62828",
-  livestockFeed: "#455a64",
-  livestockMarket: "#d500f9",
-  aquaculturePonds: "#26c6da",
-  aquacultureZone: "#66bb6a",
-  aquacultureCageNet: "#5c6bc0",
-  aquacultureWaterSatellite: "#26c6da",
-  aquacultureWaterSatelliteMoa: "#26c6da",
-  aquacultureWaterUnion: "#26c6da",
-  aquacultureIntegrated: "#26c6da",
+  // 🌾 農業 Agriculture 29 層已搬進 layerManifest（AR-22 Phase 2 批 7）——
+  //    agriPOITypes.ts 的 AGRI_POI_TYPES[].color 是 poi_type-keyed（餵
+  //    agricultureLayerFactory 的 circle-color match 表達式），不是 layer-key-keyed
+  //    的色票記錄，本表從未 import 它 → manifest 寫字面 hex。
+  //    ⚠️ 本主題的 farmRoads / ecoNetworkZones **不在這一段**，落在本表下方教育註解之後
+  //    （歷史位置）—— 按區塊整段刪會漏掉，逐 key grep 定位才對（同批 3 schools）。
   // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
   //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
   // 🧳 觀光 Tourism 11 層已搬進 layerManifest（AR-22 Phase 2 批 2）——
@@ -118,8 +97,8 @@ const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, Mani
   // 🎓 教育 Education 17 層已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    `...EDUCATION_LAYER_COLORS` spread 已依上述理由整行刪除（連同本檔的 import）；
   //    色票 SSOT 仍是 educationTypes.ts，manifest 的 color 欄逐 key 引用它。
-  farmRoads: "#7a8670",
-  ecoNetworkZones: "#4caf50",
+  // 🌾 農業的 farmRoads / ecoNetworkZones 原本落在此處（不在上方農業區塊），
+  //    已隨農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）
   // 🌲 林業 Forestry 16 層已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    forestReserveTypes / canopyGiantsTypes 匯出的是 category-keyed 的分色表達式
   //    （保安林種類／離步道距離帶），不是 layer-key-keyed 的色票記錄，本表從未
@@ -1186,60 +1165,60 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "agriPOI", label: "休農場 / 田媽媽 / 特色農旅 POI", expandable: true },
-          { key: "agriRetail", label: "農產零售商 Retail", expandable: true },
-          { key: "agriProduceWholesale", label: "蔬果批發商 Produce Wholesale", expandable: true },
-          { key: "agriWholesaleMarket", label: "農產批發市場 Wholesale Market", expandable: true },
+          fromManifest("agriPOI"),
+          fromManifest("agriRetail"),
+          fromManifest("agriProduceWholesale"),
+          fromManifest("agriWholesaleMarket"),
         ],
       },
       {
         title: "畜牧 Livestock",
         layers: [
-          { key: "livestockFarmPig", label: "畜禽飼養場·豬 Pig Farms", expandable: true },
-          { key: "livestockFarmChicken", label: "畜禽飼養場·雞 Chicken Farms", expandable: true },
-          { key: "livestockFarmCattle", label: "畜禽飼養場·牛 Cattle Farms", expandable: true },
-          { key: "livestockFarmDuck", label: "畜禽飼養場·鴨 Duck Farms", expandable: true },
-          { key: "livestockFarmGoose", label: "畜禽飼養場·鵝 Goose Farms", expandable: true },
-          { key: "livestockFarmSheep", label: "畜禽飼養場·羊 Sheep/Goat Farms", expandable: true },
-          { key: "livestockFarmOther", label: "畜禽飼養場·其他 Other Farms", expandable: true },
-          { key: "livestockSlaughter", label: "屠宰場 Slaughterhouses", expandable: true },
-          { key: "livestockFeed", label: "飼料廠 Feed Factories", expandable: true },
-          { key: "livestockMarket", label: "拍賣/批發市場 Markets", expandable: true },
+          fromManifest("livestockFarmPig"),
+          fromManifest("livestockFarmChicken"),
+          fromManifest("livestockFarmCattle"),
+          fromManifest("livestockFarmDuck"),
+          fromManifest("livestockFarmGoose"),
+          fromManifest("livestockFarmSheep"),
+          fromManifest("livestockFarmOther"),
+          fromManifest("livestockSlaughter"),
+          fromManifest("livestockFeed"),
+          fromManifest("livestockMarket"),
         ],
       },
       {
         title: "養殖漁業 Aquaculture",
         layers: [
-          { key: "aquaculturePonds", label: "逐口魚塭 Aquaculture Ponds", expandable: true },
-          { key: "aquacultureZone", label: "養殖漁業生產區 Production Zone", expandable: true },
-          { key: "aquacultureCageNet", label: "海上箱網 Cage Net", expandable: true },
-          { key: "aquacultureWaterSatellite", label: "衛星偵測養殖水體 Satellite Detected", expandable: true },
-          { key: "aquacultureWaterSatelliteMoa", label: "魚塭·官方標籤版(2026-07) MOA Labeled", expandable: true },
-          { key: "aquacultureWaterUnion", label: "魚塭·整合版 (官方∪衛星) Union", expandable: true },
-          { key: "aquacultureIntegrated", label: "養殖漁業整合 Integrated", expandable: true },
+          fromManifest("aquaculturePonds"),
+          fromManifest("aquacultureZone"),
+          fromManifest("aquacultureCageNet"),
+          fromManifest("aquacultureWaterSatellite"),
+          fromManifest("aquacultureWaterSatelliteMoa"),
+          fromManifest("aquacultureWaterUnion"),
+          fromManifest("aquacultureIntegrated"),
         ],
       },
       {
         title: "面 / 分區",
         layers: [
-          { key: "agriculture", label: "農田範圍 FTW Fields 2025", expandable: true },
-          { key: "agriLeisureFarmZones", label: "休閒農業區 Leisure Farm Zones", expandable: true },
-          { key: "agriRuralRegen", label: "農村再生社區 Rural Regen", expandable: true },
-          { key: "ecoNetworkZones", label: "國土綠網分區 Eco Network Zones", expandable: true },
+          fromManifest("agriculture"),
+          fromManifest("agriLeisureFarmZones"),
+          fromManifest("agriRuralRegen"),
+          fromManifest("ecoNetworkZones"),
         ],
       },
       {
         title: "土壤",
         layers: [
-          { key: "agriSoil", label: "全台土壤分類 Soil Map", expandable: true },
-          { key: "agriSoilFertility", label: "土壤肥力 250m Soil Fertility", expandable: true },
-          { key: "agriCropSuitability", label: "作物適栽 Crop Suitability", expandable: true },
+          fromManifest("agriSoil"),
+          fromManifest("agriSoilFertility"),
+          fromManifest("agriCropSuitability"),
         ],
       },
       {
         title: "線",
         layers: [
-          { key: "farmRoads", label: "農路 Farm Roads", expandable: true },
+          fromManifest("farmRoads"),
         ],
       },
     ],

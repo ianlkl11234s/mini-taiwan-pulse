@@ -7,26 +7,24 @@ import {
   BarChart3, AlertTriangle, Wind,
   ChevronDown, ChevronRight, Search, Navigation,
   Lightbulb, CircleDot, RailSymbol,
-  Store, Play, Cable, Radio, Mountain,
+  Play, Cable, Radio,
   // 💧 水資源 23 層搬進 layerManifest（AR-22 Phase 2 批 6）後，CloudRain / Droplets /
   //    Droplet / GitBranch / Dam / Shield / Timer 已無用；
-  //    Waves / Factory / ShieldCheck / Container 仍被別層用
-  //    （Gauge 隨廢棄物 wfMonitoring 搬走，批 7）
-  Waves, Factory, ShieldCheck, Container,
+  //    Waves / Factory / Container 仍被別層用
+  //    （Gauge 隨廢棄物 wfMonitoring、ShieldCheck 隨農業 aquacultureWaterSatelliteMoa 搬走，批 7）
+  Waves, Factory, Container,
   // 🗑️ 廢棄物 18 層搬進 layerManifest（AR-22 Phase 2 批 7）後，CalendarDays / Trash2 /
-  //    Battery / Recycle / Shirt / Brush 已無用；Flame / Truck / MapPinned 仍被別層用
-  //    （MapPinned 還餵 orphan wasteStop，批 8）
-  Flame, Truck, MapPinned,
+  //    Battery / Recycle / Shirt / Brush 已無用；Flame / MapPinned 仍被別層用
+  //    （MapPinned 還餵 orphan wasteStop，批 8；Truck 隨農業 agriProduceWholesale 搬走）
+  Flame, MapPinned,
   // 🏥 醫療 8 層搬進 layerManifest（AR-22 Phase 2 批 4）後，Hospital / Stethoscope /
   //    Pill / HeartPulse / Accessibility 已無用；Clock / Bed 仍被別層用
   //    （AlertCircle 隨環境污染 pollutionPenaltyGeneral 搬走，批 6）
   Clock, Bed,
-  Sprout,
   Receipt, Coffee, Car, SquareParking, CircleParking,
-  ShoppingCart, Warehouse, Fish,
-  // FORESTRY icons（林業 16 層搬進 layerManifest 後，只剩農業／保育層仍在用；
-  //    TreePine / TreeDeciduous / TreePalm / Flower2 隨都市樹木 6 層搬走，批 6）
-  PawPrint,
+  // 🌾 農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）後，Store / Mountain / Sprout /
+  //    ShoppingCart / Warehouse / Fish / PawPrint / Truck / ShieldCheck 已無用
+  //    （Route 仍被 orphan wasteRoute 與別層用、Layers 是 sidebar UI 自己在用）
   Satellite,
   // ENERGY icons
   Zap, PlugZap, Power, Spline, TowerControl, Sun, Sparkles, Building2, Fuel,
@@ -111,33 +109,8 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   parkingOnstreet: SquareParking,
   parkingOffstreet: CircleParking,
   medICUBeds: Bed,
-  agriculture: Sprout,
-  agriSoil: Mountain,
-  agriSoilFertility: Sprout,
-  agriLeisureFarmZones: Sprout,
-  agriRuralRegen: MapPinned,
-  agriCropSuitability: Sprout,
-  agriPOI: Store,
-  agriRetail: ShoppingCart,
-  agriProduceWholesale: Truck,
-  agriWholesaleMarket: Warehouse,
-  livestockFarmPig: PawPrint,
-  livestockFarmChicken: PawPrint,
-  livestockFarmCattle: PawPrint,
-  livestockFarmDuck: PawPrint,
-  livestockFarmGoose: PawPrint,
-  livestockFarmSheep: PawPrint,
-  livestockFarmOther: PawPrint,
-  livestockSlaughter: Factory,
-  livestockFeed: Warehouse,
-  livestockMarket: ShoppingCart,
-  aquaculturePonds: Fish,
-  aquacultureZone: Fish,
-  aquacultureCageNet: Fish,
-  aquacultureWaterSatellite: Satellite,
-  aquacultureWaterSatelliteMoa: ShieldCheck,
-  aquacultureWaterUnion: Layers,
-  aquacultureIntegrated: Fish,
+  // 🌾 農業 Agriculture 29 層已搬進 layerManifest（AR-22 Phase 2 批 7）
+  //    ⚠️ farmRoads / ecoNetworkZones **不在這一段**，在本表下方林業註解之前（歷史位置）
   // 📍 底圖 buildingsGba / urbanZoningNewTaipei / nonUrbanZoning 已搬進 layerManifest
   //    （AR-22 Phase 2 批 5，與下方 Base map 區塊的 9 層同批）
   // 🏟️ 運動休閒 Sports & Leisure 6 層已搬進 layerManifest（AR-22 Phase 2 批 2）
@@ -146,8 +119,8 @@ const HANDWRITTEN_LAYER_ICONS: Omit<Record<keyof LayerVisibility, LucideIcon>, M
   // 🛕 宗教 Religion 6 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // ⚰️ 殯葬 Funeral 5 層已搬進 layerManifest（AR-22 Phase 2 批 1）
   // 🎓 教育 Education 17 層已搬進 layerManifest（AR-22 Phase 2 批 3；含總覽層 schools）
-  farmRoads: Route,
-  ecoNetworkZones: Mountain,
+  // 🌾 農業的 farmRoads / ecoNetworkZones 原本落在此處，已隨農業 29 層搬進
+  //    layerManifest（AR-22 Phase 2 批 7）
   // 🌲 林業 Forestry 16 層已搬進 layerManifest（AR-22 Phase 2 批 3）
   // 🗑️ 廢棄物 Waste 18 層已搬進 layerManifest（AR-22 Phase 2 批 7）
   //    ⚠️ 下面兩個 orphan 不在 THEMES（wasteTruck 子 UI 控制）→ 批 8

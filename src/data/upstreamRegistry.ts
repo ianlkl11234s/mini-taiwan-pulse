@@ -195,48 +195,12 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
     datasets: [],
     note: '停車 hybrid v1 場外 RPC（get_parking_lots_current）已 apply 到 production；city/tourism/freeway_service_area 三源全點座標含空位率。catalog dataset 條目待補（handoff pending）',
   },
-  agriPOI: {
-    status: 'verified',
-    datasets: [{ datasetId: 'agritourism_certified_2024', confidence: 'MED' }],
-  },
-  agriRetail: {
-    status: 'verified',
-    datasets: [{ datasetId: 'agri_retail_companies', confidence: 'HIGH' }],
-  },
-  agriProduceWholesale: {
-    status: 'verified',
-    datasets: [{ datasetId: 'produce_wholesale_companies', confidence: 'HIGH' }],
-  },
-  agriWholesaleMarket: {
-    status: 'verified',
-    datasets: [{ datasetId: 'agri_wholesale_market_companies', confidence: 'HIGH' }],
-  },
-  // 🐷 畜牧 — 飼養場 4 層共用 livestock_farms dataset（filter 分畜種）
-  livestockFarmPig: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
-  livestockFarmChicken: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
-  livestockFarmCattle: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
-  livestockFarmDuck: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
-  livestockFarmGoose: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
-  livestockFarmSheep: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
-  livestockFarmOther: { status: 'verified', datasets: [{ datasetId: 'livestock_farms', confidence: 'MED' }] },
-  livestockSlaughter: { status: 'verified', datasets: [{ datasetId: 'slaughterhouses', confidence: 'HIGH' }] },
-  livestockFeed: { status: 'verified', datasets: [{ datasetId: 'feed_factories', confidence: 'HIGH' }] },
-  livestockMarket: { status: 'verified', datasets: [{ datasetId: 'livestock_markets', confidence: 'HIGH' }] },
-  // 🐟 養殖漁業 Aquaculture
-  aquaculturePonds: { status: 'verified', datasets: [{ datasetId: 'aquaculture_ponds_osm', confidence: 'MED' }] },
-  aquacultureZone: { status: 'verified', datasets: [{ datasetId: 'aquaculture_production_zone', confidence: 'HIGH' }] },
-  aquacultureCageNet: { status: 'verified', datasets: [{ datasetId: 'aquaculture_cage_net', confidence: 'HIGH' }] },
-  aquacultureWaterSatellite: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite', confidence: 'HIGH' }] },
-  aquacultureWaterSatelliteMoa: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_satellite_moa', confidence: 'HIGH' }] },
-  aquacultureWaterUnion: { status: 'verified', datasets: [{ datasetId: 'aquaculture_water_sat_union', confidence: 'HIGH' }] },
-  aquacultureIntegrated: {
-    status: 'pulse_only',
-    datasets: [],
-    derivedFromLayers: ['aquaculturePonds', 'aquacultureWaterSatellite', 'aquacultureZone'],
-    derivationType: 'aggregate',
-    processing: '整合逐口魚塭（OSM）+ 衛星偵測補充 + 生產區為單一 PMTiles（20,212 面），依 source 三色染色',
-    note: '派生分析：三來源養殖面聚合',
-  },
+  // 🌾 農業 Agriculture 29 layer 已搬進 layerManifest（AR-22 Phase 2 批 7）——
+  //    含畜牧 10 / 養殖漁業 7；⚠️ 面分區 3 層 + 土壤 3 層 + farmRoads + ecoNetworkZones
+  //    原本**不在本區塊**而在本檔下方教育註解之後，逐 key grep 才找得到（同批 3 schools）。
+  //    ⚠️ rebase 衝突解法（master c016f15 / B170 上游改名）：本區塊在 master 上仍是手寫，
+  //    c016f15 把 aquacultureWaterUnion 的 datasetId 改成 `aquaculture_water_sat_union`。
+  //    衝突以「分支的刪除」為準（值已活在 manifest），該改名同步到 layerManifest 的對應 entry。
   // 🌳 都市開放空間 Urban Open Space（都市樹木 6 層）已搬進 layerManifest（AR-22 Phase 2 批 6）
   // 🗺️ 都市計畫土地使用分區（上游 handoff: taipei-gis-analytics/docs/handoff/urban-zoning.md；
   //    catalog: docs/data-catalog/urban_composite/）—— buildingsGba / nonUrbanZoning /
@@ -258,38 +222,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   // 🎓 教育 Education 17 layer（第 38 主題，docs/data-catalog/education/）已搬進
   //    layerManifest（AR-22 Phase 2 批 3）—— 含總覽層 `schools`，它原本**不在本區塊**
   //    而在本檔下方（保留原 z-order 的歷史位置），逐 key grep 才找得到。
-  agriculture: {
-    status: 'verified',
-    datasets: [{ datasetId: 'ftw_fields', confidence: 'MED' }],
-  },
-  agriLeisureFarmZones: {
-    status: 'verified',
-    datasets: [{ datasetId: 'leisure_farm_zones_2025', confidence: 'HIGH' }],
-  },
-  agriRuralRegen: {
-    status: 'verified',
-    datasets: [{ datasetId: 'rural_regen_communities_2025', confidence: 'HIGH' }],
-  },
-  ecoNetworkZones: {
-    status: 'verified',
-    datasets: [{ datasetId: 'eco_network_zones', confidence: 'HIGH' }],
-  },
-  agriSoil: {
-    status: 'verified',
-    datasets: [{ datasetId: 'soil_map_national', confidence: 'HIGH' }],
-  },
-  agriSoilFertility: {
-    status: 'verified',
-    datasets: [{ datasetId: 'soil_fertility_grid_250m', confidence: 'HIGH' }],
-  },
-  agriCropSuitability: {
-    status: 'verified',
-    datasets: [{ datasetId: 'crop_suitability_132', confidence: 'HIGH' }],
-  },
-  farmRoads: {
-    status: 'verified',
-    datasets: [{ datasetId: 'farm_roads', confidence: 'HIGH' }],
-  },
+  // 🌾 農業的面分區 3 層 + 土壤 3 層 + ecoNetworkZones + farmRoads 原本落在此處
+  //    （不在上方農業區塊），已隨農業 29 層搬進 layerManifest（AR-22 Phase 2 批 7）
   // 🌲 林業 Forestry 16 layer 已搬進 layerManifest（AR-22 Phase 2 批 3）——
   //    含 canopyHeight / canopyGiants 兩筆 catalog_missing（Meta/WRI 衍生資料）
   // 🗑️ 廢棄物 Waste 18 layer 已搬進 layerManifest（AR-22 Phase 2 批 7）——
