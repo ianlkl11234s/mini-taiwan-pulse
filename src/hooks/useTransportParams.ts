@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import type { ExpandableLayerKey, BusCity, BusGroup } from "../types";
+import type { ExpandableLayerKey, BusCity } from "../types";
 import {
-  layerParamsStore, encodeParamsToOverlay, type LayerParamsSnapshot,
+  layerParamsStore, encodeParamsToOverlay, buildDefaultParams,
+  type LayerParamsSnapshot,
 } from "../state/layerParamsStore";
 import { BUS_GROUP_ORDER, paramDefault } from "../data/layerParamsSpec";
 import { buildParamControls } from "../state/layerParamsControls";
-import { BUS_GROUP_CITIES, BUS_GROUP_LABELS, WASTE_GROUP_CITIES } from "../types";
+import { BUS_GROUP_CITIES, WASTE_GROUP_CITIES } from "../types";
 import {
   FACILITY_MEDIA, PENALTY_MEDIA, POLLUTION_MEDIUM_LABELS, SEVERITY_BANDS,
   pollutionYearOptions, PENALTY_MODE_OPTIONS, PENALTY_YEAR_MIN, PENALTY_YEAR_MAX,
@@ -114,6 +115,38 @@ function useParamRefBool(all: LayerParamsSnapshot, key: string, name: string) {
   ref.current = pBool(all, key, name);
   return ref;
 }
+// ── 廢棄物 13 子層的巢狀 Record（`wasteSubParams`）────────────────────
+// 手寫版是單一 useState 存 `Record<key, {size,opacity,altitude,ringSize?}>`；
+// 拆平成 per-key 獨立參數後由本函式組回原形狀。
+// ⚠️ `ringSize` **只有焚化爐有這個欄位**（不是 undefined）—— 其餘 12 個子層的物件
+// 裡根本不該出現這個 key，等值閘的 canonical 快照分得出兩者。
+
+const WASTE_SUB_KEYS = [
+  "wfIncinerator", "wfLandfill", "wfLandfillCoastal",
+  "wfTransfer", "wfMedical", "wfMonitoring",
+  "wfRecycling", "wfScrapYard", "wfOther",
+  "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
+] as const;
+type WasteSubKey = typeof WASTE_SUB_KEYS[number];
+interface WasteSubParams { size: number; opacity: number; altitude: number; ringSize?: number }
+
+function buildWasteSubParams(all: LayerParamsSnapshot): Record<WasteSubKey, WasteSubParams> {
+  const out = {} as Record<WasteSubKey, WasteSubParams>;
+  for (const k of WASTE_SUB_KEYS) {
+    const entry: WasteSubParams = {
+      size: pNum(all, k, `${k}Size`),
+      opacity: pNum(all, k, `${k}Opacity`),
+      altitude: pNum(all, k, `${k}Altitude`),
+    };
+    if (k === "wfIncinerator") entry.ringSize = pNum(all, k, `${k}RingSize`);
+    out[k] = entry;
+  }
+  return out;
+}
+
+/** 規格常數版（鏡像 ref 的 initial 專用 —— 同樣不准讀 store 現值） */
+const WASTE_SUB_DEFAULTS = buildWasteSubParams(buildDefaultParams());
+
 function useParamRefEnum<T extends string>(
   all: LayerParamsSnapshot, key: string, name: string,
   allowed: readonly T[], fallback: T,
@@ -124,25 +157,6 @@ function useParamRefEnum<T extends string>(
 }
 
 export function useTransportParams() {
-  // 垃圾車表定 schedule groups（8 區，預設全 ON = 22 城）
-  const [wasteScheduleGroups, setWasteScheduleGroups] = useState<Record<BusGroup, boolean>>({
-    TaipeiMetro:          true,
-    KeelungYilan:         true,
-    TaoyuanHsinchuMiaoli: true,
-    CentralTaiwan:        true,
-    YunChiaNan:           true,
-    Kaoping:              true,
-    HualienTaitung:       true,
-    OffshoreIslands:      true,
-  });
-  const enabledWasteScheduleCities = useMemo<string[]>(
-    () => (Object.entries(wasteScheduleGroups) as [BusGroup, boolean][])
-      .filter(([, v]) => v)
-      .flatMap(([g]) => WASTE_GROUP_CITIES[g]),
-    [wasteScheduleGroups],
-  );
-  const setWasteScheduleGroup = (group: BusGroup, v: boolean) =>
-    setWasteScheduleGroups((p) => ({ ...p, [group]: v }));
   // ── 環境污染 POLLUTION ──
   // 設施：opacity + scale + 5 介質 filter（勾選 → 只顯示登記該介質的設施）+ 最低嚴重度門檻
   const [pollutionFacilityOpacity, setPollutionFacilityOpacity] = useState(0.8);
@@ -226,53 +240,12 @@ export function useTransportParams() {
   const [ybElevationScale, setYbElevationScale] = useState(80);
   const [ybHeightMode, setYbHeightMode] = useState<"mixed" | "fullness" | "capacity">("mixed");
   const [ybResolution, setYbResolution] = useState(7);
-  // Waste（垃圾車光點 + 音符）
-  const [wasteOrbScale, setWasteOrbScale] = useState(0.15);
-  const [wasteNoteSize, setWasteNoteSize] = useState(0.7);
-  const [wasteNoteZOffset, setWasteNoteZOffset] = useState(70);
 
 
 
 
   // 衍生（H3 / polygon）：opacity + outlineWidth + showOutline
 
-  // ── Waste sub-toggle params (12 種子 toggle，每種 size/opacity/altitude 三 slider) ──
-  const WASTE_SUB_KEYS = [
-    "wfIncinerator", "wfLandfill", "wfLandfillCoastal",
-    "wfTransfer", "wfMedical", "wfMonitoring",
-    "wfRecycling", "wfScrapYard", "wfOther",
-    "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
-  ] as const;
-  type WasteSubKey = typeof WASTE_SUB_KEYS[number];
-  interface WasteSubParams { size: number; opacity: number; altitude: number; ringSize?: number; }
-  const DEFAULT_WASTE_SUB: Record<WasteSubKey, WasteSubParams> = {
-    wfIncinerator: { size: 1.0, opacity: 0.85, altitude: 0, ringSize: 1.0 },
-    wfLandfill:    { size: 1.0, opacity: 0.45, altitude: 0 },
-    wfLandfillCoastal: { size: 1.0, opacity: 0.55, altitude: 0 },
-    wfTransfer:    { size: 1.0, opacity: 0.85, altitude: 0 },
-    wfMedical:     { size: 1.0, opacity: 0.85, altitude: 0 },
-    wfMonitoring:  { size: 1.0, opacity: 0.7,  altitude: 0 },
-    wfRecycling:   { size: 1.0, opacity: 0.85, altitude: 0 },
-    wfScrapYard:   { size: 1.0, opacity: 0.85, altitude: 0 },
-    wfOther:       { size: 1.0, opacity: 0.7,  altitude: 0 },
-    wdClothes:     { size: 1.0, opacity: 0.7,  altitude: 0 },
-    wdMixed:       { size: 1.0, opacity: 0.7,  altitude: 0 },
-    wdRecyclingContainer: { size: 1.0, opacity: 0.85, altitude: 0 },
-    wdBattery:     { size: 1.5, opacity: 0.9,  altitude: 0 },
-  };
-  const [wasteSubParams, setWasteSubParams] = useState<Record<WasteSubKey, WasteSubParams>>(DEFAULT_WASTE_SUB);
-  const wasteSubParamsRef = useRef(wasteSubParams);
-  wasteSubParamsRef.current = wasteSubParams;
-  const setWasteSubParam = (key: WasteSubKey, field: keyof WasteSubParams, v: number) =>
-    setWasteSubParams((prev) => ({ ...prev, [key]: { ...prev[key], [field]: v } }));
-
-  // ── 群3 尚未遷移的鏡像 ref（廢棄物；仍由本檔 useState 供值）──────────
-  const wasteOrbScaleRef = useRef(wasteOrbScale);
-  const wasteNoteSizeRef = useRef(wasteNoteSize);
-  const wasteNoteZOffsetRef = useRef(wasteNoteZOffset);
-  wasteOrbScaleRef.current = wasteOrbScale;
-  wasteNoteSizeRef.current = wasteNoteSize;
-  wasteNoteZOffsetRef.current = wasteNoteZOffset;
 
   // ══════════════════════════════════════════════════════════════════
   //  雙軌（AR-22 P3-1）：已遷移進 layerParamsStore 的 key 走規格派生，
@@ -365,6 +338,31 @@ export function useTransportParams() {
   const tempExtrudedRef = useParamRefBool(migratedParams, "temperatureWave", "tempExtruded");
   const tempOpacityRef = useParamRefNum(migratedParams, "temperatureWave", "tempOpacity");
   const tempWireframeRef = useParamRefBool(migratedParams, "temperatureWave", "tempWireframe");
+  const wasteOrbScaleRef = useParamRefNum(migratedParams, "wasteTruck", "wasteOrbScale");
+  const wasteNoteSizeRef = useParamRefNum(migratedParams, "wasteTruck", "wasteNoteSize");
+  const wasteNoteZOffsetRef = useParamRefNum(migratedParams, "wasteTruck", "wasteNoteZOffset");
+
+  // ── 第二通道：13 個廢棄物子層 → `wasteSubParams` 巢狀 Record（P3-2D 群3）──
+  //    手寫版是一個 `Record<key, {size,opacity,altitude,ringSize?}>` 的 useState；
+  //    拆平成 per-key 的三（四）個獨立參數後，這裡重新組回原本的形狀。
+  //    identity 用 useMemo 釘住（原本是 useState 值，消費端會放進 deps）。
+  const wasteSubParams = useMemo<Record<WasteSubKey, WasteSubParams>>(
+    () => buildWasteSubParams(migratedParams),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    WASTE_SUB_KEYS.map((k) => migratedParams[k]),
+  );
+  // ⚠️ initial 吃規格常數（同其他鏡像 ref 的慣例，見上方說明）
+  const wasteSubParamsRef = useRef(WASTE_SUB_DEFAULTS);
+  wasteSubParamsRef.current = wasteSubParams;
+
+  // 表定路線的 8 區分組 checkbox → 展開成城市清單（順序 = BUS_GROUP_ORDER）
+  const wasteScheduleParams = migratedParams["wasteSchedule"];
+  const enabledWasteScheduleCities = useMemo<string[]>(
+    () => BUS_GROUP_ORDER
+      .filter((g) => wasteScheduleParams?.[`wasteScheduleGroup${g}`] === true)
+      .flatMap((g) => WASTE_GROUP_CITIES[g]),
+    [wasteScheduleParams],
+  );
 
   // ── 第二通道：群2 裡另外還要回傳純值的三處 ───────────────────────
   const stationScale = pNum(migratedParams, "stationsTHSR", "stationScale");
@@ -522,63 +520,7 @@ export function useTransportParams() {
         { label: `Height ${ybElevationScale}`, value: ybElevationScale, min: 10, max: 200, step: 10, onChange: setYbElevationScale },
       ];
       case "aqiStations": return [];
-      case "wasteTruck":
-      case "wasteSchedule": return [
-        // 8 區分組 toggle（只有 wasteSchedule 用；wasteTruck GPS 固定高雄+台南）
-        ...(layer === "wasteSchedule" ? ([
-          "TaipeiMetro",
-          "KeelungYilan",
-          "TaoyuanHsinchuMiaoli",
-          "CentralTaiwan",
-          "YunChiaNan",
-          "Kaoping",
-          "HualienTaitung",
-          "OffshoreIslands",
-        ] as BusGroup[]).map((g) => ({
-          type: "toggle" as const,
-          label: BUS_GROUP_LABELS[g],
-          value: wasteScheduleGroups[g],
-          onChange: (v: boolean) => setWasteScheduleGroup(g, v),
-        })) : []),
-        // wasteTruck (GPS) 跟 wasteSchedule (表定) 共用同 3 個 slider，視覺風格統一
-        { label: `光點大小 ${wasteOrbScale.toFixed(2)}`, value: wasteOrbScale, min: 0.01, max: 0.8, step: 0.01, onChange: setWasteOrbScale },
-        { label: `音符大小 ${wasteNoteSize.toFixed(2)}`, value: wasteNoteSize, min: 0.1, max: 2, step: 0.05, onChange: setWasteNoteSize },
-        { label: `音符高度 ${wasteNoteZOffset.toFixed(0)}m`, value: wasteNoteZOffset, min: 0, max: 250, step: 5, onChange: setWasteNoteZOffset },
-      ];
       // 🏟️ 運動場館 Sports（5 sublayer，opacity + scale；大小另由 area_sqm log 內插驅動）
-      case "wfIncinerator":
-      case "wfLandfill":
-      case "wfLandfillCoastal":
-      case "wfTransfer":
-      case "wfMedical":
-      case "wfMonitoring":
-      case "wfRecycling":
-      case "wfScrapYard":
-      case "wfOther":
-      case "wdClothes":
-      case "wdMixed":
-      case "wdRecyclingContainer":
-      case "wdBattery": {
-        const k = layer as WasteSubKey;
-        const p = wasteSubParams[k];
-        const base: ParamControl[] = [
-          { label: `大小 ${p.size.toFixed(2)}`, value: p.size, min: 0.3, max: 3, step: 0.05,
-            onChange: (v: number) => setWasteSubParam(k, "size", v) },
-          { label: `透明度 ${p.opacity.toFixed(2)}`, value: p.opacity, min: 0.1, max: 1, step: 0.05,
-            onChange: (v: number) => setWasteSubParam(k, "opacity", v) },
-          { label: `Z 軸 ${p.altitude.toFixed(0)}m`, value: p.altitude, min: 0, max: 500, step: 10,
-            onChange: (v: number) => setWasteSubParam(k, "altitude", v) },
-        ];
-        // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
-        if (k === "wfIncinerator") {
-          const ringSize = p.ringSize ?? 1.0;
-          base.push({
-            label: `底圈 ${ringSize.toFixed(2)}`, value: ringSize, min: 0, max: 4, step: 0.1,
-            onChange: (v: number) => setWasteSubParam(k, "ringSize" as keyof WasteSubParams, v),
-          });
-        }
-        return base;
-      }
       // ── 環境污染 POLLUTION ──
       case "pollutionFacility": return [
         { label: `透明度 ${pollutionFacilityOpacity.toFixed(2)}`, value: pollutionFacilityOpacity, min: 0.1, max: 1, step: 0.05, onChange: setPollutionFacilityOpacity },

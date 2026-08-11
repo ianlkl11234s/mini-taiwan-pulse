@@ -40,12 +40,13 @@ import { createHash } from "node:crypto";
 import { useTransportParams } from "../useTransportParams";
 import { sanitize, canonicalJson } from "../../data/__tests__/layerGoldenExtract";
 import {
-  LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, encodeParamValue, sharedSlotMembers, specOutKey,
+  BUS_GROUP_ORDER, LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, encodeParamValue,
+  sharedSlotMembers, specOutKey,
   type LayerParamSpec, type ParamValue,
 } from "../../data/layerParamsSpec";
 import { layerParamsStore } from "../../state/layerParamsStore";
 import { PENALTY_YEAR_MAX } from "../../data/pollutionTypes";
-import { BUS_GROUP_CITIES, type BusGroup } from "../../types";
+import { BUS_GROUP_CITIES, WASTE_GROUP_CITIES, type BusGroup } from "../../types";
 
 // ══════════════════════════════════════════════════════════════════
 //  第二通道宣告表（RETURN_CHANNEL）
@@ -71,6 +72,14 @@ interface ReturnChannel {
   to: ParamValue;
   paths: Record<string, unknown>;
 }
+/** 13 個廢棄物子層（順序不重要，只用來展開宣告） */
+const WASTE_SUB_KEYS = [
+  "wfIncinerator", "wfLandfill", "wfLandfillCoastal",
+  "wfTransfer", "wfMedical", "wfMonitoring",
+  "wfRecycling", "wfScrapYard", "wfOther",
+  "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
+] as const;
+
 const RETURN_CHANNEL: ReturnChannel[] = [
   // ── 群1：平鋪欄位（P3-2D）────────────────────────────────────────
   // 共用 slot 只宣告代表：`daOpacity` 5 個示警層、`satOpacity` 16 個衛星層，
@@ -251,7 +260,56 @@ const RETURN_CHANNEL: ReturnChannel[] = [
   { key: "newsEvents", param: "newsEventsOnly", to: false, paths: { newsEventsOnly: false } },
   { key: "newsEvents", param: "newsTimeBased", to: false, paths: { newsTimeBased: false } },
   { key: "newsEvents", param: "newsRipple", to: false, paths: { newsRipple: false } },
+
+  // ── 群3：廢棄物（巢狀 Record ＋ 分組 checkbox）──────────────────
+  // 光點／音符三支 slider 由 GPS 與表定兩層共用（宣告代表即可）
+  {
+    key: "wasteTruck", param: "wasteOrbScale", to: 0.5,
+    paths: { "refs.wasteOrbScale": 0.5 },
+  },
+  { key: "wasteTruck", param: "wasteNoteSize", to: 1.5, paths: { "refs.wasteNoteSize": 1.5 } },
+  {
+    key: "wasteTruck", param: "wasteNoteZOffset", to: 150,
+    paths: { "refs.wasteNoteZOffset": 150 },
+  },
+  // 8 區分組預設**全開** → 關掉一個，剩下 7 個的城市（順序 = BUS_GROUP_ORDER）
+  ...BUS_GROUP_ORDER.map((g) => ({
+    key: "wasteSchedule",
+    param: `wasteScheduleGroup${g}`,
+    to: false,
+    paths: { enabledWasteScheduleCities: wasteCitiesExcept(g) },
+  })),
+  // 13 個子層 × 3（焚化爐 4）—— 每個值同時出現在 `wasteSubParams` 與它的鏡像 ref
+  ...WASTE_SUB_KEYS.flatMap((k) => [
+    wasteSubChannel(k, "Size", 2.5),
+    wasteSubChannel(k, "Opacity", 0.25),
+    wasteSubChannel(k, "Altitude", 100),
+  ]),
+  wasteSubChannel("wfIncinerator", "RingSize", 3),
 ];
+
+/** 一個廢棄物子層參數同時餵兩條路徑：`wasteSubParams` 本體與它的鏡像 ref */
+function wasteSubChannel(
+  key: string,
+  field: "Size" | "Opacity" | "Altitude" | "RingSize",
+  to: number,
+): ReturnChannel {
+  const prop = field.charAt(0).toLowerCase() + field.slice(1);
+  return {
+    key,
+    param: `${key}${field}`,
+    to,
+    paths: {
+      [`wasteSubParams.${key}.${prop}`]: to,
+      [`refs.wasteSubParams.${key}.${prop}`]: to,
+    },
+  };
+}
+
+/** 關掉一個分組後剩下的垃圾車表定城市（順序 = BUS_GROUP_ORDER） */
+function wasteCitiesExcept(off: BusGroup): string[] {
+  return BUS_GROUP_ORDER.filter((g) => g !== off).flatMap((g) => WASTE_GROUP_CITIES[g]);
+}
 
 /**
  * 分組 → 城市清單（`enabledBusCities` 的期望值）。

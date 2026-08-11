@@ -479,6 +479,48 @@ function pillarHeightSlider(name: string, def: number): SliderParamSpec {
   };
 }
 
+/**
+ * 垃圾車光點／音符三支 slider —— GPS 與表定兩層**共用同一份值**（視覺風格統一），
+ * 值透過 `wasteOrbScaleRef` 等三個 ref 餵 Three.js。
+ */
+function wasteOrbSliders(): SliderParamSpec[] {
+  return [
+    {
+      kind: "slider", name: "wasteOrbScale", labelPrefix: "光點大小", digits: 2,
+      default: 0.15, min: 0.01, max: 0.8, step: 0.01,
+      sharedGroup: "wasteOrbScale", out: null,
+    },
+    {
+      kind: "slider", name: "wasteNoteSize", labelPrefix: "音符大小", digits: 2,
+      default: 0.7, min: 0.1, max: 2, step: 0.05,
+      sharedGroup: "wasteNoteSize", out: null,
+    },
+    {
+      kind: "slider", name: "wasteNoteZOffset", labelPrefix: "音符高度", digits: 0,
+      labelSuffix: "m", default: 70, min: 0, max: 250, step: 5,
+      sharedGroup: "wasteNoteZOffset", out: null,
+    },
+  ];
+}
+
+/** 13 個廢棄物子層同構的三支 slider（大小 ／ 透明度 ／ Z 軸），只有 default 不同 */
+function wasteSubSliders(key: string, size: number, opacity: number): SliderParamSpec[] {
+  return [
+    {
+      kind: "slider", name: `${key}Size`, labelPrefix: "大小", digits: 2,
+      default: size, min: 0.3, max: 3, step: 0.05, out: null,
+    },
+    {
+      kind: "slider", name: `${key}Opacity`, labelPrefix: "透明度", digits: 2,
+      default: opacity, min: 0.1, max: 1, step: 0.05, out: null,
+    },
+    {
+      kind: "slider", name: `${key}Altitude`, labelPrefix: "Z 軸", digits: 0,
+      labelSuffix: "m", default: 0, min: 0, max: 500, step: 10, out: null,
+    },
+  ];
+}
+
 const REGISTRY_ENCODE = REGISTRY_MODES.map((m) => m.value);
 const PRECISION_ENCODE = PRECISION_MODES.map((m) => m.value);
 
@@ -2088,6 +2130,41 @@ export const LAYER_PARAMS_SPEC = {
       default: 1, min: 0.3, max: 3, step: 0.1,
     },
   ],
+
+  // ══════════ D 桶群3：廢棄物（巢狀 Record ＋ 分組 checkbox）══════════
+  // 垃圾車 GPS（wasteTruck）與表定路線（wasteSchedule）視覺風格統一 → 共用 3 支 slider；
+  // 8 區分組 checkbox 只有表定那層有（GPS 固定高雄＋台南）。
+  wasteTruck: [...wasteOrbSliders()],
+  wasteSchedule: [
+    ...busGroupToggles("wasteScheduleGroup", {
+      TaipeiMetro: true, KeelungYilan: true, TaoyuanHsinchuMiaoli: true, CentralTaiwan: true,
+      YunChiaNan: true, Kaoping: true, HualienTaitung: true, OffshoreIslands: true,
+    }),
+    ...wasteOrbSliders(),
+  ],
+  // 13 個廢棄物子層：值進 hook 的 `wasteSubParams` 巢狀 Record（＋同名 ref）。
+  // 參數名一律 `${key}Size` / `${key}Opacity` / `${key}Altitude` —— 參數名全域唯一，
+  // 不能沿用巢狀物件裡的 `size` / `opacity` / `altitude`。
+  wfIncinerator: [
+    ...wasteSubSliders("wfIncinerator", 1.0, 0.85),
+    // 焚化爐專屬：底圈大小（拉遠也可見的地面標示）
+    {
+      kind: "slider", name: "wfIncineratorRingSize", labelPrefix: "底圈", digits: 2,
+      default: 1.0, min: 0, max: 4, step: 0.1, out: null,
+    },
+  ],
+  wfLandfill: wasteSubSliders("wfLandfill", 1.0, 0.45),
+  wfLandfillCoastal: wasteSubSliders("wfLandfillCoastal", 1.0, 0.55),
+  wfTransfer: wasteSubSliders("wfTransfer", 1.0, 0.85),
+  wfMedical: wasteSubSliders("wfMedical", 1.0, 0.85),
+  wfMonitoring: wasteSubSliders("wfMonitoring", 1.0, 0.7),
+  wfRecycling: wasteSubSliders("wfRecycling", 1.0, 0.85),
+  wfScrapYard: wasteSubSliders("wfScrapYard", 1.0, 0.85),
+  wfOther: wasteSubSliders("wfOther", 1.0, 0.7),
+  wdClothes: wasteSubSliders("wdClothes", 1.0, 0.7),
+  wdMixed: wasteSubSliders("wdMixed", 1.0, 0.7),
+  wdRecyclingContainer: wasteSubSliders("wdRecyclingContainer", 1.0, 0.85),
+  wdBattery: wasteSubSliders("wdBattery", 1.5, 0.9),
 
   // 污染場址：opacity / scale 走 paint，「只看列管中」是 filter → hook return
   pollutionSite: [
