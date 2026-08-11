@@ -2071,3 +2071,155 @@ initial 一定來自規格常數，current 一定來自傳入的 snapshot。
 5. **`layerParamsSpec.ts` 已 2,100+ 行**：下一次擴充前先問「是不是該按主題切檔」。
    切的時候記得 `LAYER_PARAMS_SPEC` 必須維持**單一物件字面**（`satisfies` 推
    literal key 型別 → `MigratedParamsKey`，拆成多個物件再 merge 會讓雙軌判別式退化）。
+   → P3-3 實測後**決定不切**，且上面括號裡的機制**是錯的**，見下一節第 4 點。
+
+---
+
+## 2026-08-12 — Phase 3 收尾棒（P3-3）：結構收尾（型別搬家／改名／收編／切檔判定／規則同步）
+
+`852dbc7` `refactor(params): ParamControl 型別移出 hook（解除 state → hooks 反向 import）`
+`7a5d2c2` `refactor(params): useTransportParams → useLayerParamsRuntime（檔名/函式名一起改，不留薄殼）`
+`21144e3` `refactor(catalog): TRANSPORT_LABELS 值收編進 manifest（消滅 6 筆逐字重複）`
+`9c41436` `docs(params): layerParamsSpec 切檔評估 —— 實測後決定不切，理由寫進檔頭`
+`4b2a1e5` `docs(rules): §4 params 觸點改寫成「spec 一筆 + 控件自動生成」`
+
+**不是再搬東西，是把殘餘機制安置到正確的家。** 五個 commit 全部零行為變更 ——
+黃金快照 sha256 `07972fce…` 從 `e30d5d2` 到本節末**一位元未變**，
+`npx tsc -b` 0 error、`npx vitest run` 43 檔 **567 passed / 1 skipped** 逐 commit 全綠。
+
+### 驗收（每個 commit 都跑）
+
+| 項 | 結果 |
+|---|---|
+| `layer-golden.json` | 五個 commit **全部零 diff**；sha256 `07972fce…` 未變 |
+| `npx tsc -b` | 0 error（每個 commit） |
+| `npx vitest run` | 43 檔 567 passed / 1 skipped（**與 P3-2D 基準相同**，本棒沒有新增或退役任何測試） |
+| hook 檔 | 566 → **539 行程式 ＋ 31 行檔頭**（型別 −27、檔頭 +31）|
+| `state/layerParamsControls.ts` | 83 → **125 行**（接收 4 個型別 ＋ 相依方向說明）|
+
+### 1. 型別搬家：`ParamControl` 那組進 `state/layerParamsControls.ts`
+
+P3-2D 交接第 1 點。`SliderConfig` / `ToggleConfig` / `SelectConfig` / `ParamControl`
+原本宣告在 hook 裡，而 `state/layerParamsControls.ts`（**唯一的生產者**，
+`buildParamControls` 是唯一建構點）得反過來 `import type … from "../hooks/…"`
+—— `hooks → state` 的相依是倒的。
+
+家選在 `layerParamsControls.ts` 而不是新開一個 `paramControlTypes.ts`：
+型別與唯一生產者同檔，不新增檔案。搬完相依單向
+`data/layerParamsSpec → state/* → hooks/* ＋ components/*`。
+
+import 路徑同步 4 處（IconRailSidebar / LayerSidebar / layerParamsControls.test /
+hook 自己改成正向 import）。⚠️ `SliderConfig.type?: "slider"` 的**選填**性逐字未動。
+
+### 2. 檔案定位：改名 `useLayerParamsRuntime`，**不留相容薄殼**
+
+#### 為什麼是 A（改名）不是 B（機制拆進 `state/`）
+
+B 的目標「hook 變 <100 行純組裝」在**回傳 API 零改動**的前提下做不到 ——
+逐段數過：hook body 188–566 行裡 `return {}` 字面本身約 98 行、
+46 個鏡像 ref ＋ 6 個子物件 ＋ 平鋪欄位的逐欄位讀取約 278 行。
+這些**必須**留在 hook（ref 要 `useRef`、子物件要 `useMemo` 釘 identity）。
+把 `pNum` / `oneOf` / `useParamRef*` / `buildWasteSubParams` / `advancePenaltyYear`
+全部搬走，hook 仍有 ~380 行，卻多出 1-2 個檔與一圈 import ——
+**侵入更大、收益更小**，且把「將由 AR-22 終點整支拆掉」的東西先散成好幾處。
+
+#### 為什麼不留薄殼（⚠️ 偏離任務書 A 選項的「＋保留薄殼 re-export 相容」）
+
+薄殼唯一的作用是保住 import 相容，而 code importer 只有 3 處
+（`App.tsx` ／ `layerGoldenExtract` ／ return 等值閘），tsc 全數擋得住。
+留殼＝「一個模組兩個名字」，正是本專案在獵殺的那類漂移，而且是永久死重。
+
+⚠️ **不要**用「薄殼會弄瞎護欄」當理由 —— 那個推理是錯的：
+四道文字護欄是 **path-based `readFileSync`**，改名後無論有沒有薄殼都必須重指，
+漏改是 ENOENT ／ `MEMO_START` 哨兵紅（**loud fail，不是 silent pass**）。
+薄殼救不了它們，也害不了它們。
+
+#### 觸點
+
+- `git mv` ×2：hook 本體 ＋ `useTransportParamsReturn.test.ts`
+  （測試檔一起改名，免得「等值閘叫舊名、被驗的檔叫新名」）
+- 四道 path-based 護欄重指：`layerConsistency.test.ts:24` /
+  `layerGoldenExtract.ts:49`（`PARAMS_FILE`）/ `overlayParamsDeps.test.ts:16` /
+  `layerParamsSharedState.test.ts:36`（`new URL` 相對路徑，最容易漏的一個）
+- src 內 **72 處**識別字（含註解）全量更名 —— 活程式碼裡只留一個名字
+- `App.tsx` 局部變數 `transportParams` **不動**（最小 rename）
+- `layerParamsSpec.ts` 檔頭「3,079 行結構債」那段改成過去式並註明舊檔名 ——
+  **這是 repo 裡唯一保留新舊名對照的地方**
+- 新檔頭寫進三條不可踩的線：`RETURN_CHANNEL` 是活文件、
+  5 個 `emptyByDesign` 分支不可刪、整支退役不是等價重構
+
+#### 護欄自測（證明改名後仍咬得住）
+
+在新檔塞一個 `const [religionTemplesOpacity, setReligionTemplesOpacity] = useState(0.8)`
+→ sharedState 閘 (a) **紅**並點名該參數；還原後全綠。
+
+#### ⚠️ 寫檔頭時踩到一次：`paramsCaseKeys()` **不剝註解**
+
+它的正則直接掃原始碼找 `case` 加雙引號 key。檔頭註解裡若寫出那個字面
+（我第一版拿它當說明），就會憑空生出一個幽靈 key 進 `all` 與 `emptyByDesign`，
+讓覆蓋斷言誤報。已改寫該句，並在檔頭留一條警告。
+**後續在這支檔寫註解的人都會踩到。**
+
+### 3. `TRANSPORT_LABELS` 收編（P2 批 8 交接）
+
+6 個字串與 manifest 的 `label` 逐字重複 → 值改直讀 `LAYER_MANIFEST.<key>.label`。
+動手前用一次性腳本**機械比對 6/6 一位元相同**（不信註解寫的「逐字重複」）。
+
+**只收編值、不動 key 空間**：兩個 sidebar 用 `key in TRANSPORT_LABELS` 當
+**集合測試**（`isTransport`），key 空間是 `TransportType`（6）不是
+`keyof LayerVisibility`（348）—— 硬套 `Omit<…, ManifestKey>` 會讓那個集合測試
+多出 340 個成員。這張表因此不是「第五張待派生的手寫表」，
+而是 `TransportType → manifest` 的**最小 keyed 對照**。
+
+兩道 tsc 護欄、零額外測試、零 cast、零 runtime fallback：
+漏掉任一 `TransportType` → TS2739；某 key 退化成沒有 `label` 的 orphan entry → 該行紅。
+
+#### ⚠️ `GATED_LAYERS` 評估後**不收編**（三條機械查證的理由，已寫進檔內註解）
+
+| # | 理由 | 證據 |
+|---|---|---|
+| 1 | **沒有值重複可消滅** | manifest 裡 `gated: true` 的 entry **0 個**；本表 35 個 key 只存在於該表。收編＝**新增** 35 筆宣告，不是去重（`TRANSPORT_LABELS` 是 6/6 重複，兩者不同類）|
+| 2 | **型別上表達不了** | `gated` 只存在於 `LayerManifestThemedEntry`，而 35 個裡有 3 個是 orphan entry（`facOffshore` / `osmPowerPlantsStatic` / `powerPlants`）——「已從 sidebar 下架但 API 敏感」正是它們要被鎖的理由，卻沒有 LayerDef 可載 |
+| 3 | **這是安全清單不是登記簿** | `embedWhitelist` / `urlState` / `layerGates` 三套測試以它為錨（gated 外流＝私人資料洩漏）。搬 SSOT 是安全變更，要獨立驗收標準 |
+
+### 4. `layerParamsSpec.ts` 切檔：實測後**不切**
+
+P3-2D 交接第 5 點。唯一自然的切法是「主題一檔 ＋ spread 合併」。
+用獨立 probe 實測（TS 5.7.3），spread 合併會**同時**丟掉兩道 tsc 護欄：
+
+| # | 護欄 | 單一物件字面 | spread 合併 |
+|---|---|---|---|
+| 1 | typo key | **TS2353** excess property | ❌ 靜默通過，且**混進 `MigratedParamsKey`** → 雙軌判別式開始認得一個沒有任何圖層的幽靈 key |
+| 2 | 重複 key | **TS1117** duplicate property | ❌ 靜默 last-wins → 兩個主題檔宣告同一 layer key 時，其中一份的整串控件無聲消失，而 `isMigratedParamsKey` 仍回 true（雙軌不會 fallthrough 補救），面板長出「別的主題的控件」 |
+
+⚠️ **順手修正 P3-2D 交接寫的理由**：**判別式本身不會退化** ——
+實測 `keyof typeof` 對 spread 後的物件**仍推 literal key**（emit 的 `.d.ts` 逐字確認）。
+結論相同、機制不同。記下來，免得日後有人「證偽了理由就以為可以切」。
+
+檔內另記一條逃生路線：真要縮檔就先切**上半段的型別與 builder**（L1–L736，不碰字面），
+那一刀零風險；本棒不做（最小方案，沒人要求）。
+
+### 5. `development-rules.md` §4 params 段落改寫
+
+觸點表 #11 從 hook 改成 `src/data/layerParamsSpec.ts`（守門欄換成現行三道），
+新增 #11a（manifest 的 `params: { count, kinds }` 由 `layerManifest.test.ts` 焊接），
+表後補一段「§4 params 新流程」：可貼的 spec 範例 ＋「你不用做／誰做的」三行對照 ＋
+**只有三種情況才需要碰 hook**（`out: null` 的第二通道要同步 `RETURN_CHANNEL` ／
+`emptyByDesign` ／ 鏡像 ref 的 initial-吃-規格常數慣例）＋ 驗收要求。
+§4a 規則 1 改寫成 `opacitySlider(...)` 一行寫法；README 目錄樹同步新檔名。
+
+### 給 P4（護欄永久化 ＋ 紅燈演練）的四件事
+
+1. **本棒沒有新增任何測試**（567 = P3-2D 基準）—— 五項全是零行為變更的結構收尾，
+   新閘無對象可守。P4 若要「護欄永久化」，該永久化的是**已存在的那幾道**：
+   黃金快照 ／ 等值閘 A/B ／ sharedState 三閘 ／ `overlayParamsDeps`（已自然退役但保留錨點）。
+2. **紅燈演練的現成劇本**：本棒與 P3-2A~2D 各段記的突變自測可以直接當演練清單 ——
+   特別是 P3-2D 的 (b2)（刪 ref 同步行，慣例落地前**全綠**）與本棒的
+   sharedState 閘 (a)。演練時記得**還原後要重跑到全綠**才算完。
+3. **`paramsCaseKeys()` 不剝註解**是文字護欄的通病，值得在 P4 一併處理：
+   要嘛剝註解，要嘛把 `emptyByDesign` 改成 manifest 的顯式表達（見 P3-2D 交接第 3 點）
+   —— 後者才是根治，前者只是讓註解不再誤傷。
+4. **AR-22 的終點仍未動**：`overlayParams` / `getControls` / `refs` / 六個子物件
+   仍由 `useLayerParamsRuntime` 組裝，消費端要改吃 `useLayerParams(key)` 才會兌現
+   「一個 slider 動、只 render 該層控件」。**那不是等價重構**，本棒的等值閘會擋住它
+   —— 那是對的，要另立驗收標準。
