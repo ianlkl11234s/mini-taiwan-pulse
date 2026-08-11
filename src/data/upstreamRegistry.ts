@@ -656,70 +656,8 @@ const HANDWRITTEN_UPSTREAM: Omit<Record<keyof LayerVisibility, UpstreamRef>, Man
   // 🏢 房地產 Real Estate 7 層已搬進 layerManifest（AR-22 Phase 2 批 4）——
   //    原本 realEstatePresalePoint 排在 propertyValueGrid **後面**（同主題內順序也不可信），
   //    所以是逐 key 定位刪除，不是整段刪
-  satellitesTaiwan: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesYaogan: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesJilin: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesGaofen: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesTJS: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesBeidou: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesShiyan: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesUSA: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesJapan: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesRussia: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesIndia: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesKorea: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesFrance: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesGermany: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesItaly: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
-  satellitesIsrael: {
-    status: 'verified',
-    datasets: [{ datasetId: 'celestrak_satellites', confidence: 'HIGH' }],
-  },
+  // 🛰️ 太空 Space 16 layer 已搬進 layerManifest（AR-22 Phase 2 批 5）——
+  //    16 層共用同一筆 celestrak_satellites dataset
   // plaActivity 已搬進 layerManifest（AR-22 Phase 2 批 1）
   // ── Stub entries for LayerVisibility keys not in THEMES (stale, unused, or pending wiring) ──
   medICUBeds: { status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' },

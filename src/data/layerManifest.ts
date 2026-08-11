@@ -70,6 +70,8 @@ import {
   // 📍 底圖（MapPinned / Mountain / Building2 / Map / Sprout / Route 已在上方 import 復用）
   // ⚠️ 災害（Waves / TrainFront / AlertTriangle / Activity / Mountain 已在上方 import 復用）
   Lightbulb, CloudRain, Rewind, CloudLightning, Atom,
+  // 🛰️ 太空（16 層共用同一顆 icon）
+  Satellite,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -197,6 +199,14 @@ export interface LayerManifestEntry {
   /** 主題標籤（跨主題檢索用，非 sidebar 分區） */
   topics: string[];
 }
+
+/**
+ * 🛰️ 太空 16 層**共用同一份 source.note**（不是為了省字：它們真的是同一套實作 ——
+ * 一個 hook、三個 source、五個 layer，16 個 toggle 只是 `cat` 欄位的 filter）。
+ * 各層自己的差異只在 color / label / description，寫在各自 entry。
+ */
+const SAT_SOURCE_NOTE =
+  "useSatellitesLayer 單一實作服務全部 16 個 toggle：Supabase view satellite_classified 取 TLE（localStorage cache 6h）→ satellite.js SGP4 逐秒推算 → 3 個自建 geojson source（sat-footprint-fc / sat-track-fc / sat-point-fc）× 5 個 layer（footprint 內外圈 / 未來軌跡 / 即時點 / 變軌 pulse ring）；分類以 `cat` 欄位走 match 表達式上色、各 toggle 以 layer-level filter 切分 —— 非 OVERLAY_REGISTRY";
 
 /**
  * Phase 1 試點：5 個**體質各異**的層。刻意不挑 5 個長得像的——
@@ -4304,6 +4314,348 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "核能電廠周界環境輻射監測即時值（halo + core 雙層）",
     topics: ["災害", "核安", "輻射"],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // 🛰️ 太空 Space 16 層（AR-22 Phase 2 批 5）
+  // ══════════════════════════════════════════════════════════════
+  // **16 個 key 共用一切**：同一個 hook、同一份 upstream dataset、同一顆 icon、
+  // 同一筆 legend（首個 key `satellitesYaogan`，拍板④）、同一個 popup layerType
+  // （`satellite` ← layer id `sat-current-point`）、同一組 params（1 slider）。
+  // 差異只在 color / label / section.group / description。
+  //
+  // 這是本工程規模最大的共用：**legend 16 → 1** 與 **popup 16 → 1** 同時發生，
+  // 雙雙超過批 3 教育的 `school` 1 對 7。
+  //
+  // ⚠️ `satellites` 家族**沒有**走自己的 picking（本批預期的風險項）——
+  // 它就是一條普通的 GIS_LAYERS 字面條目，`extractGisLayers` 直接抓得到，
+  // 不需要像批 1/批 4 那樣補解析器。但這是**逐層打開 hook 讀 addLayer id 之後**
+  // 才確定的，不是從「D 體質」推出來的。
+  //
+  // 色票：16 個在 HANDWRITTEN_LAYER_COLORS 原本就是字面 hex。`satelliteTypes.ts`
+  // 的 `SATELLITE_COLORS` 是 **category-keyed**（`cat` 欄位值 → 色）且餵的是
+  // hook 內的 match 表達式，`LAYER_COLORS` 從未 import 它 → 照批 2 反向判準寫字面。
+  // ⚠️ 兩表的 hex 逐一相同（layer key 與 category 一一對應是巧合的整齊），
+  // 但「有沒有在餵 LAYER_COLORS」才是判準，撞色不構成引用理由。
+
+  satellitesTaiwan: {
+    key: "satellitesTaiwan",
+    section: { theme: "太空 Space", group: "台灣" },
+    label: "台灣 FORMOSAT / TRITON / IRIS-C",
+    expandable: true,
+    color: "#4fc3f7",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "台灣自主衛星（福衛系列光學/雷達、獵風者 GNSS-R、IRIS-C 立方衛星）",
+    topics: ["太空", "台灣", "遙測"],
+  },
+
+  satellitesYaogan: {
+    key: "satellitesYaogan",
+    section: { theme: "太空 Space", group: "中國" },
+    label: "Yaogan 遙感",
+    expandable: true,
+    color: "#ef5350",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "中國遙感系列（軍用光學/電子偵察，16 層中數量最大的一支）",
+    topics: ["太空", "中國", "偵察"],
+  },
+
+  satellitesJilin: {
+    key: "satellitesJilin",
+    section: { theme: "太空 Space", group: "中國" },
+    label: "Jilin 吉林",
+    expandable: true,
+    color: "#ff7043",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "吉林一號商業遙感星座（長光衛星，高重訪率光學）",
+    topics: ["太空", "中國", "商業遙感"],
+  },
+
+  satellitesGaofen: {
+    key: "satellitesGaofen",
+    section: { theme: "太空 Space", group: "中國" },
+    label: "Gaofen 高分",
+    expandable: true,
+    color: "#ec407a",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "高分系列（國家高分辨率對地觀測，民用掛名的軍民兩用）",
+    topics: ["太空", "中國", "對地觀測"],
+  },
+
+  satellitesTJS: {
+    key: "satellitesTJS",
+    section: { theme: "太空 Space", group: "中國" },
+    label: "TJS / TJSW GEO 情報",
+    expandable: true,
+    color: "#ba68c8",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "通信技術試驗衛星（GEO 靜止軌道，普遍研判為預警/訊號情報）",
+    topics: ["太空", "中國", "GEO"],
+  },
+
+  satellitesBeidou: {
+    key: "satellitesBeidou",
+    section: { theme: "太空 Space", group: "中國" },
+    label: "北斗 BD-3 PNT",
+    expandable: true,
+    color: "#5e7ce2",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "北斗三號導航星座（PNT 定位授時，MEO/IGSO/GEO 混合軌道）",
+    topics: ["太空", "中國", "導航"],
+  },
+
+  satellitesShiyan: {
+    key: "satellitesShiyan",
+    section: { theme: "太空 Space", group: "中國" },
+    label: "Shiyan / Shijian 試驗",
+    expandable: true,
+    color: "#9e9e9e",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "試驗/實踐系列（技術驗證掛名，含在軌操作與變軌測試）",
+    topics: ["太空", "中國", "試驗"],
+  },
+
+  satellitesUSA: {
+    key: "satellitesUSA",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇺🇸 USA · KH / BlackSky / Planet",
+    expandable: true,
+    color: "#93c5fd",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "美國偵察與商業遙感（KH 鎖眼系列 + BlackSky / Planet 高重訪）",
+    topics: ["太空", "美國", "偵察"],
+  },
+
+  satellitesJapan: {
+    key: "satellitesJapan",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇯🇵 Japan · IGS / ALOS",
+    expandable: true,
+    color: "#fb7185",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "日本情報收集衛星 IGS 與陸域觀測 ALOS 系列",
+    topics: ["太空", "日本", "偵察"],
+  },
+
+  satellitesRussia: {
+    key: "satellitesRussia",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇷🇺 Russia · PERSONA / RESURS / COSMOS",
+    expandable: true,
+    color: "#a8a29e",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "俄羅斯偵察與資源觀測（PERSONA 光學、RESURS、COSMOS 軍用編號）",
+    topics: ["太空", "俄羅斯", "偵察"],
+  },
+
+  satellitesIndia: {
+    key: "satellitesIndia",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇮🇳 India · CARTOSAT / RISAT / EOS",
+    expandable: true,
+    color: "#f59e0b",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "印度對地觀測（CARTOSAT 製圖、RISAT 雷達、EOS 系列）",
+    topics: ["太空", "印度", "對地觀測"],
+  },
+
+  satellitesKorea: {
+    key: "satellitesKorea",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇰🇷 Korea · KOMPSAT",
+    expandable: true,
+    color: "#2dd4bf",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "南韓多用途實用衛星 KOMPSAT（阿里郎系列，光學 + SAR）",
+    topics: ["太空", "南韓", "遙測"],
+  },
+
+  satellitesFrance: {
+    key: "satellitesFrance",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇫🇷 France · CSO / PLEIADES / ELISA",
+    expandable: true,
+    color: "#3b82f6",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "法國軍用光學 CSO、商業 PLEIADES 與電子情報 ELISA",
+    topics: ["太空", "法國", "偵察"],
+  },
+
+  satellitesGermany: {
+    key: "satellitesGermany",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇩🇪 Germany · SAR-Lupe / SARah",
+    expandable: true,
+    color: "#fde047",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "德國軍用雷達偵察星座 SAR-Lupe 與後繼 SARah",
+    topics: ["太空", "德國", "SAR"],
+  },
+
+  satellitesItaly: {
+    key: "satellitesItaly",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇮🇹 Italy · COSMO-SkyMed",
+    expandable: true,
+    color: "#34d399",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "義大利 COSMO-SkyMed X 波段 SAR 星座（軍民兩用）",
+    topics: ["太空", "義大利", "SAR"],
+  },
+
+  satellitesIsrael: {
+    key: "satellitesIsrael",
+    section: { theme: "太空 Space", group: "國際偵察" },
+    label: "🇮🇱 Israel · Ofeq / EROS",
+    expandable: true,
+    color: "#c4b5fd",
+    icon: Satellite,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "celestrak_satellites", confidence: "HIGH" }],
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: SAT_SOURCE_NOTE },
+    legend: "satellitesYaogan",
+    popup: "satellite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "以色列偵察衛星 Ofeq 與商業遙感 EROS",
+    topics: ["太空", "以色列", "偵察"],
   },
 } satisfies Partial<Record<keyof LayerVisibility, LayerManifestEntry>>;
 
