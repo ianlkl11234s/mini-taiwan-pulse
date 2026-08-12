@@ -27,357 +27,73 @@ import type { LayerVisibility, TransportType } from "../../types";
 
 // ── Color Config ──
 
-import { RELIGION_LAYER_COLORS } from "../../data/religionTypes";
-import { FUNERAL_LAYER_COLORS } from "../../data/funeralTypes";
-import { EDUCATION_LAYER_COLORS } from "../../data/educationTypes";
+import {
+  LAYER_MANIFEST, manifestColors,
+  type ManifestKey, type LayerManifestEntry,
+} from "../../data/layerManifest";
 
+/**
+ * 手寫色票殘量 —— **AR-22 Phase 2 完成後為空**（348/348 全部由 layerManifest 派生）。
+ *
+ * 型別 `Omit<Record<全集>, ManifestKey>` 的 tsc 雙向護欄維持不變：
+ *   - 漏掉任一「還沒搬」的 key → TS2739 缺屬性
+ *   - 已搬進 manifest 的 key 還留在這裡 → excess property 報錯
+ * `ManifestKey` 現在涵蓋全部 348 key，`Omit<…>` 因此退化成 `{}` ——
+ * 空物件字面**仍然合法**（實測 tsc 0 error），護欄語意也還在：
+ * 從 manifest 刪掉任何 key 會立刻讓下方 LAYER_COLORS 的 Record 缺屬性而報錯。
+ *
+ * ⚠️ 保留本表而非直接刪掉，是為了 Phase 3-4：新 key 若一時無法進 manifest
+ * （例如 section 尚未決定），這裡是唯一的合法暫放處。
+ *
+ * ⚠️ **唯一沒有機械護欄的漏法**（批 1 起記在案，Phase 3 仍適用）：
+ * 若這裡放的是 `...SOME_LAYER_COLORS` 這種 spread，**不觸發 excess property check**
+ * —— 搬走 key 後忘了刪 spread 會 tsc 綠、黃金快照綠、契約測試綠，
+ * 但登記沒真搬走，留下「改 manifest 畫面沒反應」的暗雷。
+ * 驗證只能靠 `grep -nE '^\s*\.\.\.'` 限行首（說明註解裡也會出現該字串）。
+ * 目前本表無 spread。
+ *
+ * 各主題的色票判準（哪個常數該引用、哪些只是撞色）逐批記在
+ * docs/features/layer-manifest/changelog.md，不在此重複。
+ */
+const HANDWRITTEN_LAYER_COLORS: Omit<Record<keyof LayerVisibility, string>, ManifestKey> = {
+  // （空 —— Phase 2 全數搬完）
+};
+
+/**
+ * 色票全集 —— 手寫殘量 + manifest 派生。
+ * 型別維持 `Record<keyof LayerVisibility, string>`（tsc 護欄不因引入 manifest 而弱化）。
+ */
 export const LAYER_COLORS: Record<keyof LayerVisibility, string> = {
-  flights: "#64aaff",
-  ships: "#1ad9e5",
-  rail: "#ee6c00",
-  stationsTHSR: "#ff8c00",
-  stationsTRA: "#b8a080",
-  stationsMetro: "#00bcd4",
-  ports: "#4a90d9",
-  lighthouses: "#ffd700",
-  airports: "#daa520",
-  highways: "#ff6b6b",
-  provincialRoads: "#ffa94d",
-  cctv: "#26c6da",
-  etcGantry: "#f06292",
-  serviceArea: "#4db6ac",
-  serviceAreaPolygon: "#4db6ac",
-  taxiStand: "#f9a825",
-  windPlan: "#7efcb0",
-  busStationsCity: "#66bb6a",
-  busStationsIntercity: "#ab47bc",
-  bikeStations: "#ffca28",
-  cyclingRoutes: "#66bb6a",
-  freewayCongestion: "#ef5350",
-  roadCongestion: "#fb923c",
-  weatherStations: "#4dd0e1",
-  h3Population: "#ff6b6b",
-  popCount: "#f9bd31",
-  indicators: "#e25822",
-  socioeconomic: "#7c4dff",
-  spatialEconomy: "#ff6e40",
-  temperatureWave: "#ff6b35",
-  temperatureGrid: "#f46d43",
-  urbanHeat: "#b2182b",
-  schools: "#42a5f5",
-  convenienceStores: "#26c6da",
-  postOffices: "#d32f2f",
-  iPostBoxes: "#ef6c00",
-  communityCenters: "#26a69a",
-  govServiceOffices: "#8d6e63",
-  publicLibraries: "#5c6bc0",
-  welfareCenters: "#ec407a",
-  retailMarkets: "#66bb6a",
-  publicToilets: "#7e57c2",
-  submarineCables: "#2196F3",
-  landingStations: "#26c6da",
-  activeFaults: "#ef5350",
-  newsEvents: "#ff9800",
-  // 走廊藍；不規則活動區在圖層內另用紫（見 plaTracksLoader.PLA_KIND_COLORS）
-  plaActivity: "#38bdf8",
-  youbikeFullness: "#f57c00",
-  earthquakes: "#ff3b30",
-  earthquakeReplay: "#e11d48",
-  mountainRescueIncidents: "#f2c94c",
-  // 全球氣候 GLOBAL CLIMATE
-  earthquakesGlobal: "#dc2626",
-  typhoonTracks: "#a855f7",
-  dustForecast: "#b45309",
-  oceanCurrents: "#0ea5e9",
-  windField: "#94a3b8",
-  lifelineAlerts: "#facc15",
-  floodAlerts: "#2563eb",
-  weatherAlerts: "#7c3aed",
-  transitAlerts: "#f97316",
-  safetyAlerts: "#ef4444",
-  roadEvents: "#ef4444",
-  cwaCloudImagery: "#b0c4de",
-  cwaRadarImagery: "#4fc3f7",
-  aqiImagery: "#8bc34a",
-  aqiStations: "#00bcd4",
-  aqiMicroSensors: "#7e57c2",
-  busLive: "#4fc3f7",
-  busIntercityLive: "#ba68c8",
-  touristShuttleLive: "#26a69a",
-  waterBasins: "#4dd0e1",
-  waterRivers: "#38bdf8",
-  waterLevees: "#f59e0b",
-  waterCanals: "#a78bfa",
-  waterProtectionZones: "#10b981",
-  waterReservoirs: "#06b6d4",
-  waterFacilities: "#fbbf24",
-  waterMonitorStations: "#f472b6",
-  waterFloodExtreme: "#fb7185",
-  waterDetentionBasins: "#0284c7",
-  rainGauge: "#3b82f6",
-  riverLevel: "#22d3ee",
-  groundwater: "#0ea5e9",
-  groundwaterWells: "#64748b",
-  iotWraRiver: "#06b6d4",
-  iotWraStructure: "#a855f7",
-  lakesPondsOsm: "#4fc3f7",
-  floodSensor: "#ef4444",
-  floodSensorIsochrone: "#ef4444",
-  taipeiSewer: "#3b82f6",
-  taipeiEvacuate: "#22c55e",
-  taipeiPumb: "#06b6d4",
-  precipRaster: "#60a5fa",
-  fireEvents: "#ff5722",
-  fireLatest: "#ff1744",
-  fireStations: "#e53935",
-  fireHydrants: "#2196f3",
-  fireIsochrone: "#22c55e",
-  medHospital: "#d32f2f",
-  medClinic: "#1976d2",
-  medPharmacy: "#388e3c",
-  medAED: "#fbc02d",
-  medLTC: "#8e24aa",
-  medIsochrone: "#22c55e",
-  medDesert: "#ef4444",
-  medICUBeds: "#ff1744",
-  erHospital: "#ef4444",
-  parkingOnstreet: "#64748b",
-  parkingOffstreet: "#22c55e",
-  agriculture: "#2e7d32",
-  agriSoil: "#8d6e63",
-  agriSoilFertility: "#00897b",
-  agriLeisureFarmZones: "#66bb6a",
-  agriRuralRegen: "#ffb74d",
-  agriCropSuitability: "#1b5e20",
-  agriPOI: "#6a1b9a",
-  agriRetail: "#e91e63",
-  agriProduceWholesale: "#3f51b5",
-  agriWholesaleMarket: "#ffd600",
-  livestockFarmPig: "#ec6a5e",
-  livestockFarmChicken: "#f4b400",
-  livestockFarmCattle: "#6d4c41",
-  livestockFarmDuck: "#00897b",
-  livestockFarmGoose: "#26c6da",
-  livestockFarmSheep: "#ab47bc",
-  livestockFarmOther: "#9e9e9e",
-  livestockSlaughter: "#c62828",
-  livestockFeed: "#455a64",
-  livestockMarket: "#d500f9",
-  aquaculturePonds: "#26c6da",
-  aquacultureZone: "#66bb6a",
-  aquacultureCageNet: "#5c6bc0",
-  aquacultureWaterSatellite: "#26c6da",
-  aquacultureWaterSatelliteMoa: "#26c6da",
-  aquacultureWaterUnion: "#26c6da",
-  aquacultureIntegrated: "#26c6da",
-  streetTreesTaipeiDiff: "#2e7d32",
-  protectedTreesNational: "#00695c",
-  riversideTreesTaipei: "#0288d1",
-  parksTaipei: "#7cb342",
-  streetTreesTaipei3epoch: "#558b2f",
-  streetTreesNational: "#43a047",
-  treePitsTaipei: "#8d6e63",
-  buildingsGba: "#78909c",
-  urbanFormGrid: "#8d9c6b",
-  urbanZoningTaipei: "#f2c94c",
-  urbanZoningNewTaipei: "#eb5757",
-  nonUrbanZoning: "#a2c14e",
-  sportsSchool: "#5c6bc0",
-  sportsPublicOther: "#26a69a",
-  sportsPrivate: "#ef6c00",
-  sportsPark: "#66bb6a",
-  sportsCenter: "#ec407a",
-  culturalFacilities: "#ef8a3c",
-  culturalMuseums: "#b5651d",
-  artsEvents: "#4d9de0",
-  performingVenues: "#7c4dff",
-  librarySeats: "#22c55e",
-  // 🧳 觀光 Tourism
-  tourAttractions: "#e65100",
-  tourHotSprings: "#d81b60",
-  tourHotSpringZones: "#880e4f",
-  tourScenicAreas: "#00695c",
-  tourHeritage: "#6d4c41",
-  tourEvents: "#f9a825",
-  tourFactories: "#546e7a",
-  tourAmusementParks: "#00acc1",
-  tourCamping: "#7cb342",
-  tourHotels: "#1976d2",
-  tourRestaurants: "#c62828",
-  // 🛕 宗教 Religion（色票 SSOT = religionTypes.ts RELIGION_LAYER_COLORS）
-  ...RELIGION_LAYER_COLORS,
-  // ⚰️ 殯葬 Funeral（色票 SSOT = funeralTypes.ts FUNERAL_LAYER_COLORS）
-  ...FUNERAL_LAYER_COLORS,
-  // 🎓 教育 Education（色票 SSOT = educationTypes.ts EDUCATION_LAYER_COLORS；
-  //    總覽層 schools 沿用既有 #42a5f5，仍列在上方不搬）
-  ...EDUCATION_LAYER_COLORS,
-  farmRoads: "#7a8670",
-  ecoNetworkZones: "#4caf50",
-  forestCompartments: "#15803D",
-  forestReserve: "#0F766E",
-  forestRecreation: "#65A30D",
-  forestRoads: "#A16207",
-  forestTreatmentWorks: "#F59E0B",
-  forestTrailSigns: "#84CC16",
-  forestSignalPoints: "#22C55E",
-  forestEducationCenters: "#0EA5E9",
-  forestWildlife: "#A855F7",
-  forestDamLakes: "#06B6D4",
-  forestFlatParks: "#A3E635",
-  forestAlishanRail: "#92400E",
-  mountainHuts: "#ec4899",
-  hikingTrails: "#d62728",
-  canopyHeight: "#33691e",
-  canopyGiants: "#a50026",
-  wasteTruck: "#fbbf24",
-  wasteSchedule: "#fbbf24",
-  wasteScheduleNote: "#fff8d6",
-  wasteStopsStatic: "#d97706",
-  wasteCleaningSquads: "#22c55e",
-  wasteRoute: "#84cc16",
-  wasteStop: "#65a30d",
-  wfIncinerator: "#ef4444",
-  wfLandfill: "#92400e",
-  wfLandfillCoastal: "#0891b2",
-  wfTransfer: "#a855f7",
-  wfMedical: "#ec4899",
-  wfMonitoring: "#3b82f6",
-  wfRecycling: "#22c55e",
-  wfScrapYard: "#737373",
-  wfOther: "#6b7280",
-  wdClothes: "#f97316",
-  wdMixed: "#14b8a6",
-  wdRecyclingContainer: "#84cc16",
-  wdBattery: "#fbbf24",
-  satellitesYaogan: "#ef5350",
-  satellitesJilin: "#ff7043",
-  satellitesGaofen: "#ec407a",
-  satellitesTJS: "#ba68c8",
-  satellitesBeidou: "#5e7ce2",
-  satellitesShiyan: "#9e9e9e",
-  satellitesTaiwan: "#4fc3f7",
-  satellitesUSA: "#93c5fd",
-  satellitesJapan: "#fb7185",
-  satellitesRussia: "#a8a29e",
-  satellitesIndia: "#f59e0b",
-  satellitesKorea: "#2dd4bf",
-  satellitesFrance: "#3b82f6",
-  satellitesGermany: "#fde047",
-  satellitesItaly: "#34d399",
-  satellitesIsrael: "#c4b5fd",
-  powerPlants: "#facc15",
-  powerPlantGlow: "#f0abfc",
-  substationEhvGlow: "#fb923c",
-  powerLinesGlow: "#22d3ee",
-  aviationRestrictedGlow: "#f87171",
-  powerStatusHud: "#22c55e",
-  powerRegionDemand: "#3b82f6",
-  powerGenerationUnit: "#f97316",
-  osmSubstations: "#f97316",
-  osmSubstationsEhv: "#ef4444",
-  osmPowerLines: "#62D9AD",
-  osmPowerTowers: "#468BA6",
-  powerPoles: "#94a3b8",
-  osmWindTurbines: "#67e8f9",
-  osmSolarFarms: "#fbbf24",
-  osmPowerPlantsStatic: "#9ca3af",
-  offshoreWindZones: "#22d3ee",
-  islandPowerGrid: "#a78bfa",
-  fossilFuelInfra: "#1f2937",
-  geothermalWells: "#ef4444",
-  renewablePermitsTaipei: "#fbbf24",
-  evChargingStations: "#10b981",
-  facPrimary: "#F2D64B",
-  facOffshore: "#1F4373",
-  facPlanned: "#F2E085",
-  facHistorical: "#8C5D42",
-  facSecondary: "#8C7C4A",
-  facOsmSupplement: "#94a3b8",
-  gasStationCpc: "#41AEF2",
-  gasStationFpcc: "#22C55E",
-  gasStationTaisugar: "#F2522E",
-  gasStationOther: "#D1D5DB",
-  gasStationCanonical: "#0FBFBF",
-  lpgSubpackaging: "#F2622E",
-  lpgRetailers: "#D9863D",
-  lngTerminal: "#F2B84B",
-  pipelineGas: "#F2D64B",
-  pipelineOilGas: "#EDF249",
-  industrialRefinery: "#F97316",
-  industrialStorageTank: "#06B6D4",
-  industrialPowerPlant: "#D946EF",
-  coalTerminal: "#3B82F6",
-  gasCoverageAll: "#F2A516",
-  gasCoverageCpc: "#41AEF2",
-  gasCoverageFpcc: "#22C55E",
-  gasCoverageTaisugar: "#F2522E",
-  evIsland: "#F23535",
-  lightning: "#fb923c",
-  lightningCwa: "#a78bfa",
-  nuclearRadiation: "#22c55e",
-  realEstateRentalGrid: "#41919A",
-  realEstateRentalPoint: "#41919A",
-  realEstateSaleGrid: "#d73027",
-  realEstateSalePoint: "#d73027",
-  realEstatePresaleGrid: "#fd8d3c",
-  realEstatePresalePoint: "#fd8d3c",
-  propertyValueGrid: "#ed6925",
-  countyBoundary: "#4b5563",
-  townshipBoundary: "#6b7280",
-  villageBoundary: "#9ca3af",
-  contour25k: "#8B4513",
-  contourDtm20: "#a16207",
-  osmRoadDrive: "#fb923c",
-  osmExpressway: "#FF8C00",
-  hillshade: "#6b7280",
-  slopeVector: "#fc8d59",
-  aspectVector: "#ff7f00",
-  // 警政司法民防 17 layer
-  policeStation: "#1e40af",          // 警察 — 深藍
-  womenChildWarning: "#ec4899",      // 婦幼 — 粉
-  speedCamera: "#dc2626",            // 測速 — 紅
-  speedZoneSegment: "#b91c1c",       // 區間測速 — 深紅
-  court: "#7c3aed",                  // 法院 — 紫
-  prosecutorsOffice: "#a855f7",      // 檢察署 — 淺紫
-  correctionalFacility: "#374151",   // 矯正 — 鐵灰
-  courtJurisdiction: "#c4b5fd",      // 法院管轄區 — 紫白（polygon fill）
-  crimeAreaMonthly: "#991b1b",       // 鄉鎮犯罪 choropleth — 暗紅
-  theftTaoyuan: "#f59e0b",           // 竊盜 — 橙
-  trafficAccidentYearly: "#fb7185",  // A1 死亡 — 玫紅
-  accidentTaipei: "#fda4af",         // 北市事故 — 淡玫
-  a1AccidentRealtime: "#ef4444",     // A1 realtime — 鮮紅
-  investigationBureau: "#0f766e",    // 調查局 — 墨綠
-  antiCorruptionOffice: "#14b8a6",   // 廉政 — 青
-  immigrationOffice: "#0ea5e9",      // 移民 — 天藍
-  coastGuardStation: "#0284c7",      // 海巡 — 海藍
-  civilDefenseShelter: "#64748b",    // 防空避難 — 鋼灰
-  aviationControl: "#4682B4",        // ✈️ 飛航情報 / 終端管制（TMA 深藍代表色）
-  aviationRestricted: "#DC3545",     // ⛔ 機場管制 / 限航 / 危險（RCR 紅代表色）
-  droneNoFlyZone: "#DC3545",         // 🚫 無人機禁航區（紅+未分類）
-  droneRestrictedZone: "#FFC107",    // ⚠️ 無人機限航區（黃，需申請）
-  // 警察覆蓋分析 isochrone（overlap_count step 色階，這裡填代表色給圖例）
-  policeIsoSubstation: "#1e40af",
-  policeIsoPrecinct: "#3b82f6",
-  policeIsoCityDept: "#60a5fa",
-  // 環境污染 POLLUTION
-  pollutionFacility: "#f97316",
-  pollutionPenaltyCritical: "#ef4444",
-  pollutionPenaltyGeneral: "#94a3b8",
-  pollutionPenaltyMobile: "#22c55e",
-  pollutionSite: "#111827",
-  // 🌍 世界 WORLD
-  worldTrashDebris: "#f59e0b",
+  ...HANDWRITTEN_LAYER_COLORS,
+  ...manifestColors(),
 };
 
 // ── Transport Labels ──
 
+/**
+ * 運具 6 層的顯示文字 —— **值自 P3-3 起直讀 manifest，字串字面已消滅**。
+ *
+ * 收編前這 6 個值與 manifest 的 `label` 逐字重複（`rail` 自 Phase 1 試點起、
+ * 其餘 5 個自批 8 起），改一邊忘另一邊 sidebar 文字就靜默分岔。
+ * 動手前機械比對過 6/6 一位元相同（見 P3-3 changelog）。
+ *
+ * ⚠️ **只收編值、不改 key 空間**：兩個 sidebar 用 `key in TRANSPORT_LABELS`
+ * 當**集合測試**（`isTransport`），key 空間是 `TransportType` 而非
+ * `keyof LayerVisibility` —— 硬套 `Omit<…, ManifestKey>` 會把型別意義弄壞，
+ * 也會讓那個集合測試多出 340 個成員。這張表因此不是「第五張待派生的手寫表」，
+ * 而是 `TransportType → manifest` 的**最小 keyed 對照**。
+ *
+ * 兩道 tsc 護欄（不需要額外測試）：
+ * - 漏掉任一 `TransportType` → `Record<TransportType, string>` 缺屬性（TS2739）
+ * - 某 key 從 THEMES 掉出去、退化成沒有 `label` 的 orphan entry → 該行立刻紅
+ */
 export const TRANSPORT_LABELS: Record<TransportType, string> = {
-  flights: "航班 Flight",
-  ships: "船舶 Ship",
-  rail: "鐵道 Rail",
-  busLive: "公車 Bus",
-  busIntercityLive: "公路客運 InterCity",
-  touristShuttleLive: "台灣好行 Tourist Shuttle",
+  flights: LAYER_MANIFEST.flights.label,
+  ships: LAYER_MANIFEST.ships.label,
+  rail: LAYER_MANIFEST.rail.label,
+  busLive: LAYER_MANIFEST.busLive.label,
+  busIntercityLive: LAYER_MANIFEST.busIntercityLive.label,
+  touristShuttleLive: LAYER_MANIFEST.touristShuttleLive.label,
 };
 
 // ── Type Defs ──
@@ -416,6 +132,35 @@ export interface SectionDef {
   layers: LayerDef[];
 }
 
+/**
+ * 從 layerManifest 取出一筆 LayerDef（AR-22 雙軌過渡）。
+ *
+ * ⚠️ 用法是**就地替換**：把原本 `{ key: "cctv", label: "…", expandable: true }`
+ * 這一行換成 `fromManifest("cctv")`，**位置不動**。THEMES 是有序巢狀結構，
+ * 順序就是 UI 顯示順序 —— 若改成「派生的 append 在最後」，圖層會整批換位置，
+ * 黃金快照的 themes/sidebarSections section 立刻紅。
+ *
+ * 選填欄位用條件展開而非 `labelMobile: m.labelMobile`：後者會產生一個值為
+ * undefined 的**存在的 key**，跟「這個 key 不存在」在序列化/比對上是兩回事。
+ */
+function fromManifest(key: ManifestKey): LayerDef {
+  // 顯式標成 LayerManifestEntry：LAYER_MANIFEST 走 `satisfies`，逐筆型別只含
+  // 該筆真的寫了的欄位 —— 直接讀 m.gated 會被 TS 判成不存在。這裡要的是
+  // 「介面上宣告過的選填欄位」語意，widen 到介面才對。
+  const m: LayerManifestEntry = LAYER_MANIFEST[key];
+  // orphan（section: null）沒有 LayerDef 可派生 —— 連 label 都不存在（型別是 never）。
+  // 走到這裡代表有人把 orphan key 寫進了 THEMES，那是接線錯誤不是資料錯誤，
+  // 早炸勝過渲染出一顆沒有文字的 toggle。同時也把 union 收斂成 themed 變體。
+  if (m.section === null) {
+    throw new Error(`[layerManifest] ${key} 是 orphan（不在 THEMES），不該被 fromManifest 引用`);
+  }
+  const def: LayerDef = { key: m.key, label: m.label };
+  if (m.labelMobile !== undefined) def.labelMobile = m.labelMobile;
+  if (m.expandable !== undefined) def.expandable = m.expandable;
+  if (m.gated !== undefined) def.gated = m.gated;
+  return def;
+}
+
 // ── THEMES（新 SSOT）──
 
 /**
@@ -439,41 +184,41 @@ export const THEMES: ThemeDef[] = [
       {
         title: "行政邊界",
         layers: [
-          { key: "countyBoundary", label: "縣市界 County", expandable: true },
-          { key: "townshipBoundary", label: "鄉鎮市區界 Township", expandable: true },
-          { key: "villageBoundary", label: "村里界 Village", expandable: true },
+          fromManifest("countyBoundary"),
+          fromManifest("townshipBoundary"),
+          fromManifest("villageBoundary"),
         ],
       },
       {
         title: "地形",
         layers: [
-          { key: "contour25k", label: "等高線 Contour 25k (10m)", labelMobile: "等高線 25k 10m", expandable: true },
-          { key: "contourDtm20", label: "等高線 Contour DTM20 (20m)", labelMobile: "等高線 DTM 20m", expandable: true },
-          { key: "hillshade", label: "山體陰影 Hillshade", expandable: true },
-          { key: "slopeVector", label: "坡度分級 Slope 6級", labelMobile: "坡度分級", expandable: true },
-          { key: "aspectVector", label: "坡向分級 Aspect 8向", labelMobile: "坡向分級", expandable: true },
+          fromManifest("contour25k"),
+          fromManifest("contourDtm20"),
+          fromManifest("hillshade"),
+          fromManifest("slopeVector"),
+          fromManifest("aspectVector"),
         ],
       },
       {
         title: "建成環境",
         layers: [
-          { key: "buildingsGba", label: "建物輪廓 Buildings", expandable: true },
+          fromManifest("buildingsGba"),
         ],
       },
       {
         // 官方參考底圖（非分析產物）——上游 topic-research 原始目標即「pulse 底圖層」
         title: "土地使用分區 Zoning",
         layers: [
-          { key: "urbanZoningTaipei", label: "北市土地使用分區 Taipei Zoning", labelMobile: "北市土地使用分區", expandable: true },
-          { key: "urbanZoningNewTaipei", label: "新北土地使用分區 New Taipei Zoning", labelMobile: "新北土地使用分區", expandable: true },
+          fromManifest("urbanZoningTaipei"),
+          fromManifest("urbanZoningNewTaipei"),
           // 與上面兩層互補：那兩層是「都市計畫區內」，本層是「非都市土地」，合起來是全國拼圖
-          { key: "nonUrbanZoning", label: "非都市土地使用分區 Non-Urban Zoning", labelMobile: "非都市分區 (68,220)", expandable: true },
+          fromManifest("nonUrbanZoning"),
         ],
       },
       {
         title: "道路底圖",
         layers: [
-          { key: "osmRoadDrive", label: "OSM 道路 OSM Roads", expandable: true },
+          fromManifest("osmRoadDrive"),
         ],
       },
     ],
@@ -489,64 +234,64 @@ export const THEMES: ThemeDef[] = [
       {
         title: "即時運具",
         layers: [
-          { key: "flights", label: "航班 Flight", expandable: true },
-          { key: "ships", label: "船舶 Ship", expandable: true },
-          { key: "rail", label: "鐵道 Rail", expandable: true },
-          { key: "busLive", label: "公車 Bus", expandable: true },
-          { key: "busIntercityLive", label: "公路客運 InterCity", expandable: true },
-          { key: "touristShuttleLive", label: "台灣好行 Tourist Shuttle", labelMobile: "台灣好行", expandable: true },
+          fromManifest("flights"),
+          fromManifest("ships"),
+          fromManifest("rail"),
+          fromManifest("busLive"),
+          fromManifest("busIntercityLive"),
+          fromManifest("touristShuttleLive"),
         ],
       },
       {
         title: "場站",
         layers: [
-          { key: "stationsTHSR", label: "高鐵站 THSR Station", expandable: true },
-          { key: "stationsTRA", label: "台鐵站 TRA Station", expandable: true },
-          { key: "stationsMetro", label: "捷運站 Metro Station", expandable: true },
-          { key: "busStationsCity", label: "市區公車站 City Bus", expandable: true },
-          { key: "busStationsIntercity", label: "公路客運站 Intercity", expandable: true },
-          { key: "bikeStations", label: "公共自行車 Bike Station", expandable: true },
+          fromManifest("stationsTHSR"),
+          fromManifest("stationsTRA"),
+          fromManifest("stationsMetro"),
+          fromManifest("busStationsCity"),
+          fromManifest("busStationsIntercity"),
+          fromManifest("bikeStations"),
         ],
       },
       {
         title: "路網",
         layers: [
-          { key: "highways", label: "國道 Highway", expandable: true },
-          { key: "osmExpressway", label: "快速道路 Expressway", expandable: true },
-          { key: "provincialRoads", label: "省道 Provincial Road", expandable: true },
-          { key: "cyclingRoutes", label: "自行車道 Cycling Route", expandable: true },
-          { key: "cctv", label: "道路攝影機 CCTV", expandable: true },
-          { key: "etcGantry", label: "ETC 收費門架 Gantry", expandable: true },
-          { key: "serviceArea", label: "國道服務區 Service Area", expandable: true },
-          { key: "serviceAreaPolygon", label: "國道服務區範圍 SA Area", expandable: true },
-          { key: "taxiStand", label: "計程車招呼站 Taxi Stand", expandable: true },
+          fromManifest("highways"),
+          fromManifest("osmExpressway"),
+          fromManifest("provincialRoads"),
+          fromManifest("cyclingRoutes"),
+          fromManifest("cctv"),
+          fromManifest("etcGantry"),
+          fromManifest("serviceArea"),
+          fromManifest("serviceAreaPolygon"),
+          fromManifest("taxiStand"),
         ],
       },
       {
         title: "樞紐節點",
         layers: [
-          { key: "ports", label: "港口 Port", expandable: true },
-          { key: "airports", label: "機場 Airport", expandable: true },
-          { key: "lighthouses", label: "燈塔 Lighthouse", expandable: true },
-          { key: "aviationControl", label: "飛航情報/終端管制 ✈️ FIR + TMA", expandable: true },
-          { key: "aviationRestricted", label: "機場管制/限航/危險 ⛔ CTR+RCR+DANGER", expandable: true },
-          { key: "droneNoFlyZone", label: "無人機禁航區 🚫 Drone NFZ", expandable: true },
-          { key: "droneRestrictedZone", label: "無人機限航區 ⚠️ Drone Restricted", expandable: true },
+          fromManifest("ports"),
+          fromManifest("airports"),
+          fromManifest("lighthouses"),
+          fromManifest("aviationControl"),
+          fromManifest("aviationRestricted"),
+          fromManifest("droneNoFlyZone"),
+          fromManifest("droneRestrictedZone"),
         ],
       },
       {
         title: "即時監控",
         layers: [
-          { key: "freewayCongestion", label: "國道壅塞 Congestion", expandable: true },
-          { key: "roadCongestion", label: "省道路況 Provincial v1", expandable: true },
-          { key: "roadEvents", label: "即時路況 Road Events", expandable: true },
+          fromManifest("freewayCongestion"),
+          fromManifest("roadCongestion"),
+          fromManifest("roadEvents"),
         ],
       },
       {
         title: "停車 Parking",
         layers: [
-          { key: "parkingOnstreet", label: "路邊停車 On-street", labelMobile: "路邊停車", expandable: true },
-          { key: "parkingOffstreet", label: "場外停車場 Off-street", labelMobile: "場外停車場", expandable: true },
+          fromManifest("parkingOnstreet"),
+          fromManifest("parkingOffstreet"),
         ],
       },
     ],
@@ -562,22 +307,22 @@ export const THEMES: ThemeDef[] = [
       {
         title: "人口分布",
         layers: [
-          { key: "popCount", label: "人口數 Population", expandable: true },
-          { key: "h3Population", label: "人流模擬 Pop. Flow", expandable: true },
-          { key: "indicators", label: "人口指標 Indicators", expandable: true },
+          fromManifest("popCount"),
+          fromManifest("h3Population"),
+          fromManifest("indicators"),
         ],
       },
       {
         title: "社經",
         layers: [
-          { key: "socioeconomic", label: "社經面貌 Socio-Econ", expandable: true },
-          { key: "spatialEconomy", label: "空間經濟 Spatial-Econ", expandable: true },
+          fromManifest("socioeconomic"),
+          fromManifest("spatialEconomy"),
         ],
       },
       {
         title: "共享運具",
         layers: [
-          { key: "youbikeFullness", label: "YouBike 有車率 Fullness", expandable: true },
+          fromManifest("youbikeFullness"),
         ],
       },
     ],
@@ -593,7 +338,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "都市紋理",
         layers: [
-          { key: "urbanFormGrid", label: "都市紋理網格 Urban Form", expandable: true },
+          fromManifest("urbanFormGrid"),
         ],
       },
     ],
@@ -609,29 +354,29 @@ export const THEMES: ThemeDef[] = [
       {
         title: "租賃",
         layers: [
-          { key: "realEstateRentalGrid", label: "租賃熱力圖 Rental Grid", expandable: true },
-          { key: "realEstateRentalPoint", label: "租賃交易點 Rental Point", expandable: true },
+          fromManifest("realEstateRentalGrid"),
+          fromManifest("realEstateRentalPoint"),
         ],
       },
       {
         title: "買賣",
         layers: [
-          { key: "realEstateSaleGrid", label: "買賣熱力圖 Sale Grid", expandable: true },
-          { key: "realEstateSalePoint", label: "買賣交易點 Sale Point", expandable: true },
+          fromManifest("realEstateSaleGrid"),
+          fromManifest("realEstateSalePoint"),
         ],
       },
       {
         title: "預售",
         layers: [
-          { key: "realEstatePresaleGrid", label: "預售熱力圖 Presale Grid", expandable: true },
-          { key: "realEstatePresalePoint", label: "預售交易點 Presale Point", expandable: true },
+          fromManifest("realEstatePresaleGrid"),
+          fromManifest("realEstatePresalePoint"),
         ],
       },
       {
         // 上三組是「單價」（每 m² 多貴），本組是「總量」（這格壓了多少錢）——語意不同，見圖例
         title: "總市值",
         layers: [
-          { key: "propertyValueGrid", label: "不動產總市值網格 Value Grid", labelMobile: "不動產總市值網格", expandable: true },
+          fromManifest("propertyValueGrid"),
         ],
       },
     ],
@@ -647,23 +392,23 @@ export const THEMES: ThemeDef[] = [
       {
         title: "通訊",
         layers: [
-          { key: "submarineCables", label: "通訊海纜 Submarine Cable", expandable: true },
-          { key: "landingStations", label: "海纜登陸站 Landing Station", expandable: true },
+          fromManifest("submarineCables"),
+          fromManifest("landingStations"),
         ],
       },
       {
         title: "公共設施",
         layers: [
           // 2026-08-08：schools 搬到「教育 Education」主題（第 38 主題），此處不再列出
-          { key: "convenienceStores", label: "超商 Convenience Store", expandable: true },
-          { key: "postOffices", label: "郵局 Post Office", expandable: true },
-          { key: "iPostBoxes", label: "i郵箱 iPost Box", expandable: true },
-          { key: "communityCenters", label: "活動中心（部分縣市）Community Center", expandable: true },
-          { key: "govServiceOffices", label: "機關便民據點 Gov Service Office", expandable: true },
-          { key: "publicLibraries", label: "公共圖書館 Public Library", expandable: true },
-          { key: "welfareCenters", label: "社福中心 Welfare Center", expandable: true },
-          { key: "retailMarkets", label: "公有市場 Public Market", expandable: true },
-          { key: "publicToilets", label: "公廁 Public Toilet", expandable: true },
+          fromManifest("convenienceStores"),
+          fromManifest("postOffices"),
+          fromManifest("iPostBoxes"),
+          fromManifest("communityCenters"),
+          fromManifest("govServiceOffices"),
+          fromManifest("publicLibraries"),
+          fromManifest("welfareCenters"),
+          fromManifest("retailMarkets"),
+          fromManifest("publicToilets"),
         ],
       },
     ],
@@ -679,72 +424,72 @@ export const THEMES: ThemeDef[] = [
       {
         title: "電力 · 廠",
         layers: [
-          { key: "facPrimary", label: "發電廠 主要・運轉中 Primary", expandable: true },
-          { key: "facPlanned", label: "發電廠 未來規劃 Planned", expandable: true },
-          { key: "facHistorical", label: "發電廠 歷史・退役 Historical", expandable: true },
-          { key: "facSecondary", label: "發電廠 小型分散 Secondary", expandable: true },
-          { key: "facOsmSupplement", label: "發電廠 OSM 補充 Supplement", expandable: true },
-          { key: "powerGenerationUnit", label: "機組即時出力 Live Output", expandable: true },
-          { key: "powerPlantGlow", label: "發電廠 Bloom 測試 ✨", expandable: true },
-          { key: "aviationRestrictedGlow", label: "機場管制/限航 Rim Glow 測試 ⛔✨", expandable: true },
+          fromManifest("facPrimary"),
+          fromManifest("facPlanned"),
+          fromManifest("facHistorical"),
+          fromManifest("facSecondary"),
+          fromManifest("facOsmSupplement"),
+          fromManifest("powerGenerationUnit"),
+          fromManifest("powerPlantGlow"),
+          fromManifest("aviationRestrictedGlow"),
         ],
       },
       {
         title: "電力 · 電網",
         layers: [
-          { key: "osmSubstationsEhv", label: "變電所 超高壓 EHV", expandable: true },
-          { key: "substationEhvGlow", label: "變電所 EHV Bloom 測試 ⚡✨", expandable: true },
-          { key: "osmSubstations", label: "變電所 區域 Substation", expandable: true },
-          { key: "osmPowerLines", label: "高壓輸電線 Power Lines", expandable: true },
-          { key: "powerLinesGlow", label: "高壓輸電線 Bloom 測試 ⚡✨", expandable: true },
-          { key: "osmPowerTowers", label: "高壓鐵塔 Power Towers", expandable: true },
-          { key: "powerPoles", label: "電桿 Power Poles (2.96M)", expandable: true },
+          fromManifest("osmSubstationsEhv"),
+          fromManifest("substationEhvGlow"),
+          fromManifest("osmSubstations"),
+          fromManifest("osmPowerLines"),
+          fromManifest("powerLinesGlow"),
+          fromManifest("osmPowerTowers"),
+          fromManifest("powerPoles"),
         ],
       },
       {
         title: "再生能源",
         layers: [
-          { key: "offshoreWindZones", label: "離岸風場 Offshore Wind", expandable: true },
-          { key: "osmWindTurbines", label: "風機 Wind Turbines", expandable: true },
-          { key: "windPlan", label: "風電場規劃 Wind Plan", expandable: true },
-          { key: "geothermalWells", label: "地熱井 Geothermal", expandable: true },
-          { key: "renewablePermitsTaipei", label: "北市再生能源許可 Renewable Permits", expandable: true },
-          { key: "evChargingStations", label: "電動車充電站 EV Charging", expandable: true },
+          fromManifest("offshoreWindZones"),
+          fromManifest("osmWindTurbines"),
+          fromManifest("windPlan"),
+          fromManifest("geothermalWells"),
+          fromManifest("renewablePermitsTaipei"),
+          fromManifest("evChargingStations"),
         ],
       },
       {
         title: "石化 · 加油站",
         layers: [
-          { key: "gasStationCpc", label: "加油站 中油 CPC", expandable: true },
-          { key: "gasStationFpcc", label: "加油站 台塑 FPCC", expandable: true },
-          { key: "gasStationTaisugar", label: "加油站 台糖 Taisugar", expandable: true },
-          { key: "gasStationOther", label: "加油站 其他 / 私營 Other", expandable: true },
-          { key: "gasStationCanonical", label: "加油站 SSOT 合併 Canonical", expandable: true },
+          fromManifest("gasStationCpc"),
+          fromManifest("gasStationFpcc"),
+          fromManifest("gasStationTaisugar"),
+          fromManifest("gasStationOther"),
+          fromManifest("gasStationCanonical"),
         ],
       },
       {
         title: "石化 · 油氣",
         layers: [
-          { key: "lpgSubpackaging", label: "LPG 分裝 / 儲存場 Subpackaging", expandable: true },
-          { key: "lpgRetailers", label: "LPG 加氣站 / 瓦斯行 Retailer", expandable: true },
-          { key: "lngTerminal", label: "LNG 接收站 Terminal", expandable: true },
-          { key: "pipelineGas", label: "天然氣主幹線 Gas Pipeline", expandable: true },
-          { key: "pipelineOilGas", label: "油氣管線 OSM Oil/Gas Pipeline", expandable: true },
-          { key: "industrialRefinery", label: "煉油 / 化工廠 Refinery", expandable: true },
-          { key: "industrialStorageTank", label: "油氣儲槽 Storage Tank", expandable: true },
-          { key: "industrialPowerPlant", label: "火力廠 polygon Thermal Plant", expandable: true },
-          { key: "coalTerminal", label: "煤炭碼頭 Coal Terminal", expandable: true },
-          { key: "fossilFuelInfra", label: "石化能源設施 Fossil Fuel (legacy)", expandable: true },
+          fromManifest("lpgSubpackaging"),
+          fromManifest("lpgRetailers"),
+          fromManifest("lngTerminal"),
+          fromManifest("pipelineGas"),
+          fromManifest("pipelineOilGas"),
+          fromManifest("industrialRefinery"),
+          fromManifest("industrialStorageTank"),
+          fromManifest("industrialPowerPlant"),
+          fromManifest("coalTerminal"),
+          fromManifest("fossilFuelInfra"),
         ],
       },
       {
         title: "覆蓋分析",
         layers: [
-          { key: "gasCoverageAll", label: "加油站 最近距離 Coverage All", expandable: true },
-          { key: "gasCoverageCpc", label: "中油 最近距離 Coverage CPC", expandable: true },
-          { key: "gasCoverageFpcc", label: "台塑 最近距離 Coverage FPCC", expandable: true },
-          { key: "gasCoverageTaisugar", label: "台糖 最近距離 Coverage Taisugar", expandable: true },
-          { key: "evIsland", label: "充電站 最近距離 EV Island", expandable: true },
+          fromManifest("gasCoverageAll"),
+          fromManifest("gasCoverageCpc"),
+          fromManifest("gasCoverageFpcc"),
+          fromManifest("gasCoverageTaisugar"),
+          fromManifest("evIsland"),
         ],
       },
     ],
@@ -765,23 +510,23 @@ export const THEMES: ThemeDef[] = [
       {
         title: "學校 Schools",
         layers: [
-          { key: "schools", label: "學校總覽 All Schools", labelMobile: "學校總覽 (4,315)", expandable: true },
-          { key: "eduSchoolElementary", label: "國小 Elementary", labelMobile: "國小 (2,656)", expandable: true },
-          { key: "eduSchoolJunior", label: "國中 Junior High", labelMobile: "國中 (964)", expandable: true },
-          { key: "eduSchoolSenior", label: "高中職 Senior High", labelMobile: "高中職 (508)", expandable: true },
-          { key: "eduSchoolUniversity", label: "大專 University", labelMobile: "大專 (159)", expandable: true },
-          { key: "eduSchoolSpecial", label: "特教 Special Education", labelMobile: "特教 (28)", expandable: true },
-          { key: "eduRemoteSchools", label: "偏遠地區學校 Remote Schools", labelMobile: "偏遠地區學校 (1,152)", expandable: true },
-          { key: "eduUniversityStudents", label: "大專學生數 University Students", labelMobile: "大專學生數 (159)", expandable: true },
+          fromManifest("schools"),
+          fromManifest("eduSchoolElementary"),
+          fromManifest("eduSchoolJunior"),
+          fromManifest("eduSchoolSenior"),
+          fromManifest("eduSchoolUniversity"),
+          fromManifest("eduSchoolSpecial"),
+          fromManifest("eduRemoteSchools"),
+          fromManifest("eduUniversityStudents"),
         ],
       },
       {
         title: "校地 Campus",
         layers: [
-          { key: "eduCampusPolygon", label: "校地範圍 Campus Area", labelMobile: "校地範圍 (4,324)", expandable: true },
+          fromManifest("eduCampusPolygon"),
           // 與上一層同一份切片、同一個 sourceId（只下載一次），差別只在讀法：
           // 上層按學制分色，本層按 area_ha 分 5 級 —— 兩者可獨立開關也可疊看。
-          { key: "eduCampusArea", label: "校地面積 Campus Size", labelMobile: "校地面積 (4,324)", expandable: true },
+          fromManifest("eduCampusArea"),
         ],
       },
       // 🔴 高中就學區是**縣市級**，與前兩者的里級完全不同粒度 —— 三者各自獨立 toggle，
@@ -789,20 +534,20 @@ export const THEMES: ThemeDef[] = [
       {
         title: "學區 District",
         layers: [
-          { key: "eduDistrictElementary", label: "國小學區 Elementary District", labelMobile: "國小學區 (621)", expandable: true },
-          { key: "eduDistrictJunior", label: "國中學區 Junior High District", labelMobile: "國中學區 (239)", expandable: true },
-          { key: "eduDistrictSenior", label: "高中就學區（縣市級）Senior High District", labelMobile: "高中就學區・縣市級 (15)", expandable: true },
+          fromManifest("eduDistrictElementary"),
+          fromManifest("eduDistrictJunior"),
+          fromManifest("eduDistrictSenior"),
         ],
       },
       // 🔴 補習班是**每日更新**的資料源（此為快照），且點數 17,137 為四層之最 → 切片走 PMTiles，
-      //    透明度／大小 slider 與其餘三層分開（見 useTransportParams 的 eduCramSchool* param）。
+      //    透明度／大小 slider 與其餘三層分開（見 useLayerParamsRuntime 的 eduCramSchool* param）。
       {
         title: "幼托補習 Childcare & Cram",
         layers: [
-          { key: "eduKindergarten", label: "幼兒園 Kindergarten", labelMobile: "幼兒園 (6,689)", expandable: true },
-          { key: "eduCramSchool", label: "短期補習班 Cram School", labelMobile: "短期補習班 (17,137)", expandable: true },
-          { key: "eduAfterschoolCare", label: "兒童課後照顧中心 Afterschool Care", labelMobile: "兒童課後照顧 (782)", expandable: true },
-          { key: "eduMutualCare", label: "互助教保服務中心 Mutual Care", labelMobile: "互助教保 (148)", expandable: true },
+          fromManifest("eduKindergarten"),
+          fromManifest("eduCramSchool"),
+          fromManifest("eduAfterschoolCare"),
+          fromManifest("eduMutualCare"),
         ],
       },
     ],
@@ -818,17 +563,17 @@ export const THEMES: ThemeDef[] = [
       {
         title: "運動場館",
         layers: [
-          { key: "sportsSchool", label: "學校場館 School", expandable: true },
-          { key: "sportsPublicOther", label: "其他公共場館 Public", expandable: true },
-          { key: "sportsPrivate", label: "民營場館 Private", expandable: true },
-          { key: "sportsPark", label: "運動公園/開放空間 Park", expandable: true },
-          { key: "sportsCenter", label: "國民運動中心 Sports Center", expandable: true },
+          fromManifest("sportsSchool"),
+          fromManifest("sportsPublicOther"),
+          fromManifest("sportsPrivate"),
+          fromManifest("sportsPark"),
+          fromManifest("sportsCenter"),
         ],
       },
       {
         title: "公園 Parks",
         layers: [
-          { key: "parksTaipei", label: "公園 Parks", expandable: true },
+          fromManifest("parksTaipei"),
         ],
       },
     ],
@@ -844,21 +589,21 @@ export const THEMES: ThemeDef[] = [
       {
         title: "設施 Facilities",
         layers: [
-          { key: "culturalFacilities", label: "文化設施 Cultural Facilities", labelMobile: "文化設施", expandable: true },
-          { key: "culturalMuseums", label: "地方文化館 Local Museums", labelMobile: "地方文化館", expandable: true },
+          fromManifest("culturalFacilities"),
+          fromManifest("culturalMuseums"),
         ],
       },
       {
         title: "藝文活動 Arts & Events",
         layers: [
-          { key: "artsEvents", label: "藝文活動 Arts Events", labelMobile: "藝文活動", expandable: true },
-          { key: "performingVenues", label: "表演場館 Performing Venues", labelMobile: "表演場館", expandable: true },
+          fromManifest("artsEvents"),
+          fromManifest("performingVenues"),
         ],
       },
       {
         title: "即時 Realtime",
         layers: [
-          { key: "librarySeats", label: "圖書館即時座位 Library Seats", labelMobile: "圖書館座位", expandable: true },
+          fromManifest("librarySeats"),
         ],
       },
     ],
@@ -874,11 +619,11 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "religionTemples", label: "寺廟 Temples", labelMobile: "寺廟 (19,201)", expandable: true },
-          { key: "religionChurches", label: "教會 Churches", labelMobile: "教會 (2,116)", expandable: true },
-          { key: "religionAncestralHalls", label: "宗祠 Ancestral Halls", labelMobile: "宗祠 (173)", expandable: true },
-          { key: "religionFoundations", label: "宗教基金會 Foundations", labelMobile: "宗教基金會 (165)", expandable: true },
-          { key: "religionOtherWorship", label: "其他宗教場所 Other Worship", labelMobile: "其他宗教場所 (1,319)", expandable: true },
+          fromManifest("religionTemples"),
+          fromManifest("religionChurches"),
+          fromManifest("religionAncestralHalls"),
+          fromManifest("religionFoundations"),
+          fromManifest("religionOtherWorship"),
         ],
       },
       {
@@ -886,7 +631,7 @@ export const THEMES: ThemeDef[] = [
         layers: [
           // 2026-08-02 自「觀光 → 玩・人文」搬來並更名（原 key tourReligion），
           // 對應上游 religion.top100（自 tourism.religion 搬移歸位）
-          { key: "religionTop100", label: "宗教百景 Top 100", labelMobile: "宗教百景", expandable: true },
+          fromManifest("religionTop100"),
         ],
       },
     ],
@@ -904,21 +649,21 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "funeralFacilities", label: "殯葬設施 Facilities", labelMobile: "殯葬設施 (3,707)", expandable: true },
-          { key: "funeralOperators", label: "禮儀業者 Operators", labelMobile: "禮儀業者 (4,569 營業中)", expandable: true },
+          fromManifest("funeralFacilities"),
+          fromManifest("funeralOperators"),
         ],
       },
       {
         title: "墓區範圍",
         layers: [
-          { key: "cemeteryOsm", label: "墓區範圍 OSM Cemeteries", labelMobile: "墓區範圍 OSM (3,229)", expandable: true },
-          { key: "cemeteryZoning", label: "都計墓葬用地 Zoning（北北）", labelMobile: "都計墓葬用地 (114・僅北北)", expandable: true },
+          fromManifest("cemeteryOsm"),
+          fromManifest("cemeteryZoning"),
         ],
       },
       {
         title: "分析",
         layers: [
-          { key: "funeralOperatorDensity", label: "業者密度 Operator Density", labelMobile: "業者密度 (325 區)", expandable: true },
+          fromManifest("funeralOperatorDensity"),
         ],
       },
     ],
@@ -934,32 +679,32 @@ export const THEMES: ThemeDef[] = [
       {
         title: "玩・自然 Nature",
         layers: [
-          { key: "tourAttractions", label: "觀光景點 Attractions", labelMobile: "觀光景點", expandable: true },
-          { key: "tourHotSprings", label: "溫泉露頭 Hot Springs", labelMobile: "溫泉露頭", expandable: true },
-          { key: "tourHotSpringZones", label: "溫泉露頭區 Hot Spring Zones", labelMobile: "溫泉露頭區", expandable: true },
-          { key: "tourScenicAreas", label: "國家風景區 Scenic Areas", labelMobile: "國家風景區", expandable: true },
+          fromManifest("tourAttractions"),
+          fromManifest("tourHotSprings"),
+          fromManifest("tourHotSpringZones"),
+          fromManifest("tourScenicAreas"),
         ],
       },
       {
         title: "玩・人文 Heritage",
         layers: [
-          { key: "tourHeritage", label: "文化資產 Heritage", labelMobile: "文化資產", expandable: true },
+          fromManifest("tourHeritage"),
         ],
       },
       {
         title: "玩・體驗 Experience",
         layers: [
-          { key: "tourEvents", label: "觀光活動・節慶 Tourism Events", labelMobile: "觀光活動", expandable: true },
-          { key: "tourFactories", label: "觀光工廠 Tourism Factories", labelMobile: "觀光工廠", expandable: true },
-          { key: "tourAmusementParks", label: "民營遊樂園 Amusement Parks", labelMobile: "民營遊樂園", expandable: true },
-          { key: "tourCamping", label: "露營場 Campgrounds", labelMobile: "露營場", expandable: true },
+          fromManifest("tourEvents"),
+          fromManifest("tourFactories"),
+          fromManifest("tourAmusementParks"),
+          fromManifest("tourCamping"),
         ],
       },
       {
         title: "住・食 Stay & Eat",
         layers: [
-          { key: "tourHotels", label: "旅宿 Hotels & B&Bs", labelMobile: "旅宿", expandable: true },
-          { key: "tourRestaurants", label: "觀光餐飲 Restaurants", labelMobile: "觀光餐飲", expandable: true },
+          fromManifest("tourHotels"),
+          fromManifest("tourRestaurants"),
         ],
       },
     ],
@@ -975,34 +720,34 @@ export const THEMES: ThemeDef[] = [
       {
         title: "即時",
         layers: [
-          { key: "wasteTruck", label: "垃圾車 Truck (含音符)", expandable: true },
-          { key: "wasteSchedule", label: "垃圾車（表定）Schedule", expandable: true },
-          { key: "wasteScheduleNote", label: "　└ 表定音符 Notes 🎵" },
-          { key: "wasteCleaningSquads", label: "清潔隊 Squads", labelMobile: "清潔隊 Squads (359) 🧹" },
+          fromManifest("wasteTruck"),
+          fromManifest("wasteSchedule"),
+          fromManifest("wasteScheduleNote"),
+          fromManifest("wasteCleaningSquads"),
         ],
       },
       {
         title: "投放點",
         layers: [
-          { key: "wasteStopsStatic", label: "全台清運點位 Stops (靜態)", expandable: true },
-          { key: "wdClothes", label: "衣物回收箱 Clothes", labelMobile: "衣物回收箱 Clothes Box (7,236)", expandable: true },
-          { key: "wdMixed", label: "混合投放點 Mixed", labelMobile: "混合投放點 Mixed (6,368)", expandable: true },
-          { key: "wdRecyclingContainer", label: "街頭資收桶 Container", labelMobile: "街頭資收桶 Container (145)", expandable: true },
-          { key: "wdBattery", label: "電池回收 Battery", labelMobile: "電池回收 Battery (2)", expandable: true },
+          fromManifest("wasteStopsStatic"),
+          fromManifest("wdClothes"),
+          fromManifest("wdMixed"),
+          fromManifest("wdRecyclingContainer"),
+          fromManifest("wdBattery"),
         ],
       },
       {
         title: "處理設施",
         layers: [
-          { key: "wfIncinerator", label: "焚化爐 Incinerator", labelMobile: "焚化爐 Incinerator (30) 🔥", expandable: true },
-          { key: "wfLandfill", label: "衛生掩埋場 Landfill", labelMobile: "衛生掩埋場 Landfill (154) 🟫", expandable: true },
-          { key: "wfLandfillCoastal", label: "濱海掩埋場 Coastal", labelMobile: "濱海掩埋場 Coastal (23) 🌊", expandable: true },
-          { key: "wfTransfer", label: "轉運站 Transfer", labelMobile: "轉運站 Transfer (28) 🚛", expandable: true },
-          { key: "wfMedical", label: "醫療廢棄物 Medical", labelMobile: "醫療廢棄物 Medical (40) ⚕️", expandable: true },
-          { key: "wfMonitoring", label: "地下水監測井 Monitor", labelMobile: "地下水監測井 Monitor (574) 🩸", expandable: true },
-          { key: "wfRecycling", label: "資源回收廠 Recycling", labelMobile: "資源回收廠 Recycling (653) ♻️", expandable: true },
-          { key: "wfScrapYard", label: "廢車 / 廢金屬 Scrap", labelMobile: "廢車 / 廢金屬 Scrap (3)", expandable: true },
-          { key: "wfOther", label: "其他事廢設施 Other", labelMobile: "其他事廢設施 Other (3,164)", expandable: true },
+          fromManifest("wfIncinerator"),
+          fromManifest("wfLandfill"),
+          fromManifest("wfLandfillCoastal"),
+          fromManifest("wfTransfer"),
+          fromManifest("wfMedical"),
+          fromManifest("wfMonitoring"),
+          fromManifest("wfRecycling"),
+          fromManifest("wfScrapYard"),
+          fromManifest("wfOther"),
         ],
       },
     ],
@@ -1018,24 +763,24 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "medHospital", label: "醫院 Hospital", expandable: true },
-          { key: "medClinic", label: "診所 / 其他醫療 Clinic", expandable: true },
-          { key: "medPharmacy", label: "藥局 Pharmacy", expandable: true },
-          { key: "medAED", label: "AED 點位 AED", expandable: true },
-          { key: "medLTC", label: "長照機構 LTC", expandable: true },
+          fromManifest("medHospital"),
+          fromManifest("medClinic"),
+          fromManifest("medPharmacy"),
+          fromManifest("medAED"),
+          fromManifest("medLTC"),
         ],
       },
       {
         title: "即時 Emergency",
         layers: [
-          { key: "erHospital", label: "急診壅塞 ER", expandable: true },
+          fromManifest("erHospital"),
         ],
       },
       {
         title: "分析",
         layers: [
-          { key: "medIsochrone", label: "醫療等時圈 Isochrone", expandable: true },
-          { key: "medDesert", label: "醫療沙漠 Desert", expandable: true },
+          fromManifest("medIsochrone"),
+          fromManifest("medDesert"),
         ],
       },
     ],
@@ -1051,21 +796,21 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "fireStations", label: "消防分隊 Fire Station", expandable: true },
-          { key: "fireHydrants", label: "消防栓 Hydrant", expandable: true },
+          fromManifest("fireStations"),
+          fromManifest("fireHydrants"),
         ],
       },
       {
         title: "事件",
         layers: [
-          { key: "fireEvents", label: "火災歷史 Fire History", expandable: true },
-          { key: "fireLatest", label: "火災 最新年度 Latest", expandable: true },
+          fromManifest("fireEvents"),
+          fromManifest("fireLatest"),
         ],
       },
       {
         title: "分析",
         layers: [
-          { key: "fireIsochrone", label: "救援等時圈 Isochrone", expandable: true },
+          fromManifest("fireIsochrone"),
         ],
       },
     ],
@@ -1081,39 +826,39 @@ export const THEMES: ThemeDef[] = [
       {
         title: "即時警示",
         layers: [
-          { key: "lifelineAlerts", label: "民生中斷 Lifeline", expandable: true },
-          { key: "floodAlerts", label: "水文防汛 Flood Alerts", expandable: true },
-          { key: "weatherAlerts", label: "氣象特報 Weather Alerts", expandable: true },
-          { key: "transitAlerts", label: "交通阻斷 Transit Alerts", expandable: true },
-          { key: "safetyAlerts", label: "安全環境 Safety Alerts", expandable: true },
+          fromManifest("lifelineAlerts"),
+          fromManifest("floodAlerts"),
+          fromManifest("weatherAlerts"),
+          fromManifest("transitAlerts"),
+          fromManifest("safetyAlerts"),
         ],
       },
       {
         title: "地震 / 斷層",
         layers: [
-          { key: "earthquakes", label: "地震 Earthquake", expandable: true },
-          { key: "earthquakeReplay", label: "地震回放 EQ Replay", expandable: true },
-          { key: "activeFaults", label: "活動斷層 Fault Zone", expandable: true },
+          fromManifest("earthquakes"),
+          fromManifest("earthquakeReplay"),
+          fromManifest("activeFaults"),
         ],
       },
       {
         title: "雷暴",
         layers: [
-          { key: "lightning", label: "落雷 Lightning 60min（台電）", expandable: true },
-          { key: "lightningCwa", label: "落雷 Lightning 60min（氣象署）", expandable: true },
+          fromManifest("lightning"),
+          fromManifest("lightningCwa"),
         ],
       },
       {
         // 山域事故：與「🌲 林業」的步道 / 通訊點 / 山屋 疊圖 = 登山安全敘事
         title: "山域事故 Mountain Rescue",
         layers: [
-          { key: "mountainRescueIncidents", label: "山域事故 Mountain Rescue", labelMobile: "山域事故 (2,465)", expandable: true },
+          fromManifest("mountainRescueIncidents"),
         ],
       },
       {
         title: "核安",
         layers: [
-          { key: "nuclearRadiation", label: "核安輻射 Radiation", expandable: true },
+          fromManifest("nuclearRadiation"),
         ],
       },
     ],
@@ -1129,7 +874,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "避難設施",
         layers: [
-          { key: "civilDefenseShelter", label: "防空避難 Civil Defense Shelters", expandable: true },
+          fromManifest("civilDefenseShelter"),
         ],
       },
     ],
@@ -1145,46 +890,46 @@ export const THEMES: ThemeDef[] = [
       {
         title: "警政",
         layers: [
-          { key: "policeStation", label: "警察機關 Police", expandable: true },
-          { key: "womenChildWarning", label: "婦幼警示點 Women/Child Warning", expandable: true },
-          { key: "speedCamera", label: "測速照相 Speed Camera", expandable: true },
-          { key: "speedZoneSegment", label: "區間測速 Speed Zone", expandable: true },
+          fromManifest("policeStation"),
+          fromManifest("womenChildWarning"),
+          fromManifest("speedCamera"),
+          fromManifest("speedZoneSegment"),
         ],
       },
       {
         title: "警察覆蓋分析",
         layers: [
-          { key: "policeIsoSubstation", label: "派出所 5/10 min", expandable: true },
-          { key: "policeIsoPrecinct", label: "分局 15/30 min", expandable: true },
-          { key: "policeIsoCityDept", label: "縣市警局 30/60 min", expandable: true },
+          fromManifest("policeIsoSubstation"),
+          fromManifest("policeIsoPrecinct"),
+          fromManifest("policeIsoCityDept"),
         ],
       },
       {
         title: "司法矯正",
         layers: [
-          { key: "court", label: "法院 Courts", expandable: true },
-          { key: "prosecutorsOffice", label: "檢察署 Prosecutors", expandable: true },
-          { key: "correctionalFacility", label: "矯正機關 Correctional", expandable: true },
-          { key: "courtJurisdiction", label: "法院管轄區 Jurisdiction", expandable: true },
+          fromManifest("court"),
+          fromManifest("prosecutorsOffice"),
+          fromManifest("correctionalFacility"),
+          fromManifest("courtJurisdiction"),
         ],
       },
       {
         title: "治安態勢",
         layers: [
-          { key: "crimeAreaMonthly", label: "鄉鎮犯罪統計 Crime Area", expandable: true },
-          { key: "theftTaoyuan", label: "桃園竊盜 Theft Taoyuan", expandable: true },
-          { key: "trafficAccidentYearly", label: "A1 死亡事故 Fatal Accident", expandable: true },
-          { key: "accidentTaipei", label: "北市事故點 Taipei Dots", expandable: true },
-          { key: "a1AccidentRealtime", label: "A1 即時事故 A1 Realtime", expandable: true },
+          fromManifest("crimeAreaMonthly"),
+          fromManifest("theftTaoyuan"),
+          fromManifest("trafficAccidentYearly"),
+          fromManifest("accidentTaipei"),
+          fromManifest("a1AccidentRealtime"),
         ],
       },
       {
         title: "廉政移民海巡",
         layers: [
-          { key: "investigationBureau", label: "調查局 MJIB", expandable: true },
-          { key: "antiCorruptionOffice", label: "廉政署 AAC", expandable: true },
-          { key: "immigrationOffice", label: "移民署 Immigration", expandable: true },
-          { key: "coastGuardStation", label: "海巡 Coast Guard", expandable: true },
+          fromManifest("investigationBureau"),
+          fromManifest("antiCorruptionOffice"),
+          fromManifest("immigrationOffice"),
+          fromManifest("coastGuardStation"),
         ],
       },
     ],
@@ -1199,41 +944,41 @@ export const THEMES: ThemeDef[] = [
       {
         title: "氣象",
         layers: [
-          { key: "weatherStations", label: "氣象站 Weather Station", expandable: true },
-          { key: "cwaCloudImagery", label: "衛星雲圖 Cloud Imagery", expandable: true },
-          { key: "cwaRadarImagery", label: "雷達回波 Radar Imagery", expandable: true },
-          { key: "temperatureWave", label: "溫度波 Temperature Wave", expandable: true },
-          { key: "temperatureGrid", label: "溫度網格 Temperature Grid", expandable: true },
-          { key: "urbanHeat", label: "都市熱島 Urban Heat", expandable: true },
+          fromManifest("weatherStations"),
+          fromManifest("cwaCloudImagery"),
+          fromManifest("cwaRadarImagery"),
+          fromManifest("temperatureWave"),
+          fromManifest("temperatureGrid"),
+          fromManifest("urbanHeat"),
         ],
       },
       {
         title: "空品",
         layers: [
-          { key: "aqiImagery", label: "空氣品質色階 AQI Raster", expandable: true },
-          { key: "aqiStations", label: "空氣品質測站 AQI Station", expandable: true },
-          { key: "aqiMicroSensors", label: "LASS 微型感測 Micro Sensor", expandable: true },
+          fromManifest("aqiImagery"),
+          fromManifest("aqiStations"),
+          fromManifest("aqiMicroSensors"),
         ],
       },
       {
         title: "環境污染",
         layers: [
-          { key: "pollutionFacility", label: "污染潛勢設施 Facility", labelMobile: "污染潛勢設施 Facility (152k)", expandable: true },
-          { key: "pollutionPenaltyCritical", label: "重大裁處 Critical Penalty", labelMobile: "重大裁處 Critical", expandable: true },
-          { key: "pollutionPenaltyGeneral", label: "一般裁處 General Penalty", labelMobile: "一般裁處 General", expandable: true },
-          { key: "pollutionPenaltyMobile", label: "移動污染 Mobile Penalty", labelMobile: "移動污染 Mobile", expandable: true },
-          { key: "pollutionSite", label: "污染場址 Site", labelMobile: "污染場址 Site (8,253)", expandable: true },
+          fromManifest("pollutionFacility"),
+          fromManifest("pollutionPenaltyCritical"),
+          fromManifest("pollutionPenaltyGeneral"),
+          fromManifest("pollutionPenaltyMobile"),
+          fromManifest("pollutionSite"),
         ],
       },
       {
         title: "都市樹木 Urban Trees",
         layers: [
-          { key: "streetTreesTaipeiDiff", label: "行道樹變化 Street Tree Diff", expandable: true },
-          { key: "streetTreesTaipei3epoch", label: "行道樹三時點 Street Tree 3-Epoch", expandable: true },
-          { key: "streetTreesNational", label: "行道樹全國 Street Trees TW", expandable: true },
-          { key: "protectedTreesNational", label: "受保護樹木 Protected Trees", expandable: true },
-          { key: "riversideTreesTaipei", label: "河濱喬木 Riverside Trees", expandable: true },
-          { key: "treePitsTaipei", label: "人行道樹穴 Tree Pits", expandable: true },
+          fromManifest("streetTreesTaipeiDiff"),
+          fromManifest("streetTreesTaipei3epoch"),
+          fromManifest("streetTreesNational"),
+          fromManifest("protectedTreesNational"),
+          fromManifest("riversideTreesTaipei"),
+          fromManifest("treePitsTaipei"),
         ],
       },
     ],
@@ -1249,39 +994,39 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "waterFacilities", label: "水利設施 Facility", expandable: true },
-          { key: "waterMonitorStations", label: "監測站 Monitor", expandable: true },
-          { key: "waterReservoirs", label: "水庫 Reservoir", expandable: true },
-          { key: "groundwaterWells", label: "水井點位 Wells", expandable: true },
-          { key: "rainGauge", label: "即時雨量 Rain Gauge", expandable: true },
-          { key: "riverLevel", label: "河川水位 River Level", expandable: true },
-          { key: "floodSensor", label: "都市淹水感測 USWG", expandable: true },
-          { key: "iotWraRiver", label: "IoT 河川 IoT River", expandable: true },
-          { key: "iotWraStructure", label: "IoT 水工結構 IoT Structure", expandable: true },
-          { key: "taipeiSewer", label: "北市下水道水位 Sewer (TP)", expandable: true },
-          { key: "taipeiEvacuate", label: "北市疏散門 Evacuate Gate (TP)", expandable: true },
-          { key: "taipeiPumb", label: "北市抽水站 Pumb Station (TP)", expandable: true },
+          fromManifest("waterFacilities"),
+          fromManifest("waterMonitorStations"),
+          fromManifest("waterReservoirs"),
+          fromManifest("groundwaterWells"),
+          fromManifest("rainGauge"),
+          fromManifest("riverLevel"),
+          fromManifest("floodSensor"),
+          fromManifest("iotWraRiver"),
+          fromManifest("iotWraStructure"),
+          fromManifest("taipeiSewer"),
+          fromManifest("taipeiEvacuate"),
+          fromManifest("taipeiPumb"),
         ],
       },
       {
         title: "面 / 線",
         layers: [
-          { key: "waterBasins", label: "流域 Basin", expandable: true },
-          { key: "waterRivers", label: "河川 River", expandable: true },
-          { key: "waterLevees", label: "堤防 Levee", expandable: true },
-          { key: "waterCanals", label: "灌排渠道 Canal", expandable: true },
-          { key: "waterProtectionZones", label: "管制區 Protection", expandable: true },
-          { key: "waterDetentionBasins", label: "滯洪池 Detention", expandable: true },
-          { key: "groundwater", label: "地下水井 Groundwater", expandable: true },
-          { key: "lakesPondsOsm", label: "湖泊 / 埤塘 Lakes & Ponds", expandable: true },
+          fromManifest("waterBasins"),
+          fromManifest("waterRivers"),
+          fromManifest("waterLevees"),
+          fromManifest("waterCanals"),
+          fromManifest("waterProtectionZones"),
+          fromManifest("waterDetentionBasins"),
+          fromManifest("groundwater"),
+          fromManifest("lakesPondsOsm"),
         ],
       },
       {
         title: "分析",
         layers: [
-          { key: "waterFloodExtreme", label: "淹水潛勢 Flood 650mm/24h", expandable: true },
-          { key: "floodSensorIsochrone", label: "淹水 3 分步行圈 Isochrone (雙北)", expandable: true },
-          { key: "precipRaster", label: "累積雨量柵格 Precip Raster", expandable: true },
+          fromManifest("waterFloodExtreme"),
+          fromManifest("floodSensorIsochrone"),
+          fromManifest("precipRaster"),
         ],
       },
     ],
@@ -1297,16 +1042,16 @@ export const THEMES: ThemeDef[] = [
       {
         title: "事件",
         layers: [
-          { key: "earthquakesGlobal", label: "全球地震 USGS Earthquake", expandable: true },
-          { key: "typhoonTracks", label: "颱風軌跡 Typhoon Track", expandable: true },
+          fromManifest("earthquakesGlobal"),
+          fromManifest("typhoonTracks"),
         ],
       },
       {
         title: "預報場（GFS 風場 / CMEMS 海流 / CAMS 沙塵）",
         layers: [
-          { key: "windField", label: "風場 Wind Field 10m", expandable: true },
-          { key: "oceanCurrents", label: "海流 Ocean Currents", expandable: true },
-          { key: "dustForecast", label: "沙塵預報 Dust Forecast", expandable: true },
+          fromManifest("windField"),
+          fromManifest("oceanCurrents"),
+          fromManifest("dustForecast"),
         ],
       },
     ],
@@ -1322,60 +1067,60 @@ export const THEMES: ThemeDef[] = [
       {
         title: "點位",
         layers: [
-          { key: "agriPOI", label: "休農場 / 田媽媽 / 特色農旅 POI", expandable: true },
-          { key: "agriRetail", label: "農產零售商 Retail", expandable: true },
-          { key: "agriProduceWholesale", label: "蔬果批發商 Produce Wholesale", expandable: true },
-          { key: "agriWholesaleMarket", label: "農產批發市場 Wholesale Market", expandable: true },
+          fromManifest("agriPOI"),
+          fromManifest("agriRetail"),
+          fromManifest("agriProduceWholesale"),
+          fromManifest("agriWholesaleMarket"),
         ],
       },
       {
         title: "畜牧 Livestock",
         layers: [
-          { key: "livestockFarmPig", label: "畜禽飼養場·豬 Pig Farms", expandable: true },
-          { key: "livestockFarmChicken", label: "畜禽飼養場·雞 Chicken Farms", expandable: true },
-          { key: "livestockFarmCattle", label: "畜禽飼養場·牛 Cattle Farms", expandable: true },
-          { key: "livestockFarmDuck", label: "畜禽飼養場·鴨 Duck Farms", expandable: true },
-          { key: "livestockFarmGoose", label: "畜禽飼養場·鵝 Goose Farms", expandable: true },
-          { key: "livestockFarmSheep", label: "畜禽飼養場·羊 Sheep/Goat Farms", expandable: true },
-          { key: "livestockFarmOther", label: "畜禽飼養場·其他 Other Farms", expandable: true },
-          { key: "livestockSlaughter", label: "屠宰場 Slaughterhouses", expandable: true },
-          { key: "livestockFeed", label: "飼料廠 Feed Factories", expandable: true },
-          { key: "livestockMarket", label: "拍賣/批發市場 Markets", expandable: true },
+          fromManifest("livestockFarmPig"),
+          fromManifest("livestockFarmChicken"),
+          fromManifest("livestockFarmCattle"),
+          fromManifest("livestockFarmDuck"),
+          fromManifest("livestockFarmGoose"),
+          fromManifest("livestockFarmSheep"),
+          fromManifest("livestockFarmOther"),
+          fromManifest("livestockSlaughter"),
+          fromManifest("livestockFeed"),
+          fromManifest("livestockMarket"),
         ],
       },
       {
         title: "養殖漁業 Aquaculture",
         layers: [
-          { key: "aquaculturePonds", label: "逐口魚塭 Aquaculture Ponds", expandable: true },
-          { key: "aquacultureZone", label: "養殖漁業生產區 Production Zone", expandable: true },
-          { key: "aquacultureCageNet", label: "海上箱網 Cage Net", expandable: true },
-          { key: "aquacultureWaterSatellite", label: "衛星偵測養殖水體 Satellite Detected", expandable: true },
-          { key: "aquacultureWaterSatelliteMoa", label: "魚塭·官方標籤版(2026-07) MOA Labeled", expandable: true },
-          { key: "aquacultureWaterUnion", label: "魚塭·整合版 (官方∪衛星) Union", expandable: true },
-          { key: "aquacultureIntegrated", label: "養殖漁業整合 Integrated", expandable: true },
+          fromManifest("aquaculturePonds"),
+          fromManifest("aquacultureZone"),
+          fromManifest("aquacultureCageNet"),
+          fromManifest("aquacultureWaterSatellite"),
+          fromManifest("aquacultureWaterSatelliteMoa"),
+          fromManifest("aquacultureWaterUnion"),
+          fromManifest("aquacultureIntegrated"),
         ],
       },
       {
         title: "面 / 分區",
         layers: [
-          { key: "agriculture", label: "農田範圍 FTW Fields 2025", expandable: true },
-          { key: "agriLeisureFarmZones", label: "休閒農業區 Leisure Farm Zones", expandable: true },
-          { key: "agriRuralRegen", label: "農村再生社區 Rural Regen", expandable: true },
-          { key: "ecoNetworkZones", label: "國土綠網分區 Eco Network Zones", expandable: true },
+          fromManifest("agriculture"),
+          fromManifest("agriLeisureFarmZones"),
+          fromManifest("agriRuralRegen"),
+          fromManifest("ecoNetworkZones"),
         ],
       },
       {
         title: "土壤",
         layers: [
-          { key: "agriSoil", label: "全台土壤分類 Soil Map", expandable: true },
-          { key: "agriSoilFertility", label: "土壤肥力 250m Soil Fertility", expandable: true },
-          { key: "agriCropSuitability", label: "作物適栽 Crop Suitability", expandable: true },
+          fromManifest("agriSoil"),
+          fromManifest("agriSoilFertility"),
+          fromManifest("agriCropSuitability"),
         ],
       },
       {
         title: "線",
         layers: [
-          { key: "farmRoads", label: "農路 Farm Roads", expandable: true },
+          fromManifest("farmRoads"),
         ],
       },
     ],
@@ -1391,37 +1136,37 @@ export const THEMES: ThemeDef[] = [
       {
         title: "分區",
         layers: [
-          { key: "forestCompartments", label: "林班 Compartments", expandable: true },
-          { key: "forestReserve", label: "保安林 Reserve", expandable: true },
-          { key: "forestRecreation", label: "森林遊樂區 Recreation", expandable: true },
-          { key: "forestFlatParks", label: "平地森林 Flat Parks", expandable: true },
-          { key: "canopyHeight", label: "樹冠高度 Canopy Height", expandable: true },
-          { key: "canopyGiants", label: "樹冠巨木 Canopy Giants", expandable: true },
+          fromManifest("forestCompartments"),
+          fromManifest("forestReserve"),
+          fromManifest("forestRecreation"),
+          fromManifest("forestFlatParks"),
+          fromManifest("canopyHeight"),
+          fromManifest("canopyGiants"),
         ],
       },
       {
         title: "點位",
         layers: [
-          { key: "forestTreatmentWorks", label: "治理工程 Treatment Works", expandable: true },
-          { key: "forestTrailSigns", label: "步道路標 Trail Signs", expandable: true },
-          { key: "forestSignalPoints", label: "通訊點 Signal Points", expandable: true },
-          { key: "forestEducationCenters", label: "自然教育中心 Education", expandable: true },
-          { key: "mountainHuts", label: "山屋・高山營地 Mountain Huts", labelMobile: "山屋・營地 (136)", expandable: true },
-          { key: "forestDamLakes", label: "堰塞湖 Dam Lakes", expandable: true },
+          fromManifest("forestTreatmentWorks"),
+          fromManifest("forestTrailSigns"),
+          fromManifest("forestSignalPoints"),
+          fromManifest("forestEducationCenters"),
+          fromManifest("mountainHuts"),
+          fromManifest("forestDamLakes"),
         ],
       },
       {
         title: "線",
         layers: [
-          { key: "forestRoads", label: "林道 Forest Roads", expandable: true },
-          { key: "forestAlishanRail", label: "阿里山鐵路 Alishan Rail", expandable: true },
-          { key: "hikingTrails", label: "全台步道 Hiking Trails", labelMobile: "全台步道 Hiking Trails (7,339)", expandable: true },
+          fromManifest("forestRoads"),
+          fromManifest("forestAlishanRail"),
+          fromManifest("hikingTrails"),
         ],
       },
       {
         title: "生態",
         layers: [
-          { key: "forestWildlife", label: "野生動物分布 Wildlife", expandable: true },
+          fromManifest("forestWildlife"),
         ],
       },
     ],
@@ -1437,32 +1182,32 @@ export const THEMES: ThemeDef[] = [
       {
         title: "台灣",
         layers: [
-          { key: "satellitesTaiwan", label: "台灣 FORMOSAT / TRITON / IRIS-C", expandable: true },
+          fromManifest("satellitesTaiwan"),
         ],
       },
       {
         title: "中國",
         layers: [
-          { key: "satellitesYaogan", label: "Yaogan 遙感", expandable: true },
-          { key: "satellitesJilin", label: "Jilin 吉林", expandable: true },
-          { key: "satellitesGaofen", label: "Gaofen 高分", expandable: true },
-          { key: "satellitesTJS", label: "TJS / TJSW GEO 情報", expandable: true },
-          { key: "satellitesBeidou", label: "北斗 BD-3 PNT", expandable: true },
-          { key: "satellitesShiyan", label: "Shiyan / Shijian 試驗", expandable: true },
+          fromManifest("satellitesYaogan"),
+          fromManifest("satellitesJilin"),
+          fromManifest("satellitesGaofen"),
+          fromManifest("satellitesTJS"),
+          fromManifest("satellitesBeidou"),
+          fromManifest("satellitesShiyan"),
         ],
       },
       {
         title: "國際偵察",
         layers: [
-          { key: "satellitesUSA", label: "🇺🇸 USA · KH / BlackSky / Planet", expandable: true },
-          { key: "satellitesJapan", label: "🇯🇵 Japan · IGS / ALOS", expandable: true },
-          { key: "satellitesRussia", label: "🇷🇺 Russia · PERSONA / RESURS / COSMOS", expandable: true },
-          { key: "satellitesIndia", label: "🇮🇳 India · CARTOSAT / RISAT / EOS", expandable: true },
-          { key: "satellitesKorea", label: "🇰🇷 Korea · KOMPSAT", expandable: true },
-          { key: "satellitesFrance", label: "🇫🇷 France · CSO / PLEIADES / ELISA", expandable: true },
-          { key: "satellitesGermany", label: "🇩🇪 Germany · SAR-Lupe / SARah", expandable: true },
-          { key: "satellitesItaly", label: "🇮🇹 Italy · COSMO-SkyMed", expandable: true },
-          { key: "satellitesIsrael", label: "🇮🇱 Israel · Ofeq / EROS", expandable: true },
+          fromManifest("satellitesUSA"),
+          fromManifest("satellitesJapan"),
+          fromManifest("satellitesRussia"),
+          fromManifest("satellitesIndia"),
+          fromManifest("satellitesKorea"),
+          fromManifest("satellitesFrance"),
+          fromManifest("satellitesGermany"),
+          fromManifest("satellitesItaly"),
+          fromManifest("satellitesIsrael"),
         ],
       },
     ],
@@ -1478,13 +1223,13 @@ export const THEMES: ThemeDef[] = [
       {
         title: "事件",
         layers: [
-          { key: "newsEvents", label: "新聞事件 News Events", expandable: true },
+          fromManifest("newsEvents"),
         ],
       },
       {
         title: "軍事",
         layers: [
-          { key: "plaActivity", label: "共機活動區 PLA Activity", expandable: true },
+          fromManifest("plaActivity"),
         ],
       },
     ],
@@ -1499,7 +1244,7 @@ export const THEMES: ThemeDef[] = [
       {
         title: "環境",
         layers: [
-          { key: "worldTrashDebris", label: "全球垃圾殘骸 Trash & Debris", labelMobile: "全球垃圾殘骸", expandable: true },
+          fromManifest("worldTrashDebris"),
         ],
       },
     ],
@@ -1531,6 +1276,17 @@ export const LAYER_LABELS: Partial<Record<keyof LayerVisibility, string>> = (() 
 // 只有登入且 profiles.tier='owner' 的帳號能開啟。非 owner：sidebar 顯示鎖頭 + toggle no-op。
 // DB 端由 migration 275 同步：對應 RPC 加 owner 檢查 + REVOKE anon。
 // ⚠️ 明確排除（保持公開）：waterCanals（灌排渠道）、powerPoles（電桿 2.96M）。
+//
+// ⚠️ **P3-3 評估過收編進 manifest，結論是不收**（與 TRANSPORT_LABELS 不同類），
+//    三條硬理由（機械查證，非目測）：
+//    1. **沒有值重複可消滅**：manifest 裡 `gated: true` 的 entry 是 **0 個**，
+//       本表 35 個 key 全部只存在於這裡。收編＝**新增** 35 筆宣告，不是去重。
+//    2. **型別上表達不了**：`gated` 只存在於 `LayerManifestThemedEntry`，而本表有
+//       3 個 key（facOffshore / osmPowerPlantsStatic / powerPlants）是 orphan entry
+//       ——「已從 sidebar 下架但 API 敏感」正是它們要被鎖的理由，卻沒有 LayerDef 可載。
+//    3. **這是安全清單不是登記簿**：embedWhitelist / urlState / layerGates 三套測試
+//       以本表為錨（gated 外流＝私人資料洩漏）。搬 SSOT 是安全變更，要獨立驗收標準，
+//       不該搭在一次去重重構裡。
 export const GATED_LAYERS: ReadonlySet<keyof LayerVisibility> = new Set<keyof LayerVisibility>([
   // 畜牧 Livestock（改走 owner-only RPC；不含 livestockFeed / livestockMarket）
   "livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck",

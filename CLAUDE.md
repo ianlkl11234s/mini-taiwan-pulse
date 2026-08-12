@@ -17,7 +17,7 @@ SessionStart hook 自動 inline `STATUS` / `BACKLOG` / `PRINCIPLES`；似曾相�
 | `pnpm dev` / `npm run dev` | 啟動 dev server (port 3721) |
 | `npx tsc -b` | TypeScript 驗證（commit 前必跑，禁用 `--noEmit`） |
 | `pnpm test` | 跑測試（含 `layerConsistency` 擋漏接圖例） |
-| `/new-layer <name>` | 新增 layer 骨架（強烈建議走，免漏 7 步 + 四鐵則） |
+| `/new-layer <name>` | 新增 layer 骨架（強烈建議走，免漏 manifest/spec/邏輯檔三步 + 四鐵則） |
 | `/check-rpc <name>` | 自動 EXPLAIN 判斷 RPC 效能 |
 
 ## 必守規則
@@ -36,7 +36,8 @@ SessionStart hook 自動 inline `STATUS` / `BACKLOG` / `PRINCIPLES`；似曾相�
 RPC >1s 或 >10k rows 必套 pre-aggregate → [`docs/supabase-optimization.md`](./docs/supabase-optimization.md) + `/supabase-optimize` skill + `/check-rpc`
 
 ### 5. 新增 Layer 強制順序 ⚠️
-新增 Layer → `/new-layer` 產骨架 + `layer-onboarding` skill 驗收；接線順序見 development-rules §4（`layerConsistency` 測試會擋漏接）
+新增 Layer → `/new-layer` 產骨架 + `layer-onboarding` skill 驗收；接線順序見 development-rules §4。
+**AR-22 Phase 4 起登記簿不再手寫**：一筆 `layerManifest.ts` entry ＋ 一筆 `layerParamsSpec.ts` 規格派生 6 張表，你只寫實質邏輯（loader / hook / overlay）。`layerConsistency` 測試驗 manifest 完整性（沒 entry / 欄位空殼 / 用 `null` 靜默豁免鐵則 → 紅）。
 
 ### 5a. 圖層 UX 四鐵則（⚠️ 缺一不可）
 圖層 UX 四鐵則（opacity / 圖例 / popup / select）→ development-rules §4a + layer-onboarding Step 3-4

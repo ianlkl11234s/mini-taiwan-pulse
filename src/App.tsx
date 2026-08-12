@@ -10,7 +10,7 @@ import { useRailData } from "./hooks/useRailData";
 import { useTimeline } from "./hooks/useTimeline";
 import { timeStore } from "./state/timeStore";
 import { useIsMobile } from "./hooks/useIsMobile";
-import { useTransportParams } from "./hooks/useTransportParams";
+import { useLayerParamsRuntime } from "./hooks/useLayerParamsRuntime";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
@@ -456,7 +456,7 @@ export default function App() {
 
   // ── Custom Hooks ──
 
-  const transportParams = useTransportParams();
+  const transportParams = useLayerParamsRuntime();
 
   const isDarkTheme = !["light", "streets"].includes(mapStyleId);
   const showTrails = displayMode === "trails";

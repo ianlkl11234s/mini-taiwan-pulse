@@ -331,7 +331,7 @@ export type ExpandableLayerKey =
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
   | "osmExpressway" | "hillshade"
   | "slopeVector" | "aspectVector"
-  // 警政司法民防 17 layer（slider 接 useTransportParams）
+  // 警政司法民防 17 layer（slider 接 useLayerParamsRuntime）
   | "policeStation" | "womenChildWarning" | "speedCamera" | "speedZoneSegment"
   | "court" | "prosecutorsOffice" | "correctionalFacility" | "courtJurisdiction"
   | "crimeAreaMonthly" | "theftTaoyuan" | "trafficAccidentYearly" | "accidentTaipei"

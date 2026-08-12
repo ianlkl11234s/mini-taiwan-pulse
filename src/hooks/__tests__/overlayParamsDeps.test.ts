@@ -1,7 +1,7 @@
 /**
  * overlayParams 依賴完整性 ratchet。
  *
- * `useTransportParams` 的 `overlayParams` 是一個 500+ 鍵的 `useMemo`，deps 陣列
+ * `useLayerParamsRuntime` 的 `overlayParams` 是一個 500+ 鍵的 `useMemo`，deps 陣列
  * 也是手寫的 500+ 個變數名。漏掉一個的後果：**那個 slider 拖了畫面完全沒反應**
  * —— 沒有錯誤、沒有 warning，只是「這個功能好像壞了」。React 的 exhaustive-deps
  * lint 對這種超長陣列在實務上也常被關掉或忽略。
@@ -13,7 +13,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 
-const FILE = "src/hooks/useTransportParams.ts";
+const FILE = "src/hooks/useLayerParamsRuntime.ts";
 const source = readFileSync(FILE, "utf8");
 const MEMO_START = "const overlayParams = useMemo<Record<string, number>>(() => ({";
 

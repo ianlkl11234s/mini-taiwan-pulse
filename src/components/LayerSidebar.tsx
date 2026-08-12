@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
-import type { ParamControl } from "../hooks/useTransportParams";
+import type { ParamControl } from "../state/layerParamsControls";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, THEMES } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";

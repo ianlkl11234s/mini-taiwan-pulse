@@ -451,7 +451,7 @@ mini-taiwan-pulse/
 │   │   ├── TraTrainEngine.ts       # 台鐵專用引擎（OD 軌道）
 │   │   └── railUtils.ts            # 軌道工具函式
 │   ├── hooks/                      # React Custom Hooks
-│   │   ├── useTransportParams.ts   # 運具視覺參數 state + refs + sliders
+│   │   ├── useLayerParamsRuntime.ts # 參數 store → 消費端回傳 API 的轉接層（舊名 useTransportParams）
 │   │   ├── useRailEngine.ts        # 軌道引擎 + rAF tick loop
 │   │   ├── useLayerVisibility.ts   # 圖層可見性 state + toggle
 │   │   ├── useThreeJsLayers.ts     # Three.js CustomLayer 建立與管理

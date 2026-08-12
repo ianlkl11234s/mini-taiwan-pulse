@@ -37,7 +37,7 @@ const TIER_COLORS: Record<number, THREE.Color> = {
 };
 
 /** tier → [halo px width @zoom14, core px width @zoom14] base，
- *  跟 useTransportParams.osmPowerLinesWidth slider 相乘
+ *  跟 useLayerParamsRuntime.osmPowerLinesWidth slider 相乘
  */
 const TIER_WIDTH_PX: Record<number, [number, number]> = {
   345: [40, 4],
