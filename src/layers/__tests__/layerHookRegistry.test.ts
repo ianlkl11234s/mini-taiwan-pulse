@@ -27,6 +27,19 @@
  * ── 第三條斷言：NO_HOOK 必須誠實 ──────────────────────────────────
  * `NO_HOOK_LEDGER` 與另外兩桶**互斥**。少了這條，把一個明明有 hook 的 key
  * 塞進 NO_HOOK 也能讓聯集通過 —— 那就退化成「湊數表」而不是事實表。
+ *
+ * ── ⚠️ 已知盲區（P4 紅燈演練實測，不要誤以為它全包）─────────────────
+ * 聯集語意下，**同時落在 registry 與 `HOOKS_IN_APP_LEDGER` 的 key 是不設防的**：
+ * 拿掉它的 registry entry，本測試照樣綠（App 那一桶仍宣告了掛載機制）。
+ * 目前這種 key 有 7 個，全部是 P4 的「資料在 App、上圖在 Host」分工
+ * （rail / h3Population / popCount / indicators / socioeconomic /
+ *  spatialEconomy / youbikeFullness）—— 演練時拿 `h3Population` 試，不紅；
+ * 換成 registry 獨佔的 `rainGauge` 才紅。
+ *
+ * 這是聯集判準的**本質限制**，不是實作 bug：本測試守的是「每個 layer 至少
+ * 宣告了一種掛載機制」，不是「每一種機制都還在」。那 7 個 key 的 Host 若被誤刪，
+ * 現況只有 tsc（未使用的 export）與畫面會反應。要補的話得改成
+ * 「per-key 宣告它需要哪幾種機制」，那是另一張表，本棒不做。
  */
 import { describe, it, expect } from "vitest";
 
@@ -46,6 +59,7 @@ import { LAYER_HOOK_REGISTRY } from "../layerHookRegistry";
 const HOOKS_IN_APP_LEDGER = new Set<string>([
   // useAirspaceData / useShipData / useRailData：loading state 餵 LoadingScreen 的 steps
   // useThreeJsLayers：一支 hook 建 17 個 CustomLayer，scene ref 餵 useMapInteraction 的 raycast
+  // ⚠️ rail 的 2D 靜態線（updateRailTracks，吃 railTrackMode）P4 起在 RailTracksHost
   "flights", "ships", "rail",
   // useRailEngine → { trainCount, activeTrainsRef }：count 餵 sidebar 徽章、ref 餵 RailScene
   // 三支公車 → { busCount, activeBusesRef, loadDay }：loadDay 餵 App 的 replay 跨日訂閱 effect
@@ -63,10 +77,11 @@ const HOOKS_IN_APP_LEDGER = new Set<string>([
   "wfIncinerator", "wfLandfill", "wfLandfillCoastal", "wfTransfer", "wfMedical",
   "wfMonitoring", "wfRecycling", "wfScrapYard", "wfOther",
   "wdClothes", "wdMixed", "wdRecyclingContainer", "wdBattery",
-  // H3 / 人口 / 社經 家族：hook 只回 dataMap + loader，實際建層在 App 的
-  // ensure*Layers + update*Layer effect（吃 zoom 驅動的 resolution state）
+  // H3 / 人口 / 社經 / YouBike 家族：**AR-22 P4 起是「資料在 App、上圖在 Host」的分工**
+  //   App 端：loader hook（回 dataMap + loadResolution）＋ zoom 驅動的 resolution state
+  //   Host 端：ensure*Layers + update*Layer（吃參數，故必須離開 App，見 gridHosts.tsx）
+  // 兩邊都算數，所以這些 key 同時出現在本 ledger 與 registry —— 聯集語意下沒有衝突。
   "h3Population", "popCount", "indicators", "socioeconomic", "spatialEconomy",
-  // useYoubikeH3 → { getCellsForTime }：App 的 effect 用它 + youbikeTimeKey 更新圖層
   "youbikeFullness",
   // usePowerDashboard → { dataRef }：KPI 性質（monitor 面板），
   // 同一個 ref 也經 hostDeps 餵 LayerHost 的 usePowerRegionBarsLayer

@@ -10,7 +10,10 @@ import { useRailData } from "./hooks/useRailData";
 import { useTimeline } from "./hooks/useTimeline";
 import { timeStore } from "./state/timeStore";
 import { useIsMobile } from "./hooks/useIsMobile";
-import { useLayerParamsRuntime } from "./hooks/useLayerParamsRuntime";
+// AR-22 P4：`useLayerParamsRuntime` 已整支退役。參數的消費端各自 per-key 訂閱
+// （圖層在 LayerHost、面板在自己內部、Three.js 走 layerParamRefs 模組級鏡像）。
+import { layerParamsStore } from "./state/layerParamsStore";
+import { layerParamRefs } from "./state/layerParamRefs";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
@@ -48,12 +51,9 @@ import { useDemographicsH3, useDemographicsYearlyH3 } from "./hooks/useDemograph
 import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
 import { useYoubikeH3 } from "./hooks/useYoubikeH3";
-import { updateH3Layer, getH3Resolution, ensureH3Layers } from "./map/h3LayerFactory";
-import { ensureYoubikeLayers, updateYoubikeLayer } from "./map/youbikeLayerFactory";
-import { ensurePopCountLayers, ensureIndicatorsLayers, updatePopCountLayer, updateIndicatorsLayer, ensureSocioLayers, updateSocioLayer, ensureSpatialLayers, updateSpatialLayer } from "./map/demographicsLayerFactory";
+import { getH3Resolution } from "./map/h3LayerFactory";
 import { DEFAULT_CAMERA, getPresetById } from "./map/cameraPresets";
 // filterByTimeWindow removed — airspace shows all flights, isFlightActive handles visibility
-import { updateRailTracks, removeRailTracks, setRailTracksVisible } from "./map/railTracks";
 import { LocationJump } from "./components/AirportSelector";
 import { LayerSidebar } from "./components/LayerSidebar";
 import { IconRailSidebar } from "./components/IconRailSidebar";
@@ -390,7 +390,6 @@ export default function App() {
 
   // ── Custom Hooks ──
 
-  const transportParams = useLayerParamsRuntime();
 
   const isDarkTheme = !["light", "streets"].includes(mapStyleId);
   const showTrails = displayMode === "trails";
@@ -438,7 +437,7 @@ export default function App() {
   useEffect(() => timeStore.subscribe((t) => { timeRef.current = t; }), []);
 
   const { trainCount, activeTrainsRef } = useRailEngine(railData, layerVisibility.rail);
-  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode, transportParams.enabledBusCities);
+  const { busCount, activeBusesRef, loadDay: loadBusTrailDay } = useBusLayer(layerVisibility.busLive, timeline.timeMode);
   const { busCount: busIntercityCount, activeBusesRef: activeBusesIntercityRef, loadDay: loadBusIntercityTrailDay } =
     useBusIntercityLayer(layerVisibility.busIntercityLive, timeline.timeMode);
   const { busCount: touristShuttleCount, activeBusesRef: activeBusesTouristShuttleRef, loadDay: loadTouristShuttleTrailDay } =
@@ -449,11 +448,9 @@ export default function App() {
     useWasteLayer(layerVisibility.wasteTruck, timeline.timeMode, ["高雄市", "臺南市"]);
 
   // ── 垃圾車表定（22 城時刻表動畫，獨立於 GPS 圖層；day-of-week 驅動）──
-  // cities 由 transportParams.enabledWasteScheduleCities 控制（8 區分組 toggle）
-  const { routesRef: wasteScheduleRoutesRef } = useWasteScheduleLayer(
-    layerVisibility.wasteSchedule,
-    transportParams.enabledWasteScheduleCities,
-  );
+  // cities（8 區分組 toggle）由 hook 自己從 store 讀
+  const { routesRef: wasteScheduleRoutesRef } =
+    useWasteScheduleLayer(layerVisibility.wasteSchedule);
 
   // ── 垃圾處理設施 / 投放點（靜態，第一個 sub-toggle 開時 lazy fetch） ──
   const wasteFacilityVis =
@@ -659,7 +656,7 @@ export default function App() {
   const [h3Resolution, setH3Resolution] = useState(7);
   const [demoResolution, setDemoResolution] = useState(7);
 
-  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness, transportParams.ybResolution);
+  const { getCellsForTime: getYoubikeCellsForTime } = useYoubikeH3(layerVisibility.youbikeFullness);
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
@@ -676,7 +673,6 @@ export default function App() {
     lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
     airportPillarDataRef, portPillarDataRef, temperatureDataRef,
     playingRef, layerVisibilityRef,
-    paramRefs: transportParams.refs,
   });
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
@@ -695,16 +691,8 @@ export default function App() {
   // 點選光暈 + 水庫水位計 + 水資源 12 層的 hook 已搬進 LayerHost
   //（useSelectedFeatureHalo / useReservoirStatusLayer / useRainGauge… 見 layerHookRegistry）
 
-  // ── News 三軸 filter（IntelPanel / MonitorPanel 的 `filter` prop 吃這個物件；
-  //    圖層端的 useNewsEventsLayer 已搬進 LayerHost，自己從 store 讀同一份值）──
-  const newsFilter = useMemo(
-    () => ({
-      minRelevance: transportParams.newsMinRelevance,
-      eventsOnly: transportParams.newsEventsOnly,
-      minSeverity: transportParams.newsMinSeverity,
-    }),
-    [transportParams.newsMinRelevance, transportParams.newsEventsOnly, transportParams.newsMinSeverity],
-  );
+  // News 三軸 filter 已無 App 端消費者：圖層在 LayerHost、兩個情報面板
+  // 各自 per-key 訂閱同一個 store slot（見 hooks/useNewsFilter.ts）。
 
   // ── Energy MVP（Phase C/D/E）──
   // dashboard 共用：HUD + region bars 不同時 toggle 也只拉一次。
@@ -777,8 +765,8 @@ export default function App() {
     // setup 完立刻把目前 byType / visibility / params 同步進去
     syncWasteMapboxData(map, wasteFacilityByTypeRef.current ?? new Map(), wasteDisposalByType);
     syncWasteMapboxVisibility(map, layerVisibilityRef.current);
-    syncWasteMapboxParams(map, transportParams.wasteSubParams);
-  }, [anyWasteFacilityOn, mapPrepared, isDarkTheme, wasteDisposalByType, transportParams.wasteSubParams]);
+    syncWasteMapboxParams(map, layerParamRefs.wasteSubParams.current);
+  }, [anyWasteFacilityOn, mapPrepared, isDarkTheme, wasteDisposalByType]);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
@@ -789,11 +777,19 @@ export default function App() {
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
     syncWasteMapboxVisibility(map, layerVisibility);
   }, [layerVisibility]);
+  // ⚠️ 參數同步走**命令式 store 訂閱**，不經 React：13 個子層的 size/opacity/altitude
+  //    只餵 Mapbox paint，沒有任何 React 狀態依賴它。掛成 useEffect + deps 的話，
+  //    App 就得訂閱參數 → 拖任一 slider 整棵樹 reconcile（P4 要拆掉的正是這個）。
+  //    `layerParamRefs` 的模組級訂閱者先註冊（import 時），所以這裡讀到的必定是新值。
   useEffect(() => {
-    const map = mapRef.current;
-    if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
-    syncWasteMapboxParams(map, transportParams.wasteSubParams);
-  }, [transportParams.wasteSubParams]);
+    const apply = () => {
+      const map = mapRef.current;
+      if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
+      syncWasteMapboxParams(map, layerParamRefs.wasteSubParams.current);
+    };
+    apply();
+    return layerParamsStore.subscribe(apply);
+  }, []);
   useEffect(() => {
     const map = mapRef.current;
     if (!styleReady(map) || !wasteMapboxSetupRef.current) return;
@@ -903,18 +899,7 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAirport, viewMode]);
 
-  // 軌道靜態線（2D Mapbox）
-  const { railTrackMode } = transportParams;
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !map.isStyleLoaded()) return;
-    if (railData && layerVisibility.rail) {
-      updateRailTracks(map, railData.allTracks, isDarkTheme);
-      setRailTracksVisible(map, railTrackMode === "2d");
-    } else {
-      removeRailTracks(map);
-    }
-  }, [railData, isDarkTheme, layerVisibility.rail, railTrackMode]);
+  // 軌道靜態線（2D Mapbox）已搬進 LayerHost 的 RailTracksHost
 
   // Three.js 圖層可見性由各 custom layer 內部 getIsVisible 控制
   // layers 常駐，不做 remove/re-add（避免 WebGL dispose/reinit 問題）
@@ -926,17 +911,7 @@ export default function App() {
     }
   }, [h3Resolution, layerVisibility.h3Population, loadResolution]);
 
-  // H3: update native Mapbox layers
-  // Guard: getStyle() returns truthy after style parse (unaffected by tile loading),
-  // undefined before style loads. This avoids both isStyleLoaded() false-during-tiles
-  // and addSource-before-style-ready crashes.
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!styleReady(map)) return;
-    ensureH3Layers(map);
-    const cells = h3DataMap.get(h3Resolution) ?? [];
-    updateH3Layer(map, cells, transportParams.h3Params, layerVisibility.h3Population);
-  }, [h3DataMap, h3Resolution, layerVisibility.h3Population, transportParams.h3Params]);
+  // H3 網格上圖已搬進 LayerHost 的 H3PopulationHost
 
   // Demographics: load resolution when it changes
   useEffect(() => {
@@ -966,48 +941,8 @@ export default function App() {
     }
   }, [demoResolution, layerVisibility.spatialEconomy, loadSpatialResolution]);
 
-  // Demographics: update popCount layer
-  // historical mode 用 yearly RPC cells；realtime mode 用本機 JSON snapshot
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!styleReady(map)) return;
-    ensurePopCountLayers(map);
-    const cells =
-      appMode === "historical"
-        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
-        : (demographicsDataMap.get(demoResolution) ?? []);
-    updatePopCountLayer(map, cells, transportParams.popCountParams, layerVisibility.popCount);
-  }, [appMode, historicalYear, demographicsDataMap, demoResolution, layerVisibility.popCount, transportParams.popCountParams, getYearlyCells]);
-
-  // Demographics: update indicators layer
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!styleReady(map)) return;
-    ensureIndicatorsLayers(map);
-    const cells =
-      appMode === "historical"
-        ? (getYearlyCells(historicalYear, demoResolution) ?? [])
-        : (demographicsDataMap.get(demoResolution) ?? []);
-    updateIndicatorsLayer(map, cells, transportParams.indicatorsParams, layerVisibility.indicators);
-  }, [appMode, historicalYear, demographicsDataMap, demoResolution, layerVisibility.indicators, transportParams.indicatorsParams, getYearlyCells]);
-
-  // Socioeconomic: update layer
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!styleReady(map)) return;
-    ensureSocioLayers(map);
-    const cells = socioDataMap.get(demoResolution) ?? [];
-    updateSocioLayer(map, cells, transportParams.socioParams, layerVisibility.socioeconomic);
-  }, [socioDataMap, demoResolution, layerVisibility.socioeconomic, transportParams.socioParams]);
-
-  // Spatial Economy: update layer
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!styleReady(map)) return;
-    ensureSpatialLayers(map);
-    const cells = spatialDataMap.get(demoResolution) ?? [];
-    updateSpatialLayer(map, cells, transportParams.spatialParams, layerVisibility.spatialEconomy);
-  }, [spatialDataMap, demoResolution, layerVisibility.spatialEconomy, transportParams.spatialParams]);
+  // 人口 / 指標 / 社經 / 空間經濟 四張網格的上圖 effect 已搬進 LayerHost
+  //（PopCountHost / IndicatorsHost / SocioeconomicHost / SpatialEconomyHost）
 
   // YouBike Fullness: sync with main timeline
   // 訂閱 timeStore 分鐘粒度（不走 React 4Hz re-render），每 60 秒模擬時間更新一次
@@ -1025,13 +960,7 @@ export default function App() {
     });
   }, []);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!styleReady(map)) return;
-    ensureYoubikeLayers(map);
-    const cells = getYoubikeCellsForTime(timeStore.getTime());
-    updateYoubikeLayer(map, cells, transportParams.youbikeParams, layerVisibility.youbikeFullness);
-  }, [getYoubikeCellsForTime, youbikeTimeKey, layerVisibility.youbikeFullness, transportParams.youbikeParams]);
+  // YouBike 網格上圖已搬進 LayerHost 的 YoubikeHost（youbikeTimeKey 經 hostDeps 傳入）
 
   // ESC 退出拍攝模式
   useEffect(() => {
@@ -1358,6 +1287,17 @@ export default function App() {
     reservoirSceneRef,
     reservoirStatusesRef,
     powerDashboardRef,
+
+    railData,
+    h3DataMap,
+    h3Resolution,
+    demographicsDataMap,
+    demoResolution,
+    getYearlyCells,
+    socioDataMap,
+    spatialDataMap,
+    getYoubikeCellsForTime,
+    youbikeTimeKey,
   };
 
   return (
@@ -1432,7 +1372,7 @@ export default function App() {
         renderMode={renderMode}
         isDarkTheme={isDarkTheme}
         showTrails={showTrails}
-        overlayParams={transportParams.overlayParams}
+
         onMapReady={handleMapReady}
       />
 
@@ -1616,7 +1556,7 @@ export default function App() {
               onHideTransport={handleHideTransport}
               onAllOff={handleAllOff}
               onBulkSetVisibility={handleBulkSetVisibility}
-              getControls={transportParams.getControls}
+
               currentLocationId={selectedAirport}
               onLocationJump={handleLocationJump}
               onWidthChange={handleSidebarWidthChange}
@@ -1694,12 +1634,6 @@ export default function App() {
           <IntelPanel
             open={intelOpen}
             onClose={() => setIntelOpen(false)}
-            filter={newsFilter}
-            onFilterChange={(next) => {
-              transportParams.setNewsMinRelevance(next.minRelevance);
-              transportParams.setNewsEventsOnly(next.eventsOnly);
-              transportParams.setNewsMinSeverity(next.minSeverity);
-            }}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 12, speed: 1.2 });
             }}
@@ -1709,12 +1643,6 @@ export default function App() {
           <MonitorPanel
             open={monitorOpen}
             onClose={() => setMonitorOpen(false)}
-            filter={newsFilter}
-            onFilterChange={(next) => {
-              transportParams.setNewsMinRelevance(next.minRelevance);
-              transportParams.setNewsEventsOnly(next.eventsOnly);
-              transportParams.setNewsMinSeverity(next.minSeverity);
-            }}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 11, speed: 1.2 });
             }}
@@ -2238,7 +2166,6 @@ export default function App() {
                         }
                       }}
                       onBulkSetVisibility={handleBulkSetVisibility}
-                      getControls={transportParams.getControls}
                     />
                   </div>
                 )}
@@ -2581,7 +2508,7 @@ export default function App() {
         <div style={{ pointerEvents: "auto" }}>
           {/* AR-21：不再傳 visibility —— LegendPanel 自己訂閱 layerVisibilityStore，
               App 因無關狀態重繪時 memo 可整個跳過本面板 */}
-          <LegendPanel overlayParams={transportParams.overlayParams} isDarkTheme={isDarkTheme} />
+          <LegendPanel isDarkTheme={isDarkTheme} />
         </div>
       </div>
 

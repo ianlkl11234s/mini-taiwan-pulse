@@ -20,7 +20,12 @@
 // re-render 收斂是第 4 階段的事（那時 App 端才解除全店訂閱）。
 
 import type { Map as MapboxMap } from "mapbox-gl";
-import type { AppMode, AqiProduct, FeatureInfo, LayerVisibility, TimeMode } from "../types";
+import type { AppMode, AqiProduct, FeatureInfo, LayerVisibility, RailData, TimeMode } from "../types";
+import type { useH3Data } from "../hooks/useH3Data";
+import type { useDemographicsH3, useDemographicsYearlyH3 } from "../hooks/useDemographicsH3";
+import type { useH3Socioeconomic } from "../hooks/useH3Socioeconomic";
+import type { useH3SpatialEconomy } from "../hooks/useH3SpatialEconomy";
+import type { useYoubikeH3 } from "../hooks/useYoubikeH3";
 import type { HistoricalGranularity } from "../components/HistoricalTimeline";
 import type { ReGran } from "../lib/realEstateTime";
 import type { ReservoirScene } from "../three/ReservoirScene";
@@ -79,6 +84,23 @@ export interface LayerHostDeps {
   reservoirSceneRef: React.RefObject<ReservoirScene | null>;
   reservoirStatusesRef: React.RefObject<ReservoirStatus[]>;
   powerDashboardRef: React.RefObject<PowerDashboard | null>;
+
+  // ── 網格圖層的資料源（AR-22 P4）────────────────────────────────
+  // 這幾支 hook 的**資料**留在 App（loader + zoom 驅動的 resolution state），
+  // 但「把資料畫上去」的 effect 搬進 Host —— 因為那一段吃參數，留在 App
+  // 等於拖任何一根 slider 都讓整棵樹 reconcile。型別用 ReturnType 取，
+  // 免得在這裡重抄一份 loader 的 cell 型別（抄了就會漂移）。
+  railData: RailData | null;
+  h3DataMap: ReturnType<typeof useH3Data>["h3DataMap"];
+  h3Resolution: number;
+  demographicsDataMap: ReturnType<typeof useDemographicsH3>["demographicsDataMap"];
+  demoResolution: number;
+  getYearlyCells: ReturnType<typeof useDemographicsYearlyH3>["getCells"];
+  socioDataMap: ReturnType<typeof useH3Socioeconomic>["socioDataMap"];
+  spatialDataMap: ReturnType<typeof useH3SpatialEconomy>["spatialDataMap"];
+  getYoubikeCellsForTime: ReturnType<typeof useYoubikeH3>["getCellsForTime"];
+  /** timeStore 分鐘粒度的 tick（App 訂閱 timeStore 換算，不走 4Hz re-render） */
+  youbikeTimeKey: number;
 }
 
 /** registry entry 的 Host 元件型別（一律 `return null`，只掛 hook 不畫東西） */

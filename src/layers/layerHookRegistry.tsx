@@ -62,6 +62,10 @@ import {
   HillshadeHost, SlopeVectorHost, AspectVectorHost, CwaImageryHost,
   AqiImageryHost, AqiStationsHost, MicroSensorsHost,
 } from "./hosts/imageryHosts";
+import {
+  RailTracksHost, H3PopulationHost, PopCountHost, IndicatorsHost,
+  SocioeconomicHost, SpatialEconomyHost, YoubikeHost,
+} from "./hosts/gridHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -246,4 +250,18 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "useRoadCongestionLayer", keys: ["roadCongestion"], Host: RoadCongestionHost },
   { id: "useFuneralDensityLayer", keys: ["funeralOperatorDensity"], Host: FuneralDensityHost },
   { id: "useTemperatureGridLayer", keys: ["temperatureGrid"], Host: TemperatureGridHost },
+
+  // ── AR-22 P4 新增：原本是 App.tsx 的 inline useEffect ──────────────
+  // 它們吃 `transportParams.<xxx>Params`，留在 App 等於「拖任一 slider →
+  // 整棵樹 reconcile」。資料源（loader ＋ zoom 驅動的 resolution）仍在 App，
+  // 經 hostDeps 傳入；這裡只負責「把資料畫上去」那一段。
+  // ⚠️ 順序沿用 App.tsx 原本的 effect 宣告順序（rail → h3 → popCount →
+  //    indicators → socio → spatial → youbike）。
+  { id: "railTracks", keys: ["rail"], Host: RailTracksHost },
+  { id: "h3Population", keys: ["h3Population"], Host: H3PopulationHost },
+  { id: "popCount", keys: ["popCount"], Host: PopCountHost },
+  { id: "indicators", keys: ["indicators"], Host: IndicatorsHost },
+  { id: "socioeconomic", keys: ["socioeconomic"], Host: SocioeconomicHost },
+  { id: "spatialEconomy", keys: ["spatialEconomy"], Host: SpatialEconomyHost },
+  { id: "youbikeFullness", keys: ["youbikeFullness"], Host: YoubikeHost },
 ];
