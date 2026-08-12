@@ -2568,3 +2568,41 @@ manifest 現在是 348 層的**登記 SSOT**，也是新層的**唯一入口**�
 它還不是 legend / popup 接線的**產生源**（第 2 點），
 而參數雖已完全宣告化，消費端仍拿整包（第 1 點）。
 這兩件事各自是獨立的一棒，且**都不是等價重構** —— 要動之前先立驗收標準。
+
+---
+
+## 收尾棒（2026-08-12，多 agent 三線並行）：未竟清單全數結案
+
+> 主 agent（Fable）拆解／決策／驗收；4 個 sonnet Explore 偵察 ＋ 3 個 opus 實作
+> agent 各自 worktree 平行；owner 四次拍板（4b 改案／等值閘退役／--apply 退役／
+> S3 上傳代跑）。整合分支 `feat/layer-manifest-closeout`（C → B → A 順序 merge，
+> 唯一衝突 `layerGoldenExtract.ts` 兩 hunk 皆「兩邊都要」型，主 agent 手解）。
+
+| Track | 分支 | 內容 | 驗收 |
+|---|---|---|---|
+| **C** | feat/deploy-contract-manifest | 觸點 #20 機械斷言（manifest 驅動 191 路徑、雙向、三分類＋兩個 ledger）＋ **5+1 缺口全修**＋ `staticAssets` schema（代拍）| 紅燈演練 4/4；570 綠 |
+| **B** | feat/manifest-derive-legend-popup | 4b 改案：LEGEND keys 真派生（121 entry 雙射驗證）＋ `gisClickRegistry.ts` 模組級升格＋文字解析抽取器退役＋ fixture 合法重生 +2 | 紅燈演練 3/3；566 綠 |
+| **A** | feat/ar22-layerhost | AR-22 終點 P1-P4：74 entry LayerHost registry（348 key 三桶互斥斷言）＋ per-key 訂閱＋ refs React-free ＋ `useLayerParamsRuntime`/等值閘退役 | 551 綠；App.tsx −602 行 |
+
+**整合驗收（主樹）**：`tsc -b` 0 error；vitest **42 檔 560 全綠**（worktree 裡 skip 的
+跨 repo upstreamRegistry 測試在主樹真跑且綠）；fixture 除 gisLayers +2 外逐位元不變。
+
+**render 矩陣（等值閘的接替驗收，agent-browser 實測）**：
+- 環境底噪：4 秒 **0**（App 待機零重繪）
+- 拖「地震 Earthquake」Opacity 滑桿 5 步（0.9→0.4 全數生效）→
+  `diff = { useEarthquakeLayer: 10 }`（dev StrictMode ×2）；**App +0、其他 73 Host +0**
+- 對照組：拖「公共圖書館」（overlayManager 畫的 POI 層，不在 hook registry）→
+  `diff = {}` —— App +0 且無任何 Host 反應，與架構一致（MapView 是預期聚合訂閱端）
+- 途中撞到並記錄的 agent-browser 新坑：**CSS text-transform 讓 innerText 與
+  textContent 大小寫不一致**（搜 DOM 要用 /i）；**React 重繪後 range input 節點
+  會換新，perturb 迴圈每步都要重查節點**（舊參照寫進 detached node 會靜默失效）。
+
+**#9 NO_POPUP 考證**（opus 唯讀分析）：57 筆 → KEEP-NULL 22／CANDIDATE 29／EDGE 6，
+報告 `no-popup-audit.md`。**#10 --apply 退役**（詳 backlog）。
+
+**代拍待追認（本棒新增 1 項）**：`staticAssets?: string[]`（custom source 的靜態檔
+結構化宣告，26 entry）—— 比照拍板②⑤⑥格式。
+
+**交棒後開放項**：S3 上傳（腳本已修，待 merge 後跑）；slope/aspect.png 死檔刪除拍板；
+29 筆 popup CANDIDATE（9 工作包）；6 筆 EDGE 拍板；完整性測試 7 個雙桶 key 盲區
+（另表另棒）；MapView/LegendPanel 聚合訂閱屬預期行為非殘留。

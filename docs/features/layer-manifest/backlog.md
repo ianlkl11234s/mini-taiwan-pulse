@@ -144,28 +144,55 @@
 - [x] **紅燈演練 4/4 會叫、還原後全綠**，逐場輸出貼在
       [changelog.md](./changelog.md) Phase 4 第 5 節。
 
-### ⬜ 4b 未做：legend / popup 接線**派生化**
+### ✅ 4b 完成（2026-08-12 **改案版**，owner 拍板；feat/manifest-derive-legend-popup）
 
-護欄那半做完了，派生那半沒動。現況 manifest 的 `legend` / `popup` 是
-**宣告 ＋ 雙向對帳**，不是 `LEGEND_REGISTRY` / `GIS_LAYERS` 的產生源。
-要做時，上面「Phase 3-5 展望」裡批 8 交接的五件事仍然有效，另加：
-
-- [ ] `GIS_LAYERS` 派生必須**保序**（first-hit-wins）。manifest 的 popup 陣列只保證
-      「同一個 key 內多個 layerType 的相對先後」，**跨 key 的全域順序需要顯式
-      `clickPriority` 欄位**。⚠️ 那個順序目前**只有黃金快照的 `gisLayers` section 在守**
-      —— 這正是它留在 fixture 的理由，派生完成前不要把它移出。
-- [ ] `NO_POPUP_LEDGER` 的 57 筆理由**未逐筆考證**（「宣告 null ⇔ 真的沒接線」機械對帳過，
-      「是否*應該*有 popup」沒有）。誰要補 popup，那份 ledger 就是待辦清單。
+- [x] **LEGEND_REGISTRY keys 真派生**：`LegendEntry` 改 `{ id, render }`，121 筆手寫 keys
+      全刪，由 `src/data/legendGroups.ts` 的 `legendKeys(id)` 從 manifest 反查（掃全 348
+      key **含 orphan** —— 批 8 交接第 1 點的雙向跨越實證）。轉換前探針驗證雙射；
+      「同 id 必落同一筆 entry」測試由「id 唯一性」結構化替身接棒。
+      ⚠️ 派生的代價已誠實記錄（`legendGroups.ts` 檔頭）：manifest 填錯 legend id
+      從「測試會紅」變成自我實現 —— 手寫 keys 那份獨立證詞消失了。
+- [x] **GIS_LAYERS 升級模組級 `map/gisClickRegistry.ts`**（**不加 `clickPriority`、
+      不從 manifest 產生** —— 改案理由三條記在該檔檔頭：layers 陣列是實作細節不進
+      manifest＝GATED_LAYERS 拒收編先例；powerPlant 8 row 多對多無法從 popup 產生；
+      跨 key 順序由本表＋fixture 守）。契約測試換 runtime 真值，
+      `extractGisLayers`／`extractGisConstRefTypes` 文字解析器退役；
+      fixture `gisLayers` section 合法重生 **235 → 237**（補進 disasterAlert／plaActivity
+      兩筆常數引用 row，diff 逐行 review）。紅燈演練 3/3（含「對調兩筆順序只有 fixture 紅」
+      —— gisLayers 必須留在 fixture 的實證）。
+      ⚠️ `mapInteractionLayers.test.ts` **刻意保留文字解析**（runtime 會把
+      `DISASTER_ALERT_CLICK_LAYERS` 的樣板字串 id 誤報成 orphan），理由在該檔檔頭，別再升級它。
+- [x] **`NO_POPUP_LEDGER` 57 筆逐筆考證完成**（2026-08-12）：**KEEP-NULL 22／CANDIDATE 29／
+      EDGE 6**，完整報告見 [no-popup-audit.md](./no-popup-audit.md)。最大發現：
+      群組註解寫「沒有可點物件」的 34 筆裡只有 12 筆真的沒東西可點，其餘是「資料有、
+      只差接線」。29 筆 CANDIDATE 收斂成 9 個工作包（4 包只是加 GIS_LAYERS 幾行＋
+      複用既有 panel），**本輪不實作**，誰要補 popup 從那份報告開工。
+      6 筆 EDGE（房地產 Grid×3 hover 無觸控替代／temperatureWave／waterFloodExtreme／
+      powerPoles）需 owner 拍板。
 
 ### ⬜ 其餘未竟（完整敘述見 [changelog.md](./changelog.md) 末節「終章」）
 
-- [ ] **AR-22 的終點**：消費端改吃 `useLayerParams(key)`（現在仍拿
-      `useLayerParamsRuntime` 組出來的整包）。⚠️ **不是等價重構**，等值閘 A/B 會擋
-      —— 那是對的，要另立驗收標準（逐消費端 render 次數量測），
-      **不要為了讓閘變綠而放寬它**。
-- [ ] **`App.tsx` 漏 call hook 仍是靜默失敗**（5 個靜默點裡唯一沒解的，現況 4.5/5）。
-      manifest 不記 hook 名，grep `App.tsx` 是會誤報的脆弱護欄 → **刻意不蓋**。
-      正解是「55 個手寫 `use*Layer()` 呼叫改成 manifest 驅動的迴圈」，獨立一棒。
+- [x] **AR-22 的終點** —— 2026-08-12 完成（feat/ar22-layerhost，P1-P4 共 8 commits）。
+      消費端全數改吃 `useLayerParams(key)`／per-key 訂閱；`useLayerParamsRuntime`
+      **整支退役**（等值閘 A/B 隨之退役 —— owner 拍板「不是放寬是整支功成身退」，
+      同刪 `overlayParamsDeps.test.ts` 與 sharedState 第 2/3 節，母體歸零；
+      sharedState 第 1 節仍在守 `sharedGroup` 宣告）。refs 通道 React-free 化
+      （`state/layerParamRefs.ts` 模組級鏡像，Three.js RAF 讀 .current）。
+      **接替驗收＝render 矩陣，已於主樹瀏覽器實測**：4 秒環境底噪 0；拖地震 Opacity
+      滑桿 5 步 → `{ useEarthquakeLayer: 10 }`（dev StrictMode ×2），App +0、
+      其他 73 Host +0。App.tsx 3,148 → 2,546 行。
+- [x] **`App.tsx` 漏 call hook 靜默失敗解除**（5/5 達成）—— 同上分支。
+      掛載呼叫改成 manifest 驅動：`src/layers/layerHookRegistry.tsx` 有序 registry
+      74 entry（順序＝原 App.tsx 呼叫順序逐條凍結）＋ `HOOKS_IN_APP_LEDGER`（37）＋
+      `NO_HOOK_LEDGER`（178），對**全部 348 key** 三桶互斥雙向斷言（orphan 不排除 ——
+      5 個 orphan 有活的掛載 hook，任務書原「非 orphan」公式被實測證偽）。
+      紅燈演練：拿掉 registry entry 會叫。
+      ⚠️ 文件勘誤：歷來寫「55 個手寫呼叫」，實測 L500-1340 是 **87 個 hook 呼叫**
+      （72 個字面 `use*Layer(` ＋ 4 個不叫 `*Layer` 的掛載呼叫等），67 搬 Host、20 留 App。
+      ⚠️ **已知盲區（紅燈實測，記在測試檔頭）**：同時落在 registry 與 HOOKS_IN_APP
+      的 7 個 key（rail／h3Population／popCount／indicators／socioeconomic／
+      spatialEconomy／youbikeFullness，全是「資料在 App、上圖在 Host」分工）**不設防**
+      —— 聯集判準的本質限制，要補得改成 per-key 宣告需要哪幾種機制，另一張表另一棒。
 - [x] ~~**`fireHydrants` catalog 缺口**~~ —— 2026-08-12 結案，**根因不是缺口是改名**：
       analytics 2026-08-11 的「fire 三軌統一」(`211f68a`) 把
       `docs/data-catalog/environment/fire_hydrants.md`（無 frontmatter，id 靠檔名 fallback）
@@ -187,6 +214,13 @@
       dry-run 的 2 筆不一致都是 manifest 較新（`schools`／`fireHydrants`），
       apply 會把它們改回舊值；要 apply 得先跑 01→05 重產 CSV。細節見
       [handoff.md](./handoff.md)。
+      **→ 2026-08-12 owner 拍板：`--apply` 路線正式退役。** 實查 01→05 不可機械重跑
+      （全鏈 hardcode 已消失的 session scratchpad 且無 mkdir；`catalog_datasets.csv`
+      與 `hunt_results.csv` 兩個輸入**沒有產生腳本** —— 後者是當時 LLM 人工審查產物）；
+      06 dry-run 實跑確認僅有的 2 筆不一致都是 manifest 較新、apply 只會倒退；
+      upstream 正確性已有 live 測試 `upstreamRegistry.test.ts` 每次都跑（本輪主樹
+      實測含跨 repo 驗證全綠）。**06 保留為 dry-run 對帳器、CSV 留作歷史快照**；
+      未來要重審計＝對 348 層另立新專案，不走舊管線。
 
 - [ ] **`layerParamsSpec.ts` 2,640 行不能按主題切檔**（P3-3 實測，本棒未變）：
       spread 合併會同時丟掉 TS2353（typo key，且幽靈 key 會混進 `MigratedParamsKey`）
@@ -202,14 +236,25 @@
       逐 key 焊死，本來就不該再進 fixture。
 - [ ] `PENALTY_YEAR_MAX` 一旦被調高到未來年份，`pollutionPenaltyYear` 的預設值會隨
       系統時間漂移 → 已有 guard 斷言會先紅，屆時去 `layerGoldenExtract` 的 sanitize 補正規化。
-- [ ] `GIS_LAYERS` 目前是原始碼文字解析（函式內區域常數，runtime 取不到）。Phase 3
-      把它提升成模組級 export 後，抽取器可改成 runtime 真值，精度提升。
-- [ ] **觸點 #20 機械斷言**（批 5 的證據）：「manifest 的靜態檔路徑 ↔ nginx location ↔
-      deploy 腳本清單」值得做成測試。⚠️ **光掃 `dataClass === "B"` 不夠** ——
-      批 5 的 `slopeVector` / `aspectVector` 是 D 卻是 PMTiles、`hillshade` 是 D 卻有
-      8.7MB PNG，批 6 的 `floodSensorIsochrone` 是 D 卻自建 PmTilesSource，
-      批 7 農業 **7 個 D 全是 `agricultureLayerFactory` 的 PMTiles**，
-      路徑都藏在 `source.note` 裡。已抓到的不一致（**全部未修**）：
+- [x] ~~`GIS_LAYERS` 原始碼文字解析~~ —— 4b 完成（升級 `gisClickRegistry.ts` 模組級
+      export，抽取器改 runtime 真值，見上方 4b 段）。
+- [x] **觸點 #20 機械斷言 —— 2026-08-12 完成**（feat/deploy-contract-manifest，4 commits）。
+      `deployContract.test.ts` 92 → 301 行：枚舉來源改 **manifest 驅動**（`source.url` ＋
+      `fallbackUrl` ＋ 新增 `staticAssets?: string[]` 結構化欄位共 191 條路徑，26 entry
+      的 note 藏路徑全數結構化，**staticAssets schema 為代拍待 owner 追認**）；
+      **雙向斷言**（正向逐檔建模 nginx 最長前綴匹配；反向抓「推上 S3 但 nginx 讀不到」）；
+      三分類（部署／`DEPLOY_EXEMPT_LEDGER` 雙向凍結／`_empty.geojson` 空殼），另立
+      `EXTERNAL_UPLOAD_LEDGER`（police_justice 上傳管線在 analytics）。紅燈演練 4/4。
+      不用 `existsSync`（gitignored 大檔 CI 不存在），改 `git ls-files` ＋腳本文字解析
+      （parser 認三種形狀，新寫法會假紅 —— 比假綠安全，脆弱點已註明）。
+      **5＋1 個缺口全數修復**（第 6 個 `real_estate_points_buffer.bin` 是建斷言時抓到的
+      同款）：hillshade PNG 進 upload glob（overnight-log 翻案定案，非 dist fallback）／
+      nginx 補 `location /flood/`／`FISHERY_FILES` 補 3 檔（union 用新名 `sat_union`）／
+      coverage 迴圈補 power_poles ＋ 改正兩處自相矛盾註解／buffer.bin 補上傳。
+      ⚠️ S3 實際上傳待 merge 後執行（owner 拍板由 Claude 代跑）。
+      ⚠️ 衍生發現：`slope.png`／`aspect.png` 全 repo 零引用（被 PMTiles 版取代的死檔，
+      8.7MB×2 級），**待 owner 拍板另案刪除**。
+      原始缺口記錄（歷史留存，均已修）：
 
       | 批 | 檔 | 症狀 |
       |---|---|---|
