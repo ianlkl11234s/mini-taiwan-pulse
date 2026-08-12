@@ -28,18 +28,22 @@
  * `NO_HOOK_LEDGER` 與另外兩桶**互斥**。少了這條，把一個明明有 hook 的 key
  * 塞進 NO_HOOK 也能讓聯集通過 —— 那就退化成「湊數表」而不是事實表。
  *
- * ── ⚠️ 已知盲區（P4 紅燈演練實測，不要誤以為它全包）─────────────────
- * 聯集語意下，**同時落在 registry 與 `HOOKS_IN_APP_LEDGER` 的 key 是不設防的**：
- * 拿掉它的 registry entry，本測試照樣綠（App 那一桶仍宣告了掛載機制）。
- * 目前這種 key 有 7 個，全部是 P4 的「資料在 App、上圖在 Host」分工
+ * ── ⚠️ 曾經的盲區（P4 紅燈演練發現，W3 已補）───────────────────────
+ * 聯集語意下，**同時落在 registry 與 `HOOKS_IN_APP_LEDGER` 的 key 原本是不設防的**：
+ * 拿掉它的 registry entry，只看聯集斷言照樣綠（App 那一桶仍宣告了掛載機制）。
+ * 這種 key 有 7 個，全部是 P4 的「資料在 App、上圖在 Host」分工
  * （rail / h3Population / popCount / indicators / socioeconomic /
- *  spatialEconomy / youbikeFullness）—— 演練時拿 `h3Population` 試，不紅；
- * 換成 registry 獨佔的 `rainGauge` 才紅。
+ *  spatialEconomy / youbikeFullness）。
  *
- * 這是聯集判準的**本質限制**，不是實作 bug：本測試守的是「每個 layer 至少
- * 宣告了一種掛載機制」，不是「每一種機制都還在」。那 7 個 key 的 Host 若被誤刪，
- * 現況只有 tsc（未使用的 export）與畫面會反應。要補的話得改成
- * 「per-key 宣告它需要哪幾種機制」，那是另一張表，本棒不做。
+ * 這是聯集判準的**本質限制**：它守的是「每個 layer 至少宣告了一種掛載機制」，
+ * 不是「每一種機制都還在」。下方「per-key 掛載機制對表」補了這個洞——
+ * `DUAL_MOUNT_KEYS` 是手動盤點、與 registry / HOOKS_IN_APP_LEDGER 現況無關的
+ * 固定清單，逐 key 檢查兩邊機制都要在場，任一邊被刪就紅。
+ *
+ * **分工邊界**：聯集斷言守「key 完全沒人接」；per-key 對表守「雙桶 key 少接一邊」。
+ * 兩者互補——不要因為有了 per-key 表就把聯集斷言簡化掉，單桶 key（多數）仍然
+ * 只靠聯集斷言守住；也不要指望 per-key 表能發現「單桶 key 唯一的掛載機制被拿掉」，
+ * 那種情況一樣是靠聯集斷言（變成三桶都沒有）抓。
  */
 import { describe, it, expect } from "vitest";
 
@@ -154,6 +158,33 @@ const NO_HOOK_LEDGER = new Set<string>([
 ]);
 
 // ══════════════════════════════════════════════════════════════════
+//  雙桶 key：兩種機制都要，缺一不可（補上方已知盲區）
+// ══════════════════════════════════════════════════════════════════
+/**
+ * P4「資料在 App、上圖在 Host」分工的 7 個 key —— App 端掛 loader hook
+ * （回 dataMap ＋ zoom 驅動的 resolution state），Host 端掛 ensure/update
+ * layer（見 `hosts/gridHosts.tsx`）。兩邊都要，缺一是「這層畫不出來」
+ * （host 缺）或「resolution／可見性切換沒反應」（appHook 缺）。
+ *
+ * ⚠️ 這張表是**手動盤點的固定清單**，不是從 `registryKeys ∩ HOOKS_IN_APP_LEDGER`
+ * 即時算出來的交集——若是即時算，registry entry 被刪掉的同時「雙桶」宣告
+ * 也會跟著消失，紅燈演練就抓不到（這正是本檔曾經的盲區）。
+ *
+ * 盤點依據（機械核對，非憑記憶）：
+ *   - registry 側：`layerHookRegistry.tsx` L260-266（railTracks / h3Population /
+ *     popCount / indicators / socioeconomic / spatialEconomy / youbikeFullness
+ *     七筆 entry）
+ *   - App 側：`App.tsx` L218（`useRailData`）、L659（`useYoubikeH3`）、
+ *     L909-942（h3Population / popCount+indicators / socioeconomic /
+ *     spatialEconomy 四段 loader effect；popCount 與 indicators 共用同一個
+ *     `loadDemographicsResolution`，各自仍宣告一份 appHook 需求，不是重複計數）
+ */
+const DUAL_MOUNT_KEYS = new Set<string>([
+  "rail", "h3Population", "popCount", "indicators",
+  "socioeconomic", "spatialEconomy", "youbikeFullness",
+]);
+
+// ══════════════════════════════════════════════════════════════════
 
 const registryKeys = new Set<string>();
 for (const entry of LAYER_HOOK_REGISTRY) {
@@ -219,5 +250,69 @@ describe("layer hook registry：掛載完整性（三桶雙向凍結）", () => 
       `→ 從 NO_HOOK_LEDGER 移除。少了這條斷言，把任何 key 塞進 NO_HOOK 都能讓` +
       `聯集通過，這張表就從事實表退化成湊數表。`,
     ).toEqual([]);
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════
+//  per-key 掛載機制對表（W3：補雙桶 key 盲區）
+// ══════════════════════════════════════════════════════════════════
+/**
+ * 把「需要哪種掛載機制」從隱性的聯集邏輯，變成顯式的 per-key 表，逐 key 比對
+ * 「宣告的需求」與「現況」。建表規則：
+ *   1. NO_HOOK_LEDGER 的 key → 空集合（本來就不需要任何機制）
+ *   2. DUAL_MOUNT_KEYS 的 key → `{host, appHook}` 都要（上方手動盤點的固定清單）
+ *   3. 其餘落在 registry 的 key → 只要 `host`
+ *   4. 其餘落在 HOOKS_IN_APP_LEDGER 的 key → 只要 `appHook`
+ *
+ * 第 3、4 類「需要哪一種」仍是從現況推導——但那不是本表要補的洞：單桶 key
+ * 若唯一的機制被整個拿掉，既有的「聯集＝MANIFEST_KEYS」斷言已經抓得住
+ * （變成三桶都沒有，見上方 uncovered 斷言）。本表要補的洞只有雙桶 key：
+ * 它們「需要兩者」是寫死的，不會因為某一邊被刪就跟著從需求表上消失。
+ */
+type MountKind = "host" | "appHook";
+
+const REQUIRED_MOUNTS = new Map<string, ReadonlySet<MountKind>>();
+for (const k of NO_HOOK_LEDGER) REQUIRED_MOUNTS.set(k, new Set());
+for (const k of DUAL_MOUNT_KEYS) REQUIRED_MOUNTS.set(k, new Set<MountKind>(["host", "appHook"]));
+for (const k of registryKeys) {
+  if (!REQUIRED_MOUNTS.has(k)) REQUIRED_MOUNTS.set(k, new Set<MountKind>(["host"]));
+}
+for (const k of HOOKS_IN_APP_LEDGER) {
+  if (!REQUIRED_MOUNTS.has(k)) REQUIRED_MOUNTS.set(k, new Set<MountKind>(["appHook"]));
+}
+
+describe("layer hook registry：per-key 掛載機制對表（補雙桶 key 盲區）", () => {
+  it("每個 manifest key 的實際掛載機制符合它在 REQUIRED_MOUNTS 的宣告", () => {
+    const mismatches: string[] = [];
+    for (const key of MANIFEST_KEYS) {
+      const required = REQUIRED_MOUNTS.get(key) ?? new Set<MountKind>();
+      const actual = new Set<MountKind>();
+      if (registryKeys.has(key)) actual.add("host");
+      if (HOOKS_IN_APP_LEDGER.has(key)) actual.add("appHook");
+      for (const mount of required) {
+        if (!actual.has(mount)) mismatches.push(`${key} → 缺 ${mount}`);
+      }
+    }
+    expect(
+      mismatches,
+      `這些 key 宣告需要的掛載機制，現況少了一部分：\n  ${mismatches.join("\n  ")}\n` +
+      `→ 缺 host：layerHookRegistry.tsx 裡對應的 entry 不見了，補回去；\n` +
+      `→ 缺 appHook：App.tsx 的 loader effect 不見了，或忘了把它加回 HOOKS_IN_APP_LEDGER。\n` +
+      `雙桶 key（DUAL_MOUNT_KEYS）兩邊都要——資料在 App、上圖在 Host，少一邊就是` +
+      `「畫不出來」或「切換沒反應」，聯集斷言看不出少了哪一邊，這就是本 describe 要補的盲區。`,
+    ).toEqual([]);
+  });
+
+  it("DUAL_MOUNT_KEYS 與現況雙桶交集一致（防新增的雙桶 key 沒登記）", () => {
+    const actualDual = [...registryKeys].filter((k) => HOOKS_IN_APP_LEDGER.has(k)).sort();
+    expect(
+      actualDual,
+      `registry ∩ HOOKS_IN_APP_LEDGER 現況與 DUAL_MOUNT_KEYS 清單不一致：\n` +
+      `  現況交集：${actualDual.join(", ")}\n` +
+      `  清單：${[...DUAL_MOUNT_KEYS].sort().join(", ")}\n` +
+      `→ 新增的雙桶 key：補進 DUAL_MOUNT_KEYS 並寫盤點依據（哪個檔哪一行）；\n` +
+      `→ 清單裡的 key 不再雙桶：從 DUAL_MOUNT_KEYS 移除，否則 per-key 對表會誤判它需要` +
+      `一個其實已經不存在的機制。`,
+    ).toEqual([...DUAL_MOUNT_KEYS].sort());
   });
 });
