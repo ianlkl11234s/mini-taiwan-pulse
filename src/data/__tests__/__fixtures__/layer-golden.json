@@ -1312,6 +1312,12 @@
     },
     {
       "layers": [
+        "waste-stops-static-waste-stops-fill"
+      ],
+      "type": "wasteStopsStatic"
+    },
+    {
+      "layers": [
         "station-polygons-thsr-poly-fill",
         "station-polygons-thsr-poly-line"
       ],

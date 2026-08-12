@@ -274,6 +274,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
   // 醫療等時圈覆蓋面
   { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
+  // 🗑️ 清運點位 73,060 點：全站密度最高的點層，且 click 用 ±5px bbox 命中
+  //    → 排在其他點層之後，免得在市區把消防栓 / 行道樹 / POI 的點擊整片吃掉。
+  { layers: ["waste-stops-static-waste-stops-fill"], type: "wasteStopsStatic" },
   // 🚄 高鐵站體面（12 面，station_points 零筆 thsr → 全台唯一點不到的車站族）。
   //    唯一的載體是面，依「面層不可搶點層」放在所有點層之後；站體範圍內的消防栓 /
   //    行道樹 / 停車場等點層因此仍優先命中。與 station-points-* 共用 railStation panel。

@@ -720,6 +720,8 @@ export interface FeatureInfo {
     | "floodSensor" | "floodSensorIsochrone"
     | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
     | "wasteFacility" | "wasteDisposalPoint" | "wasteCleaningSquad"
+    // ⚠️ 勿與 orphan 的 `wasteStop` layer key 混淆：這是靜態全台 73,060 清運點位
+    | "wasteStopsStatic"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"

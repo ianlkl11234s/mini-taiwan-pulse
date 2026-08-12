@@ -186,3 +186,58 @@ export function WasteDisposalPointPanel({ props }: { props: Record<string, unkno
     </>
   );
 }
+
+// ─── 清運點位（靜態全台 73,060 點）─────────────────────────────
+// 欄位契約：public/geo/waste_stops_static.geojson
+//   stop_name / city / district / route_id / route_name / vehicle_type /
+//   routes_count / via（座標取得方式，資料品質揭露用）
+const WASTE_VEHICLE_LABELS: Record<string, string> = {
+  garbage: "垃圾車",
+  recycling: "資源回收車",
+  kitchen: "廚餘車",
+  mixed: "混合",
+};
+
+/** `via` = 這個點的座標怎麼來的（政府原始資料附座標 vs. 後製地理編碼）。 */
+const WASTE_STOP_VIA_LABELS: Record<string, string> = {
+  waste_open_data: "政府開放資料原始座標",
+  tgos_batch_v2: "TGOS 地址批次地理編碼",
+  tgos_batch_v2_round4: "TGOS 地址批次地理編碼",
+  legacy: "早期匯入",
+  poi_nominatim: "Nominatim POI 比對",
+  poi_school: "學校 POI 比對",
+  poi_foursquare: "Foursquare POI 比對",
+};
+
+export function WasteStopsStaticPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const stopName = String(props.stop_name ?? "");
+  const city = String(props.city ?? "");
+  const district = String(props.district ?? "");
+  const routeName = String(props.route_name ?? "");
+  const routesCount = Number(props.routes_count);
+  const vehicle = String(props.vehicle_type ?? "");
+  const via = String(props.via ?? "");
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#d97706", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {stopName || "(未命名點位)"}
+        </div>
+      </div>
+      <Row label="行政區" value={[city, district].filter(Boolean).join(" ")} />
+      <Row label="清運路線" value={routeName} />
+      {Number.isFinite(routesCount) && routesCount > 0 && (
+        <Row
+          label="經過路線"
+          value={`${routesCount} 條`}
+          color={routesCount > 1 ? "#f59e0b" : undefined}
+        />
+      )}
+      <Row label="車種" value={WASTE_VEHICLE_LABELS[vehicle] ?? vehicle} />
+      <Row label="定位來源" value={WASTE_STOP_VIA_LABELS[via] ?? via} color={t.textDim} />
+    </>
+  );
+}

@@ -6047,7 +6047,10 @@ export const LAYER_MANIFEST = {
       url: "./geo/waste_stops_static.geojson",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：同主題的 wasteDisposalPoint（wd*）與 wasteCleaningSquad 早有 panel，
+    // 唯獨密度最高、最貼近民生的清運點位不可點。route_name + routes_count 正好回答
+    // 「我家這個點屬哪條路線 / 有幾條路線經過」。
+    popup: "wasteStopsStatic",
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "全台垃圾車停靠點位（靜態快照，非即時）",
     topics: ["廢棄物", "清運", "點位"],

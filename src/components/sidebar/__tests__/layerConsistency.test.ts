@@ -206,7 +206,7 @@ const NO_POPUP_LEDGER = new Set([
   "groundwaterWells", "iotWraRiver", "iotWraStructure", "waterBasins", "waterRivers",
   "waterLevees", "waterCanals", "waterProtectionZones", "waterFloodExtreme", "precipRaster",
   // 廢棄物：清運車與排程走 wasteMapboxLayers 自掛 handler / 裝飾性特效
-  "wasteTruck", "wasteSchedule", "wasteScheduleNote", "wasteStopsStatic",
+  "wasteTruck", "wasteSchedule", "wasteScheduleNote",
   "agriculture",                                     // 農業：全台耕地底圖面
   // 能源：glow 光暈層疊在既有可點層上（點擊由底下那層接）＋ 桿線 ＋ 風場規劃區
   "powerPlantGlow", "aviationRestrictedGlow", "powerPoles", "powerLinesGlow",
