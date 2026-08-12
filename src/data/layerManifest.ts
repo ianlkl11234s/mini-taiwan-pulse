@@ -144,8 +144,23 @@ export type LayerSource =
     }
   /** dynamicData：source 以空 FeatureCollection 起手，由 loader 按日 setData 餵入 */
   | { kind: "supabase"; sourceId: string; fallbackUrl: string }
-  /** 無 OVERLAY_REGISTRY entry（Three.js CustomLayer 等）—— note 說明資料實際從哪來 */
-  | { kind: "custom"; note: string };
+  /**
+   * 無 OVERLAY_REGISTRY entry（Three.js CustomLayer 等）—— note 說明資料實際從哪來。
+   *
+   * `staticAssets`：本層自己 fetch 的**靜態檔相對路徑**，寫法同 `url`（`"./dir/file"`）。
+   * ⚠️ **代拍板（待 owner 追認）**：其他三種 kind 的檔路徑都在結構化欄位（`url` /
+   * `fallbackUrl`）裡，只有 `custom` 把它埋在 `note` 的自由文字中 —— 而 `custom`
+   * 恰好是**唯一沒有 OVERLAY_REGISTRY 可交叉驗證**的那種，等於部署契約檢查最需要
+   * 機械枚舉的一群反而只剩人腦。觸點 #20 的 5 個缺口（hillshade / flood /
+   * fishery×3 / power_poles）能長期潛伏，這是結構性原因之一。
+   * 本欄把那份事實抬成結構化資料，`deployContract` 測試逐檔斷言它有被部署。
+   * `note` 原文一律保留不動（人讀敘事與機器讀清單各司其職）。
+   *
+   * 沒有靜態檔的層（純 Supabase RPC / 純 WebGL 特效）不寫本欄 —— 缺席即「無靜態檔」，
+   * 不需要 null 佔位。glob 型引用（`fireIsochrone` 的 `public/fire/*.pmtiles`）
+   * 也不寫：本欄是**具體檔路徑**清單，塞 glob 會讓下游 parser 無法逐檔比對。
+   */
+  | { kind: "custom"; note: string; staticAssets?: string[] };
 
 /** sidebar 座標：THEMES 的主題 title + 子群 title（Phase 1 只宣告，不派生位置） */
 export interface LayerSection {
@@ -689,6 +704,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useFuneralDensityLayer 自行接線：純數值 JSON（TOWNCODE → 家數）join public/base_map/township_boundary.pmtiles，無自身幾何故無 OVERLAY_REGISTRY entry",
+      staticAssets: ["./base_map/township_boundary.pmtiles"],
     },
     legend: "funeralFacilities",
     popup: "funeralOperatorDensity",
@@ -1025,6 +1041,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useWorldTrashDebrisLayer 自行接線：靜態 public/world/trash_debris.geojson（~25k Point）自建 world-trash-debris source，未走 OVERLAY_REGISTRY",
+      staticAssets: ["./world/trash_debris.geojson"],
     },
     legend: "worldTrashDebris",
     popup: "worldTrashDebris",
@@ -2626,6 +2643,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "Three.js CustomLayer `re-points-three`（RealEstatePointsScene 讀 ./coverage/real_estate_points_buffer.bin，三種交易型別共用同一份 buffer 與同一個 layer，由 rePointsStore 的型別 filter 切分）—— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./coverage/real_estate_points_buffer.bin"],
     },
     legend: "realEstateRentalGrid",
     popup: null,
@@ -2676,6 +2694,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "Three.js CustomLayer `re-points-three`（RealEstatePointsScene 讀 ./coverage/real_estate_points_buffer.bin，三種交易型別共用同一份 buffer 與同一個 layer，由 rePointsStore 的型別 filter 切分）—— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./coverage/real_estate_points_buffer.bin"],
     },
     legend: "realEstateRentalGrid",
     popup: null,
@@ -2726,6 +2745,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "Three.js CustomLayer `re-points-three`（RealEstatePointsScene 讀 ./coverage/real_estate_points_buffer.bin，三種交易型別共用同一份 buffer 與同一個 layer，由 rePointsStore 的型別 filter 切分）—— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./coverage/real_estate_points_buffer.bin"],
     },
     legend: "realEstateRentalGrid",
     popup: null,
@@ -2963,6 +2983,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "PMTiles factory medicalIsochroneLayerFactory（./medical/medical_isochrone.pmtiles，source medical-isochrone / layer medical-isochrone-fill）—— medIsochrone 與 medDesert **共用同一個 fill layer**，差別只在 level filter；非 OVERLAY_REGISTRY",
+      staticAssets: ["./medical/medical_isochrone.pmtiles"],
     },
     legend: "medIsochrone",
     popup: "medicalIsochrone",
@@ -2996,6 +3017,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "PMTiles factory medicalIsochroneLayerFactory（./medical/medical_isochrone.pmtiles，source medical-isochrone / layer medical-isochrone-fill）—— medIsochrone 與 medDesert **共用同一個 fill layer**，差別只在 level filter；非 OVERLAY_REGISTRY",
+      staticAssets: ["./medical/medical_isochrone.pmtiles"],
     },
     legend: "medIsochrone",
     popup: "medicalIsochrone",
@@ -3895,6 +3917,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useStaticRasterLayer（App.tsx 直呼；source `base-hillshade-src` / layer `base-hillshade-layer`）把單張預烤 colormap PNG `./base_map/hillshade.png` 貼到 TERRAIN_BBOX —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./base_map/hillshade.png"],
     },
     legend: null,
     popup: null,
@@ -3919,6 +3942,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useSlopeVectorLayer 自建 PMTiles source（`slope-vector` ← ./base_map/slope_vector.pmtiles，source-layer `slope`，z5-12）→ layer `slope-vector-fill` —— 非 OVERLAY_REGISTRY，但**檔案照樣要進 nginx /base_map/ 與 deploy 清單**",
+      staticAssets: ["./base_map/slope_vector.pmtiles"],
     },
     legend: "slopeVector",
     popup: "slopeVector",
@@ -3943,6 +3967,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useAspectVectorLayer 自建 PMTiles source（`aspect-vector` ← ./base_map/aspect_vector.pmtiles，source-layer `aspect`，z5-12）→ layer `aspect-vector-fill` —— 非 OVERLAY_REGISTRY，但**檔案照樣要進 nginx /base_map/ 與 deploy 清單**",
+      staticAssets: ["./base_map/aspect_vector.pmtiles"],
     },
     legend: "aspectVector",
     popup: "aspectVector",
@@ -4255,6 +4280,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "earthquakeReplayLayerFactory 自建 4 個 source（eq-replay-epicenter / -stations / -grid / -township）× 5 個 layer；鄉鎮面走 PMTiles `./base_map/township_boundary.pmtiles` + promoteId TOWNCODE + feature-state 染色（通用路徑不支援故不進 OVERLAY_REGISTRY），資料本身走 Supabase RPC earthquake_replay_events + 4 張表",
+      staticAssets: ["./base_map/township_boundary.pmtiles"],
     },
     legend: "earthquakeReplay",
     popup: ["earthquakeReplayStation", "earthquakeReplayTown"],
@@ -5844,6 +5870,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useFloodSensorIsochroneLayer 自建 PmTilesSource（public/flood/uswg_isochrone_3min.pmtiles，source-layer isochrone）+ 2 layer（flood-sensor-isochrone-fill / -line），並以 Supabase RPC get_uswg_latest 的即時值染色 —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./flood/uswg_isochrone_3min.pmtiles"],
     },
     legend: "floodSensor",
     popup: "floodSensorIsochrone",
@@ -6386,6 +6413,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "agricultureLayerFactory.ensureAgriPOILayers：自建 geojson source agri-pois（空 FC 起手，toggle 開才 lazy fetch public/agriculture/agriculture_pois.geojson，走 loadingRegistry）+ 1 circle layer agri-pois-circle，依 poi_type match 上色 —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./agriculture/agriculture_pois.geojson"],
     },
     legend: "agriPOI",
     popup: "agriPOI",
@@ -6938,6 +6966,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "agricultureLayerFactory.ensureAgricultureLayers：自建 PmTiles source agri-ftw-fields（public/agriculture/ftw_fields_2025.pmtiles，source-layer fields，z5-14）+ 2 layer（-fill z5 起 / -outline z10 起），fill 透明度依 confidence —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./agriculture/ftw_fields_2025.pmtiles"],
     },
     legend: null,
     popup: null,
@@ -6961,6 +6990,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "agricultureLayerFactory.ensureAgriLeisureFarmZonesLayers：自建 PmTiles source agri-leisure-farm-zones（public/agriculture/leisure_farm_zones_2025.pmtiles，source-layer leisure_farm_zones，z6-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./agriculture/leisure_farm_zones_2025.pmtiles"],
     },
     legend: null,
     popup: "agriLeisureFarmZones",
@@ -6984,6 +7014,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "agricultureLayerFactory.ensureAgriRuralRegenLayers：自建 PmTiles source agri-rural-regen（public/agriculture/rural_regen_communities_2025.pmtiles，source-layer rural_regen_communities，z7-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./agriculture/rural_regen_communities_2025.pmtiles"],
     },
     legend: null,
     popup: "agriRuralRegen",
@@ -7035,6 +7066,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "agricultureLayerFactory.ensureAgriSoilLayers：自建 PmTiles source agri-soil（public/agriculture/soil_map_national.pmtiles，source-layer soil，z6-13）+ 1 fill layer —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./agriculture/soil_map_national.pmtiles"],
     },
     legend: null,
     popup: "agriSoil",
@@ -7058,6 +7090,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "agricultureLayerFactory.ensureAgriSoilFertilityLayers：自建 PmTiles source agri-soil-fertility（public/agriculture/soil_fertility_grid_250m.pmtiles，source-layer soil_fertility，z8-14）+ 1 fill layer，依 select 控件切換 SOIL_FERTILITY_METRICS 指標染色 —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./agriculture/soil_fertility_grid_250m.pmtiles"],
     },
     legend: "agriSoilFertility",
     popup: "agriSoilFertility",
@@ -7081,6 +7114,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "agricultureLayerFactory.ensureAgriCropSuitabilityLayers：自建 PmTiles source agri-crop-suitability（public/agriculture/crop_suitability_132.pmtiles，source-layer crop_suitability，z6-13）+ 1 fill layer，以 select 控件的 crop_layer_id 做 layer-level filter 切換作物 —— 非 OVERLAY_REGISTRY",
+      staticAssets: ["./agriculture/crop_suitability_132.pmtiles"],
     },
     legend: "agriCropSuitability",
     popup: "agriCropSuitability",
@@ -7220,6 +7254,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useAviationAirspaceLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/aviation_airspace.pmtiles（z4-12，source-layer aviation_airspace）—— 與 aviationRestricted **共用同一份切片**，以 `layer` 欄位 filter 拆兩個 toggle（本層 = FIR 3 + TMA 6；FIR 範圍極大只畫邊框，TMA 才有淡 fill）",
+      staticAssets: ["./coverage/aviation_airspace.pmtiles"],
     },
     legend: "aviationControl",
     popup: "aviationControl",
@@ -7243,6 +7278,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "同 aviationControl 的 ./coverage/aviation_airspace.pmtiles（useAviationAirspaceLayer），本層 filter = CTR + CONTROL + SURFACE + RCR + DANGER + ULZ + CIRCUIT 共 72 區，按類別走 ICAO 色",
+      staticAssets: ["./coverage/aviation_airspace.pmtiles"],
     },
     // 與 aviationControl 共用同一筆 LEGEND_REGISTRY entry（機械規則取其首 key）
     legend: "aviationControl",
@@ -7267,6 +7303,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useDroneRestrictedZonesLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/drone_restricted_zones.pmtiles（11MB，z5-14，source-layer drone_restricted_zones）—— 與 droneRestrictedZone **共用同一份切片**，以「空域顏色」欄位 filter 拆兩個 toggle（本層 = 紅區 4,311 ＋ 無該欄位的未分類 1,322，保守視為禁飛）",
+      staticAssets: ["./coverage/drone_restricted_zones.pmtiles"],
     },
     legend: "droneNoFlyZone",
     popup: "droneNoFlyZone",
@@ -7290,6 +7327,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "同 droneNoFlyZone 的 ./coverage/drone_restricted_zones.pmtiles（useDroneRestrictedZonesLayer），本層 filter = 空域顏色「黃區」108 面",
+      staticAssets: ["./coverage/drone_restricted_zones.pmtiles"],
     },
     // 與 droneNoFlyZone 共用同一筆 LEGEND_REGISTRY entry（機械規則取其首 key）
     legend: "droneNoFlyZone",
@@ -7832,6 +7870,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useRoadCongestionLayer 自建 PmTilesSource `road-congestion`（無 OVERLAY_REGISTRY entry）：幾何是靜態 ./road/road_congestion_highway.pmtiles（source-layer road_congestion_highway，promoteId = section_uid），染色走 Mapbox feature-state —— 全站首個「PMTiles 幾何 + feature-state」圖層，不每 tick 重建 GeoJSON。⚠️ 目錄 /road/ 只有這一個檔在用。",
+      staticAssets: ["./road/road_congestion_highway.pmtiles"],
     },
     legend: "roadCongestion",
     // layer id `road-congestion-hit` 是**刻意加的透明加寬命中層**（四鐵則③：細線點擊
@@ -8144,6 +8183,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "useAviationRestrictedGlowLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：共用 aviationRestricted 的 ./coverage/aviation_airspace.pmtiles，疊 4 個 line-blur 層 ＋ 1 個淡 fill 做霓虹管邊框（Path A 純 Mapbox 方案，不用 additive/Three.js）。⚠️ 純視覺實驗，無自己的資料來源。",
+      staticAssets: ["./coverage/aviation_airspace.pmtiles"],
     },
     legend: null,
     popup: null,
@@ -8270,6 +8310,7 @@ export const LAYER_MANIFEST = {
     source: {
       kind: "custom",
       note: "usePowerPolesLayer 自建 PmTilesSource（無 OVERLAY_REGISTRY entry）：./coverage/power_poles.pmtiles（26MB，source-layer power_poles，tippecanoe -Z8 -z14 --cluster-densest-as-needed）—— 台電全國電桿 2,959,326 點，circle 依 pole_type 5 類分色。純 PMTiles 靜態，零 DB／零 API。",
+      staticAssets: ["./coverage/power_poles.pmtiles"],
     },
     legend: "powerPoles",
     // 兩百多萬點刻意不接點擊（GIS_LAYERS 無條目）—— legend 有、popup 沒有，兩者無關。
