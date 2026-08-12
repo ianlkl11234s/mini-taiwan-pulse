@@ -1793,3 +1793,21 @@ head -c 200 /tmp/o.json
 6. **收尾**：`git worktree remove --force` 逐一移除 → `git worktree prune` →
    刪 `worktree-agent-*` 與已 merge 分支（gh pr merge --delete-branch 會因 worktree 佔用而刪不掉本地分支，
    worktree 移除後再補刪）。刪任何「內容不在 master」的分支前先 `merge-base --is-ancestor` 驗證。
+
+## PB-38 大型等價重構（黃金快照法）（2026-08-12 定型：Layer Manifest 14 棒一次成型）
+
+適用：把 N 處手寫登記/狀態收斂到單一來源，要求「行為零變化＋資料零失真」的大遷移。
+
+1. **護欄先行（Phase 0）**：動手前把現況全部序列化成 committed fixture（canonical JSON：
+   key 排序、函式型欄位用固定輸入求值）。**必做突變自測**——故意改壞一個值證明比對會叫。
+   之後每批的硬驗收 = fixture 逐位元不變（`git diff <base>..HEAD -- fixture` 為空 + sha256）。
+2. **試點挑最刁的**：不同體質各挑一個先撞完所有形狀，別挑 5 個簡單的騙自己。
+3. **分批鐵律**：批壞不 commit／fixture 綠才放行下一批／每棒把踩雷寫進 changelog 給下一棒
+   （陷阱庫是接力的核心資產——本次 14 棒累積 20+ 條判準，後棒零重踩）。
+4. **快照的先天限制**：只驗「預設值下一次 render」。「拖動有沒有反應」「第二輸出通道」
+   要另建**行為等值閘**（前後快照＋逐欄位比對）＋突變演練（演到紅為止）。
+5. **fixture 合法變動只有兩種**：上游改名吸收（先全量對帳證明只差改名那幾筆）、
+   鷹架縮編（判準：該 section 有沒有別的護欄在守）。每次變動 changelog 記依據。
+6. **收尾必做紅燈演練**：每個宣稱的護欄故意觸發一次、記錄輸出、還原全綠——
+   「看板不留假勾勾」，沒做的半件事誠實拆項（本次 4a✅/4b⬜ 前例）。
+7. 配套：worktree 單線接力（PB-37）＋overnight-log 落檔（中斷即交接）。
