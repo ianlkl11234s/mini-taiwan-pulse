@@ -998,6 +998,33 @@
     },
     {
       "layers": [
+        "lifelineAlerts-fill",
+        "lifelineAlerts-line",
+        "lifelineAlerts-point",
+        "floodAlerts-fill",
+        "floodAlerts-line",
+        "floodAlerts-point",
+        "weatherAlerts-fill",
+        "weatherAlerts-line",
+        "weatherAlerts-point",
+        "transitAlerts-fill",
+        "transitAlerts-line",
+        "transitAlerts-point",
+        "safetyAlerts-fill",
+        "safetyAlerts-line",
+        "safetyAlerts-point"
+      ],
+      "type": "disasterAlert"
+    },
+    {
+      "layers": [
+        "pla-activity-fill",
+        "pla-activity-line"
+      ],
+      "type": "plaActivity"
+    },
+    {
+      "layers": [
         "roadEvents-fill",
         "roadEvents-line",
         "roadEvents-point"

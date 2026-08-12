@@ -32,10 +32,10 @@ import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
 import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { isMigratedParamsKey } from "../layerParamsSpec";
 import {
-  extractGolden, extractGisLayers, extractGisConstRefTypes, extractNonGisFeatureTypes,
-  extractCustomHandlerFeatureTypes,
+  extractGolden, extractNonGisFeatureTypes, extractCustomHandlerFeatureTypes,
 } from "./layerGoldenExtract";
 
 const entries = MANIFEST_KEYS.map(
@@ -44,21 +44,21 @@ const entries = MANIFEST_KEYS.map(
 
 const golden = extractGolden();
 const controls = golden.params as Record<string, { type?: string }[]>;
-const gisRows = extractGisLayers() as { layers: string[]; type: string }[];
-// GIS_LAYERS 有兩筆 layer id 寫成常數引用（disasterAlert / plaActivity），字面陣列的
-// 解析器抓不到 —— 但它們有真的點擊接線。不 union 進來的話，manifest 只能把這兩層
-// 宣告成 popup: null（已知為假），Phase 3 派生時會靜默丟掉接線。
-//
-// 同理還有**完全不經 GIS_LAYERS** 的第三類（`ship` / `waterDam` / `climateField`）：
-// 直接 setFeatureInfo。風場／海流的 `climateField` 尤其極端 —— 它是「向量 feature 全部
+// Phase 4b 起是 **runtime 真值**：GIS_LAYERS 從 useMapInteraction 的區域常數提升成
+// `map/gisClickRegistry.ts` 的模組級 export。原本的兩支文字解析器
+// （`extractGisLayers` 只吃字面陣列 235 筆 ＋ `extractGisConstRefTypes` 補那 2 筆
+// 常數引用的 type）一併退役 —— 237 筆全在同一個真值來源裡，補丁沒有存在理由了。
+const gisRows: { layers: string[]; type: string }[] = GIS_LAYERS;
+// **完全不經 GIS_LAYERS** 的第二類（`ship` / `waterDam` / `climateField`）：直接
+// setFeatureInfo。風場／海流的 `climateField` 尤其極端 —— 它是「向量 feature 全部
 // 沒命中」時的 fallback，點哪都能讀值，本來就不對應任何 layer id。
 //
-// 第四類（批 7 廢棄物）連 useMapInteraction 都不進：圖層模組自己
+// 第三類（批 7 廢棄物）連 useMapInteraction 都不進：圖層模組自己
 // `map.on("click", layerId, …)`（wasteMapboxLayers 8 個 circle 子層）或 App.tsx 的
 // customLayer raycast（6 個 3D 設施 scene）直接 setFeatureInfo。
+// 這兩類沒有登記簿可提升 → 仍是原始碼文字解析，**刻意保留**。
 const gisTypes = new Set([
   ...gisRows.map((r) => r.type),
-  ...extractGisConstRefTypes(),
   ...extractNonGisFeatureTypes(),
   ...extractCustomHandlerFeatureTypes(),
 ]);
@@ -252,6 +252,33 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
         ).toBe(true);
       }
     }
+  });
+
+  /**
+   * ⚠️ AR-22 Phase 4b 新增 —— 上一條是「manifest → 接線」，本條是**反方向**。
+   *
+   * 只驗單邊的話，「接線表裡多出一個沒人宣告的 layerType」會靜默過關：那條接線
+   * 點得出 popup，manifest 卻查無此事 —— 資料源瀏覽器 / BYOK 對話讀 manifest 就會
+   * 少講一層，而且沒有任何測試會叫。GIS_LAYERS 提升成模組級 export（runtime 真值）
+   * 之後這條才做得到：文字解析時代拿不到常數引用那兩筆的完整內容。
+   *
+   * ⚠️ **不去重**：`powerPlant` 8 個 row 是六份不同 RPC ＋ 兩個 Phase 8 SSOT entry
+   * 共用一個 panel（各自獨立的 sourceId 與 layer id）。本條只問「這個 type 有沒有
+   * 被宣告」，多對一是既有語意，不是要修的東西（批 8 交接第 2 點）。
+   */
+  it("GIS_LAYERS 每個 layerType 都有 manifest key 宣告它（反向：接線不能沒人認領）", () => {
+    const declared = new Set<string>();
+    for (const [, m] of entries) {
+      if (m.popup === null) continue;
+      for (const t of Array.isArray(m.popup) ? m.popup : [m.popup]) declared.add(t);
+    }
+    const orphanTypes = [...new Set(gisRows.map((r) => r.type))]
+      .filter((t) => !declared.has(t)).sort();
+    expect(
+      orphanTypes,
+      "這些 layerType 在 gisClickRegistry 有點擊接線，卻沒有任何 manifest key 的 popup " +
+      "宣告它 —— 要嘛接線該刪，要嘛某層的 popup 宣告漏了",
+    ).toEqual([]);
   });
 
   /**
