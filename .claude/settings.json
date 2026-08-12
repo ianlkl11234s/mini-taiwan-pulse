@@ -11,6 +11,19 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/manifest-guard.sh",
+            "timeout": 90,
+            "statusMessage": "manifest 守門測試中…"
+          }
+        ]
+      }
     ]
   }
 }
