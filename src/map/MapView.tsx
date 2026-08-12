@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { CameraPreset, Flight, RenderMode, LayerVisibility } from "../types";
 import { layerVisibilityStore } from "../state/layerVisibilityStore";
+import { useOverlayParams } from "../layers/layerParamsAccess";
 import { updateStaticTrails, setStaticTrailsOpacity, setStaticTrailsVisible } from "./staticTrails";
 import { OVERLAY_REGISTRY } from "./overlayRegistry";
 import { addAllOverlays, updateAllOverlayThemes, setOverlayVisible, hydrateOverlayIfNeeded, resetOverlayHydration, isOverlayVisible } from "./overlayManager";
@@ -97,7 +98,15 @@ interface MapViewProps {
    * ⚠️ AR-21：`layerVisibility` 已不是 prop —— 改直接讀 `layerVisibilityStore`。
    * overlay 的顯示/隱藏是純命令式的地圖操作，不需要先經過一次 React re-render。
    */
-  overlayParams: Record<string, number>;
+  /**
+   * ⚠️ AR-22 P4：**主站不傳** —— 改自己訂閱 `layerParamsStore`。
+   * overlayManager 要對 OVERLAY_REGISTRY 每一層求值 paint/filter/visibility，
+   * 外加農業與等時圈 factory，母體本來就是全集，故訂整包（`useOverlayParams`）。
+   * 這樣拖 slider 時只有 MapView 重繪，App 完全不動。
+   *
+   * `/embed` 仍要傳：embed 的參數是 mount 時從網址凍結的，完全不進 store。
+   */
+  overlayParams?: Record<string, number>;
   onMapReady?: (map: mapboxgl.Map) => void;
 }
 
@@ -167,7 +176,12 @@ function applyPureBlackTheme(map: mapboxgl.Map): void {
   }
 }
 
-export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMode, isDarkTheme = true, showTrails = true, overlayParams, onMapReady }: MapViewProps) {
+export function MapView({ preset, styleUrl, pureBlack = false, flights, renderMode, isDarkTheme = true, showTrails = true, overlayParams: overlayParamsProp, onMapReady }: MapViewProps) {
+  // AR-22 P4：主站走 store 訂閱、embed 走 prop（同 LegendPanel 的 AR-21 模式）。
+  // hook 無條件呼叫；embed 情境下這份訂閱是惰性的（embed 從不寫 store）。
+  const storeOverlayParams = useOverlayParams();
+  const overlayParams = overlayParamsProp ?? storeOverlayParams;
+
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const readyRef = useRef(false);

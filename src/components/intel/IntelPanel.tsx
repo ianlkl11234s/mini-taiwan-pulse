@@ -31,6 +31,7 @@ import {
 } from "../../data/alertsLoader";
 import type { NewsCategory } from "../../data/newsEventTypes";
 import { timeStore } from "../../state/timeStore";
+import { useNewsFilter } from "../../hooks/useNewsFilter";
 
 const EMPTY_HEALTH: SourceHealthSummary = {
   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
@@ -50,9 +51,13 @@ function secsToNextCron(nowSec: number): number {
 interface Props {
   open: boolean;
   onClose: () => void;
-  /** 與 layer 共享的 filter（同步雙向） */
-  filter: NewsFilter;
-  onFilterChange: (next: NewsFilter) => void;
+  /**
+   * 與 layer 共享的 filter（同步雙向）。**主站不傳** —— AR-22 P4 起本元件自己
+   * per-key 訂閱 `newsEvents` 的參數 slot（`useNewsFilter`），與圖層讀寫同一份值。
+   * 保留 prop 是給測試 / 未來的受控情境；有 prop 就以 prop 為準。
+   */
+  filter?: NewsFilter;
+  onFilterChange?: (next: NewsFilter) => void;
   /** 選 cluster 後通知地圖飛去（lon, lat） */
   onSelectLocation?: (lon: number, lat: number) => void;
   /** 來自地圖 pin click 的選取（清單應 scroll + 展開） */
@@ -62,11 +67,16 @@ interface Props {
 export function IntelPanel({
   open,
   onClose,
-  filter,
-  onFilterChange,
+  filter: filterProp,
+  onFilterChange: onFilterChangeProp,
   onSelectLocation,
   externalSelectedId,
 }: Props) {
+  // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
+  const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
+  const filter = filterProp ?? storeFilter;
+  const onFilterChange = onFilterChangeProp ?? storeSetFilter;
+
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
   const [isLive, setIsLive] = useState(true);
   const [playbackTs, setPlaybackTs] = useState(now);

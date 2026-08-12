@@ -2,6 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { YoubikeH3CellData, YoubikeH3DataSet } from "../data/youbikeH3Loader";
 import { loadYoubikeH3 } from "../data/youbikeH3Loader";
 import { todayTaiwan } from "../lib/supabase";
+// AR-22 P4：解析度改由本 hook 自己從 store 讀（per-key 訂閱）
+import { useLayerParams } from "../state/layerParamsStore";
+import { paramNum } from "../layers/layerParamsAccess";
 
 /**
  * Convert unix timestamp to snapshot key like "2026-03-28T08:15"
@@ -37,7 +40,9 @@ function unixToDateStr(unixSec: number): string {
   return `${y}-${m}-${day}`;
 }
 
-export function useYoubikeH3(visible: boolean, resolution: number) {
+export function useYoubikeH3(visible: boolean) {
+  const ybParams = useLayerParams("youbikeFullness");
+  const resolution = paramNum(ybParams, "youbikeFullness", "ybResolution");
   const [dataMap, setDataMap] = useState<Map<string, YoubikeH3DataSet>>(new Map());
   const loadingRef = useRef<Set<string>>(new Set());
   const [currentDate, setCurrentDate] = useState<string>(todayTaiwan());

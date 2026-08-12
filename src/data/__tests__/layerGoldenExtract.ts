@@ -19,7 +19,7 @@
  *   全精度（runtime 真值）：LAYER_COLORS / LAYER_ICONS / THEMES / SECTIONS /
  *     LAYER_LABELS / GATED_LAYERS / UPSTREAM_REGISTRY / LEGEND_REGISTRY /
  *     HEADER_LABELS / PANEL_REGISTRY keys / OVERLAY_REGISTRY（含函式欄位求值）/
- *     transportParams 控件（用 react-dom/server 實際跑 hook，等價 renderHook）/
+ *     參數控件（buildParamControls ＋ layerParamsStore 快照，P4 起不再經 React SSR）/
  *     **GIS_LAYERS（Phase 4b 起）** —— 它從 `useMapInteraction` 的區域常數提升成
  *     `map/gisClickRegistry.ts` 的模組級 export，`extractGisLayers` 與
  *     `extractGisConstRefTypes` 兩支文字解析器隨之退役（見下方退役註記）。
@@ -31,12 +31,10 @@
  * ── 非決定性防治 ──────────────────────────────────────────────────
  *   overlayRegistry 的 cultureTodayStr() / tourTodayStr() 會把「今天」烤進 filter
  *   literal → 抽取時正規化成 __TODAY_DASH__ / __TODAY_SLASH__，否則 fixture 每天爆。
- *   useLayerParamsRuntime 的 pollutionPenaltyYear 預設 = clamp(今年, 2010, 2026)，
+ *   layerParamsSpec 的 pollutionPenaltyYear 預設 = clamp(今年, 2010, 2026)，
  *   目前被 PENALTY_YEAR_MAX 夾住而穩定；測試另有一條 guard 斷言防它未來鬆脫。
  */
 
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 
 import type { LayerVisibility } from "../../types";
@@ -51,8 +49,8 @@ import { legendKeys } from "../legendGroups";
 import { HEADER_LABELS, PANEL_REGISTRY } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
-import { useLayerParamsRuntime } from "../../hooks/useLayerParamsRuntime";
-import type { ExpandableLayerKey } from "../../types";
+import { buildParamControls } from "../../state/layerParamsControls";
+import { encodeParamsToOverlay, layerParamsStore } from "../../state/layerParamsStore";
 
 export const FIXTURE_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 const INTERACTION_FILE = "src/hooks/useMapInteraction.ts";
@@ -86,8 +84,7 @@ function normalizeString(s: string): string {
  * - NaN / ±Infinity → 顯性 marker（JSON.stringify 會轉成 null，同樣會糊掉資訊）
  * - 物件 key 排序（canonical）；陣列保序
  *
- * ⚠️ 也被 `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts`（hook return 等值閘）
- * 直接引用 —— -0 / undefined / 函式 的處理各寫一份必漂移。
+ *（曾被 hook return 等值閘直接引用；該測試已隨 useLayerParamsRuntime 於 AR-22 P4 退役。）
  */
 export function sanitize(value: unknown): unknown {
   if (value === undefined) return null;
@@ -153,27 +150,31 @@ function extractIcons(): Record<string, string> {
 }
 
 /**
- * transportParams 控件定義：用 react-dom/server 實跑 hook 拿預設 state，
- * 再對全部 348 key 呼叫 getControls（規格查無此 key 回 []，非 Expandable 的 key 安全）。
+ * 控件定義 + overlayParams：對全部 348 key 產生控件
+ * （規格查無此 key 回 null → `?? []`，非 Expandable 的 key 安全）。
  * ExpandableLayerKey 是 type-only、runtime 無法迭代 → 全掃是唯一完整做法。
+ *
+ * ── ⚠️ AR-22 P4 換源（`useLayerParamsRuntime` 已整支退役）──────────
+ * 原本這裡用 `react-dom/server` 實跑那支 hook，再讀它的 `getControls` 與
+ * `overlayParams`。那兩個欄位本來就只是薄薄一層轉接：
+ *
+ *   getControls(k)  ===  buildParamControls(k, migratedParams[k]) ?? []
+ *   overlayParams   ===  { ...encodeParamsToOverlay(migratedParams) }
+ *
+ * 而 `migratedParams` 就是 `layerParamsStore.getAll()` 的快照。所以這裡直接
+ * 打 store ＋ 兩個 builder，**逐位元等價**，還省掉一次 React SSR。
+ * 等價的證明就是 fixture 零 diff —— 換源若做錯，`params` / `overlays`
+ * 兩個 section 會立刻紅（不准重 dump fixture）。
  */
 function probeTransportParams(): {
   controls: Record<string, unknown>;
   overlayParams: Record<string, number>;
 } {
-  let captured: ReturnType<typeof useLayerParamsRuntime> | null = null;
-  function Probe() {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    captured = useLayerParamsRuntime();
-    return null;
-  }
-  renderToStaticMarkup(createElement(Probe));
-  const api = captured as unknown as ReturnType<typeof useLayerParamsRuntime> | null;
-  if (!api) throw new Error("useLayerParamsRuntime probe 沒有捕捉到回傳值");
+  const all = layerParamsStore.getAll();
 
   const controls: Record<string, unknown> = {};
   for (const key of allLayerKeys()) {
-    const list = evalGuard(() => api.getControls(key as ExpandableLayerKey));
+    const list = evalGuard(() => buildParamControls(key, all[key]) ?? []);
     // 控件的 onChange 是 closure，不進快照（sanitize 會轉 "__FN__"，這裡直接剔除
     // 讓 fixture 乾淨——控件「型別/label/範圍/預設值」才是要凍結的契約）。
     controls[key] = Array.isArray(list)
@@ -182,7 +183,7 @@ function probeTransportParams(): {
   }
   return {
     controls,
-    overlayParams: api.overlayParams as unknown as Record<string, number>,
+    overlayParams: encodeParamsToOverlay(all),
   };
 }
 

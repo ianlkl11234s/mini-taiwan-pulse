@@ -5,6 +5,7 @@ import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
+import { useOverlayParams } from "../layers/layerParamsAccess";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
@@ -220,7 +221,14 @@ interface LegendPanelProps {
    * 完全不進 store（embed 從不寫 store）。有 prop 就以 prop 為準。
    */
   visibility?: LayerVisibility;
-  overlayParams: Record<string, number>;
+  /**
+   * 圖例要照當下 paint 畫色階，讀的是整包編碼後的參數。**主站不傳** ——
+   * 改由本元件自己訂閱 `layerParamsStore`（AR-22 P4，比照上方 visibility 的 AR-21 試點），
+   * 這樣 App 因無關狀態重繪時 memo 能整個跳過本面板，拖 slider 也只重繪這裡。
+   *
+   * `/embed` 仍要傳：embed 的參數是 mount 時從網址凍結的，完全不進 store。
+   */
+  overlayParams?: Record<string, number>;
   /** 淺色底圖時傳 false 讓面板外殼切成淺色 chrome（色票資料兩主題共用，不受影響）*/
   isDarkTheme?: boolean;
   /**
@@ -430,7 +438,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
 ];
 
 export const LegendPanel = memo(function LegendPanel({
-  visibility: visibilityProp, overlayParams, isDarkTheme = true, railSystems,
+  visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems,
 }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -438,6 +446,11 @@ export const LegendPanel = memo(function LegendPanel({
   // 這份訂閱是惰性的 —— embed 從不寫 store，永遠拿到預設全關的快照）。
   const storeVisibility = useLayerVisibilityAll();
   const visibility = visibilityProp ?? storeVisibility;
+
+  // AR-22 P4：同上模式，參數改自己訂閱。圖例是**真的需要整包**的聚合消費端
+  // （每個 sub-legend 讀自己那一格 out key），故用 useOverlayParams 而非 per-key。
+  const storeOverlayParams = useOverlayParams();
+  const overlayParams = overlayParamsProp ?? storeOverlayParams;
 
   // 面板外殼 chrome（僅容器與標題文字，色票資料兩主題共用）
   const c = isDarkTheme

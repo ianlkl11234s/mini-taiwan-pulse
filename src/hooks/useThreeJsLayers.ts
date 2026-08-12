@@ -15,6 +15,9 @@ import { createFlightLayer, createShipLayer, createRailLayer } from "../map/cust
 import { createBusLayer } from "../map/busCustomLayer";
 import { createWasteTruckLayer } from "../map/wasteTruckCustomLayer";
 import { createWasteScheduleLayer } from "../map/wasteScheduleCustomLayer";
+// AR-22 P4：參數鏡像改吃模組級 ref（由 layerParamsStore 的訂閱者維護），
+// 不再由 App 經 props 傳入 —— Three.js 的 RAF 迴圈本來就不需要 render 才拿得到新值。
+import { layerParamRefs as paramRefs } from "../state/layerParamRefs";
 import {
   createWasteFacilityLayer,
   type WasteFacility3DScenes,
@@ -52,54 +55,6 @@ interface UseThreeJsLayersArgs {
   temperatureDataRef: React.RefObject<TemperatureGridData | null>;
   playingRef: React.RefObject<boolean>;
   layerVisibilityRef: React.RefObject<LayerVisibility>;
-  paramRefs: {
-    altExag: React.RefObject<number>;
-    altOffset: React.RefObject<number>;
-    staticOpacity: React.RefObject<number>;
-    orbScale: React.RefObject<number>;
-    shipOrbScale: React.RefObject<number>;
-    shipTrailOpacity: React.RefObject<number>;
-    railAltOffset: React.RefObject<number>;
-    railOrbScale: React.RefObject<number>;
-    railTrackOpacity: React.RefObject<number>;
-    railTrainVisible: React.RefObject<boolean>;
-    railTrackMode: React.RefObject<string>;
-    busOrbScale: React.RefObject<number>;
-    busColorMode: React.RefObject<string>;
-    busAltOffset: React.RefObject<number>;
-    busIntercityOrbScale: React.RefObject<number>;
-    busIntercityColorMode: React.RefObject<string>;
-    busIntercityAltOffset: React.RefObject<number>;
-    touristShuttleOrbScale: React.RefObject<number>;
-    touristShuttleColorMode: React.RefObject<string>;
-    touristShuttleAltOffset: React.RefObject<number>;
-    touristShuttleOpacity: React.RefObject<number>;
-    wasteOrbScale: React.RefObject<number>;
-    wasteNoteSize: React.RefObject<number>;
-    wasteNoteZOffset: React.RefObject<number>;
-    fireStationsScale: React.RefObject<number>;
-    fireStationsOpacity: React.RefObject<number>;
-    fireStations3D: React.RefObject<boolean>;
-    wasteSubParams: React.RefObject<Record<WasteFacility3DKey, WasteFacilityLayerParams> | Record<string, WasteFacilityLayerParams>>;
-    beamVisible: React.RefObject<boolean>;
-    beamDistance: React.RefObject<number>;
-    beamOpacity: React.RefObject<number>;
-    thsrPillarVisible: React.RefObject<boolean>;
-    thsrPillarHeight: React.RefObject<number>;
-    traPillarVisible: React.RefObject<boolean>;
-    traPillarHeight: React.RefObject<number>;
-    metroPillarVisible: React.RefObject<boolean>;
-    metroPillarHeight: React.RefObject<number>;
-    airportPillarVisible: React.RefObject<boolean>;
-    airportPillarHeight: React.RefObject<number>;
-    portPillarVisible: React.RefObject<boolean>;
-    portPillarHeight: React.RefObject<number>;
-    tempHeight: React.RefObject<number>;
-    tempZOffset: React.RefObject<number>;
-    tempExtruded: React.RefObject<boolean>;
-    tempOpacity: React.RefObject<number>;
-    tempWireframe: React.RefObject<boolean>;
-  };
 }
 
 export function useThreeJsLayers({
@@ -110,7 +65,6 @@ export function useThreeJsLayers({
   lighthousePositionsRef, thsrPillarDataRef, traPillarDataRef, metroPillarDataRef,
   airportPillarDataRef, portPillarDataRef, temperatureDataRef,
   playingRef, layerVisibilityRef,
-  paramRefs,
 }: UseThreeJsLayersArgs) {
   const flightSceneRef = useRef<FlightScene | null>(null);
   const shipSceneRef = useRef<ShipScene | null>(null);
