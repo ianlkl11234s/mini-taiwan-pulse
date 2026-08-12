@@ -3,6 +3,7 @@
 > 依據：`docs/research/architecture-audit-2026-07-02.md`（5 面向審計）
 > 目標：把系統從「數十人」撐到「數百人」，同時讓圖層翻倍不炸、預留會員與對話介面。
 > 建立：2026-07-02。狀態欄由各 session 更新。
+> **2026-08-12 交付**：AR-21~24 全數 merged（#129/#130，14 棒過夜工程），未竟 8 條見 `docs/features/layer-manifest/backlog.md`。
 > **2026-08-10 稽核對帳**：見 `docs/research/architecture-audit-2026-08-10.md`，**AR-21~26 為當前最高優先結構工程**（07-02 藥方還沒吃，`useTransportParams` 病灶又長了 60%：2,104→3,161 行）。
 
 ---
@@ -107,9 +108,9 @@ P0 止血 ──────────────┐
 | # | 內容 | Branch | 驗證 | 狀態 |
 |---|---|---|---|---|
 | AR-21 | `layerVisibilityStore`：照 `timeStore.ts` 模式建細粒度訂閱 store（`getVisibility(key)` / `subscribeKey(key, cb)` / `useLayerVisible(key)`）。過渡期與現有 App state 雙向 bridge，元件逐步改訂閱 | `perf/visibility-store` | React Profiler：toggle 單層 commit 不含無關元件；行為零變化（All Off → 逐層開抽查） | ✅ **試點 merged 2026-08-10（PR #129）**：store + bridge（單一 state 來源，useSyncExternalStore）+ 2 consumer（LegendPanel／MapView hydrate）+ 22 測試。行為零變化已驗證；**re-render 收益未量測**（per-key 訂閱零生產呼叫點），兌現於 AR-23 全量遷移 |
-| AR-22 | Layer Manifest schema 定義（key/section/color/dataClass/source/polling/legend/popup/params/description/topics）+ 試點 5 層（挑近期熟悉的：real-estate、fire、bloom 系） | `feat/layer-manifest-pilot` | 試點層全部行為不變；layerConsistency 測試新增 manifest 完整性檢查 | ☐ |
-| AR-23 | 全量遷移（按 sidebar section 分批，每批一 PR）：App.tsx 55 個手寫 hook 呼叫改 manifest 驅動迴圈；LAYER_COLORS / SECTIONS 從 manifest 派生，消滅三處平行清單 | `feat/layer-manifest-s1..sN` | 每批：tsc + test + browser 抽查；批間可暫停 | ☐ |
-| AR-24 | params 遷移：per-layer param spec 進 manifest，`useTransportParams` 退役為 generic param store + renderer（同 AR-21 訂閱模式） | `perf/params-store` | slider 拖動只 render 該層控件 + 地圖 diff；2104 行檔刪除 | ☐ |
+| AR-22 | Layer Manifest schema 定義（key/section/color/dataClass/source/polling/legend/popup/params/description/topics）+ 試點 5 層（挑近期熟悉的：real-estate、fire、bloom 系） | `feat/layer-manifest-pilot` | 試點層全部行為不變；layerConsistency 測試新增 manifest 完整性檢查 | ✅ **done 2026-08-12（PR #130）** |
+| AR-23 | 全量遷移（按 sidebar section 分批，每批一 PR）：App.tsx 55 個手寫 hook 呼叫改 manifest 驅動迴圈；LAYER_COLORS / SECTIONS 從 manifest 派生，消滅三處平行清單 | `feat/layer-manifest-s1..sN` | 每批：tsc + test + browser 抽查；批間可暫停 | ✅ **done 2026-08-12（PR #130）** |
+| AR-24 | params 遷移：per-layer param spec 進 manifest，`useTransportParams` 退役為 generic param store + renderer（同 AR-21 訂閱模式） | `perf/params-store` | slider 拖動只 render 該層控件 + 地圖 diff；2104 行檔刪除 | ✅ **done 2026-08-12（PR #130）** |
 | AR-25 | 巨檔機械拆分（G008 收割）：overlayRegistry 按 domain 拆、LegendPanel / featureInfo 子檔化；`/new-layer` command 與 layer-onboarding skill 同步改為 manifest 流程 | `chore/split-registry` | tsc + test；`/new-layer` 產出新格式骨架 | ☐ |
 | AR-26 | 護欄升級：layerConsistency 測試改以 manifest 為 SSOT 驗「loader 有接、hook/overlay 有掛、click 有註冊、dropdown ≥4 轉 select」——消滅 5 個靜默失敗點 | 併入 AR-23 各批 | 故意漏接一項 → 測試紅 | ☐ |
 
