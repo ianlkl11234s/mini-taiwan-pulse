@@ -369,7 +369,11 @@ done
 # gas coverage 小檔 taiwan_*_nearest.pmtiles（5MB）仍進 git/dist，刻意不上傳（原語意保留）。
 # ⚠️ 2026-08-12 修正：本段原註解寫「只上傳 real_estate_*」，與 .gitignore 對 power_poles 的
 #    「走 S3 deploy-assets/coverage/」自相矛盾 —— 矛盾的那一半（漏上傳）才是真相，故補齊。
-for f in public/coverage/real_estate_*.pmtiles public/coverage/power_poles.pmtiles; do
+#    另補 real_estate_points_buffer.bin（7.3MB interleaved Float32×5，Three.js
+#    RealEstatePointsScene 讀）：docs/features/real-estate/handoff.md 明列它是
+#    deploy-assets/coverage/ 的產物，但本迴圈的 glob 是 `real_estate_*.pmtiles`，
+#    `.bin` 副檔名從不匹配 —— 它同樣 gitignore，等於兩條路都沒有。
+for f in public/coverage/real_estate_*.pmtiles public/coverage/real_estate_points_buffer.bin public/coverage/power_poles.pmtiles; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   echo "Uploading coverage/$name..."
