@@ -79,6 +79,9 @@ public/fire/*.pmtiles
 public/coverage/real_estate_*.pmtiles
 public/coverage/real_estate_points_buffer.bin
 # 全國電桿 PMTiles 26MB（台電 d077010 2.96M points，走 S3 deploy-assets/coverage/）
+# ⚠️ 2026-08-12 前本行只是**願望**：upload-deploy-assets.sh 的 coverage 迴圈只掃
+#    real_estate_*，power_poles 從未被上傳過 → gitignore 掉又沒進 S3 = 兩條路都沒有。
+#    已在該腳本補進迴圈，本行現在名副其實；src/map/__tests__/deployContract.test.ts 釘住。
 public/coverage/power_poles.pmtiles
 # 醫療 GeoJSON（走 S3 deploy-assets，5 檔合計 ~65MB）
 public/geo/medical_*.geojson
