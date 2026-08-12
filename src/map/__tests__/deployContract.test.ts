@@ -14,13 +14,29 @@
  *
  * 新增資產子目錄時：upload 腳本（自己跑會發現）、pull 腳本、nginx.conf
  * 三處都要接 — 漏任何一處本測試直接紅。
+ *
+ * ── 2026-08-12 升級：目錄級 → 逐檔級（觸點 #20）────────────────────────
+ *
+ * 上面三條**只到目錄層級**（`nginxCovers` / `pullCovers` 是子字串比對），
+ * 而 upload 腳本是**逐檔清單**。「目錄接了但那一檔沒進清單」整類缺口
+ * 因此完全在射程外 —— 5 個真缺口（hillshade / flood / fishery×3 /
+ * power_poles，加上建立本斷言時多抓到的 real_estate_points_buffer.bin）
+ * 就是這樣長期潛伏的。枚舉來源也只掃 OVERLAY_REGISTRY，看不見
+ * `kind:"custom"` 那批自建 source 的層（slope/aspect/powerPoles/農業 factory…）。
+ *
+ * 升級後：枚舉改 **manifest 驅動**（348 entry 的 url / fallbackUrl /
+ * staticAssets），逐檔跑正向斷言，另加一條反向斷言。OVERLAY_REGISTRY
+ * 掃描保留當交叉驗證（registry 有的 manifest 必須也有）。
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { execSync } from "node:child_process";
+import { LAYER_MANIFEST, MANIFEST_KEYS, type LayerManifestEntry } from "../../data/layerManifest";
 
 const registrySource = readFileSync("src/map/overlayRegistry.ts", "utf8");
 const nginxConf = readFileSync("nginx.conf", "utf8");
 const pullScript = readFileSync("scripts/deploy/pull-deploy-assets.sh", "utf8");
+const uploadScript = readFileSync("scripts/deploy/upload-deploy-assets.sh", "utf8");
 
 /** overlayRegistry 的所有 sourceUrl（"./geo/xxx.geojson" → "geo/xxx.geojson"） */
 const sourceUrls = [...registrySource.matchAll(/sourceUrl:\s*"\.\/([^"]+)"/g)].map(
@@ -50,6 +66,168 @@ function pullCovers(dir: string): boolean {
     pullScript.includes(`$DATA_DIR/${dir}/`) || pullScript.includes(`$S3/${dir}/`)
   );
 }
+
+// ══════════════════════════════════════════════════════════════════
+//  枚舉：manifest 驅動的逐檔靜態資產清單
+// ══════════════════════════════════════════════════════════════════
+
+/**
+ * 每個 manifest entry 宣告的靜態檔路徑（正規化成 "dir/file"，相對 public/）。
+ *   - `kind:"geojson"` / `"pmtiles"` → `url`
+ *   - `kind:"supabase"` → `fallbackUrl`（動態層在 RPC 掛掉時真的會去抓）
+ *   - `kind:"custom"` → `staticAssets`（AR-22 補的結構化欄位；沒有靜態檔就沒有本欄）
+ * 回傳 path → 引用它的 layer key 清單（訊息要指得出「誰在用」）。
+ */
+function manifestAssets(): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  const add = (url: string, key: string) => {
+    const p = url.replace(/^\.\//, "");
+    if (!out.has(p)) out.set(p, []);
+    (out.get(p) as string[]).push(key);
+  };
+  for (const key of MANIFEST_KEYS) {
+    const m = LAYER_MANIFEST[key] as LayerManifestEntry;
+    for (const s of Array.isArray(m.source) ? m.source : [m.source]) {
+      if (s.kind === "geojson" || s.kind === "pmtiles") add(s.url, key);
+      else if (s.kind === "supabase") add(s.fallbackUrl, key);
+      else for (const a of s.staticAssets ?? []) add(a, key);
+    }
+  }
+  return out;
+}
+
+const ASSETS = manifestAssets();
+
+// ══════════════════════════════════════════════════════════════════
+//  nginx 行為建模（最長前綴匹配）
+// ══════════════════════════════════════════════════════════════════
+
+interface NginxLoc {
+  /** 前綴，含頭尾斜線，例：`/base_map/` */
+  prefix: string;
+  /** body 有 `root /data;` → 從 persistent volume 供檔 */
+  readsData: boolean;
+  /** body 有 `try_files $uri @dist` → volume 找不到時退回 dist（git 小檔） */
+  distFallback: boolean;
+}
+
+/**
+ * ⚠️ **脆弱點（刻意的簡化，改 nginx.conf 時請一起看這裡）**：
+ *   1. 只解析「前綴 location」（`location /<dir>/ {`），**不解析** `location = `
+ *      精確匹配與 `location ~ ` 正則匹配。真實 nginx 的正則 location 優先序**高於**
+ *      前綴，例如檔尾那條 `~* \.(js|css|png|…)$` 其實會截走 `/base_map/hillshade.png`
+ *      並從 dist 供檔。本模型刻意不含它 —— 那條只設快取 header 不換 root 的意圖，
+ *      靠它來供大檔是意外行為不是契約（且 hillshade 的修法已由 overnight-log 拍板
+ *      為「PNG 補進 upload 清單」）。要改這個判斷請連同拍板一起改。
+ *   2. location body 假設**沒有巢狀大括號**（現況成立）。
+ *   3. 沒有任何前綴命中 → 落到 SPA root `location /`（`try_files $uri …`），
+ *      等同 dist 供檔。
+ */
+const NGINX_LOCS: NginxLoc[] = [
+  ...nginxConf.matchAll(/location\s+(\/[A-Za-z0-9_.-]+\/)\s*\{([^}]*)\}/g),
+].map((m) => ({
+  prefix: m[1] as string,
+  readsData: /root\s+\/data\s*;/.test(m[2] as string),
+  distFallback: (m[2] as string).includes("@dist"),
+}));
+
+/** 最長前綴匹配；沒有命中回 null（= 落到 SPA root，從 dist 供檔） */
+function locationFor(path: string): NginxLoc | null {
+  let best: NginxLoc | null = null;
+  for (const loc of NGINX_LOCS) {
+    if (!`/${path}`.startsWith(loc.prefix)) continue;
+    if (!best || loc.prefix.length > best.prefix.length) best = loc;
+  }
+  return best;
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  upload 腳本解析（逐檔陣列 + for-loop glob + 整夾 sync）
+// ══════════════════════════════════════════════════════════════════
+
+/**
+ * ⚠️ **脆弱點（ratchet 性質，按現有腳本慣例寫死三種形狀）**：
+ *   A. 逐檔陣列元素 —— 獨佔一行的 `"public/…"` 字串（FILES / AGRI_FILES /
+ *      FOREST_FILES / FISHERY_FILES / BUS_BIG_FILES / TOURISM_FILES 都是這個排版）。
+ *      被註解掉的行不會匹配（`#` 開頭），這正是 owner-gated 兩檔「刻意不上傳」的表達方式。
+ *   B. `for f in <pattern…>; do` 的 glob / 字面路徑（可多個，空白分隔）。
+ *   C. `aws s3 sync public/<dir>/ …` 的整夾鏡像（embed-snapshots / embed-rail）。
+ * 腳本若改用其他寫法（變數展開、間接引用、`find`），本解析器會**靜默漏看**
+ * → 表現成假紅（該檔其實有上傳卻被判缺）。假紅比假綠安全，但修的時候要來改這裡。
+ */
+function uploadPatterns(): { globs: string[]; syncDirs: Set<string> } {
+  const globs = [
+    ...[...uploadScript.matchAll(/^\s*"(public\/[^"]+)"\s*$/gm)].map((m) => m[1] as string),
+    ...[...uploadScript.matchAll(/^\s*for\s+f\s+in\s+([^;]+);\s*do/gm)].flatMap((m) =>
+      (m[1] as string).split(/\s+/).filter((w) => w.startsWith("public/")),
+    ),
+  ];
+  const syncDirs = new Set(
+    [...uploadScript.matchAll(/aws s3 sync\s+public\/([A-Za-z0-9_.-]+)\//g)].map(
+      (m) => m[1] as string,
+    ),
+  );
+  return { globs, syncDirs };
+}
+
+const UPLOAD = uploadPatterns();
+
+/** glob → RegExp（`*` 不跨 `/`，其餘字元字面比對） */
+function globToRe(glob: string): RegExp {
+  const body = glob.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^/]*");
+  return new RegExp(`^${body}$`);
+}
+const UPLOAD_RES = UPLOAD.globs.map(globToRe);
+
+/** 這個檔有沒有真的被 upload 腳本推上 S3（檔案級，不是目錄級） */
+function uploadCovers(path: string): boolean {
+  if (UPLOAD.syncDirs.has(path.split("/")[0] as string)) return true;
+  return UPLOAD_RES.some((re) => re.test(`public/${path}`));
+}
+
+/** git 追蹤中的 public/ 檔案（→ build 後會進 dist，dist fallback 那條路才活） */
+const TRACKED = new Set(
+  execSync("git ls-files public", { encoding: "utf8" }).split("\n").filter(Boolean),
+);
+function gitTracked(path: string): boolean {
+  return TRACKED.has(`public/${path}`);
+}
+
+// ══════════════════════════════════════════════════════════════════
+//  豁免 ledger（比照 layerConsistency 的 NO_POPUP_LEDGER 雙向凍結 idiom）
+// ══════════════════════════════════════════════════════════════════
+
+/**
+ * **真檔但刻意不部署** —— 前端仍留著 fallbackUrl（dev 本機有檔可跑），
+ * 但 prod 供應被有意識地切斷。加一筆必須寫下理由；
+ * 哪天它又進了上傳清單，下方的雙向斷言會叫你把它移除（ratchet 只進不退）。
+ */
+const DEPLOY_EXEMPT_LEDGER = new Set<string>([
+  // owner-gated（docs/features/owner-gated-layers）：改走 owner-only RPC，
+  // upload 的 AGRI_FILES 把兩行註解掉，pull 端另有 --exclude ＋ rm -f 清 volume 殘留。
+  "agriculture/livestock_farms.geojson",
+  "agriculture/slaughterhouses.geojson",
+]);
+
+/**
+ * **推送端不在本 repo** —— 檔案確實上得了 S3，但推它的管線不是
+ * `scripts/deploy/upload-deploy-assets.sh`，所以檔案級斷言在這裡拿不到證據。
+ * 目錄為單位；pull + nginx 兩端仍照常斷言（那兩端在本 repo 內）。
+ * 哪天上傳段搬進本腳本，下方雙向斷言會叫你把它移除。
+ */
+const EXTERNAL_UPLOAD_LEDGER = new Set<string>([
+  // 19 個 dataset 子目錄共 172MB：dev 用 symlink → taipei-gis-analytics/
+  // data/processed/police_justice/（見 .gitignore），prod 走 deploy-assets/police_justice/。
+  // 本 repo 的 upload 腳本從來沒有這一段，pull 端有。
+  "police_justice",
+]);
+
+/** `_empty.geojson` 是「動態層起手用的空殼」，不是要部署的資料檔 */
+function isEmptyShell(path: string): boolean {
+  return path.split("/").pop() === "_empty.geojson";
+}
+
+// ══════════════════════════════════════════════════════════════════
 
 describe("deploy 契約（nginx + pull script）", () => {
   it("前端引用的每個 public/ 子目錄都有 nginx location", () => {
@@ -87,5 +265,128 @@ describe("deploy 契約（nginx + pull script）", () => {
   it("sanity：有掃到東西（防 regex 失效讓測試默默變空轉）", () => {
     expect(sourceUrls.length).toBeGreaterThan(30);
     expect(referencedDirs.size).toBeGreaterThanOrEqual(3); // geo / forestry / agriculture ...
+  });
+});
+
+describe("deploy 契約（manifest 逐檔）", () => {
+  it("sanity：三個解析器都有掃到東西（空轉 = 假綠，比缺口更危險）", () => {
+    expect(ASSETS.size, "manifest 靜態資產枚舉為空 → 收集器壞了").toBeGreaterThan(150);
+    expect(NGINX_LOCS.length, "nginx location 解析為空").toBeGreaterThan(20);
+    expect(UPLOAD.globs.length, "upload 清單解析為空").toBeGreaterThan(50);
+    expect(TRACKED.size, "git ls-files public 為空").toBeGreaterThan(100);
+    // 解析器至少要認得出這幾種形狀，否則後面的斷言是空轉
+    expect(uploadCovers("agriculture/ftw_fields_2025.pmtiles"), "逐檔陣列沒解析到").toBe(true);
+    expect(uploadCovers("urban/street_trees_national.pmtiles"), "for-loop glob 沒解析到").toBe(true);
+    expect(locationFor("base_map/hillshade.png")?.prefix).toBe("/base_map/");
+    expect(locationFor("geo/cctv.geojson")?.distFallback).toBe(true);
+  });
+
+  it("交叉驗證：OVERLAY_REGISTRY 的每個 sourceUrl 都在 manifest 的枚舉裡", () => {
+    const missing = [...new Set(sourceUrls)].filter((u) => !ASSETS.has(u)).sort();
+    expect(
+      missing,
+      `這些 registry sourceUrl 在 manifest 枚舉不到 —— manifest 漏宣告，` +
+      `逐檔斷言就跟著漏掉它們：${missing.join(", ")}`,
+    ).toEqual([]);
+  });
+
+  /**
+   * 正向：manifest 引用的每個檔，照 nginx 實際會怎麼供它，去對應的那一端要證據。
+   *   純 volume location（無 dist fallback）→ 必須 upload 有該檔 ＋ pull 有該目錄
+   *   有 dist fallback              → upload 有該檔 **或** git 追蹤（兩條路活一條即可）
+   *   沒有 location（SPA root）      → 只能靠 dist ⇒ 必須 git 追蹤
+   */
+  it("manifest 引用的每個靜態檔都有一條活的供應路徑", () => {
+    const broken: string[] = [];
+    for (const [path, keys] of [...ASSETS].sort()) {
+      if (isEmptyShell(path)) continue;
+      if (DEPLOY_EXEMPT_LEDGER.has(path)) continue;
+      const dir = path.split("/")[0] as string;
+      if (EXTERNAL_UPLOAD_LEDGER.has(dir)) {
+        if (!pullCovers(dir)) broken.push(`${path}（${keys.join("/")}）: pull 沒同步 ${dir}/`);
+        continue;
+      }
+      const loc = locationFor(path);
+      const who = `${path}（${keys.join("/")}）`;
+      if (!loc || !loc.readsData) {
+        if (!gitTracked(path)) {
+          broken.push(`${who}: 落到 SPA root/dist 但不在 git ⇒ dist 裡不會有這個檔`);
+        }
+      } else if (loc.distFallback) {
+        if (!uploadCovers(path) && !gitTracked(path)) {
+          broken.push(
+            `${who}: nginx ${loc.prefix} 有 dist fallback，但 upload 清單沒有它、git 也沒追蹤 ⇒ 兩條路都空`,
+          );
+        }
+      } else {
+        if (!uploadCovers(path)) {
+          broken.push(
+            `${who}: nginx ${loc.prefix} 是純 volume（無 dist fallback）⇒ 只能從 S3 來，` +
+            `但 upload 清單沒有它`,
+          );
+        } else if (!pullCovers(dir)) {
+          broken.push(`${who}: nginx ${loc.prefix} 是純 volume，但 pull 沒同步 ${dir}/`);
+        }
+      }
+    }
+    expect(
+      broken,
+      `這些 manifest 引用的靜態檔在 prod 拿不到（404）：\n  ${broken.join("\n  ")}\n` +
+      `→ 純 volume 目錄：把檔案加進 upload-deploy-assets.sh 的清單/glob\n` +
+      `→ 要走 dist：檔案得 git 追蹤，且 nginx location 要有 try_files $uri @dist\n` +
+      `→ 真的刻意不部署：加進本檔的 DEPLOY_EXEMPT_LEDGER 並寫下理由`,
+    ).toEqual([]);
+  });
+
+  /** ledger 雙向凍結：登記的東西若已經被部署了，就該從 ledger 移除 */
+  it("DEPLOY_EXEMPT_LEDGER 沒有過期條目（ratchet 只進不退）", () => {
+    const stale = [...DEPLOY_EXEMPT_LEDGER].filter((p) => uploadCovers(p)).sort();
+    expect(
+      stale,
+      `這些檔已經進了 upload 清單（= 有在部署），請從 DEPLOY_EXEMPT_LEDGER 移除：${stale.join(", ")}`,
+    ).toEqual([]);
+    const unreferenced = [...DEPLOY_EXEMPT_LEDGER].filter((p) => !ASSETS.has(p)).sort();
+    expect(
+      unreferenced,
+      `這些檔 manifest 已經不引用了，ledger 留著只會誤導：${unreferenced.join(", ")}`,
+    ).toEqual([]);
+  });
+
+  it("EXTERNAL_UPLOAD_LEDGER 沒有過期條目（上傳段搬進本 repo 就該移除）", () => {
+    const stale = [...EXTERNAL_UPLOAD_LEDGER].filter((dir) => {
+      const files = [...ASSETS.keys()].filter((p) => p.split("/")[0] === dir);
+      return files.length > 0 && files.every((p) => uploadCovers(p));
+    });
+    expect(
+      stale,
+      `這些目錄的檔案已全數進了本 repo 的 upload 清單，` +
+      `請從 EXTERNAL_UPLOAD_LEDGER 移除：${stale.join(", ")}`,
+    ).toEqual([]);
+  });
+
+  /**
+   * 反向：deploy 腳本推到 /data/<dir>/ 的每個目錄，nginx 都要有讀 /data 的 location。
+   * 沒有的話那條 S3 路徑整條是死的 —— 檔案躺在 volume 上但沒人服務它
+   * （`/flood/` 修復前正是這個形狀：upload/pull 都推了，nginx 沒有 location）。
+   */
+  it("deploy 腳本推送的每個目錄，nginx 都有讀 /data 的 location", () => {
+    const pushed = new Set([
+      ...[...uploadScript.matchAll(/\$PREFIX\/([A-Za-z0-9_-]+)\//g)].map((m) => m[1] as string),
+      ...[...pullScript.matchAll(/\$DATA_DIR\/([A-Za-z0-9_-]+)\//g)].map((m) => m[1] as string),
+      ...[...pullScript.matchAll(/\$S3\/([A-Za-z0-9_-]+)\//g)].map((m) => m[1] as string),
+    ]);
+    const orphanDirs = [...pushed]
+      .filter((d) => {
+        const loc = NGINX_LOCS.find((l) => l.prefix === `/${d}/`);
+        return !loc || !loc.readsData;
+      })
+      .sort();
+    expect(
+      orphanDirs,
+      `deploy 管線把檔案推進 /data/<dir>/ 但 nginx 沒有讀得到它的 location ` +
+      `⇒ 那條 S3 路徑整條死掉（檔案躺在 volume 上沒人服務）：${orphanDirs.join(", ")}\n` +
+      `→ nginx.conf 加 "location /<dir>/ { root /data; … }"（有 git 小檔就再加 try_files $uri @dist）`,
+    ).toEqual([]);
+    expect(pushed.size, "反向枚舉為空 → 腳本解析壞了").toBeGreaterThan(15);
   });
 });
