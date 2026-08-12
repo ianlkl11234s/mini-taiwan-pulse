@@ -168,10 +168,10 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM public.get_xxx(...);
 npx tsc -b
 
 # 全站測試（含 layerConsistency 擋漏圖例）
-pnpm test
+npm test
 
 # Browser：按「All Off」→ 只開新 layer → 邊界 zoom / timeline 都測
-pnpm dev
+npm run dev
 ```
 
 **常見驗收失敗**：
