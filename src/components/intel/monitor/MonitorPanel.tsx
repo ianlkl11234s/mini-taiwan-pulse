@@ -51,6 +51,7 @@ import {
 } from "./monitorLayout";
 import { buildMonitorTree, nodeWidth, type MonitorNode } from "./monitorPacking";
 import { supabase } from "../../../lib/supabase";
+import { useNewsFilter } from "../../../hooks/useNewsFilter";
 import {
   fetchPowerDashboard, invalidatePowerDashboard,
   fetchPowerGeneration24h, invalidatePowerGeneration24h,
@@ -193,15 +194,26 @@ interface Cluster {
 interface Props {
   open: boolean;
   onClose: () => void;
-  filter: NewsFilter;
-  onFilterChange: (next: NewsFilter) => void;
+  /**
+   * 與 layer 共享的 filter（同步雙向）。**主站不傳** —— AR-22 P4 起本元件自己
+   * per-key 訂閱 `newsEvents` 的參數 slot（`useNewsFilter`），與圖層讀寫同一份值。
+   * 保留 prop 是給測試 / 未來的受控情境；有 prop 就以 prop 為準。
+   */
+  filter?: NewsFilter;
+  onFilterChange?: (next: NewsFilter) => void;
   onSelectLocation?: (lon: number, lat: number) => void;
   externalSelectedId?: number | null;
 }
 
 export function MonitorPanel({
-  open, onClose, filter, onFilterChange, onSelectLocation, externalSelectedId,
+  open, onClose, filter: filterProp, onFilterChange: onFilterChangeProp,
+  onSelectLocation, externalSelectedId,
 }: Props) {
+  // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
+  const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
+  const filter = filterProp ?? storeFilter;
+  const onFilterChange = onFilterChangeProp ?? storeSetFilter;
+
   // ── playback state（與 Phase 1 IntelPanel 各自獨立）──
   // `now` 走 wallClock 5s tick：原本 1Hz setState 會讓整棵子樹（IntelCard / TimelineDock /
   // IndicatorPanel / LiveWall…）每秒 reconcile。5s 對 live cutoff、相對時間顯示無感差。

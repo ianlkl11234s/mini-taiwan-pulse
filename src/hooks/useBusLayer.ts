@@ -6,11 +6,14 @@
  *   replay → 載入 bus_trails_daily，用 timeRef.current
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import type { BusVehicle, BusTrail, TimeMode, BusCity } from "../types";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { BusVehicle, BusTrail, TimeMode } from "../types";
 import { BusEngine } from "../engines/BusEngine";
 import { loadBusRoutesForCity, fetchBusCurrent, fetchBusTrails } from "../data/busLoader";
 import { timeStore } from "../state/timeStore";
+// AR-22 P4：城市清單改由本 hook 自己從 store 讀（per-key 訂閱）
+import { useLayerParams } from "../state/layerParamsStore";
+import { enabledBusCitiesOf } from "../state/layerParamRefs";
 
 /** Supabase polling 間隔 (ms) */
 const POLL_INTERVAL = 30_000;
@@ -26,8 +29,10 @@ interface CachedDay {
 export function useBusLayer(
   enabled: boolean,
   timeMode: TimeMode,
-  cities: BusCity[] = ["Taipei"],
 ) {
+  // 8 區分組 checkbox → 城市清單（順序 = BUS_GROUP_ORDER，同已退役的 runtime）
+  const busParams = useLayerParams("busLive");
+  const cities = useMemo(() => enabledBusCitiesOf(busParams), [busParams]);
   const engineRef = useRef<BusEngine | null>(null);
   const activeBusesRef = useRef<BusVehicle[]>([]);
   const [busCount, setBusCount] = useState(0);
