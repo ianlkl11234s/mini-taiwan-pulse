@@ -47,6 +47,7 @@ import {
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
 import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
+import { legendKeys } from "../legendGroups";
 import { HEADER_LABELS, PANEL_REGISTRY } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
@@ -409,8 +410,9 @@ export function extractGolden(): GoldenSnapshot {
     }),
     sidebarSections: sanitize(SECTIONS),
     upstream: sanitize(Object.fromEntries(keys.map((k) => [k, UPSTREAM_REGISTRY[k]]))),
-    // 順序 = 圖例面板顯示順序 → 保序；render 是元件函式，只記 keys（spec）
-    legend: sanitize(LEGEND_REGISTRY.map((e) => ({ keys: e.keys }))),
+    // 順序 = 圖例面板顯示順序 → 保序；render 是元件函式，只記 id ＋ 派生出的成員名單
+    // （Phase 4b 起 keys 由 manifest 的 legend 反查，見 data/legendGroups.ts）
+    legend: sanitize(LEGEND_REGISTRY.map((e) => ({ id: e.id, keys: legendKeys(e.id) }))),
     featureInfo: sanitize({
       headerLabels: Object.keys(HEADER_LABELS).sort(),
       panelRegistry: Object.keys(PANEL_REGISTRY).sort(),

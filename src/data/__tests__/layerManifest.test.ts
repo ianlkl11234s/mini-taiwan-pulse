@@ -30,6 +30,7 @@ import { LAYER_COLORS, THEMES, LAYER_LABELS } from "../../components/sidebar/lay
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
 import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
+import { legendKeys } from "../legendGroups";
 import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 import { GIS_LAYERS } from "../../map/gisClickRegistry";
@@ -200,28 +201,58 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
     }
   });
 
-  it("legend 宣告 = LEGEND_REGISTRY 的實際覆蓋（null 代表有意識地不需要圖例）", () => {
-    const covered = new Set(LEGEND_REGISTRY.flatMap((e) => e.keys as string[]));
+  /**
+   * ⚠️ AR-22 Phase 4b：`LEGEND_REGISTRY` 的 `keys` 改由 manifest 反查派生
+   * （`data/legendGroups.ts` 的 `legendKeys()`），本組斷言隨之改形。
+   *
+   * ── 消失的兩條 & 取代它們的結構 ────────────────────────────────
+   *   1. 「legend 宣告 ⇔ LEGEND_REGISTRY 實際覆蓋」的**逐 key 覆蓋對帳**：
+   *      派生後兩邊同源，恆等成立，留著是永遠綠的裝飾。取代它的是下面
+   *      「id 存在性」—— 覆蓋不會錯了，會錯的是「宣告了一個沒人渲染的 id」。
+   *   2. 「同一個 legend id 的 key 必須落在同一筆 entry」：**由結構取代**。
+   *      派生後同 id 的 key 拿到的就是同一個陣列，散落在多筆 entry 在物理上
+   *      不可能發生。那個失敗模式唯一的殘留形式是「兩筆 entry 用同一個 id」
+   *      —— 它們會拿到同一份成員名單、同時渲染兩份圖例。所以下面補了
+   *      **id 唯一性**斷言，它就是舊測試的結構化替身。
+   *
+   * ── ⚠️ 誠實記錄派生的代價（SSOT 的本質，不是可修的缺陷）──────────
+   *   manifest 的 legend id 填錯，從「測試會紅」變成「**自我實現**」：
+   *   把某層的 legend 填成 `"fireStations"`，它就真的會跟消防栓共用那份圖例，
+   *   兩邊一致所以不紅。派生前之所以擋得住，是因為 LegendPanel 手寫的那份
+   *   `keys` 是**獨立的第二份證詞**；收成一份 SSOT 就沒有第二份可對質了。
+   *   換到的是「不會再有兩份不同步」與「新增一層只寫一處」。
+   *   守得住的剩下：id 存不存在、entry 有沒有成員、id 唯不唯一 —— 全在下面。
+   */
+  it("legend 宣告的 id 都有對應的 LEGEND_REGISTRY entry（宣告了卻沒人渲染 = 圖例不會出現）", () => {
+    const registryIds = new Set(LEGEND_REGISTRY.map((e) => e.id));
     for (const [k, m] of entries) {
-      if (m.legend === null) {
-        expect(covered.has(k), `${k} 宣告不需要圖例，但 LEGEND_REGISTRY 有覆蓋它`).toBe(false);
-      } else {
-        expect(covered.has(k), `${k} 宣告了 legend "${m.legend}"，但 LEGEND_REGISTRY 沒覆蓋它`)
-          .toBe(true);
-      }
+      if (m.legend === null) continue;
+      expect(
+        registryIds.has(m.legend),
+        `${k} 宣告了 legend "${m.legend}"，但 LEGEND_REGISTRY 沒有這個 id 的 entry —— ` +
+        "該層開啟時圖例面板不會出現任何東西（鐵則 2 靜默失效）",
+      ).toBe(true);
     }
   });
 
-  it("同一個 legend id 的 key 必須落在 LEGEND_REGISTRY 的同一筆 entry（共用即共用）", () => {
-    const byLegendId = new Map<string, string[]>();
-    for (const [k, m] of entries) {
-      if (m.legend === null) continue;
-      byLegendId.set(m.legend, [...(byLegendId.get(m.legend) ?? []), k]);
-    }
-    for (const [id, keys] of byLegendId) {
-      const owning = LEGEND_REGISTRY.filter((e) => keys.some((k) => (e.keys as string[]).includes(k)));
-      expect(owning, `legend id "${id}" 的 key 散落在多筆 LEGEND_REGISTRY entry`).toHaveLength(1);
-    }
+  it("LEGEND_REGISTRY 每筆 entry 至少有一個 manifest 成員（零成員 = 死 entry）", () => {
+    // 反方向：派生後「沒有 key 宣告這個 id」的 entry 會拿到空陣列 →
+    // `keys.some(...)` 恆 false → 那份圖例元件永遠不顯示，而且不會有任何錯誤。
+    // 呼叫的是**面板實際在用的那支** `legendKeys()`，不是測試裡重建一份。
+    const dead = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).length === 0).map((e) => e.id);
+    expect(
+      dead,
+      "這些 LEGEND_REGISTRY entry 的 id 沒有任何 manifest key 宣告 → 永遠不顯示。" +
+      "要嘛該刪，要嘛某層的 manifest legend 欄位填錯／漏填",
+    ).toEqual([]);
+  });
+
+  it("LEGEND_REGISTRY 的 id 不重複（同 id 兩筆 = 同一群 key 渲染出兩份圖例）", () => {
+    const seen = new Map<string, number>();
+    for (const e of LEGEND_REGISTRY) seen.set(e.id, (seen.get(e.id) ?? 0) + 1);
+    const dups = [...seen].filter(([, n]) => n > 1).map(([id, n]) => `${id}×${n}`);
+    expect(dups, "重複的 legend id —— 兩筆 entry 會拿到同一份成員名單，圖例面板出現兩次")
+      .toEqual([]);
   });
 
   it("popup 宣告 = HEADER_LABELS / GIS_LAYERS 的實際接線（含 key ≠ layerType 的情形）", () => {
