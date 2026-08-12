@@ -38,7 +38,10 @@
  * 這是聯集判準的**本質限制**：它守的是「每個 layer 至少宣告了一種掛載機制」，
  * 不是「每一種機制都還在」。下方「per-key 掛載機制對表」補了這個洞——
  * `DUAL_MOUNT_KEYS` 是手動盤點、與 registry / HOOKS_IN_APP_LEDGER 現況無關的
- * 固定清單，逐 key 檢查兩邊機制都要在場，任一邊被刪就紅。
+ * 固定清單，逐 key 檢查兩邊**宣告**都要在場，任一邊的宣告被刪就紅。
+ * ⚠️ 這守的是「宣告層級」（registry entry 存在 / 還在 HOOKS_IN_APP_LEDGER 裡）——
+ * 跟另外 37 個純 appHook key 一樣，若 App.tsx 裡實際的 hook call 被刪但 ledger
+ * 沒跟著改，本測試看不出來（這是 static ledger 天生的限制，不是本棒要補的洞）。
  *
  * **分工邊界**：聯集斷言守「key 完全沒人接」；per-key 對表守「雙桶 key 少接一邊」。
  * 兩者互補——不要因為有了 per-key 表就把聯集斷言簡化掉，單桶 key（多數）仍然
