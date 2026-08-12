@@ -1,15 +1,28 @@
 # Status
 
-**最後更新**：2026-08-12（**Layer Manifest 工程完整交付**：PR #130 merged＋⑤④ 收尾＝**565 測試全綠零紅燈**）
+**最後更新**：2026-08-12 晚場（**Layer Manifest 未竟清單全數結案**：PR #131 merged＋S3 六檔上傳驗證）
 
 | repo | 狀態 |
 |---|---|
-| **mini-taiwan-pulse** | `master` 已 push（#130 squash `e74a144`＋fireHydrants 改名 `b6f0e55`＋06_apply 對帳器 `d1f9479`＋本輪 wrap-up memory commits）。工作區乾淨；本地分支僅 master＋2 支刻意保留 monitor 分支（G015） |
+| **mini-taiwan-pulse** | `master` = `a037a45`（#131 merge commit，**刻意不 squash**——⚠️ 平行 session 的 `feat/vessel-watch` 基於 #131 整合分支開發中，squash 會害它 rebase）。⚠️ **主樹被平行 session 佔用**（feat/vessel-watch，未提交改動），memory 收尾走獨立 worktree。三條 track 分支（feat/ar22-layerhost 等）已 merge 可清 |
 | **data-collectors** | `main` = `0ceacd7`（無變更） |
 | **taipei-gis-analytics** | ⚠️ **有平行 session**：3 個未推 commits（`d7b799c` 等）＋40 筆未提交改動——本 session 全程未碰、未代 push |
 | **gis-platform** | `main`（無變更；gis-wiki submodule 落後 → G021） |
 
 **正式站**：`https://mini-taiwan-pulse.itsmigu.com`
+
+## 0. Layer Manifest 收尾棒（PR #131，2026-08-12 晚場）
+
+多 agent 三線 worktree 並行（4 sonnet 偵察＋3 opus 實作＋Fable 主控），未竟清單**全數結案**：
+
+- **AR-22 終點**：per-key `useLayerParams(key)` 訂閱兌現；`useLayerParamsRuntime`＋等值閘 A/B **退役**（owner 拍板）；refs React-free（`state/layerParamRefs.ts`）。接替驗收＝**render 矩陣瀏覽器實測**：底噪 0、拖地震滑桿→只有該 Host +10、App +0、其他 73 Host +0
+- **App.tsx manifest 化**：87 呼叫→`src/layers/layerHookRegistry.tsx` 74 entry＋348 key 三桶互斥斷言（5/5 靜默點終結）；App.tsx 3,148→2,546 行。⚠️ 已知盲區：7 個雙桶 key 不設防（測試檔頭記載）
+- **4b 改案**（owner 拍板）：LEGEND keys 真派生（`legendGroups.ts`）；GIS_LAYERS 升格 `map/gisClickRegistry.ts`＋runtime 驗證，**不加 clickPriority**；fixture 合法重生 gisLayers +2
+- **觸點 #20**：`deployContract.test.ts` 92→301 行 manifest 驅動雙向斷言；**6 缺口全修**（第 6 個 buffer.bin 是建斷言時抓到）；`staticAssets` schema **代拍待追認**；S3 六檔已上傳驗證（hillshade/fishery×3/power_poles/buffer.bin——probe 證實 power_poles 與 integrated 線上原有手動副本，同 hillshade 翻案款）
+- **NO_POPUP 考證**：57 筆→KEEP 22／CANDIDATE 29（9 工作包）／EDGE 6，報告 `docs/features/layer-manifest/no-popup-audit.md`
+- **audit --apply 退役**（owner 拍板）：01→05 不可機械重跑（dead scratchpad＋兩輸入無產生腳本），06 留 dry-run
+- 死檔 slope/aspect.png 刪除（−24.7MB）；`/new-layer` 文件補 registry 掛載步驟
+- 驗證：tsc 0 err、560 測試全綠×2（一次 MG-3 已知 flake）、紅燈演練 9 場全會叫、瀏覽器三路（render 矩陣／popup 點擊／LEGEND）全過
 
 ## 1. Layer Manifest 工程（AR-22/23/24，PR #130，2026-08-10 深夜~08-12）
 
