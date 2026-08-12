@@ -274,6 +274,10 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
   // 醫療等時圈覆蓋面
   { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
+  // 🚄 高鐵站體面（12 面，station_points 零筆 thsr → 全台唯一點不到的車站族）。
+  //    唯一的載體是面，依「面層不可搶點層」放在所有點層之後；站體範圍內的消防栓 /
+  //    行道樹 / 停車場等點層因此仍優先命中。與 station-points-* 共用 railStation panel。
+  { layers: ["station-polygons-thsr-poly-fill", "station-polygons-thsr-poly-line"], type: "railStation" },
   // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
   // 快速道路（trunk 子集，5.6 萬 edges）排在 osm_road_drive（55 萬 edges）之前：
   // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。

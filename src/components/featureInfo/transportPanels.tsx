@@ -22,6 +22,9 @@ const BIKE_SERVICE_COLORS: Record<string, string> = {
 /** 鐵路系統對應色與名稱 */
 const RAIL_SYSTEM_INFO: Record<string, { name: string; color: string }> = {
   tra: { name: "台鐵", color: "#b8a080" },
+  // 高鐵只存在於 station_polygons（station_points 零筆 thsr）→ 本層由站體面接 popup，
+  // 顏色對齊 overlayRegistry 的 station-polygons-thsr-poly-* 橘。
+  thsr: { name: "高鐵", color: "#ff8c00" },
   trtc: { name: "台北捷運", color: "#00bcd4" },
   krtc: { name: "高雄捷運", color: "#f57f17" },
   klrt: { name: "高雄輕軌", color: "#66bb6a" },

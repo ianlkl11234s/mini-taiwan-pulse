@@ -1312,6 +1312,13 @@
     },
     {
       "layers": [
+        "station-polygons-thsr-poly-fill",
+        "station-polygons-thsr-poly-line"
+      ],
+      "type": "railStation"
+    },
+    {
+      "layers": [
         "base-osm-expressway-line"
       ],
       "type": "osmExpressway"

@@ -7352,11 +7352,11 @@ export const LAYER_MANIFEST = {
     dataClass: "A",
     source: { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
     legend: null,
-    // ⚠️ **唯一有 registry entry 卻 popup: null 的車站層**：本層 4 個 layer id 全是
-    //    `station-polygons-thsr-poly-*`，而 GIS_LAYERS 的 `railStation` 兩筆條目收的是
-    //    `station-points-tra-pt-*` 與 `station-points-metro-pt-*`。三層長得極像，
-    //    憑「都是車站」推會把 railStation 掛上去，Phase 3 派生就會多出一組假接線。
-    popup: null,
+    // W2 popup 補強：本層 4 個 layer id 全是 `station-polygons-thsr-poly-*`，
+    // 與 GIS_LAYERS 既有兩筆 railStation（`station-points-tra-pt-*` /
+    // `station-points-metro-pt-*`）是不同 layer id，故另立第三筆條目收站體面。
+    // station_points.geojson 零筆 thsr，站體面是高鐵唯一的可點載體。
+    popup: "railStation",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "高鐵站體範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
     topics: ["交通", "軌道", "場站"],
