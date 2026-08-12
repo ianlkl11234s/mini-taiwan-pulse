@@ -33,7 +33,9 @@ import {
   LAYER_PARAMS_SPEC, encodeParamValue, paramDefault, specOutKey,
   type LayerParamSpec, type LayerParamValues,
 } from "../data/layerParamsSpec";
-import { useLayerParams } from "../state/layerParamsStore";
+import {
+  encodeParamsToOverlay, useAllLayerParams, useLayerParams,
+} from "../state/layerParamsStore";
 
 /** 這個 key 的規格（未遷移 / 無控件的 key 回 undefined） */
 function specsOf(key: string): LayerParamSpec[] | undefined {
@@ -103,6 +105,25 @@ export function oneOfParam<T extends string>(v: string, allowed: readonly T[], f
 /** 同上，數值版（新聞三軸的 `0 | 2 | 3` 這種字面聯集）—— 同 runtime 的 `oneOfNum` */
 export function oneOfParamNum<T extends number>(v: number, allowed: readonly T[], fallback: T): T {
   return (allowed as readonly number[]).includes(v) ? (v as T) : fallback;
+}
+
+/**
+ * **整包** overlayParams（AR-22 P4）——「真的需要全部 key」的聚合消費端專用。
+ *
+ * 目前合法使用者只有兩個，兩個都不是「懶得拆 per-key」：
+ *   - `MapView`：`overlayManager` 要對 **OVERLAY_REGISTRY 每一層**求值 paint /
+ *     filter / visibility，外加農業與等時圈 factory —— 母體本來就是全集。
+ *   - `LegendPanel`：圖例要照當下 paint 畫色階，讀的是同一份 record。
+ *
+ * ⚠️ 其他任何地方請用 `useKeyOverlayParams(key)`。用這支等於宣告
+ * 「任一參數變動我都要重繪」，那正是 P4 要從 App 身上拆掉的東西。
+ *
+ * 逐位等價於已退役的 `useLayerParamsRuntime.overlayParams`：同一個
+ * `encodeParamsToOverlay`、同一個 store 快照、同樣用 useMemo 釘 identity。
+ */
+export function useOverlayParams(): Record<string, number> {
+  const all = useAllLayerParams();
+  return useMemo(() => encodeParamsToOverlay(all), [all]);
 }
 
 export { useLayerParams };
