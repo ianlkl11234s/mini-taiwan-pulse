@@ -1,241 +1,213 @@
 #!/usr/bin/env python3
 """
-Phase 4A — Generate src/data/upstreamRegistry.ts from match_final.csv
+Phase 4A（2026-08-12 改寫）— 對帳 match_final.csv ↔ layerManifest.ts 的 `upstream` 欄位
 
-The registry maps each pulse layer_key → its upstream catalog dataset_id(s)
-plus metadata (provider agency, lifecycle, confidence).
+## 為什麼不再是「產生器」
+
+原版把 `scratchpad/audit/{match_final,catalog_datasets,pulse_layers}.csv` 整份
+**重新產生並覆蓋** `src/data/upstreamRegistry.ts`。AR-22 之後那條路壞了兩次：
+
+1. **輸入沒了**：三個 CSV 在 session scratchpad（`/private/tmp/claude-501/…/6c00383b-…/`），
+   該目錄早已消失。只有 `docs/audit/data_sources_match_final.csv` 進了版控活下來
+   （`catalog_datasets.csv` 原本讀進來就沒用到，一併移除）。
+2. **輸出換家了**：`upstreamRegistry.ts` 的 `HANDWRITTEN_UPSTREAM` 已空殼，
+   348/348 全由 `layerManifest.ts` 的 `upstream` 欄位派生。往舊檔寫 = 寫進黑洞。
+
+而且 CSV 是 **2026-07-01 的凍結快照**：227 個 layer_key，manifest 現在有 348 個。
+無腦重生會刪掉 123 筆快照後才加的 layer，並把後來手修的血緣改回舊值
+（實測：`schools` 會從 `schools/HIGH` 退回 `layer2_polygon/LOW`）。
+**所以本腳本改成單向對帳器：預設只報帳不寫檔，`--apply` 也只補寫既有 entry 的
+`status` / `datasets` 兩行，永不新增或刪除 entry。**
+
+## 用法
+
+    python3 scripts/audit/06_apply_to_pulse.py            # 對帳報告 + 會寫入什麼的 unified diff
+    python3 scripts/audit/06_apply_to_pulse.py --apply     # 真的寫進 layerManifest.ts
+
+⚠️ `--apply` 只有在「CSV 是新的那一側」才該用 —— 也就是先跑過 01→05 重新產出
+`match_final.csv` 之後。拿 2026-07-01 的凍結快照 apply = 把後來的手修改回去。
+dry-run 印出的 diff 就是 `--apply` 會寫下的**逐位元內容**，看完再決定。
 
 Reads:
-  - scratchpad/audit/match_final.csv
-  - scratchpad/audit/catalog_datasets.csv
-Writes:
-  - src/data/upstreamRegistry.ts
+  - docs/audit/data_sources_match_final.csv
+  - src/data/layerManifest.ts
+Writes（僅 --apply）:
+  - src/data/layerManifest.ts（只動既有 upstream 區塊的 status / datasets 兩行）
 """
+import argparse
 import csv
-from pathlib import Path
+import difflib
+import re
+import sys
 from collections import defaultdict
+from pathlib import Path
 
-SCRATCH = Path("/private/tmp/claude-501/-Users-migu-Desktop-----gen-ai-try-ichef-----GIS-mini-taiwan-pulse/6c00383b-969d-4fee-96d3-b7971926a182/scratchpad/audit")
-PULSE_ROOT = Path("/Users/migu/Desktop/資料庫/gen_ai_try/ichef_工作用/GIS/mini-taiwan-pulse")
-OUT_TS = PULSE_ROOT / "src/data/upstreamRegistry.ts"
+PULSE_ROOT = Path(__file__).resolve().parents[2]
+CSV_PATH = PULSE_ROOT / "docs/audit/data_sources_match_final.csv"
+MANIFEST_TS = PULSE_ROOT / "src/data/layerManifest.ts"
 
-with (SCRATCH / "match_final.csv").open() as f:
-    matches = list(csv.DictReader(f))
-with (SCRATCH / "catalog_datasets.csv").open() as f:
-    catalog = {r["dataset_id"]: r for r in csv.DictReader(f)}
-with (SCRATCH / "pulse_layers.csv").open() as f:
-    pulse = {r["layer_key"]: r for r in csv.DictReader(f)}
+MANIFEST_OPEN = "export const LAYER_MANIFEST = {"
+MANIFEST_CLOSE = "} satisfies Partial<"
 
-# Derivation map: pulse_only layers — full lineage (layers / datasets / type / processing)
-DERIVATION = {
-    "medIsochrone": {
-        "derivedFromLayers": ["medHospital", "medClinic"],
-        "derivationType": "isochrone",
-        "processing": "OSRM 路網等時圈計算（駕車時間 5/10/15/30 分鐘）— 從醫療 POI 出發沿實際路網擴散",
-    },
-    "medDesert": {
-        "derivedFromLayers": ["medIsochrone"],
-        "derivationType": "inverse",
-        "processing": "等時圈反演 — 距任一醫療設施駕車 > 30 分鐘的村里標為醫療沙漠",
-    },
-    "fireIsochrone": {
-        "derivedFromLayers": ["fireStations"],
-        "derivationType": "isochrone",
-        "processing": "OSRM 路網等時圈計算（救援抵達 ≤ 5/8/10 分鐘）— 從消防分隊出發",
-    },
-    "gasCoverageAll": {
-        "derivedFromLayers": ["gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther"],
-        "derivationType": "coverage",
-        "processing": "全台加油站聚合 + OSRM 路網最近距離分析 → PMTiles（30km 覆蓋分級：0-5/5-10/10-20/20-30/30km+）",
-    },
-    "evIsland": {
-        "derivedFromLayers": ["evChargingStations"],
-        "derivationType": "coverage",
-        "processing": "全台充電站 + 路網最近距離分析 → 反演孤島區域（縣市邊界內距任一充電站 > N km） PMTiles",
-    },
-}
-
-# Group catalogs assigned to same layer
-layer_to_datasets = defaultdict(list)
-for m in matches:
-    if m["dataset_id"]:
-        layer_to_datasets[m["layer_key"]].append({
-            "dataset_id": m["dataset_id"],
-            "confidence": m["confidence"],
-            "rule": m["rule"],
-        })
-
-# ── Generate TypeScript ──
-def ts_escape(s):
-    if s is None:
-        return "''"
-    return "'" + str(s).replace("\\", "\\\\").replace("'", "\\'") + "'"
+RE_ENTRY = re.compile(r"^  ([A-Za-z][A-Za-z0-9_]*): \{$")
+RE_UPSTREAM_OPEN = re.compile(r"^    upstream: \{$")
+RE_BLOCK_CLOSE = re.compile(r"^    \},$")
+RE_STATUS = re.compile(r'^      status: "([a-z_]+)",$')
+RE_DATASETS = re.compile(r"^      datasets: \[(.*)\],$")
+RE_DATASET_ITEM = re.compile(r'\{\s*datasetId:\s*"([^"]+)",\s*confidence:\s*"([^"]+)"\s*\}')
+# 衍生血緣欄位 —— 出現就代表這層是本站自己算出來的，機械覆寫 status 會靜默毀掉語意
+RE_LINEAGE = re.compile(r"^      (derivedFromLayers|derivedFromDatasets|derivationType|processing):")
 
 
-def ts_str_array(items):
-    return "[" + ", ".join(ts_escape(i) for i in items) + "]"
+class ManifestEntry:
+    """layerManifest.ts 裡某個 layer 的 upstream 區塊在原始碼中的位置與內容。"""
+
+    def __init__(self, key):
+        self.key = key
+        self.status = None
+        self.status_line = None      # 行號（0-based）
+        self.datasets = []           # [(datasetId, confidence), …]
+        self.datasets_line = None
+        self.has_lineage = False
 
 
-lines = []
-lines.append("// ══════════════════════════════════════════════════════════════════")
-lines.append("//  Upstream Registry — pulse layer ↔ taipei-gis-analytics catalog dataset")
-lines.append("// ══════════════════════════════════════════════════════════════════")
-lines.append("//")
-lines.append("// Generated by scripts/audit/06_apply_to_pulse.py from match_final.csv.")
-lines.append("// SSOT for upstream data sources is taipei-gis-analytics/docs/data-catalog/")
-lines.append("// This file is the bridge: layer_key → catalog dataset_id.")
-lines.append("//")
-lines.append("// Status values:")
-lines.append("//   verified         — bridged to one or more catalog datasets")
-lines.append("//   pulse_only       — pure-frontend layer (derived / animated / no upstream)")
-lines.append("//   catalog_missing  — needs new entry in catalog before bridging")
-lines.append("")
-lines.append("import type { LayerVisibility } from '../types';")
-lines.append("")
-lines.append("export type UpstreamStatus = 'verified' | 'pulse_only' | 'catalog_missing';")
-lines.append("export type UpstreamConfidence = 'HIGH' | 'MED' | 'LOW';")
-lines.append("")
-lines.append("export interface UpstreamDataset {")
-lines.append("  /** catalog dataset_id (matches frontmatter in taipei-gis-analytics/docs/data-catalog/<theme>/<dataset_id>.md) */")
-lines.append("  datasetId: string;")
-lines.append("  /** match confidence — HIGH = explicit frontend_target / exact name; MED = normalized variant; LOW = fuzzy */")
-lines.append("  confidence: UpstreamConfidence;")
-lines.append("}")
-lines.append("")
-lines.append("/** Type of derivation for pulse_only layers. Extendable — add new kinds as compound")
-lines.append(" *  analyses emerge (e.g. 'ratio' for A/B, 'temporal_diff' for time-series delta). */")
-lines.append("export type DerivationType =")
-lines.append("  | 'isochrone'         // OSRM 路網等時圈")
-lines.append("  | 'coverage'          // 最近距離覆蓋分析（PMTiles 分級）")
-lines.append("  | 'inverse'           // 反演（例：等時圈 → 沙漠）")
-lines.append("  | 'aggregate'         // 聚合（例：多品牌 → 全體）")
-lines.append("  | 'ratio'             // 比值（例：供需比）— 未來複合分析用")
-lines.append("  | 'intersect'         // 空間交集（例：災害 × 人口）— 未來複合分析用")
-lines.append("  | 'temporal_diff'     // 時序差分 — 未來")
-lines.append("  | 'custom';           // 其他自訂")
-lines.append("")
-lines.append("export interface UpstreamRef {")
-lines.append("  status: UpstreamStatus;")
-lines.append("  /** Primary catalog datasets (empty array for pulse_only / catalog_missing) */")
-lines.append("  datasets: UpstreamDataset[];")
-lines.append("")
-lines.append("  // ── Lineage fields (only meaningful when status='pulse_only') ──")
-lines.append("  /** Pulse layer_keys this is derived from. Transitively yields upstream datasets via UPSTREAM_REGISTRY lookup. */")
-lines.append("  derivedFromLayers?: string[];")
-lines.append("  /** Catalog dataset_ids used directly (for compound analyses that bypass a pulse layer). */")
-lines.append("  derivedFromDatasets?: string[];")
-lines.append("  /** Classification of the derivation operation — for UI grouping and future-proofing compound analyses. */")
-lines.append("  derivationType?: DerivationType;")
-lines.append("  /** Short human-readable description of how the data is generated/processed. */")
-lines.append("  processing?: string;")
-lines.append("")
-lines.append("  /** Free-form reason when status != 'verified' */")
-lines.append("  note?: string;")
-lines.append("}")
-lines.append("")
-lines.append("export const UPSTREAM_REGISTRY: Record<keyof LayerVisibility, UpstreamRef> = {")
+def parse_manifest(lines):
+    """行導向解析 —— 不做完整 TS parse，只認得 manifest 既有的固定縮排格式。
 
-# Iterate in pulse_layers.csv order (deterministic)
-for layer_key in pulse:
-    m = next((m for m in matches if m["layer_key"] == layer_key), None)
-    if not m:
-        # Shouldn't happen — but defensively
-        lines.append(f"  {layer_key}: {{ status: 'catalog_missing', datasets: [], note: 'no match record' }},")
-        continue
+    刻意不用 vite-node 把 manifest 求值成 JSON：本腳本除了比對還要**回寫原檔**，
+    求值拿不到行號，回寫時仍得再解析一次原始碼，不如一次到位。
+    """
+    try:
+        start = next(i for i, ln in enumerate(lines) if ln.startswith(MANIFEST_OPEN))
+        end = next(i for i, ln in enumerate(lines) if ln.startswith(MANIFEST_CLOSE))
+    except StopIteration:
+        sys.exit(f"✗ 認不出 {MANIFEST_TS.name} 的 LAYER_MANIFEST 區塊邊界（格式改了？）")
 
-    status = m["status"]
-    if status == "verified":
-        datasets = layer_to_datasets.get(layer_key, [])
-        if not datasets:
-            lines.append(f"  {layer_key}: {{ status: 'catalog_missing', datasets: [] }},")
+    entries = {}
+    cur = None
+    in_upstream = False
+    for i in range(start + 1, end):
+        ln = lines[i]
+        m = RE_ENTRY.match(ln)
+        if m:
+            cur = ManifestEntry(m.group(1))
+            entries[cur.key] = cur
+            in_upstream = False
             continue
-        ds_strs = []
-        for d in datasets:
-            ds_strs.append(f"{{ datasetId: {ts_escape(d['dataset_id'])}, confidence: {ts_escape(d['confidence'])} }}")
-        lines.append(f"  {layer_key}: {{")
-        lines.append(f"    status: 'verified',")
-        lines.append(f"    datasets: [{', '.join(ds_strs)}],")
-        lines.append(f"  }},")
-    elif status == "pulse_only":
-        note = m["notes"][:80].replace("'", "")
-        deriv = DERIVATION.get(layer_key)
-        if deriv:
-            lines.append(f"  {layer_key}: {{")
-            lines.append(f"    status: 'pulse_only',")
-            lines.append(f"    datasets: [],")
-            if deriv.get("derivedFromLayers"):
-                lines.append(f"    derivedFromLayers: {ts_str_array(deriv['derivedFromLayers'])},")
-            if deriv.get("derivedFromDatasets"):
-                lines.append(f"    derivedFromDatasets: {ts_str_array(deriv['derivedFromDatasets'])},")
-            if deriv.get("derivationType"):
-                lines.append(f"    derivationType: {ts_escape(deriv['derivationType'])},")
-            lines.append(f"    processing: {ts_escape(deriv['processing'])},")
-            lines.append(f"    note: {ts_escape(note)},")
-            lines.append(f"  }},")
-        else:
-            lines.append(f"  {layer_key}: {{ status: 'pulse_only', datasets: [], note: {ts_escape(note)} }},")
-    elif status == "catalog_missing":
-        note = m["notes"][:80].replace("'", "")
-        lines.append(f"  {layer_key}: {{ status: 'catalog_missing', datasets: [], note: {ts_escape(note)} }},")
+        if cur is None:
+            continue
+        if RE_UPSTREAM_OPEN.match(ln):
+            in_upstream = True
+            continue
+        if in_upstream:
+            if RE_BLOCK_CLOSE.match(ln):
+                in_upstream = False
+                continue
+            m = RE_STATUS.match(ln)
+            if m:
+                cur.status, cur.status_line = m.group(1), i
+                continue
+            m = RE_DATASETS.match(ln)
+            if m:
+                cur.datasets = RE_DATASET_ITEM.findall(m.group(1))
+                cur.datasets_line = i
+                continue
+            if RE_LINEAGE.match(ln):
+                cur.has_lineage = True
+    return entries
+
+
+def load_csv():
+    rows = list(csv.DictReader(CSV_PATH.open(encoding="utf-8")))
+    status = {}
+    datasets = defaultdict(list)
+    for r in rows:
+        status[r["layer_key"]] = r["status"]
+        if r["dataset_id"]:
+            datasets[r["layer_key"]].append((r["dataset_id"], r["confidence"]))
+    return status, datasets
+
+
+def render_datasets(items):
+    if not items:
+        return "      datasets: [],"
+    body = ", ".join(f'{{ datasetId: "{d}", confidence: "{c}" }}' for d, c in items)
+    return f"      datasets: [{body}],"
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[1])
+    ap.add_argument(
+        "--apply",
+        action="store_true",
+        help="把差異寫回 layerManifest.ts（只改既有 entry 的 status/datasets 兩行）",
+    )
+    args = ap.parse_args()
+
+    csv_status, csv_datasets = load_csv()
+    original = MANIFEST_TS.read_text(encoding="utf-8")
+    lines = original.split("\n")
+    entries = parse_manifest(lines)
+
+    mismatch, blocked = [], []
+    for key, csv_st in csv_status.items():
+        e = entries.get(key)
+        if e is None:
+            continue
+        want = (csv_st, sorted(csv_datasets.get(key, [])))
+        have = (e.status, sorted(e.datasets))
+        if want == have:
+            continue
+        (blocked if e.has_lineage else mismatch).append((key, have, want))
+
+    csv_only = sorted(k for k in csv_status if k not in entries)
+    manifest_only = sorted(k for k in entries if k not in csv_status)
+
+    print(f"CSV: {CSV_PATH.relative_to(PULSE_ROOT)}（{len(csv_status)} keys，2026-07-01 凍結快照）")
+    print(f"Manifest: {MANIFEST_TS.relative_to(PULSE_ROOT)}（{len(entries)} keys）")
+    print(f"  ✓ 一致           : {len(set(csv_status) & set(entries)) - len(mismatch) - len(blocked)}")
+    print(f"  ✗ 不一致         : {len(mismatch)}")
+    for key, have, want in mismatch:
+        print(f"      {key}: manifest={have[0]}{have[1]}  csv={want[0]}{want[1]}")
+    if blocked:
+        print(f"  ⚠ 有衍生血緣不機械覆寫（需人工判斷）: {len(blocked)}")
+        for key, have, want in blocked:
+            print(f"      {key}: manifest={have[0]}{have[1]}  csv={want[0]}{want[1]}")
+    print(f"  ○ 只在 CSV（快照後已改名/移除的 layer，不動）: {len(csv_only)} {csv_only}")
+    print(f"  ○ 只在 manifest（快照後新增的 layer，本腳本管不到）: {len(manifest_only)}")
+
+    if not mismatch:
+        print("\n無可機械同步的差異 —— 不需寫檔。")
+        return
+
+    patched = list(lines)
+    for key, _have, want in mismatch:
+        e = entries[key]
+        if e.status_line is None or e.datasets_line is None:
+            print(f"  ! {key}: upstream 區塊缺 status/datasets 行，跳過")
+            continue
+        patched[e.status_line] = f'      status: "{want[0]}",'
+        patched[e.datasets_line] = render_datasets(want[1])
+
+    new_text = "\n".join(patched)
+    diff = list(
+        difflib.unified_diff(
+            original.splitlines(keepends=True),
+            new_text.splitlines(keepends=True),
+            fromfile=f"a/{MANIFEST_TS.relative_to(PULSE_ROOT)}",
+            tofile=f"b/{MANIFEST_TS.relative_to(PULSE_ROOT)}",
+            n=3,
+        )
+    )
+    print("\n" + ("── 已寫入 ──" if args.apply else "── dry-run：--apply 會寫下的逐位元內容 ──"))
+    sys.stdout.writelines(diff)
+
+    if args.apply:
+        MANIFEST_TS.write_text(new_text, encoding="utf-8")
+        print(f"\n✓ 已更新 {MANIFEST_TS.relative_to(PULSE_ROOT)} —— 記得跑 npx tsc -b && npx vitest run")
     else:
-        # name_mismatch (shouldn't happen post-merge, but)
-        lines.append(f"  {layer_key}: {{ status: 'catalog_missing', datasets: [], note: 'unclassified after Phase 3' }},")
+        print("\n（未寫檔。確認 CSV 是較新的那一側後，加 --apply）")
 
-# Append stub entries for LayerVisibility keys not in THEMES (stale colors / not yet wired)
-# Read LAYER_COLORS keys from layerCatalog.ts to know full LayerVisibility surface
-import re as _re
-catalog_ts = (PULSE_ROOT / "src/components/sidebar/layerCatalog.ts").read_text(encoding="utf-8")
-# Extract LAYER_COLORS keys (export const LAYER_COLORS block)
-m = _re.search(r"export const LAYER_COLORS[^{]*\{([\s\S]*?)\n\};", catalog_ts)
-if m:
-    color_block = m.group(1)
-    color_keys = _re.findall(r"^\s*([a-zA-Z][a-zA-Z0-9_]*):", color_block, _re.M)
-    themes_keys = set(pulse.keys())
-    stale = [k for k in color_keys if k not in themes_keys]
-    if stale:
-        lines.append("  // ── Stub entries for LayerVisibility keys not in THEMES (stale, unused, or pending wiring) ──")
-        for k in stale:
-            lines.append(f"  {k}: {{ status: 'pulse_only', datasets: [], note: 'not in active THEMES (stale/unused color)' }},")
-lines.append("};")
-lines.append("")
-lines.append("// ── Convenience helpers ──")
-lines.append("")
-lines.append("export function getUpstreamFor(layerKey: keyof LayerVisibility): UpstreamRef {")
-lines.append("  return UPSTREAM_REGISTRY[layerKey];")
-lines.append("}")
-lines.append("")
-lines.append("export function getAllVerifiedDatasets(): Set<string> {")
-lines.append("  const out = new Set<string>();")
-lines.append("  for (const ref of Object.values(UPSTREAM_REGISTRY)) {")
-lines.append("    if (ref.status === 'verified') {")
-lines.append("      for (const d of ref.datasets) out.add(d.datasetId);")
-lines.append("    }")
-lines.append("  }")
-lines.append("  return out;")
-lines.append("}")
-lines.append("")
-lines.append("/** Resolve upstream catalog dataset_ids for any layer (verified or pulse_only).")
-lines.append(" *  For pulse_only: transitively walk derivedFromLayers + include derivedFromDatasets.")
-lines.append(" *  Cycle-safe via visited set. */")
-lines.append("export function resolveUpstreamDatasets(")
-lines.append("  layerKey: keyof LayerVisibility,")
-lines.append("  visited: Set<string> = new Set()")
-lines.append("): string[] {")
-lines.append("  if (visited.has(layerKey)) return [];")
-lines.append("  visited.add(layerKey);")
-lines.append("  const ref = UPSTREAM_REGISTRY[layerKey];")
-lines.append("  if (!ref) return [];")
-lines.append("  const out = new Set<string>();")
-lines.append("  for (const d of ref.datasets) out.add(d.datasetId);")
-lines.append("  for (const d of ref.derivedFromDatasets ?? []) out.add(d);")
-lines.append("  for (const l of ref.derivedFromLayers ?? []) {")
-lines.append("    for (const d of resolveUpstreamDatasets(l as keyof LayerVisibility, visited)) out.add(d);")
-lines.append("  }")
-lines.append("  return [...out];")
-lines.append("}")
 
-OUT_TS.write_text("\n".join(lines) + "\n", encoding="utf-8")
-print(f"✓ Written: {OUT_TS}")
-print(f"  Verified layers:        {sum(1 for m in matches if m['status']=='verified')}")
-print(f"  pulse_only layers:      {sum(1 for m in matches if m['status']=='pulse_only')}")
-print(f"  catalog_missing layers: {sum(1 for m in matches if m['status']=='catalog_missing')}")
+if __name__ == "__main__":
+    main()

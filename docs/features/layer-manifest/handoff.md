@@ -16,14 +16,26 @@ manifest，不新增資料表、不改 RPC、不動 PMTiles 產製、不碰 coll
 
 - **SSOT 仍在 taipei-gis-analytics**，本 repo 只存 bridge（layer_key → dataset_id）。
 - `upstreamRegistry.ts` 原本由 `scripts/audit/06_apply_to_pulse.py` 從 `match_final.csv`
-  產生。⚠️ **搬進 manifest 的 key 不再由該腳本管轄** —— 若上游重跑那支腳本，
-  它只會覆蓋 `HANDWRITTEN_UPSTREAM` —— 而那張表**現在是空的**（348/348 全在 manifest），
-  所以重跑該腳本會產出一份「看起來什麼都沒改」的 diff。
-  這是有意的（manifest 是新 SSOT），但**該腳本仍需同步改寫成寫入 manifest**。
+  產生。⚠️ 那支腳本**不在 analytics、就在本 repo**（`mini-taiwan-pulse/scripts/audit/`，
+  舊敘述誤植為跨 repo）。搬進 manifest 的 key 不再由它管轄 —— 它只會覆蓋
+  `HANDWRITTEN_UPSTREAM`，而那張表**現在是空的**（348/348 全在 manifest）。
 
-  → ⚠️ **仍未做**。原本登記在 backlog 的「Phase 5」，但 Phase 5 已於 2026-08-12
-  以 `/new-layer` 文件改版結案、**不含這一項** —— 已改列進
-  [backlog.md](./backlog.md) 的「Phase 4 收尾 → 其餘未竟」，免得跟著 ✅ 一起消失。
+  → ✅ **2026-08-12 已改寫**（[changelog](./changelog.md)）：從「重生並覆蓋
+  `upstreamRegistry.ts`」改成「對帳 `layerManifest.ts` 的 `upstream` 欄位」——
+  預設 dry-run 只報帳、`--apply` 也只改既有 entry 的 `status`/`datasets` 兩行，
+  **永不新增或刪除 entry**（衍生血緣欄位另列人工判斷桶，不機械覆寫）。
+
+  ⚠️ 三件接手前要知道的事：
+  1. 原版讀的三個 CSV 在 session scratchpad，**目錄早已消失**；只有進了版控的
+     `docs/audit/data_sources_match_final.csv` 活下來（`catalog_datasets.csv`
+     原本讀進來就沒用到，改寫時移除）。
+  2. 那份 CSV 是 **2026-07-01 凍結快照**（227 keys vs manifest 現在 348）。
+     現況 dry-run：223 一致／2 不一致／2 只在 CSV／123 只在 manifest。
+     兩筆不一致都是 **manifest 才是新的那一側**（`schools` 後來手修成
+     `schools/HIGH`、`fireHydrants` 跟上游改名成 `hydrants`），
+     所以**今天不能 `--apply`**，那會把兩筆改回舊值。要 apply 得先跑 01→05 重產 CSV。
+  3. 只在 CSV 的 `slope` / `aspect` 是快照後改名成 `slopeVector` / `aspectVector`，
+     不是遺漏。
 
 ## 消費者（本 repo 內）
 

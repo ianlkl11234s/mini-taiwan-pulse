@@ -176,12 +176,17 @@
       pmtiles 檔名／source-layer 保留舊名不動（二進位烙印）。
       殘留待掃：analytics `docs/data-catalog/_pending_source_urls.md` 第 18–19 列仍指
       `environment/fire_hydrants.md`／`environment/fire_stations.md` 兩個已刪檔（analytics 側另案）。
-- [ ] **`scripts/audit/06_apply_to_pulse.py` 未同步改寫**（跨 repo，見
-      [handoff.md](./handoff.md)）：它原本從 analytics 的 `match_final.csv` 產
-      `upstreamRegistry.ts`，但現在只會覆蓋**已經空掉**的 `HANDWRITTEN_UPSTREAM`
-      → 重跑會產出「看起來什麼都沒改」的 diff。要改成寫入 `layerManifest.ts` 的
-      `upstream` 欄位。⚠️ 原本登記在「Phase 5」，而 Phase 5 已以 `/new-layer`
-      文件改版結案且**不含這一項**，故移到這裡。
+- [x] ~~**`scripts/audit/06_apply_to_pulse.py` 未同步改寫**~~ —— 2026-08-12 改寫完成。
+      更正兩處舊敘述：(1) **不是跨 repo**，腳本就在本 repo `scripts/audit/`；
+      (2) 它讀的三個 CSV 在 session scratchpad、**目錄已消失**，只有版控裡的
+      `docs/audit/data_sources_match_final.csv` 活著。
+      新形態＝**單向對帳器**：預設 dry-run 報帳＋印出 `--apply` 會寫下的逐位元 diff，
+      `--apply` 只改既有 entry `upstream` 區塊的 `status`/`datasets` 兩行，
+      永不新增/刪除 entry，有衍生血緣的另列人工桶（避免靜默毀掉 `derivedFromLayers`）。
+      ⚠️ **今天不要 `--apply`** —— CSV 是 2026-07-01 凍結快照（227 vs 348 keys），
+      dry-run 的 2 筆不一致都是 manifest 較新（`schools`／`fireHydrants`），
+      apply 會把它們改回舊值；要 apply 得先跑 01→05 重產 CSV。細節見
+      [handoff.md](./handoff.md)。
 
 - [ ] **`layerParamsSpec.ts` 2,640 行不能按主題切檔**（P3-3 實測，本棒未變）：
       spread 合併會同時丟掉 TS2353（typo key，且幽靈 key 會混進 `MigratedParamsKey`）
