@@ -301,3 +301,148 @@ export function trailsToGeoJSON(rows: readonly VesselWatchTrail[]): GeoJSON.Feat
 
   return { type: "FeatureCollection", features };
 }
+
+// ────────────────────────────────────────────────────────────
+// 時間軸播放：依 currentTime 算出每艘船當下位置（像 ships 圖層那樣會動）
+// ────────────────────────────────────────────────────────────
+
+export interface VesselAtTime {
+  lat: number;
+  lng: number;
+  /** true = 失聯過久，這是「最後已知位置」而非當下位置。前端應淡化顯示。 */
+  stale: boolean;
+  /** 距離最後一筆回報幾秒（0 = 正在插值移動中）。popup 顯示「N 分鐘前回報」用。 */
+  ageSec: number;
+  /** 拖尾座標 [lng, lat][]，已避開訊號中斷，不足 2 點時為空陣列 */
+  trail: number[][];
+}
+
+/**
+ * 判定「失聯」的門檻（秒）——比 `TRAIL_GAP_SEC` 寬得多，兩者用途不同：
+ *   - `TRAIL_GAP_SEC`（1h）決定**軌跡線要不要斷開**：寧可斷，因為連起來是虛構航跡。
+ *   - `STALE_SEC`（3h）決定**船點要不要淡化**：太嚴會讓整層都是淡的。
+ *
+ * 為什麼需要分開：岸基 AIS 的覆蓋是常態性進出的——實測任一時刻只有 20~33 艘在線，
+ * 但 3 天視窗內有 150+ 艘。若沿用 1 小時，畫面上幾乎每艘船都會被判失聯而淡化，
+ * 等於這個視覺區隔完全失效。3 小時留給「真的消失了」的船。
+ */
+const STALE_SEC = 3 * 3600;
+
+/**
+ * 取某艘船在 `timeSec` 當下的位置與拖尾。
+ *
+ * ⚠️ **不可改用 utils/interpolation 的 `interpolatePosition`**：那支只找時間區間、
+ * 不看兩點相隔多久，跨越訊號中斷時會讓船「緩慢飄過台灣海峽」——播放出一段
+ * 完全不存在的航程（實測資料最大間隔達 67 小時）。
+ * 這裡改成：中斷期間**停在最後已知點並標記 stale**，由呼叫端淡化呈現。
+ * 不虛構移動、也不讓船閃爍消失。
+ */
+export function vesselAtTime(
+  t: VesselWatchTrail,
+  timeSec: number,
+  trailSec: number,
+): VesselAtTime | null {
+  const path = t.path;
+  if (path.length === 0) return null;
+
+  const first = path[0]!;
+  const last = path[path.length - 1]!;
+
+  // 時間軸還沒走到這艘船第一次出現 → 不顯示（而不是讓它提早出現在起點）
+  if (timeSec < first[3]) return null;
+
+  let lat: number;
+  let lng: number;
+  let stale: boolean;
+  let ageSec = 0;
+
+  if (timeSec >= last[3]) {
+    lat = last[0];
+    lng = last[1];
+    ageSec = timeSec - last[3];
+    stale = ageSec > STALE_SEC;
+  } else {
+    let a = first;
+    let b = last;
+    for (let i = 0; i < path.length - 1; i++) {
+      const p = path[i]!;
+      const q = path[i + 1]!;
+      if (timeSec >= p[3] && timeSec <= q[3]) {
+        a = p;
+        b = q;
+        break;
+      }
+    }
+    const span = b[3] - a[3];
+    if (span > TRAIL_GAP_SEC) {
+      // 訊號中斷區間：停在中斷前最後一點，**不插值**（插了就是虛構航程）
+      lat = a[0];
+      lng = a[1];
+      ageSec = timeSec - a[3];
+      stale = ageSec > STALE_SEC;
+    } else {
+      const r = span > 0 ? (timeSec - a[3]) / span : 0;
+      lat = a[0] + (b[0] - a[0]) * r;
+      lng = a[1] + (b[1] - a[1]) * r;
+      stale = false;
+    }
+  }
+
+  // 拖尾：往前 trailSec 內的原始點，遇訊號中斷即截斷（只留最靠近當下的一段）
+  const trail: number[][] = [];
+  const from = timeSec - trailSec;
+  let prevTs: number | null = null;
+  for (const pt of path) {
+    if (pt[3] < from) continue;
+    if (pt[3] > timeSec) break;
+    if (prevTs !== null && pt[3] - prevTs > TRAIL_GAP_SEC) trail.length = 0;
+    trail.push([pt[1], pt[0]]);
+    prevTs = pt[3];
+  }
+  if (!stale && trail.length > 0) trail.push([lng, lat]); // 接上當下插值位置
+  if (trail.length < 2) trail.length = 0;
+
+  return { lat, lng, stale, ageSec, trail };
+}
+
+/** 把「當下時刻」的所有船打包成 GeoJSON（船點 + 拖尾各一份）。 */
+export function frameToGeoJSON(
+  rows: readonly VesselWatchTrail[],
+  timeSec: number,
+  trailSec: number,
+): { points: GeoJSON.FeatureCollection; trails: GeoJSON.FeatureCollection } {
+  const points: GeoJSON.Feature[] = [];
+  const trails: GeoJSON.Feature[] = [];
+
+  for (const t of rows) {
+    const at = vesselAtTime(t, timeSec, trailSec);
+    if (!at) continue;
+    const props = {
+      mmsi: t.mmsi,
+      ship_name: t.shipName,
+      vessel_class: t.vesselClass,
+      class_label: vesselClassLabel(t.vesselClass),
+      class_color: vesselClassColor(t.vesselClass),
+      flag: t.flag,
+      stale: at.stale ? 1 : 0,
+      age_sec: Math.round(at.ageSec),
+    };
+    points.push({
+      type: "Feature",
+      geometry: { type: "Point", coordinates: [at.lng, at.lat] },
+      properties: props,
+    });
+    if (at.trail.length >= 2) {
+      trails.push({
+        type: "Feature",
+        geometry: { type: "LineString", coordinates: at.trail },
+        properties: props,
+      });
+    }
+  }
+
+  return {
+    points: { type: "FeatureCollection", features: points },
+    trails: { type: "FeatureCollection", features: trails },
+  };
+}

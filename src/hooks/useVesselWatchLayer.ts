@@ -10,7 +10,7 @@ import {
   fetchVesselWatchCurrent,
   fetchVesselWatchTrails,
   positionsToGeoJSON,
-  trailsToGeoJSON,
+  frameToGeoJSON,
   type VesselWatchPosition,
   type VesselWatchTrail,
 } from "../data/vesselWatchLoader";
@@ -19,7 +19,7 @@ import { keepLoadingUntilMapIdle } from "../lib/loadingRegistry";
 import { useMapReadyTick } from "./useMapReadyTick";
 
 /**
- * 特殊船舶（Vessel Watch）圖層 —— 海警／海巡／科研船／軍艦的最後已知位置 + 軌跡
+ * 特殊船舶（Vessel Watch）圖層 —— 海警／海巡／科研船／軍艦，隨時間軸移動
  *
  * - 資料：`live.vessel_watch_positions`（gis-platform migration 339/340）
  * - **純 Mapbox 疊層**：circle（船位）＋ line（軌跡）。兩個 source 分開餵，
@@ -32,9 +32,9 @@ import { useMapReadyTick } from "./useMapReadyTick";
  * ⚠️ **不做任何平滑插值**：AIS 每艘約 15 分鐘一筆、離岸即斷訊，軌跡是
  *    斷續取樣不是連續航跡。Catmull-Rom 會憑空生出船沒走過的路徑。
  *
- * ⚠️ 依鐵則（CLAUDE.md §6）**不得把 currentTime 放進 deps**：軌跡視窗的結束日
- *    走 `timeStore.subscribeDate`。本層無 intraday 變化（位置是「最後已知」、
- *    軌跡是整個視窗一起畫），故不掛 `subscribeThrottled`。
+ * ⚠️ 依鐵則（CLAUDE.md §6）**不得把 currentTime 放進 deps**：
+ *    - 軌跡視窗的結束日 → `timeStore.subscribeDate`
+ *    - 播放中的船位移動 → `timeStore.subscribeThrottled`（船會動就是靠這支）
  */
 
 const CURRENT_SOURCE_ID = "vessel-watch-current";
@@ -51,6 +51,20 @@ export const VESSEL_WATCH_CLICK_LAYERS = [CIRCLE_ID, TRAIL_LINE_ID];
 /** 軌跡線比船點淡 —— 線是背景脈絡，當下位置才是主體 */
 const TRAIL_OPACITY_RATIO = 0.45;
 
+/**
+ * 播放時每艘船身後的拖尾長度（秒）。
+ * AIS 約 15 分鐘一筆，3 小時 ≈ 12 個點，足以看出航向又不會糊成一團。
+ */
+const TRAIL_TAIL_SEC = 3 * 3600;
+
+/**
+ * 時間軸節流間隔（毫秒）。~150 艘船每次要重算位置 + 兩次 setData，
+ * 200ms（5fps）在快轉時已足夠流暢，又不會讓主執行緒忙於 GeoJSON 序列化。
+ */
+const TIME_THROTTLE_MS = 200;
+
+const EMPTY_FC: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
+
 /** 船點半徑隨 zoom 放大（遠看是密集小點，近看要點得到） */
 const CIRCLE_RADIUS: ExpressionSpecification = [
   "interpolate",
@@ -63,6 +77,17 @@ const CIRCLE_RADIUS: ExpressionSpecification = [
 ] as unknown as ExpressionSpecification;
 
 const CLASS_COLOR = ["get", "class_color"] as unknown as ExpressionSpecification;
+
+/** stale（訊號中斷中，顯示的是最後已知位置）→ 降到三成不透明度 */
+const STALE_RATIO = 0.3;
+function staleAware(base: number): ExpressionSpecification {
+  return [
+    "case",
+    ["==", ["get", "stale"], 1],
+    base * STALE_RATIO,
+    base,
+  ] as unknown as ExpressionSpecification;
+}
 
 function buildLayers(map: MapboxMap, opacity: number): boolean {
   if (!map.getSource(CURRENT_SOURCE_ID) || !map.getSource(TRAILS_SOURCE_ID)) return false;
@@ -90,11 +115,12 @@ function buildLayers(map: MapboxMap, opacity: number): boolean {
       paint: {
         "circle-color": CLASS_COLOR,
         "circle-radius": CIRCLE_RADIUS,
-        "circle-opacity": opacity,
+        // stale = 訊號中斷中，畫的是「最後已知位置」不是當下位置 → 淡化區隔
+        "circle-opacity": staleAware(opacity),
         // 深色描邊讓亮色船點在亮底圖上也分得出來
         "circle-stroke-color": "#0f172a",
         "circle-stroke-width": 0.8,
-        "circle-stroke-opacity": opacity * 0.8,
+        "circle-stroke-opacity": staleAware(opacity * 0.8),
       },
     } as CircleLayer);
   }
@@ -147,11 +173,26 @@ export function useVesselWatchLayer(
     [opacity],
   );
 
+  /**
+   * 把「時間軸當下」的畫面餵給兩個 source —— 船會隨播放移動（同 ships 圖層的體感）。
+   *
+   * 有軌跡時一律走 `frameToGeoJSON`（依 currentTime 插值出當下位置 + 拖尾）；
+   * 軌跡還沒回來時才用 `get_vessel_watch_current` 的最後已知位置墊著，
+   * 避免圖層剛開啟的空窗期整片空白。
+   */
   const refreshSources = useCallback((map: MapboxMap) => {
     const cur = map.getSource(CURRENT_SOURCE_ID) as GeoJSONSource | undefined;
-    if (cur) cur.setData(positionsToGeoJSON(positionsRef.current ?? []));
     const tr = map.getSource(TRAILS_SOURCE_ID) as GeoJSONSource | undefined;
-    if (tr) tr.setData(trailsToGeoJSON(trailsRef.current ?? []));
+    const rows = trailsRef.current;
+
+    if (rows && rows.length > 0) {
+      const { points, trails } = frameToGeoJSON(rows, timeStore.getTime(), TRAIL_TAIL_SEC);
+      cur?.setData(points);
+      tr?.setData(trails);
+      return;
+    }
+    cur?.setData(positionsToGeoJSON(positionsRef.current ?? []));
+    tr?.setData(EMPTY_FC);
   }, []);
 
   // ── 最後已知位置：與時間軸無關，只在圖層開啟時載一次（loader 有 5min TTL）──
@@ -222,6 +263,20 @@ export function useVesselWatchLayer(
     loadTrails(timeStore.getDateKey());
     return timeStore.subscribeDate(loadTrails);
   }, [visible, loadTrails]);
+
+  // ── 時間軸播放：船隨 currentTime 移動 ──
+  // ⚠️ 同樣**不把 currentTime 放進 deps**（CLAUDE.md §6），改走 timeStore 節流訂閱。
+  //    這支是「船會動」的來源：每 tick 重算所有船在當下的位置與拖尾。
+  useEffect(() => {
+    if (!visible) return;
+    const onTick = () => {
+      const map = mapRef.current;
+      if (!map || !layersReadyRef.current) return;
+      refreshSources(map);
+    };
+    onTick();
+    return timeStore.subscribeThrottled(TIME_THROTTLE_MS, onTick);
+  }, [visible, refreshSources, mapRef, mapTick]);
 
   // ── 可見性 + 換底圖後重建圖層 ──
   useEffect(() => {
