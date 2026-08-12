@@ -233,7 +233,15 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
   { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
   { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
+  // 💧 IoT 感測站兩層：properties 早已逐欄烤好（見 useIotWraRiverLayer / …Structure 的
+  //    buildFC），W2 前只缺本表一行。iotWraRiver 1,634 站與 riverLevel 831 站僅重疊
+  //    266 對 → 排在 river-level 之後，重疊處由既有的 riverLevel（有 24h 走勢圖）勝出。
+  { layers: ["iot-wra-river-circle"], type: "iotWraRiver" },
+  { layers: ["iot-wra-structure-circle"], type: "iotWraStructure" },
   { layers: ["groundwater-circle", "groundwater-glow"], type: "groundwater" },
+  // 💧 地下水井靜態 backdrop（~733 灰點）：與動態 groundwater 層共用 GroundwaterPanel
+  //    與同一組欄位。排在動態層**之後** —— 兩層同時開時由帶時間色階的動態層勝出。
+  { layers: ["groundwater-wells-circle"], type: "groundwater" },
   { layers: ["flood-sensor-dot", "flood-sensor-glow"], type: "floodSensor" },
   { layers: ["flood-sensor-isochrone-fill"], type: "floodSensorIsochrone" },
   { layers: ["taipei-sewer-dot"], type: "taipeiSewer" },
@@ -281,6 +289,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   //    唯一的載體是面，依「面層不可搶點層」放在所有點層之後；站體範圍內的消防栓 /
   //    行道樹 / 停車場等點層因此仍優先命中。與 station-points-* 共用 railStation panel。
   { layers: ["station-polygons-thsr-poly-fill", "station-polygons-thsr-poly-line"], type: "railStation" },
+  // 💧 水資源 線 / 面 5 層 —— 線層在前（±5px bbox 已夠命中細線，不必收 glow），
+  //    面層依覆蓋面積由小到大排後，保護區流域級最大故置末。
+  { layers: ["water-canals-core"], type: "waterCanals" },
+  { layers: ["water-levees-core"], type: "waterLevees" },
+  // 河川只收**面層**：同 layer key 的線層 water_rivers.geojson（2,015 筆）
+  // river_name / river_code / river_type 三欄 100% 空字串（實測），接了只會開空白面板。
+  { layers: ["water-river-polygons-fill"], type: "waterRivers" },
+  // 流域只有輪廓線沒有 fill，不會擋住面內任何東西
+  { layers: ["water-basins-line"], type: "waterBasins" },
+  { layers: ["water-protection-zones-fill"], type: "waterProtectionZones" },
   // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
   // 快速道路（trunk 子集，5.6 萬 edges）排在 osm_road_drive（55 萬 edges）之前：
   // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。

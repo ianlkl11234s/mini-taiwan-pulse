@@ -698,3 +698,277 @@ export function LakesPondsPanel({ props }: { props: Record<string, unknown> }) {
     </>
   );
 }
+
+// ══════════════════════════════════════════════════════════════════
+//  W2 popup 補強：水資源 8 層
+//  （no-popup-audit §5 工作包 1 + 2；欄位語意出處逐個標在各 panel 上方）
+// ══════════════════════════════════════════════════════════════════
+
+/** IoT 站共用的「讀值 + 變化量」大字區塊（河川水位站 / 水工結構共用）。 */
+function IotReadingBlock({
+  value, unit, deltaLabel, delta, color,
+}: {
+  value: number | null;
+  unit: string;
+  deltaLabel: string;
+  delta: number | null;
+  color: string;
+}) {
+  const t = useFeatureTheme();
+  return (
+    <>
+      <div
+        style={{
+          display: "flex", alignItems: "baseline", gap: 8, marginTop: 4,
+          padding: "6px 8px", background: `${color}1a`, borderRadius: RADIUS.md,
+        }}
+      >
+        <span style={{ fontSize: FONT_SIZE.xxl, fontWeight: 700, color, fontFamily: FONT_DATA }}>
+          {value != null && Number.isFinite(value) ? value.toFixed(2) : "—"}
+        </span>
+        <span style={{ fontSize: FONT_SIZE.sm, color: t.textDefault }}>{unit}</span>
+      </div>
+      {delta != null && Number.isFinite(delta) && (
+        <Row
+          label={deltaLabel}
+          value={`${delta >= 0 ? "+" : ""}${delta.toFixed(2)} ${unit}`}
+          color={delta > 0 ? "#f87171" : delta < 0 ? "#4ade80" : undefined}
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * IoT 河川水位站（1,634 站，與既有 riverLevel 831 站僅重疊 266 對）。
+ * 欄位由 useIotWraRiverLayer.buildFC 逐欄烤進 properties：
+ *   name / measurement_name / si_unit / value / delta_m / observed_at / iow_station_id
+ * `delta_m` = 當下讀值 − 該站基準水位（hook 內的 baseLevel）。
+ */
+export function IotWraRiverPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const value = props.value == null ? null : Number(props.value);
+  const delta = props.delta_m == null ? null : Number(props.delta_m);
+  const unit = String(props.si_unit ?? "m");
+  const obs = String(props.observed_at ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22d3ee", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名站)")}
+        </div>
+      </div>
+      <IotReadingBlock value={value} unit={unit} deltaLabel="較基準" delta={delta} color="#22d3ee" />
+      <Row label="測項" value={String(props.measurement_name ?? "")} />
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row label="站號" value={String(props.iow_station_id ?? "")} color={t.textDim} />
+    </>
+  );
+}
+
+/**
+ * IoT 水工結構（堰壩 / 閘門 / 累計流量 / 河床沖刷 / 揚塵 5 類）。
+ * 欄位由 useIotWraStructureLayer.buildFC 烤進 properties；`station_type` 的
+ * 5 個值域與色票逐字取自該 hook 的 colorByType()，中文標籤對齊
+ * LegendPanel 的 IOT_STRUCTURE_TYPES（不另立第二套說法）。
+ */
+const IOT_STRUCTURE_TYPE: Record<string, { color: string; label: string }> = {
+  cumulativeflow: { color: "#a855f7", label: "累計流量" },
+  watergate: { color: "#f97316", label: "閘門" },
+  damstructure: { color: "#dc2626", label: "堤防安全" },
+  erosiondepth: { color: "#eab308", label: "河床沖刷" },
+  dustemission: { color: "#92400e", label: "揚塵" },
+};
+
+export function IotWraStructurePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const type = String(props.station_type ?? "");
+  const info = IOT_STRUCTURE_TYPE[type];
+  const color = info?.color ?? "#94a3b8";
+  const value = props.value == null ? null : Number(props.value);
+  const delta = props.delta_since_day_start == null ? null : Number(props.delta_since_day_start);
+  const unit = String(props.si_unit ?? "");
+  const obs = String(props.observed_at ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名站)")}
+        </div>
+      </div>
+      <Row label="類型" value={info?.label ?? type} color={color} />
+      <IotReadingBlock value={value} unit={unit} deltaLabel="今日累計變化" delta={delta} color={color} />
+      <Row label="測項" value={String(props.measurement_name ?? "")} />
+      <Row label="縣市" value={String(props.county_name ?? "")} />
+      {obs && <Row label="觀測時間" value={formatTaiwanTime(obs).slice(0, 16)} />}
+      <Row label="站號" value={String(props.iow_station_id ?? "")} color={t.textDim} />
+    </>
+  );
+}
+
+/**
+ * 流域（116 面）。欄位：basin_name / basin_no / area_km2。
+ * ⚠️ `area_km2` 的**實際單位是平方公尺**，不是欄名寫的 km²：高屏溪 3,320,411,198
+ *    ÷ 1e6 = 3,320 km²（實際 3,257 km²）、淡水河 2,734 km²（實際 2,726 km²）、
+ *    濁水溪 3,167 km²（實際 3,157 km²）三個獨立對照都落在 2% 內 → 顯示前先 ÷ 1e6。
+ *    上游欄名待修（docs/data-catalog/water_resources/river_basins_wra.md）。
+ */
+export function WaterBasinsPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const areaM2 = Number(props.area_km2);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0891b2", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.basin_name ?? "(未命名流域)")}
+        </div>
+      </div>
+      {Number.isFinite(areaM2) && areaM2 > 0 && (
+        <Row label="集水面積" value={`${(areaM2 / 1e6).toLocaleString("zh-TW", { maximumFractionDigits: 1 })} km²`} />
+      )}
+      <Row label="流域代號" value={String(props.basin_no ?? "")} color={t.textDim} />
+    </>
+  );
+}
+
+/**
+ * 河川（河道面 13,262 筆）。欄位：river_name / river_type。
+ * ⚠️ 只接**面層** `water-river-polygons-fill`：同 layer key 的線層
+ *    `water_rivers.geojson`（2,015 筆）三個欄位 100% 是空字串（實測），
+ *    接了只會開出空白面板。面層則有 12,210 / 13,262（92%）帶河名。
+ * ⚠️ `river_type` 上游只註明「類型（1-5）」，沒有給 1-5 的中文對照
+ *    → 原樣顯示代碼，不臆測分級名稱。
+ */
+export function WaterRiversPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const type = String(props.river_type ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#0284c7", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.river_name ?? "(未命名河段)")}
+        </div>
+      </div>
+      <Row label="分類代碼" value={type} color={t.textDim} />
+      <Row label="河川代碼" value={String(props.river_code ?? "")} color={t.textDim} />
+    </>
+  );
+}
+
+/**
+ * 堤防 / 護岸（4,222 筆）。欄位：name / river / basin / county / levee_type / side / status。
+ * `status` 的「待建」已被 overlayRegistry 用 case expression 淡化成虛線，popup 補上文字。
+ * ⚠️ `length_m` **不顯示**：欄名與 catalog（river_levees_wra.md L27「長度（公尺）」）都寫公尺，
+ *    但實測值域 0.0038 ~ 12.17（平均 0.84）不可能是公尺，匯出腳本
+ *    （export-water-static.sh L121）也沒做任何換算 → 單位有疑義，寧可不顯示也不猜。
+ */
+const LEVEE_STATUS_COLOR: Record<string, string> = {
+  已建: "#4ade80",
+  待建: "#fbbf24",
+};
+
+export function WaterLeveesPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const status = String(props.status ?? "");
+  const side = String(props.side ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#f59e0b", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名堤防)")}
+        </div>
+      </div>
+      <Row label="型式" value={String(props.levee_type ?? "")} />
+      <Row label="狀態" value={status} color={LEVEE_STATUS_COLOR[status]} />
+      <Row label="河川" value={String(props.river ?? "")} />
+      <Row label="流域" value={String(props.basin ?? "")} />
+      <Row label="岸別" value={side ? `${side}岸` : ""} />
+      <Row label="縣市" value={String(props.county ?? "")} color={t.textDim} />
+    </>
+  );
+}
+
+/**
+ * 灌排渠道（29,469 條）。PMTiles 欄位是縮寫，語意由上游 pipeline 的白名單確認：
+ *   taipei-gis-analytics/pipelines/infrastructure/irrigation_canal/01_fetch_wfs.py
+ *   `if tag in ("管理處", "渠道名", "屬性")` → o = 管理處、n = 渠道名、t = 屬性
+ *   （docs/data-catalog/infrastructure/irrigation_canal.md L54 列出 t 的三分類）
+ * ⚠️ `t` 是「引灌需求屬性」三分類，**不是等級**（manifest description 的「渠道等級」措辭有誤）。
+ * ⚠️ src='arcgis' 的 9,918 條（全宜蘭）`n` 與 `t` 恆為空 → 名稱走 fallback，
+ *    只剩管理處可顯示，這是資料本身的缺口不是接線問題。
+ */
+const CANAL_ATTR_COLOR: Record<string, string> = {
+  灌溉專用渠道: "#0d9488",
+  下游具引灌需求: "#7c3aed",
+  下游不具引灌需求: "#64748b",
+};
+
+const CANAL_SRC_LABELS: Record<string, string> = {
+  wfs: "農田水利署 WFS",
+  arcgis: "宜蘭管理處 ArcGIS",
+};
+
+export function WaterCanalsPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const name = String(props.n ?? "");
+  const office = String(props.o ?? "");
+  const attr = String(props.t ?? "");
+  const src = String(props.src ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div
+          style={{
+            width: 10, height: 10, borderRadius: RADIUS.full,
+            background: CANAL_ATTR_COLOR[attr] ?? "#64748b", flexShrink: 0,
+          }}
+        />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {name || (office ? `${office}（渠道名從缺）` : "(未命名渠道)")}
+        </div>
+      </div>
+      <Row label="管理處" value={office ? `${office}管理處` : ""} />
+      <Row label="屬性" value={attr} color={CANAL_ATTR_COLOR[attr]} />
+      <Row label="資料來源" value={CANAL_SRC_LABELS[src] ?? src} color={t.textDim} />
+    </>
+  );
+}
+
+/**
+ * 水資源管制區（128 面）。欄位：name / zone / law_ref / zone_kind / zone_no。
+ * `zone_kind` 的 4 個值域與中文標籤逐字對齊 LegendPanel 的 WATER_PROTECTION_ZONE_CATS
+ * （同一份 overlayRegistry match 表，不另立第二套說法）。
+ * `law_ref`（公告文號）是這層別處拿不到的資訊 —— 管制區的重點就是「這裡受什麼法規管」。
+ */
+const PROTECTION_ZONE_KIND: Record<string, { color: string; label: string }> = {
+  protection: { color: "#10b981", label: "飲用水水源保護區" },
+  groundwater_control_2: { color: "#ef4444", label: "地下水禁止超抽" },
+  groundwater_control_1: { color: "#f97316", label: "地下水限制超抽" },
+  groundwater_region: { color: "#94a3b8", label: "地下水分區" },
+};
+
+export function WaterProtectionZonesPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const kind = String(props.zone_kind ?? "");
+  const info = PROTECTION_ZONE_KIND[kind];
+  const color = info?.color ?? "#94a3b8";
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "(未命名管制區)")}
+        </div>
+      </div>
+      <Row label="類別" value={info?.label ?? kind} color={color} />
+      <Row label="分區" value={String(props.zone ?? "")} />
+      <Row label="公告文號" value={String(props.law_ref ?? "")} />
+      <Row label="編號" value={String(props.zone_no ?? "")} color={t.textDim} />
+    </>
+  );
+}

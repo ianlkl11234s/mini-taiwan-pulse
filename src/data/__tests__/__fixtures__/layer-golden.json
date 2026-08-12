@@ -1103,8 +1103,26 @@
     },
     {
       "layers": [
+        "iot-wra-river-circle"
+      ],
+      "type": "iotWraRiver"
+    },
+    {
+      "layers": [
+        "iot-wra-structure-circle"
+      ],
+      "type": "iotWraStructure"
+    },
+    {
+      "layers": [
         "groundwater-circle",
         "groundwater-glow"
+      ],
+      "type": "groundwater"
+    },
+    {
+      "layers": [
+        "groundwater-wells-circle"
       ],
       "type": "groundwater"
     },
@@ -1322,6 +1340,36 @@
         "station-polygons-thsr-poly-line"
       ],
       "type": "railStation"
+    },
+    {
+      "layers": [
+        "water-canals-core"
+      ],
+      "type": "waterCanals"
+    },
+    {
+      "layers": [
+        "water-levees-core"
+      ],
+      "type": "waterLevees"
+    },
+    {
+      "layers": [
+        "water-river-polygons-fill"
+      ],
+      "type": "waterRivers"
+    },
+    {
+      "layers": [
+        "water-basins-line"
+      ],
+      "type": "waterBasins"
+    },
+    {
+      "layers": [
+        "water-protection-zones-fill"
+      ],
+      "type": "waterProtectionZones"
     },
     {
       "layers": [

@@ -717,6 +717,9 @@ export interface FeatureInfo {
     | "waterFacility" | "waterMonitor" | "waterDam" | "waterReservoirPoly" | "waterDetentionBasin"
     | "rainGauge" | "riverLevel" | "groundwater" | "groundwaterWell"
     | "iotWraRiver" | "iotWraStructure" | "lakesPondsOsm"
+    // 水資源面 / 線 5 層（W2 popup 補強，layerType = layer key 同名）
+    | "waterBasins" | "waterRivers" | "waterLevees" | "waterCanals"
+    | "waterProtectionZones"
     | "floodSensor" | "floodSensorIsochrone"
     | "taipeiSewer" | "taipeiEvacuate" | "taipeiPumb"
     | "wasteFacility" | "wasteDisposalPoint" | "wasteCleaningSquad"

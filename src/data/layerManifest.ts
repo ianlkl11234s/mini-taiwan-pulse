@@ -5397,8 +5397,9 @@ export const LAYER_MANIFEST = {
   },
 
   // ⚠️ 與 `groundwater` 是不同層：這層是**靜態 backdrop**（48h 內有讀值的 ~733 站，
-  //    灰色小點、不受 timeline 影響），且 layer id `groundwater-wells-circle`
-  //    **不在** GIS_LAYERS（GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）→ popup: null。
+  //    灰色小點、不受 timeline 影響），layer id 是 `groundwater-wells-circle`
+  //    （GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）。W2 popup 補強後兩者各有
+  //    一筆 GIS_LAYERS 條目，因欄位契約相同而共用 `groundwater` layerType 與 panel。
   groundwaterWells: {
     key: "groundwaterWells",
     section: { theme: "水資源 Water", group: "點位" },
@@ -5416,7 +5417,10 @@ export const LAYER_MANIFEST = {
       note: "useGroundwaterWellsLayer：Supabase RPC get_groundwater_latest（5min TTL 快取）→ 自建 source groundwater-wells + 1 layer groundwater-wells-circle，作為動態層的靜態站位 backdrop —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：properties 與動態 `groundwater` 層完全同一組欄位
+    // （well_name / station_id / water_level_m / delta_24h / observed_at）
+    // → 共用 `groundwater` layerType 與 GroundwaterPanel，不另立型別。
+    popup: "groundwater",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "地下水井監測網站位 backdrop（灰點，呈現監測密度）",
     topics: ["水資源", "地下水", "監測"],
@@ -5508,7 +5512,9 @@ export const LAYER_MANIFEST = {
       note: "useIotWraRiverLayer：Supabase RPC get_iot_wra_day（p_station_type=\"river\"）→ 自建 source iot-wra-river + 2 layer（glow / iot-wra-river-circle）—— 非 OVERLAY_REGISTRY",
     },
     legend: "iotWraRiver",
-    popup: null,
+    // W2 popup 補強：properties 早已由 useIotWraRiverLayer.buildFC 逐欄烤好
+    // （name / measurement_name / si_unit / value / delta_m / observed_at），只缺接線。
+    popup: "iotWraRiver",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "toggle"] },
     description: "水利署 IoT 河川水位感測器（民間協力布建的密網）",
     topics: ["水資源", "河川", "IoT", "即時"],
@@ -5531,7 +5537,9 @@ export const LAYER_MANIFEST = {
       note: "useIotWraStructureLayer：Supabase RPC get_iot_wra_latest（p_station_type=null 取全類別）→ 自建 source iot-wra-structure + 2 layer（glow / iot-wra-structure-circle）—— 非 OVERLAY_REGISTRY",
     },
     legend: "iotWraStructure",
-    popup: null,
+    // W2 popup 補強：同 iotWraRiver，另多 county_name / station_type
+    // （5 類水工結構不點開分不出是哪一類）。
+    popup: "iotWraStructure",
     params: { count: 7, kinds: ["slider", "slider", "toggle", "toggle", "toggle", "toggle", "toggle"] },
     description: "水利署 IoT 水工結構物感測（堰壩 / 閘門 / 抽水站等，5 類可篩）",
     topics: ["水資源", "水工結構", "IoT", "即時"],
@@ -5626,7 +5634,9 @@ export const LAYER_MANIFEST = {
       url: "./geo/water_basins.geojson",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：basin_name + 集水面積；純輪廓線且無 symbol label，
+    // 點開之前無從得知身處哪個流域，而那正是這層的用途。
+    popup: "waterBasins",
     params: { count: 1, kinds: ["slider"] },
     description: "中央管河川流域界（純輪廓線，不分色故無圖例）",
     topics: ["水資源", "流域"],
@@ -5665,7 +5675,9 @@ export const LAYER_MANIFEST = {
       },
     ],
     legend: null,
-    popup: null,
+    // W2 popup 補強：**只接面層** `water-river-polygons-fill`（12,210/13,262 帶河名）；
+    // 同 key 的線層 water_rivers.geojson 三個欄位 100% 空字串，接了只會開空白面板。
+    popup: "waterRivers",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "河川水域面 + 中心線（同一個 toggle 疊兩份切片）",
     topics: ["水資源", "河川"],
@@ -5692,7 +5704,9 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：本群欄位最豐富的線層（name / river / basin / county /
+    // levee_type / side / status）。status「待建」已進 paint 表達式，popup 補文字。
+    popup: "waterLevees",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "水利署堤防線（單色，無分類維度故無圖例）",
     topics: ["水資源", "防洪"],
@@ -5719,7 +5733,9 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: "waterCanals",
-    popup: null,
+    // W2 popup 補強：PMTiles 欄位是縮寫，語意由上游 pipeline 白名單確認
+    // （01_fetch_wfs.py：o=管理處 / n=渠道名 / t=屬性）。
+    popup: "waterCanals",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "農田水利署灌溉排水渠道（依渠道等級分色）",
     topics: ["水資源", "灌溉", "農業"],
@@ -5743,7 +5759,9 @@ export const LAYER_MANIFEST = {
       url: "./geo/water_protection_zones.geojson",
     },
     legend: "waterProtectionZones",
-    popup: null,
+    // W2 popup 補強：law_ref（公告文號）是別處拿不到的資訊，管制區的重點就是
+    // 「這裡受什麼法規管」。
+    popup: "waterProtectionZones",
     params: { count: 1, kinds: ["slider"] },
     description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
     topics: ["水資源", "管制", "保護區"],

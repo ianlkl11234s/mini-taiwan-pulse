@@ -202,9 +202,9 @@ const NO_POPUP_LEDGER = new Set([
   "hillshade",                                       // 底圖：raster 山影
   // 環境氣候：CWA/EPA 上游 raster（雲圖 / 雷達 / 溫度 / 熱島 / AQI 影像）
   "cwaCloudImagery", "cwaRadarImagery", "temperatureWave", "urbanHeat", "aqiImagery",
-  // 水資源：背景井位 / 流域面 / 河線 / 堤防 / 渠道 / 保護區 / 極端淹水 / 雨量 raster
-  "groundwaterWells", "iotWraRiver", "iotWraStructure", "waterBasins", "waterRivers",
-  "waterLevees", "waterCanals", "waterProtectionZones", "waterFloodExtreme", "precipRaster",
+  // 水資源：極端淹水面（payload 只有圖例已標示的 depth_class，待 owner 拍板）
+  // / 雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
+  "waterFloodExtreme", "precipRaster",
   // 廢棄物：清運車與排程走 wasteMapboxLayers 自掛 handler / 裝飾性特效
   "wasteTruck", "wasteSchedule", "wasteScheduleNote",
   "agriculture",                                     // 農業：全台耕地底圖面

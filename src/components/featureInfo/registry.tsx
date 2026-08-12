@@ -18,6 +18,9 @@ import {
   WaterFacilityPanel, WaterMonitorPanel, WaterDetentionBasinPanel, WaterDamPanel,
   RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel,
   WaterReservoirPolyPanel, LakesPondsPanel,
+  IotWraRiverPanel, IotWraStructurePanel,
+  WaterBasinsPanel, WaterRiversPanel, WaterLeveesPanel, WaterCanalsPanel,
+  WaterProtectionZonesPanel,
 } from "./waterPanels";
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import {
@@ -169,7 +172,16 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   lakesPondsOsm: LakesPondsPanel,
   rainGauge: RainGaugePanel,
   riverLevel: RiverLevelPanel,
+  // groundwater 同時服務動態層（useGroundwaterLayer）與靜態井位 backdrop
+  // （groundwaterWells）—— 兩者的 properties 欄位契約完全相同。
   groundwater: GroundwaterPanel,
+  iotWraRiver: IotWraRiverPanel,
+  iotWraStructure: IotWraStructurePanel,
+  waterBasins: WaterBasinsPanel,
+  waterRivers: WaterRiversPanel,
+  waterLevees: WaterLeveesPanel,
+  waterCanals: WaterCanalsPanel,
+  waterProtectionZones: WaterProtectionZonesPanel,
   floodSensor: FloodSensorPanel,
   floodSensorIsochrone: FloodSensorPanel,
   taipeiSewer: TaipeiSewerPanel,
@@ -411,6 +423,11 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   groundwaterWell: "地下水井",
   iotWraRiver: "IoT 河川水位站",
   iotWraStructure: "IoT 水工結構",
+  waterBasins: "流域",
+  waterRivers: "河川",
+  waterLevees: "堤防 / 護岸",
+  waterCanals: "灌排渠道",
+  waterProtectionZones: "水資源管制區",
   floodSensor: "都市淹水感測器",
   floodSensorIsochrone: "淹水 3 分步行圈",
   taipeiSewer: "北市雨水下水道水位",
