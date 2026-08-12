@@ -240,6 +240,13 @@ FISHERY_FILES=(
   "public/fishery/aquaculture_production_zone.geojson"
   "public/fishery/aquaculture_cage_net.geojson"
   "public/fishery/aquaculture_water_satellite.pmtiles"
+  # 2026-08-12 補漏（觸點 #20）：以下 3 檔前端有引用但從未進本清單。
+  # ⚠️ aquaculture_integrated 是 gitignore 的純 S3 檔 → 不上傳 = prod 與 dist 兩條路都沒有。
+  "public/fishery/aquaculture_integrated.pmtiles"
+  # 後兩者目前 git 管理（靠 /fishery/ 的 dist fallback 才沒爆），補進來是為了與同夾其他檔同構、
+  # 日後大小超標改走純 S3 時零改動。⚠️ sat_union 是**改名後的新檔名**（不是 satellite_union）。
+  "public/fishery/aquaculture_water_satellite_moa.pmtiles"
+  "public/fishery/aquaculture_water_sat_union.pmtiles"
 )
 for f in "${FISHERY_FILES[@]}"; do
   name=$(basename "$f")
@@ -310,8 +317,16 @@ if [ -d public/embed-rail ]; then
 fi
 
 # Base map PMTiles：上傳到 deploy-assets/base_map/ 子前綴（鏡像結構，pull 端整夾 sync）。
-# 6 檔合計 ~406MB（行政邊界 3 + 等高線 2 + OSM 路網 1）。SSOT 在 taipei-gis-analytics。
-for f in public/base_map/*.pmtiles; do
+# 8 檔（行政邊界 3 + 等高線 2 + OSM 路網 1 + slope_vector / aspect_vector 各 16MB）。
+# SSOT 在 taipei-gis-analytics。
+#
+# ＋ hillshade.png（8.7MB，git 管理的預烤 colormap 山影，App.tsx useStaticRasterLayer 直呼）：
+#   nginx `location /base_map/` 是**純 volume 無 dist fallback** → 不上傳 = prod 404。
+#   （prod 目前 200 是**手動 S3 副本**在服務，管線本身漏了這步；見
+#     docs/features/layer-manifest/overnight-log.md 11:47 的翻案。）
+#   ⚠️ 刻意寫**檔名字面**而不是 `*.png`：同夾的 slope.png / aspect.png 已被
+#   slope_vector / aspect_vector PMTiles 取代、全 repo 零引用，glob 會把死檔一起推上去。
+for f in public/base_map/*.pmtiles public/base_map/hillshade.png; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   echo "Uploading base_map/$name..."
@@ -349,9 +364,12 @@ for f in public/environment/*.pmtiles; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/environment/$name" --region ap-southeast-2
 done
 
-# 房地產 PMTiles：上傳到 deploy-assets/coverage/ 子前綴（鏡像結構，pull 端整夾 sync）。
-# 只上傳 real_estate_*（26+43MB 大檔走 S3）；gas coverage 小檔（5MB）仍進 git/dist，不上傳。
-for f in public/coverage/real_estate_*.pmtiles; do
+# 房地產 + 電桿 PMTiles：上傳到 deploy-assets/coverage/ 子前綴（鏡像結構，pull 端整夾 sync）。
+# 上傳 real_estate_*（26+43MB）與 power_poles（26MB）—— 三者都是 gitignore 的純 S3 大檔。
+# gas coverage 小檔 taiwan_*_nearest.pmtiles（5MB）仍進 git/dist，刻意不上傳（原語意保留）。
+# ⚠️ 2026-08-12 修正：本段原註解寫「只上傳 real_estate_*」，與 .gitignore 對 power_poles 的
+#    「走 S3 deploy-assets/coverage/」自相矛盾 —— 矛盾的那一半（漏上傳）才是真相，故補齊。
+for f in public/coverage/real_estate_*.pmtiles public/coverage/power_poles.pmtiles; do
   [ -f "$f" ] || continue
   name=$(basename "$f")
   echo "Uploading coverage/$name..."
