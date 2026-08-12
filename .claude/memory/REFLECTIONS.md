@@ -1400,3 +1400,19 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
   但真正的保險是「每階段先 commit」——第二次斷線後才想到補這條指示，應該一開始就寫進 prompt 模板。
 - **下次改進**：(1) worktree agent 的 prompt 模板應內建 PB-37 三鐵則，不要每次手寫；
   (2) 稽核報告的「處置建議」欄應標注「已現場驗證/僅靜態推斷」，讓執行 agent 知道哪些前提要重驗。
+
+## 2026-08-11/12 — Layer Manifest 過夜工程（14 棒，AR-22/23/24 一次交付）
+
+- **陷阱庫接力是這次成功的真正引擎**：每棒把判準與踩雷寫進 changelog，後棒必讀——
+  批 3 的 spread 陷阱、批 4 的 popup 判準雙向反例、P3-2A 的 fall-through，
+  全都只被踩一次。多 agent 接力的知識不留在 agent 裡，留在檔案裡。
+- **「全綠」與「無恙」是兩回事**：本次三個真問題（fall-through／hook return 盲區／
+  ref 初始化）全是突變演練挖出來的，沒有一個會讓既有測試變紅。
+  護欄的價值要用「它會不會叫」證明，不是用「它現在綠著」證明。
+- **agent 的誠實違抗值得制度化**：P4 拒打 4b 假勾勾、⑤ agent 判定「今天禁止 apply」、
+  批 2 修正拍板①判準——三次都對。給 agent 的指令該留「發現前提錯誤時停下回報」的出口。
+- **冤案的成本**：快照盲區立案到翻案花了一整棒。若第一時間先查「master 有沒有平行 commit」
+  （git log 對向 + commit message），十分鐘可結案。
+- **下次改進**：(1) 跨 session 共用 repo 時，開工先 `git log origin/master..master` 盤點
+  對向未推 commits；(2) 中斷頻繁的日子，把「每子階段 commit」直接寫進 agent prompt 模板
+  （這次第二次斷線後才補）。
