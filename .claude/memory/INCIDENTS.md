@@ -1794,3 +1794,39 @@ package.json 不同步直接報錯，**生產建置必炸**。主 agent 驗收�
 之後全套 473/473 也綠。→ 確認前條猜測：**資源競爭型逾時，非資料問題**。
 基準參考：該測試正常 2.2~2.9s，5s timeout 在高負載下餘裕不足。若再頻繁出現，
 解法是對該測試放寬 timeout 而不是砍資產掃描範圍。
+
+## 2026-08-11/12 — Layer Manifest 過夜工程（14 棒 agent，四事件）
+
+背景：AR-22/23/24 一次交付（PR #130，88 commits squash）。全程紀錄
+`docs/features/layer-manifest/overnight-log.md`＋changelog 14 棒實錄。
+
+### 事件 A：「快照盲區」冤案與翻案（跨 session 改名的完整劇本）
+
+Phase 2 收官時主樹 cross-repo 測試紅了一筆分支值與 master 手寫值不同的 datasetId，
+一度立案「快照護欄有盲區＋批 7 搬移失真」。徹查翻案：**平行 session 當天 commit 了
+上游 3 筆 fishery dataset 改名同步（c016f15）**，master 的「原值」其實是改名後的新值；
+分支與 fixture 忠實記錄的是 merge-base 舊值——零失真、零盲區。
+修復改走 rebase 吸收，fixture 重生 diff 恰 2 值＝47 commits 零擾動的最強證明。
+→ 教訓：**「分支 vs master 的值差」先查 master 有沒有平行 commit，再懷疑自己的護欄**；
+c016f15 的 commit message 明確留了「該分支需自行 rebase」交接——讀對向 commit 訊息省一小時。
+
+### 事件 B：fall-through 共用 state——「四道閘全攔不住」的靜默失效形狀
+
+P3-2A 發現 `case "a": case "b": return [...]` 共用 state 的 key 若被 per-key spec
+搬遷會靜默壞掉（拖 slider paint 不動），且黃金快照（比預設值）／tsc／行為測試／契約
+四道閘沒有一道會紅。P3-2B 先建 `sharedGroup` 表達＋專屬閘＋突變自測才續搬。
+→ 教訓：**護欄的盲區要用「突變自測」主動探**（改壞一個東西看誰會叫），
+不能拿「全綠」當「無恙」。同型：P3-2C 突變實測證明快照對 hook return 第二通道全瞎。
+
+### 事件 C：等值閘突變演練抓到 ref 初始化盲區
+
+P3-2D 突變 (b2)「刪一條 ref 同步賦值」竟全綠——因為測試每次全新 mount，
+`useRef(store 現值)` 讓盲區永存。遷移慣例改成「useRef initial 只吃規格常數」後，
+同一突變重跑即紅並點名。→ 教訓：**等值測試的 capture 時機會吃掉一整類 bug**，
+突變演練要「演到紅為止」，演不紅的突變本身就是發現。
+
+### 事件 D：跨日過夜任務的中斷矩陣（額度×3、休眠×2、連線×3）
+
+14 棒裡 8 次中斷全靠三件套復原零重工：**每子階段先 commit**（durability 下放）＋
+SendMessage 原 context 續跑＋overnight-log 落檔交接。caffeinate 擋閒置休眠但
+**擋不住闔蓋**（實測踩到）。→ SOP 已定型 PB-38。
