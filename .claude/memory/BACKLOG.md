@@ -532,10 +532,10 @@
 
 | ID | 優先級 | 項目 | 狀態 | Blocker / 備註 |
 |---|---|---|---|---|
-| BM-1 | P1 | osm_expressway 快速道路 vector PMTiles（1.9 MB） | open | EPSG:4326 PMTiles 直接走現有 base_map PMTiles 模式，橘色粗線 #FF8C00 stroke 3px，z6-14。最簡單，先做 |
-| BM-2 | P1 | hillshade 山體陰影 raster（烤 PNG 路線） | open | 上游烤成單張 PNG（灰階、~4096²、~2-5MB）→ 前端複用 `createCwaImageryLayer`。EPSG:3857 已轉好。opacity 0.5 疊 contour 下方 |
-| BM-3 | P1 | slope 坡度 raster（烤 PNG 路線） | open | 上游 `gdaldem color-relief` 烤綠黃紅 colormap → 單張 PNG。前端同 BM-2 pattern。建議 ramp 0-45°（>45 不顯著）|
-| BM-4 | P1 | aspect 坡向 raster（烤 PNG 路線） | open | 上游烤環狀 HSV 色盤（N=紅 E=黃 S=綠 W=藍）→ 單張 PNG。⚠️ aspect 環狀資料，烤時注意跨 0/360 不可算術平均 |
+| BM-1 | P1 | osm_expressway 快速道路 vector PMTiles（1.9 MB） | **done** | 已上線：`osmExpressway`（`src/data/layerManifest.ts:7669`），`kind:"pmtiles"`，`source.url` = `./base_map/osm_expressway.pmtiles`，橘色 #FF8C00，manifest 348 層批 8 併入（#131 期間逐一驗過） |
+| BM-2 | P1 | hillshade 山體陰影 raster（烤 PNG 路線） | **done** | 已上線：`hillshade`（`src/data/layerManifest.ts:3905`），`kind:"custom"` + `staticAssets: ["./base_map/hillshade.png"]`，App.tsx 用 `useStaticRasterLayer` 直呼。原部署缺口（nginx `/base_map/` 無 dist fallback、S3 upload 只吃 `*.pmtiles`）已於觸點 #20 修復（見 `docs/features/layer-manifest/backlog.md` 觸點 #20 段） |
+| BM-3 | P1 | slope 坡度 raster（烤 PNG 路線） | **done** | 已上線，但**改走向量路線**（非原案烤 PNG）：`slopeVector`（`src/data/layerManifest.ts:3929`），`kind:"custom"` 自建 PMTiles source `./base_map/slope_vector.pmtiles`，六級坡分色面，`legend`/`popup` 皆掛 `"slopeVector"` |
+| BM-4 | P1 | aspect 坡向 raster（烤 PNG 路線） | **done** | 已上線，同 BM-3 改走向量路線：`aspectVector`（`src/data/layerManifest.ts:3954`），`kind:"custom"` + `staticAssets: ["./base_map/aspect_vector.pmtiles"]`，坡向八方位分級面，`legend`/`popup` 皆掛 `"aspectVector"` |
 | BM-5 | P3 | **改走 deck.gl COG 路線**（未來再做） | open | 換掉 BM-2/3/4 烤 PNG 改 deck.gl `@deck.gl/geo-layers` TileLayer + GeoTIFF loader，**讓使用者拉 slider 動態調 ramp / 色盤 / opacity**。trade-off 詳見下方 |
 
 **BM-2~4 烤 PNG vs BM-5 deck.gl COG 決策對照（2026-06-27 討論結論）**：
