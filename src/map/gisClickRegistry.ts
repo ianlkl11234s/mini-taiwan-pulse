@@ -275,6 +275,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 醫療等時圈覆蓋面
   { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
   // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
+  // 快速道路（trunk 子集，5.6 萬 edges）排在 osm_road_drive（55 萬 edges）之前：
+  // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。
+  { layers: ["base-osm-expressway-line"], type: "osmExpressway" },
   { layers: ["base-osm-road-line"], type: "osmRoadDrive" },
   { layers: ["base-village-boundary-line", "base-village-boundary-fill"], type: "villageBoundary" },
   { layers: ["base-township-boundary-line", "base-township-boundary-fill"], type: "townshipBoundary" },

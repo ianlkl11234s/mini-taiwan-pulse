@@ -188,7 +188,7 @@ const NO_POPUP_LEDGER = new Set([
   // 交通 Move —— rail / flights / bus 三族走 Three.js scene picking（非 GIS_LAYERS）
   "rail", "flights", "busLive", "busIntercityLive", "touristShuttleLive",
   // 交通 Move —— 純線層 / 站點僅作定位
-  "stationsTHSR", "highways", "osmExpressway", "provincialRoads", "cyclingRoutes",
+  "stationsTHSR", "highways", "provincialRoads", "cyclingRoutes",
   "freewayCongestion",
   "canopyHeight",                                    // 林業：raster 樹冠高度
   // 房地產：格點/點位圖層，數值直接以顏色表達（6 層同族）

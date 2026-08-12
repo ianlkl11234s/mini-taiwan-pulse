@@ -108,8 +108,10 @@ export interface PanelProps {
 
 /**
  * layerType → panel 元件。
- * Partial：groundwaterWell / iotWraRiver / iotWraStructure 自始沒有專屬 panel
- * （popup 只顯示 header），維持原行為 — 見 featureInfoRegistry 測試的 baseline。
+ * Partial：`groundwaterWell`（orphan layerType，無任何接線）與 `hillshade`
+ * （單色 raster，無 click feature）沒有專屬 panel，見 featureInfoRegistry 測試的 baseline。
+ * ⚠️ `iotWraRiver` / `iotWraStructure` / `osmExpressway` 原本也在該 baseline，
+ *    W2 popup 補強已接上 panel（見 docs/features/layer-manifest/no-popup-audit.md §5）。
  */
 export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = {
   submarineCable: SubmarineCablePanel,
@@ -252,6 +254,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
+  // 快速道路與 osm_road_drive 是同一份 OSM 欄位契約
+  // （name / ref / highway / oneway / maxspeed / lanes / surface / bridge / tunnel）
+  // → 直接共用同一個 panel，只有 HEADER_LABELS 的標題不同。
+  osmExpressway: OsmRoadDrivePanel,
   slopeVector: SlopeVectorPanel,
   aspectVector: AspectVectorPanel,
   // 警政司法民防 17 layer

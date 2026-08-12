@@ -1312,6 +1312,12 @@
     },
     {
       "layers": [
+        "base-osm-expressway-line"
+      ],
+      "type": "osmExpressway"
+    },
+    {
+      "layers": [
         "base-osm-road-line"
       ],
       "type": "osmRoadDrive"

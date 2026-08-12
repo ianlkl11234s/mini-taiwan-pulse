@@ -7687,10 +7687,9 @@ export const LAYER_MANIFEST = {
       maxzoom: 14,
     },
     legend: null,
-    // ⚠️ HEADER_LABELS 有 `osmExpressway: "快速道路 (OSM)"`，但 GIS_LAYERS 沒有條目
-    //    → 沒有點擊接線（批 5 `hillshade` 的第二例）。填成有 popup 會讓 Phase 3
-    //    派生出一筆指向不存在 layer id 的假條目。
-    popup: null,
+    // W2 popup 補強：欄位契約與 osmRoadDrive 完全相同 → 共用 OsmRoadDrivePanel，
+    // layerType 維持獨立好讓 popup 標題顯示「快速道路 (OSM)」。
+    popup: "osmExpressway",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "OSM 快速道路線形（單色橘線，與國道分開）",
     topics: ["交通", "路網", "快速道路"],
