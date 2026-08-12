@@ -5737,7 +5737,7 @@ export const LAYER_MANIFEST = {
     // （01_fetch_wfs.py：o=管理處 / n=渠道名 / t=屬性）。
     popup: "waterCanals",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "農田水利署灌溉排水渠道（依渠道等級分色）",
+    description: "農田水利署灌溉排水渠道（依引灌需求屬性 3 類分色）",
     topics: ["水資源", "灌溉", "農業"],
   },
 
