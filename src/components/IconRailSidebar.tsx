@@ -17,7 +17,10 @@ import {
 import type {
   LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode,
 } from "../types";
-import type { ParamControl } from "../state/layerParamsControls";
+// AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
+// 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
+import { buildParamControls } from "../state/layerParamsControls";
+import { useLayerParams } from "../state/layerParamsStore";
 import type { DataRegistry } from "../hooks/useDataRegistry";
 import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
@@ -79,7 +82,6 @@ interface IconRailSidebarProps {
   onAllOff: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
-  getControls: (layer: ExpandableLayerKey) => ParamControl[];
   currentLocationId?: string;
   onLocationJump: (presetId: string) => void;
   onWidthChange?: (width: number) => void;
@@ -148,7 +150,7 @@ export function IconRailSidebar({
   counts, onLayerClick, onToggleVisibility,
   onViewModeChange, onDisplayModeChange, onHideTransport, onAllOff,
   onBulkSetVisibility,
-  getControls, currentLocationId, onLocationJump, onWidthChange,
+  currentLocationId, onLocationJump, onWidthChange,
   onIntelToggle, intelActive,
   onSatelliteToggle, satelliteActive,
   onPropertyValueToggle, propertyValueActive,
@@ -418,7 +420,6 @@ export function IconRailSidebar({
                 onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
-                getControls={getControls}
                 onClose={closePanel}
               />
             )}
@@ -441,7 +442,6 @@ export function IconRailSidebar({
                 onHideTransport={onHideTransport}
                 onAllOff={onAllOff}
                 onBulkSetVisibility={onBulkSetVisibility}
-                getControls={getControls}
                 onClose={closePanel}
               />
             )}
@@ -643,7 +643,6 @@ interface LayersPanelProps {
   onHideTransport: () => void;
   onAllOff: () => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
-  getControls: (layer: ExpandableLayerKey) => ParamControl[];
   onClose: () => void;
 }
 
@@ -824,7 +823,7 @@ function LayersPanel({
   visibility, lockedKeys, expandedLayer, viewMode: _viewMode, displayMode,
   getCount, onLayerClick, onToggleVisibility,
   onViewModeChange: _onViewModeChange, onDisplayModeChange, onHideTransport,
-  onAllOff, onBulkSetVisibility, getControls, onClose,
+  onAllOff, onBulkSetVisibility, onClose,
 }: LayersPanelProps) {
   const { ALLOFF_BG, ALLOFF_BORDER, INACTIVE_TEXT, SEARCH_BG, DIM, TEXT_STRONG } = useRailTheme();
   const q = search.trim().toLowerCase();
@@ -977,7 +976,6 @@ function LayersPanel({
                             displayMode={displayMode}
                             onDisplayModeChange={onDisplayModeChange}
                             onHide={onHideTransport}
-                            controls={getControls(key as ExpandableLayerKey)}
                           />
                         )}
                       </div>
@@ -1001,13 +999,15 @@ interface ExpandedControlsProps {
   displayMode: DisplayMode;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHide: () => void;
-  controls: ParamControl[];
 }
 
 function ExpandedControls({
   layerKey, isTransport, displayMode,
-  onDisplayModeChange, onHide, controls,
+  onDisplayModeChange, onHide,
 }: ExpandedControlsProps) {
+  // per-key 訂閱：只有這一層的參數變動才重繪本元件
+  const paramValues = useLayerParams(layerKey);
+  const controls = buildParamControls(layerKey, paramValues) ?? [];
   const {
     TEXT_STRONG, CTRL_ACTIVE_BG, CTRL_INACTIVE_BG, CTRL_ACTIVE_BORDER, CTRL_INACTIVE_BORDER,
     SELECT_BG, OPTION_BG, INACTIVE_TEXT, DIM, ACCENT_TOGGLE,

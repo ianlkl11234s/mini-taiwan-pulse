@@ -131,7 +131,7 @@ useEffect(() => {
 | 13 | `src/components/LegendPanel.tsx` | 同檔 `LEGEND_REGISTRY` 加一行 | 🔒 `layerConsistency.test.ts`（manifest `legend` ⇔ `NO_LEGEND_LEDGER` 雙向凍結）＋ `layerManifest.test.ts`（`legend` 宣告 ⇔ LEGEND_REGISTRY 實際覆蓋）——ledger 裡批次凍結的 84 個舊判定不會被重新檢討，但**新**層一定會被問「為什麼沒有圖例」；`AqiLegend` 已於 2026-08-10 收編進 registry |
 | 14 | `src/components/featureInfo/<domain>Panels.tsx` | 若規則 3 觸發：寫 popup panel 元件 | ⚠️ 人工 |
 | 15 | `src/components/featureInfo/registry.tsx` | `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 | 🔒 `registry.test.ts`（ratchet，`HEADER_LABELS` 是 Record 定全集） |
-| 16 | `src/hooks/useMapInteraction.ts` | `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`（**first-hit-wins**：細節豐富的小範圍排前面，大面積背景排後面） | ⚠️ `mapInteractionLayers.test.ts` **只驗證已存在條目的 layer id 是否真實**，**不驗證新圖層是否漏加條目**——2026-08-10 稽核標為守門盲點 |
+| 16 | `src/map/gisClickRegistry.ts`（4b 起自 useMapInteraction 升格模組級） | `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`（**first-hit-wins**：細節豐富的小範圍排前面，大面積背景排後面） | ⚠️ `mapInteractionLayers.test.ts` **只驗證已存在條目的 layer id 是否真實**，**不驗證新圖層是否漏加條目**——2026-08-10 稽核標為守門盲點 |
 | 17 | `src/components/IconRailSidebar.tsx` | `LAYER_ICONS` 加 key | 🔒 tsc（`Record<keyof LayerVisibility,LucideIcon>`） |
 | 18 | `src/data/upstreamRegistry.ts` | 加資料血緣條目（對應 taipei-gis-analytics catalog dataset） | 🔒 `upstreamRegistry.test.ts`（涵蓋所有 `LAYER_COLORS` keys） |
 | 19 | `src/chat/tools/datasets.ts` | 選配：若是點狀＋有分類欄位的靜態 GeoJSON，想讓 BYOK 對話查詢，加進 `DATASET_WHITELIST` | ⚠️ 人工（非強制） |
@@ -248,7 +248,7 @@ sub-component 並在同檔 `LEGEND_REGISTRY` 加一行（`layerConsistency` 測�
 2. `src/components/featureInfo/` 對應 domain 檔（waterPanels / agriPanels / ...）寫 panel 元件，
    再到 `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行
    （registry 完整性測試會擋漏接）
-3. `src/hooks/useMapInteraction.ts` 的 `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`
+3. `src/map/gisClickRegistry.ts`（4b 起模組級）的 `GIS_LAYERS` 陣列加 `{ layers: [...], type: "..." }`
    - **GIS_LAYERS 為 first-hit-wins**：把細節豐富的小範圍（如休農區）排在前面，
      大面積背景（如全台土壤分類）排在後面，避免被覆蓋
 

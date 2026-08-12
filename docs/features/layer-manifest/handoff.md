@@ -72,3 +72,18 @@ git diff src/data/__tests__/__fixtures__/layer-golden.json   # 逐行 review 再
 ```
 
 ⚠️ 無腦重跑 dump = 把護欄拆掉。搬移階段的 fixture diff **預期永遠是空的**。
+
+---
+
+## 2026-08-12 收尾更新（feat/layer-manifest-closeout）
+
+- **`06_apply_to_pulse.py` 的 `--apply` 路線已退役**（owner 拍板）：01→05 不可機械重跑
+  （dead scratchpad hardcode；`catalog_datasets.csv`／`hunt_results.csv` 無產生腳本），
+  06 保留 dry-run 對帳、CSV 為凍結歷史。要重審計＝另立新專案。
+- **接手本 feature 的新地標**：`src/layers/layerHookRegistry.tsx`（74 entry 掛載 registry
+  ＋ 348 key 三桶互斥斷言）／`src/map/gisClickRegistry.ts`（GIS_LAYERS 模組級家）／
+  `src/data/legendGroups.ts`（LEGEND keys 派生）／`state/layerParamRefs.ts`（Three.js
+  refs 鏡像）／`deployContract.test.ts`（觸點 #20 雙向斷言）。
+- **`useLayerParamsRuntime` 已不存在**：參數消費一律 `useLayerParams(key)`（React）或
+  `layerParamsStore` 直讀／`layerParamRefs`（RAF）。等值閘已退役，行為驗收走
+  render 矩陣（`window.__layerRenderCounts`，DEV only）。

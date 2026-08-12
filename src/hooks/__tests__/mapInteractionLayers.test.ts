@@ -1,6 +1,6 @@
 /**
- * 點擊接線 ratchet —— `useMapInteraction` 的 GIS_LAYERS 引用的每個 Mapbox layer id
- * 都必須真的存在。
+ * 點擊接線 ratchet —— GIS_LAYERS（`map/gisClickRegistry.ts`）引用的每個 Mapbox
+ * layer id 都必須真的存在。
  *
  * 為什麼要有這支：layer id 是**手寫字串**（`"mountain-huts-circle"`），拼錯的話
  * `queryRenderedFeatures` 只會回空陣列 —— **popup 靜默失效，不報錯、不當機**，
@@ -12,15 +12,23 @@
  *   2. 該字面字串在 src/ 其他檔案出現過（hook / CustomLayer 自建的層，如
  *      `eq-replay-station-circle`、`road-congestion-hit`）。
  *
- * 兩條都不中 = 這個 id 只存在於 useMapInteraction 自己 → 幾乎必然是拼錯或殘留。
+ * 兩條都不中 = 這個 id 只存在於註冊表自己 → 幾乎必然是拼錯或殘留。
+ *
+ * ⚠️ **本檔刻意仍是原始碼文字解析**，即使 Phase 4b 已把 GIS_LAYERS 提升成模組級
+ * export（黃金快照那邊確實換成 runtime 真值了）。理由是**實測過會誤報**：
+ * 改成 runtime 之後 `DISASTER_ALERT_CLICK_LAYERS` 那 15 個 id 會一起進來，
+ * 而它們是樣板字串產生的（`useDisasterAlertLayer` 的 `` `${group}-fill` `` 等），
+ * 上面兩條判準**一條都不中** → 15 個全部誤報成 orphan。要讓它們過關只能寫一份
+ * 豁免清單，那正是本專案不做的「靜默豁免」。文字解析剛好只吃字面陣列，
+ * 涵蓋範圍與升級前逐字相同。**別再「升級」它**。
  */
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
 
-const INTERACTION_FILE = "src/hooks/useMapInteraction.ts";
-const source = readFileSync(INTERACTION_FILE, "utf8");
+const REGISTRY_FILE = "src/map/gisClickRegistry.ts";
+const source = readFileSync(REGISTRY_FILE, "utf8");
 
 /** GIS_LAYERS 陣列裡每個 `layers: [...]` 的字串字面 */
 function referencedLayerIds(): string[] {
@@ -40,7 +48,7 @@ function registryLayerIds(): Set<string> {
   return out;
 }
 
-/** 遞迴收集 src/ 下所有 ts/tsx 原始碼（排除 useMapInteraction 自己與測試檔） */
+/** 遞迴收集 src/ 下所有 ts/tsx 原始碼（排除註冊表自己與測試檔） */
 function otherSources(dir = "src"): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(dir)) {
@@ -48,14 +56,14 @@ function otherSources(dir = "src"): string[] {
     if (statSync(full).isDirectory()) {
       if (entry === "__tests__") continue;
       out.push(...otherSources(full));
-    } else if (/\.tsx?$/.test(entry) && full !== INTERACTION_FILE) {
+    } else if (/\.tsx?$/.test(entry) && full !== REGISTRY_FILE) {
       out.push(readFileSync(full, "utf8"));
     }
   }
   return out;
 }
 
-describe("useMapInteraction 點擊層 id", () => {
+describe("GIS 點擊註冊表的 layer id", () => {
   it("引用的每個 layer id 都真的被建立（否則 popup 靜默失效）", () => {
     const fromRegistry = registryLayerIds();
     const others = otherSources().join("\n");
@@ -64,7 +72,7 @@ describe("useMapInteraction 點擊層 id", () => {
     );
     expect(
       orphans,
-      `這些 layer id 只出現在 ${INTERACTION_FILE}，沒有任何地方建立它們 —— ` +
+      `這些 layer id 只出現在 ${REGISTRY_FILE}，沒有任何地方建立它們 —— ` +
       `點擊會靜默無反應：\n  ${orphans.join("\n  ")}\n` +
       `→ 對照 overlayRegistry 的 sourceId + suffix，或該層所屬的 hook/CustomLayer`,
     ).toEqual([]);

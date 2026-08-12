@@ -5,6 +5,7 @@ import { ROAD_CONGESTION_COLORS } from "../data/roadCongestionLoader";
 import { CONGESTION_COLORS, CONGESTION_LABELS } from "../data/freewayLoader";
 import type { LayerVisibility } from "../types";
 import { useLayerVisibilityAll } from "../state/layerVisibilityStore";
+import { useOverlayParams } from "../layers/layerParamsAccess";
 import { CROP_SUITABILITY_CROPS } from "../data/cropSuitabilityCrops";
 import { AGRI_POI_TYPES } from "../data/agriPOITypes";
 import { MEDICAL_POI_TYPES } from "../data/medicalPOITypes";
@@ -15,6 +16,7 @@ import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
+import { legendKeys } from "../data/legendGroups";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
@@ -219,7 +221,14 @@ interface LegendPanelProps {
    * 完全不進 store（embed 從不寫 store）。有 prop 就以 prop 為準。
    */
   visibility?: LayerVisibility;
-  overlayParams: Record<string, number>;
+  /**
+   * 圖例要照當下 paint 畫色階，讀的是整包編碼後的參數。**主站不傳** ——
+   * 改由本元件自己訂閱 `layerParamsStore`（AR-22 P4，比照上方 visibility 的 AR-21 試點），
+   * 這樣 App 因無關狀態重繪時 memo 能整個跳過本面板，拖 slider 也只重繪這裡。
+   *
+   * `/embed` 仍要傳：embed 的參數是 mount 時從網址凍結的，完全不進 store。
+   */
+  overlayParams?: Record<string, number>;
   /** 淺色底圖時傳 false 讓面板外殼切成淺色 chrome（色票資料兩主題共用，不受影響）*/
   isDarkTheme?: boolean;
   /**
@@ -243,214 +252,193 @@ export interface LegendContext {
 }
 
 export interface LegendEntry {
-  /** 任一 key 開啟即顯示此圖例（多 key = 共用同一份圖例的圖層群） */
-  keys: (keyof LayerVisibility)[];
+  /**
+   * 圖例群組 id —— 成員名單**不在這裡寫**，由 manifest 的 `legend` 欄位反查
+   * （`legendKeys(id)`）。任一成員 key 開啟即顯示此圖例。
+   *
+   * ⚠️ id 必須在 manifest 至少有一個成員，否則這筆圖例永遠不顯示（死 entry）——
+   * `layerManifest.test.ts` 雙向擋。id 也必須唯一：兩筆同 id 會拿到同一份成員名單、
+   * 同時顯示兩份圖例。
+   */
+  id: string;
   render: (ctx: LegendContext) => React.ReactNode;
 }
 
 /**
  * Legend registry — 單一接線點：新 layer 要圖例就在這裡加一行
- * （元件寫在本檔下方）。layerConsistency 測試以本表為覆蓋依據。
+ * （元件寫在本檔下方），manifest 那筆的 `legend` 填同一個 id 即完成接線。
+ * layerConsistency 測試以 manifest 的 `legend` 為覆蓋依據。
  * 順序 = 面板顯示順序。
+ *
+ * ⚠️ AR-22 Phase 4b 起 `keys` 不再手寫 —— 見 `data/legendGroups.ts` 檔頭
+ * （含「派生的代價：填錯 id 會自我實現」那段）。
  */
 export const LEGEND_REGISTRY: LegendEntry[] = [
-  { keys: ["earthquakes"], render: () => <EarthquakeLegend /> },
-  { keys: ["earthquakeReplay"], render: () => <EarthquakeReplayLegend /> },
-  { keys: ["earthquakesGlobal"], render: () => <EarthquakeGlobalLegend /> },
-  { keys: ["worldTrashDebris"], render: () => <WorldTrashDebrisLegend /> },
-  { keys: ["typhoonTracks"], render: () => <TyphoonTrackLegend /> },
-  { keys: ["windField"], render: () => <WindFieldLegend /> },
-  { keys: ["oceanCurrents"], render: () => <OceanCurrentsLegend /> },
-  { keys: ["dustForecast"], render: () => <DustForecastLegend /> },
-  { keys: ["temperatureGrid"], render: () => <TemperatureGridLegend /> },
-  { keys: ["temperatureWave"], render: () => <TemperatureWaveLegend /> },
-  { keys: ["aqiMicroSensors"], render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
-  { keys: ["aqiImagery", "aqiStations"], render: () => <AqiLegend /> },
-  { keys: ["urbanHeat"], render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
-  { keys: ["lifelineAlerts", "floodAlerts", "weatherAlerts", "transitAlerts", "safetyAlerts"], render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
-  { keys: ["roadEvents"], render: () => <RoadEventsLegend /> },
-  { keys: ["roadCongestion"], render: () => <RoadCongestionLegend /> },
-  { keys: ["freewayCongestion"], render: () => <FreewayCongestionLegend /> },
-  { keys: ["cctv"], render: () => <CctvLegend /> },
+  { id: "earthquakes", render: () => <EarthquakeLegend /> },
+  { id: "earthquakeReplay", render: () => <EarthquakeReplayLegend /> },
+  { id: "earthquakesGlobal", render: () => <EarthquakeGlobalLegend /> },
+  { id: "worldTrashDebris", render: () => <WorldTrashDebrisLegend /> },
+  { id: "typhoonTracks", render: () => <TyphoonTrackLegend /> },
+  { id: "windField", render: () => <WindFieldLegend /> },
+  { id: "oceanCurrents", render: () => <OceanCurrentsLegend /> },
+  { id: "dustForecast", render: () => <DustForecastLegend /> },
+  { id: "temperatureGrid", render: () => <TemperatureGridLegend /> },
+  { id: "temperatureWave", render: () => <TemperatureWaveLegend /> },
+  { id: "aqiMicroSensors", render: ({ overlayParams }) => <MicroSensorLegend modeIdx={overlayParams.aqiMicroModeIdx ?? 0} /> },
+  { id: "aqiImagery", render: () => <AqiLegend /> },
+  { id: "urbanHeat", render: ({ overlayParams }) => <UrbanHeatLegend modeIdx={overlayParams.urbanHeatModeIdx ?? 0} /> },
+  { id: "lifelineAlerts", render: ({ visibility }) => <DisasterAlertLegend visibility={visibility} /> },
+  { id: "roadEvents", render: () => <RoadEventsLegend /> },
+  { id: "roadCongestion", render: () => <RoadCongestionLegend /> },
+  { id: "freewayCongestion", render: () => <FreewayCongestionLegend /> },
+  { id: "cctv", render: () => <CctvLegend /> },
   // 人口 / 社經 H3 網格：色階由 demographicsLayerFactory 預烤進 properties.color
-  { keys: ["popCount"], render: () => <H3RampLegend title="人口數 POPULATION" ramp={INFERNO} note="每格人口數（log 正規化）" /> },
-  { keys: ["indicators"], render: () => <H3RampLegend title="人口指標 INDICATORS" ramp={INFERNO} note="所選指標值" /> },
-  { keys: ["socioeconomic"], render: () => <H3RampLegend title="社經面貌 SOCIO-ECON" ramp={VIRIDIS} note="所選社經指標值" /> },
-  { keys: ["spatialEconomy"], render: () => <H3RampLegend title="空間經濟 SPATIAL-ECON" ramp={MAGMA} note="所選房市指標值" /> },
-  { keys: ["touristShuttleLive"], render: () => <TouristShuttleLegend /> },
+  { id: "popCount", render: () => <H3RampLegend title="人口數 POPULATION" ramp={INFERNO} note="每格人口數（log 正規化）" /> },
+  { id: "indicators", render: () => <H3RampLegend title="人口指標 INDICATORS" ramp={INFERNO} note="所選指標值" /> },
+  { id: "socioeconomic", render: () => <H3RampLegend title="社經面貌 SOCIO-ECON" ramp={VIRIDIS} note="所選社經指標值" /> },
+  { id: "spatialEconomy", render: () => <H3RampLegend title="空間經濟 SPATIAL-ECON" ramp={MAGMA} note="所選房市指標值" /> },
+  { id: "touristShuttleLive", render: () => <TouristShuttleLegend /> },
   // EM-16：回放圖層。主站與 /embed 共用本面板，補這兩條就同時補上嵌入版的圖例洞。
-  { keys: ["ships"], render: () => <ShipsLegend /> },
-  { keys: ["flights"], render: () => <FlightsLegend /> },
-  { keys: ["rail"], render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
-  { keys: ["newsEvents"], render: () => <NewsEventsLegend /> },
-  { keys: ["plaActivity"], render: () => <PlaActivityLegend /> },
-  { keys: ["iotWraRiver"], render: () => <IotRiverLegend /> },
-  { keys: ["iotWraStructure"], render: () => <IotStructureLegend /> },
-  { keys: ["agriCropSuitability"], render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
-  { keys: ["agriPOI"], render: () => <AgriPOILegend /> },
-  { keys: ["agriRetail", "agriProduceWholesale", "agriWholesaleMarket"], render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
-  { keys: ["agriSoilFertility"], render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
-  { keys: ["fireEvents", "fireLatest"], render: () => <FireEventLegend /> },
-  { keys: ["realEstateRentalGrid", "realEstateRentalPoint", "realEstateSaleGrid", "realEstateSalePoint", "realEstatePresaleGrid", "realEstatePresalePoint"], render: ({ visibility, overlayParams }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} /> },
-  { keys: ["fireStations"], render: () => <FireStationLegend /> },
-  { keys: ["fireHydrants"], render: () => <FireHydrantLegend /> },
-  { keys: ["fireIsochrone"], render: () => <FireIsochroneLegend /> },
-  { keys: ["livestockFarmPig", "livestockFarmChicken", "livestockFarmCattle", "livestockFarmDuck", "livestockFarmGoose", "livestockFarmSheep", "livestockFarmOther"], render: () => <LivestockFarmLegend /> },
-  { keys: ["livestockSlaughter", "livestockFeed", "livestockMarket"], render: () => <LivestockFacilityLegend /> },
-  { keys: ["aquaculturePonds", "aquacultureZone", "aquacultureCageNet", "aquacultureWaterSatellite"], render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
-  { keys: ["aquacultureWaterSatelliteMoa"], render: () => <AquacultureWaterSatelliteMoaLegend /> },
-  { keys: ["aquacultureWaterUnion"], render: () => <AquacultureWaterUnionLegend /> },
-  { keys: ["aquacultureIntegrated"], render: () => <AquacultureIntegratedLegend /> },
-  { keys: ["streetTreesTaipeiDiff"], render: ({ overlayParams }) => <StreetTreesTaipeiDiffLegend colorModeIdx={overlayParams.streetTreesTaipeiDiffColorModeIdx ?? 0} /> },
-  { keys: ["protectedTreesNational"], render: ({ overlayParams }) => <ProtectedTreesNationalLegend colorModeIdx={overlayParams.protectedTreesNationalColorModeIdx ?? 0} /> },
-  { keys: ["riversideTreesTaipei"], render: () => <RiversideTreesTaipeiLegend /> },
-  { keys: ["parksTaipei"], render: () => <ParksTaipeiLegend /> },
-  { keys: ["streetTreesTaipei3epoch"], render: ({ overlayParams }) => <StreetTrees3epochLegend colorModeIdx={overlayParams.streetTreesTaipei3epochColorModeIdx ?? 0} /> },
-  { keys: ["streetTreesNational"], render: ({ overlayParams }) => <StreetTreesNationalLegend colorModeIdx={overlayParams.streetTreesNationalColorModeIdx ?? 0} /> },
-  { keys: ["treePitsTaipei"], render: () => <TreePitsTaipeiLegend /> },
-  { keys: ["buildingsGba"], render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
-  { keys: ["urbanFormGrid"], render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
-  { keys: ["propertyValueGrid"], render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
-  { keys: ["urbanZoningTaipei", "urbanZoningNewTaipei"], render: () => <UrbanZoningLegend /> },
-  { keys: ["nonUrbanZoning"], render: () => <NonUrbanZoningLegend /> },
-  { keys: ["canopyHeight"], render: () => <CanopyHeightLegend /> },
-  { keys: ["canopyGiants"], render: () => <CanopyGiantsLegend /> },
-  { keys: ["sportsSchool", "sportsPublicOther", "sportsPrivate", "sportsPark", "sportsCenter"], render: () => <SportsVenueLegend /> },
-  { keys: ["culturalFacilities"], render: () => <CulturalFacilitiesLegend /> },
-  { keys: ["culturalMuseums"], render: () => <CulturalMuseumsLegend /> },
-  { keys: ["artsEvents"], render: () => <ArtsEventsLegend /> },
-  { keys: ["performingVenues"], render: () => <PerformingVenuesLegend /> },
-  { keys: ["librarySeats"], render: () => <LibrarySeatsLegend /> },
+  { id: "ships", render: () => <ShipsLegend /> },
+  { id: "flights", render: () => <FlightsLegend /> },
+  { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
+  { id: "newsEvents", render: () => <NewsEventsLegend /> },
+  { id: "plaActivity", render: () => <PlaActivityLegend /> },
+  { id: "iotWraRiver", render: () => <IotRiverLegend /> },
+  { id: "iotWraStructure", render: () => <IotStructureLegend /> },
+  { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
+  { id: "agriPOI", render: () => <AgriPOILegend /> },
+  { id: "agriRetail", render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
+  { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
+  { id: "fireEvents", render: () => <FireEventLegend /> },
+  { id: "realEstateRentalGrid", render: ({ visibility, overlayParams }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} /> },
+  { id: "fireStations", render: () => <FireStationLegend /> },
+  { id: "fireHydrants", render: () => <FireHydrantLegend /> },
+  { id: "fireIsochrone", render: () => <FireIsochroneLegend /> },
+  { id: "livestockFarmPig", render: () => <LivestockFarmLegend /> },
+  { id: "livestockSlaughter", render: () => <LivestockFacilityLegend /> },
+  { id: "aquaculturePonds", render: ({ visibility }) => <AquacultureLegend visibility={visibility} /> },
+  { id: "aquacultureWaterSatelliteMoa", render: () => <AquacultureWaterSatelliteMoaLegend /> },
+  { id: "aquacultureWaterUnion", render: () => <AquacultureWaterUnionLegend /> },
+  { id: "aquacultureIntegrated", render: () => <AquacultureIntegratedLegend /> },
+  { id: "streetTreesTaipeiDiff", render: ({ overlayParams }) => <StreetTreesTaipeiDiffLegend colorModeIdx={overlayParams.streetTreesTaipeiDiffColorModeIdx ?? 0} /> },
+  { id: "protectedTreesNational", render: ({ overlayParams }) => <ProtectedTreesNationalLegend colorModeIdx={overlayParams.protectedTreesNationalColorModeIdx ?? 0} /> },
+  { id: "riversideTreesTaipei", render: () => <RiversideTreesTaipeiLegend /> },
+  { id: "parksTaipei", render: () => <ParksTaipeiLegend /> },
+  { id: "streetTreesTaipei3epoch", render: ({ overlayParams }) => <StreetTrees3epochLegend colorModeIdx={overlayParams.streetTreesTaipei3epochColorModeIdx ?? 0} /> },
+  { id: "streetTreesNational", render: ({ overlayParams }) => <StreetTreesNationalLegend colorModeIdx={overlayParams.streetTreesNationalColorModeIdx ?? 0} /> },
+  { id: "treePitsTaipei", render: () => <TreePitsTaipeiLegend /> },
+  { id: "buildingsGba", render: ({ overlayParams }) => <BuildingsGbaLegend modeIdx={overlayParams.buildingsGbaModeIdx ?? 0} /> },
+  { id: "urbanFormGrid", render: ({ overlayParams }) => <UrbanFormGridLegend modeIdx={overlayParams.urbanFormGridModeIdx ?? 5} /> },
+  { id: "propertyValueGrid", render: ({ overlayParams }) => <PropertyValueGridLegend scaleIdx={overlayParams.propertyValueGridScaleIdx ?? 0} modeIdx={overlayParams.propertyValueGridModeIdx ?? 0} extruded={(overlayParams.propertyValueGridExtruded ?? 0) === 1} /> },
+  { id: "urbanZoning", render: () => <UrbanZoningLegend /> },
+  { id: "nonUrbanZoning", render: () => <NonUrbanZoningLegend /> },
+  { id: "canopyHeight", render: () => <CanopyHeightLegend /> },
+  { id: "canopyGiants", render: () => <CanopyGiantsLegend /> },
+  { id: "sportsSchool", render: () => <SportsVenueLegend /> },
+  { id: "culturalFacilities", render: () => <CulturalFacilitiesLegend /> },
+  { id: "culturalMuseums", render: () => <CulturalMuseumsLegend /> },
+  { id: "artsEvents", render: () => <ArtsEventsLegend /> },
+  { id: "performingVenues", render: () => <PerformingVenuesLegend /> },
+  { id: "librarySeats", render: () => <LibrarySeatsLegend /> },
   // 🧳 觀光 Tourism — 4 個分類/雙模式圖例（其餘 8 單色/面層走 baseline）
-  { keys: ["tourAttractions"], render: ({ overlayParams }) => <TourAttractionsLegend modeIdx={overlayParams.tourAttractionsModeIdx ?? 0} /> },
-  { keys: ["tourHotels"], render: () => <TourHotelsLegend /> },
-  { keys: ["tourHeritage"], render: () => <TourHeritageLegend /> },
-  { keys: ["tourEvents"], render: () => <TourEventsLegend /> },
+  { id: "tourAttractions", render: ({ overlayParams }) => <TourAttractionsLegend modeIdx={overlayParams.tourAttractionsModeIdx ?? 0} /> },
+  { id: "tourHotels", render: () => <TourHotelsLegend /> },
+  { id: "tourHeritage", render: () => <TourHeritageLegend /> },
+  { id: "tourEvents", render: () => <TourEventsLegend /> },
   {
-    keys: [
-      "religionTemples", "religionChurches", "religionAncestralHalls",
-      "religionFoundations", "religionOtherWorship", "religionTop100",
-    ],
+    id: "religionTemples",
     render: ({ visibility }) => <ReligionLegend visibility={visibility} />,
   },
   {
-    keys: [
-      "funeralFacilities", "funeralOperators", "funeralOperatorDensity",
-      "cemeteryOsm", "cemeteryZoning",
-    ],
+    id: "funeralFacilities",
     render: ({ visibility }) => <FuneralLegend visibility={visibility} />,
   },
-  { keys: ["govServiceOffices"], render: () => <GovServiceOfficeLegend /> },
-  { keys: ["publicToilets"], render: () => <PublicToiletLegend /> },
-  { keys: ["ecoNetworkZones"], render: () => <EcoNetworkZonesLegend /> },
+  { id: "govServiceOffices", render: () => <GovServiceOfficeLegend /> },
+  { id: "publicToilets", render: () => <PublicToiletLegend /> },
+  { id: "ecoNetworkZones", render: () => <EcoNetworkZonesLegend /> },
   {
-    keys: [
-      "forestCompartments", "forestReserve", "forestRecreation", "forestRoads",
-      "forestTreatmentWorks", "forestTrailSigns", "forestSignalPoints",
-      "forestEducationCenters", "forestWildlife", "forestDamLakes",
-      "forestFlatParks", "forestAlishanRail", "mountainHuts", "hikingTrails",
-    ],
+    id: "forestCompartments",
     render: ({ visibility }) => <ForestryLegend visibility={visibility} />,
   },
-  { keys: ["mountainRescueIncidents"], render: () => <MountainRescueLegend /> },
-  { keys: ["satellitesYaogan", "satellitesJilin", "satellitesGaofen", "satellitesTJS", "satellitesBeidou", "satellitesShiyan", "satellitesTaiwan", "satellitesUSA", "satellitesJapan", "satellitesRussia", "satellitesIndia", "satellitesKorea", "satellitesFrance", "satellitesGermany", "satellitesItaly", "satellitesIsrael"], render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
+  { id: "mountainRescueIncidents", render: () => <MountainRescueLegend /> },
+  { id: "satellitesYaogan", render: ({ visibility }) => <SatelliteLegend visibility={visibility} /> },
   // 通訊基礎設施：海纜（線）+ 登陸站（點）
-  { keys: ["submarineCables"], render: () => <SubmarineCableLegend /> },
-  { keys: ["landingStations"], render: () => <LandingStationLegend /> },
-  { keys: ["waterCanals"], render: () => <WaterCanalLegend /> },
-  { keys: ["lakesPondsOsm"], render: () => <LakesPondsLegend /> },
+  { id: "submarineCables", render: () => <SubmarineCableLegend /> },
+  { id: "landingStations", render: () => <LandingStationLegend /> },
+  { id: "waterCanals", render: () => <WaterCanalLegend /> },
+  { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
-  { keys: ["waterProtectionZones"], render: ({ isDark }) => <WaterProtectionZoneLegend isDark={isDark} /> },
-  { keys: ["waterMonitorStations"], render: () => <WaterMonitorStationLegend /> },
-  { keys: ["waterFacilities"], render: () => <WaterFacilityLegend /> },
-  { keys: ["rainGauge"], render: () => <RainGaugeLegend /> },
-  { keys: ["riverLevel"], render: () => <RiverLevelLegend /> },
-  { keys: ["groundwater"], render: () => <GroundwaterLegend /> },
-  { keys: ["taipeiSewer"], render: () => <TaipeiSewerLegend /> },
-  { keys: ["taipeiPumb"], render: () => <TaipeiPumbLegend /> },
-  { keys: ["taipeiEvacuate"], render: () => <TaipeiEvacuateLegend /> },
-  { keys: ["waterFloodExtreme"], render: ({ overlayParams }) => <WaterFloodExtremeLegend minDepth={overlayParams.floodMinDepth ?? 0} /> },
-  { keys: ["medIsochrone", "medDesert"], render: () => <MedicalIsochroneLegend /> },
-  { keys: ["medHospital", "medClinic", "medPharmacy", "medAED", "medLTC"], render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
-  { keys: ["erHospital"], render: () => <ErCongestionLegend /> },
-  { keys: ["parkingOnstreet", "parkingOffstreet"], render: ({ visibility }) => <ParkingLegend visibility={visibility} /> },
-  { keys: ["floodSensor", "floodSensorIsochrone"], render: () => <FloodSensorLegend /> },
-  { keys: ["powerPlants", "powerGenerationUnit"], render: () => <EnergyFuelLegend /> },
-  { keys: ["powerRegionDemand", "powerStatusHud"], render: () => <EnergyReserveLegend /> },
-  { keys: ["osmPowerLines", "osmPowerTowers"], render: () => <PowerGridLegend /> },
-  { keys: ["powerPoles"], render: () => <PowerPolesLegend /> },
-  { keys: ["aviationControl", "aviationRestricted"], render: ({ visibility }) => <AviationAirspaceLegend visibility={visibility} /> },
-  { keys: ["droneNoFlyZone", "droneRestrictedZone"], render: ({ visibility }) => <DroneZonesLegend visibility={visibility} /> },
-  { keys: ["osmSubstationsEhv"], render: () => <SubstationEhvLegend /> },
-  { keys: ["osmSubstations"],    render: () => <SubstationLocalLegend /> },
-  { keys: ["facPrimary", "facPlanned", "facHistorical", "facSecondary", "facOsmSupplement"],
+  { id: "waterProtectionZones", render: ({ isDark }) => <WaterProtectionZoneLegend isDark={isDark} /> },
+  { id: "waterMonitorStations", render: () => <WaterMonitorStationLegend /> },
+  { id: "waterFacilities", render: () => <WaterFacilityLegend /> },
+  { id: "rainGauge", render: () => <RainGaugeLegend /> },
+  { id: "riverLevel", render: () => <RiverLevelLegend /> },
+  { id: "groundwater", render: () => <GroundwaterLegend /> },
+  { id: "taipeiSewer", render: () => <TaipeiSewerLegend /> },
+  { id: "taipeiPumb", render: () => <TaipeiPumbLegend /> },
+  { id: "taipeiEvacuate", render: () => <TaipeiEvacuateLegend /> },
+  { id: "waterFloodExtreme", render: ({ overlayParams }) => <WaterFloodExtremeLegend minDepth={overlayParams.floodMinDepth ?? 0} /> },
+  { id: "medIsochrone", render: () => <MedicalIsochroneLegend /> },
+  { id: "medHospital", render: ({ visibility }) => <MedicalLegend visibility={visibility} /> },
+  { id: "erHospital", render: () => <ErCongestionLegend /> },
+  { id: "parkingOnstreet", render: ({ visibility }) => <ParkingLegend visibility={visibility} /> },
+  { id: "floodSensor", render: () => <FloodSensorLegend /> },
+  { id: "powerPlants", render: () => <EnergyFuelLegend /> },
+  { id: "powerRegionDemand", render: () => <EnergyReserveLegend /> },
+  { id: "osmPowerLines", render: () => <PowerGridLegend /> },
+  { id: "powerPoles", render: () => <PowerPolesLegend /> },
+  { id: "aviationControl", render: ({ visibility }) => <AviationAirspaceLegend visibility={visibility} /> },
+  { id: "droneNoFlyZone", render: ({ visibility }) => <DroneZonesLegend visibility={visibility} /> },
+  { id: "osmSubstationsEhv", render: () => <SubstationEhvLegend /> },
+  { id: "osmSubstations",    render: () => <SubstationLocalLegend /> },
+  { id: "facPrimary",
     render: ({ visibility }) => <FacilityFuelLegend visibility={visibility} /> },
-  { keys: ["facOffshore"], render: () => <FacOffshoreLegend /> },
-  { keys: ["osmWindTurbines", "osmSolarFarms", "osmPowerPlantsStatic"], render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
-  { keys: ["offshoreWindZones", "islandPowerGrid", "fossilFuelInfra", "geothermalWells", "renewablePermitsTaipei"], render: ({ visibility }) => <EnergySpecialtyLegend visibility={visibility} /> },
+  { id: "facOffshore", render: () => <FacOffshoreLegend /> },
+  { id: "osmWindTurbines", render: ({ visibility }) => <RenewablePoiLegend visibility={visibility} /> },
+  { id: "offshoreWindZones", render: ({ visibility }) => <EnergySpecialtyLegend visibility={visibility} /> },
   // 化石燃料 14 layer（Phase B）— 共用 FossilFuelLegend，按 visibility 過濾顯示行
   {
-    keys: [
-      "gasStationCpc", "gasStationFpcc", "gasStationTaisugar", "gasStationOther", "gasStationCanonical",
-      "lpgSubpackaging", "lpgRetailers",
-      "lngTerminal",
-      "pipelineGas", "pipelineOilGas",
-      "industrialRefinery", "industrialStorageTank", "industrialPowerPlant",
-      "coalTerminal",
-    ],
+    id: "gasStationCpc",
     render: ({ visibility }) => <FossilFuelLegend visibility={visibility} />,
   },
   // 雲林 POC 覆蓋分析 5 layer 共用 CoverageLegend，按 visibility 過濾顯示行
   {
-    keys: ["gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc", "gasCoverageTaisugar", "evIsland"],
+    id: "gasCoverageAll",
     render: ({ visibility }) => <CoverageLegend visibility={visibility} />,
   },
-  { keys: ["lightning"], render: () => <LightningLegend /> },
-  { keys: ["lightningCwa"], render: () => <LightningCwaLegend /> },
-  { keys: ["nuclearRadiation"], render: () => <NuclearLegend /> },
+  { id: "lightning", render: () => <LightningLegend /> },
+  { id: "lightningCwa", render: () => <LightningCwaLegend /> },
+  { id: "nuclearRadiation", render: () => <NuclearLegend /> },
   // Base map：OSM 道路 highway 分級分色（其他 base layer 單色，依鐵則 2 不需圖例）
-  { keys: ["osmRoadDrive"], render: () => <OsmRoadDriveLegend /> },
-  { keys: ["slopeVector"], render: () => <SlopeVectorLegend /> },
-  { keys: ["aspectVector"], render: () => <AspectVectorLegend /> },
+  { id: "osmRoadDrive", render: () => <OsmRoadDriveLegend /> },
+  { id: "slopeVector", render: () => <SlopeVectorLegend /> },
+  { id: "aspectVector", render: () => <AspectVectorLegend /> },
   // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
   {
-    keys: ["policeIsoSubstation", "policeIsoPrecinct", "policeIsoCityDept"],
+    id: "policeIsoSubstation",
     render: ({ visibility }) => <PoliceIsochroneLegend visibility={visibility} />,
   },
   // 警政司法民防 17 layer — 共用 PoliceJusticeLegend，按 visibility 過濾顯示行
   {
-    keys: [
-      "policeStation", "womenChildWarning", "speedCamera", "speedZoneSegment",
-      "court", "prosecutorsOffice", "correctionalFacility", "courtJurisdiction",
-      "crimeAreaMonthly", "theftTaoyuan", "trafficAccidentYearly", "accidentTaipei",
-      "a1AccidentRealtime",
-      "investigationBureau", "antiCorruptionOffice", "immigrationOffice", "coastGuardStation",
-      "civilDefenseShelter",
-    ],
+    id: "policeStation",
     render: ({ visibility }) => <PoliceJusticeLegend visibility={visibility} />,
   },
   // 環境污染 3 層
-  { keys: ["pollutionFacility", "pollutionSite"], render: ({ visibility }) => <PollutionSeverityLegend visibility={visibility} /> },
+  { id: "pollution", render: ({ visibility }) => <PollutionSeverityLegend visibility={visibility} /> },
   {
-    keys: ["pollutionPenaltyCritical", "pollutionPenaltyGeneral", "pollutionPenaltyMobile"],
+    id: "pollutionPenaltyCritical",
     render: ({ visibility }) => <PollutionPenaltyLegend visibility={visibility} />,
   },
   // 🎓 教育 17 layer — 共用 EducationLegend，按 visibility 過濾顯示段落
   {
-    keys: [
-      "schools", "eduSchoolElementary", "eduSchoolJunior", "eduSchoolSenior",
-      "eduSchoolUniversity", "eduSchoolSpecial", "eduRemoteSchools",
-      "eduCampusPolygon", "eduCampusArea",
-      "eduDistrictElementary", "eduDistrictJunior", "eduDistrictSenior",
-      "eduKindergarten", "eduCramSchool", "eduAfterschoolCare", "eduMutualCare",
-      "eduUniversityStudents",
-    ],
+    id: "schools",
     render: ({ visibility }) => <EducationLegend visibility={visibility} />,
   },
 ];
 
 export const LegendPanel = memo(function LegendPanel({
-  visibility: visibilityProp, overlayParams, isDarkTheme = true, railSystems,
+  visibility: visibilityProp, overlayParams: overlayParamsProp, isDarkTheme = true, railSystems,
 }: LegendPanelProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -458,6 +446,11 @@ export const LegendPanel = memo(function LegendPanel({
   // 這份訂閱是惰性的 —— embed 從不寫 store，永遠拿到預設全關的快照）。
   const storeVisibility = useLayerVisibilityAll();
   const visibility = visibilityProp ?? storeVisibility;
+
+  // AR-22 P4：同上模式，參數改自己訂閱。圖例是**真的需要整包**的聚合消費端
+  // （每個 sub-legend 讀自己那一格 out key），故用 useOverlayParams 而非 per-key。
+  const storeOverlayParams = useOverlayParams();
+  const overlayParams = overlayParamsProp ?? storeOverlayParams;
 
   // 面板外殼 chrome（僅容器與標題文字，色票資料兩主題共用）
   const c = isDarkTheme
@@ -477,7 +470,7 @@ export const LegendPanel = memo(function LegendPanel({
   // 子圖例文字主題色（透過 context 分發，色票資料兩主題共用）
   const legendPalette = isDarkTheme ? DARK_LEGEND : LIGHT_LEGEND;
 
-  const active = LEGEND_REGISTRY.filter((e) => e.keys.some((k) => visibility[k]));
+  const active = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).some((k) => visibility[k]));
   if (active.length === 0) return null;
 
   return (
@@ -523,8 +516,8 @@ export const LegendPanel = memo(function LegendPanel({
       {/* Content — registry 驅動，順序即 LEGEND_REGISTRY 順序 */}
       {expanded && (
         <div style={{ padding: "0 10px 8px", display: "flex", flexDirection: "column", gap: 10 }}>
-          {active.map((entry, i) => (
-            <Fragment key={entry.keys[0] ?? i}>
+          {active.map((entry) => (
+            <Fragment key={entry.id}>
               {entry.render({ visibility, overlayParams, isDark: isDarkTheme, railSystems })}
             </Fragment>
           ))}

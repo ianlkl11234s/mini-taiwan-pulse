@@ -9,10 +9,12 @@
  *   - 跟 useWasteLayer (GPS) 並行存在、互不影響
  */
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { timeStore } from "../state/timeStore";
+// AR-22 P4：城市清單改由本 hook 自己從 store 讀（per-key 訂閱）
+import { useLayerParams } from "../state/layerParamsStore";
+import { enabledWasteScheduleCitiesOf } from "../state/layerParamRefs";
 import {
-  ALL_22_CITIES,
   fetchWasteScheduleDay,
   type WasteScheduleRoute,
 } from "../data/wasteScheduleLoader";
@@ -34,8 +36,13 @@ function dowFromDateKey(dateKey: string): number {
 
 export function useWasteScheduleLayer(
   enabled: boolean,
-  cities: string[] = ALL_22_CITIES,
 ) {
+  // 8 區分組 checkbox → 城市清單（同 useBusLayer）
+  const scheduleParams = useLayerParams("wasteSchedule");
+  const cities = useMemo(
+    () => enabledWasteScheduleCitiesOf(scheduleParams),
+    [scheduleParams],
+  );
   const routesRef = useRef<WasteScheduleRoute[]>([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);

@@ -30,12 +30,13 @@ import { LAYER_COLORS, THEMES, LAYER_LABELS } from "../../components/sidebar/lay
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
 import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
+import { legendKeys } from "../legendGroups";
 import { HEADER_LABELS } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
 import { isMigratedParamsKey } from "../layerParamsSpec";
 import {
-  extractGolden, extractGisLayers, extractGisConstRefTypes, extractNonGisFeatureTypes,
-  extractCustomHandlerFeatureTypes,
+  extractGolden, extractNonGisFeatureTypes, extractCustomHandlerFeatureTypes,
 } from "./layerGoldenExtract";
 
 const entries = MANIFEST_KEYS.map(
@@ -44,21 +45,21 @@ const entries = MANIFEST_KEYS.map(
 
 const golden = extractGolden();
 const controls = golden.params as Record<string, { type?: string }[]>;
-const gisRows = extractGisLayers() as { layers: string[]; type: string }[];
-// GIS_LAYERS 有兩筆 layer id 寫成常數引用（disasterAlert / plaActivity），字面陣列的
-// 解析器抓不到 —— 但它們有真的點擊接線。不 union 進來的話，manifest 只能把這兩層
-// 宣告成 popup: null（已知為假），Phase 3 派生時會靜默丟掉接線。
-//
-// 同理還有**完全不經 GIS_LAYERS** 的第三類（`ship` / `waterDam` / `climateField`）：
-// 直接 setFeatureInfo。風場／海流的 `climateField` 尤其極端 —— 它是「向量 feature 全部
+// Phase 4b 起是 **runtime 真值**：GIS_LAYERS 從 useMapInteraction 的區域常數提升成
+// `map/gisClickRegistry.ts` 的模組級 export。原本的兩支文字解析器
+// （`extractGisLayers` 只吃字面陣列 235 筆 ＋ `extractGisConstRefTypes` 補那 2 筆
+// 常數引用的 type）一併退役 —— 237 筆全在同一個真值來源裡，補丁沒有存在理由了。
+const gisRows: { layers: string[]; type: string }[] = GIS_LAYERS;
+// **完全不經 GIS_LAYERS** 的第二類（`ship` / `waterDam` / `climateField`）：直接
+// setFeatureInfo。風場／海流的 `climateField` 尤其極端 —— 它是「向量 feature 全部
 // 沒命中」時的 fallback，點哪都能讀值，本來就不對應任何 layer id。
 //
-// 第四類（批 7 廢棄物）連 useMapInteraction 都不進：圖層模組自己
+// 第三類（批 7 廢棄物）連 useMapInteraction 都不進：圖層模組自己
 // `map.on("click", layerId, …)`（wasteMapboxLayers 8 個 circle 子層）或 App.tsx 的
 // customLayer raycast（6 個 3D 設施 scene）直接 setFeatureInfo。
+// 這兩類沒有登記簿可提升 → 仍是原始碼文字解析，**刻意保留**。
 const gisTypes = new Set([
   ...gisRows.map((r) => r.type),
-  ...extractGisConstRefTypes(),
   ...extractNonGisFeatureTypes(),
   ...extractCustomHandlerFeatureTypes(),
 ]);
@@ -200,28 +201,58 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
     }
   });
 
-  it("legend 宣告 = LEGEND_REGISTRY 的實際覆蓋（null 代表有意識地不需要圖例）", () => {
-    const covered = new Set(LEGEND_REGISTRY.flatMap((e) => e.keys as string[]));
+  /**
+   * ⚠️ AR-22 Phase 4b：`LEGEND_REGISTRY` 的 `keys` 改由 manifest 反查派生
+   * （`data/legendGroups.ts` 的 `legendKeys()`），本組斷言隨之改形。
+   *
+   * ── 消失的兩條 & 取代它們的結構 ────────────────────────────────
+   *   1. 「legend 宣告 ⇔ LEGEND_REGISTRY 實際覆蓋」的**逐 key 覆蓋對帳**：
+   *      派生後兩邊同源，恆等成立，留著是永遠綠的裝飾。取代它的是下面
+   *      「id 存在性」—— 覆蓋不會錯了，會錯的是「宣告了一個沒人渲染的 id」。
+   *   2. 「同一個 legend id 的 key 必須落在同一筆 entry」：**由結構取代**。
+   *      派生後同 id 的 key 拿到的就是同一個陣列，散落在多筆 entry 在物理上
+   *      不可能發生。那個失敗模式唯一的殘留形式是「兩筆 entry 用同一個 id」
+   *      —— 它們會拿到同一份成員名單、同時渲染兩份圖例。所以下面補了
+   *      **id 唯一性**斷言，它就是舊測試的結構化替身。
+   *
+   * ── ⚠️ 誠實記錄派生的代價（SSOT 的本質，不是可修的缺陷）──────────
+   *   manifest 的 legend id 填錯，從「測試會紅」變成「**自我實現**」：
+   *   把某層的 legend 填成 `"fireStations"`，它就真的會跟消防栓共用那份圖例，
+   *   兩邊一致所以不紅。派生前之所以擋得住，是因為 LegendPanel 手寫的那份
+   *   `keys` 是**獨立的第二份證詞**；收成一份 SSOT 就沒有第二份可對質了。
+   *   換到的是「不會再有兩份不同步」與「新增一層只寫一處」。
+   *   守得住的剩下：id 存不存在、entry 有沒有成員、id 唯不唯一 —— 全在下面。
+   */
+  it("legend 宣告的 id 都有對應的 LEGEND_REGISTRY entry（宣告了卻沒人渲染 = 圖例不會出現）", () => {
+    const registryIds = new Set(LEGEND_REGISTRY.map((e) => e.id));
     for (const [k, m] of entries) {
-      if (m.legend === null) {
-        expect(covered.has(k), `${k} 宣告不需要圖例，但 LEGEND_REGISTRY 有覆蓋它`).toBe(false);
-      } else {
-        expect(covered.has(k), `${k} 宣告了 legend "${m.legend}"，但 LEGEND_REGISTRY 沒覆蓋它`)
-          .toBe(true);
-      }
+      if (m.legend === null) continue;
+      expect(
+        registryIds.has(m.legend),
+        `${k} 宣告了 legend "${m.legend}"，但 LEGEND_REGISTRY 沒有這個 id 的 entry —— ` +
+        "該層開啟時圖例面板不會出現任何東西（鐵則 2 靜默失效）",
+      ).toBe(true);
     }
   });
 
-  it("同一個 legend id 的 key 必須落在 LEGEND_REGISTRY 的同一筆 entry（共用即共用）", () => {
-    const byLegendId = new Map<string, string[]>();
-    for (const [k, m] of entries) {
-      if (m.legend === null) continue;
-      byLegendId.set(m.legend, [...(byLegendId.get(m.legend) ?? []), k]);
-    }
-    for (const [id, keys] of byLegendId) {
-      const owning = LEGEND_REGISTRY.filter((e) => keys.some((k) => (e.keys as string[]).includes(k)));
-      expect(owning, `legend id "${id}" 的 key 散落在多筆 LEGEND_REGISTRY entry`).toHaveLength(1);
-    }
+  it("LEGEND_REGISTRY 每筆 entry 至少有一個 manifest 成員（零成員 = 死 entry）", () => {
+    // 反方向：派生後「沒有 key 宣告這個 id」的 entry 會拿到空陣列 →
+    // `keys.some(...)` 恆 false → 那份圖例元件永遠不顯示，而且不會有任何錯誤。
+    // 呼叫的是**面板實際在用的那支** `legendKeys()`，不是測試裡重建一份。
+    const dead = LEGEND_REGISTRY.filter((e) => legendKeys(e.id).length === 0).map((e) => e.id);
+    expect(
+      dead,
+      "這些 LEGEND_REGISTRY entry 的 id 沒有任何 manifest key 宣告 → 永遠不顯示。" +
+      "要嘛該刪，要嘛某層的 manifest legend 欄位填錯／漏填",
+    ).toEqual([]);
+  });
+
+  it("LEGEND_REGISTRY 的 id 不重複（同 id 兩筆 = 同一群 key 渲染出兩份圖例）", () => {
+    const seen = new Map<string, number>();
+    for (const e of LEGEND_REGISTRY) seen.set(e.id, (seen.get(e.id) ?? 0) + 1);
+    const dups = [...seen].filter(([, n]) => n > 1).map(([id, n]) => `${id}×${n}`);
+    expect(dups, "重複的 legend id —— 兩筆 entry 會拿到同一份成員名單，圖例面板出現兩次")
+      .toEqual([]);
   });
 
   it("popup 宣告 = HEADER_LABELS / GIS_LAYERS 的實際接線（含 key ≠ layerType 的情形）", () => {
@@ -255,6 +286,33 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
   });
 
   /**
+   * ⚠️ AR-22 Phase 4b 新增 —— 上一條是「manifest → 接線」，本條是**反方向**。
+   *
+   * 只驗單邊的話，「接線表裡多出一個沒人宣告的 layerType」會靜默過關：那條接線
+   * 點得出 popup，manifest 卻查無此事 —— 資料源瀏覽器 / BYOK 對話讀 manifest 就會
+   * 少講一層，而且沒有任何測試會叫。GIS_LAYERS 提升成模組級 export（runtime 真值）
+   * 之後這條才做得到：文字解析時代拿不到常數引用那兩筆的完整內容。
+   *
+   * ⚠️ **不去重**：`powerPlant` 8 個 row 是六份不同 RPC ＋ 兩個 Phase 8 SSOT entry
+   * 共用一個 panel（各自獨立的 sourceId 與 layer id）。本條只問「這個 type 有沒有
+   * 被宣告」，多對一是既有語意，不是要修的東西（批 8 交接第 2 點）。
+   */
+  it("GIS_LAYERS 每個 layerType 都有 manifest key 宣告它（反向：接線不能沒人認領）", () => {
+    const declared = new Set<string>();
+    for (const [, m] of entries) {
+      if (m.popup === null) continue;
+      for (const t of Array.isArray(m.popup) ? m.popup : [m.popup]) declared.add(t);
+    }
+    const orphanTypes = [...new Set(gisRows.map((r) => r.type))]
+      .filter((t) => !declared.has(t)).sort();
+    expect(
+      orphanTypes,
+      "這些 layerType 在 gisClickRegistry 有點擊接線，卻沒有任何 manifest key 的 popup " +
+      "宣告它 —— 要嘛接線該刪，要嘛某層的 popup 宣告漏了",
+    ).toEqual([]);
+  });
+
+  /**
    * ⚠️ AR-22 Phase 4 新增 —— 「有意識地沒有控件」的**唯一表達**是 manifest 的
    * `params: null`（P4 前它同時寄生在 `useLayerParamsRuntime` 的
    * `case "x": return []` 字面上，由 `paramsCaseKeys()` 正則掃出來，那條路已退役）。
@@ -274,7 +332,7 @@ describe("layerManifest 僅宣告欄位與現況一致（Phase 3-4 接線前的�
     }
   });
 
-  it("params 宣告 = useLayerParamsRuntime 實際回傳的控件數與型別序列", () => {
+  it("params 宣告 = buildParamControls 實際產出的控件數與型別序列", () => {
     for (const [k, m] of entries) {
       const actual = controls[k] ?? [];
       if (m.params === null) {

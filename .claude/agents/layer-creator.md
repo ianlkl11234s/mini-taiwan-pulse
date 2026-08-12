@@ -69,7 +69,7 @@ tools: Read, Write, Edit, Grep, Glob, Bash
 **條件觸點**（不是每層都要，判斷不了就問用戶）：
 分類 ≥ 2 色 → `LegendPanel.tsx` sub-component ＋ `LEGEND_REGISTRY`；
 可點選 → `featureInfo/<domain>Panels.tsx` ＋ `registry.tsx` 的 `PANEL_REGISTRY`/`HEADER_LABELS`
-＋ `useMapInteraction.ts` 的 `GIS_LAYERS`（first-hit-wins，小範圍排前）；
+＋ `src/map/gisClickRegistry.ts` 的 `GIS_LAYERS`（4b 起模組級；first-hit-wins，小範圍排前）；
 PMTiles → `nginx.conf` ＋ 兩支 deploy 腳本清單。
 
 ## 決策樹

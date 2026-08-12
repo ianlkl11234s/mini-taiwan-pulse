@@ -17,22 +17,24 @@
  *
  * ── 精度聲明（哪些是真值、哪些是原始碼文字解析）────────────────────
  *   全精度（runtime 真值）：LAYER_COLORS / LAYER_ICONS / THEMES / SECTIONS /
- *     LAYER_LABELS / GATED_LAYERS / UPSTREAM_REGISTRY / LEGEND_REGISTRY keys /
+ *     LAYER_LABELS / GATED_LAYERS / UPSTREAM_REGISTRY / LEGEND_REGISTRY /
  *     HEADER_LABELS / PANEL_REGISTRY keys / OVERLAY_REGISTRY（含函式欄位求值）/
- *     transportParams 控件（用 react-dom/server 實際跑 hook，等價 renderHook）
- *   原始碼文字解析：GIS_LAYERS（是函式內的區域常數，runtime 取不到）——
- *     ⚠️ Phase 4 起**只剩這一項**：`useLayerParamsRuntime` 的 `case "key"` 掃描
- *     （`paramsCaseKeys`）已隨 switch 清空一併退役，覆蓋斷言改比 runtime 集合。
+ *     參數控件（buildParamControls ＋ layerParamsStore 快照，P4 起不再經 React SSR）/
+ *     **GIS_LAYERS（Phase 4b 起）** —— 它從 `useMapInteraction` 的區域常數提升成
+ *     `map/gisClickRegistry.ts` 的模組級 export，`extractGisLayers` 與
+ *     `extractGisConstRefTypes` 兩支文字解析器隨之退役（見下方退役註記）。
+ *   原始碼文字解析：**只剩兩支**，且解析的都不是登記簿而是「散在各檔的 setFeatureInfo
+ *     呼叫」—— `extractNonGisFeatureTypes`（useMapInteraction 直接 setFeatureInfo 的
+ *     3 種）與 `extractCustomHandlerFeatureTypes`（圖層模組自掛 handler 的廢棄物 13 層）。
+ *     這兩者沒有登記簿可提升，文字解析是目前唯一的取得方式。
  *
  * ── 非決定性防治 ──────────────────────────────────────────────────
  *   overlayRegistry 的 cultureTodayStr() / tourTodayStr() 會把「今天」烤進 filter
  *   literal → 抽取時正規化成 __TODAY_DASH__ / __TODAY_SLASH__，否則 fixture 每天爆。
- *   useLayerParamsRuntime 的 pollutionPenaltyYear 預設 = clamp(今年, 2010, 2026)，
+ *   layerParamsSpec 的 pollutionPenaltyYear 預設 = clamp(今年, 2010, 2026)，
  *   目前被 PENALTY_YEAR_MAX 夾住而穩定；測試另有一條 guard 斷言防它未來鬆脫。
  */
 
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 
 import type { LayerVisibility } from "../../types";
@@ -43,10 +45,12 @@ import {
 import { LAYER_ICONS } from "../../components/IconRailSidebar";
 import { UPSTREAM_REGISTRY } from "../upstreamRegistry";
 import { LEGEND_REGISTRY } from "../../components/LegendPanel";
+import { legendKeys } from "../legendGroups";
 import { HEADER_LABELS, PANEL_REGISTRY } from "../../components/featureInfo/registry";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
-import { useLayerParamsRuntime } from "../../hooks/useLayerParamsRuntime";
-import type { ExpandableLayerKey } from "../../types";
+import { GIS_LAYERS } from "../../map/gisClickRegistry";
+import { buildParamControls } from "../../state/layerParamsControls";
+import { encodeParamsToOverlay, layerParamsStore } from "../../state/layerParamsStore";
 
 export const FIXTURE_PATH = "src/data/__tests__/__fixtures__/layer-golden.json";
 const INTERACTION_FILE = "src/hooks/useMapInteraction.ts";
@@ -80,8 +84,7 @@ function normalizeString(s: string): string {
  * - NaN / ±Infinity → 顯性 marker（JSON.stringify 會轉成 null，同樣會糊掉資訊）
  * - 物件 key 排序（canonical）；陣列保序
  *
- * ⚠️ 也被 `hooks/__tests__/useLayerParamsRuntimeReturn.test.ts`（hook return 等值閘）
- * 直接引用 —— -0 / undefined / 函式 的處理各寫一份必漂移。
+ *（曾被 hook return 等值閘直接引用；該測試已隨 useLayerParamsRuntime 於 AR-22 P4 退役。）
  */
 export function sanitize(value: unknown): unknown {
   if (value === undefined) return null;
@@ -147,27 +150,31 @@ function extractIcons(): Record<string, string> {
 }
 
 /**
- * transportParams 控件定義：用 react-dom/server 實跑 hook 拿預設 state，
- * 再對全部 348 key 呼叫 getControls（規格查無此 key 回 []，非 Expandable 的 key 安全）。
+ * 控件定義 + overlayParams：對全部 348 key 產生控件
+ * （規格查無此 key 回 null → `?? []`，非 Expandable 的 key 安全）。
  * ExpandableLayerKey 是 type-only、runtime 無法迭代 → 全掃是唯一完整做法。
+ *
+ * ── ⚠️ AR-22 P4 換源（`useLayerParamsRuntime` 已整支退役）──────────
+ * 原本這裡用 `react-dom/server` 實跑那支 hook，再讀它的 `getControls` 與
+ * `overlayParams`。那兩個欄位本來就只是薄薄一層轉接：
+ *
+ *   getControls(k)  ===  buildParamControls(k, migratedParams[k]) ?? []
+ *   overlayParams   ===  { ...encodeParamsToOverlay(migratedParams) }
+ *
+ * 而 `migratedParams` 就是 `layerParamsStore.getAll()` 的快照。所以這裡直接
+ * 打 store ＋ 兩個 builder，**逐位元等價**，還省掉一次 React SSR。
+ * 等價的證明就是 fixture 零 diff —— 換源若做錯，`params` / `overlays`
+ * 兩個 section 會立刻紅（不准重 dump fixture）。
  */
 function probeTransportParams(): {
   controls: Record<string, unknown>;
   overlayParams: Record<string, number>;
 } {
-  let captured: ReturnType<typeof useLayerParamsRuntime> | null = null;
-  function Probe() {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    captured = useLayerParamsRuntime();
-    return null;
-  }
-  renderToStaticMarkup(createElement(Probe));
-  const api = captured as unknown as ReturnType<typeof useLayerParamsRuntime> | null;
-  if (!api) throw new Error("useLayerParamsRuntime probe 沒有捕捉到回傳值");
+  const all = layerParamsStore.getAll();
 
   const controls: Record<string, unknown> = {};
   for (const key of allLayerKeys()) {
-    const list = evalGuard(() => api.getControls(key as ExpandableLayerKey));
+    const list = evalGuard(() => buildParamControls(key, all[key]) ?? []);
     // 控件的 onChange 是 closure，不進快照（sanitize 會轉 "__FN__"，這裡直接剔除
     // 讓 fixture 乾淨——控件「型別/label/範圍/預設值」才是要凍結的契約）。
     controls[key] = Array.isArray(list)
@@ -176,7 +183,7 @@ function probeTransportParams(): {
   }
   return {
     controls,
-    overlayParams: api.overlayParams as unknown as Record<string, number>,
+    overlayParams: encodeParamsToOverlay(all),
   };
 }
 
@@ -221,51 +228,25 @@ function extractOverlays(params: Record<string, number>): unknown[] {
   }));
 }
 
-/**
- * GIS_LAYERS（useMapInteraction 的點擊接線表，含順序 —— first-hit-wins 語意，
- * 順序改變 = 行為改變）。它是函式內的區域常數，runtime 取不到 → 原始碼文字解析，
- * 沿用 mapInteractionLayers.test.ts 已在用的前例。
- */
-export function extractGisLayers(source = readFileSync(INTERACTION_FILE, "utf8")): unknown[] {
-  const block = gisLayersBlock(source);
-
-  const out: unknown[] = [];
-  for (const m of block.matchAll(/layers:\s*\[([\s\S]*?)\]\s*,\s*type:\s*"([^"]+)"/g)) {
-    const ids = [...(m[1] ?? "").matchAll(/"([^"]+)"/g)].map((s) => s[1] as string);
-    out.push({ layers: ids, type: m[2] as string });
-  }
-  if (out.length === 0) throw new Error("GIS_LAYERS 解析出 0 筆 —— 抽取器需同步更新");
-  return out;
-}
-
-/** GIS_LAYERS 的原始碼區塊（字面陣列與常數引用兩個解析器共用同一段邊界邏輯） */
-function gisLayersBlock(source: string): string {
-  const start = source.indexOf("const GIS_LAYERS");
-  if (start < 0) throw new Error(`${INTERACTION_FILE} 找不到 GIS_LAYERS —— 抽取器需同步更新`);
-  const open = source.indexOf("[", start);
-  const end = source.indexOf("\n        ];", open);
-  if (open < 0 || end < 0) throw new Error("GIS_LAYERS 區塊邊界解析失敗 —— 抽取器需同步更新");
-  return source.slice(open, end);
-}
-
-/**
- * GIS_LAYERS 裡 layer id 陣列寫成**常數引用**（`{ layers: FOO_CLICK_LAYERS, type: "x" }`）
- * 那幾筆的 layerType。目前有 2 筆：`disasterAlert`、`plaActivity`。
- *
- * ⚠️ `extractGisLayers` 的 regex 要求字面 `[...]`，抓不到這種形狀 —— 但它們是**真的有
- * 點擊接線**的。manifest 的 popup 宣告若只拿 extractGisLayers 當真值，會把這兩層誤判成
- * 「沒有 popup」，Phase 3 依 popup 派生 GIS_LAYERS 時就會靜默丟掉它們的接線 ——
- * 那正是本工程要消滅的暗雷，所以獨立補一支解析。
- *
- * 只回 type 字串、**不進 fixture**：fixture 凍結的是「layer id 陣列內容 + 順序」，
- * 常數引用要展開成 id 需要 runtime 值，那是 Phase 3 把 GIS_LAYERS 提升成模組級 export
- * 之後才做得到的事（見 backlog「護欄本身的待辦」）。
- */
-export function extractGisConstRefTypes(source = readFileSync(INTERACTION_FILE, "utf8")): string[] {
-  const block = gisLayersBlock(source);
-  return [...block.matchAll(/layers:\s*([A-Za-z_$][\w$]*)\s*,\s*type:\s*"([^"]+)"/g)]
-    .map((m) => m[2] as string);
-}
+// ⚠️ **`extractGisLayers()` 與 `extractGisConstRefTypes()` 已於 AR-22 Phase 4b 退役**
+// （不留薄殼）。
+//
+// 兩支都是 `useMapInteraction.ts` 的原始碼文字解析，存在的唯一理由是「GIS_LAYERS 是
+// click handler 內的區域常數，runtime 取不到」。Phase 4b 把它提升成
+// `src/map/gisClickRegistry.ts` 的模組級 export，理由消失：
+//   - `extractGisLayers`：regex 要求字面 `[...]` → **只吃得到 235 筆**，那兩筆寫成
+//     常數引用（`{ layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" }`）
+//     的完全看不見。fixture 的 `gisLayers` section 因此少凍了兩筆真接線。
+//   - `extractGisConstRefTypes`：正是為了補上面那個洞而補的**補丁**（只回 type 字串，
+//     展不開 layer id）。洞的成因消失，補丁一併退役。
+// 現在的表達：`import { GIS_LAYERS } from "../../map/gisClickRegistry"` —— 237 筆
+// 全精度真值，常數引用也展開成實際 layer id 進 fixture。
+// 換源後 fixture 的 `gisLayers` 235 → 237（多出的兩筆在其真實位置，見該次 commit 的 diff）。
+//
+// ⚠️ `mapInteractionLayers.test.ts` 的 layer id ratchet **刻意沒有一起換成 runtime**：
+// `DISASTER_ALERT_CLICK_LAYERS` 的 15 個 id 是樣板字串產生的（`${group}-fill`…），
+// 該測試的兩條判準（registry 組得出來 / 字串字面出現在別的檔）一條都不中 → 全數誤報成
+// orphan。理由寫在該檔，別再「升級」它。
 
 /**
  * **不經 GIS_LAYERS** 的 popup 接線 layerType —— useMapInteraction 裡直接
@@ -430,13 +411,15 @@ export function extractGolden(): GoldenSnapshot {
     }),
     sidebarSections: sanitize(SECTIONS),
     upstream: sanitize(Object.fromEntries(keys.map((k) => [k, UPSTREAM_REGISTRY[k]]))),
-    // 順序 = 圖例面板顯示順序 → 保序；render 是元件函式，只記 keys（spec）
-    legend: sanitize(LEGEND_REGISTRY.map((e) => ({ keys: e.keys }))),
+    // 順序 = 圖例面板顯示順序 → 保序；render 是元件函式，只記 id ＋ 派生出的成員名單
+    // （Phase 4b 起 keys 由 manifest 的 legend 反查，見 data/legendGroups.ts）
+    legend: sanitize(LEGEND_REGISTRY.map((e) => ({ id: e.id, keys: legendKeys(e.id) }))),
     featureInfo: sanitize({
       headerLabels: Object.keys(HEADER_LABELS).sort(),
       panelRegistry: Object.keys(PANEL_REGISTRY).sort(),
     }),
-    gisLayers: sanitize(extractGisLayers()),
+    // Phase 4b 起是 runtime 真值（模組級 export）—— 兩筆常數引用一併展開成實際 layer id
+    gisLayers: sanitize(GIS_LAYERS),
     overlays: sanitize(extractOverlays(overlayParams)),
     params: sanitize(controls),
   };

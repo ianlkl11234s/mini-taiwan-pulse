@@ -125,14 +125,14 @@ $1: [
 | `src/data/$1Loader.ts` | 所有 fetch / RPC 包 `withLoading(id, label, promise)`；`setData` 後接 `keepLoadingUntilMapIdle` |
 | `src/hooks/use$1Layer.ts` | React hook。⚠️ 動態圖層：`currentTime` **禁止**進 useEffect deps，改走 `timeStore.subscribeThrottled(ms, cb)`（CLAUDE.md §6） |
 | `src/map/overlayRegistry.ts` **或** `src/map/$1CustomLayer.ts` | static → registry entry（`sourceId` 必須與 manifest 的 `source.sourceId` 逐字相同）；dynamic → CustomLayer |
-| `src/App.tsx` | 引入 hook、傳 props 到 MapView |
+| `src/layers/layerHookRegistry.tsx` | **掛載登記（2026-08-12 起取代「App.tsx 引入 hook」）**：有 hook 的層加一筆 `{ id, keys, Host }` registry entry（順序＝疊放/effect 順序，加在尾端除非有疊放理由）；純 overlayRegistry 靜態層改登 `NO_HOOK_LEDGER`；回傳值須被 App 消費的特例登 `HOOKS_IN_APP_LEDGER`。**三桶互斥測試會紅到你登記為止**——這就是「漏 call hook 靜默失敗」的機械護欄 |
 
 ### ⑥ 條件觸點（不是每層都要）
 
 | 條件 | 要動 |
 |---|---|
-| 分類 ≥ 2 色（鐵則 2） | `LegendPanel.tsx` 寫 sub-component ＋ 同檔 `LEGEND_REGISTRY` 加一行；manifest `legend` 填該 id |
-| 可點選（鐵則 3） | `featureInfo/<domain>Panels.tsx` 寫 panel ＋ `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 ＋ `useMapInteraction.ts` 的 `GIS_LAYERS` 加條目（**first-hit-wins**：小範圍排前、大面積背景排後）；manifest `popup` 填該 layerType |
+| 分類 ≥ 2 色（鐵則 2） | `LegendPanel.tsx` 寫 sub-component ＋ 同檔 `LEGEND_REGISTRY` 加一行 `{ id, render }`（**keys 不用寫**——4b 起由 manifest `legend` 欄位反查派生）；manifest `legend` 填該 id |
+| 可點選（鐵則 3） | `featureInfo/<domain>Panels.tsx` 寫 panel ＋ `featureInfo/registry.tsx` 的 `PANEL_REGISTRY` + `HEADER_LABELS` 各加一行 ＋ **`src/map/gisClickRegistry.ts`**（4b 起自 useMapInteraction 升格模組級）的 `GIS_LAYERS` 加條目（**first-hit-wins**：小範圍排前、大面積背景排後）；manifest `popup` 填該 layerType |
 | 分類色票要三邊共用 | 抽 `src/data/$1Types.ts` 供 factory / featureInfo / legend 三邊 import |
 | PMTiles / 大型靜態檔 | `nginx.conf` location ＋ `scripts/deploy/upload-deploy-assets.sh` / `pull-deploy-assets.sh` 清單（⚠️ PT-1 曾漏此步導致 13 層全站 404） |
 | 想讓 BYOK 對話查得到 | `src/chat/tools/datasets.ts` 的 `DATASET_WHITELIST` |

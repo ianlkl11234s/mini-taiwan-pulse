@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
 import type { LayerVisibility, ExpandableLayerKey, ViewMode, DisplayMode } from "../types";
-import type { ParamControl } from "../state/layerParamsControls";
+// AR-22 P4：控件不再由 App 經 4 層 props 傳下來（getControls drilling 已拆除）。
+// 展開的那一層自己 per-key 訂閱 —— 拖 slider 只喚醒這個元件，App 不 re-render。
+import { buildParamControls } from "../state/layerParamsControls";
+import { useLayerParams } from "../state/layerParamsStore";
 // 圖層目錄常數單一真實來源（與 IconRailSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, THEMES } from "./sidebar/layerCatalog";
 import { SURFACE, FONT_DATA, RADIUS, FONT_SIZE } from "../styles/designTokens";
@@ -25,7 +28,6 @@ interface LayerSidebarProps {
   onHideTransport: () => void;
   /** 批次設定多 layer 可見性（Theme 級全開/全關用） */
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
-  getControls: (layer: ExpandableLayerKey) => ParamControl[];
 }
 
 // ── Component ──
@@ -45,7 +47,6 @@ export function LayerSidebar({
   onDisplayModeChange,
   onHideTransport,
   onBulkSetVisibility,
-  getControls,
 }: LayerSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const textColor = isDarkTheme ? "#fff" : "#333";
@@ -74,7 +75,7 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility} getControls={getControls}
+        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
       />
     );
   }
@@ -158,7 +159,7 @@ export function LayerSidebar({
         textColor={textColor} dimColor={dimColor} baseFontSize={baseFontSize}
         getCount={getCount} onLayerClick={onLayerClick} onToggleVisibility={onToggleVisibility}
         onViewModeChange={onViewModeChange} onDisplayModeChange={onDisplayModeChange}
-        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility} getControls={getControls}
+        onHideTransport={onHideTransport} onBulkSetVisibility={onBulkSetVisibility}
       />
     </div>
   );
@@ -170,7 +171,7 @@ function SidebarContent({
   visibility, lockedKeys, expandedLayer, viewMode, displayMode, isDarkTheme, isMobile,
   textColor, dimColor, baseFontSize,
   getCount, onLayerClick, onToggleVisibility,
-  onViewModeChange, onDisplayModeChange, onHideTransport, onBulkSetVisibility, getControls,
+  onViewModeChange, onDisplayModeChange, onHideTransport, onBulkSetVisibility,
 }: {
   visibility: LayerVisibility;
   lockedKeys?: ReadonlySet<keyof LayerVisibility>;
@@ -189,7 +190,6 @@ function SidebarContent({
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHideTransport: () => void;
   onBulkSetVisibility?: (keys: (keyof LayerVisibility)[], value: boolean) => void;
-  getControls: (layer: ExpandableLayerKey) => ParamControl[];
 }) {
   // Theme 摺疊狀態：預設摺疊 defaultCollapsed=true 的（目前僅環境氣候 Environment 預設展開）
   const [collapsedThemes, setCollapsedThemes] = useState<Set<string>>(
@@ -422,7 +422,6 @@ function SidebarContent({
                     onViewModeChange={onViewModeChange}
                     onDisplayModeChange={onDisplayModeChange}
                     onHide={onHideTransport}
-                    controls={getControls(key as ExpandableLayerKey)}
                   />
                 )}
               </div>
@@ -449,7 +448,6 @@ interface ExpandedPanelProps {
   onViewModeChange: (mode: ViewMode) => void;
   onDisplayModeChange: (mode: DisplayMode) => void;
   onHide: () => void;
-  controls: ParamControl[];
 }
 
 function ExpandedPanel({
@@ -460,8 +458,11 @@ function ExpandedPanel({
   displayMode,
   onDisplayModeChange,
   onHide,
-  controls,
 }: ExpandedPanelProps) {
+  // per-key 訂閱：只有這一層的參數變動才重繪本元件
+  const paramValues = useLayerParams(layerKey);
+  const controls = buildParamControls(layerKey, paramValues) ?? [];
+
   const btnBase: React.CSSProperties = {
     fontSize: FONT_SIZE.xs,
     padding: "2px 6px",
