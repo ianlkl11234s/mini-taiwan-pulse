@@ -95,6 +95,8 @@ import {
   // 👻 orphan 10（Waves / Anchor / Factory / Zap / BarChart3 / Activity / Route /
   //    MapPinned 已在上方 import 復用）
   Sun, Bed,
+  // 🚢 情勢／軍事：特殊船舶 Vessel Watch（Ship 已被 `ships` 佔用，改用 Radar）
+  Radar,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -1077,6 +1079,37 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["select", "toggle", "slider", "toggle"] },
     description: "國防部每日航跡示意圖向量化的共機活動區（⚠️ 是活動區域非精確航跡）",
     topics: ["情勢", "軍事", "國防"],
+  },
+
+  // ⚠️ 同 plaActivity：GIS_LAYERS 用**常數引用**（VESSEL_WATCH_CLICK_LAYERS），
+  //    非字面陣列。點層排在 plaActivity 之前 —— first-hit-wins，船點若排在
+  //    共機活動區大面積 polygon 之後，海峽內的船會點不到。
+  vesselWatch: {
+    key: "vesselWatch",
+    section: { theme: "情勢 Situation", group: "軍事" },
+    label: "特殊船舶 Vessel Watch",
+    expandable: true,
+    // rose-400：刻意與 `ships`（#1ad9e5 青）拉開 —— 兩層同時開時要一眼分得出
+    color: "#fb7185",
+    icon: Radar,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ship", confidence: "HIGH" }],
+      note: "gis-platform migration 339/340；設計文件 mini-taiwan-pulse/docs/proposal/vessel-watch-layer.md",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useVesselWatchLayer 自行接線（無 OVERLAY_REGISTRY entry）：Supabase RPC "
+        + "get_vessel_watch_current（最後已知位置）/ get_vessel_watch_trails（軌跡視窗）"
+        + "餵自建的 vessel-watch-current（circle）與 vessel-watch-trails（line）兩個 source。"
+        + "分類色票 SSOT 在 data/vesselWatchTypes.ts（loader / 圖例 / popup 三邊共用）",
+    },
+    legend: "vesselWatch",
+    popup: "vesselWatch",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）",
+    topics: ["情勢", "軍事", "海域", "船舶"],
   },
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 2 —— 基礎建設 Infrastructure 11 層

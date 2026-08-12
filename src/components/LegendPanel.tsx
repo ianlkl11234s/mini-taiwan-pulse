@@ -13,6 +13,7 @@ import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
+import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
@@ -304,6 +305,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
   { id: "newsEvents", render: () => <NewsEventsLegend /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },
+  { id: "vesselWatch", render: () => <VesselWatchLegend /> },
   { id: "iotWraRiver", render: () => <IotRiverLegend /> },
   { id: "iotWraStructure", render: () => <IotStructureLegend /> },
   { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
@@ -3411,6 +3413,31 @@ function PlaActivityLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         依國防部示意圖描繪，非精確航跡
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 特殊船舶（Vessel Watch）—— 12 類分色。
+ *
+ * ⚠️ 標籤一律寫**全稱**：`HAIXUN`「海巡」是**中國海事局**的船，
+ *    與**台灣海巡署**是兩回事。縮寫成「海巡」等於把這層的核心資訊講反。
+ *    文字的 SSOT 在 `data/vesselWatchTypes.ts`，這裡只負責畫。
+ */
+function VesselWatchLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        特殊船舶 VESSEL WATCH
+      </div>
+      <FireCatRows cats={VESSEL_CLASSES.map((c) => ({ color: c.color, label: c.label }))} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        細線為軌跡（AIS 約 15 分一筆的斷續取樣，非連續航跡）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
+        分類由船名／MMSI 規則推斷；軍艦多為他國過境（中台海軍多靜默）
       </div>
     </div>
   );

@@ -35,6 +35,7 @@
 import type { FeatureInfo } from "../types";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
+import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
@@ -221,6 +222,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
   { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
   { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
+  // ⚠️ 特殊船舶（點 + 線）必須排在 plaActivity **之前**：共機活動區是覆蓋整個
+  //    海峽的大面積 polygon，first-hit-wins 之下船點若排在它後面就永遠點不到。
+  { layers: VESSEL_WATCH_CLICK_LAYERS, type: "vesselWatch" },
   { layers: PLA_ACTIVITY_CLICK_LAYERS, type: "plaActivity" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },

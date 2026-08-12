@@ -1230,6 +1230,7 @@ export const THEMES: ThemeDef[] = [
         title: "軍事",
         layers: [
           fromManifest("plaActivity"),
+          fromManifest("vesselWatch"),
         ],
       },
     ],

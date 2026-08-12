@@ -2094,6 +2094,21 @@ export const LAYER_PARAMS_SPEC = {
     // showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
     { kind: "toggle", name: "plaShowReview", label: "待核實", default: false, out: null },
   ],
+  // 特殊船舶：兩支都走第二通道（out: null）—— 值由 VesselWatchHost 的
+  // useLayerParams 讀出後當 hook 參數傳入，圖層是 hook 自建的 circle/line，
+  // 不吃 overlayParams（同 plaActivity 的 D 桶形狀）。
+  vesselWatch: [
+    {
+      kind: "slider", name: "vesselWatchOpacity", labelPrefix: "透明度", digits: 2,
+      default: 0.9, min: 0.1, max: 1, step: 0.05, out: null,
+    },
+    // 軌跡視窗天數。AIS 每艘約 15 分鐘一筆且離岸即斷訊 —— 拉太長只是把
+    // 斷續取樣連成更長的折線，不會更「連續」，故上限 14 天。
+    {
+      kind: "slider", name: "vesselWatchTrailDays", labelPrefix: "軌跡", labelSuffix: " 天",
+      digits: 0, default: 3, min: 1, max: 14, step: 1, out: null,
+    },
+  ],
 
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──
   cwaCloudImagery: [

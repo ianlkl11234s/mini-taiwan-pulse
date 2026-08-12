@@ -109,9 +109,10 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 348 個 layer key", () => {
+  it("涵蓋全部 349 個 layer key", () => {
     const keys = allLayerKeys();
-    expect(keys.length).toBe(348);
+    // 2026-08-12：+1 = vesselWatch（特殊船舶）。這個數字是 ratchet，加層時一起加。
+    expect(keys.length).toBe(349);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

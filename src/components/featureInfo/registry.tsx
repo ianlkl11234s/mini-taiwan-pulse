@@ -22,6 +22,7 @@ import {
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import {
   NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel, PlaActivityPanel,
+  VesselWatchPanel,
 } from "./eventPanels";
 import { RoadCongestionPanel } from "./roadPanels";
 import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
@@ -153,6 +154,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   newsEvent: NewsEventPanel,
   disasterAlert: DisasterAlertPanel,
   plaActivity: PlaActivityPanel,
+  vesselWatch: VesselWatchPanel,
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
   aqiStation: AqiStationPanel,
@@ -386,6 +388,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
   plaActivity: "共機活動區",
+  // ⚠️ 不可寫成「海巡」—— 本層含中國海事局（HAIXUN）與台灣海巡署兩種完全不同的船
+  vesselWatch: "特殊船舶",
   roadEvent: "即時路況",
   roadCongestion: "省道路況",
   aqiStation: "空氣品質測站",

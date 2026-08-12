@@ -8,6 +8,7 @@ import { useClimateParticleLineLayer } from "../../hooks/useClimateParticleLineL
 import { useDustForecastLayer } from "../../hooks/useDustForecastLayer";
 import { useDisasterAlertLayer } from "../../hooks/useDisasterAlertLayer";
 import { usePlaActivityLayer } from "../../hooks/usePlaActivityLayer";
+import { useVesselWatchLayer } from "../../hooks/useVesselWatchLayer";
 // 色帶集中在 climateRamps（module-level 常數，避免每次 render 新 object 觸發 hook re-mount）；
 // LegendPanel 圖例吃同一份，改色階兩邊自動同步。
 import {
@@ -155,6 +156,25 @@ export const PlaActivityHost: LayerHostComponent = ({ deps }) => {
     paramNum(values, "plaActivity", "plaTrailDays"),
     deps.appMode === "realtime" && paramBool(values, "plaActivity", "plaReplay"),
     deps.plaHistoricalDate,
+  );
+  return null;
+};
+
+/**
+ * 特殊船舶（AIS 海警／海巡／科研船／軍艦）。
+ *
+ * ⚠️ 純 Mapbox circle + line —— 不可改用 Three.js（`ships` 已佔用唯一的
+ * CustomLayer 名額，見 useVesselWatchLayer 檔頭）。軌跡視窗結束日走 timeStore
+ * 訂閱，故本 Host 不需要（也不可以）從 deps 拿時間。
+ */
+export const VesselWatchHost: LayerHostComponent = ({ deps }) => {
+  bumpHostRender("useVesselWatchLayer");
+  const values = useLayerParams("vesselWatch");
+  useVesselWatchLayer(
+    deps.mapRef,
+    deps.layerVisibility.vesselWatch,
+    paramNum(values, "vesselWatch", "vesselWatchOpacity"),
+    paramNum(values, "vesselWatch", "vesselWatchTrailDays"),
   );
   return null;
 };

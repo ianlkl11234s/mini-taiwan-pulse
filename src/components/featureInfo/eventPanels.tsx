@@ -308,3 +308,66 @@ export function PlaActivityPanel({ props }: { props: Record<string, unknown> }) 
     </>
   );
 }
+
+/**
+ * 特殊船舶 popup（點船位圓點或其軌跡線都會開）
+ *
+ * ⚠️ 三處誠實標註不可省：
+ *   1. `destination`（目的地）是 **AIS 自報欄位**，船方可任意填寫甚至造假。
+ *   2. 分類是**規則推斷**（船名 pattern ＋ MMSI 國碼），不是官方認定。
+ *   3. 「最後回報」不等於「現在在那裡」—— 離岸遠就收不到訊號，位置會停在原地。
+ */
+export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const color = String(props.class_color ?? "#fb7185");
+  const classLabel = String(props.class_label ?? "未分類");
+  const shipName = String(props.ship_name ?? "").trim() || "（無船名）";
+  const str = (v: unknown) => {
+    const s = v === null || v === undefined ? "" : String(v).trim();
+    return s === "" ? "—" : s;
+  };
+  const num = (v: unknown, unit: string, digits = 0) => {
+    if (v === null || v === undefined || v === "") return "—";
+    const n = Number(v);
+    return Number.isFinite(n) ? `${n.toFixed(digits)} ${unit}` : "—";
+  };
+  const collectedAt = String(props.collected_at ?? "");
+  const collectedText = collectedAt
+    ? new Date(collectedAt).toLocaleString("zh-TW", { timeZone: "Asia/Taipei", hour12: false })
+    : "—";
+  // 軌跡線 feature 沒有這些欄位（只有 mmsi / 分類 / 點數）→ 用它判斷要不要畫動態區塊
+  const isTrail = props.point_count !== undefined && props.speed === undefined;
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: color, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {shipName}
+        </div>
+      </div>
+      <Row label="分類" value={classLabel} />
+      <Row label="MMSI" value={str(props.mmsi)} />
+      <Row label="IMO" value={str(props.imo)} />
+      <Row label="呼號" value={str(props.call_sign)} />
+      <Row label="船長" value={num(props.length_m, "m")} />
+      {isTrail ? (
+        <Row label="軌跡點數" value={num(props.point_count, "點")} />
+      ) : (
+        <>
+          <Row label="速度" value={num(props.speed, "節", 1)} />
+          <Row label="航向" value={num(props.heading, "°")} />
+          <Row label="航行狀態" value={str(props.nav_status)} />
+          <Row label="目的地（自報）" value={str(props.destination)} />
+          <Row label="最後回報" value={collectedText} />
+        </>
+      )}
+      <div style={{
+        marginTop: 6, fontSize: FONT_SIZE.sm, color: t.textMuted, lineHeight: 1.5,
+      }}>
+        分類由船名／MMSI 國碼規則推斷，非官方認定；目的地為船方自報可造假。
+        位置為最後已知 AIS 回報（離岸遠即收不到訊號），軌跡為約 15 分鐘一筆的斷續取樣。
+      </div>
+    </>
+  );
+}
