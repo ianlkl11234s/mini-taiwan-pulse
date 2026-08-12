@@ -32,88 +32,18 @@ import { sessionTracker } from "./lib/sessionTracker";
 import { useDataRegistry } from "./hooks/useDataRegistry";
 import { useThreeJsLayers } from "./hooks/useThreeJsLayers";
 import { useMapInteraction } from "./hooks/useMapInteraction";
-import { useNewsTimeline } from "./hooks/useNewsTimeline";
-import { useNewsEventsLayer } from "./hooks/useNewsEventsLayer";
-import { useSelectedFeatureHalo } from "./hooks/useSelectedFeatureHalo";
-import { useSatellitesLayer } from "./hooks/useSatellitesLayer";
-import { useEarthquakeLayer } from "./hooks/useEarthquakeLayer";
-import { useEarthquakeReplayLayer } from "./hooks/useEarthquakeReplayLayer";
-import { useEarthquakesGlobalLayer } from "./hooks/useEarthquakesGlobalLayer";
-import { useWorldTrashDebrisLayer } from "./hooks/useWorldTrashDebrisLayer";
-import { useTyphoonTracksLayer, type TyphoonSource } from "./hooks/useTyphoonTracksLayer";
-import { useClimateParticleLineLayer } from "./hooks/useClimateParticleLineLayer";
-import { useDustForecastLayer } from "./hooks/useDustForecastLayer";
-// 色帶集中在 climateRamps（module-level 常數，避免每次 render 新 object 觸發 hook re-mount）；
-// LegendPanel 圖例吃同一份，改色階兩邊自動同步。
-import { WIND_FIELD_RAMP, WIND_SPEED_MAX, OCEAN_CURRENTS_RAMP, OCEAN_SPEED_MAX } from "./map/climateRamps";
-import { useFreewayLayer } from "./hooks/useFreewayLayer";
-import { useRoadCongestionLayer } from "./hooks/useRoadCongestionLayer";
-import { useFuneralDensityLayer } from "./hooks/useFuneralDensityLayer";
+// ⚠️ AR-22 P1：67 支 layer hook 的呼叫已搬進 `src/layers/`（Host 元件 + 有序 registry）。
+//    它們的 import 隨之遷出本檔 —— 要找某層掛在哪，查 layerHookRegistry.ts 的 id。
 import { useReservoirContextLayer } from "./hooks/useReservoirContextLayer";
-import { useReservoirStatusLayer } from "./hooks/useReservoirStatusLayer";
 import type { ReservoirScene } from "./three/ReservoirScene";
 import type { ReservoirStatus } from "./data/reservoirStatusLoader";
-import { useRainGaugeLayer } from "./hooks/useRainGaugeLayer";
-import { useRiverLevelLayer } from "./hooks/useRiverLevelLayer";
-import { useFloodSensorLayer } from "./hooks/useFloodSensorLayer";
-import { useFloodSensorIsochroneLayer } from "./hooks/useFloodSensorIsochroneLayer";
-import { useTaipeiSewerLayer } from "./hooks/useTaipeiSewerLayer";
-import { useTaipeiEvacuateLayer } from "./hooks/useTaipeiEvacuateLayer";
-import { useTaipeiPumbLayer } from "./hooks/useTaipeiPumbLayer";
-import { usePrecipRasterLayer } from "./hooks/usePrecipRasterLayer";
-import { useGroundwaterLayer } from "./hooks/useGroundwaterLayer";
-import { useGroundwaterWellsLayer } from "./hooks/useGroundwaterWellsLayer";
-import { useIotWraRiverLayer } from "./hooks/useIotWraRiverLayer";
-import { useIotWraStructureLayer } from "./hooks/useIotWraStructureLayer";
-import { useFireEventsLayer } from "./hooks/useFireEventsLayer";
-import { useFireLatestLayer } from "./hooks/useFireLatestLayer";
-import { useWasteCleaningSquadLayer } from "./hooks/useWasteCleaningSquadLayer";
-import { useDisasterAlertLayer } from "./hooks/useDisasterAlertLayer";
-import { usePlaActivityLayer } from "./hooks/usePlaActivityLayer";
 import { todayTaiwan } from "./lib/supabase";
-// Energy MVP
-import { useEnergyPoiLayer } from "./hooks/useEnergyPoiLayer";
-import { useFossilFuelLayers } from "./hooks/useFossilFuelLayers";
-import { useA1AccidentRealtimeLayer } from "./hooks/useA1AccidentRealtimeLayer";
-import { useOsmPowerLinesGlowLayer } from "./hooks/useOsmPowerLinesGlowLayer";
-import { usePowerPolesLayer } from "./hooks/usePowerPolesLayer";
-import { usePollutionLayers } from "./hooks/usePollutionLayers";
-import { useAviationAirspaceLayer } from "./hooks/useAviationAirspaceLayer";
-import { useDroneZonesLayer } from "./hooks/useDroneRestrictedZonesLayer";
-import { useSlopeVectorLayer } from "./hooks/useSlopeVectorLayer";
-import { useAspectVectorLayer } from "./hooks/useAspectVectorLayer";
-import { useSubstationDiamondIcon } from "./hooks/useSubstationDiamondIcon";
+// Energy MVP：dashboard 資料源留在 App（dataRef 餵 LayerHost 的 region bars）
 import { usePowerDashboard } from "./hooks/usePowerDashboard";
-import { usePowerRegionBarsLayer } from "./hooks/usePowerRegionBarsLayer";
-import { usePowerGenerationBeamLayer } from "./hooks/usePowerGenerationBeamLayer";
-import { usePowerPlantGlowLayer } from "./hooks/usePowerPlantGlowLayer";
-import { useSubstationEhvGlowLayer } from "./hooks/useSubstationEhvGlowLayer";
-import { useBuildingsNightBloomLayer } from "./hooks/useBuildingsNightBloomLayer";
-import { usePowerLinesGlowTestLayer } from "./hooks/usePowerLinesGlowTestLayer";
-import { useAviationRestrictedGlowLayer } from "./hooks/useAviationRestrictedGlowLayer";
-import { useLightningLayer, useNuclearLayer } from "./hooks/useHazardLayer";
-import { useErHospitalLayer } from "./hooks/useErHospitalLayer";
-import { useLibrarySeatsLayer } from "./hooks/useLibrarySeatsLayer";
-import { useParkingLayer } from "./hooks/useParkingLayer";
-import { useRoadEventsLayer } from "./hooks/useRoadEventsLayer";
-import { useCwaImageryLayer } from "./hooks/useCwaImageryLayer";
-import { useStaticRasterLayer } from "./hooks/useStaticRasterLayer";
-
-// 全臺 raster bbox（WGS84，繼承自 dtm_20m 上游 EPSG:3826 → 3857）
-const TERRAIN_BBOX = {
-  lonMin: 120.0166,
-  lonMax: 122.0096,
-  latMin: 21.8938,
-  latMax: 25.3015,
-} as const;
-import { useAqiImageryLayer } from "./hooks/useAqiImageryLayer";
-import { useAqiStationsLayer } from "./hooks/useAqiStationsLayer";
-import { useMicroSensorsLayer } from "./hooks/useMicroSensorsLayer";
 import { AqiProductSwitcher } from "./components/AqiProductSwitcher";
 import type { AqiProduct } from "./types";
 import { useH3Data } from "./hooks/useH3Data";
 import { useTemperatureData } from "./hooks/useTemperatureData";
-import { useTemperatureGridLayer } from "./hooks/useTemperatureGridLayer";
 import { useDemographicsH3, useDemographicsYearlyH3 } from "./hooks/useDemographicsH3";
 import { useH3Socioeconomic } from "./hooks/useH3Socioeconomic";
 import { useH3SpatialEconomy } from "./hooks/useH3SpatialEconomy";
@@ -138,8 +68,6 @@ import { satelliteConsoleStore, useSatelliteConsole } from "./state/satelliteCon
 import { useSatelliteManeuvers } from "./hooks/useSatelliteManeuvers";
 import { TimelineControls } from "./components/TimelineControls";
 import { HistoricalTimeline, type HistoricalGranularity } from "./components/HistoricalTimeline";
-import { useRealEstateTimeline } from "./hooks/useRealEstateTimeline";
-import { useRealEstatePointsLayer } from "./hooks/useRealEstatePointsLayer";
 import { RANGE_START, RANGE_END, DAY, reLabel, snapQuarterStart, tsToDate, type ReGran } from "./lib/realEstateTime";
 import { ModeToggle } from "./components/ModeToggle";
 import { StyleSelector, getStyleUrl } from "./components/StyleSelector";
@@ -152,7 +80,6 @@ import { AdminPanel } from "./components/admin/AdminPanel";
 import { useMemberGate, signInWithGoogle } from "./lib/auth";
 import { GATED_LAYERS } from "./components/sidebar/layerCatalog";
 import { useLayerGates, loadLayerGates, isLayerLocked } from "./lib/layerGates";
-import { useLivestockLayers } from "./hooks/useLivestockLayers";
 import { FeatureInfoPanel } from "./components/FeatureInfoPanel";
 import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
@@ -162,6 +89,8 @@ import { MessageSquare } from "lucide-react";
 import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { LoadingScreen } from "./components/LoadingScreen";
+import { LayerHosts } from "./layers/LayerHost";
+import { bumpHostRender, type LayerHostDeps } from "./layers/layerHostDeps";
 
 // setStyle 進行中時 getStyle() 會 throw "Style is not done loading"
 // → 換底圖期間的 re-render 不能再裸呼 map.getStyle()
@@ -175,6 +104,11 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
 }
 
 export default function App() {
+  // dev-only render 計數（`window.__layerRenderCounts`）——
+  // 第 4 階段（App 端解除全店訂閱）要證明「拖一個 slider 只有那一個 Host 重跑」。
+  // 現況 App 與所有 Host 是同步跳動的，那就是要被打破的基準線。
+  bumpHostRender("App");
+
   // EM-03 深連結：mount 時解析一次即凍結。**刻意用 ref 不用 state** ——
   // URL 只是「初始畫面」，之後使用者的操作才是真實狀態；若讓它進 deps
   // 會在每次操作後把鏡頭拉回網址指定的位置。
@@ -714,28 +648,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appMode]);
 
-  // 房地產時間軸：realtime→ALL 全期 / historical→游標所在季(grid)+點漸入漸出(月/週)
+  // 房地產時間軸 / 「點」CustomLayer 的 hook 已搬進 LayerHost
+  //（useRealEstateTimeline / useRealEstatePointsLayer，見 layerHookRegistry）
   const stopHistorical = useCallback(() => setHistoricalPlaying(false), []);
-  useRealEstateTimeline(mapRef, {
-    appMode,
-    active: realEstateActive,
-    gran: reGran,
-    cursorTs: reCursorTs,
-    excludeTaipei: !!transportParams.overlayParams.realEstateExcludeTaipei,
-    baseOpacity: transportParams.overlayParams.realEstateOpacity ?? 0.85,
-    playing: historicalPlaying,
-    speed: historicalSpeed,
-    onCursorChange: setReCursorTs,
-    onStop: stopHistorical,
-  });
-  // 房地產「點」WebGL CustomLayer（GPU fade，取代 3 個 PMTiles circle）
-  useRealEstatePointsLayer(mapRef, {
-    showRental: layerVisibility.realEstateRentalPoint,
-    showSale: layerVisibility.realEstateSalePoint,
-    showPresale: layerVisibility.realEstatePresalePoint,
-    excludeTaipei: !!transportParams.overlayParams.realEstateExcludeTaipei,
-    baseOpacity: transportParams.overlayParams.realEstateOpacity ?? 0.85,
-  });
 
   const { socioDataMap, loadSocioResolution } = useH3Socioeconomic();
   const { spatialDataMap, loadSpatialResolution } = useH3SpatialEconomy();
@@ -777,126 +692,11 @@ export default function App() {
   })();
   const reservoirContext = useReservoirContextLayer(mapRef, activeReservoirId);
 
-  // 點選的圖層點 → 淡黃色脈動光暈
-  useSelectedFeatureHalo(mapRef, featureInfo);
+  // 點選光暈 + 水庫水位計 + 水資源 12 層的 hook 已搬進 LayerHost
+  //（useSelectedFeatureHalo / useReservoirStatusLayer / useRainGauge… 見 layerHookRegistry）
 
-  // ── 水庫 3D 水位計（Three.js cylinder：外殼 = 容量、內水位 = 蓄水率） ──
-  useReservoirStatusLayer(
-    mapRef,
-    layerVisibility.waterReservoirs,
-    isDarkTheme,
-    transportParams.overlayParams.reservoirPillarHeight ?? 1,
-    reservoirSceneRef,
-    reservoirStatusesRef,
-    activeReservoirId,
-  );
-
-  // ── Phase 2.1：即時雨量（Mapbox circle，0 bubble size for 無雨） ──
-  useRainGaugeLayer(
-    mapRef,
-    layerVisibility.rainGauge,
-    isDarkTheme,
-    transportParams.overlayParams.rainGaugeScale ?? 1,
-    transportParams.overlayParams.rainGaugeOpacity ?? 1,
-  );
-
-  // ── 都市淹水感測器 USWG（Mapbox circle + 500m/1km buffer） ──
-  useFloodSensorLayer(
-    mapRef,
-    layerVisibility.floodSensor,
-    isDarkTheme,
-    transportParams.overlayParams.floodSensorScale ?? 1,
-    transportParams.overlayParams.floodSensorOpacity ?? 1,
-  );
-
-  // ── 雙北 USWG 3-min 步行等時圈（PMTiles，依站即時 depth_cm 著色） ──
-  useFloodSensorIsochroneLayer(
-    mapRef,
-    layerVisibility.floodSensorIsochrone,
-    transportParams.overlayParams.floodSensorIsochroneOpacity ?? 0.55,
-  );
-
-  // ── 北市水利處水情即時三本柱（每 60s 重抓 latest） ──
-  useTaipeiSewerLayer(
-    mapRef,
-    layerVisibility.taipeiSewer,
-    transportParams.overlayParams.taipeiSewerScale ?? 1,
-    transportParams.overlayParams.taipeiSewerOpacity ?? 0.85,
-  );
-  useTaipeiEvacuateLayer(
-    mapRef,
-    layerVisibility.taipeiEvacuate,
-    transportParams.overlayParams.taipeiEvacuateScale ?? 1,
-    transportParams.overlayParams.taipeiEvacuateOpacity ?? 0.9,
-  );
-  useTaipeiPumbLayer(
-    mapRef,
-    layerVisibility.taipeiPumb,
-    transportParams.overlayParams.taipeiPumbScale ?? 1,
-    transportParams.overlayParams.taipeiPumbOpacity ?? 0.9,
-  );
-
-  // ── 累積雨量柵格（PNG raster image source，dropdown 切 1/3/6/24h） ──
-  usePrecipRasterLayer(
-    mapRef,
-    layerVisibility.precipRaster,
-    (transportParams.overlayParams.precipRasterHours as 1 | 3 | 6 | 24) ?? 24,
-    transportParams.overlayParams.precipRasterOpacity ?? 0.6,
-  );
-
-  // ── Phase 2.2：河川水位（Mapbox circle，check_result=0 異常紅） ──
-  useRiverLevelLayer(
-    mapRef,
-    layerVisibility.riverLevel,
-    isDarkTheme,
-    transportParams.overlayParams.riverLevelScale ?? 1,
-    transportParams.overlayParams.riverLevelOpacity ?? 1,
-  );
-
-  // ── W002：地下水井靜態 backdrop（站位灰點，always visible 不受 timeline 影響） ──
-  useGroundwaterWellsLayer(
-    mapRef,
-    layerVisibility.groundwaterWells,
-    isDarkTheme,
-    transportParams.overlayParams.groundwaterWellsScale ?? 1,
-    transportParams.overlayParams.groundwaterWellsOpacity ?? 1,
-  );
-
-  // ── W002：地下水井動態層（當前 vs 當日起始水位 delta 著色，timeline 驅動） ──
-  useGroundwaterLayer(
-    mapRef,
-    layerVisibility.groundwater,
-    isDarkTheme,
-    transportParams.overlayParams.groundwaterScale ?? 1,
-    transportParams.overlayParams.groundwaterOpacity ?? 1,
-  );
-
-  // ── IoT 河川（補強 riverLevel；migration 063 預聚合表，timeline 驅動） ──
-  useIotWraRiverLayer(
-    mapRef,
-    layerVisibility.iotWraRiver,
-    isDarkTheme,
-    transportParams.overlayParams.iotWraRiverScale ?? 1,
-    transportParams.overlayParams.iotWraRiverOpacity ?? 1,
-    !!(transportParams.overlayParams.iotWraRiverShowMeasured ?? 1),
-    !!(transportParams.overlayParams.iotWraRiverShowForecast ?? 1),
-  );
-
-  // ── IoT 水工結構（流量/閘門/堤防/沖刷/揚塵 5 in 1，純 latest snapshot） ──
-  useIotWraStructureLayer(
-    mapRef,
-    layerVisibility.iotWraStructure,
-    isDarkTheme,
-    transportParams.overlayParams.iotWraStructureScale ?? 1,
-    transportParams.overlayParams.iotWraStructureOpacity ?? 1,
-    !!(transportParams.overlayParams.iotWraStructureFlow ?? 1),
-    !!(transportParams.overlayParams.iotWraStructureGate ?? 1),
-    !!(transportParams.overlayParams.iotWraStructureDam ?? 1),
-    !!(transportParams.overlayParams.iotWraStructureErosion ?? 1),
-    !!(transportParams.overlayParams.iotWraStructureDust ?? 1),
-  );
-
-  // ── News events 按日載入（Supabase；餵 overlayRegistry 的 news-events source） ──
+  // ── News 三軸 filter（IntelPanel / MonitorPanel 的 `filter` prop 吃這個物件；
+  //    圖層端的 useNewsEventsLayer 已搬進 LayerHost，自己從 store 讀同一份值）──
   const newsFilter = useMemo(
     () => ({
       minRelevance: transportParams.newsMinRelevance,
@@ -905,266 +705,25 @@ export default function App() {
     }),
     [transportParams.newsMinRelevance, transportParams.newsEventsOnly, transportParams.newsMinSeverity],
   );
-  useNewsEventsLayer(mapRef, layerVisibility.newsEvents, newsFilter);
 
   // ── Energy MVP（Phase C/D/E）──
-  // dashboard 共用：HUD + region bars 不同時 toggle 也只拉一次
+  // dashboard 共用：HUD + region bars 不同時 toggle 也只拉一次。
+  // ⚠️ 留在 App：`dataRef` 是餵給 LayerHost 的 usePowerRegionBarsLayer 的跨 hook 依賴
+  //（見 HOOKS_IN_APP_LEDGER），經 hostDeps 傳下去。
   const energyDashboardActive =
     layerVisibility.powerStatusHud || layerVisibility.powerRegionDemand;
   const { dataRef: powerDashboardRef } =
     usePowerDashboard(energyDashboardActive);
-  useEnergyPoiLayer(mapRef, {
-    showPlants: layerVisibility.powerPlants,
-    showSubstations: layerVisibility.osmSubstations,
-    showSubstationsEhv: layerVisibility.osmSubstationsEhv,
-    showPowerLines: layerVisibility.osmPowerLines,
-    showPowerTowers: layerVisibility.osmPowerTowers,
-    showWindTurbines: layerVisibility.osmWindTurbines,
-    showSolarFarms: layerVisibility.osmSolarFarms,
-    showOsmPowerPlantsStatic: layerVisibility.osmPowerPlantsStatic,
-    showOffshoreWindZones: layerVisibility.offshoreWindZones,
-    showIslandPowerGrid: layerVisibility.islandPowerGrid,
-    showFossilFuelInfra: layerVisibility.fossilFuelInfra,
-    showGeothermalWells: layerVisibility.geothermalWells,
-    showRenewablePermitsTaipei: layerVisibility.renewablePermitsTaipei,
-    showEvCharging: layerVisibility.evChargingStations,
-    // Phase 8 SSOT 6-layer
-    showFacPrimary: layerVisibility.facPrimary,
-    showFacOffshore: layerVisibility.facOffshore,
-    showFacPlanned: layerVisibility.facPlanned,
-    showFacHistorical: layerVisibility.facHistorical,
-    showFacSecondary: layerVisibility.facSecondary,
-    showFacOsmSupplement: layerVisibility.facOsmSupplement,
-  });
-  // 化石燃料：加油站（公開 get_gas_station_layers）+ 石化（owner-gated get_fossil_fuel_layers）
-  useFossilFuelLayers({ mapRef, visibility: layerVisibility });
-  // 畜牧 owner-only 動態層（get_livestock_farms / get_livestock_slaughterhouses）
-  useLivestockLayers({ mapRef, visibility: layerVisibility });
-  // A1 即時死亡事故（rpc_a1_by_bbox，每 12h 更新）
-  useA1AccidentRealtimeLayer(mapRef, layerVisibility.a1AccidentRealtime);
+
+  // 能源 20 層 / 化石燃料 / 畜牧 / 電力光暈 / 航空管制 / 無人機 / 環境污染、
+  // HAZARD、地震、全球氣候、世界、災防告警的 hook 全部搬進 LayerHost（見 layerHookRegistry）。
   // 雲林 POC 覆蓋分析 5 layer 改 PMTiles — 由 overlayRegistry pmtiles 設定自動處理
-  // 變電所菱形 SDF icon 註冊（osmSubstations symbol layer 用）
-  useSubstationDiamondIcon(mapRef);
-  // Three.js bloom layer for 高壓輸電線（取代 Mapbox stacking）
-  useOsmPowerLinesGlowLayer(
-    mapRef,
-    layerVisibility.osmPowerLines,
-    transportParams.overlayParams.osmPowerLinesOpacity ?? 0.4,
-    transportParams.overlayParams.osmPowerLinesWidth ?? 1,
-  );
-  usePowerPolesLayer(
-    mapRef,
-    layerVisibility.powerPoles,
-    transportParams.overlayParams.powerPolesOpacity ?? 0.7,
-    transportParams.overlayParams.powerPolesSize ?? 1,
-    transportParams.overlayParams.powerPolesHeat ?? 1,
-    transportParams.overlayParams.powerPolesZ5Reveal ?? 0,
-  );
-  useAviationAirspaceLayer(
-    mapRef,
-    layerVisibility.aviationControl,
-    layerVisibility.aviationRestricted,
-    transportParams.overlayParams.aviationControlOpacity ?? 0.7,
-    transportParams.overlayParams.aviationRestrictedOpacity ?? 0.7,
-  );
-  useDroneZonesLayer(
-    mapRef,
-    layerVisibility.droneNoFlyZone,
-    layerVisibility.droneRestrictedZone,
-    transportParams.overlayParams.droneNfzOpacity ?? 0.45,
-    transportParams.overlayParams.droneRestrictedOpacity ?? 0.45,
-  );
-  // 環境污染三層 filter（介質 / 嚴重度 / 年份時間軸 / 列管中）— paint 走 overlayManager
-  usePollutionLayers(
-    mapRef,
-    {
-      pollutionFacility: layerVisibility.pollutionFacility,
-      pollutionPenaltyCritical: layerVisibility.pollutionPenaltyCritical,
-      pollutionPenaltyGeneral: layerVisibility.pollutionPenaltyGeneral,
-      pollutionPenaltyMobile: layerVisibility.pollutionPenaltyMobile,
-      pollutionSite: layerVisibility.pollutionSite,
-    },
-    {
-      facilityMedia: transportParams.pollutionFacilityMedia,
-      facilityMinSev: transportParams.pollutionFacilityMinSev,
-      penaltyMediumIdx: transportParams.pollutionPenaltyMediumIdx,
-      penaltyYear: transportParams.pollutionPenaltyYear,
-      penaltyMode: transportParams.pollutionPenaltyMode,
-      siteActiveOnly: transportParams.pollutionSiteActiveOnly,
-    },
-  );
-  usePowerRegionBarsLayer(
-    mapRef,
-    layerVisibility.powerRegionDemand,
-    0.55,
-    powerDashboardRef,
-  );
-  usePowerGenerationBeamLayer(
-    mapRef,
-    layerVisibility.powerGenerationUnit,
-    transportParams.overlayParams.powerGenerationOpacity ?? 0.7,
-    transportParams.overlayParams.powerGenerationHeight ?? 1,
-  );
-  usePowerPlantGlowLayer(
-    mapRef,
-    layerVisibility.powerPlantGlow,
-    transportParams.overlayParams.powerPlantGlowOpacity ?? 0.9,
-    transportParams.overlayParams.powerPlantGlowSize ?? 1,
-  );
-  // 夜景燈光 mode 3 的高樓 bloom 疊層（層開 且 顯示模式=夜景燈光 時才 render）
-  useBuildingsNightBloomLayer(
-    mapRef,
-    layerVisibility.buildingsGba && (transportParams.overlayParams.buildingsGbaModeIdx ?? 0) === 3,
-    transportParams.overlayParams.buildingsGbaOpacity ?? 0.75,
-    transportParams.overlayParams.buildingsGbaBloomMinHeight ?? 100,
-  );
-  useSubstationEhvGlowLayer(
-    mapRef,
-    layerVisibility.substationEhvGlow,
-    transportParams.overlayParams.substationEhvGlowOpacity ?? 0.9,
-    transportParams.overlayParams.substationEhvGlowSize ?? 1,
-  );
-  usePowerLinesGlowTestLayer(
-    mapRef,
-    layerVisibility.powerLinesGlow,
-    transportParams.overlayParams.powerLinesGlowOpacity ?? 0.7,
-    transportParams.overlayParams.powerLinesGlowWidth ?? 2,
-  );
-  useAviationRestrictedGlowLayer(
-    mapRef,
-    layerVisibility.aviationRestrictedGlow,
-    transportParams.overlayParams.aviationRestrictedGlowOpacity ?? 0.85,
-  );
-
-  // ── HAZARD（v2 Phase B）──
-  useLightningLayer(
-    mapRef,
-    layerVisibility.lightning,
-    transportParams.overlayParams.lightningMinutes ?? 60,
-  );
-  // 氣象署源（migration 338 雙源）—— 獨立 source / cache，可與台電源同時開著對照
-  useLightningLayer(
-    mapRef,
-    layerVisibility.lightningCwa,
-    transportParams.overlayParams.lightningCwaMinutes ?? 60,
-    "cwa",
-  );
-  useNuclearLayer(mapRef, layerVisibility.nuclearRadiation);
-
-  // ── 急診壅塞（當下快照，比照核安 LIVE）──
-  useErHospitalLayer(mapRef, layerVisibility.erHospital);
-  useLibrarySeatsLayer(mapRef, layerVisibility.librarySeats);
-
-  // ── 停車 Parking（路邊 + 場外 當下快照，比照急診 LIVE）──
-  useParkingLayer(mapRef, layerVisibility.parkingOnstreet, layerVisibility.parkingOffstreet, timeline.timeMode);
-
-  // ── News timeline (time-based filter + ripple animation) ──
-  useNewsTimeline(mapRef, layerVisibility.newsEvents, transportParams.newsTimeBased, transportParams.newsRipple);
-
-  // ── Earthquake events timeline ──
-  useEarthquakeLayer(
-    mapRef,
-    layerVisibility.earthquakes,
-    transportParams.eqOpacity,
-    transportParams.eqShowHistory,
-  );
 
   // ── 地震回放（scoped 播放器，時鐘在 earthquakeReplayClock，不掛 timeStore）──
+  //    state 留在 App（EarthquakeReplayPanel 綁它），圖層本體在 LayerHost
   const [eqReplaySelectedId, setEqReplaySelectedId] = useState<string | null>(null);
   const [eqReplayPlaying, setEqReplayPlaying] = useState(false);
-  useEarthquakeReplayLayer(
-    mapRef,
-    layerVisibility.earthquakeReplay,
-    transportParams.eqReplayOpacity,
-    eqReplaySelectedId,
-    eqReplayPlaying,
-    useCallback(() => setEqReplayPlaying(false), []),
-  );
-
-  // ── 全球氣候 GLOBAL CLIMATE（migration 261）──
-  // earthquakesGlobal（USGS）+ typhoonTracks（JMA/JTWC）走 Supabase；
-  // windField / oceanCurrents / dustForecast 讀 public/climate/*_latest.png UV/raster
-  //（scripts/preprocess/extract_climate_uv.py 烤圖，S3 deploy-assets/climate/ 同步）。
-  useEarthquakesGlobalLayer(
-    mapRef,
-    layerVisibility.earthquakesGlobal,
-    transportParams.overlayParams.earthquakesGlobalOpacity ?? 0.9,
-  );
-  useTyphoonTracksLayer(
-    mapRef,
-    layerVisibility.typhoonTracks,
-    transportParams.overlayParams.typhoonTracksOpacity ?? 0.9,
-    (["all", "jma", "jtwc"][transportParams.overlayParams.typhoonSourceIdx ?? 0] ?? "all") as TyphoonSource,
-  );
-
-  // ── 🌍 世界 WORLD：全球垃圾殘骸（Outerview 靜態 GeoJSON，載一次，不接 timeline）──
-  useWorldTrashDebrisLayer(
-    mapRef,
-    layerVisibility.worldTrashDebris,
-    transportParams.overlayParams.worldTrashDebrisOpacity ?? 0.85,
-  );
-
-  const windBaseOpacity = transportParams.overlayParams.windFieldOpacity ?? 0.8;
-  const oceanBaseOpacity = transportParams.overlayParams.oceanCurrentsOpacity ?? 0.65;
-
-  // 風場：地理座標 WebGL instanced 細線，全 zoom 涵蓋（drape 已移除，mercator 投影下線層各 zoom 皆正確）。
-  useClimateParticleLineLayer(mapRef, {
-    layerId: "climate-windfield",
-    pngUrl: "/climate/wind10m_latest.png",
-    metaUrl: "/climate/wind10m_latest.json",
-    frameDataset: "wind10m",
-    statusKey: "windField",
-    visible: layerVisibility.windField,
-    opacity: windBaseOpacity,
-    animationSpeed: transportParams.overlayParams.windAnimationSpeed ?? 1.0,
-    particleCount: Math.floor(transportParams.overlayParams.windParticleCount ?? 7_000),
-    lineWidth: transportParams.overlayParams.windLineWidth ?? 1.15,
-    speedMax: WIND_SPEED_MAX,
-    rampColors: WIND_FIELD_RAMP,
-    timeScaleSeconds: 18_000,
-    trailPoints: 22,
-    particleAlpha: 0.66,
-  });
-
-  // 海流：地理座標 WebGL instanced 細線 + strict ocean mask，全 zoom 涵蓋。
-  useClimateParticleLineLayer(mapRef, {
-    layerId: "climate-ocean-currents",
-    pngUrl: "/climate/currents_latest.png",
-    metaUrl: "/climate/currents_latest.json",
-    frameDataset: "currents",
-    statusKey: "oceanCurrents",
-    visible: layerVisibility.oceanCurrents,
-    opacity: oceanBaseOpacity,
-    animationSpeed: transportParams.overlayParams.oceanAnimationSpeed ?? 1.0,
-    particleCount: Math.floor(transportParams.overlayParams.oceanParticleCount ?? 8_000),
-    lineWidth: transportParams.overlayParams.oceanLineWidth ?? 1.05,
-    speedMax: OCEAN_SPEED_MAX,
-    rampColors: OCEAN_CURRENTS_RAMP,
-    timeScaleSeconds: 86_400,
-    trailPoints: 20,
-    maskErodePx: 1,
-    particleAlpha: 0.62,
-  });
-
-  // 沙塵預報 raster overlay（CAMS duaod550 預烤棕色色階 + alpha mask）
-  useDustForecastLayer(
-    mapRef,
-    layerVisibility.dustForecast,
-    transportParams.overlayParams.dustForecastOpacity ?? 0.7,
-  );
-
-  // ── NCDR Disaster Alerts timeline（5 主題群組共用 source）──
-  useDisasterAlertLayer(
-    mapRef,
-    {
-      lifelineAlerts: layerVisibility.lifelineAlerts,
-      floodAlerts: layerVisibility.floodAlerts,
-      weatherAlerts: layerVisibility.weatherAlerts,
-      transitAlerts: layerVisibility.transitAlerts,
-      safetyAlerts: layerVisibility.safetyAlerts,
-    },
-    transportParams.daOpacity,
-  );
+  const stopEqReplay = useCallback(() => setEqReplayPlaying(false), []);
 
   // ── 共機活動區（航跡示意圖向量化；依日期回放 + 30/60/90/120 天疊加）──
   //
@@ -1190,151 +749,12 @@ export default function App() {
     );
   }, [appMode, historicalYear, historicalMonth, historicalDay, historicalGranularity]);
 
-  usePlaActivityLayer(
-    mapRef,
-    layerVisibility.plaActivity,
-    transportParams.plaOpacity,
-    transportParams.plaShowReview,
-    transportParams.plaTrailDays,
-    appMode === "realtime" && transportParams.plaReplay,
-    plaHistoricalDate,
-  );
+  // 共機活動區 / 衛星 / 路況 / 火災 / 清潔隊 / 地形 raster / 坡度坡向 /
+  // 氣象空品影像 / 壅塞 / 殯葬密度 / 溫度網格的 hook 全部搬進 LayerHost
+  //（見 layerHookRegistry；hostDeps 帶入 plaHistoricalDate 等跨切面依賴）
 
-  // ── 衛星圖層（Supabase satellite_classified + SGP4 即時計算） ──
-  useSatellitesLayer(mapRef, {
-    visibility: {
-      china_yaogan: layerVisibility.satellitesYaogan,
-      china_jilin: layerVisibility.satellitesJilin,
-      china_gaofen: layerVisibility.satellitesGaofen,
-      china_tjs: layerVisibility.satellitesTJS,
-      china_beidou: layerVisibility.satellitesBeidou,
-      china_shiyan: layerVisibility.satellitesShiyan,
-      taiwan: layerVisibility.satellitesTaiwan,
-      usa: layerVisibility.satellitesUSA,
-      japan: layerVisibility.satellitesJapan,
-      russia: layerVisibility.satellitesRussia,
-      india: layerVisibility.satellitesIndia,
-      korea: layerVisibility.satellitesKorea,
-      france: layerVisibility.satellitesFrance,
-      germany: layerVisibility.satellitesGermany,
-      italy: layerVisibility.satellitesItaly,
-      israel: layerVisibility.satellitesIsrael,
-    },
-    opacity: transportParams.satOpacity,
-    consoleFilter: satConsole.open
-      ? { featuredNorads: maneuverNorads, showAllOrbits: satConsole.showAllOrbits }
-      : null,
-  });
-
-  // ── TDX 即時路況事件 timeline ──
-  useRoadEventsLayer(
-    mapRef,
-    layerVisibility.roadEvents,
-    transportParams.reOpacity,
-  );
-
-  // ── 火災歷史事件（僅在 historical mode + toggle 開啟時實際 fetch） ──
-  useFireEventsLayer(
-    mapRef,
-    appMode === "historical" && layerVisibility.fireEvents,
-    historicalYear,
-    historicalMonth,
-    historicalDay,
-    historicalGranularity,
-    isDarkTheme,
-    transportParams.overlayParams.fireEventsOpacity ?? 1,
-  );
-
-  // ── 火災最新年度（任何模式可見，不需歷史時間軸）──
-  useFireLatestLayer(
-    mapRef,
-    layerVisibility.fireLatest,
-    isDarkTheme,
-    transportParams.overlayParams.fireLatestOpacity ?? 1,
-  );
-
-  // ── 全國清潔隊辦公點 359 / 23 縣市（spatial.waste_cleaning_squads）──
-  useWasteCleaningSquadLayer(
-    mapRef,
-    layerVisibility.wasteCleaningSquads,
-    isDarkTheme,
-  );
-
-  // ── Base map 地形 raster（hillshade，單張 PNG 預烤 colormap）──
-  useStaticRasterLayer({
-    mapRef,
-    sourceId: "base-hillshade-src",
-    layerId: "base-hillshade-layer",
-    url: "./base_map/hillshade.png",
-    bbox: TERRAIN_BBOX,
-    visible: layerVisibility.hillshade,
-    opacity: transportParams.hillshadeOpacity,
-  });
-
-  // ── 坡度 / 坡向分級向量（PMTiles polygon，可點選 / 疊圖）──
-  useSlopeVectorLayer(
-    mapRef,
-    layerVisibility.slopeVector,
-    transportParams.slopeVectorOpacity,
-    mapStyleId,
-  );
-  useAspectVectorLayer(
-    mapRef,
-    layerVisibility.aspectVector,
-    transportParams.aspectVectorOpacity,
-    mapStyleId,
-  );
-
-  // ── CWA 衛星雲圖 / 雷達回波 ──
-  useCwaImageryLayer({
-    mapRef,
-    cloudVisible: layerVisibility.cwaCloudImagery,
-    radarVisible: layerVisibility.cwaRadarImagery,
-    cloudOpacity: transportParams.cwaCloudOpacity,
-    radarOpacity: transportParams.cwaRadarOpacity,
-  });
-
-  // ── 空氣品質：色階 raster + 77 站 + LASS 微型感測 ──
+  // ── 空氣品質色階 raster 的 product 切換（AqiProductSwitcher 綁它，state 留在 App）──
   const [aqiProduct, setAqiProduct] = useState<AqiProduct>("AQI");
-  useAqiImageryLayer({
-    mapRef,
-    visible: layerVisibility.aqiImagery,
-    product: aqiProduct,
-    opacity: transportParams.aqiImageryOpacity,
-  });
-  useAqiStationsLayer(mapRef, layerVisibility.aqiStations, isDarkTheme);
-  useMicroSensorsLayer(mapRef, layerVisibility.aqiMicroSensors, isDarkTheme, transportParams.aqiMicroCluster, transportParams.aqiMicroModeIdx);
-
-  // ── Freeway congestion (動態 timeline 回放) ──
-  useFreewayLayer(
-    mapRef,
-    layerVisibility.freewayCongestion,
-    transportParams.overlayParams.freewayWidth ?? 1,
-    isDarkTheme,
-  );
-
-  // ── 省道路況 v1（PMTiles + feature-state 染色） ──
-  useRoadCongestionLayer(
-    mapRef,
-    layerVisibility.roadCongestion,
-    transportParams.overlayParams.roadCongestionWidth ?? 1,
-    transportParams.overlayParams.roadCongestionOpacity ?? 0.85,
-  );
-
-  // ── 殯葬業者區級密度（無幾何 → join 鄉鎮界 PMTiles + feature-state 染色） ──
-  useFuneralDensityLayer(
-    mapRef,
-    layerVisibility.funeralOperatorDensity,
-    transportParams.overlayParams.funeralOperatorDensityOpacity ?? 0.6,
-  );
-
-  // ── 溫度網格 2D（Mapbox fill + feature-state 染色，與 3D 溫度波共用資料） ──
-  useTemperatureGridLayer(
-    mapRef,
-    temperatureData,
-    layerVisibility.temperatureGrid,
-    transportParams.tempGridOpacity,
-  );
 
   // 地圖首次渲染完成（idle 或 4s 保底）— 需在下方 waste lazy setup effect 之前宣告
   const [mapPrepared, setMapPrepared] = useState(false);
@@ -1897,6 +1317,48 @@ export default function App() {
   // 之後使用者 toggle 動態圖層的 loading 由 loadingRegistry 的小型 indicator 處理，
   // 不再用 full-screen splash 蓋整個畫面（會打斷已經在用地圖的使用者）。
   const showLoadingScreen = !loadingTimedOut && !dismissedLoading;
+
+  // ── LayerHost 的跨切面依賴（AR-22 P1）────────────────────────────
+  // 圖層自己的參數**不在這裡** —— 每個 Host 用 `useLayerParams(key)` 自己訂閱。
+  // ⚠️ 刻意不 memo：Host 沒有 React.memo，identity 換不換都會重跑，
+  //    加 memo 只是多一份 deps 清單要維護（且漏一項就是靜默不更新）。
+  const hostDeps: LayerHostDeps = {
+    mapRef,
+    layerVisibility,
+    isDarkTheme,
+    mapStyleId,
+    timeMode: timeline.timeMode,
+
+    appMode,
+    historicalYear,
+    historicalMonth,
+    historicalDay,
+    historicalGranularity,
+    historicalPlaying,
+    historicalSpeed,
+    plaHistoricalDate,
+
+    realEstateActive,
+    reGran,
+    reCursorTs,
+    onReCursorChange: setReCursorTs,
+    onHistoricalStop: stopHistorical,
+
+    featureInfo,
+    activeReservoirId,
+    aqiProduct,
+    eqReplaySelectedId,
+    eqReplayPlaying,
+    onEqReplayEnd: stopEqReplay,
+    satConsoleOpen: satConsole.open,
+    satShowAllOrbits: satConsole.showAllOrbits,
+    maneuverNorads,
+
+    temperatureData,
+    reservoirSceneRef,
+    reservoirStatusesRef,
+    powerDashboardRef,
+  };
 
   return (
     <div style={{ position: "relative", width: "100vw", height: "100vh" }}>
@@ -3143,6 +2605,15 @@ export default function App() {
 
       {/* ── 資料來源總覽（Step 4 SSOT bridge UI，右下浮動按鈕）── */}
       <DataSourceBrowser isDarkTheme={isDarkTheme} />
+
+      {/*
+        ── 圖層掛載（AR-22 P1）────────────────────────────────────
+        67 支 layer hook 由 layerHookRegistry 的有序陣列驅動，不再手寫在上方。
+        ⚠️ **放在最後是刻意的**：effect 是 children 先於 parent，掛在末尾時
+        觸發順序（其他子元件 → LayerHosts → App 自己）與搬移前差異最小。
+        理由詳見 src/layers/LayerHost.tsx 檔頭。
+      */}
+      <LayerHosts deps={hostDeps} />
     </div>
   );
 }
