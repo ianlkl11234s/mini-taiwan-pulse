@@ -2,6 +2,10 @@
 
 **最後更新**：2026-08-12 晚場（**Layer Manifest 未竟清單全數結案**：PR #131 merged＋S3 六檔上傳驗證）
 
+> 🎯 **下一批 W1~W6 已定稿並拍板**（staticAssets 追認／popup 29+6／盲區表／snapshot-to-CDN／
+> AI-1／關單快贏）→ **交接文件 [`docs/proposal/next-batch-handoff-2026-08-12.md`](../../docs/proposal/next-batch-handoff-2026-08-12.md)**，
+> 新 session 從那份開工（含環境警告與拍板點）。
+
 | repo | 狀態 |
 |---|---|
 | **mini-taiwan-pulse** | `master` = `a037a45`（#131 merge commit，**刻意不 squash**——⚠️ 平行 session 的 `feat/vessel-watch` 基於 #131 整合分支開發中，squash 會害它 rebase）。⚠️ **主樹被平行 session 佔用**（feat/vessel-watch，未提交改動），memory 收尾走獨立 worktree。三條 track 分支（feat/ar22-layerhost 等）已 merge 可清 |
