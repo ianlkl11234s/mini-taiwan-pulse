@@ -148,7 +148,7 @@ export type LayerSource =
    * 無 OVERLAY_REGISTRY entry（Three.js CustomLayer 等）—— note 說明資料實際從哪來。
    *
    * `staticAssets`：本層自己 fetch 的**靜態檔相對路徑**，寫法同 `url`（`"./dir/file"`）。
-   * ⚠️ **代拍板（待 owner 追認）**：其他三種 kind 的檔路徑都在結構化欄位（`url` /
+   * ✅ **已追認（2026-08-12 owner）**：其他三種 kind 的檔路徑都在結構化欄位（`url` /
    * `fallbackUrl`）裡，只有 `custom` 把它埋在 `note` 的自由文字中 —— 而 `custom`
    * 恰好是**唯一沒有 OVERLAY_REGISTRY 可交叉驗證**的那種，等於部署契約檢查最需要
    * 機械枚舉的一群反而只剩人腦。觸點 #20 的 5 個缺口（hillshade / flood /

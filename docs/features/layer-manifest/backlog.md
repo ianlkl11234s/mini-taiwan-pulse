@@ -241,7 +241,7 @@
 - [x] **觸點 #20 機械斷言 —— 2026-08-12 完成**（feat/deploy-contract-manifest，4 commits）。
       `deployContract.test.ts` 92 → 301 行：枚舉來源改 **manifest 驅動**（`source.url` ＋
       `fallbackUrl` ＋ 新增 `staticAssets?: string[]` 結構化欄位共 191 條路徑，26 entry
-      的 note 藏路徑全數結構化，**staticAssets schema 為代拍待 owner 追認**）；
+      的 note 藏路徑全數結構化，**staticAssets schema 已追認（2026-08-12 owner）**）；
       **雙向斷言**（正向逐檔建模 nginx 最長前綴匹配；反向抓「推上 S3 但 nginx 讀不到」）；
       三分類（部署／`DEPLOY_EXEMPT_LEDGER` 雙向凍結／`_empty.geojson` 空殼），另立
       `EXTERNAL_UPLOAD_LEDGER`（police_justice 上傳管線在 analytics）。紅燈演練 4/4。
