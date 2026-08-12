@@ -166,11 +166,16 @@
 - [ ] **`App.tsx` 漏 call hook 仍是靜默失敗**（5 個靜默點裡唯一沒解的，現況 4.5/5）。
       manifest 不記 hook 名，grep `App.tsx` 是會誤報的脆弱護欄 → **刻意不蓋**。
       正解是「55 個手寫 `use*Layer()` 呼叫改成 manifest 驅動的迴圈」，獨立一棒。
-- [ ] **`fireHydrants` catalog 缺口**（pre-existing・跨 repo・另案）：manifest 宣告
-      `datasetId: "fire_hydrants"` 但 analytics 端沒有該 dataset 文件 →
-      **主樹**跑 `upstreamRegistry.test.ts` 會有這一筆紅（worktree 會整支 skip，
-      就是測試總數裡那個 `1 skipped`）。⚠️ **不要改 manifest 讓它變綠** ——
-      照跨 repo 同步順序，先在 analytics 補 catalog entry。
+- [x] ~~**`fireHydrants` catalog 缺口**~~ —— 2026-08-12 結案，**根因不是缺口是改名**：
+      analytics 2026-08-11 的「fire 三軌統一」(`211f68a`) 把
+      `docs/data-catalog/environment/fire_hydrants.md`（無 frontmatter，id 靠檔名 fallback）
+      併進 `docs/data-catalog/fire/hydrants.md`（`dataset_id: hydrants`／registry `fire.hydrants`，
+      且其 `used_by_pulse_layers` 已寫 `[fireHydrants]`）並刪掉舊檔。
+      「上游先動」在那一刻就已發生，故本項的正解是下游跟改名（比照 `c016f15` B170），
+      manifest datasetId `fire_hydrants` → `hydrants`；analytics 端**零改動**。
+      pmtiles 檔名／source-layer 保留舊名不動（二進位烙印）。
+      殘留待掃：analytics `docs/data-catalog/_pending_source_urls.md` 第 18–19 列仍指
+      `environment/fire_hydrants.md`／`environment/fire_stations.md` 兩個已刪檔（analytics 側另案）。
 - [ ] **`scripts/audit/06_apply_to_pulse.py` 未同步改寫**（跨 repo，見
       [handoff.md](./handoff.md)）：它原本從 analytics 的 `match_final.csv` 產
       `upstreamRegistry.ts`，但現在只會覆蓋**已經空掉**的 `HANDWRITTEN_UPSTREAM`

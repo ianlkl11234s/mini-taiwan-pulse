@@ -850,7 +850,11 @@ export const LAYER_MANIFEST = {
     icon: Droplet,
     upstream: {
       status: "verified",
-      datasets: [{ datasetId: "fire_hydrants", confidence: "MED" }],
+      // analytics 2026-08-11「fire 三軌統一」(211f68a) 把 environment/fire_hydrants.md
+      // 併進 fire/hydrants.md（registry id `fire.hydrants`，catalog dataset_id `hydrants`），
+      // 舊檔已刪 → 此處跟著改名。下方 pmtiles 檔名／source-layer **刻意保留舊名**
+      // （二進位烙印，上游重產才會變），同 c016f15 的處置。
+      datasets: [{ datasetId: "hydrants", confidence: "MED" }],
     },
     dataClass: "B",
     source: {
