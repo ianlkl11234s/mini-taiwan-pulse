@@ -6990,7 +6990,10 @@ export const LAYER_MANIFEST = {
       staticAssets: ["./agriculture/ftw_fields_2025.pmtiles"],
     },
     legend: null,
-    popup: null,
+    // W2：切片只帶 tippecanoe 白名單 4 欄（field_id / confidence_mean / area_ha /
+    // source_tile）。confidence_mean 實測值域僅 [0.500, 0.581]（上游 catalog 明載
+    // 上限 0.6）→ panel 不畫成 0~100% 進度條，並揭露「AI 推論非法定分區、會高估」。
+    popup: "agricultureField",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "全台農田範圍（FTW Fields 2025，38.6 萬田區）",
     topics: ["農業", "農地", "面"],
@@ -7681,7 +7684,10 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2：與 provincialRoads 同一份內政部道路中線 schema（22 欄），共用 MoiRoadBody
+    // 但分開 layerType 讓 header 標得出「國道／省道」。ROADALIAS 0% 空（中山高／福爾摩沙）
+    // 是最穩定的可讀名稱；ROADNAME 只在交流道／服務區有值。
+    popup: "highway",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "國道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "國道"],
@@ -7737,7 +7743,10 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2：地圖上沒有 symbol label，「這是台幾線」在此之前無法得知 → ROADNUM 當標題。
+    // 代碼語意（ROADCLASS1/2、ROADSTRUCT、MDATE）出自內政部通用電子地圖圖層內容說明
+    // 附表1；WIDTH / ROADCOMNUM / DIR 三欄語意存疑，panel 刻意不顯示（見 roadPanels 註解）。
+    popup: "provincialRoad",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "省道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "省道"],
@@ -7757,7 +7766,10 @@ export const LAYER_MANIFEST = {
     dataClass: "A",
     source: { kind: "geojson", sourceId: "cycling-routes", url: "./geo/cycling_routes.geojson" },
     legend: null,
-    popup: null,
+    // W2：本群欄位最豐富的一層（起訖路段 + 長度 + 方向）。
+    // CyclingType / AuthorityName 上游回傳字串字面 "NULL"（1,749 筆全部）、
+    // FinishedTime 有 ROC→西元轉換 bug（24.4% 壞值）→ panel 皆已擋掉。
+    popup: "cyclingRoute",
     params: { count: 1, kinds: ["slider"] },
     description: "自行車道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "自行車"],

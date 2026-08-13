@@ -246,3 +246,41 @@ export function EcoNetworkZonesPanel({ props }: { props: Record<string, unknown>
     </>
   );
 }
+
+/**
+ * FTW 田區（PMTiles `fields`，386,829 面）。
+ *
+ * 欄位語意真值來源：taipei-gis-analytics/docs/data-catalog/agriculture/ftw_fields_2025.md
+ * （欄位表 ＋「已知陷阱」段），數值範圍以該 pipeline 的 parquet SSOT 實測覆核。
+ * 切片只帶 tippecanoe 白名單的 4 欄：field_id / confidence_mean / area_ha / source_tile。
+ *
+ * ⚠️ confidence_mean **不可畫成 0~100% 進度條**：實測值域是 [0.500001, 0.580953]
+ *    （catalog 的「已知陷阱」明載 confidence 上限只到 0.6），模型未做 0~1 校準，
+ *    0.5 是篩選門檻不是「五成把握」。因此只標數字並註明區間。
+ * ⚠️ 這是衛星 AI 推論結果，**不是法定農業分區**，且會把公園／規則形狀空地誤判為田區
+ *    （catalog 明載會高估）→ 面板底部必須揭露，不能讓使用者當權威農地面積用。
+ */
+export function AgricultureFieldPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const areaHa = Number(props.area_ha);
+  const conf = Number(props.confidence_mean);
+  const tile = String(props.source_tile ?? "");
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.sm, background: "#7cb342", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {Number.isFinite(areaHa) ? `${areaHa.toFixed(3)} 公頃` : "田區"}
+        </div>
+      </div>
+      {Number.isFinite(conf) ? (
+        <Row label="模型信心" value={`${conf.toFixed(3)}（值域 0.5–0.6）`} />
+      ) : null}
+      {tile && <Row label="來源圖幅" value={tile} />}
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6, lineHeight: 1.5 }}>
+        Fields of The World 衛星 AI 推論結果，非法定農業分區；
+        公園與規則形狀空地可能被誤判，面積會高估。
+      </div>
+    </>
+  );
+}

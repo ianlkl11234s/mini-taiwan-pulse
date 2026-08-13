@@ -26,7 +26,10 @@ import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipei
 import {
   NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel, PlaActivityPanel,
 } from "./eventPanels";
-import { RoadCongestionPanel, FreewayCongestionPanel } from "./roadPanels";
+import {
+  RoadCongestionPanel, FreewayCongestionPanel,
+  ProvincialRoadPanel, HighwayPanel, CyclingRoutePanel,
+} from "./roadPanels";
 import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
 import {
   WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel, WasteStopsStaticPanel,
@@ -34,6 +37,7 @@ import {
 import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
+  AgricultureFieldPanel,
 } from "./agriPanels";
 import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel, MountainHutPanel } from "./forestryPanels";
 import {
@@ -163,6 +167,9 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
   freewayCongestion: FreewayCongestionPanel,
+  provincialRoad: ProvincialRoadPanel,
+  highway: HighwayPanel,
+  cyclingRoute: CyclingRoutePanel,
   aqiStation: AqiStationPanel,
   microSensor: MicroSensorPanel,
   waterFacility: WaterFacilityPanel,
@@ -205,6 +212,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
+  agricultureField: AgricultureFieldPanel,
   agriSoil: AgriSoilPanel,
   agriSoilFertility: AgriSoilFertilityPanel,
   agriLeisureFarmZones: AgriLeisureFarmZonesPanel,
@@ -411,6 +419,9 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   roadEvent: "即時路況",
   roadCongestion: "省道路況",
   freewayCongestion: "國道壅塞",
+  provincialRoad: "省道",
+  highway: "國道",
+  cyclingRoute: "自行車道",
   aqiStation: "空氣品質測站",
   microSensor: "微型感測器",
   waterFacility: "水利設施",
@@ -441,6 +452,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   wasteStopsStatic: "清運點位",
   agriPOI: "農業 POI",
   agriRuralRegen: "農村再生社區",
+  agricultureField: "農田範圍",
   agriSoil: "土壤分類",
   agriSoilFertility: "土壤肥力",
   agriLeisureFarmZones: "休閒農業區",

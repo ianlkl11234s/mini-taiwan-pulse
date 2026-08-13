@@ -303,6 +303,13 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // 流域只有輪廓線沒有 fill，不會擋住面內任何東西
   { layers: ["water-basins-line"], type: "waterBasins" },
   { layers: ["water-protection-zones-fill"], type: "waterProtectionZones" },
+  // 🛣️ 內政部道路中線 + 自行車道（W2）—— 三層都排在下方 OSM 路網之前：
+  //    同一條路上兩份切片會重疊，具體的「台1線／國1／某某自行車道」要贏過泛用的 OSM「道路」。
+  //    三層彼此幾何不重疊（國道 / 省道 / 自行車道），內部先後對結果無影響。
+  //    收 `-glow`（較寬）與 `-line` 兩層：±5px bbox 對 z6 的 0.5px 細線命中率仍偏低。
+  { layers: ["national-highways-glow", "national-highways-line"], type: "highway" },
+  { layers: ["provincial-roads-glow", "provincial-roads-line"], type: "provincialRoad" },
+  { layers: ["cycling-routes-glow", "cycling-routes-line"], type: "cyclingRoute" },
   // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
   // 快速道路（trunk 子集，5.6 萬 edges）排在 osm_road_drive（55 萬 edges）之前：
   // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。
@@ -368,4 +375,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["edu-district-k12-elementary-fill", "edu-district-k12-junior-fill"], type: "eduDistrictK12" },
   // 🎓 高中就學區：15 個面覆蓋全台，最不該搶點擊 → 整個陣列的最末
   { layers: ["edu-district-senior-fill"], type: "eduDistrictSenior" },
+  // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
+  //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
+  //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
+  { layers: ["agri-ftw-fields-fill"], type: "agricultureField" },
 ];

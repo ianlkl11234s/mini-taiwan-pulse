@@ -187,8 +187,6 @@ const NO_LEGEND_LEDGER = new Set([
 const NO_POPUP_LEDGER = new Set([
   // 交通 Move —— rail / flights / bus 三族走 Three.js scene picking（非 GIS_LAYERS）
   "rail", "flights", "busLive", "busIntercityLive", "touristShuttleLive",
-  // 交通 Move —— 純線層 / 站點僅作定位
-  "highways", "provincialRoads", "cyclingRoutes",
   "canopyHeight",                                    // 林業：raster 樹冠高度
   // 房地產：格點/點位圖層，數值直接以顏色表達（6 層同族）
   "realEstateRentalGrid", "realEstateRentalPoint",
@@ -206,7 +204,6 @@ const NO_POPUP_LEDGER = new Set([
   "waterFloodExtreme", "precipRaster",
   // 廢棄物：清運車與排程走 wasteMapboxLayers 自掛 handler / 裝飾性特效
   "wasteTruck", "wasteSchedule", "wasteScheduleNote",
-  "agriculture",                                     // 農業：全台耕地底圖面
   // 能源：glow 光暈層疊在既有可點層上（點擊由底下那層接）＋ 桿線 ＋ 風場規劃區
   "powerPlantGlow", "aviationRestrictedGlow", "powerPoles", "powerLinesGlow",
   "substationEhvGlow", "windPlan",

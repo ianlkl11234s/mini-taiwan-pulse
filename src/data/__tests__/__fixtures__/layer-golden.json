@@ -1379,6 +1379,27 @@
     },
     {
       "layers": [
+        "national-highways-glow",
+        "national-highways-line"
+      ],
+      "type": "highway"
+    },
+    {
+      "layers": [
+        "provincial-roads-glow",
+        "provincial-roads-line"
+      ],
+      "type": "provincialRoad"
+    },
+    {
+      "layers": [
+        "cycling-routes-glow",
+        "cycling-routes-line"
+      ],
+      "type": "cyclingRoute"
+    },
+    {
+      "layers": [
         "base-osm-expressway-line"
       ],
       "type": "osmExpressway"
@@ -1652,6 +1673,12 @@
         "edu-district-senior-fill"
       ],
       "type": "eduDistrictSenior"
+    },
+    {
+      "layers": [
+        "agri-ftw-fields-fill"
+      ],
+      "type": "agricultureField"
     }
   ],
   "overlays": [
