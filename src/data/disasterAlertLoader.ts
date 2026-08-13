@@ -193,6 +193,32 @@ function geometryCenter(geom: GeoJSON.Geometry): [number, number] | null {
   return [(minX + maxX) / 2, (minY + maxY) / 2];
 }
 
+/**
+ * 逐 part 的 bbox 中心（pulse 錨點用）
+ *
+ * 大面積特報常是**散布**的 MultiPolygon（例：高溫特報只涵蓋北部與台東兩塊），
+ * 整體 bbox 中心會落在兩塊之間的空白處 —— 環會閃在沒發警報的地方。
+ * 故 pulse 改成每個 part 各放一顆錨點。
+ */
+function geometryPartCenters(geom: GeoJSON.Geometry, max = 12): [number, number][] {
+  const out: [number, number][] = [];
+  const push = (g: GeoJSON.Geometry) => {
+    if (out.length >= max) return;
+    const c = geometryCenter(g);
+    if (c) out.push(c);
+  };
+  if (geom.type === "GeometryCollection") {
+    for (const g of geom.geometries) push(g);
+  } else if (geom.type === "MultiPolygon") {
+    for (const poly of geom.coordinates) {
+      push({ type: "Polygon", coordinates: poly });
+    }
+  } else {
+    push(geom);
+  }
+  return out;
+}
+
 /** 觸發地圖 pulse 的 severity（CAP 原文值） */
 const PULSE_SEVERITY = new Set(["Severe", "Extreme"]);
 
@@ -248,17 +274,23 @@ export function alertsToGeoJSON(
       geometry: a.geometry,
       properties: { ...properties, is_pt: 0 },
     });
-    const needsAnchor = ALERT_GROUPS[group].emitPoints || pulse === 1;
-    if (needsAnchor) {
+    if (ALERT_GROUPS[group].emitPoints) {
+      // 小範圍事件群：維持原本「整體 bbox 中心一顆點」，pulse 與底下的點同址
       const center = geometryCenter(a.geometry);
       if (center) {
         features.push({
           type: "Feature",
           geometry: { type: "Point", coordinates: center },
-          properties: {
-            ...properties,
-            is_pt: ALERT_GROUPS[group].emitPoints ? 1 : 2,
-          },
+          properties: { ...properties, is_pt: 1 },
+        });
+      }
+    } else if (pulse === 1) {
+      // 大面積特報群：平常不補點，severe 時逐 part 補 pulse 錨點
+      for (const center of geometryPartCenters(a.geometry)) {
+        features.push({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: center },
+          properties: { ...properties, is_pt: 2 },
         });
       }
     }
