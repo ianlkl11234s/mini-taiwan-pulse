@@ -4847,7 +4847,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useCwaImageryLayer：Supabase RPC get_cwa_imagery_list / get_cwa_imagery_frame 取 CWA dataset O-C0042-004 的逐時影像 → createCwaImageryLayer 建 image source + raster layer（cwa-cloud-src / cwa-cloud-layer），依 timeStore 切 frame —— 非 OVERLAY_REGISTRY",
+      note: "useCwaImageryLayer：Supabase RPC get_cwa_imagery_manifest 取 CWA dataset O-C0042-004 的逐時影像 metadata，影像本體走 R2/CDN（VITE_IMAGERY_CDN_BASE）→ createCwaImageryLayer 建 image source + raster layer（cwa-cloud-src / cwa-cloud-layer），依 timeStore 切 frame —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
     popup: null,

@@ -604,8 +604,8 @@ function FeatureLegendPage({ lang }: { lang: Lang }) {
         <Card title={L ? "衛星雲圖 Cloud Imagery" : "Cloud Imagery"}>
           <div style={{ color: c.text, fontSize: FONT_SIZE.md }}>
             {L
-              ? "預設開啟。CWA 衛星雲圖 PNG frame 序列，依 timeline 回放最近 24 小時。資料源：CWA File API `O-C0042-*` → Supabase `realtime.cwa_imagery_frames`（透過 `get_cwa_imagery_frames_batch` 批次 RPC 一次載入所有 frame bytes）。"
-              : "Enabled by default. CWA satellite cloud imagery PNG frame sequence, played back along the timeline over the last 24 hours. Source: CWA File API `O-C0042-*` → Supabase `realtime.cwa_imagery_frames` (loaded via `get_cwa_imagery_frames_batch` batch RPC)."}
+              ? "預設開啟。CWA 衛星雲圖 PNG frame 序列，依 timeline 回放最近 24 小時。資料源：CWA File API `O-C0042-*` → Supabase `live.cwa_imagery_frames`（`get_cwa_imagery_manifest` 批次 RPC 取 metadata，影像本體走 R2/CDN）。"
+              : "Enabled by default. CWA satellite cloud imagery PNG frame sequence, played back along the timeline over the last 24 hours. Source: CWA File API `O-C0042-*` → Supabase `live.cwa_imagery_frames` (metadata via the `get_cwa_imagery_manifest` batch RPC; image bytes served from R2/CDN)."}
           </div>
         </Card>
         <Card title={L ? "雷達回波 Radar Imagery" : "Radar Imagery"}>

@@ -1,22 +1,32 @@
 /**
- * cwaImageryLoader.ts — 載入 CWA 衛星雲圖 / 雷達影像（Supabase RPC）
+ * cwaImageryLoader.ts — 載入 CWA 衛星雲圖 / 雷達影像（metadata 走 Supabase RPC、bytes 走 R2/CDN）
  *
  * 流程：
- *   1. loadCwaImageryFrames() → 呼叫 get_cwa_imagery_list，取得過去 N 小時的 metadata
- *   2. fetchCwaImageryBytes() → 對每個 frame 呼叫 get_cwa_imagery_frame，回傳 base64
- *   3. 呼叫端負責把 base64 → Blob → object URL，並以 Map 快取
+ *   1. loadCwaImageryBatch() → 呼叫 get_cwa_imagery_manifest，一次取回時間窗內的 metadata + image_key
+ *   2. frame URL = `${VITE_IMAGERY_CDN_BASE}/${image_key}`，由 <img> / updateImage() 直接取用
+ *
+ * AR-11e：DB bytea 讀取路徑（get_cwa_imagery_frames_batch / _frame / _list）已下架，
+ * 影像只有 CDN 一條路。DB 內的 bytea 僅保留 14 天作災難備份，前端不再讀。
  */
 
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 
 /**
- * Feature flag（AR-11d）：影像 frame 讀取路徑。
- * - 有值 → 走 R2/CDN，打 get_cwa_imagery_manifest，frame URL = `${base}/${image_key}`（不產 object URL）
- * - 未設 → 走既有 base64 路徑，打 get_cwa_imagery_frames_batch（預設安全，merge 後行為零變化）
- * 切換方式：設 env + rebuild。尾斜線先剝除，避免拼出 `base//key`。
+ * 影像 frame 的 CDN base（AR-11d 導入、AR-11e 起為**必要設定**）。
+ * frame URL = `${base}/${image_key}`。尾斜線先剝除，避免拼出 `base//key`。
+ * 未設 → 影像圖層停用並丟出帶指引的錯誤（不再靜默回退 DB bytea）。
  */
 const IMAGERY_CDN_BASE = (import.meta.env.VITE_IMAGERY_CDN_BASE ?? "").replace(/\/+$/, "");
+
+/** 未設定時在 console 留一次醒目說明（loader 於 App 啟動鏈被 import，dev 一開就看得到）。 */
+if (!IMAGERY_CDN_BASE) {
+  console.error(
+    "[CWA Imagery] VITE_IMAGERY_CDN_BASE 未設定 → 衛星雲圖 / 雷達影像圖層不會有畫面。\n" +
+      "AR-11e 起影像只從 R2/CDN 讀取，DB bytea fallback 已移除。\n" +
+      "請複製 .env.example 的 VITE_IMAGERY_CDN_BASE 到 .env.local 後重啟 dev server。",
+  );
+}
 
 export interface CwaImageryFrame {
   datasetId: string;
@@ -37,18 +47,7 @@ export interface CwaImageryBundle {
   frames: CwaImageryFrame[]; // 依 observedAtMs 升序
 }
 
-interface RawBatchRow {
-  dataset_id: string;
-  observed_at: string;
-  mime_type: string;
-  lon_min: number;
-  lon_max: number;
-  lat_min: number;
-  lat_max: number;
-  image_b64: string;
-}
-
-/** get_cwa_imagery_manifest 的列：與 RawBatchRow 同構，但無 bytes、改回 image_key + image_size。 */
+/** get_cwa_imagery_manifest 的列：metadata + R2 物件 key + 位元組大小（不含 bytes）。 */
 interface RawManifestRow {
   dataset_id: string;
   observed_at: string;
@@ -71,23 +70,25 @@ export interface CwaImageryWindow {
 /**
  * 批次載入 metadata + 影像 URL（一次 RPC 回傳多張），避開「N 個並發 fetch 撐爆網路層」。
  * 時間窗由呼叫端依 timeline 日期決定（migration 160 起支援 p_until / p_step_minutes）。
- * 回傳 `{ bundle, urls }` per dataset。
+ * 回傳 `{ bundle, urls }` per dataset，url = R2 物件的 http URL（非 object URL）。
  *
- * 兩態（見 IMAGERY_CDN_BASE）：
- * - CDN 開啟 → get_cwa_imagery_manifest，url = R2 物件的 http URL（非 object URL）
- * - CDN 未設 → get_cwa_imagery_frames_batch，url = base64 → Blob → object URL
- * 兩態的參數與回傳形狀完全一致，故 cwaImageryLayer / useCwaImageryLayer 零改動。
- * 呼叫端（hook）在 evict/unmount 會對 url 呼叫 revokeObjectURL：對 CDN 的 http URL 是無害 no-op，
- * 對 object URL 則正確釋放（handoff read-path-cdn-imagery.md 已確認，故不需改 hook）。
+ * 呼叫端（hook）在 evict/unmount 會對 url 呼叫 revokeObjectURL：對 http URL 是無害 no-op
+ * （handoff read-path-cdn-imagery.md 已確認，故不需改 hook）。
  */
 export async function loadCwaImageryBatch(
   datasetIds: string[],
   window: CwaImageryWindow,
   opts: { silent?: boolean } = {},
 ): Promise<Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>> {
-  const useCdn = IMAGERY_CDN_BASE.length > 0;
-  const rpcName = useCdn ? "get_cwa_imagery_manifest" : "get_cwa_imagery_frames_batch";
-  const rpcPromise = supabase.rpc(rpcName, {
+  // 先擋掉未設定：在建 RPC promise 之前丟，避免 LOADING 面板閃一下才失敗
+  if (!IMAGERY_CDN_BASE) {
+    throw new Error(
+      "VITE_IMAGERY_CDN_BASE 未設定，CWA 影像無來源可讀（AR-11e 已移除 DB bytea fallback）。" +
+        "請依 .env.example 在 .env.local 設定影像 CDN base 後重啟 dev server。",
+    );
+  }
+
+  const rpcPromise = supabase.rpc("get_cwa_imagery_manifest", {
     p_dataset_ids: datasetIds,
     p_since: window.sinceIso,
     p_until: window.untilIso,
@@ -103,9 +104,9 @@ export async function loadCwaImageryBatch(
         rpcPromise,
       ));
 
-  if (error) throw new Error(`${rpcName}: ${error.message}`);
+  if (error) throw new Error(`get_cwa_imagery_manifest: ${error.message}`);
 
-  const rows = (data ?? []) as (RawBatchRow | RawManifestRow)[];
+  const rows = (data ?? []) as RawManifestRow[];
   const result = new Map<string, { bundle: CwaImageryBundle; urls: Map<string, string> }>();
   for (const id of datasetIds) {
     result.set(id, { bundle: { datasetId: id, frames: [] }, urls: new Map() });
@@ -114,13 +115,7 @@ export async function loadCwaImageryBatch(
   for (const r of rows) {
     const slot = result.get(r.dataset_id);
     if (!slot) continue;
-    // 共通欄位在兩型 union 皆有；bytes / key 只存在單一型別，故各自 narrow cast。
-    const url = useCdn
-      ? `${IMAGERY_CDN_BASE}/${(r as RawManifestRow).image_key}`
-      : base64ToObjectUrl((r as RawBatchRow).image_b64, r.mime_type);
-    const imageSize = useCdn
-      ? (r as RawManifestRow).image_size
-      : (r as RawBatchRow).image_b64.length;
+    const url = `${IMAGERY_CDN_BASE}/${r.image_key}`;
     slot.bundle.frames.push({
       datasetId: r.dataset_id,
       observedAtIso: r.observed_at,
@@ -130,7 +125,7 @@ export async function loadCwaImageryBatch(
       lonMax: r.lon_max,
       latMin: r.lat_min,
       latMax: r.lat_max,
-      imageSize,
+      imageSize: r.image_size,
     });
     slot.urls.set(r.observed_at, url);
   }
@@ -142,88 +137,11 @@ export async function loadCwaImageryBatch(
   return result;
 }
 
-interface RawListRow {
-  dataset_id: string;
-  observed_at: string;
-  mime_type: string;
-  lon_min: number;
-  lon_max: number;
-  lat_min: number;
-  lat_max: number;
-  image_size: number;
-}
-
-/**
- * 取得 datasetIds 清單中、過去 sinceHours 小時內的 frame metadata，依 dataset 分組。
- */
-export async function loadCwaImageryFrames(
-  datasetIds: string[],
-  sinceHours: number,
-): Promise<Map<string, CwaImageryBundle>> {
-  const since = new Date(Date.now() - sinceHours * 3600 * 1000).toISOString();
-  const key = `cwa-imagery-list:${datasetIds.join(",")}`;
-  const label = `CWA 影像清單 ${datasetIds.join("/")}`;
-
-  const { data, error } = await withLoading(
-    key,
-    label,
-    supabase.rpc("get_cwa_imagery_list", {
-      p_dataset_ids: datasetIds,
-      p_since: since,
-    }),
-  );
-
-  if (error) throw new Error(`get_cwa_imagery_list: ${error.message}`);
-
-  const rows = (data ?? []) as RawListRow[];
-  const bundles = new Map<string, CwaImageryBundle>();
-  for (const id of datasetIds) {
-    bundles.set(id, { datasetId: id, frames: [] });
-  }
-
-  for (const r of rows) {
-    const bundle = bundles.get(r.dataset_id);
-    if (!bundle) continue;
-    bundle.frames.push({
-      datasetId: r.dataset_id,
-      observedAtIso: r.observed_at,
-      observedAtMs: new Date(r.observed_at).getTime(),
-      mimeType: r.mime_type,
-      lonMin: r.lon_min,
-      lonMax: r.lon_max,
-      latMin: r.lat_min,
-      latMax: r.lat_max,
-      imageSize: r.image_size,
-    });
-  }
-
-  for (const bundle of bundles.values()) {
-    bundle.frames.sort((a, b) => a.observedAtMs - b.observedAtMs);
-  }
-
-  return bundles;
-}
-
-/**
- * 取得單一 frame 的 base64 bytes。
- */
-export async function fetchCwaImageryBytes(
-  datasetId: string,
-  observedAtIso: string,
-): Promise<string> {
-  const { data, error } = await supabase.rpc("get_cwa_imagery_frame", {
-    p_dataset_id: datasetId,
-    p_observed_at: observedAtIso,
-  });
-  if (error) throw new Error(`get_cwa_imagery_frame: ${error.message}`);
-  if (typeof data !== "string" || data.length === 0) {
-    throw new Error(`empty frame: ${datasetId}@${observedAtIso}`);
-  }
-  return data;
-}
-
 /**
  * base64 → object URL（呼叫端記得 revokeObjectURL 以免洩漏）
+ *
+ * ⚠️ CWA 影像本身已改吃 CDN URL 不再用到本函式，但 `aqiImageryLoader` / `precipRasterLoader`
+ * 仍走 base64 RPC（那兩張圖沒有 R2 副本，AR-11f 才會 CDN 化）→ 請勿刪。
  */
 export function base64ToObjectUrl(b64: string, mimeType: string): string {
   const binary = atob(b64);
@@ -231,37 +149,4 @@ export function base64ToObjectUrl(b64: string, mimeType: string): string {
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   const blob = new Blob([bytes], { type: mimeType });
   return URL.createObjectURL(blob);
-}
-
-/**
- * 帶併發限制地預載一組 frames 的 bytes，回傳 Map<observedAtIso, objectUrl>。
- */
-export async function preloadCwaImageryUrls(
-  bundle: CwaImageryBundle,
-  concurrency = 6,
-): Promise<Map<string, string>> {
-  const urls = new Map<string, string>();
-  const frames = bundle.frames;
-  let idx = 0;
-
-  const worker = async () => {
-    while (idx < frames.length) {
-      const i = idx++;
-      const f = frames[i]!;
-      try {
-        const b64 = await fetchCwaImageryBytes(f.datasetId, f.observedAtIso);
-        urls.set(f.observedAtIso, base64ToObjectUrl(b64, f.mimeType));
-      } catch (err) {
-        console.warn(`[CWA Imagery] fetch failed ${f.datasetId}@${f.observedAtIso}`, err);
-      }
-    }
-  };
-
-  const workers = Array.from({ length: Math.min(concurrency, frames.length) }, () => worker());
-  await withLoading(
-    `cwa-imagery-preload:${bundle.datasetId}`,
-    `CWA 影像預載 ${bundle.datasetId} (${frames.length})`,
-    Promise.all(workers),
-  );
-  return urls;
 }
