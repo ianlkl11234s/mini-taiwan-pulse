@@ -7,6 +7,7 @@ import {
   alertGroupOf,
   alertTypeColor,
 } from "./disasterAlertTypes";
+import { isMapAlertFresh } from "./alertRules";
 
 /**
  * NCDR 災害示警 (CAP) loader
@@ -193,12 +194,46 @@ function geometryCenter(geom: GeoJSON.Geometry): [number, number] | null {
 }
 
 /**
+ * 逐 part 的 bbox 中心（pulse 錨點用）
+ *
+ * 大面積特報常是**散布**的 MultiPolygon（例：高溫特報只涵蓋北部與台東兩塊），
+ * 整體 bbox 中心會落在兩塊之間的空白處 —— 環會閃在沒發警報的地方。
+ * 故 pulse 改成每個 part 各放一顆錨點。
+ */
+function geometryPartCenters(geom: GeoJSON.Geometry, max = 12): [number, number][] {
+  const out: [number, number][] = [];
+  const push = (g: GeoJSON.Geometry) => {
+    if (out.length >= max) return;
+    const c = geometryCenter(g);
+    if (c) out.push(c);
+  };
+  if (geom.type === "GeometryCollection") {
+    for (const g of geom.geometries) push(g);
+  } else if (geom.type === "MultiPolygon") {
+    for (const poly of geom.coordinates) {
+      push({ type: "Polygon", coordinates: poly });
+    }
+  } else {
+    push(geom);
+  }
+  return out;
+}
+
+/** 觸發地圖 pulse 的 severity（CAP 原文值） */
+const PULSE_SEVERITY = new Set(["Severe", "Extreme"]);
+
+/**
  * 將 alerts 轉成 GeoJSON FeatureCollection（含當前 active 標記）
  *
  * - 排除 EXCLUDED_TERMS（地震/消防安檢/系統測試）
  * - properties.group / tcolor：5 群組分層 + event_term 分色用
  * - 小範圍事件群（emitPoints）另發 centroid 點 feature（is_pt=1），
  *   低 zoom 時 0.5km 火災圓等小 polygon 仍可見
+ * - `pulse=1`：active ∧ severity≥Severe ∧ 仍新鮮（alertRules 群組門檻），供 B2 脈動層用。
+ *   fresh gate 是必要的 —— 沒有它，藤枝休園（Severe、expires 2027）會在地圖上全年 pulse。
+ * - 大面積特報群（emitPoints=false）平常不補點，但 pulse 需要 Point 幾何才畫得出來，
+ *   故 severe 時補一顆 **is_pt=2** 的 pulse 錨點（既有 -fill/-line/-point 三層的
+ *   filter 是 is_pt==0 / ==1，吃不到 2，視覺不受影響）
  */
 export function alertsToGeoJSON(
   alerts: DisasterAlert[],
@@ -210,6 +245,14 @@ export function alertsToGeoJSON(
     if (a.event_term && EXCLUDED_TERMS.has(a.event_term)) continue;
     const active = currentTime >= a.start_ts && currentTime < a.end_ts;
     const group = alertGroupOf(a.event_term);
+    // start_ts = effective ?? sent ?? onset，即「這則示警發布/生效的時刻」，
+    // 與側欄 alertRules 用的 sent_ts 同語意
+    const pulse =
+      active &&
+      PULSE_SEVERITY.has(a.severity ?? "") &&
+      isMapAlertFresh(group, a.start_ts, currentTime)
+        ? 1
+        : 0;
     const properties = {
       identifier: a.identifier,
       event: a.event ?? "",
@@ -224,6 +267,7 @@ export function alertsToGeoJSON(
       start_ts: a.start_ts,
       end_ts: a.end_ts,
       active: active ? 1 : 0,
+      pulse,
     };
     features.push({
       type: "Feature",
@@ -231,12 +275,22 @@ export function alertsToGeoJSON(
       properties: { ...properties, is_pt: 0 },
     });
     if (ALERT_GROUPS[group].emitPoints) {
+      // 小範圍事件群：維持原本「整體 bbox 中心一顆點」，pulse 與底下的點同址
       const center = geometryCenter(a.geometry);
       if (center) {
         features.push({
           type: "Feature",
           geometry: { type: "Point", coordinates: center },
           properties: { ...properties, is_pt: 1 },
+        });
+      }
+    } else if (pulse === 1) {
+      // 大面積特報群：平常不補點，severe 時逐 part 補 pulse 錨點
+      for (const center of geometryPartCenters(a.geometry)) {
+        features.push({
+          type: "Feature",
+          geometry: { type: "Point", coordinates: center },
+          properties: { ...properties, is_pt: 2 },
         });
       }
     }

@@ -24,11 +24,17 @@ import {
 import {
   fetchAlertSummary,
   fetchActiveAlerts,
+  dayAlertsToCards,
   tallySummary,
   EMPTY_TALLY,
   type ActiveAlert,
   type AlertSummary,
 } from "../../data/alertsLoader";
+import {
+  partitionByPersistence,
+  ALERT_PERSISTENCE_RULES,
+} from "../../data/alertRules";
+import { fetchDisasterAlertsDay } from "../../data/disasterAlertLoader";
 import type { NewsCategory } from "../../data/newsEventTypes";
 import { timeStore } from "../../state/timeStore";
 import { useNewsFilter } from "../../hooks/useNewsFilter";
@@ -38,6 +44,11 @@ const EMPTY_HEALTH: SourceHealthSummary = {
 };
 
 const RANGE_SEC: Record<TimeRange, number> = { "1h": 3600, "6h": 21600, "24h": 86400 };
+
+/** YYYY-MM-DD（Asia/Taipei），與 timeStore.getDateKey 同一套算法 */
+function toTaipeiDateKey(unixSec: number): string {
+  return new Date(unixSec * 1000).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
 
 function secsToNextCron(nowSec: number): number {
   const minuteOfHour = Math.floor((nowSec / 60) % 60);
@@ -96,6 +107,10 @@ export function IntelPanel({
   const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
   const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
   const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
+  const [staleOpen, setStaleOpen] = useState(false);
+  /** 非 null = 時間軸停在過去某天，警報列表改看該日歷史 */
+  const [historyDate, setHistoryDate] = useState<string | null>(null);
+  const [historyAlerts, setHistoryAlerts] = useState<ActiveAlert[]>([]);
 
   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
   const [trending, setTrending] = useState<TrendingRow[]>([]);
@@ -144,6 +159,35 @@ export function IntelPanel({
     return () => {
       alive = false;
       window.clearInterval(id);
+    };
+  }, [open]);
+
+  // ── 歷史檢索：時間軸切到過去某天 → 警報改看「該日 NCDR 示警」──
+  // 重用地圖那支按日 RPC（已含 loadingRegistry + 10min 快取），不新開 RPC。
+  // 訂閱走 timeStore.subscribeDate（日期級），不把 currentTime 放進 deps。
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    const handler = (dateStr: string) => {
+      const today = toTaipeiDateKey(Date.now() / 1000);
+      if (!dateStr || dateStr >= today) {
+        if (alive) {
+          setHistoryDate(null);
+          setHistoryAlerts([]);
+        }
+        return;
+      }
+      if (alive) setHistoryDate(dateStr);
+      fetchDisasterAlertsDay(dateStr).then((rows) => {
+        if (!alive) return;
+        setHistoryAlerts(dayAlertsToCards(rows));
+      });
+    };
+    handler(timeStore.getDateKey());
+    const unsub = timeStore.subscribeDate(handler);
+    return () => {
+      alive = false;
+      unsub();
     };
   }, [open]);
 
@@ -272,6 +316,33 @@ export function IntelPanel({
     [alertSummaryRows],
   );
 
+  // 「持續中」折疊：長效期告警（海洋污染／長期停水…）不佔主列表。
+  // 規則表 = src/data/alertRules.ts（按群組分開設，null = 維持原樣）。
+  // 每分鐘重算即可 —— 門檻是 48/72 小時，秒級精度無意義。
+  const nowMin = Math.floor(now / 60);
+  const { fresh: freshAlerts, stale: staleAlerts } = useMemo(
+    () => partitionByPersistence(activeAlerts, nowMin * 60),
+    [activeAlerts, nowMin],
+  );
+  // 歷史模式：同一組嚴重度／群組篩選也套用在該日記錄上（不套折疊 —— 整天的紀錄本來就是回顧）
+  const historyMode = historyDate != null;
+  const historyRows = useMemo(
+    () =>
+      historyAlerts.filter(
+        (a) =>
+          a.severity >= severityMin &&
+          (pickedGroups.length === 0 || pickedGroups.includes(a.group)),
+      ),
+    [historyAlerts, severityMin, pickedGroups],
+  );
+  const alertRows = historyMode ? historyRows : freshAlerts;
+
+  const staleLabels = useMemo(() => {
+    const seen = new Set<string>();
+    for (const a of staleAlerts) seen.add(ALERT_PERSISTENCE_RULES[a.group].staleLabel);
+    return [...seen].join("・");
+  }, [staleAlerts]);
+
   if (!open) return null;
 
   const countdownSec = secsToNextCron(now);
@@ -358,8 +429,13 @@ export function IntelPanel({
         tab={feedTab}
         onTab={(t) => setFeedTab(t)}
         newsCount={flatEvents.length}
-        alertCount={alertTally.total}
-        alertSevere={alertTally.severe}
+        alertCount={historyMode ? historyRows.length : alertTally.total}
+        alertCountInAll={alertRows.length}
+        alertSevere={
+          historyMode
+            ? historyRows.filter((a) => a.severity >= 3).length
+            : alertTally.severe
+        }
       />
 
       {feedTab === "news" ? (
@@ -479,7 +555,23 @@ export function IntelPanel({
 
       <div className="mtp-scroll" style={{ flex: 1, overflowY: "auto", padding: "12px 14px 14px" }}>
         {feedTab === "alerts" ? (
-          activeAlerts.length === 0 ? (
+          <>
+          {historyMode && (
+            <div
+              style={{
+                marginBottom: 10, padding: "7px 10px",
+                borderRadius: RADIUS.lg,
+                background: "rgba(255,255,255,0.04)",
+                border: `1px solid ${COLORS.borderMid}`,
+                fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm,
+                color: COLORS.textMuted, lineHeight: 1.5,
+              }}
+            >
+              歷史 · {historyDate} 的 NCDR 示警（{historyRows.length} 則）
+              <span style={{ color: COLORS.textFaint }}>　不含地震；回到今天看即時警報</span>
+            </div>
+          )}
+          {(historyMode ? historyRows : activeAlerts).length === 0 ? (
             <div
               style={{
                 display: "flex", flexDirection: "column",
@@ -493,27 +585,89 @@ export function IntelPanel({
               </div>
             </div>
           ) : (
-            <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
-              <span
-                style={{
-                  position: "absolute", left: 12, top: 6, bottom: 6,
-                  width: 1.5,
-                  background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
-                }}
-              />
-              {activeAlerts.map((a) => (
-                <AlertCard
-                  key={a.id}
-                  a={a}
-                  selected={a.id === alertSelectedId}
-                  expanded={a.id === alertExpandedId}
-                  onSelect={onAlertSelect}
-                  onToggle={onAlertToggle}
-                  nowTs={now}
-                />
-              ))}
-            </div>
-          )
+            <>
+              {alertRows.length > 0 ? (
+                <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
+                  <span
+                    style={{
+                      position: "absolute", left: 12, top: 6, bottom: 6,
+                      width: 1.5,
+                      background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                    }}
+                  />
+                  {alertRows.map((a) => (
+                    <AlertCard
+                      key={a.id}
+                      a={a}
+                      selected={a.id === alertSelectedId}
+                      expanded={a.id === alertExpandedId}
+                      onSelect={onAlertSelect}
+                      onToggle={onAlertToggle}
+                      nowTs={now}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                    color: COLORS.textMuted, textAlign: "center", padding: "18px 0",
+                  }}
+                >
+                  {historyMode ? "該日無符合條件的示警" : "無新發布的警報，僅有下方長期持續事件"}
+                </div>
+              )}
+
+              {/* 「持續中」折疊區 —— 規則見 src/data/alertRules.ts（歷史模式不套） */}
+              {!historyMode && staleAlerts.length > 0 && (
+                <div style={{ marginTop: alertRows.length > 0 ? 14 : 4 }}>
+                  <button
+                    onClick={() => setStaleOpen((v) => !v)}
+                    title={[...new Set(staleAlerts.map((a) => ALERT_PERSISTENCE_RULES[a.group].rationale))].join("\n")}
+                    style={{
+                      width: "100%", display: "flex", alignItems: "center", gap: 7,
+                      padding: "7px 10px", borderRadius: RADIUS.lg,
+                      background: "rgba(255,255,255,0.03)",
+                      border: `1px dashed ${COLORS.borderMid}`,
+                      color: COLORS.textMuted, cursor: "pointer", textAlign: "left",
+                    }}
+                  >
+                    <span style={{ fontFamily: FONT_DATA, fontSize: 10 }}>
+                      {staleOpen ? "▾" : "▸"}
+                    </span>
+                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base }}>
+                      持續中 {staleAlerts.length} 則
+                    </span>
+                    <div style={{ flex: 1 }} />
+                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+                      {staleLabels}
+                    </span>
+                  </button>
+                  {staleOpen && (
+                    <div
+                      style={{
+                        position: "relative", display: "flex", flexDirection: "column",
+                        gap: 10, marginTop: 10, opacity: 0.72,
+                      }}
+                    >
+                      {staleAlerts.map((a) => (
+                        <AlertCard
+                          key={a.id}
+                          a={a}
+                          selected={a.id === alertSelectedId}
+                          expanded={a.id === alertExpandedId}
+                          onSelect={onAlertSelect}
+                          onToggle={onAlertToggle}
+                          nowTs={now}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+          </>
         ) : feedTab === "all" ? (
           (() => {
             const merged: Array<
@@ -521,7 +675,8 @@ export function IntelPanel({
               { kind: "alert"; ts: number; a: ActiveAlert }
             > = [
               ...flatEvents.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
-              ...activeAlerts.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
+              // 長期持續事件不進「全部」時間軸（本來就沉底，只是噪音）；要看走「警報」tab 的折疊區
+              ...alertRows.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
             ];
             merged.sort((x, y) => y.ts - x.ts);
             if (merged.length === 0) {
