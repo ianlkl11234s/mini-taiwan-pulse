@@ -12,6 +12,9 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
+import type { DisasterAlert } from "./disasterAlertLoader";
+import { alertGroupOf, EXCLUDED_TERMS } from "./disasterAlertTypes";
+import { MAP_GROUP_TO_SHORT } from "./alertRules";
 import {
   ALERT_GROUP_ORDER,
   COUNTY_OPTIONS,
@@ -309,6 +312,63 @@ export const EMPTY_TALLY: AlertTally = {
   severe: 0,
   byGroup: new Map(),
 };
+
+// ─── 歷史檢索 ────────────────────────────────────────────
+// `get_active_alerts` 只回「現在還生效」的，看不到過去。要看某一天的示警，
+// 直接重用地圖那支按日 RPC（`get_disaster_alerts_day`，已有 loadingRegistry
+// 與 10min 快取），把列轉成 AlertCard 吃的形狀 —— 不必新開 RPC/migration。
+//
+// 已知落差：該 RPC 是 NCDR 示警表，**不含地震**（地震在 realtime.earthquake_events，
+// 且 disasterAlertTypes 的 EXCLUDED_TERMS 也把它排除）。UI 需標明。
+
+/** area_desc 取第一段（同 migration 211 的 split_part(ad,'/',1)） */
+function areaHeadCounty(areaDesc: string): string {
+  const head = areaDesc.split("/")[0]?.trim() ?? "";
+  return head || "全國";
+}
+
+/** 「幾區」估算，同 migration 211 的算法 */
+function countAreas(areaDesc: string): number {
+  if (!areaDesc) return 0;
+  return areaDesc.split("、").length + areaDesc.split("/").length - 1;
+}
+
+const SEVERITY_RANK: Record<string, number> = {
+  Extreme: 4,
+  Severe: 3,
+  Moderate: 2,
+  Minor: 1,
+};
+
+/** 某一天的 NCDR 示警（地圖用的按日資料）→ AlertCard 形狀，依發布時間新到舊 */
+export function dayAlertsToCards(rows: DisasterAlert[]): ActiveAlert[] {
+  const out: ActiveAlert[] = [];
+  for (const r of rows) {
+    const term = r.event_term ?? r.event ?? "災害示警";
+    if (EXCLUDED_TERMS.has(term)) continue;
+    const area = r.area_desc ?? "";
+    out.push({
+      id: r.identifier,
+      group: MAP_GROUP_TO_SHORT[alertGroupOf(r.event_term)],
+      term,
+      severity: SEVERITY_RANK[r.severity ?? ""] ?? 1,
+      urgency: (r.urgency ?? "unknown").toLowerCase(),
+      headline: r.headline ?? r.event ?? "",
+      area_desc: area,
+      area_count: countAreas(area),
+      sent_ts: r.start_ts,
+      expires_ts: r.end_ts,
+      description: r.description,
+      instruction: r.instruction,
+      magnitude: null,
+      depth_km: null,
+      occurred_ts: null,
+      county: areaHeadCounty(area),
+    });
+  }
+  out.sort((a, b) => b.sent_ts - a.sent_ts);
+  return out;
+}
 
 export function emptySeries(): Record<AlertGroupShort, number[]> {
   const out = {} as Record<AlertGroupShort, number[]>;
