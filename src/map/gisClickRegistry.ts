@@ -300,6 +300,18 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
   // 醫療等時圈覆蓋面
   { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
+  // 🌊 領海界線（基線 / 12 浬領海 / 24 浬鄰接區 ＋ 26 個基點）—— 排在下方所有線 / 面批之前：
+  //    26 個基點是小目標點層，且全部落在海岸線上；海堤線（water-levees-core）同樣沿海岸
+  //    分佈、村里/鄉鎮的 fill 雖然 opacity 0 仍會被 queryRenderedFeatures 命中 ——
+  //    排到它們後面就點不到基點。依檔頭「小目標優先」原則置於此。
+  {
+    layers: [
+      "base-maritime-boundary-point",
+      "base-maritime-boundary-line",
+      "base-maritime-boundary-line-24nm",
+    ],
+    type: "maritimeBoundary",
+  },
   // 🗑️ 清運點位 73,060 點：全站密度最高的點層，且 click 用 ±5px bbox 命中
   //    → 排在其他點層之後，免得在市區把消防栓 / 行道樹 / POI 的點擊整片吃掉。
   { layers: ["waste-stops-static-waste-stops-fill"], type: "wasteStopsStatic" },
@@ -324,17 +336,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["national-highways-glow", "national-highways-line"], type: "highway" },
   { layers: ["provincial-roads-glow", "provincial-roads-line"], type: "provincialRoad" },
   { layers: ["cycling-routes-glow", "cycling-routes-line"], type: "cyclingRoute" },
-  // Base map（行政邊界 / 海域界線 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
-  // 領海界線排在行政界之前：26 個基點落在海岸線上，村里/鄉鎮的 fill 雖然 opacity 0
-  // 仍會被 queryRenderedFeatures 命中，排後面點不到基點。
-  {
-    layers: [
-      "base-maritime-boundary-point",
-      "base-maritime-boundary-line",
-      "base-maritime-boundary-line-24nm",
-    ],
-    type: "maritimeBoundary",
-  },
+  // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
+  //（海域界線同屬 base-*，但基點是小目標點層，已上移到上方線 / 面批之前）
   // 快速道路（trunk 子集，5.6 萬 edges）排在 osm_road_drive（55 萬 edges）之前：
   // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。
   { layers: ["base-osm-expressway-line"], type: "osmExpressway" },

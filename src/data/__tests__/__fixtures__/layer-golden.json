@@ -1397,6 +1397,14 @@
     },
     {
       "layers": [
+        "base-maritime-boundary-point",
+        "base-maritime-boundary-line",
+        "base-maritime-boundary-line-24nm"
+      ],
+      "type": "maritimeBoundary"
+    },
+    {
+      "layers": [
         "waste-stops-static-waste-stops-fill"
       ],
       "type": "wasteStopsStatic"
@@ -1458,14 +1466,6 @@
         "cycling-routes-line"
       ],
       "type": "cyclingRoute"
-    },
-    {
-      "layers": [
-        "base-maritime-boundary-point",
-        "base-maritime-boundary-line",
-        "base-maritime-boundary-line-24nm"
-      ],
-      "type": "maritimeBoundary"
     },
     {
       "layers": [
