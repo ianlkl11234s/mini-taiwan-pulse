@@ -2313,8 +2313,12 @@ export const LAYER_MANIFEST = {
       maxzoom: 12,
     },
     legend: "canopyHeight",
-    // 本批唯一沒有可點選物件的層（raster，GIS_LAYERS 無條目）
-    popup: null,
+    // 本批唯一沒有向量 feature 的層（raster，GIS_LAYERS 無條目）——
+    // W2：值編碼 raster 的點擊讀值探針（rasterProbeSampler，對標 climateFieldSampler）。
+    // urbanHeat 與 canopyHeight 共用 `rasterProbe` 一個 layerType —— 兩層可能同時開啟，
+    // 一次點擊就該同時得到兩個讀數（同 climateField 的風場/海流）。
+    // 解碼：R 的原始 DN 就是公尺高度（overlayRegistry canopyHeight 註解：色帶 stop 0.025↔1m）。
+    popup: "rasterProbe",
     params: { count: 1, kinds: ["slider"] },
     description: "全台樹冠高度 raster（Meta/WRI 2020 10m，RGB 編碼切片）",
     topics: ["林業", "樹冠", "遙測"],
@@ -4944,7 +4948,11 @@ export const LAYER_MANIFEST = {
       maxzoom: 11,
     },
     legend: "urbanHeat",
-    popup: null,
+    // W2：值編碼 raster 的點擊讀值探針（rasterProbeSampler，對標 climateFieldSampler）。
+    // urbanHeat 與 canopyHeight 共用 `rasterProbe` 一個 layerType —— 兩層可能同時開啟，
+    // 一次點擊就該同時得到兩個讀數（同 climateField 的風場/海流）。
+    // 解碼：ΔT(K)=R/5−30、°C=G/4+10（urbanHeatTypes.ts 檔頭，與上游 encoding.json 同源）；A<128 為 nodata。
+    popup: "rasterProbe",
     params: { count: 2, kinds: ["select", "slider"] },
     description: "地表溫度熱島強度（Landsat 熱紅外暖季合成，raster 切片）",
     topics: ["環境", "熱島", "衛星影像"],

@@ -728,7 +728,7 @@ export interface FeatureInfo {
     | "wasteStopsStatic"
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
-    | "agricultureField" | "wasteTruck"
+    | "agricultureField" | "wasteTruck" | "rasterProbe"
     | "popCount" | "h3Population" | "indicators" | "socioeconomic" | "spatialEconomy"
     | "youbikeFullness"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"

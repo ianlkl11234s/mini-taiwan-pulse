@@ -12,6 +12,7 @@ import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteSched
 import type { WasteTruckScene } from "../three/WasteTruckScene";
 import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
+import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
 
 interface TooltipInfo {
@@ -321,6 +322,29 @@ export function useMapInteraction(
             found = true;
             break;
           }
+        }
+        // 沒命中任何向量 feature → 值編碼 raster 開啟時改讀像素物理值（W2）。
+        // 排在氣候 UV 場之前：熱島／樹冠是台灣本島的層，風場／海流是全球場，
+        // 同時開啟時使用者點台灣要的是前者（後者在台灣任一點都讀得到值，會整碗端走）。
+        if (!found && (vis?.urbanHeat || vis?.canopyHeight)) {
+          found = true; // 已接手本次點擊，下方 climateField 分支不再處理
+          const lng = e.lngLat.lng;
+          const lat = e.lngLat.lat;
+          void sampleRasterProbes(
+            { urbanHeat: !!vis?.urbanHeat, canopyHeight: !!vis?.canopyHeight },
+            lng, lat,
+          ).then((probe) => {
+            if (probe) {
+              setFeatureInfo({
+                layerType: "rasterProbe",
+                properties: { urbanHeat: probe.urbanHeat, canopyHeight: probe.canopyHeight },
+                coords: [lng, lat],
+              });
+              sessionTracker.log("feature_click", { layerType: "rasterProbe" });
+            } else {
+              setFeatureInfo(null);
+            }
+          });
         }
         // 沒命中任何向量 feature → 風場/海流開啟時改讀氣候 UV 場（nullschool 式點擊讀值）
         if (!found) {

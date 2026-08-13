@@ -187,7 +187,6 @@ const NO_LEGEND_LEDGER = new Set([
 const NO_POPUP_LEDGER = new Set([
   // 交通 Move —— rail / flights / bus 三族走 Three.js scene picking（非 GIS_LAYERS）
   "rail", "flights", "busLive", "busIntercityLive", "touristShuttleLive",
-  "canopyHeight",                                    // 林業：raster 樹冠高度
   // 房地產 6 層同族，皆走浮動 tooltip 而非 FeatureInfoPanel：
   //   Grid ×3 —— useMapInteraction 綁 `re-grid-*-fill` 的 mousemove hover tooltip
   //              （「行動裝置沒有 hover、要不要補 click」是 EDGE，待 owner 拍板）
@@ -198,8 +197,9 @@ const NO_POPUP_LEDGER = new Set([
   "realEstatePresaleGrid", "realEstatePresalePoint",
   "dustForecast",                                    // 全球氣候：raster 沙塵預報
   "hillshade",                                       // 底圖：raster 山影
-  // 環境氣候：CWA/EPA 上游 raster（雲圖 / 雷達 / 溫度 / 熱島 / AQI 影像）
-  "cwaCloudImagery", "cwaRadarImagery", "temperatureWave", "urbanHeat", "aqiImagery",
+  // 環境氣候：CWA/EPA 上游 raster（雲圖 / 雷達 / AQI 影像皆為已上色成品，無數值通道）
+  //（熱島 urbanHeat / 樹冠 canopyHeight 是值編碼 raster，W2 已接點擊讀值探針 → 不在本表）
+  "cwaCloudImagery", "cwaRadarImagery", "temperatureWave", "aqiImagery",
   // 水資源：極端淹水面（payload 只有圖例已標示的 depth_class，待 owner 拍板）
   // / 雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
   "waterFloodExtreme", "precipRaster",

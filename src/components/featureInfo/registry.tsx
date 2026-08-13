@@ -30,7 +30,7 @@ import {
   RoadCongestionPanel, FreewayCongestionPanel,
   ProvincialRoadPanel, HighwayPanel, CyclingRoutePanel,
 } from "./roadPanels";
-import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
+import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel, RasterProbePanel } from "./airPanels";
 import {
   WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel, WasteStopsStaticPanel,
   WasteTruckPanel,
@@ -281,6 +281,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   earthquakeGlobal: EarthquakeGlobalPanel,
   typhoonTrack: TyphoonTrackPanel,
   climateField: ClimateFieldPanel,
+  rasterProbe: RasterProbePanel,
   temperatureGrid: TemperatureGridPanel,
   worldTrashDebris: WorldTrashDebrisPanel,
   // Base map
@@ -594,6 +595,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   earthquakeGlobal: "全球地震 USGS",
   typhoonTrack: "颱風軌跡",
   climateField: "氣候場讀值",
+  rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
   worldTrashDebris: "全球垃圾殘骸",
   // Base map
