@@ -7,6 +7,7 @@ import {
   alertGroupOf,
   alertTypeColor,
 } from "./disasterAlertTypes";
+import { isMapAlertFresh } from "./alertRules";
 
 /**
  * NCDR 災害示警 (CAP) loader
@@ -192,6 +193,9 @@ function geometryCenter(geom: GeoJSON.Geometry): [number, number] | null {
   return [(minX + maxX) / 2, (minY + maxY) / 2];
 }
 
+/** 觸發地圖 pulse 的 severity（CAP 原文值） */
+const PULSE_SEVERITY = new Set(["Severe", "Extreme"]);
+
 /**
  * 將 alerts 轉成 GeoJSON FeatureCollection（含當前 active 標記）
  *
@@ -199,6 +203,11 @@ function geometryCenter(geom: GeoJSON.Geometry): [number, number] | null {
  * - properties.group / tcolor：5 群組分層 + event_term 分色用
  * - 小範圍事件群（emitPoints）另發 centroid 點 feature（is_pt=1），
  *   低 zoom 時 0.5km 火災圓等小 polygon 仍可見
+ * - `pulse=1`：active ∧ severity≥Severe ∧ 仍新鮮（alertRules 群組門檻），供 B2 脈動層用。
+ *   fresh gate 是必要的 —— 沒有它，藤枝休園（Severe、expires 2027）會在地圖上全年 pulse。
+ * - 大面積特報群（emitPoints=false）平常不補點，但 pulse 需要 Point 幾何才畫得出來，
+ *   故 severe 時補一顆 **is_pt=2** 的 pulse 錨點（既有 -fill/-line/-point 三層的
+ *   filter 是 is_pt==0 / ==1，吃不到 2，視覺不受影響）
  */
 export function alertsToGeoJSON(
   alerts: DisasterAlert[],
@@ -210,6 +219,14 @@ export function alertsToGeoJSON(
     if (a.event_term && EXCLUDED_TERMS.has(a.event_term)) continue;
     const active = currentTime >= a.start_ts && currentTime < a.end_ts;
     const group = alertGroupOf(a.event_term);
+    // start_ts = effective ?? sent ?? onset，即「這則示警發布/生效的時刻」，
+    // 與側欄 alertRules 用的 sent_ts 同語意
+    const pulse =
+      active &&
+      PULSE_SEVERITY.has(a.severity ?? "") &&
+      isMapAlertFresh(group, a.start_ts, currentTime)
+        ? 1
+        : 0;
     const properties = {
       identifier: a.identifier,
       event: a.event ?? "",
@@ -224,19 +241,24 @@ export function alertsToGeoJSON(
       start_ts: a.start_ts,
       end_ts: a.end_ts,
       active: active ? 1 : 0,
+      pulse,
     };
     features.push({
       type: "Feature",
       geometry: a.geometry,
       properties: { ...properties, is_pt: 0 },
     });
-    if (ALERT_GROUPS[group].emitPoints) {
+    const needsAnchor = ALERT_GROUPS[group].emitPoints || pulse === 1;
+    if (needsAnchor) {
       const center = geometryCenter(a.geometry);
       if (center) {
         features.push({
           type: "Feature",
           geometry: { type: "Point", coordinates: center },
-          properties: { ...properties, is_pt: 1 },
+          properties: {
+            ...properties,
+            is_pt: ALERT_GROUPS[group].emitPoints ? 1 : 2,
+          },
         });
       }
     }

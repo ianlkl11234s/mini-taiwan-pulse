@@ -4133,7 +4133,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useDisasterAlertLayer 自建 geojson source `disaster-alerts`（Supabase RPC get_disaster_alerts_day 按日載入 + LRU 7 天），5 群組共用，layer id `lifelineAlerts-fill/-line/-point` —— 非 OVERLAY_REGISTRY",
+      note: "useDisasterAlertLayer 自建 geojson source `disaster-alerts`（Supabase RPC get_disaster_alerts_day 按日載入 + LRU 7 天），5 群組共用，layer id `lifelineAlerts-fill/-line/-point`；另有 5 群組共用的 B2 脈動層 `disaster-alert-pulse-0/-1`（只吃 pulse=1 錨點、不可點）—— 非 OVERLAY_REGISTRY",
     },
     legend: "lifelineAlerts",
     popup: "disasterAlert",
