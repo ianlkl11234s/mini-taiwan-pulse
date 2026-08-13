@@ -49,6 +49,7 @@ export function useMapInteraction(
   reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
   wasteScheduleSceneRef?: React.RefObject<WasteScheduleScene | null>,
   touristShuttleSceneRef?: React.RefObject<BusScene | null>,
+  busIntercitySceneRef?: React.RefObject<BusScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -103,6 +104,22 @@ export function useMapInteraction(
         const busScene = busSceneRef?.current;
         if (busScene) {
           const bus = busScene.pickBus(e.point.x, e.point.y, w, h);
+          if (bus) {
+            setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+      // 嘗試拾取公路客運（僅在 busIntercityLive 圖層開啟時，共用 bus tooltip）
+      // W2：三個 BusScene 族群（市區 / 客運 / 台灣好行）本來只有兩個接了 pick，
+      // 客運是全站唯一「會動但完全點不到」的運具 —— 逐行比照上下兩個分支補齊。
+      if (vis?.busIntercityLive) {
+        const intercityScene = busIntercitySceneRef?.current;
+        if (intercityScene) {
+          const bus = intercityScene.pickBus(e.point.x, e.point.y, w, h);
           if (bus) {
             setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);

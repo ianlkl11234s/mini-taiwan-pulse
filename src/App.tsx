@@ -660,6 +660,7 @@ export default function App() {
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
+    busIntercitySceneRef,
     touristShuttleSceneRef,
     wasteScheduleSceneRef,
     wasteFacilityLayerRef,
@@ -676,7 +677,7 @@ export default function App() {
   });
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef);
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
