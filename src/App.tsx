@@ -660,7 +660,9 @@ export default function App() {
 
   const {
     flightSceneRef, shipSceneRef, railSceneRef, busSceneRef,
+    busIntercitySceneRef,
     touristShuttleSceneRef,
+    wasteTruckSceneRef,
     wasteScheduleSceneRef,
     wasteFacilityLayerRef,
     addFlightLayer,
@@ -676,7 +678,7 @@ export default function App() {
   });
 
   const { tooltipInfo, setTooltipInfo, trainTooltipInfo, busTooltipInfo, wasteScheduleTooltipInfo, realEstateTooltipInfo, featureInfo, setFeatureInfo, bindEvents } =
-    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef);
+    useMapInteraction(mapRef, flightSceneRef, flightsRef, timeRef, railSceneRef, busSceneRef, shipSceneRef, layerVisibilityRef, reservoirSceneRef, wasteScheduleSceneRef, touristShuttleSceneRef, busIntercitySceneRef, wasteTruckSceneRef);
 
   // ── 水庫 context 動態疊層 + panel 資料 ──
   // 點水庫（waterDam / waterReservoirPoly）且 feature 帶 compare_id → 打 get_reservoir_context
@@ -2350,17 +2352,15 @@ export default function App() {
               </>
             ) : (
               <>
+                {/* W2：欄位裁到 buffer 內真實存在的三項。原本這裡還有行政區 /
+                    地址 / 總價 / 坪數，但 `real_estate_points_buffer.bin` 改成
+                    interleaved Float32 [lng, lat, tradeTsRel, price, packed] 後
+                    那四欄就不在檔案裡了 —— 顯示它們只會永遠印「—」。 */}
                 <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: accent, letterSpacing: 1 }}>
-                  {typeLabel} · {String(p.district ?? "")}
-                </div>
-                <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>
-                  {String(p.address ?? "—")}
+                  {typeLabel}
                 </div>
                 <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textDefault, marginTop: 4 }}>
                   單價 {num(p.price_per_sqm)} 元/m²
-                </div>
-                <div style={{ fontSize: FONT_SIZE.base, color: COLORS.textMuted, marginTop: 2 }}>
-                  總價 {num(p.total_price)} 元 · {num(p.area_sqm)} m²
                 </div>
                 {p.trade_ts != null && Number(p.trade_ts) > 0 && (
                   <div style={{ fontSize: FONT_SIZE.sm, color: COLORS.textDim, marginTop: 2 }}>

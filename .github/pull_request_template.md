@@ -11,7 +11,7 @@
 ## Test
 
 - [ ] `npx tsc -b` 通過
-- [ ] `pnpm test` 通過（含 `layerConsistency`）
+- [ ] `npm test` 通過（含 `layerConsistency`）
 - [ ] Browser 驗收（若有 UI 變更）— All Off 單測過
 - [ ] 若涉 Supabase RPC → `/check-rpc` 通過（響應 < 1s 或已套 pre-aggregate）
 

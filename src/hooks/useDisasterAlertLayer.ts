@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import type {
   Map as MapboxMap,
   FillLayer,
@@ -30,6 +30,42 @@ import { useMapReadyTick } from "./useMapReadyTick";
 
 const SOURCE_ID = "disaster-alerts";
 const CACHE_MAX = 7;
+
+/**
+ * B2 脈動層（W5 Phase 2）——「出事了一眼看到」
+ *
+ * 5 群組共用 2 個環（相位差半圈），不逐群組開層：ring 顏色走 feature 的
+ * `color`（severity 色）而非 `tcolor`，所以一套 filter 就夠，每幀只要 4 次
+ * setPaintProperty。可見群組變動時改 filter，不改層數。
+ *
+ * 只畫 `pulse=1` 的錨點 —— 該旗標在 loader 端已 gate 過 active ∧ severity≥Severe
+ * ∧ 未超過 alertRules 的群組門檻（否則藤枝休園那種 Severe + expires 2027 會全年閃）。
+ */
+const PULSE_IDS = ["disaster-alert-pulse-0", "disaster-alert-pulse-1"];
+const PULSE_CYCLE_MS = 2200;
+const PULSE_FRAME_MS = 40;
+const PULSE_R_MIN = 7;
+const PULSE_R_MAX = 30;
+const PULSE_PEAK_OPACITY = 0.85;
+
+function prefersReducedMotion(): boolean {
+  return typeof window !== "undefined"
+    && typeof window.matchMedia === "function"
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+/** 可見群組 → pulse 層 filter（沒有可見群組時整層關掉） */
+function pulseFilter(visibleGroups: AlertGroupKey[]): FilterSpecification {
+  if (visibleGroups.length === 0) {
+    return ["literal", false] as unknown as FilterSpecification;
+  }
+  return [
+    "all",
+    ["==", ["get", "pulse"], 1],
+    [">", ["get", "is_pt"], 0],
+    ["in", ["get", "group"], ["literal", visibleGroups]],
+  ] as unknown as FilterSpecification;
+}
 
 const layerIds = (group: AlertGroupKey) => ({
   fill: `${group}-fill`,
@@ -122,6 +158,25 @@ function buildLayers(map: MapboxMap): boolean {
     }
   }
 
+  // B2 脈動環（5 群組共用，畫在所有點層之上）
+  for (const id of PULSE_IDS) {
+    if (map.getLayer(id)) continue;
+    map.addLayer({
+      id,
+      type: "circle",
+      source: SOURCE_ID,
+      filter: ["literal", false] as unknown as FilterSpecification,
+      paint: {
+        "circle-radius": PULSE_R_MIN,
+        "circle-color": "transparent",
+        // severity 色（Extreme #dc2626 / Severe #ea580c），與側欄嚴重度 chip 同語意
+        "circle-stroke-color": ["get", "color"] as unknown as ExpressionSpecification,
+        "circle-stroke-width": 2.5,
+        "circle-stroke-opacity": 0,
+      },
+    } as CircleLayer);
+  }
+
   return true;
 }
 
@@ -139,6 +194,10 @@ export function useDisasterAlertLayer(
   const layersReadyRef = useRef(false);
   const fetchingRef = useRef<string>("");
   const lastActiveSetRef = useRef<string>("");
+  /** 當前畫面有沒有該 pulse 的警報 —— 沒有就不開 rAF */
+  const [hasPulse, setHasPulse] = useState(false);
+  const opacityRef = useRef(opacity);
+  opacityRef.current = opacity;
 
   const anyVisible = ALERT_GROUP_KEYS.some((k) => visibility[k]);
   // effect dep 用的穩定 key（避免物件 identity 每 render 變動）
@@ -180,7 +239,14 @@ export function useDisasterAlertLayer(
     const src = map.getSource(SOURCE_ID) as mapboxgl.GeoJSONSource | undefined;
     if (!src) return;
     const day = activeDayRef.current ?? [];
-    src.setData(alertsToGeoJSON(day, t));
+    const fc = alertsToGeoJSON(day, t);
+    src.setData(fc);
+    let pulses = 0;
+    for (const f of fc.features) {
+      const p = f.properties as { pulse?: number; is_pt?: number } | null;
+      if (p?.pulse === 1 && (p.is_pt ?? 0) > 0) pulses++;
+    }
+    setHasPulse(pulses > 0);
   }, []);
 
   const loadDay = useCallback(
@@ -246,6 +312,11 @@ export function useDisasterAlertLayer(
           if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", vis);
         }
       }
+      // pulse 是 5 群組共用層 → 用 filter（而非 visibility）挑可見群組
+      const visibleGroups = ALERT_GROUP_KEYS.filter((k) => visRef.current[k]);
+      for (const id of PULSE_IDS) {
+        if (map.getLayer(id)) map.setFilter(id, pulseFilter(visibleGroups));
+      }
     };
 
     if (!anyVisible) {
@@ -261,8 +332,10 @@ export function useDisasterAlertLayer(
       const day = activeDayRef.current;
       if (!day) return;
 
-      // 計算當前 active 集合的 hash，沒變動就不重 setData
-      let key = "";
+      // 計算當前 active 集合的 hash，沒變動就不重 setData。
+      // 前綴帶小時桶：pulse 的 fresh gate 是 48/72h 門檻，active 集合不變時也會
+      // 隨時間翻面，每個 timeline 小時強制重算一次（成本 = 每小時 1 次 setData）
+      let key = `h${Math.floor(currentTime / 3600)}|`;
       for (const a of day) {
         if (currentTime >= a.start_ts && currentTime < a.end_ts) {
           key += a.identifier + "|";
@@ -277,6 +350,57 @@ export function useDisasterAlertLayer(
     tick(timeStore.getTime()); // 初始化
     return timeStore.subscribeThrottled(500, tick);
   }, [anyVisible, visKey, ensureLayers, refreshSource, mapRef, mapTick]);
+
+  // ── B2 脈動動畫（只在畫面真有 severe+fresh 警報時才開 rAF）──
+  useEffect(() => {
+    if (!anyVisible || !hasPulse) return;
+    const map = mapRef.current;
+    if (!map) return;
+
+    // 減少動態偏好：不跑 rAF，畫一個靜態中徑環（仍看得出「這裡有嚴重警報」）
+    if (prefersReducedMotion()) {
+      for (const id of PULSE_IDS) {
+        if (!map.getLayer(id)) continue;
+        map.setPaintProperty(id, "circle-radius", (PULSE_R_MIN + PULSE_R_MAX) / 2);
+        map.setPaintProperty(id, "circle-stroke-opacity", 0.5 * opacityRef.current);
+      }
+      return;
+    }
+
+    let raf = 0;
+    let lastFrame = 0;
+    const animate = () => {
+      raf = requestAnimationFrame(animate);
+      const m = mapRef.current;
+      if (!m) return;
+      const now = performance.now();
+      if (now - lastFrame < PULSE_FRAME_MS) return;
+      lastFrame = now;
+
+      for (let i = 0; i < PULSE_IDS.length; i++) {
+        const id = PULSE_IDS[i]!;
+        if (!m.getLayer(id)) continue; // style 切換後層會消失
+        const phase =
+          ((now + i * (PULSE_CYCLE_MS / PULSE_IDS.length)) % PULSE_CYCLE_MS) / PULSE_CYCLE_MS;
+        const eased = 1 - Math.pow(1 - phase, 2);
+        m.setPaintProperty(id, "circle-radius", PULSE_R_MIN + (PULSE_R_MAX - PULSE_R_MIN) * eased);
+        m.setPaintProperty(
+          id,
+          "circle-stroke-opacity",
+          (1 - phase) * PULSE_PEAK_OPACITY * opacityRef.current,
+        );
+      }
+    };
+    raf = requestAnimationFrame(animate);
+    return () => {
+      cancelAnimationFrame(raf);
+      const m = mapRef.current;
+      if (!m) return;
+      for (const id of PULSE_IDS) {
+        if (m.getLayer(id)) m.setPaintProperty(id, "circle-stroke-opacity", 0);
+      }
+    };
+  }, [anyVisible, hasPulse, visKey, mapRef, mapTick]);
 
   // 套用 opacity（乘以各 layer 的 base opacity，5 群組共用）
   useEffect(() => {
@@ -299,6 +423,13 @@ export function useDisasterAlertLayer(
       if (map.getLayer(ids.point)) {
         map.setPaintProperty(ids.point, "circle-opacity", 0.85 * o);
         map.setPaintProperty(ids.point, "circle-stroke-opacity", o);
+      }
+    }
+    // pulse 的 opacity 平常由 rAF 每幀寫（讀 opacityRef），只有 reduced-motion
+    // 的靜態環需要在這裡跟著滑桿更新
+    if (prefersReducedMotion()) {
+      for (const id of PULSE_IDS) {
+        if (map.getLayer(id)) map.setPaintProperty(id, "circle-stroke-opacity", 0.5 * o);
       }
     }
   }, [opacity, visKey, mapRef, mapTick]);

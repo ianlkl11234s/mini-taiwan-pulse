@@ -69,7 +69,7 @@
 - [ ] **Step 5 跨 repo**：handoff 反向引用 + 上游治理文件（taipei-gis-analytics，委派中）
 - [ ] **部署**：`upload-deploy-assets.sh` 加 `public/agriculture/livestock_*.geojson` glob
 - [ ] **Supabase 留底**：gis-platform agriculture schema（委派中）
-- [ ] **Step 6 驗收**：`npx tsc -b` / `pnpm test`（含 layerConsistency）/ browser All Off 單測
+- [ ] **Step 6 驗收**：`npx tsc -b` / `npm test`（含 layerConsistency）/ browser All Off 單測
 
 ## 關鍵檔案
 

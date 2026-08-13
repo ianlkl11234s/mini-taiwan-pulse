@@ -1,0 +1,240 @@
+# 過夜批次報告（2026-08-12 夜 → 08-13 晨）
+
+> 對應交接文件：`docs/proposal/next-batch-handoff-2026-08-12.md`（W1~W6）
+> owner 開工時調整範圍：**做 W1／W2／W3／W5／W6(a,b,c)／AR-11e；不做 W4 snapshot-to-CDN；ships 下滑不查**
+> 執行方式：opus 主控拆解／決策／驗收，工作派 sonnet-opus 子代理，各自獨立 git worktree（base = `origin/master` `382b896`）
+> **一律未 push、未開 PR、未 merge、未 apply migration、未刪任何資料** —— 全部等 owner 明早拍板
+
+---
+
+## 0. 一句話總結
+
+六條工作全數推進；**其中兩條是「幽靈待辦」——功能早就上線了，文件狀態欄沒回填**（省下原估 4-5hr＋一輪 push）。
+AR-11e 的前提整個翻案（3.2GB 已被既有 cron 磨到 580MB），並撈出一個**資料遺失紅旗**。
+另查明 **Zeabur 是 master 自動部署，merge ＝ 直接上線**，明早的 merge 決策要照這個前提做。
+
+---
+
+## 1. 已完成（各自 worktree 分支，皆未 push）
+
+| 分支 | 內容 | commits | 驗收 |
+|---|---|---|---|
+| `chore/staticassets-ack-bm-closeout` | W1 追認落地＋W6-a BM-1~4 關單＋W6-b MO-17 狀態更正 | `c30e218` `99063b8` `358f293` | tsc 0 error／42 檔 560 綠 |
+| `test/hook-registry-per-key` | W3 完整性測試 7 個雙桶 key 盲區 | `a911228` `ac65d21` | tsc 0／**562 綠**（新增 2 測試）＋紅燈演練實測 |
+| `feat/popup-backfill` | W2 popup 補強（**29 筆全數處理完**） | 14 顆（`4bcf38e`…`e66a694`） | tsc 0／560 綠／**28/29 瀏覽器實點驗過** |
+| `chore/au6-single-lockfile` | AU-6 lockfile 統一 A 案＋PB-06 修正 | `fd399c1` `92493f8` `1816127` `1203172` `501bfcb` | tsc 0／560 綠／**docker build 通過** |
+| `feat/alerts-integration` | W5 Phase 1 實證回填＋**Phase 2 四項** | `2156a23`＋7 顆 | tsc 0／560 綠／**地圖 pulse 實測＋負測試** |
+| `integration/next-batch` | 上列五條的整合驗證（見 §7a） | merge only | **零衝突／tsc 0／562 綠／docker build 通過** |
+
+### 1a. W1 staticAssets 追認
+三處字樣改「已追認（2026-08-12 owner）」：`layerManifest.ts:151` 型別註解、`layer-manifest/backlog.md:244`、`changelog.md:2583/2603`。
+另有 9 處「代拍」屬拍板③（section null 擴大）／⑤（popup 陣列）／⑥（source kind 混合），與 staticAssets 無關，**刻意留原狀**。
+
+### 1b. W6-a BM-1~4 關單
+各附 manifest 行號證據：BM-1 `osmExpressway`(:7669)／BM-2 `hillshade`(:3905，觸點 #20 已修部署缺口)／BM-3 `slopeVector`(:3929)／BM-4 `aspectVector`(:3954)。
+**順帶查出 BM-3/BM-4 實作改走向量路線**（非原案烤 PNG），已在證據句註明。BM-5（deck.gl COG）維持 open。
+
+### 1c. W3 測試盲區
+`DUAL_MOUNT_KEYS`（7 個雙桶 key 的**固定清單**，非即時算交集——才能在其中一邊被刪時仍守得住）＋ per-key `REQUIRED_MOUNTS` 對表，另加 ratchet 斷言防未來新雙桶 key 沒登記。
+**紅燈演練實測**：拿掉 `h3Population` 的 registry entry → 兩條斷言雙紅（原本是綠）；拿掉單桶 `rainGauge` → 舊聯集斷言照樣紅，不退化。
+已知限制（`ac65d21` 註記）：per-key 對表守的是「宣告層級」，若 App.tsx 實際 hook call 被刪但 ledger 沒跟著改，本測試仍看不出來——static ledger 的天生限制。
+
+### 1d. W2 popup 第一階段（11 key）
+水資源 8 層（`groundwaterWells` `iotWraRiver` `iotWraStructure` `waterBasins` `waterRivers` `waterLevees` `waterCanals` `waterProtectionZones`）＋ `osmExpressway`（複用 `OsmRoadDrivePanel`）＋ `wasteStopsStatic` ＋ `stationsTHSR`（複用 `RailStationPanel`）。
+黃金快照 +67/−0 全在 `gisLayers`，恰為 11 列。`waterCanals` 的縮寫欄位有回上游 pipeline 白名單查證（o=管理處／n=渠道名／t=引灌需求三分類／src=來源）。
+
+> ⚠️ **過程揭露**：水資源那批因 `legend: null / popup: null` 錨點不唯一，改用 python 腳本批次替換，**PostToolUse 守門 hook 沒看到那批改動**；事後全套 vitest（manifest 契約＋ledger 雙向）綠可覆蓋同一範圍。第二階段已要求避免同樣盲點。
+
+### 1e. AU-6 lockfile（owner 拍板 A 案）
+- 刪 `pnpm-lock.yaml`（2702 行）、`package.json` 補 `"packageManager": "npm@11.4.2"`
+- 文件對齊**改 21 處／刻意不改 43 處**，判準＝「改未來會被執行的指令，不改過去事件的紀錄」。最 load-bearing 的一改是 `PRINCIPLES.md` 原本教人跑 `pnpm install --lockfile-only`——照做會把 pnpm-lock **生回來**
+- 一致性檢查：27/27 套件的 package.json range 與 npm lock 相符，**未跑** `--package-lock-only`，版本刻意不動（`mapbox-gl` 維持 3.18.1）
+- 防漂移守門：`ci.yml` 在 `npm ci` 前加純 shell step，偵測到 `pnpm-lock.yaml` 即 `exit 1`（零新 action 依賴，已實測 fire/pass 兩態）
+- **`docker build --no-cache` exit 0**：`npm ci` → `added 299 packages` → `vite v6.4.1 built in 11.29s`
+
+---
+
+## 2. 🔴 重大發現一：兩個幽靈待辦
+
+| 項目 | 文件說 | 事實 |
+|---|---|---|
+| **MO-17** 台股 30 日 sparkline | 「done（未 commit）…**未 push** 待用戶拍板」 | **2026-08-02 隨 PR #103（`1128466`）已上線**；gis-platform `d852752`(migration 325) 也已在 `origin/main`。master 的 `PressureRing.tsx:193-198` 有 30D Sparkline（尺寸還從 150×24 被調大到 360×48，代表上線後仍有迭代） |
+| **W5 警訊整合 Phase 1** | impl 文件 §9 checklist 全 ⏳ | **2026-06-17 隨 PR #20（`01ceb11`）12 顆 task 全數落地**；migration 211 早已 apply（anon key 打三支 RPC 全 200、當下 74 筆 active） |
+
+**共同病根**：功能上線了，但文件的狀態欄沒回填。MO-17 更因 PR squash 換了 commit hash，`git branch --contains` 查原 commit 顯示「未併入」，造成誤判。
+
+**建議的制度性修法**（明早可順手決定）：`/wrap-up` 加一步「PR merge 後回填 BACKLOG 狀態欄與 impl 文件 checklist」，或在 PR template 加一條 checkbox。否則下一份交接文件會再踩一次。
+
+---
+
+## 3. 🔴 重大發現二：AR-11e 前提翻案（含資料遺失紅旗）
+
+**BACKLOG 的「3.2GB」是過時數字。**`cron.job` jobid **75**（`cleanup-cwa-imagery-frames`）自 **2026-07-07** 起每日跑 14 天保留，36 次全 succeeded，早把它磨到 **3,800 列 / 580MB**（全表 629MB）。
+→ **AR-11e 的「補自動清理排程」這半其實已經完成了**，剩下的是舊 RPC 下架。
+
+- **目標**：`live.cwa_imagery_frames.image_bytes`（bytea，**NOT NULL** → 只能設 `''::bytea` 不能 NULL）。schema 是 `live` 不是 `realtime`（migration 312 已搬）
+- ⚠️ `aqi_imagery_frames` / `precipitation_raster_frames` **沒有 R2 副本，絕對不能碰**
+- **R2 對照**：不是抽樣——**全量 3,798 筆逐筆 HTTP HEAD，3,798/3,798 = 200，零缺檔**
+
+### 🚩 紅旗：2 筆孤兒列
+2026-07-09 有 **2 筆 `image_key IS NULL` 的列，R2 上不存在，DB 是世上唯一一份**（collector best-effort 上傳失敗所致）。
+目前靠 cron 的 `image_key IS NOT NULL` 條件苟活 → **不會被誤刪，今晚安全**，但**任何清理動作前必須先跑 `backfill_imagery_r2.py` 補上**。
+
+另有 64 筆 size 分歧（CWA 對同 `observed_at` 重繪，R2 是較新官方版，兩邊都是有效 800×800 圖）→ benign，但意味 **R2 不是逐位元組備份**。
+
+### 還在讀 DB 影像的
+- production：**零讀取**
+- **本機 dev 沒設 `VITE_IMAGERY_CDN_BASE` → 仍走 `get_cwa_imagery_frames_batch` 讀 bytea**
+- 3 支 legacy RPC 尚存，DB 內部零引用
+
+### 調查者立場（條件式放行）
+- ✅ **RPC 下架可走**，但嚴守順序：孤兒 backfill → pulse 移 fallback＋死碼並補 `.env` → 線上驗收 → 才 DROP
+- ❌ **不放行單獨的一次性 bytea 清空** —— collector 仍雙寫，兩週就長回原狀，是白工
+- ⏸ **Option A / B 需 owner 拍板**（見 §5）
+
+方案書全文（含逐字可執行 SQL、R2 對照表、回復方案）：`scratchpad/ar11e-cleanup-plan.md`
+
+---
+
+## 4. 🔴 重大發現三：Zeabur ＝ merge 即上線
+
+實查（Zeabur CLI）：service `mini-taiwan-pulse`（project `mini-tw-pulse`）綁 GitHub `refs/heads/master`，deployment metadata `"planType": "docker"`。
+
+- **走 Dockerfile，不走 zbpack**：build log `COPY package.json package-lock.json` → `RUN npm ci`（`added 299 packages`）→ `npm run build`（`vite v6.4.1`）。全 log grep `pnpm|yarn|corepack` **零命中**
+- repo 無 `zbpack.json`/`zeabur.json`，service env 無任何 `ZBPACK_*` → 唯一能把 build 導離 Dockerfile 的機制**不存在**
+- S3 只放 runtime 資料（`pull-deploy-assets.sh` 啟動時拉進 `/data`），**不參與 build**
+- ⚠️ **沒有 staging 中繼——PR merge 的那一刻就是部署**
+
+**對 AU-6 的結論：安全**。`pnpm-lock.yaml` 從不進 build 路徑；`package-lock.json` 在分支上與 master 逐位元組相同，`npm ci` 輸入等同現行 production。`packageManager` 欄位在 Dockerfile 路徑被忽略（無 corepack），反事實走 zbpack 時反而會判成 npm，是保險。
+唯一未驗：**此分支本身還沒在 Zeabur build 過**。merge 後看首次 build log 仍是 `npm ci` + `added 299 packages` 即可轉綠。
+
+（順手修掉 `PLAYBOOKS.md` PB-06 提到的 `zeabur.json` —— 該檔從不存在，已改為上述實證。8/12 那次 FAILED deployment 是 GitHub 網路逾時，與 lockfile 無關。）
+
+---
+
+## 5. 明早要 owner 拍板的事
+
+1. **AR-11e 走 A 還是 B**
+   - **A（調查者建議）**：維持 14 天 DB 副本當災備，只收尾 RPC 下架。理由：580MB 佔 37GB 的 1.6%，純省空間 ROI 低
+   - **B**：collector 停寫 bytea ＋ 拉長 metadata 保留，前端歷史深度從 14 天 → 21,587 張。**B 的真正賣點是產品加值，不是省空間**
+   - **無論 A 或 B，第一步都是先跑孤兒 backfill**（那 2 筆是世上唯一一份）
+2. **🔴 壓力指數的常數污染**（§6c）：警報訊號佔 composite 的 57%，而撐住它的是 expires 2027 的藤枝休園。SQL 提案已寫好兩個分岔，未 apply
+3. **W2 的 EDGE 6 筆**逐項決定：房地產 Grid×3（hover 無觸控替代，補 click 是 S）／`temperatureWave`（3D raycast 換重複讀數，M-L）／`waterFloodExtreme`（payload ＝圖例已標的分級）／`powerPoles`（欄位薄但族群不一致是真的）
+4. **上游 12 項資料問題要不要路由回 `taipei-gis-analytics`**（§6d），尤其 cycling ROC 轉西元 bug 影響 24.4% 的列
+5. **RWD 要不要全面上手機**（§6b 第 3 項）：要動 `App.tsx` 的 `!isMobile` 閘 ＋ 12 欄靜態網格
+6. **push / merge 決策**（見 §7 建議順序）—— 記得 merge 即上線
+7. **要不要補一條制度性防呆**擋幽靈待辦再發生（§2 末）
+
+---
+
+## 6. W2 與 W5 完整結果
+
+### 6a. W2 popup 補強：29 筆 CANDIDATE **全數處理完，0 跳過**
+
+**對帳恆等式**（三行可核，這是本批最值得信任的一份自證）：
+- 29 CANDIDATE ＝ 第一階段 11 ＋ 第二階段移出 ledger 14 ＋ **留在 ledger 4**
+  （`busIntercityLive` ＋ realEstate{Rental,Sale,Presale}Point —— 正解是 pick/tooltip，manifest `popup` 依然 null，鐵則 3 的雙向測試會擋錯改。**不是漏做**）
+- ledger 57 → 32 ＝ 22 KEEP-NULL ＋ 6 EDGE ＋ 上述 4
+- 黃金快照 **+11 個 type、0 刪除行**，恰為 gisClickRegistry 接線的 11 key
+
+**修正了 audit 報告本身的三處事實錯誤**：freeway loader 早已烤好 8 欄（只缺 hit 層）／`popCount` 是總人口非日夜人口（factory 寫死 `"p"`）／`WasteTruckScene.pickTruck` 早就存在、從沒人呼叫。
+**一處刻意偏離報告建議**：`wasteTruck` 走 FeatureInfoPanel 而非 tooltip —— 同檔 `ship` 分支就是「會移動的 Three.js 物件開 panel」的前例，且唯有走 panel 才真正離開 ledger。
+
+**欄位語意來源**：內政部圖層說明 114.01.08 附表1（7 個 ROADCLASS2 碼全數交叉驗證）／TDX `bike.md` ＋ fetch 腳本／ftw catalog ＋ parquet 實測／repo 內 SSOT 交叉驗證（確認 RE buffer `price` 是元/m²）。
+**單位存疑欄一律整欄不顯示**：`WIDTH`（規格書未載單位）／`ROADCOMNUM`（與資料矛盾）／`DIR`。
+
+**瀏覽器實點 28/29**：國道 38 km/h·壅塞等級 4／台5 忠孝東路四段·一般省道／熱島 **+6.4 K**、地表溫度 49.0 °C／樹冠 10 公尺／客運 KKB-3137_0 行駛中（**此前完全點不到**）／垃圾車 KEM-3620／田區 1.119 公頃·信心 0.569／**socio 切 Sal% 後 50.90 萬元→0.72 薪資佔比**（證明 metric 讀的是真 param 不是 fallback）／youbike 經 `-ext` 命中（實證 3D toggle 下兩個 id 都要收）。
+唯 `realEstatePresalePoint` 未實點 —— 與已驗的 rental（240 元/m²）、sale（458,393 元/m²）共用同一 `pickPoint`，僅 type filter 值不同。
+
+### 6b. W5 Phase 2：四項
+
+1. **地圖警報點 B2 pulse — done**。`useDisasterAlertLayer.ts:44-68,161-178,376-424`（2 個共用環，環色走 severity）＋ `disasterAlertLoader.ts:196-266`（`pulse` 旗標＋逐 part 錨點）。四鐵則：opacity 每幀乘、圖例補「脈動環」列、pulse **不進 click layers**（popup 仍走底層）
+   **實測**：5 顆橙環落在台北／新北 ×2／雲彰海線／台東的高溫特報範圍，rAF 取樣 r 21.6↔29.9、opacity 0.51↔0.08 兩環反相。**負測試**：藤枝休園 Severe+active 但 `pulse=0` 不閃
+2. **壓力指數 — 🔴 待拍板，見 §6c**
+3. **RWD — partial**。intel/monitor 在 <768px 根本不掛載（`App.tsx` 的 `!isMobile` 閘）＝「沒有」不是「壞掉」。可達範圍內真會擠爆的是 Monitor widget 寫死的 `repeat(3,1fr)` → AlertBoard/AlertSummaryBar 改 auto-fit（實測 410px→3 欄、300px→2、200px→1）。全面上手機未做（要動 App.tsx 閘＋12 欄靜態網格）
+4. **歷史檢索 — done**。重用既有按日 RPC `get_disaster_alerts_day` ＋ `dayAlertsToCards()`，走 `subscribeDate`。實測切 8/12 顯示 173 則、banner 標「不含地震」。順帶修 `fmtExpiry` 長效期吐「150:57:19」→「至 8/19 / 長期」
+
+**safety 灌量規則表**（`src/data/alertRules.ts`，照 78 筆 active 的實際 age 分佈定值，非拍腦袋）：
+- earthquake / weather / flood / transit ＝ `foldAfterH: null`，**語意編碼「維持原樣」**——NCDR 是 UPSERT by identifier，颱風連掛數日 `sent` 停在首發，任何時間門檻都會在事件進行中把它藏起來
+- lifeline 72h（p50 19h／p90 113h，折 5/45）；safety 48h（海洋污染 23 筆 age 全 >200h，48h 恰好留下火災的 18.7h，折 24/25）
+- 一張表管三處：列表折疊／地圖 pulse gate／壓力降權
+
+**地震 `county`**：判定為 **RPC 命名選擇而非資料缺陷**（211 的地震分支是 `COALESCE(NULLIF(location_desc,''),'全國') AS county`，上游表根本沒有 county 欄）→ 前端解析解決，**未動 SQL**。實測「臺東縣政府南南西方 37.3 公里(位於臺東縣近海)」→ 地點顯示「臺東縣」。
+
+### 6c. 🔴 W5 撈到的真問題：壓力指數有一半是常數在撐
+
+查證發現**警報早就在壓力指數裡**（migration 207 的 `v_alert`，權重 0.20，判準 `expires > NOW()`）。
+實測 `per_signal.alert = 80.0`、composite 28.0 → **警報佔了 57%**；而撐住那個 80 的是**藤枝休園（Severe、expires 2027）——一個全年釘死的常數**。
+SQL 提案：`docs/proposal/alerts-pressure-signal.sql`，兩個分岔留給 owner。**未 apply。**
+
+### 6d. 上游資料品質問題 12 項 → `docs/features/layer-manifest/upstream-data-issues.md`
+（第一階段 5 ＋ 第二階段 7）。最嚴重的是 cycling `FinishedTime` 的 ROC→西元轉換 bug：`04_fetch_cycling_shape.py:85-91` 假設 7 碼，6 碼輸入產出 `2902202`，**佔 24.4%**。
+其餘含 basins `area_km2` 實為 m²／levees `length_m` 與 catalog 矛盾／`water_rivers` 線層 3 欄全空／宜蘭 9,918 條 canals 的 n/t 恆空／`irrigation_canal.md` frontmatter 漂移。
+**未動 taipei-gis-analytics 任何檔案** —— 建議明早決定是否路由回上游。
+
+### 6e. 未驗證的部分（誠實列出）
+- W5：`is_pt=1` 路徑的 pulse（民生／水文／交通／安全四群當天無 severe+fresh 樣本）；reduced-motion 靜態環（程式路徑在，未切系統偏好實測）；壓力指數 SQL 只做唯讀試算
+- W2：`realEstatePresalePoint` 未實點（同 `pickPoint`，僅 filter 值不同）
+- AU-6：此分支尚未在 Zeabur build 過（merge 後看首次 build log 即可轉綠）
+
+---
+
+## 7a. 整合驗證（`integration/next-batch`）
+
+每條分支只驗過自己，但 W1／W2／W5 都碰 `layerManifest.ts`、W2 兩階段都碰 `layer-golden.json`、W1／AU-6 都碰 `.claude/memory` —— **各自綠不代表合起來綠**。而 merge 到 master 就直接部署，所以補這道整合關。
+
+從 `origin/master`(`382b896`) 開 `integration/next-batch`，依 §7 的建議順序 merge 五條：
+
+| 檢查 | 結果 |
+|---|---|
+| 五條 merge | **零衝突**（含 `layerManifest.ts` 三方改動與黃金快照） |
+| `npx tsc -b` | **0 error** |
+| `npx vitest run` | **42 檔 561 passed + 1 skipped = 562**（＝基準 560 ＋ W3 新增 2，數字對得上） |
+| `gisClickRegistry` first-hit-wins 排序 | **人工檢查通過**（見下） |
+| `vite build`（production） | **✓ built in 9.54s** |
+| `docker build` | **✓ 完整通過**（`naming to …pulse-integration-verify:latest done`） |
+
+**docker build 的真數據**（`--no-cache` 那次，非 cache 命中）：
+`npm ci` → `added 299 packages, and audited 300 packages in 51s`；
+`vite v6.4.1 building for production` → `✓ 2351 modules transformed` → `✓ built in 12.16s`。
+過程中 Stage 2 的 `apk add --no-cache aws-cli` 曾因 alpine 套件解壓 I/O error 失敗一次（與本批改動無關——Dockerfile 未動，且 AU-6 分支 11 小時前的完整 `--no-cache` build 含 Stage 2 一起過），重跑即通過，判定為暫時性環境問題（同一時段 Docker Hub 也出現 TLS handshake timeout）。
+另：`package-lock.json`／`package.json`／`Dockerfile` 與已驗過的 `chore/au6-single-lockfile` **逐位元組相同**，故 `npm ci` 層的行為與該分支等價。
+
+**語意衝突的人工檢查**（這種衝突 git 不會報，型別也擋不住）：W2 新增的層都排在有理由的位置——國道壅塞入細線層前段（與省道地理不重疊）、H3 六層在既有面層之後田區之前且每層都收 `-fill`＋`-ext`（3D toggle 讓兩者互斥）、FTW 田區 38.6 萬面排整個陣列真正最末；W5 的 pulse 環刻意**不進** click layers（popup 仍走底層）。**兩者零交集。**
+
+---
+
+## 7. 建議的 merge 順序與 post-merge 檢查
+
+⚠️ **先選一種上線策略**（因為 merge ＝ 部署，這個選擇有實質差別）：
+
+- **選項 A：把 `integration/next-batch` 當成一個 PR merge —— 一次部署。**
+  優點：上線的**正是通過 tsc／562 tests／docker build 的那棵樹**，零未驗證中間態。
+  缺點：要 revert 就是整批一起退。
+- **選項 B：五條分支逐條 merge —— 五次部署。**
+  優點：per-branch 可獨立 revert。
+  缺點：**會產生 4 個從未被測過的中間態**（例如 merge 完第 3 條時的 master）並各自實際上線。
+  每條分支只驗過「自己 vs master」，整批驗過「全部合起來」，**中間組合沒人驗**。
+
+> 若沒有強烈的逐條 revert 需求，建議 **A**。以下順序供選 B 時使用（風險由低到高，每步 merge 後確認再進下一步）：
+
+| # | 分支 | 為何這個順序 | merge 後要看什麼 |
+|---|---|---|---|
+| 1 | `test/hook-registry-per-key` | 純測試，零 runtime 影響 | CI 綠即可 |
+| 2 | `chore/staticassets-ack-bm-closeout` | 純文件／memory | 無 runtime 影響 |
+| 3 | `chore/au6-single-lockfile` | 動 build 輸入，但已 docker build 驗過 | 🔑 **首次 Zeabur build log 是否仍 `npm ci` + `added 299 packages`** |
+| 4 | `feat/popup-backfill` | 動 manifest／golden 快照，範圍大但已逐 key 實點驗過 | 上線後隨機點 2-3 個新接的圖層看面板 |
+| 5 | `feat/alerts-integration` | 動最多（新 UI＋可能新圖層） | 地圖警報點 pulse 有沒有出現 |
+
+---
+
+## 8. 工作區狀態（給平行 session 的保證）
+
+- **主樹全程未動**：`git status` 空、仍在 `feat/vessel-watch`（vessel-watch session 的 2 顆 commit 原封不動）
+- 所有工作在 `.claude/worktrees/{w1-docs,w2-popup,w3-regtest,w5-alerts,w6c-lockfile}`，五個 worktree 零殘留 symlink
+- 唯讀取用過主樹的 `.env`（W5 做 production RPC 探測、W2 做瀏覽器驗收），只讀不改
+- `public/police_justice` 是 6/29 就存在的 gitignored symlink，非本批產物
+
+---
+
+*本報告由 opus 主控彙整；各 track 的完整回報與方案書見 session scratchpad。*

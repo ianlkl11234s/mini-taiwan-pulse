@@ -190,5 +190,5 @@ python3 scripts/pla_ocr_apply.py                                  # 套用（含
 
 # 驗證
 cd data-collectors && python3 -m pytest tests/test_pla_activity_parse.py -q
-cd mini-taiwan-pulse && npx tsc -b && pnpm test
+cd mini-taiwan-pulse && npx tsc -b && npm test
 ```
