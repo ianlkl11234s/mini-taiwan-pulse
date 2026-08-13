@@ -29,6 +29,10 @@ import {
   type ActiveAlert,
   type AlertSummary,
 } from "../../data/alertsLoader";
+import {
+  partitionByPersistence,
+  ALERT_PERSISTENCE_RULES,
+} from "../../data/alertRules";
 import type { NewsCategory } from "../../data/newsEventTypes";
 import { timeStore } from "../../state/timeStore";
 import { useNewsFilter } from "../../hooks/useNewsFilter";
@@ -96,6 +100,7 @@ export function IntelPanel({
   const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
   const [alertSelectedId, setAlertSelectedId] = useState<string | null>(null);
   const [alertExpandedId, setAlertExpandedId] = useState<string | null>(null);
+  const [staleOpen, setStaleOpen] = useState(false);
 
   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
   const [trending, setTrending] = useState<TrendingRow[]>([]);
@@ -271,6 +276,20 @@ export function IntelPanel({
     () => (alertSummaryRows.length ? tallySummary(alertSummaryRows) : EMPTY_TALLY),
     [alertSummaryRows],
   );
+
+  // 「持續中」折疊：長效期告警（海洋污染／長期停水…）不佔主列表。
+  // 規則表 = src/data/alertRules.ts（按群組分開設，null = 維持原樣）。
+  // 每分鐘重算即可 —— 門檻是 48/72 小時，秒級精度無意義。
+  const nowMin = Math.floor(now / 60);
+  const { fresh: freshAlerts, stale: staleAlerts } = useMemo(
+    () => partitionByPersistence(activeAlerts, nowMin * 60),
+    [activeAlerts, nowMin],
+  );
+  const staleLabels = useMemo(() => {
+    const seen = new Set<string>();
+    for (const a of staleAlerts) seen.add(ALERT_PERSISTENCE_RULES[a.group].staleLabel);
+    return [...seen].join("・");
+  }, [staleAlerts]);
 
   if (!open) return null;
 
@@ -493,26 +512,87 @@ export function IntelPanel({
               </div>
             </div>
           ) : (
-            <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
-              <span
-                style={{
-                  position: "absolute", left: 12, top: 6, bottom: 6,
-                  width: 1.5,
-                  background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
-                }}
-              />
-              {activeAlerts.map((a) => (
-                <AlertCard
-                  key={a.id}
-                  a={a}
-                  selected={a.id === alertSelectedId}
-                  expanded={a.id === alertExpandedId}
-                  onSelect={onAlertSelect}
-                  onToggle={onAlertToggle}
-                  nowTs={now}
-                />
-              ))}
-            </div>
+            <>
+              {freshAlerts.length > 0 ? (
+                <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 10 }}>
+                  <span
+                    style={{
+                      position: "absolute", left: 12, top: 6, bottom: 6,
+                      width: 1.5,
+                      background: `linear-gradient(${COLORS.borderMid}, ${COLORS.borderSoft} 90%, transparent)`,
+                    }}
+                  />
+                  {freshAlerts.map((a) => (
+                    <AlertCard
+                      key={a.id}
+                      a={a}
+                      selected={a.id === alertSelectedId}
+                      expanded={a.id === alertExpandedId}
+                      onSelect={onAlertSelect}
+                      onToggle={onAlertToggle}
+                      nowTs={now}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div
+                  style={{
+                    fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                    color: COLORS.textMuted, textAlign: "center", padding: "18px 0",
+                  }}
+                >
+                  無新發布的警報，僅有下方長期持續事件
+                </div>
+              )}
+
+              {/* 「持續中」折疊區 —— 規則見 src/data/alertRules.ts */}
+              {staleAlerts.length > 0 && (
+                <div style={{ marginTop: freshAlerts.length > 0 ? 14 : 4 }}>
+                  <button
+                    onClick={() => setStaleOpen((v) => !v)}
+                    title={[...new Set(staleAlerts.map((a) => ALERT_PERSISTENCE_RULES[a.group].rationale))].join("\n")}
+                    style={{
+                      width: "100%", display: "flex", alignItems: "center", gap: 7,
+                      padding: "7px 10px", borderRadius: RADIUS.lg,
+                      background: "rgba(255,255,255,0.03)",
+                      border: `1px dashed ${COLORS.borderMid}`,
+                      color: COLORS.textMuted, cursor: "pointer", textAlign: "left",
+                    }}
+                  >
+                    <span style={{ fontFamily: FONT_DATA, fontSize: 10 }}>
+                      {staleOpen ? "▾" : "▸"}
+                    </span>
+                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base }}>
+                      持續中 {staleAlerts.length} 則
+                    </span>
+                    <div style={{ flex: 1 }} />
+                    <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint }}>
+                      {staleLabels}
+                    </span>
+                  </button>
+                  {staleOpen && (
+                    <div
+                      style={{
+                        position: "relative", display: "flex", flexDirection: "column",
+                        gap: 10, marginTop: 10, opacity: 0.72,
+                      }}
+                    >
+                      {staleAlerts.map((a) => (
+                        <AlertCard
+                          key={a.id}
+                          a={a}
+                          selected={a.id === alertSelectedId}
+                          expanded={a.id === alertExpandedId}
+                          onSelect={onAlertSelect}
+                          onToggle={onAlertToggle}
+                          nowTs={now}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           )
         ) : feedTab === "all" ? (
           (() => {
@@ -521,7 +601,8 @@ export function IntelPanel({
               { kind: "alert"; ts: number; a: ActiveAlert }
             > = [
               ...flatEvents.map((e) => ({ kind: "news" as const, ts: e.published_ts, e })),
-              ...activeAlerts.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
+              // 長期持續事件不進「全部」時間軸（本來就沉底，只是噪音）；要看走「警報」tab 的折疊區
+              ...freshAlerts.map((a) => ({ kind: "alert" as const, ts: a.sent_ts, a })),
             ];
             merged.sort((x, y) => y.ts - x.ts);
             if (merged.length === 0) {

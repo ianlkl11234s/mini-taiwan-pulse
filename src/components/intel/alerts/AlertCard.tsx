@@ -124,15 +124,18 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
 
         {/* location + time */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-            <IntelIcon d={MICON.pin!} size={10} color={COLORS.textMuted} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
-              {a.county}
-              {a.area_count > 1 && (
-                <span style={{ color: COLORS.textFaint }}> · {a.area_count} 區</span>
-              )}
+          {/* county 與 headline 同字串時不重覆上牆（NCDR/CWA 原文常有這種列） */}
+          {a.county && a.county !== (a.headline || a.term) && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+              <IntelIcon d={MICON.pin!} size={10} color={COLORS.textMuted} />
+              <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
+                {a.county}
+                {a.area_count > 1 && (
+                  <span style={{ color: COLORS.textFaint }}> · {a.area_count} 區</span>
+                )}
+              </span>
             </span>
-          </span>
+          )}
           <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
             <IntelIcon d={MICON.clock!} size={10} color={COLORS.textMuted} />
             <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: COLORS.textMuted }}>

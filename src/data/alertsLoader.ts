@@ -14,6 +14,7 @@ import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, keyedThunkCache } from "../lib/loaderCache";
 import {
   ALERT_GROUP_ORDER,
+  COUNTY_OPTIONS,
   type AlertGroupShort,
 } from "../components/intel/intelTokens";
 
@@ -104,6 +105,49 @@ function asNum(v: number | string | null | undefined): number {
   return typeof v === "number" ? v : Number(v);
 }
 
+// ─── county 正規化 ────────────────────────────────────────
+// migration 211 的地震分支是 `COALESCE(NULLIF(location_desc,''),'全國') AS county`
+// —— 上游 `realtime.earthquake_events` 根本沒有 county 欄，回來的是整串**震央描述**
+// （例「臺東縣政府南南西方 37.3 公里 (位於臺東縣近海)」），跟 headline 同字串。
+// 屬 RPC 的命名選擇而非資料缺陷，故在前端解析出縣市即可，不動 SQL。
+const COUNTY_NAMES = COUNTY_OPTIONS.filter((c) => c !== "全部" && c !== "全國");
+
+/** 找出字串中最先出現的縣市全名（台/臺 都吃），找不到回 null */
+function firstCountyIn(text: string): string | null {
+  const t = text.replace(/台/g, "臺");
+  let best: string | null = null;
+  let bestAt = Infinity;
+  for (const c of COUNTY_NAMES) {
+    const at = t.indexOf(c);
+    if (at >= 0 && at < bestAt) {
+      bestAt = at;
+      best = c;
+    }
+  }
+  return best;
+}
+
+/**
+ * 震央描述 → 縣市。
+ * 先取括號內的「(位於臺東縣近海)」—— 「X縣政府方位」的基準縣市未必等於震央所在縣；
+ * 括號抓不到才退回整串的第一個縣市名，再不行留原字串（防禦性：寧可長也不要空）。
+ */
+function countyFromLocationDesc(raw: string): string {
+  const inside = raw.match(/[（(]([^）)]*)[）)]/);
+  if (inside?.[1]) {
+    const hit = firstCountyIn(inside[1]);
+    if (hit) return hit;
+  }
+  return firstCountyIn(raw) ?? raw;
+}
+
+function normalizeCounty(raw: string | null | undefined, group: AlertGroupShort): string {
+  // NCDR 列常帶尾空白（split_part(area_desc,'/',1) 的產物）
+  const t = (raw ?? "").trim();
+  if (!t) return "全國";
+  return group === "earthquake" ? countyFromLocationDesc(t) : t;
+}
+
 async function _fetchAlertSummaryRaw(): Promise<AlertSummary[]> {
   try {
     const { data, error } = await withLoading(
@@ -175,7 +219,7 @@ async function _fetchActiveAlertsRaw(
           magnitude: r.magnitude == null ? null : Number(r.magnitude),
           depth_km: r.depth_km == null ? null : Number(r.depth_km),
           occurred_ts: r.occurred_ts == null ? null : asNum(r.occurred_ts),
-          county: r.county ?? "全國",
+          county: normalizeCounty(r.county, g),
         };
       })
       .filter((x): x is ActiveAlert => x !== null);
