@@ -1,6 +1,9 @@
 import { Row } from "./shared";
+import {
+  maritimeBoundaryType, MARITIME_BOUNDARY_SOURCE_NOTE,
+} from "../../data/maritimeBoundaryTypes";
 
-// Base map popup panels — 行政邊界 + 等高線 + OSM 路網
+// Base map popup panels — 行政邊界 + 海域界線 + 等高線 + OSM 路網
 // PMTiles 來源 taipei-gis-analytics，欄位由 _manifest.json / catalog 各檔定義
 
 const HIGHWAY_LABEL: Record<string, string> = {
@@ -65,6 +68,30 @@ export function VillageBoundaryPanel({ props }: { props: Record<string, unknown>
       <Row label="VILLCODE" value={code} />
       <Row label="備註" value={note} />
       <Row label="來源" value="內政部國土測繪中心 NLSC" />
+    </div>
+  );
+}
+
+/**
+ * 領海界線 —— 一個 layer 四種 feature（properties.layer 區分）。
+ * 類型標籤／顏色／法律意義全部走 maritimeBoundaryTypes SSOT，
+ * 只有基點才有 name / base_point_id / type 三欄（其餘類型為空，Row 自動略過）。
+ */
+export function MaritimeBoundaryPanel({ props }: { props: Record<string, unknown> }) {
+  const meta = maritimeBoundaryType(props.layer);
+  // layer_zh 是切片自帶的中文層名；SSOT 查不到時才退回它（不編造分類）
+  const kind = meta?.label ?? String(props.layer_zh ?? props.layer ?? "");
+  const region = String(props.region ?? "");
+  const isPoint = props.layer === "basepoint";
+  return (
+    <div>
+      <Row label="類型" value={kind} color={meta?.color} />
+      <Row label="區域" value={region} />
+      {isPoint && <Row label="基點名稱" value={String(props.name ?? "")} />}
+      {isPoint && <Row label="基點編號" value={String(props.base_point_id ?? "")} />}
+      {isPoint && <Row label="基點類型" value={String(props.type ?? "")} />}
+      <Row label="法律意義" value={meta?.meaning ?? ""} />
+      <Row label="來源" value={MARITIME_BOUNDARY_SOURCE_NOTE} />
     </div>
   );
 }

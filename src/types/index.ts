@@ -107,7 +107,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
-  | "newsEvents" | "plaActivity"
+  | "newsEvents" | "plaActivity" | "vesselWatch"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -332,6 +332,7 @@ export type ExpandableLayerKey =
   | "realEstatePresalePoint"
   // Base map
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+  | "maritimeBoundary"
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
   | "osmExpressway" | "hillshade"
   | "slopeVector" | "aspectVector"
@@ -676,7 +677,7 @@ export interface FeatureInfo {
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
-    | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity"
+    | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
@@ -770,6 +771,7 @@ export interface FeatureInfo {
     | "temperatureGrid"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+    | "maritimeBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
     | "osmExpressway" | "hillshade"
     | "slopeVector" | "aspectVector"
@@ -848,6 +850,12 @@ export interface LayerVisibility {
   newsEvents: boolean;
   /** 共機活動區（國防部每日航跡示意圖向量化，spatial.pla_tracks · 依日期回放） */
   plaActivity: boolean;
+  /**
+   * 特殊船舶（AIS）：海警／海巡／科研船／軍艦等的最後已知位置 ＋ 斷續取樣軌跡。
+   * live.vessel_watch_positions（gis-platform migration 339/340）。
+   * ⚠️ 與 `ships`（全量 AIS，Three.js ShipScene）是**兩層**，本層為純 Mapbox circle/line。
+   */
+  vesselWatch: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
@@ -1160,6 +1168,7 @@ export interface LayerVisibility {
   countyBoundary: boolean;     // 22 縣市界（內政部，名稱/行政區域代碼）
   townshipBoundary: boolean;   // 鄉鎮市區界
   villageBoundary: boolean;    // 村里界
+  maritimeBoundary: boolean;   // 領海基線 / 基點 / 12 浬領海 / 24 浬鄰接區外界線（內政部 98 年公告）
   contour25k: boolean;         // 經建版 1:25000 等高線（精度 10m，~21% 全臺覆蓋）
   contourDtm20: boolean;       // DTM 20m 等高線（精度 20m，全臺完整）
   osmRoadDrive: boolean;       // OSM 可駕駛道路（55 萬 edges，按 highway 等級分色）

@@ -91,6 +91,9 @@ import {
 import {
   TOUR_ATTRACTIONS_CATEGORY_COLOR, TOUR_HOTELS_CLASS_COLOR, TOUR_HERITAGE_CATEGORY_COLOR,
 } from "../data/tourTypes";
+import {
+  maritimeBoundaryColorExpr, MARITIME_SOLID_LINE_KINDS,
+} from "../data/maritimeBoundaryTypes";
 
 /**
  * 🎓 教育：總覽層 schools ＋ 5 個分級 ＋ 偏遠層，六者共用同一個 sourceId。
@@ -6933,7 +6936,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
   realEstateGridOverlay("realEstatePresaleGrid", "presale", "presale"),
 
   // ── BASE MAP（PMTiles 來自 taipei-gis-analytics SSOT，~406MB 走 S3/base_map → Volume）──
-  //   行政邊界 3 層、等高線 2 層（25k 精度 10m / dtm20 全臺）、OSM 可駕駛道路 1 層
+  //   行政邊界 3 層、海域界線 1 層、等高線 2 層（25k 精度 10m / dtm20 全臺）、OSM 可駕駛道路 1 層
   //   全部預設 OFF；attr 全保留供 popup（見 featureInfo/baseMapPanels.tsx）
   {
     id: "countyBoundary",
@@ -7029,6 +7032,70 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "line-color": isDark ? "#cbd5e1" : "#6b7280",
             "line-width": ["interpolate", ["linear"], ["zoom"], 11, 0.4 * w, 14, 0.9 * w, 17, 1.6 * w],
             "line-opacity": params?.villageBoundaryOpacity ?? 0.65,
+          };
+        },
+      },
+    ],
+  },
+  // ── 領海界線（內政部 98 年公告，38 feature／4 類由 properties.layer 區分）──
+  //   角色是**空間參考框架**（背景不是主體）：線寬細、預設 opacity 0.65（低於一般層 0.8）。
+  //   三個 sub-layer 而非一個：`line-dasharray` **不支援 data-driven**，24 浬鄰接區
+  //   要虛線就只能自成一層；基點是 Point 幾何，circle 也必須分層。
+  //   陣列順序 = 疊放順序：實線 → 虛線 → 基點（點在最上，才點得到）。
+  {
+    id: "maritimeBoundary",
+    sourceUrl: "./base_map/maritime_boundary.pmtiles",
+    sourceId: "base-maritime-boundary",
+    pmtiles: { sourceLayer: "maritime_boundary", minzoom: 0, maxzoom: 12 },
+    rebuildOnParamChange: ["line", "line-24nm", "point"],
+    layers: [
+      {
+        // 基線（實線橘）＋ 12 浬領海（實線紅）——法定「主權」界線，實線表達
+        suffix: "line",
+        type: "line",
+        filter: ["in", ["get", "layer"], ["literal", MARITIME_SOLID_LINE_KINDS]],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.maritimeBoundaryWidth ?? 1;
+          return {
+            "line-color": maritimeBoundaryColorExpr(MARITIME_SOLID_LINE_KINDS),
+            "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.8 * w, 8, 1.2 * w, 12, 1.8 * w],
+            "line-opacity": params?.maritimeBoundaryOpacity ?? 0.65,
+          };
+        },
+      },
+      {
+        // 24 浬鄰接區（虛線紫）——只有「管制權」非主權，線型刻意與上面兩者不同
+        suffix: "line-24nm",
+        type: "line",
+        filter: ["==", ["get", "layer"], "contiguous_zone_24nm"],
+        layout: { "line-cap": "butt", "line-join": "round" },
+        paint: (_isDark, params) => {
+          const w = params?.maritimeBoundaryWidth ?? 1;
+          return {
+            "line-color": maritimeBoundaryColorExpr(["contiguous_zone_24nm"]),
+            "line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.8 * w, 8, 1.2 * w, 12, 1.8 * w],
+            // dasharray 單位是「線寬倍數」→ 已隨 w 自動縮放，不需要再乘
+            "line-dasharray": [4, 3],
+            "line-opacity": params?.maritimeBoundaryOpacity ?? 0.65,
+          };
+        },
+      },
+      {
+        // 26 個領海基點：z<5 幾乎全部重疊成一團，故 minzoom 5 才顯示
+        suffix: "point",
+        type: "circle",
+        minzoom: 5,
+        filter: ["==", ["get", "layer"], "basepoint"],
+        paint: (isDark, params) => {
+          const w = params?.maritimeBoundaryWidth ?? 1;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 1.6 * w, 8, 3 * w, 12, 5 * w],
+            "circle-color": maritimeBoundaryColorExpr(["basepoint"]),
+            "circle-opacity": params?.maritimeBoundaryOpacity ?? 0.65,
+            "circle-stroke-color": isDark ? "#0d1117" : "#ffffff",
+            "circle-stroke-width": 0.6,
+            "circle-stroke-opacity": (params?.maritimeBoundaryOpacity ?? 0.65) * 0.8,
           };
         },
       },

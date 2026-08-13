@@ -190,6 +190,13 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
+        // 陸域行政界之外的**海域法定界線**（內政部 98 年公告），故不併進「行政邊界」
+        title: "海域界線",
+        layers: [
+          fromManifest("maritimeBoundary"),
+        ],
+      },
+      {
         title: "地形",
         layers: [
           fromManifest("contour25k"),
@@ -1276,6 +1283,7 @@ export const THEMES: ThemeDef[] = [
         title: "軍事",
         layers: [
           fromManifest("plaActivity"),
+          fromManifest("vesselWatch"),
         ],
       },
     ],

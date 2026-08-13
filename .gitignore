@@ -95,7 +95,9 @@ public/geo/bus_stations_city.pmtiles
 public/geo/bus_stations_intercity.pmtiles
 public/geo/fire_hydrants.pmtiles
 public/forestry/hiking_trails.pmtiles
-# Base map PMTiles（行政邊界 + 等高線 + OSM 路網，6 檔合計 ~406MB，走 S3 deploy-assets/base_map/）
+# Base map PMTiles（行政邊界 + 海域界線 + 等高線 + OSM 路網 + 坡度坡向，走 S3 deploy-assets/base_map/）
+# ⚠️ 本 glob 含小檔（maritime_boundary 355KB）—— nginx /base_map/ 是純 volume 無 dist fallback，
+#    新增切片一定要跑 upload-deploy-assets.sh，否則 prod 404（PT-1 同款）。
 public/base_map/*.pmtiles
 # 路況省道幾何 PMTiles（road_congestion_highway 3.1MB，前端 feature-state 染色，走 S3 deploy-assets/road/）
 public/road/*.pmtiles

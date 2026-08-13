@@ -51,7 +51,7 @@ import {
 import {
   EarthquakesGlobalHost, TyphoonTracksHost, WorldTrashDebrisHost,
   WindFieldHost, OceanCurrentsHost, DustForecastHost,
-  DisasterAlertHost, PlaActivityHost,
+  DisasterAlertHost, PlaActivityHost, VesselWatchHost,
 } from "./hosts/climateHosts";
 import {
   SatellitesHost, RoadEventsHost, FireEventsHost, FireLatestHost,
@@ -213,6 +213,9 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
     Host: DisasterAlertHost,
   },
   { id: "usePlaActivityLayer", keys: ["plaActivity"], Host: PlaActivityHost },
+  // 新層（2026-08-12）：插在 plaActivity 之後 —— 既有 entry 的相對順序不變，
+  // 本層的 source/layer 因此加在共機活動區之上（船點要壓在活動區面之上才點得到）
+  { id: "useVesselWatchLayer", keys: ["vesselWatch"], Host: VesselWatchHost },
 
   // ── 衛星（L1204）──
   {

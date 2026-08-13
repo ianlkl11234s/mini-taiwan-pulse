@@ -13,6 +13,7 @@ import { AGRI_COMPANY_TYPES } from "../data/agriCompanyTypes";
 import { ALERT_GROUPS, ALERT_GROUP_KEYS } from "../data/disasterAlertTypes";
 import { NEWS_CATEGORIES } from "../data/newsEventTypes";
 import { PLA_KIND_COLORS, PLA_KIND_LABELS } from "../data/plaTracksLoader";
+import { VESSEL_CLASSES } from "../data/vesselWatchTypes";
 // 船種色票／航班識別色 —— 皆為 three-free 出處（見 ShipsLegend / FlightsLegend 註解）
 import { SHIP_TYPE_LEGEND, SHIP_TYPE_COLORS_DARK } from "../data/shipTrails";
 import { LAYER_COLORS } from "./sidebar/layerCatalog";
@@ -20,6 +21,9 @@ import { legendKeys } from "../data/legendGroups";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
+import {
+  MARITIME_BOUNDARY_TYPES, MARITIME_BOUNDARY_SOURCE_NOTE,
+} from "../data/maritimeBoundaryTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
 import { resolveMicroSensorMode, MICRO_SENSOR_NO_DATA_COLOR } from "../data/microSensorTypes";
@@ -309,6 +313,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "rail", render: ({ railSystems }) => <RailLegend railSystems={railSystems} /> },
   { id: "newsEvents", render: () => <NewsEventsLegend /> },
   { id: "plaActivity", render: () => <PlaActivityLegend /> },
+  { id: "vesselWatch", render: () => <VesselWatchLegend /> },
   { id: "iotWraRiver", render: () => <IotRiverLegend /> },
   { id: "iotWraStructure", render: () => <IotStructureLegend /> },
   { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
@@ -422,6 +427,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "nuclearRadiation", render: () => <NuclearLegend /> },
   // Base map：OSM 道路 highway 分級分色（其他 base layer 單色，依鐵則 2 不需圖例）
   { id: "osmRoadDrive", render: () => <OsmRoadDriveLegend /> },
+  { id: "maritimeBoundary", render: () => <MaritimeBoundaryLegend /> },
   { id: "slopeVector", render: () => <SlopeVectorLegend /> },
   { id: "aspectVector", render: () => <AspectVectorLegend /> },
   // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
@@ -784,6 +790,46 @@ function OsmRoadDriveLegend() {
       <FireCatRows cats={OSM_ROAD_DRIVE_CATS} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         z≥10 才顯示｜來源 OpenStreetMap｜55 萬 edges
+      </div>
+    </div>
+  );
+}
+
+// ── 領海界線圖例（4 類：線型也要畫出來，因為 24 浬是虛線）──
+//    色票 / 標籤 / 線型全部來自 data/maritimeBoundaryTypes.ts，與 paint、popup 同源。
+function MaritimeBoundaryLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        領海界線 MARITIME
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {MARITIME_BOUNDARY_TYPES.map((m) => (
+          <div key={m.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {m.value === "basepoint" ? (
+              <div
+                style={{
+                  width: 10, height: 10, borderRadius: RADIUS.full, background: m.color,
+                  opacity: 0.9, flexShrink: 0,
+                  border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 14, height: 0, flexShrink: 0,
+                  borderTop: `2px ${m.dashed ? "dashed" : "solid"} ${m.color}`,
+                  opacity: 0.9,
+                }}
+              />
+            )}
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{m.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        {MARITIME_BOUNDARY_SOURCE_NOTE}｜基點 z≥5 顯示
       </div>
     </div>
   );
@@ -3553,6 +3599,31 @@ function PlaActivityLegend() {
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         依國防部示意圖描繪，非精確航跡
+      </div>
+    </div>
+  );
+}
+
+/**
+ * 特殊船舶（Vessel Watch）—— 12 類分色。
+ *
+ * ⚠️ 標籤一律寫**全稱**：`HAIXUN`「海巡」是**中國海事局**的船，
+ *    與**台灣海巡署**是兩回事。縮寫成「海巡」等於把這層的核心資訊講反。
+ *    文字的 SSOT 在 `data/vesselWatchTypes.ts`，這裡只負責畫。
+ */
+function VesselWatchLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        特殊船舶 VESSEL WATCH
+      </div>
+      <FireCatRows cats={VESSEL_CLASSES.map((c) => ({ color: c.color, label: c.label }))} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 4 }}>
+        細線為軌跡（AIS 約 15 分一筆的斷續取樣，非連續航跡）
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
+        分類由船名／MMSI 規則推斷；軍艦多為他國過境（中台海軍多靜默）
       </div>
     </div>
   );

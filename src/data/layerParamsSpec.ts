@@ -1380,6 +1380,12 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "villageBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
     opacitySlider("villageBoundaryOpacity", 0.65),
   ],
+  // 領海界線：底圖角色（空間參考框架）→ 基準線寬 1.0、預設透明度 0.65（低於一般層的 0.8），
+  // 兩個 default 都必須與 overlayRegistry paint 的 `?? fallback` 逐字相同。
+  maritimeBoundary: [
+    { kind: "slider", name: "maritimeBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("maritimeBoundaryOpacity", 0.65),
+  ],
   contour25k: [
     { kind: "slider", name: "contour25kWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("contour25kOpacity", 0.7),
@@ -2219,6 +2225,28 @@ export const LAYER_PARAMS_SPEC = {
     },
     // showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
     { kind: "toggle", name: "plaShowReview", label: "待核實", default: false, out: null },
+  ],
+  // 特殊船舶：兩支都走第二通道（out: null）—— 值由 VesselWatchHost 的
+  // useLayerParams 讀出後當 hook 參數傳入，圖層是 hook 自建的 circle/line，
+  // 不吃 overlayParams（同 plaActivity 的 D 桶形狀）。
+  vesselWatch: [
+    {
+      kind: "slider", name: "vesselWatchOpacity", labelPrefix: "透明度", digits: 2,
+      default: 0.9, min: 0.1, max: 1, step: 0.05, out: null,
+    },
+    // 軌跡視窗天數。AIS 每艘約 15 分鐘一筆且離岸即斷訊 —— 拉太長只是把
+    // 斷續取樣連成更長的折線，不會更「連續」，故上限 14 天。
+    {
+      kind: "slider", name: "vesselWatchTrailDays", labelPrefix: "軌跡", labelSuffix: " 天",
+      digits: 0, default: 3, min: 1, max: 14, step: 1, out: null,
+    },
+    // 「疑似」＝ 只有規則推測（MID + 船名 pattern 或純自報 ship_type），未經查證。
+    // 2026-08-13 對 200 艘做網路查證後才有這個區分：實測目前海上 88 艘疑似 / 5 艘已查證。
+    // 預設**開啟**——關掉會讓畫面只剩零星幾艘，反而失去態勢感；疑似的用低不透明度區分。
+    {
+      kind: "toggle", name: "vesselWatchShowPresumed", label: "含疑似（未查證）",
+      default: true, out: null,
+    },
   ],
 
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──

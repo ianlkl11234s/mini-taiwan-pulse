@@ -25,6 +25,7 @@ import {
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import {
   NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel, PlaActivityPanel,
+  VesselWatchPanel,
 } from "./eventPanels";
 import {
   RoadCongestionPanel, FreewayCongestionPanel,
@@ -104,6 +105,7 @@ import {
 import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
+  MaritimeBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
   SlopeVectorPanel, AspectVectorPanel,
 } from "./baseMapPanels";
@@ -174,6 +176,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   newsEvent: NewsEventPanel,
   disasterAlert: DisasterAlertPanel,
   plaActivity: PlaActivityPanel,
+  vesselWatch: VesselWatchPanel,
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
   freewayCongestion: FreewayCongestionPanel,
@@ -293,6 +296,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
   villageBoundary: VillageBoundaryPanel,
+  maritimeBoundary: MaritimeBoundaryPanel,
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
@@ -444,6 +448,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
   plaActivity: "共機活動區",
+  // ⚠️ 不可寫成「海巡」—— 本層含中國海事局（HAIXUN）與台灣海巡署兩種完全不同的船
+  vesselWatch: "特殊船舶",
   roadEvent: "即時路況",
   roadCongestion: "省道路況",
   freewayCongestion: "國道壅塞",
@@ -626,6 +632,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
   villageBoundary: "村里界",
+  maritimeBoundary: "領海界線",
   contour25k: "等高線 25k (10m)",
   contourDtm20: "等高線 DTM 20m",
   osmRoadDrive: "道路 (OSM)",

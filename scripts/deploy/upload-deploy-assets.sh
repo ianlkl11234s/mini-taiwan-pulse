@@ -326,7 +326,8 @@ if [ -d public/embed-rail ]; then
 fi
 
 # Base map PMTiles：上傳到 deploy-assets/base_map/ 子前綴（鏡像結構，pull 端整夾 sync）。
-# 8 檔（行政邊界 3 + 等高線 2 + OSM 路網 1 + slope_vector / aspect_vector 各 16MB）。
+# 9 檔（行政邊界 3 + 海域界線 1 + 等高線 2 + OSM 路網 1 + slope_vector / aspect_vector 各 16MB）。
+# 下方 glob `public/base_map/*.pmtiles` 已自動涵蓋新增的切片，加檔不必改本段。
 # SSOT 在 taipei-gis-analytics。
 #
 # ＋ hillshade.png（8.7MB，git 管理的預烤 colormap 山影，App.tsx useStaticRasterLayer 直呼）：

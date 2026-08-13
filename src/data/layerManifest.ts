@@ -95,6 +95,8 @@ import {
   // 👻 orphan 10（Waves / Anchor / Factory / Zap / BarChart3 / Activity / Route /
   //    MapPinned 已在上方 import 復用）
   Sun, Bed,
+  // 🚢 情勢／軍事：特殊船舶 Vessel Watch（Ship 已被 `ships` 佔用，改用 Radar）
+  Radar,
 } from "lucide-react";
 import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
@@ -1078,6 +1080,37 @@ export const LAYER_MANIFEST = {
     params: { count: 4, kinds: ["select", "toggle", "slider", "toggle"] },
     description: "國防部每日航跡示意圖向量化的共機活動區（⚠️ 是活動區域非精確航跡）",
     topics: ["情勢", "軍事", "國防"],
+  },
+
+  // ⚠️ 同 plaActivity：GIS_LAYERS 用**常數引用**（VESSEL_WATCH_CLICK_LAYERS），
+  //    非字面陣列。點層排在 plaActivity 之前 —— first-hit-wins，船點若排在
+  //    共機活動區大面積 polygon 之後，海峽內的船會點不到。
+  vesselWatch: {
+    key: "vesselWatch",
+    section: { theme: "情勢 Situation", group: "軍事" },
+    label: "特殊船舶 Vessel Watch",
+    expandable: true,
+    // rose-400：刻意與 `ships`（#1ad9e5 青）拉開 —— 兩層同時開時要一眼分得出
+    color: "#fb7185",
+    icon: Radar,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ship", confidence: "HIGH" }],
+      note: "gis-platform migration 339/340；設計文件 mini-taiwan-pulse/docs/proposal/vessel-watch-layer.md",
+    },
+    dataClass: "D",
+    source: {
+      kind: "custom",
+      note: "useVesselWatchLayer 自行接線（無 OVERLAY_REGISTRY entry）：Supabase RPC "
+        + "get_vessel_watch_current（最後已知位置）/ get_vessel_watch_trails（軌跡視窗）"
+        + "餵自建的 vessel-watch-current（circle）與 vessel-watch-trails（line）兩個 source。"
+        + "分類色票 SSOT 在 data/vesselWatchTypes.ts（loader / 圖例 / popup 三邊共用）",
+    },
+    legend: "vesselWatch",
+    popup: "vesselWatch",
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
+    description: "台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）",
+    topics: ["情勢", "軍事", "海域", "船舶"],
   },
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 2 —— 基礎建設 Infrastructure 11 層
@@ -4081,6 +4114,41 @@ export const LAYER_MANIFEST = {
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "內政部村里界（最細一級行政區，z8 以上才切片）",
     topics: ["底圖", "行政區", "邊界"],
+  },
+
+  // 底圖主題第 13 層（2026-08-13 新增「海域界線」子群）——
+  // 前 3 層是陸域行政界，本層是**海域法定界線**（不是行政區），故另立子群。
+  // 4 種 feature 由 properties.layer 區分，色票 SSOT 在 data/maritimeBoundaryTypes.ts
+  // （paint / legend / popup 三邊共用）；manifest 的 color 是 sidebar 圓點的代表色，
+  // 與那 4 個分類色是兩件事（照底圖批拍板①判準寫字面 hex）。
+  maritimeBoundary: {
+    key: "maritimeBoundary",
+    section: { theme: "底圖 Base Map", group: "海域界線" },
+    label: "領海界線 Maritime Boundary",
+    expandable: true,
+    color: "#38bdf8",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "maritime_boundary", confidence: "HIGH" }],
+      note:
+        "內政部「中華民國第一批領海基線、領海及鄰接區外界線」98 年修正公告（靜態，極少更新）；" +
+        "上游 pipeline: taipei-gis-analytics/pipelines/environment/maritime_boundary/01_process_maritime_boundary.py",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-maritime-boundary",
+      url: "./base_map/maritime_boundary.pmtiles",
+      sourceLayer: "maritime_boundary",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "maritimeBoundary",
+    popup: "maritimeBoundary",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "內政部公告的領海基線、12 浬領海與 24 浬鄰接區外界線",
+    topics: ["底圖", "海域", "主權", "邊界"],
   },
 
   contour25k: {
