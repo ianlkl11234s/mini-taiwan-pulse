@@ -100,6 +100,7 @@ import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
+import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 
 /**
@@ -2165,6 +2166,227 @@ export const LAYER_MANIFEST = {
     description: "職場／社區互助教保服務中心 148 點（全數私立）",
     topics: ["教育", "幼托", "互助教保"],
   },
+
+  // ══════════════════════════════════════════════════════════════
+  //  🤝 社福長照 Welfare 9 層（第 40 主題；2026-08-13 上游 welfare 批次）
+  //  同構家族：9 層都是靜態 GeoJSON 點層、欄位契約共通、走 registry 通用路徑
+  //  （**沒有** loader / hook / CustomLayer），一個 legend 元件涵蓋 9 個 key
+  //  （id 取首個 key "welfareNursingHomes"），color 全部引用 WELFARE_LAYER_COLORS。
+  //
+  //  🔴 三個會接錯的地方（完整版見 welfareTypes.ts 檔頭 / 上游 handoff 開場）：
+  //   1. `welfareLtcInstitutions`（長照服務法**立案機構** 3,117）與既有 `medLTC`
+  //      （長照 2.0 **特約單位** 23,894）是兩套互不相容的登記體系，名稱交集只有
+  //      2,365。**不可 UNION** —— 併起來會重複計算又漏算。故本批不與 medLTC 合併、
+  //      不共用 legend、不放同一個主題群，讓使用者自己選一邊。
+  //   2. 既有 `welfareCenters`（掛 基礎建設／公共設施）長得像本批的一員但**不是**。
+  //      本批的 `welfareGovOffices` 已在上游把 `T0103` 社福服務中心排掉（307→151）
+  //      正是為了不跟它重複 → **兩層零重疊，可放心同時開**；要算「全部公部門社福
+  //      據點」時記得把 welfareCenters 的 162 筆加回來。
+  //   3. `permit_status` **不是**有效/失效（上游沒發代碼表，已用兩份現行名冊回推
+  //      證偽）→ 9 層一律不拿它做 filter，popup 也不顯示。
+  //
+  //  ⚠️ 98 筆（約 1%）`coord_precision === "approximate"` 是路段／區中心不是門牌。
+  //     9 層共用同一組精度篩選 select ＋ 高 zoom 降階顯示（welfareTypes 的兩個
+  //     含 zoom 的 expr）。**不刪點** —— 那些機構是真的存在。
+  // ══════════════════════════════════════════════════════════════
+  welfareNursingHomes: {
+    key: "welfareNursingHomes",
+    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    label: "護理機構 Nursing Homes",
+    labelMobile: "護理機構 (1,611)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareNursingHomes,
+    icon: BedDouble,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "nursing_homes", confidence: "HIGH" }],
+      note: "1,611 點（座標 100%）；1,499 筆帶 nh_type/床數/評鑑，另 112 筆只有骨幹基本欄。⚠️ 床數三欄上游給的是**字串**",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-nursing-homes", url: "./welfare/nursing_homes_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareNursingHomes",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "護理機構全國 1,611 點（一般護理之家／居家護理所／產後護理之家三分色，半徑隨總床數）",
+    topics: ["社福", "長照", "護理之家", "床數"],
+  },
+
+  welfareElderlyHomes: {
+    key: "welfareElderlyHomes",
+    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    label: "老人住宿機構 Elderly Homes",
+    labelMobile: "老人機構 (1,160)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareElderlyHomes,
+    icon: HeartPulse,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "elderly_care_homes", confidence: "HIGH" }],
+      note: "1,160 點（座標 100%）；1,090 筆帶核定床數/公私別/立案日期，另 70 筆只有骨幹基本欄",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-elderly-homes", url: "./welfare/elderly_care_homes_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareElderlyHomes",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "老人住宿機構全國 1,160 點（公立／公設民營／私立分色，半徑隨核定床數）",
+    topics: ["社福", "長照", "老人機構", "床數"],
+  },
+
+  welfareDisability: {
+    key: "welfareDisability",
+    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    label: "身障福利機構 Disability",
+    labelMobile: "身障機構 (334)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareDisability,
+    icon: Accessibility,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "disability_facilities", confidence: "HIGH" }],
+      note: "334 點（座標 100%）；266 筆帶核定/實際安置量 → 使用率分色。⚠️ 88 筆分母為 0 或無欄位，落灰不可當 0%",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-disability", url: "./welfare/disability_facilities_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareDisability",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "身心障礙福利機構全國 334 點（實際安置／核定量使用率分色，88 筆無核定量落灰）",
+    topics: ["社福", "身心障礙", "使用率"],
+  },
+
+  welfareLtcInstitutions: {
+    key: "welfareLtcInstitutions",
+    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    label: "長照立案機構 LTC Institutions",
+    labelMobile: "長照機構 (3,117)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareLtcInstitutions,
+    icon: HeartHandshake,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ltc_institutions", confidence: "HIGH" }],
+      note: "🔴 《長照服務法》**立案機構** 3,117（座標 100%）—— 與既有 medLTC 的**特約單位** 23,894 是兩套體系，名稱交集僅 2,365，不可 UNION",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-ltc-institutions", url: "./welfare/ltc_institutions_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareLtcInstitutions",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "長照服務法立案機構全國 3,117 點（居家式／社區式／住宿式／綜合式四分色；與 medLTC 特約單位不同體系）",
+    topics: ["社福", "長照", "立案機構"],
+  },
+
+  welfareChildcare: {
+    key: "welfareChildcare",
+    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    label: "托嬰中心 Childcare",
+    labelMobile: "托嬰中心 (1,578)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareChildcare,
+    icon: Baby,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "childcare_centers", confidence: "HIGH" }],
+      note: "1,578 點（座標 100%）。⚠️ 名單約 21 個月舊（骨幹 165355 的 Last-Modified 停在 2024-11-12，托嬰異動頻繁）；居家托育（保母）**仍無全國源**",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-childcare", url: "./welfare/childcare_centers_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareChildcare",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "機構式托嬰中心全國 1,578 點（⚠️ 名單約 21 個月舊；不含居家托育保母）",
+    topics: ["社福", "托育", "兒童"],
+  },
+
+  welfareChildServices: {
+    key: "welfareChildServices",
+    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    label: "兒少服務 Child Services",
+    labelMobile: "兒少服務 (1,396)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareChildServices,
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "child_services", confidence: "HIGH" }],
+      note: "1,396 點／母體 1,425（座標 98.0%）。⚠️ 少的 29 筆是**結構性無地址**（行動據點、到宅療育、依法保密的安置機構），不是待 geocode。三類混裝：早療 1,084／親子館 196／兒少福利與安置 116",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-child-services", url: "./welfare/child_services_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareChildServices",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "兒少服務全國 1,396 點（早療／親子館／兒少安置三類分色；⚠️ 早療含醫院診所，與醫療主題重疊）",
+    topics: ["社福", "兒童", "早期療育"],
+  },
+
+  welfareGovOffices: {
+    key: "welfareGovOffices",
+    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    label: "公部門社福據點 Gov Offices",
+    labelMobile: "公部門社福 (151)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareGovOffices,
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "welfare_service_centers", confidence: "HIGH" }],
+      note: "151 點／母體 307（座標 100%）。少的 156 筆是**刻意排他過濾**（T0103 社福服務中心已由既有 welfareCenters 呈現）→ 兩層零重疊，可同時開。⚠️ 性侵害防治中心只有 13 筆（22 縣市應各 1，datagov 13718 連結 404）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-gov-offices", url: "./welfare/welfare_gov_offices_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareGovOffices",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "公部門社福據點全國 151 點（局處／防治中心／長照管理中心／公所；已排除既有 welfareCenters 的 162 筆社福中心）",
+    topics: ["社福", "公部門", "公共服務"],
+  },
+
+  welfareMentalHealth: {
+    key: "welfareMentalHealth",
+    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    label: "心理衛生機構 Mental Health",
+    labelMobile: "心理衛生 (70)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareMentalHealth,
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mental_health_facilities", confidence: "HIGH" }],
+      note: "70 點（座標 100%）；社區心衛中心 33／毒防中心 21／康復之家 8／心理諮商所 4／社區復健 4",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-mental-health", url: "./welfare/mental_health_facilities_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareMentalHealth",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "心理衛生機構全國 70 點（社區心衛中心／毒防中心／康復之家／心理諮商所／社區復健五分色）",
+    topics: ["社福", "心理衛生", "毒品防制"],
+  },
+
+  welfareSocialWorkOrgs: {
+    key: "welfareSocialWorkOrgs",
+    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    label: "社福團體 Social Work Orgs",
+    labelMobile: "社福團體 (587)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareSocialWorkOrgs,
+    icon: Briefcase,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "social_work_orgs", confidence: "HIGH" }],
+      note: "587 點（座標 100%）。🔴 這是**組織**不是服務設施，地址多為辦公室 —— 上游明確不建議放進服務可近性分析，故配灰色降存在感、預設關閉",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-social-work-orgs", url: "./welfare/social_work_orgs_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareSocialWorkOrgs",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "社福團體／社工事務所／基金會全國 587 點（⚠️ 是登記組織不是服務設施，地址多為辦公室，不可當可近性指標）",
+    topics: ["社福", "民間團體", "社工"],
+  },
+
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 3 —— 林業 Forestry 16 層
   //  與同批教育**幾乎每個維度都相反**，一批之內就撞完兩極：

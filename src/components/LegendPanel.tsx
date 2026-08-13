@@ -81,6 +81,11 @@ import {
   CEMETERY_OSM_ODBL_NOTE, FUNERAL_LAYER_COLORS,
 } from "../data/funeralTypes";
 import {
+  WELFARE_LAYER_COLORS, NURSING_HOME_TYPES, ELDERLY_ATTR_GROUPS,
+  DISABILITY_USAGE_BUCKETS, DISABILITY_USAGE_NA_LABEL, WELFARE_MISSING_COLOR,
+  LTC_SERVICE_TYPES, CHILD_SERVICE_CLASSES, MENTAL_HEALTH_TYPES,
+} from "../data/welfareTypes";
+import {
   SCHOOL_LEVEL_ORDER, SCHOOL_LEVEL_COLORS, SCHOOL_LEVEL_LABELS, SCHOOL_LEVEL_COUNTS,
   REGION_TYPES, REGION_TYPE_COLORS, REGION_TYPE_COUNTS, CAMPUS_LEGEND_ROWS,
   CAMPUS_AREA_BUCKETS,
@@ -353,6 +358,11 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   {
     id: "funeralFacilities",
     render: ({ visibility }) => <FuneralLegend visibility={visibility} />,
+  },
+  {
+    // 🤝 社福長照：一個元件涵蓋 9 個 key（同 funeral / forestry 同構家族慣例）
+    id: "welfareNursingHomes",
+    render: ({ visibility }) => <WelfareLegend visibility={visibility} />,
   },
   { id: "govServiceOffices", render: () => <GovServiceOfficeLegend /> },
   { id: "publicToilets", render: () => <PublicToiletLegend /> },
@@ -2021,6 +2031,124 @@ function FuneralLegend({ visibility }: { visibility: LayerVisibility }) {
       {visibility.cemeteryOsm && (
         <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>
           墓區範圍資料來自 OpenStreetMap，{CEMETERY_OSM_ODBL_NOTE}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── 🤝 社福長照 Legend（9 層同構家族，一個元件涵蓋全部 key）──
+// 色票與筆數一律取自 welfareTypes.ts（分色 SSOT），本檔不重寫任何色碼或數字。
+
+const WELFARE_KEYS: (keyof LayerVisibility)[] = [
+  "welfareNursingHomes", "welfareElderlyHomes", "welfareDisability",
+  "welfareLtcInstitutions", "welfareChildcare", "welfareChildServices",
+  "welfareGovOffices", "welfareMentalHealth", "welfareSocialWorkOrgs",
+];
+
+function WelfareLegend({ visibility }: { visibility: LayerVisibility }) {
+  const t = useLegendTheme();
+  const label = (s: string) => (
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>{s}</div>
+  );
+  const note = (s: React.ReactNode) => (
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 3, lineHeight: 1.4 }}>{s}</div>
+  );
+  const rows = (items: { key: string; color: string; label: string }[]) => (
+    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      {items.map((i) => (
+        <div key={i.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Swatch color={i.color} round />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{i.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        WELFARE 社福長照
+      </div>
+
+      {visibility.welfareNursingHomes && (
+        <>
+          {label("護理機構・型別（圓圈大小＝總床數）")}
+          {rows(NURSING_HOME_TYPES.map((n) => ({ key: n.value, color: n.color, label: n.label })))}
+          {note("居家護理所沒有床位，畫成最小點是事實不是資料缺漏；產後護理之家的床數在產後／嬰兒室兩欄")}
+        </>
+      )}
+
+      {visibility.welfareElderlyHomes && (
+        <div style={{ marginTop: visibility.welfareNursingHomes ? 5 : 0 }}>
+          {label("老人住宿機構・公私別（圓圈大小＝核定床數）")}
+          {rows(ELDERLY_ATTR_GROUPS.map((g) => ({ key: g.value, color: g.color, label: `${g.label} (${g.count.toLocaleString()})` })))}
+        </div>
+      )}
+
+      {visibility.welfareDisability && (
+        <div style={{ marginTop: 5 }}>
+          {label("身障福利機構・使用率（實際安置／核定量）")}
+          {rows([
+            ...DISABILITY_USAGE_BUCKETS.map((b) => ({
+              key: b.value, color: b.color, label: `${b.label} (${b.count})`,
+            })),
+            { key: "na", color: WELFARE_MISSING_COLOR, label: DISABILITY_USAGE_NA_LABEL },
+          ])}
+          {note("灰色是「上游未提供核定量」或「核定量為 0」（多為不收容的福利服務中心）—— 不是使用率 0%")}
+        </div>
+      )}
+
+      {visibility.welfareLtcInstitutions && (
+        <div style={{ marginTop: 5 }}>
+          {label("長照立案機構・服務型態")}
+          {rows(LTC_SERVICE_TYPES.map((s) => ({ key: s.value, color: s.color, label: `${s.label} (${s.count.toLocaleString()})` })))}
+          {note(<>這是<b>立案機構</b>（長照服務法）；醫療主題的「長照機構」是長照 2.0 <b>特約單位</b>，兩套體系不可相加</>)}
+        </div>
+      )}
+
+      {visibility.welfareChildServices && (
+        <div style={{ marginTop: 5 }}>
+          {label("兒少服務・類別")}
+          {rows(CHILD_SERVICE_CLASSES.map((c) => ({ key: c.value, color: c.color, label: `${c.label} (${c.count.toLocaleString()})` })))}
+          {note("早期療育含醫院／診所，與醫療主題重疊；另有 29 筆行動據點與保密安置機構結構性無地址，不在圖上")}
+        </div>
+      )}
+
+      {visibility.welfareMentalHealth && (
+        <div style={{ marginTop: 5 }}>
+          {label("心理衛生機構・類別")}
+          {rows(MENTAL_HEALTH_TYPES.map((m) => ({ key: m.value, color: m.color, label: `${m.label} (${m.count})` })))}
+        </div>
+      )}
+
+      {visibility.welfareChildcare && (
+        <div style={{ marginTop: 5, display: "flex", alignItems: "center", gap: 6 }}>
+          <Swatch color={WELFARE_LAYER_COLORS.welfareChildcare} round />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>托嬰中心 (1,578)</span>
+        </div>
+      )}
+      {visibility.welfareChildcare && note("名單約 21 個月舊；不含居家托育（保母），該類無全國資料源")}
+
+      {visibility.welfareGovOffices && (
+        <div style={{ marginTop: 5, display: "flex", alignItems: "center", gap: 6 }}>
+          <Swatch color={WELFARE_LAYER_COLORS.welfareGovOffices} round />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>公部門社福據點 (151)</span>
+        </div>
+      )}
+      {visibility.welfareGovOffices && note("已排除社福服務中心 162 處（在「基礎建設 › 公共設施 › 社福中心」）—— 兩層零重疊，要算全部請相加")}
+
+      {visibility.welfareSocialWorkOrgs && (
+        <div style={{ marginTop: 5, display: "flex", alignItems: "center", gap: 6 }}>
+          <Swatch color={WELFARE_LAYER_COLORS.welfareSocialWorkOrgs} round />
+          <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>社福團體 (587)</span>
+        </div>
+      )}
+      {visibility.welfareSocialWorkOrgs && note(<>⚠️ 是<b>登記組織</b>不是服務設施，地址多為辦公室 —— 不可當服務可近性指標</>)}
+
+      {WELFARE_KEYS.some((k) => visibility[k]) && (
+        <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5, lineHeight: 1.4 }}>
+          放大到 z15 以上時，98 筆只解析到路段／區中心的點會變淡並加粗描邊（概略位置，非門牌）
         </div>
       )}
     </div>

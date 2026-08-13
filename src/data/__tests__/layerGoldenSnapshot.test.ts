@@ -109,9 +109,9 @@ describe("layer 黃金快照", () => {
 });
 
 describe("黃金快照覆蓋度", () => {
-  it("涵蓋全部 348 個 layer key", () => {
+  it("涵蓋全部 357 個 layer key", () => {
     const keys = allLayerKeys();
-    expect(keys.length).toBe(348);
+    expect(keys.length).toBe(357);
     expect(Object.keys(full.colors as object)).toHaveLength(keys.length);
     expect(Object.keys(full.icons as object)).toHaveLength(keys.length);
     expect(Object.keys(full.upstream as object)).toHaveLength(keys.length);

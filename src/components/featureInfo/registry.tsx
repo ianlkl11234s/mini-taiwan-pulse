@@ -40,6 +40,11 @@ import {
   CemeteryOsmPanel, CemeteryZoningPanel,
 } from "./funeralPanels";
 import {
+  WelfareNursingHomePanel, WelfareElderlyHomePanel, WelfareDisabilityPanel,
+  WelfareLtcInstitutionPanel, WelfareChildcarePanel, WelfareChildServicePanel,
+  WelfareGovOfficePanel, WelfareMentalHealthPanel, WelfareSocialWorkOrgPanel,
+} from "./welfarePanels";
+import {
   SchoolPanel, EduCampusPanel, EduDistrictK12Panel, EduDistrictSeniorPanel,
   EduKindergartenPanel, EduAfterschoolCarePanel, EduCramSchoolPanel, EduUniversityStudentsPanel,
 } from "./educationPanels";
@@ -340,6 +345,16 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   funeralOperatorDensity: FuneralOperatorDensityPanel,
   cemeteryOsm: CemeteryOsmPanel,
   cemeteryZoning: CemeteryZoningPanel,
+  // 🤝 社福長照 Welfare 9 layer（欄位契約共通但專屬欄位各異 → 不共用 panel）
+  welfareNursingHomes: WelfareNursingHomePanel,
+  welfareElderlyHomes: WelfareElderlyHomePanel,
+  welfareDisability: WelfareDisabilityPanel,
+  welfareLtcInstitutions: WelfareLtcInstitutionPanel,
+  welfareChildcare: WelfareChildcarePanel,
+  welfareChildServices: WelfareChildServicePanel,
+  welfareGovOffices: WelfareGovOfficePanel,
+  welfareMentalHealth: WelfareMentalHealthPanel,
+  welfareSocialWorkOrgs: WelfareSocialWorkOrgPanel,
   tourEvents: EventsPanel,
   tourFactories: FactoriesPanel,
   tourAmusementParks: AmusementParksPanel,
@@ -480,6 +495,15 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   funeralOperatorDensity: "業者密度",
   cemeteryOsm: "墓區範圍 (OSM)",
   cemeteryZoning: "都計墓葬用地",
+  welfareNursingHomes: "護理機構",
+  welfareElderlyHomes: "老人住宿機構",
+  welfareDisability: "身障福利機構",
+  welfareLtcInstitutions: "長照立案機構",
+  welfareChildcare: "托嬰中心",
+  welfareChildServices: "兒少服務",
+  welfareGovOffices: "公部門社福據點",
+  welfareMentalHealth: "心理衛生機構",
+  welfareSocialWorkOrgs: "社福團體",
   tourEvents: "觀光活動",
   tourFactories: "觀光工廠",
   tourAmusementParks: "民營遊樂園",
