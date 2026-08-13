@@ -1107,7 +1107,7 @@ export const LAYER_MANIFEST = {
     },
     legend: "vesselWatch",
     popup: "vesselWatch",
-    params: { count: 2, kinds: ["slider", "slider"] },
+    params: { count: 3, kinds: ["slider", "slider", "toggle"] },
     description: "台灣周邊海域的海警／海巡／科研船／軍艦即時位置與軌跡（AIS）",
     topics: ["情勢", "軍事", "海域", "船舶"],
   },

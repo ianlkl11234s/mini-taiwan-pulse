@@ -68,3 +68,31 @@ export function vesselClassLabel(cls: string | null | undefined): string {
   if (!cls) return "未分類";
   return BY_VALUE[cls]?.label ?? cls;
 }
+
+// ── 分類可信度（gis-platform migration 346 的 live.vessel_confidence）──
+
+/**
+ * 可信度四級的人話說明。SSOT 放這裡供 popup 與圖例共用。
+ *
+ * ⚠️ rule_strong 不是「猜的」：它要求 MID 國碼與船名詞根**雙重印證**。
+ * 實測依據——庫內 413875 號段 83 艘全為中國海警，該號段在公開船舶庫的其他成員
+ * （CHINACOASTGUARD5901 / 21544 / 12502 / 5302）也全部是中國海警執法船。
+ * 反之 presumed 只有船方自報的 AIS type：實測 28 艘軍艦類查證後只有 11 艘是真的。
+ */
+export const CONFIDENCE_LABEL: Record<string, string> = {
+  confirmed: "人工確認",
+  verified: "已查證（公開船舶庫）",
+  rule_strong: "國碼＋船名雙重印證",
+  presumed: "疑似（僅船方自報）",
+};
+
+export const CONFIDENCE_NOTE: Record<string, string> = {
+  confirmed: "由人工核對確認。",
+  verified: "已比對公開船舶資料庫，附佐證連結。",
+  rule_strong: "MMSI 國碼與船名格式互相印證（例：413875 號段 × CHINACOASTGUARD####）。",
+  presumed: "僅依船方自報的 AIS 船種推斷，未經查證——自報可造假也常填錯，僅供參考。",
+};
+
+export function confidenceLabel(c: string | null | undefined): string {
+  return CONFIDENCE_LABEL[c ?? "presumed"] ?? "疑似（僅船方自報）";
+}

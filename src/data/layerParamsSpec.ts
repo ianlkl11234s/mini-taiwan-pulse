@@ -2114,6 +2114,13 @@ export const LAYER_PARAMS_SPEC = {
       kind: "slider", name: "vesselWatchTrailDays", labelPrefix: "軌跡", labelSuffix: " 天",
       digits: 0, default: 3, min: 1, max: 14, step: 1, out: null,
     },
+    // 「疑似」＝ 只有規則推測（MID + 船名 pattern 或純自報 ship_type），未經查證。
+    // 2026-08-13 對 200 艘做網路查證後才有這個區分：實測目前海上 88 艘疑似 / 5 艘已查證。
+    // 預設**開啟**——關掉會讓畫面只剩零星幾艘，反而失去態勢感；疑似的用低不透明度區分。
+    {
+      kind: "toggle", name: "vesselWatchShowPresumed", label: "含疑似（未查證）",
+      default: true, out: null,
+    },
   ],
 
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──

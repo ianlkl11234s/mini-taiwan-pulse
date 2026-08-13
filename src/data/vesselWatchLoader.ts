@@ -45,6 +45,15 @@ export interface VesselWatchPosition {
   imo: string | null;
   callSign: string | null;
   lengthM: number | null;
+  /**
+   * confirmed（人工）> verified（網路查證有實據）> rule_strong（MID×船名雙重印證）
+   * > presumed（僅自報 ship_type，或 MMSI 形態可疑）
+   */
+  confidence: string;
+  /** 規則判定依據：name / ship_type / ship_type_only / unmatched / invalid_mmsi */
+  matchedBy: string | null;
+  /** 查證佐證連結（僅 verified 有） */
+  evidenceUrl: string | null;
 }
 
 /** 一艘船在視窗內的軌跡 */
@@ -53,6 +62,8 @@ export interface VesselWatchTrail {
   shipName: string | null;
   vesselClass: string | null;
   flag: string | null;
+  /** confirmed / verified / presumed —— 見 VesselWatchPosition.confidence */
+  confidence: string;
   /** `[lat, lng, 0, unix_ts]`（與 ship / flight trail 同一個 TrailPoint 慣例） */
   path: TrailPoint[];
 }
@@ -101,6 +112,9 @@ async function fetchCurrentUncached(): Promise<VesselWatchPosition[]> {
       imo: str(r.imo),
       callSign: str(r.call_sign),
       lengthM: num(r.length_m),
+      confidence: String(r.confidence ?? 'presumed'),
+      matchedBy: str(r.matched_by),
+      evidenceUrl: str(r.evidence_url),
     });
   }
   return out;
@@ -167,6 +181,7 @@ async function fetchTrailsUncached(key: string): Promise<VesselWatchTrail[]> {
       shipName: str(r.ship_name),
       vesselClass: str(r.vessel_class),
       flag: str(r.flag),
+      confidence: String(r.confidence ?? 'presumed'),
       path,
     });
   }
@@ -228,6 +243,10 @@ export function positionsToGeoJSON(rows: readonly VesselWatchPosition[]): GeoJSO
         mmsi: p.mmsi,
         ship_name: p.shipName,
         vessel_class: p.vesselClass,
+        confidence: p.confidence,
+        presumed: p.confidence === "presumed" ? 1 : 0,
+        matched_by: p.matchedBy,
+        evidence_url: p.evidenceUrl,
         class_label: vesselClassLabel(p.vesselClass),
         class_color: vesselClassColor(p.vesselClass),
         flag: p.flag,
@@ -293,6 +312,8 @@ export function trailsToGeoJSON(rows: readonly VesselWatchTrail[]): GeoJSON.Feat
         class_label: vesselClassLabel(t.vesselClass),
         class_color: vesselClassColor(t.vesselClass),
         flag: t.flag,
+        confidence: t.confidence,
+        presumed: t.confidence === "presumed" ? 1 : 0,
         point_count: t.path.length,
         segment_count: segments.length,   // > 1 表示中間有訊號中斷
       },
@@ -424,6 +445,8 @@ export function frameToGeoJSON(
       class_label: vesselClassLabel(t.vesselClass),
       class_color: vesselClassColor(t.vesselClass),
       flag: t.flag,
+      confidence: t.confidence,
+      presumed: t.confidence === "presumed" ? 1 : 0,
       stale: at.stale ? 1 : 0,
       age_sec: Math.round(at.ageSec),
     };

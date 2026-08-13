@@ -13,7 +13,7 @@ import type { TrailPoint } from "../../types";
 const T0 = 1_760_000_000;
 
 function trail(path: TrailPoint[], mmsi = "413000001"): VesselWatchTrail {
-  return { mmsi, shipName: "TEST SHIP", vesselClass: "中國海警", flag: "CN", path };
+  return { mmsi, shipName: "TEST SHIP", vesselClass: "中國海警", flag: "CN", confidence: "presumed", path };
 }
 
 /** 每 15 分鐘一筆的正常取樣（對齊實測密度） */

@@ -1,5 +1,6 @@
 import { Row } from "./shared";
 import { getNewsCategoryDef } from "../../data/newsEventTypes";
+import { confidenceLabel } from "../../data/vesselWatchTypes";
 import type { ClusterEvent } from "../../data/newsEventsLoader";
 import { FONT_DATA, RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
@@ -347,6 +348,9 @@ export function VesselWatchPanel({ props }: { props: Record<string, unknown> }) 
         </div>
       </div>
       <Row label="分類" value={classLabel} />
+      {/* 可信度：讓使用者看得到「這艘為什麼被這樣分類」。
+          rule_strong 不是猜的（MID×船名雙重印證），presumed 才是只憑船方自報。 */}
+      <Row label="判定依據" value={confidenceLabel(props.confidence as string)} />
       <Row label="MMSI" value={str(props.mmsi)} />
       <Row label="IMO" value={str(props.imo)} />
       <Row label="呼號" value={str(props.call_sign)} />

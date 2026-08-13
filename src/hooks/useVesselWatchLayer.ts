@@ -80,12 +80,26 @@ const CLASS_COLOR = ["get", "class_color"] as unknown as ExpressionSpecification
 
 /** stale（訊號中斷中，顯示的是最後已知位置）→ 降到三成不透明度 */
 const STALE_RATIO = 0.3;
-function staleAware(base: number): ExpressionSpecification {
+
+/**
+ * 「疑似」（分類只有規則推測、未經查證）→ 降到四成不透明度。
+ *
+ * 2026-08-13 對 200 艘做網路查證後才有這個區分。實測目前海上 88 艘疑似 / 5 艘已查證
+ * —— 疑似佔絕大多數，所以**預設仍顯示**（關掉畫面只剩零星幾艘，失去態勢感），
+ * 只是用透明度誠實表達「這艘我們沒把握」。
+ */
+const PRESUMED_RATIO = 0.4;
+/**
+ * 不透明度依兩個維度衰減，兩者可疊加：
+ *   stale    —— 訊號中斷中，畫的是最後已知位置（時間維度）
+ *   presumed —— 分類未經查證（可信度維度）
+ * 一艘「疑似且失聯」的船會是最淡的，這正確反映它的雙重不確定。
+ */
+function confidenceAware(base: number): ExpressionSpecification {
   return [
-    "case",
-    ["==", ["get", "stale"], 1],
-    base * STALE_RATIO,
-    base,
+    "*",
+    ["case", ["==", ["get", "stale"], 1], STALE_RATIO, 1],
+    ["*", ["case", ["==", ["get", "presumed"], 1], PRESUMED_RATIO, 1], base],
   ] as unknown as ExpressionSpecification;
 }
 
@@ -116,11 +130,11 @@ function buildLayers(map: MapboxMap, opacity: number): boolean {
         "circle-color": CLASS_COLOR,
         "circle-radius": CIRCLE_RADIUS,
         // stale = 訊號中斷中，畫的是「最後已知位置」不是當下位置 → 淡化區隔
-        "circle-opacity": staleAware(opacity),
+        "circle-opacity": confidenceAware(opacity),
         // 深色描邊讓亮色船點在亮底圖上也分得出來
         "circle-stroke-color": "#0f172a",
         "circle-stroke-width": 0.8,
-        "circle-stroke-opacity": staleAware(opacity * 0.8),
+        "circle-stroke-opacity": confidenceAware(opacity * 0.8),
       },
     } as CircleLayer);
   }
@@ -144,6 +158,8 @@ export function useVesselWatchLayer(
   visible: boolean,
   opacity: number = 0.9,
   trailDays: number = 3,
+  /** 是否顯示「疑似」（分類僅規則推測、未經查證）的船。預設 true。 */
+  showPresumed: boolean = true,
 ) {
   /** map 就緒通知：mapRef 是 ref，.current 變動不觸發 re-render（見 useMapReadyTick） */
   const mapTick = useMapReadyTick(mapRef, visible);
@@ -310,6 +326,17 @@ export function useVesselWatchLayer(
       map.off("style.load", onStyleLoad);
     };
   }, [visible, ensureLayers, refreshSources, mapRef, mapTick]);
+
+  // ── 「含疑似」開關：用 Mapbox filter 而非重建 source ──
+  // 兩個 source 的資料不變，只切 filter —— 切換不必重打 RPC，也不用重算 frame。
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !layersReadyRef.current) return;
+    const f = showPresumed ? null : (["!=", ["get", "presumed"], 1] as unknown as never);
+    for (const id of [CIRCLE_ID, TRAIL_LINE_ID]) {
+      if (map.getLayer(id)) map.setFilter(id, f);
+    }
+  }, [showPresumed, visible, mapRef, mapTick]);
 
   // ── 透明度 ──
   useEffect(() => {

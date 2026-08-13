@@ -175,6 +175,7 @@ export const VesselWatchHost: LayerHostComponent = ({ deps }) => {
     deps.layerVisibility.vesselWatch,
     paramNum(values, "vesselWatch", "vesselWatchOpacity"),
     paramNum(values, "vesselWatch", "vesselWatchTrailDays"),
+    paramBool(values, "vesselWatch", "vesselWatchShowPresumed"),
   );
   return null;
 };
