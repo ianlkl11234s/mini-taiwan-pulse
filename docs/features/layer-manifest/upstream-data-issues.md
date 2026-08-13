@@ -226,3 +226,30 @@ min 0.500001 / max 0.580953 / mean 0.5384。
 **前端 workaround**：`AgricultureFieldPanel` 顯示原始數字並標註「值域 0.5–0.6」，
 **不畫成 0~100% 進度條**。同時揭露 catalog 記載的另外兩點——
 這是衛星 AI 推論不是法定農業分區、且公園與規則形狀空地會被誤判導致面積高估。
+
+---
+
+# 🔴 上游已修復 —— 但下游**現在還不能拆 workaround**（2026-08-13）
+
+`taipei-gis-analytics` 分支 `fix/upstream-data-issues`（commits `f1aea4f` `224cbbf` `5d29839` `2e2036e`，**未 push**）已修掉本文多項問題。
+
+## ⚠️ 最重要的順序約束：**程式碼改好 ≠ 資料改好**
+
+pipeline 的轉換邏輯改了，但**資料庫裡的既有列還是舊值**，要重跑（或 backfill）才會生效。
+所以下方每一項都標明「下游何時才能動」——**提早拆掉前端 workaround 會直接顯示錯誤數字**。
+
+| 欄位 | 改前語意 | 改後語意 | 下游何時才能拆 workaround |
+|---|---|---|---|
+| `river_basins.area_km2` | 其實是 m²（TWD97 平面） | 真的是 km² | **等資料重跑後**才可拆 `waterPanels.tsx:820,830` 的 ÷1e6。<br>⚠️ 提早拆 ＝ 面積錯 **100 萬倍**。該表是 `DO UPDATE`，重跑即生效 |
+| `river_levees.length_m` | 其實是公里 | 真的是公尺 | **code 修好 ≠ 資料修好**——該表是 `DO NOTHING`，既有列不會被更新，**必須 backfill（待拍板）**。在那之前維持「整欄不顯示」 |
+| `river_lines.name` 等 | 3 欄全空字串 | `name` 99.95% 有值；`type`/`code` 上游線層根本沒有 → NULL | **等 TRUNCATE 重載（待拍板）**才有名稱可接 |
+| cycling `FinishedTime`<br>字面 `"NULL"` → `""` | 24.41% 是 `2902202` 這類垃圾 | 壞值 **0**，合法日期 71.07% → 95.48% | **無需動作**——下游既有 regex 與 `clean()` 已相容 |
+
+## 判定修正
+- 本文原記「`irrigation_canal.md` frontmatter 漂移」**不成立**——錯字串其實在 pulse 的 `layerManifest.ts`，已由 `a19f408` 修掉。上游真正的問題是 frontmatter **不是合法 YAML**（`supabase_table: TODO:` 的裸冒號讓整個機讀區 ScannerError），已另修
+- 本文原記「PMTiles 少 3 欄」**判定為非問題**——PMTiles header 實證上游本來就沒有那兩欄，純資料驅動
+
+## 上游待拍板 / 延後
+- **待 owner 拍板**：levees backfill、river_lines TRUNCATE 重載、`basin_no` 非唯一鍵靜默丟 27 面（需 migration）
+- **待 welfare session 完成**：`road_network.md` 建檔、`data-registry.yaml:1594` 過期註記（那三個檔正被平行 session 佔用）
+- **改不了**：道路三項（8/9/10）是 pipeline 純 passthrough，要問內政部
