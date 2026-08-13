@@ -1247,16 +1247,21 @@ Cloudflare **預設**就會 negative-cache 404，最長 **4 小時**，且只對
 → 通則：把高度交給內容決定，等於把整條鏈的「確定性」拿掉；
 凡是依賴父層高度的寫法（百分比、內建長寬比）都要重新檢查一次，不能沿用舊模式。
 
-## 改依賴必同步「部署鏈實際用的那份 lockfile」（2026-08-10）
+## `package-lock.json` 是唯一 lockfile SSOT，npm 是唯一套件管理器（AU-6 拍板 2026-08-13）
 
-本 repo 同時存在 `pnpm-lock.yaml`（本地開發）與 `package-lock.json`（**Dockerfile `npm ci` 用
-——這才是生產權威**）。任何 package.json 變動：
-1. 先 `grep -n "npm\|pnpm" Dockerfile` 確認部署用哪份
-2. 兩份都要更新（`pnpm install --lockfile-only` + `npm install --package-lock-only`）
-3. `npm ci --dry-run` 驗不同步錯誤
+**單一 lockfile 政策已拍板（AU-6 方案 A）**：`package-lock.json` 唯一權威，
+`pnpm-lock.yaml` 已刪除，`package.json` 用 `packageManager: "npm@11.4.2"` 釘死。
+Dockerfile（`npm ci`）／CI（`cache: 'npm'` + `npm ci`）／README 三個硬約束點本來就全是 npm。
+
+任何 package.json 變動：
+1. `npm install --package-lock-only`（只改 lockfile、不動 node_modules，平行 session 安全）
+2. `npm ci --dry-run` 驗不同步錯誤
+
+🚫 **不得再跑 `pnpm install` / `pnpm add` / `pnpm install --lockfile-only`** —— 會把
+`pnpm-lock.yaml` 生回來，雙 lockfile 漂移就復發。CI 有守門 step 偵測到該檔存在即紅。
 
 npm ci 對 lockfile/package.json 不同步是**直接報錯拒建**，不是警告——漏更 = 下次部署必炸。
-單一 lockfile 政策待決（AU-6），在那之前雙更新是鐵則。
+歷史脈絡（2026-08-10 兩次險斷部署）見 `INCIDENTS.md`。
 
 ## Agent 產出的 git 事實聲明，破壞性操作前必現場驗證（2026-08-10）
 

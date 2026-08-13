@@ -18,19 +18,33 @@ import {
   WaterFacilityPanel, WaterMonitorPanel, WaterDetentionBasinPanel, WaterDamPanel,
   RiverLevelPanel, GroundwaterPanel, FloodSensorPanel, RainGaugePanel,
   WaterReservoirPolyPanel, LakesPondsPanel,
+  IotWraRiverPanel, IotWraStructurePanel,
+  WaterBasinsPanel, WaterRiversPanel, WaterLeveesPanel, WaterCanalsPanel,
+  WaterProtectionZonesPanel,
 } from "./waterPanels";
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import {
   NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel, PlaActivityPanel,
 } from "./eventPanels";
-import { RoadCongestionPanel } from "./roadPanels";
-import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
-import { WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel } from "./wastePanels";
+import {
+  RoadCongestionPanel, FreewayCongestionPanel,
+  ProvincialRoadPanel, HighwayPanel, CyclingRoutePanel,
+} from "./roadPanels";
+import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel, RasterProbePanel } from "./airPanels";
+import {
+  WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel, WasteStopsStaticPanel,
+  WasteTruckPanel,
+} from "./wastePanels";
 import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
   AgriRuralRegenPanel, AgriPOIPanel, AgriCompanyPanel, FarmRoadsPanel, EcoNetworkZonesPanel,
+  AgricultureFieldPanel,
 } from "./agriPanels";
 import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel, MountainHutPanel } from "./forestryPanels";
+import {
+  PopCountCellPanel, H3PopulationCellPanel, IndicatorsCellPanel,
+  SocioeconomicCellPanel, SpatialEconomyCellPanel, YoubikeFullnessCellPanel,
+} from "./h3MetricPanels";
 import {
   TemplePanel, ChurchPanel, AncestralHallPanel, FoundationPanel,
   OtherWorshipPanel, ReligionTop100Panel,
@@ -113,8 +127,10 @@ export interface PanelProps {
 
 /**
  * layerType → panel 元件。
- * Partial：groundwaterWell / iotWraRiver / iotWraStructure 自始沒有專屬 panel
- * （popup 只顯示 header），維持原行為 — 見 featureInfoRegistry 測試的 baseline。
+ * Partial：`groundwaterWell`（orphan layerType，無任何接線）與 `hillshade`
+ * （單色 raster，無 click feature）沒有專屬 panel，見 featureInfoRegistry 測試的 baseline。
+ * ⚠️ `iotWraRiver` / `iotWraStructure` / `osmExpressway` 原本也在該 baseline，
+ *    W2 popup 補強已接上 panel（見 docs/features/layer-manifest/no-popup-audit.md §5）。
  */
 export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelProps>>> = {
   submarineCable: SubmarineCablePanel,
@@ -160,6 +176,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   plaActivity: PlaActivityPanel,
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
+  freewayCongestion: FreewayCongestionPanel,
+  provincialRoad: ProvincialRoadPanel,
+  highway: HighwayPanel,
+  cyclingRoute: CyclingRoutePanel,
   aqiStation: AqiStationPanel,
   microSensor: MicroSensorPanel,
   waterFacility: WaterFacilityPanel,
@@ -170,15 +190,26 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   lakesPondsOsm: LakesPondsPanel,
   rainGauge: RainGaugePanel,
   riverLevel: RiverLevelPanel,
+  // groundwater 同時服務動態層（useGroundwaterLayer）與靜態井位 backdrop
+  // （groundwaterWells）—— 兩者的 properties 欄位契約完全相同。
   groundwater: GroundwaterPanel,
+  iotWraRiver: IotWraRiverPanel,
+  iotWraStructure: IotWraStructurePanel,
+  waterBasins: WaterBasinsPanel,
+  waterRivers: WaterRiversPanel,
+  waterLevees: WaterLeveesPanel,
+  waterCanals: WaterCanalsPanel,
+  waterProtectionZones: WaterProtectionZonesPanel,
   floodSensor: FloodSensorPanel,
   floodSensorIsochrone: FloodSensorPanel,
   taipeiSewer: TaipeiSewerPanel,
   taipeiEvacuate: TaipeiEvacuatePanel,
   taipeiPumb: TaipeiPumbPanel,
   wasteFacility: WasteFacilityPanel,
+  wasteTruck: WasteTruckPanel,
   wasteDisposalPoint: WasteDisposalPointPanel,
   wasteCleaningSquad: WasteCleaningSquadPanel,
+  wasteStopsStatic: WasteStopsStaticPanel,
   agriRetail: AgriCompanyPanel,
   agriProduceWholesale: AgriCompanyPanel,
   agriWholesaleMarket: AgriCompanyPanel,
@@ -192,6 +223,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   hikingTrails: HikingTrailsPanel,
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
+  agricultureField: AgricultureFieldPanel,
+  popCount: PopCountCellPanel,
+  h3Population: H3PopulationCellPanel,
+  indicators: IndicatorsCellPanel,
+  socioeconomic: SocioeconomicCellPanel,
+  spatialEconomy: SpatialEconomyCellPanel,
+  youbikeFullness: YoubikeFullnessCellPanel,
   agriSoil: AgriSoilPanel,
   agriSoilFertility: AgriSoilFertilityPanel,
   agriLeisureFarmZones: AgriLeisureFarmZonesPanel,
@@ -248,6 +286,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   earthquakeGlobal: EarthquakeGlobalPanel,
   typhoonTrack: TyphoonTrackPanel,
   climateField: ClimateFieldPanel,
+  rasterProbe: RasterProbePanel,
   temperatureGrid: TemperatureGridPanel,
   worldTrashDebris: WorldTrashDebrisPanel,
   // Base map
@@ -257,6 +296,10 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
+  // 快速道路與 osm_road_drive 是同一份 OSM 欄位契約
+  // （name / ref / highway / oneway / maxspeed / lanes / surface / bridge / tunnel）
+  // → 直接共用同一個 panel，只有 HEADER_LABELS 的標題不同。
+  osmExpressway: OsmRoadDrivePanel,
   slopeVector: SlopeVectorPanel,
   aspectVector: AspectVectorPanel,
   // 警政司法民防 17 layer
@@ -403,6 +446,10 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   plaActivity: "共機活動區",
   roadEvent: "即時路況",
   roadCongestion: "省道路況",
+  freewayCongestion: "國道壅塞",
+  provincialRoad: "省道",
+  highway: "國道",
+  cyclingRoute: "自行車道",
   aqiStation: "空氣品質測站",
   microSensor: "微型感測器",
   waterFacility: "水利設施",
@@ -417,16 +464,30 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   groundwaterWell: "地下水井",
   iotWraRiver: "IoT 河川水位站",
   iotWraStructure: "IoT 水工結構",
+  waterBasins: "流域",
+  waterRivers: "河川",
+  waterLevees: "堤防 / 護岸",
+  waterCanals: "灌排渠道",
+  waterProtectionZones: "水資源管制區",
   floodSensor: "都市淹水感測器",
   floodSensorIsochrone: "淹水 3 分步行圈",
   taipeiSewer: "北市雨水下水道水位",
   taipeiEvacuate: "北市疏散門",
   taipeiPumb: "北市抽水站",
   wasteFacility: "垃圾處理設施",
+  wasteTruck: "垃圾車實跡",
   wasteDisposalPoint: "垃圾投放點",
   wasteCleaningSquad: "清潔隊辦公點",
+  wasteStopsStatic: "清運點位",
   agriPOI: "農業 POI",
   agriRuralRegen: "農村再生社區",
+  agricultureField: "農田範圍",
+  popCount: "人口數網格",
+  h3Population: "日夜人口網格",
+  indicators: "人口指標網格",
+  socioeconomic: "社經指標網格",
+  spatialEconomy: "空間經濟網格",
+  youbikeFullness: "YouBike 有車率",
   agriSoil: "土壤分類",
   agriSoilFertility: "土壤肥力",
   agriLeisureFarmZones: "休閒農業區",
@@ -558,6 +619,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   earthquakeGlobal: "全球地震 USGS",
   typhoonTrack: "颱風軌跡",
   climateField: "氣候場讀值",
+  rasterProbe: "圖層讀值",
   temperatureGrid: "溫度網格",
   worldTrashDebris: "全球垃圾殘骸",
   // Base map

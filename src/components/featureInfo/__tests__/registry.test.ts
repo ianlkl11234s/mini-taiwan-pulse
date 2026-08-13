@@ -9,9 +9,11 @@ import { PANEL_REGISTRY, HEADER_LABELS } from "../registry";
 
 /** 自始沒有專屬 panel 的 layerType（popup 只顯示 header；維持歷史行為） */
 const BASELINE_NO_PANEL = new Set([
-  "groundwaterWell", "iotWraRiver", "iotWraStructure",
-  // Base map：單色 raster / 線，無 click feature — 無 panel 需求
-  "osmExpressway", "hillshade",
+  // groundwaterWell：orphan layerType（沒有任何圖層宣告它 —— 靜態井位 backdrop
+  // `groundwaterWells` 實際接的是 `groundwater`，欄位契約與動態層相同）
+  "groundwaterWell",
+  // Base map：單色 raster，無 click feature — 無 panel 需求
+  "hillshade",
 ]);
 
 describe("featureInfo registry", () => {

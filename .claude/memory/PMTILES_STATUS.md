@@ -70,7 +70,7 @@ f8ef137 chore(deploy): glob upload PMTiles from geo/agriculture/forestry (PT-1)
 3 件**機器沒做**，留給人工：
 
 1. **Browser 視覺驗證 13 個 layer**
-   - `pnpm dev` → All Off → 重新整理
+   - `npm run dev` → All Off → 重新整理
    - 逐一 toggle on：圖層出現 ✓ + 視覺正確 ✓ + click popup 仍可用 ✓ + zoom 進去 detail 不掉 ✓
    - 任一檔有問題 → `git revert <該 commit hash>`
    - **特別注意 T7 medical_aed**（PMTiles 比原檔大），確認 range request 行為仍合理

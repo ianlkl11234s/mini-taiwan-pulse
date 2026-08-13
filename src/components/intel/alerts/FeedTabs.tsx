@@ -7,7 +7,10 @@ interface Props {
   tab: FeedTab;
   onTab: (t: FeedTab) => void;
   newsCount: number;
+  /** 警報 tab 的數字 = 全部 active（含折疊區） */
   alertCount: number;
+  /** 全部 tab 的數字只算沒被折疊的（長期持續事件不進「全部」時間軸） */
+  alertCountInAll: number;
   alertSevere: number;
 }
 
@@ -17,7 +20,7 @@ const TABS: { key: FeedTab; label: string }[] = [
   { key: "alerts", label: "警報" },
 ];
 
-export function FeedTabs({ tab, onTab, newsCount, alertCount, alertSevere }: Props) {
+export function FeedTabs({ tab, onTab, newsCount, alertCount, alertCountInAll, alertSevere }: Props) {
   return (
     <div
       style={{
@@ -34,7 +37,7 @@ export function FeedTabs({ tab, onTab, newsCount, alertCount, alertSevere }: Pro
         const count =
           t.key === "news" ? newsCount
             : t.key === "alerts" ? alertCount
-              : newsCount + alertCount;
+              : newsCount + alertCountInAll;
         return (
           <button
             key={t.key}

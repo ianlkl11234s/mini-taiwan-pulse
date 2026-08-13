@@ -5,7 +5,7 @@
 ## 進行中
 
 - [ ] **UH-1**：瀏覽器驗收（兩模式色帶、nodata 透明、z11→z12 overzoom、opacity slider）
-  — 接線完成待跑 `pnpm dev` 目視。
+  — 接線完成待跑 `npm run dev` 目視。
 
 ## 待辦
 

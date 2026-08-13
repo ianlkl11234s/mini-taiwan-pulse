@@ -2,14 +2,17 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
+import { getRealEstatePointsScene } from "../map/realEstatePointsCustomLayer";
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
+import type { WasteTruckScene } from "../three/WasteTruckScene";
 import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
+import { sampleRasterProbes } from "../data/rasterProbeSampler";
 import { sessionTracker } from "../lib/sessionTracker";
 
 interface TooltipInfo {
@@ -49,6 +52,8 @@ export function useMapInteraction(
   reservoirSceneRef?: React.RefObject<ReservoirScene | null>,
   wasteScheduleSceneRef?: React.RefObject<WasteScheduleScene | null>,
   touristShuttleSceneRef?: React.RefObject<BusScene | null>,
+  busIntercitySceneRef?: React.RefObject<BusScene | null>,
+  wasteTruckSceneRef?: React.RefObject<WasteTruckScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -98,11 +103,56 @@ export function useMapInteraction(
         }
       }
 
+      // 嘗試拾取垃圾車實跡（W2）——「表定模擬車可點、GPS 真車不可點」的族群不一致收尾。
+      // `WasteTruckScene.pickTruck` 早就寫好了（逐行同 pickRoute），從來沒有人呼叫它；
+      // audit 只 grep 了 wasteTruckCustomLayer.ts 才判定「無 pick」。
+      // 走 setFeatureInfo 而非 tooltip：欄位是車號／縣市／路線這種查詢型資訊，
+      // 且 repo 內同為「會移動的 Three.js 物件開 FeatureInfoPanel」的前例就是上方的
+      // `ship` 分支。座標用點擊位置（pickTruck 只回 row，不回插值後的經緯）。
+      if (vis?.wasteTruck) {
+        const truckScene = wasteTruckSceneRef?.current;
+        if (truckScene) {
+          const row = truckScene.pickTruck(e.point.x, e.point.y, w, h);
+          if (row) {
+            setFeatureInfo({
+              layerType: "wasteTruck",
+              properties: {
+                vehicle_no: row.vehicle_no,
+                city: row.city,
+                route_id: row.route_id,
+              },
+              coords: [e.lngLat.lng, e.lngLat.lat],
+            });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
+            setWasteScheduleTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
       // 嘗試拾取公車（僅在 busLive 圖層開啟時）
       if (vis?.busLive) {
         const busScene = busSceneRef?.current;
         if (busScene) {
           const bus = busScene.pickBus(e.point.x, e.point.y, w, h);
+          if (bus) {
+            setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+      // 嘗試拾取公路客運（僅在 busIntercityLive 圖層開啟時，共用 bus tooltip）
+      // W2：三個 BusScene 族群（市區 / 客運 / 台灣好行）本來只有兩個接了 pick，
+      // 客運是全站唯一「會動但完全點不到」的運具 —— 逐行比照上下兩個分支補齊。
+      if (vis?.busIntercityLive) {
+        const intercityScene = busIntercitySceneRef?.current;
+        if (intercityScene) {
+          const bus = intercityScene.pickBus(e.point.x, e.point.y, w, h);
           if (bus) {
             setBusTooltipInfo({ bus, x: e.point.x, y: e.point.y });
             setTooltipInfo(null);
@@ -199,11 +249,41 @@ export function useMapInteraction(
         }
       }
 
+      // 嘗試拾取房地產交易點（三型別共用同一個 WebGL CustomLayer 與同一份 buffer）
+      // W2：`App.tsx` 的 kind==="point" tooltip 分支一直都在，但 picking 在改成
+      // CustomLayer 時被拿掉（舊註解「待補 GPU/空間索引 picking」）→ 死 UI。
+      // 這裡用 CPU 端逐點投影補回（見 RealEstatePointsScene.pickPoint）。
+      // ⚠️ 只帶 buffer 內真實存在的欄位；地址／行政區／總價／坪數不在二進位格式裡。
+      if (vis?.realEstateRentalPoint || vis?.realEstateSalePoint || vis?.realEstatePresalePoint) {
+        const reScene = getRealEstatePointsScene();
+        if (reScene) {
+          const hit = reScene.pickPoint(e.point.x, e.point.y, w, h);
+          if (hit) {
+            setRealEstateTooltipInfo({
+              x: e.point.x,
+              y: e.point.y,
+              kind: "point",
+              properties: {
+                type: hit.type,
+                price_per_sqm: hit.pricePerSqm,
+                trade_ts: hit.tradeTs,
+              },
+            });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
+            setWasteScheduleTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
       // 未命中 Three.js 物件 → 清空 tooltip，查詢 GIS 圖層
       setTooltipInfo(null);
       setTrainTooltipInfo(null);
       setBusTooltipInfo(null);
       setWasteScheduleTooltipInfo(null);
+      setRealEstateTooltipInfo(null);
 
       {
         // 查詢 Mapbox GIS 層（接線表 = GIS_LAYERS，見 map/gisClickRegistry.ts。
@@ -242,6 +322,29 @@ export function useMapInteraction(
             found = true;
             break;
           }
+        }
+        // 沒命中任何向量 feature → 值編碼 raster 開啟時改讀像素物理值（W2）。
+        // 排在氣候 UV 場之前：熱島／樹冠是台灣本島的層，風場／海流是全球場，
+        // 同時開啟時使用者點台灣要的是前者（後者在台灣任一點都讀得到值，會整碗端走）。
+        if (!found && (vis?.urbanHeat || vis?.canopyHeight)) {
+          found = true; // 已接手本次點擊，下方 climateField 分支不再處理
+          const lng = e.lngLat.lng;
+          const lat = e.lngLat.lat;
+          void sampleRasterProbes(
+            { urbanHeat: !!vis?.urbanHeat, canopyHeight: !!vis?.canopyHeight },
+            lng, lat,
+          ).then((probe) => {
+            if (probe) {
+              setFeatureInfo({
+                layerType: "rasterProbe",
+                properties: { urbanHeat: probe.urbanHeat, canopyHeight: probe.canopyHeight },
+                coords: [lng, lat],
+              });
+              sessionTracker.log("feature_click", { layerType: "rasterProbe" });
+            } else {
+              setFeatureInfo(null);
+            }
+          });
         }
         // 沒命中任何向量 feature → 風場/海流開啟時改讀氣候 UV 場（nullschool 式點擊讀值）
         if (!found) {

@@ -1,5 +1,11 @@
 # 警訊整合（Alerts）— 實作交接文件
 
+> ## ✅ 本文件已完成實作（2026-06-17，PR #20 `01ceb11`）— 2026-08-13 覆核確認
+> 12 顆 task 全數落地（含 migration 211 已 apply 上線），詳見 §9 的逐項證據。
+> **本文件僅供考古**；要接手的是 §12「不在本 PR 範圍」那幾條（Phase 2 起）。
+> 2026-08-12 的 `next-batch-handoff-2026-08-12.md` 曾把本案列為 W5 待辦，
+> 係誤判（§9 當時全是 ⏳ 未回填），該節已同步更正。
+
 > 交接日：2026-06-17
 > 對象：另一個 session / agent 接手實作
 > 設計來源：claude.ai/design bundle，已含 5 個 chat transcripts + AlertBoard/AlertCards/alerts/TimelineDock/IndicatorPanel/IntelFeed/App 等 jsx 檔
@@ -460,20 +466,30 @@ const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
 
 ## 9. 任務拆解（建議 TaskCreate）
 
-1. ⏳ migration 211（3 RPC）+ apply + smoke test
-2. ⏳ intelTokens 擴充（ALERT_GROUPS / ALERT_SEVERITY / MICON / fmtExpiry）
-3. ⏳ alertsLoader.ts（3 fetch + 3 helper）
-4. ⏳ AlertSummaryBar.tsx
-5. ⏳ FeedTabs.tsx
-6. ⏳ AlertCard.tsx
-7. ⏳ AlertBoard.tsx（含 GroupCard / AlertTrend / AlertDrawer 子元件）
-8. ⏳ AlertsTrack.tsx
-9. ⏳ IntelPanel 接線（tab-aware + summary polling）
-10. ⏳ MonitorPanel + IndicatorPanel + TimelineDock 接線
-11. ⏳ tsc -b + dev server browser walkthrough
-12. ⏳ commit + PR `feat/alerts-integration`
+> 狀態欄為 **2026-08-13 逐項覆核**結果（讀碼 + 打線上 RPC 實證）。
 
-工時估 4-5 hr。
+| # | Task | 狀態 | 證據 |
+|---|---|---|---|
+| 1 | migration 211（3 RPC）+ apply + smoke test | ✅ | `../gis-platform/migrations/211_monitor_alert_rpcs.sql`（371 行，3 × `CREATE OR REPLACE` + 3 × `GRANT ... TO anon, authenticated`）。**已 apply 上線**：2026-08-13 打 anon REST `rpc/get_alert_summary`／`get_active_alerts`／`get_alert_series_24h` 皆 HTTP 200 有真資料（當下 74 筆 active） |
+| 2 | intelTokens 擴充 | ✅ | `src/components/intel/intelTokens.ts`：`ALERT_GROUPS_DEF`(168)／`ALERT_GROUP_ORDER`(177)／`ALERT_SEVERITY`(190)／`alertSeverity`(200)／`fmtExpiry`(204)；MICON 補 `quake/cloud/wave/cone/plug/flame`(133-143) |
+| 3 | alertsLoader.ts（3 fetch + helper） | ✅ | `src/data/alertsLoader.ts`（275 行）：3 fetch 全包 `withLoading`（task 名「警報摘要／警報細節／警報 24h」）＋ `cachedOnce`／`keyedThunkCache`；helper `indexSummary`／`indexSeries`／`tallySummary`／`EMPTY_TALLY`／`emptySeries` |
+| 4 | AlertSummaryBar.tsx | ✅ | `src/components/intel/alerts/AlertSummaryBar.tsx`（177 行） |
+| 5 | FeedTabs.tsx | ✅ | 同目錄（75 行），`FeedTab = all/news/alerts` |
+| 6 | AlertCard.tsx | ✅ | 同目錄（229 行），含倒數 1s tick（僅 expanded 或 severity≥3） |
+| 7 | AlertBoard.tsx（+ 3 子元件） | ✅ | 同目錄（468 行）：`AlertTrend`(23)／`Sparkline`(96)／`GroupCard`(127)／`AlertDrawer`(215) |
+| 8 | AlertsTrack.tsx | ✅ | 同目錄（168 行） |
+| 9 | IntelPanel 接線 | ✅ | `IntelPanel.tsx`：`feedTab`(91)／60s summary polling(135-140)／tab·filter 變動重抓(150-164)／`AlertSummaryBar`(349)／`FeedTabs`(357)／三分支卡片列表(365-381) |
+| 10 | MonitorPanel + TimelineDock 接線 | ✅ | `MonitorPanel.tsx`：polling(264-265)／`alertBoard` widget(600)／alert keyframes + `prefers-reduced-motion`(845-853)；`monitorLayout.ts:77` 有 `{i:"alertBoard",x:4,y:0,w:3,h:7}` 佔位；`TimelineDock.tsx:346` `<AlertsTrack>`。**註**：原文的 `IndicatorPanel` 已被 PR #90 靜態 12 欄網格取代，widget 改由 `monitorLayout.ts` 定位 |
+| 11 | tsc -b + walkthrough | ✅ | 2026-08-13 於 worktree 覆跑：`npx tsc -b` 0 error；`npx vitest run` 42 檔 559 passed／1 skipped |
+| 12 | commit + PR | ✅ | PR #20 已 merge，commit `01ceb11 feat(intel): 警訊整合 — NCDR 災害示警 + CWA 地震`；後續 `584b950`（loader cache）／`7ee817b`（design token）／`3888014`（#90 網格）持續維護中 |
+
+工時估 4-5 hr（實際已於 2026-06-17 當日完成）。
+
+### 覆核時發現的資料面觀察（非本案缺陷，供 Phase 2 參考）
+
+- `county` 欄在**地震**列回的是完整震央描述（例：「臺東縣政府南南西方 37.3 公里 (位於臺東縣近海…」）而非縣市，卡片「地點」列會偏長；多數 NCDR 列則是村里級字串且帶尾空白。
+- `safety` 群組被**長效期**告警灌量（海洋污染 `expires` 常在 2～9 個月後、國家森林遊樂區休園到 2027），使「active」語意偏寬、列表長期停在數十筆。要收斂需改 RPC 的 active 判準 —— **屬 owner 決策**，本次不動。
+- 防禦性渲染已到位：loader 端不認得的 `group` 直接濾掉（`asGroup`）、數值 `?? 0`、severity clamp 1-4、ts 字串轉數字；卡片端 `headline || term`、description／instruction／magnitude／depth／area_desc 全走條件渲染。空 `instruction:""` 不會生出空框。
 
 ---
 
@@ -525,3 +541,25 @@ const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
 - Mobile 響應式
 - 警報「過去 N 天」歷史檢索（目前只有 active）
 - ❌ 活動斷層（不算警訊）
+
+---
+
+## 13. Phase 2 進度（2026-08-13，分支 `feat/alerts-integration`）
+
+owner 拍板做 §12 的前 4 項，優先序：B2 pulse > 壓力指數 > RWD > 歷史檢索。
+外加「safety 群組灌量 → 按群組分開設規則」。
+
+| 項目 | 狀態 | 產出 |
+|---|---|---|
+| 群組時效規則表 | ✅ | `src/data/alertRules.ts` —— 一張表管列表折疊／地圖 pulse／壓力降權三處 |
+| 地圖 B2 pulse | ✅ | `useDisasterAlertLayer` 的 `disaster-alert-pulse-0/-1`；瀏覽器實測 5 顆環在高溫特報範圍內，藤枝休園（Severe 但 stale）不閃 |
+| 地震 county | ✅ | 判定為 RPC 命名選擇（211 地震分支拿 `location_desc` 當 county），前端解析縣市即可，未動 SQL |
+| 警報進壓力指數 | ⚠️ 待拍板 | **它早就在裡面**（207 的 `v_alert`，權重 0.20），但同樣被 `expires > NOW()` 灌量釘在 80 分＝composite 的 57%。SQL 提案（未 apply）在 `alerts-pressure-signal.sql` |
+| RWD | ⚠️ partial | intel/monitor 在 <768px 根本不掛載（App.tsx 的 `!isMobile` 閘），非「壞掉」而是「沒有」。可達範圍內真正會擠爆的是 Monitor widget 內寫死的 `repeat(3,1fr)` → AlertBoard／AlertSummaryBar 改 auto-fit（實測 410px 3 欄／300px 2 欄／200px 1 欄）。**全面上手機未做**：要連 App.tsx 的閘與 monitorLayout 的 12 欄靜態網格一起改，屬 owner 決策 |
+| 歷史檢索 | ✅ | 重用既有 `get_disaster_alerts_day`（地圖用的按日 RPC）+ `dayAlertsToCards()`，時間軸切到過去即進歷史模式。**不含地震**（該表本來就排除），banner 已標明 |
+
+### Phase 2 未驗證項（誠實清單）
+
+- `is_pt=1` 路徑的 pulse（民生／水文／交通／安全四群）——當天沒有 severe 且 fresh 的樣本，只親眼驗了 weather 的 `is_pt=2` 路徑
+- `prefers-reduced-motion: reduce` 的靜態環（程式路徑存在，未在瀏覽器切系統偏好實測）
+- 壓力指數 SQL 提案只做過唯讀試算，未 apply、未觀察 baseline 斷層

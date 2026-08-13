@@ -63,7 +63,7 @@ description: Mini Taiwan Pulse 新增 Three.js × Mapbox 立體圖層的設計�
 
 ### Step 3：在 showcase 試參數
 
-在 dev 啟動 `pnpm dev` → 開 `http://localhost:3721/three-showcase.html` → 找到對應元件 → 即時調 size / opacity / speed / color → **抄下用戶看得順的參數值**。
+在 dev 啟動 `npm run dev` → 開 `http://localhost:3721/three-showcase.html` → 找到對應元件 → 即時調 size / opacity / speed / color → **抄下用戶看得順的參數值**。
 
 跳過這步是 80% 「上線後覺得太亮 / 太大」的根因。
 
@@ -214,7 +214,7 @@ CustomLayer 範本看 `src/map/lighthouseCustomLayer.ts`（53 行 SSOT）。
 
 ### F. 驗證
 - [ ] `npx tsc -b` 過（必跑，project references）
-- [ ] `pnpm test`（`layerConsistency` 擋漏接圖例）
+- [ ] `npm test`（`layerConsistency` 擋漏接圖例）
 - [ ] Browser 手測：Wall mode / pause / 切日 / 切城市 不 leak
 
 ---

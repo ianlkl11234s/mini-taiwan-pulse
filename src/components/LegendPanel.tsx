@@ -3451,6 +3451,20 @@ function DisasterAlertLegend({ visibility }: { visibility: LayerVisibility }) {
           </div>
         </div>
       ))}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+        <div
+          style={{
+            width: 12,
+            height: 12,
+            borderRadius: RADIUS.full,
+            border: "2px solid #dc2626",
+            flexShrink: 0,
+          }}
+        />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>
+          脈動環 = 嚴重以上且仍在時效內
+        </span>
+      </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textFaint, marginTop: 2 }}>
         填色深淺 = 嚴重度（Extreme→Minor）
       </div>

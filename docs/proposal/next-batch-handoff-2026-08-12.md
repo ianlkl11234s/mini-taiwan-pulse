@@ -127,7 +127,20 @@ W2 分包 → W3 → W4（最大，建議獨立場次、先拍板 R2）。
 - **風險**：快照停寫=畫面停在舊資料（→警報必配）；R2 計費（低，讀免 egress 費）；
   分層漸進、每層有 flag 可獨立回退。
 
-## W5. AI-1 警訊整合 Phase 1（M，估 4-5hr）
+## W5. AI-1 警訊整合 Phase 1（M，估 4-5hr）→ ⛔ **本節作廢：早已完成（2026-08-13 覆核）**
+
+> **結論：Phase 1 的 12 顆 task 在 2026-06-17 就隨 PR #20（`01ceb11`）全數上線，migration 211 也早已 apply。
+> 本節係誤判**——`alerts-integration-impl.md` §9 的 checklist 當時沒回填，全留 ⏳，被讀成待辦。
+> 逐項證據已補進該文件 §9 表格（含線上 RPC 實測）。**不要再開工，會做出重複實作。**
+>
+> 覆核方式：`git log --oneline -- src/components/intel/alerts src/data/alertsLoader.ts`；
+> 線上實證：anon key 打 `rpc/get_alert_summary`／`get_active_alerts`／`get_alert_series_24h`
+> 皆 200 有真資料（覆核當下 74 筆 active）。worktree `w5-alerts` 未改任何程式碼，
+> tsc 0 error／vitest 42 檔 560 tests 全綠＝與 master 基準一致。
+>
+> **真正還沒做的是 Phase 2**：見 `alerts-integration-impl.md` §12（地圖警報點視覺重整 B2 pulse／
+> 警報進壓力指數 signal／mobile RWD／歷史檢索），另加覆核發現的
+> 「`safety` 群組被長效期告警灌量、地震 `county` 欄是震央描述」兩項資料面決策，**須 owner 拍板**。
 
 - **SSOT（本身就是合規交接文件，直接照做）**：`docs/proposal/alerts-integration-impl.md`
   ——自帶 12 顆 task、RPC signature（RETURNS TABLE 級）、元件 Props＋設計 jsx 行號、
