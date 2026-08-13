@@ -328,6 +328,7 @@ export type ExpandableLayerKey =
   | "realEstatePresalePoint"
   // Base map
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+  | "maritimeBoundary"
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
   | "osmExpressway" | "hillshade"
   | "slopeVector" | "aspectVector"
@@ -752,6 +753,7 @@ export interface FeatureInfo {
     | "temperatureGrid"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+    | "maritimeBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
     | "osmExpressway" | "hillshade"
     | "slopeVector" | "aspectVector"
@@ -1134,6 +1136,7 @@ export interface LayerVisibility {
   countyBoundary: boolean;     // 22 縣市界（內政部，名稱/行政區域代碼）
   townshipBoundary: boolean;   // 鄉鎮市區界
   villageBoundary: boolean;    // 村里界
+  maritimeBoundary: boolean;   // 領海基線 / 基點 / 12 浬領海 / 24 浬鄰接區外界線（內政部 98 年公告）
   contour25k: boolean;         // 經建版 1:25000 等高線（精度 10m，~21% 全臺覆蓋）
   contourDtm20: boolean;       // DTM 20m 等高線（精度 20m，全臺完整）
   osmRoadDrive: boolean;       // OSM 可駕駛道路（55 萬 edges，按 highway 等級分色）

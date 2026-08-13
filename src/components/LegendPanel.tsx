@@ -21,6 +21,9 @@ import { legendKeys } from "../data/legendGroups";
 import { TRA_TRAIN_TYPES } from "../constants/traTrainTypes";
 import { railLegendLines, railMetroOperatorNames, resolveRailCodes } from "../constants/railLines";
 import { ECO_NETWORK_ZONE_TYPES } from "../data/ecoNetworkZoneTypes";
+import {
+  MARITIME_BOUNDARY_TYPES, MARITIME_BOUNDARY_SOURCE_NOTE,
+} from "../data/maritimeBoundaryTypes";
 import { TEMPERATURE_GRID_BANDS } from "../data/temperatureGridTypes";
 import { CWA_INTENSITY_BANDS } from "../data/earthquakeReplayTypes";
 import { resolveMicroSensorMode, MICRO_SENSOR_NO_DATA_COLOR } from "../data/microSensorTypes";
@@ -414,6 +417,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "nuclearRadiation", render: () => <NuclearLegend /> },
   // Base map：OSM 道路 highway 分級分色（其他 base layer 單色，依鐵則 2 不需圖例）
   { id: "osmRoadDrive", render: () => <OsmRoadDriveLegend /> },
+  { id: "maritimeBoundary", render: () => <MaritimeBoundaryLegend /> },
   { id: "slopeVector", render: () => <SlopeVectorLegend /> },
   { id: "aspectVector", render: () => <AspectVectorLegend /> },
   // 警察覆蓋分析 isochrone（共用 overlap_count 色階）
@@ -776,6 +780,46 @@ function OsmRoadDriveLegend() {
       <FireCatRows cats={OSM_ROAD_DRIVE_CATS} />
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
         z≥10 才顯示｜來源 OpenStreetMap｜55 萬 edges
+      </div>
+    </div>
+  );
+}
+
+// ── 領海界線圖例（4 類：線型也要畫出來，因為 24 浬是虛線）──
+//    色票 / 標籤 / 線型全部來自 data/maritimeBoundaryTypes.ts，與 paint、popup 同源。
+function MaritimeBoundaryLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        領海界線 MARITIME
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+        {MARITIME_BOUNDARY_TYPES.map((m) => (
+          <div key={m.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            {m.value === "basepoint" ? (
+              <div
+                style={{
+                  width: 10, height: 10, borderRadius: RADIUS.full, background: m.color,
+                  opacity: 0.9, flexShrink: 0,
+                  border: "1px solid rgba(255,255,255,0.6)", boxSizing: "border-box",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: 14, height: 0, flexShrink: 0,
+                  borderTop: `2px ${m.dashed ? "dashed" : "solid"} ${m.color}`,
+                  opacity: 0.9,
+                }}
+              />
+            )}
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{m.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 4, lineHeight: 1.3 }}>
+        {MARITIME_BOUNDARY_SOURCE_NOTE}｜基點 z≥5 顯示
       </div>
     </div>
   );

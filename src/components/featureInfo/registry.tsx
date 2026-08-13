@@ -86,6 +86,7 @@ import {
 import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
+  MaritimeBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
   SlopeVectorPanel, AspectVectorPanel,
 } from "./baseMapPanels";
@@ -251,6 +252,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
   villageBoundary: VillageBoundaryPanel,
+  maritimeBoundary: MaritimeBoundaryPanel,
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
@@ -544,6 +546,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
   villageBoundary: "村里界",
+  maritimeBoundary: "領海界線",
   contour25k: "等高線 25k (10m)",
   contourDtm20: "等高線 DTM 20m",
   osmRoadDrive: "道路 (OSM)",

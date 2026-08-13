@@ -3873,6 +3873,41 @@ export const LAYER_MANIFEST = {
     topics: ["底圖", "行政區", "邊界"],
   },
 
+  // 底圖主題第 13 層（2026-08-13 新增「海域界線」子群）——
+  // 前 3 層是陸域行政界，本層是**海域法定界線**（不是行政區），故另立子群。
+  // 4 種 feature 由 properties.layer 區分，色票 SSOT 在 data/maritimeBoundaryTypes.ts
+  // （paint / legend / popup 三邊共用）；manifest 的 color 是 sidebar 圓點的代表色，
+  // 與那 4 個分類色是兩件事（照底圖批拍板①判準寫字面 hex）。
+  maritimeBoundary: {
+    key: "maritimeBoundary",
+    section: { theme: "底圖 Base Map", group: "海域界線" },
+    label: "領海界線 Maritime Boundary",
+    expandable: true,
+    color: "#38bdf8",
+    icon: Waves,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "maritime_boundary", confidence: "HIGH" }],
+      note:
+        "內政部「中華民國第一批領海基線、領海及鄰接區外界線」98 年修正公告（靜態，極少更新）；" +
+        "上游 pipeline: taipei-gis-analytics/pipelines/environment/maritime_boundary/01_process_maritime_boundary.py",
+    },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles",
+      sourceId: "base-maritime-boundary",
+      url: "./base_map/maritime_boundary.pmtiles",
+      sourceLayer: "maritime_boundary",
+      minzoom: 0,
+      maxzoom: 12,
+    },
+    legend: "maritimeBoundary",
+    popup: "maritimeBoundary",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "內政部公告的領海基線、12 浬領海與 24 浬鄰接區外界線",
+    topics: ["底圖", "海域", "主權", "邊界"],
+  },
+
   contour25k: {
     key: "contour25k",
     section: { theme: "底圖 Base Map", group: "地形" },

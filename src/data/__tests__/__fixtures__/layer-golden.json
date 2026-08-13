@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 349,
+    "keyCount": 350,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1316,6 +1316,14 @@
         "medical-isochrone-fill"
       ],
       "type": "medicalIsochrone"
+    },
+    {
+      "layers": [
+        "base-maritime-boundary-point",
+        "base-maritime-boundary-line",
+        "base-maritime-boundary-line-24nm"
+      ],
+      "type": "maritimeBoundary"
     },
     {
       "layers": [
@@ -28201,6 +28209,271 @@
     {
       "dynamicData": null,
       "filter": null,
+      "id": "maritimeBoundary",
+      "layers": [
+        {
+          "filter": [
+            "in",
+            [
+              "get",
+              "layer"
+            ],
+            [
+              "literal",
+              [
+                "baseline",
+                "territorial_sea_12nm"
+              ]
+            ]
+          ],
+          "layout": {
+            "line-cap": "round",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "layer"
+                ],
+                "baseline",
+                "#f59e0b",
+                "territorial_sea_12nm",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.8,
+                8,
+                1.2,
+                12,
+                1.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "layer"
+                ],
+                "baseline",
+                "#f59e0b",
+                "territorial_sea_12nm",
+                "#ef4444",
+                "#94a3b8"
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.8,
+                8,
+                1.2,
+                12,
+                1.8
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "contiguous_zone_24nm"
+          ],
+          "layout": {
+            "line-cap": "butt",
+            "line-join": "round"
+          },
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "layer"
+                ],
+                "contiguous_zone_24nm",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.8,
+                8,
+                1.2,
+                12,
+                1.8
+              ]
+            },
+            "light": {
+              "line-color": [
+                "match",
+                [
+                  "get",
+                  "layer"
+                ],
+                "contiguous_zone_24nm",
+                "#a78bfa",
+                "#94a3b8"
+              ],
+              "line-dasharray": [
+                4,
+                3
+              ],
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                4,
+                0.8,
+                8,
+                1.2,
+                12,
+                1.8
+              ]
+            }
+          },
+          "suffix": "line-24nm",
+          "type": "line"
+        },
+        {
+          "filter": [
+            "==",
+            [
+              "get",
+              "layer"
+            ],
+            "basepoint"
+          ],
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "layer"
+                ],
+                "basepoint",
+                "#fbbf24",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.65,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                1.6,
+                8,
+                3,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#0d1117",
+              "circle-stroke-opacity": 0.52,
+              "circle-stroke-width": 0.6
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "layer"
+                ],
+                "basepoint",
+                "#fbbf24",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.65,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                1.6,
+                8,
+                3,
+                12,
+                5
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.52,
+              "circle-stroke-width": 0.6
+            }
+          },
+          "suffix": "point",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 12,
+        "minzoom": 0,
+        "sourceLayer": "maritime_boundary"
+      },
+      "rebuildOnParamChange": [
+        "line",
+        "line-24nm",
+        "point"
+      ],
+      "sourceId": "base-maritime-boundary",
+      "sourceUrl": "./base_map/maritime_boundary.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
       "id": "contour25k",
       "layers": [
         {
@@ -43009,6 +43282,22 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      }
+    ],
+    "maritimeBoundary": [
+      {
+        "label": "寬度 1.0",
+        "max": 4,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
       }
     ],
     "medAED": [

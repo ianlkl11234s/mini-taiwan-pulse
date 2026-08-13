@@ -278,7 +278,17 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
   // 醫療等時圈覆蓋面
   { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
-  // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
+  // Base map（行政邊界 / 海域界線 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
+  // 領海界線排在行政界之前：26 個基點落在海岸線上，村里/鄉鎮的 fill 雖然 opacity 0
+  // 仍會被 queryRenderedFeatures 命中，排後面點不到基點。
+  {
+    layers: [
+      "base-maritime-boundary-point",
+      "base-maritime-boundary-line",
+      "base-maritime-boundary-line-24nm",
+    ],
+    type: "maritimeBoundary",
+  },
   { layers: ["base-osm-road-line"], type: "osmRoadDrive" },
   { layers: ["base-village-boundary-line", "base-village-boundary-fill"], type: "villageBoundary" },
   { layers: ["base-township-boundary-line", "base-township-boundary-fill"], type: "townshipBoundary" },

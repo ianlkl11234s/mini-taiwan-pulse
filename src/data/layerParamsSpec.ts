@@ -1254,6 +1254,12 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "villageBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
     opacitySlider("villageBoundaryOpacity", 0.65),
   ],
+  // 領海界線：底圖角色（空間參考框架）→ 基準線寬 1.0、預設透明度 0.65（低於一般層的 0.8），
+  // 兩個 default 都必須與 overlayRegistry paint 的 `?? fallback` 逐字相同。
+  maritimeBoundary: [
+    { kind: "slider", name: "maritimeBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("maritimeBoundaryOpacity", 0.65),
+  ],
   contour25k: [
     { kind: "slider", name: "contour25kWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
     opacitySlider("contour25kOpacity", 0.7),
