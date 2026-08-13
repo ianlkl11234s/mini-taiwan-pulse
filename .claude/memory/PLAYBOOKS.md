@@ -158,8 +158,18 @@ git log --oneline -5
 git push origin master
 ```
 
-若改了 5 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / zeabur.json / package.json）
+若改了 4 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / package.json）
 要同步確認 port 3721 一致。
+
+> **Zeabur build 實證（2026-08-13 查證，取代先前的 `zeabur.json` 誤述——該檔從不存在）**：
+> service `mini-taiwan-pulse`（project `mini-tw-pulse`）綁 GitHub `refs/heads/master`，
+> deployment metadata `"planType": "docker"` —— **走 Dockerfile，不走 zbpack**
+> （`COPY package.json package-lock.json` → `RUN npm ci` → `npm run build`；
+> build log 全文 grep `pnpm|yarn|corepack` 零命中）。
+> repo 內**沒有** `zeabur.json`／`zbpack.json`，service env 也無任何 `ZBPACK_*`，
+> 即唯一能把 build 導離 Dockerfile 的機制不存在。
+> ⚠️ **merge 進 master ＝ 直接上線**，沒有 staging 中繼——PR merge 的那一刻就是部署。
+> S3 只放 runtime 資料（容器啟動時 `pull-deploy-assets.sh` 拉進 `/data`），**不參與 build**。
 
 ### 6b. ⚠️ 新增大型資料檔到 S3 → **5 檔強制同步 checklist**（2026-03-06 教訓）
 
