@@ -4,6 +4,10 @@
 
 ## 進行中 / 待辦
 
+> 🎯 **下一批 W1~W6（2026-08-12 owner 全數拍板）**：staticAssets 追認／popup 29+6／
+> 完整性測試盲區表／snapshot-to-CDN（AR-12/13）／AI-1／關單快贏（BM-1~4·MO-17·AU-6·DS-06）
+> —— SSOT 與開工指南：[`docs/proposal/next-batch-handoff-2026-08-12.md`](../../docs/proposal/next-batch-handoff-2026-08-12.md)
+
 ### 資料源健康（DS 系列，2026-08-07 斷供調查後開）
 
 > 背景見 [`.claude/pitfalls/2026-08-07-silent-upstream-outage.md`](../pitfalls/2026-08-07-silent-upstream-outage.md)。
