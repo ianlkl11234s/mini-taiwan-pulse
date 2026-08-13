@@ -2580,7 +2580,7 @@ manifest 現在是 348 層的**登記 SSOT**，也是新層的**唯一入口**�
 
 | Track | 分支 | 內容 | 驗收 |
 |---|---|---|---|
-| **C** | feat/deploy-contract-manifest | 觸點 #20 機械斷言（manifest 驅動 191 路徑、雙向、三分類＋兩個 ledger）＋ **5+1 缺口全修**＋ `staticAssets` schema（代拍）| 紅燈演練 4/4；570 綠 |
+| **C** | feat/deploy-contract-manifest | 觸點 #20 機械斷言（manifest 驅動 191 路徑、雙向、三分類＋兩個 ledger）＋ **5+1 缺口全修**＋ `staticAssets` schema（已追認 2026-08-12）| 紅燈演練 4/4；570 綠 |
 | **B** | feat/manifest-derive-legend-popup | 4b 改案：LEGEND keys 真派生（121 entry 雙射驗證）＋ `gisClickRegistry.ts` 模組級升格＋文字解析抽取器退役＋ fixture 合法重生 +2 | 紅燈演練 3/3；566 綠 |
 | **A** | feat/ar22-layerhost | AR-22 終點 P1-P4：74 entry LayerHost registry（348 key 三桶互斥斷言）＋ per-key 訂閱＋ refs React-free ＋ `useLayerParamsRuntime`/等值閘退役 | 551 綠；App.tsx −602 行 |
 
@@ -2600,7 +2600,7 @@ manifest 現在是 348 層的**登記 SSOT**，也是新層的**唯一入口**�
 **#9 NO_POPUP 考證**（opus 唯讀分析）：57 筆 → KEEP-NULL 22／CANDIDATE 29／EDGE 6，
 報告 `no-popup-audit.md`。**#10 --apply 退役**（詳 backlog）。
 
-**代拍待追認（本棒新增 1 項）**：`staticAssets?: string[]`（custom source 的靜態檔
+**已追認（本棒新增 1 項，2026-08-12 owner 追認）**：`staticAssets?: string[]`（custom source 的靜態檔
 結構化宣告，26 entry）—— 比照拍板②⑤⑥格式。
 
 **交棒後開放項**：S3 上傳（腳本已修，待 merge 後跑）；slope/aspect.png 死檔刪除拍板；
