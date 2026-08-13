@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 350,
+    "keyCount": 359,
     "sections": [
       "gisLayers",
       "overlays",
@@ -13,6 +13,12 @@
         "road-congestion-hit"
       ],
       "type": "roadCongestion"
+    },
+    {
+      "layers": [
+        "freewayCongestion-hit"
+      ],
+      "type": "freewayCongestion"
     },
     {
       "layers": [
@@ -843,6 +849,60 @@
     },
     {
       "layers": [
+        "welfare-mental-health-circle"
+      ],
+      "type": "welfareMentalHealth"
+    },
+    {
+      "layers": [
+        "welfare-gov-offices-circle"
+      ],
+      "type": "welfareGovOffices"
+    },
+    {
+      "layers": [
+        "welfare-disability-circle"
+      ],
+      "type": "welfareDisability"
+    },
+    {
+      "layers": [
+        "welfare-social-work-orgs-circle"
+      ],
+      "type": "welfareSocialWorkOrgs"
+    },
+    {
+      "layers": [
+        "welfare-elderly-homes-circle"
+      ],
+      "type": "welfareElderlyHomes"
+    },
+    {
+      "layers": [
+        "welfare-child-services-circle"
+      ],
+      "type": "welfareChildServices"
+    },
+    {
+      "layers": [
+        "welfare-childcare-circle"
+      ],
+      "type": "welfareChildcare"
+    },
+    {
+      "layers": [
+        "welfare-nursing-homes-circle"
+      ],
+      "type": "welfareNursingHomes"
+    },
+    {
+      "layers": [
+        "welfare-ltc-institutions-circle"
+      ],
+      "type": "welfareLtcInstitutions"
+    },
+    {
+      "layers": [
         "cemetery-zoning-fill"
       ],
       "type": "cemeteryZoning"
@@ -1110,8 +1170,26 @@
     },
     {
       "layers": [
+        "iot-wra-river-circle"
+      ],
+      "type": "iotWraRiver"
+    },
+    {
+      "layers": [
+        "iot-wra-structure-circle"
+      ],
+      "type": "iotWraStructure"
+    },
+    {
+      "layers": [
         "groundwater-circle",
         "groundwater-glow"
+      ],
+      "type": "groundwater"
+    },
+    {
+      "layers": [
+        "groundwater-wells-circle"
       ],
       "type": "groundwater"
     },
@@ -1319,11 +1397,81 @@
     },
     {
       "layers": [
+        "waste-stops-static-waste-stops-fill"
+      ],
+      "type": "wasteStopsStatic"
+    },
+    {
+      "layers": [
+        "station-polygons-thsr-poly-fill",
+        "station-polygons-thsr-poly-line"
+      ],
+      "type": "railStation"
+    },
+    {
+      "layers": [
+        "water-canals-core"
+      ],
+      "type": "waterCanals"
+    },
+    {
+      "layers": [
+        "water-levees-core"
+      ],
+      "type": "waterLevees"
+    },
+    {
+      "layers": [
+        "water-river-polygons-fill"
+      ],
+      "type": "waterRivers"
+    },
+    {
+      "layers": [
+        "water-basins-line"
+      ],
+      "type": "waterBasins"
+    },
+    {
+      "layers": [
+        "water-protection-zones-fill"
+      ],
+      "type": "waterProtectionZones"
+    },
+    {
+      "layers": [
+        "national-highways-glow",
+        "national-highways-line"
+      ],
+      "type": "highway"
+    },
+    {
+      "layers": [
+        "provincial-roads-glow",
+        "provincial-roads-line"
+      ],
+      "type": "provincialRoad"
+    },
+    {
+      "layers": [
+        "cycling-routes-glow",
+        "cycling-routes-line"
+      ],
+      "type": "cyclingRoute"
+    },
+    {
+      "layers": [
         "base-maritime-boundary-point",
         "base-maritime-boundary-line",
         "base-maritime-boundary-line-24nm"
       ],
       "type": "maritimeBoundary"
+    },
+    {
+      "layers": [
+        "base-osm-expressway-line"
+      ],
+      "type": "osmExpressway"
     },
     {
       "layers": [
@@ -1594,6 +1742,54 @@
         "edu-district-senior-fill"
       ],
       "type": "eduDistrictSenior"
+    },
+    {
+      "layers": [
+        "h3-pop-count-fill",
+        "h3-pop-count-ext"
+      ],
+      "type": "popCount"
+    },
+    {
+      "layers": [
+        "h3-population-fill",
+        "h3-population-ext"
+      ],
+      "type": "h3Population"
+    },
+    {
+      "layers": [
+        "h3-indicators-fill",
+        "h3-indicators-ext"
+      ],
+      "type": "indicators"
+    },
+    {
+      "layers": [
+        "h3-socio-fill",
+        "h3-socio-ext"
+      ],
+      "type": "socioeconomic"
+    },
+    {
+      "layers": [
+        "h3-spatial-fill",
+        "h3-spatial-ext"
+      ],
+      "type": "spatialEconomy"
+    },
+    {
+      "layers": [
+        "h3-youbike-fill",
+        "h3-youbike-ext"
+      ],
+      "type": "youbikeFullness"
+    },
+    {
+      "layers": [
+        "agri-ftw-fields-fill"
+      ],
+      "type": "agricultureField"
     }
   ],
   "overlays": [
@@ -36498,6 +36694,2416 @@
     },
     {
       "dynamicData": null,
+      "filter": null,
+      "id": "welfareLtcInstitutions",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "sub_code"
+                  ],
+                  "unknown"
+                ],
+                "T0601",
+                "#ffd43b",
+                "T0602",
+                "#20c997",
+                "T0603",
+                "#845ef7",
+                "T0604",
+                "#ff922b",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "sub_code"
+                  ],
+                  "unknown"
+                ],
+                "T0601",
+                "#ffd43b",
+                "T0602",
+                "#20c997",
+                "T0603",
+                "#845ef7",
+                "T0604",
+                "#ff922b",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-ltc-institutions",
+      "sourceUrl": "./welfare/ltc_institutions_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareNursingHomes",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "nh_type"
+                  ],
+                  "unknown"
+                ],
+                "一般護理之家",
+                "#4dabf7",
+                "居家護理所",
+                "#63e6be",
+                "產後護理之家",
+                "#f783ac",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    2,
+                    [
+                      "*",
+                      0.2,
+                      [
+                        "sqrt",
+                        [
+                          "+",
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_nh"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_postpartum"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_infant"
+                              ],
+                              0
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    3,
+                    [
+                      "*",
+                      0.5,
+                      [
+                        "sqrt",
+                        [
+                          "+",
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_nh"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_postpartum"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_infant"
+                              ],
+                              0
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "nh_type"
+                  ],
+                  "unknown"
+                ],
+                "一般護理之家",
+                "#4dabf7",
+                "居家護理所",
+                "#63e6be",
+                "產後護理之家",
+                "#f783ac",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    2,
+                    [
+                      "*",
+                      0.2,
+                      [
+                        "sqrt",
+                        [
+                          "+",
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_nh"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_postpartum"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_infant"
+                              ],
+                              0
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    3,
+                    [
+                      "*",
+                      0.5,
+                      [
+                        "sqrt",
+                        [
+                          "+",
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_nh"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_postpartum"
+                              ],
+                              0
+                            ]
+                          ],
+                          [
+                            "to-number",
+                            [
+                              "coalesce",
+                              [
+                                "get",
+                                "beds_infant"
+                              ],
+                              0
+                            ]
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-nursing-homes",
+      "sourceUrl": "./welfare/nursing_homes_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareChildcare",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#ff8787",
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": "#ff8787",
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-childcare",
+      "sourceUrl": "./welfare/childcare_centers_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareChildServices",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "welfare_class"
+                  ],
+                  "unknown"
+                ],
+                "child_dev",
+                "#e64980",
+                "parent_child_center",
+                "#ffa94d",
+                "child_welfare",
+                "#7950f2",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "welfare_class"
+                  ],
+                  "unknown"
+                ],
+                "child_dev",
+                "#e64980",
+                "parent_child_center",
+                "#ffa94d",
+                "child_welfare",
+                "#7950f2",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                3,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-child-services",
+      "sourceUrl": "./welfare/child_services_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareElderlyHomes",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "attr_type"
+                  ],
+                  "unknown"
+                ],
+                [
+                  "公立"
+                ],
+                "#4c6ef5",
+                [
+                  "公設民營",
+                  "公辦民營",
+                  "公設\n民營"
+                ],
+                "#22b8cf",
+                [
+                  "私立"
+                ],
+                "#f59f00",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    2,
+                    [
+                      "*",
+                      0.18,
+                      [
+                        "sqrt",
+                        [
+                          "to-number",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "beds_approved"
+                            ],
+                            0
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    3,
+                    [
+                      "*",
+                      0.45,
+                      [
+                        "sqrt",
+                        [
+                          "to-number",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "beds_approved"
+                            ],
+                            0
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "attr_type"
+                  ],
+                  "unknown"
+                ],
+                [
+                  "公立"
+                ],
+                "#4c6ef5",
+                [
+                  "公設民營",
+                  "公辦民營",
+                  "公設\n民營"
+                ],
+                "#22b8cf",
+                [
+                  "私立"
+                ],
+                "#f59f00",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.85,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.255,
+                  0.85
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    2,
+                    [
+                      "*",
+                      0.18,
+                      [
+                        "sqrt",
+                        [
+                          "to-number",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "beds_approved"
+                            ],
+                            0
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ],
+                12,
+                [
+                  "*",
+                  1,
+                  [
+                    "+",
+                    3,
+                    [
+                      "*",
+                      0.45,
+                      [
+                        "sqrt",
+                        [
+                          "to-number",
+                          [
+                            "coalesce",
+                            [
+                              "get",
+                              "beds_approved"
+                            ],
+                            0
+                          ]
+                        ]
+                      ]
+                    ]
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.595,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-elderly-homes",
+      "sourceUrl": "./welfare/elderly_care_homes_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareSocialWorkOrgs",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#868e96",
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.7,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.21,
+                  0.7
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                2.6,
+                12,
+                5
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.48999999999999994,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": "#868e96",
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.7,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.21,
+                  0.7
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                2.6,
+                12,
+                5
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.48999999999999994,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-social-work-orgs",
+      "sourceUrl": "./welfare/social_work_orgs_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareDisability",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "+",
+                    [
+                      "to-number",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "quota_resident"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "to-number",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "quota_night"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "to-number",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "quota_day"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  0
+                ],
+                "#8a8a8a",
+                [
+                  "step",
+                  [
+                    "/",
+                    [
+                      "+",
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "actual_resident"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "actual_night"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "actual_day"
+                          ],
+                          0
+                        ]
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "quota_resident"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "quota_night"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "quota_day"
+                          ],
+                          0
+                        ]
+                      ]
+                    ]
+                  ],
+                  "#4dabf7",
+                  0.5,
+                  "#38d9a9",
+                  0.8,
+                  "#fab005",
+                  1,
+                  "#fa5252"
+                ]
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.9,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.27,
+                  0.9
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.63,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "+",
+                    [
+                      "to-number",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "quota_resident"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "to-number",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "quota_night"
+                        ],
+                        0
+                      ]
+                    ],
+                    [
+                      "to-number",
+                      [
+                        "coalesce",
+                        [
+                          "get",
+                          "quota_day"
+                        ],
+                        0
+                      ]
+                    ]
+                  ],
+                  0
+                ],
+                "#8a8a8a",
+                [
+                  "step",
+                  [
+                    "/",
+                    [
+                      "+",
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "actual_resident"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "actual_night"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "actual_day"
+                          ],
+                          0
+                        ]
+                      ]
+                    ],
+                    [
+                      "+",
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "quota_resident"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "quota_night"
+                          ],
+                          0
+                        ]
+                      ],
+                      [
+                        "to-number",
+                        [
+                          "coalesce",
+                          [
+                            "get",
+                            "quota_day"
+                          ],
+                          0
+                        ]
+                      ]
+                    ]
+                  ],
+                  "#4dabf7",
+                  0.5,
+                  "#38d9a9",
+                  0.8,
+                  "#fab005",
+                  1,
+                  "#fa5252"
+                ]
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.9,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.27,
+                  0.9
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.63,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-disability",
+      "sourceUrl": "./welfare/disability_facilities_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareGovOffices",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": "#4c6ef5",
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.9,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.27,
+                  0.9
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.63,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": "#4c6ef5",
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.9,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.27,
+                  0.9
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.63,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-gov-offices",
+      "sourceUrl": "./welfare/welfare_gov_offices_national.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "welfareMentalHealth",
+      "layers": [
+        {
+          "filter": [
+            "all",
+            [
+              "has",
+              "uid"
+            ]
+          ],
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "sub_code"
+                  ],
+                  "unknown"
+                ],
+                "T0105",
+                "#cc5de8",
+                "T0106",
+                "#f76707",
+                "T0503",
+                "#37b24d",
+                "T0504",
+                "#4c6ef5",
+                "T0502",
+                "#22b8cf",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.9,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.27,
+                  0.9
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "rgba(0,0,0,0.5)",
+              "circle-stroke-opacity": 0.63,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "coalesce",
+                  [
+                    "get",
+                    "sub_code"
+                  ],
+                  "unknown"
+                ],
+                "T0105",
+                "#cc5de8",
+                "T0106",
+                "#f76707",
+                "T0503",
+                "#37b24d",
+                "T0504",
+                "#4c6ef5",
+                "T0502",
+                "#22b8cf",
+                "#8a8a8a"
+              ],
+              "circle-opacity": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                14,
+                0.9,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  0.27,
+                  0.9
+                ]
+              ],
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                4,
+                12,
+                8
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.7)",
+              "circle-stroke-opacity": 0.63,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.3,
+                14,
+                1,
+                15,
+                [
+                  "case",
+                  [
+                    "==",
+                    [
+                      "coalesce",
+                      [
+                        "get",
+                        "coord_precision"
+                      ],
+                      ""
+                    ],
+                    "approximate"
+                  ],
+                  1.8,
+                  1
+                ]
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "circle"
+      ],
+      "sourceId": "welfare-mental-health",
+      "sourceUrl": "./welfare/mental_health_facilities_national.geojson"
+    },
+    {
+      "dynamicData": null,
       "filter": [
         "!=",
         [
@@ -47612,6 +50218,394 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareChildServices": [
+      {
+        "label": "類別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "兒童發展／早期療育 (1,084)",
+            "value": "child_dev"
+          },
+          {
+            "label": "親子館／育兒支持 (196)",
+            "value": "parent_child_center"
+          },
+          {
+            "label": "兒少福利與安置 (116)",
+            "value": "child_welfare"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareChildcare": [
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareDisability": [
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareElderlyHomes": [
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareGovOffices": [
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareLtcInstitutions": [
+      {
+        "label": "服務型態",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "居家式 (1,798)",
+            "value": "T0601"
+          },
+          {
+            "label": "社區式（日間照顧） (1,096)",
+            "value": "T0602"
+          },
+          {
+            "label": "住宿式 (60)",
+            "value": "T0603"
+          },
+          {
+            "label": "綜合式 (163)",
+            "value": "T0604"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareMentalHealth": [
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.90",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.9
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareNursingHomes": [
+      {
+        "label": "型別",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "一般護理之家 (510)",
+            "value": "一般護理之家"
+          },
+          {
+            "label": "居家護理所（無床） (732)",
+            "value": "居家護理所"
+          },
+          {
+            "label": "產後護理之家 (257)",
+            "value": "產後護理之家"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      }
+    ],
+    "welfareSocialWorkOrgs": [
+      {
+        "label": "定位精度",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "排除概略",
+            "value": "precise"
+          },
+          {
+            "label": "僅概略點",
+            "value": "approx"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "透明度 0.70",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.7
       },
       {
         "label": "大小 1.0",

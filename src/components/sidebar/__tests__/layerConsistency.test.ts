@@ -187,27 +187,28 @@ const NO_LEGEND_LEDGER = new Set([
 const NO_POPUP_LEDGER = new Set([
   // 交通 Move —— rail / flights / bus 三族走 Three.js scene picking（非 GIS_LAYERS）
   "rail", "flights", "busLive", "busIntercityLive", "touristShuttleLive",
-  // 交通 Move —— 純線層 / 站點僅作定位
-  "stationsTHSR", "highways", "osmExpressway", "provincialRoads", "cyclingRoutes",
-  "freewayCongestion",
-  "canopyHeight",                                    // 林業：raster 樹冠高度
-  // 房地產：格點/點位圖層，數值直接以顏色表達（6 層同族）
+  // 房地產 6 層同族，皆走浮動 tooltip 而非 FeatureInfoPanel：
+  //   Grid ×3 —— useMapInteraction 綁 `re-grid-*-fill` 的 mousemove hover tooltip
+  //              （「行動裝置沒有 hover、要不要補 click」是 EDGE，待 owner 拍板）
+  //   Point ×3 —— W2 補回 click picking（RealEstatePointsScene.pickPoint，
+  //              WebGL CustomLayer 進不了 queryRenderedFeatures 故無法走 GIS_LAYERS）
   "realEstateRentalGrid", "realEstateRentalPoint",
   "realEstateSaleGrid", "realEstateSalePoint",
   "realEstatePresaleGrid", "realEstatePresalePoint",
-  // 人口社經：格點/指標面層
-  "popCount", "h3Population", "indicators", "socioeconomic", "spatialEconomy",
-  "youbikeFullness",
   "dustForecast",                                    // 全球氣候：raster 沙塵預報
   "hillshade",                                       // 底圖：raster 山影
-  // 環境氣候：CWA/EPA 上游 raster（雲圖 / 雷達 / 溫度 / 熱島 / AQI 影像）
-  "cwaCloudImagery", "cwaRadarImagery", "temperatureWave", "urbanHeat", "aqiImagery",
-  // 水資源：背景井位 / 流域面 / 河線 / 堤防 / 渠道 / 保護區 / 極端淹水 / 雨量 raster
-  "groundwaterWells", "iotWraRiver", "iotWraStructure", "waterBasins", "waterRivers",
-  "waterLevees", "waterCanals", "waterProtectionZones", "waterFloodExtreme", "precipRaster",
-  // 廢棄物：清運車與排程走 wasteMapboxLayers 自掛 handler / 裝飾性特效
-  "wasteTruck", "wasteSchedule", "wasteScheduleNote", "wasteStopsStatic",
-  "agriculture",                                     // 農業：全台耕地底圖面
+  // 環境氣候 raster：雲圖 / 雷達 / AQI 影像皆為上游已上色成品，無數值通道
+  //（熱島 urbanHeat / 樹冠 canopyHeight 是值編碼 raster，W2 已接點擊讀值探針 → 不在本表）
+  "cwaCloudImagery", "cwaRadarImagery", "aqiImagery",
+  // 溫度波：不是 raster 而是 Three.js mesh（無 raycast）；同一份 RPC 的 2D 雙生層
+  // temperature-grid-fill 已可點 → 「3D 模式是否也要能點」是 EDGE，待 owner 拍板
+  "temperatureWave",
+  // 水資源：極端淹水面（payload 只有圖例已標示的 depth_class，待 owner 拍板）
+  // / 雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
+  "waterFloodExtreme", "precipRaster",
+  // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
+  //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
+  "wasteSchedule", "wasteScheduleNote",
   // 能源：glow 光暈層疊在既有可點層上（點擊由底下那層接）＋ 桿線 ＋ 風場規劃區
   "powerPlantGlow", "aviationRestrictedGlow", "powerPoles", "powerLinesGlow",
   "substationEhvGlow", "windPlan",

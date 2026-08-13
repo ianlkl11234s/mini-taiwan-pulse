@@ -397,8 +397,10 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
 
       <div
         style={{
-          display: "grid", gridTemplateColumns: "repeat(3, 1fr)",
-          gridTemplateRows: "repeat(2, 1fr)", gap: 6,
+          // auto-fit：Monitor widget 只佔 12 欄網格的 3 欄，視窗變窄時 3×2 會擠爆
+          // → 讓它自己降成 2 欄／1 欄。寬版仍是 3 欄（minmax 下限 82px × 3 + gap）
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(82px, 1fr))",
+          gridAutoRows: "minmax(0, 1fr)", gap: 6,
           flex: 1, minHeight: 0,
         }}
       >

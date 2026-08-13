@@ -14,9 +14,9 @@ SessionStart hook 自動 inline `STATUS` / `BACKLOG` / `PRINCIPLES`；似曾相�
 
 | 指令 | 用途 |
 |---|---|
-| `pnpm dev` / `npm run dev` | 啟動 dev server (port 3721) |
+| `npm run dev` | 啟動 dev server (port 3721) |
 | `npx tsc -b` | TypeScript 驗證（commit 前必跑，禁用 `--noEmit`） |
-| `pnpm test` | 跑測試（含 `layerConsistency` 擋漏接圖例） |
+| `npm test` | 跑測試（含 `layerConsistency` 擋漏接圖例） |
 | `/new-layer <name>` | 新增 layer 骨架（強烈建議走，免漏 manifest/spec/邏輯檔三步 + 四鐵則） |
 | `/check-rpc <name>` | 自動 EXPLAIN 判斷 RPC 效能 |
 

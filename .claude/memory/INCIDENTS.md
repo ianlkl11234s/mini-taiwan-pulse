@@ -1830,3 +1830,52 @@ P3-2D 突變 (b2)「刪一條 ref 同步賦值」竟全綠——因為測試每�
 14 棒裡 8 次中斷全靠三件套復原零重工：**每子階段先 commit**（durability 下放）＋
 SendMessage 原 context 續跑＋overnight-log 落檔交接。caffeinate 擋閒置休眠但
 **擋不住闔蓋**（實測踩到）。→ SOP 已定型 PB-38。
+
+## 2026-08-12 晚場 — 收尾棒 session（PR #131，2 技術事件）
+
+**① 背景 agent 連線中斷／stall ×5，SendMessage 續跑全數零重工**：
+R3 偵察與三個 opus 實作 agent 共 5 次因「API Connection lost」或「no progress 600s
+watchdog」中斷。處置一律 `SendMessage` 給**原 agent**（附「你停在哪一句、接著做什麼」）
+→ transcript context 保留、從中斷點續跑，5/5 救回、零重工。教訓同 PB-38 三件套，
+本場再驗證：**中斷是常態，續跑機制比重派便宜一個數量級**（Track A 累計 46 萬 tokens
+的 context 若重派等於全部重花）。
+
+**② 平行 session 在「push 成功 → pr create」的窗口把主樹切走分支**：
+`gh pr create` 突然報「17 uncommitted changes ＋ must first push current branch」——
+不是我的錯誤：vessel-watch 平行 session 恰在此刻把主樹從整合分支切到它的新分支。
+解法：`gh pr create --head <branch>` 完全不依賴主樹當前狀態。通則：**共用 checkout 的
+機器上，任何「依賴當前分支」的指令（gh pr create／git push 無 refspec）都該改用顯式
+分支參數**；主樹的當前分支隨時可能不是你的。同場加映：memory／docs 收尾一律走
+`git worktree add <path> master`，主樹被佔用照樣能出貨（本場三次實用）。
+
+## 2026-08-13 社福長照接線 — 2 個「不報錯」事件
+
+**① 新開的 worktree 沒有 `.env` → MapView 白屏，錯誤訊息完全指不到根因**
+
+在 `.claude/worktrees/w-welfare` 起 dev server 後，agent-browser 拿到的是空白頁：
+`document.body.innerText.length === 0`、`.mapboxgl-canvas` 不存在，console 只有
+「An error occurred in the `<MapView>` / `<UserAvatar>` / `<App>` component」這種
+React error-boundary 泛用訊息，webgl2 檢查是 `true`（所以不是 SwiftShader 那條老坑）。
+
+根因：`.env` 是 gitignored，**`git worktree add` 不會帶過去**。缺 `VITE_MAPBOX_TOKEN`
+→ Mapbox 初始化炸掉。唯一的線索是被 log 淹掉的一行
+`[Supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY`。
+
+對策：**worktree 建好後第一件事是 `cp <主樹>/.env <worktree>/.env`**，
+且 vite 要重啟才吃得到（env 是啟動時讀）。已寫進 PB-40 步驟 1。
+通則：worktree 缺的一律是 gitignored 的東西——`.env`、`node_modules`、本機快取。
+
+**② 四鐵則 #4（控件不得橫向溢出）首版沒過，而且整套驗證流程正好繞過它**
+
+「定位精度」只有 3 個選項 → `options.length > 3` 不成立 → 渲染成橫向 button row，
+~240px 側欄裡每顆約 55px。label 寫「排除概略點」「只看概略點 (98)」→ 三顆全部折行，
+連「全部」都被拆成「全」「部」兩行。
+
+為什麼沒被抓到：整場瀏覽器驗證都用**深連結** `?v=1&layers=…` 開圖層（因為 sidebar 的
+DOM 互動在本站一向不穩，見本檔既有的 @ref 錯位／playwright hang 兩條），
+所以**從頭到尾沒開過 Layers 側欄**。四鐵則裡 #2 有 `layerConsistency` 擋、
+#1/#3 由 manifest 派生守，**只有 #4 純靠人眼**——最方便的驗證路徑正好繞開唯一沒護欄的那條。
+
+對策：label 縮到 ≤4 字（`全部`/`排除概略`/`僅概略點`），**`value` 與 `encode` 一字不動**
+（否則會改掉篩選語意與 overlayParams 編碼），筆數（98）搬去圖例。
+重測 36/54/54 px、高 17 px＝單行。規則進 PRINCIPLES；驗收順序進 PB-40。

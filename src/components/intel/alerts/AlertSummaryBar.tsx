@@ -117,7 +117,8 @@ export function AlertSummaryBar({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            // 同 AlertBoard：窄容器自動降欄，不硬塞 3 欄
+            gridTemplateColumns: "repeat(auto-fit, minmax(96px, 1fr))",
             gap: 6,
             padding: "2px 12px 11px",
           }}

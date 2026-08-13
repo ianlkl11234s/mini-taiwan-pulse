@@ -7,6 +7,17 @@ import {
 import type { ActiveAlert } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 
+const TEN_YEARS_SEC = 10 * 365 * 86400;
+
+/** M/D（Asia/Taipei） */
+function dayLabel(ts: number): string {
+  return new Date(ts * 1000).toLocaleDateString("zh-TW", {
+    timeZone: "Asia/Taipei",
+    month: "numeric",
+    day: "numeric",
+  });
+}
+
 interface Props {
   a: ActiveAlert;
   selected: boolean;
@@ -31,6 +42,15 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
   const effNow = expanded || a.severity >= 3 ? tick : nowTs;
   const expiresInSec = a.expires_ts - effNow;
   const expired = expiresInSec <= 0;
+  // 倒數只在「數得完」時才有意義：停水公告動輒 150 小時、無 expires 的示警
+  // 會被 loader 塞 MAX_SAFE_INTEGER，直接吐 HH:MM:SS 會變天文數字
+  const expiryText = expired
+    ? "已過期"
+    : expiresInSec > TEN_YEARS_SEC
+      ? "長期"
+      : expiresInSec > 99 * 3600
+        ? `至 ${dayLabel(a.expires_ts)}`
+        : fmtExpiry(a.expires_ts, effNow);
 
   const onCardClick = () => {
     onSelect(a.id);
@@ -108,7 +128,7 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
               color: expired ? COLORS.textFaint : COLORS.textMuted,
             }}
           >
-            {expired ? "已過期" : fmtExpiry(a.expires_ts, effNow)}
+            {expiryText}
           </span>
         </div>
 
@@ -124,15 +144,18 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
 
         {/* location + time */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
-            <IntelIcon d={MICON.pin!} size={10} color={COLORS.textMuted} />
-            <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
-              {a.county}
-              {a.area_count > 1 && (
-                <span style={{ color: COLORS.textFaint }}> · {a.area_count} 區</span>
-              )}
+          {/* county 與 headline 同字串時不重覆上牆（NCDR/CWA 原文常有這種列） */}
+          {a.county && a.county !== (a.headline || a.term) && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+              <IntelIcon d={MICON.pin!} size={10} color={COLORS.textMuted} />
+              <span style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, color: COLORS.textMuted }}>
+                {a.county}
+                {a.area_count > 1 && (
+                  <span style={{ color: COLORS.textFaint }}> · {a.area_count} 區</span>
+                )}
+              </span>
             </span>
-          </span>
+          )}
           <span style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
             <IntelIcon d={MICON.clock!} size={10} color={COLORS.textMuted} />
             <span style={{ fontFamily: FONT_DATA, fontSize: 10.5, color: COLORS.textMuted }}>
@@ -201,7 +224,9 @@ export function AlertCard({ a, selected, expanded, onSelect, onToggle, nowTs }: 
               <span style={{ color: COLORS.textFaint }}>發佈</span>
               <span style={{ color: COLORS.textMuted }}>{clockTime(a.sent_ts)}</span>
               <span style={{ color: COLORS.textFaint }}>失效</span>
-              <span style={{ color: COLORS.textMuted }}>{clockTime(a.expires_ts)}</span>
+              <span style={{ color: COLORS.textMuted }}>
+                {expiresInSec > TEN_YEARS_SEC ? "未標示（長期）" : clockTime(a.expires_ts)}
+              </span>
               {a.magnitude != null && (
                 <>
                   <span style={{ color: COLORS.textFaint }}>規模</span>

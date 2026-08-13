@@ -123,7 +123,7 @@
 [ ] Step 4 四鐵則四項都有
 [ ] Step 5 upstream handoff 更新 + downstream handoff 反向引用
 [ ] npx tsc -b 過
-[ ] pnpm test 過
+[ ] npm test 過
 [ ] Browser All Off 單測過
 [ ] changelog.md + backlog.md 更新
 ```

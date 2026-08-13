@@ -22,7 +22,7 @@
 1. 開 feat branch：`git checkout -b feat/<slug>`
 2. 開跑同時 `cp -r docs/features/_TEMPLATE docs/features/<slug>` 建功能檔案
 3. 若動到跨 repo 資料契約 → **先開 upstream handoff**：`taipei-gis-analytics/docs/handoff/<slug>.md`
-4. 完成 → `npx tsc -b` + `pnpm test` 全綠
+4. 完成 → `npx tsc -b` + `npm test` 全綠
 5. `gh pr create` — PR 描述用 `.github/pull_request_template.md`（自動帶入）
 6. Squash merge 進 master
 7. 更新 `docs/features/<slug>/changelog.md` 記錄 PR # + squash hash

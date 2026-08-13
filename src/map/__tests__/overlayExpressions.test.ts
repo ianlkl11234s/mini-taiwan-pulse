@@ -8,7 +8,7 @@
  *   圖層在畫面上完全不存在，只在 console 留一行錯誤。這種「壞掉不會叫」的失敗
  *   靠人眼開瀏覽器才發現得了，代價是一次完整的驗收流程。
  *
- * 本測試把那次的 console error 提前到 `pnpm test`。與 layerConsistency 一樣是
+ * 本測試把那次的 console error 提前到 `npm test`。與 layerConsistency 一樣是
  * **掃全集**不是列舉個案：日後新增的每個 layer 自動納入保護，不用改本檔。
  *
  * 驗證方式刻意鏡像 `overlayManager.addOverlay` 的組法（source 型別 / source-layer /

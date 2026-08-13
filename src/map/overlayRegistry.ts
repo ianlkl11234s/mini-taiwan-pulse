@@ -62,6 +62,16 @@ import {
   FUNERAL_LAYER_COLORS,
 } from "../data/funeralTypes";
 import {
+  welfareFilter, welfarePrecisionOpacityExpr, welfarePrecisionStrokeWidthExpr,
+  nursingTypeColorExpr, nursingTypeFilter, nursingBedsExpr,
+  elderlyAttrColorExpr, elderlyBedsExpr,
+  disabilityUsageColorExpr,
+  ltcServiceColorExpr, ltcServiceFilter,
+  childServiceColorExpr, childServiceFilter,
+  mentalHealthColorExpr,
+  WELFARE_LAYER_COLORS,
+} from "../data/welfareTypes";
+import {
   culturalFacilityColorExpr, CULTURAL_FACILITY_TYPES,
   culturalMuseumColorExpr, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -8678,6 +8688,299 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "line-width": ["interpolate", ["linear"], ["zoom"], 8, 0.5, 15, 1.6],
           "line-opacity": (p?.cemeteryZoningOpacity ?? 0.55) * 0.9,
         }),
+      },
+    ],
+  },
+
+  // ══════════════════════════════════════════════════════════════
+  // 🤝 社福長照 Welfare（第 40 主題）
+  // 上游契約：taipei-gis-analytics/docs/handoff/welfare-layers.md
+  // 分色/篩選/精度 SSOT = welfareTypes.ts（三個 🔴 陷阱寫在該檔檔頭）
+  //
+  // 9 層都是靜態 GeoJSON 點層、走通用 registry 路徑（無 loader / hook / CustomLayer）。
+  // 排序 = 點數由多到少 —— 後面的畫在上面，所以小而稀的層（心衛 70／公部門 151）
+  // 不會被三千點的長照機構蓋掉。
+  //
+  // 9 層共通的兩件事：
+  //   1. `welfareFilter(precisionIdx, extra?)` —— 精度篩選 ＋ 可選的層內分類條件
+  //   2. `welfarePrecisionOpacityExpr` / `welfarePrecisionStrokeWidthExpr` ——
+  //      z≥15 時把 98 筆 `coord_precision === "approximate"`（路段／區中心）
+  //      淡化＋加粗描邊變空心圈。**不刪點**：那些機構真的存在，只是地址解不到門牌。
+  //
+  // ⚠️ 床數／核定量欄位上游給的都是**字串**且**可能整個 key 不存在**
+  //    （空值在匯出時被拿掉）→ 一律走 welfareTypes 的 `to-number` + `coalesce` 版本。
+  // ══════════════════════════════════════════════════════════════
+
+  // 🔴 立案體系，**不是** medLTC 的特約單位（交集僅 2,365，不可 UNION）。
+  {
+    id: "welfareLtcInstitutions",
+    sourceUrl: "./welfare/ltc_institutions_national.geojson",
+    sourceId: "welfare-ltc-institutions",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(
+          p?.welfareLtcInstitutionsPrecisionIdx ?? 0,
+          ltcServiceFilter(p?.welfareLtcInstitutionsTypeIdx ?? 0),
+        ),
+        paint: (isDark, p) => {
+          const scale = p?.welfareLtcInstitutionsScale ?? 1;
+          const opacity = p?.welfareLtcInstitutionsOpacity ?? 0.85;
+          return {
+            // 1k~10k 級距的 UX baseline（layer-onboarding Step 3）：z6 3px → z12 6px
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": ltcServiceColorExpr(),
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 護理機構：nh_type 三分色 ＋ 半徑隨**總床數**（一般＋產後＋嬰兒室）。
+  // ⚠️ 只用 beds_nh 會讓 989/1,499 縮成同一顆最小點（居家護理所本來就沒有床）。
+  {
+    id: "welfareNursingHomes",
+    sourceUrl: "./welfare/nursing_homes_national.geojson",
+    sourceId: "welfare-nursing-homes",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(
+          p?.welfareNursingHomesPrecisionIdx ?? 0,
+          nursingTypeFilter(p?.welfareNursingHomesTypeIdx ?? 0),
+        ),
+        paint: (isDark, p) => {
+          const scale = p?.welfareNursingHomesScale ?? 1;
+          const opacity = p?.welfareNursingHomesOpacity ?? 0.85;
+          const beds = nursingBedsExpr();
+          // sqrt 縮放：床數最大約 450 → sqrt ≈ 21，z12 半徑 3~13.6px。
+          // 無床（居家護理所 732）落在基底 3px —— 這是誠實的，不是資料缺漏。
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"],
+              6, ["*", scale, ["+", 2, ["*", 0.2, ["sqrt", beds]]]],
+              12, ["*", scale, ["+", 3, ["*", 0.5, ["sqrt", beds]]]],
+            ],
+            "circle-color": nursingTypeColorExpr(),
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 托嬰中心：單色（層內只有 T0701 一種）。⚠️ 名單約 21 個月舊 —— 圖例與 popup 都標。
+  {
+    id: "welfareChildcare",
+    sourceUrl: "./welfare/childcare_centers_national.geojson",
+    sourceId: "welfare-childcare",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(p?.welfareChildcarePrecisionIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.welfareChildcareScale ?? 1;
+          const opacity = p?.welfareChildcareOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": WELFARE_LAYER_COLORS.welfareChildcare,
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 兒少服務：三類混裝（早療 1,084／親子館 196／兒少安置 116）用 welfare_class 分色。
+  {
+    id: "welfareChildServices",
+    sourceUrl: "./welfare/child_services_national.geojson",
+    sourceId: "welfare-child-services",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(
+          p?.welfareChildServicesPrecisionIdx ?? 0,
+          childServiceFilter(p?.welfareChildServicesClassIdx ?? 0),
+        ),
+        paint: (isDark, p) => {
+          const scale = p?.welfareChildServicesScale ?? 1;
+          const opacity = p?.welfareChildServicesOpacity ?? 0.85;
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 3 * scale, 12, 6 * scale],
+            "circle-color": childServiceColorExpr(),
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 老人住宿機構：attr_type 公私別分色 ＋ 半徑隨核定床數（最大 602 → sqrt ≈ 24.5）。
+  {
+    id: "welfareElderlyHomes",
+    sourceUrl: "./welfare/elderly_care_homes_national.geojson",
+    sourceId: "welfare-elderly-homes",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(p?.welfareElderlyHomesPrecisionIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.welfareElderlyHomesScale ?? 1;
+          const opacity = p?.welfareElderlyHomesOpacity ?? 0.85;
+          const beds = elderlyBedsExpr();
+          return {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"],
+              6, ["*", scale, ["+", 2, ["*", 0.18, ["sqrt", beds]]]],
+              12, ["*", scale, ["+", 3, ["*", 0.45, ["sqrt", beds]]]],
+            ],
+            "circle-color": elderlyAttrColorExpr(),
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 社福團體：⚠️ **組織**不是服務設施（地址多為辦公室）→ 灰色、較小、較淡，
+  // 視覺上刻意不與服務據點爭焦點。不可拿來做可近性分析。
+  {
+    id: "welfareSocialWorkOrgs",
+    sourceUrl: "./welfare/social_work_orgs_national.geojson",
+    sourceId: "welfare-social-work-orgs",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(p?.welfareSocialWorkOrgsPrecisionIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.welfareSocialWorkOrgsScale ?? 1;
+          const opacity = p?.welfareSocialWorkOrgsOpacity ?? 0.7;
+          return {
+            // ⚠️ **刻意偏離 UX baseline**（<1k 應是 4/8px @0.9）—— 上游明確不建議把
+            //    「組織」放進服務可近性地圖，故縮小＋降透明度，不與服務據點爭焦點。
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 2.6 * scale, 12, 5 * scale],
+            "circle-color": WELFARE_LAYER_COLORS.welfareSocialWorkOrgs,
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 身障機構：使用率（實際安置／核定量）分色 —— 全主題最有故事的欄位。
+  // 🔴 88 筆分母為 0 或整組欄位不存在 → 灰色「無核定量資料」。
+  //    表達式已在 welfareTypes 先 case 擋掉分母 0（Mapbox 除以 0 得 Infinity 不報錯，
+  //    不擋會讓那 88 筆全落進「超過 100%」桶，畫出「全台身障機構嚴重超收」的假象）。
+  {
+    id: "welfareDisability",
+    sourceUrl: "./welfare/disability_facilities_national.geojson",
+    sourceId: "welfare-disability",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(p?.welfareDisabilityPrecisionIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.welfareDisabilityScale ?? 1;
+          const opacity = p?.welfareDisabilityOpacity ?? 0.9;
+          return {
+            // 百點級距（334 點）：z6 4px → z12 8px
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": disabilityUsageColorExpr(),
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 公部門社福據點：⚠️ 已排除 T0103 社福服務中心（既有 welfareCenters 圖層）
+  // → 兩層零重疊，可同時開；要算「全部公部門據點」記得加回 welfareCenters 的 162 筆。
+  {
+    id: "welfareGovOffices",
+    sourceUrl: "./welfare/welfare_gov_offices_national.geojson",
+    sourceId: "welfare-gov-offices",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(p?.welfareGovOfficesPrecisionIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.welfareGovOfficesScale ?? 1;
+          const opacity = p?.welfareGovOfficesOpacity ?? 0.9;
+          return {
+            // <1k 級距的 UX baseline：z6 4px → z12 8px
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": WELFARE_LAYER_COLORS.welfareGovOffices,
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
+      },
+    ],
+  },
+
+  // 心理衛生機構：70 點，sub_code 五類分色（本主題最小層 → 排最後畫最上面）。
+  {
+    id: "welfareMentalHealth",
+    sourceUrl: "./welfare/mental_health_facilities_national.geojson",
+    sourceId: "welfare-mental-health",
+    rebuildOnParamChange: ["circle"],
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        filter: (p) => welfareFilter(p?.welfareMentalHealthPrecisionIdx ?? 0),
+        paint: (isDark, p) => {
+          const scale = p?.welfareMentalHealthScale ?? 1;
+          const opacity = p?.welfareMentalHealthOpacity ?? 0.9;
+          return {
+            // <1k 級距的 UX baseline：z6 4px → z12 8px
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 6, 4 * scale, 12, 8 * scale],
+            "circle-color": mentalHealthColorExpr(),
+            "circle-opacity": welfarePrecisionOpacityExpr(opacity),
+            "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.7)",
+            "circle-stroke-width": welfarePrecisionStrokeWidthExpr(),
+            "circle-stroke-opacity": opacity * 0.7,
+          };
+        },
       },
     ],
   },

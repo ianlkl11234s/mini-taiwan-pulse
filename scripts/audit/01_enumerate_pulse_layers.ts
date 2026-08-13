@@ -11,7 +11,7 @@
  *   - scratchpad/audit/pulse_layers.csv
  *   - prints summary to stdout
  *
- * Run: pnpm tsx scripts/audit/01_enumerate_pulse_layers.ts
+ * Run: npx tsx scripts/audit/01_enumerate_pulse_layers.ts
  *
  * Triangulation strategy (for Gate 1 self-verification):
  *   1. import THEMES at runtime → authoritative layer list with section/label

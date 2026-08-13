@@ -102,6 +102,7 @@ import type { LayerVisibility, FeatureInfo } from "../types";
 import type { UpstreamRef } from "./upstreamRegistry";
 import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
+import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
 
 /**
@@ -150,7 +151,7 @@ export type LayerSource =
    * 無 OVERLAY_REGISTRY entry（Three.js CustomLayer 等）—— note 說明資料實際從哪來。
    *
    * `staticAssets`：本層自己 fetch 的**靜態檔相對路徑**，寫法同 `url`（`"./dir/file"`）。
-   * ⚠️ **代拍板（待 owner 追認）**：其他三種 kind 的檔路徑都在結構化欄位（`url` /
+   * ✅ **已追認（2026-08-12 owner）**：其他三種 kind 的檔路徑都在結構化欄位（`url` /
    * `fallbackUrl`）裡，只有 `custom` 把它埋在 `note` 的自由文字中 —— 而 `custom`
    * 恰好是**唯一沒有 OVERLAY_REGISTRY 可交叉驗證**的那種，等於部署契約檢查最需要
    * 機械枚舉的一群反而只剩人腦。觸點 #20 的 5 個缺口（hillshade / flood /
@@ -2198,6 +2199,227 @@ export const LAYER_MANIFEST = {
     description: "職場／社區互助教保服務中心 148 點（全數私立）",
     topics: ["教育", "幼托", "互助教保"],
   },
+
+  // ══════════════════════════════════════════════════════════════
+  //  🤝 社福長照 Welfare 9 層（第 40 主題；2026-08-13 上游 welfare 批次）
+  //  同構家族：9 層都是靜態 GeoJSON 點層、欄位契約共通、走 registry 通用路徑
+  //  （**沒有** loader / hook / CustomLayer），一個 legend 元件涵蓋 9 個 key
+  //  （id 取首個 key "welfareNursingHomes"），color 全部引用 WELFARE_LAYER_COLORS。
+  //
+  //  🔴 三個會接錯的地方（完整版見 welfareTypes.ts 檔頭 / 上游 handoff 開場）：
+  //   1. `welfareLtcInstitutions`（長照服務法**立案機構** 3,117）與既有 `medLTC`
+  //      （長照 2.0 **特約單位** 23,894）是兩套互不相容的登記體系，名稱交集只有
+  //      2,365。**不可 UNION** —— 併起來會重複計算又漏算。故本批不與 medLTC 合併、
+  //      不共用 legend、不放同一個主題群，讓使用者自己選一邊。
+  //   2. 既有 `welfareCenters`（掛 基礎建設／公共設施）長得像本批的一員但**不是**。
+  //      本批的 `welfareGovOffices` 已在上游把 `T0103` 社福服務中心排掉（307→151）
+  //      正是為了不跟它重複 → **兩層零重疊，可放心同時開**；要算「全部公部門社福
+  //      據點」時記得把 welfareCenters 的 162 筆加回來。
+  //   3. `permit_status` **不是**有效/失效（上游沒發代碼表，已用兩份現行名冊回推
+  //      證偽）→ 9 層一律不拿它做 filter，popup 也不顯示。
+  //
+  //  ⚠️ 98 筆（約 1%）`coord_precision === "approximate"` 是路段／區中心不是門牌。
+  //     9 層共用同一組精度篩選 select ＋ 高 zoom 降階顯示（welfareTypes 的兩個
+  //     含 zoom 的 expr）。**不刪點** —— 那些機構是真的存在。
+  // ══════════════════════════════════════════════════════════════
+  welfareNursingHomes: {
+    key: "welfareNursingHomes",
+    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    label: "護理機構 Nursing Homes",
+    labelMobile: "護理機構 (1,611)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareNursingHomes,
+    icon: BedDouble,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "nursing_homes", confidence: "HIGH" }],
+      note: "1,611 點（座標 100%）；1,499 筆帶 nh_type/床數/評鑑，另 112 筆只有骨幹基本欄。⚠️ 床數三欄上游給的是**字串**",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-nursing-homes", url: "./welfare/nursing_homes_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareNursingHomes",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "護理機構全國 1,611 點（一般護理之家／居家護理所／產後護理之家三分色，半徑隨總床數）",
+    topics: ["社福", "長照", "護理之家", "床數"],
+  },
+
+  welfareElderlyHomes: {
+    key: "welfareElderlyHomes",
+    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    label: "老人住宿機構 Elderly Homes",
+    labelMobile: "老人機構 (1,160)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareElderlyHomes,
+    icon: HeartPulse,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "elderly_care_homes", confidence: "HIGH" }],
+      note: "1,160 點（座標 100%）；1,090 筆帶核定床數/公私別/立案日期，另 70 筆只有骨幹基本欄",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-elderly-homes", url: "./welfare/elderly_care_homes_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareElderlyHomes",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "老人住宿機構全國 1,160 點（公立／公設民營／私立分色，半徑隨核定床數）",
+    topics: ["社福", "長照", "老人機構", "床數"],
+  },
+
+  welfareDisability: {
+    key: "welfareDisability",
+    section: { theme: "社福長照 Welfare", group: "住宿照顧" },
+    label: "身障福利機構 Disability",
+    labelMobile: "身障機構 (334)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareDisability,
+    icon: Accessibility,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "disability_facilities", confidence: "HIGH" }],
+      note: "334 點（座標 100%）；266 筆帶核定/實際安置量 → 使用率分色。⚠️ 88 筆分母為 0 或無欄位，落灰不可當 0%",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-disability", url: "./welfare/disability_facilities_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareDisability",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "身心障礙福利機構全國 334 點（實際安置／核定量使用率分色，88 筆無核定量落灰）",
+    topics: ["社福", "身心障礙", "使用率"],
+  },
+
+  welfareLtcInstitutions: {
+    key: "welfareLtcInstitutions",
+    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    label: "長照立案機構 LTC Institutions",
+    labelMobile: "長照機構 (3,117)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareLtcInstitutions,
+    icon: HeartHandshake,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ltc_institutions", confidence: "HIGH" }],
+      note: "🔴 《長照服務法》**立案機構** 3,117（座標 100%）—— 與既有 medLTC 的**特約單位** 23,894 是兩套體系，名稱交集僅 2,365，不可 UNION",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-ltc-institutions", url: "./welfare/ltc_institutions_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareLtcInstitutions",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "長照服務法立案機構全國 3,117 點（居家式／社區式／住宿式／綜合式四分色；與 medLTC 特約單位不同體系）",
+    topics: ["社福", "長照", "立案機構"],
+  },
+
+  welfareChildcare: {
+    key: "welfareChildcare",
+    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    label: "托嬰中心 Childcare",
+    labelMobile: "托嬰中心 (1,578)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareChildcare,
+    icon: Baby,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "childcare_centers", confidence: "HIGH" }],
+      note: "1,578 點（座標 100%）。⚠️ 名單約 21 個月舊（骨幹 165355 的 Last-Modified 停在 2024-11-12，托嬰異動頻繁）；居家托育（保母）**仍無全國源**",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-childcare", url: "./welfare/childcare_centers_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareChildcare",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "機構式托嬰中心全國 1,578 點（⚠️ 名單約 21 個月舊；不含居家托育保母）",
+    topics: ["社福", "托育", "兒童"],
+  },
+
+  welfareChildServices: {
+    key: "welfareChildServices",
+    section: { theme: "社福長照 Welfare", group: "長照與托育" },
+    label: "兒少服務 Child Services",
+    labelMobile: "兒少服務 (1,396)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareChildServices,
+    icon: Users,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "child_services", confidence: "HIGH" }],
+      note: "1,396 點／母體 1,425（座標 98.0%）。⚠️ 少的 29 筆是**結構性無地址**（行動據點、到宅療育、依法保密的安置機構），不是待 geocode。三類混裝：早療 1,084／親子館 196／兒少福利與安置 116",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-child-services", url: "./welfare/child_services_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareChildServices",
+    params: { count: 4, kinds: ["select", "select", "slider", "slider"] },
+    description: "兒少服務全國 1,396 點（早療／親子館／兒少安置三類分色；⚠️ 早療含醫院診所，與醫療主題重疊）",
+    topics: ["社福", "兒童", "早期療育"],
+  },
+
+  welfareGovOffices: {
+    key: "welfareGovOffices",
+    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    label: "公部門社福據點 Gov Offices",
+    labelMobile: "公部門社福 (151)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareGovOffices,
+    icon: Landmark,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "welfare_service_centers", confidence: "HIGH" }],
+      note: "151 點／母體 307（座標 100%）。少的 156 筆是**刻意排他過濾**（T0103 社福服務中心已由既有 welfareCenters 呈現）→ 兩層零重疊，可同時開。⚠️ 性侵害防治中心只有 13 筆（22 縣市應各 1，datagov 13718 連結 404）",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-gov-offices", url: "./welfare/welfare_gov_offices_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareGovOffices",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "公部門社福據點全國 151 點（局處／防治中心／長照管理中心／公所；已排除既有 welfareCenters 的 162 筆社福中心）",
+    topics: ["社福", "公部門", "公共服務"],
+  },
+
+  welfareMentalHealth: {
+    key: "welfareMentalHealth",
+    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    label: "心理衛生機構 Mental Health",
+    labelMobile: "心理衛生 (70)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareMentalHealth,
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "mental_health_facilities", confidence: "HIGH" }],
+      note: "70 點（座標 100%）；社區心衛中心 33／毒防中心 21／康復之家 8／心理諮商所 4／社區復健 4",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-mental-health", url: "./welfare/mental_health_facilities_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareMentalHealth",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "心理衛生機構全國 70 點（社區心衛中心／毒防中心／康復之家／心理諮商所／社區復健五分色）",
+    topics: ["社福", "心理衛生", "毒品防制"],
+  },
+
+  welfareSocialWorkOrgs: {
+    key: "welfareSocialWorkOrgs",
+    section: { theme: "社福長照 Welfare", group: "公部門與民間" },
+    label: "社福團體 Social Work Orgs",
+    labelMobile: "社福團體 (587)",
+    expandable: true,
+    color: WELFARE_LAYER_COLORS.welfareSocialWorkOrgs,
+    icon: Briefcase,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "social_work_orgs", confidence: "HIGH" }],
+      note: "587 點（座標 100%）。🔴 這是**組織**不是服務設施，地址多為辦公室 —— 上游明確不建議放進服務可近性分析，故配灰色降存在感、預設關閉",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "welfare-social-work-orgs", url: "./welfare/social_work_orgs_national.geojson" },
+    legend: "welfareNursingHomes",
+    popup: "welfareSocialWorkOrgs",
+    params: { count: 3, kinds: ["select", "slider", "slider"] },
+    description: "社福團體／社工事務所／基金會全國 587 點（⚠️ 是登記組織不是服務設施，地址多為辦公室，不可當可近性指標）",
+    topics: ["社福", "民間團體", "社工"],
+  },
+
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 3 —— 林業 Forestry 16 層
   //  與同批教育**幾乎每個維度都相反**，一批之內就撞完兩極：
@@ -2346,8 +2568,12 @@ export const LAYER_MANIFEST = {
       maxzoom: 12,
     },
     legend: "canopyHeight",
-    // 本批唯一沒有可點選物件的層（raster，GIS_LAYERS 無條目）
-    popup: null,
+    // 本批唯一沒有向量 feature 的層（raster，GIS_LAYERS 無條目）——
+    // W2：值編碼 raster 的點擊讀值探針（rasterProbeSampler，對標 climateFieldSampler）。
+    // urbanHeat 與 canopyHeight 共用 `rasterProbe` 一個 layerType —— 兩層可能同時開啟，
+    // 一次點擊就該同時得到兩個讀數（同 climateField 的風場/海流）。
+    // 解碼：R 的原始 DN 就是公尺高度（overlayRegistry canopyHeight 註解：色帶 stop 0.025↔1m）。
+    popup: "rasterProbe",
     params: { count: 1, kinds: ["slider"] },
     description: "全台樹冠高度 raster（Meta/WRI 2020 10m，RGB 編碼切片）",
     topics: ["林業", "樹冠", "遙測"],
@@ -3530,7 +3756,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory 以 h3-js cellToBoundary 把 H3 cell 轉成多邊形後手動 addSource/addLayer（h3-pop-count-src / -fill / -ext）；資料走 h3Loader 的 Supabase RPC ＋本地 JSON fallback —— 非 OVERLAY_REGISTRY",
     },
     legend: "popCount",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "popCount",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "H3 網格人口數（日間／夜間，可依年份回放）",
     topics: ["人口", "H3", "統計"],
@@ -3553,7 +3782,10 @@ export const LAYER_MANIFEST = {
       note: "h3LayerFactory 手動 addSource/addLayer（h3-population-fill / -ext），同樣是 H3 cell → polygon 現算 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "h3Population",
     params: { count: 5, kinds: ["slider", "slider", "toggle", "slider", "select"] },
     description: "H3 人流模擬（日夜人口差推估的移動量）",
     topics: ["人口", "H3", "人流"],
@@ -3576,7 +3808,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-indicators-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "indicators",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "indicators",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）",
     topics: ["人口", "H3", "指標"],
@@ -3599,7 +3834,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-socio-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "socioeconomic",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "socioeconomic",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "村里社經面貌綜合指標（所得／教育／年齡結構）",
     topics: ["社經", "H3", "村里"],
@@ -3622,7 +3860,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-spatial-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "spatialEconomy",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "spatialEconomy",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "村里空間經濟指標（產業家數／營業額分布）",
     topics: ["社經", "H3", "產業"],
@@ -3645,7 +3886,9 @@ export const LAYER_MANIFEST = {
       note: "youbikeLayerFactory 手動 addSource/addLayer（h3-youbike-fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：本層無 metric 參數，`value` 恆為 cell.fr 有車率、另帶 capacity（cell.sc
+    // 平均車柱數）—— 本群唯一多一欄者，panel 不走 GLOSS 直接寫死兩列。
+    popup: "youbikeFullness",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "YouBike 站點有車率的 H3 聚合（共享運具供給熱區）",
     topics: ["共享運具", "H3", "即時"],
@@ -4201,7 +4444,7 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useDisasterAlertLayer 自建 geojson source `disaster-alerts`（Supabase RPC get_disaster_alerts_day 按日載入 + LRU 7 天），5 群組共用，layer id `lifelineAlerts-fill/-line/-point` —— 非 OVERLAY_REGISTRY",
+      note: "useDisasterAlertLayer 自建 geojson source `disaster-alerts`（Supabase RPC get_disaster_alerts_day 按日載入 + LRU 7 天），5 群組共用，layer id `lifelineAlerts-fill/-line/-point`；另有 5 群組共用的 B2 脈動層 `disaster-alert-pulse-0/-1`（只吃 pulse=1 錨點、不可點）—— 非 OVERLAY_REGISTRY",
     },
     legend: "lifelineAlerts",
     popup: "disasterAlert",
@@ -4995,7 +5238,11 @@ export const LAYER_MANIFEST = {
       maxzoom: 11,
     },
     legend: "urbanHeat",
-    popup: null,
+    // W2：值編碼 raster 的點擊讀值探針（rasterProbeSampler，對標 climateFieldSampler）。
+    // urbanHeat 與 canopyHeight 共用 `rasterProbe` 一個 layerType —— 兩層可能同時開啟，
+    // 一次點擊就該同時得到兩個讀數（同 climateField 的風場/海流）。
+    // 解碼：ΔT(K)=R/5−30、°C=G/4+10（urbanHeatTypes.ts 檔頭，與上游 encoding.json 同源）；A<128 為 nodata。
+    popup: "rasterProbe",
     params: { count: 2, kinds: ["select", "slider"] },
     description: "地表溫度熱島強度（Landsat 熱紅外暖季合成，raster 切片）",
     topics: ["環境", "熱島", "衛星影像"],
@@ -5465,8 +5712,9 @@ export const LAYER_MANIFEST = {
   },
 
   // ⚠️ 與 `groundwater` 是不同層：這層是**靜態 backdrop**（48h 內有讀值的 ~733 站，
-  //    灰色小點、不受 timeline 影響），且 layer id `groundwater-wells-circle`
-  //    **不在** GIS_LAYERS（GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）→ popup: null。
+  //    灰色小點、不受 timeline 影響），layer id 是 `groundwater-wells-circle`
+  //    （GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）。W2 popup 補強後兩者各有
+  //    一筆 GIS_LAYERS 條目，因欄位契約相同而共用 `groundwater` layerType 與 panel。
   groundwaterWells: {
     key: "groundwaterWells",
     section: { theme: "水資源 Water", group: "點位" },
@@ -5484,7 +5732,10 @@ export const LAYER_MANIFEST = {
       note: "useGroundwaterWellsLayer：Supabase RPC get_groundwater_latest（5min TTL 快取）→ 自建 source groundwater-wells + 1 layer groundwater-wells-circle，作為動態層的靜態站位 backdrop —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：properties 與動態 `groundwater` 層完全同一組欄位
+    // （well_name / station_id / water_level_m / delta_24h / observed_at）
+    // → 共用 `groundwater` layerType 與 GroundwaterPanel，不另立型別。
+    popup: "groundwater",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "地下水井監測網站位 backdrop（灰點，呈現監測密度）",
     topics: ["水資源", "地下水", "監測"],
@@ -5576,7 +5827,9 @@ export const LAYER_MANIFEST = {
       note: "useIotWraRiverLayer：Supabase RPC get_iot_wra_day（p_station_type=\"river\"）→ 自建 source iot-wra-river + 2 layer（glow / iot-wra-river-circle）—— 非 OVERLAY_REGISTRY",
     },
     legend: "iotWraRiver",
-    popup: null,
+    // W2 popup 補強：properties 早已由 useIotWraRiverLayer.buildFC 逐欄烤好
+    // （name / measurement_name / si_unit / value / delta_m / observed_at），只缺接線。
+    popup: "iotWraRiver",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "toggle"] },
     description: "水利署 IoT 河川水位感測器（民間協力布建的密網）",
     topics: ["水資源", "河川", "IoT", "即時"],
@@ -5599,7 +5852,9 @@ export const LAYER_MANIFEST = {
       note: "useIotWraStructureLayer：Supabase RPC get_iot_wra_latest（p_station_type=null 取全類別）→ 自建 source iot-wra-structure + 2 layer（glow / iot-wra-structure-circle）—— 非 OVERLAY_REGISTRY",
     },
     legend: "iotWraStructure",
-    popup: null,
+    // W2 popup 補強：同 iotWraRiver，另多 county_name / station_type
+    // （5 類水工結構不點開分不出是哪一類）。
+    popup: "iotWraStructure",
     params: { count: 7, kinds: ["slider", "slider", "toggle", "toggle", "toggle", "toggle", "toggle"] },
     description: "水利署 IoT 水工結構物感測（堰壩 / 閘門 / 抽水站等，5 類可篩）",
     topics: ["水資源", "水工結構", "IoT", "即時"],
@@ -5694,7 +5949,9 @@ export const LAYER_MANIFEST = {
       url: "./geo/water_basins.geojson",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：basin_name + 集水面積；純輪廓線且無 symbol label，
+    // 點開之前無從得知身處哪個流域，而那正是這層的用途。
+    popup: "waterBasins",
     params: { count: 1, kinds: ["slider"] },
     description: "中央管河川流域界（純輪廓線，不分色故無圖例）",
     topics: ["水資源", "流域"],
@@ -5733,7 +5990,9 @@ export const LAYER_MANIFEST = {
       },
     ],
     legend: null,
-    popup: null,
+    // W2 popup 補強：**只接面層** `water-river-polygons-fill`（12,210/13,262 帶河名）；
+    // 同 key 的線層 water_rivers.geojson 三個欄位 100% 空字串，接了只會開空白面板。
+    popup: "waterRivers",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "河川水域面 + 中心線（同一個 toggle 疊兩份切片）",
     topics: ["水資源", "河川"],
@@ -5760,7 +6019,9 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：本群欄位最豐富的線層（name / river / basin / county /
+    // levee_type / side / status）。status「待建」已進 paint 表達式，popup 補文字。
+    popup: "waterLevees",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "水利署堤防線（單色，無分類維度故無圖例）",
     topics: ["水資源", "防洪"],
@@ -5787,9 +6048,11 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: "waterCanals",
-    popup: null,
+    // W2 popup 補強：PMTiles 欄位是縮寫，語意由上游 pipeline 白名單確認
+    // （01_fetch_wfs.py：o=管理處 / n=渠道名 / t=屬性）。
+    popup: "waterCanals",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "農田水利署灌溉排水渠道（依渠道等級分色）",
+    description: "農田水利署灌溉排水渠道（依引灌需求屬性 3 類分色）",
     topics: ["水資源", "灌溉", "農業"],
   },
 
@@ -5811,7 +6074,9 @@ export const LAYER_MANIFEST = {
       url: "./geo/water_protection_zones.geojson",
     },
     legend: "waterProtectionZones",
-    popup: null,
+    // W2 popup 補強：law_ref（公告文號）是別處拿不到的資訊，管制區的重點就是
+    // 「這裡受什麼法規管」。
+    popup: "waterProtectionZones",
     params: { count: 1, kinds: ["slider"] },
     description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
     topics: ["水資源", "管制", "保護區"],
@@ -6014,7 +6279,12 @@ export const LAYER_MANIFEST = {
       note: "useWasteLayer：Supabase RPC get_waste_trails（live 近 60 分鐘、60s 輪詢）/ get_waste_trails_day / get_waste_trails_matched_day（replay 整日）→ wasteTruckCustomLayer 的 Three.js scene 逐幀插值，另掛 WasteMusicNoteScene 音符 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：收尾「表定模擬車可點、GPS 真車不可點」的族群不一致。
+    // `WasteTruckScene.pickTruck` 本來就存在（逐行同 WasteScheduleScene.pickRoute），
+    // 只是從來沒有人呼叫 —— useMapInteraction 補一個分支即可。
+    // 走 FeatureInfoPanel 而非隨車 tooltip：欄位是車號／縣市／路線這種查詢型資訊，
+    // 且同樣「會移動的 Three.js 物件開 panel」的前例是 ship（pickShip → setFeatureInfo）。
+    popup: "wasteTruck",
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "高雄／台南垃圾車即時軌跡（含音符動畫，可回放整日）",
     topics: ["廢棄物", "清運", "即時"],
@@ -6115,7 +6385,10 @@ export const LAYER_MANIFEST = {
       url: "./geo/waste_stops_static.geojson",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：同主題的 wasteDisposalPoint（wd*）與 wasteCleaningSquad 早有 panel，
+    // 唯獨密度最高、最貼近民生的清運點位不可點。route_name + routes_count 正好回答
+    // 「我家這個點屬哪條路線 / 有幾條路線經過」。
+    popup: "wasteStopsStatic",
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "全台垃圾車停靠點位（靜態快照，非即時）",
     topics: ["廢棄物", "清運", "點位"],
@@ -7037,7 +7310,10 @@ export const LAYER_MANIFEST = {
       staticAssets: ["./agriculture/ftw_fields_2025.pmtiles"],
     },
     legend: null,
-    popup: null,
+    // W2：切片只帶 tippecanoe 白名單 4 欄（field_id / confidence_mean / area_ha /
+    // source_tile）。confidence_mean 實測值域僅 [0.500, 0.581]（上游 catalog 明載
+    // 上限 0.6）→ panel 不畫成 0~100% 進度條，並揭露「AI 推論非法定分區、會高估」。
+    popup: "agricultureField",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "全台農田範圍（FTW Fields 2025，38.6 萬田區）",
     topics: ["農業", "農地", "面"],
@@ -7420,11 +7696,11 @@ export const LAYER_MANIFEST = {
     dataClass: "A",
     source: { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
     legend: null,
-    // ⚠️ **唯一有 registry entry 卻 popup: null 的車站層**：本層 4 個 layer id 全是
-    //    `station-polygons-thsr-poly-*`，而 GIS_LAYERS 的 `railStation` 兩筆條目收的是
-    //    `station-points-tra-pt-*` 與 `station-points-metro-pt-*`。三層長得極像，
-    //    憑「都是車站」推會把 railStation 掛上去，Phase 3 派生就會多出一組假接線。
-    popup: null,
+    // W2 popup 補強：本層 4 個 layer id 全是 `station-polygons-thsr-poly-*`，
+    // 與 GIS_LAYERS 既有兩筆 railStation（`station-points-tra-pt-*` /
+    // `station-points-metro-pt-*`）是不同 layer id，故另立第三筆條目收站體面。
+    // station_points.geojson 零筆 thsr，站體面是高鐵唯一的可點載體。
+    popup: "railStation",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "高鐵站體範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
     topics: ["交通", "軌道", "場站"],
@@ -7728,7 +8004,10 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2：與 provincialRoads 同一份內政部道路中線 schema（22 欄），共用 MoiRoadBody
+    // 但分開 layerType 讓 header 標得出「國道／省道」。ROADALIAS 0% 空（中山高／福爾摩沙）
+    // 是最穩定的可讀名稱；ROADNAME 只在交流道／服務區有值。
+    popup: "highway",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "國道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "國道"],
@@ -7755,10 +8034,9 @@ export const LAYER_MANIFEST = {
       maxzoom: 14,
     },
     legend: null,
-    // ⚠️ HEADER_LABELS 有 `osmExpressway: "快速道路 (OSM)"`，但 GIS_LAYERS 沒有條目
-    //    → 沒有點擊接線（批 5 `hillshade` 的第二例）。填成有 popup 會讓 Phase 3
-    //    派生出一筆指向不存在 layer id 的假條目。
-    popup: null,
+    // W2 popup 補強：欄位契約與 osmRoadDrive 完全相同 → 共用 OsmRoadDrivePanel，
+    // layerType 維持獨立好讓 popup 標題顯示「快速道路 (OSM)」。
+    popup: "osmExpressway",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "OSM 快速道路線形（單色橘線，與國道分開）",
     topics: ["交通", "路網", "快速道路"],
@@ -7785,7 +8063,10 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2：地圖上沒有 symbol label，「這是台幾線」在此之前無法得知 → ROADNUM 當標題。
+    // 代碼語意（ROADCLASS1/2、ROADSTRUCT、MDATE）出自內政部通用電子地圖圖層內容說明
+    // 附表1；WIDTH / ROADCOMNUM / DIR 三欄語意存疑，panel 刻意不顯示（見 roadPanels 註解）。
+    popup: "provincialRoad",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "省道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "省道"],
@@ -7805,7 +8086,10 @@ export const LAYER_MANIFEST = {
     dataClass: "A",
     source: { kind: "geojson", sourceId: "cycling-routes", url: "./geo/cycling_routes.geojson" },
     legend: null,
-    popup: null,
+    // W2：本群欄位最豐富的一層（起訖路段 + 長度 + 方向）。
+    // CyclingType / AuthorityName 上游回傳字串字面 "NULL"（1,749 筆全部）、
+    // FinishedTime 有 ROC→西元轉換 bug（24.4% 壞值）→ panel 皆已擋掉。
+    popup: "cyclingRoute",
     params: { count: 1, kinds: ["slider"] },
     description: "自行車道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "自行車"],
@@ -7912,12 +8196,14 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useFreewayLayer 自建 source `freeway-congestion` ＋ 兩個 line layer（無 OVERLAY_REGISTRY entry）：freewayLoader 一次載一整天所有路段 timeline（每 10 分鐘一快照，LRU 7 天），依 timeStore 的 currentTime 找最近快照 setData 重建整包 GeoJSON。無靜態檔要部署。",
+      note: "useFreewayLayer 自建 source `freeway-congestion` ＋ 三個 line layer（無 OVERLAY_REGISTRY entry）：freewayLoader 一次載一整天所有路段 timeline（每 10 分鐘一快照，LRU 7 天），依 timeStore 的 currentTime 找最近快照 setData 重建整包 GeoJSON。無靜態檔要部署。",
     },
     legend: "freewayCongestion",
-    // 兩個 line layer（-glow / -line）都不在 GIS_LAYERS → 無點擊接線（與 roadCongestion
-    // 刻意加的透明 hit 層對照：那層是為了細線命中率才補的，這層沒補）
-    popup: null,
+    // W2：補上透明加寬命中層 `freewayCongestion-hit`（比照 roadCongestion 的
+    // `road-congestion-hit`）——可視線 z6 僅 0.5px，glow 又帶 level!=0 filter，
+    // 兩者都不適合當靶。properties 早已烤好 section_name / road_name /
+    // direction_label / speed（freewayLoader.buildFreewayGeoJSON）。
+    popup: "freewayCongestion",
     params: { count: 1, kinds: ["slider"] },
     description: "國道路段壅塞等級（依時間軸逐快照染色）",
     topics: ["交通", "即時", "壅塞", "國道"],

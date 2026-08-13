@@ -158,8 +158,18 @@ git log --oneline -5
 git push origin master
 ```
 
-若改了 5 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / zeabur.json / package.json）
+若改了 4 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / package.json）
 要同步確認 port 3721 一致。
+
+> **Zeabur build 實證（2026-08-13 查證，取代先前的 `zeabur.json` 誤述——該檔從不存在）**：
+> service `mini-taiwan-pulse`（project `mini-tw-pulse`）綁 GitHub `refs/heads/master`，
+> deployment metadata `"planType": "docker"` —— **走 Dockerfile，不走 zbpack**
+> （`COPY package.json package-lock.json` → `RUN npm ci` → `npm run build`；
+> build log 全文 grep `pnpm|yarn|corepack` 零命中）。
+> repo 內**沒有** `zeabur.json`／`zbpack.json`，service env 也無任何 `ZBPACK_*`，
+> 即唯一能把 build 導離 Dockerfile 的機制不存在。
+> ⚠️ **merge 進 master ＝ 直接上線**，沒有 staging 中繼——PR merge 的那一刻就是部署。
+> S3 只放 runtime 資料（容器啟動時 `pull-deploy-assets.sh` 拉進 `/data`），**不參與 build**。
 
 ### 6b. ⚠️ 新增大型資料檔到 S3 → **5 檔強制同步 checklist**（2026-03-06 教訓）
 
@@ -1460,7 +1470,7 @@ git status -s
 **SOP**：
 1. **先定契約檔**（如 `src/chat/types.ts`）：介面 + 依賴注入點（MapBridge/RunChatTurn/KeyVault），標「不可改」。
 2. **切互不相交檔案集**派工，任務書明列禁區（對方領域 + 契約檔 + 不 commit）。可混模型：UI/機械用 Sonnet、複雜/安全用 Opus。背景平行跑。
-3. **orchestrator 審查鐵則**：不信 agent 自述 → 自己 `tsc -b`+`pnpm test` 獨立重跑 + 關鍵面 grep（key 洩漏/token 合規）+ 安全類做 psql/curl ground-truth 實查。
+3. **orchestrator 審查鐵則**：不信 agent 自述 → 自己 `tsc -b`+`npm test` 獨立重跑 + 關鍵面 grep（key 洩漏/token 合規）+ 安全類做 psql/curl ground-truth 實查。
 4. **整合階段單獨派**：接線 App.tsx（唯一交會點）+ 修審出瑕疵，agent-browser 截圖驗收。
 5. **收尾**：feature 四件組 → 分批 atomic commit → rebase 最新 master 重驗 → PR（模板）→ squash。
 
@@ -1506,7 +1516,7 @@ SOP：
 1. **偵察先行（平行 2 agent）**：① 接線 recipe——拿最近一批同型 PR 的 `git show --stat` 當檔案清單基準 + 各 registry 結構/行號；② 資料驗收——feature 數/欄位/座標系對 handoff 契約 + **node strict-JSON 驗證**（見 PRINCIPLES）
 2. **規格書釘死共用識別字**（orchestrator 自寫單一 SSOT 檔）：layer key / sourceId / mapbox layer id（`${sourceId}-${suffix}`）/ 參數名 / 分色 hex / 特殊行為。實作 agent 一律照表不可自創
 3. **3 工作包按「檔案集合互斥」切**（可全平行）：骨架（types / layerCatalog / LAYER_ICONS / upstreamRegistry）｜核心渲染（overlayRegistry + useTransportParams）｜互動（*Panels.tsx 新檔 + featureInfo registry + useMapInteraction + LegendPanel + layerConsistency baseline）。跨包型別耦合（FeatureInfo union 等）指定給單一包，其他包用釘死名字
-4. **包級 tsc gate**：平行中全量 tsc 必互紅，prompt 寫明「錯誤不指向你的檔即可」；orchestrator 收齊後跑全量 tsc + pnpm test + 接縫抽查（參數名 / click id / 圖例 hex 三處對齊）
+4. **包級 tsc gate**：平行中全量 tsc 必互紅，prompt 寫明「錯誤不指向你的檔即可」；orchestrator 收齊後跑全量 tsc + npm test + 接縫抽查（參數名 / click id / 圖例 hex 三處對齊）
 5. **browser 驗收**（agent-browser 8 條坑照全域 memory）：All Off 起手、逐層 queryRenderedFeatures + popup + 參數面板、旗艦層特殊行為逐項驗
 
 成效：觀光 12 層一天 spec→merged（PR #82），3 包零檔案衝突、ratchet 全綠；browser 驗收揪出 Infinity 資料 bug（tsc/vitest 抓不到的類型）。
@@ -1699,8 +1709,8 @@ side-effect 模組要確保求值早於 import graph；未注入即 throw（不 
 **7. 實測四項**（缺一不可）
 ```bash
 npx tsc -b                         # ① 型別
-pnpm test                          # ② 含 layerConsistency（漏圖例會紅）
-pnpm build && grep -c "WebGLRenderer\|InstancedMesh" dist/assets/embed-*.js   # ③ 必須 0
+npm test                           # ② 含 layerConsistency（漏圖例會紅）
+npm run build && grep -c "WebGLRenderer\|InstancedMesh" dist/assets/embed-*.js   # ③ 必須 0
 # ④ 瀏覽器近景實測（rail 用 z13.5 確認列車貼軌）
 ```
 
@@ -1811,3 +1821,65 @@ head -c 200 /tmp/o.json
 6. **收尾必做紅燈演練**：每個宣稱的護欄故意觸發一次、記錄輸出、還原全綠——
    「看板不留假勾勾」，沒做的半件事誠實拆項（本次 4a✅/4b⬜ 前例）。
 7. 配套：worktree 單線接力（PB-37）＋overnight-log 落檔（中斷即交接）。
+
+## PB-39 多 agent 收尾棒（偵察→集中拍板→worktree 平行→整合驗收）
+
+**適用**：一份 backlog 上多個互相獨立、但共享同一批檔案生態的收尾工作（PR #130 十四棒接力
+的變體；PR #131 三線並行第二次實證定型）。與 PB-37 單線接力的差別：**工作間無順序依賴時
+改平行**，主 agent 只做拆解／拍板收集／merge／終驗。
+
+1. **偵察波先行（sonnet Explore ×N 平行）**：每線一個 agent 只回報 raw data（file:line），
+   主 agent 不自己翻檔。目的是把「所有需要 owner 拍板的點」在動工前一次收齊。
+2. **集中拍板**：偵察齊 → 一次 AskUserQuestion 把 3~4 個決策全問掉（含建議與理由）。
+   ⚠️ owner 答「聽不懂」時：**白話重講一輪再問**，技術方案要自帶白話版
+   （2026-08-12 三題全靠白話版通過）。
+3. **實作波（opus ×N，各自 `isolation: worktree`）**：任務書帶齊——偵察事實直接內嵌
+   （agent 不重查）、驗收閘（tsc/vitest/fixture 禁令）、紅燈演練要求、禁碰清單
+   （別的 track 正在動的檔）。
+4. **中斷處置**：背景 agent API 斷線／stall 一律 **SendMessage 原 agent 續跑**
+   （context 保留、從中斷句接續），不重派。本場 5 次全部零重工救回。
+5. **整合（主 agent 親手）**：依「風險低→高」順序 merge（部署類→結構類→行為類），
+   衝突自己解（agent 報告在手，兩邊意圖都知道）；merge 後主樹跑全套＋瀏覽器實測
+   （render 矩陣／點擊／圖例三路）＋advisor 終審抓漏（本次抓到 2 個必補的瀏覽器盲區）。
+6. **產出即記憶**：changelog 收尾棒段／backlog 逐項結案／handoff 新地標，在 PR 內完成，
+   wrap-up 只剩增量。
+
+
+## PB-40 純接線棒：上游備妥的主題群一次上 N 層（2026-08-13 定型：funeral 5／education 16／welfare 9 三次成型）
+
+**適用**：taipei-gis-analytics 已產好 `output/<theme>/pulse/*.geojson`、有 handoff 契約，
+pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
+
+1. **開工前先架好環境**：`git worktree add .claude/worktrees/w-<slug> -b feat/<slug> master`
+   → `pnpm install --prefer-offline` → **`cp <主樹>/.env .`**（gitignored，worktree 不會帶，
+   漏了瀏覽器驗收會白屏且錯誤訊息指不到根因，見 INCIDENTS 2026-08-13）
+   → dev server 用**非 3721 的 port**（主樹可能正開著）。
+   ⚠️ 主樹被平行 session 佔用時**不要切它的分支**，走 worktree 是常態不是例外。
+2. **先盤資料再寫程式**（30 分鐘省後面 3 小時）：對 9 個檔跑一支 python 印出
+   每欄的**出現次數 ＋ 型別 ＋ 列舉分佈 ＋ 數值欄的 0 值比例**。
+   要抓的是三件會靜默壞掉的事：數值給成字串／空值 key 整個消失／0 值比例異常
+   （見 PRINCIPLES 對應三條）。**不要信 handoff 的欄位表就直接開寫**。
+3. **找最近的同構家族當範本**，照抄結構不重新發明：靜態點層群 → `funeral`（5 層，
+   含 precision 篩選與同構 legend）；PMTiles＋多子層 → `education`（16 層）。
+   `grep -rl <家族名> src/` 一次列出全部觸點檔。
+4. **接線照 `docs/development-rules.md` §4 的 20 觸點表**，
+   ⚠️ **不要照 handoff 寫的「五處」**——那是舊版摘要，AR-22 後真實觸點是
+   13 個檔（登記簿 4 處已由 manifest 派生，但 legend／popup／gisClick／deploy／測試都要手動）。
+5. **建一個 `src/data/<theme>Types.ts`** 當分色/篩選/表達式 SSOT，
+   overlayRegistry／LegendPanel／featureInfo panels 三邊 import 同一份，不複製 hex。
+   把上游 handoff 開頭的「會接錯的事」逐條抄進**檔頭註解**（不是只寫在 docs）。
+6. **驗收四段，缺一不可**：
+   - `npx tsc -b` ＋ `npx vitest run`（新層要進 `NO_HOOK_LEDGER` 之類的 ledger）
+   - 黃金快照重生 `npx vite-node scripts/preprocess/dump-layer-golden.ts`
+     → **`git diff` 確認只有新 key ＋ keyCount 那一行動**，既有層任何 diff 都是回歸
+   - 瀏覽器：深連結 `?v=1&layers=…` 開層，驗渲染點數／分色／數值視覺／popup／圖例
+   - 🔴 **側欄實測**：深連結**繞過** sidebar，而四鐵則 #4（控件不溢出）是唯一沒有
+     測試守門的一條 → 必須真的點開 Layers → 展開參數面板 → 截圖看有沒有折行
+   - 收尾對照 `layer-onboarding` Step 3 的 UX baseline 表逐層核半徑/透明度，
+     刻意偏離的要在 registry 註解寫理由
+7. **跨 repo 回填**（上游那端，別漏）：`_status.md` 下游對接表／handoff checklist 打勾／
+   每支 catalog frontmatter 的 `used_by_pulse_layers`／`sync_matrix_config.yaml` 的
+   `pulse: ["<主題標題>"]`。⚠️ `sync_matrix.py` 讀的是 **pulse 主樹**的 `layerCatalog.ts`，
+   worktree 的改動它看不到 → **重跑排在 PR merge 之後**，此刻跑只會寫下錯的狀態。
+8. **上游 repo 若有平行 session 的未提交改動**：只 `git add` 自己碰過的檔案路徑，
+   逐一列出，**不用 `git add -A`**（見 CLAUDE.md 🔴 平行 session 條）。
