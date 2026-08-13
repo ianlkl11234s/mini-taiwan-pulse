@@ -3497,7 +3497,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory 以 h3-js cellToBoundary 把 H3 cell 轉成多邊形後手動 addSource/addLayer（h3-pop-count-src / -fill / -ext）；資料走 h3Loader 的 Supabase RPC ＋本地 JSON fallback —— 非 OVERLAY_REGISTRY",
     },
     legend: "popCount",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "popCount",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "H3 網格人口數（日間／夜間，可依年份回放）",
     topics: ["人口", "H3", "統計"],
@@ -3520,7 +3523,10 @@ export const LAYER_MANIFEST = {
       note: "h3LayerFactory 手動 addSource/addLayer（h3-population-fill / -ext），同樣是 H3 cell → polygon 現算 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "h3Population",
     params: { count: 5, kinds: ["slider", "slider", "toggle", "slider", "select"] },
     description: "H3 人流模擬（日夜人口差推估的移動量）",
     topics: ["人口", "H3", "人流"],
@@ -3543,7 +3549,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-indicators-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "indicators",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "indicators",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）",
     topics: ["人口", "H3", "指標"],
@@ -3566,7 +3575,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-socio-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "socioeconomic",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "socioeconomic",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "村里社經面貌綜合指標（所得／教育／年齡結構）",
     topics: ["社經", "H3", "村里"],
@@ -3589,7 +3601,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-spatial-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "spatialEconomy",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "spatialEconomy",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "村里空間經濟指標（產業家數／營業額分布）",
     topics: ["社經", "H3", "產業"],
@@ -3612,7 +3627,9 @@ export const LAYER_MANIFEST = {
       note: "youbikeLayerFactory 手動 addSource/addLayer（h3-youbike-fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：本層無 metric 參數，`value` 恆為 cell.fr 有車率、另帶 capacity（cell.sc
+    // 平均車柱數）—— 本群唯一多一欄者，panel 不走 GLOSS 直接寫死兩列。
+    popup: "youbikeFullness",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "YouBike 站點有車率的 H3 聚合（共享運具供給熱區）",
     topics: ["共享運具", "H3", "即時"],

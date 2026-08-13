@@ -41,6 +41,10 @@ import {
 } from "./agriPanels";
 import { HikingTrailsPanel, ForestryGenericPanel, CanopyGiantsPanel, MountainHutPanel } from "./forestryPanels";
 import {
+  PopCountCellPanel, H3PopulationCellPanel, IndicatorsCellPanel,
+  SocioeconomicCellPanel, SpatialEconomyCellPanel, YoubikeFullnessCellPanel,
+} from "./h3MetricPanels";
+import {
   TemplePanel, ChurchPanel, AncestralHallPanel, FoundationPanel,
   OtherWorshipPanel, ReligionTop100Panel,
 } from "./religionPanels";
@@ -213,6 +217,12 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   agriPOI: AgriPOIPanel,
   agriRuralRegen: AgriRuralRegenPanel,
   agricultureField: AgricultureFieldPanel,
+  popCount: PopCountCellPanel,
+  h3Population: H3PopulationCellPanel,
+  indicators: IndicatorsCellPanel,
+  socioeconomic: SocioeconomicCellPanel,
+  spatialEconomy: SpatialEconomyCellPanel,
+  youbikeFullness: YoubikeFullnessCellPanel,
   agriSoil: AgriSoilPanel,
   agriSoilFertility: AgriSoilFertilityPanel,
   agriLeisureFarmZones: AgriLeisureFarmZonesPanel,
@@ -453,6 +463,12 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriPOI: "農業 POI",
   agriRuralRegen: "農村再生社區",
   agricultureField: "農田範圍",
+  popCount: "人口數網格",
+  h3Population: "日夜人口網格",
+  indicators: "人口指標網格",
+  socioeconomic: "社經指標網格",
+  spatialEconomy: "空間經濟網格",
+  youbikeFullness: "YouBike 有車率",
   agriSoil: "土壤分類",
   agriSoilFertility: "土壤肥力",
   agriLeisureFarmZones: "休閒農業區",

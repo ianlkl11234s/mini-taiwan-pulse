@@ -1676,6 +1676,48 @@
     },
     {
       "layers": [
+        "h3-pop-count-fill",
+        "h3-pop-count-ext"
+      ],
+      "type": "popCount"
+    },
+    {
+      "layers": [
+        "h3-population-fill",
+        "h3-population-ext"
+      ],
+      "type": "h3Population"
+    },
+    {
+      "layers": [
+        "h3-indicators-fill",
+        "h3-indicators-ext"
+      ],
+      "type": "indicators"
+    },
+    {
+      "layers": [
+        "h3-socio-fill",
+        "h3-socio-ext"
+      ],
+      "type": "socioeconomic"
+    },
+    {
+      "layers": [
+        "h3-spatial-fill",
+        "h3-spatial-ext"
+      ],
+      "type": "spatialEconomy"
+    },
+    {
+      "layers": [
+        "h3-youbike-fill",
+        "h3-youbike-ext"
+      ],
+      "type": "youbikeFullness"
+    },
+    {
+      "layers": [
         "agri-ftw-fields-fill"
       ],
       "type": "agricultureField"

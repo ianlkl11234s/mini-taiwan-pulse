@@ -192,9 +192,6 @@ const NO_POPUP_LEDGER = new Set([
   "realEstateRentalGrid", "realEstateRentalPoint",
   "realEstateSaleGrid", "realEstateSalePoint",
   "realEstatePresaleGrid", "realEstatePresalePoint",
-  // 人口社經：格點/指標面層
-  "popCount", "h3Population", "indicators", "socioeconomic", "spatialEconomy",
-  "youbikeFullness",
   "dustForecast",                                    // 全球氣候：raster 沙塵預報
   "hillshade",                                       // 底圖：raster 山影
   // 環境氣候：CWA/EPA 上游 raster（雲圖 / 雷達 / 溫度 / 熱島 / AQI 影像）

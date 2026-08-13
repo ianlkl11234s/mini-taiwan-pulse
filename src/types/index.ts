@@ -729,6 +729,8 @@ export interface FeatureInfo {
     | "agriPOI" | "agriRuralRegen"
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agricultureField"
+    | "popCount" | "h3Population" | "indicators" | "socioeconomic" | "spatialEconomy"
+    | "youbikeFullness"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
     | "farmRoads" | "ecoNetworkZones"
     | "forestryPolygon" | "forestryLine" | "forestryPOI"

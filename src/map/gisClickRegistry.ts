@@ -375,6 +375,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["edu-district-k12-elementary-fill", "edu-district-k12-junior-fill"], type: "eduDistrictK12" },
   // 🎓 高中就學區：15 個面覆蓋全台，最不該搶點擊 → 整個陣列的最末
   { layers: ["edu-district-senior-fill"], type: "eduDistrictSenior" },
+  // 🔷 H3 指標格 6 層（W2）：三個 factory 現算的六邊形網格，皆鋪滿有資料的行政區域。
+  //    放在既有面層之後、田區之前 —— 這六層歷來零點擊接線，排最尾端對既有命中順序零影響。
+  //    ⚠️ 每層都必須收 `-fill` **與** `-ext` 兩個 id：3D toggle 讓兩者互斥
+  //       （非當前模式那層 visibility:none），只收 fill 的話 3D 模式整層點不到。
+  { layers: ["h3-pop-count-fill", "h3-pop-count-ext"], type: "popCount" },
+  { layers: ["h3-population-fill", "h3-population-ext"], type: "h3Population" },
+  { layers: ["h3-indicators-fill", "h3-indicators-ext"], type: "indicators" },
+  { layers: ["h3-socio-fill", "h3-socio-ext"], type: "socioeconomic" },
+  { layers: ["h3-spatial-fill", "h3-spatial-ext"], type: "spatialEconomy" },
+  { layers: ["h3-youbike-fill", "h3-youbike-ext"], type: "youbikeFullness" },
   // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
   //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
   //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
