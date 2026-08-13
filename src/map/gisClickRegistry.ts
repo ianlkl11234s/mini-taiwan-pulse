@@ -39,6 +39,10 @@ import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
   { layers: ["road-congestion-hit"], type: "roadCongestion" },
+  // 🚗 國道壅塞（W2）：同樣是「透明加寬命中層」的細線層，緊接省道排在最前段。
+  //    兩層地理上不重疊（國道 vs 省道），先後順序對彼此無影響；
+  //    收 `-hit` 而非 `-line`／`-glow` —— glow 帶 level!=0 filter，無資料路段點不到。
+  { layers: ["freewayCongestion-hit"], type: "freewayCongestion" },
   { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
   { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
   // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
@@ -233,7 +237,15 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["water-reservoir-poly-fill", "water-reservoir-poly-outline"], type: "waterReservoirPoly" },
   { layers: ["rain-gauge-circle", "rain-gauge-glow"], type: "rainGauge" },
   { layers: ["river-level-circle", "river-level-glow"], type: "riverLevel" },
+  // 💧 IoT 感測站兩層：properties 早已逐欄烤好（見 useIotWraRiverLayer / …Structure 的
+  //    buildFC），W2 前只缺本表一行。iotWraRiver 1,634 站與 riverLevel 831 站僅重疊
+  //    266 對 → 排在 river-level 之後，重疊處由既有的 riverLevel（有 24h 走勢圖）勝出。
+  { layers: ["iot-wra-river-circle"], type: "iotWraRiver" },
+  { layers: ["iot-wra-structure-circle"], type: "iotWraStructure" },
   { layers: ["groundwater-circle", "groundwater-glow"], type: "groundwater" },
+  // 💧 地下水井靜態 backdrop（~733 灰點）：與動態 groundwater 層共用 GroundwaterPanel
+  //    與同一組欄位。排在動態層**之後** —— 兩層同時開時由帶時間色階的動態層勝出。
+  { layers: ["groundwater-wells-circle"], type: "groundwater" },
   { layers: ["flood-sensor-dot", "flood-sensor-glow"], type: "floodSensor" },
   { layers: ["flood-sensor-isochrone-fill"], type: "floodSensorIsochrone" },
   { layers: ["taipei-sewer-dot"], type: "taipeiSewer" },
@@ -274,7 +286,34 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
   // 醫療等時圈覆蓋面
   { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
+  // 🗑️ 清運點位 73,060 點：全站密度最高的點層，且 click 用 ±5px bbox 命中
+  //    → 排在其他點層之後，免得在市區把消防栓 / 行道樹 / POI 的點擊整片吃掉。
+  { layers: ["waste-stops-static-waste-stops-fill"], type: "wasteStopsStatic" },
+  // 🚄 高鐵站體面（12 面，station_points 零筆 thsr → 全台唯一點不到的車站族）。
+  //    唯一的載體是面，依「面層不可搶點層」放在所有點層之後；站體範圍內的消防栓 /
+  //    行道樹 / 停車場等點層因此仍優先命中。與 station-points-* 共用 railStation panel。
+  { layers: ["station-polygons-thsr-poly-fill", "station-polygons-thsr-poly-line"], type: "railStation" },
+  // 💧 水資源 線 / 面 5 層 —— 線層在前（±5px bbox 已夠命中細線，不必收 glow），
+  //    面層依覆蓋面積由小到大排後，保護區流域級最大故置末。
+  { layers: ["water-canals-core"], type: "waterCanals" },
+  { layers: ["water-levees-core"], type: "waterLevees" },
+  // 河川只收**面層**：同 layer key 的線層 water_rivers.geojson（2,015 筆）
+  // river_name / river_code / river_type 三欄 100% 空字串（實測），接了只會開空白面板。
+  { layers: ["water-river-polygons-fill"], type: "waterRivers" },
+  // 流域只有輪廓線沒有 fill，不會擋住面內任何東西
+  { layers: ["water-basins-line"], type: "waterBasins" },
+  { layers: ["water-protection-zones-fill"], type: "waterProtectionZones" },
+  // 🛣️ 內政部道路中線 + 自行車道（W2）—— 三層都排在下方 OSM 路網之前：
+  //    同一條路上兩份切片會重疊，具體的「台1線／國1／某某自行車道」要贏過泛用的 OSM「道路」。
+  //    三層彼此幾何不重疊（國道 / 省道 / 自行車道），內部先後對結果無影響。
+  //    收 `-glow`（較寬）與 `-line` 兩層：±5px bbox 對 z6 的 0.5px 細線命中率仍偏低。
+  { layers: ["national-highways-glow", "national-highways-line"], type: "highway" },
+  { layers: ["provincial-roads-glow", "provincial-roads-line"], type: "provincialRoad" },
+  { layers: ["cycling-routes-glow", "cycling-routes-line"], type: "cyclingRoute" },
   // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
+  // 快速道路（trunk 子集，5.6 萬 edges）排在 osm_road_drive（55 萬 edges）之前：
+  // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。
+  { layers: ["base-osm-expressway-line"], type: "osmExpressway" },
   { layers: ["base-osm-road-line"], type: "osmRoadDrive" },
   { layers: ["base-village-boundary-line", "base-village-boundary-fill"], type: "villageBoundary" },
   { layers: ["base-township-boundary-line", "base-township-boundary-fill"], type: "townshipBoundary" },
@@ -336,4 +375,18 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["edu-district-k12-elementary-fill", "edu-district-k12-junior-fill"], type: "eduDistrictK12" },
   // 🎓 高中就學區：15 個面覆蓋全台，最不該搶點擊 → 整個陣列的最末
   { layers: ["edu-district-senior-fill"], type: "eduDistrictSenior" },
+  // 🔷 H3 指標格 6 層（W2）：三個 factory 現算的六邊形網格，皆鋪滿有資料的行政區域。
+  //    放在既有面層之後、田區之前 —— 這六層歷來零點擊接線，排最尾端對既有命中順序零影響。
+  //    ⚠️ 每層都必須收 `-fill` **與** `-ext` 兩個 id：3D toggle 讓兩者互斥
+  //       （非當前模式那層 visibility:none），只收 fill 的話 3D 模式整層點不到。
+  { layers: ["h3-pop-count-fill", "h3-pop-count-ext"], type: "popCount" },
+  { layers: ["h3-population-fill", "h3-population-ext"], type: "h3Population" },
+  { layers: ["h3-indicators-fill", "h3-indicators-ext"], type: "indicators" },
+  { layers: ["h3-socio-fill", "h3-socio-ext"], type: "socioeconomic" },
+  { layers: ["h3-spatial-fill", "h3-spatial-ext"], type: "spatialEconomy" },
+  { layers: ["h3-youbike-fill", "h3-youbike-ext"], type: "youbikeFullness" },
+  // 🌾 FTW 田區（W2）：38.6 萬面覆蓋全台平原，密度遠高於上方任何面層
+  //    → 放在整個陣列的**真正最末**，不搶任何點 / 線 / 面層的命中。
+  //    只收 `-fill`：`-outline` 是同一批幾何的邊框，收了只是重複命中同一 feature。
+  { layers: ["agri-ftw-fields-fill"], type: "agricultureField" },
 ];

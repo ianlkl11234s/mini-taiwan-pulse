@@ -377,7 +377,7 @@ export function useThreeJsLayers({
     shipSceneRef,
     railSceneRef,
     busSceneRef,
-    busIntercitySceneRef,
+    busIntercitySceneRef,   // W2：useMapInteraction 的公路客運 pick 分支要用
     touristShuttleSceneRef,
     wasteTruckSceneRef,
     wasteMusicNoteSceneRef,

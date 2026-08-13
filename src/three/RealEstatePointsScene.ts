@@ -141,6 +141,16 @@ export class RealEstatePointsScene {
   private lastExcludeTaipei: boolean | null = null;
   private lastMatrix = new THREE.Matrix4();
 
+  // ── pickPoint 用（W2）──────────────────────────────────────────────
+  // 顯示與否完全由 vertex shader 算（見 VERTEX_SHADER），CPU 端要拾取就必須
+  // 用同一組輸入複刻同一條判定式 —— 否則會「點到看不見的點」。
+  private posArr: Float32Array | null = null;      // mercator xy（與 geometry position 同一份數值）
+  private lngLatArr: Float32Array | null = null;   // 原始經緯（tooltip 定位 / coords 用）
+  private tradeTsArr: Float32Array | null = null;  // 相對 RANGE_START
+  private isTaipeiArr: Float32Array | null = null;
+  private lastState: RePointsState | null = null;
+  private lastPointSizePx = 4;
+
   init(gl: WebGLRenderingContext) {
     this.renderer = new THREE.WebGLRenderer({
       canvas: gl.canvas as HTMLCanvasElement,
@@ -182,11 +192,14 @@ export class RealEstatePointsScene {
     const type = new Float32Array(n);
     const isTaipei = new Float32Array(n);
     const price = new Float32Array(n);
+    const lngLat = new Float32Array(n * 2);
 
     for (let i = 0; i < n; i++) {
       const o = i * 5;
       const lng = data[o]!;
       const lat = data[o + 1]!;
+      lngLat[i * 2] = lng;
+      lngLat[i * 2 + 1] = lat;
       const mc = mapboxgl.MercatorCoordinate.fromLngLat([lng, lat], 0);
       positions[i * 3] = mc.x;
       positions[i * 3 + 1] = mc.y;
@@ -201,6 +214,10 @@ export class RealEstatePointsScene {
 
     this.typeArr = type;
     this.priceArr = price;
+    this.posArr = positions;
+    this.lngLatArr = lngLat;
+    this.tradeTsArr = tradeTs;
+    this.isTaipeiArr = isTaipei;
 
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -253,11 +270,84 @@ export class RealEstatePointsScene {
     u.uExcludeTaipei!.value = s.excludeTaipei ? 1 : 0;
     u.uBaseOpacity!.value = s.baseOpacity;
     u.uPointSize!.value = pointSizePx;
+    this.lastState = s;
+    this.lastPointSizePx = pointSizePx;
     this.recomputeColors(s.excludeTaipei);
   }
 
   hasData(): boolean {
     return this.count > 0;
+  }
+
+  /**
+   * 點擊拾取（W2）—— CPU 端逐點投影取最近者。
+   *
+   * 為何是 click 不是 mousemove：36.5 萬點每次滑鼠移動都全掃會吃掉互動預算；
+   * 原本的 point hover 正是在改成 WebGL CustomLayer 時被移除（`useMapInteraction`
+   * 舊註解「待補 GPU/空間索引 picking」），這裡以 click 一次全掃（約 O(n) 純算術，
+   * 單次點擊成本可接受）把那個死 UI 接回來。
+   *
+   * ⚠️ 顯示判定必須與 VERTEX_SHADER 逐條對齊（型別開關 / 三種 mode 的時間窗 /
+   *    excludeTaipei / baseOpacity），否則會拾取到畫面上看不見的點。
+   *
+   * 回傳欄位僅有 buffer 內真實存在的三項（type / price / tradeTs）——
+   * 地址、行政區、總價、坪數在改二進位格式時就不在 buffer 裡了。
+   */
+  pickPoint(
+    screenX: number, screenY: number, viewWidth: number, viewHeight: number,
+  ): { lng: number; lat: number; type: "rental" | "sale" | "presale"; pricePerSqm: number; tradeTs: number } | null {
+    const s = this.lastState;
+    if (!s || !this.posArr || !this.lngLatArr || !this.typeArr || !this.priceArr
+      || !this.tradeTsArr || !this.isTaipeiArr) return null;
+    if (s.baseOpacity <= 0.001) return null;
+
+    const m = this.lastMatrix.elements;
+    const qStartRel = s.qStart - RANGE_START;
+    const qEndRel = s.qEnd - RANGE_START;
+    const cursorRel = s.cursorTs - RANGE_START;
+    const mode = MODE_CODE[s.mode];
+    // 半徑（CSS px）= 繪製點徑的一半；下限 8px 讓 z6 的 1.5px 小點也點得到
+    const threshold = Math.max(8, this.lastPointSizePx / (window.devicePixelRatio || 1));
+
+    let bestIdx = -1;
+    let bestDist = Infinity;
+
+    for (let i = 0; i < this.count; i++) {
+      const t = this.typeArr[i]!;
+      if (!s.show[t as 0 | 1 | 2]) continue;
+      if (s.excludeTaipei && this.isTaipeiArr[i]! > 0.5) continue;
+
+      const ts = this.tradeTsArr[i]!;
+      if (mode === 1) {
+        if (ts < qStartRel || ts >= qEndRel) continue;
+      } else if (mode === 2) {
+        const diff = cursorRel - ts;
+        if (diff < 0 || diff >= s.full + s.fade) continue;
+      }
+
+      const px = this.posArr[i * 3]!;
+      const py = this.posArr[i * 3 + 1]!;
+      // 手動套 4x4（column-major）—— 每點 new Vector4 會在 36.5 萬次迴圈裡爆 GC
+      const w = m[3]! * px + m[7]! * py + m[15]!;
+      if (w <= 0) continue;
+      const cx = m[0]! * px + m[4]! * py + m[12]!;
+      const cy = m[1]! * px + m[5]! * py + m[13]!;
+      const sx = ((cx / w) * 0.5 + 0.5) * viewWidth;
+      const sy = ((-cy / w) * 0.5 + 0.5) * viewHeight;
+      const dx = sx - screenX;
+      const dy = sy - screenY;
+      const dist = Math.hypot(dx, dy);
+      if (dist < threshold && dist < bestDist) { bestDist = dist; bestIdx = i; }
+    }
+
+    if (bestIdx < 0) return null;
+    return {
+      lng: this.lngLatArr[bestIdx * 2]!,
+      lat: this.lngLatArr[bestIdx * 2 + 1]!,
+      type: PALETTE_KEYS[this.typeArr[bestIdx]!]!,
+      pricePerSqm: this.priceArr[bestIdx]!,
+      tradeTs: this.tradeTsArr[bestIdx]! + RANGE_START,
+    };
   }
 
   render(matrix: number[]) {
@@ -289,5 +379,13 @@ export class RealEstatePointsScene {
     this.geometry?.dispose();
     this.material?.dispose();
     this.renderer?.dispose();
+    // pick 用的 CPU 端副本一併釋放（36.5 萬 × 5 個 Float32Array）
+    this.posArr = null;
+    this.lngLatArr = null;
+    this.tradeTsArr = null;
+    this.isTaipeiArr = null;
+    this.typeArr = null;
+    this.priceArr = null;
+    this.lastState = null;
   }
 }

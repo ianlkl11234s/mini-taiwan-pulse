@@ -152,3 +152,47 @@ export function TemperatureGridPanel({ props }: { props: Record<string, unknown>
     </>
   );
 }
+
+// ── raster 值探針（W2）────────────────────────────────────────────
+/**
+ * 值編碼 raster 的點擊讀值 popup。`urbanHeat`（熱島）與 `canopyHeight`（樹冠高度）
+ * **共用同一個 layerType `rasterProbe`**，理由與 `climateField`（風場／海流共用一個
+ * panel）完全相同：兩層可能同時開啟，一次點擊就該同時得到兩個讀數；硬拆成兩個
+ * layerType 會被迫訂一個任意優先序，讓另一層在同開時永遠讀不到。
+ *（一個 popup type 被多個 manifest key 宣告是既有形狀，如 railStation 之於
+ *  stationsTRA / stationsMetro / stationsTHSR。）
+ *
+ * 取樣與解碼在 `src/data/rasterProbeSampler.ts`，常數取自 urbanHeatTypes.ts 與
+ * overlayRegistry 的 canopyHeight 註解兩個既有 SSOT；本檔只負責呈現。
+ */
+export function RasterProbePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const heat = props.urbanHeat as { delta_t: number; lst_c: number } | null | undefined;
+  const canopy = props.canopyHeight as { height_m: number } | null | undefined;
+  return (
+    <div>
+      {heat && (
+        <>
+          {/* ΔT =「比同期背景熱幾度」，正負號本身就是訊息 → 正值明確帶 + 號 */}
+          <Row
+            label="熱島強度"
+            value={`${heat.delta_t > 0 ? "+" : ""}${heat.delta_t.toFixed(1)} K`}
+            color={heat.delta_t > 0 ? "#ef4444" : "#38bdf8"}
+          />
+          <Row label="地表溫度" value={`${heat.lst_c.toFixed(1)} °C`} />
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2, marginBottom: 6 }}>
+            Landsat 8/9 地表溫度 · 2019–2025 暖季上午過境 median 合成（60m）
+          </div>
+        </>
+      )}
+      {canopy && (
+        <>
+          <Row label="樹冠高度" value={`${canopy.height_m.toFixed(0)} 公尺`} color="#238b45" />
+          <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 2 }}>
+            Meta / WRI 全球樹冠高度切片（R 通道即公尺高度）
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

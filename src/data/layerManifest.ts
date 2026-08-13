@@ -2313,8 +2313,12 @@ export const LAYER_MANIFEST = {
       maxzoom: 12,
     },
     legend: "canopyHeight",
-    // 本批唯一沒有可點選物件的層（raster，GIS_LAYERS 無條目）
-    popup: null,
+    // 本批唯一沒有向量 feature 的層（raster，GIS_LAYERS 無條目）——
+    // W2：值編碼 raster 的點擊讀值探針（rasterProbeSampler，對標 climateFieldSampler）。
+    // urbanHeat 與 canopyHeight 共用 `rasterProbe` 一個 layerType —— 兩層可能同時開啟，
+    // 一次點擊就該同時得到兩個讀數（同 climateField 的風場/海流）。
+    // 解碼：R 的原始 DN 就是公尺高度（overlayRegistry canopyHeight 註解：色帶 stop 0.025↔1m）。
+    popup: "rasterProbe",
     params: { count: 1, kinds: ["slider"] },
     description: "全台樹冠高度 raster（Meta/WRI 2020 10m，RGB 編碼切片）",
     topics: ["林業", "樹冠", "遙測"],
@@ -3497,7 +3501,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory 以 h3-js cellToBoundary 把 H3 cell 轉成多邊形後手動 addSource/addLayer（h3-pop-count-src / -fill / -ext）；資料走 h3Loader 的 Supabase RPC ＋本地 JSON fallback —— 非 OVERLAY_REGISTRY",
     },
     legend: "popCount",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "popCount",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "H3 網格人口數（日間／夜間，可依年份回放）",
     topics: ["人口", "H3", "統計"],
@@ -3520,7 +3527,10 @@ export const LAYER_MANIFEST = {
       note: "h3LayerFactory 手動 addSource/addLayer（h3-population-fill / -ext），同樣是 H3 cell → polygon 現算 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "h3Population",
     params: { count: 5, kinds: ["slider", "slider", "toggle", "slider", "select"] },
     description: "H3 人流模擬（日夜人口差推估的移動量）",
     topics: ["人口", "H3", "人流"],
@@ -3543,7 +3553,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-indicators-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "indicators",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "indicators",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "縣市年度人口指標（出生／死亡／遷徙等，多指標下拉切換）",
     topics: ["人口", "H3", "指標"],
@@ -3566,7 +3579,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-socio-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "socioeconomic",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "socioeconomic",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "村里社經面貌綜合指標（所得／教育／年齡結構）",
     topics: ["社經", "H3", "村里"],
@@ -3589,7 +3605,10 @@ export const LAYER_MANIFEST = {
       note: "demographicsLayerFactory（h3-spatial-src / -fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: "spatialEconomy",
-    popup: null,
+    // W2：properties 只有 { color, value, height }，`value` = 當前選定指標的原始值。
+    // panel 於點擊當下讀 layerParamsStore 取指標名（凍結，不反應式訂閱），
+    // 六層共用 h3MetricPanels 的 body、分開 layerType 只為 header 標得出是哪一層。
+    popup: "spatialEconomy",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "村里空間經濟指標（產業家數／營業額分布）",
     topics: ["社經", "H3", "產業"],
@@ -3612,7 +3631,9 @@ export const LAYER_MANIFEST = {
       note: "youbikeLayerFactory 手動 addSource/addLayer（h3-youbike-fill / -ext）—— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：本層無 metric 參數，`value` 恆為 cell.fr 有車率、另帶 capacity（cell.sc
+    // 平均車柱數）—— 本群唯一多一欄者，panel 不走 GLOSS 直接寫死兩列。
+    popup: "youbikeFullness",
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "YouBike 站點有車率的 H3 聚合（共享運具供給熱區）",
     topics: ["共享運具", "H3", "即時"],
@@ -4927,7 +4948,11 @@ export const LAYER_MANIFEST = {
       maxzoom: 11,
     },
     legend: "urbanHeat",
-    popup: null,
+    // W2：值編碼 raster 的點擊讀值探針（rasterProbeSampler，對標 climateFieldSampler）。
+    // urbanHeat 與 canopyHeight 共用 `rasterProbe` 一個 layerType —— 兩層可能同時開啟，
+    // 一次點擊就該同時得到兩個讀數（同 climateField 的風場/海流）。
+    // 解碼：ΔT(K)=R/5−30、°C=G/4+10（urbanHeatTypes.ts 檔頭，與上游 encoding.json 同源）；A<128 為 nodata。
+    popup: "rasterProbe",
     params: { count: 2, kinds: ["select", "slider"] },
     description: "地表溫度熱島強度（Landsat 熱紅外暖季合成，raster 切片）",
     topics: ["環境", "熱島", "衛星影像"],
@@ -5397,8 +5422,9 @@ export const LAYER_MANIFEST = {
   },
 
   // ⚠️ 與 `groundwater` 是不同層：這層是**靜態 backdrop**（48h 內有讀值的 ~733 站，
-  //    灰色小點、不受 timeline 影響），且 layer id `groundwater-wells-circle`
-  //    **不在** GIS_LAYERS（GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）→ popup: null。
+  //    灰色小點、不受 timeline 影響），layer id 是 `groundwater-wells-circle`
+  //    （GIS_LAYERS 裡的 `groundwater-circle` 是動態層的）。W2 popup 補強後兩者各有
+  //    一筆 GIS_LAYERS 條目，因欄位契約相同而共用 `groundwater` layerType 與 panel。
   groundwaterWells: {
     key: "groundwaterWells",
     section: { theme: "水資源 Water", group: "點位" },
@@ -5416,7 +5442,10 @@ export const LAYER_MANIFEST = {
       note: "useGroundwaterWellsLayer：Supabase RPC get_groundwater_latest（5min TTL 快取）→ 自建 source groundwater-wells + 1 layer groundwater-wells-circle，作為動態層的靜態站位 backdrop —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：properties 與動態 `groundwater` 層完全同一組欄位
+    // （well_name / station_id / water_level_m / delta_24h / observed_at）
+    // → 共用 `groundwater` layerType 與 GroundwaterPanel，不另立型別。
+    popup: "groundwater",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "地下水井監測網站位 backdrop（灰點，呈現監測密度）",
     topics: ["水資源", "地下水", "監測"],
@@ -5508,7 +5537,9 @@ export const LAYER_MANIFEST = {
       note: "useIotWraRiverLayer：Supabase RPC get_iot_wra_day（p_station_type=\"river\"）→ 自建 source iot-wra-river + 2 layer（glow / iot-wra-river-circle）—— 非 OVERLAY_REGISTRY",
     },
     legend: "iotWraRiver",
-    popup: null,
+    // W2 popup 補強：properties 早已由 useIotWraRiverLayer.buildFC 逐欄烤好
+    // （name / measurement_name / si_unit / value / delta_m / observed_at），只缺接線。
+    popup: "iotWraRiver",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "toggle"] },
     description: "水利署 IoT 河川水位感測器（民間協力布建的密網）",
     topics: ["水資源", "河川", "IoT", "即時"],
@@ -5531,7 +5562,9 @@ export const LAYER_MANIFEST = {
       note: "useIotWraStructureLayer：Supabase RPC get_iot_wra_latest（p_station_type=null 取全類別）→ 自建 source iot-wra-structure + 2 layer（glow / iot-wra-structure-circle）—— 非 OVERLAY_REGISTRY",
     },
     legend: "iotWraStructure",
-    popup: null,
+    // W2 popup 補強：同 iotWraRiver，另多 county_name / station_type
+    // （5 類水工結構不點開分不出是哪一類）。
+    popup: "iotWraStructure",
     params: { count: 7, kinds: ["slider", "slider", "toggle", "toggle", "toggle", "toggle", "toggle"] },
     description: "水利署 IoT 水工結構物感測（堰壩 / 閘門 / 抽水站等，5 類可篩）",
     topics: ["水資源", "水工結構", "IoT", "即時"],
@@ -5626,7 +5659,9 @@ export const LAYER_MANIFEST = {
       url: "./geo/water_basins.geojson",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：basin_name + 集水面積；純輪廓線且無 symbol label，
+    // 點開之前無從得知身處哪個流域，而那正是這層的用途。
+    popup: "waterBasins",
     params: { count: 1, kinds: ["slider"] },
     description: "中央管河川流域界（純輪廓線，不分色故無圖例）",
     topics: ["水資源", "流域"],
@@ -5665,7 +5700,9 @@ export const LAYER_MANIFEST = {
       },
     ],
     legend: null,
-    popup: null,
+    // W2 popup 補強：**只接面層** `water-river-polygons-fill`（12,210/13,262 帶河名）；
+    // 同 key 的線層 water_rivers.geojson 三個欄位 100% 空字串，接了只會開空白面板。
+    popup: "waterRivers",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "河川水域面 + 中心線（同一個 toggle 疊兩份切片）",
     topics: ["水資源", "河川"],
@@ -5692,7 +5729,9 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：本群欄位最豐富的線層（name / river / basin / county /
+    // levee_type / side / status）。status「待建」已進 paint 表達式，popup 補文字。
+    popup: "waterLevees",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "水利署堤防線（單色，無分類維度故無圖例）",
     topics: ["水資源", "防洪"],
@@ -5719,9 +5758,11 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: "waterCanals",
-    popup: null,
+    // W2 popup 補強：PMTiles 欄位是縮寫，語意由上游 pipeline 白名單確認
+    // （01_fetch_wfs.py：o=管理處 / n=渠道名 / t=屬性）。
+    popup: "waterCanals",
     params: { count: 2, kinds: ["slider", "slider"] },
-    description: "農田水利署灌溉排水渠道（依渠道等級分色）",
+    description: "農田水利署灌溉排水渠道（依引灌需求屬性 3 類分色）",
     topics: ["水資源", "灌溉", "農業"],
   },
 
@@ -5743,7 +5784,9 @@ export const LAYER_MANIFEST = {
       url: "./geo/water_protection_zones.geojson",
     },
     legend: "waterProtectionZones",
-    popup: null,
+    // W2 popup 補強：law_ref（公告文號）是別處拿不到的資訊，管制區的重點就是
+    // 「這裡受什麼法規管」。
+    popup: "waterProtectionZones",
     params: { count: 1, kinds: ["slider"] },
     description: "水質水量保護區與河川管制區範圍（依管制類別分色）",
     topics: ["水資源", "管制", "保護區"],
@@ -5946,7 +5989,12 @@ export const LAYER_MANIFEST = {
       note: "useWasteLayer：Supabase RPC get_waste_trails（live 近 60 分鐘、60s 輪詢）/ get_waste_trails_day / get_waste_trails_matched_day（replay 整日）→ wasteTruckCustomLayer 的 Three.js scene 逐幀插值，另掛 WasteMusicNoteScene 音符 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：收尾「表定模擬車可點、GPS 真車不可點」的族群不一致。
+    // `WasteTruckScene.pickTruck` 本來就存在（逐行同 WasteScheduleScene.pickRoute），
+    // 只是從來沒有人呼叫 —— useMapInteraction 補一個分支即可。
+    // 走 FeatureInfoPanel 而非隨車 tooltip：欄位是車號／縣市／路線這種查詢型資訊，
+    // 且同樣「會移動的 Three.js 物件開 panel」的前例是 ship（pickShip → setFeatureInfo）。
+    popup: "wasteTruck",
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "高雄／台南垃圾車即時軌跡（含音符動畫，可回放整日）",
     topics: ["廢棄物", "清運", "即時"],
@@ -6047,7 +6095,10 @@ export const LAYER_MANIFEST = {
       url: "./geo/waste_stops_static.geojson",
     },
     legend: null,
-    popup: null,
+    // W2 popup 補強：同主題的 wasteDisposalPoint（wd*）與 wasteCleaningSquad 早有 panel，
+    // 唯獨密度最高、最貼近民生的清運點位不可點。route_name + routes_count 正好回答
+    // 「我家這個點屬哪條路線 / 有幾條路線經過」。
+    popup: "wasteStopsStatic",
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "全台垃圾車停靠點位（靜態快照，非即時）",
     topics: ["廢棄物", "清運", "點位"],
@@ -6969,7 +7020,10 @@ export const LAYER_MANIFEST = {
       staticAssets: ["./agriculture/ftw_fields_2025.pmtiles"],
     },
     legend: null,
-    popup: null,
+    // W2：切片只帶 tippecanoe 白名單 4 欄（field_id / confidence_mean / area_ha /
+    // source_tile）。confidence_mean 實測值域僅 [0.500, 0.581]（上游 catalog 明載
+    // 上限 0.6）→ panel 不畫成 0~100% 進度條，並揭露「AI 推論非法定分區、會高估」。
+    popup: "agricultureField",
     params: { count: 4, kinds: ["slider", "slider", "toggle", "slider"] },
     description: "全台農田範圍（FTW Fields 2025，38.6 萬田區）",
     topics: ["農業", "農地", "面"],
@@ -7352,11 +7406,11 @@ export const LAYER_MANIFEST = {
     dataClass: "A",
     source: { kind: "geojson", sourceId: "station-polygons", url: "./geo/station_polygons.geojson" },
     legend: null,
-    // ⚠️ **唯一有 registry entry 卻 popup: null 的車站層**：本層 4 個 layer id 全是
-    //    `station-polygons-thsr-poly-*`，而 GIS_LAYERS 的 `railStation` 兩筆條目收的是
-    //    `station-points-tra-pt-*` 與 `station-points-metro-pt-*`。三層長得極像，
-    //    憑「都是車站」推會把 railStation 掛上去，Phase 3 派生就會多出一組假接線。
-    popup: null,
+    // W2 popup 補強：本層 4 個 layer id 全是 `station-polygons-thsr-poly-*`，
+    // 與 GIS_LAYERS 既有兩筆 railStation（`station-points-tra-pt-*` /
+    // `station-points-metro-pt-*`）是不同 layer id，故另立第三筆條目收站體面。
+    // station_points.geojson 零筆 thsr，站體面是高鐵唯一的可點載體。
+    popup: "railStation",
     params: { count: 3, kinds: ["slider", "toggle", "slider"] },
     description: "高鐵站體範圍面（雙層 glow ＋ fill ＋ 邊框，可切 3D 光柱）",
     topics: ["交通", "軌道", "場站"],
@@ -7660,7 +7714,10 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2：與 provincialRoads 同一份內政部道路中線 schema（22 欄），共用 MoiRoadBody
+    // 但分開 layerType 讓 header 標得出「國道／省道」。ROADALIAS 0% 空（中山高／福爾摩沙）
+    // 是最穩定的可讀名稱；ROADNAME 只在交流道／服務區有值。
+    popup: "highway",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "國道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "國道"],
@@ -7687,10 +7744,9 @@ export const LAYER_MANIFEST = {
       maxzoom: 14,
     },
     legend: null,
-    // ⚠️ HEADER_LABELS 有 `osmExpressway: "快速道路 (OSM)"`，但 GIS_LAYERS 沒有條目
-    //    → 沒有點擊接線（批 5 `hillshade` 的第二例）。填成有 popup 會讓 Phase 3
-    //    派生出一筆指向不存在 layer id 的假條目。
-    popup: null,
+    // W2 popup 補強：欄位契約與 osmRoadDrive 完全相同 → 共用 OsmRoadDrivePanel，
+    // layerType 維持獨立好讓 popup 標題顯示「快速道路 (OSM)」。
+    popup: "osmExpressway",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "OSM 快速道路線形（單色橘線，與國道分開）",
     topics: ["交通", "路網", "快速道路"],
@@ -7717,7 +7773,10 @@ export const LAYER_MANIFEST = {
       maxzoom: 13,
     },
     legend: null,
-    popup: null,
+    // W2：地圖上沒有 symbol label，「這是台幾線」在此之前無法得知 → ROADNUM 當標題。
+    // 代碼語意（ROADCLASS1/2、ROADSTRUCT、MDATE）出自內政部通用電子地圖圖層內容說明
+    // 附表1；WIDTH / ROADCOMNUM / DIR 三欄語意存疑，panel 刻意不顯示（見 roadPanels 註解）。
+    popup: "provincialRoad",
     params: { count: 2, kinds: ["slider", "slider"] },
     description: "省道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "省道"],
@@ -7737,7 +7796,10 @@ export const LAYER_MANIFEST = {
     dataClass: "A",
     source: { kind: "geojson", sourceId: "cycling-routes", url: "./geo/cycling_routes.geojson" },
     legend: null,
-    popup: null,
+    // W2：本群欄位最豐富的一層（起訖路段 + 長度 + 方向）。
+    // CyclingType / AuthorityName 上游回傳字串字面 "NULL"（1,749 筆全部）、
+    // FinishedTime 有 ROC→西元轉換 bug（24.4% 壞值）→ panel 皆已擋掉。
+    popup: "cyclingRoute",
     params: { count: 1, kinds: ["slider"] },
     description: "自行車道路線（glow 底線 ＋ 主線兩層）",
     topics: ["交通", "路網", "自行車"],
@@ -7844,12 +7906,14 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useFreewayLayer 自建 source `freeway-congestion` ＋ 兩個 line layer（無 OVERLAY_REGISTRY entry）：freewayLoader 一次載一整天所有路段 timeline（每 10 分鐘一快照，LRU 7 天），依 timeStore 的 currentTime 找最近快照 setData 重建整包 GeoJSON。無靜態檔要部署。",
+      note: "useFreewayLayer 自建 source `freeway-congestion` ＋ 三個 line layer（無 OVERLAY_REGISTRY entry）：freewayLoader 一次載一整天所有路段 timeline（每 10 分鐘一快照，LRU 7 天），依 timeStore 的 currentTime 找最近快照 setData 重建整包 GeoJSON。無靜態檔要部署。",
     },
     legend: "freewayCongestion",
-    // 兩個 line layer（-glow / -line）都不在 GIS_LAYERS → 無點擊接線（與 roadCongestion
-    // 刻意加的透明 hit 層對照：那層是為了細線命中率才補的，這層沒補）
-    popup: null,
+    // W2：補上透明加寬命中層 `freewayCongestion-hit`（比照 roadCongestion 的
+    // `road-congestion-hit`）——可視線 z6 僅 0.5px，glow 又帶 level!=0 filter，
+    // 兩者都不適合當靶。properties 早已烤好 section_name / road_name /
+    // direction_label / speed（freewayLoader.buildFreewayGeoJSON）。
+    popup: "freewayCongestion",
     params: { count: 1, kinds: ["slider"] },
     description: "國道路段壅塞等級（依時間軸逐快照染色）",
     topics: ["交通", "即時", "壅塞", "國道"],
