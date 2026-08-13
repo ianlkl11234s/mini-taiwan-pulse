@@ -206,7 +206,17 @@ SQL 提案：`docs/proposal/alerts-pressure-signal.sql`，兩個分岔留給 own
 
 ## 7. 建議的 merge 順序與 post-merge 檢查
 
-風險由低到高，每步 merge 後確認再進下一步（**每次 merge 都會觸發 Zeabur 部署**）：
+⚠️ **先選一種上線策略**（因為 merge ＝ 部署，這個選擇有實質差別）：
+
+- **選項 A：把 `integration/next-batch` 當成一個 PR merge —— 一次部署。**
+  優點：上線的**正是通過 tsc／562 tests／docker build 的那棵樹**，零未驗證中間態。
+  缺點：要 revert 就是整批一起退。
+- **選項 B：五條分支逐條 merge —— 五次部署。**
+  優點：per-branch 可獨立 revert。
+  缺點：**會產生 4 個從未被測過的中間態**（例如 merge 完第 3 條時的 master）並各自實際上線。
+  每條分支只驗過「自己 vs master」，整批驗過「全部合起來」，**中間組合沒人驗**。
+
+> 若沒有強烈的逐條 revert 需求，建議 **A**。以下順序供選 B 時使用（風險由低到高，每步 merge 後確認再進下一步）：
 
 | # | 分支 | 為何這個順序 | merge 後要看什麼 |
 |---|---|---|---|
