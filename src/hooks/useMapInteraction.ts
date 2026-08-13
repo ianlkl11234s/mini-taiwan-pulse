@@ -9,6 +9,7 @@ import type { RailScene } from "../three/RailScene";
 import type { BusScene } from "../three/BusScene";
 import type { ReservoirScene } from "../three/ReservoirScene";
 import type { WasteScheduleScene, ScheduleDebugFrame } from "../three/WasteScheduleScene";
+import type { WasteTruckScene } from "../three/WasteTruckScene";
 import { compareIdFromReservoirId } from "../data/reservoirStatusLoader";
 import { sampleClimateFields } from "../data/climateFieldSampler";
 import { sessionTracker } from "../lib/sessionTracker";
@@ -51,6 +52,7 @@ export function useMapInteraction(
   wasteScheduleSceneRef?: React.RefObject<WasteScheduleScene | null>,
   touristShuttleSceneRef?: React.RefObject<BusScene | null>,
   busIntercitySceneRef?: React.RefObject<BusScene | null>,
+  wasteTruckSceneRef?: React.RefObject<WasteTruckScene | null>,
 ) {
   const [selectedFlightId, setSelectedFlightId] = useState<string | null>(null);
   const [tooltipInfo, setTooltipInfo] = useState<TooltipInfo | null>(null);
@@ -95,6 +97,35 @@ export function useMapInteraction(
             setTooltipInfo(null);
             setTrainTooltipInfo(null);
             setBusTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
+      // 嘗試拾取垃圾車實跡（W2）——「表定模擬車可點、GPS 真車不可點」的族群不一致收尾。
+      // `WasteTruckScene.pickTruck` 早就寫好了（逐行同 pickRoute），從來沒有人呼叫它；
+      // audit 只 grep 了 wasteTruckCustomLayer.ts 才判定「無 pick」。
+      // 走 setFeatureInfo 而非 tooltip：欄位是車號／縣市／路線這種查詢型資訊，
+      // 且 repo 內同為「會移動的 Three.js 物件開 FeatureInfoPanel」的前例就是上方的
+      // `ship` 分支。座標用點擊位置（pickTruck 只回 row，不回插值後的經緯）。
+      if (vis?.wasteTruck) {
+        const truckScene = wasteTruckSceneRef?.current;
+        if (truckScene) {
+          const row = truckScene.pickTruck(e.point.x, e.point.y, w, h);
+          if (row) {
+            setFeatureInfo({
+              layerType: "wasteTruck",
+              properties: {
+                vehicle_no: row.vehicle_no,
+                city: row.city,
+                route_id: row.route_id,
+              },
+              coords: [e.lngLat.lng, e.lngLat.lat],
+            });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
+            setWasteScheduleTooltipInfo(null);
             return;
           }
         }

@@ -241,3 +241,34 @@ export function WasteStopsStaticPanel({ props }: { props: Record<string, unknown
     </>
   );
 }
+
+/**
+ * 垃圾車實跡（W2）。資料來自 `WasteTrailRow`（GPS 軌跡），由
+ * `WasteTruckScene.pickTruck` 拾取 InstancedMesh 光球後開啟。
+ *
+ * 只有三欄可顯示：pickTruck 回傳的是整列 row，逐點狀態（collecting / returning /
+ * parked …）是每幀插值算出來的 frame 屬性、不在 row 上 —— 不硬湊。
+ * `route_id` 是收運路線代碼（可能為 null，例如尚未配線的車）。
+ */
+export function WasteTruckPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const vehicleNo = String(props.vehicle_no ?? "");
+  const city = String(props.city ?? "");
+  const routeId = props.route_id == null ? "" : String(props.route_id);
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: "#22c55e", flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {vehicleNo || "垃圾車"}
+        </div>
+      </div>
+      <Row label="車號" value={vehicleNo} />
+      <Row label="縣市" value={city} />
+      <Row label="路線代碼" value={routeId} />
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 6 }}>
+        GPS 實跡車輛 · 位置隨時間軸插值
+      </div>
+    </>
+  );
+}

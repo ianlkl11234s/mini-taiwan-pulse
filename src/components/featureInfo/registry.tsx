@@ -33,6 +33,7 @@ import {
 import { AqiStationPanel, MicroSensorPanel, TemperatureGridPanel } from "./airPanels";
 import {
   WasteFacilityPanel, WasteDisposalPointPanel, WasteCleaningSquadPanel, WasteStopsStaticPanel,
+  WasteTruckPanel,
 } from "./wastePanels";
 import {
   AgriSoilPanel, AgriSoilFertilityPanel, AgriLeisureFarmZonesPanel, AgriCropSuitabilityPanel,
@@ -200,6 +201,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   taipeiEvacuate: TaipeiEvacuatePanel,
   taipeiPumb: TaipeiPumbPanel,
   wasteFacility: WasteFacilityPanel,
+  wasteTruck: WasteTruckPanel,
   wasteDisposalPoint: WasteDisposalPointPanel,
   wasteCleaningSquad: WasteCleaningSquadPanel,
   wasteStopsStatic: WasteStopsStaticPanel,
@@ -457,6 +459,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   taipeiEvacuate: "北市疏散門",
   taipeiPumb: "北市抽水站",
   wasteFacility: "垃圾處理設施",
+  wasteTruck: "垃圾車實跡",
   wasteDisposalPoint: "垃圾投放點",
   wasteCleaningSquad: "清潔隊辦公點",
   wasteStopsStatic: "清運點位",

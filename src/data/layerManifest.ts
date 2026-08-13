@@ -5981,7 +5981,12 @@ export const LAYER_MANIFEST = {
       note: "useWasteLayer：Supabase RPC get_waste_trails（live 近 60 分鐘、60s 輪詢）/ get_waste_trails_day / get_waste_trails_matched_day（replay 整日）→ wasteTruckCustomLayer 的 Three.js scene 逐幀插值，另掛 WasteMusicNoteScene 音符 —— 非 OVERLAY_REGISTRY",
     },
     legend: null,
-    popup: null,
+    // W2：收尾「表定模擬車可點、GPS 真車不可點」的族群不一致。
+    // `WasteTruckScene.pickTruck` 本來就存在（逐行同 WasteScheduleScene.pickRoute），
+    // 只是從來沒有人呼叫 —— useMapInteraction 補一個分支即可。
+    // 走 FeatureInfoPanel 而非隨車 tooltip：欄位是車號／縣市／路線這種查詢型資訊，
+    // 且同樣「會移動的 Three.js 物件開 panel」的前例是 ship（pickShip → setFeatureInfo）。
+    popup: "wasteTruck",
     params: { count: 3, kinds: ["slider", "slider", "slider"] },
     description: "高雄／台南垃圾車即時軌跡（含音符動畫，可回放整日）",
     topics: ["廢棄物", "清運", "即時"],

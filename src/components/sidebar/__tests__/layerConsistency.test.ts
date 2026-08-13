@@ -188,7 +188,11 @@ const NO_POPUP_LEDGER = new Set([
   // 交通 Move —— rail / flights / bus 三族走 Three.js scene picking（非 GIS_LAYERS）
   "rail", "flights", "busLive", "busIntercityLive", "touristShuttleLive",
   "canopyHeight",                                    // 林業：raster 樹冠高度
-  // 房地產：格點/點位圖層，數值直接以顏色表達（6 層同族）
+  // 房地產 6 層同族，皆走浮動 tooltip 而非 FeatureInfoPanel：
+  //   Grid ×3 —— useMapInteraction 綁 `re-grid-*-fill` 的 mousemove hover tooltip
+  //              （「行動裝置沒有 hover、要不要補 click」是 EDGE，待 owner 拍板）
+  //   Point ×3 —— W2 補回 click picking（RealEstatePointsScene.pickPoint，
+  //              WebGL CustomLayer 進不了 queryRenderedFeatures 故無法走 GIS_LAYERS）
   "realEstateRentalGrid", "realEstateRentalPoint",
   "realEstateSaleGrid", "realEstateSalePoint",
   "realEstatePresaleGrid", "realEstatePresalePoint",
@@ -199,8 +203,9 @@ const NO_POPUP_LEDGER = new Set([
   // 水資源：極端淹水面（payload 只有圖例已標示的 depth_class，待 owner 拍板）
   // / 雨量 raster（IoW 上游已把色階燒進 PNG，無數值通道）
   "waterFloodExtreme", "precipRaster",
-  // 廢棄物：清運車與排程走 wasteMapboxLayers 自掛 handler / 裝飾性特效
-  "wasteTruck", "wasteSchedule", "wasteScheduleNote",
+  // 廢棄物：表定模擬車走 WasteScheduleScene.pickRoute → 隨車 tooltip；音符是裝飾性特效
+  //（GPS 實跡車 wasteTruck 已於 W2 接上 FeatureInfoPanel，故不在本表）
+  "wasteSchedule", "wasteScheduleNote",
   // 能源：glow 光暈層疊在既有可點層上（點擊由底下那層接）＋ 桿線 ＋ 風場規劃區
   "powerPlantGlow", "aviationRestrictedGlow", "powerPoles", "powerLinesGlow",
   "substationEhvGlow", "windPlan",
