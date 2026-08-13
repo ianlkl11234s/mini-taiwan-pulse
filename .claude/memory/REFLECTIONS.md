@@ -1416,3 +1416,20 @@ memory commit 動 `.claude/memory/`，不會撞到 code 變動，但**不要 pus
 - **下次改進**：(1) 跨 session 共用 repo 時，開工先 `git log origin/master..master` 盤點
   對向未推 commits；(2) 中斷頻繁的日子，把「每子階段 commit」直接寫進 agent prompt 模板
   （這次第二次斷線後才補）。
+
+## 2026-08-12 晚場 — 收尾棒（三線並行，backlog 未竟全清）
+
+- **白話版是拍板的必要條件不是加值**：三個技術決策（4b 改案／等值閘退役／audit 退役）
+  用工程語言問，owner 三題全答「聽不懂」；換成生活比喻＋「做了什麼會發生什麼」重講，
+  三票全過且秒回。→ 給 owner 的選擇題**先寫白話版**，工程細節放後面備查。
+- **偵察先行把等待點壓成一次**：4 個 sonnet 偵察平行跑完才開拍板會，所有需要 owner
+  的決策一次問掉——對比逐項邊做邊問，省了至少 3 個來回等待。
+- **cache-buster probe 實戰有效**：驗 prod 部署時帶 `?probe=<ts>` 唯一參數，繞過
+  Cloudflare 快取直打 origin，同時避免把 404 烙進 CDN（PRINCIPLES 舊教訓的正確用法）。
+  順帶學到：206（range request 命中）與 200 等價視為存在。
+- **「缺口」不等於「線上壞掉」**：5 個部署缺口裡 3 個（hillshade／power_poles／
+  integrated）線上其實活著——手動 S3 副本在服務。稽核結論要區分「管線不保證」與
+  「現在是斷的」，否則會誤判急迫度。
+- **下次改進**：(1) 派長跑 agent 的任務書開頭就寫「每完成一子項先 commit」（這次
+  Track A 有做但靠的是它自律，該制度化進 prompt 模板）；(2) vitest 偶發 flake（MG-3）
+  出現時**當場把輸出存檔**再重跑——這次順手重跑就丟了證據，flake 又多活一天。

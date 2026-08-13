@@ -421,3 +421,8 @@
 | **`mainMatrix`** | MapLibre CustomLayer `render(gl, options)` 第二參數裡的投影矩陣：`options.defaultProjectionData.mainMatrix`。⚠️ maplibre 的第二參數是**物件**不是矩陣；誤取 `modelViewProjectionMatrix` 會**靜默**把物件投到畫面外約 −54,000px，不報錯 |
 | **弧長保護（`--max-arc-loss`）** | RDP 簡化時的補丁：某段 collapse 前若**弧長**縮太多（>5m）就強制從弧長中點切開保留一點。存在理由是折返幾何（來回走同一段）垂直距離趨近 0，RDP 會盲目壓成短弦 → 弧長一縮整段參數化位移。實測 max 偏差 245.4m → 20.8m，只多 5% 點數 |
 | **`station_progress` 重算** | 幾何簡化後**必做**的一步：站錨點在新（更短）折線上的弧長比例要重算，否則列車系統性偏離軌道。弧長定義須照抄 `railUtils.calculateTotalLength()`（平面歐氏、**不做 cos(lat) 修正**） |
+| **LayerHost** | `src/layers/` 的掛載元件：每個 layer hook 包成 `return null` 的小元件，由 `layerHookRegistry.tsx` 的有序 registry（74 entry）在 App 內固定迴圈渲染。順序＝原 App.tsx 呼叫順序凍結（effect/疊放語意）。每個 Host 自己 `useLayerParams(key)` per-key 訂閱 → 拖 slider 只 re-render 該 Host |
+| **三桶（registry／HOOKS_IN_APP／NO_HOOK）** | `layerHookRegistry.test.ts` 對全 348 manifest key 的互斥分類斷言：有 Host 的（133）／回傳值被 App 消費留在 App 的（37）／純 overlay 無 hook 的（178）。漏掛 hook 會紅=第 5 個靜默失敗點的機械護欄。⚠️ 已知盲區：7 個雙桶 key 不設防（W3 待補） |
+| **gisClickRegistry** | `src/map/gisClickRegistry.ts`：點擊查詢表 `GIS_LAYERS`（237 筆 `{layers, type}`，first-hit-wins）的模組級新家（4b 自 useMapInteraction 函式內升格）。跨 key 全域順序由本表＋黃金快照 gisLayers section 守，**沒有 clickPriority 欄位**（改案拍板，理由在檔頭） |
+| **legendGroups** | `src/data/legendGroups.ts` 的 `legendKeys(id)`：LEGEND_REGISTRY 的 keys 反查派生器（掃全 348 key 含 orphan）。LEGEND_REGISTRY entry 自 4b 起只寫 `{id, render}`，手寫 keys 已消滅 |
+| **render 矩陣** | AR-22 終點的接替驗收（取代已退役的等值閘）：DEV 模式 `window.__layerRenderCounts` 記 App＋每個 Host 的 render 次數，agent-browser 實測「拖單一 slider → App +0、該 Host +n、其他全 +0」。2026-08-12 首驗：地震 slider 5 步 → `{useEarthquakeLayer:10}`（StrictMode ×2），其餘全零 |
