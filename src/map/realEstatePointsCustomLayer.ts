@@ -35,6 +35,20 @@ function radiusForZoom(z: number): number {
   return 5;
 }
 
+/**
+ * 目前掛載中的 Scene（W2 pick 用）。
+ *
+ * 本層不像 Three.js scene 族那樣有 `xxxSceneRef` 一路傳到 App —— Scene 是在
+ * `createRealEstatePointsLayer()` 內部 new 的。要讓 `useMapInteraction` 點得到，
+ * 最小改動是在 onAdd/onRemove 維護一個 module 級指標（同一時間只會有一個 re-points-three）。
+ */
+let activeScene: RealEstatePointsScene | null = null;
+
+/** 供 useMapInteraction 的 click 分支取用；未掛載時回 null */
+export function getRealEstatePointsScene(): RealEstatePointsScene | null {
+  return activeScene;
+}
+
 export function createRealEstatePointsLayer(): CustomLayerInterface {
   const scene = new RealEstatePointsScene();
   let map: MapboxMap | null = null;
@@ -59,6 +73,7 @@ export function createRealEstatePointsLayer(): CustomLayerInterface {
 
     onAdd(mapInstance, gl) {
       map = mapInstance;
+      activeScene = scene;
       scene.init(gl);
       loadData();
     },
@@ -73,6 +88,7 @@ export function createRealEstatePointsLayer(): CustomLayerInterface {
     },
 
     onRemove() {
+      if (activeScene === scene) activeScene = null;
       scene.dispose();
     },
   };

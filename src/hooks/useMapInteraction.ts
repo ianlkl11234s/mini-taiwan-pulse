@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Map as MapboxMap, PointLike, MapLayerMouseEvent } from "mapbox-gl";
 import type { Flight, RailTrain, BusVehicle, FeatureInfo, LayerVisibility, RealEstateTooltipInfo } from "../types";
 import { GIS_LAYERS } from "../map/gisClickRegistry";
+import { getRealEstatePointsScene } from "../map/realEstatePointsCustomLayer";
 import type { FlightScene } from "../three/FlightScene";
 import type { ShipScene } from "../three/ShipScene";
 import type { RailScene } from "../three/RailScene";
@@ -216,11 +217,41 @@ export function useMapInteraction(
         }
       }
 
+      // 嘗試拾取房地產交易點（三型別共用同一個 WebGL CustomLayer 與同一份 buffer）
+      // W2：`App.tsx` 的 kind==="point" tooltip 分支一直都在，但 picking 在改成
+      // CustomLayer 時被拿掉（舊註解「待補 GPU/空間索引 picking」）→ 死 UI。
+      // 這裡用 CPU 端逐點投影補回（見 RealEstatePointsScene.pickPoint）。
+      // ⚠️ 只帶 buffer 內真實存在的欄位；地址／行政區／總價／坪數不在二進位格式裡。
+      if (vis?.realEstateRentalPoint || vis?.realEstateSalePoint || vis?.realEstatePresalePoint) {
+        const reScene = getRealEstatePointsScene();
+        if (reScene) {
+          const hit = reScene.pickPoint(e.point.x, e.point.y, w, h);
+          if (hit) {
+            setRealEstateTooltipInfo({
+              x: e.point.x,
+              y: e.point.y,
+              kind: "point",
+              properties: {
+                type: hit.type,
+                price_per_sqm: hit.pricePerSqm,
+                trade_ts: hit.tradeTs,
+              },
+            });
+            setTooltipInfo(null);
+            setTrainTooltipInfo(null);
+            setBusTooltipInfo(null);
+            setWasteScheduleTooltipInfo(null);
+            return;
+          }
+        }
+      }
+
       // 未命中 Three.js 物件 → 清空 tooltip，查詢 GIS 圖層
       setTooltipInfo(null);
       setTrainTooltipInfo(null);
       setBusTooltipInfo(null);
       setWasteScheduleTooltipInfo(null);
+      setRealEstateTooltipInfo(null);
 
       {
         // 查詢 Mapbox GIS 層（接線表 = GIS_LAYERS，見 map/gisClickRegistry.ts。
