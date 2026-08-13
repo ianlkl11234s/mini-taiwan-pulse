@@ -17,6 +17,16 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      # AU-6：package-lock.json 是唯一 lockfile SSOT（見 .claude/memory/PRINCIPLES.md）
+      # 「動了 package.json 卻沒同步 package-lock.json」由下一步 npm ci 自己擋（不同步即報錯拒建）
+      - name: Single-lockfile guard (no pnpm-lock.yaml)
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            echo "::error::偵測到 pnpm-lock.yaml。本 repo 唯一 lockfile 是 package-lock.json（AU-6）。"
+            echo "改依賴請跑：npm install --package-lock-only"
+            exit 1
+          fi
+
       - run: npm ci
 
       - name: TypeScript build (tsc -b + vite build)

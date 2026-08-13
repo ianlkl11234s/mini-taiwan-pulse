@@ -158,8 +158,18 @@ git log --oneline -5
 git push origin master
 ```
 
-若改了 5 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / zeabur.json / package.json）
+若改了 4 處關鍵檔案（vite.config.ts / Dockerfile / nginx.conf / package.json）
 要同步確認 port 3721 一致。
+
+> **Zeabur build 實證（2026-08-13 查證，取代先前的 `zeabur.json` 誤述——該檔從不存在）**：
+> service `mini-taiwan-pulse`（project `mini-tw-pulse`）綁 GitHub `refs/heads/master`，
+> deployment metadata `"planType": "docker"` —— **走 Dockerfile，不走 zbpack**
+> （`COPY package.json package-lock.json` → `RUN npm ci` → `npm run build`；
+> build log 全文 grep `pnpm|yarn|corepack` 零命中）。
+> repo 內**沒有** `zeabur.json`／`zbpack.json`，service env 也無任何 `ZBPACK_*`，
+> 即唯一能把 build 導離 Dockerfile 的機制不存在。
+> ⚠️ **merge 進 master ＝ 直接上線**，沒有 staging 中繼——PR merge 的那一刻就是部署。
+> S3 只放 runtime 資料（容器啟動時 `pull-deploy-assets.sh` 拉進 `/data`），**不參與 build**。
 
 ### 6b. ⚠️ 新增大型資料檔到 S3 → **5 檔強制同步 checklist**（2026-03-06 教訓）
 
@@ -1460,7 +1470,7 @@ git status -s
 **SOP**：
 1. **先定契約檔**（如 `src/chat/types.ts`）：介面 + 依賴注入點（MapBridge/RunChatTurn/KeyVault），標「不可改」。
 2. **切互不相交檔案集**派工，任務書明列禁區（對方領域 + 契約檔 + 不 commit）。可混模型：UI/機械用 Sonnet、複雜/安全用 Opus。背景平行跑。
-3. **orchestrator 審查鐵則**：不信 agent 自述 → 自己 `tsc -b`+`pnpm test` 獨立重跑 + 關鍵面 grep（key 洩漏/token 合規）+ 安全類做 psql/curl ground-truth 實查。
+3. **orchestrator 審查鐵則**：不信 agent 自述 → 自己 `tsc -b`+`npm test` 獨立重跑 + 關鍵面 grep（key 洩漏/token 合規）+ 安全類做 psql/curl ground-truth 實查。
 4. **整合階段單獨派**：接線 App.tsx（唯一交會點）+ 修審出瑕疵，agent-browser 截圖驗收。
 5. **收尾**：feature 四件組 → 分批 atomic commit → rebase 最新 master 重驗 → PR（模板）→ squash。
 
@@ -1506,7 +1516,7 @@ SOP：
 1. **偵察先行（平行 2 agent）**：① 接線 recipe——拿最近一批同型 PR 的 `git show --stat` 當檔案清單基準 + 各 registry 結構/行號；② 資料驗收——feature 數/欄位/座標系對 handoff 契約 + **node strict-JSON 驗證**（見 PRINCIPLES）
 2. **規格書釘死共用識別字**（orchestrator 自寫單一 SSOT 檔）：layer key / sourceId / mapbox layer id（`${sourceId}-${suffix}`）/ 參數名 / 分色 hex / 特殊行為。實作 agent 一律照表不可自創
 3. **3 工作包按「檔案集合互斥」切**（可全平行）：骨架（types / layerCatalog / LAYER_ICONS / upstreamRegistry）｜核心渲染（overlayRegistry + useTransportParams）｜互動（*Panels.tsx 新檔 + featureInfo registry + useMapInteraction + LegendPanel + layerConsistency baseline）。跨包型別耦合（FeatureInfo union 等）指定給單一包，其他包用釘死名字
-4. **包級 tsc gate**：平行中全量 tsc 必互紅，prompt 寫明「錯誤不指向你的檔即可」；orchestrator 收齊後跑全量 tsc + pnpm test + 接縫抽查（參數名 / click id / 圖例 hex 三處對齊）
+4. **包級 tsc gate**：平行中全量 tsc 必互紅，prompt 寫明「錯誤不指向你的檔即可」；orchestrator 收齊後跑全量 tsc + npm test + 接縫抽查（參數名 / click id / 圖例 hex 三處對齊）
 5. **browser 驗收**（agent-browser 8 條坑照全域 memory）：All Off 起手、逐層 queryRenderedFeatures + popup + 參數面板、旗艦層特殊行為逐項驗
 
 成效：觀光 12 層一天 spec→merged（PR #82），3 包零檔案衝突、ratchet 全綠；browser 驗收揪出 Infinity 資料 bug（tsc/vitest 抓不到的類型）。
@@ -1699,8 +1709,8 @@ side-effect 模組要確保求值早於 import graph；未注入即 throw（不 
 **7. 實測四項**（缺一不可）
 ```bash
 npx tsc -b                         # ① 型別
-pnpm test                          # ② 含 layerConsistency（漏圖例會紅）
-pnpm build && grep -c "WebGLRenderer\|InstancedMesh" dist/assets/embed-*.js   # ③ 必須 0
+npm test                           # ② 含 layerConsistency（漏圖例會紅）
+npm run build && grep -c "WebGLRenderer\|InstancedMesh" dist/assets/embed-*.js   # ③ 必須 0
 # ④ 瀏覽器近景實測（rail 用 z13.5 確認列車貼軌）
 ```
 

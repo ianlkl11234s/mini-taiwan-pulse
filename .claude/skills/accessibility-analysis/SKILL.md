@@ -420,7 +420,7 @@ minzoom 6 / maxzoom 12  # 全台範圍對應 zoom
 8. `src/hooks/useMapInteraction.ts` — 5 click handler
 9. `src/components/sidebar/LegendPanel.tsx` `CoverageLegend` — 加 5 級色階 swatches
 10. `src/components/sidebar/__tests__/layerConsistency.test.ts` — 確認 5 key
-11. `npx tsc -b && pnpm test --run` 必過
+11. `npx tsc -b && npm test` 必過
 
 詳細範本 + 既有實作位置見 `references/sop-frontend.md`。
 
