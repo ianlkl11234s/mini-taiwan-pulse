@@ -21,9 +21,10 @@ AR-11e 的前提整個翻案（3.2GB 已被既有 cron 磨到 580MB），並撈�
 |---|---|---|---|
 | `chore/staticassets-ack-bm-closeout` | W1 追認落地＋W6-a BM-1~4 關單＋W6-b MO-17 狀態更正 | `c30e218` `99063b8` `358f293` | tsc 0 error／42 檔 560 綠 |
 | `test/hook-registry-per-key` | W3 完整性測試 7 個雙桶 key 盲區 | `a911228` `ac65d21` | tsc 0／**562 綠**（新增 2 測試）＋紅燈演練實測 |
-| `feat/popup-backfill` | W2 popup 補強（第一階段 11 個 key） | `4bcf38e` `e025cac` `989cbf6` `ebaeb48` `a19f408` | tsc 0／560 綠／**11/11 瀏覽器實點驗過** |
+| `feat/popup-backfill` | W2 popup 補強（**29 筆全數處理完**） | 14 顆（`4bcf38e`…`e66a694`） | tsc 0／560 綠／**28/29 瀏覽器實點驗過** |
 | `chore/au6-single-lockfile` | AU-6 lockfile 統一 A 案＋PB-06 修正 | `fd399c1` `92493f8` `1816127` `1203172` `501bfcb` | tsc 0／560 綠／**docker build 通過** |
-| `feat/alerts-integration` | W5（Phase 1 實證回填；Phase 2 進行中） | `2156a23`＋ | 見 §6 |
+| `feat/alerts-integration` | W5 Phase 1 實證回填＋**Phase 2 四項** | `2156a23`＋7 顆 | tsc 0／560 綠／**地圖 pulse 實測＋負測試** |
+| `integration/next-batch` | 上列五條的整合驗證（見 §7a） | merge only | **零衝突／tsc 0／562 綠／docker build 通過** |
 
 ### 1a. W1 staticAssets 追認
 三處字樣改「已追認（2026-08-12 owner）」：`layerManifest.ts:151` 型別註解、`layer-manifest/backlog.md:244`、`changelog.md:2583/2603`。
@@ -117,18 +118,89 @@ AR-11e 的前提整個翻案（3.2GB 已被既有 cron 磨到 580MB），並撈�
    - **A（調查者建議）**：維持 14 天 DB 副本當災備，只收尾 RPC 下架。理由：580MB 佔 37GB 的 1.6%，純省空間 ROI 低
    - **B**：collector 停寫 bytea ＋ 拉長 metadata 保留，前端歷史深度從 14 天 → 21,587 張。**B 的真正賣點是產品加值，不是省空間**
    - **無論 A 或 B，第一步都是先跑孤兒 backfill**（那 2 筆是世上唯一一份）
-2. **W2 的 EDGE 6 筆**逐項決定：房地產 Grid×3（hover 無觸控替代，補 click 是 S）／`temperatureWave`（3D raycast 換重複讀數，M-L）／`waterFloodExtreme`（payload ＝圖例已標的分級）／`powerPoles`（欄位薄但族群不一致是真的）
-3. **push / merge 決策**（見 §7 建議順序）—— 記得 merge 即上線
-4. **要不要補一條制度性防呆**擋幽靈待辦再發生（§2 末）
+2. **🔴 壓力指數的常數污染**（§6c）：警報訊號佔 composite 的 57%，而撐住它的是 expires 2027 的藤枝休園。SQL 提案已寫好兩個分岔，未 apply
+3. **W2 的 EDGE 6 筆**逐項決定：房地產 Grid×3（hover 無觸控替代，補 click 是 S）／`temperatureWave`（3D raycast 換重複讀數，M-L）／`waterFloodExtreme`（payload ＝圖例已標的分級）／`powerPoles`（欄位薄但族群不一致是真的）
+4. **上游 12 項資料問題要不要路由回 `taipei-gis-analytics`**（§6d），尤其 cycling ROC 轉西元 bug 影響 24.4% 的列
+5. **RWD 要不要全面上手機**（§6b 第 3 項）：要動 `App.tsx` 的 `!isMobile` 閘 ＋ 12 欄靜態網格
+6. **push / merge 決策**（見 §7 建議順序）—— 記得 merge 即上線
+7. **要不要補一條制度性防呆**擋幽靈待辦再發生（§2 末）
 
 ---
 
-## 6. 進行中／未完成
+## 6. W2 與 W5 完整結果
 
-- **W5 Phase 2**（owner 拍板要做）：地圖警報點 B2 pulse／警報進壓力指數／RWD／歷史檢索。另含 owner 拍板的「safety 群組**按群組分開設規則**」（海洋污染類 `expires` 常在 2-9 個月後，導致 active 語意過寬、列表長期卡數十筆）
-- **W2 第二階段**：29 筆 CANDIDATE 剩餘 18 個 key（raster 值探針 `urbanHeat`/`canopyHeight` 放最後）＋ 上游資料品質問題彙整
-- **W5 覆核撈到的資料問題**：地震列的 `county` 回的是震央描述而非縣市（判定中：前端修 or 動 RPC）
-- **W2 第一階段撈到的上游資料問題**（basins `area_km2` 實為 m²／levees `length_m` 與 catalog 矛盾／`water_rivers` 線層 3 欄全空／宜蘭 9,918 條 canals 的 n/t 恆空／`irrigation_canal.md` frontmatter 漂移）→ 正彙整成文件，**建議之後路由回 taipei-gis-analytics**
+### 6a. W2 popup 補強：29 筆 CANDIDATE **全數處理完，0 跳過**
+
+**對帳恆等式**（三行可核，這是本批最值得信任的一份自證）：
+- 29 CANDIDATE ＝ 第一階段 11 ＋ 第二階段移出 ledger 14 ＋ **留在 ledger 4**
+  （`busIntercityLive` ＋ realEstate{Rental,Sale,Presale}Point —— 正解是 pick/tooltip，manifest `popup` 依然 null，鐵則 3 的雙向測試會擋錯改。**不是漏做**）
+- ledger 57 → 32 ＝ 22 KEEP-NULL ＋ 6 EDGE ＋ 上述 4
+- 黃金快照 **+11 個 type、0 刪除行**，恰為 gisClickRegistry 接線的 11 key
+
+**修正了 audit 報告本身的三處事實錯誤**：freeway loader 早已烤好 8 欄（只缺 hit 層）／`popCount` 是總人口非日夜人口（factory 寫死 `"p"`）／`WasteTruckScene.pickTruck` 早就存在、從沒人呼叫。
+**一處刻意偏離報告建議**：`wasteTruck` 走 FeatureInfoPanel 而非 tooltip —— 同檔 `ship` 分支就是「會移動的 Three.js 物件開 panel」的前例，且唯有走 panel 才真正離開 ledger。
+
+**欄位語意來源**：內政部圖層說明 114.01.08 附表1（7 個 ROADCLASS2 碼全數交叉驗證）／TDX `bike.md` ＋ fetch 腳本／ftw catalog ＋ parquet 實測／repo 內 SSOT 交叉驗證（確認 RE buffer `price` 是元/m²）。
+**單位存疑欄一律整欄不顯示**：`WIDTH`（規格書未載單位）／`ROADCOMNUM`（與資料矛盾）／`DIR`。
+
+**瀏覽器實點 28/29**：國道 38 km/h·壅塞等級 4／台5 忠孝東路四段·一般省道／熱島 **+6.4 K**、地表溫度 49.0 °C／樹冠 10 公尺／客運 KKB-3137_0 行駛中（**此前完全點不到**）／垃圾車 KEM-3620／田區 1.119 公頃·信心 0.569／**socio 切 Sal% 後 50.90 萬元→0.72 薪資佔比**（證明 metric 讀的是真 param 不是 fallback）／youbike 經 `-ext` 命中（實證 3D toggle 下兩個 id 都要收）。
+唯 `realEstatePresalePoint` 未實點 —— 與已驗的 rental（240 元/m²）、sale（458,393 元/m²）共用同一 `pickPoint`，僅 type filter 值不同。
+
+### 6b. W5 Phase 2：四項
+
+1. **地圖警報點 B2 pulse — done**。`useDisasterAlertLayer.ts:44-68,161-178,376-424`（2 個共用環，環色走 severity）＋ `disasterAlertLoader.ts:196-266`（`pulse` 旗標＋逐 part 錨點）。四鐵則：opacity 每幀乘、圖例補「脈動環」列、pulse **不進 click layers**（popup 仍走底層）
+   **實測**：5 顆橙環落在台北／新北 ×2／雲彰海線／台東的高溫特報範圍，rAF 取樣 r 21.6↔29.9、opacity 0.51↔0.08 兩環反相。**負測試**：藤枝休園 Severe+active 但 `pulse=0` 不閃
+2. **壓力指數 — 🔴 待拍板，見 §6c**
+3. **RWD — partial**。intel/monitor 在 <768px 根本不掛載（`App.tsx` 的 `!isMobile` 閘）＝「沒有」不是「壞掉」。可達範圍內真會擠爆的是 Monitor widget 寫死的 `repeat(3,1fr)` → AlertBoard/AlertSummaryBar 改 auto-fit（實測 410px→3 欄、300px→2、200px→1）。全面上手機未做（要動 App.tsx 閘＋12 欄靜態網格）
+4. **歷史檢索 — done**。重用既有按日 RPC `get_disaster_alerts_day` ＋ `dayAlertsToCards()`，走 `subscribeDate`。實測切 8/12 顯示 173 則、banner 標「不含地震」。順帶修 `fmtExpiry` 長效期吐「150:57:19」→「至 8/19 / 長期」
+
+**safety 灌量規則表**（`src/data/alertRules.ts`，照 78 筆 active 的實際 age 分佈定值，非拍腦袋）：
+- earthquake / weather / flood / transit ＝ `foldAfterH: null`，**語意編碼「維持原樣」**——NCDR 是 UPSERT by identifier，颱風連掛數日 `sent` 停在首發，任何時間門檻都會在事件進行中把它藏起來
+- lifeline 72h（p50 19h／p90 113h，折 5/45）；safety 48h（海洋污染 23 筆 age 全 >200h，48h 恰好留下火災的 18.7h，折 24/25）
+- 一張表管三處：列表折疊／地圖 pulse gate／壓力降權
+
+**地震 `county`**：判定為 **RPC 命名選擇而非資料缺陷**（211 的地震分支是 `COALESCE(NULLIF(location_desc,''),'全國') AS county`，上游表根本沒有 county 欄）→ 前端解析解決，**未動 SQL**。實測「臺東縣政府南南西方 37.3 公里(位於臺東縣近海)」→ 地點顯示「臺東縣」。
+
+### 6c. 🔴 W5 撈到的真問題：壓力指數有一半是常數在撐
+
+查證發現**警報早就在壓力指數裡**（migration 207 的 `v_alert`，權重 0.20，判準 `expires > NOW()`）。
+實測 `per_signal.alert = 80.0`、composite 28.0 → **警報佔了 57%**；而撐住那個 80 的是**藤枝休園（Severe、expires 2027）——一個全年釘死的常數**。
+SQL 提案：`docs/proposal/alerts-pressure-signal.sql`，兩個分岔留給 owner。**未 apply。**
+
+### 6d. 上游資料品質問題 12 項 → `docs/features/layer-manifest/upstream-data-issues.md`
+（第一階段 5 ＋ 第二階段 7）。最嚴重的是 cycling `FinishedTime` 的 ROC→西元轉換 bug：`04_fetch_cycling_shape.py:85-91` 假設 7 碼，6 碼輸入產出 `2902202`，**佔 24.4%**。
+其餘含 basins `area_km2` 實為 m²／levees `length_m` 與 catalog 矛盾／`water_rivers` 線層 3 欄全空／宜蘭 9,918 條 canals 的 n/t 恆空／`irrigation_canal.md` frontmatter 漂移。
+**未動 taipei-gis-analytics 任何檔案** —— 建議明早決定是否路由回上游。
+
+### 6e. 未驗證的部分（誠實列出）
+- W5：`is_pt=1` 路徑的 pulse（民生／水文／交通／安全四群當天無 severe+fresh 樣本）；reduced-motion 靜態環（程式路徑在，未切系統偏好實測）；壓力指數 SQL 只做唯讀試算
+- W2：`realEstatePresalePoint` 未實點（同 `pickPoint`，僅 filter 值不同）
+- AU-6：此分支尚未在 Zeabur build 過（merge 後看首次 build log 即可轉綠）
+
+---
+
+## 7a. 整合驗證（`integration/next-batch`）
+
+每條分支只驗過自己，但 W1／W2／W5 都碰 `layerManifest.ts`、W2 兩階段都碰 `layer-golden.json`、W1／AU-6 都碰 `.claude/memory` —— **各自綠不代表合起來綠**。而 merge 到 master 就直接部署，所以補這道整合關。
+
+從 `origin/master`(`382b896`) 開 `integration/next-batch`，依 §7 的建議順序 merge 五條：
+
+| 檢查 | 結果 |
+|---|---|
+| 五條 merge | **零衝突**（含 `layerManifest.ts` 三方改動與黃金快照） |
+| `npx tsc -b` | **0 error** |
+| `npx vitest run` | **42 檔 561 passed + 1 skipped = 562**（＝基準 560 ＋ W3 新增 2，數字對得上） |
+| `gisClickRegistry` first-hit-wins 排序 | **人工檢查通過**（見下） |
+| `vite build`（production） | **✓ built in 9.54s** |
+| `docker build` | **✓ 完整通過**（`naming to …pulse-integration-verify:latest done`） |
+
+**docker build 的真數據**（`--no-cache` 那次，非 cache 命中）：
+`npm ci` → `added 299 packages, and audited 300 packages in 51s`；
+`vite v6.4.1 building for production` → `✓ 2351 modules transformed` → `✓ built in 12.16s`。
+過程中 Stage 2 的 `apk add --no-cache aws-cli` 曾因 alpine 套件解壓 I/O error 失敗一次（與本批改動無關——Dockerfile 未動，且 AU-6 分支 11 小時前的完整 `--no-cache` build 含 Stage 2 一起過），重跑即通過，判定為暫時性環境問題（同一時段 Docker Hub 也出現 TLS handshake timeout）。
+另：`package-lock.json`／`package.json`／`Dockerfile` 與已驗過的 `chore/au6-single-lockfile` **逐位元組相同**，故 `npm ci` 層的行為與該分支等價。
+
+**語意衝突的人工檢查**（這種衝突 git 不會報，型別也擋不住）：W2 新增的層都排在有理由的位置——國道壅塞入細線層前段（與省道地理不重疊）、H3 六層在既有面層之後田區之前且每層都收 `-fill`＋`-ext`（3D toggle 讓兩者互斥）、FTW 田區 38.6 萬面排整個陣列真正最末；W5 的 pulse 環刻意**不進** click layers（popup 仍走底層）。**兩者零交集。**
 
 ---
 
