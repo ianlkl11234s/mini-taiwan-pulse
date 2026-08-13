@@ -21,6 +21,14 @@ import { useMapReadyTick } from "./useMapReadyTick";
 const SOURCE_ID = "freeway-congestion";
 const LAYER_GLOW = "freewayCongestion-glow";
 const LAYER_LINE = "freewayCongestion-line";
+/**
+ * 透明加寬命中層（四鐵則③）—— 對齊 `road-congestion-hit` 的做法。
+ * 可視線在 z6 只有 0.5px，直接點 `-line` 命中率極差；glow 則帶
+ * `level != 0` filter（無資料路段整段點不到）且 blur 6 邊界模糊，兩者都不適合當靶。
+ */
+const LAYER_HIT = "freewayCongestion-hit";
+/** 三層一起 toggle —— 漏了 hit 層會在關閉圖層後仍可點 */
+const ALL_LAYERS = [LAYER_GLOW, LAYER_LINE, LAYER_HIT];
 
 const CACHE_MAX = 7;
 
@@ -66,6 +74,20 @@ function buildLayers(map: MapboxMap, width: number, isDark: boolean) {
           16, 5 * width,
         ],
         "line-opacity": isDark ? 0.75 : 0.65,
+      },
+    } as LineLayer);
+  }
+
+  // 命中層最後加 → 疊在可視線之上，queryRenderedFeatures 才查得到
+  if (!map.getLayer(LAYER_HIT)) {
+    map.addLayer({
+      id: LAYER_HIT,
+      type: "line",
+      source: SOURCE_ID,
+      paint: {
+        "line-color": "#000000",
+        "line-width": 12,
+        "line-opacity": 0,
       },
     } as LineLayer);
   }
@@ -192,13 +214,13 @@ export function useFreewayLayer(
     const map = mapRef.current;
     if (!map) return;
     if (!visible) {
-      for (const id of [LAYER_GLOW, LAYER_LINE]) {
+      for (const id of ALL_LAYERS) {
         if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "none");
       }
       return;
     }
     if (!ensureLayers(map)) return;
-    for (const id of [LAYER_GLOW, LAYER_LINE]) {
+    for (const id of ALL_LAYERS) {
       if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", "visible");
     }
 

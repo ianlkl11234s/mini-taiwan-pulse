@@ -16,6 +16,12 @@
     },
     {
       "layers": [
+        "freewayCongestion-hit"
+      ],
+      "type": "freewayCongestion"
+    },
+    {
+      "layers": [
         "submarine-cables-line",
         "submarine-cables-glow"
       ],

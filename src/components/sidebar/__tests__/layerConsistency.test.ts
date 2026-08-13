@@ -189,7 +189,6 @@ const NO_POPUP_LEDGER = new Set([
   "rail", "flights", "busLive", "busIntercityLive", "touristShuttleLive",
   // 交通 Move —— 純線層 / 站點僅作定位
   "highways", "provincialRoads", "cyclingRoutes",
-  "freewayCongestion",
   "canopyHeight",                                    // 林業：raster 樹冠高度
   // 房地產：格點/點位圖層，數值直接以顏色表達（6 層同族）
   "realEstateRentalGrid", "realEstateRentalPoint",

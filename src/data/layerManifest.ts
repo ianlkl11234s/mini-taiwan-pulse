@@ -7864,12 +7864,14 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "useFreewayLayer 自建 source `freeway-congestion` ＋ 兩個 line layer（無 OVERLAY_REGISTRY entry）：freewayLoader 一次載一整天所有路段 timeline（每 10 分鐘一快照，LRU 7 天），依 timeStore 的 currentTime 找最近快照 setData 重建整包 GeoJSON。無靜態檔要部署。",
+      note: "useFreewayLayer 自建 source `freeway-congestion` ＋ 三個 line layer（無 OVERLAY_REGISTRY entry）：freewayLoader 一次載一整天所有路段 timeline（每 10 分鐘一快照，LRU 7 天），依 timeStore 的 currentTime 找最近快照 setData 重建整包 GeoJSON。無靜態檔要部署。",
     },
     legend: "freewayCongestion",
-    // 兩個 line layer（-glow / -line）都不在 GIS_LAYERS → 無點擊接線（與 roadCongestion
-    // 刻意加的透明 hit 層對照：那層是為了細線命中率才補的，這層沒補）
-    popup: null,
+    // W2：補上透明加寬命中層 `freewayCongestion-hit`（比照 roadCongestion 的
+    // `road-congestion-hit`）——可視線 z6 僅 0.5px，glow 又帶 level!=0 filter，
+    // 兩者都不適合當靶。properties 早已烤好 section_name / road_name /
+    // direction_label / speed（freewayLoader.buildFreewayGeoJSON）。
+    popup: "freewayCongestion",
     params: { count: 1, kinds: ["slider"] },
     description: "國道路段壅塞等級（依時間軸逐快照染色）",
     topics: ["交通", "即時", "壅塞", "國道"],

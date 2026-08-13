@@ -39,6 +39,10 @@ import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
   { layers: ["road-congestion-hit"], type: "roadCongestion" },
+  // 🚗 國道壅塞（W2）：同樣是「透明加寬命中層」的細線層，緊接省道排在最前段。
+  //    兩層地理上不重疊（國道 vs 省道），先後順序對彼此無影響；
+  //    收 `-hit` 而非 `-line`／`-glow` —— glow 帶 level!=0 filter，無資料路段點不到。
+  { layers: ["freewayCongestion-hit"], type: "freewayCongestion" },
   { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
   { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
   // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
