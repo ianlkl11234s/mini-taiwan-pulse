@@ -14,6 +14,10 @@ import { MOUNTAIN_RESCUE_CAUSES, MOUNTAIN_HUT_TYPES } from "../mountainSafetyTyp
 import { ANCESTRAL_HALL_TYPES, DEITY_FAMILIES } from "../religionTypes";
 import { FUNERAL_FACILITY_TYPES, CEMETERY_ZONING_CLASSES } from "../funeralTypes";
 import {
+  NURSING_HOME_TYPES, ELDERLY_ATTR_GROUPS, LTC_SERVICE_TYPES,
+  CHILD_SERVICE_CLASSES, MENTAL_HEALTH_TYPES,
+} from "../welfareTypes";
+import {
   SCHOOL_LEVEL_GROUPS, SCHOOL_LEVEL_ORDER, KINDERGARTEN_OWNERSHIP_COLORS,
 } from "../educationTypes";
 
@@ -68,6 +72,39 @@ const CASES: Case[] = [
     field: "zone_label",
     covered: CEMETERY_ZONING_CLASSES.flatMap((c) => c.raw),
     ssot: "src/data/funeralTypes.ts CEMETERY_ZONING_CLASSES[].raw",
+  },
+  // ── 🤝 社福長照（第 40 主題）5 個分色欄位 ──────────────────────────
+  {
+    file: "welfare/nursing_homes_national.geojson",
+    field: "nh_type",
+    covered: NURSING_HOME_TYPES.map((t) => t.value),
+    ssot: "src/data/welfareTypes.ts NURSING_HOME_TYPES",
+  },
+  {
+    // ⚠️ attr_type 上游有 5 種寫法（含帶字面換行的「公設\n民營」），前端 fold 成 3 群
+    file: "welfare/elderly_care_homes_national.geojson",
+    field: "attr_type",
+    covered: ELDERLY_ATTR_GROUPS.flatMap((g) => g.raw),
+    ssot: "src/data/welfareTypes.ts ELDERLY_ATTR_GROUPS[].raw",
+  },
+  {
+    // sub_code 四種服務型態；上游若新增 T0605 之類會被擋下（那是 elderly 層的碼）
+    file: "welfare/ltc_institutions_national.geojson",
+    field: "sub_code",
+    covered: LTC_SERVICE_TYPES.map((t) => t.value),
+    ssot: "src/data/welfareTypes.ts LTC_SERVICE_TYPES",
+  },
+  {
+    file: "welfare/child_services_national.geojson",
+    field: "welfare_class",
+    covered: CHILD_SERVICE_CLASSES.map((c) => c.value),
+    ssot: "src/data/welfareTypes.ts CHILD_SERVICE_CLASSES",
+  },
+  {
+    file: "welfare/mental_health_facilities_national.geojson",
+    field: "sub_code",
+    covered: MENTAL_HEALTH_TYPES.map((t) => t.value),
+    ssot: "src/data/welfareTypes.ts MENTAL_HEALTH_TYPES",
   },
   {
     // 🎓 school_level 是原始中文（9 種），前端 fold 成 5 級。上游多一種學制（例如新設

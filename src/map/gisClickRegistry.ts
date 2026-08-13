@@ -199,6 +199,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // ⚰️ 殯葬 Funeral 5 layer（點層優先；三個面層置末，density 覆蓋全台故排最後）
   { layers: ["funeral-facilities-circle"], type: "funeralFacilities" },
   { layers: ["funeral-operators-circle"], type: "funeralOperators" },
+  // 🤝 社福長照 9 層（點層，first-hit-wins 下排在面層之前即可；9 層彼此不重疊）
+  { layers: ["welfare-mental-health-circle"], type: "welfareMentalHealth" },
+  { layers: ["welfare-gov-offices-circle"], type: "welfareGovOffices" },
+  { layers: ["welfare-disability-circle"], type: "welfareDisability" },
+  { layers: ["welfare-social-work-orgs-circle"], type: "welfareSocialWorkOrgs" },
+  { layers: ["welfare-elderly-homes-circle"], type: "welfareElderlyHomes" },
+  { layers: ["welfare-child-services-circle"], type: "welfareChildServices" },
+  { layers: ["welfare-childcare-circle"], type: "welfareChildcare" },
+  { layers: ["welfare-nursing-homes-circle"], type: "welfareNursingHomes" },
+  { layers: ["welfare-ltc-institutions-circle"], type: "welfareLtcInstitutions" },
   { layers: ["cemetery-zoning-fill"], type: "cemeteryZoning" },
   { layers: ["cemetery-osm-fill"], type: "cemeteryOsm" },
   // 🧳 觀光 Tourism 12 layer（點層優先；面層 hot-spring-zones / scenic-areas 置末避免大面積擋點）

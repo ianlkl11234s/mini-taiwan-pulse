@@ -18,7 +18,7 @@ PREFIX="deploy-assets"
 DATA_DIR="/data"
 S3="s3://$BUCKET/$PREFIX"
 CACHE="$DATA_DIR/.cache"
-mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$CACHE"
+mkdir -p "$DATA_DIR" "$DATA_DIR/geo" "$DATA_DIR/h3" "$DATA_DIR/bus" "$DATA_DIR/fire" "$DATA_DIR/medical" "$DATA_DIR/agriculture" "$DATA_DIR/sports" "$DATA_DIR/flood" "$DATA_DIR/forestry" "$DATA_DIR/fishery" "$DATA_DIR/coverage" "$DATA_DIR/base_map" "$DATA_DIR/climate" "$DATA_DIR/static-rpc" "$DATA_DIR/water_resources" "$DATA_DIR/urban" "$DATA_DIR/road" "$DATA_DIR/culture" "$DATA_DIR/civic_facilities" "$DATA_DIR/hazards" "$DATA_DIR/environment" "$DATA_DIR/poi" "$DATA_DIR/world" "$DATA_DIR/tourism" "$DATA_DIR/religion" "$DATA_DIR/funeral" "$DATA_DIR/welfare" "$DATA_DIR/education" "$DATA_DIR/embed-snapshots" "$DATA_DIR/embed-rail" "$CACHE"
 
 echo "[pull] sync root json → $DATA_DIR/"
 aws s3 sync "$S3/" "$DATA_DIR/" --no-progress \
@@ -102,6 +102,10 @@ aws s3 sync "$S3/religion/" "$DATA_DIR/religion/" --no-progress
 # dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 religion 慣例）
 echo "[pull] sync funeral → $DATA_DIR/funeral/"
 aws s3 sync "$S3/funeral/" "$DATA_DIR/funeral/" --no-progress
+# 社福長照：鏡像子前綴 deploy-assets/welfare/ → /data/welfare/（9 檔 5.4MB 目前全 git 管理走
+# dist fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 funeral 慣例）
+echo "[pull] sync welfare → $DATA_DIR/welfare/"
+aws s3 sync "$S3/welfare/" "$DATA_DIR/welfare/" --no-progress
 # 災害：鏡像子前綴 deploy-assets/hazards/ → /data/hazards/（山域事故 geojson 全 git 管理走 dist
 # fallback，S3 前綴空 = no-op；保留同構以備未來大檔，同 civic_facilities 慣例）
 echo "[pull] sync hazards → $DATA_DIR/hazards/"

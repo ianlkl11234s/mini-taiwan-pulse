@@ -1844,3 +1844,42 @@ head -c 200 /tmp/o.json
 6. **產出即記憶**：changelog 收尾棒段／backlog 逐項結案／handoff 新地標，在 PR 內完成，
    wrap-up 只剩增量。
 
+
+## PB-40 純接線棒：上游備妥的主題群一次上 N 層（2026-08-13 定型：funeral 5／education 16／welfare 9 三次成型）
+
+**適用**：taipei-gis-analytics 已產好 `output/<theme>/pulse/*.geojson`、有 handoff 契約，
+pulse 這端只做接線（不改 pipeline、不建 Supabase 表）。
+
+1. **開工前先架好環境**：`git worktree add .claude/worktrees/w-<slug> -b feat/<slug> master`
+   → `pnpm install --prefer-offline` → **`cp <主樹>/.env .`**（gitignored，worktree 不會帶，
+   漏了瀏覽器驗收會白屏且錯誤訊息指不到根因，見 INCIDENTS 2026-08-13）
+   → dev server 用**非 3721 的 port**（主樹可能正開著）。
+   ⚠️ 主樹被平行 session 佔用時**不要切它的分支**，走 worktree 是常態不是例外。
+2. **先盤資料再寫程式**（30 分鐘省後面 3 小時）：對 9 個檔跑一支 python 印出
+   每欄的**出現次數 ＋ 型別 ＋ 列舉分佈 ＋ 數值欄的 0 值比例**。
+   要抓的是三件會靜默壞掉的事：數值給成字串／空值 key 整個消失／0 值比例異常
+   （見 PRINCIPLES 對應三條）。**不要信 handoff 的欄位表就直接開寫**。
+3. **找最近的同構家族當範本**，照抄結構不重新發明：靜態點層群 → `funeral`（5 層，
+   含 precision 篩選與同構 legend）；PMTiles＋多子層 → `education`（16 層）。
+   `grep -rl <家族名> src/` 一次列出全部觸點檔。
+4. **接線照 `docs/development-rules.md` §4 的 20 觸點表**，
+   ⚠️ **不要照 handoff 寫的「五處」**——那是舊版摘要，AR-22 後真實觸點是
+   13 個檔（登記簿 4 處已由 manifest 派生，但 legend／popup／gisClick／deploy／測試都要手動）。
+5. **建一個 `src/data/<theme>Types.ts`** 當分色/篩選/表達式 SSOT，
+   overlayRegistry／LegendPanel／featureInfo panels 三邊 import 同一份，不複製 hex。
+   把上游 handoff 開頭的「會接錯的事」逐條抄進**檔頭註解**（不是只寫在 docs）。
+6. **驗收四段，缺一不可**：
+   - `npx tsc -b` ＋ `npx vitest run`（新層要進 `NO_HOOK_LEDGER` 之類的 ledger）
+   - 黃金快照重生 `npx vite-node scripts/preprocess/dump-layer-golden.ts`
+     → **`git diff` 確認只有新 key ＋ keyCount 那一行動**，既有層任何 diff 都是回歸
+   - 瀏覽器：深連結 `?v=1&layers=…` 開層，驗渲染點數／分色／數值視覺／popup／圖例
+   - 🔴 **側欄實測**：深連結**繞過** sidebar，而四鐵則 #4（控件不溢出）是唯一沒有
+     測試守門的一條 → 必須真的點開 Layers → 展開參數面板 → 截圖看有沒有折行
+   - 收尾對照 `layer-onboarding` Step 3 的 UX baseline 表逐層核半徑/透明度，
+     刻意偏離的要在 registry 註解寫理由
+7. **跨 repo 回填**（上游那端，別漏）：`_status.md` 下游對接表／handoff checklist 打勾／
+   每支 catalog frontmatter 的 `used_by_pulse_layers`／`sync_matrix_config.yaml` 的
+   `pulse: ["<主題標題>"]`。⚠️ `sync_matrix.py` 讀的是 **pulse 主樹**的 `layerCatalog.ts`，
+   worktree 的改動它看不到 → **重跑排在 PR merge 之後**，此刻跑只會寫下錯的狀態。
+8. **上游 repo 若有平行 session 的未提交改動**：只 `git add` 自己碰過的檔案路徑，
+   逐一列出，**不用 `git add -A`**（見 CLAUDE.md 🔴 平行 session 條）。
