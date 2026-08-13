@@ -541,3 +541,19 @@ const [activeAlerts, setActiveAlerts] = useState<ActiveAlert[]>([]);
 - Mobile 響應式
 - 警報「過去 N 天」歷史檢索（目前只有 active）
 - ❌ 活動斷層（不算警訊）
+
+---
+
+## 13. Phase 2 進度（2026-08-13，分支 `feat/alerts-integration`）
+
+owner 拍板做 §12 的前 4 項，優先序：B2 pulse > 壓力指數 > RWD > 歷史檢索。
+外加「safety 群組灌量 → 按群組分開設規則」。
+
+| 項目 | 狀態 | 產出 |
+|---|---|---|
+| 群組時效規則表 | ✅ | `src/data/alertRules.ts` —— 一張表管列表折疊／地圖 pulse／壓力降權三處 |
+| 地圖 B2 pulse | ✅ | `useDisasterAlertLayer` 的 `disaster-alert-pulse-0/-1`；瀏覽器實測 5 顆環在高溫特報範圍內，藤枝休園（Severe 但 stale）不閃 |
+| 地震 county | ✅ | 判定為 RPC 命名選擇（211 地震分支拿 `location_desc` 當 county），前端解析縣市即可，未動 SQL |
+| 警報進壓力指數 | ⚠️ 待拍板 | **它早就在裡面**（207 的 `v_alert`，權重 0.20），但同樣被 `expires > NOW()` 灌量釘在 80 分＝composite 的 57%。SQL 提案（未 apply）在 `alerts-pressure-signal.sql` |
+| RWD | 見下 | intel/monitor 在 <768px 根本不掛載（App.tsx 的 `!isMobile` 閘），非「壞掉」而是「沒有」 |
+| 歷史檢索 | 見下 | 可重用既有 `get_disaster_alerts_day`（地圖用的按日 RPC），不必新 RPC |
