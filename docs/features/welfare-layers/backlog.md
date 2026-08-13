@@ -1,12 +1,17 @@
 # Backlog — 社福長照 Welfare
 
-## 待拍板（owner）
+## 已拍板
 
-- **WF-1 · 預設開啟三層？** 上游 handoff 建議預設開 `welfareNursingHomes` ＋
-  `welfareElderlyHomes` ＋ `welfareDisability`；本 PR **沒有照做**，因為與本站
-  2026-08-10「預設全關」規則衝突（`DEFAULT_ON` 是空 Set，訪客一進站不打任何 RPC、
-  不載任何圖層）。照做的話社福會變成全站唯一預設開啟的內容，一進站多載 ~1.9 MB。
-  改法是把三個 key 加進 `src/state/layerVisibilityStore.ts` 的 `DEFAULT_ON`，一行。
+- **WF-1 · 預設開啟三層？→ ✅ 2026-08-13 owner 拍板：不預設開，維持現況。**
+  上游 handoff 建議預設開 `welfareNursingHomes` ＋ `welfareElderlyHomes` ＋
+  `welfareDisability`；本 PR 沒有照做，因為與本站 2026-08-10「預設全關」規則衝突
+  （`DEFAULT_ON` 是空 Set，訪客一進站不打任何 RPC、不載任何圖層）。照做的話社福會
+  變成全站唯一預設開啟的內容，一進站多載 ~1.9 MB。
+  owner 確認語意（「預設開＝我打開網址就是」）後拍板維持全關。
+  折衷保留：建議的三層排 sidebar 群內最前。日後若要改，
+  是 `src/state/layerVisibilityStore.ts` 的 `DEFAULT_ON` 加三個 key，一行。
+
+## 待拍板（owner）
 
 - **WF-2 · `medLTC` 要不要同步上游新版？** 上游 2026-08-11 實測 `abc.csv`
   30,764 → 24,409（-20.7%），**C 級巷弄長照站 4,232 → 560（-86.8%）**，已確認是上游
