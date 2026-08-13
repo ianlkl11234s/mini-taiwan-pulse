@@ -24,3 +24,27 @@
 4. MMSI `999999999`（助航設備）被判「軍艦」→ ITU 規定船舶首碼為 2-7，名冊有 17 艘這類
 
 **已知待辦** → `backlog.md`
+
+## 2026-08-13 — 領海界線圖層（VW-3）+ 資料回補完成
+
+**新圖層 `maritimeBoundary`**（「底圖 Base Map → 海域界線」）
+- 內政部「中華民國第一批領海基線、領海及鄰接區外界線（98 年修正）」
+- 上游 pipeline 早已存在（`taipei-gis-analytics/pipelines/environment/maritime_boundary/`），pulse 從未接
+- 4MB GeoJSON（38 feature / 6.7 萬座標點）→ tippecanoe → **355KB PMTiles**
+- 3 個 sub-layer：實線（基線 + 12浬）／虛線（24浬，區分法律地位）／基點 circle（z≥5）
+- 色票 SSOT `src/data/maritimeBoundaryTypes.ts`；popup 帶「法律意義」一句話
+- 底圖定位：線細、opacity 預設 0.65
+- 瀏覽器實測：本島 + 釣魚台列嶼 + 南方離島群三層界線正確，popup／圖例全過
+
+**S3 回補完成**
+- 前一晚在 2026-04-05 因 DB 連線中斷（`SSL SYSCALL error`）整批掛掉，留下 04-06~07-22 共 108 天缺口
+- 改用逐日 + 單日重試三次的 wrapper 重跑，0 天放棄
+- 現況：**2026-02-27 ~ 08-13 共 168 天連續零缺口**，588,550 筆 / 685 艘 / 159 MB
+
+**時間軸移動（前一日工作的延續）**
+- 船改為依 `currentTime` 在軌跡上插值移動（gap-aware，訊號中斷停在最後已知點並淡化）
+- 12 個新測試釘住「中斷期間不得出現在兩點之間的海面上」
+
+**探索後放棄的方向**
+- 一度想把圖層接進「歷史模式」（`appMode === "historical"`），實作後發現方向錯誤 → 已 revert
+- 原因見 README「為什麼不做歷史模式」
