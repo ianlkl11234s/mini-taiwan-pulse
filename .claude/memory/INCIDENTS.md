@@ -1830,3 +1830,20 @@ P3-2D 突變 (b2)「刪一條 ref 同步賦值」竟全綠——因為測試每�
 14 棒裡 8 次中斷全靠三件套復原零重工：**每子階段先 commit**（durability 下放）＋
 SendMessage 原 context 續跑＋overnight-log 落檔交接。caffeinate 擋閒置休眠但
 **擋不住闔蓋**（實測踩到）。→ SOP 已定型 PB-38。
+
+## 2026-08-12 晚場 — 收尾棒 session（PR #131，2 技術事件）
+
+**① 背景 agent 連線中斷／stall ×5，SendMessage 續跑全數零重工**：
+R3 偵察與三個 opus 實作 agent 共 5 次因「API Connection lost」或「no progress 600s
+watchdog」中斷。處置一律 `SendMessage` 給**原 agent**（附「你停在哪一句、接著做什麼」）
+→ transcript context 保留、從中斷點續跑，5/5 救回、零重工。教訓同 PB-38 三件套，
+本場再驗證：**中斷是常態，續跑機制比重派便宜一個數量級**（Track A 累計 46 萬 tokens
+的 context 若重派等於全部重花）。
+
+**② 平行 session 在「push 成功 → pr create」的窗口把主樹切走分支**：
+`gh pr create` 突然報「17 uncommitted changes ＋ must first push current branch」——
+不是我的錯誤：vessel-watch 平行 session 恰在此刻把主樹從整合分支切到它的新分支。
+解法：`gh pr create --head <branch>` 完全不依賴主樹當前狀態。通則：**共用 checkout 的
+機器上，任何「依賴當前分支」的指令（gh pr create／git push 無 refspec）都該改用顯式
+分支參數**；主樹的當前分支隨時可能不是你的。同場加映：memory／docs 收尾一律走
+`git worktree add <path> master`，主樹被佔用照樣能出貨（本場三次實用）。
