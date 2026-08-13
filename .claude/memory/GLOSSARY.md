@@ -426,3 +426,7 @@
 | **gisClickRegistry** | `src/map/gisClickRegistry.ts`：點擊查詢表 `GIS_LAYERS`（237 筆 `{layers, type}`，first-hit-wins）的模組級新家（4b 自 useMapInteraction 函式內升格）。跨 key 全域順序由本表＋黃金快照 gisLayers section 守，**沒有 clickPriority 欄位**（改案拍板，理由在檔頭） |
 | **legendGroups** | `src/data/legendGroups.ts` 的 `legendKeys(id)`：LEGEND_REGISTRY 的 keys 反查派生器（掃全 348 key 含 orphan）。LEGEND_REGISTRY entry 自 4b 起只寫 `{id, render}`，手寫 keys 已消滅 |
 | **render 矩陣** | AR-22 終點的接替驗收（取代已退役的等值閘）：DEV 模式 `window.__layerRenderCounts` 記 App＋每個 Host 的 render 次數，agent-browser 實測「拖單一 slider → App +0、該 Host +n、其他全 +0」。2026-08-12 首驗：地震 slider 5 步 → `{useEarthquakeLayer:10}`（StrictMode ×2），其餘全零 |
+| **立案機構 vs 特約單位** | 台灣長照的**兩套互不相容登記體系**，量的是不同東西：立案機構＝《長期照顧服務法》登記的一間**機構**（pulse `welfareLtcInstitutions` 3,117）；特約單位＝長照 2.0 的一個**特約服務項目**，同機構每個服務一列（pulse `medLTC` 23,894）。**名稱交集只有 2,365** → 相加會同時重複計算與漏算。要做覆蓋分析必須明確選一邊 |
+| **`coord_precision`** | 社福長照 9 層每個 feature 帶的座標精度欄（`upstream`/`exact`/`cached`/`interpolated`/`approximate`）。**不是品質等第**——`upstream`（骨幹自帶的 TGOS geocode）與 `exact` 同屬可用，真正要當心的只有 `approximate`（路段/區中心，98 筆約 1%）。z≥15 降透明度＋加粗描邊變空心圈，**不刪點**。⚠️ 值域與殯葬的 `PRECISION_MODES`（`source`/`tgos`/`parcel_centroid`…）**不同套**，借用會靜默濾錯 |
+| **`DEFAULT_ON`** | `state/layerVisibilityStore.ts` 的預設開啟集合＝「使用者打開網址、什麼都還沒點」就已經開著的圖層。**2026-08-10 起刻意是空 Set**（訪客一進站不打任何 RPC、不載任何圖層），2026-08-13 owner 再次拍板維持。深連結 `?layers=…` 是另一條路徑，不受它影響 |
+| **`permit_status`（社福長照）** | 165355 骨幹的許可狀態碼 C01–C08。🔴 **不是有效/失效**：已用兩份現行名冊回推證偽（T0501 護理之家不論在不在現行名冊全是 C04、T0705-08 全是 C01）——它是**隨次類別走的法規/來源代碼空間**。前端完全不用，連 popup 都不顯示，免得被當狀態讀 |
