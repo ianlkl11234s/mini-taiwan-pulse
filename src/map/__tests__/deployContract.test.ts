@@ -57,7 +57,11 @@ const referencedDirs = new Set<string>([
 ]);
 
 function nginxCovers(dir: string): boolean {
-  return nginxConf.includes(`location /${dir}/`);
+  // `^~` 也是前綴 location（語意相同，只是命中後不再比對正則、優先序更高）
+  return (
+    nginxConf.includes(`location /${dir}/`) ||
+    nginxConf.includes(`location ^~ /${dir}/`)
+  );
 }
 
 function pullCovers(dir: string): boolean {
@@ -113,18 +117,25 @@ interface NginxLoc {
 
 /**
  * ⚠️ **脆弱點（刻意的簡化，改 nginx.conf 時請一起看這裡）**：
- *   1. 只解析「前綴 location」（`location /<dir>/ {`），**不解析** `location = `
- *      精確匹配與 `location ~ ` 正則匹配。真實 nginx 的正則 location 優先序**高於**
- *      前綴，例如檔尾那條 `~* \.(js|css|png|…)$` 其實會截走 `/base_map/hillshade.png`
- *      並從 dist 供檔。本模型刻意不含它 —— 那條只設快取 header 不換 root 的意圖，
- *      靠它來供大檔是意外行為不是契約（且 hillshade 的修法已由 overnight-log 拍板
- *      為「PNG 補進 upload 清單」）。要改這個判斷請連同拍板一起改。
+ *   1. 只解析「前綴 location」——`location /<dir>/ {` 與 `location ^~ /<dir>/ {` 兩種寫法
+ *      （`^~` 語意同前綴，差別在命中後不再比對正則、優先序更高）。
+ *      **不解析** `location = ` 精確匹配與 `location ~ ` 正則匹配。
+ *      真實 nginx 的正則 location 優先序**高於**無修飾符的前綴，例如檔尾那條
+ *      `~* \.(js|css|png|…)$` 會截走 `/base_map/hillshade.png` 並從 dist 供檔。
+ *      本模型刻意不含它 —— 那條只設快取 header 不換 root 的意圖，靠它來供大檔
+ *      是意外行為不是契約。
+ *      📌 2026-08-14 實例：`/climate/*.png` 就是這樣被截走的，dist 的 build 快照
+ *      遮蔽了 `/data` 的 S3 新版，`refresh-climate.sh` 每輪更新使用者永遠拿不到
+ *      （實測 dust_latest.png 線上 17,649B vs S3 18,027B），還被加上 7 天 immutable。
+ *      修法是把該 location 改成 `^~`（治本，不必依賴「PNG 補進 upload 清單」）。
+ *      `base_map/hillshade.png` 同樣被截，但 dist 與 S3 逐位元相同且為不變的靜態
+ *      底圖，保留 dist fallback 較穩健，故維持無修飾符。
  *   2. location body 假設**沒有巢狀大括號**（現況成立）。
  *   3. 沒有任何前綴命中 → 落到 SPA root `location /`（`try_files $uri …`），
  *      等同 dist 供檔。
  */
 const NGINX_LOCS: NginxLoc[] = [
-  ...nginxConf.matchAll(/location\s+(\/[A-Za-z0-9_.-]+\/)\s*\{([^}]*)\}/g),
+  ...nginxConf.matchAll(/location\s+(?:\^~\s*)?(\/[A-Za-z0-9_.-]+\/)\s*\{([^}]*)\}/g),
 ].map((m) => ({
   prefix: m[1] as string,
   readsData: /root\s+\/data\s*;/.test(m[2] as string),
