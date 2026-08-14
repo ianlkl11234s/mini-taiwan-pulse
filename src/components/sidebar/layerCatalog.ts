@@ -190,6 +190,13 @@ export const THEMES: ThemeDef[] = [
         ],
       },
       {
+        // 陸域行政界之外的**海域法定界線**（內政部 98 年公告），故不併進「行政邊界」
+        title: "海域界線",
+        layers: [
+          fromManifest("maritimeBoundary"),
+        ],
+      },
+      {
         title: "地形",
         layers: [
           fromManifest("contour25k"),
@@ -548,6 +555,52 @@ export const THEMES: ThemeDef[] = [
           fromManifest("eduCramSchool"),
           fromManifest("eduAfterschoolCare"),
           fromManifest("eduMutualCare"),
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 🤝 WELFARE 社福長照（2026-08-13 第 40 主題；上游 welfare 批次 9 檔 10,004 點）
+  //
+  // 全開 10,004 點會很擠 —— 群內順序刻意把上游建議的三層（都有可做泡泡／分色的
+  // 數值欄位）放最前面：護理機構床數、老人機構床數、身障機構使用率。
+  // ⚠️ **沒有**把它們加進 layerVisibilityStore 的 DEFAULT_ON —— 本站 2026-08-10
+  //    起「預設全關：訪客一進站不打任何 RPC、不載任何圖層」，加了會讓社福變成
+  //    全站唯一預設開啟的內容（一進站多載 ~1.9MB）。要改是一行的事，但要 owner 拍板。
+  //
+  // 🔴 長照有兩套登記體系：本群的 welfareLtcInstitutions 是**立案機構**（3,117），
+  //    醫療主題的 medLTC 是長照 2.0 **特約單位**（23,894），名稱交集僅 2,365。
+  //    刻意**不放同一群、不合併** —— 兩者量的是不同東西，併起來會重複計算又漏算。
+  // 🔴 基礎建設群的 welfareCenters（社福中心 162）不是本群成員；本群 welfareGovOffices
+  //    已排除 T0103 正是為了不跟它重複 → 兩層零重疊，可同時開。
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: "社福長照 Welfare",
+    defaultCollapsed: true,
+    groups: [
+      {
+        title: "住宿照顧",
+        layers: [
+          fromManifest("welfareNursingHomes"),
+          fromManifest("welfareElderlyHomes"),
+          fromManifest("welfareDisability"),
+        ],
+      },
+      {
+        title: "長照與托育",
+        layers: [
+          fromManifest("welfareLtcInstitutions"),
+          fromManifest("welfareChildcare"),
+          fromManifest("welfareChildServices"),
+        ],
+      },
+      {
+        title: "公部門與民間",
+        layers: [
+          fromManifest("welfareGovOffices"),
+          fromManifest("welfareMentalHealth"),
+          fromManifest("welfareSocialWorkOrgs"),
         ],
       },
     ],
@@ -1230,6 +1283,7 @@ export const THEMES: ThemeDef[] = [
         title: "軍事",
         layers: [
           fromManifest("plaActivity"),
+          fromManifest("vesselWatch"),
         ],
       },
     ],

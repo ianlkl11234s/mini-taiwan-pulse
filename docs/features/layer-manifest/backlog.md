@@ -253,7 +253,7 @@
       coverage 迴圈補 power_poles ＋ 改正兩處自相矛盾註解／buffer.bin 補上傳。
       ⚠️ S3 實際上傳待 merge 後執行（owner 拍板由 Claude 代跑）。
       ⚠️ 衍生發現：`slope.png`／`aspect.png` 全 repo 零引用（被 PMTiles 版取代的死檔，
-      8.7MB×2 級），**待 owner 拍板另案刪除**。
+      11.4MB＋13.3MB）—— **owner 拍板後已隨本 PR 刪除**（2026-08-12）。
       原始缺口記錄（歷史留存，均已修）：
 
       | 批 | 檔 | 症狀 |

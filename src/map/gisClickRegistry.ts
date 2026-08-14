@@ -35,6 +35,7 @@
 import type { FeatureInfo } from "../types";
 import { DISASTER_ALERT_CLICK_LAYERS } from "../hooks/useDisasterAlertLayer";
 import { PLA_ACTIVITY_CLICK_LAYERS } from "../hooks/usePlaActivityLayer";
+import { VESSEL_WATCH_CLICK_LAYERS } from "../hooks/useVesselWatchLayer";
 
 /** 查詢 Mapbox GIS 層（順序 load-bearing，見檔頭 first-hit-wins 段） */
 export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] = [
@@ -199,6 +200,16 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   // ⚰️ 殯葬 Funeral 5 layer（點層優先；三個面層置末，density 覆蓋全台故排最後）
   { layers: ["funeral-facilities-circle"], type: "funeralFacilities" },
   { layers: ["funeral-operators-circle"], type: "funeralOperators" },
+  // 🤝 社福長照 9 層（點層，first-hit-wins 下排在面層之前即可；9 層彼此不重疊）
+  { layers: ["welfare-mental-health-circle"], type: "welfareMentalHealth" },
+  { layers: ["welfare-gov-offices-circle"], type: "welfareGovOffices" },
+  { layers: ["welfare-disability-circle"], type: "welfareDisability" },
+  { layers: ["welfare-social-work-orgs-circle"], type: "welfareSocialWorkOrgs" },
+  { layers: ["welfare-elderly-homes-circle"], type: "welfareElderlyHomes" },
+  { layers: ["welfare-child-services-circle"], type: "welfareChildServices" },
+  { layers: ["welfare-childcare-circle"], type: "welfareChildcare" },
+  { layers: ["welfare-nursing-homes-circle"], type: "welfareNursingHomes" },
+  { layers: ["welfare-ltc-institutions-circle"], type: "welfareLtcInstitutions" },
   { layers: ["cemetery-zoning-fill"], type: "cemeteryZoning" },
   { layers: ["cemetery-osm-fill"], type: "cemeteryOsm" },
   // 🧳 觀光 Tourism 12 layer（點層優先；面層 hot-spring-zones / scenic-areas 置末避免大面積擋點）
@@ -225,6 +236,9 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["parking-offstreet-circle"], type: "parkingOffstreet" },
   { layers: ["news-events-circle", "news-events-glow", "news-events-critical-halo", "news-events-count"], type: "newsEvent" },
   { layers: DISASTER_ALERT_CLICK_LAYERS, type: "disasterAlert" },
+  // ⚠️ 特殊船舶（點 + 線）必須排在 plaActivity **之前**：共機活動區是覆蓋整個
+  //    海峽的大面積 polygon，first-hit-wins 之下船點若排在它後面就永遠點不到。
+  { layers: VESSEL_WATCH_CLICK_LAYERS, type: "vesselWatch" },
   { layers: PLA_ACTIVITY_CLICK_LAYERS, type: "plaActivity" },
   { layers: ["roadEvents-fill", "roadEvents-line", "roadEvents-point"], type: "roadEvent" },
   { layers: ["aqi-stations-circle", "aqi-stations-glow"], type: "aqiStation" },
@@ -286,6 +300,18 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["fire-isochrone-coverage-fill"], type: "fireIsochrone" },
   // 醫療等時圈覆蓋面
   { layers: ["medical-isochrone-fill"], type: "medicalIsochrone" },
+  // 🌊 領海界線（基線 / 12 浬領海 / 24 浬鄰接區 ＋ 26 個基點）—— 排在下方所有線 / 面批之前：
+  //    26 個基點是小目標點層，且全部落在海岸線上；海堤線（water-levees-core）同樣沿海岸
+  //    分佈、村里/鄉鎮的 fill 雖然 opacity 0 仍會被 queryRenderedFeatures 命中 ——
+  //    排到它們後面就點不到基點。依檔頭「小目標優先」原則置於此。
+  {
+    layers: [
+      "base-maritime-boundary-point",
+      "base-maritime-boundary-line",
+      "base-maritime-boundary-line-24nm",
+    ],
+    type: "maritimeBoundary",
+  },
   // 🗑️ 清運點位 73,060 點：全站密度最高的點層，且 click 用 ±5px bbox 命中
   //    → 排在其他點層之後，免得在市區把消防栓 / 行道樹 / POI 的點擊整片吃掉。
   { layers: ["waste-stops-static-waste-stops-fill"], type: "wasteStopsStatic" },
@@ -311,6 +337,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["provincial-roads-glow", "provincial-roads-line"], type: "provincialRoad" },
   { layers: ["cycling-routes-glow", "cycling-routes-line"], type: "cyclingRoute" },
   // Base map（行政邊界 / 等高線 / OSM 路網）— 小範圍優先（村→鄉→縣），等高線最末避免擋住
+  //（海域界線同屬 base-*，但基點是小目標點層，已上移到上方線 / 面批之前）
   // 快速道路（trunk 子集，5.6 萬 edges）排在 osm_road_drive（55 萬 edges）之前：
   // 兩份切片在同一條路上會重疊，先命中的才決定標題，具體的「快速道路」要贏過泛用的「道路」。
   { layers: ["base-osm-expressway-line"], type: "osmExpressway" },

@@ -25,6 +25,7 @@ import {
 import { TaipeiSewerPanel, TaipeiPumbPanel, TaipeiEvacuatePanel } from "./taipeiWicPanels";
 import {
   NewsEventPanel, DisasterAlertPanel, RoadEventPanel, ActiveFaultPanel, PlaActivityPanel,
+  VesselWatchPanel,
 } from "./eventPanels";
 import {
   RoadCongestionPanel, FreewayCongestionPanel,
@@ -53,6 +54,11 @@ import {
   FuneralFacilityPanel, FuneralOperatorPanel, FuneralOperatorDensityPanel,
   CemeteryOsmPanel, CemeteryZoningPanel,
 } from "./funeralPanels";
+import {
+  WelfareNursingHomePanel, WelfareElderlyHomePanel, WelfareDisabilityPanel,
+  WelfareLtcInstitutionPanel, WelfareChildcarePanel, WelfareChildServicePanel,
+  WelfareGovOfficePanel, WelfareMentalHealthPanel, WelfareSocialWorkOrgPanel,
+} from "./welfarePanels";
 import {
   SchoolPanel, EduCampusPanel, EduDistrictK12Panel, EduDistrictSeniorPanel,
   EduKindergartenPanel, EduAfterschoolCarePanel, EduCramSchoolPanel, EduUniversityStudentsPanel,
@@ -99,6 +105,7 @@ import {
 import { EarthquakeGlobalPanel, TyphoonTrackPanel, ClimateFieldPanel, WorldTrashDebrisPanel } from "./globalClimatePanels";
 import {
   CountyBoundaryPanel, TownshipBoundaryPanel, VillageBoundaryPanel,
+  MaritimeBoundaryPanel,
   Contour25kPanel, ContourDtm20Panel, OsmRoadDrivePanel,
   SlopeVectorPanel, AspectVectorPanel,
 } from "./baseMapPanels";
@@ -169,6 +176,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   newsEvent: NewsEventPanel,
   disasterAlert: DisasterAlertPanel,
   plaActivity: PlaActivityPanel,
+  vesselWatch: VesselWatchPanel,
   roadEvent: RoadEventPanel,
   roadCongestion: RoadCongestionPanel,
   freewayCongestion: FreewayCongestionPanel,
@@ -288,6 +296,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   countyBoundary: CountyBoundaryPanel,
   townshipBoundary: TownshipBoundaryPanel,
   villageBoundary: VillageBoundaryPanel,
+  maritimeBoundary: MaritimeBoundaryPanel,
   contour25k: Contour25kPanel,
   contourDtm20: ContourDtm20Panel,
   osmRoadDrive: OsmRoadDrivePanel,
@@ -383,6 +392,16 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   funeralOperatorDensity: FuneralOperatorDensityPanel,
   cemeteryOsm: CemeteryOsmPanel,
   cemeteryZoning: CemeteryZoningPanel,
+  // 🤝 社福長照 Welfare 9 layer（欄位契約共通但專屬欄位各異 → 不共用 panel）
+  welfareNursingHomes: WelfareNursingHomePanel,
+  welfareElderlyHomes: WelfareElderlyHomePanel,
+  welfareDisability: WelfareDisabilityPanel,
+  welfareLtcInstitutions: WelfareLtcInstitutionPanel,
+  welfareChildcare: WelfareChildcarePanel,
+  welfareChildServices: WelfareChildServicePanel,
+  welfareGovOffices: WelfareGovOfficePanel,
+  welfareMentalHealth: WelfareMentalHealthPanel,
+  welfareSocialWorkOrgs: WelfareSocialWorkOrgPanel,
   tourEvents: EventsPanel,
   tourFactories: FactoriesPanel,
   tourAmusementParks: AmusementParksPanel,
@@ -429,6 +448,8 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   newsEvent: "新聞事件",
   disasterAlert: "災害示警",
   plaActivity: "共機活動區",
+  // ⚠️ 不可寫成「海巡」—— 本層含中國海事局（HAIXUN）與台灣海巡署兩種完全不同的船
+  vesselWatch: "特殊船舶",
   roadEvent: "即時路況",
   roadCongestion: "省道路況",
   freewayCongestion: "國道壅塞",
@@ -541,6 +562,15 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   funeralOperatorDensity: "業者密度",
   cemeteryOsm: "墓區範圍 (OSM)",
   cemeteryZoning: "都計墓葬用地",
+  welfareNursingHomes: "護理機構",
+  welfareElderlyHomes: "老人住宿機構",
+  welfareDisability: "身障福利機構",
+  welfareLtcInstitutions: "長照立案機構",
+  welfareChildcare: "托嬰中心",
+  welfareChildServices: "兒少服務",
+  welfareGovOffices: "公部門社福據點",
+  welfareMentalHealth: "心理衛生機構",
+  welfareSocialWorkOrgs: "社福團體",
   tourEvents: "觀光活動",
   tourFactories: "觀光工廠",
   tourAmusementParks: "民營遊樂園",
@@ -602,6 +632,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   countyBoundary: "縣市界",
   townshipBoundary: "鄉鎮市區界",
   villageBoundary: "村里界",
+  maritimeBoundary: "領海界線",
   contour25k: "等高線 25k (10m)",
   contourDtm20: "等高線 DTM 20m",
   osmRoadDrive: "道路 (OSM)",

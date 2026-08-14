@@ -194,6 +194,77 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "county", type: "string" },
     { field: "area_ha", type: "number" },
   ],
+  // ── 🤝 社福長照（第 40 主題，2026-08-13）9 檔 ──────────────────────────
+  //
+  // 🔴 本主題最容易靜默壞掉的是**型別**：床數／核定量欄位上游給的是**字串**
+  //    （`"56"` 不是 `56`）。前端 paint 已一律用 `to-number` + `coalesce`，
+  //    但若上游哪天改成 number 而前端沒跟，`to-number` 仍能吃 —— 反過來
+  //    （前端改成直接 `["get"]` 算術）就會整層泡泡消失。契約在此把型別焊死。
+  //
+  // ⚠️ minCoverage 都是 2026-08-12 實測值往下取整：專屬欄位只有「帶專表欄位」
+  //    的那批有（骨幹 165355 只補得到基本欄），不是資料壞了。掉到門檻以下才是異常。
+  "welfare/nursing_homes_national.geojson": [
+    { field: "uid", type: "string" },                      // 主題內唯一鍵
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },          // 高 zoom 降階顯示 + 精度篩選的唯一依據
+    { field: "nh_type", type: "string", minCoverage: 0.9 },// 三分色（1,499/1,611 = 93.0%）
+    // ⚠️ **字串**！三欄相加才是總床數（只看 beds_nh 會讓 989/1,499 縮成最小點）
+    { field: "beds_nh", type: "string", minCoverage: 0.9 },
+    { field: "beds_postpartum", type: "string", minCoverage: 0.9 },
+    { field: "beds_infant", type: "string", minCoverage: 0.9 },
+  ],
+  "welfare/elderly_care_homes_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+    { field: "attr_type", type: "string", minCoverage: 0.9 },     // 公私別分色（1,090/1,160 = 94.0%）
+    { field: "beds_approved", type: "string", minCoverage: 0.9 }, // ⚠️ 字串；半徑來源
+  ],
+  "welfare/disability_facilities_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+    // ⚠️ 字串；使用率的分子分母（266/334 = 79.6%，其餘 68 筆整組 key 不存在 → 灰）
+    { field: "quota_resident", type: "string", minCoverage: 0.75 },
+    { field: "actual_resident", type: "string", minCoverage: 0.75 },
+  ],
+  "welfare/ltc_institutions_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+    { field: "sub_code", type: "string" },                 // T0601-T0604 四分色，100%
+  ],
+  "welfare/childcare_centers_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+  ],
+  "welfare/child_services_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+    { field: "welfare_class", type: "string" },            // 三類混裝分色，100%
+    // ⚠️ 唯一非 100% 的基本欄（1,391/1,396）—— 5 筆地址解不出縣市，不是漏抓
+    { field: "city", type: "string", minCoverage: 0.99 },
+  ],
+  "welfare/welfare_gov_offices_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+    { field: "sub_code", type: "string" },                 // popup 類別名；⚠️ T0103 已在上游排除
+  ],
+  "welfare/mental_health_facilities_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+    { field: "sub_code", type: "string" },                 // 五分色，100%
+  ],
+  "welfare/social_work_orgs_national.geojson": [
+    { field: "uid", type: "string" },
+    { field: "name", type: "string" },
+    { field: "coord_precision", type: "string" },
+    { field: "sub_code", type: "string" },
+  ],
   // 🎓 教育（第 38 主題）：6 個點層共用此檔，全靠 school_level / region_type 做 filter
   "education/schools.geojson": [
     { field: "school_level", type: "string" },            // 9 種原始值 → fold 成 5 級（educationTypes）；null 會讓該點從 5 個學制層全數消失

@@ -133,8 +133,14 @@ const NO_HOOK_LEDGER = new Set<string>([
   "tourScenicAreas", "trafficAccidentYearly", "wasteStopsStatic", "waterBasins",
   "waterDetentionBasins", "waterFacilities", "waterMonitorStations", "waterProtectionZones",
   "weatherStations", "welfareCenters", "windPlan", "womenChildWarning",
+  // 🤝 社福長照 9 層（第 40 主題）：純 OVERLAY_REGISTRY 靜態 GeoJSON，無 loader / hook。
+  // ⚠️ `welfareCenters`（上一行）是**基礎建設**主題的社福中心，不是本批成員 ——
+  //    兩者零重疊（本批 welfareGovOffices 已在上游排除 T0103），只是名字像。
+  "welfareChildServices", "welfareChildcare", "welfareDisability", "welfareElderlyHomes",
+  "welfareGovOffices", "welfareLtcInstitutions", "welfareMentalHealth",
+  "welfareNursingHomes", "welfareSocialWorkOrgs",
 
-  // ── OVERLAY_REGISTRY 的 PMTiles 層（62）──
+  // ── OVERLAY_REGISTRY 的 PMTiles 層（63）──
   "agriProduceWholesale", "agriRetail", "aquacultureIntegrated", "aquaculturePonds",
   "aquacultureWaterSatellite", "aquacultureWaterSatelliteMoa", "aquacultureWaterUnion",
   "busStationsCity", "canopyHeight", "cemeteryOsm", "civilDefenseShelter", "contour25k",
@@ -142,7 +148,8 @@ const NO_HOOK_LEDGER = new Set<string>([
   "eduCampusArea", "eduCampusPolygon", "eduCramSchool", "eduDistrictElementary",
   "eduDistrictJunior", "evIsland", "farmRoads", "fireHydrants", "forestCompartments",
   "forestReserve", "forestRoads", "gasCoverageAll", "gasCoverageCpc", "gasCoverageFpcc",
-  "gasCoverageTaisugar", "highways", "hikingTrails", "lakesPondsOsm", "medAED", "medClinic",
+  "gasCoverageTaisugar", "highways", "hikingTrails", "lakesPondsOsm", "maritimeBoundary",
+  "medAED", "medClinic",
   "medLTC", "medPharmacy", "nonUrbanZoning", "osmExpressway", "osmRoadDrive",
   "policeIsoCityDept", "policeIsoPrecinct", "policeIsoSubstation", "propertyValueGrid",
   "provincialRoads", "religionTemples", "streetTreesNational", "streetTreesTaipei3epoch",

@@ -4,6 +4,23 @@
 
 ## 進行中 / 待辦
 
+> 🎯 **下一批 W1~W6（2026-08-12 owner 全數拍板）**：staticAssets 追認／popup 29+6／
+> 完整性測試盲區表／snapshot-to-CDN（AR-12/13）／AI-1／關單快贏（BM-1~4·MO-17·AU-6·DS-06）
+> —— SSOT 與開工指南：[`docs/proposal/next-batch-handoff-2026-08-12.md`](../../docs/proposal/next-batch-handoff-2026-08-12.md)
+
+### 社福長照 Welfare（WF 系列，2026-08-13 接線後開）
+
+> 細節 SSOT：[`docs/features/welfare-layers/backlog.md`](../../docs/features/welfare-layers/backlog.md)（13 條）。本表只留需要跨主題決策或等外部的。
+
+| ID | 優先級 | 項目 | 狀態 |
+|---|---|---|---|
+| WF-1 | — | 預設開 3 層？上游 handoff 建議，但撞站台鐵則「預設全關」 | ✅ **2026-08-13 owner 拍板：不預設開**（`DEFAULT_ON` 維持空 Set） |
+| WF-2 | **P1** | **`medLTC` 要不要同步上游新版**：上游實測 30,764 → 24,409（−20.7%），**C 級巷弄長照站 4,232 → 560（−86.8%）**，已確認是上游真實變動非下載截斷。2026-08-11 拍板先不同步——同步等於在地圖上砍掉約 3,700 個點，要先查清上游為何砍 87% | open（等上游釐清） |
+| WF-3 | P2 | 托嬰中心對 0-5 歲人口的人均密度（上游建議的第三個視覺化）。是**衍生分析層**不是點層——要 join demographics，性質同 `funeralOperatorDensity`（無幾何＋feature-state join 鄉鎮界 PMTiles），需自己的 loader/hook。⚠️ 務必標「名單約 21 個月舊」 | open |
+| WF-4 | P2 | 長照服務覆蓋分析（立案機構 vs 特約單位**擇一**，不可 UNION）。可搭 `accessibility-analysis` skill 做等時圈 | open（需先拍板用哪套） |
+| WF-5 | P3 | `upstreamRegistry.test.ts` 的跨 repo dataset_id 檢查在 **worktree 下會 skip**（按 sibling path 找 `../taipei-gis-analytics`，worktree 深兩層找不到）→ 印警告而不是紅。本批 9 個 id 已手動核對 | open |
+| WF-6 | P3 | `sync_matrix.py` 的 `scan_pulse()` 抓 `key: "xxx"`，但 layerCatalog AR-22 後改寫成 `fromManifest("xxx")` → 所有已遷移主題的 layer 數都顯示 `0 layer`（殯葬/教育同樣），在 analytics repo | open |
+
 ### 資料源健康（DS 系列，2026-08-07 斷供調查後開）
 
 > 背景見 [`.claude/pitfalls/2026-08-07-silent-upstream-outage.md`](../pitfalls/2026-08-07-silent-upstream-outage.md)。

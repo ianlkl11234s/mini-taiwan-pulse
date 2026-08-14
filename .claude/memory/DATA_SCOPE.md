@@ -636,6 +636,51 @@ resolved key（詳 PRINCIPLES §Resolved key 模式）。明細全等值查詢�
 **上游重跑**：`taipei-gis-analytics` → `./venv/bin/python3 pipelines/funeral/_shared/build_web_assets.py --deploy`
 （只 `shutil.copy2` 到 pulse public/，不碰 S3）。檔名固定、內容會變；`facility_uid` 穩定可當前端 key。
 
+## 社福長照 Welfare（純靜態檔，2026-08-13 接線；第 40 主題）
+
+**9 檔全進 git，合計 5.4 MB / 10,004 點**（走 dist 供檔；`/data/welfare/` 保留同構）。
+**不走 Supabase** —— 規劃的 `reference.*` ×9 migration **未寫**，前端零依賴。
+上游 SSOT：`taipei-gis-analytics/docs/handoff/welfare-layers.md`；
+分色/篩選 SSOT：`src/data/welfareTypes.ts`；下游脈絡：`docs/features/welfare-layers/`。
+
+| 檔案（`public/welfare/`） | 量 | layer key | 授權 |
+|---|---|---|---|
+| `ltc_institutions_national.geojson` | 3,117 點 | `welfareLtcInstitutions` | OGDL |
+| `nursing_homes_national.geojson` | 1,611 點 | `welfareNursingHomes` | OGDL |
+| `childcare_centers_national.geojson` | 1,578 點 | `welfareChildcare` | OGDL |
+| `child_services_national.geojson` | 1,396 點（母體 1,425，**29 筆結構性無地址**） | `welfareChildServices` | OGDL |
+| `elderly_care_homes_national.geojson` | 1,160 點 | `welfareElderlyHomes` | OGDL |
+| `social_work_orgs_national.geojson` | 587 點 | `welfareSocialWorkOrgs` | OGDL |
+| `disability_facilities_national.geojson` | 334 點 | `welfareDisability` | OGDL |
+| `welfare_gov_offices_national.geojson` | 151 點（母體 307，**156 筆排他過濾**） | `welfareGovOffices` | OGDL |
+| `mental_health_facilities_national.geojson` | 70 點 | `welfareMentalHealth` | OGDL |
+
+**五個要記住的**：
+
+1. 🔴 **「長照」有兩套互不相容的登記體系，不可 UNION**：`welfareLtcInstitutions`
+   （長照服務法**立案機構** 3,117）vs 既有 `medLTC`（長照 2.0 **特約單位** 23,894），
+   **名稱交集只有 2,365**。併起來會同時重複計算與漏算。要做覆蓋分析請明確選一邊。
+   ⚠️ 另有版本落差：線上 `medical.ltc` 仍是舊版 30,764；上游實測已縮量 −20.7%
+   （C 級巷弄長照站 −86.8%），2026-08-11 拍板先不同步待查。
+2. 🔴 **既有 `welfareCenters`（掛基礎建設）不是本批成員**：走不同 pipeline、不同主題。
+   `welfare_gov_offices` 在**上游**就排掉 `T0103 社福服務中心`（307→151）正是為了不重複
+   → **兩層零重疊可同時開**；算「全部公部門社福據點」要把 welfareCenters 的 162 筆加回來。
+3. 🔴 **`permit_status` 不是有效/失效**：上游沒發代碼表，已用兩份現行名冊回推證偽
+   （T0501 護理之家不論在不在現行名冊全是 C04、T0705-08 全是 C01）→ **前端完全不用**，
+   連 popup 都不顯示。類別中文名的 SSOT 是上游 `topic-research/welfare/code-table.md`
+   （**本專案歸納的高信心推論，不是官方定義**），不要自己猜。
+4. ⚠️ **數值欄位是字串、空值 key 整個被拿掉**：`beds_nh`/`beds_approved`/`quota_*`/
+   `actual_*` 上游給的是 `"56"` 這種字串，且空值 property 在匯出時**整個移除**（不是留空）
+   → paint 一律 `["to-number", ["coalesce", ["get", f], 0]]`，JS 側用 `"key" in props`。
+5. ⚠️ **座標 99.7%（8/9 層 100%）但 98 筆是 `coord_precision=approximate`**
+   （路段/區中心非門牌）→ z≥15 降透明度＋加粗描邊變空心圈，popup 明講，**不刪點**。
+   `child_services` 少的 29 筆是**結構性無地址**（行動據點、到宅療育、依法保密的安置機構），
+   TGOS/Google 都解不出來，不是等 geocode。
+
+**上游重跑**：`taipei-gis-analytics` → `./venv/bin/python3 pipelines/welfare/08_pulse_export.py`
+（**先看 `01_download.py` 印的 `Last-Modified`，沒變就不用往下跑**；名義每月、實測 21 個月未換檔）。
+copy 到 `public/welfare/` 是 deploy 動作，上游不代做。
+
 ## 保存層 `trails/`（S3 nightly 匯出，2026-08-08 上線；data-collectors PR #47）
 
 ⚠️ **這是保存層不是供檔層** —— 不在 `deploy-assets/` 下、不經 nginx／Cloudflare、

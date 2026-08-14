@@ -107,7 +107,7 @@ export type ExpandableLayerKey =
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
-  | "newsEvents" | "plaActivity"
+  | "newsEvents" | "plaActivity" | "vesselWatch"
   | "livestockFarmPig" | "livestockFarmChicken" | "livestockFarmCattle"
   | "livestockFarmDuck" | "livestockFarmGoose" | "livestockFarmSheep" | "livestockFarmOther"
   | "livestockSlaughter" | "livestockFeed" | "livestockMarket"
@@ -149,6 +149,10 @@ export type ExpandableLayerKey =
   | "eduDistrictElementary" | "eduDistrictJunior" | "eduDistrictSenior"
   | "eduKindergarten" | "eduCramSchool" | "eduAfterschoolCare" | "eduMutualCare"
   | "eduUniversityStudents" | "eduCampusArea"
+  // 🤝 社福長照 Welfare（第 40 主題；9 個靜態 GeoJSON 點層，各自獨立檔案）
+  | "welfareNursingHomes" | "welfareElderlyHomes" | "welfareDisability"
+  | "welfareLtcInstitutions" | "welfareChildcare" | "welfareChildServices"
+  | "welfareGovOffices" | "welfareMentalHealth" | "welfareSocialWorkOrgs"
   | "youbikeFullness"
   | "cwaCloudImagery"
   | "cwaRadarImagery"
@@ -328,6 +332,7 @@ export type ExpandableLayerKey =
   | "realEstatePresalePoint"
   // Base map
   | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+  | "maritimeBoundary"
   | "contour25k" | "contourDtm20" | "osmRoadDrive"
   | "osmExpressway" | "hillshade"
   | "slopeVector" | "aspectVector"
@@ -672,7 +677,7 @@ export interface FeatureInfo {
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
     | "port" | "airport" | "ship" | "cctv" | "etcGantry" | "serviceArea" | "serviceAreaPolygon" | "taxiStand"
-    | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity"
+    | "activeFault" | "newsEvent" | "disasterAlert" | "plaActivity" | "vesselWatch"
     | "roadEvent" | "roadCongestion" | "freewayCongestion"
     | "provincialRoad" | "highway" | "cyclingRoute"
     | "fireEvent" | "fireStation" | "fireHydrant" | "fireIsochrone"
@@ -710,6 +715,11 @@ export interface FeatureInfo {
     // 幼托補習（⚠️ 原始中文欄位名）＋ 大專學生數（英文欄位）
     | "eduKindergarten" | "eduCramSchool" | "eduAfterschoolCare" | "eduMutualCare"
     | "eduUniversityStudents"
+    // 🤝 社福長照 Welfare（layerType = layer key 同名，9 個；欄位契約 9 層共通但
+    //    各層專屬欄位不同 → panel 各寫一個，不共用）
+    | "welfareNursingHomes" | "welfareElderlyHomes" | "welfareDisability"
+    | "welfareLtcInstitutions" | "welfareChildcare" | "welfareChildServices"
+    | "welfareGovOffices" | "welfareMentalHealth" | "welfareSocialWorkOrgs"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -761,6 +771,7 @@ export interface FeatureInfo {
     | "temperatureGrid"
     // Base map（PMTiles 來自 taipei-gis-analytics）
     | "countyBoundary" | "townshipBoundary" | "villageBoundary"
+    | "maritimeBoundary"
     | "contour25k" | "contourDtm20" | "osmRoadDrive"
     | "osmExpressway" | "hillshade"
     | "slopeVector" | "aspectVector"
@@ -839,6 +850,12 @@ export interface LayerVisibility {
   newsEvents: boolean;
   /** 共機活動區（國防部每日航跡示意圖向量化，spatial.pla_tracks · 依日期回放） */
   plaActivity: boolean;
+  /**
+   * 特殊船舶（AIS）：海警／海巡／科研船／軍艦等的最後已知位置 ＋ 斷續取樣軌跡。
+   * live.vessel_watch_positions（gis-platform migration 339/340）。
+   * ⚠️ 與 `ships`（全量 AIS，Three.js ShipScene）是**兩層**，本層為純 Mapbox circle/line。
+   */
+  vesselWatch: boolean;
   youbikeFullness: boolean;
   earthquakes: boolean;
   /** 地震回放：單一事件的震央→測站→等震度網格→鄉鎮面量圖→沙灘球五步動畫 */
@@ -981,6 +998,20 @@ export interface LayerVisibility {
   eduAfterschoolCare: boolean;     // 兒童課後照顧中心 782
   eduMutualCare: boolean;          // 互助教保服務中心 148（全數私立）
   eduUniversityStudents: boolean;  // 大專校別學生數 159 bubble（⚠️ 21 筆 null 畫灰點，不可當 0）
+  // 🤝 社福長照 Welfare（第 40 主題；2026-08-13 上游 welfare 批次，9 檔 10,004 點）
+  // 🔴 welfareLtcInstitutions（立案 3,117）與既有 medLTC（特約 23,894）是**兩套登記體系**，
+  //    名稱交集只有 2,365 —— 不可 UNION（重複計算又漏算），要做覆蓋分析請明確選一邊。
+  // 🔴 既有 welfareCenters（掛 civic_facilities）不是本批成員；welfareGovOffices 已排除
+  //    T0103 社福服務中心正是為了不跟它重複 → 兩層零重疊，可同時開。
+  welfareNursingHomes: boolean;    // 護理機構 1,611（nh_type 三分色 + 總床數泡泡；⚠️ 床數欄位是字串）
+  welfareElderlyHomes: boolean;    // 老人住宿機構 1,160（attr_type 公私別分色 + 核定床數泡泡）
+  welfareDisability: boolean;      // 身障福利機構 334（使用率分色；⚠️ 88 筆無核定量 → 灰，不可當 0%）
+  welfareLtcInstitutions: boolean; // 長照立案機構 3,117（sub_code 四種服務型態分色）
+  welfareChildcare: boolean;       // 托嬰中心 1,578（單色；⚠️ 名單約 21 個月舊，居家保母無全國源）
+  welfareChildServices: boolean;   // 兒少服務 1,396（三類混裝分色；⚠️ 早療 unit_type 含醫院診所）
+  welfareGovOffices: boolean;      // 公部門社福據點 151（已排 T0103，與 welfareCenters 零重疊）
+  welfareMentalHealth: boolean;    // 心理衛生機構 70（sub_code 五類分色）
+  welfareSocialWorkOrgs: boolean;  // 社福團體／社工事務所 587（⚠️ 是組織不是設施，地址多為辦公室）
   tourEvents: boolean;           // 觀光活動・節慶（~828 點，進行中/未開始二色 by start_time/end_time + 狀態篩選）
   tourFactories: boolean;         // 觀光工廠（158 點，單色）
   tourAmusementParks: boolean;    // 民營遊樂園（26 點，單色，含安檢揭露）
@@ -1137,6 +1168,7 @@ export interface LayerVisibility {
   countyBoundary: boolean;     // 22 縣市界（內政部，名稱/行政區域代碼）
   townshipBoundary: boolean;   // 鄉鎮市區界
   villageBoundary: boolean;    // 村里界
+  maritimeBoundary: boolean;   // 領海基線 / 基點 / 12 浬領海 / 24 浬鄰接區外界線（內政部 98 年公告）
   contour25k: boolean;         // 經建版 1:25000 等高線（精度 10m，~21% 全臺覆蓋）
   contourDtm20: boolean;       // DTM 20m 等高線（精度 20m，全臺完整）
   osmRoadDrive: boolean;       // OSM 可駕駛道路（55 萬 edges，按 highway 等級分色）

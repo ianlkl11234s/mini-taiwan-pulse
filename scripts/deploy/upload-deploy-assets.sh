@@ -173,6 +173,15 @@ for f in public/funeral/*.geojson public/funeral/*.json public/funeral/*.pmtiles
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/funeral/$name" --region ap-southeast-2
 done
 
+# 🤝 社福長照 Welfare：上傳到 deploy-assets/welfare/ 子前綴（鏡像結構，pull 端整夾 sync）
+# 9 個 GeoJSON 共 5.4MB 都在 git 走 dist，此處上傳是為了與其他主題同構 + 日後改走 S3 時零改動
+for f in public/welfare/*.geojson; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  echo "Uploading welfare/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$PREFIX/welfare/$name" --region ap-southeast-2
+done
+
 # 🏟️ 運動場館 Sports：上傳到 deploy-assets/sports/ 子前綴（8.4MB 靜態 GeoJSON，去日期穩定檔名）
 # 5 sublayer 前端共用此檔 + layer filter。加新檔（如統計 JSON）免改本腳本。
 for f in public/sports/*.geojson public/sports/*.json; do
@@ -317,7 +326,8 @@ if [ -d public/embed-rail ]; then
 fi
 
 # Base map PMTiles：上傳到 deploy-assets/base_map/ 子前綴（鏡像結構，pull 端整夾 sync）。
-# 8 檔（行政邊界 3 + 等高線 2 + OSM 路網 1 + slope_vector / aspect_vector 各 16MB）。
+# 9 檔（行政邊界 3 + 海域界線 1 + 等高線 2 + OSM 路網 1 + slope_vector / aspect_vector 各 16MB）。
+# 下方 glob `public/base_map/*.pmtiles` 已自動涵蓋新增的切片，加檔不必改本段。
 # SSOT 在 taipei-gis-analytics。
 #
 # ＋ hillshade.png（8.7MB，git 管理的預烤 colormap 山影，App.tsx useStaticRasterLayer 直呼）：

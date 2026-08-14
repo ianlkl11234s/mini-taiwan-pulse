@@ -64,6 +64,9 @@ import {
 import {
   FUNERAL_FACILITY_TYPES, OPERATOR_STATUS_MODES, PRECISION_MODES,
 } from "./funeralTypes";
+import {
+  CHILD_SERVICE_CLASSES, LTC_SERVICE_TYPES, NURSING_HOME_TYPES, WELFARE_PRECISION_MODES,
+} from "./welfareTypes";
 import { FIRE_ISOCHRONE_COUNTY_OPTIONS } from "./fireIsochroneCounties";
 import { URBAN_HEAT_MODES } from "./urbanHeatTypes";
 import { SOIL_FERTILITY_METRIC_OPTIONS } from "./agriSoilFertilityMetrics";
@@ -749,6 +752,10 @@ function penaltyControls(): LayerParamSpec[] {
 const REGISTRY_ENCODE = REGISTRY_MODES.map((m) => m.value);
 const PRECISION_ENCODE = PRECISION_MODES.map((m) => m.value);
 
+/** ⚠️ 社福長照自有的精度值域（upstream/exact/cached/interpolated/approximate），
+ *  與上面殯葬的 PRECISION_ENCODE **不同套** —— 借用會靜默濾錯（值對不上，分支永遠不成立）。 */
+const WELFARE_PRECISION_ENCODE = WELFARE_PRECISION_MODES.map((m) => m.value);
+
 // ── 規格表 ────────────────────────────────────────────────────────
 
 /**
@@ -854,6 +861,125 @@ export const LAYER_PARAMS_SPEC = {
   funeralOperatorDensity: [opacitySlider("funeralOperatorDensityOpacity", 0.6)],
   cemeteryOsm: [opacitySlider("cemeteryOsmOpacity", 0.45)],
   cemeteryZoning: [opacitySlider("cemeteryZoningOpacity", 0.55)],
+
+  // ══════════ 社福長照 Welfare 9 層 ══════════
+  // 9 層共通：精度 select ＋ opacity ＋ scale；有層內分類的 4 層再多一個類別 select。
+  // ⚠️ 精度 select 用 WELFARE_PRECISION_ENCODE（見上方註記），不要用殯葬那組。
+  welfareNursingHomes: [
+    {
+      kind: "select", name: "welfareNursingHomesType", label: "型別", default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        ...NURSING_HOME_TYPES.map((t) => ({
+          label: `${t.label} (${t.count.toLocaleString()})`, value: t.value,
+        })),
+      ],
+      out: "welfareNursingHomesTypeIdx",
+      encode: ["all", ...NURSING_HOME_TYPES.map((t) => t.value)],
+    },
+    {
+      kind: "select", name: "welfareNursingHomesPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareNursingHomesPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareNursingHomesOpacity", 0.85),
+    scaleSlider("welfareNursingHomesScale", 1),
+  ],
+  welfareElderlyHomes: [
+    {
+      kind: "select", name: "welfareElderlyHomesPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareElderlyHomesPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareElderlyHomesOpacity", 0.85),
+    scaleSlider("welfareElderlyHomesScale", 1),
+  ],
+  welfareDisability: [
+    {
+      kind: "select", name: "welfareDisabilityPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareDisabilityPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareDisabilityOpacity", 0.9),
+    scaleSlider("welfareDisabilityScale", 1),
+  ],
+  welfareLtcInstitutions: [
+    // 🔴 這是**立案機構**不是 medLTC 的特約單位；四種服務型態來自 sub_code T0601-T0604
+    {
+      kind: "select", name: "welfareLtcInstitutionsType", label: "服務型態", default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        ...LTC_SERVICE_TYPES.map((t) => ({
+          label: `${t.label} (${t.count.toLocaleString()})`, value: t.value,
+        })),
+      ],
+      out: "welfareLtcInstitutionsTypeIdx",
+      encode: ["all", ...LTC_SERVICE_TYPES.map((t) => t.value)],
+    },
+    {
+      kind: "select", name: "welfareLtcInstitutionsPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareLtcInstitutionsPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareLtcInstitutionsOpacity", 0.85),
+    scaleSlider("welfareLtcInstitutionsScale", 1),
+  ],
+  welfareChildcare: [
+    {
+      kind: "select", name: "welfareChildcarePrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareChildcarePrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareChildcareOpacity", 0.85),
+    scaleSlider("welfareChildcareScale", 1),
+  ],
+  welfareChildServices: [
+    {
+      kind: "select", name: "welfareChildServicesClass", label: "類別", default: "all",
+      options: [
+        { label: "全部", value: "all" },
+        ...CHILD_SERVICE_CLASSES.map((c) => ({
+          label: `${c.label} (${c.count.toLocaleString()})`, value: c.value,
+        })),
+      ],
+      out: "welfareChildServicesClassIdx",
+      encode: ["all", ...CHILD_SERVICE_CLASSES.map((c) => c.value)],
+    },
+    {
+      kind: "select", name: "welfareChildServicesPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareChildServicesPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareChildServicesOpacity", 0.85),
+    scaleSlider("welfareChildServicesScale", 1),
+  ],
+  welfareGovOffices: [
+    {
+      kind: "select", name: "welfareGovOfficesPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareGovOfficesPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareGovOfficesOpacity", 0.9),
+    scaleSlider("welfareGovOfficesScale", 1),
+  ],
+  welfareMentalHealth: [
+    {
+      kind: "select", name: "welfareMentalHealthPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareMentalHealthPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareMentalHealthOpacity", 0.9),
+    scaleSlider("welfareMentalHealthScale", 1),
+  ],
+  welfareSocialWorkOrgs: [
+    {
+      kind: "select", name: "welfareSocialWorkOrgsPrecision", label: "定位精度", default: "all",
+      options: WELFARE_PRECISION_MODES,
+      out: "welfareSocialWorkOrgsPrecisionIdx", encode: WELFARE_PRECISION_ENCODE,
+    },
+    opacitySlider("welfareSocialWorkOrgsOpacity", 0.7),
+    scaleSlider("welfareSocialWorkOrgsScale", 1),
+  ],
 
   // ══════════ 交通・醫療・公共設施・教育 ══════════
   bikeStations: [
@@ -1253,6 +1379,12 @@ export const LAYER_PARAMS_SPEC = {
   villageBoundary: [
     { kind: "slider", name: "villageBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
     opacitySlider("villageBoundaryOpacity", 0.65),
+  ],
+  // 領海界線：底圖角色（空間參考框架）→ 基準線寬 1.0、預設透明度 0.65（低於一般層的 0.8），
+  // 兩個 default 都必須與 overlayRegistry paint 的 `?? fallback` 逐字相同。
+  maritimeBoundary: [
+    { kind: "slider", name: "maritimeBoundaryWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 4, step: 0.1 },
+    opacitySlider("maritimeBoundaryOpacity", 0.65),
   ],
   contour25k: [
     { kind: "slider", name: "contour25kWidth", labelPrefix: "寬度", digits: 1, default: 1.0, min: 0.3, max: 3, step: 0.1 },
@@ -2093,6 +2225,28 @@ export const LAYER_PARAMS_SPEC = {
     },
     // showReview 預設 false —— 未通過守門的形狀不當成正式資料預設顯示
     { kind: "toggle", name: "plaShowReview", label: "待核實", default: false, out: null },
+  ],
+  // 特殊船舶：兩支都走第二通道（out: null）—— 值由 VesselWatchHost 的
+  // useLayerParams 讀出後當 hook 參數傳入，圖層是 hook 自建的 circle/line，
+  // 不吃 overlayParams（同 plaActivity 的 D 桶形狀）。
+  vesselWatch: [
+    {
+      kind: "slider", name: "vesselWatchOpacity", labelPrefix: "透明度", digits: 2,
+      default: 0.9, min: 0.1, max: 1, step: 0.05, out: null,
+    },
+    // 軌跡視窗天數。AIS 每艘約 15 分鐘一筆且離岸即斷訊 —— 拉太長只是把
+    // 斷續取樣連成更長的折線，不會更「連續」，故上限 14 天。
+    {
+      kind: "slider", name: "vesselWatchTrailDays", labelPrefix: "軌跡", labelSuffix: " 天",
+      digits: 0, default: 3, min: 1, max: 14, step: 1, out: null,
+    },
+    // 「疑似」＝ 只有規則推測（MID + 船名 pattern 或純自報 ship_type），未經查證。
+    // 2026-08-13 對 200 艘做網路查證後才有這個區分：實測目前海上 88 艘疑似 / 5 艘已查證。
+    // 預設**開啟**——關掉會讓畫面只剩零星幾艘，反而失去態勢感；疑似的用低不透明度區分。
+    {
+      kind: "toggle", name: "vesselWatchShowPresumed", label: "含疑似（未查證）",
+      default: true, out: null,
+    },
   ],
 
   // ── 影像 IMAGERY（預載 1~7d 共用 timeline rangeDays，這裡不重覆出 slider）──
