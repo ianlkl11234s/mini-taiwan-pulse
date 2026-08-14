@@ -1,685 +1,403 @@
 # Mini Taiwan Pulse
 
-用開放資料，感受台灣的脈動。
+**用開放資料，把台灣畫成一張會呼吸的地圖。**
 
-天空中的航班劃出弧線、海面上的船舶穿梭往返、軌道上的列車準時奔馳 — 這座島嶼每一刻都在呼吸。Mini Taiwan Pulse 將這些交通運輸的即時動態，以 3D 光球、光軌、拖尾線呈現在同一張地圖上，讓你看見台灣的脈搏。
+🌏 **線上版：[mini-taiwan-pulse.itsmigu.com](https://mini-taiwan-pulse.itsmigu.com)**
 
-## Screenshots
+天空的航班、海面的船舶、軌道上的列車、街上的公車——這些會動的東西是這個專案的起點。
+後來它長成了別的東西：能源、農業、水資源、廢棄物、社福長照、林業、衛星……
+**28 個主題、349 個可開關的圖層**，疊在同一張 3D 地圖與同一條時間軸上。
+
+> 統計時點 2026-08。數字會隨圖層增加而變動，以 `src/data/layerManifest.ts` 為準。
+
+---
+
+## 截圖
 
 ![全台總覽 — 航班・船舶・軌道・燈塔・風場](docs/images/all-taiwan-overview.png)
-![全圖層展開 — 車站光柱・公車站・國道省道](docs/images/all-layers-facilities.png)
+
 ![北台灣近景 — 3D 軌道・列車光球・車站光柱](docs/images/northern-taiwan-3d-rail.png)
-![南台灣 — H3 人口密度 3D 柱狀圖・國道](docs/images/southern-taiwan-h3-population-3d.png)
-![衛星底圖 — 公車站・軌道・自行車道](docs/images/satellite-bus-cycling-routes.png)
 
-## 三種脈動
+![南台灣 — H3 人口密度 3D 柱狀圖](docs/images/southern-taiwan-h3-population-3d.png)
 
-| 脈動 | 視覺呈現 | 開放資料來源 |
-|------|---------|------------|
-| 天空 — 航班 | 3D 弧線 + 光球 + 彗尾光軌 | FlightRadar24 API |
-| 海洋 — 船舶 | InstancedMesh 光球 + 拖尾線 | AIS 船舶位置資料 |
-| 大地 — 軌道列車 | 3D 軌道線 + 列車光球 + 拖尾線 | 公開時刻表 + OSM 軌道 |
-| 街道 — 公車 | GPS snap 路線光球 + 歷史回放 | TDX 公車即時定位 API |
+> ⚠️ 現有截圖攝於專案的「交通時代」，尚未反映後來擴充的能源／農業／水資源等主題。
 
-### 天空的脈動 — 航班
+---
 
-- **光軌**：彗尾狀漸層光軌，additive blending 疊加自然增亮
-- **光球**：多層發光球體標示當前位置，呼吸動畫 + 紅色防撞閃爍燈
-- **靜態軌跡**：暗色主題依高度著色（暖橘→冷藍），亮色主題隨機配色
-- 涵蓋全台 14 座機場、1,500+ 航班
+## 能看到什麼
 
-### 海洋的脈動 — 船舶
+圖層登記在單一 SSOT [`src/data/layerManifest.ts`](src/data/layerManifest.ts)：**359 個 layer key**，
+其中 349 個有 sidebar toggle，10 個是沒有 toggle 的內部 key。
 
-- **光球**：青藍色 InstancedMesh，視口剔除，呼吸動畫
-- **拖尾線**：per-vertex color gradient（30 分鐘遞延）
-- **資料過濾**：台灣周邊海域 bounding box、GPS 異常跳躍點排除、無效 MMSI 過濾
+主題前段班：
 
-### 大地的脈動 — 軌道列車
+| 主題 | 層數 | 舉例 |
+|---|---:|---|
+| 能源 Energy | 41 | 發電廠、機組即時出力、變電所、輸電線與鐵塔、加油站、離岸風場 |
+| 交通 Move | 33 | 航班、船舶、6 個軌道系統、公車即時、國道壅塞 |
+| 農業 Agriculture | 29 | 農田範圍 FTW、畜禽飼養場、養殖魚塭、土壤肥力、作物適栽 |
+| 水資源 Water | 23 | 水庫、河川、堤防、即時雨量、河川水位、淹水潛勢 |
+| 環境氣候 Environment | 20 | 氣象站、溫度場、衛星雲圖、空品、都市熱島、行道樹 |
+| 執法治安 Law & Order | 20 | 警察機關、測速照相、法院、鄉鎮犯罪統計、海巡 |
+| 廢棄物 Waste | 18 | 垃圾車即時位置與路線、清運點、焚化爐、掩埋場 |
+| 教育 Education | 17 | 各級學校、校地範圍、學區、幼兒園、補習班 |
+| 林業 Forestry | 16 | 林班、保安林、步道、樹冠高度、山屋營地 |
+| 太空 Space | 16 | 衛星即時軌跡（SGP4 推算）、未來軌跡、覆蓋足跡 |
 
-6 個軌道系統同步運行：
+<details>
+<summary>完整 28 主題清單</summary>
 
-| 系統 | 說明 |
-|------|------|
-| 台鐵（TRA） | 265 條 OD 軌道、333 列火車，依車種 6 色分類 |
-| 高鐵（THSR） | 南北主線 + 支線 |
-| 台北捷運（TRTC） | 8 條路線 |
-| 高雄捷運（KRTC） | 紅 / 橘線 |
-| 高雄輕軌（KLRT） | 環狀輕軌 |
-| 台中捷運（TMRT） | 綠 / 藍線 |
+| 主題 | 層數 |
+|---|---:|
+| 能源 Energy | 41 |
+| 交通 Move | 33 |
+| 農業 Agriculture | 29 |
+| 水資源 Water | 23 |
+| 環境氣候 Environment | 20 |
+| 執法治安 Law & Order | 20 |
+| 廢棄物 Waste | 18 |
+| 教育 Education | 17 |
+| 林業 Forestry | 16 |
+| 太空 Space | 16 |
+| 底圖 Base Map | 14 |
+| 災害 Hazard | 12 |
+| 基礎建設 Infrastructure | 11 |
+| 觀光 Tourism | 11 |
+| 社福長照 Welfare | 9 |
+| 醫療 Medical | 8 |
+| 房地產 Real Estate | 7 |
+| 宗教 Religion | 6 |
+| 運動休閒 Sports & Leisure | 6 |
+| 人口社經 People | 6 |
+| 殯葬 Funeral | 5 |
+| 文化 Culture | 5 |
+| 消防 Fire & Rescue | 5 |
+| 全球氣候 Global Climate | 5 |
+| 情勢 Situation | 3 |
+| 都市分析 Urban Analysis | 1 |
+| 民防避難 Civil Defense | 1 |
+| 世界 World | 1 |
 
-- **列車光球**：per-instance color，各系統不同顏色
-- **拖尾線**：台鐵 + 高鐵專屬（3 分鐘遞延）
-- **台鐵專用引擎**：處理 OD 軌道、golden track、彰化三角線等複雜路線
+（不含 10 個無 sidebar toggle 的 key）
 
-### 街道的脈動 — 公車
+</details>
 
-台北 + 新北 ~5,700 輛公車即時追蹤：
+### 幾個值得一看的
 
-- **GPS → Route Snap**：即時 GPS 座標投影到路線幾何上，沿道路平滑移動
-- **光球**：InstancedMesh 3000 instances，12 色 palette 依路線 hash 配色
-- **雙模式**：Live 模式 30 秒 polling GPS / Replay 模式載入歷史軌跡（5 分鐘降采樣）
-- **路線配對率**：99.9%（5746/5751），2293 條路線幾何預處理
-- **資料管線**：TDX A1 RealTimeByFrequency → data-collectors → Supabase `bus_current` / `bus_trails_daily`
+- **會動的東西**：航班 3D 光軌、船舶 InstancedMesh 光球、6 個軌道系統（台鐵／高鐵／北捷／高捷／高雄輕軌／中捷）依真實時刻表跑、公車 GPS snap 到路線幾何上移動
+- **時間軸**：所有動態圖層共用同一條時間軸，可回放歷史日期、加速播放、切換 1d/3d/7d 範圍
+- **衛星**：從 TLE 以 SGP4 逐秒推算即時位置 + 未來軌跡 + 覆蓋足跡
+- **統計面**：H3 六角格人口／人流，2D 填色與 3D 柱狀可切換
+- **BYOK 對話**：自帶 API key 的地圖 agent（Anthropic／Google／OpenAI），可查圖層、查資料、操作地圖
+- **可嵌入版** `/embed`：獨立的 MapLibre + PMTiles 輕量進入點
 
-## 地標與基礎設施
+### 資料量級
 
-| 標記 | 渲染方式 | 來源 |
-|------|---------|------|
-| 機場邊界（14 座） | fill + line + glow | OSM Overpass API |
-| 大站 Polygon | fill + glow | OSM Overpass API |
-| 小站 + 捷運站（491 站） | circle glow 圓環 | 車站 GeoJSON |
-| 車站光柱（535 站） | Three.js 3D 光柱（高度 = 停靠次數正規化） | 預計算靜態 JSON |
-| 港口邊界 | fill + line + glow | OSM Overpass API |
-| 燈塔（36 座） | circle dot + 3D 旋轉錐形光束 | 交通部航港局 |
-| 市區公車站 | circle dot + glow | TDX 公共運輸資料 |
-| 公路客運站 | circle dot + glow | TDX 公共運輸資料 |
-| 公共腳踏車站 | circle dot + glow | TDX 公共運輸資料 |
-| 國道路網 | line（紅色，zoom 自適應寬度） | 交通部公路局 |
-| 省道路網 | line（橘色，zoom 自適應寬度） | 交通部公路局 |
-| 自行車道 | line（綠色，zoom 自適應寬度） | 交通部 |
-| 國道壅塞 | line（色彩編碼壅塞等級，依 timeline 動態回放） | 交通部公路局 TDX → Supabase `realtime.freeway_sections` |
-| 氣象觀測站 | circle dot + glow | 中央氣象署 |
-| 離岸風場範圍 | fill + line + glow | 經濟部能源局 |
-| 人流模擬六角格 | Mapbox fill / fill-extrusion（Plasma / Viridis 色階） | 內政部最小統計區人流 |
-| 人口數六角格 | Mapbox fill / fill-extrusion（Inferno 色階） | SEGIS 村里人口統計 |
-| 人口指標六角格 | Mapbox fill / fill-extrusion（Inferno 色階，9 項指標） | SEGIS 村里人口統計 |
-| 溫度波浪曲面 | Three.js BufferGeometry（RdBu 發散色盤，vertex lerp 動畫） | 中央氣象署 0.03° 格點 |
-| 新聞事件標記 | Mapbox circle + glow（依 timeline 累積 + 15min ripple） | RSS ×29（CNA／自由／ETtoday／Google News geo ×22 縣市）→ Gemini Flash-Lite 地名抽取（368 鄉鎮白名單，LLM 不吐座標）→ Supabase `realtime.news_events`（geom 由鄉鎮界圖 centroid trigger 補）；每 20 分鐘一輪 |
-| 地震事件 | circle（規模/深度色階 + ripple 動畫，依 timeline 累積） | CWA 地震目錄 → Supabase `realtime.earthquake_events` |
-| 災害示警 ×5 群組 | fill + line + centroid circle（event_term 分色、severity 驅動透明度，依 timeline 動態 active 過濾）。拆為民生中斷／水文防汛／氣象特報／交通阻斷／安全環境五個獨立 toggle，共用單一 source | NCDR CAP feed（polygon + circle 解析）→ Supabase `realtime.disaster_alerts`；geocode 行政區代碼由 migration 161 解析成村里/鄉鎮/縣市界圖（99.8% 命中），無代碼者 fallback `area_desc` 文字比對 |
+隨手抓幾個有代表性的（2026-08 快照，完整盤點見 `.claude/memory/DATA_SCOPE.md`）：
 
-## 功能
+| 圖層 | 量體 |
+|---|---|
+| 農地田區（FTW） | 386,829 塊 |
+| 民防避難所 | 62,695 處 |
+| 垃圾車停運點 | 77,125 點 / 2,048 條路線 |
+| 淹水潛勢圖徵 | 17,303 |
+| 社福長照設施 | 10,004 點（9 類） |
+| 發電廠（含再生能源） | 10,665 |
+| 衛星 TLE 分類庫 | 約 67,000 顆 |
+| 共機動態 | 731 天零缺日紀錄 |
 
-### 圖層面板（LayerSidebar）
+### 覆蓋範圍與已知限制
 
-十分類側邊欄，共 23 個圖層可獨立 toggle 開關，面板可收合為側邊窄條（點擊 ◀ 收合、點窄條展開），固定高度並支援捲動：
+預設是**全台**，但有幾個誠實的例外要先講：
 
-| 分類 | 圖層 |
-|------|------|
-| **MOVING** | 航班 Flight、船舶 Ship、鐵道 Rail、公車即時 Bus Live（可展開參數面板） |
-| **NEWS** | 新聞事件 News（可展開） |
-| **STATION** | 高鐵站 THSR · 台鐵站 TRA · 捷運站 Metro · 市區公車站 City Bus · 公路客運站 Intercity · 公共腳踏車 Bike（可展開） |
-| **ROUTE** | 國道 Highway · 省道 Prov.Road · 自行車道 Cycling（可展開） |
-| **INFRA** | 碼頭 Port · 機場 Airport · 燈塔 Lighthouse（可展開） |
-| **ANALYTICS** | 人流模擬 Pop. Flow · 人口數 Population · 人口指標 Indicators（可展開） |
-| **MONITOR** | 國道壅塞 Congestion（可展開） |
-| **ENVIRON** | 氣象站 Weather（可展開）· 風場範圍 Wind Farm · 溫度波 Temperature（可展開） |
-| **HAZARD** | 活動斷層 Fault（可展開）· 地震 Earthquake · 民生中斷 Lifeline（停水/停電/斷訊/停班停課）· 水文防汛 Flood · 氣象特報 Weather · 交通阻斷 Transit · 安全環境 Safety（火災/海污/空品/森林）|
+- **廢棄物**只有 5 個縣市（高雄／新北／宜蘭／台北／基隆），且路線幾何僅高雄與新北完整
+- **殯葬都計分區**只有台北與新北
+- **都市熱島 LST** 不含澎湖
+- 少數縣市級資料（竊盜／交通事故）目前只有單一縣市
+- 部分資料的官方來源只保留最新快照，本專案的資料庫是**唯一的歷史紀錄**（例如地震回放）
 
-- MOVING 展開面板含 Live Status / Trails 模式切換（航班專用）+ 視覺參數 slider
-- 鐵道面板含 Train 列車開關 + Track 2D/3D 切換（互斥：2D 平面軌道 / 3D 立體軌道）
-- 車站面板含 Pillar 光柱開關 + Height 光柱高度調整
-- 運具按鈕顯示活躍數量（航班數、船舶數、列車數、公車數）
-- 收合狀態以彩色小點顯示各圖層啟用狀態
+全球級的則有：衛星、全球氣候場、USGS 地震、颱風路徑。
 
-### 即時參數調整
+其他細節（每個主題怎麼來、踩過什麼坑）散在 [`docs/features/`](docs/features/) 的 40 個資料夾裡。
 
-#### 航班（Flights）
-
-| 控制項 | 範圍 | 說明 |
-|--------|------|------|
-| Alt × | 1~5 | 高度誇張倍率，數值越大弧線越高聳 |
-| Z offset | 0~200m | 基準高度偏移，避免低空航線貼地 |
-| Opacity | 0.02~0.5 | 靜態軌跡線不透明度 |
-| Orb | — | 飛行光球大小 |
-| APT | 0~0.3 | 機場區域填充不透明度 |
-| Glow | 0~2 | 機場光暈強度 |
-
-#### 船舶（Ships）
-
-| 控制項 | 範圍 | 說明 |
-|--------|------|------|
-| Ship Orb | — | 船舶光球大小 |
-| Ship Trail | 0.05~1 | 船舶拖尾線透明度 |
-
-#### 鐵道（Rail）
-
-| 控制項 | 類型 | 說明 |
-|--------|------|------|
-| Train | toggle | 列車光球顯示開關 |
-| Track | select | 軌道渲染模式（2D 平面 / 3D 立體） |
-| Rail Z | 0~500m | 軌道 Z 軸偏移高度 |
-| Rail Orb | — | 列車光球大小 |
-| Rail Trk | 0.05~1 | 軌道線透明度 |
-
-#### 車站（THSR / TRA / Metro 各自獨立）
-
-| 控制項 | 範圍 | 說明 |
-|--------|------|------|
-| Stn | 0.3~3x | 車站圓環大小縮放 |
-| Pillar | toggle | 3D 光柱顯示開關 |
-| Height | 0.2~3x | 光柱高度倍率 |
-
-#### 燈塔（Lighthouses）
-
-| 控制項 | 範圍 | 說明 |
-|--------|------|------|
-| LH | 0.3~3x | 燈塔標記大小 |
-| Beam | toggle | 3D 旋轉光束開關 |
-| Dist | 0.2~3 | 光束投射距離 |
-| Opa | 0.05~0.8 | 光束透明度 |
-
-#### 人流模擬（Population Flow Simulation）
-
-| 控制項 | 範圍 | 說明 |
-|--------|------|------|
-| Opacity | 0.1~1 | 六角格填充不透明度 |
-| Contrast | 0.5~4 | Gamma 對比度（越大高人流越突出、低人流越暗） |
-| 3D | toggle | 2D 平面填充 / 3D 柱狀高度切換 |
-| Height | 10~200 | 3D 柱狀高度倍率 |
-| Metric | Day / Night | 日間人流 / 夜間人流切換（共用高度基準） |
-
-- 色階：日間 = Plasma（深靛→桃紅→亮黃），夜間 = Viridis（深紫→青綠→亮黃）
-- 正規化：log1p + gamma，感知均勻、色盲友善
-- Zoom 自動切換網格精度
-- 渲染：Mapbox 原生 fill / fill-extrusion layer（正確跟隨相機 pitch/bearing）
-
-#### 人口數（Population Count）
-
-| 控制項 | 範圍 | 說明 |
-|--------|------|------|
-| Opacity | 0.1~1 | 六角格填充不透明度 |
-| Contrast | 0.5~4 | Gamma 對比度 |
-| 3D | toggle | 2D 平面 / 3D 柱狀切換 |
-| Height | 10~200 | 3D 柱狀高度倍率 |
-
-- 資料：SEGIS 村里人口統計（114 年 6 月），7,748 村里
-- 色階：Inferno（深黑→紫紅→橘黃→亮黃白）
-- 正規化：log1p + gamma（總人口重尾分布適用）
-- Pipeline：`taipei-gis-analytics/pipelines/demographics/population/08_h3_village_demographics.py`
-- 解析度：res7（~8K cells）+ res8（~56K cells），不產 res9（村里 polygon 較大，res9 無意義）
-
-#### 人口指標（Population Indicators）
-
-| 控制項 | 範圍 | 說明 |
-|--------|------|------|
-| Category | Count / Struct / Burden | 指標分類選擇 |
-| Metric | 動態切換 | 依 Category 顯示對應指標 |
-| Opacity | 0.1~1 | 六角格填充不透明度 |
-| Contrast | 0.5~4 | Gamma 對比度 |
-| 3D | toggle | 2D 平面 / 3D 柱狀切換 |
-| Height | 10~200 | 3D 柱狀高度倍率 |
-
-**Category → Metric 對應**：
-
-| Category | Metric |
-|----------|--------|
-| 數量 Count | 戶數 HH · 男 M · 女 F |
-| 結構 Struct | 性別比 Sex · 每戶 PPH |
-| 負擔 Burden | 扶養 Dep · 扶幼 Child · 扶老 Elder · 老化 Aging |
-
-- 數量指標（hh/m/f）：log1p + gamma 正規化
-- 比率指標（sr/pph/dr/cd/ed/ai）：linear + gamma 正規化
-- 比率欄位 H3 聚合方式：人口加權平均（非簡單平均）
-
-#### 其他圖層
-
-| 圖層 | 控制項 | 範圍 | 說明 |
-|------|--------|------|------|
-| 公車即時（Bus Live） | Bus Orb | — | 公車光球大小 |
-| 公車站（City / Intercity） | Bus | 0.3~3x | 圓點大小 |
-| 公共腳踏車 | Bike | 0.3~3x | 圓點大小 |
-| 自行車道 | Cycling | 0.3~3x | 線條寬度倍率 |
-| 國道壅塞 | Freeway | 0.3~3x | 線條寬度倍率 |
-| 氣象站 | Weather | 0.3~3x | 標記大小 |
-
-#### 溫度波浪（Temperature Wave）
-
-| 控制項 | 類型 | 範圍 | 說明 |
-|--------|------|------|------|
-| 3D | toggle | — | 3D 波浪曲面 / 2D 平面色圖切換 |
-| Height | slider | 0~400 | 溫度造成的高低起伏振幅 |
-| Z Offset | slider | 0~1000 | 整塊曲面的 Z 軸抬升高度 |
-| Opacity | slider | 0.1~1 | 曲面透明度 |
-| Grid | toggle | — | 網格線覆蓋開關 |
-
-- 資料：中央氣象署小時溫度觀測分析格點（O-A0038-003），0.03° 解析度（~3.3km），120×67 格網
-- 色盤：RdBu 發散（深藍 → 白 → 深紅），正規化使用實際資料 tempMin/tempMax
-- 動畫：binary search 找兩個 bracketing frames，vertex lerp 平滑過渡
-- 時間同步：直接使用 timeline unix timestamp，與航班/船舶/列車完全同步
-
-### 載入畫面（LoadingScreen）
-
-首頁載入時同步等待 4 項資料完成，並以獨立進度列顯示各項狀態：
-
-| 資料項 | 大小 | 完成顯示 |
-|--------|------|---------|
-| 航班 Flights | ~84MB | 航班數量 |
-| 船舶 Ships | ~54MB | 船舶數量 |
-| 鐵道 Rail | ~53MB | 系統數量 |
-| 溫度場 Temperature | ~941KB | — |
-
-- 各項獨立打勾：✓ 完成（藍色 + 數量）、⟳ 進行中（旋轉動畫）、○ 等待中（灰色）
-- 底部真實進度條（done/total），非假動畫
-- 全部完成後才顯示地圖 UI 並自動播放時間軸，確保「一打開就是可使用狀態」
-
-### 全域 Loading 指示器（LoadingIndicator）
-
-所有透過 Supabase 的非同步資料載入（船舶 / 航班 / 國道壅塞 / 災害示警 / 地震 / 溫度 / YouBike / H3 人口）會自動在右上角顯示進度浮層，告知使用者目前正在撈取哪些資料：
-
-- `src/lib/loadingRegistry.ts` — 全域 task store + `withLoading()` 包裝函式
-- `src/hooks/useLoadingTasks.ts` — `useSyncExternalStore` 訂閱
-- `src/components/LoadingIndicator.tsx` — 半透明 HUD 浮層（spinner + 任務列表）
-- 各 loader 透過 `withLoading(id, label, supabase.rpc(...))` 自動 start/end，cache hit 不會觸發
-
-### 其他功能
-
-- 6 種 Mapbox 底圖樣式（Dark / Light / Satellite / Satellite Streets / Navigation Night / Streets）
-- 開場全台總覽視角（23.43°N, 121.12°E, z7.9, pitch 48°）
-- 14 座台灣機場預設視角 + 飛行動畫跳轉（2 秒）
-- 日期導航（◀ 日期 ▶ + 即時模式）+ 時間軸播放控制（30x~3600x 加速）+ 多日範圍瀏覽（1d/3d/7d）
-- Capture 拍攝模式（暗角 vignette + 標題 + 時間標記，按 ESC 退出）
-- 顯示模式切換：Live Status（即時位置）/ Trails（軌跡線）
-- 點擊飛機 / 列車光球顯示浮動資訊卡
-- 768px 以下自動切換手機版 UI（底部拖曳面板）
-- 底部資訊列：即時運具計數 + 相機 pitch / bearing / zoom 參數
-- Info Modal：5 頁多分頁說明面板（操作指南 · 功能圖例 · 資料來源 · 關於 · 個人）
-- Data Calendar 面板：月曆格顯示各資料源涵蓋日期，Dots/Heat 雙模式 + 來源篩選
+---
 
 ## 技術棧
 
-| 層級 | 技術 | 用途 |
-|------|------|------|
-| 框架 | React 19 + TypeScript + Vite | 應用骨架 |
-| 地圖 | Mapbox GL JS v3 | 3D terrain、底圖、相機控制 |
-| 空間索引 | H3 (h3-js) | 六角形網格（人流模擬 + 村里人口指標） |
-| 3D 渲染 | Three.js r172 | 光軌、光球、InstancedMesh |
-| Shader | GLSL | 光軌漸層材質 |
-| 雲端 | AWS S3 | 資料增量同步 |
-| 容器 | Docker + Nginx | 生產部署 |
+| 層級 | 選型 | 為什麼 |
+|---|---|---|
+| 框架 | React 19 + TypeScript 5.7 + Vite 6 | — |
+| 地圖 | Mapbox GL JS v3 | 3D terrain、相機控制、原生向量圖層 |
+| 3D | Three.js r172（Mapbox CustomLayer） | 光軌／光球／光柱／波浪曲面這類 Mapbox 畫不出來的東西，共用同一個 WebGL context 才不會有兩層畫布對不齊的問題 |
+| 向量切片 | PMTiles | 大面積靜態圖層（路網、等高線、行政界）走單一檔案 + HTTP Range 按需載入，不需要另外養一台 tile server |
+| 動態資料 | Supabase (PostGIS) RPC | 時序資料落 DB，前端只讀薄 RPC |
+| 空間索引 | H3 (h3-js) | 六角格統計 |
+| 嵌入版底圖 | MapLibre GL + Protomaps | `/embed` 不吃 Mapbox 額度 |
+| 部署 | Docker 多階段 build + nginx | — |
 
-## 架構
+---
 
-### Overlay Registry 模式
-
-所有 Mapbox GL 靜態圖層（機場、車站、港口、燈塔、道路、風場等）透過**配置驅動**的 Overlay Registry 統一管理：
-
-```
-overlayRegistry.ts  — 宣告式 config 陣列（sourceUrl + paint 函式）
-overlayManager.ts   — 通用 CRUD（addOverlay / updateTheme / setVisible）
-MapView.tsx         — 一個 useEffect 控制所有 overlay 可見性 + 主題
-```
-
-**新增一個 overlay 只需改 3 個檔案：**
-1. `src/types/index.ts` — `LayerVisibility` 加一個 key
-2. `src/map/overlayRegistry.ts` — 加一筆 `OverlayConfig`
-3. `src/components/LayerSidebar.tsx` — 在對應 section 加一列
-
-### Data Source Registry 模式
-
-多資料源時間管理透過 **Data Source Registry** 統一註冊：
-
-```
-useDataRegistry.ts  — 中央註冊表（sources Map + register/getTimelineRange/hasDataOnDate）
-useTimeline.ts      — 日期導向時間軸（selectedDate + rangeDays + windowStart/windowEnd）
-TimelineControls.tsx — 日期導航 UI（◀ 日期 ▶ + Live/Replay + 1d/3d/7d 範圍）
-DataCalendarPanel.tsx — 月曆格資料可用性視覺化（Dots/Heat 模式 + 來源篩選）
-```
-
-每個資料源宣告自己的時間類型：
-- **track**：航班、船舶、公車歷史軌跡（有明確的起訖時間範圍）
-- **snapshot**：溫度場（每小時一個 frame，跨多天）
-- **cyclic**：鐵道（每日循環的時刻表）
-- **static**：機場、車站等不隨時間變化的圖層
-
-### Supabase RPC pre-aggregate pattern
-
-所有高頻時序 RPC 都走「普通 table + per-day refresh function + pg_cron + 薄 SELECT RPC」pattern，避開 Supabase pooler 強制的 2 分鐘 statement_timeout，並讓前端讀取穩定落在百毫秒級：
-
-| RPC | 預聚合 table | Cron | Before → After |
-|---|---|---|---|
-| `get_ship_trails` | `realtime.ship_trails_daily` | `*/10` | timeout → 123ms |
-| `get_flight_trails` | `realtime.flight_trails_daily` | `*/10` | timeout → 126ms |
-| `get_freeway_congestion_day` | `realtime.freeway_congestion_daily` | `*/10` | 60s 邊緣 → 302ms |
-| `get_youbike_h3_snapshots` | `realtime.youbike_h3_daily` | `*/10` | 6.4s → 82ms |
-| `get_temperature_frames` | `realtime.temperature_frames_daily` | `*/30` | 551ms → 107ms |
-| `get_temperature_dates` | `realtime.temperature_dates_cache` | `*/15` | 1.9s → 72ms |
-| `get_temperature_grid_info` | `reference.temperature_grid_cells`（靜態） | — | 1.08s → 269ms |
-| `get_disaster_alerts_day` | `realtime.disaster_alerts_daily`（含已解析 geom） | `*/10` | **13.2s → 110ms** |
-| `get_cwa_imagery_frames_batch` | 批次 RPC 取代 N 次並發 fetch | — | `TypeError: Failed to fetch` → 57MB/1.7s |
-| `get_bus_current_taipei` | `realtime.bus_current`（upsert 表） | — | 即時 ~100ms |
-| `get_bus_trails` | `realtime.bus_trails_daily`（5 分鐘降采樣） | `*/15` | pre-agg → ~200ms |
-| `get_ship/flight/bus_dates` | `*_trails_days_summary` | — | 4s → 47ms |
-
-SQL 檔位於 `data-collectors/docs/sql/matview_*.sql`。盤點報告見 [`docs/supabase_rpc_audit.md`](./docs/supabase_rpc_audit.md)。
-
-### Three.js CustomLayer 架構
-
-透過 Mapbox `CustomLayer` 在同一個 WebGL context 中嵌入 Three.js 場景，六個獨立 CustomLayer 各自管理動態渲染，常駐地圖、由 `getIsVisible` 控制渲染開關：
-
-```
-Mapbox GL JS（底圖 + 3D terrain + 相機控制）
-  ├── CustomLayer: flight-3d     ← FlightScene（GLSL 光軌 + 光球 + 閃爍燈）
-  ├── CustomLayer: ship-3d       ← ShipScene（InstancedMesh + 拖尾線）
-  ├── CustomLayer: rail-3d       ← RailScene（靜態軌道 + 列車光球 + 拖尾）
-  ├── CustomLayer: bus-3d        ← BusScene（GPS snap 公車光球，3000 instances）
-  ├── CustomLayer: lighthouse-3d ← LighthouseScene（旋轉錐形光束）
-  ├── CustomLayer: station-pillar-3d ← StationPillarScene（車站 3D 光柱）
-  ├── CustomLayer: temperature-wave-3d ← TemperatureWaveScene（溫度 3D 波浪曲面）
-  ├── Population Flow Layer（Mapbox native fill / fill-extrusion）
-  ├── Demographics Layers（人口數 + 人口指標，Mapbox native fill / fill-extrusion）
-  └── Overlay Registry（Mapbox GL Layers）
-        ├── 機場邊界（fill + glow）
-        ├── 車站標記（polygon + circle glow）
-        ├── 港口邊界（fill + glow）
-        ├── 燈塔（circle + glow）
-        ├── 市區公車站 / 公路客運站 / 腳踏車站（circle + glow）
-        ├── 國道 / 省道 / 自行車道（line）
-        ├── 國道壅塞（line，色彩編碼）
-        ├── 氣象站（circle + glow）
-        └── 離岸風場（fill + line + glow）
-```
-
-### 專案結構
-
-```
-mini-taiwan-pulse/
-├── public/
-│   ├── aviation_data.json          # 航班軌跡（gitignored）
-│   ├── ship_data.json              # 船舶軌跡（gitignored）
-│   ├── airports.geojson            # 台灣 14 座機場邊界
-│   ├── station_polygons.geojson    # 大站 Polygon
-│   ├── station_points.geojson      # 小站 + 捷運站 Point（491 站）
-│   ├── station_pillars.json        # 車站光柱預計算資料（535 站）
-│   ├── station_daily_stops.json    # 站點每日停靠次數
-│   ├── bus_stations_city.geojson   # 市區公車站
-│   ├── bus_stations_intercity.geojson # 公路客運站
-│   ├── bike_stations.geojson       # 公共腳踏車站（gitignored）
-│   ├── cycling_routes.geojson      # 自行車道（gitignored）
-│   ├── freeway_congestion.geojson  # 國道壅塞（gitignored）
-│   ├── weather_stations.geojson    # 氣象站（gitignored）
-│   ├── port_polygons.geojson       # 港口邊界
-│   ├── lighthouse.geojson          # 燈塔位置（36 座）
-│   ├── national_highway.geojson    # 國道路網（gitignored）
-│   ├── provincial_road.geojson     # 省道路網（gitignored）
-│   ├── wind_plan.geojson           # 離岸風場範圍
-│   ├── h3_population_res7.json    # 人流模擬 res7（~8K cells）
-│   ├── h3_population_res8.json    # 人流模擬 res8（~56K cells）
-│   ├── h3_demographics_res7.json  # 村里人口指標 res7（~8K cells）
-│   ├── h3_demographics_res8.json  # 村里人口指標 res8（~56K cells）
-│   ├── temperature_grid.json      # 溫度格點時序（S3 逐時快照，~941KB）
-│   ├── news_events.geojson          # 新聞事件 fallback（主來源已改 Supabase RPC 按日載入）
-│   ├── bus/                        # 公車路線幾何（預處理產出，gitignored）
-│   │   └── taipei_bus_routes.json  # 台北+新北 2293 條路線（~17MB）
-│   └── rail/                       # 軌道時刻表 + GeoJSON（gitignored）
-│       ├── tra/                    # 台鐵
-│       ├── thsr/                   # 高鐵
-│       ├── trtc/                   # 台北捷運
-│       ├── krtc/                   # 高雄捷運
-│       ├── klrt/                   # 高雄輕軌
-│       └── tmrt/                   # 台中捷運
-├── scripts/                        # 資料準備腳本（Python + TypeScript）
-├── src/
-│   ├── App.tsx                     # 主應用 + 狀態協調
-│   ├── types/index.ts              # 型別定義（含 OverlayConfig）
-│   ├── components/
-│   │   ├── LoadingScreen.tsx       # 全資料預載進度畫面（4 項獨立打勾 + 真實進度條）
-│   │   ├── InfoModal.tsx           # 多分頁 Info Modal（5 頁）
-│   │   ├── LayerSidebar.tsx        # 十分類圖層面板（MOVING / NEWS / STATION / ROUTE / INFRA / ANALYTICS / MONITOR / ENVIRON / HAZARD）
-│   │   ├── TimelineControls.tsx    # 時間軸播放控制
-│   │   ├── DataCalendarPanel.tsx   # 月曆格資料可用性視覺化
-│   │   ├── AirportSelector.tsx     # 地點跳轉
-│   │   ├── StyleSelector.tsx       # 底圖樣式選擇
-│   │   └── MobileBottomSheet.tsx   # 手機版底部面板
-│   ├── map/
-│   │   ├── MapView.tsx             # Mapbox 地圖容器（overlay 生命週期管理）
-│   │   ├── overlayRegistry.ts      # Overlay 配置陣列（宣告式）
-│   │   ├── overlayManager.ts       # Overlay CRUD 通用函式
-│   │   ├── customLayer.ts          # Three.js CustomLayer 橋接（flight/ship/rail）
-│   │   ├── busCustomLayer.ts       # 公車 CustomLayer（GPS snap 光球）
-│   │   ├── lighthouseCustomLayer.ts # 燈塔 3D 光束 CustomLayer
-│   │   ├── stationPillarCustomLayer.ts # 車站光柱 CustomLayer
-│   │   ├── temperatureWaveCustomLayer.ts # 溫度波浪 CustomLayer
-│   │   ├── staticTrails.ts         # 2D 靜態航線軌跡
-│   │   ├── railTracks.ts           # Mapbox native 軌道線
-│   │   ├── h3LayerFactory.ts       # 人流六角格 Mapbox fill/fill-extrusion 工廠
-│   │   ├── demographicsLayerFactory.ts # 人口數/指標六角格工廠（Inferno 色階）
-│   │   └── cameraPresets.ts        # 機場預設視角
-│   ├── three/                      # Three.js 3D 場景
-│   │   ├── FlightScene.ts          # 航班光軌 + 光球 + GLSL shader
-│   │   ├── ShipScene.ts            # 船舶 InstancedMesh + 拖尾線
-│   │   ├── RailScene.ts            # 軌道列車光球 + 拖尾 + 靜態軌道
-│   │   ├── BusScene.ts             # 公車 GPS snap 光球（InstancedMesh 3000）
-│   │   ├── StationPillarScene.ts   # 車站 3D 光柱（InstancedMesh）
-│   │   ├── LighthouseScene.ts      # 燈塔旋轉錐形光束
-│   │   ├── TemperatureWaveScene.ts # 溫度 3D 波浪曲面（RdBu 色盤 + vertex lerp）
-│   │   ├── LightOrb.ts             # 光球共用元件
-│   │   ├── LightTrail.ts           # 光軌 GLSL 材質
-│   │   └── BlinkingLight.ts        # 防撞閃爍燈
-│   ├── engines/                    # 列車運動插值引擎
-│   │   ├── RailEngine.ts           # 通用軌道引擎（THSR/MRT）
-│   │   ├── TraTrainEngine.ts       # 台鐵專用引擎（OD 軌道）
-│   │   └── railUtils.ts            # 軌道工具函式
-│   ├── hooks/                      # React Custom Hooks
-│   │   ├── useLayerParamsRuntime.ts # 參數 store → 消費端回傳 API 的轉接層（舊名 useTransportParams）
-│   │   ├── useRailEngine.ts        # 軌道引擎 + rAF tick loop
-│   │   ├── useLayerVisibility.ts   # 圖層可見性 state + toggle
-│   │   ├── useThreeJsLayers.ts     # Three.js CustomLayer 建立與管理
-│   │   ├── useMapInteraction.ts    # 飛機/列車點擊互動
-│   │   ├── useFlightData.ts        # 航班資料載入
-│   │   ├── useShipData.ts          # 船舶資料載入
-│   │   ├── useRailData.ts          # 軌道資料載入
-│   │   ├── useTemperatureData.ts    # 溫度格點資料載入
-│   │   ├── useH3Data.ts            # 人流資料載入 + 快取
-│   │   ├── useDemographicsH3.ts    # 村里人口指標資料載入 + 快取
-│   │   ├── useTimeline.ts          # 時間軸播放邏輯
-│   │   ├── useDataRegistry.ts      # 資料源中央註冊表
-│   │   └── useIsMobile.ts          # 響應式斷點偵測
-│   ├── data/                       # 資料載入器
-│   │   ├── flightLoader.ts         # 航班 JSON 解析 + 時間窗過濾
-│   │   ├── shipLoader.ts           # 船舶 JSON 解析
-│   │   ├── railLoader.ts           # 軌道時刻表 + GeoJSON 載入
-│   │   ├── temperatureLoader.ts     # 溫度格點 JSON 載入
-│   │   ├── h3Loader.ts             # 人流 JSON 載入（local + S3 fallback）
-│   │   └── s3Loader.ts             # S3 增量同步
-│   ├── constants/                  # 常數定義
-│   └── utils/                      # 座標轉換、軌跡插值
-├── Dockerfile                      # Multi-stage build
-├── docker-compose.yml              # Port 3721
-└── nginx.conf
-```
-
-## 資料準備
-
-所有資料皆來自開放資料源，透過腳本擷取與轉換：
-
-### 航班資料
-
-來源：[FlightRadar24 API](https://fr24api.flightradar24.com/)
-
-```bash
-npm run fetch:flights              # 取得航班清單
-npm run fetch:tracks -- --date 2026-02-18   # 擷取飛行軌跡
-```
-
-### 船舶資料
-
-來源：AIS 船舶位置資料（經 ship-gis SQLite 匯出）
-
-```bash
-python3 scripts/export-ship-data.py                     # 預設日期
-python3 scripts/export-ship-data.py 2026-02-18 2026-02-19  # 指定日期範圍
-```
-
-### 軌道資料
-
-來源：公開時刻表 + OSM 軌道 GeoJSON
-
-```bash
-python3 scripts/export-rail-data.py          # 匯出 6 個系統的時刻表 + 軌道
-python3 scripts/build-station-points.py      # 合併 491 站 Point GeoJSON
-python3 scripts/fetch-station-polygons.py    # 下載大站 OSM Polygon
-npm run pillars:generate                     # 預計算車站光柱資料（停靠次數 → 高度）
-```
-
-### 溫度格點資料
-
-來源：[中央氣象署](https://www.cwa.gov.tw/) 小時溫度觀測分析格點（O-A0038-003），經 data-collectors 每小時收集存入 S3
-
-```bash
-# 從 S3 下載（自動偵測航班時間範圍）
-python3 scripts/fetch-temperature-s3.py
-
-# 指定日期範圍
-python3 scripts/fetch-temperature-s3.py 2026-02-17 2026-02-20
-```
-
-### S3 上傳
-
-```bash
-npm run s3:upload          # 航班資料
-npm run s3:upload:ships    # 船舶資料
-npm run s3:upload:rail     # 軌道資料
-```
-
-## 開發
-
-```bash
-npm install
-cp .env.example .env       # 填入 VITE_MAPBOX_TOKEN
-npm run dev                # 開發模式
-npm run build              # 正式建置
-```
-
-### Docker 本地部署
-
-```bash
-docker-compose up -d       # http://localhost:3721
-```
-
-大檔案透過 `docker-compose.yml` volumes 掛載到 `/data/`，nginx 會從該路徑讀取。
-
-### Zeabur 部署
-
-```
-1. Zeabur Dashboard → 建立服務 → 選 GitHub repo
-2. 設定環境變數：
-   - VITE_MAPBOX_TOKEN（build time，Vite 嵌入靜態檔）
-   - S3_ACCESS_KEY（runtime，pull 腳本用）
-   - S3_SECRET_KEY
-   - S3_REGION=ap-southeast-2
-   - S3_BUCKET=migu-gis-data-collector
-3. 建立 Volume → Mount path: /data
-4. 部署完成後，進 Web Terminal 執行：
-   sh /usr/local/bin/pull-deploy-assets.sh
-5. 確認輸出包含所有檔案 + "rail/ extracted to /data/rail/"
-```
-
-> **注意**：每次重新部署後 Volume 資料仍在，但新 container 啟動時不會自動拉取。
-> 若資料有更新，需手動再跑一次 pull 腳本。
-
-### 資料管理（S3 deploy-assets）
-
-大檔案（~200MB）不進 git，統一託管到 S3 `deploy-assets/` prefix，**私密存取**（需認證）：
-
-| S3 檔案 | 大小 | 說明 | 對應 /data/ 路徑 |
-|---------|------|------|-----------------|
-| `aviation_data.json` | 44MB | 航班軌跡 | `/data/aviation_data.json` |
-| `ship_data.json` | 54MB | 船舶軌跡 | `/data/ship_data.json` |
-| `rail.tar.gz` | ~8MB | 軌道資料（6 系統個別檔案打包） | `/data/rail/` 解壓 |
-| `provincial_road.geojson` | 44MB | 省道路網 | `/data/provincial_road.geojson` |
-| `national_highway.geojson` | 7.9MB | 國道路網 | `/data/national_highway.geojson` |
-| `bus_stations_city.geojson` | 19MB | 市區公車站 | `/data/bus_stations_city.geojson` |
-| `bus_stations_intercity.geojson` | 5.8MB | 公路客運站 | `/data/bus_stations_intercity.geojson` |
-| `bike_stations.geojson` | 4.4MB | 公共腳踏車站 | `/data/bike_stations.geojson` |
-| `cycling_routes.geojson` | — | 自行車道 | `/data/cycling_routes.geojson` |
-| `freeway_congestion.geojson` | — | 國道壅塞 | `/data/freeway_congestion.geojson` |
-| `weather_stations.geojson` | — | 氣象站 | `/data/weather_stations.geojson` |
-| `temperature_grid.json` | ~941KB | 溫度格點時序 | `/data/temperature_grid.json` |
-
-```bash
-# 本地 → S3（需 .env 中的 S3 credentials）
-bash scripts/upload-deploy-assets.sh
-
-# Container 內 S3 → /data/（需環境變數 S3_ACCESS_KEY 等）
-sh /usr/local/bin/pull-deploy-assets.sh
-```
-
-### 資料更新完整流程
-
-```bash
-# 1. 本地產生/更新資料（視需要）
-python3 scripts/export-rail-data.py       # 軌道
-
-# 2. 上傳到 S3 deploy-assets/（統一用這個腳本！）
-bash scripts/upload-deploy-assets.sh
-
-# 3. Zeabur Web Terminal 拉取
-sh /usr/local/bin/pull-deploy-assets.sh
-```
-
-> **⚠️ 易錯提醒**：
-> - `npm run s3:upload:rail` 上傳到的是 `rail-data/` 路徑（前端 fallback 用），**不是** deploy-assets
-> - 部署用的上傳一律用 `upload-deploy-assets.sh`，不要混用
-> - pull 腳本路徑是 `/usr/local/bin/`，不是 `/usr/share/nginx/html/`
-> - 前端請求的是 `/rail/krtc/krtc_schedules.json` 等個別檔案，不是 `rail_bundle.json`
+## 快速開始
 
 ### 環境需求
 
-- Node.js 22+
-- Python 3（資料匯出腳本）
+- Node.js 22+（`npm` — 本專案不使用 pnpm）
+- Python 3（部分資料預處理腳本）
 - Mapbox Access Token
+- Supabase 專案（動態圖層需要；只看靜態圖層可略）
 
-## 開放資料來源
+### 環境變數
 
-| 資料 | 來源 |
-|------|------|
-| 航班軌跡 | [FlightRadar24](https://www.flightradar24.com/) |
-| 船舶位置 | AIS（Automatic Identification System） |
-| 軌道時刻表 | 台鐵、高鐵、各捷運公開時刻表（[TDX](https://tdx.transportdata.tw/)） |
-| 機場 / 車站 / 港口邊界 | [OpenStreetMap](https://www.openstreetmap.org/) via Overpass API |
-| 燈塔位置 | 交通部航港局 |
-| 公車站位 / 腳踏車站 | [TDX 公共運輸資料](https://tdx.transportdata.tw/) |
-| 國道 / 省道 / 自行車道 | 交通部公路局 |
-| 國道壅塞 | 交通部公路局 |
-| 氣象觀測站 | [中央氣象署](https://www.cwa.gov.tw/) |
-| 溫度格點（0.03° 網格，每小時快照） | [中央氣象署](https://www.cwa.gov.tw/) O-A0038-003 |
-| 新聞事件地標 | [中央通訊社 CNA](https://www.cna.com.tw/)／[自由時報](https://www.ltn.com.tw/)／[ETtoday](https://www.ettoday.net/)／Google News RSS + Gemini Flash-Lite 地名抽取（座標由鄉鎮界圖 centroid 解析） |
-| 離岸風場範圍 | 經濟部能源局 |
-| 日夜間人流 | 內政部最小統計區人流統計（六角形網格化） |
-| 村里人口指標 | [社會經濟統計地理資訊網 (SEGIS)](https://segis.moi.gov.tw/)，114 年 6 月 |
-| 地圖底圖 | [Mapbox](https://www.mapbox.com/) |
+複製 `.env.example` 為 `.env` 後填入。**以下只列變數名與用途，實際值請自行取得。**
 
-## H3 統計圖層開發注意事項
+| 變數 | 必要性 | 用途 |
+|---|---|---|
+| `VITE_MAPBOX_TOKEN` | 必填 | Mapbox 底圖。**build time 注入**（Vite 會嵌進靜態檔） |
+| `VITE_SUPABASE_URL` | 動態圖層必填 | Supabase 專案 URL |
+| `VITE_SUPABASE_ANON_KEY` | 動態圖層必填 | Supabase anon key（只讀 RPC） |
+| `VITE_IMAGERY_CDN_BASE` | 選填 | 氣象衛星／雷達影像改走 CDN；未設則回退 base64 RPC |
+| `VITE_EMBED_BASEMAP_URL` | 選填 | `/embed` 的 PMTiles 底圖位置；未設用預設路徑 |
+| `VITE_WASTE_MATCHED_TRAILS` | 選填 | 垃圾車路線 feature flag |
+| `S3_BUCKET` / `S3_ACCESS_KEY` / `S3_SECRET_KEY` / `S3_REGION` | 部署／腳本 | 大型資產的上傳與容器啟動時拉取 |
+| `FR24_API_TOKEN` | 選填 | 航班軌跡抓取腳本 |
 
-新增 H3 六角格統計圖層時，以下是已踩過的 pitfall，務必避免重蹈覆轍：
+> ⚠️ `.env.example` 目前缺 `VITE_SUPABASE_*` 兩項，以本表為準。
+> `SUPABASE_SERVICE_ROLE_KEY` 只給後端腳本用，**絕不可進 bundle**。
 
-### 1. `map.isStyleLoaded()` 不可用於 useEffect 條件判斷
+### 安裝與啟動
 
-**問題**：`isStyleLoaded()` 在 Mapbox 載入 tiles 期間也會回傳 `false`（不只是初始 style parse），導致在時間軸播放、底圖切換等場景下，useEffect 永遠跳過更新。
-
-**解法**：改用 `map.getSource("source-id")` 檢查 source 是否已存在。Source 在 `style.load` / `load` 事件中由 `ensureXxxLayers()` 建立後就持續存在，不受 tile loading 影響。
-
-```typescript
-// BAD — 會在 tile loading 時持續 skip
-if (!map.isStyleLoaded()) return;
-
-// GOOD — source 存在就可以操作
-if (!map.getSource("h3-pop-count-src")) return;
+```bash
+npm install
+cp .env.example .env      # 依上表填入
+npm run dev               # http://localhost:3721
 ```
 
-### 2. useEffect deps 中的物件必須 useMemo
+大型靜態資產（PMTiles、路網 GeoJSON、軌道時刻表）不進 git。本機若沒有這些檔案，
+對應圖層會靜默沒東西——那是預期行為，不是壞掉。要完整體驗請看 [部署](#部署) 一節的資產同步機制。
 
-**問題**：`{ opacity, contrast, extruded, elevationScale }` 每次 render 都是新物件，導致 useEffect 每幀都觸發，搭配上面的 isStyleLoaded skip 造成無限 console spam。
+```bash
+npm run build             # tsc -b && vite build
+npm test                  # vitest run
+npx tsc -b                # 型別檢查（commit 前必跑，禁用 --noEmit）
+```
 
-**解法**：所有傳入 useEffect dependency 的 params 物件用 `useMemo` 包裝。
+---
 
-### 3. Pipeline：GeoDataFrame 含 MultiPolygon 時需 explode
+## 架構概覽
 
-**問題**：`polyfill_and_distribute()` 內部使用 `polygon.exterior.coords`，但 MultiPolygon 沒有 `.exterior` 屬性。
+### 資料從哪來
 
-**解法**：在呼叫前先 `gdf.explode(index_parts=False).reset_index(drop=True)`。
+本專案是一個 GIS 生態系的**消費端**，自己不做資料收集：
 
-### 4. 比率欄位 H3 聚合必須人口加權
+```
+data-collectors/           30+ 收集器，24hr 運行，抓即時資料
+        │
+taipei-gis-analytics/      資料引擎：開放資料目錄 + 清理 pipeline + 產 PMTiles
+        │
+gis-platform/              Supabase / PostGIS —— 時空資料 SSOT
+        │
+        ▼
+mini-taiwan-pulse          ← 你在這裡（只讀，負責渲染）
+```
 
-**問題**：簡單平均會讓小村里（人口 10）與大村里（人口 10,000）的比率權重相同。
+跨 repo 有資料契約變動時**上游先動、下游後動**，順序見 [`CLAUDE.md`](CLAUDE.md)。
 
-**解法**：`weighted_ratio = population × ratio` → distribute → `ratio = sum(weighted) / sum(population)`。
+### 資料怎麼進到前端：四條路
 
-### 5. 共用資料、分開 Source
+每個圖層在 manifest 標一個 `dataClass`，決定它走哪條路：
 
-兩個圖層（人口數 + 人口指標）共用同一份 JSON 但使用**獨立的 Mapbox source + layer**，才能各自控制 visibility、opacity、metric。不要試圖讓兩個圖層共享同一個 source — 會造成 GeoJSON 互相覆蓋。
+| 級別 | 路徑 | 層數 | 說明 |
+|---|---|---:|---|
+| **A** | `public/*.geojson` 全量 fetch | 119 | 最單純。體積上限約 5MB，超過要改切 PMTiles |
+| **B** | PMTiles + HTTP Range | 73 | 大面積靜態圖層。**必須同步 nginx.conf 與部署腳本清單**，漏掉會整批 404 |
+| **C** | Supabase RPC / 即時 API | 52 | 動態資料。必須註冊 loadingRegistry，時間相依一律走 timeStore 訂閱 |
+| **D** | 自行接線 | 115 | Three.js / WebGL CustomLayer，或 hook 自己 addSource/addLayer |
 
-## License
+### 前端怎麼渲染
 
-MIT License. 詳見 [LICENSE](LICENSE)。
+```
+Mapbox GL JS（底圖 + 3D terrain + 相機）
+  ├── Three.js CustomLayer ×16      航班光軌／船舶／列車／公車／燈塔光束／車站光柱／溫度波浪…
+  ├── Mapbox 原生 fill / line / circle / fill-extrusion   多數 POI 與面圖層
+  └── PMTiles source                大面積靜態切片
+```
+
+Three.js 場景在 `src/three/`（22 個 Scene），與 Mapbox 的橋接在 `src/map/*CustomLayer.ts`。
+
+### 時間軸
+
+Replay 模式下時間每秒更新約 60 次。若 `currentTime` 進了 React deps，每個 tick 都會
+重算整棵樹，成本是 `O(圖層數 × 60Hz)`——單開一層感覺不出來，多層同開就卡死。
+
+所以 `currentTime` 放在 React 之外的 store（`src/state/timeStore.ts`），動態圖層
+**禁止**把它放進 `useEffect` / `useMemo` / `useCallback` 的 deps，一律改為訂閱，
+並依資料特性選節流粒度（UI 顯示 250ms、路況快照 1000ms）。
+規則見 [`docs/development-rules.md`](docs/development-rules.md) §8，
+成因與盤點見 [`docs/perf-external-time-store.md`](docs/perf-external-time-store.md)。
+
+### 資料庫契約
+
+Supabase 分五個 schema，前端**只能**打 `public.*` RPC 或直讀 `reference.*` / `spatial.*`；
+高頻時序的 `realtime.*` 一律不對前端開放，要用就包一層 RPC。
+
+RPC 超過 1s 或 10k rows 一律套 pre-aggregate pattern（普通 table + per-day refresh function +
+pg_cron + 薄 SELECT RPC），避開 Supabase pooler 的 statement timeout。
+見 [`docs/supabase-optimization.md`](docs/supabase-optimization.md)、盤點表在
+[`docs/supabase_rpc_audit.md`](docs/supabase_rpc_audit.md)。
+
+---
+
+## 新增一個圖層
+
+這是本專案最刻意設計的部分。過去新增一層要碰 14 個檔案約 21 處，其中**大約一半是純登記**
+——同一份事實（這層叫什麼、什麼顏色、哪顆 icon、資料從哪來、屬於哪個主題）被抄進五、六張表，
+抄漏就漂移，而且多半 `tsc` 擋不住（值錯不是型別錯）。
+
+現在那份事實收在一處：
+
+```
+src/data/layerManifest.ts     一筆 entry  ─┐
+src/data/layerParamsSpec.ts   一筆規格    ─┴→ 派生 6 張登記表
+                                             LAYER_COLORS / LAYER_ICONS /
+                                             LAYER_LABELS / THEMES 的 LayerDef /
+                                             UPSTREAM_REGISTRY / 參數控件
+
+你只需要自己寫「實質邏輯」：
+  src/data/*Loader.ts          資料載入
+  src/hooks/use*Layer.ts       圖層 hook
+  src/map/overlayRegistry.ts   paint 表達式（或自己的 CustomLayer）
+```
+
+接線兩處：
+
+- **掛載** → [`src/layers/layerHookRegistry.tsx`](src/layers/layerHookRegistry.tsx)
+- **點擊** → [`src/map/gisClickRegistry.ts`](src/map/gisClickRegistry.ts)
+  （**first-hit-wins，陣列順序是 load-bearing**：點層排前段、大面積面層刻意排末段，重排會靜默改掉命中的那一層）
+
+### 守門機制
+
+| 機制 | 擋什麼 |
+|---|---|
+| `layerConsistency` 測試 | 沒 entry／欄位空殼／用 `null` 靜默豁免鐵則 |
+| `deployContract` 測試 | 靜態檔沒被列進部署腳本（B 級圖層 404 的根因） |
+| `layerGoldenSnapshot` 測試 | 搬移期的等價證明——派生前後畫面必須零失真 |
+| TypeScript 判別聯集 | 沒有 sidebar 位置的 key 若手癢填 `label`，直接紅 |
+
+### UX 四鐵則（缺一不可，違反退件）
+
+1. **透明度 slider 必備** — 每一層都要，不分 fill / line / circle / 3D
+2. **同層出現 ≥2 種分類 → 必寫圖例**，且配色走同一份 `xxxTypes.ts` SSOT（paint / popup / 圖例三邊共用）
+3. **可選取的物件 → 必接 click popup**，polygon 與 line 不是豁免條件
+4. **Sidebar 控件不得橫向溢出** — 參數區只有約 240px，選項 ≤3 用 button row、≥4 用原生 `<select>`
+
+完整定義見 [`docs/development-rules.md`](docs/development-rules.md) §4a。
+
+建議走 `/new-layer` 產骨架，再用 `layer-onboarding` 驗收，可以少漏很多步。
+
+---
+
+## 專案結構
+
+```
+mini-taiwan-pulse/
+├── src/
+│   ├── data/            資料載入器（57 個 *Loader.ts）+ layerManifest / layerParamsSpec
+│   ├── hooks/           圖層 hook（use*Layer.ts）與共用 hook
+│   ├── layers/          layerHookRegistry —— 圖層掛載總表
+│   ├── map/             Mapbox 容器、overlayRegistry、gisClickRegistry、*CustomLayer.ts
+│   ├── three/           Three.js 場景（22 個 Scene）
+│   ├── engines/         列車運動插值引擎
+│   ├── components/      UI（IconRailSidebar 桌機 / LayerSidebar 手機 / 時間軸 / 圖例 / popup）
+│   ├── chat/            BYOK 地圖 agent（AI SDK + tools）
+│   ├── embed/           /embed 嵌入版（MapLibre + PMTiles）
+│   ├── state/           timeStore 等外部 store
+│   └── lib/             loadingRegistry 等基礎設施
+├── public/              靜態 GeoJSON（扁平）+ PMTiles 目錄
+├── scripts/
+│   ├── fetch/           外部 API 抓取
+│   ├── preprocess/      預處理
+│   ├── export/          DB 匯出
+│   └── deploy/          S3 上傳 / 容器啟動拉取 / entrypoint
+└── docs/                規則、架構、40 個 feature 資料夾
+```
+
+目錄規則（什麼東西該放哪）以 [`CLAUDE.md`](CLAUDE.md) 為準。
+
+---
+
+## 測試
+
+```bash
+npm test        # vitest run —— 43 檔 588 tests
+npx tsc -b      # project references；禁用 --noEmit
+```
+
+測試不只測邏輯，很大一部分在**守登記簿的一致性**（見上面「守門機制」）——
+這類 bug 在執行期不會炸、只會讓某層安靜地不見，所以用測試釘住。
+
+---
+
+## 部署
+
+Zeabur 綁 GitHub `master` 自動部署。
+
+**Build**（Dockerfile 多階段）：
+
+```
+node:22-alpine    npm ci → npm run build（VITE_MAPBOX_TOKEN 以 build ARG 注入）
+      ↓
+nginx:alpine      dist → /usr/share/nginx/html，監聽 8080
+```
+
+**容器啟動時**（`scripts/deploy/entrypoint.sh`）：
+
+1. 若 S3 憑證存在 → **背景**執行 `pull-deploy-assets.sh`，把約 30 類資產
+   （PMTiles、GeoJSON、H3 JSON、軌道 tarball、pre-render RPC 快照）同步進 `/data`
+2. 背景起一個氣候貼圖定時重整迴圈（預設 6 小時）
+3. `exec nginx`
+
+資產拉取刻意放背景：nginx 立刻綁 port，健康檢查不必等首次同步（首拉數百 MB）跑完。
+之後每次重啟走 `aws s3 sync`，未變更的物件會跳過。
+
+nginx 用 `root /data` 覆寫約 30 個 location，其中一部分再 `try_files` 回退到 build 產物，
+所以本機沒同步資產時仍跑得起來。PMTiles **刻意不進 `gzip_types`**——
+它內部已壓縮，再走一次 gzip 會破壞 Range 請求。
+
+本機 Docker：
+
+```bash
+docker compose up -d      # http://localhost:3721 （host 3721 → container 8080）
+```
+
+本機 compose 不帶 S3 憑證，改用 bind mount 掛 `./public`，因此只覆蓋部分圖層。
+
+---
+
+## 資料來源與授權
+
+本專案的資料**幾乎全部來自政府開放資料與公開資料源**，
+包含（但不限於）內政部、交通部（含 TDX 運輸資料流通服務）、經濟部、
+中央氣象署、農業部、環境部、衛生福利部、教育部、各縣市政府開放資料平台，
+以及 OpenStreetMap、AIS 船舶訊號、FlightRadar24、Space-Track TLE 與 UCS 衛星資料庫。
+
+每個圖層的上游血緣登記在 manifest 的 `upstream` 欄位（**217 個不同的上游 dataset**，
+其中 322 層已與上游目錄對帳驗證），可在站上的「資料來源」面板逐層查看。
+
+感謝所有開放資料的維護者——沒有這些，這張地圖不會存在。
+
+程式碼採 MIT License，見 [LICENSE](LICENSE)。**資料本身的授權依各來源規定**，
+與本專案的程式碼授權無關。
+
+---
+
+## 相關文件
+
+| 文件 | 內容 |
+|---|---|
+| [`CLAUDE.md`](CLAUDE.md) | 開發規則摘要、目錄規則、git workflow |
+| [`docs/development-rules.md`](docs/development-rules.md) | 完整規則 + 範例（資料契約、圖層接線、UX 四鐵則） |
+| [`docs/perf-external-time-store.md`](docs/perf-external-time-store.md) | timeStore：為什麼 `currentTime` 不能進 React |
+| [`docs/TIMELINE_ARCHITECTURE.md`](docs/TIMELINE_ARCHITECTURE.md) | 時間軸 UI 的三層結構設計提案 |
+| [`docs/supabase-optimization.md`](docs/supabase-optimization.md) | pre-aggregate pattern 完整指南 |
+| [`docs/known-issues.md`](docs/known-issues.md) | 歷史 bug + 診斷指令 |
+| [`docs/features/`](docs/features/) | 40 個功能領域各自的脈絡與交接文件 |
