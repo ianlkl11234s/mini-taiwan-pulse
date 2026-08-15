@@ -20,11 +20,15 @@ import { paramBool, paramNum, useKeyOverlayParams, useLayerParams } from "../lay
 /** 全球地震（USGS） */
 export const EarthquakesGlobalHost: LayerHostComponent = ({ deps }) => {
   bumpHostRender("useEarthquakesGlobalLayer");
+  // 兩種取值路徑並存：opacity 是既有的 overlayParams 參數（無 out:null，維持原行為不動），
+  // 回溯天數是 out:null 的 select（值只回 hook 不進 overlay）→ 走 useLayerParams + paramNum。
   const p = useKeyOverlayParams("earthquakesGlobal");
+  const values = useLayerParams("earthquakesGlobal");
   useEarthquakesGlobalLayer(
     deps.mapRef,
     deps.layerVisibility.earthquakesGlobal,
     p.earthquakesGlobalOpacity ?? 0.9,
+    paramNum(values, "earthquakesGlobal", "earthquakesGlobalDays"),
   );
   return null;
 };

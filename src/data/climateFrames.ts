@@ -26,6 +26,18 @@ const MANIFEST_URL = `${FRAMES_BASE}manifest.json`;
 const MANIFEST_TTL_MS = 30 * 60 * 1000;
 const LRU_MAX = 8;
 
+/**
+ * pickNearestFrame 的建議容差上限（18 小時）。
+ *
+ * 為什麼是 18h：各 dataset 過去段一律是 **daily 00Z**（wind10m / currents 皆然，
+ * dust 的 CAMS leadtime 只有 0/24/48/72/96/120 也是 daily），daily 幀的「最壞合法距離」
+ * ＝半個間隔＝ 12h（例如 timeline 停在 12:00，前後兩張 00Z 各差 12h）。
+ * 取 18h ＝ 12h + 50% 緩衝（吸收 init cycle 偏移、缺 1 張 6h 幀之類的抖動），
+ * 同時仍嚴格擋掉「差一天以上」的過期幀 —— 也就是幀窗口停在 7/24、timeline 拉到 8/14
+ * 卻硬給 7/24 那張的病灶。
+ */
+export const FRAME_PICK_TOLERANCE_MS = 18 * 60 * 60 * 1000;
+
 export type FrameKind = "analysis" | "forecast";
 
 export interface ClimateFrame {
@@ -35,6 +47,7 @@ export interface ClimateFrame {
   tMs: number;
   /** PNG 路徑（相對 /climate/frames/） */
   png: string;
+  /** 向量場值域；scalar dataset（如 dust，PNG 已預烤色階）四者皆 0。 */
   u_min: number;
   u_max: number;
   v_min: number;
@@ -82,15 +95,21 @@ function normalizeManifest(raw: unknown): ClimateFramesManifest | null {
       const png = typeof fr.png === "string" ? fr.png : null;
       const tMs = t ? Date.parse(t) : NaN;
       if (!t || !png || !Number.isFinite(tMs)) continue;
-      if (![fr.u_min, fr.u_max, fr.v_min, fr.v_max].every((n) => typeof n === "number" && Number.isFinite(n))) continue;
+      // 向量場（wind10m / currents）四件套必須齊全且 finite；
+      // scalar dataset（dust：PNG 已預烤色階，前端不解 UV）整組缺席 → 視為 0。
+      // 「部分缺」仍視為壞資料丟棄，保住向量場的品質檢查。
+      const uv = [fr.u_min, fr.u_max, fr.v_min, fr.v_max];
+      const uvPresent = uv.filter((n) => n !== undefined && n !== null).length;
+      if (uvPresent !== 0 && uvPresent !== 4) continue;
+      if (uvPresent === 4 && !uv.every((n) => typeof n === "number" && Number.isFinite(n))) continue;
       frames.push({
         t,
         tMs,
         png,
-        u_min: fr.u_min as number,
-        u_max: fr.u_max as number,
-        v_min: fr.v_min as number,
-        v_max: fr.v_max as number,
+        u_min: (fr.u_min as number) ?? 0,
+        u_max: (fr.u_max as number) ?? 0,
+        v_min: (fr.v_min as number) ?? 0,
+        v_max: (fr.v_max as number) ?? 0,
         kind: fr.kind === "forecast" ? "forecast" : "analysis",
         init_at: typeof fr.init_at === "string" ? fr.init_at : undefined,
       });
@@ -199,8 +218,16 @@ export async function loadFrameRaster(frame: ClimateFrame, baseMeta: ClimateMeta
 /**
  * 選最接近 targetMs 的幀（兩幀之間取較近者；相等取較早）。
  * frames 假設已依 tMs 升冪；純函式，方便單元測試。
+ *
+ * @param maxGapMs 容差上限：最近幀距 targetMs 超過此值 → 回 null（「這段沒資料」），
+ *   避免幀窗口早已過期還默默給一張幾週前的圖。預設 Infinity ＝ 舊行為（永遠給最近的），
+ *   呼叫端請明確傳 {@link FRAME_PICK_TOLERANCE_MS} 或自家 dataset 的合適值。
  */
-export function pickNearestFrame(frames: ClimateFrame[], targetMs: number): ClimateFrame | null {
+export function pickNearestFrame(
+  frames: ClimateFrame[],
+  targetMs: number,
+  maxGapMs: number = Infinity,
+): ClimateFrame | null {
   if (frames.length === 0) return null;
   let best = frames[0]!;
   let bestDist = Math.abs(best.tMs - targetMs);
@@ -211,7 +238,12 @@ export function pickNearestFrame(frames: ClimateFrame[], targetMs: number): Clim
       bestDist = d;
     }
   }
-  return best;
+  return bestDist > maxGapMs ? null : best;
+}
+
+/** 幀 PNG 的可載入 URL（含 BASE_URL 前綴）；raster overlay 類圖層直接餵 mapbox image source。 */
+export function frameImageUrl(frame: ClimateFrame): string {
+  return resolvePublicAssetUrl(`${FRAMES_BASE}${frame.png}`);
 }
 
 /** per-dataset LRU raster cache（key = frame.png，Map 插入序即 LRU）。 */

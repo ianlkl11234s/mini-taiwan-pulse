@@ -3917,12 +3917,12 @@ export const LAYER_MANIFEST = {
     dataClass: "D",
     source: {
       kind: "custom",
-      note: "hook 自建 source/layer（earthquakes-global / earthquakes-global-circle），資料走 earthquakesGlobalLoader 打 USGS feed —— 非 OVERLAY_REGISTRY",
+      note: "hook 自建 source + 四層（earthquakes-global-circle 主層 / -pre 預示 / -ripple-0..1 擴散圈），資料走 earthquakesGlobalLoader 打 Supabase public.earthquakes_global（USGS feed 由上游 collector 抓，前端不直接打）—— 非 OVERLAY_REGISTRY。ripple/pre 為裝飾層，刻意不進 gisClickRegistry 免搶點擊",
     },
     legend: "earthquakesGlobal",
     popup: "earthquakeGlobal",
-    params: { count: 1, kinds: ["slider"] },
-    description: "USGS 全球地震（規模分大小、深度分色，最近 2000 筆）",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "USGS 全球地震（規模分大小、深度分色，回溯天數可選，跟時間軸播放並跑震波擴散圈）",
     topics: ["全球氣候", "地震", "即時"],
   },
 

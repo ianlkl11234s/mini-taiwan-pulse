@@ -1061,6 +1061,20 @@ export const LAYER_PARAMS_SPEC = {
 
   // ══════════ 天災・水利・農業・運動生態 ══════════
   earthquakesGlobal: [
+    // 回溯天數決定 loader 的「查詢窗」（非 filter）—— 全域時間軸最多 7 天視窗，
+    // 表達不了 14/30 天的回看。hook 端 `Number(value)` 還原成數字。
+    // 「僅當日」走台北日界，與 timeline 日期選擇器顯示的一致。
+    {
+      kind: "select", name: "earthquakesGlobalDays", label: "回溯", default: "14",
+      options: [
+        { label: "僅當日", value: "1" },
+        { label: "3 天", value: "3" },
+        { label: "7 天", value: "7" },
+        { label: "14 天", value: "14" },
+        { label: "30 天", value: "30" },
+      ],
+      out: null,
+    },
     { kind: "slider", name: "earthquakesGlobalOpacity", labelPrefix: "透明度", digits: 2, default: 0.9, min: 0, max: 1, step: 0.05 },
   ],
   worldTrashDebris: [

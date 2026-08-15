@@ -13,6 +13,7 @@ import {
   fetchClimateBaseMeta,
   pickNearestFrame,
   FrameRasterCache,
+  FRAME_PICK_TOLERANCE_MS,
   type ClimateFrame,
 } from "../data/climateFrames";
 
@@ -191,8 +192,17 @@ export function useClimateParticleLineLayer(
 
     const selectForTime = (tSec: number) => {
       if (cancelled || !cache || frames.length === 0) return;
-      const frame = pickNearestFrame(frames, tSec * 1000);
-      if (!frame || frame.png === currentKey) return;
+      const frame = pickNearestFrame(frames, tSec * 1000, FRAME_PICK_TOLERANCE_MS);
+      // 超出資料窗口：清圖例（否則 legend 卡在過期 validAt，畫面沒資料卻標著舊時刻），
+      // 並重置 currentKey —— 只 clear 不重置的話，拉出窗口再拉回同一張幀時
+      // frame.png === currentKey 會提早 return，legend 永遠空但畫面仍顯示該幀。
+      // 重置後重套只是 LRU cache hit，成本近零。粒子場本身不清（保留 *_latest fallback 底圖）。
+      if (!frame) {
+        currentKey = null;
+        if (statusKey) climateFrameStore.clear(statusKey);
+        return;
+      }
+      if (frame.png === currentKey) return;
       currentKey = frame.png;
       cache
         .get(frame)

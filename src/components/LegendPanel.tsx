@@ -3100,7 +3100,9 @@ function DustForecastLegend() {
         DUST AOD 550NM · CAMS
       </div>
       <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 2 }}>
-        沙塵光學厚度（相對色階，透明 = 無沙塵）
+        {/* 上游 climate_bake 已從 per-file normalize 改為固定 sqrt 色階（t = √(AOD/1.0)），
+            跨幀可比 —— 文案須與上游同時上線，否則會描述錯誤的色階語意。 */}
+        沙塵光學厚度 AOD 0–1 固定色階（跨時間可比，透明 = 無沙塵）
       </div>
       <ClimateGradientBar
         gradient={`linear-gradient(to right, ${DUST_BAKE_STOPS.map((s) => `${s.color} ${(s.t * 100).toFixed(0)}%`).join(", ")})`}

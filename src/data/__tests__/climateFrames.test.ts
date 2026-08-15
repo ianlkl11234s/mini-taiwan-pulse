@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { pickNearestFrame, type ClimateFrame } from "../climateFrames";
+import { pickNearestFrame, FRAME_PICK_TOLERANCE_MS, type ClimateFrame } from "../climateFrames";
 
 function frame(t: string, kind: "analysis" | "forecast" = "analysis"): ClimateFrame {
   return {
@@ -56,5 +56,39 @@ describe("pickNearestFrame", () => {
     // 07-19 12:00 距 07-19 00:00 與 07-20 00:00 皆 12h → 取較早
     const got = pickNearestFrame(frames, Date.parse("2026-07-19T12:00:00Z"));
     expect(got?.t).toBe("2026-07-19T00:00:00Z");
+  });
+});
+
+describe("pickNearestFrame 容差上限", () => {
+  const HOUR = 3600_000;
+
+  it("不傳容差 → 維持舊行為（多遠都給）", () => {
+    const got = pickNearestFrame(frames, Date.parse("2026-08-14T00:00:00Z"));
+    expect(got?.t).toBe("2026-07-20T12:00:00Z");
+  });
+
+  it("窗口過期（幀停在 7/20、目標 8/14）→ null", () => {
+    const got = pickNearestFrame(frames, Date.parse("2026-08-14T00:00:00Z"), FRAME_PICK_TOLERANCE_MS);
+    expect(got).toBeNull();
+  });
+
+  it("daily 幀最壞合法距離 12h 仍在 18h 容差內", () => {
+    const got = pickNearestFrame(frames, Date.parse("2026-07-19T12:00:00Z"), FRAME_PICK_TOLERANCE_MS);
+    expect(got?.t).toBe("2026-07-19T00:00:00Z");
+  });
+
+  it("距離剛好等於容差 → 給（不是嚴格小於）", () => {
+    // 目標 07-18 00:00 減 18h＝07-17 06:00，距首幀恰 18h
+    const got = pickNearestFrame(frames, Date.parse("2026-07-17T06:00:00Z"), 18 * HOUR);
+    expect(got?.t).toBe("2026-07-18T00:00:00Z");
+  });
+
+  it("距離超過容差 1ms → null", () => {
+    const got = pickNearestFrame(frames, Date.parse("2026-07-17T06:00:00Z") - 1, 18 * HOUR);
+    expect(got).toBeNull();
+  });
+
+  it("空清單 + 容差 → null", () => {
+    expect(pickNearestFrame([], Date.now(), FRAME_PICK_TOLERANCE_MS)).toBeNull();
   });
 });
