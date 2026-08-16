@@ -157,7 +157,13 @@ function MetaRow({ left, right }: { left: ReactNode; right?: ReactNode }) {
 /** 四張卡的趨勢柱一律看同一個窗，卡與卡之間才比得起來 */
 const TREND_DAYS = 14;
 
-const fetchTyphoonProximity = () => fetchTyphoonProximityDaily(TREND_DAYS);
+/**
+ * 颱風看 45 天而不是共用的 14 天：颱風是季節性事件，14 天窗常常整片空白
+ * （2026-08 中旬實測只有 8/1–8/11 有颱風在 1000km 內），拉長才看得出這一季的節奏。
+ * 其餘三卡維持 14 天 —— 地震／落雷／輻射是天天有數字的連續量。
+ */
+const TYPHOON_TREND_DAYS = 45;
+const fetchTyphoonProximity = () => fetchTyphoonProximityDaily(TYPHOON_TREND_DAYS);
 
 /** 每張卡共用的輪詢：open 時立刻抓一次，之後每 pollMs 失效重抓 */
 function usePolledSummary<T>(
@@ -235,10 +241,16 @@ export function TyphoonCard({ open, nowTs }: Props) {
   const { data, phase } = usePolledSummary<TyphoonSummary | null>(
     open, fetchTyphoonSummary, invalidateTyphoonSummary, 30 * 60_000, "[TyphoonCard]",
   );
-  // 逐日接近程度（RPC 349）。與快照分開輪詢：這份跨日才變，且 RPC 實測 ~680ms
+  // 逐日接近程度（RPC 349）。與快照分開輪詢：這份跨日才變，且 RPC 實測 45 天約 900ms
   const { data: proximity } = usePolledSummary(
     open, fetchTyphoonProximity, null, 30 * 60_000, "[TyphoonCard/proximity]",
   );
+  // 點某一天的柱 → 下方展開那天是哪顆颱風。兩排圖共用同一個選取（同一天的兩種切面）
+  const [pickedDate, setPickedDate] = useState<string | null>(null);
+  const pickBar = (b: HazardBar) => {
+    const k = b.key ?? b.label;
+    setPickedDate((prev) => (prev === k ? null : k));
+  };
   const label = "颱風 · TYPHOON";
   const tint = "rgba(56,189,248,0.06)";
   const footer = "來源：JMA / JTWC 颱風路徑 · 活躍判定 24h";
@@ -274,6 +286,7 @@ export function TyphoonCard({ open, nowTs }: Props) {
   // 標題直說沒颱風接近，主數字仍留著（知道最近的一顆在哪還是有意義）
   const remote = data.distance_km > PROXIMITY_CEIL_KM;
   const distBars: HazardBar[] = days.map((d) => ({
+    key: d.dateKey,
     label: d.dateKey.slice(5).replace("-", "/"),
     value: proximityHeight(d.nearestKm),
     level: proximityLevel(d.nearestKm),
@@ -283,11 +296,13 @@ export function TyphoonCard({ open, nowTs }: Props) {
         + (d.windKt != null ? ` · ${d.windKt} kt` : ""),
   }));
   const nearbyBars: HazardBar[] = days.map((d) => ({
+    key: d.dateKey,
     label: d.dateKey.slice(5).replace("-", "/"),
     value: d.stormsNearby,
     level: Math.min(d.stormsNearby, 2),
     note: `${d.stormsNearby} 顆在 1000km 內`,
   }));
+  const picked = pickedDate != null ? days.find((d) => d.dateKey === pickedDate) ?? null : null;
   const closestKm = days.reduce<number | null>(
     (m, d) => (d.nearestKm != null && (m == null || d.nearestKm < m) ? d.nearestKm : m), null,
   );
@@ -310,19 +325,35 @@ export function TyphoonCard({ open, nowTs }: Props) {
       <HazardTrendBars
         bars={distBars}
         levelColors={PROXIMITY_COLORS}
-        caption={`${TREND_DAYS}D · 接近程度（柱越高越近）／距離（色）`}
+        caption={`${TYPHOON_TREND_DAYS}D · 接近程度（柱越高越近）／距離（色）· 可點`}
         footer={closestKm != null ? `最近 ${Math.round(closestKm).toLocaleString("zh-TW")} km` : undefined}
         height={34}
         unit=" km（距 1500 圈）"
+        onSelectBar={pickBar}
+        selectedKey={pickedDate}
       />
       {/* 下排：顆數。JMA/JTWC 同一顆有兩套編號，RPC 349 已跨來源去重 */}
       <HazardTrendBars
         bars={nearbyBars}
         levelColors={NEARBY_COLORS}
-        caption={`${TREND_DAYS}D · 1000km 內颱風數`}
+        caption={`${TYPHOON_TREND_DAYS}D · 1000km 內颱風數`}
         height={26}
         unit=" 顆"
+        onSelectBar={pickBar}
+        selectedKey={pickedDate}
       />
+      {/* 點某一天展開那天是哪顆 —— 兩排圖只看得出「有沒有／幾顆」，看不出是誰 */}
+      {picked && (
+        <Note color={COLORS.textDefault}>
+          {picked.dateKey.slice(5).replace("-", "/")} ·{" "}
+          {picked.nearestKm == null
+            ? "當天無颱風觀測"
+            : `${picked.name ?? picked.stormId ?? "—"} 最近 `
+              + `${Math.round(picked.nearestKm).toLocaleString("zh-TW")} km`
+              + (picked.windKt != null ? ` · ${picked.windKt} kt` : "")
+              + ` · ${picked.stormsNearby} 顆在 1000km 內`}
+        </Note>
+      )}
       {/* 右側刻意放 storm_id 而非 name_local —— JMA 的 name_local 是日文片假名
           （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}
       <MetaRow
