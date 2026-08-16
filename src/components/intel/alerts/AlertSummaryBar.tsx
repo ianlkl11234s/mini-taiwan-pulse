@@ -117,7 +117,9 @@ export function AlertSummaryBar({
         <div
           style={{
             display: "grid",
-            // 同 AlertBoard：窄容器自動降欄，不硬塞 3 欄
+            // 窄容器自動降欄。⚠️ 與 AlertBoard policy **不同**：那邊 2026-08-16 起
+            // 固定 3×2（六個分類是固定一組，欄數浮動會變 5+1）；這裡是可收合的
+            // 摘要條、寬度隨主面板變動範圍大得多，維持 auto-fit。改動時別互相對齊。
             gridTemplateColumns: "repeat(auto-fit, minmax(96px, 1fr))",
             gap: 6,
             padding: "2px 12px 11px",

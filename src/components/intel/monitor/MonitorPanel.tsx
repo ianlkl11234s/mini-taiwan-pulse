@@ -50,6 +50,9 @@ import {
   type MonitorWidgetId, type MonitorGridItem,
 } from "./monitorLayout";
 import { buildMonitorTree, nodeWidth, type MonitorNode } from "./monitorPacking";
+import {
+  MONITOR_SPLIT_DOCK, MONITOR_SPLIT_VISIBLE_LAYOUT, type MonitorMode,
+} from "./monitorSplitLayout";
 import { supabase } from "../../../lib/supabase";
 import { useNewsFilter } from "../../../hooks/useNewsFilter";
 import {
@@ -86,6 +89,21 @@ const MONITOR_STACK_ORDER: MonitorGridItem[] = [...MONITOR_VISIBLE_LAYOUT].sort(
 );
 /** 座標 → 欄/列樹。佈局是模組常數，拆一次就好 */
 const monitorTree: MonitorNode = buildMonitorTree(MONITOR_VISIBLE_LAYOUT);
+
+// ── split 模式（右半邊 dock）的窄版佈局來源 ──
+/** split 堆疊模式渲染順序：依 (y, x) 排序，與 MONITOR_STACK_ORDER 同邏輯 */
+const MONITOR_STACK_ORDER_SPLIT: MonitorGridItem[] = [...MONITOR_SPLIT_VISIBLE_LAYOUT].sort(
+  (a, b) => a.y - b.y || a.x - b.x,
+);
+/** split 座標 → 欄/列樹 */
+const monitorTreeSplit: MonitorNode = buildMonitorTree(MONITOR_SPLIT_VISIBLE_LAYOUT);
+
+/** header 的三段模式切換選項 */
+const MODE_OPTIONS: { key: MonitorMode; label: string; icon: string[] }[] = [
+  { key: "dock", label: "Dock", icon: MICON.minimize! },
+  { key: "split", label: "Split", icon: MICON.grid! },
+  { key: "wall", label: "Wall", icon: MICON.maximize! },
+];
 
 /**
  * 欄/列樹 → DOM。
@@ -203,11 +221,15 @@ interface Props {
   onFilterChange?: (next: NewsFilter) => void;
   onSelectLocation?: (lon: number, lat: number) => void;
   externalSelectedId?: number | null;
+  /** 呈現模式。主站傳入受控；不傳則用內部 state（預設 "dock"，維持舊行為） */
+  mode?: MonitorMode;
+  onModeChange?: (next: MonitorMode) => void;
 }
 
 export function MonitorPanel({
   open, onClose, filter: filterProp, onFilterChange: onFilterChangeProp,
   onSelectLocation, externalSelectedId,
+  mode: modeProp, onModeChange: onModeChangeProp,
 }: Props) {
   // AR-22 P4：主站不傳 filter/onFilterChange，改自己 per-key 訂閱同一個 store slot
   const { filter: storeFilter, setFilter: storeSetFilter } = useNewsFilter();
@@ -230,9 +252,11 @@ export function MonitorPanel({
 
   const [dayKey, setDayKey] = useState(() => timeStore.getDateKey());
 
-  // ── 面板尺寸 + wall mode ──
+  // ── 面板尺寸 + 呈現模式 ──
   const [height, setHeight] = useState(0.62);
-  const [wall, setWall] = useState(false);
+  const [modeState, setModeState] = useState<MonitorMode>("dock");
+  const mode = modeProp ?? modeState;
+  const setMode = onModeChangeProp ?? setModeState;
 
   // ── 全部資料 ──
   const [sourceHealth, setSourceHealth] = useState<SourceHealthSummary>(EMPTY_HEALTH);
@@ -485,7 +509,7 @@ export function MonitorPanel({
   // resize drag
   const draggingRef = useRef(false);
   useEffect(() => {
-    if (!open || wall) return;
+    if (!open || mode !== "dock") return;
     const move = (e: MouseEvent) => {
       if (!draggingRef.current) return;
       const f = (window.innerHeight - e.clientY) / window.innerHeight;
@@ -501,11 +525,11 @@ export function MonitorPanel({
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
-  }, [open, wall]);
+  }, [open, mode]);
 
-  // grid 容器實寬（非 window 寬——面板有 left 64/right 14 inset，wall mode 又不同）→
-  // 窄於 STACK_BREAKPOINT_PX 時切堆疊模式。做法比照 TimeseriesSparkline 的
-  // useLayoutEffect + ResizeObserver 模式。
+  // grid 容器實寬（非 window 寬——面板 inset 依 mode 而異：wall/split 都不同於 dock）→
+  // 窄於斷點時切堆疊模式（斷點本身也依 mode 選，見下方 stackBreakpointPx）。
+  // 做法比照 TimeseriesSparkline 的 useLayoutEffect + ResizeObserver 模式。
   const gridRef = useRef<HTMLDivElement>(null);
   const [gridWidth, setGridWidth] = useState(0);
   useLayoutEffect(() => {
@@ -525,7 +549,8 @@ export function MonitorPanel({
     ro.observe(el);
     return () => ro.disconnect();
   }, [open]);
-  const isStacked = gridWidth > 0 && gridWidth < STACK_BREAKPOINT_PX;
+  const stackBreakpointPx = mode === "split" ? MONITOR_SPLIT_DOCK.stackBreakpointPx : STACK_BREAKPOINT_PX;
+  const isStacked = gridWidth > 0 && gridWidth < stackBreakpointPx;
 
   if (!open) return null;
 
@@ -655,26 +680,31 @@ export function MonitorPanel({
     lightning: <LightningCard open={open} nowTs={now} />,
   };
 
+  const isWall = mode === "wall";
+  const isSplit = mode === "split";
+
   return (
     <div
       style={{
         position: "fixed",
-        left: wall ? 0 : 64,
-        right: 14,
-        bottom: wall ? 0 : 14,
-        top: wall ? 0 : "auto",
-        height: wall ? "auto" : `${height * 100}vh`,
-        background: wall ? "rgba(6,7,11,0.97)" : "rgba(8,9,13,0.86)",
+        left: isSplit ? `${(1 - MONITOR_SPLIT_DOCK.widthPct) * 100}%` : (isWall ? 0 : 64),
+        right: isSplit ? MONITOR_SPLIT_DOCK.right : 14,
+        bottom: isSplit ? MONITOR_SPLIT_DOCK.bottom : (isWall ? 0 : 14),
+        top: isSplit ? MONITOR_SPLIT_DOCK.top : (isWall ? 0 : "auto"),
+        height: isSplit ? "auto" : (isWall ? "auto" : `${height * 100}vh`),
+        background: isWall ? "rgba(6,7,11,0.97)" : "rgba(8,9,13,0.86)",
         backdropFilter: "blur(18px)",
         WebkitBackdropFilter: "blur(18px)",
-        borderTop: wall ? "none" : `1px solid ${COLORS.borderMid}`,
-        border: wall ? "none" : `1px solid ${COLORS.panelBorder}`,
-        borderRadius: wall ? 0 : RADIUS.xl,
+        borderTop: isWall ? "none" : `1px solid ${COLORS.borderMid}`,
+        border: isWall ? "none" : `1px solid ${COLORS.panelBorder}`,
+        borderRadius: isWall ? 0 : RADIUS.xl,
         zIndex: 40,
         display: "flex", flexDirection: "column",
         overflow: "hidden",
-        boxShadow: wall ? "none" : ELEVATION.dock,
-        animation: "monitorRise .32s cubic-bezier(0.22,1,0.36,1)",
+        boxShadow: isWall ? "none" : ELEVATION.dock,
+        animation: isSplit
+          ? "monitorSlideIn .32s cubic-bezier(0.22,1,0.36,1)"
+          : "monitorRise .32s cubic-bezier(0.22,1,0.36,1)",
       }}
     >
       {/* drag handle + header */}
@@ -684,17 +714,17 @@ export function MonitorPanel({
           display: "flex", alignItems: "center", gap: 10,
           padding: "8px 14px",
           borderBottom: `1px solid ${COLORS.panelBorder}`,
-          cursor: wall ? "default" : "ns-resize",
+          cursor: mode === "dock" ? "ns-resize" : "default",
         }}
         onMouseDown={(e) => {
-          if (!wall) {
+          if (mode === "dock") {
             draggingRef.current = true;
             document.body.style.cursor = "ns-resize";
             e.preventDefault();
           }
         }}
       >
-        {!wall && (
+        {mode === "dock" && (
           <span
             style={{
               position: "absolute", left: "50%", top: 5,
@@ -707,7 +737,7 @@ export function MonitorPanel({
         <div
           style={{
             display: "flex", alignItems: "center", gap: 8,
-            marginTop: wall ? 0 : 4,
+            marginTop: isWall ? 0 : 4,
           }}
         >
           <IntelIcon d={MICON.grid!} size={15} color={COLORS.accent} />
@@ -735,38 +765,52 @@ export function MonitorPanel({
             BETA
           </span>
         </div>
+        {/* ⚠️ 這行必須是 header 裡唯一可壓縮的東西：flex row 沒有 wrap，其餘項目
+            （標題群、三顆模式鈕、退出）都是 nowrap 且 min-width:auto，誰都縮不了。
+            split 模式面板只有視窗的 46%，1440 螢幕下固定內容就超過面板寬，
+            少了這裡的 minWidth:0 + ellipsis，最右邊的「退出」會被面板的
+            overflow:hidden 裁掉且點不到（1440 實測超出 30px）。 */}
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
-            marginTop: wall ? 0 : 4, whiteSpace: "nowrap",
+            marginTop: isWall ? 0 : 4, whiteSpace: "nowrap",
+            minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
           今日 {allEventsToday.length} 則 · SITUATIONAL AWARENESS
         </span>
         <div style={{ flex: 1 }} />
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setWall((v) => !v);
-          }}
-          onMouseDown={(e) => e.stopPropagation()}
-          style={{
-            display: "inline-flex", alignItems: "center", gap: 6,
-            padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
-            marginTop: wall ? 0 : 4, fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
-            whiteSpace: "nowrap",
-            background: wall ? COLORS.accentFaint : "rgba(255,255,255,0.05)",
-            border: wall ? `1px solid ${COLORS.accentSoft}` : `1px solid ${COLORS.borderMid}`,
-            color: wall ? COLORS.accent : COLORS.textDefault,
-          }}
-        >
-          <IntelIcon
-            d={wall ? MICON.minimize! : MICON.maximize!}
-            size={13}
-            color={wall ? COLORS.accent : "currentColor"}
-          />
-          Wall mode
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: isWall ? 0 : 4 }}>
+          {MODE_OPTIONS.map(({ key, label, icon }) => {
+            const active = mode === key;
+            return (
+              <button
+                key={key}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMode(key);
+                }}
+                onMouseDown={(e) => e.stopPropagation()}
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
+                  fontFamily: FONT_CJK, fontSize: FONT_SIZE.base,
+                  whiteSpace: "nowrap",
+                  background: active ? COLORS.accentFaint : "rgba(255,255,255,0.05)",
+                  border: active ? `1px solid ${COLORS.accentSoft}` : `1px solid ${COLORS.borderMid}`,
+                  color: active ? COLORS.accent : COLORS.textDefault,
+                }}
+              >
+                <IntelIcon
+                  d={icon}
+                  size={13}
+                  color={active ? COLORS.accent : "currentColor"}
+                />
+                {label}
+              </button>
+            );
+          })}
+        </div>
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -776,7 +820,7 @@ export function MonitorPanel({
           style={{
             display: "inline-flex", alignItems: "center", gap: 6,
             padding: "5px 11px", borderRadius: RADIUS.lg, cursor: "pointer",
-            marginTop: wall ? 0 : 4,
+            marginTop: isWall ? 0 : 4,
             fontFamily: FONT_CJK, fontSize: FONT_SIZE.base, whiteSpace: "nowrap",
             background: "rgba(255,255,255,0.05)",
             border: `1px solid ${COLORS.borderMid}`,
@@ -800,7 +844,7 @@ export function MonitorPanel({
         }}
       >
         {isStacked
-          ? MONITOR_STACK_ORDER.map((item) => (
+          ? (isSplit ? MONITOR_STACK_ORDER_SPLIT : MONITOR_STACK_ORDER).map((item) => (
               <div
                 key={item.i}
                 className="mtp-scroll mtp-monitor-cell"
@@ -818,7 +862,7 @@ export function MonitorPanel({
                 {widgets[item.i]}
               </div>
             ))
-          : renderMonitorNode(monitorTree, widgets)}
+          : renderMonitorNode(isSplit ? monitorTreeSplit : monitorTree, widgets)}
       </div>
 
       <style>{`
@@ -829,6 +873,10 @@ export function MonitorPanel({
         @keyframes monitorRise {
           from { transform: translateY(18px); opacity: 0; }
           to   { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes monitorSlideIn {
+          from { transform: translateX(18px); opacity: 0; }
+          to   { transform: none; opacity: 1; }
         }
         @keyframes drawerOpen {
           from { opacity: 0; transform: translateY(-8px); }

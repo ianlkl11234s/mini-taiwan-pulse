@@ -60,6 +60,7 @@ import { IconRailSidebar } from "./components/IconRailSidebar";
 import { DataSourceBrowser } from "./components/DataSourceBrowser";
 import { IntelPanel } from "./components/intel/IntelPanel";
 import { MonitorPanel } from "./components/intel/monitor/MonitorPanel";
+import { MONITOR_SPLIT_CAMERA, MONITOR_SPLIT_DOCK, type MonitorMode } from "./components/intel/monitor/monitorSplitLayout";
 import { SatelliteConsole } from "./components/satelliteConsole/SatelliteConsole";
 import { PropertyValuePanel } from "./components/PropertyValuePanel";
 import { EarthquakeReplayPanel } from "./components/EarthquakeReplayPanel";
@@ -517,6 +518,38 @@ export default function App() {
   const [railCloseEpoch, setRailCloseEpoch] = useState(0);
   // ── Monitor Mode（戰情看板，底部上拉） ──
   const [monitorOpen, setMonitorOpen] = useState(false);
+  // Monitor 呈現模式：dock（底部浮層，預設）/ wall（近全屏）/ split（右半邊，rail icon 入口）
+  const [monitorMode, setMonitorMode] = useState<MonitorMode>("dock");
+  const splitActive = monitorOpen && monitorMode === "split";
+  /**
+   * 進入 split 時把鏡頭帶到「台灣整島落在左半可視區」的預設視角，並套用視野讓位。
+   *
+   * 兩件事**必須在同一個動畫裡**：分成 `easeTo({padding})` ＋ `flyTo({center})`
+   * 兩個 effect 的話，後發的 flyTo 會立刻取消前一個 easeTo，padding 過渡半路夭折。
+   *
+   * deps 只有 splitActive → 之後手動平移縮放不會被拉回；退出 split 不還原視角，
+   * 只把 padding 歸零（視野讓位是 dock 造成的，dock 收起來就該還原）。
+   */
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const right = splitActive ? MONITOR_SPLIT_DOCK.mapPaddingRight : 0;
+    const padding = { left: 0, top: 0, bottom: 0, right };
+    if (splitActive && MONITOR_SPLIT_CAMERA.autoFrame) {
+      map.flyTo({
+        center: MONITOR_SPLIT_CAMERA.center,
+        zoom: MONITOR_SPLIT_CAMERA.zoom,
+        pitch: MONITOR_SPLIT_CAMERA.pitch,
+        bearing: MONITOR_SPLIT_CAMERA.bearing,
+        duration: MONITOR_SPLIT_CAMERA.durationMs,
+        padding,
+      });
+      return;
+    }
+    // 沒有要飛（autoFrame 關掉、或正在退出 split）→ 只處理 padding，且沒變就別動
+    if (right === 0 && !map.getPadding().right) return;
+    map.easeTo({ padding, duration: 400 });
+  }, [splitActive]);
   const satConsole = useSatelliteConsole();
   const satManeuvers = useSatelliteManeuvers(satConsole.open);
   const maneuverNorads = useMemo(() => {
@@ -1596,6 +1629,19 @@ export default function App() {
               }}
               propertyValueActive={propertyValueOpen}
               externalCloseEpoch={railCloseEpoch}
+              onMonitorSplitToggle={() => {
+                if (monitorOpen && monitorMode === "split") {
+                  setMonitorOpen(false);
+                } else {
+                  // 開啟 split Monitor → 同上方 Monitor 按鈕的開啟衛生：關 Intel / Satellite
+                  setIntelOpen(false);
+                  satelliteConsoleStore.setOpen(false);
+                  setMonitorOpen(true);
+                  setMonitorMode("split");
+                }
+              }}
+              monitorSplitActive={monitorOpen && monitorMode === "split"}
+              compactLayers={monitorOpen && monitorMode === "split"}
             />
           </div>
 
@@ -1645,6 +1691,8 @@ export default function App() {
           <MonitorPanel
             open={monitorOpen}
             onClose={() => setMonitorOpen(false)}
+            mode={monitorMode}
+            onModeChange={setMonitorMode}
             onSelectLocation={(lon, lat) => {
               mapRef.current?.flyTo({ center: [lon, lat], zoom: 11, speed: 1.2 });
             }}
@@ -1763,6 +1811,7 @@ export default function App() {
                 if (!monitorOpen) {
                   setIntelOpen(false);
                   satelliteConsoleStore.setOpen(false);
+                  setMonitorMode("dock");
                 }
                 setMonitorOpen((v) => !v);
               }}

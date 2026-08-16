@@ -1,6 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
+import { padTaipeiDaily } from "../lib/taipeiDay";
 
 /**
  * 核安 loader（RPC 215 get_nuclear_radiation_status）
@@ -47,7 +48,6 @@ async function fetchNuclearAtUncached(targetTs: number): Promise<NuclearStation[
   return (data ?? []) as NuclearStation[];
 }
 
-import { cachedByKey } from "../lib/loaderCache";
 const fetchNuclearAtCached = cachedByKey<NuclearStation[]>(
   (key) => fetchNuclearAtUncached(Number(key)),
   5 * 60_000,
@@ -290,3 +290,115 @@ export function toNuclearFC(rows: NuclearStation[]): GeoJSON.FeatureCollection<G
     }),
   };
 }
+
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 輻射卡歷史趨勢（RPC 348 get_nuclear_radiation_daily，近 N 天逐日）
+// ══════════════════════════════════════════════════════════════════
+//
+// gis-platform migration 348 尚未 apply（待 user review）之前，PostgREST 對
+// 不存在的函式回 404 / code PGRST202——這類「還沒上線」的失敗才安靜拿到空陣列、
+// 用 console.debug 不噴紅字；其餘（500 / RLS 撤權 / 網路錯誤…）一律 console.warn
+// 仍照樣回 []（卡片還是要優雅降級，只是不能再無聲吞掉真正的故障，見
+// isMissingRpcError）。migration apply 後 isMissingRpcError 分支自然不會再命中，
+// 不用再改本檔。
+//
+// 補零口徑比照 lightningLoader.ts fetchLightningDaily：stationCount 缺日補
+// 0（COUNT() 對空集合就是 0），meanUsvh / maxUsvh 缺日補 null（AVG()/MAX()
+// 對空集合沒有意義，不該假裝成 0）—— 詳見 gis-platform migration 348 檔頭
+// 「補零決策」。
+//
+// ⚠️ 命名為 NuclearDoseDay 而非 NuclearDay——`NuclearDay`（見本檔 77 行）
+// 已被「單日全站 per-station 序列」（day preload，給 useHazardLayer.ts
+// 逐幀 scrub 用）佔用，形狀完全不同（date_key/stations[] vs 本介面的
+// dateKey/meanUsvh/maxUsvh/stationCount），沿用同名會撞 TS2739。
+//
+// ⚠️ 連續日期軸的錨點**不是** todayTaiwan()：analytics.nuclear_radiation_daily
+// 的 refresh cron 只補「昨天」，today 這格在 RPC 端永遠不存在。若軸錨在
+// todayTaiwan()，會把 RPC 回傳的最舊一天擠掉、同時把 today 補成一根假的
+// 「今日 0 站」柱——每天都錯一格。改錨在 RPC 實際回傳的最新一筆
+// reading_date（=表內 MAX(obs_date)，正常情況下就是昨天；pipeline 落後時
+// 右界也會誠實跟著落後）。rows 為空（RPC 成功但聚合表全空）直接回 []，
+// 比照 RPC 未上線的降級行為。
+//
+// 刻意不包 withLoading：Monitor 面板背景輪詢（30min 一次），非圖層載入 ——
+// 灌 LOADING 面板會讓牆面每半小時閃一次。理由同 loadingRegistryContract.test.ts
+// 對 airportPaxLoader 的豁免（本函式已列入該檔 EXEMPT）。
+
+export interface NuclearDoseDay {
+  /** 台北曆日 YYYY-MM-DD */
+  dateKey: string;
+  /** 全站平均劑量率；當日無資料時 null */
+  meanUsvh: number | null;
+  /** 全站最大劑量率；當日無資料時 null */
+  maxUsvh: number | null;
+  /** 當日有回報的站數；當日無資料時補 0 */
+  stationCount: number;
+}
+
+interface NuclearDailyRpcRow {
+  reading_date: string;
+  mean_usvh: number | null;
+  max_usvh: number | null;
+  station_count: number;
+}
+
+const DEFAULT_NUCLEAR_DAILY_DAYS = 14;
+
+/**
+ * 把 RPC 回傳（只含有資料的日期，已由舊到新排序）補成連續 days 天。
+ * 右界錨在 rows 最後一筆的 reading_date（不是 todayTaiwan()，理由見檔頭）。
+ */
+function padNuclearDaily(rows: NuclearDailyRpcRow[], days: number): NuclearDoseDay[] {
+  return padTaipeiDaily(rows, days, (r) => r.reading_date, (dateKey, r) => ({
+    dateKey,
+    meanUsvh: r?.mean_usvh ?? null,
+    maxUsvh: r?.max_usvh ?? null,
+    stationCount: r?.station_count ?? 0,
+  }));
+}
+
+/** PostgREST 對不存在的函式回 PGRST202（HTTP 404）——這類才是「RPC 還沒上線」。 */
+function isMissingRpcError(error: { code?: string } | null, status: number): boolean {
+  return error?.code === "PGRST202" || status === 404;
+}
+
+function clampDailyDays(daysKey: string): number {
+  return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
+}
+
+async function fetchNuclearDailyUncached(daysKey: string): Promise<NuclearDoseDay[]> {
+  try {
+    const { data, error, status } = await supabase.rpc("get_nuclear_radiation_daily", {
+      p_days: clampDailyDays(daysKey),
+    });
+    if (error) {
+      if (isMissingRpcError(error, status)) {
+        console.debug("[NuclearDaily] get_nuclear_radiation_daily 尚未上線，回空陣列:", error);
+      } else {
+        console.warn("[NuclearDaily] get_nuclear_radiation_daily 查詢失敗，回空陣列:", error);
+      }
+      return [];
+    }
+    return padNuclearDaily((data ?? []) as NuclearDailyRpcRow[], clampDailyDays(daysKey));
+  } catch (e) {
+    console.warn("[NuclearDaily] get_nuclear_radiation_daily 查詢例外，回空陣列:", e);
+    return [];
+  }
+}
+
+const fetchNuclearDailyCached = cachedByKey<NuclearDoseDay[]>(
+  fetchNuclearDailyUncached,
+  30 * 60_000, // 每日才變一次，比照 fetchErWaitTotal14d 的 30min TTL
+  4,
+);
+
+/**
+ * 過去 days 天逐日輻射趨勢，由舊到新；右界是資料實際回溯到的最新一天
+ * （通常是昨天，不保證是今天，見檔頭錨點說明）。RPC 未上線、失敗、或
+ * 聚合表全空回 []。
+ */
+export const fetchNuclearDaily = (
+  days: number = DEFAULT_NUCLEAR_DAILY_DAYS,
+): Promise<NuclearDoseDay[]> => fetchNuclearDailyCached(String(days));
+
+export const invalidateNuclearDaily = (): void => fetchNuclearDailyCached.invalidate();

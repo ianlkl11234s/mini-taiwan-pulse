@@ -17,15 +17,20 @@ import { useEffect, useState, type ReactNode } from "react";
 import { COLORS, FONT_CJK, FONT_DATA, relTime } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
+import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import {
-  fetchTyphoonSummary, invalidateTyphoonSummary, type TyphoonSummary,
+  fetchTyphoonSummary, fetchTyphoonTrend, invalidateTyphoonSummary,
+  type TyphoonSummary, type TyphoonTrendPoint,
 } from "../../../data/typhoonTracksLoader";
 import {
-  fetchEarthquakeSummary, invalidateEarthquakeSummary, type EarthquakeSummary,
+  fetchEarthquakeDaily, fetchEarthquakeSummary, invalidateEarthquakeSummary,
+  type EarthquakeSummary,
 } from "../../../data/earthquakeLoader";
-import { fetchNuclearSummary, type NuclearSummary } from "../../../data/nuclearLoader";
 import {
-  fetchLightningSummary, invalidateLightningSummary,
+  fetchNuclearDaily, fetchNuclearSummary, type NuclearSummary,
+} from "../../../data/nuclearLoader";
+import {
+  fetchLightningDaily, fetchLightningSummary, invalidateLightningSummary,
   LIGHTNING_TYPE_LABELS, type LightningSummary,
 } from "../../../data/lightningLoader";
 
@@ -149,6 +154,9 @@ function MetaRow({ left, right }: { left: ReactNode; right?: ReactNode }) {
   );
 }
 
+/** 四張卡的趨勢柱一律看同一個窗，卡與卡之間才比得起來 */
+const TREND_DAYS = 14;
+
 /** 每張卡共用的輪詢：open 時立刻抓一次，之後每 pollMs 失效重抓 */
 function usePolledSummary<T>(
   open: boolean,
@@ -194,10 +202,57 @@ function typhoonTone(s: TyphoonSummary): { dot: string; distColor: string } {
   return { dot: COLORS.accent, distColor: COLORS.textStrong };
 }
 
+/**
+ * 風速強度分級（kt），CWA 定義：<34 熱帶性低氣壓、34–63 輕度、64–99 中度、≥100 強烈。
+ * index 與 `TY_LEVEL_COLORS` 對齊。
+ */
+function windLevel(kt: number | null): number {
+  if (kt == null) return 0;
+  if (kt >= 100) return 3;
+  if (kt >= 64) return 2;
+  if (kt >= 34) return 1;
+  return 0;
+}
+const TY_LEVEL_COLORS = [COLORS.statusLive, COLORS.accent, COLORS.statusWarn, COLORS.statusErr];
+
+/**
+ * 觀測點時間標籤 `MM/DD HH`（台北）。同一顆颱風一天多筆，只到日會撞 React key。
+ *
+ * ⚠️ 從完整的 `YYYY-MM-DD HH:mm:ss` 切，不要用 `{month,day,hour}` 選項 —— sv-SE 在
+ * 只給月日時會吐成日/月（實測 8/13 顯示為 `13/08`），與地震卡的 MM/DD 對不起來。
+ */
+function trendStamp(ts: number): string {
+  const s = new Date(ts * 1000).toLocaleString("sv-SE", { timeZone: "Asia/Taipei" });
+  return `${s.slice(5, 10).replace("-", "/")} ${s.slice(11, 13)}`;
+}
+
 export function TyphoonCard({ open, nowTs }: Props) {
   const { data, phase } = usePolledSummary<TyphoonSummary | null>(
     open, fetchTyphoonSummary, invalidateTyphoonSummary, 30 * 60_000, "[TyphoonCard]",
   );
+  // 這顆颱風自己的觀測序列。不能用 usePolledSummary —— 它的 deps 只有 [open, pollMs]，
+  // 換颱風（storm_id 變動）不會重抓。資料本身零成本：複用地圖圖層already在抓的
+  // fetchTyphoonPoints()（10 分鐘快取），這裡只是依 storm_id 濾出來。
+  const stormId = data?.storm_id ?? null;
+  const [trend, setTrend] = useState<TyphoonTrendPoint[]>([]);
+  useEffect(() => {
+    if (!open || !stormId) {
+      setTrend([]);
+      return;
+    }
+    let cancelled = false;
+    const tick = () => {
+      fetchTyphoonTrend(stormId)
+        .then((t) => { if (!cancelled) setTrend(t); })
+        .catch((e) => console.warn("[TyphoonCard/trend]", e));
+    };
+    tick();
+    // 跟上面的快照同頻輪詢。少了這個，牆面掛著看侵台過程時上半的風速數字一直更新、
+    // 下面的柱狀圖卻停在開卡當下那批觀測，同一張卡自己打架。
+    // fetchTyphoonPoints() 有 10 分鐘快取，多這一輪幾乎不花成本。
+    const id = window.setInterval(tick, 30 * 60_000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [open, stormId]);
   const label = "颱風 · TYPHOON";
   const tint = "rgba(56,189,248,0.06)";
   const footer = "來源：JMA / JTWC 颱風路徑 · 活躍判定 24h";
@@ -228,6 +283,14 @@ export function TyphoonCard({ open, nowTs }: Props) {
   const tone = typhoonTone(data);
   const name = data.name_en || data.name_local || data.storm_id;
   const windMs = data.max_wind_kt != null ? Math.round(data.max_wind_kt * 0.514) : null;
+  const tyBars: HazardBar[] = trend.map((p) => ({
+    // key 用原始 ts：標籤只到小時，同一小時內的兩個觀測點會撞 key
+    key: String(p.validTs),
+    label: trendStamp(p.validTs),
+    value: p.maxWindKt,
+    level: windLevel(p.maxWindKt),
+    note: p.pressureHpa != null ? `${p.pressureHpa} hPa` : undefined,
+  }));
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
@@ -239,6 +302,14 @@ export function TyphoonCard({ open, nowTs }: Props) {
           中心氣壓 {data.center_pressure ?? "—"} hPa
         </div>
       </MetricRow>
+      {/* 氣壓不當柱高：上游 max_wind_kt 常有值、center_pressure 實測整段是 null
+          （2026-08 Hernan 10 個觀測點全缺），拿它畫會是一片空圖 */}
+      <HazardTrendBars
+        bars={tyBars}
+        levelColors={TY_LEVEL_COLORS}
+        caption="觀測 · 風速 kt（柱）／強度（色）"
+        unit=" kt"
+      />
       {/* 右側刻意放 storm_id 而非 name_local —— JMA 的 name_local 是日文片假名
           （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}
       <MetaRow
@@ -258,9 +329,24 @@ function magColor(mag: number): string {
   return COLORS.statusLive;
 }
 
+/** 趨勢柱的規模分級 —— index 與色盤對齊，語意同 `magColor()` */
+function magLevel(mag: number | null): number {
+  if (mag == null) return 0;
+  if (mag >= 5) return 2;
+  if (mag >= 4) return 1;
+  return 0;
+}
+const EQ_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr];
+const fetchEqDaily = () => fetchEarthquakeDaily(TREND_DAYS);
+
 export function EarthquakeCard({ open, nowTs }: Props) {
   const { data, phase } = usePolledSummary<EarthquakeSummary>(
     open, fetchEarthquakeSummary, invalidateEarthquakeSummary, 15 * 60_000, "[EarthquakeCard]",
+  );
+  // 逐日趨勢與當下快照分開輪詢：兩者資料來源同一張表但聚合方式不同，
+  // 且趨勢只有跨日才會變，沒必要跟快照綁在同一次請求裡。
+  const { data: daily } = usePolledSummary(
+    open, fetchEqDaily, null, 15 * 60_000, "[EarthquakeCard/daily]",
   );
   const label = "地震 · SEISMIC";
   const tint = "rgba(255,152,0,0.05)";
@@ -291,6 +377,13 @@ export function EarthquakeCard({ open, nowTs }: Props) {
   }
 
   const color = magColor(latest.magnitude);
+  const eqBars: HazardBar[] = (daily ?? []).map((d) => ({
+    label: d.dateKey.slice(5).replace("-", "/"),
+    value: d.count,
+    level: magLevel(d.maxMag),
+    note: d.maxMag != null ? `最大 M${d.maxMag.toFixed(1)}` : "無地震",
+  }));
+  const eqTotal = (daily ?? []).reduce((s, d) => s + d.count, 0);
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
@@ -308,6 +401,13 @@ export function EarthquakeCard({ open, nowTs }: Props) {
         </div>
       </MetricRow>
       {latest.location_desc && <Note color={COLORS.textDefault}>{latest.location_desc}</Note>}
+      <HazardTrendBars
+        bars={eqBars}
+        levelColors={EQ_LEVEL_COLORS}
+        caption={`${TREND_DAYS}D · 次數（柱）／規模（色）`}
+        footer={eqTotal ? `共 ${eqTotal} 次` : undefined}
+        unit=" 次"
+      />
       <MetaRow
         left={`24h 內 ${data.count24h} 次`}
         right={relTime(latest.occurred_ts, nowTs)}
@@ -322,9 +422,26 @@ function fmtDose(v: number | null): string {
   return v == null ? "—" : v.toFixed(3);
 }
 
+/**
+ * 劑量分級：自然背景上限 0.072 µSv/h（卡片註腳寫的那條）、警戒 0.2（既有異常判定閾值）。
+ * 不用相對分位 —— 輻射的意義在「絕對值有沒有離開自然背景」，不在「比前幾天高」。
+ */
+function doseLevel(v: number | null): number {
+  if (v == null) return 0;
+  if (v >= 0.2) return 2;
+  if (v > 0.072) return 1;
+  return 0;
+}
+const DOSE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr];
+const fetchNuclearTrend = () => fetchNuclearDaily(TREND_DAYS);
+
 export function RadiationCard({ open }: Props) {
   const { data, phase } = usePolledSummary<NuclearSummary>(
     open, fetchNuclearSummary, null, 5 * 60_000, "[RadiationCard]",
+  );
+  // RPC（migration 348）還沒上線時 loader 安靜回 []，柱狀圖自己不渲染，卡片維持原樣
+  const { data: daily } = usePolledSummary(
+    open, fetchNuclearTrend, null, 30 * 60_000, "[RadiationCard/daily]",
   );
   const label = "輻射 · RADIATION";
   const tint = "rgba(34,197,94,0.05)";
@@ -356,6 +473,13 @@ export function RadiationCard({ open }: Props) {
   const alarm = data.alarm_count > 0;
   const watch = data.warning_count > 0;
   const dot = alarm ? COLORS.statusErr : watch ? COLORS.statusWarn : COLORS.statusLive;
+  const doseBars: HazardBar[] = (daily ?? []).map((d) => ({
+    label: d.dateKey.slice(5).replace("-", "/"),
+    // 沒有量測的日子是 null（畫灰樁）；不是 0 —— 0 µSv/h 在物理上不會發生，畫成 0 會誤導
+    value: d.meanUsvh == null ? null : Number(d.meanUsvh.toFixed(3)),
+    level: doseLevel(d.meanUsvh),
+    note: `最高 ${fmtDose(d.maxUsvh)} · ${d.stationCount} 站`,
+  }));
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
@@ -380,15 +504,42 @@ export function RadiationCard({ open }: Props) {
       ) : (
         <MetaRow left="全部正常（無站超過 0.2 µSv/h）" />
       )}
+      <HazardTrendBars
+        bars={doseBars}
+        levelColors={DOSE_LEVEL_COLORS}
+        caption={`${TREND_DAYS}D · 全站平均（柱）／水位（色）`}
+        unit=" µSv/h"
+      />
     </HazardShell>
   );
 }
 
 /* ── 落雷 ─────────────────────────────────────────────── */
 
+/**
+ * 從一組每日次數算出「相對多寡」的兩條分界。
+ *
+ * 分位只拿**有落雷的日子**算：乾季一連好幾天 0，全算進去會把中位數壓成 0，
+ * 於是任何一點雷都跳成「偏多」。當日是 0 就自然落在最低級。
+ *
+ * 一次排序算完 p50/p90 —— 分級與中位數共用同一份，不要在每根柱的 map 裡重算。
+ */
+function strikeThresholds(values: number[]): { p50: number; p90: number } {
+  const s = values.filter((x) => x > 0).sort((a, b) => a - b);
+  if (!s.length) return { p50: 0, p90: 0 };
+  const q = (p: number) => s[Math.min(s.length - 1, Math.floor((s.length - 1) * p))]!;
+  return { p50: q(0.5), p90: q(0.9) };
+}
+const STRIKE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr];
+const fetchLightningTrend = () => fetchLightningDaily(TREND_DAYS);
+
 export function LightningCard({ open, nowTs }: Props) {
   const { data, phase } = usePolledSummary<LightningSummary>(
     open, fetchLightningSummary, invalidateLightningSummary, 5 * 60_000, "[LightningCard]",
+  );
+  // 同輻射：RPC（migration 348）未上線時回 []，圖自己不渲染
+  const { data: daily } = usePolledSummary(
+    open, fetchLightningTrend, null, 30 * 60_000, "[LightningCard/daily]",
   );
   const label = "落雷 · LIGHTNING";
   const tint = "rgba(251,146,60,0.05)";
@@ -417,6 +568,13 @@ export function LightningCard({ open, nowTs }: Props) {
   const fallbackNote = data.fallbackCountDay > 0
     ? `台電源 今日 ${data.fallbackCountDay.toLocaleString("zh-TW")} 筆`
     : "台電源 上游斷供中（端點回空）";
+  const { p50: strikeMedian, p90: strikeP90 } = strikeThresholds((daily ?? []).map((d) => d.count));
+  const strikeBars: HazardBar[] = (daily ?? []).map((d) => ({
+    label: d.dateKey.slice(5).replace("-", "/"),
+    value: d.count,
+    level: d.count > strikeP90 ? 2 : d.count > strikeMedian ? 1 : 0,
+    note: d.cloudToGround != null ? `雲地 ${d.cloudToGround.toLocaleString("zh-TW")}` : undefined,
+  }));
 
   return (
     <HazardShell
@@ -446,6 +604,13 @@ export function LightningCard({ open, nowTs }: Props) {
           />
         </>
       )}
+      <HazardTrendBars
+        bars={strikeBars}
+        levelColors={STRIKE_LEVEL_COLORS}
+        caption={`${TREND_DAYS}D · 次數（柱）／相對多寡（色）`}
+        footer={strikeMedian ? `有雷日中位 ${strikeMedian.toLocaleString("zh-TW")}` : undefined}
+        unit=" 次"
+      />
       <MetaRow left={fallbackNote} />
     </HazardShell>
   );

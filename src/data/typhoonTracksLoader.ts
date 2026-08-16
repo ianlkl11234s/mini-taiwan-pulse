@@ -467,3 +467,72 @@ export function fetchTyphoonSummary(): Promise<TyphoonSummary | null> {
 }
 
 export const invalidateTyphoonSummary = (): void => fetchTyphoonSummaryCached.invalidate();
+
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 颱風趨勢卡：指定颱風的觀測序列
+// ══════════════════════════════════════════════════════════════════
+//
+// 不開新查詢：直接複用 fetchTyphoonPoints()（10 分鐘快取，撈的是查詢窗內
+// 全部 storm 的逐點序列），依 storm_id 篩、依 valid_ts 排序、取尾端 N 筆。
+// 只取 point_type === 'observed' —— 介面語意是「觀測序列」，forecast 是
+// 預報推估值，混進風速/氣壓趨勢會失真。
+
+export interface TyphoonTrendPoint {
+  /** 觀測時間 unix 秒 */
+  validTs: number;
+  /** 近中心最大風速（kt）；缺值 null */
+  maxWindKt: number | null;
+  /** 中心氣壓（hPa）；缺值 null */
+  pressureHpa: number | null;
+}
+
+const DEFAULT_TREND_POINTS = 40;
+
+/**
+ * 序列**必須**只來自單一 source，不可像早期版本那樣逐 valid_ts 各自挑「較完整」
+ * 的一筆混用：JMA 報 10 分鐘持續風、JTWC 報 1 分鐘持續風（普遍高 10~15%），
+ * 混在同一條序列上會出現假的階梯跳動；卡片的 windLevel() 分級門檻又是對 CWA
+ * 「10 分鐘持續風」定義的，JTWC 的點會被誤判高一級。
+ *
+ * 固定優先 JMA —— 與本檔 Monitor 卡（pickActiveTyphoon）／軌跡光圈一致，JMA 是
+ * 本專案颱風資料的主要顯示來源；只有該 storm 在查詢窗內完全沒有 JMA 觀測時才
+ * 退到 JTWC（並在 console 留痕跡，見 fetchTyphoonTrend）。
+ */
+function pickTrendSource(observedPts: TyphoonPoint[]): string | null {
+  if (observedPts.some((p) => p.source.toLowerCase() === "jma")) return "jma";
+  if (observedPts.some((p) => p.source.toLowerCase() === "jtwc")) return "jtwc";
+  return null;
+}
+
+/** 指定颱風的觀測序列，依時間由舊到新。查不到（無資料或失敗）回 [] */
+export async function fetchTyphoonTrend(
+  stormId: string,
+  maxPoints: number = DEFAULT_TREND_POINTS,
+): Promise<TyphoonTrendPoint[]> {
+  try {
+    const pts = await fetchTyphoonPoints();
+    const stormObserved = pts.filter((p) => p.storm_id === stormId && p.point_type === "observed");
+    const source = pickTrendSource(stormObserved);
+    if (source === null) return [];
+    if (source === "jtwc") {
+      console.warn(
+        `[TyphoonTracks] fetchTyphoonTrend(${stormId}): 查詢窗內無 JMA 觀測，退回 JTWC` +
+          `（1 分鐘持續風，與 windLevel() 假設的 CWA 10 分鐘定義不完全一致）`,
+      );
+    }
+    const sourcePts = stormObserved.filter((p) => p.source.toLowerCase() === source);
+    // 同一 source 內仍可能對同一 valid_ts 有多列（JMA preTyphoon/typhoon/analysis
+    // 段用同時間戳）——複用軌跡 loader 既有的 dedupeSameTimestamp 合併，不另寫一套。
+    const deduped = dedupeSameTimestamp(sourcePts);
+    const sorted = deduped.sort((a, b) => a.valid_ts - b.valid_ts);
+    const tail = sorted.slice(Math.max(0, sorted.length - maxPoints));
+    return tail.map((p) => ({
+      validTs: p.valid_ts,
+      maxWindKt: p.max_wind_kt,
+      pressureHpa: p.center_pressure,
+    }));
+  } catch (err) {
+    console.error("[TyphoonTracks] fetchTyphoonTrend failed:", err);
+    return [];
+  }
+}
