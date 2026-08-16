@@ -1,9 +1,9 @@
 # Handoff — 監看模式分割版面
 
-## ⚠️ 待 apply 的上游依賴（2026-08-16）
+## 上游 RPC（2026-08-16 已 apply ✅）
 
-**`gis-platform/migrations/348_lightning_nuclear_daily_rpc.sql` 已寫好但未 apply**
-（migration 須 user 拍板）。它在 `public` 開兩支 SECURITY DEFINER 薄 RPC：
+**`gis-platform/migrations/348_lightning_nuclear_daily_rpc.sql` 已於 2026-08-16 apply 到正式庫**
+（user 拍板）。它在 `public` 開兩支 SECURITY DEFINER 薄 RPC：
 
 | RPC | 讀 | 給誰用 |
 |---|---|---|
@@ -14,17 +14,25 @@
 `GRANT SELECT TO anon`（`analytics` schema 不像 `live` 有 ALTER DEFAULT PRIVILEGES）——
 RLS 不能取代 GRANT。同款問題與解法的前例是 `336_food_price_rpc.sql`。
 
-**apply 前後**：前端已經合併且不會壞 —— loader 打不到 RPC 時安靜回 `[]`（`console.debug`
-不是 `warn`），卡片就不畫圖、維持原高度。apply 後自動長出來，**不需要再改前端**。
+**apply 後實測（2026-08-16）**：
 
-**apply 後請跑**（檔頭也列了）：
-```sql
-SELECT * FROM public.get_lightning_daily(14);
-SELECT count(*), min(strike_date), max(strike_date) FROM analytics.lightning_daily_summary;
-```
-第二條特別重要 —— 兩張聚合表實際有幾天資料**至今未能驗證**（`analytics` 不在 PostgREST
-exposed schemas，連 service role 走 REST 都是 `406 Invalid schema`）。若資料只有零星幾天，
-柱狀圖會很稀疏，那不是程式問題。
+| 聚合表 | 列數 | 天數 | 區間 | 卡片效果 |
+|---|---|---|---|---|
+| `analytics.nuclear_radiation_daily` | 3011 | 62 | 06-15 ~ 08-15 | 14 天滿格，每天 48/51 站 |
+| `analytics.lightning_daily_summary` | 39 | 35 | 06-15 ~ 08-15 | 近 14 天有 10 天有雷 |
+
+- `anon` 身分實測可呼叫兩支 RPC（SECURITY DEFINER 生效）
+- 兩表的 `max(date)` 都是**昨天** —— refresh function 只補前一天，today 永遠沒列，
+  這正是 RPC 窗口右界錨在表內最新日期而不是 `NOW()` 的原因
+- ⚠️ `lightning_daily_summary` 的 `county` 欄位**全部是 NULL**（ST_PointInPolygon 推不出
+  縣市）。RPC 是 `GROUP BY strike_date` 全國加總，不受影響；但要做縣市維度就會發現沒資料
+
+### ⚠️ 落雷必須指定 `p_source='cwa'`
+
+RPC 的 `p_source=null` 會把 `cwa` 與 `taipower` **加總**，但兩者是同一批落雷的兩份獨立
+觀測，加起來等於重複計算（實測 08-14：cwa 2985 + taipower 2204 = 5189）。
+卡片主數字（今日累計／近 1h）走氣象署，`fetchLightningDaily` 因此固定傳 `p_source: "cwa"`，
+否則同一張卡上下兩半的數字對不起來。
 
 **隱性契約**：RPC 回傳欄位名（`strike_date` / `reading_date` …）與 loader 的 `RpcRow`
 介面一一對應。review 時若改欄位名，**必須同步改 loader**，否則會靜默把每天都當缺日補 0。
