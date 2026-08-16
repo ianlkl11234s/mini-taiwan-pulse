@@ -125,6 +125,38 @@ GRID 實寬 = 面板寬 − 34 = widthPct × 視窗寬 − right − 34
 **翻轉點約 1496px**。要讓 1440 也維持兩欄，把 `widthPct` 調到 ≥0.48 或 `stackBreakpointPx` 降到 ≤600
 （後者要留意：欄寬 <600 時 2 欄每欄不到 300px，內容會很擠）。
 
+## 災害四卡的歷史趨勢
+
+四張卡（颱風／輻射／落雷／地震）各有迷你柱狀圖，共用 `HazardTrendBars`：
+**柱高 = 量、柱色 = 強度**（視覺公式借共機卡的 `TrendRow`，站上唯一同時編碼兩個
+維度的既有樣式）。主題語意留在卡片，元件不認識任何主題。
+
+| 卡 | 窗 | 柱高 | 柱色 | 資料 |
+|---|---|---|---|---|
+| 地震 | 14D | 當日次數 | 最大規模（沿用 `magColor()`） | 直查 `earthquake_events`，前端 bucket |
+| 輻射 | 14D | 全站平均劑量 | 絕對水位（自然背景 .072／警戒 .2） | `get_nuclear_radiation_daily`（348） |
+| 落雷 | 14D | 當日次數 | 相對多寡（有雷日 p50/p90） | `get_lightning_daily`（348，**必須傳 `p_source='cwa'`**） |
+| 颱風 | **45D** | 上排：接近程度（越近越高）<br>下排：1000km 內顆數 | 距離分級／顆數分級 | `get_typhoon_proximity_daily`（349+350） |
+
+幾個容易踩回去的決定：
+
+- **颱風看 45 天、其餘 14 天**：颱風是季節性事件，14 天窗常整片空白；其餘三者是
+  天天有數字的連續量。
+- **颱風柱高刻意反轉**（`1500 − 距離`）：直接用距離當柱高的話，颱風在地球另一邊時
+  柱子最高，與「該不該緊張」正好相反。
+- **落雷用相對分位、輻射用絕對閾值**：前者回答「今天算多嗎」，後者回答「有沒有
+  離開自然背景」。落雷分位只拿**有雷的日子**算 —— 乾季連續 0 會把中位數壓成 0。
+- **颱風卡獨立一列**：它有兩排圖比別人高，同列的話等高規則會把其他三張一起拉高。
+- **颱風柱可點**，展開當天每一顆（不只最近那顆）。
+
+⚠️ **並排卡片等高**：`renderMonitorNode` 的 `cols` 節點在「子項全是單一 widget」時
+用 `stretch`，有巢狀欄則維持 `start` —— 下半左右兩大欄長度差 500px，全域拉平會讓
+短的那欄拖一大片空白。
+
+⚠️ **split 下右側浮層要讓位**：事件 popup／AQI 切換器／LEGEND 那一疊與全域 LOADING
+指示器都錨在畫面右緣，split 時要推到 dock 左邊（`calc(widthPct% + right + 12px)`），
+否則會被面板蓋掉或壓在上面。
+
 ## 檔案
 
 | 檔案 | 角色 |
@@ -134,6 +166,9 @@ GRID 實寬 = 面板寬 − 34 = widthPct × 視窗寬 − right − 34
 | `src/components/IconRailSidebar.tsx` | rail 新 icon 入口 + Layers 面板 compact |
 | `src/App.tsx` | `monitorMode` state、兩個入口的互斥、選配的地圖 padding |
 | `docs/features/monitor-split/sandbox-split.html` | 排版沙盒（座標唯一產生方式） |
+| `src/components/intel/monitor/HazardTrendBars.tsx` | 災害四卡共用的迷你柱狀圖（柱高=量、柱色=強度、可點） |
+| `src/lib/taipeiDay.ts` | 台北曆日 helper + 逐日補零（四支 loader 共用） |
+| `../gis-platform/migrations/348..350` | 落雷／輻射／颱風的逐日 RPC（**皆已 apply**） |
 
 ## 相關
 
