@@ -43,10 +43,27 @@ interface Props {
   footer?: string;
   /** 量的單位，進 tooltip 用（例如「次」「µSv/h」） */
   unit?: string;
+  /**
+   * 點柱回呼。有給才會出現 pointer 游標與 hover 反白 —— 沒有互動的圖不該假裝可點。
+   * 再點同一根由呼叫端決定是否取消（元件不管選取狀態，只回報點到誰）。
+   */
+  onSelectBar?: (bar: HazardBar) => void;
+  /** 目前選中的 `key ?? label`，會給該柱一塊反白底 */
+  selectedKey?: string | null;
 }
+
+/**
+ * 選中標記用外框不用填底 —— 填底會整格罩上一層灰，把柱子本身的分級色蓋掉，
+ * 看起來就像「無資料灰樁」，正好與它要表達的意思相反。
+ */
+const SELECTED_OUTLINE = (picked: boolean) =>
+  picked
+    ? { outline: "1px solid rgba(255,255,255,0.65)", outlineOffset: -1, borderRadius: 2 }
+    : null;
 
 export function HazardTrendBars({
   bars, levelColors, height = 44, caption, footer, unit = "",
+  onSelectBar, selectedKey = null,
 }: Props) {
   const max = useMemo(() => {
     const vals = bars.map((b) => b.value).filter((v): v is number => v !== null);
@@ -78,14 +95,22 @@ export function HazardTrendBars({
       {/* flex: "none" + 確定 height：見檔頭說明，改成 flex:1 柱子會全塌 */}
       <div style={{ display: "flex", alignItems: "flex-end", gap: 1, height, flex: "none" }}>
         {bars.map((b) => {
+          const barKey = b.key ?? b.label;
+          const picked = selectedKey != null && selectedKey === barKey;
+          // 有 onSelectBar 才掛點擊與 pointer 游標：沒有互動的圖不該假裝可點
+          const onClick = onSelectBar ? () => onSelectBar(b) : undefined;
           if (b.value === null) {
             return (
               <div
-                key={b.key ?? b.label}
+                key={barKey}
                 title={`${b.label} 無資料`}
+                onClick={onClick}
                 style={{
                   flex: 1, minWidth: 0, height: "100%",
-                  background: "rgba(255,255,255,0.06)", borderRadius: 1,
+                  background: "rgba(255,255,255,0.06)",
+                  borderRadius: 1,
+                  cursor: onClick ? "pointer" : undefined,
+                  ...SELECTED_OUTLINE(picked),
                 }}
               />
             );
@@ -94,11 +119,14 @@ export function HazardTrendBars({
           const color = levelColors[Math.min(b.level, levelColors.length - 1)] ?? levelColors[0]!;
           return (
             <div
-              key={b.key ?? b.label}
+              key={barKey}
               title={`${b.label}｜${b.value}${unit}${b.note ? `｜${b.note}` : ""}`}
+              onClick={onClick}
               style={{
                 flex: 1, minWidth: 0, height: "100%",
                 display: "flex", flexDirection: "column", justifyContent: "flex-end",
+                cursor: onClick ? "pointer" : undefined,
+                ...SELECTED_OUTLINE(picked),
               }}
             >
               {/* 0 也要看得見（1.5% 的底線），否則「當天零次」與「沒資料」在圖上長一樣 */}
