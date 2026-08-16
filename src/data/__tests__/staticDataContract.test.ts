@@ -63,7 +63,10 @@ describe("靜態 GeoJSON 契約", () => {
     expect(urls.length).toBeGreaterThan(50); // 掃描範圍沒有整批消失
   });
 
-  it("每個檔案都是非空的 FeatureCollection", () => {
+  // ⚠️ 這兩條要逐一讀完 public/ 底下所有靜態 geojson（>50 檔、數百 MB）。單獨跑約 5s，
+  // 但 vitest 平行跑其他檔案時 I/O 競爭會拉到 12s+，撞上預設 5s timeout 隨機紅。
+  // 不是資料壞掉 —— 給足時間即可，別把它當成真的契約失敗去追。
+  it("每個檔案都是非空的 FeatureCollection", { timeout: 60_000 }, () => {
     const bad: string[] = [];
     for (const url of urls) {
       try {
@@ -75,7 +78,7 @@ describe("靜態 GeoJSON 契約", () => {
     expect(bad, `這些靜態資料壞了（圖層會靜默空白）：\n  ${bad.join("\n  ")}`).toEqual([]);
   });
 
-  it("座標都在合法經緯度範圍內（抓沒轉 WGS84 的 TWD97 TM2）", () => {
+  it("座標都在合法經緯度範圍內（抓沒轉 WGS84 的 TWD97 TM2）", { timeout: 60_000 }, () => {
     const bad: string[] = [];
     for (const url of urls) {
       if (url in KNOWN_BROKEN_CRS) continue;
