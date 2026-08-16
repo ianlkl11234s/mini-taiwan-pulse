@@ -4,7 +4,8 @@
 //   point_type='forecast' → 未來預報虛線（取最新 advisory_number）
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedByKey, cachedOnce } from "../lib/loaderCache";
+import { padTaipeiDaily } from "../lib/taipeiDay";
 
 export interface TyphoonPoint {
   storm_id: string;
@@ -467,3 +468,96 @@ export function fetchTyphoonSummary(): Promise<TyphoonSummary | null> {
 }
 
 export const invalidateTyphoonSummary = (): void => fetchTyphoonSummaryCached.invalidate();
+
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 颱風卡：逐日接近程度（RPC 349 get_typhoon_proximity_daily）
+// ══════════════════════════════════════════════════════════════════
+//
+// 為什麼是 RPC 而不是前端算：近 14 天的 observed 就有 4810 列，且要對每一列算
+// 「到台灣五錨點的最小距離」再跨 JMA/JTWC 去重（同一顆颱風兩套編號，實測位置
+// 只差 25–143km）。這些在 DB 做只回 14 列，拉回前端算要傳整包。
+//
+// 去重與距離口徑都與本檔既有的 `distToTaiwanKm()` / `CROSS_SOURCE_RADIUS_KM`
+// 對齊，卡片主數字與趨勢柱才不會自相矛盾。細節見 migration 349 檔頭。
+
+/** 當天在 1000km 內的其中一顆（RPC 已跨 JMA/JTWC 去重，依距離由近到遠） */
+export interface TyphoonNearby {
+  stormId: string;
+  name: string;
+  km: number;
+  /** 最大風速 kt；JMA 常缺值時 RPC 會跨來源撈，仍撈不到則 null */
+  kt: number | null;
+}
+
+/** 逐日接近程度。缺日（該天完全沒有觀測）→ nearestKm null、stormsNearby 0 */
+export interface TyphoonProximityDay {
+  /** 台北曆日 YYYY-MM-DD */
+  dateKey: string;
+  /** 當天最靠近台灣的颱風距離 km；該日無觀測則 null */
+  nearestKm: number | null;
+  stormId: string | null;
+  name: string | null;
+  /** 該颱風的最大風速 kt（RPC 已跨來源撈值，JMA 常缺） */
+  windKt: number | null;
+  /** 當天在 1000km 內、去重後的颱風數 */
+  stormsNearby: number;
+  /** 那幾顆的明細（長度 = stormsNearby）。只給「最近那顆」的話，畫面會出現
+   *  「2 顆在 1000km 內」卻只列得出一顆 */
+  nearby: TyphoonNearby[];
+}
+
+interface ProximityRpcRow {
+  obs_date: string;
+  nearest_km: number | null;
+  nearest_storm_id: string | null;
+  nearest_name: string | null;
+  nearest_wind_kt: number | null;
+  storms_nearby: number | null;
+  nearby: { storm_id: string; name: string; km: number; kt: number | null }[] | null;
+}
+
+const DEFAULT_PROXIMITY_DAYS = 14;
+
+/**
+ * ⚠️ clamp 刻意抽成函式而不是在 rpc 前寫 `const days = ...`：
+ * loadingRegistryContract 的掃描器用「往上找最近的 const/function 宣告」當函式名，
+ * 中間夾一個 const 會讓它把 key 算成 `days` 而不是函式名，EXEMPT 就對不上。
+ */
+function clampProximityDays(daysKey: string): number {
+  return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
+}
+
+async function fetchTyphoonProximityUncached(daysKey: string): Promise<TyphoonProximityDay[]> {
+  try {
+    const { data, error } = await supabase.rpc("get_typhoon_proximity_daily", {
+      p_days: clampProximityDays(daysKey),
+    });
+    if (error) throw error;
+    const rows = (data ?? []) as ProximityRpcRow[];
+    return padTaipeiDaily(rows, clampProximityDays(daysKey), (r) => r.obs_date, (dateKey, r) => ({
+      dateKey,
+      nearestKm: r?.nearest_km ?? null,
+      stormId: r?.nearest_storm_id ?? null,
+      name: r?.nearest_name ?? null,
+      windKt: r?.nearest_wind_kt ?? null,
+      stormsNearby: r?.storms_nearby ?? 0,
+      nearby: (r?.nearby ?? []).map((n) => ({
+        stormId: n.storm_id, name: n.name, km: n.km, kt: n.kt,
+      })),
+    }));
+  } catch (e) {
+    console.warn("[TyphoonProximity] get_typhoon_proximity_daily 失敗，回空陣列:", e);
+    return [];
+  }
+}
+
+const fetchTyphoonProximityCached = cachedByKey(
+  fetchTyphoonProximityUncached,
+  30 * 60_000, // 逐日聚合跨日才變，30 分鐘足夠；RPC 實測 ~680ms 不宜頻繁打
+  4,
+);
+
+/** 近 N 天逐日接近程度，由舊到新。失敗回 [] */
+export const fetchTyphoonProximityDaily = (
+  days: number = DEFAULT_PROXIMITY_DAYS,
+): Promise<TyphoonProximityDay[]> => fetchTyphoonProximityCached(String(days));

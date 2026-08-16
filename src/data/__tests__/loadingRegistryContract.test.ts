@@ -43,6 +43,11 @@ const EXEMPT: Record<string, string> = {
   // 同 airportPax：monitor 面板 widget，非圖層載入，灌 LOADING 面板會讓牆面定期閃
   "lightningLoader.ts:lightningCountQuery": "monitor 落雷卡計數（head count），非圖層載入",
   "lightningLoader.ts:lightningLatestQuery": "monitor 落雷卡最新一筆，非圖層載入",
+  // monitor 落雷/輻射卡的歷史趨勢查詢（30min 背景輪詢）——
+  // 同 airportPax：monitor 面板 widget，非圖層載入，灌 LOADING 面板會讓牆面定期閃
+  "lightningLoader.ts:fetchLightningDailyUncached": "monitor 落雷卡歷史趨勢（30min 背景輪詢），非圖層載入",
+  "nuclearLoader.ts:fetchNuclearDailyUncached": "monitor 輻射卡歷史趨勢（30min 背景輪詢），非圖層載入",
+  "typhoonTracksLoader.ts:fetchTyphoonProximityUncached": "monitor 颱風卡逐日接近程度（30min 背景輪詢），非圖層載入",
   // 背景 prefetch：刻意不灌 LOADING panel（檔內註解有寫）
   "lightningLoader.ts:fetchLightningDayRaw": "raw 版供背景 prefetch；wrapped 版才包 withLoading",
   "nuclearLoader.ts:fetchNuclearDayRaw": "同上",

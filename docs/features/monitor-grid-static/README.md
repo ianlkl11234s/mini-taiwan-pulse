@@ -139,6 +139,11 @@ x / w / 前後順序仍然由座標決定，**高度分兩種**：
 
 ## 相關文件
 
+- [`../monitor-split/`](../monitor-split/) — **分割版面（Split Dock）**：Monitor 只佔右半邊、
+  左半邊露出主站地圖的第三種 mode。沿用本次的 guillotine 拆解與 `fit:"content"` 政策，
+  但右半只有約 880px、欄寬砍半，因此**另有一套窄版座標與另一份沙盒**
+  （`MONITOR_LAYOUT_SPLIT` / `sandbox-split.html`），不與本檔的 `MONITOR_LAYOUT` 共用。
+  ⚠️ **新增／移除 widget 時兩套座標都要補**，只改一邊會讓該 widget 在另一個 mode 消失。
 - 未合併參考分支：`feat/monitor-grid-layout`（react-grid-layout 可配置版，本次未採用）
 - widget 抽離參考 commit：`46218e5`
 - 開發規則：`../../development-rules.md`

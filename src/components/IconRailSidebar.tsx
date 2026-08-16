@@ -12,6 +12,7 @@ import {
   Lock,        // gated 圖層鎖頭
   Globe,       // 「世界」rail tab（複合 icon）
   PiggyBank,   // 房地產總市值 rail panel（layer toggle 的 Coins 在 manifest）
+  PanelRight,  // 監測模式 Monitor split（右半邊）rail 按鈕
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -26,6 +27,7 @@ import { ALL_PRESETS, AIRPORT_INFO } from "../map/cameraPresets";
 // 圖層目錄常數單一真實來源（與 LayerSidebar 共用，消除漂移）
 import { LAYER_COLORS, TRANSPORT_LABELS, THEMES, WORLD_TAB_THEME_TITLES, type ThemeDef } from "./sidebar/layerCatalog";
 import { manifestIcons, type ManifestKey } from "../data/layerManifest";
+import { MONITOR_SPLIT_DOCK } from "./intel/monitor/monitorSplitLayout";
 
 // 「世界」rail tab 與桌機主 Layers panel 的主題分流：
 // - 主 Layers panel 只渲染非世界 tab 主題（MAIN_THEMES）
@@ -99,6 +101,11 @@ interface IconRailSidebarProps {
   propertyValueActive?: boolean;
   /** 由外部觸發強制收起 rail panel（4-way panel mutex 用）— epoch 變動就收 */
   externalCloseEpoch?: number;
+  /** 監測模式 Monitor split（右半邊）toggle */
+  onMonitorSplitToggle?: () => void;
+  monitorSplitActive?: boolean;
+  /** split 開啟時把 Layers 浮動面板縮短，避免擋住台灣本島 */
+  compactLayers?: boolean;
 }
 
 // ── Shared Styles ──
@@ -155,6 +162,8 @@ export function IconRailSidebar({
   onSatelliteToggle, satelliteActive,
   onPropertyValueToggle, propertyValueActive,
   externalCloseEpoch,
+  onMonitorSplitToggle, monitorSplitActive,
+  compactLayers,
   isDarkTheme = true,
 }: IconRailSidebarProps) {
   const palette = isDarkTheme ? DARK_PALETTE : LIGHT_PALETTE;
@@ -342,6 +351,16 @@ export function IconRailSidebar({
           tooltip="世界 World"
         />
 
+        {/* 監測模式 Monitor split（右半邊） */}
+        {onMonitorSplitToggle && (
+          <RailIcon
+            icon={PanelRight}
+            active={!!monitorSplitActive}
+            onClick={onMonitorSplitToggle}
+            tooltip="監測模式 Monitor"
+          />
+        )}
+
         {/* Spacer */}
         <div style={{ flex: 1 }} />
 
@@ -388,8 +407,8 @@ export function IconRailSidebar({
               position: "absolute",
               left: RAIL_WIDTH + 8,
               top: 92,
-              width: PANEL_WIDTH,
-              maxHeight: "70vh",
+              width: compactLayers ? MONITOR_SPLIT_DOCK.layersWidth : PANEL_WIDTH,
+              maxHeight: compactLayers ? `${MONITOR_SPLIT_DOCK.layersMaxVh * 100}vh` : "70vh",
               background: BG_PANEL,
               backdropFilter: "blur(12px)",
               WebkitBackdropFilter: "blur(12px)",
