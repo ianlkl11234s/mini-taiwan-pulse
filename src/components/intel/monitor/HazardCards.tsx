@@ -19,8 +19,8 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import {
-  fetchTyphoonSummary, fetchTyphoonTrend, invalidateTyphoonSummary,
-  type TyphoonSummary, type TyphoonTrendPoint,
+  fetchTyphoonProximityDaily, fetchTyphoonSummary, invalidateTyphoonSummary,
+  type TyphoonSummary,
 } from "../../../data/typhoonTracksLoader";
 import {
   fetchEarthquakeDaily, fetchEarthquakeSummary, invalidateEarthquakeSummary,
@@ -157,6 +157,8 @@ function MetaRow({ left, right }: { left: ReactNode; right?: ReactNode }) {
 /** 四張卡的趨勢柱一律看同一個窗，卡與卡之間才比得起來 */
 const TREND_DAYS = 14;
 
+const fetchTyphoonProximity = () => fetchTyphoonProximityDaily(TREND_DAYS);
+
 /** 每張卡共用的輪詢：open 時立刻抓一次，之後每 pollMs 失效重抓 */
 function usePolledSummary<T>(
   open: boolean,
@@ -203,56 +205,40 @@ function typhoonTone(s: TyphoonSummary): { dot: string; distColor: string } {
 }
 
 /**
- * 風速強度分級（kt），CWA 定義：<34 熱帶性低氣壓、34–63 輕度、64–99 中度、≥100 強烈。
- * index 與 `TY_LEVEL_COLORS` 對齊。
+ * 距離分級 —— 颱風卡唯一有意義的嚴重度軸。
+ *
+ * 用距離不用風速：一顆 100kt 的強颱在 3000km 外對台灣是零威脅，
+ * 而 40kt 的輕颱在 300km 內就要準備。閾值取 CWA 發布警報的量級。
  */
-function windLevel(kt: number | null): number {
-  if (kt == null) return 0;
-  if (kt >= 100) return 3;
-  if (kt >= 64) return 2;
-  if (kt >= 34) return 1;
+function proximityLevel(km: number | null): number {
+  if (km == null) return 0;
+  if (km < 300) return 2;   // 海警量級
+  if (km < 800) return 1;   // 需要留意
   return 0;
 }
-const TY_LEVEL_COLORS = [COLORS.statusLive, COLORS.accent, COLORS.statusWarn, COLORS.statusErr];
+const PROXIMITY_COLORS = [COLORS.accent, COLORS.statusWarn, COLORS.statusErr];
+const NEARBY_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr];
 
 /**
- * 觀測點時間標籤 `MM/DD HH`（台北）。同一顆颱風一天多筆，只到日會撞 React key。
+ * 柱高換算：距離越近柱越高。`PROXIMITY_CEIL - km`，超出天花板的一律 0。
  *
- * ⚠️ 從完整的 `YYYY-MM-DD HH:mm:ss` 切，不要用 `{month,day,hour}` 選項 —— sv-SE 在
- * 只給月日時會吐成日/月（實測 8/13 顯示為 `13/08`），與地震卡的 MM/DD 對不起來。
+ * 直接拿距離當柱高會反過來 —— 颱風在地球另一邊時柱子最高，正好與「該不該緊張」
+ * 相反。1500km 是「還構得上關心」的外圈，再遠的差異對台灣沒有意義。
  */
-function trendStamp(ts: number): string {
-  const s = new Date(ts * 1000).toLocaleString("sv-SE", { timeZone: "Asia/Taipei" });
-  return `${s.slice(5, 10).replace("-", "/")} ${s.slice(11, 13)}`;
+const PROXIMITY_CEIL_KM = 1500;
+function proximityHeight(km: number | null): number | null {
+  if (km == null) return null;
+  return Math.max(0, PROXIMITY_CEIL_KM - km);
 }
 
 export function TyphoonCard({ open, nowTs }: Props) {
   const { data, phase } = usePolledSummary<TyphoonSummary | null>(
     open, fetchTyphoonSummary, invalidateTyphoonSummary, 30 * 60_000, "[TyphoonCard]",
   );
-  // 這顆颱風自己的觀測序列。不能用 usePolledSummary —— 它的 deps 只有 [open, pollMs]，
-  // 換颱風（storm_id 變動）不會重抓。資料本身零成本：複用地圖圖層already在抓的
-  // fetchTyphoonPoints()（10 分鐘快取），這裡只是依 storm_id 濾出來。
-  const stormId = data?.storm_id ?? null;
-  const [trend, setTrend] = useState<TyphoonTrendPoint[]>([]);
-  useEffect(() => {
-    if (!open || !stormId) {
-      setTrend([]);
-      return;
-    }
-    let cancelled = false;
-    const tick = () => {
-      fetchTyphoonTrend(stormId)
-        .then((t) => { if (!cancelled) setTrend(t); })
-        .catch((e) => console.warn("[TyphoonCard/trend]", e));
-    };
-    tick();
-    // 跟上面的快照同頻輪詢。少了這個，牆面掛著看侵台過程時上半的風速數字一直更新、
-    // 下面的柱狀圖卻停在開卡當下那批觀測，同一張卡自己打架。
-    // fetchTyphoonPoints() 有 10 分鐘快取，多這一輪幾乎不花成本。
-    const id = window.setInterval(tick, 30 * 60_000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [open, stormId]);
+  // 逐日接近程度（RPC 349）。與快照分開輪詢：這份跨日才變，且 RPC 實測 ~680ms
+  const { data: proximity } = usePolledSummary(
+    open, fetchTyphoonProximity, null, 30 * 60_000, "[TyphoonCard/proximity]",
+  );
   const label = "颱風 · TYPHOON";
   const tint = "rgba(56,189,248,0.06)";
   const footer = "來源：JMA / JTWC 颱風路徑 · 活躍判定 24h";
@@ -283,32 +269,59 @@ export function TyphoonCard({ open, nowTs }: Props) {
   const tone = typhoonTone(data);
   const name = data.name_en || data.name_local || data.storm_id;
   const windMs = data.max_wind_kt != null ? Math.round(data.max_wind_kt * 0.514) : null;
-  const tyBars: HazardBar[] = trend.map((p) => ({
-    // key 用原始 ts：標籤只到小時，同一小時內的兩個觀測點會撞 key
-    key: String(p.validTs),
-    label: trendStamp(p.validTs),
-    value: p.maxWindKt,
-    level: windLevel(p.maxWindKt),
-    note: p.pressureHpa != null ? `${p.pressureHpa} hPa` : undefined,
+  const days = proximity ?? [];
+  // 「活躍」只看近 24h 有觀測，東太平洋 10,000km 外的颱風也算活躍 —— 對台灣是零威脅，
+  // 標題直說沒颱風接近，主數字仍留著（知道最近的一顆在哪還是有意義）
+  const remote = data.distance_km > PROXIMITY_CEIL_KM;
+  const distBars: HazardBar[] = days.map((d) => ({
+    label: d.dateKey.slice(5).replace("-", "/"),
+    value: proximityHeight(d.nearestKm),
+    level: proximityLevel(d.nearestKm),
+    note: d.nearestKm == null
+      ? "無觀測"
+      : `${d.name ?? d.stormId ?? "—"} ${Math.round(d.nearestKm).toLocaleString("zh-TW")} km`
+        + (d.windKt != null ? ` · ${d.windKt} kt` : ""),
   }));
+  const nearbyBars: HazardBar[] = days.map((d) => ({
+    label: d.dateKey.slice(5).replace("-", "/"),
+    value: d.stormsNearby,
+    level: Math.min(d.stormsNearby, 2),
+    note: `${d.stormsNearby} 顆在 1000km 內`,
+  }));
+  const closestKm = days.reduce<number | null>(
+    (m, d) => (d.nearestKm != null && (m == null || d.nearestKm < m) ? d.nearestKm : m), null,
+  );
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
-      dot={tone.dot} title={name} badges={data.sources} footer={footer}
+      dot={remote ? COLORS.statusLive : tone.dot}
+      title={remote ? "無颱風接近" : name}
+      badges={data.sources} footer={footer}
     >
       <MetricRow>
-        <Metric value={data.distance_km.toLocaleString("zh-TW")} unit="km 距台灣" color={tone.distColor} />
-        <div style={{ fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textMuted }}>
-          中心氣壓 {data.center_pressure ?? "—"} hPa
-        </div>
+        <Metric
+          value={data.distance_km.toLocaleString("zh-TW")}
+          unit={remote ? `km · 最近的是 ${name}` : "km 距台灣"}
+          color={remote ? COLORS.textStrong : tone.distColor}
+        />
       </MetricRow>
-      {/* 氣壓不當柱高：上游 max_wind_kt 常有值、center_pressure 實測整段是 null
-          （2026-08 Hernan 10 個觀測點全缺），拿它畫會是一片空圖 */}
+      {/* 上排：接近程度。柱高刻意反轉（越近越高）—— 直接用距離當柱高的話，
+          颱風在地球另一邊時柱子最高，與「該不該緊張」完全相反 */}
       <HazardTrendBars
-        bars={tyBars}
-        levelColors={TY_LEVEL_COLORS}
-        caption="觀測 · 風速 kt（柱）／強度（色）"
-        unit=" kt"
+        bars={distBars}
+        levelColors={PROXIMITY_COLORS}
+        caption={`${TREND_DAYS}D · 接近程度（柱越高越近）／距離（色）`}
+        footer={closestKm != null ? `最近 ${Math.round(closestKm).toLocaleString("zh-TW")} km` : undefined}
+        height={34}
+        unit=" km（距 1500 圈）"
+      />
+      {/* 下排：顆數。JMA/JTWC 同一顆有兩套編號，RPC 349 已跨來源去重 */}
+      <HazardTrendBars
+        bars={nearbyBars}
+        levelColors={NEARBY_COLORS}
+        caption={`${TREND_DAYS}D · 1000km 內颱風數`}
+        height={26}
+        unit=" 顆"
       />
       {/* 右側刻意放 storm_id 而非 name_local —— JMA 的 name_local 是日文片假名
           （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}

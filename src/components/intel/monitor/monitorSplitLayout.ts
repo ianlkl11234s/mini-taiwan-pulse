@@ -83,7 +83,7 @@ export const MONITOR_SPLIT_CAMERA = {
  * 結構：**上半 2 欄（兩欄同止於 y17）＋ 下半以全寬為主的縱向流**
  *   y0–16   newsFeed(w6)     | timeline → alertBoard → hotZones（右欄三段）
  *           triage(w6, y14)  |
- *   y17–    liveWall → hazardStrip → 災害四卡（一列四格 w3）→ foodPriceBoard
+ *   y17–    liveWall → hazardStrip → 颱風（全寬）→ 其餘三卡（一列 w4）→ foodPriceBoard
  *           → taiex|situationCards → prison|airportPax → powerCard
  *           → erCongestion → situationOverview → plaBoard
  *
@@ -108,20 +108,23 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   // ── 下半：全寬縱向流 ──
   { i: "liveWall", x: 0, y: 17, w: 12, h: 13, fit: "content" },
   { i: "hazardStrip", x: 0, y: 30, w: 12, h: 7, fit: "content" },
-  // 災害四卡改一列四格（各 w3 ≈ 200px），不再是 2×2
-  { i: "typhoon", x: 0, y: 37, w: 3, h: 4, fit: "content" },
-  { i: "radiation", x: 3, y: 37, w: 3, h: 4, fit: "content" },
-  { i: "lightning", x: 6, y: 37, w: 3, h: 4, fit: "content" },
-  { i: "earthquake", x: 9, y: 37, w: 3, h: 4, fit: "content" },
-  { i: "foodPriceBoard", x: 0, y: 41, w: 12, h: 7, fit: "content" },
-  { i: "taiex", x: 0, y: 48, w: 6, h: 3, fit: "content" },
-  { i: "situationCards", x: 6, y: 48, w: 6, h: 3, fit: "content" },
-  { i: "prison", x: 0, y: 51, w: 6, h: 5, fit: "content" },
-  { i: "airportPax", x: 6, y: 51, w: 6, h: 5, fit: "content" },
-  { i: "powerCard", x: 0, y: 56, w: 12, h: 11, fit: "content" },
-  { i: "erCongestion", x: 0, y: 67, w: 12, h: 11, fit: "content" },
-  { i: "situationOverview", x: 0, y: 78, w: 12, h: 4, fit: "content" },
-  { i: "plaBoard", x: 0, y: 82, w: 12, h: 12, fit: "content" },
+  // 颱風卡獨立一列全寬（2026-08-16）：它有上下兩排趨勢圖（接近程度 + 1000km 內顆數），
+  // 比其他三張高一截。留在同一列的話，`renderMonitorNode` 的等高規則（並排葉節點
+  // stretch）會把輻射／落雷／地震一起拉到颱風的高度，底下拖三塊空白。
+  { i: "typhoon", x: 0, y: 37, w: 12, h: 6, fit: "content" },
+  // 其餘三卡一列三格（各 w4 ≈ 275px，比原本四格的 200px 還寬鬆）
+  { i: "radiation", x: 0, y: 43, w: 4, h: 4, fit: "content" },
+  { i: "lightning", x: 4, y: 43, w: 4, h: 4, fit: "content" },
+  { i: "earthquake", x: 8, y: 43, w: 4, h: 4, fit: "content" },
+  { i: "foodPriceBoard", x: 0, y: 47, w: 12, h: 7, fit: "content" },
+  { i: "taiex", x: 0, y: 54, w: 6, h: 3, fit: "content" },
+  { i: "situationCards", x: 6, y: 54, w: 6, h: 3, fit: "content" },
+  { i: "prison", x: 0, y: 57, w: 6, h: 5, fit: "content" },
+  { i: "airportPax", x: 6, y: 57, w: 6, h: 5, fit: "content" },
+  { i: "powerCard", x: 0, y: 62, w: 12, h: 11, fit: "content" },
+  { i: "erCongestion", x: 0, y: 73, w: 12, h: 11, fit: "content" },
+  { i: "situationOverview", x: 0, y: 84, w: 12, h: 4, fit: "content" },
+  { i: "plaBoard", x: 0, y: 88, w: 12, h: 12, fit: "content" },
 ];
 
 /**
