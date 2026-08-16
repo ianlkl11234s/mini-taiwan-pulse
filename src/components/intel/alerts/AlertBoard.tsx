@@ -397,9 +397,11 @@ export function AlertBoard({ tally, series, accent, nowTs }: Props) {
 
       <div
         style={{
-          // auto-fit：Monitor widget 只佔 12 欄網格的 3 欄，視窗變窄時 3×2 會擠爆
-          // → 讓它自己降成 2 欄／1 欄。寬版仍是 3 欄（minmax 下限 82px × 3 + gap）
-          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(82px, 1fr))",
+          // 固定 3×2（2026-08-16）：原本 auto-fit minmax(82px) 會依容器寬自己決定欄數，
+          // split dock 的 413px 容器排成 5+1、stack 模式的寬容器更排成一長排 —— 六個分類
+          // 是固定的一組，維持 3×2 才讀得出「兩排各三類」的結構。
+          // 最窄的使用情境是手機 stack（容器約 360px → 每欄 116px），仍大於原本 82px 下限。
+          display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
           gridAutoRows: "minmax(0, 1fr)", gap: 6,
           flex: 1, minHeight: 0,
         }}
