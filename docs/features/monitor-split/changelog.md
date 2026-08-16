@@ -40,6 +40,25 @@
 無互卡退化網格、任兩格不重疊、y≥25 後左右欄 `max(y+h)` 相等（皆為 74）、
 頂層 rows 末節點是 `cols` 且子節點寬度為 `[6,6]`（守住尾段不被切成全寬區塊）。
 
+## 八版（2026-08-16）— 點選展開「當天每一顆」而不只是最近那顆
+
+七版點某天只列得出最近的一顆，畫面會出現「2 顆在 1000km 內」卻只看到一個名字。
+`get_typhoon_proximity_daily` 加 `nearby` jsonb 明細（migration 350，已 apply），
+點選後一顆一行：
+
+```
+08/06 · 2 顆在 1000km 內
+· Kujira            434 km · 35 kt
+· Dolphin           455 km
+```
+
+RPC 改動的兩個坑：
+- **DROP + CREATE 而非 CREATE OR REPLACE** —— RETURNS TABLE 多一欄就是改回傳型別，
+  Postgres 會擋（42P13）。同一交易內完成，且前端對「函式不存在」本來就安靜降級。
+- **CTE 要標 MATERIALIZED** —— PG12+ 預設 inline 單次引用的 CTE，而放風速的
+  `scored` 被三處引用、每次重跑內含 ST_Distance 的子查詢，45 天窗從 900ms 掉到
+  **4 秒**；物化後回到 1.2 秒。
+
 ## 七版（2026-08-16）— 颱風卡拉到 45 天 + 柱可點
 
 - **窗從 14 天拉到 45 天**（`TYPHOON_TREND_DAYS`，其餘三卡維持 14）：颱風是季節性
