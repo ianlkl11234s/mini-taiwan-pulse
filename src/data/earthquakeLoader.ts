@@ -1,6 +1,6 @@
-import { supabase } from "../lib/supabase";
+import { supabase, todayTaiwan } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedOnce, cachedByKey } from "../lib/loaderCache";
 
 export interface EarthquakeEvent {
   event_id: string;
@@ -136,6 +136,89 @@ export function fetchEarthquakeSummary(): Promise<EarthquakeSummary> {
 }
 
 export const invalidateEarthquakeSummary = (): void => fetchEarthquakeSummaryCached.invalidate();
+
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 地震趨勢卡：過去 N 天逐日統計
+// ══════════════════════════════════════════════════════════════════
+//
+// 時區沿用專案既有慣例（timeStore.ts 的 toDateKey / lib/supabase.ts 的
+// todayTaiwan）：`toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" })`
+// 取得 YYYY-MM-DD；日界用 `${key}T00:00:00+08:00` 還原成 Taipei 當地零時
+// （比照 MonitorPanel.tsx 的 dayKeyToStartTs）。Taipei 全年 +08:00 無 DST，
+// 用固定 24h 毫秒步進就能安全地在「本地零時」之間逐日位移，不必逐一呼叫
+// Intl API 找日界。
+//
+// 表本身量體很小（2026-08 實測 1089 列，遠低於單頁上限），14 天窗前端直接
+// bucket 即可，不開新 RPC。
+
+const MS_PER_DAY = 86_400_000;
+
+function taipeiDateKeyFromMs(ms: number): string {
+  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
+function taipeiMidnightMs(dateKey: string): number {
+  return Date.parse(`${dateKey}T00:00:00+08:00`);
+}
+
+export interface EarthquakeDay {
+  /** 台北時區的 YYYY-MM-DD */
+  dateKey: string;
+  /** 當日地震次數 */
+  count: number;
+  /** 當日最大規模；當日無地震則 null */
+  maxMag: number | null;
+}
+
+const DEFAULT_DAILY_WINDOW = 14;
+
+async function fetchEarthquakeDailyRaw(daysKey: string): Promise<EarthquakeDay[]> {
+  const days = Number(daysKey);
+  const todayMidnightMs = taipeiMidnightMs(todayTaiwan());
+  const startMidnightMs = todayMidnightMs - (days - 1) * MS_PER_DAY;
+  const startIso = new Date(startMidnightMs).toISOString();
+
+  const { data, error } = await supabase
+    .from("earthquake_events")
+    .select("magnitude,occurred_at")
+    .gte("occurred_at", startIso)
+    .order("occurred_at", { ascending: true })
+    .limit(5000);
+  if (error) throw new Error(`Supabase earthquake_events daily: ${error.message}`);
+
+  const rows = (data ?? []) as Pick<RawRow, "magnitude" | "occurred_at">[];
+  const buckets = new Map<string, { count: number; maxMag: number | null }>();
+  for (const r of rows) {
+    if (!r.occurred_at) continue;
+    const key = taipeiDateKeyFromMs(new Date(r.occurred_at).getTime());
+    const b = buckets.get(key) ?? { count: 0, maxMag: null };
+    b.count += 1;
+    if (r.magnitude != null) {
+      const m = Number(r.magnitude);
+      b.maxMag = b.maxMag == null ? m : Math.max(b.maxMag, m);
+    }
+    buckets.set(key, b);
+  }
+
+  // 補齊沒有地震的日子（count: 0, maxMag: null），否則柱狀圖會少格、日期軸對不上
+  const result: EarthquakeDay[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const key = taipeiDateKeyFromMs(todayMidnightMs - i * MS_PER_DAY);
+    const b = buckets.get(key);
+    result.push({ dateKey: key, count: b?.count ?? 0, maxMag: b?.maxMag ?? null });
+  }
+  return result;
+}
+
+const fetchEarthquakeDailyCached = cachedByKey(fetchEarthquakeDailyRaw, 10 * 60_000, 8);
+
+/** 過去 p_days 天（含今天）的逐日統計，依日期由舊到新。查不到（失敗）回 [] */
+export function fetchEarthquakeDaily(days: number = DEFAULT_DAILY_WINDOW): Promise<EarthquakeDay[]> {
+  return fetchEarthquakeDailyCached(String(days)).catch((err) => {
+    console.error("[Earthquake] fetchEarthquakeDaily failed:", err);
+    return [];
+  });
+}
 
 /** 轉成 GeoJSON FeatureCollection */
 export function earthquakesToGeoJSON(events: EarthquakeEvent[]): GeoJSON.FeatureCollection {

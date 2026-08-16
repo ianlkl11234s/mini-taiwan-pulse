@@ -467,3 +467,70 @@ export function fetchTyphoonSummary(): Promise<TyphoonSummary | null> {
 }
 
 export const invalidateTyphoonSummary = (): void => fetchTyphoonSummaryCached.invalidate();
+
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 颱風趨勢卡：指定颱風的觀測序列
+// ══════════════════════════════════════════════════════════════════
+//
+// 不開新查詢：直接複用 fetchTyphoonPoints()（10 分鐘快取，撈的是查詢窗內
+// 全部 storm 的逐點序列），依 storm_id 篩、依 valid_ts 排序、取尾端 N 筆。
+// 只取 point_type === 'observed' —— 介面語意是「觀測序列」，forecast 是
+// 預報推估值，混進風速/氣壓趨勢會失真。
+
+export interface TyphoonTrendPoint {
+  /** 觀測時間 unix 秒 */
+  validTs: number;
+  /** 近中心最大風速（kt）；缺值 null */
+  maxWindKt: number | null;
+  /** 中心氣壓（hPa）；缺值 null */
+  pressureHpa: number | null;
+}
+
+const DEFAULT_TREND_POINTS = 40;
+
+// 同一 valid_ts 可能有多來源（JMA / JTWC）重複觀測，須去重成一筆：
+// 先比「欄位完整度」（風速+氣壓都有 > 只有一個 > 都沒有），完整度相同時
+// 固定優先 JMA —— 與本檔 Monitor 卡（pickActiveTyphoon）／軌跡光圈一致，
+// JMA 是本專案颱風資料的主要顯示來源，JTWC 僅用於補值。
+const SOURCE_PRIORITY: Record<string, number> = { jma: 0, jtwc: 1 };
+
+function sourceRank(source: string): number {
+  return SOURCE_PRIORITY[source.toLowerCase()] ?? 99;
+}
+
+function fieldCompleteness(p: TyphoonPoint): number {
+  return (p.max_wind_kt != null ? 1 : 0) + (p.center_pressure != null ? 1 : 0);
+}
+
+function pickBetterObservation(a: TyphoonPoint, b: TyphoonPoint): TyphoonPoint {
+  const ca = fieldCompleteness(a);
+  const cb = fieldCompleteness(b);
+  if (ca !== cb) return ca > cb ? a : b;
+  return sourceRank(a.source) <= sourceRank(b.source) ? a : b;
+}
+
+/** 指定颱風的觀測序列，依時間由舊到新。查不到（無資料或失敗）回 [] */
+export async function fetchTyphoonTrend(
+  stormId: string,
+  maxPoints: number = DEFAULT_TREND_POINTS,
+): Promise<TyphoonTrendPoint[]> {
+  try {
+    const pts = await fetchTyphoonPoints();
+    const byTs = new Map<number, TyphoonPoint>();
+    for (const p of pts) {
+      if (p.storm_id !== stormId || p.point_type !== "observed") continue;
+      const cur = byTs.get(p.valid_ts);
+      byTs.set(p.valid_ts, cur ? pickBetterObservation(cur, p) : p);
+    }
+    const sorted = [...byTs.values()].sort((a, b) => a.valid_ts - b.valid_ts);
+    const tail = sorted.slice(Math.max(0, sorted.length - maxPoints));
+    return tail.map((p) => ({
+      validTs: p.valid_ts,
+      maxWindKt: p.max_wind_kt,
+      pressureHpa: p.center_pressure,
+    }));
+  } catch (err) {
+    console.error("[TyphoonTracks] fetchTyphoonTrend failed:", err);
+    return [];
+  }
+}

@@ -233,6 +233,111 @@ export function fetchLightningSummary(): Promise<LightningSummary> {
 
 export const invalidateLightningSummary = (): void => fetchLightningSummaryCached.invalidate();
 
+// ══════════════════════════════════════════════════════════════════
+//  Monitor 落雷卡歷史趨勢（RPC 348 get_lightning_daily，近 N 天逐日）
+// ══════════════════════════════════════════════════════════════════
+//
+// gis-platform migration 348 尚未 apply（待 user review）之前，PostgREST 對
+// 不存在的函式回 404 / code PGRST202。這段期間卡片要安靜拿到空陣列、不在
+// console 噴紅字——用 console.debug 不用 console.warn，migration apply 後
+// 不用再改本檔。
+//
+// 補零口徑刻意跟 earthquakeLoader.ts 的 fetchEarthquakeDaily 不同一部分、
+// 相同一部分：count 缺日補 0（跟地震一樣，COUNT() 對空集合就是 0），但
+// cloudToGround / maxIntensityKa 缺日補 null（MAX() 對空集合沒有意義，
+// 不該假裝成 0）—— 詳見 gis-platform migration 348 檔頭「補零決策」。
+//
+// ⚠️ 連續日期軸的錨點**不是** todayTaiwan()（這點跟 fetchEarthquakeDaily
+// 不同）：analytics.lightning_daily_summary 的 refresh cron 只補「昨天」，
+// today 這格在 RPC 端永遠不存在。若軸錨在 todayTaiwan()，會把 RPC 回傳的
+// 最舊一天擠掉、同時把 today 補成一根假的「今日 0 次」柱——每天都錯一格。
+// 改錨在 RPC 實際回傳的最新一筆 strike_date（=表內 MAX(strike_date)，
+// 正常情況下就是昨天；pipeline 落後時右界也會誠實跟著落後，而不是用假零
+// 蓋過去）。rows 為空（RPC 成功但聚合表全空）直接回 []，比照 RPC 未上線
+// 的降級行為——沒有任何一天有資料時，軸該錨在哪一天本來就無意義。
+
+export interface LightningDay {
+  /** 台北曆日 YYYY-MM-DD */
+  dateKey: string;
+  /** 當日總落雷數；當日無資料時補 0 */
+  count: number;
+  cloudToGround: number | null;
+  maxIntensityKa: number | null;
+}
+
+interface LightningDailyRpcRow {
+  strike_date: string;
+  event_count: number;
+  cloud_to_ground: number | null;
+  cloud_to_cloud: number | null;
+  max_intensity_ka: number | null;
+}
+
+const DEFAULT_LIGHTNING_DAILY_DAYS = 14;
+const MS_PER_DAY = 86_400_000;
+
+function taipeiMidnightMs(dateKey: string): number {
+  return Date.parse(`${dateKey}T00:00:00+08:00`);
+}
+function taipeiDateKeyFromMs(ms: number): string {
+  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
+}
+
+/**
+ * 把 RPC 回傳（只含有資料的日期，已由舊到新排序）補成連續 days 天。
+ * 右界錨在 rows 最後一筆的 strike_date（不是 todayTaiwan()，理由見檔頭）。
+ */
+function padLightningDaily(rows: LightningDailyRpcRow[], days: number): LightningDay[] {
+  if (rows.length === 0) return [];
+  const byDate = new Map(rows.map((r) => [r.strike_date, r]));
+  const anchorMidnightMs = taipeiMidnightMs(rows[rows.length - 1]!.strike_date);
+  const result: LightningDay[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const key = taipeiDateKeyFromMs(anchorMidnightMs - i * MS_PER_DAY);
+    const r = byDate.get(key);
+    result.push({
+      dateKey: key,
+      count: r?.event_count ?? 0,
+      cloudToGround: r?.cloud_to_ground ?? null,
+      maxIntensityKa: r?.max_intensity_ka ?? null,
+    });
+  }
+  return result;
+}
+
+async function fetchLightningDailyUncached(daysKey: string): Promise<LightningDay[]> {
+  const days = Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
+  try {
+    const { data, error } = await withLoading(
+      `lightning:daily:${days}`,
+      `落雷近 ${days} 天趨勢`,
+      supabase.rpc("get_lightning_daily", { p_days: days }),
+    );
+    if (error) throw error;
+    return padLightningDaily((data ?? []) as LightningDailyRpcRow[], days);
+  } catch (e) {
+    console.debug("[LightningDaily] get_lightning_daily 尚未上線或失敗，回空陣列:", e);
+    return [];
+  }
+}
+
+const fetchLightningDailyCached = cachedByKey<LightningDay[]>(
+  fetchLightningDailyUncached,
+  30 * 60_000, // 每日才變一次，比照 fetchErWaitTotal14d 的 30min TTL
+  4,
+);
+
+/**
+ * 過去 days 天逐日落雷趨勢，由舊到新；右界是資料實際回溯到的最新一天
+ * （通常是昨天，不保證是今天，見檔頭錨點說明）。RPC 未上線、失敗、或
+ * 聚合表全空回 []。
+ */
+export const fetchLightningDaily = (
+  days: number = DEFAULT_LIGHTNING_DAILY_DAYS,
+): Promise<LightningDay[]> => fetchLightningDailyCached(String(days));
+
+export const invalidateLightningDaily = (): void => fetchLightningDailyCached.invalidate();
+
 /**
  * 計算落雷在 currentTs 看到的 alpha（0~1）：
  *  - age < 0：尚未發生，alpha 0
