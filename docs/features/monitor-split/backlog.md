@@ -6,7 +6,23 @@
 
 - ~~**MS-1 窄版座標待用戶重排**~~ → 2026-08-16 用戶沙盒定稿並貼回（見 changelog 二版）。
 
+## P2
+
+- **MS-9 split 在 1440 以下會退化成單欄堆疊**（2026-08-16 code review 提出，**刻意不修**）
+  現行預設（`widthPct 0.46` / `stackBreakpointPx 640`）的翻轉點約 1496px：
+  1920→GRID 835 ✅、1600→688 ✅、1440→614 ⚠️堆疊、1280→541 ⚠️堆疊。
+  在筆電上看 split 會拿到一長條單欄，而不是設計的兩欄上半。
+  **為什麼先不改**：座標是用戶 2026-08-16 在沙盒定稿的，改 `widthPct` 或降斷點都會
+  動到那個決定；且主要使用情境是 1862px 桌機。要修的話兩條路 ——
+  `widthPct` 提到 ≥0.48（1440 也能兩欄），或斷點降到 ≤600（但 2 欄各不到 300px 很擠）。
+  完整數字與翻轉點推導見 README「堆疊判定的比較基準」。
+
 ## P3
+
+- **MS-10 `layersWidth` 目前是 no-op**
+  `MONITOR_SPLIT_DOCK.layersWidth` = 288 恰好等於 `IconRailSidebar` 的 `PANEL_WIDTH`，
+  所以 compact 分支現在只有 `maxHeight`（70vh→45vh）真的生效。不是 bug ——
+  值從常數檔來，沙盒改值就會生效；但讀 code 的人會以為寬度有變。
 
 - **MS-7 沙盒沒有同步二版座標**
   `sandbox-split.html` 的 `DEFAULT_LAYOUT` 仍是初版（全鏈路打通用的預設值），

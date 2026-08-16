@@ -40,6 +40,42 @@
 無互卡退化網格、任兩格不重疊、y≥25 後左右欄 `max(y+h)` 相等（皆為 74）、
 頂層 rows 末節點是 `cols` 且子節點寬度為 `[6,6]`（守住尾段不被切成全寬區塊）。
 
+## 五版（2026-08-16）— code review 修復
+
+merge 前跑 `/code-review high`，15 項發現裡修掉 12 項，2 項記 backlog（MS-9 / MS-10）。
+**真 bug 五個**，都是「跑得動但在特定情境下靜默壞掉」那種：
+
+1. **輻射趨勢圖會是一排等高殘渣**（`HazardTrendBars.tsx`）
+   比例尺寫成 `Math.max(...vals, 1)`，那個 `1` 對 µSv/h（自然背景 0.039–0.072）
+   是天花板不是地板 —— 每根柱都算成 5–7% 高，正好毀掉「有沒有離開自然背景」
+   這個唯一看點。改成只在全 0 時退回 1。
+2. **1440 螢幕下「退出」鈕被裁掉且點不到**（`MonitorPanel.tsx`）
+   header 是 flex 無 wrap，三顆模式鈕上場後固定內容約 770px，split 面板只有
+   46%vw；1440 實測退出鈕右緣超出面板 30px，被 `overflow:hidden` 吃掉。
+   讓狀態文字成為唯一可壓縮項（`minWidth:0` + ellipsis）。1440/1280 實測已修復。
+3. **地震趨勢在餘震密集期會變空白**（`earthquakeLoader.ts`）
+   `.order(asc).limit(5000)` —— 同一個檔案 70 行前就警告過這個坑：超過 limit 只會
+   拿到**最舊**的 N 筆，最近幾天顯示 0。圖正好在最該發揮作用時失效。改 desc。
+4. **颱風風速序列混用 JMA/JTWC**（`typhoonTracksLoader.ts`）
+   JMA 報 10 分鐘持續風、JTWC 報 1 分鐘持續風（高 10–15%），混在同一條線會有
+   假的階梯跳動，且 `windLevel()` 的 CWA 閾值是對 10 分鐘風定義的 → JTWC 的點
+   會被判高一級。改成先選定單一 source 再取序列。
+5. **颱風同一小時的兩個觀測點撞 React key**（`HazardCards.tsx`）
+   標籤只到小時但去重是按精確 ts，JMA 12:00 與 JTWC 12:20 會產生同一個 label。
+   `HazardBar` 加獨立的 `key` 欄位，颱風傳原始 `validTs`。
+
+其餘修正：
+- Monitor 背景輪詢不再灌全域 LOADING 面板（牆面每半小時閃一次），改走專案既有的
+  EXEMPT 慣例（同 `airportPax`）
+- daily RPC 的 catch 只對「函式不存在」靜默，真故障回到 `console.warn` ——
+  否則 348 上線後真的壞了，圖只會無聲消失
+- 地圖 padding 與自動定位合併成同一個動畫（原本 400ms `easeTo` 會被 900ms
+  `flyTo` 立刻取消，padding 過渡半路夭折）
+- 三個 loader 重複的台北日 helper 抽成共用
+- 落雷分位不再對每根柱重跑一次 filter+sort
+- 修掉兩處誤導後人的註解：`monitorSplitLayout` 檔頭寫「止於 y15」（實際 y17）、
+  `AlertSummaryBar` 宣稱與 AlertBoard 共用降欄規則（三版後已相反）
+
 ## 四版（2026-08-16）— 災害四卡加歷史趨勢柱狀圖
 
 四張災害卡（颱風／輻射／落雷／地震）各加一段迷你柱狀圖：**柱高 = 量、柱色 = 強度**。
