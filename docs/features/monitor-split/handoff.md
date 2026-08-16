@@ -1,8 +1,38 @@
 # Handoff — 監看模式分割版面
 
+## ⚠️ 待 apply 的上游依賴（2026-08-16）
+
+**`gis-platform/migrations/348_lightning_nuclear_daily_rpc.sql` 已寫好但未 apply**
+（migration 須 user 拍板）。它在 `public` 開兩支 SECURITY DEFINER 薄 RPC：
+
+| RPC | 讀 | 給誰用 |
+|---|---|---|
+| `get_lightning_daily(p_days, p_source)` | `analytics.lightning_daily_summary` | 落雷卡趨勢柱 |
+| `get_nuclear_radiation_daily(p_days)` | `analytics.nuclear_radiation_daily` | 輻射卡趨勢柱 |
+
+**為什麼要 SECURITY DEFINER**：兩張 analytics 表只有 RLS policy，**沒有** base table
+`GRANT SELECT TO anon`（`analytics` schema 不像 `live` 有 ALTER DEFAULT PRIVILEGES）——
+RLS 不能取代 GRANT。同款問題與解法的前例是 `336_food_price_rpc.sql`。
+
+**apply 前後**：前端已經合併且不會壞 —— loader 打不到 RPC 時安靜回 `[]`（`console.debug`
+不是 `warn`），卡片就不畫圖、維持原高度。apply 後自動長出來，**不需要再改前端**。
+
+**apply 後請跑**（檔頭也列了）：
+```sql
+SELECT * FROM public.get_lightning_daily(14);
+SELECT count(*), min(strike_date), max(strike_date) FROM analytics.lightning_daily_summary;
+```
+第二條特別重要 —— 兩張聚合表實際有幾天資料**至今未能驗證**（`analytics` 不在 PostgREST
+exposed schemas，連 service role 走 REST 都是 `406 Invalid schema`）。若資料只有零星幾天，
+柱狀圖會很稀疏，那不是程式問題。
+
+**隱性契約**：RPC 回傳欄位名（`strike_date` / `reading_date` …）與 loader 的 `RpcRow`
+介面一一對應。review 時若改欄位名，**必須同步改 loader**，否則會靜默把每天都當缺日補 0。
+
 ## 上游
 
-**無上游 handoff** —— 純前端呈現層改動，不新增任何資料源、不動 RPC、不動 Supabase schema。
+除了上面那支待 apply 的 migration，split 版面本身是**純前端呈現層改動**，
+不新增資料源、不動既有 RPC、不動 schema。
 
 split 模式渲染的 20 個 widget 與 dock 模式**完全同一組元件、同一組資料來源**，
 只是換一套座標與容器幾何。widget → 資料來源的對照表請看
