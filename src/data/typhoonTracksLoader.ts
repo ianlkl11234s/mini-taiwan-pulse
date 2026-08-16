@@ -480,6 +480,15 @@ export const invalidateTyphoonSummary = (): void => fetchTyphoonSummaryCached.in
 // 去重與距離口徑都與本檔既有的 `distToTaiwanKm()` / `CROSS_SOURCE_RADIUS_KM`
 // 對齊，卡片主數字與趨勢柱才不會自相矛盾。細節見 migration 349 檔頭。
 
+/** 當天在 1000km 內的其中一顆（RPC 已跨 JMA/JTWC 去重，依距離由近到遠） */
+export interface TyphoonNearby {
+  stormId: string;
+  name: string;
+  km: number;
+  /** 最大風速 kt；JMA 常缺值時 RPC 會跨來源撈，仍撈不到則 null */
+  kt: number | null;
+}
+
 /** 逐日接近程度。缺日（該天完全沒有觀測）→ nearestKm null、stormsNearby 0 */
 export interface TyphoonProximityDay {
   /** 台北曆日 YYYY-MM-DD */
@@ -492,6 +501,9 @@ export interface TyphoonProximityDay {
   windKt: number | null;
   /** 當天在 1000km 內、去重後的颱風數 */
   stormsNearby: number;
+  /** 那幾顆的明細（長度 = stormsNearby）。只給「最近那顆」的話，畫面會出現
+   *  「2 顆在 1000km 內」卻只列得出一顆 */
+  nearby: TyphoonNearby[];
 }
 
 interface ProximityRpcRow {
@@ -501,6 +513,7 @@ interface ProximityRpcRow {
   nearest_name: string | null;
   nearest_wind_kt: number | null;
   storms_nearby: number | null;
+  nearby: { storm_id: string; name: string; km: number; kt: number | null }[] | null;
 }
 
 const DEFAULT_PROXIMITY_DAYS = 14;
@@ -528,6 +541,9 @@ async function fetchTyphoonProximityUncached(daysKey: string): Promise<TyphoonPr
       name: r?.nearest_name ?? null,
       windKt: r?.nearest_wind_kt ?? null,
       stormsNearby: r?.storms_nearby ?? 0,
+      nearby: (r?.nearby ?? []).map((n) => ({
+        stormId: n.storm_id, name: n.name, km: n.km, kt: n.kt,
+      })),
     }));
   } catch (e) {
     console.warn("[TyphoonProximity] get_typhoon_proximity_daily 失敗，回空陣列:", e);

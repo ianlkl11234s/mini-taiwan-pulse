@@ -344,15 +344,25 @@ export function TyphoonCard({ open, nowTs }: Props) {
       />
       {/* 點某一天展開那天是哪顆 —— 兩排圖只看得出「有沒有／幾顆」，看不出是誰 */}
       {picked && (
-        <Note color={COLORS.textDefault}>
-          {picked.dateKey.slice(5).replace("-", "/")} ·{" "}
-          {picked.nearestKm == null
-            ? "當天無颱風觀測"
-            : `${picked.name ?? picked.stormId ?? "—"} 最近 `
-              + `${Math.round(picked.nearestKm).toLocaleString("zh-TW")} km`
-              + (picked.windKt != null ? ` · ${picked.windKt} kt` : "")
-              + ` · ${picked.stormsNearby} 顆在 1000km 內`}
-        </Note>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Note color={COLORS.textDefault}>
+            {picked.dateKey.slice(5).replace("-", "/")} ·{" "}
+            {picked.stormsNearby > 0
+              ? `${picked.stormsNearby} 顆在 1000km 內`
+              : picked.nearestKm == null
+                ? "當天無颱風觀測"
+                : `無颱風在 1000km 內（最近 ${picked.name ?? "—"} `
+                  + `${Math.round(picked.nearestKm).toLocaleString("zh-TW")} km）`}
+          </Note>
+          {/* 一顆一行 —— 說「2 顆」卻只列得出最近那顆，另一顆是誰看不到 */}
+          {picked.nearby.map((n) => (
+            <MetaRow
+              key={n.stormId}
+              left={`· ${n.name}`}
+              right={`${Math.round(n.km).toLocaleString("zh-TW")} km${n.kt != null ? ` · ${n.kt} kt` : ""}`}
+            />
+          ))}
+        </div>
       )}
       {/* 右側刻意放 storm_id 而非 name_local —— JMA 的 name_local 是日文片假名
           （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}
