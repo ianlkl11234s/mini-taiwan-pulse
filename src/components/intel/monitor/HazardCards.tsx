@@ -241,10 +241,17 @@ export function TyphoonCard({ open, nowTs }: Props) {
       return;
     }
     let cancelled = false;
-    fetchTyphoonTrend(stormId)
-      .then((t) => { if (!cancelled) setTrend(t); })
-      .catch((e) => console.warn("[TyphoonCard/trend]", e));
-    return () => { cancelled = true; };
+    const tick = () => {
+      fetchTyphoonTrend(stormId)
+        .then((t) => { if (!cancelled) setTrend(t); })
+        .catch((e) => console.warn("[TyphoonCard/trend]", e));
+    };
+    tick();
+    // 跟上面的快照同頻輪詢。少了這個，牆面掛著看侵台過程時上半的風速數字一直更新、
+    // 下面的柱狀圖卻停在開卡當下那批觀測，同一張卡自己打架。
+    // fetchTyphoonPoints() 有 10 分鐘快取，多這一輪幾乎不花成本。
+    const id = window.setInterval(tick, 30 * 60_000);
+    return () => { cancelled = true; window.clearInterval(id); };
   }, [open, stormId]);
   const label = "颱風 · TYPHOON";
   const tint = "rgba(56,189,248,0.06)";
@@ -277,6 +284,8 @@ export function TyphoonCard({ open, nowTs }: Props) {
   const name = data.name_en || data.name_local || data.storm_id;
   const windMs = data.max_wind_kt != null ? Math.round(data.max_wind_kt * 0.514) : null;
   const tyBars: HazardBar[] = trend.map((p) => ({
+    // key 用原始 ts：標籤只到小時，同一小時內的兩個觀測點會撞 key
+    key: String(p.validTs),
     label: trendStamp(p.validTs),
     value: p.maxWindKt,
     level: windLevel(p.maxWindKt),
@@ -508,18 +517,18 @@ export function RadiationCard({ open }: Props) {
 /* ── 落雷 ─────────────────────────────────────────────── */
 
 /**
- * 相對多寡分級 —— 回答「今天這個量在這幾天算多嗎」。
+ * 從一組每日次數算出「相對多寡」的兩條分界。
  *
- * 分位只拿**有落雷的日子**算：乾季一連好幾天 0，全部算進去會把中位數壓成 0，
- * 於是任何一點雷都跳成「偏多」。今天是 0 就自然落在 level 0。
+ * 分位只拿**有落雷的日子**算：乾季一連好幾天 0，全算進去會把中位數壓成 0，
+ * 於是任何一點雷都跳成「偏多」。當日是 0 就自然落在最低級。
+ *
+ * 一次排序算完 p50/p90 —— 分級與中位數共用同一份，不要在每根柱的 map 裡重算。
  */
-function relativeLevel(values: number[], v: number): number {
+function strikeThresholds(values: number[]): { p50: number; p90: number } {
   const s = values.filter((x) => x > 0).sort((a, b) => a - b);
-  if (!s.length) return 0;
+  if (!s.length) return { p50: 0, p90: 0 };
   const q = (p: number) => s[Math.min(s.length - 1, Math.floor((s.length - 1) * p))]!;
-  if (v > q(0.9)) return 2;
-  if (v > q(0.5)) return 1;
-  return 0;
+  return { p50: q(0.5), p90: q(0.9) };
 }
 const STRIKE_LEVEL_COLORS = [COLORS.statusLive, COLORS.statusWarn, COLORS.statusErr];
 const fetchLightningTrend = () => fetchLightningDaily(TREND_DAYS);
@@ -559,17 +568,13 @@ export function LightningCard({ open, nowTs }: Props) {
   const fallbackNote = data.fallbackCountDay > 0
     ? `台電源 今日 ${data.fallbackCountDay.toLocaleString("zh-TW")} 筆`
     : "台電源 上游斷供中（端點回空）";
-  const strikeVals = (daily ?? []).map((d) => d.count);
+  const { p50: strikeMedian, p90: strikeP90 } = strikeThresholds((daily ?? []).map((d) => d.count));
   const strikeBars: HazardBar[] = (daily ?? []).map((d) => ({
     label: d.dateKey.slice(5).replace("-", "/"),
     value: d.count,
-    level: relativeLevel(strikeVals, d.count),
+    level: d.count > strikeP90 ? 2 : d.count > strikeMedian ? 1 : 0,
     note: d.cloudToGround != null ? `雲地 ${d.cloudToGround.toLocaleString("zh-TW")}` : undefined,
   }));
-  const strikeActive = strikeVals.filter((v) => v > 0).sort((a, b) => a - b);
-  const strikeMedian = strikeActive.length
-    ? strikeActive[Math.floor((strikeActive.length - 1) / 2)]!
-    : 0;
 
   return (
     <HazardShell

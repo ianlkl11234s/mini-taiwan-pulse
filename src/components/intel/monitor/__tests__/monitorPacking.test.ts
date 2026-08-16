@@ -107,7 +107,8 @@ describe("monitorPacking · split dock（右半邊窄版）", () => {
   });
 
   // 上半（y0–14）是刻意的兩欄結構：左 = 新聞 Feed + 信號分級、右 = 時間軸 → 警訊 → 熱區。
-  // 兩欄同止於 y15，y15 才是第一條乾淨的全寬切線。這條守住上半不被拆壞成全寬堆疊。
+  // 兩欄同止於 y17（左 newsFeed h14 + triage h3、右 timeline h6 + alertBoard h6 + hotZones h5），
+  // y17 才是第一條乾淨的全寬切線。這條守住上半不被拆壞成全寬堆疊。
   it("上半拆成左右兩欄 cols(6, 6)", () => {
     const tree = buildMonitorTree(items);
     expect(tree.t).toBe("rows");

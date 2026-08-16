@@ -520,26 +520,35 @@ export default function App() {
   const [monitorOpen, setMonitorOpen] = useState(false);
   // Monitor 呈現模式：dock（底部浮層，預設）/ wall（近全屏）/ split（右半邊，rail icon 入口）
   const [monitorMode, setMonitorMode] = useState<MonitorMode>("dock");
-  // split 開啟時地圖視野右側讓位（MONITOR_SPLIT_DOCK.mapPaddingRight 預設 0 = 不動視野）
+  const splitActive = monitorOpen && monitorMode === "split";
+  /**
+   * 進入 split 時把鏡頭帶到「台灣整島落在左半可視區」的預設視角，並套用視野讓位。
+   *
+   * 兩件事**必須在同一個動畫裡**：分成 `easeTo({padding})` ＋ `flyTo({center})`
+   * 兩個 effect 的話，後發的 flyTo 會立刻取消前一個 easeTo，padding 過渡半路夭折。
+   *
+   * deps 只有 splitActive → 之後手動平移縮放不會被拉回；退出 split 不還原視角，
+   * 只把 padding 歸零（視野讓位是 dock 造成的，dock 收起來就該還原）。
+   */
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const right = monitorOpen && monitorMode === "split" ? MONITOR_SPLIT_DOCK.mapPaddingRight : 0;
+    const right = splitActive ? MONITOR_SPLIT_DOCK.mapPaddingRight : 0;
+    const padding = { left: 0, top: 0, bottom: 0, right };
+    if (splitActive && MONITOR_SPLIT_CAMERA.autoFrame) {
+      map.flyTo({
+        center: MONITOR_SPLIT_CAMERA.center,
+        zoom: MONITOR_SPLIT_CAMERA.zoom,
+        pitch: MONITOR_SPLIT_CAMERA.pitch,
+        bearing: MONITOR_SPLIT_CAMERA.bearing,
+        duration: MONITOR_SPLIT_CAMERA.durationMs,
+        padding,
+      });
+      return;
+    }
+    // 沒有要飛（autoFrame 關掉、或正在退出 split）→ 只處理 padding，且沒變就別動
     if (right === 0 && !map.getPadding().right) return;
-    map.easeTo({ padding: { left: 0, top: 0, bottom: 0, right }, duration: 400 });
-  }, [monitorOpen, monitorMode]);
-  // 進入 split 的那一刻把鏡頭帶到「台灣整島落在左半可視區」的預設視角。
-  // deps 只有開關與模式 → 之後手動平移縮放不會被拉回；退出 split 也不還原視角。
-  const splitActive = monitorOpen && monitorMode === "split";
-  useEffect(() => {
-    if (!splitActive || !MONITOR_SPLIT_CAMERA.autoFrame) return;
-    mapRef.current?.flyTo({
-      center: MONITOR_SPLIT_CAMERA.center,
-      zoom: MONITOR_SPLIT_CAMERA.zoom,
-      pitch: MONITOR_SPLIT_CAMERA.pitch,
-      bearing: MONITOR_SPLIT_CAMERA.bearing,
-      duration: MONITOR_SPLIT_CAMERA.durationMs,
-    });
+    map.easeTo({ padding, duration: 400 });
   }, [splitActive]);
   const satConsole = useSatelliteConsole();
   const satManeuvers = useSatelliteManeuvers(satConsole.open);

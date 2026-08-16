@@ -1,6 +1,7 @@
 import { supabase, todayTaiwan } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedByKey, cachedOnce } from "../lib/loaderCache";
+import { padTaipeiDaily } from "../lib/taipeiDay";
 
 /**
  * 落雷 loader（RPC 214 get_lightning_recent(minutes)）
@@ -238,8 +239,10 @@ export const invalidateLightningSummary = (): void => fetchLightningSummaryCache
 // ══════════════════════════════════════════════════════════════════
 //
 // gis-platform migration 348 尚未 apply（待 user review）之前，PostgREST 對
-// 不存在的函式回 404 / code PGRST202。這段期間卡片要安靜拿到空陣列、不在
-// console 噴紅字——用 console.debug 不用 console.warn，migration apply 後
+// 不存在的函式回 404 / code PGRST202——這類「還沒上線」的失敗才安靜拿到空陣列、
+// 用 console.debug 不噴紅字；其餘（500 / RLS 撤權 / 網路錯誤…）一律 console.warn
+// 仍照樣回 []（卡片還是要優雅降級，只是不能再無聲吞掉真正的故障，見
+// isMissingRpcError）。migration apply 後 isMissingRpcError 分支自然不會再命中，
 // 不用再改本檔。
 //
 // 補零口徑刻意跟 earthquakeLoader.ts 的 fetchEarthquakeDaily 不同一部分、
@@ -255,6 +258,10 @@ export const invalidateLightningSummary = (): void => fetchLightningSummaryCache
 // 正常情況下就是昨天；pipeline 落後時右界也會誠實跟著落後，而不是用假零
 // 蓋過去）。rows 為空（RPC 成功但聚合表全空）直接回 []，比照 RPC 未上線
 // 的降級行為——沒有任何一天有資料時，軸該錨在哪一天本來就無意義。
+//
+// 刻意不包 withLoading：Monitor 面板背景輪詢（30min 一次），非圖層載入 ——
+// 灌 LOADING 面板會讓牆面每半小時閃一次。理由同 loadingRegistryContract.test.ts
+// 對 airportPaxLoader 的豁免（本函式已列入該檔 EXEMPT）。
 
 export interface LightningDay {
   /** 台北曆日 YYYY-MM-DD */
@@ -274,49 +281,45 @@ interface LightningDailyRpcRow {
 }
 
 const DEFAULT_LIGHTNING_DAILY_DAYS = 14;
-const MS_PER_DAY = 86_400_000;
-
-function taipeiMidnightMs(dateKey: string): number {
-  return Date.parse(`${dateKey}T00:00:00+08:00`);
-}
-function taipeiDateKeyFromMs(ms: number): string {
-  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-}
 
 /**
  * 把 RPC 回傳（只含有資料的日期，已由舊到新排序）補成連續 days 天。
  * 右界錨在 rows 最後一筆的 strike_date（不是 todayTaiwan()，理由見檔頭）。
  */
 function padLightningDaily(rows: LightningDailyRpcRow[], days: number): LightningDay[] {
-  if (rows.length === 0) return [];
-  const byDate = new Map(rows.map((r) => [r.strike_date, r]));
-  const anchorMidnightMs = taipeiMidnightMs(rows[rows.length - 1]!.strike_date);
-  const result: LightningDay[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const key = taipeiDateKeyFromMs(anchorMidnightMs - i * MS_PER_DAY);
-    const r = byDate.get(key);
-    result.push({
-      dateKey: key,
-      count: r?.event_count ?? 0,
-      cloudToGround: r?.cloud_to_ground ?? null,
-      maxIntensityKa: r?.max_intensity_ka ?? null,
-    });
-  }
-  return result;
+  return padTaipeiDaily(rows, days, (r) => r.strike_date, (dateKey, r) => ({
+    dateKey,
+    count: r?.event_count ?? 0,
+    cloudToGround: r?.cloud_to_ground ?? null,
+    maxIntensityKa: r?.max_intensity_ka ?? null,
+  }));
+}
+
+/** PostgREST 對不存在的函式回 PGRST202（HTTP 404）——這類才是「RPC 還沒上線」。 */
+function isMissingRpcError(error: { code?: string } | null, status: number): boolean {
+  return error?.code === "PGRST202" || status === 404;
+}
+
+function clampDailyDays(daysKey: string): number {
+  return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
 }
 
 async function fetchLightningDailyUncached(daysKey: string): Promise<LightningDay[]> {
-  const days = Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
   try {
-    const { data, error } = await withLoading(
-      `lightning:daily:${days}`,
-      `落雷近 ${days} 天趨勢`,
-      supabase.rpc("get_lightning_daily", { p_days: days }),
-    );
-    if (error) throw error;
-    return padLightningDaily((data ?? []) as LightningDailyRpcRow[], days);
+    const { data, error, status } = await supabase.rpc("get_lightning_daily", {
+      p_days: clampDailyDays(daysKey),
+    });
+    if (error) {
+      if (isMissingRpcError(error, status)) {
+        console.debug("[LightningDaily] get_lightning_daily 尚未上線，回空陣列:", error);
+      } else {
+        console.warn("[LightningDaily] get_lightning_daily 查詢失敗，回空陣列:", error);
+      }
+      return [];
+    }
+    return padLightningDaily((data ?? []) as LightningDailyRpcRow[], clampDailyDays(daysKey));
   } catch (e) {
-    console.debug("[LightningDaily] get_lightning_daily 尚未上線或失敗，回空陣列:", e);
+    console.warn("[LightningDaily] get_lightning_daily 查詢例外，回空陣列:", e);
     return [];
   }
 }

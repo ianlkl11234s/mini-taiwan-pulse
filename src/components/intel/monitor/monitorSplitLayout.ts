@@ -80,7 +80,7 @@ export const MONITOR_SPLIT_CAMERA = {
 /**
  * 窄版定稿佈局 — 2026-08-16 用戶沙盒定稿
  *
- * 結構：**上半 2 欄（止於 y15）＋ 下半以全寬為主的縱向流**
+ * 結構：**上半 2 欄（兩欄同止於 y17）＋ 下半以全寬為主的縱向流**
  *   y0–16   newsFeed(w6)     | timeline → alertBoard → hotZones（右欄三段）
  *           triage(w6, y14)  |
  *   y17–    liveWall → hazardStrip → 災害四卡（一列四格 w3）→ foodPriceBoard
@@ -124,7 +124,14 @@ export const MONITOR_LAYOUT_SPLIT: MonitorGridItem[] = [
   { i: "plaBoard", x: 0, y: 82, w: 12, h: 12, fit: "content" },
 ];
 
-/** 沙盒 hidden 清單 — split 模式不隱藏任何 widget（histogram 全站停用，沿用 dock 版） */
+/**
+ * 沙盒 hidden 清單的貼上目標。
+ *
+ * 現在**沒有實際效果** —— `histogram` 全站停用（見 dock 版 `MONITOR_HIDDEN`），
+ * 本來就沒出現在 `MONITOR_LAYOUT_SPLIT` 裡，所以下面的 filter 過濾不掉任何東西。
+ * 保留是為了讓沙盒匯出的 `hidden` 陣列有對稱的落點：之後真的要在 split 藏某個
+ * widget（例如窄欄放不下影像牆）時，直接把 id 加進來即可，不必改結構。
+ */
 export const MONITOR_SPLIT_HIDDEN: MonitorWidgetId[] = ["histogram"];
 
 /** 實際要渲染的格子（過濾 hidden，資料驅動） */

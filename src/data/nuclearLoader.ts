@@ -1,6 +1,7 @@
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, cachedByKey } from "../lib/loaderCache";
+import { padTaipeiDaily } from "../lib/taipeiDay";
 
 /**
  * 核安 loader（RPC 215 get_nuclear_radiation_status）
@@ -295,8 +296,10 @@ export function toNuclearFC(rows: NuclearStation[]): GeoJSON.FeatureCollection<G
 // ══════════════════════════════════════════════════════════════════
 //
 // gis-platform migration 348 尚未 apply（待 user review）之前，PostgREST 對
-// 不存在的函式回 404 / code PGRST202。這段期間卡片要安靜拿到空陣列、不在
-// console 噴紅字——用 console.debug 不用 console.warn，migration apply 後
+// 不存在的函式回 404 / code PGRST202——這類「還沒上線」的失敗才安靜拿到空陣列、
+// 用 console.debug 不噴紅字；其餘（500 / RLS 撤權 / 網路錯誤…）一律 console.warn
+// 仍照樣回 []（卡片還是要優雅降級，只是不能再無聲吞掉真正的故障，見
+// isMissingRpcError）。migration apply 後 isMissingRpcError 分支自然不會再命中，
 // 不用再改本檔。
 //
 // 補零口徑比照 lightningLoader.ts fetchLightningDaily：stationCount 缺日補
@@ -316,6 +319,10 @@ export function toNuclearFC(rows: NuclearStation[]): GeoJSON.FeatureCollection<G
 // reading_date（=表內 MAX(obs_date)，正常情況下就是昨天；pipeline 落後時
 // 右界也會誠實跟著落後）。rows 為空（RPC 成功但聚合表全空）直接回 []，
 // 比照 RPC 未上線的降級行為。
+//
+// 刻意不包 withLoading：Monitor 面板背景輪詢（30min 一次），非圖層載入 ——
+// 灌 LOADING 面板會讓牆面每半小時閃一次。理由同 loadingRegistryContract.test.ts
+// 對 airportPaxLoader 的豁免（本函式已列入該檔 EXEMPT）。
 
 export interface NuclearDoseDay {
   /** 台北曆日 YYYY-MM-DD */
@@ -336,49 +343,45 @@ interface NuclearDailyRpcRow {
 }
 
 const DEFAULT_NUCLEAR_DAILY_DAYS = 14;
-const MS_PER_DAY_NUCLEAR = 86_400_000;
-
-function taipeiMidnightMsNuclear(dateKey: string): number {
-  return Date.parse(`${dateKey}T00:00:00+08:00`);
-}
-function taipeiDateKeyFromMsNuclear(ms: number): string {
-  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-}
 
 /**
  * 把 RPC 回傳（只含有資料的日期，已由舊到新排序）補成連續 days 天。
  * 右界錨在 rows 最後一筆的 reading_date（不是 todayTaiwan()，理由見檔頭）。
  */
 function padNuclearDaily(rows: NuclearDailyRpcRow[], days: number): NuclearDoseDay[] {
-  if (rows.length === 0) return [];
-  const byDate = new Map(rows.map((r) => [r.reading_date, r]));
-  const anchorMidnightMs = taipeiMidnightMsNuclear(rows[rows.length - 1]!.reading_date);
-  const result: NuclearDoseDay[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const key = taipeiDateKeyFromMsNuclear(anchorMidnightMs - i * MS_PER_DAY_NUCLEAR);
-    const r = byDate.get(key);
-    result.push({
-      dateKey: key,
-      meanUsvh: r?.mean_usvh ?? null,
-      maxUsvh: r?.max_usvh ?? null,
-      stationCount: r?.station_count ?? 0,
-    });
-  }
-  return result;
+  return padTaipeiDaily(rows, days, (r) => r.reading_date, (dateKey, r) => ({
+    dateKey,
+    meanUsvh: r?.mean_usvh ?? null,
+    maxUsvh: r?.max_usvh ?? null,
+    stationCount: r?.station_count ?? 0,
+  }));
+}
+
+/** PostgREST 對不存在的函式回 PGRST202（HTTP 404）——這類才是「RPC 還沒上線」。 */
+function isMissingRpcError(error: { code?: string } | null, status: number): boolean {
+  return error?.code === "PGRST202" || status === 404;
+}
+
+function clampDailyDays(daysKey: string): number {
+  return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
 }
 
 async function fetchNuclearDailyUncached(daysKey: string): Promise<NuclearDoseDay[]> {
-  const days = Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
   try {
-    const { data, error } = await withLoading(
-      `nuclear:daily:${days}`,
-      `輻射近 ${days} 天趨勢`,
-      supabase.rpc("get_nuclear_radiation_daily", { p_days: days }),
-    );
-    if (error) throw error;
-    return padNuclearDaily((data ?? []) as NuclearDailyRpcRow[], days);
+    const { data, error, status } = await supabase.rpc("get_nuclear_radiation_daily", {
+      p_days: clampDailyDays(daysKey),
+    });
+    if (error) {
+      if (isMissingRpcError(error, status)) {
+        console.debug("[NuclearDaily] get_nuclear_radiation_daily 尚未上線，回空陣列:", error);
+      } else {
+        console.warn("[NuclearDaily] get_nuclear_radiation_daily 查詢失敗，回空陣列:", error);
+      }
+      return [];
+    }
+    return padNuclearDaily((data ?? []) as NuclearDailyRpcRow[], clampDailyDays(daysKey));
   } catch (e) {
-    console.debug("[NuclearDaily] get_nuclear_radiation_daily 尚未上線或失敗，回空陣列:", e);
+    console.warn("[NuclearDaily] get_nuclear_radiation_daily 查詢例外，回空陣列:", e);
     return [];
   }
 }

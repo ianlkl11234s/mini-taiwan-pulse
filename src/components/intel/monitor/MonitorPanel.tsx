@@ -765,10 +765,16 @@ export function MonitorPanel({
             BETA
           </span>
         </div>
+        {/* ⚠️ 這行必須是 header 裡唯一可壓縮的東西：flex row 沒有 wrap，其餘項目
+            （標題群、三顆模式鈕、退出）都是 nowrap 且 min-width:auto，誰都縮不了。
+            split 模式面板只有視窗的 46%，1440 螢幕下固定內容就超過面板寬，
+            少了這裡的 minWidth:0 + ellipsis，最右邊的「退出」會被面板的
+            overflow:hidden 裁掉且點不到（1440 實測超出 30px）。 */}
         <span
           style={{
             fontFamily: FONT_DATA, fontSize: FONT_SIZE.sm, color: COLORS.textFaint,
             marginTop: isWall ? 0 : 4, whiteSpace: "nowrap",
+            minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
           }}
         >
           今日 {allEventsToday.length} 則 · SITUATIONAL AWARENESS

@@ -1,6 +1,7 @@
 import { supabase, todayTaiwan } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
 import { cachedOnce, cachedByKey } from "../lib/loaderCache";
+import { MS_PER_DAY, taipeiDateKeyFromMs, taipeiMidnightMs } from "../lib/taipeiDay";
 
 export interface EarthquakeEvent {
   event_id: string;
@@ -151,16 +152,6 @@ export const invalidateEarthquakeSummary = (): void => fetchEarthquakeSummaryCac
 // 表本身量體很小（2026-08 實測 1089 列，遠低於單頁上限），14 天窗前端直接
 // bucket 即可，不開新 RPC。
 
-const MS_PER_DAY = 86_400_000;
-
-function taipeiDateKeyFromMs(ms: number): string {
-  return new Date(ms).toLocaleDateString("sv-SE", { timeZone: "Asia/Taipei" });
-}
-
-function taipeiMidnightMs(dateKey: string): number {
-  return Date.parse(`${dateKey}T00:00:00+08:00`);
-}
-
 export interface EarthquakeDay {
   /** 台北時區的 YYYY-MM-DD */
   dateKey: string;
@@ -178,11 +169,15 @@ async function fetchEarthquakeDailyRaw(daysKey: string): Promise<EarthquakeDay[]
   const startMidnightMs = todayMidnightMs - (days - 1) * MS_PER_DAY;
   const startIso = new Date(startMidnightMs).toISOString();
 
+  // desc，不是 asc：同檔 70-73 行警告過 asc+limit 一旦底表超過 limit 就只會拿到
+  // **最舊**的一批——餘震密集期 14 天內破 5000 筆完全可能，屆時最近幾天會靜默
+  // 消失（count 0），趨勢圖正好在它最該發揮作用的時候變空白。bucket 用 Map，
+  // 不依賴 rows 順序，desc 只影響「萬一真的截斷，掉的是哪一段」。
   const { data, error } = await supabase
     .from("earthquake_events")
     .select("magnitude,occurred_at")
     .gte("occurred_at", startIso)
-    .order("occurred_at", { ascending: true })
+    .order("occurred_at", { ascending: false })
     .limit(5000);
   if (error) throw new Error(`Supabase earthquake_events daily: ${error.message}`);
 

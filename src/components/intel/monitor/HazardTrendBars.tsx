@@ -15,8 +15,14 @@ import { RADIUS } from "../../../styles/designTokens";
 
 /** 一根柱子。四個主題的 loader 都轉成這個形狀，元件不認識任何主題語意 */
 export interface HazardBar {
-  /** x 軸鍵值（YYYY-MM-DD 或時間字串），同時用於 React key 與兩端標籤 */
+  /** x 軸標籤（顯示用，兩端會印出來）。**不保證唯一** —— 唯一性看 `key` */
   label: string;
+  /**
+   * React key。省略則退回用 `label`。
+   * 標籤粒度比資料粗時必須給（例如颱風同一小時可能有兩個觀測點，
+   * 標籤都是 `08/13 12`，共用 label 當 key 會撞、React 會重用或掉節點）。
+   */
+  key?: string;
   /** 柱高的量。`null` = 該格無資料（畫成灰樁，與「真的是 0」區分開） */
   value: number | null;
   /** 強度分級，對應 `levelColors` 的 index。超出範圍取最後一色 */
@@ -46,7 +52,14 @@ export function HazardTrendBars({
     const vals = bars.map((b) => b.value).filter((v): v is number => v !== null);
     // 比例尺用「本區間最大值」：跨主題共用元件，沒有全域基準可依。
     // 代價是換資料就換 y 軸尺度 → 所以 footer 一定要印出實際最大值。
-    return Math.max(...vals, 1);
+    //
+    // ⚠️ 不可寫成 `Math.max(...vals, 1)` —— 那個 1 會變成小數單位的樓地板：
+    // 輻射是 µSv/h（自然背景 0.039–0.072），尺度被撐成 1 之後每根柱都算出
+    // 5–7% 高、全部塌成等高殘渣，正好毀掉「有沒有離開自然背景」這個唯一看點。
+    // 1 只在「全部是 0」時需要（避免除以 0）。
+    if (!vals.length) return 1;
+    const m = Math.max(...vals);
+    return m > 0 ? m : 1;
   }, [bars]);
 
   if (!bars.length) return null;
@@ -68,7 +81,7 @@ export function HazardTrendBars({
           if (b.value === null) {
             return (
               <div
-                key={b.label}
+                key={b.key ?? b.label}
                 title={`${b.label} 無資料`}
                 style={{
                   flex: 1, minWidth: 0, height: "100%",
@@ -81,7 +94,7 @@ export function HazardTrendBars({
           const color = levelColors[Math.min(b.level, levelColors.length - 1)] ?? levelColors[0]!;
           return (
             <div
-              key={b.label}
+              key={b.key ?? b.label}
               title={`${b.label}｜${b.value}${unit}${b.note ? `｜${b.note}` : ""}`}
               style={{
                 flex: 1, minWidth: 0, height: "100%",
