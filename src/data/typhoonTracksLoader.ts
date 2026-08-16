@@ -4,7 +4,8 @@
 //   point_type='forecast' → 未來預報虛線（取最新 advisory_number）
 import { supabase } from "../lib/supabase";
 import { withLoading } from "../lib/loadingRegistry";
-import { cachedOnce } from "../lib/loaderCache";
+import { cachedByKey, cachedOnce } from "../lib/loaderCache";
+import { padTaipeiDaily } from "../lib/taipeiDay";
 
 export interface TyphoonPoint {
   storm_id: string;
@@ -469,70 +470,78 @@ export function fetchTyphoonSummary(): Promise<TyphoonSummary | null> {
 export const invalidateTyphoonSummary = (): void => fetchTyphoonSummaryCached.invalidate();
 
 // ══════════════════════════════════════════════════════════════════
-//  Monitor 颱風趨勢卡：指定颱風的觀測序列
+//  Monitor 颱風卡：逐日接近程度（RPC 349 get_typhoon_proximity_daily）
 // ══════════════════════════════════════════════════════════════════
 //
-// 不開新查詢：直接複用 fetchTyphoonPoints()（10 分鐘快取，撈的是查詢窗內
-// 全部 storm 的逐點序列），依 storm_id 篩、依 valid_ts 排序、取尾端 N 筆。
-// 只取 point_type === 'observed' —— 介面語意是「觀測序列」，forecast 是
-// 預報推估值，混進風速/氣壓趨勢會失真。
+// 為什麼是 RPC 而不是前端算：近 14 天的 observed 就有 4810 列，且要對每一列算
+// 「到台灣五錨點的最小距離」再跨 JMA/JTWC 去重（同一顆颱風兩套編號，實測位置
+// 只差 25–143km）。這些在 DB 做只回 14 列，拉回前端算要傳整包。
+//
+// 去重與距離口徑都與本檔既有的 `distToTaiwanKm()` / `CROSS_SOURCE_RADIUS_KM`
+// 對齊，卡片主數字與趨勢柱才不會自相矛盾。細節見 migration 349 檔頭。
 
-export interface TyphoonTrendPoint {
-  /** 觀測時間 unix 秒 */
-  validTs: number;
-  /** 近中心最大風速（kt）；缺值 null */
-  maxWindKt: number | null;
-  /** 中心氣壓（hPa）；缺值 null */
-  pressureHpa: number | null;
+/** 逐日接近程度。缺日（該天完全沒有觀測）→ nearestKm null、stormsNearby 0 */
+export interface TyphoonProximityDay {
+  /** 台北曆日 YYYY-MM-DD */
+  dateKey: string;
+  /** 當天最靠近台灣的颱風距離 km；該日無觀測則 null */
+  nearestKm: number | null;
+  stormId: string | null;
+  name: string | null;
+  /** 該颱風的最大風速 kt（RPC 已跨來源撈值，JMA 常缺） */
+  windKt: number | null;
+  /** 當天在 1000km 內、去重後的颱風數 */
+  stormsNearby: number;
 }
 
-const DEFAULT_TREND_POINTS = 40;
+interface ProximityRpcRow {
+  obs_date: string;
+  nearest_km: number | null;
+  nearest_storm_id: string | null;
+  nearest_name: string | null;
+  nearest_wind_kt: number | null;
+  storms_nearby: number | null;
+}
+
+const DEFAULT_PROXIMITY_DAYS = 14;
 
 /**
- * 序列**必須**只來自單一 source，不可像早期版本那樣逐 valid_ts 各自挑「較完整」
- * 的一筆混用：JMA 報 10 分鐘持續風、JTWC 報 1 分鐘持續風（普遍高 10~15%），
- * 混在同一條序列上會出現假的階梯跳動；卡片的 windLevel() 分級門檻又是對 CWA
- * 「10 分鐘持續風」定義的，JTWC 的點會被誤判高一級。
- *
- * 固定優先 JMA —— 與本檔 Monitor 卡（pickActiveTyphoon）／軌跡光圈一致，JMA 是
- * 本專案颱風資料的主要顯示來源；只有該 storm 在查詢窗內完全沒有 JMA 觀測時才
- * 退到 JTWC（並在 console 留痕跡，見 fetchTyphoonTrend）。
+ * ⚠️ clamp 刻意抽成函式而不是在 rpc 前寫 `const days = ...`：
+ * loadingRegistryContract 的掃描器用「往上找最近的 const/function 宣告」當函式名，
+ * 中間夾一個 const 會讓它把 key 算成 `days` 而不是函式名，EXEMPT 就對不上。
  */
-function pickTrendSource(observedPts: TyphoonPoint[]): string | null {
-  if (observedPts.some((p) => p.source.toLowerCase() === "jma")) return "jma";
-  if (observedPts.some((p) => p.source.toLowerCase() === "jtwc")) return "jtwc";
-  return null;
+function clampProximityDays(daysKey: string): number {
+  return Math.min(365, Math.max(1, Math.floor(Number(daysKey))));
 }
 
-/** 指定颱風的觀測序列，依時間由舊到新。查不到（無資料或失敗）回 [] */
-export async function fetchTyphoonTrend(
-  stormId: string,
-  maxPoints: number = DEFAULT_TREND_POINTS,
-): Promise<TyphoonTrendPoint[]> {
+async function fetchTyphoonProximityUncached(daysKey: string): Promise<TyphoonProximityDay[]> {
   try {
-    const pts = await fetchTyphoonPoints();
-    const stormObserved = pts.filter((p) => p.storm_id === stormId && p.point_type === "observed");
-    const source = pickTrendSource(stormObserved);
-    if (source === null) return [];
-    if (source === "jtwc") {
-      console.warn(
-        `[TyphoonTracks] fetchTyphoonTrend(${stormId}): 查詢窗內無 JMA 觀測，退回 JTWC` +
-          `（1 分鐘持續風，與 windLevel() 假設的 CWA 10 分鐘定義不完全一致）`,
-      );
-    }
-    const sourcePts = stormObserved.filter((p) => p.source.toLowerCase() === source);
-    // 同一 source 內仍可能對同一 valid_ts 有多列（JMA preTyphoon/typhoon/analysis
-    // 段用同時間戳）——複用軌跡 loader 既有的 dedupeSameTimestamp 合併，不另寫一套。
-    const deduped = dedupeSameTimestamp(sourcePts);
-    const sorted = deduped.sort((a, b) => a.valid_ts - b.valid_ts);
-    const tail = sorted.slice(Math.max(0, sorted.length - maxPoints));
-    return tail.map((p) => ({
-      validTs: p.valid_ts,
-      maxWindKt: p.max_wind_kt,
-      pressureHpa: p.center_pressure,
+    const { data, error } = await supabase.rpc("get_typhoon_proximity_daily", {
+      p_days: clampProximityDays(daysKey),
+    });
+    if (error) throw error;
+    const rows = (data ?? []) as ProximityRpcRow[];
+    return padTaipeiDaily(rows, clampProximityDays(daysKey), (r) => r.obs_date, (dateKey, r) => ({
+      dateKey,
+      nearestKm: r?.nearest_km ?? null,
+      stormId: r?.nearest_storm_id ?? null,
+      name: r?.nearest_name ?? null,
+      windKt: r?.nearest_wind_kt ?? null,
+      stormsNearby: r?.storms_nearby ?? 0,
     }));
-  } catch (err) {
-    console.error("[TyphoonTracks] fetchTyphoonTrend failed:", err);
+  } catch (e) {
+    console.warn("[TyphoonProximity] get_typhoon_proximity_daily 失敗，回空陣列:", e);
     return [];
   }
 }
+
+const fetchTyphoonProximityCached = cachedByKey(
+  fetchTyphoonProximityUncached,
+  30 * 60_000, // 逐日聚合跨日才變，30 分鐘足夠；RPC 實測 ~680ms 不宜頻繁打
+  4,
+);
+
+/** 近 N 天逐日接近程度，由舊到新。失敗回 [] */
+export const fetchTyphoonProximityDaily = (
+  days: number = DEFAULT_PROXIMITY_DAYS,
+): Promise<TyphoonProximityDay[]> => fetchTyphoonProximityCached(String(days));

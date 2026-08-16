@@ -19,6 +19,12 @@
 
 ## P3
 
+- **MS-11 dock 版的災害四卡沒跟著調整**
+  split 版已把颱風卡獨立一列（它有上下兩排趨勢圖，比其他三張高）。dock 版
+  （`monitorLayout.ts`）仍是 2×2，颱風與地震同列 → 等高規則會把地震拉到颱風的
+  高度、底下留白。不影響功能，dock 也不是目前主要使用的模式，但看起來會有點空。
+  要修就比照 split：颱風獨立一列 w7，其餘三卡一列拆 3+2+2。
+
 - **MS-10 `layersWidth` 目前是 no-op**
   `MONITOR_SPLIT_DOCK.layersWidth` = 288 恰好等於 `IconRailSidebar` 的 `PANEL_WIDTH`，
   所以 compact 分支現在只有 `maxHeight`（70vh→45vh）真的生效。不是 bug ——
