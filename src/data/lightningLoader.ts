@@ -308,6 +308,12 @@ async function fetchLightningDailyUncached(daysKey: string): Promise<LightningDa
   try {
     const { data, error, status } = await supabase.rpc("get_lightning_daily", {
       p_days: clampDailyDays(daysKey),
+      // ⚠️ 一定要指定來源。RPC 的 p_source=null 會把 cwa 與 taipower **加總**，
+      // 但兩者是同一批落雷的兩份獨立觀測，加起來等於重複計算
+      // （實測 2026-08-14：cwa 2985 + taipower 2204 = 5189）。
+      // 卡片的主數字（今日累計／近 1h）走的是氣象署，趨勢圖必須同口徑，
+      // 否則同一張卡上下兩半的數字對不起來。台電源另有斷供問題，見檔頭。
+      p_source: "cwa",
     });
     if (error) {
       if (isMissingRpcError(error, status)) {
