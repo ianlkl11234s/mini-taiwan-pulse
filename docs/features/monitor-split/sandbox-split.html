@@ -1,0 +1,2101 @@
+
+<title>監看模式 Split Dock 排版沙盒</title>
+
+<!--
+  Split Dock 排版沙盒 —— 對照 sandbox.html（監看模式 dock/wall 版），
+  但畫布左半邊多畫了一份「假主站」（icon rail + Layers 面板 + 台灣輪廓 + 時間軸），
+  右半邊才是可拖曳的 widget dock（12 欄，欄寬只有 dock 版的一半）。
+
+  拖完 → 複製 JSON → 覆蓋 src/components/intel/monitor/monitorSplitLayout.ts 的
+  MONITOR_SPLIT_DOCK 與 MONITOR_LAYOUT_SPLIT（layout 陣列不含 fit，fit 是程式碼側
+  的內容政策，由 WIDGETS 定義表決定，不由本沙盒管）。
+-->
+
+<style>
+  :root {
+    color-scheme: dark;
+
+    --bg: #0a0e14;
+    --panel: #131a24;
+    --panel-edge: #1e2836;
+    --text: #e6edf3;
+    --dim: #7d8590;
+
+    --accent: #10b981;
+    --red: #fb7185;
+    --amber: #f59e0b;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+
+    --rail: #0d131b;
+    --sunken: #080c11;
+
+    --cjk: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC",
+           "Microsoft JhengHei", sans-serif;
+    --data: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+    --gap: 10px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--cjk);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .mono {
+    font-family: var(--data);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 1.5px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    color: inherit;
+  }
+
+  /* ============ 頂欄 ============ */
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--panel-edge);
+    background: var(--rail);
+  }
+
+  .brand { display: flex; align-items: baseline; gap: 12px; min-width: 0; }
+
+  .brand h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .brand .sub {
+    font-family: var(--data);
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--dim);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 120ms ease, background 120ms ease;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: #33455c; background: #18212e; }
+  .btn:active { background: #101822; }
+
+  .btn-accent { border-color: rgba(16,185,129,0.45); color: #7ee9c4; }
+  .btn-accent:hover { border-color: var(--accent); background: rgba(16,185,129,0.10); }
+
+  /* ============ 主體 ============ */
+
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 14px;
+    padding: 14px 18px 8px;
+    align-items: start;
+  }
+
+  /* ============ 舞台（模擬畫布） ============ */
+
+  .stage { min-width: 0; }
+
+  .stage-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+    font-family: var(--data);
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    color: var(--dim);
+  }
+  .stage-meta b { color: var(--text); font-weight: 500; }
+  .stage-meta .sep { color: #2e3b4d; }
+  .stage-meta .stat-warn { color: var(--red); font-weight: 700; }
+  .stage-meta .stat-warn b { color: var(--red); }
+
+  .warn-line {
+    display: none;
+    font-size: 10.5px;
+    color: var(--red);
+    margin: 0 0 8px;
+  }
+  .warn-line.show { display: block; }
+
+  .canvas-wrap { overflow-x: auto; overflow-y: hidden; }
+
+  .canvas {
+    transform-origin: 0 0;
+    background: var(--sunken);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    position: relative;
+  }
+
+  /* ============ 假主站（左半邊，純裝飾） ============ */
+
+  .fake-site { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+  .fake-rail {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 56px;
+    background: var(--rail);
+    border-right: 1px solid var(--panel-edge);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 14px; padding-top: 16px;
+  }
+  .fake-rail i {
+    width: 26px; height: 26px; border-radius: 6px; flex: none;
+    background: #1c2733; border: 1px solid #263344;
+  }
+
+  .fake-layers {
+    position: absolute; top: 92px;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.4);
+    transition: width 120ms ease, max-height 120ms ease;
+  }
+  .fake-layers .lh {
+    padding: 8px 10px;
+    font-family: var(--data); font-size: 9.5px; letter-spacing: 2px;
+    color: var(--dim);
+    border-bottom: 1px solid var(--panel-edge);
+  }
+  .fake-layers .lrow {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid #17212c;
+  }
+  .fake-layers .lrow i { width: 11px; height: 11px; border-radius: 2px; background: #2a3a4d; flex: none; }
+  .fake-layers .lrow span { flex: 1; height: 8px; border-radius: 2px; background: #22303f; }
+
+  .fake-taiwan {
+    position: absolute; left: 18%; top: 8%; width: 15%; height: auto;
+    transition: transform 120ms ease;
+  }
+  .fake-taiwan path { fill: rgba(96,165,250,0.16); stroke: #3a5a82; stroke-width: 1.6; }
+
+  .fake-timeline {
+    position: absolute; left: 72px; bottom: 16px; width: 340px; height: 38px;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 19px;
+    display: flex; align-items: center; padding: 0 12px; gap: 3px;
+    overflow: hidden;
+  }
+  .fake-timeline i { flex: 1; height: 9px; background: #22303f; border-radius: 2px; }
+
+  /* ============ Dock（右半邊，真的可拖曳） ============ */
+
+  .dock {
+    position: absolute;
+    background: rgba(19,26,36,0.94);
+    border: 1px solid var(--panel-edge);
+    border-radius: 6px;
+    box-shadow: 0 18px 42px rgba(0,0,0,0.5);
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 2;
+  }
+
+  .grid { position: relative; padding: 12px; }
+
+  .placeholder {
+    position: absolute;
+    top: 0; left: 0;
+    border: 1px dashed var(--accent);
+    background: rgba(16,185,129,0.08);
+    border-radius: 4px;
+    z-index: 1;
+    display: none;
+    pointer-events: none;
+  }
+
+  /* ============ Widget ============ */
+
+  .w {
+    position: absolute;
+    top: 0; left: 0;
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    transition: transform 120ms ease, width 120ms ease, height 120ms ease;
+  }
+  .w.fit { border-style: dashed; }
+
+  .w.dragging {
+    z-index: 30;
+    opacity: 0.88;
+    transition: none;
+    box-shadow: 0 14px 34px rgba(0,0,0,0.6);
+    border-color: var(--accent);
+    cursor: grabbing;
+  }
+  .w.resizing { transition: none; z-index: 30; border-color: var(--accent); }
+
+  .w-head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 14px;
+    border-bottom: 1px solid var(--panel-edge);
+    background: #16202c;
+    cursor: grab;
+    touch-action: none;
+    flex: none;
+    min-width: 0;
+  }
+  .w-head::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: var(--sig);
+  }
+  .w-head:active { cursor: grabbing; }
+
+  .w-name {
+    font-size: 11.5px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .w-en {
+    font-family: var(--data);
+    font-size: 8.5px;
+    letter-spacing: 1.8px;
+    color: var(--dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: auto;
+    flex: none;
+    max-width: 55%;
+  }
+
+  .w-body {
+    flex: 1;
+    min-height: 0;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+
+  .w-rz {
+    position: absolute;
+    right: 0; bottom: 0;
+    width: 16px; height: 16px;
+    cursor: nwse-resize;
+    touch-action: none;
+    z-index: 4;
+  }
+  .w-rz::after {
+    content: "";
+    position: absolute;
+    right: 3px; bottom: 3px;
+    width: 7px; height: 7px;
+    border-right: 2px solid #3a4d66;
+    border-bottom: 2px solid #3a4d66;
+  }
+  .w:hover .w-rz::after { border-color: var(--accent); }
+
+  .w-fitcorner {
+    position: absolute;
+    left: 4px; bottom: 4px;
+    z-index: 3;
+    font-family: var(--data);
+    font-size: 7px;
+    letter-spacing: 1.2px;
+    color: #7ee9c4;
+    background: rgba(16,185,129,0.14);
+    border: 1px solid rgba(16,185,129,0.45);
+    border-radius: 2px;
+    padding: 0 3px;
+    pointer-events: none;
+  }
+
+  /* ============ Widget 迷你內容 ============ */
+
+  .num {
+    font-family: var(--data);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.5px;
+    line-height: 1;
+  }
+  .lbl {
+    font-family: var(--data);
+    font-size: 8.5px;
+    letter-spacing: 1.8px;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  .w-tl { display: flex; flex-direction: column; gap: 4px; flex: 1; min-height: 0; }
+  .w-tlbars { flex: 1; min-height: 0; display: flex; align-items: stretch; gap: 2px; }
+  .w-tlbar {
+    flex: 1; height: 100%; min-width: 0;
+    display: flex; flex-direction: column-reverse; justify-content: flex-start; gap: 1px;
+  }
+  .w-tlbar i { display: block; width: 100%; border-radius: 1px; }
+  .w-tlalert { flex: none; height: 4px; display: flex; gap: 2px; }
+  .w-tlalert i { flex: 1; background: #1b2634; border-radius: 1px; }
+  .w-tlaxis { flex: none; display: flex; justify-content: space-between; }
+  .w-tlaxis span { font-size: 8px; letter-spacing: 1.2px; color: #4b5a6d; }
+
+  .w-live { display: flex; align-items: center; gap: 5px; flex: none; }
+  .w-live i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .w-live b { font-family: var(--data); font-size: 8.5px; letter-spacing: 2px; color: var(--accent); font-weight: 500; }
+  .w-rows { display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0; overflow: hidden; }
+  .w-row { display: flex; align-items: center; gap: 6px; flex: 1 1 0; min-height: 0; max-height: 26px; }
+  .w-row .t { font-size: 8.5px; letter-spacing: 1px; color: #5b6b7f; flex: none; }
+  .w-row .dot-mini { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+  .w-row .bar { height: 6px; border-radius: 2px; background: #26333f; }
+
+  .w-ov { display: flex; align-items: center; gap: 10px; flex: 1; min-height: 0; }
+  .w-ov .left { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .w-ov .big { font-size: 30px; color: var(--amber); }
+  .w-ring { width: 54px; height: 54px; flex: none; margin-left: auto; }
+  .w-foot {
+    flex: none; margin-top: auto;
+    display: flex; align-items: baseline; gap: 6px;
+    padding-top: 5px; border-top: 1px solid var(--panel-edge);
+  }
+  .w-foot .v { font-size: 12px; color: var(--red); }
+
+  .w-two { display: flex; gap: 6px; flex: 1; min-height: 0; }
+  .w-card {
+    flex: 1; min-width: 0;
+    border: 1px solid var(--panel-edge);
+    border-radius: 3px;
+    padding: 6px 7px;
+    display: flex; flex-direction: column; justify-content: center; gap: 3px;
+    background: #0f1720;
+  }
+  .w-card .big { font-size: 22px; }
+
+  .w-stack { display: flex; height: 16px; border-radius: 2px; overflow: hidden; flex: none; }
+  .w-stack i { display: block; height: 100%; }
+  .w-keys { display: flex; flex-wrap: wrap; align-content: flex-start; gap: 4px 10px; flex: none; }
+  .w-key { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--dim); }
+  .w-key i { width: 6px; height: 6px; border-radius: 1px; flex: none; }
+
+  .w-wall { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 5px; }
+  .w-cell { position: relative; background: #0b1219; border: 1px solid #1a2430; border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+  .w-cell .play {
+    width: 0; height: 0;
+    border-left: 9px solid rgba(255,255,255,0.28);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+  .w-cell .tag {
+    position: absolute; top: 3px; left: 3px;
+    font-family: var(--data); font-size: 7px; letter-spacing: 1.2px;
+    color: #fff; background: var(--red);
+    padding: 0 3px; border-radius: 2px;
+  }
+
+  .w-chips { display: flex; gap: 5px; flex: 1; min-height: 0; align-items: stretch; }
+  .w-chip {
+    flex: 1; min-width: 0;
+    border: 1px solid var(--panel-edge);
+    border-left-width: 3px;
+    border-radius: 3px;
+    padding: 4px 6px;
+    display: flex; flex-direction: column; justify-content: center; gap: 2px;
+    background: #0f1720;
+    overflow: hidden;
+  }
+  .w-chip .v { font-size: 13px; }
+  .w-chip .n { font-size: 9.5px; color: var(--dim); white-space: nowrap; }
+
+  .w-hz { display: flex; flex-direction: column; gap: 5px; flex: 1; min-height: 0; overflow: hidden; }
+  .w-hzrow { display: flex; align-items: center; gap: 6px; flex: 1 1 0; min-height: 0; max-height: 24px; }
+  .w-hzrow .n { font-size: 9.5px; width: 44px; flex: none; white-space: nowrap; overflow: hidden; }
+  .w-hzrow .track { flex: 1; height: 7px; background: #1a2531; border-radius: 2px; overflow: hidden; min-width: 0; }
+  .w-hzrow .fill { height: 100%; border-radius: 2px; }
+  .w-hzrow .v { font-size: 9px; color: var(--dim); flex: none; }
+
+  .w-hist { flex: 1; min-height: 0; display: flex; align-items: flex-end; gap: 2px; }
+  .w-hist i { flex: 1; background: var(--blue); border-radius: 1px 1px 0 0; min-width: 0; }
+
+  .w-tri { flex: 1; min-height: 0; display: flex; gap: 6px; }
+  .w-tricol {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; gap: 3px; justify-content: center;
+    border-top: 2px solid var(--c);
+    padding-top: 6px;
+  }
+  .w-tricol .big { font-size: 20px; }
+
+  .w-mid { flex: 1; min-height: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+  .w-mid .big { font-size: 28px; }
+  .w-lines { display: flex; flex-direction: column; gap: 2px; flex: none; }
+  .w-lines div { font-size: 9.5px; color: var(--dim); display: flex; justify-content: space-between; gap: 8px; }
+  .w-lines b { font-family: var(--data); font-weight: 400; color: var(--text); font-variant-numeric: tabular-nums; }
+
+  .w-chart { flex: 1; min-height: 0; }
+  .w-chart svg { display: block; width: 100%; height: 100%; }
+
+  .w-tags { display: flex; gap: 4px; flex: none; flex-wrap: wrap; overflow: hidden; height: 17px; }
+  .w-tag {
+    font-size: 9px; padding: 1px 5px;
+    border: 1px solid var(--panel-edge); border-radius: 2px;
+    color: var(--dim); white-space: nowrap;
+    background: #0f1720;
+  }
+  .w-tag.hot { color: var(--red); border-color: rgba(251,113,133,0.4); }
+
+  /* ============ 控制欄 ============ */
+
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .box {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 4px;
+    padding: 11px 12px;
+  }
+
+  .box h2 {
+    margin: 0 0 9px;
+    font-family: var(--data);
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 2.2px;
+    color: var(--dim);
+    text-transform: uppercase;
+  }
+
+  .seg { display: flex; border: 1px solid var(--panel-edge); border-radius: 4px; overflow: hidden; }
+  .seg button {
+    flex: 1;
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--panel-edge);
+    padding: 6px 2px;
+    font-family: var(--data);
+    font-size: 10.5px;
+    letter-spacing: 1px;
+    color: var(--dim);
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease;
+  }
+  .seg button:last-child { border-right: 0; }
+  .seg button:hover { background: #18212e; color: var(--text); }
+  .seg button[aria-pressed="true"] {
+    background: rgba(16,185,129,0.14);
+    color: var(--accent);
+  }
+
+  .pgroup {
+    font-family: var(--data);
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #4d5c6e;
+    text-transform: uppercase;
+    margin: 12px 0 5px;
+  }
+  .pgroup:first-child { margin-top: 0; }
+
+  .param { margin-bottom: 9px; }
+
+  .slider-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 5px;
+  }
+  .slider-head span:first-child { font-size: 11px; color: var(--dim); }
+  .slider-head .v { font-family: var(--data); font-size: 11.5px; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  .param-row { display: flex; gap: 6px; align-items: center; }
+  .param-row input[type="range"] { flex: 1; }
+  .param-row input[type="number"] {
+    width: 60px;
+    background: var(--sunken);
+    border: 1px solid var(--panel-edge);
+    border-radius: 3px;
+    padding: 3px 5px;
+    text-align: right;
+    font-family: var(--data);
+    font-size: 11px;
+  }
+  .param-row input[type="number"]:focus { border-color: var(--accent); outline: none; }
+
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--panel-edge);
+    border-radius: 2px;
+    outline-offset: 4px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--panel);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--panel);
+  }
+
+  .hint { font-size: 10.5px; color: var(--dim); margin-top: 7px; line-height: 1.45; }
+
+  .guard-row { margin-bottom: 10px; }
+  .guard-row:last-child { margin-bottom: 0; }
+  .guard-title { display: flex; align-items: center; font-size: 11.5px; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    margin-right: 7px; flex: none;
+  }
+  .dot.ok { background: var(--accent); box-shadow: 0 0 6px rgba(16,185,129,0.55); }
+  .dot.bad { background: var(--red); box-shadow: 0 0 6px rgba(251,113,133,0.55); }
+  .guard-row .hint { margin: 3px 0 0; padding-left: 16px; }
+
+  .drawer { display: flex; flex-direction: column; gap: 1px; max-height: 360px; overflow-y: auto; }
+
+  .drow {
+    display: flex; align-items: center; gap: 8px;
+    padding: 4px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 120ms ease;
+  }
+  .drow:hover { background: #18212e; }
+  .drow input { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; flex: none; }
+  .drow .sig { width: 3px; height: 13px; border-radius: 1px; flex: none; }
+  .drow .cn { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .drow .en {
+    margin-left: auto; flex: none;
+    font-family: var(--data); font-size: 8px; letter-spacing: 1.2px; color: #4d5c6e;
+  }
+  .drow.off .cn { color: var(--dim); }
+  .drow.off .sig { opacity: 0.3; }
+  .drow .d-auto {
+    font-family: var(--data);
+    font-size: 7.5px;
+    letter-spacing: 1.2px;
+    color: #7ee9c4;
+    border: 1px solid rgba(16,185,129,0.45);
+    border-radius: 2px;
+    padding: 0 3px;
+    flex: none;
+    margin-left: 6px;
+  }
+
+  .drawer-foot {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 8px; padding-top: 8px;
+    border-top: 1px solid var(--panel-edge);
+    font-family: var(--data); font-size: 9.5px; letter-spacing: 1.5px; color: var(--dim);
+  }
+
+  textarea {
+    width: 100%;
+    height: 150px;
+    background: var(--sunken);
+    border: 1px solid var(--panel-edge);
+    border-radius: 3px;
+    padding: 7px 8px;
+    font-family: var(--data);
+    font-size: 9.5px;
+    line-height: 1.5;
+    letter-spacing: 0.2px;
+    resize: vertical;
+    color: var(--text);
+  }
+  textarea:focus { border-color: var(--accent); outline: none; }
+
+  .io-actions { display: flex; gap: 6px; margin-top: 8px; }
+  .io-actions .btn { flex: 1; text-align: center; }
+
+  .msg { margin-top: 7px; font-size: 10.5px; line-height: 1.45; display: none; }
+  .msg.err { display: block; color: var(--red); }
+  .msg.ok { display: block; color: var(--accent); }
+
+  .foot {
+    padding: 10px 18px 20px;
+    font-family: var(--data);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: #4d5c6e;
+  }
+
+  @media (max-width: 980px) {
+    .main { grid-template-columns: minmax(0, 1fr); }
+    .rail { order: 2; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
+
+<header class="topbar">
+  <div class="brand">
+    <h1>監看模式 Split Dock 排版沙盒</h1>
+    <span class="sub">Monitor Split Dock Sandbox · v1</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn" id="btnReset" type="button">重設為預設</button>
+    <button class="btn btn-accent" id="btnExport" type="button">複製 JSON</button>
+  </div>
+</header>
+
+<div class="main">
+  <section class="stage">
+    <div class="stage-meta">
+      <span>模擬視寬 <b id="mSimW">1920</b>px</span>
+      <span class="sep">·</span>
+      <span>縮放 <b id="mScale">72</b>%</span>
+      <span class="sep">·</span>
+      <span>ROWHEIGHT <b id="mRow">40</b>px</span>
+      <span class="sep">·</span>
+      <span>GAP <b id="mGap">10</b>px</span>
+      <span class="sep">·</span>
+      <span>12 COLS</span>
+      <span class="sep">·</span>
+      <span>顯示 <b id="mCount">20/21</b></span>
+      <span class="sep">·</span>
+      <span id="dockWidthStat">DOCK 寬 <b id="mDockW">869 · GRID 835</b> px</span>
+    </div>
+    <p class="warn-line" id="dockWidthWarn">GRID 實寬（面板寬 −34：左右 padding 32 ＋ 邊框 2）低於 stackBreakpointPx，會退化成單欄堆疊。判定用 GRID 不是 DOCK。</p>
+
+    <div class="canvas-wrap" id="canvasWrap">
+      <div class="canvas" id="canvas">
+        <div class="fake-site" aria-hidden="true">
+          <div class="fake-rail">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <div class="fake-layers" id="fakeLayers">
+            <div class="lh">LAYERS</div>
+            <div class="lrow"><i></i><span></span></div>
+            <div class="lrow"><i></i><span></span></div>
+            <div class="lrow"><i></i><span></span></div>
+            <div class="lrow"><i></i><span></span></div>
+            <div class="lrow"><i></i><span></span></div>
+            <div class="lrow"><i></i><span></span></div>
+          </div>
+          <svg class="fake-taiwan" id="fakeTaiwan" viewBox="0 0 60 140" aria-hidden="true">
+            <!-- 簡化本島輪廓：北端富貴角 → 東北角 → 東岸（較平直）→ 鵝鑾鼻收尖
+                 → 西岸（彰雲嘉最外凸 y≈49）→ 桃竹 → 回北端。只求可辨識，非精確投影 -->
+            <path d="M30 4
+              Q38 5, 44 11
+              Q48 16, 48 22
+              Q47 32, 49 44
+              Q51 58, 49 70
+              Q47 82, 43 96
+              Q40 110, 35 124
+              Q33 129, 31 122
+              Q29 112, 28 104
+              Q25 96, 21 86
+              Q17 76, 13 66
+              Q10 57, 9 49
+              Q9 43, 12 38
+              Q15 31, 17 26
+              Q20 16, 25 8
+              Q27 5, 30 4 Z"></path>
+          </svg>
+          <div class="fake-timeline">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+        <div class="dock" id="dock">
+          <div class="grid" id="grid">
+            <div class="placeholder" id="placeholder"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="rail">
+    <div class="box">
+      <h2>模擬視寬</h2>
+      <div class="seg" id="segWidth" role="group" aria-label="模擬視寬">
+        <button type="button" data-w="1280">1280</button>
+        <button type="button" data-w="1440">1440</button>
+        <button type="button" data-w="1920" aria-pressed="true">1920</button>
+        <button type="button" data-w="2560">2560</button>
+      </div>
+      <p class="hint">畫布高度依 16:9 估算。灰色左半是假主站（純裝飾，隨參數即時變形），右半是真的可拖曳 dock。</p>
+    </div>
+
+    <div class="box">
+      <h2>幾何參數</h2>
+      <div id="paramsBox"></div>
+      <p class="hint">滑桿與數字框互相同步，拖曳／輸入即時反映到畫布。</p>
+    </div>
+
+    <div class="box">
+      <h2>護欄狀態</h2>
+      <div class="guard-row">
+        <div class="guard-title"><span class="dot" id="alignDot"></span>左右欄尾段對齊</div>
+        <p class="hint" id="alignMsg"></p>
+      </div>
+      <div class="guard-row">
+        <div class="guard-title"><span class="dot" id="overlapDot"></span>重疊檢查</div>
+        <p class="hint" id="overlapMsg"></p>
+      </div>
+    </div>
+
+    <div class="box">
+      <h2>Widget 抽屜</h2>
+      <div class="drawer" id="drawer"></div>
+      <p class="hint" style="margin-top:0;margin-bottom:8px">
+        標 <span class="d-auto" style="margin-left:0">AUTO</span> 的 widget 實機高度<b>跟著內容走</b>
+        （<span class="mono">fit:"content"</span>），這裡拖出來的縱向尺寸只是排序佔位，不是實際高度。
+        畫布上這類 widget 也會畫成虛線框，左下角另標 <span class="mono">fit</span>。
+      </p>
+      <div class="drawer-foot">
+        <span id="drawerCount">20 / 21 顯示中</span>
+        <button class="btn" type="button" id="btnAllOn" style="padding:3px 9px;font-size:10px;">全部顯示</button>
+      </div>
+    </div>
+
+    <div class="box">
+      <h2>匯出 / 匯入</h2>
+      <textarea id="io" spellcheck="false" aria-label="版面 JSON"></textarea>
+      <div class="io-actions">
+        <button class="btn btn-accent" type="button" id="btnCopy">複製 JSON</button>
+        <button class="btn" type="button" id="btnImport">套用貼上的 JSON</button>
+      </div>
+      <p class="msg" id="ioMsg"></p>
+    </div>
+  </aside>
+</div>
+
+<footer class="foot">座標對應 src/components/intel/monitor/monitorSplitLayout.ts · MONITOR_SPLIT_DOCK / MONITOR_LAYOUT_SPLIT</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ================= 常數 ================= */
+
+  var COLS = 12;
+  var PAD = 12;           // dock 的 grid 內距（要與 CSS .grid{padding:12px} 對齊）
+  // 每次 widget 清單或座標結構有變就要換 key：舊快照塞進新格子結構會落在 (0,0)
+  var STORE_KEY = "mtp-monitor-split-sandbox-v1";
+  var SIM_WIDTHS = [1280, 1440, 1920, 2560];
+
+  /* ================= 種子亂數（固定，重繪不跳動） ================= */
+
+  function seedOf(str) {
+    var h = 2166136261, i;
+    for (i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }
+  function rng(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (s + 0x6D2B79F5) | 0;
+      var t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ================= 迷你內容（與 dock 版沙盒共用同一套 id / RENDER） ================= */
+
+  function svgArea(vals, color, fill) {
+    var n = vals.length, i, x, y, d = "", area = "";
+    for (i = 0; i < n; i++) {
+      x = (i / (n - 1)) * 100;
+      y = 40 - vals[i] * 36;
+      d += (i === 0 ? "M" : "L") + x.toFixed(2) + "," + y.toFixed(2) + " ";
+    }
+    area = d + "L100,40 L0,40 Z";
+    return '<path d="' + area + '" fill="' + fill + '" stroke="none"></path>' +
+           '<path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="1.2" ' +
+           'vector-effect="non-scaling-stroke" stroke-linejoin="round"></path>';
+  }
+
+  function series(r, n, base, amp) {
+    var out = [], v = base, i;
+    for (i = 0; i < n; i++) {
+      v = Math.max(0.08, Math.min(0.95, v + (r() - 0.5) * amp));
+      out.push(v);
+    }
+    return out;
+  }
+
+  var C = {
+    red: "var(--red)", amber: "var(--amber)", blue: "var(--blue)",
+    purple: "var(--purple)", accent: "var(--accent)", dim: "var(--dim)"
+  };
+
+  var RENDER = {
+    timeline: function (r) {
+      var pal = [C.red, C.amber, C.purple, C.accent], bars = "", i, k, n, segs, hs;
+      for (i = 0; i < 24; i++) {
+        n = 2 + Math.floor(r() * 3); segs = "";
+        for (k = 0; k < n; k++) {
+          hs = 7 + Math.floor(r() * 26);
+          segs += '<i style="height:' + hs + '%;background:' + pal[(i + k) % 4] + '"></i>';
+        }
+        bars += '<div class="w-tlbar">' + segs + "</div>";
+      }
+      var ticks = "";
+      for (i = 0; i < 24; i++) {
+        ticks += r() > 0.79 ? '<i style="background:var(--red)"></i>' : "<i></i>";
+      }
+      return '<div class="w-tl">' +
+        '<div class="w-tlbars">' + bars + "</div>" +
+        '<div class="w-tlalert">' + ticks + "</div>" +
+        '<div class="w-tlaxis"><span class="mono">00</span><span class="mono">06</span>' +
+        '<span class="mono">12</span><span class="mono">18</span><span class="mono">24</span></div>' +
+        "</div>";
+    },
+
+    newsFeed: function (r) {
+      var times = ["14:32", "14:28", "14:11", "13:57", "13:40", "13:22", "12:58"];
+      var sev = [C.red, C.amber, C.blue, C.dim, C.dim, C.amber, C.dim];
+      var rows = "", i;
+      for (i = 0; i < 7; i++) {
+        rows += '<div class="w-row">' +
+          '<span class="t mono">' + times[i] + "</span>" +
+          '<span class="dot-mini" style="background:' + sev[i] + '"></span>' +
+          '<span class="bar" style="width:' + (46 + Math.floor(r() * 48)) + '%"></span>' +
+          "</div>";
+      }
+      return '<div class="w-live"><i></i><b>LIVE</b></div>' +
+             '<div class="w-rows">' + rows + "</div>";
+    },
+
+    situationOverview: function () {
+      var circ = 2 * Math.PI * 15, on = circ * 0.32;
+      return '<div class="w-ov">' +
+        '<div class="left"><span class="num big">32</span>' +
+        '<span class="lbl">Pressure Index</span></div>' +
+        '<svg class="w-ring" viewBox="0 0 36 36" aria-hidden="true">' +
+        '<circle cx="18" cy="18" r="15" fill="none" stroke="#22303f" stroke-width="3"></circle>' +
+        '<circle cx="18" cy="18" r="15" fill="none" stroke="var(--amber)" stroke-width="3" ' +
+        'stroke-linecap="round" stroke-dasharray="' + on.toFixed(1) + " " + circ.toFixed(1) + '" ' +
+        'transform="rotate(-90 18 18)"></circle></svg></div>' +
+        '<div class="w-foot"><span class="lbl">EVENTS</span>' +
+        '<span class="num v" style="color:var(--text)">3</span>' +
+        '<span class="lbl">SEVERE 0 · SOURCES 28/29</span></div>';
+    },
+
+    taiex: function (r) {
+      var v = series(r, 30, 0.6, 0.14);
+      return '<div style="display:flex;align-items:center;gap:7px;flex:none">' +
+        '<span class="lbl">TAIEX 加權指數</span>' +
+        '<span class="lbl" style="margin-left:auto;letter-spacing:1px">收盤 13:33</span></div>' +
+        '<div style="display:flex;align-items:baseline;gap:8px;flex:none">' +
+        '<span class="num" style="font-size:22px">44,225.91</span>' +
+        '<span class="num" style="font-size:13px;color:#16c784">▼ -170.79</span>' +
+        '<span class="num" style="font-size:11px;color:#16c784">-0.38%</span></div>' +
+        '<div class="mono" style="display:flex;gap:12px;font-size:9px;color:var(--dim);flex:none">' +
+        '<span>H 44,827</span><span>L 43,941</span><span>量 925.6 萬張</span></div>' +
+        '<div style="display:flex;align-items:center;gap:7px;flex:1;min-height:0">' +
+        '<span class="lbl" style="letter-spacing:1.5px">30D</span>' +
+        '<div class="w-chart"><svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+        svgArea(v, "#16c784", "rgba(22,199,132,0.14)") + "</svg></div></div>";
+    },
+
+    situationCards: function () {
+      return '<div class="w-two">' +
+        '<div class="w-card"><span class="lbl">CDC WEEK</span>' +
+        '<span class="num big" style="color:var(--amber)">3.1K</span>' +
+        '<span class="lbl" style="letter-spacing:1.2px">類流感</span></div>' +
+        '<div class="w-card"><span class="lbl">DENGUE</span>' +
+        '<span class="num big" style="color:var(--amber)">1</span>' +
+        '<span class="lbl" style="letter-spacing:1.2px">本週確診</span></div>' +
+        '<div class="w-card"><span class="lbl">ENTERO</span>' +
+        '<span class="num big" style="color:var(--accent)">412</span>' +
+        '<span class="lbl" style="letter-spacing:1.2px">腸病毒</span></div>' +
+        "</div>";
+    },
+
+    powerCard: function () {
+      var segs = [
+        { n: "燃氣", c: C.blue, v: 42 }, { n: "燃煤", c: "#64748b", v: 24 },
+        { n: "核能", c: C.purple, v: 9 }, { n: "再生", c: C.accent, v: 18 },
+        { n: "其他", c: C.amber, v: 7 }
+      ];
+      var bar = "", keys = "", i;
+      for (i = 0; i < segs.length; i++) {
+        bar += '<i style="width:' + segs[i].v + "%;background:" + segs[i].c + '"></i>';
+        keys += '<span class="w-key"><i style="background:' + segs[i].c + '"></i>' +
+                segs[i].n + " " + segs[i].v + "%</span>";
+      }
+      return '<div class="w-stack">' + bar + "</div>" +
+        '<div class="w-keys">' + keys + "</div>" +
+        '<div class="w-foot"><span class="lbl">備轉容量率</span>' +
+        '<span class="num v" style="color:var(--accent)">12.4%</span></div>';
+    },
+
+    liveWall: function () {
+      var cells = "", i;
+      for (i = 0; i < 4; i++) {
+        cells += '<div class="w-cell"><span class="tag">LIVE</span><span class="play"></span></div>';
+      }
+      return '<div class="w-wall">' + cells + "</div>";
+    },
+
+    hazardStrip: function () {
+      var chips = [
+        { n: "地震", e: "SEIS", v: "M2.1", c: C.accent },
+        { n: "降雨", e: "RAIN", v: "38mm", c: C.amber },
+        { n: "風速", e: "WIND", v: "7 級", c: C.amber },
+        { n: "水位", e: "LEVEL", v: "正常", c: C.accent }
+      ];
+      var out = "", i;
+      for (i = 0; i < chips.length; i++) {
+        out += '<div class="w-chip" style="border-left-color:' + chips[i].c + '">' +
+          '<span class="num v" style="color:' + chips[i].c + '">' + chips[i].v + "</span>" +
+          '<span class="n">' + chips[i].n + ' <span class="lbl">' + chips[i].e + "</span></span></div>";
+      }
+      return '<div class="w-chips">' + out + "</div>";
+    },
+
+    alertBoard: function (r) {
+      var sev = [C.red, C.amber, C.blue];
+      var t = ["14:30", "13:58", "12:44"];
+      var rows = "", i;
+      for (i = 0; i < 3; i++) {
+        rows += '<div class="w-row">' +
+          '<span class="dot-mini" style="background:' + sev[i] + '"></span>' +
+          '<span class="bar" style="width:' + (52 + Math.floor(r() * 40)) + '%"></span>' +
+          '<span class="t mono" style="margin-left:auto">' + t[i] + "</span></div>";
+      }
+      return '<div class="w-rows">' + rows + "</div>";
+    },
+
+    hotZones: function () {
+      var z = [
+        { n: "中正區", v: 128 }, { n: "信義區", v: 96 }, { n: "板橋區", v: 74 },
+        { n: "三重區", v: 51 }, { n: "中壢區", v: 33 }
+      ];
+      var out = "", i, pct;
+      for (i = 0; i < z.length; i++) {
+        pct = Math.round((z[i].v / 128) * 100);
+        out += '<div class="w-hzrow"><span class="n">' + z[i].n + "</span>" +
+          '<span class="track"><span class="fill" style="width:' + pct +
+          "%;background:" + (i === 0 ? C.red : i < 3 ? C.amber : "#3f5570") + '"></span></span>' +
+          '<span class="v mono">' + z[i].v + "</span></div>";
+      }
+      return '<div class="w-hz">' + out + "</div>";
+    },
+
+    histogram: function (r) {
+      var bars = "", i;
+      for (i = 0; i < 24; i++) {
+        bars += '<i style="height:' + (14 + Math.floor(r() * 82)) + '%"></i>';
+      }
+      return '<div class="w-hist">' + bars + "</div>";
+    },
+
+    triage: function () {
+      var cols = [
+        { n: "高", e: "HIGH", v: 6, c: C.red },
+        { n: "中", e: "MED", v: 23, c: C.amber },
+        { n: "低", e: "LOW", v: 91, c: "#3f5570" }
+      ];
+      var out = "", i;
+      for (i = 0; i < cols.length; i++) {
+        out += '<div class="w-tricol" style="--c:' + cols[i].c + '">' +
+          '<span class="num big" style="color:' + cols[i].c + '">' + cols[i].v + "</span>" +
+          '<span class="lbl">' + cols[i].e + "</span></div>";
+      }
+      return '<div class="w-tri">' + out + "</div>";
+    },
+
+    prison: function () {
+      return '<div class="w-mid"><span class="num big">64,005</span>' +
+        '<span class="lbl">在監人數</span></div>' +
+        '<div class="w-lines"><div><span>核定容額</span><b>57,320</b></div>' +
+        '<div><span>超收率</span><b style="color:var(--amber)">+11.7%</b></div></div>';
+    },
+
+    airportPax: function (r) {
+      var a = series(r, 24, 0.55, 0.22), b = series(r, 24, 0.42, 0.2);
+      return '<div class="w-chart"><svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+        '<line x1="0" y1="20" x2="100" y2="20" stroke="#1c2733" stroke-width="0.5"></line>' +
+        svgArea(a, "var(--accent)", "rgba(16,185,129,0.16)") +
+        svgArea(b, "var(--red)", "rgba(251,113,133,0.13)") +
+        "</svg></div>" +
+        '<div class="w-keys"><span class="w-key"><i style="background:var(--accent)"></i>入境 42,180</span>' +
+        '<span class="w-key"><i style="background:var(--red)"></i>出境 39,554</span></div>';
+    },
+
+    plaBoard: function (r) {
+      var bars = "", i, h, lv, pal = ["#34d399", "#94a3b8", "#fbbf24", "#fb923c", "#ef4444"];
+      for (i = 0; i < 40; i++) {
+        h = Math.floor(r() * 88) + 6;
+        lv = h > 78 ? 4 : h > 60 ? 3 : h > 38 ? 2 : h > 18 ? 1 : 0;
+        bars += '<i style="flex:1;min-width:0;height:' + h + '%;background:' + pal[lv] +
+                ';border-radius:1px 1px 0 0"></i>';
+      }
+      var zones = [["西南", 68], ["北部", 43], ["東部", 29], ["中部", 18]], zs = "";
+      for (i = 0; i < zones.length; i++) {
+        zs += '<div class="w-hzrow" style="max-height:14px"><span class="n" style="width:30px">' +
+          zones[i][0] + '</span><span class="track"><span class="fill" style="width:' +
+          zones[i][1] + '%;background:' + (zones[i][1] <= 20 ? "#a78bfa" : "#60a5fa") +
+          '"></span></span><span class="v mono">' + zones[i][1] + "%</span></div>";
+      }
+      var kinds = [["戰機", 74], ["無人機", 64], ["輔戰機", 63], ["直升機", 56], ["轟炸機", 10]], ks = "";
+      for (i = 0; i < kinds.length; i++) {
+        ks += '<div class="w-hzrow" style="max-height:14px"><span class="n" style="width:38px">' +
+          kinds[i][0] + '</span><span class="track"><span class="fill" style="width:' +
+          kinds[i][1] + '%;background:' + (kinds[i][1] <= 15 ? "#a78bfa" : "#34d399") +
+          '"></span></span><span class="v mono">' + kinds[i][1] + "d</span></div>";
+      }
+      return '<div style="display:flex;gap:8px;flex:none">' +
+        '<div style="flex:0 0 84px;border:1px solid rgba(251,146,60,0.5);background:rgba(251,146,60,0.10);' +
+        'border-radius:3px;padding:5px 7px;display:flex;flex-direction:column;gap:2px">' +
+        '<span class="lbl">SEVERITY</span><span style="font-size:17px;font-weight:700;color:#fb923c">偏高</span>' +
+        '<span class="lbl" style="letter-spacing:1px">≥10 架次</span></div>' +
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;justify-content:center">' +
+        '<div style="display:flex;align-items:baseline;gap:5px"><span class="num" style="font-size:24px">12</span>' +
+        '<span class="lbl">架次</span></div>' +
+        '<div class="w-hzrow" style="max-height:12px"><span class="n" style="width:30px">規模</span>' +
+        '<span class="track"><span class="fill" style="width:77%;background:#fbbf24"></span></span>' +
+        '<span class="v mono">p77</span></div>' +
+        '<div class="w-hzrow" style="max-height:12px"><span class="n" style="width:30px">強度</span>' +
+        '<span class="track"><span class="fill" style="width:81%;background:#fb923c"></span></span>' +
+        '<span class="v mono">p81</span></div></div></div>' +
+        '<div style="display:flex;align-items:flex-end;gap:1px;flex:1;min-height:0">' + bars + "</div>" +
+        '<div style="display:grid;grid-template-columns:1fr;gap:2px;flex:none">' +
+        zs + ks + "</div>";
+    },
+
+    erCongestion: function (r) {
+      var v = series(r, 20, 0.5, 0.26);
+      return '<div class="w-tags"><span class="w-tag hot">台大 壅塞</span>' +
+        '<span class="w-tag">北榮 正常</span><span class="w-tag hot">長庚 壅塞</span>' +
+        '<span class="w-tag">馬偕 正常</span></div>' +
+        '<div class="w-chart"><svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+        '<line x1="0" y1="12" x2="100" y2="12" stroke="#1c2733" stroke-width="0.5" ' +
+        'stroke-dasharray="2 2"></line>' +
+        svgArea(v, "var(--red)", "rgba(251,113,133,0.14)") + "</svg></div>";
+    },
+
+    foodPriceBoard: function (r) {
+      var HIGH = "#ef4444", LOW = "#38bdf8";
+      var IDX = [
+        { cn: "菜價", en: "VPI", c: "#5fbf6d", f: "rgba(95,191,109,0.16)",
+          scope: "19 市場 · 307 品項", val: "112.4", dev: 11.8, flag: "▲6", warn: "·4 注意", yoy: "+9.1%" },
+        { cn: "魚價", en: "FPI", c: "#4aa3c7", f: "rgba(74,163,199,0.16)",
+          scope: "22 魚市場 · 507 魚種", val: "103.1", dev: 2.4, flag: "無異常日", warn: "", yoy: "+3.6%" },
+        { cn: "豬雞肉價", en: "MPI", c: "#cc7a6d", f: "rgba(204,122,109,0.16)",
+          scope: "毛豬拍賣 + 白肉雞", val: "96.8", dev: -3.5, flag: "無異常日", warn: "·2 注意", yoy: "-1.8%" },
+        { cn: "蛋價", en: "EPI", c: "#d9a845", f: "rgba(217,168,69,0.16)",
+          scope: "雞蛋 + 鴨蛋產地價", val: "88.2", dev: -12.6, flag: "▼9", warn: "", yoy: "-14.2%" }
+      ];
+      var cells = "", i, d, dc, fc;
+      for (i = 0; i < IDX.length; i++) {
+        d = IDX[i];
+        dc = d.dev >= 10 ? HIGH : d.dev <= -10 ? LOW : "var(--text)";
+        fc = d.flag.charAt(0) === "▲" ? HIGH : d.flag.charAt(0) === "▼" ? LOW : "var(--dim)";
+        cells +=
+          '<div style="border:1px solid ' + d.c + '55;background:' + d.c + '14;border-radius:3px;' +
+          'padding:5px 7px;display:flex;flex-direction:column;gap:3px;min-width:0;overflow:hidden">' +
+            '<div style="display:flex;align-items:baseline;gap:5px;min-width:0">' +
+              '<span style="font-size:12px;font-weight:700">' + d.cn + "</span>" +
+              '<span class="lbl" style="color:' + d.c + '">' + d.en + "</span>" +
+              '<span style="width:6px;height:6px;border-radius:50%;background:' + dc +
+              ';margin-left:auto;flex:none"></span>' +
+            "</div>" +
+            '<div class="lbl" style="letter-spacing:1px;white-space:nowrap;overflow:hidden;' +
+            'text-overflow:ellipsis">' + d.scope + "</div>" +
+            '<div style="display:flex;align-items:baseline;gap:5px;flex-wrap:wrap">' +
+              '<span class="num" style="font-size:18px">' + d.val + "</span>" +
+              '<span class="num" style="font-size:11px;color:' + dc + '">' +
+                (d.dev > 0 ? "+" : "") + d.dev.toFixed(1) + "%</span>" +
+              '<span class="lbl" style="letter-spacing:1px">vs 常態</span>' +
+            "</div>" +
+            '<div class="w-chart" style="min-height:20px">' +
+            '<svg viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">' +
+            svgArea(series(r, 60, 0.5, 0.16), d.c, d.f) + "</svg></div>" +
+            '<div class="mono" style="display:flex;justify-content:space-between;gap:6px;' +
+            'font-size:8.5px;flex:none">' +
+              '<span style="color:' + fc + '">' + d.flag +
+              (d.warn ? ' <span style="color:var(--dim)">' + d.warn + "</span>" : "") + "</span>" +
+              '<span style="color:var(--dim)">年增 ' + d.yoy + "</span>" +
+            "</div>" +
+          "</div>";
+      }
+      return '<div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;' +
+        'gap:6px;flex:1;min-height:0">' + cells + "</div>" +
+        '<div class="lbl" style="letter-spacing:1px;text-transform:none;flex:none">' +
+        "農業部批發拍賣 · T+1 · 基期 2024-2025=100 · 近 180 天 · ⚠️ 不含牛</div>";
+    },
+
+    typhoon: function () {
+      return '<div class="w-mid"><span class="num big" style="color:var(--amber)">642</span>' +
+        '<span class="lbl">KM 距台灣 · JMA / JTWC</span></div>' +
+        '<div class="w-lines"><div><span>Dolphin 中心氣壓</span><b>— hPa</b></div>' +
+        '<div><span>最大風速</span><b>80 kt · 41 m/s</b></div></div>';
+    },
+
+    earthquake: function () {
+      return '<div class="w-mid"><span class="num big" style="color:var(--amber)">M 3.8</span>' +
+        '<span class="lbl">最新有感 · 深度 16.7 km</span></div>' +
+        '<div class="w-lines"><div><span>南投縣仁愛鄉</span><b>2 天前</b></div>' +
+        '<div><span>24h 內</span><b>0 次</b></div></div>';
+    },
+
+    radiation: function () {
+      return '<div class="w-mid"><span class="num big">0.071</span>' +
+        '<span class="lbl">µSv/h 平均 · 51/51 站</span></div>' +
+        '<div class="w-lines"><div><span>最高 · 金美國小</span><b>0.073</b></div>' +
+        '<div><span>狀態</span><b style="color:#22c55e">全部正常</b></div></div>';
+    },
+
+    lightning: function () {
+      return '<div class="w-mid"><span class="num big" style="color:#fb923c">41</span>' +
+        '<span class="lbl">次 / 近 1h · 今日 827 次</span></div>' +
+        '<div class="w-lines"><div><span>最新 · 雲中</span><b>3 分鐘前</b></div>' +
+        '<div><span>台電源</span><b style="color:var(--dim)">上游斷供中</b></div></div>';
+    }
+  };
+
+  /* ================= Widget 定義（id 對齊 monitorSplitLayout.ts） ================= */
+
+  var WIDGETS = [
+    { i: "newsFeed",       cn: "新聞 Feed",   en: "NEWS FEED",     sig: "var(--accent)", w: 6,  h: 14, minW: 3, minH: 6 },
+    { i: "alertBoard",     cn: "警訊整合",     en: "ALERTS",        sig: "var(--red)",    w: 6,  h: 7,  minW: 3, minH: 3 },
+    { i: "timeline",       cn: "時間軸 Dock",  en: "TIMELINE",      sig: "var(--blue)",   w: 6,  h: 14, minW: 4, minH: 4 },
+    { i: "hotZones",       cn: "熱區 Top5",    en: "TOP 5 ZONES",   sig: "var(--red)",    w: 6,  h: 7,  minW: 3, minH: 3 },
+    { i: "triage",         cn: "信號分級",     en: "TRIAGE",        sig: "var(--purple)", w: 12, h: 4,  minW: 6, minH: 2 },
+    { i: "situationOverview", cn: "戰情概覽", en: "PRESSURE INDEX", sig: "var(--amber)",  w: 6,  h: 5,  minW: 3, minH: 3, fit: 1 },
+    { i: "taiex",          cn: "TAIEX",       en: "TAIEX",          sig: "#ff4d4f",       w: 6,  h: 3,  minW: 3, minH: 2, fit: 1 },
+    { i: "liveWall",       cn: "新聞直播牆",   en: "LIVE WALL",     sig: "var(--purple)", w: 6,  h: 14, minW: 3, minH: 3, fit: 1 },
+    { i: "situationCards", cn: "公衛",         en: "HEALTH",        sig: "var(--amber)",  w: 6,  h: 3,  minW: 3, minH: 2, fit: 1 },
+    { i: "plaBoard",       cn: "共機",         en: "PLA SITUATION", sig: "var(--red)",    w: 6,  h: 13, minW: 3, minH: 6, fit: 1 },
+    { i: "erCongestion",   cn: "急診壅塞",     en: "ER 24H",        sig: "var(--red)",    w: 6,  h: 15, minW: 3, minH: 6, fit: 1 },
+    { i: "hazardStrip",    cn: "災防直播",     en: "HAZARD LIVE",   sig: "var(--amber)",  w: 6,  h: 8,  minW: 3, minH: 2, fit: 1 },
+    { i: "typhoon",        cn: "颱風",         en: "TYPHOON",       sig: "#38bdf8",       w: 3,  h: 4,  minW: 3, minH: 3, fit: 1 },
+    { i: "earthquake",     cn: "地震",         en: "SEISMIC",       sig: "var(--amber)",  w: 3,  h: 4,  minW: 3, minH: 3, fit: 1 },
+    { i: "radiation",      cn: "輻射",         en: "RADIATION",     sig: "#22c55e",       w: 3,  h: 4,  minW: 3, minH: 3, fit: 1 },
+    { i: "lightning",      cn: "落雷",         en: "LIGHTNING",     sig: "#fb923c",       w: 3,  h: 4,  minW: 3, minH: 3, fit: 1 },
+    { i: "powerCard",      cn: "供電",         en: "POWER",         sig: "var(--amber)",  w: 6,  h: 14, minW: 3, minH: 3, fit: 1 },
+    { i: "prison",         cn: "在監人數",     en: "INMATES",       sig: "var(--blue)",   w: 6,  h: 4,  minW: 2, minH: 2, fit: 1 },
+    { i: "airportPax",     cn: "機場出入境",   en: "BORDER PAX",    sig: "var(--accent)", w: 6,  h: 6,  minW: 3, minH: 3, fit: 1 },
+    { i: "foodPriceBoard", cn: "食品價格",     en: "FOOD PRICE",    sig: "#5fbf6d",       w: 6,  h: 5,  minW: 4, minH: 5, fit: 1 },
+    { i: "histogram",      cn: "小時分佈",     en: "HISTOGRAM 24H", sig: "var(--blue)",   w: 12, h: 3,  minW: 3, minH: 2 }
+  ];
+
+  var DEF = {};
+  WIDGETS.forEach(function (w) { DEF[w.i] = w; });
+
+  var CONTENT = {};
+  WIDGETS.forEach(function (w) {
+    CONTENT[w.i] = RENDER[w.i](rng(seedOf(w.i)));
+  });
+
+  function L(i, x, y, w, h) { return { i: i, x: x, y: y, w: w, h: h }; }
+
+  /* ================= 預設版面（照抄 MONITOR_LAYOUT_SPLIT，2026-08-15 初版） ================= */
+
+  var DEFAULT_LAYOUT = [
+    L("newsFeed", 0, 0, 6, 14),
+    L("timeline", 6, 0, 6, 14),
+    L("alertBoard", 0, 14, 6, 7),
+    L("hotZones", 6, 14, 6, 7),
+    L("triage", 0, 21, 12, 4),
+    L("situationOverview", 0, 25, 6, 5),
+    L("taiex", 0, 30, 6, 3),
+    L("situationCards", 0, 33, 6, 3),
+    L("plaBoard", 0, 36, 6, 13),
+    L("erCongestion", 0, 49, 6, 15),
+    L("prison", 0, 64, 6, 4),
+    L("airportPax", 0, 68, 6, 6),
+    L("liveWall", 6, 25, 6, 14),
+    L("hazardStrip", 6, 39, 6, 8),
+    L("typhoon", 6, 47, 3, 4),
+    L("earthquake", 9, 47, 3, 4),
+    L("radiation", 6, 51, 3, 4),
+    L("lightning", 9, 51, 3, 4),
+    L("powerCard", 6, 55, 6, 14),
+    L("foodPriceBoard", 6, 69, 6, 5)
+  ];
+  var DEFAULT_HIDDEN = ["histogram"];
+
+  /* ================= 幾何參數（照抄 MONITOR_SPLIT_DOCK） ================= */
+
+  var PARAM_DEFS = [
+    { key: "widthPct",          group: "Dock",     label: "widthPct 寬度佔比",   min: 0.30, max: 0.70, step: 0.01, dp: 2 },
+    { key: "top",                group: "Dock",     label: "top 上緣",            min: 0,    max: 120,  step: 1,    dp: 0, unit: "px" },
+    { key: "right",              group: "Dock",     label: "right 右緣",          min: 0,    max: 40,   step: 1,    dp: 0, unit: "px" },
+    { key: "bottom",             group: "Dock",     label: "bottom 下緣",         min: 0,    max: 40,   step: 1,    dp: 0, unit: "px" },
+    { key: "stackBreakpointPx",  group: "Dock",     label: "stackBreakpointPx 堆疊閾值", min: 480, max: 1100, step: 10, dp: 0, unit: "px" },
+    { key: "layersMaxVh",        group: "Layers 面板", label: "layersMaxVh 高度上限", min: 0.25, max: 0.80, step: 0.01, dp: 2 },
+    { key: "layersWidth",        group: "Layers 面板", label: "layersWidth 寬度",   min: 200,  max: 400,  step: 2,    dp: 0, unit: "px" },
+    { key: "rowHeight",          group: "Grid",     label: "rowHeight 列高",      min: 28,   max: 56,   step: 1,    dp: 0, unit: "px" },
+    { key: "gap",                 group: "Grid",     label: "gap 間距",            min: 4,    max: 20,   step: 1,    dp: 0, unit: "px" },
+    { key: "mapPaddingRight",    group: "地圖",      label: "mapPaddingRight 視野讓位", min: 0, max: 1200, step: 10, dp: 0, unit: "px" }
+  ];
+  var PARAM_BY_KEY = {};
+  PARAM_DEFS.forEach(function (d) { PARAM_BY_KEY[d.key] = d; });
+  var DOCK_KEYS = ["widthPct", "top", "right", "bottom", "layersMaxVh", "layersWidth", "stackBreakpointPx", "mapPaddingRight"];
+
+  var DEFAULT_PARAMS = {
+    widthPct: 0.46, top: 56, right: 14, bottom: 14,
+    layersMaxVh: 0.45, layersWidth: 288,
+    stackBreakpointPx: 640, mapPaddingRight: 0,
+    rowHeight: 40, gap: 10
+  };
+
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  /* ================= 網格引擎（react-grid-layout 行為子集，與 dock 版沙盒相同邏輯） ================= */
+
+  function collides(a, b) {
+    if (a.i === b.i) return false;
+    if (a.x + a.w <= b.x) return false;
+    if (b.x + b.w <= a.x) return false;
+    if (a.y + a.h <= b.y) return false;
+    if (b.y + b.h <= a.y) return false;
+    return true;
+  }
+
+  function firstCollision(list, item) {
+    for (var i = 0; i < list.length; i++) {
+      if (collides(list[i], item)) return list[i];
+    }
+    return null;
+  }
+
+  function pushDown(layout, item, seen) {
+    for (var i = 0; i < layout.length; i++) {
+      var other = layout[i];
+      if (seen[other.i]) continue;
+      if (!collides(other, item)) continue;
+      seen[other.i] = true;
+      other.y = item.y + item.h;
+      pushDown(layout, other, seen);
+    }
+  }
+
+  function compact(layout) {
+    var sorted = layout.slice().sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); });
+    var placed = [];
+    for (var i = 0; i < sorted.length; i++) {
+      var it = { i: sorted[i].i, x: sorted[i].x, y: sorted[i].y, w: sorted[i].w, h: sorted[i].h };
+      while (firstCollision(placed, it)) it.y++;
+      while (it.y > 0 && !firstCollision(placed, { i: it.i, x: it.x, y: it.y - 1, w: it.w, h: it.h })) {
+        it.y--;
+      }
+      placed.push(it);
+    }
+    return placed;
+  }
+
+  function applyChange(layout, id, patch) {
+    var next = layout.map(function (it) {
+      if (it.i !== id) return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h };
+      return {
+        i: it.i,
+        x: patch.x !== undefined ? patch.x : it.x,
+        y: patch.y !== undefined ? patch.y : it.y,
+        w: patch.w !== undefined ? patch.w : it.w,
+        h: patch.h !== undefined ? patch.h : it.h
+      };
+    });
+    var moving = null, i;
+    for (i = 0; i < next.length; i++) { if (next[i].i === id) moving = next[i]; }
+    var seen = {};
+    seen[id] = true;
+    pushDown(next, moving, seen);
+    return compactUntilStable(next);
+  }
+
+  /**
+   * compact() 是單趟 greedy pass：處理順序取自「這次呼叫當下」的 (y,x)，
+   * 一輪跑完某些 widget 的 y 可能已經變了，若排序因此改變，第二輪 compact()
+   * 有機會再往上收（例：拖曳造成的推擠鏈留下頂端空隙，單趟壓不掉）。
+   * 這代表 compact() 不保證是自身的不動點 —— 若只呼叫一次就存進 state，
+   * 使用者「匯出→原樣貼回匯入」時可能被二次壓實推移，版面對不齊。
+   * 這裡疊代到不動點（一般 1-2 輪就穩定，21 個 widget 成本可忽略），
+   * 確保任何落進 state.layout 的版面本身已是 compact() 的不動點，
+   * 匯出→匯入才能保證版面還原。
+   */
+  function sameLayout(a, b) {
+    if (a.length !== b.length) return false;
+    var map = {}, i;
+    b.forEach(function (it) { map[it.i] = it; });
+    for (i = 0; i < a.length; i++) {
+      var x = a[i], y = map[x.i];
+      if (!y || x.x !== y.x || x.y !== y.y || x.w !== y.w || x.h !== y.h) return false;
+    }
+    return true;
+  }
+
+  function compactUntilStable(layout) {
+    var cur = layout, i, next;
+    for (i = 0; i < 8; i++) {
+      next = compact(cur);
+      if (sameLayout(next, cur)) return next;
+      cur = next;
+    }
+    return cur;
+  }
+
+  function maxRows(layout) {
+    var m = 0;
+    layout.forEach(function (it) { if (it.y + it.h > m) m = it.y + it.h; });
+    return m;
+  }
+
+  /* ================= 護欄檢查 ================= */
+
+  function computeCutY(layout) {
+    var cut = 0;
+    layout.forEach(function (it) { if (it.w === COLS && it.y + it.h > cut) cut = it.y + it.h; });
+    return cut;
+  }
+
+  function checkAlignment(layout) {
+    var cut = computeCutY(layout);
+    var half = COLS / 2;
+    var left = layout.filter(function (it) { return it.x < half && it.y >= cut; });
+    var right = layout.filter(function (it) { return it.x >= half && it.y >= cut; });
+    if (!left.length || !right.length) {
+      return { ok: true, msg: "下半部左右兩欄至少一側目前是空的，暫不檢查。" };
+    }
+    var leftEnd = Math.max.apply(null, left.map(function (it) { return it.y + it.h; }));
+    var rightEnd = Math.max.apply(null, right.map(function (it) { return it.y + it.h; }));
+    if (leftEnd === rightEnd) {
+      return { ok: true, msg: "左欄／右欄皆止於 y" + leftEnd + "，對齊。" };
+    }
+    return {
+      ok: false,
+      msg: "左欄止於 y" + leftEnd + "、右欄止於 y" + rightEnd + "，不相等 —— " +
+        "guillotine 會在較短一側之後切出貫穿全寬的橫切線（monitorLayout.ts:100-104）。"
+    };
+  }
+
+  function checkOverlap(layout) {
+    for (var i = 0; i < layout.length; i++) {
+      for (var j = i + 1; j < layout.length; j++) {
+        if (collides(layout[i], layout[j])) {
+          return { ok: false, msg: layout[i].i + " 與 " + layout[j].i + " 重疊。" };
+        }
+      }
+    }
+    return { ok: true, msg: "無重疊。" };
+  }
+
+  /* ================= 狀態 ================= */
+
+  var state = {
+    simW: 1920,
+    hidden: {},
+    layout: DEFAULT_LAYOUT.map(function (it) { return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }; }),
+    params: clone(DEFAULT_PARAMS)
+  };
+  DEFAULT_HIDDEN.forEach(function (id) { state.hidden[id] = true; });
+
+  var metrics = { colW: 0, rowH: 40, gap: 10, scale: 1, simW: 1920, simH: 1080, dockWidth: 0, dockHeight: 0, gridH: 0 };
+
+  /* ================= DOM ================= */
+
+  var $ = function (id) { return document.getElementById(id); };
+  var canvas = $("canvas"), canvasWrap = $("canvasWrap");
+  var dockEl = $("dock"), gridEl = $("grid"), placeholder = $("placeholder");
+  var fakeLayersEl = $("fakeLayers"), fakeTaiwanEl = $("fakeTaiwan");
+  var els = {};
+
+  function buildWidget(def) {
+    var el = document.createElement("div");
+    el.className = "w" + (def.fit ? " fit" : "");
+    el.dataset.id = def.i;
+    el.style.setProperty("--sig", def.sig);
+    el.innerHTML =
+      '<div class="w-head" data-handle="drag">' +
+        '<span class="w-name">' + def.cn + "</span>" +
+        '<span class="w-en">' + def.en + "</span>" +
+      "</div>" +
+      '<div class="w-body">' + CONTENT[def.i] + "</div>" +
+      (def.fit ? '<span class="w-fitcorner">fit</span>' : "") +
+      '<div class="w-rz" data-handle="resize" title="拖拉調整大小"></div>';
+    return el;
+  }
+
+  function syncWidgetEls() {
+    WIDGETS.forEach(function (def) {
+      var shown = !state.hidden[def.i];
+      if (shown && !els[def.i]) {
+        els[def.i] = buildWidget(def);
+        gridEl.appendChild(els[def.i]);
+      } else if (!shown && els[def.i]) {
+        gridEl.removeChild(els[def.i]);
+        delete els[def.i];
+      }
+    });
+  }
+
+  /* ================= 度量 + 繪製 ================= */
+
+  function computeMetrics() {
+    var simW = state.simW;
+    var simH = Math.round(simW * 9 / 16);
+    metrics.simW = simW;
+    metrics.simH = simH;
+    metrics.gap = state.params.gap;
+    metrics.rowH = state.params.rowHeight;
+
+    var dockWidth = Math.max(40, state.params.widthPct * simW - state.params.right);
+    var dockHeight = Math.max(40, simH - state.params.top - state.params.bottom);
+    metrics.dockWidth = dockWidth;
+    metrics.dockHeight = dockHeight;
+
+    var inner = dockWidth - PAD * 2;
+    metrics.colW = Math.max(4, (inner - metrics.gap * (COLS - 1)) / COLS);
+
+    var rows = maxRows(state.layout.filter(function (it) { return !state.hidden[it.i]; }));
+    var contentH = rows > 0 ? rows * metrics.rowH + (rows - 1) * metrics.gap : 0;
+    metrics.gridH = contentH + PAD * 2;
+
+    var avail = canvasWrap.clientWidth || simW;
+    metrics.scale = Math.min(1, avail / simW);
+  }
+
+  function pxX(x) { return x * (metrics.colW + metrics.gap); }
+  function pxY(y) { return y * (metrics.rowH + metrics.gap); }
+  function pxW(w) { return w * metrics.colW + (w - 1) * metrics.gap; }
+  function pxH(h) { return h * metrics.rowH + (h - 1) * metrics.gap; }
+
+  function paint(skipId) {
+    computeMetrics();
+
+    canvas.style.width = metrics.simW + "px";
+    canvas.style.height = metrics.simH + "px";
+    canvas.style.transform = "scale(" + metrics.scale + ")";
+    canvasWrap.style.height = Math.ceil(metrics.simH * metrics.scale) + "px";
+
+    fakeLayersEl.style.left = (56 + 8) + "px";
+    fakeLayersEl.style.width = state.params.layersWidth + "px";
+    fakeLayersEl.style.maxHeight = Math.round(state.params.layersMaxVh * metrics.simH) + "px";
+
+    var shift = -(state.params.mapPaddingRight * 0.4);
+    fakeTaiwanEl.style.transform = "translateX(" + shift + "px)";
+
+    dockEl.style.top = state.params.top + "px";
+    dockEl.style.right = state.params.right + "px";
+    dockEl.style.width = metrics.dockWidth + "px";
+    dockEl.style.height = metrics.dockHeight + "px";
+
+    gridEl.style.height = metrics.gridH + "px";
+
+    state.layout.forEach(function (it) {
+      var el = els[it.i];
+      if (!el) return;
+      if (it.i !== skipId) {
+        el.style.transform = "translate(" + pxX(it.x) + "px," + pxY(it.y) + "px)";
+        el.style.width = pxW(it.w) + "px";
+        el.style.height = pxH(it.h) + "px";
+      }
+    });
+
+    var shown = WIDGETS.filter(function (d) { return !state.hidden[d.i]; }).length;
+    $("mSimW").textContent = metrics.simW;
+    $("mScale").textContent = Math.round(metrics.scale * 100);
+    $("mRow").textContent = metrics.rowH;
+    $("mGap").textContent = metrics.gap;
+    $("mCount").textContent = shown + "/" + WIDGETS.length;
+    $("drawerCount").textContent = shown + " / " + WIDGETS.length + " 顯示中";
+
+    // ⚠️ app 的 isStacked 量的是 **grid 容器的 contentRect 寬**，不是面板寬：
+    // MonitorPanel 的可捲動 grid 容器有 `padding: 14px 16px 18px`（左右各 16）＋ 面板 1px 邊框 ×2
+    // → grid 實寬 = 面板寬 − 34。用面板寬去比 stackBreakpointPx 會樂觀 34px，
+    // 邊界寬度下沙盒顯示綠燈、正式站卻堆疊（1440 實測：面板 648 / grid 614 → 堆疊）。
+    var GRID_INSET = 34;
+    var dockW = Math.round(metrics.dockWidth);
+    var gridW = Math.round(metrics.dockWidth - GRID_INSET);
+    $("mDockW").textContent = dockW + " · GRID " + gridW;
+    var isNarrow = gridW < state.params.stackBreakpointPx;
+    $("dockWidthStat").classList.toggle("stat-warn", isNarrow);
+    $("dockWidthWarn").classList.toggle("show", isNarrow);
+
+    refreshGuardrails();
+  }
+
+  function refreshGuardrails() {
+    var visible = state.layout.filter(function (it) { return !state.hidden[it.i]; });
+    var align = checkAlignment(visible);
+    var overlap = checkOverlap(visible);
+
+    $("alignDot").className = "dot " + (align.ok ? "ok" : "bad");
+    $("alignMsg").textContent = align.msg;
+    $("overlapDot").className = "dot " + (overlap.ok ? "ok" : "bad");
+    $("overlapMsg").textContent = overlap.msg;
+  }
+
+  /* ================= 拖移 / 縮放 ================= */
+
+  var drag = null;
+
+  function onPointerDown(e) {
+    var handle = e.target.closest("[data-handle]");
+    if (!handle) return;
+    var el = e.target.closest(".w");
+    if (!el) return;
+    if (e.button !== undefined && e.button !== 0) return;
+
+    var id = el.dataset.id;
+    var item = null;
+    state.layout.forEach(function (it) { if (it.i === id) item = it; });
+    if (!item) return;
+
+    e.preventDefault();
+    handle.setPointerCapture(e.pointerId);
+
+    drag = {
+      id: id,
+      mode: handle.dataset.handle,
+      el: el,
+      handle: handle,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: item.x, origY: item.y, origW: item.w, origH: item.h,
+      lastX: item.x, lastY: item.y, lastW: item.w, lastH: item.h,
+      // 隱藏 widget 的佔位座標（例如 histogram 的 (0,0,12,3)）不吃碰撞/推擠計算，
+      // 否則沒畫出來的格子仍會擋住可見 widget 往上收（曾實測 newsFeed 卡在 y3 上不去）。
+      // base 只放「看得到」的，隱藏的原樣凍結在 hidden 裡，drag 結束再併回 state.layout。
+      base: state.layout.filter(function (it) { return !state.hidden[it.i]; }).map(function (it) {
+        return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h };
+      }),
+      hidden: state.layout.filter(function (it) { return state.hidden[it.i]; }).map(function (it) {
+        return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h };
+      })
+    };
+
+    el.classList.add(drag.mode === "drag" ? "dragging" : "resizing");
+    placeholder.style.display = "block";
+    movePlaceholder(item);
+  }
+
+  function movePlaceholder(it) {
+    placeholder.style.transform = "translate(" + pxX(it.x) + "px," + pxY(it.y) + "px)";
+    placeholder.style.width = pxW(it.w) + "px";
+    placeholder.style.height = pxH(it.h) + "px";
+  }
+
+  function onPointerMove(e) {
+    if (!drag) return;
+    var s = metrics.scale || 1;
+    var dx = (e.clientX - drag.startX) / s;
+    var dy = (e.clientY - drag.startY) / s;
+    var def = DEF[drag.id];
+    var unitX = metrics.colW + metrics.gap, unitY = metrics.rowH + metrics.gap;
+
+    if (drag.mode === "drag") {
+      drag.el.style.transform =
+        "translate(" + (pxX(drag.origX) + dx) + "px," + (pxY(drag.origY) + dy) + "px)";
+
+      var nx = Math.round((pxX(drag.origX) + dx) / unitX);
+      var ny = Math.round((pxY(drag.origY) + dy) / unitY);
+      nx = Math.max(0, Math.min(COLS - drag.origW, nx));
+      ny = Math.max(0, ny);
+      if (nx === drag.lastX && ny === drag.lastY) return;
+      drag.lastX = nx; drag.lastY = ny;
+
+      state.layout = applyChange(drag.base, drag.id, { x: nx, y: ny }).concat(drag.hidden);
+      var moved = null;
+      state.layout.forEach(function (it) { if (it.i === drag.id) moved = it; });
+      paint(drag.id);
+      movePlaceholder(moved);
+    } else {
+      var nw = Math.round((pxW(drag.origW) + dx) / unitX);
+      var nh = Math.round((pxH(drag.origH) + dy) / unitY);
+      nw = Math.max(def.minW, Math.min(COLS - drag.origX, nw));
+      nh = Math.max(def.minH, nh);
+      if (nw === drag.lastW && nh === drag.lastH) return;
+      drag.lastW = nw; drag.lastH = nh;
+
+      state.layout = applyChange(drag.base, drag.id, { w: nw, h: nh }).concat(drag.hidden);
+      var rz = null;
+      state.layout.forEach(function (it) { if (it.i === drag.id) rz = it; });
+      paint();
+      movePlaceholder(rz);
+    }
+  }
+
+  function onPointerUp() {
+    if (!drag) return;
+    drag.el.classList.remove("dragging", "resizing");
+    placeholder.style.display = "none";
+    drag = null;
+    paint();
+    save();
+    refreshIO();
+  }
+
+  gridEl.addEventListener("pointerdown", onPointerDown);
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", onPointerUp);
+  window.addEventListener("pointercancel", onPointerUp);
+
+  /* ================= 模擬視寬 ================= */
+
+  $("segWidth").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-w]");
+    if (!b) return;
+    state.simW = parseInt(b.dataset.w, 10);
+    Array.prototype.forEach.call(this.querySelectorAll("button"), function (x) {
+      x.setAttribute("aria-pressed", x === b ? "true" : "false");
+    });
+    paint();
+    save();
+    refreshIO();
+  });
+
+  /* ================= 幾何參數面板 ================= */
+
+  function fmt(v, dp) { return dp > 0 ? v.toFixed(dp) : String(Math.round(v)); }
+
+  function buildParamsBox() {
+    var box = $("paramsBox");
+    box.innerHTML = "";
+    var lastGroup = null;
+    PARAM_DEFS.forEach(function (def) {
+      if (def.group !== lastGroup) {
+        var gh = document.createElement("div");
+        gh.className = "pgroup";
+        gh.textContent = def.group;
+        box.appendChild(gh);
+        lastGroup = def.group;
+      }
+      var wrap = document.createElement("div");
+      wrap.className = "param";
+      wrap.innerHTML =
+        '<div class="slider-head"><span>' + def.label + '</span>' +
+        '<span class="v" id="v_' + def.key + '"></span></div>' +
+        '<div class="param-row">' +
+          '<input type="range" id="r_' + def.key + '" min="' + def.min + '" max="' + def.max + '" step="' + def.step + '">' +
+          '<input type="number" id="n_' + def.key + '" min="' + def.min + '" max="' + def.max + '" step="' + def.step + '">' +
+        "</div>";
+      box.appendChild(wrap);
+    });
+  }
+
+  function syncParamUI() {
+    PARAM_DEFS.forEach(function (def) {
+      var val = state.params[def.key];
+      $("v_" + def.key).textContent = fmt(val, def.dp) + (def.unit || "");
+      $("r_" + def.key).value = val;
+      $("n_" + def.key).value = fmt(val, def.dp);
+    });
+  }
+
+  function wireParams() {
+    PARAM_DEFS.forEach(function (def) {
+      var r = $("r_" + def.key), n = $("n_" + def.key);
+      function apply(v) {
+        if (!isFinite(v)) return;
+        v = Math.max(def.min, Math.min(def.max, v));
+        state.params[def.key] = v;
+        $("v_" + def.key).textContent = fmt(v, def.dp) + (def.unit || "");
+        r.value = v;
+        n.value = fmt(v, def.dp);
+        paint();
+        save();
+        refreshIO();
+      }
+      r.addEventListener("input", function () { apply(parseFloat(r.value)); });
+      n.addEventListener("input", function () { apply(parseFloat(n.value)); });
+    });
+  }
+
+  /* ================= Widget 抽屜 ================= */
+
+  function buildDrawer() {
+    var box = $("drawer");
+    box.innerHTML = "";
+    WIDGETS.forEach(function (def) {
+      var row = document.createElement("label");
+      row.className = "drow";
+      row.innerHTML =
+        '<input type="checkbox" />' +
+        '<span class="sig" style="background:' + def.sig + '"></span>' +
+        '<span class="cn">' + def.cn + "</span>" +
+        '<span class="en">' + def.en + "</span>" +
+        (def.fit ? '<span class="d-auto">AUTO</span>' : "");
+      var cb = row.querySelector("input");
+      cb.checked = !state.hidden[def.i];
+      row.classList.toggle("off", !cb.checked);
+      cb.addEventListener("change", function () {
+        setHidden(def.i, !cb.checked);
+        row.classList.toggle("off", !cb.checked);
+      });
+      box.appendChild(row);
+    });
+  }
+
+  function syncDrawer() {
+    var rows = $("drawer").querySelectorAll(".drow");
+    WIDGETS.forEach(function (def, idx) {
+      var row = rows[idx];
+      if (!row) return;
+      var cb = row.querySelector("input");
+      cb.checked = !state.hidden[def.i];
+      row.classList.toggle("off", !cb.checked);
+    });
+  }
+
+  function setHidden(id, hide) {
+    if (hide) {
+      state.hidden[id] = true;
+    } else {
+      delete state.hidden[id];
+      var visible = state.layout.filter(function (it) { return !state.hidden[it.i]; });
+      var y = maxRows(visible.filter(function (it) { return it.i !== id; }));
+      var def = DEF[id];
+      var found = false;
+      state.layout.forEach(function (it) {
+        if (it.i === id) { it.x = 0; it.y = y; it.w = def.w; it.h = def.h; found = true; }
+      });
+      if (!found) state.layout.push(L(id, 0, y, def.w, def.h));
+    }
+    state.layout = compactUntilStable(state.layout.filter(function (it) { return !state.hidden[it.i]; }))
+      .concat(state.layout.filter(function (it) { return state.hidden[it.i]; }));
+    syncWidgetEls();
+    paint();
+    save();
+    refreshIO();
+  }
+
+  $("btnAllOn").addEventListener("click", function () {
+    WIDGETS.forEach(function (d) {
+      if (state.hidden[d.i]) setHidden(d.i, false);
+    });
+    syncDrawer();
+  });
+
+  /* ================= 重設 ================= */
+
+  function applyDefault() {
+    state.simW = 1920;
+    state.hidden = {};
+    DEFAULT_HIDDEN.forEach(function (id) { state.hidden[id] = true; });
+    state.layout = DEFAULT_LAYOUT.map(function (it) { return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }; });
+    WIDGETS.forEach(function (d) {
+      var has = state.layout.some(function (it) { return it.i === d.i; });
+      if (!has) state.layout.push(L(d.i, 0, 0, d.w, d.h));
+    });
+    state.params = clone(DEFAULT_PARAMS);
+  }
+
+  $("btnReset").addEventListener("click", function () {
+    applyDefault();
+    Array.prototype.forEach.call($("segWidth").querySelectorAll("button"), function (b) {
+      b.setAttribute("aria-pressed", parseInt(b.dataset.w, 10) === state.simW ? "true" : "false");
+    });
+    syncParamUI();
+    syncWidgetEls();
+    syncDrawer();
+    paint();
+    save();
+    refreshIO();
+    flash($("ioMsg"), "已重設為預設分割版面。", "ok");
+  });
+
+  /* ================= 匯出 / 匯入 ================= */
+
+  function round2(v) { return Math.round(v * 100) / 100; }
+
+  function exportObj() {
+    var p = state.params;
+    var hidden = WIDGETS.filter(function (d) { return state.hidden[d.i]; })
+                        .map(function (d) { return d.i; });
+    var layout = state.layout
+      .filter(function (it) { return !state.hidden[it.i]; })
+      .slice()
+      .sort(function (a, b) { return (a.y - b.y) || (a.x - b.x); })
+      .map(function (it) { return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }; });
+    return {
+      dock: {
+        widthPct: round2(p.widthPct), top: p.top, right: p.right, bottom: p.bottom,
+        layersMaxVh: round2(p.layersMaxVh), layersWidth: p.layersWidth,
+        stackBreakpointPx: p.stackBreakpointPx, mapPaddingRight: p.mapPaddingRight
+      },
+      cols: COLS,
+      rowHeight: p.rowHeight,
+      gap: p.gap,
+      hidden: hidden,
+      layout: layout
+    };
+  }
+
+  function refreshIO() {
+    $("io").value = JSON.stringify(exportObj(), null, 2);
+  }
+
+  function flash(el, text, kind) {
+    el.textContent = text;
+    el.className = "msg " + kind;
+    if (kind === "ok") {
+      window.clearTimeout(flash._t);
+      flash._t = window.setTimeout(function () { el.className = "msg"; }, 2600);
+    }
+  }
+
+  function copyJSON(btn, label) {
+    refreshIO();
+    var ta = $("io"), done = function () {
+      var old = label;
+      $("ioMsg").className = "msg";
+      btn.textContent = "已複製";
+      window.setTimeout(function () { btn.textContent = old; }, 1500);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ta.value).then(done, function () {
+        ta.select();
+        try { document.execCommand("copy"); done(); }
+        catch (err) { flash($("ioMsg"), "瀏覽器擋下了複製，請手動全選文字框內容。", "err"); }
+      });
+    } else {
+      ta.select();
+      try { document.execCommand("copy"); done(); }
+      catch (err2) { flash($("ioMsg"), "瀏覽器擋下了複製，請手動全選文字框內容。", "err"); }
+    }
+  }
+
+  $("btnCopy").addEventListener("click", function () { copyJSON(this, "複製 JSON"); });
+  $("btnExport").addEventListener("click", function () { copyJSON(this, "複製 JSON"); });
+
+  function validate(d) {
+    if (!d || typeof d !== "object") return "最外層必須是物件 { dock, cols, rowHeight, gap, hidden, layout }。";
+    if (!d.dock || typeof d.dock !== "object") return "缺少 dock 物件。";
+    if (!Array.isArray(d.layout)) return "缺少 layout 陣列。";
+    if (d.cols !== undefined && d.cols !== COLS) return "cols 必須是 12，收到 " + d.cols + "。";
+    if (d.hidden !== undefined && !Array.isArray(d.hidden)) return "hidden 必須是字串陣列。";
+
+    var k, key, def, v;
+    for (k = 0; k < DOCK_KEYS.length; k++) {
+      key = DOCK_KEYS[k];
+      def = PARAM_BY_KEY[key];
+      v = d.dock[key];
+      if (typeof v !== "number" || !isFinite(v)) return "dock." + key + " 必須是數字。";
+      if (v < def.min || v > def.max) return "dock." + key + " 超出範圍 [" + def.min + "," + def.max + "]，收到 " + v + "。";
+    }
+    var topKeys = ["rowHeight", "gap"];
+    for (k = 0; k < topKeys.length; k++) {
+      key = topKeys[k];
+      def = PARAM_BY_KEY[key];
+      v = d[key];
+      if (typeof v !== "number" || !isFinite(v)) return key + " 必須是數字。";
+      if (v < def.min || v > def.max) return key + " 超出範圍 [" + def.min + "," + def.max + "]，收到 " + v + "。";
+    }
+
+    var i, it, ids = (d.hidden || []);
+    for (i = 0; i < ids.length; i++) {
+      if (!DEF[ids[i]]) return "hidden 內有未知的 widget id：" + ids[i] + "。";
+    }
+
+    var seen = {}, keys4 = ["x", "y", "w", "h"], k2;
+    for (i = 0; i < d.layout.length; i++) {
+      it = d.layout[i];
+      if (!it || typeof it !== "object") return "第 " + (i + 1) + " 筆不是物件。";
+      if (typeof it.i !== "string") return "第 " + (i + 1) + " 筆缺少 i 欄位（widget id）。";
+      if (!DEF[it.i]) return "第 " + (i + 1) + " 筆是未知的 widget id：" + it.i + "。";
+      if (seen[it.i]) return "widget id 重複：" + it.i + "。";
+      seen[it.i] = true;
+      for (k2 = 0; k2 < 4; k2++) {
+        if (typeof it[keys4[k2]] !== "number" || !isFinite(it[keys4[k2]])) {
+          return it.i + " 的 " + keys4[k2] + " 必須是數字。";
+        }
+      }
+      if (it.x < 0 || it.y < 0) return it.i + " 的 x / y 不可為負數。";
+      if (it.w < 1 || it.h < 1) return it.i + " 的 w / h 至少為 1。";
+      if (it.x + it.w > COLS) {
+        return it.i + " 超出 12 欄：x=" + it.x + " + w=" + it.w + " = " + (it.x + it.w) + "。";
+      }
+    }
+
+    for (i = 0; i < d.layout.length; i++) {
+      for (var j = i + 1; j < d.layout.length; j++) {
+        if (collides(d.layout[i], d.layout[j])) {
+          return d.layout[i].i + " 與 " + d.layout[j].i + " 重疊，無法套用。";
+        }
+      }
+    }
+    return null;
+  }
+
+  $("btnImport").addEventListener("click", function () {
+    var raw = $("io").value, data;
+    try {
+      data = JSON.parse(raw);
+    } catch (err) {
+      flash($("ioMsg"), "JSON 解析失敗：" + err.message, "err");
+      return;
+    }
+    var err2 = validate(data);
+    if (err2) { flash($("ioMsg"), err2, "err"); return; }
+
+    DOCK_KEYS.forEach(function (key) { state.params[key] = data.dock[key]; });
+    state.params.rowHeight = data.rowHeight;
+    state.params.gap = data.gap;
+
+    state.hidden = {};
+    (data.hidden || []).forEach(function (id) { state.hidden[id] = true; });
+    state.layout = data.layout.map(function (it) {
+      return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h };
+    });
+    WIDGETS.forEach(function (d) {
+      var has = state.layout.some(function (it) { return it.i === d.i; });
+      if (!has) state.layout.push(L(d.i, 0, 0, d.w, d.h));
+    });
+    state.layout = compactUntilStable(state.layout.filter(function (it) { return !state.hidden[it.i]; }))
+      .concat(state.layout.filter(function (it) { return state.hidden[it.i]; }));
+
+    syncWidgetEls();
+    syncDrawer();
+    syncParamUI();
+    paint();
+    save();
+    refreshIO();
+    flash($("ioMsg"), "已套用：" + data.layout.length + " 個 widget 上版。", "ok");
+  });
+
+  /* ================= localStorage ================= */
+
+  function save() {
+    try {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify({
+        simW: state.simW,
+        hidden: Object.keys(state.hidden),
+        layout: state.layout,
+        params: state.params
+      }));
+    } catch (e) { /* 隱私模式 / 配額滿：沙盒照常運作，只是不留存 */ }
+  }
+
+  function restore() {
+    var raw;
+    try { raw = window.localStorage.getItem(STORE_KEY); } catch (e) { return false; }
+    if (!raw) return false;
+    var d;
+    try { d = JSON.parse(raw); } catch (e2) { return false; }
+    if (!d || !Array.isArray(d.layout) || !d.params) return false;
+
+    var visible = d.layout.filter(function (it) { return (d.hidden || []).indexOf(it.i) === -1; });
+    for (var i = 0; i < visible.length; i++) {
+      for (var j = i + 1; j < visible.length; j++) {
+        if (collides(visible[i], visible[j])) return false;
+      }
+    }
+
+    state.simW = SIM_WIDTHS.indexOf(d.simW) >= 0 ? d.simW : 1920;
+    state.hidden = {};
+    (d.hidden || []).forEach(function (id) { if (DEF[id]) state.hidden[id] = true; });
+    state.layout = d.layout.filter(function (it) { return DEF[it.i]; })
+      .map(function (it) { return { i: it.i, x: it.x, y: it.y, w: it.w, h: it.h }; });
+    WIDGETS.forEach(function (def) {
+      var has = state.layout.some(function (it) { return it.i === def.i; });
+      if (!has) state.layout.push(L(def.i, 0, 0, def.w, def.h));
+    });
+
+    state.params = {};
+    PARAM_DEFS.forEach(function (pd) {
+      var v = d.params[pd.key];
+      state.params[pd.key] = (typeof v === "number" && isFinite(v) && v >= pd.min && v <= pd.max)
+        ? v : DEFAULT_PARAMS[pd.key];
+    });
+    return true;
+  }
+
+  /* ================= 啟動 ================= */
+
+  function boot() {
+    if (!restore()) {
+      applyDefault();
+    }
+
+    buildParamsBox();
+    syncParamUI();
+    wireParams();
+
+    Array.prototype.forEach.call($("segWidth").querySelectorAll("button"), function (b) {
+      b.setAttribute("aria-pressed", parseInt(b.dataset.w, 10) === state.simW ? "true" : "false");
+    });
+
+    buildDrawer();
+    syncWidgetEls();
+    paint();
+    refreshIO();
+
+    if (window.ResizeObserver) {
+      new window.ResizeObserver(function () { paint(); }).observe(canvasWrap);
+    } else {
+      window.addEventListener("resize", function () { paint(); });
+    }
+  }
+
+  boot();
+})();
+</script>
