@@ -5,7 +5,11 @@ import { useLoadingTasks } from "../hooks/useLoadingTasks";
  * 任何 loader 透過 withLoading() 包裝的 Supabase 呼叫，都會在這裡顯示。
  * 沒有任務時不渲染。
  */
-export function LoadingIndicator() {
+/**
+ * @param rightOffset CSS `right` 值。split 模式要讓到 Monitor dock 左邊，
+ *   否則這顆 pill（z-index 1000）會直接壓在面板上閃。
+ */
+export function LoadingIndicator({ rightOffset = "16px" }: { rightOffset?: string }) {
   const tasks = useLoadingTasks();
   if (tasks.length === 0) return null;
 
@@ -20,7 +24,6 @@ export function LoadingIndicator() {
         .lr-pill {
           position: absolute;
           top: 110px;
-          right: 16px;
           z-index: 1000;
           background: rgba(15, 23, 42, 0.85);
           backdrop-filter: blur(8px);
@@ -65,7 +68,7 @@ export function LoadingIndicator() {
           font-style: italic;
         }
       `}</style>
-      <div className="lr-pill">
+      <div className="lr-pill" style={{ right: rightOffset }}>
         <div className="lr-header">
           <div className="lr-spinner" />
           LOADING

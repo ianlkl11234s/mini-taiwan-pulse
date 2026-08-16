@@ -2518,12 +2518,17 @@ export default function App() {
         );
       })()}
 
-      {/* ── Bottom-right stack: Feature Info + AQI controls + Legend ── */}
+      {/* ── Bottom-right stack: Feature Info + AQI controls + Legend ──
+          split 模式要整組讓到 dock 左邊：這疊是 zIndex 30、Monitor 面板是 40，
+          不讓位的話點地圖跳出來的事件 popup 與 LEGEND 會整個被蓋掉。
+          用 % 而不是算好的 px —— dock 寬度本身就是視窗寬的 widthPct，跟著縮放才對得準。 */}
       <div
         style={{
           position: "absolute",
           bottom: 64,
-          right: 16,
+          right: splitActive
+            ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
+            : 16,
           zIndex: 30,
           display: "flex",
           flexDirection: "column",
@@ -2562,7 +2567,11 @@ export default function App() {
       </div>
 
       {/* ── 全域 loading 指示器 ── */}
-      <LoadingIndicator />
+      <LoadingIndicator
+        rightOffset={splitActive
+          ? `calc(${MONITOR_SPLIT_DOCK.widthPct * 100}% + ${MONITOR_SPLIT_DOCK.right + 12}px)`
+          : "16px"}
+      />
 
       {/* ── Info Modal ── */}
       <InfoModal open={showInfo} onClose={() => setShowInfo(false)} isMobile={isMobile} isDarkTheme={isDarkTheme} />
