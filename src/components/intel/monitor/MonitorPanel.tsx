@@ -134,6 +134,12 @@ function renderMonitorNode(
     );
   }
   if (node.t === "cols") {
+    // 子項**全是單一 widget** → 拉平等高：並排的資訊卡（災害四卡、TAIEX|公衛、
+    // 在監|機場）底部對齊才好掃視，各自長高會參差 20~30px。
+    // 只要有一個子項是 rows（= 巢狀的「欄」），就維持 start —— 那是左右兩大欄的
+    // 情境，兩欄長度天差地遠（下半左欄 ~2000px、右欄 ~1500px），拉平會讓短的那欄
+    // 底下拖一大片空白。
+    const allLeaf = node.children.every((c) => c.t === "widget");
     return (
       <div
         key={key}
@@ -141,12 +147,21 @@ function renderMonitorNode(
           display: "grid",
           gridTemplateColumns: `repeat(${node.w}, minmax(0, 1fr))`,
           gap: MONITOR_GRID_GAP,
-          alignItems: "start",
+          alignItems: allLeaf ? "stretch" : "start",
           minWidth: 0,
         }}
       >
         {node.children.map((c, k) => (
-          <div key={k} style={{ gridColumn: `span ${nodeWidth(c)}`, minWidth: 0 }}>
+          <div
+            key={k}
+            style={{
+              gridColumn: `span ${nodeWidth(c)}`,
+              minWidth: 0,
+              // 等高模式下這層要是 flex，裡面的 widget cell（height:auto）才會
+              // 靠 align-self:stretch 撐滿被拉高的格子，否則卡片背景仍只有內容高
+              display: allLeaf ? "flex" : undefined,
+            }}
+          >
             {renderMonitorNode(c, widgets, `c${k}`)}
           </div>
         ))}
