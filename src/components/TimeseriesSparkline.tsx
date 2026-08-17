@@ -1,5 +1,5 @@
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import { COLORS, FONT_SIZE } from "../styles/designTokens";
+import { useLayoutEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react";
+import { COLORS, FONT_SIZE, SURFACE, BORDER, RADIUS, WHITE_ALPHA } from "../styles/designTokens";
 
 /**
  * 24h SVG sparkline — Y 軸刻度 + 警戒線 + X 軸 6/12/18h tick
@@ -34,6 +34,84 @@ export interface TimeseriesSparklineProps {
    * 避免把「缺快照」讀成真實低谷。不傳 = 原行為（一路連線）。
    */
   gapSec?: number;
+  /**
+   * 第二條線（opt-in，與主線共用同一個 Y 軸）。Y 軸值域會把兩條線一起納入計算，
+   * gapSec 斷線邏輯同樣套用在這條線上。不傳 = 行為與現在完全相同。
+   */
+  extraSeries?: { data: SparklinePoint[]; color: string; label?: string };
+  /** 主線在 tooltip 中的標籤（搭配 extraSeries 使用時用來區分兩條線）；不傳則 tooltip 只顯示色點 + 數值 */
+  seriesLabel?: string;
+  /**
+   * 是否開啟 hover tooltip（opt-in，預設 false）：滑鼠移動時依 X 座標找最近資料點，
+   * 畫垂直指示線 + 資料點圓點 + tooltip（日期 + 數值，有 extraSeries 時兩條線都列出）。
+   */
+  showTooltip?: boolean;
+  /** tooltip 日期格式："datetime"（預設，月/日 時:分）或 "date"（只顯示月/日，適合每日一點的資料） */
+  tooltipDateFormat?: "date" | "datetime";
+  /** Y 軸刻度是否強制縮寫成 50k 這種格式（五位數以上數值避免擠爆）；預設 false = 沿用原本依 step 判斷的縮寫規則 */
+  compactYAxis?: boolean;
+}
+
+/**
+ * 主線 + extraSeries（如有）的 Y 值域合併計算（純函式，可獨立單元測試）。
+ * 抽出以確保「不傳 extraSeries」時與過去逐位元等價 —— data-only 分支完全複製舊有算法。
+ */
+export function computeCombinedYRange(
+  data: SparklinePoint[],
+  extraData?: SparklinePoint[],
+  warningValue?: number | null,
+): { vMin: number; vMax: number } | null {
+  if (data.length === 0) return null;
+  const vals = data.map((d) => d.v);
+  if (extraData && extraData.length > 0) vals.push(...extraData.map((d) => d.v));
+  let vMin = Math.min(...vals);
+  let vMax = Math.max(...vals);
+  if (warningValue != null) {
+    vMin = Math.min(vMin, warningValue);
+    vMax = Math.max(vMax, warningValue);
+  }
+  return { vMin, vMax };
+}
+
+/** 缺口分段（沿用主線舊邏輯，抽出後主線與 extraSeries 共用） */
+function buildSegments(points: SparklinePoint[], gapSec?: number): SparklinePoint[][] {
+  if (points.length === 0) return [];
+  const segments: SparklinePoint[][] = [];
+  let cur: SparklinePoint[] = [];
+  for (const d of points) {
+    if (cur.length > 0 && gapSec != null && d.t - cur[cur.length - 1]!.t > gapSec) {
+      segments.push(cur);
+      cur = [];
+    }
+    cur.push(d);
+  }
+  segments.push(cur);
+  return segments;
+}
+
+/** 單一 segment → polyline points / area path（baseY 不傳則不算 areaPath，供 extraSeries 用） */
+function buildSegView(
+  seg: SparklinePoint[],
+  xScale: (t: number) => number,
+  yScale: (v: number) => number,
+  baseY?: string,
+) {
+  const pts = seg.map((d) => `${xScale(d.t).toFixed(1)},${yScale(d.v).toFixed(1)}`).join(" ");
+  const areaPath =
+    baseY != null
+      ? `M${xScale(seg[0]!.t).toFixed(1)},${baseY} ` +
+        `L${pts.split(" ").join(" L")} ` +
+        `L${xScale(seg[seg.length - 1]!.t).toFixed(1)},${baseY} Z`
+      : undefined;
+  return { pts, areaPath, single: seg.length === 1, first: seg[0]! };
+}
+
+/** tooltip 日期格式化："date" 只顯示月/日（例 8/16）；"datetime" 另加時:分 */
+function fmtTooltipDate(t: number, format: "date" | "datetime"): string {
+  const d = new Date(t * 1000);
+  const md = `${d.getMonth() + 1}/${d.getDate()}`;
+  if (format === "date") return md;
+  return `${md} ${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
 
 const DEFAULT_W = 256;  // fallback 寬（量到容器實際寬度前使用），原配 popup 280 寬扣 padding
@@ -65,8 +143,8 @@ function niceTicks(min: number, max: number, count = 3): number[] {
  * Y 軸刻度格式：依刻度步距決定精度（step ≥ 1 → 整數；千級 → k 縮寫），
  * 修掉人數類量出現「0.00」的違和小數。
  */
-function fmtTick(v: number, step: number): string {
-  if (Math.abs(v) >= 1000 && step >= 1000) {
+function fmtTick(v: number, step: number, forceCompact = false): string {
+  if (Math.abs(v) >= 1000 && (forceCompact || step >= 1000)) {
     const kv = v / 1000;
     return `${Number.isInteger(kv) ? kv : +kv.toFixed(1)}k`;
   }
@@ -82,6 +160,16 @@ function fmtValue(v: number): string {
   return v.toFixed(2);
 }
 
+/**
+ * tooltip 數值格式：四位數以上補千分位、單位前留空格（% 除外），
+ * 對齊卡片其他數字的既有呈現（例：供電能力 49,496 MW / 備轉 22.2%）。
+ */
+function fmtTooltipValue(v: number, unit: string): string {
+  const num = Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US") : fmtValue(v);
+  if (!unit) return num;
+  return unit === "%" ? `${num}${unit}` : `${num} ${unit}`;
+}
+
 export function TimeseriesSparkline({
   data,
   unit = "",
@@ -92,9 +180,15 @@ export function TimeseriesSparkline({
   height = 120,
   fillArea = true,
   gapSec,
+  extraSeries,
+  seriesLabel,
+  showTooltip = false,
+  tooltipDateFormat = "datetime",
+  compactYAxis = false,
 }: TimeseriesSparklineProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [w, setW] = useState(DEFAULT_W);
+  const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   useLayoutEffect(() => {
     const el = wrapRef.current;
@@ -116,14 +210,8 @@ export function TimeseriesSparkline({
     if (data.length === 0) return null;
     const tMin = data[0]!.t;
     const tMax = data[data.length - 1]!.t;
-    const vals = data.map((d) => d.v);
-    let vMin = Math.min(...vals);
-    let vMax = Math.max(...vals);
-    // 把警戒線也納入 y 範圍，否則警戒線可能跑出畫面
-    if (warningValue != null) {
-      vMin = Math.min(vMin, warningValue);
-      vMax = Math.max(vMax, warningValue);
-    }
+    // Y 值域把 extraSeries（如有）與警戒線一起納入，否則第二條線／警戒線可能跑出畫面
+    const { vMin, vMax } = computeCombinedYRange(data, extraSeries?.data, warningValue)!;
     // 給 vMax 留 10% 空間，避免最高點貼頂
     const pad = (vMax - vMin) * 0.1 || Math.max(Math.abs(vMax), 1) * 0.1;
     // 資料全非負（人數/雨量/水深…）→ y 下界 clamp 到 0，不長出負值刻度
@@ -136,27 +224,13 @@ export function TimeseriesSparkline({
     const yScale = (v: number) =>
       yHi === yLo ? PAD_T : PAD_T + (1 - (v - yLo) / (yHi - yLo)) * (height - PAD_T - PAD_B);
 
-    // 缺口分段：相鄰點時距 > gapSec → 斷線（不跨接），避免缺快照被讀成低谷
-    const segments: SparklinePoint[][] = [];
-    let cur: SparklinePoint[] = [];
-    for (const d of data) {
-      if (cur.length > 0 && gapSec != null && d.t - cur[cur.length - 1]!.t > gapSec) {
-        segments.push(cur);
-        cur = [];
-      }
-      cur.push(d);
-    }
-    segments.push(cur);
-
+    // 缺口分段：相鄰點時距 > gapSec → 斷線（不跨接），避免缺快照被讀成低谷（extraSeries 套同一條規則）
     const baseY = (height - PAD_B).toFixed(1);
-    const segViews = segments.map((seg) => {
-      const pts = seg.map((d) => `${xScale(d.t).toFixed(1)},${yScale(d.v).toFixed(1)}`).join(" ");
-      const areaPath =
-        `M${xScale(seg[0]!.t).toFixed(1)},${baseY} ` +
-        `L${pts.split(" ").join(" L")} ` +
-        `L${xScale(seg[seg.length - 1]!.t).toFixed(1)},${baseY} Z`;
-      return { pts, areaPath, single: seg.length === 1, first: seg[0]! };
-    });
+    const segViews = buildSegments(data, gapSec).map((seg) => buildSegView(seg, xScale, yScale, baseY));
+    const extraSegViews = extraSeries
+      ? buildSegments(extraSeries.data, gapSec).map((seg) => buildSegView(seg, xScale, yScale))
+      : [];
+    const extraByT = extraSeries ? new Map(extraSeries.data.map((d) => [d.t, d.v])) : undefined;
 
     // X 軸時間 tick：≤48h 取整點（local）、步距 1/2/4/8h；>48h 取日界 00:00、
     // 步距 1/2/4/7 天、標籤 M/D（8h 步距在多日範圍會生出數十個 tick 疊成字牆）
@@ -194,8 +268,29 @@ export function TimeseriesSparkline({
       }
     }
 
-    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, timeTicks };
-  }, [data, warningValue, height, w, gapSec]);
+    return { tMin, tMax, yLo, yHi, ticks, tickStep, xScale, yScale, segViews, extraSegViews, extraByT, timeTicks };
+  }, [data, warningValue, height, w, gapSec, extraSeries]);
+
+  function handleMouseMove(e: ReactMouseEvent<SVGSVGElement>) {
+    if (!showTooltip || !view || data.length === 0) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const xViewBox = ((e.clientX - rect.left) / rect.width) * w;
+    let bestI = 0;
+    let bestD = Infinity;
+    for (let i = 0; i < data.length; i++) {
+      const d = Math.abs(view.xScale(data[i]!.t) - xViewBox);
+      if (d < bestD) {
+        bestD = d;
+        bestI = i;
+      }
+    }
+    setHoverIdx(bestI);
+  }
+
+  function handleMouseLeave() {
+    setHoverIdx(null);
+  }
 
   if (data.length === 0 || !view) {
     return (
@@ -219,6 +314,8 @@ export function TimeseriesSparkline({
         height={height}
         viewBox={`0 0 ${w} ${height}`}
         style={{ display: "block", marginTop: 4 }}
+        onMouseMove={showTooltip ? handleMouseMove : undefined}
+        onMouseLeave={showTooltip ? handleMouseLeave : undefined}
       >
         {/* Y 軸 grid + tick label */}
         {view.ticks.map((tv) => {
@@ -241,7 +338,7 @@ export function TimeseriesSparkline({
                 fill="rgba(255,255,255,0.5)"
                 fontFamily="monospace"
               >
-                {fmtTick(tv, view.tickStep)}
+                {fmtTick(tv, view.tickStep, compactYAxis)}
               </text>
             </g>
           );
@@ -311,6 +408,39 @@ export function TimeseriesSparkline({
           fill={lineColor}
         />
 
+        {/* 第二條線（extraSeries，opt-in；依缺口分段，同主線邏輯但不填色） */}
+        {extraSeries &&
+          view.extraSegViews.map((sv, i) =>
+            sv.single ? (
+              <circle
+                key={`es-${i}`}
+                cx={view.xScale(sv.first.t)}
+                cy={view.yScale(sv.first.v)}
+                r={1.6}
+                fill={extraSeries.color}
+              />
+            ) : (
+              <polyline
+                key={`es-${i}`}
+                data-testid="sparkline-extra-line"
+                points={sv.pts}
+                fill="none"
+                stroke={extraSeries.color}
+                strokeWidth={1.4}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            ),
+          )}
+        {extraSeries && extraSeries.data.length > 0 && (
+          <circle
+            cx={view.xScale(extraSeries.data[extraSeries.data.length - 1]!.t)}
+            cy={view.yScale(extraSeries.data[extraSeries.data.length - 1]!.v)}
+            r={2.2}
+            fill={extraSeries.color}
+          />
+        )}
+
         {/* X 軸時間 tick（貼邊者換錨點避免裁切） */}
         {view.timeTicks.map((tk, i) => (
           <text
@@ -339,6 +469,79 @@ export function TimeseriesSparkline({
             {unit}
           </text>
         )}
+
+        {/* Hover tooltip（opt-in）：指示線 + 資料點圓點 + 日期/數值 box，靠邊翻轉避免被裁掉 */}
+        {showTooltip &&
+          view &&
+          hoverIdx != null &&
+          hoverIdx < data.length &&
+          (() => {
+            const hp = data[hoverIdx]!;
+            const x = view.xScale(hp.t);
+            const yMain = view.yScale(hp.v);
+            const extraV = view.extraByT?.get(hp.t);
+            const yExtra = extraV != null ? view.yScale(extraV) : null;
+
+            const lines: { text: string; dot?: string }[] = [
+              { text: fmtTooltipDate(hp.t, tooltipDateFormat) },
+              { text: `${seriesLabel ? seriesLabel + " " : ""}${fmtTooltipValue(hp.v, unit)}`, dot: lineColor },
+            ];
+            if (extraSeries && extraV != null) {
+              lines.push({
+                text: `${extraSeries.label ? extraSeries.label + " " : ""}${fmtTooltipValue(extraV, unit)}`,
+                dot: extraSeries.color,
+              });
+            }
+
+            const charW = 5;
+            const boxW = Math.max(...lines.map((l) => l.text.length)) * charW + 18;
+            const lineH = 11;
+            const boxH = lines.length * lineH + 8;
+            const gap = 6;
+
+            let boxX = x + gap;
+            if (boxX + boxW > w - PAD_R) boxX = x - gap - boxW;
+            boxX = Math.max(PAD_L, Math.min(boxX, w - PAD_R - boxW));
+
+            const topY = yExtra != null ? Math.min(yMain, yExtra) : yMain;
+            const bottomY = yExtra != null ? Math.max(yMain, yExtra) : yMain;
+            let boxY = topY - gap - boxH;
+            if (boxY < PAD_T) boxY = bottomY + gap;
+            boxY = Math.max(PAD_T, Math.min(boxY, height - PAD_B - boxH));
+
+            return (
+              <g data-testid="sparkline-tooltip" pointerEvents="none">
+                <line
+                  x1={x} x2={x} y1={PAD_T} y2={height - PAD_B}
+                  stroke={WHITE_ALPHA[20]} strokeWidth={1} strokeDasharray="2 2"
+                />
+                <circle cx={x} cy={yMain} r={2.6} fill={lineColor} stroke={SURFACE.solid} strokeWidth={1} />
+                {yExtra != null && (
+                  <circle cx={x} cy={yExtra} r={2.6} fill={extraSeries!.color} stroke={SURFACE.solid} strokeWidth={1} />
+                )}
+                <rect
+                  x={boxX} y={boxY} width={boxW} height={boxH}
+                  rx={RADIUS.md} fill={SURFACE.solid} stroke={BORDER.panel} strokeWidth={1}
+                />
+                {lines.map((l, i) => (
+                  <g key={i}>
+                    {l.dot && (
+                      <circle cx={boxX + 8} cy={boxY + 4 + i * lineH + lineH / 2} r={2} fill={l.dot} />
+                    )}
+                    <text
+                      x={boxX + (l.dot ? 14 : 6)}
+                      y={boxY + 4 + i * lineH + lineH / 2 + 3}
+                      fontSize={8}
+                      fill={i === 0 ? COLORS.textStrong : COLORS.textDefault}
+                      fontFamily="monospace"
+                    >
+                      {l.text}
+                    </text>
+                  </g>
+                ))}
+              </g>
+            );
+          })()}
       </svg>
     </div>
   );

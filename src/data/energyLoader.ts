@@ -65,6 +65,28 @@ export const fetchPowerDashboard = (): Promise<PowerDashboard> => fetchPowerDash
 /** 強制刷新（測試 / 手動 refresh） */
 export const invalidatePowerDashboard = (): void => fetchPowerDashboardCached.invalidate();
 
+// ── 30 天供電趨勢（monitor PowerCard 卡片內趨勢圖，RPC get_power_daily_trend）──────
+
+export interface PowerDailyTrendRow {
+  day_ts: number;             // 台北當日午夜 epoch 秒
+  peak_load_mw: number;       // 當日實際尖峰負載
+  max_supply_mw: number;      // 當日實際最高供電能力
+  resv_rate: number | null;   // 台電定稿的當日尖峰備轉容量率（%）；隔日快照缺漏時可能 null
+  snap_cnt: number;           // 當日快照數，正常 144；偏低代表 collector 當日斷線
+}
+
+async function fetchPowerDailyTrendUncached(): Promise<PowerDailyTrendRow[]> {
+  const { data, error } = await withLoading(
+    "energy:dailyTrend",
+    "供電 30 天趨勢",
+    supabase.rpc("get_power_daily_trend"),
+  );
+  if (error) throw new Error(`get_power_daily_trend: ${error.message}`);
+  return (data ?? []) as PowerDailyTrendRow[];
+}
+const fetchPowerDailyTrendCached = cachedOnce(fetchPowerDailyTrendUncached, 30 * 60_000); // 每日才變，快取 30min
+export const fetchPowerDailyTrend = (): Promise<PowerDailyTrendRow[]> => fetchPowerDailyTrendCached();
+
 // ── Plants + output ────────────────────────────────────────────
 
 export interface PowerPlantRow {

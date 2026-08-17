@@ -58,7 +58,8 @@ import { useNewsFilter } from "../../../hooks/useNewsFilter";
 import {
   fetchPowerDashboard, invalidatePowerDashboard,
   fetchPowerGeneration24h, invalidatePowerGeneration24h,
-  type PowerDashboard, type PowerGenerationDay,
+  fetchPowerDailyTrend,
+  type PowerDashboard, type PowerGenerationDay, type PowerDailyTrendRow,
 } from "../../../data/energyLoader";
 
 const EMPTY_HEALTH: SourceHealthSummary = {
@@ -285,6 +286,7 @@ export function MonitorPanel({
   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
   const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
   const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
+  const [powerTrend, setPowerTrend] = useState<PowerDailyTrendRow[]>([]);
   const [prisonLatest, setPrisonLatest] = useState<PrisonDay | null>(null);
 
   // 60s pressure + market + source health + trending（降載：TTL 已蓋住輪詢間隔）
@@ -338,6 +340,19 @@ export function MonitorPanel({
       window.clearInterval(idFast);
       window.clearInterval(idSlow);
     };
+  }, [open]);
+
+  // 30min Power daily trend（每日才變一次；PowerCard 為 timeline-isolated 卡片，不吃 currentTime）
+  useEffect(() => {
+    if (!open) return;
+    let alive = true;
+    const tick = () => {
+      fetchPowerDailyTrend().then((rows) => alive && setPowerTrend(rows))
+        .catch((e) => console.warn("[Monitor PowerDailyTrend]", e));
+    };
+    tick();
+    const id = window.setInterval(tick, 30 * 60_000);
+    return () => { alive = false; window.clearInterval(id); };
   }, [open]);
 
   // 30min Prison population (最新一筆，realtime.prison_population_daily PK=observed_date)
@@ -683,7 +698,7 @@ export function MonitorPanel({
     plaBoard: <PlaBoard open={open} />,
     foodPriceBoard: <FoodPriceBoard open={open} />,
     hazardStrip: <HazardWatchStrip />,
-    powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} />,
+    powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} trend={powerTrend} />,
     erCongestion: <ERCard open={open} />,
     prison: <PrisonCard latest={prisonLatest} />,
     airportPax: <AirportPaxCard open={open} />,
