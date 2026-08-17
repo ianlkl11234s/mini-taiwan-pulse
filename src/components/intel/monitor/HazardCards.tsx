@@ -20,7 +20,7 @@ import { SectionLabel } from "./PressureRing";
 import { HazardTrendBars, type HazardBar } from "./HazardTrendBars";
 import {
   fetchTyphoonProximityDaily, fetchTyphoonSummary, invalidateTyphoonSummary,
-  type TyphoonSummary,
+  type TyphoonProximityDay, type TyphoonSummary,
 } from "../../../data/typhoonTracksLoader";
 import {
   fetchEarthquakeDaily, fetchEarthquakeSummary, invalidateEarthquakeSummary,
@@ -237,6 +237,89 @@ function proximityHeight(km: number | null): number | null {
   return Math.max(0, PROXIMITY_CEIL_KM - km);
 }
 
+/**
+ * 45 天接近程度趨勢柱（兩排）＋ 點柱展開明細 —— 有活躍颱風／無活躍颱風兩條路徑
+ * 共用同一份 render。RPC 349 的設計初衷就是回答「這段期間有沒有颱風靠近」，
+ * 無颱風時才是最該看它的時候，因此兩條路徑都要能畫、都要能點展開（見檔頭 bug 說明）。
+ */
+function TyphoonTrendSection({
+  days, pickedDate, onSelectBar,
+}: {
+  days: TyphoonProximityDay[];
+  pickedDate: string | null;
+  onSelectBar: (b: HazardBar) => void;
+}) {
+  const distBars: HazardBar[] = days.map((d) => ({
+    key: d.dateKey,
+    label: d.dateKey.slice(5).replace("-", "/"),
+    value: proximityHeight(d.nearestKm),
+    level: proximityLevel(d.nearestKm),
+    note: d.nearestKm == null
+      ? "無觀測"
+      : `${d.name ?? d.stormId ?? "—"} ${Math.round(d.nearestKm).toLocaleString("zh-TW")} km`
+        + (d.windKt != null ? ` · ${d.windKt} kt` : ""),
+  }));
+  const nearbyBars: HazardBar[] = days.map((d) => ({
+    key: d.dateKey,
+    label: d.dateKey.slice(5).replace("-", "/"),
+    value: d.stormsNearby,
+    level: Math.min(d.stormsNearby, 2),
+    note: `${d.stormsNearby} 顆在 1000km 內`,
+  }));
+  const picked = pickedDate != null ? days.find((d) => d.dateKey === pickedDate) ?? null : null;
+  const closestKm = days.reduce<number | null>(
+    (m, d) => (d.nearestKm != null && (m == null || d.nearestKm < m) ? d.nearestKm : m), null,
+  );
+  return (
+    <>
+      {/* 上排：接近程度。柱高刻意反轉（越近越高）—— 直接用距離當柱高的話，
+          颱風在地球另一邊時柱子最高，與「該不該緊張」完全相反 */}
+      <HazardTrendBars
+        bars={distBars}
+        levelColors={PROXIMITY_COLORS}
+        caption={`${TYPHOON_TREND_DAYS}D · 接近程度（柱越高越近）／距離（色）· 可點`}
+        footer={closestKm != null ? `最近 ${Math.round(closestKm).toLocaleString("zh-TW")} km` : undefined}
+        height={34}
+        unit=" km（距 1500 圈）"
+        onSelectBar={onSelectBar}
+        selectedKey={pickedDate}
+      />
+      {/* 下排：顆數。JMA/JTWC 同一顆有兩套編號，RPC 349 已跨來源去重 */}
+      <HazardTrendBars
+        bars={nearbyBars}
+        levelColors={NEARBY_COLORS}
+        caption={`${TYPHOON_TREND_DAYS}D · 1000km 內颱風數`}
+        height={26}
+        unit=" 顆"
+        onSelectBar={onSelectBar}
+        selectedKey={pickedDate}
+      />
+      {/* 點某一天展開那天是哪顆 —— 兩排圖只看得出「有沒有／幾顆」，看不出是誰 */}
+      {picked && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Note color={COLORS.textDefault}>
+            {picked.dateKey.slice(5).replace("-", "/")} ·{" "}
+            {picked.stormsNearby > 0
+              ? `${picked.stormsNearby} 顆在 1000km 內`
+              : picked.nearestKm == null
+                ? "當天無颱風觀測"
+                : `無颱風在 1000km 內（最近 ${picked.name ?? "—"} `
+                  + `${Math.round(picked.nearestKm).toLocaleString("zh-TW")} km）`}
+          </Note>
+          {/* 一顆一行 —— 說「2 顆」卻只列得出最近那顆，另一顆是誰看不到 */}
+          {picked.nearby.map((n) => (
+            <MetaRow
+              key={n.stormId}
+              left={`· ${n.name}`}
+              right={`${Math.round(n.km).toLocaleString("zh-TW")} km${n.kt != null ? ` · ${n.kt} kt` : ""}`}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 export function TyphoonCard({ open, nowTs }: Props) {
   const { data, phase } = usePolledSummary<TyphoonSummary | null>(
     open, fetchTyphoonSummary, invalidateTyphoonSummary, 30 * 60_000, "[TyphoonCard]",
@@ -269,11 +352,19 @@ export function TyphoonCard({ open, nowTs }: Props) {
         dot={COLORS.textDim} title="活躍颱風（載入中）" footer={footer} />
     );
   }
+  const days = proximity ?? [];
+
   if (!data) {
+    // 無活躍颱風時，45 天趨勢柱照常畫（見檔頭 bug 說明：RPC 349 的設計初衷就是回答
+    // 「這段期間有沒有颱風靠近」，無颱風時才是最該看它的時候）。只有 45 天內完全
+    // 沒資料（RPC 失敗或窗內真的零觀測）才退回純一句話的空狀態。
     return (
       <HazardShell label={label} labelColor={COLORS.accent} tint={tint}
         dot={COLORS.statusLive} title="目前無活躍颱風" footer={footer}>
         <Note>JMA / JTWC 近 24 小時無颱風觀測回報。</Note>
+        {days.length > 0 && (
+          <TyphoonTrendSection days={days} pickedDate={pickedDate} onSelectBar={pickBar} />
+        )}
       </HazardShell>
     );
   }
@@ -281,31 +372,9 @@ export function TyphoonCard({ open, nowTs }: Props) {
   const tone = typhoonTone(data);
   const name = data.name_en || data.name_local || data.storm_id;
   const windMs = data.max_wind_kt != null ? Math.round(data.max_wind_kt * 0.514) : null;
-  const days = proximity ?? [];
   // 「活躍」只看近 24h 有觀測，東太平洋 10,000km 外的颱風也算活躍 —— 對台灣是零威脅，
   // 標題直說沒颱風接近，主數字仍留著（知道最近的一顆在哪還是有意義）
   const remote = data.distance_km > PROXIMITY_CEIL_KM;
-  const distBars: HazardBar[] = days.map((d) => ({
-    key: d.dateKey,
-    label: d.dateKey.slice(5).replace("-", "/"),
-    value: proximityHeight(d.nearestKm),
-    level: proximityLevel(d.nearestKm),
-    note: d.nearestKm == null
-      ? "無觀測"
-      : `${d.name ?? d.stormId ?? "—"} ${Math.round(d.nearestKm).toLocaleString("zh-TW")} km`
-        + (d.windKt != null ? ` · ${d.windKt} kt` : ""),
-  }));
-  const nearbyBars: HazardBar[] = days.map((d) => ({
-    key: d.dateKey,
-    label: d.dateKey.slice(5).replace("-", "/"),
-    value: d.stormsNearby,
-    level: Math.min(d.stormsNearby, 2),
-    note: `${d.stormsNearby} 顆在 1000km 內`,
-  }));
-  const picked = pickedDate != null ? days.find((d) => d.dateKey === pickedDate) ?? null : null;
-  const closestKm = days.reduce<number | null>(
-    (m, d) => (d.nearestKm != null && (m == null || d.nearestKm < m) ? d.nearestKm : m), null,
-  );
   return (
     <HazardShell
       label={label} labelColor={COLORS.accent} tint={tint}
@@ -320,50 +389,7 @@ export function TyphoonCard({ open, nowTs }: Props) {
           color={remote ? COLORS.textStrong : tone.distColor}
         />
       </MetricRow>
-      {/* 上排：接近程度。柱高刻意反轉（越近越高）—— 直接用距離當柱高的話，
-          颱風在地球另一邊時柱子最高，與「該不該緊張」完全相反 */}
-      <HazardTrendBars
-        bars={distBars}
-        levelColors={PROXIMITY_COLORS}
-        caption={`${TYPHOON_TREND_DAYS}D · 接近程度（柱越高越近）／距離（色）· 可點`}
-        footer={closestKm != null ? `最近 ${Math.round(closestKm).toLocaleString("zh-TW")} km` : undefined}
-        height={34}
-        unit=" km（距 1500 圈）"
-        onSelectBar={pickBar}
-        selectedKey={pickedDate}
-      />
-      {/* 下排：顆數。JMA/JTWC 同一顆有兩套編號，RPC 349 已跨來源去重 */}
-      <HazardTrendBars
-        bars={nearbyBars}
-        levelColors={NEARBY_COLORS}
-        caption={`${TYPHOON_TREND_DAYS}D · 1000km 內颱風數`}
-        height={26}
-        unit=" 顆"
-        onSelectBar={pickBar}
-        selectedKey={pickedDate}
-      />
-      {/* 點某一天展開那天是哪顆 —— 兩排圖只看得出「有沒有／幾顆」，看不出是誰 */}
-      {picked && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <Note color={COLORS.textDefault}>
-            {picked.dateKey.slice(5).replace("-", "/")} ·{" "}
-            {picked.stormsNearby > 0
-              ? `${picked.stormsNearby} 顆在 1000km 內`
-              : picked.nearestKm == null
-                ? "當天無颱風觀測"
-                : `無颱風在 1000km 內（最近 ${picked.name ?? "—"} `
-                  + `${Math.round(picked.nearestKm).toLocaleString("zh-TW")} km）`}
-          </Note>
-          {/* 一顆一行 —— 說「2 顆」卻只列得出最近那顆，另一顆是誰看不到 */}
-          {picked.nearby.map((n) => (
-            <MetaRow
-              key={n.stormId}
-              left={`· ${n.name}`}
-              right={`${Math.round(n.km).toLocaleString("zh-TW")} km${n.kt != null ? ` · ${n.kt} kt` : ""}`}
-            />
-          ))}
-        </div>
-      )}
+      <TyphoonTrendSection days={days} pickedDate={pickedDate} onSelectBar={pickBar} />
       {/* 右側刻意放 storm_id 而非 name_local —— JMA 的 name_local 是日文片假名
           （實測「ドルフィン」），單獨擺在小字列上像亂碼；storm_id 還能對照地圖層 */}
       <MetaRow
