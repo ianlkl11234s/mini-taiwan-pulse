@@ -8,7 +8,7 @@
  *   2. **store 的 identity 紀律** —— `useSyncExternalStore` 的硬性要求：
  *      同值寫入不得換 snapshot identity（否則無限迴圈 / 空轉 re-render）。
  */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 import {
   LAYER_PARAMS_SPEC, MIGRATED_PARAMS_KEYS, getParamsSpec, isMigratedParamsKey,
@@ -165,6 +165,78 @@ describe("store identity 紀律", () => {
     layerParamsStore.setParam("cemeteryOsm", "notAParam", 1);
     layerParamsStore.setParam("aqiStations", "aqiStationsOpacity", 1);
     expect(layerParamsStore.getAll()).toBe(before);
+  });
+
+  it("setParamsBulk 原子換快照，多 key 各通知一次、global 只通知一次", () => {
+    const before = layerParamsStore.getAll();
+    const seen: Array<{ cemetery: unknown; religion: unknown }> = [];
+    const cemetery = vi.fn();
+    const religion = vi.fn();
+    const offCemetery = layerParamsStore.subscribeKey("cemeteryOsm", cemetery);
+    const offReligion = layerParamsStore.subscribeKey("religionTemples", religion);
+    const offGlobal = layerParamsStore.subscribe(() => {
+      seen.push({
+        cemetery: layerParamsStore.getParam("cemeteryOsm", "cemeteryOsmOpacity"),
+        religion: layerParamsStore.getParam("religionTemples", "religionTemplesOpacity"),
+      });
+    });
+
+    const changed = layerParamsStore.setParamsBulk([
+      { key: "cemeteryOsm", name: "cemeteryOsmOpacity", value: 0.9 },
+      { key: "religionTemples", name: "religionTemplesOpacity", value: 0.4 },
+      // 同 key 第二筆仍只通知一次；最後一筆值生效。
+      { key: "cemeteryOsm", name: "cemeteryOsmOpacity", value: 0.8 },
+    ]);
+
+    expect(changed).toBe(true);
+    expect(layerParamsStore.getAll()).not.toBe(before);
+    expect(cemetery).toHaveBeenCalledTimes(1);
+    expect(religion).toHaveBeenCalledTimes(1);
+    expect(seen).toEqual([{ cemetery: 0.8, religion: 0.4 }]);
+
+    offCemetery();
+    offReligion();
+    offGlobal();
+  });
+
+  it("setParamsBulk 全是同值或規格外寫入時不換 identity、不通知", () => {
+    const before = layerParamsStore.getAll();
+    const global = vi.fn();
+    const off = layerParamsStore.subscribe(global);
+
+    expect(layerParamsStore.setParamsBulk([
+      { key: "cemeteryOsm", name: "cemeteryOsmOpacity", value: 0.45 },
+      { key: "cemeteryOsm", name: "notAParam", value: 1 },
+      { key: "aqiStations", name: "aqiStationsOpacity", value: 1 },
+    ])).toBe(false);
+    expect(layerParamsStore.getAll()).toBe(before);
+    expect(global).not.toHaveBeenCalled();
+    off();
+  });
+
+  it("setParamsBulk 在同一次通知內展開一層 cascade", () => {
+    const seen: Array<{ category: unknown; metric: unknown }> = [];
+    const off = layerParamsStore.subscribe(() => {
+      seen.push({
+        category: layerParamsStore.getParam("indicators", "indCategory"),
+        metric: layerParamsStore.getParam("indicators", "indMetric"),
+      });
+    });
+
+    expect(layerParamsStore.setParamsBulk([
+      { key: "indicators", name: "indCategory", value: "burden" },
+    ])).toBe(true);
+    expect(seen).toEqual([{ category: "burden", metric: "dr" }]);
+    off();
+  });
+
+  it("setParamsBulk 顯式 target 值優先於 cascade", () => {
+    expect(layerParamsStore.setParamsBulk([
+      { key: "indicators", name: "indCategory", value: "burden" },
+      { key: "indicators", name: "indMetric", value: "ed" },
+    ])).toBe(true);
+    expect(layerParamsStore.getParam("indicators", "indCategory")).toBe("burden");
+    expect(layerParamsStore.getParam("indicators", "indMetric")).toBe("ed");
   });
 
   it("reset 回到 buildDefaultParams", () => {

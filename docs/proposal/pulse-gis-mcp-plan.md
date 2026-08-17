@@ -2,7 +2,7 @@
 
 > 建立：2026-08-16
 >
-> 狀態：方向已拍板、待開工
+> 狀態：Phase 1 已完成（MCP server、網站 browser bridge、MapScene controller 與 project-scoped 接線）
 >
 > 決策：建立獨立 sibling repo `mini-pulse-gis-mcp`，並在既有 `mini-taiwan-pulse` 加入受控的本機 Agent Bridge；不建立第二套地圖網站。
 
@@ -33,7 +33,7 @@ MCP 不直接操作 Mapbox instance、不畫地圖，也不保存另一份圖層
 | [`docs/features/byok-chat/README.md`](../features/byok-chat/README.md) | 外部 MCP 與已上線 BYOK chat 共用 controller，不取代內建 chat |
 | [`docs/features/layer-manifest/README.md`](../features/layer-manifest/README.md) | `LAYER_MANIFEST` 與 `LAYER_PARAMS_SPEC` 繼續作為圖層能力 SSOT |
 
-本檔是尚待執行的 architecture／implementation SSOT；功能正式開工後，再建立 `docs/features/mini-pulse-gis-mcp/` 四檔追蹤交付狀態。
+本檔是 architecture／implementation SSOT；實際交付狀態由 `docs/features/mini-pulse-gis-mcp/` 四檔追蹤。
 
 ---
 
@@ -213,7 +213,6 @@ type MapScene = {
     visible: boolean
     opacity?: number
     params?: Record<string, string | number | boolean>
-    filter?: unknown
   }>
   time?: {
     at?: string

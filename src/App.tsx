@@ -14,6 +14,7 @@ import { useIsMobile } from "./hooks/useIsMobile";
 // （圖層在 LayerHost、面板在自己內部、Three.js 走 layerParamRefs 模組級鏡像）。
 import { layerParamsStore } from "./state/layerParamsStore";
 import { layerParamRefs } from "./state/layerParamRefs";
+import { layerVisibilityStore } from "./state/layerVisibilityStore";
 import { useRailEngine } from "./hooks/useRailEngine";
 import { useBusLayer } from "./hooks/useBusLayer";
 import { useWasteLayer } from "./hooks/useWasteLayer";
@@ -86,6 +87,13 @@ import { HEADER_LABELS } from "./components/featureInfo/registry";
 import { ChatPanel } from "./components/chat/ChatPanel";
 import { runChatTurn, testKey } from "./chat/agent";
 import type { MapBridge } from "./chat/types";
+import { PulseMcpBrowserClient, PULSE_MCP_SESSION_ID } from "./agentBridge/browserClient";
+import { readAgentBridgeConfig } from "./agentBridge/config";
+import {
+  MapController,
+  type MapCameraSnapshot,
+} from "./agentBridge/mapController";
+import type { Camera } from "./agentBridge/protocol";
 import { MessageSquare } from "lucide-react";
 import { LegendPanel } from "./components/LegendPanel";
 import { LoadingIndicator } from "./components/LoadingIndicator";
@@ -102,6 +110,43 @@ function styleReady(map: MapboxMap | null): map is MapboxMap {
   } catch {
     return false;
   }
+}
+
+function readMcpCamera(map: MapboxMap): MapCameraSnapshot {
+  const center = map.getCenter();
+  const bounds = map.getBounds();
+  return {
+    center: [center.lng, center.lat],
+    zoom: map.getZoom(),
+    pitch: map.getPitch(),
+    bearing: map.getBearing(),
+    bounds: bounds === null
+      ? [center.lng, center.lat, center.lng, center.lat]
+      : [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+  };
+}
+
+function applyMcpCamera(map: MapboxMap, camera: Camera): void {
+  if (camera.bounds !== undefined) {
+    const [west, south, east, north] = camera.bounds;
+    map.fitBounds(
+      [[west, south], [east, north]],
+      {
+        duration: 0,
+        padding: camera.padding ?? 0,
+        ...(camera.pitch === undefined ? {} : { pitch: camera.pitch }),
+        ...(camera.bearing === undefined ? {} : { bearing: camera.bearing }),
+      },
+    );
+    return;
+  }
+
+  map.jumpTo({
+    ...(camera.center === undefined ? {} : { center: camera.center }),
+    ...(camera.zoom === undefined ? {} : { zoom: camera.zoom }),
+    ...(camera.pitch === undefined ? {} : { pitch: camera.pitch }),
+    ...(camera.bearing === undefined ? {} : { bearing: camera.bearing }),
+  });
 }
 
 export default function App() {
@@ -1270,6 +1315,113 @@ export default function App() {
       return { lng: c.lng, lat: c.lat, zoom: map.getZoom() };
     },
   }), [handleBulkSetVisibility, handleAllOff, handleLocationJump, setFeatureInfo, layerVisibilityRef]);
+
+  // 本機 GIS MCP：只在 Vite dev + 明確 env gate 時啟用。
+  // callback / timeline 狀態放 ref，避免時間軸更新時重建 WebSocket session。
+  const mcpTimelineRef = useRef({
+    playing: timeline.playing,
+    speed: timeline.speed,
+    windowStart: timeline.windowStart,
+    windowEnd: timeline.windowEnd,
+    seek: timeline.seek,
+    play: timeline.play,
+    pause: timeline.pause,
+    setSpeed: timeline.setSpeed,
+  });
+  mcpTimelineRef.current = {
+    playing: timeline.playing,
+    speed: timeline.speed,
+    windowStart: timeline.windowStart,
+    windowEnd: timeline.windowEnd,
+    seek: timeline.seek,
+    play: timeline.play,
+    pause: timeline.pause,
+    setSpeed: timeline.setSpeed,
+  };
+
+  const commitMcpVisibility = useCallback((values: Readonly<Record<string, boolean>>) => {
+    for (const [key, visible] of Object.entries(values)) {
+      if (visible && lockedKeysRef.current.has(key as keyof LayerVisibility)) {
+        throw new Error(`Layer permission changed while applying scene: ${key}`);
+      }
+    }
+    setLayerVisibility((previous) => ({ ...previous, ...values } as LayerVisibility));
+    sessionTracker.logWithSnapshot(
+      "layer_toggle",
+      { bulk: true, source: "mcp", keys: Object.keys(values) },
+      layerVisibilityRef.current,
+    );
+  }, [layerVisibilityRef, setLayerVisibility]);
+
+  useEffect(() => {
+    if (!mapPrepared || mapRef.current === null) return;
+
+    let config;
+    try {
+      config = readAgentBridgeConfig(import.meta.env);
+    } catch (error) {
+      console.warn(
+        "[pulse-mcp] Browser bridge disabled:",
+        error instanceof Error ? error.message : String(error),
+      );
+      return;
+    }
+    if (config === null) return;
+
+    const map = mapRef.current;
+    const controller = new MapController({
+      camera: {
+        getCamera: () => readMcpCamera(map),
+        setCamera: (camera) => applyMcpCamera(map, camera),
+        subscribeMoveEnd: (listener) => {
+          map.on("moveend", listener);
+          return () => { map.off("moveend", listener); };
+        },
+      },
+      visibility: {
+        getAll: layerVisibilityStore.getAll,
+        setBulk: commitMcpVisibility,
+        subscribe: layerVisibilityStore.subscribe,
+        permissionFor: (layerId, visible) => {
+          if (!visible || !lockedKeysRef.current.has(layerId as keyof LayerVisibility)) {
+            return { allowed: true };
+          }
+          return {
+            allowed: false,
+            reason: "layer is locked for the current member tier",
+          };
+        },
+      },
+      params: layerParamsStore,
+      timeline: {
+        getState: () => ({
+          at: timeStore.getTime(),
+          playing: mcpTimelineRef.current.playing,
+          speed: mcpTimelineRef.current.speed,
+          windowStart: mcpTimelineRef.current.windowStart,
+          windowEnd: mcpTimelineRef.current.windowEnd,
+        }),
+        setState: (next) => {
+          const current = mcpTimelineRef.current;
+          if (next.speed !== undefined) current.setSpeed(next.speed);
+          if (next.at !== undefined) current.seek(next.at);
+          if (next.playing === true) current.play();
+          if (next.playing === false) current.pause();
+        },
+      },
+    });
+    const client = new PulseMcpBrowserClient({
+      ...config,
+      controller,
+    });
+
+    client.start();
+    console.info(`[pulse-mcp] Browser bridge session started: ${PULSE_MCP_SESSION_ID}`);
+    return () => {
+      client.stop();
+      controller.dispose();
+    };
+  }, [commitMcpVisibility, mapPrepared]);
 
   // ── Render ──
 

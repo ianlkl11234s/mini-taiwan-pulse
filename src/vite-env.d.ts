@@ -6,6 +6,9 @@ interface ImportMetaEnv {
   readonly VITE_SUPABASE_ANON_KEY: string;
   readonly VITE_WASTE_MATCHED_TRAILS?: string;
   readonly VITE_IMAGERY_CDN_BASE?: string;
+  readonly VITE_MCP_BRIDGE_ENABLED?: string;
+  readonly VITE_MCP_BRIDGE_PORT?: string;
+  readonly VITE_MCP_BRIDGE_TOKEN?: string;
 }
 
 interface ImportMeta {

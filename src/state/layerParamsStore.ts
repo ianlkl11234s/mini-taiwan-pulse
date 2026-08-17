@@ -69,7 +69,7 @@ function notify(keys: readonly string[]): void {
 }
 
 /** 一次寫入請求（尚未展開共用 slot） */
-interface Write {
+export interface LayerParamWrite {
   key: string;
   name: string;
   value: ParamValue;
@@ -83,13 +83,39 @@ function paramCascade(key: string, name: string) {
 }
 
 /**
+ * bulk 寫入只展開一層 cascade；scene 顯式指定 target 時，顯式值優先。
+ * cascade 與顯式寫入仍交給同一次 applyWrites，listener 看不到中間狀態。
+ */
+function expandBulkCascades(writes: readonly LayerParamWrite[]): LayerParamWrite[] {
+  const explicit = new Set(writes.map(({ key, name }) => `${key}\0${name}`));
+  const expanded: LayerParamWrite[] = [];
+  for (const write of writes) {
+    expanded.push(write);
+    const current = snapshot[write.key];
+    if (!current) continue;
+    for (const rule of paramCascade(write.key, write.name)) {
+      if (explicit.has(`${write.key}\0${rule.target}`)) continue;
+      if (rule.whenSelfIs !== undefined && rule.whenSelfIs !== write.value) continue;
+      if (
+        rule.onlyWhenTargetIn
+        && !rule.onlyWhenTargetIn.includes(current[rule.target] as ParamValue)
+      ) {
+        continue;
+      }
+      expanded.push({ key: write.key, name: rule.target, value: rule.set });
+    }
+  }
+  return expanded;
+}
+
+/**
  * 把一批寫入**合成一次** snapshot 置換 ＋ 每個受影響的 key 只通知一次。
  *
  * 共用 slot（`sharedGroup`）在這裡展開：一次 cascade 可能同時動到
  * 「源參數 × N 個成員」與「目標參數 × N 個成員」（裁處事件三兄弟就是 N=3）。
  * 拆成多次置換的話，中間狀態會被 listener 看見，且 notify 次數也對不上。
  */
-function applyWrites(writes: readonly Write[]): void {
+function applyWrites(writes: readonly LayerParamWrite[]): boolean {
   const next = { ...snapshot };
   const changed = new Set<string>();
   for (const w of writes) {
@@ -101,9 +127,10 @@ function applyWrites(writes: readonly Write[]): void {
       changed.add(t.key);
     }
   }
-  if (changed.size === 0) return;
+  if (changed.size === 0) return false;
   snapshot = next;
   notify([...changed]);
+  return true;
 }
 
 export const layerParamsStore = {
@@ -143,7 +170,7 @@ export const layerParamsStore = {
     // ⚠️ **只展開一層** —— 目標被寫入時不再觸發目標自己的 cascade。手寫版
     //    `setYear(MIN)` 是直接呼叫 state setter、不經 year select 的 onChange；
     //    遞迴的話「按播放 → 倒帶 → 年份的 cascade 又把播放關掉」，播放鍵直接壞掉。
-    const writes: Write[] = [{ key, name, value }];
+    const writes: LayerParamWrite[] = [{ key, name, value }];
     for (const rule of paramCascade(key, name)) {
       if (rule.whenSelfIs !== undefined && rule.whenSelfIs !== value) continue;
       if (rule.onlyWhenTargetIn && !rule.onlyWhenTargetIn.includes(current[rule.target] as ParamValue)) {
@@ -165,6 +192,17 @@ export const layerParamsStore = {
     if (!current || !(name in current)) return;
     if (current[name] === value) return;
     applyWrites([{ key, name, value }]);
+  },
+
+  /**
+   * 原子套用多個已驗證參數。所有寫入先合成一份新 snapshot，再一次通知；
+   * 會依 UI 控件規則展開一層 cascade；若同批顯式指定 cascade target，顯式值優先。
+   *
+   * 回傳是否有實際變動。規格外的 key/name 與同值寫入會被忽略，語意與
+   * `setParamDirect` 相同；sharedGroup 仍會同步展開到每個成員。
+   */
+  setParamsBulk(writes: readonly LayerParamWrite[]): boolean {
+    return applyWrites(expandBulkCascades(writes));
   },
 
   /** 訂閱任何 key 的變動（`useLayerParamsRuntime` 走這條） */

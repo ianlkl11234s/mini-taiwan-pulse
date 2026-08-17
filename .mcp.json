@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "mini-taiwan-pulse": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "${CLAUDE_PROJECT_DIR:-.}/../mini-pulse-gis-mcp/dist/index.js"
+      ]
+    }
+  }
+}
