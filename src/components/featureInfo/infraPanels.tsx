@@ -7,21 +7,6 @@ import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline
 import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
 import { ixpRegionColor, anfrOperatorColor, ripeAtlasNodeColor } from "../../data/telecomTypes";
 
-/** 海纜 cable_type 對應色 */
-const CABLE_TYPE_COLORS: Record<string, string> = {
-  "國際幹線": "#2196F3",
-  "海峽專線": "#F44336",
-  "離島連接": "#4CAF50",
-  "中國境內": "#FF9800",
-  "規劃中": "#9E9E9E",
-};
-
-/** 登陸站 station_type 對應色 */
-const STATION_TYPE_COLORS: Record<string, string> = {
-  "國際樞紐": "#2196F3",
-  "區域節點": "#26c6da",
-};
-
 /** 超商品牌對應色 */
 const BRAND_COLORS: Record<string, string> = {
   "7-ELEVEN": "#00843D",
@@ -67,8 +52,7 @@ const CCTV_SOURCE: Record<string, { color: string; label: string }> = {
 
 export function SubmarineCablePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const cableType = String(props.cable_type ?? "");
-  const accentColor = CABLE_TYPE_COLORS[cableType] ?? "#9E9E9E";
+  const accentColor = "#26c6da";
 
   return (
     <>
@@ -78,22 +62,21 @@ export function SubmarineCablePanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Cable")}
         </div>
       </div>
-      <Row label="類型" value={cableType} color={accentColor} />
+      <Row label="資料角色" value="OSM crowd 通訊海纜概覽" color={accentColor} />
       <Row label="狀態" value={String(props.status ?? "")} />
-      <Row label="啟用年" value={String(props.rfs_year ?? "")} />
-      <Row label="長度" value={String(props.length ?? "")} />
-      <Row label="擁有者" value={String(props.owners ?? "")} />
-      <Row label="供應商" value={String(props.suppliers ?? "")} />
-      <Row label="台灣端" value={String(props.tw_landings ?? "")} />
-      <Row label="中國端" value={String(props.cn_landings ?? "")} />
+      <Row label="營運者" value={String(props.operator ?? "")} />
+      <Row label="所有者" value={String(props.owner ?? "")} />
+      <Row label="OSM 識別" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+      <Row label="線位品質" value={String(props.geometry_source ?? "")} />
+      <Row label="涵蓋限制" value="群眾標註且不完整；非工程級精確路由" />
+      <Row label="授權" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
 }
 
 export function LandingStationPanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
-  const stationType = String(props.station_type ?? "");
-  const accentColor = STATION_TYPE_COLORS[stationType] ?? "#9E9E9E";
+  const accentColor = "#ffb74d";
 
   return (
     <>
@@ -103,11 +86,15 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
           {String(props.name ?? "Unknown Station")}
         </div>
       </div>
-      <Row label="城市" value={String(props.city ?? "")} />
-      <Row label="國家" value={String(props.country ?? "")} />
-      <Row label="樞紐等級" value={stationType} color={accentColor} />
+      <Row label="資料角色" value="OSM crowd 海纜登陸站" color={accentColor} />
+      <Row label="營運者" value={String(props.operator ?? "")} />
+      <Row label="所有者" value={String(props.owner ?? "")} />
+      <Row label="狀態" value={String(props.status ?? "")} />
       <Row label="電纜數" value={String(props.cable_count ?? "")} />
-      <Row label="電纜清單" value={String(props.cable_names_str ?? "")} />
+      <Row label="電纜清單" value={String(props.cable_names ?? "")} />
+      <Row label="OSM 識別" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+      <Row label="涵蓋限制" value="群眾標註且不完整；空白區域不代表沒有設施" />
+      <Row label="授權" value={`${String(props.license ?? "ODbL 1.0")} · ${String(props.attribution ?? "© OpenStreetMap contributors")}`} />
     </>
   );
 }

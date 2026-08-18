@@ -4158,14 +4158,9 @@ function IotStructureLegend() {
   );
 }
 
-// ── 通訊海纜 cable_type 5 類（overlayRegistry `submarineCables` 的 line-color match；
-//    glow / line 同一份色票）。與 featureInfo/infraPanels.tsx 的 CABLE_TYPE_COLORS 同色。──
+// ── OSM crowd 通訊海纜世界概覽；線位來自 OpenInfraMap z2 概化 tiles。──
 const SUBMARINE_CABLE_CATS = [
-  { color: "#2196F3", label: "國際幹線 International" },
-  { color: "#F44336", label: "海峽專線 Strait" },
-  { color: "#4CAF50", label: "離島連接 Island link" },
-  { color: "#FF9800", label: "中國境內 China domestic" },
-  { color: "#9E9E9E", label: "規劃中 Planned（含未分類）" },
+  { color: "#26c6da", label: "OSM crowd route（z2 generalized）" },
 ];
 
 function SubmarineCableLegend() {
@@ -4188,16 +4183,16 @@ function SubmarineCableLegend() {
           </div>
         ))}
       </div>
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.35 }}>
+        群眾標註且不完整；非工程級精確路由。© OpenStreetMap contributors · ODbL 1.0
+      </div>
     </div>
   );
 }
 
-// ── 海纜登陸站 station_type（overlayRegistry `landingStations` circle-color match：
-//    2 條 match + default 灰＝端點；與 infraPanels.tsx 的 STATION_TYPE_COLORS 同色）──
+// ── OSM crowd 海纜登陸站。──
 const LANDING_STATION_CATS = [
-  { color: "#2196F3", label: "國際樞紐 International hub" },
-  { color: "#26c6da", label: "區域節點 Regional node" },
-  { color: "#9E9E9E", label: "端點 Endpoint" },
+  { color: "#ffb74d", label: "OSM cable landing station" },
 ];
 
 function LandingStationLegend() {
@@ -4208,6 +4203,9 @@ function LandingStationLegend() {
         海纜登陸站 LANDING STATION
       </div>
       <FireCatRows cats={LANDING_STATION_CATS} />
+      <div style={{ marginTop: 4, fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.35 }}>
+        標註不完整；空白區域不代表沒有設施。© OpenStreetMap contributors
+      </div>
     </div>
   );
 }

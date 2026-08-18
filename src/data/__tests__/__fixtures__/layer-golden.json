@@ -5005,47 +5005,13 @@
           "paint": {
             "dark": {
               "line-blur": 5,
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.15,
               "line-width": 6
             },
             "light": {
               "line-blur": 5,
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.2,
               "line-width": 6
             }
@@ -5062,24 +5028,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.6,
               "line-width": [
                 "interpolate",
@@ -5098,24 +5047,7 @@
               ]
             },
             "light": {
-              "line-color": [
-                "match",
-                [
-                  "get",
-                  "cable_type"
-                ],
-                "國際幹線",
-                "#2196F3",
-                "海峽專線",
-                "#F44336",
-                "離島連接",
-                "#4CAF50",
-                "中國境內",
-                "#FF9800",
-                "規劃中",
-                "#9E9E9E",
-                "#9E9E9E"
-              ],
+              "line-color": "#26c6da",
               "line-opacity": 0.5,
               "line-width": [
                 "interpolate",
@@ -5155,18 +5087,7 @@
           "paint": {
             "dark": {
               "circle-blur": 1,
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.2,
               "circle-radius": [
                 "interpolate",
@@ -5186,18 +5107,7 @@
             },
             "light": {
               "circle-blur": 1,
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.25,
               "circle-radius": [
                 "interpolate",
@@ -5225,18 +5135,7 @@
           "minzoom": null,
           "paint": {
             "dark": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.8,
               "circle-radius": [
                 "interpolate",
@@ -5271,18 +5170,7 @@
               ]
             },
             "light": {
-              "circle-color": [
-                "match",
-                [
-                  "get",
-                  "station_type"
-                ],
-                "國際樞紐",
-                "#2196F3",
-                "區域節點",
-                "#26c6da",
-                "#9E9E9E"
-              ],
+              "circle-color": "#ffb74d",
               "circle-opacity": 0.7,
               "circle-radius": [
                 "interpolate",

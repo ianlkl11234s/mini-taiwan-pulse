@@ -13,8 +13,8 @@
 
 | 名稱（layer key） | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
-| `submarineCables` | line | GeoJSON | ✅ 既有，移入世界通訊 |
-| `landingStations` | point | GeoJSON | ✅ 既有，移入世界通訊 |
+| `submarineCables` | line | OSM strict tags＋OpenInfraMap z2 generalized geometry | ✅ 104-line global crowd overview |
+| `landingStations` | point | OSM `telecom=cable_landing_station` | ✅ 58-point global crowd overview |
 | `internetExchangePoints` | point | PCH Active IXP GeoJSON | ✅ prototype |
 | `anfrWirelessSites` | point | ANFR Cartoradio GeoJSON | ✅ prototype |
 | `osmCommunicationSites` | point | OpenStreetMap / Overpass GeoJSON | ✅ 916-point regional prototype |

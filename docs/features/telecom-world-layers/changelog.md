@@ -1,5 +1,11 @@
 # Changelog — 世界通訊圖層
 
+## 2026-08-18 — OSM submarine network replacement
+
+- 保留 `submarineCables`／`landingStations` layer key 與 deep link，將 public assets 由授權未確認的 TeleGeography 衍生資料替換為 OSM ODbL。
+- 海纜為 104 條 strict OSM way 的 OpenInfraMap z2 generalized overview；登陸站為 58 個 OSM points/centers，0 power cable。
+- legend、popup、label 與文件全面改標 crowd/incomplete、非工程精確線位；保留 `© OpenStreetMap contributors`。
+
 ## 2026-08-18 — RIPE Atlas connected probes overview
 
 - 新增 `ripeAtlasProbes`：量測節點獨立群組、Anchor／一般 Probe 分色、opacity、legend、popup、click 與 `© RIPE NCC` attribution。

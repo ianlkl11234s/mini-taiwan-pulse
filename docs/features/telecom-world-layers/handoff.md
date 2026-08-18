@@ -37,7 +37,26 @@
 ## 已知不對稱
 
 - IXP 是公開目錄位置，不代表機房入口、基地台或服務覆蓋。
-- 海纜／登陸站目前以台灣周邊資料為主；IXP 為全球資料。
+- 各 layer 的證據層級不同：官方站點、crowd geometry、量測節點、效能格網不可合併解讀。
+
+## OSM 海纜與登陸站世界概覽
+
+- 產物：`public/geo/submarine_cables.geojson`（104 線）、`public/geo/landing_stations.geojson`（58 點）
+- 上游：OpenStreetMap strict telecom tags；海纜 geometry 依 OSM ID 接 OpenInfraMap z2 generalized tiles
+- 授權：ODbL 1.0；介面必須保留 `© OpenStreetMap contributors`
+- 排除：power cable；19 個 strict OSM way 未出現在 z2 tiles，故沒有公開 geometry
+- 語意：crowd/incomplete global overview，不是完整海纜清冊、實際埋設位置、工程圖或即時營運狀態
+
+硬依賴欄位：
+
+- `osm_type`, `osm_id`, `source_id`, `name`, `operator`, `owner`, `status`
+- `cable_type=crowd_telecom`, `coverage_note=incomplete_crowdsourced`
+- `geometry_source` — 海纜 popup 揭露 z2 generalized geometry
+- `cable_names`, `cable_count` — 登陸站可選關聯資訊
+- `source`, `source_url`, `osm_url`, `license`, `attribution`, `fetched_at`, `query_hash`, `raw_tags`
+
+舊 TeleGeography 資產已被替換；免費互動地圖不等於 raw geocoded API 可再散布，未取得
+書面授權前不得回退舊檔或用歷史 pipeline 更新 public asset。
 
 ## ANFR 5G 3500 官方無線站點概覽
 
