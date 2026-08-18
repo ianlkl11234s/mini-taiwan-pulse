@@ -4,6 +4,7 @@ import {
   ALERT_GROUPS_DEF, ALERT_GROUP_ORDER,
   type AlertGroupShort,
 } from "../intelTokens";
+import { useChartTooltip, fmtChartValue, type ChartTooltipContent } from "../../ChartHoverTooltip";
 
 interface Props {
   series: Record<AlertGroupShort, number[]>;
@@ -24,6 +25,7 @@ export function AlertsTrack({
   const areaRef = useRef<HTMLDivElement>(null);
   const [hoverH, setHoverH] = useState<number | null>(null);
   const draggingRef = useRef(false);
+  const tip = useChartTooltip();
 
   const fracFromClientX = (clientX: number): number => {
     const el = areaRef.current;
@@ -49,6 +51,21 @@ export function AlertsTrack({
 
   const peak = Math.max(1, ...buckets.map((b) => b.total));
 
+  const bucketTooltip = (h: number): ChartTooltipContent => {
+    const b = buckets[h];
+    const title = `${String(h).padStart(2, "0")}:00`;
+    if (!b || !b.total) return { title, rows: [], note: "無警報" };
+    return {
+      title,
+      rows: ALERT_GROUP_ORDER.filter((g) => b.parts[g]).map((g) => ({
+        dot: ALERT_GROUPS_DEF[g].color,
+        label: ALERT_GROUPS_DEF[g].label,
+        value: fmtChartValue(b.parts[g], "則"),
+      })),
+      note: `共 ${b.total} 則`,
+    };
+  };
+
   return (
     <div
       style={{
@@ -70,28 +87,30 @@ export function AlertsTrack({
           ALERTS 24H
         </span>
         <div style={{ flex: 1 }} />
-        {hoverH != null && buckets[hoverH] && (
-          <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textMuted }}>
-            {String(hoverH).padStart(2, "0")}:00 · {buckets[hoverH].total} 則
-          </span>
-        )}
       </div>
 
       <div
         ref={areaRef}
         onMouseDown={(e) => {
           draggingRef.current = true;
+          tip.hide();
           onScrubFrac(fracFromClientX(e.clientX));
         }}
         onMouseMove={(e) => {
           const f = fracFromClientX(e.clientX);
-          setHoverH(Math.min(23, Math.floor(f * 24)));
-          if (draggingRef.current) onScrubFrac(f);
+          const h = Math.min(23, Math.floor(f * 24));
+          setHoverH(h);
+          if (draggingRef.current) {
+            onScrubFrac(f);
+          } else {
+            tip.show(e.clientX, e.clientY, bucketTooltip(h));
+          }
         }}
         onMouseUp={() => { draggingRef.current = false; }}
         onMouseLeave={() => {
           setHoverH(null);
           draggingRef.current = false;
+          tip.hide();
         }}
         style={{
           position: "relative",
@@ -163,6 +182,7 @@ export function AlertsTrack({
           }}
         />
       </div>
+      {tip.node}
     </div>
   );
 }
