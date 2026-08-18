@@ -13,9 +13,22 @@ import {
 import { fuelColorOf } from "../../../data/energyLoader";
 import { buildPowerCardModel, loadRateColor, summarisePowerKpis } from "./powerCardData";
 
+/**
+ * UNIT OUTPUT（機組 24h 出力）資料狀態，與 `day` 分開傳遞。
+ * 由呼叫端（MonitorPanel）依 fetchPowerGeneration24h 的 resolve/reject 分類，
+ * 不進 buildPowerCardModel（PowerCard 為 timeline-isolated 卡片，見 powerCardData.test.ts）。
+ * - loading：尚未回來
+ * - ready  ：成功（實際有沒有 plants 由 model.plants.length 決定）
+ * - denied ：get_ssot_facility_output_24h 是 owner-gated RPC（PR #60），非 owner 呼叫必然權限不足，正常狀態非故障
+ * - error  ：其他失敗（網路 / RPC 掛掉），值得提示「稍後再試」
+ */
+export type PowerDayStatus = "loading" | "ready" | "denied" | "error";
+
 interface Props {
   dashboard: PowerDashboard | null;
   day: PowerGenerationDay | null;
+  /** UNIT OUTPUT 區塊要顯示哪種空狀態文案；預設 "loading" 相容既有呼叫端行為 */
+  dayStatus?: PowerDayStatus;
   /** 過去 30 天每日供電趨勢（RPC get_power_daily_trend）；卡片內獨立資料，與 timeline scrub 無關 */
   trend: PowerDailyTrendRow[];
 }
@@ -28,7 +41,7 @@ function fmtMW(v: number | null | undefined): string {
   return v.toLocaleString("zh-TW", { maximumFractionDigits: 0 });
 }
 
-export function PowerCard({ dashboard, day, trend }: Props) {
+export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Props) {
   const model = useMemo(() => buildPowerCardModel(dashboard, day), [dashboard, day]);
   const kpis = useMemo(() => summarisePowerKpis(day), [day]);
   const status = dashboard?.status ?? null;
@@ -218,7 +231,11 @@ export function PowerCard({ dashboard, day, trend }: Props) {
         </div>
         {plants.length === 0 ? (
           <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
-            等待機組出力資料…
+            {dayStatus === "denied"
+              ? "機組出力需登入後檢視"
+              : dayStatus === "error"
+                ? "機組出力資料暫時無法取得 · 下次輪詢會再試"
+                : "等待機組出力資料…"}
           </div>
         ) : (
           <div

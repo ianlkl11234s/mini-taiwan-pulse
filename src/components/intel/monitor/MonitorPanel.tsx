@@ -54,6 +54,7 @@ import {
   MONITOR_SPLIT_DOCK, MONITOR_SPLIT_VISIBLE_LAYOUT, type MonitorMode,
 } from "./monitorSplitLayout";
 import { supabase } from "../../../lib/supabase";
+import { isAccessDenied } from "../../../lib/layerGates";
 import { useNewsFilter } from "../../../hooks/useNewsFilter";
 import {
   fetchPowerDashboard, invalidatePowerDashboard,
@@ -61,6 +62,7 @@ import {
   fetchPowerDailyTrend,
   type PowerDashboard, type PowerGenerationDay, type PowerDailyTrendRow,
 } from "../../../data/energyLoader";
+import type { PowerDayStatus } from "./PowerCard";
 
 const EMPTY_HEALTH: SourceHealthSummary = {
   total: 0, ok: 0, lagging: 0, degraded: 0, unknown: 0, rows: [],
@@ -286,6 +288,7 @@ export function MonitorPanel({
   const [alertSeriesRows, setAlertSeriesRows] = useState<AlertSeriesPoint[]>([]);
   const [powerDashboard, setPowerDashboard] = useState<PowerDashboard | null>(null);
   const [powerDay, setPowerDay] = useState<PowerGenerationDay | null>(null);
+  const [powerDayStatus, setPowerDayStatus] = useState<PowerDayStatus>("loading");
   const [powerTrend, setPowerTrend] = useState<PowerDailyTrendRow[]>([]);
   const [prisonLatest, setPrisonLatest] = useState<PrisonDay | null>(null);
 
@@ -322,8 +325,21 @@ export function MonitorPanel({
         .catch((e) => console.warn("[Monitor PowerDashboard]", e));
     };
     const tickSlow = () => {
-      fetchPowerGeneration24h().then((d) => alive && setPowerDay(d))
-        .catch((e) => console.warn("[Monitor PowerGen24h]", e));
+      fetchPowerGeneration24h().then((d) => {
+        if (!alive) return;
+        setPowerDay(d);
+        setPowerDayStatus("ready");
+      }).catch((e) => {
+        if (!alive) return;
+        if (isAccessDenied(e)) {
+          // owner-gated RPC（PR #60 刻意鎖）：匿名/非 owner 使用者的正常路徑，非故障
+          console.info("[Monitor PowerGen24h] access denied (owner-gated)", e);
+          setPowerDayStatus("denied");
+        } else {
+          console.warn("[Monitor PowerGen24h]", e);
+          setPowerDayStatus("error");
+        }
+      });
     };
     tickFast();
     tickSlow();
@@ -698,7 +714,7 @@ export function MonitorPanel({
     plaBoard: <PlaBoard open={open} />,
     foodPriceBoard: <FoodPriceBoard open={open} />,
     hazardStrip: <HazardWatchStrip />,
-    powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} trend={powerTrend} />,
+    powerCard: <PowerCard dashboard={powerDashboard} day={powerDay} dayStatus={powerDayStatus} trend={powerTrend} />,
     erCongestion: <ERCard open={open} />,
     prison: <PrisonCard latest={prisonLatest} />,
     airportPax: <AirportPaxCard open={open} />,
