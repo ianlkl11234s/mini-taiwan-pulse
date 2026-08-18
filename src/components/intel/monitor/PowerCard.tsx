@@ -2,11 +2,13 @@ import { useMemo } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel, Sparkline } from "./PressureRing";
+import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
 import {
   RESERVE_INDICATOR_COLORS,
   RESERVE_INDICATOR_LABELS,
   type PowerDashboard,
   type PowerGenerationDay,
+  type PowerDailyTrendRow,
 } from "../../../data/energyLoader";
 import { fuelColorOf } from "../../../data/energyLoader";
 import { buildPowerCardModel, loadRateColor, summarisePowerKpis } from "./powerCardData";
@@ -14,14 +16,19 @@ import { buildPowerCardModel, loadRateColor, summarisePowerKpis } from "./powerC
 interface Props {
   dashboard: PowerDashboard | null;
   day: PowerGenerationDay | null;
+  /** 過去 30 天每日供電趨勢（RPC get_power_daily_trend）；卡片內獨立資料，與 timeline scrub 無關 */
+  trend: PowerDailyTrendRow[];
 }
+
+/** 一天 = 86400 秒；gapSec 給 1.5 天避免把單日缺快照的空隙誤畫成一路連線 */
+const TREND_GAP_SEC = 86400 * 1.5;
 
 function fmtMW(v: number | null | undefined): string {
   if (v == null) return "—";
   return v.toLocaleString("zh-TW", { maximumFractionDigits: 0 });
 }
 
-export function PowerCard({ dashboard, day }: Props) {
+export function PowerCard({ dashboard, day, trend }: Props) {
   const model = useMemo(() => buildPowerCardModel(dashboard, day), [dashboard, day]);
   const kpis = useMemo(() => summarisePowerKpis(day), [day]);
   const status = dashboard?.status ?? null;
@@ -230,7 +237,122 @@ export function PowerCard({ dashboard, day }: Props) {
           </div>
         )}
       </div>
+
+      {/* 30 天供電趨勢：備轉容量率為主圖，null 天濾除 + gapSec 斷線避免假趨勢 */}
+      <PowerTrend30d trend={trend} />
+
+      {/* 30 天供電能力 vs 尖峰負載：疊在同一張圖、共用 MW Y 軸，兩線間距即備轉容量 */}
+      <PowerCapacityVsLoad30d trend={trend} />
     </div>
+  );
+}
+
+function PowerTrend30d({ trend }: { trend: PowerDailyTrendRow[] }) {
+  const spark = useMemo<SparklinePoint[]>(
+    () =>
+      trend
+        .filter((r): r is PowerDailyTrendRow & { resv_rate: number } => r.resv_rate != null)
+        .map((r) => ({ t: r.day_ts, v: r.resv_rate })),
+    [trend],
+  );
+  const minRate = spark.length > 0 ? Math.min(...spark.map((p) => p.v)) : null;
+
+  return (
+    <div
+      data-testid="power-trend-30d"
+      style={{
+        borderRadius: RADIUS.xl,
+        border: `1px solid ${COLORS.panelBorder}`,
+        background: "rgba(255,255,255,0.02)",
+        padding: "11px 14px",
+        display: "flex", flexDirection: "column", gap: 9,
+      }}
+    >
+      <SectionLabel color={COLORS.accent}>
+        30 天趨勢 · 備轉容量率{minRate != null ? ` · 區間最低 ${minRate.toFixed(1)}%` : ""}
+      </SectionLabel>
+      {spark.length === 0 ? (
+        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
+          等待每日趨勢資料…
+        </div>
+      ) : (
+        <TimeseriesSparkline
+          data={spark}
+          unit="%"
+          height={64}
+          fillArea
+          lineColor={COLORS.accent}
+          gapSec={TREND_GAP_SEC}
+          showTooltip
+          tooltipDateFormat="date"
+        />
+      )}
+    </div>
+  );
+}
+
+/** 30 天供電能力 vs 尖峰負載：疊圖共用 MW Y 軸，兩線間距一眼看出哪幾天備轉吃緊 */
+function PowerCapacityVsLoad30d({ trend }: { trend: PowerDailyTrendRow[] }) {
+  const supplySpark = useMemo<SparklinePoint[]>(
+    () => trend.map((r) => ({ t: r.day_ts, v: r.max_supply_mw })),
+    [trend],
+  );
+  const loadSpark = useMemo<SparklinePoint[]>(
+    () => trend.map((r) => ({ t: r.day_ts, v: r.peak_load_mw })),
+    [trend],
+  );
+
+  return (
+    <div
+      data-testid="power-capacity-load-30d"
+      style={{
+        borderRadius: RADIUS.xl,
+        border: `1px solid ${COLORS.panelBorder}`,
+        background: "rgba(255,255,255,0.02)",
+        padding: "11px 14px",
+        display: "flex", flexDirection: "column", gap: 9,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+        <SectionLabel color={COLORS.accent}>30 天趨勢 · 供電能力 vs 尖峰負載</SectionLabel>
+        <div style={{ flex: 1 }} />
+        <TrendLegendDot color={COLORS.statusLive} label="供電能力" />
+        <TrendLegendDot color={COLORS.statusWarn} label="尖峰負載" />
+      </div>
+      {supplySpark.length === 0 ? (
+        <div style={{ fontFamily: FONT_CJK, fontSize: FONT_SIZE.sm, color: COLORS.textFaint, padding: "8px 0" }}>
+          等待每日趨勢資料…
+        </div>
+      ) : (
+        <TimeseriesSparkline
+          data={supplySpark}
+          extraSeries={{ data: loadSpark, color: COLORS.statusWarn, label: "尖峰負載" }}
+          seriesLabel="供電能力"
+          unit="MW"
+          height={64}
+          fillArea
+          lineColor={COLORS.statusLive}
+          gapSec={TREND_GAP_SEC}
+          compactYAxis
+          showTooltip
+          tooltipDateFormat="date"
+        />
+      )}
+    </div>
+  );
+}
+
+function TrendLegendDot({ color, label }: { color: string; label: string }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex", alignItems: "center", gap: 4,
+        fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textMuted,
+      }}
+    >
+      <span style={{ width: 6, height: 6, borderRadius: RADIUS.full, background: color }} />
+      {label}
+    </span>
   );
 }
 

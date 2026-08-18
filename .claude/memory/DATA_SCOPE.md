@@ -337,9 +337,14 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 | 光電月發電（站時序）| `analytics.solar_daily_generation` | 3,992 | 沒接（E-F 月趨勢）|
 | 落雷即時 | `live.lightning_events` | **雙源**（mig 338 加 `source`）| **已接 2 個圖層**：`lightning`（台電，橘/青）+ `lightningCwa`（氣象署，紫/綠）。⚠️ **台電源自 2026-07-10 起端點 200 但永遠回空檔**，氣象署源 2026-08-07 上線接手 |
 | 落雷日聚合 | `analytics.lightning_daily_summary` | 動態 | 沒接（E-F KPI）。mig 338 加 `source` 分組 —— 兩源混算會把同一場雷雨計兩次 |
-| **三本柱燈號** | `realtime.power_system_status` | 1,843 (10min × 約 13 天) | ✅ HUD（v1.1 留 hooks 給 monitor E-A）|
-| **區域用電** | `realtime.power_region_demand` | 7,352 | ✅ region bars（v1.1 留 hooks 給 monitor E-A）|
-| **機組即時** | `realtime.power_generation_unit` | 376,790 (7 天 retention) | ✅ 3D beam layer 4 |
+| **三本柱燈號** | `live.power_system_status` | 10,368（10min × 2026-06-05 起全量）| ✅ HUD + PowerCard + 30 天趨勢（RPC 351）|
+| **區域用電** | `live.power_region_demand` | 41,444（同上，全量）| ✅ region bars（v1.1 留 hooks 給 monitor E-A）|
+| **機組即時** | `live.power_generation_unit` | 2,119,163（同上，全量）| ✅ 3D beam layer 4 |
+
+> ⚠️ 三張 power 表 2026-08-17 實測：schema 已由 `realtime.*` 搬到 `live.*`（migration 312），
+> 且**全部自 2026-06-05 起全量留存、無任何 retention**（`cron.job` 中 `%power%` 查無 job）。
+> migration 217 註解與本檔舊版寫的「`power_generation_unit` 7 天 retention」**從未實作**，勿再引用。
+> RPC 351（30 天趨勢）直接讀 live 表、依賴此現況；日後若要加 retention，須先建 analytics 日彙總表。
 | 核安站當下 | `realtime.nuclear_radiation_stations` | 51 | **已接** v2 Phase B（feat/energy-v2-A b7d6154，5 階分級含 stale）|
 | 核安站歷史 | `realtime.nuclear_radiation_measurements` | 動態 | 沒接（E-B per-station sparkline）|
 | 核安日聚合 | `analytics.nuclear_radiation_daily` | 動態 | 沒接（E-F）|
@@ -355,7 +360,8 @@ satellitesChinaOther / satellitesTaiwan（全預設關，視效能與用戶習�
 | 216 | `get_osm_substations()` + `get_ev_charging_stations()` | 兩 slim POI |
 | 217 | `get_power_plants_at(ts)` + `get_power_plant_output_24h(name)` | timeline + popup sparkline |
 | 218 | `get_power_generation_at(ts)` | beam slim 14 廠 ~3 KB |
-| 219 | `get_power_generation_24h()` | 24h 全部 14 廠 × ~144 ts ~45 KB |
+| 219 | `get_power_generation_24h()` | 24h 全部 14 廠 × ~144 ts ~45 KB。⚠️ **PowerCard 實際呼叫的不是這支**，而是 `get_ssot_facility_output_24h()`（~23 廠 = 14 台電 + 6 離岸風場 + 3 離島，**owner-gated**，匿名使用者看不到 UNIT OUTPUT）|
+| **351** | `get_power_daily_trend(p_days)` | **30 天每日趨勢**：尖峰負載 / 最高供電能力 / 台電定稿備轉率。anon 可讀、10.6ms。備轉率取「隔日最後一筆的 `yday_peak_resv_rate`」——不可用同表 `fore_peak_resv_rate`（盤中預測，日內可從 36% 跳到 11%），也不可用 `MAX(yday_...)`（每日 03:00 才更新，凌晨殘留前天值）|
 
 ### 核電廠現況（2026-06）
 
