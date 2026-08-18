@@ -375,13 +375,19 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
           const mixed = k.itemsTotal > k.itemsSingle;
           const color = rare ? "#a78bfa" : "#34d399";
           const label = PLA_KIND_LABELS[k.kind] ?? k.kind;
+          // 項次精確度說明。原本掛在右側「N 天 *」文字的原生 title 上，
+          // 但那塊 <span> 落在整列的 tip.bind() 熱區內，hover 會跟自訂浮層疊加跳兩個提示。
+          // 併進 note 一起走同一個浮層（原生 title 移除）。
+          const itemsNote = mixed
+            ? `${k.itemsSingle}/${k.itemsTotal} 個項次是單一機型（架次精確 ${k.sortiesExact}）；其餘為多機型合併計數，各自架次不可拆`
+            : `全部 ${k.itemsTotal} 個項次皆單一機型，架次精確`;
           return (
             <div
               key={k.kind}
               {...tip.bind(() => ({
                 title: label,
                 rows: [{ dot: color, value: fmtChartValue(k.days, "天") }],
-                note: `占 ${Math.round((k.days / summary.daysTotal) * 100)}% 天數${rare ? " · 少見" : ""}${mixed ? " · 含混合機型項次，架次不可拆" : ""}`,
+                note: `占 ${Math.round((k.days / summary.daysTotal) * 100)}% 天數${rare ? " · 少見" : ""} · ${itemsNote}`,
               }))}
               style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
@@ -392,10 +398,6 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
                 <div style={{ width: `${(k.days / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: color }} />
               </div>
               <span
-                title={mixed
-                  ? `${k.itemsSingle}/${k.itemsTotal} 個項次是單一機型（架次精確 ${k.sortiesExact}）；` +
-                    `其餘為多機型合併計數，各自架次不可拆`
-                  : `全部 ${k.itemsTotal} 個項次皆單一機型，架次精確`}
                 style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, width: 62, flex: "none", textAlign: "right" }}
               >
                 {k.days} 天{mixed ? " *" : ""}

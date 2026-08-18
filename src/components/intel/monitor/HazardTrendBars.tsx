@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { COLORS, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
-import { useChartTooltip } from "../../ChartHoverTooltip";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 /**
  * 災害四卡共用的迷你趨勢柱狀圖 —— **柱高 = 量、柱色 = 強度**。
@@ -125,7 +125,15 @@ export function HazardTrendBars({
               key={barKey}
               {...tip.bind(() => ({
                 title: b.label,
-                rows: [{ dot: color, value: `${value}${unit}` }],
+                // 整數才走 fmtChartValue 補千分位（落雷/地震/颱風計數類）。
+                // 非整數維持原樣字串接 unit —— 避免 fmtChartValue 對 <10 的值
+                // 強制 toFixed(2) 把輻射卡的 3 位小數（例如 0.058）壓成 2 位。
+                rows: [{
+                  dot: color,
+                  value: Number.isInteger(value)
+                    ? fmtChartValue(value, unit.trim())
+                    : `${value}${unit}`,
+                }],
                 note: b.note,
               }))}
               onClick={onClick}
