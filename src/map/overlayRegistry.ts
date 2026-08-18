@@ -98,6 +98,7 @@ import {
   commonRegistrationCapitalColorExpr,
   commonRegistrationRadiusExpr,
 } from "../data/businessRegistryTypes";
+import { IXP_REGION_COLOR_EXPR } from "../data/telecomTypes";
 
 /**
  * 🎓 教育：總覽層 schools ＋ 5 個分級 ＋ 偏遠層，六者共用同一個 sourceId。
@@ -1801,6 +1802,46 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-opacity": isDark ? 0.8 : 0.7,
           };
         },
+      },
+    ],
+  },
+
+  // ── Internet Exchange Points（PCH Active IXP Directory）──
+  // region 分色、participants 控制點大小；資料為公開目錄座標，不代表機房精確邊界。
+  {
+    id: "internetExchangePoints",
+    sourceUrl: "./geo/internet_exchange_points.geojson",
+    sourceId: "internet-exchange-points",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      {
+        suffix: "glow",
+        type: "circle",
+        paint: (_isDark, params) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 2, 100, 4, 500, 7],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 6, 100, 12, 500, 20],
+          ],
+          "circle-color": IXP_REGION_COLOR_EXPR,
+          "circle-blur": 1,
+          "circle-opacity": (params?.internetExchangePointsOpacity ?? 0.85) * 0.22,
+        }),
+      },
+      {
+        suffix: "circle",
+        type: "circle",
+        paint: (isDark, params) => ({
+          "circle-radius": [
+            "interpolate", ["linear"], ["zoom"],
+            0, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 1.5, 100, 3, 500, 5],
+            7, ["interpolate", ["linear"], ["to-number", ["get", "participants"], 0], 0, 3, 100, 6, 500, 10],
+          ],
+          "circle-color": IXP_REGION_COLOR_EXPR,
+          "circle-stroke-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+          "circle-opacity": params?.internetExchangePointsOpacity ?? 0.85,
+        }),
       },
     ],
   },

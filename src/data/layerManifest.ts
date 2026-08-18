@@ -42,7 +42,7 @@
 
 import type { LucideIcon } from "lucide-react";
 import {
-  Video, Radio, LandPlot, TrainFront, Factory,
+  Video, Radio, Network, LandPlot, TrainFront, Factory,
   Church, Landmark, HeartHandshake, Sparkles, Camera,
   Cross, Briefcase, Flower, Grid3x3,
   Building2, CalendarDays, Theater, Library,
@@ -1136,7 +1136,7 @@ export const LAYER_MANIFEST = {
   // ══════════════════════════════════════════════════════════════
   submarineCables: {
     key: "submarineCables",
-    section: { theme: "基礎建設 Infrastructure", group: "通訊" },
+    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
     label: "通訊海纜 Submarine Cable",
     expandable: true,
     color: "#2196F3",
@@ -1156,7 +1156,7 @@ export const LAYER_MANIFEST = {
 
   landingStations: {
     key: "landingStations",
-    section: { theme: "基礎建設 Infrastructure", group: "通訊" },
+    section: { theme: "通訊 Communications", group: "全球骨幹 Global Backbone" },
     label: "海纜登陸站 Landing Station",
     expandable: true,
     color: "#26c6da",
@@ -1172,6 +1172,30 @@ export const LAYER_MANIFEST = {
     params: null,
     description: "海纜登陸站 45 處（與海纜同一 catalog dataset，confidence LOW）",
     topics: ["基礎建設", "通訊", "海纜"],
+  },
+
+  internetExchangePoints: {
+    key: "internetExchangePoints",
+    section: { theme: "通訊 Communications", group: "網路互連 Internet Exchange" },
+    label: "網際網路交換中心 Internet Exchange",
+    expandable: true,
+    color: "#22C55E",
+    icon: Network,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "internet_exchange_points", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "internet-exchange-points",
+      url: "./geo/internet_exchange_points.geojson",
+    },
+    legend: "internetExchangePoints",
+    popup: "internetExchangePoint",
+    params: { count: 1, kinds: ["slider"] },
+    description: "PCH Active IXP Directory 全球網際網路交換中心點位；顏色為洲區、大小為參與者數",
+    topics: ["通訊", "網際網路", "IXP", "全球"],
   },
 
   convenienceStores: {

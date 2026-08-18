@@ -121,7 +121,7 @@ const NO_HOOK_LEDGER = new Set<string>([
   "forestDamLakes", "forestEducationCenters", "forestFlatParks", "forestRecreation",
   "forestSignalPoints", "forestTrailSigns", "forestTreatmentWorks", "forestWildlife",
   "funeralFacilities", "funeralOperators", "govServiceOffices", "iPostBoxes",
-  "immigrationOffice", "investigationBureau", "landingStations", "livestockFeed",
+  "immigrationOffice", "internetExchangePoints", "investigationBureau", "landingStations", "livestockFeed",
   "livestockMarket", "medHospital", "mountainHuts", "mountainRescueIncidents", "parksTaipei",
   "performingVenues", "policeStation", "postOffices", "prosecutorsOffice",
   "protectedTreesNational", "publicLibraries", "publicToilets", "religionAncestralHalls",

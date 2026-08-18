@@ -169,9 +169,14 @@ function fromManifest(key: ManifestKey): LayerDef {
  * 世界 tab 則只渲染這批主題（陣列順序＝世界 tab 內的顯示順序）。
  */
 export const WORLD_THEME_TITLE = "世界 World";
+export const COMMUNICATIONS_THEME_TITLE = "通訊 Communications";
 
 /** 劃入「世界」rail tab 的主題清單（2026-07-19 全球氣候自主 Layers panel 搬入）。 */
-export const WORLD_TAB_THEME_TITLES: string[] = [WORLD_THEME_TITLE, "全球氣候 Global Climate"];
+export const WORLD_TAB_THEME_TITLES: string[] = [
+  WORLD_THEME_TITLE,
+  COMMUNICATIONS_THEME_TITLE,
+  "全球氣候 Global Climate",
+];
 
 export const THEMES: ThemeDef[] = [
   // ───────────────────────────────────────────────────────────────
@@ -412,13 +417,6 @@ export const THEMES: ThemeDef[] = [
     title: "基礎建設 Infrastructure",
     defaultCollapsed: true,
     groups: [
-      {
-        title: "通訊",
-        layers: [
-          fromManifest("submarineCables"),
-          fromManifest("landingStations"),
-        ],
-      },
       {
         title: "公共設施",
         layers: [
@@ -1096,6 +1094,29 @@ export const THEMES: ThemeDef[] = [
           fromManifest("waterFloodExtreme"),
           fromManifest("floodSensorIsochrone"),
           fromManifest("precipRaster"),
+        ],
+      },
+    ],
+  },
+
+  // ───────────────────────────────────────────────────────────────
+  // 📡 COMMUNICATIONS 通訊（獨立 rail tab「世界」專屬）
+  // ───────────────────────────────────────────────────────────────
+  {
+    title: COMMUNICATIONS_THEME_TITLE,
+    defaultCollapsed: false,
+    groups: [
+      {
+        title: "全球骨幹 Global Backbone",
+        layers: [
+          fromManifest("submarineCables"),
+          fromManifest("landingStations"),
+        ],
+      },
+      {
+        title: "網路互連 Internet Exchange",
+        layers: [
+          fromManifest("internetExchangePoints"),
         ],
       },
     ],

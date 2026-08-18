@@ -46,6 +46,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["freewayCongestion-hit"], type: "freewayCongestion" },
   { layers: ["submarine-cables-line", "submarine-cables-glow"], type: "submarineCable" },
   { layers: ["landing-stations-circle", "landing-stations-glow"], type: "landingStation" },
+  { layers: ["internet-exchange-points-circle", "internet-exchange-points-glow"], type: "internetExchangePoint" },
   // 🎓 教育：6 個學校點層共用 sourceId `edu-schools`（總覽 + 5 分級 + 偏遠），
   // 全部走同一個 SchoolPanel。校地面 `edu-campus-fill` 是大面積 fill → 排在陣列最末。
   {

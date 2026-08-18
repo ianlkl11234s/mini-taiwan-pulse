@@ -1036,6 +1036,7 @@ export const LAYER_PARAMS_SPEC = {
     opacitySlider("eduUniversityStudentsOpacity", 0.6),
     { kind: "slider", name: "eduUniversityStudentsScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],
+  internetExchangePoints: [opacitySlider("internetExchangePointsOpacity", 0.85)],
   convenienceStores: [
     { kind: "slider", name: "convenienceScale", labelPrefix: "Scale", digits: 1, default: 1, min: 0.3, max: 3, step: 0.1 },
   ],

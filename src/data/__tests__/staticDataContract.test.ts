@@ -135,6 +135,15 @@ interface FieldContract {
 }
 
 const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
+  "geo/internet_exchange_points.geojson": [
+    { field: "ixp_id", type: "string" },
+    { field: "name", type: "string" },
+    { field: "region", type: "string" },           // 五洲區分色
+    { field: "participants", type: "string" },     // Mapbox to-number 後控制點大小
+    { field: "coord_qc_status", type: "string" },  // ok / swapped
+    { field: "source_org", type: "string" },
+    { field: "license", type: "string" },
+  ],
   "business_registry/common_registration_addresses_202608.geojson": [
     { field: "address", type: "string" },
     { field: "n_companies", type: "number" },

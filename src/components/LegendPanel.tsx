@@ -66,6 +66,7 @@ import {
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
 } from "../data/businessRegistryTypes";
+import { IXP_REGIONS } from "../data/telecomTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -388,6 +389,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   // 通訊基礎設施：海纜（線）+ 登陸站（點）
   { id: "submarineCables", render: () => <SubmarineCableLegend /> },
   { id: "landingStations", render: () => <LandingStationLegend /> },
+  { id: "internetExchangePoints", render: () => <InternetExchangePointsLegend /> },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -4199,6 +4201,28 @@ function LandingStationLegend() {
         海纜登陸站 LANDING STATION
       </div>
       <FireCatRows cats={LANDING_STATION_CATS} />
+    </div>
+  );
+}
+
+function InternetExchangePointsLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+        網際網路交換中心 INTERNET EXCHANGE
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        {IXP_REGIONS.map((region) => (
+          <div key={region.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: region.color, display: "inline-block" }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{region.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+        點越大代表參與者數越多 · PCH Active IXP
+      </div>
     </div>
   );
 }

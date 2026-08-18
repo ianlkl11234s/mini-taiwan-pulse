@@ -5,6 +5,7 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
+import { ixpRegionColor } from "../../data/telecomTypes";
 
 /** 海纜 cable_type 對應色 */
 const CABLE_TYPE_COLORS: Record<string, string> = {
@@ -107,6 +108,32 @@ export function LandingStationPanel({ props }: { props: Record<string, unknown> 
       <Row label="樞紐等級" value={stationType} color={accentColor} />
       <Row label="電纜數" value={String(props.cable_count ?? "")} />
       <Row label="電纜清單" value={String(props.cable_names_str ?? "")} />
+    </>
+  );
+}
+
+export function InternetExchangePointPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const region = String(props.region ?? "");
+  const accentColor = ixpRegionColor(region);
+  const participants = String(props.participants ?? "");
+  const updated = String(props.updated ?? "");
+
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+        <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: accentColor, flexShrink: 0 }} />
+        <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, letterSpacing: 0.5 }}>
+          {String(props.name ?? "Unknown IXP")}
+        </div>
+      </div>
+      <Row label="城市／國家" value={[props.city, props.country].filter(Boolean).map(String).join(" · ")} />
+      <Row label="洲區" value={region} color={accentColor} />
+      <Row label="參與者" value={participants ? `${participants} networks` : ""} />
+      <Row label="狀態" value={String(props.status ?? "")} />
+      <Row label="資料更新" value={updated && updated !== "0000-00-00" ? updated : "未提供"} />
+      <Row label="座標 QA" value={String(props.coord_qc_status ?? "")} />
+      <Row label="來源／授權" value={`${String(props.source_org ?? "PCH")} · ${String(props.license ?? "")}`} />
     </>
   );
 }

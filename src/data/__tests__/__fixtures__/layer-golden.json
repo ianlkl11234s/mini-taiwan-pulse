@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 360,
+    "keyCount": 361,
     "sections": [
       "gisLayers",
       "overlays",
@@ -33,6 +33,13 @@
         "landing-stations-glow"
       ],
       "type": "landingStation"
+    },
+    {
+      "layers": [
+        "internet-exchange-points-circle",
+        "internet-exchange-points-glow"
+      ],
+      "type": "internetExchangePoint"
     },
     {
       "layers": [
@@ -5286,6 +5293,356 @@
       ],
       "sourceId": "landing-stations",
       "sourceUrl": "./geo/landing_stations.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "internetExchangePoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.187,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  2,
+                  100,
+                  4,
+                  500,
+                  7
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  6,
+                  100,
+                  12,
+                  500,
+                  20
+                ]
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.187,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  2,
+                  100,
+                  4,
+                  500,
+                  7
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  6,
+                  100,
+                  12,
+                  500,
+                  20
+                ]
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  1.5,
+                  100,
+                  3,
+                  500,
+                  5
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  3,
+                  100,
+                  6,
+                  500,
+                  10
+                ]
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "region"
+                ],
+                "Africa",
+                "#F59E0B",
+                "Asia-Pacific",
+                "#22C55E",
+                "Europe",
+                "#60A5FA",
+                "Latin America",
+                "#F472B6",
+                "North America",
+                "#A78BFA",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.85,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  1.5,
+                  100,
+                  3,
+                  500,
+                  5
+                ],
+                7,
+                [
+                  "interpolate",
+                  [
+                    "linear"
+                  ],
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "participants"
+                    ],
+                    0
+                  ],
+                  0,
+                  3,
+                  100,
+                  6,
+                  500,
+                  10
+                ]
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "internet-exchange-points",
+      "sourceUrl": "./geo/internet_exchange_points.geojson"
     },
     {
       "dynamicData": null,
@@ -45816,6 +46173,15 @@
         "label": "顯示外框線",
         "type": "toggle",
         "value": true
+      }
+    ],
+    "internetExchangePoints": [
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
       }
     ],
     "investigationBureau": [
