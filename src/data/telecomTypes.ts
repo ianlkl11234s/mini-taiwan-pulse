@@ -37,3 +37,24 @@ export const ANFR_OPERATOR_COLOR_EXPR = [
 export function anfrOperatorColor(operator: string): string {
   return ANFR_OPERATORS.find((entry) => entry.value === operator)?.color ?? ANFR_OPERATORS[4].color;
 }
+
+export const OSM_COMMUNICATION_TYPES = [
+  { value: "mobile_phone", label: "行動電話 Mobile", color: "#38BDF8" },
+  { value: "radio", label: "廣播 Radio", color: "#A78BFA" },
+  { value: "television", label: "電視 Television", color: "#F472B6" },
+  { value: "microwave", label: "微波 Microwave", color: "#F59E0B" },
+  { value: "general", label: "其他通訊 General", color: "#94A3B8" },
+] as const;
+
+export const OSM_COMMUNICATION_COLOR_EXPR = [
+  "match", ["get", "site_kind"],
+  "mobile_phone", "#38BDF8",
+  "radio", "#A78BFA",
+  "television", "#F472B6",
+  "microwave", "#F59E0B",
+  "#94A3B8",
+] as unknown as string;
+
+export function osmCommunicationColor(siteKind: string): string {
+  return OSM_COMMUNICATION_TYPES.find((entry) => entry.value === siteKind)?.color ?? OSM_COMMUNICATION_TYPES[4].color;
+}

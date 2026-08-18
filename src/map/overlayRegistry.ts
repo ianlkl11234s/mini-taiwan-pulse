@@ -1,5 +1,6 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
+import { OSM_COMMUNICATION_COLOR_EXPR } from "../data/telecomTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
@@ -1865,6 +1866,29 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
         "circle-opacity": params?.anfrWirelessSitesOpacity ?? 0.8,
+      }) },
+    ],
+  },
+
+  // ── OSM Communication Sites（全球區域抽樣的群眾標註候選點）──
+  {
+    id: "osmCommunicationSites",
+    sourceUrl: "./geo/osm_communication_sites.geojson",
+    sourceId: "osm-communication-sites",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
+        "circle-blur": 1,
+        "circle-opacity": (params?.osmCommunicationSitesOpacity ?? 0.8) * 0.2,
+      }) },
+      { suffix: "circle", type: "circle", paint: (isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-color": OSM_COMMUNICATION_COLOR_EXPR,
+        "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+        "circle-opacity": params?.osmCommunicationSitesOpacity ?? 0.8,
       }) },
     ],
   },

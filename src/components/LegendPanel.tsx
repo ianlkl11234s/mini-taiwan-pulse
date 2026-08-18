@@ -66,7 +66,7 @@ import {
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
 } from "../data/businessRegistryTypes";
-import { IXP_REGIONS, ANFR_OPERATORS } from "../data/telecomTypes";
+import { IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES } from "../data/telecomTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -391,6 +391,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "landingStations", render: () => <LandingStationLegend /> },
   { id: "internetExchangePoints", render: () => <InternetExchangePointsLegend /> },
   { id: "anfrWirelessSites", render: () => <AnfrWirelessSitesLegend /> },
+  { id: "osmCommunicationSites", render: () => <OsmCommunicationSitesLegend /> },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -4239,6 +4240,22 @@ function AnfrWirelessSitesLegend() {
       </div>)}
     </div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>8,000／33,761 概覽抽樣 · 點位非精確機房邊界</div>
+  </div>;
+}
+
+function OsmCommunicationSitesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>OSM COMMUNICATION CANDIDATES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {OSM_COMMUNICATION_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{entry.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+      全球區域抽樣 · OSM mapped candidates · 非官方／非完整 · © OpenStreetMap contributors
+    </div>
   </div>;
 }
 

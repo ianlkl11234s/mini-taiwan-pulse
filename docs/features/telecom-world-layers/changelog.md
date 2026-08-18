@@ -1,5 +1,10 @@
 # Changelog — 世界通訊圖層
 
+## 2026-08-18 — OSM communication candidates contract
+
+- 新增 `osmCommunicationSites` contract：群眾無線站點獨立群組、OSM 類型分色、opacity、legend、popup、click 與 attribution。
+- 正式 GeoJSON 尚未提供；保留靜態 URL 與欄位契約，不建立虛構 fixture。
+
 ## 2026-08-18 — ANFR wireless sites overview
 
 - 新增 `anfrWirelessSites`：法國 ANFR 5G NR 3500、Techniquement opérationnel 的 8,000／33,761 概覽抽樣靜態點層。

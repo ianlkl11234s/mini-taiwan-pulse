@@ -57,3 +57,19 @@
 - `source`, `license`, `coord_qc_status` — attribution 與品質契約
 
 此層是官方公開點位的瀏覽器概覽抽樣，不是法國完整基地臺清冊，也不代表精確機房邊界。若上游改成全制式、全狀態或全量資料，必須同步修改 layer label、legend、popup 抽樣聲明與 golden fixture。
+
+## OSM 通訊候選點概覽
+
+- 產物契約：`public/geo/osm_communication_sites.geojson`
+- 上游：OpenStreetMap / Overpass；只收 mapped communication candidates，非官方清冊
+- 範圍：全球區域抽樣（`query_region` 保留每筆查詢區域）；不宣稱全球完整
+- 授權：ODbL；介面標示 `© OpenStreetMap contributors`
+- 狀態：前端 contract 已接線，正式 asset 待上游 pipeline 提供；沒有以 fixture 捏造資料
+
+硬依賴欄位：
+
+- `site_kind` — mobile/radio/television/microwave/general 分色與 legend
+- `communication_types` — popup；接受 array 或分號字串
+- `osm_type`, `osm_id`, `source_id` — OSM 識別
+- `relevance`, `query_region` — 候選／抽樣限制揭露
+- `source`, `source_url`, `license`, `attribution`, `fetched_at`, `raw_tags` — provenance

@@ -151,6 +151,16 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "license", type: "string" },
     { field: "coord_qc_status", type: "string" },
   ],
+  "geo/osm_communication_sites.geojson": [
+    { field: "source_id", type: "string" },
+    { field: "osm_type", type: "string" },
+    { field: "osm_id", type: "string" },
+    { field: "site_kind", type: "string" },
+    { field: "relevance", type: "string" },
+    { field: "source", type: "string" },
+    { field: "license", type: "string" },
+    { field: "attribution", type: "string" },
+  ],
   "business_registry/common_registration_addresses_202608.geojson": [
     { field: "address", type: "string" },
     { field: "n_companies", type: "number" },

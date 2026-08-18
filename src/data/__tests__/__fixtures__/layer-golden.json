@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 362,
+    "keyCount": 363,
     "sections": [
       "gisLayers",
       "overlays",
@@ -47,6 +47,13 @@
         "anfr-wireless-sites-glow"
       ],
       "type": "anfrWirelessSite"
+    },
+    {
+      "layers": [
+        "osm-communication-sites-circle",
+        "osm-communication-sites-glow"
+      ],
+      "type": "osmCommunicationSite"
     },
     {
       "layers": [
@@ -5864,6 +5871,204 @@
       ],
       "sourceId": "anfr-wireless-sites",
       "sourceUrl": "./geo/anfr_wireless_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "osmCommunicationSites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.6)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "get",
+                  "site_kind"
+                ],
+                "mobile_phone",
+                "#38BDF8",
+                "radio",
+                "#A78BFA",
+                "television",
+                "#F472B6",
+                "microwave",
+                "#F59E0B",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "osm-communication-sites",
+      "sourceUrl": "./geo/osm_communication_sites.geojson"
     },
     {
       "dynamicData": null,
@@ -47343,6 +47548,15 @@
         "min": 0.05,
         "step": 0.05,
         "value": 0.35
+      }
+    ],
+    "osmCommunicationSites": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
       }
     ],
     "osmExpressway": [

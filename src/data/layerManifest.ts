@@ -1215,6 +1215,23 @@ export const LAYER_MANIFEST = {
     topics: ["通訊", "行動網路", "5G", "全球"],
   },
 
+  osmCommunicationSites: {
+    key: "osmCommunicationSites",
+    section: { theme: "通訊 Communications", group: "群眾無線站點 Crowdsourced Wireless Sites" },
+    label: "OSM 通訊塔候選點概覽 OpenStreetMap Communication Candidates",
+    expandable: true,
+    color: "#38BDF8",
+    icon: Radio,
+    upstream: { status: "verified", datasets: [{ datasetId: "osm_communication_sites", confidence: "MED" }] },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "osm-communication-sites", url: "./geo/osm_communication_sites.geojson" },
+    legend: "osmCommunicationSites",
+    popup: "osmCommunicationSite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "OpenStreetMap mapped communication candidates；全球區域抽樣，非官方且不完整",
+    topics: ["通訊", "行動網路", "OpenStreetMap", "全球"],
+  },
+
   convenienceStores: {
     key: "convenienceStores",
     section: { theme: "基礎建設 Infrastructure", group: "公共設施" },

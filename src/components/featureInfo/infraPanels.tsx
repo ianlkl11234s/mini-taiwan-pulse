@@ -157,6 +157,39 @@ export function AnfrWirelessSitePanel({ props }: { props: Record<string, unknown
   </>;
 }
 
+export function OsmCommunicationSitePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const rawKinds = props.communication_types;
+  let kinds: string[];
+  if (Array.isArray(rawKinds)) {
+    kinds = rawKinds.map(String);
+  } else {
+    const value = String(rawKinds ?? "");
+    try {
+      const parsed = JSON.parse(value);
+      kinds = Array.isArray(parsed) ? parsed.map(String) : [value];
+    } catch {
+      kinds = value.split(";").map((item) => item.trim()).filter(Boolean);
+    }
+  }
+  return <>
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, marginBottom: 6 }}>
+      OSM 通訊候選點
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
+      sampled OSM mapped candidate · 非官方／非完整清冊
+    </div>
+    <Row label="OSM ID" value={`${String(props.osm_type ?? "")}/${String(props.osm_id ?? "")}`} />
+    <Row label="名稱／營運商" value={[props.name, props.operator].filter(Boolean).map(String).join(" · ")} />
+    <Row label="通訊類型" value={kinds.join(" · ")} />
+    <Row label="站點類型／相關性" value={`${String(props.site_kind ?? "general")} · ${String(props.relevance ?? "")}`} />
+    <Row label="區域抽樣" value={String(props.query_region ?? "")} />
+    <Row label="高度／Ref" value={[props.height, props.ref].filter(Boolean).map(String).join(" · ")} />
+    <Row label="來源／授權" value={`OpenStreetMap · ${String(props.license ?? "ODbL")}`} />
+    <Row label="資料時間" value={String(props.fetched_at ?? "")} />
+  </>;
+}
+
 export function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const brand = String(props.brand ?? "");

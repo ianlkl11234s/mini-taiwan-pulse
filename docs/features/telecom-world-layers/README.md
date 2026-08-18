@@ -16,6 +16,8 @@
 | `submarineCables` | line | GeoJSON | ✅ 既有，移入世界通訊 |
 | `landingStations` | point | GeoJSON | ✅ 既有，移入世界通訊 |
 | `internetExchangePoints` | point | PCH Active IXP GeoJSON | ✅ prototype |
+| `anfrWirelessSites` | point | ANFR Cartoradio GeoJSON | ✅ prototype |
+| `osmCommunicationSites` | point | OpenStreetMap / Overpass GeoJSON | 🟡 contract ready; asset pending |
 
 ## 關鍵檔案
 

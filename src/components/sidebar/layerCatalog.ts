@@ -1123,6 +1123,10 @@ export const THEMES: ThemeDef[] = [
         title: "官方無線站點 Official Wireless Sites",
         layers: [fromManifest("anfrWirelessSites")],
       },
+      {
+        title: "群眾無線站點 Crowdsourced Wireless Sites",
+        layers: [fromManifest("osmCommunicationSites")],
+      },
     ],
   },
 
