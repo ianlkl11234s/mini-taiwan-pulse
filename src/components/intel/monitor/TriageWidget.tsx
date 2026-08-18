@@ -3,6 +3,7 @@ import { COLORS, FONT_CJK, FONT_DATA, GIS_LEVELS, SEV_LEVELS } from "../intelTok
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 function DistBar({
   label, levels, counts,
@@ -12,6 +13,7 @@ function DistBar({
   counts: number[];
 }) {
   const total = counts.reduce((a, b) => a + b, 0) || 1;
+  const tip = useChartTooltip();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
       <span
@@ -23,6 +25,14 @@ function DistBar({
         {label}
       </span>
       <div
+        {...tip.bind(() => ({
+          title: label,
+          rows: levels.flatMap((lv, i) =>
+            counts[i]
+              ? [{ dot: lv.color, label: lv.label, value: fmtChartValue(counts[i] ?? 0) }]
+              : [],
+          ),
+        }))}
         style={{
           display: "flex", height: 9, borderRadius: RADIUS.md, overflow: "hidden",
           background: "rgba(255,255,255,0.04)",
@@ -32,7 +42,6 @@ function DistBar({
           counts[i] ? (
             <span
               key={i}
-              title={`${lv.label} · ${counts[i]}`}
               style={{
                 width: `${((counts[i] ?? 0) / total) * 100}%`, background: lv.color,
               }}
@@ -69,6 +78,7 @@ function DistBar({
           </span>
         ))}
       </div>
+      {tip.node}
     </div>
   );
 }

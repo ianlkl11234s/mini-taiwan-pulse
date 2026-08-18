@@ -3,6 +3,7 @@ import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel, Sparkline } from "./PressureRing";
 import { TimeseriesSparkline, type SparklinePoint } from "../../TimeseriesSparkline";
+import { useChartTooltip } from "../../ChartHoverTooltip";
 import {
   fetchErHospitalLatest, fetchErHospital24hAll, fetchErWaitTotal14d,
   type ErHospitalLatest, type ErHospital24hAllRow, type ErWaitTotal14dRow,
@@ -45,6 +46,19 @@ export function ERCard({ open }: Props) {
     () => trend14d.slice(1).map((r) => ({ t: r.bucket_ts, v: r.total_wait })),
     [trend14d],
   );
+  // 逐院 sparkline hover 用的時間平行陣列 —— 索引對齊 erCardData.buildErRegionGroups 內
+  // 同一份 p[3] != null 過濾邏輯（該檔不可改，這裡在 ERCard.tsx 內自算一份平行陣列）
+  const sparkTimesByHosp = useMemo(() => {
+    const map = new Map<string, number[]>();
+    for (const row of series) {
+      const times: number[] = [];
+      for (const p of row.points ?? []) {
+        if (p[3] != null) times.push(p[0]);
+      }
+      map.set(row.hosp_id, times);
+    }
+    return map;
+  }, [series]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -97,7 +111,9 @@ export function ERCard({ open }: Props) {
                 gap: 6,
               }}
             >
-              {g.hospitals.map((h) => <HospitalCell key={h.hospId} cell={h} />)}
+              {g.hospitals.map((h) => (
+                <HospitalCell key={h.hospId} cell={h} sparkTimes={sparkTimesByHosp.get(h.hospId) ?? []} />
+              ))}
             </div>
           </div>
           );
@@ -111,12 +127,19 @@ export function ERCard({ open }: Props) {
   );
 }
 
-function HospitalCell({ cell }: { cell: ErHospitalCell }) {
+/** epoch 秒 → "HH:mm"，24h sparkline hover 用（同日內足夠，不需要月/日） */
+function fmtHm(ts: number | undefined): string {
+  if (ts == null) return "";
+  const d = new Date(ts * 1000);
+  return `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+}
+
+function HospitalCell({ cell, sparkTimes }: { cell: ErHospitalCell; sparkTimes: number[] }) {
   const color = erCongestionColor(cell.wait);
   const level = classifyErCongestion(cell.wait);
+  const hasSpark = cell.spark.length >= 2;
   return (
     <div
-      title={`${cell.name} · ${cell.areaName} · ${ER_LEVEL_LABELS[level]}`}
       style={{
         display: "flex", alignItems: "center", gap: 6,
         padding: "5px 7px", borderRadius: RADIUS.md,
@@ -125,7 +148,10 @@ function HospitalCell({ cell }: { cell: ErHospitalCell }) {
         minWidth: 0,
       }}
     >
-      <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+      <div
+        title={`${cell.name} · ${cell.areaName} · ${ER_LEVEL_LABELS[level]}`}
+        style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}
+      >
         <span
           style={{
             fontFamily: FONT_CJK, fontSize: 10.5, color: COLORS.textDefault,
@@ -141,7 +167,17 @@ function HospitalCell({ cell }: { cell: ErHospitalCell }) {
           <span style={{ fontFamily: FONT_CJK, fontSize: 8.5, color: COLORS.textFaint }}>等床</span>
         </div>
       </div>
-      <Sparkline data={cell.spark.length >= 2 ? cell.spark : [0, 0]} color={color} w={40} h={18} />
+      {/* 逐點 hover 顯示時間 + 等床數，取代原本蓋住整格（含此圖）的 HTML title
+          （院名/區/等級留在左側資訊區的 title，避免跟這裡的浮層在 sparkline 上重疊跳兩個提示） */}
+      <Sparkline
+        data={hasSpark ? cell.spark : [0, 0]}
+        color={color}
+        w={40}
+        h={18}
+        showTooltip={hasSpark}
+        labelAt={(i) => fmtHm(sparkTimes[i])}
+        unit="人"
+      />
     </div>
   );
 }
@@ -149,6 +185,7 @@ function HospitalCell({ cell }: { cell: ErHospitalCell }) {
 /** 全台總集列（卡片頂部、分區 section 之前）— 視覺密度比照能源卡標頭列 */
 function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
   const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
+  const tip = useChartTooltip();
   return (
     <div
       data-testid="er-national-summary"
@@ -187,11 +224,16 @@ function ErNationalSummaryRow({ summary }: { summary: ErSummary }) {
             return (
               <span
                 key={lv}
-                title={`${ER_LEVEL_LABELS[lv]} · ${n} 院 · ${(pct * 100).toFixed(0)}%`}
+                {...tip.bind({
+                  title: ER_LEVEL_LABELS[lv],
+                  rows: [{ dot: ER_LEVEL_COLORS[lv], value: `${n} 院` }],
+                  note: `${(pct * 100).toFixed(0)}%`,
+                })}
                 style={{ width: `${pct * 100}%`, background: ER_LEVEL_COLORS[lv] }}
               />
             );
           })}
+          {tip.node}
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "2px 10px" }}>
           {ER_SEVERITY_ORDER.map((lv) => (
@@ -236,10 +278,10 @@ function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
 /** 區 header 小計迷你比例條（4px 高 × 80px 寬） */
 function ErRegionMiniBar({ summary }: { summary: ErSummary }) {
   const withData = ER_SEVERITY_ORDER.reduce((sum, lv) => sum + summary.counts[lv], 0);
+  const tip = useChartTooltip();
   if (withData === 0) return null;
   return (
     <div
-      title={ER_SEVERITY_ORDER.map((lv) => `${ER_LEVEL_LABELS[lv]} ${summary.counts[lv]}`).join(" · ")}
       style={{
         width: 80, height: 4, borderRadius: RADIUS.sm, overflow: "hidden",
         display: "flex", background: "rgba(255,255,255,0.08)", flexShrink: 0,
@@ -249,9 +291,14 @@ function ErRegionMiniBar({ summary }: { summary: ErSummary }) {
         const n = summary.counts[lv];
         if (n === 0) return null;
         return (
-          <span key={lv} style={{ width: `${(n / withData) * 100}%`, height: "100%", background: ER_LEVEL_COLORS[lv] }} />
+          <span
+            key={lv}
+            {...tip.bind({ title: ER_LEVEL_LABELS[lv], rows: [{ dot: ER_LEVEL_COLORS[lv], value: `${n} 院` }] })}
+            style={{ width: `${(n / withData) * 100}%`, height: "100%", background: ER_LEVEL_COLORS[lv] }}
+          />
         );
       })}
+      {tip.node}
     </div>
   );
 }

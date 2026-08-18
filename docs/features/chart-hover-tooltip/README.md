@@ -131,6 +131,57 @@ return (
 
 想同時畫垂直指示線／hover 圓點時，另存一個 `hoverIdx` state 在 SVG 內畫即可 —— tooltip 本體仍交給基礎設施。
 
+## 共用迷你元件：`Sparkline`（`PressureRing.tsx:206`）
+
+站上有一個共用的迷你折線元件 `Sparkline`（雖然放在 `PressureRing.tsx` 檔裡，但跟 270° gauge
+`PressureRing` 本身無關），被 5 個地方使用：`TwseTicker`（同檔，TAIEX 30D）、
+`ERCard.tsx:144` HospitalCell（每院 24h 等床）、`PowerCard.tsx:431` PlantSparkRow（機組 24h 出力）、
+`SituationCards.tsx:66` DiseaseCard（CDC 疾病趨勢）、`featureInfo/energyPanels.tsx:109`（地圖 popup）。
+
+它吃的資料是 `(number | null)[]` ——**沒有時間軸**，`null` 代表斷線的無資料點。因此它的 hover
+是內建 `useChartTooltip` + `show()`（同「範例二」寫法），但多了幾個 opt-in prop 讓呼叫端把
+「第幾個點」換成有意義的標籤／數值：
+
+```ts
+function Sparkline(props: {
+  data: (number | null)[];
+  color: string;
+  w?: number;
+  h?: number;
+  /** opt-in：逐點 hover 顯示 tooltip。不傳（預設 false）= 完全維持原行為，無事件無浮層。 */
+  showTooltip?: boolean;
+  /** index → tooltip 標題列文字（日期／時間／週次…皆可）。index 對應 `data` 的原始索引（含 null 點）。 */
+  labelAt?: (i: number) => string;
+  /** 數值單位，交給 `fmtChartValue(v, unit)` 格式化數值列。 */
+  unit?: string;
+  /** 完整自訂數值列文字（優先權高於 `unit`），例如固定小數位或非數字格式。 */
+  formatValue?: (v: number, i: number) => string;
+}): JSX.Element
+```
+
+用法（`TwseTicker` 已接線示範）：
+
+```tsx
+<Sparkline
+  data={closes}
+  color={mk}
+  w={360} h={48}
+  showTooltip
+  labelAt={(i) => history[i]?.trade_date ?? ""}
+  unit="點"
+/>
+```
+
+- **向下相容**：`showTooltip` 預設 `false`，其餘 4 個呼叫端（ERCard／PowerCard／SituationCards／
+  energyPanels）目前都沒傳新 prop，行為與改動前完全一致——包括 `energyPanels.tsx` 這個地圖 popup，
+  容器條件跟監看卡片不同也不受影響。
+- **落點在 `null` 上怎麼辦**：hover 換算出的 index 若剛好落在斷線的 `null` 點，會自動往兩側找最近
+  的有值點顯示，不會整段空白沒有 tooltip。
+- **`labelAt` 的 index 語意**：對應 `data` 的原始陣列索引（不是過濾掉 `null` 之後的索引），因為畫線
+  時 x 座標本來就是用原始索引定位——呼叫端若自己有一份平行陣列（例如 `TwseTicker` 的 `history`），
+  直接用同一個 `i` 取值即可，不用另外做索引映射。
+- 之後其他呼叫端要接線，只需傳 `showTooltip` + `labelAt`（+ `unit` 或 `formatValue`），不用碰元件本體。
+
 ## 呼叫端容器要滿足什麼條件
 
 **基本上沒有。** 這是選 portal 路線的主要理由：

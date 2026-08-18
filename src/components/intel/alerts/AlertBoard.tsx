@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { IntelIcon } from "../IntelIcon";
 import {
   COLORS, FONT_CJK, FONT_DATA, MICON,
@@ -11,6 +11,12 @@ import {
   type ActiveAlert,
 } from "../../../data/alertsLoader";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
+
+/** 24 桶（hour-of-day 0-23，見 get_alert_series_24h）→ hover 標題用時:分 */
+function hourLabel(h: number): string {
+  return `${String(h).padStart(2, "0")}:00`;
+}
 
 interface Props {
   tally: AlertTally;
@@ -29,6 +35,7 @@ function AlertTrend({
   const peak = Math.max(1, ...totals);
   const W = 100;
   const H = 28;
+  const tip = useChartTooltip();
 
   const points = totals
     .map((v, i) => {
@@ -38,6 +45,17 @@ function AlertTrend({
     })
     .join(" ");
   const area = `0,${H} ${points} ${W},${H}`;
+
+  function handleMove(e: ReactMouseEvent<SVGSVGElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const xRatio = (e.clientX - rect.left) / rect.width;
+    const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
+    tip.show(e.clientX, e.clientY, {
+      title: hourLabel(h),
+      rows: [{ dot: accent, value: fmtChartValue(totals[h]!, "則") }],
+    });
+  }
 
   return (
     <div
@@ -78,6 +96,8 @@ function AlertTrend({
         viewBox={`0 0 ${W} ${H + 6}`}
         preserveAspectRatio="none"
         style={{ display: "block" }}
+        onMouseMove={handleMove}
+        onMouseLeave={tip.hide}
       >
         <polygon points={area} fill={`${accent}33`} />
         <polyline
@@ -88,6 +108,7 @@ function AlertTrend({
           vectorEffect="non-scaling-stroke"
         />
       </svg>
+      {tip.node}
     </div>
   );
 }
@@ -97,6 +118,7 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
   const peak = Math.max(1, ...data);
   const W = 100;
   const H = 16;
+  const tip = useChartTooltip();
   const pts = data
     .map((v, i) => {
       const x = (i / 23) * W;
@@ -104,22 +126,39 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
       return `${x.toFixed(2)},${y.toFixed(2)}`;
     })
     .join(" ");
+
+  function handleMove(e: ReactMouseEvent<SVGSVGElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const xRatio = (e.clientX - rect.left) / rect.width;
+    const h = Math.max(0, Math.min(Math.round(xRatio * 23), 23));
+    tip.show(e.clientX, e.clientY, {
+      title: hourLabel(h),
+      rows: [{ dot: color, value: fmtChartValue(data[h] ?? 0, "則") }],
+    });
+  }
+
   return (
-    <svg
-      width="100%"
-      height={H}
-      viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="none"
-      style={{ display: "block", opacity: 0.85 }}
-    >
-      <polyline
-        points={pts}
-        fill="none"
-        stroke={color}
-        strokeWidth={0.8}
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
+    <>
+      <svg
+        width="100%"
+        height={H}
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="none"
+        style={{ display: "block", opacity: 0.85 }}
+        onMouseMove={handleMove}
+        onMouseLeave={tip.hide}
+      >
+        <polyline
+          points={pts}
+          fill="none"
+          stroke={color}
+          strokeWidth={0.8}
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      {tip.node}
+    </>
   );
 }
 

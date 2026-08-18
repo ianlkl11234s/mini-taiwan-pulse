@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel, Sparkline } from "./PressureRing";
@@ -53,6 +54,13 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
     ? (RESERVE_INDICATOR_LABELS[indicator.toUpperCase()] ?? indicator)
     : "資料更新中";
   const { regions, plants } = model;
+  const tip = useChartTooltip();
+  /** 各廠 24h 原始 [ts, mw] 序列，供 PlantSparkRow 的 sparkline hover 用時間標籤（model.plants.spark 只留 mw，見 powerCardData.ts） */
+  const plantPointsByName = useMemo(
+    () => new Map((day?.plants ?? []).map((p) => [p.plant_name, p.points])),
+    [day],
+  );
+  const totalRegionMw = regions.reduce((sum, r) => sum + (r.mw ?? 0), 0) || 1;
 
   return (
     <div style={{ gridColumn: "1 / -1", display: "flex", flexDirection: "column", gap: 10 }}>
@@ -114,6 +122,11 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
               <div
                 key={r}
                 data-testid={`power-region-${r}`}
+                {...tip.bind(() => ({
+                  title: r,
+                  rows: [{ dot: COLORS.accent, value: v != null ? fmtChartValue(v, "MW") : "—" }],
+                  note: v != null ? `占四區合計 ${((v / totalRegionMw) * 100).toFixed(1)}%` : undefined,
+                }))}
                 style={{
                   display: "flex", flexDirection: "column", gap: 3,
                   padding: "6px 8px", borderRadius: RADIUS.md,
@@ -183,7 +196,10 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
               {kpis.fuelMix.map((s) => (
                 <span
                   key={s.fuel}
-                  title={`${s.fuel} · ${Math.round(s.mw)} MW · ${(s.pct * 100).toFixed(1)}%`}
+                  {...tip.bind(() => ({
+                    title: s.fuel,
+                    rows: [{ dot: fuelColorOf(s.fuel), value: `${fmtChartValue(s.mw, "MW")} · ${(s.pct * 100).toFixed(1)}%` }],
+                  }))}
                   style={{
                     width: `${s.pct * 100}%`,
                     background: fuelColorOf(s.fuel),
@@ -249,6 +265,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
                 mw={p.mw}
                 rate={p.rate}
                 spark={p.spark}
+                points={plantPointsByName.get(p.name) ?? []}
               />
             ))}
           </div>
@@ -260,6 +277,7 @@ export function PowerCard({ dashboard, day, dayStatus = "loading", trend }: Prop
 
       {/* 30 天供電能力 vs 尖峰負載：疊在同一張圖、共用 MW Y 軸，兩線間距即備轉容量 */}
       <PowerCapacityVsLoad30d trend={trend} />
+      {tip.node}
     </div>
   );
 }
@@ -393,8 +411,15 @@ function Stat({
 }
 
 function PlantSparkRow({
-  name, mw, rate, spark,
-}: { name: string; mw: number | null; rate: number | null; spark: number[] }) {
+  name, mw, rate, spark, points,
+}: {
+  name: string;
+  mw: number | null;
+  rate: number | null;
+  spark: number[];
+  /** 對應 `spark` 每一點的原始 [ts_unix, mw]，供 sparkline hover 標時間用（`spark` 本身已被 buildPowerCardModel 剝掉 ts） */
+  points: [number, number][];
+}) {
   const rateColor = loadRateColor(rate);
   return (
     <div
@@ -428,7 +453,20 @@ function PlantSparkRow({
           )}
         </div>
       </div>
-      <Sparkline data={spark.length ? spark : [0, 0]} color={rateColor} w={48} h={18} />
+      <Sparkline
+        data={spark.length ? spark : [0, 0]}
+        color={rateColor}
+        w={48}
+        h={18}
+        showTooltip
+        labelAt={(i) => {
+          const ts = points[i]?.[0];
+          return ts != null
+            ? new Date(ts * 1000).toLocaleTimeString("en-GB", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false })
+            : "";
+        }}
+        unit="MW"
+      />
     </div>
   );
 }

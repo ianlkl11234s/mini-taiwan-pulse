@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
@@ -7,6 +7,7 @@ import {
   FOOD_LABELS, FOOD_COLORS, FOOD_SCOPE, FOOD_ALERT_HIGH, FOOD_ALERT_LOW,
   type FoodPriceDay, type FoodPriceSummary, type FoodIndicator,
 } from "../../../data/intelLoaders";
+import { useChartTooltip } from "../../ChartHoverTooltip";
 
 /**
  * 食品價格監測（migration 334/336）
@@ -217,7 +218,28 @@ const SPARK_H = 52;
  *  140px 是實機量過的：180 天資料在這個高度才看得出形狀。 */
 const SPARK_MIN_H = 140;
 
+/** "YYYY-MM-DD" → "M/D"（純字串切割，不經 Date 物件，避免時區偏移） */
+function fmtTradeDate(iso: string): string {
+  const [, m, d] = iso.split("-");
+  return `${Number(m)}/${Number(d)}`;
+}
+
+/** 異常區段 hover 補充說明 —— 文案對齊 StatusDot／Legend 既有用詞 */
+function anomalyNote(light: FoodPriceDay["light"], devPct: number | null): string | undefined {
+  switch (light) {
+    case "red":
+      return (devPct ?? 0) < 0 ? "異常偏低（供給過剩）" : "異常偏高（民生壓力）";
+    case "amber":
+      return "注意（偏離常態）";
+    case "low_coverage":
+      return "當日資料未齊";
+    default:
+      return undefined;
+  }
+}
+
 function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string }) {
+  const tip = useChartTooltip();
   const geom = useMemo(() => {
     const pts = series.filter((d) => Number.isFinite(d.indexVal));
     if (pts.length < 2) return null;
@@ -253,11 +275,28 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
     if (run) bands.push({ x0: x((run as { i0: number }).i0), x1: 100, up: (run as { up: boolean }).up });
 
     const last = pts[pts.length - 1]!;
-    return { d, bands, lastX: x(pts.length - 1), lastY: y(last.indexVal), mn, mx };
+    return { d, bands, lastX: x(pts.length - 1), lastY: y(last.indexVal), mn, mx, pts };
   }, [series]);
 
   if (!geom) {
     return <div style={{ flex: 1, minHeight: SPARK_MIN_H, display: "flex", alignItems: "center", fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textGhost }}>資料不足</div>;
+  }
+
+  function handleMove(e: ReactMouseEvent<SVGSVGElement>) {
+    const pts = geom!.pts;
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width === 0 || pts.length === 0) return;
+    const xRatio = (e.clientX - rect.left) / rect.width;
+    const i = Math.max(0, Math.min(Math.round(xRatio * (pts.length - 1)), pts.length - 1));
+    const p = pts[i]!;
+    tip.show(e.clientX, e.clientY, {
+      title: fmtTradeDate(p.tradeDate),
+      rows: [
+        { dot: color, label: "指數", value: p.indexVal.toFixed(1) },
+        { label: "偏離常態", value: p.devPct === null ? "—" : `${p.devPct > 0 ? "+" : ""}${p.devPct.toFixed(1)}%` },
+      ],
+      note: anomalyNote(p.light, p.devPct),
+    });
   }
 
   return (
@@ -271,6 +310,8 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", overflow: "visible" }}
       role="img"
       aria-label={`近 180 天走勢，區間 ${geom.mn.toFixed(0)} 至 ${geom.mx.toFixed(0)}`}
+      onMouseMove={handleMove}
+      onMouseLeave={tip.hide}
     >
       {/* 異常區段底色：紅=偏高、青=偏低 */}
       {geom.bands.map((b, i) => (
@@ -287,6 +328,7 @@ function Sparkline({ series, color }: { series: FoodPriceDay[]; color: string })
       <path d={geom.d} fill="none" stroke={color} strokeWidth={1.4} vectorEffect="non-scaling-stroke" strokeLinejoin="round" strokeLinecap="round" />
       <circle cx={geom.lastX} cy={geom.lastY} r={1.6} fill={color} vectorEffect="non-scaling-stroke" />
     </svg>
+    {tip.node}
     </div>
   );
 }
