@@ -89,3 +89,15 @@
 - `last_connected`, `status_since`, `total_uptime` — 連線狀態
 - `coord_qc_status`, `location_obfuscation_m` — 座標品質與模糊化揭露
 - `source`, `source_url`, `terms_url`, `usage_note`, `attribution`, `retrieved_at` — provenance／使用限制
+
+## Ookla 網路效能格網（行動／固定）
+
+- 產物：`public/geo/ookla_mobile_performance.geojson`、`public/geo/ookla_fixed_performance.geojson`
+- 上游：Ookla Speedtest Global Internet Performance Maps 2026 Q1；以 z6 quadkey 聚合，避免把原始 z16 tile 當成 coverage geometry。
+- 資料量：mobile 3,186,269 個 z16 tiles → 751 格；fixed 6,312,198 個 z16 tiles → 893 格；速度與延遲按 `tests` 加權。
+- 兩層皆為 overlay-only static Polygon，下載速度 `avg_d_kbps` 驅動色階；填色半透明並保留邊界描線。
+- 欄位：`service_type`, `coarse_quadkey`, `coarse_zoom`, `source_tile_zoom`, `avg_d_kbps`, `avg_u_kbps`, `avg_lat_ms`, `tests`, `devices`, `devices_method`, `tile_count`, `period`, `source`, `source_url`, `license`, `attribution`, `accessed_at`, `usage_note`, `sample_bias`, `coverage_caveat`。
+- `devices_method=tile_sum_not_deduplicated`：`devices` 是 z16 tile device counts 加總，未跨 tile 去重，不代表 coarse cell unique devices。
+- 使用限制：Speedtest 使用者樣本，不是 coverage map；樣本存在裝置／使用者偏差，不能推論未測區域的服務可得性。
+- 授權：CC BY-NC-SA 4.0，非商業使用、相同方式分享；popup／legend 必須保留 `© Ookla` 與「Ookla、Speedtest 及相關標誌為 Ookla, LLC 的商標」聲明。
+- 兩個靜態 asset 已納入 Git，走 nginx `/geo/` dist fallback；完整原始 Parquet 不進前端 repo。

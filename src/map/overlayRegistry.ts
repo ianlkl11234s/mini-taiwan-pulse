@@ -1,6 +1,8 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
-import { OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR } from "../data/telecomTypes";
+import {
+  OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR, OOKLA_SPEED_COLOR_EXPR,
+} from "../data/telecomTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
@@ -1893,7 +1895,7 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
     ],
   },
 
-  // ── RIPE Atlas probes（座標經模糊化的量測節點；asset pending）──
+  // ── RIPE Atlas probes（座標經模糊化的量測節點）──
   {
     id: "ripeAtlasProbes",
     sourceUrl: "./geo/ripe_atlas_probes.geojson",
@@ -1915,6 +1917,58 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
       }) },
     ],
   },
+
+  // ── Ookla Speedtest performance grid（使用者量測樣本；不是 coverage）──
+  // 兩個 service type 共用同一個 download 色階；fill 保持半透明，outline 讓底圖仍可讀。
+  ...([{
+    id: "ooklaMobilePerformance",
+    sourceUrl: "./geo/ookla_mobile_performance.geojson",
+    sourceId: "ookla-mobile-performance",
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark: boolean, params?: Record<string, number>) => ({
+          "fill-color": OOKLA_SPEED_COLOR_EXPR,
+          "fill-opacity": (params?.ooklaMobilePerformanceOpacity ?? 0.65) * 0.72,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark: boolean, params?: Record<string, number>) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
+          "line-opacity": params?.ooklaMobilePerformanceOpacity ?? 0.65,
+        }),
+      },
+    ],
+  }, {
+    id: "ooklaFixedPerformance",
+    sourceUrl: "./geo/ookla_fixed_performance.geojson",
+    sourceId: "ookla-fixed-performance",
+    rebuildOnParamChange: ["fill", "line"],
+    layers: [
+      {
+        suffix: "fill",
+        type: "fill",
+        paint: (_isDark: boolean, params?: Record<string, number>) => ({
+          "fill-color": OOKLA_SPEED_COLOR_EXPR,
+          "fill-opacity": (params?.ooklaFixedPerformanceOpacity ?? 0.65) * 0.72,
+        }),
+      },
+      {
+        suffix: "line",
+        type: "line",
+        paint: (isDark: boolean, params?: Record<string, number>) => ({
+          "line-color": isDark ? "rgba(255,255,255,0.55)" : "rgba(15,23,42,0.55)",
+          "line-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 0.7, 11, 1.2],
+          "line-opacity": params?.ooklaFixedPerformanceOpacity ?? 0.65,
+        }),
+      },
+    ],
+  }] as OverlayConfig[]),
 
   // ── Schools 學校總覽 (🎓 教育) ──
   // 2026-08-08：自「基礎建設→公共設施」搬入教育主題，資產改指 public/education/。

@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 364,
+    "keyCount": 366,
     "sections": [
       "gisLayers",
       "overlays",
@@ -61,6 +61,20 @@
         "ripe-atlas-probes-glow"
       ],
       "type": "ripeAtlasProbe"
+    },
+    {
+      "layers": [
+        "ookla-mobile-performance-fill",
+        "ookla-mobile-performance-line"
+      ],
+      "type": "ooklaPerformanceGrid"
+    },
+    {
+      "layers": [
+        "ookla-fixed-performance-fill",
+        "ookla-fixed-performance-line"
+      ],
+      "type": "ooklaPerformanceGrid"
     },
     {
       "layers": [
@@ -6270,6 +6284,278 @@
       ],
       "sourceId": "ripe-atlas-probes",
       "sourceUrl": "./geo/ripe_atlas_probes.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaMobilePerformance",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-mobile-performance",
+      "sourceUrl": "./geo/ookla_mobile_performance.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ooklaFixedPerformance",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            },
+            "light": {
+              "fill-color": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "avg_d_kbps"
+                  ],
+                  0
+                ],
+                0,
+                "#313695",
+                1000,
+                "#4575B4",
+                5000,
+                "#74ADD1",
+                25000,
+                "#ABD9E9",
+                50000,
+                "#FEE090",
+                100000,
+                "#FDAE61",
+                250000,
+                "#F46D43",
+                500000,
+                "#D73027"
+              ],
+              "fill-opacity": 0.46799999999999997
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.55)",
+              "line-opacity": 0.65,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                0.7,
+                11,
+                1.2
+              ]
+            }
+          },
+          "suffix": "line",
+          "type": "line"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "fill",
+        "line"
+      ],
+      "sourceId": "ookla-fixed-performance",
+      "sourceUrl": "./geo/ookla_fixed_performance.geojson"
     },
     {
       "dynamicData": null,
@@ -47749,6 +48035,24 @@
         "min": 0.05,
         "step": 0.05,
         "value": 0.35
+      }
+    ],
+    "ooklaFixedPerformance": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
+      }
+    ],
+    "ooklaMobilePerformance": [
+      {
+        "label": "透明度 0.65",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.65
       }
     ],
     "osmCommunicationSites": [

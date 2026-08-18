@@ -66,7 +66,10 @@ import {
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
 } from "../data/businessRegistryTypes";
-import { IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES } from "../data/telecomTypes";
+import {
+  IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES,
+  OOKLA_SPEED_COLORS,
+} from "../data/telecomTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -393,6 +396,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "anfrWirelessSites", render: () => <AnfrWirelessSitesLegend /> },
   { id: "osmCommunicationSites", render: () => <OsmCommunicationSitesLegend /> },
   { id: "ripeAtlasProbes", render: () => <RipeAtlasProbesLegend /> },
+  { id: "ooklaPerformanceGrid", render: () => <OoklaPerformanceGridLegend /> },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -4272,6 +4276,25 @@ function RipeAtlasProbesLegend() {
     </div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
       座標 80–400m 模糊化 · 志願者偏差 · 僅供研究；商業使用需另取許可 · © RIPE NCC
+    </div>
+  </div>;
+}
+
+function OoklaPerformanceGridLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>
+      OOKLA SPEEDTEST PERFORMANCE GRID
+    </div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {OOKLA_SPEED_COLORS.map((stop) => <div key={stop.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 14, height: 9, background: stop.color, display: "inline-block", border: "1px solid rgba(255,255,255,0.3)" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{stop.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5, lineHeight: 1.35 }}>
+      下載速度（kbps）· 使用者量測樣本，非 coverage map · CC BY-NC-SA 4.0<br />
+      非商業使用／相同方式分享 · © Ookla · Ookla、Speedtest 及相關標誌為 Ookla, LLC 商標
     </div>
   </div>;
 }

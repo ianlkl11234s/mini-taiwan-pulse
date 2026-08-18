@@ -76,3 +76,23 @@ export function ripeAtlasNodeColor(isAnchor: unknown): string {
     ? RIPE_ATLAS_NODE_TYPES[0].color
     : RIPE_ATLAS_NODE_TYPES[1].color;
 }
+
+/**
+ * Ookla Speedtest performance grid colour ramp (download kbps → low/high).
+ * The grid is a user-measurement sample, not a carrier coverage surface.
+ */
+export const OOKLA_SPEED_COLORS = [
+  { value: 0, label: "< 1 Mbps", color: "#313695" },
+  { value: 1_000, label: "1–5 Mbps", color: "#4575B4" },
+  { value: 5_000, label: "5–25 Mbps", color: "#74ADD1" },
+  { value: 25_000, label: "25–50 Mbps", color: "#ABD9E9" },
+  { value: 50_000, label: "50–100 Mbps", color: "#FEE090" },
+  { value: 100_000, label: "100–250 Mbps", color: "#FDAE61" },
+  { value: 250_000, label: "250–500 Mbps", color: "#F46D43" },
+  { value: 500_000, label: "≥ 500 Mbps", color: "#D73027" },
+] as const;
+
+export const OOKLA_SPEED_COLOR_EXPR = [
+  "interpolate", ["linear"], ["to-number", ["get", "avg_d_kbps"], 0],
+  ...OOKLA_SPEED_COLORS.flatMap((stop) => [stop.value, stop.color]),
+] as unknown as string;

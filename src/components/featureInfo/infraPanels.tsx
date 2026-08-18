@@ -209,6 +209,38 @@ export function RipeAtlasProbePanel({ props }: { props: Record<string, unknown> 
   </>;
 }
 
+function formatOoklaMbps(value: unknown): string {
+  const kbps = Number(value);
+  if (!Number.isFinite(kbps)) return "未提供";
+  return `${(kbps / 1000).toFixed(kbps >= 100_000 ? 0 : 1)} Mbps`;
+}
+
+function formatOoklaLatency(value: unknown): string {
+  const latency = Number(value);
+  return Number.isFinite(latency) ? `${latency.toFixed(1)} ms` : "未提供";
+}
+
+export function OoklaPerformanceGridPanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const serviceType = String(props.service_type ?? "Ookla Speedtest");
+  return <>
+    <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong, marginBottom: 6 }}>
+      Ookla 網路效能格網
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>
+      {serviceType} · 使用者量測樣本，不代表覆蓋範圍
+    </div>
+    <Row label="下載／上傳" value={`${formatOoklaMbps(props.avg_d_kbps)} · ${formatOoklaMbps(props.avg_u_kbps)}`} />
+    <Row label="延遲" value={formatOoklaLatency(props.avg_lat_ms)} />
+    <Row label="測試／裝置" value={`${String(props.tests ?? "未提供")} · ${String(props.devices ?? "未提供")}（z16 tile 加總，未跨 tile 去重）`} />
+    <Row label="聚合格網／解析度" value={`${String(props.tile_count ?? "未提供")} 個 z${String(props.source_tile_zoom ?? "未提供")} tiles → z${String(props.coarse_zoom ?? "未提供")} cell`} />
+    <Row label="期間" value={String(props.period ?? "未提供")} />
+    <Row label="限制" value="空格不代表沒有網路；只顯示觀測到的 Speedtest 樣本" />
+    <Row label="樣本偏差" value="Speedtest 使用者不是隨機母體，不能當成人口或 coverage 推估" />
+    <Row label="來源／授權" value="© Ookla · Ookla、Speedtest 及相關標誌為 Ookla, LLC 商標 · CC BY-NC-SA 4.0 · 非商業／相同方式分享" />
+  </>;
+}
+
 export function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {
   const t = useFeatureTheme();
   const brand = String(props.brand ?? "");

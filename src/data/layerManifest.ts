@@ -1253,6 +1253,48 @@ export const LAYER_MANIFEST = {
     topics: ["通訊", "網路量測", "RIPE Atlas", "全球"],
   },
 
+  ooklaMobilePerformance: {
+    key: "ooklaMobilePerformance",
+    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    label: "Ookla 行動網路效能格網 Mobile Performance Grid",
+    expandable: true,
+    color: "#F46D43",
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "network_performance_grid", confidence: "MED" }],
+      note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "ookla-mobile-performance", url: "./geo/ookla_mobile_performance.geojson" },
+    legend: "ooklaPerformanceGrid",
+    popup: "ooklaPerformanceGrid",
+    params: { count: 1, kinds: ["slider"] },
+    description: "Ookla Speedtest 行動網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
+    topics: ["通訊", "網路效能", "Ookla", "全球"],
+  },
+
+  ooklaFixedPerformance: {
+    key: "ooklaFixedPerformance",
+    section: { theme: "通訊 Communications", group: "網路效能格網 Network Performance Grid" },
+    label: "Ookla 固定網路效能格網 Fixed Performance Grid",
+    expandable: true,
+    color: "#FDAE61",
+    icon: Grid3x3,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "network_performance_grid", confidence: "MED" }],
+      note: "Ookla Speedtest 使用者樣本聚合格網；非 coverage map；CC BY-NC-SA 4.0",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "ookla-fixed-performance", url: "./geo/ookla_fixed_performance.geojson" },
+    legend: "ooklaPerformanceGrid",
+    popup: "ooklaPerformanceGrid",
+    params: { count: 1, kinds: ["slider"] },
+    description: "Ookla Speedtest 固定網路下載／上傳／延遲聚合格網；使用者樣本，不代表覆蓋範圍",
+    topics: ["通訊", "網路效能", "Ookla", "全球"],
+  },
+
   convenienceStores: {
     key: "convenienceStores",
     section: { theme: "基礎建設 Infrastructure", group: "公共設施" },

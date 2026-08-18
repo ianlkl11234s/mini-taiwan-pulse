@@ -1131,6 +1131,13 @@ export const THEMES: ThemeDef[] = [
         title: "量測節點 Measurement Nodes",
         layers: [fromManifest("ripeAtlasProbes")],
       },
+      {
+        title: "網路效能格網 Network Performance Grid",
+        layers: [
+          fromManifest("ooklaMobilePerformance"),
+          fromManifest("ooklaFixedPerformance"),
+        ],
+      },
     ],
   },
 
