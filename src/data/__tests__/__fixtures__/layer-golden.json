@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 360,
+    "keyCount": 367,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1236,6 +1236,51 @@
         "business-registry-common-registration-addresses-circle"
       ],
       "type": "commonRegistrationAddresses"
+    },
+    {
+      "layers": [
+        "business-registry-factory-locations-circle"
+      ],
+      "type": "factoryLocations"
+    },
+    {
+      "layers": [
+        "business-registry-regulated-facilities-circle"
+      ],
+      "type": "regulatedFacilities"
+    },
+    {
+      "layers": [
+        "business-registry-company-points-manufacturing-circle"
+      ],
+      "type": "manufacturingCompanyPoints"
+    },
+    {
+      "layers": [
+        "business-registry-company-points-all-circle"
+      ],
+      "type": "companyPoints"
+    },
+    {
+      "layers": [
+        "business-registry-company-capital-grid-fill",
+        "business-registry-company-capital-grid-outline"
+      ],
+      "type": "companyCapitalGrid"
+    },
+    {
+      "layers": [
+        "business-registry-industrial-park-comparison-fill",
+        "business-registry-industrial-park-comparison-outline"
+      ],
+      "type": "industrialParkComparison"
+    },
+    {
+      "layers": [
+        "industrial-zone-park-boundaries-fill",
+        "industrial-zone-park-boundaries-outline"
+      ],
+      "type": "industrialParkBoundaries"
     },
     {
       "layers": [
@@ -10212,6 +10257,846 @@
       "rebuildOnParamChange": null,
       "sourceId": "agri-wholesale-market",
       "sourceUrl": "./agriculture/agri_wholesale_market_companies.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "companyPoints",
+      "layers": [
+        {
+          "filter": [
+            "all"
+          ],
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_q"
+                  ],
+                  0
+                ],
+                0,
+                "#94a3b8",
+                1,
+                "#dbeafe",
+                2,
+                "#93c5fd",
+                3,
+                "#60a5fa",
+                4,
+                "#2563eb",
+                5,
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                2,
+                14,
+                3.2,
+                17,
+                6
+              ],
+              "circle-stroke-color": "#0f172a",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                0,
+                14,
+                0.45,
+                17,
+                0.9
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_q"
+                  ],
+                  0
+                ],
+                0,
+                "#94a3b8",
+                1,
+                "#dbeafe",
+                2,
+                "#93c5fd",
+                3,
+                "#60a5fa",
+                4,
+                "#2563eb",
+                5,
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                2,
+                14,
+                3.2,
+                17,
+                6
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.8,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                0,
+                14,
+                0.45,
+                17,
+                0.9
+              ]
+            }
+          },
+          "suffix": "all-circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 8,
+        "sourceLayer": "company_points"
+      },
+      "rebuildOnParamChange": [
+        "all-circle"
+      ],
+      "sourceId": "business-registry-company-points",
+      "sourceUrl": "./business_registry/company_points_202608.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": [
+        "==",
+        [
+          "get",
+          "is_manufacturing"
+        ],
+        1
+      ],
+      "id": "manufacturingCompanyPoints",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 12,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_q"
+                  ],
+                  0
+                ],
+                0,
+                "#94a3b8",
+                1,
+                "#dbeafe",
+                2,
+                "#93c5fd",
+                3,
+                "#60a5fa",
+                4,
+                "#2563eb",
+                5,
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.82,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                2.2,
+                14,
+                3.5,
+                17,
+                6.4
+              ],
+              "circle-stroke-color": "#431407",
+              "circle-stroke-opacity": 0.82,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                0,
+                14,
+                0.55,
+                17,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_q"
+                  ],
+                  0
+                ],
+                0,
+                "#94a3b8",
+                1,
+                "#dbeafe",
+                2,
+                "#93c5fd",
+                3,
+                "#60a5fa",
+                4,
+                "#2563eb",
+                5,
+                "#7c3aed",
+                "#94a3b8"
+              ],
+              "circle-opacity": 0.82,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                2.2,
+                14,
+                3.5,
+                17,
+                6.4
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.82,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                12,
+                0,
+                14,
+                0.55,
+                17,
+                1
+              ]
+            }
+          },
+          "suffix": "manufacturing-circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 8,
+        "sourceLayer": "company_points"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-company-points",
+      "sourceUrl": "./business_registry/company_points_202608.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "companyCapitalGrid",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_sum"
+                  ],
+                  -1
+                ],
+                "#f5f3ff",
+                3000000,
+                "#ddd6fe",
+                14000000,
+                "#c4b5fd",
+                57000000,
+                "#a78bfa",
+                212000000,
+                "#8b5cf6",
+                581000000,
+                "#7c3aed",
+                5330000000,
+                "#5b21b6"
+              ],
+              "fill-opacity": 0.68
+            },
+            "light": {
+              "fill-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_sum"
+                  ],
+                  -1
+                ],
+                "#f5f3ff",
+                3000000,
+                "#ddd6fe",
+                14000000,
+                "#c4b5fd",
+                57000000,
+                "#a78bfa",
+                212000000,
+                "#8b5cf6",
+                581000000,
+                "#7c3aed",
+                5330000000,
+                "#5b21b6"
+              ],
+              "fill-opacity": 0.68
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 10,
+          "paint": {
+            "dark": {
+              "line-color": "rgba(255,255,255,0.16)",
+              "line-opacity": 0.68,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.15,
+                14,
+                0.55
+              ]
+            },
+            "light": {
+              "line-color": "rgba(15,23,42,0.18)",
+              "line-opacity": 0.68,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                10,
+                0.15,
+                14,
+                0.55
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 6,
+        "sourceLayer": "company_capital_grid"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-company-capital-grid",
+      "sourceUrl": "./business_registry/company_capital_grid_202608.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "factoryLocations",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-color": "#0d9488",
+              "circle-opacity": 0.76,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                2,
+                14,
+                4.5,
+                17,
+                7
+              ],
+              "circle-stroke-color": "#042f2e",
+              "circle-stroke-opacity": 0.76,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                14,
+                0.6,
+                17,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": "#0d9488",
+              "circle-opacity": 0.76,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                2,
+                14,
+                4.5,
+                17,
+                7
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.76,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                14,
+                0.6,
+                17,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "factory_locations"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-factory-locations",
+      "sourceUrl": "./business_registry/factory_locations_202606.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "regulatedFacilities",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 11,
+          "paint": {
+            "dark": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.72,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                2,
+                14,
+                4.5,
+                17,
+                7
+              ],
+              "circle-stroke-color": "#451a03",
+              "circle-stroke-opacity": 0.72,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                14,
+                0.6,
+                17,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": "#d97706",
+              "circle-opacity": 0.72,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                2,
+                14,
+                4.5,
+                17,
+                7
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-opacity": 0.72,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                11,
+                0,
+                14,
+                0.6,
+                17,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "regulated_facilities"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-regulated-facilities",
+      "sourceUrl": "./business_registry/regulated_facilities_20260818.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "industrialParkBoundaries",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "fill-color": "#22c55e",
+              "fill-opacity": 0.24
+            },
+            "light": {
+              "fill-color": "#22c55e",
+              "fill-opacity": 0.24
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "line-color": "#86efac",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.55,
+                12,
+                1.2,
+                15,
+                2
+              ]
+            },
+            "light": {
+              "line-color": "#15803d",
+              "line-opacity": 0.72,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.55,
+                12,
+                1.2,
+                15,
+                2
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "industrial_park_boundaries"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "industrial-zone-park-boundaries",
+      "sourceUrl": "./industrial_zone/industrial_park_boundaries_20260818.pmtiles"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "industrialParkComparison",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "fill-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "factory_count"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#64748b",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "factory_count"
+                    ],
+                    0
+                  ],
+                  "#ede9fe",
+                  10,
+                  "#ddd6fe",
+                  50,
+                  "#c4b5fd",
+                  150,
+                  "#a78bfa",
+                  400,
+                  "#8b5cf6",
+                  800,
+                  "#5b21b6"
+                ]
+              ],
+              "fill-opacity": 0.68
+            },
+            "light": {
+              "fill-color": [
+                "case",
+                [
+                  "<=",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "factory_count"
+                    ],
+                    0
+                  ],
+                  0
+                ],
+                "#64748b",
+                [
+                  "step",
+                  [
+                    "to-number",
+                    [
+                      "get",
+                      "factory_count"
+                    ],
+                    0
+                  ],
+                  "#ede9fe",
+                  10,
+                  "#ddd6fe",
+                  50,
+                  "#c4b5fd",
+                  150,
+                  "#a78bfa",
+                  400,
+                  "#8b5cf6",
+                  800,
+                  "#5b21b6"
+                ]
+              ],
+              "fill-opacity": 0.68
+            }
+          },
+          "suffix": "fill",
+          "type": "fill"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": 5,
+          "paint": {
+            "dark": {
+              "line-color": "#ddd6fe",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.5,
+                12,
+                1.15,
+                15,
+                1.8
+              ]
+            },
+            "light": {
+              "line-color": "#6d28d9",
+              "line-opacity": 0.8500000000000001,
+              "line-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                5,
+                0.5,
+                12,
+                1.15,
+                15,
+                1.8
+              ]
+            }
+          },
+          "suffix": "outline",
+          "type": "line"
+        }
+      ],
+      "pmtiles": {
+        "maxzoom": 14,
+        "minzoom": 5,
+        "sourceLayer": "industrial_park_comparison"
+      },
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-industrial-park-comparison",
+      "sourceUrl": "./business_registry/industrial_park_comparison_20260818.pmtiles"
     },
     {
       "dynamicData": null,
@@ -44030,6 +44915,637 @@
         "value": 1
       }
     ],
+    "companyCapitalGrid": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "資本額總和",
+            "value": "capital_sum"
+          },
+          {
+            "label": "公司數",
+            "value": "n_companies"
+          },
+          {
+            "label": "資本額中位數",
+            "value": "capital_median"
+          }
+        ],
+        "type": "select",
+        "value": "capital_sum"
+      },
+      {
+        "label": "透明度 0.68",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.68
+      }
+    ],
+    "companyPoints": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "行業中類",
+        "options": [
+          {
+            "label": "全部行業",
+            "value": "all"
+          },
+          {
+            "label": "01 農、牧業",
+            "value": "01"
+          },
+          {
+            "label": "02 林業",
+            "value": "02"
+          },
+          {
+            "label": "03 漁業",
+            "value": "03"
+          },
+          {
+            "label": "05 石油及天然氣礦業",
+            "value": "05"
+          },
+          {
+            "label": "06 砂、石採取及其他礦業",
+            "value": "06"
+          },
+          {
+            "label": "08 食品及飼品製造業",
+            "value": "08"
+          },
+          {
+            "label": "09 飲料製造業",
+            "value": "09"
+          },
+          {
+            "label": "10 菸草製造業",
+            "value": "10"
+          },
+          {
+            "label": "11 紡織業",
+            "value": "11"
+          },
+          {
+            "label": "12 成衣及服飾品製造業",
+            "value": "12"
+          },
+          {
+            "label": "13 皮革、毛皮及其製品製造業",
+            "value": "13"
+          },
+          {
+            "label": "14 木竹製品製造業",
+            "value": "14"
+          },
+          {
+            "label": "15 紙漿、紙及紙製品製造業",
+            "value": "15"
+          },
+          {
+            "label": "16 印刷及資料儲存媒體複製業",
+            "value": "16"
+          },
+          {
+            "label": "17 石油及煤製品製造業",
+            "value": "17"
+          },
+          {
+            "label": "18 化學材料及肥料製造業",
+            "value": "18"
+          },
+          {
+            "label": "19 其他化學製品製造業",
+            "value": "19"
+          },
+          {
+            "label": "20 藥品及醫用化學製品製造業",
+            "value": "20"
+          },
+          {
+            "label": "21 橡膠製品製造業",
+            "value": "21"
+          },
+          {
+            "label": "22 塑膠製品製造業",
+            "value": "22"
+          },
+          {
+            "label": "23 非金屬礦物製品製造業",
+            "value": "23"
+          },
+          {
+            "label": "24 基本金屬製造業",
+            "value": "24"
+          },
+          {
+            "label": "25 金屬製品製造業",
+            "value": "25"
+          },
+          {
+            "label": "26 電子零組件製造業",
+            "value": "26"
+          },
+          {
+            "label": "27 電腦、電子產品及光學製品製造業",
+            "value": "27"
+          },
+          {
+            "label": "28 電力設備及配備製造業",
+            "value": "28"
+          },
+          {
+            "label": "29 機械設備製造業",
+            "value": "29"
+          },
+          {
+            "label": "30 汽車及其零件製造業",
+            "value": "30"
+          },
+          {
+            "label": "31 其他運輸工具及其零件製造業",
+            "value": "31"
+          },
+          {
+            "label": "32 家具製造業",
+            "value": "32"
+          },
+          {
+            "label": "33 其他製造業",
+            "value": "33"
+          },
+          {
+            "label": "34 產業用機械設備維修及安裝業",
+            "value": "34"
+          },
+          {
+            "label": "35 電力及燃氣供應業",
+            "value": "35"
+          },
+          {
+            "label": "36 用水供應業",
+            "value": "36"
+          },
+          {
+            "label": "37 廢水及污水處理業",
+            "value": "37"
+          },
+          {
+            "label": "38 廢棄物清除、處理及資源物回收處理業",
+            "value": "38"
+          },
+          {
+            "label": "39 污染整治業",
+            "value": "39"
+          },
+          {
+            "label": "41 建築工程業",
+            "value": "41"
+          },
+          {
+            "label": "42 土木工程業",
+            "value": "42"
+          },
+          {
+            "label": "43 專門營造業",
+            "value": "43"
+          },
+          {
+            "label": "45 批發業",
+            "value": "45"
+          },
+          {
+            "label": "46 批發業",
+            "value": "46"
+          },
+          {
+            "label": "47 零售業",
+            "value": "47"
+          },
+          {
+            "label": "48 零售業",
+            "value": "48"
+          },
+          {
+            "label": "49 陸上運輸業",
+            "value": "49"
+          },
+          {
+            "label": "50 水上運輸業",
+            "value": "50"
+          },
+          {
+            "label": "51 航空運輸業",
+            "value": "51"
+          },
+          {
+            "label": "52 運輸輔助業",
+            "value": "52"
+          },
+          {
+            "label": "53 倉儲業",
+            "value": "53"
+          },
+          {
+            "label": "54 郵政及遞送服務業",
+            "value": "54"
+          },
+          {
+            "label": "55 住宿業",
+            "value": "55"
+          },
+          {
+            "label": "56 餐飲業",
+            "value": "56"
+          },
+          {
+            "label": "58 出版業",
+            "value": "58"
+          },
+          {
+            "label": "59 影片及電視節目業；聲音錄製及音樂發行業",
+            "value": "59"
+          },
+          {
+            "label": "60 廣播、電視節目編排及傳播業",
+            "value": "60"
+          },
+          {
+            "label": "61 電信業",
+            "value": "61"
+          },
+          {
+            "label": "62 電腦程式設計、諮詢及相關服務業",
+            "value": "62"
+          },
+          {
+            "label": "63 資訊服務業",
+            "value": "63"
+          },
+          {
+            "label": "64 金融服務業",
+            "value": "64"
+          },
+          {
+            "label": "65 保險業",
+            "value": "65"
+          },
+          {
+            "label": "66 證券期貨及金融輔助業",
+            "value": "66"
+          },
+          {
+            "label": "67 不動產開發業",
+            "value": "67"
+          },
+          {
+            "label": "68 不動產經營及相關服務業",
+            "value": "68"
+          },
+          {
+            "label": "69 法律及會計服務業",
+            "value": "69"
+          },
+          {
+            "label": "70 企業總管理機構及管理顧問業",
+            "value": "70"
+          },
+          {
+            "label": "71 建築、工程服務及技術檢測、分析服務業",
+            "value": "71"
+          },
+          {
+            "label": "72 研究發展服務業",
+            "value": "72"
+          },
+          {
+            "label": "73 廣告業及市場研究業",
+            "value": "73"
+          },
+          {
+            "label": "74 專門設計業",
+            "value": "74"
+          },
+          {
+            "label": "75 獸醫業",
+            "value": "75"
+          },
+          {
+            "label": "76 其他專業、科學及技術服務業",
+            "value": "76"
+          },
+          {
+            "label": "77 租賃業",
+            "value": "77"
+          },
+          {
+            "label": "78 人力仲介及供應業",
+            "value": "78"
+          },
+          {
+            "label": "79 旅行及其他相關服務業",
+            "value": "79"
+          },
+          {
+            "label": "80 保全及偵探業",
+            "value": "80"
+          },
+          {
+            "label": "81 建築物及綠化服務業",
+            "value": "81"
+          },
+          {
+            "label": "82 行政支援服務業",
+            "value": "82"
+          },
+          {
+            "label": "83 公共行政及國防；強制性社會安全",
+            "value": "83"
+          },
+          {
+            "label": "85 教育業",
+            "value": "85"
+          },
+          {
+            "label": "86 醫療保健業",
+            "value": "86"
+          },
+          {
+            "label": "87 居住型照顧服務業",
+            "value": "87"
+          },
+          {
+            "label": "88 其他社會工作服務業",
+            "value": "88"
+          },
+          {
+            "label": "90 創作及藝術表演業",
+            "value": "90"
+          },
+          {
+            "label": "91 圖書館、檔案保存、博物館及類似機構",
+            "value": "91"
+          },
+          {
+            "label": "92 博弈業",
+            "value": "92"
+          },
+          {
+            "label": "93 運動、娛樂及休閒服務業",
+            "value": "93"
+          },
+          {
+            "label": "94 宗教、職業及類似組織",
+            "value": "94"
+          },
+          {
+            "label": "95 個人及家庭用品維修業",
+            "value": "95"
+          },
+          {
+            "label": "96 未分類其他服務業",
+            "value": "96"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "縣市",
+        "options": [
+          {
+            "label": "全部縣市",
+            "value": "all"
+          },
+          {
+            "label": "臺北市",
+            "value": "臺北市"
+          },
+          {
+            "label": "新北市",
+            "value": "新北市"
+          },
+          {
+            "label": "桃園市",
+            "value": "桃園市"
+          },
+          {
+            "label": "臺中市",
+            "value": "臺中市"
+          },
+          {
+            "label": "臺南市",
+            "value": "臺南市"
+          },
+          {
+            "label": "高雄市",
+            "value": "高雄市"
+          },
+          {
+            "label": "基隆市",
+            "value": "基隆市"
+          },
+          {
+            "label": "新竹市",
+            "value": "新竹市"
+          },
+          {
+            "label": "嘉義市",
+            "value": "嘉義市"
+          },
+          {
+            "label": "新竹縣",
+            "value": "新竹縣"
+          },
+          {
+            "label": "苗栗縣",
+            "value": "苗栗縣"
+          },
+          {
+            "label": "彰化縣",
+            "value": "彰化縣"
+          },
+          {
+            "label": "南投縣",
+            "value": "南投縣"
+          },
+          {
+            "label": "雲林縣",
+            "value": "雲林縣"
+          },
+          {
+            "label": "嘉義縣",
+            "value": "嘉義縣"
+          },
+          {
+            "label": "屏東縣",
+            "value": "屏東縣"
+          },
+          {
+            "label": "宜蘭縣",
+            "value": "宜蘭縣"
+          },
+          {
+            "label": "花蓮縣",
+            "value": "花蓮縣"
+          },
+          {
+            "label": "臺東縣",
+            "value": "臺東縣"
+          },
+          {
+            "label": "澎湖縣",
+            "value": "澎湖縣"
+          },
+          {
+            "label": "金門縣",
+            "value": "金門縣"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "資本額分位",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "缺值",
+            "value": "0"
+          },
+          {
+            "label": "Q1",
+            "value": "1"
+          },
+          {
+            "label": "Q2",
+            "value": "2"
+          },
+          {
+            "label": "Q3",
+            "value": "3"
+          },
+          {
+            "label": "Q4",
+            "value": "4"
+          },
+          {
+            "label": "Q5",
+            "value": "5"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "設立年下限 1918",
+        "max": 2026,
+        "min": 1918,
+        "step": 1,
+        "value": 1918
+      },
+      {
+        "label": "設立年上限 2026",
+        "max": 2026,
+        "min": 1918,
+        "step": 1,
+        "value": 2026
+      },
+      {
+        "label": "製造業",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "是",
+            "value": "yes"
+          },
+          {
+            "label": "否",
+            "value": "no"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "上市櫃",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "是",
+            "value": "yes"
+          },
+          {
+            "label": "否",
+            "value": "no"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "有商標",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "是",
+            "value": "yes"
+          },
+          {
+            "label": "否",
+            "value": "no"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      },
+      {
+        "label": "地址不一致",
+        "options": [
+          {
+            "label": "全部",
+            "value": "all"
+          },
+          {
+            "label": "是",
+            "value": "yes"
+          },
+          {
+            "label": "否",
+            "value": "no"
+          }
+        ],
+        "type": "select",
+        "value": "all"
+      }
+    ],
     "contour25k": [
       {
         "label": "寬度 1.0",
@@ -44746,6 +46262,22 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      }
+    ],
+    "factoryLocations": [
+      {
+        "label": "透明度 0.76",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.76
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "farmRoads": [
@@ -45776,6 +47308,43 @@
         "value": 50
       }
     ],
+    "industrialParkBoundaries": [
+      {
+        "label": "透明度 0.24",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.24
+      }
+    ],
+    "industrialParkComparison": [
+      {
+        "label": "指標",
+        "options": [
+          {
+            "label": "工廠數",
+            "value": "factory_count"
+          },
+          {
+            "label": "製造業公司數",
+            "value": "company_count"
+          },
+          {
+            "label": "公司資本額總和",
+            "value": "company_capital_total_sum"
+          }
+        ],
+        "type": "select",
+        "value": "factory_count"
+      },
+      {
+        "label": "透明度 0.68",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.68
+      }
+    ],
     "industrialPowerPlant": [
       {
         "label": "透明度 0.50",
@@ -46384,6 +47953,22 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      }
+    ],
+    "manufacturingCompanyPoints": [
+      {
+        "label": "透明度 0.82",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.82
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "maritimeBoundary": [
@@ -48269,6 +49854,22 @@
         "label": "排除雙北重繪",
         "type": "toggle",
         "value": false
+      }
+    ],
+    "regulatedFacilities": [
+      {
+        "label": "透明度 0.72",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.72
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "religionAncestralHalls": [

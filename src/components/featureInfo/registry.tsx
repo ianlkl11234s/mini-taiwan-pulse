@@ -64,7 +64,11 @@ import {
   EduKindergartenPanel, EduAfterschoolCarePanel, EduCramSchoolPanel, EduUniversityStudentsPanel,
 } from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
-import { CommonRegistrationAddressesPanel } from "./businessRegistryPanels";
+import {
+  CommonRegistrationAddressesPanel, CompanyCapitalGridPanel, CompanyPointsPanel,
+  FactoryLocationsPanel, IndustrialParkBoundariesPanel, RegulatedFacilitiesPanel,
+  IndustrialParkComparisonPanel,
+} from "./businessRegistryPanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
@@ -218,6 +222,13 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   agriProduceWholesale: AgriCompanyPanel,
   agriWholesaleMarket: AgriCompanyPanel,
   commonRegistrationAddresses: CommonRegistrationAddressesPanel,
+  companyPoints: CompanyPointsPanel,
+  manufacturingCompanyPoints: CompanyPointsPanel,
+  companyCapitalGrid: CompanyCapitalGridPanel,
+  factoryLocations: FactoryLocationsPanel,
+  industrialParkBoundaries: IndustrialParkBoundariesPanel,
+  industrialParkComparison: IndustrialParkComparisonPanel,
+  regulatedFacilities: RegulatedFacilitiesPanel,
   farmRoads: FarmRoadsPanel,
   ecoNetworkZones: EcoNetworkZonesPanel,
   forestryPolygon: ForestryGenericPanel,
@@ -504,6 +515,13 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriProduceWholesale: "蔬果批發商",
   agriWholesaleMarket: "農產批發市場",
   commonRegistrationAddresses: "共同登記地址",
+  companyPoints: "公司登記點位（202608 快照）",
+  manufacturingCompanyPoints: "製造業公司登記點位（202608 快照）",
+  companyCapitalGrid: "公司資本額網格（202608 快照）",
+  factoryLocations: "生產中工廠登記（202606）",
+  industrialParkBoundaries: "產業園區邊界（不含科學園區）",
+  industrialParkComparison: "園區商工比較（觀測值）",
+  regulatedFacilities: "列管設施（20260818）",
   farmRoads: "農路",
   ecoNetworkZones: "國土綠網分區",
   forestryPolygon: "林業面 (polygon)",

@@ -14,6 +14,7 @@
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import { OVERLAY_REGISTRY } from "../../map/overlayRegistry";
+import { COMPANY_INDUSTRY_MID_OPTIONS } from "../businessRegistryTypes";
 
 // ── 已知壞掉、待上游修（ratchet：修好後要從這裡移除，否則測試會提醒）──
 //
@@ -360,4 +361,28 @@ describe("前端硬依賴欄位契約", () => {
       ).toEqual([]);
     });
   }
+});
+
+describe("工商登記 B3 filter contract", () => {
+  it("202608 contract 與共用 B1 PMTiles 契約一致且不發布 PII", () => {
+    const path = "public/business_registry/company_filters_202608.json";
+    expect(existsSync(path), "B3 dated contract 未 staged").toBe(true);
+    const data = JSON.parse(readFileSync(path, "utf8")) as Record<string, any>;
+    expect(data.snapshot).toBe("202608");
+    expect(data.semantics).toContain("不代表即時或目前營業狀態");
+    expect(data.pmtiles?.source_layer).toBe("company_points");
+    expect(data.pmtiles?.feature_count).toBe(654165);
+    expect(data.pmtiles?.fields).toEqual([
+      "capital_total", "capital_q", "is_manufacturing", "categories", "industry_mid",
+      "setup_year", "county", "addr_mismatch", "is_listed", "has_trademark",
+    ]);
+    expect(data.filters?.industry_mid?.options).toHaveLength(89);
+    expect(data.filters?.industry_mid?.options?.[0]?.value).toBe("01");
+    expect(COMPANY_INDUSTRY_MID_OPTIONS).toEqual(
+      data.filters.industry_mid.options.map((o: { value: string; label: string }) => ({
+        value: o.value, label: `${o.value} ${o.label}`,
+      })),
+    );
+    expect(data.privacy?.pii_fields_published).toEqual([]);
+  });
 });

@@ -399,7 +399,24 @@ export const THEMES: ThemeDef[] = [
       {
         title: "整體公司",
         layers: [
+          fromManifest("companyPoints"),
+          fromManifest("companyCapitalGrid"),
           fromManifest("commonRegistrationAddresses"),
+        ],
+      },
+      {
+        title: "製造業",
+        layers: [
+          fromManifest("factoryLocations"),
+          fromManifest("manufacturingCompanyPoints"),
+          fromManifest("regulatedFacilities"),
+        ],
+      },
+      {
+        title: "園區",
+        layers: [
+          fromManifest("industrialParkBoundaries"),
+          fromManifest("industrialParkComparison"),
         ],
       },
     ],

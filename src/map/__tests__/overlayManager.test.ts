@@ -215,6 +215,19 @@ describe("addOverlay (pmtiles)", () => {
     expect(layerSpecs[0]?.["source-layer"]).toBe("rivers");
   });
 
+  it("shared sourceId 只 addSource 一次，但各自 layer 都會建立", () => {
+    const { map, calls } = createMockMap();
+    const sibling: OverlayConfig = {
+      ...pmtilesConfig,
+      id: "waterLevees",
+      layers: [{ suffix: "sibling", type: "line", paint: () => ({ "line-width": 1 }) }],
+    } as unknown as OverlayConfig;
+    addOverlay(map, pmtilesConfig, true, {});
+    addOverlay(map, sibling, true, {});
+    expect(calls.filter((c) => c.method === "addSource")).toHaveLength(1);
+    expect(calls.filter((c) => c.method === "addLayer")).toHaveLength(2);
+  });
+
   it("keeps plain geojson sources untouched (no source-layer)", () => {
     const layerSpecs: Array<Record<string, unknown>> = [];
     const { map, calls } = createMockMap();

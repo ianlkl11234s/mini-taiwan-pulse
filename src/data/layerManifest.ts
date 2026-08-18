@@ -104,7 +104,11 @@ import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
-import { COMMON_REGISTRATION_BASE_COLOR } from "./businessRegistryTypes";
+import {
+  COMMON_REGISTRATION_BASE_COLOR, FACTORY_LOCATION_COLOR,
+  INDUSTRIAL_PARK_COLOR, REGULATED_FACILITY_COLOR,
+  INDUSTRIAL_PARK_COMPARISON_COLORS,
+} from "./businessRegistryTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -145,6 +149,8 @@ export type LayerSource =
       sourceLayer?: string;
       minzoom: number;
       maxzoom: number;
+      /** 與此切片同版、但不另建 layer toggle 的小型契約檔。 */
+      companionAssets?: string[];
     }
   /** dynamicData：source 以空 FeatureCollection 起手，由 loader 按日 setData 餵入 */
   | { kind: "supabase"; sourceId: string; fallbackUrl: string }
@@ -3893,6 +3899,154 @@ export const LAYER_MANIFEST = {
     params: { count: 6, kinds: ["select", "select", "slider", "slider", "toggle", "slider"] },
     description: "YouBike 站點有車率的 H3 聚合（共享運具供給熱區）",
     topics: ["共享運具", "H3", "即時"],
+  },
+
+  companyPoints: {
+    key: "companyPoints",
+    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    label: "公司登記點位 Company Registry",
+    expandable: true,
+    color: "#2563eb",
+    icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "company_points", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-company-points",
+      url: "./business_registry/company_points_202608.pmtiles",
+      sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
+      companionAssets: ["./business_registry/company_filters_202608.json"],
+    },
+    legend: "companyPoints",
+    popup: "companyPoints",
+    params: { count: 11, kinds: ["slider", "slider", "select", "select", "select", "slider", "slider", "select", "select", "select", "select"] },
+    description: "202608 公司登記快照；z12 起顯示，低倍率不提供精確點數解讀",
+    topics: ["工商登記", "公司", "資本額", "行業"],
+  },
+
+  companyCapitalGrid: {
+    key: "companyCapitalGrid",
+    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    label: "公司資本額網格 Company Capital Grid",
+    expandable: true,
+    color: "#7c3aed",
+    icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "company_capital_grid", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-company-capital-grid",
+      url: "./business_registry/company_capital_grid_202608.pmtiles",
+      sourceLayer: "company_capital_grid", minzoom: 6, maxzoom: 14,
+    },
+    legend: "companyCapitalGrid",
+    popup: "companyCapitalGrid",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "150m 非空網格，可切換資本額總和、公司數與資本額中位數",
+    topics: ["工商登記", "公司", "網格", "資本額"],
+  },
+
+  manufacturingCompanyPoints: {
+    key: "manufacturingCompanyPoints",
+    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "製造業公司登記點位 Manufacturing Registry",
+    expandable: true,
+    color: "#f97316",
+    icon: Building2,
+    upstream: { status: "verified", datasets: [{ datasetId: "manufacturing_company_points", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-company-points",
+      url: "./business_registry/company_points_202608.pmtiles",
+      sourceLayer: "company_points", minzoom: 8, maxzoom: 14,
+    },
+    legend: "manufacturingCompanyPoints",
+    popup: "manufacturingCompanyPoints",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "202608 製造業公司登記點位；不是工廠位置，也不代表目前仍營運",
+    topics: ["工商登記", "製造業", "公司"],
+  },
+
+  factoryLocations: {
+    key: "factoryLocations",
+    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "生產中工廠登記 Factory Locations",
+    expandable: true,
+    color: FACTORY_LOCATION_COLOR,
+    icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "factory_locations", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-factory-locations",
+      url: "./business_registry/factory_locations_202606.pmtiles",
+      sourceLayer: "factory_locations", minzoom: 5, maxzoom: 14,
+    },
+    legend: "factoryLocations",
+    popup: "factoryLocations",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "202606 生產中工廠登記點位；僅 90.09% active records 有可發布座標，z11 起顯示",
+    topics: ["工商登記", "製造業", "工廠", "工廠地址"],
+  },
+
+  regulatedFacilities: {
+    key: "regulatedFacilities",
+    section: { theme: "工商登記 Business Registry", group: "製造業" },
+    label: "列管設施 Regulated Facilities",
+    expandable: true,
+    color: REGULATED_FACILITY_COLOR,
+    icon: Factory,
+    upstream: { status: "verified", datasets: [{ datasetId: "regulated_facilities", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-regulated-facilities",
+      url: "./business_registry/regulated_facilities_20260818.pmtiles",
+      sourceLayer: "regulated_facilities", minzoom: 5, maxzoom: 14,
+    },
+    legend: "regulatedFacilities",
+    popup: "regulatedFacilities",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "環境部 20260818 active 列管設施；列管身分不代表排放、裁罰或風險等級，z11 起顯示",
+    topics: ["工商登記", "列管設施", "環境部"],
+  },
+
+  industrialParkBoundaries: {
+    key: "industrialParkBoundaries",
+    section: { theme: "工商登記 Business Registry", group: "園區" },
+    label: "產業園區邊界 Industrial Parks",
+    expandable: true,
+    color: INDUSTRIAL_PARK_COLOR,
+    icon: LandPlot,
+    upstream: { status: "verified", datasets: [{ datasetId: "industrial_park_boundaries", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "industrial-zone-park-boundaries",
+      url: "./industrial_zone/industrial_park_boundaries_20260818.pmtiles",
+      sourceLayer: "industrial_park_boundaries", minzoom: 5, maxzoom: 14,
+    },
+    legend: "industrialParkBoundaries",
+    popup: "industrialParkBoundaries",
+    params: { count: 1, kinds: ["slider"] },
+    description: "20260818 產業園區 polygon；v1 不含科學園區，不以 A3 membership 虛構邊界",
+    topics: ["工商登記", "產業園區", "工業區", "邊界"],
+  },
+
+  industrialParkComparison: {
+    key: "industrialParkComparison",
+    section: { theme: "工商登記 Business Registry", group: "園區" },
+    label: "園區商工比較 Industrial Park Metrics",
+    expandable: true,
+    color: INDUSTRIAL_PARK_COMPARISON_COLORS[4],
+    icon: BarChart3,
+    upstream: { status: "verified", datasets: [{ datasetId: "industrial_park_comparison", confidence: "HIGH" }] },
+    dataClass: "B",
+    source: {
+      kind: "pmtiles", sourceId: "business-registry-industrial-park-comparison",
+      url: "./business_registry/industrial_park_comparison_20260818.pmtiles",
+      sourceLayer: "industrial_park_comparison", minzoom: 5, maxzoom: 14,
+    },
+    legend: "industrialParkComparison",
+    popup: "industrialParkComparison",
+    params: { count: 2, kinds: ["select", "slider"] },
+    description: "215 產業園區內已定位工廠／製造業公司觀測指標；受 geocode coverage 影響，不含科學園區 membership",
+    topics: ["工商登記", "產業園區", "工廠", "公司", "資本額"],
   },
 
   commonRegistrationAddresses: {
