@@ -58,3 +58,21 @@ export const OSM_COMMUNICATION_COLOR_EXPR = [
 export function osmCommunicationColor(siteKind: string): string {
   return OSM_COMMUNICATION_TYPES.find((entry) => entry.value === siteKind)?.color ?? OSM_COMMUNICATION_TYPES[4].color;
 }
+
+export const RIPE_ATLAS_NODE_TYPES = [
+  { value: "anchor", label: "錨點 Anchor", color: "#F59E0B" },
+  { value: "probe", label: "一般探針 Probe", color: "#22D3EE" },
+] as const;
+
+export const RIPE_ATLAS_NODE_COLOR_EXPR = [
+  "match", ["to-string", ["get", "is_anchor"]],
+  "true", "#F59E0B",
+  "1", "#F59E0B",
+  "#22D3EE",
+] as unknown as string;
+
+export function ripeAtlasNodeColor(isAnchor: unknown): string {
+  return isAnchor === true || isAnchor === 1 || isAnchor === "true" || isAnchor === "1"
+    ? RIPE_ATLAS_NODE_TYPES[0].color
+    : RIPE_ATLAS_NODE_TYPES[1].color;
+}

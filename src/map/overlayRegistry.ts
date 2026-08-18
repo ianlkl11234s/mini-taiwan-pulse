@@ -1,6 +1,6 @@
 import type { OverlayConfig } from "../types";
 import { ECO_NETWORK_ZONE_MATCH } from "../data/ecoNetworkZoneTypes";
-import { OSM_COMMUNICATION_COLOR_EXPR } from "../data/telecomTypes";
+import { OSM_COMMUNICATION_COLOR_EXPR, RIPE_ATLAS_NODE_COLOR_EXPR } from "../data/telecomTypes";
 import { FOREST_RESERVE_TYPE_MATCH } from "../data/forestReserveTypes";
 import { NEWS_CATEGORY_COLOR_EXPR } from "../data/newsEventTypes";
 import {
@@ -1889,6 +1889,29 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
         "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
         "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
         "circle-opacity": params?.osmCommunicationSitesOpacity ?? 0.8,
+      }) },
+    ],
+  },
+
+  // ── RIPE Atlas probes（座標經模糊化的量測節點；asset pending）──
+  {
+    id: "ripeAtlasProbes",
+    sourceUrl: "./geo/ripe_atlas_probes.geojson",
+    sourceId: "ripe-atlas-probes",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
+        "circle-blur": 1,
+        "circle-opacity": (params?.ripeAtlasProbesOpacity ?? 0.8) * 0.2,
+      }) },
+      { suffix: "circle", type: "circle", paint: (isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-color": RIPE_ATLAS_NODE_COLOR_EXPR,
+        "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+        "circle-opacity": params?.ripeAtlasProbesOpacity ?? 0.8,
       }) },
     ],
   },

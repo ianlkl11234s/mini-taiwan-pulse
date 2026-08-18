@@ -1127,6 +1127,10 @@ export const THEMES: ThemeDef[] = [
         title: "群眾無線站點 Crowdsourced Wireless Sites",
         layers: [fromManifest("osmCommunicationSites")],
       },
+      {
+        title: "量測節點 Measurement Nodes",
+        layers: [fromManifest("ripeAtlasProbes")],
+      },
     ],
   },
 

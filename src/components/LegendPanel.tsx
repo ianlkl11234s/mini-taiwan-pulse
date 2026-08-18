@@ -66,7 +66,7 @@ import {
   COMMON_REGISTRATION_LEGEND_COUNTS,
   commonRegistrationLegendDiameter,
 } from "../data/businessRegistryTypes";
-import { IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES } from "../data/telecomTypes";
+import { IXP_REGIONS, ANFR_OPERATORS, OSM_COMMUNICATION_TYPES, RIPE_ATLAS_NODE_TYPES } from "../data/telecomTypes";
 import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
@@ -392,6 +392,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "internetExchangePoints", render: () => <InternetExchangePointsLegend /> },
   { id: "anfrWirelessSites", render: () => <AnfrWirelessSitesLegend /> },
   { id: "osmCommunicationSites", render: () => <OsmCommunicationSitesLegend /> },
+  { id: "ripeAtlasProbes", render: () => <RipeAtlasProbesLegend /> },
   { id: "waterCanals", render: () => <WaterCanalLegend /> },
   { id: "lakesPondsOsm", render: () => <LakesPondsLegend /> },
   // 💧 水資源：paint 皆在 overlayRegistry.ts，色票逐條對齊該處的 match 表達式
@@ -4255,6 +4256,22 @@ function OsmCommunicationSitesLegend() {
     </div>
     <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
       全球區域抽樣 · OSM mapped candidates · 非官方／非完整 · © OpenStreetMap contributors
+    </div>
+  </div>;
+}
+
+function RipeAtlasProbesLegend() {
+  const t = useLegendTheme();
+  return <div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 4 }}>RIPE ATLAS CONNECTED PROBES</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {RIPE_ATLAS_NODE_TYPES.map((entry) => <div key={entry.value} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ width: 9, height: 9, borderRadius: RADIUS.full, background: entry.color, display: "inline-block" }} />
+        <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{entry.label}</span>
+      </div>)}
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginTop: 5 }}>
+      座標 80–400m 模糊化 · 志願者偏差 · 僅供研究；商業使用需另取許可 · © RIPE NCC
     </div>
   </div>;
 }

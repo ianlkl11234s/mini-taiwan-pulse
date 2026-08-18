@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 363,
+    "keyCount": 364,
     "sections": [
       "gisLayers",
       "overlays",
@@ -54,6 +54,13 @@
         "osm-communication-sites-glow"
       ],
       "type": "osmCommunicationSite"
+    },
+    {
+      "layers": [
+        "ripe-atlas-probes-circle",
+        "ripe-atlas-probes-glow"
+      ],
+      "type": "ripeAtlasProbe"
     },
     {
       "layers": [
@@ -6069,6 +6076,200 @@
       ],
       "sourceId": "osm-communication-sites",
       "sourceUrl": "./geo/osm_communication_sites.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "ripeAtlasProbes",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.6)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "to-string",
+                  [
+                    "get",
+                    "is_anchor"
+                  ]
+                ],
+                "true",
+                "#F59E0B",
+                "1",
+                "#F59E0B",
+                "#22D3EE"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "ripe-atlas-probes",
+      "sourceUrl": "./geo/ripe_atlas_probes.geojson"
     },
     {
       "dynamicData": null,
@@ -49311,6 +49512,15 @@
         "min": 0.3,
         "step": 0.1,
         "value": 1
+      }
+    ],
+    "ripeAtlasProbes": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
       }
     ],
     "riverLevel": [

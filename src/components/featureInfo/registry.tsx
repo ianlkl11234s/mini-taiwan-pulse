@@ -5,7 +5,7 @@
 import type { FC } from "react";
 import type { FeatureInfo } from "../../types";
 import {
-  SubmarineCablePanel, LandingStationPanel, InternetExchangePointPanel, AnfrWirelessSitePanel, OsmCommunicationSitePanel, ConvenienceStorePanel,
+  SubmarineCablePanel, LandingStationPanel, InternetExchangePointPanel, AnfrWirelessSitePanel, OsmCommunicationSitePanel, RipeAtlasProbePanel, ConvenienceStorePanel,
   PostOfficePanel, IPostBoxPanel, CommunityCenterPanel, GovServiceOfficePanel,
   PublicLibraryPanel, WelfareCenterPanel, RetailMarketPanel, PublicToiletPanel,
   LighthousePanel, PortPanel, AirportPanel, CctvPanel, EtcGantryPanel,
@@ -141,6 +141,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   internetExchangePoint: InternetExchangePointPanel,
   anfrWirelessSite: AnfrWirelessSitePanel,
   osmCommunicationSite: OsmCommunicationSitePanel,
+  ripeAtlasProbe: RipeAtlasProbePanel,
   // 🎓 教育：6 個學校點層共用 school，校地面獨立 eduCampus
   // 學區面：國小／國中共用 eduDistrictK12（欄位契約完全相同），高中就學區另立（縣市級）
   school: SchoolPanel,
@@ -421,6 +422,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   internetExchangePoint: "網際網路交換中心",
   anfrWirelessSite: "法國 ANFR 5G 3500 無線站點",
   osmCommunicationSite: "OSM 通訊候選點",
+  ripeAtlasProbe: "RIPE Atlas 量測節點",
   school: "學校",
   eduCampus: "校地範圍",
   eduDistrictK12: "學區",

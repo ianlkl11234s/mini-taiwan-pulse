@@ -17,7 +17,8 @@
 | `landingStations` | point | GeoJSON | ✅ 既有，移入世界通訊 |
 | `internetExchangePoints` | point | PCH Active IXP GeoJSON | ✅ prototype |
 | `anfrWirelessSites` | point | ANFR Cartoradio GeoJSON | ✅ prototype |
-| `osmCommunicationSites` | point | OpenStreetMap / Overpass GeoJSON | 🟡 contract ready; asset pending |
+| `osmCommunicationSites` | point | OpenStreetMap / Overpass GeoJSON | ✅ 916-point regional prototype |
+| `ripeAtlasProbes` | point | RIPE Atlas public probe metadata | ✅ 3,000-point global overview |
 
 ## 關鍵檔案
 

@@ -1,9 +1,15 @@
 # Changelog — 世界通訊圖層
 
-## 2026-08-18 — OSM communication candidates contract
+## 2026-08-18 — RIPE Atlas connected probes overview
+
+- 新增 `ripeAtlasProbes`：量測節點獨立群組、Anchor／一般 Probe 分色、opacity、legend、popup、click 與 `© RIPE NCC` attribution。
+- Popup／legend 明示座標 80–400m 模糊化、志願者偏差、research use；商業使用需另取許可；不呈現 IP 或 prefix。
+- 納入 3,000／13,534 點 SHA-256 穩定概覽：147 國、239 個 Anchor；完整快照留在 analytics 層。
+
+## 2026-08-18 — OSM communication candidates overview
 
 - 新增 `osmCommunicationSites` contract：群眾無線站點獨立群組、OSM 類型分色、opacity、legend、popup、click 與 attribution。
-- 正式 GeoJSON 尚未提供；保留靜態 URL 與欄位契約，不建立虛構 fixture。
+- 納入 916 個真實候選點，涵蓋 Johannesburg、London、New York、São Paulo、Singapore、Toronto 六個區域；不是全球完整清冊。
 
 ## 2026-08-18 — ANFR wireless sites overview
 

@@ -1232,6 +1232,27 @@ export const LAYER_MANIFEST = {
     topics: ["通訊", "行動網路", "OpenStreetMap", "全球"],
   },
 
+  ripeAtlasProbes: {
+    key: "ripeAtlasProbes",
+    section: { theme: "通訊 Communications", group: "量測節點 Measurement Nodes" },
+    label: "RIPE Atlas 連線量測節點 Connected Probes",
+    expandable: true,
+    color: "#22D3EE",
+    icon: Activity,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "ripe_atlas_probes", confidence: "MED" }],
+      note: "RIPE Atlas public probe metadata 3,000／13,534 點穩定概覽；座標保留 80–400m obfuscation",
+    },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "ripe-atlas-probes", url: "./geo/ripe_atlas_probes.geojson" },
+    legend: "ripeAtlasProbes",
+    popup: "ripeAtlasProbe",
+    params: { count: 1, kinds: ["slider"] },
+    description: "RIPE Atlas 連線量測探針；座標經 80–400m 模糊化，存在志願者偏差",
+    topics: ["通訊", "網路量測", "RIPE Atlas", "全球"],
+  },
+
   convenienceStores: {
     key: "convenienceStores",
     section: { theme: "基礎建設 Infrastructure", group: "公共設施" },

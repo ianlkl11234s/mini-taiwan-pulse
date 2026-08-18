@@ -60,11 +60,11 @@
 
 ## OSM 通訊候選點概覽
 
-- 產物契約：`public/geo/osm_communication_sites.geojson`
+- 產物：`public/geo/osm_communication_sites.geojson`
 - 上游：OpenStreetMap / Overpass；只收 mapped communication candidates，非官方清冊
 - 範圍：全球區域抽樣（`query_region` 保留每筆查詢區域）；不宣稱全球完整
 - 授權：ODbL；介面標示 `© OpenStreetMap contributors`
-- 狀態：前端 contract 已接線，正式 asset 待上游 pipeline 提供；沒有以 fixture 捏造資料
+- 資料量：916 個真實候選點，涵蓋 Johannesburg、London、New York、São Paulo、Singapore、Toronto 六個區域；不是全球完整清冊
 
 硬依賴欄位：
 
@@ -73,3 +73,19 @@
 - `osm_type`, `osm_id`, `source_id` — OSM 識別
 - `relevance`, `query_region` — 候選／抽樣限制揭露
 - `source`, `source_url`, `license`, `attribution`, `fetched_at`, `raw_tags` — provenance
+
+## RIPE Atlas 連線量測節點
+
+- 產物：`public/geo/ripe_atlas_probes.geojson`
+- 上游：RIPE Atlas public probe metadata；完整快照 13,534 點，前端為 `SHA-256(probe_id)` 穩定抽樣 3,000 點（147 國、239 個 Anchor）。
+- 座標：WGS84 / EPSG:4326；RIPE Atlas 座標已模糊化，介面以 80–400m 揭露，不回推精確位置。
+- 使用限制：資料具有 volunteer bias；介面限定 research use，商業使用需另取 RIPE NCC／資料來源許可。
+- attribution：`© RIPE NCC`；popup 不呈現 IP、prefix 或其他網路識別細節。
+
+硬依賴欄位：
+
+- `probe_id`, `country_code`, `country_name` — popup 識別與國家
+- `status_id`, `status_name`, `is_anchor` — 狀態／Anchor 分色
+- `last_connected`, `status_since`, `total_uptime` — 連線狀態
+- `coord_qc_status`, `location_obfuscation_m` — 座標品質與模糊化揭露
+- `source`, `source_url`, `terms_url`, `usage_note`, `attribution`, `retrieved_at` — provenance／使用限制

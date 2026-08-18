@@ -5,7 +5,7 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
-import { ixpRegionColor, anfrOperatorColor } from "../../data/telecomTypes";
+import { ixpRegionColor, anfrOperatorColor, ripeAtlasNodeColor } from "../../data/telecomTypes";
 
 /** 海纜 cable_type 對應色 */
 const CABLE_TYPE_COLORS: Record<string, string> = {
@@ -187,6 +187,25 @@ export function OsmCommunicationSitePanel({ props }: { props: Record<string, unk
     <Row label="高度／Ref" value={[props.height, props.ref].filter(Boolean).map(String).join(" · ")} />
     <Row label="來源／授權" value={`OpenStreetMap · ${String(props.license ?? "ODbL")}`} />
     <Row label="資料時間" value={String(props.fetched_at ?? "")} />
+  </>;
+}
+
+export function RipeAtlasProbePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const isAnchor = props.is_anchor === true || props.is_anchor === 1 || props.is_anchor === "true" || props.is_anchor === "1";
+  return <>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: ripeAtlasNodeColor(props.is_anchor) }} />
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>RIPE Atlas 量測節點</div>
+    </div>
+    <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, marginBottom: 6 }}>Connected probe · 座標已模糊化，非精確位置</div>
+    <Row label="Probe ID／國家" value={[props.probe_id, props.country_code, props.country_name].filter(Boolean).map(String).join(" · ")} />
+    <Row label="類型／狀態" value={`${isAnchor ? "Anchor" : "Probe"} · ${String(props.status_name ?? props.status_id ?? "")}`} color={ripeAtlasNodeColor(props.is_anchor)} />
+    <Row label="連線時間" value={[props.last_connected, props.status_since].filter(Boolean).map(String).join(" · ")} />
+    <Row label="Uptime" value={String(props.total_uptime ?? "")} />
+    <Row label="座標品質" value={`${String(props.coord_qc_status ?? "obfuscated")} · ${String(props.location_obfuscation_m ?? "80–400")}m`} />
+    <Row label="研究用途" value="Volunteer bias；research use only，商業使用需另取許可" />
+    <Row label="來源／授權" value="RIPE NCC · © RIPE NCC" />
   </>;
 }
 
