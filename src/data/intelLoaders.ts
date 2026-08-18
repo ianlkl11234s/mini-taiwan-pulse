@@ -13,6 +13,17 @@ const TTL_SLOW = 115_000;  // 慢變（source health / trending / signals timeli
 const TTL_DAILY = 60 * 60_000;  // 每日一次（pla activity）
 const TTL_WEEKLY = 5 * 60_000;  // 5 分鐘（health weekly / alert series 24h）
 
+/**
+ * Runtime-safe 陣列收斂。
+ * `(x ?? []) as T[]` 只在 x 是 null/undefined 時擋得住 —— RPC 若回傳非陣列的
+ * truthy 值（例如空物件 `{}`），型別斷言完全蓋不住，下游 `[...x]` / `x.map()`
+ * 會直接對不可疊代物件炸掉（曾讓 PressureDrawer 清空整個 React root）。
+ * 所有 loader 一律經這支收斂，非陣列一律降級成 `[]`。
+ */
+function asArray<T>(v: unknown): T[] {
+  return Array.isArray(v) ? (v as T[]) : [];
+}
+
 // ── Source health ────────────────────────────────────────────────
 
 export type SourceStatus = "ok" | "lagging" | "degraded" | "unknown";
@@ -54,7 +65,7 @@ async function _fetchSourceHealthRaw(): Promise<SourceHealthSummary> {
     console.warn("[Intel] get_source_health failed:", error.message);
     return summarize([]);
   }
-  return summarize((data ?? []) as SourceHealthRow[]);
+  return summarize(asArray<SourceHealthRow>(data));
 }
 export const fetchSourceHealth = cachedOnce(_fetchSourceHealthRaw, TTL_SLOW);
 
@@ -85,7 +96,7 @@ async function _fetchNewsTrendingRaw(
     console.warn("[Intel] get_news_trending failed:", error.message);
     return [];
   }
-  return (data ?? []) as TrendingRow[];
+  return asArray<TrendingRow>(data);
 }
 const _trendingCache = keyedThunkCache<TrendingRow[]>(TTL_SLOW);
 export function fetchNewsTrending(windowHours = 1, limit = 30): Promise<TrendingRow[]> {
@@ -150,7 +161,7 @@ async function _fetchPressureIndexRaw(): Promise<PressureIndexNow> {
     level: row.level ?? null,
     vs_baseline: Number(row.vs_baseline ?? 0),
     vs_1h_ago: Number(row.vs_1h_ago ?? 0),
-    per_signal: (row.per_signal ?? []) as PressureSignal[],
+    per_signal: asArray<PressureSignal>(row.per_signal),
     asof: row.asof ?? null,
   };
 }
@@ -181,7 +192,7 @@ async function _fetchSignalsTimelineRaw(
     console.warn("[Intel] get_signals_timeline failed:", error.message);
     return [];
   }
-  return (data ?? []) as SignalsTimelinePoint[];
+  return asArray<SignalsTimelinePoint>(data);
 }
 const _signalsCache = keyedThunkCache<SignalsTimelinePoint[]>(TTL_SLOW);
 export function fetchSignalsTimeline(
@@ -268,7 +279,7 @@ async function _fetchMarketIndexHistoryRaw(): Promise<MarketIndexDailyPoint[]> {
     console.warn("[Intel] get_market_index_daily failed:", error.message);
     return [];
   }
-  return (data ?? []) as MarketIndexDailyPoint[];
+  return asArray<MarketIndexDailyPoint>(data);
 }
 // 日線一天只長一筆（盤中最後一點為當日即時值），10 min TTL 比照 power 24h 慢輪詢
 export const fetchMarketIndexHistory = cachedOnce(_fetchMarketIndexHistoryRaw, 10 * 60_000);
@@ -358,7 +369,7 @@ async function _fetchPlaActivityHistoryRaw(): Promise<PlaActivityDayPoint[]> {
     return [];
   }
   const num = (v: unknown) => (v === null || v === undefined ? null : Number(v));
-  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+  return asArray<Record<string, unknown>>(data).map((r) => ({
     report_date: String(r.report_date),
     sorties: num(r.sorties),
     crossed_median: num(r.crossed_median),
@@ -426,7 +437,7 @@ async function _fetchLiveVideosRaw(onlyLive: boolean): Promise<YtLiveVideo[]> {
     console.warn("[Intel] get_yt_live_videos failed:", error.message);
     return [];
   }
-  return (data ?? []) as YtLiveVideo[];
+  return asArray<YtLiveVideo>(data);
 }
 const _liveVideosCache = keyedThunkCache<YtLiveVideo[]>(TTL_SLOW);
 export function fetchLiveVideos(onlyLive = false): Promise<YtLiveVideo[]> {
@@ -550,7 +561,7 @@ async function _fetchPlaSeverityDaily(windowDays: number): Promise<PlaSeverityDa
     console.warn("[Intel] get_pla_severity_daily failed:", error.message);
     return [];
   }
-  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+  return asArray<Record<string, unknown>>(data).map((r) => ({
     reportDate: String(r.report_date),
     periodEnd: (r.period_end as string | null) ?? null,
     sorties: num(r.sorties),
@@ -621,7 +632,7 @@ async function _fetchPlaKindSummary(windowDays: number): Promise<PlaKindStat[]> 
     console.warn("[Intel] get_pla_kind_summary failed:", error.message);
     return [];
   }
-  return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+  return asArray<Record<string, unknown>>(data).map((r) => ({
     kind: String(r.kind),
     days: Number(r.days ?? 0),
     sortiesExact: Number(r.sorties_exact ?? 0),
@@ -714,7 +725,7 @@ async function _fetchFoodPriceDaily(days: number): Promise<FoodPriceDay[]> {
     console.warn("[Intel] get_food_price_daily failed:", error.message);
     return [];
   }
-  return ((data ?? []) as Record<string, unknown>[])
+  return asArray<Record<string, unknown>>(data)
     .filter((r) => isFoodIndicator(r.indicator))
     .map((r) => ({
       tradeDate: String(r.trade_date),
@@ -738,7 +749,7 @@ async function _fetchFoodPriceSummary(days: number): Promise<FoodPriceSummary[]>
     console.warn("[Intel] get_food_price_summary failed:", error.message);
     return [];
   }
-  return ((data ?? []) as Record<string, unknown>[])
+  return asArray<Record<string, unknown>>(data)
     .filter((r) => isFoodIndicator(r.indicator))
     .map((r) => ({
       indicator: r.indicator as FoodIndicator,

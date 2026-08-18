@@ -42,8 +42,11 @@ function MiniStat({
 }
 
 /** 10 軌 signal 抽屜 — 按貢獻排序 */
-function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
+function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] }) {
   const tip = useChartTooltip();
+  // 防禦：上游若給了非陣列髒資料（型別宣告蓋不住 runtime），這裡收斂成 []
+  // 退化成「無資料」提示，不讓 [...signals] 對不可疊代物件炸掉整個 React root。
+  const signals = Array.isArray(signalsProp) ? signalsProp : [];
   if (signals.length === 0) {
     return (
       <div
