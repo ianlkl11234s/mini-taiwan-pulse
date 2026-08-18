@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 361,
+    "keyCount": 362,
     "sections": [
       "gisLayers",
       "overlays",
@@ -40,6 +40,13 @@
         "internet-exchange-points-glow"
       ],
       "type": "internetExchangePoint"
+    },
+    {
+      "layers": [
+        "anfr-wireless-sites-circle",
+        "anfr-wireless-sites-glow"
+      ],
+      "type": "anfrWirelessSite"
     },
     {
       "layers": [
@@ -5643,6 +5650,220 @@
       ],
       "sourceId": "internet-exchange-points",
       "sourceUrl": "./geo/internet_exchange_points.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "anfrWirelessSites",
+      "layers": [
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            },
+            "light": {
+              "circle-blur": 1,
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.16000000000000003,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                3,
+                7,
+                8,
+                12,
+                14
+              ]
+            }
+          },
+          "suffix": "glow",
+          "type": "circle"
+        },
+        {
+          "filter": null,
+          "layout": null,
+          "minzoom": null,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.6)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "match",
+                [
+                  "at",
+                  0,
+                  [
+                    "get",
+                    "operators"
+                  ]
+                ],
+                "ORANGE",
+                "#F97316",
+                "FREE MOBILE",
+                "#2563EB",
+                "BOUYGUES TELECOM",
+                "#06B6D4",
+                "SFR",
+                "#EF4444",
+                "#94A3B8"
+              ],
+              "circle-opacity": 0.8,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                1.5,
+                7,
+                3.5,
+                12,
+                6
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.55)",
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                0,
+                0.25,
+                7,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": [
+        "glow",
+        "circle"
+      ],
+      "sourceId": "anfr-wireless-sites",
+      "sourceUrl": "./geo/anfr_wireless_sites.geojson"
     },
     {
       "dynamicData": null,
@@ -43693,6 +43914,15 @@
         "min": 0.2,
         "step": 0.1,
         "value": 0.6
+      }
+    ],
+    "anfrWirelessSites": [
+      {
+        "label": "透明度 0.80",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.8
       }
     ],
     "antiCorruptionOffice": [

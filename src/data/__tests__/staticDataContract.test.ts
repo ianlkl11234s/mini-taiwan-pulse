@@ -144,6 +144,13 @@ const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
     { field: "source_org", type: "string" },
     { field: "license", type: "string" },
   ],
+  "geo/anfr_wireless_sites.geojson": [
+    { field: "sup_id", type: "string" },
+    { field: "record_count", type: "number" },
+    { field: "source", type: "string" },
+    { field: "license", type: "string" },
+    { field: "coord_qc_status", type: "string" },
+  ],
   "business_registry/common_registration_addresses_202608.geojson": [
     { field: "address", type: "string" },
     { field: "n_companies", type: "number" },

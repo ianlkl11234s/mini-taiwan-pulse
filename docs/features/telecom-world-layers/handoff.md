@@ -38,3 +38,22 @@
 
 - IXP 是公開目錄位置，不代表機房入口、基地台或服務覆蓋。
 - 海纜／登陸站目前以台灣周邊資料為主；IXP 為全球資料。
+
+## ANFR 5G 3500 官方無線站點概覽
+
+- 產物：`public/geo/anfr_wireless_sites.geojson`
+- 上游：ANFR Cartoradio Open Data，Licence Ouverte / Open Licence 2.0
+- 範圍：`5G NR 3500` 且 `Techniquement opérationnel`
+- 資料量：49,336 antenna/system records → 33,761 個 `SUP_ID`；前端為 SHA-256 穩定抽樣 8,000 點
+- 更新頻率：官方 weekly；目前為 2026-08-18 prototype 快照
+- 供應方式：檔案納入 Git，走 nginx `/geo/` 的 dist fallback；超過 5 MB 時須改 PMTiles 或 zoom gating
+
+硬依賴欄位：
+
+- `sup_id` — popup 識別
+- `operators` — 分色與 popup；陣列第一值作 primary operator
+- `technologies`, `systems`, `statuses` — 範圍與狀態揭露
+- `record_count` — 同一支撐點聚合的原始紀錄數
+- `source`, `license`, `coord_qc_status` — attribution 與品質契約
+
+此層是官方公開點位的瀏覽器概覽抽樣，不是法國完整基地臺清冊，也不代表精確機房邊界。若上游改成全制式、全狀態或全量資料，必須同步修改 layer label、legend、popup 抽樣聲明與 golden fixture。

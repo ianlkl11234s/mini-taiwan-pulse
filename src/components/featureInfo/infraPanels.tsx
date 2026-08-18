@@ -5,7 +5,7 @@ import { RADIUS, FONT_SIZE } from "../../styles/designTokens";
 import { useFeatureTheme } from "./featureTheme";
 import { TimeseriesSparkline, type SparklinePoint } from "../TimeseriesSparkline";
 import { fetchAirportHourlyPax } from "../../data/airportPaxLoader";
-import { ixpRegionColor } from "../../data/telecomTypes";
+import { ixpRegionColor, anfrOperatorColor } from "../../data/telecomTypes";
 
 /** 海纜 cable_type 對應色 */
 const CABLE_TYPE_COLORS: Record<string, string> = {
@@ -136,6 +136,25 @@ export function InternetExchangePointPanel({ props }: { props: Record<string, un
       <Row label="來源／授權" value={`${String(props.source_org ?? "PCH")} · ${String(props.license ?? "")}`} />
     </>
   );
+}
+
+export function AnfrWirelessSitePanel({ props }: { props: Record<string, unknown> }) {
+  const t = useFeatureTheme();
+  const operators = Array.isArray(props.operators) ? props.operators.map(String) : [];
+  const primary = operators[0] ?? "other";
+  return <>
+    <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
+      <div style={{ width: 10, height: 10, borderRadius: RADIUS.full, background: anfrOperatorColor(primary) }} />
+      <div style={{ fontSize: FONT_SIZE.lg, fontWeight: 700, color: t.textStrong }}>ANFR 5G 3500 無線站點</div>
+    </div>
+    <Row label="SUP ID" value={String(props.sup_id ?? "")} />
+    <Row label="營運商" value={operators.join(" · ")} color={anfrOperatorColor(primary)} />
+    <Row label="技術／系統" value={`${String((props.technologies as string[] | undefined)?.join(" · ") ?? "")} · ${String((props.systems as string[] | undefined)?.join(" · ") ?? "")}`} />
+    <Row label="狀態" value={String((props.statuses as string[] | undefined)?.join(" · ") ?? "")} />
+    <Row label="紀錄數" value={String(props.record_count ?? "")} />
+    <Row label="來源" value="ANFR Cartoradio · 8,000／33,761 概覽抽樣" />
+    <Row label="授權" value={String(props.license ?? "Licence Ouverte 2.0")} />
+  </>;
 }
 
 export function ConvenienceStorePanel({ props }: { props: Record<string, unknown> }) {

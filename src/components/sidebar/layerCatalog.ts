@@ -1119,6 +1119,10 @@ export const THEMES: ThemeDef[] = [
           fromManifest("internetExchangePoints"),
         ],
       },
+      {
+        title: "官方無線站點 Official Wireless Sites",
+        layers: [fromManifest("anfrWirelessSites")],
+      },
     ],
   },
 

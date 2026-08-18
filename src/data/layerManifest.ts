@@ -1198,6 +1198,23 @@ export const LAYER_MANIFEST = {
     topics: ["通訊", "網際網路", "IXP", "全球"],
   },
 
+  anfrWirelessSites: {
+    key: "anfrWirelessSites",
+    section: { theme: "通訊 Communications", group: "官方無線站點 Official Wireless Sites" },
+    label: "法國 ANFR 5G 3500 無線站點概覽 France ANFR 5G 3500 Overview",
+    expandable: true,
+    color: "#F97316",
+    icon: Radio,
+    upstream: { status: "verified", datasets: [{ datasetId: "anfr_wireless_sites", confidence: "HIGH" }] },
+    dataClass: "A",
+    source: { kind: "geojson", sourceId: "anfr-wireless-sites", url: "./geo/anfr_wireless_sites.geojson" },
+    legend: "anfrWirelessSites",
+    popup: "anfrWirelessSite",
+    params: { count: 1, kinds: ["slider"] },
+    description: "ANFR 5G NR 3500 技術上可運作站點 8,000／33,761 筆概覽抽樣（法國）",
+    topics: ["通訊", "行動網路", "5G", "全球"],
+  },
+
   convenienceStores: {
     key: "convenienceStores",
     section: { theme: "基礎建設 Infrastructure", group: "公共設施" },

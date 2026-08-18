@@ -103,7 +103,7 @@ export type ExpandableLayerKey =
   | "convenienceStores"
   | "postOffices" | "iPostBoxes" | "communityCenters" | "govServiceOffices"
   | "publicLibraries" | "welfareCenters" | "retailMarkets" | "publicToilets"
-  | "submarineCables" | "landingStations" | "internetExchangePoints"
+  | "submarineCables" | "landingStations" | "internetExchangePoints" | "anfrWirelessSites"
   | "activeFaults"
   | "earthquakeReplay"
   | "mountainRescueIncidents"
@@ -672,7 +672,7 @@ export interface RealEstateTooltipInfo {
 // ── 點擊特徵資訊 ──
 
 export interface FeatureInfo {
-  layerType: "submarineCable" | "landingStation" | "internetExchangePoint" | "school" | "convenienceStore"
+  layerType: "submarineCable" | "landingStation" | "internetExchangePoint" | "anfrWirelessSite" | "school" | "convenienceStore"
     | "postOffice" | "iPostBox" | "communityCenter" | "govServiceOffice"
     | "publicLibrary" | "welfareCenter" | "retailMarket" | "publicToilet"
     | "weatherStation" | "bikeStation" | "busStation" | "lighthouse" | "railStation"
@@ -849,6 +849,7 @@ export interface LayerVisibility {
   submarineCables: boolean;
   landingStations: boolean;
   internetExchangePoints: boolean;
+  anfrWirelessSites: boolean;
   activeFaults: boolean;
   newsEvents: boolean;
   /** 共機活動區（國防部每日航跡示意圖向量化，spatial.pla_tracks · 依日期回放） */

@@ -98,7 +98,7 @@ import {
   commonRegistrationCapitalColorExpr,
   commonRegistrationRadiusExpr,
 } from "../data/businessRegistryTypes";
-import { IXP_REGION_COLOR_EXPR } from "../data/telecomTypes";
+import { IXP_REGION_COLOR_EXPR, ANFR_OPERATOR_COLOR_EXPR } from "../data/telecomTypes";
 
 /**
  * 🎓 教育：總覽層 schools ＋ 5 個分級 ＋ 偏遠層，六者共用同一個 sourceId。
@@ -1843,6 +1843,29 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
           "circle-opacity": params?.internetExchangePointsOpacity ?? 0.85,
         }),
       },
+    ],
+  },
+
+  // ── ANFR Wireless Sites（5G NR 3500 概覽抽樣）──
+  {
+    id: "anfrWirelessSites",
+    sourceUrl: "./geo/anfr_wireless_sites.geojson",
+    sourceId: "anfr-wireless-sites",
+    rebuildOnParamChange: ["glow", "circle"],
+    layers: [
+      { suffix: "glow", type: "circle", paint: (_isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 3, 7, 8, 12, 14],
+        "circle-color": ANFR_OPERATOR_COLOR_EXPR,
+        "circle-blur": 1,
+        "circle-opacity": (params?.anfrWirelessSitesOpacity ?? 0.8) * 0.2,
+      }) },
+      { suffix: "circle", type: "circle", paint: (isDark, params) => ({
+        "circle-radius": ["interpolate", ["linear"], ["zoom"], 0, 1.5, 7, 3.5, 12, 6],
+        "circle-color": ANFR_OPERATOR_COLOR_EXPR,
+        "circle-stroke-color": isDark ? "rgba(255,255,255,0.6)" : "rgba(15,23,42,0.55)",
+        "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 0, 0.25, 7, 1],
+        "circle-opacity": params?.anfrWirelessSitesOpacity ?? 0.8,
+      }) },
     ],
   },
 
