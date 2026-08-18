@@ -4,7 +4,8 @@
 
 - [ ] A3：產品確認篩選語意後，將三個 assertion flags 分開接到既有點層；不得合成 `is_in_park`。
 - [ ] All Off 瀏覽器驗收 A1/A2/A5/A6：z10→z11 gate、popup、暗色底圖、polygon 點擊與 A6 指標切換。
-- [ ] 取得授權後 upload/deploy，驗 production Range Request 與 `/industrial_zone/` 供應鏈。
+- [x] upload immutable assets 並逐檔讀回驗證。
+- [ ] deploy，驗 production Range Request 與 `/industrial_zone/` 供應鏈。
 
 ## 已完成
 

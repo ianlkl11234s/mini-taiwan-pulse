@@ -6,7 +6,8 @@
 
 ## 待辦
 
-- [ ] **BR-B4-RELEASE**：取得授權後上傳 immutable asset、部署並做 production smoke test。
+- [x] **BR-B4-UPLOAD**：immutable asset 已上傳並逐檔讀回驗證 — 2026-08-18。
+- [ ] **BR-B4-RELEASE**：部署並做 production smoke test。
 - [ ] **BR-B4-NEXT**：202609 artifact 到位後以新 dated filename 更新 URL 與 checksum。
 
 ## 已完成（近期）

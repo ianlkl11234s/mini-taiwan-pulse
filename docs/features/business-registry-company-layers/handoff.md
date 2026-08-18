@@ -15,7 +15,7 @@
 | `public/business_registry/company_capital_grid_202608.pmtiles` | 15,114,716 | `35a6ea13c0259525e461792b382b9476fac5fcb931b7192ce69f5f2f0b1be8eb` | `company_capital_grid`, z6–14, 89,754 features |
 | `public/business_registry/company_filters_202608.json` | 14,127 | `733b956d87eabe525f7cceb53cb30b90f8222043c24980f6eac2e42d24c9a895` | 89 行業中類、B1 共用欄位/filter 契約 |
 
-三檔是 gitignored deploy staging；production key 為 `deploy-assets/business_registry/<dated filename>`，本輪未 upload/deploy。
+三檔是 gitignored deploy staging；production key 為 `deploy-assets/business_registry/<dated filename>`。三檔已上傳並逐檔讀回驗證，尚未 deploy。
 
 ## 前端硬依賴
 

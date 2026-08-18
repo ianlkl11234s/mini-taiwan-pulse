@@ -8,7 +8,7 @@
 - `taipei-gis-analytics/docs/handoff/regulated-facilities.md`
 - `taipei-gis-analytics/docs/handoff/industrial-park-comparison.md`
 
-## 已 staged immutable assets
+## 已上傳 immutable assets
 
 | layer | asset | bytes | features | SHA-256 |
 |---|---|---:|---:|---|
@@ -17,7 +17,7 @@
 | A5 | `public/business_registry/regulated_facilities_20260818.pmtiles` | 13,099,677 | 80,732 | `01bd113e218efd3fd6ffbe684ed7f4236d40bae3498bbde7bbeb5e30a1428147` |
 | A6 | `public/business_registry/industrial_park_comparison_20260818.pmtiles` | 584,998 | 215 | `211776fe7e0d307438ab64985cb48c78c74c937228e432436ba8646ba5711ee1` |
 
-四檔均為 source-layer 同名、archive z5–14；A1/A5 前端 z11 gate。assets 為 gitignored staging，本輪未 upload/deploy。
+四檔均為 source-layer 同名、archive z5–14；A1/A5 前端 z11 gate。assets 已上傳並逐檔讀回驗證，尚未 deploy。
 
 ## 語意與 coverage
 

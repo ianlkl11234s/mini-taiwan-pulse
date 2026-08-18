@@ -1,7 +1,7 @@
 # 共同登記地址 Common Registration Addresses
 
 > **Slug**：`common-registration-addresses`
-> **狀態**：staging（本機接線完成，尚未 upload / deploy）
+> **狀態**：release staging（本機接線與 asset upload 完成，尚未 deploy）
 > **Owner**：mini-taiwan-pulse
 > **上線日期**：待部署
 > **相關 PR**：待建立
@@ -14,7 +14,7 @@
 
 | 名稱（layer key） | 類型 | 資料源 | 狀態 |
 |---|---|---|---|
-| `commonRegistrationAddresses` | Point | 版本化 GeoJSON（S3 volume） | 🟡 staging |
+| `commonRegistrationAddresses` | Point | 版本化 GeoJSON（S3 volume） | 🟠 uploaded／待 deploy |
 
 ## 關鍵檔案
 
