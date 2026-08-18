@@ -4,6 +4,7 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { NEWS_CATEGORIES, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 interface HourlyBucket {
   h: number;
@@ -41,6 +42,7 @@ export function HourlyHistogramWidget({ events }: Props) {
   const buckets = useMemo(() => bucketByHour(events), [events]);
   const peak = Math.max(1, ...buckets.map((b) => b.total));
   const nowHour = new Date().getHours();
+  const tip = useChartTooltip();
 
   return (
     <Widget style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -96,7 +98,13 @@ export function HourlyHistogramWidget({ events }: Props) {
           return (
             <div
               key={hd.h}
-              title={`${String(hd.h).padStart(2, "0")}:00 · ${hd.total} 則`}
+              {...tip.bind(() => ({
+                title: `${String(hd.h).padStart(2, "0")}:00`,
+                rows: NEWS_CATEGORIES.filter((c) => hd.c[c.key]).map((c) => ({
+                  dot: c.color, label: c.label, value: fmtChartValue(hd.c[c.key], "則"),
+                })),
+                note: `共 ${hd.total} 則`,
+              }))}
               style={{
                 flex: 1, display: "flex", flexDirection: "column-reverse",
                 height: `${(hd.total / peak) * 100}%`,
@@ -133,6 +141,7 @@ export function HourlyHistogramWidget({ events }: Props) {
         <span>18:00</span>
         <span>23:59</span>
       </div>
+      {tip.node}
     </Widget>
   );
 }

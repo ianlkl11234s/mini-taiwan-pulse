@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { COLORS, FONT_DATA } from "../intelTokens";
 import { RADIUS } from "../../../styles/designTokens";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 /**
  * 災害四卡共用的迷你趨勢柱狀圖 —— **柱高 = 量、柱色 = 強度**。
@@ -65,6 +66,7 @@ export function HazardTrendBars({
   bars, levelColors, height = 44, caption, footer, unit = "",
   onSelectBar, selectedKey = null,
 }: Props) {
+  const tip = useChartTooltip();
   const max = useMemo(() => {
     const vals = bars.map((b) => b.value).filter((v): v is number => v !== null);
     // 比例尺用「本區間最大值」：跨主題共用元件，沒有全域基準可依。
@@ -103,7 +105,7 @@ export function HazardTrendBars({
             return (
               <div
                 key={barKey}
-                title={`${b.label} 無資料`}
+                {...tip.bind(() => ({ title: b.label, rows: [{ value: "無資料" }] }))}
                 onClick={onClick}
                 style={{
                   flex: 1, minWidth: 0, height: "100%",
@@ -117,10 +119,23 @@ export function HazardTrendBars({
           }
           const pct = (b.value / max) * 100;
           const color = levelColors[Math.min(b.level, levelColors.length - 1)] ?? levelColors[0]!;
+          const value = b.value;
           return (
             <div
               key={barKey}
-              title={`${b.label}｜${b.value}${unit}${b.note ? `｜${b.note}` : ""}`}
+              {...tip.bind(() => ({
+                title: b.label,
+                // 整數才走 fmtChartValue 補千分位（落雷/地震/颱風計數類）。
+                // 非整數維持原樣字串接 unit —— 避免 fmtChartValue 對 <10 的值
+                // 強制 toFixed(2) 把輻射卡的 3 位小數（例如 0.058）壓成 2 位。
+                rows: [{
+                  dot: color,
+                  value: Number.isInteger(value)
+                    ? fmtChartValue(value, unit.trim())
+                    : `${value}${unit}`,
+                }],
+                note: b.note,
+              }))}
               onClick={onClick}
               style={{
                 flex: 1, minWidth: 0, height: "100%",
@@ -151,6 +166,7 @@ export function HazardTrendBars({
         {footer && <span style={{ textAlign: "center" }}>{footer}</span>}
         <span>{bars[bars.length - 1]?.label}</span>
       </div>
+      {tip.node}
     </div>
   );
 }

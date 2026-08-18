@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { COLORS, FONT_CJK, FONT_DATA } from "../intelTokens";
 import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { SectionLabel } from "./PressureRing";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 import {
   fetchPlaSeverityDaily, fetchPlaSituationSummary, fetchPlaKindSummary,
   PLA_LEVEL_LABELS, PLA_LEVEL_COLORS, PLA_KIND_LABELS,
@@ -154,10 +155,18 @@ function SeverityHead({ day, summary }: { day: PlaSeverityDay; summary: PlaSitua
 function AxisBar({ label, pct, value, unit }: {
   label: string; pct: number | null; value: number | null; unit: string;
 }) {
+  const tip = useChartTooltip();
   const p = pct ?? 0;
   const color = p >= 97 ? "#ef4444" : p >= 90 ? "#fb923c" : p >= 75 ? "#fbbf24" : p >= 50 ? "#94a3b8" : "#34d399";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+    <div
+      {...tip.bind(() => ({
+        title: label,
+        rows: [{ dot: color, value: value == null ? "無資料" : fmtChartValue(value, unit) }],
+        note: pct == null ? "百分位未知" : `近 ${WINDOW} 天分布第 p${pct}（刻度線：p75／p90）`,
+      }))}
+      style={{ display: "flex", alignItems: "center", gap: 7 }}
+    >
       <span style={{ fontFamily: FONT_CJK, fontSize: 9.5, color: COLORS.textDim, width: 62, flex: "none" }}>
         {label}
       </span>
@@ -171,6 +180,7 @@ function AxisBar({ label, pct, value, unit }: {
       <span style={{ fontFamily: FONT_DATA, fontSize: 9.5, color: COLORS.textDefault, width: 66, flex: "none", textAlign: "right" }}>
         {value ?? "—"} {unit} · p{pct ?? "—"}
       </span>
+      {tip.node}
     </div>
   );
 }
@@ -182,6 +192,7 @@ const TREND_WINDOWS = [120, 90, 30, 7] as const;
 type TrendWindow = (typeof TREND_WINDOWS)[number];
 
 function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+  const tip = useChartTooltip();
   const [win, setWin] = useState<TrendWindow>(120);
   const shown = useMemo(() => (win >= days.length ? days : days.slice(-win)), [days, win]);
 
@@ -239,8 +250,13 @@ function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSitua
         {shown.map((d) => {
           // ⚠️ null = 解析失敗，畫成灰色短樁；0 = 真的零架次，畫成 1px 底線
           if (d.sorties === null) {
-            return <div key={d.reportDate} title={`${d.reportDate} 解析失敗`}
-              style={{ flex: 1, minWidth: 0, height: "100%", background: "rgba(255,255,255,0.07)", borderRadius: 1 }} />;
+            return (
+              <div
+                key={d.reportDate}
+                {...tip.bind({ title: d.reportDate, rows: [{ value: "解析失敗" }] })}
+                style={{ flex: 1, minWidth: 0, height: "100%", background: "rgba(255,255,255,0.07)", borderRadius: 1 }}
+              />
+            );
           }
           const h = (d.sorties / max) * 100;
           const ch = d.crossedMedian ? (d.crossedMedian / max) * 100 : 0;
@@ -248,7 +264,14 @@ function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSitua
           return (
             <div
               key={d.reportDate}
-              title={`${d.reportDate}｜${d.sorties} 架次 (p${d.pctSorties})｜越中線 ${d.crossedMedian ?? "—"} (p${d.pctCrossed})｜${PLA_LEVEL_LABELS[lv]}`}
+              {...tip.bind(() => ({
+                title: d.reportDate,
+                rows: [
+                  { dot: PLA_LEVEL_COLORS[lv], label: "架次", value: `${fmtChartValue(d.sorties!, "架次")} (p${d.pctSorties ?? "—"})` },
+                  { dot: "rgba(0,0,0,0.42)", label: "越中線", value: d.crossedMedian != null ? `${fmtChartValue(d.crossedMedian, "架次")} (p${d.pctCrossed ?? "—"})` : "—" },
+                ],
+                note: PLA_LEVEL_LABELS[lv],
+              }))}
               style={{ flex: 1, minWidth: 0, height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end" }}
             >
               <div style={{ height: `${Math.max(h, d.sorties === 0 ? 1.5 : 3)}%`, background: PLA_LEVEL_COLORS[lv], borderRadius: "1px 1px 0 0", position: "relative" }}>
@@ -259,6 +282,7 @@ function TrendRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSitua
             </div>
           );
         })}
+        {tip.node}
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 8, fontFamily: FONT_DATA, fontSize: 8.5, color: COLORS.textFaint }}>
         <span>{shown[0]?.reportDate ?? summary.dateFrom}</span>
@@ -286,6 +310,7 @@ const ZONES = [
 ] as const;
 
 function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituationSummary }) {
+  const tip = useChartTooltip();
   const latest = days.length ? days[days.length - 1]! : null;
   const maxDays = Math.max(...ZONES.map((z) => summary.zones[z.key]), 1);
   return (
@@ -301,13 +326,22 @@ function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituat
           const on = latest?.adiz[z.key] ?? false;
           // 少見 = 異常訊號（實測中部只有 19/120 天）
           const rare = pct <= 20;
+          const color = rare ? "#a78bfa" : "#60a5fa";
           return (
-            <div key={z.key} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              key={z.key}
+              {...tip.bind(() => ({
+                title: z.label,
+                rows: [{ dot: color, value: `${fmtChartValue(n, "天")}（${pct}%）` }],
+                note: `${on ? "昨日進入" : "昨日未進入"}${rare ? " · 少見（≤20%）" : ""}`,
+              }))}
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
+            >
               <span style={{ fontFamily: FONT_CJK, fontSize: 10, width: 30, flex: "none", color: on ? "#ff8080" : COLORS.textDim, fontWeight: on ? 700 : 400 }}>
                 {on ? "●" : "○"}{z.label}
               </span>
               <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", minWidth: 0 }}>
-                <div style={{ width: `${(n / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: rare ? "#a78bfa" : "#60a5fa" }} />
+                <div style={{ width: `${(n / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: color }} />
               </div>
               <span style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, width: 54, flex: "none", textAlign: "right" }}>
                 {n} 天 {pct}%
@@ -316,6 +350,7 @@ function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituat
           );
         })}
       </div>
+      {tip.node}
     </div>
   );
 }
@@ -323,6 +358,7 @@ function ZoneRow({ days, summary }: { days: PlaSeverityDay[]; summary: PlaSituat
 /* ── 侵擾方式（機型）────────────────────────────────────── */
 
 function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituationSummary }) {
+  const tip = useChartTooltip();
   const shown = useMemo(() => kinds.filter((k) => k.days > 0).slice(0, 6), [kinds]);
   if (!shown.length) return null;
   const maxDays = Math.max(...shown.map((k) => k.days), 1);
@@ -337,19 +373,31 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
           const rare = k.days / summary.daysTotal <= 0.15;
           // 混合項次拆不開 → 只有 sortiesExact 是精確的，標一個記號說明
           const mixed = k.itemsTotal > k.itemsSingle;
+          const color = rare ? "#a78bfa" : "#34d399";
+          const label = PLA_KIND_LABELS[k.kind] ?? k.kind;
+          // 項次精確度說明。原本掛在右側「N 天 *」文字的原生 title 上，
+          // 但那塊 <span> 落在整列的 tip.bind() 熱區內，hover 會跟自訂浮層疊加跳兩個提示。
+          // 併進 note 一起走同一個浮層（原生 title 移除）。
+          const itemsNote = mixed
+            ? `${k.itemsSingle}/${k.itemsTotal} 個項次是單一機型（架次精確 ${k.sortiesExact}）；其餘為多機型合併計數，各自架次不可拆`
+            : `全部 ${k.itemsTotal} 個項次皆單一機型，架次精確`;
           return (
-            <div key={k.kind} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div
+              key={k.kind}
+              {...tip.bind(() => ({
+                title: label,
+                rows: [{ dot: color, value: fmtChartValue(k.days, "天") }],
+                note: `占 ${Math.round((k.days / summary.daysTotal) * 100)}% 天數${rare ? " · 少見" : ""} · ${itemsNote}`,
+              }))}
+              style={{ display: "flex", alignItems: "center", gap: 6 }}
+            >
               <span style={{ fontFamily: FONT_CJK, fontSize: 10, width: 44, flex: "none", color: rare ? "#c4b5fd" : COLORS.textDim }}>
-                {PLA_KIND_LABELS[k.kind] ?? k.kind}
+                {label}
               </span>
               <div style={{ flex: 1, height: 6, borderRadius: 3, background: "rgba(255,255,255,0.06)", minWidth: 0 }}>
-                <div style={{ width: `${(k.days / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: rare ? "#a78bfa" : "#34d399" }} />
+                <div style={{ width: `${(k.days / maxDays) * 100}%`, height: "100%", borderRadius: 3, background: color }} />
               </div>
               <span
-                title={mixed
-                  ? `${k.itemsSingle}/${k.itemsTotal} 個項次是單一機型（架次精確 ${k.sortiesExact}）；` +
-                    `其餘為多機型合併計數，各自架次不可拆`
-                  : `全部 ${k.itemsTotal} 個項次皆單一機型，架次精確`}
                 style={{ fontFamily: FONT_DATA, fontSize: 9, color: COLORS.textFaint, width: 62, flex: "none", textAlign: "right" }}
               >
                 {k.days} 天{mixed ? " *" : ""}
@@ -361,6 +409,7 @@ function KindRow({ kinds, summary }: { kinds: PlaKindStat[]; summary: PlaSituati
       <span style={{ fontSize: 8.5, color: COLORS.textFaint }}>
         * 該機型有部分項次與其他機型合併計數，架次不可拆；「出動天數」不受影響、為精確值
       </span>
+      {tip.node}
     </div>
   );
 }

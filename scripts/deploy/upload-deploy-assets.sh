@@ -155,6 +155,40 @@ for f in "${AGRI_FILES[@]}"; do
   aws s3 cp "$f" "s3://$BUCKET/$PREFIX/agriculture/$name" --region ap-southeast-2
 done
 
+# 🏢 工商登記 Business Registry：dated filename 視為 immutable release asset。
+# 同名 S3 object 若內容相同就跳過（讓整支部署腳本可安全重跑）；內容不同才拒絕覆寫。
+# 新月份應產生新檔名並另開前端 PR 切換 URL。
+for f in public/business_registry/*.geojson public/business_registry/*.pmtiles; do
+  [ -f "$f" ] || continue
+  name=$(basename "$f")
+  key="$PREFIX/business_registry/$name"
+  local_sha256=$(openssl dgst -sha256 "$f" | awk '{print $NF}')
+  if aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 >/dev/null 2>&1; then
+    remote_sha256=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 \
+      --query 'Metadata.sha256' --output text)
+    if [ "$remote_sha256" = "$local_sha256" ]; then
+      echo "Skipping immutable business_registry/$name (same SHA-256)"
+      continue
+    fi
+
+    # 相容舊版腳本已上傳、但尚未帶 sha256 metadata 的單段物件。
+    remote_etag=$(aws s3api head-object --bucket "$BUCKET" --key "$key" --region ap-southeast-2 \
+      --query 'ETag' --output text | tr -d '"')
+    local_md5=$(openssl dgst -md5 "$f" | awk '{print $NF}')
+    if [ "$remote_etag" = "$local_md5" ]; then
+      echo "Skipping immutable business_registry/$name (same legacy ETag)"
+      continue
+    fi
+
+    echo "Refusing to overwrite immutable business_registry/$name (checksum differs)" >&2
+    exit 1
+  fi
+  echo "Uploading business_registry/$name..."
+  aws s3 cp "$f" "s3://$BUCKET/$key" --region ap-southeast-2 \
+    --cache-control "public,max-age=31536000,immutable" \
+    --metadata "sha256=$local_sha256"
+done
+
 # 🛕 宗教 Religion：上傳到 deploy-assets/religion/ 子前綴（鏡像結構，pull 端整夾 sync）
 # 目前 6 個檔都在 git（<5MB）走 dist，此處上傳是為了與其他主題同構 + 日後改走 S3 時零改動
 for f in public/religion/*.geojson public/religion/*.pmtiles; do

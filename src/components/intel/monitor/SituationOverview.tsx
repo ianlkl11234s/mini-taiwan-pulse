@@ -8,6 +8,7 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import type {
   PressureIndexNow, PressureSignal, SourceHealthSummary,
 } from "../../../data/intelLoaders";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 function MiniStat({
   label, en, value, color,
@@ -41,7 +42,11 @@ function MiniStat({
 }
 
 /** 10 軌 signal 抽屜 — 按貢獻排序 */
-function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
+function PressureDrawer({ signals: signalsProp }: { signals: PressureSignal[] }) {
+  const tip = useChartTooltip();
+  // 防禦：上游若給了非陣列髒資料（型別宣告蓋不住 runtime），這裡收斂成 []
+  // 退化成「無資料」提示，不讓 [...signals] 對不可疊代物件炸掉整個 React root。
+  const signals = Array.isArray(signalsProp) ? signalsProp : [];
   if (signals.length === 0) {
     return (
       <div
@@ -80,7 +85,18 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
         {sorted.map((s) => {
           const lvl = pressureLevel(s.raw);
           return (
-            <div key={s.id} style={{ display: "flex", alignItems: "center", gap: 9 }}>
+            <div
+              key={s.id}
+              {...tip.bind(() => ({
+                title: s.label,
+                rows: [
+                  { dot: lvl.color, label: "貢獻分數", value: fmtChartValue(Math.round(s.raw)) },
+                  { label: "權重", value: `×${s.weight.toFixed(2)}` },
+                ],
+                note: s.note ?? undefined,
+              }))}
+              style={{ display: "flex", alignItems: "center", gap: 9 }}
+            >
               <span style={{ width: 56, flexShrink: 0, display: "flex", alignItems: "baseline", gap: 4 }}>
                 <span
                   style={{
@@ -114,7 +130,6 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
                 />
               </div>
               <span
-                title={s.note ?? undefined}
                 style={{
                   fontFamily: FONT_DATA, fontSize: FONT_SIZE.base, fontWeight: 700,
                   color: lvl.color, width: 30, textAlign: "right", flexShrink: 0,
@@ -126,6 +141,7 @@ function PressureDrawer({ signals }: { signals: PressureSignal[] }) {
           );
         })}
       </div>
+      {tip.node}
       {/* 4-檔戰情等級 legend */}
       <div
         style={{

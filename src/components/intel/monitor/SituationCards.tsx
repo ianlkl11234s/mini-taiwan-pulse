@@ -63,7 +63,18 @@ function DiseaseCard({ d, week }: { d: CdcDisease; week: number }) {
             vs 去年同期
           </span>
         </span>
-        <Sparkline data={d.spark} color={d.color} w={62} h={20} />
+        <Sparkline
+          data={d.spark}
+          color={d.color}
+          w={62}
+          h={20}
+          showTooltip
+          labelAt={(i) => {
+            const w = week - (d.spark.length - 1 - i);
+            return `W${w > 0 ? w : w + 52}`;
+          }}
+          unit={d.unit}
+        />
       </div>
 
       <div

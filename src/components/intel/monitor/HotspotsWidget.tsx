@@ -5,6 +5,7 @@ import { RADIUS, FONT_SIZE } from "../../../styles/designTokens";
 import { getNewsCategoryDef, type NewsCategory } from "../../../data/newsEventTypes";
 import type { ClusterEvent } from "../../../data/newsEventsLoader";
 import { SectionLabel, Widget } from "./PressureRing";
+import { useChartTooltip, fmtChartValue } from "../../ChartHoverTooltip";
 
 interface Hotspot {
   county: string;
@@ -48,6 +49,7 @@ interface Props {
 export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props) {
   const ranked = useMemo(() => rankHotspots(events, countyByEventId), [events, countyByEventId]);
   const maxHot = ranked.length ? ranked[0]!.n : 1;
+  const tip = useChartTooltip();
 
   return (
     <Widget>
@@ -55,10 +57,16 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
       <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
         {ranked.slice(0, 5).map((r, i) => {
           const cat = getNewsCategoryDef(r.topCat);
+          const tipHandlers = tip.bind(() => ({
+            title: r.county,
+            rows: [{ dot: cat.color, label: cat.label, value: fmtChartValue(r.n, "則") }],
+            note: `熱度倍數 ×${r.surge}`,
+          }));
           return (
             <button
               key={r.county}
               onClick={() => onPickHotspot(r.county)}
+              onMouseMove={tipHandlers.onMouseMove}
               style={{
                 display: "flex", alignItems: "center", gap: 9,
                 padding: "6px 8px", borderRadius: RADIUS.lg, cursor: "pointer",
@@ -69,9 +77,10 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
               onMouseEnter={(ev) =>
                 (ev.currentTarget.style.background = "rgba(255,255,255,0.06)")
               }
-              onMouseLeave={(ev) =>
-                (ev.currentTarget.style.background = "rgba(255,255,255,0.02)")
-              }
+              onMouseLeave={(ev) => {
+                ev.currentTarget.style.background = "rgba(255,255,255,0.02)";
+                tipHandlers.onMouseLeave();
+              }}
             >
               <span
                 style={{
@@ -154,6 +163,7 @@ export function HotspotsWidget({ events, countyByEventId, onPickHotspot }: Props
           </div>
         )}
       </div>
+      {tip.node}
     </Widget>
   );
 }

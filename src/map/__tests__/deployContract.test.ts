@@ -280,6 +280,13 @@ describe("deploy 契約（nginx + pull script）", () => {
 });
 
 describe("deploy 契約（manifest 逐檔）", () => {
+  it("business_registry immutable asset 可安全重跑，相同 checksum 不覆寫也不阻斷後續上傳", () => {
+    expect(uploadScript).toContain("local_sha256=$(openssl dgst -sha256");
+    expect(uploadScript).toContain('[ "$remote_sha256" = "$local_sha256" ]');
+    expect(uploadScript).toContain("Skipping immutable business_registry/$name (same SHA-256)");
+    expect(uploadScript).toContain('--metadata "sha256=$local_sha256"');
+  });
+
   it("sanity：三個解析器都有掃到東西（空轉 = 假綠，比缺口更危險）", () => {
     expect(ASSETS.size, "manifest 靜態資產枚舉為空 → 收集器壞了").toBeGreaterThan(150);
     expect(NGINX_LOCS.length, "nginx location 解析為空").toBeGreaterThan(20);

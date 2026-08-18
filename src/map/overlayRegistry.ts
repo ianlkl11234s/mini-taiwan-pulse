@@ -94,6 +94,10 @@ import {
 import {
   maritimeBoundaryColorExpr, MARITIME_SOLID_LINE_KINDS,
 } from "../data/maritimeBoundaryTypes";
+import {
+  commonRegistrationCapitalColorExpr,
+  commonRegistrationRadiusExpr,
+} from "../data/businessRegistryTypes";
 
 /**
  * 🎓 教育：總覽層 schools ＋ 5 個分級 ＋ 偏遠層，六者共用同一個 sourceId。
@@ -3410,6 +3414,41 @@ export const OVERLAY_REGISTRY: OverlayConfig[] = [
             "circle-stroke-color": isDark ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.45)",
             "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 6, 0.6, 14, 1.4],
             "circle-opacity": opacity,
+            "circle-stroke-opacity": opacity,
+          };
+        },
+      },
+    ],
+  },
+
+  // ── 🏢 工商登記 Business Registry ──
+  // 共同登記地址已是建物級聚合；不再 cluster，避免破壞「一點 = 一個門牌」語意。
+  {
+    id: "commonRegistrationAddresses",
+    sourceUrl: "./business_registry/common_registration_addresses_202608.geojson",
+    sourceId: "business-registry-common-registration-addresses",
+    layers: [
+      {
+        suffix: "circle",
+        type: "circle",
+        minzoom: 6,
+        layout: {
+          "circle-sort-key": ["to-number", ["get", "n_companies"], 0],
+        },
+        paint: (isDark, p) => {
+          const scale = p?.commonRegistrationAddressesScale ?? 1;
+          const opacity = p?.commonRegistrationAddressesOpacity ?? 0.75;
+          return {
+            "circle-radius": commonRegistrationRadiusExpr(scale),
+            "circle-color": commonRegistrationCapitalColorExpr(),
+            "circle-opacity": opacity,
+            "circle-stroke-color": isDark ? "rgba(255,255,255,0.72)" : "rgba(15,23,42,0.62)",
+            "circle-stroke-width": [
+              "interpolate", ["linear"], ["zoom"],
+              6, 0.2,
+              10, 0.55,
+              14, 1,
+            ],
             "circle-stroke-opacity": opacity,
           };
         },

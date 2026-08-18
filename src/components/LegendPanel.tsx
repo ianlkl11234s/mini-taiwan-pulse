@@ -61,6 +61,12 @@ import {
 } from "../data/urbanOpenSpaceTypes";
 import { CANOPY_GIANT_DIST_BANDS } from "../data/canopyGiantsTypes";
 import {
+  COMMON_REGISTRATION_BASE_COLOR,
+  COMMON_REGISTRATION_CAPITAL_BANDS,
+  COMMON_REGISTRATION_LEGEND_COUNTS,
+  commonRegistrationLegendDiameter,
+} from "../data/businessRegistryTypes";
+import {
   CULTURAL_FACILITY_TYPES, CULTURAL_MUSEUM_TYPES,
   ARTS_EVENT_ONGOING_COLOR, ARTS_EVENT_UPCOMING_COLOR, PERFORMING_VENUE_COLOR,
   LIBRARY_SEATS_COLORS,
@@ -319,6 +325,7 @@ export const LEGEND_REGISTRY: LegendEntry[] = [
   { id: "agriCropSuitability", render: ({ overlayParams }) => <CropSuitabilityLegend cropId={overlayParams.agriCropSuitabilityCropId ?? 0} /> },
   { id: "agriPOI", render: () => <AgriPOILegend /> },
   { id: "agriRetail", render: ({ visibility }) => <AgriCompanyLegend visibility={visibility} /> },
+  { id: "commonRegistrationAddresses", render: () => <CommonRegistrationAddressesLegend /> },
   { id: "agriSoilFertility", render: ({ overlayParams }) => <SoilFertilityLegend metricIdx={overlayParams.agriSoilFertilityMetricIdx ?? 0} /> },
   { id: "fireEvents", render: () => <FireEventLegend /> },
   { id: "realEstateRentalGrid", render: ({ visibility, overlayParams }) => <RealEstateLegend visibility={visibility} overlayParams={overlayParams} /> },
@@ -2742,6 +2749,52 @@ function MedicalLegend({ visibility }: { visibility: LayerVisibility }) {
             </span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function CommonRegistrationAddressesLegend() {
+  const t = useLegendTheme();
+  return (
+    <div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, letterSpacing: 1, marginBottom: 5 }}>
+        共同登記地址 SHARED REGISTRATION
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginBottom: 3 }}>
+        顏色＝資本額中位數
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 10px" }}>
+        {COMMON_REGISTRATION_CAPITAL_BANDS.map((band) => (
+          <div key={band.min} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+            <div style={{
+              width: 9, height: 9, borderRadius: RADIUS.full, background: band.color,
+              border: "1px solid rgba(255,255,255,0.55)", flexShrink: 0,
+            }} />
+            <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{band.label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textMuted, marginTop: 7, marginBottom: 3 }}>
+        大小＝共同登記公司數
+      </div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 14, minHeight: 24 }}>
+        {COMMON_REGISTRATION_LEGEND_COUNTS.map((count) => {
+          const diameter = commonRegistrationLegendDiameter(count);
+          return (
+            <div key={count} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <div style={{
+                width: diameter, height: diameter, borderRadius: RADIUS.full,
+                background: COMMON_REGISTRATION_BASE_COLOR,
+                border: "1px solid rgba(255,255,255,0.7)", flexShrink: 0,
+              }} />
+              <span style={{ fontSize: FONT_SIZE.xs, color: t.textMuted }}>{count} 家</span>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ fontSize: FONT_SIZE.xs, color: t.textDim, lineHeight: 1.45, marginTop: 6 }}>
+        每點為一個門牌，僅呈現同址登記至少 5 家公司的事實。
       </div>
     </div>
   );
