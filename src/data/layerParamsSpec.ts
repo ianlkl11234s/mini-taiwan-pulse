@@ -1012,6 +1012,10 @@ export const LAYER_PARAMS_SPEC = {
   librarySeats: [opacitySlider("librarySeatsOpacity", 0.9)],
   parkingOnstreet: [opacitySlider("parkingOnstreetOpacity", 0.6)],
   parkingOffstreet: [opacitySlider("parkingOffstreetOpacity", 0.9)],
+  commonRegistrationAddresses: [
+    opacitySlider("commonRegistrationAddressesOpacity", 0.75),
+    scaleSlider("commonRegistrationAddressesScale", 1.0),
+  ],
   medHospital: [opacitySlider("medHospitalOpacity", 0.9), scaleSlider("medHospitalScale", 1.0)],
   medClinic: [opacitySlider("medClinicOpacity", 0.85), scaleSlider("medClinicScale", 1.0)],
   medPharmacy: [opacitySlider("medPharmacyOpacity", 0.85), scaleSlider("medPharmacyScale", 1.0)],

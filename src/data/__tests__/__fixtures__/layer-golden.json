@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 359,
+    "keyCount": 360,
     "sections": [
       "gisLayers",
       "overlays",
@@ -1230,6 +1230,12 @@
         "agri-pois-circle"
       ],
       "type": "agriPOI"
+    },
+    {
+      "layers": [
+        "business-registry-common-registration-addresses-circle"
+      ],
+      "type": "commonRegistrationAddresses"
     },
     {
       "layers": [
@@ -10206,6 +10212,453 @@
       "rebuildOnParamChange": null,
       "sourceId": "agri-wholesale-market",
       "sourceUrl": "./agriculture/agri_wholesale_market_companies.geojson"
+    },
+    {
+      "dynamicData": null,
+      "filter": null,
+      "id": "commonRegistrationAddresses",
+      "layers": [
+        {
+          "filter": null,
+          "layout": {
+            "circle-sort-key": [
+              "to-number",
+              [
+                "get",
+                "n_companies"
+              ],
+              0
+            ]
+          },
+          "minzoom": 6,
+          "paint": {
+            "dark": {
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_median"
+                  ],
+                  0
+                ],
+                "#dbeafe",
+                1000000,
+                "#bfdbfe",
+                3000000,
+                "#93c5fd",
+                6000000,
+                "#60a5fa",
+                15000000,
+                "#3b82f6",
+                30000000,
+                "#1d4ed8",
+                100000000,
+                "#7c3aed"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  0.55,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  0.85,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  1.2,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ],
+                16,
+                [
+                  "*",
+                  1,
+                  1.5,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "rgba(255,255,255,0.72)",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.2,
+                10,
+                0.55,
+                14,
+                1
+              ]
+            },
+            "light": {
+              "circle-color": [
+                "step",
+                [
+                  "to-number",
+                  [
+                    "get",
+                    "capital_median"
+                  ],
+                  0
+                ],
+                "#dbeafe",
+                1000000,
+                "#bfdbfe",
+                3000000,
+                "#93c5fd",
+                6000000,
+                "#60a5fa",
+                15000000,
+                "#3b82f6",
+                30000000,
+                "#1d4ed8",
+                100000000,
+                "#7c3aed"
+              ],
+              "circle-opacity": 0.75,
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                [
+                  "*",
+                  1,
+                  0.55,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ],
+                10,
+                [
+                  "*",
+                  1,
+                  0.85,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ],
+                14,
+                [
+                  "*",
+                  1,
+                  1.2,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ],
+                16,
+                [
+                  "*",
+                  1,
+                  1.5,
+                  [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "log10",
+                      [
+                        "max",
+                        [
+                          "to-number",
+                          [
+                            "get",
+                            "n_companies"
+                          ],
+                          5
+                        ],
+                        5
+                      ]
+                    ],
+                    0.6989700043360189,
+                    3,
+                    1,
+                    4,
+                    1.3979400086720377,
+                    6,
+                    1.6989700043360187,
+                    8,
+                    2,
+                    10,
+                    2.9030899869919438,
+                    18
+                  ]
+                ]
+              ],
+              "circle-stroke-color": "rgba(15,23,42,0.62)",
+              "circle-stroke-opacity": 0.75,
+              "circle-stroke-width": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "zoom"
+                ],
+                6,
+                0.2,
+                10,
+                0.55,
+                14,
+                1
+              ]
+            }
+          },
+          "suffix": "circle",
+          "type": "circle"
+        }
+      ],
+      "pmtiles": null,
+      "rebuildOnParamChange": null,
+      "sourceId": "business-registry-common-registration-addresses",
+      "sourceUrl": "./business_registry/common_registration_addresses_202608.geojson"
     },
     {
       "dynamicData": true,
@@ -43543,6 +43996,22 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.85
+      }
+    ],
+    "commonRegistrationAddresses": [
+      {
+        "label": "透明度 0.75",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.75
+      },
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
       }
     ],
     "communityCenters": [

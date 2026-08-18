@@ -135,6 +135,11 @@ interface FieldContract {
 }
 
 const FIELD_CONTRACTS: Record<string, FieldContract[]> = {
+  "business_registry/common_registration_addresses_202608.geojson": [
+    { field: "address", type: "string" },
+    { field: "n_companies", type: "number" },
+    { field: "capital_median", type: "number" },
+  ],
   // 2026-08-01 批次（本次上線）
   "hazards/mountain_rescue_incidents.geojson": [
     { field: "case_id", type: "string" },

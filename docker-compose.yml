@@ -11,6 +11,7 @@ services:
       - ./public/aviation_data.json:/data/aviation_data.json:ro
       - ./public/ship_data.json:/data/ship_data.json:ro
       - ./public/rail:/data/rail:ro
+      - ./public/business_registry:/data/business_registry:ro
       - ./public/provincial_road.geojson:/data/provincial_road.geojson:ro
       - ./public/national_highway.geojson:/data/national_highway.geojson:ro
       - ./public/bus_stations_city.geojson:/data/bus_stations_city.geojson:ro

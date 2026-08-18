@@ -740,6 +740,7 @@ export interface FeatureInfo {
     | "agriSoil" | "agriSoilFertility" | "agriLeisureFarmZones" | "agriCropSuitability"
     | "agricultureField" | "wasteTruck" | "rasterProbe"
     | "popCount" | "h3Population" | "indicators" | "socioeconomic" | "spatialEconomy"
+    | "commonRegistrationAddresses"
     | "youbikeFullness"
     | "agriRetail" | "agriProduceWholesale" | "agriWholesaleMarket"
     | "farmRoads" | "ecoNetworkZones"
@@ -830,6 +831,7 @@ export interface LayerVisibility {
   indicators: boolean;
   socioeconomic: boolean;
   spatialEconomy: boolean;
+  commonRegistrationAddresses: boolean; // 共同登記地址（≥5 家；大小=公司數、色=資本額中位數）
   temperatureWave: boolean;
   /** 溫度網格 2D（與 temperatureWave 共用同一份 CWA 0.03° 網格資料，只是改用 fill 色塊呈現） */
   temperatureGrid: boolean;

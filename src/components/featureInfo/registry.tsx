@@ -64,6 +64,7 @@ import {
   EduKindergartenPanel, EduAfterschoolCarePanel, EduCramSchoolPanel, EduUniversityStudentsPanel,
 } from "./educationPanels";
 import { FireEventPanel, FireStationPanel, FireHydrantPanel, FireIsochronePanel } from "./firePanels";
+import { CommonRegistrationAddressesPanel } from "./businessRegistryPanels";
 import { LivestockFarmPanel, LivestockSlaughterPanel, LivestockFeedPanel, LivestockMarketPanel } from "./livestockPanels";
 import {
   AquaculturePondsPanel, AquacultureZonePanel, AquacultureCageNetPanel,
@@ -216,6 +217,7 @@ export const PANEL_REGISTRY: Partial<Record<FeatureInfo["layerType"], FC<PanelPr
   agriRetail: AgriCompanyPanel,
   agriProduceWholesale: AgriCompanyPanel,
   agriWholesaleMarket: AgriCompanyPanel,
+  commonRegistrationAddresses: CommonRegistrationAddressesPanel,
   farmRoads: FarmRoadsPanel,
   ecoNetworkZones: EcoNetworkZonesPanel,
   forestryPolygon: ForestryGenericPanel,
@@ -501,6 +503,7 @@ export const HEADER_LABELS: Record<FeatureInfo["layerType"], string> = {
   agriRetail: "農產零售商",
   agriProduceWholesale: "蔬果批發商",
   agriWholesaleMarket: "農產批發市場",
+  commonRegistrationAddresses: "共同登記地址",
   farmRoads: "農路",
   ecoNetworkZones: "國土綠網分區",
   forestryPolygon: "林業面 (polygon)",

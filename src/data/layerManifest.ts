@@ -104,6 +104,7 @@ import { RELIGION_LAYER_COLORS } from "./religionTypes";
 import { FUNERAL_LAYER_COLORS } from "./funeralTypes";
 import { WELFARE_LAYER_COLORS } from "./welfareTypes";
 import { EDUCATION_LAYER_COLORS } from "./educationTypes";
+import { COMMON_REGISTRATION_BASE_COLOR } from "./businessRegistryTypes";
 
 /**
  * 資料體質分級 —— 決定這層走哪條上線路徑、要不要進 deploy 腳本清單、
@@ -3893,6 +3894,32 @@ export const LAYER_MANIFEST = {
     description: "YouBike 站點有車率的 H3 聚合（共享運具供給熱區）",
     topics: ["共享運具", "H3", "即時"],
   },
+
+  commonRegistrationAddresses: {
+    key: "commonRegistrationAddresses",
+    section: { theme: "工商登記 Business Registry", group: "整體公司" },
+    label: "共同登記地址 Shared Address",
+    labelMobile: "共同登記地址 Shared Registration Address",
+    expandable: true,
+    color: COMMON_REGISTRATION_BASE_COLOR,
+    icon: Building2,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "common_registration_addresses", confidence: "HIGH" }],
+    },
+    dataClass: "A",
+    source: {
+      kind: "geojson",
+      sourceId: "business-registry-common-registration-addresses",
+      url: "./business_registry/common_registration_addresses_202608.geojson",
+    },
+    legend: "commonRegistrationAddresses",
+    popup: "commonRegistrationAddresses",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "同一門牌登記至少 5 家公司的聚合點；大小表示公司數，顏色表示資本額中位數",
+    topics: ["工商登記", "公司", "共同登記地址", "資本額"],
+  },
+
   // ══════════════════════════════════════════════════════════════
   //  Phase 2 批 4 —— 全球氣候 Global Climate 5 層（**全部 dataClass D**）
   //  兩種 popup 陷阱在這裡同時出現，兩個都是「照抽取器填 null 就會是已知為假」：

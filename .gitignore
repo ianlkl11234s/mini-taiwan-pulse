@@ -44,6 +44,10 @@ public/bus/tourist_shuttle_routes.json
 public/agriculture/*.pmtiles
 public/agriculture/*.geojson
 
+# 工商登記版本化資產（dated filename，S3 deploy-assets/business_registry 管理）
+public/business_registry/*.geojson
+public/business_registry/*.pmtiles
+
 # 樹冠高度大 PMTiles（80–98MB 高度編碼；由 S3 deploy-assets/Volume 管理，小 forestry pmtiles 仍進 git）
 public/forestry/canopy_height_*.pmtiles
 

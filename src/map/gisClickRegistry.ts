@@ -266,6 +266,7 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["taipei-evac-dot"], type: "taipeiEvacuate" },
   { layers: ["taipei-pumb-dot", "taipei-pumb-glow"], type: "taipeiPumb" },
   { layers: ["agri-pois-circle"], type: "agriPOI" },
+  { layers: ["business-registry-common-registration-addresses-circle"], type: "commonRegistrationAddresses" },
   { layers: ["agri-wholesale-market-circle"], type: "agriWholesaleMarket" },
   { layers: ["agri-produce-wholesale-circle"], type: "agriProduceWholesale" },
   { layers: ["agri-retail-circle"], type: "agriRetail" },
