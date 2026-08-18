@@ -227,7 +227,7 @@ function ErWaitTrend14d({ spark }: { spark: SparklinePoint[] }) {
           載入中…
         </div>
       ) : (
-        <TimeseriesSparkline data={spark} unit="人" height={64} fillArea lineColor="#fb7185" />
+        <TimeseriesSparkline data={spark} unit="人" height={64} fillArea lineColor="#fb7185" showTooltip />
       )}
     </div>
   );

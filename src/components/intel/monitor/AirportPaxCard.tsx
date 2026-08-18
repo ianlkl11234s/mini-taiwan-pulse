@@ -98,8 +98,8 @@ export function AirportPaxCard({ open }: Props) {
         ) : (
           <>
             {/* gapSec 2h：相鄰快照缺 2 小時以上 → 斷線呈現（缺格 ≠ 低谷） */}
-            <TimeseriesSparkline data={inSeries} unit="人" lineColor="#10b981" height={70} gapSec={2 * 3600} />
-            <TimeseriesSparkline data={outSeries} unit="人" lineColor="#fb7185" height={70} gapSec={2 * 3600} />
+            <TimeseriesSparkline data={inSeries} unit="人" lineColor="#10b981" height={70} gapSec={2 * 3600} showTooltip seriesLabel="入境" />
+            <TimeseriesSparkline data={outSeries} unit="人" lineColor="#fb7185" height={70} gapSec={2 * 3600} showTooltip seriesLabel="出境" />
           </>
         )}
         <div style={{ fontSize: FONT_SIZE.xs, color: COLORS.textDim }}>
