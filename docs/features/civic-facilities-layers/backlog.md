@@ -2,21 +2,21 @@
 
 > 本 feature 的待辦。與全站 `.claude/memory/BACKLOG.md` 對應項編號要一致（CF 系列）。
 
-## 進行中
+## Active work（進行中／待辦）
 
 （無）
 
-## 待辦
+## Data quality / product backlog
 
-- [ ] **CF-2**：`publicLibraries` 與文化設施層（`culturalFacilities` typeId=K「特色圖書館」）實體重疊去重 — 上游未實作（見 handoff §已知不對稱），需館名 + 縣市/鄉鎮比對，待上游或前端整合階段處理
-- [ ] **CF-3**：`publicToilets` pulse 版僅 4 欄（`name/county/grade/type2`）做不了無障礙篩選 — 需回頭擴充上游 `pipelines/environment/public_toilets/07_export.py` 的 `pulse_props_keys` 補 `address`/各類間數/`diaper_any`，才能做「找無障礙廁所」類篩選
-- [ ] **CF-4**：`welfareCenters` 資料時點固定 2023-04，來源已 3.5 年未更 — 人工監控，待上游評估是否有更新版可重跑
-- [ ] **CF-5**：`iPostBoxes` `payment_method` 部分為空字串 — 若日後 popup 要顯示付費方式，需先確認上游是否補得齊
+- [ ] **CF-2** · `data-health` · P2 · `waiting_external`：`publicLibraries` 與文化設施 typeId=K 重疊去重；Next action：上游提供館名＋縣市/鄉鎮比對欄位；Acceptance：重疊清單與去重規則可重跑。
+- [ ] **CF-3** · `product` · P2 · `waiting_external`：擴充 public toilets 欄位以支援無障礙篩選；Next action：上游補 `address`/各類間數/`diaper_any` 後重出；Acceptance：欄位契約、篩選測試與 browser popup。
+- [ ] **CF-4** · `data-health` · P2 · `conditional`：welfareCenters 仍為 2023-04 快照。Trigger：上游出現更新版；Next action：核對來源日期後重跑；Acceptance：日期、checksum、HTTP 200。
+- [ ] **CF-5** · `data-health` · P3 · `conditional`：iPostBoxes `payment_method` 空值。Trigger：產品決定在 popup 顯示付費方式且上游補齊；Next action：先做空值比例與契約核對；Acceptance：空值策略與 popup browser 驗收。
 
-## 已完成（近期）
+## Completed / historical（已完成／歷史）
 
 - [x] **CF-1**：browser 逐層驗收 8/8 PASS（2026-07-17）— 8 層 toggle / opacity+scale slider / click popup / 圖例（govServiceOffices 3 類、publicToilets 4 級）/ 公廁 zoom-gate（z9 無點、z12 有點）全過
-- [x] **CF-0**：公共設施 8 圖層接線（郵局/i郵箱/活動中心/機關便民據點/公共圖書館/社福中心/公有市場/公廁）— commits `7e16edd` + `6e7f02e`，2026-07-17，PR 待開；tsc 0 錯 / 190 tests 全綠
+- [x] **CF-0**：公共設施 8 圖層接線 — PR #74 squash `8682d57` 已合併；browser 8/8 PASS（2026-07-18）。
 
 ## 已放棄 / 延後
 

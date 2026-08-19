@@ -1,12 +1,20 @@
 # Backlog — 工廠、列管設施與產業園區
 
-## 待辦
+## Active work（進行中／待辦）
 
-- [ ] A3：產品確認篩選語意後，將三個 assertion flags 分開接到既有點層；不得合成 `is_in_park`。
-- [ ] All Off 瀏覽器驗收 A1/A2/A5/A6：A1 z4–10 overview → z11 detail、popup、暗色底圖、polygon 點擊與 A6 指標切換。
-- [ ] deploy，驗 production Range Request 與 `/industrial_zone/` 供應鏈。
+- [ ] **BR-I-A3** · `product` · P1 · `waiting_external`：產品確認篩選語意後，將三個 assertion flags 分開接到既有點層，不合成 `is_in_park`；Acceptance：語意 decision、filter test、popup evidence。
+- [ ] **BR-I-BROWSER** · `verification` · P1 · `verifying`：All Off 瀏覽器驗收 A1/A2/A5/A6（overview/detail、popup、暗色底圖、polygon click、A6 指標）；Acceptance：逐層 evidence matrix。
+- [ ] **BR-I-RELEASE** · `release` · P1 · `ready`：deploy 並驗 production Range Request 與 `/industrial_zone/` 供應鏈；Acceptance：HTTP 200/Range、checksum/metadata。
 
-## 已完成
+## Decision needed
+
+- A3 的篩選語意由產品 owner 拍板；在拍板前不可把三個 assertion flags 合併成新欄位。
+
+## Conditional / triggered later
+
+- 暫無。
+
+## Completed / historical（已完成／歷史）
 
 - [x] upload A1 overview immutable asset，並完成 SHA-256、size 與 metadata 讀回驗證（A1 detail / A2 / A5 / A6 舊 assets 亦已 upload）。
 - [x] A1/A2/A5/A6 immutable staging、manifest/sidebar/params/overlay/click/popup/legend。

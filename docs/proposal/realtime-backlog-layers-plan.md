@@ -1,6 +1,14 @@
 # 即時資料補接計畫 — 台灣好行 / 路況 / 停車 / 急診
 
-> 建立：2026-07-10 · 狀態：規劃（待用戶拍板分批啟動）
+> **HISTORICAL / SUPERSEDED（2026-08-19）**：本文件保留 2026-07-10 的探索、取捨與架構歷史，
+> 不再是 current backlog 或 release truth。現在的 residual 請看各 feature 的
+> [tourist-shuttle backlog](../features/tourist-shuttle/backlog.md)、
+> [road-congestion backlog](../features/road-congestion/backlog.md)、
+> [parking backlog](../features/parking/backlog.md) 與
+> [er-hospital feature 文件](../features/er-hospital/)。實際完成／部署證據以各 feature 的
+> changelog、handoff、PR/CI、S3 checksum、HTTP/browser evidence 為準。
+
+> 建立：2026-07-10 · 歷史狀態：當時為規劃（待用戶拍板分批啟動）
 > 來源：盤點 `data-collectors/config/cross_layer_map.yaml`（供給側）× 前端 `src/` grep（需求側），
 > 4 組探索 agent + Fable 5 顧問審取捨。
 
