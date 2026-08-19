@@ -1,6 +1,6 @@
 {
   "meta": {
-    "keyCount": 373,
+    "keyCount": 375,
     "sections": [
       "gisLayers",
       "overlays",
@@ -168,6 +168,20 @@
         "welfare-centers-glow"
       ],
       "type": "welfareCenter"
+    },
+    {
+      "layers": [
+        "animal-adoption-circle",
+        "animal-adoption-glow"
+      ],
+      "type": "animalAdoption"
+    },
+    {
+      "layers": [
+        "animal-shelter-pressure-fill",
+        "animal-shelter-pressure-line"
+      ],
+      "type": "animalShelterPressure"
     },
     {
       "layers": [
@@ -45925,6 +45939,31 @@
         "min": 0.1,
         "step": 0.05,
         "value": 0.8
+      }
+    ],
+    "animalAdoption": [
+      {
+        "label": "大小 1.0",
+        "max": 3,
+        "min": 0.3,
+        "step": 0.1,
+        "value": 1
+      },
+      {
+        "label": "透明度 0.85",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.85
+      }
+    ],
+    "animalShelterPressure": [
+      {
+        "label": "透明度 0.78",
+        "max": 1,
+        "min": 0.1,
+        "step": 0.05,
+        "value": 0.78
       }
     ],
     "antiCorruptionOffice": [

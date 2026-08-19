@@ -1221,6 +1221,11 @@ export const LAYER_PARAMS_SPEC = {
     { kind: "slider", name: "riverLevelScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
     opacitySlider("riverLevelOpacity", 1.0),
   ],
+  animalAdoption: [
+    scaleSlider("animalAdoptionScale", 1),
+    opacitySlider("animalAdoptionOpacity", 0.85),
+  ],
+  animalShelterPressure: [opacitySlider("animalShelterPressureOpacity", 0.78)],
   groundwater: [
     { kind: "slider", name: "groundwaterScale", labelPrefix: "大小", digits: 2, default: 1.0, min: 0.5, max: 3, step: 0.1 },
     opacitySlider("groundwaterOpacity", 1.0),

@@ -314,7 +314,8 @@ export function useMapInteraction(
               type === "roadCongestion" ||
               type === "temperatureGrid" ||
               type === "earthquakeReplayTown" ||
-              type === "funeralOperatorDensity"
+              type === "funeralOperatorDensity" ||
+              type === "animalShelterPressure"
                 ? { ...(f.properties ?? {}), ...(f.state ?? {}) }
                 : (f.properties ?? {});
             setFeatureInfo({ layerType: type, properties, coords });

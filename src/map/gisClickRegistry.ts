@@ -80,6 +80,8 @@ export const GIS_LAYERS: { layers: string[]; type: FeatureInfo["layerType"] }[] 
   { layers: ["gov-service-offices-circle", "gov-service-offices-glow"], type: "govServiceOffice" },
   { layers: ["public-libraries-circle", "public-libraries-glow"], type: "publicLibrary" },
   { layers: ["welfare-centers-circle", "welfare-centers-glow"], type: "welfareCenter" },
+  { layers: ["animal-adoption-circle", "animal-adoption-glow"], type: "animalAdoption" },
+  { layers: ["animal-shelter-pressure-fill", "animal-shelter-pressure-line"], type: "animalShelterPressure" },
   { layers: ["retail-markets-circle", "retail-markets-glow"], type: "retailMarket" },
   { layers: ["public-toilets-circle", "public-toilets-glow"], type: "publicToilet" },
   { layers: ["weather-stations-circle", "weather-stations-glow"], type: "weatherStation" },

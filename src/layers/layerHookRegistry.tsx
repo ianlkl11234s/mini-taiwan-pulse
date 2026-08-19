@@ -66,6 +66,7 @@ import {
   RailTracksHost, H3PopulationHost, PopCountHost, IndicatorsHost,
   SocioeconomicHost, SpatialEconomyHost, YoubikeHost,
 } from "./hosts/gridHosts";
+import { AnimalAdoptionHost, AnimalShelterPressureHost } from "./hosts/animalWelfareHosts";
 
 export interface LayerHookEntry {
   /** hook 名（同名多次呼叫加 `:後綴` 區分）—— 也是 `window.__layerRenderCounts` 的 key */
@@ -267,4 +268,6 @@ export const LAYER_HOOK_REGISTRY: readonly LayerHookEntry[] = [
   { id: "socioeconomic", keys: ["socioeconomic"], Host: SocioeconomicHost },
   { id: "spatialEconomy", keys: ["spatialEconomy"], Host: SpatialEconomyHost },
   { id: "youbikeFullness", keys: ["youbikeFullness"], Host: YoubikeHost },
+  { id: "useAnimalAdoptionLayer", keys: ["animalAdoption"], Host: AnimalAdoptionHost },
+  { id: "useAnimalShelterPressureLayer", keys: ["animalShelterPressure"], Host: AnimalShelterPressureHost },
 ];

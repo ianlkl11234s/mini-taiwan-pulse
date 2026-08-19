@@ -722,6 +722,7 @@ export interface FeatureInfo {
     | "welfareNursingHomes" | "welfareElderlyHomes" | "welfareDisability"
     | "welfareLtcInstitutions" | "welfareChildcare" | "welfareChildServices"
     | "welfareGovOffices" | "welfareMentalHealth" | "welfareSocialWorkOrgs"
+    | "animalAdoption" | "animalShelterPressure"
     | "medicalPOI"
     | "medicalIsochrone"
     | "erHospital"
@@ -856,6 +857,10 @@ export interface LayerVisibility {
   govServiceOffices: boolean;
   publicLibraries: boolean;
   welfareCenters: boolean;
+  /** 動物認領養每日快照：收容所摘要點位，數量不是即時值 */
+  animalAdoption: boolean;
+  /** 收容成果與壓力：官方月報縣市面量圖，缺值不補 0 */
+  animalShelterPressure: boolean;
   retailMarkets: boolean;
   publicToilets: boolean;
   submarineCables: boolean;

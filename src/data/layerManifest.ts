@@ -1443,6 +1443,51 @@ export const LAYER_MANIFEST = {
     topics: ["基礎建設", "社福", "公共服務"],
   },
 
+  animalAdoption: {
+    key: "animalAdoption",
+    section: { theme: "動物福利 Animal Welfare", group: "認領養與收容 Adoption & Shelter" },
+    label: "待認領養動物 Animal Adoption",
+    expandable: true,
+    color: "#f59e0b",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [{ datasetId: "animal_welfare.animal_adoption", confidence: "HIGH" }],
+      note: "農業部動物認領養每日快照；地圖顯示收容所摘要，不直接載入個體清單",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "Supabase shelter-summary RPC 由 useAnimalAdoptionLayer 動態建立 GeoJSON source/circle layers" },
+    legend: "animalAdoption",
+    popup: "animalAdoption",
+    params: { count: 2, kinds: ["slider", "slider"] },
+    description: "各公立收容所待認領養動物數量（每日快照，缺值不補 0）",
+    topics: ["動物福利", "認領養", "收容所", "時序"],
+  },
+
+  animalShelterPressure: {
+    key: "animalShelterPressure",
+    section: { theme: "動物福利 Animal Welfare", group: "收容成果與壓力" },
+    label: "收容壓力 Shelter Pressure",
+    expandable: true,
+    color: "#f97316",
+    icon: PawPrint,
+    upstream: {
+      status: "verified",
+      datasets: [
+        { datasetId: "animal_welfare.animal_shelter_pressure_monthly", confidence: "HIGH" },
+        { datasetId: "animal_welfare.animal_shelter_outcomes_monthly", confidence: "HIGH" },
+      ],
+      note: "農業部收容所官方月報；壓力只採同一官方來源的在養量／容量，不跨源混加。",
+    },
+    dataClass: "D",
+    source: { kind: "custom", note: "Supabase monthly-pressure RPC 以 feature-state 套用既有 NLSC county_boundary PMTiles，不另載縣市幾何" },
+    legend: "animalShelterPressure",
+    popup: "animalShelterPressure",
+    params: { count: 1, kinds: ["slider"] },
+    description: "各縣市收容所最新官方月報容量使用率；缺值透明、不以 0 補值",
+    topics: ["動物福利", "收容所", "官方月報", "容量壓力"],
+  },
+
   retailMarkets: {
     key: "retailMarkets",
     section: { theme: "基礎建設 Infrastructure", group: "公共設施" },
