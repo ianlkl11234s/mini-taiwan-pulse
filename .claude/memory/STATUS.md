@@ -10,8 +10,8 @@
 | repo / system | current truth |
 |---|---|
 | **taipei-gis-analytics** | `codex/business-registry-production`；worktree clean、無 upstream；相對本機 `origin/master` behind 0 / ahead 28。Business Registry scope 約 20 commits，最新 r2 為 7 個 atomic commits；發布前必須隔離 topic-only range，不能整支 branch 直接推送。 |
-| **mini-taiwan-pulse** | `codex/business-registry-common-addresses`，tracking `origin/codex/business-registry-common-addresses`；behind 0 / ahead 5，range `b64a5ac..df3915a`。`b64a5ac` 已在 `origin/master`；後續 5 commits 尚未建立 follow-up PR。 |
-| **Pulse worktree** | 10 個 wrap-up v2 skill／說明檔為 unstaged dirty；與 Business Registry release 分開。這批 memory targets 在 Apply 前均 clean、cached path set 為空。 |
+| **mini-taiwan-pulse** | `codex/business-registry-common-addresses`，tracking `origin/codex/business-registry-common-addresses`；本次 closeout 完成後 behind 0 / ahead 14，range `b64a5ac..HEAD`。`b64a5ac` 已在 `origin/master`；ahead commits 包含 5 個 Business Registry、wrap-up memory 與 v2 skill/docs，發布前必須依 release unit 隔離。 |
+| **Pulse worktree** | wrap-up v2 已以 `07fd324`（implementation＋routing contract）與 `284445a`（docs sync）提交；memory closure 依 exact path atomic commit。closeout 後 target paths、cached set 與 worktree clean。 |
 | **S3** | 12 個 immutable assets 已 upload，並逐檔完成 SHA-256、size、object metadata readback。 |
 | **Production** | server pull、Zeabur deploy、正式站 HTTP／Range／404 與 browser smoke 尚未完成。正式站：`https://mini-taiwan-pulse.itsmigu.com`。 |
 
@@ -46,14 +46,14 @@
 ## Blockers
 
 1. Analytics branch ahead 28 且無 upstream；要先隔離 Business Registry topic commits。
-2. Pulse 後續 5 commits 尚未形成 follow-up PR；wrap-up v2 10 檔也尚未拆成獨立 commits。
+2. Pulse ahead commits 包含 Business Registry、memory 與 wrap-up v2 三種 release units；Business Registry 5 commits 尚未形成 topic-only follow-up PR。
 3. Analytics A2/A5 handoff 的 upload／coverage 敘述與 Pulse current contract 漂移，需 targeted sync。
 4. 尚未取得 production pull/deploy 授權；HTTP、Range、404 與 browser QA 皆無證據。
 
 ## Next-session entry
 
 - **Target repos / branches**：Pulse `codex/business-registry-common-addresses`；Analytics `codex/business-registry-production`。
-- **第一個可執行步驟**：先把 wrap-up v2 10 檔拆成 skill implementation／docs sync 兩個非-memory commits，再把兩 repo 的 Business Registry 變更隔離成 topic-only follow-up branches／PRs。
+- **第一個可執行步驟**：把兩 repo 的 Business Registry 變更隔離成 topic-only follow-up branches／PRs；不要整支目前的 mixed-scope Pulse／Analytics branch 直接發布。
 - **Merge 後**：取得 deploy 授權，pull 12 個 immutable assets、部署、做正式站 HTTP 200/206 與 404 probe。
 - **Browser acceptance**：All Off 起手；驗 B1/A4 overview-detail split＋公司名稱、B2 三尺度、B4 threshold＋總資本額、A1 overview-detail、A2/A5/A6 popup/legend、dark-map 可讀性與 console/network 0 error。
 
