@@ -32,3 +32,21 @@
 - `report_grain_key`／`period_start` — 月報 grain 與實際資料月
 - `official_metrics.fe_sum_count` — 月底在養總數
 - `official_metrics.max_stay_dog_count`／`max_stay_cat_count` — 犬貓核定容量；兩者完整時才衍生總容量使用率
+
+## 下一個 session 起手：staging 與 browser 驗收
+
+這一輪前端程式已完成，不要重做資料層。先確認 gis-platform migrations 353、354 已在 staging 套用，並以實際 Supabase RPC 驗證以下 named arguments；RPC 尚未上線時，停在 platform gate 回報，不得以 mock、舊月份 fallback 或補 0 假裝成功。
+
+- `get_animal_adoption_shelter_summary(p_county_code, p_animal_kind)`
+- `get_animal_adoption_daily(p_from, p_to, p_county_code, p_shelter_id, p_animal_kind)`
+- `get_animal_shelter_pressure_latest(p_county_code, p_include_ambiguous)`
+- `get_animal_shelter_outcome_monthly(p_county_code, p_from_year, p_to_year, p_include_annual)`
+
+先跑 `npx tsc -b` 與 animal welfare focused tests，再啟動本機前端做 browser 驗收：
+
+1. 關閉其他圖層，只開 `animalAdoption`；確認官方收容所點位、泡泡大小、popup 與每日序列，缺日保留缺口。
+2. 關閉其他圖層，只開 `animalShelterPressure`；確認重用 22 縣市 boundary、缺值透明、顯示實際資料月份，popup 可載成果趨勢。
+3. 確認 ambiguous revisions 預設排除，壓力與成果不跨來源相加，也不把缺值轉成 0。
+4. 確認 console 無錯誤、loading 不會卡住，並保存畫面與 RPC 回應作為驗收證據。
+
+驗收通過後更新 feature backlog／changelog；未取得明確授權前不要 deploy 或 push。開發伺服器依工作區規則管理，不要使用 `pkill -f vite`。
