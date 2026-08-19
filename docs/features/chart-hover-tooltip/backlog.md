@@ -66,7 +66,7 @@ commit：`d367a42`（基礎設施）、`ca60346`（28 個實例套用）、`057b
 
 **共用元件 `Sparkline`**（`PressureRing.tsx` 約 235-320 行）：內建 `useChartTooltip`，`showTooltip`/`labelAt`/`unit`/`formatValue` 皆 opt-in（預設 `false`）。5 個呼叫端中 `TwseTicker`／`ERCard` HospitalCell／`PowerCard` PlantSparkRow／`SituationCards` DiseaseCard 已傳新 prop；`featureInfo/energyPanels.tsx`（地圖 popup）維持不傳，行為未變。
 
-## ⚠️ 已套用，但資料受阻，瀏覽器無法驗證（3）
+## Verifying（已套用，但資料受阻，瀏覽器無法驗證；3）
 
 這 3 項**程式碼已寫好、`tsc -b` 與單元測試皆綠燈**，但正式環境目前沒有資料可以實際 hover
 看到浮框，不能算「驗證通過」，如實記錄，不要跟上面 31 項混為一談：
@@ -77,7 +77,7 @@ commit：`d367a42`（基礎設施）、`ca60346`（28 個實例套用）、`057b
 | `PowerCard.tsx:199` 燃料別堆疊條（KPI strip 內） | 與上一項**吃同一支 owner-gated RPC**：`kpis.fuelMix` 由 `summarisePowerKpis(day)` 算出（`powerCardData.ts:101-102`：`day?.plants` 為空即回傳 `EMPTY_KPI`，`peakMW=0`），而 `PowerCard.tsx:159` 整條 KPI strip 是 `kpis.peakMW > 0` 才渲染。資料被擋時，含 tooltip 的燃料堆疊條連同整條 KPI strip 都不會出現在畫面上。 |
 | `SituationOverview.tsx:90` PressureDrawer 10 訊號權重長條 | `tip.bind` 程式碼已接好（`tip.node` 144 行），但目前只用「形狀正確的 mock payload」驗證過渲染邏輯（commit `057b9fd` 訊息明載：「以正確形狀的 mock payload 實測 10 條權重條與其 hover 均正常」）。正式環境下 `get_pressure_index_now` 回的 `per_signal` 實際是扁平分數 dict，經 `asArray()` 防呆後被收斂成空陣列，元件恆定顯示「⚠ 尚無 signal 細節」空狀態，10 條長條目前完全不會渲染，自然也無法 hover。細節見下方「待決事項」。 |
 
-## ⏭️ 刻意略過（1）
+## Explicitly not planned（刻意略過；1）
 
 | 項目 | 理由 |
 |---|---|
@@ -94,7 +94,7 @@ commit：`d367a42`（基礎設施）、`ca60346`（28 個實例套用）、`057b
 已經在瀏覽器實測過的靠右緣翻轉（見 `7f2b71b`／`ca60346` 的驗收紀錄）共用同一支純函式，
 架構上風險低，但如實記錄：**只有單元測試覆蓋，沒有瀏覽器互動驗證**。
 
-## 🔧 待決事項：`get_pressure_index_now` 的 `per_signal` 資料契約
+## Decision needed：`get_pressure_index_now` 的 `per_signal` 資料契約
 
 **現況**：`per_signal` 實際回傳是扁平分數 dict，例如 `{"er":75.7,"aqi":28.7,...}`
 （`docs/proposal/alerts-pressure-signal.sql:24-25` 有實測捕捉到的真實範例：
@@ -122,7 +122,7 @@ migration 207 內容，`weight_mode` 零命中，所以這個欄位的存在與�
 前端能自己算 `contribution`。純前端改法（例如硬解析 dict key 對應中英文標籤）只能做出
 `raw` 排序這個次佳方案，不建議先做，以免之後跟後端修復的資料格式打架。
 
-## 暫不處理：`TimeseriesSparkline` 內建 tooltip 收斂
+## Conditional / triggered later：`TimeseriesSparkline` 內建 tooltip 收斂
 
 `TimeseriesSparkline` 有自己一套 SVG 內繪 tooltip，與本基礎設施重複（各有一份邊界翻轉邏輯、
 視覺也會隨時間漂移）。**建議收斂但要獨立一輪**，不在本次批次範圍內：

@@ -2,11 +2,11 @@
 
 > 編號 `MS-*`。dock 版的待辦在 [`../monitor-grid-static/backlog.md`](../monitor-grid-static/backlog.md)（`MG-*`）。
 
-## 已完成
+## Completed / historical（已完成／歷史）
 
 - ~~**MS-1 窄版座標待用戶重排**~~ → 2026-08-16 用戶沙盒定稿並貼回（見 changelog 二版）。
 
-## P2
+## Active work（進行中／待辦）
 
 - **MS-9 split 在 1440 以下會退化成單欄堆疊**（2026-08-16 code review 提出，**刻意不修**）
   現行預設（`widthPct 0.46` / `stackBreakpointPx 640`）的翻轉點約 1496px：
@@ -17,7 +17,7 @@
   `widthPct` 提到 ≥0.48（1440 也能兩欄），或斷點降到 ≤600（但 2 欄各不到 300px 很擠）。
   完整數字與翻轉點推導見 README「堆疊判定的比較基準」。
 
-## P3
+## Tech debt / conditional backlog
 
 - **MS-11 dock 版的災害四卡沒跟著調整**
   split 版已把颱風卡獨立一列（它有上下兩排趨勢圖，比其他三張高）。dock 版
@@ -41,6 +41,8 @@
   上站才發現內容溢出（實測需 264 / 234px）。沙盒的 widget 只是示意方塊。
   低成本改善：把 5 個固定高 widget 的「實測最小 h」寫進沙盒，低於就亮警告。
 
+## Explicitly not planned（目前決定不做）
+
 - **MS-2 清單 ↔ 地圖連動**
   2026-08-15 明確拍板**先不做**（「只要能同步顯示就好」）。真要做的話最小起手式是
   點新聞/警訊 → `onSelectLocation` → `flyTo`（既有通道已接好，只差在 split 下值不值得自動飛）。
@@ -48,6 +50,8 @@
 
 - **MS-3 split 模式下自動開啟監看相關圖層**
   同上，2026-08-15 拍板不做（「好像也不用」）。若之後要做，注意別覆寫用戶手動的圖層選擇。
+
+## Conditional / triggered later
 
 - **MS-4 `mapPaddingRight` 實際需不需要**
   預設 0（不動視野）。2026-08-16 加了 `MONITOR_SPLIT_CAMERA` 自動定位後，

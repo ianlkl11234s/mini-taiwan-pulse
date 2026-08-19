@@ -2,30 +2,30 @@
 
 > 本 feature 的待辦。編號 FN-*。
 
-## 待辦
+## Active work（進行中／待辦）
 
-- [ ] **FN-1**：deploy 前跑 `upload-deploy-assets.sh` 上傳 `public/funeral/`
+- [ ] **FN-1** · `release` · P2 · `ready`：deploy 前跑 `upload-deploy-assets.sh` 上傳 `public/funeral/`
       （5 檔目前全進 git 走 dist，S3 是同構備援；**不上傳不會 404**，但保持一致較好排障）
-- [ ] **FN-2**：設施 438 筆無座標的尾巴回填（上游：地號兩源皆查無 364 ＋ 原始無地址 73 ＋ partial 1）——
+- [ ] **FN-2** · `data-health` · P2 · `waiting_external`：設施 438 筆無座標的尾巴回填（上游：地號兩源皆查無 364 ＋ 原始無地址 73 ＋ partial 1）——
       前端無需改碼，等上游重跑
-- [ ] **FN-3**：C 源擴充到其他 20 縣市（都計分區目前只做臺北＋新北）；另外山區大型公墓多在
+- [ ] **FN-3** · `product` · P2 · `waiting_external`：C 源擴充到其他 20 縣市（都計分區目前只做臺北＋新北）；另外山區大型公墓多在
       **非都市土地**的「墳墓用地」編定，那份資料尚未取得 —— 取得後可考慮做第 6 層或併入 C
-- [ ] **FN-4**：`gis-platform/migrations/335_funeral.sql`（6 表）apply —— 前端不依賴，
+- [ ] **FN-4** · `release` · P2 · `ready`：`gis-platform/migrations/335_funeral.sql`（6 表）apply —— 前端不依賴，
       但要做「殯葬設施 × 高齡人口」這類跨主題 SQL 分析時需要
-- [ ] **FN-5**：「最近的火化場」距離分析（全台僅 41 座）—— 必須先過濾 `parcel_centroid` /
+- [ ] **FN-5** · `product` · P2 · `ready`：「最近的火化場」距離分析（全台僅 41 座）—— 必須先過濾 `parcel_centroid` /
       `approximate`，可直接複用「僅精確定位」filter 的判準；屬分析層（accessibility-analysis skill）
-- [ ] **FN-6**：業者密度換成「每萬人業者數」（現在是絕對家數，人口多的區當然多）——
+- [ ] **FN-6** · `research` · P3 · `waiting_external`：業者密度換成「每萬人業者數」（現在是絕對家數，人口多的區當然多）——
       需接人口網格；也要想清楚「登記地 ≠ 服務範圍」這件事會不會被人均化放大誤導
-- [ ] **FN-7**：B 源 vs C 源的空間差集分析（OSM 有面但都計沒劃、或反之）——
+- [ ] **FN-7** · `research` · P3 · `waiting_external`：B 源 vs C 源的空間差集分析（OSM 有面但都計沒劃、或反之）——
       這是「先不整合」拍板時想留給使用者自己看的東西，之後若要做成圖層要再拍板一次
 
-## 已完成（近期）
+## Completed / historical（已完成／歷史）
 
 - [x] **FN-0**：殯葬群 5 層上線（A/B/C 三源分開）— 2026-08-05，**PR #107**（`29a2664`）
 - [x] **FN-8**：同步上游 `is_active` 修正（「遷他縣市」26 筆不再畫成營業中；
       仍營業 4,595 → 4,569，label「已歇業」→「已失效」）— 2026-08-06，**PR #110**（`28df1a8`）
 
-## 已放棄 / 延後
+## Explicitly not planned（明確不做）
 
 - **前端跨源合併／去重**：2026-08-05 明確拍板不做。同一座公墓在 A/B/C 各出現一次是
   **刻意保留的重複**，差異本身即資訊。整合策略之後再定。

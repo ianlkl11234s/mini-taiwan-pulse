@@ -2,16 +2,16 @@
 
 > memory 時點 2026-05-23 / 2026-05-25。已上線進 master（用戶確認 2026-07-01）。
 
-## 進行中
+## Active work（進行中／待辦）
 
 - 暫無
 
-## 待辦
+## Tech debt / performance backlog
 
-- [ ] **AG-trim-upstream**：農企業 geojson 座標 17 位小數 + 冗欄位（lat/lon/source_slug/row_id/產製日期）可觀浪費 — 上游 taipei-gis-analytics 瘦身，不要在前端偷偷分叉 artifact
-- [ ] **AG-eager-load-cost**：3 個農企業 geojson 共 ~34MB 在 style.load eager 載入（fireHydrants 12.8MB 是同慣例，3× 成本）— 觀察效能
+- [ ] **AG-trim-upstream** · `data-health` · P2 · `waiting_external`：農企業 GeoJSON 座標精度與冗欄位造成體積浪費；Next action：上游提出瘦身成品與 checksum，前端不分叉 artifact；Acceptance：欄位契約、大小/精度對帳與 HTTP 200。
+- [ ] **AG-eager-load-cost** · `performance` · P3 · `conditional`：3 個農企業 GeoJSON 約 34MB 在 style.load eager 載入。Trigger：實測首屏或記憶體超過門檻；Next action：建立 baseline 後評估 lazy load；Acceptance：效能數據與 browser 回歸。
 
-## 已完成
+## Completed / historical（已完成／歷史）
 
 - [x] **AG-shipped**：Phase 3 六層 + 132 作物 dropdown + 農企業 3 層全部進 master（2026-07-01 用戶確認）
 - [x] **AG-phase3-batch1-wire**：6 層 + 132 作物 dropdown wiring，3 atomic commits（`9bc0e5c` factory + gitignore / `f8a4ecc` types+visibility+sidebar+params / `7d3092b` MapView 啟動）— 2026-05-23
@@ -23,6 +23,6 @@
 - [x] **AG-supabase-import**：農企業 3 層匯入 `spatial.agri_business_registrations`
 - [x] **AG-commit-business**：農企業 wiring code 已 commit
 
-## 已放棄 / 延後
+## Explicitly not planned（明確不做）
 
 - 暫無

@@ -17,6 +17,15 @@ Mini Taiwan Pulse 專案記憶系統。Session 開頭讀這裡，結束時透過
 | [INCIDENTS.md](INCIDENTS.md) | 踩坑 + 教訓（append-only） | 遇到問題並解決後 |
 | [REFLECTIONS.md](REFLECTIONS.md) | Session 反省（append-only） | 每次 `/wrap-up` |
 
+## Backlog SSOT 與 lifecycle
+
+- [BACKLOG.md](BACKLOG.md) 只負責全站排序：當期 release gates、production incidents / data health、security / governance、跨 feature platform 工作、待決策項與 scheduled / conditional triggers。
+- `docs/features/<slug>/backlog.md` 是單一 feature 執行細節的 canonical SSOT；核心 backlog 每個 feature 最多保留一行索引，不重抄 layer、欄位、檔名、row count 或驗收矩陣。
+- Priority 與 State 分開：Priority 只比較現在可執行工作；State 使用 `ready` / `in_progress` / `blocked` / `waiting_external` / `conditional` / `verifying`。
+- `conditional` 必填 trigger 或 `not_before`、owner 與觸發後第一個 action；未觸發前不當成 P0/P1 active work。
+- 完成項移入 feature `changelog.md`、release notes 或 git history；核心 backlog 不保留「近期完成」長篇歷史。已放棄方案移 decision record / archive，不留在 active queue。
+- 每個 ID 全專案唯一；同一工作只能有一個 primary home，其他檔案只用 link 引用。
+
 ### 專案特定／選讀檔
 
 | 檔案 | 用途 | 讀寫時機 |

@@ -1,26 +1,43 @@
 # Backlog — Vessel Watch
 
-## 待處理
+> 本檔只保留 current residual；VW-3 與資料層基礎建設已完成，移至歷史區。
 
-- [ ] **VW-8** ⚠️ 部署前必跑 `scripts/deploy/upload-deploy-assets.sh` 上傳
-      `maritime_boundary.pmtiles`（PMTiles 不進 git，nginx /base_map/ 無 dist fallback → 不跑會 prod 404，PT-1 同款）
-- [ ] **VW-9** 船 × 界線的 geofence 分析（有了兩半才做得起來：某船何時進入 24 浬／12 浬）
-- [ ] **VW-1** S3 回補 2026-02-03 ~ 02-27（逐檔版面，每日 144 檔 × 4.2MB 較慢）。`--since 2026-02-03 --until 2026-02-27`
-- [ ] **VW-2** 人工審 46 艘規則認不出的船（`scan_vessel_registry.py --report-only`）
-- [ ] **VW-4** 週掃排程化（目前刻意手動，用戶要求）
-- [ ] **VW-5** 圖例接 `get_vessel_watch_classes()` 顯示即時艘數（RPC 已寫、loader 已 export，未接）
-- [ ] **VW-6** 視窗內只有 1 個定位點的船沒有軌跡線，視覺上與「無資料」無法區分
-- [ ] **VW-7** 回灌 `mini-taiwan-osint` 的 grayzone-incursion ledger G04（拼音字典已落地，該假設可結案）
+## Release blocker
 
-## 已完成
+- [ ] **VW-8**：部署前上傳 `maritime_boundary.pmtiles`。
+  - Outcome：正式站可同時看到船舶與海域界線，不因 PMTiles 不進 git 而 404。
+  - Next action：執行 `scripts/deploy/upload-deploy-assets.sh`，核對 S3 HEAD/checksum、HTTP Range 與 browser base map。
 
-- [x] **VW-3** 界線圖層（2026-08-13）—— `maritimeBoundary` 進「底圖 → 海域界線」。
-      4MB GeoJSON → 355KB PMTiles；基線／12浬／24浬（虛線）／基點 4 類分色。
-      至此「哪艘船逼近哪條線」兩半到齊
+## Data quality / backfill
 
-- [x] 資料層兩表 + 分類函數 + sweep cron（migration 339）
-- [x] 永久 retention 註冊
-- [x] 前端 RPC（340）
-- [x] MMSI 守門（341）+ 重算（342）
-- [x] 前端圖層 + 四鐵則
-- [x] 軌跡訊號中斷切段
+- [ ] **VW-1**：回補 2026-02-03～02-27 的 S3 逐檔版面（每日 144 檔 × 4.2MB）。
+  - Outcome：時間軸不再有已知日期缺口。
+  - Next action：以 `--since`/ `--until` 分批回補，記錄成功檔數、checksum 與缺口。
+- [ ] **VW-2**：人工審 46 艘規則認不出的船。
+  - Outcome：registry 分類與 popup 語意更可靠。
+  - Next action：執行 `scan_vessel_registry.py --report-only`，逐艘記錄決定與回歸測試。
+
+## Product enhancement / UX validation
+
+- [ ] **VW-5**：圖例接 `get_vessel_watch_classes()` 顯示即時艘數。
+  - Outcome：圖例能反映目前分類數量，不只顯示靜態色票。
+  - Next action：接 loader 已 export 的 RPC，browser 驗收 live refresh 與 empty state。
+- [ ] **VW-6**：處理視窗內只有 1 個定位點的船沒有軌跡線的誤讀。
+  - Outcome：使用者能分辨「單點資料」與「無資料」。
+  - Next action：決定單點 marker/empty label 的 UX，補 popup/legend acceptance。
+- [ ] **VW-9**：船 × 界線 geofence 分析（24 浬／12 浬）。
+  - Outcome：回答船舶何時進入或接近界線的事件問題。
+  - Next action：先定義時間窗、穿越判準與兩套幾何的授權／精度，再做分析 POC。
+
+## Conditional / scheduled
+
+- [ ] **VW-4**：週掃排程化。
+  - Trigger：owner 願意把目前刻意手動流程改成排程。
+  - Outcome：registry/影像回補不靠人工記憶。
+  - Acceptance：成功／失敗告警、重跑與 retention 行為可驗證。
+
+## 已完成／已決定（歷史，不列入 active）
+
+- [x] **VW-3**：海域界線 PMTiles 接線與四鐵則（2026-08-13）。
+- [x] 資料層兩表、分類函數、sweep cron、永久 retention、RPC、MMSI 守門／重算與軌跡切段。
+- [x] **VW-7**：拼音字典已落地，grayzone-incursion ledger G04 的原假設可結案；若要回灌另開明確需求。

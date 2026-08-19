@@ -1,26 +1,38 @@
 # Backlog — urban-zoning
 
-> 本 feature 的待辦。與全站 `.claude/memory/BACKLOG.md` 對應項編號要一致（UZ 系列）。
+> 本檔只保留 current residual；UZ-0/UZ-6 的接線完成但 PR pending，移到 verifying 區。
 
-## 進行中
+## Release blocker
 
-（無）
+- [ ] **UZ-4**：deploy 前上傳 3 個 PMTiles（都計 2 個 + 非都市 1 個 37.5MB）。
+  - Outcome：正式站可載入兩套分區資料，不因 gitignored asset 缺失而 404。
+  - Next action：執行 `upload-deploy-assets.sh`，核對 S3 HEAD/checksum、HTTP Range 與 browser 兩群 layer。
 
-## 待辦
+## Data quality / upstream
 
-- [ ] **UZ-1**：其他縣市**都計**分區逐城擴充（非都市部分已由 UZ-6 全國覆蓋） — 上游依 `docs/topic-research/urban_zoning_polygon/_status.md` 的來源矩陣逐城下載/清洗/PMTiles；下游每城同構複製 entry（色票/圖例/panel 共用零改動）
-- [ ] **UZ-2**：新北官方站 TLS 憑證信任問題 — 上游 pipeline 目前 `--insecure` + SHA-256 記錄，正式排程前處理（上游事項，此處追蹤）
-- [ ] **UZ-3**：NLSC LUIMAP WMS raster 全國視覺層 — 向量未覆蓋縣市的暫時疊圖選項（僅視覺、不可查詢，需標註來源與限制），見上游 status「路徑 A」
-- [ ] **UZ-4**：deploy 前跑 `upload-deploy-assets.sh` 上傳 **3 個** pmtiles 到 S3
-      （都計 2 個 + 非都市 1 個 37.5MB；urban glob 已涵蓋，只需執行）
-- [ ] **UZ-5**：上游 02_normalize drop 北市 4 筆範圍框 meta-polygon（zone_name/zone_raw=`"nan"`，feature_id taipei_detail_0/1/2/2220）— 前端已 filter 防禦，上游清掉後 filter 留著無害
+- [ ] **UZ-1**：依來源矩陣逐城補其他縣市都計分區。
+  - Outcome：非都市全國覆蓋之外，都市計畫分區也能逐步跨縣市比較。
+  - Next action：每城先記來源、日期、coverage 與清洗結果，再產同構 PMTiles/registry entry。
+- [ ] **UZ-2**：處理新北官方站 TLS 憑證信任問題。
+  - Outcome：正式排程不再依賴 `--insecure`，下載可信鏈完整。
+  - Next action：上游先驗 CA/endpoint 與 checksum；在安全連線證據完成前維持 `verifying`。
+- [ ] **UZ-5**：上游移除北市 4 筆範圍框 meta-polygon。
+  - Outcome：清除 `zone_name/zone_raw="nan"` 的錯誤資料，前端防禦 filter 仍保留作安全網。
+  - Next action：上游清洗後重出檔案並做 feature count/geometry 對帳。
 
-## 已完成（近期）
+## Decision needed / conditional
 
-- [x] **UZ-6**：非都市土地使用分區（68,220 面 / 18 縣市）接線 — 2026-08-02，PR 待開。
-      zone_code 11 碼分色（新 SSOT `nonUrbanZoningTypes.ts`）+ 分區 dropdown + 兩欄圖例 + 專屬 popup
-- [x] **UZ-0**：北市+新北 2 層接線 — commit `8a8de4b`，2026-07-17，PR 待開
+- [ ] **UZ-3**：評估以 NLSC LUIMAP WMS raster 作未覆蓋縣市的暫時視覺層。
+  - Outcome：在向量資料不足時提供有清楚限制的視覺參考，不冒充可查詢分區。
+  - Next action：owner 決定是否接受 WMS 授權、穩定性與不可查詢限制後，再做 POC。
 
-## 已放棄 / 延後
+## Release verification（完成施工，尚未證明 release）
 
-- OSS godspeedhuang 2020 全國預跑庫當上線資料 — 資料時點 stale（2020），僅留歷史比較用（上游決策）
+- [ ] **UZ-0 · `verifying`**：北市＋新北 2 層接線（commit `8a8de4b`）。
+  - Acceptance：PR/merge、production asset、browser 兩層 render 與 popup/legend。
+- [ ] **UZ-6 · `verifying`**：非都市土地使用分區 68,220 面／18 縣市接線。
+  - Acceptance：PR/merge、production asset、全國 coverage、dropdown 與專屬 popup。
+
+## 已放棄 / 延後（決策紀錄）
+
+- OSS godspeedhuang 2020 全國預跑庫不作上線資料；資料時點 stale，僅留歷史比較。
